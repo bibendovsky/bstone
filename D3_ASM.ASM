@@ -49,6 +49,7 @@ not386:
 
 PROC	_jabhack2
 PUBLIC	_jabhack2
+	retf ; BBi Skip hack.
 
 	push	es
 
