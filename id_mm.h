@@ -1,3 +1,8 @@
+#ifndef ID_MM_H
+#define ID_MM_H
+
+
+#if 0
 // ID_MM.H
 
 #ifndef __ID_CA__
@@ -117,3 +122,17 @@ typedef struct mmblockstruct
 
 
 #endif
+#endif // 0
+
+
+#define BUFFERSIZE (0x1000) // miscelanious, allways available buffer
+
+
+extern void* bufferseg;
+
+
+void MM_Startup();
+void MM_Shutdown();
+
+
+#endif // ID_MM_H

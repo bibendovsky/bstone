@@ -113,9 +113,15 @@ long IO_LoadFile (char *filename, void** dst)
 		{
 			case ct_LZH:
 				LZH_Startup();
-				MM_GetPtr(dst,head.OriginalLen);
+
+                *dst = malloc(head.OriginalLen);
+
+// FIXME
+#if 0
 				if (mmerror)
 					return(0);
+#endif // 0
+
 				LZH_Decompress((void *)handle,*dst,size,head.CompressLen,SRC_FILE|DEST_MEM);
 				LZH_Shutdown();
 			break;
@@ -133,7 +139,7 @@ long IO_LoadFile (char *filename, void** dst)
 	{
 		lseek(handle,0,SEEK_SET);
 		size = filelength(handle);
-		MM_GetPtr(dst,size);
+        *dst = malloc(size);
 		if (!IO_FarRead(handle,*dst,size))
 		{
 			close(handle);
@@ -192,7 +198,7 @@ void IO_CopyHandle(int sHandle, int dHandle, long num_bytes)
 
 // Allocate memory for buffer.
 //
-	MM_GetPtr(&src,CF_BUFFER_SIZE);
+    src = malloc(CF_BUFFER_SIZE);
 	if (num_bytes == -1)
 		fsize=filelength(sHandle);
 	else
@@ -219,6 +225,6 @@ void IO_CopyHandle(int sHandle, int dHandle, long num_bytes)
 
 // Free buffer.
 //
-	MM_FreePtr(&src);
+    free(src);
 }
 

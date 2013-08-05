@@ -1,3 +1,4 @@
+#if 0
 // NEWMM.C
 
 /*
@@ -24,8 +25,8 @@ EMS / XMS unmanaged routines
 =============================================================================
 */
 
-#include "ID_HEADS.H"
-#include <STDARG.H>
+#include "id_heads.h"
+#include <stdarg.h>
 #include <dos.h>
 #pragma hdrstop
 
@@ -1138,5 +1139,26 @@ void MM_BombOnError (boolean bomb)
 {
 	bombonerror = bomb;
 }
+#endif // 0
 
 
+#include "id_mm.h"
+
+#include <stdlib.h>
+
+
+void* bufferseg = NULL;
+
+
+void MM_Startup()
+{
+    MM_Shutdown();
+
+    bufferseg = malloc(BUFFERSIZE);
+}
+
+void MM_Shutdown()
+{
+    free(bufferseg);
+    bufferseg = NULL;
+}

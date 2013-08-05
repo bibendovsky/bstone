@@ -435,7 +435,8 @@ IN_Startup(void)
 //#endif
 
 
-
+// FIXME Moved to id_mm.h
+#if 0
 /*
 ===================
 =
@@ -536,6 +537,7 @@ void MM_Startup (void)
 
 	MM_GetPtr (&bufferseg,BUFFERSIZE);
 }
+#endif // 0
 
 //
 //	PML_StartupEMS() - Sets up EMS for Page Mgr's use
@@ -717,6 +719,8 @@ extern int				MainPagesAvail;
 void
 PML_StartupMainMem(void)
 {
+// FIXME
+#if 0
 	int		i,n;
 	void*	*p;
 
@@ -737,6 +741,7 @@ PML_StartupMainMem(void)
 	if (MainPagesAvail < PMMinMainMem)
 		PM_ERROR(PML_STARTUPMAINMEM_LOW);
 	MainPresent = true;
+#endif // 0
 }
 
 //
@@ -1089,10 +1094,11 @@ void BuildTables (void)
 	angle += anglestep;
   }
 // Fix ColorMap
-  MM_GetPtr(&(void*)temp,16896);
+    temp = (byte*)malloc(16896);
   memcpy(temp,colormap,16896);
   lightsource=(byte *)(((long)colormap + 255)&~0xff);
   memcpy(lightsource,temp,16384);
+    free(temp);
 }
 
 /*
@@ -1169,7 +1175,7 @@ void CAL_SetupAudioFile (void)
 		CA_CannotOpen(fname);
 
 	length = filelength(handle);
-	MM_GetPtr (&(void*)audiostarts,length);
+    audiostarts = (long*)malloc(length);
 	CA_FarRead(handle, (byte *)audiostarts, length);
 	close(handle);
 #else
@@ -1225,7 +1231,7 @@ void CAL_SetupGrFile (void)
 //
 // load the data offsets from ???head.ext
 //
-	MM_GetPtr (&(void*)grstarts,(NUMCHUNKS+1)*FILEPOSSIZE);
+    grstarts = (long*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
 
 	strcpy(fname,gheadname);
 	strcat(fname,extension);
@@ -1249,12 +1255,12 @@ void CAL_SetupGrFile (void)
 //
 // load the pic and sprite headers into the arrays in the data segment
 //
-	MM_GetPtr(&(void*)pictable,NUMPICS*sizeof(pictabletype));
+    pictable = (pictabletype*)malloc(NUMPICS * sizeof(pictabletype));
 	CAL_GetGrChunkLength(STRUCTPIC);		// position file pointer
-	MM_GetPtr(&compseg,chunkcomplen);
+    compseg = malloc(chunkcomplen);
 	CA_FarRead (grhandle,compseg,chunkcomplen);
 	CAL_HuffExpand (compseg, (byte *)pictable,NUMPICS*sizeof(pictabletype),grhuffman,false);
-	MM_FreePtr(&compseg);
+	free(compseg);
 
 
 // MDM begin
@@ -1300,7 +1306,7 @@ void CAL_SetupMapFile (void)
 		CA_CannotOpen(fname);
 
 	length = filelength(handle);
-	MM_GetPtr (&(void*)tinf,length);
+    tinf = (byte*)malloc(length);
 	CA_FarRead(handle, tinf, length);
 	close(handle);
 #else
@@ -1323,8 +1329,7 @@ void CAL_SetupMapFile (void)
 		if (pos<0)						// $FFFFFFFF start is a sparse map
 			continue;
 
-		MM_GetPtr(&(void*)mapheaderseg[i],sizeof(maptype));
-		MM_SetLock(&(void*)mapheaderseg[i],true);
+        mapheaderseg[i] = (maptype*)malloc(sizeof(maptype));
 		lseek(maphandle,pos,SEEK_SET);
 		CA_FarRead (maphandle,(void*)mapheaderseg[i],sizeof(maptype));
 	}
@@ -1334,8 +1339,7 @@ void CAL_SetupMapFile (void)
 //
 	for (i=0;i<MAPPLANES;i++)
 	{
-		MM_GetPtr (&(void*)mapsegs[i],64*64*2);
-		MM_SetLock (&(void*)mapsegs[i],true);
+        mapsegs[i] = (unsigned*)malloc(2 * 64 * 64);
 	}
 
 #if FORCE_FILE_CLOSE
@@ -1874,7 +1878,9 @@ void PreDemo()
 	// Free palette and music.  AND  Restore palette
 	//
 		UNCACHEGRCHUNK(APOGEEPALETTE);
-		MM_FreePtr((void**)&audiosegs[STARTMUSIC+APOGFNFM_MUS]);
+
+        free(audiosegs[STARTMUSIC + APOGFNFM_MUS]);
+        audiosegs[STARTMUSIC + APOGFNFM_MUS] = NULL;
 
       // Do A Blue Flash!
 
@@ -1999,6 +2005,8 @@ void InitGame (void)
 	if (CheckForSpecialCode(RADARTEXT))
 		gamestate.flags |= GS_SHOW_OVERHEAD;
 
+// FIXME
+#if 0
 //mmsize = mminfo.mainmem;
 
 #if (!IN_DEVELOPMENT)
@@ -2009,15 +2017,13 @@ void InitGame (void)
 	 screen = grsegs[ERRORSCREEN];
 	 ShutdownId();
 
-// FIXME
-#if 0
 	 movedata ((unsigned)screen,7+7*160,0xb800,0,17*160);
 	 gotoxy (1,23);
-#endif // 0
 
 	 exit(0);
 	}
 #endif
+#endif // 0
 
 #if IN_DEVELOPMENT
 	//
@@ -2091,12 +2097,15 @@ void ShowSystem()
 	fprint(show_text2);
 	fprint(show_text3);
 
+// FIXME
+#if 0
 	printf("     MAIN: %ld",mminfo.nearheap+mminfo.farheap);
 	if (mminfo.nearheap+mminfo.farheap < MIN_MEM_NEEDED)
 		fprint(show_text4);
 	printf("\n");
 	printf("      EMS: %ld\n",4l*EMSPagesAvail*1024l);
 	printf("      XMS: %ld\n\n",4l*XMSPagesAvail*1024l);
+#endif // 0
 
 	fprint(show_text5);
 
@@ -2300,7 +2309,7 @@ long ChecksumFile(char *file, long checksum)
 	long size,readlen,i;
 	char *p;
 
-	MM_GetPtr(&cfc_buffer,CFC_BUFFERSIZE);
+    cfc_buffer = malloc(CFC_BUFFERSIZE);
 	p=cfc_buffer;
 
 	if ((handle=open(file,O_RDONLY|O_BINARY)) == -1)
@@ -2328,7 +2337,9 @@ long ChecksumFile(char *file, long checksum)
 	close(handle);
 
 exit_func:;
-	MM_FreePtr(&cfc_buffer);
+
+    free(cfc_buffer);
+    cfc_buffer = NULL;
 
 	return(checksum);
 }

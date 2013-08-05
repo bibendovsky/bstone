@@ -24,7 +24,7 @@ void ForceUpdateStatusBar(void);
 
 #define PIXTOBLOCK		4		// 16 pixels to an update block
 
-#define UNCACHEGRCHUNK(chunk)	{MM_FreePtr(&grsegs[chunk]);grneeded[chunk]&=~ca_levelbit;}
+//#define UNCACHEGRCHUNK(chunk)	{MM_FreePtr(&grsegs[chunk]);grneeded[chunk]&=~ca_levelbit;}
 
 //byte	update[UPDATEHIGH][UPDATEWIDE];	// MIKE this is the second declaration for this variable!?!?
 

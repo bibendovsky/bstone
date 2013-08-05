@@ -156,13 +156,18 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 
    // Find out how much memory we have to work with..
 
+// FIXME
+#if 0
 	BufferLen = MM_LargestAvail();
+#endif // 0
+    BufferLen = 0;
+
    BufferLen -= 65535;						// HACK: Save some room for sounds - This is cludgey
 
    if (BufferLen < 64256)
    	BufferLen = 64256;
 
-	MM_GetPtr(&MovieBuffer,BufferLen);
+    MovieBuffer = malloc(BufferLen);
 	PM_CheckMainMem();
 }
 
@@ -172,7 +177,9 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 //---------------------------------------------------------------------------
 void ShutdownMovie(void)
 {
-	MM_FreePtr(&MovieBuffer);
+    free(MovieBuffer);
+    MovieBuffer = NULL;
+
    close (Movie_FHandle);
 }
 

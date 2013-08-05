@@ -2034,8 +2034,10 @@ void TP_FreeScript(PresenterInfo *pi,unsigned id_cache)
 		UNCACHEGRCHUNK(id_cache);
 	}
 	else
-		if ((pi->script) && (pi->flags & TPF_CACHED_SCRIPT))
-			MM_FreePtr(&pi->scriptstart);
+		if ((pi->script) && (pi->flags & TPF_CACHED_SCRIPT)) {
+            free(pi->scriptstart);
+            pi->scriptstart = NULL;
+        }
 }
 
 //-------------------------------------------------------------------------

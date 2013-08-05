@@ -177,6 +177,8 @@ void DebugMemory (void)
 
 	CenterWindow (22,15);
 
+// FIXME
+#if 0
 	US_CPrint ("Memory Usage");
 	US_CPrint ("------------");
 	US_Print ("Total     :");
@@ -185,6 +187,8 @@ void DebugMemory (void)
 	US_PrintUnsigned (MM_UnusedMemory()/1024);
 	US_Print ("k\nWith purge:");
 	US_PrintUnsigned (MM_TotalFree()/1024);
+#endif // 0
+
 	US_Print ("k\nTics      :");
 	US_PrintUnsigned (tics);
 	US_Print ("\nReal Tics :");

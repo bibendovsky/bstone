@@ -1024,7 +1024,11 @@ void CA_CacheAudioChunk (int chunk)
 
 	if (audiosegs[chunk])
 	{
+// FIXME
+#if 0
 		MM_SetPurge (&(void*)audiosegs[chunk],0);
+#endif // 0
+
 		return;							// allready in memory
 	}
 
@@ -1043,7 +1047,10 @@ void CA_CacheAudioChunk (int chunk)
 
 #ifndef AUDIOHEADERLINKED
 
-	MM_GetPtr (&(void*)audiosegs[chunk],compressed);
+    audiosegs[chunk] = (byte*)malloc(compressed);
+
+// FIXME
+#if 0
 	if (mmerror)
    {
 #if FORCE_FILE_CLOSE
@@ -1051,6 +1058,7 @@ void CA_CacheAudioChunk (int chunk)
 #endif
 		return;
    }
+#endif // 0
 
 	CA_FarRead(audiohandle,audiosegs[chunk],compressed);
 
@@ -1124,9 +1132,12 @@ void CA_LoadAllSounds (void)
 		break;
 	}
 
+// FIXME
+#if 0
 	for (i=0;i<NUMSOUNDS;i++,start++)
 		if (audiosegs[start])
 			MM_SetPurge (&(void*)audiosegs[start],3);		// make purgable
+#endif // 0
 
 cachein:
 
@@ -1201,9 +1212,14 @@ void CAL_ExpandGrChunk (int chunk, byte *source)
 // allocate final space, decompress it, and free bigbuffer
 // Sprites need to have shifts made and various other junk
 //
-	MM_GetPtr (&grsegs[chunk],expanded);
+    grsegs[chunk] = malloc(expanded);
+
+// FIXME
+#if 0
 	if (mmerror)
 		return;
+#endif // 0
+
 	CAL_HuffExpand (source,grsegs[chunk],expanded,grhuffman,false);
 }
 
@@ -1228,7 +1244,11 @@ void CA_CacheGrChunk (int chunk)
 	grneeded[chunk] |= ca_levelbit;		// make sure it doesn't get removed
 	if (grsegs[chunk])
 	{
+// FIXME
+#if 0
 		MM_SetPurge (&grsegs[chunk],0);
+#endif // 0
+
 		return;							// allready in memory
 	}
 
@@ -1256,16 +1276,17 @@ void CA_CacheGrChunk (int chunk)
 	}
 	else
 	{
-		MM_GetPtr(&bigbufferseg,compressed);
-		MM_SetLock (&bigbufferseg,true);
+        bigbufferseg = malloc(compressed);
 		CA_FarRead(grhandle,bigbufferseg,compressed);
 		source = bigbufferseg;
 	}
 
 	CAL_ExpandGrChunk (chunk,source);
 
-	if (compressed>BUFFERSIZE)
-		MM_FreePtr(&bigbufferseg);
+	if (compressed>BUFFERSIZE) {
+        free(bigbufferseg);
+        bigbufferseg = NULL;
+    }
 
 
 }
@@ -1303,8 +1324,7 @@ void CA_CacheScreen (int chunk)
 
 	lseek(grhandle,pos,SEEK_SET);
 
-	MM_GetPtr(&bigbufferseg,compressed);
-	MM_SetLock (&bigbufferseg,true);
+    bigbufferseg = malloc(compressed);
 	CA_FarRead(grhandle,bigbufferseg,compressed);
 	source = bigbufferseg;
 
@@ -1317,7 +1337,9 @@ void CA_CacheScreen (int chunk)
 //
 	CAL_HuffExpand (source,MK_FP(SCREENSEG,bufferofs),expanded,grhuffman,true);
 	VW_MarkUpdateBlock (0,0,319,199);
-	MM_FreePtr(&bigbufferseg);
+
+    free(bigbufferseg);
+    bigbufferseg = NULL;
 }
 
 //==========================================================================
@@ -1368,8 +1390,7 @@ void CA_CacheMap (int mapnum)
 			source = bufferseg;
 		else
 		{
-			MM_GetPtr(&bigbufferseg,compressed);
-			MM_SetLock (&bigbufferseg,true);
+            bigbufferseg = malloc(compressed);
 			source = bigbufferseg;
 		}
 
@@ -1397,8 +1418,10 @@ void CA_CacheMap (int mapnum)
 		((mapfiletype *)tinf)->RLEWtag);
 #endif
 
-		if (compressed>BUFFERSIZE)
-			MM_FreePtr(&bigbufferseg);
+		if (compressed>BUFFERSIZE) {
+            free(bigbufferseg);
+            bigbufferseg = NULL;
+        }
 	}
 
 #if FORCE_FILE_CLOSE
@@ -1428,9 +1451,13 @@ void CA_UpLevel (void)
 	if (ca_levelnum==7)
 		CA_ERROR(CA_UPLEVEL_PAST_MAX);
 
+// FIXME
+#if 0
 	for (i=0;i<NUMCHUNKS;i++)
 		if (grsegs[i])
 			MM_SetPurge (&(void*)grsegs[i],3);
+#endif // 0
+
 	ca_levelbit<<=1;
 	ca_levelnum++;
 }
@@ -1595,15 +1622,23 @@ void CA_CacheMarks (void)
 		if (grneeded[i]&ca_levelbit)
 		{
 			if (grsegs[i])					// its allready in memory, make
+// FIXME
+#if 0
 				MM_SetPurge(&grsegs[i],0);	// sure it stays there!
+#endif // 0
+                ;
 			else
 				numcache++;
 		}
+
+// FIXME
+#if 0
 		else
 		{
 			if (grsegs[i])					// not needed, so make it purgeable
 				MM_SetPurge(&grsegs[i],3);
 		}
+#endif // 0
 
 	if (!numcache)			// nothing to cache!
 		return;
@@ -1669,21 +1704,32 @@ void CA_CacheMarks (void)
 			else
 			{
 			// big chunk, allocate temporary buffer
-				MM_GetPtr(&bigbufferseg,compressed);
+                bigbufferseg = malloc(compressed);
+
+// FIXME
+#if 0
 				if (mmerror)
 					goto getout;
 				MM_SetLock (&bigbufferseg,true);
+#endif // 0
+
 				lseek(grhandle,pos,SEEK_SET);
 				CA_FarRead(grhandle,bigbufferseg,compressed);
 				source = bigbufferseg;
 			}
 
 			CAL_ExpandGrChunk (i,source);
+
+// FIXME
+#if 0
 			if (mmerror)
 				goto getout;
+#endif // 0
 
-			if (compressed>BUFFERSIZE)
-				MM_FreePtr(&bigbufferseg);
+			if (compressed>BUFFERSIZE) {
+                free(bigbufferseg);
+                bigbufferseg = NULL;
+            }
 
 		}
 
@@ -1699,4 +1745,12 @@ void CA_CannotOpen(char *string)
  strcat(str,string);
  strcat(str,"!\n");
  Quit (str);
+}
+
+void UNCACHEGRCHUNK(unsigned chunk)
+{
+    free(grsegs[chunk]);
+    grsegs[chunk] = NULL;
+
+    grneeded[chunk] &= ~ca_levelbit;
 }

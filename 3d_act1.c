@@ -1728,8 +1728,10 @@ void FreeMsgCache(mCacheList *mList, unsigned infoSize)
 
 	while (mList->NumMsgs--)
 	{
-		if (ci->mSeg)
-			MM_FreePtr(&ci->mSeg);
+		if (ci->mSeg) {
+            free(ci->mSeg);
+            ci->mSeg = NULL;
+        }
 
 		ch_ptr = (char *)ci;
 		ch_ptr += infoSize;
@@ -1752,7 +1754,7 @@ void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum)
 
 // Alloc memory for message and cache-in seg
 //
-	MM_GetPtr(&ci->mSeg,MAX_CACHE_MSG_LEN);
+    ci->mSeg = malloc(MAX_CACHE_MSG_LEN);
 //	hint_buffer = ci->mSeg;
 
 // Load message into CachInfo Message Seg.

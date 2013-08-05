@@ -367,11 +367,14 @@ PML_ShutdownXMS(void)
 void
 PM_SetMainMemPurge(int level)
 {
+// FIXME
+#if 0
 	int	i;
 
 	for (i = 0;i < PMMaxMainMem;i++)
 		if (MainMemPages[i])
 			MM_SetPurge(&MainMemPages[i],level);
+#endif // 0
 }
 
 //
@@ -442,24 +445,41 @@ PM_CheckMainMem(void)
 
 			if (!allocfailed)
 			{
+// FIXME
+#if 0
 				MM_BombOnError(false);
+#endif // 0
+
 #if IN_DEVELOPMENT
 //				gp_fartext=cmm_fartext;		// mdebug
 #endif
-				MM_GetPtr(p,PMPageSize);		// Try to reallocate
+                *p = malloc(PMPageSize);
+
+// FIXME
+#if 0
 				if (mmerror)					// If it failed,
 					allocfailed = true;			//  don't try any more allocations
 				else							// If it worked,
+#endif // 0
+
 				{
 					*used |= pmba_Allocated;	// Mark as allocated
 					MainPagesAvail++;			// and increase available count
 				}
+
+// FIXME
+#if 0
 				MM_BombOnError(true);
+#endif // 0
 			}
 		}
 	}
+
+// FIXME
+#if 0
 	if (mmerror)
 		mmerror = false;
+#endif // 0
 }
 
 
@@ -522,8 +542,10 @@ PML_ShutdownMainMem(void)
 
 	for (i = 0,p = MainMemPages,used = MainMemUsed;i < PMMaxMainMem;used++,i++,p++)
 	{
-		if (*p)
-			MM_FreePtr(p);
+		if (*p) {
+            free(*p);
+            *p = NULL;
+        }
 
 		if (*used & pmba_Allocated)		// Was this puppy marked as allocated
 		{
@@ -614,32 +636,31 @@ PML_OpenPageFile(char *filename)
 	// Allocate and clear the page list
 
 	PMNumBlocks = ChunksInFile;
-	MM_GetPtr(&(void*)PMSegPages,sizeof(PageListStruct) * PMNumBlocks);
-	MM_SetLock(&(void*)PMSegPages,true);
+    PMSegPages = (PageListStruct*)malloc(sizeof(PageListStruct) * PMNumBlocks);
 	PMPages = (PageListStruct *)PMSegPages;
 	memset(PMPages,0,sizeof(PageListStruct) * PMNumBlocks);
 
 	// Read in the chunk offsets
 
 	size = sizeof(longword) * ChunksInFile;
-	MM_GetPtr(&buf,size);
+    buf = malloc(size);
 	if (!CA_FarRead(PageFile,(byte *)buf,size))
 		PM_ERROR(PML_OPENPAGEFILE_OFF);
 	offsetptr = (longword *)buf;
 	for (i = 0,page = PMPages;i < ChunksInFile;i++,page++)
 		page->offset = *offsetptr++;
-	MM_FreePtr(&buf);
+	free(buf);
 
 	// Read in the chunk lengths
 
 	size = sizeof(word) * ChunksInFile;
-	MM_GetPtr(&buf,size);
+	buf = malloc(size);
 	if (!CA_FarRead(PageFile,(byte *)buf,size))
 		PM_ERROR(PML_OPENPAGEFILE_LEN);
 	lengthptr = (word *)buf;
 	for (i = 0,page = PMPages;i < ChunksInFile;i++,page++)
 		page->length = *lengthptr++;
-	MM_FreePtr(&buf);
+	free(buf);
 }
 
 //
@@ -652,8 +673,8 @@ PML_ClosePageFile(void)
 		close(PageFile);
 	if (PMSegPages)
 	{
-		MM_SetLock(&(void*)PMSegPages,false);
-		MM_FreePtr(&(void*)PMSegPages);
+		free(PMSegPages);
+        PMSegPages = NULL;
 	}
 }
 

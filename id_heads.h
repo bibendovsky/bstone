@@ -5,20 +5,17 @@
 // ID_GLOB.H
 
 
-//#include <ALLOC.H>
-#include <CTYPE.H>
-#include <DOS.H>
-#include <ERRNO.H>
-#include <FCNTL.H>
-#include <IO.H>
-//#include <MEM.H>
-#include <PROCESS.H>
-#include <STDIO.H>
-#include <STDLIB.H>
-#include <STRING.H>
-#include <SYS\STAT.H>
-//#include <VALUES.H>
-//#include <DIR.H>
+#include <ctype.h>
+#include <dos.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <io.h>
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys\stat.h>
+
 #define __ID_GLOB__
 
 //--------------------------------------------------------------------------
@@ -71,9 +68,11 @@ extern  char            signonv1;
 
 #ifndef SPEAR
 
-#include "GFXV_vsi.H"
-#include "AUDIOvsi.H"
-//#include "MAPSvsi.H"
+#include "gfxv_vsi.h"
+#include "audiovsi.h"
+
+// FIXME Got "unexpected end of file" error
+//#include "mapsvsi.h"
 
 #else
 
@@ -112,14 +111,14 @@ typedef struct
 #define nil     (0l)
 
 
-#include "ID_MM.H"
-#include "ID_PM.H"
-#include "ID_CA.H"
-#include "ID_VL.H"
-#include "ID_VH.H"
-#include "ID_IN.H"
-#include "ID_SD.H"
-#include "ID_US.H"
+#include "id_mm.h"
+#include "id_pm.h"
+#include "id_ca.h"
+#include "id_vl.h"
+#include "id_vh.h"
+#include "id_in.h"
+#include "id_sd.h"
+#include "id_us.h"
 
 #include "jm_tp.h"
 #include "jm_debug.h"
@@ -157,7 +156,7 @@ extern  byte            fontcolor,backcolor;
 
 #define SETFONTCOLOR(f,b) fontcolor=f;backcolor=b;
 
-#include "3D_MENU.H"
+#include "3d_menu.h"
 
 
 #define CA_FarRead(h,d,s)	IO_FarRead((int)h,(byte *)d,(long)s)

@@ -2975,7 +2975,7 @@ short InputFloor(void)
 	player->angle = 90;
 	player->x = player->y = ((long)32<<TILESHIFT)+(TILEGLOBAL/2);
 
-	MM_GetPtr(&ov_buffer,4096);
+    ov_buffer = malloc(4096);
 	ShowStats(0,0,ss_justcalc,&gamestuff.level[gamestate.mapon].stats);
 	memcpy(&ov_stats,&gamestuff.level[gamestate.mapon].stats,sizeof(statsInfoType));
 	ShowOverhead(TOV_X,TOV_Y,32,0,RADAR_FLAGS);
@@ -3179,7 +3179,9 @@ short InputFloor(void)
 	VW_FadeOut();
 #endif
 
-	MM_FreePtr(&ov_buffer);
+    free(ov_buffer);
+    ov_buffer = NULL;
+
 	memcpy(player,&old_player,sizeof(objtype));
 	UnCacheLump(TELEPORT_LUMP_START,TELEPORT_LUMP_END);
 

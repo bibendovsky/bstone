@@ -8,7 +8,7 @@
 #define NUMMAPS				NUM_EPISODES*MAPS_PER_EPISODE
 #define MAPPLANES	2
 
-#define UNCACHEGRCHUNK(chunk)	{MM_FreePtr(&grsegs[chunk]);grneeded[chunk]&=~ca_levelbit;}
+void UNCACHEGRCHUNK(unsigned chunk);
 
 #define THREEBYTEGRSTARTS
 

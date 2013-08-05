@@ -3647,7 +3647,12 @@ unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 
 	CA_CacheGrChunk(ItemNum);
    compdata = MK_FP(grsegs[ItemNum],0);
+
+// FIXME
+#if 0
 	MM_SetLock (&grsegs[ItemNum], true);
+#endif // 0
+
    CompHeader = (CompHeader_t *)compdata;
    data_len = CompHeader->OriginalLen;
 
@@ -3655,9 +3660,8 @@ unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 
    	// Allocate Dest Memory
 
-	MM_GetPtr(dest_loc,data_len);
-	MM_SetLock (dest_loc, true);
-	dest_ptr = MK_FP(*dest_loc,0);
+    dest_ptr = malloc(data_len);
+    *dest_loc = dest_ptr;
 
    	// Decompress and terminate string
 
@@ -3672,8 +3676,6 @@ unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
    UNCACHEGRCHUNK(ItemNum);
 
    	// Return loaded size
-
-	MM_SetLock (dest_loc, false);
    return(data_len);
 }
 
@@ -3706,7 +3708,7 @@ boolean CheckForSpecialCode(unsigned ItemNum)
 
 	// free allocated memory
 
-   MM_FreePtr(&code);
+   free(code);
 
    return(return_val);
 }
@@ -3725,21 +3727,36 @@ void StartCPMusic(int song)
 {
 	musicnames	chunk;
 
-	if (audiosegs[STARTMUSIC + lastmenumusic])	// JDC
-		MM_FreePtr ((void**)&audiosegs[STARTMUSIC + lastmenumusic]);
+    if (audiosegs[STARTMUSIC + lastmenumusic]) { // JDC
+        free(audiosegs[STARTMUSIC + lastmenumusic]);
+        audiosegs[STARTMUSIC + lastmenumusic] = NULL;
+    }
+
 	lastmenumusic = song;
 
 	SD_MusicOff();
 	chunk =	song;
 
+// FIXME
+#if 0
 	MM_BombOnError (false);
+#endif // 0
+
 	CA_CacheAudioChunk(STARTMUSIC + chunk);
+
+// FIXME
+#if 0
 	MM_BombOnError (true);
+#endif // 0
+
+// FIXME
+#if 0
 	if (mmerror)
 		mmerror = false;
 	else
+#endif // 0
+
 	{
-		MM_SetLock(&((void*)audiosegs[STARTMUSIC + chunk]),true);
 		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + chunk]);
 	}
 }
@@ -3750,8 +3767,10 @@ void StartCPMusic(int song)
 void FreeMusic (void)
 {
 	SD_MusicOff();
-	if (audiosegs[STARTMUSIC + lastmenumusic])	// JDC
-		MM_FreePtr ((void**)&audiosegs[STARTMUSIC + lastmenumusic]);
+	if (audiosegs[STARTMUSIC + lastmenumusic]) { // JDC
+        free(audiosegs[STARTMUSIC + lastmenumusic]);
+        audiosegs[STARTMUSIC + lastmenumusic] = NULL;
+    }
 }
 
 

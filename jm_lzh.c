@@ -366,10 +366,10 @@ boolean LZH_Startup()
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 #ifdef LZH_ID_MEMORY_ALLOCATION
-	MM_GetPtr(&id_son,T*sizeof(*son));
-	MM_GetPtr(&id_prnt,(T+N_CHAR)*sizeof(*prnt));
-	MM_GetPtr(&id_freq,(T+1)*sizeof(*freq));
-	MM_GetPtr(&id_text_buf,(N+F-1)*sizeof(*text_buf));
+    id_son = malloc(T * sizeof(*son));
+    id_prnt = malloc((T + N_CHAR) * sizeof(*prnt));
+    id_freq = malloc((T + 1) * sizeof(*freq));
+    id_text_buf = malloc((N + F - 1) * sizeof(*text_buf));
 #else
 	if (!(son=farmalloc(T*sizeof(*son))))
 		return(false);
@@ -386,9 +386,9 @@ boolean LZH_Startup()
 
 #if INCLUDE_LZH_COMP
 #ifdef LZH_ID_MEMORY_ALLOCATION
-	MM_GetPtr(&id_lson,(N+1)*sizeof(*lson));
-	MM_GetPtr(&id_rson,(N+257)*sizeof(*rson));
-	MM_GetPtr(&id_dad,(N+1)*sizeof(*dad));
+    id_lson = malloc((N + 1) * sizeof(*lson));
+    id_rson = malloc((N + 257) * sizeof(*rson));
+    id_dad = malloc((N + 1) * sizeof(*dad));
 #else
 	if (!(lson=farmalloc((N+1)*sizeof(*lson))))
 		return(false);
@@ -412,17 +412,17 @@ void LZH_Shutdown()
 {
 #ifdef LZH_DYNAMIC_ALLOCATION
 #ifdef LZH_ID_MEMORY_ALLOCATION
-	if (id_son)
-		MM_FreePtr(&id_son);
+    free(id_son);
+    id_son = NULL;
 
-	if (id_prnt)
-		MM_FreePtr(&id_prnt);
+    free(id_prnt);
+    id_prnt = NULL;
 
-	if (id_freq)
-		MM_FreePtr(&id_freq);
+    free(id_freq);
+    id_freq = NULL;
 
-	if (id_text_buf)
-		MM_FreePtr(&id_text_buf);
+    free(id_text_buf);
+    id_text_buf = NULL;
 #else
 	if (son)
 		farfree(son);
@@ -439,14 +439,14 @@ void LZH_Shutdown()
 
 #if INCLUDE_LZH_COMP
 #ifdef LZH_ID_MEMORY_ALLOCATION
-	if (id_lson)
-		MM_FreePtr(&id_lson);
+    free(id_lson);
+    id_lson = NULL;
 
-	if (id_rson)
-		MM_FreePtr(&id_rson);
+    free(id_rson);
+    id_rson = NULL;
 
-	if (id_dad)
-		MM_FreePtr(&id_dad);
+    free(id_dad);
+    id_dad = NULL;
 #else
 	if (lson)
 		farfree(lson);

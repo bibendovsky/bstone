@@ -498,7 +498,7 @@ char mod;
 // Setup for LZH decompression
 //
 	LZH_Startup();
-	MM_GetPtr(&lzh_work_buffer,LZH_WORK_BUFFER_SIZE);
+    lzh_work_buffer = malloc(LZH_WORK_BUFFER_SIZE);
 
 // Read all sorts of stuff...
 //
@@ -516,7 +516,7 @@ char mod;
 // Restore 'save game' actors
 //
 	ReadIt(false, &count, sizeof(count));
-	MM_GetPtr(&temp,count*sizeof(*ob));
+    temp = malloc(count * sizeof(*ob));
 	ReadIt(true, temp, count*sizeof(*ob));
 	ptr=temp;
 
@@ -535,7 +535,9 @@ char mod;
 #endif
 		ptr += sizeof(*ob);
 	}
-	MM_FreePtr(&temp);
+
+    free(temp);
+    temp = NULL;
 
 
    //
@@ -614,7 +616,9 @@ char mod;
 
 // Clean-up LZH compression
 //
-	MM_FreePtr(&lzh_work_buffer);
+    free(lzh_work_buffer);
+    lzh_work_buffer = NULL;
+
 	LZH_Shutdown();
 	NewViewSize(viewsize);
 
@@ -825,7 +829,7 @@ boolean LoadTheGame(int handle)
 // Setup LZH decompression
 //
 	LZH_Startup();
-	MM_GetPtr(&lzh_work_buffer,LZH_WORK_BUFFER_SIZE);
+	lzh_work_buffer = malloc(LZH_WORK_BUFFER_SIZE);
 
 
 // Read in VERSion chunk
@@ -891,10 +895,10 @@ boolean LoadTheGame(int handle)
 	{
 		cksize += 8;								// include chunk ID and LENGTH
 		lseek(handle,-8,SEEK_CUR);				// seek to start of chunk
-		MM_GetPtr(&temp,cksize);				// alloc temp buffer
+		temp = malloc(cksize);				// alloc temp buffer
 		IO_FarRead(handle,temp,cksize);		// read chunk from SAVEGAME file
 		IO_FarWrite(shandle,temp,cksize);	// write chunk to PLAYTEMP file
-		MM_FreePtr(&temp);						// free temp buffer
+		free(temp);						// free temp buffer
 	}
 #pragma warn +pia
 
@@ -904,7 +908,9 @@ boolean LoadTheGame(int handle)
 // Clean-up LZH decompression
 //
 cleanup:;
-	MM_FreePtr(&lzh_work_buffer);
+    free(lzh_work_buffer);
+    lzh_work_buffer = NULL;
+
 	LZH_Shutdown();
 	NewViewSize(viewsize);
 
@@ -1388,10 +1394,18 @@ boolean MS_CheckParm (char *check)
 void LoadFonts(void)
 {
 	CA_CacheGrChunk(STARTFONT+4);
+
+// FIXME
+#if 0
 	MM_SetLock (&grsegs[STARTFONT+4],true);
+#endif // 0
 
 	CA_CacheGrChunk(STARTFONT+2);
+
+// FIXME
+#if 0
 	MM_SetLock (&grsegs[STARTFONT+2],true);
+#endif // 0
 }
 
 //===========================================================================
@@ -1452,7 +1466,12 @@ void ShowViewSize (int width)
 void NewViewSize (int width)
 {
 	CA_UpLevel ();
+
+// FIXME
+#if 0
 	MM_SortMem ();
+#endif // 0
+
 	viewsize = width;
 	while (1)
 	{
@@ -1735,8 +1754,10 @@ void    DemoLoop (void)
 		}
 
 
-		if (audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC])
-			MM_FreePtr((void**)&audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
+		if (audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]) {
+            free(audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC]);
+            audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC] = NULL;
+        }
 
 		if (!screenfaded)
 			VW_FadeOut();

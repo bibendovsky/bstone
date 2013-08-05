@@ -1545,7 +1545,7 @@ SDL_SetupDigi(void)
 	int		i;
 
 	PM_UnlockMainMem();
-	MM_GetPtr(&list,PMPageSize);
+    list = malloc(PMPageSize);
 	PM_CheckMainMem();
 	p = (word *)MK_FP(PM_GetPage(ChunksInFile - 1),0);
 	memcpy((void *)list,(void *)p,PMPageSize);
@@ -1557,9 +1557,9 @@ SDL_SetupDigi(void)
 		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
 	}
 	PM_UnlockMainMem();
-	MM_GetPtr((void**)&DigiList,i * sizeof(word) * 2);
+    DigiList = (word*)malloc(i * sizeof(word) * 2);
 	memcpy((void *)DigiList,(void *)list,i * sizeof(word) * 2);
-	MM_FreePtr(&list);
+    free(list);
 	NumDigi = i;
 
 	for (i = 0;i < sdLastSound;i++)

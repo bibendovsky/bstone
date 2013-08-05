@@ -936,7 +936,10 @@ void CheckKeys (void)
 			if (old_num != music_num)
 			{
 				ClearMemory();
-				MM_FreePtr ((void**)&audiosegs[STARTMUSIC + old_num]);
+
+                free(audiosegs[STARTMUSIC + old_num]);
+                audiosegs[STARTMUSIC + old_num] = NULL;
+
 				StartMusic(false);
 				PM_CheckMainMem();
 				DrawScore();
@@ -1346,8 +1349,10 @@ void StopMusic(void)
 
 	SD_MusicOff();
 	for (i = 0;i < LASTMUSIC;i++)
-		if (audiosegs[STARTMUSIC + i])
-			MM_FreePtr(&((void*)audiosegs[STARTMUSIC + i]));
+        if (audiosegs[STARTMUSIC + i]) {
+            free(audiosegs[STARTMUSIC + i]);
+            audiosegs[STARTMUSIC + i] = NULL;
+        }
 }
 
 //==========================================================================
@@ -1373,16 +1378,32 @@ void StartMusic(boolean preload)
 
 	if (!audiosegs[STARTMUSIC+musicchunk])
 	{
+// FIXME
+#if 0
 		MM_BombOnError(false);
+#endif // 0
+
 		CA_CacheAudioChunk(STARTMUSIC + musicchunk);
+
+// FIXME
+#if 0
 		MM_BombOnError(true);
+#endif // 0
 	}
 
+// FIXME
+#if 0
 	if (mmerror)
 		mmerror = false;
 	else
+#endif // 0
+
 	{
+// FIXME
+#if 0
 		MM_SetLock(&((void*)audiosegs[STARTMUSIC + musicchunk]),true);
+#endif // 0
+
 		if (!preload)
 			SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + musicchunk]);
 	}
