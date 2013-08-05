@@ -20,6 +20,10 @@ loaded into the data segment
 #pragma warn -pro
 #pragma warn -use
 
+
+boolean IO_FarRead (int handle, byte far *dest, long length);
+
+
 /*
 =============================================================================
 
@@ -529,6 +533,9 @@ void CAL_OptimizeNodes (huffnode *table)
 void CAL_HuffExpand (byte huge *source, byte huge *dest,
   long length,huffnode far *hufftable, boolean screenhack)
 {
+// FIXME
+#if 0
+
 //  unsigned bit,byte,node,code;
   unsigned sourceseg,sourceoff,destseg,destoff,endoff;
   huffnode *headptr;
@@ -702,7 +709,7 @@ asm	jns	expand		// when length = ffff ffff, done
 
 asm	mov	ax,ss
 asm	mov	ds,ax
-
+#endif // 0
 }
 
 
@@ -854,6 +861,9 @@ long CA_RLEWCompress (unsigned huge *source, long length, unsigned huge *dest,
 void CA_RLEWexpand (unsigned huge *source, unsigned huge *dest,long length,
   unsigned rlewtag)
 {
+// FIXME
+#if 0
+
 //  unsigned value,count,i;
   unsigned huge *end;
   unsigned sourceseg,sourceoff,destseg,destoff,endseg,endoff;
@@ -956,7 +966,7 @@ asm	jb	expand
 
 asm	mov	ax,ss
 asm	mov	ds,ax
-
+#endif // 0
 }
 
 

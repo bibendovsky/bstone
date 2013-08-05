@@ -1,26 +1,38 @@
 #ifndef _ID_HEADS_H_
 #define _ID_HEADS_H_
 
+
+#define far
+#define huge
+#define _seg
+#define interrupt
+
+
 // ID_GLOB.H
 
 
-#include <ALLOC.H>
+//#include <ALLOC.H>
 #include <CTYPE.H>
 #include <DOS.H>
 #include <ERRNO.H>
 #include <FCNTL.H>
 #include <IO.H>
-#include <MEM.H>
+//#include <MEM.H>
 #include <PROCESS.H>
 #include <STDIO.H>
 #include <STDLIB.H>
 #include <STRING.H>
 #include <SYS\STAT.H>
-#include <VALUES.H>
-#include <DIR.H>
+//#include <VALUES.H>
+//#include <DIR.H>
 #define __ID_GLOB__
 
 //--------------------------------------------------------------------------
+
+#define MK_FP(s,o) (NULL)
+#define FP_OFF(v) (0)
+#define FP_SEG(v) (0)
+
 
 #define DEBUG_VALUE
 #define CEILING_FLOOR_COLORS
@@ -28,13 +40,13 @@
 
 //#define CARMACIZED
 #define WOLF
-#define FREE_FUNCTIONS					(false)
-#define FREE_DATA							(false)
-#define DEMOS_ENABLED					(true)
-#define RESTART_PICTURE_PAUSE			(false)
-#define GEORGE_CHEAT						(false)
+#define FREE_FUNCTIONS					(0)
+#define FREE_DATA							(0)
+#define DEMOS_ENABLED					(1)
+#define RESTART_PICTURE_PAUSE			(0)
+#define GEORGE_CHEAT						(0)
 
-#define FORCE_FILE_CLOSE				(true)		// true - forces all files closed once they are used
+#define FORCE_FILE_CLOSE				(1)		// true - forces all files closed once they are used
 
 //
 // GAME VERSION TYPES
@@ -54,11 +66,11 @@
 //#define GAME_VERSION					(SHAREWARE_VERSION)
 
 
-#define TECH_SUPPORT_VERSION		(false)
-#define IN_DEVELOPMENT				(false)
+#define TECH_SUPPORT_VERSION		(0)
+#define IN_DEVELOPMENT				(0)
 
 #define ERROR_LOG						"ERROR.LOG"			// Text filename for critical memory errors
-#define DUAL_SWAP_FILES				(false)				//(GAME_VERSION != SHAREWARE_VERSION)				// Support for Shadowed and NonShadowed page files
+#define DUAL_SWAP_FILES				(0)				//(GAME_VERSION != SHAREWARE_VERSION)				// Support for Shadowed and NonShadowed page files
 
 extern  char            far signonv1;
 #define introscn        signonv1
@@ -67,7 +79,7 @@ extern  char            far signonv1;
 
 #include "GFXV_vsi.H"
 #include "AUDIOvsi.H"
-#include "MAPSvsi.H"
+//#include "MAPSvsi.H"
 
 #else
 
@@ -90,7 +102,7 @@ extern  char            far signonv1;
 
 typedef enum    {false,true}    boolean;
 typedef unsigned        char            byte;
-typedef unsigned        int                     word;
+typedef unsigned        short                     word;
 typedef unsigned        long            longword;
 typedef byte *                                  Ptr;
 

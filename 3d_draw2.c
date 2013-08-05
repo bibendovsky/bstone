@@ -3,7 +3,10 @@
 #include "3D_DEF.H"
 
 #define	MAXVIEWHEIGHT	200
-#define  GAMESTATE_TEST 	(true)
+#define  GAMESTATE_TEST 	(1)
+
+
+void MapLSRow();
 
 
 unsigned CeilingTile=126, FloorTile=126;
@@ -88,7 +91,11 @@ void DrawSpans (int x1, int x2, int height)
 	prestep = viewwidth/2 - x1;
 	do
 	{
+        // FIXME
+#if 0
 		outportb (SC_INDEX+1,1<<plane);
+#endif // 0
+
 		mr_xfrac = startxfrac - (mr_xstep>>2)*prestep;
 		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
 
@@ -115,7 +122,11 @@ void DrawSpans (int x1, int x2, int height)
 	prestep = viewwidth/2 - x1;
 	do
 	{
+        // FIXME
+#if 0
 		outportb (SC_INDEX+1,1<<plane);
+#endif // 0
+
 		mr_xfrac = startxfrac - (mr_xstep>>2)*prestep;
 		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
 

@@ -4,6 +4,10 @@
 #pragma hdrstop
 
 
+void VH_UpdateScreen();
+void CA_CacheScreen (int chunk);
+
+
 //==========================================================================
 //
 //									LOCAL CONSTANTS

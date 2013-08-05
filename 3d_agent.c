@@ -7,8 +7,25 @@
 
 #include "jm_tp.h"
 
+
 void InitWeaponBounce(void);
 void HandleWeaponBounce(void);
+void VL_LatchToScreen(unsigned source, int width, int height, int x, int y);
+void StartDamageFlash(int damage);
+void StartBonusFlash (void);
+int CalcAngle(objtype *from_obj, objtype *to_obj);
+void PushWall (int checkx, int checky, int dir);
+void OperateDoor (int door);
+void TryDropPlasmaDetonator(void);
+void ClearMemory (void);
+void VH_UpdateScreen();
+void InitAreas (void);
+void FirstSighting(objtype* ob);
+void OpenDoor(int door);
+
+
+#define VW_UpdateScreen() 	VH_UpdateScreen()
+
 
 /*
 =============================================================================
@@ -1628,7 +1645,7 @@ char far *HandleControlCodes(char far *first_ch)
 				case TP_CNVT_CODE('A','N'):
 					shapenum = TP_VALUE(first_ch,2);
 					first_ch += 2;
-					_fmemcpy(&piAnimList[InfoAreaSetup.numanims],&piAnimTable[shapenum],sizeof(piAnimInfo));
+					memcpy(&piAnimList[InfoAreaSetup.numanims],&piAnimTable[shapenum],sizeof(piAnimInfo));
 					anim = &piAnimList[InfoAreaSetup.numanims++];
 					shape = &piShapeTable[anim->baseshape+anim->frame];	// BUG!! (assumes "pia_shapetable")
 //					spr = &spritetable[shape->shapenum-STARTSPRITES];
@@ -2151,7 +2168,7 @@ void writeTokenStr(char far *str)
 {
 	char buffer[3],len;
 
-	len = _fstrlen(str);
+	len = strlen(str);
 	if (gamestate.tokens > 9)
 		itoa(gamestate.tokens,buffer,10);
 	else
@@ -2160,7 +2177,7 @@ void writeTokenStr(char far *str)
 		itoa(gamestate.tokens,buffer+1,10);
 	}
 
-	_fstrcpy(str+len-2,buffer);
+	strcpy(str+len-2,buffer);
 }
 
 
@@ -2800,13 +2817,13 @@ boolean Interrogate(objtype *ob)
 	boolean rt_value=true;
 	char far *msgptr=NULL;
 
-	_fstrcpy(msg,int_interrogate);
+	strcpy(msg,int_interrogate);
 
 	if (ob->flags & FL_INFORMANT)						// Informant
 	{
 		short msgnum;
 
-		_fstrcat(msg,int_informant);
+		strcat(msg,int_informant);
 
 		if (ob->flags & FL_INTERROGATED)
 		{
@@ -2892,10 +2909,10 @@ boolean Interrogate(objtype *ob)
 
 	if (msgptr)
 	{
-		_fstrcat(msg,int_rr);
-		_fstrcat(msg,msgptr);
-		_fstrcat(msg,int_xx);
-		if (_fstrlen(msg) > MSG_BUFFER_LEN)
+		strcat(msg,int_rr);
+		strcat(msg,msgptr);
+		strcat(msg,int_xx);
+		if (strlen(msg) > MSG_BUFFER_LEN)
 			AGENT_ERROR(INTERROGATE_LONG_MSG);
 		DisplayInfoMsg(msg,MP_INTERROGATE,DISPLAY_MSG_STD_TIME*2,MT_GENERAL);
 		SD_PlaySound(INTERROGATESND);
@@ -2960,7 +2977,7 @@ short InputFloor(void)
 
 	MM_GetPtr(&ov_buffer,4096);
 	ShowStats(0,0,ss_justcalc,&gamestuff.level[gamestate.mapon].stats);
-	_fmemcpy(&ov_stats,&gamestuff.level[gamestate.mapon].stats,sizeof(statsInfoType));
+	memcpy(&ov_stats,&gamestuff.level[gamestate.mapon].stats,sizeof(statsInfoType));
 	ShowOverhead(TOV_X,TOV_Y,32,0,RADAR_FLAGS);
 	SaveOverheadChunk(tpNum);
 
@@ -3210,7 +3227,7 @@ void LoadOverheadChunk(short tpNum)
 	else
 	{
 		ov_noImage=true;
-		_fmemset(ov_buffer,0x52,4096);
+		memset(ov_buffer,0x52,4096);
 		memset(&ov_stats,0,sizeof(statsInfoType));
 	}
 

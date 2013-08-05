@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="id_ca.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_act1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_act2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_agent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_debug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_draw.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_draw2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_game.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_inter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_menu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_msgs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_play.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_scale.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_state.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="colormap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="d3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="d3_d2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="d3_dr2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_in.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_mm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_pm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_sd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_sdd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_us.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_us_1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_vh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="id_vl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jm_cio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jm_debug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jm_free.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jm_io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jm_lzh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jm_tp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="markhack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="movie.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scale.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vgapal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="id_heads.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3d_def.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3d_menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="an_codes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audiobs1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audiofir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audiovsi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfxe_bs1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfxe_fir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfxe_vsi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfxv_bs1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfxv_fir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gfxv_vsi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_ca.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_in.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_mm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_pm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_sd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_us.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_vh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="id_vl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jam_io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_cio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_lzh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_tp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jm_vl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapsbs1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapsvsi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="movie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

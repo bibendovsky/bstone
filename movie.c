@@ -6,8 +6,8 @@
 //===========================================================================
 
 #include <io.h>
-#include <alloc.h>
-#include <mem.h>
+//#include <alloc.h>
+//#include <mem.h>
 #include <stdio.h>
 #include <string.h>
 #include <dos.h>
@@ -23,6 +23,9 @@
 //
 //
 //===========================================================================
+
+
+void VL_LatchToScreen(unsigned source, int width, int height, int x, int y);
 
 
 //#define  DRAW_TO_FRONT
@@ -303,7 +306,7 @@ boolean MOVIE_LoadBuffer()
 
 		if (free_space>=(blk.recsize+sizeof(anim_frame)))
       {
-			_fmemcpy(frame, (byte far *)&blk, sizeof(anim_frame));
+			memcpy(frame, (byte far *)&blk, sizeof(anim_frame));
 
       	free_space -= sizeof(anim_frame);
    	   frame += sizeof(anim_frame);
@@ -350,7 +353,7 @@ short MOVIE_GetFrame()
 	}
 
    BufferPtr = NextPtr;
-	_fmemcpy(&blk, BufferPtr, sizeof(anim_frame));
+	memcpy(&blk, BufferPtr, sizeof(anim_frame));
    PageLen-=sizeof(anim_frame);
    PageLen-=blk.recsize;
    NextPtr = BufferPtr+sizeof(anim_frame)+blk.recsize;
@@ -375,7 +378,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 	char huge *frame;
    unsigned wait_time;
 
-	_fmemcpy(&blk,BufferPtr,sizeof(anim_frame));
+	memcpy(&blk,BufferPtr,sizeof(anim_frame));
 	BufferPtr+=sizeof(anim_frame);
    frame = BufferPtr;
 
@@ -612,6 +615,8 @@ boolean MOVIE_Play(MovieStuff_t *MovieStuff)
 void FlipPages(void)
 {
 
+// FIXME
+#if 0
 #ifndef DRAW_TO_FRONT
 
 	displayofs = bufferofs;
@@ -633,6 +638,7 @@ void FlipPages(void)
 	asm	out	dx,al		// set the low byte
 #endif
 	asm	sti
+#endif // 0
 
 	bufferofs += SCREENSIZE;
 	if (bufferofs > PAGE3START)

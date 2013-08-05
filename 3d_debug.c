@@ -2,7 +2,17 @@
 
 #include "3D_DEF.H"
 #pragma hdrstop
-#include <BIOS.H>
+//#include <BIOS.H>
+
+
+void VH_UpdateScreen();
+void TakeDamage(int points, objtype* attacker);
+void SetPlaneViewSize (void);
+void HealSelf(int points);
+void GiveWeapon (int weapon);
+void DrawScore(void);
+void SetPlaneViewSize (void);
+
 
 /*
 =============================================================================

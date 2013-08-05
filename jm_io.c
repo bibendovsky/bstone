@@ -21,7 +21,11 @@ boolean IO_FarRead (int handle, byte far *dest, long length)
 		else
 			readlen=length;
 
+// FIXME
+#if 0
 		_dos_read(handle,dest,readlen,&nread);
+#endif // 0
+
 		if (nread != readlen)
 			return(false);
 
@@ -45,7 +49,11 @@ boolean IO_FarWrite (int handle, byte far *source, long length)
 		else
 			writelen=length;
 
+// FIXME
+#if 0
 		_dos_write(handle,source,writelen,&nwritten);
+#endif // 0
+
 		if (nwritten != writelen)
 			return(false);
 

@@ -10,6 +10,12 @@
 #include "ID_HEADS.H"
 #pragma hdrstop
 
+
+boolean IO_FarRead (int handle, byte far *dest, long length);
+
+#define MAXLONG (2147483647L)
+
+
 //	Main Mem specific variables
 	boolean			MainPresent, PageManagerInstalled = false;
 	memptr			MainMemPages[PMMaxMainMem];
@@ -68,6 +74,8 @@ char		far * far PM_ParmStrings[] = {"nomain","noems","noxms",nil};
 void
 PML_MapEMS(word logical,word physical)
 {
+// FIXME
+#if 0
 	_AL = physical;
 	_BX = logical;
 	_DX = EMSHandle;
@@ -76,6 +84,7 @@ asm	int	EMS_INT
 
 	if (_AH)
    	PM_ERROR(PML_MAPEMS_MAPPING_FAIL);
+#endif // 0
 }
 
 
@@ -189,6 +198,8 @@ error:
 void
 PML_ShutdownEMS(void)
 {
+// FIXME
+#if 0
 	if (EMSPresent)
 	{
 	asm	mov	ah,EMS_FREEPAGES
@@ -197,6 +208,7 @@ PML_ShutdownEMS(void)
 		if (_AH)
       	PM_ERROR(PML_SHUTDOWNEMS_FREE);
 	}
+#endif // 0
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -265,6 +277,8 @@ error:
 void
 PML_XMSCopy(boolean toxms,byte far *addr,word xmspage,word length)
 {
+// FIXME
+#if 0
 	longword	xoffset;
 	struct
 	{
@@ -292,6 +306,7 @@ asm	push si
 asm	pop	si
 	if (!_AX)
 		PM_ERROR(PML_XMSCOPY_COPY_ERROR);
+#endif // 0
 }
 
 #if 1
@@ -325,6 +340,8 @@ PML_CopyFromXMS(byte far *target,int sourcepage,word length)
 void
 PML_ShutdownXMS(void)
 {
+// FIXME
+#if 0
 	if (XMSPresent)
 	{
    	XMSPresent = false;
@@ -333,6 +350,7 @@ PML_ShutdownXMS(void)
 		if (!_AX)
 			PM_ERROR(PML_SHUTDOWNXMS_FREE);
 	}
+#endif // 0
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -599,7 +617,7 @@ PML_OpenPageFile(char *filename)
 	MM_GetPtr(&(memptr)PMSegPages,sizeof(PageListStruct) * PMNumBlocks);
 	MM_SetLock(&(memptr)PMSegPages,true);
 	PMPages = (PageListStruct far *)PMSegPages;
-	_fmemset(PMPages,0,sizeof(PageListStruct) * PMNumBlocks);
+	memset(PMPages,0,sizeof(PageListStruct) * PMNumBlocks);
 
 	// Read in the chunk offsets
 
@@ -930,6 +948,8 @@ PML_GetAPageBuffer(int pagenum,boolean mainonly)
 memptr
 PML_GetPageFromXMS(int pagenum,boolean mainonly)
 {
+// FIXME
+#if 0
 	byte			far *checkaddr;
 	memptr			addr = nil;
 	PageListStruct	far *page;
@@ -947,6 +967,9 @@ PML_GetPageFromXMS(int pagenum,boolean mainonly)
 	}
 
 	return(addr);
+#endif // 0
+
+    return NULL;
 }
 
 //

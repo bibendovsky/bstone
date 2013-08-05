@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <alloc.h>
+//#include <alloc.h>
 #include <fcntl.h>
 #include <dos.h>
 #include <io.h>
@@ -34,7 +34,7 @@ char CIO_WritePtr(long outfile, unsigned char data, unsigned PtrType)
 	switch (PtrType & DEST_TYPES)
 	{
 		case DEST_FILE:
-			write(*(int far *)outfile,(char *)&data,1);
+			write(*(int *)outfile,(char *)&data,1);
 		break;
 
 		case DEST_FFILE:
@@ -47,7 +47,7 @@ char CIO_WritePtr(long outfile, unsigned char data, unsigned PtrType)
 		break;
 
 		case DEST_MEM:
-			*((char far *)*(char far **)outfile)++ = data;
+			*((char *)*(char **)outfile)++ = data;
 		break;
 	}
 
@@ -73,7 +73,7 @@ int CIO_ReadPtr(long infile, unsigned PtrType)
 	switch (PtrType & SRC_TYPES)
 	{
 		case SRC_FILE:
-			read(*(int far *)infile,(char *)&returnval,1);
+			read(*(int *)infile,(char *)&returnval,1);
 		break;
 
 		case SRC_FFILE:
@@ -92,7 +92,7 @@ int CIO_ReadPtr(long infile, unsigned PtrType)
 //		break;
 
 		case SRC_MEM:
-			returnval = (unsigned char)*((char far *)*(char far **)infile)++;
+			returnval = (unsigned char)*((char *)*(char **)infile)++;
 		break;
 	}
 

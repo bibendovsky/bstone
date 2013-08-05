@@ -9,8 +9,8 @@
 
 //#define WOLFDOORS
 
-#define MASKABLE_DOORS		(false)
-#define MASKABLE_POSTS		(false | MASKABLE_DOORS)
+#define MASKABLE_DOORS		(0)
+#define MASKABLE_POSTS		(MASKABLE_DOORS)
 
 /*
 =============================================================================
@@ -27,6 +27,20 @@
 #define ACTORSIZE	0x4000
 
 void DrawRadar(void);
+void DrawLSPost();
+void DrawPost();
+void GetBonus (statobj_t *check);
+void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting);
+void DrawAmmoPic(void);
+void DrawScoreNum(void);
+void DrawWeaponPic(void);
+void DrawAmmoNum(void);
+void DrawKeyPics(void);
+void DrawHealthNum(void);
+void UpdateStatusBar(void);
+int NextBuffer();
+void UpdateRadarGuage(void);
+
 
 /*
 =============================================================================
@@ -171,6 +185,8 @@ void NoWallAsmRefresh (void);			// in 3D_DR_A.ASM
 
 fixed FixedByFrac (fixed a, fixed b)
 {
+// FIXME
+#if 0
 //
 // setup
 //
@@ -208,7 +224,9 @@ asm	neg	ax
 asm	sbb	dx,0
 
 ansok:;
+#endif // 0
 
+    return 0;
 }
 
 #pragma warn +rvl
@@ -280,6 +298,8 @@ void TransformActor (objtype *ob)
 
 	ob->viewx = centerx + ny*scale/nx;	// DEBUG: use assembly divide
 
+// FIXME
+#if 0
 //
 // calculate height (heightnumerator/(nx>>8))
 //
@@ -288,6 +308,7 @@ void TransformActor (objtype *ob)
 	asm	idiv	[WORD PTR nx+1]			// nx>>8
 	asm	mov	[WORD PTR temp],ax
 	asm	mov	[WORD PTR temp+2],dx
+#endif // 0
 
 	ob->viewheight = temp;
 }
@@ -352,7 +373,8 @@ boolean TransformTile (int tx, int ty, int *dispx, int *dispheight)
 
 	*dispx = centerx + ny*scale/nx;	// DEBUG: use assembly divide
 
-
+// FIXME
+#if 0
 //
 // calculate height (heightnumerator/(nx>>8))
 //
@@ -361,6 +383,7 @@ boolean TransformTile (int tx, int ty, int *dispx, int *dispheight)
 	asm	idiv	[WORD PTR nx+1]			// nx>>8
 	asm	mov	[WORD PTR temp],ax
 	asm	mov	[WORD PTR temp+2],dx
+#endif // 0
 
 	*dispheight = temp;
 
@@ -412,6 +435,8 @@ int	CalcHeight (void)
 	if (nx<mindist)
 		nx=mindist;			// don't let divide overflow
 
+// FIXME
+#if 0
 	asm	mov	ax,[WORD PTR heightnumerator]
 	asm	mov	dx,[WORD PTR heightnumerator+2]
 	asm	idiv	[WORD PTR nx+1]			// nx>>8
@@ -420,7 +445,9 @@ int	CalcHeight (void)
 	asm	mov	ax,8
 
 exit_func:
+#endif // 0
 
+   return 0;
 }
 
 
@@ -1196,6 +1223,8 @@ void VGAClearScreen (void)
 {
 	viewflags = gamestate.flags;
 
+// FIXME
+#if 0
 //
 // clear the screen
 //
@@ -1277,7 +1306,7 @@ asm	dec	bh
 asm	jnz	bottomloop
 
 exit_mofo:
-
+#endif // 0
 }
 #endif
 
@@ -1787,6 +1816,8 @@ void	ThreeDRefresh (void)
 {
 	int tracedir;
 
+// FIXME
+#if 0
 // this wouldn't need to be done except for my debugger/video wierdness
 	outportb (SC_INDEX,SC_MAPMASK);
 
@@ -1799,6 +1830,7 @@ asm	mov	di,OFFSET spotvis
 asm	xor	ax,ax
 asm	mov	cx,2048							// 64*64 / 2
 asm	rep stosw
+#endif // 0
 
 #ifndef PAGEFLIP
 	bufferofs = displayofs = screenloc[0];
@@ -1925,6 +1957,8 @@ int NextBuffer()
 {
 	displayofs=bufferofs;
 
+// FIXME
+#if 0
 #ifdef PAGEFLIP
 	asm	cli
 	asm	mov	cx,[bufferofs]
@@ -1936,10 +1970,13 @@ int NextBuffer()
 	asm	out	dx,al   	// set the high byte
 	asm	sti
 #endif
+#endif // 0
 
 	bufferofs += SCREENSIZE;
 	if (bufferofs > PAGE3START)
 		bufferofs = PAGE1START;
+
+    return 0;
 }
 
 byte far TravelTable[MAPSIZE][MAPSIZE];
@@ -1949,6 +1986,8 @@ byte far TravelTable[MAPSIZE][MAPSIZE];
 //--------------------------------------------------------------------------
 void UpdateTravelTable()
 {
+// FIXME
+#if 0
 asm	mov	si,OFFSET [spotvis]
 asm	mov	ax,SEG [TravelTable]
 asm	mov	es,ax
@@ -1963,6 +2002,7 @@ asm	or		[es:di],ax
 asm	inc	di
 asm	inc	di
 asm	loop	loop1
+#endif // 0
 }
 
 extern short an_offset[];

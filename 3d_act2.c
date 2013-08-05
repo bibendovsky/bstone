@@ -4,6 +4,16 @@
 
 #pragma hdrstop
 
+
+void FirstSighting(objtype* ob);
+boolean SightPlayer(objtype* ob);
+void TakeDamage(int points, objtype* attacker);
+void OpenDoor(int door);
+boolean CheckView(objtype* from_obj, objtype* to_obj);
+int CalcAngle(objtype* from_obj, objtype* to_obj);
+boolean ClipMove(objtype* ob, long xmove, long ymove);
+
+
 /*
 =============================================================================
 
@@ -13,8 +23,8 @@
 */
 
 
-#define EXPODE_STATIC_SCAN		(true)
-#define BFG_SHOT_STOPS			(true)
+#define EXPODE_STATIC_SCAN		(1)
+#define BFG_SHOT_STOPS			(1)
 
 
 #define TURNTICS	10
@@ -4685,7 +4695,7 @@ void A_Beep(objtype *obj)
 //--------------------------------------------------------------------------
 void InitGoldsternInfo(void)
 {
-	_fmemset(&GoldsternInfo,0,sizeof(GoldsternInfo));
+	memset(&GoldsternInfo,0,sizeof(GoldsternInfo));
 	GoldsternInfo.LastIndex = GOLDIE_MAX_SPAWNS;
 }
 

@@ -5,6 +5,14 @@
 
 #pragma hdrstop
 
+
+void OpenDoor (int door);
+void A_DeathScream (objtype *ob);
+void PlaceItemType (int itemtype, int tilex, int tiley);
+void PlaceItemNearTile(int itemtype, int tilex, int tiley);
+void ChangeShootMode(objtype *ob);
+
+
 /*
 =============================================================================
 

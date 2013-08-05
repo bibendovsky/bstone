@@ -30,7 +30,13 @@
 #define	MDelta		11
 
 #define	MouseInt	0x33
+
+// FIXME
+#if 0
 #define	Mouse(x)	_AX = x,geninterrupt(MouseInt)
+#endif // 0
+
+#define Mouse(x)
 
 //
 // joystick constants
@@ -146,6 +152,8 @@ char			far * far IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 static void interrupt
 INL_KeyService(void)
 {
+// FIXME
+#if 0
 static	boolean	special;
 		byte	k,c,
 				temp;
@@ -216,6 +224,7 @@ static	boolean	special;
 	if (INL_KeyHook && !special)
 		INL_KeyHook();
 	outportb(0x20,0x20);
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -228,8 +237,12 @@ static void
 INL_GetMouseDelta(int *x,int *y)
 {
 	Mouse(MDelta);
+
+// FIXME
+#if 0
 	*x = _CX;
 	*y = _DX;
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -244,7 +257,12 @@ INL_GetMouseButtons(void)
 	word	buttons;
 
 	Mouse(MButtons);
+
+// FIXME
+#if 0
 	buttons = _BX;
+#endif // 0
+
 	return(buttons);
 }
 
@@ -260,6 +278,8 @@ IN_GetJoyAbs(word joy,word *xp,word *yp)
 			xs,ys;
 	word	x,y;
 
+// FIXME
+#if 0
 // Handle Notebook Gamepad's joystick.
 //
 	if (NGinstalled)
@@ -277,6 +297,7 @@ IN_GetJoyAbs(word joy,word *xp,word *yp)
 
 		return;
 	}
+#endif // 0
 
 // Handle normal PC joystick.
 //
@@ -286,6 +307,8 @@ IN_GetJoyAbs(word joy,word *xp,word *yp)
 	ys = joy? 3 : 1;		// Do the same for y axis
 	yb = 1 << ys;
 
+// FIXME
+#if 0
 // Read the absolute joystick values
 asm		pushf				// Save some registers
 asm		push	si
@@ -340,6 +363,7 @@ asm		mov		[y],di
 asm		pop		di
 asm		pop		si
 asm		popf				// Restore the registers
+#endif // 0
 
 	*xp = x;
 	*yp = y;
@@ -419,6 +443,8 @@ static	longword	lasttime;
 static word
 INL_GetJoyButtons(word joy)
 {
+// FIXME
+#if 0
 register	word	result;
 
 // Handle Notebook Gamepad's joystick.
@@ -448,6 +474,9 @@ register	word	result;
 	result &= 3;				// Mask off the useless bits
 	result ^= 3;
 	return(result);
+#endif // 0
+
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -485,8 +514,11 @@ INL_StartKbd(void)
 
 	IN_ClearKeysDown();
 
+// FIXME
+#if 0
 	OldKeyVect = getvect(KeyInt);
 	setvect(KeyInt,INL_KeyService);
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -497,9 +529,12 @@ INL_StartKbd(void)
 static void
 INL_ShutKbd(void)
 {
+// FIXME
+#if 0
 	poke(0x40,0x17,peek(0x40,0x17) & 0xfaf0);	// Clear ctrl/alt/shift flags
 
 	setvect(KeyInt,OldKeyVect);
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -510,6 +545,8 @@ INL_ShutKbd(void)
 boolean
 INL_StartMouse(void)
 {
+// FIXME
+#if 0
 #if 0
 	if (getvect(MouseInt))
 	{
@@ -531,6 +568,9 @@ INL_StartMouse(void)
 
  Mouse(MReset);
  return true;
+#endif // 0
+
+    return false;
 }
 
 #if 0
@@ -1141,12 +1181,16 @@ boolean IN_UserInput(longword delay)
 
 byte	IN_MouseButtons (void)
 {
+// FIXME
+#if 0
 	if (MousePresent)
 	{
 		Mouse(MButtons);
 		return _BX;
 	}
 	else
+#endif // 0
+
 		return 0;
 }
 
@@ -1161,6 +1205,8 @@ byte	IN_MouseButtons (void)
 
 byte	IN_JoyButtons (void)
 {
+// FIXME
+#if 0
 	unsigned joybits;
 
 	joybits = inportb(0x201);	// Get all the joystick buttons
@@ -1168,6 +1214,9 @@ byte	IN_JoyButtons (void)
 	joybits ^= 15;				// return with 1=pressed
 
 	return joybits;
+#endif // 0
+
+    return 0;
 }
 
 

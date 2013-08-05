@@ -68,8 +68,6 @@ static long partial_by_step(
 void AsmRefresh()
 {
     int angle;
-    int xspot;
-    int yspot;
 
     int h_op;
     int v_op;
@@ -83,12 +81,10 @@ void AsmRefresh()
     int xt; // temporary xtile
     long xint; // temporary xintercept
     int xint_h; // high word of temporary xintercept
-    unsigned xint_l; // low word of temporary xintercept
     int ys; // temporary yspot
     int yt; // temporary ytile
     long yint; // temporary yintercept
     int yint_h; // high word of temporary yintercept
-    unsigned yint_l; // low word of temporary yintercept
 
     pixx = 0;
 

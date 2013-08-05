@@ -12,8 +12,27 @@
 
 #include "3d_def.h"
 
-#define SKIP_CHECKSUMS					(true)
-#define SHOW_CHECKSUM					(false)
+
+void MML_ClearBlock (void);
+int VL_VideoID (void);
+void CA_CannotOpen(char *string);
+void CAL_GetGrChunkLength (int chunk);
+void CA_CacheScreen (int chunk);
+void VH_UpdateScreen();
+void IN_StartAck(void);
+boolean IN_CheckAck (void);
+void OpenMapFile(void);
+void CloseMapFile(void);
+void ClearMemory (void);
+void PM_SetMainMemPurge(int level);
+void ShutdownId (void);
+void InitRedShifts (void);
+void CAL_OptimizeNodes (huffnode *table);
+void OpenAudioFile(void);
+
+
+#define SKIP_CHECKSUMS					(1)
+#define SHOW_CHECKSUM					(0)
 
 #if GAME_VERSION == SHAREWARE_VERSION
 
@@ -42,6 +61,9 @@
 
 #pragma warn -pro
 #pragma warn -use
+
+extern int _argc;
+extern char** _argv;
 
 void SDL_SBSetDMA(byte channel);
 void SDL_SetupDigi(void);
@@ -392,11 +414,13 @@ IN_Startup(void)
 
 	if (checkNG)
 	{
+#if 0
 		#define WORD_CODE(c1,c2)	((c2)|(c1<<8))
 
 		NGjoy(0xf0);
 		if ((_AX==WORD_CODE('S','G')) && _BX)
 			NGinstalled=true;
+#endif // 0
 	}
 
 	INL_StartKbd();
@@ -466,7 +490,13 @@ void MM_Startup (void)
 //
 // get all available near conventional memory segments
 //
+
+// FIXME
+#if 0
 	length=coreleft();
+#endif // 0
+    length = 64 * 1024;
+
 	start = (void far *)(nearheap = malloc(length));
 
 	length -= 16-(FP_OFF(start)&15);
@@ -481,8 +511,14 @@ void MM_Startup (void)
 //
 // get all available far conventional memory segments
 //
+
+// FIXME
+#if 0
 	length=farcoreleft();
-	start = farheap = farmalloc(length);
+#endif // 0
+    length = 1 * 1024 * 1024;
+
+	start = farheap = malloc(length);
 	length -= 16-(FP_OFF(start)&15);
 	length -= SAVEFARHEAP;
 	seglength = length / 16;			// now in paragraphs
@@ -528,6 +564,7 @@ PML_StartupEMS(void)
 	EMSPresent = false;			// Assume that we'll fail
 	EMSAvail = 0;
 
+#if 0
 	_DX = (word)EMMDriverName;
 	_AX = 0x3d00;
 	geninterrupt(0x21);			// try to open EMMXXXX0 device
@@ -603,6 +640,8 @@ asm	jc	error
 	EMSPresent = true;			// We have EMS
 
 error:
+#endif // 0
+
 	return(EMSPresent);
 }
 
@@ -624,6 +663,7 @@ PML_StartupXMS(void)
 	XMSPresent = false;					// Assume failure
 	XMSAvail = 0;
 
+#if 0
 asm	mov	ax,0x4300
 asm	int	XMS_INT         				// Check for presence of XMS driver
 	if (_AL != 0x80)
@@ -656,6 +696,7 @@ asm	mov	[WORD PTR XMSDriver+2],es		// function pointer to XMS driver
 
 	XMSPresent = true;
 error:
+#endif // 0
 
 	return(XMSPresent);
 }
@@ -770,7 +811,10 @@ US_Startup(void)
 	if (US_Started)
 		return;
 
+// FIXME
+#if 0
 	harderr(USL_HardError);	// Install the fatal error handler
+#endif // 0
 
 	US_InitRndT(true);		// Initialize the random number generator
 
@@ -823,7 +867,9 @@ void	VL_Startup (void)
 {
 	int i,videocard;
 
+#if 0
 	asm	cld;
+#endif // 0
 
 	videocard = VL_VideoID ();
 	for (i = 1;i < _argc;i++)
@@ -850,11 +896,14 @@ void	VL_Startup (void)
 
 void	VL_SetVGAPlaneMode (void)
 {
+// FIXME
+#if 0
 asm	mov	ax,0x13
 asm	int	0x10
 	VL_DePlaneVGA ();
 	VGAMAPMASK(15);
 	VL_SetLineWidth (40);
+#endif // 0
 }
 
 /*
@@ -869,6 +918,8 @@ asm	int	0x10
 
 void VL_ClearVideo (byte color)
 {
+// FIXME
+#if 0
 asm	mov	dx,GC_INDEX
 asm	mov	al,GC_MODE
 asm	out	dx,al
@@ -888,6 +939,7 @@ asm	mov	ah,al
 asm	mov	cx,0x8000			// 0x8000 words, clearing 8 video bytes/word
 asm	xor	di,di
 asm	rep	stosw
+#endif // 0
 }
 
 /*
@@ -900,7 +952,8 @@ asm	rep	stosw
 
 void VL_DePlaneVGA (void)
 {
-
+// FIXME
+#if 0
 //
 // change CPU addressing to non linear mode
 //
@@ -938,6 +991,7 @@ void VL_DePlaneVGA (void)
 
 	outportb (CRTC_INDEX,CRTC_MODE);
 	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1)|0x40);
+#endif // 0
 }
 
 /*
@@ -954,10 +1008,13 @@ void VL_SetLineWidth (unsigned width)
 {
 	int i,offset;
 
+// FIXME
+#if 0
 //
 // set wide virtual screen
 //
 	outport (CRTC_INDEX,CRTC_OFFSET+width*256);
+#endif // 0
 
 //
 // set up lookup tables
@@ -1033,9 +1090,9 @@ void BuildTables (void)
   }
 // Fix ColorMap
   MM_GetPtr(&(memptr)temp,16896);
-  _fmemcpy(temp,colormap,16896);
+  memcpy(temp,colormap,16896);
   lightsource=(byte far *)(((long)colormap + 255)&~0xff);
-  _fmemcpy(lightsource,temp,16384);
+  memcpy(lightsource,temp,16384);
 }
 
 /*
@@ -1519,9 +1576,15 @@ extern int EpisodeSelect[];
 //-------------------------------------------------------------------------
 void CheckForEpisodes(void)
 {
+// FIXME
+#if 0
 	struct ffblk f;
+#endif // 0
+
 	short i;
 
+// FIXME
+#if 0
 #if (GAME_VERSION != SHAREWARE_VERSION)
 	if (!findfirst("*.VSI",&f,FA_ARCH))
 		strcpy(extension,"VSI");
@@ -1534,6 +1597,7 @@ void CheckForEpisodes(void)
 		printf("No Fire Strike data files found!");
 		exit(0);
 	}
+#endif // 0
 
 	for (i=0;i<mv_NUM_MOVIES;i++)
 		strcat(Movies[i].FName,extension);
@@ -1544,7 +1608,7 @@ void CheckForEpisodes(void)
 #endif
 
 	strcat(configname,extension);
-	_fstrcat(SaveName,extension);
+	strcat(SaveName,extension);
 	strcat(PageFileName,extension);
 	strcat(audioname,extension);
 	strcat(demoname,extension);
@@ -1941,8 +2005,13 @@ void InitGame (void)
 	 CA_CacheGrChunk (ERRORSCREEN);
 	 screen = grsegs[ERRORSCREEN];
 	 ShutdownId();
+
+// FIXME
+#if 0
 	 movedata ((unsigned)screen,7+7*160,0xb800,0,17*160);
 	 gotoxy (1,23);
+#endif // 0
+
 	 exit(0);
 	}
 #endif
@@ -2063,7 +2132,11 @@ extern short starting_episode,starting_level,starting_difficulty;
 void freed_main()
 {
 	int     i;
+
+// FIXME
+#if 0
 	struct dosdate_t d;
+#endif // 0
 
 // Setup for APOGEECD thingie.
 //
@@ -2302,12 +2375,15 @@ void InvalidLevels()
 
 	CA_CacheGrChunk(BADLEVELSTEXT);
 	chunkptr = grsegs[BADLEVELSTEXT];
-	*(_fstrstr(chunkptr,"^XX"))=0;
+	*(strstr(chunkptr,"^XX"))=0;
 
 	fprint(chunkptr);
 
+// FIXME
+#if 0
 	while (!bioskey(1));
 	bioskey(0);
+#endif // 0
 
 	UNCACHEGRCHUNK(BADLEVELSTEXT);
 }

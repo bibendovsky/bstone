@@ -83,6 +83,12 @@
 
 #pragma	hdrstop
 
+
+void VWL_MeasureString (char* string, word* width, word* height, fontstruct* font);
+void VH_UpdateScreen();
+void ClearMemory (void);
+
+
 //#define DRAW_TO_FRONT
 
 // string array table is a quick, easy and expandable way to print
@@ -1011,7 +1017,7 @@ void TP_HandleCodes()
 			case TP_CNVT_CODE('A','N'):
 				shapenum = TP_VALUE(first_ch,2);
 				first_ch += 2;
-				_fmemcpy(&piAnimList[numanims],&piAnimTable[shapenum],sizeof(piAnimInfo));
+				memcpy(&piAnimList[numanims],&piAnimTable[shapenum],sizeof(piAnimInfo));
 				anim = &piAnimList[numanims++];
 
 				anim->y=cur_y;
@@ -1996,7 +2002,7 @@ long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned id_cache)
 		pi->id_cache=id_cache;
 		CA_CacheGrChunk(id_cache);
 		pi->scriptstart = grsegs[id_cache];
-		if (!(p=_fstrstr(grsegs[id_cache],"^XX")))
+		if (!(p=strstr(grsegs[id_cache],"^XX")))
       	TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
 		size = p-(char far *)MK_FP(grsegs[id_cache],1);
 	}

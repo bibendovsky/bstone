@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2FD772FC-7827-4993-8A91-E660BEB09858}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>bstone</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v110_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.\c99;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="3d_act1.c" />
+    <ClCompile Include="3d_act2.c" />
+    <ClCompile Include="3d_agent.c" />
+    <ClCompile Include="3d_debug.c" />
+    <ClCompile Include="3d_draw.c" />
+    <ClCompile Include="3d_draw2.c" />
+    <ClCompile Include="3d_game.c" />
+    <ClCompile Include="3d_inter.c" />
+    <ClCompile Include="3d_main.c" />
+    <ClCompile Include="3d_menu.c" />
+    <ClCompile Include="3d_msgs.c" />
+    <ClCompile Include="3d_play.c" />
+    <ClCompile Include="3d_scale.c" />
+    <ClCompile Include="3d_state.c" />
+    <ClCompile Include="colormap.c" />
+    <ClCompile Include="d3.c" />
+    <ClCompile Include="d3_d2.c" />
+    <ClCompile Include="d3_dr2.c" />
+    <ClCompile Include="id_ca.c" />
+    <ClCompile Include="id_in.c" />
+    <ClCompile Include="id_mm.c" />
+    <ClCompile Include="id_pm.c" />
+    <ClCompile Include="id_sd.c" />
+    <ClCompile Include="id_sdd.c" />
+    <ClCompile Include="id_us.c" />
+    <ClCompile Include="id_us_1.c" />
+    <ClCompile Include="id_vh.c" />
+    <ClCompile Include="id_vl.c" />
+    <ClCompile Include="jm_cio.c" />
+    <ClCompile Include="jm_debug.c" />
+    <ClCompile Include="jm_free.c" />
+    <ClCompile Include="jm_io.c" />
+    <ClCompile Include="jm_lzh.c" />
+    <ClCompile Include="jm_tp.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="markhack.c" />
+    <ClCompile Include="movie.c" />
+    <ClCompile Include="scale.c" />
+    <ClCompile Include="vgapal.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="3d_def.h" />
+    <ClInclude Include="3d_menu.h" />
+    <ClInclude Include="an_codes.h" />
+    <ClInclude Include="audio.h" />
+    <ClInclude Include="audiobs1.h" />
+    <ClInclude Include="audiofir.h" />
+    <ClInclude Include="audiovsi.h" />
+    <ClInclude Include="gfxe_bs1.h" />
+    <ClInclude Include="gfxe_fir.h" />
+    <ClInclude Include="gfxe_vsi.h" />
+    <ClInclude Include="gfxv_bs1.h" />
+    <ClInclude Include="gfxv_fir.h" />
+    <ClInclude Include="gfxv_vsi.h" />
+    <ClInclude Include="id_ca.h" />
+    <ClInclude Include="id_heads.h" />
+    <ClInclude Include="id_in.h" />
+    <ClInclude Include="id_mm.h" />
+    <ClInclude Include="id_pm.h" />
+    <ClInclude Include="id_sd.h" />
+    <ClInclude Include="id_us.h" />
+    <ClInclude Include="id_vh.h" />
+    <ClInclude Include="id_vl.h" />
+    <ClInclude Include="jam_io.h" />
+    <ClInclude Include="jm_cio.h" />
+    <ClInclude Include="jm_debug.h" />
+    <ClInclude Include="jm_error.h" />
+    <ClInclude Include="jm_io.h" />
+    <ClInclude Include="jm_lzh.h" />
+    <ClInclude Include="jm_tp.h" />
+    <ClInclude Include="jm_vl.h" />
+    <ClInclude Include="mapsbs1.h" />
+    <ClInclude Include="mapsvsi.h" />
+    <ClInclude Include="movie.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

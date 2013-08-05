@@ -26,30 +26,30 @@ extern int mr_xfrac;
 extern int mr_yfrac;
 extern int mr_dest;
 
-extern unsigned char far* shadingtable;
+extern unsigned char* shadingtable;
 
 
-unsigned char far planepics[8192]; // 4k of ceiling, 4k of floor
+unsigned char planepics[8192]; // 4k of ceiling, 4k of floor
 
 
 static void generic_map_row(
     DrawOptions draw_options,
     ShadingOptions shading_options)
 {
-    unsigned i;
-    unsigned dest;
-    unsigned count;
-    unsigned rowofs;
+    int i;
+    int dest;
+    int count;
+    int rowofs;
     unsigned long xy;
     unsigned long xy_step;
     unsigned long xy_frac;
     unsigned pics_index;
     unsigned char ceiling_index;
     unsigned char flooring_index;
-    unsigned char far* screen;
+    unsigned char* screen;
 
-    rowofs = (unsigned)mr_rowofs;
-    count = (unsigned)mr_count;
+    rowofs = mr_rowofs;
+    count = mr_count;
 
     xy_step = ((unsigned long)mr_ystep) << 16;
     xy_step |= ((unsigned long)mr_xstep) & 0xFFFF;
@@ -57,9 +57,10 @@ static void generic_map_row(
     xy_frac = ((unsigned long)mr_yfrac) << 16;
     xy_frac |= ((unsigned long)mr_xfrac) & 0xFFFF;
 
-    dest = (unsigned)mr_dest;
+    dest = mr_dest;
 
-    screen = MK_FP(0xA000, 0x0000);
+    // FIXME
+    //screen = MK_FP(0xA000, 0x0000);
 
     for (i = 0; i < count; ++i) {
         xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);

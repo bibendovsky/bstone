@@ -1,0 +1,4 @@
+[D|d]ebug/
+ipch/
+*.sdf
+*.suo

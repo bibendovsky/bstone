@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <alloc.h>
+//#include <alloc.h>
 #include <dos.h>
-#include <mem.h>
+//#include <mem.h>
 
 #include "jm_cio.h"
 #include "jm_lzh.h"
@@ -166,16 +166,16 @@ unsigned long textsize = 0, codesize = 0, printcount = 0,datasize;
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 
-int far *son=NULL;
+int *son=NULL;
 
 //
 // pointing parent nodes.
 // area [T..(T + N_CHAR - 1)] are pointers for leaves
 //
 
-int far *prnt;
-unsigned far *freq;	/* cumulative freq table */
-unsigned char far *text_buf;
+int *prnt;
+unsigned *freq;	/* cumulative freq table */
+unsigned char *text_buf;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
 memptr id_son,id_prnt,id_freq,id_text_buf;
@@ -208,7 +208,7 @@ unsigned char text_buf[N + F - 1];
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 
-static int far *lson, far *rson, far *dad;
+static int *lson, *rson, *dad;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
 memptr id_lson,id_rson,id_dad;
@@ -232,7 +232,7 @@ unsigned putlen = 0;
 	// encoder table
 	//
 
-unsigned char far p_len[64] = {
+unsigned char p_len[64] = {
 	0x03, 0x04, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05,
 	0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06,
 	0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
@@ -243,7 +243,7 @@ unsigned char far p_len[64] = {
 	0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 };
 
-unsigned char far p_code[64] = {
+unsigned char p_code[64] = {
 	0x00, 0x20, 0x30, 0x40, 0x50, 0x58, 0x60, 0x68,
 	0x70, 0x78, 0x80, 0x88, 0x90, 0x94, 0x98, 0x9C,
 	0xA0, 0xA4, 0xA8, 0xAC, 0xB0, 0xB4, 0xB8, 0xBC,
@@ -267,7 +267,7 @@ unsigned char far p_code[64] = {
 
 #if INCLUDE_LZH_DECOMP
 
-unsigned char far d_code[256] = {
+unsigned char d_code[256] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -302,7 +302,7 @@ unsigned char far d_code[256] = {
 	0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
 };
 
-unsigned char far d_len[256] = {
+unsigned char d_len[256] = {
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -541,10 +541,10 @@ static void reconst()
 		k++;
 		l = (j - k) * 2;
 
-		_fmemcpy(&freq[k + 1], &freq[k], l);
+		memcpy(&freq[k + 1], &freq[k], l);
 		freq[k] = f;
 
-		_fmemcpy(&son[k + 1], &son[k], l);
+		memcpy(&son[k + 1], &son[k], l);
 		son[k] = i;
 	}
 
@@ -688,7 +688,7 @@ static void DeleteNode(int p)  /* Deleting node from the tree */
 static void InsertNode(int r)  /* Inserting node to the tree */
 {
 	int  i, p, cmp;
-	unsigned char far *key;
+	unsigned char *key;
 	unsigned c;
 
 	cmp = 1;
@@ -1046,7 +1046,7 @@ static int DecodePosition(long infile_ptr,unsigned long *CompressLength, unsigne
 //---------------------------------------------------------------------------
 // LZH_Decompress()
 //---------------------------------------------------------------------------
-long LZH_Decompress(void far *infile, void far *outfile, unsigned long OriginalLength, unsigned long CompressLength, unsigned PtrTypes)
+long LZH_Decompress(void *infile, void *outfile, unsigned long OriginalLength, unsigned long CompressLength, unsigned PtrTypes)
 {
 	int  i, j, k, r, c;
 	long count;
@@ -1119,7 +1119,7 @@ long LZH_Decompress(void far *infile, void far *outfile, unsigned long OriginalL
 //---------------------------------------------------------------------------
 // LZH_Compress()
 //---------------------------------------------------------------------------
-long LZH_Compress(void far *infile, void far *outfile,unsigned long DataLength,unsigned PtrTypes)
+long LZH_Compress(void *infile, void *outfile,unsigned long DataLength,unsigned PtrTypes)
 {
 	int  i, c, len, r, s, last_match_length;
 

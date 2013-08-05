@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <io.h>
-#include <mem.h>
+//#include <mem.h>
 #include <fcntl.h>
 #include <io.h>
 #include <dos.h>
@@ -39,7 +39,24 @@
 =============================================================================
 */
 
-#define SKIP_TITLE_AND_CREDITS		(false)
+
+void ConnectBarriers(void);
+void FreeMusic(void);
+void ClearMemory (void);
+void CA_CacheScreen (int chunk);
+void VH_UpdateScreen();
+void PlayDemo (int demonumber);
+void	DrawHighScores(void);
+void freed_main();
+void PreloadUpdate(unsigned current, unsigned total);
+void OpenAudioFile(void);
+
+
+int _argc;
+char** _argv;
+
+
+#define SKIP_TITLE_AND_CREDITS		(0)
 
 
 #define FOCALLENGTH     (0x5700l)               // in global coordinates
@@ -213,7 +230,7 @@ void NewGame (int difficulty,int episode)
 	playstate = ex_stillplaying;
 
 	ShowQuickMsg=true;
-	_fmemset (&gamestuff,0,sizeof(gamestuff));
+	memset (&gamestuff,0,sizeof(gamestuff));
 	memset (&gamestate,0,sizeof(gamestate));
 
 	memset(&gamestate.barrier_table,0xff,sizeof(gamestate.barrier_table));
@@ -504,13 +521,13 @@ char mod;
 	ptr=temp;
 
 	InitActorList ();							// start with "player" actor
-	_fmemcpy(new,ptr,sizeof(*ob)-4);		// don't copy over links!
+	memcpy(new,ptr,sizeof(*ob)-4);		// don't copy over links!
 	ptr += sizeof(*ob);						//
 
 	while (--count)
 	{
 		GetNewActor();
-		_fmemcpy(new,ptr,sizeof(*ob)-4);		// don't copy over links!
+		memcpy(new,ptr,sizeof(*ob)-4);		// don't copy over links!
 		actorat[new->tilex][new->tiley]=new;
 #if LOOK_FOR_DEAD_GUYS
 		if (new->flags & FL_DEADGUY)
@@ -616,6 +633,8 @@ overlay:;
 //--------------------------------------------------------------------------
 boolean SaveLevel(short levelnum)
 {
+// FIXME
+#if 0
 	objtype *ob;
 	int handle;
 	struct ffblk finfo;
@@ -674,7 +693,7 @@ boolean SaveLevel(short levelnum)
 //
 	MM_GetPtr(&temp,sizeof(objlist));
 	for (ob=player,count=0,ptr=temp; ob; ob=ob->next,count++,ptr+=sizeof(*ob))
-		_fmemcpy(ptr,ob,sizeof(*ob));
+		memcpy(ptr,ob,sizeof(*ob));
 	WriteIt(false, &count, sizeof(count));
 	WriteIt(true, temp, count*sizeof(*ob));
 	MM_FreePtr(&temp);
@@ -722,6 +741,9 @@ exit_func:;
 	gamestate.flags = gflags;
 
 	return(rt_value);
+#endif // 0
+
+    return false;
 }
 
 #pragma warn -pia
@@ -813,7 +835,7 @@ boolean LoadTheGame(int handle)
 
 	cksize = sizeof(SavegameInfoText);
 	read(handle, InfoSpace, cksize);
-	if (_fmemcmp(InfoSpace, SavegameInfoText, cksize))
+	if (memcmp(InfoSpace, SavegameInfoText, cksize))
    {
 		// Old Version of game
 
@@ -903,6 +925,8 @@ cleanup:;
 //--------------------------------------------------------------------------
 boolean SaveTheGame(int handle, char far *description)
 {
+// FIXME
+#if 0
 	struct ffblk finfo;
 	unsigned long cksize,offset;
 	int shandle;
@@ -983,6 +1007,9 @@ cleanup:;
 //
 
 	return(rt_value);
+#endif // 0
+
+    return false;
 }
 
 //--------------------------------------------------------------------------
@@ -1016,6 +1043,8 @@ boolean LevelInPlaytemp(char levelnum)
 //--------------------------------------------------------------------------
 boolean CheckDiskSpace(long needed,char far *text,cds_io_type io_type)
 {
+// FIXME
+#if 0
 	struct ffblk finfo;
 	struct diskfree_t dfree;
 	long avail;
@@ -1057,6 +1086,7 @@ boolean CheckDiskSpace(long needed,char far *text,cds_io_type io_type)
 
 		return(false);
 	}
+#endif // 0
 
 	return(true);
 }
@@ -1343,7 +1373,7 @@ boolean MS_CheckParm (char far *check)
 			if (!*parm++)
 				break;                          // hit end of string without an alphanum
 
-		if ( !_fstricmp(check,parm) )
+		if ( !stricmp(check,parm) )
 			return true;
 	}
 
@@ -1455,6 +1485,8 @@ void Quit (char *error,...)
 
 	va_start(ap,error);
 
+// FIXME
+#if 0
 	MakeDestPath(PLAYTEMP_FILE);
 	remove(tempPath);
 	ClearMemory ();
@@ -1468,7 +1500,7 @@ void Quit (char *error,...)
 
 			CA_CacheGrChunk(DIZ_ERR_TEXT);
 			diz = grsegs[DIZ_ERR_TEXT];
-			end=_fstrstr(diz,"^XX");
+			end=strstr(diz,"^XX");
 			*end=0;
 		}
 		else
@@ -1551,6 +1583,7 @@ void Quit (char *error,...)
 		}
 	}
 #endif
+#endif // 0
 
 	va_end(ap);
 	exit(0);
@@ -1782,8 +1815,11 @@ short starting_episode=0,starting_level=0,starting_difficulty=2;
 #endif
 short debug_value=0;
 
-void main (void)
+void main (int argc, char* argv[])
 {
+    _argc = argc;
+    _argv = argv;
+
 #if IN_DEVELOPMENT
 	MakeDestPath(ERROR_LOG);
 	remove(tempPath);
@@ -1847,6 +1883,8 @@ void fprint(char far *text)
 //-------------------------------------------------------------------------
 void InitDestPath(void)
 {
+// FIXME
+#if 0
 	char *ptr;
 
 #pragma warn -pia
@@ -1855,14 +1893,14 @@ void InitDestPath(void)
 		struct ffblk ffblk;
 		short len;
 
-		len = _fstrlen(ptr);
+		len = strlen(ptr);
 		if (len > MAX_DEST_PATH_LEN)
 		{
 			printf("\nAPOGEECD path too long.\n");
 			exit(0);
 		}
 
-		_fstrcpy(destPath,ptr);
+		strcpy(destPath,ptr);
 		if (destPath[len-1] == '\\')
 			destPath[len-1]=0;
 
@@ -1872,11 +1910,12 @@ void InitDestPath(void)
 			exit(0);
 		}
 
-		_fstrcat(destPath,"\\");
+		strcat(destPath,"\\");
 	}
 	else
-		_fstrcpy(destPath,"");
+		strcpy(destPath,"");
 #pragma warn +pia
+#endif // 0
 }
 
 //-------------------------------------------------------------------------
@@ -1884,8 +1923,8 @@ void InitDestPath(void)
 //-------------------------------------------------------------------------
 void MakeDestPath(char far *file)
 {
-	_fstrcpy(tempPath,destPath);
-	_fstrcat(tempPath,file);
+	strcpy(tempPath,destPath);
+	strcat(tempPath,file);
 }
 
 #if IN_DEVELOPMENT

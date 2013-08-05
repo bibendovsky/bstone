@@ -4,6 +4,28 @@
 #pragma hdrstop
 
 
+void INL_GetJoyDelta(word joy,int *dx,int *dy);
+void UpdateRadarGuage(void);
+void ClearMemory (void);
+void GiveWeapon (int weapon);
+void DrawWeapon (void);
+void DrawHealth (void);
+void DrawKeys (void);
+void DrawScore(void);
+void ForceUpdateStatusBar(void);
+void ClearSplitVWB (void);
+void RedrawStatusAreas();
+void PreloadGraphics(void);
+void TryDropPlasmaDetonator(void);
+void PML_OpenPageFile(char *filename);
+void IN_StartAck(void);
+boolean IN_CheckAck (void);
+void MoveDoors (void);
+void MovePWalls (void);
+void ConnectAreas (void);
+void UpdateSoundLoc(void);
+
+
 /*
 =============================================================================
 
@@ -315,8 +337,12 @@ void PollMouseMove (void)
 	int	mousexmove,mouseymove;
 
 	Mouse(MDelta);
+
+// FIXME
+#if 0
 	mousexmove = _CX;
 	mouseymove = _DX;
+#endif // 0
 
 // Double speed when shift is pressed.
 //
@@ -663,7 +689,7 @@ void CheckKeys (void)
 				if (DigiMode!=sds_Off)
 					SD_SetDigiDevice(sds_Off);
 
-				_fmemcpy((char far *)&SoundOn[55],"OFF.",4);
+				memcpy((char far *)&SoundOn[55],"OFF.",4);
 			}
 			else
 			{
@@ -684,7 +710,7 @@ void CheckKeys (void)
 				CA_LoadAllSounds();
 				PM_CheckMainMem();
 
-				_fmemcpy((char far *)&SoundOn[55],"ON. ",4);
+				memcpy((char far *)&SoundOn[55],"ON. ",4);
 			}
 
 			DISPLAY_TIMED_MSG(SoundOn,MP_BONUS,MT_GENERAL);
@@ -1003,13 +1029,13 @@ void CheckMusicToggle(void)
 			if (MusicMode != smm_Off)
 			{
 				SD_SetMusicMode(smm_Off);
-				_fmemcpy((char far *)&MusicOn[58],"OFF.",4);
+				memcpy((char far *)&MusicOn[58],"OFF.",4);
 			}
 			else
 			{
 				SD_SetMusicMode(smm_AdLib);
 				StartMusic(false);
-				_fmemcpy((char far *)&MusicOn[58],"ON. ",4);
+				memcpy((char far *)&MusicOn[58],"ON. ",4);
 			}
 
 			DISPLAY_TIMED_MSG(MusicOn,MP_BONUS,MT_GENERAL);

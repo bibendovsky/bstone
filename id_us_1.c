@@ -33,6 +33,10 @@
 #pragma	warn	-pia
 
 
+#define VW_UpdateScreen() 	VH_UpdateScreen()
+void VH_UpdateScreen();
+
+
 //	Global variables
 		char		*abortprogram;
 //		boolean		NoWait;
@@ -87,6 +91,8 @@ boolean		US_Started;
 int
 USL_HardError(word errval,int ax,int bp,int si)
 {
+// FIXME
+#if 0
 #define IGNORE  0
 #define RETRY   1
 #define	ABORT   2
@@ -160,6 +166,9 @@ oh_kill_me:
 #undef	IGNORE
 #undef	RETRY
 #undef	ABORT
+#endif // 0
+
+    return 2;
 }
 #pragma	warn	+par
 #pragma	warn	+rch
@@ -590,7 +599,7 @@ boolean US_LineInput(int x,int y,char far *buf,char far *def,boolean escok,
 	longword	lasttime;
 
 	if (def)
-		_fstrcpy(s,def);
+		strcpy(s,def);
 	else
 		*s = '\0';
 	*olds = '\0';
@@ -612,15 +621,21 @@ boolean US_LineInput(int x,int y,char far *buf,char far *def,boolean escok,
 				USL_XORICursor(x,y,s,cursor);
 		}
 
+// FIXME
+#if 0
 	asm	pushf
 	asm	cli
+#endif // 0
 
 		sc = LastScan;
 		LastScan = sc_None;
 		c = LastASCII;
 		LastASCII = key_None;
 
+// FIXME
+#if 0
 	asm	popf
+#endif // 0
 
 		switch (sc)
 		{
@@ -655,7 +670,7 @@ boolean US_LineInput(int x,int y,char far *buf,char far *def,boolean escok,
 #endif 	
 
 		case sc_Return:
-			_fstrcpy(buf,s);
+			strcpy(buf,s);
 			done = true;
 			result = true;
 			c = key_None;

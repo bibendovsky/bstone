@@ -48,15 +48,31 @@
 #define	SDL_SoundFinished()	{SoundNumber = SoundPriority = 0;}
 
 // Macros for SoundBlaster stuff
+// FIXME
+#if 0
 #define	sbOut(n,b)				outportb((n) + sbLocation,b)
 #define	sbIn(n)					inportb((n) + sbLocation)
+#endif // 0
+
+#define sbOut(n,b)
+#define sbIn(n)
+
+
 #define	sbSimpleWriteDelay()	while (sbIn(sbWriteStat) & 0x80);
 #define	sbReadDelay()			while (sbIn(sbDataAvail) & 0x80);
 
 // Macros for AdLib stuff
+// FIXME
+#if 0
 #define	selreg(n)	outportb(alFMAddr,n)
 #define	writereg(n)	outportb(alFMData,n)
 #define	readstat()	inportb(alFMStatus)
+#endif // 0
+
+#define selreg(n)
+#define writereg(n)
+#define readstat()
+
 
 //	Imports from ID_SD_A.ASM
 extern	void			SDL_SetDS(void);
@@ -75,6 +91,12 @@ extern	word	sdStartPCSounds;
 extern	word	sdStartALSounds;
 extern	int		sdLastSound;
 extern	int		DigiMap[];
+
+#define PM_UnlockMainMem() PM_SetMainMemPurge(3)
+void PM_SetMainMemPurge(int level);
+
+extern int _argc;
+extern char** _argv;
 
 //	Global variables
 	boolean		SoundSourcePresent,
@@ -197,6 +219,8 @@ static	word			sqMode,sqFadeStep;
 static void
 SDL_SetTimer0(word speed)
 {
+// FIXME
+#if 0
 #ifndef TPROF	// If using Borland's profiling, don't screw with the timer
 asm	pushf
 asm	cli
@@ -214,6 +238,7 @@ asm	popf
 #else
 	TimerDivisor = 0x10000;
 #endif
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -252,7 +277,11 @@ SDL_SetTimerSpeed(void)
 
 	if (rate != TimerRate)
 	{
+// FIXME
+#if 0
 		setvect(8,isr);
+#endif // 0
+
 		SDL_SetIntsPerSec(rate);
 		TimerRate = rate;
 	}
@@ -271,6 +300,8 @@ SDL_SetTimerSpeed(void)
 boolean
 sbWriteDelay(void)
 {
+// FIXME
+#if 0
 	int	i;
 
 	// Try to avoid hitting the card while it's doing a DMA transfer
@@ -305,6 +336,8 @@ sbWriteDelay(void)
 		return(true);
 	}
 	else
+#endif // 0
+
 		return(false);
 }
 
@@ -317,6 +350,8 @@ sbWriteDelay(void)
 void
 SDL_EnableDMAInt(void)
 {
+// FIXME
+#if 0
 	sbOldIntMask = inportb(0x21);
 	outportb(0x21,sbOldIntMask & ~sbPIC1Mask);
 
@@ -325,6 +360,7 @@ SDL_EnableDMAInt(void)
 		sbOldIntMask2 = inportb(0xa1);
 		outportb(0xa1,sbOldIntMask2 & ~sbPIC2Mask);
 	}
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -335,6 +371,8 @@ SDL_EnableDMAInt(void)
 void
 SDL_RestoreDMAInt(void)
 {
+// FIXME
+#if 0
 	byte	is;
 
 	is = inportb(0x21);
@@ -353,6 +391,7 @@ SDL_RestoreDMAInt(void)
 			is &= ~sbPIC2Mask;
 		outportb(0xa1,is);
 	}
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -368,6 +407,8 @@ static void
 #endif
 SDL_SBStopSample(void)
 {
+// FIXME
+#if 0
 	byte	is;
 	int		i;
 
@@ -394,6 +435,7 @@ asm	cli
 	}
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -406,6 +448,8 @@ asm	popf
 static longword
 SDL_SBPlaySeg(volatile byte huge *data,longword length)
 {
+// FIXME
+#if 0
 	unsigned		datapage;
 	longword		dataofs,uselen;
 
@@ -446,6 +490,9 @@ asm	cli
 asm	popf
 
 	return(uselen + 1);
+#endif // 0
+
+    return length + 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -456,6 +503,8 @@ asm	popf
 static void interrupt
 SDL_SBService(void)
 {
+// FIXME
+#if 0
 	longword	used;
 
 #if 0	// for debugging
@@ -503,6 +552,7 @@ asm	out	dx,al
 asm	mov	al,0x20	// normal
 asm	out	dx,al
 #endif
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -518,6 +568,8 @@ static void
 #endif
 SDL_SBPlaySample(byte huge *data,longword len)
 {
+// FIXME
+#if 0
 	longword	used;
 
 	SDL_SBStopSample();
@@ -548,6 +600,7 @@ asm	cli
 	sbSamplePlaying = true;
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -560,6 +613,8 @@ asm	popf
 static void
 SDL_PositionSBP(int leftpos,int rightpos)
 {
+// FIXME
+#if 0
 	byte	v;
 
 	if (!SBProPresent)
@@ -576,6 +631,7 @@ asm	cli
 	sbOut(sbpMixerData,v);
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -587,6 +643,8 @@ asm	popf
 static boolean
 SDL_CheckSB(int port)
 {
+// FIXME
+#if 0
 	int	i;
 
 	sbLocation = port << 4;		// Initialize stuff for later use
@@ -623,6 +681,8 @@ asm	loop usecloop
 			}
 		}
 	}
+#endif // 0
+
 	sbLocation = -1;						// Retry count exceeded - fail
 	return(false);
 }
@@ -690,6 +750,8 @@ SDL_SBSetDMA(byte channel)
 static void
 SDL_StartSB(void)
 {
+// FIXME
+#if 0
 	byte	timevalue,test;
 
 	sbIntVec = sbIntVectors[sbInterrupt];
@@ -742,6 +804,7 @@ SDL_StartSB(void)
 			sbOut(sbpMixerData,0);				// 0=off,2=on
 		}
 	}
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -752,6 +815,8 @@ SDL_StartSB(void)
 static void
 SDL_ShutSB(void)
 {
+// FIXME
+#if 0
 	SDL_SBStopSample();
 	SDL_RestoreDMAInt();				// Restore DMA interrupt
 
@@ -767,6 +832,7 @@ SDL_ShutSB(void)
 	}
 
 	setvect(sbIntVec,sbOldIntHand);		// Set vector back
+#endif // 0
 }
 
 //	Sound Source Code
@@ -818,12 +884,15 @@ static void
 #endif
 SDL_SSStopSample(void)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
 
 	(long)ssSample = 0;
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -834,6 +903,8 @@ asm	popf
 static void
 SDL_SSService(void)
 {
+// FIXME
+#if 0
 	boolean	gotit;
 	byte	v;
 
@@ -870,6 +941,7 @@ SDL_SSService(void)
 	asm	pop		ax
 	}
 done:;
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -884,6 +956,8 @@ static void
 #endif
 SDL_SSPlaySample(byte huge *data,longword len)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
 
@@ -891,6 +965,7 @@ asm	cli
 	ssSample = (volatile byte far *)data;
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -901,6 +976,8 @@ asm	popf
 static void
 SDL_StartSS(void)
 {
+// FIXME
+#if 0
 	if (ssPort == 3)
 		ssControl = 0x27a;	// If using LPT3
 	else if (ssPort == 2)
@@ -919,6 +996,7 @@ SDL_StartSS(void)
 	outportb(ssControl,ssOn);		// Enable SS
 
 	SDL_SSSetVol(0x100);
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -929,7 +1007,10 @@ SDL_StartSS(void)
 static void
 SDL_ShutSS(void)
 {
+// FIXME
+#if 0
 	outportb(ssControl,ssOff);
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -942,6 +1023,9 @@ static boolean
 SDL_CheckSS(void)
 {
 	boolean		present = false;
+
+// FIXME
+#if 0
 	longword	lasttime;
 
 	// Turn the Sound Source on and wait awhile (4 ticks)
@@ -985,6 +1069,8 @@ asm	jz		checkdone		// Nope, still not - Sound Source not here
 	present = true;			// Yes - it's here!
 
 checkdone:
+#endif // 0
+
 	SDL_ShutSS();
 	return(present);
 }
@@ -1014,14 +1100,20 @@ static void
 #endif
 SDL_PCPlaySound(PCSound far *sound)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
+#endif // 0
 
 	pcLastSample = -1;
 	pcLengthLeft = sound->common.length;
 	pcSound = sound->data;
 
+// FIXME
+#if 0
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1036,16 +1128,22 @@ static void
 #endif
 SDL_PCStopSound(void)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
+#endif // 0
 
 	(long)pcSound = 0;
 
+// FIXME
+#if 0
 asm	in	al,0x61		  	// Turn the speaker off
 asm	and	al,0xfd			// ~2
 asm	out	0x61,al
 
 asm	popf
+#endif // 0
 }
 
 #if 0
@@ -1112,16 +1210,22 @@ SDL_PCService(void)
 static void
 SDL_ShutPC(void)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
+#endif // 0
 
 	pcSound = 0;
 
+// FIXME
+#if 0
 asm	in	al,0x61		  	// Turn the speaker & gate off
 asm	and	al,0xfc			// ~3
 asm	out	0x61,al
 
 asm	popf
+#endif // 0
 }
 
 //
@@ -1179,8 +1283,11 @@ SD_StopDigitized(void)
 {
 	int	i;
 
+// FIXME
+#if 0
 asm	pushf
 asm	cli
+#endif // 0
 
 	DigiFailSafe = 0;
 	DigiLeft = 0;
@@ -1203,7 +1310,10 @@ asm	cli
 		break;
 	}
 
+// FIXME
+#if 0
 asm	popf
+#endif // 0
 
 	for (i = DigiLastStart;i < DigiLastEnd;i++)
 		PM_SetPageLock(i + PMSoundStart,pml_Unlocked);
@@ -1439,7 +1549,7 @@ SDL_SetupDigi(void)
 	MM_GetPtr(&list,PMPageSize);
 	PM_CheckMainMem();
 	p = (word far *)MK_FP(PM_GetPage(ChunksInFile - 1),0);
-	_fmemcpy((void far *)list,(void far *)p,PMPageSize);
+	memcpy((void far *)list,(void far *)p,PMPageSize);
 	pg = PMSoundStart;
 	for (i = 0;i < PMPageSize / (sizeof(word) * 2);i++,p += 2)
 	{
@@ -1449,7 +1559,7 @@ SDL_SetupDigi(void)
 	}
 	PM_UnlockMainMem();
 	MM_GetPtr((memptr *)&DigiList,i * sizeof(word) * 2);
-	_fmemcpy((void far *)DigiList,(void far *)list,i * sizeof(word) * 2);
+	memcpy((void far *)DigiList,(void far *)list,i * sizeof(word) * 2);
 	MM_FreePtr(&list);
 	NumDigi = i;
 
@@ -1468,6 +1578,8 @@ SDL_SetupDigi(void)
 void
 alOut(byte n,byte b)
 {
+// FIXME
+#if 0
 	int	i;
 
 asm	pushf
@@ -1482,6 +1594,7 @@ asm	popf
 
 	for (i = 0;i < 35;i++)
 		inportb(alFMStatus);
+#endif // 0
 }
 
 #if 0
@@ -1542,6 +1655,8 @@ static void
 #endif
 SDL_ALStopSound(void)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
 
@@ -1549,6 +1664,7 @@ asm	cli
 	alOut(alFreqH + 0,0);
 
 asm	popf
+#endif // 0
 }
 
 static void
@@ -1586,6 +1702,8 @@ static void
 #endif
 SDL_ALPlaySound(AdLibSound far *sound)
 {
+// FIXME
+#if 0
 	Instrument	far *inst;
 	byte		huge *data;
 
@@ -1612,6 +1730,7 @@ asm	cli
 	SDL_AlSetFXInst(inst);
 
 asm	popf
+#endif // 0
 }
 
 #if 0
@@ -1685,6 +1804,8 @@ SDL_ALService(void)
 static void
 SDL_ShutAL(void)
 {
+// FIXME
+#if 0
 asm	pushf
 asm	cli
 
@@ -1694,6 +1815,7 @@ asm	cli
 	alSound = 0;
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1704,6 +1826,8 @@ asm	popf
 static void
 SDL_CleanAL(void)
 {
+// FIXME
+#if 0
 	int	i;
 
 asm	pushf
@@ -1714,6 +1838,7 @@ asm	cli
 		alOut(i,0);
 
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1738,6 +1863,8 @@ SDL_StartAL(void)
 static boolean
 SDL_DetectAdLib(void)
 {
+// FIXME
+#if 0
 	byte	status1,status2;
 	int		i;
 
@@ -1771,6 +1898,8 @@ asm	loop usecloop
 		return(true);
 	}
 	else
+#endif // 0
+
 		return(false);
 }
 
@@ -2072,7 +2201,10 @@ SD_Startup(void)
 
 	SoundUserHook = 0;
 
+// FIXME
+#if 0
 	t0OldService = getvect(8);	// Get old timer 0 ISR
+#endif // 0
 
 	LocalTime = TimeCount = alTimeCount = 0;
 
@@ -2231,6 +2363,8 @@ SD_Shutdown(void)
 	if (SoundSourcePresent)
 		SDL_ShutSS();
 
+// FIXME
+#if 0
 	asm	pushf
 	asm	cli
 
@@ -2239,6 +2373,7 @@ SD_Shutdown(void)
 	setvect(8,t0OldService);
 
 	asm	popf
+#endif // 0
 
 	SD_Started = false;
 }
@@ -2277,6 +2412,8 @@ SD_PositionSound(int leftvol,int rightvol)
 boolean
 SD_PlaySound(soundnames sound)
 {
+// FIXME
+#if 0
 	boolean		ispos;
 	SoundCommon	far *s;
 	int	lp,rp;
@@ -2352,6 +2489,7 @@ SD_PlaySound(soundnames sound)
 
 	SoundNumber = sound;
 	SoundPriority = s->priority;
+#endif // 0
 
 	return(false);
 }
@@ -2463,8 +2601,12 @@ void
 SD_StartMusic(MusicGroup far *music)
 {
 	SD_MusicOff();
+
+// FIXME
+#if 0
 asm	pushf
 asm	cli
+#endif // 0
 
 	sqPlayedOnce = false;
 
@@ -2479,7 +2621,10 @@ asm	cli
 	else
 		sqPlayedOnce = true;
 
+// FIXME
+#if 0
 asm	popf
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////

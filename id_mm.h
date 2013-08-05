@@ -55,7 +55,7 @@
 
 //==========================================================================
 
-typedef void _seg * memptr;
+typedef void* memptr;
 
 typedef struct
 {
@@ -75,7 +75,7 @@ unsigned long __FREE_MEM_AVAIL__;
 extern	void		(* beforesort) (void);
 extern	void		(* aftersort) (void);
 
-extern char far *gp_fartext;
+extern char* gp_fartext;
 
 //==========================================================================
 
@@ -114,7 +114,7 @@ typedef struct mmblockstruct
 	unsigned	start,length;
 	unsigned	attributes;
 	memptr		*useptr;	// pointer to the segment start
-	struct mmblockstruct far *next;
+	struct mmblockstruct* next;
 } mmblocktype;
 
 

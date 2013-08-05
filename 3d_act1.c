@@ -13,6 +13,7 @@
 void OpenDoor (int door);
 void CloseDoor (int door);
 void PlaceItemNearTile(int itemtype, int tilex, int tiley);
+void HealSelf(int points);
 
 
 //===========================================================================
@@ -737,7 +738,7 @@ void InitAreas (void)
 void InitDoorList (void)
 {
 	memset (areabyplayer,0,sizeof(areabyplayer));
-	_fmemset (areaconnect,0,sizeof(areaconnect));
+	memset (areaconnect,0,sizeof(areaconnect));
 
 	lastdoorobj = &doorobjlist[0];
 	doornum = 0;
@@ -1786,7 +1787,7 @@ short LoadMsg(char far *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned 
 #pragma warn -pia
 	while (--MsgNum)
 	{
-		if (!(Message = _fstrstr(Message,int_xx)))
+		if (!(Message = strstr(Message,int_xx)))
 			ACT1_ERROR(INVALID_CACHE_MSG_NUM);
 
 		Message += 3;	// Bump to start of next Message
@@ -1800,7 +1801,7 @@ short LoadMsg(char far *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned 
 
 // Find the end of the message
 //
-	if (!(EndOfMsg = _fstrstr(Message,int_xx)))
+	if (!(EndOfMsg = strstr(Message,int_xx)))
 		ACT1_ERROR(INVALID_CACHE_MSG_NUM);
 	EndOfMsg += 3;
 

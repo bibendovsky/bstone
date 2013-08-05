@@ -2,7 +2,7 @@
 #include "jm_io.h"
 #include <stdarg.h>
 #include <MATH.H>
-#include <VALUES.H>
+//#include <VALUES.H>
 #include "jm_cio.h"
 
 //#define DEMOS_EXTERN
@@ -23,8 +23,8 @@
 
 #define PAGEFLIP
 
-#define BETA_TEST							(false)
-#define LOOK_FOR_DEAD_GUYS				(false)
+#define BETA_TEST							(0)
+#define LOOK_FOR_DEAD_GUYS				(0)
 
 #define BETA_CODE						   "NEWGAME"
 

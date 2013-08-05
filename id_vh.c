@@ -2,6 +2,14 @@
 
 #include "ID_HEADS.H"
 
+
+void VL_LatchToScreen(unsigned source, int width, int height, int x, int y);
+void IN_StartAck(void);
+boolean IN_CheckAck (void);
+void CalcTics (void);
+void ForceUpdateStatusBar(void);
+
+
 #define	SCREENWIDTH		80
 #define CHARWIDTH		2
 #define TILEWIDTH		4
@@ -60,6 +68,8 @@ void VW_DrawPropString (char far *string)
 		{
 			VGAMAPMASK(mask);
 
+// FIXME
+#if 0
 asm	mov	ah,[BYTE PTR fontcolor]
 asm	mov	bx,[step]
 asm	mov	cx,[height]
@@ -79,6 +89,7 @@ asm	add	di,dx
 asm	loop	vertloop
 asm	mov	ax,ss
 asm	mov	ds,ax
+#endif // 0
 
 			source++;
 			px++;
@@ -462,6 +473,8 @@ boolean FizzleFade (unsigned source, unsigned dest,
 		if (abortable && IN_CheckAck () )
 			return true;
 
+// FIXME
+#if 0
 		asm	mov	es,[screenseg]
 
 		for (p=0;p<pixperframe;p++)
@@ -510,6 +523,8 @@ noxor:
 			if (rndval == 1)		// entire sequence has been completed
 				return false;
 		}
+#endif // 0
+
 		frame++;
 		while (TimeCount<frame)		// don't go too fast
 		;

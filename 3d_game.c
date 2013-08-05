@@ -19,6 +19,32 @@
 extern char far prep_msg[];
 extern char LS_current,LS_total;
 void Died (void);
+void PM_SetMainMemPurge(int level);
+void InitGoldsternInfo(void);
+void InitDoorList (void);
+void InitStaticList (void);
+void ConnectBarriers(void);
+void DrawHealth (void);
+void DrawKeys (void);
+void DrawWeapon (void);
+void DrawScore(void);
+void InitInfoArea(void);
+void ForceUpdateStatusBar(void);
+void UpdateStatusBar(void);
+boolean LoadLevel(short levelnum);
+void SetPlaneViewSize (void);
+int CalcAngle(objtype* from_obj, objtype* to_obj);
+void FinishPaletteShifts (void);
+void CA_CacheScreen (int chunk);
+void VH_UpdateScreen();
+void DoActor (objtype *ob);
+boolean LevelInPlaytemp(char levelnum);
+void PreloadUpdate(unsigned current, unsigned total);
+void PreloadGraphics(void);
+boolean SaveLevel(short levelnum);
+int NextBuffer();
+void CheckHighScore (long score,word other);
+
 
 /*
 =============================================================================
@@ -2145,9 +2171,9 @@ void SetupGameLevel (void)
 //
 // copy the wall data to a data segment array
 //
-	_fmemset (TravelTable,0,sizeof(TravelTable));
-	_fmemset (gamestate.barrier_table,0xff,sizeof(gamestate.barrier_table));
-	_fmemset (gamestate.old_barrier_table,0xff,sizeof(gamestate.old_barrier_table));
+	memset (TravelTable,0,sizeof(TravelTable));
+	memset (gamestate.barrier_table,0xff,sizeof(gamestate.barrier_table));
+	memset (gamestate.old_barrier_table,0xff,sizeof(gamestate.old_barrier_table));
 	memset (tilemap,0,sizeof(tilemap));
 	memset (actorat,0,sizeof(actorat));
 	memset (wallheight,0,sizeof(wallheight));
@@ -2415,7 +2441,7 @@ void LoadLocationText(short textNum)
 	char far *temp;
 
 	LoadMsg(LocationText,LEVEL_DESCS,textNum+1,MAX_LOCATION_DESC_LEN);
-	temp = _fstrstr(LocationText,"^XX");
+	temp = strstr(LocationText,"^XX");
 	if (temp)
 		*temp = 0;
 }
@@ -2510,7 +2536,7 @@ void CacheBMAmsg(unsigned MsgNum)
 	CA_CacheGrChunk(MsgNum);
    string = MK_FP(grsegs[MsgNum],0);
 
-   pos = _fstrstr(string,"^XX");
+   pos = strstr(string,"^XX");
    *(pos+3) = 0;
 
    BMAmsg(string);
@@ -3311,7 +3337,7 @@ restart:
 			gamestate.ammo = gamestate.old_ammo;
 			gamestate.plasma_detonators = gamestate.old_plasma_detonators;
 			gamestate.boss_key_dropped=gamestate.old_boss_key_dropped;
-			_fmemcpy(&gamestuff.level[0],gamestuff.old_levelinfo,sizeof(gamestuff.old_levelinfo));
+			memcpy(&gamestuff.level[0],gamestuff.old_levelinfo,sizeof(gamestuff.old_levelinfo));
 			DrawKeys();
 			DrawScore();
 		}
@@ -3423,7 +3449,7 @@ strcat (str,str2);							// defined in 3d_main.c
 			gamestate.old_weapons[2] = gamestate.chosenweapon;
 			gamestate.old_ammo = gamestate.ammo;
 			gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
-			_fmemcpy(gamestuff.old_levelinfo,&gamestuff.level[0],sizeof(gamestuff.old_levelinfo));
+			memcpy(gamestuff.old_levelinfo,&gamestuff.level[0],sizeof(gamestuff.old_levelinfo));
 
 #if 0
 			if (gamestate.mapon == 9)
@@ -3457,7 +3483,7 @@ strcat (str,str2);							// defined in 3d_main.c
 			MainMenu[MM_SAVE_MISSION].active=AT_DISABLED;
 #pragma warn -sus
 			 MainMenu[MM_VIEW_SCORES].routine=&CP_ViewScores;
-			_fstrcpy(MainMenu[MM_VIEW_SCORES].string,"HIGH SCORES");
+			strcpy(MainMenu[MM_VIEW_SCORES].string,"HIGH SCORES");
 #pragma warn +sus
 
 			if (playstate==ex_victorious)

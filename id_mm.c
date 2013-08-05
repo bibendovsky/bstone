@@ -511,7 +511,7 @@ void MM_Shutdown (void)
   if (!mmstarted)
 	return;
 
-  farfree (farheap);
+  free (farheap);
   free (nearheap);
 //  MML_ShutdownXMS ();
 }
@@ -864,12 +864,20 @@ void MM_SortMem (void)
 					dest = start;
 					while (length > 0xf00)
 					{
+// FIXME
+#if 0
 						movedata(source,0,dest,0,0xf00*16);
+#endif // 0
+
 						length -= 0xf00;
 						source += 0xf00;
 						dest += 0xf00;
 					}
+
+// FIXME
+#if 0
 					movedata(source,0,dest,0,length*16);
+#endif // 0
 
 					scan->start = start;
 					*(unsigned *)scan->useptr = start;

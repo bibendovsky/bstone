@@ -3,8 +3,24 @@
 
 #include "jm_tp.h"
 #include "jm_io.h"
+#include "jm_lzh.h"
 
 #pragma hdrstop
+
+
+extern int _argc;
+extern char** _argv;
+
+void CA_CacheScreen (int chunk);
+void VH_UpdateScreen();
+void	DrawHighScores(void);
+void ClearMemory (void);
+void DrawTopInfo(sp_type type);
+void PreloadUpdate(unsigned current, unsigned total);
+void ShowViewSize (int width);
+void INL_GetJoyDelta(word joy,int *dx,int *dy);
+boolean LoadTheGame(int handle);
+
 
 // As is, this switch will not work ... the data associated with this
 // is not saved out correctly.
@@ -489,7 +505,7 @@ void US_ControlPanel(byte scancode)
  {
   #pragma warn -sus
   MainMenu[MM_VIEW_SCORES].routine = NULL;
-  _fstrcpy(MainMenu[MM_VIEW_SCORES].string,"END GAME");
+  strcpy(MainMenu[MM_VIEW_SCORES].string,"END GAME");
   #pragma warn +sus
  }
 
@@ -524,12 +540,12 @@ void DrawMainMenu(void)
  //
 	if (ingame)
 	{
-		_fstrcpy(&MainMenu[MM_BACK_TO_DEMO].string[8],"MISSION");
+		strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8],"MISSION");
 		MainMenu[MM_BACK_TO_DEMO].active=AT_READIT;
 	}
 	else
 	{
-		_fstrcpy(&MainMenu[MM_BACK_TO_DEMO].string[8],"DEMO");
+		strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8],"DEMO");
 		MainMenu[MM_BACK_TO_DEMO].active=AT_ENABLED;
 	}
 
@@ -613,7 +629,7 @@ int CP_CheckQuick(unsigned scancode)
 
 				CA_CacheGrChunk(STARTFONT+1);
 
-				_fstrcat(string,SaveGameNames[LSItems.curpos]);
+				strcat(string,SaveGameNames[LSItems.curpos]);
 				strcat(string,"\"?");
 				VW_ScreenToScreen (displayofs,bufferofs,80,160);
 
@@ -658,7 +674,7 @@ int CP_CheckQuick(unsigned scancode)
 
 				CA_CacheGrChunk(STARTFONT+1);
 
-				_fstrcat(string,SaveGameNames[LSItems.curpos]);
+				strcat(string,SaveGameNames[LSItems.curpos]);
 				strcat(string,"\"?");
 				VW_ScreenToScreen (displayofs,bufferofs,80,160); 
 
@@ -1453,7 +1469,7 @@ int CP_LoadGame(int quick)
  char name[13];
 
 
- _fstrcpy(name,SaveName);
+ strcpy(name,SaveName);
 
  //
  // QUICKLOAD?
@@ -1606,7 +1622,7 @@ int CP_SaveGame(int quick)
 	boolean temp_caps = allcaps;
 	US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
 
-	_fstrcpy(name,SaveName);
+	strcpy(name,SaveName);
 
 	allcaps = true;
 	use_custom_cursor = true;
@@ -1661,7 +1677,7 @@ int CP_SaveGame(int quick)
 
 			ShootSnd();
 
-			_fstrcpy(input,&SaveGameNames[which][0]);
+			strcpy(input,&SaveGameNames[which][0]);
 			name[7]=which+'0';
 
 			fontnumber=2;
@@ -1673,7 +1689,7 @@ int CP_SaveGame(int quick)
 			if (US_LineInput(LSM_X+LSItems.indent+2,LSM_Y+which*LSItems.y_spacing,input,input,true,GAME_DESCRIPTION_LEN,LSM_W-LSItems.indent-10))
 			{
 				SaveGamesAvail[which]=1;
-				_fstrcpy(&SaveGameNames[which][0],input);
+				strcpy(&SaveGameNames[which][0],input);
 
 				unlink(name);
 				_fmode=O_BINARY;
@@ -1741,7 +1757,12 @@ void CP_Control(void)
   {
    case MOUSEENABLE:
      mouseenabled^=1;
+
+// FIXME
+#if 0
      _CX=_DX=CENTER;
+#endif // 0
+
      Mouse(4);
      DrawCtlScreen();
      CusItems.curpos=-1;
@@ -2084,8 +2105,8 @@ boolean TestForValidKey(ScanCode Scan)
 
 #pragma warn -pia
 
-	if (!(pos = _fmemchr(buttonscan,Scan,sizeof(buttonscan))))
-  		pos = _fmemchr(dirscan,Scan,sizeof(dirscan));
+	if (!(pos = memchr(buttonscan,Scan,sizeof(buttonscan))))
+  		pos = memchr(dirscan,Scan,sizeof(dirscan));
 
 #pragma warn +pia
 
@@ -2205,7 +2226,10 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
 		    {
 				 case MOUSE:
 			       Mouse(3);
+// FIXME
+#if 0
 					 button=_BX;
+#endif // 0
 		   	    switch(button)
 			       {
 						case 1: result=1; break;
@@ -2264,7 +2288,7 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
           	if (LastScan == sc_Escape)
             	break;
 
-	   	  	if (_fmemchr(special_keys,LastScan,sizeof(special_keys)))
+	   	  	if (memchr(special_keys,LastScan,sizeof(special_keys)))
 					SD_PlaySound(NOWAYSND);
 				else
    	      {
@@ -2287,7 +2311,7 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
 	        	if (LastScan == sc_Escape)
    	        	break;
 
-		     	if (_fmemchr(special_keys,LastScan,sizeof(special_keys)))
+		     	if (memchr(special_keys,LastScan,sizeof(special_keys)))
 					SD_PlaySound(NOWAYSND);
 				else
 	         {
@@ -2849,7 +2873,11 @@ void SetupControlPanel(void)
 	// CENTER MOUSE
 	//
 
+// FIXME
+#if 0
 	_CX=_DX=CENTER;
+#endif // 0
+
 	Mouse(4);
 
 }
@@ -2860,13 +2888,15 @@ void SetupControlPanel(void)
 //---------------------------------------------------------------------------
 void ReadGameNames()
 {
+// FIXME
+#if 0
 	struct ffblk f;
 	char name[13];
 	int which;
 
 // SEE WHICH SAVE GAME FILES ARE AVAILABLE & READ STRING IN
 //
-	_fstrcpy(name,SaveName);
+	strcpy(name,SaveName);
 	MakeDestPath(name);
 	if (!findfirst(tempPath,&f,0))
 		do
@@ -2883,13 +2913,14 @@ void ReadGameNames()
 				if (FindChunk(handle,"DESC"))
 				{
 					read(handle,temp,GAME_DESCRIPTION_LEN+1);
-					_fstrcpy(&SaveGameNames[which][0],temp);
+					strcpy(&SaveGameNames[which][0],temp);
 				}
 				else
-					_fstrcpy(&SaveGameNames[which][0],"DESCRIPTION LOST");
+					strcpy(&SaveGameNames[which][0],"DESCRIPTION LOST");
 				close(handle);
 			}
 		} while(!findnext(&f));
+#endif // 0
 }
 
 //---------------------------------------------------------------------------
@@ -3339,13 +3370,22 @@ void ReadAnyControl(ControlInfo *ci)
   // CHECK MOUSE BUTTONS
 
   Mouse(3);
+
+// FIXME
+#if 0
   mousex=_CX;
   mousey=_DX;
+#endif // 0
 
   if (mousey<CENTER-SENSITIVE)
   {
 	ci->dir=dir_North;
+
+// FIXME
+#if 0
 	_CX=_DX=CENTER;
+#endif // 0
+
 	Mouse(4);
 	mouseactive=1;
   }
@@ -3353,7 +3393,12 @@ void ReadAnyControl(ControlInfo *ci)
   if (mousey>CENTER+SENSITIVE)
   {
 	ci->dir=dir_South;
+
+// FIXME
+#if 0
 	_CX=_DX=CENTER;
+#endif // 0
+
 	Mouse(4);
 	mouseactive=1;
   }
@@ -3361,7 +3406,12 @@ void ReadAnyControl(ControlInfo *ci)
   if (mousex<CENTER-SENSITIVE)
   {
    ci->dir=dir_West;
+
+// FIXME
+#if 0
    _CX=_DX=CENTER;
+#endif // 0
+
    Mouse(4);
    mouseactive=1;
   }
@@ -3369,7 +3419,12 @@ void ReadAnyControl(ControlInfo *ci)
   if (mousex>CENTER+SENSITIVE)
   {
    ci->dir=dir_East;
+
+// FIXME
+#if 0
    _CX=_DX=CENTER;
+#endif // 0
+
    Mouse(4);
    mouseactive=1;
   }
@@ -3498,7 +3553,7 @@ void Message(char far *string)
 	font=grsegs[STARTFONT+fontnumber];
 
 	h=font->height;
-	for (i=0;i<_fstrlen(string);i++)
+	for (i=0;i<strlen(string);i++)
 		if (string[i]=='\n')
 		{
 			if (w>mw)
@@ -3544,7 +3599,7 @@ void Message(char far *string)
 //--------------------------------------------------------------------------
 void TerminateStr(char far *pos)
 {
-   pos = _fstrstr(pos,"^XX");
+   pos = strstr(pos,"^XX");
 
 #if IN_DEVELOPMENT
    if (!pos)
@@ -3646,7 +3701,7 @@ boolean CheckForSpecialCode(unsigned ItemNum)
    // Check for code
 
 	for (i=1; i<_argc; i++)
-		if (!_fmemicmp(_argv[i],code_ptr,_fstrlen(code_ptr)))
+		if (!memicmp(_argv[i],code_ptr,strlen(code_ptr)))
       	return_val = true;
 
 	// free allocated memory

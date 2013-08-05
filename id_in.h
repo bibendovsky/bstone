@@ -117,7 +117,13 @@ typedef	byte		ScanCode;
 #define	MDelta		11
 
 #define	MouseInt	0x33
+
+// FIXME
+#if 0
 #define	Mouse(x)	_AX = x,geninterrupt(MouseInt)
+#endif
+
+#define Mouse(x)
 
 #define  NGint	0x15
 #define  NGjoy(com)	_AH=0x84;_DX=com;geninterrupt(NGint);

@@ -3,9 +3,15 @@
 #include "3D_DEF.H"
 #pragma hdrstop
 
+
+void R_DrawSLSColumn();
+void R_DrawLSColumn();
+void R_DrawColumn();
+
+
 #define OP_RETF	0xcb
 
-#define CLOAKED_SHAPES			(true)
+#define CLOAKED_SHAPES			(1)
 
 /*
 =============================================================================
