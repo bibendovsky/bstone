@@ -178,7 +178,10 @@ unsigned *freq;	/* cumulative freq table */
 unsigned char *text_buf;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
-memptr id_son,id_prnt,id_freq,id_text_buf;
+void* id_son;
+void* id_prnt;
+void* id_freq;
+void* id_text_buf;
 #endif
 
 #else
@@ -211,7 +214,9 @@ unsigned char text_buf[N + F - 1];
 static int *lson, *rson, *dad;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
-memptr id_lson,id_rson,id_dad;
+void* id_lson;
+void* id_rson;
+void* id_dad;
 #endif
 #else
 

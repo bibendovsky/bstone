@@ -710,7 +710,7 @@ error:
 //
 
 extern boolean			MainPresent;
-extern memptr			MainMemPages[PMMaxMainMem];
+extern void*			MainMemPages[PMMaxMainMem];
 extern PMBlockAttr		MainMemUsed[PMMaxMainMem];
 extern int				MainPagesAvail;
 
@@ -718,7 +718,7 @@ void
 PML_StartupMainMem(void)
 {
 	int		i,n;
-	memptr	*p;
+	void*	*p;
 
 	MainPagesAvail = 0;
 	MM_BombOnError(false);
@@ -1089,7 +1089,7 @@ void BuildTables (void)
 	angle += anglestep;
   }
 // Fix ColorMap
-  MM_GetPtr(&(memptr)temp,16896);
+  MM_GetPtr(&(void*)temp,16896);
   memcpy(temp,colormap,16896);
   lightsource=(byte *)(((long)colormap + 255)&~0xff);
   memcpy(lightsource,temp,16384);
@@ -1169,7 +1169,7 @@ void CAL_SetupAudioFile (void)
 		CA_CannotOpen(fname);
 
 	length = filelength(handle);
-	MM_GetPtr (&(memptr)audiostarts,length);
+	MM_GetPtr (&(void*)audiostarts,length);
 	CA_FarRead(handle, (byte *)audiostarts, length);
 	close(handle);
 #else
@@ -1197,7 +1197,7 @@ void CAL_SetupGrFile (void)
 {
 	char fname[13];
 	int handle;
-	memptr compseg;
+	void* compseg;
 
 #ifdef GRHEADERLINKED
 
@@ -1225,7 +1225,7 @@ void CAL_SetupGrFile (void)
 //
 // load the data offsets from ???head.ext
 //
-	MM_GetPtr (&(memptr)grstarts,(NUMCHUNKS+1)*FILEPOSSIZE);
+	MM_GetPtr (&(void*)grstarts,(NUMCHUNKS+1)*FILEPOSSIZE);
 
 	strcpy(fname,gheadname);
 	strcat(fname,extension);
@@ -1234,7 +1234,7 @@ void CAL_SetupGrFile (void)
 		 O_RDONLY | O_BINARY, S_IREAD)) == -1)
 		CA_CannotOpen(fname);
 
-	CA_FarRead(handle, (memptr)grstarts, (NUMCHUNKS+1)*FILEPOSSIZE);
+	CA_FarRead(handle, (void*)grstarts, (NUMCHUNKS+1)*FILEPOSSIZE);
 
 	close(handle);
 
@@ -1249,7 +1249,7 @@ void CAL_SetupGrFile (void)
 //
 // load the pic and sprite headers into the arrays in the data segment
 //
-	MM_GetPtr(&(memptr)pictable,NUMPICS*sizeof(pictabletype));
+	MM_GetPtr(&(void*)pictable,NUMPICS*sizeof(pictabletype));
 	CAL_GetGrChunkLength(STRUCTPIC);		// position file pointer
 	MM_GetPtr(&compseg,chunkcomplen);
 	CA_FarRead (grhandle,compseg,chunkcomplen);
@@ -1300,7 +1300,7 @@ void CAL_SetupMapFile (void)
 		CA_CannotOpen(fname);
 
 	length = filelength(handle);
-	MM_GetPtr (&(memptr)tinf,length);
+	MM_GetPtr (&(void*)tinf,length);
 	CA_FarRead(handle, tinf, length);
 	close(handle);
 #else
@@ -1323,10 +1323,10 @@ void CAL_SetupMapFile (void)
 		if (pos<0)						// $FFFFFFFF start is a sparse map
 			continue;
 
-		MM_GetPtr(&(memptr)mapheaderseg[i],sizeof(maptype));
-		MM_SetLock(&(memptr)mapheaderseg[i],true);
+		MM_GetPtr(&(void*)mapheaderseg[i],sizeof(maptype));
+		MM_SetLock(&(void*)mapheaderseg[i],true);
 		lseek(maphandle,pos,SEEK_SET);
-		CA_FarRead (maphandle,(memptr)mapheaderseg[i],sizeof(maptype));
+		CA_FarRead (maphandle,(void*)mapheaderseg[i],sizeof(maptype));
 	}
 
 //
@@ -1334,8 +1334,8 @@ void CAL_SetupMapFile (void)
 //
 	for (i=0;i<MAPPLANES;i++)
 	{
-		MM_GetPtr (&(memptr)mapsegs[i],64*64*2);
-		MM_SetLock (&(memptr)mapsegs[i],true);
+		MM_GetPtr (&(void*)mapsegs[i],64*64*2);
+		MM_SetLock (&(void*)mapsegs[i],true);
 	}
 
 #if FORCE_FILE_CLOSE
@@ -1874,7 +1874,7 @@ void PreDemo()
 	// Free palette and music.  AND  Restore palette
 	//
 		UNCACHEGRCHUNK(APOGEEPALETTE);
-		MM_FreePtr((memptr *)&audiosegs[STARTMUSIC+APOGFNFM_MUS]);
+		MM_FreePtr((void**)&audiosegs[STARTMUSIC+APOGFNFM_MUS]);
 
       // Do A Blue Flash!
 
@@ -2004,7 +2004,7 @@ void InitGame (void)
 #if (!IN_DEVELOPMENT)
 	if (mminfo.mainmem < MIN_MEM_NEEDED)
 	{
-	 memptr screen;
+	 void* screen;
 	 CA_CacheGrChunk (ERRORSCREEN);
 	 screen = grsegs[ERRORSCREEN];
 	 ShutdownId();
@@ -2287,7 +2287,7 @@ void CheckValidity(char *file, long valid_checksum)
 
 #define CFC_BUFFERSIZE 65535
 
-memptr cfc_buffer;
+void* cfc_buffer;
 
 //-------------------------------------------------------------------------
 // ChecksumFile()

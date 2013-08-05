@@ -1521,7 +1521,7 @@ void TP_PrintPageNumber()
 short TP_DrawShape(short x, short y, short shapenum, pisType shapetype)
 {
 	short width;
-	memptr addr;
+	void* addr;
 
 // Mask 'x coordinate' when displaying certain shapes
 //

@@ -71,7 +71,7 @@
 typedef struct {
 	unsigned flags,gflags;
 	char *script[TP_MAX_PAGES];
-	memptr scriptstart;
+	void* scriptstart;
 	char numpages,pagenum;
 	unsigned xl,yl,xh,yh;
 	char fontnumber;

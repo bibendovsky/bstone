@@ -2294,7 +2294,7 @@ typedef enum
 typedef struct {
 	unsigned char local_val;	// where msg is in 'local' list
 	unsigned char global_val;	// where msg was in 'global' list
-	memptr mSeg;					// pointer to message
+	void* mSeg;					// pointer to message
 } mCacheInfo;
 
 // Basic 'message list' structure
@@ -2462,7 +2462,7 @@ unsigned scan_atoi(char *s);
 void 				AlignPlayerOnTransporter(void);
 
 unsigned UseFunc(char *first, char *next);
-boolean DoMovie(movie_t movie, memptr palette);
+boolean DoMovie(movie_t movie, void* palette);
 boolean CheckDiskSpace(long needed,char *text,cds_io_type io_type);
 boolean SaveTheGame(int handle, char *description);
 long ChecksumFile(char *file, long checksum);  
@@ -2604,7 +2604,7 @@ extern  boolean         buttonstate[NUMBUTTONS];
 
 extern  boolean         demorecord,demoplayback;
 extern  char            *demoptr, *lastdemoptr;
-extern  memptr          demobuffer;
+extern  void*          demobuffer;
 
 extern char Computing[];
 
@@ -2842,7 +2842,7 @@ extern scientist_t MeanSciList;
 
 extern unsigned static_points[];
 extern boolean GAN_HiddenArea;
-extern memptr InfAreaMsgs[];
+extern void* InfAreaMsgs[];
 extern byte NumAreaMsgs,LastInfArea;
 extern short FirstGenInfMsg,TotalGenInfMsgs;
 extern classtype LastInfoAttacker;						 
@@ -3315,7 +3315,7 @@ extern boolean EscPressed;
 void DrawInstructions(inst_type Type);
 void CacheMessage(unsigned MessageNum);
 void TerminateStr(char *pos);
-unsigned long CacheCompData(unsigned ItemNum, memptr *dest_loc);
+unsigned long CacheCompData(unsigned ItemNum, void** dest_loc);
 boolean CheckForSpecialCode(unsigned ItemNum);
 
 

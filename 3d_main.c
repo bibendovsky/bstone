@@ -308,7 +308,7 @@ boolean LevelInPlaytemp(char levelnum);
 
 #define LZH_WORK_BUFFER_SIZE	8192		
 
-memptr lzh_work_buffer;
+void* lzh_work_buffer;
 long checksum;
 
 //--------------------------------------------------------------------------
@@ -453,7 +453,7 @@ boolean LoadLevel(short levelnum)
 	objtype *ob;
 	statobj_t *statptr;
 	int handle,picnum;
-	memptr temp;
+	void* temp;
 	unsigned count;
 	char *ptr;
 	char chunk[5]="LVxx";
@@ -817,10 +817,10 @@ boolean LoadTheGame(int handle)
 
 	int shandle;
 	long cksize;
-	memptr temp=NULL;
+	void* temp=NULL;
 	boolean rt_value=false;
    char InfoSpace[400];
-   memptr tempspace;
+   void* tempspace;
 
 // Setup LZH decompression
 //
@@ -1326,7 +1326,7 @@ void CalcProjection (long focal)
 //--------------------------------------------------------------------------
 // DoMovie()
 //--------------------------------------------------------------------------
-boolean DoMovie(movie_t movie, memptr palette)
+boolean DoMovie(movie_t movie, void* palette)
 {
 	boolean  ReturnVal;
 //	StopMusic();
@@ -1339,7 +1339,7 @@ boolean DoMovie(movie_t movie, memptr palette)
    if (palette)
    	Movies[movie].palette = palette;
    else
-   	Movies[movie].palette = (memptr)FP_SEG(&vgapal);
+   	Movies[movie].palette = (void*)FP_SEG(&vgapal);
 
 	ReturnVal = MOVIE_Play(&Movies[movie]);
 
@@ -1478,7 +1478,7 @@ void NewViewSize (int width)
 void Quit (char *error,...)
 {
 	unsigned        finscreen;
-	memptr			diz;
+	void*			diz;
 	char *screen;
 	unsigned unit,err;
 	va_list ap;
@@ -1736,7 +1736,7 @@ void    DemoLoop (void)
 
 
 		if (audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC])
-			MM_FreePtr((memptr *)&audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
+			MM_FreePtr((void**)&audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
 
 		if (!screenfaded)
 			VW_FadeOut();

@@ -73,7 +73,7 @@ byte	fi_rate,fo_rate;
 
 // MOVIE_GetFrame & MOVIE_LoadBuffer variables
 
-memptr MovieBuffer;					// Ptr to Allocated Memory for Buffer
+void* MovieBuffer;					// Ptr to Allocated Memory for Buffer
 unsigned long BufferLen;			// Len of MovieBuffer (Ammount of RAM allocated)
 unsigned long PageLen;				// Len of data loaded into MovieBuffer
 char * BufferPtr;				// Ptr to next frame in MovieBuffer
@@ -89,7 +89,7 @@ boolean EverFaded;
 long seek_pos;
 char movie_reps;
 ControlInfo ci;
-memptr movie_palette;
+void* movie_palette;
 
 
 //

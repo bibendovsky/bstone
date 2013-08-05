@@ -117,7 +117,7 @@ boolean		buttonheld[NUMBUTTONS];
 
 boolean		demorecord,demoplayback;
 char		*demoptr, *lastdemoptr;
-memptr		demobuffer;
+void*		demobuffer;
 
 // Light sourcing flag
 
@@ -936,7 +936,7 @@ void CheckKeys (void)
 			if (old_num != music_num)
 			{
 				ClearMemory();
-				MM_FreePtr ((memptr *)&audiosegs[STARTMUSIC + old_num]);
+				MM_FreePtr ((void**)&audiosegs[STARTMUSIC + old_num]);
 				StartMusic(false);
 				PM_CheckMainMem();
 				DrawScore();
@@ -1347,7 +1347,7 @@ void StopMusic(void)
 	SD_MusicOff();
 	for (i = 0;i < LASTMUSIC;i++)
 		if (audiosegs[STARTMUSIC + i])
-			MM_FreePtr(&((memptr)audiosegs[STARTMUSIC + i]));
+			MM_FreePtr(&((void*)audiosegs[STARTMUSIC + i]));
 }
 
 //==========================================================================
@@ -1382,7 +1382,7 @@ void StartMusic(boolean preload)
 		mmerror = false;
 	else
 	{
-		MM_SetLock(&((memptr)audiosegs[STARTMUSIC + musicchunk]),true);
+		MM_SetLock(&((void*)audiosegs[STARTMUSIC + musicchunk]),true);
 		if (!preload)
 			SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + musicchunk]);
 	}

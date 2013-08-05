@@ -1024,7 +1024,7 @@ void CA_CacheAudioChunk (int chunk)
 
 	if (audiosegs[chunk])
 	{
-		MM_SetPurge (&(memptr)audiosegs[chunk],0);
+		MM_SetPurge (&(void*)audiosegs[chunk],0);
 		return;							// allready in memory
 	}
 
@@ -1043,7 +1043,7 @@ void CA_CacheAudioChunk (int chunk)
 
 #ifndef AUDIOHEADERLINKED
 
-	MM_GetPtr (&(memptr)audiosegs[chunk],compressed);
+	MM_GetPtr (&(void*)audiosegs[chunk],compressed);
 	if (mmerror)
    {
 #if FORCE_FILE_CLOSE
@@ -1126,7 +1126,7 @@ void CA_LoadAllSounds (void)
 
 	for (i=0;i<NUMSOUNDS;i++,start++)
 		if (audiosegs[start])
-			MM_SetPurge (&(memptr)audiosegs[start],3);		// make purgable
+			MM_SetPurge (&(void*)audiosegs[start],3);		// make purgable
 
 cachein:
 
@@ -1221,7 +1221,7 @@ void CAL_ExpandGrChunk (int chunk, byte *source)
 void CA_CacheGrChunk (int chunk)
 {
 	long	pos,compressed;
-	memptr	bigbufferseg;
+	void*	bigbufferseg;
 	byte	*source;
 	int		next;
 
@@ -1287,7 +1287,7 @@ void CA_CacheGrChunk (int chunk)
 void CA_CacheScreen (int chunk)
 {
 	long	pos,compressed,expanded;
-	memptr	bigbufferseg;
+	void*	bigbufferseg;
 	byte	*source;
 	int		next;
 
@@ -1336,7 +1336,8 @@ void CA_CacheMap (int mapnum)
 {
 	long	pos,compressed;
 	int		plane;
-	memptr	*dest,bigbufferseg;
+	void** dest;
+    void* bigbufferseg;
 	unsigned	size;
 	unsigned	*source;
 #ifdef CARMACIZED
@@ -1360,7 +1361,7 @@ void CA_CacheMap (int mapnum)
 		pos = mapheaderseg[mapnum]->planestart[plane];
 		compressed = mapheaderseg[mapnum]->planelength[plane];
 
-		dest = &(memptr)mapsegs[plane];
+		dest = &(void*)mapsegs[plane];
 
 		lseek(maphandle,pos,SEEK_SET);
 		if (compressed<=BUFFERSIZE)
@@ -1429,7 +1430,7 @@ void CA_UpLevel (void)
 
 	for (i=0;i<NUMCHUNKS;i++)
 		if (grsegs[i])
-			MM_SetPurge (&(memptr)grsegs[i],3);
+			MM_SetPurge (&(void*)grsegs[i],3);
 	ca_levelbit<<=1;
 	ca_levelnum++;
 }
@@ -1584,7 +1585,7 @@ void CA_CacheMarks (void)
 	long	pos,endpos,nextpos,nextendpos,compressed;
 	long	bufferstart,bufferend;	// file position of general buffer
 	byte	*source;
-	memptr	bigbufferseg;
+	void*	bigbufferseg;
 
 	numcache = 0;
 //

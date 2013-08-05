@@ -142,7 +142,7 @@ static	void			(*SoundUserHook)(void);
 		word				DigiLastStart,DigiLastEnd;
 		volatile boolean	DigiPlaying;
 static	volatile boolean	DigiMissed,DigiLastSegment;
-static	volatile memptr		DigiNextAddr;
+static	volatile void*		DigiNextAddr;
 static	volatile word		DigiNextLen;
 		volatile longword	DigiFailSafe;
 		longword			DigiFailTriggered;
@@ -1231,10 +1231,9 @@ asm	popf
 //
 //	Stuff for digitized sounds
 //
-memptr
-SDL_LoadDigiSegment(word page)
+void* SDL_LoadDigiSegment(word page)
 {
-	memptr	addr;
+	void*	addr;
 
 #if 0	// for debugging
 asm	mov	dx,STATUS_REGISTER_1
@@ -1265,7 +1264,7 @@ asm	out	dx,al
 }
 
 void
-SDL_PlayDigiSegment(memptr addr,word len)
+SDL_PlayDigiSegment(void* addr,word len)
 {
 	switch (DigiMode)
 	{
@@ -1410,7 +1409,7 @@ SD_PlayDigitized(word which,int leftpos,int rightpos)
 	byte	timevalue;
 	word	pages;
 	word	len;
-	memptr	addr;
+	void*	addr;
 
 	if (!DigiMode)
 		return;
@@ -1540,7 +1539,7 @@ SD_SetDigiDevice(SDSMode mode)
 void
 SDL_SetupDigi(void)
 {
-	memptr	list;
+	void*	list;
 	word	*p,
 			pg;
 	int		i;
@@ -1558,7 +1557,7 @@ SDL_SetupDigi(void)
 		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
 	}
 	PM_UnlockMainMem();
-	MM_GetPtr((memptr *)&DigiList,i * sizeof(word) * 2);
+	MM_GetPtr((void**)&DigiList,i * sizeof(word) * 2);
 	memcpy((void *)DigiList,(void *)list,i * sizeof(word) * 2);
 	MM_FreePtr(&list);
 	NumDigi = i;

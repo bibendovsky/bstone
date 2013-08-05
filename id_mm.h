@@ -55,8 +55,6 @@
 
 //==========================================================================
 
-typedef void* memptr;
-
 typedef struct
 {
 	long	nearheap,farheap,EMSmem,XMSmem,mainmem;
@@ -66,7 +64,7 @@ typedef struct
 
 extern unsigned blockcount;
 extern	mminfotype	mminfo;
-extern	memptr		bufferseg;
+extern	void* bufferseg;
 extern	boolean		mmerror;
 //unsigned __SEGS_AVAILABLE__;
 unsigned long __PUR_MEM_AVAIL__;
@@ -83,11 +81,11 @@ void MM_Startup (void);
 void MM_Shutdown (void);
 void MM_MapEMS (void);
 
-void MM_GetPtr (memptr *baseptr,unsigned long size);
-void MM_FreePtr (memptr *baseptr);
+void MM_GetPtr (void** baseptr,unsigned long size);
+void MM_FreePtr (void** baseptr);
 
-void MM_SetPurge (memptr *baseptr, int purge);
-void MM_SetLock (memptr *baseptr, boolean locked);
+void MM_SetPurge (void** baseptr, int purge);
+void MM_SetLock (void** baseptr, boolean locked);
 void MM_SortMem (void);
 
 void MM_ShowMemory (void);
@@ -113,7 +111,7 @@ typedef struct mmblockstruct
 {
 	unsigned	start,length;
 	unsigned	attributes;
-	memptr		*useptr;	// pointer to the segment start
+	void** useptr;	// pointer to the segment start
 	struct mmblockstruct* next;
 } mmblocktype;
 

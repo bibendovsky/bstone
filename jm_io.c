@@ -93,7 +93,7 @@ boolean IO_WriteFile(char *filename, void *ptr, long length)
 //--------------------------------------------------------------------------
 // IO_LoadFile()
 //--------------------------------------------------------------------------
-long IO_LoadFile (char *filename, memptr *dst)
+long IO_LoadFile (char *filename, void** dst)
 {
 	char buffer[5]={0,0,0,0,0};
 	int handle;
@@ -186,7 +186,7 @@ void IO_CopyHandle(int sHandle, int dHandle, long num_bytes)
 	#define CF_BUFFER_SIZE 8192
 
 	long fsize;
-	memptr src;
+	void* src;
 
 	unsigned length;
 

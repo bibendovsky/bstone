@@ -48,7 +48,7 @@ typedef struct
 
 	short start_line;
 	short end_line;
-   memptr palette;
+   void* palette;
 
 } MovieStuff_t;
 
@@ -60,7 +60,7 @@ typedef struct
 //
 //=========================================================================
 
-extern memptr displaybuffer;
+extern void* displaybuffer;
 extern MovieStuff_t Movies[];
 
 //===========================================================================

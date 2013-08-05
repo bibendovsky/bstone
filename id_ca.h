@@ -101,8 +101,8 @@ void CA_OpenDebug (void);
 void CA_CloseDebug (void);
 boolean CA_FarRead (int handle, byte *dest, long length);
 boolean CA_FarWrite (int handle, byte *source, long length);
-boolean CA_ReadFile (char *filename, memptr *ptr);
-boolean CA_LoadFile (char *filename, memptr *ptr);
+boolean CA_ReadFile (char *filename, void** ptr);
+boolean CA_LoadFile (char *filename, void** ptr);
 boolean CA_WriteFile (char *filename, void *ptr, long length);
 
 long CA_RLEWCompress (unsigned *source, long length, unsigned *dest,

@@ -3637,7 +3637,7 @@ void CacheMessage(unsigned MessageNum)
 // RETURNS: Lenght of loaded (decompressed) data
 //
 //---------------------------------------------------------------------------
-unsigned long CacheCompData(unsigned ItemNum, memptr *dest_loc)
+unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 {
    char *compdata, *dest_ptr;
 	CompHeader_t *CompHeader;
@@ -3687,7 +3687,7 @@ unsigned long CacheCompData(unsigned ItemNum, memptr *dest_loc)
 //-------------------------------------------------------------------------
 boolean CheckForSpecialCode(unsigned ItemNum)
 {
-   memptr code;
+   void* code;
    boolean return_val = false;
    char i;
    char *code_ptr;
@@ -3726,7 +3726,7 @@ void StartCPMusic(int song)
 	musicnames	chunk;
 
 	if (audiosegs[STARTMUSIC + lastmenumusic])	// JDC
-		MM_FreePtr ((memptr *)&audiosegs[STARTMUSIC + lastmenumusic]);
+		MM_FreePtr ((void**)&audiosegs[STARTMUSIC + lastmenumusic]);
 	lastmenumusic = song;
 
 	SD_MusicOff();
@@ -3739,7 +3739,7 @@ void StartCPMusic(int song)
 		mmerror = false;
 	else
 	{
-		MM_SetLock(&((memptr)audiosegs[STARTMUSIC + chunk]),true);
+		MM_SetLock(&((void*)audiosegs[STARTMUSIC + chunk]),true);
 		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + chunk]);
 	}
 }
@@ -3751,7 +3751,7 @@ void FreeMusic (void)
 {
 	SD_MusicOff();
 	if (audiosegs[STARTMUSIC + lastmenumusic])	// JDC
-		MM_FreePtr ((memptr *)&audiosegs[STARTMUSIC + lastmenumusic]);
+		MM_FreePtr ((void**)&audiosegs[STARTMUSIC + lastmenumusic]);
 }
 
 

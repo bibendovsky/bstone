@@ -18,7 +18,7 @@ boolean IO_FarRead (int handle, byte *dest, long length);
 
 //	Main Mem specific variables
 	boolean			MainPresent, PageManagerInstalled = false;
-	memptr			MainMemPages[PMMaxMainMem];
+	void*			MainMemPages[PMMaxMainMem];
 	PMBlockAttr		MainMemUsed[PMMaxMainMem];
 	int				MainPagesAvail;
 
@@ -397,7 +397,7 @@ PM_CheckMainMem(void)
 {
 	boolean			allocfailed;
 	int				i,n;
-	memptr			*p;
+	void*			*p;
 	PMBlockAttr		*used;
 	PageListStruct	*page;
 
@@ -517,7 +517,7 @@ void
 PML_ShutdownMainMem(void)
 {
 	int		i;
-	memptr	*p;
+	void** p;
 	PMBlockAttr		*used;
 
 	for (i = 0,p = MainMemPages,used = MainMemUsed;i < PMMaxMainMem;used++,i++,p++)
@@ -614,8 +614,8 @@ PML_OpenPageFile(char *filename)
 	// Allocate and clear the page list
 
 	PMNumBlocks = ChunksInFile;
-	MM_GetPtr(&(memptr)PMSegPages,sizeof(PageListStruct) * PMNumBlocks);
-	MM_SetLock(&(memptr)PMSegPages,true);
+	MM_GetPtr(&(void*)PMSegPages,sizeof(PageListStruct) * PMNumBlocks);
+	MM_SetLock(&(void*)PMSegPages,true);
 	PMPages = (PageListStruct *)PMSegPages;
 	memset(PMPages,0,sizeof(PageListStruct) * PMNumBlocks);
 
@@ -652,8 +652,8 @@ PML_ClosePageFile(void)
 		close(PageFile);
 	if (PMSegPages)
 	{
-		MM_SetLock(&(memptr)PMSegPages,false);
-		MM_FreePtr(&(void *)PMSegPages);
+		MM_SetLock(&(void*)PMSegPages,false);
+		MM_FreePtr(&(void*)PMSegPages);
 	}
 }
 
@@ -672,8 +672,7 @@ PML_ClosePageFile(void)
 //
 #if 1
 #pragma argsused	// DEBUG - remove lock parameter
-memptr
-PML_GetEMSAddress(int page,PMLockType lock)
+void* PML_GetEMSAddress(int page,PMLockType lock)
 {
 	int		i,emspage;
 	word	emsoff,emsbase,offset;
@@ -715,7 +714,7 @@ PML_GetEMSAddress(int page,PMLockType lock)
 	EMSList[emspage].lastHit = PMFrameCount;
 	offset = emspage * EMSPageSizeSeg;
 	offset += emsoff * PMPageSizeSeg;
-	return((memptr)(EMSPageFrame + offset));
+	return((void*)(EMSPageFrame + offset));
 }
 #else
 memptr
@@ -738,8 +737,7 @@ PML_GetEMSAddress(int page,PMLockType lock)
 //		Returns nil if block isn't cached into Main Memory or EMS
 //
 //
-memptr
-PM_GetPageAddress(int pagenum)
+void* PM_GetPageAddress(int pagenum)
 {
 	PageListStruct	*page;
 
@@ -845,10 +843,9 @@ PML_PutPageInXMS(int pagenum)
 //	PML_TransferPageSpace() - A page is being replaced, so give the new page
 //		the old one's address space. Returns the address of the new page.
 //
-memptr
-PML_TransferPageSpace(int orig,int new)
+void* PML_TransferPageSpace(int orig,int new)
 {
-	memptr			addr;
+	void*			addr;
 	PageListStruct	*origpage,*newpage;
 
 	if (orig == new)
@@ -945,8 +942,7 @@ PML_GetAPageBuffer(int pagenum,boolean mainonly)
 //		it won't copy over the page that we're trying to get from XMS.
 //		(pages that are being purged are copied into XMS, if possible)
 //
-memptr
-PML_GetPageFromXMS(int pagenum,boolean mainonly)
+void* PML_GetPageFromXMS(int pagenum,boolean mainonly)
 {
 // FIXME
 #if 0
@@ -995,10 +991,9 @@ PML_LoadPage(int pagenum,boolean mainonly)
 //		If not in XMS, load into Main Memory or EMS
 //
 #pragma warn -pia
-memptr
-PM_GetPage(int pagenum)
+void* PM_GetPage(int pagenum)
 {
-	memptr	result;
+	void*	result;
 
 	if (pagenum >= ChunksInFile)
 		PM_ERROR(PM_GETPAGE_BAD_PAGE);
@@ -1076,7 +1071,7 @@ PM_Preload(void (*update)(word current,word total))
 					mainfree,maintotal,
 					emsfree,emstotal,
 					xmsfree,xmstotal;
-	memptr			addr;
+	void*			addr;
 	PageListStruct	*p;
 
 	mainfree = (MainPagesAvail - MainPagesUsed) + (EMSPagesAvail - EMSPagesUsed);

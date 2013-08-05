@@ -2794,7 +2794,7 @@ void Cmd_Use (void)
 
 char msg[MSG_BUFFER_LEN+1];
 
-memptr InfAreaMsgs[MAX_INF_AREA_MSGS];
+void* InfAreaMsgs[MAX_INF_AREA_MSGS];
 byte NumAreaMsgs,LastInfArea;
 short FirstGenInfMsg,TotalGenInfMsgs;
 
@@ -2939,7 +2939,7 @@ char if_noImage[]="   AREA\n"
 							 " TO TELEPORT";
 
 statsInfoType ov_stats;
-memptr ov_buffer;
+void* ov_buffer;
 boolean ov_noImage=false;
 
 #define TOV_X  16

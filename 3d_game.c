@@ -2134,7 +2134,7 @@ void SetupGameLevel (void)
 {
 	extern boolean ForceLoadDefault;
    boolean switchon = false;
-	memptr hold;
+	void* hold;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
 	int	x,y,i;
 	unsigned	*map,tile,spot,icon;

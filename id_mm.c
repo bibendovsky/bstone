@@ -77,7 +77,7 @@ unsigned long __FREE_MEM_AVAIL__;
 int errorfile=-1;						// jdebug
 
 mminfotype	mminfo;
-memptr		bufferseg;
+void*		bufferseg;
 boolean		mmerror;
 #if IN_DEVELOPMENT
 boolean 		clearblock_error=false;			// mdebug
@@ -540,7 +540,7 @@ char *jr_fartext = NULL;				// jim/mdebug
 
 #endif
 
-void MM_GetPtr (memptr *baseptr,unsigned long size)
+void MM_GetPtr (void** baseptr,unsigned long size)
 {
 	mmblocktype *scan,*lastscan,*endscan
 				,*purge,*next;
@@ -681,7 +681,7 @@ extern char configname[];
 ====================
 */
 
-void MM_FreePtr (memptr *baseptr)
+void MM_FreePtr (void** baseptr)
 {
 	long value;		// mdebug
 
@@ -724,7 +724,7 @@ void MM_FreePtr (memptr *baseptr)
 =====================
 */
 
-void MM_SetPurge (memptr *baseptr, int purge)
+void MM_SetPurge (void** baseptr, int purge)
 {
 	mmblocktype *start;
 
@@ -760,7 +760,7 @@ void MM_SetPurge (memptr *baseptr, int purge)
 =====================
 */
 
-void MM_SetLock (memptr *baseptr, boolean locked)
+void MM_SetLock (void** baseptr, boolean locked)
 {
 	mmblocktype *start;
 
@@ -817,7 +817,7 @@ void MM_SortMem (void)
 			playing += STARTADLIBSOUNDS;
 			break;
 		}
-		MM_SetLock(&(memptr)audiosegs[playing],true);
+		MM_SetLock(&(void*)audiosegs[playing],true);
 	}
 
 
@@ -896,7 +896,7 @@ void MM_SortMem (void)
 		aftersort();
 
 	if (playing)
-		MM_SetLock(&(memptr)audiosegs[playing],false);
+		MM_SetLock(&(void*)audiosegs[playing],false);
 }
 
 

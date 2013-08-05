@@ -44,7 +44,7 @@ int sm_table[] =  {36,51,62,63,18,52};
 */
 
 //t_compscale 	*work;
-unsigned BuildCompScale (int height, memptr *finalspot);
+unsigned BuildCompScale (int height, void**finalspot);
 
 int			stepbytwo;
 
