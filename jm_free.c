@@ -1576,28 +1576,31 @@ extern int EpisodeSelect[];
 //-------------------------------------------------------------------------
 void CheckForEpisodes(void)
 {
-// FIXME
-#if 0
-	struct ffblk f;
-#endif // 0
+    struct _finddata_t fd;
+    intptr_t fd_handle;
 
 	short i;
 
-// FIXME
-#if 0
+// FIXME Make cross-platform
 #if (GAME_VERSION != SHAREWARE_VERSION)
-	if (!findfirst("*.VSI",&f,FA_ARCH))
-		strcpy(extension,"VSI");
+    fd_handle = _findfirst("*.VSI", &fd);
+
+    if (fd_handle != -1)
+        strcpy(extension, "VSI");
 #else
-	if (!findfirst("*.FSW",&f,FA_ARCH))
-		strcpy(extension,"FSW");
+    fd_handle = _findfirst("*.FSW", &fd);
+
+    if (fd_handle != -1)
+        strcpy(extension, "FSW");
 #endif
-	else
-	{
-		printf("No Fire Strike data files found!");
-		exit(0);
-	}
-#endif // 0
+    else {
+        printf("No Fire Strike data files found!");
+        exit(0);
+    }
+
+    if (fd_handle != -1)
+        _findclose(fd_handle);
+// FIXME
 
 	for (i=0;i<mv_NUM_MOVIES;i++)
 		strcat(Movies[i].FName,extension);

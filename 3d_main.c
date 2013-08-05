@@ -1877,45 +1877,50 @@ void fprint(char *text)
 		printf("%c",*text++);
 }
 
-
-//-------------------------------------------------------------------------
-// InitDestPath()
-//-------------------------------------------------------------------------
-void InitDestPath(void)
+// FIXME Make cross-platform
+void InitDestPath()
 {
-// FIXME
-#if 0
-	char *ptr;
+    char* env_value;
 
-#pragma warn -pia
-	if (ptr=getenv("APOGEECD"))
-	{
-		struct ffblk ffblk;
-		short len;
+    env_value = getenv("APOGEECD");
 
-		len = strlen(ptr);
-		if (len > MAX_DEST_PATH_LEN)
-		{
-			printf("\nAPOGEECD path too long.\n");
-			exit(0);
-		}
+    if (env_value != NULL) {
+        size_t len;
+        struct _finddata_t fd;
+        intptr_t fd_handle;
+        int fd_result;
+        boolean fd_found = false;
 
-		strcpy(destPath,ptr);
-		if (destPath[len-1] == '\\')
-			destPath[len-1]=0;
+        len = strlen(env_value);
 
-		if (findfirst(destPath,&ffblk,FA_DIREC) == -1)
-		{
-			printf("\nAPOGEECD directory not found.\n");
-			exit(0);
-		}
+        if (len > MAX_DEST_PATH_LEN) {
+            printf("\nAPOGEECD path too long.\n");
+            exit(0);
+        }
 
-		strcat(destPath,"\\");
-	}
-	else
-		strcpy(destPath,"");
-#pragma warn +pia
-#endif // 0
+        strcpy(destPath, env_value);
+
+        if (destPath[len-1] == '\\')
+            destPath[len-1] = '\0';
+
+        fd_handle = _findfirst(destPath, &fd);
+        fd_result = (fd_handle != -1) ? 0 : -1;
+
+        while ((fd_result == 0) && (!fd_found)) {
+            fd_found = ((fd.attrib & _A_SUBDIR) != 0);
+            fd_result = _findnext(fd_handle, &fd);
+        }
+
+        _findclose(fd_handle);
+
+        if (!fd_found) {
+            printf("\nAPOGEECD directory not found.\n");
+            exit(0);
+        }
+
+        strcat(destPath, "\\");
+    } else
+        strcpy(destPath, "");
 }
 
 //-------------------------------------------------------------------------
