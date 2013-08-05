@@ -77,7 +77,7 @@ char detonators_spawned = 0;
 */
 
 
-int	far starthitpoints[4][NUMHITENEMIES] =
+int	starthitpoints[4][NUMHITENEMIES] =
 	 //
 	 // BABY MODE
 	 //
@@ -263,12 +263,12 @@ int	far starthitpoints[4][NUMHITENEMIES] =
 	  }
 };
 
-unsigned far BossShotShapes[] = {SPR_BOSS1_PROJ1,0,0,0,SPR_BOSS5_PROJ1,0,0,SPR_BOSS10_SPIT1};
-unsigned far BossShapes[] = {SPR_BOSS1_W1,SPR_BOSS2_W1,SPR_BOSS3_W1,SPR_BOSS4_W1,SPR_BOSS5_W1,SPR_BOSS6_W1,SPR_BOSS7_W1,SPR_BOSS8_W1,SPR_BOSS9_W1,SPR_BOSS10_W1};
-unsigned far MorphShapes[] = {SPR_BOSS1_MORPH1, SPR_BOSS4_MORPH1, SPR_MUTHUM2_MORPH1};
-unsigned far MorphClass[] = {spider_mutantobj,reptilian_warriorobj,mutant_human2obj};
-unsigned far MorphEndShapes[] = {SPR_BOSS1_W1,SPR_BOSS4_W1,SPR_MUTHUM2_W1};
-char far MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
+unsigned BossShotShapes[] = {SPR_BOSS1_PROJ1,0,0,0,SPR_BOSS5_PROJ1,0,0,SPR_BOSS10_SPIT1};
+unsigned BossShapes[] = {SPR_BOSS1_W1,SPR_BOSS2_W1,SPR_BOSS3_W1,SPR_BOSS4_W1,SPR_BOSS5_W1,SPR_BOSS6_W1,SPR_BOSS7_W1,SPR_BOSS8_W1,SPR_BOSS9_W1,SPR_BOSS10_W1};
+unsigned MorphShapes[] = {SPR_BOSS1_MORPH1, SPR_BOSS4_MORPH1, SPR_MUTHUM2_MORPH1};
+unsigned MorphClass[] = {spider_mutantobj,reptilian_warriorobj,mutant_human2obj};
+unsigned MorphEndShapes[] = {SPR_BOSS1_W1,SPR_BOSS4_W1,SPR_MUTHUM2_W1};
+char MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
 unsigned bars_connected = 0;
 
 unsigned SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
@@ -467,7 +467,7 @@ unsigned scan_value;
 //---------------------------------------------------------------------------
 void SpawnOffsetObj (enemy_t which, int tilex, int tiley)
 {
-	unsigned	far *map,tile;
+	unsigned	*map,tile;
 	enemy_t dir_which;
 
 	switch (which)
@@ -720,7 +720,7 @@ void SpawnOffsetObj (enemy_t which, int tilex, int tiley)
 // NOTE: This think is used for NON-SmartAnim objects
 //---------------------------------------------------------------------------
 
-short far grenade_shapes[] = {SPR_GRENADE_FLY3,SPR_GRENADE_FLY3,SPR_GRENADE_FLY2,
+short grenade_shapes[] = {SPR_GRENADE_FLY3,SPR_GRENADE_FLY3,SPR_GRENADE_FLY2,
 								  SPR_GRENADE_FLY1,SPR_GRENADE_FLY2,SPR_GRENADE_FLY2,
 								  SPR_GRENADE_FLY3,SPR_GRENADE_FLY4,0};
 
@@ -3130,7 +3130,7 @@ void T_SwatWound(objtype *ob)
 */
 void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
 {
-	unsigned	far *map,tile,ammo=8;
+	unsigned	*map,tile,ammo=8;
 
 	switch (which)
 	{
@@ -3256,7 +3256,7 @@ void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
 //---------------------------------------------------------------------------
 void CheckForSpecialTile(objtype *obj, unsigned tilex, unsigned tiley)
 {
-	unsigned far *map,far *map1;
+	unsigned *map,*map1;
    objtype *old_new;
    boolean getarea = false;
 

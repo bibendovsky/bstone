@@ -76,8 +76,8 @@ byte	fi_rate,fo_rate;
 memptr MovieBuffer;					// Ptr to Allocated Memory for Buffer
 unsigned long BufferLen;			// Len of MovieBuffer (Ammount of RAM allocated)
 unsigned long PageLen;				// Len of data loaded into MovieBuffer
-char huge * BufferPtr;				// Ptr to next frame in MovieBuffer
-char huge * NextPtr;   				// Ptr Ofs to next frame after BufferOfs
+char * BufferPtr;				// Ptr to next frame in MovieBuffer
+char * NextPtr;   				// Ptr Ofs to next frame after BufferOfs
 
 boolean MorePagesAvail;				// More Pages avail on disk?
 
@@ -190,14 +190,14 @@ void ShutdownMovie(void)
 //
 // length		= length of the source image in bytes
 //---------------------------------------------------------------------------
-void JM_DrawBlock(unsigned dest_offset,unsigned byte_offset,char far *source,unsigned length)
+void JM_DrawBlock(unsigned dest_offset,unsigned byte_offset,char *source,unsigned length)
 {
 	byte numplanes;
    byte mask,plane;
-	char huge *dest_ptr;
-	char huge *source_ptr;
-   char huge *dest;
-   char huge *end_ptr;
+	char *dest_ptr;
+	char *source_ptr;
+   char *dest;
+   char *end_ptr;
    unsigned count,total_len;
 
 
@@ -253,22 +253,22 @@ void JM_DrawBlock(unsigned dest_offset,unsigned byte_offset,char far *source,uns
 //
 // PARAMETERS: pointer to animpic
 //---------------------------------------------------------------------------
-void MOVIE_ShowFrame (char huge *inpic)
+void MOVIE_ShowFrame (char *inpic)
 {
-   anim_chunk huge *ah;
+   anim_chunk *ah;
 
    if (inpic == NULL)
       return;
 
    for (;;)
    {
-      ah = (anim_chunk huge *)inpic;
+      ah = (anim_chunk *)inpic;
 
       if (ah->opt == 0)
 			break;
 
       inpic += sizeof(anim_chunk);
-		JM_DrawBlock(bufferofs, ah->offset, (char far *)inpic, ah->length);
+		JM_DrawBlock(bufferofs, ah->offset, (char *)inpic, ah->length);
       inpic += ah->length;
    }
 }
@@ -288,7 +288,7 @@ boolean MOVIE_LoadBuffer()
 {
    anim_frame blk;
    long chunkstart;
-	char huge *frame;
+	char *frame;
    unsigned long free_space;
 
    NextPtr = BufferPtr = frame = MK_FP(MovieBuffer,0);
@@ -298,7 +298,7 @@ boolean MOVIE_LoadBuffer()
    {
    	chunkstart = tell(Movie_FHandle);
 
-	   if (!IO_FarRead(Movie_FHandle, (byte far *)&blk, sizeof(anim_frame)))
+	   if (!IO_FarRead(Movie_FHandle, (byte *)&blk, sizeof(anim_frame)))
 			AN_ERROR(AN_BAD_ANIM_FILE);
 
       if (blk.code == AN_END_OF_ANIM)
@@ -306,13 +306,13 @@ boolean MOVIE_LoadBuffer()
 
 		if (free_space>=(blk.recsize+sizeof(anim_frame)))
       {
-			memcpy(frame, (byte far *)&blk, sizeof(anim_frame));
+			memcpy(frame, (byte *)&blk, sizeof(anim_frame));
 
       	free_space -= sizeof(anim_frame);
    	   frame += sizeof(anim_frame);
          PageLen += sizeof(anim_frame);
 
-		   if (!IO_FarRead(Movie_FHandle, (byte far *)frame, blk.recsize))
+		   if (!IO_FarRead(Movie_FHandle, (byte *)frame, blk.recsize))
 				AN_ERROR(AN_BAD_ANIM_FILE);
 
          free_space -= blk.recsize;
@@ -375,7 +375,7 @@ short MOVIE_GetFrame()
 void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 {
 	anim_frame blk;
-	char huge *frame;
+	char *frame;
    unsigned wait_time;
 
 	memcpy(&blk,BufferPtr,sizeof(anim_frame));
@@ -395,7 +395,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 	 	case AN_SOUND:				// Sound Chunk
 		{
       	unsigned sound_chunk;
-         sound_chunk = *(unsigned far *)frame;
+         sound_chunk = *(unsigned *)frame;
       	SD_PlaySound(sound_chunk);
          BufferPtr+=blk.recsize;
       }
@@ -411,7 +411,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 		case MV_CNVT_CODE('P','M'):				// Play Music
 		{
       	unsigned song_chunk;
-         song_chunk = *(unsigned far *)frame;
+         song_chunk = *(unsigned *)frame;
          SD_MusicOff();
 
 			if (!audiosegs[STARTMUSIC+musicchunk])
@@ -426,7 +426,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 			else
 			{
 				MM_SetLock(&((memptr)audiosegs[STARTMUSIC + musicchunk]),true);
-				SD_StartMusic((MusicGroup far *)audiosegs[STARTMUSIC + musicchunk]);
+				SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + musicchunk]);
 			}
 
          BufferPtr+=blk.recsize;
@@ -469,7 +469,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 	 	case AN_PAUSE:				// Pause
 		{
       	unsigned vbls;
-         vbls = *(unsigned far *)frame;
+         vbls = *(unsigned *)frame;
 			IN_UserInput(vbls);
          BufferPtr+=blk.recsize;
       }

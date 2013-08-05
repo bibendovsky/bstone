@@ -192,7 +192,7 @@ extern	KeyboardDef	KbdDefs;
 extern	JoystickDef	JoyDefs[];
 extern	ControlType	Controls[MaxPlayers];
 
-extern	byte _seg	*DemoBuffer;
+extern	byte *DemoBuffer;
 extern	word		DemoOffset,DemoSize;
 
 // Function prototypes
@@ -217,7 +217,7 @@ extern	boolean		IN_UserInput(longword delay);
 extern	char		IN_WaitForASCII(void);
 extern	ScanCode	IN_WaitForKey(void);
 extern	word		IN_GetJoyButtonsDB(word joy);
-extern	byte		far*IN_GetScanName(ScanCode);
+extern	byte		*IN_GetScanName(ScanCode);
 
 
 byte	IN_MouseButtons (void);

@@ -21,7 +21,7 @@ void R_DrawColumn();
 =============================================================================
 */
 
-//t_compscale _seg *scaledirectory[MAXSCALEHEIGHT+1];
+//t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
 //long			fullscalefarcall[MAXSCALEHEIGHT+1];
 
 int			maxscale,maxscaleshl2;
@@ -43,7 +43,7 @@ int sm_table[] =  {36,51,62,63,18,52};
 =============================================================================
 */
 
-//t_compscale 	_seg *work;
+//t_compscale 	*work;
 unsigned BuildCompScale (int height, memptr *finalspot);
 
 int			stepbytwo;
@@ -59,7 +59,7 @@ int			stepbytwo;
 ==============
 */
 
-void far BadScale (void)
+void BadScale (void)
 {
 	SCALE_ERROR(BADSCALE_ERROR);
 }
@@ -79,7 +79,7 @@ void far BadScale (void)
 void SetupScaling (int maxscaleheight)
 {
 	int		i,x,y;
-	byte	far *dest;
+	byte	*dest;
 
 	maxscaleheight/=2;			// one scaler every two pixels
 
@@ -114,7 +114,7 @@ void SetupScaling (int maxscaleheight)
 #if 0
 unsigned BuildCompScale (int height, memptr *finalspot)
 {
-	byte		far *code;
+	byte		*code;
 
 	int			i;
 	long		fix,step;
@@ -172,7 +172,7 @@ unsigned BuildCompScale (int height, memptr *finalspot)
 			*code++ = 0x26;
 			*code++ = 0x88;
 			*code++ = 0x85;
-			*((unsigned far *)code)++ = startpix*SCREENBWIDE;
+			*((unsigned *)code)++ = startpix*SCREENBWIDE;
 		}
 
 	}
@@ -184,7 +184,7 @@ unsigned BuildCompScale (int height, memptr *finalspot)
 
 	totalsize = FP_OFF(code);
 	MM_GetPtr (finalspot,totalsize);
-	_fmemcpy ((byte _seg *)(*finalspot),(byte _seg *)work,totalsize);
+	_fmemcpy ((byte *)(*finalspot),(byte *)work,totalsize);
 
 	return totalsize;
 }
@@ -203,7 +203,7 @@ unsigned dc_dest;
 
 #define SFRACUNIT 0x10000
 
-extern unsigned far * linecmds;
+extern unsigned * linecmds;
 
 extern boolean useBounceOffset;
 
@@ -228,7 +228,7 @@ void ScaleMaskedLSPost (int height, unsigned buf)
 	long bottomscreen;
 	longword screenstep;
 	long dc_yl,dc_yh;
-	unsigned far * srcpost;
+	unsigned * srcpost;
 
 
 	fixed bounce;
@@ -334,7 +334,7 @@ void ScaleMaskedPost (int height, unsigned buf)
 	long bottomscreen;
 	longword screenstep;
 	long dc_yl,dc_yh;
-	unsigned far * srcpost;
+	unsigned * srcpost;
 
 	fixed bounce;
 
@@ -436,12 +436,12 @@ void ScaleMaskedWidePost (int height, unsigned buf, unsigned xx, unsigned pwidth
 =
 =======================
 */
-extern byte far * shadingtable;
-extern byte far * lightsource;
+extern byte * shadingtable;
+extern byte * lightsource;
 
 void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 {
-	t_compshape	_seg *shape;
+	t_compshape	*shape;
 	int      dest;
 	int      i;
 	longword frac;
@@ -585,7 +585,7 @@ void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 */
 void ScaleShape (int xcenter, int shapenum, unsigned height)
 {
-	t_compshape	_seg *shape;
+	t_compshape	*shape;
 	int      dest;
 	int      i;
 	longword frac;
@@ -722,7 +722,7 @@ void ScaleShape (int xcenter, int shapenum, unsigned height)
 
 void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
 {
-	t_compshape	_seg *shape;
+	t_compshape	*shape;
 	int      dest;
 	int      i;
 	longword frac;
@@ -823,7 +823,7 @@ void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
 //-------------------------------------------------------------------------
 void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned height, unsigned shade)
 {
-	t_compshape	_seg *shape;
+	t_compshape	*shape;
 	int      dest;
 	int      i;
 	longword frac;
@@ -971,7 +971,7 @@ unsigned	wordmasks[8][8] = {
 #endif
 
 int			slinex,slinewidth;
-unsigned	far *linecmds;
+unsigned	*linecmds;
 long		linescale;
 unsigned	maskword;
 

@@ -85,8 +85,8 @@ extern	boolean		Button0,Button1,
 					CursorBad;
 extern	int			CursorX,CursorY;
 
-extern	void		(*USL_MeasureString)(char far *,word *,word *),
-					(*USL_DrawString)(char far *);
+extern	void		(*USL_MeasureString)(char *,word *,word *),
+					(*USL_DrawString)(char *);
 
 extern	boolean		(*USL_SaveGame)(int),(*USL_LoadGame)(int);
 extern	void		(*USL_ResetGame)(void);
@@ -113,12 +113,12 @@ extern	void	US_Startup(void),
 				US_SaveWindow(WindowRec *win),
 				US_RestoreWindow(WindowRec *win),
 				US_ClearWindow(void),
-				US_SetPrintRoutines(void (*measure)(char far *,word *,word *),
-									void (*print)(char far *)),
-				US_PrintCentered(char far *s),
-				US_CPrint(char far *s),
-				US_CPrintLine(char far *s),
-				US_Print(char far *s),
+				US_SetPrintRoutines(void (*measure)(char *,word *,word *),
+									void (*print)(char *)),
+				US_PrintCentered(char *s),
+				US_CPrint(char *s),
+				US_CPrintLine(char *s),
+				US_Print(char *s),
 				US_PrintUnsigned(longword n),
 				US_PrintSigned(long n),
 				US_StartCursor(void),
@@ -126,12 +126,12 @@ extern	void	US_Startup(void),
 				US_CheckHighScore(long score,word other),
 				US_DisplayHighScores(int which);
 extern	boolean	US_UpdateCursor(void),
-				US_LineInput(int x,int y,char far *buf,char far *def,boolean escok,
+				US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 								int maxchars,int maxwidth);
-extern	int		US_CheckParm(char far *parm,char far * far * strings),
+extern	int		US_CheckParm(char *parm,char **strings),
 
 				US_RndT(void);
 
-		void	USL_PrintInCenter(char far *s,Rect r);
+		void	USL_PrintInCenter(char *s,Rect r);
 		char 	*USL_GiveSaveName(word game);
 #endif

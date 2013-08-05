@@ -9,7 +9,7 @@
 
 static char x=0;
 static char y=0;
-static char far *video = MK_FP(0xb000,0x0000);
+static char *video = MK_FP(0xb000,0x0000);
 
 //-------------------------------------------------------------------------
 // mclear()
@@ -74,7 +74,7 @@ void mprintf(char *msg, ...)
 //-------------------------------------------------------------------------
 // fmprint()
 //-------------------------------------------------------------------------
-void fmprint(char far *text)
+void fmprint(char *text)
 {
 	while (*text)
 		mprintf("%c",*text++);

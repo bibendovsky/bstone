@@ -96,11 +96,11 @@ void		(* aftersort) (void);
 
 boolean		mmstarted;
 
-void far	*farheap;
+void *farheap;
 void		*nearheap;
 
-mmblocktype	far mmblocks[MAXBLOCKS]
-			,far *mmhead,far *mmfree,far *mmrover,far *mmnew;
+mmblocktype	mmblocks[MAXBLOCKS]
+			,*mmhead,*mmfree,*mmrover,*mmnew;
 
 boolean		bombonerror;
 
@@ -267,7 +267,7 @@ asm	call	[DWORD PTR XMSaddr]
 
 void MML_UseSpace (unsigned segstart, unsigned seglength)
 {
-	mmblocktype far *scan,far *last;
+	mmblocktype *scan,*last;
 	unsigned	oldend;
 	long		extra;
 
@@ -331,7 +331,7 @@ void MML_UseSpace (unsigned segstart, unsigned seglength)
 
 #if IN_DEVELOPMENT
 
-char far cb_text[]="\n\n"
+char cb_text[]="\n\n"
 						 " YOU'VE JUST FOUND THE 90:02 ERROR!\n"
 						 "\n"
 						 " TAKE NOTE OF WHAT -JUST- HAPPEND BEFORE\n"
@@ -401,7 +401,7 @@ void ErrorOut(char *msg, ...)
 
 void MML_ClearBlock (void)
 {
-	mmblocktype far *scan,far *last;
+	mmblocktype *scan,*last;
 
 #if IN_DEVELOPMENT
 	mprintf("\nMML_ClearBlock()\n");	// jdebug
@@ -530,20 +530,20 @@ void MM_Shutdown (void)
 
 #if IN_DEVELOPMENT
 
-char far gp_text[]=" WRITE DOWN THE FOLLOWING INFO, TOO:\n"
+char gp_text[]=" WRITE DOWN THE FOLLOWING INFO, TOO:\n"
 						 "\n"
 						 " MM_GETPTR SIZE: ";
 
-char far *gp_fartext=NULL;			// mdebug
+char *gp_fartext=NULL;			// mdebug
 
-char far *jr_fartext = NULL;				// jim/mdebug
+char *jr_fartext = NULL;				// jim/mdebug
 
 #endif
 
 void MM_GetPtr (memptr *baseptr,unsigned long size)
 {
-	mmblocktype far *scan,far *lastscan,far *endscan
-				,far *purge,far *next;
+	mmblocktype *scan,*lastscan,*endscan
+				,*purge,*next;
 	int			search;
 	unsigned	needed,startseg;
 
@@ -685,7 +685,7 @@ void MM_FreePtr (memptr *baseptr)
 {
 	long value;		// mdebug
 
-	mmblocktype far *scan,far *last;
+	mmblocktype *scan,*last;
 
 	last = mmhead;
 	scan = last->next;
@@ -726,7 +726,7 @@ void MM_FreePtr (memptr *baseptr)
 
 void MM_SetPurge (memptr *baseptr, int purge)
 {
-	mmblocktype far *start;
+	mmblocktype *start;
 
 	start = mmrover;
 
@@ -762,7 +762,7 @@ void MM_SetPurge (memptr *baseptr, int purge)
 
 void MM_SetLock (memptr *baseptr, boolean locked)
 {
-	mmblocktype far *start;
+	mmblocktype *start;
 
 	start = mmrover;
 
@@ -798,7 +798,7 @@ void MM_SetLock (memptr *baseptr, boolean locked)
 
 void MM_SortMem (void)
 {
-	mmblocktype far *scan,far *last,far *next;
+	mmblocktype *scan,*last,*next;
 	unsigned	start,length,source,dest;
 	int			playing;
 
@@ -914,7 +914,7 @@ void MM_SortMem (void)
 
 void MM_ShowMemory (void)
 {
-	mmblocktype far *scan;
+	mmblocktype *scan;
 	unsigned color,temp,x,y;
 	long	end,owner;
 	char    scratch[80],str[10];
@@ -969,7 +969,7 @@ void MM_ShowMemory (void)
 
 void MM_DumpData (void)
 {
-	mmblocktype far *scan,far *best;
+	mmblocktype *scan,*best;
 	long	lowest,oldlowest;
 	unsigned	owner;
 	char	lock,purge;
@@ -1040,7 +1040,7 @@ void MM_DumpData (void)
 long MM_UnusedMemory (void)
 {
 	unsigned free;
-	mmblocktype far *scan;
+	mmblocktype *scan;
 
 	free = 0;
 	scan = mmhead;
@@ -1070,7 +1070,7 @@ long MM_UnusedMemory (void)
 long MM_TotalFree (void)
 {
 	unsigned free;
-	mmblocktype far *scan;
+	mmblocktype *scan;
 
 	free = 0;
 	scan = mmhead;
@@ -1099,7 +1099,7 @@ long MM_TotalFree (void)
 long MM_LargestAvail (void)
 {
 	unsigned largest,ammount;
-	mmblocktype far *scan;
+	mmblocktype *scan;
 
 	largest = 0;
 	scan = mmhead;

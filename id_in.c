@@ -77,7 +77,7 @@ boolean			NGinstalled=false;
 		longword	MouseDownCount;
 
 #if DEMOS_ENABLED
-		byte _seg	*DemoBuffer;
+		byte *DemoBuffer;
 		word		DemoOffset,DemoSize;
 #endif
 
@@ -88,7 +88,7 @@ boolean			NGinstalled=false;
 
 =============================================================================
 */
-static	byte        far ASCIINames[] =		// Unshifted ASCII for scan codes
+static	byte        ASCIINames[] =		// Unshifted ASCII for scan codes
 					{
 //	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	0  ,27 ,'1','2','3','4','5','6','7','8','9','0','-','=',8  ,9  ,	// 0
@@ -100,7 +100,7 @@ static	byte        far ASCIINames[] =		// Unshifted ASCII for scan codes
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 6
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0		// 7
 					},
-					far ShiftNames[] =		// Shifted ASCII for scan codes
+					ShiftNames[] =		// Shifted ASCII for scan codes
 					{
 //	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	0  ,27 ,'!','@','#','$','%','^','&','*','(',')','_','+',8  ,9  ,	// 0
@@ -112,7 +112,7 @@ static	byte        far ASCIINames[] =		// Unshifted ASCII for scan codes
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 6
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0   	// 7
 					},
-					far SpecialNames[] =	// ASCII for 0xe0 prefixed codes
+					SpecialNames[] =	// ASCII for 0xe0 prefixed codes
 					{
 //	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 0
@@ -138,9 +138,9 @@ static	Direction	DirTable[] =		// Quick lookup for total direction
 					};
 
 static	void			(*INL_KeyHook)(void);
-static	void interrupt	(*OldKeyVect)(void);
+static	void (*OldKeyVect)(void);
 
-char			far * far IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
+char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 
 //	Internal routines
 
@@ -149,7 +149,7 @@ char			far * far IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 //	INL_KeyService() - Handles a keyboard interrupt (key up/down)
 //
 ///////////////////////////////////////////////////////////////////////////
-static void interrupt
+static void
 INL_KeyService(void)
 {
 // FIXME
@@ -557,7 +557,7 @@ INL_StartMouse(void)
 	return(false);
 #endif
  union REGS regs;
- unsigned char far *vector;
+ unsigned char *vector;
 
 
  if ((vector=MK_FP(peek(0,0x33*4+2),peek(0,0x33*4)))==NULL)

@@ -1069,16 +1069,16 @@ asm	mov	ds,ax
 ===================
 */
 
-void VL_DrawTile8String (char *str, char far *tile8ptr, int printx, int printy)
+void VL_DrawTile8String (char *str, char *tile8ptr, int printx, int printy)
 {
 	int		i;
-	unsigned	far *dest,far *screen,far *src;
+	unsigned	*dest,*screen,*src;
 
 	dest = MK_FP(SCREENSEG,bufferofs+ylookup[printy]+(printx>>2));
 
 	while (*str)
 	{
-		src = (unsigned far *)(tile8ptr + (*str<<6));
+		src = (unsigned *)(tile8ptr + (*str<<6));
 		// each character is 64 bytes
 
 		VGAMAPMASK(1);

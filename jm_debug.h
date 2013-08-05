@@ -19,6 +19,6 @@
 //-------------------------------------------------------------------------
 void mclear(void);
 void mprintf(char *msg, ...);
-void fmprint(char far *text);
+void fmprint(char *text);
 
 #endif

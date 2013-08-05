@@ -66,7 +66,7 @@ extern	word			XMSPagesAvail,EMSPagesAvail;
 
 extern	word			ChunksInFile,
 						PMSpriteStart,PMSoundStart;
-extern	PageListStruct	far *PMPages;
+extern	PageListStruct	*PMPages;
 
 #define	PM_GetSoundPage(v)	PM_GetPage(PMSoundStart + (v))
 #define	PM_GetSpritePage(v)	PM_GetPage(PMSpriteStart + (v))

@@ -2,12 +2,6 @@
 #define _ID_HEADS_H_
 
 
-#define far
-#define huge
-#define _seg
-#define interrupt
-
-
 // ID_GLOB.H
 
 
@@ -72,7 +66,7 @@
 #define ERROR_LOG						"ERROR.LOG"			// Text filename for critical memory errors
 #define DUAL_SWAP_FILES				(0)				//(GAME_VERSION != SHAREWARE_VERSION)				// Support for Shadowed and NonShadowed page files
 
-extern  char            far signonv1;
+extern  char            signonv1;
 #define introscn        signonv1
 
 #ifndef SPEAR
@@ -166,7 +160,7 @@ extern  byte            fontcolor,backcolor;
 #include "3D_MENU.H"
 
 
-#define CA_FarRead(h,d,s)	IO_FarRead((int)h,(byte far *)d,(long)s)
+#define CA_FarRead(h,d,s)	IO_FarRead((int)h,(byte *)d,(long)s)
 
 
 

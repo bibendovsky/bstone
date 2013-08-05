@@ -16,7 +16,7 @@
 */
 
 #define LOCATION_TEXT_COLOR 0xAF
-extern char far prep_msg[];
+extern char prep_msg[];
 extern char LS_current,LS_total;
 void Died (void);
 void PM_SetMainMemPurge(int level);
@@ -57,18 +57,18 @@ void CheckHighScore (long score,word other);
 #if IN_DEVELOPMENT
 int db_count=0;
 #ifdef DEBUG_STATICS
-classtype far debug_bonus[2][800];
+classtype debug_bonus[2][800];
 #endif
 #endif
 
-fargametype far gamestuff;
+fargametype gamestuff;
 gametype gamestate;
 boolean		ingame,fizzlein;
 unsigned	latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
 char NumEAWalls;
 
-tilecoord_t far GoldieList[GOLDIE_MAX_SPAWNS];	 
+tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];	 
 GoldsternInfo_t GoldsternInfo;
 
 extern unsigned scan_value;
@@ -100,7 +100,7 @@ void GameLoop (void);
 //		   upon tile number/values.
 //
 
-char far ExpCrateShapes[] =	 
+char ExpCrateShapes[] =	 
 {
 	42,			// Chicken Leg
 	44,			// Ham/Steak
@@ -317,7 +317,7 @@ void ScanInfoPlane (void)
 {
 	unsigned	x,y,i,j;
 	int			tile;
-	unsigned	far	*start, far *floor;
+	unsigned	*start, *floor;
 	boolean gotlight = false,gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
@@ -2137,10 +2137,10 @@ void SetupGameLevel (void)
 	memptr hold;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
 	int	x,y,i;
-	unsigned	far *map,tile,spot,icon;
+	unsigned	*map,tile,spot,icon;
 	keytype lock;
-	unsigned	far *map1,far *map2;
-	char far *temp_ptr;
+	unsigned	*map1,*map2;
+	char *temp_ptr;
 	short count;
 
 	if (!loadedgame)
@@ -2438,7 +2438,7 @@ void SetupGameLevel (void)
 //------------------------------------------------------------------------
 void LoadLocationText(short textNum)
 {
-	char far *temp;
+	char *temp;
 
 	LoadMsg(LocationText,LEVEL_DESCS,textNum+1,MAX_LOCATION_DESC_LEN);
 	temp = strstr(LocationText,"^XX");
@@ -2481,7 +2481,7 @@ void DrawPlayBorder (void)
 //--------------------------------------------------------------------------
 // BMAmsg() - These messages are displayed by the Text Presenter!
 //--------------------------------------------------------------------------
-void BMAmsg(char far *msg)
+void BMAmsg(char *msg)
 {
 	#define 	BMAx1	0						// outer bevel
 	#define	BMAy1	152
@@ -2499,8 +2499,8 @@ void BMAmsg(char far *msg)
 	if (msg)
 	{
 		PresenterInfo pi;
-		fontstruct _seg *font=(fontstruct _seg *)grsegs[STARTFONT+fontnumber];
-		char numlines=1, far *p=msg;
+		fontstruct *font=(fontstruct *)grsegs[STARTFONT+fontnumber];
+		char numlines=1, *p=msg;
 		short cheight;
 
 		memset(&pi,0,sizeof(pi));
@@ -2531,7 +2531,7 @@ void BMAmsg(char far *msg)
 //----------------------------------------------------------------------
 void CacheBMAmsg(unsigned MsgNum)
 {
-	char far *string, far *pos;
+	char *string, *pos;
 
 	CA_CacheGrChunk(MsgNum);
    string = MK_FP(grsegs[MsgNum],0);
@@ -2581,7 +2581,7 @@ void ShadowPrintLocationText(sp_type type)
 {
 	char *DemoMsg="-- DEMO --";
    char *DebugText= "-- DEBUG MODE ENABLED --";
-	char str[8],far *s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
+	char str[8],*s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
 	unsigned w,h;
 
 // Used for all fields...
@@ -2807,7 +2807,7 @@ void StartDemoRecord (int levelnumber)
 {
 	MM_GetPtr (&demobuffer,MAXDEMOSIZE);
 	MM_SetLock (&demobuffer,true);
-	demoptr = (char far *)demobuffer;
+	demoptr = (char *)demobuffer;
 	lastdemoptr = demoptr+MAXDEMOSIZE;
 
 	*demoptr = levelnumber;
@@ -2831,10 +2831,10 @@ void FinishDemoRecord (void)
 
 	demorecord = false;
 
-	length = demoptr - (char far *)demobuffer;
+	length = demoptr - (char *)demobuffer;
 
-	demoptr = ((char far *)demobuffer)+1;
-	*(unsigned far *)demoptr = length;
+	demoptr = ((char *)demobuffer)+1;
+	*(unsigned *)demoptr = length;
 
 	VW_FadeIn();
 
@@ -2850,7 +2850,7 @@ void FinishDemoRecord (void)
 		if (level>=0 && level<=9)
 		{
 			demoname[4] = '0'+level;
-			IO_WriteFile (demoname,(void far *)demobuffer,length);
+			IO_WriteFile (demoname,(void *)demobuffer,length);
 		}
 	}
 
@@ -3000,13 +3000,13 @@ void PlayDemo (int demonumber)
 	demoname[4] = '0'+demonumber;
 	IO_LoadFile (demoname,&demobuffer);
 	MM_SetLock (&demobuffer,true);
-	demoptr = (char far *)demobuffer;
+	demoptr = (char *)demobuffer;
 #endif
 
 	NewGame (1,0);
 	gamestate.mapon = *demoptr++;
 	gamestate.difficulty = gd_easy;
-	length = *((unsigned far *)demoptr)++;
+	length = *((unsigned *)demoptr)++;
 	demoptr++;
 	lastdemoptr = demoptr-4+length;
 

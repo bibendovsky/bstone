@@ -14,7 +14,7 @@ extern unsigned ylookup[MAXSCANLINES];
 extern unsigned centery;
 extern unsigned bufx;
 extern unsigned postheight;
-byte far* shadingtable;
+byte* shadingtable;
 
 
 typedef enum {
@@ -35,7 +35,7 @@ static void generic_draw_post(DrawMode draw_mode)
     unsigned char pixel;
     unsigned char pixel_index;
 
-    byte far* screen;
+    byte* screen;
 
     if (postheight == 0)
         return;
@@ -59,7 +59,7 @@ static void generic_draw_post(DrawMode draw_mode)
     for (i = 0; i < n; ++i) {
         // top half
 
-        pixel_index = ((byte far*)postsource)[31 - (cur_step >> 16)];
+        pixel_index = ((byte*)postsource)[31 - (cur_step >> 16)];
 
         if (draw_mode == DRAW_LIGHTED)
             pixel = shadingtable[pixel_index];
@@ -71,7 +71,7 @@ static void generic_draw_post(DrawMode draw_mode)
 
         // bottom half
 
-        pixel_index = ((byte far*)postsource)[32 + (cur_step >> 16)];
+        pixel_index = ((byte*)postsource)[32 + (cur_step >> 16)];
 
         if (draw_mode == DRAW_LIGHTED)
             pixel = shadingtable[pixel_index];

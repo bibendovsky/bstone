@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------
 // IO_FarRead()
 //--------------------------------------------------------------------------
-boolean IO_FarRead (int handle, byte far *dest, long length)
+boolean IO_FarRead (int handle, byte *dest, long length)
 {
 	unsigned readlen,nread;
 
@@ -38,7 +38,7 @@ boolean IO_FarRead (int handle, byte far *dest, long length)
 //--------------------------------------------------------------------------
 // IO_FarWrite()
 //--------------------------------------------------------------------------
-boolean IO_FarWrite (int handle, byte far *source, long length)
+boolean IO_FarWrite (int handle, byte *source, long length)
 {
 	unsigned writelen,nwritten;
 
@@ -68,7 +68,7 @@ boolean IO_FarWrite (int handle, byte far *source, long length)
 //--------------------------------------------------------------------------
 // IO_WriteFile()
 //--------------------------------------------------------------------------
-boolean IO_WriteFile(char *filename, void far *ptr, long length)
+boolean IO_WriteFile(char *filename, void *ptr, long length)
 {
 	int handle;
 	long size;
@@ -116,7 +116,7 @@ long IO_LoadFile (char *filename, memptr *dst)
 				MM_GetPtr(dst,head.OriginalLen);
 				if (mmerror)
 					return(0);
-				LZH_Decompress((void far *)handle,*dst,size,head.CompressLen,SRC_FILE|DEST_MEM);
+				LZH_Decompress((void *)handle,*dst,size,head.CompressLen,SRC_FILE|DEST_MEM);
 				LZH_Shutdown();
 			break;
 

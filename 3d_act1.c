@@ -35,7 +35,7 @@ concession_t ConHintList={0};
 */
 statobj_t	statobjlist[MAXSTATS],*laststatobj;
 
-stattype far statinfo[] =
+stattype statinfo[] =
 
 {
 {SPR_STAT_0,bo_water_puddle},		// Water Puddle					SPR1V
@@ -473,7 +473,7 @@ statobj_t *UseReservedStatic(int itemtype, int tilex, int tiley)
 //--------------------------------------------------------------------------
 // PlaceReservedItemNearTile()
 //--------------------------------------------------------------------------
-char far pint_xy[8][2]={{-1,-1},{-1, 0},{-1, 1},
+char pint_xy[8][2]={{-1,-1},{-1, 0},{-1, 1},
 								{ 0,-1},        { 0, 1},
 								{ 1,-1},{ 1, 0},{ 1, 1}};
 
@@ -681,7 +681,7 @@ int			doornum;
 unsigned	doorposition[MAXDOORS];		// leading edge of door 0=closed
 										// 0xffff = fully open
 
-byte		far areaconnect[NUMAREAS][NUMAREAS];
+byte		areaconnect[NUMAREAS][NUMAREAS];
 
 boolean		areabyplayer[NUMAREAS];
 
@@ -756,7 +756,7 @@ void InitDoorList (void)
 void SpawnDoor (int tilex, int tiley, boolean vertical, keytype lock, door_t type)
 {
 	int	areanumber;
-	unsigned	far *map[2];
+	unsigned	*map[2];
 
 	map[0] = mapsegs[0] + farmapylookup[tiley]+tilex;
 	map[1] = mapsegs[1] + farmapylookup[tiley]+tilex;
@@ -1010,13 +1010,13 @@ void CloseDoor (int door)
 =====================
 */
 
-char far od_oneway[]="\r\r   DOOR LOCKED FROM\r      THIS SIDE.\r^XX";
-char far od_locked[]="\r\r   DOOR PERMANENTLY\r        LOCKED.\r^XX";
-char far od_reddenied[]="\r\r      RED LEVEL\r    ACCESS DENIED!\r^XX";
-char far od_yellowdenied[]="\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r^XX";
-char far od_bluedenied[]="\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
-char far od_granted[]="\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
-char far od_operating[]="\r\r    OPERATING DOOR.\r^XX";
+char od_oneway[]="\r\r   DOOR LOCKED FROM\r      THIS SIDE.\r^XX";
+char od_locked[]="\r\r   DOOR PERMANENTLY\r        LOCKED.\r^XX";
+char od_reddenied[]="\r\r      RED LEVEL\r    ACCESS DENIED!\r^XX";
+char od_yellowdenied[]="\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r^XX";
+char od_bluedenied[]="\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
+char od_granted[]="\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
+char od_operating[]="\r\r    OPERATING DOOR.\r^XX";
 
 void OperateDoor (int door)
 {
@@ -1173,10 +1173,10 @@ void TryBlastDoor(char door)
 void BlastNearDoors(int tilex, int tiley)
 {
 	unsigned char door;
-	char far *doorptr;
+	char *doorptr;
 	int x,y;
 
-	doorptr = (char far *)&tilemap[tilex][tiley];
+	doorptr = (char *)&tilemap[tilex][tiley];
 
 	for (x=-1;x<2;x++)
 		for (y=-64;y<128;y+=64)
@@ -1300,7 +1300,7 @@ int TransformAreas(char tilex, char tiley, char xform)
 {
 	short xofs,yofs;
 	byte		area1,area2;
-	unsigned	far	*map,offset;
+	unsigned	*map,offset;
 
 // Is this walkway:  Horizontal?   Vertical?   Error?
 //
@@ -1350,7 +1350,7 @@ int TransformAreas(char tilex, char tiley, char xform)
 void DoorOpening (int door)
 {
 	int		area1,area2;
-	unsigned	far	*map;
+	unsigned	*map;
 	long	position;
 
 	position = doorposition[door];
@@ -1405,7 +1405,7 @@ void DoorOpening (int door)
 void DoorClosing (int door)
 {
 	int		area1,area2,move;
-	unsigned	far	*map;
+	unsigned	*map;
 	long	position;
 	int		tilex,tiley;
 
@@ -1731,13 +1731,13 @@ void FreeMsgCache(mCacheList *mList, unsigned infoSize)
 		if (ci->mSeg)
 			MM_FreePtr(&ci->mSeg);
 
-		ch_ptr = (char far *)ci;
+		ch_ptr = (char *)ci;
 		ch_ptr += infoSize;
 		ci = (mCacheInfo *)ch_ptr;
 	}
 }
 
-extern char far int_xx[];
+extern char int_xx[];
 
 //---------------------------------------------------------------------------
 // CacheMsg()
@@ -1747,7 +1747,7 @@ extern char far int_xx[];
 //---------------------------------------------------------------------------
 void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum)
 {
-//	char far *Message, far *EndOfMsg, far *hint_buffer;
+//	char *Message, *EndOfMsg, *hint_buffer;
 //	unsigned char pos=0;
 
 // Alloc memory for message and cache-in seg
@@ -1774,9 +1774,9 @@ void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum)
 //
 // RETURNS : Returns the length of the loaded message
 //---------------------------------------------------------------------------
-short LoadMsg(char far *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned MaxMsgLen)
+short LoadMsg(char *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned MaxMsgLen)
 {
-	char far *Message, far *EndOfMsg;
+	char *Message, *EndOfMsg;
 	short pos=0;
 
 	CA_CacheGrChunk(SegNum);
@@ -1834,7 +1834,7 @@ short LoadMsg(char far *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned 
 //---------------------------------------------------------------------------
 void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum)
 {
-	char far *Message, far *EndOfMsg, far *hint_buffer;
+	char *Message, *EndOfMsg, *hint_buffer;
 	unsigned char pos=0;
 
 // Alloc memory for message and cache-in seg
@@ -1951,7 +1951,7 @@ void SpawnConcession(int tilex, int tiley, unsigned credits,unsigned machinetype
 //--------------------------------------------------------------------------
 void CacheConcessionMsg()
 {
-	mCacheInfo *ci=(mCacheInfo far *)&ConHintList.cmInfo[ConHintList.NumMsgs];
+	mCacheInfo *ci=(mCacheInfo *)&ConHintList.cmInfo[ConHintList.NumMsgs];
 
 // Make sure we don't overflow list.
 //
@@ -2007,16 +2007,16 @@ boolean ReuseMsg(mCacheInfo *ci, short count, short struct_size)
 // OperateConcession()
 //--------------------------------------------------------------------------
 
-extern char far food_msg1[];
-extern char far bevs_msg1[];
-extern void writeTokenStr(char far *str);
+extern char food_msg1[];
+extern char bevs_msg1[];
+extern void writeTokenStr(char *str);
 
-char far OutOrder[] 	= {"\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"};
+char OutOrder[] 	= {"\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"};
 
 void OperateConcession(unsigned concession)
 {
 	con_mCacheInfo *ci;
-	char far *msgptr;
+	char *msgptr;
 	boolean ok=false;
 
 	ci=&ConHintList.cmInfo[concession-1];
@@ -2121,8 +2121,8 @@ void CheckSpawnEA()
 
 	for (loop=0; loop<NumEAWalls; loop++)
 	{
-//		unsigned far *map=mapsegs[0]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
-		unsigned far *map1=mapsegs[1]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
+//		unsigned *map=mapsegs[0]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
+		unsigned *map1=mapsegs[1]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
 
 	// Limit the number of aliens spawned by each outlet.
 	//

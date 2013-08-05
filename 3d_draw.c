@@ -79,8 +79,8 @@ fixed	mindist		= MINDIST;
 // math tables
 //
 int			pixelangle[MAXVIEWWIDTH];
-long		far finetangent[FINEANGLES/4];
-fixed 		far sintable[ANGLES+ANGLES/4],far *costable = sintable+(ANGLES/4);
+long		finetangent[FINEANGLES/4];
+fixed 		sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 
 //
 // refresh variables
@@ -90,8 +90,8 @@ int		viewangle;
 fixed	viewsin,viewcos;
 
 #ifndef WOLFDOORS
-char far thetile[64];
-byte far * mytile;
+char thetile[64];
+byte * mytile;
 #endif
 
 
@@ -468,8 +468,8 @@ unsigned       postx;
 unsigned       bufx;
 unsigned       postwidth;
 unsigned       postheight;
-byte far *     shadingtable;
-extern byte far * lightsource;
+byte *     shadingtable;
+extern byte * lightsource;
 
 void   ScalePost (void)      // VGA version
 {
@@ -547,7 +547,7 @@ void  FarScalePost ()				// just so other files can call
 ====================
 */
 
-unsigned far DoorJamsShade[] =
+unsigned DoorJamsShade[] =
 {
 	BIO_JAM_SHADE,					// dr_bio
 	SPACE_JAM_2_SHADE,			// dr_normal
@@ -562,7 +562,7 @@ unsigned far DoorJamsShade[] =
 	SPACE_JAM_SHADE,				// dr_space
 };
 
-unsigned far DoorJams[] =
+unsigned DoorJams[] =
 {
 	BIO_JAM,					// dr_bio
 	SPACE_JAM_2,			// dr_normal
@@ -1979,7 +1979,7 @@ int NextBuffer()
     return 0;
 }
 
-byte far TravelTable[MAPSIZE][MAPSIZE];
+byte TravelTable[MAPSIZE][MAPSIZE];
 
 //--------------------------------------------------------------------------
 // UpdateTravelTable()
@@ -2049,7 +2049,7 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned flags)
 	#define MAPPED_COLOR		0x55
 
 	extern byte pixmasks[];
-	extern byte far rndtable[];
+	extern byte rndtable[];
 
 	byte color,quad;
 	byte tile,door;
@@ -2057,7 +2057,7 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned flags)
 
 	fixed dx,dy,psin,pcos,lmx,lmy,baselmx,baselmy,xinc,yinc;
 	short rx,ry,mx,my;
-	byte far *dstptr,far *basedst,mask,startmask;
+	byte *dstptr,*basedst,mask,startmask;
 	boolean drawplayerok=true;
 	byte rndindex;
 	boolean snow=false;

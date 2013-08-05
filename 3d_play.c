@@ -116,7 +116,7 @@ int			viewsize;
 boolean		buttonheld[NUMBUTTONS];
 
 boolean		demorecord,demoplayback;
-char		far *demoptr, far *lastdemoptr;
+char		*demoptr, *lastdemoptr;
 memptr		demobuffer;
 
 // Light sourcing flag
@@ -162,7 +162,7 @@ objtype dummyobj;
 // LIST OF SONGS FOR EACH LEVEL
 //
 
-int far songs[]=
+int songs[]=
 {
 	MAJMIN_MUS,              // 0
 	STICKS_MUS,              // 1
@@ -598,7 +598,7 @@ byte jam_buff_cmp[]={sc_J,sc_A,sc_M};
 byte jam_buff[sizeof(jam_buff_cmp)];
 #endif
 
-char far PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
+char PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
 void CheckKeys (void)
 {
@@ -689,7 +689,7 @@ void CheckKeys (void)
 				if (DigiMode!=sds_Off)
 					SD_SetDigiDevice(sds_Off);
 
-				memcpy((char far *)&SoundOn[55],"OFF.",4);
+				memcpy((char *)&SoundOn[55],"OFF.",4);
 			}
 			else
 			{
@@ -710,7 +710,7 @@ void CheckKeys (void)
 				CA_LoadAllSounds();
 				PM_CheckMainMem();
 
-				memcpy((char far *)&SoundOn[55],"ON. ",4);
+				memcpy((char *)&SoundOn[55],"ON. ",4);
 			}
 
 			DISPLAY_TIMED_MSG(SoundOn,MP_BONUS,MT_GENERAL);
@@ -1029,13 +1029,13 @@ void CheckMusicToggle(void)
 			if (MusicMode != smm_Off)
 			{
 				SD_SetMusicMode(smm_Off);
-				memcpy((char far *)&MusicOn[58],"OFF.",4);
+				memcpy((char *)&MusicOn[58],"OFF.",4);
 			}
 			else
 			{
 				SD_SetMusicMode(smm_AdLib);
 				StartMusic(false);
-				memcpy((char far *)&MusicOn[58],"ON. ",4);
+				memcpy((char *)&MusicOn[58],"ON. ",4);
 			}
 
 			DISPLAY_TIMED_MSG(MusicOn,MP_BONUS,MT_GENERAL);
@@ -1047,7 +1047,7 @@ void CheckMusicToggle(void)
 }
 
 
-char far Computing[] = {"Computing..."};
+char Computing[] = {"Computing..."};
 
 #if DUAL_SWAP_FILES
 //--------------------------------------------------------------------------
@@ -1384,7 +1384,7 @@ void StartMusic(boolean preload)
 	{
 		MM_SetLock(&((memptr)audiosegs[STARTMUSIC + musicchunk]),true);
 		if (!preload)
-			SD_StartMusic((MusicGroup far *)audiosegs[STARTMUSIC + musicchunk]);
+			SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + musicchunk]);
 	}
 }
 
@@ -1404,13 +1404,13 @@ void StartMusic(boolean preload)
 #define WHITETICS		6
 
 
-byte	far redshifts[NUMREDSHIFTS][768];
-byte	far whiteshifts[NUMREDSHIFTS][768];
+byte	redshifts[NUMREDSHIFTS][768];
+byte	whiteshifts[NUMREDSHIFTS][768];
 
 int		damagecount,bonuscount;
 boolean	palshifted;
 
-extern 	byte	far	vgapal;
+extern 	byte	vgapal;
 
 /*
 =====================
@@ -1422,7 +1422,7 @@ extern 	byte	far	vgapal;
 
 void InitRedShifts (void)
 {
-	byte	far *workptr, far *baseptr;
+	byte	*workptr, *baseptr;
 	int		i,j,delta;
 
 
@@ -1431,7 +1431,7 @@ void InitRedShifts (void)
 //
 	for (i=1;i<=NUMREDSHIFTS;i++)
 	{
-		workptr = (byte far *)&redshifts[i-1][0];
+		workptr = (byte *)&redshifts[i-1][0];
 		baseptr = &vgapal;
 
 		for (j=0;j<=255;j++)
@@ -1447,7 +1447,7 @@ void InitRedShifts (void)
 
 	for (i=1;i<=NUMWHITESHIFTS;i++)
 	{
-		workptr = (byte far *)&whiteshifts[i-1][0];
+		workptr = (byte *)&whiteshifts[i-1][0];
 		baseptr = &vgapal;
 
 		for (j=0;j<=255;j++)

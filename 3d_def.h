@@ -1579,10 +1579,10 @@ typedef long fixed;
 #define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus)) BONUS_QUEUE |= bonus
 
 typedef struct {
-	char far *BonusText;			// REBA text pointer
+	char* BonusText;			// REBA text pointer
 	long Points;					// Score for this bonus
 	boolean Recurring;			// Appear multiple times in a single level?
-	void  (far *func)();			// Code to execute when you get this bonus.
+	void  (*func)();			// Code to execute when you get this bonus.
 } PinballBonusInfo;
 
 typedef struct
@@ -2155,7 +2155,7 @@ typedef struct
 	int      	episode;
 	long     	TimeCount;
 	long     	killx,killy;
-	char 			far *msg;					// InfoArea msg...
+	char 			*msg;					// InfoArea msg...
 	char			numkeys[NUMKEYS],old_numkeys[NUMKEYS];
 	barrier_type barrier_table[MAX_BARRIER_SWITCHES];
 	barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
@@ -2400,11 +2400,11 @@ extern char tempPath[];
 
 extern const   float   radtoint;	// = (float)FINEANGLES/2/PI;
 
-extern levelinfo far default_level[MAPS_PER_EPISODE];
+extern levelinfo default_level[MAPS_PER_EPISODE];
 extern short view_xl,view_xh,view_yl,view_yh;
 extern short starting_level, debug_value, starting_episode, starting_difficulty;		
 
-extern  boolean         MS_CheckParm (char far *string);
+extern  boolean         MS_CheckParm (char *string);
 
 extern signed char lastmap_tilex,lastmap_tiley;
 extern  unsigned TopColor, BottomColor;
@@ -2430,8 +2430,8 @@ extern  int             mouseadjustment;
 // math tables
 //
 extern  int                     pixelangle[MAXVIEWWIDTH];
-extern  long            far finetangent[FINEANGLES/4];
-extern  fixed           far sintable[],far *costable;
+extern  long            finetangent[FINEANGLES/4];
+extern  fixed           sintable[],*costable;
 
 //
 // derived constants
@@ -2461,17 +2461,17 @@ void            NewViewSize (int width);
 unsigned scan_atoi(char *s);
 void 				AlignPlayerOnTransporter(void);
 
-unsigned UseFunc(char huge *first, char huge *next);
+unsigned UseFunc(char *first, char *next);
 boolean DoMovie(movie_t movie, memptr palette);
-boolean CheckDiskSpace(long needed,char far *text,cds_io_type io_type);
-boolean SaveTheGame(int handle, char far *description);
+boolean CheckDiskSpace(long needed,char *text,cds_io_type io_type);
+boolean SaveTheGame(int handle, char *description);
 long ChecksumFile(char *file, long checksum);  
 void BadChecksum(void);
 void InvalidLevels(void);
 void CheckValidity(char *file, long valid_checksum);
 void UnauthorizedLevels(void);
 void ShowChecksums(void);
-void fprint(char far *text);
+void fprint(char *text);
 
 void SetupWalls (void);
 void InitDigiMap (void);
@@ -2479,7 +2479,7 @@ void InitDigiMap (void);
 void CleanUpDoors_N_Actors(void);
 
 
-void MakeDestPath(char far *file);
+void MakeDestPath(char *file);
 void InitDestPath(void);
 
 extern long FindChunk(int file, char *chunk);
@@ -2494,9 +2494,9 @@ extern long NextChunk(int file);
 */
 
 extern int db_count;
-extern classtype far debug_bonus[2][800];
-extern fargametype far gamestuff;
-extern tilecoord_t far GoldieList[GOLDIE_MAX_SPAWNS];
+extern classtype debug_bonus[2][800];
+extern fargametype gamestuff;
+extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
 extern unsigned char VitalsRemain,VitalsOnFloor;
@@ -2527,7 +2527,7 @@ void    PlaySoundLocGlobal(word s,fixed gx,fixed gy);
 void Warped (void);
 void RotateView(int DestAngle,unsigned char RotSpeed);
 void DrawWarpIn(void);
-void BMAmsg(char far *msg);	
+void BMAmsg(char *msg);	
 void CacheBMAmsg(unsigned MsgNum);	  
 void BevelBox(short xl, short yl, short w, short h, byte hi, byte med, byte lo);
 
@@ -2603,10 +2603,10 @@ extern  int                     controlx,controly;              // range from -1
 extern  boolean         buttonstate[NUMBUTTONS];
 
 extern  boolean         demorecord,demoplayback;
-extern  char            far *demoptr, far *lastdemoptr;
+extern  char            *demoptr, *lastdemoptr;
 extern  memptr          demobuffer;
 
-extern char far Computing[];
+extern char Computing[];
 
 
 void    CenterWindow(word w,word h);
@@ -2642,7 +2642,7 @@ void CalcMemFree(void);
 =============================================================================
 */
 
-extern byte far TravelTable[MAPSIZE][MAPSIZE];
+extern byte TravelTable[MAPSIZE][MAPSIZE];
 
 extern  int             weaponchangetics,itemchangetics,bodychangetics;
 extern  int             plaqueon,plaquetime,plaquetimefrac,getpic;
@@ -2668,8 +2668,8 @@ extern  fixed   mindist;
 // math tables
 //
 extern  int                     pixelangle[MAXVIEWWIDTH];
-extern  long            far finetangent[FINEANGLES/4];
-extern  fixed           far sintable[],far *costable;
+extern  long            finetangent[FINEANGLES/4];
+extern  fixed           sintable[],*costable;
 
 //
 // derived constants
@@ -2746,7 +2746,7 @@ void F_MapRow();
 =============================================================================
 */
 
-extern  unsigned far actor_points[];
+extern  unsigned actor_points[];
 extern  dirtype opposite[9];
 extern  dirtype diagonal[9][9];
 
@@ -2803,7 +2803,7 @@ typedef struct
 }       t_compshape;
 
 
-extern  t_compscale _seg *scaledirectory[MAXSCALEHEIGHT+1];
+extern  t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
 extern  long                    fullscalefarcall[MAXSCALEHEIGHT+1];
 
 extern  byte            bitmasks1[8][8];
@@ -2840,7 +2840,7 @@ extern scientist_t InfHintList;
 extern scientist_t NiceSciList;
 extern scientist_t MeanSciList;
 
-extern unsigned far static_points[];
+extern unsigned static_points[];
 extern boolean GAN_HiddenArea;
 extern memptr InfAreaMsgs[];
 extern byte NumAreaMsgs,LastInfArea;
@@ -2851,7 +2851,7 @@ extern int LastInfoAttacker_Cloaked;
 extern char term_com_name[];
 extern char term_msg_name[];
 
-extern atkinf_t far attackinfo[7][14];
+extern atkinf_t attackinfo[7][14];
 
 //
 // player state info
@@ -2900,14 +2900,14 @@ void 		UpdateHealth(void);
 void DrawAmmoGuage(void);
 void DrawAmmoMsg(void);
 void DrawAmmo(boolean ForceRefresh);
-boolean DisplayInfoMsg(char far *Msg,msg_priorities Priority,short DisplayTime,short MessageType);
+boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,short DisplayTime,short MessageType);
 void UpdateInfoAreaClock(void);
 void UpdateInfoArea(void);
 void DrawHealthMonitor(void);
 void CalcHealthDisplay(void);
 void UpdateScore(void);
 
-byte ValidAreaTile(unsigned far *ptr);
+byte ValidAreaTile(unsigned *ptr);
 char GetAreaNumber(char tilex, char tiley);
 short InputFloor(void);
 
@@ -2919,7 +2919,7 @@ short DrawShape(short x, short y, short shapenum, pisType shapetype);
 void AnimatePage(void);			
 
 void ActivateTerminal(boolean);
-void TerminalPrint(char far *msg,boolean FastPrint);
+void TerminalPrint(char *msg,boolean FastPrint);
 void FloorCheat(unsigned RadarFlags);
 boolean Interrogate(objtype *ob);
 
@@ -2940,7 +2940,7 @@ void DisplaySwitchOperateMsg(unsigned coords);
 
 void DisplayNoMoMsgs(void);
 void PrintStatPercent(short nx, short ny, char percentage);
-short ShowStats(short bx, short by, ss_type type, statsInfoType far *stats);
+short ShowStats(short bx, short by, ss_type type, statsInfoType *stats);
 boolean PerfectStats(void);
 boolean CheckPerfectStats(void);
 boolean OperateSmartSwitch(unsigned tilex, unsigned tiley, char Operation, boolean Force);
@@ -2953,15 +2953,15 @@ boolean OperateSmartSwitch(unsigned tilex, unsigned tiley, char Operation, boole
 =============================================================================
 */
 extern char xy_offset[8][2];
-extern stattype far statinfo[];
-extern concession_t far ConHintList;
+extern stattype statinfo[];
+extern concession_t ConHintList;
 
 extern doorobj_t       doorobjlist[MAXDOORS],*lastdoorobj;
 extern int                     doornum;
 
 extern unsigned       doorposition[MAXDOORS],pwallstate;
 
-extern byte            far areaconnect[NUMAREAS][NUMAREAS];
+extern byte            areaconnect[NUMAREAS][NUMAREAS];
 
 extern boolean         areabyplayer[NUMAREAS];
 
@@ -2978,7 +2978,7 @@ void SpawnDoor (int tilex, int tiley, boolean vertical, keytype lock, door_t typ
 void OperateConcession(unsigned concession);
 void SpawnConcession(int tilex, int tiley, unsigned credits,unsigned machinetype);
 unsigned LoadConcessionHint(unsigned MsgNum);
-void CacheInfoAreaMsg(unsigned block, unsigned MsgNum, char far *hint_buffer,unsigned MaxBufferLen);
+void CacheInfoAreaMsg(unsigned block, unsigned MsgNum, char *hint_buffer,unsigned MaxBufferLen);
 void CheckSpawnEA(void);
 
 int TransformAreas(char tilex, char tiley, char xform);
@@ -2990,7 +2990,7 @@ void FindNewGoldieSpawnSite(void);
 void InitMsgCache(mCacheList *mList, unsigned listSize, unsigned infoSize);
 void FreeMsgCache(mCacheList *mList, unsigned listSize);
 void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum);
-short LoadMsg(char far *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned MaxMsgLen);
+short LoadMsg(char *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned MaxMsgLen);
 void CacheConcessionMsg(void);
 boolean ReuseMsg(mCacheInfo *ci, short count, short struct_size);
 
@@ -3027,8 +3027,8 @@ void MakeFakeStatic(objtype *ob);
 void UnmakeFakeStatic(objtype *ob);
 
 extern char detonators_spawned;
-extern int far	starthitpoints[][NUMHITENEMIES];			
-extern unsigned far MorphClass[];
+extern int starthitpoints[][NUMHITENEMIES];			
+extern unsigned MorphClass[];
 
 extern statetype s_ofs_bounce;
 
@@ -3240,50 +3240,50 @@ extern  void    EndText(void);
 */
 
 
-extern char far noeat_msg1[];
-extern char far bevs_msg1[];
-extern char far food_msg1[];
+extern char noeat_msg1[];
+extern char bevs_msg1[];
+extern char food_msg1[];
 
-extern char far bonus_msg7[];
-extern char far bonus_msg26[];
+extern char bonus_msg7[];
+extern char bonus_msg26[];
 
-extern char far * far BonusMsg[];
-extern char far * far ActorInfoMsg[];
-extern char far ekg_heartbeat_enabled[];
-extern char far ekg_heartbeat_disabled[];
-extern char far attacker_info_enabled[];
-extern char far attacker_info_disabled[];
-extern char far WeaponNotAvailMsg[];
-extern char far WeaponAvailMsg[];
-extern char far RadarAvailMsg[];
-extern char far RadarEnergyGoneMsg[];
-extern char far WeaponAutoSelectMsg[];
-extern char far EnergyPackDepleted[];
-extern char far NotEnoughEnergyForWeapon[];
+extern char *BonusMsg[];
+extern char *ActorInfoMsg[];
+extern char ekg_heartbeat_enabled[];
+extern char ekg_heartbeat_disabled[];
+extern char attacker_info_enabled[];
+extern char attacker_info_disabled[];
+extern char WeaponNotAvailMsg[];
+extern char WeaponAvailMsg[];
+extern char RadarAvailMsg[];
+extern char RadarEnergyGoneMsg[];
+extern char WeaponAutoSelectMsg[];
+extern char EnergyPackDepleted[];
+extern char NotEnoughEnergyForWeapon[];
 
-extern char far WeaponMalfunction[];
+extern char WeaponMalfunction[];
 
-extern char far SwitchNotActivateMsg[];
-extern char far NoFoodTokens[];
-extern char far ExtraMan[];
-extern char far OneMillion[];
-extern char far TenMillion[];
+extern char SwitchNotActivateMsg[];
+extern char NoFoodTokens[];
+extern char ExtraMan[];
+extern char OneMillion[];
+extern char TenMillion[];
 
-extern char far NoAdLibCard[];
-extern char far MusicOn[];
-extern char far MusicOff[];
-extern char far SoundOn[];
-extern char far SoundOff[];
+extern char NoAdLibCard[];
+extern char MusicOn[];
+extern char MusicOff[];
+extern char SoundOn[];
+extern char SoundOff[];
 
-extern char far pd_dropped[];
-extern char far pd_nomore[];
-extern char far pd_switching[];
-extern char far pd_notnear[];
-extern char far pd_getcloser[];
-extern char far pd_floorunlocked[];
-extern char far pd_donthaveany[];
-extern char far pd_no_computer[];
-extern char far pd_floornotlocked[];
+extern char pd_dropped[];
+extern char pd_nomore[];
+extern char pd_switching[];
+extern char pd_notnear[];
+extern char pd_getcloser[];
+extern char pd_floorunlocked[];
+extern char pd_donthaveany[];
+extern char pd_no_computer[];
+extern char pd_floornotlocked[];
 
 
 
@@ -3298,9 +3298,9 @@ extern char far pd_floornotlocked[];
 extern char BreifingText[];
 
 void UpdateScreenPic(void);				 
-void DisplayPrepingMsg(char far *text);
+void DisplayPrepingMsg(char *text);
 boolean Breifing(breifing_type BreifingType,unsigned episode);
-void ShPrint(char far *text, char shadow_color, boolean single_char);
+void ShPrint(char *text, char shadow_color, boolean single_char);
 unsigned Random(unsigned Max);
 
 
@@ -3314,7 +3314,7 @@ extern boolean EscPressed;
 
 void DrawInstructions(inst_type Type);
 void CacheMessage(unsigned MessageNum);
-void TerminateStr(char far *pos);
+void TerminateStr(char *pos);
 unsigned long CacheCompData(unsigned ItemNum, memptr *dest_loc);
 boolean CheckForSpecialCode(unsigned ItemNum);
 
@@ -3326,6 +3326,6 @@ boolean CheckForSpecialCode(unsigned ItemNum);
 //===========================================================================
 
 
-extern char far JM_FREE_DATA_END[];
-extern char far JM_FREE_DATA_START[];
+extern char JM_FREE_DATA_END[];
+extern char JM_FREE_DATA_START[];
 

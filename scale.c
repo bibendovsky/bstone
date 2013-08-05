@@ -14,7 +14,7 @@ extern unsigned dc_seg;
 extern unsigned dc_length;
 extern unsigned dc_dest;
 
-extern byte far* shadingtable;
+extern byte* shadingtable;
 
 
 typedef enum {
@@ -28,9 +28,9 @@ static void generic_draw_column(DrawMode draw_mode)
     unsigned i;
     byte pixel;
     long fraction = dc_frac;
-    byte far* source = MK_FP(dc_seg, dc_source);
+    byte* source = MK_FP(dc_seg, dc_source);
     unsigned screen_offset = dc_dest;
-    byte far* screen = MK_FP(0xA000, 0);
+    byte* screen = MK_FP(0xA000, 0);
 
     for (i = 0; i < dc_length; ++i) {
         byte pixel_index = source[fraction >> 16];
@@ -56,7 +56,7 @@ void R_DrawSLSColumn()
 {
     unsigned i;
     unsigned screen_offset = dc_dest;
-    byte far* screen = MK_FP(0xA000, 0);
+    byte* screen = MK_FP(0xA000, 0);
 
     for (i = 0; i < dc_length; ++i) {
         byte pixel_index = screen[screen_offset];

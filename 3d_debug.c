@@ -63,7 +63,7 @@ void PicturePause (void)
 	int			i;
 	byte		p;
 	unsigned	x;
-	byte		far	*dest,far *src;
+	byte		*dest,*src;
 	memptr		buffer;
 
 #if RESTART_PICTURE_PAUSE
@@ -108,7 +108,7 @@ void PicturePause (void)
 	for (p=0;p<4;p++)
 	{
 		src = MK_FP(0xa000,displayofs);
-		dest = (byte far *)buffer+p;
+		dest = (byte *)buffer+p;
 		VGAREADMAP(p);
 		for (x=0;x<16000;x++,dest+=4)
 			*dest = *src++;
@@ -173,7 +173,7 @@ void DebugMemory (void)
 	int	i,temp;
 	char    scratch[80],str[10];
 	long	mem;
-	spritetype _seg	*block;
+	spritetype *block;
 
 	CenterWindow (22,15);
 
@@ -353,7 +353,7 @@ void ShowMap(void)
 void ShapeTest (void)
 {
 extern	word	NumDigi;
-extern	word	_seg *DigiList;
+extern	word	*DigiList;
 static	char	buf[10];
 
 	boolean			done;
@@ -362,7 +362,7 @@ static	char	buf[10];
 	int				sound;
 	longword		l;
 	memptr			addr;
-	PageListStruct	far *page;
+	PageListStruct	*page;
 
 	CenterWindow(20,16);
 	VW_UpdateScreen();
@@ -451,7 +451,7 @@ static	char	buf[10];
 			}
 			else
 			{
-				byte far *dp = (byte far *)MK_FP(addr,0);
+				byte *dp = (byte *)MK_FP(addr,0);
 
 	 			sound = i-PMSoundStart;
 				US_Print("\n Sound #");
@@ -572,8 +572,8 @@ unsigned DecRange(unsigned Value,unsigned MaxValue)
 */
 
 #if IN_DEVELOPMENT
-char far TestAutoMapperMsg[] = {"AUTOMAPPER TEST\n ENTER COUNT:"};
-char far TestQuickSaveMsg[] = {"QUICK SAVE TEST\n ENTER COUNT:"};
+char TestAutoMapperMsg[] = {"AUTOMAPPER TEST\n ENTER COUNT:"};
+char TestQuickSaveMsg[] = {"QUICK SAVE TEST\n ENTER COUNT:"};
 #endif
 
 

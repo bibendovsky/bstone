@@ -82,7 +82,7 @@ int CIO_ReadPtr(long infile, unsigned PtrType)
 
 #if 0
 		case SRC_BFILE:
-			returnval = bio_readch((BufferedIO *)*(void far **)infile);
+			returnval = bio_readch((BufferedIO *)*(void **)infile);
 		break;
 #endif
 

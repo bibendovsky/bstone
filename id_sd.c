@@ -76,7 +76,7 @@
 
 //	Imports from ID_SD_A.ASM
 extern	void			SDL_SetDS(void);
-extern	void interrupt	SDL_t0FastAsmService(void),
+extern	void SDL_t0FastAsmService(void),
 						SDL_t0SlowAsmService(void);
 
 //	Imports from ID_SDD.C
@@ -117,7 +117,7 @@ extern char** _argv;
 static	boolean			SD_Started;
 		boolean			nextsoundpos;
 		longword		TimerDivisor,TimerCount;
-static	char far * 		far ParmStrings[] =
+static	char * 		ParmStrings[] =
 						{
 							"noal",
 							"nosb",
@@ -133,12 +133,12 @@ static	void			(*SoundUserHook)(void);
 		soundnames		SoundNumber,DigiNumber;
 		word			SoundPriority,DigiPriority;
 		int				LeftPosition,RightPosition;
-		void interrupt	(*t0OldService)(void);
+		void (*t0OldService)(void);
 		long			LocalTime;
 		word			TimerRate;
 
 		word				NumDigi,DigiLeft,DigiPage;
-		word				_seg *DigiList;
+		word				*DigiList;
 		word				DigiLastStart,DigiLastEnd;
 		volatile boolean	DigiPlaying;
 static	volatile boolean	DigiMissed,DigiLastSegment;
@@ -153,7 +153,7 @@ static	boolean					sbNoCheck,sbNoProCheck;
 static	volatile boolean		sbSamplePlaying;
 static	byte					sbPIC1Mask,sbPIC2Mask;
 static	byte					sbOldIntMask = -1,sbOldIntMask2 = -1;
-static	volatile byte			huge *sbNextSegPtr;
+static	volatile byte			*sbNextSegPtr;
 static	byte					sbDMA = 1,
 								sbDMAa1 = 0x83,sbDMAa2 = 2,sbDMAa3 = 3,
 								sba1Vals[] = {0x87,0x83,0,0x82},
@@ -163,8 +163,8 @@ static	int						sbLocation = -1,sbInterrupt = 7,sbIntVec = 0xf,
 								sbIntVectors[] = {-1,-1,0xa,0xb,-1,0xd,-1,0xf,-1,-1,0x72};
 static	volatile byte			sbLastTimeValue;
 static	volatile longword		sbNextSegLen;
-static	volatile SampledSound	huge *sbSamples;
-static	void interrupt			(*sbOldIntHand)(void);
+static	volatile SampledSound	*sbSamples;
+static	void 		(*sbOldIntHand)(void);
 static	byte					sbpOldFMMix,sbpOldVOCMix;
 
 //	SoundSource variables
@@ -174,17 +174,17 @@ static	byte					sbpOldFMMix,sbpOldVOCMix;
 		byte				ssOn,ssOff;
 		word				ssVol;
 		byte				ssVolTable[256];
-		volatile byte		far *ssSample;
+		volatile byte		*ssSample;
 		volatile longword	ssLengthLeft;
 
 //	PC Sound variables
-		volatile byte	pcLastSample,far *pcSound;
+		volatile byte	pcLastSample,*pcSound;
 		longword		pcLengthLeft;
 		word			pcSoundLookup[255];
 
 //	AdLib variables
 		boolean			alNoCheck;
-		byte			far *alSound;
+		byte			*alSound;
 		word			alBlock;
 		longword		alLengthLeft;
 		longword		alTimeCount;
@@ -203,7 +203,7 @@ static	word			alFXReg;
 static	ActiveTrack		*tracks[sqMaxTracks],
 						mytracks[sqMaxTracks];
 static	word			sqMode,sqFadeStep;
-		word			far *sqHack,far *sqHackPtr,sqHackLen,sqHackSeqLen;
+		word			*sqHack,*sqHackPtr,sqHackLen,sqHackSeqLen;
 		long			sqHackTime;
 		boolean			sqPlayedOnce;
 
@@ -258,7 +258,7 @@ static void
 SDL_SetTimerSpeed(void)
 {
 	word	rate;
-	void interrupt	(*isr)(void);
+	void (*isr)(void);
 
 	if
 	(
@@ -446,7 +446,7 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static longword
-SDL_SBPlaySeg(volatile byte huge *data,longword length)
+SDL_SBPlaySeg(volatile byte *data,longword length)
 {
 // FIXME
 #if 0
@@ -500,7 +500,7 @@ asm	popf
 //	SDL_SBService() - Services the SoundBlaster DMA interrupt
 //
 ///////////////////////////////////////////////////////////////////////////
-static void interrupt
+static void
 SDL_SBService(void)
 {
 // FIXME
@@ -566,7 +566,7 @@ void
 #else
 static void
 #endif
-SDL_SBPlaySample(byte huge *data,longword len)
+SDL_SBPlaySample(byte *data,longword len)
 {
 // FIXME
 #if 0
@@ -954,7 +954,7 @@ void
 #else
 static void
 #endif
-SDL_SSPlaySample(byte huge *data,longword len)
+SDL_SSPlaySample(byte *data,longword len)
 {
 // FIXME
 #if 0
@@ -962,7 +962,7 @@ asm	pushf
 asm	cli
 
 	ssLengthLeft = len;
-	ssSample = (volatile byte far *)data;
+	ssSample = (volatile byte *)data;
 
 asm	popf
 #endif // 0
@@ -1098,7 +1098,7 @@ void
 #else
 static void
 #endif
-SDL_PCPlaySound(PCSound far *sound)
+SDL_PCPlaySound(PCSound *sound)
 {
 // FIXME
 #if 0
@@ -1541,15 +1541,15 @@ void
 SDL_SetupDigi(void)
 {
 	memptr	list;
-	word	far *p,
+	word	*p,
 			pg;
 	int		i;
 
 	PM_UnlockMainMem();
 	MM_GetPtr(&list,PMPageSize);
 	PM_CheckMainMem();
-	p = (word far *)MK_FP(PM_GetPage(ChunksInFile - 1),0);
-	memcpy((void far *)list,(void far *)p,PMPageSize);
+	p = (word *)MK_FP(PM_GetPage(ChunksInFile - 1),0);
+	memcpy((void *)list,(void *)p,PMPageSize);
 	pg = PMSoundStart;
 	for (i = 0;i < PMPageSize / (sizeof(word) * 2);i++,p += 2)
 	{
@@ -1559,7 +1559,7 @@ SDL_SetupDigi(void)
 	}
 	PM_UnlockMainMem();
 	MM_GetPtr((memptr *)&DigiList,i * sizeof(word) * 2);
-	memcpy((void far *)DigiList,(void far *)list,i * sizeof(word) * 2);
+	memcpy((void *)DigiList,(void *)list,i * sizeof(word) * 2);
 	MM_FreePtr(&list);
 	NumDigi = i;
 
@@ -1604,7 +1604,7 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-SDL_SetInstrument(int track,int which,Instrument far *inst,boolean percussive)
+SDL_SetInstrument(int track,int which,Instrument *inst,boolean percussive)
 {
 	byte		c,m;
 
@@ -1668,7 +1668,7 @@ asm	popf
 }
 
 static void
-SDL_AlSetFXInst(Instrument far *inst)
+SDL_AlSetFXInst(Instrument *inst)
 {
 	byte		c,m;
 
@@ -1700,12 +1700,12 @@ void
 #else
 static void
 #endif
-SDL_ALPlaySound(AdLibSound far *sound)
+SDL_ALPlaySound(AdLibSound *sound)
 {
 // FIXME
 #if 0
-	Instrument	far *inst;
-	byte		huge *data;
+	Instrument	*inst;
+	byte		*data;
 
 	SDL_ALStopSound();
 
@@ -1716,7 +1716,7 @@ asm	cli
 	data = sound->data;
 	data++;
 	data--;
-	alSound = (byte far *)data;
+	alSound = (byte *)data;
 	alBlock = ((sound->block & 7) << 2) | 0x20;
 	inst = &sound->inst;
 
@@ -1789,7 +1789,7 @@ SDL_ALService(void)
 	alTimeCount++;
 	if (!sqHackLen)
 	{
-		sqHackPtr = (word far *)sqHack;
+		sqHackPtr = (word *)sqHack;
 		sqHackLen = sqHackSeqLen;
 		alTimeCount = sqHackTime = 0;
 	}
@@ -2415,7 +2415,7 @@ SD_PlaySound(soundnames sound)
 // FIXME
 #if 0
 	boolean		ispos;
-	SoundCommon	far *s;
+	SoundCommon	*s;
 	int	lp,rp;
 
 	lp = LeftPosition;
@@ -2480,10 +2480,10 @@ SD_PlaySound(soundnames sound)
 	switch (SoundMode)
 	{
 	case sdm_PC:
-		SDL_PCPlaySound((void far *)s);
+		SDL_PCPlaySound((void *)s);
 		break;
 	case sdm_AdLib:
-		SDL_ALPlaySound((void far *)s);
+		SDL_ALPlaySound((void *)s);
 		break;
 	}
 
@@ -2598,7 +2598,7 @@ SD_MusicOff(void)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-SD_StartMusic(MusicGroup far *music)
+SD_StartMusic(MusicGroup *music)
 {
 	SD_MusicOff();
 

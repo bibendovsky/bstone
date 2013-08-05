@@ -16,7 +16,7 @@ static const int DEG270 = 2700;
 static const int DEG360 = 3600;
 
 
-extern long far finetangent[FINEANGLES / 4];
+extern long finetangent[FINEANGLES / 4];
 void HitHorizWall();
 void HitVertWall();
 void HitHorizDoor();
