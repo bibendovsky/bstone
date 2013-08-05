@@ -43,7 +43,7 @@ boolean IO_FarRead (int handle, byte *dest, long length);
 byte 		*tinf;
 int			mapon;
 
-unsigned	*mapsegs[MAPPLANES];
+unsigned short	*mapsegs[MAPPLANES];
 maptype		*mapheaderseg[NUMMAPS];
 byte		*audiosegs[NUMSNDCHUNKS];
 void		*grsegs[NUMCHUNKS];
@@ -530,8 +530,12 @@ void CAL_OptimizeNodes (huffnode *table)
 ======================
 */
 
-void CAL_HuffExpand (byte *source, byte *dest,
-  long length,huffnode *hufftable, boolean screenhack)
+void CAL_HuffExpand(
+    byte* source,
+    byte* dest,
+    long length,
+    huffnode* hufftable,
+    boolean screenhack)
 {
 // FIXME
 #if 0
@@ -710,6 +714,62 @@ asm	jns	expand		// when length = ffff ffff, done
 asm	mov	ax,ss
 asm	mov	ds,ax
 #endif // 0
+
+    int i;
+    byte* end;
+    huffnode* headptr;
+    huffnode* huffptr;
+    byte val = *source++;
+    byte mask = 1;
+    word nodeval;
+    boolean update_screen = false;
+    int plane_count = 1;
+
+    headptr = &hufftable[254]; // head node is always node 254
+
+    update_screen =
+        screenhack &&
+        (length < 0xFFF0);
+
+    if (update_screen) {
+        length /= 4;
+        plane_count = 4;
+    }
+
+    end = dest + length;
+
+    huffptr = headptr;
+
+    for (i = 0; i < plane_count; ++i) {
+        while (true) {
+            if ((val & mask) == 0)
+                nodeval = huffptr->bit0;
+            else
+                nodeval = huffptr->bit1;
+
+            if (mask == 0x80) {
+                val = *source++;
+                mask = 1;
+            } else
+                mask <<= 1;
+
+            if (nodeval < 256) {
+                *dest++ = (byte)nodeval;
+                huffptr = headptr;
+
+                if (dest >= end)
+                    break;
+            } else
+                huffptr = &hufftable[nodeval - 256];
+        }
+
+        if (update_screen)
+            end = dest + length;
+    }
+
+    // FIXME
+    // Handle output to screen if screenhack is true
+    // and length less than 0xFFF0.
 }
 
 
@@ -999,6 +1059,31 @@ void CA_Shutdown (void)
 	close (maphandle);
 	close (grhandle);
 	close (audiohandle);
+}
+
+/*
+======================
+=
+= CA_Startup
+=
+= Open all files and load in headers
+=
+======================
+*/
+void CA_Startup()
+{
+#ifdef PROFILE
+    unlink("PROFILE.TXT");
+    profilehandle = open("PROFILE.TXT", O_CREAT | O_WRONLY | O_TEXT);
+#endif
+
+    CAL_SetupMapFile();
+    CAL_SetupGrFile();
+    CAL_SetupAudioFile();
+
+    mapon = -1;
+    ca_levelbit = 1;
+    ca_levelnum = 0;
 }
 
 //===========================================================================

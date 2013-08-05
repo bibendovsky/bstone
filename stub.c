@@ -24,7 +24,7 @@ void SDL_t0SlowAsmService(void)
 
 int VL_VideoID (void)
 {
-    return 0;
+    return 5;
 }
 
 void JM_VGALinearFill(unsigned start,unsigned length, char fill)

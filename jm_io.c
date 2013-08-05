@@ -21,10 +21,7 @@ boolean IO_FarRead (int handle, byte *dest, long length)
 		else
 			readlen=length;
 
-// FIXME
-#if 0
-		_dos_read(handle,dest,readlen,&nread);
-#endif // 0
+        nread = read(handle, dest, readlen);
 
 		if (nread != readlen)
 			return(false);

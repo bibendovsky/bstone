@@ -33,7 +33,7 @@ typedef	struct
 
 typedef struct
 {
-	int width,height;
+	short width,height;
 } pictabletype;
 
 

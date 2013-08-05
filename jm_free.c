@@ -316,6 +316,8 @@ void JM_FREE_START()
 
 // ------------------ ID Software 'startup' functions ---------------------
 
+// FIXME Moved to id_ca.c
+#if 0
 /*
 ======================
 =
@@ -340,7 +342,7 @@ void CA_Startup (void)
 	ca_levelbit = 1;
 	ca_levelnum = 0;
 }
-
+#endif // 0
 
 
 //#if !IN_DEVELOPMENT
@@ -1199,6 +1201,9 @@ void CAL_SetupAudioFile (void)
 =
 ======================
 */
+
+// FIXME
+#if 0
 void CAL_SetupGrFile (void)
 {
 	char fname[13];
@@ -1275,7 +1280,69 @@ void CAL_SetupGrFile (void)
 // MDM end
 
 }
+#endif // 0
 
+void CAL_SetupGrFile()
+{
+    char fname[13];
+    int handle;
+    void* compseg;
+
+    //
+    // load ???dict.ext (huffman dictionary for graphics files)
+    //
+
+    strcpy(fname, gdictname);
+    strcat(fname, extension);
+
+    handle = open(fname, O_RDONLY | O_BINARY, S_IREAD);
+
+    if (handle == -1)
+        CA_CannotOpen(fname);
+
+    read(handle, &grhuffman, sizeof(grhuffman));
+    close(handle);
+
+    //
+    // load the data offsets from ???head.ext
+    //
+    grstarts = (long*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
+
+    strcpy(fname, gheadname);
+    strcat(fname, extension);
+
+    handle = open(fname, O_RDONLY | O_BINARY, S_IREAD);
+
+    if (handle == -1)
+        CA_CannotOpen(fname);
+
+    read(handle, grstarts, (NUMCHUNKS + 1) * FILEPOSSIZE);
+
+    close(handle);
+
+
+    //
+    // Open the graphics file, leaving it open until the game is finished
+    //
+    OpenGrFile();
+
+    //
+    // load the pic and sprite headers into the arrays in the data segment
+    //
+    pictable = (pictabletype*)malloc(NUMPICS * sizeof(pictabletype));
+    CAL_GetGrChunkLength(STRUCTPIC);		// position file pointer
+    compseg = malloc(chunkcomplen);
+    read(grhandle, compseg, chunkcomplen);
+
+    CAL_HuffExpand(
+        compseg,
+        (byte*)pictable,
+        NUMPICS * sizeof(pictabletype),
+        grhuffman,
+        false);
+
+    free(compseg);
+}
 
 
 
@@ -1287,6 +1354,8 @@ void CAL_SetupGrFile (void)
 ======================
 */
 
+// FIXME
+#if 0
 void CAL_SetupMapFile (void)
 {
 	int	i;
@@ -1344,6 +1413,91 @@ void CAL_SetupMapFile (void)
 
 #if FORCE_FILE_CLOSE
    CloseMapFile();
+#endif
+
+}
+#endif // 0
+
+void CAL_SetupMapFile()
+{
+    int i;
+    int handle;
+    long pos;
+    char fname[13];
+    mapfiletype header;
+    maptype* map_header;
+
+    //
+    // load maphead.ext (offsets and tileinfo for map file)
+    //
+
+    strcpy(fname, mheadname);
+    strcat(fname, extension);
+
+    handle = open(fname, O_RDONLY | O_BINARY, S_IREAD);
+
+    if (handle == -1)
+        CA_CannotOpen(fname);
+
+    read(handle, &header.RLEWtag, sizeof(header.RLEWtag));
+    read(handle, &header.headeroffsets, sizeof(header.headeroffsets));
+
+    close(handle);
+
+
+    //
+    // open the data file
+    //
+    OpenMapFile();
+
+    //
+    // load all map header
+    //
+    for (i = 0; i < NUMMAPS; ++i) {
+        pos = header.headeroffsets[i];
+
+        if (pos < 0)
+            continue;
+
+        mapheaderseg[i] = (maptype*)malloc(sizeof(maptype));
+        map_header = mapheaderseg[i];
+
+        lseek(maphandle, pos, SEEK_SET);
+
+        read(
+            maphandle,
+            &map_header->planestart,
+            sizeof(map_header->planestart));
+
+        read(
+            maphandle,
+            &map_header->planelength,
+            sizeof(map_header->planelength));
+
+        read(
+            maphandle,
+            &map_header->width,
+            sizeof(map_header->width));
+
+        read(
+            maphandle,
+            &map_header->height,
+            sizeof(map_header->height));
+
+        read(
+            maphandle,
+            &map_header->name,
+            sizeof(map_header->name));
+    }
+
+    //
+    // allocate space for 3 64*64 planes
+    //
+    for (i = 0; i < MAPPLANES; ++i)
+        mapsegs[i] = (unsigned short*)malloc(2 * 64 * 64);
+
+#if FORCE_FILE_CLOSE
+    CloseMapFile();
 #endif
 
 }

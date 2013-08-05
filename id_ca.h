@@ -23,21 +23,21 @@ void UNCACHEGRCHUNK(unsigned chunk);
 typedef	struct
 {
 	long		planestart[3];
-	unsigned	planelength[3];
-	unsigned	width,height;
+	unsigned short	planelength[3];
+	unsigned short	width,height;
 	char		name[16];
 } maptype;
 
 typedef struct
 {
-  unsigned bit0,bit1;	// 0-255 is a character, > is a pointer to a node
+  unsigned short bit0,bit1;	// 0-255 is a character, > is a pointer to a node
 } huffnode;
 
 typedef struct
 {
-	unsigned	RLEWtag;
+	unsigned short	RLEWtag;
 	long		headeroffsets[100];
-	byte		tileinfo[];
+//	byte		tileinfo[];
 } mapfiletype;
 
 //===========================================================================
@@ -47,7 +47,7 @@ extern	char		audioname[13];
 extern	byte 		*tinf;
 extern	int			mapon;
 
-extern	unsigned	*mapsegs[MAPPLANES];
+extern	unsigned short	*mapsegs[MAPPLANES];
 extern	maptype		*mapheaderseg[NUMMAPS];
 extern	byte		*audiosegs[NUMSNDCHUNKS];
 extern	void		*grsegs[NUMCHUNKS];
