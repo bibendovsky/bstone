@@ -1345,7 +1345,7 @@ boolean DoMovie(movie_t movie, void* palette)
    if (palette)
    	Movies[movie].palette = palette;
    else
-   	Movies[movie].palette = (void*)FP_SEG(&vgapal);
+   	Movies[movie].palette = &vgapal;
 
 	ReturnVal = MOVIE_Play(&Movies[movie]);
 

@@ -2003,7 +2003,9 @@ long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned id_cache)
 		pi->scriptstart = grsegs[id_cache];
 		if (!(p=strstr(grsegs[id_cache],"^XX")))
       	TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
-		size = p-(char *)MK_FP(grsegs[id_cache],1);
+
+        // FIXME
+		size = p-((char*)grsegs[id_cache] + 1);
 	}
 	else
 	{
@@ -2012,7 +2014,9 @@ long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned id_cache)
 			return(0);
 	}
 
-	pi->script[0] = MK_FP(pi->scriptstart,0);
+    // FIXME
+	pi->script[0] = (char*)pi->scriptstart;
+
 	pi->script[0][size+4] = 0;		 			// Last byte is trashed!
 	pi->flags |= TPF_CACHED_SCRIPT;
 	TP_InitScript(pi);

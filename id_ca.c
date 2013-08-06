@@ -1420,7 +1420,7 @@ void CA_CacheScreen (int chunk)
 // allocate final space, decompress it, and free bigbuffer
 // Sprites need to have shifts made and various other junk
 //
-	CAL_HuffExpand (source,MK_FP(SCREENSEG,bufferofs),expanded,grhuffman,true);
+	CAL_HuffExpand (source,(byte*)0xA0000 + bufferofs,expanded,grhuffman,true);
 	VW_MarkUpdateBlock (0,0,319,199);
 
     free(bigbufferseg);

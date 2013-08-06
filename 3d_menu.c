@@ -3616,7 +3616,7 @@ void CacheMessage(unsigned MessageNum)
 	char *string;
 
 	CA_CacheGrChunk(MessageNum);
-   string = MK_FP(grsegs[MessageNum],0);
+   string = (char*)grsegs[MessageNum];
 
    TerminateStr(string);
 
@@ -3645,7 +3645,7 @@ unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 		// Load compressed data
 
 	CA_CacheGrChunk(ItemNum);
-   compdata = MK_FP(grsegs[ItemNum],0);
+   compdata = (char*)grsegs[ItemNum];
 
 // FIXME
 #if 0
@@ -3696,7 +3696,7 @@ boolean CheckForSpecialCode(unsigned ItemNum)
    // Allocate, Cache & Decomp into ram
 
    CacheCompData(ItemNum, &code);
-   code_ptr = MK_FP(code,0);
+   code_ptr = (char*)code;
    TerminateStr(code_ptr);
 
    // Check for code

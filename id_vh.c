@@ -56,7 +56,10 @@ void VW_DrawPropString (char *string)
 
 	font = (fontstruct *)grsegs[STARTFONT+fontnumber];
 	height = bufferheight = font->height;
-	dest = origdest = MK_FP(SCREENSEG,bufferofs+ylookup[py]+(px>>2));
+
+    // FIXME
+	dest = origdest = (byte*)0xA00000 + bufferofs + ylookup[py] + (px >> 2);
+
 	mask = 1<<(px&3);
 
 

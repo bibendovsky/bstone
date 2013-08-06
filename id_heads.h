@@ -20,10 +20,6 @@
 
 //--------------------------------------------------------------------------
 
-#define MK_FP(s,o) (NULL)
-#define FP_OFF(v) (0)
-#define FP_SEG(v) (0)
-
 
 #define DEBUG_VALUE
 #define CEILING_FLOOR_COLORS

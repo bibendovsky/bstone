@@ -45,7 +45,7 @@ static void generic_draw_post(DrawMode draw_mode)
     step = cur_step;
     cur_step >>= 1;
 
-    screen = MK_FP(0xA000, 0);
+    screen = (byte*)0xA0000;
 
     fraction = SCREENBWIDE;
     

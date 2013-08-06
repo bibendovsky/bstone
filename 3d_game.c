@@ -2542,7 +2542,7 @@ void CacheBMAmsg(unsigned MsgNum)
 	char *string, *pos;
 
 	CA_CacheGrChunk(MsgNum);
-   string = MK_FP(grsegs[MsgNum],0);
+   string = (char*)grsegs[MsgNum];
 
    pos = strstr(string,"^XX");
    *(pos+3) = 0;
@@ -3040,7 +3040,10 @@ void PlayDemo (int demonumber)
 	fizzlein = true;
 
 #ifndef DEMOS_EXTERN
-	off = FP_OFF(demoptr);
+    // FIXME
+	//off = FP_OFF(demoptr);
+    off = (int)demoptr;
+
 	demoptr = grsegs[dems[demonumber]];
 	demoptr += off;
 #endif

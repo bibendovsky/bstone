@@ -228,7 +228,7 @@ void JM_DrawBlock(unsigned dest_offset,unsigned byte_offset,char *source,unsigne
    // Compute our DEST memory location
    //
 
-   dest = MK_FP(0xA000,dest_offset+(byte_offset>>2));
+   dest = (char*)0xA0000 + dest_offset + (byte_offset >> 2);
 
    //
    // Move that memory.
@@ -297,7 +297,7 @@ boolean MOVIE_LoadBuffer()
 	char *frame;
    unsigned long free_space;
 
-   NextPtr = BufferPtr = frame = MK_FP(MovieBuffer,0);
+   NextPtr = BufferPtr = frame = (char*)MovieBuffer;
    free_space = BufferLen;
 
 	while (free_space)
@@ -447,7 +447,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
       //-------------------------------------------
 
 	 	case AN_FADE_IN_FRAME:				// Fade In Page
-        	VL_FadeIn(0,255,MK_FP(movie_palette,0),30);
+        	VL_FadeIn(0,255,(byte*)movie_palette,30);
 			fade_flags = FADE_NONE;
          EverFaded = true;
 			screenfaded = false;

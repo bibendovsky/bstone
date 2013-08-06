@@ -2100,7 +2100,8 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned flags)
 
 // Calculate starting destination address.
 //
-	basedst=MK_FP(SCREENSEG,bufferofs+ylookup[by]+(bx>>2));
+    // FIXME
+	basedst=(byte*) 0xA0000 + bufferofs + ylookup[by] + (bx >> 2);
 	switch (zoom)
 	{
 		case 1:

@@ -28,9 +28,14 @@ static void generic_draw_column(DrawMode draw_mode)
     unsigned i;
     byte pixel;
     long fraction = dc_frac;
-    byte* source = MK_FP(dc_seg, dc_source);
+
+    // FIXME
+    byte* source = (byte*)dc_seg + dc_source;
+
     unsigned screen_offset = dc_dest;
-    byte* screen = MK_FP(0xA000, 0);
+
+    // FIXME
+    byte* screen = (byte*)0xA0000;
 
     for (i = 0; i < dc_length; ++i) {
         byte pixel_index = source[fraction >> 16];
@@ -56,7 +61,7 @@ void R_DrawSLSColumn()
 {
     unsigned i;
     unsigned screen_offset = dc_dest;
-    byte* screen = MK_FP(0xA000, 0);
+    byte* screen = (byte*)0xA0000;
 
     for (i = 0; i < dc_length; ++i) {
         byte pixel_index = screen[screen_offset];
