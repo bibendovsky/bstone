@@ -168,7 +168,6 @@ void SetupMovie(MovieStuff_t *MovieStuff)
    	BufferLen = 64256;
 
     MovieBuffer = malloc(BufferLen);
-	PM_CheckMainMem();
 }
 
 

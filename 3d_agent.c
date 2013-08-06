@@ -3185,7 +3185,6 @@ short InputFloor(void)
 	memcpy(player,&old_player,sizeof(objtype));
 	UnCacheLump(TELEPORT_LUMP_START,TELEPORT_LUMP_END);
 
-	PM_CheckMainMem();
 	DrawPlayScreen(false);
 	IN_ClearKeysDown();
 

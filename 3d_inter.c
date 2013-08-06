@@ -176,7 +176,6 @@ void PreloadGraphics(void)
 	if (!(gamestate.flags & GS_QUICKRUN))
 		VW_FadeIn ();
 
-	PM_Preload(PreloadUpdate);
 	IN_UserInput(70);
 
 	if (playstate != ex_transported)

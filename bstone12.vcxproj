@@ -111,10 +111,10 @@
     <ClCompile Include="jm_io.c" />
     <ClCompile Include="jm_lzh.c" />
     <ClCompile Include="jm_tp.c" />
-    <ClCompile Include="main.c" />
     <ClCompile Include="markhack.c" />
     <ClCompile Include="movie.c" />
     <ClCompile Include="scale.c" />
+    <ClCompile Include="stub.c" />
     <ClCompile Include="vgapal.c" />
   </ItemGroup>
   <ItemGroup>

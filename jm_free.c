@@ -541,6 +541,8 @@ void MM_Startup (void)
 }
 #endif // 0
 
+// FIXME
+#if 0
 //
 //	PML_StartupEMS() - Sets up EMS for Page Mgr's use
 //		Checks to see if EMS driver is present
@@ -745,7 +747,10 @@ PML_StartupMainMem(void)
 	MainPresent = true;
 #endif // 0
 }
+#endif // 0
 
+// FIXME Moved to id_pm.c
+#if 0
 //
 //	PM_Startup() - Start up the Page Mgr
 //
@@ -795,6 +800,7 @@ PM_Startup(void)
 
 	PMStarted = true;
 }
+#endif // 0
 
 #endif
 
@@ -2065,7 +2071,6 @@ void PreDemo()
 				if (Keyboard[sc_LShift] && Keyboard[sc_RShift])
 		      {
 					CA_LoadAllSounds();
-					PM_CheckMainMem();
 
 					SD_MusicOff();
 
@@ -2139,7 +2144,6 @@ void InitGame (void)
 	VW_Startup ();
 	IN_Startup ();
 	PM_Startup ();
-	PM_UnlockMainMem ();
 	SD_Startup ();
 	US_Startup ();
 

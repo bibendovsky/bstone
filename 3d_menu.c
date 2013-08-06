@@ -700,7 +700,6 @@ int CP_CheckQuick(unsigned scancode)
 				lasttimecount = TimeCount;
 				if (MousePresent)
 					Mouse(MDelta);	// Clear accumulated mouse movement
-				PM_CheckMainMem ();
 			}
 
 			if (pickquick)

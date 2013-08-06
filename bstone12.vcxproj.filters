@@ -129,7 +129,7 @@
     <ClCompile Include="vgapal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.c">
+    <ClCompile Include="stub.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

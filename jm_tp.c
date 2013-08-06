@@ -1543,8 +1543,7 @@ short TP_DrawShape(short x, short y, short shapenum, pisType shapetype)
 	{
 		case pis_scwall:
 			TP_CacheIn(ct_scaled,0);
-			PM_GetPage(shapenum);
-			addr = PM_GetPageAddress(shapenum);
+			addr = PM_GetPage(shapenum);
 			bufferofs += (y-30)*SCREENWIDTH;
 			postx = x;
 			postwidth = 1;
@@ -2110,7 +2109,6 @@ void TP_CacheIn(tpCacheType type, short chunk)
 			if (flags & fl_pagemanager)
 				break;
 
-			PM_CheckMainMem();
 			flags |= fl_pagemanager;
 		break;
 

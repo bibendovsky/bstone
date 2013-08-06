@@ -3036,7 +3036,6 @@ void PlayDemo (int demonumber)
 
 	VW_FadeOut();
 	DrawPlayScreen(true);
-	PM_CheckMainMem ();
 	SetPlaneViewSize();
 	fizzlein = true;
 
@@ -3374,7 +3373,6 @@ start++;
 
 		LS_current = LS_total = -1;
 
-		PM_CheckMainMem ();
 		SetPlaneViewSize();
 		if (loadedgame)
 			loadedgame=false;
@@ -3519,7 +3517,6 @@ strcat (str,str2);							// defined in 3d_main.c
 				SD_PlaySound(BONUS1SND);
 				SD_WaitSoundDone();
 				IN_UserInput(5*60);
-				PM_CheckMainMem();
 				ClearMemory();
 			}
 

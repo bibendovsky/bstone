@@ -17,7 +17,6 @@ void ClearSplitVWB (void);
 void RedrawStatusAreas();
 void PreloadGraphics(void);
 void TryDropPlasmaDetonator(void);
-void PML_OpenPageFile(char *filename);
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void MoveDoors (void);
@@ -708,7 +707,6 @@ void CheckKeys (void)
 					SD_SetDigiDevice(sds_Off);
 
 				CA_LoadAllSounds();
-				PM_CheckMainMem();
 
 				memcpy((char *)&SoundOn[55],"ON. ",4);
 			}
@@ -761,7 +759,6 @@ void CheckKeys (void)
 
 			Message("\n NOW you're jammin'!! \n");
 
-			PM_CheckMainMem ();
 			IN_ClearKeysDown();
 			IN_Ack();
 
@@ -845,7 +842,6 @@ void CheckKeys (void)
 			FinishPaletteShifts();
 			ClearMemory();
 			US_ControlPanel(scan);
-			PM_CheckMainMem();
 			CleanDrawPlayBorder();
 			return;
 
@@ -857,7 +853,6 @@ void CheckKeys (void)
 			FinishPaletteShifts();
 			if (!CheckDiskSpace(DISK_SPACE_NEEDED,CANT_SAVE_GAME_TXT,cds_id_print))
 			{
-				PM_CheckMainMem();
 				CleanDrawPlayBorder();
 				break;
 			}
@@ -887,7 +882,6 @@ void CheckKeys (void)
 			ClearMemory();
 			if (!sqActive || !loadedgame)
 				StartMusic(false);
-			PM_CheckMainMem();
 			IN_ClearKeysDown();
 			if (loadedgame)
 			{
@@ -941,7 +935,6 @@ void CheckKeys (void)
                 audiosegs[STARTMUSIC + old_num] = NULL;
 
 				StartMusic(false);
-				PM_CheckMainMem();
 				DrawScore();
 			}
 		}
@@ -1089,6 +1082,8 @@ void ChangeSwapFiles(boolean display)
 #endif
 
 
+// FIXME
+#if 0
 //--------------------------------------------------------------------------
 // OpenPageFile()
 //--------------------------------------------------------------------------
@@ -1111,6 +1106,7 @@ void OpenPageFile(void)
   	PML_OpenPageFile(PageFileName);
 #endif
 }
+#endif // 0
 
 //--------------------------------------------------------------------------
 // PopupAutoMap()
@@ -1141,7 +1137,6 @@ void PopupAutoMap()
 	while (!IN_CheckAck ())
 		CalcTics();
 
-	PM_CheckMainMem();
 	CleanDrawPlayBorder();
 	IN_ClearKeysDown();
 }
@@ -1909,7 +1904,6 @@ void ShowQuickInstructions()
 	CacheMessage(QUICK_INFO2_TEXT);
 	IN_Ack();
 	IN_ClearKeysDown();
-	PM_CheckMainMem();
 	CleanDrawPlayBorder();
 }
 
