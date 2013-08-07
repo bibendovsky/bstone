@@ -3636,6 +3636,9 @@ void CacheMessage(unsigned MessageNum)
 // RETURNS: Lenght of loaded (decompressed) data
 //
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 {
    char *compdata, *dest_ptr;
@@ -3676,6 +3679,53 @@ unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 
    	// Return loaded size
    return(data_len);
+}
+#endif // 0
+
+unsigned long CacheCompData(unsigned item_number, void** dst_ptr)
+{
+   char* chunk;
+   char* dst;
+    CompHeader_t CompHeader;
+   unsigned long data_length;
+
+    // Load compressed data
+    CA_CacheGrChunk(item_number);
+    chunk = (char*)grsegs[item_number];
+
+    memcpy(CompHeader.NameId, &chunk[0], 4);
+    CompHeader.OriginalLen = ((unsigned long*)&chunk[4])[0];
+    CompHeader.CompType = (ct_TYPES)((short*)&chunk[8])[0];
+    CompHeader.CompressLen = ((unsigned long*)&chunk[10])[0];
+
+    data_length = CompHeader.OriginalLen;
+
+   chunk += 14;
+
+   // Allocate Dest Memory
+
+    dst = (char*)malloc(data_length);
+    *dst_ptr = dst;
+
+   // Decompress and terminate string
+
+    if (!LZH_Startup())
+        Quit("out of memory");
+
+    LZH_Decompress(
+        chunk,
+        dst,
+        data_length,
+        CompHeader.CompressLen,
+        SRC_MEM | DEST_MEM);
+
+    LZH_Shutdown();
+
+    // Free compressed data
+    UNCACHEGRCHUNK(item_number);
+
+   // Return loaded size
+   return data_length;
 }
 
 //-------------------------------------------------------------------------

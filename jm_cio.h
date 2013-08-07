@@ -101,8 +101,8 @@ typedef struct
 //
 //---------------------------------------------------------------------------
 
-char CIO_WritePtr(long outfile, unsigned char data, unsigned PtrType);
-int CIO_ReadPtr(long infile, unsigned PtrType);
+char CIO_WritePtr(long outfile, unsigned char data, unsigned short PtrType);
+short CIO_ReadPtr(long infile, unsigned short PtrType);
 
 
 #endif

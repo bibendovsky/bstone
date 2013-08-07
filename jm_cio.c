@@ -27,14 +27,14 @@
 // NOTE : For PtrTypes DEST_MEM a ZERO (0) is always returned.
 //
 //---------------------------------------------------------------------------
-char CIO_WritePtr(long outfile, unsigned char data, unsigned PtrType)
+char CIO_WritePtr(long outfile, unsigned char data, unsigned short PtrType)
 {
-	int returnval = 0;
+	short returnval = 0;
 
 	switch (PtrType & DEST_TYPES)
 	{
 		case DEST_FILE:
-			write(*(int *)outfile,(char *)&data,1);
+			write(*(short *)outfile,(char *)&data,1);
 		break;
 
 		case DEST_FFILE:
@@ -66,14 +66,14 @@ char CIO_WritePtr(long outfile, unsigned char data, unsigned PtrType)
 //
 //
 //---------------------------------------------------------------------------
-int CIO_ReadPtr(long infile, unsigned PtrType)
+short CIO_ReadPtr(long infile, unsigned short PtrType)
 {
-	int returnval = 0;
+	short returnval = 0;
 
 	switch (PtrType & SRC_TYPES)
 	{
 		case SRC_FILE:
-			read(*(int *)infile,(char *)&returnval,1);
+			read(*(short *)infile,(char *)&returnval,1);
 		break;
 
 		case SRC_FFILE:
