@@ -108,7 +108,7 @@ void jsprintf(char *msg, ...);
 #define MAPSPOT(x,y,plane)              (*(mapsegs[plane]+farmapylookup[y]+x))
 
 #define SIGN(x)         ((x)>0?1:-1)
-#define ABS(x)          ((int)(x)>0?(x):-(x))
+#define ABS(x)          ((short)(x)>0?(x):-(x))
 #define LABS(x)         ((long)(x)>0?(x):-(x))
 
 //#define STATUSDRAWPIC(x, y, picnum)			JLatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
@@ -141,7 +141,7 @@ void jsprintf(char *msg, ...);
 #define MAX_BARRIER_SWITCHES	  		40	 // max number level wall switches
 
 
-#define SLIDE_TEMP(obj)				((unsigned)obj->hitpoints)
+#define SLIDE_TEMP(obj)				((unsigned short)obj->hitpoints)
 
 //
 // M_BASE1 - represents 100 percent in 1st base
@@ -160,7 +160,7 @@ void jsprintf(char *msg, ...);
 //
 // LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
 //
-#define RATIO(M_BASE1,M_BASE2,F_BASE2,SCALE) ((unsigned)(M_BASE1*((F_BASE2<<SCALE)/M_BASE2))>>SCALE)
+#define RATIO(M_BASE1,M_BASE2,F_BASE2,SCALE) ((unsigned short)(M_BASE1*((F_BASE2<<SCALE)/M_BASE2))>>SCALE)
 #define LRATIO(M_BASE1,M_BASE2,F_BASE2,SCALE) (((long)M_BASE1*(((long)F_BASE2<<SCALE)/M_BASE2))>>SCALE)
 
 
@@ -1811,7 +1811,7 @@ typedef enum {
 
 typedef struct
 {
-	int		picnum;
+	short		picnum;
 	stat_t	type;
 } stattype;
 
@@ -1924,8 +1924,8 @@ typedef enum {
 typedef struct  statestruct
 {
 	byte flags;
-	int             shapenum;                       // a shapenum of -1 means get from ob->temp1
-	int             tictime;
+	short             shapenum;                       // a shapenum of -1 means get from ob->temp1
+	short             tictime;
 	void    (*think) (),(*action) ();
 	struct  statestruct     *next;
 } statetype;
@@ -1943,8 +1943,8 @@ typedef struct statstruct
 	byte areanumber;
 
 	byte    *visspot;
-	int             shapenum;                       // if shapenum == -1 the obj has been removed
-	unsigned    flags;
+	short             shapenum;                       // if shapenum == -1 the obj has been removed
+	unsigned short    flags;
 	byte    itemnumber;
    char	  lighting;				 
 } statobj_t;
@@ -1963,7 +1963,7 @@ typedef struct doorstruct
 	keytype    	lock;
 	door_t  		type;
 	enum    		{dr_open,dr_closed,dr_opening,dr_closing,dr_jammed}       action;
-	int         ticcount;
+	short         ticcount;
 	byte    		areanumber[2];
 } doorobj_t;
 
@@ -1980,12 +1980,12 @@ typedef struct objstruct
 	byte areanumber;
 
 	activetype active;
-	int ticcount;
+	short ticcount;
 	classtype obclass;
 	statetype *state;
 
 	unsigned long flags;
-   unsigned flags2;				// Aux flags
+   unsigned short flags2;				// Aux flags
 
 	long distance;				// if negative, wait for that door to open
 	dirtype dir;
@@ -1994,20 +1994,20 @@ typedef struct objstruct
 	fixed x,y;
 	unsigned char s_tilex,s_tiley;		// s_tilex==0, running for corner
 
-	int viewx;
-	unsigned viewheight;
+	short viewx;
+	unsigned short viewheight;
 	fixed transx,transy;    // in global coord
 
-	int hitpoints;
+	short hitpoints;
 	unsigned char ammo;
    char lighting;
-	unsigned linc;
-	int angle;
+	unsigned short linc;
+	short angle;
 	long speed;
 
-	int temp1;
-	int temp2;
-	unsigned temp3;		// holds 'last door used' by 'smart' actors
+	short temp1;
+	short temp2;
+	unsigned short temp3;		// holds 'last door used' by 'smart' actors
 
 	struct objstruct *next,*prev;
 } objtype;
@@ -2106,12 +2106,12 @@ typedef struct statsInfoType {
 } statsInfoType;
 
 typedef struct {
-	unsigned bonus_queue;				// bonuses that need to be shown
-	unsigned bonus_shown;				// bonuses that have been shown
+	unsigned short bonus_queue;				// bonuses that need to be shown
+	unsigned short bonus_shown;				// bonuses that have been shown
 	boolean locked;
 	statsInfoType stats;
 	byte ptilex,ptiley;
-	int pangle;
+	short pangle;
 } levelinfo;
 
 
@@ -2123,45 +2123,45 @@ typedef struct
 
 typedef struct
 {
-	int			turn_around,turn_angle;
-	unsigned 	flags;
-	int			lastmapon;
-	int         difficulty;
-	int         mapon;
-	int 			status_refresh;
+	short			turn_around,turn_angle;
+	unsigned short	flags;
+	short			lastmapon;
+	short         difficulty;
+	short         mapon;
+	short 			status_refresh;
 	long        oldscore,tic_score,score,nextextra;
-	int			score_roll_wait;
-	int         lives;
-	int         health;
-	int			health_delay;
+	short			score_roll_wait;
+	short         lives;
+	short         health;
+	short			health_delay;
 	char			health_str[4];
 
-	int			rpower,old_rpower;
+	short			rpower,old_rpower;
 	char 			rzoom;
 	char			radar_leds,lastradar_leds;
 
 	char			lastammo_leds;
 	char			ammo_leds;
-	int         ammo,old_ammo;
+	short         ammo,old_ammo;
 
-	int			plasma_detonators,old_plasma_detonators;		
+	short			plasma_detonators,old_plasma_detonators;		
 
    char 			useable_weapons;		 
 	char			weapons,weapon,chosenweapon,old_weapons[4];
 	char			key_floor;
 
 	char			weapon_wait;
-	int      	attackframe,attackcount,weaponframe;
-	int      	episode;
+	short      	attackframe,attackcount,weaponframe;
+	short      	episode;
 	long     	TimeCount;
 	long     	killx,killy;
 	char 			*msg;					// InfoArea msg...
 	char			numkeys[NUMKEYS],old_numkeys[NUMKEYS];
 	barrier_type barrier_table[MAX_BARRIER_SWITCHES];
 	barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
-	unsigned		tokens,old_tokens;
+	unsigned short		tokens,old_tokens;
 	boolean		boss_key_dropped,old_boss_key_dropped;
-	int 			wintilex,wintiley;
+	short 			wintilex,wintiley;
 } gametype;
 
 typedef enum    {
@@ -2191,7 +2191,7 @@ typedef struct
 
 typedef struct
 {
-	int	viewx,
+	short	viewx,
 			viewheight,
 			shapenum;
    char lighting;
@@ -2205,11 +2205,11 @@ typedef enum {ad_FWD=0,ad_REV} animdir_t;
 
 typedef struct ofs_anim_struct
 {
-	unsigned animtype:2;		// animtype_t
-	unsigned curframe:5;
-	unsigned maxframe:5;
-	unsigned animdir:1;		// animdir_t
-	unsigned extra:3;
+	unsigned short animtype:2;		// animtype_t
+	unsigned short curframe:5;
+	unsigned short maxframe:5;
+	unsigned short animdir:1;		// animdir_t
+	unsigned short extra:3;
 
 } ofs_anim_t;
 
@@ -2360,8 +2360,8 @@ typedef struct
 {
 	unsigned char LastIndex;						// Last Spawn Coord Index
 	unsigned char SpawnCnt;               		// Num of Spawnpoints for Goldstern
-	unsigned	flags;									// What type of command/operation is needed...
-	unsigned WaitTime;								// Wait time for Goldstern Spawn (current & Next)
+	unsigned short	flags;									// What type of command/operation is needed...
+	unsigned short WaitTime;								// Wait time for Goldstern Spawn (current & Next)
 	boolean     GoldSpawned;						// Has Goldstern been spawned?
 } GoldsternInfo_t;
 
@@ -2407,7 +2407,7 @@ extern short starting_level, debug_value, starting_episode, starting_difficulty;
 extern  boolean         MS_CheckParm (char *string);
 
 extern signed char lastmap_tilex,lastmap_tiley;
-extern  unsigned TopColor, BottomColor;
+extern  unsigned short TopColor, BottomColor;
 extern  char            str[80],str2[20];
 //extern  unsigned        tedlevelnum;
 //extern  boolean         tedlevel;
@@ -2415,21 +2415,21 @@ extern  boolean         nospr;
 extern  boolean         IsA386;
 
 extern  fixed           focallength;
-extern  unsigned        viewangles;
-extern  unsigned        screenofs;
-extern  int                 viewwidth;
-extern  int                     viewheight;
-extern  int                     centerx;
-extern  int                     shootdelta;
+extern  unsigned short        viewangles;
+extern  unsigned short        screenofs;
+extern  short                 viewwidth;
+extern  short                     viewheight;
+extern  short                     centerx;
+extern  short                     shootdelta;
 
-extern  int                     dirangle[9];
+extern  short                     dirangle[9];
 
 extern  boolean         startgame,loadedgame;
-extern  int             mouseadjustment;
+extern  short             mouseadjustment;
 //
 // math tables
 //
-extern  int                     pixelangle[MAXVIEWWIDTH];
+extern  short                     pixelangle[MAXVIEWWIDTH];
 extern  long            finetangent[FINEANGLES/4];
 extern  fixed           sintable[],*costable;
 
@@ -2438,13 +2438,13 @@ extern  fixed           sintable[],*costable;
 //
 extern  fixed   scale,maxslope;
 extern  long    heightnumerator;
-extern  int             minheightdiv;
+extern  short             minheightdiv;
 
 extern  char    configname[13];
 
 extern boolean ShowQuickMsg;
 
-long DeleteChunk(int handle, char *chunk);	
+long DeleteChunk(short handle, char *chunk);	
 
 void 				 LoadFonts(void);
 void 				 ClearNClose(void);
@@ -2455,16 +2455,16 @@ void            HelpScreens (void);
 void            OrderingInfo (void);
 void            TEDDeath(void);
 void            CalcProjection (long focal);
-boolean         SetViewSize (unsigned width, unsigned height);
-void            NewGame (int difficulty,int episode);
-void            NewViewSize (int width);
-unsigned scan_atoi(char *s);
+boolean         SetViewSize (unsigned short width, unsigned short height);
+void            NewGame (short difficulty,short episode);
+void            NewViewSize (short width);
+unsigned short scan_atoi(char *s);
 void 				AlignPlayerOnTransporter(void);
 
-unsigned UseFunc(char *first, char *next);
+unsigned short UseFunc(char *first, char *next);
 boolean DoMovie(movie_t movie, void* palette);
 boolean CheckDiskSpace(long needed,char *text,cds_io_type io_type);
-boolean SaveTheGame(int handle, char *description);
+boolean SaveTheGame(short handle, char *description);
 long ChecksumFile(char *file, long checksum);  
 void BadChecksum(void);
 void InvalidLevels(void);
@@ -2482,8 +2482,8 @@ void CleanUpDoors_N_Actors(void);
 void MakeDestPath(char *file);
 void InitDestPath(void);
 
-extern long FindChunk(int file, char *chunk);
-extern long NextChunk(int file);
+extern long FindChunk(short file, char *chunk);
+extern long NextChunk(short file);
 
 /*
 =============================================================================
@@ -2493,7 +2493,7 @@ extern long NextChunk(int file);
 =============================================================================
 */
 
-extern int db_count;
+extern short db_count;
 extern classtype debug_bonus[2][800];
 extern fargametype gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
@@ -2504,9 +2504,9 @@ extern unsigned char VitalsRemain,VitalsOnFloor;
 extern  eaWallInfo eaList[];
 extern  char NumEAWalls,NumEASpawned;
 extern  boolean         ingame,fizzlein,screensplit;
-extern  unsigned        latchpics[NUMLATCHPICS];
+extern  unsigned short        latchpics[NUMLATCHPICS];
 extern  gametype        gamestate;
-extern  int                     doornum;
+extern  short                     doornum;
 
 extern  char            demoname[13];
 
@@ -2525,15 +2525,15 @@ void    PlaySoundLocGlobal(word s,fixed gx,fixed gy);
 
 
 void Warped (void);
-void RotateView(int DestAngle,unsigned char RotSpeed);
+void RotateView(short DestAngle,unsigned char RotSpeed);
 void DrawWarpIn(void);
 void BMAmsg(char *msg);	
-void CacheBMAmsg(unsigned MsgNum);	  
+void CacheBMAmsg(unsigned short MsgNum);	  
 void BevelBox(short xl, short yl, short w, short h, byte hi, byte med, byte lo);
 
-void AddTotalPoints(unsigned points);
+void AddTotalPoints(unsigned short points);
 void AddTotalInformants(char informants);
-void AddTotalEnemy(unsigned enemies);
+void AddTotalEnemy(unsigned short enemies);
 
 void ShadowPrintLocationText(sp_type type);
 void LoseScreen(void);
@@ -2547,14 +2547,14 @@ void LoadLocationText(short textNum);
 =============================================================================
 */
 
-extern int objcount;
+extern short objcount;
 
 extern objtype *DeadGuys[],dummyobj;
 extern unsigned char NumDeadGuys;
 
 extern  exit_t          playstate;
 
-extern  int                     bordertime;
+extern  short                     bordertime;
 
 extern  boolean         madenoise,usedummy,nevermark;
 extern unsigned char		alerted,alerted_areanum;
@@ -2564,7 +2564,7 @@ extern  objtype         objlist[MAXACTORS],*new,*player,*lastobj,
 extern  statobj_t       statobjlist[MAXSTATS],*laststatobj;
 extern  doorobj_t       doorobjlist[MAXDOORS],*lastdoorobj;
 
-extern  unsigned        farmapylookup[MAPSIZE];
+extern  unsigned short        farmapylookup[MAPSIZE];
 extern  byte            *nearmapylookup[MAPSIZE];
 
 extern  byte            tilemap[MAPSIZE][MAPSIZE];      // wall values only
@@ -2575,31 +2575,31 @@ extern  objtype         *actorat[MAPSIZE][MAPSIZE];
 extern  byte            update[UPDATESIZE];
 
 extern  boolean         singlestep,godmode,noclip;
-extern  int                     extravbls;
-extern  int			  		DebugOk;
-extern  int			  		InstantWin, InstantQuit;
+extern  short                     extravbls;
+extern  short			  		DebugOk;
+extern  short			  		InstantWin, InstantQuit;
 extern boolean PowerBall;
-extern  int TestQuickSave, TestAutoMapper;
-extern unsigned	ExtraRadarFlags;
+extern  short TestQuickSave, TestAutoMapper;
+extern unsigned short	ExtraRadarFlags;
 
 //
 // control info
 //
 extern  boolean         mouseenabled,joystickenabled,joypadenabled,joystickprogressive;
-extern  int                     joystickport;
-extern  int                     dirscan[4];
-extern  int                     buttonscan[NUMBUTTONS];
-extern  int                     buttonmouse[4];
-extern  int                     buttonjoy[4];
+extern  short                     joystickport;
+extern  short                     dirscan[4];
+extern  short                     buttonscan[NUMBUTTONS];
+extern  short                     buttonmouse[4];
+extern  short                     buttonjoy[4];
 
 extern  boolean         buttonheld[NUMBUTTONS];
 
-extern  int                     viewsize;
+extern  short                     viewsize;
 
 //
 // curent user input
 //
-extern  int                     controlx,controly;              // range from -100 to 100
+extern  short                     controlx,controly;              // range from -100 to 100
 extern  boolean         buttonstate[NUMBUTTONS];
 
 extern  boolean         demorecord,demoplayback;
@@ -2630,7 +2630,7 @@ void CheckMusicToggle(void);
 =============================================================================
 */
 
-int DebugKeys (void);
+short DebugKeys (void);
 void CalcMemFree(void);	  
 
 
@@ -2644,13 +2644,13 @@ void CalcMemFree(void);
 
 extern byte TravelTable[MAPSIZE][MAPSIZE];
 
-extern  int             weaponchangetics,itemchangetics,bodychangetics;
-extern  int             plaqueon,plaquetime,plaquetimefrac,getpic;
+extern  short             weaponchangetics,itemchangetics,bodychangetics;
+extern  short             plaqueon,plaquetime,plaquetimefrac,getpic;
 
 extern  statobj_t *firststarobj;	 
 
-extern  unsigned screenloc[3];
-extern  unsigned freelatch;
+extern  unsigned short screenloc[3];
+extern  unsigned short freelatch;
 
 extern long space_xmove,space_ymove;	
 
@@ -2659,7 +2659,7 @@ extern  long    framecount;
 extern  long    frameon;
 extern  boolean fizzlein;
 
-extern  unsigned        wallheight[MAXVIEWWIDTH];
+extern  unsigned short        wallheight[MAXVIEWWIDTH];
 
 extern  fixed   focallength;
 extern  fixed   mindist;
@@ -2667,7 +2667,7 @@ extern  fixed   mindist;
 //
 // math tables
 //
-extern  int                     pixelangle[MAXVIEWWIDTH];
+extern  short                     pixelangle[MAXVIEWWIDTH];
 extern  long            finetangent[FINEANGLES/4];
 extern  fixed           sintable[],*costable;
 
@@ -2681,17 +2681,17 @@ extern  long    heightnumerator,mindist;
 // refresh variables
 //
 extern  fixed   viewx,viewy;                    // the focal point
-extern  int             viewangle;
+extern  short             viewangle;
 extern  fixed   viewsin,viewcos;
 
 extern  long            postsource;
-extern  unsigned        postx;
-extern  unsigned        postwidth;
+extern  unsigned short        postx;
+extern  unsigned short        postwidth;
 
 
-extern  int             horizwall[],vertwall[];
+extern  short             horizwall[],vertwall[];
 
-extern  unsigned        pwallpos;
+extern  unsigned short        pwallpos;
 
 extern boolean cloaked_shape;
 
@@ -2699,7 +2699,7 @@ fixed   FixedByFrac (fixed a, fixed b);
 void    TransformActor (objtype *ob);
 void    BuildTables (void);
 void    ClearScreen (void);
-int             CalcRotate (objtype *ob);
+short             CalcRotate (objtype *ob);
 void    DrawScaleds (void);
 void    CalcTics (void);
 void    FixOfs (void);
@@ -2709,13 +2709,13 @@ void DrawStars(void);
 
 
 
-boolean TransformTile (int tx, int ty, int *dispx, int *dispheight);
+boolean TransformTile (short tx, short ty, short *dispx, short *dispheight);
 void WrapTransformActor (objtype *ob);
 void ComputeActorPosition(objtype *ob, char adjust_x, char adjust_y);
 void WrapDrawScaleds (void);
 boolean WrapActorPosition(objtype *obj);
 void WrapStaticPosition(statobj_t *statptr, visobj_t *visptr);
-void ShowOverhead(short bx, short by, short radius, short zoom, unsigned flags);
+void ShowOverhead(short bx, short by, short radius, short zoom, unsigned short flags);
 void UpdateTravelTable(void);
 
 
@@ -2727,7 +2727,7 @@ void UpdateTravelTable(void);
 
 =============================================================================
 */
-extern unsigned CeilingTile, FloorTile;
+extern unsigned short CeilingTile, FloorTile;
 extern void (*MapRowPtr)();			  
 
 void DrawPlanes (void);
@@ -2746,17 +2746,17 @@ void F_MapRow();
 =============================================================================
 */
 
-extern  unsigned actor_points[];
+extern  unsigned short actor_points[];
 extern  dirtype opposite[9];
 extern  dirtype diagonal[9][9];
 
 
-void SeekPlayerOrStatic(objtype *ob, int *deltax, int *deltay);
-unsigned CheckRunChase(objtype *ob);
+void SeekPlayerOrStatic(objtype *ob, short *deltax, short *deltay);
+unsigned short CheckRunChase(objtype *ob);
 void GetCornerSeek(objtype *ob);
-boolean LookForGoodies(objtype *ob, unsigned RunReason);
-void    InitHitRect (objtype *ob, unsigned radius);
-void    SpawnNewObj (unsigned tilex, unsigned tiley, statetype *state);
+boolean LookForGoodies(objtype *ob, unsigned short RunReason);
+void    InitHitRect (objtype *ob, unsigned short radius);
+void    SpawnNewObj (unsigned short tilex, unsigned short tiley, statetype *state);
 void    NewState (objtype *ob, statetype *state);
 
 boolean TryWalk (objtype *ob, boolean moveit);
@@ -2765,12 +2765,12 @@ void    SelectDodgeDir (objtype *ob);
 void    MoveObj (objtype *ob, long move);
 
 void    KillActor (objtype *ob);
-void DamageActor (objtype *ob, unsigned damage, objtype *attacker);
+void DamageActor (objtype *ob, unsigned short damage, objtype *attacker);
 
 boolean CheckLine (objtype *from_obj, objtype *to_obj);
 boolean CheckSight (objtype *from_obj, objtype *to_obj);
 
-boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, int from_angle);
+boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, short from_angle);
 boolean PlayerIsBlocking(objtype *ob);		
 
 void MakeAlertNoise(objtype *obj);
@@ -2790,15 +2790,15 @@ objtype *CheckAndReserve(void);
 
 typedef struct
 {
-	unsigned        codeofs[65];
-	unsigned        width[65];
+	unsigned short        codeofs[65];
+	unsigned short        width[65];
 	byte            code[];
 }       t_compscale;
 
 typedef struct
 {
-	unsigned        leftpix,rightpix;
-	unsigned        dataofs[64];
+	unsigned short        leftpix,rightpix;
+	unsigned short        dataofs[64];
 // table data after dataofs[rightpix-leftpix+1]
 }       t_compshape;
 
@@ -2808,25 +2808,25 @@ extern  long                    fullscalefarcall[MAXSCALEHEIGHT+1];
 
 extern  byte            bitmasks1[8][8];
 extern  byte            bitmasks2[8][8];
-extern  unsigned        wordmasks[8][8];
+extern  unsigned short        wordmasks[8][8];
 
 extern  byte            mapmasks1[4][8];
 extern  byte            mapmasks2[4][8];
 extern  byte            mapmasks3[4][8];
 
-extern  int                     maxscale,maxscaleshl2;
+extern  short                     maxscale,maxscaleshl2;
 extern  boolean	scaledir_avail;
 
-extern int normalshade;
-extern int normalshade_div;
-extern int shade_max;
+extern short normalshade;
+extern short normalshade_div;
+extern short shade_max;
 
 
 void FreeScaleDirectory(void);
-void SetupScaling (int maxscaleheight);
-void ScaleShape (int xcenter, int shapenum, unsigned height);
-void SimpleScaleShape (int xcenter, int shapenum, unsigned height);
-void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned height, unsigned shade);
+void SetupScaling (short maxscaleheight);
+void ScaleShape (short xcenter, short shapenum, unsigned short height);
+void SimpleScaleShape (short xcenter, short shapenum, unsigned short height);
+void MegaSimpleScaleShape (short xcenter, short ycenter, short shapenum, unsigned short height, unsigned short shade);
 
 /*
 =============================================================================
@@ -2840,13 +2840,13 @@ extern scientist_t InfHintList;
 extern scientist_t NiceSciList;
 extern scientist_t MeanSciList;
 
-extern unsigned static_points[];
+extern unsigned short static_points[];
 extern boolean GAN_HiddenArea;
 extern void* InfAreaMsgs[];
 extern byte NumAreaMsgs,LastInfArea;
 extern short FirstGenInfMsg,TotalGenInfMsgs;
 extern classtype LastInfoAttacker;						 
-extern int LastInfoAttacker_Cloaked;
+extern short LastInfoAttacker_Cloaked;
 
 extern char term_com_name[];
 extern char term_msg_name[];
@@ -2858,42 +2858,42 @@ extern atkinf_t attackinfo[7][14];
 //
 extern  boolean         commandmode;
 extern  long            thrustspeed;
-extern  unsigned        plux,pluy;              // player coordinates scaled to unsigned
+extern  unsigned short        plux,pluy;              // player coordinates scaled to unsigned
 extern  boolean 			PlayerInvisable;
 extern char DrawInfoArea_COUNT;
 extern char InitInfoArea_COUNT;
 
-extern unsigned player_oldtilex;
-extern unsigned player_oldtiley;
+extern unsigned short player_oldtilex;
+extern unsigned short player_oldtiley;
 
 // Terminal variables
 
-extern  unsigned 			RadarSw;
+extern  unsigned short 			RadarSw;
 
 // Location Bar message string...
 
 extern char LocationText[MAX_LOCATION_DESC_LEN];
 
-void JLatchDrawPic (unsigned x, unsigned y, unsigned picnum);
+void JLatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum);
 
 
 //
 // search / move info
 //
-extern  unsigned        searchon;                               // held object number looking at
-extern  int                     searchtics;                             // when it reaches SEARCHTICS, get an obj
+extern  unsigned short        searchon;                               // held object number looking at
+extern  short                     searchtics;                             // when it reaches SEARCHTICS, get an obj
 extern  objtype         *searchobj;                             // current object being searched
-extern  unsigned        foundflag;                              // only show NOTHING if nothing was found
+extern  unsigned short        foundflag;                              // only show NOTHING if nothing was found
 extern  objtype         *moveobj;                               // current object being draged
 
-extern  int                     anglefrac;
-extern  int                     facecount;
+extern  short                     anglefrac;
+extern  short                     facecount;
 
-extern unsigned LastMsgPri;
+extern unsigned short LastMsgPri;
 extern short MsgTicsRemain;
 
 void    GivePoints(long score,boolean add_to_stats);
-void    SpawnPlayer (int tilex, int tiley, int dir);
+void    SpawnPlayer (short tilex, short tiley, short dir);
 void 	  DrawCash(void);
 void 		UpdateHealth(void);
 
@@ -2907,7 +2907,7 @@ void DrawHealthMonitor(void);
 void CalcHealthDisplay(void);
 void UpdateScore(void);
 
-byte ValidAreaTile(unsigned *ptr);
+byte ValidAreaTile(unsigned short *ptr);
 char GetAreaNumber(char tilex, char tiley);
 short InputFloor(void);
 
@@ -2920,30 +2920,30 @@ void AnimatePage(void);
 
 void ActivateTerminal(boolean);
 void TerminalPrint(char *msg,boolean FastPrint);
-void FloorCheat(unsigned RadarFlags);
+void FloorCheat(unsigned short RadarFlags);
 boolean Interrogate(objtype *ob);
 
-void		GiveKey(int key);
-void		TakeKey(int key);
-void	GiveToken (int tokens);
+void		GiveKey(short key);
+void		TakeKey(short key);
+void	GiveToken (short tokens);
 
-void	TakePlasmaDetonator (int count);		  
-void	GivePlasmaDetonator (int count);		  
+void	TakePlasmaDetonator (short count);		  
+void	GivePlasmaDetonator (short count);		  
 
 void CacheDrawPic(short x, short y, short pic);	
 void LoadTerminalCommands(void);
 
-void ActivateWallSwitch(unsigned iconnum, short x, short y);
-unsigned UpdateBarrierTable(unsigned char x, unsigned char y, boolean OnOff);
-unsigned ScanBarrierTable(unsigned char x, unsigned char y);
-void DisplaySwitchOperateMsg(unsigned coords);
+void ActivateWallSwitch(unsigned short iconnum, short x, short y);
+unsigned short UpdateBarrierTable(unsigned char x, unsigned char y, boolean OnOff);
+unsigned short ScanBarrierTable(unsigned char x, unsigned char y);
+void DisplaySwitchOperateMsg(unsigned short coords);
 
 void DisplayNoMoMsgs(void);
 void PrintStatPercent(short nx, short ny, char percentage);
 short ShowStats(short bx, short by, ss_type type, statsInfoType *stats);
 boolean PerfectStats(void);
 boolean CheckPerfectStats(void);
-boolean OperateSmartSwitch(unsigned tilex, unsigned tiley, char Operation, boolean Force);
+boolean OperateSmartSwitch(unsigned short tilex, unsigned short tiley, char Operation, boolean Force);
 
 /*
 =============================================================================
@@ -2957,52 +2957,52 @@ extern stattype statinfo[];
 extern concession_t ConHintList;
 
 extern doorobj_t       doorobjlist[MAXDOORS],*lastdoorobj;
-extern int                     doornum;
+extern short                     doornum;
 
-extern unsigned       doorposition[MAXDOORS],pwallstate;
+extern unsigned short       doorposition[MAXDOORS],pwallstate;
 
 extern byte            areaconnect[NUMAREAS][NUMAREAS];
 
 extern boolean         areabyplayer[NUMAREAS];
 
-extern unsigned pwallstate;
-extern unsigned pwallpos;                       // amount a pushable wall has been moved (0-63)
-extern unsigned pwallx,pwally;
-extern int                      pwalldir,pwalldist;
+extern unsigned short pwallstate;
+extern unsigned short pwallpos;                       // amount a pushable wall has been moved (0-63)
+extern unsigned short pwallx,pwally;
+extern short                      pwalldir,pwalldist;
 
 
 statobj_t *ReserveStatic(void);
-void SpawnStatic (int tilex, int tiley, int type);
-void SpawnDoor (int tilex, int tiley, boolean vertical, keytype lock, door_t type);
+void SpawnStatic (short tilex, short tiley, short type);
+void SpawnDoor (short tilex, short tiley, boolean vertical, keytype lock, door_t type);
 
-void OperateConcession(unsigned concession);
-void SpawnConcession(int tilex, int tiley, unsigned credits,unsigned machinetype);
-unsigned LoadConcessionHint(unsigned MsgNum);
-void CacheInfoAreaMsg(unsigned block, unsigned MsgNum, char *hint_buffer,unsigned MaxBufferLen);
+void OperateConcession(unsigned short concession);
+void SpawnConcession(short tilex, short tiley, unsigned short credits,unsigned short machinetype);
+unsigned short LoadConcessionHint(unsigned short MsgNum);
+void CacheInfoAreaMsg(unsigned short block, unsigned short MsgNum, char *hint_buffer,unsigned short MaxBufferLen);
 void CheckSpawnEA(void);
 
-int TransformAreas(char tilex, char tiley, char xform);
+short TransformAreas(char tilex, char tiley, char xform);
 
 
 void CheckSpawnGoldstern(void);
 void FindNewGoldieSpawnSite(void);
 
-void InitMsgCache(mCacheList *mList, unsigned listSize, unsigned infoSize);
-void FreeMsgCache(mCacheList *mList, unsigned listSize);
-void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum);
-short LoadMsg(char *hint_buffer, unsigned SegNum, unsigned MsgNum, unsigned MaxMsgLen);
+void InitMsgCache(mCacheList *mList, unsigned short listSize, unsigned short infoSize);
+void FreeMsgCache(mCacheList *mList, unsigned short listSize);
+void CacheMsg(mCacheInfo *ci, unsigned short SegNum, unsigned short MsgNum);
+short LoadMsg(char *hint_buffer, unsigned short SegNum, unsigned short MsgNum, unsigned short MaxMsgLen);
 void CacheConcessionMsg(void);
 boolean ReuseMsg(mCacheInfo *ci, short count, short struct_size);
 
 void DropPlasmaDetonator(void);
-void BlockDoorOpen(int door);
-void BlastNearDoors(int tilex, int tiley);
+void BlockDoorOpen(short door);
+void BlastNearDoors(short tilex, short tiley);
 void TryBlastDoor(char door);
 
-statobj_t *FindStatic(unsigned tilex, unsigned tiley);
-statobj_t *UseReservedStatic(int itemtype, int tilex, int tiley);
-void PlaceReservedItemNearTile(int itemtype, int tilex, int tiley);
-void ExplodeStatics(int tilex, int tiley);
+statobj_t *FindStatic(unsigned short tilex, unsigned short tiley);
+statobj_t *UseReservedStatic(short itemtype, short tilex, short tiley);
+void PlaceReservedItemNearTile(short itemtype, short tilex, short tiley);
+void ExplodeStatics(short tilex, short tiley);
 
 
 /*
@@ -3027,8 +3027,8 @@ void MakeFakeStatic(objtype *ob);
 void UnmakeFakeStatic(objtype *ob);
 
 extern char detonators_spawned;
-extern int starthitpoints[][NUMHITENEMIES];			
-extern unsigned MorphClass[];
+extern short starthitpoints[][NUMHITENEMIES];			
+extern unsigned short MorphClass[];
 
 extern statetype s_ofs_bounce;
 
@@ -3175,26 +3175,26 @@ void PlaceTowardPlayer(objtype *obj);
 void T_Seek(objtype *ob);
 
 void SpawnProjectile(objtype *shooter, classtype class);
-void SpawnStand (enemy_t which, int tilex, int tiley, int dir);
-void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir);
+void SpawnStand (enemy_t which, short tilex, short tiley, short dir);
+void SpawnPatrol (enemy_t which, short tilex, short tiley, short dir);
 void KillActor (objtype *ob);
 
 void    US_ControlPanel(byte);
 
-int IntSqrt(long va);
-unsigned CalcDistance(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
+short IntSqrt(long va);
+unsigned short CalcDistance(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2);
 
 
 void T_Hit(objtype *ob);
-void SpawnOffsetObj (enemy_t which, int tilex, int tiley);
+void SpawnOffsetObj (enemy_t which, short tilex, short tiley);
 
 
-void InitSmartAnimStruct(objtype *obj, unsigned ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir);
+void InitSmartAnimStruct(objtype *obj, unsigned short ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir);
 boolean AnimateOfsObj(objtype *obj);
 void AdvanceAnimREV(objtype *obj);
 void AdvanceAnimFWD(objtype *obj);
 
-void SpawnCusExplosion(fixed x, fixed y, unsigned StartFrame, unsigned NumFrames, unsigned Delay, unsigned Class);
+void SpawnCusExplosion(fixed x, fixed y, unsigned short StartFrame, unsigned short NumFrames, unsigned short Delay, unsigned short Class);
 void T_SpawnExplosion(objtype *obj);
 void T_ExplodeDamage(objtype *obj);
 
@@ -3203,17 +3203,17 @@ void ExplodeRadius(objtype *obj, short damage,boolean damageplayer);
 extern statetype s_barrier_transition;
 extern statetype s_barrier_shutdown;
 
-void SpawnBarrier (enemy_t which, int tilex, int tiley,boolean OnOff);
+void SpawnBarrier (enemy_t which, short tilex, short tiley,boolean OnOff);
 void ToggleBarrier(objtype *obj);
 
-void InitAnim(objtype *obj, unsigned ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir, unsigned Delay, unsigned WaitDelay);
+void InitAnim(objtype *obj, unsigned short ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir, unsigned short Delay, unsigned short WaitDelay);
 
 objtype *FindObj(classtype which, short tilex, short tiley);
 objtype *FindHiddenOfs(classtype which);
-void SpawnHiddenOfs(enemy_t which, int tilex, int tiley);
+void SpawnHiddenOfs(enemy_t which, short tilex, short tiley);
 objtype *MoveHiddenOfs(classtype which_class, classtype new, fixed x, fixed y);
 
-void CheckForSpecialTile(objtype *obj, unsigned tilex, unsigned tiley);
+void CheckForSpecialTile(objtype *obj, unsigned short tilex, unsigned short tiley);
 void DropCargo(objtype *obj);
 
 
@@ -3299,9 +3299,9 @@ extern char BreifingText[];
 
 void UpdateScreenPic(void);				 
 void DisplayPrepingMsg(char *text);
-boolean Breifing(breifing_type BreifingType,unsigned episode);
+boolean Breifing(breifing_type BreifingType,unsigned short episode);
 void ShPrint(char *text, char shadow_color, boolean single_char);
-unsigned Random(unsigned Max);
+unsigned short Random(unsigned short Max);
 
 
 //===========================================================================
@@ -3313,10 +3313,10 @@ unsigned Random(unsigned Max);
 extern boolean EscPressed;
 
 void DrawInstructions(inst_type Type);
-void CacheMessage(unsigned MessageNum);
+void CacheMessage(unsigned short MessageNum);
 void TerminateStr(char *pos);
-unsigned long CacheCompData(unsigned ItemNum, void** dest_loc);
-boolean CheckForSpecialCode(unsigned ItemNum);
+unsigned long CacheCompData(unsigned short ItemNum, void** dest_loc);
+boolean CheckForSpecialCode(unsigned short shortItemNum);
 
 
 //===========================================================================

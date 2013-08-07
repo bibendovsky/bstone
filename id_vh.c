@@ -3,7 +3,7 @@
 #include "ID_HEADS.H"
 
 
-void VL_LatchToScreen(unsigned source, int width, int height, int x, int y);
+void VL_LatchToScreen(unsigned short source, short width, short height, short x, short y);
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void CalcTics (void);
@@ -34,10 +34,10 @@ pictabletype	*pictable;
 pictabletype   *picmtable;			
 
 
-int	px,py;
+short	px,py;
 byte	fontcolor,backcolor;
-int	fontnumber;
-int bufferwidth,bufferheight;
+short	fontnumber;
+short bufferwidth,bufferheight;
 boolean allcaps = false;
 
 
@@ -50,7 +50,7 @@ void	VWL_UpdateScreenBlocks (void);
 void VW_DrawPropString (char *string)
 {
 	fontstruct	*font;
-	int		width,step,height,i;
+	short		width,step,height,i;
 	byte	*source, *dest, *origdest;
 	byte	ch,mask;
 
@@ -201,9 +201,9 @@ void	VW_MeasureMPropString  (char *string, word *width, word *height)
 =======================
 */
 
-int VW_MarkUpdateBlock (int x1, int y1, int x2, int y2)
+short VW_MarkUpdateBlock (short x1, short y1, short x2, short y2)
 {
-	int	x,y,xt1,yt1,xt2,yt2,nextline;
+	short	x,y,xt1,yt1,xt2,yt2,nextline;
 	byte *mark;
 
 	xt1 = x1>>PIXTOBLOCK;
@@ -246,7 +246,7 @@ int VW_MarkUpdateBlock (int x1, int y1, int x2, int y2)
 	return 1;
 }
 
-void VWB_DrawTile8 (int x, int y, int tile)
+void VWB_DrawTile8 (short x, short y, short tile)
 {
 	if (VW_MarkUpdateBlock (x,y,x+7,y+7))
 		LatchDrawChar(x,y,tile);
@@ -262,10 +262,10 @@ void VWB_DrawTile8M (int x, int y, int tile)
 #endif
 
 
-void VWB_DrawPic (int x, int y, int chunknum)
+void VWB_DrawPic (short x, short y, short chunknum)
 {
-	int	picnum = chunknum - STARTPICS;
-	unsigned width,height;
+	short	picnum = chunknum - STARTPICS;
+	unsigned short width,height;
 
 	x &= ~7;
 
@@ -280,10 +280,10 @@ void VWB_DrawPic (int x, int y, int chunknum)
 //--------------------------------------------------------------------------
 // VWB_DrawMPic()
 //--------------------------------------------------------------------------
-void VWB_DrawMPic (int x, int y, int chunknum)
+void VWB_DrawMPic (short x, short y, short chunknum)
 {
-	int	picnum = chunknum - STARTPICS;
-	unsigned width,height;
+	short	picnum = chunknum - STARTPICS;
+	unsigned short width,height;
 
 	width = pictable[picnum].width;
 	height = pictable[picnum].height;
@@ -295,32 +295,32 @@ void VWB_DrawMPic (int x, int y, int chunknum)
 
 void VWB_DrawPropString	 (char *string)
 {
-	int x;
+	short x;
 	x=px;
 	VW_DrawPropString (string);
 	VW_MarkUpdateBlock(x,py,px-1,py+bufferheight-1);
 }
 
 
-void VWB_Bar (int x, int y, int width, int height, int color)
+void VWB_Bar (short x, short y, short width, short height, short color)
 {
 	if (VW_MarkUpdateBlock (x,y,x+width,y+height-1) )
 		VW_Bar (x,y,width,height,color);
 }
 
-void VWB_Plot (int x, int y, int color)
+void VWB_Plot (short x, short y, short color)
 {
 	if (VW_MarkUpdateBlock (x,y,x,y))
 		VW_Plot(x,y,color);
 }
 
-void VWB_Hlin (int x1, int x2, int y, int color)
+void VWB_Hlin (short x1, short x2, short y, short color)
 {
 	if (VW_MarkUpdateBlock (x1,y,x2,y))
 		VW_Hlin(x1,x2,y,color);
 }
 
-void VWB_Vlin (int y1, int y2, int x, int color)
+void VWB_Vlin (short y1, short y2, short x, short color)
 {
 	if (VW_MarkUpdateBlock (x,y1,x,y2))
 		VW_Vlin(y1,y2,x,color);
@@ -352,9 +352,9 @@ void VW_UpdateScreen (void)
 */
 
 
-void LatchDrawPic (unsigned x, unsigned y, unsigned picnum)
+void LatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum)
 {
-	unsigned wide, height, source;
+	unsigned short wide, height, source;
 
 	x <<= 3;
 	wide = pictable[picnum-STARTPICS].width;
@@ -377,13 +377,13 @@ void LatchDrawPic (unsigned x, unsigned y, unsigned picnum)
 */
 
 //unsigned LatchMemFree = 0xffff;		
-unsigned	destoff;
+unsigned short	destoff;
 
 void LoadLatchMem (void)
 {
-	int	i,j,p,m,width,height;
+	short	i,j,p,m,width,height;
 	byte	*src;
-	unsigned	picnum=0;
+	unsigned short	picnum=0;
 
 
 //
@@ -454,13 +454,13 @@ void LoadLatchMem (void)
 
 extern	ControlInfo	c;
 
-boolean FizzleFade (unsigned source, unsigned dest,
-	unsigned width,unsigned height, unsigned frames, boolean abortable)
+boolean FizzleFade (unsigned short source, unsigned short dest,
+	unsigned short width,unsigned short height, unsigned short frames, boolean abortable)
 {
-	int			pixperframe;
-	unsigned	drawofs,pagedelta;
+	short			pixperframe;
+	unsigned short	drawofs,pagedelta;
 	byte 		mask,maskb[8] = {1,2,4,8};
-	unsigned	x,y,p,frame;
+	unsigned short	x,y,p,frame;
 	long		rndval;
 
 	pagedelta = dest-source;

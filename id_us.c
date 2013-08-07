@@ -32,11 +32,11 @@ const unsigned char rndtable[256] = {
 };
 
 
-static int rndindex;
-static int LastRnd;
+static short rndindex;
+static short LastRnd;
 
 
-void US_InitRndT(int randomize)
+void US_InitRndT(short randomize)
 {
     if (randomize == 0)
         rndindex = 0;
@@ -50,7 +50,7 @@ void US_InitRndT(int randomize)
     }
 }
 
-int US_RndT()
+short US_RndT()
 {
     rndindex = (rndindex + 1) & 0xFF;
     return rndtable[rndindex];

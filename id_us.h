@@ -42,7 +42,7 @@ typedef	struct
 
 typedef	struct
 		{
-			int	x,y,
+			short	x,y,
 				w,h,
 				px,py;
 		} WindowRec;	// Record used to save & restore screen windows
@@ -61,8 +61,8 @@ typedef struct								  // JAM - Custom Cursor Support
 {
 	char cursor_char;
 	char do_not_use;						 // Space holder for ASCZ string
-	unsigned cursor_color;
-	unsigned font_number;
+	unsigned short cursor_color;
+	unsigned short font_number;
 } US_CursorStruct;
 
 //	Hack import for TED launch support
@@ -83,12 +83,12 @@ extern	word		WindowX,WindowY,// Current location of window
 
 extern	boolean		Button0,Button1,
 					CursorBad;
-extern	int			CursorX,CursorY;
+extern	short			CursorX,CursorY;
 
 extern	void		(*USL_MeasureString)(char *,word *,word *),
 					(*USL_DrawString)(char *);
 
-extern	boolean		(*USL_SaveGame)(int),(*USL_LoadGame)(int);
+extern	boolean		(*USL_SaveGame)(short),(*USL_LoadGame)(short);
 extern	void		(*USL_ResetGame)(void);
 extern	SaveGame	Games[MaxSaveGames];
 extern	HighScore	Scores[];
@@ -102,8 +102,8 @@ extern	void	US_Startup(void),
 				US_Setup(void),
 				US_Shutdown(void),
 				US_InitRndT(boolean randomize),
-				US_SetLoadSaveHooks(boolean (*load)(int),
-									boolean (*save)(int),
+				US_SetLoadSaveHooks(boolean (*load)(short),
+									boolean (*save)(short),
 									void (*reset)(void)),
 				US_TextScreen(void),
 				US_UpdateTextScreen(void),
@@ -124,11 +124,11 @@ extern	void	US_Startup(void),
 				US_StartCursor(void),
 				US_ShutCursor(void),
 				US_CheckHighScore(long score,word other),
-				US_DisplayHighScores(int which);
+				US_DisplayHighScores(short which);
 extern	boolean	US_UpdateCursor(void),
-				US_LineInput(int x,int y,char *buf,char *def,boolean escok,
-								int maxchars,int maxwidth);
-extern	int		US_CheckParm(char *parm,char **strings),
+				US_LineInput(short x,short y,char *buf,char *def,boolean escok,
+								short maxchars,short maxwidth);
+extern	short		US_CheckParm(char *parm,char **strings),
 
 				US_RndT(void);
 

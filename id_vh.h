@@ -16,7 +16,7 @@
 
 typedef struct
 {
-  int	width,
+  short	width,
 	height,
 	orgx,orgy,
 	xl,yl,xh,yh,
@@ -25,9 +25,9 @@ typedef struct
 
 typedef	struct
 {
-	unsigned	sourceoffset[MAXSHIFTS];
-	unsigned	planesize[MAXSHIFTS];
-	unsigned	width[MAXSHIFTS];
+	unsigned short	sourceoffset[MAXSHIFTS];
+	unsigned short	planesize[MAXSHIFTS];
+	unsigned short	width[MAXSHIFTS];
 	byte		data[];
 } spritetype;		// the memptr for each sprite points to this
 
@@ -39,8 +39,8 @@ typedef struct
 
 typedef struct
 {
-	int height;
-	int location[256];
+	short height;
+	short location[256];
 	char width[256];
 } fontstruct;
 
@@ -53,8 +53,8 @@ extern	pictabletype	*picmtable;
 extern	spritetabletype *spritetable;
 
 extern	byte	fontcolor;
-extern	int	fontnumber;
-extern	int	px,py;
+extern	short	fontnumber;
+extern	short	px,py;
 extern	boolean allcaps;
 
 
@@ -65,7 +65,7 @@ extern	boolean allcaps;
 //
 
 void VW_InitDoubleBuffer (void);
-int	 VW_MarkUpdateBlock (int x1, int y1, int x2, int y2);
+short	 VW_MarkUpdateBlock (short x1, short y1, short x2, short y2);
 //void VW_UpdateScreen (void);			// Made a macro
 
 //
@@ -74,21 +74,21 @@ int	 VW_MarkUpdateBlock (int x1, int y1, int x2, int y2);
 // regions marked in double buffer
 //
 
-void VWB_DrawTile8 (int x, int y, int tile);
-void VWB_DrawTile8M (int x, int y, int tile);
-void VWB_DrawTile16 (int x, int y, int tile);
-void VWB_DrawTile16M (int x, int y, int tile);
-void VWB_DrawPic (int x, int y, int chunknum);
-void VWB_DrawMPic(int x, int y, int chunknum);
-void VWB_Bar (int x, int y, int width, int height, int color);
+void VWB_DrawTile8 (short x, short y, short tile);
+void VWB_DrawTile8M (short x, short y, short tile);
+void VWB_DrawTile16 (short x, short y, short tile);
+void VWB_DrawTile16M (short x, short y, short tile);
+void VWB_DrawPic (short x, short y, short chunknum);
+void VWB_DrawMPic(short x, short y, short chunknum);
+void VWB_Bar (short x, short y, short width, short height, short color);
 
 void VWB_DrawPropString	 (char *string);
 void VW_DrawPropString (char *string);
 void VWB_DrawMPropString (char *string);
-void VWB_DrawSprite (int x, int y, int chunknum);
-void VWB_Plot (int x, int y, int color);
-void VWB_Hlin (int x1, int x2, int y, int color);
-void VWB_Vlin (int y1, int y2, int x, int color);
+void VWB_DrawSprite (short x, short y, short chunknum);
+void VWB_Plot (short x, short y, short color);
+void VWB_Hlin (short x1, short x2, short y, short color);
+void VWB_Vlin (short y1, short y2, short x, short color);
 
 
 //
@@ -130,14 +130,14 @@ void	VW_MeasurePropString (char *string, word *width, word *height);
 #define LatchDrawChar(x,y,p) VL_LatchToScreen(latchpics[0]+(p)*16,2,8,x,y)
 #define LatchDrawTile(x,y,p) VL_LatchToScreen(latchpics[1]+(p)*64,4,16,x,y)
 
-void LatchDrawPic (unsigned x, unsigned y, unsigned picnum);
+void LatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum);
 void 	LoadLatchMem (void);
-boolean 	FizzleFade (unsigned source, unsigned dest,
-	unsigned width,unsigned height, unsigned frames,boolean abortable);
+boolean 	FizzleFade (unsigned short source, unsigned short dest,
+	unsigned short width,unsigned short height, unsigned short frames,boolean abortable);
 
 
 #define NUMLATCHPICS	100
-extern	unsigned	latchpics[NUMLATCHPICS];
-extern	unsigned freelatch;
+extern	unsigned short	latchpics[NUMLATCHPICS];
+extern	unsigned short freelatch;
 
-extern unsigned LatchMemFree;
+extern unsigned short LatchMemFree;

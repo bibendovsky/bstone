@@ -67,7 +67,7 @@ boolean IO_FarWrite (int handle, byte *source, long length)
 //--------------------------------------------------------------------------
 boolean IO_WriteFile(char *filename, void *ptr, long length)
 {
-	int handle;
+	short handle;
 	long size;
 
 	handle = open(filename,O_CREAT | O_BINARY | O_WRONLY,
@@ -93,7 +93,7 @@ boolean IO_WriteFile(char *filename, void *ptr, long length)
 long IO_LoadFile (char *filename, void** dst)
 {
 	char buffer[5]={0,0,0,0,0};
-	int handle;
+	short handle;
 	long size=0;
 
 	if ((handle = open(filename,O_RDONLY | O_BINARY, S_IREAD)) == -1)
@@ -156,8 +156,8 @@ long IO_LoadFile (char *filename, void** dst)
 //--------------------------------------------------------------------------
 void IO_CopyFile(char *sFilename, char *dFilename)
 {
-	int sHandle,dHandle;
-	unsigned length;
+	short sHandle,dHandle;
+	unsigned short length;
 
 // Allocate memory for buffer.
 //
@@ -182,7 +182,7 @@ void IO_CopyFile(char *sFilename, char *dFilename)
 //--------------------------------------------------------------------------
 // IO_CopyHandle()
 //--------------------------------------------------------------------------
-void IO_CopyHandle(int sHandle, int dHandle, long num_bytes)
+void IO_CopyHandle(int sHandle, short dHandle, long num_bytes)
 {
 	extern boolean bombonerror;
 

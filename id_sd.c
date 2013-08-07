@@ -89,8 +89,8 @@ extern	void SDL_t0FastAsmService(void),
 
 extern	word	sdStartPCSounds;
 extern	word	sdStartALSounds;
-extern	int		sdLastSound;
-extern	int		DigiMap[];
+extern	short		sdLastSound;
+extern	short		DigiMap[];
 
 extern int _argc;
 extern char** _argv;
@@ -129,7 +129,7 @@ static	char * 		ParmStrings[] =
 static	void			(*SoundUserHook)(void);
 		soundnames		SoundNumber,DigiNumber;
 		word			SoundPriority,DigiPriority;
-		int				LeftPosition,RightPosition;
+		short				LeftPosition,RightPosition;
 		void (*t0OldService)(void);
 		long			LocalTime;
 		word			TimerRate;
@@ -156,7 +156,7 @@ static	byte					sbDMA = 1,
 								sba1Vals[] = {0x87,0x83,0,0x82},
 								sba2Vals[] = {0,2,0,6},
 								sba3Vals[] = {1,3,0,7};
-static	int						sbLocation = -1,sbInterrupt = 7,sbIntVec = 0xf,
+static	short						sbLocation = -1,sbInterrupt = 7,sbIntVec = 0xf,
 								sbIntVectors[] = {-1,-1,0xa,0xb,-1,0xd,-1,0xf,-1,-1,0x72};
 static	volatile byte			sbLastTimeValue;
 static	volatile longword		sbNextSegLen;
@@ -608,7 +608,7 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-SDL_PositionSBP(int leftpos,int rightpos)
+SDL_PositionSBP(short leftpos,short rightpos)
 {
 // FIXME
 #if 0
@@ -638,7 +638,7 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static boolean
-SDL_CheckSB(int port)
+SDL_CheckSB(short port)
 {
 // FIXME
 #if 0
@@ -693,9 +693,9 @@ asm	loop usecloop
 //
 ///////////////////////////////////////////////////////////////////////////
 static boolean
-SDL_DetectSoundBlaster(int port)
+SDL_DetectSoundBlaster(short port)
 {
-	int	i;
+	short	i;
 
 	if (port == 0)					// If user specifies default, use 2
 		port = 2;
@@ -837,7 +837,7 @@ SDL_ShutSB(void)
 void
 SDL_SSSetVol(word vol)
 {
-	int		i;
+	short		i;
 	long	v;
 
 	if (vol == ssVol)
@@ -858,9 +858,9 @@ SDL_SSSetVol(word vol)
 }
 
 static void
-SDL_PositionSS(int leftpos,int rightpos)
+SDL_PositionSS(short leftpos,short rightpos)
 {
-	int	pos;
+	short	pos;
 
 	pos = (leftpos > rightpos)? rightpos : leftpos;
 	pos = 15 - pos;
@@ -1276,7 +1276,7 @@ SDL_PlayDigiSegment(void* addr,word len)
 void
 SD_StopDigitized(void)
 {
-	int	i;
+	short	i;
 
 // FIXME
 #if 0
@@ -1373,7 +1373,7 @@ SD_Poll(void)
 }
 
 void
-SD_SetPosition(int leftpos,int rightpos)
+SD_SetPosition(short leftpos,short rightpos)
 {
 	if
 	(
@@ -1397,9 +1397,9 @@ SD_SetPosition(int leftpos,int rightpos)
 }
 
 void
-SD_PlayDigitized(word which,int leftpos,int rightpos)
+SD_PlayDigitized(word which,short leftpos,short rightpos)
 {
-	int		i;
+	short		i;
 	byte	timevalue;
 	word	pages;
 	word	len;
@@ -1536,7 +1536,7 @@ SDL_SetupDigi(void)
 	void*	list;
 	const word* p;
 	word pg;
-	int		i;
+	short		i;
 
     list = malloc(PMPageSize);
 	p = (word *)PM_GetPage(ChunksInFile - 1);
@@ -2141,7 +2141,7 @@ SD_SetMusicMode(SMMode mode)
 void
 SD_Startup(void)
 {
-	int	i;
+	short	i;
 
 	if (SD_Started)
 		return;
@@ -2209,7 +2209,7 @@ SD_Startup(void)
 		AdLibPresent = SDL_DetectAdLib();
 		if (AdLibPresent && !sbNoCheck)
 		{
-			int port = -1;
+			short port = -1;
 			char *env = getenv("BLASTER");
 			if (env)
 			{
@@ -2387,7 +2387,7 @@ SD_SetUserHook(void (* hook)(void))
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-SD_PositionSound(int leftvol,int rightvol)
+SD_PositionSound(short leftvol,short rightvol)
 {
 	LeftPosition = leftvol;
 	RightPosition = rightvol;

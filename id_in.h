@@ -155,7 +155,7 @@ typedef	enum		{
 					} Direction;
 typedef	struct		{
 						boolean		button0,button1,button2,button3;
-						int			x,y;
+						short			x,y;
 						Motion		xaxis,yaxis;
 						Direction	dir;
 					} CursorInfo;
@@ -206,8 +206,8 @@ extern	void		IN_Startup(void),IN_Shutdown(void),
 					IN_SetKeyHook(void (*)()),
 					IN_ClearKeysDown(void),
 					IN_ReadCursor(CursorInfo *),
-					IN_ReadControl(int,ControlInfo *),
-					IN_SetControlType(int,ControlType),
+					IN_ReadControl(short,ControlInfo *),
+					IN_SetControlType(short,ControlType),
 					IN_GetJoyAbs(word joy,word *xp,word *yp),
 					IN_SetupJoy(word joy,word minx,word maxx,
 								word miny,word maxy),

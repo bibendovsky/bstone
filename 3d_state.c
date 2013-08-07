@@ -6,10 +6,10 @@
 #pragma hdrstop
 
 
-void OpenDoor (int door);
+void OpenDoor (short door);
 void A_DeathScream (objtype *ob);
-void PlaceItemType (int itemtype, int tilex, int tiley);
-void PlaceItemNearTile(int itemtype, int tilex, int tiley);
+void PlaceItemType (short itemtype, short tilex, short tiley);
+void PlaceItemNearTile(short itemtype, short tilex, short tiley);
 void ChangeShootMode(objtype *ob);
 
 
@@ -49,7 +49,7 @@ dirtype diagonal[9][9] =
 
 
 
-void	SpawnNewObj (unsigned tilex, unsigned tiley, statetype *state);
+void	SpawnNewObj (unsigned short tilex, unsigned short tiley, statetype *state);
 void	NewState (objtype *ob, statetype *state);
 
 boolean TryWalk (objtype *ob, boolean moveit);
@@ -88,7 +88,7 @@ boolean ElevatorFloor(char x, char y);
 ===================
 */
 
-void SpawnNewObj (unsigned tilex, unsigned tiley, statetype *state)
+void SpawnNewObj (unsigned short tilex, unsigned short tiley, statetype *state)
 {
 	GetNewActor ();
 	new->state = state;
@@ -168,7 +168,7 @@ void NewState (objtype *ob, statetype *state)
 
 #define CHECKDIAG(x,y)								\
 {                                                   \
-	temp=(unsigned)actorat[x][y];                   \
+	temp=(unsigned short)actorat[x][y];                   \
 	if (temp)                                       \
 	{                                               \
 		if (temp<256)    										 \
@@ -182,7 +182,7 @@ void NewState (objtype *ob, statetype *state)
 
 #define CHECKSIDE(x,y)								\
 {                                                   \
-	temp=(unsigned)actorat[x][y];                   \
+	temp=(unsigned short)actorat[x][y];                   \
 	if (temp)                                       \
 	{                                               \
 		if (temp<128)                               \
@@ -200,8 +200,8 @@ void NewState (objtype *ob, statetype *state)
 
 boolean TryWalk (objtype *ob, boolean moveit)
 {
-	int			doornum;
-	unsigned	temp;
+	short			doornum;
+	unsigned short	temp;
 	byte old_tilex=ob->tilex,old_tiley=ob->tiley;
 
 	if (ElevatorFloor(ob->tilex,ob->tiley))
@@ -445,8 +445,8 @@ boolean ElevatorFloor(char x, char y)
 
 void SelectDodgeDir (objtype *ob)
 {
-	int 		deltax,deltay,i;
-	unsigned	absdx,absdy;
+	short 		deltax,deltay,i;
+	unsigned short	absdx,absdy;
 	dirtype 	dirtry[5];
 	dirtype 	turnaround,tdir;
 
@@ -563,7 +563,7 @@ void SelectDodgeDir (objtype *ob)
 
 void SelectChaseDir (objtype *ob)
 {
-	int deltax,deltay,i;
+	short deltax,deltay,i;
 	dirtype d[3];
 	dirtype tdir, olddir, turnaround;
 
@@ -825,7 +825,7 @@ char dki_msg[]=
 				  "^FC19	    DO NOT SHOOT\r"
 						 "	    INFORMANTS!!\r";
 
-unsigned actor_points[]={	1025,				// rent-a-cop
+unsigned short actor_points[]={	1025,				// rent-a-cop
 										1050,				// turret
 										500,				// general scientist
 										5075,				// pod alien
@@ -893,7 +893,7 @@ extern short numEnemy[];
 void KillActor (objtype *ob)
 {
 	char buff[4];
-	int	tilex,tiley;
+	short	tilex,tiley;
 	boolean KeepSolid = false, givepoints=true, deadguy = true;
 	classtype clas;
 
@@ -1204,7 +1204,7 @@ extern statetype s_proshoot2;
 extern statetype s_goldmorphwait1;
 extern boolean barrier_damage;
 
-void DamageActor (objtype *ob, unsigned damage, objtype *attacker)
+void DamageActor (objtype *ob, unsigned short damage, objtype *attacker)
 {
 	short old_hp = ob->hitpoints,wound_mod,mod_before=0,mod_after=1;
 
@@ -1277,7 +1277,7 @@ void DamageActor (objtype *ob, unsigned damage, objtype *attacker)
 			case scan_wait_alienobj:		// These actors do not have an ouch!
 			case lcan_wait_alienobj:		// So... RETURN!
 			case gurney_waitobj:
-				if (!(ob->temp2 = (unsigned)CheckAndReserve()))
+				if (!(ob->temp2 = (unsigned short)CheckAndReserve()))
 				{
 					ob->hitpoints += damage;
 					return;
@@ -1288,7 +1288,7 @@ void DamageActor (objtype *ob, unsigned damage, objtype *attacker)
 			case goldsternobj:
 				if (gamestate.mapon == GOLD_MORPH_LEVEL)
 				{
-					extern int morphWaitTime;
+					extern short morphWaitTime;
 					extern boolean noShots;
 
 					morphWaitTime = 60;
@@ -1302,7 +1302,7 @@ void DamageActor (objtype *ob, unsigned damage, objtype *attacker)
 
 		}
 
-		SLIDE_TEMP(ob) = (unsigned)attacker;
+		SLIDE_TEMP(ob) = (unsigned short)attacker;
 		KillActor (ob);
 		return;
 	}
@@ -1456,14 +1456,14 @@ void DamageActor (objtype *ob, unsigned damage, objtype *attacker)
 
 boolean CheckLine (objtype *ob)
 {
-	int	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
-	int	x,y,xl,xh,yl,yh;
-	int	xdist,ydist,xstep,ystep;
-	int	temp;
-	int	partial,delta;
+	short	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
+	short	x,y,xl,xh,yl,yh;
+	short	xdist,ydist,xstep,ystep;
+	short	temp;
+	short	partial,delta;
 	long	ltemp;
-	unsigned	xfrac,yfrac,deltafrac;
-	unsigned	value,intercept;
+	unsigned short	xfrac,yfrac,deltafrac;
+	unsigned short	value,intercept;
 
 
 
@@ -1517,7 +1517,7 @@ boolean CheckLine (objtype *ob)
 			y = yfrac>>8;
 			yfrac += ystep;
 
-			if (!(value = (unsigned)tilemap[x][y]) )
+			if (!(value = (unsigned short)tilemap[x][y]) )
 				continue;
 
 			if (value<128 || value>256)
@@ -1571,7 +1571,7 @@ boolean CheckLine (objtype *ob)
 			x = xfrac>>8;
 			xfrac += xstep;
 
-			if (!(value = (unsigned)tilemap[x][y]) )
+			if (!(value = (unsigned short)tilemap[x][y]) )
 				continue;
 
 			if (value<128 || value>256)
@@ -1596,14 +1596,14 @@ boolean CheckLine (objtype *ob)
 
 boolean CheckLine (objtype *from_obj, objtype *to_obj)
 {
-	int	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
-	int	x,y;
-	int	xdist,ydist,xstep,ystep;
-	int	temp;
-	int	partial,delta;
+	short	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
+	short	x,y;
+	short	xdist,ydist,xstep,ystep;
+	short	temp;
+	short	partial,delta;
 	long	ltemp;
-	int	xfrac,yfrac,deltafrac;
-	unsigned	value,intercept;
+	short	xfrac,yfrac,deltafrac;
+	unsigned short	value,intercept;
 
 
 
@@ -1656,7 +1656,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 			y = yfrac>>8;
 			yfrac += ystep;
 
-			value = (unsigned)tilemap[x][y];
+			value = (unsigned short)tilemap[x][y];
 			x += xstep;
 
 			if (!value)
@@ -1712,7 +1712,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 			x = xfrac>>8;
 			xfrac += xstep;
 
-			value = (unsigned)tilemap[x][y];
+			value = (unsigned short)tilemap[x][y];
 			y += ystep;
 
 			if (!value)
@@ -1931,7 +1931,7 @@ void FirstSighting (objtype *ob)
 #pragma warn -pia
 		if (ob->temp3)
 		{
-			if (ob->temp2 = (unsigned)CheckAndReserve())
+			if (ob->temp2 = (unsigned short)CheckAndReserve())
 			{
 				ob->flags &= ~(FL_SHOOTABLE);
 				InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3,at_ONCE, ad_FWD);
@@ -2119,10 +2119,10 @@ boolean SightPlayer (objtype *ob)
 // SEE ALSO: MACRO "ObjVisable(from_obj,to_obj)"					-- 3D_DEF.h
 //
 //--------------------------------------------------------------------------
-boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, int from_angle)
+boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, short from_angle)
 {
 	long		deltax,deltay;
-	int		angle,dif;
+	short		angle,dif;
 	float		fangle;
 
 	deltax = from_x - to_x;
@@ -2221,7 +2221,7 @@ boolean LookForDeadGuys(objtype *obj)
 //--------------------------------------------------------------------------
 // LookForGoodies()
 //--------------------------------------------------------------------------
-boolean LookForGoodies(objtype *ob, unsigned RunReason)
+boolean LookForGoodies(objtype *ob, unsigned short RunReason)
 {
 //	#define ONE_TRACK_MIND
 
@@ -2393,14 +2393,14 @@ boolean LookForGoodies(objtype *ob, unsigned RunReason)
 		//
 			doornum = Random(doorsfound);
 			door = doorlist[doornum];
-			if (((unsigned)door == ob->temp3) && (doorsfound > 1))
+			if (((unsigned short)door == ob->temp3) && (doorsfound > 1))
 			{
 				doornum++;
 				if (doornum >= doorsfound)
 					doornum=0;
 				door = doorlist[doornum];
 			}
-			ob->temp3 = (unsigned)door;
+			ob->temp3 = (unsigned short)door;
 
 			ob->s_tilex = door->tilex;
 			ob->s_tiley = door->tiley;
@@ -2427,11 +2427,11 @@ boolean LookForGoodies(objtype *ob, unsigned RunReason)
 //--------------------------------------------------------------------------
 // CheckRunChase()
 //--------------------------------------------------------------------------
-unsigned CheckRunChase(objtype *ob)
+unsigned short CheckRunChase(objtype *ob)
 {
 	#define RUNAWAY_SPEED 1000
 
-	unsigned RunReason=0;
+	unsigned short RunReason=0;
 
 // Mark the reason for running.
 //
@@ -2474,9 +2474,9 @@ unsigned CheckRunChase(objtype *ob)
 //--------------------------------------------------------------------------
 // SeekPlayerOrStatic()
 //--------------------------------------------------------------------------
-void SeekPlayerOrStatic(objtype *ob, int *deltax, int *deltay)
+void SeekPlayerOrStatic(objtype *ob, short *deltax, short *deltay)
 {
-	unsigned whyrun=0;
+	unsigned short whyrun=0;
 	boolean smart=false;
 
 // Is this a "smart" actor?

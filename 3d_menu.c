@@ -11,15 +11,15 @@
 extern int _argc;
 extern char** _argv;
 
-void CA_CacheScreen (int chunk);
+void CA_CacheScreen (short chunk);
 void VH_UpdateScreen();
 void	DrawHighScores(void);
 void ClearMemory (void);
 void DrawTopInfo(sp_type type);
-void PreloadUpdate(unsigned current, unsigned total);
-void ShowViewSize (int width);
-void INL_GetJoyDelta(word joy,int *dx,int *dy);
-boolean LoadTheGame(int handle);
+void PreloadUpdate(unsigned short current, unsigned short total);
+void ShowViewSize (short width);
+void INL_GetJoyDelta(word joy,short *dx,short *dy);
+boolean LoadTheGame(short handle);
 
 
 // As is, this switch will not work ... the data associated with this
@@ -49,7 +49,7 @@ char QuitToDosStr[] = {"      Quit to DOS?\n"
 
 boolean EscPressed = false;
 
-int	lastmenumusic;
+short	lastmenumusic;
 
 
 //===========================================================================
@@ -60,8 +60,8 @@ int	lastmenumusic;
 
 void CP_ReadThis(void);
 void CP_OrderingInfo(void);
-void DrawEpisodePic(int w);
-void DrawAllSoundLights(int which);
+void DrawEpisodePic(short w);
+void DrawAllSoundLights(short which);
 void ReadGameNames(void);
 void FreeMusic(void);
 void CP_GameOptions(void);
@@ -70,8 +70,8 @@ void CalibrateJoystick(void);
 void ExitGame(void);
 void CP_Switches(void);
 void DrawSwitchMenu(void);
-void DrawAllSwitchLights(int which);
-void DrawSwitchDescription(int which);
+void DrawAllSwitchLights(short which);
+void DrawSwitchDescription(short which);
 
 
 extern boolean refresh_screen;
@@ -221,7 +221,7 @@ CusMenu[]=
 ;
 
 
-int color_hlite[]=
+short color_hlite[]=
 {
 	HIGHLIGHT_DISABLED_COLOR,
 	HIGHLIGHT_TEXT_COLOR,
@@ -229,7 +229,7 @@ int color_hlite[]=
 	HIGHLIGHT_DEACTIAVED_COLOR,
 };
 
-int color_norml[]=
+short color_norml[]=
 {
 	DISABLED_TEXT_COLOR,
 	ENABLED_TEXT_COLOR,
@@ -237,9 +237,9 @@ int color_norml[]=
 	DEACTIAVED_TEXT_COLOR,
 };
 
-int EpisodeSelect[6]={1};
+short EpisodeSelect[6]={1};
 
-int SaveGamesAvail[10],StartGame,SoundStatus=1,pickquick;
+short SaveGamesAvail[10],StartGame,SoundStatus=1,pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN+1],SaveName[13]="SAVEGAM?.";
 
 
@@ -310,7 +310,7 @@ void HelpScreens()
 //-------------------------------------------------------------------------
 // HelpPresenter()
 //-------------------------------------------------------------------------
-void HelpPresenter(char *fname,boolean continue_keys, unsigned id_cache, boolean startmusic)
+void HelpPresenter(char *fname,boolean continue_keys, unsigned short id_cache, boolean startmusic)
 {
 	#define FULL_VIEW_WIDTH			19
 
@@ -383,7 +383,7 @@ void HelpPresenter(char *fname,boolean continue_keys, unsigned id_cache, boolean
 //--------------------------------------------------------------------------
 void US_ControlPanel(byte scancode)
 {
-	int which;
+	short which;
 
 #ifdef CACHE_KEY_DATA
  CA_CacheGrChunk(SCANNAMES_DATA);
@@ -599,7 +599,7 @@ void CP_BlakeStoneSaga()
 //--------------------------------------------------------------------------
 // CP_CheckQuick() - CHECK QUICK-KEYS & QUIT (WHILE IN A GAME)
 //--------------------------------------------------------------------------
-int CP_CheckQuick(unsigned scancode)
+short CP_CheckQuick(unsigned short scancode)
 {
 	switch(scancode)
 	{
@@ -731,7 +731,7 @@ int CP_CheckQuick(unsigned scancode)
 //--------------------------------------------------------------------------
 // END THE CURRENT GAME
 //--------------------------------------------------------------------------
-int CP_EndGame(void)
+short CP_EndGame(void)
 {
 	if (!Confirm(ENDGAMESTR))
 		return 0;
@@ -773,7 +773,7 @@ void CP_ViewScores(void)
 //--------------------------------------------------------------------------
 void CP_NewGame(void)
 {
-	int which,episode;
+	short which,episode;
 
 	DrawMenuTitle("Difficulty Level");
 	DrawInstructions(IT_STANDARD);
@@ -991,7 +991,7 @@ void DrawNewGame(void)
 //--------------------------------------------------------------------------
 // DRAW NEW GAME GRAPHIC
 //--------------------------------------------------------------------------
-void DrawNewGameDiff(int w)
+void DrawNewGameDiff(short w)
 {
 	VWB_DrawPic(192,77,w+C_BABYMODEPIC);
 }
@@ -999,7 +999,7 @@ void DrawNewGameDiff(int w)
 //--------------------------------------------------------------------------
 // DRAW NEW GAME GRAPHIC
 //--------------------------------------------------------------------------
-void DrawEpisodePic(int w)
+void DrawEpisodePic(short w)
 {
 	VWB_DrawPic(176,72,w+C_EPISODE1PIC);
 }
@@ -1009,7 +1009,7 @@ void DrawEpisodePic(int w)
 //--------------------------------------------------------------------------
 void CP_GameOptions(void)
 {
-	int which,i;
+	short which,i;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 	DrawGopMenu();
@@ -1072,7 +1072,7 @@ void ChangeSwaps(void)
 //--------------------------------------------------------------------------
 void CP_Switches(void)
 {
-	int which,i;
+	short which,i;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 	DrawSwitchMenu();
@@ -1137,10 +1137,10 @@ void DrawSwitchMenu(void)
 //--------------------------------------------------------------------------
 // DrawAllSwitchLights()
 //--------------------------------------------------------------------------
-void DrawAllSwitchLights(int which)
+void DrawAllSwitchLights(short which)
 {
 	short i;
-	unsigned Shape;
+	unsigned short Shape;
 
 	for (i=0;i<SwitchItems.amount;i++)
 		if (SwitchMenu[i].string[0])
@@ -1189,7 +1189,7 @@ void DrawAllSwitchLights(int which)
 //--------------------------------------------------------------------------
 //  DrawSwitchDescription()
 //--------------------------------------------------------------------------
-void DrawSwitchDescription(int which)
+void DrawSwitchDescription(short which)
 {
 	#define DESCRIPTIONS_Y_POS		134
 
@@ -1223,7 +1223,7 @@ void DrawSwitchDescription(int which)
 //--------------------------------------------------------------------------
 void CP_Sound(void)
 {
-	int which,i;
+	short which,i;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
  DrawSoundMenu();
@@ -1340,7 +1340,7 @@ void CP_Sound(void)
 //--------------------------------------------------------------------------
 void DrawSoundMenu(void)
 {
-	int i,on;
+	short i,on;
 
 	//
 	// DRAW SOUND MENU
@@ -1388,10 +1388,10 @@ void DrawSoundMenu(void)
 //--------------------------------------------------------------------------
 // DrawAllSoundLights()
 //--------------------------------------------------------------------------
-void DrawAllSoundLights(int which)
+void DrawAllSoundLights(short which)
 {
 	short i;
-	unsigned Shape;
+	unsigned short Shape;
 
 	for (i=0;i<SndItems.amount;i++)
 		if (SndMenu[i].string[0])
@@ -1441,7 +1441,7 @@ extern char LS_current,LS_total;
 //--------------------------------------------------------------------------
 // DrawLSAction() - DRAW LOAD/SAVE IN PROGRESS
 //--------------------------------------------------------------------------
-void DrawLSAction(int which)
+void DrawLSAction(short which)
 {
 	char total[]={19,19};
 
@@ -1462,9 +1462,9 @@ void DrawLSAction(int which)
 //--------------------------------------------------------------------------
 // CP_LoadGame() - LOAD SAVED GAMES
 //--------------------------------------------------------------------------
-int CP_LoadGame(int quick)
+short CP_LoadGame(short quick)
 {
- int handle,which,exit=0;
+ short handle,which,exit=0;
  char name[13];
 
 
@@ -1544,9 +1544,9 @@ restart:
 //
 // HIGHLIGHT CURRENT SELECTED ENTRY
 //
-void TrackWhichGame(int w)
+void TrackWhichGame(short w)
 {
-	static int lastgameon=0;
+	static short lastgameon=0;
 
 	PrintLSEntry(lastgameon,ENABLED_TEXT_COLOR);
 	PrintLSEntry(w,HIGHLIGHT_TEXT_COLOR);
@@ -1557,12 +1557,12 @@ void TrackWhichGame(int w)
 //--------------------------------------------------------------------------
 // DRAW THE LOAD/SAVE SCREEN
 //--------------------------------------------------------------------------
-void DrawLoadSaveScreen(int loadsave)
+void DrawLoadSaveScreen(short loadsave)
 {
 	#define DISKX	100
 	#define DISKY	0
 
-	int i;
+	short i;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 	ClearMScreen();
@@ -1590,7 +1590,7 @@ void DrawLoadSaveScreen(int loadsave)
 //--------------------------------------------------------------------------
 // PRINT LOAD/SAVE GAME ENTRY W/BOX OUTLINE
 //--------------------------------------------------------------------------
-void PrintLSEntry(int w,int color)
+void PrintLSEntry(short w,short color)
 {
 	char buff[4];
 	SETFONTCOLOR(color,BKGDCOLOR);
@@ -1612,11 +1612,11 @@ void PrintLSEntry(int w,int color)
 //--------------------------------------------------------------------------
 // SAVE CURRENT GAME
 //--------------------------------------------------------------------------
-int CP_SaveGame(int quick)
+short CP_SaveGame(short quick)
 {
 
-	int handle,which,exit=0;
-	unsigned nwritten;
+	short handle,which,exit=0;
+	unsigned short nwritten;
 	char name[13],input[GAME_DESCRIPTION_LEN+1];
 	boolean temp_caps = allcaps;
 	US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
@@ -1741,7 +1741,7 @@ void CP_Control(void)
 
 	enum {MOUSEENABLE,JOYENABLE,USEPORT2,PADENABLE,CALIBRATEJOY,MOUSESENS,CUSTOMIZE};	 
 
- 	int i,which;
+ 	short i,which;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 
@@ -1881,7 +1881,7 @@ void CalibrateJoystick(void)
 void MouseSensitivity(void)
 {
 	ControlInfo ci;
-	int exit=0,oldMA;
+	short exit=0,oldMA;
 
 	oldMA=mouseadjustment;
 	DrawMouseSens();
@@ -1944,7 +1944,7 @@ void DrawCtlScreen(void)
 {
 	#define Y_CTL_PIC_OFS	(3)
 
-	int i,x,y;
+	short i,x,y;
 
 	ClearMScreen();
 	DrawMenuTitle("CONTROL");
@@ -2023,7 +2023,7 @@ char mbarray[4][3]={"B0","B1","B2","B3"},
 //--------------------------------------------------------------------------
 void CustomControls(void)
 {
-	int which;
+	short which;
 
  DrawCustomScreen();
 
@@ -2125,11 +2125,11 @@ boolean TestForValidKey(ScanCode Scan)
 //--------------------------------------------------------------------------
 
 enum {FWRD,RIGHT,BKWD,LEFT};
-int moveorder[4]={LEFT,RIGHT,FWRD,BKWD};
+short moveorder[4]={LEFT,RIGHT,FWRD,BKWD};
 
-void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*PrintRtn)(int),int type)
+void EnterCtrlData(short index,CustomCtrls *cust,void (*DrawRtn)(short),void (*PrintRtn)(short),short type)
 {
-	int j,exit,tick,redraw,which,x,picked;
+	short j,exit,tick,redraw,which,x,picked;
 	ControlInfo ci;
   	boolean clean_display = true;
 
@@ -2189,7 +2189,7 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
 
 		   do
 		   {
-			   int button,result=0;
+			   short button,result=0;
 
 			   if (type==KEYBOARDBTNS||type==KEYBOARDMOVE)
 			      IN_ClearKeysDown();
@@ -2238,7 +2238,7 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
 
 			       if (result)
 			       {
-						int z;
+						short z;
 
 						for (z=0;z<4;z++)
 						  if (order[which]==buttonmouse[z])
@@ -2265,7 +2265,7 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
 
 	       if (result)
 			 {
-				int z;
+				short z;
 
 				for (z=0;z<4;z++)
 				  if (order[which]==buttonjoy[z])
@@ -2413,9 +2413,9 @@ void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*Print
 //--------------------------------------------------------------------------
 // FixupCustom() - FIXUP GUN CURSOR OVERDRAW SHIT
 //--------------------------------------------------------------------------
-void FixupCustom(int w)
+void FixupCustom(short w)
 {
-	static int lastwhich=-1;
+	static short lastwhich=-1;
 
 	switch(w)
 	{
@@ -2447,7 +2447,7 @@ void FixupCustom(int w)
 //---------------------------------------------------------------------------
 void DrawCustomScreen(void)
 {
-	int i;
+	short i;
 
 	ClearMScreen();
 	DrawMenuTitle("CUSTOMIZE");
@@ -2514,9 +2514,9 @@ void DrawCustomScreen(void)
 //---------------------------------------------------------------------------
 // PrintCustMouse
 //---------------------------------------------------------------------------
-void PrintCustMouse(int i)
+void PrintCustMouse(short i)
 {
-	int j;
+	short j;
 
 	for (j=0;j<4;j++)
 		if (order[i]==buttonmouse[j])
@@ -2532,9 +2532,9 @@ void PrintCustMouse(int i)
 //---------------------------------------------------------------------------
 // DrawCustMouse
 //---------------------------------------------------------------------------
-void DrawCustMouse(int hilight)
+void DrawCustMouse(short hilight)
 {
-	int i,color;
+	short i,color;
 
 	color=ENABLED_TEXT_COLOR;
 
@@ -2561,9 +2561,9 @@ void DrawCustMouse(int hilight)
 //---------------------------------------------------------------------------
 // PrintCustJoy
 //---------------------------------------------------------------------------
-void PrintCustJoy(int i)
+void PrintCustJoy(short i)
 {
-	int j;
+	short j;
 
 	for (j=0;j<4;j++)
 		if (order[i]==buttonjoy[j])
@@ -2578,9 +2578,9 @@ void PrintCustJoy(int i)
 //---------------------------------------------------------------------------
 // DrawCustJoy
 //---------------------------------------------------------------------------
-void DrawCustJoy(int hilight)
+void DrawCustJoy(short hilight)
 {
-	int i,color;
+	short i,color;
 
 
 	color=ENABLED_TEXT_COLOR;
@@ -2607,7 +2607,7 @@ void DrawCustJoy(int hilight)
 //---------------------------------------------------------------------------
 // PrintCustKeybd
 //---------------------------------------------------------------------------
-void PrintCustKeybd(int i)
+void PrintCustKeybd(short i)
 {
 	PrintX=CST_START+CST_SPC*i;
 	US_Print(IN_GetScanName(buttonscan[order[i]]));
@@ -2619,9 +2619,9 @@ void PrintCustKeybd(int i)
 //---------------------------------------------------------------------------
 // DrawCustKeybd
 //---------------------------------------------------------------------------
-void DrawCustKeybd(int hilight)
+void DrawCustKeybd(short hilight)
 {
-	int i,color;
+	short i,color;
 
    if (hilight)
 		color=HIGHLIGHT_TEXT_COLOR;
@@ -2642,7 +2642,7 @@ void DrawCustKeybd(int hilight)
 //---------------------------------------------------------------------------
 // PrintCustKeys()
 //---------------------------------------------------------------------------
-void PrintCustKeys(int i)
+void PrintCustKeys(short i)
 {
 	PrintX=CST_START+CST_SPC*i;
 	US_Print(IN_GetScanName(dirscan[moveorder[i]]));
@@ -2654,9 +2654,9 @@ void PrintCustKeys(int i)
 //---------------------------------------------------------------------------
 // DrawCustKeys()
 //---------------------------------------------------------------------------
-void DrawCustKeys(int hilight)
+void DrawCustKeys(short hilight)
 {
-	int i,color;
+	short i,color;
 
 	color=ENABLED_TEXT_COLOR;
 
@@ -2676,7 +2676,7 @@ void DrawCustKeys(int hilight)
 //---------------------------------------------------------------------------
 void CP_ChangeView(void)
 {
- int exit=0,oldview,newview,lastview;
+ short exit=0,oldview,newview,lastview;
  ControlInfo ci;
 
 
@@ -2750,7 +2750,7 @@ void CP_ChangeView(void)
 //---------------------------------------------------------------------------
 // DrawChangeView()
 //---------------------------------------------------------------------------
-void DrawChangeView(int view)
+void DrawChangeView(short view)
 {
 	DrawTopInfo(sp_changeview);
 	ShowViewSize(view);
@@ -2798,9 +2798,9 @@ void ClearMScreen(void)
 //---------------------------------------------------------------------------
 // Un/Cache a LUMP of graphics
 //---------------------------------------------------------------------------
-void CacheLump(int lumpstart,int lumpend)
+void CacheLump(short lumpstart,short lumpend)
 {
-	int i;
+	short i;
 
 	for (i=lumpstart;i<=lumpend;i++)
 		CA_CacheGrChunk(i);
@@ -2811,9 +2811,9 @@ void CacheLump(int lumpstart,int lumpend)
 //---------------------------------------------------------------------------
 // UnCacheLump
 //---------------------------------------------------------------------------
-void UnCacheLump(int lumpstart,int lumpend)
+void UnCacheLump(short lumpstart,short lumpend)
 {
-	int i;
+	short i;
 
 	for (i=lumpstart;i<=lumpend;i++)
 		FREEFONT(i);
@@ -2823,7 +2823,7 @@ void UnCacheLump(int lumpstart,int lumpend)
 //---------------------------------------------------------------------------
 // Draw a window for a menu
 //---------------------------------------------------------------------------
-void DrawWindow(int x,int y,int w,int h,int wcolor)
+void DrawWindow(short x,short y,short w,short h,short wcolor)
 {
 	VWB_Bar(x,y,w,h,wcolor);
 	DrawOutline(x,y,w,h,BORD2COLOR,DEACTIVE);
@@ -2834,7 +2834,7 @@ void DrawWindow(int x,int y,int w,int h,int wcolor)
 //---------------------------------------------------------------------------
 // DrawOutline
 //---------------------------------------------------------------------------
-void DrawOutline(int x,int y,int w,int h,int color1,int color2)
+void DrawOutline(short x,short y,short w,short h,short color1,short color2)
 {
 	VWB_Hlin(x,x+w,y,color2);
 	VWB_Vlin(y,y+h,x,color2);
@@ -2891,7 +2891,7 @@ void ReadGameNames()
 #if 0
 	struct ffblk f;
 	char name[13];
-	int which;
+	short which;
 
 // SEE WHICH SAVE GAME FILES ARE AVAILABLE & READ STRING IN
 //
@@ -2903,7 +2903,7 @@ void ReadGameNames()
 			which=f.ff_name[7]-'0';
 			if (which<10)
 			{
-				int handle;
+				short handle;
 				char temp[GAME_DESCRIPTION_LEN+1];
 
 				SaveGamesAvail[which]=1;
@@ -2957,9 +2957,9 @@ void ControlPanelAlloc(void)
 //
 // NOTE: Font MUST already be loaded
 //---------------------------------------------------------------------------
-void ShadowPrint(char *strng,int x, int y)
+void ShadowPrint(char *strng,short x, short y)
 {
-	int old_bc,old_fc;
+	short old_bc,old_fc;
 
 	old_fc = fontcolor;
 	old_bc = backcolor;
@@ -2979,12 +2979,12 @@ void ShadowPrint(char *strng,int x, int y)
 //---------------------------------------------------------------------------
 // HandleMenu() - Handle moving gun around a menu
 //---------------------------------------------------------------------------
-int HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(int w))
+short HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(short w))
 {
 	#define box_on 	item_i->cursor.on
 	char key;
-	static int redrawitem=1,lastitem=-1;
-	int i,x,y,basey,exit,which,flash_tics;
+	static short redrawitem=1,lastitem=-1;
+	short i,x,y,basey,exit,which,flash_tics;
 	ControlInfo ci;
 
 	which=item_i->curpos;
@@ -3055,7 +3055,7 @@ int HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(int w))
 		key=LastASCII;
 		if (key)
 		{
-			int ok=0;
+			short ok=0;
 
 			if (key>='a')
 				key-='a'-'A';
@@ -3230,7 +3230,7 @@ int HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(int w))
 //---------------------------------------------------------------------------
 // EraseGun() - ERASE GUN & DE-HIGHLIGHT STRING
 //---------------------------------------------------------------------------
-void EraseGun(CP_iteminfo *item_i,CP_itemtype *items,int x,int y,int which)
+void EraseGun(CP_iteminfo *item_i,CP_itemtype *items,short x,short y,short which)
 {
 	VWB_Bar(item_i->cursor.x,y+item_i->cursor.y_ofs,item_i->cursor.width,item_i->cursor.height,TERM_BACK_COLOR);
 	SetTextColor(items+which,0);
@@ -3246,7 +3246,7 @@ void EraseGun(CP_iteminfo *item_i,CP_itemtype *items,int x,int y,int which)
 //---------------------------------------------------------------------------
 // DrawGun() - DRAW GUN AT NEW POSITION
 //---------------------------------------------------------------------------
-void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,int x,int *y,int which,int basey,void (*routine)(int w))
+void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,short x,short *y,short which,short basey,void (*routine)(short w))
 {
 	*y=basey+which*item_i->y_spacing;
 
@@ -3271,7 +3271,7 @@ void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,int x,int *y,int which,int b
 //---------------------------------------------------------------------------
 // TicDelay() - DELAY FOR AN AMOUNT OF TICS OR UNTIL CONTROLS ARE INACTIVE
 //---------------------------------------------------------------------------
-void TicDelay(int count)
+void TicDelay(short count)
 {
 	ControlInfo ci;
 
@@ -3290,7 +3290,7 @@ void TicDelay(int count)
 //---------------------------------------------------------------------------
 void DrawMenu(CP_iteminfo *item_i,CP_itemtype *items)	 
 {
-	int i,which=item_i->curpos;
+	short i,which=item_i->curpos;
 
 	WindowX=PrintX=item_i->x+item_i->indent;
 	WindowY=PrintY=item_i->y;
@@ -3308,7 +3308,7 @@ void DrawMenu(CP_iteminfo *item_i,CP_itemtype *items)
 //---------------------------------------------------------------------------
 // SetTextColor() - SET TEXT COLOR (HIGHLIGHT OR NO)
 //---------------------------------------------------------------------------
-void SetTextColor(CP_itemtype *items,int hlight)
+void SetTextColor(CP_itemtype *items,short hlight)
 {
 	if (hlight)
 	{
@@ -3341,7 +3341,7 @@ void WaitKeyUp(void)
 //---------------------------------------------------------------------------
 void ReadAnyControl(ControlInfo *ci)
 {
- int mouseactive=0;
+ short mouseactive=0;
 
  IN_ReadControl(0,ci);
 
@@ -3360,7 +3360,7 @@ void ReadAnyControl(ControlInfo *ci)
 
  if (mouseenabled)
  {
-  int mousey,mousex;
+  short mousey,mousex;
 
 
   // READ MOUSE MOTION COUNTERS
@@ -3440,7 +3440,7 @@ void ReadAnyControl(ControlInfo *ci)
 
  if (joystickenabled && !mouseactive)
  {
-  int jx,jy,jb;
+  short jx,jy,jb;
 
 
   INL_GetJoyDelta(joystickport,&jx,&jy);
@@ -3478,9 +3478,9 @@ void ReadAnyControl(ControlInfo *ci)
 // DRAW DIALOG AND CONFIRM YES OR NO TO QUESTION
 //
 ////////////////////////////////////////////////////////////////////
-int Confirm(char *string)
+short Confirm(char *string)
 {
-	int xit=0,i,x,y,tick=0,time,whichsnd[2]={ESCPRESSEDSND,SHOOTSND};
+	short xit=0,i,x,y,tick=0,time,whichsnd[2]={ESCPRESSEDSND,SHOOTSND};
 
 
 	Message(string);
@@ -3542,9 +3542,9 @@ int Confirm(char *string)
 //---------------------------------------------------------------------------
 void Message(char *string)
 {
-	int h=0,w=0,mw=0,i,x,y,time;
+	short h=0,w=0,mw=0,i,x,y,time;
 	fontstruct *font;
-	unsigned OldPrintX,OldPrintY;
+	unsigned short OldPrintX,OldPrintY;
 
 	fontnumber=1;
 	CA_CacheGrChunk(STARTFONT+1);
@@ -3611,7 +3611,7 @@ void TerminateStr(char *pos)
 //---------------------------------------------------------------------------
 // CacheMessage() - Caches and prints a message in a window.
 //---------------------------------------------------------------------------
-void CacheMessage(unsigned MessageNum)
+void CacheMessage(unsigned short MessageNum)
 {
 	char *string;
 
@@ -3682,7 +3682,7 @@ unsigned long CacheCompData(unsigned ItemNum, void** dest_loc)
 }
 #endif // 0
 
-unsigned long CacheCompData(unsigned item_number, void** dst_ptr)
+unsigned long CacheCompData(unsigned short item_number, void** dst_ptr)
 {
    char* chunk;
    char* dst;
@@ -3736,7 +3736,7 @@ unsigned long CacheCompData(unsigned item_number, void** dst_ptr)
 //       - The chunk being checked MUST be JAMPAKd - (this may change)
 //
 //-------------------------------------------------------------------------
-boolean CheckForSpecialCode(unsigned ItemNum)
+boolean CheckForSpecialCode(unsigned short ItemNum)
 {
    void* code;
    boolean return_val = false;
@@ -3772,7 +3772,7 @@ boolean CheckForSpecialCode(unsigned ItemNum)
 //---------------------------------------------------------------------------
 // StartCPMusic()
 //---------------------------------------------------------------------------
-void StartCPMusic(int song)
+void StartCPMusic(short song)
 {
 	musicnames	chunk;
 
@@ -3892,7 +3892,7 @@ void CheckPause(void)
 //-------------------------------------------------------------------------
 void DrawMenuGun(CP_iteminfo *iteminfo)
 {
-	int x,y;
+	short x,y;
 
 	x=iteminfo->cursor.x;
 	y=iteminfo->y+iteminfo->curpos*iteminfo->y_spacing+iteminfo->cursor.y_ofs;
@@ -3951,7 +3951,7 @@ void ShowPromo()
 //-------------------------------------------------------------------------
 void ExitGame()
 {
-	int i;
+	short i;
 
    VW_FadeOut();
 #if GAME_VERSION == SHAREWARE_VERSION

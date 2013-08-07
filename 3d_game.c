@@ -19,7 +19,7 @@
 extern char prep_msg[];
 extern char LS_current,LS_total;
 void Died (void);
-void PM_SetMainMemPurge(int level);
+void PM_SetMainMemPurge(short level);
 void InitGoldsternInfo(void);
 void InitDoorList (void);
 void InitStaticList (void);
@@ -33,16 +33,16 @@ void ForceUpdateStatusBar(void);
 void UpdateStatusBar(void);
 boolean LoadLevel(short levelnum);
 void SetPlaneViewSize (void);
-int CalcAngle(objtype* from_obj, objtype* to_obj);
+short CalcAngle(objtype* from_obj, objtype* to_obj);
 void FinishPaletteShifts (void);
-void CA_CacheScreen (int chunk);
+void CA_CacheScreen (short chunk);
 void VH_UpdateScreen();
 void DoActor (objtype *ob);
 boolean LevelInPlaytemp(char levelnum);
-void PreloadUpdate(unsigned current, unsigned total);
+void PreloadUpdate(unsigned short current, unsigned short total);
 void PreloadGraphics(void);
 boolean SaveLevel(short levelnum);
-int NextBuffer();
+short NextBuffer();
 void CheckHighScore (long score,word other);
 
 
@@ -55,7 +55,7 @@ void CheckHighScore (long score,word other);
 */
 
 #if IN_DEVELOPMENT
-int db_count=0;
+short db_count=0;
 #ifdef DEBUG_STATICS
 classtype debug_bonus[2][800];
 #endif
@@ -64,14 +64,14 @@ classtype debug_bonus[2][800];
 fargametype gamestuff;
 gametype gamestate;
 boolean		ingame,fizzlein;
-unsigned	latchpics[NUMLATCHPICS];
+unsigned short	latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
 char NumEAWalls;
 
 tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];	 
 GoldsternInfo_t GoldsternInfo;
 
-extern unsigned scan_value;
+extern unsigned short scan_value;
 
 
 //
@@ -144,7 +144,7 @@ char ExpCrateShapes[] =
 */
 
 	fixed	globalsoundx,globalsoundy;
-	int		leftchannel,rightchannel;
+	short		leftchannel,rightchannel;
 #define ATABLEMAX 15
 byte righttable[ATABLEMAX][ATABLEMAX * 2] = {
 { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
@@ -185,7 +185,7 @@ void
 SetSoundLoc(fixed gx,fixed gy)
 {
 	fixed	xt,yt;
-	int		x,y;
+	short		x,y;
 
 //
 // translate point to view centered coordinates
@@ -323,9 +323,9 @@ short numEnemy[gold_morphingobj];
 
 void ScanInfoPlane (void)
 {
-	unsigned	x,y,i,j;
-	int			tile;
-	unsigned	*start, *floor;
+	unsigned short	x,y,i,j;
+	short			tile;
+	unsigned short	*start, *floor;
 	boolean gotlight = false,gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
@@ -355,7 +355,7 @@ memset(numEnemy,0,sizeof(numEnemy));
          //
          // Check for tiles/icons to ignore...
          //
-         switch ((unsigned)*(mapsegs[0]+farmapylookup[y]+x))
+         switch ((unsigned short)*(mapsegs[0]+farmapylookup[y]+x))
          {
          	case DOORTRIGGERTILE:
 				case SMART_OFF_TRIGGER:
@@ -510,7 +510,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate3,x,y);
 					new->temp2 = ExpCrateShapes[tile - 468];
-					new->temp3 = (unsigned)ReserveStatic();
+					new->temp3 = (unsigned short)ReserveStatic();
 
 					if ((tile >= 475) && (tile <= 478))
 						tile=(tile-475)+bo_money_bag;
@@ -522,7 +522,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate2,x,y);
 					new->temp2 = ExpCrateShapes[tile - 450];
-					new->temp3 = (unsigned)ReserveStatic();
+					new->temp3 = (unsigned short)ReserveStatic();
 
 					if ((tile >= 457) && (tile <= 460))
 						tile=(tile-457)+bo_money_bag;
@@ -542,7 +542,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate1,x,y);
 					new->temp2 = ExpCrateShapes[tile - 432];
-					new->temp3 = (unsigned)ReserveStatic();
+					new->temp3 = (unsigned short)ReserveStatic();
 
 					if ((tile >= 439) && (tile <= 442))
 						tile=(tile-439)+bo_money_bag;
@@ -2096,7 +2096,7 @@ numEnemy[new->obclass]++;
 //--------------------------------------------------------------------------
 // AddTotalPoints()
 //--------------------------------------------------------------------------
-void AddTotalPoints(unsigned points)
+void AddTotalPoints(unsigned short points)
 {
 	if (loadedgame)
 		return;
@@ -2118,7 +2118,7 @@ void AddTotalInformants(char informants)
 //--------------------------------------------------------------------------
 // AddTotalEnemy()
 //--------------------------------------------------------------------------
-void AddTotalEnemy(unsigned enemies)
+void AddTotalEnemy(unsigned short enemies)
 {
 	if (loadedgame)
 		return;
@@ -2144,10 +2144,10 @@ void SetupGameLevel (void)
    boolean switchon = false;
 	void* hold;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
-	int	x,y,i;
-	unsigned	*map,tile,spot,icon;
+	short	x,y,i;
+	unsigned short	*map,tile,spot,icon;
 	keytype lock;
-	unsigned	*map1,*map2;
+	unsigned short	*map1,*map2;
 	char *temp_ptr;
 	short count;
 
@@ -2217,7 +2217,7 @@ void SetupGameLevel (void)
 					break;
 
 					default:
-						(unsigned)actorat[x][y] = tile;
+						(unsigned short)actorat[x][y] = tile;
 					break;
 				}
 
@@ -2419,7 +2419,7 @@ void SetupGameLevel (void)
 				case LINC_TILE:
 				case CLOAK_AMBUSH_TILE:
 					tilemap[x][y] = 0;
-					if ( (unsigned)actorat[x][y] == AMBUSHTILE)
+					if ( (unsigned short)actorat[x][y] == AMBUSHTILE)
 						actorat[x][y] = NULL;
 					*(map-1) = GetAreaNumber(x,y);
             break;
@@ -2469,7 +2469,7 @@ void LoadLocationText(short textNum)
 */
 void DrawPlayBorder (void)
 {
-	int	xl,yl;
+	short	xl,yl;
 
 	if (viewwidth == 320)
 	{
@@ -2537,7 +2537,7 @@ void BMAmsg(char *msg)
 // CacheBMAmsg() - Caches in a Message Number and displays it using
 //						 BMAmsg()
 //----------------------------------------------------------------------
-void CacheBMAmsg(unsigned MsgNum)
+void CacheBMAmsg(unsigned short MsgNum)
 {
 	char *string, *pos;
 
@@ -2590,7 +2590,7 @@ void ShadowPrintLocationText(sp_type type)
 	char *DemoMsg="-- DEMO --";
    char *DebugText= "-- DEBUG MODE ENABLED --";
 	char str[8],*s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
-	unsigned w,h;
+	unsigned short w,h;
 
 // Used for all fields...
 //
@@ -2671,8 +2671,8 @@ void DrawTopInfo(sp_type type)
 */
 void DrawPlayScreen (boolean InitInfoMsg)
 {
-	int	i;
-	unsigned temp;
+	short	i;
+	unsigned short temp;
 
 	if (loadedgame)
 		return;
@@ -2718,8 +2718,8 @@ void DrawPlayScreen (boolean InitInfoMsg)
 //---------------------------------------------------------------------------
 void DrawWarpIn(void)
 {
-	int	i;
-	unsigned temp;
+	short	i;
+	unsigned short temp;
 
 	temp = bufferofs;
 	InitInfoArea();
@@ -2758,7 +2758,7 @@ void DrawWarpIn(void)
 //---------------------------------------------------------------------------
 void Warped(void)
 {
-	int		iangle,i;
+	short		iangle,i;
 
 	DisplayInfoMsg("\r\r\r   TRANSPORTING OUT",MP_POWERUP,7*60,MT_GENERAL);
 	gamestate.old_weapons[3] = gamestate.weapon;
@@ -2811,7 +2811,7 @@ char	demoname[13] = "DEMO?.";
 
 #define MAXDEMOSIZE	16384
 
-void StartDemoRecord (int levelnumber)
+void StartDemoRecord (short levelnumber)
 {
 	MM_GetPtr (&demobuffer,MAXDEMOSIZE);
 	MM_SetLock (&demobuffer,true);
@@ -2842,7 +2842,7 @@ void FinishDemoRecord (void)
 	length = demoptr - (char *)demobuffer;
 
 	demoptr = ((char *)demobuffer)+1;
-	*(unsigned *)demoptr = length;
+	*(unsigned short *)demoptr = length;
 
 	VW_FadeIn();
 
@@ -2921,7 +2921,7 @@ void RecordDemo (void)
 void RecordDemo (void)
 {
 	char str[3];
-	int level,esc;
+	short level,esc;
 
 	CenterWindow(26,3);
 	PrintY+=6;
@@ -2989,17 +2989,17 @@ void RecordDemo (void)
 ==================
 */
 
-void PlayDemo (int demonumber)
+void PlayDemo (short demonumber)
 {
 //   static int numloops=0;
-	int length,off;
+	short length,off;
 
 #ifndef DEMOS_EXTERN
 // debug: load chunk
 #if GAME_VERSION == SHAREWARE_VERSION
-	int dems[4]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3};
+	short dems[4]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3};
 #else
-	int dems[6]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3,T_DEMO4,T_DEMO5};
+	short dems[6]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3,T_DEMO4,T_DEMO5};
 #endif
 
 	CA_CacheGrChunk(dems[demonumber]);
@@ -3014,7 +3014,7 @@ void PlayDemo (int demonumber)
 	NewGame (1,0);
 	gamestate.mapon = *demoptr++;
 	gamestate.difficulty = gd_easy;
-	length = *((unsigned *)demoptr)++;
+	length = *((unsigned short *)demoptr)++;
 	demoptr++;
 	lastdemoptr = demoptr-4+length;
 
@@ -3042,7 +3042,7 @@ void PlayDemo (int demonumber)
 #ifndef DEMOS_EXTERN
     // FIXME
 	//off = FP_OFF(demoptr);
-    off = (int)demoptr;
+    off = (short)demoptr;
 
 	demoptr = grsegs[dems[demonumber]];
 	demoptr += off;
@@ -3085,7 +3085,7 @@ void Died (void)
 {
 	float	fangle;
 	long	dx,dy;
-	int		iangle,curangle,clockwise,counter,change;
+	short		iangle,curangle,clockwise,counter,change;
 
 	gamestate.weapon = -1;			// take away weapon
 	SD_PlaySound (PLAYERDEATHSND);
@@ -3195,9 +3195,9 @@ void LoseScreen(void)
 //					DestAngle - Destination angle to rotate player->angle to.
 //					RotSpeed  - Rotation Speed
 //--------------------------------------------------------------------------
-void RotateView(int DestAngle,unsigned char RotSpeed)
+void RotateView(short DestAngle,unsigned char RotSpeed)
 {
-	int	curangle,clockwise,counter,change;
+	short	curangle,clockwise,counter,change;
 	objtype *obj;							  
 	boolean old_godmode=godmode;		  
 
@@ -3290,7 +3290,7 @@ void GameLoop (void)
 
 	char mod;
 
-	int i,xl,yl,xh,yh;
+	short i,xl,yl,xh,yh;
 	char Score[13];
 	boolean	died;
 #ifdef MYPROFILE
@@ -3307,7 +3307,7 @@ restartgame:
 restart:
 	do
 	{
-		extern int pickquick;
+		extern short pickquick;
 
 		ingame = true;
 

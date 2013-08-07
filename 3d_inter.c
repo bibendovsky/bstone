@@ -5,7 +5,7 @@
 
 
 void VH_UpdateScreen();
-void CA_CacheScreen (int chunk);
+void CA_CacheScreen (short chunk);
 
 
 //==========================================================================
@@ -58,7 +58,7 @@ void ClearSplitVWB (void)
 ==================
 */
 
-boolean Breifing(breifing_type BreifingType,unsigned episode)
+boolean Breifing(breifing_type BreifingType,unsigned short episode)
 {
 #ifndef ID_CACHE_BRIEFS
 	char chars[3] = {'L','W','I'};
@@ -90,7 +90,7 @@ boolean Breifing(breifing_type BreifingType,unsigned episode)
 
 void ShPrint(char *text, char shadow_color, boolean single_char)
 {
-	unsigned old_color=fontcolor,old_x=px,old_y=py;
+	unsigned short old_color=fontcolor,old_x=px,old_y=py;
 	char *str,buf[2]={0,0};
 
 	if (single_char)
@@ -112,9 +112,9 @@ void ShPrint(char *text, char shadow_color, boolean single_char)
 	USL_DrawString(str);						// JTR - This marks blocks!
 }
 
-void PreloadUpdate(unsigned current, unsigned total)
+void PreloadUpdate(unsigned short current, unsigned short total)
 {
-	unsigned w=WindowW-10;
+	unsigned short w=WindowW-10;
 
 	if (current > total)
 		current=total;
@@ -274,7 +274,7 @@ void	DrawHighScores(void)
 void	CheckHighScore (long score,word other)
 {
 	word		i,j;
-	int			n;
+	short			n;
 	HighScore	myscore;
 	US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
 
@@ -341,9 +341,9 @@ void	CheckHighScore (long score,word other)
 //--------------------------------------------------------------------------
 // Random()
 //--------------------------------------------------------------------------
-unsigned Random(unsigned Max)
+unsigned short Random(unsigned short Max)
 {
-	unsigned returnval;
+	unsigned short returnval;
 
    if (Max)
    {

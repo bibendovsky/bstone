@@ -7,13 +7,13 @@
 #include "id_vl.h"
 
 
-extern int viewwidth;
-extern int viewheight;
-extern unsigned bufferofs;
-extern unsigned ylookup[MAXSCANLINES];
-extern unsigned centery;
-extern unsigned bufx;
-extern unsigned postheight;
+extern short viewwidth;
+extern short viewheight;
+extern unsigned short bufferofs;
+extern unsigned short ylookup[MAXSCANLINES];
+extern unsigned short centery;
+extern unsigned short bufx;
+extern unsigned short postheight;
 byte* shadingtable;
 
 
@@ -28,10 +28,10 @@ static void generic_draw_post(DrawMode draw_mode)
     long step;
     long cur_step;
 
-    unsigned i;
-    unsigned n;
-    unsigned fraction;
-    unsigned screen_column;
+    unsigned short i;
+    unsigned short n;
+    unsigned short fraction;
+    unsigned short screen_column;
     unsigned char pixel;
     unsigned char pixel_index;
 

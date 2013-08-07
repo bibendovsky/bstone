@@ -30,7 +30,7 @@ void DrawRadar(void);
 void DrawLSPost();
 void DrawPost();
 void GetBonus (statobj_t *check);
-void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting);
+void ScaleLSShape (short xcenter, short shapenum, unsigned short height, char lighting);
 void DrawAmmoPic(void);
 void DrawScoreNum(void);
 void DrawWeaponPic(void);
@@ -38,7 +38,7 @@ void DrawAmmoNum(void);
 void DrawKeyPics(void);
 void DrawHealthNum(void);
 void UpdateStatusBar(void);
-int NextBuffer();
+short NextBuffer();
 void UpdateRadarGuage(void);
 
 
@@ -53,24 +53,24 @@ void UpdateRadarGuage(void);
 //
 // player interface stuff
 //
-int		weaponchangetics,itemchangetics,bodychangetics;
-int		plaqueon,plaquetime,getpic;
+short		weaponchangetics,itemchangetics,bodychangetics;
+short		plaqueon,plaquetime,getpic;
 
 star_t *firststar,*laststar;		
 
 
 #ifdef DEBUGWALLS
-unsigned screenloc[3]= {PAGE1START,PAGE1START,PAGE1START};
+unsigned short screenloc[3]= {PAGE1START,PAGE1START,PAGE1START};
 #else
-unsigned screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
+unsigned short screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
 #endif
-unsigned freelatch = FREESTART;
+unsigned short freelatch = FREESTART;
 
 long 	lasttimecount;
 long 	frameon;
 long framecount;
 
-unsigned	wallheight[MAXVIEWWIDTH];
+unsigned short	wallheight[MAXVIEWWIDTH];
 
 fixed	mindist		= MINDIST;
 
@@ -78,7 +78,7 @@ fixed	mindist		= MINDIST;
 //
 // math tables
 //
-int			pixelangle[MAXVIEWWIDTH];
+short			pixelangle[MAXVIEWWIDTH];
 long		finetangent[FINEANGLES/4];
 fixed 		sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 
@@ -86,7 +86,7 @@ fixed 		sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 // refresh variables
 //
 fixed	viewx,viewy;			// the focal point
-int		viewangle;
+short		viewangle;
 fixed	viewsin,viewcos;
 
 #ifndef WOLFDOORS
@@ -99,7 +99,7 @@ fixed	FixedByFrac (fixed a, fixed b);
 void	TransformActor (objtype *ob);
 void	BuildTables (void);
 void	ClearScreen (void);
-int		CalcRotate (objtype *ob);
+short		CalcRotate (objtype *ob);
 void	DrawScaleds (void);
 void	CalcTics (void);
 void	FixOfs (void);
@@ -110,34 +110,34 @@ void	ThreeDRefresh (void);
 //
 // wall optimization variables
 //
-int		lastside;		// true for vertical
+short		lastside;		// true for vertical
 long	lastintercept;
-int		lasttilehit;
+short		lasttilehit;
 
 
 //
 // ray tracing variables
 //
-int			focaltx,focalty,viewtx,viewty;
+short			focaltx,focalty,viewtx,viewty;
 
-int			midangle,angle;
-unsigned	xpartial,ypartial;
-unsigned	xpartialup,xpartialdown,ypartialup,ypartialdown;
-unsigned	xinttile,yinttile;
+short			midangle,angle;
+unsigned short	xpartial,ypartial;
+unsigned short	xpartialup,xpartialdown,ypartialup,ypartialdown;
+unsigned short	xinttile,yinttile;
 
-unsigned	tilehit;
-unsigned	pixx;
+unsigned short	tilehit;
+unsigned short	pixx;
 
-int		xtile,ytile;
-int		xtilestep,ytilestep;
+short		xtile,ytile;
+short		xtilestep,ytilestep;
 long	xintercept,yintercept;
 long	xstep,ystep;
 
-int		horizwall[MAXWALLTILES],vertwall[MAXWALLTILES];
+short		horizwall[MAXWALLTILES],vertwall[MAXWALLTILES];
 
 
 
-unsigned viewflags;
+unsigned short viewflags;
 extern byte lightson;
 
 // Global Cloaked Shape flag..
@@ -258,7 +258,7 @@ ansok:;
 //
 void TransformActor (objtype *ob)
 {
-	int ratio;
+	short ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
 	long	temp;
 
@@ -335,9 +335,9 @@ void TransformActor (objtype *ob)
 =
 ========================
 */
-boolean TransformTile (int tx, int ty, int *dispx, int *dispheight)
+boolean TransformTile (short tx, short ty, short *dispx, short *dispheight)
 {
-	int ratio;
+	short ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
 	long	temp;
 
@@ -413,10 +413,10 @@ boolean TransformTile (int tx, int ty, int *dispx, int *dispheight)
 
 #pragma warn -rvl			// I stick the return value in with ASMs
 
-int	CalcHeight (void)
+short	CalcHeight (void)
 {
-	int	transheight;
-	int 	ratio;
+	short	transheight;
+	short 	ratio;
 	fixed gxt,gyt,nx,ny;
 	long	gx,gy;
 
@@ -464,16 +464,16 @@ exit_func:
 */
 
 long           postsource;
-unsigned       postx;
-unsigned       bufx;
-unsigned       postwidth;
-unsigned       postheight;
+unsigned short       postx;
+unsigned short       bufx;
+unsigned short       postwidth;
+unsigned short       postheight;
 byte *     shadingtable;
 extern byte * lightsource;
 
 void   ScalePost (void)      // VGA version
 {
-	int height;
+	short height;
 	long i;
 	byte ofs;
 	byte msk;
@@ -547,7 +547,7 @@ void  FarScalePost ()				// just so other files can call
 ====================
 */
 
-unsigned DoorJamsShade[] =
+unsigned short DoorJamsShade[] =
 {
 	BIO_JAM_SHADE,					// dr_bio
 	SPACE_JAM_2_SHADE,			// dr_normal
@@ -562,7 +562,7 @@ unsigned DoorJamsShade[] =
 	SPACE_JAM_SHADE,				// dr_space
 };
 
-unsigned DoorJams[] =
+unsigned short DoorJams[] =
 {
 	BIO_JAM,					// dr_bio
 	SPACE_JAM_2,			// dr_normal
@@ -581,8 +581,8 @@ unsigned DoorJams[] =
 
 void HitVertWall (void)
 {
-	int			wallpic;
-	unsigned	texture;
+	short			wallpic;
+	unsigned short	texture;
 	unsigned  char doornum;
 
 	texture = (yintercept>>4)&0xfc0;
@@ -597,7 +597,7 @@ void HitVertWall (void)
 	if (lastside==1 && lastintercept == xtile && lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned)postsource && postwidth < 8)
+		if (texture == (unsigned short)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -607,7 +607,7 @@ void HitVertWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned)postsource = texture;
+			(unsigned short)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -641,8 +641,8 @@ void HitVertWall (void)
 		else
 			wallpic = vertwall[tilehit];
 
-		*(((unsigned *)&postsource)+1) = (unsigned)PM_GetPage(wallpic);
-		(unsigned)postsource = texture;
+		*(((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
+		(unsigned short)postsource = texture;
 	}
 }
 
@@ -659,8 +659,8 @@ void HitVertWall (void)
 */
 void HitHorizWall (void)
 {
-	int			wallpic;
-	unsigned	texture;
+	short			wallpic;
+	unsigned short	texture;
 	unsigned char doornum;
 
 	texture = (xintercept>>4)&0xfc0;
@@ -673,7 +673,7 @@ void HitHorizWall (void)
 	if (lastside==0 && lastintercept == ytile && lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned)postsource && postwidth < 8)
+		if (texture == (unsigned short)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -683,7 +683,7 @@ void HitHorizWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned)postsource = texture;
+			(unsigned short)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -718,8 +718,8 @@ void HitHorizWall (void)
 			wallpic = horizwall[tilehit];
 
 
-		*( ((unsigned *)&postsource)+1) = (unsigned)PM_GetPage(wallpic);
-		(unsigned)postsource = texture;
+		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
+		(unsigned short)postsource = texture;
 	}
 
 }
@@ -737,7 +737,7 @@ void HitHorizWall (void)
 
 void HitHorizDoor (void)
 {
-	unsigned	texture,doorpage = -1,doornum,xint;
+	unsigned short	texture,doorpage = -1,doornum,xint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -751,9 +751,9 @@ void HitHorizDoor (void)
    xint=xintercept&0xffff;
 
 	if (xint>0x7fff)
-		texture = ( (xint-(unsigned)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+		texture = ( (xint-(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
    else
-		texture = ( (xint+(unsigned)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+		texture = ( (xint+(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
 #endif
 
 	wallheight[pixx] = CalcHeight();
@@ -762,7 +762,7 @@ void HitHorizDoor (void)
 	{
 		// in the same door as last time, so check for optimized draw
 
-		if (texture == (unsigned)postsource && postwidth < 8)
+		if (texture == (unsigned short)postsource && postwidth < 8)
 		{
 			// wide scale
 
@@ -777,7 +777,7 @@ void HitHorizDoor (void)
 #else
 			ScalePost ();
 #endif
-			(unsigned)postsource = texture;
+			(unsigned short)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -860,8 +860,8 @@ void HitHorizDoor (void)
 			doorpage += UL_METAL;
 
 
-		*( ((unsigned *)&postsource)+1) = (unsigned)PM_GetPage(doorpage);
-		(unsigned)postsource = texture;
+		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(doorpage);
+		(unsigned short)postsource = texture;
 	}
 }
 
@@ -879,7 +879,7 @@ void HitHorizDoor (void)
 
 void HitVertDoor (void)
 {
-	unsigned	texture,doorpage,doornum,yint;
+	unsigned short	texture,doorpage,doornum,yint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -892,9 +892,9 @@ void HitVertDoor (void)
 #else
 		  yint=yintercept&0xffff;
 		  if (yint>0x7fff)
-			  texture = ( (yint-(unsigned)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+			  texture = ( (yint-(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
 		  else
-			  texture = ( (yint+(unsigned)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+			  texture = ( (yint+(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
 #endif
 
 	wallheight[pixx] = CalcHeight();
@@ -902,7 +902,7 @@ void HitVertDoor (void)
 	if (lasttilehit == tilehit)
 	{
 	// in the same door as last time, so check for optimized draw
-		if (texture == (unsigned)postsource && postwidth < 8)
+		if (texture == (unsigned short)postsource && postwidth < 8)
 		{
 			// wide scale
 
@@ -917,7 +917,7 @@ void HitVertDoor (void)
 #else
 			ScalePost ();
 #endif
-			(unsigned)postsource = texture;
+			(unsigned short)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1000,8 +1000,8 @@ void HitVertDoor (void)
 		if (lockable && doorobjlist[doornum].lock == kt_none)
 			doorpage += UL_METAL;
 
-		*(((unsigned *)&postsource)+1) = (unsigned)PM_GetPage(doorpage);
-		(unsigned)postsource = texture;
+		*(((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(doorpage);
+		(unsigned short)postsource = texture;
 	}
 }
 
@@ -1019,8 +1019,8 @@ void HitVertDoor (void)
 
 void HitHorizPWall (void)
 {
-	int			wallpic;
-	unsigned	texture,offset;
+	short			wallpic;
+	unsigned short	texture,offset;
 
 	texture = (xintercept>>4)&0xfc0;
 	offset = pwallpos<<10;
@@ -1037,7 +1037,7 @@ void HitHorizPWall (void)
 	if (lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned)postsource && postwidth < 8)
+		if (texture == (unsigned short)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -1047,7 +1047,7 @@ void HitHorizPWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned)postsource = texture;
+			(unsigned short)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1064,8 +1064,8 @@ void HitHorizPWall (void)
 
 		wallpic = horizwall[tilehit&63];
 
-		*( ((unsigned *)&postsource)+1) = (unsigned)PM_GetPage(wallpic);
-		(unsigned)postsource = texture;
+		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
+		(unsigned short)postsource = texture;
 	}
 
 }
@@ -1083,8 +1083,8 @@ void HitHorizPWall (void)
 
 void HitVertPWall (void)
 {
-	int			wallpic;
-	unsigned	texture,offset;
+	short			wallpic;
+	unsigned short	texture,offset;
 
 	texture = (yintercept>>4)&0xfc0;
 	offset = pwallpos<<10;
@@ -1101,7 +1101,7 @@ void HitVertPWall (void)
 	if (lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned)postsource && postwidth < 8)
+		if (texture == (unsigned short)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -1111,7 +1111,7 @@ void HitVertPWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned)postsource = texture;
+			(unsigned short)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1128,8 +1128,8 @@ void HitVertPWall (void)
 
 		wallpic = vertwall[tilehit&63];
 
-		*( ((unsigned *)&postsource)+1) = (unsigned)PM_GetPage(wallpic);
-		(unsigned)postsource = texture;
+		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
+		(unsigned short)postsource = texture;
 	}
 
 }
@@ -1149,7 +1149,7 @@ void HitVertPWall (void)
 
 void ClearScreen (void)
 {
- unsigned floor=egaFloor[gamestate.episode*MAPS_PER_EPISODE+mapon],
+ unsigned short floor=egaFloor[gamestate.episode*MAPS_PER_EPISODE+mapon],
 	  ceiling=egaCeiling[gamestate.episode*MAPS_PER_EPISODE+mapon];
 
   //
@@ -1320,9 +1320,9 @@ exit_mofo:
 =====================
 */
 
-int	CalcRotate (objtype *ob)
+short	CalcRotate (objtype *ob)
 {
-	int	angle,viewangle;
+	short	angle,viewangle;
 	dirtype dir=ob->dir;
 
 	// this isn't exactly correct, as it should vary by a trig value,
@@ -1375,11 +1375,11 @@ visobj_t	vislist[MAXVISABLE],*visptr,*visstep,*farthest;
 
 void DrawScaleds (void)
 {
-	int 		i,j,least,numvisable,height;
+	short 		i,j,least,numvisable,height;
 	void*	shape;
 	byte		*tilespot,*visspot;
-	int		shapenum;
-	unsigned	spotloc;
+	short		shapenum;
+	unsigned short	spotloc;
 
 	statobj_t	*statptr;
 	objtype		*obj;
@@ -1548,14 +1548,14 @@ void DrawScaleds (void)
 ==============
 */
 
-int	weaponscale[NUMWEAPONS] = {SPR_KNIFEREADY,SPR_PISTOLREADY
+short	weaponscale[NUMWEAPONS] = {SPR_KNIFEREADY,SPR_PISTOLREADY
 		,SPR_MACHINEGUNREADY,SPR_CHAINREADY,SPR_GRENADEREADY,SPR_BFG_WEAPON1,0};
 
 boolean useBounceOffset=false;
 
 void DrawPlayerWeapon (void)
 {
-	int	shapenum;
+	short	shapenum;
 
 	if (playstate==ex_victorious)
 		return;
@@ -1565,14 +1565,14 @@ void DrawPlayerWeapon (void)
 		shapenum = weaponscale[gamestate.weapon]+gamestate.weaponframe;
 		if (shapenum)
 		{
-			static int vh=63;
-			static int ce=100;
+			static short vh=63;
+			static short ce=100;
 
 			char v_table[15]={87,81,77,63,61,60,56,53,50,47,43,41,39,35,31};
 			char c_table[15]={88,85,81,80,75,70,64,59,55,50,44,39,34,28,24};
 
-			int oldviewheight=viewheight;
-			int centery;
+			short oldviewheight=viewheight;
+			short centery;
 
 			useBounceOffset=true;
 #if 1
@@ -1768,7 +1768,7 @@ void WallRefresh (void)
 //==========================================================================
 
 extern short MsgTicsRemain;
-extern unsigned LastMsgPri;
+extern unsigned short LastMsgPri;
 
 //-------------------------------------------------------------------------
 // RedrawStatusAreas()
@@ -1814,7 +1814,7 @@ void MapLSRow();
 
 void	ThreeDRefresh (void)
 {
-	int tracedir;
+	short tracedir;
 
 // FIXME
 #if 0
@@ -1952,7 +1952,7 @@ asm	rep stosw
 //--------------------------------------------------------------------------
 // NextBuffer()
 //--------------------------------------------------------------------------
-int NextBuffer()
+short NextBuffer()
 {
 	displayofs=bufferofs;
 
@@ -2035,13 +2035,13 @@ void DrawRadar()
 }
 
 clock_t tc_start,tc_end;
-unsigned tc_time;
+unsigned short tc_time;
 
 
 //--------------------------------------------------------------------------
 // ShowOverhead()
 //--------------------------------------------------------------------------
-void ShowOverhead(short bx, short by, short radius, short zoom, unsigned flags)
+void ShowOverhead(short bx, short by, short radius, short zoom, unsigned short flags)
 {
 	#define PLAYER_COLOR 	0xf1
 	#define UNMAPPED_COLOR	0x52
@@ -2199,7 +2199,7 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned flags)
 
 					if ((zoom == 4) || (ExtraRadarFlags & OV_PUSHWALLS))
 					{
-						unsigned iconnum;
+						unsigned short iconnum;
 
 						iconnum = *(mapsegs[1]+farmapylookup[my]+mx);
 

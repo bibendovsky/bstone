@@ -3,7 +3,7 @@
 //
 
 
-int CheckIs386()
+short CheckIs386()
 {
     return 1;
 }

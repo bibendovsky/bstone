@@ -9,5 +9,5 @@
 	word	sdStartPCSounds = STARTPCSOUNDS;
 	word	sdStartALSounds = STARTADLIBSOUNDS;
 
-    int		sdLastSound = LASTSOUND;
-	int		DigiMap[LASTSOUND];
+    short		sdLastSound = LASTSOUND;
+	short		DigiMap[LASTSOUND];

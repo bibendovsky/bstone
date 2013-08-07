@@ -25,7 +25,7 @@
 //===========================================================================
 
 
-void VL_LatchToScreen(unsigned source, int width, int height, int x, int y);
+void VL_LatchToScreen(unsigned short source, short width, short height, short x, short y);
 
 
 //#define  DRAW_TO_FRONT
@@ -64,7 +64,7 @@ typedef enum
 
 // Movie File variables
 
-int Movie_FHandle;
+short Movie_FHandle;
 
 // Fade Variables
 
@@ -196,7 +196,7 @@ void ShutdownMovie(void)
 //
 // length		= length of the source image in bytes
 //---------------------------------------------------------------------------
-void JM_DrawBlock(unsigned dest_offset,unsigned byte_offset,char *source,unsigned length)
+void JM_DrawBlock(unsigned short dest_offset,unsigned short byte_offset,char *source,unsigned short length)
 {
 	byte numplanes;
    byte mask,plane;
@@ -204,7 +204,7 @@ void JM_DrawBlock(unsigned dest_offset,unsigned byte_offset,char *source,unsigne
 	char *source_ptr;
    char *dest;
    char *end_ptr;
-   unsigned count,total_len;
+   unsigned short count,total_len;
 
 
    end_ptr = source+length;
@@ -347,7 +347,7 @@ boolean MOVIE_LoadBuffer()
 //---------------------------------------------------------------------------
 short MOVIE_GetFrame()
 {
-	unsigned ReturnVal;
+	unsigned short ReturnVal;
    anim_frame blk;
 
 	if (PageLen == 0)
@@ -382,7 +382,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 {
 	anim_frame blk;
 	char *frame;
-   unsigned wait_time;
+   unsigned short wait_time;
 
 	memcpy(&blk,BufferPtr,sizeof(anim_frame));
 	BufferPtr+=sizeof(anim_frame);
@@ -400,8 +400,8 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 
 	 	case AN_SOUND:				// Sound Chunk
 		{
-      	unsigned sound_chunk;
-         sound_chunk = *(unsigned *)frame;
+      	unsigned short sound_chunk;
+         sound_chunk = *(unsigned short *)frame;
       	SD_PlaySound(sound_chunk);
          BufferPtr+=blk.recsize;
       }
@@ -474,8 +474,8 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 
 	 	case AN_PAUSE:				// Pause
 		{
-      	unsigned vbls;
-         vbls = *(unsigned *)frame;
+      	unsigned short vbls;
+         vbls = *(unsigned short *)frame;
 			IN_UserInput(vbls);
          BufferPtr+=blk.recsize;
       }

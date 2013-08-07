@@ -9,10 +9,10 @@
 
 extern longword dc_iscale;
 extern longword dc_frac;
-extern unsigned dc_source;
-extern unsigned dc_seg;
-extern unsigned dc_length;
-extern unsigned dc_dest;
+extern unsigned short dc_source;
+extern unsigned short dc_seg;
+extern unsigned short dc_length;
+extern unsigned short dc_dest;
 
 extern byte* shadingtable;
 
@@ -25,14 +25,14 @@ typedef enum {
 
 static void generic_draw_column(DrawMode draw_mode)
 {
-    unsigned i;
+    unsigned short i;
     byte pixel;
     long fraction = dc_frac;
 
     // FIXME
     byte* source = (byte*)dc_seg + dc_source;
 
-    unsigned screen_offset = dc_dest;
+    unsigned short screen_offset = dc_dest;
 
     // FIXME
     byte* screen = (byte*)0xA0000;
@@ -59,8 +59,8 @@ void R_DrawColumn()
 
 void R_DrawSLSColumn()
 {
-    unsigned i;
-    unsigned screen_offset = dc_dest;
+    unsigned short i;
+    unsigned short screen_offset = dc_dest;
     byte* screen = (byte*)0xA0000;
 
     for (i = 0; i < dc_length; ++i) {

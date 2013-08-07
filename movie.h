@@ -13,7 +13,7 @@
 
 typedef struct
 {
-	unsigned code;
+	unsigned short code;
    long block_num;
    long recsize;
 }anim_frame;

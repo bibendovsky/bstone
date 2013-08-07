@@ -521,11 +521,11 @@ static short length;
 enum {jm_left,jm_right,jm_flush};
 static char justify_mode = jm_left;
 
-static unsigned flags;
+static unsigned short flags;
 
 static short bgcolor,ltcolor,dkcolor,shcolor,anim_bgcolor=-1;
-static unsigned xl,yl,xh,yh;
-static unsigned cur_x, cur_y, last_cur_x, last_cur_y;
+static unsigned short xl,yl,xh,yh;
+static unsigned short cur_x, cur_y, last_cur_x, last_cur_y;
 static char *first_ch;
 
 static char *scan_ch,temp;
@@ -734,7 +734,7 @@ void TP_WrapText()
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
 	{
-		unsigned width,height;
+		unsigned short width,height;
 
 		VWL_MeasureString(first_ch,&width,&height,font);
 		cur_x = xh-width+1;
@@ -836,7 +836,7 @@ void TP_HandleCodes()
 	spritetabletype *spr;
 	piAnimInfo *anim;
 	piShapeInfo *shape;
-	unsigned shapenum;
+	unsigned short shapenum;
 	short length;
 	char *s;
 	short old_bgcolor;
@@ -856,7 +856,7 @@ void TP_HandleCodes()
 		*first_ch=toupper(*first_ch);
 		*(first_ch+1)=toupper(*(first_ch+1));
 #endif
-		switch (*((unsigned *)first_ch)++)
+		switch (*((unsigned short *)first_ch)++)
 		{
 	// CENTER TEXT ------------------------------------------------------
 	//
@@ -869,7 +869,7 @@ void TP_HandleCodes()
 					{
 						case TP_CONTROL_CHAR:
 							s++;
-							switch (*((unsigned *)s)++)
+							switch (*((unsigned short *)s)++)
 							{
 								case TP_CNVT_CODE('S','X'):
 								case TP_CNVT_CODE('R','X'):
@@ -1547,7 +1547,7 @@ short TP_DrawShape(short x, short y, short shapenum, pisType shapetype)
 			bufferofs += (y-30)*SCREENWIDTH;
 			postx = x;
 			postwidth = 1;
-			postsource = ((long)((unsigned)addr))<<16;
+			postsource = ((long)((unsigned short)addr))<<16;
 			for (x=0;x<64;x++,postx++,postsource+=64)
 			{
 				wallheight[postx] = 256;
@@ -1652,13 +1652,13 @@ void TP_AnimatePage(short numanims)
 //--------------------------------------------------------------------------
 // TP_BoxAroundShape()
 //--------------------------------------------------------------------------
-short TP_BoxAroundShape(short x1, short y1, unsigned shapenum, pisType shapetype)
+short TP_BoxAroundShape(short x1, short y1, unsigned short shapenum, pisType shapetype)
 {
 	short x2,y2;
 
 	switch (shapetype)
 	{
-		unsigned width;
+		unsigned short width;
 
 		case pis_scwall:
 		case pis_scaled:
@@ -1757,7 +1757,7 @@ void TP_CachePage(char *script)
 {
 	piAnimInfo *anim;
 	short loop;
-	unsigned shapenum;
+	unsigned short shapenum;
 	boolean end_of_page=false;
 	short numanims=0;
 
@@ -1778,7 +1778,7 @@ void TP_CachePage(char *script)
 				*script=toupper(*script);
 				*(script+1)=toupper(*(script+1));
 #endif
-				switch (*((unsigned *)script)++)
+				switch (*((unsigned short *)script)++)
 				{
 					case TP_CNVT_CODE('S','H'):
 						shapenum = TP_VALUE(script,3);
@@ -1827,10 +1827,10 @@ void TP_CachePage(char *script)
 //--------------------------------------------------------------------------
 // TP_VALUE()
 //--------------------------------------------------------------------------
-unsigned TP_VALUE(char *ptr,char num_nybbles)
+unsigned short TP_VALUE(char *ptr,char num_nybbles)
 {
 	char ch,nybble,shift;
-	unsigned value=0;
+	unsigned short value=0;
 
 	for (nybble=0; nybble<num_nybbles; nybble++)
 	{
@@ -1989,7 +1989,7 @@ boolean TP_SlowPrint(char *str, char delay)
 //--------------------------------------------------------------------------
 // TP_LoadScript()
 //--------------------------------------------------------------------------
-long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned id_cache)
+long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned short id_cache)
 {
 #pragma warn -pia
 	long size;
@@ -2028,7 +2028,7 @@ long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned id_cache)
 //-------------------------------------------------------------------------
 // TP_FreeScript()
 //-------------------------------------------------------------------------
-void TP_FreeScript(PresenterInfo *pi,unsigned id_cache)
+void TP_FreeScript(PresenterInfo *pi,unsigned short id_cache)
 {
 	TP_PurgeAllGfx();
 
@@ -2069,7 +2069,7 @@ void TP_InitScript(PresenterInfo *pi)
 				*script=toupper(*script);
 				*(script+1)=toupper(*(script+1));
 #endif
-				switch (*((unsigned *)script)++)
+				switch (*((unsigned short *)script)++)
 				{
 					case TP_CNVT_CODE('E','P'):
 						if (pi->numpages < TP_MAX_PAGES)
@@ -2103,7 +2103,7 @@ end_func:;
 void TP_CacheIn(tpCacheType type, short chunk)
 {
 	short first_ch_offset=first_ch-pi->script[0];
-	int loop,offset[TP_MAX_PAGES];
+	short loop,offset[TP_MAX_PAGES];
 
 // Cache graphics and re-assign pointers
 //

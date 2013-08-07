@@ -1,4 +1,4 @@
-void VL_WaitVBL (int vbls)
+void VL_WaitVBL (short vbls)
 {
 }
 
@@ -6,27 +6,27 @@ void VH_UpdateScreen()
 {
 }
 
-void VL_ScreenToScreen (unsigned source, unsigned dest,int width, int height)
+void VL_ScreenToScreen (unsigned short source, unsigned short dest, short width, short height)
 {
 }
 
-void SDL_SetDS(void)
+void SDL_SetDS()
 {
 }
 
-void SDL_t0FastAsmService(void)
+void SDL_t0FastAsmService()
 {
 }
 
-void SDL_t0SlowAsmService(void)
+void SDL_t0SlowAsmService()
 {
 }
 
-int VL_VideoID (void)
+short VL_VideoID ()
 {
     return 5;
 }
 
-void JM_VGALinearFill(unsigned start,unsigned length, char fill)
+void JM_VGALinearFill(unsigned short start, unsigned short length, char fill)
 {
 }

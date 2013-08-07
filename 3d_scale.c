@@ -24,15 +24,15 @@ void R_DrawColumn();
 //t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
 //long			fullscalefarcall[MAXSCALEHEIGHT+1];
 
-int			maxscale,maxscaleshl2;
-unsigned    centery;
+short			maxscale,maxscaleshl2;
+unsigned short    centery;
 
-int normalshade;
-int normalshade_div = 1;
-int shade_max = 1;
+short normalshade;
+short normalshade_div = 1;
+short shade_max = 1;
 
-int nsd_table[] = { 1, 6, 3, 4, 1, 2};
-int sm_table[] =  {36,51,62,63,18,52};
+short nsd_table[] = { 1, 6, 3, 4, 1, 2};
+short sm_table[] =  {36,51,62,63,18,52};
 
 
 /*
@@ -44,9 +44,9 @@ int sm_table[] =  {36,51,62,63,18,52};
 */
 
 //t_compscale 	*work;
-unsigned BuildCompScale (int height, void**finalspot);
+unsigned short BuildCompScale (short height, void**finalspot);
 
-int			stepbytwo;
+short			stepbytwo;
 
 //===========================================================================
 
@@ -76,9 +76,9 @@ void BadScale (void)
 ==========================
 */
 
-void SetupScaling (int maxscaleheight)
+void SetupScaling (short maxscaleheight)
 {
-	int		i,x,y;
+	short		i,x,y;
 	byte	*dest;
 
 	maxscaleheight/=2;			// one scaler every two pixels
@@ -203,7 +203,7 @@ unsigned dc_dest;
 
 #define SFRACUNIT 0x10000
 
-extern unsigned * linecmds;
+extern unsigned short * linecmds;
 
 extern boolean useBounceOffset;
 
@@ -218,17 +218,17 @@ fixed bounceOffset=0;
 */
 
 
-void ScaleMaskedLSPost (int height, unsigned buf)
+void ScaleMaskedLSPost (short height, unsigned short buf)
 {
-	int  length;
-	unsigned end;
-	unsigned start;
+	short  length;
+	unsigned short end;
+	unsigned short start;
 	long sprtopoffset;
 	long topscreen;
 	long bottomscreen;
 	longword screenstep;
 	long dc_yl,dc_yh;
-	unsigned * srcpost;
+	unsigned short * srcpost;
 
 
 	fixed bounce;
@@ -243,7 +243,7 @@ void ScaleMaskedLSPost (int height, unsigned buf)
 	screenstep = ((longword)height)<<10;
 
 	sprtopoffset=((long)viewheight<<15)-((long)height<<15)+(bounce>>1);
-	dc_seg=*(((unsigned *)&srcpost)+1);
+	dc_seg=*(((unsigned short *)&srcpost)+1);
 
 	end=(*(srcpost++))>>1;
 	for (;end!=0;)
@@ -273,8 +273,8 @@ void ScaleMaskedLSPost (int height, unsigned buf)
 
 		if (dc_yl<=dc_yh)
 		{
-			dc_dest=buf+(unsigned)ylookup[(unsigned)dc_yl];
-			dc_length=(unsigned)(dc_yh-dc_yl+1);
+			dc_dest=buf+(unsigned short)ylookup[(unsigned short)dc_yl];
+			dc_length=(unsigned short)(dc_yh-dc_yl+1);
 #if CLOAKED_SHAPES
          if (cloaked_shape)
 				R_DrawSLSColumn();
@@ -293,13 +293,13 @@ void ScaleMaskedLSPost (int height, unsigned buf)
 =
 =======================
 */
-void ScaleMaskedWideLSPost (int height, unsigned buf, unsigned xx, unsigned pwidth)
+void ScaleMaskedWideLSPost (short height, unsigned short buf, unsigned short xx, unsigned short pwidth)
 {
 	byte  ofs;
 	byte  msk;
-	unsigned ii;
+	unsigned short ii;
 
-	buf+=(unsigned)xx>>2;
+	buf+=(unsigned short)xx>>2;
 	ofs=((byte)(xx&3)<<3)+(byte)pwidth-1;
 	outp(SC_INDEX+1,(byte)*((byte *)mapmasks1+ofs));
 	ScaleMaskedLSPost(height,buf);
@@ -324,17 +324,17 @@ void ScaleMaskedWideLSPost (int height, unsigned buf, unsigned xx, unsigned pwid
 =
 =======================
 */
-void ScaleMaskedPost (int height, unsigned buf)
+void ScaleMaskedPost (short height, unsigned short buf)
 {
-	int  length;
-	unsigned end;
-	unsigned start;
+	short  length;
+	unsigned short end;
+	unsigned short start;
 	long sprtopoffset;
 	long topscreen;
 	long bottomscreen;
 	longword screenstep;
 	long dc_yl,dc_yh;
-	unsigned * srcpost;
+	unsigned short * srcpost;
 
 	fixed bounce;
 
@@ -348,7 +348,7 @@ void ScaleMaskedPost (int height, unsigned buf)
 	screenstep = ((longword)height)<<10;
 
 	sprtopoffset=((long)viewheight<<15)-((long)height<<15)+(bounce>>1);
-	dc_seg=*(((unsigned *)&srcpost)+1);
+	dc_seg=*(((unsigned short *)&srcpost)+1);
 
 	end=(*(srcpost++))>>1;
 	for (;end!=0;)
@@ -372,8 +372,8 @@ void ScaleMaskedPost (int height, unsigned buf)
 			dc_frac=0;
 		if (dc_yl<=dc_yh)
 			{
-			dc_dest=buf+(unsigned)ylookup[(unsigned)dc_yl];
-			dc_length=(unsigned)(dc_yh-dc_yl+1);
+			dc_dest=buf+(unsigned short)ylookup[(unsigned short)dc_yl];
+			dc_length=(unsigned short)(dc_yh-dc_yl+1);
 			R_DrawColumn();
 			}
 		end=(*(srcpost++))>>1;
@@ -389,13 +389,13 @@ void ScaleMaskedPost (int height, unsigned buf)
 =
 =======================
 */
-void ScaleMaskedWidePost (int height, unsigned buf, unsigned xx, unsigned pwidth)
+void ScaleMaskedWidePost (short height, unsigned short buf, unsigned short xx, unsigned short pwidth)
 {
 	byte  ofs;
 	byte  msk;
-	unsigned ii;
+	unsigned short ii;
 
-	buf+=(unsigned)xx>>2;
+	buf+=(unsigned short)xx>>2;
 	ofs=((byte)(xx&3)<<3)+(byte)pwidth-1;
 	outp(SC_INDEX+1,(byte)*((byte *)mapmasks1+ofs));
 	ScaleMaskedPost(height,buf);
@@ -439,35 +439,35 @@ void ScaleMaskedWidePost (int height, unsigned buf, unsigned xx, unsigned pwidth
 extern byte * shadingtable;
 extern byte * lightsource;
 
-void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
+void ScaleLSShape (short xcenter, short shapenum, unsigned short height, char lighting)
 {
 	t_compshape	*shape;
-	int      dest;
-	int      i;
+	short      dest;
+	short      i;
 	longword frac;
-	unsigned width;
-	int      x1,x2;
+	unsigned short width;
+	short      x1,x2;
 	longword xscale;
 	longword screenscale;
 	long		texturecolumn;
 	long     lastcolumn;
-	int      startx;
-	unsigned swidth;
+	short      startx;
+	unsigned short swidth;
 	long     xcent;
 
 	if ((height>>1>maxscaleshl2)||(!(height>>1)))
 		return;
 	shape = PM_GetSpritePage (shapenum);
-	*(((unsigned *)&linecmds)+1)=(unsigned)shape;		// seg of shape
+	*(((unsigned short *)&linecmds)+1)=(unsigned short)shape;		// seg of shape
 	xscale=(longword)height<<12;
 	xcent=(long)((long)xcenter<<20)-((long)height<<17)+0x80000;
 //
 // calculate edges of the shape
 //
-	x1 = (int)((long)(xcent+((long)shape->leftpix*xscale))>>20);
+	x1 = (short)((long)(xcent+((long)shape->leftpix*xscale))>>20);
 	if (x1 >= viewwidth)
 		 return;               // off the right side
-	x2 = (int)((long)(xcent+((long)shape->rightpix*xscale))>>20);
+	x2 = (short)((long)(xcent+((long)shape->rightpix*xscale))>>20);
 	if (x2 < 0)
 		 return;         // off the left side
 	screenscale=(256L<<20L)/(longword)height;
@@ -504,8 +504,8 @@ void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 				{
 				if (lastcolumn>=0)
 					{
-					(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
-					ScaleMaskedWideLSPost(height>>2,(unsigned)bufferofs,(unsigned)startx,width);
+					(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
+					ScaleMaskedWideLSPost(height>>2,(unsigned short)bufferofs,(unsigned short)startx,width);
 					width=1;
 					lastcolumn=-1;
 					}
@@ -523,8 +523,8 @@ void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 				{
 				if (lastcolumn>=0)
 					{
-					(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
-					ScaleMaskedWideLSPost(height>>2,(unsigned)bufferofs,(unsigned)startx,width);
+					(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
+					ScaleMaskedWideLSPost(height>>2,(unsigned short)bufferofs,(unsigned short)startx,width);
 					width=1;
 					startx=x1;
 					lastcolumn=texturecolumn;
@@ -539,8 +539,8 @@ void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 			}
 		if (lastcolumn!=-1)
 			{
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
-			ScaleMaskedWideLSPost(height>>2,bufferofs,(unsigned)startx,width);
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
+			ScaleMaskedWideLSPost(height>>2,bufferofs,(unsigned short)startx,width);
 			}
 		}
 	else
@@ -553,8 +553,8 @@ void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 			texturecolumn=frac>>20;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)texturecolumn];
-			ScaleMaskedLSPost(height>>2,bufferofs+((unsigned)x1>>2));
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)texturecolumn];
+			ScaleMaskedLSPost(height>>2,bufferofs+((unsigned short)x1>>2));
 			}
 		}
 }
@@ -583,36 +583,36 @@ void ScaleLSShape (int xcenter, int shapenum, unsigned height, char lighting)
 =
 =======================
 */
-void ScaleShape (int xcenter, int shapenum, unsigned height)
+void ScaleShape (short xcenter, short shapenum, unsigned short height)
 {
 	t_compshape	*shape;
-	int      dest;
-	int      i;
+	short      dest;
+	short      i;
 	longword frac;
-	unsigned width;
-	int      x1,x2;
+	unsigned short width;
+	short      x1,x2;
 	longword xscale;
 	longword screenscale;
 	long		texturecolumn;
 	long     lastcolumn;
-	int      startx;
+	short      startx;
 	long     xcent;
-	unsigned swidth;
+	unsigned short swidth;
 
 
 	if ((height>>1>maxscaleshl2)||(!(height>>1)))
 		return;
 	shape = PM_GetSpritePage (shapenum);
-	*(((unsigned *)&linecmds)+1)=(unsigned)shape;		// seg of shape
+	*(((unsigned short *)&linecmds)+1)=(unsigned short)shape;		// seg of shape
 	xscale=(longword)height<<12;
 	xcent=(long)((long)xcenter<<20)-((long)height<<(17))+0x80000;
 //
 // calculate edges of the shape
 //
-	x1 = (int)((long)(xcent+((long)shape->leftpix*xscale))>>20);
+	x1 = (short)((long)(xcent+((long)shape->leftpix*xscale))>>20);
 	if (x1 >= viewwidth)
 		 return;               // off the right side
-	x2 = (int)((long)(xcent+((long)shape->rightpix*xscale))>>20);
+	x2 = (short)((long)(xcent+((long)shape->rightpix*xscale))>>20);
 	if (x2 < 0)
 		 return;         // off the left side
 	screenscale=(256L<<20L)/(longword)height;
@@ -639,8 +639,8 @@ void ScaleShape (int xcenter, int shapenum, unsigned height)
 				{
 				if (lastcolumn>=0)
 					{
-					(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
-					ScaleMaskedWidePost(height>>2,(unsigned)bufferofs,(unsigned)startx,width);
+					(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
+					ScaleMaskedWidePost(height>>2,(unsigned short)bufferofs,(unsigned short)startx,width);
 					width=1;
 					lastcolumn=-1;
 					}
@@ -658,8 +658,8 @@ void ScaleShape (int xcenter, int shapenum, unsigned height)
 				{
 				if (lastcolumn>=0)
 					{
-					(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
-					ScaleMaskedWidePost(height>>2,(unsigned)bufferofs,(unsigned)startx,width);
+					(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
+					ScaleMaskedWidePost(height>>2,(unsigned short)bufferofs,(unsigned short)startx,width);
 					width=1;
 					startx=x1;
 					lastcolumn=texturecolumn;
@@ -674,8 +674,8 @@ void ScaleShape (int xcenter, int shapenum, unsigned height)
 			}
 		if (lastcolumn!=-1)
 			{
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
-			ScaleMaskedWidePost(height>>2,bufferofs,(unsigned)startx,width);
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
+			ScaleMaskedWidePost(height>>2,bufferofs,(unsigned short)startx,width);
 			}
 		}
 	else
@@ -688,8 +688,8 @@ void ScaleShape (int xcenter, int shapenum, unsigned height)
 			texturecolumn=frac>>20;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)texturecolumn];
-			ScaleMaskedPost(height>>2,bufferofs+((unsigned)x1>>2));
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)texturecolumn];
+			ScaleMaskedPost(height>>2,bufferofs+((unsigned short)x1>>2));
 			}
 		}
 }
@@ -720,33 +720,33 @@ void ScaleShape (int xcenter, int shapenum, unsigned height)
 =======================
 */
 
-void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
+void SimpleScaleShape (short xcenter, short shapenum, unsigned short height)
 {
 	t_compshape	*shape;
-	int      dest;
-	int      i;
+	short      dest;
+	short      i;
 	longword frac;
-	int      width;
-	int      x1,x2;
+	short      width;
+	short      x1,x2;
 	longword xscale;
 	longword screenscale;
 	long		texturecolumn;
 	long     lastcolumn;
-	int      startx;
+	short      startx;
 	long     xcent;
-	unsigned swidth;
+	unsigned short swidth;
 
 	shape = PM_GetSpritePage (shapenum);
-	*(((unsigned *)&linecmds)+1)=(unsigned)shape;		// seg of shape
+	*(((unsigned short *)&linecmds)+1)=(unsigned short)shape;		// seg of shape
 	xscale=(longword)height<<10;
 	xcent=(long)((long)xcenter<<16)-((long)height<<(15))+0x8000;
 //
 // calculate edges of the shape
 //
-	x1 = (int)((long)(xcent+((long)shape->leftpix*xscale))>>16);
+	x1 = (short)((long)(xcent+((long)shape->leftpix*xscale))>>16);
 	if (x1 >= viewwidth)
 		 return;               // off the right side
-	x2 = (int)((long)(xcent+((long)shape->rightpix*xscale))>>16);
+	x2 = (short)((long)(xcent+((long)shape->rightpix*xscale))>>16);
 	if (x2 < 0)
 		 return;         // off the left side
 	screenscale=(64*65536)/(longword)height;
@@ -781,7 +781,7 @@ void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
 				{
 				if (lastcolumn>=0)
 					{
-					(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
+					(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
 					ScaleMaskedWidePost(height,bufferofs,startx,width);
 					width=1;
 					startx=x1;
@@ -796,7 +796,7 @@ void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
 			}
 		if (lastcolumn!=-1)
 			{
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
 			ScaleMaskedWidePost(height,bufferofs,startx,width);
 			}
 		}
@@ -808,7 +808,7 @@ void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
 			texturecolumn=frac>>16;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)texturecolumn];
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)texturecolumn];
 			ScaleMaskedPost(height,bufferofs+(x1>>2));
 			}
 		}
@@ -821,22 +821,22 @@ void SimpleScaleShape (int xcenter, int shapenum, unsigned height)
 //       0 == NO Shading
 //       63 == Max Shade (BLACK or near)
 //-------------------------------------------------------------------------
-void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned height, unsigned shade)
+void MegaSimpleScaleShape (short xcenter, short ycenter, short shapenum, unsigned short height, unsigned short shade)
 {
 	t_compshape	*shape;
-	int      dest;
-	int      i;
+	short      dest;
+	short      i;
 	longword frac;
-	int      width;
-	int      x1,x2;
+	short      width;
+	short      x1,x2;
 	longword xscale;
 	longword screenscale;
 	long		texturecolumn;
 	long     lastcolumn;
-	int      startx;
+	short      startx;
 	long     xcent;
-	unsigned old_bufferofs;
-	int 		swidth;
+	unsigned short old_bufferofs;
+	short 		swidth;
 
 
 	old_bufferofs = bufferofs;
@@ -845,16 +845,16 @@ void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned heig
 	bufferofs += SCREENBWIDE*ycenter;
 
 	shape = PM_GetSpritePage (shapenum);
-	*(((unsigned *)&linecmds)+1)=(unsigned)shape;		// seg of shape
+	*(((unsigned short *)&linecmds)+1)=(unsigned short)shape;		// seg of shape
 	xscale=(longword)height<<14;
 	xcent=(long)((long)xcenter<<20)-((long)height<<(19))+0x80000;
 //
 // calculate edges of the shape
 //
-	x1 = (int)((long)(xcent+((long)shape->leftpix*xscale))>>20);
+	x1 = (short)((long)(xcent+((long)shape->leftpix*xscale))>>20);
 	if (x1 >= viewwidth)
 		 return;               // off the right side
-	x2 = (int)((long)(xcent+((long)shape->rightpix*xscale))>>20);
+	x2 = (short)((long)(xcent+((long)shape->rightpix*xscale))>>20);
 	if (x2 < 0)
 		 return;         // off the left side
 
@@ -894,7 +894,7 @@ void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned heig
 				{
 				if (lastcolumn>=0)
 					{
-					(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
+					(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
 					ScaleMaskedWideLSPost(height,bufferofs,startx,width);
 					width=1;
 					startx=x1;
@@ -909,7 +909,7 @@ void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned heig
 			}
 		if (lastcolumn!=-1)
 			{
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)lastcolumn];
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)lastcolumn];
 			ScaleMaskedWideLSPost(height,bufferofs,startx,width);
 			}
 		}
@@ -921,7 +921,7 @@ void MegaSimpleScaleShape (int xcenter, int ycenter, int shapenum, unsigned heig
 			texturecolumn=frac>>20;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
-			(unsigned)linecmds=(unsigned)shape->dataofs[(unsigned)texturecolumn];
+			(unsigned short)linecmds=(unsigned short)shape->dataofs[(unsigned short)texturecolumn];
 			ScaleMaskedLSPost(height,bufferofs+(x1>>2));
 			}
 		}
@@ -958,7 +958,7 @@ byte	mapmasks3[4][8] = {
 
 #if 0
 
-unsigned	wordmasks[8][8] = {
+unsigned short	wordmasks[8][8] = {
 {0x0080,0x00c0,0x00e0,0x00f0,0x00f8,0x00fc,0x00fe,0x00ff},
 {0x0040,0x0060,0x0070,0x0078,0x007c,0x007e,0x007f,0x807f},
 {0x0020,0x0030,0x0038,0x003c,0x003e,0x003f,0x803f,0xc03f},
@@ -970,8 +970,8 @@ unsigned	wordmasks[8][8] = {
 
 #endif
 
-int			slinex,slinewidth;
-unsigned	*linecmds;
+short			slinex,slinewidth;
+unsigned short	*linecmds;
 long		linescale;
-unsigned	maskword;
+unsigned short	maskword;
 

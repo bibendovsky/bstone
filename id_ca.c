@@ -21,7 +21,7 @@ loaded into the data segment
 #pragma warn -use
 
 
-boolean IO_FarRead (int handle, byte *dest, long length);
+boolean IO_FarRead (short handle, byte *dest, long length);
 
 
 /*
@@ -41,7 +41,7 @@ boolean IO_FarRead (int handle, byte *dest, long length);
 */
 
 byte 		*tinf;
-int			mapon;
+short			mapon;
 
 unsigned short	*mapsegs[MAPPLANES];
 maptype		*mapheaderseg[NUMMAPS];
@@ -51,7 +51,7 @@ void		*grsegs[NUMCHUNKS];
 byte		grneeded[NUMCHUNKS];
 byte		ca_levelbit,ca_levelnum;
 
-int			profilehandle,debughandle;
+short			profilehandle,debughandle;
 
 char		audioname[13]="AUDIO.";
 
@@ -100,25 +100,25 @@ huffnode	audiohuffman[255];
 #endif
 
 
-int			grhandle;		// handle to EGAGRAPH
-int			maphandle;		// handle to MAPTEMP / GAMEMAPS
-int			audiohandle;	// handle to AUDIOT / AUDIO
+short			grhandle;		// handle to EGAGRAPH
+short			maphandle;		// handle to MAPTEMP / GAMEMAPS
+short			audiohandle;	// handle to AUDIOT / AUDIO
 
 long		chunkcomplen,chunkexplen;
 
 SDMode		oldsoundmode;
 
 
-void	CAL_CarmackExpand (unsigned *source, unsigned *dest,
-		unsigned length);
+void	CAL_CarmackExpand (unsigned short *source, unsigned short *dest,
+		unsigned short length);
 
 
 #ifdef THREEBYTEGRSTARTS
 //#define	GRFILEPOS(c) (*(long *)(((byte *)grstarts)+(c)*3)&0xffffff)
-long GRFILEPOS(int c)
+long GRFILEPOS(short c)
 {
 	long value;
-	int	offset;
+	short	offset;
 
 	offset = c*3;
 
@@ -278,7 +278,7 @@ void CloseAudioFile(void)
 ============================
 */
 
-void CAL_GetGrChunkLength (int chunk)
+void CAL_GetGrChunkLength (short chunk)
 {
 	lseek(grhandle,GRFILEPOS(chunk),SEEK_SET);
 	read(grhandle,&chunkexplen,sizeof(chunkexplen));
@@ -502,16 +502,16 @@ boolean CA_LoadFile (char *filename, memptr *ptr)
 void CAL_OptimizeNodes (huffnode *table)
 {
   huffnode *node;
-  int i;
+  short i;
 
   node = table;
 
   for (i=0;i<255;i++)
   {
 	if (node->bit0 >= 256)
-	  node->bit0 = (unsigned)(table+(node->bit0-256));
+	  node->bit0 = (unsigned short)(table+(node->bit0-256));
 	if (node->bit1 >= 256)
-	  node->bit1 = (unsigned)(table+(node->bit1-256));
+	  node->bit1 = (unsigned short)(table+(node->bit1-256));
 	node++;
   }
 }
@@ -541,7 +541,7 @@ void CAL_HuffExpand(
 #if 0
 
 //  unsigned bit,byte,node,code;
-  unsigned sourceseg,sourceoff,destseg,destoff,endoff;
+  unsigned short sourceseg,sourceoff,destseg,destoff,endoff;
   huffnode *headptr;
   byte		mapmask;
 //  huffnode *nodeon;
@@ -789,10 +789,10 @@ asm	mov	ds,ax
 
 #ifdef CARMACIZED			
 
-void CAL_CarmackExpand (unsigned *source, unsigned *dest, unsigned length)
+void CAL_CarmackExpand (unsigned short *source, unsigned short *dest, unsigned short length)
 {
-	unsigned	ch,chhigh,count,offset;
-	unsigned	*copyptr, *inptr, *outptr;
+	unsigned short	ch,chhigh,count,offset;
+	unsigned short	*copyptr, *inptr, *outptr;
 
 	length/=2;
 
@@ -859,12 +859,12 @@ void CAL_CarmackExpand (unsigned *source, unsigned *dest, unsigned length)
 =
 ======================
 */
-long CA_RLEWCompress (unsigned *source, long length, unsigned *dest,
-  unsigned rlewtag)
+long CA_RLEWCompress (unsigned short *source, long length, unsigned short *dest,
+  unsigned short rlewtag)
 {
   long complength;
-  unsigned value,count,i;
-  unsigned *start,*end;
+  unsigned short value,count,i;
+  unsigned short *start,*end;
 
   start = dest;
 
@@ -918,15 +918,15 @@ long CA_RLEWCompress (unsigned *source, long length, unsigned *dest,
 ======================
 */
 
-void CA_RLEWexpand (unsigned *source, unsigned *dest,long length,
-  unsigned rlewtag)
+void CA_RLEWexpand (unsigned short *source, unsigned short *dest,long length,
+  unsigned short rlewtag)
 {
 // FIXME
 #if 0
 
 //  unsigned value,count,i;
-  unsigned *end;
-  unsigned sourceseg,sourceoff,destseg,destoff,endseg,endoff;
+  unsigned short *end;
+  unsigned short sourceseg,sourceoff,destseg,destoff,endseg,endoff;
 
 
 //
@@ -1096,7 +1096,7 @@ void CA_Startup()
 ======================
 */
 
-void CA_CacheAudioChunk (int chunk)
+void CA_CacheAudioChunk (short chunk)
 {
 	long	pos,compressed;
 #ifdef AUDIOHEADERLINKED
@@ -1203,7 +1203,7 @@ done:
 
 void CA_LoadAllSounds (void)
 {
-	unsigned	start,i;
+	unsigned short	start,i;
 
 	switch (oldsoundmode)
 	{
@@ -1257,7 +1257,7 @@ cachein:
 ======================
 */
 
-void CAL_ExpandGrChunk (int chunk, byte *source)
+void CAL_ExpandGrChunk (short chunk, byte *source)
 {
 	long	expanded;
 
@@ -1319,12 +1319,12 @@ void CAL_ExpandGrChunk (int chunk, byte *source)
 ======================
 */
 
-void CA_CacheGrChunk (int chunk)
+void CA_CacheGrChunk (short chunk)
 {
 	long	pos,compressed;
 	void*	bigbufferseg;
 	byte	*source;
-	int		next;
+	short		next;
 
 	grneeded[chunk] |= ca_levelbit;		// make sure it doesn't get removed
 	if (grsegs[chunk])
@@ -1390,12 +1390,12 @@ void CA_CacheGrChunk (int chunk)
 ======================
 */
 
-void CA_CacheScreen (int chunk)
+void CA_CacheScreen (short chunk)
 {
 	long	pos,compressed,expanded;
 	void*	bigbufferseg;
 	byte	*source;
-	int		next;
+	short		next;
 
 
 //
@@ -1439,14 +1439,14 @@ void CA_CacheScreen (int chunk)
 ======================
 */
 
-void CA_CacheMap (int mapnum)
+void CA_CacheMap (short mapnum)
 {
 	long	pos,compressed;
-	int		plane;
+	short		plane;
 	void** dest;
     void* bigbufferseg;
-	unsigned	size;
-	unsigned	*source;
+	unsigned short	size;
+	unsigned short	*source;
 #ifdef CARMACIZED
 	memptr	buffer2seg;
 	long	expanded;
@@ -1490,8 +1490,8 @@ void CA_CacheMap (int mapnum)
 		expanded = *source;
 		source++;
 		MM_GetPtr (&buffer2seg,expanded);
-		CAL_CarmackExpand (source, (unsigned *)buffer2seg,expanded);
-		CA_RLEWexpand (((unsigned *)buffer2seg)+1,*dest,size,
+		CAL_CarmackExpand (source, (unsigned short *)buffer2seg,expanded);
+		CA_RLEWexpand (((unsigned short *)buffer2seg)+1,*dest,size,
 		((mapfiletype *)tinf)->RLEWtag);
 		MM_FreePtr (&buffer2seg);
 
@@ -1531,7 +1531,7 @@ void CA_CacheMap (int mapnum)
 
 void CA_UpLevel (void)
 {
-	int	i;
+	short	i;
 
 	if (ca_levelnum==7)
 		CA_ERROR(CA_UPLEVEL_PAST_MAX);
@@ -1586,7 +1586,7 @@ void CA_DownLevel (void)
 
 void CA_ClearMarks (void)
 {
-	int i;
+	short i;
 
 	for (i=0;i<NUMCHUNKS;i++)
 		grneeded[i]&=~ca_levelbit;
@@ -1633,7 +1633,7 @@ void CA_ClearAllMarks (void)
 */
 void CA_SetGrPurge (void)
 {
-	int i;
+	short i;
 
 //
 // free graphics
@@ -1661,7 +1661,7 @@ void CA_SetGrPurge (void)
 
 void CA_SetAllPurge (void)
 {
-	int i;
+	short i;
 
 
 //
@@ -1693,7 +1693,7 @@ void CA_SetAllPurge (void)
 
 void CA_CacheMarks (void)
 {
-	int 	i,next,numcache;
+	short 	i,next,numcache;
 	long	pos,endpos,nextpos,nextendpos,compressed;
 	long	bufferstart,bufferend;	// file position of general buffer
 	byte	*source;
@@ -1832,7 +1832,7 @@ void CA_CannotOpen(char *string)
  Quit (str);
 }
 
-void UNCACHEGRCHUNK(unsigned chunk)
+void UNCACHEGRCHUNK(unsigned short chunk)
 {
     free(grsegs[chunk]);
     grsegs[chunk] = NULL;

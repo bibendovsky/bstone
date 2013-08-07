@@ -184,7 +184,7 @@ typedef struct
 {
 	activetypes active;
 	char string[36];
-	void (* routine)(int temp1);
+	void (* routine)(short temp1);
 	unsigned char fontnumber;							// Font to print text in
 	unsigned char height;								// Hight of text (Y_Offset from previous line)
 } CP_itemtype;
@@ -192,7 +192,7 @@ typedef struct
 
 typedef struct
 {
-	int allowed[4];
+	short allowed[4];
 } CustomCtrls;
 
 extern CP_itemtype MainMenu[],NewEMenu[];
@@ -207,83 +207,83 @@ void ControlPanelFree(void);
 void ControlPanelAlloc(void);
 
 void DrawMenu(CP_iteminfo *item_i,CP_itemtype *items);			
-int HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(int w));	
+short HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(short w));	
 void ClearMScreen(void);
-void DrawWindow(int x,int y,int w,int h,int wcolor);
-void DrawOutline(int x,int y,int w,int h,int color1,int color2);
+void DrawWindow(short x,short y,short w,short h,short wcolor);
+void DrawOutline(short x,short y,short w,short h,short color1,short color2);
 void WaitKeyUp(void);
 void ReadAnyControl(ControlInfo *ci);
-void TicDelay(int count);
-void CacheLump(int lumpstart,int lumpend);
-void UnCacheLump(int lumpstart,int lumpend);
-void StartCPMusic(int song);
-int  Confirm(char *string);
+void TicDelay(short count);
+void CacheLump(short lumpstart,short lumpend);
+void UnCacheLump(short lumpstart,short lumpend);
+void StartCPMusic(short song);
+short  Confirm(char *string);
 void Message(char *string);
 void CheckPause(void);
 void ShootSnd(void);
 void CheckSecretMissions(void);
 
-void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,int x,int *y,int which,int basey,void (*routine)(int w));	
-void DrawHalfStep(int x,int y,int y_spacing);
-void EraseGun(CP_iteminfo *item_i,CP_itemtype *items,int x,int y,int which);	  
-void SetTextColor(CP_itemtype *items,int hlight);
+void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,short x,short *y,short which,short basey,void (*routine)(short w));	
+void DrawHalfStep(short x,short y,short y_spacing);
+void EraseGun(CP_iteminfo *item_i,CP_itemtype *items,short x,short y,short which);	  
+void SetTextColor(CP_itemtype *items,short hlight);
 void DrawMenuGun(CP_iteminfo *iteminfo);
-void DrawStripes(int y);
+void DrawStripes(short y);
 
 void DefineMouseBtns(void);
 void DefineJoyBtns(void);
 void DefineKeyBtns(void);
 void DefineKeyMove(void);
-void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*PrintRtn)(int),int type);
+void EnterCtrlData(short index,CustomCtrls *cust,void (*DrawRtn)(short),void (*PrintRtn)(short),short type);
 
 void DrawMainMenu(void);
 void DrawSoundMenu(void);
-void DrawLoadSaveScreen(int loadsave);
+void DrawLoadSaveScreen(short loadsave);
 void DrawNewEpisode(void);
 void DrawNewGame(void);
-void DrawChangeView(int view);
+void DrawChangeView(short view);
 void DrawMouseSens(void);
 void DrawCtlScreen(void);
 void DrawCustomScreen(void);
-void DrawLSAction(int which);
-void DrawCustMouse(int hilight);
-void DrawCustJoy(int hilight);
-void DrawCustKeybd(int hilight);
-void DrawCustKeys(int hilight);
-void PrintCustMouse(int i);
-void PrintCustJoy(int i);
-void PrintCustKeybd(int i);
-void PrintCustKeys(int i);
+void DrawLSAction(short which);
+void DrawCustMouse(short hilight);
+void DrawCustJoy(short hilight);
+void DrawCustKeybd(short hilight);
+void DrawCustKeys(short hilight);
+void PrintCustMouse(short i);
+void PrintCustJoy(short i);
+void PrintCustKeybd(short i);
+void PrintCustKeys(short i);
 
-void PrintLSEntry(int w,int color);
-void TrackWhichGame(int w);
-void DrawNewGameDiff(int w);
-void FixupCustom(int w);
+void PrintLSEntry(short w,short color);
+void TrackWhichGame(short w);
+void DrawNewGameDiff(short w);
+void FixupCustom(short w);
 
 void CP_BlakeStoneSaga(void);
 void CP_NewGame(void);
 void CP_Sound(void);
-int  CP_LoadGame(int quick);
-int  CP_SaveGame(int quick);
+short  CP_LoadGame(short quick);
+short  CP_SaveGame(short quick);
 void CP_Control(void);
 void CP_ChangeView(void);
 void CP_ExitOptions(void);
 void CP_Quit(void);
 void CP_ViewScores(void);
-int  CP_EndGame(void);
-int  CP_CheckQuick(unsigned scancode);
+short  CP_EndGame(void);
+short  CP_CheckQuick(unsigned short scancode);
 void CustomControls(void);
 void MouseSensitivity(void);
 
 void DrawMenuTitle(char *title);
 void CheckForEpisodes(void);
-void HelpPresenter(char *fname,boolean continuekeys, unsigned id_cache, boolean startmusic);
-void ShadowPrint(char *string, int x, int y);
+void HelpPresenter(char *fname,boolean continuekeys, unsigned short id_cache, boolean startmusic);
+void ShadowPrint(char *string, short x, short y);
 
 //
 // VARIABLES
 //
-extern int SaveGamesAvail[10],StartGame,SoundStatus;
+extern short SaveGamesAvail[10],StartGame,SoundStatus;
 extern char SaveGameNames[10][GAME_DESCRIPTION_LEN+1], SaveName[13];
 
 enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE};	// FOR INPUT TYPES
@@ -292,10 +292,10 @@ enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE};	// FOR INPUT TYPES
 // WL_INTER
 //
 typedef struct {
-		int kill,secret,treasure;
+		short kill,secret,treasure;
 		long time;
 		} LRstruct;
 
 extern LRstruct LevelRatios[];
 
-void Write (int x,int y,char *string);
+void Write (short x,short y,char *string);

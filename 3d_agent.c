@@ -10,18 +10,18 @@
 
 void InitWeaponBounce(void);
 void HandleWeaponBounce(void);
-void VL_LatchToScreen(unsigned source, int width, int height, int x, int y);
-void StartDamageFlash(int damage);
+void VL_LatchToScreen(unsigned short source, short width, short height, short x, short y);
+void StartDamageFlash(short damage);
 void StartBonusFlash (void);
-int CalcAngle(objtype *from_obj, objtype *to_obj);
-void PushWall (int checkx, int checky, int dir);
-void OperateDoor (int door);
+short CalcAngle(objtype *from_obj, objtype *to_obj);
+void PushWall (short checkx, short checky, short dir);
+void OperateDoor (short door);
 void TryDropPlasmaDetonator(void);
 void ClearMemory (void);
 void VH_UpdateScreen();
 void InitAreas (void);
 void FirstSighting(objtype* ob);
-void OpenDoor(int door);
+void OpenDoor(short door);
 
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
@@ -62,7 +62,7 @@ void OpenDoor(int door);
 
 // Text "InfoArea" defines
 #define INFOAREA_X				3
-#define INFOAREA_Y				((unsigned)200-STATUSLINES+3)
+#define INFOAREA_Y				((unsigned short)200-STATUSLINES+3)
 #define INFOAREA_W				109
 #define INFOAREA_H				37
 
@@ -100,7 +100,7 @@ long		thrustspeed;
 
 //unsigned	plux,pluy;			// player coordinates scaled to unsigned
 
-int			anglefrac;
+short			anglefrac;
 
 objtype		*LastAttacker;
 
@@ -113,8 +113,8 @@ char term_com_name[13]= {"TERM_CMD."};
 char term_msg_name[13]= {"TERM_MSG."};
 #endif
 
-unsigned player_oldtilex;
-unsigned player_oldtiley;
+unsigned short player_oldtilex;
+unsigned short player_oldtiley;
 
 
 /*
@@ -187,19 +187,19 @@ char  LitAmmo[2][22] = {{GL0,GL0,GL0,GL0,GL0,GL0,GL0,YL0,YL0,YL0,YL0,YL0,YL0,YL0
 #define IA_MAX_LINE			30
 typedef struct InfoArea_Struct
 {
-	int	x,y;
-	int	text_color;
-	int	backgr_color;
-	int 	left_margin;
+	short	x,y;
+	short	text_color;
+	short	backgr_color;
+	short 	left_margin;
 	char	delay;
 	char numanims;
 	char framecount;
 } InfoArea_Struct;
 
-unsigned LastMsgPri = 0;
+unsigned short LastMsgPri = 0;
 short MsgTicsRemain = 0;
 classtype LastInfoAttacker = nothing;
-int LastInfoAttacker_Cloaked = 0;
+short LastInfoAttacker_Cloaked = 0;
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
 
@@ -217,14 +217,14 @@ char InitInfoArea_COUNT = 3;
 char ClearInfoArea_COUNT = 3;
 
 void DrawWeapon (void);
-void GiveWeapon (int weapon);
-void	GiveAmmo (int ammo);
+void GiveWeapon (short weapon);
+void	GiveAmmo (short ammo);
 void DrawGAmmoNum(void);
 void DrawMAmmoNum(void);
 void DrawPDAmmoMsg(void);
 void ComputeAvailWeapons(void);
 void SW_HandleActor(objtype *obj);
-void SW_HandleStatic(statobj_t *stat,unsigned tilex, unsigned tiley);
+void SW_HandleStatic(statobj_t *stat,unsigned short tilex, unsigned short tiley);
 
 //===========================================================================
 
@@ -239,8 +239,8 @@ void SelectItem (void);
 
 //----------
 
-void SpawnPlayer (int tilex, int tiley, int dir);
-void Thrust (int angle, long speed);
+void SpawnPlayer (short tilex, short tiley, short dir);
+void Thrust (short angle, long speed);
 boolean TryMove (objtype *ob);
 void T_Player (objtype *ob);
 
@@ -273,7 +273,7 @@ void	T_Stand (objtype *ob);
 
 void CheckWeaponChange (void)
 {
-	int	i,buttons,last;
+	short	i,buttons,last;
 
 	for (i=wp_autocharge;i<=wp_bfg_cannon;i++)
 	{
@@ -312,8 +312,8 @@ void CheckWeaponChange (void)
 void ControlMovement (objtype *ob)
 {
 	long	oldx,oldy;
-	int		angle,maxxmove;
-	int		angleunits;
+	short		angle,maxxmove;
+	short		angleunits;
 	long	speed;
 
 	thrustspeed = 0;
@@ -445,9 +445,9 @@ void ControlMovement (objtype *ob)
 =
 ==================
 */
-void StatusAllDrawPic(unsigned x, unsigned y, unsigned picnum)
+void StatusAllDrawPic(unsigned short x, unsigned short y, unsigned short picnum)
 {
-	unsigned	temp;
+	unsigned short	temp;
 
 #ifdef PAGEFLIP
 
@@ -476,9 +476,9 @@ void StatusAllDrawPic(unsigned x, unsigned y, unsigned picnum)
 }
 
 
-void JLatchDrawPic (unsigned x, unsigned y, unsigned picnum)
+void JLatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum)
 {
-	unsigned wide, height, source;
+	unsigned short wide, height, source;
 
 	x <<= 3;
 	wide = pictable[picnum-STARTPICS].width;
@@ -498,9 +498,9 @@ void JLatchDrawPic (unsigned x, unsigned y, unsigned picnum)
 =
 ===============
 */
-void	LatchNumber (int x, int y, int width, long number)
+void	LatchNumber (short x, short y, short width, long number)
 {
-	unsigned	length,wide=0,c;
+	unsigned short	length,wide=0,c;
 	char	str[20];
 
 	ltoa(number,str,10);
@@ -577,7 +577,7 @@ void DrawHealthNum(void)
 //---------------------------------------------------------------------------
 // TakeDamage()
 //---------------------------------------------------------------------------
-void	TakeDamage (int points, objtype *attacker)
+void	TakeDamage (short points, objtype *attacker)
 {
 	LastAttacker = attacker;
 
@@ -620,7 +620,7 @@ void	TakeDamage (int points, objtype *attacker)
 //---------------------------------------------------------------------------
 // HealSelf()
 //---------------------------------------------------------------------------
-void	HealSelf(int points)
+void	HealSelf(short points)
 {
 	gamestate.health += points;
 	if (gamestate.health > 100)
@@ -792,7 +792,7 @@ void DrawKeyPics(void)
 //---------------------------------------------------------------------------
 // GiveKey
 //---------------------------------------------------------------------------
-void GiveKey (int key)
+void GiveKey (short key)
 {
 	gamestate.numkeys[key]++;
 	DrawKeys();
@@ -801,7 +801,7 @@ void GiveKey (int key)
 //---------------------------------------------------------------------------
 // TakeKey
 //---------------------------------------------------------------------------
-void TakeKey (int key)
+void TakeKey (short key)
 {
 	gamestate.numkeys[key]--;
 	DrawKeys();
@@ -845,7 +845,7 @@ void DrawWeaponPic(void)
 //---------------------------------------------------------------------------
 // GiveWeapon()
 //---------------------------------------------------------------------------
-void GiveWeapon (int weapon)
+void GiveWeapon (short weapon)
 {
 	GiveAmmo (6);
 
@@ -879,8 +879,8 @@ void GiveWeapon (int weapon)
 //---------------------------------------------------------------------------
 void DrawAmmo(boolean ForceRefresh)
 {
-	int temp;
-   unsigned ammo,max_ammo;
+	short temp;
+   unsigned short ammo,max_ammo;
 
    ComputeAvailWeapons();
 
@@ -1058,7 +1058,7 @@ void DrawAmmoGuage(void)
 //---------------------------------------------------------------------------
 void UpdateRadarGuage(void)
 {
-	int temp;
+	short temp;
 
 	if (gamestate.rpower)
 	{
@@ -1103,8 +1103,8 @@ void DrawRadarGuage(void)
 //---------------------------------------------------------------------------
 void DrawLedStrip(short x,short y,short frac,short max)
 {
-	int ypos;
-	unsigned amount;
+	short ypos;
+	unsigned short amount;
 	char leds;
 
 	leds = frac;
@@ -1135,7 +1135,7 @@ void DrawLedStrip(short x,short y,short frac,short max)
 //---------------------------------------------------------------------------
 // GiveAmmo()
 //---------------------------------------------------------------------------
-void	GiveAmmo (int ammo)
+void	GiveAmmo (short ammo)
 {
 
 #if MP_NO_MORE_AMMO > MP_BONUS
@@ -1259,7 +1259,7 @@ void ComputeAvailWeapons(void)
 //---------------------------------------------------------------------------
 // TakePlasmaDetonator()
 //---------------------------------------------------------------------------
-void	TakePlasmaDetonator(int count)
+void	TakePlasmaDetonator(short count)
 {
 	if (gamestate.plasma_detonators < count)
 		gamestate.plasma_detonators = 0;
@@ -1270,7 +1270,7 @@ void	TakePlasmaDetonator(int count)
 //---------------------------------------------------------------------------
 // GivePlasmaDetonator()
 //---------------------------------------------------------------------------
-void GivePlasmaDetonator(int count)
+void GivePlasmaDetonator(short count)
 {
 	gamestate.plasma_detonators += count;
 
@@ -1290,7 +1290,7 @@ void GivePlasmaDetonator(int count)
 //---------------------------------------------------------------------------
 // GiveToken()
 //---------------------------------------------------------------------------
-void	GiveToken (int tokens)
+void	GiveToken (short tokens)
 {
 #if MP_NO_MORE_TOKENS > MP_BONUS
 	if (LastMsgType == MT_NO_MO_FOOD_TOKENS)
@@ -1360,7 +1360,7 @@ boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,short DisplayTime,short
 //--------------------------------------------------------------------------
 void ClearInfoArea(void)
 {
-	unsigned i,old_ofs;
+	unsigned short i,old_ofs;
 
 #if IN_DEVELOPMENT
 	if (gamestate.flags & GS_SHOW_OVERHEAD)
@@ -1541,7 +1541,7 @@ void DrawInfoArea(void)
 //	short length,i;
 	char *first_ch;
 	char *scan_ch,temp;
-	unsigned old_ofs;
+	unsigned short old_ofs;
 
 #if IN_DEVELOPMENT
 	if (gamestate.flags & GS_SHOW_OVERHEAD)
@@ -1576,7 +1576,7 @@ void DrawInfoArea(void)
 
 			if (*first_ch != TP_RETURN_CHAR)
 			{
-				int i;
+				short i;
 				char temp_color;
 
 				temp_color = fontcolor;
@@ -1626,7 +1626,7 @@ char *HandleControlCodes(char *first_ch)
 //	piShapeInfo *shape_info;
 	piShapeInfo *shape;
 	piAnimInfo *anim;
-	unsigned shapenum;
+	unsigned short shapenum;
 	short length,width;
 	char *s;
 
@@ -1637,7 +1637,7 @@ char *HandleControlCodes(char *first_ch)
 	*(first_ch+1)=toupper(*(first_ch+1));
 #endif
 
-	switch (*((unsigned *)first_ch)++)
+	switch (*((unsigned short *)first_ch)++)
 	{
 
 		// INIT ANIMATION ---------------------------------------------------
@@ -1722,7 +1722,7 @@ char *HandleControlCodes(char *first_ch)
 short DrawShape(short x, short y, short shapenum, pisType shapetype)
 {
 	short width;
-	unsigned i,old_ofs,shade;
+	unsigned short i,old_ofs,shade;
 
 //	width=TP_BoxAroundShape(x,y,shapenum,shapetype);
 
@@ -1943,7 +1943,7 @@ void UpdateStatusBar(void)
 //---------------------------------------------------------------------------
 void ForceUpdateStatusBar(void)
 {
-	unsigned old_ofs,i;
+	unsigned short old_ofs,i;
 
 	old_ofs = bufferofs;
 
@@ -1981,7 +1981,7 @@ void ForceUpdateStatusBar(void)
 ===================
 */
 
-unsigned static_points[]={	100,		// money bag
+unsigned short static_points[]={	100,		// money bag
 											500,     // loot
 											250,     // gold1
 											500,     // gold2
@@ -1990,7 +1990,7 @@ unsigned static_points[]={	100,		// money bag
 											5000     // bonus
 };
 
-unsigned static_health[][3] =
+unsigned short static_health[][3] =
 {
 	{100,HEALTH2SND,-1},			 					// Full Heal
 	{ 30,HEALTH1SND,-1},			 					// First Aid
@@ -2016,7 +2016,7 @@ void GetBonus (statobj_t *check)
 	case	bo_yellow_key:
 	case	bo_blue_key:
 	{
-		unsigned keynum = check->itemnumber - bo_red_key;
+		unsigned short keynum = check->itemnumber - bo_red_key;
 
 		if (gamestate.numkeys[keynum] >= MAXKEYS)
 			return;
@@ -2194,7 +2194,7 @@ void writeTokenStr(char *str)
 
 boolean TryMove (objtype *ob)
 {
-	int			xl,yl,xh,yh,x,y,xx,yy;
+	short			xl,yl,xh,yh,x,y,xx,yy;
 	objtype		*check;
 	long		deltax,deltay;
 
@@ -2339,15 +2339,15 @@ boolean ClipMove (objtype *ob, long xmove, long ymove)
 ===================
 */
 
-void Thrust (int angle, long speed)
+void Thrust (short angle, long speed)
 {
 	extern byte TravelTable[MAPSIZE][MAPSIZE];
 	objtype dumb;
 	long xmove,ymove;
 	long	slowmax;
-	unsigned	offset, *map[2];
+	unsigned short	offset, *map[2];
 	short dx,dy;
-	int dangle;
+	short dangle;
    boolean ignore_map1;
 
 	thrustspeed += speed;
@@ -2460,7 +2460,7 @@ boolean GAN_HiddenArea;
 //------------------------------------------------------------------------
 char GetAreaNumber(char tilex, char tiley)
 {
-	unsigned offset, *map, *ptr[2], loop;
+	unsigned short offset, *map, *ptr[2], loop;
 	byte areanumber;
 
 	GAN_HiddenArea = false;
@@ -2510,7 +2510,7 @@ char GetAreaNumber(char tilex, char tiley)
 //------------------------------------------------------------------------
 // ValidAreaTile()
 //------------------------------------------------------------------------
-byte ValidAreaTile(unsigned *ptr)
+byte ValidAreaTile(unsigned short *ptr)
 {
 	switch (*ptr)
 	{
@@ -2579,9 +2579,9 @@ void Cmd_Fire (void)
 void Cmd_Use (void)
 {
 	objtype 	*check;
-	int			checkx,checky,doornum,dir;
-	unsigned iconnum;
-	unsigned offset,new_level;
+	short			checkx,checky,doornum,dir;
+	unsigned short iconnum;
+	unsigned short offset,new_level;
 	unsigned char static interrogate_delay=0;
 	boolean tryDetonator = false;
 
@@ -2644,7 +2644,7 @@ void Cmd_Use (void)
 
 				if ((new_floor=InputFloor()) != -1 && new_floor != gamestate.mapon)
 				{
-					int angle = player->angle;
+					short angle = player->angle;
 
 					gamestuff.level[gamestate.mapon].ptilex = player->tilex;
 					gamestuff.level[gamestate.mapon].ptiley = player->tiley;
@@ -2702,7 +2702,7 @@ void Cmd_Use (void)
 
 			case FOODTILE:
 			case SODATILE:
-				OperateConcession((int)actorat[checkx][checky]);
+				OperateConcession((short)actorat[checkx][checky]);
 			break;
 
 			default:
@@ -3206,7 +3206,7 @@ void ShowOverheadChunk(void)
 //--------------------------------------------------------------------------
 void LoadOverheadChunk(short tpNum)
 {
-	int handle;
+	short handle;
 	long offset;
 	char chunk[5]="OVxx";
 
@@ -3242,7 +3242,7 @@ void LoadOverheadChunk(short tpNum)
 //--------------------------------------------------------------------------
 void SaveOverheadChunk(short tpNum)
 {
-	int handle;
+	short handle;
 	long cksize=4096+sizeof(statsInfoType);
 	char chunk[5]="OVxx";
 
@@ -3527,7 +3527,7 @@ void B_GAliFunc()
 //--------------------------------------------------------------------------
 void B_EManFunc()
 {
-	unsigned temp,i;
+	unsigned short temp,i;
 
 	SD_PlaySound(EXTRA_MANSND);
 	fontnumber = 2;
@@ -3726,7 +3726,7 @@ void CheckPinballBonus(long points)
 #define TERM_SCREEN_XOFS				(TERM_BACK_XOFS+19)
 #define TERM_SCREEN_YOFS				(TERM_BACK_YOFS+14)
 
-static unsigned tcursor_x = TERM_SCREEN_XOFS,
+static unsigned short tcursor_x = TERM_SCREEN_XOFS,
 					 tcursor_y = TERM_SCREEN_YOFS;
 
 
@@ -3835,7 +3835,7 @@ void TerminalPrint(char *msg,boolean FastPrint)
 			//  Handle Control Codes
 			//
 
-			switch (*((unsigned *)msg)++)
+			switch (*((unsigned short *)msg)++)
 			{
 				// FONT COLOR
 				//
@@ -4001,7 +4001,7 @@ void ActivateTerminal(boolean skiplink)
    #define MAX_INPUT		30
    char buffer[MAX_INPUT];
 	boolean temp_caps = allcaps,ExitMoFo;
-	unsigned oldwidth;
+	unsigned short oldwidth;
 	US_CursorStruct TermCursor = {'@',0,0x58,2};			// Holds Font#, etc.
    short msgnum;
 
@@ -4278,12 +4278,12 @@ void ActivateTerminal(boolean skiplink)
 //---------------------------------------------------------------------------
 // FloorCheat()
 //---------------------------------------------------------------------------
-void FloorCheat(unsigned RadarFlags)
+void FloorCheat(unsigned short RadarFlags)
 {
 	#define FC_EMBED_COLOR(ColorCodes)	{_fstrncpy(&pbuffer[pos],ColorCodes,5);pos+=5;}
 	#define FC_NORM_COLOR()					FC_EMBED_COLOR("^FC57")
 
-	unsigned x,y,pos;
+	unsigned short x,y,pos;
 	objtype *actor;
    char *pbuffer;
    memptr buffer;
@@ -4331,7 +4331,7 @@ void FloorCheat(unsigned RadarFlags)
 				pbuffer[pos++]='!';
 			}
 			else
-			if (((unsigned)actor && (unsigned)actor<108) ||			// 108 == LAST WALL TILE
+			if (((unsigned short)actor && (unsigned short)actor<108) ||			// 108 == LAST WALL TILE
 
 #if IN_DEVELOPMENT
 
@@ -4339,7 +4339,7 @@ void FloorCheat(unsigned RadarFlags)
 
 #endif
 
-				(((unsigned)actor & 0x80) && actor<objlist && (!DebugOk))) 	// Treat doors as walls in NoDebug
+				(((unsigned short)actor & 0x80) && actor<objlist && (!DebugOk))) 	// Treat doors as walls in NoDebug
 			{
 				// Mark Wall piece
 				//
@@ -4466,7 +4466,7 @@ void FloorCheat(unsigned RadarFlags)
 
 
 
-void SpawnPlayer (int tilex, int tiley, int dir)
+void SpawnPlayer (short tilex, short tiley, short dir)
 {
 	if (gamestuff.level[gamestate.mapon].ptilex &&
 		 gamestuff.level[gamestate.mapon].ptiley)
@@ -4506,8 +4506,8 @@ void SpawnPlayer (int tilex, int tiley, int dir)
 void	GunAttack (objtype *ob)
 {
 	objtype *check,*closest,*oldclosest;
-	int		damage;
-	int		dx,dy,dist;
+	short		damage;
+	short		dx,dy,dist;
 	long	viewdist;
    boolean skip = false;
 
@@ -4618,7 +4618,7 @@ void	GunAttack (objtype *ob)
 void	T_Attack (objtype *ob)
 {
 	atkinf_t	*cur;
-	int x, wp_start;
+	short x, wp_start;
 
 	if (noShots)
 	{
@@ -5032,7 +5032,7 @@ void SW_HandleActor(objtype *obj)
 //-------------------------------------------------------------------------
 // SW_HandleStatic() - Handle all statics connected to a smart switch.
 //-------------------------------------------------------------------------
-void SW_HandleStatic(statobj_t *stat, unsigned tilex, unsigned tiley)
+void SW_HandleStatic(statobj_t *stat, unsigned short tilex, unsigned short tiley)
 {
 	switch (stat->itemnumber)
    {
@@ -5062,7 +5062,7 @@ void SW_HandleStatic(statobj_t *stat, unsigned tilex, unsigned tiley)
 //							FALSE - Keep switch in map
 //
 //-------------------------------------------------------------------------
-boolean OperateSmartSwitch(unsigned tilex, unsigned tiley, char Operation, boolean Force)
+boolean OperateSmartSwitch(unsigned short tilex, unsigned short tiley, char Operation, boolean Force)
 {
 	typedef enum
    {
@@ -5077,7 +5077,7 @@ boolean OperateSmartSwitch(unsigned tilex, unsigned tiley, char Operation, boole
    objtype *obj;
    statobj_t *stat;
    unsigned char tile, DoorNum;
-   unsigned iconnum;
+   unsigned short iconnum;
 
 	//
    // Get some information about what

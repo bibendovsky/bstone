@@ -6,10 +6,10 @@
 
 
 void VH_UpdateScreen();
-void TakeDamage(int points, objtype* attacker);
+void TakeDamage(short points, objtype* attacker);
 void SetPlaneViewSize (void);
-void HealSelf(int points);
-void GiveWeapon (int weapon);
+void HealSelf(short points);
+void GiveWeapon (short weapon);
 void DrawScore(void);
 void SetPlaneViewSize (void);
 
@@ -39,7 +39,7 @@ void SetPlaneViewSize (void);
 
 boolean ForceLoadDefault=false;
 
-int DebugKeys (void);
+short DebugKeys (void);
 
 /*
 =============================================================================
@@ -60,9 +60,9 @@ boolean PP_step=false;
 */
 void PicturePause (void)
 {
-	int			i;
+	short			i;
 	byte		p;
-	unsigned	x;
+	unsigned short	x;
 	byte		*dest,*src;
 	memptr		buffer;
 
@@ -153,8 +153,8 @@ asm	int	0x10
 }
 
 #endif
-int	maporgx;
-int	maporgy;
+short	maporgx;
+short	maporgy;
 enum {mapview,tilemapview,actoratview,visview}	viewtype;
 
 void ViewMap (void);
@@ -170,7 +170,7 @@ void ViewMap (void);
 */
 void DebugMemory (void)
 {
-	int	i,temp;
+	short	i,temp;
 	char    scratch[80],str[10];
 	long	mem;
 	spritetype *block;
@@ -254,7 +254,7 @@ void DebugMemory (void)
 
 void CountObjects (void)
 {
-	int	i,total,count,active,inactive,doors;
+	short	i,total,count,active,inactive,doors;
 	objtype	*obj;
 
 	CenterWindow (16,7);
@@ -362,8 +362,8 @@ static	char	buf[10];
 
 	boolean			done;
 	ScanCode		scan;
-	int				i,j,k,x;
-	int				sound;
+	short				i,j,k,x;
+	short				sound;
 	longword		l;
 	memptr			addr;
 	PageListStruct	*page;
@@ -422,7 +422,7 @@ static	char	buf[10];
 				bufferofs += 32*SCREENWIDTH;
 				postx = 128;
 				postwidth = 1;
-				postsource = ((long)((unsigned)addr))<<16;
+				postsource = ((long)((unsigned short)addr))<<16;
 				for (x=0;x<64;x++,postx++,postsource+=64)
 				{
 					wallheight[postx] = 256;
@@ -464,7 +464,7 @@ static	char	buf[10];
 				for (j = 0;j < page->length;j += 32)
 				{
 					byte v = dp[j];
-					int v2 = (unsigned)v;
+					short v2 = (unsigned short)v;
 					v2 -= 128;
 					v2 /= 4;
 					if (v2 < 0)
@@ -540,7 +540,7 @@ static	char	buf[10];
 //
 // NOTE: Assumes that 0 is the lowest value
 //---------------------------------------------------------------------------
-unsigned IncRange(unsigned Value,unsigned MaxValue)
+unsigned short IncRange(unsigned short Value,unsigned short MaxValue)
 {
 	if (Value == MaxValue)
    	Value = 0;
@@ -555,7 +555,7 @@ unsigned IncRange(unsigned Value,unsigned MaxValue)
 //
 // NOTE: Assumes that 0 is the lowest value
 //---------------------------------------------------------------------------
-unsigned DecRange(unsigned Value,unsigned MaxValue)
+unsigned short DecRange(unsigned short Value,unsigned short MaxValue)
 {
 	if (Value == 0)
 		Value = MaxValue;
@@ -581,11 +581,11 @@ char TestQuickSaveMsg[] = {"QUICK SAVE TEST\n ENTER COUNT:"};
 #endif
 
 
-int DebugKeys (void)
+short DebugKeys (void)
 {
 	char str[3];
 	boolean esc;
-	int level,i;
+	short level,i;
 
    if (Keyboard[sc_A])		// A = Show Actors on AutoMap
 	{
@@ -769,7 +769,7 @@ int DebugKeys (void)
    }
 	else if (Keyboard[sc_U])			// Unlock All Floors
 	{
-   	int i;
+   	short i;
 		CenterWindow (24,3);
 	  	US_PrintCentered ("Unlock All Floors!");
 		VW_UpdateScreen();
@@ -948,8 +948,8 @@ int DebugKeys (void)
 
 void OverheadRefresh (void)
 {
-	unsigned	x,y,endx,endy,sx,sy;
-	unsigned	tile;
+	unsigned short	x,y,endx,endy,sx,sy;
+	unsigned short	tile;
 
 
 	endx = maporgx+VIEWTILEX;
@@ -977,7 +977,7 @@ void OverheadRefresh (void)
 				break;
 #endif
 			case actoratview:
-				tile = (unsigned)actorat[x][y];
+				tile = (unsigned short)actorat[x][y];
 				break;
 			}
 

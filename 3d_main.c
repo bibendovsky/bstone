@@ -43,16 +43,16 @@
 void ConnectBarriers(void);
 void FreeMusic(void);
 void ClearMemory (void);
-void CA_CacheScreen (int chunk);
+void CA_CacheScreen (short chunk);
 void VH_UpdateScreen();
-void PlayDemo (int demonumber);
+void PlayDemo (short demonumber);
 void	DrawHighScores(void);
 void freed_main();
-void PreloadUpdate(unsigned current, unsigned total);
+void PreloadUpdate(unsigned short current, unsigned short total);
 void OpenAudioFile(void);
 
 
-int _argc;
+short _argc;
 char** _argv;
 
 
@@ -76,7 +76,7 @@ char** _argv;
 =============================================================================
 */
 
-extern int pickquick;
+extern short pickquick;
 
 
 void DrawCreditsPage(void);
@@ -106,37 +106,37 @@ void InitPlaytemp(void);
 char QuitMsg[] = {"Unit: $%02x Error: $%02x"};
 
 #ifdef CEILING_FLOOR_COLORS
-unsigned TopColor,BottomColor;
+unsigned short TopColor,BottomColor;
 #endif
 
 boolean         nospr;
 boolean         IsA386;
 
-int dirangle[9] = {0,ANGLES/8,2*ANGLES/8,3*ANGLES/8,4*ANGLES/8,5*ANGLES/8,6*ANGLES/8,7*ANGLES/8,ANGLES};
+short dirangle[9] = {0,ANGLES/8,2*ANGLES/8,3*ANGLES/8,4*ANGLES/8,5*ANGLES/8,6*ANGLES/8,7*ANGLES/8,ANGLES};
 
 //
 // proejection variables
 //
 fixed           focallength;
-unsigned        screenofs;
-int             viewwidth;
-int             viewheight;
-int             centerx;
-int             shootdelta;                     // pixels away from centerx a target can be
+unsigned short        screenofs;
+short             viewwidth;
+short             viewheight;
+short             centerx;
+short             shootdelta;                     // pixels away from centerx a target can be
 fixed           scale,maxslope;
 long            heightnumerator;
-int                     minheightdiv;
+short                     minheightdiv;
 
 
 boolean         startgame,loadedgame;
-int             mouseadjustment;
+short             mouseadjustment;
 
 char	configname[13]="CONFIG.";
 
 short view_xl,view_xh,view_yl,view_yh;
 
 #if IN_DEVELOPMENT
-unsigned	democount=0,jim=0;
+unsigned short	democount=0,jim=0;
 #endif
 
 /*
@@ -174,7 +174,7 @@ void CalcSpeedRating()
 
 void WriteConfig(void)
 {
-	int                     file;
+	short                     file;
 
 	MakeDestPath(configname);
 	file = open(tempPath,O_CREAT | O_BINARY | O_WRONLY,
@@ -222,9 +222,9 @@ void WriteConfig(void)
 */
 
 boolean ShowQuickMsg;
-void NewGame (int difficulty,int episode)
+void NewGame (short difficulty,short episode)
 {
-	unsigned oldf=gamestate.flags,loop;
+	unsigned short oldf=gamestate.flags,loop;
 
 	InitPlaytemp();
 	playstate = ex_stillplaying;
@@ -316,7 +316,7 @@ long checksum;
 //--------------------------------------------------------------------------
 void InitPlaytemp()
 {
-	int handle;
+	short handle;
 	long size;
 
 	MakeDestPath(PLAYTEMP_FILE);
@@ -329,9 +329,9 @@ void InitPlaytemp()
 //--------------------------------------------------------------------------
 // DoChecksum()
 //--------------------------------------------------------------------------
-long DoChecksum(byte *source,unsigned size,long checksum)
+long DoChecksum(byte *source,unsigned short size,long checksum)
 {
-	unsigned i;
+	unsigned short i;
 
 	for (i=0;i<size-1;i++)
 		checksum += source[i]^source[i+1];
@@ -342,7 +342,7 @@ long DoChecksum(byte *source,unsigned size,long checksum)
 //--------------------------------------------------------------------------
 // FindChunk()
 //--------------------------------------------------------------------------
-long FindChunk(int file, char *chunk)
+long FindChunk(short file, char *chunk)
 {
 	long chunklen;
 	char fchunk[5]={0,0,0,0,0};
@@ -366,7 +366,7 @@ long FindChunk(int file, char *chunk)
 //--------------------------------------------------------------------------
 // NextChunk()
 //--------------------------------------------------------------------------
-long NextChunk(int file)
+long NextChunk(short file)
 {
 	long chunklen;
 	char fchunk[5]={0,0,0,0,0};
@@ -386,9 +386,9 @@ char LS_current=-1,LS_total=-1;
 //--------------------------------------------------------------------------
 // ReadInfo()
 //--------------------------------------------------------------------------
-void ReadInfo(boolean decompress,char *dst, unsigned size, int file)
+void ReadInfo(boolean decompress,char *dst, unsigned short size, short file)
 {
-	unsigned csize,dsize;
+	unsigned short csize,dsize;
 
 	PreloadUpdate(LS_current++,LS_total);
 
@@ -411,9 +411,9 @@ void ReadInfo(boolean decompress,char *dst, unsigned size, int file)
 //--------------------------------------------------------------------------
 // WriteInfo()
 //--------------------------------------------------------------------------
-unsigned WriteInfo(boolean compress, char *src, unsigned size, int file)
+unsigned short WriteInfo(boolean compress, char *src, unsigned short size, short file)
 {
-	unsigned csize;
+	unsigned short csize;
 
 	PreloadUpdate(LS_current++,LS_total);
 
@@ -446,20 +446,20 @@ boolean LoadLevel(short levelnum)
 {
 	extern boolean ShowQuickMsg;
 	extern boolean ForceLoadDefault;
-	extern unsigned destoff;
+	extern unsigned short destoff;
 
 	boolean oldloaded=loadedgame;
 	long oldchecksum;
 	objtype *ob;
 	statobj_t *statptr;
-	int handle,picnum;
+	short handle,picnum;
 	void* temp;
-	unsigned count;
+	unsigned short count;
 	char *ptr;
 	char chunk[5]="LVxx";
 
-extern int nsd_table[];
-extern int sm_table[];
+extern short nsd_table[];
+extern short sm_table[];
 
 char mod;
 
@@ -591,7 +591,7 @@ char mod;
 
 	if (oldchecksum != checksum)
 	{
-		int old_wx=WindowX,old_wy=WindowY,old_ww=WindowW,old_wh=WindowH,
+		short old_wx=WindowX,old_wy=WindowY,old_ww=WindowW,old_wh=WindowH,
 			 old_px=px,old_py=py;
 
 		WindowX=0; WindowY=16; WindowW=320; WindowH=168;
@@ -640,14 +640,14 @@ boolean SaveLevel(short levelnum)
 // FIXME
 #if 0
 	objtype *ob;
-	int handle;
+	short handle;
 	struct ffblk finfo;
 	long offset,cksize;
 	char chunk[5]="LVxx";
-	unsigned gflags = gamestate.flags;
+	unsigned short gflags = gamestate.flags;
 	boolean rt_value=false;
 	memptr temp;
-	unsigned count;
+	unsigned short count;
 	char *ptr;
 	char oldmapon;
 
@@ -755,10 +755,10 @@ exit_func:;
 //--------------------------------------------------------------------------
 // DeleteChunk()
 //--------------------------------------------------------------------------
-long DeleteChunk(int handle, char *chunk)
+long DeleteChunk(short handle, char *chunk)
 {
 	long filesize,cksize,offset,bmove;
-	int dhandle;
+	short dhandle;
 
 	lseek(handle,0,SEEK_SET);
 	filesize=lseek(handle,0,SEEK_END);
@@ -815,11 +815,11 @@ char SavegameInfoText[]="\n\r"
 //--------------------------------------------------------------------------
 // LoadTheGame()
 //--------------------------------------------------------------------------
-boolean LoadTheGame(int handle)
+boolean LoadTheGame(short handle)
 {
-	extern int lastmenumusic;
+	extern short lastmenumusic;
 
-	int shandle;
+	short shandle;
 	long cksize;
 	void* temp=NULL;
 	boolean rt_value=false;
@@ -843,7 +843,7 @@ boolean LoadTheGame(int handle)
    {
 		// Old Version of game
 
-		int old_wx=WindowX,old_wy=WindowY,old_ww=WindowW,old_wh=WindowH,
+		short old_wx=WindowX,old_wy=WindowY,old_ww=WindowW,old_wh=WindowH,
 			 old_px=px,old_py=py;
 
 		WindowX=0; WindowY=16; WindowW=320; WindowH=168;
@@ -929,13 +929,13 @@ cleanup:;
 //--------------------------------------------------------------------------
 // SaveTheGame()
 //--------------------------------------------------------------------------
-boolean SaveTheGame(int handle, char *description)
+boolean SaveTheGame(short handle, char *description)
 {
 // FIXME
 #if 0
 	struct ffblk finfo;
 	unsigned long cksize,offset;
-	int shandle;
+	short shandle;
 	memptr temp;
 	char nbuff[GAME_DESCRIPTION_LEN+1];
 	boolean rt_value=false,exists;
@@ -1023,7 +1023,7 @@ cleanup:;
 //--------------------------------------------------------------------------
 boolean LevelInPlaytemp(char levelnum)
 {
-	int handle;
+	short handle;
 	char chunk[5]="LVxx";
 	boolean rt_value;
 
@@ -1067,7 +1067,7 @@ boolean CheckDiskSpace(long needed,char *text,cds_io_type io_type)
 
 	if (avail < needed)
 	{
-		unsigned old_DS=_DS;
+		unsigned short old_DS=_DS;
 
 		switch (io_type)
 		{
@@ -1108,7 +1108,7 @@ void CleanUpDoors_N_Actors(void)
    objtype *obj;
    objtype **actor_ptr;
    byte *tile_ptr;
-	unsigned door;
+	unsigned short door;
 
    actor_ptr = (objtype **)actorat;
 	tile_ptr = (byte *)tilemap;
@@ -1178,7 +1178,7 @@ void ClearNClose()
 
 		doorobjlist[doornum].action = dr_closed;		// this door is closed!
 		doorposition[doornum]=0;							// draw it closed!
-		(unsigned)actorat[tx][ty] = doornum | 0x80;	// make it solid!
+		(unsigned short)actorat[tx][ty] = doornum | 0x80;	// make it solid!
 	}
 }
 
@@ -1276,13 +1276,13 @@ void ShutdownId (void)
 
 void CalcProjection (long focal)
 {
-	int             i;
+	short             i;
 	long            intang;
 	float   angle;
 	double  tang;
 	double  planedist;
 	double  globinhalf;
-	int             halfview;
+	short             halfview;
 	double  halfangle,facedist;
 
 
@@ -1368,7 +1368,7 @@ boolean DoMovie(movie_t movie, void* palette)
 
 boolean MS_CheckParm (char *check)
 {
-	int             i;
+	short             i;
 	char    *parm;
 
 	for (i = 1;i<_argc;i++)
@@ -1418,7 +1418,7 @@ void LoadFonts(void)
 ==========================
 */
 
-boolean SetViewSize (unsigned width, unsigned height)
+boolean SetViewSize (unsigned short width, unsigned short height)
 {
 	viewwidth = width&~15;                  // must be divisable by 16
 	viewheight = height&~1;                 // must be even
@@ -1445,9 +1445,9 @@ boolean SetViewSize (unsigned width, unsigned height)
 }
 
 
-void ShowViewSize (int width)
+void ShowViewSize (short width)
 {
-	int     oldwidth,oldheight;
+	short     oldwidth,oldheight;
 
 	oldwidth = viewwidth;
 	oldheight = viewheight;
@@ -1463,7 +1463,7 @@ void ShowViewSize (int width)
 }
 
 
-void NewViewSize (int width)
+void NewViewSize (short width)
 {
 	CA_UpLevel ();
 
@@ -1496,10 +1496,10 @@ void NewViewSize (int width)
 
 void Quit (char *error,...)
 {
-	unsigned        finscreen;
+	unsigned short        finscreen;
 	void*			diz;
 	char *screen;
-	unsigned unit,err;
+	unsigned short unit,err;
 	va_list ap;
 
 	va_start(ap,error);
@@ -1551,8 +1551,8 @@ void Quit (char *error,...)
 	{
 		FILE *fp;
 
-		unit=va_arg(ap,unsigned);
-		err=va_arg(ap,unsigned);
+		unit=va_arg(ap,unsigned short);
+		err=va_arg(ap,unsigned short);
 //		movedata ((unsigned)screen,7,0xb800,0,7*160);
 		_fmemcpy(MK_FP(0xB800,0), screen, 7*160);
 
@@ -1578,8 +1578,8 @@ void Quit (char *error,...)
 #if 0
 	if (!error || !(*error))
 	{
-		unsigned *clear = MK_FP(0xb800,23*80*2);
-		unsigned len = 0;
+		unsigned short *clear = MK_FP(0xb800,23*80*2);
+		unsigned short len = 0;
 
 		clrscr();
 #if GAME_VERSION != SHAREWARE_VERSION
@@ -1621,10 +1621,10 @@ void Quit (char *error,...)
 
 void    DemoLoop (void)
 {
-	int     i,level;
-	int 	LastDemo=0;
+	short     i,level;
+	short 	LastDemo=0;
 	boolean breakit;
-	unsigned old_bufferofs;
+	unsigned short old_bufferofs;
 
 	while (1)
 	{
@@ -1909,7 +1909,7 @@ void InitDestPath()
         size_t len;
         struct _finddata_t fd;
         intptr_t fd_handle;
-        int fd_result;
+        short fd_result;
         boolean fd_found = false;
 
         len = strlen(env_value);

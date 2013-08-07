@@ -186,16 +186,16 @@ void* id_text_buf;
 
 #else
 
-int son[T];
+short son[T];
 
 	//
 	// pointing parent nodes.
 	// area [T..(T + N_CHAR - 1)] are pointers for leaves
 	//
 
-int prnt[T + N_CHAR];
+short prnt[T + N_CHAR];
 
-unsigned freq[T + 1];	/* cumulative freq table */
+unsigned short freq[T + 1];	/* cumulative freq table */
 
 unsigned char text_buf[N + F - 1];
 
@@ -220,7 +220,7 @@ void* id_dad;
 #endif
 #else
 
-static int lson[N + 1], rson[N + 257], dad[N + 1];
+static short lson[N + 1], rson[N + 257], dad[N + 1];
 
 #endif
 

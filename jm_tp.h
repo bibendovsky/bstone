@@ -69,14 +69,14 @@
 //  typedefs
 //-------------------------------------------------------------------------
 typedef struct {
-	unsigned flags,gflags;
+	unsigned short flags,gflags;
 	char *script[TP_MAX_PAGES];
 	void* scriptstart;
 	char numpages,pagenum;
-	unsigned xl,yl,xh,yh;
+	unsigned short xl,yl,xh,yh;
 	char fontnumber;
 	char bgcolor,ltcolor,dkcolor,shcolor;
-	unsigned cur_x,cur_y;
+	unsigned short cur_x,cur_y;
 	char print_delay;
 	byte highlight_color,fontcolor;
 	short id_cache;
@@ -101,7 +101,7 @@ typedef enum pisType {pis_pic,
 } pisType;
 
 typedef struct {
-	unsigned shapenum;
+	unsigned short shapenum;
 	pisType shapetype;
 } piShapeInfo;
 
@@ -141,12 +141,12 @@ void TP_Presenter(PresenterInfo *pi);
 void TP_WrapText(void);
 void TP_HandleCodes(void);
 short TP_DrawShape(short x, short y, short shapenum, pisType type);
-unsigned TP_VALUE(char *ptr,char num_nybbles);
-long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned id_cache);
-void TP_FreeScript(PresenterInfo *pi,unsigned id_cache);
+unsigned short TP_VALUE(char *ptr,char num_nybbles);
+long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned short id_cache);
+void TP_FreeScript(PresenterInfo *pi,unsigned short id_cache);
 void TP_InitScript(PresenterInfo *pi);
 void TP_AnimatePage(short numanims);
-short TP_BoxAroundShape(short x1, short y1, unsigned shapenum, pisType shapetype);
+short TP_BoxAroundShape(short x1, short y1, unsigned short shapenum, pisType shapetype);
 void TP_JumpCursor(void);
 void TP_Print(char *str,boolean single_char);
 boolean TP_SlowPrint(char *str, char delay);

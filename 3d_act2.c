@@ -7,10 +7,10 @@
 
 void FirstSighting(objtype* ob);
 boolean SightPlayer(objtype* ob);
-void TakeDamage(int points, objtype* attacker);
-void OpenDoor(int door);
+void TakeDamage(short points, objtype* attacker);
+void OpenDoor(short door);
 boolean CheckView(objtype* from_obj, objtype* to_obj);
-int CalcAngle(objtype* from_obj, objtype* to_obj);
+short CalcAngle(objtype* from_obj, objtype* to_obj);
 boolean ClipMove(objtype* ob, long xmove, long ymove);
 
 
@@ -77,7 +77,7 @@ char detonators_spawned = 0;
 */
 
 
-int	starthitpoints[4][NUMHITENEMIES] =
+short	starthitpoints[4][NUMHITENEMIES] =
 	 //
 	 // BABY MODE
 	 //
@@ -263,15 +263,15 @@ int	starthitpoints[4][NUMHITENEMIES] =
 	  }
 };
 
-unsigned BossShotShapes[] = {SPR_BOSS1_PROJ1,0,0,0,SPR_BOSS5_PROJ1,0,0,SPR_BOSS10_SPIT1};
-unsigned BossShapes[] = {SPR_BOSS1_W1,SPR_BOSS2_W1,SPR_BOSS3_W1,SPR_BOSS4_W1,SPR_BOSS5_W1,SPR_BOSS6_W1,SPR_BOSS7_W1,SPR_BOSS8_W1,SPR_BOSS9_W1,SPR_BOSS10_W1};
-unsigned MorphShapes[] = {SPR_BOSS1_MORPH1, SPR_BOSS4_MORPH1, SPR_MUTHUM2_MORPH1};
-unsigned MorphClass[] = {spider_mutantobj,reptilian_warriorobj,mutant_human2obj};
-unsigned MorphEndShapes[] = {SPR_BOSS1_W1,SPR_BOSS4_W1,SPR_MUTHUM2_W1};
+unsigned short BossShotShapes[] = {SPR_BOSS1_PROJ1,0,0,0,SPR_BOSS5_PROJ1,0,0,SPR_BOSS10_SPIT1};
+unsigned short BossShapes[] = {SPR_BOSS1_W1,SPR_BOSS2_W1,SPR_BOSS3_W1,SPR_BOSS4_W1,SPR_BOSS5_W1,SPR_BOSS6_W1,SPR_BOSS7_W1,SPR_BOSS8_W1,SPR_BOSS9_W1,SPR_BOSS10_W1};
+unsigned short MorphShapes[] = {SPR_BOSS1_MORPH1, SPR_BOSS4_MORPH1, SPR_MUTHUM2_MORPH1};
+unsigned short MorphClass[] = {spider_mutantobj,reptilian_warriorobj,mutant_human2obj};
+unsigned short MorphEndShapes[] = {SPR_BOSS1_W1,SPR_BOSS4_W1,SPR_MUTHUM2_W1};
 char MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
-unsigned bars_connected = 0;
+unsigned short bars_connected = 0;
 
-unsigned SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
+unsigned short SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
 									     FL2_DROP_BFG,FL2_DROP_ION,FL2_DROP_DETONATOR};
 
 
@@ -288,7 +288,7 @@ void T_OfsChase(objtype *obj);
 
 void A_DeathScream (objtype *ob);
 
-int RandomSphereDir(enemy_t dir);
+short RandomSphereDir(enemy_t dir);
 void CheckForcedMove(objtype *ob);
 
 void T_SwatWound(objtype *ob);
@@ -460,14 +460,14 @@ statetype s_ofs_static = {0,0,1,NULL,NULL,&s_ofs_static};
 
 statetype s_hold = {0,0,1,NULL,NULL,&s_hold};
 
-unsigned scan_value;
+unsigned short scan_value;
 
 //---------------------------------------------------------------------------
 // SpawnOffsetObj ()
 //---------------------------------------------------------------------------
-void SpawnOffsetObj (enemy_t which, int tilex, int tiley)
+void SpawnOffsetObj (enemy_t which, short tilex, short tiley)
 {
-	unsigned	*map,tile;
+	unsigned short	*map,tile;
 	enemy_t dir_which;
 
 	switch (which)
@@ -966,9 +966,9 @@ void T_OfsThink(objtype *obj)
 //---------------------------------------------------------------------------
 // RandomSphereDir()
 //---------------------------------------------------------------------------
-int RandomSphereDir(enemy_t enemy)
+short RandomSphereDir(enemy_t enemy)
 {
-	int dir;
+	short dir;
 
 	switch (enemy)
 	{
@@ -1291,7 +1291,7 @@ objtype *FindObj(classtype which, short tilex, short tiley)
 //       update the area number that this actor is standing in.
 //
 //---------------------------------------------------------------------------
-void SpawnHiddenOfs(enemy_t which, int tilex, int tiley)
+void SpawnHiddenOfs(enemy_t which, short tilex, short tiley)
 {
 	nevermark	= true;
 	SpawnOffsetObj(which, tilex, tiley);			// Spawn a reserve
@@ -1390,7 +1390,7 @@ objtype *MoveHiddenOfs(classtype which_class, classtype new_class, fixed x, fixe
 //
 //---------------------------------------------------------------------------
 
-void InitSmartAnimStruct(objtype *obj, unsigned ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir)
+void InitSmartAnimStruct(objtype *obj, unsigned short ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir)
 {
 	ofs_anim_t AnimStruct;
 
@@ -1404,7 +1404,7 @@ void InitSmartAnimStruct(objtype *obj, unsigned ShapeNum, unsigned char StartOfs
 	*(ofs_anim_t *)&obj->temp3 = AnimStruct;
 }
 
-void InitAnim(objtype *obj, unsigned ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir, unsigned Delay, unsigned WaitDelay)
+void InitAnim(objtype *obj, unsigned short ShapeNum, unsigned char StartOfs, unsigned char MaxOfs, animtype_t AnimType, animdir_t AnimDir, unsigned short Delay, unsigned short WaitDelay)
 {
 	InitSmartAnimStruct(obj,ShapeNum,StartOfs,MaxOfs,AnimType,AnimDir);
 	obj->s_tilex = WaitDelay;
@@ -1488,7 +1488,7 @@ void T_SmartThought(objtype *obj)
 				//
 				// Check for Turn offs
 				//
-				if ((unsigned)obj->temp2 != 0xffff)
+				if ((unsigned short)obj->temp2 != 0xffff)
 					if (!gamestate.barrier_table[obj->temp2].on)
 						ToggleBarrier(obj);
 			break;
@@ -1576,7 +1576,7 @@ void T_SmartThought(objtype *obj)
 				case doorexplodeobj:
             	  if (!obj->temp2)
                  {
-                 		int	avail,total,i;
+                 		short	avail,total,i;
 
                      // Make sure that there are at least DR_MIN_STATICS
 
@@ -1621,7 +1621,7 @@ void T_SmartThought(objtype *obj)
 				case gurney_waitobj:
 #ifdef OBJ_RESERV
 #if IN_DEVELOPMENT
-					if (((unsigned)obj->temp2 < (unsigned)objlist) || ((unsigned)obj->temp2 > (unsigned)&objlist[MAXACTORS]))
+					if (((unsigned short)obj->temp2 < (unsigned short)objlist) || ((unsigned short)obj->temp2 > (unsigned short)&objlist[MAXACTORS]))
 						Quit("Gurney->temp2 out of range!");
 #endif
 					if (obj->temp2)
@@ -1635,7 +1635,7 @@ void T_SmartThought(objtype *obj)
 				case scan_wait_alienobj:
 #ifdef OBJ_RESERV
 #if IN_DEVELOPMENT
-					if (((unsigned)obj->temp2 < (unsigned)objlist) || ((unsigned)obj->temp2 >= (unsigned)&objlist[MAXACTORS]))
+					if (((unsigned short)obj->temp2 < (unsigned short)objlist) || ((unsigned short)obj->temp2 >= (unsigned short)&objlist[MAXACTORS]))
 						Quit("Scan->temp2 out of range!");
 #endif
 					if (obj->temp2)
@@ -1650,7 +1650,7 @@ void T_SmartThought(objtype *obj)
 				case lcan_wait_alienobj:
 #ifdef OBJ_RESERV
 #if IN_DEVELOPMENT
-					if (((unsigned)obj->temp2 < (unsigned)objlist) || ((unsigned)obj->temp2 >= (unsigned)&objlist[MAXACTORS]))
+					if (((unsigned short)obj->temp2 < (unsigned short)objlist) || ((unsigned short)obj->temp2 >= (unsigned short)&objlist[MAXACTORS]))
 						Quit("Scan->temp2 out of range!");
 #endif
 					if (obj->temp2)
@@ -1898,15 +1898,15 @@ void AdvanceAnimREV(objtype *obj)
 //--------------------------------------------------------------------------
 // ActivateWallSwitch() - Updates the Map, Actors, and Tables for wall switchs
 //--------------------------------------------------------------------------
-void ActivateWallSwitch(unsigned iconnum, short x, short y)
+void ActivateWallSwitch(unsigned short iconnum, short x, short y)
 {
 	#define UPDATE_OTHER_SWITCHES			1
 
-	unsigned states[] = {OFF_SWITCH,ON_SWITCH};
-	unsigned	mapx,mapy,newwall;
-	unsigned icon,num;
+	unsigned short states[] = {OFF_SWITCH,ON_SWITCH};
+	unsigned short	mapx,mapy,newwall;
+	unsigned short icon,num;
    unsigned char *tile;
-   unsigned *actor;
+   unsigned short *actor;
    barrier_type *barrier;
 
 
@@ -1929,7 +1929,7 @@ void ActivateWallSwitch(unsigned iconnum, short x, short y)
 #if UPDATE_OTHER_SWITCHES
 
 		tile = (unsigned char *)tilemap;
-      actor = (unsigned *)actorat;
+      actor = (unsigned short *)actorat;
 
 		for (mapx=0;mapx<MAPSIZE;mapx++)
 			for (mapy=0;mapy<MAPSIZE;mapy++)
@@ -1967,7 +1967,7 @@ char OnSwitchMessage[] =  "\r\r  ACTIVATING BARRIER";
 char OffSwitchMessage[] = "\r\r DEACTIVATING BARRIER";
 
 
-void DisplaySwitchOperateMsg(unsigned coords)
+void DisplaySwitchOperateMsg(unsigned short coords)
 {
    barrier_type *Barrier;
 
@@ -1990,7 +1990,7 @@ void DisplaySwitchOperateMsg(unsigned coords)
 // RETURNS: Offset into barrier_table[] for a particular arc
 //
 //--------------------------------------------------------------------------
-unsigned UpdateBarrierTable(unsigned char x, unsigned char y, boolean OnOff)
+unsigned short UpdateBarrierTable(unsigned char x, unsigned char y, boolean OnOff)
 {
    barrier_type *Barrier;
    short num;
@@ -2033,10 +2033,10 @@ unsigned UpdateBarrierTable(unsigned char x, unsigned char y, boolean OnOff)
 //		barrier   - barrier_table of the barrier for [num]
 //
 //--------------------------------------------------------------------------
-unsigned ScanBarrierTable(unsigned char x, unsigned char y)
+unsigned short ScanBarrierTable(unsigned char x, unsigned char y)
 {
    barrier_type *Barrier;
-   unsigned num;
+   unsigned short num;
 
    Barrier = gamestate.barrier_table;
 
@@ -2057,9 +2057,9 @@ unsigned ScanBarrierTable(unsigned char x, unsigned char y)
 //--------------------------------------------------------------------------
 // Checks to see if the Barrier obj is free
 //--------------------------------------------------------------------------
-boolean CheckActor(objtype *actor,unsigned code)
+boolean CheckActor(objtype *actor,unsigned short code)
 {
-		if ((unsigned)actor->temp2 == 0xffff)		// Is this actor free?
+		if ((unsigned short)actor->temp2 == 0xffff)		// Is this actor free?
 		{
       	//
          // Connect actor to barrier switch (code is index into barrier table)
@@ -2076,7 +2076,7 @@ boolean CheckActor(objtype *actor,unsigned code)
 //--------------------------------------------------------------------------
 // CheckAndConnect() -
 //--------------------------------------------------------------------------
-int CheckAndConnect(char x,char y, unsigned code)
+short CheckAndConnect(char x,char y, unsigned short code)
 {
 	objtype *ob;
 	char offsets[] = {-1,0,1,0};
@@ -2122,7 +2122,7 @@ int CheckAndConnect(char x,char y, unsigned code)
 void ConnectBarriers(void)
 {
    barrier_type *Barrier;
-	unsigned num;
+	unsigned short num;
 
    Barrier = gamestate.barrier_table;
 
@@ -2162,7 +2162,7 @@ statetype s_barrier_shutdown		= {0,0,15,T_BarrierShutdown,NULL,&s_barrier_shutdo
 //---------------------------------------------------------------------------
 // SpawnBarrier()
 //---------------------------------------------------------------------------
-void SpawnBarrier (enemy_t which, int tilex, int tiley,boolean OnOff)
+void SpawnBarrier (enemy_t which, short tilex, short tiley,boolean OnOff)
 {
 	enemy_t dir_which;
 
@@ -2406,7 +2406,7 @@ void T_BarrierTransition(objtype *obj)
          //
          // Check for cycle barrier.
          //
-			if ((unsigned)obj->temp2 == 0xFFFF)
+			if ((unsigned short)obj->temp2 == 0xFFFF)
          {
          	if (obj->temp3 < tics)
             	ToggleBarrier(obj);
@@ -2426,7 +2426,7 @@ void T_BarrierTransition(objtype *obj)
          //
          // Check for cycle barrier.
          //
-			if ((unsigned)obj->temp2 == 0xFFFF)
+			if ((unsigned short)obj->temp2 == 0xFFFF)
          {
          	if (obj->temp3 < tics)
             	ToggleBarrier(obj);
@@ -2483,7 +2483,7 @@ void T_BarrierTransition(objtype *obj)
                   //
                   // Check for cycle barrier.
                   //
-                  if ((unsigned)obj->temp2 == 0xFFFF)
+                  if ((unsigned short)obj->temp2 == 0xFFFF)
                   {
                   	obj->temp3 = VPOST_WAIT_DELAY;
                   }
@@ -2495,7 +2495,7 @@ void T_BarrierTransition(objtype *obj)
 
       	// Check to see if to was toggled
 
-         if ((unsigned)obj->temp2 != 0xFFFF)
+         if ((unsigned short)obj->temp2 != 0xFFFF)
 				if (!gamestate.barrier_table[obj->temp2].on)
    	        	ToggleBarrier(obj);
       break;
@@ -2533,7 +2533,7 @@ void T_BarrierTransition(objtype *obj)
                   //
                   // Check for cycle barrier.
                   //
-                  if ((unsigned)obj->temp2 == 0xFFFF)
+                  if ((unsigned short)obj->temp2 == 0xFFFF)
                   	obj->temp3 = VPOST_WAIT_DELAY;
                break;
             }
@@ -2543,7 +2543,7 @@ void T_BarrierTransition(objtype *obj)
 
       	// Check to see if to was toggled
 
-         if ((unsigned)obj->temp2 != 0xFFFF)
+         if ((unsigned short)obj->temp2 != 0xFFFF)
 				if (gamestate.barrier_table[obj->temp2].on)
    	        	ToggleBarrier(obj);
       break;
@@ -3019,7 +3019,7 @@ void T_Solid(objtype *obj)
 //---------------------------------------------------------------------------
 void T_LiquidMove(objtype *obj)
 {
-	int dx,dy,dist;
+	short dx,dy,dist;
 
 
 	//
@@ -3049,7 +3049,7 @@ void T_LiquidMove(objtype *obj)
 //---------------------------------------------------------------------------
 void T_LiquidStand(objtype *obj)
 {
-	int dx,dy;
+	short dx,dy;
 
 	obj->flags |= FL_SHOOTABLE | FL_SOLID;
 
@@ -3128,9 +3128,9 @@ void T_SwatWound(objtype *ob)
 =
 ===============
 */
-void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
+void SpawnStand (enemy_t which, short tilex, short tiley, short dir)
 {
-	unsigned	*map,tile,ammo=8;
+	unsigned short	*map,tile,ammo=8;
 
 	switch (which)
 	{
@@ -3254,9 +3254,9 @@ void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
 // CheckForSpecialTile() - Adds special attributes to actor if standing on
 //				               special tiles.
 //---------------------------------------------------------------------------
-void CheckForSpecialTile(objtype *obj, unsigned tilex, unsigned tiley)
+void CheckForSpecialTile(objtype *obj, unsigned short tilex, unsigned short tiley)
 {
-	unsigned *map,*map1;
+	unsigned short *map,*map1;
    objtype *old_new;
    boolean getarea = false;
 
@@ -3340,12 +3340,12 @@ void CheckForSpecialTile(objtype *obj, unsigned tilex, unsigned tiley)
 ===============
 */
 
-void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir)
+void SpawnPatrol (enemy_t which, short tilex, short tiley, short dir)
 {
 	short ammo = 8;
 
 #if IN_DEVELOPMENT
-	unsigned oldx,oldy;
+	unsigned short oldx,oldy;
 #endif
 
 	switch (which)
@@ -3456,7 +3456,7 @@ void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir)
 #if IN_DEVELOPMENT
 	if (new->obclass!=blakeobj)
 	{
-		if ((unsigned)actorat[new->tilex][new->tiley] == 1)
+		if ((unsigned short)actorat[new->tilex][new->tiley] == 1)
 			Quit("Actor spawned toward a solid static at %d %d",oldx,oldy);
 
 		if (GetAreaNumber(new->tilex,new->tiley) >= NUMAREAS)
@@ -3488,7 +3488,7 @@ void A_DeathScream (objtype *ob)
 	case swatobj:
 		{
 		 #if (GAME_VERSION != SHAREWARE_VERSION)
-		 int sounds[2]=
+		 short sounds[2]=
 			{
 				SWATDIESND,
 				SWATDEATH2SND
@@ -3505,7 +3505,7 @@ void A_DeathScream (objtype *ob)
 	case rentacopobj:
 		{
 #if (GAME_VERSION != SHAREWARE_VERSION)
-		 int sounds[2]=
+		 short sounds[2]=
 			{
 				RENTDEATH1SND,
 				RENTDEATH2SND,
@@ -3529,7 +3529,7 @@ void A_DeathScream (objtype *ob)
 		{
 
 #if GAME_VERSION != SHAREWARE_VERSION
-			int sounds[] = {EXPLODE1SND,
+			short sounds[] = {EXPLODE1SND,
 								EXPLODE2SND};
 			PlaySoundLocActor(sounds[US_RndT()&1],ob);
 #else
@@ -3548,7 +3548,7 @@ void A_DeathScream (objtype *ob)
 	case gen_scientistobj:
 		if (ob->flags & FL_INFORMANT)
 		{
-			 int sounds[3]=
+			 short sounds[3]=
 			 {
 					INFORMANTDEATHSND,
 					INFORMDEATH2SND,
@@ -3558,7 +3558,7 @@ void A_DeathScream (objtype *ob)
 		}
 		else
 		{
-			 int sounds[3]=
+			 short sounds[3]=
 			 {
 					SCIENTISTDEATHSND,
 					SCIDEATH2SND,
@@ -3595,7 +3595,7 @@ void A_DeathScream (objtype *ob)
 	case proguardobj:
 		{
 #if (GAME_VERSION != SHAREWARE_VERSION)
-		 int sounds[3]=
+		 short sounds[3]=
 			{
 				PROGUARDDEATHSND,
 				PRODEATH2SND,
@@ -3735,7 +3735,7 @@ void T_Stand (objtype *ob)
 void T_Chase (objtype *ob)
 {
 	long move;
-	int	dx,dy,dist,chance;
+	short	dx,dy,dist,chance;
 #ifdef DODGE_N_CHASE
 	boolean	dodge;
 #endif
@@ -3971,7 +3971,7 @@ void ChangeShootMode(objtype *ob)
 //--------------------------------------------------------------------------
 void DoAttack(objtype *ob)
 {
-	int	dx,dy,dist;
+	short	dx,dy,dist;
 
 		dx = abs(ob->tilex - player->tilex);
 		dy = abs(ob->tiley - player->tiley);
@@ -4085,7 +4085,7 @@ void DoAttack(objtype *ob)
 dirtype SelectPathDir (objtype *ob)
 {
 	boolean CantWalk=false,RandomTurn=false;
-	unsigned spot;
+	unsigned short spot;
 
 // Look for directional arrows!
 //
@@ -4252,13 +4252,13 @@ void T_Path (objtype *ob)
 =============================================================================
 */
 
-int morph_angle_adj=0;
+short morph_angle_adj=0;
 
 void T_Shoot (objtype *ob)
 {
-	int	dx,dy,dist;
-	int	hitchance,damage;
-	int	chance;
+	short	dx,dy,dist;
+	short	hitchance,damage;
+	short	chance;
 
 	switch (ob->obclass)
 	{
@@ -4442,7 +4442,7 @@ void T_Shade(objtype *obj)
 void T_Hit(objtype *ob)
 {
 	long	dx,dy;
-	int	hitchance,damage;
+	short	hitchance,damage;
 
 
 	switch (ob->obclass)
@@ -4631,7 +4631,7 @@ statetype s_mgold_pain 		= {false,SPR_MGOLD_OUCH,  25, NULL,NULL,&s_mgold_chase1
 
 
 boolean noShots = false;
-int morphWaitTime;
+short morphWaitTime;
 
 //--------------------------------------------------------------------------
 // T_GoldMorphWait
@@ -4822,7 +4822,7 @@ void T_ExplodeDamage(objtype *obj)
 //---------------------------------------------------------------------------
 void T_PainThink(objtype *obj)
 {
-	int full_hp = starthitpoints[gamestate.difficulty][obj->obclass-rentacopobj];
+	short full_hp = starthitpoints[gamestate.difficulty][obj->obclass-rentacopobj];
 
 	if (obj->hitpoints > (full_hp>>1)+(full_hp>>2))
 	{
@@ -4902,9 +4902,9 @@ void T_PainThink(objtype *obj)
 //-------------------------------------------------------------------------
 // SpawnCusExplosion() - Spawns an explosion at a given x & y.
 //-------------------------------------------------------------------------
-void SpawnCusExplosion(fixed x, fixed y, unsigned StartFrame, unsigned NumFrames, unsigned Delay, unsigned Class)
+void SpawnCusExplosion(fixed x, fixed y, unsigned short StartFrame, unsigned short NumFrames, unsigned short Delay, unsigned short Class)
 {
-	int tilex=x>>TILESHIFT, tiley=y>>TILESHIFT;
+	short tilex=x>>TILESHIFT, tiley=y>>TILESHIFT;
 
 	usedummy = nevermark = true;
 	SpawnNewObj(tilex,tiley,&s_ofs_smart_anim);
@@ -4984,7 +4984,7 @@ void T_SteamObj(objtype *obj)
 
 boolean	CheckPosition (objtype *ob)
 {
-	int	x,y,xl,yl,xh,yh;
+	short	x,y,xl,yl,xh,yh;
 	objtype *check;
 
 	xl = (ob->x-PLAYERSIZE) >>TILESHIFT;
@@ -5075,7 +5075,7 @@ void T_Seek(objtype *ob)
 	#define MAX_VIS_DIST		15
 
 	long move;
-	int	dx,dy,dist,chance;
+	short	dx,dy,dist,chance;
 	boolean	target_found;
 
 	target_found = false;
@@ -5132,7 +5132,7 @@ void T_Seek(objtype *ob)
 void SpawnProjectile(objtype *shooter, classtype class)
 {
 	short angle_adj = 0;
-	unsigned temp=0;
+	unsigned short temp=0;
 	fixed x,y;
 
 	x = shooter->x;
@@ -5150,7 +5150,7 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			angle_adj = 1-(US_RndT()&3);
 			new->temp1 = BossShotShapes[class-spider_mutantshotobj];
 			new->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
-			new->temp3 = (unsigned)shooter;
+			new->temp3 = (unsigned short)shooter;
 		break;
 
 		case mut_hum1shotobj:
@@ -5163,7 +5163,7 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			angle_adj = 1-(US_RndT()&3);
 			new->temp1 = SPR_ELEC_SHOT1;
 			new->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
-			new->temp3 = (unsigned)shooter;
+			new->temp3 = (unsigned short)shooter;
 			switch (class)
 			{
 				case final_boss2shotobj:
@@ -5187,7 +5187,7 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			new->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
 			new->speed = SPDPROJ+US_RndT();
 			angle_adj = 2-(US_RndT() % 5);
-			new->temp3 = (unsigned)shooter;
+			new->temp3 = (unsigned short)shooter;
 		break;
 
 		case liquidshotobj:
@@ -5197,7 +5197,7 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			new->speed = SPDPROJ+US_RndT();
 			angle_adj = 2-(US_RndT() % 5);
 			new->s_tilex = new->s_tiley = 0;
-			new->temp3 = (unsigned)shooter;
+			new->temp3 = (unsigned short)shooter;
 		break;
 
 		case grenadeobj:
@@ -5287,7 +5287,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 {
 	#define PROJECTILE_MAX_STEP	PROJWALLSIZE
 
-	unsigned xl,yl,xh,yh,x,y,steps;
+	unsigned short xl,yl,xh,yh,x,y,steps;
 	fixed dx, dy;
 	short ydist,xdist;
 
@@ -5335,7 +5335,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 							xdist = (x<<TILESHIFT)+0x7FFF - ob->x;
 							xdist = ABS(xdist);
 
-							if ((unsigned)xdist < PROJCHECKSIZE && (unsigned)ydist < PROJCHECKSIZE)
+							if ((unsigned short)xdist < PROJCHECKSIZE && (unsigned short)ydist < PROJCHECKSIZE)
 							{
 								proj_check=false;
                         proj_wall = NULL;
@@ -5381,7 +5381,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 void T_Projectile(objtype *ob)
 {
 	long	deltax,deltay;
-	int	damage;
+	short	damage;
 	long	speed;
 	objtype *attacker;
 
@@ -5620,7 +5620,7 @@ void ExplodeFill(char tx, char ty);
 //---------------------------------------------------------------------------
 void ExplodeRadius(objtype *obj, short damage, boolean damageplayer)
 {
-	int xl,yl,xh,yh,y,x;
+	short xl,yl,xh,yh,y,x;
 
 //
 // Did this object start out in a wall?
@@ -5834,11 +5834,11 @@ void ExplodeFill(char tx, char ty)
 //---------------------------------------------------------------------------
 // CalcAngle() - Calculates angle from 1st object to 2nd object.
 //---------------------------------------------------------------------------
-int CalcAngle(objtype *from_obj, objtype *to_obj)
+short CalcAngle(objtype *from_obj, objtype *to_obj)
 {
 	long deltax,deltay,from_x,from_y,to_x,to_y;
 	float angle;
-	int iangle;
+	short iangle;
 
 	from_x = from_obj->x;
 	from_y = from_obj->y;
@@ -5947,7 +5947,7 @@ void T_BlowBack(objtype *obj)
 {
 	#define SLIDE_SPEED		 0x2000
 
-   unsigned dist_table[] = {0x1000,		//	wp_autocharge,
+   unsigned short dist_table[] = {0x1000,		//	wp_autocharge,
 									 0x2000,		//	wp_pistol,
 									 0x3000,		//	wp_burst_rifle,
 									 0x4000,		//	wp_ion_cannon,
@@ -5955,7 +5955,7 @@ void T_BlowBack(objtype *obj)
 	};
 
 	long	deltax,deltay;
-   unsigned angle,dist;
+   unsigned short angle,dist;
    objtype *killer;
 
 	if (obj->flags & FL_NO_SLIDE)

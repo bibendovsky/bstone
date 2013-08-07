@@ -55,7 +55,7 @@ boolean		US_Started;
 
 		boolean		Button0,Button1,
 					CursorBad;
-		int			CursorX,CursorY;
+		short			CursorX,CursorY;
 
 		void		(*USL_MeasureString)(char *,word *,word *) = VW_MeasurePropString,
 					(*USL_DrawString)(char *) = VWB_DrawPropString;
@@ -88,8 +88,8 @@ boolean		US_Started;
 ///////////////////////////////////////////////////////////////////////////
 #pragma	warn	-par
 #pragma	warn	-rch
-int
-USL_HardError(word errval,int ax,int bp,int si)
+short
+USL_HardError(word errval,short ax,short bp,short si)
 {
 // FIXME
 #if 0
@@ -194,11 +194,11 @@ US_Shutdown(void)
 //		index of the string that matched, or -1 if no matches were found
 //
 ///////////////////////////////////////////////////////////////////////////
-int US_CheckParm(char *parm,char * * strings)
+short US_CheckParm(char *parm,char * * strings)
 {
 	char	cp,cs,
 			*p,*s;
-	int		i;
+	short		i;
 
 	while (!isalpha(*parm))	// Skip non-alphas
 		parm++;
@@ -502,11 +502,11 @@ US_RestoreWindow(WindowRec *win)
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-USL_XORICursor(int x,int y,char *s,word cursor)
+USL_XORICursor(short x,short y,char *s,word cursor)
 {
 	static	boolean	status;		// VGA doesn't XOR...
 	char	buf[MaxString];
-	int		temp;
+	short		temp;
 	word	w,h;
 
 	strcpy(buf,s);
@@ -540,11 +540,11 @@ USL_XORICursor(int x,int y,char *s,word cursor)
 //	Used by US_LineInput()
 //
 ///////////////////////////////////////////////////////////////////////////
-static void USL_CustomCursor(int x,int y,char *s,word cursor)
+static void USL_CustomCursor(short x,short y,char *s,word cursor)
 {
 	static	boolean	status;		// VGA doesn't XOR...
 	char	buf[MaxString];
-	int		temp,temp_font;
+	short		temp,temp_font;
 	word	w,h;
 
 	strcpy(buf,s);
@@ -583,8 +583,8 @@ static void USL_CustomCursor(int x,int y,char *s,word cursor)
 //		returned
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
-				int maxchars,int maxwidth)
+boolean US_LineInput(short x,short y,char *buf,char *def,boolean escok,
+				short maxchars,short maxwidth)
 {
 	boolean		redraw,
 				cursorvis,cursormoved,

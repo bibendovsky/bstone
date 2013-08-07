@@ -196,7 +196,7 @@ extern	SDMode				SoundMode;
 extern	SDSMode				DigiMode;
 extern	SMMode				MusicMode;
 extern	volatile boolean	DigiPlaying;
-extern	int					DigiMap[];
+extern	short					DigiMap[];
 extern	longword			TimeCount;			// Global time in ticks
 
 extern	boolean		sqActive;
@@ -207,9 +207,9 @@ extern	void	SD_Startup(void),
 				SD_Shutdown(void),
 				SD_Default(boolean gotit,SDMode sd,SMMode sm),
 
-				SD_PositionSound(int leftvol,int rightvol);
+				SD_PositionSound(short leftvol,short rightvol);
 extern	boolean	SD_PlaySound(soundnames sound);
-extern	void	SD_SetPosition(int leftvol,int rightvol),
+extern	void	SD_SetPosition(short leftvol,short rightvol),
 				SD_StopSound(void),
 				SD_WaitSoundDone(void),
 
@@ -225,7 +225,7 @@ extern	boolean	SD_MusicPlaying(void),
 extern	word	SD_SoundPlaying(void);
 
 extern	void	SD_SetDigiDevice(SDSMode),
-				SD_PlayDigitized(word which,int leftpos,int rightpos),
+				SD_PlayDigitized(word which,short leftpos,short rightpos),
 				SD_StopDigitized(void),
 				SD_Poll(void);
 

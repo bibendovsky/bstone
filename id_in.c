@@ -375,7 +375,7 @@ asm		popf				// Restore the registers
 //		joystick (from +/-127)
 //
 ///////////////////////////////////////////////////////////////////////////
-void INL_GetJoyDelta(word joy,int *dx,int *dy)
+void INL_GetJoyDelta(word joy,short *dx,short *dy)
 {
 	word		x,y;
 	longword	time;
@@ -797,7 +797,7 @@ IN_SetKeyHook(void (*hook)())
 void
 IN_ClearKeysDown(void)
 {
-	int	i;
+	short	i;
 
 	LastScan = sc_None;
 	LastASCII = key_None;
@@ -827,12 +827,12 @@ IN_ClearKeysDown(void)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_ReadControl(int player,ControlInfo *info)
+IN_ReadControl(short player,ControlInfo *info)
 {
 			boolean		realdelta=false;
 			byte		dbyte;
 			word		buttons;
-			int			dx,dy;
+			short			dx,dy;
 			Motion		mx,my;
 			ControlType	type;
 register	KeyboardDef	*def;
@@ -1035,7 +1035,7 @@ register	KeyboardDef	*def;
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_SetControlType(int player,ControlType type)
+IN_SetControlType(short player,ControlType type)
 {
 	// DEBUG - check that requested type is present?
 	Controls[player] = type;
@@ -1093,7 +1093,7 @@ boolean	btnstate[8];
 
 void IN_StartAck(void)
 {
-	unsigned	i,buttons;
+	unsigned short	i,buttons;
 
 //
 // get initial state of everything
@@ -1113,7 +1113,7 @@ void IN_StartAck(void)
 
 boolean IN_CheckAck (void)
 {
-	unsigned	i,buttons;
+	unsigned short	i,buttons;
 
 //
 // see if something has been pressed

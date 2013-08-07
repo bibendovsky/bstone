@@ -10,10 +10,10 @@
 #include "3d_def.h"
 
 
-static const int DEG90 = 900;
-static const int DEG180 = 1800;
-static const int DEG270 = 2700;
-static const int DEG360 = 3600;
+static const short DEG90 = 900;
+static const short DEG180 = 1800;
+static const short DEG270 = 2700;
+static const short DEG360 = 3600;
 
 
 extern long finetangent[FINEANGLES / 4];
@@ -25,39 +25,39 @@ void HitHorizPWall();
 void HitVertPWall();
 
 
-extern int viewwidth;
+extern short viewwidth;
 extern byte tilemap[MAPSIZE][MAPSIZE];
 extern byte spotvis[MAPSIZE][MAPSIZE];
-extern int pixelangle[MAXVIEWWIDTH];
-extern int midangle;
-extern int focaltx;
-extern int focalty;
-extern int viewtx;
-extern int viewty;
+extern short pixelangle[MAXVIEWWIDTH];
+extern short midangle;
+extern short focaltx;
+extern short focalty;
+extern short viewtx;
+extern short viewty;
 extern fixed viewx;
 extern fixed viewy;
-extern unsigned xpartialup;
-extern unsigned xpartialdown;
-extern unsigned ypartialup;
-extern unsigned ypartialdown;
-extern unsigned tilehit;
-extern unsigned pixx;
-extern unsigned wallheight[MAXVIEWWIDTH];
-extern int xtile;
-extern int ytile;
-extern int xtilestep;
-extern int ytilestep;
+extern unsigned short xpartialup;
+extern unsigned short xpartialdown;
+extern unsigned short ypartialup;
+extern unsigned short ypartialdown;
+extern unsigned short tilehit;
+extern unsigned short pixx;
+extern unsigned short wallheight[MAXVIEWWIDTH];
+extern short xtile;
+extern short ytile;
+extern short xtilestep;
+extern short ytilestep;
 extern long xintercept;
 extern long yintercept;
 extern long xstep;
 extern long ystep;
-extern unsigned doorposition[MAXDOORS];
-extern unsigned pwallpos;
+extern unsigned short doorposition[MAXDOORS];
+extern unsigned short pwallpos;
 
 
 static long partial_by_step(
     long step,
-    unsigned partial)
+    unsigned short partial)
 {
     long fracs = (((unsigned long)step & 0xFFFF) * partial) >> 16;
     long ints = (step >> 16) * partial;
@@ -67,24 +67,24 @@ static long partial_by_step(
 
 void AsmRefresh()
 {
-    int angle;
+    short angle;
 
-    int h_op;
-    int v_op;
-    int xpartial;
-    int ypartial;
-    unsigned doorpos;
+    short h_op;
+    short v_op;
+    short xpartial;
+    short ypartial;
+    unsigned short doorpos;
     long intercept;
-    int intercept_h;
-    unsigned intercept_l;
-    int xs; // temporary xspot
-    int xt; // temporary xtile
+    short intercept_h;
+    unsigned short intercept_l;
+    short xs; // temporary xspot
+    short xt; // temporary xtile
     long xint; // temporary xintercept
-    int xint_h; // high word of temporary xintercept
-    int ys; // temporary yspot
-    int yt; // temporary ytile
+    short xint_h; // high word of temporary xintercept
+    short ys; // temporary yspot
+    short yt; // temporary ytile
     long yint; // temporary yintercept
-    int yint_h; // high word of temporary yintercept
+    short yint_h; // high word of temporary yintercept
 
     pixx = 0;
 
@@ -154,13 +154,13 @@ pixxloop:
     //
 
     yintercept = viewy + partial_by_step(ystep, xpartial);
-    yint_h = (int)(yintercept >> 16);
+    yint_h = (short)(yintercept >> 16);
 
     xtile = focaltx + xtilestep;
     xs = (xtile << 6) + yint_h;
 
     xint = viewx + partial_by_step(xstep, ypartial);
-    xint_h = (int)(xint >> 16);
+    xint_h = (short)(xint >> 16);
     xintercept &= 0xFFFF0000;
     xintercept |= xint & 0xFFFF;
 
@@ -168,7 +168,7 @@ pixxloop:
     ys = (xint_h << 6) + yt;
 
     xt = xtile;
-    yint_h = (int)(yintercept >> 16);
+    yint_h = (short)(yintercept >> 16);
 
 
     //
@@ -210,10 +210,10 @@ vertentry:
                 //
 
                 intercept = yintercept + ((ystep * (long)pwallpos) >> 6);
-                intercept_l = (unsigned)(yintercept & 0xFFFF);
-                intercept_h = (int)(yintercept >> 16);
+                intercept_l = (unsigned short)(yintercept & 0xFFFF);
+                intercept_h = (short)(yintercept >> 16);
 
-                if ((int)(yintercept >> 16) == intercept_h) {
+                if ((short)(yintercept >> 16) == intercept_h) {
                     //
                     // draw the pushable wall at the new height
                     //
@@ -230,10 +230,10 @@ vertentry:
                 doorpos = tilehit & 0x7F;
 
                 intercept = yintercept + (ystep >> 1);
-                intercept_l = (unsigned)(intercept & 0xFFFF);
-                intercept_h = (int)(intercept >> 16);
+                intercept_l = (unsigned short)(intercept & 0xFFFF);
+                intercept_h = (short)(intercept >> 16);
 
-                if ((int)(yintercept >> 16) == intercept_h) {
+                if ((short)(yintercept >> 16) == intercept_h) {
                     //
                     // the trace hit the door plane at pixel position,
                     // see if the door is closed that much
@@ -285,7 +285,7 @@ vertentry:
             //
 
             xt = xtile;
-            yint_h = (int)(yintercept >> 16);
+            yint_h = (short)(yintercept >> 16);
         } else {
             xintercept = (long)xt << 16;    
             xtile = xt;
@@ -308,7 +308,7 @@ vertentry:
     yintercept &= 0xFFFF0000;
     yintercept |= yint & 0xFFFF;
 
-    yint_h += (int)((ystep >> 16) + (yint >> 16));
+    yint_h += (short)((ystep >> 16) + (yint >> 16));
 
     xs = (xt << 6) + yint_h;
 
@@ -350,8 +350,8 @@ horizentry:
 
                 intercept = (xstep * (long)pwallpos) >> 6;
                 xint = (intercept & 0xFFFF) + (xintercept & 0xFFFF);
-                intercept_l = (unsigned)(xint & 0xFFFF);
-                intercept_h = (int)((intercept >> 16) + xint_h +
+                intercept_l = (unsigned short)(xint & 0xFFFF);
+                intercept_h = (short)((intercept >> 16) + xint_h +
                     (xint >> 16));
 
                 if (xint_h == intercept_h) {
@@ -371,8 +371,8 @@ horizentry:
 
                 intercept = xstep >> 1;
                 xint = (intercept & 0xFFFF) + (xintercept & 0xFFFF);
-                intercept_l = (unsigned)(xint & 0xFFFF);
-                intercept_h = (int)((intercept >> 16) + xint_h +
+                intercept_l = (unsigned short)(xint & 0xFFFF);
+                intercept_h = (short)((intercept >> 16) + xint_h +
                     (xint >> 16));
 
                 if (xint_h == intercept_h) {
@@ -426,7 +426,7 @@ horizentry:
             //
 
             xt = xtile;
-            yint_h = (int)(yintercept >> 16);
+            yint_h = (short)(yintercept >> 16);
         } else {
             xintercept &= 0xFFFF;
             xintercept |= (long)xint_h << 16;
@@ -448,7 +448,7 @@ horizentry:
     xint = (xintercept & 0xFFFF) + (xstep & 0xFFFF);
     xintercept &= 0xFFFF0000;
     xintercept |= xint & 0xFFFF;
-    xint_h += (int)((xstep >> 16) + (xint >> 16));
+    xint_h += (short)((xstep >> 16) + (xint >> 16));
 
     ys = (xint_h << 6) + yt;
 

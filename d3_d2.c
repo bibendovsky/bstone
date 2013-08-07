@@ -18,13 +18,13 @@ typedef enum {
 } ShadingOptions;
 
 
-extern int mr_rowofs;
-extern int mr_count;
-extern int mr_xstep;
-extern int mr_ystep;
-extern int mr_xfrac;
-extern int mr_yfrac;
-extern int mr_dest;
+extern short mr_rowofs;
+extern short mr_count;
+extern short mr_xstep;
+extern short mr_ystep;
+extern short mr_xfrac;
+extern short mr_yfrac;
+extern short mr_dest;
 
 extern unsigned char* shadingtable;
 
@@ -36,14 +36,14 @@ static void generic_map_row(
     DrawOptions draw_options,
     ShadingOptions shading_options)
 {
-    int i;
-    int dest;
-    int count;
-    int rowofs;
+    short i;
+    short dest;
+    short count;
+    short rowofs;
     unsigned long xy;
     unsigned long xy_step;
     unsigned long xy_frac;
-    unsigned pics_index;
+    unsigned short pics_index;
     unsigned char ceiling_index;
     unsigned char flooring_index;
     unsigned char* screen;

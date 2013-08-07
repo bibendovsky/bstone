@@ -9,21 +9,21 @@
 void MapLSRow();
 
 
-unsigned CeilingTile=126, FloorTile=126;
+unsigned short CeilingTile=126, FloorTile=126;
 
 void (*MapRowPtr)();
 
-int  spanstart[MAXVIEWHEIGHT/2];		// jtr - far
+short  spanstart[MAXVIEWHEIGHT/2];		// jtr - far
 
 fixed	stepscale[MAXVIEWHEIGHT/2];
 fixed	basedist[MAXVIEWHEIGHT/2];
 
 extern char	planepics[8192];	// 4k of ceiling, 4k of floor
 
-int		halfheight = 0;
+short		halfheight = 0;
 
 byte	*planeylookup[MAXVIEWHEIGHT/2];
-unsigned	mirrorofs[MAXVIEWHEIGHT/2];
+unsigned short	mirrorofs[MAXVIEWHEIGHT/2];
 
 fixed	psin, pcos;
 
@@ -33,13 +33,13 @@ fixed FixedMul (fixed a, fixed b)
 }
 
 
-int		mr_rowofs;
-int		mr_count;
-int		mr_xstep;
-int		mr_ystep;
-int		mr_xfrac;
-int		mr_yfrac;
-int		mr_dest;
+short		mr_rowofs;
+short		mr_count;
+short		mr_xstep;
+short		mr_ystep;
+short		mr_xfrac;
+short		mr_yfrac;
+short		mr_dest;
 
 
 /*
@@ -54,14 +54,14 @@ extern byte * lightsource;
 extern byte * shadingtable;
 
 
-void DrawSpans (int x1, int x2, int height)
+void DrawSpans (short x1, short x2, short height)
 {
 	fixed		length;
-	int			ofs;
-	int			prestep;
+	short			ofs;
+	short			prestep;
 	fixed		startxfrac, startyfrac;
 
-	int			x, startx, count, plane, startplane;
+	short			x, startx, count, plane, startplane;
 	byte		*toprow, *dest;
 	long i;
 
@@ -100,7 +100,7 @@ void DrawSpans (int x1, int x2, int height)
 		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
 
 		startx = x1>>2;
-		mr_dest = (unsigned)toprow + startx;
+		mr_dest = (unsigned short)toprow + startx;
 		mr_count = ((x2-plane)>>2) - startx + 1;
 		x1++;
 		prestep--;
@@ -131,7 +131,7 @@ void DrawSpans (int x1, int x2, int height)
 		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
 
 		startx = x1>>2;
-		mr_dest = (unsigned)toprow + startx;
+		mr_dest = (unsigned short)toprow + startx;
 		mr_count = ((x2-plane)>>2) - startx + 1;
 		x1++;
 		prestep--;
@@ -162,7 +162,7 @@ void DrawSpans (int x1, int x2, int height)
 
 void SetPlaneViewSize (void)
 {
-	int		x,y;
+	short		x,y;
 	byte 	*dest, *src;
 
 	halfheight = viewheight>>1;
@@ -206,8 +206,8 @@ void SetPlaneViewSize (void)
 
 void DrawPlanes (void)
 {
-	int		height, lastheight;
-	int		x;
+	short		height, lastheight;
+	short		x;
 
 #if IN_DEVELOPMENT
 	if (!MapRowPtr)

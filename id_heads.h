@@ -89,7 +89,9 @@ extern  char            signonv1;
 //      v1.0d1
 //
 
-typedef enum    {false,true}    boolean;
+#define false (0)
+#define true (1)
+typedef short boolean;
 typedef unsigned        char            byte;
 typedef unsigned        short                     word;
 typedef unsigned        long            longword;
@@ -97,7 +99,7 @@ typedef byte *                                  Ptr;
 
 typedef struct
 		{
-			int     x,y;
+			short     x,y;
 		} Point;
 typedef struct
 		{
@@ -141,12 +143,12 @@ extern void CalcMemFree(void);
 
 #define UPDATETERMINATE 0x0301
 
-extern  unsigned        mapwidth,mapheight,tics,realtics;
+extern  unsigned short        mapwidth,mapheight,tics,realtics;
 extern  boolean         compatability;
 
 extern  byte            *updateptr;
-extern  unsigned        uwidthtable[UPDATEHIGH];
-extern  unsigned        blockstarts[UPDATEWIDE*UPDATEHIGH];
+extern  unsigned short        uwidthtable[UPDATEHIGH];
+extern  unsigned short        blockstarts[UPDATEWIDE*UPDATEHIGH];
 
 extern  byte            fontcolor,backcolor;
 
@@ -155,7 +157,7 @@ extern  byte            fontcolor,backcolor;
 #include "3d_menu.h"
 
 
-#define CA_FarRead(h,d,s)	IO_FarRead((int)h,(byte *)d,(long)s)
+#define CA_FarRead(h,d,s)	IO_FarRead((short)h,(byte *)d,(long)s)
 
 
 

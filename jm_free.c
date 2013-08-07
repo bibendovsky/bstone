@@ -14,17 +14,17 @@
 
 
 void MML_ClearBlock (void);
-int VL_VideoID (void);
+short VL_VideoID (void);
 void CA_CannotOpen(char *string);
-void CAL_GetGrChunkLength (int chunk);
-void CA_CacheScreen (int chunk);
+void CAL_GetGrChunkLength (short chunk);
+void CA_CacheScreen (short chunk);
 void VH_UpdateScreen();
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void OpenMapFile(void);
 void CloseMapFile(void);
 void ClearMemory (void);
-void PM_SetMainMemPurge(int level);
+void PM_SetMainMemPurge(short level);
 void ShutdownId (void);
 void InitRedShifts (void);
 void CAL_OptimizeNodes (huffnode *table);
@@ -814,12 +814,12 @@ PM_Startup(void)
 extern boolean US_Started;
 extern char * US_ParmStrings[];
 extern char * US_ParmStrings2[];
-extern int USL_HardError(word errval,int ax,int bp,int si);
+extern short USL_HardError(word errval,short ax,short bp,short si);
 
 void
 US_Startup(void)
 {
-	int	i,n;
+	short	i,n;
 
 	if (US_Started)
 		return;
@@ -878,7 +878,7 @@ US_Startup(void)
 
 void	VL_Startup (void)
 {
-	int i,videocard;
+	short i,videocard;
 
 #if 0
 	asm	cld;
@@ -1017,9 +1017,9 @@ void VL_DePlaneVGA (void)
 ====================
 */
 
-void VL_SetLineWidth (unsigned width)
+void VL_SetLineWidth (unsigned short width)
 {
-	int i,offset;
+	short i,offset;
 
 // FIXME
 #if 0
@@ -1063,7 +1063,7 @@ const   float   radtoint = (float)FINEANGLES/2/PI;
 
 void BuildTables (void)
 {
-  int           i;
+  short           i;
   float         angle,anglestep;
   double        tang;
   fixed         value;
@@ -1121,7 +1121,7 @@ void BuildTables (void)
 
 void SetupWalls (void)
 {
-	int     i;
+	short     i;
 
 	//
 	// Hey! Yea You! This is where you can VERY easly setup to use a
@@ -1167,7 +1167,7 @@ void InitDigiMap (void)
 
 void CAL_SetupAudioFile (void)
 {
-	int handle;
+	short handle;
 	long length;
 	char fname[13];
 
@@ -1291,7 +1291,7 @@ void CAL_SetupGrFile (void)
 void CAL_SetupGrFile()
 {
     char fname[13];
-    int handle;
+    short handle;
     void* compseg;
 
     //
@@ -1426,8 +1426,8 @@ void CAL_SetupMapFile (void)
 
 void CAL_SetupMapFile()
 {
-    int i;
-    int handle;
+    short i;
+    short handle;
     long pos;
     char fname[13];
     mapfiletype header;
@@ -1521,13 +1521,13 @@ void CAL_SetupMapFile()
 
 void ReadConfig(void)
 {
-	int                     file;
+	short                     file;
 	SDMode          sd;
 	SMMode          sm;
 	SDSMode         sds;
 
 	boolean config_found=false;
-	unsigned flags=gamestate.flags;
+	unsigned short flags=gamestate.flags;
 	MakeDestPath(configname);
 
 	if ( (file = open(tempPath,O_BINARY | O_RDONLY)) != -1)
@@ -1661,9 +1661,9 @@ void ReadConfig(void)
 void Patch386 (void)
 {
 extern void jabhack2(void);
-extern int  CheckIs386(void);
+extern short  CheckIs386(void);
 
-	int     i;
+	short     i;
 
 	for (i = 1;i < _argc;i++)
 		switch (US_CheckParm(_argv[i],JHParmStrings))
@@ -1732,7 +1732,7 @@ asm	retf
 #define CHECK_FOR_EPISODES
 
 extern CP_itemtype NewEmenu[];
-extern int EpisodeSelect[];
+extern short EpisodeSelect[];
 
 
 //-------------------------------------------------------------------------
@@ -1896,7 +1896,7 @@ extern char bc_buffer[];
 //------------------------------------------------------------------------
 void PreDemo()
 {
-	int i;
+	short i;
 
 
 #if TECH_SUPPORT_VERSION
@@ -1994,7 +1994,7 @@ void PreDemo()
 	// Cleanup screen for upcoming SetPalette call
 	//
 		{
-		unsigned old_bufferofs=bufferofs;
+		unsigned short old_bufferofs=bufferofs;
 
 		bufferofs=displayofs;
 		VL_Bar(0,0,320,200,0);
@@ -2062,7 +2062,7 @@ void PreDemo()
 
 		if (PowerBall)
       {
-      	int i;
+      	short i;
 
 			for (i=0;i<60 && (!DebugOk);i++)
    	   {
@@ -2108,8 +2108,8 @@ void PreDemo()
 //------------------------------------------------------------------------
 void InitGame (void)
 {
-	int                     i,x,y;
-	unsigned        *blockstart;
+	short                     i,x,y;
+	unsigned short        *blockstart;
 //long mmsize;
 
 	MM_Startup ();                  // so the signon screen can be freed
@@ -2175,7 +2175,7 @@ void InitGame (void)
 	 screen = grsegs[ERRORSCREEN];
 	 ShutdownId();
 
-	 movedata ((unsigned)screen,7+7*160,0xb800,0,17*160);
+	 movedata ((unsigned short)screen,7+7*160,0xb800,0,17*160);
 	 gotoxy (1,23);
 
 	 exit(0);
@@ -2284,7 +2284,7 @@ void ShowSystem()
 //-------------------------------------------------------------------------
 // scan_atoi()
 //-------------------------------------------------------------------------
-unsigned scan_atoi(char *s)
+unsigned short scan_atoi(char *s)
 {
 	while (*s && (!isdigit(*s)))			// First scans for a digit...
 		s++;
@@ -2301,7 +2301,7 @@ extern short starting_episode,starting_level,starting_difficulty;
 //-------------------------------------------------------------------------
 void freed_main()
 {
-	int     i;
+	short     i;
 
 // FIXME
 #if 0
@@ -2463,7 +2463,7 @@ long ChecksumFile(char *file, long checksum)
 {
 	#define JUMPSIZE 8
 
-	int handle;
+	short handle;
 	long size,readlen,i;
 	char *p;
 

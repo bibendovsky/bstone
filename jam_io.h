@@ -9,7 +9,9 @@
 //
 
 #ifndef _ID_HEADS_H_
-typedef enum boolean {false,true} boolean;
+#define false (0)
+#define true (1)
+typedef short boolean;
 #endif
 
 
@@ -86,7 +88,7 @@ struct JAMPHeader
 //
 //---------------------------------------------------------------------------
 
-char WritePtr(long outfile, unsigned char data, unsigned PtrType);
-int ReadPtr(long infile, unsigned PtrType);
+char WritePtr(long outfile, unsigned char data, unsigned short PtrType);
+short ReadPtr(long infile, unsigned short PtrType);
 
 

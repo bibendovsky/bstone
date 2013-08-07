@@ -16,16 +16,16 @@
 // SC_INDEX is expected to stay at SC_MAPMASK for proper operation
 //
 
-unsigned	bufferofs;
-unsigned	displayofs,pelpan;
+unsigned short	bufferofs;
+unsigned short	displayofs,pelpan;
 
-unsigned	screenseg=SCREENSEG;		// set to 0xa000 for asm convenience
+unsigned short	screenseg=SCREENSEG;		// set to 0xa000 for asm convenience
 
-unsigned	linewidth;
-unsigned	ylookup[MAXSCANLINES];
+unsigned short	linewidth;
+unsigned short	ylookup[MAXSCANLINES];
 
 boolean		screenfaded;
-unsigned	bordercolor;
+unsigned short	bordercolor;
 
 //boolean		fastpalette;				// if true, use outsb to set
 
@@ -35,10 +35,10 @@ byte		palette1[256][3], palette2[256][3];
 
 // asm
 
-int	 VL_VideoID (void);
-void VL_SetCRTC (int crtc);
-void VL_SetScreen (int crtc, int pelpan);
-void VL_WaitVBL (int vbls);
+short	 VL_VideoID (void);
+void VL_SetCRTC (short crtc);
+void VL_SetScreen (short crtc, short pelpan);
+void VL_WaitVBL (short vbls);
 
 //===========================================================================
 
@@ -291,7 +291,7 @@ void VL_SetSplitScreen (int linenum)
 =================
 */
 
-void VL_FillPalette (int red, int green, int blue)
+void VL_FillPalette (short red, short green, short blue)
 {
 // FIXME
 #if 0
@@ -364,7 +364,7 @@ void VL_GetColor	(int color, int *red, int *green, int *blue)
 =================
 */
 
-void VL_SetPalette (byte firstreg, unsigned numregs, byte* palette)
+void VL_SetPalette (byte firstreg, unsigned short numregs, byte* palette)
 {
 // FIXME
 #if 0
@@ -424,7 +424,7 @@ done:
 =================
 */
 
-void VL_GetPalette (byte firstreg, unsigned numregs, byte* palette)
+void VL_GetPalette (byte firstreg, unsigned short numregs, byte* palette)
 {
 // FIXME
 #if 0
@@ -452,9 +452,9 @@ void VL_GetPalette (byte firstreg, unsigned numregs, byte* palette)
 =================
 */
 
-void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
+void VL_FadeOut (short start, short end, short red, short green, short blue, short steps)
 {
-	int		i,j,orig,delta;
+	short		i,j,orig,delta;
 	byte	*origptr, *newptr;
 
 	VL_GetPalette (0,256,&palette1[0][0]);
@@ -500,9 +500,9 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
 =================
 */
 
-void VL_FadeIn (int start, int end, byte* palette, int steps)
+void VL_FadeIn (short start, short end, byte* palette, short steps)
 {
-	int		i,j,delta;
+	short		i,j,delta;
 
 	VL_GetPalette (0,256,&palette1[0][0]);
 	memcpy (&palette2[0][0],&palette1[0][0],sizeof(palette1));
@@ -534,7 +534,7 @@ void VL_FadeIn (int start, int end, byte* palette, int steps)
 //------------------------------------------------------------------------
 // VL_SetPaletteIntensity()
 //------------------------------------------------------------------------
-void VL_SetPaletteIntensity(int start, int end, byte* palette, char intensity)
+void VL_SetPaletteIntensity(short start, short end, byte* palette, char intensity)
 {
 	short loop;
 	char red,green,blue;
@@ -632,7 +632,7 @@ void VL_TestPaletteSet (void)
 ==================
 */
 
-void VL_ColorBorder (int color)
+void VL_ColorBorder (short color)
 {
 // FIXME
 #if 0
@@ -668,7 +668,7 @@ byte	rightmasks[4] = {1,3,7,15};
 =================
 */
 
-void VL_Plot (int x, int y, int color)
+void VL_Plot (short x, short y, short color)
 {
 	byte mask;
 
@@ -687,12 +687,12 @@ void VL_Plot (int x, int y, int color)
 =================
 */
 
-void VL_Hlin (unsigned x, unsigned y, unsigned width, unsigned color)
+void VL_Hlin (unsigned short x, unsigned short y, unsigned short width, unsigned short color)
 {
-	unsigned		xbyte;
+	unsigned short		xbyte;
 	byte			*dest;
 	byte			leftmask,rightmask;
-	int				midbytes;
+	short				midbytes;
 
 	xbyte = x>>2;
 	leftmask = leftmasks[x&3];
@@ -732,7 +732,7 @@ void VL_Hlin (unsigned x, unsigned y, unsigned width, unsigned color)
 =================
 */
 
-void VL_Vlin (int x, int y, int height, int color)
+void VL_Vlin (short x, short y, short height, short color)
 {
 	byte	*dest,mask;
 
@@ -759,11 +759,11 @@ void VL_Vlin (int x, int y, int height, int color)
 =================
 */
 
-void VL_Bar (int x, int y, int width, int height, int color)
+void VL_Bar (short x, short y, short width, short height, short color)
 {
 	byte	*dest;
 	byte	leftmask,rightmask;
-	int		midbytes,linedelta;
+	short		midbytes,linedelta;
 
 	leftmask = leftmasks[x&3];
 	rightmask = rightmasks[(x+width-1)&3];
@@ -819,7 +819,7 @@ void VL_Bar (int x, int y, int width, int height, int color)
 =================
 */
 
-void VL_MemToLatch (byte* source, int width, int height, unsigned dest)
+void VL_MemToLatch (byte* source, short width, short height, unsigned short dest)
 {
 // FIXME
 #if 0
@@ -861,10 +861,10 @@ asm	mov	ds,ax
 =================
 */
 
-void VL_MemToScreen (byte* source, int width, int height, int x, int y)
+void VL_MemToScreen (byte* source, short width, short height, short x, short y)
 {
 	byte   * screen,*dest,mask;
-	int		plane;
+	short		plane;
 
 	width>>=2;
 	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2) );
@@ -888,10 +888,10 @@ void VL_MemToScreen (byte* source, int width, int height, int x, int y)
 //------------------------------------------------------------------------
 // VL_MaskMemToScreen()
 //------------------------------------------------------------------------
-void VL_MaskMemToScreen (byte* source, int width, int height, int x, int y, byte mask)
+void VL_MaskMemToScreen (byte* source, short width, short height, short x, short y, byte mask)
 {
 	byte    *screen,*dest,bmask;
-	int		plane,w,h,mod;
+	short		plane,w,h,mod;
 
 	width>>=2;
 	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2));
@@ -930,10 +930,10 @@ void VL_MaskMemToScreen (byte* source, int width, int height, int x, int y, byte
 //------------------------------------------------------------------------
 // VL_ScreenToMem()
 //------------------------------------------------------------------------
-void VL_ScreenToMem(byte* dest, int width, int height, int x, int y)
+void VL_ScreenToMem(byte* dest, short width, short height, short x, short y)
 {
 	byte    *screen,*source,mask;
-	int		plane;
+	short		plane;
 
 	width>>=2;
 	source = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2) );
@@ -967,7 +967,7 @@ void VL_ScreenToMem(byte* dest, int width, int height, int x, int y)
 =================
 */
 
-void VL_LatchToScreen (unsigned source, int width, int height, int x, int y)
+void VL_LatchToScreen (unsigned short source, short width, short height, short x, short y)
 {
 // FIXEM
 #if 0

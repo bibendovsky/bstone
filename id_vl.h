@@ -83,16 +83,16 @@ void Quit (char *error,...);
 
 //===========================================================================
 
-extern	unsigned	bufferofs;			// all drawing is reletive to this
-extern	unsigned	displayofs,pelpan;	// last setscreen coordinates
+extern	unsigned short	bufferofs;			// all drawing is reletive to this
+extern	unsigned short	displayofs,pelpan;	// last setscreen coordinates
 
-extern	unsigned	screenseg;			// set to 0xa000 for asm convenience
+extern	unsigned short	screenseg;			// set to 0xa000 for asm convenience
 
-extern	unsigned	linewidth;
-extern	unsigned	ylookup[MAXSCANLINES];
+extern	unsigned short	linewidth;
+extern	unsigned short	ylookup[MAXSCANLINES];
 
 extern	boolean		screenfaded;
-extern	unsigned	bordercolor;
+extern	unsigned short	bordercolor;
 
 //===========================================================================
 
@@ -136,41 +136,41 @@ void VL_DePlaneVGA (void);
 void VL_SetVGAPlaneMode (void);
 void VL_ClearVideo (byte color);
 
-void VL_SetLineWidth (unsigned width);
-void VL_SetSplitScreen (int linenum);
-void WaitVBL (int vbls);
+void VL_SetLineWidth (unsigned short width);
+void VL_SetSplitScreen (short linenum);
+void WaitVBL (short vbls);
 
-void VL_WaitVBL (int vbls);
-void VL_CrtcStart (int crtc);
-void VL_SetScreen (int crtc, int pelpan);
+void VL_WaitVBL (short vbls);
+void VL_CrtcStart (short crtc);
+void VL_SetScreen (short crtc, short pelpan);
 
-void VL_FillPalette (int red, int green, int blue);
-void VL_SetColor	(int color, int red, int green, int blue);
-void VL_GetColor	(int color, int *red, int *green, int *blue);
-void VL_SetPalette (byte firstreg, unsigned numregs, byte* palette);
-void VL_GetPalette (byte firstreg, unsigned numregs, byte* palette);
-void VL_SetPaletteIntensity(int start, int end, byte* palette, char intensity);
-void VL_FadeOut (int start, int end, int red, int green, int blue, int steps);
-void VL_FadeIn (int start, int end, byte* palette, int steps);
-void VL_ColorBorder (int color);
+void VL_FillPalette (short red, short green, short blue);
+void VL_SetColor	(short color, short red, short green, short blue);
+void VL_GetColor	(short color, short *red, short *green, short *blue);
+void VL_SetPalette (byte firstreg, unsigned short numregs, byte* palette);
+void VL_GetPalette (byte firstreg, unsigned short numregs, byte* palette);
+void VL_SetPaletteIntensity(short start, short end, byte* palette, char intensity);
+void VL_FadeOut (short start, short end, short red, short green, short blue, short steps);
+void VL_FadeIn (short start, short end, byte* palette, short steps);
+void VL_ColorBorder (short color);
 
-void VL_Plot (int x, int y, int color);
-void VL_Hlin (unsigned x, unsigned y, unsigned width, unsigned color);
-void VL_Vlin (int x, int y, int height, int color);
-void VL_Bar (int x, int y, int width, int height, int color);
+void VL_Plot (short x, short y, short color);
+void VL_Hlin (unsigned short x, unsigned short y, unsigned short width, unsigned short color);
+void VL_Vlin (short x, short y, short height, short color);
+void VL_Bar (short x, short y, short width, short height, short color);
 
-void VL_MungePic (byte* source, unsigned width, unsigned height);
-void VL_DrawPicBare (int x, int y, byte* pic, int width, int height);
-void VL_MemToLatch (byte* source, int width, int height, unsigned dest);
-void VL_ScreenToScreen (unsigned source, unsigned dest,int width, int height);
-void VL_MemToScreen (byte* source, int width, int height, int x, int y);
-void VL_MaskMemToScreen (byte* source, int width, int height, int x, int y, byte mask);
-void VL_ScreenToMem(byte* dest, int width, int height, int x, int y);
+void VL_MungePic (byte* source, unsigned short width, unsigned short height);
+void VL_DrawPicBare (short x, short y, byte* pic, short width, short height);
+void VL_MemToLatch (byte* source, short width, short height, unsigned short dest);
+void VL_ScreenToScreen (unsigned short source, unsigned short dest,short width, short height);
+void VL_MemToScreen (byte* source, short width, short height, short x, short y);
+void VL_MaskMemToScreen (byte* source, short width, short height, short x, short y, byte mask);
+void VL_ScreenToMem(byte* dest, short width, short height, short x, short y);
 
-void VL_DrawTile8String (char *str, char* tile8ptr, int printx, int printy);
-void VL_DrawLatch8String (char *str, unsigned tile8ptr, int printx, int printy);
-void VL_SizeTile8String (char *str, int *width, int *height);
-void VL_DrawPropString (char *str, unsigned tile8ptr, int printx, int printy);
-void VL_SizePropString (char *str, int *width, int *height, char* font);
+void VL_DrawTile8String (char *str, char* tile8ptr, short printx, short printy);
+void VL_DrawLatch8String (char *str, unsigned short tile8ptr, short printx, short printy);
+void VL_SizeTile8String (char *str, short *width, short *height);
+void VL_DrawPropString (char *str, unsigned short tile8ptr, short printx, short printy);
+void VL_SizePropString (char *str, short *width, short *height, char* font);
 
 
