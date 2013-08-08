@@ -1101,12 +1101,18 @@ void BuildTables (void)
 	  sintable[ANGLES/2+i] = value | 0x80000000l;
 	angle += anglestep;
   }
+
+// FIXME
+#if 0
 // Fix ColorMap
     temp = (byte*)malloc(16896);
   memcpy(temp,colormap,16896);
   lightsource=(byte *)(((long)colormap + 255)&~0xff);
   memcpy(lightsource,temp,16384);
     free(temp);
+#endif // 0
+
+    lightsource = colormap;
 }
 
 /*

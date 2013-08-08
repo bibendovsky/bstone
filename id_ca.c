@@ -1328,14 +1328,7 @@ void CA_CacheGrChunk (short chunk)
 
 	grneeded[chunk] |= ca_levelbit;		// make sure it doesn't get removed
 	if (grsegs[chunk])
-	{
-// FIXME
-#if 0
-		MM_SetPurge (&grsegs[chunk],0);
-#endif // 0
-
 		return;							// allready in memory
-	}
 
 //
 // load the chunk into a buffer, either the miscbuffer if it fits, or allocate
@@ -1535,13 +1528,6 @@ void CA_UpLevel (void)
 
 	if (ca_levelnum==7)
 		CA_ERROR(CA_UPLEVEL_PAST_MAX);
-
-// FIXME
-#if 0
-	for (i=0;i<NUMCHUNKS;i++)
-		if (grsegs[i])
-			MM_SetPurge (&(void*)grsegs[i],3);
-#endif // 0
 
 	ca_levelbit<<=1;
 	ca_levelnum++;

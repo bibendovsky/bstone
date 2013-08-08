@@ -1394,18 +1394,7 @@ boolean MS_CheckParm (char *check)
 void LoadFonts(void)
 {
 	CA_CacheGrChunk(STARTFONT+4);
-
-// FIXME
-#if 0
-	MM_SetLock (&grsegs[STARTFONT+4],true);
-#endif // 0
-
 	CA_CacheGrChunk(STARTFONT+2);
-
-// FIXME
-#if 0
-	MM_SetLock (&grsegs[STARTFONT+2],true);
-#endif // 0
 }
 
 //===========================================================================
@@ -1466,11 +1455,6 @@ void ShowViewSize (short width)
 void NewViewSize (short width)
 {
 	CA_UpLevel ();
-
-// FIXME
-#if 0
-	MM_SortMem ();
-#endif // 0
 
 	viewsize = width;
 	while (1)
