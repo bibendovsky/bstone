@@ -1521,7 +1521,7 @@ void CAL_SetupMapFile()
 
 void ReadConfig(void)
 {
-	short                     file;
+	int                     file;
 	SDMode          sd;
 	SMMode          sm;
 	SDSMode         sds;
@@ -1535,11 +1535,28 @@ void ReadConfig(void)
 	//
 	// valid config file
 	//
-		read(file,Scores,sizeof(HighScore) * MaxScores);
+        int i;
+        short enum_buffer;
 
-		read(file,&sd,sizeof(sd));
-		read(file,&sm,sizeof(sm));
-		read(file,&sds,sizeof(sds));
+        for (i = 0; i < MaxScores; ++i) {
+            HighScore* score = &Scores[i];
+
+            read(file, score->name, sizeof(score->name));
+            read(file, &score->score, sizeof(score->score));
+            read(file, &score->completed, sizeof(score->completed));
+            read(file, &score->episode, sizeof(score->episode));
+            read(file, &score->ratio, sizeof(score->ratio));
+        }
+
+        read(file, &enum_buffer, sizeof(enum_buffer));
+        sd = (SDMode)enum_buffer;
+
+        read(file, &enum_buffer, sizeof(enum_buffer));
+        sm = (SMMode)enum_buffer;
+
+        read(file, &enum_buffer, sizeof(enum_buffer));
+        sds = (SDSMode)enum_buffer;
+
 
 		read(file,&mouseenabled,sizeof(mouseenabled));
 		read(file,&joystickenabled,sizeof(joystickenabled));
