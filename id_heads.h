@@ -160,5 +160,8 @@ extern  byte            fontcolor,backcolor;
 #define CA_FarRead(h,d,s)	IO_FarRead((short)h,(byte *)d,(long)s)
 
 
+// BBi
+extern unsigned char* vga_memory;
+
 
 #endif

@@ -31,6 +31,11 @@ unsigned short	bordercolor;
 
 byte		palette1[256][3], palette2[256][3];
 
+
+// BBi
+unsigned char* vga_memory;
+
+
 //===========================================================================
 
 // asm

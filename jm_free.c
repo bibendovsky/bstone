@@ -917,6 +917,12 @@ asm	int	0x10
 	VGAMAPMASK(15);
 	VL_SetLineWidth (40);
 #endif // 0
+
+    const size_t VGA_MEM_SIZE = 4 * 64 * 1024;
+
+    free(vga_memory);
+    vga_memory = (unsigned char*)malloc(VGA_MEM_SIZE);
+    memset(vga_memory, 0, VGA_MEM_SIZE);
 }
 
 /*
