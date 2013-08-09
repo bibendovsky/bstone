@@ -16,6 +16,8 @@
 #include <string.h>
 #include <sys\stat.h>
 
+#include "SDL.h"
+
 #define __ID_GLOB__
 
 //--------------------------------------------------------------------------

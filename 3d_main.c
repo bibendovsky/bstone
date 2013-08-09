@@ -1478,6 +1478,8 @@ void NewViewSize (short width)
 */
 
 
+// FIXME
+#if 0
 void Quit (char *error,...)
 {
 	unsigned short        finscreen;
@@ -1590,6 +1592,31 @@ void Quit (char *error,...)
 
 	va_end(ap);
 	exit(0);
+}
+#endif // 0
+
+void Quit(char* error, ...)
+{
+    va_list ap;
+
+    va_start(ap, error);
+
+    MakeDestPath(PLAYTEMP_FILE);
+    remove(tempPath);
+    ClearMemory();
+
+    WriteConfig();
+    ShutdownId();
+
+    if (error != NULL && *error != '\0') {
+        char dummy;
+
+        vprintf(error, ap);
+        scanf("%c", &dummy);
+    }
+
+    va_end(ap);
+    exit(1);
 }
 
 
@@ -1820,8 +1847,19 @@ short starting_episode=0,starting_level=0,starting_difficulty=2;
 #endif
 short debug_value=0;
 
-void main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
+    int sdl_result = 0;
+
+    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+
+    sdl_result = SDL_Init(0);
+
+    if (sdl_result != 0) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+        exit(1);
+    }
+
     _argc = argc;
     _argv = argv;
 
