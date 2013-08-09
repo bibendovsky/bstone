@@ -30,7 +30,7 @@ void DrawRadar(void);
 void DrawLSPost();
 void DrawPost();
 void GetBonus (statobj_t *check);
-void ScaleLSShape (short xcenter, short shapenum, unsigned short height, char lighting);
+void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting);
 void DrawAmmoPic(void);
 void DrawScoreNum(void);
 void DrawWeaponPic(void);
@@ -38,7 +38,7 @@ void DrawAmmoNum(void);
 void DrawKeyPics(void);
 void DrawHealthNum(void);
 void UpdateStatusBar(void);
-short NextBuffer();
+Sint16 NextBuffer();
 void UpdateRadarGuage(void);
 
 
@@ -53,24 +53,24 @@ void UpdateRadarGuage(void);
 //
 // player interface stuff
 //
-short		weaponchangetics,itemchangetics,bodychangetics;
-short		plaqueon,plaquetime,getpic;
+Sint16		weaponchangetics,itemchangetics,bodychangetics;
+Sint16		plaqueon,plaquetime,getpic;
 
 star_t *firststar,*laststar;		
 
 
 #ifdef DEBUGWALLS
-unsigned short screenloc[3]= {PAGE1START,PAGE1START,PAGE1START};
+Uint16 screenloc[3]= {PAGE1START,PAGE1START,PAGE1START};
 #else
-unsigned short screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
+Uint16 screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
 #endif
-unsigned short freelatch = FREESTART;
+Uint16 freelatch = FREESTART;
 
-long 	lasttimecount;
-long 	frameon;
-long framecount;
+Sint32 	lasttimecount;
+Sint32 	frameon;
+Sint32 framecount;
 
-unsigned short	wallheight[MAXVIEWWIDTH];
+Uint16	wallheight[MAXVIEWWIDTH];
 
 fixed	mindist		= MINDIST;
 
@@ -78,20 +78,20 @@ fixed	mindist		= MINDIST;
 //
 // math tables
 //
-short			pixelangle[MAXVIEWWIDTH];
-long		finetangent[FINEANGLES/4];
+Sint16			pixelangle[MAXVIEWWIDTH];
+Sint32		finetangent[FINEANGLES/4];
 fixed 		sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 
 //
 // refresh variables
 //
 fixed	viewx,viewy;			// the focal point
-short		viewangle;
+Sint16		viewangle;
 fixed	viewsin,viewcos;
 
 #ifndef WOLFDOORS
 char thetile[64];
-byte * mytile;
+Uint8 * mytile;
 #endif
 
 
@@ -99,7 +99,7 @@ fixed	FixedByFrac (fixed a, fixed b);
 void	TransformActor (objtype *ob);
 void	BuildTables (void);
 void	ClearScreen (void);
-short		CalcRotate (objtype *ob);
+Sint16		CalcRotate (objtype *ob);
 void	DrawScaleds (void);
 void	CalcTics (void);
 void	FixOfs (void);
@@ -110,35 +110,35 @@ void	ThreeDRefresh (void);
 //
 // wall optimization variables
 //
-short		lastside;		// true for vertical
-long	lastintercept;
-short		lasttilehit;
+Sint16		lastside;		// true for vertical
+Sint32	lastintercept;
+Sint16		lasttilehit;
 
 
 //
 // ray tracing variables
 //
-short			focaltx,focalty,viewtx,viewty;
+Sint16			focaltx,focalty,viewtx,viewty;
 
-short			midangle,angle;
-unsigned short	xpartial,ypartial;
-unsigned short	xpartialup,xpartialdown,ypartialup,ypartialdown;
-unsigned short	xinttile,yinttile;
+Sint16			midangle,angle;
+Uint16	xpartial,ypartial;
+Uint16	xpartialup,xpartialdown,ypartialup,ypartialdown;
+Uint16	xinttile,yinttile;
 
-unsigned short	tilehit;
-unsigned short	pixx;
+Uint16	tilehit;
+Uint16	pixx;
 
-short		xtile,ytile;
-short		xtilestep,ytilestep;
-long	xintercept,yintercept;
-long	xstep,ystep;
+Sint16		xtile,ytile;
+Sint16		xtilestep,ytilestep;
+Sint32	xintercept,yintercept;
+Sint32	xstep,ystep;
 
-short		horizwall[MAXWALLTILES],vertwall[MAXWALLTILES];
+Sint16		horizwall[MAXWALLTILES],vertwall[MAXWALLTILES];
 
 
 
-unsigned short viewflags;
-extern byte lightson;
+Uint16 viewflags;
+extern Uint8 lightson;
 
 // Global Cloaked Shape flag..
 
@@ -258,9 +258,9 @@ ansok:;
 //
 void TransformActor (objtype *ob)
 {
-	short ratio;
+	Sint16 ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
-	long	temp;
+	Sint32	temp;
 
 //
 // translate point to view centered coordinates
@@ -335,17 +335,17 @@ void TransformActor (objtype *ob)
 =
 ========================
 */
-boolean TransformTile (short tx, short ty, short *dispx, short *dispheight)
+boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 {
-	short ratio;
+	Sint16 ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
-	long	temp;
+	Sint32	temp;
 
 //
 // translate point to view centered coordinates
 //
-	gx = ((long)tx<<TILESHIFT)+0x8000-viewx;
-	gy = ((long)ty<<TILESHIFT)+0x8000-viewy;
+	gx = ((Sint32)tx<<TILESHIFT)+0x8000-viewx;
+	gy = ((Sint32)ty<<TILESHIFT)+0x8000-viewy;
 
 //
 // calculate newx
@@ -413,12 +413,12 @@ boolean TransformTile (short tx, short ty, short *dispx, short *dispheight)
 
 #pragma warn -rvl			// I stick the return value in with ASMs
 
-short	CalcHeight (void)
+Sint16	CalcHeight (void)
 {
-	short	transheight;
-	short 	ratio;
+	Sint16	transheight;
+	Sint16 	ratio;
 	fixed gxt,gyt,nx,ny;
-	long	gx,gy;
+	Sint32	gx,gy;
 
 	gx = xintercept-viewx;
 	gxt = FixedByFrac(gx,viewcos);
@@ -463,27 +463,27 @@ exit_func:
 ===================
 */
 
-long           postsource;
-unsigned short       postx;
-unsigned short       bufx;
-unsigned short       postwidth;
-unsigned short       postheight;
-byte *     shadingtable;
-extern byte * lightsource;
+Sint32           postsource;
+Uint16       postx;
+Uint16       bufx;
+Uint16       postwidth;
+Uint16       postheight;
+Uint8 *     shadingtable;
+extern Uint8 * lightsource;
 
 void   ScalePost (void)      // VGA version
 {
-	short height;
-	long i;
-	byte ofs;
-	byte msk;
+	Sint16 height;
+	Sint32 i;
+	Uint8 ofs;
+	Uint8 msk;
 
 	height=(wallheight[postx])>>3;
 	postheight=height;
 	if (gamestate.flags & GS_LIGHTING)
 		{
 
-		i=shade_max-(63l*(unsigned long)height/(unsigned long)normalshade);
+		i=shade_max-(63l*(Uint32)height/(Uint32)normalshade);
 
 		if (i<0)
 			i=0;
@@ -494,15 +494,15 @@ void   ScalePost (void)      // VGA version
 		shadingtable=lightsource+(i<<8);
 		bufx=postx>>2;
 		ofs=((postx&3)<<3)+postwidth-1;
-		outp(SC_INDEX+1,(byte)*((byte *)mapmasks1+ofs));
+		outp(SC_INDEX+1,(Uint8)*((Uint8 *)mapmasks1+ofs));
 		DrawLSPost();
-		msk=(byte)*((byte *)mapmasks2+ofs);
+		msk=(Uint8)*((Uint8 *)mapmasks2+ofs);
 		if (msk==0)
 			return;
 		bufx++;
 		outp(SC_INDEX+1,msk);
 		DrawLSPost();
-		msk=(byte)*((byte *)mapmasks3+ofs);
+		msk=(Uint8)*((Uint8 *)mapmasks3+ofs);
 		if (msk==0)
 			return;
 		bufx++;
@@ -513,15 +513,15 @@ void   ScalePost (void)      // VGA version
 		{
 		bufx=postx>>2;
 		ofs=((postx&3)<<3)+postwidth-1;
-		outp(SC_INDEX+1,(byte)*((byte *)mapmasks1+ofs));
+		outp(SC_INDEX+1,(Uint8)*((Uint8 *)mapmasks1+ofs));
 		DrawPost();
-		msk=(byte)*((byte *)mapmasks2+ofs);
+		msk=(Uint8)*((Uint8 *)mapmasks2+ofs);
 		if (msk==0)
 			return;
 		bufx++;
 		outp(SC_INDEX+1,msk);
 		DrawPost();
-		msk=(byte)*((byte *)mapmasks3+ofs);
+		msk=(Uint8)*((Uint8 *)mapmasks3+ofs);
 		if (msk==0)
 			return;
 		bufx++;
@@ -547,7 +547,7 @@ void  FarScalePost ()				// just so other files can call
 ====================
 */
 
-unsigned short DoorJamsShade[] =
+Uint16 DoorJamsShade[] =
 {
 	BIO_JAM_SHADE,					// dr_bio
 	SPACE_JAM_2_SHADE,			// dr_normal
@@ -562,7 +562,7 @@ unsigned short DoorJamsShade[] =
 	SPACE_JAM_SHADE,				// dr_space
 };
 
-unsigned short DoorJams[] =
+Uint16 DoorJams[] =
 {
 	BIO_JAM,					// dr_bio
 	SPACE_JAM_2,			// dr_normal
@@ -581,8 +581,8 @@ unsigned short DoorJams[] =
 
 void HitVertWall (void)
 {
-	short			wallpic;
-	unsigned short	texture;
+	Sint16			wallpic;
+	Uint16	texture;
 	unsigned  char doornum;
 
 	texture = (yintercept>>4)&0xfc0;
@@ -597,7 +597,7 @@ void HitVertWall (void)
 	if (lastside==1 && lastintercept == xtile && lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned short)postsource && postwidth < 8)
+		if (texture == (Uint16)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -607,7 +607,7 @@ void HitVertWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned short)postsource = texture;
+			(Uint16)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -641,8 +641,8 @@ void HitVertWall (void)
 		else
 			wallpic = vertwall[tilehit];
 
-		*(((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
-		(unsigned short)postsource = texture;
+		*(((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
+		(Uint16)postsource = texture;
 	}
 }
 
@@ -659,9 +659,9 @@ void HitVertWall (void)
 */
 void HitHorizWall (void)
 {
-	short			wallpic;
-	unsigned short	texture;
-	unsigned char doornum;
+	Sint16			wallpic;
+	Uint16	texture;
+	Uint8 doornum;
 
 	texture = (xintercept>>4)&0xfc0;
 	if (ytilestep == -1)
@@ -673,7 +673,7 @@ void HitHorizWall (void)
 	if (lastside==0 && lastintercept == ytile && lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned short)postsource && postwidth < 8)
+		if (texture == (Uint16)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -683,7 +683,7 @@ void HitHorizWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned short)postsource = texture;
+			(Uint16)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -718,8 +718,8 @@ void HitHorizWall (void)
 			wallpic = horizwall[tilehit];
 
 
-		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
-		(unsigned short)postsource = texture;
+		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
+		(Uint16)postsource = texture;
 	}
 
 }
@@ -737,7 +737,7 @@ void HitHorizWall (void)
 
 void HitHorizDoor (void)
 {
-	unsigned short	texture,doorpage = -1,doornum,xint;
+	Uint16	texture,doorpage = -1,doornum,xint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -751,9 +751,9 @@ void HitHorizDoor (void)
    xint=xintercept&0xffff;
 
 	if (xint>0x7fff)
-		texture = ( (xint-(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+		texture = ( (xint-(Uint16)(doorposition[doornum]>>1)) >> 4) &0xfc0;
    else
-		texture = ( (xint+(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+		texture = ( (xint+(Uint16)(doorposition[doornum]>>1)) >> 4) &0xfc0;
 #endif
 
 	wallheight[pixx] = CalcHeight();
@@ -762,7 +762,7 @@ void HitHorizDoor (void)
 	{
 		// in the same door as last time, so check for optimized draw
 
-		if (texture == (unsigned short)postsource && postwidth < 8)
+		if (texture == (Uint16)postsource && postwidth < 8)
 		{
 			// wide scale
 
@@ -777,7 +777,7 @@ void HitHorizDoor (void)
 #else
 			ScalePost ();
 #endif
-			(unsigned short)postsource = texture;
+			(Uint16)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -860,8 +860,8 @@ void HitHorizDoor (void)
 			doorpage += UL_METAL;
 
 
-		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(doorpage);
-		(unsigned short)postsource = texture;
+		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(doorpage);
+		(Uint16)postsource = texture;
 	}
 }
 
@@ -879,7 +879,7 @@ void HitHorizDoor (void)
 
 void HitVertDoor (void)
 {
-	unsigned short	texture,doorpage,doornum,yint;
+	Uint16	texture,doorpage,doornum,yint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -892,9 +892,9 @@ void HitVertDoor (void)
 #else
 		  yint=yintercept&0xffff;
 		  if (yint>0x7fff)
-			  texture = ( (yint-(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+			  texture = ( (yint-(Uint16)(doorposition[doornum]>>1)) >> 4) &0xfc0;
 		  else
-			  texture = ( (yint+(unsigned short)(doorposition[doornum]>>1)) >> 4) &0xfc0;
+			  texture = ( (yint+(Uint16)(doorposition[doornum]>>1)) >> 4) &0xfc0;
 #endif
 
 	wallheight[pixx] = CalcHeight();
@@ -902,7 +902,7 @@ void HitVertDoor (void)
 	if (lasttilehit == tilehit)
 	{
 	// in the same door as last time, so check for optimized draw
-		if (texture == (unsigned short)postsource && postwidth < 8)
+		if (texture == (Uint16)postsource && postwidth < 8)
 		{
 			// wide scale
 
@@ -917,7 +917,7 @@ void HitVertDoor (void)
 #else
 			ScalePost ();
 #endif
-			(unsigned short)postsource = texture;
+			(Uint16)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1000,8 +1000,8 @@ void HitVertDoor (void)
 		if (lockable && doorobjlist[doornum].lock == kt_none)
 			doorpage += UL_METAL;
 
-		*(((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(doorpage);
-		(unsigned short)postsource = texture;
+		*(((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(doorpage);
+		(Uint16)postsource = texture;
 	}
 }
 
@@ -1019,8 +1019,8 @@ void HitVertDoor (void)
 
 void HitHorizPWall (void)
 {
-	short			wallpic;
-	unsigned short	texture,offset;
+	Sint16			wallpic;
+	Uint16	texture,offset;
 
 	texture = (xintercept>>4)&0xfc0;
 	offset = pwallpos<<10;
@@ -1037,7 +1037,7 @@ void HitHorizPWall (void)
 	if (lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned short)postsource && postwidth < 8)
+		if (texture == (Uint16)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -1047,7 +1047,7 @@ void HitHorizPWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned short)postsource = texture;
+			(Uint16)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1064,8 +1064,8 @@ void HitHorizPWall (void)
 
 		wallpic = horizwall[tilehit&63];
 
-		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
-		(unsigned short)postsource = texture;
+		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
+		(Uint16)postsource = texture;
 	}
 
 }
@@ -1083,8 +1083,8 @@ void HitHorizPWall (void)
 
 void HitVertPWall (void)
 {
-	short			wallpic;
-	unsigned short	texture,offset;
+	Sint16			wallpic;
+	Uint16	texture,offset;
 
 	texture = (yintercept>>4)&0xfc0;
 	offset = pwallpos<<10;
@@ -1101,7 +1101,7 @@ void HitVertPWall (void)
 	if (lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
-		if (texture == (unsigned short)postsource && postwidth < 8)
+		if (texture == (Uint16)postsource && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -1111,7 +1111,7 @@ void HitVertPWall (void)
 		else
 		{
 			ScalePost ();
-			(unsigned short)postsource = texture;
+			(Uint16)postsource = texture;
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1128,8 +1128,8 @@ void HitVertPWall (void)
 
 		wallpic = vertwall[tilehit&63];
 
-		*( ((unsigned short *)&postsource)+1) = (unsigned short)PM_GetPage(wallpic);
-		(unsigned short)postsource = texture;
+		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
+		(Uint16)postsource = texture;
 	}
 
 }
@@ -1149,7 +1149,7 @@ void HitVertPWall (void)
 
 void ClearScreen (void)
 {
- unsigned short floor=egaFloor[gamestate.episode*MAPS_PER_EPISODE+mapon],
+ Uint16 floor=egaFloor[gamestate.episode*MAPS_PER_EPISODE+mapon],
 	  ceiling=egaCeiling[gamestate.episode*MAPS_PER_EPISODE+mapon];
 
   //
@@ -1320,9 +1320,9 @@ exit_mofo:
 =====================
 */
 
-short	CalcRotate (objtype *ob)
+Sint16	CalcRotate (objtype *ob)
 {
-	short	angle,viewangle;
+	Sint16	angle,viewangle;
 	dirtype dir=ob->dir;
 
 	// this isn't exactly correct, as it should vary by a trig value,
@@ -1375,11 +1375,11 @@ visobj_t	vislist[MAXVISABLE],*visptr,*visstep,*farthest;
 
 void DrawScaleds (void)
 {
-	short 		i,j,least,numvisable,height;
+	Sint16 		i,j,least,numvisable,height;
 	void*	shape;
-	byte		*tilespot,*visspot;
-	short		shapenum;
-	unsigned short	spotloc;
+	Uint8		*tilespot,*visspot;
+	Sint16		shapenum;
+	Uint16	spotloc;
 
 	statobj_t	*statptr;
 	objtype		*obj;
@@ -1548,14 +1548,14 @@ void DrawScaleds (void)
 ==============
 */
 
-short	weaponscale[NUMWEAPONS] = {SPR_KNIFEREADY,SPR_PISTOLREADY
+Sint16	weaponscale[NUMWEAPONS] = {SPR_KNIFEREADY,SPR_PISTOLREADY
 		,SPR_MACHINEGUNREADY,SPR_CHAINREADY,SPR_GRENADEREADY,SPR_BFG_WEAPON1,0};
 
 boolean useBounceOffset=false;
 
 void DrawPlayerWeapon (void)
 {
-	short	shapenum;
+	Sint16	shapenum;
 
 	if (playstate==ex_victorious)
 		return;
@@ -1565,14 +1565,14 @@ void DrawPlayerWeapon (void)
 		shapenum = weaponscale[gamestate.weapon]+gamestate.weaponframe;
 		if (shapenum)
 		{
-			static short vh=63;
-			static short ce=100;
+			static Sint16 vh=63;
+			static Sint16 ce=100;
 
 			char v_table[15]={87,81,77,63,61,60,56,53,50,47,43,41,39,35,31};
 			char c_table[15]={88,85,81,80,75,70,64,59,55,50,44,39,34,28,24};
 
-			short oldviewheight=viewheight;
-			short centery;
+			Sint16 oldviewheight=viewheight;
+			Sint16 centery;
 
 			useBounceOffset=true;
 #if 1
@@ -1639,7 +1639,7 @@ void DrawPlayerWeapon (void)
 
 void CalcTics (void)
 {
-	long	newtime,oldtimecount;
+	Sint32	newtime,oldtimecount;
 
 #ifdef MYPROFILE
 	tics = 3;
@@ -1767,8 +1767,8 @@ void WallRefresh (void)
 
 //==========================================================================
 
-extern short MsgTicsRemain;
-extern unsigned short LastMsgPri;
+extern Sint16 MsgTicsRemain;
+extern Uint16 LastMsgPri;
 
 //-------------------------------------------------------------------------
 // RedrawStatusAreas()
@@ -1814,7 +1814,7 @@ void MapLSRow();
 
 void	ThreeDRefresh (void)
 {
-	short tracedir;
+	Sint16 tracedir;
 
 // FIXME
 #if 0
@@ -1952,7 +1952,7 @@ asm	rep stosw
 //--------------------------------------------------------------------------
 // NextBuffer()
 //--------------------------------------------------------------------------
-short NextBuffer()
+Sint16 NextBuffer()
 {
 	displayofs=bufferofs;
 
@@ -1966,7 +1966,7 @@ short NextBuffer()
 	asm	out	dx,al
 	asm	inc	dx
 	asm	mov	al,ch
-	asm	out	dx,al   	// set the high byte
+	asm	out	dx,al   	// set the high Uint8
 	asm	sti
 #endif
 #endif // 0
@@ -1978,7 +1978,7 @@ short NextBuffer()
     return 0;
 }
 
-byte TravelTable[MAPSIZE][MAPSIZE];
+Uint8 TravelTable[MAPSIZE][MAPSIZE];
 
 //--------------------------------------------------------------------------
 // UpdateTravelTable()
@@ -2004,7 +2004,7 @@ asm	loop	loop1
 #endif // 0
 }
 
-extern short an_offset[];
+extern Sint16 an_offset[];
 
 
 //--------------------------------------------------------------------------
@@ -2013,7 +2013,7 @@ extern short an_offset[];
 void DrawRadar()
 {
 	char zoom=gamestate.rzoom;
-	byte flags = OV_KEYS|OV_PUSHWALLS|OV_ACTORS;
+	Uint8 flags = OV_KEYS|OV_PUSHWALLS|OV_ACTORS;
 
 	if (gamestate.rpower)
 	{
@@ -2035,30 +2035,30 @@ void DrawRadar()
 }
 
 clock_t tc_start,tc_end;
-unsigned short tc_time;
+Uint16 tc_time;
 
 
 //--------------------------------------------------------------------------
 // ShowOverhead()
 //--------------------------------------------------------------------------
-void ShowOverhead(short bx, short by, short radius, short zoom, unsigned short flags)
+void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags)
 {
 	#define PLAYER_COLOR 	0xf1
 	#define UNMAPPED_COLOR	0x52
 	#define MAPPED_COLOR		0x55
 
-	extern byte pixmasks[];
-	extern byte rndtable[];
+	extern Uint8 pixmasks[];
+	extern Uint8 rndtable[];
 
-	byte color,quad;
-	byte tile,door;
+	Uint8 color,quad;
+	Uint8 tile,door;
 	objtype *ob;
 
 	fixed dx,dy,psin,pcos,lmx,lmy,baselmx,baselmy,xinc,yinc;
-	short rx,ry,mx,my;
-	byte *dstptr,*basedst,mask,startmask;
+	Sint16 rx,ry,mx,my;
+	Uint8 *dstptr,*basedst,mask,startmask;
 	boolean drawplayerok=true;
-	byte rndindex;
+	Uint8 rndindex;
 	boolean snow=false;
 
 // -zoom == make it snow!
@@ -2080,7 +2080,7 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned short f
 
 // Convert radius to fixed integer and calc rotation.
 //
-	dx = dy = (long)radius<<TILESHIFT;
+	dx = dy = (Sint32)radius<<TILESHIFT;
 	baselmx = player->x+(FixedByFrac(dx,pcos)-FixedByFrac(dy,psin));
 	baselmy = player->y-(FixedByFrac(dx,psin)+FixedByFrac(dy,pcos));
 
@@ -2101,7 +2101,7 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned short f
 // Calculate starting destination address.
 //
     // FIXME
-	basedst=(byte*) 0xA0000 + bufferofs + ylookup[by] + (bx >> 2);
+	basedst=(Uint8*) 0xA0000 + bufferofs + ylookup[by] + (bx >> 2);
 	switch (zoom)
 	{
 		case 1:
@@ -2199,7 +2199,7 @@ void ShowOverhead(short bx, short by, short radius, short zoom, unsigned short f
 
 					if ((zoom == 4) || (ExtraRadarFlags & OV_PUSHWALLS))
 					{
-						unsigned short iconnum;
+						Uint16 iconnum;
 
 						iconnum = *(mapsegs[1]+farmapylookup[my]+mx);
 

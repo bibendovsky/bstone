@@ -71,8 +71,8 @@ EMS / XMS unmanaged routines
 //unsigned __SEGS_AVAILABLE__;
 
 #if IN_DEVELOPMENT
-unsigned long __PUR_MEM_AVAIL__;
-unsigned long __FREE_MEM_AVAIL__;
+Uint32 __PUR_MEM_AVAIL__;
+Uint32 __FREE_MEM_AVAIL__;
 #endif
 
 int errorfile=-1;						// jdebug
@@ -132,7 +132,7 @@ void 		MML_ClearBlock (void);
 
 //==========================================================================
 
-void PrintAllocated(long amount);		// mdebug
+void PrintAllocated(Sint32 amount);		// mdebug
 
 /*
 ======================
@@ -270,7 +270,7 @@ void MML_UseSpace (unsigned segstart, unsigned seglength)
 {
 	mmblocktype *scan,*last;
 	unsigned	oldend;
-	long		extra;
+	Sint32		extra;
 
 	scan = last = mmhead;
 	mmrover = mmhead;		// reset rover to start of memory
@@ -541,7 +541,7 @@ char *jr_fartext = NULL;				// jim/mdebug
 
 #endif
 
-void MM_GetPtr (void** baseptr,unsigned long size)
+void MM_GetPtr (void** baseptr,Uint32 size)
 {
 	mmblocktype *scan,*lastscan,*endscan
 				,*purge,*next;
@@ -684,7 +684,7 @@ extern char configname[];
 
 void MM_FreePtr (void** baseptr)
 {
-	long value;		// mdebug
+	Sint32 value;		// mdebug
 
 	mmblocktype *scan,*last;
 
@@ -917,7 +917,7 @@ void MM_ShowMemory (void)
 {
 	mmblocktype *scan;
 	unsigned color,temp,x,y;
-	long	end,owner;
+	Sint32	end,owner;
 	char    scratch[80],str[10];
 
 	temp = bufferofs;
@@ -971,7 +971,7 @@ void MM_ShowMemory (void)
 void MM_DumpData (void)
 {
 	mmblocktype *scan,*best;
-	long	lowest,oldlowest;
+	Sint32	lowest,oldlowest;
 	unsigned	owner;
 	char	lock,purge;
 	FILE	*dumpfile;
@@ -1038,7 +1038,7 @@ void MM_DumpData (void)
 ======================
 */
 
-long MM_UnusedMemory (void)
+Sint32 MM_UnusedMemory (void)
 {
 	unsigned free;
 	mmblocktype *scan;
@@ -1068,7 +1068,7 @@ long MM_UnusedMemory (void)
 ======================
 */
 
-long MM_TotalFree (void)
+Sint32 MM_TotalFree (void)
 {
 	unsigned free;
 	mmblocktype *scan;
@@ -1097,7 +1097,7 @@ long MM_TotalFree (void)
 ======================
 */
 
-long MM_LargestAvail (void)
+Sint32 MM_LargestAvail (void)
 {
 	unsigned largest,ammount;
 	mmblocktype *scan;

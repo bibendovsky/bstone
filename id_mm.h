@@ -62,7 +62,7 @@
 
 typedef struct
 {
-	long	nearheap,farheap,EMSmem,XMSmem,mainmem;
+	Sint32	nearheap,farheap,EMSmem,XMSmem,mainmem;
 } mminfotype;
 
 //==========================================================================
@@ -72,8 +72,8 @@ extern	mminfotype	mminfo;
 extern	void* bufferseg;
 extern	boolean		mmerror;
 //unsigned __SEGS_AVAILABLE__;
-unsigned long __PUR_MEM_AVAIL__;
-unsigned long __FREE_MEM_AVAIL__;
+Uint32 __PUR_MEM_AVAIL__;
+Uint32 __FREE_MEM_AVAIL__;
 
 extern	void		(* beforesort) (void);
 extern	void		(* aftersort) (void);
@@ -86,7 +86,7 @@ void MM_Startup (void);
 void MM_Shutdown (void);
 void MM_MapEMS (void);
 
-void MM_GetPtr (void** baseptr,unsigned long size);
+void MM_GetPtr (void** baseptr,Uint32 size);
 void MM_FreePtr (void** baseptr);
 
 void MM_SetPurge (void** baseptr, int purge);
@@ -95,9 +95,9 @@ void MM_SortMem (void);
 
 void MM_ShowMemory (void);
 
-long MM_UnusedMemory (void);
-long MM_TotalFree (void);
-long MM_LargestAvail (void);
+Sint32 MM_UnusedMemory (void);
+Sint32 MM_TotalFree (void);
+Sint32 MM_LargestAvail (void);
 
 void MM_BombOnError (boolean bomb);
 

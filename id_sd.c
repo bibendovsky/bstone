@@ -87,10 +87,10 @@ extern	void SDL_t0FastAsmService(void),
 #undef	STARTDIGISOUNDS
 #undef	STARTMUSIC
 
-extern	word	sdStartPCSounds;
-extern	word	sdStartALSounds;
-extern	short		sdLastSound;
-extern	short		DigiMap[];
+extern	Uint16	sdStartPCSounds;
+extern	Uint16	sdStartALSounds;
+extern	Sint16		sdLastSound;
+extern	Sint16		DigiMap[];
 
 extern int _argc;
 extern char** _argv;
@@ -104,16 +104,16 @@ extern char** _argv;
 	SDMode		SoundMode;
 	SMMode		MusicMode;
 	SDSMode		DigiMode;
-	longword	TimeCount;
-	word		HackCount;
-	word		*SoundTable;	// Really * _seg *SoundTable, but that don't work
+	Uint32	TimeCount;
+	Uint16		HackCount;
+	Uint16		*SoundTable;	// Really * _seg *SoundTable, but that don't work
 	boolean		ssIsTandy;
-	word		ssPort = 2;
+	Uint16		ssPort = 2;
 
 //	Internal variables
 static	boolean			SD_Started;
 		boolean			nextsoundpos;
-		longword		TimerDivisor,TimerCount;
+		Uint32		TimerDivisor,TimerCount;
 static	char * 		ParmStrings[] =
 						{
 							"noal",
@@ -128,67 +128,67 @@ static	char * 		ParmStrings[] =
 						};
 static	void			(*SoundUserHook)(void);
 		soundnames		SoundNumber,DigiNumber;
-		word			SoundPriority,DigiPriority;
-		short				LeftPosition,RightPosition;
+		Uint16			SoundPriority,DigiPriority;
+		Sint16				LeftPosition,RightPosition;
 		void (*t0OldService)(void);
-		long			LocalTime;
-		word			TimerRate;
+		Sint32			LocalTime;
+		Uint16			TimerRate;
 
-		word				NumDigi,DigiLeft,DigiPage;
-		word				*DigiList;
-		word				DigiLastStart,DigiLastEnd;
+		Uint16				NumDigi,DigiLeft,DigiPage;
+		Uint16				*DigiList;
+		Uint16				DigiLastStart,DigiLastEnd;
 		volatile boolean	DigiPlaying;
 static	volatile boolean	DigiMissed,DigiLastSegment;
 static	volatile void*		DigiNextAddr;
-static	volatile word		DigiNextLen;
-		volatile longword	DigiFailSafe;
-		longword			DigiFailTriggered;
+static	volatile Uint16		DigiNextLen;
+		volatile Uint32	DigiFailSafe;
+		Uint32			DigiFailTriggered;
 
 //	SoundBlaster variables
-		word					SBResetCount;
+		Uint16					SBResetCount;
 static	boolean					sbNoCheck,sbNoProCheck;
 static	volatile boolean		sbSamplePlaying;
-static	byte					sbPIC1Mask,sbPIC2Mask;
-static	byte					sbOldIntMask = -1,sbOldIntMask2 = -1;
-static	volatile byte			*sbNextSegPtr;
-static	byte					sbDMA = 1,
+static	Uint8					sbPIC1Mask,sbPIC2Mask;
+static	Uint8					sbOldIntMask = -1,sbOldIntMask2 = -1;
+static	volatile Uint8			*sbNextSegPtr;
+static	Uint8					sbDMA = 1,
 								sbDMAa1 = 0x83,sbDMAa2 = 2,sbDMAa3 = 3,
 								sba1Vals[] = {0x87,0x83,0,0x82},
 								sba2Vals[] = {0,2,0,6},
 								sba3Vals[] = {1,3,0,7};
-static	short						sbLocation = -1,sbInterrupt = 7,sbIntVec = 0xf,
+static	Sint16						sbLocation = -1,sbInterrupt = 7,sbIntVec = 0xf,
 								sbIntVectors[] = {-1,-1,0xa,0xb,-1,0xd,-1,0xf,-1,-1,0x72};
-static	volatile byte			sbLastTimeValue;
-static	volatile longword		sbNextSegLen;
+static	volatile Uint8			sbLastTimeValue;
+static	volatile Uint32		sbNextSegLen;
 static	volatile SampledSound	*sbSamples;
 static	void 		(*sbOldIntHand)(void);
-static	byte					sbpOldFMMix,sbpOldVOCMix;
+static	Uint8					sbpOldFMMix,sbpOldVOCMix;
 
 //	SoundSource variables
 		boolean				ssNoCheck;
 		boolean				ssActive;
-		word				ssControl,ssStatus,ssData;
-		byte				ssOn,ssOff;
-		word				ssVol;
-		byte				ssVolTable[256];
-		volatile byte		*ssSample;
-		volatile longword	ssLengthLeft;
+		Uint16				ssControl,ssStatus,ssData;
+		Uint8				ssOn,ssOff;
+		Uint16				ssVol;
+		Uint8				ssVolTable[256];
+		volatile Uint8		*ssSample;
+		volatile Uint32	ssLengthLeft;
 
 //	PC Sound variables
-		volatile byte	pcLastSample,*pcSound;
-		longword		pcLengthLeft;
-		word			pcSoundLookup[255];
+		volatile Uint8	pcLastSample,*pcSound;
+		Uint32		pcLengthLeft;
+		Uint16			pcSoundLookup[255];
 
 //	AdLib variables
 		boolean			alNoCheck;
-		byte			*alSound;
-		word			alBlock;
-		longword		alLengthLeft;
-		longword		alTimeCount;
+		Uint8			*alSound;
+		Uint16			alBlock;
+		Uint32		alLengthLeft;
+		Uint32		alTimeCount;
 		Instrument		alZeroInst;
 
 // This table maps channel numbers to carrier and modulator op cells
-static	byte			carriers[9] =  { 3, 4, 5,11,12,13,19,20,21},
+static	Uint8			carriers[9] =  { 3, 4, 5,11,12,13,19,20,21},
 						modifiers[9] = { 0, 1, 2, 8, 9,10,16,17,18},
 // This table maps percussive voice numbers to op cells
 						pcarriers[5] = {19,0xff,0xff,0xff,0xff},
@@ -196,12 +196,12 @@ static	byte			carriers[9] =  { 3, 4, 5,11,12,13,19,20,21},
 
 //	Sequencer variables
 		boolean			sqActive;
-static	word			alFXReg;
+static	Uint16			alFXReg;
 static	ActiveTrack		*tracks[sqMaxTracks],
 						mytracks[sqMaxTracks];
-static	word			sqMode,sqFadeStep;
-		word			*sqHack,*sqHackPtr,sqHackLen,sqHackSeqLen;
-		long			sqHackTime;
+static	Uint16			sqMode,sqFadeStep;
+		Uint16			*sqHack,*sqHackPtr,sqHackLen,sqHackSeqLen;
+		Sint32			sqHackTime;
 		boolean			sqPlayedOnce;
 
 //	Internal routines
@@ -214,7 +214,7 @@ static	word			sqMode,sqFadeStep;
 ///////////////////////////////////////////////////////////////////////////
 #pragma	argsused
 static void
-SDL_SetTimer0(word speed)
+SDL_SetTimer0(Uint16 speed)
 {
 // FIXME
 #if 0
@@ -245,7 +245,7 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-SDL_SetIntsPerSec(word ints)
+SDL_SetIntsPerSec(Uint16 ints)
 {
 	TimerRate = ints;
 	SDL_SetTimer0(1192030 / ints);
@@ -254,7 +254,7 @@ SDL_SetIntsPerSec(word ints)
 static void
 SDL_SetTimerSpeed(void)
 {
-	word	rate;
+	Uint16	rate;
 	void (*isr)(void);
 
 	if
@@ -370,7 +370,7 @@ SDL_RestoreDMAInt(void)
 {
 // FIXME
 #if 0
-	byte	is;
+	Uint8	is;
 
 	is = inportb(0x21);
 	if (sbOldIntMask & sbPIC1Mask)
@@ -406,7 +406,7 @@ SDL_SBStopSample(void)
 {
 // FIXME
 #if 0
-	byte	is;
+	Uint8	is;
 	int		i;
 
 asm	pushf
@@ -442,13 +442,13 @@ asm	popf
 //	 controller, and tells the SB to start doing DMA requests for DAC
 //
 ///////////////////////////////////////////////////////////////////////////
-static longword
-SDL_SBPlaySeg(volatile byte *data,longword length)
+static Uint32
+SDL_SBPlaySeg(volatile Uint8 *data,Uint32 length)
 {
 // FIXME
 #if 0
 	unsigned		datapage;
-	longword		dataofs,uselen;
+	Uint32		dataofs,uselen;
 
 	uselen = length;
 	datapage = FP_SEG(data) >> 12;
@@ -470,20 +470,20 @@ asm	cli
 	outportb(0x0a,sbDMA | 4);					// Mask off DMA on channel sbDMA
 	outportb(0x0c,0);							// Clear byte ptr flip-flop to lower byte
 	outportb(0x0b,sbDMA | 0x48);				// Set transfer mode for D/A conv (Single, address increment, read)
-	outportb(sbDMAa2,(byte)dataofs);			// Give LSB of address
-	outportb(sbDMAa2,(byte)(dataofs >> 8));		// Give MSB of address
-	outportb(sbDMAa1,(byte)datapage);			// Give page of address
-	outportb(sbDMAa3,(byte)uselen);				// Give LSB of length
-	outportb(sbDMAa3,(byte)(uselen >> 8));		// Give MSB of length
+	outportb(sbDMAa2,(Uint8)dataofs);			// Give LSB of address
+	outportb(sbDMAa2,(Uint8)(dataofs >> 8));		// Give MSB of address
+	outportb(sbDMAa1,(Uint8)datapage);			// Give page of address
+	outportb(sbDMAa3,(Uint8)uselen);				// Give LSB of length
+	outportb(sbDMAa3,(Uint8)(uselen >> 8));		// Give MSB of length
 	outportb(0x0a,sbDMA);						// Re-enable DMA on channel sbDMA
 
 	// Start playing the thing
 	sbWriteDelay();
 	sbOut(sbWriteCmd,0x14);
 	sbWriteDelay();
-	sbOut(sbWriteData,(byte)uselen);
+	sbOut(sbWriteData,(Uint8)uselen);
 	sbWriteDelay();
-	sbOut(sbWriteData,(byte)(uselen >> 8));
+	sbOut(sbWriteData,(Uint8)(uselen >> 8));
 asm	popf
 
 	return(uselen + 1);
@@ -502,7 +502,7 @@ SDL_SBService(void)
 {
 // FIXME
 #if 0
-	longword	used;
+	Uint32	used;
 
 #if 0	// for debugging
 asm	mov	dx,STATUS_REGISTER_1
@@ -563,11 +563,11 @@ void
 #else
 static void
 #endif
-SDL_SBPlaySample(byte *data,longword len)
+SDL_SBPlaySample(Uint8 *data,Uint32 len)
 {
 // FIXME
 #if 0
-	longword	used;
+	Uint32	used;
 
 	SDL_SBStopSample();
 
@@ -608,11 +608,11 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-SDL_PositionSBP(short leftpos,short rightpos)
+SDL_PositionSBP(Sint16 leftpos,Sint16 rightpos)
 {
 // FIXME
 #if 0
-	byte	v;
+	Uint8	v;
 
 	if (!SBProPresent)
 		return;
@@ -638,7 +638,7 @@ asm	popf
 //
 ///////////////////////////////////////////////////////////////////////////
 static boolean
-SDL_CheckSB(short port)
+SDL_CheckSB(Sint16 port)
 {
 // FIXME
 #if 0
@@ -693,9 +693,9 @@ asm	loop usecloop
 //
 ///////////////////////////////////////////////////////////////////////////
 static boolean
-SDL_DetectSoundBlaster(short port)
+SDL_DetectSoundBlaster(Sint16 port)
 {
-	short	i;
+	Sint16	i;
 
 	if (port == 0)					// If user specifies default, use 2
 		port = 2;
@@ -728,7 +728,7 @@ SDL_DetectSoundBlaster(short port)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-SDL_SBSetDMA(byte channel)
+SDL_SBSetDMA(Uint8 channel)
 {
 	if (channel > 3)
 		SD_ERROR(SD_STARTUP_BAD_DMA);
@@ -749,7 +749,7 @@ SDL_StartSB(void)
 {
 // FIXME
 #if 0
-	byte	timevalue,test;
+	Uint8	timevalue,test;
 
 	sbIntVec = sbIntVectors[sbInterrupt];
 	if (sbIntVec < 0)
@@ -835,10 +835,10 @@ SDL_ShutSB(void)
 //	Sound Source Code
 
 void
-SDL_SSSetVol(word vol)
+SDL_SSSetVol(Uint16 vol)
 {
-	short		i;
-	long	v;
+	Sint16		i;
+	Sint32	v;
 
 	if (vol == ssVol)
 		return;
@@ -858,9 +858,9 @@ SDL_SSSetVol(word vol)
 }
 
 static void
-SDL_PositionSS(short leftpos,short rightpos)
+SDL_PositionSS(Sint16 leftpos,Sint16 rightpos)
 {
-	short	pos;
+	Sint16	pos;
 
 	pos = (leftpos > rightpos)? rightpos : leftpos;
 	pos = 15 - pos;
@@ -886,7 +886,7 @@ SDL_SSStopSample(void)
 asm	pushf
 asm	cli
 
-	(long)ssSample = 0;
+	(Sint32)ssSample = 0;
 
 asm	popf
 #endif // 0
@@ -903,7 +903,7 @@ SDL_SSService(void)
 // FIXME
 #if 0
 	boolean	gotit;
-	byte	v;
+	Uint8	v;
 
 	while (ssSample)
 	{
@@ -916,7 +916,7 @@ SDL_SSService(void)
 		v = ssVolTable[v];
 		if (!(--ssLengthLeft))
 		{
-			(long)ssSample = 0;
+			(Sint32)ssSample = 0;
 			SDL_DigitizedDone();
 		}
 
@@ -951,7 +951,7 @@ void
 #else
 static void
 #endif
-SDL_SSPlaySample(byte *data,longword len)
+SDL_SSPlaySample(Uint8 *data,Uint32 len)
 {
 // FIXME
 #if 0
@@ -959,7 +959,7 @@ asm	pushf
 asm	cli
 
 	ssLengthLeft = len;
-	ssSample = (volatile byte *)data;
+	ssSample = (volatile Uint8 *)data;
 
 asm	popf
 #endif // 0
@@ -1023,7 +1023,7 @@ SDL_CheckSS(void)
 
 // FIXME
 #if 0
-	longword	lasttime;
+	Uint32	lasttime;
 
 	// Turn the Sound Source on and wait awhile (4 ticks)
 	SDL_StartSS();
@@ -1131,7 +1131,7 @@ asm	pushf
 asm	cli
 #endif // 0
 
-	(long)pcSound = 0;
+	(Sint32)pcSound = 0;
 
 // FIXME
 #if 0
@@ -1152,8 +1152,8 @@ asm	popf
 static void
 SDL_PCService(void)
 {
-	byte	s;
-	word	t;
+	Uint8	s;
+	Uint16	t;
 
 	if (pcSound)
 	{
@@ -1228,7 +1228,7 @@ asm	popf
 //
 //	Stuff for digitized sounds
 //
-void* SDL_LoadDigiSegment(word page)
+void* SDL_LoadDigiSegment(Uint16 page)
 {
 	void*	addr;
 
@@ -1260,7 +1260,7 @@ asm	out	dx,al
 }
 
 void
-SDL_PlayDigiSegment(void* addr,word len)
+SDL_PlayDigiSegment(void* addr,Uint16 len)
 {
 	switch (DigiMode)
 	{
@@ -1276,7 +1276,7 @@ SDL_PlayDigiSegment(void* addr,word len)
 void
 SD_StopDigitized(void)
 {
-	short	i;
+	Sint16	i;
 
 // FIXME
 #if 0
@@ -1373,7 +1373,7 @@ SD_Poll(void)
 }
 
 void
-SD_SetPosition(short leftpos,short rightpos)
+SD_SetPosition(Sint16 leftpos,Sint16 rightpos)
 {
 	if
 	(
@@ -1397,12 +1397,12 @@ SD_SetPosition(short leftpos,short rightpos)
 }
 
 void
-SD_PlayDigitized(word which,short leftpos,short rightpos)
+SD_PlayDigitized(Uint16 which,Sint16 leftpos,Sint16 rightpos)
 {
-	short		i;
-	byte	timevalue;
-	word	pages;
-	word	len;
+	Sint16		i;
+	Uint8	timevalue;
+	Uint16	pages;
+	Uint16	len;
 	void*	addr;
 
 	if (!DigiMode)
@@ -1534,22 +1534,22 @@ void
 SDL_SetupDigi(void)
 {
 	void*	list;
-	const word* p;
-	word pg;
-	short		i;
+	const Uint16* p;
+	Uint16 pg;
+	Sint16		i;
 
     list = malloc(PMPageSize);
-	p = (word *)PM_GetPage(ChunksInFile - 1);
+	p = (Uint16 *)PM_GetPage(ChunksInFile - 1);
 	memcpy(list, p, PMPageSize);
 	pg = PMSoundStart;
-	for (i = 0;i < PMPageSize / (sizeof(word) * 2);i++,p += 2)
+	for (i = 0;i < PMPageSize / (sizeof(Uint16) * 2);i++,p += 2)
 	{
 		if (pg >= ChunksInFile - 1)
 			break;
 		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
 	}
-    DigiList = (word*)malloc(i * sizeof(word) * 2);
-	memcpy(DigiList, list, i * sizeof(word) * 2);
+    DigiList = (Uint16*)malloc(i * sizeof(Uint16) * 2);
+	memcpy(DigiList, list, i * sizeof(Uint16) * 2);
     free(list);
 	NumDigi = i;
 
@@ -1566,7 +1566,7 @@ SDL_SetupDigi(void)
 ///////////////////////////////////////////////////////////////////////////
 
 void
-alOut(byte n,byte b)
+alOut(Uint8 n,Uint8 b)
 {
 // FIXME
 #if 0
@@ -1596,7 +1596,7 @@ asm	popf
 static void
 SDL_SetInstrument(int track,int which,Instrument *inst,boolean percussive)
 {
-	byte		c,m;
+	Uint8		c,m;
 
 	if (percussive)
 	{
@@ -1650,7 +1650,7 @@ SDL_ALStopSound(void)
 asm	pushf
 asm	cli
 
-	(long)alSound = 0;
+	(Sint32)alSound = 0;
 	alOut(alFreqH + 0,0);
 
 asm	popf
@@ -1660,7 +1660,7 @@ asm	popf
 static void
 SDL_AlSetFXInst(Instrument *inst)
 {
-	byte		c,m;
+	Uint8		c,m;
 
 	m = modifiers[0];
 	c = carriers[0];
@@ -1695,7 +1695,7 @@ SDL_ALPlaySound(AdLibSound *sound)
 // FIXME
 #if 0
 	Instrument	*inst;
-	byte		*data;
+	Uint8		*data;
 
 	SDL_ALStopSound();
 
@@ -1706,7 +1706,7 @@ asm	cli
 	data = sound->data;
 	data++;
 	data--;
-	alSound = (byte *)data;
+	alSound = (Uint8 *)data;
 	alBlock = ((sound->block & 7) << 2) | 0x20;
 	inst = &sound->inst;
 
@@ -1733,7 +1733,7 @@ asm	popf
 void
 SDL_ALSoundService(void)
 {
-	byte	s;
+	Uint8	s;
 
 	if (alSound)
 	{
@@ -1748,7 +1748,7 @@ SDL_ALSoundService(void)
 
 		if (!(--alLengthLeft))
 		{
-			(long)alSound = 0;
+			(Sint32)alSound = 0;
 			alOut(alFreqH + 0,0);
 			SDL_SoundFinished();
 		}
@@ -1760,8 +1760,8 @@ SDL_ALSoundService(void)
 void
 SDL_ALService(void)
 {
-	byte	a,v;
-	word	w;
+	Uint8	a,v;
+	Uint16	w;
 
 	if (!sqActive)
 		return;
@@ -1779,7 +1779,7 @@ SDL_ALService(void)
 	alTimeCount++;
 	if (!sqHackLen)
 	{
-		sqHackPtr = (word *)sqHack;
+		sqHackPtr = (Uint16 *)sqHack;
 		sqHackLen = sqHackSeqLen;
 		alTimeCount = sqHackTime = 0;
 	}
@@ -1855,7 +1855,7 @@ SDL_DetectAdLib(void)
 {
 // FIXME
 #if 0
-	byte	status1,status2;
+	Uint8	status1,status2;
 	int		i;
 
 	alOut(4,0x60);	// Reset T1 & T2
@@ -1903,7 +1903,7 @@ asm	loop usecloop
 static void interrupt
 SDL_t0Service(void)
 {
-static	word	count = 1;
+static	Uint16	count = 1;
 
 #if 0	// for debugging
 asm	mov	dx,STATUS_REGISTER_1
@@ -2047,7 +2047,7 @@ boolean
 SD_SetSoundMode(SDMode mode)
 {
 	boolean	result = false;
-	word	tableoffset;
+	Uint16	tableoffset;
 
 	SD_StopSound();
 
@@ -2085,7 +2085,7 @@ SD_SetSoundMode(SDMode mode)
 		SDL_ShutDevice();
 		SoundMode = mode;
 #ifndef	_MUSE_
-		SoundTable = (word *)(&audiosegs[tableoffset]);
+		SoundTable = (Uint16 *)(&audiosegs[tableoffset]);
 #endif
 		SDL_StartDevice();
 	}
@@ -2141,7 +2141,7 @@ SD_SetMusicMode(SMMode mode)
 void
 SD_Startup(void)
 {
-	short	i;
+	Sint16	i;
 
 	if (SD_Started)
 		return;
@@ -2209,11 +2209,11 @@ SD_Startup(void)
 		AdLibPresent = SDL_DetectAdLib();
 		if (AdLibPresent && !sbNoCheck)
 		{
-			short port = -1;
+			Sint16 port = -1;
 			char *env = getenv("BLASTER");
 			if (env)
 			{
-				long temp;
+				Sint32 temp;
 				while (*env)
 				{
 					while (isspace(*env))
@@ -2387,7 +2387,7 @@ SD_SetUserHook(void (* hook)(void))
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-SD_PositionSound(short leftvol,short rightvol)
+SD_PositionSound(Sint16 leftvol,Sint16 rightvol)
 {
 	LeftPosition = leftvol;
 	RightPosition = rightvol;
@@ -2490,7 +2490,7 @@ SD_PlaySound(soundnames sound)
 //		no sound is playing
 //
 ///////////////////////////////////////////////////////////////////////////
-word
+Uint16
 SD_SoundPlaying(void)
 {
 	boolean	result = false;
@@ -2568,7 +2568,7 @@ SD_MusicOn(void)
 void
 SD_MusicOff(void)
 {
-	word	i;
+	Uint16	i;
 
 	sqActive = false;
 	switch (MusicMode)

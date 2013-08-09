@@ -3,7 +3,7 @@
 //
 
 
-#include <dos.h>
+#include "SDL.h"
 
 
 typedef enum {
@@ -18,44 +18,44 @@ typedef enum {
 } ShadingOptions;
 
 
-extern short mr_rowofs;
-extern short mr_count;
-extern short mr_xstep;
-extern short mr_ystep;
-extern short mr_xfrac;
-extern short mr_yfrac;
-extern short mr_dest;
+extern Sint16 mr_rowofs;
+extern Sint16 mr_count;
+extern Sint16 mr_xstep;
+extern Sint16 mr_ystep;
+extern Sint16 mr_xfrac;
+extern Sint16 mr_yfrac;
+extern Sint16 mr_dest;
 
-extern unsigned char* shadingtable;
+extern Uint8* shadingtable;
 
 
-unsigned char planepics[8192]; // 4k of ceiling, 4k of floor
+Uint8 planepics[8192]; // 4k of ceiling, 4k of floor
 
 
 static void generic_map_row(
     DrawOptions draw_options,
     ShadingOptions shading_options)
 {
-    short i;
-    short dest;
-    short count;
-    short rowofs;
-    unsigned long xy;
-    unsigned long xy_step;
-    unsigned long xy_frac;
-    unsigned short pics_index;
-    unsigned char ceiling_index;
-    unsigned char flooring_index;
-    unsigned char* screen;
+    Sint16 i;
+    Sint16 dest;
+    Sint16 count;
+    Sint16 rowofs;
+    Uint32 xy;
+    Uint32 xy_step;
+    Uint32 xy_frac;
+    Uint16 pics_index;
+    Uint8 ceiling_index;
+    Uint8 flooring_index;
+    Uint8* screen;
 
     rowofs = mr_rowofs;
     count = mr_count;
 
-    xy_step = ((unsigned long)mr_ystep) << 16;
-    xy_step |= ((unsigned long)mr_xstep) & 0xFFFF;
+    xy_step = ((Uint32)mr_ystep) << 16;
+    xy_step |= ((Uint32)mr_xstep) & 0xFFFF;
 
-    xy_frac = ((unsigned long)mr_yfrac) << 16;
-    xy_frac |= ((unsigned long)mr_xfrac) & 0xFFFF;
+    xy_frac = ((Uint32)mr_yfrac) << 16;
+    xy_frac |= ((Uint32)mr_xfrac) & 0xFFFF;
 
     dest = mr_dest;
 

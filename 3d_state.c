@@ -6,10 +6,10 @@
 #pragma hdrstop
 
 
-void OpenDoor (short door);
+void OpenDoor (Sint16 door);
 void A_DeathScream (objtype *ob);
-void PlaceItemType (short itemtype, short tilex, short tiley);
-void PlaceItemNearTile(short itemtype, short tilex, short tiley);
+void PlaceItemType (Sint16 itemtype, Sint16 tilex, Sint16 tiley);
+void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley);
 void ChangeShootMode(objtype *ob);
 
 
@@ -49,11 +49,11 @@ dirtype diagonal[9][9] =
 
 
 
-void	SpawnNewObj (unsigned short tilex, unsigned short tiley, statetype *state);
+void	SpawnNewObj (Uint16 tilex, Uint16 tiley, statetype *state);
 void	NewState (objtype *ob, statetype *state);
 
 boolean TryWalk (objtype *ob, boolean moveit);
-void	MoveObj (objtype *ob, long move);
+void	MoveObj (objtype *ob, Sint32 move);
 
 void	KillActor (objtype *ob);
 
@@ -88,7 +88,7 @@ boolean ElevatorFloor(char x, char y);
 ===================
 */
 
-void SpawnNewObj (unsigned short tilex, unsigned short tiley, statetype *state)
+void SpawnNewObj (Uint16 tilex, Uint16 tiley, statetype *state)
 {
 	GetNewActor ();
 	new->state = state;
@@ -96,8 +96,8 @@ void SpawnNewObj (unsigned short tilex, unsigned short tiley, statetype *state)
 
 	new->tilex = tilex;
 	new->tiley = tiley;
-	new->x = ((long)tilex<<TILESHIFT)+TILEGLOBAL/2;
-	new->y = ((long)tiley<<TILESHIFT)+TILEGLOBAL/2;
+	new->x = ((Sint32)tilex<<TILESHIFT)+TILEGLOBAL/2;
+	new->y = ((Sint32)tiley<<TILESHIFT)+TILEGLOBAL/2;
 	new->dir = new->trydir = nodir;
 
 	if (!nevermark)
@@ -168,7 +168,7 @@ void NewState (objtype *ob, statetype *state)
 
 #define CHECKDIAG(x,y)								\
 {                                                   \
-	temp=(unsigned short)actorat[x][y];                   \
+	temp=(Uint16)actorat[x][y];                   \
 	if (temp)                                       \
 	{                                               \
 		if (temp<256)    										 \
@@ -182,7 +182,7 @@ void NewState (objtype *ob, statetype *state)
 
 #define CHECKSIDE(x,y)								\
 {                                                   \
-	temp=(unsigned short)actorat[x][y];                   \
+	temp=(Uint16)actorat[x][y];                   \
 	if (temp)                                       \
 	{                                               \
 		if (temp<128)                               \
@@ -200,9 +200,9 @@ void NewState (objtype *ob, statetype *state)
 
 boolean TryWalk (objtype *ob, boolean moveit)
 {
-	short			doornum;
-	unsigned short	temp;
-	byte old_tilex=ob->tilex,old_tiley=ob->tiley;
+	Sint16			doornum;
+	Uint16	temp;
+	Uint8 old_tilex=ob->tilex,old_tiley=ob->tiley;
 
 	if (ElevatorFloor(ob->tilex,ob->tiley))
 		return(false);
@@ -409,7 +409,7 @@ boolean TryWalk (objtype *ob, boolean moveit)
 //--------------------------------------------------------------------------
 boolean ElevatorFloor(char x, char y)
 {
-	byte tile=*(mapsegs[0]+farmapylookup[y]+x);
+	Uint8 tile=*(mapsegs[0]+farmapylookup[y]+x);
 
 	if (tile >= HIDDENAREATILE)
 		tile -= HIDDENAREATILE;
@@ -445,8 +445,8 @@ boolean ElevatorFloor(char x, char y)
 
 void SelectDodgeDir (objtype *ob)
 {
-	short 		deltax,deltay,i;
-	unsigned short	absdx,absdy;
+	Sint16 		deltax,deltay,i;
+	Uint16	absdx,absdy;
 	dirtype 	dirtry[5];
 	dirtype 	turnaround,tdir;
 
@@ -563,7 +563,7 @@ void SelectDodgeDir (objtype *ob)
 
 void SelectChaseDir (objtype *ob)
 {
-	short deltax,deltay,i;
+	Sint16 deltax,deltay,i;
 	dirtype d[3];
 	dirtype tdir, olddir, turnaround;
 
@@ -668,9 +668,9 @@ void SelectChaseDir (objtype *ob)
 //--------------------------------------------------------------------------
 void GetCornerSeek(objtype *ob)
 {
-	unsigned char SeekPointX[]={32,63,32,1};		// s_tilex can't seek to 0!
-	unsigned char SeekPointY[]={1,63,32,1};
-	unsigned char seek_tile=US_RndT()&3;
+	Uint8 SeekPointX[]={32,63,32,1};		// s_tilex can't seek to 0!
+	Uint8 SeekPointY[]={1,63,32,1};
+	Uint8 seek_tile=US_RndT()&3;
 
 	ob->flags &= ~FL_RUNTOSTATIC;
 	ob->s_tilex = SeekPointX[seek_tile];
@@ -694,11 +694,11 @@ void GetCornerSeek(objtype *ob)
 =================
 */
 
-extern long last_objy;
+extern Sint32 last_objy;
 
-void MoveObj (objtype *ob, long move)
+void MoveObj (objtype *ob, Sint32 move)
 {
-	long	deltax,deltay;
+	Sint32	deltax,deltay;
 
 //	if (DebugOk && Keyboard[sc_Z])
 //		return;
@@ -825,7 +825,7 @@ char dki_msg[]=
 				  "^FC19	    DO NOT SHOOT\r"
 						 "	    INFORMANTS!!\r";
 
-unsigned short actor_points[]={	1025,				// rent-a-cop
+Uint16 actor_points[]={	1025,				// rent-a-cop
 										1050,				// turret
 										500,				// general scientist
 										5075,				// pod alien
@@ -887,13 +887,13 @@ objtype *CheckAndReserve(void)
 }
 
 #ifdef TRACK_ENEMY_COUNT
-extern short numEnemy[];
+extern Sint16 numEnemy[];
 #endif
 
 void KillActor (objtype *ob)
 {
 	char buff[4];
-	short	tilex,tiley;
+	Sint16	tilex,tiley;
 	boolean KeepSolid = false, givepoints=true, deadguy = true;
 	classtype clas;
 
@@ -1204,9 +1204,9 @@ extern statetype s_proshoot2;
 extern statetype s_goldmorphwait1;
 extern boolean barrier_damage;
 
-void DamageActor (objtype *ob, unsigned short damage, objtype *attacker)
+void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 {
-	short old_hp = ob->hitpoints,wound_mod,mod_before=0,mod_after=1;
+	Sint16 old_hp = ob->hitpoints,wound_mod,mod_before=0,mod_after=1;
 
 	if (!(ob->flags & FL_SHOOTABLE))
 		return;
@@ -1277,7 +1277,7 @@ void DamageActor (objtype *ob, unsigned short damage, objtype *attacker)
 			case scan_wait_alienobj:		// These actors do not have an ouch!
 			case lcan_wait_alienobj:		// So... RETURN!
 			case gurney_waitobj:
-				if (!(ob->temp2 = (unsigned short)CheckAndReserve()))
+				if (!(ob->temp2 = (Uint16)CheckAndReserve()))
 				{
 					ob->hitpoints += damage;
 					return;
@@ -1288,7 +1288,7 @@ void DamageActor (objtype *ob, unsigned short damage, objtype *attacker)
 			case goldsternobj:
 				if (gamestate.mapon == GOLD_MORPH_LEVEL)
 				{
-					extern short morphWaitTime;
+					extern Sint16 morphWaitTime;
 					extern boolean noShots;
 
 					morphWaitTime = 60;
@@ -1302,7 +1302,7 @@ void DamageActor (objtype *ob, unsigned short damage, objtype *attacker)
 
 		}
 
-		SLIDE_TEMP(ob) = (unsigned short)attacker;
+		SLIDE_TEMP(ob) = (Uint16)attacker;
 		KillActor (ob);
 		return;
 	}
@@ -1456,14 +1456,14 @@ void DamageActor (objtype *ob, unsigned short damage, objtype *attacker)
 
 boolean CheckLine (objtype *ob)
 {
-	short	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
-	short	x,y,xl,xh,yl,yh;
-	short	xdist,ydist,xstep,ystep;
-	short	temp;
-	short	partial,delta;
-	long	ltemp;
-	unsigned short	xfrac,yfrac,deltafrac;
-	unsigned short	value,intercept;
+	Sint16	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
+	Sint16	x,y,xl,xh,yl,yh;
+	Sint16	xdist,ydist,xstep,ystep;
+	Sint16	temp;
+	Sint16	partial,delta;
+	Sint32	ltemp;
+	Uint16	xfrac,yfrac,deltafrac;
+	Uint16	value,intercept;
 
 
 
@@ -1503,21 +1503,21 @@ boolean CheckLine (objtype *ob)
 		}
 
 		delta = yh-yl;
-		ltemp = ((long)delta<<8)/deltafrac;
+		ltemp = ((Sint32)delta<<8)/deltafrac;
 		if (ltemp > 0x7fffl)
 			ystep = 0x7fff;
 		else if (ltemp < -0x7fffl)
 			ystep = -0x7fff;
 		else
 			ystep = ltemp;
-		yfrac = yl + (((long)ystep*partial) >>8);
+		yfrac = yl + (((Sint32)ystep*partial) >>8);
 
 		for (x=xl+1 ; x <= xh ; x++)
 		{
 			y = yfrac>>8;
 			yfrac += ystep;
 
-			if (!(value = (unsigned short)tilemap[x][y]) )
+			if (!(value = (Uint16)tilemap[x][y]) )
 				continue;
 
 			if (value<128 || value>256)
@@ -1557,21 +1557,21 @@ boolean CheckLine (objtype *ob)
 		}
 
 		delta = xh-xl;
-		ltemp = ((long)delta<<8)/deltafrac;
+		ltemp = ((Sint32)delta<<8)/deltafrac;
 		if (ltemp > 0x7fffl)
 			xstep = 0x7fff;
 		else if (ltemp < -0x7fffl)
 			xstep = -0x7fff;
 		else
 			xstep = ltemp;
-		xfrac = xl + (((long)xstep*partial) >>8);
+		xfrac = xl + (((Sint32)xstep*partial) >>8);
 
 		for (y=yl+1 ; y<= yh ; y++)
 		{
 			x = xfrac>>8;
 			xfrac += xstep;
 
-			if (!(value = (unsigned short)tilemap[x][y]) )
+			if (!(value = (Uint16)tilemap[x][y]) )
 				continue;
 
 			if (value<128 || value>256)
@@ -1596,14 +1596,14 @@ boolean CheckLine (objtype *ob)
 
 boolean CheckLine (objtype *from_obj, objtype *to_obj)
 {
-	short	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
-	short	x,y;
-	short	xdist,ydist,xstep,ystep;
-	short	temp;
-	short	partial,delta;
-	long	ltemp;
-	short	xfrac,yfrac,deltafrac;
-	unsigned short	value,intercept;
+	Sint16	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
+	Sint16	x,y;
+	Sint16	xdist,ydist,xstep,ystep;
+	Sint16	temp;
+	Sint16	partial,delta;
+	Sint32	ltemp;
+	Sint16	xfrac,yfrac,deltafrac;
+	Uint16	value,intercept;
 
 
 
@@ -1640,14 +1640,14 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 		if (!deltafrac)
 			deltafrac=1;
 		delta = y2-y1;
-		ltemp = ((long)delta<<8)/deltafrac;
+		ltemp = ((Sint32)delta<<8)/deltafrac;
 		if (ltemp > 0x7fffl)
 			ystep = 0x7fff;
 		else if (ltemp < -0x7fffl)
 			ystep = -0x7fff;
 		else
 			ystep = ltemp;
-		yfrac = y1 + (((long)ystep*partial) >>8);
+		yfrac = y1 + (((Sint32)ystep*partial) >>8);
 
 		x = xt1+xstep;
 		xt2 += xstep;
@@ -1656,7 +1656,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 			y = yfrac>>8;
 			yfrac += ystep;
 
-			value = (unsigned short)tilemap[x][y];
+			value = (Uint16)tilemap[x][y];
 			x += xstep;
 
 			if (!value)
@@ -1696,14 +1696,14 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 		if (!deltafrac)
 			deltafrac=1;
 		delta = x2-x1;
-		ltemp = ((long)delta<<8)/deltafrac;
+		ltemp = ((Sint32)delta<<8)/deltafrac;
 		if (ltemp > 0x7fffl)
 			xstep = 0x7fff;
 		else if (ltemp < -0x7fffl)
 			xstep = -0x7fff;
 		else
 			xstep = ltemp;
-		xfrac = x1 + (((long)xstep*partial) >>8);
+		xfrac = x1 + (((Sint32)xstep*partial) >>8);
 
 		y = yt1 + ystep;
 		yt2 += ystep;
@@ -1712,7 +1712,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 			x = xfrac>>8;
 			xfrac += xstep;
 
-			value = (unsigned short)tilemap[x][y];
+			value = (Uint16)tilemap[x][y];
 			y += ystep;
 
 			if (!value)
@@ -1754,7 +1754,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 
 boolean CheckSight (objtype *from_obj, objtype *to_obj)
 {
-	long		deltax,deltay;
+	Sint32		deltax,deltay;
 
 //
 // don't bother tracing a line if the area isn't connected to the player's
@@ -1931,7 +1931,7 @@ void FirstSighting (objtype *ob)
 #pragma warn -pia
 		if (ob->temp3)
 		{
-			if (ob->temp2 = (unsigned short)CheckAndReserve())
+			if (ob->temp2 = (Uint16)CheckAndReserve())
 			{
 				ob->flags &= ~(FL_SHOOTABLE);
 				InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3,at_ONCE, ad_FWD);
@@ -2119,10 +2119,10 @@ boolean SightPlayer (objtype *ob)
 // SEE ALSO: MACRO "ObjVisable(from_obj,to_obj)"					-- 3D_DEF.h
 //
 //--------------------------------------------------------------------------
-boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, short from_angle)
+boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, Sint16 from_angle)
 {
-	long		deltax,deltay;
-	short		angle,dif;
+	Sint32		deltax,deltay;
+	Sint16		angle,dif;
 	float		fangle;
 
 	deltax = from_x - to_x;
@@ -2154,14 +2154,14 @@ boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, short fro
 // 				  If the sight is ok, check angle to see if they notice
 // 				  returns true if the player has been spoted
 //--------------------------------------------------------------------------
-short AdjAngleTable[2][8] = {{225,270,315,360, 45, 90,135,180},      // Upper Bound
+Sint16 AdjAngleTable[2][8] = {{225,270,315,360, 45, 90,135,180},      // Upper Bound
 									 { 180,225,270,315,  0, 45, 90,135}};	   // Lower Bound
 
 
 boolean CheckView(objtype *from_obj, objtype *to_obj)
 {
-	long		deltax,deltay;
-	short		angle;
+	Sint32		deltax,deltay;
+	Sint16		angle;
 	float		fangle;
 
 	//
@@ -2200,7 +2200,7 @@ boolean CheckView(objtype *from_obj, objtype *to_obj)
 //--------------------------------------------------------------------------
 boolean LookForDeadGuys(objtype *obj)
 {
-	unsigned char loop;
+	Uint8 loop;
 	boolean DeadGuyFound=false;
 
 	if ((obj->obclass == gen_scientistobj) && (obj->flags & FL_INFORMANT))
@@ -2221,7 +2221,7 @@ boolean LookForDeadGuys(objtype *obj)
 //--------------------------------------------------------------------------
 // LookForGoodies()
 //--------------------------------------------------------------------------
-boolean LookForGoodies(objtype *ob, unsigned short RunReason)
+boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 {
 //	#define ONE_TRACK_MIND
 
@@ -2268,7 +2268,7 @@ boolean LookForGoodies(objtype *ob, unsigned short RunReason)
 				//
 					if ((statptr->tilex==ob->tilex) && (statptr->tiley==ob->tiley))
 					{
-						short shapenum = -1;
+						Sint16 shapenum = -1;
 
 						switch (statptr->itemnumber)
 						{
@@ -2393,14 +2393,14 @@ boolean LookForGoodies(objtype *ob, unsigned short RunReason)
 		//
 			doornum = Random(doorsfound);
 			door = doorlist[doornum];
-			if (((unsigned short)door == ob->temp3) && (doorsfound > 1))
+			if (((Uint16)door == ob->temp3) && (doorsfound > 1))
 			{
 				doornum++;
 				if (doornum >= doorsfound)
 					doornum=0;
 				door = doorlist[doornum];
 			}
-			ob->temp3 = (unsigned short)door;
+			ob->temp3 = (Uint16)door;
 
 			ob->s_tilex = door->tilex;
 			ob->s_tiley = door->tiley;
@@ -2427,11 +2427,11 @@ boolean LookForGoodies(objtype *ob, unsigned short RunReason)
 //--------------------------------------------------------------------------
 // CheckRunChase()
 //--------------------------------------------------------------------------
-unsigned short CheckRunChase(objtype *ob)
+Uint16 CheckRunChase(objtype *ob)
 {
 	#define RUNAWAY_SPEED 1000
 
-	unsigned short RunReason=0;
+	Uint16 RunReason=0;
 
 // Mark the reason for running.
 //
@@ -2474,9 +2474,9 @@ unsigned short CheckRunChase(objtype *ob)
 //--------------------------------------------------------------------------
 // SeekPlayerOrStatic()
 //--------------------------------------------------------------------------
-void SeekPlayerOrStatic(objtype *ob, short *deltax, short *deltay)
+void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay)
 {
-	unsigned short whyrun=0;
+	Uint16 whyrun=0;
 	boolean smart=false;
 
 // Is this a "smart" actor?

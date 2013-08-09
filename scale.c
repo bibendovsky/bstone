@@ -7,14 +7,14 @@
 #include "id_vl.h"
 
 
-extern longword dc_iscale;
-extern longword dc_frac;
-extern unsigned short dc_source;
-extern unsigned short dc_seg;
-extern unsigned short dc_length;
-extern unsigned short dc_dest;
+extern Uint32 dc_iscale;
+extern Uint32 dc_frac;
+extern Uint16 dc_source;
+extern Uint16 dc_seg;
+extern Uint16 dc_length;
+extern Uint16 dc_dest;
 
-extern byte* shadingtable;
+extern Uint8* shadingtable;
 
 
 typedef enum {
@@ -25,20 +25,20 @@ typedef enum {
 
 static void generic_draw_column(DrawMode draw_mode)
 {
-    unsigned short i;
-    byte pixel;
-    long fraction = dc_frac;
+    Uint16 i;
+    Uint8 pixel;
+    Sint32 fraction = dc_frac;
 
     // FIXME
-    byte* source = (byte*)dc_seg + dc_source;
+    Uint8* source = (Uint8*)dc_seg + dc_source;
 
-    unsigned short screen_offset = dc_dest;
+    Uint16 screen_offset = dc_dest;
 
     // FIXME
-    byte* screen = (byte*)0xA0000;
+    Uint8* screen = (Uint8*)0xA0000;
 
     for (i = 0; i < dc_length; ++i) {
-        byte pixel_index = source[fraction >> 16];
+        Uint8 pixel_index = source[fraction >> 16];
 
         if (draw_mode == DRAW_LIGHTED)
             pixel = shadingtable[pixel_index];
@@ -59,13 +59,13 @@ void R_DrawColumn()
 
 void R_DrawSLSColumn()
 {
-    unsigned short i;
-    unsigned short screen_offset = dc_dest;
-    byte* screen = (byte*)0xA0000;
+    Uint16 i;
+    Uint16 screen_offset = dc_dest;
+    Uint8* screen = (Uint8*)0xA0000;
 
     for (i = 0; i < dc_length; ++i) {
-        byte pixel_index = screen[screen_offset];
-        byte pixel = shadingtable[0x1000 | pixel_index];
+        Uint8 pixel_index = screen[screen_offset];
+        Uint8 pixel = shadingtable[0x1000 | pixel_index];
         screen[screen_offset] = pixel;
         screen_offset += SCREENWIDTH;
     }

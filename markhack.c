@@ -7,14 +7,14 @@
 #include "id_vl.h"
 
 
-extern short viewwidth;
-extern short viewheight;
-extern unsigned short bufferofs;
-extern unsigned short ylookup[MAXSCANLINES];
-extern unsigned short centery;
-extern unsigned short bufx;
-extern unsigned short postheight;
-byte* shadingtable;
+extern Sint16 viewwidth;
+extern Sint16 viewheight;
+extern Uint16 bufferofs;
+extern Uint16 ylookup[MAXSCANLINES];
+extern Uint16 centery;
+extern Uint16 bufx;
+extern Uint16 postheight;
+Uint8* shadingtable;
 
 
 typedef enum {
@@ -25,17 +25,17 @@ typedef enum {
 
 static void generic_draw_post(DrawMode draw_mode)
 {
-    long step;
-    long cur_step;
+    Sint32 step;
+    Sint32 cur_step;
 
-    unsigned short i;
-    unsigned short n;
-    unsigned short fraction;
-    unsigned short screen_column;
-    unsigned char pixel;
-    unsigned char pixel_index;
+    Uint16 i;
+    Uint16 n;
+    Uint16 fraction;
+    Uint16 screen_column;
+    Uint8 pixel;
+    Uint8 pixel_index;
 
-    byte* screen;
+    Uint8* screen;
 
     if (postheight == 0)
         return;
@@ -45,7 +45,7 @@ static void generic_draw_post(DrawMode draw_mode)
     step = cur_step;
     cur_step >>= 1;
 
-    screen = (byte*)0xA0000;
+    screen = (Uint8*)0xA0000;
 
     fraction = SCREENBWIDE;
     
@@ -59,7 +59,7 @@ static void generic_draw_post(DrawMode draw_mode)
     for (i = 0; i < n; ++i) {
         // top half
 
-        pixel_index = ((byte*)postsource)[31 - (cur_step >> 16)];
+        pixel_index = ((Uint8*)postsource)[31 - (cur_step >> 16)];
 
         if (draw_mode == DRAW_LIGHTED)
             pixel = shadingtable[pixel_index];
@@ -71,7 +71,7 @@ static void generic_draw_post(DrawMode draw_mode)
 
         // bottom half
 
-        pixel_index = ((byte*)postsource)[32 + (cur_step >> 16)];
+        pixel_index = ((Uint8*)postsource)[32 + (cur_step >> 16)];
 
         if (draw_mode == DRAW_LIGHTED)
             pixel = shadingtable[pixel_index];

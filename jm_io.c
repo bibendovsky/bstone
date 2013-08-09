@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------
 // IO_FarRead()
 //--------------------------------------------------------------------------
-boolean IO_FarRead (int handle, byte *dest, long length)
+boolean IO_FarRead (int handle, Uint8 *dest, Sint32 length)
 {
 	unsigned readlen,nread;
 
@@ -35,7 +35,7 @@ boolean IO_FarRead (int handle, byte *dest, long length)
 //--------------------------------------------------------------------------
 // IO_FarWrite()
 //--------------------------------------------------------------------------
-boolean IO_FarWrite (int handle, byte *source, long length)
+boolean IO_FarWrite (int handle, Uint8 *source, Sint32 length)
 {
 	unsigned writelen,nwritten;
 
@@ -65,10 +65,10 @@ boolean IO_FarWrite (int handle, byte *source, long length)
 //--------------------------------------------------------------------------
 // IO_WriteFile()
 //--------------------------------------------------------------------------
-boolean IO_WriteFile(char *filename, void *ptr, long length)
+boolean IO_WriteFile(char *filename, void *ptr, Sint32 length)
 {
-	short handle;
-	long size;
+	Sint16 handle;
+	Sint32 size;
 
 	handle = open(filename,O_CREAT | O_BINARY | O_WRONLY,
 				S_IREAD | S_IWRITE | S_IFREG);
@@ -90,11 +90,11 @@ boolean IO_WriteFile(char *filename, void *ptr, long length)
 //--------------------------------------------------------------------------
 // IO_LoadFile()
 //--------------------------------------------------------------------------
-long IO_LoadFile (char *filename, void** dst)
+Sint32 IO_LoadFile (char *filename, void** dst)
 {
 	char buffer[5]={0,0,0,0,0};
-	short handle;
-	long size=0;
+	Sint16 handle;
+	Sint32 size=0;
 
 	if ((handle = open(filename,O_RDONLY | O_BINARY, S_IREAD)) == -1)
 		return(size);
@@ -156,8 +156,8 @@ long IO_LoadFile (char *filename, void** dst)
 //--------------------------------------------------------------------------
 void IO_CopyFile(char *sFilename, char *dFilename)
 {
-	short sHandle,dHandle;
-	unsigned short length;
+	Sint16 sHandle,dHandle;
+	Uint16 length;
 
 // Allocate memory for buffer.
 //
@@ -182,13 +182,13 @@ void IO_CopyFile(char *sFilename, char *dFilename)
 //--------------------------------------------------------------------------
 // IO_CopyHandle()
 //--------------------------------------------------------------------------
-void IO_CopyHandle(int sHandle, short dHandle, long num_bytes)
+void IO_CopyHandle(int sHandle, Sint16 dHandle, Sint32 num_bytes)
 {
 	extern boolean bombonerror;
 
 	#define CF_BUFFER_SIZE 8192
 
-	long fsize;
+	Sint32 fsize;
 	void* src;
 
 	unsigned length;

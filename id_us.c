@@ -3,10 +3,10 @@
 //
 
 
-#include <dos.h>
+#include "SDL.h"
 
 
-const unsigned char rndtable[256] = {
+const Uint8 rndtable[256] = {
     0x00, 0x08, 0x6D, 0xDC, 0xDE, 0xF1, 0x95, 0x6B, 0x4B, 0xF8, 0xFE, 0x8C,
     0x10, 0x42, 0x4A, 0x15, 0xD3, 0x2F, 0x50, 0xF2, 0x9A, 0x1B, 0xCD, 0x80,
     0xA1, 0x59, 0x4D, 0x24, 0x5F, 0x6E, 0x55, 0x30, 0xD4, 0x8C, 0xD3, 0xF9,
@@ -32,11 +32,11 @@ const unsigned char rndtable[256] = {
 };
 
 
-static short rndindex;
-static short LastRnd;
+static Sint16 rndindex;
+static Sint16 LastRnd;
 
 
-void US_InitRndT(short randomize)
+void US_InitRndT(Sint16 randomize)
 {
     if (randomize == 0)
         rndindex = 0;
@@ -50,7 +50,7 @@ void US_InitRndT(short randomize)
     }
 }
 
-short US_RndT()
+Sint16 US_RndT()
 {
     rndindex = (rndindex + 1) & 0xFF;
     return rndtable[rndindex];

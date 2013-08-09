@@ -16,11 +16,11 @@ static char *video = MK_FP(0xb000,0x0000);
 //-------------------------------------------------------------------------
 void mclear(void)
 {
-	short length = 80*25*2;
+	Sint16 length = 80*25*2;
 
 	video = MK_FP(0xb000,0x0000);
 	while (length--)
-		*(short *)video++ = 0x0f20;
+		*(Sint16 *)video++ = 0x0f20;
 
 	x=y=0;
 	video = MK_FP(0xb000,0x0000);

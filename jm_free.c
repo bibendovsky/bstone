@@ -14,17 +14,17 @@
 
 
 void MML_ClearBlock (void);
-short VL_VideoID (void);
+Sint16 VL_VideoID (void);
 void CA_CannotOpen(char *string);
-void CAL_GetGrChunkLength (short chunk);
-void CA_CacheScreen (short chunk);
+void CAL_GetGrChunkLength (Sint16 chunk);
+void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void OpenMapFile(void);
 void CloseMapFile(void);
 void ClearMemory (void);
-void PM_SetMainMemPurge(short level);
+void PM_SetMainMemPurge(Sint16 level);
 void ShutdownId (void);
 void InitRedShifts (void);
 void CAL_OptimizeNodes (huffnode *table);
@@ -65,7 +65,7 @@ void OpenAudioFile(void);
 extern int _argc;
 extern char** _argv;
 
-void SDL_SBSetDMA(byte channel);
+void SDL_SBSetDMA(Uint8 channel);
 void SDL_SetupDigi(void);
 
 //=========================================================================
@@ -97,7 +97,7 @@ char show_text5[]="---- Extra Devices ----\n\n";
 
 static	char * ParmStrings[] = {"HIDDENCARD",""};
 
-static  byte wolfdigimap[] =
+static  Uint8 wolfdigimap[] =
 {
 			// These first sounds are in the upload version
 
@@ -187,7 +187,7 @@ static  byte wolfdigimap[] =
 
 #if 0
 
-static  byte wolfdigimap[] =
+static  Uint8 wolfdigimap[] =
 {
 			// These first sounds are in the upload version
 
@@ -292,8 +292,8 @@ char JM_FREE_DATA_END[1]={0};
 
 #endif
 
-extern byte colormap[];
-byte * lightsource;
+extern Uint8 colormap[];
+Uint8 * lightsource;
 
 //=========================================================================
 //
@@ -349,7 +349,7 @@ void CA_Startup (void)
 
 extern boolean IN_Started;
 extern char * IN_ParmStrings[];
-extern boolean INL_StartJoy(word joy);
+extern boolean INL_StartJoy(Uint16 joy);
 extern boolean INL_StartMouse(void);
 extern void INL_StartKbd(void);
 
@@ -360,9 +360,9 @@ extern void INL_StartKbd(void);
 //
 ///////////////////////////////////////////////////////////////////////////
 boolean
-INL_StartJoy(word joy)
+INL_StartJoy(Uint16 joy)
 {
-	word		x,y;
+	Uint16		x,y;
 
 	IN_GetJoyAbs(joy,&x,&y);
 
@@ -388,7 +388,7 @@ void
 IN_Startup(void)
 {
 	boolean	checkjoys,checkmouse,checkNG;
-	word	i;
+	Uint16	i;
 
 	if (IN_Started)
 		return;
@@ -459,7 +459,7 @@ extern void	*nearheap;
 void MM_Startup (void)
 {
 	int i;
-	unsigned 	long length;
+	unsigned 	Sint32 length;
 	void 	*start;
 	unsigned 	segstart,seglength,endfree;
 
@@ -530,7 +530,7 @@ void MM_Startup (void)
 	mminfo.farheap = length;
 	mminfo.mainmem = mminfo.nearheap + mminfo.farheap;
 
-//	__SEGS_AVAILABLE__ = (long)(mminfo.EMSmem + mminfo.XMSmem + mminfo.mainmem) / 16;
+//	__SEGS_AVAILABLE__ = (Sint32)(mminfo.EMSmem + mminfo.XMSmem + mminfo.mainmem) / 16;
 
 //
 // allocate the misc buffer
@@ -556,7 +556,7 @@ void MM_Startup (void)
 #if !DUAL_SWAP_FILES
 
 char	EMMDriverName[9] = "EMMXXXX0";
-extern word		EMSAvail,EMSPagesAvail,EMSHandle,
+extern Uint16		EMSAvail,EMSPagesAvail,EMSHandle,
 					EMSPageFrame,EMSPhysicalPage;
 extern EMSListStruct	EMSList[];
 
@@ -565,13 +565,13 @@ boolean
 PML_StartupEMS(void)
 {
 	int		i;
-	long	size;
+	Sint32	size;
 
 	EMSPresent = false;			// Assume that we'll fail
 	EMSAvail = 0;
 
 #if 0
-	_DX = (word)EMMDriverName;
+	_DX = Uint16EMMDriverName;
 	_AX = 0x3d00;
 	geninterrupt(0x21);			// try to open EMMXXXX0 device
 asm	jnc	gothandle
@@ -623,10 +623,10 @@ asm	jc	error
 	EMSAvail = _BX;
 
 	// Don't hog all available EMS
-	size = EMSAvail * (long)EMSPageSize;
-	if (size - (EMSPageSize * 2) > (ChunksInFile * (long)PMPageSize))
+	size = EMSAvail * (Sint32)EMSPageSize;
+	if (size - (EMSPageSize * 2) > (ChunksInFile * (Sint32)PMPageSize))
 	{
-		size = (ChunksInFile * (long)PMPageSize) + EMSPageSize;
+		size = (ChunksInFile * (Sint32)PMPageSize) + EMSPageSize;
 		EMSAvail = size / EMSPageSize;
 	}
 
@@ -637,7 +637,7 @@ asm	jc	error
 		goto error;
 	EMSHandle = _DX;
 
-	mminfo.EMSmem += EMSAvail * (long)EMSPageSize;
+	mminfo.EMSmem += EMSAvail * (Sint32)EMSPageSize;
 
 	// Initialize EMS mapping cache
 	for (i = 0;i < EMSFrameCount;i++)
@@ -659,8 +659,8 @@ error:
 //
 
 extern boolean			XMSPresent;
-extern word			XMSAvail,XMSPagesAvail,XMSHandle;
-extern longword		XMSDriver;
+extern Uint16			XMSAvail,XMSPagesAvail,XMSHandle;
+extern Uint32		XMSDriver;
 extern int				XMSProtectPage;
 
 boolean
@@ -814,12 +814,12 @@ PM_Startup(void)
 extern boolean US_Started;
 extern char * US_ParmStrings[];
 extern char * US_ParmStrings2[];
-extern short USL_HardError(word errval,short ax,short bp,short si);
+extern Sint16 USL_HardError(Uint16 errval,Sint16 ax,Sint16 bp,Sint16 si);
 
 void
 US_Startup(void)
 {
-	short	i,n;
+	Sint16	i,n;
 
 	if (US_Started)
 		return;
@@ -878,7 +878,7 @@ US_Startup(void)
 
 void	VL_Startup (void)
 {
-	short i,videocard;
+	Sint16 i,videocard;
 
 #if 0
 	asm	cld;
@@ -921,7 +921,7 @@ asm	int	0x10
     const size_t VGA_MEM_SIZE = 4 * 64 * 1024;
 
     free(vga_memory);
-    vga_memory = (unsigned char*)malloc(VGA_MEM_SIZE);
+    vga_memory = (Uint8*)malloc(VGA_MEM_SIZE);
     memset(vga_memory, 0, VGA_MEM_SIZE);
 }
 
@@ -935,7 +935,7 @@ asm	int	0x10
 =================
 */
 
-void VL_ClearVideo (byte color)
+void VL_ClearVideo (Uint8 color)
 {
 // FIXME
 #if 0
@@ -1023,9 +1023,9 @@ void VL_DePlaneVGA (void)
 ====================
 */
 
-void VL_SetLineWidth (unsigned short width)
+void VL_SetLineWidth (Uint16 width)
 {
-	short i,offset;
+	Sint16 i,offset;
 
 // FIXME
 #if 0
@@ -1069,11 +1069,11 @@ const   float   radtoint = (float)FINEANGLES/2/PI;
 
 void BuildTables (void)
 {
-  short           i;
+  Sint16           i;
   float         angle,anglestep;
   double        tang;
   fixed         value;
-  byte *    temp;
+  Uint8 *    temp;
 
 
 //
@@ -1111,9 +1111,9 @@ void BuildTables (void)
 // FIXME
 #if 0
 // Fix ColorMap
-    temp = (byte*)malloc(16896);
+    temp = (Uint8*)malloc(16896);
   memcpy(temp,colormap,16896);
-  lightsource=(byte *)(((long)colormap + 255)&~0xff);
+  lightsource=(Uint8 *)(((Sint32)colormap + 255)&~0xff);
   memcpy(lightsource,temp,16384);
     free(temp);
 #endif // 0
@@ -1133,7 +1133,7 @@ void BuildTables (void)
 
 void SetupWalls (void)
 {
-	short     i;
+	Sint16     i;
 
 	//
 	// Hey! Yea You! This is where you can VERY easly setup to use a
@@ -1179,8 +1179,8 @@ void InitDigiMap (void)
 
 void CAL_SetupAudioFile (void)
 {
-	short handle;
-	long length;
+	Sint16 handle;
+	Sint32 length;
 	char fname[13];
 
 //
@@ -1195,13 +1195,13 @@ void CAL_SetupAudioFile (void)
 		CA_CannotOpen(fname);
 
 	length = filelength(handle);
-    audiostarts = (long*)malloc(length);
-	CA_FarRead(handle, (byte *)audiostarts, length);
+    audiostarts = (Sint32*)malloc(length);
+	CA_FarRead(handle, (Uint8 *)audiostarts, length);
 	close(handle);
 #else
 	audiohuffman = (huffnode *)&audiodict;
 	CAL_OptimizeNodes (audiohuffman);
-	audiostarts = (long *)FP_SEG(&audiohead);
+	audiostarts = (Sint32 *)FP_SEG(&audiohead);
 #endif
 
 //
@@ -1231,7 +1231,7 @@ void CAL_SetupGrFile (void)
 #ifdef GRHEADERLINKED
 
 	grhuffman = (huffnode *)&EGAdict;
-	grstarts = (long *)FP_SEG(&EGAhead);
+	grstarts = (Sint32 *)FP_SEG(&EGAhead);
 
 	CAL_OptimizeNodes (grhuffman);
 
@@ -1254,7 +1254,7 @@ void CAL_SetupGrFile (void)
 //
 // load the data offsets from ???head.ext
 //
-    grstarts = (long*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
+    grstarts = (Sint32*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
 
 	strcpy(fname,gheadname);
 	strcat(fname,extension);
@@ -1282,7 +1282,7 @@ void CAL_SetupGrFile (void)
 	CAL_GetGrChunkLength(STRUCTPIC);		// position file pointer
     compseg = malloc(chunkcomplen);
 	CA_FarRead (grhandle,compseg,chunkcomplen);
-	CAL_HuffExpand (compseg, (byte *)pictable,NUMPICS*sizeof(pictabletype),grhuffman,false);
+	CAL_HuffExpand (compseg, (Uint8 *)pictable,NUMPICS*sizeof(pictabletype),grhuffman,false);
 	free(compseg);
 
 
@@ -1292,7 +1292,7 @@ void CAL_SetupGrFile (void)
 	CAL_GetGrChunkLength(STRUCTPICM);		// position file pointer
 	MM_GetPtr(&compseg,chunkcomplen);
 	CA_FarRead (grhandle,compseg,chunkcomplen);
-	CAL_HuffExpand (compseg, (byte *)picmtable,NUMPICS*sizeof(pictabletype),grhuffman,false);
+	CAL_HuffExpand (compseg, (Uint8 *)picmtable,NUMPICS*sizeof(pictabletype),grhuffman,false);
 	MM_FreePtr(&compseg);
 #endif
 // MDM end
@@ -1303,7 +1303,7 @@ void CAL_SetupGrFile (void)
 void CAL_SetupGrFile()
 {
     char fname[13];
-    short handle;
+    Sint16 handle;
     void* compseg;
 
     //
@@ -1324,7 +1324,7 @@ void CAL_SetupGrFile()
     //
     // load the data offsets from ???head.ext
     //
-    grstarts = (long*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
+    grstarts = (Sint32*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
 
     strcpy(fname, gheadname);
     strcat(fname, extension);
@@ -1354,7 +1354,7 @@ void CAL_SetupGrFile()
 
     CAL_HuffExpand(
         compseg,
-        (byte*)pictable,
+        (Uint8*)pictable,
         NUMPICS * sizeof(pictabletype),
         grhuffman,
         false);
@@ -1378,7 +1378,7 @@ void CAL_SetupMapFile (void)
 {
 	int	i;
 	int handle;
-	long length,pos;
+	Sint32 length,pos;
 	char fname[13];
 
 //
@@ -1393,12 +1393,12 @@ void CAL_SetupMapFile (void)
 		CA_CannotOpen(fname);
 
 	length = filelength(handle);
-    tinf = (byte*)malloc(length);
+    tinf = (Uint8*)malloc(length);
 	CA_FarRead(handle, tinf, length);
 	close(handle);
 #else
 
-	tinf = (byte *)FP_SEG(&maphead);
+	tinf = (Uint8 *)FP_SEG(&maphead);
 
 #endif
 
@@ -1438,9 +1438,9 @@ void CAL_SetupMapFile (void)
 
 void CAL_SetupMapFile()
 {
-    short i;
-    short handle;
-    long pos;
+    Sint16 i;
+    Sint16 handle;
+    Sint32 pos;
     char fname[13];
     mapfiletype header;
     maptype* map_header;
@@ -1512,7 +1512,7 @@ void CAL_SetupMapFile()
     // allocate space for 3 64*64 planes
     //
     for (i = 0; i < MAPPLANES; ++i)
-        mapsegs[i] = (unsigned short*)malloc(2 * 64 * 64);
+        mapsegs[i] = (Uint16*)malloc(2 * 64 * 64);
 
 #if FORCE_FILE_CLOSE
     CloseMapFile();
@@ -1539,7 +1539,7 @@ void ReadConfig(void)
 	SDSMode         sds;
 
 	boolean config_found=false;
-	unsigned short flags=gamestate.flags;
+	Uint16 flags=gamestate.flags;
 	MakeDestPath(configname);
 
 	if ( (file = open(tempPath,O_BINARY | O_RDONLY)) != -1)
@@ -1548,7 +1548,7 @@ void ReadConfig(void)
 	// valid config file
 	//
         int i;
-        short enum_buffer;
+        Sint16 enum_buffer;
 
         for (i = 0; i < MaxScores; ++i) {
             HighScore* score = &Scores[i];
@@ -1690,9 +1690,9 @@ void ReadConfig(void)
 void Patch386 (void)
 {
 extern void jabhack2(void);
-extern short  CheckIs386(void);
+extern int  CheckIs386(void);
 
-	short     i;
+	Sint16     i;
 
 	for (i = 1;i < _argc;i++)
 		switch (US_CheckParm(_argv[i],JHParmStrings))
@@ -1761,7 +1761,7 @@ asm	retf
 #define CHECK_FOR_EPISODES
 
 extern CP_itemtype NewEmenu[];
-extern short EpisodeSelect[];
+extern Sint16 EpisodeSelect[];
 
 
 //-------------------------------------------------------------------------
@@ -1772,7 +1772,7 @@ void CheckForEpisodes(void)
     struct _finddata_t fd;
     intptr_t fd_handle;
 
-	short i;
+	Sint16 i;
 
 // FIXME Make cross-platform
 #if (GAME_VERSION != SHAREWARE_VERSION)
@@ -1826,7 +1826,7 @@ void CheckForEpisodes(void)
 void CheckForEpisodes(void)
 {
 	struct ffblk f;
-	short i;
+	Sint16 i;
 
 #if (GAME_VERSION != SHAREWARE_VERSION)
 #ifdef CHECK_FOR_EPISODES
@@ -1925,7 +1925,7 @@ extern char bc_buffer[];
 //------------------------------------------------------------------------
 void PreDemo()
 {
-	short i;
+	Sint16 i;
 
 
 #if TECH_SUPPORT_VERSION
@@ -2023,7 +2023,7 @@ void PreDemo()
 	// Cleanup screen for upcoming SetPalette call
 	//
 		{
-		unsigned short old_bufferofs=bufferofs;
+		Uint16 old_bufferofs=bufferofs;
 
 		bufferofs=displayofs;
 		VL_Bar(0,0,320,200,0);
@@ -2091,7 +2091,7 @@ void PreDemo()
 
 		if (PowerBall)
       {
-      	short i;
+      	Sint16 i;
 
 			for (i=0;i<60 && (!DebugOk);i++)
    	   {
@@ -2137,8 +2137,8 @@ void PreDemo()
 //------------------------------------------------------------------------
 void InitGame (void)
 {
-	short                     i,x,y;
-	unsigned short        *blockstart;
+	Sint16                     i,x,y;
+	Uint16        *blockstart;
 //long mmsize;
 
 	MM_Startup ();                  // so the signon screen can be freed
@@ -2204,7 +2204,7 @@ void InitGame (void)
 	 screen = grsegs[ERRORSCREEN];
 	 ShutdownId();
 
-	 movedata ((unsigned short)screen,7+7*160,0xb800,0,17*160);
+	 movedata ((Uint16)screen,7+7*160,0xb800,0,17*160);
 	 gotoxy (1,23);
 
 	 exit(0);
@@ -2313,7 +2313,7 @@ void ShowSystem()
 //-------------------------------------------------------------------------
 // scan_atoi()
 //-------------------------------------------------------------------------
-unsigned short scan_atoi(char *s)
+Uint16 scan_atoi(char *s)
 {
 	while (*s && (!isdigit(*s)))			// First scans for a digit...
 		s++;
@@ -2322,7 +2322,7 @@ unsigned short scan_atoi(char *s)
 }
 
 extern char * MainStrs[];
-extern short starting_episode,starting_level,starting_difficulty;
+extern Sint16 starting_episode,starting_level,starting_difficulty;
 
 
 //-------------------------------------------------------------------------
@@ -2330,7 +2330,7 @@ extern short starting_episode,starting_level,starting_difficulty;
 //-------------------------------------------------------------------------
 void freed_main()
 {
-	short     i;
+	Sint16     i;
 
 // FIXME
 #if 0
@@ -2460,10 +2460,10 @@ void freed_main()
 //-------------------------------------------------------------------------
 // CheckValidity()
 //-------------------------------------------------------------------------
-void CheckValidity(char *file, long valid_checksum)
+void CheckValidity(char *file, Sint32 valid_checksum)
 {
 	char filename[13];
-	long checksum;
+	Sint32 checksum;
 
 	if (strlen(file) > 9)
 		MAIN_ERROR(CHECK_FILENAME_TOO_LONG);
@@ -2488,12 +2488,12 @@ void* cfc_buffer;
 //-------------------------------------------------------------------------
 // ChecksumFile()
 //-------------------------------------------------------------------------
-long ChecksumFile(char *file, long checksum)
+Sint32 ChecksumFile(char *file, Sint32 checksum)
 {
 	#define JUMPSIZE 8
 
-	short handle;
-	long size,readlen,i;
+	Sint16 handle;
+	Sint32 size,readlen,i;
 	char *p;
 
     cfc_buffer = malloc(CFC_BUFFERSIZE);

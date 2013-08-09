@@ -10,10 +10,10 @@
 //
 //===========================================================================
 
-void OpenDoor (short door);
-void CloseDoor (short door);
-void PlaceItemNearTile(short itemtype, short tilex, short tiley);
-void HealSelf(short points);
+void OpenDoor (Sint16 door);
+void CloseDoor (Sint16 door);
+void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley);
+void HealSelf(Sint16 points);
 
 
 //===========================================================================
@@ -210,7 +210,7 @@ void InitStaticList (void)
 // RETURNS: Ptr == Pointer to static obj.
 //          NULL == No static found.
 //---------------------------------------------------------------------------
-statobj_t *FindStatic(unsigned short tilex, unsigned short tiley)
+statobj_t *FindStatic(Uint16 tilex, Uint16 tiley)
 {
 	statobj_t	*spot;
 
@@ -260,7 +260,7 @@ statobj_t *FindEmptyStatic(void)
 ===============
 */
 
-void SpawnStatic (short tilex, short tiley, short type)
+void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 {
 	statobj_t	*spot;
 
@@ -314,7 +314,7 @@ void SpawnStatic (short tilex, short tiley, short type)
 	switch (statinfo[type].type)
 	{
 		case block:
-			(unsigned short)actorat[tilex][tiley] = 1;		// consider it a blocking tile
+			(Uint16)actorat[tilex][tiley] = 1;		// consider it a blocking tile
 		break;
 
 		case	bo_red_key:
@@ -419,10 +419,10 @@ statobj_t  *FindReservedStatic(void)
 // static.  Before using this function, make sure that you have already
 // reserved a static to be used using ReserveStatic();
 //---------------------------------------------------------------------------
-statobj_t *UseReservedStatic(short itemtype, short tilex, short tiley)
+statobj_t *UseReservedStatic(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 {
 	statobj_t	*spot;
-	short			type;
+	Sint16			type;
 
    if (!(spot = FindReservedStatic()))
 		ACT1_ERROR(CANT_FIND_RESERVE_STATIC);
@@ -477,7 +477,7 @@ char pint_xy[8][2]={{-1,-1},{-1, 0},{-1, 1},
 								{ 0,-1},        { 0, 1},
 								{ 1,-1},{ 1, 0},{ 1, 1}};
 
-void PlaceReservedItemNearTile(short itemtype, short tilex, short tiley)
+void PlaceReservedItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 {
 	char loop;
 
@@ -512,9 +512,9 @@ void PlaceReservedItemNearTile(short itemtype, short tilex, short tiley)
 ===============
 */
 
-void PlaceItemType (short itemtype, short tilex, short tiley)
+void PlaceItemType (Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 {
-	short			type;
+	Sint16			type;
 	statobj_t	*spot;
 
 //
@@ -556,7 +556,7 @@ void PlaceItemType (short itemtype, short tilex, short tiley)
 //--------------------------------------------------------------------------
 // PlaceItemNearTile()
 //--------------------------------------------------------------------------
-void PlaceItemNearTile(short itemtype, short tilex, short tiley)
+void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 {
 // [0] is the y offset
 // [1] is the x offset
@@ -593,11 +593,11 @@ void PlaceItemNearTile(short itemtype, short tilex, short tiley)
 //  NOTES: Explodes statics in a one tile radius from a given tile x and tile y
 //
 //--------------------------------------------------------------------------
-void ExplodeStatics(short tilex, short tiley)
+void ExplodeStatics(Sint16 tilex, Sint16 tiley)
 {
 	statobj_t *statobj, *spot;
    objtype *obj;						
-   short y_diff,x_diff;
+   Sint16 y_diff,x_diff;
 	boolean remove;
 
 	for (spot=&statobjlist[0] ; spot != laststatobj ; spot++)
@@ -676,12 +676,12 @@ Every time a door opens or closes the areabyplayer matrix gets recalculated.
 #define OPENTICS	300
 
 doorobj_t	doorobjlist[MAXDOORS],*lastdoorobj;
-short			doornum;
+Sint16			doornum;
 
-unsigned short	doorposition[MAXDOORS];		// leading edge of door 0=closed
+Uint16	doorposition[MAXDOORS];		// leading edge of door 0=closed
 										// 0xffff = fully open
 
-byte		areaconnect[NUMAREAS][NUMAREAS];
+Uint8		areaconnect[NUMAREAS][NUMAREAS];
 
 boolean		areabyplayer[NUMAREAS];
 
@@ -696,9 +696,9 @@ boolean		areabyplayer[NUMAREAS];
 ==============
 */
 
-void RecursiveConnect (short areanumber)
+void RecursiveConnect (Sint16 areanumber)
 {
-	short	i;
+	Sint16	i;
 
 	for (i=0;i<NUMAREAS;i++)
 	{
@@ -753,10 +753,10 @@ void InitDoorList (void)
 ===============
 */
 
-void SpawnDoor (short tilex, short tiley, boolean vertical, keytype lock, door_t type)
+void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door_t type)
 {
-	short	areanumber;
-	unsigned short	*map[2];
+	Sint16	areanumber;
+	Uint16	*map[2];
 
 	map[0] = mapsegs[0] + farmapylookup[tiley]+tilex;
 	map[1] = mapsegs[1] + farmapylookup[tiley]+tilex;
@@ -785,7 +785,7 @@ void SpawnDoor (short tilex, short tiley, boolean vertical, keytype lock, door_t
 	}
 
 
-	(unsigned short)actorat[tilex][tiley] = doornum | 0x80;	// consider it a solid wall
+	(Uint16)actorat[tilex][tiley] = doornum | 0x80;	// consider it a solid wall
 
 //
 // make the door tile a special tile, and mark the adjacent tiles
@@ -820,13 +820,13 @@ void SpawnDoor (short tilex, short tiley, boolean vertical, keytype lock, door_t
 //--------------------------------------------------------------------------
 // CheckLinkedDoors
 //--------------------------------------------------------------------------
-void CheckLinkedDoors(short door, short door_dir)
+void CheckLinkedDoors(Sint16 door, Sint16 door_dir)
 {
-	static short LinkCheck=0;
-	static short base_tilex;
-	static short base_tiley;
+	static Sint16 LinkCheck=0;
+	static Sint16 base_tilex;
+	static Sint16 base_tiley;
 
-	short tilex=doorobjlist[door].tilex,
+	Sint16 tilex=doorobjlist[door].tilex,
 			tiley=doorobjlist[door].tiley,
 			next_tilex=0,
 			next_tiley=0;
@@ -837,7 +837,7 @@ void CheckLinkedDoors(short door, short door_dir)
 	if (*(mapsegs[1]+(farmapylookup[tiley]+tilex)))
 	{
 //		unsigned value=*(mapsegs[1]+(farmapylookup[tiley]+tilex+2));
-		unsigned short value=*(mapsegs[1]+(farmapylookup[tiley]+tilex));
+		Uint16 value=*(mapsegs[1]+(farmapylookup[tiley]+tilex));
 
 	// Define the next door in the link.
 	//
@@ -862,7 +862,7 @@ void CheckLinkedDoors(short door, short door_dir)
 		 ((next_tilex != base_tilex) || (next_tiley != base_tiley))
 		)
 	{
-		short door=tilemap[next_tilex][next_tiley] & ~0x80;
+		Sint16 door=tilemap[next_tilex][next_tiley] & ~0x80;
 
 		switch (door_dir)
 		{
@@ -890,7 +890,7 @@ void CheckLinkedDoors(short door, short door_dir)
 =====================
 */
 
-void OpenDoor (short door)
+void OpenDoor (Sint16 door)
 {
 
   	if (doorobjlist[door].action == dr_jammed)
@@ -914,9 +914,9 @@ void OpenDoor (short door)
 =====================
 */
 
-void CloseDoor (short door)
+void CloseDoor (Sint16 door)
 {
-	short	tilex,tiley,area;
+	Sint16	tilex,tiley,area;
 	objtype *check;
 
   	if (doorobjlist[door].action == dr_jammed)
@@ -993,7 +993,7 @@ void CloseDoor (short door)
 //
 // make the door space solid
 //
-	(unsigned short)actorat[tilex][tiley]
+	(Uint16)actorat[tilex][tiley]
 		= door | 0x80;
 
 	CheckLinkedDoors(door,dr_closing);
@@ -1018,9 +1018,9 @@ char od_bluedenied[]="\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
 char od_granted[]="\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
 char od_operating[]="\r\r    OPERATING DOOR.\r^XX";
 
-void OperateDoor (short door)
+void OperateDoor (Sint16 door)
 {
-	short	lock;
+	Sint16	lock;
 	boolean OperateMsg,oneway = false;
 
 
@@ -1122,7 +1122,7 @@ void OperateDoor (short door)
 //--------------------------------------------------------------------------
 // BlockDoorOpen()
 //--------------------------------------------------------------------------
-void BlockDoorOpen(short door)
+void BlockDoorOpen(Sint16 door)
 {
 	doorobjlist[door].action = dr_jammed;
 	doorobjlist[door].ticcount = 0;
@@ -1170,11 +1170,11 @@ void TryBlastDoor(char door)
 // BlastNearDoors()
 //
 //--------------------------------------------------------------------------
-void BlastNearDoors(short tilex, short tiley)
+void BlastNearDoors(Sint16 tilex, Sint16 tiley)
 {
-	unsigned char door;
+	Uint8 door;
 	char *doorptr;
-	short x,y;
+	Sint16 x,y;
 
 	doorptr = (char *)&tilemap[tilex][tiley];
 
@@ -1225,7 +1225,7 @@ void TryDropPlasmaDetonator(void)
 {
 	#define MAX_RANGE_DIST        2
 	objtype *obj;
-   short distx,disty,distance;
+   Sint16 distx,disty,distance;
 
 
    if (!gamestuff.level[gamestate.mapon+1].locked)
@@ -1283,7 +1283,7 @@ void TryDropPlasmaDetonator(void)
 ===============
 */
 
-void DoorOpen (short door)
+void DoorOpen (Sint16 door)
 {
 	if ( (doorobjlist[door].ticcount += tics) >= OPENTICS)
 		CloseDoor (door);
@@ -1296,11 +1296,11 @@ void DoorOpen (short door)
 //--------------------------------------------------------------------------
 // TransformAreas()
 //--------------------------------------------------------------------------
-short TransformAreas(char tilex, char tiley, char xform)
+Sint16 TransformAreas(char tilex, char tiley, char xform)
 {
-	short xofs,yofs;
-	byte		area1,area2;
-	unsigned short	*map,offset;
+	Sint16 xofs,yofs;
+	Uint8		area1,area2;
+	Uint16	*map,offset;
 
 // Is this walkway:  Horizontal?   Vertical?   Error?
 //
@@ -1347,11 +1347,11 @@ short TransformAreas(char tilex, char tiley, char xform)
 ===============
 */
 
-void DoorOpening (short door)
+void DoorOpening (Sint16 door)
 {
-	short		area1,area2;
-	unsigned short	*map;
-	long	position;
+	Sint16		area1,area2;
+	Uint16	*map;
+	Sint32	position;
 
 	position = doorposition[door];
 	if (!position)
@@ -1402,17 +1402,17 @@ void DoorOpening (short door)
 =
 ===============
 */
-void DoorClosing (short door)
+void DoorClosing (Sint16 door)
 {
-	short		area1,area2,move;
-	unsigned short	*map;
-	long	position;
-	short		tilex,tiley;
+	Sint16		area1,area2,move;
+	Uint16	*map;
+	Sint32	position;
+	Sint16		tilex,tiley;
 
 	tilex = doorobjlist[door].tilex;
 	tiley = doorobjlist[door].tiley;
 
-	if ( ((unsigned short)actorat[tilex][tiley] != (door | 0x80))
+	if ( ((Uint16)actorat[tilex][tiley] != (door | 0x80))
 	|| (player->tilex == tilex && player->tiley == tiley) )
 	{			// something got inside the door
 		OpenDoor (door);
@@ -1478,7 +1478,7 @@ void DoorClosing (short door)
 */
 void MoveDoors (void)
 {
-	short		door;
+	Sint16		door;
 
 	for (door = 0 ; door < doornum ; door++)
 		switch (doorobjlist[door].action)
@@ -1505,10 +1505,10 @@ void MoveDoors (void)
 =============================================================================
 */
 
-unsigned short	pwallstate;
-unsigned short	pwallpos;			// amount a pushable wall has been moved (0-63)
-unsigned short	pwallx=0,pwally=0;
-short pwalldir,pwalldist;
+Uint16	pwallstate;
+Uint16	pwallpos;			// amount a pushable wall has been moved (0-63)
+Uint16	pwallx=0,pwally=0;
+Sint16 pwalldir,pwalldist;
 
 /*
 ===============
@@ -1518,9 +1518,9 @@ short pwalldir,pwalldist;
 ===============
 */
 
-void PushWall (short checkx, short checky, short dir)
+void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 {
-	short		oldtile;
+	Sint16		oldtile;
 
 	if (pwallstate)
 	  return;
@@ -1538,7 +1538,7 @@ void PushWall (short checkx, short checky, short dir)
 		{
 			return;
 		}
-		(unsigned short)actorat[checkx][checky-1] =
+		(Uint16)actorat[checkx][checky-1] =
 		tilemap[checkx][checky-1] = oldtile;
 		break;
 
@@ -1547,7 +1547,7 @@ void PushWall (short checkx, short checky, short dir)
 		{
 			return;
 		}
-		(unsigned short)actorat[checkx+1][checky] =
+		(Uint16)actorat[checkx+1][checky] =
 		tilemap[checkx+1][checky] = oldtile;
 		break;
 
@@ -1556,7 +1556,7 @@ void PushWall (short checkx, short checky, short dir)
 		{
 			return;
 		}
-		(unsigned short)actorat[checkx][checky+1] =
+		(Uint16)actorat[checkx][checky+1] =
 		tilemap[checkx][checky+1] = oldtile;
 		break;
 
@@ -1565,7 +1565,7 @@ void PushWall (short checkx, short checky, short dir)
 		{
 			return;
 		}
-		(unsigned short)actorat[checkx-1][checky] =
+		(Uint16)actorat[checkx-1][checky] =
 		tilemap[checkx-1][checky] = oldtile;
 		break;
 	}
@@ -1592,7 +1592,7 @@ void PushWall (short checkx, short checky, short dir)
 
 void MovePWalls (void)
 {
-	short		oldblock,oldtile;
+	Sint16		oldblock,oldtile;
 
 	if (!pwallstate)
 		return;
@@ -1603,7 +1603,7 @@ void MovePWalls (void)
 
 	if (pwallstate/128 != oldblock)
 	{
-		unsigned short areanumber;
+		Uint16 areanumber;
 
 		pwalldist--;
 
@@ -1614,7 +1614,7 @@ void MovePWalls (void)
 		// the tile can now be walked into
 		//
 		tilemap[pwallx][pwally] = 0;
-		(unsigned short)actorat[pwallx][pwally] = 0;
+		(Uint16)actorat[pwallx][pwally] = 0;
 		areanumber=GetAreaNumber(player->tilex,player->tiley);
 		if (GAN_HiddenArea)
 			areanumber += HIDDENAREATILE;
@@ -1644,7 +1644,7 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
-				(unsigned short)actorat[pwallx][pwally-1] =
+				(Uint16)actorat[pwallx][pwally-1] =
 				tilemap[pwallx][pwally-1] = oldtile;
 				break;
 
@@ -1655,7 +1655,7 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
-				(unsigned short)actorat[pwallx+1][pwally] =
+				(Uint16)actorat[pwallx+1][pwally] =
 				tilemap[pwallx+1][pwally] = oldtile;
 				break;
 
@@ -1666,7 +1666,7 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
-				(unsigned short)actorat[pwallx][pwally+1] =
+				(Uint16)actorat[pwallx][pwally+1] =
 				tilemap[pwallx][pwally+1] = oldtile;
 				break;
 
@@ -1677,7 +1677,7 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
-				(unsigned short)actorat[pwallx-1][pwally] =
+				(Uint16)actorat[pwallx-1][pwally] =
 				tilemap[pwallx-1][pwally] = oldtile;
 				break;
 			}
@@ -1712,7 +1712,7 @@ void MovePWalls (void)
 //--------------------------------------------------------------------------
 // InitMsgCache()
 //--------------------------------------------------------------------------
-void InitMsgCache(mCacheList *mList,unsigned short listSize, unsigned short infoSize)
+void InitMsgCache(mCacheList *mList,Uint16 listSize, Uint16 infoSize)
 {
 	FreeMsgCache(mList,infoSize);
 	memset(mList,0,listSize);
@@ -1721,7 +1721,7 @@ void InitMsgCache(mCacheList *mList,unsigned short listSize, unsigned short info
 //--------------------------------------------------------------------------
 // FreeMsgCache()
 //--------------------------------------------------------------------------
-void FreeMsgCache(mCacheList *mList, unsigned short infoSize)
+void FreeMsgCache(mCacheList *mList, Uint16 infoSize)
 {
 	mCacheInfo *ci=mList->mInfo;
 	char *ch_ptr;
@@ -1747,10 +1747,10 @@ extern char int_xx[];
 // Caches the specific message in FROM a given 'grsegs' block TO the
 // next available message segment pointer.
 //---------------------------------------------------------------------------
-void CacheMsg(mCacheInfo *ci, unsigned short SegNum, unsigned short MsgNum)
+void CacheMsg(mCacheInfo *ci, Uint16 SegNum, Uint16 MsgNum)
 {
 //	char *Message, *EndOfMsg, *hint_buffer;
-//	unsigned char pos=0;
+//	Uint8 pos=0;
 
 // Alloc memory for message and cache-in seg
 //
@@ -1776,10 +1776,10 @@ void CacheMsg(mCacheInfo *ci, unsigned short SegNum, unsigned short MsgNum)
 //
 // RETURNS : Returns the length of the loaded message
 //---------------------------------------------------------------------------
-short LoadMsg(char *hint_buffer, unsigned short SegNum, unsigned short MsgNum, unsigned short MaxMsgLen)
+Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen)
 {
 	char *Message, *EndOfMsg;
-	short pos=0;
+	Sint16 pos=0;
 
 	CA_CacheGrChunk(SegNum);
 	Message = grsegs[SegNum];
@@ -1837,7 +1837,7 @@ short LoadMsg(char *hint_buffer, unsigned short SegNum, unsigned short MsgNum, u
 void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum)
 {
 	char *Message, *EndOfMsg, *hint_buffer;
-	unsigned char pos=0;
+	Uint8 pos=0;
 
 // Alloc memory for message and cache-in seg
 //
@@ -1903,7 +1903,7 @@ void CacheMsg(mCacheInfo *ci, unsigned SegNum, unsigned MsgNum)
 //
 // actorat[][] - Holds concession machine number (1 - MAXCONCESSIONS+1)
 //--------------------------------------------------------------------------
-void SpawnConcession(short tilex, short tiley, unsigned short credits,unsigned short machinetype)
+void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinetype)
 {
 	con_mCacheInfo *ci=&ConHintList.cmInfo[ConHintList.NumMsgs];
 
@@ -1936,7 +1936,7 @@ void SpawnConcession(short tilex, short tiley, unsigned short credits,unsigned s
 //
 	if (++ConHintList.NumMsgs > MAX_CACHE_MSGS)
 		ACT1_ERROR(SPAWNCON_CACHE_MSG_OVERFLOW);
-	(unsigned short)actorat[tilex][tiley] = ConHintList.NumMsgs;
+	(Uint16)actorat[tilex][tiley] = ConHintList.NumMsgs;
 
 //
 // BORLAND SCREWS UP WHEN COMPILING THE LINE BELOW, EVEN THOUGH
@@ -1977,7 +1977,7 @@ void CacheConcessionMsg()
 //--------------------------------------------------------------------------
 // ReuseMsg()
 //--------------------------------------------------------------------------
-boolean ReuseMsg(mCacheInfo *ci, short count, short struct_size)
+boolean ReuseMsg(mCacheInfo *ci, Sint16 count, Sint16 struct_size)
 {
 	char *scan_ch=(char *)ci;
 	mCacheInfo *scan=(mCacheInfo *)(scan_ch-struct_size);
@@ -2015,7 +2015,7 @@ extern void writeTokenStr(char *str);
 
 char OutOrder[] 	= {"\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"};
 
-void OperateConcession(unsigned short concession)
+void OperateConcession(Uint16 concession)
 {
 	con_mCacheInfo *ci;
 	char *msgptr;
@@ -2124,7 +2124,7 @@ void CheckSpawnEA()
 	for (loop=0; loop<NumEAWalls; loop++)
 	{
 //		unsigned *map=mapsegs[0]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
-		unsigned short *map1=mapsegs[1]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
+		Uint16 *map1=mapsegs[1]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
 
 	// Limit the number of aliens spawned by each outlet.
 	//
@@ -2239,7 +2239,7 @@ void CheckSpawnGoldstern(void)
 
       if (GoldsternInfo.flags == GS_COORDFOUND)
       {
-      	unsigned short tilex,tiley;
+      	Uint16 tilex,tiley;
 
          // See if we can spawn Dr. Goldstern...
 

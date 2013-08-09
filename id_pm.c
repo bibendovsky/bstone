@@ -7,17 +7,17 @@
 char PageFileName[13] = {"VSWAP."};
 
 static int PageFile = -1;
-unsigned short ChunksInFile;
-unsigned short PMSpriteStart;
-unsigned short PMSoundStart;
+Uint16 ChunksInFile;
+Uint16 PMSpriteStart;
+Uint16 PMSoundStart;
 
-static unsigned char* raw_data;
-static unsigned long* chunks_offsets;
+static Uint8* raw_data;
+static Uint32* chunks_offsets;
 
 
 static void open_page_file(const char* filename)
 {
-    long file_length;
+    Sint32 file_length;
 
     PageFile = open(filename, O_RDONLY + O_BINARY);
 
@@ -26,17 +26,17 @@ static void open_page_file(const char* filename)
 
     file_length = filelength(PageFile);
 
-    raw_data = (unsigned char*)malloc(file_length + PMPageSize);
+    raw_data = (Uint8*)malloc(file_length + PMPageSize);
     memset(&raw_data[file_length], 0, PMPageSize);
 
     if (read(PageFile, raw_data, file_length) != file_length)
         PM_ERROR(PML_READFROMFILE_READ);
 
-    ChunksInFile = ((unsigned short*)raw_data)[0];
-    PMSpriteStart = ((unsigned short*)raw_data)[1];
-    PMSoundStart = ((unsigned short*)raw_data)[2];
+    ChunksInFile = ((Uint16*)raw_data)[0];
+    PMSpriteStart = ((Uint16*)raw_data)[1];
+    PMSoundStart = ((Uint16*)raw_data)[2];
 
-    chunks_offsets = (unsigned long*)&raw_data[6];
+    chunks_offsets = (Uint32*)&raw_data[6];
 }
 
 void PM_Startup()
@@ -65,7 +65,7 @@ void PM_Shutdown()
 
 void* PM_GetPage(int page_number)
 {
-    unsigned long offset;
+    Uint32 offset;
 
     if (page_number >= ChunksInFile)
         PM_ERROR(PM_GETPAGE_BAD_PAGE);

@@ -1,6 +1,13 @@
 // ID_HEAD.H
 
 
+#ifndef ID_HEAD_H
+#define ID_HEAD_H
+
+
+#include "SDL.h"
+
+
 #define WOLF
 #define FREE_FUNCTIONS   (true)
 
@@ -11,11 +18,9 @@
 
 #define GRMODE	VGAGR
 
-typedef	enum	{false,true}	boolean;
-typedef	unsigned	char		byte;
-typedef	unsigned	int			word;
-typedef	unsigned	long		longword;
-typedef	byte *					Ptr;
+#define false (0)
+#define true (1)
+typedef	Sint16	boolean;
 
 typedef	struct
 		{
@@ -30,3 +35,5 @@ typedef	struct
 
 void	Quit (char *error,...);		// defined in user program
 
+
+#endif // ID_HEAD_H

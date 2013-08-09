@@ -9,6 +9,10 @@
 //
 //
 
+
+#include "SDL.h"
+
+
 #ifndef _ID_HEADS_H_
 typedef enum boolean {false,true} boolean;
 #endif
@@ -68,15 +72,15 @@ typedef enum ct_TYPES
 
 struct COMPStruct
 {
-	unsigned long DecompLen;
+	Uint32 DecompLen;
 };
 
 
 struct JAMPHeader
 {
-	unsigned long OriginalLen;			// Original FileLength of compressed Data.
+	Uint32 OriginalLen;			// Original FileLength of compressed Data.
 	ct_TYPES CompType;					// SEE: ct_TYPES above for list of pos.
-	unsigned long CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
+	Uint32 CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
 };
 
 
@@ -88,9 +92,9 @@ struct JAMPHeader
 typedef struct
 {
 	char NameId[4];
-	unsigned long OriginalLen;			// Original FileLength of compressed Data.
+	Uint32 OriginalLen;			// Original FileLength of compressed Data.
 	ct_TYPES CompType;					// SEE: ct_TYPES above for list of pos.
-	unsigned long CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
+	Uint32 CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
 
 } CompHeader_t;
 
@@ -101,8 +105,8 @@ typedef struct
 //
 //---------------------------------------------------------------------------
 
-char CIO_WritePtr(long outfile, unsigned char data, unsigned short PtrType);
-short CIO_ReadPtr(long infile, unsigned short PtrType);
+char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType);
+Sint16 CIO_ReadPtr(Sint32 infile, Uint16 PtrType);
 
 
 #endif

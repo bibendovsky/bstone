@@ -3,7 +3,7 @@
 #include "ID_HEADS.H"
 
 
-void VL_LatchToScreen(unsigned short source, short width, short height, short x, short y);
+void VL_LatchToScreen(Uint16 source, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void CalcTics (void);
@@ -26,7 +26,7 @@ void ForceUpdateStatusBar(void);
 
 //#define UNCACHEGRCHUNK(chunk)	{MM_FreePtr(&grsegs[chunk]);grneeded[chunk]&=~ca_levelbit;}
 
-//byte	update[UPDATEHIGH][UPDATEWIDE];	// MIKE this is the second declaration for this variable!?!?
+//Uint8	update[UPDATEHIGH][UPDATEWIDE];	// MIKE this is the second declaration for this variable!?!?
 
 //==========================================================================
 
@@ -34,10 +34,10 @@ pictabletype	*pictable;
 pictabletype   *picmtable;			
 
 
-short	px,py;
-byte	fontcolor,backcolor;
-short	fontnumber;
-short bufferwidth,bufferheight;
+Sint16	px,py;
+Uint8	fontcolor,backcolor;
+Sint16	fontnumber;
+Sint16 bufferwidth,bufferheight;
 boolean allcaps = false;
 
 
@@ -50,15 +50,15 @@ void	VWL_UpdateScreenBlocks (void);
 void VW_DrawPropString (char *string)
 {
 	fontstruct	*font;
-	short		width,step,height,i;
-	byte	*source, *dest, *origdest;
-	byte	ch,mask;
+	Sint16		width,step,height,i;
+	Uint8	*source, *dest, *origdest;
+	Uint8	ch,mask;
 
 	font = (fontstruct *)grsegs[STARTFONT+fontnumber];
 	height = bufferheight = font->height;
 
     // FIXME
-	dest = origdest = (byte*)0xA00000 + bufferofs + ylookup[py] + (px >> 2);
+	dest = origdest = (Uint8*)0xA00000 + bufferofs + ylookup[py] + (px >> 2);
 
 	mask = 1<<(px&3);
 
@@ -66,7 +66,7 @@ void VW_DrawPropString (char *string)
 	while ((ch = *string++)!=0)
 	{
 		width = step = font->width[ch];
-		source = ((byte *)font)+font->location[ch];
+		source = ((Uint8 *)font)+font->location[ch];
 		while (width--)
 		{
 			VGAMAPMASK(mask);
@@ -121,10 +121,10 @@ bufferwidth = ((dest+1)-origdest)*4;
 =================
 */
 
-void VL_MungePic (byte *source, unsigned width, unsigned height)
+void VL_MungePic (Uint8 *source, unsigned width, unsigned height)
 {
 	unsigned	x,y,plane,size,pwidth;
-	byte		*temp, *dest, *srcline;
+	Uint8		*temp, *dest, *srcline;
 
 	size = width*height;
 
@@ -159,22 +159,22 @@ void VL_MungePic (byte *source, unsigned width, unsigned height)
 
 #endif
 
-void VWL_MeasureString (char *string, word *width, word *height
+void VWL_MeasureString (char *string, Uint16 *width, Uint16 *height
 	, fontstruct *font)
 {
 	*height = font->height;
 	for (*width = 0;*string;string++)
-		*width += font->width[*((byte *)string)];	// proportional width
+		*width += font->width[*((Uint8 *)string)];	// proportional width
 }
 
-void	VW_MeasurePropString (char *string, word *width, word *height)
+void	VW_MeasurePropString (char *string, Uint16 *width, Uint16 *height)
 {
 	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONT+fontnumber]);
 }
 
 #if 0
 
-void	VW_MeasureMPropString  (char *string, word *width, word *height)
+void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
 {
 	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONTM+fontnumber]);
 }
@@ -201,10 +201,10 @@ void	VW_MeasureMPropString  (char *string, word *width, word *height)
 =======================
 */
 
-short VW_MarkUpdateBlock (short x1, short y1, short x2, short y2)
+Sint16 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
 {
-	short	x,y,xt1,yt1,xt2,yt2,nextline;
-	byte *mark;
+	Sint16	x,y,xt1,yt1,xt2,yt2,nextline;
+	Uint8 *mark;
 
 	xt1 = x1>>PIXTOBLOCK;
 	yt1 = y1>>PIXTOBLOCK;
@@ -246,7 +246,7 @@ short VW_MarkUpdateBlock (short x1, short y1, short x2, short y2)
 	return 1;
 }
 
-void VWB_DrawTile8 (short x, short y, short tile)
+void VWB_DrawTile8 (Sint16 x, Sint16 y, Sint16 tile)
 {
 	if (VW_MarkUpdateBlock (x,y,x+7,y+7))
 		LatchDrawChar(x,y,tile);
@@ -257,15 +257,15 @@ void VWB_DrawTile8 (short x, short y, short tile)
 void VWB_DrawTile8M (int x, int y, int tile)
 {
 	if (VW_MarkUpdateBlock (x,y,x+7,y+7))
-		VL_MemToScreen (((byte *)grsegs[STARTTILE8M])+tile*64,8,8,x,y);
+		VL_MemToScreen (((Uint8 *)grsegs[STARTTILE8M])+tile*64,8,8,x,y);
 }
 #endif
 
 
-void VWB_DrawPic (short x, short y, short chunknum)
+void VWB_DrawPic (Sint16 x, Sint16 y, Sint16 chunknum)
 {
-	short	picnum = chunknum - STARTPICS;
-	unsigned short width,height;
+	Sint16	picnum = chunknum - STARTPICS;
+	Uint16 width,height;
 
 	x &= ~7;
 
@@ -280,10 +280,10 @@ void VWB_DrawPic (short x, short y, short chunknum)
 //--------------------------------------------------------------------------
 // VWB_DrawMPic()
 //--------------------------------------------------------------------------
-void VWB_DrawMPic (short x, short y, short chunknum)
+void VWB_DrawMPic (Sint16 x, Sint16 y, Sint16 chunknum)
 {
-	short	picnum = chunknum - STARTPICS;
-	unsigned short width,height;
+	Sint16	picnum = chunknum - STARTPICS;
+	Uint16 width,height;
 
 	width = pictable[picnum].width;
 	height = pictable[picnum].height;
@@ -295,32 +295,32 @@ void VWB_DrawMPic (short x, short y, short chunknum)
 
 void VWB_DrawPropString	 (char *string)
 {
-	short x;
+	Sint16 x;
 	x=px;
 	VW_DrawPropString (string);
 	VW_MarkUpdateBlock(x,py,px-1,py+bufferheight-1);
 }
 
 
-void VWB_Bar (short x, short y, short width, short height, short color)
+void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
 {
 	if (VW_MarkUpdateBlock (x,y,x+width,y+height-1) )
 		VW_Bar (x,y,width,height,color);
 }
 
-void VWB_Plot (short x, short y, short color)
+void VWB_Plot (Sint16 x, Sint16 y, Sint16 color)
 {
 	if (VW_MarkUpdateBlock (x,y,x,y))
 		VW_Plot(x,y,color);
 }
 
-void VWB_Hlin (short x1, short x2, short y, short color)
+void VWB_Hlin (Sint16 x1, Sint16 x2, Sint16 y, Sint16 color)
 {
 	if (VW_MarkUpdateBlock (x1,y,x2,y))
 		VW_Hlin(x1,x2,y,color);
 }
 
-void VWB_Vlin (short y1, short y2, short x, short color)
+void VWB_Vlin (Sint16 y1, Sint16 y2, Sint16 x, Sint16 color)
 {
 	if (VW_MarkUpdateBlock (x,y1,x,y2))
 		VW_Vlin(y1,y2,x,color);
@@ -352,9 +352,9 @@ void VW_UpdateScreen (void)
 */
 
 
-void LatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum)
+void LatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum)
 {
-	unsigned short wide, height, source;
+	Uint16 wide, height, source;
 
 	x <<= 3;
 	wide = pictable[picnum-STARTPICS].width;
@@ -377,13 +377,13 @@ void LatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum)
 */
 
 //unsigned LatchMemFree = 0xffff;		
-unsigned short	destoff;
+Uint16	destoff;
 
 void LoadLatchMem (void)
 {
-	short	i,j,p,m,width,height;
-	byte	*src;
-	unsigned short	picnum=0;
+	Sint16	i,j,p,m,width,height;
+	Uint8	*src;
+	Uint16	picnum=0;
 
 
 //
@@ -391,7 +391,7 @@ void LoadLatchMem (void)
 //
 	latchpics[picnum++] = freelatch;
 	CA_CacheGrChunk (STARTTILE8);
-	src = (byte *)grsegs[STARTTILE8];
+	src = (Uint8 *)grsegs[STARTTILE8];
 	destoff = freelatch;
 
 	for (i=0;i<NUMTILE8;i++)
@@ -406,13 +406,13 @@ void LoadLatchMem (void)
 //
 // tile 16s
 //
-	src = (byte *)grsegs[STARTTILE16];
+	src = (Uint8 *)grsegs[STARTTILE16];
 	latchpics[picnum++] = destoff;
 
 	for (i=0;i<NUMTILE16;i++)
 	{
 		CA_CacheGrChunk (STARTTILE16+i);
-		src = (byte *)grsegs[STARTTILE16+i];
+		src = (Uint8 *)grsegs[STARTTILE16+i];
 		VL_MemToLatch (src,16,16,destoff);
 		destoff+=64;
 		if (src)
@@ -454,14 +454,14 @@ void LoadLatchMem (void)
 
 extern	ControlInfo	c;
 
-boolean FizzleFade (unsigned short source, unsigned short dest,
-	unsigned short width,unsigned short height, unsigned short frames, boolean abortable)
+boolean FizzleFade (Uint16 source, Uint16 dest,
+	Uint16 width,Uint16 height, Uint16 frames, boolean abortable)
 {
-	short			pixperframe;
-	unsigned short	drawofs,pagedelta;
-	byte 		mask,maskb[8] = {1,2,4,8};
-	unsigned short	x,y,p,frame;
-	long		rndval;
+	Sint16			pixperframe;
+	Uint16	drawofs,pagedelta;
+	Uint8 		mask,maskb[8] = {1,2,4,8};
+	Uint16	x,y,p,frame;
+	Sint32		rndval;
 
 	pagedelta = dest-source;
 	rndval = 1;

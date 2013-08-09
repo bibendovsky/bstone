@@ -9,21 +9,21 @@
 void MapLSRow();
 
 
-unsigned short CeilingTile=126, FloorTile=126;
+Uint16 CeilingTile=126, FloorTile=126;
 
 void (*MapRowPtr)();
 
-short  spanstart[MAXVIEWHEIGHT/2];		// jtr - far
+Sint16  spanstart[MAXVIEWHEIGHT/2];		// jtr - far
 
 fixed	stepscale[MAXVIEWHEIGHT/2];
 fixed	basedist[MAXVIEWHEIGHT/2];
 
 extern char	planepics[8192];	// 4k of ceiling, 4k of floor
 
-short		halfheight = 0;
+Sint16		halfheight = 0;
 
-byte	*planeylookup[MAXVIEWHEIGHT/2];
-unsigned short	mirrorofs[MAXVIEWHEIGHT/2];
+Uint8	*planeylookup[MAXVIEWHEIGHT/2];
+Uint16	mirrorofs[MAXVIEWHEIGHT/2];
 
 fixed	psin, pcos;
 
@@ -33,13 +33,13 @@ fixed FixedMul (fixed a, fixed b)
 }
 
 
-short		mr_rowofs;
-short		mr_count;
-short		mr_xstep;
-short		mr_ystep;
-short		mr_xfrac;
-short		mr_yfrac;
-short		mr_dest;
+Sint16		mr_rowofs;
+Sint16		mr_count;
+Sint16		mr_xstep;
+Sint16		mr_ystep;
+Sint16		mr_xfrac;
+Sint16		mr_yfrac;
+Sint16		mr_dest;
 
 
 /*
@@ -50,20 +50,20 @@ short		mr_dest;
 = Height ranges from 0 (infinity) to viewheight/2 (nearest)
 ==============
 */
-extern byte * lightsource;
-extern byte * shadingtable;
+extern Uint8 * lightsource;
+extern Uint8 * shadingtable;
 
 
-void DrawSpans (short x1, short x2, short height)
+void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 {
 	fixed		length;
-	short			ofs;
-	short			prestep;
+	Sint16			ofs;
+	Sint16			prestep;
 	fixed		startxfrac, startyfrac;
 
-	short			x, startx, count, plane, startplane;
-	byte		*toprow, *dest;
-	long i;
+	Sint16			x, startx, count, plane, startplane;
+	Uint8		*toprow, *dest;
+	Sint32 i;
 
 	toprow = planeylookup[height]+bufferofs;
 	mr_rowofs = mirrorofs[height];
@@ -80,7 +80,7 @@ void DrawSpans (short x1, short x2, short height)
 	if (gamestate.flags & GS_LIGHTING)
 	{
 
-	i=shade_max-(63l*(unsigned long)height/(unsigned long)normalshade);
+	i=shade_max-(63l*(Uint32)height/(Uint32)normalshade);
 	if (i<0)
 		i=0;
    else
@@ -100,7 +100,7 @@ void DrawSpans (short x1, short x2, short height)
 		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
 
 		startx = x1>>2;
-		mr_dest = (unsigned short)toprow + startx;
+		mr_dest = (Uint16)toprow + startx;
 		mr_count = ((x2-plane)>>2) - startx + 1;
 		x1++;
 		prestep--;
@@ -131,7 +131,7 @@ void DrawSpans (short x1, short x2, short height)
 		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
 
 		startx = x1>>2;
-		mr_dest = (unsigned short)toprow + startx;
+		mr_dest = (Uint16)toprow + startx;
 		mr_count = ((x2-plane)>>2) - startx + 1;
 		x1++;
 		prestep--;
@@ -162,15 +162,15 @@ void DrawSpans (short x1, short x2, short height)
 
 void SetPlaneViewSize (void)
 {
-	short		x,y;
-	byte 	*dest, *src;
+	Sint16		x,y;
+	Uint8 	*dest, *src;
 
 	halfheight = viewheight>>1;
 
 
 	for (y=0 ; y<halfheight ; y++)
 	{
-		planeylookup[y] = (byte *)0xa0000000l + (halfheight-1-y)*SCREENBWIDE;;
+		planeylookup[y] = (Uint8 *)0xa0000000l + (halfheight-1-y)*SCREENBWIDE;;
 		mirrorofs[y] = (y*2+1)*SCREENBWIDE;
 
 		stepscale[y] = y*GLOBAL1/32;
@@ -206,8 +206,8 @@ void SetPlaneViewSize (void)
 
 void DrawPlanes (void)
 {
-	short		height, lastheight;
-	short		x;
+	Sint16		height, lastheight;
+	Sint16		x;
 
 #if IN_DEVELOPMENT
 	if (!MapRowPtr)

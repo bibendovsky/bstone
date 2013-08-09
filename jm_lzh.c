@@ -97,22 +97,22 @@
 
 static void StartHuff(void);
 static void reconst(void);
-static void update(short c);
+static void update(Sint16 c);
 
 
-static void DeleteNode(short p);  /* Deleting node from the tree */
-static void InsertNode(short r);  /* Inserting node to the tree */
+static void DeleteNode(Sint16 p);  /* Deleting node from the tree */
+static void InsertNode(Sint16 r);  /* Inserting node to the tree */
 static void InitTree(void);  /* Initializing tree */
-static void Putcode(long outfile_ptr, short l, unsigned short c,unsigned short PtrTypes);		/* output c bits */
-static void EncodeChar(long outfile_ptr, unsigned short c, unsigned short PtrTypes);
-static void EncodePosition(long outfile_ptr, unsigned short c, unsigned short PtrTypes);
-static void EncodeEnd(long outfile_ptr,unsigned short PtrTypes);
+static void Putcode(Sint32 outfile_ptr, Sint16 l, Uint16 c,Uint16 PtrTypes);		/* output c bits */
+static void EncodeChar(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes);
+static void EncodePosition(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes);
+static void EncodeEnd(Sint32 outfile_ptr,Uint16 PtrTypes);
 
 
-static short GetByte(long infile_ptr, unsigned long *CompressLength, unsigned short PtrTypes);
-static short GetBit(long infile_ptr, unsigned long *CompressLength, unsigned short PtrTypes);	/* get one bit */
-static short DecodeChar(long infile_ptr, unsigned long *CompressLength, unsigned short PtrTypes);
-static short DecodePosition(long infile_ptr,unsigned long *CompressLength, unsigned short PtrTypes);
+static Sint16 GetByte(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes);
+static Sint16 GetBit(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes);	/* get one bit */
+static Sint16 DecodeChar(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes);
+static Sint16 DecodePosition(Sint32 infile_ptr,Uint32 *CompressLength, Uint16 PtrTypes);
 
 
 
@@ -144,11 +144,11 @@ static short DecodePosition(long infile_ptr,unsigned long *CompressLength, unsig
 //
 
 #if INCLUDE_LZH_COMP
-void (*LZH_CompressDisplayVector)(unsigned long, unsigned long) = NULL;
+void (*LZH_CompressDisplayVector)(Uint32, Uint32) = NULL;
 #endif
 
 #if INCLUDE_LZH_DECOMP
-void (*LZH_DecompressDisplayVector)(unsigned long, unsigned long) = NULL;
+void (*LZH_DecompressDisplayVector)(Uint32, Uint32) = NULL;
 #endif
 
 
@@ -161,21 +161,21 @@ void (*LZH_DecompressDisplayVector)(unsigned long, unsigned long) = NULL;
 //===========================================================================
 	/* pointing children nodes (son[], son[] + 1)*/
 
-unsigned short code, len;
-unsigned long textsize = 0, codesize = 0, printcount = 0,datasize;
+Uint16 code, len;
+Uint32 textsize = 0, codesize = 0, printcount = 0,datasize;
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 
-short *son=NULL;
+Sint16 *son=NULL;
 
 //
 // pointing parent nodes.
 // area [T..(T + N_CHAR - 1)] are pointers for leaves
 //
 
-short *prnt;
-unsigned short *freq;	/* cumulative freq table */
-unsigned char *text_buf;
+Sint16 *prnt;
+Uint16 *freq;	/* cumulative freq table */
+Uint8 *text_buf;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
 void* id_son;
@@ -186,18 +186,18 @@ void* id_text_buf;
 
 #else
 
-short son[T];
+Sint16 son[T];
 
 	//
 	// pointing parent nodes.
 	// area [T..(T + N_CHAR - 1)] are pointers for leaves
 	//
 
-short prnt[T + N_CHAR];
+Sint16 prnt[T + N_CHAR];
 
-unsigned short freq[T + 1];	/* cumulative freq table */
+Uint16 freq[T + 1];	/* cumulative freq table */
 
-unsigned char text_buf[N + F - 1];
+Uint8 text_buf[N + F - 1];
 
 #endif
 
@@ -211,7 +211,7 @@ unsigned char text_buf[N + F - 1];
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 
-static short *lson, *rson, *dad;
+static Sint16 *lson, *rson, *dad;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
 void* id_lson;
@@ -220,13 +220,13 @@ void* id_dad;
 #endif
 #else
 
-static short lson[N + 1], rson[N + 257], dad[N + 1];
+static Sint16 lson[N + 1], rson[N + 257], dad[N + 1];
 
 #endif
 
-static short match_position,match_length;
-unsigned short putbuf = 0;
-unsigned short putlen = 0;
+static Sint16 match_position,match_length;
+Uint16 putbuf = 0;
+Uint16 putlen = 0;
 
 	//
 	// Tables for encoding/decoding upper 6 bits of
@@ -237,7 +237,7 @@ unsigned short putlen = 0;
 	// encoder table
 	//
 
-unsigned char p_len[64] = {
+Uint8 p_len[64] = {
 	0x03, 0x04, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05,
 	0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06,
 	0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
@@ -248,7 +248,7 @@ unsigned char p_len[64] = {
 	0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 };
 
-unsigned char p_code[64] = {
+Uint8 p_code[64] = {
 	0x00, 0x20, 0x30, 0x40, 0x50, 0x58, 0x60, 0x68,
 	0x70, 0x78, 0x80, 0x88, 0x90, 0x94, 0x98, 0x9C,
 	0xA0, 0xA4, 0xA8, 0xAC, 0xB0, 0xB4, 0xB8, 0xBC,
@@ -272,7 +272,7 @@ unsigned char p_code[64] = {
 
 #if INCLUDE_LZH_DECOMP
 
-unsigned char d_code[256] = {
+Uint8 d_code[256] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -307,7 +307,7 @@ unsigned char d_code[256] = {
 	0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
 };
 
-unsigned char d_len[256] = {
+Uint8 d_len[256] = {
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -342,8 +342,8 @@ unsigned char d_len[256] = {
 	0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
 };
 
-unsigned short getbuf = 0;
-unsigned short getlen = 0;
+Uint16 getbuf = 0;
+Uint16 getlen = 0;
 
 #endif
 
@@ -468,7 +468,7 @@ void LZH_Shutdown()
 //---------------------------------------------------------------------------
 static void StartHuff()
 {
-	short i, j;
+	Sint16 i, j;
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 #ifdef LZH_ID_MEMORY_ALLOCATION
@@ -517,8 +517,8 @@ static void StartHuff()
 //---------------------------------------------------------------------------
 static void reconst()
 {
-	short i, j, k;
-	unsigned short f, l;
+	Sint16 i, j, k;
+	Uint16 f, l;
 
 	/* halven cumulative freq for leaf nodes */
 
@@ -576,9 +576,9 @@ static void reconst()
 //---------------------------------------------------------------------------
 //  update()	 update freq tree
 //---------------------------------------------------------------------------
-static void update(short c)
+static void update(Sint16 c)
 {
-	short i, j, k, l;
+	Sint16 i, j, k, l;
 
 	if (freq[R] == MAX_FREQ)
 	{
@@ -641,9 +641,9 @@ static void update(short c)
 //---------------------------------------------------------------------------
 // DeleteNode
 //---------------------------------------------------------------------------
-static void DeleteNode(short p)  /* Deleting node from the tree */
+static void DeleteNode(Sint16 p)  /* Deleting node from the tree */
 {
-	short  q;
+	Sint16  q;
 
 	if (dad[p] == NIL)
 		return;			/* unregistered */
@@ -690,11 +690,11 @@ static void DeleteNode(short p)  /* Deleting node from the tree */
 //---------------------------------------------------------------------------
 //  InsertNode
 //---------------------------------------------------------------------------
-static void InsertNode(short r)  /* Inserting node to the tree */
+static void InsertNode(Sint16 r)  /* Inserting node to the tree */
 {
-	short  i, p, cmp;
-	unsigned char *key;
-	unsigned short c;
+	Sint16  i, p, cmp;
+	Uint8 *key;
+	Uint16 c;
 
 	cmp = 1;
 	key = &text_buf[r];
@@ -773,7 +773,7 @@ static void InsertNode(short r)  /* Inserting node to the tree */
 //---------------------------------------------------------------------------
 static void InitTree(void)  /* Initializing tree */
 {
-	short  i;
+	Sint16  i;
 
 	for (i = N + 1; i <= N + 256; i++)
 		rson[i] = NIL;			/* root */
@@ -790,7 +790,7 @@ static void InitTree(void)  /* Initializing tree */
 //---------------------------------------------------------------------------
 //  Putcode
 //---------------------------------------------------------------------------
-static void Putcode(long outfile_ptr, short l, unsigned short c,unsigned short PtrTypes)		/* output c bits */
+static void Putcode(Sint32 outfile_ptr, Sint16 l, Uint16 c,Uint16 PtrTypes)		/* output c bits */
 {
 	putbuf |= c >> putlen;
 
@@ -822,10 +822,10 @@ static void Putcode(long outfile_ptr, short l, unsigned short c,unsigned short P
 //---------------------------------------------------------------------------
 //  EncodeChar
 //---------------------------------------------------------------------------
-static void EncodeChar(long outfile_ptr, unsigned short c, unsigned short PtrTypes)
+static void EncodeChar(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes)
 {
-	unsigned short i;
-	short j, k;
+	Uint16 i;
+	Sint16 j, k;
 
 	i = 0;
 	j = 0;
@@ -859,16 +859,16 @@ static void EncodeChar(long outfile_ptr, unsigned short c, unsigned short PtrTyp
 //---------------------------------------------------------------------------
 // EncodePosition
 //---------------------------------------------------------------------------
-static void EncodePosition(long outfile_ptr, unsigned short c, unsigned short PtrTypes)
+static void EncodePosition(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes)
 {
-	unsigned short i;
+	Uint16 i;
 
 	//
 	// output upper 6 bits with encoding
 	//
 
 	i = c >> 6;
-	Putcode(outfile_ptr, p_len[i], (unsigned short)p_code[i] << 8,PtrTypes);
+	Putcode(outfile_ptr, p_len[i], (Uint16)p_code[i] << 8,PtrTypes);
 
 	//
 	// output lower 6 bits directly
@@ -883,7 +883,7 @@ static void EncodePosition(long outfile_ptr, unsigned short c, unsigned short Pt
 //---------------------------------------------------------------------------
 // EncodeEnd
 //---------------------------------------------------------------------------
-static void EncodeEnd(long outfile_ptr,unsigned short PtrTypes)
+static void EncodeEnd(Sint32 outfile_ptr,Uint16 PtrTypes)
 {
 	if (putlen)
 	{
@@ -911,9 +911,9 @@ static void EncodeEnd(long outfile_ptr,unsigned short PtrTypes)
 //---------------------------------------------------------------------------
 // GetByte
 //---------------------------------------------------------------------------
-static short GetByte(long infile_ptr, unsigned long *CompressLength, unsigned short PtrTypes)
+static Sint16 GetByte(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)
 {
-	unsigned short i;
+	Uint16 i;
 
 	while (getlen <= 8)
 	{
@@ -943,9 +943,9 @@ static short GetByte(long infile_ptr, unsigned long *CompressLength, unsigned sh
 //---------------------------------------------------------------------------
 // GetBit
 //---------------------------------------------------------------------------
-static short GetBit(long infile_ptr, unsigned long *CompressLength, unsigned short PtrTypes)	/* get one bit */
+static Sint16 GetBit(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)	/* get one bit */
 {
-	short i;
+	Sint16 i;
 
 	while (getlen <= 8)
 	{
@@ -974,9 +974,9 @@ static short GetBit(long infile_ptr, unsigned long *CompressLength, unsigned sho
 //---------------------------------------------------------------------------
 // DecodeChar
 //---------------------------------------------------------------------------
-static short DecodeChar(long infile_ptr, unsigned long *CompressLength, unsigned short PtrTypes)
+static Sint16 DecodeChar(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)
 {
-	unsigned short c;
+	Uint16 c;
 
 	c = son[R];
 
@@ -1004,16 +1004,16 @@ static short DecodeChar(long infile_ptr, unsigned long *CompressLength, unsigned
 //---------------------------------------------------------------------------
 // DecodePosition
 //---------------------------------------------------------------------------
-static short DecodePosition(long infile_ptr,unsigned long *CompressLength, unsigned short PtrTypes)
+static Sint16 DecodePosition(Sint32 infile_ptr,Uint32 *CompressLength, Uint16 PtrTypes)
 {
-	unsigned short i, j, c;
+	Uint16 i, j, c;
 
 	//
 	// decode upper 6 bits from given table
 	//
 
 	i = GetByte(infile_ptr, CompressLength, PtrTypes);
-	c = (unsigned short)d_code[i] << 6;
+	c = (Uint16)d_code[i] << 6;
 	j = d_len[i];
 
 	//
@@ -1051,10 +1051,10 @@ static short DecodePosition(long infile_ptr,unsigned long *CompressLength, unsig
 //---------------------------------------------------------------------------
 // LZH_Decompress()
 //---------------------------------------------------------------------------
-long LZH_Decompress(void *infile, void *outfile, unsigned long OriginalLength, unsigned long CompressLength, unsigned short PtrTypes)
+Sint32 LZH_Decompress(void *infile, void *outfile, Uint32 OriginalLength, Uint32 CompressLength, Uint16 PtrTypes)
 {
-	short  i, j, k, r, c;
-	long count;
+	Sint16  i, j, k, r, c;
+	Sint32 count;
 
 	datasize = textsize = OriginalLength;
 	getbuf = 0;
@@ -1071,11 +1071,11 @@ long LZH_Decompress(void *infile, void *outfile, unsigned long OriginalLength, u
 
 	for (count = 0; count < textsize; )
 	{
-		c = DecodeChar((long)&infile,&CompressLength,PtrTypes);
+		c = DecodeChar((Sint32)&infile,&CompressLength,PtrTypes);
 
 		if (c < 256)
 		{
-			CIO_WritePtr((long)&outfile,c,PtrTypes);
+			CIO_WritePtr((Sint32)&outfile,c,PtrTypes);
 			datasize--;								// Dec # of bytes to write
 
 			text_buf[r++] = c;
@@ -1084,14 +1084,14 @@ long LZH_Decompress(void *infile, void *outfile, unsigned long OriginalLength, u
 		}
 		else
 		{
-			i = (r - DecodePosition((long)&infile,&CompressLength,PtrTypes) - 1) & (N - 1);
+			i = (r - DecodePosition((Sint32)&infile,&CompressLength,PtrTypes) - 1) & (N - 1);
 			j = c - 255 + THRESHOLD;
 
 			for (k = 0; k < j; k++)
 			{
 				c = text_buf[(i + k) & (N - 1)];
 
-				CIO_WritePtr((long)&outfile,c,PtrTypes);
+				CIO_WritePtr((Sint32)&outfile,c,PtrTypes);
 				datasize--;							// dec count of bytes to write
 
 				text_buf[r++] = c;
@@ -1124,9 +1124,9 @@ long LZH_Decompress(void *infile, void *outfile, unsigned long OriginalLength, u
 //---------------------------------------------------------------------------
 // LZH_Compress()
 //---------------------------------------------------------------------------
-long LZH_Compress(void *infile, void *outfile,unsigned long DataLength,unsigned short PtrTypes)
+Sint32 LZH_Compress(void *infile, void *outfile,Uint32 DataLength,Uint16 PtrTypes)
 {
-	short  i, c, len, r, s, last_match_length;
+	Sint16  i, c, len, r, s, last_match_length;
 
 	textsize = DataLength;
 
@@ -1149,7 +1149,7 @@ long LZH_Compress(void *infile, void *outfile,unsigned long DataLength,unsigned 
 
 	for (len = 0; len < F && (DataLength > datasize); len++)
 	{
-		c = CIO_ReadPtr((long)&infile,PtrTypes);
+		c = CIO_ReadPtr((Sint32)&infile,PtrTypes);
 		datasize++;							// Dec num of bytes to compress
 		text_buf[r + len] = c;
 	}
@@ -1168,19 +1168,19 @@ long LZH_Compress(void *infile, void *outfile,unsigned long DataLength,unsigned 
 		if (match_length <= THRESHOLD)
 		{
 			match_length = 1;
-			EncodeChar((long)&outfile,text_buf[r],PtrTypes);
+			EncodeChar((Sint32)&outfile,text_buf[r],PtrTypes);
 		}
 		else
 		{
-			EncodeChar((long)&outfile, 255 - THRESHOLD + match_length,PtrTypes);
-			EncodePosition((long)&outfile, match_position,PtrTypes);
+			EncodeChar((Sint32)&outfile, 255 - THRESHOLD + match_length,PtrTypes);
+			EncodePosition((Sint32)&outfile, match_position,PtrTypes);
 		}
 
 		last_match_length = match_length;
 
 		for (i = 0; i < last_match_length && (DataLength > datasize); i++)
 		{
-			c = CIO_ReadPtr((long)&infile,PtrTypes);
+			c = CIO_ReadPtr((Sint32)&infile,PtrTypes);
 			datasize++;
 
 			DeleteNode(s);
@@ -1212,7 +1212,7 @@ long LZH_Compress(void *infile, void *outfile,unsigned long DataLength,unsigned 
 
 	} while (len > 0);
 
-	EncodeEnd((long)&outfile,PtrTypes);
+	EncodeEnd((Sint32)&outfile,PtrTypes);
 
 	if (LZH_CompressDisplayVector)
 		LZH_CompressDisplayVector(DataLength,DataLength);

@@ -17,7 +17,7 @@
 #define	MaxJoys		2
 #define	NumCodes	128
 
-typedef	byte		ScanCode;
+typedef	Uint8		ScanCode;
 #define	sc_None			0
 #define	sc_Bad			0xff
 #define	sc_Return		0x1c
@@ -155,7 +155,7 @@ typedef	enum		{
 					} Direction;
 typedef	struct		{
 						boolean		button0,button1,button2,button3;
-						short			x,y;
+						Sint16			x,y;
 						Motion		xaxis,yaxis;
 						Direction	dir;
 					} CursorInfo;
@@ -167,7 +167,7 @@ typedef	struct		{
 									downleft,	down,	downright;
 					} KeyboardDef;
 typedef	struct		{
-						word		joyMinX,joyMinY,
+						Uint16		joyMinX,joyMinY,
 									threshMinX,threshMinY,
 									threshMaxX,threshMaxY,
 									joyMaxX,joyMaxY,
@@ -192,8 +192,8 @@ extern	KeyboardDef	KbdDefs;
 extern	JoystickDef	JoyDefs[];
 extern	ControlType	Controls[MaxPlayers];
 
-extern	byte *DemoBuffer;
-extern	word		DemoOffset,DemoSize;
+extern	Uint8 *DemoBuffer;
+extern	Uint16		DemoOffset,DemoSize;
 
 // Function prototypes
 #define	IN_KeyDown(code)	(Keyboard[(code)])
@@ -206,22 +206,22 @@ extern	void		IN_Startup(void),IN_Shutdown(void),
 					IN_SetKeyHook(void (*)()),
 					IN_ClearKeysDown(void),
 					IN_ReadCursor(CursorInfo *),
-					IN_ReadControl(short,ControlInfo *),
-					IN_SetControlType(short,ControlType),
-					IN_GetJoyAbs(word joy,word *xp,word *yp),
-					IN_SetupJoy(word joy,word minx,word maxx,
-								word miny,word maxy),
+					IN_ReadControl(Sint16,ControlInfo *),
+					IN_SetControlType(Sint16,ControlType),
+					IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp),
+					IN_SetupJoy(Uint16 joy,Uint16 minx,Uint16 maxx,
+								Uint16 miny,Uint16 maxy),
 					IN_StopDemo(void),IN_FreeDemoBuffer(void),
 					IN_Ack(void),IN_AckBack(void);
-extern	boolean		IN_UserInput(longword delay);
+extern	boolean		IN_UserInput(Uint32 delay);
 extern	char		IN_WaitForASCII(void);
 extern	ScanCode	IN_WaitForKey(void);
-extern	word		IN_GetJoyButtonsDB(word joy);
-extern	byte		*IN_GetScanName(ScanCode);
+extern	Uint16		IN_GetJoyButtonsDB(Uint16 joy);
+extern	Uint8		*IN_GetScanName(ScanCode);
 
 
-byte	IN_MouseButtons (void);
-byte	IN_JoyButtons (void);
+Uint8	IN_MouseButtons (void);
+Uint8	IN_JoyButtons (void);
 
 
 #endif

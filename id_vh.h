@@ -16,7 +16,7 @@
 
 typedef struct
 {
-  short	width,
+  Sint16	width,
 	height,
 	orgx,orgy,
 	xl,yl,xh,yh,
@@ -25,22 +25,22 @@ typedef struct
 
 typedef	struct
 {
-	unsigned short	sourceoffset[MAXSHIFTS];
-	unsigned short	planesize[MAXSHIFTS];
-	unsigned short	width[MAXSHIFTS];
-	byte		data[];
+	Uint16	sourceoffset[MAXSHIFTS];
+	Uint16	planesize[MAXSHIFTS];
+	Uint16	width[MAXSHIFTS];
+	Uint8		data[];
 } spritetype;		// the memptr for each sprite points to this
 
 typedef struct
 {
-	short width,height;
+	Sint16 width,height;
 } pictabletype;
 
 
 typedef struct
 {
-	short height;
-	short location[256];
+	Sint16 height;
+	Sint16 location[256];
 	char width[256];
 } fontstruct;
 
@@ -52,9 +52,9 @@ extern	pictabletype	*pictable;
 extern	pictabletype	*picmtable;
 extern	spritetabletype *spritetable;
 
-extern	byte	fontcolor;
-extern	short	fontnumber;
-extern	short	px,py;
+extern	Uint8	fontcolor;
+extern	Sint16	fontnumber;
+extern	Sint16	px,py;
 extern	boolean allcaps;
 
 
@@ -65,7 +65,7 @@ extern	boolean allcaps;
 //
 
 void VW_InitDoubleBuffer (void);
-short	 VW_MarkUpdateBlock (short x1, short y1, short x2, short y2);
+Sint16	 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 //void VW_UpdateScreen (void);			// Made a macro
 
 //
@@ -74,27 +74,27 @@ short	 VW_MarkUpdateBlock (short x1, short y1, short x2, short y2);
 // regions marked in double buffer
 //
 
-void VWB_DrawTile8 (short x, short y, short tile);
-void VWB_DrawTile8M (short x, short y, short tile);
-void VWB_DrawTile16 (short x, short y, short tile);
-void VWB_DrawTile16M (short x, short y, short tile);
-void VWB_DrawPic (short x, short y, short chunknum);
-void VWB_DrawMPic(short x, short y, short chunknum);
-void VWB_Bar (short x, short y, short width, short height, short color);
+void VWB_DrawTile8 (Sint16 x, Sint16 y, Sint16 tile);
+void VWB_DrawTile8M (Sint16 x, Sint16 y, Sint16 tile);
+void VWB_DrawTile16 (Sint16 x, Sint16 y, Sint16 tile);
+void VWB_DrawTile16M (Sint16 x, Sint16 y, Sint16 tile);
+void VWB_DrawPic (Sint16 x, Sint16 y, Sint16 chunknum);
+void VWB_DrawMPic(Sint16 x, Sint16 y, Sint16 chunknum);
+void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color);
 
 void VWB_DrawPropString	 (char *string);
 void VW_DrawPropString (char *string);
 void VWB_DrawMPropString (char *string);
-void VWB_DrawSprite (short x, short y, short chunknum);
-void VWB_Plot (short x, short y, short color);
-void VWB_Hlin (short x1, short x2, short y, short color);
-void VWB_Vlin (short y1, short y2, short x, short color);
+void VWB_DrawSprite (Sint16 x, Sint16 y, Sint16 chunknum);
+void VWB_Plot (Sint16 x, Sint16 y, Sint16 color);
+void VWB_Hlin (Sint16 x1, Sint16 x2, Sint16 y, Sint16 color);
+void VWB_Vlin (Sint16 y1, Sint16 y2, Sint16 x, Sint16 color);
 
 
 //
 // wolfenstein EGA compatability stuff
 //
-extern byte vgapal;
+extern Uint8 vgapal;
 
 void VH_SetDefaultColors (void);
 
@@ -115,7 +115,7 @@ void VH_SetDefaultColors (void);
 #define VW_FadeOut()	VL_FadeOut(0,255,0,0,0,30);
 #define VW_ScreenToScreen	VL_ScreenToScreen
 #define VW_SetDefaultColors	VH_SetDefaultColors
-void	VW_MeasurePropString (char *string, word *width, word *height);
+void	VW_MeasurePropString (char *string, Uint16 *width, Uint16 *height);
 #define EGAMAPMASK(x)	VGAMAPMASK(x)
 #define EGAWRITEMODE(x)	VGAWRITEMODE(x)
 
@@ -130,14 +130,14 @@ void	VW_MeasurePropString (char *string, word *width, word *height);
 #define LatchDrawChar(x,y,p) VL_LatchToScreen(latchpics[0]+(p)*16,2,8,x,y)
 #define LatchDrawTile(x,y,p) VL_LatchToScreen(latchpics[1]+(p)*64,4,16,x,y)
 
-void LatchDrawPic (unsigned short x, unsigned short y, unsigned short picnum);
+void LatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum);
 void 	LoadLatchMem (void);
-boolean 	FizzleFade (unsigned short source, unsigned short dest,
-	unsigned short width,unsigned short height, unsigned short frames,boolean abortable);
+boolean 	FizzleFade (Uint16 source, Uint16 dest,
+	Uint16 width,Uint16 height, Uint16 frames,boolean abortable);
 
 
 #define NUMLATCHPICS	100
-extern	unsigned short	latchpics[NUMLATCHPICS];
-extern	unsigned short freelatch;
+extern	Uint16	latchpics[NUMLATCHPICS];
+extern	Uint16 freelatch;
 
-extern unsigned short LatchMemFree;
+extern Uint16 LatchMemFree;

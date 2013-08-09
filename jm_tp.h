@@ -69,17 +69,17 @@
 //  typedefs
 //-------------------------------------------------------------------------
 typedef struct {
-	unsigned short flags,gflags;
+	Uint16 flags,gflags;
 	char *script[TP_MAX_PAGES];
 	void* scriptstart;
 	char numpages,pagenum;
-	unsigned short xl,yl,xh,yh;
+	Uint16 xl,yl,xh,yh;
 	char fontnumber;
 	char bgcolor,ltcolor,dkcolor,shcolor;
-	unsigned short cur_x,cur_y;
+	Uint16 cur_x,cur_y;
 	char print_delay;
-	byte highlight_color,fontcolor;
-	short id_cache;
+	Uint8 highlight_color,fontcolor;
+	Sint16 id_cache;
 	char *infoline;
 } PresenterInfo;
 
@@ -101,7 +101,7 @@ typedef enum pisType {pis_pic,
 } pisType;
 
 typedef struct {
-	unsigned short shapenum;
+	Uint16 shapenum;
 	pisType shapetype;
 } piShapeInfo;
 
@@ -114,14 +114,14 @@ typedef enum pidType {pid_cycle,
 } pidType;
 
 typedef struct {
-	short baseshape;
+	Sint16 baseshape;
 	char frame;
 	char maxframes;
-	short delay;
-	short maxdelay;
+	Sint16 delay;
+	Sint16 maxdelay;
 	piaType animtype;
 	pidType dirtype;
-	short x,y;
+	Sint16 x,y;
 	char diradd;
 } piAnimInfo;
 
@@ -132,7 +132,7 @@ extern piShapeInfo piShapeTable[];
 extern piAnimInfo piAnimTable[];
 extern piAnimInfo piAnimList[TP_MAX_ANIMS];
 extern char *piStringTable[PI_MAX_NUM_DISP_STRS];
-extern byte TPscan;
+extern Uint8 TPscan;
 
 //-------------------------------------------------------------------------
 // Function prototypes
@@ -140,21 +140,21 @@ extern byte TPscan;
 void TP_Presenter(PresenterInfo *pi);
 void TP_WrapText(void);
 void TP_HandleCodes(void);
-short TP_DrawShape(short x, short y, short shapenum, pisType type);
-unsigned short TP_VALUE(char *ptr,char num_nybbles);
-long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned short id_cache);
-void TP_FreeScript(PresenterInfo *pi,unsigned short id_cache);
+Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType type);
+Uint16 TP_VALUE(char *ptr,char num_nybbles);
+Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache);
+void TP_FreeScript(PresenterInfo *pi,Uint16 id_cache);
 void TP_InitScript(PresenterInfo *pi);
-void TP_AnimatePage(short numanims);
-short TP_BoxAroundShape(short x1, short y1, unsigned short shapenum, pisType shapetype);
+void TP_AnimatePage(Sint16 numanims);
+Sint16 TP_BoxAroundShape(Sint16 x1, Sint16 y1, Uint16 shapenum, pisType shapetype);
 void TP_JumpCursor(void);
 void TP_Print(char *str,boolean single_char);
 boolean TP_SlowPrint(char *str, char delay);
 void TP_PurgeAllGfx(void);
 void TP_CachePage(char *script);
-void TP_CacheIn(tpCacheType type, short chunk);
+void TP_CacheIn(tpCacheType type, Sint16 chunk);
 void TP_ResetPagePointers(void);
-short TP_LineCommented(char *s);
+Sint16 TP_LineCommented(char *s);
 void TP_PrintPageNumber(void);
 
 #endif

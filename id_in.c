@@ -74,11 +74,11 @@ boolean			NGinstalled=false;
 		JoystickDef	JoyDefs[MaxJoys];
 		ControlType	Controls[MaxPlayers];
 
-		longword	MouseDownCount;
+		Uint32	MouseDownCount;
 
 #if DEMOS_ENABLED
-		byte *DemoBuffer;
-		word		DemoOffset,DemoSize;
+		Uint8 *DemoBuffer;
+		Uint16		DemoOffset,DemoSize;
 #endif
 
 /*
@@ -88,7 +88,7 @@ boolean			NGinstalled=false;
 
 =============================================================================
 */
-static	byte        ASCIINames[] =		// Unshifted ASCII for scan codes
+static	Uint8        ASCIINames[] =		// Unshifted ASCII for scan codes
 					{
 //	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	0  ,27 ,'1','2','3','4','5','6','7','8','9','0','-','=',8  ,9  ,	// 0
@@ -155,7 +155,7 @@ INL_KeyService(void)
 // FIXME
 #if 0
 static	boolean	special;
-		byte	k,c,
+		Uint8	k,c,
 				temp;
 		int		i;
 
@@ -234,7 +234,7 @@ static	boolean	special;
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-INL_GetMouseDelta(int *x,int *y)
+INL_GetMouseDelta(Sint16 *x,Sint16 *y)
 {
 	Mouse(MDelta);
 
@@ -251,10 +251,10 @@ INL_GetMouseDelta(int *x,int *y)
 //		mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
-static word
+static Uint16
 INL_GetMouseButtons(void)
 {
-	word	buttons;
+	Uint16	buttons;
 
 	Mouse(MButtons);
 
@@ -272,11 +272,11 @@ INL_GetMouseButtons(void)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_GetJoyAbs(word joy,word *xp,word *yp)
+IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp)
 {
-	byte	xb,yb,
+	Uint8	xb,yb,
 			xs,ys;
-	word	x,y;
+	Uint16	x,y;
 
 // FIXME
 #if 0
@@ -375,12 +375,12 @@ asm		popf				// Restore the registers
 //		joystick (from +/-127)
 //
 ///////////////////////////////////////////////////////////////////////////
-void INL_GetJoyDelta(word joy,short *dx,short *dy)
+void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy)
 {
-	word		x,y;
-	longword	time;
+	Uint16		x,y;
+	Uint32	time;
 	JoystickDef	*def;
-static	longword	lasttime;
+static	Uint32	lasttime;
 
 	IN_GetJoyAbs(joy,&x,&y);
 	def = JoyDefs + joy;
@@ -440,12 +440,12 @@ static	longword	lasttime;
 //		joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-static word
-INL_GetJoyButtons(word joy)
+static Uint16
+INL_GetJoyButtons(Uint16 joy)
 {
 // FIXME
 #if 0
-register	word	result;
+register	Uint16	result;
 
 // Handle Notebook Gamepad's joystick.
 //
@@ -485,11 +485,11 @@ register	word	result;
 //		specified joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-word
-IN_GetJoyButtonsDB(word joy)
+Uint16
+IN_GetJoyButtonsDB(Uint16 joy)
 {
-	longword	lasttime;
-	word		result1,result2;
+	Uint32	lasttime;
+	Uint16		result1,result2;
 
 	do
 	{
@@ -557,7 +557,7 @@ INL_StartMouse(void)
 	return(false);
 #endif
  union REGS regs;
- unsigned char *vector;
+ Uint8 *vector;
 
 
  if ((vector=MK_FP(peek(0,0x33*4+2),peek(0,0x33*4)))==NULL)
@@ -590,7 +590,7 @@ INL_ShutMouse(void)
 //	INL_SetJoyScale() - Sets up scaling values for the specified joystick
 //
 static void
-INL_SetJoyScale(word joy)
+INL_SetJoyScale(Uint16 joy)
 {
 	JoystickDef	*def;
 
@@ -608,9 +608,9 @@ INL_SetJoyScale(word joy)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_SetupJoy(word joy,word minx,word maxx,word miny,word maxy)
+IN_SetupJoy(Uint16 joy,Uint16 minx,Uint16 maxx,Uint16 miny,Uint16 maxy)
 {
-	word		d,r;
+	Uint16		d,r;
 	JoystickDef	*def;
 
 	def = &JoyDefs[joy];
@@ -638,7 +638,7 @@ IN_SetupJoy(word joy,word minx,word maxx,word miny,word maxy)
 //
 ///////////////////////////////////////////////////////////////////////////
 static void
-INL_ShutJoy(word joy)
+INL_ShutJoy(Uint16 joy)
 {
 	JoysPresent[joy] = false;
 }
@@ -653,9 +653,9 @@ INL_ShutJoy(word joy)
 //
 ///////////////////////////////////////////////////////////////////////////
 boolean
-INL_StartJoy(word joy)
+INL_StartJoy(Uint16 joy)
 {
-	word		x,y;
+	Uint16		x,y;
 
 	IN_GetJoyAbs(joy,&x,&y);
 
@@ -681,7 +681,7 @@ void
 IN_Startup(void)
 {
 	boolean	checkjoys,checkmouse,checkNG;
-	word	i;
+	Uint16	i;
 
 	if (IN_Started)
 		return;
@@ -760,7 +760,7 @@ IN_Default(boolean gotit,ControlType in)
 void
 IN_Shutdown(void)
 {
-	word	i;
+	Uint16	i;
 
 	if (!IN_Started)
 		return;
@@ -797,7 +797,7 @@ IN_SetKeyHook(void (*hook)())
 void
 IN_ClearKeysDown(void)
 {
-	short	i;
+	Sint16	i;
 
 	LastScan = sc_None;
 	LastASCII = key_None;
@@ -827,12 +827,12 @@ IN_ClearKeysDown(void)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_ReadControl(short player,ControlInfo *info)
+IN_ReadControl(Sint16 player,ControlInfo *info)
 {
 			boolean		realdelta=false;
-			byte		dbyte;
-			word		buttons;
-			short			dx,dy;
+			Uint8		dbyte;
+			Uint16		buttons;
+			Sint16			dx,dy;
 			Motion		mx,my;
 			ControlType	type;
 register	KeyboardDef	*def;
@@ -1035,7 +1035,7 @@ register	KeyboardDef	*def;
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_SetControlType(short player,ControlType type)
+IN_SetControlType(Sint16 player,ControlType type)
 {
 	// DEBUG - check that requested type is present?
 	Controls[player] = type;
@@ -1093,7 +1093,7 @@ boolean	btnstate[8];
 
 void IN_StartAck(void)
 {
-	unsigned short	i,buttons;
+	Uint16	i,buttons;
 
 //
 // get initial state of everything
@@ -1113,7 +1113,7 @@ void IN_StartAck(void)
 
 boolean IN_CheckAck (void)
 {
-	unsigned short	i,buttons;
+	Uint16	i,buttons;
 
 //
 // see if something has been pressed
@@ -1155,9 +1155,9 @@ void IN_Ack (void)
 //		button up.
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean IN_UserInput(longword delay)
+boolean IN_UserInput(Uint32 delay)
 {
-	longword	lasttime;
+	Uint32	lasttime;
 
 	lasttime = TimeCount;
 	IN_StartAck ();
@@ -1179,7 +1179,7 @@ boolean IN_UserInput(longword delay)
 ===================
 */
 
-byte	IN_MouseButtons (void)
+Uint8	IN_MouseButtons (void)
 {
 // FIXME
 #if 0
@@ -1203,7 +1203,7 @@ byte	IN_MouseButtons (void)
 ===================
 */
 
-byte	IN_JoyButtons (void)
+Uint8	IN_JoyButtons (void)
 {
 // FIXME
 #if 0

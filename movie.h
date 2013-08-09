@@ -13,17 +13,17 @@
 
 typedef struct
 {
-	unsigned short code;
-   long block_num;
-   long recsize;
+	Uint16 code;
+   Sint32 block_num;
+   Sint32 recsize;
 }anim_frame;
 
 
 typedef struct
 {
-	unsigned short opt;
-   unsigned short offset;
-   unsigned short length;
+	Uint16 opt;
+   Uint16 offset;
+   Uint16 length;
 } anim_chunk;
 
 
@@ -44,10 +44,10 @@ typedef struct
 	char rep;
 	char ticdelay;
 
-   unsigned long MaxMemBuffer;
+   Uint32 MaxMemBuffer;
 
-	short start_line;
-	short end_line;
+	Sint16 start_line;
+	Sint16 end_line;
    void* palette;
 
 } MovieStuff_t;

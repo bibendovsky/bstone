@@ -4,10 +4,10 @@
 #pragma hdrstop
 
 
-void INL_GetJoyDelta(word joy,short *dx,short *dy);
+void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
 void UpdateRadarGuage(void);
 void ClearMemory (void);
-void GiveWeapon (short weapon);
+void GiveWeapon (Sint16 weapon);
 void DrawWeapon (void);
 void DrawHealth (void);
 void DrawKeys (void);
@@ -44,15 +44,15 @@ void UpdateSoundLoc(void);
 */
 
 
-unsigned char music_num=0;
+Uint8 music_num=0;
 
 #if LOOK_FOR_DEAD_GUYS
 objtype *DeadGuys[MAXACTORS];
-unsigned char NumDeadGuys;
+Uint8 NumDeadGuys;
 #endif
 
 boolean		madenoise;					// true when shooting or screaming
-unsigned char alerted = 0,alerted_areanum;
+Uint8 alerted = 0,alerted_areanum;
 
 
 exit_t		playstate;
@@ -60,57 +60,57 @@ exit_t		playstate;
 boolean PowerBall = false;
 
 #if TECH_SUPPORT_VERSION
-short			bordertime,DebugOk = true,InstantWin = 0,InstantQuit = 0;
+Sint16			bordertime,DebugOk = true,InstantWin = 0,InstantQuit = 0;
 #else
-short			bordertime,DebugOk = false,InstantWin = 0,InstantQuit = 0;
+Sint16			bordertime,DebugOk = false,InstantWin = 0,InstantQuit = 0;
 #endif
 
-unsigned short ExtraRadarFlags	= 0;
+Uint16 ExtraRadarFlags	= 0;
 
 
 
 #if IN_DEVELOPMENT
 
-short TestQuickSave = 0, TestAutoMapper = 0;
+Sint16 TestQuickSave = 0, TestAutoMapper = 0;
 
 #endif
 
 objtype 	objlist[MAXACTORS],*new,*player,*lastobj,
 			*objfreelist,*killerobj;
 
-unsigned short	farmapylookup[MAPSIZE];
-byte		*nearmapylookup[MAPSIZE];
+Uint16	farmapylookup[MAPSIZE];
+Uint8		*nearmapylookup[MAPSIZE];
 
 boolean		singlestep=false,godmode;	//,noclip;
-short			extravbls = 0;
+Sint16			extravbls = 0;
 
-byte		tilemap[MAPSIZE][MAPSIZE];	// wall values only
-byte		spotvis[MAPSIZE][MAPSIZE];
+Uint8		tilemap[MAPSIZE][MAPSIZE];	// wall values only
+Uint8		spotvis[MAPSIZE][MAPSIZE];
 objtype		*actorat[MAPSIZE][MAPSIZE];
 
 //
 // replacing refresh manager
 //
-unsigned short	mapwidth,mapheight,tics,realtics;
+Uint16	mapwidth,mapheight,tics,realtics;
 boolean		compatability,usedummy=false, nevermark = false;
-byte		*updateptr;
-unsigned short	mapwidthtable[64];
-unsigned short	uwidthtable[UPDATEHIGH];
-unsigned short	blockstarts[UPDATEWIDE*UPDATEHIGH];
-byte		update[UPDATESIZE];
+Uint8		*updateptr;
+Uint16	mapwidthtable[64];
+Uint16	uwidthtable[UPDATEHIGH];
+Uint16	blockstarts[UPDATEWIDE*UPDATEHIGH];
+Uint8		update[UPDATESIZE];
 
 //
 // control info
 //
 boolean		mouseenabled,joystickenabled,joypadenabled,joystickprogressive;
-short			joystickport;
-short			dirscan[4] = {sc_UpArrow,sc_RightArrow,sc_DownArrow,sc_LeftArrow};
-short			buttonscan[NUMBUTTONS] =
+Sint16			joystickport;
+Sint16			dirscan[4] = {sc_UpArrow,sc_RightArrow,sc_DownArrow,sc_LeftArrow};
+Sint16			buttonscan[NUMBUTTONS] =
 				{sc_Control,sc_Alt,sc_RShift,sc_Space,sc_1,sc_2,sc_3,sc_4,sc_5,sc_6,sc_7};
-short			buttonmouse[4]={bt_attack,bt_strafe,bt_use,bt_nobutton};
-short			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
+Sint16			buttonmouse[4]={bt_attack,bt_strafe,bt_use,bt_nobutton};
+Sint16			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
 
-short			viewsize;
+Sint16			viewsize;
 
 boolean		buttonheld[NUMBUTTONS];
 
@@ -120,19 +120,19 @@ void*		demobuffer;
 
 // Light sourcing flag
 
-byte lightson;
+Uint8 lightson;
 
 //
 // curent user input
 //
-short			controlx,controly;		// range from -100 to 100 per tic
+Sint16			controlx,controly;		// range from -100 to 100 per tic
 boolean		buttonstate[NUMBUTTONS];
 
 
 //===========================================================================
 
 
-void	CenterWindow(word w,word h);
+void	CenterWindow(Uint16 w,Uint16 h);
 void 	InitObjList (void);
 void 	RemoveObj (objtype *gone);
 void 	PollControls (void);
@@ -161,7 +161,7 @@ objtype dummyobj;
 // LIST OF SONGS FOR EACH LEVEL
 //
 
-short songs[]=
+Sint16 songs[]=
 {
 	MAJMIN_MUS,              // 0
 	STICKS_MUS,              // 1
@@ -215,7 +215,7 @@ short songs[]=
 
 void PollKeyboardButtons (void)
 {
-	short		i;
+	Sint16		i;
 
 	for (i=0;i<NUMBUTTONS;i++)
 		if (Keyboard[buttonscan[i]])
@@ -233,7 +233,7 @@ void PollKeyboardButtons (void)
 
 void PollMouseButtons (void)
 {
-	short	buttons;
+	Sint16	buttons;
 
 	buttons = IN_MouseButtons ();
 
@@ -257,7 +257,7 @@ void PollMouseButtons (void)
 
 void PollJoystickButtons (void)
 {
-	short	buttons;
+	Sint16	buttons;
 
 	buttons = IN_JoyButtons ();
 
@@ -333,7 +333,7 @@ boolean pollMouseUsed=false;
 
 void PollMouseMove (void)
 {
-	short	mousexmove,mouseymove;
+	Sint16	mousexmove,mouseymove;
 
 	Mouse(MDelta);
 
@@ -371,7 +371,7 @@ void PollMouseMove (void)
 
 void PollJoystickMove (void)
 {
-	short	joyx,joyy;
+	Sint16	joyx,joyy;
 
 	INL_GetJoyDelta(joystickport,&joyx,&joyy);
 
@@ -428,8 +428,8 @@ void PollJoystickMove (void)
 
 void PollControls (void)
 {
-	short		max,min,i;
-	byte	buttonbits;
+	Sint16		max,min,i;
+	Uint8	buttonbits;
 
 	controlx = 0;
 	controly = 0;
@@ -464,8 +464,8 @@ void PollControls (void)
 		if (demoptr == lastdemoptr)
 			playstate = ex_completed;		// demo is done
 
-		controlx *= (short)tics;
-		controly *= (short)tics;
+		controlx *= (Sint16)tics;
+		controly *= (Sint16)tics;
 
 
 		return;
@@ -527,8 +527,8 @@ else
 	//
 	// save info out to demo buffer
 	//
-		controlx /= (short)tics;
-		controly /= (short)tics;
+		controlx /= (Sint16)tics;
+		controly /= (Sint16)tics;
 
 		buttonbits = 0;
 
@@ -547,8 +547,8 @@ else
 		if (demoptr >= lastdemoptr)
 			PLAY_ERROR(POLLCONTROLS_DEMO_OV);
 
-		controlx *= (short)tics;
-		controly *= (short)tics;
+		controlx *= (Sint16)tics;
+		controly *= (Sint16)tics;
 	}
 
 #endif			
@@ -571,7 +571,7 @@ else
 #define MAXX	320
 #define MAXY	160
 
-void	CenterWindow(word w,word h)
+void	CenterWindow(Uint16 w,Uint16 h)
 {
 	FixOfs ();
 	US_DrawWindow(((MAXX / 8) - w) / 2,((MAXY / 8) - h) / 2,w,h);
@@ -589,12 +589,12 @@ void	CenterWindow(word w,word h)
 */
 
 extern boolean PP_step,sqActive;	
-extern short pickquick;
+extern Sint16 pickquick;
 
 boolean refresh_screen;
 #if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
-byte jam_buff_cmp[]={sc_J,sc_A,sc_M};
-byte jam_buff[sizeof(jam_buff_cmp)];
+Uint8 jam_buff_cmp[]={sc_J,sc_A,sc_M};
+Uint8 jam_buff[sizeof(jam_buff_cmp)];
 #endif
 
 char PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
@@ -602,9 +602,9 @@ char PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 void CheckKeys (void)
 {
 	boolean one_eighty=false;
-	short		i;
-	byte	scan;
-	unsigned short	temp;
+	Sint16		i;
+	Uint8	scan;
+	Uint16	temp;
 	static boolean Plus_KeyReleased;
 	static boolean Minus_KeyReleased;
 	static boolean I_KeyReleased;
@@ -909,7 +909,7 @@ void CheckKeys (void)
 
 	if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_BackSpace]))
 	{
-		unsigned char old_num=music_num;
+		Uint8 old_num=music_num;
 
 		if (gamestate.flags & GS_MUSIC_TEST)
 		{
@@ -1177,11 +1177,11 @@ next element.
 =========================
 */
 
-short	objcount;
+Sint16	objcount;
 
 void InitActorList (void)
 {
-	short	i;
+	Sint16	i;
 
 //
 // init the actor lists
@@ -1340,7 +1340,7 @@ void RemoveObj (objtype *gone)
 
 void StopMusic(void)
 {
-	short	i;
+	Sint16	i;
 
 	SD_MusicOff();
 	for (i = 0;i < LASTMUSIC;i++)
@@ -1420,13 +1420,13 @@ void StartMusic(boolean preload)
 #define WHITETICS		6
 
 
-byte	redshifts[NUMREDSHIFTS][768];
-byte	whiteshifts[NUMREDSHIFTS][768];
+Uint8	redshifts[NUMREDSHIFTS][768];
+Uint8	whiteshifts[NUMREDSHIFTS][768];
 
-short		damagecount,bonuscount;
+Sint16		damagecount,bonuscount;
 boolean	palshifted;
 
-extern 	byte	vgapal;
+extern 	Uint8	vgapal;
 
 /*
 =====================
@@ -1438,8 +1438,8 @@ extern 	byte	vgapal;
 
 void InitRedShifts (void)
 {
-	byte	*workptr, *baseptr;
-	short		i,j,delta;
+	Uint8	*workptr, *baseptr;
+	Sint16		i,j,delta;
 
 
 //
@@ -1447,7 +1447,7 @@ void InitRedShifts (void)
 //
 	for (i=1;i<=NUMREDSHIFTS;i++)
 	{
-		workptr = (byte *)&redshifts[i-1][0];
+		workptr = (Uint8 *)&redshifts[i-1][0];
 		baseptr = &vgapal;
 
 		for (j=0;j<=255;j++)
@@ -1463,7 +1463,7 @@ void InitRedShifts (void)
 
 	for (i=1;i<=NUMWHITESHIFTS;i++)
 	{
-		workptr = (byte *)&whiteshifts[i-1][0];
+		workptr = (Uint8 *)&whiteshifts[i-1][0];
 		baseptr = &vgapal;
 
 		for (j=0;j<=255;j++)
@@ -1515,7 +1515,7 @@ void StartBonusFlash (void)
 =====================
 */
 
-void StartDamageFlash (short damage)
+void StartDamageFlash (Sint16 damage)
 {
 	damagecount += damage;
 }
@@ -1531,7 +1531,7 @@ void StartDamageFlash (short damage)
 
 void UpdatePaletteShifts (void)
 {
-	short	red,white;
+	Sint16	red,white;
 
 	if (bonuscount)
 	{
@@ -1635,7 +1635,7 @@ void DoActor (objtype *ob)
 		{
 			if (actor)
 			{
-				short damage = 0;
+				Sint16 damage = 0;
 
 				actor->flags |= FL_BARRIER_DAMAGE;
 				if ((US_RndT() < 0x7f) && (actor->flags & FL_SHOOTABLE))
@@ -1777,7 +1777,7 @@ extern boolean ShowQuickMsg;
 void PlayLoop (void)
 {
 	boolean reset_areas=false;
-	short		give;
+	Sint16		give;
 	objtype *obj;
 
 	playstate = TimeCount = lasttimecount = 0;

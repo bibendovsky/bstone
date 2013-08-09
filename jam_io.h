@@ -11,7 +11,7 @@
 #ifndef _ID_HEADS_H_
 #define false (0)
 #define true (1)
-typedef short boolean;
+typedef Sint16 boolean;
 #endif
 
 
@@ -69,15 +69,15 @@ typedef enum ct_TYPES
 
 struct COMPStruct
 {
-	unsigned long DecompLen;
+	Uint32 DecompLen;
 };
 
 
 struct JAMPHeader
 {
-	unsigned long OrginalLen;			// Orginal FileLength of compressed Data.
+	Uint32 OrginalLen;			// Orginal FileLength of compressed Data.
 	ct_TYPES CompType;					// SEE: ct_TYPES above for list of pos.
-	unsigned long CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
+	Uint32 CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
 };
 
 
@@ -88,7 +88,7 @@ struct JAMPHeader
 //
 //---------------------------------------------------------------------------
 
-char WritePtr(long outfile, unsigned char data, unsigned short PtrType);
-short ReadPtr(long infile, unsigned short PtrType);
+char WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType);
+Sint16 ReadPtr(Sint32 infile, Uint16 PtrType);
 
 

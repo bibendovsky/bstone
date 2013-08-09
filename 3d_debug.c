@@ -6,10 +6,10 @@
 
 
 void VH_UpdateScreen();
-void TakeDamage(short points, objtype* attacker);
+void TakeDamage(Sint16 points, objtype* attacker);
 void SetPlaneViewSize (void);
-void HealSelf(short points);
-void GiveWeapon (short weapon);
+void HealSelf(Sint16 points);
+void GiveWeapon (Sint16 weapon);
 void DrawScore(void);
 void SetPlaneViewSize (void);
 
@@ -39,7 +39,7 @@ void SetPlaneViewSize (void);
 
 boolean ForceLoadDefault=false;
 
-short DebugKeys (void);
+Sint16 DebugKeys (void);
 
 /*
 =============================================================================
@@ -60,10 +60,10 @@ boolean PP_step=false;
 */
 void PicturePause (void)
 {
-	short			i;
-	byte		p;
-	unsigned short	x;
-	byte		*dest,*src;
+	Sint16			i;
+	Uint8		p;
+	Uint16	x;
+	Uint8		*dest,*src;
 	memptr		buffer;
 
 #if RESTART_PICTURE_PAUSE
@@ -108,7 +108,7 @@ void PicturePause (void)
 	for (p=0;p<4;p++)
 	{
 		src = MK_FP(0xa000,displayofs);
-		dest = (byte *)buffer+p;
+		dest = (Uint8 *)buffer+p;
 		VGAREADMAP(p);
 		for (x=0;x<16000;x++,dest+=4)
 			*dest = *src++;
@@ -153,8 +153,8 @@ asm	int	0x10
 }
 
 #endif
-short	maporgx;
-short	maporgy;
+Sint16	maporgx;
+Sint16	maporgy;
 enum {mapview,tilemapview,actoratview,visview}	viewtype;
 
 void ViewMap (void);
@@ -170,9 +170,9 @@ void ViewMap (void);
 */
 void DebugMemory (void)
 {
-	short	i,temp;
+	Sint16	i,temp;
 	char    scratch[80],str[10];
-	long	mem;
+	Sint32	mem;
 	spritetype *block;
 
 	CenterWindow (22,15);
@@ -254,7 +254,7 @@ void DebugMemory (void)
 
 void CountObjects (void)
 {
-	short	i,total,count,active,inactive,doors;
+	Sint16	i,total,count,active,inactive,doors;
 	objtype	*obj;
 
 	CenterWindow (16,7);
@@ -326,7 +326,7 @@ void ShowMap(void)
 
    memcpy(&old_player,player,sizeof(objtype));
 	player->angle = 90;
-	player->x = player->y = ((long)32<<TILESHIFT)+(TILEGLOBAL/2);
+	player->x = player->y = ((Sint32)32<<TILESHIFT)+(TILEGLOBAL/2);
 
 	CenterWindow (20,11);
 
@@ -356,15 +356,15 @@ void ShowMap(void)
 #pragma warn -pia
 void ShapeTest (void)
 {
-extern	word	NumDigi;
-extern	word	*DigiList;
+extern	Uint16	NumDigi;
+extern	Uint16	*DigiList;
 static	char	buf[10];
 
 	boolean			done;
 	ScanCode		scan;
-	short				i,j,k,x;
-	short				sound;
-	longword		l;
+	Sint16				i,j,k,x;
+	Sint16				sound;
+	Uint32		l;
 	memptr			addr;
 	PageListStruct	*page;
 
@@ -409,7 +409,7 @@ static	char	buf[10];
 
 		US_Print("\n Address: ");
 		addr = PM_GetPageAddress(i);
-		sprintf(buf,"0x%04x",(word)addr);
+		sprintf(buf,"0x%04x",Uint16addr);
 		US_Print(buf);
 
 		if (addr)
@@ -422,7 +422,7 @@ static	char	buf[10];
 				bufferofs += 32*SCREENWIDTH;
 				postx = 128;
 				postwidth = 1;
-				postsource = ((long)((unsigned short)addr))<<16;
+				postsource = ((Sint32)((Uint16)addr))<<16;
 				for (x=0;x<64;x++,postx++,postsource+=64)
 				{
 					wallheight[postx] = 256;
@@ -455,7 +455,7 @@ static	char	buf[10];
 			}
 			else
 			{
-				byte *dp = (byte *)MK_FP(addr,0);
+				Uint8 *dp = (Uint8 *)MK_FP(addr,0);
 
 	 			sound = i-PMSoundStart;
 				US_Print("\n Sound #");
@@ -463,8 +463,8 @@ static	char	buf[10];
 
 				for (j = 0;j < page->length;j += 32)
 				{
-					byte v = dp[j];
-					short v2 = (unsigned short)v;
+					Uint8 v = dp[j];
+					Sint16 v2 = (Uint16)v;
 					v2 -= 128;
 					v2 /= 4;
 					if (v2 < 0)
@@ -540,7 +540,7 @@ static	char	buf[10];
 //
 // NOTE: Assumes that 0 is the lowest value
 //---------------------------------------------------------------------------
-unsigned short IncRange(unsigned short Value,unsigned short MaxValue)
+Uint16 IncRange(Uint16 Value,Uint16 MaxValue)
 {
 	if (Value == MaxValue)
    	Value = 0;
@@ -555,7 +555,7 @@ unsigned short IncRange(unsigned short Value,unsigned short MaxValue)
 //
 // NOTE: Assumes that 0 is the lowest value
 //---------------------------------------------------------------------------
-unsigned short DecRange(unsigned short Value,unsigned short MaxValue)
+Uint16 DecRange(Uint16 Value,Uint16 MaxValue)
 {
 	if (Value == 0)
 		Value = MaxValue;
@@ -581,11 +581,11 @@ char TestQuickSaveMsg[] = {"QUICK SAVE TEST\n ENTER COUNT:"};
 #endif
 
 
-short DebugKeys (void)
+Sint16 DebugKeys (void)
 {
 	char str[3];
 	boolean esc;
-	short level,i;
+	Sint16 level,i;
 
    if (Keyboard[sc_A])		// A = Show Actors on AutoMap
 	{
@@ -769,7 +769,7 @@ short DebugKeys (void)
    }
 	else if (Keyboard[sc_U])			// Unlock All Floors
 	{
-   	short i;
+   	Sint16 i;
 		CenterWindow (24,3);
 	  	US_PrintCentered ("Unlock All Floors!");
 		VW_UpdateScreen();
@@ -948,8 +948,8 @@ short DebugKeys (void)
 
 void OverheadRefresh (void)
 {
-	unsigned short	x,y,endx,endy,sx,sy;
-	unsigned short	tile;
+	Uint16	x,y,endx,endy,sx,sy;
+	Uint16	tile;
 
 
 	endx = maporgx+VIEWTILEX;
@@ -977,7 +977,7 @@ void OverheadRefresh (void)
 				break;
 #endif
 			case actoratview:
-				tile = (unsigned short)actorat[x][y];
+				tile = (Uint16)actorat[x][y];
 				break;
 			}
 

@@ -22,7 +22,6 @@
 
 //--------------------------------------------------------------------------
 
-
 #define DEBUG_VALUE
 #define CEILING_FLOOR_COLORS
 
@@ -93,15 +92,11 @@ extern  char            signonv1;
 
 #define false (0)
 #define true (1)
-typedef short boolean;
-typedef unsigned        char            byte;
-typedef unsigned        short                     word;
-typedef unsigned        long            longword;
-typedef byte *                                  Ptr;
+typedef Sint16 boolean;
 
 typedef struct
 		{
-			short     x,y;
+			Sint16     x,y;
 		} Point;
 typedef struct
 		{
@@ -145,25 +140,25 @@ extern void CalcMemFree(void);
 
 #define UPDATETERMINATE 0x0301
 
-extern  unsigned short        mapwidth,mapheight,tics,realtics;
+extern  Uint16        mapwidth,mapheight,tics,realtics;
 extern  boolean         compatability;
 
-extern  byte            *updateptr;
-extern  unsigned short        uwidthtable[UPDATEHIGH];
-extern  unsigned short        blockstarts[UPDATEWIDE*UPDATEHIGH];
+extern  Uint8            *updateptr;
+extern  Uint16        uwidthtable[UPDATEHIGH];
+extern  Uint16        blockstarts[UPDATEWIDE*UPDATEHIGH];
 
-extern  byte            fontcolor,backcolor;
+extern  Uint8            fontcolor,backcolor;
 
 #define SETFONTCOLOR(f,b) fontcolor=f;backcolor=b;
 
 #include "3d_menu.h"
 
 
-#define CA_FarRead(h,d,s)	IO_FarRead((short)h,(byte *)d,(long)s)
+#define CA_FarRead(h,d,s)	IO_FarRead((Sint16)h,(Uint8 *)d,(Sint32)s)
 
 
 // BBi
-extern unsigned char* vga_memory;
+extern Uint8* vga_memory;
 
 
 #endif

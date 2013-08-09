@@ -84,7 +84,7 @@
 #pragma	hdrstop
 
 
-void VWL_MeasureString (char* string, word* width, word* height, fontstruct* font);
+void VWL_MeasureString (char* string, Uint16* width, Uint16* height, fontstruct* font);
 void VH_UpdateScreen();
 void ClearMemory (void);
 
@@ -510,36 +510,36 @@ piAnimInfo piAnimTable[] =
 // one place...
 //
 piAnimInfo piAnimList[TP_MAX_ANIMS];
-byte TPscan;
+Uint8 TPscan;
 
 // Bunch of general globals!
 //
 //static char pb[MAX_PB];
 static char old_fontnumber;
-static short length;
+static Sint16 length;
 
 enum {jm_left,jm_right,jm_flush};
 static char justify_mode = jm_left;
 
-static unsigned short flags;
+static Uint16 flags;
 
-static short bgcolor,ltcolor,dkcolor,shcolor,anim_bgcolor=-1;
-static unsigned short xl,yl,xh,yh;
-static unsigned short cur_x, cur_y, last_cur_x, last_cur_y;
+static Sint16 bgcolor,ltcolor,dkcolor,shcolor,anim_bgcolor=-1;
+static Uint16 xl,yl,xh,yh;
+static Uint16 cur_x, cur_y, last_cur_x, last_cur_y;
 static char *first_ch;
 
 static char *scan_ch,temp;
-static short scan_x,numanims,stemp;
+static Sint16 scan_x,numanims,stemp;
 
 static fontstruct *font;
 
 static PresenterInfo *pi;
 
-static short disp_str_num = -1;
-static short music_num;
-static short save_cx[TP_CURSOR_SAVES+1]={0,0,0,0,0,0,0,0,0};
-static short save_cy[TP_CURSOR_SAVES+1]={0,0,0,0,0,0,0,0,0};
-static short pagex[2],pagey[2];
+static Sint16 disp_str_num = -1;
+static Sint16 music_num;
+static Sint16 save_cx[TP_CURSOR_SAVES+1]={0,0,0,0,0,0,0,0,0};
+static Sint16 save_cy[TP_CURSOR_SAVES+1]={0,0,0,0,0,0,0,0,0};
+static Sint16 pagex[2],pagey[2];
 
 //--------------------------------------------------------------------------
 // TP_Presenter()
@@ -711,7 +711,7 @@ void TP_WrapText()
 //
 	if (scan_x+ch_width(*scan_ch) > xh)
 	{
-		short last_x = scan_x;
+		Sint16 last_x = scan_x;
 		char *last_ch = scan_ch;
 
 		while ((scan_ch != first_ch) && (*scan_ch != ' ') && (*scan_ch != TP_RETURN_CHAR))
@@ -734,7 +734,7 @@ void TP_WrapText()
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
 	{
-		unsigned short width,height;
+		Uint16 width,height;
 
 		VWL_MeasureString(first_ch,&width,&height,font);
 		cur_x = xh-width+1;
@@ -836,10 +836,10 @@ void TP_HandleCodes()
 	spritetabletype *spr;
 	piAnimInfo *anim;
 	piShapeInfo *shape;
-	unsigned short shapenum;
-	short length;
+	Uint16 shapenum;
+	Sint16 length;
 	char *s;
-	short old_bgcolor;
+	Sint16 old_bgcolor;
 	signed char c;
 
 	if ((first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n'))
@@ -856,7 +856,7 @@ void TP_HandleCodes()
 		*first_ch=toupper(*first_ch);
 		*(first_ch+1)=toupper(*(first_ch+1));
 #endif
-		switch (*((unsigned short *)first_ch)++)
+		switch (*((Uint16 *)first_ch)++)
 		{
 	// CENTER TEXT ------------------------------------------------------
 	//
@@ -869,7 +869,7 @@ void TP_HandleCodes()
 					{
 						case TP_CONTROL_CHAR:
 							s++;
-							switch (*((unsigned short *)s)++)
+							switch (*((Uint16 *)s)++)
 							{
 								case TP_CNVT_CODE('S','X'):
 								case TP_CNVT_CODE('R','X'):
@@ -1518,9 +1518,9 @@ void TP_PrintPageNumber()
 //--------------------------------------------------------------------------
 // TP_DrawShape()
 //--------------------------------------------------------------------------
-short TP_DrawShape(short x, short y, short shapenum, pisType shapetype)
+Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 {
-	short width;
+	Sint16 width;
 	void* addr;
 
 // Mask 'x coordinate' when displaying certain shapes
@@ -1547,7 +1547,7 @@ short TP_DrawShape(short x, short y, short shapenum, pisType shapetype)
 			bufferofs += (y-30)*SCREENWIDTH;
 			postx = x;
 			postwidth = 1;
-			postsource = ((long)((unsigned short)addr))<<16;
+			postsource = ((Sint32)((Uint16)addr))<<16;
 			for (x=0;x<64;x++,postx++,postsource+=64)
 			{
 				wallheight[postx] = 256;
@@ -1605,7 +1605,7 @@ void TP_ResetAnims()
 //--------------------------------------------------------------------------
 // TP_AnimatePage()
 //--------------------------------------------------------------------------
-void TP_AnimatePage(short numanims)
+void TP_AnimatePage(Sint16 numanims)
 {
 	piAnimInfo *anim=piAnimList;
 	piShapeInfo *shape;
@@ -1652,13 +1652,13 @@ void TP_AnimatePage(short numanims)
 //--------------------------------------------------------------------------
 // TP_BoxAroundShape()
 //--------------------------------------------------------------------------
-short TP_BoxAroundShape(short x1, short y1, unsigned short shapenum, pisType shapetype)
+Sint16 TP_BoxAroundShape(Sint16 x1, Sint16 y1, Uint16 shapenum, pisType shapetype)
 {
-	short x2,y2;
+	Sint16 x2,y2;
 
 	switch (shapetype)
 	{
-		unsigned short width;
+		Uint16 width;
 
 		case pis_scwall:
 		case pis_scaled:
@@ -1734,7 +1734,7 @@ short TP_BoxAroundShape(short x1, short y1, unsigned short shapenum, pisType sha
 //--------------------------------------------------------------------------
 void TP_PurgeAllGfx()
 {
-	short loop;
+	Sint16 loop;
 
 	if (pi->flags & TPF_CACHE_NO_GFX)
 		return;										
@@ -1756,10 +1756,10 @@ void TP_PurgeAllGfx()
 void TP_CachePage(char *script)
 {
 	piAnimInfo *anim;
-	short loop;
-	unsigned short shapenum;
+	Sint16 loop;
+	Uint16 shapenum;
 	boolean end_of_page=false;
-	short numanims=0;
+	Sint16 numanims=0;
 
 	if (pi->flags & TPF_CACHE_NO_GFX)
 		return;
@@ -1778,7 +1778,7 @@ void TP_CachePage(char *script)
 				*script=toupper(*script);
 				*(script+1)=toupper(*(script+1));
 #endif
-				switch (*((unsigned short *)script)++)
+				switch (*((Uint16 *)script)++)
 				{
 					case TP_CNVT_CODE('S','H'):
 						shapenum = TP_VALUE(script,3);
@@ -1827,10 +1827,10 @@ void TP_CachePage(char *script)
 //--------------------------------------------------------------------------
 // TP_VALUE()
 //--------------------------------------------------------------------------
-unsigned short TP_VALUE(char *ptr,char num_nybbles)
+Uint16 TP_VALUE(char *ptr,char num_nybbles)
 {
 	char ch,nybble,shift;
-	unsigned short value=0;
+	Uint16 value=0;
 
 	for (nybble=0; nybble<num_nybbles; nybble++)
 	{
@@ -1913,8 +1913,8 @@ void TP_Print(char *str,boolean single_char)
 boolean TP_SlowPrint(char *str, char delay)
 {
 	char old_color = fontcolor;
-	short old_x,old_y;
-	long tc;
+	Sint16 old_x,old_y;
+	Sint32 tc;
 	boolean aborted=false;
 
 	while (*str)
@@ -1989,10 +1989,10 @@ boolean TP_SlowPrint(char *str, char delay)
 //--------------------------------------------------------------------------
 // TP_LoadScript()
 //--------------------------------------------------------------------------
-long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned short id_cache)
+Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache)
 {
 #pragma warn -pia
-	long size;
+	Sint32 size;
 
 	if (id_cache)
 	{
@@ -2028,7 +2028,7 @@ long TP_LoadScript(char *filename,PresenterInfo *pi, unsigned short id_cache)
 //-------------------------------------------------------------------------
 // TP_FreeScript()
 //-------------------------------------------------------------------------
-void TP_FreeScript(PresenterInfo *pi,unsigned short id_cache)
+void TP_FreeScript(PresenterInfo *pi,Uint16 id_cache)
 {
 	TP_PurgeAllGfx();
 
@@ -2069,7 +2069,7 @@ void TP_InitScript(PresenterInfo *pi)
 				*script=toupper(*script);
 				*(script+1)=toupper(*(script+1));
 #endif
-				switch (*((unsigned short *)script)++)
+				switch (*((Uint16 *)script)++)
 				{
 					case TP_CNVT_CODE('E','P'):
 						if (pi->numpages < TP_MAX_PAGES)
@@ -2100,10 +2100,10 @@ end_func:;
 //-------------------------------------------------------------------------
 // TP_CacheIn()
 //-------------------------------------------------------------------------
-void TP_CacheIn(tpCacheType type, short chunk)
+void TP_CacheIn(tpCacheType type, Sint16 chunk)
 {
-	short first_ch_offset=first_ch-pi->script[0];
-	short loop,offset[TP_MAX_PAGES];
+	Sint16 first_ch_offset=first_ch-pi->script[0];
+	Sint16 loop,offset[TP_MAX_PAGES];
 
 // Cache graphics and re-assign pointers
 //
@@ -2172,7 +2172,7 @@ void TP_CacheIn(tpCacheType type, short chunk)
 //-------------------------------------------------------------------------
 // TP_LineCommented()
 //-------------------------------------------------------------------------
-short TP_LineCommented(char *s)
+Sint16 TP_LineCommented(char *s)
 {
 	char *o=s;
 
@@ -2197,7 +2197,7 @@ int MDS_COMPUTERS_SUCK_SHIT()
 {
 	char far *fptr;
 	void _seg *sptr;
-	short offset;
+	Sint16 offset;
 
 	sptr = 0xa000;
 	offset = 1000;

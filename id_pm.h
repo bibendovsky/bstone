@@ -2,12 +2,15 @@
 #define ID_PM_H
 
 
+#include "SDL.h"
+
+
 #define PMPageSize (4096)
 
 
-extern unsigned short ChunksInFile;
-extern unsigned short PMSpriteStart;
-extern unsigned short PMSoundStart;
+extern Uint16 ChunksInFile;
+extern Uint16 PMSpriteStart;
+extern Uint16 PMSoundStart;
 
 extern char PageFileName[13];
 

@@ -5,7 +5,7 @@
 
 
 void VH_UpdateScreen();
-void CA_CacheScreen (short chunk);
+void CA_CacheScreen (Sint16 chunk);
 
 
 //==========================================================================
@@ -58,7 +58,7 @@ void ClearSplitVWB (void)
 ==================
 */
 
-boolean Breifing(breifing_type BreifingType,unsigned short episode)
+boolean Breifing(breifing_type BreifingType,Uint16 episode)
 {
 #ifndef ID_CACHE_BRIEFS
 	char chars[3] = {'L','W','I'};
@@ -90,7 +90,7 @@ boolean Breifing(breifing_type BreifingType,unsigned short episode)
 
 void ShPrint(char *text, char shadow_color, boolean single_char)
 {
-	unsigned short old_color=fontcolor,old_x=px,old_y=py;
+	Uint16 old_color=fontcolor,old_x=px,old_y=py;
 	char *str,buf[2]={0,0};
 
 	if (single_char)
@@ -112,14 +112,14 @@ void ShPrint(char *text, char shadow_color, boolean single_char)
 	USL_DrawString(str);						// JTR - This marks blocks!
 }
 
-void PreloadUpdate(unsigned short current, unsigned short total)
+void PreloadUpdate(Uint16 current, Uint16 total)
 {
-	unsigned short w=WindowW-10;
+	Uint16 w=WindowW-10;
 
 	if (current > total)
 		current=total;
 
-	w = ((long)w * current) / total;
+	w = ((Sint32)w * current) / total;
 	if (w)
 		VWB_Bar(WindowX,WindowY,w-1,1,BORDER_TEXT_COLOR);
 
@@ -200,7 +200,7 @@ void PreloadGraphics(void)
 void	DrawHighScores(void)
 {
 	char		buffer[16],*str;
-	word		i,
+	Uint16		i,
 				w,h;
 	HighScore	*s;
 
@@ -271,10 +271,10 @@ void	DrawHighScores(void)
 =======================
 */
 
-void	CheckHighScore (long score,word other)
+void	CheckHighScore (Sint32 score,Uint16 other)
 {
-	word		i,j;
-	short			n;
+	Uint16		i,j;
+	Sint16			n;
 	HighScore	myscore;
 	US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
 
@@ -341,9 +341,9 @@ void	CheckHighScore (long score,word other)
 //--------------------------------------------------------------------------
 // Random()
 //--------------------------------------------------------------------------
-unsigned short Random(unsigned short Max)
+Uint16 Random(Uint16 Max)
 {
-	unsigned short returnval;
+	Uint16 returnval;
 
    if (Max)
    {

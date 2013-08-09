@@ -10,13 +10,13 @@
 #include "3d_def.h"
 
 
-static const short DEG90 = 900;
-static const short DEG180 = 1800;
-static const short DEG270 = 2700;
-static const short DEG360 = 3600;
+static const Sint16 DEG90 = 900;
+static const Sint16 DEG180 = 1800;
+static const Sint16 DEG270 = 2700;
+static const Sint16 DEG360 = 3600;
 
 
-extern long finetangent[FINEANGLES / 4];
+extern Sint32 finetangent[FINEANGLES / 4];
 void HitHorizWall();
 void HitVertWall();
 void HitHorizDoor();
@@ -25,66 +25,66 @@ void HitHorizPWall();
 void HitVertPWall();
 
 
-extern short viewwidth;
-extern byte tilemap[MAPSIZE][MAPSIZE];
-extern byte spotvis[MAPSIZE][MAPSIZE];
-extern short pixelangle[MAXVIEWWIDTH];
-extern short midangle;
-extern short focaltx;
-extern short focalty;
-extern short viewtx;
-extern short viewty;
+extern Sint16 viewwidth;
+extern Uint8 tilemap[MAPSIZE][MAPSIZE];
+extern Uint8 spotvis[MAPSIZE][MAPSIZE];
+extern Sint16 pixelangle[MAXVIEWWIDTH];
+extern Sint16 midangle;
+extern Sint16 focaltx;
+extern Sint16 focalty;
+extern Sint16 viewtx;
+extern Sint16 viewty;
 extern fixed viewx;
 extern fixed viewy;
-extern unsigned short xpartialup;
-extern unsigned short xpartialdown;
-extern unsigned short ypartialup;
-extern unsigned short ypartialdown;
-extern unsigned short tilehit;
-extern unsigned short pixx;
-extern unsigned short wallheight[MAXVIEWWIDTH];
-extern short xtile;
-extern short ytile;
-extern short xtilestep;
-extern short ytilestep;
-extern long xintercept;
-extern long yintercept;
-extern long xstep;
-extern long ystep;
-extern unsigned short doorposition[MAXDOORS];
-extern unsigned short pwallpos;
+extern Uint16 xpartialup;
+extern Uint16 xpartialdown;
+extern Uint16 ypartialup;
+extern Uint16 ypartialdown;
+extern Uint16 tilehit;
+extern Uint16 pixx;
+extern Uint16 wallheight[MAXVIEWWIDTH];
+extern Sint16 xtile;
+extern Sint16 ytile;
+extern Sint16 xtilestep;
+extern Sint16 ytilestep;
+extern Sint32 xintercept;
+extern Sint32 yintercept;
+extern Sint32 xstep;
+extern Sint32 ystep;
+extern Uint16 doorposition[MAXDOORS];
+extern Uint16 pwallpos;
 
 
-static long partial_by_step(
-    long step,
-    unsigned short partial)
+static Sint32 partial_by_step(
+    Sint32 step,
+    Uint16 partial)
 {
-    long fracs = (((unsigned long)step & 0xFFFF) * partial) >> 16;
-    long ints = (step >> 16) * partial;
+    Sint32 fracs = (((Uint32)step & 0xFFFF) * partial) >> 16;
+    Sint32 ints = (step >> 16) * partial;
     return ints + fracs + (step < 0 ? 1 : 0);
 }
 
 
 void AsmRefresh()
 {
-    short angle;
+    Sint16 angle;
 
-    short h_op;
-    short v_op;
-    short xpartial;
-    short ypartial;
-    unsigned short doorpos;
-    long intercept;
-    short intercept_h;
-    unsigned short intercept_l;
-    short xs; // temporary xspot
-    short xt; // temporary xtile
-    long xint; // temporary xintercept
-    short xint_h; // high word of temporary xintercept
-    short ys; // temporary yspot
-    short yt; // temporary ytile
-    long yint; // temporary yintercept
-    short yint_h; // high word of temporary yintercept
+    Sint16 h_op;
+    Sint16 v_op;
+    Sint16 xpartial;
+    Sint16 ypartial;
+    Uint16 doorpos;
+    Sint32 intercept;
+    Sint16 intercept_h; // high part of intercept
+    Uint16 intercept_l; // low part of intercept
+    Sint16 xs; // temporary xspot
+    Sint16 xt; // temporary xtile
+    Sint32 xint; // temporary xintercept
+    Sint16 xint_h; // high part of temporary xintercept
+    Sint16 ys; // temporary yspot
+    Sint16 yt; // temporary ytile
+    Sint32 yint; // temporary yintercept
+    Sint16 yint_h; // high part of temporary yintercept
 
     pixx = 0;
 
@@ -154,13 +154,13 @@ pixxloop:
     //
 
     yintercept = viewy + partial_by_step(ystep, xpartial);
-    yint_h = (short)(yintercept >> 16);
+    yint_h = (Sint16)(yintercept >> 16);
 
     xtile = focaltx + xtilestep;
     xs = (xtile << 6) + yint_h;
 
     xint = viewx + partial_by_step(xstep, ypartial);
-    xint_h = (short)(xint >> 16);
+    xint_h = (Sint16)(xint >> 16);
     xintercept &= 0xFFFF0000;
     xintercept |= xint & 0xFFFF;
 
@@ -168,7 +168,7 @@ pixxloop:
     ys = (xint_h << 6) + yt;
 
     xt = xtile;
-    yint_h = (short)(yintercept >> 16);
+    yint_h = (Sint16)(yintercept >> 16);
 
 
     //
@@ -188,9 +188,9 @@ vertcheck:
 
 vertentry:
 
-    if (((byte*)tilemap)[xs] != 0) {
+    if (((Uint8*)tilemap)[xs] != 0) {
         tilehit &= 0xFF00;
-        tilehit |= ((byte*)tilemap)[xs];
+        tilehit |= ((Uint8*)tilemap)[xs];
 
         if ((tilehit & 0x80) != 0) {
             //
@@ -202,25 +202,25 @@ vertentry:
             xtile = xt;
 
             yintercept &= 0xFFFF;
-            yintercept |= (long)yint_h << 16;
+            yintercept |= (Sint32)yint_h << 16;
 
             if ((tilehit & 0x40) != 0) {
                 //
                 // hit a sliding vertical wall
                 //
 
-                intercept = yintercept + ((ystep * (long)pwallpos) >> 6);
-                intercept_l = (unsigned short)(yintercept & 0xFFFF);
-                intercept_h = (short)(yintercept >> 16);
+                intercept = yintercept + ((ystep * (Sint32)pwallpos) >> 6);
+                intercept_l = (Uint16)(yintercept & 0xFFFF);
+                intercept_h = (Sint16)(yintercept >> 16);
 
-                if ((short)(yintercept >> 16) == intercept_h) {
+                if ((Sint16)(yintercept >> 16) == intercept_h) {
                     //
                     // draw the pushable wall at the new height
                     //
 
                     yintercept = intercept;
                     xt = xtile;
-                    xintercept = (long)xt << 16;
+                    xintercept = (Sint32)xt << 16;
 
                     HitVertPWall();
 
@@ -230,10 +230,10 @@ vertentry:
                 doorpos = tilehit & 0x7F;
 
                 intercept = yintercept + (ystep >> 1);
-                intercept_l = (unsigned short)(intercept & 0xFFFF);
-                intercept_h = (short)(intercept >> 16);
+                intercept_l = (Uint16)(intercept & 0xFFFF);
+                intercept_h = (Sint16)(intercept >> 16);
 
-                if ((short)(yintercept >> 16) == intercept_h) {
+                if ((Sint16)(yintercept >> 16) == intercept_h) {
                     //
                     // the trace hit the door plane at pixel position,
                     // see if the door is closed that much
@@ -270,7 +270,7 @@ vertentry:
                         yintercept &= 0xFFFF0000;
                         yintercept |= intercept_l;
 
-                        xintercept = ((long)xtile << 16) | 0x8000;
+                        xintercept = ((Sint32)xtile << 16) | 0x8000;
 
                         HitVertDoor();
 
@@ -285,13 +285,13 @@ vertentry:
             //
 
             xt = xtile;
-            yint_h = (short)(yintercept >> 16);
+            yint_h = (Sint16)(yintercept >> 16);
         } else {
-            xintercept = (long)xt << 16;    
+            xintercept = (Sint32)xt << 16;    
             xtile = xt;
 
             yintercept &= 0xFFFF;
-            yintercept |= (long)yint_h << 16;
+            yintercept |= (Sint32)yint_h << 16;
             ytile = yint_h;
 
             HitVertWall();
@@ -300,7 +300,7 @@ vertentry:
         }
     }
 
-    ((byte*)spotvis)[xs] = 1;
+    ((Uint8*)spotvis)[xs] = 1;
 
     xt += xtilestep;
 
@@ -308,7 +308,7 @@ vertentry:
     yintercept &= 0xFFFF0000;
     yintercept |= yint & 0xFFFF;
 
-    yint_h += (short)((ystep >> 16) + (yint >> 16));
+    yint_h += (Sint16)((ystep >> 16) + (yint >> 16));
 
     xs = (xt << 6) + yint_h;
 
@@ -327,9 +327,9 @@ horizcheck:
 
 horizentry:
 
-    if (((byte*)tilemap)[ys] != 0) {
+    if (((Uint8*)tilemap)[ys] != 0) {
         tilehit &= 0xFF00;
-        tilehit |= ((byte*)tilemap)[ys];
+        tilehit |= ((Uint8*)tilemap)[ys];
 
         if ((tilehit & 0x80) != 0) {
             //
@@ -341,17 +341,17 @@ horizentry:
             xtile = xt;
 
             yintercept &= 0xFFFF;
-            yintercept |= (long)yint_h << 16;
+            yintercept |= (Sint32)yint_h << 16;
 
             if ((tilehit & 0x40) != 0) {
                 //
                 // hit a sliding horizontal wall
                 //
 
-                intercept = (xstep * (long)pwallpos) >> 6;
+                intercept = (xstep * (Sint32)pwallpos) >> 6;
                 xint = (intercept & 0xFFFF) + (xintercept & 0xFFFF);
-                intercept_l = (unsigned short)(xint & 0xFFFF);
-                intercept_h = (short)((intercept >> 16) + xint_h +
+                intercept_l = (Uint16)(xint & 0xFFFF);
+                intercept_h = (Sint16)((intercept >> 16) + xint_h +
                     (xint >> 16));
 
                 if (xint_h == intercept_h) {
@@ -359,8 +359,8 @@ horizentry:
                     // draw the pushable wall at the new height
                     //
 
-                    xintercept = ((long)intercept_h << 16) | intercept_l;
-                    yintercept = (long)yt << 16;
+                    xintercept = ((Sint32)intercept_h << 16) | intercept_l;
+                    yintercept = (Sint32)yt << 16;
 
                     HitHorizPWall();
 
@@ -371,8 +371,8 @@ horizentry:
 
                 intercept = xstep >> 1;
                 xint = (intercept & 0xFFFF) + (xintercept & 0xFFFF);
-                intercept_l = (unsigned short)(xint & 0xFFFF);
-                intercept_h = (short)((intercept >> 16) + xint_h +
+                intercept_l = (Uint16)(xint & 0xFFFF);
+                intercept_h = (Sint16)((intercept >> 16) + xint_h +
                     (xint >> 16));
 
                 if (xint_h == intercept_h) {
@@ -409,8 +409,8 @@ horizentry:
                         // draw the trek door
                         //
 
-                        xintercept = ((long)xint_h << 16) | intercept_l;
-                        yintercept = ((long)yt << 16) | 0x8000;
+                        xintercept = ((Sint32)xint_h << 16) | intercept_l;
+                        yintercept = ((Sint32)yt << 16) | 0x8000;
 
                         HitHorizDoor();
 
@@ -426,13 +426,13 @@ horizentry:
             //
 
             xt = xtile;
-            yint_h = (short)(yintercept >> 16);
+            yint_h = (Sint16)(yintercept >> 16);
         } else {
             xintercept &= 0xFFFF;
-            xintercept |= (long)xint_h << 16;
+            xintercept |= (Sint32)xint_h << 16;
             xtile = xint_h;
 
-            yintercept = (long)yt << 16;
+            yintercept = (Sint32)yt << 16;
             ytile = yt;
 
             HitHorizWall();
@@ -441,14 +441,14 @@ horizentry:
         }
     }
 
-    ((byte*)spotvis)[ys] = 1;
+    ((Uint8*)spotvis)[ys] = 1;
 
     yt += ytilestep;
 
     xint = (xintercept & 0xFFFF) + (xstep & 0xFFFF);
     xintercept &= 0xFFFF0000;
     xintercept |= xint & 0xFFFF;
-    xint_h += (short)((xstep >> 16) + (xint >> 16));
+    xint_h += (Sint16)((xstep >> 16) + (xint >> 16));
 
     ys = (xint_h << 6) + yt;
 

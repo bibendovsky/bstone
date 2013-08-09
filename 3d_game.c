@@ -19,7 +19,7 @@
 extern char prep_msg[];
 extern char LS_current,LS_total;
 void Died (void);
-void PM_SetMainMemPurge(short level);
+void PM_SetMainMemPurge(Sint16 level);
 void InitGoldsternInfo(void);
 void InitDoorList (void);
 void InitStaticList (void);
@@ -31,19 +31,19 @@ void DrawScore(void);
 void InitInfoArea(void);
 void ForceUpdateStatusBar(void);
 void UpdateStatusBar(void);
-boolean LoadLevel(short levelnum);
+boolean LoadLevel(Sint16 levelnum);
 void SetPlaneViewSize (void);
-short CalcAngle(objtype* from_obj, objtype* to_obj);
+Sint16 CalcAngle(objtype* from_obj, objtype* to_obj);
 void FinishPaletteShifts (void);
-void CA_CacheScreen (short chunk);
+void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
 void DoActor (objtype *ob);
 boolean LevelInPlaytemp(char levelnum);
-void PreloadUpdate(unsigned short current, unsigned short total);
+void PreloadUpdate(Uint16 current, Uint16 total);
 void PreloadGraphics(void);
-boolean SaveLevel(short levelnum);
-short NextBuffer();
-void CheckHighScore (long score,word other);
+boolean SaveLevel(Sint16 levelnum);
+Sint16 NextBuffer();
+void CheckHighScore (Sint32 score,Uint16 other);
 
 
 /*
@@ -55,7 +55,7 @@ void CheckHighScore (long score,word other);
 */
 
 #if IN_DEVELOPMENT
-short db_count=0;
+Sint16 db_count=0;
 #ifdef DEBUG_STATICS
 classtype debug_bonus[2][800];
 #endif
@@ -64,14 +64,14 @@ classtype debug_bonus[2][800];
 fargametype gamestuff;
 gametype gamestate;
 boolean		ingame,fizzlein;
-unsigned short	latchpics[NUMLATCHPICS];
+Uint16	latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
 char NumEAWalls;
 
 tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];	 
 GoldsternInfo_t GoldsternInfo;
 
-extern unsigned short scan_value;
+extern Uint16 scan_value;
 
 
 //
@@ -144,9 +144,9 @@ char ExpCrateShapes[] =
 */
 
 	fixed	globalsoundx,globalsoundy;
-	short		leftchannel,rightchannel;
+	Sint16		leftchannel,rightchannel;
 #define ATABLEMAX 15
-byte righttable[ATABLEMAX][ATABLEMAX * 2] = {
+Uint8 righttable[ATABLEMAX][ATABLEMAX * 2] = {
 { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
 { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
 { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
@@ -163,7 +163,7 @@ byte righttable[ATABLEMAX][ATABLEMAX * 2] = {
 { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
 { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
 };
-byte lefttable[ATABLEMAX][ATABLEMAX * 2] = {
+Uint8 lefttable[ATABLEMAX][ATABLEMAX * 2] = {
 { 8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
 { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
 { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
@@ -185,7 +185,7 @@ void
 SetSoundLoc(fixed gx,fixed gy)
 {
 	fixed	xt,yt;
-	short		x,y;
+	Sint16		x,y;
 
 //
 // translate point to view centered coordinates
@@ -239,7 +239,7 @@ SetSoundLoc(fixed gx,fixed gy)
 =
 ==========================
 */
-void PlaySoundLocGlobal(word s,fixed gx,fixed gy)
+void PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy)
 {
 	SetSoundLoc(gx,gy);
 	SD_PositionSound(leftchannel,rightchannel);
@@ -306,7 +306,7 @@ void FreeAllMemory(void)
 #endif
 
 #ifdef TRACK_ENEMY_COUNT
-short numEnemy[gold_morphingobj];
+Sint16 numEnemy[gold_morphingobj];
 #endif
 
 /*
@@ -323,9 +323,9 @@ short numEnemy[gold_morphingobj];
 
 void ScanInfoPlane (void)
 {
-	unsigned short	x,y,i,j;
-	short			tile;
-	unsigned short	*start, *floor;
+	Uint16	x,y,i,j;
+	Sint16			tile;
+	Uint16	*start, *floor;
 	boolean gotlight = false,gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
@@ -348,14 +348,14 @@ memset(numEnemy,0,sizeof(numEnemy));
 		{
 			sci_mCacheInfo *ci;
 			scientist_t *st;
-			unsigned char tilehi,tilelo,block;
+			Uint8 tilehi,tilelo,block;
 
 
          tile = *start++;
          //
          // Check for tiles/icons to ignore...
          //
-         switch ((unsigned short)*(mapsegs[0]+farmapylookup[y]+x))
+         switch ((Uint16)*(mapsegs[0]+farmapylookup[y]+x))
          {
          	case DOORTRIGGERTILE:
 				case SMART_OFF_TRIGGER:
@@ -510,7 +510,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate3,x,y);
 					new->temp2 = ExpCrateShapes[tile - 468];
-					new->temp3 = (unsigned short)ReserveStatic();
+					new->temp3 = (Uint16)ReserveStatic();
 
 					if ((tile >= 475) && (tile <= 478))
 						tile=(tile-475)+bo_money_bag;
@@ -522,7 +522,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate2,x,y);
 					new->temp2 = ExpCrateShapes[tile - 450];
-					new->temp3 = (unsigned short)ReserveStatic();
+					new->temp3 = (Uint16)ReserveStatic();
 
 					if ((tile >= 457) && (tile <= 460))
 						tile=(tile-457)+bo_money_bag;
@@ -542,7 +542,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate1,x,y);
 					new->temp2 = ExpCrateShapes[tile - 432];
-					new->temp3 = (unsigned short)ReserveStatic();
+					new->temp3 = (Uint16)ReserveStatic();
 
 					if ((tile >= 439) && (tile <= 442))
 						tile=(tile-439)+bo_money_bag;
@@ -2096,7 +2096,7 @@ numEnemy[new->obclass]++;
 //--------------------------------------------------------------------------
 // AddTotalPoints()
 //--------------------------------------------------------------------------
-void AddTotalPoints(unsigned short points)
+void AddTotalPoints(Uint16 points)
 {
 	if (loadedgame)
 		return;
@@ -2118,7 +2118,7 @@ void AddTotalInformants(char informants)
 //--------------------------------------------------------------------------
 // AddTotalEnemy()
 //--------------------------------------------------------------------------
-void AddTotalEnemy(unsigned short enemies)
+void AddTotalEnemy(Uint16 enemies)
 {
 	if (loadedgame)
 		return;
@@ -2136,7 +2136,7 @@ void AddTotalEnemy(unsigned short enemies)
 ==================
 */
 
-short an_offset[8] = {1,-1,64,-64,-65,-63,63,65};
+Sint16 an_offset[8] = {1,-1,64,-64,-65,-63,63,65};
 
 void SetupGameLevel (void)
 {
@@ -2144,12 +2144,12 @@ void SetupGameLevel (void)
    boolean switchon = false;
 	void* hold;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
-	short	x,y,i;
-	unsigned short	*map,tile,spot,icon;
+	Sint16	x,y,i;
+	Uint16	*map,tile,spot,icon;
 	keytype lock;
-	unsigned short	*map1,*map2;
+	Uint16	*map1,*map2;
 	char *temp_ptr;
-	short count;
+	Sint16 count;
 
 	if (!loadedgame)
 	{
@@ -2217,7 +2217,7 @@ void SetupGameLevel (void)
 					break;
 
 					default:
-						(unsigned short)actorat[x][y] = tile;
+						(Uint16)actorat[x][y] = tile;
 					break;
 				}
 
@@ -2419,7 +2419,7 @@ void SetupGameLevel (void)
 				case LINC_TILE:
 				case CLOAK_AMBUSH_TILE:
 					tilemap[x][y] = 0;
-					if ( (unsigned short)actorat[x][y] == AMBUSHTILE)
+					if ( (Uint16)actorat[x][y] == AMBUSHTILE)
 						actorat[x][y] = NULL;
 					*(map-1) = GetAreaNumber(x,y);
             break;
@@ -2444,7 +2444,7 @@ void SetupGameLevel (void)
 //------------------------------------------------------------------------
 // LoadLocationText()
 //------------------------------------------------------------------------
-void LoadLocationText(short textNum)
+void LoadLocationText(Sint16 textNum)
 {
 	char *temp;
 
@@ -2469,7 +2469,7 @@ void LoadLocationText(short textNum)
 */
 void DrawPlayBorder (void)
 {
-	short	xl,yl;
+	Sint16	xl,yl;
 
 	if (viewwidth == 320)
 	{
@@ -2509,7 +2509,7 @@ void BMAmsg(char *msg)
 		PresenterInfo pi;
 		fontstruct *font=(fontstruct *)grsegs[STARTFONT+fontnumber];
 		char numlines=1, *p=msg;
-		short cheight;
+		Sint16 cheight;
 
 		memset(&pi,0,sizeof(pi));
 		pi.flags = TPF_CACHE_NO_GFX;
@@ -2537,7 +2537,7 @@ void BMAmsg(char *msg)
 // CacheBMAmsg() - Caches in a Message Number and displays it using
 //						 BMAmsg()
 //----------------------------------------------------------------------
-void CacheBMAmsg(unsigned short MsgNum)
+void CacheBMAmsg(Uint16 MsgNum)
 {
 	char *string, *pos;
 
@@ -2556,10 +2556,10 @@ void CacheBMAmsg(unsigned short MsgNum)
 //--------------------------------------------------------------------------
 // BevelBox()
 //--------------------------------------------------------------------------
-void BevelBox(short xl, short yl, short w, short h, byte hi, byte med, byte lo)
+void BevelBox(Sint16 xl, Sint16 yl, Sint16 w, Sint16 h, Uint8 hi, Uint8 med, Uint8 lo)
 {
-	short xh=xl+w-1,yh=yl+h-1;
-	byte hc;
+	Sint16 xh=xl+w-1,yh=yl+h-1;
+	Uint8 hc;
 
 	VWB_Bar (xl,yl,w,h,med);				// inside
 
@@ -2590,7 +2590,7 @@ void ShadowPrintLocationText(sp_type type)
 	char *DemoMsg="-- DEMO --";
    char *DebugText= "-- DEBUG MODE ENABLED --";
 	char str[8],*s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
-	unsigned short w,h;
+	Uint16 w,h;
 
 // Used for all fields...
 //
@@ -2671,8 +2671,8 @@ void DrawTopInfo(sp_type type)
 */
 void DrawPlayScreen (boolean InitInfoMsg)
 {
-	short	i;
-	unsigned short temp;
+	Sint16	i;
+	Uint16 temp;
 
 	if (loadedgame)
 		return;
@@ -2718,8 +2718,8 @@ void DrawPlayScreen (boolean InitInfoMsg)
 //---------------------------------------------------------------------------
 void DrawWarpIn(void)
 {
-	short	i;
-	unsigned short temp;
+	Sint16	i;
+	Uint16 temp;
 
 	temp = bufferofs;
 	InitInfoArea();
@@ -2758,7 +2758,7 @@ void DrawWarpIn(void)
 //---------------------------------------------------------------------------
 void Warped(void)
 {
-	short		iangle,i;
+	Sint16		iangle,i;
 
 	DisplayInfoMsg("\r\r\r   TRANSPORTING OUT",MP_POWERUP,7*60,MT_GENERAL);
 	gamestate.old_weapons[3] = gamestate.weapon;
@@ -2811,7 +2811,7 @@ char	demoname[13] = "DEMO?.";
 
 #define MAXDEMOSIZE	16384
 
-void StartDemoRecord (short levelnumber)
+void StartDemoRecord (Sint16 levelnumber)
 {
 	MM_GetPtr (&demobuffer,MAXDEMOSIZE);
 	MM_SetLock (&demobuffer,true);
@@ -2835,14 +2835,14 @@ void StartDemoRecord (short levelnumber)
 void FinishDemoRecord (void)
 {
 	char str[3];
-	long	length,level;
+	Sint32	length,level;
 
 	demorecord = false;
 
 	length = demoptr - (char *)demobuffer;
 
 	demoptr = ((char *)demobuffer)+1;
-	*(unsigned short *)demoptr = length;
+	*(Uint16 *)demoptr = length;
 
 	VW_FadeIn();
 
@@ -2921,7 +2921,7 @@ void RecordDemo (void)
 void RecordDemo (void)
 {
 	char str[3];
-	short level,esc;
+	Sint16 level,esc;
 
 	CenterWindow(26,3);
 	PrintY+=6;
@@ -2989,17 +2989,17 @@ void RecordDemo (void)
 ==================
 */
 
-void PlayDemo (short demonumber)
+void PlayDemo (Sint16 demonumber)
 {
 //   static int numloops=0;
-	short length,off;
+	Sint16 length,off;
 
 #ifndef DEMOS_EXTERN
 // debug: load chunk
 #if GAME_VERSION == SHAREWARE_VERSION
-	short dems[4]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3};
+	Sint16 dems[4]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3};
 #else
-	short dems[6]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3,T_DEMO4,T_DEMO5};
+	Sint16 dems[6]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3,T_DEMO4,T_DEMO5};
 #endif
 
 	CA_CacheGrChunk(dems[demonumber]);
@@ -3014,7 +3014,7 @@ void PlayDemo (short demonumber)
 	NewGame (1,0);
 	gamestate.mapon = *demoptr++;
 	gamestate.difficulty = gd_easy;
-	length = *((unsigned short *)demoptr)++;
+	length = *((Uint16 *)demoptr)++;
 	demoptr++;
 	lastdemoptr = demoptr-4+length;
 
@@ -3042,7 +3042,7 @@ void PlayDemo (short demonumber)
 #ifndef DEMOS_EXTERN
     // FIXME
 	//off = FP_OFF(demoptr);
-    off = (short)demoptr;
+    off = (Sint16)demoptr;
 
 	demoptr = grsegs[dems[demonumber]];
 	demoptr += off;
@@ -3084,8 +3084,8 @@ void PlayDemo (short demonumber)
 void Died (void)
 {
 	float	fangle;
-	long	dx,dy;
-	short		iangle,curangle,clockwise,counter,change;
+	Sint32	dx,dy;
+	Sint16		iangle,curangle,clockwise,counter,change;
 
 	gamestate.weapon = -1;			// take away weapon
 	SD_PlaySound (PLAYERDEATHSND);
@@ -3195,9 +3195,9 @@ void LoseScreen(void)
 //					DestAngle - Destination angle to rotate player->angle to.
 //					RotSpeed  - Rotation Speed
 //--------------------------------------------------------------------------
-void RotateView(short DestAngle,unsigned char RotSpeed)
+void RotateView(Sint16 DestAngle,Uint8 RotSpeed)
 {
-	short	curangle,clockwise,counter,change;
+	Sint16	curangle,clockwise,counter,change;
 	objtype *obj;							  
 	boolean old_godmode=godmode;		  
 
@@ -3290,7 +3290,7 @@ void GameLoop (void)
 
 	char mod;
 
-	short i,xl,yl,xh,yh;
+	Sint16 i,xl,yl,xh,yh;
 	char Score[13];
 	boolean	died;
 #ifdef MYPROFILE
@@ -3307,7 +3307,7 @@ restartgame:
 restart:
 	do
 	{
-		extern short pickquick;
+		extern Sint16 pickquick;
 
 		ingame = true;
 

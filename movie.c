@@ -25,7 +25,7 @@
 //===========================================================================
 
 
-void VL_LatchToScreen(unsigned short source, short width, short height, short x, short y);
+void VL_LatchToScreen(Uint16 source, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
 
 
 //#define  DRAW_TO_FRONT
@@ -64,18 +64,18 @@ typedef enum
 
 // Movie File variables
 
-short Movie_FHandle;
+Sint16 Movie_FHandle;
 
 // Fade Variables
 
 FADES fade_flags, fi_type, fo_type;
-byte	fi_rate,fo_rate;
+Uint8	fi_rate,fo_rate;
 
 // MOVIE_GetFrame & MOVIE_LoadBuffer variables
 
 void* MovieBuffer;					// Ptr to Allocated Memory for Buffer
-unsigned long BufferLen;			// Len of MovieBuffer (Ammount of RAM allocated)
-unsigned long PageLen;				// Len of data loaded into MovieBuffer
+Uint32 BufferLen;			// Len of MovieBuffer (Ammount of RAM allocated)
+Uint32 PageLen;				// Len of data loaded into MovieBuffer
 char * BufferPtr;				// Ptr to next frame in MovieBuffer
 char * NextPtr;   				// Ptr Ofs to next frame after BufferOfs
 
@@ -86,7 +86,7 @@ boolean MorePagesAvail;				// More Pages avail on disk?
 MOVIE_FLAGS  movie_flag;
 boolean ExitMovie;
 boolean EverFaded;
-long seek_pos;
+Sint32 seek_pos;
 char movie_reps;
 ControlInfo ci;
 void* movie_palette;
@@ -114,7 +114,7 @@ MovieStuff_t Movies[] =
 //===========================================================================
 
 void JM_MemToScreen(void);
-void JM_ClearVGAScreen(byte fill);
+void JM_ClearVGAScreen(Uint8 fill);
 void FlipPages(void);
 boolean CheckFading(void);
 boolean CheckPostFade(void);
@@ -196,15 +196,15 @@ void ShutdownMovie(void)
 //
 // length		= length of the source image in bytes
 //---------------------------------------------------------------------------
-void JM_DrawBlock(unsigned short dest_offset,unsigned short byte_offset,char *source,unsigned short length)
+void JM_DrawBlock(Uint16 dest_offset,Uint16 byte_offset,char *source,Uint16 length)
 {
-	byte numplanes;
-   byte mask,plane;
+	Uint8 numplanes;
+   Uint8 mask,plane;
 	char *dest_ptr;
 	char *source_ptr;
    char *dest;
    char *end_ptr;
-   unsigned short count,total_len;
+   Uint16 count,total_len;
 
 
    end_ptr = source+length;
@@ -293,9 +293,9 @@ void MOVIE_ShowFrame (char *inpic)
 boolean MOVIE_LoadBuffer()
 {
    anim_frame blk;
-   long chunkstart;
+   Sint32 chunkstart;
 	char *frame;
-   unsigned long free_space;
+   Uint32 free_space;
 
    NextPtr = BufferPtr = frame = (char*)MovieBuffer;
    free_space = BufferLen;
@@ -304,7 +304,7 @@ boolean MOVIE_LoadBuffer()
    {
    	chunkstart = tell(Movie_FHandle);
 
-	   if (!IO_FarRead(Movie_FHandle, (byte *)&blk, sizeof(anim_frame)))
+	   if (!IO_FarRead(Movie_FHandle, (Uint8 *)&blk, sizeof(anim_frame)))
 			AN_ERROR(AN_BAD_ANIM_FILE);
 
       if (blk.code == AN_END_OF_ANIM)
@@ -312,13 +312,13 @@ boolean MOVIE_LoadBuffer()
 
 		if (free_space>=(blk.recsize+sizeof(anim_frame)))
       {
-			memcpy(frame, (byte *)&blk, sizeof(anim_frame));
+			memcpy(frame, (Uint8 *)&blk, sizeof(anim_frame));
 
       	free_space -= sizeof(anim_frame);
    	   frame += sizeof(anim_frame);
          PageLen += sizeof(anim_frame);
 
-		   if (!IO_FarRead(Movie_FHandle, (byte *)frame, blk.recsize))
+		   if (!IO_FarRead(Movie_FHandle, (Uint8 *)frame, blk.recsize))
 				AN_ERROR(AN_BAD_ANIM_FILE);
 
          free_space -= blk.recsize;
@@ -345,9 +345,9 @@ boolean MOVIE_LoadBuffer()
 // RETURNS:  0 - Ok
 //				 1 - End Of File
 //---------------------------------------------------------------------------
-short MOVIE_GetFrame()
+Sint16 MOVIE_GetFrame()
 {
-	unsigned short ReturnVal;
+	Uint16 ReturnVal;
    anim_frame blk;
 
 	if (PageLen == 0)
@@ -382,7 +382,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 {
 	anim_frame blk;
 	char *frame;
-   unsigned short wait_time;
+   Uint16 wait_time;
 
 	memcpy(&blk,BufferPtr,sizeof(anim_frame));
 	BufferPtr+=sizeof(anim_frame);
@@ -400,8 +400,8 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 
 	 	case AN_SOUND:				// Sound Chunk
 		{
-      	unsigned short sound_chunk;
-         sound_chunk = *(unsigned short *)frame;
+      	Uint16 sound_chunk;
+         sound_chunk = *(Uint16 *)frame;
       	SD_PlaySound(sound_chunk);
          BufferPtr+=blk.recsize;
       }
@@ -447,7 +447,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
       //-------------------------------------------
 
 	 	case AN_FADE_IN_FRAME:				// Fade In Page
-        	VL_FadeIn(0,255,(byte*)movie_palette,30);
+        	VL_FadeIn(0,255,(Uint8*)movie_palette,30);
 			fade_flags = FADE_NONE;
          EverFaded = true;
 			screenfaded = false;
@@ -474,8 +474,8 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 
 	 	case AN_PAUSE:				// Pause
 		{
-      	unsigned short vbls;
-         vbls = *(unsigned short *)frame;
+      	Uint16 vbls;
+         vbls = *(Uint16 *)frame;
 			IN_UserInput(vbls);
          BufferPtr+=blk.recsize;
       }

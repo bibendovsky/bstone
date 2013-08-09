@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------
 // VGA Routines
 //---------------------------------------------------------------------
-void JM_VGALinearFill(unsigned short start,unsigned short length, char fill);
+void JM_VGALinearFill(Uint16 start,Uint16 length, char fill);
 
 
 

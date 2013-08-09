@@ -6,8 +6,8 @@
 #include "ID_HEADS.H"
 #pragma hdrstop
 
-	word	sdStartPCSounds = STARTPCSOUNDS;
-	word	sdStartALSounds = STARTADLIBSOUNDS;
+	Uint16	sdStartPCSounds = STARTPCSOUNDS;
+	Uint16	sdStartALSounds = STARTADLIBSOUNDS;
 
-    short		sdLastSound = LASTSOUND;
-	short		DigiMap[LASTSOUND];
+    Sint16		sdLastSound = LASTSOUND;
+	Sint16		DigiMap[LASTSOUND];
