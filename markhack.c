@@ -9,7 +9,7 @@
 
 extern Sint16 viewwidth;
 extern Sint16 viewheight;
-extern Uint16 bufferofs;
+extern int bufferofs;
 extern Uint16 ylookup[MAXSCANLINES];
 extern Uint16 centery;
 extern Uint16 bufx;

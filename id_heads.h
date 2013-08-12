@@ -5,6 +5,7 @@
 // ID_GLOB.H
 
 
+#include <assert.h>
 #include <ctype.h>
 #include <dos.h>
 #include <errno.h>

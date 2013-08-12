@@ -189,10 +189,12 @@ void OpenGrFile(void)
 //-----------------------------------------------------------------------
 // CloseGrFile()
 //------------------------------------------------------------------------
-void CloseGrFile(void)
+void CloseGrFile()
 {
-	if (grhandle != -1)
-		close(grhandle);
+    if (grhandle != -1) {
+        close(grhandle);
+        grhandle = -1;
+    }
 }
 
 
@@ -224,10 +226,12 @@ void OpenMapFile(void)
 //-----------------------------------------------------------------------
 // CloseMapFile()
 //------------------------------------------------------------------------
-void CloseMapFile(void)
+void CloseMapFile()
 {
-	if (maphandle != -1)
-		close(maphandle);
+    if (maphandle != -1) {
+        close(maphandle);
+        maphandle = -1;
+    }
 }
 
 
@@ -257,10 +261,12 @@ void OpenAudioFile(void)
 //-----------------------------------------------------------------------
 // CloseAudioFile()
 //------------------------------------------------------------------------
-void CloseAudioFile(void)
+void CloseAudioFile()
 {
-	if (audiohandle != -1)
-		close(audiohandle);
+    if (audiohandle != -1) {
+        close(audiohandle);
+        audiohandle = -1;
+    }
 }
 
 
@@ -532,190 +538,14 @@ void CAL_OptimizeNodes (huffnode *table)
 
 void CAL_HuffExpand(
     Uint8* source,
-    Uint8* dest,
+    Uint8* destination,
     Sint32 length,
     huffnode* hufftable,
     boolean screenhack)
 {
-// FIXME
-#if 0
-
-//  unsigned bit,Uint8,node,code;
-  Uint16 sourceseg,sourceoff,destseg,destoff,endoff;
-  huffnode *headptr;
-  Uint8		mapmask;
-//  huffnode *nodeon;
-
-#pragma warn -sus
-  headptr = hufftable+254;	// head node is allways node 254
-#pragma warn +sus
-
-  source++;	// normalize
-  source--;
-  dest++;
-  dest--;
-
-  if (screenhack)
-  {
-	mapmask = 1;
-asm	mov	dx,SC_INDEX
-asm	mov	ax,SC_MAPMASK + 256
-asm	out	dx,ax
-	length >>= 2;
-  }
-
-  sourceseg = FP_SEG(source);
-  sourceoff = FP_OFF(source);
-  destseg = FP_SEG(dest);
-  destoff = FP_OFF(dest);
-  endoff = destoff+length;
-
-//
-// ds:si source
-// es:di dest
-// ss:bx node pointer
-//
-
-	if (length <0xfff0)
-	{
-
-//--------------------------
-// expand less than 64k of data
-//--------------------------
-
-asm mov	bx,[headptr]
-
-asm	mov	si,[sourceoff]
-asm	mov	di,[destoff]
-asm	mov	es,[destseg]
-asm	mov	ds,[sourceseg]
-asm	mov	ax,[endoff]
-
-asm	mov	ch,[si]				// load first byte
-asm	inc	si
-asm	mov	cl,1
-
-expandshort:
-asm	test	ch,cl			// bit set?
-asm	jnz	bit1short
-asm	mov	dx,[ss:bx]			// take bit0 path from node
-asm	shl	cl,1				// advance to next bit position
-asm	jc	newbyteshort
-asm	jnc	sourceupshort
-
-bit1short:
-asm	mov	dx,[ss:bx+2]		// take bit1 path
-asm	shl	cl,1				// advance to next bit position
-asm	jnc	sourceupshort
-
-newbyteshort:
-asm	mov	ch,[si]				// load next byte
-asm	inc	si
-asm	mov	cl,1				// back to first bit
-
-sourceupshort:
-asm	or	dh,dh				// if dx<256 its a byte, else move node
-asm	jz	storebyteshort
-asm	mov	bx,dx				// next node = (huffnode *)code
-asm	jmp	expandshort
-
-storebyteshort:
-asm	mov	[es:di],dl
-asm	inc	di					// write a decopmpressed byte out
-asm	mov	bx,[headptr]		// back to the head node for next bit
-
-asm	cmp	di,ax				// done?
-asm	jne	expandshort
-
-//
-// perform screenhack if needed
-//
-asm	test	[screenhack],1
-asm	jz	notscreen
-asm	shl	[mapmask],1
-asm	mov	ah,[mapmask]
-asm	cmp	ah,16
-asm	je	notscreen			// all four planes done
-asm	mov	dx,SC_INDEX
-asm	mov	al,SC_MAPMASK
-asm	out	dx,ax
-asm	mov	di,[destoff]
-asm	mov	ax,[endoff]
-asm	jmp	expandshort
-
-notscreen:;
-	}
-	else
-	{
-
-//--------------------------
-// expand more than 64k of data
-//--------------------------
-
-  length--;
-
-asm mov	bx,[headptr]
-asm	mov	cl,1
-
-asm	mov	si,[sourceoff]
-asm	mov	di,[destoff]
-asm	mov	es,[destseg]
-asm	mov	ds,[sourceseg]
-
-asm	lodsb			// load first byte
-
-expand:
-asm	test	al,cl		// bit set?
-asm	jnz	bit1
-asm	mov	dx,[ss:bx]	// take bit0 path from node
-asm	jmp	gotcode
-bit1:
-asm	mov	dx,[ss:bx+2]	// take bit1 path
-
-gotcode:
-asm	shl	cl,1		// advance to next bit position
-asm	jnc	sourceup
-asm	lodsb
-asm	cmp	si,0x10		// normalize ds:si
-asm  	jb	sinorm
-asm	mov	cx,ds
-asm	inc	cx
-asm	mov	ds,cx
-asm	xor	si,si
-sinorm:
-asm	mov	cl,1		// back to first bit
-
-sourceup:
-asm	or	dh,dh		// if dx<256 its a byte, else move node
-asm	jz	storebyte
-asm	mov	bx,dx		// next node = (huffnode *)code
-asm	jmp	expand
-
-storebyte:
-asm	mov	[es:di],dl
-asm	inc	di		// write a decopmpressed byte out
-asm	mov	bx,[headptr]	// back to the head node for next bit
-
-asm	cmp	di,0x10		// normalize es:di
-asm  	jb	dinorm
-asm	mov	dx,es
-asm	inc	dx
-asm	mov	es,dx
-asm	xor	di,di
-dinorm:
-
-asm	sub	[WORD PTR ss:length],1
-asm	jnc	expand
-asm  	dec	[WORD PTR ss:length+2]
-asm	jns	expand		// when length = ffff ffff, done
-
-	}
-
-asm	mov	ax,ss
-asm	mov	ds,ax
-#endif // 0
-
     int i;
+    int dst_step = 1;
+    Uint8* dst;
     Uint8* end;
     huffnode* headptr;
     huffnode* huffptr;
@@ -732,11 +562,12 @@ asm	mov	ds,ax
         (length < 0xFFF0);
 
     if (update_screen) {
-        length /= 4;
         plane_count = 4;
+        dst_step = 4;
     }
 
-    end = dest + length;
+    dst = destination;
+    end = dst + length;
 
     huffptr = headptr;
 
@@ -754,22 +585,21 @@ asm	mov	ds,ax
                 mask <<= 1;
 
             if (nodeval < 256) {
-                *dest++ = (Uint8)nodeval;
+                dst[0] = (Uint8)nodeval;
+                dst += dst_step;
                 huffptr = headptr;
 
-                if (dest >= end)
+                if (dst >= end)
                     break;
             } else
                 huffptr = &hufftable[nodeval - 256];
         }
 
-        if (update_screen)
-            end = dest + length;
+        if (update_screen) {
+            dst = destination + i + 1;
+            end = destination + length;
+        }
     }
-
-    // FIXME
-    // Handle output to screen if screenhack is true
-    // and length less than 0xFFF0.
 }
 
 
@@ -1050,15 +880,18 @@ asm	mov	ds,ax
 ======================
 */
 
-void CA_Shutdown (void)
+void CA_Shutdown()
 {
 #ifdef PROFILE
-	close (profilehandle);
+    if (profilehandle != -1) {
+        close(profilehandle);
+        profilehandle = -1;
+    }
 #endif
 
-	close (maphandle);
-	close (grhandle);
-	close (audiohandle);
+    CloseMapFile();
+    CloseGrFile();
+    CloseAudioFile();
 }
 
 /*
@@ -1413,7 +1246,7 @@ void CA_CacheScreen (Sint16 chunk)
 // allocate final space, decompress it, and free bigbuffer
 // Sprites need to have shifts made and various other junk
 //
-	CAL_HuffExpand (source, vga_memory + bufferofs,expanded,grhuffman,true);
+	CAL_HuffExpand (source, &vga_memory[4 * bufferofs],expanded,grhuffman,true);
 	VW_MarkUpdateBlock (0,0,319,199);
 
     free(bigbufferseg);

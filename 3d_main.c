@@ -1611,7 +1611,11 @@ void Quit(char* error, ...)
     if (error != NULL && *error != '\0') {
         char dummy;
 
-        vprintf(error, ap);
+        SDL_LogMessageV(
+            SDL_LOG_CATEGORY_APPLICATION,
+            SDL_LOG_PRIORITY_CRITICAL,
+            error, ap);
+
         scanf("%c", &dummy);
     }
 

@@ -1,12 +1,16 @@
 #include "SDL.h"
 
 
+void ogl_update_screen();
+
+
 void VL_WaitVBL (Sint16 vbls)
 {
 }
 
 void VH_UpdateScreen()
 {
+    ogl_update_screen();
 }
 
 void VL_ScreenToScreen (Uint16 source, Uint16 dest, Sint16 width, Sint16 height)

@@ -5,6 +5,8 @@
 #define ID_HEAD_H
 
 
+#include <assert.h>
+
 #include "SDL.h"
 
 

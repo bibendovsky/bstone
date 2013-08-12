@@ -91,8 +91,8 @@ void Quit (char *error,...);
 
 //===========================================================================
 
-extern	Uint16	bufferofs;			// all drawing is reletive to this
-extern	Uint16	displayofs,pelpan;	// last setscreen coordinates
+extern	int	bufferofs;			// all drawing is reletive to this
+extern	int	displayofs,pelpan;	// last setscreen coordinates
 
 extern	Uint16	screenseg;			// set to 0xa000 for asm convenience
 
@@ -101,6 +101,11 @@ extern	Uint16	ylookup[MAXSCANLINES];
 
 extern	boolean		screenfaded;
 extern	Uint16	bordercolor;
+
+
+// BBi
+extern int vanilla_screen_width;
+extern int vanilla_screen_height;
 
 //===========================================================================
 
@@ -152,15 +157,15 @@ void VL_WaitVBL (Sint16 vbls);
 void VL_CrtcStart (Sint16 crtc);
 void VL_SetScreen (Sint16 crtc, Sint16 pelpan);
 
-void VL_FillPalette (Sint16 red, Sint16 green, Sint16 blue);
-void VL_SetColor	(Sint16 color, Sint16 red, Sint16 green, Sint16 blue);
-void VL_GetColor	(Sint16 color, Sint16 *red, Sint16 *green, Sint16 *blue);
-void VL_SetPalette (Uint8 firstreg, Uint16 numregs, Uint8* palette);
-void VL_GetPalette (Uint8 firstreg, Uint16 numregs, Uint8* palette);
-void VL_SetPaletteIntensity(Sint16 start, Sint16 end, Uint8* palette, char intensity);
-void VL_FadeOut (Sint16 start, Sint16 end, Sint16 red, Sint16 green, Sint16 blue, Sint16 steps);
-void VL_FadeIn (Sint16 start, Sint16 end, Uint8* palette, Sint16 steps);
-void VL_ColorBorder (Sint16 color);
+void VL_FillPalette(int red, int green, int blue);
+void VL_SetColor(int color, int red, int green, int blue);
+void VL_GetColor(int color, int* red, int* green, int* blue);
+void VL_SetPalette(int first, int count, const Uint8* palette);
+void VL_GetPalette(int first, int count, Uint8* palette);
+void VL_SetPaletteIntensity(int start, int end, const Uint8* palette, int intensity);
+void VL_FadeOut(Sint16 start, Sint16 end, Sint16 red, Sint16 green, Sint16 blue, Sint16 steps);
+void VL_FadeIn(Sint16 start, Sint16 end, Uint8* palette, Sint16 steps);
+void VL_ColorBorder(Sint16 color);
 
 void VL_Plot (Sint16 x, Sint16 y, Sint16 color);
 void VL_Hlin (Uint16 x, Uint16 y, Uint16 width, Uint16 color);

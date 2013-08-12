@@ -897,6 +897,8 @@ void	VL_Startup (void)
 
 }
 
+// FIXME Moved to id_vl.c
+#if 0
 #if !RESTART_PICTURE_PAUSE
 
 /*
@@ -924,6 +926,7 @@ asm	int	0x10
     vga_memory = (Uint8*)malloc(VGA_MEM_SIZE);
     memset(vga_memory, 0, VGA_MEM_SIZE);
 }
+#endif // 0
 
 /*
 =================
