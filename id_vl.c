@@ -1316,8 +1316,8 @@ void ogl_ortho(
     matrix[11] = 0.0F;
 
     matrix[12] = -1.0F;
-    matrix[13] = -1.0F;
-    matrix[14] = -1.0F;
+    matrix[13] = 1.0F;
+    matrix[14] = 0.0F;
     matrix[15] = 1.0F;
 }
 
@@ -1336,6 +1336,7 @@ boolean ogl_check_for_and_clear_errors()
 // Just draws a screen texture.
 void ogl_draw_screen()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -1802,6 +1803,18 @@ static void ogl_initialize_video()
     ogl_setup_shaders();
     ogl_setup_programs();
 
+    SDL_ShowWindow(sdl_window);
+
+    glViewport(screen_x, screen_y, screen_width, screen_height);
+
+    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+
+    glEnable(GL_TEXTURE_1D);
+    glEnable(GL_TEXTURE_2D);
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+
     if (a_pos_vec4 != -1) {
         glVertexAttribPointer(
             a_pos_vec4,
@@ -1825,18 +1838,4 @@ static void ogl_initialize_video()
 
         glEnableVertexAttribArray(a_tc0_vec2);
     }
-
-    SDL_ShowWindow(sdl_window);
-
-    glEnable(GL_TEXTURE_1D);
-    glEnable(GL_TEXTURE_2D);
-
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-
-    glViewport(screen_x, screen_y, screen_width, screen_height);
-
-    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
-    glClear(GL_COLOR_BUFFER_BIT);
-    SDL_GL_SwapWindow(sdl_window);
 }

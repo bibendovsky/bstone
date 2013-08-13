@@ -17,7 +17,7 @@
 //	DEBUG - there are more globals
 //
 
-#include "ID_HEADS.H"
+#include "id_heads.h"
 #pragma	hdrstop
 
 #define	KeyInt		9	// The keyboard ISR number
@@ -44,6 +44,11 @@
 #define	JoyScaleMax		32768
 #define	JoyScaleShift	8
 //#define	MaxJoyValue		5000
+
+
+extern int _argc;
+extern char** _argv;
+
 
 /*
 =============================================================================
@@ -144,6 +149,8 @@ char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 
 //	Internal routines
 
+// FIXME
+#if 0
 ///////////////////////////////////////////////////////////////////////////
 //
 //	INL_KeyService() - Handles a keyboard interrupt (key up/down)
@@ -152,8 +159,6 @@ char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 static void
 INL_KeyService(void)
 {
-// FIXME
-#if 0
 static	boolean	special;
 		Uint8	k,c,
 				temp;
@@ -224,8 +229,475 @@ static	boolean	special;
 	if (INL_KeyHook && !special)
 		INL_KeyHook();
 	outportb(0x20,0x20);
-#endif // 0
 }
+#endif // 0
+
+// BBi
+static int in_keyboard_map_to_bstone(SDL_Keycode key_code)
+{
+    switch (key_code) {
+    case SDLK_RETURN:
+        return sc_Return;
+
+    case SDLK_ESCAPE:
+        return sc_Escape;
+
+    case SDLK_SPACE:
+        return sc_Space;
+
+    case SDLK_MINUS:
+        return sc_Minus;
+
+    case SDLK_EQUALS:
+        return sc_Plus;
+
+    case SDLK_BACKSPACE:
+        return sc_BackSpace;
+
+    case SDLK_TAB:
+        return sc_Tab;
+
+    case SDLK_LALT:
+    case SDLK_RALT:
+        return sc_Alt;
+
+    case SDLK_LEFTBRACKET:
+        return sc_LBrace;
+
+    case SDLK_RIGHTBRACKET:
+        return sc_RBrace;
+
+    case SDLK_LCTRL:
+    case SDLK_RCTRL:
+        return sc_Control;
+
+    case SDLK_CAPSLOCK:
+        return sc_CapsLock;
+
+    case SDLK_LSHIFT:
+        return sc_LShift;
+
+    case SDLK_RSHIFT:
+        return sc_RShift;
+
+    case SDLK_UP:
+        return sc_UpArrow;
+
+    case SDLK_DOWN:
+        return sc_DownArrow;
+
+    case SDLK_LEFT:
+        return sc_LeftArrow;
+
+    case SDLK_RIGHT:
+        return sc_RightArrow;
+
+    case SDLK_INSERT:
+        return sc_Insert;
+
+    case SDLK_DELETE:
+        return sc_Delete;
+
+    case SDLK_HOME:
+        return sc_Home;
+
+    case SDLK_END:
+        return sc_End;
+
+    case SDLK_PAGEUP:
+        return sc_PgUp;
+
+    case SDLK_PAGEDOWN:
+        return sc_PgDn;
+
+    case SDLK_SLASH:
+        return sc_Slash;
+
+    case SDLK_F1:
+        return sc_F1;
+
+    case SDLK_F2:
+        return sc_F2;
+
+    case SDLK_F3:
+        return sc_F3;
+
+    case SDLK_F4:
+        return sc_F4;
+
+    case SDLK_F5:
+        return sc_F5;
+
+    case SDLK_F6:
+        return sc_F6;
+
+    case SDLK_F7:
+        return sc_F7;
+
+    case SDLK_F8:
+        return sc_F8;
+
+    case SDLK_F9:
+        return sc_F9;
+
+    case SDLK_F10:
+        return sc_F10;
+
+    case SDLK_F11:
+        return sc_F11;
+
+    case SDLK_F12:
+        return sc_F12;
+
+    case SDLK_BACKQUOTE:
+        return sc_Tilde;
+
+    case SDLK_1:
+        return sc_1;
+
+    case SDLK_2:
+        return sc_2;
+
+    case SDLK_3:
+        return sc_3;
+
+    case SDLK_4:
+        return sc_4;
+
+    case SDLK_5:
+        return sc_5;
+
+    case SDLK_6:
+        return sc_6;
+
+    case SDLK_7:
+        return sc_7;
+
+    case SDLK_8:
+        return sc_8;
+
+    case SDLK_9:
+        return sc_9;
+
+    case SDLK_0:
+        return sc_0;
+
+    case SDLK_a:
+        return sc_A;
+
+    case SDLK_b:
+        return sc_B;
+
+    case SDLK_c:
+        return sc_C;
+
+    case SDLK_d:
+        return sc_D;
+
+    case SDLK_e:
+        return sc_E;
+
+    case SDLK_f:
+        return sc_F;
+
+    case SDLK_g:
+        return sc_G;
+
+    case SDLK_h:
+        return sc_H;
+
+    case SDLK_i:
+        return sc_I;
+
+    case SDLK_j:
+        return sc_J;
+
+    case SDLK_k:
+        return sc_K;
+
+    case SDLK_l:
+        return sc_L;
+
+    case SDLK_m:
+        return sc_M;
+
+    case SDLK_n:
+        return sc_N;
+
+    case SDLK_o:
+        return sc_O;
+
+    case SDLK_p:
+        return sc_P;
+
+    case SDLK_q:
+        return sc_Q;
+
+    case SDLK_r:
+        return sc_R;
+
+    case SDLK_s:
+        return sc_S;
+
+    case SDLK_t:
+        return sc_T;
+
+    case SDLK_u:
+        return sc_U;
+
+    case SDLK_v:
+        return sc_V;
+
+    case SDLK_w:
+        return sc_W;
+
+    case SDLK_x:
+        return sc_X;
+
+    case SDLK_y:
+        return sc_Y;
+
+    case SDLK_z:
+        return sc_Z;
+
+    case SDLK_KP_MINUS:
+        return sc_kpMinus;
+
+    case SDLK_KP_PLUS:
+        return sc_kpPlus;
+
+    default:
+        return sc_None;
+    }
+}
+
+static char in_keyboard_map_to_char(const SDL_KeyboardEvent* e)
+{
+    Uint16 flags = e->keysym.mod;
+    boolean is_caps = false;
+    SDL_Keycode key_code = e->keysym.sym;
+
+    if ((flags & (
+        KMOD_LCTRL |
+        KMOD_RCTRL |
+        KMOD_LALT |
+        KMOD_RALT |
+        KMOD_LGUI |
+        KMOD_RGUI |
+        KMOD_MODE)) != 0)
+    {
+        return sc_None;
+    }
+
+    if ((flags & KMOD_CAPS) != 0)
+        is_caps = !is_caps;
+
+    if ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0)
+        is_caps = !is_caps;
+
+    switch (key_code) {
+    case SDLK_ESCAPE:
+    case SDLK_BACKSPACE:
+    case SDLK_TAB:
+    case SDLK_RETURN:
+    case SDLK_SPACE:
+    case SDLK_DELETE:
+        return key_code;
+    }
+
+    if (!is_caps) {
+        switch (key_code) {
+        case SDLK_1:
+        case SDLK_2:
+        case SDLK_3:
+        case SDLK_4:
+        case SDLK_5:
+        case SDLK_6:
+        case SDLK_7:
+        case SDLK_8:
+        case SDLK_9:
+        case SDLK_0:
+        case SDLK_MINUS:
+        case SDLK_EQUALS:
+        case SDLK_LEFTBRACKET:
+        case SDLK_RIGHTBRACKET:
+        case SDLK_SEMICOLON:
+        case SDLK_QUOTE:
+        case SDLK_BACKQUOTE:
+        case SDLK_BACKSLASH:
+        case SDLK_COMMA:
+        case SDLK_PERIOD:
+        case SDLK_SLASH:
+        case SDLK_a:
+        case SDLK_b:
+        case SDLK_c:
+        case SDLK_d:
+        case SDLK_e:
+        case SDLK_f:
+        case SDLK_g:
+        case SDLK_h:
+        case SDLK_i:
+        case SDLK_j:
+        case SDLK_k:
+        case SDLK_l:
+        case SDLK_m:
+        case SDLK_n:
+        case SDLK_o:
+        case SDLK_p:
+        case SDLK_q:
+        case SDLK_r:
+        case SDLK_s:
+        case SDLK_t:
+        case SDLK_u:
+        case SDLK_v:
+        case SDLK_w:
+        case SDLK_x:
+        case SDLK_y:
+        case SDLK_z:
+            return key_code;
+        }
+    } else {
+        switch (key_code) {
+        case SDLK_1:
+            return '!';
+
+        case SDLK_2:
+            return '@';
+
+        case SDLK_3:
+            return '#';
+
+        case SDLK_4:
+            return '$';
+
+        case SDLK_5:
+            return '%';
+
+        case SDLK_6:
+            return '^';
+
+        case SDLK_7:
+            return '&';
+
+        case SDLK_8:
+            return '*';
+
+        case SDLK_9:
+            return '(';
+
+        case SDLK_0:
+            return ')';
+
+        case SDLK_MINUS:
+            return '_';
+
+        case SDLK_EQUALS:
+            return '+';
+
+        case SDLK_LEFTBRACKET:
+            return '{';
+
+        case SDLK_RIGHTBRACKET:
+            return '}';
+
+        case SDLK_SEMICOLON:
+            return ':';
+
+        case SDLK_QUOTE:
+            return '"';
+
+        case SDLK_BACKQUOTE:
+            return '~';
+
+        case SDLK_BACKSLASH:
+            return '|';
+
+        case SDLK_COMMA:
+            return '<';
+
+        case SDLK_PERIOD:
+            return '>';
+
+        case SDLK_SLASH:
+            return '?';
+
+        case SDLK_a:
+        case SDLK_b:
+        case SDLK_c:
+        case SDLK_d:
+        case SDLK_e:
+        case SDLK_f:
+        case SDLK_g:
+        case SDLK_h:
+        case SDLK_i:
+        case SDLK_j:
+        case SDLK_k:
+        case SDLK_l:
+        case SDLK_m:
+        case SDLK_n:
+        case SDLK_o:
+        case SDLK_p:
+        case SDLK_q:
+        case SDLK_r:
+        case SDLK_s:
+        case SDLK_t:
+        case SDLK_u:
+        case SDLK_v:
+        case SDLK_w:
+        case SDLK_x:
+        case SDLK_y:
+        case SDLK_z:
+            return SDL_toupper(key_code);
+        }
+    }
+
+    return sc_None;
+}
+
+static void in_handle_keyboard(const SDL_KeyboardEvent* e)
+{
+    SDL_Keycode key_code = e->keysym.sym;
+    int key = in_keyboard_map_to_bstone(key_code);
+    Uint16 key_mod;
+    char key_char;
+    boolean is_pressed;
+
+    if (key_code == SDLK_PAUSE && e->state == SDL_PRESSED) {
+        Paused = true;
+        return;
+    }
+
+    if (key == sc_None)
+        return;
+
+    key_mod = e->keysym.mod;
+
+    switch (key) {
+    case sc_Alt:
+        is_pressed = ((key_mod & KMOD_ALT) != 0);
+        break;
+
+    case sc_Control:
+        is_pressed = ((key_mod & KMOD_CTRL) != 0);
+        break;
+
+    default:
+        is_pressed = (e->state == SDL_PRESSED);
+        break;
+    }
+
+    Keyboard[key] = is_pressed;
+
+    if (is_pressed) {
+        LastScan = key;
+
+        key_char = in_keyboard_map_to_char(e);
+
+        if (key_char != '\0')
+            LastASCII = key_char;
+    }
+}
+// BBi
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -507,18 +979,9 @@ IN_GetJoyButtonsDB(Uint16 joy)
 //	INL_StartKbd() - Sets up my keyboard stuff for use
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-INL_StartKbd(void)
+void INL_StartKbd()
 {
-	INL_KeyHook = NULL;			// no key hook routine
-
-	IN_ClearKeysDown();
-
-// FIXME
-#if 0
-	OldKeyVect = getvect(KeyInt);
-	setvect(KeyInt,INL_KeyService);
-#endif // 0
+    IN_ClearKeysDown();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -526,15 +989,8 @@ INL_StartKbd(void)
 //	INL_ShutKbd() - Restores keyboard control to the BIOS
 //
 ///////////////////////////////////////////////////////////////////////////
-static void
-INL_ShutKbd(void)
+static void INL_ShutKbd()
 {
-// FIXME
-#if 0
-	poke(0x40,0x17,peek(0x40,0x17) & 0xfaf0);	// Clear ctrl/alt/shift flags
-
-	setvect(KeyInt,OldKeyVect);
-#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -803,6 +1259,24 @@ IN_ClearKeysDown(void)
 	LastASCII = key_None;
 	memset (Keyboard,0,sizeof(Keyboard));
 }
+
+// BBi
+void in_handle_events()
+{
+    SDL_Event e;
+
+    SDL_PumpEvents();
+
+    while (SDL_PollEvent(&e)) {
+        switch (e.type) {
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            in_handle_keyboard(&e.key);
+            break;
+        }
+    }
+}
+// BBi
 
 //
 // IN_ReadControl() was modified to allow a single player to use any input
@@ -1115,6 +1589,7 @@ boolean IN_CheckAck (void)
 {
 	Uint16	i,buttons;
 
+    in_handle_events();
 //
 // see if something has been pressed
 //
@@ -1138,12 +1613,12 @@ boolean IN_CheckAck (void)
 }
 
 
-void IN_Ack (void)
+void IN_Ack()
 {
-	IN_StartAck ();
+    IN_StartAck();
 
-	while (!IN_CheckAck ())
-	;
+    while (!IN_CheckAck())
+        ;
 }
 
 
@@ -1219,4 +1694,56 @@ Uint8	IN_JoyButtons (void)
     return 0;
 }
 
+boolean INL_StartJoy(Uint16 joy)
+{
+    Uint16 x;
+    Uint16 y;
 
+    IN_GetJoyAbs(joy, &x, &y);
+
+    if ((x == 0 || x > MaxJoyValue - 10) ||
+        (y == 0 || y > MaxJoyValue - 10))
+    {
+        return false;
+    } else {
+        IN_SetupJoy(joy, 0, x * 2, 0, y * 2);
+        return true;
+    }
+}
+
+void IN_Startup()
+{
+    int i;
+    boolean checkjoys;
+    boolean checkmouse;
+
+    if (IN_Started)
+        return;
+
+    checkjoys = true;
+    checkmouse = true;
+
+    for (i = 1; i < _argc; ++i) {
+        switch (US_CheckParm(_argv[i], IN_ParmStrings)) {
+        case 0:
+            checkjoys = false;
+            break;
+
+        case 1:
+            checkmouse = false;
+            break;
+
+        case 2:
+            // FIXME Print a warning?
+            break;
+        }
+    }
+
+    INL_StartKbd();
+    MousePresent = checkmouse? INL_StartMouse() : false;
+
+    for (i = 0; i < MaxJoys; ++i)
+        JoysPresent[i] = checkjoys? INL_StartJoy(i) : false;
+
+    IN_Started = true;
+}

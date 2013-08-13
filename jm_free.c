@@ -345,6 +345,9 @@ void CA_Startup (void)
 #endif // 0
 
 
+// FIXME Moved to id_in.c
+#if 0
+
 //#if !IN_DEVELOPMENT
 
 extern boolean IN_Started;
@@ -433,6 +436,7 @@ IN_Startup(void)
 
 	IN_Started = true;
 }
+#endif // 0
 
 //#endif
 
