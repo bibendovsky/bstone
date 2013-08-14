@@ -457,88 +457,73 @@ void LoadLatchMem (void)
 
 extern	ControlInfo	c;
 
-boolean FizzleFade (Uint16 source, Uint16 dest,
-	Uint16 width,Uint16 height, Uint16 frames, boolean abortable)
+boolean FizzleFade(
+    int source,
+    int dest,
+    int width,
+    int height,
+    int frames,
+    boolean abortable)
 {
-	Sint16			pixperframe;
-	Uint16	drawofs,pagedelta;
-	Uint8 		mask,maskb[8] = {1,2,4,8};
-	Uint16	x,y,p,frame;
-	Sint32		rndval;
+    int pixperframe;
+    Uint16 x;
+    Uint16 y;
+    int p;
+    int frame;
+    Sint32 rndval;
+    boolean carry;
+    int src_offset;
+    int dst_offset;
+    int pixel_offset;
 
-	pagedelta = dest-source;
-	rndval = 1;
-	y = 0;
-	pixperframe = 64000/frames;
+    y = 0;
+    rndval = 1;
+    pixperframe = 64000 / frames;
+    src_offset = 4 * source;
+    dst_offset = 4 * dest;
 
-	IN_StartAck ();
+    IN_StartAck();
 
-	TimeCount=frame=0;
-	do	// while (1)
-	{
-		if (abortable && IN_CheckAck () )
-			return true;
+    TimeCount = 0;
+    frame = 0;
+    LastScan = 0;
 
-// FIXME
-#if 0
-		asm	mov	es,[screenseg]
+    do {
+        if (abortable && IN_CheckAck())
+            return true;
 
-		for (p=0;p<pixperframe;p++)
-		{
-			//
-			// seperate random value into x/y pair
-			//
-			asm	mov	ax,[WORD PTR rndval]
-			asm	mov	dx,[WORD PTR rndval+2]
-			asm	mov	bx,ax
-			asm	dec	bl
-			asm	mov	[BYTE PTR y],bl			// low 8 bits - 1 = y xoordinate
-			asm	mov	bx,ax
-			asm	mov	cx,dx
-			asm	mov	[BYTE PTR x],ah			// next 9 bits = x xoordinate
-			asm	mov	[BYTE PTR x+1],dl
-			//
-			// advance to next random element
-			//
-			asm	shr	dx,1
-			asm	rcr	ax,1
-			asm	jnc	noxor
-			asm	xor	dx,0x0001
-			asm	xor	ax,0x2000
-noxor:
-			asm	mov	[WORD PTR rndval],ax
-			asm	mov	[WORD PTR rndval+2],dx
+        for (p = 0; p < pixperframe; ++p) {
+            x = (rndval >> 8) & 0xFFFF;
+            y = ((rndval & 0xFF) - 1) & 0xFF;
 
-			if (x>width || y>height)
-				continue;
-			drawofs = source+ylookup[y] + (x>>2);
+            carry = ((rndval & 1) != 0);
 
-			//
-			// copy one pixel
-			//
-			mask = x&3;
-			VGAREADMAP(mask);
-			mask = maskb[mask];
-			VGAMAPMASK(mask);
+            rndval >>= 1;
 
-			asm	mov	di,[drawofs]
-			asm	mov	al,[es:di]
-			asm add	di,[pagedelta]
-			asm	mov	[es:di],al
+            if (carry)
+                rndval ^= 0x00012000;
 
-			if (rndval == 1)		// entire sequence has been completed
-				return false;
-		}
-#endif // 0
+            if (x < width && y < height) {
+                pixel_offset = (y * vanilla_screen_width) + x;
 
-		frame++;
-		while (TimeCount<frame)		// don't go too fast
-		;
+                vga_memory[dst_offset + pixel_offset] =
+                    vga_memory[src_offset + pixel_offset];
+            }
 
-		CalcTics();
-		if (!(frame&3))
-			ForceUpdateStatusBar();
+            if (rndval <= 1)
+                return false;
+        }
 
-	} while (1);
+        VL_RefreshScreen();
+
+        ++frame;
+
+        while (TimeCount < frame) // don't go too fast
+            ;
+
+        CalcTics();
+
+        if ((frame & 3) == 0)
+            ForceUpdateStatusBar();
+    } while (true);
 }
-

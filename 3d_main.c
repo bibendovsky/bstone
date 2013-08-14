@@ -1707,7 +1707,12 @@ void    DemoLoop (void)
 			// Fizzle whole screen incase of any last minute changes needed
 			// on title intro.
 
+// BBi Made abortable.
+#if 0
 			FizzleFade(bufferofs,displayofs,320,200,70,false);
+#endif
+            FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
+// BBi
 
 			IN_UserInput(TickBase*2);
 			if (breakit || IN_UserInput(TickBase*6))
