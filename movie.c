@@ -5,18 +5,16 @@
 //
 //===========================================================================
 
-#include <io.h>
-//#include <alloc.h>
-//#include <mem.h>
-#include <stdio.h>
-#include <string.h>
-#include <dos.h>
-#include <FCNTL.H>
 
 #include "3d_def.h"
 #include "jm_io.h"
 #include "an_codes.h"
 
+
+boolean IN_CheckAck();
+void VH_UpdateScreen();
+
+
 //===========================================================================
 //
 //
@@ -25,7 +23,7 @@
 //===========================================================================
 
 
-void VL_LatchToScreen(Uint16 source, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
+void VL_LatchToScreen(int source, int width, int height, int x, int y);
 
 
 //#define  DRAW_TO_FRONT
@@ -160,7 +158,7 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 #if 0
 	BufferLen = MM_LargestAvail();
 #endif // 0
-    BufferLen = 0;
+    BufferLen = 65535;
 
    BufferLen -= 65535;						// HACK: Save some room for sounds - This is cludgey
 
@@ -196,6 +194,9 @@ void ShutdownMovie(void)
 //
 // length		= length of the source image in bytes
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void JM_DrawBlock(Uint16 dest_offset,Uint16 byte_offset,char *source,Uint16 length)
 {
 	Uint8 numplanes;
@@ -251,6 +252,19 @@ void JM_DrawBlock(Uint16 dest_offset,Uint16 byte_offset,char *source,Uint16 leng
       	*dest_ptr = *source_ptr;
 	}
 }
+#endif // 0
+
+void JM_DrawBlock(
+    int dest_offset,
+    int byte_offset,
+    const char* source,
+    int length)
+{
+    char* dest;
+
+    dest = (char*)&vga_memory[(4 * dest_offset) + byte_offset];
+    memcpy(dest, source, length);
+}
 
 
 
@@ -292,47 +306,64 @@ void MOVIE_ShowFrame (char *inpic)
 //---------------------------------------------------------------------------
 boolean MOVIE_LoadBuffer()
 {
-   anim_frame blk;
-   Sint32 chunkstart;
-	char *frame;
-   Uint32 free_space;
+    anim_frame blk;
+    long chunkstart;
+    char* frame;
+    Uint32 free_space;
 
-   NextPtr = BufferPtr = frame = (char*)MovieBuffer;
-   free_space = BufferLen;
+    NextPtr = BufferPtr = frame = (char*)MovieBuffer;
+    free_space = BufferLen;
 
-	while (free_space)
-   {
-   	chunkstart = tell(Movie_FHandle);
+    while (free_space) {
+        chunkstart = tell(Movie_FHandle);
 
-	   if (!IO_FarRead(Movie_FHandle, (Uint8 *)&blk, sizeof(anim_frame)))
-			AN_ERROR(AN_BAD_ANIM_FILE);
+        if (!IO_FarRead(
+            Movie_FHandle,
+            &blk.code,
+            sizeof(blk.code)))
+        {
+            AN_ERROR(AN_BAD_ANIM_FILE);
+        }
 
-      if (blk.code == AN_END_OF_ANIM)
-      	return(false);
+        if (!IO_FarRead(
+            Movie_FHandle,
+            &blk.block_num,
+            sizeof(blk.block_num)))
+        {
+            AN_ERROR(AN_BAD_ANIM_FILE);
+        }
 
-		if (free_space>=(blk.recsize+sizeof(anim_frame)))
-      {
-			memcpy(frame, (Uint8 *)&blk, sizeof(anim_frame));
+        if (!IO_FarRead(
+            Movie_FHandle,
+            &blk.recsize,
+            sizeof(blk.recsize)))
+        {
+            AN_ERROR(AN_BAD_ANIM_FILE);
+        }
 
-      	free_space -= sizeof(anim_frame);
-   	   frame += sizeof(anim_frame);
-         PageLen += sizeof(anim_frame);
+        if (blk.code == AN_END_OF_ANIM)
+            return false;
 
-		   if (!IO_FarRead(Movie_FHandle, (Uint8 *)frame, blk.recsize))
-				AN_ERROR(AN_BAD_ANIM_FILE);
+        if (free_space >= (blk.recsize + sizeof(anim_frame))) {
+            memcpy(frame, &blk, sizeof(anim_frame));
 
-         free_space -= blk.recsize;
-         frame += blk.recsize;
-         PageLen += blk.recsize;
-      }
-      else
-      {
-	      lseek(Movie_FHandle,chunkstart,SEEK_SET);
-         free_space = 0;
-      }
-   }
+            free_space -= sizeof(anim_frame);
+            frame += sizeof(anim_frame);
+            PageLen += sizeof(anim_frame);
 
-   return(true);
+            if (!IO_FarRead(Movie_FHandle, frame, blk.recsize))
+                AN_ERROR(AN_BAD_ANIM_FILE);
+
+            free_space -= blk.recsize;
+            frame += blk.recsize;
+            PageLen += blk.recsize;
+        } else {
+            lseek(Movie_FHandle, chunkstart, SEEK_SET);
+            free_space = 0;
+        }
+    }
+
+    return true;
 }
 
 
@@ -478,6 +509,13 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
          vbls = *(Uint16 *)frame;
 			IN_UserInput(vbls);
          BufferPtr+=blk.recsize;
+
+         // BBi
+         // FIXME Clear entire input state.
+         LastScan = 0;
+         ci.button0 = 0;
+         ci.button1 = 0;
+         // BBi
       }
       break;
 
@@ -652,4 +690,12 @@ void FlipPages(void)
 
 #endif
 
+    displayofs = bufferofs;
+
+    VL_RefreshScreen();
+
+    bufferofs += SCREENSIZE;
+
+    if (bufferofs > PAGE3START)
+        bufferofs = PAGE1START;
 }

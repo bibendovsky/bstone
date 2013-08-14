@@ -149,11 +149,11 @@ void VL_DePlaneVGA (void);
 void VL_SetVGAPlaneMode (void);
 void VL_ClearVideo (Uint8 color);
 
-void VL_SetLineWidth (Uint16 width);
+void VL_SetLineWidth(int width);
 void VL_SetSplitScreen (Sint16 linenum);
 void WaitVBL (Sint16 vbls);
 
-void VL_WaitVBL (Sint16 vbls);
+void VL_WaitVBL(Uint32 vbls);
 void VL_CrtcStart (Sint16 crtc);
 void VL_SetScreen (Sint16 crtc, Sint16 pelpan);
 
@@ -163,20 +163,20 @@ void VL_GetColor(int color, int* red, int* green, int* blue);
 void VL_SetPalette(int first, int count, const Uint8* palette);
 void VL_GetPalette(int first, int count, Uint8* palette);
 void VL_SetPaletteIntensity(int start, int end, const Uint8* palette, int intensity);
-void VL_FadeOut(Sint16 start, Sint16 end, Sint16 red, Sint16 green, Sint16 blue, Sint16 steps);
-void VL_FadeIn(Sint16 start, Sint16 end, Uint8* palette, Sint16 steps);
+void VL_FadeOut(int start, int end, int red, int green, int blue, int steps);
+void VL_FadeIn(int start, int end, Uint8* palette, int steps);
 void VL_ColorBorder(Sint16 color);
 
-void VL_Plot (Sint16 x, Sint16 y, Sint16 color);
-void VL_Hlin (Uint16 x, Uint16 y, Uint16 width, Uint16 color);
-void VL_Vlin (Sint16 x, Sint16 y, Sint16 height, Sint16 color);
-void VL_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color);
+void VL_Plot (int x, int y, int color);
+void VL_Hlin (int x, int y, int width, int color);
+void VL_Vlin (int x, int y, int height, int color);
+void VL_Bar(int x, int y, int width, int height, int color);
 
 void VL_MungePic (Uint8* source, Uint16 width, Uint16 height);
 void VL_DrawPicBare (Sint16 x, Sint16 y, Uint8* pic, Sint16 width, Sint16 height);
-void VL_MemToLatch (Uint8* source, Sint16 width, Sint16 height, Uint16 dest);
+void VL_MemToLatch(const Uint8* source, int width, int height, int dest);
 void VL_ScreenToScreen (Uint16 source, Uint16 dest,Sint16 width, Sint16 height);
-void VL_MemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
+void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y);
 void VL_MaskMemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint16 y, Uint8 mask);
 void VL_ScreenToMem(Uint8* dest, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
 
@@ -185,6 +185,9 @@ void VL_DrawLatch8String (char *str, Uint16 tile8ptr, Sint16 printx, Sint16 prin
 void VL_SizeTile8String (char *str, Sint16 *width, Sint16 *height);
 void VL_DrawPropString (char *str, Uint16 tile8ptr, Sint16 printx, Sint16 printy);
 void VL_SizePropString (char *str, Sint16 *width, Sint16 *height, char* font);
+
+// BBi
+void VL_RefreshScreen();
 
 
 #endif // ID_VL_H

@@ -104,7 +104,7 @@ extern char** _argv;
 	SDMode		SoundMode;
 	SMMode		MusicMode;
 	SDSMode		DigiMode;
-	Uint32	TimeCount;
+	volatile Uint32	TimeCount;
 	Uint16		HackCount;
 	Uint16		*SoundTable;	// Really * _seg *SoundTable, but that don't work
 	boolean		ssIsTandy;

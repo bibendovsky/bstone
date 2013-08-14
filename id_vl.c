@@ -57,6 +57,7 @@ typedef enum {
 
 
 void ogl_draw_screen();
+void ogl_refresh_screen();
 void ogl_update_screen();
 
 extern const Uint8 vgapal[768];
@@ -158,7 +159,7 @@ SDL_GLContext sdl_gl_context = NULL;
 Sint16	 VL_VideoID (void);
 void VL_SetCRTC (Sint16 crtc);
 void VL_SetScreen (Sint16 crtc, Sint16 pelpan);
-void VL_WaitVBL (Sint16 vbls);
+void VL_WaitVBL (Uint32 vbls);
 
 //===========================================================================
 
@@ -334,8 +335,12 @@ void VL_DePlaneVGA (void)
 	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1)|0x40);
 }
 
+#endif // RESTART_PICTURE_PAUSE
+
 //===========================================================================
 
+// FIXME
+#if 0
 /*
 ====================
 =
@@ -368,8 +373,23 @@ void VL_SetLineWidth (unsigned width)
 		offset += linewidth;
 	}
 }
+#endif // 0
 
-#endif
+void VL_SetLineWidth(int width)
+{
+    int i;
+    int offset;
+
+    offset = 0;
+    linewidth = 2 * width;
+
+    for (i = 0; i < MAXSCANLINES; ++i) {
+        ylookup[i] = offset;
+        offset += linewidth;
+    }
+}
+
+
 
 #if 0
 
@@ -506,7 +526,7 @@ void VL_SetPalette(
         GL_UNSIGNED_BYTE,
         vga_palette);
 
-    ogl_update_screen();
+    ogl_refresh_screen();
 }
 
 
@@ -547,43 +567,52 @@ void VL_GetPalette(
 =================
 */
 
-void VL_FadeOut (Sint16 start, Sint16 end, Sint16 red, Sint16 green, Sint16 blue, Sint16 steps)
+void VL_FadeOut (
+    int start,
+    int end,
+    int red,
+    int green,
+    int blue,
+    int steps)
 {
-	Sint16		i,j,orig,delta;
-	Uint8	*origptr, *newptr;
+    int i;
+    int j;
+    int orig;
+    int delta;
+    Uint8* origptr;
+    Uint8* newptr;
 
-	VL_GetPalette (0,256,&palette1[0][0]);
-	memcpy (palette2,palette1,768);
+    VL_GetPalette(0, 256, &palette1[0][0]);
+    memcpy(palette2, palette1, 768);
 
-//
-// fade through intermediate frames
-//
-	for (i=0;i<steps;i++)
-	{
-		origptr = &palette1[start][0];
-		newptr = &palette2[start][0];
-		for (j=start;j<=end;j++)
-		{
-			orig = *origptr++;
-			delta = red-orig;
-			*newptr++ = orig + delta * i / steps;
-			orig = *origptr++;
-			delta = green-orig;
-			*newptr++ = orig + delta * i / steps;
-			orig = *origptr++;
-			delta = blue-orig;
-			*newptr++ = orig + delta * i / steps;
-		}
+    //
+    // fade through intermediate frames
+    //
+    for (i = 0; i < steps; ++i) {
+        origptr = &palette1[start][0];
+        newptr = &palette2[start][0];
 
-		VL_SetPalette (0,256,&palette2[0][0]);
-	}
+        for (j = start; j <= end; ++j) {
+            orig = *origptr++;
+            delta = red-orig;
+            *newptr++ = orig + delta * i / steps;
+            orig = *origptr++;
+            delta = green-orig;
+            *newptr++ = orig + delta * i / steps;
+            orig = *origptr++;
+            delta = blue-orig;
+            *newptr++ = orig + delta * i / steps;
+        }
 
-//
-// final color
-//
-	VL_FillPalette (red,green,blue);
+        VL_SetPalette(0, 256, &palette2[0][0]);
+    }
 
-	screenfaded = true;
+    //
+    // final color
+    //
+    VL_FillPalette(red, green, blue);
+
+    screenfaded = true;
 }
 
 
@@ -595,66 +624,83 @@ void VL_FadeOut (Sint16 start, Sint16 end, Sint16 red, Sint16 green, Sint16 blue
 =================
 */
 
-void VL_FadeIn (Sint16 start, Sint16 end, Uint8* palette, Sint16 steps)
+void VL_FadeIn(
+    int start,
+    int end,
+    Uint8* palette,
+    int steps)
 {
-	Sint16		i,j,delta;
+    int i;
+    int j;
+    int delta;
 
-	VL_GetPalette (0,256,&palette1[0][0]);
-	memcpy (&palette2[0][0],&palette1[0][0],sizeof(palette1));
+    VL_GetPalette(0, 256, &palette1[0][0]);
+    memcpy(&palette2[0][0], &palette1[0][0], sizeof(palette1));
 
-	start *= 3;
-	end = end*3+2;
+    start *= 3;
+    end = (end * 3) + 2;
 
-//
-// fade through intermediate frames
-//
-	for (i=0;i<steps;i++)
-	{
-		for (j=start;j<=end;j++)
-		{
-			delta = palette[j]-palette1[0][j];
-			palette2[0][j] = palette1[0][j] + delta * i / steps;
-		}
+    //
+    // fade through intermediate frames
+    //
+    for (i = 0; i < steps; ++i) {
+        for (j = start; j <= end; ++j) {
+            delta = palette[j] - palette1[0][j];
+            palette2[0][j] = palette1[0][j] + ((delta * i) / steps);
+        }
 
-		VL_SetPalette (0,256,&palette2[0][0]);
-	}
+        VL_SetPalette(0, 256, &palette2[0][0]);
+    }
 
-//
-// final color
-//
-	VL_SetPalette (0,256,palette);
-	screenfaded = false;
+    //
+    // final color
+    //
+    VL_SetPalette(0, 256, palette);
+
+    screenfaded = false;
 }
 
 //------------------------------------------------------------------------
 // VL_SetPaletteIntensity()
 //------------------------------------------------------------------------
-void VL_SetPaletteIntensity(int start, int end, const Uint8* palette, int intensity)
+void VL_SetPaletteIntensity(
+    int start,
+    int end,
+    const Uint8* palette,
+    int intensity)
 {
-	Sint16 loop;
-	char red,green,blue;
-	Uint8* cmap = &palette1[0][0]+start*3;
+    int loop;
+    char red;
+    char green;
+    char blue;
+    Uint8* cmap = &palette1[0][0] + (start * 3);
 
-	intensity = 63 - intensity;
-	for (loop=start; loop<=end;loop++)
-	{
-		red = *palette++ - intensity;
-		if (red < 0)
-			red = 0;
-		*cmap++ = red;
+    intensity = 63 - intensity;
 
-		green = *palette++ - intensity;
-		if (green < 0)
-			green = 0;
-		*cmap++ = green;
+    for (loop = start; loop <= end; ++loop) {
+        red = *palette++ - intensity;
 
-		blue = *palette++ - intensity;
-		if (blue < 0)
-			blue = 0;
-		*cmap++ = blue;
-	}
+        if (red < 0)
+            red = 0;
 
-	VL_SetPalette(start,end-start+1,&palette1[0][0]);
+        *cmap++ = red;
+
+        green = *palette++ - intensity;
+
+        if (green < 0)
+            green = 0;
+
+        *cmap++ = green;
+
+        blue = *palette++ - intensity;
+
+        if (blue < 0)
+            blue = 0;
+
+        *cmap++ = blue;
+    }
+
+    VL_SetPalette(start, end - start + 1, &palette1[0][0]);
 }
 
 #if 0
@@ -763,6 +809,8 @@ Uint8	rightmasks[4] = {1,3,7,15};
 =================
 */
 
+// FIXME
+#if 0
 void VL_Plot (Sint16 x, Sint16 y, Sint16 color)
 {
 	Uint8 mask;
@@ -771,6 +819,13 @@ void VL_Plot (Sint16 x, Sint16 y, Sint16 color)
 	VGAMAPMASK(mask);
 	*(Uint8* )MK_FP(SCREENSEG,bufferofs+(ylookup[y]+(x>>2))) = color;
 	VGAMAPMASK(15);
+}
+#endif // 0
+
+void VL_Plot(int x, int y, int color)
+{
+    int offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+    vga_memory[offset] = (Uint8)color;
 }
 
 
@@ -782,6 +837,8 @@ void VL_Plot (Sint16 x, Sint16 y, Sint16 color)
 =================
 */
 
+// FIXME
+#if 0
 void VL_Hlin (Uint16 x, Uint16 y, Uint16 width, Uint16 color)
 {
 	Uint16		xbyte;
@@ -817,6 +874,12 @@ void VL_Hlin (Uint16 x, Uint16 y, Uint16 width, Uint16 color)
 
 	VGAMAPMASK(15);
 }
+#endif // 0
+
+void VL_Hlin(int x, int y, int width, int color)
+{
+    VL_Bar(x, y, width, 1, color);
+}
 
 
 /*
@@ -827,6 +890,8 @@ void VL_Hlin (Uint16 x, Uint16 y, Uint16 width, Uint16 color)
 =================
 */
 
+// FIXME
+#if 0
 void VL_Vlin (Sint16 x, Sint16 y, Sint16 height, Sint16 color)
 {
 	Uint8	*dest,mask;
@@ -844,6 +909,12 @@ void VL_Vlin (Sint16 x, Sint16 y, Sint16 height, Sint16 color)
 
 	VGAMAPMASK(15);
 }
+#endif // 0
+
+void VL_Vlin(int x, int y, int height, int color)
+{
+    VL_Bar(x, y, 1, height, color);
+}
 
 
 /*
@@ -854,6 +925,8 @@ void VL_Vlin (Sint16 x, Sint16 y, Sint16 height, Sint16 color)
 =================
 */
 
+// FIXME
+#if 0
 void VL_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
 {
 	Uint8	*dest;
@@ -897,6 +970,18 @@ void VL_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
 
 	VGAMAPMASK(15);
 }
+#endif // 0
+
+void VL_Bar(int x, int y, int width, int height, int color)
+{
+    int i;
+    int offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+
+    for (i = 0; i < height; ++i) {
+        memset(&vga_memory[offset], color, width);
+        offset += vanilla_screen_width;
+    }
+}
 
 /*
 ============================================================================
@@ -914,7 +999,11 @@ void VL_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
 =================
 */
 
-void VL_MemToLatch (Uint8* source, Sint16 width, Sint16 height, Uint16 dest)
+void VL_MemToLatch(
+    const Uint8* source,
+    int width,
+    int height,
+    int dest)
 {
 // FIXME
 #if 0
@@ -940,6 +1029,19 @@ asm	mov	ds,ax
 		source+= count;
 	}
 #endif // 0
+
+    int i;
+    int j;
+    int count = ((width + 3) / 4) * height;
+
+    for (i = 0; i < 4; ++i) {
+        int offset = (4 * dest) + i;
+
+        for (j = 0; j < count; ++j) {
+            vga_memory[offset] = *source++;
+            offset += 4;
+        }
+    }
 }
 
 
@@ -956,7 +1058,9 @@ asm	mov	ds,ax
 =================
 */
 
-void VL_MemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint16 y)
+// FIXME
+#if 0
+void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
 {
 	Uint8   * screen,*dest,mask;
 	Sint16		plane;
@@ -976,6 +1080,27 @@ void VL_MemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint1
 		for (y=0;y<height;y++,screen+=linewidth,source+=width)
 			memcpy (screen,source,width);
 	}
+}
+#endif // 0
+
+void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
+{
+    int i;
+    int j;
+    int k;
+    int q_width = width / 4;
+    int base_offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+
+    for (i = 0; i < 4; ++i) {
+        for (j = 0; j < height; ++j) {
+            int offset = base_offset + i + (j * vanilla_screen_width);
+
+            for (k = 0; k < q_width; ++k) {
+                vga_memory[offset] = *source++;
+                offset += 4;
+            }
+        }
+    }
 }
 
 //==========================================================================
@@ -1062,7 +1187,7 @@ void VL_ScreenToMem(Uint8* dest, Sint16 width, Sint16 height, Sint16 x, Sint16 y
 =================
 */
 
-void VL_LatchToScreen (Uint16 source, Sint16 width, Sint16 height, Sint16 x, Sint16 y)
+void VL_LatchToScreen(int source, int width, int height, int x, int y)
 {
 // FIXEM
 #if 0
@@ -1098,6 +1223,21 @@ asm	mov	ds,ax
 
 	VGAWRITEMODE(0);
 #endif // 0
+
+    int i;
+    int count = 4 * width;
+    int src_offset = (4 * source);
+    int dst_offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+
+    for (i = 0; i < height; ++i) {
+        memmove(
+            &vga_memory[dst_offset],
+            &vga_memory[src_offset],
+            count);
+
+        src_offset += count;
+        dst_offset += vanilla_screen_width;
+    }
 }
 
 
@@ -1336,21 +1476,17 @@ boolean ogl_check_for_and_clear_errors()
 // Just draws a screen texture.
 void ogl_draw_screen()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     SDL_GL_SwapWindow(sdl_window);
 }
 
-// Updates screen texture and draws it.
-void ogl_update_screen()
+// Updates screen texture with display data and
+// draws it.
+void ogl_refresh_screen()
 {
     int i;
     GLenum format;
-
-    memmove(
-        &vga_memory[4 * displayofs],
-        &vga_memory[4 * bufferofs],
-        vanilla_screen_area);
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -1366,6 +1502,21 @@ void ogl_update_screen()
         &vga_memory[4 * displayofs]);
 
     ogl_draw_screen();
+}
+
+// Copies buffer page to a display one,
+// updates screen texture with display page data
+// and draws it.
+void ogl_update_screen()
+{
+    if (displayofs != bufferofs) {
+        memmove(
+            &vga_memory[4 * displayofs],
+            &vga_memory[4 * bufferofs],
+            vanilla_screen_area);
+    }
+
+    ogl_refresh_screen();
 }
 
 // Returns an information log of a shader or a program.
@@ -1798,6 +1949,8 @@ static void ogl_initialize_video()
     screen_x = (window_width - screen_width) / 2;
     screen_y = (window_height - screen_height) / 2;
 
+    VL_SetLineWidth(40);
+
     ogl_setup_textures();
     ogl_setup_vertex_buffers();
     ogl_setup_shaders();
@@ -1806,8 +1959,6 @@ static void ogl_initialize_video()
     SDL_ShowWindow(sdl_window);
 
     glViewport(screen_x, screen_y, screen_width, screen_height);
-
-    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
 
     glEnable(GL_TEXTURE_1D);
     glEnable(GL_TEXTURE_2D);
@@ -1838,4 +1989,17 @@ static void ogl_initialize_video()
 
         glEnableVertexAttribArray(a_tc0_vec2);
     }
+
+    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
 }
+
+void JM_VGALinearFill(int start, int length, char fill)
+{
+    memset(&vga_memory[4 * start], fill, 4 * length);
+}
+
+void VL_RefreshScreen()
+{
+    ogl_refresh_screen();
+}
+// BBi

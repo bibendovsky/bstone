@@ -197,7 +197,7 @@ extern	SDSMode				DigiMode;
 extern	SMMode				MusicMode;
 extern	volatile boolean	DigiPlaying;
 extern	Sint16					DigiMap[];
-extern	Uint32			TimeCount;			// Global time in ticks
+extern	volatile Uint32			TimeCount;			// Global time in ticks
 
 extern	boolean		sqActive;
 extern	boolean		sqPlayedOnce;

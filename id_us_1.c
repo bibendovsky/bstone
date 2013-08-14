@@ -26,12 +26,16 @@
 //			window
 //
 
-#include "ID_HEADS.H"
+#include "id_heads.h"
 
 #pragma	hdrstop
 
 #pragma	warn	-pia
 
+
+// BBi
+SDL_TimerID sys_timer_id = 0;
+// BBi
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
 void VH_UpdateScreen();
@@ -183,6 +187,11 @@ US_Shutdown(void)
 {
 	if (!US_Started)
 		return;
+
+    // BBi
+    SDL_RemoveTimer(sys_timer_id);
+    SDL_QuitSubSystem(SDL_INIT_TIMER);
+    // BBi
 
 	US_Started = false;
 }

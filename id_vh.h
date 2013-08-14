@@ -78,7 +78,7 @@ void VWB_DrawTile8 (Sint16 x, Sint16 y, Sint16 tile);
 void VWB_DrawTile8M (Sint16 x, Sint16 y, Sint16 tile);
 void VWB_DrawTile16 (Sint16 x, Sint16 y, Sint16 tile);
 void VWB_DrawTile16M (Sint16 x, Sint16 y, Sint16 tile);
-void VWB_DrawPic (Sint16 x, Sint16 y, Sint16 chunknum);
+void VWB_DrawPic(int x, int y, int chunknum);
 void VWB_DrawMPic(Sint16 x, Sint16 y, Sint16 chunknum);
 void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color);
 

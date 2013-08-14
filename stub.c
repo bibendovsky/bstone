@@ -4,8 +4,9 @@
 void ogl_update_screen();
 
 
-void VL_WaitVBL (Sint16 vbls)
+void VL_WaitVBL (Uint32 vbls)
 {
+    SDL_Delay(8 * vbls);
 }
 
 void VH_UpdateScreen()
@@ -32,8 +33,4 @@ void SDL_t0SlowAsmService()
 Sint16 VL_VideoID ()
 {
     return 5;
-}
-
-void JM_VGALinearFill(Uint16 start, Uint16 length, char fill)
-{
 }

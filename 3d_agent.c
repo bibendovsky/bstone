@@ -3303,7 +3303,7 @@ void DisplayTeleportName(char tpNum, boolean locked)
 //--------------------------------------------------------------------------
 // CacheDrawPic()
 //--------------------------------------------------------------------------
-void CacheDrawPic(Sint16 x, Sint16 y, Sint16 pic)
+void CacheDrawPic(int x, int y, int pic)
 {
 	CA_CacheGrChunk(pic);
 	VWB_DrawPic(x,y,pic);

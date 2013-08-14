@@ -1311,6 +1311,8 @@ IN_ReadControl(Sint16 player,ControlInfo *info)
 			ControlType	type;
 register	KeyboardDef	*def;
 
+    in_handle_events();
+
 	player=player;					// shut up compiler!
 
 	dx = dy = 0;

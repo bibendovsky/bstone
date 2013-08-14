@@ -3,7 +3,7 @@
 //
 
 
-#include "SDL.h"
+#include "id_heads.h"
 
 
 const Uint8 rndtable[256] = {
@@ -32,22 +32,16 @@ const Uint8 rndtable[256] = {
 };
 
 
-static Sint16 rndindex;
-static Sint16 LastRnd;
+static int rndindex;
+static int LastRnd;
 
 
-void US_InitRndT(Sint16 randomize)
+void US_InitRndT(boolean randomize)
 {
-    if (randomize == 0)
+    if (!randomize)
         rndindex = 0;
-    else {
-// FIXME
-#if 0
-        struct time time_data;
-        gettime(&time_data);
-        rndindex = time_data.ti_hund;
-#endif // 0
-    }
+    else
+        rndindex = (int)(SDL_GetTicks() % 256);
 }
 
 Sint16 US_RndT()

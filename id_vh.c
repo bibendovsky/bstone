@@ -3,7 +3,7 @@
 #include "ID_HEADS.H"
 
 
-void VL_LatchToScreen(Uint16 source, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
+void VL_LatchToScreen(int source, int width, int height, int x, int y);
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void CalcTics (void);
@@ -203,6 +203,8 @@ void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
 
 Sint16 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
 {
+// FIXME
+#if 0
 	Sint16	x,y,xt1,yt1,xt2,yt2,nextline;
 	Uint8 *mark;
 
@@ -242,6 +244,7 @@ Sint16 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
 
 		mark += nextline;
 	}
+#endif // 0
 
 	return 1;
 }
@@ -262,7 +265,7 @@ void VWB_DrawTile8M (int x, int y, int tile)
 #endif
 
 
-void VWB_DrawPic (Sint16 x, Sint16 y, Sint16 chunknum)
+void VWB_DrawPic(int x, int y, int chunknum)
 {
 	Sint16	picnum = chunknum - STARTPICS;
 	Uint16 width,height;

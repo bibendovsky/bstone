@@ -64,6 +64,7 @@ void OpenAudioFile(void);
 
 extern int _argc;
 extern char** _argv;
+extern SDL_TimerID sys_timer_id;
 
 void SDL_SBSetDMA(Uint8 channel);
 void SDL_SetupDigi(void);
@@ -820,10 +821,22 @@ extern char * US_ParmStrings[];
 extern char * US_ParmStrings2[];
 extern Sint16 USL_HardError(Uint16 errval,Sint16 ax,Sint16 bp,Sint16 si);
 
+// BBi
+Uint32 sys_timer_callback(Uint32 interval, void* param)
+{
+    ++TimeCount;
+    return interval;
+}
+// BBi
+
 void
 US_Startup(void)
 {
 	Sint16	i,n;
+
+    // BBi
+    int sdl_result;
+    // BBi
 
 	if (US_Started)
 		return;
@@ -832,6 +845,21 @@ US_Startup(void)
 #if 0
 	harderr(USL_HardError);	// Install the fatal error handler
 #endif // 0
+
+    // BBi
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+        "SDL: %s", "Initializing timer...");
+
+    sdl_result = SDL_InitSubSystem(SDL_INIT_TIMER);
+
+    if (sdl_result != 0)
+        Quit("%s", SDL_GetError());
+
+    sys_timer_id = SDL_AddTimer(1000 / 70, sys_timer_callback, NULL);
+
+    if (sys_timer_id == 0)
+        Quit("%s", SDL_GetError());
+    // BBi
 
 	US_InitRndT(true);		// Initialize the random number generator
 
@@ -2460,7 +2488,10 @@ void freed_main()
 
 	bufferofs=SCREENSIZE;
 
+// FIXME Enable later
+#if 0
 	PreDemo();
+#endif // 0
 }
 
 

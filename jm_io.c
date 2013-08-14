@@ -10,54 +10,25 @@
 //--------------------------------------------------------------------------
 // IO_FarRead()
 //--------------------------------------------------------------------------
-boolean IO_FarRead (int handle, Uint8 *dest, Sint32 length)
+boolean IO_FarRead(int handle, void* dest, int length)
 {
-	unsigned readlen,nread;
+    int read_result;
 
-	while (length)
-	{
-		if (length > 0xffff)
-			readlen=0xffff;
-		else
-			readlen=length;
+    read_result = read(handle, dest, length);
 
-        nread = read(handle, dest, readlen);
-
-		if (nread != readlen)
-			return(false);
-
-		length -= readlen;
-	}
-
-	return(true);
+    return read_result == length;
 }
 
 //--------------------------------------------------------------------------
 // IO_FarWrite()
 //--------------------------------------------------------------------------
-boolean IO_FarWrite (int handle, Uint8 *source, Sint32 length)
+boolean IO_FarWrite(int handle, const void* source, int length)
 {
-	unsigned writelen,nwritten;
+    int write_result;
 
-	while (length)
-	{
-		if (length > 0xffff)
-			writelen=0xffff;
-		else
-			writelen=length;
+    write_result = write(handle, source, (unsigned)length);
 
-// FIXME
-#if 0
-		_dos_write(handle,source,writelen,&nwritten);
-#endif // 0
-
-		if (nwritten != writelen)
-			return(false);
-
-		length -= writelen;
-	}
-
-	return(true);
+    return write_result == length;
 }
 
 #if DEMOS_EXTERN
@@ -90,7 +61,7 @@ boolean IO_WriteFile(char *filename, void *ptr, Sint32 length)
 //--------------------------------------------------------------------------
 // IO_LoadFile()
 //--------------------------------------------------------------------------
-Sint32 IO_LoadFile (char *filename, void** dst)
+int IO_LoadFile (const char* filename, void** dst)
 {
 	char buffer[5]={0,0,0,0,0};
 	Sint16 handle;
@@ -182,13 +153,13 @@ void IO_CopyFile(char *sFilename, char *dFilename)
 //--------------------------------------------------------------------------
 // IO_CopyHandle()
 //--------------------------------------------------------------------------
-void IO_CopyHandle(int sHandle, Sint16 dHandle, Sint32 num_bytes)
+void IO_CopyHandle(int sHandle, int dHandle, int num_bytes)
 {
 	extern boolean bombonerror;
 
 	#define CF_BUFFER_SIZE 8192
 
-	Sint32 fsize;
+	int fsize;
 	void* src;
 
 	unsigned length;

@@ -2153,7 +2153,7 @@ typedef struct
 	char			weapon_wait;
 	Sint16      	attackframe,attackcount,weaponframe;
 	Sint16      	episode;
-	Sint32     	TimeCount;
+	volatile Uint32     	TimeCount;
 	Sint32     	killx,killy;
 	char 			*msg;					// InfoArea msg...
 	char			numkeys[NUMKEYS],old_numkeys[NUMKEYS];
@@ -2930,7 +2930,7 @@ void	GiveToken (Sint16 tokens);
 void	TakePlasmaDetonator (Sint16 count);		  
 void	GivePlasmaDetonator (Sint16 count);		  
 
-void CacheDrawPic(Sint16 x, Sint16 y, Sint16 pic);	
+void CacheDrawPic(int x, int y, int pic);	
 void LoadTerminalCommands(void);
 
 void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y);
