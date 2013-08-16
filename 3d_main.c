@@ -1,23 +1,10 @@
 // 3D_MAIN.C
 
-#include "3D_DEF.H"
+#include "3d_def.h"
 #pragma hdrstop
-#include <string.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <io.h>
-//#include <mem.h>
-#include <fcntl.h>
-#include <io.h>
-#include <dos.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <ctype.h>
 
-#include "jm_io.h"
-#include "jm_cio.h"
 #include "jm_lzh.h"
-#include "jm_error.h"
+
 
 /*
 =============================================================================
@@ -172,40 +159,54 @@ void CalcSpeedRating()
 ====================
 */
 
-void WriteConfig(void)
+void WriteConfig()
 {
-	Sint16                     file;
+    FILE* stream = NULL;
 
-	MakeDestPath(configname);
-	file = open(tempPath,O_CREAT | O_BINARY | O_WRONLY,
-				S_IREAD | S_IWRITE | S_IFREG);
+    MakeDestPath(configname);
 
-	if (file != -1)
-	{
-		write(file,Scores,sizeof(HighScore) * MaxScores);
+    stream = fopen(tempPath, "wb");
 
-		write(file,&SoundMode,sizeof(SoundMode));
-		write(file,&MusicMode,sizeof(MusicMode));
-		write(file,&DigiMode,sizeof(DigiMode));
+    if (stream != NULL) {
+        int i;
+        Sint16 value_i16;
 
-		write(file,&mouseenabled,sizeof(mouseenabled));
-		write(file,&joystickenabled,sizeof(joystickenabled));
-		write(file,&joypadenabled,sizeof(joypadenabled));
-		write(file,&joystickprogressive,sizeof(joystickprogressive));
-		write(file,&joystickport,sizeof(joystickport));
+        for (i = 0; i < MaxScores; ++i) {
+            HighScore* score = &Scores[i];
 
-		write(file,&dirscan,sizeof(dirscan));
-		write(file,&buttonscan,sizeof(buttonscan));
-		write(file,&buttonmouse,sizeof(buttonmouse));
-		write(file,&buttonjoy,sizeof(buttonjoy));
+            fwrite(score->name, 1, sizeof(score->name), stream);
+            fwrite(&score->score, 1, sizeof(score->score), stream);
+            fwrite(&score->completed, 1, sizeof(score->completed), stream);
+            fwrite(&score->episode, 1, sizeof(score->episode), stream);
+            fwrite(&score->ratio, 1, sizeof(score->ratio), stream);
+        }
 
-		write(file,&viewsize,sizeof(viewsize));
-		write(file,&mouseadjustment,sizeof(mouseadjustment));
+        value_i16 = (Sint16)SoundMode;
+        fwrite(&value_i16, 1, sizeof(value_i16), stream);
 
-		write(file,&gamestate.flags,sizeof(gamestate.flags));		
+        value_i16 = (Sint16)MusicMode;
+        fwrite(&value_i16, 1, sizeof(value_i16), stream);
 
-		close(file);
-	}
+        value_i16 = (Sint16)DigiMode;
+        fwrite(&value_i16, 1, sizeof(value_i16), stream);
+
+        fwrite(&mouseenabled, 1, sizeof(mouseenabled), stream);
+        fwrite(&joystickenabled, 1, sizeof(joystickenabled), stream);
+        fwrite(&joypadenabled, 1, sizeof(joypadenabled), stream);
+        fwrite(&joystickprogressive, 1, sizeof(joystickprogressive), stream);
+        fwrite(&joystickport, 1, sizeof(joystickport), stream);
+
+        fwrite(dirscan, 1, sizeof(dirscan), stream);
+        fwrite(buttonscan, 1, sizeof(buttonscan), stream);
+        fwrite(buttonmouse, 1, sizeof(buttonmouse), stream);
+        fwrite(buttonjoy, 1, sizeof(buttonjoy), stream);
+
+        fwrite(&viewsize, 1, sizeof(viewsize), stream);
+        fwrite(&mouseadjustment, 1, sizeof(mouseadjustment), stream);
+        fwrite(&gamestate.flags, 1, sizeof(gamestate.flags), stream);
+
+        fclose(stream);
+    }
 }
 
 

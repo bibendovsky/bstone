@@ -1566,7 +1566,7 @@ void CAL_SetupMapFile()
 ====================
 */
 
-void ReadConfig(void)
+void ReadConfig()
 {
 	int                     file;
 	SDMode          sd;
