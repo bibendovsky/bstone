@@ -31,7 +31,7 @@
 #define WOLF
 #define FREE_FUNCTIONS					(0)
 #define FREE_DATA							(0)
-#define DEMOS_ENABLED					(1)
+#define DEMOS_ENABLED					(0)
 #define RESTART_PICTURE_PAUSE			(0)
 #define GEORGE_CHEAT						(0)
 

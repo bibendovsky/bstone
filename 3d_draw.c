@@ -463,7 +463,7 @@ exit_func:
 ===================
 */
 
-Sint32           postsource;
+const Uint8* postsource;
 Uint16       postx;
 Uint16       bufx;
 Uint16       postwidth;
@@ -471,6 +471,12 @@ Uint16       postheight;
 Uint8 *     shadingtable;
 extern Uint8 * lightsource;
 
+// BBi
+// A bit mask of planes to draw in.
+int post_planes;
+
+// FIXME
+#if 0
 void   ScalePost (void)      // VGA version
 {
 	Sint16 height;
@@ -529,10 +535,75 @@ void   ScalePost (void)      // VGA version
 		DrawPost();
 		}
 }
+#endif // 0
 
-void  FarScalePost ()				// just so other files can call
+void ScalePost()
 {
-	ScalePost ();
+    Sint16 height;
+    Sint32 i;
+    Uint8 ofs;
+    Uint8 msk;
+
+    height = wallheight[postx] >> 3;
+    postheight = height;
+
+    if ((gamestate.flags & GS_LIGHTING) != 0) {
+        i = shade_max - (63L * (Uint32)height / (Uint32)normalshade);
+
+        if (i < 0)
+            i = 0;
+
+        if (i > 63)
+            i = 63;
+
+        shadingtable = lightsource + (i << 8);
+        bufx = postx >> 2;
+        ofs = ((postx & 3) << 3) + postwidth - 1;
+        post_planes = ((Uint8*)mapmasks1)[ofs];
+        DrawLSPost();
+
+        msk = ((Uint8*)mapmasks2)[ofs];
+        if (msk == 0)
+            return;
+
+        ++bufx;
+        post_planes = msk;
+        DrawLSPost();
+
+        msk = ((Uint8*)mapmasks3)[ofs];
+        if (msk == 0)
+            return;
+
+        ++bufx;
+        post_planes = msk;
+        DrawLSPost();
+    } else {
+        bufx = postx >> 2;
+        ofs = ((postx & 3) << 3) + postwidth - 1;
+        post_planes = ((Uint8*)mapmasks1)[ofs];
+        DrawPost();
+
+        msk = ((Uint8*)mapmasks2)[ofs];
+        if (msk == 0)
+            return;
+
+        ++bufx;
+        post_planes = msk;
+        DrawPost();
+
+        msk = ((Uint8*)mapmasks3)[ofs];
+        if (msk == 0)
+            return;
+
+        ++bufx;
+        post_planes = msk;
+        DrawPost();
+    }
+}
+
+void FarScalePost() // just so other files can call
+{
+    ScalePost();
 }
 
 

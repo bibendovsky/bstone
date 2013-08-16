@@ -82,9 +82,9 @@ void VWB_DrawPic(int x, int y, int chunknum);
 void VWB_DrawMPic(Sint16 x, Sint16 y, Sint16 chunknum);
 void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color);
 
-void VWB_DrawPropString	 (char *string);
-void VW_DrawPropString (char *string);
-void VWB_DrawMPropString (char *string);
+void VWB_DrawPropString(const char* string);
+void VW_DrawPropString(const char* string);
+void VWB_DrawMPropString (const char* string);
 void VWB_DrawSprite (Sint16 x, Sint16 y, Sint16 chunknum);
 void VWB_Plot (Sint16 x, Sint16 y, Sint16 color);
 void VWB_Hlin (Sint16 x1, Sint16 x2, Sint16 y, Sint16 color);

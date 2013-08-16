@@ -20,6 +20,7 @@ void PreloadUpdate(Uint16 current, Uint16 total);
 void ShowViewSize (Sint16 width);
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
 boolean LoadTheGame(Sint16 handle);
+boolean IN_CheckAck();
 
 
 // As is, this switch will not work ... the data associated with this
@@ -3518,6 +3519,9 @@ Sint16 Confirm(char *string)
 			tick^=1;
 			TimeCount=0;
 		}
+
+        // BBi
+        IN_CheckAck();
 	} while(!Keyboard[sc_Y] && !Keyboard[sc_N] && !Keyboard[sc_Escape]);
 
 
@@ -3527,7 +3531,14 @@ Sint16 Confirm(char *string)
 		ShootSnd();
 	}
 
+// BBi
+#if 0
 	while(Keyboard[sc_Y] || Keyboard[sc_N] || Keyboard[sc_Escape]);
+#endif
+
+    while(Keyboard[sc_Y] || Keyboard[sc_N] || Keyboard[sc_Escape])
+        IN_CheckAck();
+// BBi
 
 	IN_ClearKeysDown();
 	SD_PlaySound(whichsnd[xit]);

@@ -2684,7 +2684,7 @@ extern  fixed   viewx,viewy;                    // the focal point
 extern  Sint16             viewangle;
 extern  fixed   viewsin,viewcos;
 
-extern  Sint32            postsource;
+extern  const Uint8* postsource;
 extern  Uint16        postx;
 extern  Uint16        postwidth;
 
@@ -2826,7 +2826,14 @@ void FreeScaleDirectory(void);
 void SetupScaling (Sint16 maxscaleheight);
 void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height);
 void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height);
-void MegaSimpleScaleShape (Sint16 xcenter, Sint16 ycenter, Sint16 shapenum, Uint16 height, Uint16 shade);
+
+void MegaSimpleScaleShape(
+    int xcenter,
+    int ycenter,
+    int shapenum,
+    int height,
+    int shade);
+
 
 /*
 =============================================================================

@@ -513,7 +513,7 @@ void VL_SetPalette(
     int offset = 3 * first;
     int size = 3 * count;
 
-    memmove(&vga_palette[offset], &palette[offset], size);
+    memmove(&vga_palette[offset], palette, size);
 
     glActiveTexture(GL_TEXTURE1);
 
@@ -551,7 +551,7 @@ void VL_GetPalette(
     int offset = 3 * first;
     int size = 3 * count;
 
-    memmove(&palette[offset], &vga_palette[offset], size);
+    memmove(palette, &vga_palette[offset], size);
 }
 
 //===========================================================================
@@ -1476,7 +1476,7 @@ boolean ogl_check_for_and_clear_errors()
 // Just draws a screen texture.
 void ogl_draw_screen()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     SDL_GL_SwapWindow(sdl_window);
 }

@@ -37,7 +37,12 @@ pictabletype   *picmtable;
 Sint16	px,py;
 Uint8	fontcolor,backcolor;
 Sint16	fontnumber;
+
+// FIXME
+#if 0
 Sint16 bufferwidth,bufferheight;
+#endif // 0
+
 boolean allcaps = false;
 
 
@@ -47,65 +52,42 @@ void	VWL_UpdateScreenBlocks (void);
 
 //==========================================================================
 
-void VW_DrawPropString (char *string)
+void VW_DrawPropString (const char* string)
 {
-	fontstruct	*font;
-	Sint16		width,step,height,i;
-	Uint8	*source, *dest, *origdest;
-	Uint8	ch,mask;
+    fontstruct* font;
+    int width;
+    int height;
+    size_t i;
+    size_t string_length;
+    int j;
+    int k;
+    Uint8* source;
+    Uint8 *dest;
+    Uint8 ch;
 
-	font = (fontstruct *)grsegs[STARTFONT+fontnumber];
-	height = bufferheight = font->height;
+    font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+    height = font->height;
 
-    // FIXME
-	dest = origdest = (Uint8*)0xA00000 + bufferofs + ylookup[py] + (px >> 2);
+    dest = &vga_memory[(4 * bufferofs) + (py * vanilla_screen_width) + px];
 
-	mask = 1<<(px&3);
+    string_length = strlen(string);
 
+    for (i = 0; i < string_length; ++i) {
+        ch = string[i];
+        width = font->width[ch];
+        source = ((Uint8*)font) + font->location[ch];
 
-	while ((ch = *string++)!=0)
-	{
-		width = step = font->width[ch];
-		source = ((Uint8 *)font)+font->location[ch];
-		while (width--)
-		{
-			VGAMAPMASK(mask);
+        for (j = 0; j < width; ++j) {
+            for (k = 0; k < height; ++k) {
+                if (source[k * width])
+                    dest[k * vanilla_screen_width] = fontcolor;
+            }
 
-// FIXME
-#if 0
-asm	mov	ah,[BYTE PTR fontcolor]
-asm	mov	bx,[step]
-asm	mov	cx,[height]
-asm	mov	dx,[linewidth]
-asm	lds	si,[source]
-asm	les	di,[dest]
-
-vertloop:
-asm	mov	al,[si]
-asm	or	al,al
-asm	je	next
-asm	mov	[es:di],ah			// draw color
-
-next:
-asm	add	si,bx
-asm	add	di,dx
-asm	loop	vertloop
-asm	mov	ax,ss
-asm	mov	ds,ax
-#endif // 0
-
-			source++;
-			px++;
-			mask <<= 1;
-			if (mask == 16)
-			{
-				mask = 1;
-				dest++;
-			}
-		}
-	}
-bufferheight = height;
-bufferwidth = ((dest+1)-origdest)*4;
+            ++source;
+            ++px;
+            ++dest;
+        }
+    }
 }
 
 
@@ -301,7 +283,11 @@ void VWB_DrawPropString	 (char *string)
 	Sint16 x;
 	x=px;
 	VW_DrawPropString (string);
+
+// BBi
+#if 0
 	VW_MarkUpdateBlock(x,py,px-1,py+bufferheight-1);
+#endif // 0
 }
 
 
@@ -466,6 +452,7 @@ boolean FizzleFade(
     boolean abortable)
 {
     int pixperframe;
+    int remain_pixels;
     Uint16 x;
     Uint16 y;
     int p;
@@ -479,6 +466,7 @@ boolean FizzleFade(
     y = 0;
     rndval = 1;
     pixperframe = 64000 / frames;
+    remain_pixels = 64000 - (frames * pixperframe);
     src_offset = 4 * source;
     dst_offset = 4 * dest;
 
@@ -492,7 +480,9 @@ boolean FizzleFade(
         if (abortable && IN_CheckAck())
             return true;
 
-        for (p = 0; p < pixperframe; ++p) {
+        for (p = 0; p < pixperframe + remain_pixels; ++p) {
+            remain_pixels = 0;
+
             x = (rndval >> 8) & 0xFFFF;
             y = ((rndval & 0xFF) - 1) & 0xFF;
 

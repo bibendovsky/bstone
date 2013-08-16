@@ -702,14 +702,14 @@ void TP_WrapText()
 //
 	scan_x = cur_x;
 	scan_ch = first_ch;
-	while ((scan_x+ch_width(*scan_ch) <= xh) && (*scan_ch) &&
+	while (((Uint16)(scan_x)+(Uint16)(ch_width(*scan_ch)) <= xh) && (*scan_ch) &&
 			 (*scan_ch != TP_RETURN_CHAR) && (*scan_ch != TP_CONTROL_CHAR))
 		scan_x += ch_width(*scan_ch++);
 
 // If 'text extends beyond right margin', scan backwards for
 // a SPACE
 //
-	if (scan_x+ch_width(*scan_ch) > xh)
+	if ((Uint16)scan_x+(Uint16)(ch_width(*scan_ch)) > xh)
 	{
 		Sint16 last_x = scan_x;
 		char *last_ch = scan_ch;
@@ -951,7 +951,7 @@ void TP_HandleCodes()
 						break;
 					}
 				}
-				cur_x += ((xh-cur_x+1)-length)/2;
+				cur_x += (Uint16)((xh-cur_x+1)-length)/2;
 				flags |= fl_center;
 
 				if (pi->flags & TPF_SHOW_CURSOR)
@@ -1547,7 +1547,7 @@ Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 			bufferofs += (y-30)*SCREENWIDTH;
 			postx = x;
 			postwidth = 1;
-			postsource = ((Sint32)((Uint16)addr))<<16;
+			postsource = (const Uint8*)addr;
 			for (x=0;x<64;x++,postx++,postsource+=64)
 			{
 				wallheight[postx] = 256;

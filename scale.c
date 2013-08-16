@@ -10,9 +10,10 @@
 extern Uint32 dc_iscale;
 extern Uint32 dc_frac;
 extern Uint16 dc_source;
-extern Uint16 dc_seg;
+extern Uint8* dc_seg;
 extern Uint16 dc_length;
 extern Uint16 dc_dest;
+extern int dc_plane;
 
 extern Uint8* shadingtable;
 
@@ -29,13 +30,9 @@ static void generic_draw_column(DrawMode draw_mode)
     Uint8 pixel;
     Sint32 fraction = dc_frac;
 
-    // FIXME
-    Uint8* source = (Uint8*)dc_seg + dc_source;
-
-    Uint16 screen_offset = dc_dest;
-
-    // FIXME
-    Uint8* screen = (Uint8*)0xA0000;
+    Uint8* source = dc_seg + dc_source;
+    int screen_offset = dc_dest;
+    Uint8* screen = vga_memory;
 
     for (i = 0; i < dc_length; ++i) {
         Uint8 pixel_index = source[fraction >> 16];
@@ -45,7 +42,7 @@ static void generic_draw_column(DrawMode draw_mode)
         else
             pixel = pixel_index;
 
-        screen[screen_offset] = pixel;
+        screen[(4 * screen_offset) + dc_plane] = pixel;
 
         screen_offset += SCREENWIDTH;
         fraction += dc_iscale;
@@ -61,12 +58,13 @@ void R_DrawSLSColumn()
 {
     Uint16 i;
     Uint16 screen_offset = dc_dest;
-    Uint8* screen = (Uint8*)0xA0000;
+    Uint8* screen = vga_memory;
 
     for (i = 0; i < dc_length; ++i) {
-        Uint8 pixel_index = screen[screen_offset];
+        int offset = (4 * screen_offset) + dc_plane;
+        Uint8 pixel_index = screen[offset];
         Uint8 pixel = shadingtable[0x1000 | pixel_index];
-        screen[screen_offset] = pixel;
+        screen[offset] = pixel;
         screen_offset += SCREENWIDTH;
     }
 }
