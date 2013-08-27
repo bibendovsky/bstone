@@ -670,7 +670,7 @@ static void in_handle_keyboard(const SDL_KeyboardEvent* e)
     if (key == sc_None)
         return;
 
-    key_mod = e->keysym.mod;
+    key_mod = SDL_GetModState();
 
     switch (key) {
     case sc_Alt:
