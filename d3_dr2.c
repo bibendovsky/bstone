@@ -287,7 +287,7 @@ vertentry:
             xt = xtile;
             yint_h = (Sint16)(yintercept >> 16);
         } else {
-            xintercept = (Sint32)xt << 16;    
+            xintercept = (Sint32)xt << 16;
             xtile = xt;
 
             yintercept &= 0xFFFF;

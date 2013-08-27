@@ -141,15 +141,18 @@ void VL_MungePic (Uint8 *source, unsigned width, unsigned height)
 
 #endif
 
-void VWL_MeasureString (char *string, Uint16 *width, Uint16 *height
-	, fontstruct *font)
+void VWL_MeasureString(
+    const char* string,
+    Uint16* width,
+    Uint16* height,
+    fontstruct* font)
 {
 	*height = font->height;
 	for (*width = 0;*string;string++)
-		*width += font->width[*((Uint8 *)string)];	// proportional width
+		*width += font->width[*((const Uint8*)string)];	// proportional width
 }
 
-void	VW_MeasurePropString (char *string, Uint16 *width, Uint16 *height)
+void	VW_MeasurePropString (const char* string, Uint16* width, Uint16* height)
 {
 	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONT+fontnumber]);
 }
@@ -278,7 +281,7 @@ void VWB_DrawMPic (Sint16 x, Sint16 y, Sint16 chunknum)
 }
 
 
-void VWB_DrawPropString	 (char *string)
+void VWB_DrawPropString(const char* string)
 {
 	Sint16 x;
 	x=px;

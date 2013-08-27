@@ -141,7 +141,12 @@ void jsprintf(char *msg, ...);
 #define MAX_BARRIER_SWITCHES	  		40	 // max number level wall switches
 
 
+// FIXME
+#if 0
 #define SLIDE_TEMP(obj)				((Uint16)obj->hitpoints)
+#endif // 0
+
+#define SLIDE_TEMP(obj) (&objlist[obj->hitpoints])
 
 //
 // M_BASE1 - represents 100 percent in 1st base
@@ -1998,7 +2003,12 @@ typedef struct objstruct
 	Uint16 viewheight;
 	fixed transx,transy;    // in global coord
 
+    // FIXME
+    // In original code it also used to store a 16-bit pointer to attacker.
+    // Since our code is at least 32-bit we are using an index of actor.
+    // TODO: Fix loading/saving game state.
 	Sint16 hitpoints;
+
 	Uint8 ammo;
    char lighting;
 	Uint16 linc;

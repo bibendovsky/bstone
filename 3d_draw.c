@@ -158,6 +158,12 @@ boolean cloaked_shape = false;
 void AsmRefresh (void);					// in 3D_DR_A.ASM
 void NoWallAsmRefresh (void);			// in 3D_DR_A.ASM
 
+
+// BBi
+static int last_texture_offset = -1;
+static const Uint8* last_texture_data = NULL;
+
+
 /*
 ============================================================================
 
@@ -181,9 +187,7 @@ void NoWallAsmRefresh (void);			// in 3D_DR_A.ASM
 ========================
 */
 
-#pragma warn -rvl			// I stick the return value in with ASMs
-
-fixed FixedByFrac (fixed a, fixed b)
+fixed FixedByFrac(fixed a, fixed b)
 {
 // FIXME
 #if 0
@@ -226,10 +230,27 @@ asm	sbb	dx,0
 ansok:;
 #endif // 0
 
-    return 0;
-}
+    int b_sign;
+    Uint32 ub;
+    Sint32 fracs;
+    Sint32 ints;
+    Sint32 result;
 
-#pragma warn +rvl
+    b_sign = (b < 0) ? -1 : 1;
+
+    if (b_sign < 0) {
+        a = -a;
+        b_sign = -b_sign;
+    }
+
+    ub = (Uint32)b & 0xFFFF;
+    fracs = (((Uint32)a & 0xFFFF) * ub) >> 16;
+    ints = (a >> 16) * ub;
+    result = ints + fracs;
+    result *= b_sign;
+
+    return result;
+}
 
 //==========================================================================
 
@@ -261,6 +282,8 @@ void TransformActor (objtype *ob)
 	Sint16 ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
 	Sint32	temp;
+    Sint32 q;
+    Sint32 r;
 
 //
 // translate point to view centered coordinates
@@ -310,6 +333,10 @@ void TransformActor (objtype *ob)
 	asm	mov	[WORD PTR temp+2],dx
 #endif // 0
 
+    q = (heightnumerator / (nx >> 8)) & 0xFFFF;
+    r = (heightnumerator % (nx >> 8)) & 0xFFFF;
+    temp = (r << 16) | q;
+
 	ob->viewheight = temp;
 }
 
@@ -340,6 +367,8 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 	Sint16 ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
 	Sint32	temp;
+    Sint32 q;
+    Sint32 r;
 
 //
 // translate point to view centered coordinates
@@ -385,6 +414,10 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 	asm	mov	[WORD PTR temp+2],dx
 #endif // 0
 
+    q = (heightnumerator / (nx >> 8)) & 0xFFFF;
+    r = (heightnumerator % (nx >> 8)) & 0xFFFF;
+    temp = (r << 16) | q;
+
 	*dispheight = temp;
 
 //
@@ -411,14 +444,13 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 ====================
 */
 
-#pragma warn -rvl			// I stick the return value in with ASMs
-
-Sint16	CalcHeight (void)
+Sint16 CalcHeight()
 {
 	Sint16	transheight;
 	Sint16 	ratio;
 	fixed gxt,gyt,nx,ny;
 	Sint32	gx,gy;
+    Sint16 result;
 
 	gx = xintercept-viewx;
 	gxt = FixedByFrac(gx,viewcos);
@@ -447,7 +479,12 @@ Sint16	CalcHeight (void)
 exit_func:
 #endif // 0
 
-   return 0;
+    result = (Sint16)(heightnumerator / (nx >> 8));
+
+    if (result < 8)
+        result = 8;
+
+   return result;
 }
 
 
@@ -559,10 +596,10 @@ void ScalePost()
         shadingtable = lightsource + (i << 8);
         bufx = postx >> 2;
         ofs = ((postx & 3) << 3) + postwidth - 1;
-        post_planes = ((Uint8*)mapmasks1)[ofs];
+        post_planes = ((const Uint8*)mapmasks1)[ofs];
         DrawLSPost();
 
-        msk = ((Uint8*)mapmasks2)[ofs];
+        msk = ((const Uint8*)mapmasks2)[ofs];
         if (msk == 0)
             return;
 
@@ -570,7 +607,7 @@ void ScalePost()
         post_planes = msk;
         DrawLSPost();
 
-        msk = ((Uint8*)mapmasks3)[ofs];
+        msk = ((const Uint8*)mapmasks3)[ofs];
         if (msk == 0)
             return;
 
@@ -580,10 +617,10 @@ void ScalePost()
     } else {
         bufx = postx >> 2;
         ofs = ((postx & 3) << 3) + postwidth - 1;
-        post_planes = ((Uint8*)mapmasks1)[ofs];
+        post_planes = ((const Uint8*)mapmasks1)[ofs];
         DrawPost();
 
-        msk = ((Uint8*)mapmasks2)[ofs];
+        msk = ((const Uint8*)mapmasks2)[ofs];
         if (msk == 0)
             return;
 
@@ -591,7 +628,7 @@ void ScalePost()
         post_planes = msk;
         DrawPost();
 
-        msk = ((Uint8*)mapmasks3)[ofs];
+        msk = ((const Uint8*)mapmasks3)[ofs];
         if (msk == 0)
             return;
 
@@ -668,7 +705,13 @@ void HitVertWall (void)
 	if (lastside==1 && lastintercept == xtile && lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
+
+// FIXME
+#if 0
 		if (texture == (Uint16)postsource && postwidth < 8)
+#endif // 0
+
+        if (texture == last_texture_offset && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -678,7 +721,15 @@ void HitVertWall (void)
 		else
 		{
 			ScalePost ();
+
+// FIXME
+#if 0
 			(Uint16)postsource = texture;
+#endif // 0
+
+            last_texture_offset = texture;
+            postsource = &last_texture_data[last_texture_offset];
+
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -712,8 +763,15 @@ void HitVertWall (void)
 		else
 			wallpic = vertwall[tilehit];
 
+// FIXME
+#if 0
 		*(((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
 		(Uint16)postsource = texture;
+#endif // 0
+
+        last_texture_data = (const Uint8*)PM_GetPage(wallpic);
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 	}
 }
 
@@ -744,7 +802,13 @@ void HitHorizWall (void)
 	if (lastside==0 && lastintercept == ytile && lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
+
+// FIXME
+#if 0
 		if (texture == (Uint16)postsource && postwidth < 8)
+#endif // 0
+
+        if (texture == last_texture_offset && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -754,7 +818,15 @@ void HitHorizWall (void)
 		else
 		{
 			ScalePost ();
+
+// FIXME
+#if 0
 			(Uint16)postsource = texture;
+#endif // 0
+
+            last_texture_offset = texture;
+            postsource = &last_texture_data[last_texture_offset];
+
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -788,9 +860,15 @@ void HitHorizWall (void)
 		else
 			wallpic = horizwall[tilehit];
 
-
+// FIXME
+#if 0
 		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
 		(Uint16)postsource = texture;
+#endif // 0
+
+        last_texture_data = (const Uint8*)PM_GetPage(wallpic);
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 	}
 
 }
@@ -833,7 +911,11 @@ void HitHorizDoor (void)
 	{
 		// in the same door as last time, so check for optimized draw
 
+// FIXME
+#if 0
 		if (texture == (Uint16)postsource && postwidth < 8)
+#endif // 0
+        if (texture == last_texture_offset && postwidth < 8)
 		{
 			// wide scale
 
@@ -848,7 +930,14 @@ void HitHorizDoor (void)
 #else
 			ScalePost ();
 #endif
+
+// FIXME
+#if 0
 			(Uint16)postsource = texture;
+#endif // 0
+            last_texture_offset = texture;
+            postsource = &last_texture_data[last_texture_offset];
+
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -930,9 +1019,15 @@ void HitHorizDoor (void)
 		if (lockable && doorobjlist[doornum].lock == kt_none)
 			doorpage += UL_METAL;
 
-
+// FIXME
+#if 0
 		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(doorpage);
 		(Uint16)postsource = texture;
+#endif // 0
+
+        last_texture_data = (const Uint8*)PM_GetPage(doorpage);
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 	}
 }
 
@@ -973,7 +1068,12 @@ void HitVertDoor (void)
 	if (lasttilehit == tilehit)
 	{
 	// in the same door as last time, so check for optimized draw
+// FIXME
+#if 0
 		if (texture == (Uint16)postsource && postwidth < 8)
+#endif // 0
+
+        if (texture == last_texture_offset && postwidth < 8)
 		{
 			// wide scale
 
@@ -988,7 +1088,15 @@ void HitVertDoor (void)
 #else
 			ScalePost ();
 #endif
+
+// FIXME
+#if 0
 			(Uint16)postsource = texture;
+#endif // 0
+
+            last_texture_offset = texture;
+            postsource = &last_texture_data[last_texture_offset];
+
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1071,8 +1179,15 @@ void HitVertDoor (void)
 		if (lockable && doorobjlist[doornum].lock == kt_none)
 			doorpage += UL_METAL;
 
+// FIXME
+#if 0
 		*(((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(doorpage);
 		(Uint16)postsource = texture;
+#endif // 0
+
+        last_texture_data = (const Uint8*)PM_GetPage(doorpage);
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 	}
 }
 
@@ -1108,7 +1223,12 @@ void HitHorizPWall (void)
 	if (lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
+// FIXME
+#if 0
 		if (texture == (Uint16)postsource && postwidth < 8)
+#endif // 0
+
+        if (texture == last_texture_offset && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -1118,7 +1238,15 @@ void HitHorizPWall (void)
 		else
 		{
 			ScalePost ();
+
+// FIXME
+#if 0
 			(Uint16)postsource = texture;
+#endif // 0
+
+            last_texture_offset = texture;
+            postsource = &last_texture_data[last_texture_offset];
+
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1135,10 +1263,16 @@ void HitHorizPWall (void)
 
 		wallpic = horizwall[tilehit&63];
 
+// FIXME
+#if 0
 		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
 		(Uint16)postsource = texture;
-	}
+#endif // 0
 
+        last_texture_data = (const Uint8*)PM_GetPage(wallpic);
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
+	}
 }
 
 
@@ -1172,7 +1306,12 @@ void HitVertPWall (void)
 	if (lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
+// FIXME
+#if 0
 		if (texture == (Uint16)postsource && postwidth < 8)
+#endif // 0
+
+        if (texture == last_texture_offset && postwidth < 8)
 		{
 		// wide scale
 			postwidth++;
@@ -1182,7 +1321,15 @@ void HitVertPWall (void)
 		else
 		{
 			ScalePost ();
+
+// FIXME
+#if 0
 			(Uint16)postsource = texture;
+#endif // 0
+
+            last_texture_offset = texture;
+            postsource = &last_texture_data[last_texture_offset];
+
 			postwidth = 1;
 			postx = pixx;
 		}
@@ -1199,8 +1346,15 @@ void HitVertPWall (void)
 
 		wallpic = vertwall[tilehit&63];
 
+// FIXME
+#if 0
 		*( ((Uint16 *)&postsource)+1) = (Uint16)PM_GetPage(wallpic);
 		(Uint16)postsource = texture;
+#endif // 0
+
+        last_texture_data = (const Uint8*)PM_GetPage(wallpic);
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 	}
 
 }
@@ -1903,6 +2057,8 @@ asm	mov	cx,2048							// 64*64 / 2
 asm	rep stosw
 #endif // 0
 
+    memset(spotvis, 0, sizeof(spotvis));
+
 #ifndef PAGEFLIP
 	bufferofs = displayofs = screenloc[0];
 #endif
@@ -2017,6 +2173,9 @@ asm	rep stosw
 	NextBuffer();
 #endif
 
+    // BBi
+    VL_RefreshScreen();
+
 	frameon++;
 }
 
@@ -2127,7 +2286,18 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 
 	fixed dx,dy,psin,pcos,lmx,lmy,baselmx,baselmy,xinc,yinc;
 	Sint16 rx,ry,mx,my;
+
+// FIXME
+#if 0
 	Uint8 *dstptr,*basedst,mask,startmask;
+#endif // 0
+
+    int dstptr;
+    int basedst;
+    Uint8 mask;
+    Uint8 startmask;
+    int i;
+
 	boolean drawplayerok=true;
 	Uint8 rndindex;
 	boolean snow=false;
@@ -2172,7 +2342,12 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 // Calculate starting destination address.
 //
     // FIXME
+#if 0
 	basedst=(Uint8*) 0xA0000 + bufferofs + ylookup[by] + (bx >> 2);
+#endif // 0
+
+    basedst = bufferofs + ylookup[by] + (bx >> 2);
+
 	switch (zoom)
 	{
 		case 1:
@@ -2188,7 +2363,11 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 			mask = startmask = 15;
 		break;
 	}
+
+// FIXME
+#if 0
 	VGAMAPMASK(mask);
+#endif // 0
 
 // Draw rotated radar.
 //
@@ -2287,6 +2466,8 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 nextx:;
 		// Display pixel for this quadrant and add x/y increments
 		//
+// FIXME
+#if 0
 			*dstptr = color;
 			dstptr += 80;
 
@@ -2304,6 +2485,41 @@ nextx:;
 					dstptr += 80;
 				}
 			}
+#endif // 0
+
+            for (i = 0; i < 4; ++i) {
+                if ((mask & (1 << i)) != 0)
+                    vga_memory[(4 * dstptr) + i] = color;
+            }
+
+            dstptr += 80;
+
+            // handle 2x zoom
+            if (zoom > 1) {
+                for (i = 0; i < 4; ++i) {
+                    if ((mask & (1 << i)) != 0)
+                        vga_memory[(4 * dstptr) + i] = color;
+                }
+
+                dstptr += 80;
+
+                // handle 4x zoom
+                if (zoom > 2) {
+                    for (i = 0; i < 4; ++i) {
+                        if ((mask & (1 << i)) != 0)
+                            vga_memory[(4 * dstptr) + i] = color;
+                    }
+
+                    dstptr += 80;
+
+                    for (i = 0; i < 4; ++i) {
+                        if ((mask & (1 << i)) != 0)
+                            vga_memory[(4 * dstptr) + i] = color;
+                    }
+
+                    dstptr += 80;
+                }
+            }
 
 			lmx += xinc;
 			lmy += yinc;
@@ -2318,8 +2534,15 @@ nextx:;
 			mask=startmask;
 			basedst++;
 		}
+
+// FIXME
+#if 0
 		VGAMAPMASK(mask);
+#endif // 0
 	}
 
+// FIXME
+#if 0
 	VGAMAPMASK(15);
+#endif // 0
 }

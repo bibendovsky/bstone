@@ -166,6 +166,8 @@ void NewState (objtype *ob, statetype *state)
 ==================================
 */
 
+// FIXME
+#if 0
 #define CHECKDIAG(x,y)								\
 {                                                   \
 	temp=(Uint16)actorat[x][y];                   \
@@ -179,7 +181,25 @@ void NewState (objtype *ob, statetype *state)
 	if (ElevatorFloor(x,y))							\
 		return(false);                         \
 }
+#endif // 0
 
+#define CHECKDIAG(x,y) \
+{ \
+    size_t temp; \
+    temp = (size_t)actorat[x][y]; \
+    if (temp != 0) { \
+        if (temp < 256) \
+            return false; \
+        if ((((objtype*)temp)->flags & FL_SOLID) != 0) \
+            return false; \
+    } \
+    if (ElevatorFloor(x,y)) \
+        return false; \
+}
+
+
+// FIXME
+#if 0
 #define CHECKSIDE(x,y)								\
 {                                                   \
 	temp=(Uint16)actorat[x][y];                   \
@@ -197,6 +217,24 @@ void NewState (objtype *ob, statetype *state)
 			return false;                           \
 	}                                               \
 }
+#endif // 0
+
+#define CHECKSIDE(x,y) \
+{ \
+    size_t temp; \
+    temp = (size_t)actorat[x][y]; \
+    if (temp != 0) { \
+        if (temp < 128) \
+            return false; \
+        if (temp < 256) { \
+            doornum = temp & 63; \
+            if (doorobjlist[doornum].lock != kt_none) \
+                return false; \
+        } else if ((((objtype*)temp)->flags & FL_SOLID) != 0) \
+            return false; \
+    } \
+}
+
 
 boolean TryWalk (objtype *ob, boolean moveit)
 {
@@ -370,7 +408,6 @@ boolean TryWalk (objtype *ob, boolean moveit)
 //
 	if (doornum != -1)
 	{
-#pragma warn -rch
 		switch (ob->obclass)
 		{
 		// Actors that don't open doors.
@@ -390,7 +427,6 @@ boolean TryWalk (objtype *ob, boolean moveit)
 				return true;
 			break;
 		}
-#pragma warn +rch
 	}
 
 	ob->areanumber=GetAreaNumber(ob->tilex,ob->tiley);
@@ -1029,14 +1065,12 @@ void KillActor (objtype *ob)
 				PlaceItemType(bo_clip2,tilex,tiley);
 	break;
 
-#pragma warn -rch
 	case electroobj:
 		NewState(ob,&s_electro_die1);
 		eaList[ob->temp2].aliens_out--;
 		ob->obclass = nothing;
 		actorat[ob->tilex][ob->tiley] = NULL;
 	break;
-#pragma warn +rch
 
 	case liquidobj:
 		NewState (ob,&s_liquid_die1);
@@ -1302,7 +1336,13 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 
 		}
 
+// FIXME
+#if 0
 		SLIDE_TEMP(ob) = (Uint16)attacker;
+#endif // 0
+
+        ob->hitpoints = (Sint16)(attacker - objlist);
+
 		KillActor (ob);
 		return;
 	}
@@ -1928,7 +1968,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case gurney_waitobj:
-#pragma warn -pia
 		if (ob->temp3)
 		{
 			if (ob->temp2 = (Uint16)CheckAndReserve())
@@ -1939,7 +1978,6 @@ void FirstSighting (objtype *ob)
 			else
 				return;
 		}
-#pragma warn +pia
 		break;
 
 	case proguardobj:
@@ -2487,7 +2525,6 @@ void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay)
 			smart = true;
 		break;
 
-#pragma warn -rch
 		case electrosphereobj:
 			if (!ob->s_tilex)
 				GetCornerSeek(ob);
@@ -2495,10 +2532,8 @@ void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay)
 			*deltay = ob->s_tiley - ob->tiley;
 			return;
 		break;
-#pragma warn +rch
 	}
 
-#pragma warn -pia
 // Should actor run away (chase static) or chase player?
 //
 	if ((smart) && (whyrun=CheckRunChase(ob)))
@@ -2536,7 +2571,6 @@ void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay)
 		*deltax = player->tilex - ob->tilex;
 		*deltay = player->tiley - ob->tiley;
 	}
-#pragma warn +pia
 }
 
 //--------------------------------------------------------------------------

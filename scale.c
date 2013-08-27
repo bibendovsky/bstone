@@ -13,7 +13,7 @@ extern Uint16 dc_source;
 extern Uint8* dc_seg;
 extern Uint16 dc_length;
 extern Uint16 dc_dest;
-extern int dc_plane;
+extern int dc_planes;
 
 extern Uint8* shadingtable;
 
@@ -27,6 +27,7 @@ typedef enum {
 static void generic_draw_column(DrawMode draw_mode)
 {
     Uint16 i;
+    int j;
     Uint8 pixel;
     Sint32 fraction = dc_frac;
 
@@ -42,7 +43,10 @@ static void generic_draw_column(DrawMode draw_mode)
         else
             pixel = pixel_index;
 
-        screen[(4 * screen_offset) + dc_plane] = pixel;
+        for (j = 0; j < 4; ++j) {
+            if ((dc_planes & (1 << j)) != 0)
+                screen[(4 * screen_offset) + j] = pixel;
+        }
 
         screen_offset += SCREENWIDTH;
         fraction += dc_iscale;
@@ -57,14 +61,20 @@ void R_DrawColumn()
 void R_DrawSLSColumn()
 {
     Uint16 i;
+    int j;
     Uint16 screen_offset = dc_dest;
     Uint8* screen = vga_memory;
 
     for (i = 0; i < dc_length; ++i) {
-        int offset = (4 * screen_offset) + dc_plane;
-        Uint8 pixel_index = screen[offset];
-        Uint8 pixel = shadingtable[0x1000 | pixel_index];
-        screen[offset] = pixel;
+        for (j = 0; j < 4; ++j) {
+            if ((dc_planes & (1 << j)) != 0) {
+                int offset = (4 * screen_offset) + j;
+                Uint8 pixel_index = screen[offset];
+                Uint8 pixel = shadingtable[0x1000 | pixel_index];
+                screen[offset] = pixel;
+            }
+        }
+
         screen_offset += SCREENWIDTH;
     }
 }

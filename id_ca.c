@@ -17,8 +17,6 @@ loaded into the data segment
 #include "ID_HEADS.H"
 #pragma hdrstop
 
-#pragma warn -pro
-#pragma warn -use
 
 
 boolean IO_FarRead (Sint16 handle, Uint8 *dest, Sint32 length);
@@ -40,7 +38,10 @@ boolean IO_FarRead (Sint16 handle, Uint8 *dest, Sint32 length);
 =============================================================================
 */
 
-Uint8 		*tinf;
+// FIXME
+//Uint8 		*tinf;
+Uint16 rlew_tag;
+
 Sint16			mapon;
 
 Uint16	*mapsegs[MAPPLANES];
@@ -857,6 +858,26 @@ asm	jb	expand
 asm	mov	ax,ss
 asm	mov	ds,ax
 #endif // 0
+
+
+    Uint16 i;
+    Uint16 value;
+    Uint16 count;
+    const Uint16* end = &dest[length / 2];
+
+    do {
+        value = *source++;
+
+        if (value != rlewtag)
+            *dest++ = value;
+        else {
+            count = *source++;
+            value = *source++;
+
+            for (i = 0; i < count; ++i)
+                *dest++ = value;
+        }
+    } while (dest < end);
 }
 
 
@@ -1269,7 +1290,7 @@ void CA_CacheMap (Sint16 mapnum)
 {
 	Sint32	pos,compressed;
 	Sint16		plane;
-	void** dest;
+	Uint16** dest;
     void* bigbufferseg;
 	Uint16	size;
 	Uint16	*source;
@@ -1294,7 +1315,7 @@ void CA_CacheMap (Sint16 mapnum)
 		pos = mapheaderseg[mapnum]->planestart[plane];
 		compressed = mapheaderseg[mapnum]->planelength[plane];
 
-		dest = &(void*)mapsegs[plane];
+		dest = &mapsegs[plane];
 
 		lseek(maphandle,pos,SEEK_SET);
 		if (compressed<=BUFFERSIZE)
@@ -1326,7 +1347,7 @@ void CA_CacheMap (Sint16 mapnum)
 		// unRLEW, skipping expanded length
 		//
 		CA_RLEWexpand (source+1, *dest,size,
-		((mapfiletype *)tinf)->RLEWtag);
+		rlew_tag);
 #endif
 
 		if (compressed>BUFFERSIZE) {

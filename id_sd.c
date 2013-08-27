@@ -38,7 +38,6 @@
 #include "ID_HEADS.H"
 #endif
 #pragma	hdrstop
-#pragma	warn	-pia
 
 #ifdef	nil
 #undef	nil
@@ -212,7 +211,6 @@ static	Uint16			sqMode,sqFadeStep;
 //	SDL_SetTimer0() - Sets system timer 0 to the specified speed
 //
 ///////////////////////////////////////////////////////////////////////////
-#pragma	argsused
 static void
 SDL_SetTimer0(Uint16 speed)
 {

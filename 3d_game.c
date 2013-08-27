@@ -371,7 +371,6 @@ memset(numEnemy,0,sizeof(numEnemy));
 			else
 				scan_value = 0xffff;
 
-#pragma warn -rch
 			switch (tilehi)
 			{
 
@@ -496,8 +495,6 @@ memset(numEnemy,0,sizeof(numEnemy));
 						continue;
 				break;
 			}
-
-#pragma warn +rch
 
 			//
 			// SPECIAL SPAWN CODING FOR BLASTABLE CRATES...
@@ -2217,7 +2214,12 @@ void SetupGameLevel (void)
 					break;
 
 					default:
+// FIXME
+#if 0
 						(Uint16)actorat[x][y] = tile;
+#endif // 0
+
+                        *((size_t*)(&actorat[x][y])) = tile;
 					break;
 				}
 
@@ -2419,7 +2421,12 @@ void SetupGameLevel (void)
 				case LINC_TILE:
 				case CLOAK_AMBUSH_TILE:
 					tilemap[x][y] = 0;
+// FIXME
+#if 0
 					if ( (Uint16)actorat[x][y] == AMBUSHTILE)
+#endif // 0
+
+                    if ((size_t)actorat[x][y] == AMBUSHTILE)
 						actorat[x][y] = NULL;
 					*(map-1) = GetAreaNumber(x,y);
             break;
@@ -3490,10 +3497,8 @@ strcat (str,str2);							// defined in 3d_main.c
 
 		case ex_victorious:
 			MainMenu[MM_SAVE_MISSION].active=AT_DISABLED;
-#pragma warn -sus
 			 MainMenu[MM_VIEW_SCORES].routine=&CP_ViewScores;
 			strcpy(MainMenu[MM_VIEW_SCORES].string,"HIGH SCORES");
-#pragma warn +sus
 
 			if (playstate==ex_victorious)
 			{

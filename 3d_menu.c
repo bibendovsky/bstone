@@ -21,6 +21,7 @@ void ShowViewSize (Sint16 width);
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
 boolean LoadTheGame(Sint16 handle);
 boolean IN_CheckAck();
+void in_handle_events();
 
 
 // As is, this switch will not work ... the data associated with this
@@ -97,8 +98,6 @@ CP_iteminfo
 
 
 
-#pragma warn -sus
-
 CP_itemtype MainMenu[]=
 {
 	{AT_ENABLED,"NEW MISSION",CP_NewGame,COAL_FONT},
@@ -158,8 +157,6 @@ SwitchMenu[]=
  {AT_ENABLED,"SHOW FLOORS",0}
 },
 
-
-#pragma warn +sus
 
 #if 0
 NewEmenu[]=
@@ -504,10 +501,8 @@ void US_ControlPanel(Uint8 scancode)
  //
  if (startgame || loadedgame)
  {
-  #pragma warn -sus
   MainMenu[MM_VIEW_SCORES].routine = NULL;
   strcpy(MainMenu[MM_VIEW_SCORES].string,"END GAME");
-  #pragma warn +sus
  }
 
  if (ingame && loadedgame)
@@ -2103,12 +2098,8 @@ boolean TestForValidKey(ScanCode Scan)
 {
 	char *pos;
 
-#pragma warn -pia
-
 	if (!(pos = memchr(buttonscan,Scan,sizeof(buttonscan))))
   		pos = memchr(dirscan,Scan,sizeof(dirscan));
-
-#pragma warn +pia
 
 	if (pos)
    {
@@ -2194,6 +2185,9 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 			   if (type==KEYBOARDBTNS||type==KEYBOARDMOVE)
 			      IN_ClearKeysDown();
+
+               // BBi
+               in_handle_events();
 
 			   //
 			   // FLASH CURSOR
@@ -2292,10 +2286,8 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 					SD_PlaySound(NOWAYSND);
 				else
    	      {
-#pragma warn -pia
       	   	if (clean_display = TestForValidKey(LastScan))
 						ShootSnd();
-#pragma warn +pia
 
 					buttonscan[order[which]]=LastScan;
 					picked=1;
@@ -2315,10 +2307,8 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 					SD_PlaySound(NOWAYSND);
 				else
 	         {
-#pragma warn -pia
    	      	if (clean_display = TestForValidKey(LastScan))
 						ShootSnd();
-#pragma warn +pia
 
 					dirscan[moveorder[which]]=LastScan;
 					picked=1;

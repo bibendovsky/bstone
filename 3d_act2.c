@@ -1338,9 +1338,7 @@ objtype *MoveHiddenOfs(classtype which_class, classtype new_class, fixed x, fixe
 {
 	objtype *obj;
 
-#pragma warn -pia
 	if (obj=FindHiddenOfs(which_class))
-#pragma warn +pia
 	{
 		obj->obclass = new_class;
 		obj->x = x;
@@ -1906,7 +1904,14 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
 	Uint16	mapx,mapy,newwall;
 	Uint16 icon,num;
    Uint8 *tile;
+
+// FIXME
+#if 0
    Uint16 *actor;
+#endif // 0
+
+    size_t* actor;
+
    barrier_type *barrier;
 
 
@@ -1929,7 +1934,13 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
 #if UPDATE_OTHER_SWITCHES
 
 		tile = (Uint8 *)tilemap;
+
+// FIXME
+#if 0
       actor = (Uint16 *)actorat;
+#endif // 0
+
+        actor = (size_t*)actorat;
 
 		for (mapx=0;mapx<MAPSIZE;mapx++)
 			for (mapy=0;mapy<MAPSIZE;mapy++)
@@ -2106,9 +2117,7 @@ Sint16 CheckAndConnect(char x,char y, Uint16 code)
 			}
 			break;
 		}
-#pragma warn -pia
 	} while (ob = ob->next);
-#pragma warn +pia
 
 	return(bars_connected);
 }
@@ -3456,7 +3465,12 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 #if IN_DEVELOPMENT
 	if (new->obclass!=blakeobj)
 	{
+// FIXME
+#if 0
 		if ((Uint16)actorat[new->tilex][new->tiley] == 1)
+#endif // 0
+
+        if ((size_t)actorat[new->tilex][new->tiley] == 1)
 			Quit("Actor spawned toward a solid static at %d %d",oldx,oldy);
 
 		if (GetAreaNumber(new->tilex,new->tiley) >= NUMAREAS)
@@ -5317,9 +5331,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 		for (y=yl;y<=yh;y++)
 			for (x=xl;x<=xh;x++)
 			{
-#pragma warn -pia
 				if (proj_check = actorat[x][y])
-#pragma warn +pia
 					if (proj_check < objlist)
 					{
 						if (proj_check == (objtype *)1 && tilemap[x][y] == 0)
@@ -5397,7 +5409,6 @@ void T_Projectile(objtype *ob)
 
 // Did movement hit anything solid.
 //
-#pragma warn -rch
 
 	proj_check=false;
 
@@ -5521,7 +5532,6 @@ BlowIt:
 			break;
 		}
 	}
-#pragma warn +rch
 
 // Determine if object hit player.
 //
@@ -5974,15 +5984,25 @@ void T_BlowBack(objtype *obj)
 
 	   obj->angle = CalcAngle(killer,obj);
 
+// FIXME
+#if 0
 	   if ((killer = (objtype *)SLIDE_TEMP(obj)) == player)
 		   SLIDE_TEMP(obj) = dist_table[gamestate.weapon];
 	   else
 		   SLIDE_TEMP(obj) = dist_table[wp_grenade];
+#endif // 0
+
+       if ((killer = SLIDE_TEMP(obj)) == player)
+           *((size_t*)SLIDE_TEMP(obj)) = dist_table[gamestate.weapon];
+       else
+           *((size_t*)SLIDE_TEMP(obj)) = dist_table[wp_grenade];
 
       obj->flags |= FL_SLIDE_INIT;
    }
 
 
+// FIXME
+#if 0
    if (SLIDE_TEMP(obj) > SLIDE_SPEED)
    {
    	dist = SLIDE_SPEED;
@@ -5992,6 +6012,15 @@ void T_BlowBack(objtype *obj)
    {
    	dist = SLIDE_TEMP(obj);
       obj->flags |= FL_NO_SLIDE;		// Stop any more sliding
+   }
+#endif // 0
+
+   if ((size_t)SLIDE_TEMP(obj) > SLIDE_SPEED) {
+       dist = SLIDE_SPEED;
+       *((size_t*)(SLIDE_TEMP(obj))) -= SLIDE_SPEED;
+   } else {
+       dist = (size_t)SLIDE_TEMP(obj);
+       obj->flags |= FL_NO_SLIDE;		// Stop any more sliding
    }
 
 	deltax =  FixedByFrac(dist, costable[obj->angle]);		// Optomize - Store in actor

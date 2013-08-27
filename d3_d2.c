@@ -24,9 +24,11 @@ extern Sint16 mr_xstep;
 extern Sint16 mr_ystep;
 extern Sint16 mr_xfrac;
 extern Sint16 mr_yfrac;
-extern Sint16 mr_dest;
+extern int mr_dest;
+extern int mr_plane;
 
 extern Uint8* shadingtable;
+extern Uint8* vga_memory;
 
 
 Uint8 planepics[8192]; // 4k of ceiling, 4k of floor
@@ -37,7 +39,7 @@ static void generic_map_row(
     ShadingOptions shading_options)
 {
     Sint16 i;
-    Sint16 dest;
+    int dest;
     Sint16 count;
     Sint16 rowofs;
     Uint32 xy;
@@ -47,6 +49,7 @@ static void generic_map_row(
     Uint8 ceiling_index;
     Uint8 flooring_index;
     Uint8* screen;
+    int screen_offset;
 
     rowofs = mr_rowofs;
     count = mr_count;
@@ -59,8 +62,7 @@ static void generic_map_row(
 
     dest = mr_dest;
 
-    // FIXME
-    //screen = MK_FP(0xA000, 0x0000);
+    screen = vga_memory;
 
     for (i = 0; i < count; ++i) {
         xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
@@ -73,22 +75,24 @@ static void generic_map_row(
             draw_options == DO_CEILING_AND_FLOORING)
         {
             ceiling_index = planepics[pics_index + 0];
+            screen_offset = (4 * dest) + mr_plane;
 
             if (shading_options == SO_DEFAULT)
-                screen[dest] = shadingtable[ceiling_index];
+                screen[screen_offset] = shadingtable[ceiling_index];
             else
-                screen[dest] = ceiling_index;
+                screen[screen_offset] = ceiling_index;
         }
 
         if (draw_options == DO_FLOORING ||
             draw_options == DO_CEILING_AND_FLOORING)
         {
             flooring_index = planepics[pics_index + 1];
+            screen_offset = (4 * (dest + rowofs)) + mr_plane;
 
             if (shading_options == SO_DEFAULT)
-                screen[dest + rowofs] = shadingtable[flooring_index];
+                screen[screen_offset] = shadingtable[flooring_index];
             else
-                screen[dest + rowofs] = flooring_index;
+                screen[screen_offset] = flooring_index;
         }
 
         ++dest;

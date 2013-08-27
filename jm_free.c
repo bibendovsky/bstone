@@ -59,9 +59,6 @@ void OpenAudioFile(void);
 
 #endif
 
-#pragma warn -pro
-#pragma warn -use
-
 extern int _argc;
 extern char** _argv;
 extern SDL_TimerID sys_timer_id;
@@ -1497,6 +1494,7 @@ void CAL_SetupMapFile()
 
     close(handle);
 
+    rlew_tag = header.RLEWtag;
 
     //
     // open the data file
@@ -1750,7 +1748,6 @@ extern int  CheckIs386(void);
 		IsA386 = false;
 }
 
-#pragma warn -rvl
 
 #if 0
 
@@ -1791,7 +1788,6 @@ asm	retf
 
 #endif
 
-#pragma warn +rvl
 
 #define CHECK_FOR_EPISODES
 

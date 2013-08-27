@@ -685,13 +685,11 @@ void TP_WrapText()
 {
 	flags &= ~fl_startofline;
 
-#pragma warn -pia
 	if (stemp=TP_LineCommented(first_ch))
 	{
 		first_ch += stemp;
 		return;
 	}
-#pragma warn +pia
 
 // Parse script until one of the following:
 //
@@ -1321,8 +1319,6 @@ void TP_HandleCodes()
 
 				old_first_ch = first_ch+2;
 
-#pragma warn -pia
-
 				if (first_ch = (char *)piStringTable[disp_str_num])
 				{
 					while (flags & fl_presenting && *first_ch)
@@ -1331,8 +1327,6 @@ void TP_HandleCodes()
 						else
 							TP_WrapText();
 				}
-
-#pragma warn +pia
 
 				first_ch = old_first_ch;
 			}
@@ -1766,10 +1760,8 @@ void TP_CachePage(char *script)
 
 	while (!end_of_page)
 	{
-#pragma warn -pia
 		while (stemp=TP_LineCommented(script))
 			script += stemp;
-#pragma warn +pia
 
 		switch (*script++)
 		{
@@ -1991,7 +1983,6 @@ boolean TP_SlowPrint(char *str, char delay)
 //--------------------------------------------------------------------------
 Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache)
 {
-#pragma warn -pia
 	Sint32 size;
 
 	if (id_cache)
@@ -2022,7 +2013,6 @@ Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache)
 	TP_InitScript(pi);
 
 	return(size);
-#pragma warn +pia
 }
 
 //-------------------------------------------------------------------------
@@ -2053,14 +2043,12 @@ void TP_InitScript(PresenterInfo *pi)
 	pi->numpages = 1;		// Assume at least 1 page
 	while (*script)
 	{
-#pragma warn -pia
 		while (stemp=TP_LineCommented(script))
 		{
 			script += stemp;
 			if (!*script)
 				goto end_func;
 		}
-#pragma warn +pia
 
 		switch (*script++)
 		{

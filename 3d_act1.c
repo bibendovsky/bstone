@@ -314,7 +314,13 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 	switch (statinfo[type].type)
 	{
 		case block:
+// FIXME
+#if 0
 			(Uint16)actorat[tilex][tiley] = 1;		// consider it a blocking tile
+#endif // 0
+
+            // consider it a blocking tile
+            *((size_t*)(&actorat[tilex][tiley])) = 1;
 		break;
 
 		case	bo_red_key:
@@ -784,8 +790,13 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 		lastdoorobj->areanumber[1]=GetAreaNumber(tilex,tiley+1);
 	}
 
-
+// FIXME
+#if 0
 	(Uint16)actorat[tilex][tiley] = doornum | 0x80;	// consider it a solid wall
+#endif // 0
+
+    // consider it a solid wall
+    *((size_t*)(&actorat[tilex][tiley])) = doornum | 0x80;
 
 //
 // make the door tile a special tile, and mark the adjacent tiles
@@ -993,8 +1004,14 @@ void CloseDoor (Sint16 door)
 //
 // make the door space solid
 //
+
+// FIXME
+#if 0
 	(Uint16)actorat[tilex][tiley]
 		= door | 0x80;
+#endif // 0
+
+    *((size_t*)(&actorat[tilex][tiley])) = door | 0x80;
 
 	CheckLinkedDoors(door,dr_closing);
 
@@ -1198,8 +1215,6 @@ void DropPlasmaDetonator(void)
 {
 	objtype *obj;
 
-#pragma warn -pia
-
 	if (obj = MoveHiddenOfs(plasma_detonator_reserveobj,plasma_detonatorobj,player->x,player->y))
 	{
    	obj->flags |= FL_SHOOTABLE;
@@ -1209,8 +1224,6 @@ void DropPlasmaDetonator(void)
       TakePlasmaDetonator(1);
       return;
 	}
-
-#pragma warn +pia
 
 	ACT1_ERROR(NO_DOORBOMB_SPARES);
 }
@@ -1412,8 +1425,14 @@ void DoorClosing (Sint16 door)
 	tilex = doorobjlist[door].tilex;
 	tiley = doorobjlist[door].tiley;
 
+// FIXME
+#if 0
 	if ( ((Uint16)actorat[tilex][tiley] != (door | 0x80))
 	|| (player->tilex == tilex && player->tiley == tiley) )
+#endif // 0
+
+	if (((size_t)actorat[tilex][tiley] != (door | 0x80)) ||
+        (player->tilex == tilex && player->tiley == tiley))
 	{			// something got inside the door
 		OpenDoor (door);
 		return;
@@ -1538,8 +1557,16 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		{
 			return;
 		}
+
+// FIXME
+#if 0
 		(Uint16)actorat[checkx][checky-1] =
 		tilemap[checkx][checky-1] = oldtile;
+#endif // 0
+
+        *((size_t*)(&actorat[checkx][checky-1])) =
+            tilemap[checkx][checky-1] = oldtile;
+
 		break;
 
 	case di_east:
@@ -1547,8 +1574,16 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		{
 			return;
 		}
+
+// FIXME
+#if 0
 		(Uint16)actorat[checkx+1][checky] =
 		tilemap[checkx+1][checky] = oldtile;
+#endif // 0
+
+        *((size_t*)(&actorat[checkx+1][checky])) =
+            tilemap[checkx+1][checky] = oldtile;
+
 		break;
 
 	case di_south:
@@ -1556,8 +1591,16 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		{
 			return;
 		}
+
+// FIXME
+#if 0
 		(Uint16)actorat[checkx][checky+1] =
 		tilemap[checkx][checky+1] = oldtile;
+#endif // 0
+
+        *((size_t*)(&actorat[checkx][checky+1])) =
+            tilemap[checkx][checky+1] = oldtile;
+
 		break;
 
 	case di_west:
@@ -1565,8 +1608,16 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		{
 			return;
 		}
+
+// FIXME
+#if 0
 		(Uint16)actorat[checkx-1][checky] =
 		tilemap[checkx-1][checky] = oldtile;
+#endif // 0
+
+        *((size_t*)(&actorat[checkx-1][checky])) =
+            tilemap[checkx-1][checky] = oldtile;
+
 		break;
 	}
 
@@ -1614,7 +1665,14 @@ void MovePWalls (void)
 		// the tile can now be walked into
 		//
 		tilemap[pwallx][pwally] = 0;
+
+// FIXME
+#if 0
 		(Uint16)actorat[pwallx][pwally] = 0;
+#endif // 0
+
+        actorat[pwallx][pwally] = NULL;
+
 		areanumber=GetAreaNumber(player->tilex,player->tiley);
 		if (GAN_HiddenArea)
 			areanumber += HIDDENAREATILE;
@@ -1644,8 +1702,15 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
+
+// FIXME
+#if 0
 				(Uint16)actorat[pwallx][pwally-1] =
 				tilemap[pwallx][pwally-1] = oldtile;
+#endif // 0
+
+                *((size_t*)(&actorat[pwallx][pwally - 1])) =
+                    tilemap[pwallx][pwally - 1] = oldtile;
 				break;
 
 			case di_east:
@@ -1655,8 +1720,15 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
+
+// FIXME
+#if 0
 				(Uint16)actorat[pwallx+1][pwally] =
 				tilemap[pwallx+1][pwally] = oldtile;
+#endif // 0
+
+                *((size_t*)(&actorat[pwallx+1][pwally])) =
+                    tilemap[pwallx+1][pwally] = oldtile;
 				break;
 
 			case di_south:
@@ -1666,8 +1738,15 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
+
+// FIXME
+#if 0
 				(Uint16)actorat[pwallx][pwally+1] =
 				tilemap[pwallx][pwally+1] = oldtile;
+#endif // 0
+
+                *((size_t*)(&actorat[pwallx][pwally+1])) =
+                    tilemap[pwallx][pwally+1] = oldtile;
 				break;
 
 			case di_west:
@@ -1677,8 +1756,15 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
+
+// FIXME
+#if 0
 				(Uint16)actorat[pwallx-1][pwally] =
 				tilemap[pwallx-1][pwally] = oldtile;
+#endif // 0
+
+                *((size_t*)(&actorat[pwallx-1][pwally])) =
+                    tilemap[pwallx-1][pwally] = oldtile;
 				break;
 			}
 
@@ -1786,7 +1872,6 @@ Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen
 
 // Search for end of MsgNum-1 (Start of our message)
 //
-#pragma warn -pia
 	while (--MsgNum)
 	{
 		if (!(Message = strstr(Message,int_xx)))
@@ -1794,7 +1879,6 @@ Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen
 
 		Message += 3;	// Bump to start of next Message
 	}
-#pragma warn +pia
 
 // Move past LFs and CRs that follow "^XX"
 //
@@ -1936,7 +2020,13 @@ void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinety
 //
 	if (++ConHintList.NumMsgs > MAX_CACHE_MSGS)
 		ACT1_ERROR(SPAWNCON_CACHE_MSG_OVERFLOW);
+
+// FIXME
+#if 0
 	(Uint16)actorat[tilex][tiley] = ConHintList.NumMsgs;
+#endif // 0
+
+    *((size_t*)(&actorat[tilex][tiley])) = ConHintList.NumMsgs;
 
 //
 // BORLAND SCREWS UP WHEN COMPILING THE LINE BELOW, EVEN THOUGH

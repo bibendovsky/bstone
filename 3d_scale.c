@@ -202,7 +202,8 @@ unsigned dc_length;
 unsigned dc_dest;
 
 // BBi
-int dc_plane;
+// A mask of planes to draw in.
+int dc_planes = 1;
 
 #define SFRACUNIT 0x10000
 
@@ -319,7 +320,7 @@ void ScaleMaskedLSPost(int height, int buf)
 
     end = (*(srcpost++)) >> 1;
     for ( ; end != 0; ) {
-        dc_source=*srcpost++;
+        dc_source = *srcpost++;
 
         start = (*srcpost++) >> 1;
 
@@ -400,20 +401,24 @@ void ScaleMaskedWideLSPost(int height, int buf, Uint16 xx, Uint16 pwidth)
 
     buf += xx >> 2;
     ofs = ((Uint8)(xx & 3) << 3) + (Uint8)pwidth - 1;
-    //outp(SC_INDEX+1,(Uint8)*((Uint8 *)mapmasks1+ofs));
+    dc_planes = ((Uint8*)mapmasks1)[ofs];
     ScaleMaskedLSPost(height, buf);
-    msk = (Uint8)*((Uint8*)mapmasks2 + ofs);
-    if (msk==0)
+    msk = ((Uint8*)mapmasks2)[ofs];
+
+    if (msk == 0)
         return;
-    buf++;
-    //outp(SC_INDEX+1,msk);
-    ScaleMaskedLSPost(height,buf);
-    msk=(Uint8)*((Uint8 *)mapmasks3+ofs);
-    if (msk==0)
+
+    ++buf;
+    dc_planes = msk;
+    ScaleMaskedLSPost(height, buf);
+    msk = ((Uint8*)mapmasks3)[ofs];
+
+    if (msk == 0)
         return;
-    buf++;
-    //outp(SC_INDEX+1,msk);
-    ScaleMaskedLSPost(height,buf);
+
+    ++buf;
+    dc_planes = msk;
+    ScaleMaskedLSPost(height, buf);
 }
 
 /*
@@ -423,6 +428,9 @@ void ScaleMaskedWideLSPost(int height, int buf, Uint16 xx, Uint16 pwidth)
 =
 =======================
 */
+
+// FIXME
+#if 0
 void ScaleMaskedPost (Sint16 height, Uint16 buf)
 {
 	Sint16  length;
@@ -479,6 +487,66 @@ void ScaleMaskedPost (Sint16 height, Uint16 buf)
 		}
 
 }
+#endif // 0
+
+void ScaleMaskedPost(Sint16 height, Uint16 buf)
+{
+    Sint16  length;
+    Uint16 end;
+    Uint16 start;
+    Sint32 sprtopoffset;
+    Sint32 topscreen;
+    Sint32 bottomscreen;
+    Uint32 screenstep;
+    Sint32 dc_yl,dc_yh;
+    Uint16 * srcpost;
+
+    fixed bounce;
+
+    if (useBounceOffset)
+        bounce = bounceOffset;
+    else
+        bounce = 0;
+
+    srcpost = linecmds;
+    dc_iscale = (64U * 65536U) / (Uint32)height;
+    screenstep = ((Uint32)height) << 10;
+
+    sprtopoffset = ((Sint32)viewheight << 15) - ((Sint32)height << 15) + (bounce >> 1);
+    //dc_seg = (Uint8*)srcpost;
+
+    end = (*srcpost++) >> 1;
+
+    for ( ; end != 0; ) {
+        dc_source = *srcpost++;
+        start = (*srcpost++) >> 1;
+        dc_source += start;
+        dc_source %= 65536;
+        length = end - start;
+        topscreen = sprtopoffset + (Sint32)(screenstep * (Sint32)start);
+        bottomscreen = topscreen + (Sint32)(screenstep * (Sint32)length);
+        dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
+        dc_yh = (bottomscreen - 1) >> 16;
+
+        if (dc_yh >= viewheight)
+            dc_yh = viewheight - 1;
+
+        if (dc_yl < 0) {
+            dc_frac = dc_iscale * (-dc_yl);
+            dc_yl = 0;
+        } else
+            dc_frac = 0;
+
+        if (dc_yl <= dc_yh) {
+            dc_dest = buf + ylookup[(Uint16)dc_yl];
+            dc_length = (Uint16)(dc_yh - dc_yl + 1);
+            R_DrawColumn();
+        }
+
+        end=(*srcpost++) >> 1;
+    }
+}
+
 
 
 /*
@@ -488,6 +556,9 @@ void ScaleMaskedPost (Sint16 height, Uint16 buf)
 =
 =======================
 */
+
+// FIXME
+#if 0
 void ScaleMaskedWidePost (Sint16 height, Uint16 buf, Uint16 xx, Uint16 pwidth)
 {
 	Uint8  ofs;
@@ -511,7 +582,35 @@ void ScaleMaskedWidePost (Sint16 height, Uint16 buf, Uint16 xx, Uint16 pwidth)
 	outp(SC_INDEX+1,msk);
 	ScaleMaskedPost(height,buf);
 }
+#endif // 0
 
+void ScaleMaskedWidePost(Sint16 height, Uint16 buf, Uint16 xx, Uint16 pwidth)
+{
+    Uint8 ofs;
+    Uint8 msk;
+    Uint16 ii;
+
+    buf += (Uint16)xx >> 2;
+    ofs = ((Uint8)(xx & 3) << 3) + (Uint8)pwidth - 1;
+    dc_planes = ((Uint8*)mapmasks1)[ofs];
+    ScaleMaskedPost(height, buf);
+    msk = ((Uint8*)mapmasks2)[ofs];
+
+    if (msk == 0)
+        return;
+
+    ++buf;
+    dc_planes = msk;
+    ScaleMaskedPost(height, buf);
+    msk = ((Uint8*)mapmasks3)[ofs];
+
+    if (msk == 0)
+        return;
+
+    ++buf;
+    dc_planes = msk;
+    ScaleMaskedPost(height, buf);
+}
 
 
 /*
@@ -556,8 +655,17 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 
 	if ((height>>1>maxscaleshl2)||(!(height>>1)))
 		return;
-	shape = PM_GetSpritePage (shapenum);
+	shape = (t_compshape*)PM_GetSpritePage(shapenum);
+
+// FIXME
+#if 0
 	*(((Uint16 *)&linecmds)+1)=(Uint16)shape;		// seg of shape
+#endif // 0
+
+    dc_seg = (Uint8*)shape;
+
+    dc_planes = 1;
+
 	xscale=(Uint32)height<<12;
 	xcent=(Sint32)((Sint32)xcenter<<20)-((Sint32)height<<17)+0x80000;
 //
@@ -603,8 +711,15 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 				{
 				if (lastcolumn>=0)
 					{
+// FIXME
+#if 0
 					(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
 					ScaleMaskedWideLSPost(height>>2,(Uint16)bufferofs,(Uint16)startx,width);
+#endif // 0
+
+                    linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+                    ScaleMaskedWideLSPost(height >> 2, bufferofs, (Uint16)startx, width);
+
 					width=1;
 					lastcolumn=-1;
 					}
@@ -622,8 +737,15 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 				{
 				if (lastcolumn>=0)
 					{
+// FIXME
+#if 0
 					(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
 					ScaleMaskedWideLSPost(height>>2,(Uint16)bufferofs,(Uint16)startx,width);
+#endif // 0
+
+                    linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+                    ScaleMaskedWideLSPost(height >> 2, bufferofs, (Uint16)startx, width);
+
 					width=1;
 					startx=x1;
 					lastcolumn=texturecolumn;
@@ -638,8 +760,14 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 			}
 		if (lastcolumn!=-1)
 			{
+// FIXME
+#if 0
 			(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
 			ScaleMaskedWideLSPost(height>>2,bufferofs,(Uint16)startx,width);
+#endif // 0
+
+                linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+                ScaleMaskedWideLSPost(height >> 2, bufferofs, (Uint16)startx, width);
 			}
 		}
 	else
@@ -648,11 +776,25 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 		  {
 			if (wallheight[x1]>height)
 				continue;
+
+// FIXME
+#if 0
 			outp(SC_INDEX+1,1<<(Uint8)(x1&3));
+#endif // 0
+
+            dc_planes = 1 << (Uint8)(x1 & 3);
+
 			texturecolumn=frac>>20;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
+
+// FIXME
+#if 0
 			(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)texturecolumn];
+#endif // 0
+
+            linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)texturecolumn]];
+
 			ScaleMaskedLSPost(height>>2,bufferofs+((Uint16)x1>>2));
 			}
 		}
@@ -701,8 +843,17 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
 	if ((height>>1>maxscaleshl2)||(!(height>>1)))
 		return;
-	shape = PM_GetSpritePage (shapenum);
+	shape = (t_compshape*)PM_GetSpritePage(shapenum);
+
+// FIXME
+#if 0
 	*(((Uint16 *)&linecmds)+1)=(Uint16)shape;		// seg of shape
+#endif // 0
+
+    dc_seg = (Uint8*)shape;
+
+    dc_planes = 1;
+
 	xscale=(Uint32)height<<12;
 	xcent=(Sint32)((Sint32)xcenter<<20)-((Sint32)height<<(17))+0x80000;
 //
@@ -738,8 +889,15 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 				{
 				if (lastcolumn>=0)
 					{
+// FIXME
+#if 0
 					(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
 					ScaleMaskedWidePost(height>>2,(Uint16)bufferofs,(Uint16)startx,width);
+#endif // 0
+
+                    linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+                    ScaleMaskedWidePost(height >> 2, bufferofs, (Uint16)startx, width);
+
 					width=1;
 					lastcolumn=-1;
 					}
@@ -757,8 +915,15 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 				{
 				if (lastcolumn>=0)
 					{
+// FIXME
+#if 0
 					(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
 					ScaleMaskedWidePost(height>>2,(Uint16)bufferofs,(Uint16)startx,width);
+#endif // 0
+
+                    linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+                    ScaleMaskedWidePost(height >> 2, bufferofs, (Uint16)startx, width);
+
 					width=1;
 					startx=x1;
 					lastcolumn=texturecolumn;
@@ -773,8 +938,14 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 			}
 		if (lastcolumn!=-1)
 			{
+// FIXME
+#if 0
 			(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
 			ScaleMaskedWidePost(height>>2,bufferofs,(Uint16)startx,width);
+#endif // 0
+
+            linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+            ScaleMaskedWidePost(height >> 2, bufferofs, (Uint16)startx, width);
 			}
 		}
 	else
@@ -783,11 +954,25 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 		  {
 			if (wallheight[x1]>height)
 				continue;
+
+// FIXME
+#if 0
 			outp(SC_INDEX+1,1<<(Uint8)(x1&3));
+#endif // 0
+
+            dc_planes = 1 << (Uint8)(x1 & 3);
+
 			texturecolumn=frac>>20;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
+
+// FIXME
+#if 0
 			(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)texturecolumn];
+#endif // 0
+
+            linecmds = (Uint16*)&((Uint8*)shape)[(Uint16)texturecolumn];
+
 			ScaleMaskedPost(height>>2,bufferofs+((Uint16)x1>>2));
 			}
 		}
@@ -835,8 +1020,17 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 	Sint32     xcent;
 	Uint16 swidth;
 
-	shape = PM_GetSpritePage (shapenum);
+	shape = (t_compshape*)PM_GetSpritePage (shapenum);
+
+// FIXME
+#if 0
 	*(((Uint16 *)&linecmds)+1)=(Uint16)shape;		// seg of shape
+#endif // 0
+
+    dc_seg = (Uint8*)shape;
+
+    dc_planes = 1;
+
 	xscale=(Uint32)height<<10;
 	xcent=(Sint32)((Sint32)xcenter<<16)-((Sint32)height<<(15))+0x8000;
 //
@@ -880,7 +1074,13 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 				{
 				if (lastcolumn>=0)
 					{
+// FIXME
+#if 0
 					(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
+#endif // 0
+
+                    linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+
 					ScaleMaskedWidePost(height,bufferofs,startx,width);
 					width=1;
 					startx=x1;
@@ -895,7 +1095,13 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 			}
 		if (lastcolumn!=-1)
 			{
+// FIXME
+#if 0
 			(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)lastcolumn];
+#endif // 0
+
+            linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)lastcolumn]];
+
 			ScaleMaskedWidePost(height,bufferofs,startx,width);
 			}
 		}
@@ -903,11 +1109,24 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 		{
 		for (; x1<=x2 ; x1++, frac += screenscale)
 		  {
+// FIXME
+#if 0
 			outp(SC_INDEX+1,1<<(x1&3));
+#endif // 0
+
+            dc_planes = 1 << (x1 & 3);
+
 			texturecolumn=frac>>16;
 			if (texturecolumn>swidth)
 				texturecolumn=swidth;
+
+// FIXME
+#if 0
 			(Uint16)linecmds=(Uint16)shape->dataofs[(Uint16)texturecolumn];
+#endif // 0
+
+            linecmds = (Uint16*)&((Uint8*)shape)[shape->dataofs[(Uint16)texturecolumn]];
+
 			ScaleMaskedPost(height,bufferofs+(x1>>2));
 			}
 		}
@@ -1056,14 +1275,15 @@ void MegaSimpleScaleShape(
     int swidth;
 
 
+    dc_planes = 1;
+
     old_bufferofs = bufferofs;
     ycenter -=34;
     bufferofs -= ((viewheight - 64) >> 1) * SCREENBWIDE;
     bufferofs += SCREENBWIDE * ycenter;
 
-    shape = PM_GetSpritePage(shapenum);
+    shape = (t_compshape*)PM_GetSpritePage(shapenum);
     dc_seg = (Uint8*)shape;
-    dc_plane = 0;
     xscale=(Uint32)height << 14;
     xcent = (xcenter << 20) - (height << 19) + 0x80000;
 
@@ -1125,12 +1345,12 @@ void MegaSimpleScaleShape(
         }
 
         if (lastcolumn != -1) {
-            linecmds = &((Uint16*)shape)[shape->dataofs[lastcolumn]];
+            linecmds = (Uint16*)(&((Uint8*)shape)[shape->dataofs[lastcolumn]]);
             ScaleMaskedWideLSPost(height, bufferofs, startx, width);
         }
     } else {
         for ( ; x1 <= x2; ++x1, frac += screenscale) {
-            dc_plane = x1 & 3;
+            dc_planes = 1 << (x1 & 3);
 
             texturecolumn = frac >> 20;
 

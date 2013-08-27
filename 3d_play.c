@@ -23,6 +23,7 @@ void MoveDoors (void);
 void MovePWalls (void);
 void ConnectAreas (void);
 void UpdateSoundLoc(void);
+void in_handle_events();
 
 
 /*
@@ -476,6 +477,8 @@ void PollControls (void)
 //
 	CalcTics ();
 
+    // BBi
+    in_handle_events();
 //
 // get button states
 //
@@ -1627,7 +1630,6 @@ void DoActor (objtype *ob)
 	if (ob->flags & FL_FREEZE)
 		return;
 
-#pragma warn -pia
 	if (ob->flags & FL_BARRIER)
 	{
 		actor = actorat[ob->tilex][ob->tiley];
@@ -1658,7 +1660,6 @@ void DoActor (objtype *ob)
 			if (actor)
 				actor->flags &= ~FL_BARRIER_DAMAGE;
 	}
-#pragma warn +pia
 
 	if (!ob->active && !areabyplayer[ob->areanumber])
 		return;

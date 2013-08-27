@@ -52,7 +52,10 @@ typedef struct
 
 extern	char		audioname[13];
 
-extern	Uint8 		*tinf;
+// FIXME
+//extern	Uint8 		*tinf;
+extern Uint16 rlew_tag;
+
 extern	Sint16			mapon;
 
 extern	Uint16	*mapsegs[MAPPLANES];

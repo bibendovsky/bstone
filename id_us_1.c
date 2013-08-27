@@ -30,7 +30,6 @@
 
 #pragma	hdrstop
 
-#pragma	warn	-pia
 
 
 // BBi
@@ -61,8 +60,8 @@ boolean		US_Started;
 					CursorBad;
 		Sint16			CursorX,CursorY;
 
-		void		(*USL_MeasureString)(char *,Uint16 *,Uint16 *) = VW_MeasurePropString,
-					(*USL_DrawString)(char *) = VWB_DrawPropString;
+		void		(*USL_MeasureString)(const char*, Uint16*, Uint16*) = VW_MeasurePropString,
+					(*USL_DrawString)(const char*) = VWB_DrawPropString;
 
 		SaveGame	Games[MaxSaveGames];
 
@@ -90,8 +89,6 @@ boolean		US_Started;
 //			from DOS.
 //
 ///////////////////////////////////////////////////////////////////////////
-#pragma	warn	-par
-#pragma	warn	-rch
 Sint16
 USL_HardError(Uint16 errval,Sint16 ax,Sint16 bp,Sint16 si)
 {
@@ -174,8 +171,6 @@ oh_kill_me:
 
     return 2;
 }
-#pragma	warn	+par
-#pragma	warn	+rch
 
 ///////////////////////////////////////////////////////////////////////////
 //

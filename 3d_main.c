@@ -545,8 +545,6 @@ char mod;
 	//  Re-Establish links to barrier switches
 	//
 
-#pragma warn -pia
-
 	ob = objlist;
 	do
 	{
@@ -560,8 +558,6 @@ char mod;
 			break;
 		}
 	} while (ob = ob->next);
-
-#pragma warn +pia
 
 	ConnectBarriers();
 
@@ -751,8 +747,6 @@ exit_func:;
     return false;
 }
 
-#pragma warn -pia
-
 //--------------------------------------------------------------------------
 // DeleteChunk()
 //--------------------------------------------------------------------------
@@ -796,8 +790,6 @@ Sint32 DeleteChunk(Sint16 handle, char *chunk)
 
 	return(cksize);
 }
-
-#pragma warn +pia
 
 
 
@@ -891,7 +883,6 @@ boolean LoadTheGame(Sint16 handle)
 	if ((shandle=open(tempPath,O_CREAT|O_RDWR|O_TRUNC|O_BINARY,S_IREAD|S_IWRITE))==-1)
 		goto cleanup;
 
-#pragma warn -pia
 	while (cksize=NextChunk(handle))
 	{
 		cksize += 8;								// include chunk ID and LENGTH
@@ -901,7 +892,6 @@ boolean LoadTheGame(Sint16 handle)
 		IO_FarWrite(shandle,temp,cksize);	// write chunk to PLAYTEMP file
 		free(temp);						// free temp buffer
 	}
-#pragma warn +pia
 
 	close(shandle);
 	rt_value=true;
@@ -1179,7 +1169,14 @@ void ClearNClose()
 
 		doorobjlist[doornum].action = dr_closed;		// this door is closed!
 		doorposition[doornum]=0;							// draw it closed!
+
+// FIXME
+#if 0
 		(Uint16)actorat[tx][ty] = doornum | 0x80;	// make it solid!
+#endif // 0
+
+        // make it solid!
+        *((size_t*)(&actorat[tx][ty])) = doornum | 0x80;
 	}
 }
 

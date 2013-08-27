@@ -1334,10 +1334,8 @@ boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint
 		else
 			LastMsgPri = Priority;
 
-#pragma warn -pia
 		if (MsgTicsRemain = DisplayTime)
 			StatusAllDrawPic(0,40,BRI_LIGHTPIC);
-#pragma warn +pia
 
 		gamestate.msg = Msg;
 
@@ -2227,8 +2225,6 @@ boolean TryMove (objtype *ob)
 //
 // check for solid walls
 //
-#pragma warn -pia
-
 
 	for (y=yl;y<=yh;y++)
 		for (x=xl;x<=xh;x++)
@@ -2237,8 +2233,6 @@ boolean TryMove (objtype *ob)
 				if ((check < objlist) || (check->flags & FL_FAKE_STATIC))
 					return(false);
 		}
-
-#pragma warn +pia
 
 //
 // check for actors....
@@ -2451,8 +2445,6 @@ void Thrust (Sint16 angle, Sint32 speed)
 
 extern Sint16 an_offset[];
 
-#pragma warn -pia
-
 boolean GAN_HiddenArea;
 
 //------------------------------------------------------------------------
@@ -2502,10 +2494,6 @@ char GetAreaNumber(char tilex, char tiley)
 	return(areanumber);
 }
 
-#pragma warn +pia
-
-#pragma warn -rch
-#pragma warn -rvl
 
 //------------------------------------------------------------------------
 // ValidAreaTile()
@@ -2534,8 +2522,6 @@ Uint8 ValidAreaTile(Uint16 *ptr)
 	return(0);
 }
 
-#pragma warn +rch
-#pragma warn +rvl
 
 /*
 =============================================================================
@@ -2702,7 +2688,12 @@ void Cmd_Use (void)
 
 			case FOODTILE:
 			case SODATILE:
+// FIXME
+#if 0
 				OperateConcession((Sint16)actorat[checkx][checky]);
+#endif // 0
+
+                OperateConcession((size_t)actorat[checkx][checky]);
 			break;
 
 			default:
@@ -5126,10 +5117,8 @@ boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean F
          }
 			else
          {
-#pragma warn -pia
          	if (stat = FindStatic(tilex,tiley))
             	WhatItIs = wit_STATIC;
-#pragma warn +pia
          }
       }
 	}
