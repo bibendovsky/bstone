@@ -1663,6 +1663,11 @@ void DrawScaleds (void)
 			continue;						// no shape
 
 		spotloc = (obj->tilex<<6)+obj->tiley;	// optimize: keep in struct?
+
+        // BBi Do not draw detonator if it's not visible.
+        if (spotloc == 0)
+            continue;
+
 		visspot = &spotvis[0][0]+spotloc;
 		tilespot = &tilemap[0][0]+spotloc;
 
