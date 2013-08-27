@@ -1999,7 +1999,10 @@ void DrawCtlScreen(void)
 	//
 
 	if (CtlItems.curpos<0 || !CtlMenu[CtlItems.curpos].active)
-		for (i=0;i<6;i++)
+
+        // BBi
+		//for (i=0;i<6;i++)
+        for (i = 0; i < CtlItems.amount; ++i)
 			if (CtlMenu[i].active)
 			{
 				CtlItems.curpos=i;
