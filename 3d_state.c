@@ -1,6 +1,6 @@
 // 3D_STATE.C
 
-#include "3D_DEF.H"
+#include "3d_def.h"
 //#include <math.h>
 
 #pragma hdrstop
@@ -966,7 +966,12 @@ void KillActor (objtype *ob)
 			Quit("exp crate->temp3 is NULL!");
 	#endif
 
+// FIXME
+#if 0
 		((statobj_t *)(ob->temp3))->shapenum = -1;		// Release reserve static
+#endif // 0
+
+        ui16_to_static_object(ob->temp3)->shapenum = -1;
 
 		SpawnStatic(tilex,tiley,ob->temp2);
 		ob->obclass = deadobj;
@@ -1242,6 +1247,9 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 {
 	Sint16 old_hp = ob->hitpoints,wound_mod,mod_before=0,mod_after=1;
 
+    // FIXME
+    objtype* tmp_o;
+
 	if (!(ob->flags & FL_SHOOTABLE))
 		return;
 
@@ -1311,7 +1319,14 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			case scan_wait_alienobj:		// These actors do not have an ouch!
 			case lcan_wait_alienobj:		// So... RETURN!
 			case gurney_waitobj:
+// FIXME
+#if 0
 				if (!(ob->temp2 = (Uint16)CheckAndReserve()))
+#endif // 0
+
+                ob->temp2 = actor_to_ui16(CheckAndReserve());
+
+                if (ob->temp2 == 0)
 				{
 					ob->hitpoints += damage;
 					return;
@@ -1341,7 +1356,7 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 		SLIDE_TEMP(ob) = (Uint16)attacker;
 #endif // 0
 
-        ob->hitpoints = (Sint16)(attacker - objlist);
+        ob->hitpoints = actor_to_ui16(attacker);
 
 		KillActor (ob);
 		return;
@@ -1970,7 +1985,14 @@ void FirstSighting (objtype *ob)
 	case gurney_waitobj:
 		if (ob->temp3)
 		{
+// FIXME
+#if 0
 			if (ob->temp2 = (Uint16)CheckAndReserve())
+#endif // 0
+
+            ob->temp2 = actor_to_ui16(CheckAndReserve());
+
+            if (ob->temp2 != 0)
 			{
 				ob->flags &= ~(FL_SHOOTABLE);
 				InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3,at_ONCE, ad_FWD);
@@ -2431,14 +2453,26 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 		//
 			doornum = Random(doorsfound);
 			door = doorlist[doornum];
+
+// FIXME
+#if 0
 			if (((Uint16)door == ob->temp3) && (doorsfound > 1))
+#endif // 0
+
+            if (door == ui16_to_door_object(ob->temp3) && doorsfound > 1)
 			{
 				doornum++;
 				if (doornum >= doorsfound)
 					doornum=0;
 				door = doorlist[doornum];
 			}
+
+// FIXME
+#if 0
 			ob->temp3 = (Uint16)door;
+#endif // 0
+
+            ob->temp3 = door_object_to_ui16(door);
 
 			ob->s_tilex = door->tilex;
 			ob->s_tiley = door->tiley;

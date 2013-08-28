@@ -1623,7 +1623,13 @@ void T_SmartThought(objtype *obj)
 						Quit("Gurney->temp2 out of range!");
 #endif
 					if (obj->temp2)
+
+// FIXME
+#if 0
 						RemoveObj((objtype *)obj->temp2);
+#endif // 0
+
+                    RemoveObj(ui16_to_actor(obj->temp2));
 #endif
 					SpawnOffsetObj(en_gurney,obj->tilex,obj->tiley);
 					NewState(obj,&s_ofs_static);
@@ -1637,7 +1643,13 @@ void T_SmartThought(objtype *obj)
 						Quit("Scan->temp2 out of range!");
 #endif
 					if (obj->temp2)
+
+// FIXME
+#if 0
 						RemoveObj((objtype *)obj->temp2);
+#endif // 0
+
+                        RemoveObj(ui16_to_actor(obj->temp2));
 #endif
 
 					SpawnOffsetObj(en_scan_alien,obj->tilex,obj->tiley);
@@ -1652,7 +1664,14 @@ void T_SmartThought(objtype *obj)
 						Quit("Scan->temp2 out of range!");
 #endif
 					if (obj->temp2)
+
+// FIXME
+#if 0
 						RemoveObj((objtype *)obj->temp2);
+#endif // 0
+
+                    RemoveObj(ui16_to_actor(obj->temp2));
+
 #endif
 					SpawnOffsetObj(en_lcan_alien,obj->tilex,obj->tiley);
 					NewState(obj,&s_ofs_static);
@@ -5164,7 +5183,14 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			angle_adj = 1-(US_RndT()&3);
 			new->temp1 = BossShotShapes[class-spider_mutantshotobj];
 			new->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
+
+// FIXME
+#if 0
 			new->temp3 = (Uint16)shooter;
+#endif // 0
+
+            new->temp3 = actor_to_ui16(shooter);
+
 		break;
 
 		case mut_hum1shotobj:
@@ -5177,7 +5203,14 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			angle_adj = 1-(US_RndT()&3);
 			new->temp1 = SPR_ELEC_SHOT1;
 			new->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
+
+// FIXME
+#if 0
 			new->temp3 = (Uint16)shooter;
+#endif // 0
+
+            new->temp3 = actor_to_ui16(shooter);
+
 			switch (class)
 			{
 				case final_boss2shotobj:
@@ -5201,7 +5234,13 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			new->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
 			new->speed = SPDPROJ+US_RndT();
 			angle_adj = 2-(US_RndT() % 5);
+
+// FIXME
+#if 0
 			new->temp3 = (Uint16)shooter;
+#endif // 0
+
+            new->temp3 = actor_to_ui16(shooter);
 		break;
 
 		case liquidshotobj:
@@ -5211,7 +5250,13 @@ void SpawnProjectile(objtype *shooter, classtype class)
 			new->speed = SPDPROJ+US_RndT();
 			angle_adj = 2-(US_RndT() % 5);
 			new->s_tilex = new->s_tiley = 0;
+
+// FIXME
+#if 0
 			new->temp3 = (Uint16)shooter;
+#endif // 0
+
+            new->temp3 = actor_to_ui16(shooter);
 		break;
 
 		case grenadeobj:
@@ -5553,7 +5598,12 @@ BlowIt:
 			ob->y -= deltay;
 
    	   if (ob->flags & FL_STORED_OBJPTR)
+// FIXME
+#if 0
       		attacker = (objtype *)ob->temp3;
+#endif // 0
+        attacker = ui16_to_actor(ob->temp3);
+
 	      else
    	   	attacker = ob;
 
@@ -5993,9 +6043,9 @@ void T_BlowBack(objtype *obj)
 #endif // 0
 
        if ((killer = SLIDE_TEMP(obj)) == player)
-           *((size_t*)SLIDE_TEMP(obj)) = dist_table[gamestate.weapon];
+           *((Uint16*)&obj->hitpoints) = dist_table[gamestate.weapon];
        else
-           *((size_t*)SLIDE_TEMP(obj)) = dist_table[wp_grenade];
+           *((Uint16*)&obj->hitpoints) = dist_table[wp_grenade];
 
       obj->flags |= FL_SLIDE_INIT;
    }
@@ -6015,11 +6065,11 @@ void T_BlowBack(objtype *obj)
    }
 #endif // 0
 
-   if ((size_t)SLIDE_TEMP(obj) > SLIDE_SPEED) {
+   if ((Uint16)obj->hitpoints > SLIDE_SPEED) {
        dist = SLIDE_SPEED;
-       *((size_t*)(SLIDE_TEMP(obj))) -= SLIDE_SPEED;
+       *((Uint16*)&obj->hitpoints) -= SLIDE_SPEED;
    } else {
-       dist = (size_t)SLIDE_TEMP(obj);
+       dist = (Uint16)obj->hitpoints;
        obj->flags |= FL_NO_SLIDE;		// Stop any more sliding
    }
 

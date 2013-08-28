@@ -507,7 +507,13 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate3,x,y);
 					new->temp2 = ExpCrateShapes[tile - 468];
+
+// FIXME
+#if 0
 					new->temp3 = (Uint16)ReserveStatic();
+#endif // 0
+
+                    new->temp3 = static_object_to_ui16(ReserveStatic());
 
 					if ((tile >= 475) && (tile <= 478))
 						tile=(tile-475)+bo_money_bag;
@@ -519,7 +525,13 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate2,x,y);
 					new->temp2 = ExpCrateShapes[tile - 450];
+
+// FIXME
+#if 0
 					new->temp3 = (Uint16)ReserveStatic();
+#endif // 0
+
+                    new->temp3 = static_object_to_ui16(ReserveStatic());
 
 					if ((tile >= 457) && (tile <= 460))
 						tile=(tile-457)+bo_money_bag;
@@ -539,7 +551,13 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate1,x,y);
 					new->temp2 = ExpCrateShapes[tile - 432];
+
+// FIXME
+#if 0
 					new->temp3 = (Uint16)ReserveStatic();
+#endif // 0
+
+                    new->temp3 = static_object_to_ui16(ReserveStatic());
 
 					if ((tile >= 439) && (tile <= 442))
 						tile=(tile-439)+bo_money_bag;

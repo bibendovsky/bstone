@@ -2914,6 +2914,45 @@ void ReadGameNames()
 			}
 		} while(!findnext(&f));
 #endif // 0
+
+    // FIXME Make cross-platform
+    char name[13];
+    int which;
+    intptr_t search_handle;
+    struct _finddata_t search_buffer;
+
+    // See which save game files are available & read string in
+
+    strcpy(name, SaveName);
+    MakeDestPath(name);
+
+    search_handle = _findfirst(tempPath, &search_buffer);
+
+    if (search_handle == -1)
+        return;
+
+    do {
+        which = search_buffer.name[7] - '0';
+
+        if (which < 10) {
+            int handle;
+            char temp[GAME_DESCRIPTION_LEN+1];
+
+            SaveGamesAvail[which] = 1;
+            MakeDestPath(search_buffer.name);
+            handle = open(tempPath, O_RDONLY | O_BINARY);
+
+            if (FindChunk(handle, "DESC")) {
+                read(handle, temp, GAME_DESCRIPTION_LEN + 1);
+                strcpy(&SaveGameNames[which][0], temp);
+            } else
+                strcpy(&SaveGameNames[which][0], "DESCRIPTION LOST");
+
+            close(handle);
+        }
+    } while(_findnext(search_handle, &search_buffer) == 0);
+
+    _findclose(search_handle);
 }
 
 //---------------------------------------------------------------------------

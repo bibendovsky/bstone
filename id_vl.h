@@ -177,8 +177,8 @@ void VL_DrawPicBare (Sint16 x, Sint16 y, Uint8* pic, Sint16 width, Sint16 height
 void VL_MemToLatch(const Uint8* source, int width, int height, int dest);
 void VL_ScreenToScreen (Uint16 source, Uint16 dest,Sint16 width, Sint16 height);
 void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y);
-void VL_MaskMemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint16 y, Uint8 mask);
-void VL_ScreenToMem(Uint8* dest, Sint16 width, Sint16 height, Sint16 x, Sint16 y);
+void VL_MaskMemToScreen (const Uint8* source, int width, int height, int x, int y, int mask);
+void VL_ScreenToMem(Uint8* dest, int width, int height, int x, int y);
 
 void VL_DrawTile8String (char *str, char* tile8ptr, Sint16 printx, Sint16 printy);
 void VL_DrawLatch8String (char *str, Uint16 tile8ptr, Sint16 printx, Sint16 printy);

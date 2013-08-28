@@ -22,6 +22,7 @@ void VH_UpdateScreen();
 void InitAreas (void);
 void FirstSighting(objtype* ob);
 void OpenDoor(Sint16 door);
+void in_handle_events();
 
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
@@ -2988,6 +2989,10 @@ Sint16 InputFloor(void)
 //			PollControls();
 
 		CalcTics();
+
+        // BBi
+        in_handle_events();
+
 		if (Keyboard[sc_LeftArrow])
 			controlx = -1;
 		else

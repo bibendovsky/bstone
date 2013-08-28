@@ -1108,6 +1108,9 @@ void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
 //------------------------------------------------------------------------
 // VL_MaskMemToScreen()
 //------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void VL_MaskMemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint16 y, Uint8 mask)
 {
 	Uint8    *screen,*dest,bmask;
@@ -1145,11 +1148,49 @@ void VL_MaskMemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, S
 		}
 	}
 }
+#endif // 0
+
+void VL_MaskMemToScreen(
+    const Uint8* source,
+    int width,
+    int height,
+    int x,
+    int y,
+    int mask)
+{
+    int plane;
+    int row;
+    int column;
+    int q_width = width / 4;
+    int offset;
+    int base_offset;
+
+    base_offset = (4 * bufferofs) + (vanilla_screen_width * y) + x;
+
+    for (plane = 0; plane < 4; ++plane) {
+        for (row = 0; row < height; ++row) {
+            offset = base_offset + (row * vanilla_screen_width) + plane;
+
+            for (column = 0; column < q_width; ++column) {
+                Uint8 pixel = *source++;
+
+                if (pixel != mask)
+                    vga_memory[offset] = pixel;
+
+                offset += 4;
+            }
+        }
+    }
+}
+
 
 
 //------------------------------------------------------------------------
 // VL_ScreenToMem()
 //------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void VL_ScreenToMem(Uint8* dest, Sint16 width, Sint16 height, Sint16 x, Sint16 y)
 {
 	Uint8    *screen,*source,mask;
@@ -1174,6 +1215,37 @@ void VL_ScreenToMem(Uint8* dest, Sint16 width, Sint16 height, Sint16 x, Sint16 y
 			source++;
 		}
 	}
+}
+#endif // 0
+
+void VL_ScreenToMem(
+    Uint8* dest,
+    int width,
+    int height,
+    int x,
+    int y)
+{
+    int plane;
+    int row;
+    int column;
+    int q_width = width / 4;
+    int offset;
+    int base_offset;
+
+    base_offset = (4 * bufferofs) + (vanilla_screen_width * y) + x;
+
+    for (plane = 0; plane < 4; ++plane) {
+        for (row = 0; row < height; ++row) {
+            offset = base_offset + (row * vanilla_screen_width) + plane;
+
+            for (column = 0; column < q_width; ++column) {
+                *dest = vga_memory[offset];
+
+                offset += 4;
+                ++dest;
+            }
+        }
+    }
 }
 
 
@@ -1485,9 +1557,6 @@ void ogl_draw_screen()
 // draws it.
 void ogl_refresh_screen()
 {
-    int i;
-    GLenum format;
-
     glActiveTexture(GL_TEXTURE0);
 
     glTexSubImage2D(

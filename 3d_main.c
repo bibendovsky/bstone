@@ -793,16 +793,25 @@ Sint32 DeleteChunk(Sint16 handle, char *chunk)
 
 
 
-char SavegameInfoText[]="\n\r"
-									 "\n\r"
-									 "-------------------------------------\n\r"
-									 "    Blake Stone: Aliens Of Gold\n\r"
-									 "Copyright 1993, JAM Productions, Inc.\n\r"
-									 "\n\r"
-									 "SAVEGAME file is from version: "__VERSION__"\n\r"
-									 " Compile Date :"__DATE__" : "__TIME__"\n\r"
-									 "-------------------------------------\n\r"
-									 "\x1a";
+char SavegameInfoText[] =
+    "\n\r"
+    "\n\r"
+    "-------------------------------------\n\r"
+    "    Blake Stone: Aliens Of Gold\n\r"
+    "Copyright 1993, JAM Productions, Inc.\n\r"
+    "\n\r"
+
+// FIXME
+#if 0
+    "SAVEGAME file is from version: "__VERSION__"\n\r"
+    " Compile Date :"__DATE__" : "__TIME__"\n\r"
+#endif // 0
+
+    "SAVEGAME file is from version: V1.01\n\r"
+    " Compile Date :Oct 24 1994 : 18:20:35\n\r"
+
+    "-------------------------------------\n\r"
+    "\x1a";
 
 
 //--------------------------------------------------------------------------

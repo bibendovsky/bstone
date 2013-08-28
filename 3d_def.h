@@ -146,7 +146,7 @@ void jsprintf(char *msg, ...);
 #define SLIDE_TEMP(obj)				((Uint16)obj->hitpoints)
 #endif // 0
 
-#define SLIDE_TEMP(obj) (&objlist[obj->hitpoints])
+#define SLIDE_TEMP(obj) (ui16_to_actor(obj->hitpoints))
 
 //
 // M_BASE1 - represents 100 percent in 1st base
@@ -2004,8 +2004,9 @@ typedef struct objstruct
 	fixed transx,transy;    // in global coord
 
     // FIXME
-    // In original code it also used to store a 16-bit pointer to attacker.
-    // Since our code is at least 32-bit we are using an index of actor.
+    // In original code it also used to store a 16-bit pointer to object.
+    // Since our code is at least 32-bit we are using an index of object
+    // or'ed with mask to identify a type of object (see stub.c).
     // TODO: Fix loading/saving game state.
 	Sint16 hitpoints;
 
@@ -2016,7 +2017,19 @@ typedef struct objstruct
 	Sint32 speed;
 
 	Sint16 temp1;
+
+    // FIXME
+    // In original code it also used to store a 16-bit pointer to object.
+    // Since our code is at least 32-bit we are using an index of object
+    // or'ed with mask to identify a type of object (see stub.c).
+    // TODO: Fix loading/saving game state.
 	Sint16 temp2;
+
+    // FIXME
+    // In original code it also used to store a 16-bit pointer to object.
+    // Since our code is at least 32-bit we are using an index of object
+    // or'ed with mask to identify a type of object (see stub.c).
+    // TODO: Fix loading/saving game state.
 	Uint16 temp3;		// holds 'last door used' by 'smart' actors
 
 	struct objstruct *next,*prev;
@@ -3346,3 +3359,14 @@ boolean CheckForSpecialCode(Uint16 shortItemNum);
 extern char JM_FREE_DATA_END[];
 extern char JM_FREE_DATA_START[];
 
+
+// BBi
+objtype* ui16_to_actor(Uint16 value);
+Uint16 actor_to_ui16(const objtype* actor);
+
+statobj_t* ui16_to_static_object(Uint16 value);
+Uint16 static_object_to_ui16(const statobj_t* static_object);
+
+doorobj_t* ui16_to_door_object(Uint16 value);
+Uint16 door_object_to_ui16(const doorobj_t* door_object);
+// BBi
