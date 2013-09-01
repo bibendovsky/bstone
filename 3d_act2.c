@@ -1,6 +1,6 @@
 // 3D_ACT2.C
 
-#include "3D_DEF.H"
+#include "3d_def.h"
 
 #pragma hdrstop
 

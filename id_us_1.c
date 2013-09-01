@@ -38,6 +38,7 @@ SDL_TimerID sys_timer_id = 0;
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
 void VH_UpdateScreen();
+void in_handle_events();
 
 
 //	Global variables
@@ -630,6 +631,8 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 	asm	pushf
 	asm	cli
 #endif // 0
+
+        in_handle_events();
 
 		sc = LastScan;
 		LastScan = sc_None;

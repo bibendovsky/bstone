@@ -12,6 +12,9 @@
 
 #define __VERSION__ "V1.01"
 
+// BBi
+#define BS_SAVE_GAME_VERSION "1"
+
 #define GOLD_MORPH_LEVEL				(19)			// Level which Dr. GoldFire Morphs.
 
 #define VERSION_TEXT_COLOR				(0x82)
@@ -2097,9 +2100,9 @@ typedef enum
 //
 // General Coord (tile) structure
 //
-typedef struct
-{
-	Uint8 tilex, tiley;
+typedef struct {
+    Uint8 tilex;
+    Uint8 tiley;
 } tilecoord_t;
 
 //-----------------------------------
@@ -2108,10 +2111,9 @@ typedef struct
 //
 //-----------------------------------
 
-typedef struct
-{
-	tilecoord_t coord;
-	Uint8 on;
+typedef struct {
+    tilecoord_t coord;
+    Uint8 on;
 } barrier_type;
 
 
@@ -2122,19 +2124,23 @@ typedef struct
 //---------------
 
 typedef struct statsInfoType {
-	Sint32 total_points,accum_points;
-	Uint8 total_enemy,accum_enemy;
-	Uint8 total_inf,accum_inf;
-	Sint16 overall_floor;
+    Sint32 total_points;
+    Sint32 accum_points;
+    Uint8 total_enemy;
+    Uint8 accum_enemy;
+    Uint8 total_inf;
+    Uint8 accum_inf;
+    Sint16 overall_floor;
 } statsInfoType;
 
 typedef struct {
-	Uint16 bonus_queue;				// bonuses that need to be shown
-	Uint16 bonus_shown;				// bonuses that have been shown
-	boolean locked;
-	statsInfoType stats;
-	Uint8 ptilex,ptiley;
-	Sint16 pangle;
+    Uint16 bonus_queue; // bonuses that need to be shown
+    Uint16 bonus_shown; // bonuses that have been shown
+    boolean locked;
+    statsInfoType stats;
+    Uint8 ptilex;
+    Uint8 ptiley;
+    Sint16 pangle;
 } levelinfo;
 
 
@@ -2144,47 +2150,64 @@ typedef struct
 	levelinfo 	level[MAPS_PER_EPISODE];
 } fargametype;
 
-typedef struct
-{
-	Sint16			turn_around,turn_angle;
-	Uint16	flags;
-	Sint16			lastmapon;
-	Sint16         difficulty;
-	Sint16         mapon;
-	Sint16 			status_refresh;
-	Sint32        oldscore,tic_score,score,nextextra;
-	Sint16			score_roll_wait;
-	Sint16         lives;
-	Sint16         health;
-	Sint16			health_delay;
-	char			health_str[4];
+typedef struct {
+    Sint16 turn_around;
+    Sint16 turn_angle;
+    Uint16 flags;
+    Sint16 lastmapon;
+    Sint16 difficulty;
+    Sint16 mapon;
+    Sint16 status_refresh;
+    Sint32 oldscore;
+    Sint32 tic_score;
+    Sint32 score;
+    Sint32 nextextra;
+    Sint16 score_roll_wait;
+    Sint16 lives;
+    Sint16 health;
+    Sint16 health_delay;
+    char health_str[4];
 
-	Sint16			rpower,old_rpower;
-	char 			rzoom;
-	char			radar_leds,lastradar_leds;
+    Sint16 rpower;
+    Sint16 old_rpower;
+    char rzoom;
+    char radar_leds;
+    char lastradar_leds;
 
-	char			lastammo_leds;
-	char			ammo_leds;
-	Sint16         ammo,old_ammo;
+    char lastammo_leds;
+    char ammo_leds;
+    Sint16 ammo;
+    Sint16 old_ammo;
 
-	Sint16			plasma_detonators,old_plasma_detonators;		
+    Sint16 plasma_detonators;
+    Sint16 old_plasma_detonators;
 
-   char 			useable_weapons;		 
-	char			weapons,weapon,chosenweapon,old_weapons[4];
-	char			key_floor;
+    char useable_weapons;
+    char weapons;
+    char weapon;
+    char chosenweapon;
+    char old_weapons[4];
+    char key_floor;
 
-	char			weapon_wait;
-	Sint16      	attackframe,attackcount,weaponframe;
-	Sint16      	episode;
-	volatile Uint32     	TimeCount;
-	Sint32     	killx,killy;
-	char 			*msg;					// InfoArea msg...
-	char			numkeys[NUMKEYS],old_numkeys[NUMKEYS];
-	barrier_type barrier_table[MAX_BARRIER_SWITCHES];
-	barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
-	Uint16		tokens,old_tokens;
-	boolean		boss_key_dropped,old_boss_key_dropped;
-	Sint16 			wintilex,wintiley;
+    char weapon_wait;
+    Sint16 attackframe;
+    Sint16 attackcount;
+    Sint16 weaponframe;
+    Sint16 episode;
+    volatile Uint32 TimeCount;
+    Sint32 killx;
+    Sint32 killy;
+    char* msg; // InfoArea msg...
+    char numkeys[NUMKEYS];
+    char old_numkeys[NUMKEYS];
+    barrier_type barrier_table[MAX_BARRIER_SWITCHES];
+    barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
+    Uint16 tokens;
+    Uint16 old_tokens;
+    boolean boss_key_dropped;
+    boolean old_boss_key_dropped;
+    Sint16 wintilex;
+    Sint16 wintiley;
 } gametype;
 
 typedef enum    {
@@ -2487,8 +2510,8 @@ void 				AlignPlayerOnTransporter(void);
 Uint16 UseFunc(char *first, char *next);
 boolean DoMovie(movie_t movie, void* palette);
 boolean CheckDiskSpace(Sint32 needed,char *text,cds_io_type io_type);
-boolean SaveTheGame(Sint16 handle, char *description);
-Sint32 ChecksumFile(char *file, Sint32 checksum);  
+boolean SaveTheGame(int handle, const char* description);
+Sint32 ChecksumFile(char *file, Sint32 checksum);
 void BadChecksum(void);
 void InvalidLevels(void);
 void CheckValidity(char *file, Sint32 valid_checksum);

@@ -41,7 +41,7 @@ void DoActor (objtype *ob);
 boolean LevelInPlaytemp(char levelnum);
 void PreloadUpdate(Uint16 current, Uint16 total);
 void PreloadGraphics(void);
-boolean SaveLevel(Sint16 levelnum);
+boolean SaveLevel(int levelnum);
 Sint16 NextBuffer();
 void CheckHighScore (Sint32 score,Uint16 other);
 
@@ -2237,7 +2237,7 @@ void SetupGameLevel (void)
 						(Uint16)actorat[x][y] = tile;
 #endif // 0
 
-                        *((size_t*)(&actorat[x][y])) = tile;
+                        actorat[x][y] = (objtype*)tile;
 					break;
 				}
 
@@ -2444,7 +2444,7 @@ void SetupGameLevel (void)
 					if ( (Uint16)actorat[x][y] == AMBUSHTILE)
 #endif // 0
 
-                    if ((size_t)actorat[x][y] == AMBUSHTILE)
+                    if (actorat[x][y] == (objtype*)AMBUSHTILE)
 						actorat[x][y] = NULL;
 					*(map-1) = GetAreaNumber(x,y);
             break;

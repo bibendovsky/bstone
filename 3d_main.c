@@ -151,6 +151,592 @@ void CalcSpeedRating()
 
 #endif
 
+
+// BBi
+extern statetype s_ofs_stand;
+extern statetype s_ofs_chase1;
+extern statetype s_ofs_chase1s;
+extern statetype s_ofs_chase2;
+extern statetype s_ofs_chase3;
+extern statetype s_ofs_chase3s;
+extern statetype s_ofs_chase4;
+extern statetype s_ofs_pain;
+extern statetype s_ofs_die1;
+extern statetype s_ofs_die1s;
+extern statetype s_ofs_die2;
+extern statetype s_ofs_die3;
+extern statetype s_ofs_die4;
+extern statetype s_ofs_die5;
+extern statetype s_ofs_attack1;
+extern statetype s_ofs_attack2;
+extern statetype s_ofs_attack3;
+extern statetype s_ofs_spit1;
+extern statetype s_ofs_spit2;
+extern statetype s_ofs_spit3;
+extern statetype s_ofs_shoot1;
+extern statetype s_ofs_shoot2;
+extern statetype s_ofs_shoot3;
+extern statetype s_ofs_pod_attack1;
+extern statetype s_ofs_pod_attack1a;
+extern statetype s_ofs_pod_attack2;
+extern statetype s_ofs_pod_spit1;
+extern statetype s_ofs_pod_spit2;
+extern statetype s_ofs_pod_spit3;
+extern statetype s_ofs_pod_death1;
+extern statetype s_ofs_pod_death2;
+extern statetype s_ofs_pod_death3;
+extern statetype s_ofs_pod_ouch;
+extern statetype s_ofs_bounce;
+extern statetype s_ofs_ouch;
+extern statetype s_ofs_esphere_death1;
+extern statetype s_ofs_esphere_death2;
+extern statetype s_ofs_esphere_death3;
+extern statetype s_ofs_random;
+extern statetype s_ofs_static;
+extern statetype s_hold;
+extern statetype s_ofs_smart_anim;
+extern statetype s_ofs_smart_anim2;
+extern statetype s_barrier_transition;
+extern statetype s_vpost_barrier;
+extern statetype s_spike_barrier;
+extern statetype s_barrier_shutdown;
+extern statetype s_rent_stand;
+extern statetype s_rent_path1;
+extern statetype s_rent_path1s;
+extern statetype s_rent_path2;
+extern statetype s_rent_path3;
+extern statetype s_rent_path3s;
+extern statetype s_rent_path4;
+extern statetype s_rent_pain;
+extern statetype s_rent_shoot1;
+extern statetype s_rent_shoot2;
+extern statetype s_rent_shoot3;
+extern statetype s_rent_chase1;
+extern statetype s_rent_chase1s;
+extern statetype s_rent_chase2;
+extern statetype s_rent_chase3;
+extern statetype s_rent_chase3s;
+extern statetype s_rent_chase4;
+extern statetype s_rent_die1;
+extern statetype s_rent_die2;
+extern statetype s_rent_die3;
+extern statetype s_rent_die3s;
+extern statetype s_rent_die4;
+extern statetype s_ofcstand;
+extern statetype s_ofcpath1;
+extern statetype s_ofcpath1s;
+extern statetype s_ofcpath2;
+extern statetype s_ofcpath3;
+extern statetype s_ofcpath3s;
+extern statetype s_ofcpath4;
+extern statetype s_ofcpain;
+extern statetype s_ofcshoot1;
+extern statetype s_ofcshoot2;
+extern statetype s_ofcshoot3;
+extern statetype s_ofcchase1;
+extern statetype s_ofcchase1s;
+extern statetype s_ofcchase2;
+extern statetype s_ofcchase3;
+extern statetype s_ofcchase3s;
+extern statetype s_ofcchase4;
+extern statetype s_ofcdie1;
+extern statetype s_ofcdie2;
+extern statetype s_ofcdie3;
+extern statetype s_ofcdie4;
+extern statetype s_ofcdie5;
+extern statetype s_swatstand;
+extern statetype s_swatpath1;
+extern statetype s_swatpath1s;
+extern statetype s_swatpath2;
+extern statetype s_swatpath3;
+extern statetype s_swatpath3s;
+extern statetype s_swatpath4;
+extern statetype s_swatpain;
+extern statetype s_swatshoot1;
+extern statetype s_swatshoot2;
+extern statetype s_swatshoot3;
+extern statetype s_swatshoot4;
+extern statetype s_swatshoot5;
+extern statetype s_swatshoot6;
+extern statetype s_swatshoot7;
+extern statetype s_swatchase1;
+extern statetype s_swatchase1s;
+extern statetype s_swatchase2;
+extern statetype s_swatchase3;
+extern statetype s_swatchase3s;
+extern statetype s_swatchase4;
+extern statetype s_swatwounded1;
+extern statetype s_swatwounded2;
+extern statetype s_swatwounded3;
+extern statetype s_swatwounded4;
+extern statetype s_swatunwounded1;
+extern statetype s_swatunwounded2;
+extern statetype s_swatunwounded3;
+extern statetype s_swatunwounded4;
+extern statetype s_swatdie1;
+extern statetype s_swatdie2;
+extern statetype s_swatdie3;
+extern statetype s_swatdie4;
+extern statetype s_swatdie5;
+extern statetype s_prostand;
+extern statetype s_propath1;
+extern statetype s_propath1s;
+extern statetype s_propath2;
+extern statetype s_propath3;
+extern statetype s_propath3s;
+extern statetype s_propath4;
+extern statetype s_propain;
+extern statetype s_proshoot1;
+extern statetype s_proshoot2;
+extern statetype s_proshoot3;
+extern statetype s_proshoot4;
+extern statetype s_proshoot5;
+extern statetype s_proshoot6;
+extern statetype s_proshoot6a;
+extern statetype s_prochase1;
+extern statetype s_prochase1s;
+extern statetype s_prochase2;
+extern statetype s_prochase3;
+extern statetype s_prochase3s;
+extern statetype s_prochase4;
+extern statetype s_prodie1;
+extern statetype s_prodie2;
+extern statetype s_prodie3;
+extern statetype s_prodie3a;
+extern statetype s_prodie4;
+extern statetype s_electro_appear1;
+extern statetype s_electro_appear2;
+extern statetype s_electro_appear3;
+extern statetype s_electro_chase1;
+extern statetype s_electro_chase2;
+extern statetype s_electro_chase3;
+extern statetype s_electro_chase4;
+extern statetype s_electro_ouch;
+extern statetype s_electro_shoot1;
+extern statetype s_electro_shoot2;
+extern statetype s_electro_shoot3;
+extern statetype s_electro_shot1;
+extern statetype s_electro_shot2;
+extern statetype s_ofs_shot1;
+extern statetype s_ofs_shot2;
+extern statetype s_electro_die1;
+extern statetype s_electro_die2;
+extern statetype s_electro_die3;
+extern statetype s_liquid_wait;
+extern statetype s_liquid_move;
+extern statetype s_liquid_rise1;
+extern statetype s_liquid_rise2;
+extern statetype s_liquid_rise3;
+extern statetype s_liquid_stand;
+extern statetype s_liquid_fall1;
+extern statetype s_liquid_fall2;
+extern statetype s_liquid_fall3;
+extern statetype s_liquid_shoot1;
+extern statetype s_liquid_shoot2;
+extern statetype s_liquid_shoot3;
+extern statetype s_liquid_ouch;
+extern statetype s_liquid_die1;
+extern statetype s_liquid_die2;
+extern statetype s_liquid_die3;
+extern statetype s_liquid_die4;
+extern statetype s_liquid_dead;
+extern statetype s_liquid_shot;
+extern statetype s_blake1;
+extern statetype s_blake2;
+extern statetype s_blake3;
+extern statetype s_blake4;
+extern statetype s_goldstand;
+extern statetype s_goldpath1;
+extern statetype s_goldpath1s;
+extern statetype s_goldpath2;
+extern statetype s_goldpath3;
+extern statetype s_goldpath3s;
+extern statetype s_goldpath4;
+extern statetype s_goldpain;
+extern statetype s_goldshoot1;
+extern statetype s_goldshoot2;
+extern statetype s_goldshoot3;
+extern statetype s_goldshoot4;
+extern statetype s_goldshoot5;
+extern statetype s_goldshoot6;
+extern statetype s_goldshoot7;
+extern statetype s_goldchase1;
+extern statetype s_goldchase1s;
+extern statetype s_goldchase2;
+extern statetype s_goldchase3;
+extern statetype s_goldchase3s;
+extern statetype s_goldchase4;
+extern statetype s_goldwarp_it;
+extern statetype s_goldwarp_it1;
+extern statetype s_goldwarp_it2;
+extern statetype s_goldwarp_it3;
+extern statetype s_goldwarp_it4;
+extern statetype s_goldwarp_it5;
+extern statetype s_goldwarp_out1;
+extern statetype s_goldwarp_out2;
+extern statetype s_goldwarp_out3;
+extern statetype s_goldwarp_out4;
+extern statetype s_goldwarp_out5;
+extern statetype s_goldwarp_in1;
+extern statetype s_goldwarp_in2;
+extern statetype s_goldwarp_in3;
+extern statetype s_goldwarp_in4;
+extern statetype s_goldwarp_in5;
+extern statetype s_goldmorphwait1;
+extern statetype s_goldmorph1;
+extern statetype s_goldmorph2;
+extern statetype s_goldmorph3;
+extern statetype s_goldmorph4;
+extern statetype s_goldmorph5;
+extern statetype s_goldmorph6;
+extern statetype s_goldmorph7;
+extern statetype s_goldmorph8;
+extern statetype s_mgold_chase1;
+extern statetype s_mgold_chase2;
+extern statetype s_mgold_chase3;
+extern statetype s_mgold_chase4;
+extern statetype s_mgold_shoot1;
+extern statetype s_mgold_shoot2;
+extern statetype s_mgold_shoot3;
+extern statetype s_mgold_shoot4;
+extern statetype s_mgold_pain;
+extern statetype s_security_light;
+extern statetype s_scout_stand;
+extern statetype s_scout_path1;
+extern statetype s_scout_path2;
+extern statetype s_scout_path3;
+extern statetype s_scout_path4;
+extern statetype s_scout_run;
+extern statetype s_scout_run2;
+extern statetype s_scout_run3;
+extern statetype s_scout_run4;
+extern statetype s_scout_dead;
+extern statetype s_steamgrate;
+extern statetype s_steamrelease1;
+extern statetype s_steamrelease2;
+extern statetype s_steamrelease3;
+extern statetype s_steamrelease4;
+extern statetype s_steamrelease5;
+extern statetype s_steamrelease6;
+extern statetype s_terrot_wait;
+extern statetype s_terrot_found;
+extern statetype s_terrot_shoot1;
+extern statetype s_terrot_shoot2;
+extern statetype s_terrot_shoot3;
+extern statetype s_terrot_shoot4;
+extern statetype s_terrot_seek1;
+extern statetype s_terrot_seek1s;
+extern statetype s_terrot_die1;
+extern statetype s_terrot_die2;
+extern statetype s_terrot_die3;
+extern statetype s_terrot_die4;
+extern statetype s_terrot_die5;
+extern statetype s_player;
+extern statetype s_attack;
+
+
+statetype* states_list[] = {
+    NULL,
+    &s_ofs_stand,
+    &s_ofs_chase1,
+    &s_ofs_chase1s,
+    &s_ofs_chase2,
+    &s_ofs_chase3,
+    &s_ofs_chase3s,
+    &s_ofs_chase4,
+    &s_ofs_pain,
+    &s_ofs_die1,
+    &s_ofs_die1s,
+    &s_ofs_die2,
+    &s_ofs_die3,
+    &s_ofs_die4,
+    &s_ofs_die5,
+    &s_ofs_attack1,
+    &s_ofs_attack2,
+    &s_ofs_attack3,
+    &s_ofs_spit1,
+    &s_ofs_spit2,
+    &s_ofs_spit3,
+    &s_ofs_shoot1,
+    &s_ofs_shoot2,
+    &s_ofs_shoot3,
+    &s_ofs_pod_attack1,
+    &s_ofs_pod_attack1a,
+    &s_ofs_pod_attack2,
+    &s_ofs_pod_spit1,
+    &s_ofs_pod_spit2,
+    &s_ofs_pod_spit3,
+    &s_ofs_pod_death1,
+    &s_ofs_pod_death2,
+    &s_ofs_pod_death3,
+    &s_ofs_pod_ouch,
+    &s_ofs_bounce,
+    &s_ofs_ouch,
+    &s_ofs_esphere_death1,
+    &s_ofs_esphere_death2,
+    &s_ofs_esphere_death3,
+    &s_ofs_random,
+    &s_ofs_static,
+    &s_hold,
+    &s_ofs_smart_anim,
+    &s_ofs_smart_anim2,
+    &s_barrier_transition,
+    &s_vpost_barrier,
+    &s_spike_barrier,
+    &s_barrier_shutdown,
+    &s_rent_stand,
+    &s_rent_path1,
+    &s_rent_path1s,
+    &s_rent_path2,
+    &s_rent_path3,
+    &s_rent_path3s,
+    &s_rent_path4,
+    &s_rent_pain,
+    &s_rent_shoot1,
+    &s_rent_shoot2,
+    &s_rent_shoot3,
+    &s_rent_chase1,
+    &s_rent_chase1s,
+    &s_rent_chase2,
+    &s_rent_chase3,
+    &s_rent_chase3s,
+    &s_rent_chase4,
+    &s_rent_die1,
+    &s_rent_die2,
+    &s_rent_die3,
+    &s_rent_die3s,
+    &s_rent_die4,
+    &s_ofcstand,
+    &s_ofcpath1,
+    &s_ofcpath1s,
+    &s_ofcpath2,
+    &s_ofcpath3,
+    &s_ofcpath3s,
+    &s_ofcpath4,
+    &s_ofcpain,
+    &s_ofcshoot1,
+    &s_ofcshoot2,
+    &s_ofcshoot3,
+    &s_ofcchase1,
+    &s_ofcchase1s,
+    &s_ofcchase2,
+    &s_ofcchase3,
+    &s_ofcchase3s,
+    &s_ofcchase4,
+    &s_ofcdie1,
+    &s_ofcdie2,
+    &s_ofcdie3,
+    &s_ofcdie4,
+    &s_ofcdie5,
+    &s_swatstand,
+    &s_swatpath1,
+    &s_swatpath1s,
+    &s_swatpath2,
+    &s_swatpath3,
+    &s_swatpath3s,
+    &s_swatpath4,
+    &s_swatpain,
+    &s_swatshoot1,
+    &s_swatshoot2,
+    &s_swatshoot3,
+    &s_swatshoot4,
+    &s_swatshoot5,
+    &s_swatshoot6,
+    &s_swatshoot7,
+    &s_swatchase1,
+    &s_swatchase1s,
+    &s_swatchase2,
+    &s_swatchase3,
+    &s_swatchase3s,
+    &s_swatchase4,
+    &s_swatwounded1,
+    &s_swatwounded2,
+    &s_swatwounded3,
+    &s_swatwounded4,
+    &s_swatunwounded1,
+    &s_swatunwounded2,
+    &s_swatunwounded3,
+    &s_swatunwounded4,
+    &s_swatdie1,
+    &s_swatdie2,
+    &s_swatdie3,
+    &s_swatdie4,
+    &s_swatdie5,
+    &s_prostand,
+    &s_propath1,
+    &s_propath1s,
+    &s_propath2,
+    &s_propath3,
+    &s_propath3s,
+    &s_propath4,
+    &s_propain,
+    &s_proshoot1,
+    &s_proshoot2,
+    &s_proshoot3,
+    &s_proshoot4,
+    &s_proshoot5,
+    &s_proshoot6,
+    &s_proshoot6a,
+    &s_prochase1,
+    &s_prochase1s,
+    &s_prochase2,
+    &s_prochase3,
+    &s_prochase3s,
+    &s_prochase4,
+    &s_prodie1,
+    &s_prodie2,
+    &s_prodie3,
+    &s_prodie3a,
+    &s_prodie4,
+    &s_electro_appear1,
+    &s_electro_appear2,
+    &s_electro_appear3,
+    &s_electro_chase1,
+    &s_electro_chase2,
+    &s_electro_chase3,
+    &s_electro_chase4,
+    &s_electro_ouch,
+    &s_electro_shoot1,
+    &s_electro_shoot2,
+    &s_electro_shoot3,
+    &s_electro_shot1,
+    &s_electro_shot2,
+    &s_ofs_shot1,
+    &s_ofs_shot2,
+    &s_electro_die1,
+    &s_electro_die2,
+    &s_electro_die3,
+    &s_liquid_wait,
+    &s_liquid_move,
+    &s_liquid_rise1,
+    &s_liquid_rise2,
+    &s_liquid_rise3,
+    &s_liquid_stand,
+    &s_liquid_fall1,
+    &s_liquid_fall2,
+    &s_liquid_fall3,
+    &s_liquid_shoot1,
+    &s_liquid_shoot2,
+    &s_liquid_shoot3,
+    &s_liquid_ouch,
+    &s_liquid_die1,
+    &s_liquid_die2,
+    &s_liquid_die3,
+    &s_liquid_die4,
+    &s_liquid_dead,
+    &s_liquid_shot,
+    &s_blake1,
+    &s_blake2,
+    &s_blake3,
+    &s_blake4,
+    &s_goldstand,
+    &s_goldpath1,
+    &s_goldpath1s,
+    &s_goldpath2,
+    &s_goldpath3,
+    &s_goldpath3s,
+    &s_goldpath4,
+    &s_goldpain,
+    &s_goldshoot1,
+    &s_goldshoot2,
+    &s_goldshoot3,
+    &s_goldshoot4,
+    &s_goldshoot5,
+    &s_goldshoot6,
+    &s_goldshoot7,
+    &s_goldchase1,
+    &s_goldchase1s,
+    &s_goldchase2,
+    &s_goldchase3,
+    &s_goldchase3s,
+    &s_goldchase4,
+    &s_goldwarp_it,
+    &s_goldwarp_it1,
+    &s_goldwarp_it2,
+    &s_goldwarp_it3,
+    &s_goldwarp_it4,
+    &s_goldwarp_it5,
+    &s_goldwarp_out1,
+    &s_goldwarp_out2,
+    &s_goldwarp_out3,
+    &s_goldwarp_out4,
+    &s_goldwarp_out5,
+    &s_goldwarp_in1,
+    &s_goldwarp_in2,
+    &s_goldwarp_in3,
+    &s_goldwarp_in4,
+    &s_goldwarp_in5,
+    &s_goldmorphwait1,
+    &s_goldmorph1,
+    &s_goldmorph2,
+    &s_goldmorph3,
+    &s_goldmorph4,
+    &s_goldmorph5,
+    &s_goldmorph6,
+    &s_goldmorph7,
+    &s_goldmorph8,
+    &s_mgold_chase1,
+    &s_mgold_chase2,
+    &s_mgold_chase3,
+    &s_mgold_chase4,
+    &s_mgold_shoot1,
+    &s_mgold_shoot2,
+    &s_mgold_shoot3,
+    &s_mgold_shoot4,
+    &s_mgold_pain,
+    &s_security_light,
+    &s_scout_stand,
+    &s_scout_path1,
+    &s_scout_path2,
+    &s_scout_path3,
+    &s_scout_path4,
+    &s_scout_run,
+    &s_scout_run2,
+    &s_scout_run3,
+    &s_scout_run4,
+    &s_scout_dead,
+    &s_steamgrate,
+    &s_steamrelease1,
+    &s_steamrelease2,
+    &s_steamrelease3,
+    &s_steamrelease4,
+    &s_steamrelease5,
+    &s_steamrelease6,
+    &s_terrot_wait,
+    &s_terrot_found,
+    &s_terrot_shoot1,
+    &s_terrot_shoot2,
+    &s_terrot_shoot3,
+    &s_terrot_shoot4,
+    &s_terrot_seek1,
+    &s_terrot_seek1s,
+    &s_terrot_die1,
+    &s_terrot_die2,
+    &s_terrot_die3,
+    &s_terrot_die4,
+    &s_terrot_die5,
+    &s_player,
+    &s_attack,
+    NULL,
+};
+
+static int get_state_index(statetype* state)
+{
+    int i;
+
+    if (state == NULL)
+        return 0;
+
+    for (i = 1; states_list[i] != NULL; ++i) {
+        if (states_list[i] == state)
+            return i;
+    }
+
+    return -1;
+}
+// BBi
+
+
 /*
 ====================
 =
@@ -443,6 +1029,9 @@ Uint16 WriteInfo(boolean compress, char *src, Uint16 size, Sint16 file)
 //--------------------------------------------------------------------------
 // LoadLevel()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 boolean LoadLevel(Sint16 levelnum)
 {
 	extern boolean ShowQuickMsg;
@@ -628,14 +1217,254 @@ overlay:;
 
 	return(true);
 }
+#endif // 0
+
+boolean LoadLevel(int levelnum)
+{
+    extern boolean ShowQuickMsg;
+    extern boolean ForceLoadDefault;
+    extern Uint16 destoff;
+
+    int i;
+    int j;
+    boolean oldloaded = loadedgame;
+    Sint32 oldchecksum;
+    objtype* ob;
+    statobj_t* statptr;
+    Sint16 handle;
+    Sint16 picnum;
+    void* temp;
+    Uint16 count;
+    objtype* ptr;
+    objtype** actorat_ptr;
+    char chunk[5] = "LVxx";
+    size_t ob_size;
+
+    extern Sint16 nsd_table[];
+    extern Sint16 sm_table[];
+
+    char mod;
+
+    WindowY = 181;
+    gamestuff.level[levelnum].locked=false;
+
+    mod = levelnum % 6;
+    normalshade_div = nsd_table[mod];
+    shade_max = sm_table[mod];
+    normalshade = (3 * (maxscale >> 2)) / normalshade_div;
+
+    // Open PLAYTEMP file
+    //
+    MakeDestPath(PLAYTEMP_FILE);
+    handle = open(tempPath, O_RDONLY | O_BINARY);
+
+    // If level exists in PLAYTEMP file, use it; otherwise, load it from scratch!
+    //
+    sprintf(&chunk[2], "%02x",levelnum);
+
+    if ((handle == -1) || (!FindChunk(handle, chunk)) || ForceLoadDefault) {
+        close(handle);
+
+        PreloadUpdate(LS_current + ((LS_total - LS_current) >> 1), LS_total);
+        SetupGameLevel();
+        gamestate.flags |= GS_VIRGIN_LEVEL;
+        gamestate.turn_around = 0;
+
+        PreloadUpdate(1, 1);
+        ForceLoadDefault = false;
+        goto overlay;
+    }
+
+    gamestate.flags &= ~GS_VIRGIN_LEVEL;
+
+    // Read all sorts of stuff...
+    //
+    checksum = 0;
+
+    loadedgame = true;
+    SetupGameLevel();
+    loadedgame = oldloaded;
+
+    ReadIt(false, tilemap, sizeof(tilemap));
+    ReadIt(false, actorat, sizeof(actorat));
+
+    actorat_ptr = (objtype**)actorat;
+
+    for (i = 0; i < MAPSIZE; ++i) {
+        for (j = 0; j < MAPSIZE; ++j) {
+            size_t value = (size_t)(*actorat_ptr);
+
+            if ((value & 0x80000000) != 0) {
+                value ^= 0x80000000;
+                *actorat_ptr = &objlist[value];
+            }
+
+            ++actorat_ptr;
+        }
+    }
+
+    ReadIt(false, areaconnect, sizeof(areaconnect));
+    ReadIt(false, areabyplayer, sizeof(areabyplayer));
+
+    // Restore 'save game' actors
+    //
+    ReadIt(false, &count, sizeof(count));
+    temp = malloc(count * sizeof(objtype));
+    ReadIt(false, temp, count * sizeof(objtype));
+    ptr = (objtype*)temp;
+
+    // start with "player" actor
+    InitActorList();
+
+    ob_size = offsetof(objtype, next);
+
+    // don't copy over links!
+    memcpy(new, ptr, ob_size);
+
+    new->state = states_list[(size_t)new->state];
+
+    ++ptr;
+
+    while (--count) {
+        GetNewActor();
+
+        // don't copy over links!
+        memcpy(new, ptr, ob_size);
+
+        actorat[new->tilex][new->tiley] = new;
+
+#if LOOK_FOR_DEAD_GUYS
+        if ((new->flags & FL_DEADGUY) != 0)
+            DeadGuys[NumDeadGuys++] = new;
+#endif
+
+        new->state = states_list[(size_t)new->state];
+
+        ++ptr;
+    }
+
+    free(temp);
+    temp = NULL;
+
+
+    //
+    //  Re-Establish links to barrier switches
+    //
+
+    ob = objlist;
+    do {
+        switch (ob->obclass) {
+        case arc_barrierobj:
+        case post_barrierobj:
+        case vspike_barrierobj:
+        case vpost_barrierobj:
+            ob->temp2 = ScanBarrierTable(ob->tilex, ob->tiley);
+            break;
+        }
+    } while ((ob = ob->next) != NULL);
+
+    ConnectBarriers();
+
+    // Read all sorts of stuff...
+    //
+    ReadIt(false, &laststatobj, sizeof(laststatobj));
+
+    if (laststatobj != NULL)
+        laststatobj = &statobjlist[(size_t)laststatobj];
+
+    ReadIt(false, statobjlist, sizeof(statobjlist));
+
+    for (i = 0; i < MAXSTATS; ++i) {
+        ptrdiff_t offset = (ptrdiff_t)statobjlist[i].visspot;
+
+        if (offset >= 0)
+            statobjlist[i].visspot = &((Uint8*)spotvis)[offset];
+        else
+            statobjlist[i].visspot = NULL;
+    }
+
+    ReadIt(false, doorposition, sizeof(doorposition));
+    ReadIt(false, doorobjlist, sizeof(doorobjlist));
+    ReadIt(false, &pwallstate, sizeof(pwallstate));
+    ReadIt(false, &pwallx, sizeof(pwallx));
+    ReadIt(false, &pwally, sizeof(pwally));
+    ReadIt(false, &pwalldir, sizeof(pwalldir));
+    ReadIt(false, &pwallpos, sizeof(pwallpos));
+    ReadIt(false, &pwalldist, sizeof(pwalldist));
+    ReadIt(false, TravelTable, sizeof(TravelTable));
+    ReadIt(false, &ConHintList, sizeof(ConHintList));
+
+    for (i = 0; i < MAX_CACHE_MSGS; ++i)
+        ConHintList.cmInfo[i].mInfo.mSeg = NULL;
+
+    ReadIt(false, eaList, sizeof(eaWallInfo) * MAXEAWALLS);
+    ReadIt(false, &GoldsternInfo, sizeof(GoldsternInfo));
+    ReadIt(false, &GoldieList,sizeof(GoldieList));
+    ReadIt(false, gamestate.barrier_table,sizeof(gamestate.barrier_table));
+    ReadIt(false, &gamestate.plasma_detonators,sizeof(gamestate.plasma_detonators));
+
+    // Read and evaluate checksum
+    //
+    PreloadUpdate(LS_current++, LS_total);
+    IO_FarRead(handle, &oldchecksum, sizeof(oldchecksum));
+
+    if (oldchecksum != checksum) {
+        Sint16 old_wx = WindowX;
+        Sint16 old_wy = WindowY;
+        Sint16 old_ww = WindowW;
+        Sint16 old_wh = WindowH;
+        Sint16 old_px = px;
+        Sint16 old_py = py;
+
+        WindowX = 0;
+        WindowY = 16;
+        WindowW = 320;
+        WindowH = 168;
+
+        CacheMessage(BADINFO_TEXT);
+
+        WindowX = old_wx;
+        WindowY = old_wy;
+        WindowW = old_ww;
+        WindowH = old_wh;
+
+        px = old_px;
+        py = old_py;
+
+        IN_ClearKeysDown();
+        IN_Ack();
+
+        gamestate.score = 0;
+        gamestate.nextextra = EXTRAPOINTS;
+        gamestate.lives = 1;
+
+        gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
+        gamestate.weapons = 1 << wp_autocharge;
+
+        gamestate.ammo = 8;
+    }
+
+    close(handle);
+
+    NewViewSize(viewsize);
+
+    // Check for Strange Door and Actor combos
+    //
+    CleanUpDoors_N_Actors();
+
+overlay:
+
+    return true;
+}
 
 //--------------------------------------------------------------------------
 // SaveLevel()
 //--------------------------------------------------------------------------
-boolean SaveLevel(Sint16 levelnum)
-{
+
 // FIXME
 #if 0
+boolean SaveLevel(Sint16 levelnum)
+{
 	objtype *ob;
 	Sint16 handle;
 	struct ffblk finfo;
@@ -742,9 +1571,186 @@ exit_func:;
 	gamestate.flags = gflags;
 
 	return(rt_value);
+}
 #endif // 0
 
-    return false;
+boolean SaveLevel(int levelnum)
+{
+    int i;
+    int j;
+    objtype* ob;
+    Sint16 handle;
+    Sint32 offset;
+    Sint32 cksize;
+    char chunk[5] = "LVxx";
+    Uint16 gflags = gamestate.flags;
+    boolean rt_value = false;
+    void* temp;
+    Uint16 count;
+    objtype* ptr;
+    objtype** actorat_ptr;
+    statobj_t* statobj_ptr;
+    char oldmapon;
+
+    WindowY = 181;
+
+    // Make sure floor stats are saved!
+    //
+    oldmapon = gamestate.mapon;
+    gamestate.mapon = gamestate.lastmapon;
+    ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
+    gamestate.mapon = oldmapon;
+
+    // Yeah! We're no longer a virgin!
+    //
+    gamestate.flags &= ~GS_VIRGIN_LEVEL;
+
+    // Open PLAYTEMP file
+    //
+    MakeDestPath(PLAYTEMP_FILE);
+
+    handle = open(tempPath, O_CREAT | O_RDWR | O_BINARY, S_IREAD | S_IWRITE);
+
+    if (handle == -1)
+        MAIN_ERROR(SAVELEVEL_DISKERR);
+
+    // Remove level chunk from file
+    //
+    sprintf(&chunk[2], "%02x", levelnum);
+    DeleteChunk(handle, chunk);
+
+    // Write level chunk id
+    //
+    write(handle, chunk, 4);
+
+    // leave four bytes for chunk size
+    lseek(handle, 4, SEEK_CUR);
+
+    checksum = 0;
+    cksize = 0;
+
+    WriteIt(false, tilemap, sizeof(tilemap));
+
+    //
+    // actorat
+    //
+
+    temp = malloc(sizeof(actorat));
+    actorat_ptr = (objtype**)temp;
+    for (i = 0; i < MAPSIZE; ++i) {
+        for (j = 0; j < MAPSIZE; ++j) {
+            size_t value = (size_t)actorat[i][j];
+
+            if (value >= (size_t)objlist) {
+                value -= (size_t)objlist;
+                value /= sizeof(objtype);
+                value |= 0x80000000;
+            }
+
+            *actorat_ptr = (objtype*)value;
+            ++actorat_ptr;
+        }
+    }
+
+    WriteIt(false, temp, sizeof(actorat));
+    free(temp);
+
+    WriteIt(false, areaconnect, sizeof(areaconnect));
+    WriteIt(false, areabyplayer, sizeof(areabyplayer));
+
+    //
+    // oblist
+    //
+
+    temp = malloc(sizeof(objlist));
+    ptr = (objtype*)temp;
+    count = 0;
+
+    for (ob = player; ob != NULL; ob = ob->next) {
+        int state_index = get_state_index(ob->state);
+
+        if (state_index < 0)
+            Quit("SaveLevel: unknown object's state.");
+
+        memcpy(ptr, ob, sizeof(objtype));
+
+        ptr->state = (statetype*)state_index;
+
+        ++count;
+        ++ptr;
+    }
+
+    WriteIt(false, &count, sizeof(count));
+    WriteIt(false, temp, count * sizeof(objtype));
+    free(temp);
+
+    //
+    // laststatobj
+    //
+
+    statobj_ptr = laststatobj;
+
+    if (statobj_ptr != NULL)
+        statobj_ptr = (statobj_t*)(statobj_ptr - statobjlist);
+
+    WriteIt(false, &statobj_ptr, sizeof(statobj_ptr));
+
+
+    //
+    // statobjlist
+    //
+
+    temp = malloc(sizeof(statobjlist));
+    memcpy(temp, statobjlist, sizeof(statobjlist));
+    statobj_ptr = (statobj_t*)temp;
+
+    for (i = 0; i < MAXSTATS; ++i) {
+        ptrdiff_t offset = statobj_ptr->visspot - &spotvis[0][0];
+        statobj_ptr->visspot = (Uint8*)offset;
+
+        ++statobj_ptr;
+    }
+
+    WriteIt(false, temp, sizeof(statobjlist));
+    free(temp);
+
+    WriteIt(false, doorposition, sizeof(doorposition));
+    WriteIt(false, doorobjlist, sizeof(doorobjlist));
+    WriteIt(false, &pwallstate, sizeof(pwallstate));
+    WriteIt(false, &pwallx, sizeof(pwallx));
+    WriteIt(false, &pwally, sizeof(pwally));
+    WriteIt(false, &pwalldir, sizeof(pwalldir));
+    WriteIt(false, &pwallpos, sizeof(pwallpos));
+    WriteIt(false, &pwalldist, sizeof(pwalldist));
+    WriteIt(false, TravelTable, sizeof(TravelTable));
+    WriteIt(false, &ConHintList, sizeof(ConHintList));
+    WriteIt(false, eaList, sizeof(eaWallInfo) * MAXEAWALLS);
+    WriteIt(false, &GoldsternInfo, sizeof(GoldsternInfo));
+    WriteIt(false, &GoldieList,sizeof(GoldieList));
+    WriteIt(false, gamestate.barrier_table, sizeof(gamestate.barrier_table));
+    WriteIt(false, &gamestate.plasma_detonators, sizeof(gamestate.plasma_detonators));
+
+    // Write checksum and determine size of file
+    //
+    WriteIt(false, &checksum, sizeof(checksum));
+    offset = tell(handle);
+
+    // Write chunk size, set file size, and close file
+    //
+    lseek(handle, -(cksize + 4), SEEK_CUR);
+    write(handle, &cksize, 4);
+
+    chsize(handle, offset);
+    close(handle);
+
+    rt_value = true;
+
+exit_func:
+
+    NewViewSize(viewsize);
+    gamestate.flags = gflags;
+
+    return rt_value;
 }
 
 //--------------------------------------------------------------------------
@@ -792,7 +1798,8 @@ Sint32 DeleteChunk(Sint16 handle, char *chunk)
 }
 
 
-
+// FIXME
+#if 0
 char SavegameInfoText[] =
     "\n\r"
     "\n\r"
@@ -800,23 +1807,23 @@ char SavegameInfoText[] =
     "    Blake Stone: Aliens Of Gold\n\r"
     "Copyright 1993, JAM Productions, Inc.\n\r"
     "\n\r"
-
-// FIXME
-#if 0
     "SAVEGAME file is from version: "__VERSION__"\n\r"
     " Compile Date :"__DATE__" : "__TIME__"\n\r"
-#endif // 0
-
-    "SAVEGAME file is from version: V1.01\n\r"
-    " Compile Date :Oct 24 1994 : 18:20:35\n\r"
-
     "-------------------------------------\n\r"
     "\x1a";
+#endif // 0
+
+char SavegameInfoText[] =
+    "bstone (planet strike) save game file\n"
+    "version: " BS_SAVE_GAME_VERSION "\n";
 
 
 //--------------------------------------------------------------------------
 // LoadTheGame()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 boolean LoadTheGame(Sint16 handle)
 {
 	extern Sint16 lastmenumusic;
@@ -924,15 +1931,142 @@ cleanup:;
 
 	return(rt_value);
 }
+#endif // 0
+
+boolean LoadTheGame(int handle)
+{
+    extern Sint16 lastmenumusic;
+
+    int shandle;
+    Sint32 cksize;
+    void* temp = NULL;
+    boolean rt_value = false;
+    char InfoSpace[400];
+    void* tempspace;
+
+    // Read in VERSion chunk
+    //
+    if (!FindChunk(handle, "VERS"))
+        goto cleanup;
+
+    cksize = sizeof(SavegameInfoText);
+    read(handle, InfoSpace, cksize);
+
+    if (memcmp(InfoSpace, SavegameInfoText, cksize) != 0) {
+        // Old Version of game
+
+        Sint16 old_wx = WindowX;
+        Sint16 old_wy = WindowY;
+        Sint16 old_ww = WindowW;
+        Sint16 old_wh = WindowH;
+        Sint16 old_px = px;
+        Sint16 old_py = py;
+
+        WindowX = 0;
+        WindowY = 16;
+        WindowW = 320;
+        WindowH = 168;
+
+        CacheMessage(BADSAVEGAME_TEXT);
+        SD_PlaySound(NOWAYSND);
+
+        WindowX = old_wx;
+        WindowY = old_wy;
+        WindowW = old_ww;
+        WindowH = old_wh;
+
+        px = old_px;
+        py = old_py;
+
+        IN_ClearKeysDown();
+        IN_Ack();
+
+        VW_FadeOut();
+        screenfaded = true;
+
+        goto cleanup;
+    }
+
+    // Read in HEAD chunk
+    //
+    if (!FindChunk(handle, "HEAD"))
+        goto cleanup;
+
+    ReadIt(false, &gamestate, sizeof(gamestate));
+
+    gamestate.msg = NULL;
+
+    ReadIt(false, &gamestuff, sizeof(gamestuff));
+
+    // Reinitialize page manager
+    //
+#if DUAL_SWAP_FILES
+    PM_Shutdown();
+    PM_Startup ();
+    PM_UnlockMainMem();
+#endif
+
+
+    // Start music for the starting level in this loaded game.
+    //
+
+    FreeMusic();
+    StartMusic(false);
+
+    // Copy all remaining chunks to PLAYTEMP file
+    //
+    MakeDestPath(PLAYTEMP_FILE);
+
+    shandle = open(
+        tempPath,
+        O_CREAT | O_RDWR | O_TRUNC | O_BINARY,
+        S_IREAD | S_IWRITE);
+
+    if (shandle == -1)
+        goto cleanup;
+
+    while (cksize = NextChunk(handle)) {
+        // include chunk ID and LENGTH
+        cksize += 8;
+
+        lseek(handle, -8, SEEK_CUR);
+        temp = malloc(cksize);
+
+        // read chunk from SAVEGAME file
+        IO_FarRead(handle,temp,cksize);
+
+        // write chunk to PLAYTEMP file
+        IO_FarWrite(shandle,temp,cksize);
+
+        free(temp);
+    }
+
+    close(shandle);
+    rt_value = true;
+
+cleanup:
+    NewViewSize(viewsize);
+
+    // Load current level
+    //
+    if (rt_value) {
+        LoadLevel(0xff);
+        ShowQuickMsg = false;
+    }
+
+    return rt_value;
+}
+
 
 
 //--------------------------------------------------------------------------
 // SaveTheGame()
 //--------------------------------------------------------------------------
-boolean SaveTheGame(Sint16 handle, char *description)
-{
+
 // FIXME
 #if 0
+boolean SaveTheGame(Sint16 handle, char *description)
+{
 	struct ffblk finfo;
 	Uint32 cksize,offset;
 	Sint16 shandle;
@@ -1013,9 +2147,72 @@ cleanup:;
 //
 
 	return(rt_value);
+}
 #endif // 0
 
-    return false;
+boolean SaveTheGame(int handle, const char* description)
+{
+    Uint32 cksize;
+    Uint32 offset;
+    int shandle;
+    void* temp;
+    char nbuff[GAME_DESCRIPTION_LEN + 1];
+    boolean rt_value = false;
+    boolean exists;
+
+    // Save current level -- saves it into PLAYTEMP.
+    //
+    SaveLevel(0xff);
+
+    // Write VERSion chunk
+    //
+    cksize = sizeof(SavegameInfoText);
+    write(handle, "VERS", 4);
+    write(handle, &cksize, 4);
+    IO_FarWrite(handle, SavegameInfoText, cksize);
+
+    // Write DESC chunk
+    //
+    memcpy(nbuff, description, sizeof(nbuff));
+    cksize = strlen(nbuff) + 1;
+    write(handle, "DESC", 4);
+    write(handle, &cksize, 4);
+    write(handle, nbuff, cksize);
+
+    // Write HEAD chunk
+    //
+    cksize = 0;
+    write(handle, "HEAD", 4);
+
+     // leave four bytes for chunk size
+    lseek(handle, 4, SEEK_CUR);
+
+    WriteIt(false, &gamestate, sizeof(gamestate));
+    WriteIt(false, &gamestuff, sizeof(gamestuff));
+
+    lseek(handle, -(cksize+4), SEEK_CUR);
+    write(handle, &cksize, 4);
+    lseek(handle,cksize,SEEK_CUR);
+
+    // Append PLAYTEMP file to savegame file
+    //
+    MakeDestPath(PLAYTEMP_FILE);
+
+    shandle = open(tempPath, O_RDONLY | O_BINARY);
+
+    if (shandle == -1)
+        goto cleanup;
+
+    IO_CopyHandle(shandle, handle, -1);
+
+    close(shandle);
+    rt_value = true;
+
+cleanup:
+
+    NewViewSize(viewsize);
+
+    return rt_value;
 }
 
 //--------------------------------------------------------------------------
@@ -1102,6 +2299,9 @@ boolean CheckDiskSpace(Sint32 needed,char *text,cds_io_type io_type)
 //--------------------------------------------------------------------------
 // CleanUpDoors_N_Actors()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void CleanUpDoors_N_Actors(void)
 {
 	char x,y;
@@ -1145,6 +2345,43 @@ void CleanUpDoors_N_Actors(void)
       	actor_ptr++;
       }
 }
+#endif // 0
+
+void CleanUpDoors_N_Actors()
+{
+    int x;
+    int y;
+    objtype* actor;
+    Uint8 tile;
+    Uint16 door;
+
+    for (y = 0; y < mapheight; ++y) {
+        for (x = 0; x < mapwidth; ++x) {
+            tile = tilemap[y][x];
+
+            if ((tile & 0x80) != 0) {
+                // Found a door
+
+                actor = actorat[y][x];
+
+                if (ui16_to_actor((Uint16)actor) != NULL) {
+                    // Found an actor
+
+                    door = tile & 0x3F;
+
+                    if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY))
+                        actor->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
+
+                    // Make sure door is open
+
+                    doorobjlist[door].ticcount = 0;
+                    doorobjlist[door].action = dr_open;
+                    doorposition[door] = 0xFFFF;
+                }
+            }
+        }
+    }
+}
 
 
 //--------------------------------------------------------------------------
@@ -1185,7 +2422,7 @@ void ClearNClose()
 #endif // 0
 
         // make it solid!
-        *((size_t*)(&actorat[tx][ty])) = doornum | 0x80;
+        actorat[tx][ty] = (objtype*)(doornum | 0x80);
 	}
 }
 

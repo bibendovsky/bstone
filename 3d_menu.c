@@ -19,7 +19,7 @@ void DrawTopInfo(sp_type type);
 void PreloadUpdate(Uint16 current, Uint16 total);
 void ShowViewSize (Sint16 width);
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
-boolean LoadTheGame(Sint16 handle);
+boolean LoadTheGame(int handle);
 boolean IN_CheckAck();
 void in_handle_events();
 

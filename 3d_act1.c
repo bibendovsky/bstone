@@ -320,7 +320,7 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 #endif // 0
 
             // consider it a blocking tile
-            *((size_t*)(&actorat[tilex][tiley])) = 1;
+            actorat[tilex][tiley] = (objtype*)1;
 		break;
 
 		case	bo_red_key:
@@ -796,7 +796,7 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 #endif // 0
 
     // consider it a solid wall
-    *((size_t*)(&actorat[tilex][tiley])) = doornum | 0x80;
+    actorat[tilex][tiley] = (objtype*)(doornum | 0x80);
 
 //
 // make the door tile a special tile, and mark the adjacent tiles
@@ -1011,7 +1011,7 @@ void CloseDoor (Sint16 door)
 		= door | 0x80;
 #endif // 0
 
-    *((size_t*)(&actorat[tilex][tiley])) = door | 0x80;
+    actorat[tilex][tiley] = (objtype*)(door | 0x80);
 
 	CheckLinkedDoors(door,dr_closing);
 
@@ -1431,7 +1431,7 @@ void DoorClosing (Sint16 door)
 	|| (player->tilex == tilex && player->tiley == tiley) )
 #endif // 0
 
-	if (((size_t)actorat[tilex][tiley] != (door | 0x80)) ||
+	if ((actorat[tilex][tiley] != (objtype*)(door | 0x80)) ||
         (player->tilex == tilex && player->tiley == tiley))
 	{			// something got inside the door
 		OpenDoor (door);
@@ -1564,9 +1564,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx][checky-1] = oldtile;
 #endif // 0
 
-        *((size_t*)(&actorat[checkx][checky-1])) =
-            tilemap[checkx][checky-1] = oldtile;
-
+        tilemap[checkx][checky-1] = oldtile;
+        actorat[checkx][checky-1] = (objtype*)oldtile;
 		break;
 
 	case di_east:
@@ -1581,9 +1580,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx+1][checky] = oldtile;
 #endif // 0
 
-        *((size_t*)(&actorat[checkx+1][checky])) =
-            tilemap[checkx+1][checky] = oldtile;
-
+        tilemap[checkx+1][checky] = oldtile;
+        actorat[checkx+1][checky] = (objtype*)oldtile;
 		break;
 
 	case di_south:
@@ -1598,9 +1596,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx][checky+1] = oldtile;
 #endif // 0
 
-        *((size_t*)(&actorat[checkx][checky+1])) =
-            tilemap[checkx][checky+1] = oldtile;
-
+        tilemap[checkx][checky+1] = oldtile;
+        actorat[checkx][checky+1] = (objtype*)oldtile;
 		break;
 
 	case di_west:
@@ -1615,9 +1612,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx-1][checky] = oldtile;
 #endif // 0
 
-        *((size_t*)(&actorat[checkx-1][checky])) =
-            tilemap[checkx-1][checky] = oldtile;
-
+        tilemap[checkx-1][checky] = oldtile;
+        actorat[checkx-1][checky] = (objtype*)oldtile;
 		break;
 	}
 
@@ -1709,8 +1705,8 @@ void MovePWalls (void)
 				tilemap[pwallx][pwally-1] = oldtile;
 #endif // 0
 
-                *((size_t*)(&actorat[pwallx][pwally - 1])) =
-                    tilemap[pwallx][pwally - 1] = oldtile;
+                tilemap[pwallx][pwally - 1] = oldtile;
+                actorat[pwallx][pwally - 1] = (objtype*)oldtile;
 				break;
 
 			case di_east:
@@ -1727,8 +1723,8 @@ void MovePWalls (void)
 				tilemap[pwallx+1][pwally] = oldtile;
 #endif // 0
 
-                *((size_t*)(&actorat[pwallx+1][pwally])) =
-                    tilemap[pwallx+1][pwally] = oldtile;
+                tilemap[pwallx+1][pwally] = oldtile;
+                actorat[pwallx+1][pwally] = (objtype*)oldtile;
 				break;
 
 			case di_south:
@@ -1745,8 +1741,8 @@ void MovePWalls (void)
 				tilemap[pwallx][pwally+1] = oldtile;
 #endif // 0
 
-                *((size_t*)(&actorat[pwallx][pwally+1])) =
-                    tilemap[pwallx][pwally+1] = oldtile;
+                tilemap[pwallx][pwally+1] = oldtile;
+                actorat[pwallx][pwally+1] = (objtype*)oldtile;
 				break;
 
 			case di_west:
@@ -1763,8 +1759,8 @@ void MovePWalls (void)
 				tilemap[pwallx-1][pwally] = oldtile;
 #endif // 0
 
-                *((size_t*)(&actorat[pwallx-1][pwally])) =
-                    tilemap[pwallx-1][pwally] = oldtile;
+                tilemap[pwallx-1][pwally] = oldtile;
+                actorat[pwallx-1][pwally] = (objtype*)oldtile;
 				break;
 			}
 
@@ -2026,7 +2022,7 @@ void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinety
 	(Uint16)actorat[tilex][tiley] = ConHintList.NumMsgs;
 #endif // 0
 
-    *((size_t*)(&actorat[tilex][tiley])) = ConHintList.NumMsgs;
+    actorat[tilex][tiley] = (objtype*)ConHintList.NumMsgs;
 
 //
 // BORLAND SCREWS UP WHEN COMPILING THE LINE BELOW, EVEN THOUGH
