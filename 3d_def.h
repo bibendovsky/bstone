@@ -24,7 +24,7 @@
 #define LAMP_ON_SHADING					((char)-12)
 #define EXPLOSION_SHADING				((char)-52)
 
-//#define PAGEFLIP
+#define PAGEFLIP
 
 #define BETA_TEST							(0)
 #define LOOK_FOR_DEAD_GUYS				(0)

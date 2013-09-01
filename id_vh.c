@@ -465,6 +465,7 @@ boolean FizzleFade(
     int src_offset;
     int dst_offset;
     int pixel_offset;
+    int pixel_count;
 
     y = 0;
     rndval = 1;
@@ -483,9 +484,10 @@ boolean FizzleFade(
         if (abortable && IN_CheckAck())
             return true;
 
-        for (p = 0; p < pixperframe + remain_pixels; ++p) {
-            remain_pixels = 0;
+        pixel_count = pixperframe + remain_pixels;
+        remain_pixels = 0;
 
+        for (p = 0; p < pixel_count; ++p) {
             x = (rndval >> 8) & 0xFFFF;
             y = ((rndval & 0xFF) - 1) & 0xFF;
 
@@ -496,14 +498,15 @@ boolean FizzleFade(
             if (carry)
                 rndval ^= 0x00012000;
 
-            if (x < width && y < height) {
-                pixel_offset = (y * vanilla_screen_width) + x;
+            if (x > width || y > height)
+                continue;
 
-                vga_memory[dst_offset + pixel_offset] =
-                    vga_memory[src_offset + pixel_offset];
-            }
+            pixel_offset = (y * vanilla_screen_width) + x;
 
-            if (rndval <= 1)
+            vga_memory[dst_offset + pixel_offset] =
+                vga_memory[src_offset + pixel_offset];
+
+            if (rndval == 1)
                 return false;
         }
 
