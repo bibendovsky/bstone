@@ -238,7 +238,6 @@ void NewState (objtype *ob, statetype *state)
 boolean TryWalk (objtype *ob, boolean moveit)
 {
 	Sint16			doornum;
-	Uint16	temp;
 	Uint8 old_tilex=ob->tilex,old_tiley=ob->tiley;
 
 	if (ElevatorFloor(ob->tilex,ob->tiley))
@@ -598,7 +597,7 @@ void SelectDodgeDir (objtype *ob)
 
 void SelectChaseDir (objtype *ob)
 {
-	Sint16 deltax,deltay,i;
+	Sint16 deltax,deltay;
 	dirtype d[3];
 	dirtype tdir, olddir, turnaround;
 
@@ -927,7 +926,6 @@ extern Sint16 numEnemy[];
 
 void KillActor (objtype *ob)
 {
-	char buff[4];
 	Sint16	tilex,tiley;
 	boolean KeepSolid = false, givepoints=true, deadguy = true;
 	classtype clas;
@@ -1245,9 +1243,6 @@ extern boolean barrier_damage;
 void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 {
 	Sint16 old_hp = ob->hitpoints,wound_mod,mod_before=0,mod_after=1;
-
-    // FIXME
-    objtype* tmp_o;
 
 	if (!(ob->flags & FL_SHOOTABLE))
 		return;
@@ -1653,7 +1648,6 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 	Sint16	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
 	Sint16	x,y;
 	Sint16	xdist,ydist,xstep,ystep;
-	Sint16	temp;
 	Sint16	partial,delta;
 	Sint32	ltemp;
 	Sint16	xfrac,yfrac,deltafrac;

@@ -279,7 +279,6 @@ ansok:;
 //
 void TransformActor (objtype *ob)
 {
-	Sint16 ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
 	Sint32	temp;
     Sint32 q;
@@ -364,7 +363,6 @@ void TransformActor (objtype *ob)
 */
 boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 {
-	Sint16 ratio;
 	fixed gx,gy,gxt,gyt,nx,ny;
 	Sint32	temp;
     Sint32 q;
@@ -446,9 +444,7 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 
 Sint16 CalcHeight()
 {
-	Sint16	transheight;
-	Sint16 	ratio;
-	fixed gxt,gyt,nx,ny;
+	fixed gxt,gyt,nx;
 	Sint32	gx,gy;
     Sint16 result;
 
@@ -1600,10 +1596,8 @@ visobj_t	vislist[MAXVISABLE],*visptr,*visstep,*farthest;
 
 void DrawScaleds (void)
 {
-	Sint16 		i,j,least,numvisable,height;
-	void*	shape;
+	Sint16 		i,least,numvisable,height;
 	Uint8		*tilespot,*visspot;
-	Sint16		shapenum;
 	Uint16	spotloc;
 
 	statobj_t	*statptr;
@@ -1869,7 +1863,7 @@ void DrawPlayerWeapon (void)
 
 void CalcTics (void)
 {
-	Sint32	newtime,oldtimecount;
+	Sint32	newtime;
 
 #ifdef MYPROFILE
 	tics = 3;
@@ -2044,8 +2038,6 @@ void MapLSRow();
 
 void	ThreeDRefresh (void)
 {
-	Sint16 tracedir;
-
 // FIXME
 #if 0
 // this wouldn't need to be done except for my debugger/video wierdness
@@ -2285,7 +2277,7 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 	extern Uint8 pixmasks[];
 	extern const Uint8 rndtable[256];
 
-	Uint8 color,quad;
+	Uint8 color;
 	Uint8 tile,door;
 	objtype *ob;
 

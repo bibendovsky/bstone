@@ -1073,7 +1073,7 @@ void DrawEpisodePic(Sint16 w)
 //--------------------------------------------------------------------------
 void CP_GameOptions(Sint16 temp1)
 {
-	Sint16 which,i;
+	Sint16 which;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 	DrawGopMenu();
@@ -1136,7 +1136,7 @@ void ChangeSwaps(void)
 //--------------------------------------------------------------------------
 void CP_Switches(Sint16 temp1)
 {
-	Sint16 which,i;
+	Sint16 which;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 	DrawSwitchMenu();
@@ -1287,7 +1287,7 @@ void DrawSwitchDescription(Sint16 which)
 //--------------------------------------------------------------------------
 void CP_Sound(Sint16 temp1)
 {
-	Sint16 which,i;
+	Sint16 which;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
  DrawSoundMenu();
@@ -1404,8 +1404,6 @@ void CP_Sound(Sint16 temp1)
 //--------------------------------------------------------------------------
 void DrawSoundMenu(void)
 {
-	Sint16 i,on;
-
 	//
 	// DRAW SOUND MENU
 	//
@@ -1656,7 +1654,6 @@ void DrawLoadSaveScreen(Sint16 loadsave)
 //--------------------------------------------------------------------------
 void PrintLSEntry(Sint16 w,Sint16 color)
 {
-	char buff[4];
 	SETFONTCOLOR(color,BKGDCOLOR);
 	DrawOutline(LSM_X+LSItems.indent,LSM_Y+w*LSItems.y_spacing-2,LSM_W-LSItems.indent,8,color,color);
 
@@ -1680,7 +1677,6 @@ Sint16 CP_SaveGame(Sint16 quick)
 {
 
 	Sint16 handle,which,exit=0;
-	Uint16 nwritten;
 	char name[13],input[GAME_DESCRIPTION_LEN+1];
 	boolean temp_caps = allcaps;
 	US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
@@ -1805,7 +1801,7 @@ void CP_Control(Sint16 temp1)
 
 	enum {MOUSEENABLE,JOYENABLE,USEPORT2,PADENABLE,CALIBRATEJOY,MOUSESENS,CUSTOMIZE};	 
 
- 	Sint16 i,which;
+ 	Sint16 which;
 
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 
@@ -2297,6 +2293,8 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 #if 0
 					 button=_BX;
 #endif // 0
+                     button = 0;
+
 		   	    switch(button)
 			       {
 						case 1: result=1; break;
@@ -3479,6 +3477,9 @@ void ReadAnyControl(ControlInfo *ci)
   mousey=_DX;
 #endif // 0
 
+    mousex = 0;
+    mousey = 0;
+
   if (mousey<CENTER-SENSITIVE)
   {
 	ci->dir=dir_North;
@@ -3583,7 +3584,7 @@ void ReadAnyControl(ControlInfo *ci)
 ////////////////////////////////////////////////////////////////////
 Sint16 Confirm(char *string)
 {
-	Sint16 xit=0,i,x,y,tick=0,time,whichsnd[2]={ESCPRESSEDSND,SHOOTSND};
+	Sint16 xit=0,x,y,tick=0,whichsnd[2]={ESCPRESSEDSND,SHOOTSND};
 
 
 	Message(string);
@@ -3655,7 +3656,7 @@ Sint16 Confirm(char *string)
 //---------------------------------------------------------------------------
 void Message(char *string)
 {
-	Sint16 h=0,w=0,mw=0,i,x,y,time;
+	Sint16 h=0,w=0,mw=0,i;
 	fontstruct *font;
 	Uint16 OldPrintX,OldPrintY;
 

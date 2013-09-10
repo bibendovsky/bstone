@@ -601,8 +601,7 @@ void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 //--------------------------------------------------------------------------
 void ExplodeStatics(Sint16 tilex, Sint16 tiley)
 {
-	statobj_t *statobj, *spot;
-   objtype *obj;						
+	statobj_t *spot;
    Sint16 y_diff,x_diff;
 	boolean remove;
 
@@ -761,7 +760,6 @@ void InitDoorList (void)
 
 void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door_t type)
 {
-	Sint16	areanumber;
 	Uint16	*map[2];
 
 	map[0] = mapsegs[0] + farmapylookup[tiley]+tilex;
@@ -1038,7 +1036,7 @@ char od_operating[]="\r\r    OPERATING DOOR.\r^XX";
 void OperateDoor (Sint16 door)
 {
 	Sint16	lock;
-	boolean OperateMsg,oneway = false;
+	boolean oneway = false;
 
 
 	//
@@ -1313,7 +1311,6 @@ Sint16 TransformAreas(char tilex, char tiley, char xform)
 {
 	Sint16 xofs,yofs;
 	Uint8		area1,area2;
-	Uint16	*map,offset;
 
 // Is this walkway:  Horizontal?   Vertical?   Error?
 //
@@ -1362,8 +1359,7 @@ Sint16 TransformAreas(char tilex, char tiley, char xform)
 
 void DoorOpening (Sint16 door)
 {
-	Sint16		area1,area2;
-	Uint16	*map;
+	Sint16		area1;
 	Sint32	position;
 
 	position = doorposition[door];
@@ -1417,8 +1413,6 @@ void DoorOpening (Sint16 door)
 */
 void DoorClosing (Sint16 door)
 {
-	Sint16		area1,area2,move;
-	Uint16	*map;
 	Sint32	position;
 	Sint16		tilex,tiley;
 
@@ -2104,7 +2098,6 @@ char OutOrder[] 	= {"\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"};
 void OperateConcession(Uint16 concession)
 {
 	con_mCacheInfo *ci;
-	char *msgptr;
 	boolean ok=false;
 
 	ci=&ConHintList.cmInfo[concession-1];
@@ -2202,7 +2195,7 @@ char xy_offset[8][2]={{0,-1},{0,+1},{-1,0},{+1,0},				// vert / horz
 void CheckSpawnEA()
 {
 	objtype temp,*ob;
-	char loop,ofs,tx,ty,x_diff,y_diff;
+	char loop,ofs,x_diff,y_diff;
 
 	if (objcount > MAXACTORS-8)
 		return;

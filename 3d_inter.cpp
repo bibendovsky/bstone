@@ -199,7 +199,7 @@ void PreloadGraphics(void)
 
 void	DrawHighScores(void)
 {
-	char		buffer[16],*str;
+	char		buffer[16];
 	Uint16		i,
 				w,h;
 	HighScore	*s;

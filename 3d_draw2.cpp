@@ -70,11 +70,10 @@ extern const Uint8 * shadingtable;
 void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 {
 	fixed		length;
-	Sint16			ofs;
 	Sint16			prestep;
 	fixed		startxfrac, startyfrac;
 
-	Sint16			x, startx, count, plane, startplane;
+	Sint16			startx, plane, startplane;
 // FIXME
 #if 0
 	Uint8		*toprow, *dest;

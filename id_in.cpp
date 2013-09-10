@@ -735,6 +735,8 @@ INL_GetMouseButtons(void)
 	buttons = _BX;
 #endif // 0
 
+    buttons = 0;
+
 	return(buttons);
 }
 
@@ -850,7 +852,6 @@ asm		popf				// Restore the registers
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy)
 {
 	Uint16		x,y;
-	Uint32	time;
 	JoystickDef	*def;
 static	Uint32	lasttime;
 
@@ -1253,8 +1254,6 @@ IN_SetKeyHook(void (*hook)())
 void
 IN_ClearKeysDown(void)
 {
-	Sint16	i;
-
 	LastScan = sc_None;
 	LastASCII = key_None;
 	memset (Keyboard,0,sizeof(Keyboard));
@@ -1304,11 +1303,9 @@ void
 IN_ReadControl(Sint16 player,ControlInfo *info)
 {
 			boolean		realdelta=false;
-			Uint8		dbyte;
 			Uint16		buttons;
 			Sint16			dx,dy;
 			Motion		mx,my;
-			ControlType	type;
 register	KeyboardDef	*def;
 
     in_handle_events();

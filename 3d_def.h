@@ -2089,9 +2089,7 @@ struct objtype
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object
-    // or'ed with mask to identify a type of object (see stub.c).
-    // TODO: Fix loading/saving game state.
+    // Since our code is at least 32-bit we are using an index of object.
 	Sint16 hitpoints;
 
 	Uint8 ammo;
@@ -2104,16 +2102,12 @@ struct objtype
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object
-    // or'ed with mask to identify a type of object (see stub.c).
-    // TODO: Fix loading/saving game state.
+    // Since our code is at least 32-bit we are using an index of object.
 	Sint16 temp2;
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object
-    // or'ed with mask to identify a type of object (see stub.c).
-    // TODO: Fix loading/saving game state.
+    // Since our code is at least 32-bit we are using an index of object.
 	Uint16 temp3;		// holds 'last door used' by 'smart' actors
 
 	objtype *next,*prev;
@@ -2915,12 +2909,15 @@ objtype *CheckAndReserve(void);
 
 #define COMPSCALECODESTART      (65*4)          // offset to start of code in comp scaler
 
+// FIXME
+#if 0
 typedef struct
 {
 	Uint16        codeofs[65];
 	Uint16        width[65];
 	Uint8            code[];
 }       t_compscale;
+#endif // 0
 
 typedef struct
 {
@@ -2929,8 +2926,11 @@ typedef struct
 // table data after dataofs[rightpix-leftpix+1]
 }       t_compshape;
 
-
+// FIXME
+#if 0
 extern  t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
+#endif // 0
+
 extern  Sint32                    fullscalefarcall[MAXSCALEHEIGHT+1];
 
 extern  Uint8            bitmasks1[8][8];

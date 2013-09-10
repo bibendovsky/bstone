@@ -378,7 +378,6 @@ boolean MOVIE_LoadBuffer()
 //---------------------------------------------------------------------------
 Sint16 MOVIE_GetFrame()
 {
-	Uint16 ReturnVal;
    anim_frame blk;
 
 	if (PageLen == 0)

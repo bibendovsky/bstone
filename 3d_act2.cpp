@@ -467,7 +467,6 @@ Uint16 scan_value;
 //---------------------------------------------------------------------------
 void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 {
-	Uint16	*map,tile;
 	enemy_t dir_which;
 
 	switch (which)
@@ -2194,8 +2193,6 @@ statetype s_barrier_shutdown		= {0,0,15,T_BarrierShutdown,NULL,&s_barrier_shutdo
 //---------------------------------------------------------------------------
 void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
 {
-	enemy_t dir_which;
-
    nevermark = !OnOff;
 	SpawnNewObj (tilex,tiley,&s_ofs_stand);
    nevermark = false;
@@ -3160,7 +3157,7 @@ void T_SwatWound(objtype *ob)
 */
 void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 {
-	Uint16	*map,tile,ammo=8;
+	Uint16	ammo=8;
 
 	switch (which)
 	{
@@ -4197,7 +4194,6 @@ exit_func:;
 void T_Path (objtype *ob)
 {
 	Sint32 	move;
-	Sint32 	deltax,deltay,size;
 
 	if (ob->flags & FL_STATIONARY)
 		return;
@@ -5109,7 +5105,6 @@ void T_Seek(objtype *ob)
 {
 	#define MAX_VIS_DIST		15
 
-	Sint32 move;
 	Sint16	dx,dy,dist,chance;
 	boolean	target_found;
 
@@ -5349,7 +5344,6 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 	#define PROJECTILE_MAX_STEP	PROJWALLSIZE
 
 	Uint16 xl,yl,xh,yh,x,y,steps;
-	fixed dx, dy;
 	Sint16 ydist,xdist;
 
    proj_wall = 0;		
@@ -5682,8 +5676,6 @@ void ExplodeFill(char tx, char ty);
 //---------------------------------------------------------------------------
 void ExplodeRadius(objtype *obj, Sint16 damage, boolean damageplayer)
 {
-	Sint16 xl,yl,xh,yh,y,x;
-
 //
 // Did this object start out in a wall?
 //
@@ -5755,8 +5747,6 @@ void ExplodeFill(char tx, char ty)
 	char bx=tx-ff_obj->tilex+EX_RADIUS,
 		  by=ty-ff_obj->tiley+EX_RADIUS,
 		  door,no_wall;
-
-	statobj_t *statobj;
 
 // Damage actors on this spot!
 //
@@ -6017,7 +6007,7 @@ void T_BlowBack(objtype *obj)
 	};
 
 	Sint32	deltax,deltay;
-   Uint16 angle,dist;
+   Uint16 dist;
    objtype *killer;
 
 	if (obj->flags & FL_NO_SLIDE)

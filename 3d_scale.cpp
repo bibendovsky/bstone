@@ -78,9 +78,6 @@ void BadScale (void)
 
 void SetupScaling (Sint16 maxscaleheight)
 {
-	Sint16		i,x,y;
-	Uint8	*dest;
-
 	maxscaleheight/=2;			// one scaler every two pixels
 
 	maxscale = maxscaleheight-1;
@@ -397,7 +394,6 @@ void ScaleMaskedWideLSPost(int height, int buf, Uint16 xx, Uint16 pwidth)
 {
     Uint8  ofs;
     Uint8  msk;
-    Uint16 ii;
 
     buf += xx >> 2;
     ofs = ((Uint8)(xx & 3) << 3) + (Uint8)pwidth - 1;
@@ -587,7 +583,6 @@ void ScaleMaskedWidePost(Sint16 height, Uint16 buf, Uint16 xx, Uint16 pwidth)
 {
     Uint8 ofs;
     Uint8 msk;
-    Uint16 ii;
 
     buf += xx >> 2;
     ofs = ((Uint8)(xx & 3) << 3) + (Uint8)pwidth - 1;
@@ -639,7 +634,6 @@ extern const Uint8 * lightsource;
 void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting)
 {
 	t_compshape	*shape;
-	Sint16      dest;
 	Sint16      i;
 	Uint32 frac;
 	Uint16 width;
@@ -826,8 +820,6 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 {
 	t_compshape	*shape;
-	Sint16      dest;
-	Sint16      i;
 	Uint32 frac;
 	Uint16 width;
 	Sint16      x1,x2;
@@ -1006,8 +998,6 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 {
 	t_compshape	*shape;
-	Sint16      dest;
-	Sint16      i;
 	Uint32 frac;
 	Sint16      width;
 	Sint16      x1,x2;
@@ -1258,8 +1248,6 @@ void MegaSimpleScaleShape(
     int shade)
 {
     t_compshape* shape;
-    int dest;
-    int i;
     unsigned frac;
     int width;
     int x1;

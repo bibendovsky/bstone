@@ -272,7 +272,7 @@ void	T_Stand (objtype *ob);
 
 void CheckWeaponChange (void)
 {
-	Sint16	i,buttons,last;
+	Sint16	i;
 
 	for (i=wp_autocharge;i<=wp_bfg_cannon;i++)
 	{
@@ -311,9 +311,8 @@ void CheckWeaponChange (void)
 void ControlMovement (objtype *ob)
 {
 	Sint32	oldx,oldy;
-	Sint16		angle,maxxmove;
+	Sint16		angle;
 	Sint16		angleunits;
-	Sint32	speed;
 
 	thrustspeed = 0;
 
@@ -698,7 +697,6 @@ void	DrawScoreNum(void)
 void UpdateScore(void)
 {
 	Sint32 score_diff, temp_tics;
-	boolean RollSound;
 
 	score_diff = gamestate.score - gamestate.tic_score;
 
@@ -1357,8 +1355,6 @@ boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint
 //--------------------------------------------------------------------------
 void ClearInfoArea(void)
 {
-	Uint16 i,old_ofs;
-
 #if IN_DEVELOPMENT
 	if (gamestate.flags & GS_SHOW_OVERHEAD)
 		return;
@@ -1456,8 +1452,6 @@ char destroyGoldfire_msg[]="\r\r^FC39  DESTROY GOLDFIRE!";
 
 void DisplayNoMoMsgs(void)
 {
-	char buffer[9];
-
 	LastMsgPri = MP_min_val;
 
 	if (BONUS_QUEUE)
@@ -1538,7 +1532,6 @@ void DrawInfoArea(void)
 //	Sint16 length,i;
 	char *first_ch;
 	char *scan_ch,temp;
-	Uint16 old_ofs;
 
 #if IN_DEVELOPMENT
 	if (gamestate.flags & GS_SHOW_OVERHEAD)
@@ -1582,7 +1575,6 @@ void DrawInfoArea(void)
 
 			if (*first_ch != TP_RETURN_CHAR)
 			{
-				Sint16 i;
 				char temp_color;
 
 				temp_color = fontcolor;
@@ -1628,13 +1620,10 @@ void DrawInfoArea(void)
 //---------------------------------------------------------------------------
 char *HandleControlCodes(char *first_ch)
 {
-	spritetabletype *spr;
 //	piShapeInfo *shape_info;
 	piShapeInfo *shape;
 	piAnimInfo *anim;
 	Uint16 shapenum;
-	Sint16 length,width;
-	char *s;
 
 	first_ch++;
 
@@ -1731,7 +1720,7 @@ char *HandleControlCodes(char *first_ch)
 Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 {
 	Sint16 width;
-	Uint16 i,old_ofs,shade;
+	Uint16 shade;
 
 //	width=TP_BoxAroundShape(x,y,shapenum,shapetype);
 
@@ -2017,7 +2006,7 @@ extern char bonus_msg25[];
 void GetBonus (statobj_t *check)
 {
 	boolean givepoints=false;
-	Sint16 shapenum = -1,possible;
+	Sint16 shapenum = -1;
 
 	switch (check->itemnumber)
 	{
@@ -2349,7 +2338,6 @@ void Thrust (Sint16 angle, Sint32 speed)
 	extern Uint8 TravelTable[MAPSIZE][MAPSIZE];
 	objtype dumb;
 	Sint32 xmove,ymove;
-	Sint32	slowmax;
 	Uint16	offset, *map[2];
 	Sint16 dx,dy;
 	Sint16 dangle;
@@ -2463,7 +2451,7 @@ boolean GAN_HiddenArea;
 //------------------------------------------------------------------------
 char GetAreaNumber(char tilex, char tiley)
 {
-	Uint16 offset, *map, *ptr[2], loop;
+	Uint16 offset, *ptr[2], loop;
 	Uint8 areanumber;
 
 	GAN_HiddenArea = false;
@@ -2575,10 +2563,8 @@ void Cmd_Fire (void)
 
 void Cmd_Use (void)
 {
-	objtype 	*check;
 	Sint16			checkx,checky,doornum,dir;
 	Uint16 iconnum;
-	Uint16 offset,new_level;
 	Uint8 static interrogate_delay=0;
 	boolean tryDetonator = false;
 
@@ -2823,8 +2809,6 @@ boolean Interrogate(objtype *ob)
 
 	if (ob->flags & FL_INFORMANT)						// Informant
 	{
-		Sint16 msgnum;
-
 		strcat(msg,int_informant);
 
 		if (ob->flags & FL_INTERROGATED)
@@ -3213,7 +3197,6 @@ void ShowOverheadChunk(void)
 void LoadOverheadChunk(Sint16 tpNum)
 {
 	Sint16 handle;
-	Sint32 offset;
 	char chunk[5]="OVxx";
 
 // Open PLAYTEMP file
@@ -4624,7 +4607,7 @@ void	GunAttack (objtype *ob)
 void	T_Attack (objtype *ob)
 {
 	atkinf_t	*cur;
-	Sint16 x, wp_start;
+	Sint16 x;
 
 	if (noShots)
 	{

@@ -831,7 +831,6 @@ tp_newline:;
 void TP_HandleCodes()
 {
 	ControlInfo ci;
-	spritetabletype *spr;
 	piAnimInfo *anim;
 	piShapeInfo *shape;
 	Uint16 shapenum;

@@ -323,9 +323,9 @@ Sint16 numEnemy[gold_morphingobj];
 
 void ScanInfoPlane (void)
 {
-	Uint16	x,y,i,j;
+	Uint16	x,y;
 	Sint16			tile;
-	Uint16	*start, *floor;
+	Uint16	*start;
 	boolean gotlight = false,gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
@@ -2157,13 +2157,11 @@ void SetupGameLevel (void)
 {
 	extern boolean ForceLoadDefault;
    boolean switchon = false;
-	void* hold;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
-	Sint16	x,y,i;
-	Uint16	*map,tile,spot,icon;
+	Sint16	x,y;
+	Uint16	*map,tile,icon;
 	keytype lock;
 	Uint16	*map1,*map2;
-	char *temp_ptr;
 	Sint16 count;
 
 	if (!loadedgame)
@@ -2785,7 +2783,7 @@ void DrawWarpIn(void)
 //---------------------------------------------------------------------------
 void Warped(void)
 {
-	Sint16		iangle,i;
+	Sint16		iangle;
 
 	DisplayInfoMsg("\r\r\r   TRANSPORTING OUT",MP_POWERUP,7*60,MT_GENERAL);
 	gamestate.old_weapons[3] = gamestate.weapon;
@@ -3111,9 +3109,7 @@ void PlayDemo (Sint16 demonumber)
 
 void Died (void)
 {
-	float	fangle;
-	Sint32	dx,dy;
-	Sint16		iangle,curangle,clockwise,counter,change;
+	Sint16		iangle;
 
 	gamestate.weapon = -1;			// take away weapon
 	SD_PlaySound (PLAYERDEATHSND);
@@ -3316,9 +3312,6 @@ void GameLoop (void)
 {
 	extern boolean sqActive;
 
-	char mod;
-
-	Sint16 i,xl,yl,xh,yh;
 	char Score[13];
 	boolean	died;
 #ifdef MYPROFILE
@@ -3332,7 +3325,6 @@ restartgame:
 	DrawPlayScreen (true);
 
 	died = false;
-restart:
 	do
 	{
 		extern Sint16 pickquick;

@@ -344,6 +344,9 @@ void PollMouseMove (void)
 	mouseymove = _DX;
 #endif // 0
 
+    mousexmove = 0;
+    mouseymove = 0;
+
 // Double speed when shift is pressed.
 //
 	if (Keyboard[sc_LShift] || Keyboard[sc_RShift] || buttonstate[bt_run])
@@ -605,9 +608,7 @@ char PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 void CheckKeys (void)
 {
 	boolean one_eighty=false;
-	Sint16		i;
 	Uint8	scan;
-	Uint16	temp;
 	static boolean Plus_KeyReleased;
 	static boolean Minus_KeyReleased;
 	static boolean I_KeyReleased;
@@ -1292,8 +1293,6 @@ void GetNewActor (void)
 
 void RemoveObj (objtype *gone)
 {
-	objtype **spotat;
-
    if (gone == &dummyobj)
    	return;
 
@@ -1778,7 +1777,6 @@ extern boolean ShowQuickMsg;
 void PlayLoop (void)
 {
 	boolean reset_areas=false;
-	Sint16		give;
 	objtype *obj;
 
     lasttimecount = 0;

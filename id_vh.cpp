@@ -373,7 +373,7 @@ Uint16	destoff;
 
 void LoadLatchMem (void)
 {
-	Sint16	i,j,p,m,width,height;
+	Sint16	i,width,height;
 	Uint8	*src;
 	Uint16	picnum=0;
 

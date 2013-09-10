@@ -170,9 +170,6 @@ void ViewMap (void);
 void DebugMemory (void)
 {
 	Sint16	i,temp;
-	char    scratch[80],str[10];
-	Sint32	mem;
-	spritetype *block;
 
 	CenterWindow (22,15);
 
@@ -696,7 +693,6 @@ Sint16 DebugKeys (void)
 	else
 	if (Keyboard[sc_I])			// I = item cheat
 	{
-		char loop;
 		CenterWindow (12,3);
 		US_PrintCentered ("Free items!");
 		VW_UpdateScreen();

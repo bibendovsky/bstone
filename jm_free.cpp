@@ -1105,7 +1105,6 @@ void BuildTables (void)
   float         angle,anglestep;
   double        tang;
   fixed         value;
-  Uint8 *    temp;
 
 
 //
@@ -1127,8 +1126,8 @@ void BuildTables (void)
 // bits 16-30 should be 0
 //
 
-  angle = 0;
-  anglestep = PI/2/ANGLEQUAD;
+  angle = 0.0F;
+  anglestep = static_cast<float>(PI/2/ANGLEQUAD);
   for (i=0;i<=ANGLEQUAD;i++)
   {
 	value=GLOBAL1*sin(static_cast<double>(angle));
@@ -1956,9 +1955,6 @@ extern char bc_buffer[];
 //------------------------------------------------------------------------
 void PreDemo()
 {
-	Sint16 i;
-
-
 #if TECH_SUPPORT_VERSION
 
 	fontnumber=4;

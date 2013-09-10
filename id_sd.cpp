@@ -1283,8 +1283,6 @@ SDL_PlayDigiSegment(void* addr,Uint16 len)
 void
 SD_StopDigitized(void)
 {
-	Sint16	i;
-
 // FIXME
 #if 0
 asm	pushf

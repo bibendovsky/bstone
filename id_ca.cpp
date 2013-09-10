@@ -1378,8 +1378,6 @@ void CA_CacheMap (Sint16 mapnum)
 
 void CA_UpLevel (void)
 {
-	Sint16	i;
-
 	if (ca_levelnum==7)
 		CA_ERROR(CA_UPLEVEL_PAST_MAX);
 
@@ -1657,9 +1655,6 @@ void CA_CacheMarks (void)
             }
 
 		}
-
-getout:;
-
 }
 
 void CA_CannotOpen(char *string)

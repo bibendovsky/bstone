@@ -904,7 +904,6 @@ Sint32 checksum;
 void InitPlaytemp()
 {
 	Sint16 handle;
-	Sint32 size;
 
 	MakeDestPath(PLAYTEMP_FILE);
 	if ((handle=open(tempPath,O_CREAT|O_TRUNC|O_RDWR|O_BINARY,S_IREAD|S_IWRITE))==-1)
@@ -1230,9 +1229,7 @@ boolean LoadLevel(int levelnum)
     boolean oldloaded = loadedgame;
     Sint32 oldchecksum;
     objtype* ob;
-    statobj_t* statptr;
     Sint16 handle;
-    Sint16 picnum;
     void* temp;
     Uint16 count;
     objtype* ptr;
@@ -1745,8 +1742,6 @@ boolean SaveLevel(int levelnum)
 
     rt_value = true;
 
-exit_func:
-
     NewViewSize(viewsize);
     gamestate.flags = gflags;
 
@@ -1942,7 +1937,6 @@ boolean LoadTheGame(int handle)
     void* temp = NULL;
     boolean rt_value = false;
     char InfoSpace[400];
-    void* tempspace;
 
     // Read in VERSion chunk
     //
@@ -2153,12 +2147,9 @@ cleanup:;
 boolean SaveTheGame(int handle, const char* description)
 {
     Uint32 cksize;
-    Uint32 offset;
     int shandle;
-    void* temp;
     char nbuff[GAME_DESCRIPTION_LEN + 1];
     boolean rt_value = false;
-    boolean exists;
 
     // Save current level -- saves it into PLAYTEMP.
     //
@@ -2190,7 +2181,7 @@ boolean SaveTheGame(int handle, const char* description)
     WriteIt(false, &gamestate, sizeof(gamestate));
     WriteIt(false, &gamestuff, sizeof(gamestuff));
 
-    lseek(handle, -(cksize+4), SEEK_CUR);
+    lseek(handle, -(static_cast<long>(cksize)+4), SEEK_CUR);
     write(handle, &cksize, 4);
     lseek(handle,cksize,SEEK_CUR);
 
@@ -2524,10 +2515,8 @@ void CalcProjection (Sint32 focal)
 	Sint32            intang;
 	float   angle;
 	double  tang;
-	double  planedist;
-	double  globinhalf;
 	Sint16             halfview;
-	double  halfangle,facedist;
+	double  facedist;
 
 
 	focallength = focal;
@@ -2880,7 +2869,6 @@ void Quit(char* error, ...)
 
 void    DemoLoop (void)
 {
-	Sint16     i,level;
 	Sint16 	LastDemo=0;
 	boolean breakit;
 	Uint16 old_bufferofs;
