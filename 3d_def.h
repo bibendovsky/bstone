@@ -1,8 +1,8 @@
-#include "ID_HEADS.H"
+#include <cstdarg>
+#include <cmath>
+
+#include "id_heads.h"
 #include "jm_io.h"
-#include <stdarg.h>
-#include <MATH.H>
-//#include <VALUES.H>
 #include "jm_cio.h"
 
 //#define DEMOS_EXTERN
@@ -1756,6 +1756,14 @@ typedef enum {
 
 } classtype;
 
+// BBi
+inline classtype operator ++(classtype& a, int)
+{
+    classtype result = a;
+    a = static_cast<classtype>(static_cast<int>(a) + 1);
+    return result;
+}
+
 
 //
 // NOTE: When adding bonus objects - Make sure that they are added
@@ -1834,6 +1842,65 @@ typedef enum {
 	southeast,
 	nodir
 } dirtype;
+
+// BBi
+inline dirtype operator +=(dirtype& a, int b)
+{
+    a = static_cast<dirtype>(static_cast<int>(a) + b);
+    return a;
+}
+
+inline dirtype operator -=(dirtype& a, int b)
+{
+    a = static_cast<dirtype>(static_cast<int>(a) - b);
+    return a;
+}
+
+inline dirtype operator |=(dirtype& a, int b)
+{
+    a = static_cast<dirtype>(static_cast<int>(a) | b);
+    return a;
+}
+
+inline dirtype operator --(dirtype& a, int)
+{
+    dirtype result = a;
+    a -= 1;
+    return result;
+}
+
+inline dirtype operator ++(dirtype& a, int)
+{
+    dirtype result = a;
+    a += 1;
+    return result;
+}
+
+//inline dirtype operator +(dirtype a, int b)
+//{
+//    return static_cast<dirtype>(static_cast<int>(a) + b);
+//}
+//
+//inline dirtype operator -(dirtype a, int b)
+//{
+//    return static_cast<dirtype>(static_cast<int>(a) - b);
+//}
+//
+//inline dirtype operator %(dirtype a, int b)
+//{
+//    return static_cast<dirtype>(static_cast<int>(a) % b);
+//}
+//
+//inline dirtype operator &(dirtype a, int b)
+//{
+//    return static_cast<dirtype>(static_cast<int>(a) & b);
+//}
+//
+//inline dirtype operator |(dirtype a, int b)
+//{
+//    return static_cast<dirtype>(static_cast<int>(a) | b);
+//}
+
 
 
 typedef enum {
@@ -1926,17 +1993,22 @@ typedef enum {
 	NUMENEMIES
 } enemy_t;
 
+
 #define SF_ROTATE		0x01
 #define SF_PAINFRAME	0x02
 
-typedef struct  statestruct
-{
-	Uint8 flags;
-	Sint16             shapenum;                       // a shapenum of -1 means get from ob->temp1
-	Sint16             tictime;
-	void    (*think) (),(*action) ();
-	struct  statestruct     *next;
-} statetype;
+
+struct objtype;
+
+
+struct statetype {
+    Uint8 flags;
+    Sint16 shapenum; // a shapenum of -1 means get from ob->temp1
+    Sint16 tictime;
+    void (*think)(objtype* actor);
+    void (*action)(objtype* actor);
+    statetype* next;
+}; // struct statetype
 
 
 //---------------------
@@ -1963,6 +2035,15 @@ typedef struct statstruct
 //
 //---------------------
 
+// BBi
+enum DoorAction {
+    dr_open,
+    dr_closed,
+    dr_opening,
+    dr_closing,
+    dr_jammed,
+}; // enum DoorAction
+
 typedef struct doorstruct
 {
 	Uint8    		tilex,tiley;
@@ -1970,7 +2051,7 @@ typedef struct doorstruct
 	char	 		flags;
 	keytype    	lock;
 	door_t  		type;
-	enum    		{dr_open,dr_closed,dr_opening,dr_closing,dr_jammed}       action;
+	DoorAction action;
 	Sint16         ticcount;
 	Uint8    		areanumber[2];
 } doorobj_t;
@@ -1982,7 +2063,7 @@ typedef struct doorstruct
 //
 //--------------------
 
-typedef struct objstruct
+struct objtype
 {
 	Uint8 tilex,tiley;
 	Uint8 areanumber;
@@ -2035,8 +2116,8 @@ typedef struct objstruct
     // TODO: Fix loading/saving game state.
 	Uint16 temp3;		// holds 'last door used' by 'smart' actors
 
-	struct objstruct *next,*prev;
-} objtype;
+	objtype *next,*prev;
+}; // struct objtype
 
 
 
@@ -2605,7 +2686,7 @@ extern  Sint16                     bordertime;
 extern  boolean         madenoise,usedummy,nevermark;
 extern Uint8		alerted,alerted_areanum;
 
-extern  objtype         objlist[MAXACTORS],*new,*player,*lastobj,
+extern  objtype         objlist[MAXACTORS],*new_actor,*player,*lastobj,
 					*objfreelist,*killerobj;
 extern  statobj_t       statobjlist[MAXSTATS],*laststatobj;
 extern  doorobj_t       doorobjlist[MAXDOORS],*lastdoorobj;
@@ -3227,7 +3308,7 @@ void PlaceTowardPlayer(objtype *obj);
 
 void T_Seek(objtype *ob);
 
-void SpawnProjectile(objtype *shooter, classtype class);
+void SpawnProjectile(objtype *shooter, classtype class_type);
 void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir);
 void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir);
 void KillActor (objtype *ob);
@@ -3264,7 +3345,7 @@ void InitAnim(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 MaxOfs, animt
 objtype *FindObj(classtype which, Sint16 tilex, Sint16 tiley);
 objtype *FindHiddenOfs(classtype which);
 void SpawnHiddenOfs(enemy_t which, Sint16 tilex, Sint16 tiley);
-objtype *MoveHiddenOfs(classtype which_class, classtype new, fixed x, fixed y);
+objtype *MoveHiddenOfs(classtype which_class, classtype new1, fixed x, fixed y);
 
 void CheckForSpecialTile(objtype *obj, Uint16 tilex, Uint16 tiley);
 void DropCargo(objtype *obj);

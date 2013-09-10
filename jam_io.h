@@ -9,8 +9,6 @@
 //
 
 #ifndef _ID_HEADS_H_
-#define false (0)
-#define true (1)
 typedef Sint16 boolean;
 #endif
 

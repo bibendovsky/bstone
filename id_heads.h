@@ -5,17 +5,17 @@
 // ID_GLOB.H
 
 
-#include <assert.h>
-#include <ctype.h>
-#include <dos.h>
-#include <errno.h>
+#include <cassert>
+#include <cctype>
 #include <fcntl.h>
 #include <io.h>
-#include <process.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys\stat.h>
+
+#include <string>
+#include <vector>
 
 #include "SDL.h"
 

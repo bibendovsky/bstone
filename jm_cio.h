@@ -14,7 +14,7 @@
 
 
 #ifndef _ID_HEADS_H_
-typedef enum boolean {false,true} boolean;
+typedef Sint16 boolean;
 #endif
 
 

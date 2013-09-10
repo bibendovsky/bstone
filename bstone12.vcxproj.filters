@@ -15,121 +15,121 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="id_ca.c">
+    <ClCompile Include="id_ca.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_act1.c">
+    <ClCompile Include="3d_act1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_act2.c">
+    <ClCompile Include="3d_act2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_agent.c">
+    <ClCompile Include="3d_agent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_debug.c">
+    <ClCompile Include="3d_debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_draw.c">
+    <ClCompile Include="3d_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_draw2.c">
+    <ClCompile Include="3d_draw2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_game.c">
+    <ClCompile Include="3d_game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_inter.c">
+    <ClCompile Include="3d_inter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_main.c">
+    <ClCompile Include="3d_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_menu.c">
+    <ClCompile Include="3d_menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_msgs.c">
+    <ClCompile Include="3d_msgs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_play.c">
+    <ClCompile Include="3d_play.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_scale.c">
+    <ClCompile Include="3d_scale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3d_state.c">
+    <ClCompile Include="3d_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="colormap.c">
+    <ClCompile Include="colormap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3.c">
+    <ClCompile Include="d3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3_d2.c">
+    <ClCompile Include="d3_d2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3_dr2.c">
+    <ClCompile Include="d3_dr2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_in.c">
+    <ClCompile Include="id_in.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_mm.c">
+    <ClCompile Include="id_mm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_pm.c">
+    <ClCompile Include="id_pm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_sd.c">
+    <ClCompile Include="id_sd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_sdd.c">
+    <ClCompile Include="id_sdd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_us.c">
+    <ClCompile Include="id_us.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_us_1.c">
+    <ClCompile Include="id_us_1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_vh.c">
+    <ClCompile Include="id_vh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="id_vl.c">
+    <ClCompile Include="id_vl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jm_cio.c">
+    <ClCompile Include="jm_cio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jm_debug.c">
+    <ClCompile Include="jm_debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jm_free.c">
+    <ClCompile Include="jm_free.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jm_io.c">
+    <ClCompile Include="jm_io.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jm_lzh.c">
+    <ClCompile Include="jm_lzh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jm_tp.c">
+    <ClCompile Include="jm_tp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="markhack.c">
+    <ClCompile Include="markhack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="movie.c">
+    <ClCompile Include="movie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scale.c">
+    <ClCompile Include="scale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vgapal.c">
+    <ClCompile Include="vgapal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stub.c">
+    <ClCompile Include="stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

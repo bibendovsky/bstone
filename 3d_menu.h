@@ -49,7 +49,7 @@
 #define TEXTCOLOR		WHITE
 #define HIGHLIGHT		0x13
 
-#define MenuFadeIn()	VL_FadeIn(0,255,&vgapal,10)
+#define MenuFadeIn()	VL_FadeIn(0,255,vgapal,10)
 
 #define MENUSONG  	LASTLAFF_MUS
 #define ROSTER_MUS   HISCORE_MUS
@@ -260,20 +260,20 @@ void TrackWhichGame(Sint16 w);
 void DrawNewGameDiff(Sint16 w);
 void FixupCustom(Sint16 w);
 
-void CP_BlakeStoneSaga(void);
-void CP_NewGame(void);
-void CP_Sound(void);
+void CP_BlakeStoneSaga(Sint16 temp1);
+void CP_NewGame(Sint16 temp1);
+void CP_Sound(Sint16 temp1);
 Sint16  CP_LoadGame(Sint16 quick);
 Sint16  CP_SaveGame(Sint16 quick);
-void CP_Control(void);
-void CP_ChangeView(void);
-void CP_ExitOptions(void);
+void CP_Control(Sint16 temp1);
+void CP_ChangeView(Sint16 temp1);
+void CP_ExitOptions(Sint16 temp1);
 void CP_Quit(void);
-void CP_ViewScores(void);
+void CP_ViewScores(Sint16 temp1);
 Sint16  CP_EndGame(void);
 Sint16  CP_CheckQuick(Uint16 scancode);
-void CustomControls(void);
-void MouseSensitivity(void);
+void CustomControls(Sint16 temp1);
+void MouseSensitivity(Sint16 temp1);
 
 void DrawMenuTitle(char *title);
 void CheckForEpisodes(void);

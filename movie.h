@@ -2,7 +2,7 @@
 #define _MOVIE_H_
 
 
-#include "JM_VL.H"
+#include "jm_vl.h"
 
 //==========================================================================
 //
@@ -48,7 +48,7 @@ typedef struct
 
 	Sint16 start_line;
 	Sint16 end_line;
-   void* palette;
+    const void* palette;
 
 } MovieStuff_t;
 

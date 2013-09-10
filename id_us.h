@@ -85,8 +85,8 @@ extern	boolean		Button0,Button1,
 					CursorBad;
 extern	Sint16			CursorX,CursorY;
 
-extern	void		(*USL_MeasureString)(char *,Uint16 *,Uint16 *),
-					(*USL_DrawString)(char *);
+extern	void		(*USL_MeasureString)(const char*,Uint16 *,Uint16 *),
+					(*USL_DrawString)(const char*);
 
 extern	boolean		(*USL_SaveGame)(Sint16),(*USL_LoadGame)(Sint16);
 extern	void		(*USL_ResetGame)(void);
