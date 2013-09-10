@@ -105,7 +105,14 @@ extern char** _argv;
 	SDSMode		DigiMode;
 	volatile Uint32	TimeCount;
 	Uint16		HackCount;
+
+// FIXME
+#if 0
 	Uint16		*SoundTable;	// Really * _seg *SoundTable, but that don't work
+#endif // 0
+
+    Uint8** SoundTable;
+
 	boolean		ssIsTandy;
 	Uint16		ssPort = 2;
 
@@ -693,6 +700,8 @@ asm	loop usecloop
 static boolean
 SDL_DetectSoundBlaster(Sint16 port)
 {
+// FIXME
+#if 0
 	Sint16	i;
 
 	if (port == 0)					// If user specifies default, use 2
@@ -717,6 +726,9 @@ SDL_DetectSoundBlaster(Sint16 port)
 	}
 	else
 		return(SDL_CheckSB(port));	// User specified address or default
+#endif // 0
+
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1886,9 +1898,10 @@ asm	loop usecloop
 		return(true);
 	}
 	else
+		return(false);
 #endif // 0
 
-		return(false);
+    return true;
 }
 
 #if 0
@@ -2083,7 +2096,12 @@ SD_SetSoundMode(SDMode mode)
 		SDL_ShutDevice();
 		SoundMode = mode;
 #ifndef	_MUSE_
+// FIXME
+#if 0
 		SoundTable = (Uint16 *)(&audiosegs[tableoffset]);
+#endif // 0
+
+        SoundTable = &audiosegs[tableoffset];
 #endif
 		SDL_StartDevice();
 	}
@@ -2477,9 +2495,83 @@ SD_PlaySound(soundnames sound)
 
 	SoundNumber = sound;
 	SoundPriority = s->priority;
-#endif // 0
 
 	return(false);
+#endif // 0
+
+    boolean		ispos;
+    SoundCommon	*s;
+    int	lp,rp;
+
+    lp = LeftPosition;
+    rp = RightPosition;
+    LeftPosition = 0;
+    RightPosition = 0;
+
+    ispos = nextsoundpos;
+    nextsoundpos = false;
+
+    if (sound == -1)
+        return(false);
+
+    s = (SoundCommon*)SoundTable[sound];
+    if ((SoundMode != sdm_Off) && !s)
+        SD_ERROR(SD_PLAYSOUND_UNCACHED);
+
+    if ((DigiMode != sds_Off) && (DigiMap[sound] != -1))
+    {
+        if ((DigiMode == sds_PC) && (SoundMode == sdm_PC))
+        {
+            if (s->priority < SoundPriority)
+                return(false);
+
+            SDL_PCStopSound();
+
+            SD_PlayDigitized(DigiMap[sound],lp,rp);
+            SoundPositioned = ispos;
+            SoundNumber = sound;
+            SoundPriority = s->priority;
+        }
+        else
+        {
+                if (DigiPriority && !DigiNumber)
+                {
+                        SD_ERROR(SD_PLAYSOUND_PRI_NO_SOUND);
+                }
+
+                    if (s->priority < DigiPriority)
+                        return(false);
+
+                SD_PlayDigitized(DigiMap[sound],lp,rp);
+                SoundPositioned = ispos;
+                DigiNumber = sound;
+                DigiPriority = s->priority;
+        }
+
+        return(true);
+    }
+
+    if (SoundMode == sdm_Off)
+        return(false);
+    if (!s->length)
+        SD_ERROR(SD_PLAYSOUND_ZERO_LEN);
+    if (s->priority < SoundPriority)
+        return(false);
+
+    switch (SoundMode)
+    {
+    case sdm_PC:
+        SDL_PCPlaySound((void *)s);
+        break;
+    case sdm_AdLib:
+        SDL_ALPlaySound((void *)s);
+        break;
+    }
+
+    SoundNumber = sound;
+    SoundPriority = s->priority;
+
+    return(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////
