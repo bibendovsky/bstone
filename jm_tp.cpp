@@ -526,9 +526,10 @@ static Uint16 flags;
 static Sint16 bgcolor,ltcolor,dkcolor,shcolor,anim_bgcolor=-1;
 static Uint16 xl,yl,xh,yh;
 static Uint16 cur_x, cur_y, last_cur_x, last_cur_y;
-static char *first_ch;
+static const char *first_ch;
 
-static char *scan_ch,temp;
+static const char *scan_ch;
+static char temp;
 static Sint16 scan_x,numanims,stemp;
 
 static fontstruct *font;
@@ -710,7 +711,7 @@ void TP_WrapText()
 	if ((Uint16)scan_x+(Uint16)(ch_width(*scan_ch)) > xh)
 	{
 		Sint16 last_x = scan_x;
-		char *last_ch = scan_ch;
+		const char *last_ch = scan_ch;
 
 		while ((scan_ch != first_ch) && (*scan_ch != ' ') && (*scan_ch != TP_RETURN_CHAR))
 			scan_x -= ch_width(*scan_ch--);
@@ -728,7 +729,7 @@ void TP_WrapText()
 // print current line
 //
 	temp = *scan_ch;
-	*scan_ch = 0;
+	*(char*)scan_ch = 0;
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
 	{
@@ -756,7 +757,7 @@ void TP_WrapText()
 			TP_Print(first_ch,false);
 	}
 
-	*scan_ch = temp;
+	*(char*)*scan_ch = temp;
 	first_ch = scan_ch;
 
 tp_newline:;
@@ -835,7 +836,7 @@ void TP_HandleCodes()
 	piShapeInfo *shape;
 	Uint16 shapenum;
 	Sint16 length;
-	char *s;
+	const char *s;
 	Sint16 old_bgcolor;
 	signed char c;
 
@@ -1316,7 +1317,7 @@ void TP_HandleCodes()
 	//
 			case TP_CNVT_CODE('D','S'):
 			{
-				char *old_first_ch;
+				const char *old_first_ch;
 
 				disp_str_num = TP_VALUE(first_ch,2);
 				if (disp_str_num >= PI_MAX_NUM_DISP_STRS)
@@ -1758,7 +1759,7 @@ void TP_PurgeAllGfx()
 //--------------------------------------------------------------------------
 // TP_CachePage()
 //--------------------------------------------------------------------------
-void TP_CachePage(char *script)
+void TP_CachePage(const char *script)
 {
 	piAnimInfo *anim;
 	Sint16 loop;
@@ -1834,7 +1835,7 @@ void TP_CachePage(char *script)
 //--------------------------------------------------------------------------
 // TP_VALUE()
 //--------------------------------------------------------------------------
-Uint16 TP_VALUE(char *ptr,char num_nybbles)
+Uint16 TP_VALUE(const char *ptr,char num_nybbles)
 {
 	char ch,nybble,shift;
 	Uint16 value=0;
@@ -1874,7 +1875,7 @@ void TP_JumpCursor()
 //--------------------------------------------------------------------------
 // TP_Print()
 //--------------------------------------------------------------------------
-void TP_Print(char *str,boolean single_char)
+void TP_Print(const char *str,boolean single_char)
 {
 
 //
@@ -1917,7 +1918,7 @@ void TP_Print(char *str,boolean single_char)
 //--------------------------------------------------------------------------
 // TP_SlowPrint()
 //--------------------------------------------------------------------------
-boolean TP_SlowPrint(char *str, char delay)
+boolean TP_SlowPrint(const char *str, char delay)
 {
 	char old_color = fontcolor;
 	Sint16 old_x,old_y;
@@ -1996,7 +1997,7 @@ boolean TP_SlowPrint(char *str, char delay)
 //--------------------------------------------------------------------------
 // TP_LoadScript()
 //--------------------------------------------------------------------------
-Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache)
+Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
 {
 	Sint32 size;
 
@@ -2023,7 +2024,7 @@ Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache)
     // FIXME
 	pi->script[0] = (char*)pi->scriptstart;
 
-	pi->script[0][size+4] = 0;		 			// Last byte is trashed!
+	*(char*)pi->script[0][size+4] = 0;		 			// Last byte is trashed!
 	pi->flags |= TPF_CACHED_SCRIPT;
 	TP_InitScript(pi);
 
@@ -2053,7 +2054,7 @@ void TP_FreeScript(PresenterInfo *pi,Uint16 id_cache)
 //-------------------------------------------------------------------------
 void TP_InitScript(PresenterInfo *pi)
 {
-	char *script = pi->script[0];
+	const char *script = pi->script[0];
     Uint16 code;
 
 	pi->numpages = 1;		// Assume at least 1 page
@@ -2181,9 +2182,9 @@ void TP_CacheIn(tpCacheType type, Sint16 chunk)
 //-------------------------------------------------------------------------
 // TP_LineCommented()
 //-------------------------------------------------------------------------
-Sint16 TP_LineCommented(char *s)
+Sint16 TP_LineCommented(const char *s)
 {
-	char *o=s;
+	const char *o=s;
 
 // If a line starts with a semi-colon, the entire line is considered a
 // comment and is ignored!

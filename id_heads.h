@@ -122,7 +122,7 @@ typedef struct
 
 #include "movie.h"
 
-void    Quit (char *error,...);             // defined in user program
+void    Quit (const char *error,...);             // defined in user program
 
 extern void CalcMemFree(void);
 

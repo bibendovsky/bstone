@@ -1322,7 +1322,7 @@ void	GiveToken (Sint16 tokens)
 //		 DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
 //     DISPLAY_MSG(msg,pri,type)		 - For E-Z NON-Timed Msgs.
 //--------------------------------------------------------------------------
-boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MsgType)
+boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MsgType)
 {
 	if (Priority >= LastMsgPri)
 	{

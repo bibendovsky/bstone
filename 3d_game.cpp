@@ -2517,7 +2517,7 @@ void DrawPlayBorder (void)
 //--------------------------------------------------------------------------
 // BMAmsg() - These messages are displayed by the Text Presenter!
 //--------------------------------------------------------------------------
-void BMAmsg(char *msg)
+void BMAmsg(const char *msg)
 {
 	#define 	BMAx1	0						// outer bevel
 	#define	BMAy1	152
@@ -2536,7 +2536,8 @@ void BMAmsg(char *msg)
 	{
 		PresenterInfo pi;
 		fontstruct *font=(fontstruct *)grsegs[STARTFONT+fontnumber];
-		char numlines=1, *p=msg;
+		char numlines=1;
+		const char *p=msg;
 		Sint16 cheight;
 
 		memset(&pi,0,sizeof(pi));
@@ -2615,9 +2616,10 @@ void BevelBox(Sint16 xl, Sint16 yl, Sint16 w, Sint16 h, Uint8 hi, Uint8 med, Uin
 //--------------------------------------------------------------------------
 void ShadowPrintLocationText(sp_type type)
 {
-	char *DemoMsg="-- DEMO --";
-   char *DebugText= "-- DEBUG MODE ENABLED --";
-	char str[8],*s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
+	const char *DemoMsg="-- DEMO --";
+    const char *DebugText= "-- DEBUG MODE ENABLED --";
+	const char *s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
+    char str[8];
 	Uint16 w,h;
 
 // Used for all fields...

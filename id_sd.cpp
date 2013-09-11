@@ -118,7 +118,7 @@ extern char** _argv;
 static	boolean			SD_Started;
 		boolean			nextsoundpos;
 		Uint32		TimerDivisor,TimerCount;
-static	char * 		ParmStrings[] =
+static	const char * 	ParmStrings[] =
 						{
 							"noal",
 							"nosb",
@@ -2182,7 +2182,7 @@ SD_Startup(void)
 #ifndef	_MUSE_
 	for (i = 1;i < _argc;i++)
 	{
-		switch (US_CheckParm(_argv[i],ParmStrings))
+		switch (US_CheckParm(_argv_[i],(const char**)ParmStrings))
 		{
 		case 0:						// No AdLib detection
 			alNoCheck = true;

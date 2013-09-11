@@ -217,8 +217,8 @@ void TicDelay(Sint16 count);
 void CacheLump(Sint16 lumpstart,Sint16 lumpend);
 void UnCacheLump(Sint16 lumpstart,Sint16 lumpend);
 void StartCPMusic(Sint16 song);
-Sint16  Confirm(char *string);
-void Message(char *string);
+Sint16  Confirm(const char *string);
+void Message(const char *string);
 void CheckPause(void);
 void ShootSnd(void);
 void CheckSecretMissions(void);
@@ -275,10 +275,10 @@ Sint16  CP_CheckQuick(Uint16 scancode);
 void CustomControls(Sint16 temp1);
 void MouseSensitivity(Sint16 temp1);
 
-void DrawMenuTitle(char *title);
+void DrawMenuTitle(const char *title);
 void CheckForEpisodes(void);
-void HelpPresenter(char *fname,boolean continuekeys, Uint16 id_cache, boolean startmusic);
-void ShadowPrint(char *string, Sint16 x, Sint16 y);
+void HelpPresenter(const char *fname,boolean continuekeys, Uint16 id_cache, boolean startmusic);
+void ShadowPrint(const char *string, Sint16 x, Sint16 y);
 
 //
 // VARIABLES

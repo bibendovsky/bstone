@@ -742,7 +742,7 @@ Sint16 DebugKeys (void)
 	}
 #endif
 	else if (Keyboard[sc_Q])			// Q = fast quit
-		Quit (NULL);
+		Quit ("");
 #if IN_DEVELOPMENT
 	else if (Keyboard[sc_T])			// T = shape test
 	{

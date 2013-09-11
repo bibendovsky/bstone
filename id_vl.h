@@ -12,7 +12,7 @@
 
 #define MS_Quit	Quit
 
-void Quit (char *error,...);
+void Quit (const char *error,...);
 
 //===========================================================================
 
