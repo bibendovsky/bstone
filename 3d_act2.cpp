@@ -482,6 +482,8 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 		case en_watervent:
 			dir_which = which;
 			which = en_ventdrip;
+
+        default:
 		break;
 	}
 
@@ -701,6 +703,9 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
 		break;
+
+        default:
+            break;
 	}
 
 	CheckForSpecialTile(new_actor,tilex,tiley);
@@ -982,6 +987,9 @@ Sint16 RandomSphereDir(enemy_t enemy)
 		case en_diagsphere:
 			dir = ((US_RndT()%4) * 2) + 1;
 		break;
+
+        default:
+            break;
 	}
 
 	return(dir);
@@ -1153,6 +1161,9 @@ void T_OfsBounce(objtype *ob)
 
 					check_opposite = true;
 				break;
+
+                default:
+                    break;
 			}
 
 		// Check opposite direction?
@@ -1504,6 +1515,8 @@ void T_SmartThought(objtype *obj)
             }
 			break;
 
+            default:
+                break;
 	}
 
 	if (ANIM_INFO(obj)->animtype)
@@ -1678,6 +1691,9 @@ void T_SmartThought(objtype *obj)
 					NewState(obj,&s_ofs_static);
 //					obj->obclass = fixup_inertobj;
 					break;
+
+                    default:
+                        break;
 			}
 		}
 
@@ -1706,6 +1722,9 @@ void T_SmartThought(objtype *obj)
 						T_ExplodeDamage(obj);
 						obj->flags |= FL_INTERROGATED;
                }
+				break;
+
+                default:
 				break;
 			}
 		}
@@ -2136,6 +2155,9 @@ Sint16 CheckAndConnect(char x,char y, Uint16 code)
 				}
 			}
 			break;
+
+            default:
+                break;
 		}
 	} while (ob = ob->next);
 
@@ -2261,6 +2283,9 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
          if (OnOff)
 				new_actor->temp1 = SPR_VSPIKE8-SPR_VSPIKE1;
 		break;
+
+        default:
+            break;
 	}
 
 }
@@ -2321,6 +2346,9 @@ void ToggleBarrier(objtype *obj)
             case vspike_barrierobj:
             	BARRIER_STATE(obj) = bt_OPENING;
             break;
+
+            default:
+                break;
          }
 
 		break;
@@ -2347,7 +2375,13 @@ void ToggleBarrier(objtype *obj)
             case vspike_barrierobj:
             	BARRIER_STATE(obj) = bt_CLOSING;
             break;
+
+            default:
+                break;
          }
+		break;
+
+        default:
 		break;
    }
 }
@@ -3258,6 +3292,9 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 			new_actor->temp1 = SPR_STEAM_PIPE;
 			new_actor->temp2 = 60*4;
 		break;
+
+        default:
+            break;
 	}
 
 	CheckForSpecialTile(new_actor,tilex,tiley);
@@ -3430,6 +3467,9 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 			new_actor->flags = FL_OFFSET_STATES;
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
 		break;
+
+        default:
+            break;
 	}
 
 	new_actor->ammo = ammo;
@@ -3673,6 +3713,9 @@ void A_DeathScream (objtype *ob)
 		PlaySoundLocActor(SCANBREAKSND,ob);
 		break;
 
+    default:
+        break;
+
 	}
 }
 
@@ -3834,6 +3877,9 @@ void T_Chase (objtype *ob)
 						ob->ammo >>= 1;
 				}
 			break;
+
+            default:
+                break;
 		}
 
 		if (nearattack)
@@ -4093,6 +4139,8 @@ void DoAttack(objtype *ob)
 					NewState (ob,&s_ofs_attack1);
 			break;
 
+            default:
+                break;
 		}
 }
 
@@ -4296,6 +4344,9 @@ void T_Shoot (objtype *ob)
 		case SMART_ACTORS:
 			if (!ob->ammo)
 				return;
+
+        default:
+            break;
 	}
 
 	switch (ob->obclass)
@@ -4430,6 +4481,9 @@ void T_Shoot (objtype *ob)
 					ob->ammo--;
 					CheckRunChase(ob);
 				break;
+
+                default:
+                    break;
 			}
 #endif
 
@@ -4869,6 +4923,9 @@ void T_PainThink(objtype *obj)
 			case volatiletransportobj:
 				NewState(obj,&s_scout_path1);
 				break;
+
+            default:
+                break;
 		}
 	}
 	else
@@ -4885,6 +4942,9 @@ void T_PainThink(objtype *obj)
 
 			case volatiletransportobj:
 				NewState(obj,&s_scout_path2);
+				break;
+
+            default:
 				break;
 		}
 	}
@@ -4903,6 +4963,9 @@ void T_PainThink(objtype *obj)
 			case volatiletransportobj:
 				NewState(obj,&s_scout_path3);
 				break;
+
+            default:
+                break;
 		}
 	}
 	else
@@ -4918,6 +4981,9 @@ void T_PainThink(objtype *obj)
 
 			case volatiletransportobj:
 				NewState(obj,&s_scout_path4);
+				break;
+
+            default:
 				break;
 		}
 	}
@@ -5216,6 +5282,9 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 
 				case electroshotobj:
 					new_actor->lighting = NO_SHADING;
+
+                default:
+                    break;
 			}
 		break;
 
@@ -5284,6 +5353,8 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			new_actor->s_tiley = y>>TILESHIFT;
 		break;
 
+        default:
+            break;
 	}
 
 	usedummy=nevermark = false;
@@ -5571,6 +5642,9 @@ BlowIt:
 				A_DeathScream(ob);
 				return;
 			break;
+
+            default:
+                break;
 		}
 	}
 
@@ -5647,6 +5721,9 @@ BlowIt:
 				case acid_dragonshotobj:
 					damage = (US_RndT()>>4);
 					InitSmartSpeedAnim(ob,SPR_BOSS5_EXP1,0,2,at_ONCE,ad_FWD,5+(US_RndT()&7));
+				break;
+
+                default:
 				break;
 			}
 
@@ -6085,4 +6162,3 @@ void T_BlowBack(objtype *obj)
 			}
 	}
 }
-

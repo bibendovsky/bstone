@@ -1638,6 +1638,8 @@ static const GLchar* ogl_get_info_log(GLuint object)
             &info_log_length,
             info_log);
         break;
+    default:
+        break;
     }
 
     if (info_log_length > 0)

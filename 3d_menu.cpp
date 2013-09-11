@@ -1975,6 +1975,9 @@ void MouseSensitivity(Sint16 temp1)
 					WaitKeyUp();
 				}
 			break;
+
+        default:
+            break;
 		}
 
 		if (ci.button0 || Keyboard[sc_Space] || Keyboard[sc_Enter])
@@ -2461,6 +2464,9 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 	case dir_North:
    case dir_South:
 	  exit=1;
+
+    default:
+        break;
   }
 
  } while(!exit);
@@ -2779,6 +2785,9 @@ void CP_ChangeView(Sint16 temp1)
 	  TicDelay(10);
 	  lastview=newview;
 	  break;
+
+    default:
+        break;
   }
 
   if (ci.button0 || Keyboard[sc_Enter])
@@ -3254,6 +3263,9 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 
 				TicDelay(20);
 			break;
+
+			default:
+                break;
 		}
 
 		if (ci.button0 ||	Keyboard[sc_Space] || Keyboard[sc_Enter])

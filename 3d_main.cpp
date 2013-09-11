@@ -1357,6 +1357,8 @@ boolean LoadLevel(int levelnum)
         case vpost_barrierobj:
             ob->temp2 = ScanBarrierTable(ob->tilex, ob->tiley);
             break;
+        default:
+            break;
         }
     } while ((ob = ob->next) != NULL);
 

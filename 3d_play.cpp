@@ -1650,6 +1650,9 @@ void DoActor (objtype *ob)
 						case post_barrierobj:		// post barrier - Butt kicker
 							damage = 500;
 						break;
+
+                        default:
+                            break;
 					}
 					DamageActor(actor,damage,ob);
 				}

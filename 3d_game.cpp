@@ -2081,6 +2081,9 @@ numEnemy[new_actor->obclass]++;
 					case gurney_waitobj:
 						obclass++;
 					break;
+
+					default:
+					break;
 				}
 
 				AddTotalPoints(actor_points[obclass-rentacopobj]);
@@ -2666,6 +2669,9 @@ void ShadowPrintLocationText(sp_type type)
 		case sp_loading:
 		case sp_saving:
 			s=ls_text[type-sp_loading];
+		break;
+
+		default:
 		break;
 	}
 

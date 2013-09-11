@@ -1530,6 +1530,8 @@ Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 		case pis_latchpic:
 			x = (x+7) & 0xFFF8;
 		break;
+        default:
+            break;
 	}
 
 // Get width of shape (also, draws a box/shadow, if needed)
@@ -1584,6 +1586,8 @@ Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 //			VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
 		break;
 #endif
+        default:
+            break;
 	}
 
 // Advance current x position past shape and tell calling function where
@@ -1691,6 +1695,8 @@ Sint16 TP_BoxAroundShape(Sint16 x1, Sint16 y1, Uint16 shapenum, pisType shapetyp
 			y2 = y1+(spritetable[shapenum-STARTSPRITES].height)-1;
 		break;
 #endif
+        default:
+            break;
 	}
 
 	if (flags & fl_boxshape)
@@ -2138,6 +2144,9 @@ void TP_CacheIn(tpCacheType type, Sint16 chunk)
 				case ct_music:
 					StartCPMusic(chunk);
 				break;
+
+				default:
+                    break;
 			}
 		break;
 	}

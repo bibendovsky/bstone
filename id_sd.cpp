@@ -1277,6 +1277,8 @@ SDL_PlayDigiSegment(void* addr,Uint16 len)
 	case sds_SoundBlaster:
 		SDL_SBPlaySample(static_cast<Uint8*>(addr),len);
 		break;
+    default:
+        break;
 	}
 }
 
@@ -1308,6 +1310,8 @@ asm	cli
 		break;
 	case sds_SoundBlaster:
 		SDL_SBStopSample();
+		break;
+    default:
 		break;
 	}
 
@@ -1399,6 +1403,8 @@ SD_SetPosition(Sint16 leftpos,Sint16 rightpos)
 	case sds_SoundBlaster:
 		SDL_PositionSBP(leftpos,rightpos);
 		break;
+    default:
+        break;
 	}
 }
 
@@ -1521,6 +1527,8 @@ SD_SetDigiDevice(SDSMode mode)
 		if (!SoundSourcePresent)
 			devicenotpresent = true;
 		break;
+    default:
+        break;
 	}
 
 	if (!devicenotpresent)
@@ -2011,6 +2019,8 @@ SDL_ShutDevice(void)
 	case sdm_AdLib:
 		SDL_ShutAL();
 		break;
+    default:
+        break;
 	}
 	SoundMode = sdm_Off;
 }
@@ -2039,6 +2049,8 @@ SDL_StartDevice(void)
 	{
 	case sdm_AdLib:
 		SDL_StartAL();
+		break;
+    default:
 		break;
 	}
 	SoundNumber = HITWALLSND;
@@ -2313,6 +2325,8 @@ SD_Default(boolean gotit,SDMode sd,SMMode sm)
 		case sdm_AdLib:
 			gotsd = AdLibPresent;
 			break;
+        default:
+            break;
 		}
 	}
 	if (!gotsd)
@@ -2332,6 +2346,8 @@ SD_Default(boolean gotit,SDMode sd,SMMode sm)
 		{
 		case sdm_AdLib:
 			gotsm = AdLibPresent;
+			break;
+        default:
 			break;
 		}
 	}
@@ -2564,6 +2580,8 @@ SD_PlaySound(soundnames sound)
     case sdm_AdLib:
         SDL_ALPlaySound(reinterpret_cast<AdLibSound*>(s));
         break;
+    default:
+        break;
     }
 
     SoundNumber = sound;
@@ -2591,6 +2609,8 @@ SD_SoundPlaying(void)
 	case sdm_AdLib:
 		result = alSound? true : false;
 		break;
+    default:
+		break;
 	}
 
 	if (result)
@@ -2617,6 +2637,8 @@ SD_StopSound(void)
 		break;
 	case sdm_AdLib:
 		SDL_ALStopSound();
+		break;
+    default:
 		break;
 	}
 
@@ -2720,6 +2742,8 @@ SD_FadeOutMusic(void)
 		// DEBUG - quick hack to turn the music off
 		SD_MusicOff();
 		break;
+    default:
+        break;
 	}
 }
 

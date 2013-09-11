@@ -1780,6 +1780,9 @@ Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 //			VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
 		break;
 #endif
+
+        default:
+            break;
 	}
 
 	InfoAreaSetup.x += width;
@@ -5014,6 +5017,9 @@ void SW_HandleActor(objtype *obj)
 		case post_barrierobj:
 		case arc_barrierobj:
       break;
+
+        default:
+            break;
    }
 }
 
