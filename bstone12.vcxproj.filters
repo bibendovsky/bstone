@@ -141,6 +141,9 @@
     <ClCompile Include="dosbox\dbopl.cpp">
       <Filter>Source Files\dosbox</Filter>
     </ClCompile>
+    <ClCompile Include="bstone_opl2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -265,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="dosbox\setup.h">
       <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_opl2.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

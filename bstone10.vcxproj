@@ -91,6 +91,7 @@
     <ClCompile Include="3d_play.cpp" />
     <ClCompile Include="3d_scale.cpp" />
     <ClCompile Include="3d_state.cpp" />
+    <ClCompile Include="bstone_opl2.cpp" />
     <ClCompile Include="colormap.cpp" />
     <ClCompile Include="d3.cpp" />
     <ClCompile Include="d3_d2.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="audiobs1.h" />
     <ClInclude Include="audiofir.h" />
     <ClInclude Include="audiovsi.h" />
+    <ClInclude Include="bstone_opl2.h" />
     <ClInclude Include="dosbox\adlib.h" />
     <ClInclude Include="dosbox\dbopl.h" />
     <ClInclude Include="dosbox\dosbox.h" />
