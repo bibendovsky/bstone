@@ -49,7 +49,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\glew-1.10.0\include;..\sdl2-2.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\glew-1.10.0\include;..\sdl2-2.0.0\include;.\dosbox;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -95,6 +95,7 @@
     <ClCompile Include="d3.cpp" />
     <ClCompile Include="d3_d2.cpp" />
     <ClCompile Include="d3_dr2.cpp" />
+    <ClCompile Include="dosbox\dbopl.cpp" />
     <ClCompile Include="id_ca.cpp" />
     <ClCompile Include="id_in.cpp" />
     <ClCompile Include="id_mm.cpp" />
@@ -125,6 +126,14 @@
     <ClInclude Include="audiobs1.h" />
     <ClInclude Include="audiofir.h" />
     <ClInclude Include="audiovsi.h" />
+    <ClInclude Include="dosbox\adlib.h" />
+    <ClInclude Include="dosbox\dbopl.h" />
+    <ClInclude Include="dosbox\dosbox.h" />
+    <ClInclude Include="dosbox\hardware.h" />
+    <ClInclude Include="dosbox\inout.h" />
+    <ClInclude Include="dosbox\mixer.h" />
+    <ClInclude Include="dosbox\pic.h" />
+    <ClInclude Include="dosbox\setup.h" />
     <ClInclude Include="gfxe_bs1.h" />
     <ClInclude Include="gfxe_fir.h" />
     <ClInclude Include="gfxe_vsi.h" />

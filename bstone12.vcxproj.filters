@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\dosbox">
+      <UniqueIdentifier>{8cfebf47-dd7f-452b-8498-4c2e5469e320}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dosbox">
+      <UniqueIdentifier>{d190190d-35e7-44fd-8613-a8a7c8494c31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="id_ca.cpp">
@@ -132,6 +138,9 @@
     <ClCompile Include="stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dosbox\dbopl.cpp">
+      <Filter>Source Files\dosbox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -232,6 +241,30 @@
     </ClInclude>
     <ClInclude Include="movie.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\adlib.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\dbopl.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\dosbox.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\hardware.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\inout.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\mixer.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\pic.h">
+      <Filter>Header Files\dosbox</Filter>
+    </ClInclude>
+    <ClInclude Include="dosbox\setup.h">
+      <Filter>Header Files\dosbox</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
