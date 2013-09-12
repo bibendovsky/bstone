@@ -1846,10 +1846,12 @@ Uint16 TP_VALUE(const char *ptr,char num_nybbles)
 
 		ch = *ptr++;
 		if (isxdigit(ch))
+        {
 			if (isalpha(ch))
 				value |= (toupper(ch)-'A'+10)<<shift;
 			else
 				value |= (ch-'0')<<shift;
+        }
 	}
 
 	return(value);

@@ -1181,10 +1181,12 @@ numEnemy[clas]--;
 		}
 
 		if (givepoints)
+        {
 			if ((clas == electroobj) || (clas == goldsternobj))
 				GivePoints(actor_points[clas-rentacopobj],false);
 			else
 				GivePoints(actor_points[clas-rentacopobj],true);
+        }
 
 		ob->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
 		ob->flags2 &= ~FL2_BFGSHOT_SOLID;

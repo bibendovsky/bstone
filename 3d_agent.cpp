@@ -4730,8 +4730,10 @@ void	T_Attack (objtype *ob)
 
 		case 6:
 			if (gamestate.ammo && buttonstate[bt_attack])
+            {
 				if (objfreelist)
 					gamestate.attackframe -= 2;
+            }
             else
             {
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
@@ -4805,8 +4807,10 @@ void	T_Attack (objtype *ob)
 
 		case 10:
 			if (gamestate.ammo && buttonstate[bt_attack])
+            {
 				if (objfreelist)
 					gamestate.attackframe -= 2;
+            }
             else
             {
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);

@@ -785,19 +785,23 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 		}
 
 		if (cursorvis)
+        {
 			if (use_custom_cursor)						// JAM
 				USL_CustomCursor(x,y,s,cursor);				// JAM
 			else
 				USL_XORICursor(x,y,s,cursor);
+        }
 
 		VW_UpdateScreen();
 	}
 
 	if (cursorvis)
+    {
 		if (use_custom_cursor)						// JAM
 			USL_CustomCursor(x,y,s,cursor);				// JAM
 		else
 			USL_XORICursor(x,y,s,cursor);
+    }
 
 	if (!result)
 	{

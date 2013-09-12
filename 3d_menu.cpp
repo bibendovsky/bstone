@@ -1724,6 +1724,7 @@ Sint16 CP_SaveGame(Sint16 quick)
 			// OVERWRITE EXISTING SAVEGAME?
 			//
 			if (SaveGamesAvail[which])
+            {
 				if (!Confirm(GAMESVD))
 		 		{
 					DrawLoadSaveScreen(1);
@@ -1734,6 +1735,7 @@ Sint16 CP_SaveGame(Sint16 quick)
 		  			DrawLoadSaveScreen(1);
 		  			PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
 	  				VW_UpdateScreen();
+			 	}
 			 	}
 
 			ShootSnd();

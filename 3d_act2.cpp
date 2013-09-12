@@ -5444,6 +5444,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 			for (x=xl;x<=xh;x++)
 			{
 				if (proj_check = actorat[x][y])
+                {
 					if (proj_check < objlist)
 					{
 						if (proj_check == (objtype *)1 && tilemap[x][y] == 0)
@@ -5492,6 +5493,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 				            ob->tiley = ob->y>>TILESHIFT;
 								return(false);
 							}
+					}
 					}
 			}
    }
