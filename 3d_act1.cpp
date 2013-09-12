@@ -1,7 +1,10 @@
 // 3D_ACT1.C
 
 #include "3d_def.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 //===========================================================================
@@ -358,6 +361,9 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 			spot->flags = FL_BONUS;
 			spot->itemnumber = statinfo[type].type;
 		break;
+
+        default:
+            break;
 	}
 
 	spot->areanumber=GetAreaNumber(spot->tilex,spot->tiley);
@@ -1064,6 +1070,9 @@ void OperateDoor (Sint16 door)
 			if (player->tiley > doorobjlist[door].tiley)
 				oneway = true;
 			break;
+
+        default:
+            break;
 	}
 
 	if (oneway)
@@ -1128,6 +1137,8 @@ void OperateDoor (Sint16 door)
 		case dr_open:
 		case dr_opening:
 			CloseDoor (door);
+			break;
+        default:
 			break;
 	}
 }
@@ -1507,6 +1518,9 @@ void MoveDoors (void)
 		case dr_closing:
 			DoorClosing(door);
 			break;
+
+        default:
+            break;
 		}
 }
 

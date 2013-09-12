@@ -2272,7 +2272,7 @@ typedef struct {
     volatile Uint32 TimeCount;
     Sint32 killx;
     Sint32 killy;
-    char* msg; // InfoArea msg...
+    const char* msg; // InfoArea msg...
     char numkeys[NUMKEYS];
     char old_numkeys[NUMKEYS];
     barrier_type barrier_table[MAX_BARRIER_SWITCHES];
@@ -2565,7 +2565,7 @@ extern  char    configname[13];
 
 extern boolean ShowQuickMsg;
 
-Sint32 DeleteChunk(Sint16 handle, char *chunk);	
+Sint32 DeleteChunk(Sint16 handle, const char *chunk);
 
 void 				 LoadFonts(void);
 void 				 ClearNClose(void);
@@ -2579,12 +2579,12 @@ void            CalcProjection (Sint32 focal);
 boolean         SetViewSize (Uint16 width, Uint16 height);
 void            NewGame (Sint16 difficulty,Sint16 episode);
 void            NewViewSize (Sint16 width);
-Uint16 scan_atoi(char *s);
+Uint16 scan_atoi(const char *s);
 void 				AlignPlayerOnTransporter(void);
 
-Uint16 UseFunc(char *first, char *next);
+Uint16 UseFunc(const char *first, const char *next);
 boolean DoMovie(movie_t movie, void* palette);
-boolean CheckDiskSpace(Sint32 needed,char *text,cds_io_type io_type);
+boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type);
 boolean SaveTheGame(int handle, const char* description);
 Sint32 ChecksumFile(char *file, Sint32 checksum);
 void BadChecksum(void);
@@ -2600,10 +2600,10 @@ void InitDigiMap (void);
 void CleanUpDoors_N_Actors(void);
 
 
-void MakeDestPath(char *file);
+void MakeDestPath(const char *file);
 void InitDestPath(void);
 
-extern Sint32 FindChunk(Sint16 file, char *chunk);
+extern Sint32 FindChunk(Sint16 file, const char *chunk);
 extern Sint32 NextChunk(Sint16 file);
 
 /*
@@ -2648,7 +2648,7 @@ void    PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy);
 void Warped (void);
 void RotateView(Sint16 DestAngle,Uint8 RotSpeed);
 void DrawWarpIn(void);
-void BMAmsg(char *msg);	
+void BMAmsg(const char *msg);
 void CacheBMAmsg(Uint16 MsgNum);	  
 void BevelBox(Sint16 xl, Sint16 yl, Sint16 w, Sint16 h, Uint8 hi, Uint8 med, Uint8 lo);
 
@@ -3034,7 +3034,7 @@ void 		UpdateHealth(void);
 void DrawAmmoGuage(void);
 void DrawAmmoMsg(void);
 void DrawAmmo(boolean ForceRefresh);
-boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MessageType);
+boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MessageType);
 void UpdateInfoAreaClock(void);
 void UpdateInfoArea(void);
 void DrawHealthMonitor(void);
@@ -3432,9 +3432,9 @@ extern char pd_floornotlocked[];
 extern char BreifingText[];
 
 void UpdateScreenPic(void);				 
-void DisplayPrepingMsg(char *text);
+void DisplayPrepingMsg(const char *text);
 boolean Breifing(breifing_type BreifingType,Uint16 episode);
-void ShPrint(char *text, char shadow_color, boolean single_char);
+void ShPrint(const char *text, char shadow_color, boolean single_char);
 Uint16 Random(Uint16 Max);
 
 

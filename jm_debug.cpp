@@ -3,7 +3,9 @@
 #include "jm_error.h"
 #include "jm_debug.h"
 
-#pragma	hdrstop
+#ifdef MSVC
+#pragma hdrstop
+#endif
 
 #ifdef __MPRINTF__
 

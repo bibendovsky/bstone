@@ -2,7 +2,9 @@
 
 #include "3d_def.h"
 
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 void OpenDoor (Sint16 door);
@@ -1146,6 +1148,9 @@ void KillActor (objtype *ob)
 		NewState (ob,&s_terrot_die1);
       ob->lighting = EXPLOSION_SHADING;
 		break;
+
+    default:
+        break;
 	}
 
 #if LOOK_FOR_DEAD_GUYS
@@ -1178,10 +1183,12 @@ numEnemy[clas]--;
 		}
 
 		if (givepoints)
+        {
 			if ((clas == electroobj) || (clas == goldsternobj))
 				GivePoints(actor_points[clas-rentacopobj],false);
 			else
 				GivePoints(actor_points[clas-rentacopobj],true);
+        }
 
 		ob->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
 		ob->flags2 &= ~FL2_BFGSHOT_SOLID;
@@ -1218,6 +1225,9 @@ numEnemy[clas]--;
 		case electrosphereobj:
 			ob->obclass=clas;
 			ob->flags |= FL_NEVERMARK;
+		break;
+
+        default:
 		break;
 	}
 }
@@ -1294,6 +1304,9 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			else
 				ob->temp3 = damage;
 		return;
+
+        default:
+            break;
 	}
 
 //
@@ -1343,6 +1356,9 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 				}
 			break;
 
+            default:
+                break;
+
 		}
 
 // FIXME
@@ -1383,6 +1399,9 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 					ob->temp2 = (5*60)+((US_RndT()%20)*60);
 					return;
 				}
+			break;
+
+            default:
 			break;
 		}
 
@@ -1466,6 +1485,8 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			NewState (ob,&s_propain);
 		break;
 
+        default:
+            break;
 		}
 	}
 
@@ -1853,6 +1874,9 @@ boolean CheckSight (objtype *from_obj, objtype *to_obj)
 		if (deltax > 0)
 			return false;
 		break;
+
+    default:
+        break;
 	}
 
 //
@@ -2006,6 +2030,9 @@ void FirstSighting (objtype *ob)
 		NewState(ob,&s_terrot_seek1);
 		break;
 
+    default:
+        break;
+
 	}
 
 //	if (ob->distance < 0)
@@ -2152,6 +2179,9 @@ boolean SightPlayer (objtype *ob)
 		case final_boss4obj:
 			ob->temp2 = 1;
 			break;
+
+        default:
+            break;
 		}
 		ob->flags &= ~FL_FRIENDLY;
 		return false;
@@ -2559,6 +2589,9 @@ void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay)
 			*deltay = ob->s_tiley - ob->tiley;
 			return;
 		break;
+
+		default:
+            break;
 	}
 
 // Should actor run away (chase static) or chase player?

@@ -1,7 +1,10 @@
 // 3D_INTER.C
 
 #include "3d_def.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 void VH_UpdateScreen();
@@ -88,15 +91,16 @@ boolean Breifing(breifing_type BreifingType,Uint16 episode)
 =================
 */
 
-void ShPrint(char *text, char shadow_color, boolean single_char)
+void ShPrint(const char *text, char shadow_color, boolean single_char)
 {
 	Uint16 old_color=fontcolor,old_x=px,old_y=py;
-	char *str,buf[2]={0,0};
+	const char *str;
+	char buf[2]={0,0};
 
 	if (single_char)
 	{
 		str = buf;
-		buf[0]=*text;
+		buf[0]=*(char*)text;
 	}
 	else
 		str = text;
@@ -128,7 +132,7 @@ void PreloadUpdate(Uint16 current, Uint16 total)
 
 char prep_msg[]="^ST1^CEGet Ready, Blake!\r^XX";
 
-void DisplayPrepingMsg(char *text)
+void DisplayPrepingMsg(const char *text)
 {
 #if GAME_VERSION != SHAREWARE_VERSION
 
@@ -136,7 +140,7 @@ void DisplayPrepingMsg(char *text)
 //
 	if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
 		 (gamestate.flags & GS_BAD_DIZ_FILE))
-		Quit(NULL);
+		Quit("");
 
 #endif
 

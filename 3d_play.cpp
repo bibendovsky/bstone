@@ -1,7 +1,10 @@
 // 3D_PLAY.C
 
 #include "3d_def.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
@@ -1650,6 +1653,9 @@ void DoActor (objtype *ob)
 						case post_barrierobj:		// post barrier - Butt kicker
 							damage = 500;
 						break;
+
+                        default:
+                            break;
 					}
 					DamageActor(actor,damage,ob);
 				}

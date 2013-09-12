@@ -5,7 +5,9 @@
 #include "jm_io.h"
 #include "jm_lzh.h"
 
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 extern int _argc;
@@ -250,71 +252,73 @@ char SaveGameNames[10][GAME_DESCRIPTION_LEN+1],SaveName[13]="SAVEGAM?.";
 
 #ifndef CACHE_KEY_DATA
 
+#define type_cast(x,y)  reinterpret_cast<x>(const_cast<char*>(y)), reinterpret_cast<x>(const_cast<char*>(y))
+
 static Uint8* ScanNames[] = { // Scan code names with single chars
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("1"), reinterpret_cast<Uint8*>("2"),
-    reinterpret_cast<Uint8*>("3"), reinterpret_cast<Uint8*>("4"),
-    reinterpret_cast<Uint8*>("5"), reinterpret_cast<Uint8*>("6"),
-    reinterpret_cast<Uint8*>("7"), reinterpret_cast<Uint8*>("8"),
-    reinterpret_cast<Uint8*>("9"), reinterpret_cast<Uint8*>("0"),
-    reinterpret_cast<Uint8*>("-"), reinterpret_cast<Uint8*>("+"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("Q"), reinterpret_cast<Uint8*>("W"),
-    reinterpret_cast<Uint8*>("E"), reinterpret_cast<Uint8*>("R"),
-    reinterpret_cast<Uint8*>("T"), reinterpret_cast<Uint8*>("Y"),
-    reinterpret_cast<Uint8*>("U"), reinterpret_cast<Uint8*>("I"),
-    reinterpret_cast<Uint8*>("O"), reinterpret_cast<Uint8*>("P"),
-    reinterpret_cast<Uint8*>("["), reinterpret_cast<Uint8*>("]"),
-    reinterpret_cast<Uint8*>("|"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("A"), reinterpret_cast<Uint8*>("S"),
-    reinterpret_cast<Uint8*>("D"), reinterpret_cast<Uint8*>("F"),
-    reinterpret_cast<Uint8*>("G"), reinterpret_cast<Uint8*>("H"),
-    reinterpret_cast<Uint8*>("J"), reinterpret_cast<Uint8*>("K"),
-    reinterpret_cast<Uint8*>("L"), reinterpret_cast<Uint8*>(";"),
-    reinterpret_cast<Uint8*>("\""), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("Z"), reinterpret_cast<Uint8*>("X"),
-    reinterpret_cast<Uint8*>("C"), reinterpret_cast<Uint8*>("V"),
-    reinterpret_cast<Uint8*>("B"), reinterpret_cast<Uint8*>("N"),
-    reinterpret_cast<Uint8*>("M"), reinterpret_cast<Uint8*>(","),
-    reinterpret_cast<Uint8*>("."), reinterpret_cast<Uint8*>("/"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("\xF"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("-"), reinterpret_cast<Uint8*>("\x15"),
-    reinterpret_cast<Uint8*>("5"), reinterpret_cast<Uint8*>("\x11"),
-    reinterpret_cast<Uint8*>("+"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("\x13"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
-    reinterpret_cast<Uint8*>("?"), reinterpret_cast<Uint8*>("?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "1"), type_cast( Uint8*, "2"),
+    type_cast( Uint8*, "3"), type_cast( Uint8*, "4"),
+    type_cast( Uint8*, "5"), type_cast( Uint8*, "6"),
+    type_cast( Uint8*, "7"), type_cast( Uint8*, "8"),
+    type_cast( Uint8*, "9"), type_cast( Uint8*, "0"),
+    type_cast( Uint8*, "-"), type_cast( Uint8*, "+"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "Q"), type_cast( Uint8*, "W"),
+    type_cast( Uint8*, "E"), type_cast( Uint8*, "R"),
+    type_cast( Uint8*, "T"), type_cast( Uint8*, "Y"),
+    type_cast( Uint8*, "U"), type_cast( Uint8*, "I"),
+    type_cast( Uint8*, "O"), type_cast( Uint8*, "P"),
+    type_cast( Uint8*, "["), type_cast( Uint8*, "]"),
+    type_cast( Uint8*, "|"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "A"), type_cast( Uint8*, "S"),
+    type_cast( Uint8*, "D"), type_cast( Uint8*, "F"),
+    type_cast( Uint8*, "G"), type_cast( Uint8*, "H"),
+    type_cast( Uint8*, "J"), type_cast( Uint8*, "K"),
+    type_cast( Uint8*, "L"), type_cast( Uint8*, ";"),
+    type_cast( Uint8*, "\""), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "Z"), type_cast( Uint8*, "X"),
+    type_cast( Uint8*, "C"), type_cast( Uint8*, "V"),
+    type_cast( Uint8*, "B"), type_cast( Uint8*, "N"),
+    type_cast( Uint8*, "M"), type_cast( Uint8*, ","),
+    type_cast( Uint8*, "."), type_cast( Uint8*, "/"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "\xF"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "-"), type_cast( Uint8*, "\x15"),
+    type_cast( Uint8*, "5"), type_cast( Uint8*, "\x11"),
+    type_cast( Uint8*, "+"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "\x13"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
+    type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
 }; // DEBUG - consolidate these
 
 static Uint8 ExtScanCodes[] = { // Scan codes with >1 char names
@@ -325,24 +329,24 @@ static Uint8 ExtScanCodes[] = { // Scan codes with >1 char names
 };
 
 static Uint8* ExtScanNames[] = { // Names corresponding to ExtScanCodes
-    reinterpret_cast<Uint8*>("ESC"), reinterpret_cast<Uint8*>("BKSP"),
-    reinterpret_cast<Uint8*>("TAB"), reinterpret_cast<Uint8*>("CTRL"),
-    reinterpret_cast<Uint8*>("LSHFT"), reinterpret_cast<Uint8*>("SPACE"),
-    reinterpret_cast<Uint8*>("CAPSLK"), reinterpret_cast<Uint8*>("F1"),
-    reinterpret_cast<Uint8*>("F2"), reinterpret_cast<Uint8*>("F3"),
-    reinterpret_cast<Uint8*>("F4"), reinterpret_cast<Uint8*>("F5"),
-    reinterpret_cast<Uint8*>("F6"), reinterpret_cast<Uint8*>("F7"),
-    reinterpret_cast<Uint8*>("F8"), reinterpret_cast<Uint8*>("F9"),
-    reinterpret_cast<Uint8*>("F10"), reinterpret_cast<Uint8*>("F11"),
-    reinterpret_cast<Uint8*>("F12"), reinterpret_cast<Uint8*>("SCRLK"),
-    reinterpret_cast<Uint8*>("ENTER"), reinterpret_cast<Uint8*>("RSHFT"),
-    reinterpret_cast<Uint8*>("PRTSC"), reinterpret_cast<Uint8*>("ALT"),
-    reinterpret_cast<Uint8*>("HOME"), reinterpret_cast<Uint8*>("PGUP"),
-    reinterpret_cast<Uint8*>("END"), reinterpret_cast<Uint8*>("PGDN"),
-    reinterpret_cast<Uint8*>("INS"), reinterpret_cast<Uint8*>("DEL"),
-    reinterpret_cast<Uint8*>("NUMLK"), reinterpret_cast<Uint8*>("UP"),
-    reinterpret_cast<Uint8*>("DOWN"), reinterpret_cast<Uint8*>("LEFT"),
-    reinterpret_cast<Uint8*>("RIGHT"), reinterpret_cast<Uint8*>(""),
+    type_cast( Uint8*, "ESC"), type_cast( Uint8*, "BKSP"),
+    type_cast( Uint8*, "TAB"), type_cast( Uint8*, "CTRL"),
+    type_cast( Uint8*, "LSHFT"), type_cast( Uint8*, "SPACE"),
+    type_cast( Uint8*, "CAPSLK"), type_cast( Uint8*, "F1"),
+    type_cast( Uint8*, "F2"), type_cast( Uint8*, "F3"),
+    type_cast( Uint8*, "F4"), type_cast( Uint8*, "F5"),
+    type_cast( Uint8*, "F6"), type_cast( Uint8*, "F7"),
+    type_cast( Uint8*, "F8"), type_cast( Uint8*, "F9"),
+    type_cast( Uint8*, "F10"), type_cast( Uint8*, "F11"),
+    type_cast( Uint8*, "F12"), type_cast( Uint8*, "SCRLK"),
+    type_cast( Uint8*, "ENTER"), type_cast( Uint8*, "RSHFT"),
+    type_cast( Uint8*, "PRTSC"), type_cast( Uint8*, "ALT"),
+    type_cast( Uint8*, "HOME"), type_cast( Uint8*, "PGUP"),
+    type_cast( Uint8*, "END"), type_cast( Uint8*, "PGDN"),
+    type_cast( Uint8*, "INS"), type_cast( Uint8*, "DEL"),
+    type_cast( Uint8*, "NUMLK"), type_cast( Uint8*, "UP"),
+    type_cast( Uint8*, "DOWN"), type_cast( Uint8*, "LEFT"),
+    type_cast( Uint8*, "RIGHT"), type_cast( Uint8*, ""),
 };
 
 #else
@@ -376,7 +380,7 @@ void HelpScreens()
 //-------------------------------------------------------------------------
 // HelpPresenter()
 //-------------------------------------------------------------------------
-void HelpPresenter(char *fname,boolean continue_keys, Uint16 id_cache, boolean startmusic)
+void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boolean startmusic)
 {
 	#define FULL_VIEW_WIDTH			19
 
@@ -640,7 +644,7 @@ void CP_OrderingInfo(Sint16 temp1)
 #ifndef ID_CACHE_HELP
 	HelpPresenter("ORDER.TXT",false,0,true);
 #else
-	HelpPresenter(NULL,false,ORDERTEXT,true);
+	HelpPresenter("",false,ORDERTEXT,true);
 #endif
 	ControlPanelAlloc();
 }
@@ -655,7 +659,7 @@ void CP_BlakeStoneSaga(Sint16 temp1)
 #ifndef ID_CACHE_HELP
 	HelpPresenter("SAGA.TXT",false,0,true);
 #else
-	HelpPresenter(NULL,false,SAGATEXT,true);
+	HelpPresenter("",false,SAGATEXT,true);
 #endif
 	ControlPanelAlloc();
 }
@@ -937,7 +941,7 @@ secondpart:
 //---------------------------------------------------------------------------
 // DrawMenuTitle() - Draws the menu title
 //---------------------------------------------------------------------------
-void DrawMenuTitle(char *title)
+void DrawMenuTitle(const char *title)
 {
 
 	fontnumber = 3;
@@ -971,10 +975,10 @@ void DrawInstructions(inst_type Type)
 {
 	#define INSTRUCTIONS_Y_POS		154+10
 
-	char *instr[MAX_INSTRUCTIONS] = {{"UP/DN SELECTS - ENTER CHOOSES - ESC EXITS"},
-												 {"PRESS ANY KEY TO CONTINUE"},
-												 {"ENTER YOUR NAME AND PRESS ENTER"},
-												 {"RT/LF ARROW SELECTS - ENTER CHOOSES"}};
+	const char *instr[MAX_INSTRUCTIONS] = {"UP/DN SELECTS - ENTER CHOOSES - ESC EXITS",
+                                           "PRESS ANY KEY TO CONTINUE",
+										   "ENTER YOUR NAME AND PRESS ENTER",
+                                           "RT/LF ARROW SELECTS - ENTER CHOOSES"};
 
 	fontnumber = 2;
 
@@ -1257,10 +1261,10 @@ void DrawSwitchDescription(Sint16 which)
 {
 	#define DESCRIPTIONS_Y_POS		134
 
-	char *instr[] = {{"TOGGLES LIGHT SOURCING IN HALLWAYS"},
-						  {"TOGGLES DETAILED ATTACKER INFO"},
-						  {"TOGGLES CEILING MAPPING"},
-						  {"TOGGLES FLOOR MAPPING"}};
+	const char *instr[] = {"TOGGLES LIGHT SOURCING IN HALLWAYS",
+						   "TOGGLES DETAILED ATTACKER INFO",
+						   "TOGGLES CEILING MAPPING",
+						   "TOGGLES FLOOR MAPPING"};
 
 	fontnumber = 2;
 
@@ -1722,6 +1726,7 @@ Sint16 CP_SaveGame(Sint16 quick)
 			// OVERWRITE EXISTING SAVEGAME?
 			//
 			if (SaveGamesAvail[which])
+            {
 				if (!Confirm(GAMESVD))
 		 		{
 					DrawLoadSaveScreen(1);
@@ -1732,6 +1737,7 @@ Sint16 CP_SaveGame(Sint16 quick)
 		  			DrawLoadSaveScreen(1);
 		  			PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
 	  				VW_UpdateScreen();
+			 	}
 			 	}
 
 			ShootSnd();
@@ -1975,6 +1981,9 @@ void MouseSensitivity(Sint16 temp1)
 					WaitKeyUp();
 				}
 			break;
+
+        default:
+            break;
 		}
 
 		if (ci.button0 || Keyboard[sc_Space] || Keyboard[sc_Enter])
@@ -2177,7 +2186,7 @@ boolean TestForValidKey(ScanCode Scan)
 		DrawCustomScreen();
    }
 
-	return(!(boolean)pos);
+	return(!((pos > 0) ? true : false));
 }
 
 
@@ -2461,6 +2470,9 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 	case dir_North:
    case dir_South:
 	  exit=1;
+
+    default:
+        break;
   }
 
  } while(!exit);
@@ -2779,6 +2791,9 @@ void CP_ChangeView(Sint16 temp1)
 	  TicDelay(10);
 	  lastview=newview;
 	  break;
+
+    default:
+        break;
   }
 
   if (ci.button0 || Keyboard[sc_Enter])
@@ -3058,7 +3073,7 @@ void ControlPanelAlloc(void)
 //
 // NOTE: Font MUST already be loaded
 //---------------------------------------------------------------------------
-void ShadowPrint(char *strng,Sint16 x, Sint16 y)
+void ShadowPrint(const char *strng,Sint16 x, Sint16 y)
 {
 	Sint16 old_bc,old_fc;
 
@@ -3254,6 +3269,9 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 
 				TicDelay(20);
 			break;
+
+			default:
+                break;
 		}
 
 		if (ci.button0 ||	Keyboard[sc_Space] || Keyboard[sc_Enter])
@@ -3582,7 +3600,7 @@ void ReadAnyControl(ControlInfo *ci)
 // DRAW DIALOG AND CONFIRM YES OR NO TO QUESTION
 //
 ////////////////////////////////////////////////////////////////////
-Sint16 Confirm(char *string)
+Sint16 Confirm(const char *string)
 {
 	Sint16 xit=0,x,y,tick=0,whichsnd[2]={ESCPRESSEDSND,SHOOTSND};
 
@@ -3654,7 +3672,7 @@ Sint16 Confirm(char *string)
 //---------------------------------------------------------------------------
 // Message() - PRINT A MESSAGE IN A WINDOW
 //---------------------------------------------------------------------------
-void Message(char *string)
+void Message(const char *string)
 {
 	Sint16 h=0,w=0,mw=0,i;
 	fontstruct *font;
@@ -4079,5 +4097,5 @@ void ExitGame()
 //
 	for (i=1;i<=0xf5;i++)
 		alOut(i,0);
-	Quit(NULL);
+	Quit("");
 }

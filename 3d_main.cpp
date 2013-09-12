@@ -1,7 +1,9 @@
 // 3D_MAIN.C
 
 #include "3d_def.h"
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #include "jm_lzh.h"
 
@@ -70,7 +72,7 @@ void DrawCreditsPage(void);
 void unfreed_main(void);
 void ShowPromo(void);
 
-char * MainStrs[] = {
+const char * MainStrs[] = {
 										"q","nowait","l","e",
 										"version","system",
 										"dval","tics","mem","powerball","music","d",
@@ -928,7 +930,7 @@ Sint32 DoChecksum(Uint8 *source,Uint16 size,Sint32 checksum)
 //--------------------------------------------------------------------------
 // FindChunk()
 //--------------------------------------------------------------------------
-Sint32 FindChunk(Sint16 file, char *chunk)
+Sint32 FindChunk(Sint16 file, const char *chunk)
 {
 	Sint32 chunklen;
 	char fchunk[5]={0,0,0,0,0};
@@ -1357,6 +1359,8 @@ boolean LoadLevel(int levelnum)
         case vpost_barrierobj:
             ob->temp2 = ScanBarrierTable(ob->tilex, ob->tiley);
             break;
+        default:
+            break;
         }
     } while ((ob = ob->next) != NULL);
 
@@ -1751,7 +1755,7 @@ boolean SaveLevel(int levelnum)
 //--------------------------------------------------------------------------
 // DeleteChunk()
 //--------------------------------------------------------------------------
-Sint32 DeleteChunk(Sint16 handle, char *chunk)
+Sint32 DeleteChunk(Sint16 handle, const char *chunk)
 {
 	Sint32 filesize,cksize,offset,bmove;
 	Sint16 dhandle;
@@ -2235,7 +2239,7 @@ boolean LevelInPlaytemp(char levelnum)
 //--------------------------------------------------------------------------
 // CheckDiskSpace()
 //--------------------------------------------------------------------------
-boolean CheckDiskSpace(Sint32 needed,char *text,cds_io_type io_type)
+boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type)
 {
 // FIXME
 #if 0
@@ -2713,7 +2717,7 @@ void NewViewSize (Sint16 width)
 
 // FIXME
 #if 0
-void Quit (char *error,...)
+void Quit (const char *error,...)
 {
 	Uint16        finscreen;
 	void*			diz;
@@ -2828,7 +2832,7 @@ void Quit (char *error,...)
 }
 #endif // 0
 
-void Quit(char* error, ...)
+void Quit(const char* error, ...)
 {
     va_list ap;
 
@@ -3124,7 +3128,7 @@ int main(int argc, char* argv[])
 
 	DemoLoop();
 
-	Quit(NULL);
+	Quit("");
 
     return 0;
 }
@@ -3215,7 +3219,7 @@ void InitDestPath()
 //-------------------------------------------------------------------------
 // MakeDestPath()
 //-------------------------------------------------------------------------
-void MakeDestPath(char *file)
+void MakeDestPath(const char *file)
 {
 	strcpy(tempPath,destPath);
 	strcat(tempPath,file);

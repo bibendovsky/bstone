@@ -70,7 +70,7 @@
 //-------------------------------------------------------------------------
 typedef struct {
 	Uint16 flags,gflags;
-	char *script[TP_MAX_PAGES];
+	const char *script[TP_MAX_PAGES];
 	void* scriptstart;
 	char numpages,pagenum;
 	Uint16 xl,yl,xh,yh;
@@ -141,20 +141,20 @@ void TP_Presenter(PresenterInfo *pi);
 void TP_WrapText(void);
 void TP_HandleCodes(void);
 Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType type);
-Uint16 TP_VALUE(char *ptr,char num_nybbles);
-Sint32 TP_LoadScript(char *filename,PresenterInfo *pi, Uint16 id_cache);
+Uint16 TP_VALUE(const char *ptr,char num_nybbles);
+Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache);
 void TP_FreeScript(PresenterInfo *pi,Uint16 id_cache);
 void TP_InitScript(PresenterInfo *pi);
 void TP_AnimatePage(Sint16 numanims);
 Sint16 TP_BoxAroundShape(Sint16 x1, Sint16 y1, Uint16 shapenum, pisType shapetype);
 void TP_JumpCursor(void);
-void TP_Print(char *str,boolean single_char);
-boolean TP_SlowPrint(char *str, char delay);
+void TP_Print(const char *str,boolean single_char);
+boolean TP_SlowPrint(const char *str, char delay);
 void TP_PurgeAllGfx(void);
-void TP_CachePage(char *script);
+void TP_CachePage(const char *script);
 void TP_CacheIn(tpCacheType type, Sint16 chunk);
 void TP_ResetPagePointers(void);
-Sint16 TP_LineCommented(char *s);
+Sint16 TP_LineCommented(const char *s);
 void TP_PrintPageNumber(void);
 
 #endif

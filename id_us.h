@@ -115,10 +115,10 @@ extern	void	US_Startup(void),
 				US_ClearWindow(void),
 				US_SetPrintRoutines(void (*measure)(char *,Uint16 *,Uint16 *),
 									void (*print)(char *)),
-				US_PrintCentered(char *s),
-				US_CPrint(char *s),
-				US_CPrintLine(char *s),
-				US_Print(char *s),
+				US_PrintCentered(const char *s),
+				US_CPrint(const char *s),
+				US_CPrintLine(const char *s),
+				US_Print(const char *s),
 				US_PrintUnsigned(Uint32 n),
 				US_PrintSigned(Sint32 n),
 				US_StartCursor(void),
@@ -128,10 +128,10 @@ extern	void	US_Startup(void),
 extern	boolean	US_UpdateCursor(void),
 				US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 								Sint16 maxchars,Sint16 maxwidth);
-extern	Sint16		US_CheckParm(char *parm,char **strings),
+extern	Sint16		US_CheckParm(const char *parm,const char **strings),
 
 				US_RndT(void);
 
-		void	USL_PrintInCenter(char *s,Rect r);
+		void	USL_PrintInCenter(const char *s,Rect r);
 		char 	*USL_GiveSaveName(Uint16 game);
 #endif

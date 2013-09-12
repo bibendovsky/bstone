@@ -8,7 +8,9 @@
 //
 
 #include "id_heads.h"
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #include "3d_def.h"
 
@@ -85,7 +87,7 @@ char EnterBetaCode[]="      !BETA VERSION!\n    DO NOT DISTRIBUTE\n UNDER PENALT
 #endif
 
 
-char    * JHParmStrings[] = {"no386","is386",nil};
+const char    * JHParmStrings[] = {"no386","is386",nil};
 
 char show_text1[]="\n     SYSTEM INFO\n";
 char show_text2[]="=======================\n\n";
@@ -93,7 +95,7 @@ char show_text3[]="-- Memory avail after game is loaded --\n\n";
 char show_text4[]="            ** Insufficient memory to run the game **";
 char show_text5[]="---- Extra Devices ----\n\n";
 
-static	char * ParmStrings[] = {"HIDDENCARD",""};
+static	const char * ParmStrings[] = {"HIDDENCARD",""};
 
 static  Uint8 wolfdigimap[] =
 {
@@ -814,8 +816,8 @@ PM_Startup(void)
 ///////////////////////////////////////////////////////////////////////////
 
 extern boolean US_Started;
-extern char * US_ParmStrings[];
-extern char * US_ParmStrings2[];
+extern const char * US_ParmStrings[];
+extern const char * US_ParmStrings2[];
 extern Sint16 USL_HardError(Uint16 errval,Sint16 ax,Sint16 bp,Sint16 si);
 
 // BBi
@@ -1947,7 +1949,7 @@ void CheckForEpisodes(void)
 #endif
 
 
-extern char * MainStrs[];
+extern const char * MainStrs[];
 extern char bc_buffer[];
 
 //------------------------------------------------------------------------
@@ -2348,7 +2350,7 @@ Uint16 scan_atoi(char *s)
 	return(atoi(s));							// Then converts to integer...
 }
 
-extern char * MainStrs[];
+extern const char * MainStrs[];
 extern Sint16 starting_episode,starting_level,starting_difficulty;
 
 
@@ -2476,7 +2478,7 @@ void freed_main()
 	InitGame ();
 
 	if (!IsA386)
-		Quit(NULL);
+		Quit("");
 
 	bufferofs=SCREENSIZE;
 

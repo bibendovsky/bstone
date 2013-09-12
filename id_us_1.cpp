@@ -28,7 +28,10 @@
 
 #include "id_heads.h"
 
-#pragma	hdrstop
+#ifdef MSVC
+#pragma hdrstop
+#endif
+
 
 
 
@@ -53,7 +56,7 @@ void in_handle_events();
 //	Internal variables
 #define	ConfigVersion	1
 
-char		* US_ParmStrings[] = {"TEDLEVEL","NOWAIT"},
+const char		* US_ParmStrings[] = {"TEDLEVEL","NOWAIT"},
 					* US_ParmStrings2[] = {"COMP","NOCOMP"};
 boolean		US_Started;
 
@@ -199,10 +202,10 @@ US_Shutdown(void)
 //		index of the string that matched, or -1 if no matches were found
 //
 ///////////////////////////////////////////////////////////////////////////
-Sint16 US_CheckParm(char *parm,char * * strings)
+Sint16 US_CheckParm(const char *parm, const char **strings)
 {
-	char	cp,cs,
-			*p,*s;
+	char	cp,cs;
+	const char 		*p,*s;
 	Sint16		i;
 
 	while (!isalpha(*parm))	// Skip non-alphas
@@ -253,13 +256,14 @@ US_SetPrintRoutines(void (*measure)(char *,Uint16 *,Uint16 *),void (*print)(char
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-US_Print(char *s)
+US_Print(const char *s)
 {
     std::vector<char> buffer(
         s, s + std::string::traits_type::length(s) + 1);
     s = &buffer[0];
 
-	char	c,*se;
+	char	c;
+	const char *se;
 	Uint16	w,h;
 
 	while (*s)
@@ -267,7 +271,7 @@ US_Print(char *s)
 		se = s;
 		while ((c = *se) && (c != '\n'))
 			se++;
-		*se = '\0';
+		*(char*)se = '\0';
 
 		USL_MeasureString(s,&w,&h);
 		px = PrintX;
@@ -277,7 +281,7 @@ US_Print(char *s)
 		s = se;
 		if (c)
 		{
-			*se = c;
+			*(char*)se = c;
 			s++;
 
 			PrintX = WindowX;
@@ -324,7 +328,7 @@ US_PrintSigned(Sint32 n)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-USL_PrintInCenter(char *s,Rect r)
+USL_PrintInCenter(const char *s,Rect r)
 {
 	Uint16	w,h,
 			rw,rh;
@@ -344,7 +348,7 @@ USL_PrintInCenter(char *s,Rect r)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-US_PrintCentered(char *s)
+US_PrintCentered(const char *s)
 {
 	Rect	r;
 
@@ -363,7 +367,7 @@ US_PrintCentered(char *s)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-US_CPrintLine(char *s)
+US_CPrintLine(const char *s)
 {
 	Uint16	w,h;
 
@@ -384,7 +388,7 @@ US_CPrintLine(char *s)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-US_CPrint(char *s)
+US_CPrint(const char *s)
 {
     std::vector<char> buffer(
         s,
@@ -392,21 +396,22 @@ US_CPrint(char *s)
 
     s = &buffer[0];
 
-	char	c,*se;
+	char	c;
+	const char *se;
 
 	while (*s)
 	{
 		se = s;
 		while ((c = *se) && (c != '\n'))
 			se++;
-		*se = '\0';
+		*(char*)se = '\0';
 
 		US_CPrintLine(s);
 
 		s = se;
 		if (c)
 		{
-			*se = c;
+			*(char*)se = c;
 			s++;
 		}
 	}
@@ -783,19 +788,23 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 		}
 
 		if (cursorvis)
+        {
 			if (use_custom_cursor)						// JAM
 				USL_CustomCursor(x,y,s,cursor);				// JAM
 			else
 				USL_XORICursor(x,y,s,cursor);
+        }
 
 		VW_UpdateScreen();
 	}
 
 	if (cursorvis)
+    {
 		if (use_custom_cursor)						// JAM
 			USL_CustomCursor(x,y,s,cursor);				// JAM
 		else
 			USL_XORICursor(x,y,s,cursor);
+    }
 
 	if (!result)
 	{

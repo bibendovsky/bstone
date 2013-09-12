@@ -18,7 +18,10 @@
 //
 
 #include "id_heads.h"
-#pragma	hdrstop
+
+#ifdef MSVC
+#pragma hdrstop
+#endif
 
 #define	KeyInt		9	// The keyboard ISR number
 
@@ -145,7 +148,7 @@ static	Direction	DirTable[] =		// Quick lookup for total direction
 static	void			(*INL_KeyHook)(void);
 static	void (*OldKeyVect)(void);
 
-char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
+const char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 
 //	Internal routines
 

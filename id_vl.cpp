@@ -6,7 +6,10 @@
 
 #include "id_head.h"
 #include "id_vl.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 //
@@ -1593,7 +1596,7 @@ static const GLchar* ogl_get_info_log(GLuint object)
     GLsizei info_log_length; // without a null terminator
 
     if (ogl_info_log != ogl_empty_info_log)
-        free(ogl_info_log);
+        free((void*)ogl_info_log);
 
     ogl_info_log = ogl_empty_info_log;
 
@@ -1637,6 +1640,8 @@ static const GLchar* ogl_get_info_log(GLuint object)
             info_log_size,
             &info_log_length,
             info_log);
+        break;
+    default:
         break;
     }
 
