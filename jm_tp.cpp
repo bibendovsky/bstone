@@ -81,7 +81,10 @@
 #include "jm_error.h"
 #include "jm_io.h"
 
-#pragma	hdrstop
+#ifdef MSVC
+#pragma hdrstop
+#endif
+
 
 
 void VWL_MeasureString (const char* string, Uint16* width, Uint16* height, fontstruct* font);

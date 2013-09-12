@@ -28,7 +28,10 @@
 
 #include "id_heads.h"
 
-#pragma	hdrstop
+#ifdef MSVC
+#pragma hdrstop
+#endif
+
 
 
 

@@ -18,7 +18,10 @@
 //
 
 #include "id_heads.h"
-#pragma	hdrstop
+
+#ifdef MSVC
+#pragma hdrstop
+#endif
 
 #define	KeyInt		9	// The keyboard ISR number
 

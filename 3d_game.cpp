@@ -1,7 +1,10 @@
 // 3D_GAME.C
 
 #include "3d_def.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #ifdef MYPROFILE
 #include <ctime>

@@ -1,7 +1,9 @@
 // 3D_MAIN.C
 
 #include "3d_def.h"
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #include "jm_lzh.h"
 

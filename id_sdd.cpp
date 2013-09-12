@@ -4,7 +4,10 @@
 //
 
 #include "id_heads.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 	Uint16	sdStartPCSounds = STARTPCSOUNDS;
 	Uint16	sdStartALSounds = STARTADLIBSOUNDS;

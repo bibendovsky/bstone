@@ -28,14 +28,19 @@
 //			NeedsMusic - load music?
 //
 
+#ifdef MSVC
 #pragma hdrstop		// Wierdo thing with MUSE
+#endif
 
 #ifdef	_MUSE_      // Will be defined in ID_Types.h
 #include "id_sd.h"
 #else
 #include "id_heads.h"
 #endif
+
+#ifdef MSVC
 #pragma	hdrstop
+#endif
 
 #ifdef	nil
 #undef	nil

@@ -2,7 +2,10 @@
 
 #include "3d_def.h"
 #include <ctime>
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 //#define DEBUGWALLS
 //#define DEBUGTICS

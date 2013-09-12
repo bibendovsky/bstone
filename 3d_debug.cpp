@@ -1,8 +1,10 @@
 // 3D_DEBUG.C
 
 #include "3d_def.h"
-#pragma hdrstop
 
+#ifdef MSVC
+#pragma hdrstop
+#endif
 
 void VH_UpdateScreen();
 void TakeDamage(Sint16 points, objtype* attacker);

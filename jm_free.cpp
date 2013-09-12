@@ -8,7 +8,9 @@
 //
 
 #include "id_heads.h"
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #include "3d_def.h"
 

@@ -28,7 +28,9 @@ EMS / XMS unmanaged routines
 #include "id_heads.h"
 #include <stdarg.h>
 #include <dos.h>
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #pragma warn -pro
 #pragma warn -use

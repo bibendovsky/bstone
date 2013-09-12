@@ -5,7 +5,9 @@
 #include "jm_io.h"
 #include "jm_lzh.h"
 
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 extern int _argc;

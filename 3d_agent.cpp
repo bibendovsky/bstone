@@ -1,7 +1,9 @@
 // 3D_AGENT.C
 
 #include "3d_def.h"
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #include "jm_tp.h"
 

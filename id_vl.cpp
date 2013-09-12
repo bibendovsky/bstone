@@ -6,7 +6,10 @@
 
 #include "id_head.h"
 #include "id_vl.h"
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 //

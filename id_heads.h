@@ -19,6 +19,10 @@
 
 #include "SDL.h"
 
+#ifndef MSVC
+#define ultoa _ultoa
+#endif
+
 #define __ID_GLOB__
 
 //--------------------------------------------------------------------------

@@ -2,7 +2,9 @@
 
 #include "3d_def.h"
 
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 
 void FirstSighting(objtype* ob);
