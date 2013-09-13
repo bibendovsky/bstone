@@ -2187,7 +2187,7 @@ SD_Startup(void)
 #ifndef	_MUSE_
 	for (i = 1;i < _argc;i++)
 	{
-		switch (US_CheckParm(_argv_[i],(const char**)ParmStrings))
+		switch (US_CheckParm(_argv[i],(const char**)ParmStrings))
 		{
 		case 0:						// No AdLib detection
 			alNoCheck = true;
