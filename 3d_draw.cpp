@@ -2,7 +2,10 @@
 
 #include "3d_def.h"
 #include <ctime>
+
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 //#define DEBUGWALLS
 //#define DEBUGTICS
@@ -2418,13 +2421,19 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 				// SHOW DOORS
 				//
 					if (tile & 0x80)
+                    {
 							if (doorobjlist[door].lock!=kt_none)
+                            {
 								color=0x18;										// locked!
+                            }
 							else
+                            {
 								if (doorobjlist[door].action==dr_closed)
 									color=0x58;									// closed!
 								else
 									color = MAPPED_COLOR;					// floor!
+                            }
+                    }
 				}
 				else
 					color = MAPPED_COLOR;									// floor!

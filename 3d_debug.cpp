@@ -1,8 +1,10 @@
 // 3D_DEBUG.C
 
 #include "3d_def.h"
-#pragma hdrstop
 
+#ifdef MSVC
+#pragma hdrstop
+#endif
 
 void VH_UpdateScreen();
 void TakeDamage(Sint16 points, objtype* attacker);
@@ -742,7 +744,7 @@ Sint16 DebugKeys (void)
 	}
 #endif
 	else if (Keyboard[sc_Q])			// Q = fast quit
-		Quit (NULL);
+		Quit ("");
 #if IN_DEVELOPMENT
 	else if (Keyboard[sc_T])			// T = shape test
 	{

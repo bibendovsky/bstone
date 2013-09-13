@@ -1,7 +1,9 @@
 // 3D_AGENT.C
 
 #include "3d_def.h"
+#ifdef MSVC
 #pragma hdrstop
+#endif
 
 #include "jm_tp.h"
 
@@ -1322,7 +1324,7 @@ void	GiveToken (Sint16 tokens)
 //		 DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
 //     DISPLAY_MSG(msg,pri,type)		 - For E-Z NON-Timed Msgs.
 //--------------------------------------------------------------------------
-boolean DisplayInfoMsg(char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MsgType)
+boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MsgType)
 {
 	if (Priority >= LastMsgPri)
 	{
@@ -1780,6 +1782,9 @@ Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 //			VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
 		break;
 #endif
+
+        default:
+            break;
 	}
 
 	InfoAreaSetup.x += width;
@@ -4727,8 +4732,10 @@ void	T_Attack (objtype *ob)
 
 		case 6:
 			if (gamestate.ammo && buttonstate[bt_attack])
+            {
 				if (objfreelist)
 					gamestate.attackframe -= 2;
+            }
             else
             {
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
@@ -4802,8 +4809,10 @@ void	T_Attack (objtype *ob)
 
 		case 10:
 			if (gamestate.ammo && buttonstate[bt_attack])
+            {
 				if (objfreelist)
 					gamestate.attackframe -= 2;
+            }
             else
             {
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
@@ -5014,6 +5023,9 @@ void SW_HandleActor(objtype *obj)
 		case post_barrierobj:
 		case arc_barrierobj:
       break;
+
+        default:
+            break;
    }
 }
 

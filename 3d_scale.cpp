@@ -1,8 +1,10 @@
 // 3D_SCALE.C
 
 #include "3d_def.h"
-#pragma hdrstop
 
+#ifdef MSVC
+#pragma hdrstop
+#endif
 
 void R_DrawSLSColumn();
 void R_DrawLSColumn();

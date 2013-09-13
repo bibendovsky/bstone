@@ -19,6 +19,10 @@
 
 #include "SDL.h"
 
+#ifndef MSVC
+#define ultoa _ultoa
+#endif
+
 #define __ID_GLOB__
 
 //--------------------------------------------------------------------------
@@ -122,7 +126,7 @@ typedef struct
 
 #include "movie.h"
 
-void    Quit (char *error,...);             // defined in user program
+void    Quit (const char *error,...);             // defined in user program
 
 extern void CalcMemFree(void);
 
