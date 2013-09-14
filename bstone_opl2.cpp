@@ -15,13 +15,28 @@ class Opl2::Context {
 public:
     DBOPL::Handler emulator;
     MixerChannel channel;
+
+    Context()
+    {
+    }
+
+    ~Context()
+    {
+    }
+
+private:
+    Context(
+        const Context& that);
+
+    Context& operator=(
+        const Context& that);
 }; // class Opl2::Context
 
 
 Opl2::Opl2() :
-    context_(NULL)
+    context_(NULL),
+    sample_rate_(0)
 {
-    set_scale(get_default_scale());
 }
 
 Opl2::~Opl2()
@@ -29,23 +44,23 @@ Opl2::~Opl2()
     uninitialize();
 }
 
-void Opl2::initialize(int sample_rate)
+void Opl2::initialize(
+    int sample_rate)
 {
     uninitialize();
 
-    sample_rate = std::max(sample_rate, get_min_sample_rate());
+    sample_rate_ = std::max(sample_rate, get_min_sample_rate());
 
     context_ = new Context();
-    context_->emulator.Init(sample_rate);
-    context_->channel.set_scale(get_scale());
+    context_->emulator.Init(sample_rate_);
 }
 
 void Opl2::uninitialize()
 {
-    if (context_ != NULL) {
-        delete context_;
-        context_ = NULL;
-    }
+    delete context_;
+    context_ = NULL;
+
+    sample_rate_ = 0;
 }
 
 bool Opl2::is_initialized() const
@@ -53,20 +68,14 @@ bool Opl2::is_initialized() const
     return context_ != NULL;
 }
 
-int Opl2::get_scale() const
+int Opl2::get_sample_rate() const
 {
-    return scale_;
+    return sample_rate_;
 }
 
-void Opl2::set_scale(int scale)
-{
-    scale_ = std::max(scale, get_min_scale());
-
-    if (is_initialized())
-        context_->channel.set_scale(get_scale());
-}
-
-void Opl2::write(int fm_port, int fm_value)
+void Opl2::write(
+    int fm_port,
+    int fm_value)
 {
     if (!is_initialized())
         return;
@@ -76,44 +85,49 @@ void Opl2::write(int fm_port, int fm_value)
         static_cast<Bit8u>(fm_value));
 }
 
-int Opl2::generate(int count, int16_t* buffer)
+bool Opl2::generate(
+    int count,
+    int16_t* buffer)
 {
     if (!is_initialized())
-        return 0;
+        return false;
 
     if (count < 1)
-        return 0;
+        return false;
 
     if (buffer == NULL)
-        return 0;
+        return false;
 
-    count = std::min(count, get_max_samples_count());
+    while (count > 0) {
+        int generate_count = std::min(count, get_max_samples_count());
 
-    context_->channel.set_buffer(buffer);
+        context_->channel.set_buffer(buffer);
 
-    context_->emulator.Generate(
-        &context_->channel,
-        static_cast<Bitu>(count));
+        context_->emulator.Generate(
+            &context_->channel,
+            static_cast<Bitu>(generate_count));
 
-    return count;
+        count -= generate_count;
+        buffer += generate_count;
+    }
+
+    return true;
+}
+
+bool Opl2::reset()
+{
+    if (!is_initialized())
+        return false;
+
+    context_->emulator.Init(get_sample_rate());
+
+    return true;
 }
 
 // (static)
 int Opl2::get_min_sample_rate()
 {
     return 8000;
-}
-
-// (static)
-int Opl2::get_min_scale()
-{
-    return 1;
-}
-
-// (static)
-int Opl2::get_default_scale()
-{
-    return 8;
 }
 
 // (static)

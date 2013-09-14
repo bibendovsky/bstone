@@ -144,6 +144,18 @@
     <ClCompile Include="bstone_opl2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bstone_adlib_decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bstone_adlib_music_decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bstone_adlib_sfx_decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bstone_memory_binary_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -270,6 +282,18 @@
       <Filter>Header Files\dosbox</Filter>
     </ClInclude>
     <ClInclude Include="bstone_opl2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_adlib_decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_adlib_music_decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_adlib_sfx_decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_memory_binary_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
