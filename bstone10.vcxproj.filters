@@ -156,6 +156,9 @@
     <ClCompile Include="bstone_memory_binary_reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bstone_audio_upsampler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -294,6 +297,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bstone_memory_binary_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_audio_upsampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -98,6 +98,7 @@
     <ClCompile Include="bstone_adlib_decoder.cpp" />
     <ClCompile Include="bstone_adlib_music_decoder.cpp" />
     <ClCompile Include="bstone_adlib_sfx_decoder.cpp" />
+    <ClCompile Include="bstone_audio_upsampler.cpp" />
     <ClCompile Include="bstone_memory_binary_reader.cpp" />
     <ClCompile Include="bstone_opl2.cpp" />
     <ClCompile Include="colormap.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="bstone_adlib_decoder.h" />
     <ClInclude Include="bstone_adlib_music_decoder.h" />
     <ClInclude Include="bstone_adlib_sfx_decoder.h" />
+    <ClInclude Include="bstone_audio_upsampler.h" />
     <ClInclude Include="bstone_memory_binary_reader.h" />
     <ClInclude Include="bstone_opl2.h" />
     <ClInclude Include="dosbox\adlib.h" />
