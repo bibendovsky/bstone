@@ -9,7 +9,10 @@
 namespace bstone {
 
 
-MemoryBinaryReader::MemoryBinaryReader()
+MemoryBinaryReader::MemoryBinaryReader() :
+    data_(NULL),
+    data_size_(0),
+    data_offset_(0)
 {
 }
 
