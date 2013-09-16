@@ -156,7 +156,10 @@
     <ClCompile Include="bstone_memory_binary_reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bstone_audio_upsampler.cpp">
+    <ClCompile Include="bstone_audio_decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bstone_pcm_decoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -299,7 +302,10 @@
     <ClInclude Include="bstone_memory_binary_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bstone_audio_upsampler.h">
+    <ClInclude Include="bstone_audio_decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_pcm_decoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

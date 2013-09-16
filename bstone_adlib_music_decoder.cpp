@@ -34,25 +34,25 @@ AdlibMusicDecoder::~AdlibMusicDecoder()
 // (virtual)
 bool AdlibMusicDecoder::initialize(
     const void* raw_data,
-    int raw_data_size,
-    int sample_rate)
+    int raw_size,
+    int dst_rate)
 {
     if (!AdlibDecoder::initialize(
         raw_data,
-        raw_data_size,
-        sample_rate))
+        raw_size,
+        dst_rate))
     {
         return false;
     }
 
-    reader_.initialize(raw_data, raw_data_size);
+    reader_.initialize(raw_data, raw_size);
 
     int commands_size = SDL_SwapLE16(reader_.read_u16());
 
     if ((commands_size % 4) != 0)
         return false;
 
-    if ((commands_size + 2) > raw_data_size)
+    if ((commands_size + 2) > raw_size)
         return false;
 
     command_index_ = 0;
@@ -68,7 +68,7 @@ bool AdlibMusicDecoder::initialize(
         ticks_count += reader_.read_u16();
     }
 
-    length_in_samples_ = ticks_count * samples_per_tick_;
+    set_dst_length_in_samples(ticks_count * samples_per_tick_);
 
     reader_.set_position(2);
 
@@ -105,16 +105,16 @@ bool AdlibMusicDecoder::reset()
 
 // (virtual)
 int AdlibMusicDecoder::decode(
-    int samples_count,
-    int16_t* buffer)
+    int dst_count,
+    int16_t* dst_data)
 {
     if (!is_initialized())
         return 0;
 
-    if (samples_count < 1)
+    if (dst_count < 1)
         return 0;
 
-    if (buffer == NULL)
+    if (dst_data == NULL)
         return 0;
 
     if (command_index_ == commands_count_ && remains_count_ == 0)
@@ -125,12 +125,12 @@ int AdlibMusicDecoder::decode(
     for (bool quit = false; !quit; )
     {
         if (remains_count_ > 0) {
-            int count = std::min(samples_count, remains_count_);
+            int count = std::min(dst_count, remains_count_);
 
-            emulator_.generate(count, buffer);
+            emulator_.generate(count, dst_data);
 
-            buffer += count;
-            samples_count -= count;
+            dst_data += count;
+            dst_count -= count;
             remains_count_ -= count;
             decoded_samples_count += count;
         } else {
@@ -151,7 +151,7 @@ int AdlibMusicDecoder::decode(
 
         quit =
             (command_index_ == commands_count_ && remains_count_ == 0) ||
-            samples_count == 0;
+            dst_count == 0;
     }
 
     return decoded_samples_count;

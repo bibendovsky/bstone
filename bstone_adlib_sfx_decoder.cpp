@@ -45,23 +45,23 @@ AdlibSfxDecoder::~AdlibSfxDecoder()
 // (virtual)
 bool AdlibSfxDecoder::initialize(
     const void* raw_data,
-    int raw_data_size,
-    int sample_rate)
+    int raw_size,
+    int dst_rate)
 {
     if (!AdlibDecoder::initialize(
         raw_data,
-        raw_data_size,
-        sample_rate))
+        raw_size,
+        dst_rate))
     {
         return false;
     }
 
-    reader_.initialize(raw_data, raw_data_size);
+    reader_.initialize(raw_data, raw_size);
 
     int sfx_length = SDL_SwapLE32(
         reader_.read_s32());
 
-    if ((sfx_length + get_header_size()) >= raw_data_size)
+    if ((sfx_length + get_header_size()) >= raw_size)
         return false;
 
     // Skip priority.
@@ -92,7 +92,7 @@ bool AdlibSfxDecoder::initialize(
     command_index_ = 0;
     commands_count_ = sfx_length;
     samples_per_tick_ = emulator_.get_sample_rate() / get_tick_rate();
-    length_in_samples_ = samples_per_tick_ * sfx_length;
+    set_dst_length_in_samples(samples_per_tick_ * sfx_length);
     remains_count_ = 0;
 
     set_is_initialized(true);
@@ -132,16 +132,16 @@ bool AdlibSfxDecoder::reset()
 
 // (virtual)
 int AdlibSfxDecoder::decode(
-    int samples_count,
-    int16_t* buffer)
+    int dst_count,
+    int16_t* dst_data)
 {
     if (!is_initialized())
         return 0;
 
-    if (samples_count < 1)
+    if (dst_count < 1)
         return 0;
 
-    if (buffer == NULL)
+    if (dst_data == NULL)
         return 0;
 
     if (command_index_ == commands_count_ && remains_count_ == 0)
@@ -151,12 +151,12 @@ int AdlibSfxDecoder::decode(
 
     for (bool quit = false; !quit; ) {
         if (remains_count_ > 0) {
-            int count = std::min(samples_count, remains_count_);
+            int count = std::min(dst_count, remains_count_);
 
-            emulator_.generate(count, buffer);
+            emulator_.generate(count, dst_data);
 
-            buffer += count;
-            samples_count -= count;
+            dst_data += count;
+            dst_count -= count;
             remains_count_ -= count;
             decoded_samples_count += count;
         } else {
@@ -177,7 +177,7 @@ int AdlibSfxDecoder::decode(
 
         quit =
             (command_index_ == commands_count_ && remains_count_ == 0) ||
-            samples_count == 0;
+            dst_count == 0;
     }
 
     return decoded_samples_count;

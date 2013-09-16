@@ -26,8 +26,8 @@ public:
 
     virtual bool initialize(
         const void* raw_data,
-        int raw_data_size,
-        int sample_rate);
+        int raw_size,
+        int dst_rate);
 
     virtual void uninitialize();
 
@@ -38,8 +38,8 @@ public:
     // Returns a number of decoded samples.
     // Returns zero on error or if there are no more samples.
     virtual int decode(
-        int samples_count,
-        int16_t* buffer);
+        int dst_count,
+        int16_t* dst_data);
 
     // Returns a number of calls per second of
     // original interrupt routine.
