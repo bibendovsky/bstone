@@ -13,6 +13,7 @@
 namespace bstone {
 
 
+// A PCM decoder for digitized sounds.
 class PcmDecoder : public AudioDecoder {
 public:
     PcmDecoder();
@@ -32,8 +33,10 @@ public:
 
     virtual AudioDecoder* clone();
 
+    // Return an input sample rate.
     static int get_src_rate();
 
+    // Returns a minimum output sample rate.
     static int get_min_dst_rate();
 
 private:
@@ -44,7 +47,8 @@ private:
     double alpha_;
     double one_minus_alpha_;
 
-    static int16_t pcm8_to_pcm16(uint8_t sample);
+    static int16_t pcm8_to_pcm16(
+        uint8_t sample);
 }; // class PcmDecoder
 
 
