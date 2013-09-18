@@ -4,9 +4,14 @@
 
 #include <algorithm>
 
+#include "id_heads.h"
+
 #include "bstone_adlib_music_decoder.h"
 #include "bstone_adlib_sfx_decoder.h"
 #include "bstone_pcm_decoder.h"
+
+
+extern boolean sqPlayedOnce;
 
 
 namespace bstone {
@@ -327,6 +332,24 @@ void AudioMixer::mix()
             for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
                 int count = i->decoder->decode(
                     mix_samples_count_, &i->buffer[0]);
+
+                while (count < mix_samples_count_ &&
+                    i->type == ST_ADLIB_MUSIC)
+                {
+                    sqPlayedOnce = true;
+
+                    int remain_count = mix_samples_count_ - count;
+
+                    remain_count = i->decoder->decode(
+                        remain_count, &i->buffer[count]);
+
+                    if (remain_count > 0)
+                        count += remain_count;
+                    else {
+                        if (!i->decoder->reset())
+                            break;
+                    }
+                }
 
                 if (count > 0)
                     ++i;
