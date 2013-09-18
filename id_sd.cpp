@@ -42,6 +42,10 @@
 #pragma	hdrstop
 #endif
 
+// BBi
+#include "bstone_audio_mixer.h"
+#include "bstone_memory_binary_reader.h"
+
 #ifdef	nil
 #undef	nil
 #endif
@@ -57,7 +61,7 @@
 #endif // 0
 
 #define sbOut(n,b)
-#define sbIn(n)
+#define sbIn(n) (0)
 
 
 #define	sbSimpleWriteDelay()	while (sbIn(sbWriteStat) & 0x80);
@@ -215,6 +219,10 @@ static	Uint16			sqMode,sqFadeStep;
 
 //	Internal routines
 		void			SDL_DigitizedDone(void);
+
+// BBi
+static bstone::AudioMixer mixer;
+
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1870,11 +1878,12 @@ SDL_StartAL(void)
 //		emulating an AdLib) present
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 static boolean
 SDL_DetectAdLib(void)
 {
-// FIXME
-#if 0
 	Uint8	status1,status2;
 	int		i;
 
@@ -1909,9 +1918,16 @@ asm	loop usecloop
 	}
 	else
 		return(false);
-#endif // 0
+}
+#endif
 
-    return true;
+static boolean SDL_DetectAdLib()
+{
+    int sdl_result = 0;
+
+    sdl_result = ::SDL_Init(SDL_INIT_AUDIO);
+
+    return sdl_result == 0;
 }
 
 #if 0
@@ -2169,6 +2185,9 @@ SD_SetMusicMode(SMMode mode)
 //		Detects all additional sound hardware and installs my ISR
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_Startup(void)
 {
@@ -2222,10 +2241,7 @@ SD_Startup(void)
 
 	SoundUserHook = 0;
 
-// FIXME
-#if 0
 	t0OldService = getvect(8);	// Get old timer 0 ISR
-#endif // 0
 
 	LocalTime = TimeCount = alTimeCount = 0;
 
@@ -2309,6 +2325,84 @@ SD_Startup(void)
 
 	SD_Started = true;
 }
+#endif // 0
+
+void SD_Startup()
+{
+    if (SD_Started)
+        return;
+
+    ssIsTandy = false;
+    ssNoCheck = false;
+    alNoCheck = false;
+    sbNoCheck = false;
+    sbNoProCheck = false;
+
+#ifndef _MUSE_
+    for (int i = 1; i < _argc; ++i) {
+        switch (US_CheckParm(_argv[i], ParmStrings)) {
+        case 0: // No AdLib detection
+            alNoCheck = true;
+            break;
+
+        case 1: // No SoundBlaster detection
+            sbNoCheck = true;
+            break;
+
+        case 2: // No SoundBlaster Pro detection
+            sbNoProCheck = true;
+            break;
+
+        case 3:
+            ssNoCheck = true; // No Sound Source detection
+            break;
+
+        case 4: // Tandy Sound Source handling
+            ssIsTandy = true;
+            break;
+
+        case 5: // Sound Source present at LPT1
+        case 6: // Sound Source present at LPT2
+        case 7: // Sound Source present at LPT3
+            // FIXME Print warning?
+            break;
+        }
+    }
+#endif
+
+    SoundUserHook = 0;
+
+    LocalTime = 0;
+    TimeCount = 0;
+    alTimeCount = 0;
+
+    SD_SetSoundMode(sdm_Off);
+    SD_SetMusicMode(smm_Off);
+
+    SoundSourcePresent = false;
+
+    AdLibPresent = false;
+    SoundBlasterPresent = false;
+
+    if (!alNoCheck) {
+        AdLibPresent = SDL_DetectAdLib();
+
+        if (AdLibPresent && !sbNoCheck)
+            SoundBlasterPresent = true;
+    }
+
+    for (int i = 0; i < 255; ++i)
+        pcSoundLookup[i] = i * 60;
+
+    if (AdLibPresent)
+        mixer.initialize(44100);
+    else
+        mixer.uninitialize();
+
+    SDL_SetupDigi();
+
+    SD_Started = true;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -2371,6 +2465,9 @@ SD_Default(boolean gotit,SDMode sd,SMMode sm)
 //		Removes sound ISR and turns off whatever sound hardware was active
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_Shutdown(void)
 {
@@ -2388,8 +2485,6 @@ SD_Shutdown(void)
 	if (SoundSourcePresent)
 		SDL_ShutSS();
 
-// FIXME
-#if 0
 	asm	pushf
 	asm	cli
 
@@ -2398,9 +2493,18 @@ SD_Shutdown(void)
 	setvect(8,t0OldService);
 
 	asm	popf
-#endif // 0
 
 	SD_Started = false;
+}
+#endif // 0
+
+void SD_Shutdown() {
+    if (!SD_Started)
+        return;
+
+    mixer.uninitialize();
+
+    SD_Started = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -2518,80 +2622,6 @@ SD_PlaySound(soundnames sound)
 	return(false);
 #endif // 0
 
-    boolean		ispos;
-    SoundCommon	*s;
-    int	lp,rp;
-
-    lp = LeftPosition;
-    rp = RightPosition;
-    LeftPosition = 0;
-    RightPosition = 0;
-
-    ispos = nextsoundpos;
-    nextsoundpos = false;
-
-    if (sound == -1)
-        return(false);
-
-    s = (SoundCommon*)SoundTable[sound];
-    if ((SoundMode != sdm_Off) && !s)
-        SD_ERROR(SD_PLAYSOUND_UNCACHED);
-
-    if ((DigiMode != sds_Off) && (DigiMap[sound] != -1))
-    {
-        if ((DigiMode == sds_PC) && (SoundMode == sdm_PC))
-        {
-            if (s->priority < SoundPriority)
-                return(false);
-
-            SDL_PCStopSound();
-
-            SD_PlayDigitized(DigiMap[sound],lp,rp);
-            SoundPositioned = ispos;
-            SoundNumber = sound;
-            SoundPriority = s->priority;
-        }
-        else
-        {
-                if (DigiPriority && !DigiNumber)
-                {
-                        SD_ERROR(SD_PLAYSOUND_PRI_NO_SOUND);
-                }
-
-                    if (s->priority < DigiPriority)
-                        return(false);
-
-                SD_PlayDigitized(DigiMap[sound],lp,rp);
-                SoundPositioned = ispos;
-                DigiNumber = sound;
-                DigiPriority = s->priority;
-        }
-
-        return(true);
-    }
-
-    if (SoundMode == sdm_Off)
-        return(false);
-    if (!s->length)
-        SD_ERROR(SD_PLAYSOUND_ZERO_LEN);
-    if (s->priority < SoundPriority)
-        return(false);
-
-    switch (SoundMode)
-    {
-    case sdm_PC:
-        SDL_PCPlaySound(reinterpret_cast<PCSound*>(s));
-        break;
-    case sdm_AdLib:
-        SDL_ALPlaySound(reinterpret_cast<AdLibSound*>(s));
-        break;
-    default:
-        break;
-    }
-
-    SoundNumber = sound;
-    SoundPriority = s->priority;
-
     return(false);
 }
 
@@ -2669,10 +2699,19 @@ SD_WaitSoundDone(void)
 //	SD_MusicOn() - turns on the sequencer
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_MusicOn(void)
 {
 	sqActive = true;
+}
+#endif // 0
+
+void SD_MusicOn()
+{
+    mixer.play_adlib_music(sqHack, sqHackLen);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -2680,6 +2719,9 @@ SD_MusicOn(void)
 //	SD_MusicOff() - turns off the sequencer and any playing notes
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_MusicOff(void)
 {
@@ -2696,22 +2738,28 @@ SD_MusicOff(void)
 		break;
 	}
 }
+#endif // 0
+
+void SD_MusicOff()
+{
+    mixer.stop_music();
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //	SD_StartMusic() - starts playing the music pointed to
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_StartMusic(MusicGroup *music)
 {
 	SD_MusicOff();
 
-// FIXME
-#if 0
 asm	pushf
 asm	cli
-#endif // 0
 
 	sqPlayedOnce = false;
 
@@ -2726,10 +2774,27 @@ asm	cli
 	else
 		sqPlayedOnce = true;
 
-// FIXME
-#if 0
 asm	popf
-#endif // 0
+}
+#endif
+
+void SD_StartMusic(
+    MusicGroup* music)
+{
+    SD_MusicOff();
+
+    sqPlayedOnce = false;
+
+    if (MusicMode == smm_AdLib) {
+        Uint16* music_data = reinterpret_cast<Uint16*>(music);
+        int length = SDL_SwapLE16(music_data[0]) + 2;
+
+        sqHack = music_data;
+        sqHackLen = length;
+
+        SD_MusicOn();
+    } else
+        sqPlayedOnce = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
