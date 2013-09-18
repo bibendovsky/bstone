@@ -732,7 +732,13 @@ void TP_WrapText()
 // print current line
 //
 	temp = *scan_ch;
+
+// FIXME
+#if 0
 	*(char*)scan_ch = 0;
+#endif // 0
+
+    const_cast<char*>(scan_ch)[0] = '\0';
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
 	{
@@ -760,7 +766,13 @@ void TP_WrapText()
 			TP_Print(first_ch,false);
 	}
 
+// FIXME
+#if 0
 	*(char*)*scan_ch = temp;
+#endif // 0
+
+    const_cast<char*>(scan_ch)[0] = temp;
+
 	first_ch = scan_ch;
 
 tp_newline:;
@@ -2017,7 +2029,11 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
       	TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
 
         // FIXME
+#if 0
 		size = p-((char*)grsegs[id_cache] + 1);
+#endif // 0
+
+        size = p - pi->scriptstart - 1;
 	}
 	else
 	{
@@ -2029,7 +2045,13 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
     // FIXME
 	pi->script[0] = (char*)pi->scriptstart;
 
+    // FIXME
+#if 0
 	*(char*)pi->script[0][size+4] = 0;		 			// Last byte is trashed!
+#endif // 0
+
+    const_cast<char*>(pi->script[0])[size + 4] = '\0'; // Last byte is trashed!
+
 	pi->flags |= TPF_CACHED_SCRIPT;
 	TP_InitScript(pi);
 
