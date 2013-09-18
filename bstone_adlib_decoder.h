@@ -19,8 +19,6 @@ class AdlibDecoder : public AudioDecoder {
 public:
     AdlibDecoder();
 
-    virtual ~AdlibDecoder();
-
     virtual bool initialize(
         const void* raw_data,
         int raw_size,
@@ -34,13 +32,6 @@ protected:
     Opl2 emulator_;
 
     void set_emulator_default_state();
-
-private:
-    AdlibDecoder(
-        const AdlibDecoder& that);
-
-    AdlibDecoder& operator=(
-        const AdlibDecoder& that);
 }; // class AdlibDecoder
 
 

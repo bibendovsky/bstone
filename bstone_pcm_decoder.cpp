@@ -21,10 +21,6 @@ PcmDecoder::PcmDecoder() :
 {
 }
 
-PcmDecoder::~PcmDecoder()
-{
-}
-
 // (virtual)
 bool PcmDecoder::initialize(
     const void* src_raw_data,

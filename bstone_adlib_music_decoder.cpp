@@ -16,19 +16,11 @@ namespace bstone {
 
 
 AdlibMusicDecoder::AdlibMusicDecoder() :
-    AdlibDecoder(),
-    reader_(),
     commands_count_(0),
     command_index_(0),
     samples_per_tick_(0),
     remains_count_(0)
 {
-}
-
-// (virtual)
-AdlibMusicDecoder::~AdlibMusicDecoder()
-{
-    uninitialize();
 }
 
 // (virtual)

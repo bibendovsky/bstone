@@ -14,16 +14,8 @@
 namespace bstone {
 
 
-AdlibDecoder::AdlibDecoder() :
-    emulator_()
+AdlibDecoder::AdlibDecoder()
 {
-    set_is_initialized(false);
-}
-
-// (virtual)
-AdlibDecoder::~AdlibDecoder()
-{
-    uninitialize();
 }
 
 // (virtual)
@@ -77,4 +69,3 @@ void AdlibDecoder::set_emulator_default_state()
 
 
 } // namespace bstone
-

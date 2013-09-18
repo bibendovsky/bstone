@@ -23,14 +23,6 @@ public:
         const void* data,
         int64_t data_size);
 
-    MemoryBinaryReader(
-        const MemoryBinaryReader& that);
-
-    ~MemoryBinaryReader();
-
-    MemoryBinaryReader& operator=(
-        const MemoryBinaryReader& that);
-
     // Initializes the reader.
     bool initialize(
         const void* data,

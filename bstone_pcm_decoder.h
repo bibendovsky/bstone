@@ -17,8 +17,6 @@ class PcmDecoder : public AudioDecoder {
 public:
     PcmDecoder();
 
-    ~PcmDecoder();
-
     virtual bool initialize(
         const void* src_raw_data,
         int src_raw_size,
@@ -45,12 +43,6 @@ private:
     double one_minus_alpha_;
 
     static int16_t pcm8_to_pcm16(uint8_t sample);
-
-    PcmDecoder(
-        const PcmDecoder& that);
-
-    PcmDecoder& operator=(
-        const PcmDecoder& that);
 }; // class PcmDecoder
 
 

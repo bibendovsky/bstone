@@ -9,6 +9,8 @@
 
 #include <cstdint>
 
+#include "dbopl.h"
+
 
 namespace bstone {
 
@@ -17,8 +19,6 @@ namespace bstone {
 class Opl2 {
 public:
     Opl2();
-
-    ~Opl2();
 
     // Initializes the emulator with a specified rate for output samples.
     void initialize(
@@ -54,16 +54,10 @@ public:
     static int get_min_sample_rate();
 
 private:
-    class Context;
-
+    bool is_initialized_;
     int sample_rate_;
-    Context* context_;
-
-    Opl2(
-        const Opl2& that);
-
-    Opl2& operator=(
-        const Opl2& that);
+    DBOPL::Handler emulator_;
+    MixerChannel channel_;
 
     // Returns a maximum number of output samples generated at once.
     // (Emulator dependant value)

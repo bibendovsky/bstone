@@ -23,30 +23,6 @@ MemoryBinaryReader::MemoryBinaryReader(
     initialize(data, data_size);
 }
 
-MemoryBinaryReader::MemoryBinaryReader(
-    const MemoryBinaryReader& that) :
-        data_(that.data_),
-        data_size_(that.data_size_),
-        data_offset_(that.data_offset_)
-{
-}
-
-MemoryBinaryReader::~MemoryBinaryReader()
-{
-}
-
-MemoryBinaryReader& MemoryBinaryReader::operator=(
-    const MemoryBinaryReader& that)
-{
-    if (&that != this) {
-        data_ = that.data_;
-        data_size_ = that.data_size_;
-        data_offset_ = that.data_offset_;
-    }
-
-    return *this;
-}
-
 bool MemoryBinaryReader::is_initialized() const
 {
     return data_ != NULL;

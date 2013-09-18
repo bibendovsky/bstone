@@ -5,43 +5,14 @@
 
 #include "bstone_opl2.h"
 
-#include "dbopl.h"
-
 
 namespace bstone {
 
 
-class Opl2::Context {
-public:
-    DBOPL::Handler emulator;
-    MixerChannel channel;
-
-    Context()
-    {
-    }
-
-    ~Context()
-    {
-    }
-
-private:
-    Context(
-        const Context& that);
-
-    Context& operator=(
-        const Context& that);
-}; // class Opl2::Context
-
-
 Opl2::Opl2() :
-    context_(NULL),
+    is_initialized_(false),
     sample_rate_(0)
 {
-}
-
-Opl2::~Opl2()
-{
-    uninitialize();
 }
 
 void Opl2::initialize(
@@ -51,21 +22,22 @@ void Opl2::initialize(
 
     sample_rate_ = std::max(sample_rate, get_min_sample_rate());
 
-    context_ = new Context();
-    context_->emulator.Init(sample_rate_);
+    emulator_ = DBOPL::Handler();
+    emulator_.Init(sample_rate_);
+
+    is_initialized_ = true;
 }
 
 void Opl2::uninitialize()
 {
-    delete context_;
-    context_ = NULL;
-
+    is_initialized_ = false;
     sample_rate_ = 0;
+    emulator_ = DBOPL::Handler();
 }
 
 bool Opl2::is_initialized() const
 {
-    return context_ != NULL;
+    return is_initialized_;
 }
 
 int Opl2::get_sample_rate() const
@@ -80,7 +52,7 @@ void Opl2::write(
     if (!is_initialized())
         return;
 
-    context_->emulator.WriteReg(
+    emulator_.WriteReg(
         static_cast<Bit32u>(fm_port),
         static_cast<Bit8u>(fm_value));
 }
@@ -101,10 +73,10 @@ bool Opl2::generate(
     while (count > 0) {
         int generate_count = std::min(count, get_max_samples_count());
 
-        context_->channel.set_buffer(buffer);
+        channel_.set_buffer(buffer);
 
-        context_->emulator.Generate(
-            &context_->channel,
+        emulator_.Generate(
+            &channel_,
             static_cast<Bitu>(generate_count));
 
         count -= generate_count;
@@ -119,7 +91,7 @@ bool Opl2::reset()
     if (!is_initialized())
         return false;
 
-    context_->emulator.Init(get_sample_rate());
+    emulator_.Init(get_sample_rate());
 
     return true;
 }

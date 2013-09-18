@@ -22,7 +22,6 @@ namespace bstone {
 class AdlibMusicDecoder : public AdlibDecoder {
 public:
     AdlibMusicDecoder();
-    virtual ~AdlibMusicDecoder();
 
     virtual bool initialize(
         const void* raw_data,

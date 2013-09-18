@@ -26,20 +26,12 @@ void AdlibSfxDecoder::Instrument::reset()
 }
 
 AdlibSfxDecoder::AdlibSfxDecoder() :
-    AdlibDecoder(),
-    reader_(),
     commands_count_(0),
     command_index_(0),
     samples_per_tick_(0),
     remains_count_(0),
     hf_(0)
 {
-}
-
-// (virtual)
-AdlibSfxDecoder::~AdlibSfxDecoder()
-{
-    uninitialize();
 }
 
 // (virtual)
@@ -60,6 +52,9 @@ bool AdlibSfxDecoder::initialize(
 
     int sfx_length = SDL_SwapLE32(
         reader_.read_s32());
+
+    if (sfx_length <= 0)
+        return false;
 
     if ((sfx_length + get_header_size()) >= raw_size)
         return false;
