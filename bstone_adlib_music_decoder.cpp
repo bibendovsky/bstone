@@ -96,6 +96,12 @@ bool AdlibMusicDecoder::reset()
 }
 
 // (virtual)
+AudioDecoder* AdlibMusicDecoder::clone()
+{
+    return new AdlibMusicDecoder(*this);
+}
+
+// (virtual)
 int AdlibMusicDecoder::decode(
     int dst_count,
     int16_t* dst_data)

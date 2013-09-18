@@ -30,6 +30,8 @@ public:
 
     virtual bool reset();
 
+    virtual AudioDecoder* clone();
+
     static int get_src_rate();
 
     static int get_min_dst_rate();

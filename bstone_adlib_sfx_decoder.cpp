@@ -126,6 +126,12 @@ bool AdlibSfxDecoder::reset()
 }
 
 // (virtual)
+AudioDecoder* AdlibSfxDecoder::clone()
+{
+    return new AdlibSfxDecoder(*this);
+}
+
+// (virtual)
 int AdlibSfxDecoder::decode(
     int dst_count,
     int16_t* dst_data)

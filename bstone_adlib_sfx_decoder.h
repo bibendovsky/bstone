@@ -32,6 +32,8 @@ public:
     // Resets the emulator's state.
     virtual bool reset();
 
+    virtual AudioDecoder* clone();
+
     // Decodes sfx data.
     // Returns a number of decoded samples.
     // Returns zero on error or if there are no more samples.

@@ -158,6 +158,12 @@ bool PcmDecoder::reset()
     return true;
 }
 
+// (virtual)
+AudioDecoder* PcmDecoder::clone()
+{
+    return new PcmDecoder(*this);
+}
+
 // (static)
 int PcmDecoder::get_src_rate()
 {

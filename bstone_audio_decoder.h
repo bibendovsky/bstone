@@ -35,6 +35,8 @@ public:
 
     virtual bool reset() = 0;
 
+    virtual AudioDecoder* clone() = 0;
+
     int get_dst_rate() const;
 
     int get_dst_length_in_samples() const;
