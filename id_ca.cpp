@@ -21,7 +21,6 @@ loaded into the data segment
 #endif
 
 
-
 boolean IO_FarRead (int handle, void* dest, int length);
 
 
@@ -1042,8 +1041,11 @@ done:
 	CloseAudioFile();
 #endif
 
-
-
+    // BBi
+    ::sd_prepare_adlib_sfx(
+        chunk,
+        audiosegs[chunk],
+        compressed);
 }
 
 //===========================================================================

@@ -12,7 +12,7 @@
 #include "dosbox.h"
 
 
-typedef void (*MIXER_Handler)(Bitu len);
+typedef void (*MIXER_Handler)(uintptr_t len);
 
 
 class MixerChannel {
@@ -23,7 +23,7 @@ public:
         set_scale(get_default_scale());
     }
 
-    void AddSamples_m32(Bitu count, const Bit32s* buffer)
+    void AddSamples_m32(uintptr_t count, const int32_t* buffer)
     {
         if (count < 1)
             return;
@@ -36,23 +36,23 @@ public:
         if (buffer_ == NULL)
             return;
 
-        for (Bitu i = 0; i < count; ++i) {
-            Bit32s value = scale_ * buffer[i];
+        for (uintptr_t i = 0; i < count; ++i) {
+            int32_t value = scale_ * buffer[i];
 
             value = std::min(value, get_max_sample_value());
             value = std::max(value, get_min_sample_value());
 
-            buffer_[i] = value;
+            buffer_[i] = static_cast<int16_t>(value);
         }
     }
 
-    void AddSamples_s32(Bitu len, const Bit32s* data)
+    void AddSamples_s32(uintptr_t len, const int32_t* data)
     {
         assert(!"AddSamples_s32 not implemented.");
     }
 
     // Sets a buffer to write data to.
-    void set_buffer(Bit16s* buffer)
+    void set_buffer(int16_t* buffer)
     {
         buffer_ = buffer;
     }
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    Bit16s* buffer_;
+    int16_t* buffer_;
     int scale_;
 }; // class MixerChannel
 

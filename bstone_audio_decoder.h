@@ -7,7 +7,7 @@
 #define BSTONE_AUDIO_DECODER_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 
 namespace bstone {

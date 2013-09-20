@@ -7,7 +7,7 @@
 #define BSTONE_ADLIB_SFX_DECODER_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 #include <vector>
 

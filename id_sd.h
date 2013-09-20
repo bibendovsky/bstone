@@ -213,7 +213,12 @@ extern	void	SD_SetPosition(Sint16 leftvol,Sint16 rightvol),
 				SD_StopSound(void),
 				SD_WaitSoundDone(void),
 
+// FIXME
+#if 0
 				SD_StartMusic(MusicGroup *music),
+#endif // 0
+                SD_StartMusic(int index),
+
 				SD_MusicOn(void),
 				SD_MusicOff(void),
 				SD_FadeOutMusic(void),
@@ -235,6 +240,12 @@ extern	void	SDL_PCPlaySound(PCSound *sound),
 				SDL_ALPlaySound(AdLibSound *sound),
 				SDL_ALStopSound(void);
 #endif
+
+// BBi
+bool sd_prepare_adlib_sfx(
+    int sound_index,
+    const void* data,
+    int data_size);
 
 #endif
 

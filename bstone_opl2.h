@@ -7,7 +7,7 @@
 #define BSTONE_OPL2_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "dbopl.h"
 

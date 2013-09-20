@@ -3937,9 +3937,14 @@ void StartCPMusic(Sint16 song)
 	else
 #endif // 0
 
+// FIXME
+#if 0
 	{
 		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + chunk]);
 	}
+#endif
+
+    ::SD_StartMusic(chunk);
 }
 
 //---------------------------------------------------------------------------

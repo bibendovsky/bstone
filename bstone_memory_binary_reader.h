@@ -8,7 +8,7 @@
 
 
 #include <cstddef>
-#include <cstdint>
+#include <stdint.h>
 
 
 namespace bstone {

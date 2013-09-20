@@ -221,6 +221,7 @@ static	Uint16			sqMode,sqFadeStep;
 		void			SDL_DigitizedDone(void);
 
 // BBi
+int sound_index;
 static bstone::AudioMixer mixer;
 
 
@@ -1577,7 +1578,20 @@ SDL_SetupDigi(void)
 		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
 	}
     DigiList = (Uint16*)malloc(i * sizeof(Uint16) * 2);
+
+// FIXME
+#if 0
 	memcpy(DigiList, list, i * sizeof(Uint16) * 2);
+#endif // 0
+
+    const Uint16* src_list = static_cast<const Uint16*>(list);
+    Uint16* dst_list = DigiList;
+
+    for (int j = 0; j < i; ++j) {
+        *dst_list++ = SDL_SwapLE16(*src_list++);
+        *dst_list++ = SDL_SwapLE16(*src_list++);
+    }
+
     free(list);
 	NumDigi = i;
 
@@ -2538,11 +2552,12 @@ SD_PositionSound(Sint16 leftvol,Sint16 rightvol)
 //	SD_PlaySound() - plays the specified sound on the appropriate hardware
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 boolean
 SD_PlaySound(soundnames sound)
 {
-// FIXME
-#if 0
 	boolean		ispos;
 	SoundCommon	*s;
 	int	lp,rp;
@@ -2620,9 +2635,82 @@ SD_PlaySound(soundnames sound)
 	SoundPriority = s->priority;
 
 	return(false);
+}
 #endif // 0
 
-    return(false);
+boolean SD_PlaySound(
+    soundnames sound)
+{
+    boolean ispos;
+    SoundCommon* s;
+    int lp;
+    int rp;
+
+    lp = LeftPosition;
+    rp = RightPosition;
+    LeftPosition = 0;
+    RightPosition = 0;
+
+    ispos = nextsoundpos;
+    nextsoundpos = false;
+
+    if (sound == -1)
+        return false;
+
+    if (SoundTable == NULL)
+        return false;
+
+    s = reinterpret_cast<SoundCommon*>(SoundTable[sound]);
+
+    if (SoundMode != sdm_Off && s == NULL)
+        SD_ERROR(SD_PLAYSOUND_UNCACHED);
+
+    int digi_index = DigiMap[sound];
+
+    if (DigiMode != sds_Off && digi_index != -1) {
+        if (DigiPriority && !DigiNumber)
+            SD_ERROR(SD_PLAYSOUND_PRI_NO_SOUND);
+
+        //SD_PlayDigitized(DigiMap[sound], lp, rp);
+        int digi_page = DigiList[(2 * digi_index) + 0];
+        int digi_length = DigiList[(2 * digi_index) + 1];
+        const void* digi_data = PM_GetSoundPage(digi_page);
+
+        sound_index = digi_index;
+        mixer.play_pcm_sound(digi_data, digi_length);
+
+        SoundPositioned = ispos;
+        DigiNumber = sound;
+        DigiPriority = s->priority;
+
+        return true;
+    }
+
+    if (SoundMode == sdm_Off)
+        return false;
+
+    if (s->length == 0)
+        SD_ERROR(SD_PLAYSOUND_ZERO_LEN);
+
+
+    switch (SoundMode) {
+    case sdm_AdLib:
+        break;
+
+    default:
+        return false;
+    }
+
+    sound_index = sound;
+
+    mixer.play_adlib_sound(s,
+        audiostarts[sdStartALSounds + sound + 1] -
+            audiostarts[sdStartALSounds + sound]);
+
+    SoundNumber = sound;
+    SoundPriority = s->priority;
+
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -2779,14 +2867,18 @@ asm	popf
 #endif
 
 void SD_StartMusic(
-    MusicGroup* music)
+    int index)
 {
     SD_MusicOff();
 
     sqPlayedOnce = false;
 
     if (MusicMode == smm_AdLib) {
-        Uint16* music_data = reinterpret_cast<Uint16*>(music);
+        sound_index = index;
+
+        Uint16* music_data = reinterpret_cast<Uint16*>(
+            audiosegs[STARTMUSIC + index]);
+
         int length = SDL_SwapLE16(music_data[0]) + 2;
 
         sqHack = music_data;
@@ -2839,4 +2931,17 @@ SD_MusicPlaying(void)
 	}
 
 	return(result);
+}
+
+// BBi
+bool sd_prepare_adlib_sfx(
+    int sound_index,
+    const void* data,
+    int data_size)
+{
+    return mixer.prepare_sound(
+        bstone::ST_ADLIB_SFX,
+        sound_index,
+        data,
+        data_size);
 }

@@ -1,5 +1,6 @@
 [D|d]ebug/
 ipch/
+*.o
 *.opensdf
 *.sdf
 *.suo

@@ -2898,7 +2898,13 @@ void    DemoLoop (void)
 			// Load and start music
 			//
 				CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
+
+// FIXME
+#if 0
 				SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
+#endif // 0
+
+                ::SD_StartMusic(TITLE_LOOP_MUSIC);
 			}
 
 //

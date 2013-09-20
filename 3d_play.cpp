@@ -1405,7 +1405,12 @@ void StartMusic(boolean preload)
 #endif // 0
 
 		if (!preload)
+// FIXME
+#if 0
 			SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + musicchunk]);
+#endif // 0
+
+        ::SD_StartMusic(musicchunk);
 	}
 }
 

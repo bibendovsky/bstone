@@ -2070,7 +2070,13 @@ void PreDemo()
 	// Load and start music
 	//
 		CA_CacheAudioChunk(STARTMUSIC+APOGFNFM_MUS);
+
+// FIXME
+#if 0
 		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+APOGFNFM_MUS]);
+#endif // 0
+
+        ::SD_StartMusic(APOGFNFM_MUS);
 
 	// Cache and set palette.  AND  Fade it in!
 	//
@@ -2111,7 +2117,13 @@ void PreDemo()
 	// Load and start music
 	//
 		CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
+
+// FIXME
+#if 0
 		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
+#endif // 0
+
+        ::SD_StartMusic(TITLE_LOOP_MUSIC);
 
 	// Show JAM logo
 	//
@@ -2139,7 +2151,13 @@ void PreDemo()
 		      	DebugOk = 1;
 
 					CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
+
+// FIXME
+#if 0
 					SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
+#endif // 0
+
+                    ::SD_StartMusic(TITLE_LOOP_MUSIC);
       		}
          }
       }

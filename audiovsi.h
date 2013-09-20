@@ -118,10 +118,20 @@ typedef enum {
 //
 // Base offsets
 //
-#define STARTPCSOUNDS		0
-#define STARTADLIBSOUNDS	100
-#define STARTDIGISOUNDS		200
-#define STARTMUSIC		300
+
+// FIXME MSVC does not see theese as defines from id_sd.h.
+// Anyway, defines are evil.
+#if 0
+//#define STARTPCSOUNDS		0
+//#define STARTADLIBSOUNDS	100
+//#define STARTDIGISOUNDS		200
+//#define STARTMUSIC		300
+#endif // 0
+
+const int STARTPCSOUNDS = 0;
+const int STARTADLIBSOUNDS = 100;
+const int STARTDIGISOUNDS = 200;
+const int STARTMUSIC = 300;
 
 //
 // Music names & indexes
