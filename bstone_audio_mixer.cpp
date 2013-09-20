@@ -69,6 +69,19 @@ AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
     return *this;
 }
 
+void AudioMixer::CacheItem::purge()
+{
+    is_active = false;
+    is_invalid = false;
+    sound_type = ST_NONE;
+    samples_count = 0;
+    decoded_count = 0;
+    Samples().swap(samples);
+
+    delete decoder;
+    decoder = NULL;
+}
+
 bool AudioMixer::CacheItem::is_finished() const
 {
     return decoded_count == samples_count;
@@ -306,21 +319,16 @@ bool AudioMixer::stop_music()
 
     ::SDL_LockMutex(mix_mutex_);
 
-    if (!sounds_.empty()) {
-        class Predicate {
-        public:
-            static bool test(
-                const Sound& sound)
-            {
-                return sound.type == ST_ADLIB_MUSIC;
-            }
-        }; // class Predicate
+    PlayCommand play_command;
+    play_command.command = PT_STOP;
+    play_command.sound_type = ST_ADLIB_MUSIC;
+    play_command.sound_index = sound_index;
+    play_command.actor_index = -1;
+    play_command.actor_channel = AC_VOICE;
 
-        SoundsIt it = std::remove_if(
-            sounds_.begin(), sounds_.end(), Predicate::test);
-
-        sounds_.erase(it, sounds_.end());
-    }
+    ::SDL_LockMutex(mix_mutex_);
+    play_commands_queue_.push_back(play_command);
+    ::SDL_UnlockMutex(mix_mutex_);
 
     ::SDL_UnlockMutex(mix_mutex_);
 
@@ -437,10 +445,8 @@ void AudioMixer::callback(
 
 void AudioMixer::mix()
 {
-    PlayCommands sound_commands;
-
     while (!quit_thread_) {
-        mix_handle_commands(sound_commands);
+        mix_handle_commands();
 
         if (!mute_ && !is_data_available_ && !sounds_.empty()) {
             mix_process_samples();
@@ -545,27 +551,45 @@ void AudioMixer::mix_handle_command(
         sound.actor_channel = command.actor_channel;
 
         sounds_.push_back(sound);
+
+
+        if (command.sound_type != ST_ADLIB_MUSIC) {
+            // Remove sounds which will be overritten.
+
+            for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
+                if (command.actor_index >= 0 &&
+                    i->actor_index == command.actor_index &&
+                    i->actor_channel == command.actor_channel)
+                {
+                    i = sounds_.erase(i);
+                } else
+                    ++i;
+            }
+        }
+
         break;
 
     case PT_STOP:
-        if (command.sound_type == ST_ADLIB_MUSIC) {
-            class Predicate {
-            public:
-                static bool test(
-                    const Sound& sound)
-                {
-                    return sound.type == ST_ADLIB_MUSIC;
-                }
-            }; // class Predicate
+        if (sound.type != ST_ADLIB_MUSIC) {
+            ::SDL_LockMutex(decode_data_mutex_);
 
-            sounds_.remove_if(Predicate::test);
+            for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
+                if (i->type != ST_ADLIB_MUSIC)
+                    ++i;
+                else {
+                    CacheItem& cache_item = adlib_music_cache_[i->index];
+                    i = sounds_.erase(i);
+                    cache_item.purge();
+                }
+            }
+
+            ::SDL_UnlockMutex(decode_data_mutex_);
         }
         break;
     }
 }
 
-void AudioMixer::mix_handle_commands(
-    PlayCommands& sound_commands)
+void AudioMixer::mix_handle_commands()
 {
     ::SDL_LockMutex(mix_mutex_);
 

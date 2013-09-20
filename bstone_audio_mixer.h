@@ -141,6 +141,8 @@ private:
         CacheItem& operator=(
             const CacheItem& that);
 
+        void purge();
+
         bool is_finished() const;
     }; // class CacheItem
 
@@ -193,8 +195,7 @@ private:
     void mix_handle_command(
         const PlayCommand& command);
 
-    void mix_handle_commands(
-        PlayCommands& sound_commands);
+    void mix_handle_commands();
 
     void decode();
 
