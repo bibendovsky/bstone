@@ -14,10 +14,18 @@
 namespace bstone {
 
 
+enum ActorType {
+    AT_NONE,
+    AT_ACTOR,
+    AT_DOOR,
+    AT_WALL,
+}; // enum ActorType
+
 enum ActorChannel {
     AC_VOICE,
     AC_WEAPON,
     AC_ITEM,
+    AC_KEY,
     AC_WALL_HIT,
 }; // enum ActorChannel
 
@@ -43,21 +51,26 @@ public:
     bool is_initialized() const;
 
     bool play_adlib_music(
+        int music_index,
         const void* data,
         int data_size);
 
     // Negative index of an actor defines a non-positional sound.
     bool play_adlib_sound(
+        int sound_index,
         const void* data,
         int data_size,
         int actor_index = -1,
+        ActorType actor_type = AT_NONE,
         ActorChannel actor_channel = AC_VOICE);
 
     // Negative index of an actor defines a non-positional sound.
     bool play_pcm_sound(
+        int sound_index,
         const void* data,
         int data_size,
         int actor_index = -1,
+        ActorType actor_type = AT_NONE,
         ActorChannel actor_channel = AC_VOICE);
 
     bool stop_music();
@@ -114,6 +127,7 @@ private:
         CacheItem* cache;
         int decode_offset;
         int actor_index;
+        ActorType actor_type;
         ActorChannel actor_channel;
     }; // class Sound
 
@@ -180,9 +194,11 @@ private:
 
     bool play_sound(
         SoundType sound_type,
+        int sound_index,
         const void* data,
         int data_size,
         int actor_index = -1,
+        ActorType actor_type = AT_NONE,
         ActorChannel actor_channel = AC_VOICE);
 
     CacheItem* get_cache_item(

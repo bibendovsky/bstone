@@ -2044,8 +2044,7 @@ enum DoorAction {
     dr_jammed,
 }; // enum DoorAction
 
-typedef struct doorstruct
-{
+struct doorobj_t {
 	Uint8    		tilex,tiley;
 	boolean 		vertical;
 	char	 		flags;
@@ -2054,7 +2053,7 @@ typedef struct doorstruct
 	DoorAction action;
 	Sint16         ticcount;
 	Uint8    		areanumber[2];
-} doorobj_t;
+};
 
 
 //--------------------

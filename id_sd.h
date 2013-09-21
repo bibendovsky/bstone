@@ -8,6 +8,10 @@
 #ifndef	__ID_SD__
 #define	__ID_SD__
 
+// BBi
+#include "bstone_audio_mixer.h"
+
+
 void	alOut(Uint8 n,Uint8 b);
 
 #ifdef	__DEBUG__
@@ -240,5 +244,30 @@ extern	void	SDL_PCPlaySound(PCSound *sound),
 				SDL_ALPlaySound(AdLibSound *sound),
 				SDL_ALStopSound(void);
 #endif
+
+// BBi
+void sd_play_sound(
+    int sound_index,
+    const void* actor,
+    bstone::ActorType actor_type,
+    bstone::ActorChannel actor_channel);
+
+void sd_play_actor_sound(
+    int sound_index,
+    const struct objtype* actor,
+    bstone::ActorChannel actor_channel);
+
+void sd_play_player_sound(
+    int sound_index,
+    bstone::ActorChannel actor_channel);
+
+void sd_play_door_sound(
+    int sound_index,
+    const struct doorobj_t* door);
+
+void sd_play_wall_sound(
+    int sound_index);
+// BBi
+
 
 #endif

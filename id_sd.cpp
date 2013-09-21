@@ -43,6 +43,8 @@
 #endif
 
 // BBi
+#include "3d_def.h"
+
 #include "bstone_audio_mixer.h"
 #include "bstone_memory_binary_reader.h"
 
@@ -221,7 +223,7 @@ static	Uint16			sqMode,sqFadeStep;
 		void			SDL_DigitizedDone(void);
 
 // BBi
-int sound_index;
+static int music_index = -1;
 static bstone::AudioMixer mixer;
 
 
@@ -2641,75 +2643,6 @@ SD_PlaySound(soundnames sound)
 boolean SD_PlaySound(
     soundnames sound)
 {
-    boolean ispos;
-    SoundCommon* s;
-    int lp;
-    int rp;
-
-    lp = LeftPosition;
-    rp = RightPosition;
-    LeftPosition = 0;
-    RightPosition = 0;
-
-    ispos = nextsoundpos;
-    nextsoundpos = false;
-
-    if (sound == -1)
-        return false;
-
-    if (SoundTable == NULL)
-        return false;
-
-    s = reinterpret_cast<SoundCommon*>(SoundTable[sound]);
-
-    if (SoundMode != sdm_Off && s == NULL)
-        SD_ERROR(SD_PLAYSOUND_UNCACHED);
-
-    int digi_index = DigiMap[sound];
-
-    if (DigiMode != sds_Off && digi_index != -1) {
-        if (DigiPriority && !DigiNumber)
-            SD_ERROR(SD_PLAYSOUND_PRI_NO_SOUND);
-
-        //SD_PlayDigitized(DigiMap[sound], lp, rp);
-        int digi_page = DigiList[(2 * digi_index) + 0];
-        int digi_length = DigiList[(2 * digi_index) + 1];
-        const void* digi_data = PM_GetSoundPage(digi_page);
-
-        sound_index = digi_index;
-        mixer.play_pcm_sound(digi_data, digi_length);
-
-        SoundPositioned = ispos;
-        DigiNumber = sound;
-        DigiPriority = s->priority;
-
-        return true;
-    }
-
-    if (SoundMode == sdm_Off)
-        return false;
-
-    if (s->length == 0)
-        SD_ERROR(SD_PLAYSOUND_ZERO_LEN);
-
-
-    switch (SoundMode) {
-    case sdm_AdLib:
-        break;
-
-    default:
-        return false;
-    }
-
-    sound_index = sound;
-
-    mixer.play_adlib_sound(s,
-        audiostarts[sdStartALSounds + sound + 1] -
-            audiostarts[sdStartALSounds + sound]);
-
-    SoundNumber = sound;
-    SoundPriority = s->priority;
-
     return false;
 }
 
@@ -2799,7 +2732,7 @@ SD_MusicOn(void)
 
 void SD_MusicOn()
 {
-    mixer.play_adlib_music(sqHack, sqHackLen);
+    mixer.play_adlib_music(music_index, sqHack, sqHackLen);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -2874,7 +2807,7 @@ void SD_StartMusic(
     sqPlayedOnce = false;
 
     if (MusicMode == smm_AdLib) {
-        sound_index = index;
+        music_index = index;
 
         Uint16* music_data = reinterpret_cast<Uint16*>(
             audiosegs[STARTMUSIC + index]);
@@ -2931,4 +2864,116 @@ SD_MusicPlaying(void)
 	}
 
 	return(result);
+}
+
+void sd_play_sound(
+    int sound_index,
+    const void* actor,
+    bstone::ActorType actor_type,
+    bstone::ActorChannel actor_channel)
+{
+    if (sound_index < 0)
+        return;
+
+    if (SoundTable == NULL)
+        return;
+
+    int actor_index = -1;
+
+    if (actor != NULL) {
+        switch (actor_type) {
+        case bstone::AT_ACTOR:
+            actor_index = static_cast<int>(
+                static_cast<const objtype*>(actor) - objlist);
+            break;
+
+        case bstone::AT_DOOR:
+            actor_index = static_cast<int>(
+                static_cast<const doorobj_t*>(actor) - doorobjlist);
+            break;
+
+        default:
+            return;
+        }
+    }
+
+    const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
+        SoundTable[sound_index]);
+
+    if (SoundMode != sdm_Off && sound == NULL)
+        SD_ERROR(SD_PLAYSOUND_UNCACHED);
+
+    int digi_index = DigiMap[sound_index];
+
+    if (DigiMode != sds_Off && digi_index != -1) {
+        int digi_page = DigiList[(2 * digi_index) + 0];
+        int digi_length = DigiList[(2 * digi_index) + 1];
+        const void* digi_data = ::PM_GetSoundPage(digi_page);
+
+        mixer.play_pcm_sound(digi_index, digi_data, digi_length,
+            actor_index, actor_type, actor_channel);
+
+        return;
+    }
+
+    if (SoundMode == sdm_Off)
+        return;
+
+    switch (SoundMode) {
+    case sdm_AdLib:
+        break;
+
+    default:
+        return;
+    }
+
+    int data_size = audiostarts[sdStartALSounds + sound_index + 1] -
+            audiostarts[sdStartALSounds + sound_index];
+
+    mixer.play_adlib_sound(sound_index, sound, data_size,
+        actor_index, actor_type, actor_channel);
+}
+
+void sd_play_actor_sound(
+    int sound_index,
+    const objtype* actor,
+    bstone::ActorChannel actor_channel)
+{
+    sd_play_sound(
+        sound_index,
+        actor,
+        bstone::AT_ACTOR,
+        actor_channel);
+}
+
+void sd_play_player_sound(
+    int sound_index,
+    bstone::ActorChannel actor_channel)
+{
+    sd_play_sound(
+        sound_index,
+        player,
+        bstone::AT_ACTOR,
+        actor_channel);
+}
+
+void sd_play_door_sound(
+    int sound_index,
+    const doorobj_t* door)
+{
+    sd_play_sound(
+        sound_index,
+        door,
+        bstone::AT_DOOR,
+        bstone::AC_VOICE);
+}
+
+void sd_play_wall_sound(
+    int sound_index)
+{
+    sd_play_sound(
+        sound_index,
+        NULL,
+        bstone::AT_WALL,
+        bstone::AC_VOICE);
 }

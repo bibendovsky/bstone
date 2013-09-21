@@ -13,7 +13,6 @@
 
 
 extern boolean sqPlayedOnce;
-extern int sound_index;
 
 
 namespace bstone {
@@ -210,30 +209,35 @@ bool AudioMixer::is_initialized() const
 }
 
 bool AudioMixer::play_adlib_music(
+    int music_index,
     const void* data,
     int data_size)
 {
-    return play_sound(ST_ADLIB_MUSIC, data, data_size);
+    return play_sound(ST_ADLIB_MUSIC, music_index, data, data_size);
 }
 
 bool AudioMixer::play_adlib_sound(
+    int sound_index,
     const void* data,
     int data_size,
     int actor_index,
+    ActorType actor_type,
     ActorChannel actor_channel)
 {
-    return play_sound(ST_ADLIB_SFX, data, data_size,
-        actor_index, actor_channel);
+    return play_sound(ST_ADLIB_SFX, sound_index, data, data_size,
+        actor_index, actor_type, actor_channel);
 }
 
 bool AudioMixer::play_pcm_sound(
+    int sound_index,
     const void* data,
     int data_size,
     int actor_index,
+    ActorType actor_type,
     ActorChannel actor_channel)
 {
-    return play_sound(ST_PCM, data, data_size,
-        actor_index, actor_channel);
+    return play_sound(ST_PCM, sound_index, data, data_size,
+        actor_index, actor_type, actor_channel);
 }
 
 bool AudioMixer::stop_music()
@@ -506,6 +510,7 @@ void AudioMixer::handle_play_command(
         for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
             if (command.sound.actor_index >= 0 &&
                 i->actor_index == command.sound.actor_index &&
+                i->actor_type == command.sound.actor_type &&
                 i->actor_channel == command.sound.actor_channel)
             {
                 i = sounds_.erase(i);
@@ -614,9 +619,11 @@ bool AudioMixer::decode_sound(
 
 bool AudioMixer::play_sound(
     SoundType sound_type,
+    int sound_index,
     const void* data,
     int data_size,
     int actor_index,
+    ActorType actor_type,
     ActorChannel actor_channel)
 {
     if (!is_initialized())
@@ -650,6 +657,7 @@ bool AudioMixer::play_sound(
     command.sound.type = sound_type;
     command.sound.cache = get_cache_item(sound_type, sound_index);
     command.sound.actor_index = actor_index;
+    command.sound.actor_type = actor_type;
     command.sound.actor_channel = actor_channel;
     command.data = data;
     command.data_size = data_size;
