@@ -246,11 +246,15 @@ void PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy)
 {
 	SetSoundLoc(gx,gy);
 	SD_PositionSound(leftchannel,rightchannel);
+
+// FIXME
+#if 0
 	if (SD_PlaySound(static_cast<soundnames>(s)))
 	{
 		globalsoundx = gx;
 		globalsoundy = gy;
 	}
+#endif // 0
 }
 
 void UpdateSoundLoc(void)
@@ -2781,7 +2785,12 @@ void DrawWarpIn(void)
 
 	bufferofs = temp;
 
+// FIXME
+#if 0
 	SD_PlaySound(WARPINSND);
+#endif // 0
+
+    ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 
 	fizzlein = true;
 
@@ -2817,7 +2826,13 @@ void Warped(void)
 	VW_Bar (0,0,viewwidth,viewheight,BLACK);
 
 	IN_ClearKeysDown ();
+
+// FIXME
+#if 0
 	SD_PlaySound (WARPINSND);
+#endif // 0
+
+    ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 
 	FizzleFade(bufferofs,displayofs+screenofs,viewwidth,viewheight,70,false);
 
@@ -3123,7 +3138,13 @@ void Died (void)
 	Sint16		iangle;
 
 	gamestate.weapon = -1;			// take away weapon
+
+// FIXME
+#if 0
 	SD_PlaySound (PLAYERDEATHSND);
+#endif // 0
+
+    ::sd_play_player_sound(PLAYERDEATHSND, bstone::AC_VOICE);
 
 	iangle = CalcAngle(player,killerobj);
 
@@ -3546,7 +3567,14 @@ strcat (str,str2);							// defined in 3d_main.c
 					NextBuffer();
 				}
 				UNCACHEGRCHUNK(STARTFONT+1);
+
+// FIXME
+#if 0
 				SD_PlaySound(BONUS1SND);
+#endif // 0
+
+                ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);
+
 				SD_WaitSoundDone();
 				IN_UserInput(5*60);
 				ClearMemory();

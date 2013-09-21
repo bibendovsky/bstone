@@ -995,11 +995,22 @@ void CloseDoor (Sint16 door)
 			case dr_office:
 			case dr_space:
 			case dr_normal:
+// FIXME
+#if 0
 				PlaySoundLocTile(HTECHDOORCLOSESND,doorobjlist[door].tilex,doorobjlist[door].tiley);
+#endif // 0
+
+                ::sd_play_door_sound(
+                    HTECHDOORCLOSESND, &doorobjlist[door]);
 			break;
 
 			default:
+// FIXME
+#if 0
 				PlaySoundLocTile(CLOSEDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);
+#endif // 0
+
+                ::sd_play_door_sound(CLOSEDOORSND, &doorobjlist[door]);
 			break;
 		}
 	}
@@ -1080,7 +1091,13 @@ void OperateDoor (Sint16 door)
 		if (doorobjlist[door].action == dr_closed)
 		{
 			DISPLAY_TIMED_MSG(od_oneway,MP_DOOR_OPERATE,MT_GENERAL);
+
+// FIXME
+#if 0
 			SD_PlaySound(NOWAYSND);
+#endif // 0
+
+            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 		}
 
 		return;
@@ -1095,7 +1112,13 @@ void OperateDoor (Sint16 door)
 	{
 		if (!(gamestate.numkeys[lock-kt_red]))
 		{
+// FIXME
+#if 0
 				SD_PlaySound(NOWAYSND);
+#endif // 0
+
+                ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+
 				switch (lock)
 				{
 					case kt_red:
@@ -1229,7 +1252,14 @@ void DropPlasmaDetonator(void)
    	obj->flags |= FL_SHOOTABLE;
 
 		DISPLAY_TIMED_MSG(pd_dropped,MP_DOOR_OPERATE,MT_GENERAL);
+
+// FIXME
+#if 0
 		SD_PlaySound(ROBOT_SERVOSND);		// jdebug-This sound will probly change.
+#endif // 0
+
+        ::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::AC_VOICE);
+
       TakePlasmaDetonator(1);
       return;
 	}
@@ -1387,11 +1417,22 @@ void DoorOpening (Sint16 door)
 				case dr_office:
 				case dr_space:
 				case dr_normal:
+// FIXME
+#if 0
 					PlaySoundLocTile(HTECHDOOROPENSND,doorobjlist[door].tilex,doorobjlist[door].tiley);
+#endif // 0
+
+                    ::sd_play_door_sound(
+                        HTECHDOOROPENSND, &doorobjlist[door]);
 				break;
 
 				default:
+// FIXME
+#if 0
 					PlaySoundLocTile(OPENDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);
+#endif // FIXME
+
+                    ::sd_play_door_sound(OPENDOORSND, &doorobjlist[door]);
 				break;
 			}
 		}
@@ -1634,7 +1675,12 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 	tilemap[pwallx][pwally] |= 0xc0;
 	*(mapsegs[1]+farmapylookup[pwally]+pwallx) = 0;	// remove P tile info
 
+// FIXME
+#if 0
 	SD_PlaySound (PUSHWALLSND);
+#endif // 0
+
+    ::sd_play_wall_sound(PUSHWALLSND);
 }
 
 /*
@@ -2133,7 +2179,14 @@ void OperateConcession(Uint16 concession)
 				if (gamestate.health == 100)
 				{
 					DISPLAY_TIMED_MSG(noeat_msg1,MP_CONCESSION_OPERATE,MT_GENERAL);
+
+// FIXME
+#if 0
                SD_PlaySound(NOWAYSND);
+#endif // 0
+
+                    ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+
 					return;
 				}
 				else
@@ -2168,14 +2221,28 @@ void OperateConcession(Uint16 concession)
 				if (!gamestate.tokens)
 				{
 					DISPLAY_TIMED_MSG(NoFoodTokens,MP_NO_MORE_TOKENS,MT_NO_MO_FOOD_TOKENS);
+
+// FIXME
+#if 0
                SD_PlaySound(NOWAYSND);
+#endif // 0
+
+                    ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+
 					return;
 				}
 				else
 					gamestate.tokens--;
 
 				ci->mInfo.local_val--;
+
+// FIXME
+#if 0
 				SD_PlaySound(CONCESSIONSSND);
+#endif // 0
+
+                ::sd_play_player_sound(CONCESSIONSSND, bstone::AC_ITEM);
+
 				switch (ci->type)
 				{
 					case CT_FOOD:
@@ -2196,7 +2263,13 @@ void OperateConcession(Uint16 concession)
 	else
 	{
 		DISPLAY_TIMED_MSG(OutOrder,MP_CONCESSION_OUT_ORDER,MT_GENERAL);
+
+// FIXME
+#if 0
 		SD_PlaySound(NOWAYSND);
+#endif // 0
+
+        ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 	}
 }
 
@@ -2291,13 +2364,26 @@ void CheckSpawnEA()
 	//
 		usedummy=true;
 		SpawnStand(en_electro_alien,temp.tilex,temp.tiley,0);
+
+// FIXME
+#if 0
 		SD_PlaySound(ELECAPPEARSND);
+#endif // 0
+
+        ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
+
 		usedummy=false;
 		if (new_actor!=&dummyobj)
 		{
 			eaList[loop].aliens_out++;
 			new_actor->temp2=loop;
+
+// FIXME
+#if 0
 			PlaySoundLocActor(ELECAPPEARSND,new_actor);
+#endif // 0
+
+            ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
 		}
 
 	// Reset spawn delay.

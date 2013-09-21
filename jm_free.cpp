@@ -2144,7 +2144,13 @@ void PreDemo()
 
 					SD_MusicOff();
 
+// FIXME
+#if 0
 				   SD_PlaySound(SHOOTDOORSND);
+#endif // 0
+
+                   ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
+
 		         SD_WaitSoundDone();
 
 				   ClearMemory();

@@ -1775,7 +1775,14 @@ Sint16 CP_SaveGame(Sint16 quick)
 			 	VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,TERM_BACK_COLOR);
 	   	 	PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
 	   	 	VW_UpdateScreen();
+
+// FIXME
+#if 0
 		    	SD_PlaySound(ESCPRESSEDSND);
+#endif // 0
+
+            ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+
    		 	continue;
 			}
 
@@ -1963,7 +1970,14 @@ void MouseSensitivity(Sint16 temp1)
 					mouseadjustment--;
 	   			DrawMousePos();
       			VW_UpdateScreen();
+
+// FIXME
+#if 0
       			SD_PlaySound(MOVEGUN1SND);
+#endif // 0
+
+                ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+
       			while(Keyboard[sc_LeftArrow]);
       			WaitKeyUp();
      			}
@@ -1976,7 +1990,14 @@ void MouseSensitivity(Sint16 temp1)
 					mouseadjustment++;
 					DrawMousePos();
 					VW_UpdateScreen();
+
+// FIXME
+#if 0
 					SD_PlaySound(MOVEGUN1SND);
+#endif // 0
+
+                    ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+
 					while(Keyboard[sc_RightArrow]);
 					WaitKeyUp();
 				}
@@ -1997,10 +2018,20 @@ void MouseSensitivity(Sint16 temp1)
 	if (exit==2)
 	{
 		mouseadjustment=oldMA;
+
+// FIXME
+#if 0
 		SD_PlaySound(ESCPRESSEDSND);
+#endif // 0
+
+        ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 	}
 	else
+// FIXME
+#if 0
 		SD_PlaySound(SHOOTSND);
+#endif // 0
+        ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 
 	WaitKeyUp();
 	MenuFadeOut();
@@ -2182,7 +2213,14 @@ boolean TestForValidKey(ScanCode Scan)
 	if (pos)
    {
    	*pos = sc_None;
+
+// FIXME
+#if 0
 		SD_PlaySound(SHOOTDOORSND);
+#endif // 0
+
+        ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
+
 		DrawCustomScreen();
    }
 
@@ -2282,7 +2320,13 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 				      case 1:
 							PrintX=x;
 							US_Print("?");
+
+// FIXME
+#if 0
 							SD_PlaySound(HITWALLSND);
+#endif // 0
+                            ::sd_play_player_sound(
+                                HITWALLSND, bstone::AC_ITEM);
 				  	}
 
 			     	tick^=1;
@@ -2324,7 +2368,14 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 						buttonmouse[result-1]=order[which];
 						picked=1;
+
+// FIXME
+#if 0
 						SD_PlaySound(SHOOTDOORSND);
+#endif // 0
+                        ::sd_play_player_sound(
+                            SHOOTDOORSND, bstone::AC_ITEM);
+
 						clean_display = false;
 		 	       }
    	    	 break;
@@ -2351,7 +2402,14 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 				buttonjoy[result-1]=order[which];
 				picked=1;
+
+// FIXME
+#if 0
 				SD_PlaySound(SHOOTDOORSND);
+#endif // 0
+
+                ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
+
 				clean_display = false;
 				}
 	  	  break;
@@ -2363,7 +2421,12 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
             	break;
 
 	   	  	if (memchr(special_keys,LastScan,sizeof(special_keys)))
+// FIXME
+#if 0
 					SD_PlaySound(NOWAYSND);
+#endif // 0
+                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+
 				else
    	      {
       	   	if (clean_display = TestForValidKey(LastScan))
@@ -2384,7 +2447,13 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
    	        	break;
 
 		     	if (memchr(special_keys,LastScan,sizeof(special_keys)))
+// FIXME
+#if 0
 					SD_PlaySound(NOWAYSND);
+#endif // 0
+
+                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+
 				else
 	         {
    	      	if (clean_display = TestForValidKey(LastScan))
@@ -2441,7 +2510,14 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
      	} while(!cust->allowed[which]);
 
      redraw=1;
+
+// FIXME
+#if 0
      SD_PlaySound(MOVEGUN1SND);
+#endif // 0
+
+     ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+
 	  while(ReadAnyControl(&ci),ci.dir!=dir_None);
 	  IN_ClearKeysDown();
 	break;
@@ -2460,7 +2536,13 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 		} while(!cust->allowed[which]);
 
 		redraw=1;
+
+// FIXME
+#if 0
 		SD_PlaySound(MOVEGUN1SND);
+#endif // 0
+
+        ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
 		while(ReadAnyControl(&ci),ci.dir!=dir_None);
 
@@ -2479,7 +2561,13 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 	FREEFONT(STARTFONT+fontnumber);
 
+// FIXME
+#if 0
  SD_PlaySound(ESCPRESSEDSND);
+#endif // 0
+
+    ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+
  WaitKeyUp();
 }
 
@@ -2774,7 +2862,13 @@ void CP_ChangeView(Sint16 temp1)
 	  ShowViewSize(newview);
 	  VW_UpdateScreen();
 	  if (newview != lastview)
+// FIXME
+#if 0
 		  SD_PlaySound(HITWALLSND);
+#endif // 0
+
+      ::sd_play_player_sound(HITWALLSND, bstone::AC_ITEM);
+
 	  TicDelay(10);
 	  lastview=newview;
 	  break;
@@ -2787,7 +2881,13 @@ void CP_ChangeView(Sint16 temp1)
 	  ShowViewSize(newview);
 	  VW_UpdateScreen();
 	  if (newview != lastview)
+// FIXME
+#if 0
 			SD_PlaySound(HITWALLSND);
+#endif // 0
+
+      ::sd_play_player_sound(HITWALLSND, bstone::AC_ITEM);
+
 	  TicDelay(10);
 	  lastview=newview;
 	  break;
@@ -2802,7 +2902,14 @@ void CP_ChangeView(Sint16 temp1)
   if (ci.button1 || Keyboard[sc_Escape])
   {
 	viewwidth=oldview*16;
+
+// FIXME
+#if 0
 	SD_PlaySound(ESCPRESSEDSND);
+#endif // 0
+
+    ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+
 	MenuFadeOut();
 	return;
   }
@@ -2813,7 +2920,13 @@ void CP_ChangeView(Sint16 temp1)
 
  if (oldview!=newview)
  {
+// FIXME
+#if 0
 	SD_PlaySound (SHOOTSND);
+#endif // 0
+
+    ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
+
 	Message(Computing);
 	NewViewSize(newview);
  }
@@ -3339,7 +3452,13 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 			return which;
 
 		case 2:
+// FIXME
+#if 0
 			SD_PlaySound(ESCPRESSEDSND);
+#endif // 0
+
+            ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+
 			return -1;
 	}
 
@@ -3662,7 +3781,15 @@ Sint16 Confirm(const char *string)
 // BBi
 
 	IN_ClearKeysDown();
+
+// FIXME
+#if 0
 	SD_PlaySound(static_cast<soundnames>(whichsnd[xit]));
+#endif // 0
+
+    ::sd_play_player_sound(
+        static_cast<soundnames>(whichsnd[xit]),
+        bstone::AC_ITEM);
 
 	FREEFONT(STARTFONT+fontnumber);		
 
@@ -4042,7 +4169,12 @@ void DrawMenuGun(CP_iteminfo *iteminfo)
 //-------------------------------------------------------------------------
 void ShootSnd(void)
 {
+// FIXME
+#if 0
 	SD_PlaySound(SHOOTSND);
+#endif // 0
+
+    ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 }
 
 #if GAME_VERSION == SHAREWARE_VERSION

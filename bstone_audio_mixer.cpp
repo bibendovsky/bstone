@@ -645,7 +645,8 @@ bool AudioMixer::play_sound(
     case AC_VOICE:
     case AC_WEAPON:
     case AC_ITEM:
-    case AC_WALL_HIT:
+    case AC_HIT_WALL:
+    case AC_NO_WAY:
         break;
 
     default:

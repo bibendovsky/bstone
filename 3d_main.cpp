@@ -1966,7 +1966,13 @@ boolean LoadTheGame(int handle)
         WindowH = 168;
 
         CacheMessage(BADSAVEGAME_TEXT);
+
+// FIXME
+#if 0
         SD_PlaySound(NOWAYSND);
+#endif // 0
+
+        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 
         WindowX = old_wx;
         WindowY = old_wy;

@@ -1271,7 +1271,13 @@ void TP_HandleCodes()
 	// BELL -------------------------------------------------------------
 	//
 			case TP_CNVT_CODE('B','E'):
+// FIXME
+#if 0
 				SD_PlaySound(TERM_BEEPSND);
+#endif // 0
+
+                ::sd_play_player_sound(TERM_BEEPSND, bstone::AC_ITEM);
+
 				SD_WaitSoundDone();
 			break;
 
@@ -1372,7 +1378,13 @@ void TP_HandleCodes()
 				if ((temp < LASTSOUND)) // && (temp != music_num))
 				{
 					TP_CacheIn(ct_scaled,0);
+
+// FIXME
+#if 0
 					SD_PlaySound(static_cast<soundnames>(temp));
+#endif // 0
+
+                    ::sd_play_player_sound(temp, bstone::AC_ITEM);
 				}
 				first_ch += 2;
 			break;
@@ -1981,7 +1993,11 @@ boolean TP_SlowPrint(const char *str, char delay)
 	//
 		if (pi->flags & TPF_TERM_SOUND)
 			if (*str != ' ')
+// FIXME
+#if 0
 				SD_PlaySound(TERM_TYPESND);
+#endif // 0
+        ::sd_play_player_sound(TERM_TYPESND, bstone::AC_ITEM);
 
 	// Delay and check for abort (if needed).
 	//

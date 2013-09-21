@@ -1025,7 +1025,13 @@ void CheckMusicToggle(void)
 			if (!AdLibPresent)
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard,MP_BONUS,MT_GENERAL);
+
+// FIXME
+#if 0
 				SD_PlaySound(NOWAYSND);
+#endif // 0
+
+                ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
             return;
 			}
 			else

@@ -2640,12 +2640,6 @@ SD_PlaySound(soundnames sound)
 }
 #endif // 0
 
-boolean SD_PlaySound(
-    soundnames sound)
-{
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //	SD_SoundPlaying() - returns the sound number that's playing, or 0 if

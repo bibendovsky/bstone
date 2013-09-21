@@ -432,7 +432,16 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 		{
       	Uint16 sound_chunk;
          sound_chunk = *(Uint16 *)frame;
+
+// FIXME
+#if 0
       	SD_PlaySound(static_cast<soundnames>(sound_chunk));
+#endif // 0
+
+        ::sd_play_player_sound(
+            static_cast<soundnames>(sound_chunk),
+            bstone::AC_ITEM);
+
          BufferPtr+=blk.recsize;
       }
       break;

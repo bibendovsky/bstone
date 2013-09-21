@@ -1162,7 +1162,12 @@ void	GiveAmmo (Sint16 ammo)
      	}
 	}
 
+// FIXME
+#if 0
 	SD_PlaySound (GETAMMOSND);
+#endif // 0
+
+    ::sd_play_player_sound(GETAMMOSND, bstone::AC_ITEM);
 
 
 #if 0
@@ -1305,7 +1310,12 @@ void	GiveToken (Sint16 tokens)
 		gamestate.tokens = MAX_TOKENS;
 	}
 
+// FIXME
+#if 0
 	SD_PlaySound (GOTTOKENSND);
+#endif // 0
+
+    ::sd_play_player_sound(GOTTOKENSND, bstone::AC_ITEM);
 }
 
 //===========================================================================
@@ -2025,18 +2035,37 @@ void GetBonus (statobj_t *check)
 			return;
 
 		GiveKey(keynum);
+
+// FIXME
+#if 0
 		SD_PlaySound(GETKEYSND);
+#endif // 0
+
+        ::sd_play_player_sound(GETKEYSND, bstone::AC_ITEM);
+
 		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
 		break;
 	}
 
 	case	bo_money_bag:
+// FIXME
+#if 0
 		SD_PlaySound (BONUS1SND);
+#endif // 0
+
+        ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);
+
 		givepoints=true;
 		break;
 
 	case	bo_loot:
+// FIXME
+#if 0
 		SD_PlaySound (BONUS2SND);
+#endif // 0
+
+        ::sd_play_player_sound(BONUS2SND, bstone::AC_ITEM);
+
 		givepoints=true;
 		break;
 
@@ -2045,13 +2074,25 @@ void GetBonus (statobj_t *check)
 	case	bo_gold2:
 	case	bo_gold3:
 	case	bo_gold:
+
+// FIXME
+#if 0
 		SD_PlaySound (BONUS3SND);
+#endif // 0
+
+        ::sd_play_player_sound(BONUS3SND, bstone::AC_ITEM);
+
 		givepoints=true;
 		break;
 
 
 	case	bo_bonus:
+#if 0
 		SD_PlaySound (BONUS4SND);
+#endif // 0
+
+        ::sd_play_player_sound(BONUS4SND, bstone::AC_ITEM);
+
 		givepoints=true;
 		break;
 
@@ -2067,7 +2108,16 @@ void GetBonus (statobj_t *check)
 	case bo_water:
 		if (gamestate.health == 100)
 			return;
+
+// FIXME
+#if 0
 		SD_PlaySound (static_cast<soundnames>(static_health[check->itemnumber-bo_fullheal][1]));
+#endif // 0
+
+        ::sd_play_player_sound(static_cast<soundnames>(
+                static_health[check->itemnumber - bo_fullheal][1]),
+            bstone::AC_ITEM);
+
 		HealSelf (static_health[check->itemnumber-bo_fullheal][0]);
 		check->flags &= ~FL_BONUS;
 		shapenum = static_health[check->itemnumber-bo_fullheal][2];
@@ -2096,32 +2146,69 @@ void GetBonus (statobj_t *check)
 	case	bo_plasma_detonator:
 		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
 		GivePlasmaDetonator(1);
+
+// FIXME
+#if 0
 		SD_PlaySound (GETDETONATORSND);
+#endif // 0
+
+        ::sd_play_player_sound(GETDETONATORSND, bstone::AC_ITEM);
+
 		break;
 
 	case	bo_pistol:
+// FIXME
+#if 0
 		SD_PlaySound (GETPISTOLSND);
+#endif // 0
+
+        ::sd_play_player_sound(GETPISTOLSND, bstone::AC_ITEM);
+
 		GiveWeapon(wp_pistol);
 		break;
 
 	case	bo_burst_rifle:
+// FIXME
+#if 0
 		SD_PlaySound (GETBURSTRIFLESND);
+#endif // 0
+
+        ::sd_play_player_sound(GETBURSTRIFLESND, bstone::AC_ITEM);
+
 		GiveWeapon (wp_burst_rifle);
 		break;
 
 	case	bo_ion_cannon:
+// FIXME
+#if 0
 		SD_PlaySound (GETIONCANNONSND);
+#endif // 0
+
+        ::sd_play_player_sound(GETIONCANNONSND, bstone::AC_ITEM);
+
 		GiveWeapon (wp_ion_cannon);
 		break;
 
 	case	bo_grenade:
+// FIXME
+#if 0
 		SD_PlaySound (GETCANNONSND);
+#endif // 0
+
+        ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
+
 		GiveWeapon (wp_grenade);
 		break;
 
 
 	case	bo_bfg_cannon:
+// FIXME
+#if 0
 		SD_PlaySound (GETCANNONSND);
+#endif // 0
+
+        ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
+
 		GiveWeapon (wp_bfg_cannon);
 		break;
 
@@ -2146,7 +2233,14 @@ void GetBonus (statobj_t *check)
 			if (gamestate.rpower > MAX_RADAR_ENERGY-(RADAR_PAK_VALUE/8))
 				return;
 			gamestate.rpower += RADAR_PAK_VALUE;
+
+// FIXME
+#if 0
          SD_PlaySound(RADAR_POWERUPSND);
+#endif // 0
+
+         ::sd_play_player_sound(RADAR_POWERUPSND, bstone::AC_ITEM);
+
 			UpdateRadarGuage();
 		break;
 	}
@@ -2306,8 +2400,15 @@ boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove)
 		return(true);
 #endif
 
+// FIXME
+#if 0
 	if (!SD_SoundPlaying())
 		SD_PlaySound (HITWALLSND);
+#endif // 0
+
+    // BBi
+    // FIXME Move playing check to mixer
+    ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
 
 	ob->x = (basex+xmove);
 	ob->y = basey;
@@ -2906,7 +3007,16 @@ boolean Interrogate(objtype *ob)
 		if (strlen(msg) > MSG_BUFFER_LEN)
 			AGENT_ERROR(INTERROGATE_LONG_MSG);
 		DisplayInfoMsg(msg,MP_INTERROGATE,DISPLAY_MSG_STD_TIME*2,MT_GENERAL);
+
+// FIXME
+#if 0
 		SD_PlaySound(INTERROGATESND);
+#endif // 0
+
+        // BBi
+        // FIXME Create a new actor channel type for interrogation?
+        ::sd_play_player_sound(INTERROGATESND, bstone::AC_ITEM);
+
 	}
 
 	return(rt_value);
@@ -3020,8 +3130,15 @@ Sint16 InputFloor(void)
 			{
 				if (locked)
 				{
+// FIXME
+#if 0
 					if (!SD_SoundPlaying())
 						SD_PlaySound(NOWAYSND);
+#endif // 0
+
+                    // BBi
+                    // FIXME Move the playing check to mixer.
+                    ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 				}
 				else
 				{
@@ -3453,7 +3570,13 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 		if (!show_stats_quick)
 		{
 			if (!(loop%2))
+// FIXME
+#if 0
 				SD_PlaySound(STATS1SND);
+#endif // 0
+
+            ::sd_play_player_sound(STATS1SND, bstone::AC_ITEM);
+
 			VW_WaitVBL(1);
 			VW_UpdateScreen();
 		}
@@ -3461,7 +3584,14 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 
 	if (!show_stats_quick && numbars)
 	{
+// FIXME
+#if 0
 		SD_PlaySound(STATS2SND);
+#endif // 0
+
+        ::sd_play_player_sound(STATS2SND, bstone::AC_ITEM);
+
+        // FIXME
 		while (SD_SoundPlaying() && !LastScan);
 	}
 
@@ -3523,7 +3653,13 @@ void B_EManFunc()
 {
 	Uint16 temp,i;
 
+// FIXME
+#if 0
 	SD_PlaySound(EXTRA_MANSND);
+#endif // 0
+
+    ::sd_play_player_sound(EXTRA_MANSND, bstone::AC_ITEM);
+
 	fontnumber = 2;
 
 	temp = bufferofs;
@@ -3624,7 +3760,13 @@ void DisplayPinballBonus()
 		{
 		// Start this bonus!
 		//
+// FIXME
+#if 0
 			SD_PlaySound(ROLL_SCORESND);
+#endif // 0
+
+            ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
+
 			DisplayInfoMsg(PinballBonus[loop].BonusText,MP_PINBALL_BONUS,7*60,MT_BONUS);
 
 		// Add to "shown" ... Remove from "queue"
@@ -4513,21 +4655,43 @@ void	GunAttack (objtype *ob)
 	switch (gamestate.weapon)
 	{
 		case wp_autocharge:
+// FIXME
+#if 0
 			SD_PlaySound (ATKAUTOCHARGESND);
+#endif // 0
+
+        ::sd_play_player_sound(ATKAUTOCHARGESND, bstone::AC_WEAPON);
+
          skip = true;
 		break;
 
 		case wp_pistol:
+// FIXME
+#if 0
 			SD_PlaySound (ATKCHARGEDSND);
+#endif // 0
+
+        ::sd_play_player_sound(ATKCHARGEDSND, bstone::AC_WEAPON);
+
          skip = true;
 		break;
 
 		case wp_burst_rifle:
+// FIXME
+#if 0
 			SD_PlaySound (ATKBURSTRIFLESND);
+#endif // 0
+
+        ::sd_play_player_sound(ATKBURSTRIFLESND, bstone::AC_WEAPON);
 		break;
 
 		case wp_ion_cannon:
+// FIXME
+#if 0
 			SD_PlaySound (ATKIONCANNONSND);
+#endif // 0
+
+        ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
 		break;
 
 	}
@@ -4763,7 +4927,13 @@ void	T_Attack (objtype *ob)
 					else
 						gamestate.attackframe++;
 				}
+
+// FIXME
+#if 0
 				SD_PlaySound(ATKGRENADESND);
+#endif // 0
+                ::sd_play_player_sound(ATKGRENADESND, bstone::AC_WEAPON);
+
 				SpawnProjectile(ob,grenadeobj);
 				MakeAlertNoise(ob);
 			}
@@ -4801,7 +4971,13 @@ void	T_Attack (objtype *ob)
 					else
 						gamestate.attackframe++;
 				}
+
+// FIXME
+#if 0
 				SD_PlaySound(ATKIONCANNONSND);				// JTR - this needs to change
+#endif // 0
+                ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
+
 				SpawnProjectile(ob,bfg_shotobj);
 				MakeAlertNoise(ob);
 			}
@@ -4854,7 +5030,13 @@ void	T_Player (objtype *ob)
 	if ( buttonstate[bt_use] )
 	{
 		Cmd_Use();
+
+// FIXME
+#if 0
 		SD_PlaySound(HITWALLSND);
+#endif // 0
+
+        ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
 	}
 
 	if ( buttonstate[bt_attack] && !buttonheld[bt_attack])
