@@ -241,11 +241,4 @@ extern	void	SDL_PCPlaySound(PCSound *sound),
 				SDL_ALStopSound(void);
 #endif
 
-// BBi
-bool sd_prepare_adlib_sfx(
-    int sound_index,
-    const void* data,
-    int data_size);
-
 #endif
-

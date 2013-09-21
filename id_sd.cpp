@@ -2932,16 +2932,3 @@ SD_MusicPlaying(void)
 
 	return(result);
 }
-
-// BBi
-bool sd_prepare_adlib_sfx(
-    int sound_index,
-    const void* data,
-    int data_size)
-{
-    return mixer.prepare_sound(
-        bstone::ST_ADLIB_SFX,
-        sound_index,
-        data,
-        data_size);
-}

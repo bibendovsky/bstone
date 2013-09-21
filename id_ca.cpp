@@ -1040,12 +1040,6 @@ done:
 #if FORCE_FILE_CLOSE
 	CloseAudioFile();
 #endif
-
-    // BBi
-    ::sd_prepare_adlib_sfx(
-        chunk,
-        audiosegs[chunk],
-        compressed);
 }
 
 //===========================================================================

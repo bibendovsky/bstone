@@ -60,6 +60,8 @@ AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
         decoded_count = that.decoded_count;
         samples = that.samples;
 
+        delete decoder;
+
         if (that.decoder != NULL)
             decoder = that.decoder->clone();
         else
@@ -69,20 +71,7 @@ AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
     return *this;
 }
 
-void AudioMixer::CacheItem::purge()
-{
-    is_active = false;
-    is_invalid = false;
-    sound_type = ST_NONE;
-    samples_count = 0;
-    decoded_count = 0;
-    Samples().swap(samples);
-
-    delete decoder;
-    decoder = NULL;
-}
-
-bool AudioMixer::CacheItem::is_finished() const
+bool AudioMixer::CacheItem::is_decoded() const
 {
     return decoded_count == samples_count;
 }
@@ -91,11 +80,8 @@ AudioMixer::AudioMixer() :
     is_initialized_(false),
     dst_rate_(0),
     device_id_(0),
-    mix_mutex_(NULL),
-    decode_command_mutex_(NULL),
-    decode_data_mutex_(NULL),
-    mix_thread_(NULL),
-    decode_thread_(NULL),
+    mutex_(NULL),
+    thread_(NULL),
     mix_samples_count_(0),
     is_data_available_(false),
     quit_thread_(false),
@@ -149,32 +135,15 @@ bool AudioMixer::initialize(
     bool is_succeed = true;
 
     if (is_succeed) {
-        mix_mutex_ = ::SDL_CreateMutex();
-        is_succeed = (mix_mutex_ != NULL);
+        mutex_ = ::SDL_CreateMutex();
+        is_succeed = (mutex_ != NULL);
     }
 
     if (is_succeed) {
-        mix_thread_ = ::SDL_CreateThread(
+        thread_ = ::SDL_CreateThread(
             mix_proxy, "bstone_mixer_thread", this);
 
-        is_succeed = (mix_thread_ != NULL);
-    }
-
-    if (is_succeed) {
-        decode_command_mutex_ = ::SDL_CreateMutex();
-        is_succeed = (decode_command_mutex_ != NULL);
-    }
-
-    if (is_succeed) {
-        decode_data_mutex_ = ::SDL_CreateMutex();
-        is_succeed = (decode_data_mutex_ != NULL);
-    }
-
-    if (is_succeed) {
-        decode_thread_ = ::SDL_CreateThread(
-            decode_proxy, "bstone_decode_thread", this);
-
-        is_succeed = (decode_thread_ != NULL);
+        is_succeed = (thread_ != NULL);
     }
 
     if (is_succeed) {
@@ -185,6 +154,10 @@ bool AudioMixer::initialize(
 
         buffer_.resize(total_samples);
         mix_buffer_.resize(mix_samples_count_);
+
+        adlib_music_cache_.resize(LASTMUSIC);
+        adlib_sfx_cache_.resize(NUMSOUNDS);
+        pcm_cache_.resize(NUMSOUNDS);
 
         ::SDL_PauseAudioDevice(device_id_, 0);
     } else
@@ -205,31 +178,15 @@ void AudioMixer::uninitialize()
 
     quit_thread_ = true;
 
-    if (mix_thread_ != NULL) {
+    if (thread_ != NULL) {
         int status;
-        ::SDL_WaitThread(mix_thread_, &status);
-        mix_thread_ = NULL;
+        ::SDL_WaitThread(thread_, &status);
+        thread_ = NULL;
     }
 
-    if (decode_thread_ != NULL) {
-        int status;
-        ::SDL_WaitThread(decode_thread_, &status);
-        decode_thread_ = NULL;
-    }
-
-    if (mix_mutex_ != NULL) {
-        ::SDL_DestroyMutex(mix_mutex_);
-        mix_mutex_ = NULL;
-    }
-
-    if (decode_command_mutex_ != NULL) {
-        ::SDL_DestroyMutex(decode_command_mutex_);
-        decode_command_mutex_ = NULL;
-    }
-
-    if (decode_data_mutex_ != NULL) {
-        ::SDL_DestroyMutex(decode_data_mutex_);
-        decode_data_mutex_ = NULL;
+    if (mutex_ != NULL) {
+        ::SDL_DestroyMutex(mutex_);
+        mutex_ = NULL;
     }
 
     dst_rate_ = 0;
@@ -239,14 +196,12 @@ void AudioMixer::uninitialize()
     is_data_available_ = false;
     quit_thread_ = false;
     Sounds().swap(sounds_);
-    PlayCommands().swap(play_commands_);
-    PlayCommands().swap(play_commands_queue_);
+    PlayCommands().swap(commands_);
+    PlayCommands().swap(commands_queue_);
     mute_ = false;
     Cache().swap(adlib_music_cache_);
     Cache().swap(adlib_sfx_cache_);
     Cache().swap(pcm_cache_);
-    CacheCommands().swap(cache_commands_);
-    CacheCommands().swap(cache_commands_queue_);
 }
 
 bool AudioMixer::is_initialized() const
@@ -281,56 +236,17 @@ bool AudioMixer::play_pcm_sound(
         actor_index, actor_channel);
 }
 
-bool AudioMixer::prepare_sound(
-    SoundType sound_type,
-    int sound_index,
-    const void* data,
-    int data_size)
-{
-    if (!is_initialized())
-        return false;
-
-    if (!is_sound_index_valid(sound_index, sound_type))
-        return false;
-
-    if (data == NULL)
-        return false;
-
-    if (data_size <= 0)
-        return false;
-
-    CacheCommand cache_command;
-    cache_command.sound_type = sound_type;
-    cache_command.sound_index = sound_index;
-    cache_command.data = data;
-    cache_command.data_size = data_size;
-
-    ::SDL_LockMutex(decode_command_mutex_);
-    cache_commands_queue_.push_back(cache_command);
-    ::SDL_UnlockMutex(decode_command_mutex_);
-
-    return true;
-}
-
 bool AudioMixer::stop_music()
 {
     if (!is_initialized())
         return false;
 
-    ::SDL_LockMutex(mix_mutex_);
+    Command command;
+    command.command = CMD_STOP_MUSIC;
 
-    PlayCommand play_command;
-    play_command.command = PT_STOP;
-    play_command.sound_type = ST_ADLIB_MUSIC;
-    play_command.sound_index = sound_index;
-    play_command.actor_index = -1;
-    play_command.actor_channel = AC_VOICE;
-
-    ::SDL_LockMutex(mix_mutex_);
-    play_commands_queue_.push_back(play_command);
-    ::SDL_UnlockMutex(mix_mutex_);
-
-    ::SDL_UnlockMutex(mix_mutex_);
+    ::SDL_LockMutex(mutex_);
+    commands_queue_.push_back(command);
+    ::SDL_UnlockMutex(mutex_);
 
     return true;
 }
@@ -353,7 +269,7 @@ bool AudioMixer::is_music_playing() const
 
     bool result = false;
 
-    ::SDL_LockMutex(mix_mutex_);
+    ::SDL_LockMutex(mutex_);
 
     if (!sounds_.empty()) {
         class Predicate {
@@ -369,7 +285,7 @@ bool AudioMixer::is_music_playing() const
                 sounds_.end());
     }
 
-    ::SDL_UnlockMutex(mix_mutex_);
+    ::SDL_UnlockMutex(mutex_);
 
     return result;
 }
@@ -381,7 +297,7 @@ bool AudioMixer::is_non_music_playing() const
 
     bool result = false;
 
-    ::SDL_LockMutex(mix_mutex_);
+    ::SDL_LockMutex(mutex_);
 
     if (!sounds_.empty()) {
         class Predicate {
@@ -397,7 +313,7 @@ bool AudioMixer::is_non_music_playing() const
                 sounds_.end());
     }
 
-    ::SDL_UnlockMutex(mix_mutex_);
+    ::SDL_UnlockMutex(mutex_);
 
     return result;
 }
@@ -409,9 +325,9 @@ bool AudioMixer::is_anything_playing() const
 
     bool result = false;
 
-    ::SDL_LockMutex(mix_mutex_);
+    ::SDL_LockMutex(mutex_);
     result = !sounds_.empty();
-    ::SDL_UnlockMutex(mix_mutex_);
+    ::SDL_UnlockMutex(mutex_);
 
     return result;
 }
@@ -446,10 +362,10 @@ void AudioMixer::callback(
 void AudioMixer::mix()
 {
     while (!quit_thread_) {
-        mix_handle_commands();
+        handle_commands();
 
         if (!mute_ && !is_data_available_ && !sounds_.empty()) {
-            mix_process_samples();
+            mix_samples();
             is_data_available_ = true;
         }
 
@@ -457,36 +373,28 @@ void AudioMixer::mix()
     }
 }
 
-void AudioMixer::mix_process_samples()
+void AudioMixer::mix_samples()
 {
-    ::SDL_LockMutex(decode_data_mutex_);
-
-    int min_sample = 32767;
-    int max_sample = -32768;
+    float min_sample = 32767;
+    float max_sample = -32768;
 
     for (int i = 0; i < mix_samples_count_; ++i) {
-        int sample = 0;
+        float sample = 0;
 
         for (SoundsIt sound = sounds_.begin(); sound != sounds_.end(); ) {
-            CacheItem* cache_item = get_cache_item(
-                sound->type, sound->index);
-
-            if (cache_item == NULL) {
+            if (!decode_sound(*sound)) {
                 sound = sounds_.erase(sound);
                 continue;
             }
 
-            if (!cache_item->is_active) {
-                ++sound;
-                continue;
-            }
+            CacheItem* cache_item = sound->cache;
 
             if (sound->decode_offset == cache_item->decoded_count) {
                 ++sound;
                 continue;
             }
 
-            int scale;
+            float scale;
 
             switch (sound->type) {
             case ST_ADLIB_MUSIC:
@@ -504,7 +412,7 @@ void AudioMixer::mix_process_samples()
             ++sound->decode_offset;
 
             if (sound->decode_offset == cache_item->decoded_count) {
-                if (cache_item->is_finished()) {
+                if (cache_item->is_decoded()) {
                     if (sound->type == ST_ADLIB_MUSIC) {
                         sqPlayedOnce = true;
                         sound->decode_offset = 0;
@@ -523,225 +431,185 @@ void AudioMixer::mix_process_samples()
         max_sample = std::max(sample, max_sample);
     }
 
-    ::SDL_UnlockMutex(decode_data_mutex_);
+    bool normalize = false;
+    float normalize_scale;
+
+    if (min_sample < -32768 && -min_sample > max_sample) {
+        normalize = true;
+        normalize_scale = -32768.0F / min_sample;
+    } else if (max_sample > 32767 && max_sample >= -min_sample) {
+        normalize = true;
+        normalize_scale = 32767.0F / max_sample;
+    }
 
     for (int i = 0; i < mix_samples_count_; ++i) {
-        int sample = mix_buffer_[i];
+        float sample = mix_buffer_[i];
 
-        sample = std::min(sample, 32767);
-        sample = std::max(sample, -32768);
+        if (normalize)
+            sample *= normalize_scale;
+
+        sample = std::min(sample, 32767.0F);
+        sample = std::max(sample, -32768.0F);
 
         buffer_[(i * 2) + 0] = static_cast<int16_t>(sample);
         buffer_[(i * 2) + 1] = static_cast<int16_t>(sample);
     }
 }
 
-void AudioMixer::mix_handle_command(
-    const PlayCommand& command)
+void AudioMixer::handle_commands()
 {
-    switch (command.command) {
-    case PT_PLAY:
-        Sound sound;
+    ::SDL_LockMutex(mutex_);
 
-        sound.type = command.sound_type;
-        sound.index = command.sound_index;
-        sound.decode_offset = 0;
-        sound.samples_count = 0;
-        sound.actor_index = command.actor_index;
-        sound.actor_channel = command.actor_channel;
+    if (!commands_queue_.empty()) {
+        commands_.insert(
+            commands_.end(),
+            commands_queue_.begin(),
+            commands_queue_.end());
 
-        sounds_.push_back(sound);
-
-
-        if (command.sound_type != ST_ADLIB_MUSIC) {
-            // Remove sounds which will be overritten.
-
-            for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
-                if (command.actor_index >= 0 &&
-                    i->actor_index == command.actor_index &&
-                    i->actor_channel == command.actor_channel)
-                {
-                    i = sounds_.erase(i);
-                } else
-                    ++i;
-            }
-        }
-
-        break;
-
-    case PT_STOP:
-        if (sound.type != ST_ADLIB_MUSIC) {
-            ::SDL_LockMutex(decode_data_mutex_);
-
-            for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
-                if (i->type != ST_ADLIB_MUSIC)
-                    ++i;
-                else {
-                    CacheItem& cache_item = adlib_music_cache_[i->index];
-                    i = sounds_.erase(i);
-                    cache_item.purge();
-                }
-            }
-
-            ::SDL_UnlockMutex(decode_data_mutex_);
-        }
-        break;
+        commands_queue_.clear();
     }
-}
 
-void AudioMixer::mix_handle_commands()
-{
-    ::SDL_LockMutex(mix_mutex_);
-
-    play_commands_.insert(
-        play_commands_.end(),
-        play_commands_queue_.begin(),
-        play_commands_queue_.end());
-
-    play_commands_queue_.clear();
-
-    ::SDL_UnlockMutex(mix_mutex_);
+    ::SDL_UnlockMutex(mutex_);
 
 
-    for (PlayCommandsCIt i = play_commands_.begin();
-        i != play_commands_.end(); ++i)
+    for (PlayCommandsCIt i = commands_.begin();
+        i != commands_.end(); ++i)
     {
-        mix_handle_command(*i);
+        switch (i->command) {
+        case CMD_PLAY:
+            handle_play_command(*i);
+            break;
+
+        case CMD_STOP_MUSIC:
+            handle_stop_music_command();
+            break;
+        }
     }
 
-    play_commands_.clear();
+    commands_.clear();
 }
 
-void AudioMixer::decode()
+void AudioMixer::handle_play_command(
+    const Command& command)
 {
-    adlib_music_cache_.clear();
-    adlib_music_cache_.resize(LASTMUSIC);
+    CacheItem* cache_item = command.sound.cache;
 
-    adlib_sfx_cache_.clear();
-    adlib_sfx_cache_.resize(NUMSOUNDS);
+    if (cache_item == NULL)
+        return;
 
-    pcm_cache_.clear();
-    pcm_cache_.resize(NUMSOUNDS);
+    if (!initialize_cache_item(command, *cache_item))
+        return;
 
-    while (!quit_thread_) {
-        decode_handle_commands();
-        decode_cache(adlib_music_cache_);
-        decode_cache(adlib_sfx_cache_);
-        decode_cache(pcm_cache_);
-        ::SDL_Delay(1);
+    if (command.sound.type != ST_ADLIB_MUSIC) {
+        // Remove sounds which will be overritten.
+
+        for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
+            if (command.sound.actor_index >= 0 &&
+                i->actor_index == command.sound.actor_index &&
+                i->actor_channel == command.sound.actor_channel)
+            {
+                i = sounds_.erase(i);
+            } else
+                ++i;
+        }
     }
+
+    Sound sound = command.sound;
+    sound.decode_offset = 0;
+
+    sounds_.push_back(sound);
 }
 
-void AudioMixer::decode_cache(
-    Cache& cache)
+void AudioMixer::handle_stop_music_command()
 {
-    for (CacheIt i = cache.begin(); i != cache.end(); ++i) {
-        if (!i->is_active)
-            continue;
-
-        if (i->samples_count <= 0)
-            continue;
-
-        if (i->samples.empty())
-            continue;
-
-        if (i->decoder == NULL)
-            continue;
-
-        if (!i->decoder->is_initialized())
-            continue;
-
-        if (i->is_finished())
-            continue;
-
-        ::SDL_LockMutex(decode_data_mutex_);
-
-        int planed_count = std::min(
-            i->samples_count - i->decoded_count, mix_samples_count_);
-
-        int actual_count = i->decoder->decode(
-            planed_count, &i->samples[i->decoded_count]);
-
-        i->decoded_count += actual_count;
-
-        if (actual_count == 0)
-            i->decoder->uninitialize();
-
-        ::SDL_UnlockMutex(decode_data_mutex_);
+    for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
+        if (i->type != ST_ADLIB_MUSIC)
+            ++i;
+        else {
+            *(i->cache) = CacheItem();
+            i = sounds_.erase(i);
+        }
     }
 }
 
-void AudioMixer::decode_handle_commands()
+bool AudioMixer::initialize_cache_item(
+    const Command& command,
+    CacheItem& cache_item)
 {
-    ::SDL_LockMutex(decode_command_mutex_);
+    if (cache_item.is_active)
+        return !cache_item.is_invalid;
 
-    cache_commands_.insert(
-        cache_commands_.end(),
-        cache_commands_queue_.begin(),
-        cache_commands_queue_.end());
+    cache_item = CacheItem();
 
-    ::SDL_UnlockMutex(decode_command_mutex_);
+    bool is_succeed = true;
+    AudioDecoder* decoder = NULL;
 
-
-    ::SDL_LockMutex(decode_data_mutex_);
-
-    for (CacheCommandsCIt i = cache_commands_.begin();
-        i != cache_commands_.end(); ++i) {
-        if (!is_sound_index_valid(i->sound_index,
-            i->sound_type))
-        {
-            continue;
-        }
-
-        if (i->data == NULL)
-            continue;
-
-        if (i->data_size <= 0)
-            continue;
-
-        CacheItem* cache_item = get_cache_item(
-            i->sound_type, i->sound_index);
-
-        if (cache_item == NULL)
-            continue;
-
-        if (cache_item->is_active)
-            continue;
-
-        if (cache_item->is_invalid)
-            continue;
-
-        cache_item->is_active = true;
-        cache_item->is_invalid = true;
-        cache_item->sound_type = i->sound_type;
-        cache_item->decoded_count = 0;
-
-        if (cache_item->decoder == NULL) {
-            cache_item->decoder = create_decoder_by_sound_type(
-                i->sound_type);
-        }
-
-        if (!cache_item->decoder->initialize(
-            i->data, i->data_size, dst_rate_))
-        {
-            continue;
-        }
-
-        cache_item->samples_count =
-            cache_item->decoder->get_dst_length_in_samples();
-
-        if (cache_item->samples_count == 0)
-            continue;
-
-        if (cache_item->samples.empty())
-            cache_item->samples.resize(cache_item->samples_count);
-
-        cache_item->is_invalid = false;
+    if (is_succeed) {
+        decoder = create_decoder_by_sound_type(command.sound.type);
+        is_succeed = (decoder != NULL);
     }
 
-    ::SDL_UnlockMutex(decode_data_mutex_);
+    if (is_succeed) {
+        is_succeed = decoder->initialize(
+            command.data, command.data_size, dst_rate_);
+    }
 
-    cache_commands_.clear();
+    int samples_count = 0;
+
+    if (is_succeed) {
+        samples_count = decoder->get_dst_length_in_samples();
+        is_succeed = (samples_count > 0);
+    }
+
+    cache_item.is_active = true;
+
+    if (is_succeed) {
+        cache_item.sound_type = command.sound.type;
+        cache_item.samples_count = samples_count;
+        cache_item.samples.resize(samples_count);
+        cache_item.decoder = decoder;
+    } else {
+        delete decoder;
+        cache_item.is_invalid = true;
+    }
+
+    return is_succeed;
+}
+
+bool AudioMixer::decode_sound(
+    const Sound& sound)
+{
+    CacheItem* cache_item = sound.cache;
+
+    if (cache_item == NULL)
+        return false;
+
+    if (!cache_item->is_active)
+        return false;
+
+    if (cache_item->is_invalid)
+        return false;
+
+    if (cache_item->is_decoded())
+        return true;
+
+    int ahead_count = std::min(
+        sound.decode_offset + mix_samples_count_,
+        cache_item->samples_count);
+
+    if (ahead_count <= cache_item->decoded_count)
+        return true;
+
+    int planned_count = std::min(
+        cache_item->samples_count - cache_item->decoded_count,
+        mix_samples_count_);
+
+    int actual_count = cache_item->decoder->decode(
+        planned_count, &cache_item->samples[cache_item->decoded_count]);
+
+    cache_item->decoded_count += actual_count;
+
+    return true;
 }
 
 bool AudioMixer::play_sound(
@@ -752,6 +620,15 @@ bool AudioMixer::play_sound(
     ActorChannel actor_channel)
 {
     if (!is_initialized())
+        return false;
+
+    if (!is_sound_type_valid(sound_type))
+        return false;
+
+    if (data == NULL)
+        return false;
+
+    if (data_size <= 0)
         return false;
 
     if (actor_index >= MAXACTORS)
@@ -768,19 +645,18 @@ bool AudioMixer::play_sound(
         return false;
     }
 
-    if (!prepare_sound(sound_type, sound_index, data, data_size))
-        return false;
+    Command command;
+    command.command = CMD_PLAY;
+    command.sound.type = sound_type;
+    command.sound.cache = get_cache_item(sound_type, sound_index);
+    command.sound.actor_index = actor_index;
+    command.sound.actor_channel = actor_channel;
+    command.data = data;
+    command.data_size = data_size;
 
-    PlayCommand sound_command;
-    sound_command.command = PT_PLAY;
-    sound_command.sound_type = sound_type;
-    sound_command.sound_index = sound_index;
-    sound_command.actor_index = actor_index;
-    sound_command.actor_channel = actor_channel;
-
-    ::SDL_LockMutex(mix_mutex_);
-    play_commands_queue_.push_back(sound_command);
-    ::SDL_UnlockMutex(mix_mutex_);
+    ::SDL_LockMutex(mutex_);
+    commands_queue_.push_back(command);
+    ::SDL_UnlockMutex(mutex_);
 
     return true;
 }
@@ -805,18 +681,6 @@ int AudioMixer::mix_proxy(
 
     AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
     mixer->mix();
-
-    return 0;
-}
-
-// (static)
-int AudioMixer::decode_proxy(
-    void* user_data)
-{
-    assert(user_data != NULL);
-
-    AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
-    mixer->decode();
 
     return 0;
 }
@@ -871,6 +735,21 @@ AudioDecoder* AudioMixer::create_decoder_by_sound_type(
 
     default:
         return NULL;
+    }
+}
+
+// (static)
+bool AudioMixer::is_sound_type_valid(
+    SoundType sound_type)
+{
+    switch (sound_type) {
+    case ST_ADLIB_MUSIC:
+    case ST_ADLIB_SFX:
+    case ST_PCM:
+        return true;
+
+    default:
+        return false;
     }
 }
 

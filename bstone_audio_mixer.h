@@ -60,13 +60,6 @@ public:
         int actor_index = -1,
         ActorChannel actor_channel = AC_VOICE);
 
-    // Decodes a sound in background.
-    bool prepare_sound(
-        SoundType sound_type,
-        int sound_index,
-        const void* data,
-        int data_size);
-
     bool stop_music();
 
     bool set_mute(
@@ -86,40 +79,8 @@ private:
     typedef int16_t Sample;
     typedef std::vector<Sample> Samples;
 
-    typedef int MixSample;
+    typedef float MixSample;
     typedef std::vector<MixSample> MixSamples;
-
-    class Sound {
-    public:
-        SoundType type;
-        int index;
-        int decode_offset;
-        int samples_count;
-        int actor_index;
-        ActorChannel actor_channel;
-    }; // class Sound
-
-    typedef std::list<Sound> Sounds;
-    typedef Sounds::iterator SoundsIt;
-    typedef Sounds::const_iterator SoundsCIt;
-
-    enum PlayCommandType {
-        PT_PLAY,
-        PT_STOP,
-    }; // enum PlayCommandType
-
-    class PlayCommand {
-    public:
-        PlayCommandType command;
-        SoundType sound_type;
-        int sound_index;
-        int actor_index;
-        ActorChannel actor_channel;
-    }; // class PlayCommand
-
-    typedef std::deque<PlayCommand> PlayCommands;
-    typedef PlayCommands::iterator PlayCommandsIt;
-    typedef PlayCommands::const_iterator PlayCommandsCIt;
 
     class CacheItem {
     public:
@@ -141,48 +102,59 @@ private:
         CacheItem& operator=(
             const CacheItem& that);
 
-        void purge();
-
-        bool is_finished() const;
+        bool is_decoded() const;
     }; // class CacheItem
 
     typedef std::vector<CacheItem> Cache;
     typedef Cache::iterator CacheIt;
 
-    class CacheCommand {
+    class Sound {
     public:
-        SoundType sound_type;
-        int sound_index;
+        SoundType type;
+        CacheItem* cache;
+        int decode_offset;
+        int actor_index;
+        ActorChannel actor_channel;
+    }; // class Sound
+
+    typedef std::list<Sound> Sounds;
+    typedef Sounds::iterator SoundsIt;
+    typedef Sounds::const_iterator SoundsCIt;
+
+    enum CommandType {
+        CMD_PLAY,
+        CMD_STOP_MUSIC,
+    }; // enum CommandType
+
+    class Command {
+    public:
+        CommandType command;
+        Sound sound;
         const void* data;
         int data_size;
-    }; // class CacheCommand
+    }; // class Command
 
-    typedef std::deque<CacheCommand> CacheCommands;
-    typedef CacheCommands::iterator CacheCommandsIt;
-    typedef CacheCommands::const_iterator CacheCommandsCIt;
+    typedef std::deque<Command> PlayCommands;
+    typedef PlayCommands::iterator PlayCommandsIt;
+    typedef PlayCommands::const_iterator PlayCommandsCIt;
 
     bool is_initialized_;
     int dst_rate_;
     SDL_AudioDeviceID device_id_;
-    SDL_mutex* mix_mutex_;
-    SDL_mutex* decode_command_mutex_;
-    SDL_mutex* decode_data_mutex_;
-    SDL_Thread* mix_thread_;
-    SDL_Thread* decode_thread_;
+    SDL_mutex* mutex_;
+    SDL_Thread* thread_;
     int mix_samples_count_;
     Samples buffer_;
     MixSamples mix_buffer_;
     volatile bool is_data_available_;
     volatile bool quit_thread_;
     Sounds sounds_;
-    PlayCommands play_commands_;
-    PlayCommands play_commands_queue_;
+    PlayCommands commands_;
+    PlayCommands commands_queue_;
     bool mute_;
     Cache adlib_music_cache_;
     Cache adlib_sfx_cache_;
     Cache pcm_cache_;
-    CacheCommands cache_commands_;
-    CacheCommands cache_commands_queue_;
 
     void callback(
         Uint8* dst_data,
@@ -190,19 +162,21 @@ private:
 
     void mix();
 
-    void mix_process_samples();
+    void mix_samples();
 
-    void mix_handle_command(
-        const PlayCommand& command);
+    void handle_commands();
 
-    void mix_handle_commands();
+    void handle_play_command(
+        const Command& command);
 
-    void decode();
+    void handle_stop_music_command();
 
-    void decode_cache(
-        Cache& cache);
+    bool initialize_cache_item(
+        const Command& command,
+        CacheItem& cache_item);
 
-    void decode_handle_commands();
+    bool decode_sound(
+        const Sound& sound);
 
     bool play_sound(
         SoundType sound_type,
@@ -223,13 +197,13 @@ private:
     static int mix_proxy(
         void* user_data);
 
-    static int decode_proxy(
-        void* user_data);
-
     static int calculate_mix_samples_count(
         int dst_rate);
 
     static AudioDecoder* create_decoder_by_sound_type(
+        SoundType sound_type);
+
+    static bool is_sound_type_valid(
         SoundType sound_type);
 
     static bool is_sound_index_valid(
