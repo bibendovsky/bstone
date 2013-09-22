@@ -210,7 +210,7 @@ void AdlibSfxDecoder::initialize_instrument()
 // (static)
 int AdlibSfxDecoder::get_tick_rate()
 {
-    return 70;
+    return 140;
 }
 
 // (static)
