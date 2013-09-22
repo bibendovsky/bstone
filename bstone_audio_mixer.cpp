@@ -221,31 +221,33 @@ bool AudioMixer::play_adlib_music(
     const void* data,
     int data_size)
 {
-    return play_sound(ST_ADLIB_MUSIC, music_index, data, data_size);
+    return play_sound(ST_ADLIB_MUSIC, 0, music_index, data, data_size);
 }
 
 bool AudioMixer::play_adlib_sound(
     int sound_index,
+    int priority,
     const void* data,
     int data_size,
     int actor_index,
     ActorType actor_type,
     ActorChannel actor_channel)
 {
-    return play_sound(ST_ADLIB_SFX, sound_index, data, data_size,
-        actor_index, actor_type, actor_channel);
+    return play_sound(ST_ADLIB_SFX, priority, sound_index,
+        data, data_size, actor_index, actor_type, actor_channel);
 }
 
 bool AudioMixer::play_pcm_sound(
     int sound_index,
+    int priority,
     const void* data,
     int data_size,
     int actor_index,
     ActorType actor_type,
     ActorChannel actor_channel)
 {
-    return play_sound(ST_PCM, sound_index, data, data_size,
-        actor_index, actor_type, actor_channel);
+    return play_sound(ST_PCM, priority, sound_index,
+        data, data_size, actor_index, actor_type, actor_channel);
 }
 
 bool AudioMixer::update_positions()
@@ -619,12 +621,26 @@ void AudioMixer::handle_play_command(
     if (!initialize_cache_item(command, *cache_item))
         return;
 
-    if (command.sound.type != ST_ADLIB_MUSIC) {
+    if (command.sound.type != ST_ADLIB_MUSIC &&
+        command.sound.actor_index >= 0)
+    {
+        // Search existing sound which can override a
+        // new one because of priority.
+
+        for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ++i) {
+            if (i->priority > command.sound.priority &&
+                i->actor_index == command.sound.actor_index &&
+                i->actor_type == command.sound.actor_type &&
+                i->actor_channel == command.sound.actor_channel)
+            {
+                return;
+            }
+        }
+
         // Remove sounds which will be overritten.
 
         for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
-            if (command.sound.actor_index >= 0 &&
-                i->actor_index == command.sound.actor_index &&
+            if (i->actor_index == command.sound.actor_index &&
                 i->actor_type == command.sound.actor_type &&
                 i->actor_channel == command.sound.actor_channel)
             {
@@ -636,7 +652,6 @@ void AudioMixer::handle_play_command(
 
     Sound sound = command.sound;
     sound.decode_offset = 0;
-
     sounds_.push_back(sound);
 }
 
@@ -811,6 +826,7 @@ void AudioMixer::spatialize_sounds()
 
 bool AudioMixer::play_sound(
     SoundType sound_type,
+    int priority,
     int sound_index,
     const void* data,
     int data_size,
@@ -822,6 +838,9 @@ bool AudioMixer::play_sound(
         return false;
 
     if (!is_sound_type_valid(sound_type))
+        return false;
+
+    if (priority < 0)
         return false;
 
     if (data == NULL)
@@ -848,6 +867,7 @@ bool AudioMixer::play_sound(
     Command command;
     command.command = CMD_PLAY;
     command.sound.type = sound_type;
+    command.sound.priority = priority;
     command.sound.cache = get_cache_item(sound_type, sound_index);
     command.sound.actor_index = actor_index;
     command.sound.actor_type = actor_type;

@@ -58,6 +58,7 @@ public:
     // Negative index of an actor defines a non-positional sound.
     bool play_adlib_sound(
         int sound_index,
+        int priority,
         const void* data,
         int data_size,
         int actor_index = -1,
@@ -67,6 +68,7 @@ public:
     // Negative index of an actor defines a non-positional sound.
     bool play_pcm_sound(
         int sound_index,
+        int priority,
         const void* data,
         int data_size,
         int actor_index = -1,
@@ -154,6 +156,7 @@ private:
     class Sound {
     public:
         SoundType type;
+        int priority;
         CacheItem* cache;
         int decode_offset;
         int actor_index;
@@ -236,6 +239,7 @@ private:
     bool play_sound(
         SoundType sound_type,
         int sound_index,
+        int priority,
         const void* data,
         int data_size,
         int actor_index = -1,

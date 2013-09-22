@@ -2897,6 +2897,8 @@ void sd_play_sound(
     if (SoundMode != sdm_Off && sound == NULL)
         SD_ERROR(SD_PLAYSOUND_UNCACHED);
 
+    int priority = sound->priority;
+
     int digi_index = DigiMap[sound_index];
 
     if (DigiMode != sds_Off && digi_index != -1) {
@@ -2904,7 +2906,7 @@ void sd_play_sound(
         int digi_length = DigiList[(2 * digi_index) + 1];
         const void* digi_data = ::PM_GetSoundPage(digi_page);
 
-        mixer.play_pcm_sound(digi_index, digi_data, digi_length,
+        mixer.play_pcm_sound(digi_index, priority, digi_data, digi_length,
             actor_index, actor_type, actor_channel);
 
         return;
@@ -2924,7 +2926,7 @@ void sd_play_sound(
     int data_size = audiostarts[sdStartALSounds + sound_index + 1] -
             audiostarts[sdStartALSounds + sound_index];
 
-    mixer.play_adlib_sound(sound_index, sound, data_size,
+    mixer.play_adlib_sound(sound_index, priority, sound, data_size,
         actor_index, actor_type, actor_channel);
 }
 
