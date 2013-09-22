@@ -88,6 +88,9 @@ public:
 
     bool is_anything_playing() const;
 
+    bool is_player_channel_playing(
+        ActorChannel channel) const;
+
     static int get_min_rate();
 
     static int get_max_channels();
@@ -208,6 +211,7 @@ private:
     Cache pcm_cache_;
     PositionsState positions_state_;
     PositionsStateQueue positions_state_queue_;
+    volatile int player_channels_state_;
 
     void callback(
         Uint8* dst_data,
@@ -249,6 +253,10 @@ private:
     CacheItem* get_cache_item(
         SoundType sound_type,
         int sound_index);
+
+    void set_player_channel_state(
+        const Sound& sound,
+        bool state);
 
     static void callback_proxy(
         void* user_data,

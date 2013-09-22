@@ -269,6 +269,9 @@ void sd_play_wall_sound(
     int sound_index);
 
 void sd_update_positions();
+
+bool sd_is_player_channel_playing(
+    bstone::ActorChannel channel);
 // BBi
 
 

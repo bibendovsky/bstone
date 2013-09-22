@@ -2406,9 +2406,8 @@ boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove)
 		SD_PlaySound (HITWALLSND);
 #endif // 0
 
-    // BBi
-    // FIXME Move playing check to mixer
-    ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+    if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL))
+        ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
 
 	ob->x = (basex+xmove);
 	ob->y = basey;
@@ -3136,9 +3135,8 @@ Sint16 InputFloor(void)
 						SD_PlaySound(NOWAYSND);
 #endif // 0
 
-                    // BBi
-                    // FIXME Move the playing check to mixer.
-                    ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+                    if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY))
+                        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 				}
 				else
 				{

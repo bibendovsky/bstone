@@ -2978,3 +2978,9 @@ void sd_update_positions()
 {
     mixer.update_positions();
 }
+
+bool sd_is_player_channel_playing(
+    bstone::ActorChannel channel)
+{
+    return mixer.is_player_channel_playing(channel);
+}

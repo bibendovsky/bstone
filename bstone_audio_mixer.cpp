@@ -406,6 +406,12 @@ bool AudioMixer::is_anything_playing() const
     return result;
 }
 
+bool AudioMixer::is_player_channel_playing(
+    ActorChannel channel) const
+{
+    return (player_channels_state_ & (1 << channel)) != 0;
+}
+
 // (static)
 int AudioMixer::get_min_rate()
 {
@@ -463,6 +469,7 @@ void AudioMixer::mix_samples()
 
         for (SoundsIt sound = sounds_.begin(); sound != sounds_.end(); ) {
             if (!decode_sound(*sound)) {
+                set_player_channel_state(*sound, false);
                 sound = sounds_.erase(sound);
                 continue;
             }
@@ -503,6 +510,7 @@ void AudioMixer::mix_samples()
                         sqPlayedOnce = true;
                         sound->decode_offset = 0;
                     } else {
+                        set_player_channel_state(*sound, false);
                         sound = sounds_.erase(sound);
                         continue;
                     }
@@ -520,6 +528,10 @@ void AudioMixer::mix_samples()
         min_right_sample = std::min(right_sample, min_right_sample);
         max_right_sample = std::max(right_sample, max_right_sample);
     }
+
+    //
+    // Calculate normalizations factors.
+    //
 
     bool normalize_left = false;
     float normalize_left_scale;
@@ -550,6 +562,11 @@ void AudioMixer::mix_samples()
         normalize_right = true;
         normalize_right_scale = 32767.0F / max_right_sample;
     }
+
+
+    //
+    // Normalize and output.
+    //
 
     for (int i = 0; i < mix_samples_count_; ++i) {
         float left_sample = mix_buffer_[(2 * i) + 0];
@@ -644,6 +661,7 @@ void AudioMixer::handle_play_command(
                 i->actor_type == command.sound.actor_type &&
                 i->actor_channel == command.sound.actor_channel)
             {
+                set_player_channel_state(*i, false);
                 i = sounds_.erase(i);
             } else
                 ++i;
@@ -653,6 +671,8 @@ void AudioMixer::handle_play_command(
     Sound sound = command.sound;
     sound.decode_offset = 0;
     sounds_.push_back(sound);
+
+    set_player_channel_state(sound, true);
 }
 
 void AudioMixer::handle_stop_music_command()
@@ -938,6 +958,27 @@ AudioMixer::CacheItem* AudioMixer::get_cache_item(
     default:
         return NULL;
     }
+}
+
+void AudioMixer::set_player_channel_state(
+    const Sound& sound,
+    bool state)
+{
+    if (sound.type == ST_ADLIB_MUSIC)
+        return;
+
+    if (sound.actor_type != AT_ACTOR)
+        return;
+
+    if (sound.actor_index > 0)
+        return;
+
+    int mask = 1 << sound.actor_channel;
+
+    if (state)
+        player_channels_state_ |= mask;
+    else
+        player_channels_state_ &= ~mask;
 }
 
 // (static)
