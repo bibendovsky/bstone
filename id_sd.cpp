@@ -2971,3 +2971,8 @@ void sd_play_wall_sound(
         bstone::AT_WALL,
         bstone::AC_VOICE);
 }
+
+void sd_update_positions()
+{
+    mixer.update_positions();
+}

@@ -242,28 +242,34 @@ SetSoundLoc(fixed gx,fixed gy)
 =
 ==========================
 */
+
+// FIXME
+#if 0
 void PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy)
 {
 	SetSoundLoc(gx,gy);
 	SD_PositionSound(leftchannel,rightchannel);
 
-// FIXME
-#if 0
 	if (SD_PlaySound(static_cast<soundnames>(s)))
 	{
 		globalsoundx = gx;
 		globalsoundy = gy;
 	}
-#endif // 0
 }
+#endif // 0
 
 void UpdateSoundLoc(void)
 {
+// FIXME
+#if 0
 	if (SoundPositioned)
 	{
 		SetSoundLoc(globalsoundx,globalsoundy);
 		SD_SetPosition(leftchannel,rightchannel);
 	}
+#endif // 0
+
+    ::sd_update_positions();
 }
 
 /*

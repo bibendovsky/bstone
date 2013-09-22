@@ -73,6 +73,8 @@ public:
         ActorType actor_type = AT_NONE,
         ActorChannel actor_channel = AC_VOICE);
 
+    bool update_positions();
+
     bool stop_music();
 
     bool set_mute(
@@ -121,6 +123,34 @@ private:
     typedef std::vector<CacheItem> Cache;
     typedef Cache::iterator CacheIt;
 
+    class Position {
+    public:
+        int x;
+        int y;
+    }; // class Position
+
+    typedef std::vector<Position> Positions;
+    typedef Positions::iterator PositionsIt;
+    typedef Positions::const_iterator PositionsCIt;
+
+    class PlayerPosition {
+    public:
+        int view_x;
+        int view_y;
+        int view_cos;
+        int view_sin;
+    }; // class PlayerPosition
+
+    class PositionsState {
+    public:
+        PlayerPosition player;
+        Positions actors;
+        Positions doors;
+        Position wall;
+    }; // class PositionsState
+
+    typedef std::deque<PositionsState> PositionsStateQueue;
+
     class Sound {
     public:
         SoundType type;
@@ -129,6 +159,10 @@ private:
         int actor_index;
         ActorType actor_type;
         ActorChannel actor_channel;
+        float left_volume;
+        float right_volume;
+
+        bool is_audible() const;
     }; // class Sound
 
     typedef std::list<Sound> Sounds;
@@ -169,6 +203,8 @@ private:
     Cache adlib_music_cache_;
     Cache adlib_sfx_cache_;
     Cache pcm_cache_;
+    PositionsState positions_state_;
+    PositionsStateQueue positions_state_queue_;
 
     void callback(
         Uint8* dst_data,
@@ -191,6 +227,11 @@ private:
 
     bool decode_sound(
         const Sound& sound);
+
+    void spatialize_sound(
+        Sound& sound);
+
+    void spatialize_sounds();
 
     bool play_sound(
         SoundType sound_type,

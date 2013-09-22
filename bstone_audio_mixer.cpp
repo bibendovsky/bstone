@@ -12,8 +12,11 @@
 #include "bstone_pcm_decoder.h"
 
 
-extern boolean sqPlayedOnce;
+const int ATABLEMAX = 15;
 
+extern boolean sqPlayedOnce;
+extern Uint8 lefttable[ATABLEMAX][ATABLEMAX * 2];
+extern Uint8 righttable[ATABLEMAX][ATABLEMAX * 2];
 
 namespace bstone {
 
@@ -73,6 +76,11 @@ AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
 bool AudioMixer::CacheItem::is_decoded() const
 {
     return decoded_count == samples_count;
+}
+
+bool AudioMixer::Sound::is_audible() const
+{
+    return left_volume > 0.0F && right_volume > 0.0F;
 }
 
 AudioMixer::AudioMixer() :
@@ -152,7 +160,7 @@ bool AudioMixer::initialize(
         int total_samples = get_max_channels() * mix_samples_count_;
 
         buffer_.resize(total_samples);
-        mix_buffer_.resize(mix_samples_count_);
+        mix_buffer_.resize(total_samples);
 
         adlib_music_cache_.resize(LASTMUSIC);
         adlib_sfx_cache_.resize(NUMSOUNDS);
@@ -238,6 +246,66 @@ bool AudioMixer::play_pcm_sound(
 {
     return play_sound(ST_PCM, sound_index, data, data_size,
         actor_index, actor_type, actor_channel);
+}
+
+bool AudioMixer::update_positions()
+{
+    if (!is_initialized())
+        return false;
+
+    PositionsState state;
+
+    state.player.view_x = viewx;
+    state.player.view_y = viewy;
+    state.player.view_cos = viewcos;
+    state.player.view_sin = viewsin;
+
+    state.actors.resize(MAXACTORS);
+
+    for (int i = 0; i < MAXACTORS; ++i) {
+        Position& actor = state.actors[i];
+
+        actor.x = objlist[i].x;
+        actor.y = objlist[i].y;
+    }
+
+    state.doors.resize(MAXDOORS);
+
+    for (int i = 0; i < MAXDOORS; ++i) {
+        Position& door = state.doors[i];
+
+        door.x = (doorobjlist[i].tilex << TILESHIFT) + 0x8000;
+        door.y = (doorobjlist[i].tiley << TILESHIFT) + 0x8000;
+    }
+
+    state.wall.x = pwallx;
+    state.wall.y = pwally;
+
+    int wall_offset = (65535 * pwallpos) / 63;
+
+    switch (pwalldir) {
+    case di_east:
+        state.wall.x += wall_offset;
+        break;
+
+    case di_north:
+        state.wall.y -= wall_offset;
+        break;
+
+    case di_south:
+        state.wall.y += wall_offset;
+        break;
+
+    case di_west:
+        state.wall.x -= wall_offset;
+        break;
+    }
+
+    ::SDL_LockMutex(mutex_);
+    positions_state_queue_.push_back(state);
+    ::SDL_UnlockMutex(mutex_);
+
+    return true;
 }
 
 bool AudioMixer::stop_music()
@@ -379,11 +447,17 @@ void AudioMixer::mix()
 
 void AudioMixer::mix_samples()
 {
-    float min_sample = 32767;
-    float max_sample = -32768;
+    spatialize_sounds();
+
+    float min_left_sample = 32767;
+    float max_left_sample = -32768;
+
+    float min_right_sample = 32767;
+    float max_right_sample = -32768;
 
     for (int i = 0; i < mix_samples_count_; ++i) {
-        float sample = 0;
+        float left_sample = 0.0F;
+        float right_sample = 0.0F;
 
         for (SoundsIt sound = sounds_.begin(); sound != sounds_.end(); ) {
             if (!decode_sound(*sound)) {
@@ -411,7 +485,13 @@ void AudioMixer::mix_samples()
                 break;
             }
 
-            sample += scale * cache_item->samples[sound->decode_offset];
+            if (sound->is_audible()) {
+                float sample = scale *
+                    cache_item->samples[sound->decode_offset];
+
+                left_sample += sound->left_volume * sample;
+                right_sample += sound->right_volume * sample;
+            }
 
             ++sound->decode_offset;
 
@@ -430,33 +510,63 @@ void AudioMixer::mix_samples()
             ++sound;
         }
 
-        mix_buffer_[i] = sample;
-        min_sample = std::min(sample, min_sample);
-        max_sample = std::max(sample, max_sample);
+        mix_buffer_[(2 * i) + 0] = left_sample;
+        min_left_sample = std::min(left_sample, min_left_sample);
+        max_left_sample = std::max(left_sample, max_left_sample);
+
+        mix_buffer_[(2 * i) + 1] = right_sample;
+        min_right_sample = std::min(right_sample, min_right_sample);
+        max_right_sample = std::max(right_sample, max_right_sample);
     }
 
-    bool normalize = false;
-    float normalize_scale;
+    bool normalize_left = false;
+    float normalize_left_scale;
 
-    if (min_sample < -32768 && -min_sample > max_sample) {
-        normalize = true;
-        normalize_scale = -32768.0F / min_sample;
-    } else if (max_sample > 32767 && max_sample >= -min_sample) {
-        normalize = true;
-        normalize_scale = 32767.0F / max_sample;
+    if (min_left_sample < -32768 &&
+        -min_left_sample > max_left_sample)
+    {
+        normalize_left = true;
+        normalize_left_scale = -32768.0F / min_left_sample;
+    } else if (max_left_sample > 32767 &&
+        max_left_sample >= -min_left_sample)
+    {
+        normalize_left = true;
+        normalize_left_scale = 32767.0F / max_left_sample;
+    }
+
+    bool normalize_right = false;
+    float normalize_right_scale;
+
+    if (min_right_sample < -32768 &&
+        -min_right_sample > max_right_sample)
+    {
+        normalize_right = true;
+        normalize_right_scale = -32768.0F / min_right_sample;
+    } else if (max_right_sample > 32767 &&
+        max_right_sample >= -min_right_sample)
+    {
+        normalize_right = true;
+        normalize_right_scale = 32767.0F / max_right_sample;
     }
 
     for (int i = 0; i < mix_samples_count_; ++i) {
-        float sample = mix_buffer_[i];
+        float left_sample = mix_buffer_[(2 * i) + 0];
+        float right_sample = mix_buffer_[(2 * i) + 1];
 
-        if (normalize)
-            sample *= normalize_scale;
+        if (normalize_left)
+            left_sample *= normalize_left_scale;
 
-        sample = std::min(sample, 32767.0F);
-        sample = std::max(sample, -32768.0F);
+        left_sample = std::min(left_sample, 32767.0F);
+        left_sample = std::max(left_sample, -32768.0F);
 
-        buffer_[(i * 2) + 0] = static_cast<int16_t>(sample);
-        buffer_[(i * 2) + 1] = static_cast<int16_t>(sample);
+        if (normalize_right)
+            right_sample *= normalize_right_scale;
+
+        right_sample = std::min(right_sample, 32767.0F);
+        right_sample = std::max(right_sample, -32768.0F);
+
+        buffer_[(2 * i) + 0] = static_cast<int16_t>(left_sample);
+        buffer_[(2 * i) + 1] = static_cast<int16_t>(right_sample);
     }
 }
 
@@ -471,6 +581,11 @@ void AudioMixer::handle_commands()
             commands_queue_.end());
 
         commands_queue_.clear();
+    }
+
+    if (!positions_state_queue_.empty()) {
+        positions_state_ = positions_state_queue_.back();
+        positions_state_queue_.clear();
     }
 
     ::SDL_UnlockMutex(mutex_);
@@ -615,6 +730,83 @@ bool AudioMixer::decode_sound(
     cache_item->decoded_count += actual_count;
 
     return true;
+}
+
+void AudioMixer::spatialize_sound(
+    Sound& sound)
+{
+    sound.left_volume = 1.0F;
+    sound.right_volume = 1.0F;
+
+    if (sound.type == ST_ADLIB_MUSIC)
+        return;
+
+    if (sound.actor_index <= 0)
+        return;
+
+    Position* position = NULL;
+
+    switch (sound.actor_type) {
+    case AT_ACTOR:
+        position = &positions_state_.actors[sound.actor_index];
+        break;
+
+    case AT_DOOR:
+        position = &positions_state_.doors[sound.actor_index];
+        break;
+
+    case AT_WALL:
+        position = &positions_state_.wall;
+        break;
+
+    default:
+        return;
+    }
+
+    int gx = position->x;
+    int gy = position->y;
+
+    //
+    // translate point to view centered coordinates
+    //
+    gx -= positions_state_.player.view_x;
+    gy -= positions_state_.player.view_y;
+
+    //
+    // calculate newx
+    //
+    int xt = ::FixedByFrac(gx, positions_state_.player.view_cos);
+    int yt = ::FixedByFrac(gy, positions_state_.player.view_sin);
+    int x = (xt - yt) >> TILESHIFT;
+
+    //
+    // calculate newy
+    //
+    xt = ::FixedByFrac(gx, positions_state_.player.view_sin);
+    yt = ::FixedByFrac(gy, positions_state_.player.view_cos);
+    int y = (yt + xt) >> TILESHIFT;
+
+    if (y >= ATABLEMAX)
+        y = ATABLEMAX - 1;
+    else if (y <= -ATABLEMAX)
+        y = -ATABLEMAX;
+
+    if (x < 0)
+        x = -x;
+    if (x >= ATABLEMAX)
+        x = ATABLEMAX - 1;
+
+    int left = 9 - lefttable[x][y + ATABLEMAX];
+    int right = 9 - righttable[x][y + ATABLEMAX];
+
+    sound.left_volume = left / 9.0F;
+    sound.right_volume = right / 9.0F;
+}
+
+void AudioMixer::spatialize_sounds()
+{
+    for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ++i)
+        spatialize_sound(*i);
 }
 
 bool AudioMixer::play_sound(

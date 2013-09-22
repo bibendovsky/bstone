@@ -267,6 +267,8 @@ void sd_play_door_sound(
 
 void sd_play_wall_sound(
     int sound_index);
+
+void sd_update_positions();
 // BBi
 
 
