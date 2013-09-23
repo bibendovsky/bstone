@@ -10,8 +10,8 @@
 #endif
 
 
-extern int _argc;
-extern char** _argv;
+extern int g_argc;
+extern char** g_argv;
 
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
@@ -4010,8 +4010,8 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
 
    // Check for code
 
-	for (i=1; i<_argc; i++)
-		if (!memicmp(_argv[i],code_ptr,strlen(code_ptr)))
+	for (i=1; i<g_argc; i++)
+		if (!memicmp(g_argv[i],code_ptr,strlen(code_ptr)))
       	return_val = true;
 
 	// free allocated memory

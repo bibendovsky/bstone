@@ -28,7 +28,7 @@ public:
         int dst_rate);
 
     // Uninitializes the instance.
-    virtual void uninitialize() = 0;
+    virtual void uninitialize();
 
     // Returns true if the instance is initialized or
     // false otherwise.

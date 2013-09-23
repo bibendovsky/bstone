@@ -41,7 +41,12 @@ char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType)
 		break;
 
 		case DEST_MEM:
+// FIXME
+#if 0
 			*((char *)*(char **)outfile)++ = data;
+#endif // 0
+
+            (reinterpret_cast<char**>(outfile)[0]++)[0] = data;
 		break;
 	}
 
@@ -86,7 +91,12 @@ Sint16 CIO_ReadPtr(Sint32 infile, Uint16 PtrType)
 //		break;
 
 		case SRC_MEM:
+// FIXME
+#if 0
 			returnval = (Uint8)*((char *)*(char **)infile)++;
+#endif // 0
+
+            returnval = (reinterpret_cast<const Uint8**>(infile)[0]++)[0];
 		break;
 	}
 

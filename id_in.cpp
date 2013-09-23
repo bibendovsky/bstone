@@ -49,8 +49,8 @@
 //#define	MaxJoyValue		5000
 
 
-extern int _argc;
-extern char** _argv;
+extern int g_argc;
+extern char** g_argv;
 
 
 /*
@@ -1150,9 +1150,9 @@ IN_Startup(void)
 	checkmouse = true;
 	checkNG = false;
 
-	for (i = 1;i < _argc;i++)
+	for (i = 1;i < g_argc;i++)
 	{
-		switch (US_CheckParm(_argv[i],IN_ParmStrings))
+		switch (US_CheckParm(g_argv[i],IN_ParmStrings))
 		{
 			case 0:
 				checkjoys = false;
@@ -1725,8 +1725,8 @@ void IN_Startup()
     checkjoys = true;
     checkmouse = true;
 
-    for (i = 1; i < _argc; ++i) {
-        switch (US_CheckParm(_argv[i], IN_ParmStrings)) {
+    for (i = 1; i < g_argc; ++i) {
+        switch (US_CheckParm(g_argv[i], IN_ParmStrings)) {
         case 0:
             checkjoys = false;
             break;

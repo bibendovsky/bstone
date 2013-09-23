@@ -534,7 +534,7 @@ void AudioMixer::mix_samples()
     //
 
     bool normalize_left = false;
-    float normalize_left_scale;
+    float normalize_left_scale = 1.0F;
 
     if (min_left_sample < -32768 &&
         -min_left_sample > max_left_sample)
@@ -549,7 +549,7 @@ void AudioMixer::mix_samples()
     }
 
     bool normalize_right = false;
-    float normalize_right_scale;
+    float normalize_right_scale = 1.0F;
 
     if (min_right_sample < -32768 &&
         -min_right_sample > max_right_sample)

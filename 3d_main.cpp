@@ -41,8 +41,14 @@ void PreloadUpdate(Uint16 current, Uint16 total);
 void OpenAudioFile(void);
 
 
+// FIXME
+#if 0
 int _argc;
 char** _argv;
+#endif // 0
+
+int g_argc;
+char** g_argv;
 
 
 #define SKIP_TITLE_AND_CREDITS		(0)
@@ -2614,9 +2620,9 @@ boolean MS_CheckParm (char *check)
 	Sint16             i;
 	char    *parm;
 
-	for (i = 1;i<_argc;i++)
+	for (i = 1;i<g_argc;i++)
 	{
-		parm = _argv[i];
+		parm = g_argv[i];
 
 		while ( !isalpha(*parm) )       // skip - / \ etc.. in front of parm
 			if (!*parm++)
@@ -3120,8 +3126,8 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    _argc = argc;
-    _argv = argv;
+    g_argc = argc;
+    g_argv = argv;
 
 #if IN_DEVELOPMENT
 	MakeDestPath(ERROR_LOG);
