@@ -2692,6 +2692,9 @@ bool SD_SoundPlaying()
 //	SD_StopSound() - if a sound is playing, stops it
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_StopSound(void)
 {
@@ -2713,6 +2716,12 @@ SD_StopSound(void)
 	SoundPositioned = false;
 
 	SDL_SoundFinished();
+}
+#endif // 0
+
+void SD_StopSound()
+{
+    mixer.stop_all_sfx();
 }
 
 ///////////////////////////////////////////////////////////////////////////

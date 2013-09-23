@@ -333,6 +333,21 @@ bool AudioMixer::stop_music()
     return true;
 }
 
+bool AudioMixer::stop_all_sfx()
+{
+    if (!is_initialized())
+        return false;
+
+    Command command;
+    command.command = CMD_STOP_ALL_SFX;
+
+    ::SDL_LockMutex(mutex_);
+    commands_queue_.push_back(command);
+    ::SDL_UnlockMutex(mutex_);
+
+    return true;
+}
+
 bool AudioMixer::set_mute(
     bool value)
 {
@@ -649,6 +664,22 @@ void AudioMixer::handle_stop_music_command()
             i = sounds_.erase(i);
         }
     }
+}
+
+void AudioMixer::handle_stop_all_sfx_command()
+{
+    is_any_sfx_playing_ = false;
+
+    class Predicate {
+    public:
+        static bool test(
+            const Sound& sound)
+        {
+            return sound.type != ST_ADLIB_MUSIC;
+        }
+    }; // class Predicate
+
+    sounds_.remove_if(Predicate::test);
 }
 
 bool AudioMixer::initialize_cache_item(

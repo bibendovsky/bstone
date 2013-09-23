@@ -79,6 +79,8 @@ public:
 
     bool stop_music();
 
+    bool stop_all_sfx();
+
     bool set_mute(
         bool value);
 
@@ -176,6 +178,7 @@ private:
     enum CommandType {
         CMD_PLAY,
         CMD_STOP_MUSIC,
+        CMD_STOP_ALL_SFX,
     }; // enum CommandType
 
     class Command {
@@ -227,6 +230,8 @@ private:
         const Command& command);
 
     void handle_stop_music_command();
+
+    void handle_stop_all_sfx_command();
 
     bool initialize_cache_item(
         const Command& command,
