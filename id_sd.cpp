@@ -2646,6 +2646,9 @@ SD_PlaySound(soundnames sound)
 //		no sound is playing
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 Uint16
 SD_SoundPlaying(void)
 {
@@ -2667,6 +2670,21 @@ SD_SoundPlaying(void)
 		return(SoundNumber);
 	else
 		return(false);
+}
+#endif // 0
+
+bool SD_SoundPlaying()
+{
+    switch (SoundMode) {
+    case sdm_PC:
+        return false;
+
+    case sdm_AdLib:
+        return mixer.is_any_sfx_playing();
+
+    default:
+        return false;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -2702,12 +2720,23 @@ SD_StopSound(void)
 //	SD_WaitSoundDone() - waits until the current sound is done playing
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 void
 SD_WaitSoundDone(void)
 {
 	while (SD_SoundPlaying())
 		;
 }
+#endif // 0
+
+void SD_WaitSoundDone()
+{
+    while (::SD_SoundPlaying())
+        ::SDL_Delay(1);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////
 //

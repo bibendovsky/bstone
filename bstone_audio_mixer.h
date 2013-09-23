@@ -84,9 +84,7 @@ public:
 
     bool is_music_playing() const;
 
-    bool is_non_music_playing() const;
-
-    bool is_anything_playing() const;
+    bool is_any_sfx_playing() const;
 
     bool is_player_channel_playing(
         ActorChannel channel) const;
@@ -212,6 +210,8 @@ private:
     PositionsState positions_state_;
     PositionsStateQueue positions_state_queue_;
     volatile int player_channels_state_;
+    volatile bool is_music_playing_;
+    volatile bool is_any_sfx_playing_;
 
     void callback(
         Uint8* dst_data,

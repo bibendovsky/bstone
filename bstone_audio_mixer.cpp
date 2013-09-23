@@ -92,7 +92,9 @@ AudioMixer::AudioMixer() :
     mix_samples_count_(0),
     is_data_available_(false),
     quit_thread_(false),
-    mute_(false)
+    mute_(false),
+    is_music_playing_(false),
+    is_any_sfx_playing_(false)
 {
 }
 
@@ -209,6 +211,9 @@ void AudioMixer::uninitialize()
     Cache().swap(adlib_music_cache_);
     Cache().swap(adlib_sfx_cache_);
     Cache().swap(pcm_cache_);
+    player_channels_state_ = 0;
+    is_music_playing_ = false;
+    is_any_sfx_playing_ = false;
 }
 
 bool AudioMixer::is_initialized() const
@@ -344,69 +349,15 @@ bool AudioMixer::is_music_playing() const
     if (!is_initialized())
         return false;
 
-    bool result = false;
-
-    ::SDL_LockMutex(mutex_);
-
-    if (!sounds_.empty()) {
-        class Predicate {
-        public:
-            static bool test(const Sound& sound)
-            {
-                return sound.type == ST_ADLIB_MUSIC;
-            }
-        }; // class Predicate
-
-        result = (std::find_if(
-            sounds_.begin(), sounds_.end(), Predicate::test) !=
-                sounds_.end());
-    }
-
-    ::SDL_UnlockMutex(mutex_);
-
-    return result;
+    return is_music_playing_;
 }
 
-bool AudioMixer::is_non_music_playing() const
+bool AudioMixer::is_any_sfx_playing() const
 {
     if (!is_initialized())
         return false;
 
-    bool result = false;
-
-    ::SDL_LockMutex(mutex_);
-
-    if (!sounds_.empty()) {
-        class Predicate {
-        public:
-            static bool test(const Sound& sound)
-            {
-                return sound.type != ST_ADLIB_MUSIC;
-            }
-        }; // class Predicate
-
-        result = (std::find_if(
-            sounds_.begin(), sounds_.end(), Predicate::test) !=
-                sounds_.end());
-    }
-
-    ::SDL_UnlockMutex(mutex_);
-
-    return result;
-}
-
-bool AudioMixer::is_anything_playing() const
-{
-    if (!is_initialized())
-        return false;
-
-    bool result = false;
-
-    ::SDL_LockMutex(mutex_);
-    result = !sounds_.empty();
-    ::SDL_UnlockMutex(mutex_);
-
-    return result;
+    return is_any_sfx_playing_;
 }
 
 bool AudioMixer::is_player_channel_playing(
@@ -590,6 +541,9 @@ void AudioMixer::mix_samples()
         buffer_[(2 * i) + 0] = static_cast<int16_t>(left_sample);
         buffer_[(2 * i) + 1] = static_cast<int16_t>(right_sample);
     }
+
+    int music_count = is_music_playing() ? 1 : 0;
+    is_any_sfx_playing_ = ((sounds_.size() - music_count) > 0);
 }
 
 void AudioMixer::handle_commands()
@@ -671,6 +625,11 @@ void AudioMixer::handle_play_command(
         }
     }
 
+    if (command.sound.type == ST_ADLIB_MUSIC)
+        is_music_playing_ = true;
+    else
+        is_any_sfx_playing_ = true;
+
     Sound sound = command.sound;
     sound.decode_offset = 0;
     sounds_.push_back(sound);
@@ -680,6 +639,8 @@ void AudioMixer::handle_play_command(
 
 void AudioMixer::handle_stop_music_command()
 {
+    is_music_playing_ = false;
+
     for (SoundsIt i = sounds_.begin(); i != sounds_.end(); ) {
         if (i->type != ST_ADLIB_MUSIC)
             ++i;

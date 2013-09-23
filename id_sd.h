@@ -231,7 +231,13 @@ extern	void	SD_SetPosition(Sint16 leftvol,Sint16 rightvol),
 extern	boolean	SD_MusicPlaying(void),
 				SD_SetSoundMode(SDMode mode),
 				SD_SetMusicMode(SMMode mode);
+
+// FIXME
+#if 0
 extern	Uint16	SD_SoundPlaying(void);
+#endif // 0
+
+    bool SD_SoundPlaying();
 
 extern	void	SD_SetDigiDevice(SDSMode),
 				SD_PlayDigitized(Uint16 which,Sint16 leftpos,Sint16 rightpos),

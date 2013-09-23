@@ -3589,8 +3589,14 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 
         ::sd_play_player_sound(STATS2SND, bstone::AC_ITEM);
 
-        // FIXME
+// FIXME
+#if 0
 		while (SD_SoundPlaying() && !LastScan);
+#endif // 0
+
+        while (::SD_SoundPlaying() && !LastScan)
+            ::in_handle_events();
+
 	}
 
 	return(maxperc);
