@@ -290,12 +290,7 @@ void ClearMemory (void)
 // FIXME
 #if 0
 	PM_UnlockMainMem();
-#endif // 0
-
 	SD_StopDigitized();
-
-// FIXME
-#if 0
 	MM_SortMem ();
 #endif // 0
 }

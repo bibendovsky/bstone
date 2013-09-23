@@ -1862,7 +1862,11 @@ void PlayLoop (void)
 
 		gamestate.TimeCount+=tics;
 
+// FIXME
+#if 0
 		SD_Poll ();
+#endif // 0
+
 		UpdateSoundLoc();	// JAB
 
 		if (screenfaded & !playstate)

@@ -4230,9 +4230,13 @@ void ExitGame()
 	SD_MusicOff();
 	SD_StopSound();
 
+// FIXME
+#if 0
 // SHUT-UP THE ADLIB
 //
 	for (i=1;i<=0xf5;i++)
 		alOut(i,0);
+#endif // 0
+
 	Quit("");
 }
