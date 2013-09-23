@@ -276,12 +276,15 @@ bool AudioMixer::update_positions()
     for (int i = 0; i < MAXDOORS; ++i) {
         Position& door = state.doors[i];
 
-        door.x = (doorobjlist[i].tilex << TILESHIFT) + 0x8000;
-        door.y = (doorobjlist[i].tiley << TILESHIFT) + 0x8000;
+        door.x = (doorobjlist[i].tilex << TILESHIFT) +
+            (1 << (TILESHIFT - 1));
+
+        door.y = (doorobjlist[i].tiley << TILESHIFT) +
+            (1 << (TILESHIFT - 1));
     }
 
-    state.wall.x = pwallx;
-    state.wall.y = pwally;
+    state.wall.x = (pwallx << TILESHIFT) + (1 << (TILESHIFT - 1));
+    state.wall.y = (pwally << TILESHIFT) + (1 << (TILESHIFT - 1));
 
     int wall_offset = (65535 * pwallpos) / 63;
 
