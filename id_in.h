@@ -224,4 +224,14 @@ Uint8	IN_MouseButtons (void);
 Uint8	IN_JoyButtons (void);
 
 
+// BBi
+void in_handle_events();
+
+void in_get_mouse_deltas(
+    int& dx,
+    int& dy);
+
+void in_clear_mouse_deltas();
+
+
 #endif

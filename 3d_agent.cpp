@@ -22,7 +22,6 @@ void VH_UpdateScreen();
 void InitAreas (void);
 void FirstSighting(objtype* ob);
 void OpenDoor(Sint16 door);
-void in_handle_events();
 
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
@@ -3099,7 +3098,7 @@ Sint16 InputFloor(void)
 		CalcTics();
 
         // BBi
-        in_handle_events();
+        ::in_handle_events();
 
 		if (Keyboard[sc_LeftArrow])
 			controlx = -1;
@@ -3596,7 +3595,6 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 
         while (::SD_SoundPlaying() && !LastScan)
             ::in_handle_events();
-
 	}
 
 	return(maxperc);

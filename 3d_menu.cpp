@@ -23,7 +23,6 @@ void ShowViewSize (Sint16 width);
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
 boolean LoadTheGame(int handle);
 boolean IN_CheckAck();
-void in_handle_events();
 
 
 // As is, this switch will not work ... the data associated with this
@@ -727,8 +726,14 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 				pickquick=CP_SaveGame(0);
 
 				lasttimecount = TimeCount;
+
+// FIXME
+#if 0
 				if (MousePresent)
 					Mouse(MDelta);						// Clear accumulated mouse movement
+#endif // 0
+
+                ::in_clear_mouse_deltas();
 			}
 
 			return(1);
@@ -766,8 +771,14 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 				pickquick=CP_LoadGame(0);
 
 				lasttimecount = TimeCount;
+
+// FIXME
+#if 0
 				if (MousePresent)
 					Mouse(MDelta);	// Clear accumulated mouse movement
+#endif // 0
+
+                ::in_clear_mouse_deltas();
 			}
 
 			if (pickquick)
@@ -1978,7 +1989,14 @@ void MouseSensitivity(Sint16 temp1)
 
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
+// FIXME
+#if 0
       			while(Keyboard[sc_LeftArrow]);
+#endif // 0
+
+                while (Keyboard[sc_LeftArrow])
+                    ::in_handle_events();
+
       			WaitKeyUp();
      			}
      		break;
@@ -1998,7 +2016,14 @@ void MouseSensitivity(Sint16 temp1)
 
                     ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
+// FIXME
+#if 0
 					while(Keyboard[sc_RightArrow]);
+#endif // 0
+
+                    while (Keyboard[sc_RightArrow])
+                        ::in_handle_events();
+
 					WaitKeyUp();
 				}
 			break;
@@ -2303,7 +2328,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 			      IN_ClearKeysDown();
 
                // BBi
-               in_handle_events();
+               ::in_handle_events();
 
 			   //
 			   // FLASH CURSOR
@@ -3577,6 +3602,9 @@ void WaitKeyUp(void)
 //---------------------------------------------------------------------------
 // ReadAnyControl() - READ KEYBOARD, JOYSTICK AND MOUSE FOR INPUT
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void ReadAnyControl(ControlInfo *ci)
 {
  Sint16 mouseactive=0;
@@ -3608,23 +3636,14 @@ void ReadAnyControl(ControlInfo *ci)
 
   Mouse(3);
 
-// FIXME
-#if 0
   mousex=_CX;
   mousey=_DX;
-#endif // 0
-
-    mousex = 0;
-    mousey = 0;
 
   if (mousey<CENTER-SENSITIVE)
   {
 	ci->dir=dir_North;
 
-// FIXME
-#if 0
 	_CX=_DX=CENTER;
-#endif // 0
 
 	Mouse(4);
 	mouseactive=1;
@@ -3634,10 +3653,7 @@ void ReadAnyControl(ControlInfo *ci)
   {
 	ci->dir=dir_South;
 
-// FIXME
-#if 0
 	_CX=_DX=CENTER;
-#endif // 0
 
 	Mouse(4);
 	mouseactive=1;
@@ -3647,10 +3663,7 @@ void ReadAnyControl(ControlInfo *ci)
   {
    ci->dir=dir_West;
 
-// FIXME
-#if 0
    _CX=_DX=CENTER;
-#endif // 0
 
    Mouse(4);
    mouseactive=1;
@@ -3660,10 +3673,7 @@ void ReadAnyControl(ControlInfo *ci)
   {
    ci->dir=dir_East;
 
-// FIXME
-#if 0
    _CX=_DX=CENTER;
-#endif // 0
 
    Mouse(4);
    mouseactive=1;
@@ -3712,6 +3722,125 @@ void ReadAnyControl(ControlInfo *ci)
 	 ci->button2=ci->button3=false;
   }
  }
+}
+#endif // 0
+
+void ReadAnyControl(
+    ControlInfo* ci)
+{
+    bool mouseactive = false;
+
+    ::IN_ReadControl(0, ci);
+
+    //
+    // UNDO some of the ControlInfo vars that were init
+    // with IN_ReadControl() for the mouse...
+    //
+    if (ControlTypeUsed == ctrl_Mouse) {
+        //
+        // Clear directions & buttons (if enabled or not)
+        //
+        ci->dir = dir_None;
+        ci->button0 = 0;
+        ci->button1 = 0;
+        ci->button2 = 0;
+        ci->button3 = 0;
+    }
+
+    if (mouseenabled) {
+        int mousex;
+        int mousey;
+
+        // READ MOUSE MOTION COUNTERS
+        // RETURN DIRECTION
+        // HOME MOUSE
+        // CHECK MOUSE BUTTONS
+
+        ::in_get_mouse_deltas(mousex, mousey);
+        ::in_clear_mouse_deltas();
+
+#if 0
+        if (mousey < (CENTER - SENSITIVE)) {
+            mouseactive = true;
+            ci->dir = dir_North;
+        } else if (mousey > (CENTER + SENSITIVE)) {
+            mouseactive = true;
+            ci->dir = dir_South;
+        }
+
+        if (mousex < (CENTER - SENSITIVE)) {
+            mouseactive = true;
+            ci->dir = dir_West;
+        } else if (mousex > (CENTER + SENSITIVE)) {
+            mouseactive = true;
+            ci->dir = dir_East;
+        }
+
+        if (mouseactive)
+            ::in_set_mouse_cursor_position(CENTER, CENTER);
+#endif
+
+        const int DELTA_THRESHOLD = 10;
+
+        if (mousey < -DELTA_THRESHOLD) {
+            ci->dir = dir_North;
+            mouseactive = true;
+        } else if (mousey > DELTA_THRESHOLD) {
+            ci->dir = dir_South;
+            mouseactive = true;
+        }
+
+        if (mousex < -DELTA_THRESHOLD) {
+            ci->dir = dir_West;
+            mouseactive = true;
+        } else if (mousex > DELTA_THRESHOLD) {
+            ci->dir = dir_East;
+            mouseactive = true;
+        }
+
+        int buttons = ::IN_MouseButtons();
+
+        if (buttons != 0) {
+            ci->button0 = buttons & 1;
+            ci->button1 = buttons & 2;
+            ci->button2 = buttons & 4;
+            ci->button3 = false;
+            mouseactive = true;
+        }
+    }
+
+    if (joystickenabled && !mouseactive) {
+        Sint16 jx;
+        Sint16 jy;
+        Sint16 jb;
+
+        ::INL_GetJoyDelta(joystickport, &jx, &jy);
+
+        if (jy < -SENSITIVE)
+            ci->dir = dir_North;
+        else if (jy > SENSITIVE)
+            ci->dir = dir_South;
+
+        if (jx < -SENSITIVE)
+            ci->dir = dir_West;
+        else if (jx > SENSITIVE)
+            ci->dir = dir_East;
+
+        jb = ::IN_JoyButtons();
+
+        if (jb != 0) {
+            ci->button0 =jb & 1;
+            ci->button1 =jb & 2;
+
+            if (joypadenabled) {
+                ci->button2 =jb & 4;
+                ci->button3 =jb & 8;
+            } else {
+                ci->button2 = false;
+                ci->button3 = false;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////

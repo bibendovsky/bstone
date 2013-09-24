@@ -104,9 +104,19 @@ extern	Uint16	bordercolor;
 
 
 // BBi
+extern int screen_x;
+extern int screen_y;
+
+extern int screen_width;
+extern int screen_height;
+
 extern int vanilla_screen_width;
 extern int vanilla_screen_height;
 
+extern int window_width;
+extern int window_height;
+
+extern SDL_Window* sdl_window;
 //===========================================================================
 
 //

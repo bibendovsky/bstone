@@ -26,7 +26,6 @@ void MoveDoors (void);
 void MovePWalls (void);
 void ConnectAreas (void);
 void UpdateSoundLoc(void);
-void in_handle_events();
 
 
 /*
@@ -339,16 +338,20 @@ void PollMouseMove (void)
 {
 	Sint16	mousexmove,mouseymove;
 
-	Mouse(MDelta);
-
 // FIXME
 #if 0
+	Mouse(MDelta);
+
 	mousexmove = _CX;
 	mouseymove = _DX;
 #endif // 0
 
-    mousexmove = 0;
-    mouseymove = 0;
+    int dx;
+    int dy;
+    ::in_get_mouse_deltas(dx, dy);
+    ::in_clear_mouse_deltas();
+    mousexmove = dx;
+    mouseymove = dy;
 
 // Double speed when shift is pressed.
 //
@@ -484,7 +487,7 @@ void PollControls (void)
 	CalcTics ();
 
     // BBi
-    in_handle_events();
+    ::in_handle_events();
 //
 // get button states
 //
@@ -825,8 +828,15 @@ void CheckKeys (void)
 		RedrawStatusAreas();
 		SD_MusicOn();
 		Paused = false;
+
+// FIXME
+#if 0
 		if (MousePresent)
 			Mouse(MDelta);	// Clear accumulated mouse movement
+#endif // 0
+
+        ::in_clear_mouse_deltas();
+
 		return;
 	}
 
@@ -955,8 +965,14 @@ void CheckKeys (void)
 				CleanDrawPlayBorder();
          }
 
+// FIXME
+#if 0
 			if (MousePresent)
 				Mouse(MDelta);	// Clear accumulated mouse movement
+#endif // 0
+
+            ::in_clear_mouse_deltas();
+
 			lasttimecount = TimeCount;
 			return;
 		}
@@ -1806,8 +1822,13 @@ void PlayLoop (void)
 	ClearPaletteShifts ();
    ForceUpdateStatusBar();
 
+// FIXME
+#if 0
 	if (MousePresent)
 		Mouse(MDelta);	// Clear accumulated mouse movement
+#endif // 0
+
+    ::in_clear_mouse_deltas();
 
 	tics = 1;			// for first time through
 	if (demoplayback)

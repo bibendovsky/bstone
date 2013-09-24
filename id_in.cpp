@@ -236,7 +236,8 @@ static	boolean	special;
 #endif // 0
 
 // BBi
-static int in_keyboard_map_to_bstone(SDL_Keycode key_code)
+static int in_keyboard_map_to_bstone(
+    SDL_Keycode key_code)
 {
     switch (key_code) {
     case SDLK_RETURN:
@@ -474,11 +475,12 @@ static int in_keyboard_map_to_bstone(SDL_Keycode key_code)
     }
 }
 
-static char in_keyboard_map_to_char(const SDL_KeyboardEvent* e)
+static char in_keyboard_map_to_char(
+    const SDL_KeyboardEvent& e)
 {
-    Uint16 flags = e->keysym.mod;
+    Uint16 flags = e.keysym.mod;
     boolean is_caps = false;
-    SDL_Keycode key_code = e->keysym.sym;
+    SDL_Keycode key_code = e.keysym.sym;
 
     if ((flags & (
         KMOD_LCTRL |
@@ -505,7 +507,7 @@ static char in_keyboard_map_to_char(const SDL_KeyboardEvent* e)
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_DELETE:
-        return key_code;
+        return static_cast<char>(key_code);
     }
 
     if (!is_caps) {
@@ -557,7 +559,7 @@ static char in_keyboard_map_to_char(const SDL_KeyboardEvent* e)
         case SDLK_x:
         case SDLK_y:
         case SDLK_z:
-            return key_code;
+            return static_cast<char>(key_code);
         }
     } else {
         switch (key_code) {
@@ -650,22 +652,23 @@ static char in_keyboard_map_to_char(const SDL_KeyboardEvent* e)
         case SDLK_x:
         case SDLK_y:
         case SDLK_z:
-            return SDL_toupper(key_code);
+            return static_cast<char>(::SDL_toupper(key_code));
         }
     }
 
     return sc_None;
 }
 
-static void in_handle_keyboard(const SDL_KeyboardEvent* e)
+static void in_handle_keyboard(
+    const SDL_KeyboardEvent& e)
 {
-    SDL_Keycode key_code = e->keysym.sym;
-    int key = in_keyboard_map_to_bstone(key_code);
-    Uint16 key_mod;
+    SDL_Keycode key_code = e.keysym.sym;
+    int key = ::in_keyboard_map_to_bstone(key_code);
+    SDL_Keymod key_mod;
     char key_char;
     boolean is_pressed;
 
-    if (key_code == SDLK_PAUSE && e->state == SDL_PRESSED) {
+    if (key_code == SDLK_PAUSE && e.state == SDL_PRESSED) {
         Paused = true;
         return;
     }
@@ -673,7 +676,7 @@ static void in_handle_keyboard(const SDL_KeyboardEvent* e)
     if (key == sc_None)
         return;
 
-    key_mod = SDL_GetModState();
+    key_mod = ::SDL_GetModState();
 
     switch (key) {
     case sc_Alt:
@@ -685,19 +688,56 @@ static void in_handle_keyboard(const SDL_KeyboardEvent* e)
         break;
 
     default:
-        is_pressed = (e->state == SDL_PRESSED);
+        is_pressed = (e.state == SDL_PRESSED);
         break;
     }
 
     Keyboard[key] = is_pressed;
 
     if (is_pressed) {
-        LastScan = key;
+        LastScan = static_cast<ScanCode>(key);
 
-        key_char = in_keyboard_map_to_char(e);
+        key_char = ::in_keyboard_map_to_char(e);
 
         if (key_char != '\0')
             LastASCII = key_char;
+    }
+}
+
+
+static int mouse_buttons;
+
+static void in_handle_mouse_buttons(
+    const SDL_MouseButtonEvent& e)
+{
+    if (e.state == SDL_PRESSED)
+        mouse_buttons |= SDL_BUTTON(e.button);
+    else
+        mouse_buttons &= ~SDL_BUTTON(e.button);
+}
+
+static int in_mouse_dx;
+static int in_mouse_dy;
+
+static void in_handle_mouse_motion(
+    const SDL_MouseMotionEvent& e)
+{
+    in_mouse_dx += e.xrel;
+    in_mouse_dy += e.yrel;
+}
+
+static void in_handle_mouse(
+    const SDL_Event& e)
+{
+    switch (e.type) {
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+        ::in_handle_mouse_buttons(e.button);
+        break;
+
+    case SDL_MOUSEMOTION:
+        ::in_handle_mouse_motion(e.motion);
+        break;
     }
 }
 // BBi
@@ -708,16 +748,25 @@ static void in_handle_keyboard(const SDL_KeyboardEvent* e)
 //		mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 static void
 INL_GetMouseDelta(Sint16 *x,Sint16 *y)
 {
 	Mouse(MDelta);
 
-// FIXME
-#if 0
 	*x = _CX;
 	*y = _DX;
+}
 #endif // 0
+
+static void INL_GetMouseDelta(
+    Sint16* x,
+    Sint16* y)
+{
+    *x = in_mouse_dx;
+    *y = in_mouse_dy;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -726,6 +775,9 @@ INL_GetMouseDelta(Sint16 *x,Sint16 *y)
 //		mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 static Uint16
 INL_GetMouseButtons(void)
 {
@@ -733,14 +785,28 @@ INL_GetMouseButtons(void)
 
 	Mouse(MButtons);
 
-// FIXME
-#if 0
 	buttons = _BX;
-#endif // 0
-
-    buttons = 0;
 
 	return(buttons);
+}
+#endif // 0
+
+static int INL_GetMouseButtons()
+{
+    ::in_handle_events();
+
+    int result = 0;
+
+    if ((mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0)
+        result |= 1;
+
+    if ((mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0)
+        result |= 4;
+
+    if ((mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0)
+        result |= 2;
+
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1002,11 +1068,12 @@ static void INL_ShutKbd()
 //	INL_StartMouse() - Detects and sets up the mouse
 //
 ///////////////////////////////////////////////////////////////////////////
+
+// FIXME
+#if 0
 boolean
 INL_StartMouse(void)
 {
-// FIXME
-#if 0
 #if 0
 	if (getvect(MouseInt))
 	{
@@ -1028,9 +1095,12 @@ INL_StartMouse(void)
 
  Mouse(MReset);
  return true;
+}
 #endif // 0
 
-    return false;
+boolean INL_StartMouse()
+{
+    return true;
 }
 
 #if 0
@@ -1044,6 +1114,13 @@ INL_ShutMouse(void)
 {
 }
 #endif
+
+// BBi
+static void INL_ShutMouse()
+{
+    //::SDL_ShowCursor(SDL_TRUE);
+}
+// BBi
 
 
 //
@@ -1229,6 +1306,9 @@ IN_Shutdown(void)
 		INL_ShutJoy(i);
 	INL_ShutKbd();
 
+    // BBi
+    ::INL_ShutMouse();
+
 	IN_Started = false;
 }
 
@@ -1263,17 +1343,45 @@ IN_ClearKeysDown(void)
 }
 
 // BBi
+static void in_handle_window(
+    const SDL_WindowEvent& e)
+{
+    switch (e.event) {
+    case SDL_WINDOWEVENT_FOCUS_GAINED:
+        mouse_buttons = 0;
+        ::SDL_SetRelativeMouseMode(SDL_TRUE);
+        ::in_clear_mouse_deltas();
+        break;
+
+    case SDL_WINDOWEVENT_FOCUS_LOST:
+        mouse_buttons = 0;
+        ::SDL_SetRelativeMouseMode(SDL_FALSE);
+        ::in_clear_mouse_deltas();
+        break;
+    }
+}
+
 void in_handle_events()
 {
     SDL_Event e;
 
-    SDL_PumpEvents();
+    ::SDL_PumpEvents();
 
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            in_handle_keyboard(&e.key);
+            ::in_handle_keyboard(e.key);
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEMOTION:
+            ::in_handle_mouse(e);
+            break;
+
+        case SDL_WINDOWEVENT:
+            ::in_handle_window(e.window);
             break;
         }
     }
@@ -1311,7 +1419,8 @@ IN_ReadControl(Sint16 player,ControlInfo *info)
 			Motion		mx,my;
 register	KeyboardDef	*def;
 
-    in_handle_events();
+    // BBi
+    ::in_handle_events();
 
 	player=player;					// shut up compiler!
 
@@ -1656,21 +1765,24 @@ boolean IN_UserInput(Uint32 delay)
 ===================
 */
 
-Uint8	IN_MouseButtons (void)
-{
 // FIXME
 #if 0
+Uint8	IN_MouseButtons (void)
+{
 	if (MousePresent)
 	{
 		Mouse(MButtons);
 		return _BX;
 	}
 	else
-#endif // 0
-
 		return 0;
 }
+#endif // 0
 
+Uint8 IN_MouseButtons()
+{
+    return static_cast<Uint8>(::INL_GetMouseButtons());
+}
 
 /*
 ===================
@@ -1749,3 +1861,24 @@ void IN_Startup()
 
     IN_Started = true;
 }
+
+// BBi
+void in_get_mouse_deltas(
+    int& dx,
+    int& dy)
+{
+    Sint16 dx16;
+    Sint16 dy16;
+
+    ::INL_GetMouseDelta(&dx16, &dy16);
+
+    dx = dx16;
+    dy = dy16;
+}
+
+void in_clear_mouse_deltas()
+{
+    in_mouse_dx = 0;
+    in_mouse_dy = 0;
+}
+// BBi
