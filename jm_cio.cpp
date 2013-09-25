@@ -21,6 +21,9 @@
 // NOTE : For PtrTypes DEST_MEM a ZERO (0) is always returned.
 //
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType)
 {
 	Sint16 returnval = 0;
@@ -53,7 +56,19 @@ char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType)
 	return(returnval);
 
 }
+#endif // 0
 
+// BBi
+char CIO_WritePtr(
+    void*& buffer,
+    Uint8 value)
+{
+    Uint8*& buffer_ref = reinterpret_cast<Uint8*&>(buffer);
+    buffer_ref[0] = value;
+    ++buffer_ref;
+    return '\0';
+}
+// BBi
 
 //---------------------------------------------------------------------------
 // CIO_ReadPtr()  -- Reads data from a particular ptr type
@@ -65,6 +80,9 @@ char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType)
 //
 //
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint16 CIO_ReadPtr(Sint32 infile, Uint16 PtrType)
 {
 	Sint16 returnval = 0;
@@ -102,6 +120,15 @@ Sint16 CIO_ReadPtr(Sint32 infile, Uint16 PtrType)
 
 	return(returnval);
 }
+#endif // 0
 
-
-
+// BBi
+Sint16 CIO_ReadPtr(
+    const void*& buffer)
+{
+    const Uint8*& buffer_ref = reinterpret_cast<const Uint8*&>(buffer);
+    Uint8 value = buffer_ref[0];
+    ++buffer_ref;
+    return value;
+}
+// BBi

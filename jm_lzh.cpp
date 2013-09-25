@@ -95,18 +95,55 @@ static void update(Sint16 c);
 static void DeleteNode(Sint16 p);  /* Deleting node from the tree */
 static void InsertNode(Sint16 r);  /* Inserting node to the tree */
 static void InitTree(void);  /* Initializing tree */
+
+// FIXME
+#if 0
 static void Putcode(Sint32 outfile_ptr, Sint16 l, Uint16 c,Uint16 PtrTypes);		/* output c bits */
 static void EncodeChar(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes);
 static void EncodePosition(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes);
 static void EncodeEnd(Sint32 outfile_ptr,Uint16 PtrTypes);
+#endif
+
+static void Putcode(
+    void*& outfile_ptr,
+    Sint16 l,
+    Uint16 c);
+
+static void EncodeChar(
+    void*& outfile_ptr,
+    Uint16 c);
+
+static void EncodePosition(
+    void*& outfile_ptr,
+    Uint16 c);
+
+static void EncodeEnd(
+    void*& outfile_ptr);
 
 
+// FIXME
+#if 0
 static Sint16 GetByte(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes);
 static Sint16 GetBit(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes);	/* get one bit */
 static Sint16 DecodeChar(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes);
 static Sint16 DecodePosition(Sint32 infile_ptr,Uint32 *CompressLength, Uint16 PtrTypes);
+#endif // 0
 
+static Sint16 GetByte(
+    const void*& infile_ptr,
+    Uint32* CompressLength);
 
+static Sint16 GetBit(
+    const void*& infile_ptr,
+    Uint32* CompressLength);
+
+static Sint16 DecodeChar(
+    const void*& infile_ptr,
+    Uint32* CompressLength);
+
+static Sint16 DecodePosition(
+    const void*& infile_ptr,
+    Uint32* CompressLength);
 
 
 //==========================================================================
@@ -351,7 +388,7 @@ Uint16 getlen = 0;
 //---------------------------------------------------------------------------
 // LZH_Startup
 //---------------------------------------------------------------------------
-boolean LZH_Startup()
+bool LZH_Startup()
 {
 	if (son)
 		return(true);
@@ -782,6 +819,8 @@ static void InitTree(void)  /* Initializing tree */
 //---------------------------------------------------------------------------
 //  Putcode
 //---------------------------------------------------------------------------
+// FIXME
+#if 0
 static void Putcode(Sint32 outfile_ptr, Sint16 l, Uint16 c,Uint16 PtrTypes)		/* output c bits */
 {
 	putbuf |= c >> putlen;
@@ -805,15 +844,41 @@ static void Putcode(Sint32 outfile_ptr, Sint16 l, Uint16 c,Uint16 PtrTypes)		/* 
 		}
 	}
 }
+#endif // 0
 
+// output c bits
+static void Putcode(
+    void*& outfile_ptr,
+    Sint16 l,
+    Uint16 c)
+{
+    putbuf |= c >> putlen;
 
+    putlen += l;
 
+    if (putlen >= 8) {
+        ::CIO_WritePtr(outfile_ptr, putbuf >> 8);
+        ++codesize;
 
+        putlen -= 8;
+        if (putlen >= 8) {
+            ::CIO_WritePtr(outfile_ptr, static_cast<Uint8>(putbuf));
+            ++codesize;
+
+            putlen -= 8;
+            putbuf = c << (l - putlen);
+        } else
+            putbuf <<= 8;
+    }
+}
 
 
 //---------------------------------------------------------------------------
 //  EncodeChar
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static void EncodeChar(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes)
 {
 	Uint16 i;
@@ -844,13 +909,49 @@ static void EncodeChar(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes)
 	len = j;
 	update(c);
 }
+#endif // 0
 
+static void EncodeChar(
+    void*& outfile_ptr,
+    Uint16 c)
+{
+    Uint16 i;
+    Sint16 j, k;
 
+    i = 0;
+    j = 0;
+    k = prnt[c + T];
+
+    /// search connections from leaf node to the root
+
+    do {
+        i >>= 1;
+
+        //
+        // if node's address is odd, output 1 else output 0
+        //
+
+        if ((k & 1) != 0)
+            i += 0x8000;
+
+        ++j;
+        k = prnt[k];
+    } while (k != R);
+
+    ::Putcode(outfile_ptr, j, i);
+
+    code = i;
+    len = j;
+    ::update(c);
+}
 
 
 //---------------------------------------------------------------------------
 // EncodePosition
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static void EncodePosition(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes)
 {
 	Uint16 i;
@@ -868,13 +969,35 @@ static void EncodePosition(Sint32 outfile_ptr, Uint16 c, Uint16 PtrTypes)
 
 	Putcode(outfile_ptr, 6, (c & 0x3f) << 10,PtrTypes);
 }
+#endif // 0
 
+static void EncodePosition(
+    void*& outfile_ptr,
+    Uint16 c)
+{
+    Uint16 i;
 
+    //
+    // output upper 6 bits with encoding
+    //
+
+    i = c >> 6;
+    ::Putcode(outfile_ptr, p_len[i], static_cast<Uint16>(p_code[i]) << 8);
+
+    //
+    // output lower 6 bits directly
+    //
+
+    ::Putcode(outfile_ptr, 6, (c & 0x3F) << 10);
+}
 
 
 //---------------------------------------------------------------------------
 // EncodeEnd
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static void EncodeEnd(Sint32 outfile_ptr,Uint16 PtrTypes)
 {
 	if (putlen)
@@ -882,6 +1005,16 @@ static void EncodeEnd(Sint32 outfile_ptr,Uint16 PtrTypes)
 		CIO_WritePtr(outfile_ptr,(putbuf >> 8),PtrTypes);
 		codesize++;
 	}
+}
+#endif // 0
+
+static void EncodeEnd(
+    void*& outfile_ptr)
+{
+    if (putlen != 0) {
+        ::CIO_WritePtr(outfile_ptr, putbuf >> 8);
+        ++codesize;
+    }
 }
 
 #endif
@@ -903,6 +1036,9 @@ static void EncodeEnd(Sint32 outfile_ptr,Uint16 PtrTypes)
 //---------------------------------------------------------------------------
 // GetByte
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static Sint16 GetByte(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)
 {
 	Uint16 i;
@@ -926,6 +1062,30 @@ static Sint16 GetByte(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes
 	getlen -= 8;
 	return i>>8;
 }
+#endif // 0
+
+static Sint16 GetByte(
+    const void*& infile_ptr,
+    Uint32* CompressLength)
+{
+    Uint16 i;
+
+    while (getlen <= 8) {
+        if (*CompressLength) {
+            i = ::CIO_ReadPtr(infile_ptr);
+            (*CompressLength)--;
+        } else
+            i = 0;
+
+        getbuf |= i << (8 - getlen);
+        getlen += 8;
+    }
+
+    i = getbuf;
+    getbuf <<= 8;
+    getlen -= 8;
+    return i >> 8;
+}
 
 
 
@@ -935,6 +1095,9 @@ static Sint16 GetByte(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes
 //---------------------------------------------------------------------------
 // GetBit
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static Sint16 GetBit(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)	/* get one bit */
 {
 	Sint16 i;
@@ -958,14 +1121,39 @@ static Sint16 GetBit(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)
 	getlen--;
 	return (i < 0);
 }
+#endif // 0
 
+static Sint16 GetBit(
+    const void*& infile_ptr,
+    Uint32* CompressLength)
+{
+    Sint16 i;
 
+    while (getlen <= 8) {
+        if (*CompressLength) {
+            i = ::CIO_ReadPtr(infile_ptr);
+            (*CompressLength)--;
+        } else
+            i = 0;
+
+        getbuf |= i << (8 - getlen);
+        getlen += 8;
+    }
+
+    i = getbuf;
+    getbuf <<= 1;
+    --getlen;
+    return i < 0;
+}
 
 
 
 //---------------------------------------------------------------------------
 // DecodeChar
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static Sint16 DecodeChar(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTypes)
 {
 	Uint16 c;
@@ -988,7 +1176,31 @@ static Sint16 DecodeChar(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTy
 	update(c);
 	return c;
 }
+#endif // 0
 
+static Sint16 DecodeChar(
+    const void*& infile_ptr,
+    Uint32* CompressLength)
+{
+    Uint16 c;
+
+    c = son[R];
+
+    /*
+    * start searching tree from the root to leaves.
+    * choose node #(son[]) if input bit == 0
+    * else choose #(son[]+1) (input bit == 1)
+    */
+
+    while (c < T) {
+        c += ::GetBit(infile_ptr, CompressLength);
+        c = son[c];
+    }
+
+    c -= T;
+    ::update(c);
+    return c;
+}
 
 
 
@@ -996,6 +1208,9 @@ static Sint16 DecodeChar(Sint32 infile_ptr, Uint32 *CompressLength, Uint16 PtrTy
 //---------------------------------------------------------------------------
 // DecodePosition
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 static Sint16 DecodePosition(Sint32 infile_ptr,Uint32 *CompressLength, Uint16 PtrTypes)
 {
 	Uint16 i, j, c;
@@ -1020,6 +1235,34 @@ static Sint16 DecodePosition(Sint32 infile_ptr,Uint32 *CompressLength, Uint16 Pt
 
 	return c | i & 0x3f;
 }
+#endif // 0
+
+static Sint16 DecodePosition(
+    const void*& infile_ptr,
+    Uint32* CompressLength)
+{
+    Uint16 i;
+    Uint16 j;
+    Uint16 c;
+
+    //
+    // decode upper 6 bits from given table
+    //
+
+    i = ::GetByte(infile_ptr, CompressLength);
+    c = static_cast<Uint16>(d_code[i]) << 6;
+    j = d_len[i];
+
+    //
+    // input lower 6 bits directly
+    //
+
+    j -= 2;
+    while (j--)
+        i = (i << 1) + ::GetBit(infile_ptr, CompressLength);
+
+    return c | i & 0x3F;
+}
 
 #endif
 
@@ -1043,7 +1286,17 @@ static Sint16 DecodePosition(Sint32 infile_ptr,Uint32 *CompressLength, Uint16 Pt
 //---------------------------------------------------------------------------
 // LZH_Decompress()
 //---------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint32 LZH_Decompress(void *infile, void *outfile, Uint32 OriginalLength, Uint32 CompressLength, Uint16 PtrTypes)
+#endif // 0
+
+Sint32 LZH_Decompress(
+    const void* infile,
+    void* outfile,
+    Uint32 OriginalLength,
+    Uint32 CompressLength)
 {
 	Sint16  i, j, k, r, c;
 	Sint32 count;
@@ -1063,11 +1316,22 @@ Sint32 LZH_Decompress(void *infile, void *outfile, Uint32 OriginalLength, Uint32
 
 	for (count = 0; count < textsize; )
 	{
+// FIXME
+#if 0
 		c = DecodeChar((Sint32)&infile,&CompressLength,PtrTypes);
+#endif // 0
+
+        c = ::DecodeChar(infile, &CompressLength);
 
 		if (c < 256)
 		{
+// FIXME
+#if 0
 			CIO_WritePtr((Sint32)&outfile,c,PtrTypes);
+#endif // 0
+
+            ::CIO_WritePtr(outfile, c);
+
 			datasize--;								// Dec # of bytes to write
 
 			text_buf[r++] = c;
@@ -1076,14 +1340,25 @@ Sint32 LZH_Decompress(void *infile, void *outfile, Uint32 OriginalLength, Uint32
 		}
 		else
 		{
+// FIXME
+#if 0
 			i = (r - DecodePosition((Sint32)&infile,&CompressLength,PtrTypes) - 1) & (N - 1);
+#endif // 0
+
+            i = (r - ::DecodePosition(infile, &CompressLength) - 1) & (N - 1);
+
 			j = c - 255 + THRESHOLD;
 
 			for (k = 0; k < j; k++)
 			{
 				c = text_buf[(i + k) & (N - 1)];
 
+// FIXME
+#if 0
 				CIO_WritePtr((Sint32)&outfile,c,PtrTypes);
+#endif // 0
+                ::CIO_WritePtr(outfile, c);
+
 				datasize--;							// dec count of bytes to write
 
 				text_buf[r++] = c;
@@ -1116,7 +1391,16 @@ Sint32 LZH_Decompress(void *infile, void *outfile, Uint32 OriginalLength, Uint32
 //---------------------------------------------------------------------------
 // LZH_Compress()
 //---------------------------------------------------------------------------
-Sint32 LZH_Compress(void *infile, void *outfile,Uint32 DataLength,Uint16 PtrTypes)
+
+// FIXME
+#if 0
+Sint32 LZH_Compress(const void *infile, void *outfile,Uint32 DataLength,Uint16 PtrTypes)
+#endif // 0
+
+int LZH_Compress(
+    const void* infile,
+    void* outfile,
+    Uint32 DataLength)
 {
 	Sint16  i, c, len, r, s, last_match_length;
 
@@ -1141,7 +1425,13 @@ Sint32 LZH_Compress(void *infile, void *outfile,Uint32 DataLength,Uint16 PtrType
 
 	for (len = 0; len < F && (DataLength > datasize); len++)
 	{
+// FIXME
+#if 0
 		c = CIO_ReadPtr((Sint32)&infile,PtrTypes);
+#endif // 0
+
+        c = ::CIO_ReadPtr(infile);
+
 		datasize++;							// Dec num of bytes to compress
 		text_buf[r + len] = c;
 	}
@@ -1160,19 +1450,37 @@ Sint32 LZH_Compress(void *infile, void *outfile,Uint32 DataLength,Uint16 PtrType
 		if (match_length <= THRESHOLD)
 		{
 			match_length = 1;
+
+// FIXME
+#if 0
 			EncodeChar((Sint32)&outfile,text_buf[r],PtrTypes);
+#endif // 0
+
+            ::EncodeChar(outfile, text_buf[r]);
 		}
 		else
 		{
+// FIXME
+#if 0
 			EncodeChar((Sint32)&outfile, 255 - THRESHOLD + match_length,PtrTypes);
 			EncodePosition((Sint32)&outfile, match_position,PtrTypes);
+#endif // 0
+
+            ::EncodeChar(outfile, 255 - THRESHOLD + match_length);
+            ::EncodePosition(outfile, match_position);
 		}
 
 		last_match_length = match_length;
 
 		for (i = 0; i < last_match_length && (DataLength > datasize); i++)
 		{
+// FIXME
+#if 0
 			c = CIO_ReadPtr((Sint32)&infile,PtrTypes);
+#endif // 0
+
+            c = ::CIO_ReadPtr(infile);
+
 			datasize++;
 
 			DeleteNode(s);
@@ -1204,7 +1512,12 @@ Sint32 LZH_Compress(void *infile, void *outfile,Uint32 DataLength,Uint16 PtrType
 
 	} while (len > 0);
 
+// FIXME
+#if 0
 	EncodeEnd((Sint32)&outfile,PtrTypes);
+#endif // 0
+
+    ::EncodeEnd(outfile);
 
 	if (LZH_CompressDisplayVector)
 		LZH_CompressDisplayVector(DataLength,DataLength);

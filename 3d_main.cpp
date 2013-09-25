@@ -991,7 +991,14 @@ void ReadInfo(boolean decompress,char *dst, Uint16 size, Sint16 file)
 		IO_FarRead(file,(char *)&csize,sizeof(csize));
 		IO_FarRead(file,lzh_work_buffer,csize);
 		checksum=DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),csize,checksum);
+
+// FIXME
+#if 0
 		dsize=LZH_Decompress(lzh_work_buffer,dst,size,csize,SRC_MEM|DEST_MEM);
+#endif // 0
+
+        dsize = ::LZH_Decompress(lzh_work_buffer, dst, size, csize);
+
 		if (dsize != size)
 			MAIN_ERROR(READINFO_BAD_DECOMP);
 	}
@@ -1013,7 +1020,13 @@ Uint16 WriteInfo(boolean compress, char *src, Uint16 size, Sint16 file)
 
 	if (compress)
 	{
+// FIXME
+#if 0
 		csize=LZH_Compress(src,lzh_work_buffer,size,SRC_MEM|DEST_MEM);
+#endif // 0
+
+        csize = ::LZH_Compress(src, lzh_work_buffer, size);
+
 		if (csize > LZH_WORK_BUFFER_SIZE)
 			MAIN_ERROR(WRITEINFO_BIGGER_BUF);
 		IO_FarWrite (file,(char *)&csize,sizeof(csize));

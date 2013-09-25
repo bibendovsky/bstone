@@ -88,7 +88,18 @@ int IO_LoadFile (const char* filename, void** dst)
 					return(0);
 #endif // 0
 
+// FIXME
+#if 0
 				LZH_Decompress((void *)handle,*dst,size,head.CompressLen,SRC_FILE|DEST_MEM);
+#endif // 0
+
+                {
+                std::auto_ptr<Uint8> buffer(new Uint8[head.CompressLen]);
+
+                ::LZH_Decompress(buffer.get(), *dst,
+                    size, head.CompressLen);
+                }
+
 				LZH_Shutdown();
 			break;
 

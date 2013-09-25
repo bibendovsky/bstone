@@ -14,7 +14,7 @@
 
 
 #ifndef _ID_HEADS_H_
-typedef Sint16 boolean;
+//typedef Sint16 boolean;
 #endif
 
 
@@ -105,8 +105,17 @@ typedef struct
 //
 //---------------------------------------------------------------------------
 
+// FIXME
+#if 0
 char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType);
 Sint16 CIO_ReadPtr(Sint32 infile, Uint16 PtrType);
+#endif // 0
 
+char CIO_WritePtr(
+    void*& dst,
+    Uint8 value);
+
+Sint16 CIO_ReadPtr(
+    const void*& src);
 
 #endif

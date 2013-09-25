@@ -4100,12 +4100,11 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
     if (!LZH_Startup())
         Quit("out of memory");
 
-    LZH_Decompress(
+    ::LZH_Decompress(
         chunk,
         dst,
         data_length,
-        CompHeader.CompressLen,
-        SRC_MEM | DEST_MEM);
+        CompHeader.CompressLen);
 
     LZH_Shutdown();
 

@@ -8,11 +8,12 @@
 //
 //
 
-#ifndef _ID_HEADS_H_
-typedef Sint16 boolean;
-#endif
+
+#include "SDL.h"
 
 
+// FIXME
+#if 0
 //==========================================================================
 //
 //	  							PARAMETER PASSING TYPES
@@ -35,7 +36,7 @@ typedef Sint16 boolean;
 #define DEST_IMEM				(0x0800)			// ID Memory alloc
 
 #define DEST_TYPES 			(DEST_FILE | DEST_FFILE | DEST_MEM | DEST_IMEM)
-
+#endif // 0
 
 
 //=========================================================================
@@ -79,7 +80,8 @@ struct JAMPHeader
 };
 
 
-
+// FIXME
+#if 0
 //---------------------------------------------------------------------------
 //
 //								FUNCTION PROTOTYPEING
@@ -88,5 +90,4 @@ struct JAMPHeader
 
 char WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType);
 Sint16 ReadPtr(Sint32 infile, Uint16 PtrType);
-
-
+#endif // 0

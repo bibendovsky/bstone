@@ -14,7 +14,9 @@
 #include <cstring>
 #include <sys\stat.h>
 
-#include <string>
+#include <fstream>
+#include <memory>
+#include <sstream>
 #include <vector>
 
 #include "SDL.h"
