@@ -65,11 +65,10 @@ public:
     // Reads a 64-bit float-point value.
     double read_r64();
 
-    // Skips a specified number of octets.
-    // Maybe be negative also.
-    // Returns false on error.
+    // Skips a specified number of octets forward if count positive
+    // or backward otherwise.
     bool skip(
-        int64_t count);
+        int count);
 
     // Returns a current position.
     int64_t get_position() const;

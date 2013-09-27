@@ -104,7 +104,8 @@ double MemoryBinaryReader::read_r64()
     return read<double>();
 }
 
-bool MemoryBinaryReader::skip(int64_t count)
+bool MemoryBinaryReader::skip(
+    int count)
 {
     if (!is_initialized())
         return false;

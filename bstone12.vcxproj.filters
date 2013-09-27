@@ -171,6 +171,9 @@
     <ClCompile Include="bstone_memory_stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bstone_binary_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -326,7 +329,7 @@
     <ClInclude Include="bstone_un_value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bstone_memory_stream.h">
+    <ClInclude Include="bstone_binary_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
