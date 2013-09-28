@@ -54,12 +54,8 @@ public:
         void* buffer,
         int count);
 
-    bool write(
-        const void* buffer,
-        int count);
-
-    // Skips a specified number of octets.
-    // Maybe be negative also.
+    // Skips a number of octets forward if count is positive or
+    // backward otherwise.
     // Returns false on error.
     bool skip(
         int count);

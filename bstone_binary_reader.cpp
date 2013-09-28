@@ -16,9 +16,15 @@ bool BinaryReader::open(
 {
     close();
 
+    if (stream == NULL)
+        return false;
+
+    if (!stream->can_read())
+        return false;
+
     stream_ = stream;
 
-    return is_open();
+    return true;
 }
 
 void BinaryReader::close()
@@ -89,16 +95,6 @@ bool BinaryReader::read(
         return false;
 
     return stream_->read(buffer, count) == count;
-}
-
-bool BinaryReader::write(
-    const void* buffer,
-    int count)
-{
-    if (!is_open())
-        return false;
-
-    return stream_->write(buffer, count);
 }
 
 bool BinaryReader::skip(
