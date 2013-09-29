@@ -87,6 +87,14 @@ public:
     virtual bool can_seek() const = 0;
 
     virtual bool can_write() const = 0;
+
+    // Copies the stream from a current position to
+    // an another stream using internal buffer.
+    bool copy_to(
+        IStream* dst_stream,
+        int buffer_size = 0);
+
+    static int get_default_copy_buffer_size();
 }; // class IStream
 
 
