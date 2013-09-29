@@ -254,7 +254,7 @@ char SaveGameNames[10][GAME_DESCRIPTION_LEN+1],SaveName[13]="SAVEGAM?.";
 
 #ifndef CACHE_KEY_DATA
 
-#define type_cast(x,y)  reinterpret_cast<x>(const_cast<char*>(y)), reinterpret_cast<x>(const_cast<char*>(y))
+#define type_cast(x,y) (reinterpret_cast<x>(const_cast<char*>(y)))
 
 static Uint8* ScanNames[] = { // Scan code names with single chars
     type_cast( Uint8*, "?"), type_cast( Uint8*, "?"),
