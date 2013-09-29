@@ -139,7 +139,11 @@ bool MemoryStream::set_size(
     int_buffer_.resize(static_cast<size_t>(size));
 
     size_ = size;
-    buffer_ = reinterpret_cast<Uint8*>(&int_buffer_[0]);
+
+    if (size_ > 0)
+        buffer_ = reinterpret_cast<Uint8*>(&int_buffer_[0]);
+    else
+        buffer_ = NULL;
 
     return true;
 }
@@ -225,6 +229,8 @@ int MemoryStream::read(
         &buffer_[position_],
         &buffer_[position_ + read_count],
         static_cast<Uint8*>(buffer));
+
+    position_ += read_count;
 
     return read_count;
 }
