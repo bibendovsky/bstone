@@ -313,5 +313,33 @@ const Uint8* MemoryStream::get_data() const
     return buffer_;
 }
 
+bool MemoryStream::remove_block(
+    Sint64 offset,
+    int count)
+{
+    if (!is_open())
+        return false;
+
+    if (offset < 0)
+        return false;
+
+    if (count < 0)
+        return false;
+
+    if (count == 0)
+        return true;
+
+    if ((offset + count) > size_)
+        return false;
+
+    int_buffer_.erase(
+        int_buffer_.begin() + offset,
+        int_buffer_.begin() + offset + count);
+
+    size_ -= count;
+
+    return true;
+}
+
 
 } // namespace bstone

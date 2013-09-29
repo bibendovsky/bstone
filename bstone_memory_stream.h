@@ -76,6 +76,10 @@ public:
 
     const Uint8* get_data() const;
 
+    bool remove_block(
+        Sint64 offset,
+        int count);
+
 private:
     typedef std::vector<UnValue<Uint8>> Buffer;
 
