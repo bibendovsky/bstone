@@ -3070,6 +3070,9 @@ void sd_play_sound(
     const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
         SoundTable[sound_index]);
 
+    if (sound == NULL)
+        return;
+
     if (SoundMode != sdm_Off && sound == NULL)
         SD_ERROR(SD_PLAYSOUND_UNCACHED);
 
