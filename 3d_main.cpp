@@ -7,6 +7,9 @@
 
 #include "jm_lzh.h"
 
+#include "bstone_binary_reader.h"
+#include "bstone_binary_writer.h"
+
 
 /*
 =============================================================================
@@ -126,7 +129,12 @@ Sint16                     minheightdiv;
 boolean         startgame,loadedgame;
 Sint16             mouseadjustment;
 
+// FIXME
+#if 0
 char	configname[13]="CONFIG.";
+#endif // 0
+
+const std::string g_config_file_name = "bstone_ps_config";
 
 Sint16 view_xl,view_xh,view_yl,view_yh;
 
@@ -746,6 +754,134 @@ static int get_state_index(statetype* state)
 bstone::MemoryStream g_playtemp;
 // BBi
 
+/*
+====================
+=
+= ReadConfig
+=
+====================
+*/
+
+void ReadConfig()
+{
+    int file;
+    SDMode sd = sdm_Off;
+    SMMode sm = smm_Off;
+    SDSMode sds = sds_Off;
+
+    bool config_found = false;
+    Uint16 flags = gamestate.flags;
+    MakeDestPath(g_config_file_name.c_str());
+
+    bstone::FileStream stream(tempPath);
+
+    if (stream.is_open()) {
+        bstone::BinaryReader reader(&stream);
+
+        for (int i = 0; i < MaxScores; ++i) {
+            HighScore* score = &Scores[i];
+
+            reader.read(score->name, sizeof(score->name));
+            reader.read(score->score);
+            reader.read(score->completed);
+            reader.read(score->episode);
+            reader.read(score->ratio);
+        }
+
+        reader.read(sd);
+        reader.read(sm);
+        reader.read(sds);
+
+        reader.read(mouseenabled);
+        reader.read(joystickenabled);
+        reader.read(joypadenabled);
+        reader.read(joystickprogressive);
+        reader.read(joystickport);
+
+        reader.read(dirscan);
+        reader.read(buttonscan);
+        reader.read(buttonmouse);
+        reader.read(buttonjoy);
+
+        reader.read(viewsize);
+        reader.read(mouseadjustment);
+
+        reader.read(flags); // Use temp so we don't destroy pre-sets.
+
+        flags &=
+            GS_HEARTB_SOUND |
+            GS_ATTACK_INFOAREA |
+            GS_LIGHTING |
+            GS_DRAW_CEILING |
+            GS_DRAW_FLOOR; // Mask out the useful flags!
+
+        gamestate.flags |= flags; // Must "OR", some flags are already set.
+
+        if (sd == sdm_AdLib &&
+            (!AdLibPresent || !SoundBlasterPresent))
+        {
+            sd = sdm_PC;
+            sd = sdm_Off;
+        }
+
+        if ((sds == sds_SoundBlaster && !SoundBlasterPresent) ||
+            (sds == sds_SoundSource && !SoundSourcePresent))
+            sds = sds_Off;
+
+        if (!MousePresent)
+            mouseenabled = false;
+
+        if (!JoysPresent[joystickport])
+            joystickenabled = false;
+
+        MainMenu[6].active = AT_ENABLED;
+        MainItems.curpos=0;
+
+        config_found = true;
+    }
+
+    if (!config_found || !viewsize) {
+        //
+        // no config file, so select by hardware
+        //
+        if (SoundBlasterPresent || AdLibPresent) {
+            sd = sdm_AdLib;
+            sm = smm_AdLib;
+        } else {
+            sd = sdm_PC;
+            sm = smm_Off;
+        }
+
+        if (SoundBlasterPresent)
+            sds = sds_SoundBlaster;
+        else if (SoundSourcePresent)
+            sds = sds_SoundSource;
+        else
+            sds = sds_Off;
+
+        if (MousePresent)
+            mouseenabled = true;
+
+        joystickenabled = false;
+        joypadenabled = false;
+        joystickport = 0;
+        joystickprogressive = false;
+
+        viewsize = 17;
+        mouseadjustment=5;
+        gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
+
+#ifdef CEILING_FLOOR_COLORS
+        gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
+#else
+        gamestate.flags |= GS_LIGHTING;
+#endif
+    }
+
+    SD_SetMusicMode(sm);
+    SD_SetSoundMode(sd);
+    SD_SetDigiDevice(sds);
+}
 
 /*
 ====================
@@ -755,6 +891,8 @@ bstone::MemoryStream g_playtemp;
 ====================
 */
 
+// FIXME
+#if 0
 void WriteConfig()
 {
     FILE* stream = NULL;
@@ -804,7 +942,56 @@ void WriteConfig()
         fclose(stream);
     }
 }
+#endif // 0
 
+void WriteConfig()
+{
+    MakeDestPath(g_config_file_name.c_str());
+
+    bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
+
+    if (!stream.is_open()) {
+        ::SDL_LogError(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "Failed to open a config file for writing: %s.",
+            tempPath);
+
+        return;
+    }
+
+    bstone::BinaryWriter writer(&stream);
+
+    Sint16 value_i16;
+
+    for (int i = 0; i < MaxScores; ++i) {
+        HighScore* score = &Scores[i];
+
+        writer.write(score->name, sizeof(score->name));
+        writer.write(score->score);
+        writer.write(score->completed);
+        writer.write(score->episode);
+        writer.write(score->ratio);
+    }
+
+    writer.write(SoundMode);
+    writer.write(MusicMode);
+    writer.write(DigiMode);
+
+    writer.write(mouseenabled);
+    writer.write(joystickenabled);
+    writer.write(joypadenabled);
+    writer.write(joystickprogressive);
+    writer.write(joystickport);
+
+    writer.write(dirscan);
+    writer.write(buttonscan);
+    writer.write(buttonmouse);
+    writer.write(buttonjoy);
+
+    writer.write(viewsize);
+    writer.write(mouseadjustment);
+    writer.write(gamestate.flags);
+}
 
 //===========================================================================
 

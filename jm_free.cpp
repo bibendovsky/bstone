@@ -31,6 +31,7 @@ void ShutdownId (void);
 void InitRedShifts (void);
 void CAL_OptimizeNodes (huffnode *table);
 void OpenAudioFile(void);
+void ReadConfig();
 
 
 #define SKIP_CHECKSUMS					(1)
@@ -1557,6 +1558,9 @@ void CAL_SetupMapFile()
 
 // --------------------- Other general functions ------------------------
 
+// FIXME
+// BBi Moved to 3d_main.cpp
+#if 0
 /*
 ====================
 =
@@ -1710,6 +1714,7 @@ void ReadConfig()
 	SD_SetDigiDevice (sds);
 
 }
+#endif // 0
 
 /*
 ========================
@@ -1835,7 +1840,11 @@ void CheckForEpisodes(void)
 	strcat(term_msg_name,extension);
 #endif
 
+// FIXME
+#if 0
 	strcat(configname,extension);
+#endif // 0
+
 	strcat(SaveName,extension);
 	strcat(PageFileName,extension);
 	strcat(audioname,extension);
