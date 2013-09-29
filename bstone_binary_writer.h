@@ -77,9 +77,6 @@ public:
     bool set_position(
         Sint64 position);
 
-private:
-    IStream* stream_;
-
     template<class T>
     bool write(
         T value)
@@ -89,6 +86,9 @@ private:
 
         return stream_->write(&value, sizeof(T));
     }
+
+private:
+    IStream* stream_;
 }; // class BinaryWriter
 
 
