@@ -21,7 +21,15 @@ class MemoryStream :
     public IStream
 {
 public:
-    MemoryStream();
+    MemoryStream(
+        int initial_capacity = 0,
+        StreamOpenMode open_mode = STREAM_OPEN_READ_WRITE);
+
+    MemoryStream(
+        int buffer_size,
+        int buffer_offset,
+        const Uint8* buffer,
+        StreamOpenMode open_mode = STREAM_OPEN_READ);
 
     bool open(
         int initial_capacity = 0,

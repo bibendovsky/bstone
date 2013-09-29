@@ -5,16 +5,36 @@
 namespace bstone {
 
 
-MemoryStream::MemoryStream() :
-    is_open_(false),
-    can_read_(false),
-    can_write_(false),
-    position_(0),
-    size_(0),
-    ext_size_(0),
-    buffer_(NULL),
-    ext_buffer_(NULL)
+MemoryStream::MemoryStream(
+    int initial_capacity,
+    StreamOpenMode open_mode) :
+        is_open_(false),
+        can_read_(false),
+        can_write_(false),
+        position_(0),
+        size_(0),
+        ext_size_(0),
+        buffer_(NULL),
+        ext_buffer_(NULL)
 {
+    open(initial_capacity, open_mode);
+}
+
+MemoryStream::MemoryStream(
+    int buffer_size,
+    int buffer_offset,
+    const Uint8* buffer,
+    StreamOpenMode open_mode) :
+        is_open_(false),
+        can_read_(false),
+        can_write_(false),
+        position_(0),
+        size_(0),
+        ext_size_(0),
+        buffer_(NULL),
+        ext_buffer_(NULL)
+{
+    open(buffer_size, buffer_offset, buffer, open_mode);
 }
 
 bool MemoryStream::open(
