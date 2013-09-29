@@ -286,7 +286,7 @@ bool FileStream::write(
     bool result = false;
 
     if (can_seek()) {
-        if (!stream_) {
+        if (stream_) {
             result = true;
             position_ += count;
         } else {
@@ -294,6 +294,9 @@ bool FileStream::write(
             std::ios::pos_type cur_pos = stream_.tellp();
             position_ = static_cast<Sint64>(cur_pos - std::ios::pos_type(0));
         }
+
+        if (position_ > size_)
+            size_ = position_;
 
         need_sync_read_position_ = true;
     } else
