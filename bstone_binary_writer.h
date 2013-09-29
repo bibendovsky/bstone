@@ -79,7 +79,7 @@ public:
 
     template<class T>
     bool write(
-        T value)
+        const T& value)
     {
         if (!is_open())
             return false;

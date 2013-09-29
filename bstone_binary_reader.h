@@ -54,6 +54,16 @@ public:
         void* buffer,
         int count);
 
+    template<class T>
+    bool read(
+        T& value)
+    {
+        if (!is_open())
+            return false;
+
+        return stream_->read(&value, sizeof(T)) == sizeof(T);
+    }
+
     // Skips a number of octets forward if count is positive or
     // backward otherwise.
     // Returns false on error.
