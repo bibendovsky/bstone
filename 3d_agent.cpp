@@ -116,6 +116,8 @@ char term_msg_name[13]= {"TERM_MSG."};
 Uint16 player_oldtilex;
 Uint16 player_oldtiley;
 
+// BBi
+extern bstone::MemoryStream g_playtemp;
 
 /*
 =============================================================================
@@ -128,8 +130,16 @@ Uint16 player_oldtiley;
 void writeTokenStr(char *str);
 
 void ShowOverheadChunk(void);
+
+// FIXME
+#if 0
 void LoadOverheadChunk(Sint16 tpNum);
 void SaveOverheadChunk(Sint16 tpNum);
+#endif // 0
+
+void LoadOverheadChunk(int tpNum);
+void SaveOverheadChunk(int tpNum);
+
 void DisplayTeleportName(char tpNum, boolean locked);
 
 void ForceUpdateStatusBar(void);
@@ -3313,6 +3323,9 @@ void ShowOverheadChunk(void)
 //--------------------------------------------------------------------------
 // LoadOverheadChunk()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void LoadOverheadChunk(Sint16 tpNum)
 {
 	Sint16 handle;
@@ -3344,10 +3357,36 @@ void LoadOverheadChunk(Sint16 tpNum)
 //
 	close(handle);
 }
+#endif // 0
+
+void LoadOverheadChunk(
+    int tpNum)
+{
+    char chunk[5]="OVxx";
+
+    // Find and load chunk
+    //
+    ::g_playtemp.set_position(0);
+
+    ::sprintf(&chunk[2],"%02x",tpNum);
+
+    if (::FindChunk(&g_playtemp, chunk)) {
+        ov_noImage = false;
+        g_playtemp.read(ov_buffer, 4096);
+        g_playtemp.read(&ov_stats, sizeof(statsInfoType));
+    } else {
+        ov_noImage = true;
+        ::memset(ov_buffer, 0x52, 4096);
+        ::memset(&ov_stats, 0, sizeof(statsInfoType));
+    }
+}
 
 //--------------------------------------------------------------------------
 // SaveOverheadChunk()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void SaveOverheadChunk(Sint16 tpNum)
 {
 	Sint16 handle;
@@ -3379,6 +3418,31 @@ void SaveOverheadChunk(Sint16 tpNum)
 // Close file
 //
 	close(handle);
+}
+#endif // 0
+
+void SaveOverheadChunk(
+    int tpNum)
+{
+    Sint32 cksize = 4096 + sizeof(statsInfoType);
+    char chunk[5]="OVxx";
+
+    // Remove level chunk from file
+    //
+    ::sprintf(&chunk[2],"%02x",tpNum);
+    ::DeleteChunk(&g_playtemp, chunk);
+
+    // Prepare buffer
+    //
+    ::VL_ScreenToMem(static_cast<Uint8*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
+
+    // Write chunk ID, SIZE, and IMAGE
+    //
+    g_playtemp.seek(0, bstone::STREAM_SEEK_END);
+    g_playtemp.write(chunk, 4);
+    g_playtemp.write(&cksize, sizeof(cksize));
+    g_playtemp.write(ov_buffer, 4096);
+    g_playtemp.write(&ov_stats, sizeof(statsInfoType));
 }
 
 //--------------------------------------------------------------------------

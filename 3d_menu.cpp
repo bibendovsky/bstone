@@ -24,6 +24,9 @@ void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
 boolean LoadTheGame(int handle);
 boolean IN_CheckAck();
 
+// BBi
+bool LoadTheGame(
+    bstone::IStream* stream);
 
 // As is, this switch will not work ... the data associated with this
 // is not saved out correctly.
@@ -1539,6 +1542,9 @@ void DrawLSAction(Sint16 which)
 //--------------------------------------------------------------------------
 // CP_LoadGame() - LOAD SAVED GAMES
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint16 CP_LoadGame(Sint16 quick)
 {
  Sint16 handle,which,exit=0;
@@ -1616,6 +1622,82 @@ restart:
 
  return exit;
 }
+#endif // 0
+
+Sint16 CP_LoadGame(
+    Sint16 quick)
+{
+    Sint16 which;
+    Sint16 exit = 0;
+    char name[13];
+
+    strcpy(name, SaveName);
+
+    //
+    // QUICKLOAD?
+    //
+    if (quick) {
+        which = LSItems.curpos;
+
+        if (SaveGamesAvail[which]) {
+            name[7] = which + '0';
+            MakeDestPath(name);
+            bstone::FileStream handle(tempPath);
+            DrawLSAction(0); // Testing...
+            if (!(loadedgame = ::LoadTheGame(&handle)))
+                LS_current = -1; // clean up
+
+            return loadedgame;
+        }
+    }
+
+restart:
+
+    DrawLoadSaveScreen(0);
+
+    do {
+        which = HandleMenu(&LSItems, &LSMenu[0], TrackWhichGame);
+
+        if (which >= 0 && SaveGamesAvail[which]) {
+            ShootSnd();
+            name[7] = which + '0';
+
+            MakeDestPath(name);
+
+            bstone::FileStream handle(tempPath);
+
+            DrawLSAction(0);
+
+            if (!::LoadTheGame(&handle)) {
+                exit = 0;
+                StartGame = 0;
+                loadedgame = 0;
+                LS_current = -1; // Clean up
+                goto restart;
+            }
+
+            loadedgame = true;
+            StartGame= true;
+
+            ::ShootSnd();
+
+            //
+            // CHANGE "READ THIS!" TO NORMAL COLOR
+            //
+            MainMenu[MM_READ_THIS].active = AT_ENABLED;
+            exit = 1;
+            break;
+        }
+    } while (which >= 0);
+
+    if (which == -1)
+        MenuFadeOut();
+
+    if (loadedgame)
+        refresh_screen = false;
+
+    return exit;
+}
 
 ///////////////////////////////////
 //
@@ -1688,6 +1770,9 @@ void PrintLSEntry(Sint16 w,Sint16 color)
 //--------------------------------------------------------------------------
 // SAVE CURRENT GAME
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint16 CP_SaveGame(Sint16 quick)
 {
 
@@ -1807,6 +1892,120 @@ Sint16 CP_SaveGame(Sint16 quick)
  	use_custom_cursor = false;
    allcaps = temp_caps;
  	return exit;
+}
+#endif // 0
+
+Sint16 CP_SaveGame(
+    Sint16 quick)
+{
+    Sint16 handle,which,exit=0;
+    char name[13],input[GAME_DESCRIPTION_LEN+1];
+    boolean temp_caps = allcaps;
+    US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
+
+    strcpy(name,SaveName);
+
+    allcaps = true;
+    use_custom_cursor = true;
+    US_CustomCursor = TermCursor;
+
+    //
+    // QUICKSAVE?
+    //
+    if (quick)
+    {
+        which=LSItems.curpos;
+
+        if (SaveGamesAvail[which])
+        {
+            DrawLSAction(1); // Testing...
+            name[7]=which+'0';
+            MakeDestPath(name);
+
+            bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
+
+            SaveTheGame(&stream, &SaveGameNames[which][0]);
+
+            return 1;
+        }
+    }
+
+    DrawLoadSaveScreen(1);
+
+    do
+    {
+        which=HandleMenu(&LSItems,&LSMenu[0],TrackWhichGame);
+        if (which>=0)
+        {
+            //
+            // OVERWRITE EXISTING SAVEGAME?
+            //
+            if (SaveGamesAvail[which])
+            {
+                if (!Confirm(GAMESVD))
+                {
+                    DrawLoadSaveScreen(1);
+                    continue;
+                }
+                else
+                {
+                    DrawLoadSaveScreen(1);
+                    PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
+                    VW_UpdateScreen();
+                }
+            }
+
+            ShootSnd();
+
+            strcpy(input,&SaveGameNames[which][0]);
+            name[7]=which+'0';
+
+            fontnumber=2;
+            VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,HIGHLIGHT_BOX_COLOR);
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,HIGHLIGHT_BOX_COLOR);
+            VW_UpdateScreen();
+
+
+            if (US_LineInput(LSM_X+LSItems.indent+2,LSM_Y+which*LSItems.y_spacing,input,input,true,GAME_DESCRIPTION_LEN,LSM_W-LSItems.indent-10))
+            {
+                SaveGamesAvail[which]=1;
+                strcpy(&SaveGameNames[which][0],input);
+
+                MakeDestPath(name);
+                bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
+
+                DrawLSAction(1);
+                SaveTheGame(&stream,input);
+
+                ShootSnd();
+                exit=1;
+            }
+            else
+            {
+                VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,TERM_BACK_COLOR);
+                PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
+                VW_UpdateScreen();
+
+                // FIXME
+#if 0
+                SD_PlaySound(ESCPRESSEDSND);
+#endif // 0
+
+                ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+
+                continue;
+            }
+
+            fontnumber=1;
+            break;
+        }
+
+    } while(which>=0);
+
+    MenuFadeOut();
+    use_custom_cursor = false;
+    allcaps = temp_caps;
+    return exit;
 }
 
 //--------------------------------------------------------------------------
@@ -3100,10 +3299,11 @@ void SetupControlPanel(void)
 //---------------------------------------------------------------------------
 // ReadGameNames()
 //---------------------------------------------------------------------------
-void ReadGameNames()
-{
+
 // FIXME
 #if 0
+void ReadGameNames()
+{
 	struct ffblk f;
 	char name[13];
 	Sint16 which;
@@ -3134,46 +3334,36 @@ void ReadGameNames()
 				close(handle);
 			}
 		} while(!findnext(&f));
+}
 #endif // 0
 
-    // FIXME Make cross-platform
+void ReadGameNames()
+{
     char name[13];
-    int which;
-    intptr_t search_handle;
-    struct _finddata_t search_buffer;
 
-    // See which save game files are available & read string in
+    for (int i = 0; i < 10; ++i) {
+        ::strcpy(name, SaveName);
 
-    strcpy(name, SaveName);
-    MakeDestPath(name);
+        name[7] = '0' + i;
+        ::MakeDestPath(name);
 
-    search_handle = _findfirst(tempPath, &search_buffer);
+        char temp[GAME_DESCRIPTION_LEN+1];
 
-    if (search_handle == -1)
-        return;
+        bstone::FileStream stream(tempPath);
 
-    do {
-        which = search_buffer.name[7] - '0';
+        if (!stream.is_open())
+            continue;
 
-        if (which < 10) {
-            int handle;
-            char temp[GAME_DESCRIPTION_LEN+1];
+        SaveGamesAvail[i] = 1;
 
-            SaveGamesAvail[which] = 1;
-            MakeDestPath(search_buffer.name);
-            handle = open(tempPath, O_RDONLY | O_BINARY);
+        int chunk_size = ::FindChunk(&stream, "DESC");
 
-            if (FindChunk(handle, "DESC")) {
-                read(handle, temp, GAME_DESCRIPTION_LEN + 1);
-                strcpy(&SaveGameNames[which][0], temp);
-            } else
-                strcpy(&SaveGameNames[which][0], "DESCRIPTION LOST");
-
-            close(handle);
-        }
-    } while(_findnext(search_handle, &search_buffer) == 0);
-
-    _findclose(search_handle);
+        if (chunk_size > 0) {
+            stream.read(temp, chunk_size);
+            ::strcpy(&SaveGameNames[i][0], temp);
+        } else
+            ::strcpy(&SaveGameNames[i][0], "DESCRIPTION LOST");
+    }
 }
 
 //---------------------------------------------------------------------------

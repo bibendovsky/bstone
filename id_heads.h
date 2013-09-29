@@ -14,12 +14,14 @@
 #include <cstring>
 #include <sys\stat.h>
 
-#include <fstream>
 #include <memory>
-#include <sstream>
 #include <vector>
 
 #include "SDL.h"
+
+#include "bstone_file_stream.h"
+#include "bstone_memory_stream.h"
+
 
 #ifndef MSVC
 #define ultoa _ultoa

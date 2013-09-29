@@ -95,7 +95,7 @@ char tempPath[MAX_DEST_PATH_LEN+15];
 char bc_buffer[]=BETA_CODE;
 #endif
 
-void InitPlaytemp(void);
+void InitPlaytemp();
 
 
 char QuitMsg[] = {"Unit: $%02x Error: $%02x"};
@@ -742,6 +742,8 @@ static int get_state_index(statetype* state)
 
     return -1;
 }
+
+bstone::MemoryStream g_playtemp;
 // BBi
 
 
@@ -886,6 +888,11 @@ void NewGame (Sint16 difficulty,Sint16 episode)
 	ExtraRadarFlags = InstantWin = InstantQuit = 0;
 
 	pickquick = 0;
+
+    // BBi
+    g_playtemp.set_size(0);
+    g_playtemp.set_position(0);
+    // BBi
 }
 
 //===========================================================================
@@ -896,7 +903,13 @@ void NewGame (Sint16 difficulty,Sint16 episode)
 //
 //==========================================================================
 
+// FIXME
+#if 0
 boolean LevelInPlaytemp(char levelnum);
+#endif // 0
+
+bool LevelInPlaytemp(
+    int level_index);
 
 #define WriteIt(c,p,s)	cksize+=WriteInfo(c,(char *)p,s,handle)
 #define ReadIt(d,p,s)	ReadInfo(d,(char *)p,s,handle)
@@ -909,6 +922,9 @@ Sint32 checksum;
 //--------------------------------------------------------------------------
 // InitPlaytemp()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 void InitPlaytemp()
 {
 	Sint16 handle;
@@ -918,6 +934,14 @@ void InitPlaytemp()
 		MAIN_ERROR(INITPLAYTEMP_OPEN_ERR);
 
 	close(handle);
+}
+#endif // 0
+
+void InitPlaytemp()
+{
+    g_playtemp.open(1 * 1024 * 1024);
+    g_playtemp.set_size(0);
+    g_playtemp.set_position(0);
 }
 
 //--------------------------------------------------------------------------
@@ -936,6 +960,9 @@ Sint32 DoChecksum(Uint8 *source,Uint16 size,Sint32 checksum)
 //--------------------------------------------------------------------------
 // FindChunk()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint32 FindChunk(Sint16 file, const char *chunk)
 {
 	Sint32 chunklen;
@@ -956,10 +983,45 @@ Sint32 FindChunk(Sint16 file, const char *chunk)
 	lseek(file,0,SEEK_END);						// make sure we're at the end
 	return(0);
 }
+#endif // 0
+
+int FindChunk(
+    bstone::IStream* stream,
+    const std::string& chunk_name)
+{
+    char name_buffer[5];
+    name_buffer[4] = '\0';
+    std::string name;
+
+    while (true) {
+        if (stream->read(name_buffer, 4) != 4)
+            break;
+
+        Sint32 chunk_size = 0;
+
+        if (stream->read(&chunk_size, 4) != 4)
+            break;
+
+        chunk_size = SDL_SwapLE32(chunk_size);
+
+        name = name_buffer;
+
+        if (name.find(chunk_name) != std::string::npos)
+            return chunk_size;
+
+        stream->skip(chunk_size);
+    }
+
+    stream->seek(0, bstone::STREAM_SEEK_END);
+    return 0;
+}
 
 //--------------------------------------------------------------------------
 // NextChunk()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint32 NextChunk(Sint16 file)
 {
 	Sint32 chunklen;
@@ -973,6 +1035,29 @@ Sint32 NextChunk(Sint16 file)
 
 	read(file,&chunklen,4);					// read chunk length
 	return(chunklen);
+}
+#endif // 0
+
+int NextChunk(
+    bstone::IStream* stream)
+{
+    bool is_succeed = true;
+
+    if (is_succeed) {
+        char name_buffer[4];
+        is_succeed = (stream->read(name_buffer, 4) == 4);
+    }
+
+    Sint32 chunk_size = 0;
+
+    if (is_succeed)
+        is_succeed = (stream->read(&chunk_size, 4) == 4);
+
+    if (is_succeed)
+        return chunk_size;
+
+    stream->seek(0, bstone::STREAM_SEEK_END);
+    return 0;
 }
 
 char LS_current=-1,LS_total=-1;
@@ -1009,6 +1094,34 @@ void ReadInfo(boolean decompress,char *dst, Uint16 size, Sint16 file)
 	}
 }
 
+// BBi
+void ReadInfo(
+    boolean decompress,
+    char* dst,
+    int size,
+    bstone::IStream* stream)
+{
+    ::PreloadUpdate(LS_current++, LS_total);
+
+    if (decompress) {
+        Uint16 csize = 0;
+        stream->read(&csize, 2);
+        csize = SDL_SwapLE16(csize);
+        stream->read(lzh_work_buffer, csize);
+        checksum = ::DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),
+            csize, checksum);
+        int dsize = ::LZH_Decompress(lzh_work_buffer, dst, size, csize);
+
+        if (dsize != size)
+            MAIN_ERROR(READINFO_BAD_DECOMP);
+    } else {
+        stream->read(dst, size);
+        checksum = ::DoChecksum(reinterpret_cast<Uint8*>(dst),
+            size, checksum);
+    }
+}
+// BBi
+
 //--------------------------------------------------------------------------
 // WriteInfo()
 //--------------------------------------------------------------------------
@@ -1044,6 +1157,41 @@ Uint16 WriteInfo(boolean compress, char *src, Uint16 size, Sint16 file)
 	return(csize);
 }
 
+int WriteInfo(
+    bool compress,
+    const char* src,
+    int size,
+    bstone::IStream* stream)
+{
+    ::PreloadUpdate(LS_current++, LS_total);
+
+    Uint16 csize;
+
+    if (compress) {
+        csize = ::LZH_Compress(src, lzh_work_buffer, size);
+
+        if (csize > LZH_WORK_BUFFER_SIZE)
+            MAIN_ERROR(WRITEINFO_BIGGER_BUF);
+
+        stream->write(&csize, sizeof(csize));
+        stream->write(lzh_work_buffer, csize);
+
+        checksum = ::DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),
+            csize, checksum);
+
+        csize += sizeof(csize);
+    } else {
+        stream->write(src, size);
+
+        checksum = ::DoChecksum(
+            const_cast<Uint8*>(reinterpret_cast<const Uint8*>(src)),
+            size, checksum);
+
+        csize = size;
+    }
+
+    return csize;
+}
 
 
 //--------------------------------------------------------------------------
@@ -1239,7 +1387,8 @@ overlay:;
 }
 #endif // 0
 
-boolean LoadLevel(int levelnum)
+bool LoadLevel(
+    int levelnum)
 {
     extern boolean ShowQuickMsg;
     extern boolean ForceLoadDefault;
@@ -1250,7 +1399,7 @@ boolean LoadLevel(int levelnum)
     boolean oldloaded = loadedgame;
     Sint32 oldchecksum;
     objtype* ob;
-    Sint16 handle;
+    bstone::IStream* handle = &g_playtemp;
     void* temp;
     Uint16 count;
     objtype* ptr;
@@ -1264,31 +1413,28 @@ boolean LoadLevel(int levelnum)
     char mod;
 
     WindowY = 181;
-    gamestuff.level[levelnum].locked=false;
+    gamestuff.level[levelnum].locked = false;
 
     mod = levelnum % 6;
     normalshade_div = nsd_table[mod];
     shade_max = sm_table[mod];
     normalshade = (3 * (maxscale >> 2)) / normalshade_div;
 
-    // Open PLAYTEMP file
-    //
-    MakeDestPath(PLAYTEMP_FILE);
-    handle = open(tempPath, O_RDONLY | O_BINARY);
-
-    // If level exists in PLAYTEMP file, use it; otherwise, load it from scratch!
-    //
     sprintf(&chunk[2], "%02x",levelnum);
 
-    if ((handle == -1) || (!FindChunk(handle, chunk)) || ForceLoadDefault) {
-        close(handle);
+    g_playtemp.set_position(0);
 
-        PreloadUpdate(LS_current + ((LS_total - LS_current) >> 1), LS_total);
-        SetupGameLevel();
+    if ((::FindChunk(handle, chunk) == 0) || ForceLoadDefault) {
+        ::PreloadUpdate(
+            LS_current + ((LS_total - LS_current) >> 1),
+            LS_total);
+
+        ::SetupGameLevel();
+
         gamestate.flags |= GS_VIRGIN_LEVEL;
         gamestate.turn_around = 0;
 
-        PreloadUpdate(1, 1);
+        ::PreloadUpdate(1, 1);
         ForceLoadDefault = false;
         goto overlay;
     }
@@ -1300,7 +1446,7 @@ boolean LoadLevel(int levelnum)
     checksum = 0;
 
     loadedgame = true;
-    SetupGameLevel();
+    ::SetupGameLevel();
     loadedgame = oldloaded;
 
     ReadIt(false, tilemap, sizeof(tilemap));
@@ -1310,7 +1456,7 @@ boolean LoadLevel(int levelnum)
 
     for (i = 0; i < MAPSIZE; ++i) {
         for (j = 0; j < MAPSIZE; ++j) {
-            size_t value = (size_t)(*actorat_ptr);
+            size_t value = reinterpret_cast<size_t>(*actorat_ptr);
 
             if ((value & 0x80000000) != 0) {
                 value ^= 0x80000000;
@@ -1329,25 +1475,25 @@ boolean LoadLevel(int levelnum)
     ReadIt(false, &count, sizeof(count));
     temp = malloc(count * sizeof(objtype));
     ReadIt(false, temp, count * sizeof(objtype));
-    ptr = (objtype*)temp;
+    ptr = static_cast<objtype*>(temp);
 
     // start with "player" actor
-    InitActorList();
+    ::InitActorList();
 
     ob_size = offsetof(objtype, next);
 
     // don't copy over links!
-    memcpy(new_actor, ptr, ob_size);
+    ::memcpy(new_actor, ptr, ob_size);
 
     new_actor->state = states_list[(size_t)new_actor->state];
 
     ++ptr;
 
     while (--count) {
-        GetNewActor();
+        ::GetNewActor();
 
         // don't copy over links!
-        memcpy(new_actor, ptr, ob_size);
+        ::memcpy(new_actor, ptr, ob_size);
 
         actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
@@ -1361,7 +1507,7 @@ boolean LoadLevel(int levelnum)
         ++ptr;
     }
 
-    free(temp);
+    ::free(temp);
     temp = NULL;
 
 
@@ -1370,20 +1516,24 @@ boolean LoadLevel(int levelnum)
     //
 
     ob = objlist;
+
     do {
         switch (ob->obclass) {
         case arc_barrierobj:
         case post_barrierobj:
         case vspike_barrierobj:
         case vpost_barrierobj:
-            ob->temp2 = ScanBarrierTable(ob->tilex, ob->tiley);
+            ob->temp2 = ::ScanBarrierTable(ob->tilex, ob->tiley);
             break;
+
         default:
             break;
         }
-    } while ((ob = ob->next) != NULL);
 
-    ConnectBarriers();
+        ob = ob->next;
+    } while (ob != NULL);
+
+    ::ConnectBarriers();
 
     // Read all sorts of stuff...
     //
@@ -1397,9 +1547,10 @@ boolean LoadLevel(int levelnum)
     for (i = 0; i < MAXSTATS; ++i) {
         ptrdiff_t offset = (ptrdiff_t)statobjlist[i].visspot;
 
-        if (offset >= 0)
-            statobjlist[i].visspot = &((Uint8*)spotvis)[offset];
-        else
+        if (offset >= 0) {
+            statobjlist[i].visspot =
+                &(reinterpret_cast<Uint8*>(spotvis))[offset];
+        } else
             statobjlist[i].visspot = NULL;
     }
 
@@ -1425,8 +1576,8 @@ boolean LoadLevel(int levelnum)
 
     // Read and evaluate checksum
     //
-    PreloadUpdate(LS_current++, LS_total);
-    IO_FarRead(handle, &oldchecksum, sizeof(oldchecksum));
+    ::PreloadUpdate(LS_current++, LS_total);
+    handle->read(&oldchecksum, sizeof(oldchecksum));
 
     if (oldchecksum != checksum) {
         Sint16 old_wx = WindowX;
@@ -1441,7 +1592,7 @@ boolean LoadLevel(int levelnum)
         WindowW = 320;
         WindowH = 168;
 
-        CacheMessage(BADINFO_TEXT);
+        ::CacheMessage(BADINFO_TEXT);
 
         WindowX = old_wx;
         WindowY = old_wy;
@@ -1451,8 +1602,8 @@ boolean LoadLevel(int levelnum)
         px = old_px;
         py = old_py;
 
-        IN_ClearKeysDown();
-        IN_Ack();
+        ::IN_ClearKeysDown();
+        ::IN_Ack();
 
         gamestate.score = 0;
         gamestate.nextextra = EXTRAPOINTS;
@@ -1464,13 +1615,11 @@ boolean LoadLevel(int levelnum)
         gamestate.ammo = 8;
     }
 
-    close(handle);
-
-    NewViewSize(viewsize);
+    ::NewViewSize(viewsize);
 
     // Check for Strange Door and Actor combos
     //
-    CleanUpDoors_N_Actors();
+    ::CleanUpDoors_N_Actors();
 
 overlay:
 
@@ -1594,13 +1743,14 @@ exit_func:;
 }
 #endif // 0
 
-boolean SaveLevel(int levelnum)
+bool SaveLevel(
+    int level_index)
 {
     int i;
     int j;
     objtype* ob;
-    Sint16 handle;
-    Sint32 offset;
+    bstone::IStream* handle = &g_playtemp;
+    Sint64 offset;
     Sint32 cksize;
     char chunk[5] = "LVxx";
     Uint16 gflags = gamestate.flags;
@@ -1625,26 +1775,19 @@ boolean SaveLevel(int levelnum)
     //
     gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
-    // Open PLAYTEMP file
-    //
-    MakeDestPath(PLAYTEMP_FILE);
-
-    handle = open(tempPath, O_CREAT | O_RDWR | O_BINARY, S_IREAD | S_IWRITE);
-
-    if (handle == -1)
-        MAIN_ERROR(SAVELEVEL_DISKERR);
-
     // Remove level chunk from file
     //
-    sprintf(&chunk[2], "%02x", levelnum);
-    DeleteChunk(handle, chunk);
+    ::sprintf(&chunk[2], "%02x", level_index);
+    ::DeleteChunk(handle, chunk);
+
+    handle->seek(0, bstone::STREAM_SEEK_END);
 
     // Write level chunk id
     //
-    write(handle, chunk, 4);
+    handle->write(chunk, 4);
 
     // leave four bytes for chunk size
-    lseek(handle, 4, SEEK_CUR);
+    handle->skip(4);
 
     checksum = 0;
     cksize = 0;
@@ -1673,7 +1816,7 @@ boolean SaveLevel(int levelnum)
     }
 
     WriteIt(false, temp, sizeof(actorat));
-    free(temp);
+    ::free(temp);
 
     WriteIt(false, areaconnect, sizeof(areaconnect));
     WriteIt(false, areabyplayer, sizeof(areabyplayer));
@@ -1702,7 +1845,7 @@ boolean SaveLevel(int levelnum)
 
     WriteIt(false, &count, sizeof(count));
     WriteIt(false, temp, count * sizeof(objtype));
-    free(temp);
+    ::free(temp);
 
     //
     // laststatobj
@@ -1732,7 +1875,7 @@ boolean SaveLevel(int levelnum)
     }
 
     WriteIt(false, temp, sizeof(statobjlist));
-    free(temp);
+    ::free(temp);
 
     WriteIt(false, doorposition, sizeof(doorposition));
     WriteIt(false, doorobjlist, sizeof(doorobjlist));
@@ -1753,19 +1896,17 @@ boolean SaveLevel(int levelnum)
     // Write checksum and determine size of file
     //
     WriteIt(false, &checksum, sizeof(checksum));
-    offset = tell(handle);
+    offset = handle->get_position();
 
     // Write chunk size, set file size, and close file
     //
-    lseek(handle, -(cksize + 4), SEEK_CUR);
-    write(handle, &cksize, 4);
-
-    chsize(handle, offset);
-    close(handle);
+    handle->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
+    handle->write(&cksize, 4);
+    handle->set_size(offset);
 
     rt_value = true;
 
-    NewViewSize(viewsize);
+    ::NewViewSize(viewsize);
     gamestate.flags = gflags;
 
     return rt_value;
@@ -1774,6 +1915,9 @@ boolean SaveLevel(int levelnum)
 //--------------------------------------------------------------------------
 // DeleteChunk()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 Sint32 DeleteChunk(Sint16 handle, const char *chunk)
 {
 	Sint32 filesize,cksize,offset,bmove;
@@ -1813,6 +1957,28 @@ Sint32 DeleteChunk(Sint16 handle, const char *chunk)
 	}
 
 	return(cksize);
+}
+#endif // 0
+
+int DeleteChunk(
+    bstone::IStream* stream,
+    const std::string& chunk_name)
+{
+    stream->set_position(0);
+
+    int chunk_size = ::FindChunk(stream, chunk_name);
+
+    if (chunk_size > 0) {
+        bstone::MemoryStream* m_stream =
+            static_cast<bstone::MemoryStream*>(stream);
+
+        Sint64 offset = m_stream->get_position() - 8;
+        int count = chunk_size + 8;
+
+        m_stream->remove_block(offset, count);
+    }
+
+    return chunk_size;
 }
 
 
@@ -1951,25 +2117,29 @@ cleanup:;
 }
 #endif // 0
 
-boolean LoadTheGame(int handle)
+bool LoadTheGame(
+    bstone::IStream* stream)
 {
-    extern Sint16 lastmenumusic;
+    if (stream == NULL)
+        goto cleanup;
 
-    int shandle;
+    g_playtemp.set_size(0);
+    g_playtemp.set_position(0);
+
+    bstone::IStream* handle = stream;
     Sint32 cksize;
-    void* temp = NULL;
-    boolean rt_value = false;
+    bool rt_value = false;
     char InfoSpace[400];
 
     // Read in VERSion chunk
     //
-    if (!FindChunk(handle, "VERS"))
+    if (::FindChunk(stream, "VERS") == 0)
         goto cleanup;
 
     cksize = sizeof(SavegameInfoText);
-    read(handle, InfoSpace, cksize);
+    stream->read(InfoSpace, cksize);
 
-    if (memcmp(InfoSpace, SavegameInfoText, cksize) != 0) {
+    if (::memcmp(InfoSpace, SavegameInfoText, cksize) != 0) {
         // Old Version of game
 
         Sint16 old_wx = WindowX;
@@ -1984,12 +2154,7 @@ boolean LoadTheGame(int handle)
         WindowW = 320;
         WindowH = 168;
 
-        CacheMessage(BADSAVEGAME_TEXT);
-
-// FIXME
-#if 0
-        SD_PlaySound(NOWAYSND);
-#endif // 0
+        ::CacheMessage(BADSAVEGAME_TEXT);
 
         ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 
@@ -2001,10 +2166,10 @@ boolean LoadTheGame(int handle)
         px = old_px;
         py = old_py;
 
-        IN_ClearKeysDown();
-        IN_Ack();
+        ::IN_ClearKeysDown();
+        ::IN_Ack();
 
-        VW_FadeOut();
+        ::VW_FadeOut();
         screenfaded = true;
 
         goto cleanup;
@@ -2012,7 +2177,7 @@ boolean LoadTheGame(int handle)
 
     // Read in HEAD chunk
     //
-    if (!FindChunk(handle, "HEAD"))
+    if (::FindChunk(stream, "HEAD") == 0)
         goto cleanup;
 
     ReadIt(false, &gamestate, sizeof(gamestate));
@@ -2021,66 +2186,38 @@ boolean LoadTheGame(int handle)
 
     ReadIt(false, &gamestuff, sizeof(gamestuff));
 
+#if DUAL_SWAP_FILES
     // Reinitialize page manager
     //
-#if DUAL_SWAP_FILES
     PM_Shutdown();
     PM_Startup ();
     PM_UnlockMainMem();
 #endif
 
-
     // Start music for the starting level in this loaded game.
     //
+    ::FreeMusic();
+    ::StartMusic(false);
 
-    FreeMusic();
-    StartMusic(false);
-
-    // Copy all remaining chunks to PLAYTEMP file
-    //
-    MakeDestPath(PLAYTEMP_FILE);
-
-    shandle = open(
-        tempPath,
-        O_CREAT | O_RDWR | O_TRUNC | O_BINARY,
-        S_IREAD | S_IWRITE);
-
-    if (shandle == -1)
+    if (!stream->copy_to(&g_playtemp)) {
+        g_playtemp.set_size(0);
         goto cleanup;
-
-    while (cksize = NextChunk(handle)) {
-        // include chunk ID and LENGTH
-        cksize += 8;
-
-        lseek(handle, -8, SEEK_CUR);
-        temp = malloc(cksize);
-
-        // read chunk from SAVEGAME file
-        IO_FarRead(handle,temp,cksize);
-
-        // write chunk to PLAYTEMP file
-        IO_FarWrite(shandle,temp,cksize);
-
-        free(temp);
     }
 
-    close(shandle);
     rt_value = true;
 
 cleanup:
-    NewViewSize(viewsize);
+    ::NewViewSize(viewsize);
 
     // Load current level
     //
     if (rt_value) {
-        LoadLevel(0xff);
+        ::LoadLevel(0xFF);
         ShowQuickMsg = false;
     }
 
     return rt_value;
 }
-
-
 
 //--------------------------------------------------------------------------
 // SaveTheGame()
@@ -2173,10 +2310,13 @@ cleanup:;
 }
 #endif // 0
 
-boolean SaveTheGame(int handle, const char* description)
+bool SaveTheGame(
+    bstone::IStream* stream,
+    const std::string& description)
 {
-    Uint32 cksize;
-    int shandle;
+    bstone::IStream* handle = stream;
+
+    Sint32 cksize;
     char nbuff[GAME_DESCRIPTION_LEN + 1];
     boolean rt_value = false;
 
@@ -2187,50 +2327,43 @@ boolean SaveTheGame(int handle, const char* description)
     // Write VERSion chunk
     //
     cksize = sizeof(SavegameInfoText);
-    write(handle, "VERS", 4);
-    write(handle, &cksize, 4);
-    IO_FarWrite(handle, SavegameInfoText, cksize);
+    stream->write("VERS", 4);
+    stream->write(&cksize, 4);
+    stream->write(SavegameInfoText, cksize);
 
     // Write DESC chunk
     //
-    memcpy(nbuff, description, sizeof(nbuff));
+    memcpy(nbuff, description.c_str(), sizeof(nbuff));
     cksize = strlen(nbuff) + 1;
-    write(handle, "DESC", 4);
-    write(handle, &cksize, 4);
-    write(handle, nbuff, cksize);
+    stream->write("DESC", 4);
+    stream->write(&cksize, 4);
+    stream->write(nbuff, cksize);
 
     // Write HEAD chunk
     //
     cksize = 0;
-    write(handle, "HEAD", 4);
+    stream->write("HEAD", 4);
 
-     // leave four bytes for chunk size
-    lseek(handle, 4, SEEK_CUR);
+    // leave four bytes for chunk size
+    stream->skip(4);
 
     WriteIt(false, &gamestate, sizeof(gamestate));
     WriteIt(false, &gamestuff, sizeof(gamestuff));
 
-    lseek(handle, -(static_cast<long>(cksize)+4), SEEK_CUR);
-    write(handle, &cksize, 4);
-    lseek(handle,cksize,SEEK_CUR);
+    stream->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
+    stream->write(&cksize, 4);
+    stream->seek(cksize, bstone::STREAM_SEEK_CURRENT);
 
-    // Append PLAYTEMP file to savegame file
-    //
-    MakeDestPath(PLAYTEMP_FILE);
+    g_playtemp.set_position(0);
 
-    shandle = open(tempPath, O_RDONLY | O_BINARY);
-
-    if (shandle == -1)
+    if (!g_playtemp.copy_to(stream))
         goto cleanup;
 
-    IO_CopyHandle(shandle, handle, -1);
-
-    close(shandle);
     rt_value = true;
 
 cleanup:
 
-    NewViewSize(viewsize);
+    ::NewViewSize(viewsize);
 
     return rt_value;
 }
@@ -2238,6 +2371,9 @@ cleanup:
 //--------------------------------------------------------------------------
 // LevelInPlaytemp()
 //--------------------------------------------------------------------------
+
+// FIXME
+#if 0
 boolean LevelInPlaytemp(char levelnum)
 {
 	Sint16 handle;
@@ -2259,6 +2395,15 @@ boolean LevelInPlaytemp(char levelnum)
 	close(handle);
 
 	return(rt_value);
+}
+#endif // 0
+
+bool LevelInPlaytemp(
+    int level_index)
+{
+    char chunk[] = "LVxx";
+    ::sprintf(&chunk[2], "%02x", level_index);
+    return ::FindChunk(&g_playtemp, chunk) != 0;
 }
 
 //--------------------------------------------------------------------------
@@ -2863,8 +3008,12 @@ void Quit(const char* error, ...)
 
     va_start(ap, error);
 
+// FIXME
+#if 0
     MakeDestPath(PLAYTEMP_FILE);
     remove(tempPath);
+#endif // 0
+
     ClearMemory();
 
     WriteConfig();
@@ -3147,8 +3296,11 @@ int main(int argc, char* argv[])
 	remove(tempPath);
 #endif
 
+// FIXME
+#if 0
 	MakeDestPath(PLAYTEMP_FILE);
 	remove(tempPath);
+#endif // 0
 
 	freed_main();
 

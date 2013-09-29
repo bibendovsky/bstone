@@ -34,17 +34,25 @@ void DrawScore(void);
 void InitInfoArea(void);
 void ForceUpdateStatusBar(void);
 void UpdateStatusBar(void);
-boolean LoadLevel(int levelnum);
+bool LoadLevel(int levelnum);
 void SetPlaneViewSize (void);
 Sint16 CalcAngle(objtype* from_obj, objtype* to_obj);
 void FinishPaletteShifts (void);
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
 void DoActor (objtype *ob);
-boolean LevelInPlaytemp(char levelnum);
+bool LevelInPlaytemp(int level_index);
 void PreloadUpdate(Uint16 current, Uint16 total);
 void PreloadGraphics(void);
+
+// FIXME
+#if 0
 boolean SaveLevel(int levelnum);
+#endif // 0
+
+bool SaveLevel(
+    int level_index);
+
 Sint16 NextBuffer();
 void CheckHighScore (Sint32 score,Uint16 other);
 

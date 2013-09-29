@@ -41,8 +41,11 @@
 #define BETA_DAY		1
 #define BETA_YEAR		1994
 
+// FIXME
+#if 0
 #define PLAYTEMP_FILE				"PLAYTEMP"
 #define OLD_PLAYTEMP_FILE			"OLDPTEMP"
+#endif // 0
 
 #define DISK_SPACE_NEEDED	(1024l*1024l)
 
@@ -2564,7 +2567,14 @@ extern  char    configname[13];
 
 extern boolean ShowQuickMsg;
 
+// FIXME
+#if 0
 Sint32 DeleteChunk(Sint16 handle, const char *chunk);
+#endif // 0
+
+int DeleteChunk(
+    bstone::IStream* stream,
+    const std::string& chunk_name);
 
 void 				 LoadFonts(void);
 void 				 ClearNClose(void);
@@ -2584,7 +2594,16 @@ void 				AlignPlayerOnTransporter(void);
 Uint16 UseFunc(const char *first, const char *next);
 boolean DoMovie(movie_t movie, void* palette);
 boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type);
+
+// FIXME
+#if 0
 boolean SaveTheGame(int handle, const char* description);
+#endif // 0
+
+bool SaveTheGame(
+    bstone::IStream* stream,
+    const std::string& description);
+
 Sint32 ChecksumFile(char *file, Sint32 checksum);
 void BadChecksum(void);
 void InvalidLevels(void);
@@ -2602,8 +2621,18 @@ void CleanUpDoors_N_Actors(void);
 void MakeDestPath(const char *file);
 void InitDestPath(void);
 
+// FIXME
+#if 0
 extern Sint32 FindChunk(Sint16 file, const char *chunk);
 extern Sint32 NextChunk(Sint16 file);
+#endif // 0
+
+int FindChunk(
+    bstone::IStream* stream,
+    const std::string& chunk_name);
+
+int NextChunk(
+    bstone::IStream* stream);
 
 /*
 =============================================================================
