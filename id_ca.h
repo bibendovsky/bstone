@@ -88,9 +88,17 @@ extern	void	(*drawcachebox)		(char *title, Uint16 numcache);
 extern	void	(*updatecachebox)	(void);
 extern	void	(*finishcachebox)	(void);
 
+// FIXME
+#if 0
 extern Sint16			grhandle;		// handle to EGAGRAPH
 extern Sint16			maphandle;		// handle to MAPTEMP / GAMEMAPS
 extern Sint16			audiohandle;	// handle to AUDIOT / AUDIO
+#endif // 0
+
+extern bstone::FileStream grhandle;
+extern bstone::FileStream maphandle;
+extern bstone::FileStream audiohandle;
+
 extern Sint32		chunkcomplen,chunkexplen;
 
 #ifdef GRHEADERLINKED
@@ -110,8 +118,13 @@ void CAL_ShiftSprite (Uint16 segment,Uint16 source,Uint16 dest,
 
 void CA_OpenDebug (void);
 void CA_CloseDebug (void);
+
+// FIXME
+#if 0
 boolean CA_FarRead (Sint16 handle, Uint8 *dest, Sint32 length);
 boolean CA_FarWrite (Sint16 handle, Uint8 *source, Sint32 length);
+#endif // 0
+
 boolean CA_ReadFile (char *filename, void** ptr);
 boolean CA_LoadFile (char *filename, void** ptr);
 boolean CA_WriteFile (char *filename, void *ptr, Sint32 length);

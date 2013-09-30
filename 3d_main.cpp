@@ -1252,36 +1252,7 @@ char LS_current=-1,LS_total=-1;
 //--------------------------------------------------------------------------
 // ReadInfo()
 //--------------------------------------------------------------------------
-void ReadInfo(boolean decompress,char *dst, Uint16 size, Sint16 file)
-{
-	Uint16 csize,dsize;
 
-	PreloadUpdate(LS_current++,LS_total);
-
-	if (decompress)
-	{
-		IO_FarRead(file,(char *)&csize,sizeof(csize));
-		IO_FarRead(file,lzh_work_buffer,csize);
-		checksum=DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),csize,checksum);
-
-// FIXME
-#if 0
-		dsize=LZH_Decompress(lzh_work_buffer,dst,size,csize,SRC_MEM|DEST_MEM);
-#endif // 0
-
-        dsize = ::LZH_Decompress(lzh_work_buffer, dst, size, csize);
-
-		if (dsize != size)
-			MAIN_ERROR(READINFO_BAD_DECOMP);
-	}
-	else
-	{
-		IO_FarRead(file,dst,size);
-		checksum=DoChecksum(reinterpret_cast<Uint8*>(dst),size,checksum);
-	}
-}
-
-// BBi
 void ReadInfo(
     boolean decompress,
     char* dst,
@@ -1307,42 +1278,10 @@ void ReadInfo(
             size, checksum);
     }
 }
-// BBi
 
 //--------------------------------------------------------------------------
 // WriteInfo()
 //--------------------------------------------------------------------------
-Uint16 WriteInfo(boolean compress, char *src, Uint16 size, Sint16 file)
-{
-	Uint16 csize;
-
-	PreloadUpdate(LS_current++,LS_total);
-
-	if (compress)
-	{
-// FIXME
-#if 0
-		csize=LZH_Compress(src,lzh_work_buffer,size,SRC_MEM|DEST_MEM);
-#endif // 0
-
-        csize = ::LZH_Compress(src, lzh_work_buffer, size);
-
-		if (csize > LZH_WORK_BUFFER_SIZE)
-			MAIN_ERROR(WRITEINFO_BIGGER_BUF);
-		IO_FarWrite (file,(char *)&csize,sizeof(csize));
-		IO_FarWrite (file,lzh_work_buffer,csize);
-		checksum=DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),csize,checksum);
-		csize += sizeof(csize);
-	}
-	else
-	{
-		IO_FarWrite (file,src,size);
-		checksum=DoChecksum(reinterpret_cast<Uint8*>(src),size,checksum);
-		csize=size;
-	}
-
-	return(csize);
-}
 
 int WriteInfo(
     bool compress,
@@ -3564,6 +3503,7 @@ void fprint(char *text)
 }
 
 // FIXME Make cross-platform
+#if 0
 void InitDestPath()
 {
     char* env_value;
@@ -3607,6 +3547,12 @@ void InitDestPath()
         strcat(destPath, "\\");
     } else
         strcpy(destPath, "");
+}
+#endif // 0
+
+void InitDestPath()
+{
+    destPath[0] = '\0';
 }
 
 //-------------------------------------------------------------------------

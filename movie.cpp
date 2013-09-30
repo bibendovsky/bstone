@@ -62,7 +62,7 @@ typedef enum
 
 // Movie File variables
 
-Sint16 Movie_FHandle;
+bstone::FileStream Movie_FHandle;
 
 // Fade Variables
 
@@ -177,7 +177,7 @@ void ShutdownMovie(void)
     free(MovieBuffer);
     MovieBuffer = NULL;
 
-   close (Movie_FHandle);
+   Movie_FHandle.close();
 }
 
 //---------------------------------------------------------------------------
@@ -315,28 +315,25 @@ boolean MOVIE_LoadBuffer()
     free_space = BufferLen;
 
     while (free_space) {
-        chunkstart = tell(Movie_FHandle);
+        chunkstart = Movie_FHandle.get_position();
 
-        if (!IO_FarRead(
-            Movie_FHandle,
+        if (Movie_FHandle.read(
             &blk.code,
-            sizeof(blk.code)))
+            sizeof(blk.code)) != sizeof(blk.code))
         {
             AN_ERROR(AN_BAD_ANIM_FILE);
         }
 
-        if (!IO_FarRead(
-            Movie_FHandle,
+        if (Movie_FHandle.read(
             &blk.block_num,
-            sizeof(blk.block_num)))
+            sizeof(blk.block_num)) != sizeof(blk.block_num))
         {
             AN_ERROR(AN_BAD_ANIM_FILE);
         }
 
-        if (!IO_FarRead(
-            Movie_FHandle,
+        if (Movie_FHandle.read(
             &blk.recsize,
-            sizeof(blk.recsize)))
+            sizeof(blk.recsize)) != sizeof(blk.recsize))
         {
             AN_ERROR(AN_BAD_ANIM_FILE);
         }
@@ -351,14 +348,14 @@ boolean MOVIE_LoadBuffer()
             frame += sizeof(anim_frame);
             PageLen += sizeof(anim_frame);
 
-            if (!IO_FarRead(Movie_FHandle, frame, blk.recsize))
+            if (Movie_FHandle.read(frame, blk.recsize) != blk.recsize)
                 AN_ERROR(AN_BAD_ANIM_FILE);
 
             free_space -= blk.recsize;
             frame += blk.recsize;
             PageLen += blk.recsize;
         } else {
-            lseek(Movie_FHandle, chunkstart, SEEK_SET);
+            Movie_FHandle.seek(chunkstart);
             free_space = 0;
         }
     }
@@ -631,7 +628,8 @@ boolean MOVIE_Play(MovieStuff_t *MovieStuff)
    // Start the anim process
    //
 
-   if ((Movie_FHandle = open(MovieStuff->FName, O_RDONLY|O_BINARY, S_IREAD)) == -1)	  
+   Movie_FHandle.open(MovieStuff->FName);
+   if (!Movie_FHandle.is_open())
      	return(false);
 
    while (movie_reps && (!ExitMovie))

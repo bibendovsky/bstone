@@ -5,29 +5,6 @@
 #include "jm_lzh.h"
 #include "jm_error.h"
 
-//--------------------------------------------------------------------------
-// IO_FarRead()
-//--------------------------------------------------------------------------
-boolean IO_FarRead(int handle, void* dest, int length)
-{
-    int read_result;
-
-    read_result = read(handle, dest, length);
-
-    return read_result == length;
-}
-
-//--------------------------------------------------------------------------
-// IO_FarWrite()
-//--------------------------------------------------------------------------
-boolean IO_FarWrite(int handle, const void* source, int length)
-{
-    int write_result;
-
-    write_result = write(handle, source, (unsigned)length);
-
-    return write_result == length;
-}
 
 #if DEMOS_EXTERN
 
@@ -62,18 +39,21 @@ boolean IO_WriteFile(char *filename, void *ptr, Sint32 length)
 int IO_LoadFile (const char* filename, void** dst)
 {
 	char buffer[5]={0,0,0,0,0};
-	Sint16 handle;
+	bstone::FileStream handle;
 	Sint32 size=0;
 
-	if ((handle = open(filename,O_RDONLY | O_BINARY, S_IREAD)) == -1)
+    handle.open(filename);
+
+	if (!handle.is_open())
 		return(size);
 
-	read(handle,buffer,4);
+	handle.read(buffer, 4);
+
 	if (!strcmp(buffer,"JAMP"))
 	{
 		struct JAMPHeader head;
 
-		read(handle,&head,sizeof(head));
+		handle.read(&head, sizeof(head));
 		size = head.OriginalLen;
 		switch (head.CompType)
 		{
@@ -114,17 +94,14 @@ int IO_LoadFile (const char* filename, void** dst)
 	}
 	else
 	{
-		lseek(handle,0,SEEK_SET);
-		size = filelength(handle);
+		handle.set_position(0);
+		size = handle.get_size();
         *dst = malloc(size);
-		if (!IO_FarRead(handle,*dst,size))
+		if (handle.read(*dst, size) != size)
 		{
-			close(handle);
 			return(size);
 		}
 	}
-
-	close(handle);
 
 	return(size);
 }
@@ -158,50 +135,3 @@ void IO_CopyFile(char *sFilename, char *dFilename)
 }
 
 #endif
-
-//--------------------------------------------------------------------------
-// IO_CopyHandle()
-//--------------------------------------------------------------------------
-void IO_CopyHandle(int sHandle, int dHandle, int num_bytes)
-{
-	extern boolean bombonerror;
-
-	#define CF_BUFFER_SIZE 8192
-
-	int fsize;
-	void* src;
-
-	unsigned length;
-
-// Allocate memory for buffer.
-//
-    src = malloc(CF_BUFFER_SIZE);
-	if (num_bytes == -1)
-		fsize=filelength(sHandle);
-	else
-		fsize=num_bytes;
-
-// Copy that file!
-//
-	do
-	{
-	// Determine length to read/write.
-	//
-		if (fsize >= CF_BUFFER_SIZE)
-			length = CF_BUFFER_SIZE;
-		else
-			length = fsize;
-
-	// Read it, write it and decrement length.
-	//
-		IO_FarRead(sHandle,src,length);
-		IO_FarWrite(dHandle,src,length);
-		fsize -= length;
-	}
-	while (fsize);
-
-// Free buffer.
-//
-    free(src);
-}
-

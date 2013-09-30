@@ -1213,7 +1213,7 @@ void InitDigiMap (void)
 
 void CAL_SetupAudioFile (void)
 {
-	Sint16 handle;
+	bstone::FileStream handle;
 	Sint32 length;
 	char fname[13];
 
@@ -1224,14 +1224,14 @@ void CAL_SetupAudioFile (void)
 	strcpy(fname,aheadname);
 	strcat(fname,extension);
 
-	if ((handle = open(fname,
-		 O_RDONLY | O_BINARY, S_IREAD)) == -1)
+    handle.open(fname);
+	if (!handle.is_open())
 		CA_CannotOpen(fname);
 
-	length = filelength(handle);
+	length = handle.get_size();
     audiostarts = (Sint32*)malloc(length);
-	CA_FarRead(handle, (Uint8 *)audiostarts, length);
-	close(handle);
+	handle.read(audiostarts, length);
+	handle.close();
 #else
 	audiohuffman = (huffnode *)&audiodict;
 	CAL_OptimizeNodes (audiohuffman);
@@ -1337,7 +1337,7 @@ void CAL_SetupGrFile (void)
 void CAL_SetupGrFile()
 {
     char fname[13];
-    Sint16 handle;
+    bstone::FileStream handle;
     void* compseg;
 
     //
@@ -1347,13 +1347,12 @@ void CAL_SetupGrFile()
     strcpy(fname, gdictname);
     strcat(fname, extension);
 
-    handle = open(fname, O_RDONLY | O_BINARY, S_IREAD);
+    handle.open(fname);
 
-    if (handle == -1)
+    if (!handle.is_open())
         CA_CannotOpen(fname);
 
-    read(handle, &grhuffman, sizeof(grhuffman));
-    close(handle);
+    handle.read(&grhuffman, sizeof(grhuffman));
 
     //
     // load the data offsets from ???head.ext
@@ -1363,14 +1362,12 @@ void CAL_SetupGrFile()
     strcpy(fname, gheadname);
     strcat(fname, extension);
 
-    handle = open(fname, O_RDONLY | O_BINARY, S_IREAD);
+    handle.open(fname);
 
-    if (handle == -1)
+    if (!handle.is_open())
         CA_CannotOpen(fname);
 
-    read(handle, grstarts, (NUMCHUNKS + 1) * FILEPOSSIZE);
-
-    close(handle);
+    handle.read(grstarts, (NUMCHUNKS + 1) * FILEPOSSIZE);
 
 
     //
@@ -1384,7 +1381,7 @@ void CAL_SetupGrFile()
     pictable = (pictabletype*)malloc(NUMPICS * sizeof(pictabletype));
     CAL_GetGrChunkLength(STRUCTPIC);		// position file pointer
     compseg = malloc(chunkcomplen);
-    read(grhandle, compseg, chunkcomplen);
+    grhandle.read(compseg, chunkcomplen);
 
     CAL_HuffExpand(
         static_cast<Uint8*>(compseg),
@@ -1473,7 +1470,7 @@ void CAL_SetupMapFile (void)
 void CAL_SetupMapFile()
 {
     Sint16 i;
-    Sint16 handle;
+    bstone::FileStream handle;
     Sint32 pos;
     char fname[13];
     mapfiletype header;
@@ -1486,15 +1483,13 @@ void CAL_SetupMapFile()
     strcpy(fname, mheadname);
     strcat(fname, extension);
 
-    handle = open(fname, O_RDONLY | O_BINARY, S_IREAD);
+    handle.open(fname);
 
-    if (handle == -1)
+    if (!handle.is_open())
         CA_CannotOpen(fname);
 
-    read(handle, &header.RLEWtag, sizeof(header.RLEWtag));
-    read(handle, &header.headeroffsets, sizeof(header.headeroffsets));
-
-    close(handle);
+    handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
+    handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
 
     rlew_tag = header.RLEWtag;
 
@@ -1515,30 +1510,25 @@ void CAL_SetupMapFile()
         mapheaderseg[i] = (maptype*)malloc(sizeof(maptype));
         map_header = mapheaderseg[i];
 
-        lseek(maphandle, pos, SEEK_SET);
+        maphandle.set_position(pos);
 
-        read(
-            maphandle,
+        maphandle.read(
             &map_header->planestart,
             sizeof(map_header->planestart));
 
-        read(
-            maphandle,
+        maphandle.read(
             &map_header->planelength,
             sizeof(map_header->planelength));
 
-        read(
-            maphandle,
+        maphandle.read(
             &map_header->width,
             sizeof(map_header->width));
 
-        read(
-            maphandle,
+        maphandle.read(
             &map_header->height,
             sizeof(map_header->height));
 
-        read(
-            maphandle,
+        maphandle.read(
             &map_header->name,
             sizeof(map_header->name));
     }
@@ -1806,31 +1796,23 @@ extern Sint16 EpisodeSelect[];
 //-------------------------------------------------------------------------
 void CheckForEpisodes(void)
 {
-    struct _finddata_t fd;
-    intptr_t fd_handle;
-
 	Sint16 i;
 
-// FIXME Make cross-platform
 #if (GAME_VERSION != SHAREWARE_VERSION)
-    fd_handle = _findfirst("*.VSI", &fd);
+    bstone::FileStream stream("VSWAP.VSI");
 
-    if (fd_handle != -1)
+    if (stream.is_open())
         strcpy(extension, "VSI");
 #else
-    fd_handle = _findfirst("*.FSW", &fd);
+    bstone::FileStream stream("VSWAP.FSW");
 
-    if (fd_handle != -1)
+    if (stream.is_open())
         strcpy(extension, "FSW");
 #endif
     else {
         printf("No Fire Strike data files found!");
         exit(0);
     }
-
-    if (fd_handle != -1)
-        _findclose(fd_handle);
-// FIXME
 
 	for (i=0;i<mv_NUM_MOVIES;i++)
 		strcat(Movies[i].FName,extension);
@@ -2557,20 +2539,22 @@ Sint32 ChecksumFile(char *file, Sint32 checksum)
 {
 	#define JUMPSIZE 8
 
-	Sint16 handle;
+	bstone::FileStream handle;
 	Sint32 size,readlen,i;
 	char *p;
 
     cfc_buffer = malloc(CFC_BUFFERSIZE);
 	p=static_cast<char*>(cfc_buffer);
 
-	if ((handle=open(file,O_RDONLY|O_BINARY)) == -1)
+    handle.open(file);
+
+	if (!handle.is_open())
 	{
 		checksum=0;
 		goto exit_func;
 	}
 
-	size=filelength(handle);
+	size=handle.get_size();
 	while (size)
 	{
 		if (size >= CFC_BUFFERSIZE)
@@ -2578,15 +2562,13 @@ Sint32 ChecksumFile(char *file, Sint32 checksum)
 		else
 			readlen = size;
 
-		IO_FarRead(handle,cfc_buffer,readlen);
+		handle.read(cfc_buffer,readlen);
 
 		for (i=0;i<readlen-JUMPSIZE;i += JUMPSIZE)
 			checksum += p[i]^p[i+1];
 
 		size -= readlen;
 	}
-
-	close(handle);
 
 exit_func:;
 

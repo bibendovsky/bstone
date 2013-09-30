@@ -6,7 +6,7 @@
 // File specific variables
 char PageFileName[13] = {"VSWAP."};
 
-static int PageFile = -1;
+static bstone::FileStream PageFile;
 Uint16 ChunksInFile;
 Uint16 PMSpriteStart;
 Uint16 PMSoundStart;
@@ -19,17 +19,17 @@ static void open_page_file(const char* filename)
 {
     Sint32 file_length;
 
-    PageFile = open(filename, O_RDONLY + O_BINARY);
+    PageFile.open(filename);
 
-    if (PageFile == -1)
+    if (!PageFile.is_open())
         PM_ERROR(PML_OPENPAGEFILE_OPEN);
 
-    file_length = filelength(PageFile);
+    file_length = PageFile.get_size();
 
     raw_data = (Uint8*)malloc(file_length + PMPageSize);
     memset(&raw_data[file_length], 0, PMPageSize);
 
-    if (read(PageFile, raw_data, file_length) != file_length)
+    if (PageFile.read(raw_data, file_length) != file_length)
         PM_ERROR(PML_READFROMFILE_READ);
 
     ChunksInFile = ((Uint16*)raw_data)[0];
@@ -48,10 +48,7 @@ void PM_Startup()
 
 void PM_Shutdown()
 {
-    if (PageFile >= 0) {
-        close(PageFile);
-        PageFile = -1;
-    }
+    PageFile.close();
 
     ChunksInFile = 0;
     PMSpriteStart = 0;

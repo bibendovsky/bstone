@@ -7,12 +7,9 @@
 
 #include <cassert>
 #include <cctype>
-#include <fcntl.h>
-#include <io.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <sys\stat.h>
 
 #include <memory>
 #include <vector>

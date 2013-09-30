@@ -21,9 +21,6 @@ loaded into the data segment
 #endif
 
 
-boolean IO_FarRead (int handle, void* dest, int length);
-
-
 /*
 =============================================================================
 
@@ -102,10 +99,9 @@ huffnode	*audiohuffman;
 huffnode	audiohuffman[255];
 #endif
 
-
-Sint16			grhandle;		// handle to EGAGRAPH
-Sint16			maphandle;		// handle to MAPTEMP / GAMEMAPS
-Sint16			audiohandle;	// handle to AUDIOT / AUDIO
+bstone::FileStream grhandle; // handle to EGAGRAPH
+bstone::FileStream maphandle; // handle to MAPTEMP / GAMEMAPS
+bstone::FileStream audiohandle; // handle to AUDIOT / AUDIO
 
 Sint32		chunkcomplen,chunkexplen;
 
@@ -178,13 +174,14 @@ void CA_CloseDebug (void)
 //------------------------------------------------------------------------
 void OpenGrFile(void)
 {
-	char fname[13];
-	strcpy(fname,gfilename);
-	strcat(fname,extension);
+    char fname[13];
+    strcpy(fname,gfilename);
+    strcat(fname,extension);
 
-	grhandle = open(fname, O_RDONLY | O_BINARY);
-	if (grhandle == -1)
-		CA_CannotOpen(fname);
+    grhandle.open(fname);
+
+    if (!grhandle.is_open())
+        CA_CannotOpen(fname);
 }
 
 
@@ -194,10 +191,7 @@ void OpenGrFile(void)
 //------------------------------------------------------------------------
 void CloseGrFile()
 {
-    if (grhandle != -1) {
-        close(grhandle);
-        grhandle = -1;
-    }
+    grhandle.close();
 }
 
 
@@ -219,8 +213,9 @@ void OpenMapFile(void)
 	strcpy(fname,mfilename);
 	strcat(fname,extension);
 
-	if ((maphandle = open(fname,
-		 O_RDONLY | O_BINARY, S_IREAD)) == -1)
+    maphandle.open(fname);
+
+    if (!maphandle.is_open())
 		CA_CannotOpen(fname);
 #endif
 }
@@ -231,10 +226,7 @@ void OpenMapFile(void)
 //------------------------------------------------------------------------
 void CloseMapFile()
 {
-    if (maphandle != -1) {
-        close(maphandle);
-        maphandle = -1;
-    }
+    maphandle.close();
 }
 
 
@@ -250,8 +242,9 @@ void OpenAudioFile(void)
 	strcpy(fname,afilename);
 	strcat(fname,extension);
 
-	if ((audiohandle = open(fname,
-		 O_RDONLY | O_BINARY, S_IREAD)) == -1)
+    audiohandle.open(fname);
+
+    if (!audiohandle.is_open())
 		CA_CannotOpen(fname);
 #else
 	if ((audiohandle = open("AUDIO."EXTENSION,
@@ -266,10 +259,7 @@ void OpenAudioFile(void)
 //------------------------------------------------------------------------
 void CloseAudioFile()
 {
-    if (audiohandle != -1) {
-        close(audiohandle);
-        audiohandle = -1;
-    }
+    audiohandle.close();
 }
 
 
@@ -289,8 +279,9 @@ void CloseAudioFile()
 
 void CAL_GetGrChunkLength (Sint16 chunk)
 {
-	lseek(grhandle,GRFILEPOS(chunk),SEEK_SET);
-	read(grhandle,&chunkexplen,sizeof(chunkexplen));
+    grhandle.set_position(GRFILEPOS(chunk));
+    grhandle.read(&chunkexplen, sizeof(chunkexplen));
+
 	chunkcomplen = GRFILEPOS(chunk+1)-GRFILEPOS(chunk)-4;
 }
 
@@ -984,7 +975,7 @@ void CA_CacheAudioChunk (Sint16 chunk)
 	OpenAudioFile();
 #endif
 
-	lseek(audiohandle,pos,SEEK_SET);
+    audiohandle.set_position(pos);
 
 #ifndef AUDIOHEADERLINKED
 
@@ -1001,7 +992,7 @@ void CA_CacheAudioChunk (Sint16 chunk)
    }
 #endif // 0
 
-	CA_FarRead(audiohandle,audiosegs[chunk],compressed);
+    audiohandle.read(audiosegs[chunk], compressed);
 
 #else
 
@@ -1198,17 +1189,17 @@ void CA_CacheGrChunk (Sint16 chunk)
 	compressed = GRFILEPOS(next)-pos;
 
 
-	lseek(grhandle,pos,SEEK_SET);
+    grhandle.set_position(pos);
 
 	if (compressed<=BUFFERSIZE)
 	{
-		CA_FarRead(grhandle,bufferseg,compressed);
+		grhandle.read(bufferseg, compressed);
 		source = static_cast<Uint8*>(bufferseg);
 	}
 	else
 	{
         bigbufferseg = malloc(compressed);
-		CA_FarRead(grhandle,bigbufferseg,compressed);
+		grhandle.read(bigbufferseg, compressed);
 		source = static_cast<Uint8*>(bigbufferseg);
 	}
 
@@ -1253,10 +1244,10 @@ void CA_CacheScreen (Sint16 chunk)
 		next++;
 	compressed = GRFILEPOS(next)-pos;
 
-	lseek(grhandle,pos,SEEK_SET);
+	grhandle.set_position(pos);
 
     bigbufferseg = malloc(compressed);
-	CA_FarRead(grhandle,bigbufferseg,compressed);
+	grhandle.read(bigbufferseg, compressed);
 	source = static_cast<Uint8*>(bigbufferseg);
 
 	expanded = *(Sint32 *)source;
@@ -1316,7 +1307,7 @@ void CA_CacheMap (Sint16 mapnum)
 
 		dest = &mapsegs[plane];
 
-		lseek(maphandle,pos,SEEK_SET);
+		maphandle.set_position(pos);
 		if (compressed<=BUFFERSIZE)
 			source = static_cast<Uint16*>(bufferseg);
 		else
@@ -1325,7 +1316,8 @@ void CA_CacheMap (Sint16 mapnum)
 			source = static_cast<Uint16*>(bigbufferseg);
 		}
 
-		CA_FarRead(maphandle,(Uint8 *)source,compressed);
+		maphandle.read(source, compressed);
+
 #ifdef CARMACIZED
 		//
 		// unhuffman, then unRLEW
@@ -1616,8 +1608,8 @@ void CA_CacheMarks (void)
 							next = NUMCHUNKS;			// read pos to posend
 					}
 
-					lseek(grhandle,pos,SEEK_SET);
-					CA_FarRead(grhandle,bufferseg,endpos-pos);
+					grhandle.set_position(pos);
+					grhandle.read(bufferseg, endpos - pos);
 					bufferstart = pos;
 					bufferend = endpos;
 					source = static_cast<Uint8*>(bufferseg);
@@ -1635,8 +1627,8 @@ void CA_CacheMarks (void)
 				MM_SetLock (&bigbufferseg,true);
 #endif // 0
 
-				lseek(grhandle,pos,SEEK_SET);
-				CA_FarRead(grhandle,bigbufferseg,compressed);
+				grhandle.set_position(pos);
+				grhandle.read(bigbufferseg, compressed);
 				source = static_cast<Uint8*>(bigbufferseg);
 			}
 
