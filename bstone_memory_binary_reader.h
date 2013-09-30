@@ -8,7 +8,8 @@
 
 
 #include <cstddef>
-#include <stdint.h>
+
+#include "SDL.h"
 
 
 namespace bstone {
@@ -21,12 +22,12 @@ public:
 
     MemoryBinaryReader(
         const void* data,
-        int64_t data_size);
+        Sint64 data_size);
 
     // Initializes the reader.
     bool initialize(
         const void* data,
-        int64_t data_size);
+        Sint64 data_size);
 
     // Uninitializes the reader.
     void uninitialize();
@@ -36,28 +37,28 @@ public:
     bool is_initialized() const;
 
     // Reads a signed 8-bit integer value.
-    int8_t read_s8();
+    Sint8 read_s8();
 
     // Reads an unsigned 8-bit integer value.
-    uint8_t read_u8();
+    Uint8 read_u8();
 
     // Reads a signed 16-bit integer value.
-    int16_t read_s16();
+    Sint16 read_s16();
 
     // Reads an unsigned 16-bit integer value.
-    uint16_t read_u16();
+    Uint16 read_u16();
 
     // Reads a signed 32-bit integer value.
-    int32_t read_s32();
+    Sint32 read_s32();
 
     // Reads an unsigned 32-bit integer value.
-    uint32_t read_u32();
+    Uint32 read_u32();
 
     // Reads a signed 64-bit integer value.
-    int64_t read_s64();
+    Sint64 read_s64();
 
     // Reads an unsigned 64-bit integer value.
-    uint64_t read_u64();
+    Uint64 read_u64();
 
     // Reads a 32-bit float-point value.
     float read_r32();
@@ -68,20 +69,20 @@ public:
     // Skips a specified number of octets forward if count positive
     // or backward otherwise.
     bool skip(
-        int count);
+        Sint64 count);
 
     // Returns a current position.
-    int64_t get_position() const;
+    Sint64 get_position() const;
 
     // Sets a current position to a specified one.
     bool set_position(
-        int64_t position);
+        Sint64 position);
 
 
 private:
-    const uint8_t* data_;
-    int64_t data_size_;
-    int64_t data_offset_;
+    const Uint8* data_;
+    Sint64 data_size_;
+    Sint64 data_offset_;
 
     template<class T>
     T read()

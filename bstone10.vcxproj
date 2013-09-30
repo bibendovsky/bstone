@@ -98,6 +98,9 @@
     <ClCompile Include="bstone_adlib_sfx_decoder.cpp" />
     <ClCompile Include="bstone_audio_decoder.cpp" />
     <ClCompile Include="bstone_audio_mixer.cpp" />
+    <ClCompile Include="bstone_binary_reader.cpp" />
+    <ClCompile Include="bstone_binary_writer.cpp" />
+    <ClCompile Include="bstone_file_stream.cpp" />
     <ClCompile Include="bstone_istream.cpp" />
     <ClCompile Include="bstone_memory_binary_reader.cpp" />
     <ClCompile Include="bstone_memory_stream.cpp" />
@@ -143,6 +146,9 @@
     <ClInclude Include="bstone_adlib_sfx_decoder.h" />
     <ClInclude Include="bstone_audio_decoder.h" />
     <ClInclude Include="bstone_audio_mixer.h" />
+    <ClInclude Include="bstone_binary_reader.h" />
+    <ClInclude Include="bstone_binary_writer.h" />
+    <ClInclude Include="bstone_file_stream.h" />
     <ClInclude Include="bstone_istream.h" />
     <ClInclude Include="bstone_memory_binary_reader.h" />
     <ClInclude Include="bstone_memory_stream.h" />

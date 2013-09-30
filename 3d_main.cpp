@@ -2307,21 +2307,54 @@ cleanup:;
 bool LoadTheGame(
     bstone::IStream* stream)
 {
+    bool result = false;
+
+    class AtExit {
+    public:
+        AtExit(
+            bool& result) :
+                result_(result)
+        {
+        }
+
+        ~AtExit()
+        {
+            ::NewViewSize(viewsize);
+
+            // Load current level
+            //
+            if (result_) {
+                ::LoadLevel(0xFF);
+                ShowQuickMsg = false;
+            }
+        }
+
+    private:
+        bool& result_;
+
+        AtExit(
+            const AtExit& that);
+
+        AtExit& operator=(
+            const AtExit& that);
+    }; // AtExit
+
+    AtExit at_exit(result);
+
     if (stream == NULL)
-        goto cleanup;
+        return false;
 
     g_playtemp.set_size(0);
     g_playtemp.set_position(0);
 
     bstone::IStream* handle = stream;
     Sint32 cksize;
-    bool rt_value = false;
     char InfoSpace[400];
 
     // Read in VERSion chunk
     //
     if (::FindChunk(stream, "VERS") == 0)
-        goto cleanup;
+        return false;
 
     cksize = sizeof(SavegameInfoText);
     stream->read(InfoSpace, cksize);
@@ -2359,13 +2392,13 @@ bool LoadTheGame(
         ::VW_FadeOut();
         screenfaded = true;
 
-        goto cleanup;
+        return false;
     }
 
     // Read in HEAD chunk
     //
     if (::FindChunk(stream, "HEAD") == 0)
-        goto cleanup;
+        return false;
 
     ReadIt(false, &gamestate, sizeof(gamestate));
 
@@ -2388,22 +2421,12 @@ bool LoadTheGame(
 
     if (!stream->copy_to(&g_playtemp)) {
         g_playtemp.set_size(0);
-        goto cleanup;
+        return false;
     }
 
-    rt_value = true;
+    result = true;
 
-cleanup:
-    ::NewViewSize(viewsize);
-
-    // Load current level
-    //
-    if (rt_value) {
-        ::LoadLevel(0xFF);
-        ShowQuickMsg = false;
-    }
-
-    return rt_value;
+    return true;
 }
 
 //--------------------------------------------------------------------------

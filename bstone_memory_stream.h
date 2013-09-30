@@ -81,7 +81,7 @@ public:
         int count);
 
 private:
-    typedef std::vector<UnValue<Uint8>> Buffer;
+    typedef std::vector<UnValue<Uint8> > Buffer;
 
     bool is_open_;
     bool can_read_;

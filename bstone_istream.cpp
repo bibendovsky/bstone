@@ -74,7 +74,7 @@ bool IStream::copy_to(
     if (buffer_size <= 0)
         buffer_size = get_default_copy_buffer_size();
 
-    std::vector<UnValue<char>> buffer(buffer_size);
+    std::vector<UnValue<char> > buffer(buffer_size);
 
     for (int count = -1; count != 0; ) {
         count = read(&buffer[0], buffer_size);

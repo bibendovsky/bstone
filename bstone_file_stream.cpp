@@ -66,7 +66,7 @@ bool FileStream::open(
         mode |= std::ios::trunc;
     }
 
-    stream_.open(file_name, mode);
+    stream_.open(file_name.c_str(), mode);
 
     if (!stream_.is_open())
         return false;

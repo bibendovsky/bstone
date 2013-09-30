@@ -18,7 +18,7 @@ MemoryBinaryReader::MemoryBinaryReader() :
 
 MemoryBinaryReader::MemoryBinaryReader(
     const void* data,
-    int64_t data_size)
+    Sint64 data_size)
 {
     initialize(data, data_size);
 }
@@ -30,7 +30,7 @@ bool MemoryBinaryReader::is_initialized() const
 
 bool MemoryBinaryReader::initialize(
     const void* data,
-    int64_t data_size)
+    Sint64 data_size)
 {
     uninitialize();
 
@@ -40,7 +40,7 @@ bool MemoryBinaryReader::initialize(
     if (data_size <= 0)
         return false;
 
-    data_ = static_cast<const uint8_t*>(data);
+    data_ = static_cast<const Uint8*>(data);
     data_size_ = data_size;
     data_offset_ = 0;
 
@@ -54,44 +54,44 @@ void MemoryBinaryReader::uninitialize()
     data_offset_ = 0;
 }
 
-int8_t MemoryBinaryReader::read_s8()
+Sint8 MemoryBinaryReader::read_s8()
 {
     return read<int8_t>();
 }
 
-uint8_t MemoryBinaryReader::read_u8()
+Uint8 MemoryBinaryReader::read_u8()
 {
-    return read<uint8_t>();
+    return read<Uint8>();
 }
 
-int16_t MemoryBinaryReader::read_s16()
+Sint16 MemoryBinaryReader::read_s16()
 {
-    return read<int16_t>();
+    return read<Sint16>();
 }
 
-uint16_t MemoryBinaryReader::read_u16()
+Uint16 MemoryBinaryReader::read_u16()
 {
-    return read<uint16_t>();
+    return read<Uint16>();
 }
 
-int32_t MemoryBinaryReader::read_s32()
+Sint32 MemoryBinaryReader::read_s32()
 {
-    return read<int32_t>();
+    return read<Sint32>();
 }
 
-uint32_t MemoryBinaryReader::read_u32()
+Uint32 MemoryBinaryReader::read_u32()
 {
-    return read<uint32_t>();
+    return read<Uint32>();
 }
 
-int64_t MemoryBinaryReader::read_s64()
+Sint64 MemoryBinaryReader::read_s64()
 {
-    return read<int64_t>();
+    return read<Sint64>();
 }
 
-uint64_t MemoryBinaryReader::read_u64()
+Uint64 MemoryBinaryReader::read_u64()
 {
-    return read<uint64_t>();
+    return read<Uint64>();
 }
 
 float MemoryBinaryReader::read_r32()
@@ -105,12 +105,12 @@ double MemoryBinaryReader::read_r64()
 }
 
 bool MemoryBinaryReader::skip(
-    int count)
+    Sint64 count)
 {
     if (!is_initialized())
         return false;
 
-    int64_t new_offset = data_offset_ + count;
+    Sint64 new_offset = data_offset_ + count;
 
     if (new_offset < 0)
         return false;
@@ -120,7 +120,7 @@ bool MemoryBinaryReader::skip(
     return true;
 }
 
-int64_t MemoryBinaryReader::get_position() const
+Sint64 MemoryBinaryReader::get_position() const
 {
     if (!is_initialized())
         return false;
@@ -129,7 +129,7 @@ int64_t MemoryBinaryReader::get_position() const
 }
 
 bool MemoryBinaryReader::set_position(
-    int64_t position)
+    Sint64 position)
 {
     if (!is_initialized())
         return false;
