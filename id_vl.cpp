@@ -1952,22 +1952,7 @@ static void ogl_initialize_video()
     SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_EGL, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 0);
-    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
 
     sdl_window = SDL_CreateWindow(
         "BSPS",
