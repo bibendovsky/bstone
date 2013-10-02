@@ -2,10 +2,11 @@
 
 #include <cstring>
 
-#include "GL/glew.h"
-
 #include "id_head.h"
 #include "id_vl.h"
+
+#include "bstone_ogl_api.h"
+
 
 #ifdef MSVC
 #pragma hdrstop
@@ -1683,7 +1684,6 @@ static void ogl_setup_textures()
 {
     GLenum internal_format;
 
-
     SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
         "OGL: %s", "Setting up textures...");
@@ -1694,7 +1694,7 @@ static void ogl_setup_textures()
     if (screen_tex == GL_NONE)
         Quit("Screen texture failed.");
 
-    if (GLEW_VERSION_3_0)
+    if (bstone::OglApi::get_version().get_major() >= 3)
         internal_format = GL_R8;
     else
         internal_format = GL_LUMINANCE8;
@@ -1907,6 +1907,8 @@ static void ogl_uninitialize_video()
         SDL_GL_MakeCurrent(sdl_window, NULL);
         SDL_GL_DeleteContext(sdl_gl_context);
         sdl_gl_context = NULL;
+
+        bstone::OglApi::uninitialize();
     }
 
     if (sdl_window != NULL) {
@@ -1925,7 +1927,6 @@ static void ogl_uninitialize_video()
 static void ogl_initialize_video()
 {
     int sdl_result = 0;
-    GLenum glew_result = GLEW_OK;
 
     double scale;
     double h_scale;
@@ -1975,15 +1976,35 @@ static void ogl_initialize_video()
     if (sdl_gl_context == NULL)
         Quit("%s", SDL_GetError());
 
+    if (!bstone::OglApi::initialize())
+        Quit("");
 
-    SDL_LogInfo(
+    ::SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
-        "GLEW: %s", "Initializing...");
+        "OGLAPI: %s: %s",
+        "Vendor",
+        bstone::OglApi::get_vendor().c_str());
 
-    glew_result = glewInit();
+    ::SDL_LogInfo(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "OGLAPI: %s: %s",
+        "Renderer",
+        bstone::OglApi::get_renderer().c_str());
 
-    if (glew_result != GLEW_OK)
-        Quit("%s", glewGetErrorString(glew_result));
+    ::SDL_LogInfo(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "OGLAPI: %s: %s",
+        "Original version",
+        bstone::OglApi::get_version().get_original().c_str());
+
+    ::SDL_LogInfo(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "OGLAPI: %s: %s",
+        "Parsed version",
+        bstone::OglApi::get_version().to_string().c_str());
+
+    if (bstone::OglApi::get_version().get_major() < 2)
+        Quit("Video system does not support OpenGL 2.0 or higher.");
 
 
     vanilla_screen_width = 320;

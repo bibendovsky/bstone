@@ -49,7 +49,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\glew-1.10.0\include;..\sdl2-2.0.0\include;.\dosbox;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\sdl2-2.0.0\include;.\dosbox;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -57,8 +57,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\glew-1.10.0\lib\release\win32;..\sdl2-2.0.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;sdl2.lib;sdl2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\sdl2-2.0.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sdl2.lib;sdl2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -104,6 +104,8 @@
     <ClCompile Include="bstone_istream.cpp" />
     <ClCompile Include="bstone_memory_binary_reader.cpp" />
     <ClCompile Include="bstone_memory_stream.cpp" />
+    <ClCompile Include="bstone_ogl_api.cpp" />
+    <ClCompile Include="bstone_ogl_version.cpp" />
     <ClCompile Include="bstone_opl2.cpp" />
     <ClCompile Include="bstone_pcm_decoder.cpp" />
     <ClCompile Include="colormap.cpp" />
@@ -152,6 +154,8 @@
     <ClInclude Include="bstone_istream.h" />
     <ClInclude Include="bstone_memory_binary_reader.h" />
     <ClInclude Include="bstone_memory_stream.h" />
+    <ClInclude Include="bstone_ogl_api.h" />
+    <ClInclude Include="bstone_ogl_version.h" />
     <ClInclude Include="bstone_opl2.h" />
     <ClInclude Include="bstone_pcm_decoder.h" />
     <ClInclude Include="bstone_un_value.h" />

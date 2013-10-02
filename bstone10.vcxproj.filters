@@ -180,6 +180,12 @@
     <ClCompile Include="bstone_file_stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bstone_ogl_api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bstone_ogl_version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -345,6 +351,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bstone_file_stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_ogl_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_ogl_version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
