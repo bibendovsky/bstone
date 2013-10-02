@@ -284,7 +284,7 @@ void ShadowPrint(const char *string, Sint16 x, Sint16 y);
 // VARIABLES
 //
 extern Sint16 SaveGamesAvail[10],StartGame,SoundStatus;
-extern char SaveGameNames[10][GAME_DESCRIPTION_LEN+1], SaveName[13];
+extern char SaveGameNames[10][GAME_DESCRIPTION_LEN+1];
 
 enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE};	// FOR INPUT TYPES
 

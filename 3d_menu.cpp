@@ -242,7 +242,8 @@ Sint16 color_norml[]=
 Sint16 EpisodeSelect[6]={1};
 
 Sint16 SaveGamesAvail[10],StartGame,SoundStatus=1,pickquick;
-char SaveGameNames[10][GAME_DESCRIPTION_LEN+1],SaveName[13]="SAVEGAM?.";
+char SaveGameNames[10][GAME_DESCRIPTION_LEN+1];
+static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
 
 
@@ -1629,9 +1630,6 @@ Sint16 CP_LoadGame(
 {
     Sint16 which;
     Sint16 exit = 0;
-    char name[13];
-
-    strcpy(name, SaveName);
 
     //
     // QUICKLOAD?
@@ -1640,8 +1638,9 @@ Sint16 CP_LoadGame(
         which = LSItems.curpos;
 
         if (SaveGamesAvail[which]) {
-            name[7] = which + '0';
-            MakeDestPath(name);
+            std::string name = SAVE_BASE_NAME;
+            name += static_cast<char>('0' + which);
+            MakeDestPath(name.c_str());
             bstone::FileStream handle(tempPath);
             DrawLSAction(0); // Testing...
             if (!(loadedgame = ::LoadTheGame(&handle)))
@@ -1660,9 +1659,11 @@ restart:
 
         if (which >= 0 && SaveGamesAvail[which]) {
             ShootSnd();
-            name[7] = which + '0';
 
-            MakeDestPath(name);
+            std::string name = SAVE_BASE_NAME;
+            name += static_cast<char>('0' + which);
+
+            MakeDestPath(name.c_str());
 
             bstone::FileStream handle(tempPath);
 
@@ -1899,11 +1900,9 @@ Sint16 CP_SaveGame(
     Sint16 quick)
 {
     Sint16 handle,which,exit=0;
-    char name[13],input[GAME_DESCRIPTION_LEN+1];
+    char input[GAME_DESCRIPTION_LEN+1];
     boolean temp_caps = allcaps;
     US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
-
-    strcpy(name,SaveName);
 
     allcaps = true;
     use_custom_cursor = true;
@@ -1919,8 +1918,9 @@ Sint16 CP_SaveGame(
         if (SaveGamesAvail[which])
         {
             DrawLSAction(1); // Testing...
-            name[7]=which+'0';
-            MakeDestPath(name);
+            std::string name = SAVE_BASE_NAME;
+            name += static_cast<char>('0' + which);
+            MakeDestPath(name.c_str());
 
             bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
 
@@ -1958,7 +1958,9 @@ Sint16 CP_SaveGame(
             ShootSnd();
 
             strcpy(input,&SaveGameNames[which][0]);
-            name[7]=which+'0';
+
+            std::string name = SAVE_BASE_NAME;
+            name += static_cast<char>('0' + which);
 
             fontnumber=2;
             VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,HIGHLIGHT_BOX_COLOR);
@@ -1971,7 +1973,7 @@ Sint16 CP_SaveGame(
                 SaveGamesAvail[which]=1;
                 strcpy(&SaveGameNames[which][0],input);
 
-                MakeDestPath(name);
+                MakeDestPath(name.c_str());
                 bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
 
                 DrawLSAction(1);
@@ -3342,10 +3344,10 @@ void ReadGameNames()
     char name[13];
 
     for (int i = 0; i < 10; ++i) {
-        ::strcpy(name, SaveName);
+        std::string name = SAVE_BASE_NAME;
+        name += static_cast<char>('0' + i);
 
-        name[7] = '0' + i;
-        ::MakeDestPath(name);
+        ::MakeDestPath(name.c_str());
 
         char temp[GAME_DESCRIPTION_LEN+1];
 

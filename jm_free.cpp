@@ -1825,9 +1825,9 @@ void CheckForEpisodes(void)
 // FIXME
 #if 0
 	strcat(configname,extension);
+	strcat(SaveName,extension);
 #endif // 0
 
-	strcat(SaveName,extension);
 	strcat(PageFileName,extension);
 	strcat(audioname,extension);
 	strcat(demoname,extension);
