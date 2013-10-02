@@ -1,7 +1,5 @@
 // ID_VL.C
 
-#include <cstring>
-
 #include "id_head.h"
 #include "id_vl.h"
 

@@ -11,6 +11,8 @@
 // BBi
 #include "bstone_audio_mixer.h"
 
+struct objtype;
+struct doorobj_t;
 
 void	alOut(Uint8 n,Uint8 b);
 
@@ -260,7 +262,7 @@ void sd_play_sound(
 
 void sd_play_actor_sound(
     int sound_index,
-    const struct objtype* actor,
+    const objtype* actor,
     bstone::ActorChannel actor_channel);
 
 void sd_play_player_sound(
@@ -269,7 +271,7 @@ void sd_play_player_sound(
 
 void sd_play_door_sound(
     int sound_index,
-    const struct doorobj_t* door);
+    const doorobj_t* door);
 
 void sd_play_wall_sound(
     int sound_index);

@@ -53,6 +53,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
+      <DisableLanguageExtensions>true</DisableLanguageExtensions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,7 +105,9 @@
     <ClCompile Include="bstone_istream.cpp" />
     <ClCompile Include="bstone_memory_binary_reader.cpp" />
     <ClCompile Include="bstone_memory_stream.cpp" />
-    <ClCompile Include="bstone_ogl_api.cpp" />
+    <ClCompile Include="bstone_ogl_api.cpp">
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableLanguageExtensions>
+    </ClCompile>
     <ClCompile Include="bstone_ogl_version.cpp" />
     <ClCompile Include="bstone_opl2.cpp" />
     <ClCompile Include="bstone_pcm_decoder.cpp" />
@@ -122,7 +125,9 @@
     <ClCompile Include="id_us.cpp" />
     <ClCompile Include="id_us_1.cpp" />
     <ClCompile Include="id_vh.cpp" />
-    <ClCompile Include="id_vl.cpp" />
+    <ClCompile Include="id_vl.cpp">
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableLanguageExtensions>
+    </ClCompile>
     <ClCompile Include="jm_cio.cpp" />
     <ClCompile Include="jm_debug.cpp" />
     <ClCompile Include="jm_free.cpp" />

@@ -3101,12 +3101,16 @@ void PlayDemo (Sint16 demonumber)
 	fizzlein = true;
 
 #ifndef DEMOS_EXTERN
-    // FIXME
-	//off = FP_OFF(demoptr);
+// FIXME
+#if 0
+	off = FP_OFF(demoptr);
     off = (Sint16)demoptr;
 
 	demoptr = static_cast<char*>(grsegs[dems[demonumber]]);
 	demoptr += off;
+#endif // 0
+
+    demoptr = static_cast<char*>(grsegs[dems[demonumber]]);
 #endif
 
 	PlayLoop ();

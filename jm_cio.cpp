@@ -1,6 +1,3 @@
-#include <cstdio>
-#include <io.h>
-
 #include "jm_cio.h"
 
 

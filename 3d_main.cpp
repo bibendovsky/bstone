@@ -2677,8 +2677,10 @@ void CleanUpDoors_N_Actors()
                 // Found a door
 
                 actor = actorat[y][x];
+                Uint16 actor_u16 = static_cast<Uint16>(
+                    reinterpret_cast<size_t>(actor));
 
-                if (ui16_to_actor((Uint16)actor) != NULL) {
+                if (ui16_to_actor(actor_u16) != NULL) {
                     // Found an actor
 
                     door = tile & 0x3F;

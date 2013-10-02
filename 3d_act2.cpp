@@ -5726,7 +5726,9 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
                   {
 							// We have a wall!
 
-                     proj_wall = (Uint8)proj_check;	 
+                     proj_wall = static_cast<Uint8>(
+                         reinterpret_cast<size_t>(proj_check));
+
 							proj_check=false;
 			            ob->tilex = ob->x>>TILESHIFT;
 	   		         ob->tiley = ob->y>>TILESHIFT;

@@ -487,7 +487,7 @@ boolean CA_LoadFile (char *filename, memptr *ptr)
 */
 
 
-
+#if 0 // FIXME
 /*
 ===============
 =
@@ -515,7 +515,7 @@ void CAL_OptimizeNodes (huffnode *table)
 	node++;
   }
 }
-
+#endif // 0
 
 
 /*
