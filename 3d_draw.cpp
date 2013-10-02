@@ -1,7 +1,6 @@
 // 3D_DRAW.C
 
 #include "3d_def.h"
-#include <ctime>
 
 #ifdef MSVC
 #pragma hdrstop
@@ -2264,7 +2263,6 @@ void DrawRadar()
 	ShowOverhead(192,156,16,zoom,flags);
 }
 
-clock_t tc_start,tc_end;
 Uint16 tc_time;
 
 

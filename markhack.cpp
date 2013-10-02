@@ -4,7 +4,6 @@
 
 
 #include "3d_def.h"
-#include "id_vl.h"
 
 
 extern Sint16 viewwidth;

@@ -78,9 +78,6 @@
 
 #include "3d_def.h"
 
-#include "jm_error.h"
-#include "jm_io.h"
-
 #ifdef MSVC
 #pragma hdrstop
 #endif

@@ -3,7 +3,6 @@
 #include "jm_io.h"
 #include "jm_cio.h"
 #include "jm_lzh.h"
-#include "jm_error.h"
 
 
 #if DEMOS_EXTERN

@@ -5,8 +5,6 @@
 #pragma hdrstop
 #endif
 
-#include "jm_tp.h"
-
 
 void InitWeaponBounce(void);
 void HandleWeaponBounce(void);

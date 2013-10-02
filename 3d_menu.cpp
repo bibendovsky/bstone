@@ -1,8 +1,5 @@
-
 #include "3d_def.h"
 
-#include "jm_tp.h"
-#include "jm_io.h"
 #include "jm_lzh.h"
 
 #ifdef MSVC
