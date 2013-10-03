@@ -537,7 +537,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 		case en_crate1:
 		case en_crate2:
 		case en_crate3:
-			new_actor->temp1 = SPR_CRATE_1+which-en_crate1;
+			new_actor->temp1 = static_cast<Sint16>(SPR_CRATE_1+which-en_crate1);
 			new_actor->flags |= FL_NO_SLIDE|FL_FAKE_STATIC;
 
 			// NOTE : TEMP2 is modified in ScanInfoPlane to determine if
@@ -657,7 +657,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 		case en_morphing_reptilian_warrior:
 		case en_morphing_mutanthuman2:
 			if (scan_value == 0xffff)
-				new_actor->temp2 = 0xffff;			// set to max!			// 60*5+(60*(US_RndT()%20));
+				new_actor->temp2 = static_cast<Sint16>(0xffff);			// set to max!			// 60*5+(60*(US_RndT()%20));
 			else
 				new_actor->temp2 = scan_value*60;
 
@@ -756,7 +756,7 @@ void T_OfsThink(objtype *obj)
 				obj->temp3-=tics;
 
 			if (obj->ammo >= tics)
-				obj->ammo -= tics;
+				obj->ammo -= static_cast<Uint8>(tics);
          else
          {
          	obj->ammo = DETONATOR_FLASH_RATE;
@@ -875,7 +875,7 @@ void T_OfsThink(objtype *obj)
 		break;
 
 		case electrosphereobj:
-			oldofs = obj->temp1 - SPR_ELECTRO_SPHERE_ROAM1;
+			oldofs = static_cast<char>(obj->temp1 - SPR_ELECTRO_SPHERE_ROAM1);
 			ofs = US_RndT()&3;
 			if (ofs == oldofs)
          	ofs =	(ofs+1) & 3;
@@ -1038,7 +1038,7 @@ void CheckForcedMove(objtype *ob)
 {
 	Sint16 olddir;
 
-	olddir = ob->dir;
+	olddir = static_cast<Sint16>(ob->dir);
 	ob->dir = static_cast<dirtype>(RandomSphereDir(static_cast<enemy_t>(ob->trydir)));
 	if (!TryWalk(ob,false))
 	{
@@ -1121,8 +1121,8 @@ void T_OfsBounce(objtype *ob)
 
 		// Restore tilex/tiley
 		//
-			ob->tilex=oldtx;
-			ob->tiley=oldty;
+			ob->tilex=static_cast<Uint8>(oldtx);
+			ob->tiley=static_cast<Uint8>(oldty);
 
 		// Direction change is based on current direction.
 		//
@@ -1199,8 +1199,8 @@ void T_OfsBounce(objtype *ob)
 		{
 			char orgx=ob->tilex,orgy=ob->tiley;
 
-			ob->tilex=oldtx;
-			ob->tiley=oldty;
+			ob->tilex=static_cast<Uint8>(oldtx);
+			ob->tiley=static_cast<Uint8>(oldty);
 			if (!MoveTrappedDiag(ob))
 			{
 				ob->tilex=orgx;
@@ -1370,8 +1370,8 @@ objtype *MoveHiddenOfs(classtype which_class, classtype new_class, fixed x, fixe
 		obj->obclass = new_class;
 		obj->x = x;
 		obj->y = y;
-		obj->tilex = x>>TILESHIFT;
-		obj->tiley = y>>TILESHIFT;
+		obj->tilex = static_cast<Uint8>(x>>TILESHIFT);
+		obj->tiley = static_cast<Uint8>(y>>TILESHIFT);
 		obj->areanumber=GetAreaNumber(obj->tilex, obj->tiley);
 
 		return(obj);
@@ -1432,8 +1432,8 @@ void InitSmartAnimStruct(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 Ma
 void InitAnim(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 MaxOfs, animtype_t AnimType, animdir_t AnimDir, Uint16 Delay, Uint16 WaitDelay)
 {
 	InitSmartAnimStruct(obj,ShapeNum,StartOfs,MaxOfs,AnimType,AnimDir);
-	obj->s_tilex = WaitDelay;
-	obj->s_tiley = Delay;
+	obj->s_tilex = static_cast<Uint8>(WaitDelay);
+	obj->s_tiley = static_cast<Uint8>(Delay);
 	NewState(obj,&s_ofs_smart_anim);
 }
 
@@ -1531,7 +1531,7 @@ void T_SmartThought(objtype *obj)
             {
                // Slowly inc back to
 
-					obj->lighting += ANIM_INFO(obj)->curframe;
+					obj->lighting += static_cast<char>(ANIM_INFO(obj)->curframe);
                if (obj->lighting>0)
                   obj->lighting = 0;
             }
@@ -1630,7 +1630,7 @@ void T_SmartThought(objtype *obj)
                      // Make sure that there are at least DR_MIN_STATICS
 
                      avail = MAXSTATS;
-							total = laststatobj-&statobjlist[0];
+							total = static_cast<Sint16>(laststatobj-&statobjlist[0]);
 							for (i=0;i<total;i++)
 								if (statobjlist[i].shapenum != -1)
 									avail--;
@@ -1747,8 +1747,8 @@ void T_SmartThought(objtype *obj)
    	      	      SpawnOffsetObj (en_green_ooze, obj->tilex, obj->tiley);
       	      	   new_actor->x = obj->x+(US_RndT()<<7);
          	      	new_actor->y = obj->y+(US_RndT()<<7);
-	                  new_actor->tilex = new_actor->x>>TILESHIFT;
-							new_actor->tiley = new_actor->y>>TILESHIFT;
+	                  new_actor->tilex = static_cast<Uint8>(new_actor->x>>TILESHIFT);
+							new_actor->tiley = static_cast<Uint8>(new_actor->y>>TILESHIFT);
 							usedummy = false;
 						}
 					}
@@ -1830,7 +1830,7 @@ boolean AnimateOfsObj(objtype *obj)
 		if (obj->s_tilex < tics)
 			obj->s_tilex = 0;
 		else
-			obj->s_tilex -= tics;
+			obj->s_tilex -= static_cast<Uint8>(tics);
 		return(false);
 	}
 
@@ -2002,7 +2002,8 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
 
       barrier = &gamestate.barrier_table[num];
       barrier->on ^= 1;
-      newwall = tilemap[x][y] = states[barrier->on];
+      newwall = states[barrier->on];
+      tilemap[x][y] = static_cast<Uint8>(states[barrier->on]);
 
       DisplaySwitchOperateMsg(num);
 
@@ -2033,7 +2034,7 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
 
             	if (icon == iconnum)
                {
-               	*tile = newwall;
+               	*tile = static_cast<Uint8>(newwall);
                   *actor = newwall;
                }
             }
@@ -2113,7 +2114,7 @@ Uint16 UpdateBarrierTable(Uint8 x, Uint8 y, boolean OnOff)
 
   	      Barrier->coord.tilex = x;
      	   Barrier->coord.tiley = y;
-         Barrier->on = OnOff;
+         Barrier->on = static_cast<Uint8>(OnOff);
          return(num);
       }
    }
@@ -2274,8 +2275,8 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
 		new_actor->flags = FL_OFFSET_STATES|FL_BARRIER;
 
 	new_actor->obclass = static_cast<classtype>(rentacopobj+which);
-	new_actor->ammo = OnOff;
-	new_actor->temp2 = ScanBarrierTable(tilex,tiley);
+	new_actor->ammo = static_cast<Uint8>(OnOff);
+	new_actor->temp2 = ScanBarrierTable(static_cast<Uint8>(tilex),static_cast<Uint8>(tiley));
 	new_actor->flags2 = FL2_BFGSHOT_SOLID;
 
 	switch (which)
@@ -3144,8 +3145,8 @@ void T_LiquidMove(objtype *obj)
 	// start firing...
 	//
 
-	dx = abs(obj->tilex - player->tilex);
-	dy = abs(obj->tiley - player->tiley);
+	dx = static_cast<Sint16>(abs(obj->tilex - player->tilex));
+	dy = static_cast<Sint16>(abs(obj->tiley - player->tiley));
 	dist = dx>dy ? dx : dy;
 
 	if (dist < 6 && dx > 1 && dy > 1)
@@ -3177,8 +3178,8 @@ void T_LiquidStand(objtype *obj)
 	}
 	else
 	{
-		dx = abs(obj->tilex - player->tilex);
-		dy = abs(obj->tiley - player->tiley);
+		dx = static_cast<Sint16>(abs(obj->tilex - player->tilex));
+		dy = static_cast<Sint16>(abs(obj->tiley - player->tiley));
 
 		if (dx > 1 || dy > 1)
 		{
@@ -3355,7 +3356,7 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 
 	CheckForSpecialTile(new_actor,tilex,tiley);
 
-	new_actor->ammo = ammo;
+	new_actor->ammo = static_cast<Uint8>(ammo);
 	new_actor->obclass = static_cast<classtype>(rentacopobj+which);
 	new_actor->hitpoints += starthitpoints[gamestate.difficulty][which];
 	new_actor->dir = static_cast<dirtype>(dir<<1);
@@ -3443,7 +3444,7 @@ void CheckForSpecialTile(objtype *obj, Uint16 tilex, Uint16 tiley)
    if (getarea)
    {
 		tilemap[tilex][tiley] = 0;
-		*map = obj->areanumber = GetAreaNumber(tilex,tiley);
+		*map = obj->areanumber = GetAreaNumber(static_cast<char>(tilex),static_cast<char>(tiley));
 
 		#if IN_DEVELOPMENT
   	   if (obj->areanumber >= NUMAREAS)
@@ -3528,7 +3529,7 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
             break;
 	}
 
-	new_actor->ammo = ammo;
+	new_actor->ammo = static_cast<Uint8>(ammo);
 	new_actor->obclass = static_cast<classtype>(rentacopobj+which);
 	new_actor->dir = static_cast<dirtype>(dir<<1);
 	new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
@@ -4009,8 +4010,8 @@ void T_Chase (objtype *ob)
 #endif
 	if (CheckLine(ob,player) && (!PlayerInvisable))						// got a shot at player?
 	{
-		dx = abs(ob->tilex - player->tilex);
-		dy = abs(ob->tiley - player->tiley);
+		dx = static_cast<Sint16>(abs(ob->tilex - player->tilex));
+		dy = static_cast<Sint16>(abs(ob->tiley - player->tiley));
 		dist = dx>dy ? dx : dy;
 		if (!dist)
 			dist = 1;
@@ -4044,7 +4045,7 @@ void T_Chase (objtype *ob)
 			// Check for mode change
 			//
 				if (ob->ammo > tics)
-					ob->ammo -= tics;
+					ob->ammo -= static_cast<Uint8>(tics);
 				else
 				{
 					ChangeShootMode(ob);
@@ -4154,7 +4155,7 @@ void T_Chase (objtype *ob)
 		//
 		// waiting for a door to open
 		//
-			OpenDoor (-ob->distance-1);
+			OpenDoor (static_cast<Sint16>(-ob->distance-1));
 			if (doorobjlist[-ob->distance-1].action != dr_open)
 				return;
 			ob->distance = TILEGLOBAL;	// go ahead, the door is now opoen
@@ -4229,8 +4230,8 @@ void DoAttack(objtype *ob)
 {
 	Sint16	dx,dy,dist;
 
-		dx = abs(ob->tilex - player->tilex);
-		dy = abs(ob->tiley - player->tiley);
+		dx = static_cast<Sint16>(abs(ob->tilex - player->tilex));
+		dy = static_cast<Sint16>(abs(ob->tiley - player->tiley));
 		dist = dx>dy ? dx : dy;
 		if (!dist)
 			dist = 1;
@@ -4476,7 +4477,7 @@ void T_Path (objtype *ob)
 		{
 		// Actor waiting for door to open
 		//
-			OpenDoor (-ob->distance-1);
+			OpenDoor (static_cast<Sint16>(-ob->distance-1));
 			if (doorobjlist[-ob->distance-1].action != dr_open)
 				return;
 			ob->distance = TILEGLOBAL;	// go ahead, the door is now opoen
@@ -4602,8 +4603,8 @@ void T_Shoot (objtype *ob)
 			if (!CheckLine (ob,player))			// player is behind a wall
 			  return;
 
-			dx = abs(ob->tilex - player->tilex);
-			dy = abs(ob->tiley - player->tiley);
+			dx = static_cast<Sint16>(abs(ob->tilex - player->tilex));
+			dy = static_cast<Sint16>(abs(ob->tiley - player->tiley));
 			dist = dx>dy ? dx:dy;
 
 			if (ob->obclass == swatobj)
@@ -5239,7 +5240,7 @@ void SpawnCusExplosion(fixed x, fixed y, Uint16 StartFrame, Uint16 NumFrames, Ui
 	new_actor->flags = FL_OFFSET_STATES|FL_NONMARK|FL_NEVERMARK;
 	new_actor->obclass = static_cast<classtype>(Class);
    new_actor->lighting = NO_SHADING;
-	InitAnim(new_actor,StartFrame,0,NumFrames,at_ONCE,ad_FWD,(US_RndT()&0x7),Delay);
+	InitAnim(new_actor,StartFrame,0,static_cast<Uint8>(NumFrames),at_ONCE,ad_FWD,(US_RndT()&0x7),Delay);
 	A_DeathScream(new_actor);
 	MakeAlertNoise(new_actor);
 }
@@ -5587,8 +5588,8 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 
 			// Store off start tile x & y
 
-			new_actor->s_tilex = x>>TILESHIFT;
-			new_actor->s_tiley = y>>TILESHIFT;
+			new_actor->s_tilex = static_cast<Uint8>(x>>TILESHIFT);
+			new_actor->s_tiley = static_cast<Uint8>(y>>TILESHIFT);
 		break;
 
 		case bfg_shotobj:
@@ -5601,8 +5602,8 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 
 			// Store off start tile x & y
 
-			new_actor->s_tilex = x>>TILESHIFT;
-			new_actor->s_tiley = y>>TILESHIFT;
+			new_actor->s_tilex = static_cast<Uint8>(x>>TILESHIFT);
+			new_actor->s_tiley = static_cast<Uint8>(y>>TILESHIFT);
 		break;
 
         default:
@@ -5706,18 +5707,18 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 							// Test for collision radius using CENTER of static
 							// NOT tile size boundries
 
-							ydist = (y<<TILESHIFT)+0x7FFF - ob->y;
+							ydist = static_cast<Sint16>((y<<TILESHIFT)+0x7FFF - ob->y);
 							ydist = ABS(ydist);
 
-							xdist = (x<<TILESHIFT)+0x7FFF - ob->x;
+							xdist = static_cast<Sint16>((x<<TILESHIFT)+0x7FFF - ob->x);
 							xdist = ABS(xdist);
 
 							if ((Uint16)xdist < PROJCHECKSIZE && (Uint16)ydist < PROJCHECKSIZE)
 							{
 								proj_check=false;
                         proj_wall = 0;
-								ob->tilex = ob->x>>TILESHIFT;
-								ob->tiley = ob->y>>TILESHIFT;
+								ob->tilex = static_cast<Uint8>(ob->x>>TILESHIFT);
+								ob->tiley = static_cast<Uint8>(ob->y>>TILESHIFT);
 								return(false);
                      }
 
@@ -5730,8 +5731,8 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
                          reinterpret_cast<size_t>(proj_check));
 
 							proj_check=false;
-			            ob->tilex = ob->x>>TILESHIFT;
-	   		         ob->tiley = ob->y>>TILESHIFT;
+			            ob->tilex = static_cast<Uint8>(ob->x>>TILESHIFT);
+	   		         ob->tiley = static_cast<Uint8>(ob->y>>TILESHIFT);
 							return(false);
                   }
 					}
@@ -5743,8 +5744,8 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 						else
 							if (proj_check->flags & FL_SOLID)
 							{
-				            ob->tilex = ob->x>>TILESHIFT;
-				            ob->tiley = ob->y>>TILESHIFT;
+				            ob->tilex = static_cast<Uint8>(ob->x>>TILESHIFT);
+				            ob->tiley = static_cast<Uint8>(ob->y>>TILESHIFT);
 								return(false);
 							}
 					}
@@ -5990,8 +5991,8 @@ BlowIt:
 
 // Align tile coordinates on boundaries.
 //
-	ob->tilex = ob->x >> TILESHIFT;
-	ob->tiley = ob->y >> TILESHIFT;
+	ob->tilex = static_cast<Uint8>(ob->x >> TILESHIFT);
+	ob->tiley = static_cast<Uint8>(ob->y >> TILESHIFT);
 }
 
 
@@ -6132,7 +6133,7 @@ void ExplodeFill(char tx, char ty)
 							// Unlock Next floor
 
 							gamestuff.level[gamestate.mapon+1].locked=false;
-							gamestate.key_floor=gamestate.mapon+1;
+							gamestate.key_floor=static_cast<char>(gamestate.mapon+1);
 						}
 					break;
 
@@ -6249,17 +6250,17 @@ Sint16 CalcAngle(objtype *from_obj, objtype *to_obj)
 
    // Calc Arc Tan from Obj1 to Obj2 - Returns radians
 
-	angle = atan2 (static_cast<double>(deltay),static_cast<double>(deltax));
+	angle = static_cast<float>(atan2 (static_cast<double>(deltay),static_cast<double>(deltax)));
 
 	if (angle<0)
-		angle = M_PI*2+angle;
+		angle = static_cast<float>(M_PI*2+angle);
 //	else
 //		if (!angle)
 //   		angle = 1;
 
 	// Convert rads to degs
 
-	iangle = angle/(M_PI*2)*ANGLES;
+	iangle = static_cast<Sint16>(angle/(M_PI*2)*ANGLES);
 
 	return(iangle);
 }
@@ -6411,8 +6412,8 @@ void T_BlowBack(objtype *obj)
 	if (ClipMove(obj,deltax,deltay))
    	obj->flags |= FL_NO_SLIDE;
 
-   obj->tilex = obj->x>>TILESHIFT;
-   obj->tiley = obj->y>>TILESHIFT;
+   obj->tilex = static_cast<Uint8>(obj->x>>TILESHIFT);
+   obj->tiley = static_cast<Uint8>(obj->y>>TILESHIFT);
 
 	if (obj->flags & FL_NO_SLIDE)
 	{

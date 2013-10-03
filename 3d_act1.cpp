@@ -279,8 +279,8 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 		return;
 
 	spot->shapenum = statinfo[type].picnum;
-	spot->tilex = tilex;
-	spot->tiley = tiley;
+	spot->tilex = static_cast<Uint8>(tilex);
+	spot->tiley = static_cast<Uint8>(tiley);
 	spot->visspot = &spotvis[tilex][tiley];
  	spot->flags = 0;
 
@@ -359,7 +359,7 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 		case  bo_coin5:
 		case  bo_automapper1:
 			spot->flags = FL_BONUS;
-			spot->itemnumber = statinfo[type].type;
+			spot->itemnumber = static_cast<Uint8>(statinfo[type].type);
 		break;
 
         default:
@@ -466,11 +466,11 @@ statobj_t *UseReservedStatic(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
    }
 
 	spot->shapenum = statinfo[type].picnum;
-	spot->tilex = tilex;
-	spot->tiley = tiley;
+	spot->tilex = static_cast<Uint8>(tilex);
+	spot->tiley = static_cast<Uint8>(tiley);
 	spot->visspot = &spotvis[tilex][tiley];
 	spot->flags = FL_BONUS;
-	spot->itemnumber = statinfo[type].type;
+	spot->itemnumber = static_cast<Uint8>(statinfo[type].type);
 
 	spot->areanumber=GetAreaNumber(spot->tilex,spot->tiley);
 
@@ -495,7 +495,7 @@ void PlaceReservedItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 
 	for (loop=0; loop<8; loop++)
 	{
-		char x=tilex+pint_xy[loop][1], y=tiley+pint_xy[loop][0];
+		char x=static_cast<char>(tilex+pint_xy[loop][1]), y=static_cast<char>(tiley+pint_xy[loop][0]);
 
 		if (!tilemap[x][y])
 		{
@@ -550,11 +550,11 @@ void PlaceItemType (Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 // place it
 //
 	spot->shapenum = statinfo[type].picnum;
-	spot->tilex = tilex;
-	spot->tiley = tiley;
+	spot->tilex = static_cast<Uint8>(tilex);
+	spot->tiley = static_cast<Uint8>(tiley);
 	spot->visspot = &spotvis[tilex][tiley];
 	spot->flags = FL_BONUS;
-	spot->itemnumber = statinfo[type].type;
+	spot->itemnumber = static_cast<Uint8>(statinfo[type].type);
 
 	spot->areanumber=GetAreaNumber(spot->tilex,spot->tiley);
 
@@ -577,7 +577,7 @@ void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 
 	for (loop=0; loop<8; loop++)
 	{
-		char x=tilex+pint_xy[loop][1], y=tiley+pint_xy[loop][0];
+		char x=static_cast<char>(tilex+pint_xy[loop][1]), y=static_cast<char>(tiley+pint_xy[loop][0]);
 
 		if (!tilemap[x][y])
 		{
@@ -775,8 +775,8 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 		ACT1_ERROR(SPAWNDOOR_TOO_MANY);
 
 	doorposition[doornum] = 0;		// doors start out fully closed
-	lastdoorobj->tilex = tilex;
-	lastdoorobj->tiley = tiley;
+	lastdoorobj->tilex = static_cast<Uint8>(tilex);
+	lastdoorobj->tiley = static_cast<Uint8>(tiley);
 	lastdoorobj->vertical = vertical;
 	lastdoorobj->lock = lock;
 	lastdoorobj->type = type;
@@ -785,13 +785,13 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 
 	if (vertical)
 	{
-		lastdoorobj->areanumber[0]=GetAreaNumber(tilex+1,tiley);
-		lastdoorobj->areanumber[1]=GetAreaNumber(tilex-1,tiley);
+		lastdoorobj->areanumber[0]=GetAreaNumber(static_cast<char>(tilex+1),static_cast<char>(tiley));
+		lastdoorobj->areanumber[1]=GetAreaNumber(static_cast<char>(tilex-1),static_cast<char>(tiley));
 	}
 	else
 	{
-		lastdoorobj->areanumber[0]=GetAreaNumber(tilex,tiley-1);
-		lastdoorobj->areanumber[1]=GetAreaNumber(tilex,tiley+1);
+		lastdoorobj->areanumber[0]=GetAreaNumber(static_cast<char>(tilex),static_cast<char>(tiley-1));
+		lastdoorobj->areanumber[1]=GetAreaNumber(static_cast<char>(tilex),static_cast<char>(tiley+1));
 	}
 
 // FIXME
@@ -806,20 +806,20 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 // make the door tile a special tile, and mark the adjacent tiles
 // for door sides
 //
-	tilemap[tilex][tiley] = doornum | 0x80;
+	tilemap[tilex][tiley] = static_cast<Uint8>(doornum | 0x80);
 
 	if (vertical)
 	{
 		if (*(map[0]-mapwidth-1) == TRANSPORTERTILE)
-			*map[0] = GetAreaNumber(tilex+1,tiley);
+			*map[0] = GetAreaNumber(static_cast<char>(tilex+1),static_cast<char>(tiley));
 		else
-			*map[0] = GetAreaNumber(tilex-1,tiley);
+			*map[0] = GetAreaNumber(static_cast<char>(tilex-1),static_cast<char>(tiley));
 		tilemap[tilex][tiley-1] |= 0x40;
 		tilemap[tilex][tiley+1] |= 0x40;
 	}
 	else
 	{
-		*map[0] = GetAreaNumber(tilex,tiley-1);
+		*map[0] = GetAreaNumber(static_cast<char>(tilex),static_cast<char>(tiley-1));
 		tilemap[tilex-1][tiley] |= 0x40;
 		tilemap[tilex+1][tiley] |= 0x40;
 	}
@@ -1107,7 +1107,7 @@ void OperateDoor (Sint16 door)
 	// Check for possibly being locked
 	//
 
-	lock = doorobjlist[door].lock;
+	lock = static_cast<Sint16>(doorobjlist[door].lock);
 	if (lock != kt_none)
 	{
 		if (!(gamestate.numkeys[lock-kt_red]))
@@ -1371,11 +1371,11 @@ Sint16 TransformAreas(char tilex, char tiley, char xform)
 
 // Define the two areas...
 //
-	area1=GetAreaNumber(tilex+xofs,tiley+yofs);
+	area1=GetAreaNumber(static_cast<char>(tilex+xofs),static_cast<char>(tiley+yofs));
 	if (area1 >= NUMAREAS)
 		ACT1_ERROR(TRANSFORM_AREA1_OUT_OF_RANGE);
 
-	area2=GetAreaNumber(tilex-xofs,tiley-yofs);
+	area2=GetAreaNumber(static_cast<char>(tilex-xofs),static_cast<char>(tiley-yofs));
 	if (area2 >= NUMAREAS)
 		ACT1_ERROR(TRANSFORM_AREA2_OUT_OF_RANGE);
 
@@ -1453,7 +1453,7 @@ void DoorOpening (Sint16 door)
 		actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 	}
 
-	doorposition[door] = position;
+	doorposition[door] = static_cast<Uint16>(position);
 }
 
 /*
@@ -1529,7 +1529,7 @@ void DoorClosing (Sint16 door)
 #endif
 	}
 
-	doorposition[door] = position;
+	doorposition[door] = static_cast<Uint16>(position);
 }
 
 /*
@@ -1593,7 +1593,7 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 	if (pwallstate)
 	  return;
 
-	TransformAreas(checkx,checky,1);		  
+	TransformAreas(static_cast<char>(checkx),static_cast<char>(checky),1);		  
 
 	oldtile = tilemap[checkx][checky];
 	if (!oldtile)
@@ -1613,8 +1613,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx][checky-1] = oldtile;
 #endif // 0
 
-        tilemap[checkx][checky-1] = oldtile;
-        actorat[checkx][checky-1] = (objtype*)oldtile;
+        tilemap[checkx][checky-1] = static_cast<Uint8>(oldtile);
+        actorat[checkx][checky-1] = reinterpret_cast<objtype*>(oldtile);
 		break;
 
 	case di_east:
@@ -1629,8 +1629,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx+1][checky] = oldtile;
 #endif // 0
 
-        tilemap[checkx+1][checky] = oldtile;
-        actorat[checkx+1][checky] = (objtype*)oldtile;
+        tilemap[checkx+1][checky] = static_cast<Uint8>(oldtile);
+        actorat[checkx+1][checky] = reinterpret_cast<objtype*>(oldtile);
 		break;
 
 	case di_south:
@@ -1645,8 +1645,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx][checky+1] = oldtile;
 #endif // 0
 
-        tilemap[checkx][checky+1] = oldtile;
-        actorat[checkx][checky+1] = (objtype*)oldtile;
+        tilemap[checkx][checky+1] = static_cast<Uint8>(oldtile);
+        actorat[checkx][checky+1] = reinterpret_cast<objtype*>(oldtile);
 		break;
 
 	case di_west:
@@ -1661,8 +1661,8 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		tilemap[checkx-1][checky] = oldtile;
 #endif // 0
 
-        tilemap[checkx-1][checky] = oldtile;
-        actorat[checkx-1][checky] = (objtype*)oldtile;
+        tilemap[checkx-1][checky] = static_cast<Uint8>(oldtile);
+        actorat[checkx-1][checky] = reinterpret_cast<objtype*>(oldtile);
 		break;
 	}
 
@@ -1759,8 +1759,8 @@ void MovePWalls (void)
 				tilemap[pwallx][pwally-1] = oldtile;
 #endif // 0
 
-                tilemap[pwallx][pwally - 1] = oldtile;
-                actorat[pwallx][pwally - 1] = (objtype*)oldtile;
+                tilemap[pwallx][pwally - 1] = static_cast<Uint8>(oldtile);
+                actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
 				break;
 
 			case di_east:
@@ -1777,8 +1777,8 @@ void MovePWalls (void)
 				tilemap[pwallx+1][pwally] = oldtile;
 #endif // 0
 
-                tilemap[pwallx+1][pwally] = oldtile;
-                actorat[pwallx+1][pwally] = (objtype*)oldtile;
+                tilemap[pwallx+1][pwally] = static_cast<Uint8>(oldtile);
+                actorat[pwallx+1][pwally] = reinterpret_cast<objtype*>(oldtile);
 				break;
 
 			case di_south:
@@ -1795,8 +1795,8 @@ void MovePWalls (void)
 				tilemap[pwallx][pwally+1] = oldtile;
 #endif // 0
 
-                tilemap[pwallx][pwally+1] = oldtile;
-                actorat[pwallx][pwally+1] = (objtype*)oldtile;
+                tilemap[pwallx][pwally+1] = static_cast<Uint8>(oldtile);
+                actorat[pwallx][pwally+1] = reinterpret_cast<objtype*>(oldtile);
 				break;
 
 			case di_west:
@@ -1813,12 +1813,12 @@ void MovePWalls (void)
 				tilemap[pwallx-1][pwally] = oldtile;
 #endif // 0
 
-                tilemap[pwallx-1][pwally] = oldtile;
-                actorat[pwallx-1][pwally] = (objtype*)oldtile;
+                tilemap[pwallx-1][pwally] = static_cast<Uint8>(oldtile);
+                actorat[pwallx-1][pwally] = reinterpret_cast<objtype*>(oldtile);
 				break;
 			}
 
-			tilemap[pwallx][pwally] = oldtile | 0xc0;
+			tilemap[pwallx][pwally] = static_cast<Uint8>(oldtile | 0xc0);
 		}
 	}
 
@@ -2062,7 +2062,7 @@ void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinety
 			case 0xFC00:											// Food Id
 				ci->mInfo.local_val = credits & 0xff;
 				ci->operate_cnt = 0;
-				ci->type = machinetype;
+				ci->type = static_cast<Uint8>(machinetype);
 			break;
 		}
 

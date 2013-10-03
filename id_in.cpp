@@ -765,8 +765,8 @@ static void INL_GetMouseDelta(
     Sint16* x,
     Sint16* y)
 {
-    *x = in_mouse_dx;
-    *y = in_mouse_dy;
+    *x = static_cast<Sint16>(in_mouse_dx);
+    *y = static_cast<Sint16>(in_mouse_dy);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1493,7 +1493,7 @@ register	KeyboardDef	*def;
 		if (MousePresent && (ControlTypeUsed == ctrl_None))
 		{
 			INL_GetMouseDelta(&dx,&dy);
-			buttons = INL_GetMouseButtons();
+			buttons = static_cast<Uint16>(INL_GetMouseButtons());
 			realdelta = true;
 			if (dx || dy || buttons)
 				ControlTypeUsed = ctrl_Mouse;
@@ -1570,8 +1570,8 @@ register	KeyboardDef	*def;
 	}
 	else
 	{
-		dx = mx * 127;
-		dy = my * 127;
+		dx = static_cast<Sint16>(mx * 127);
+		dy = static_cast<Sint16>(my * 127);
 	}
 
 	info->x = dx;
@@ -1857,7 +1857,7 @@ void IN_Startup()
     MousePresent = checkmouse? INL_StartMouse() : false;
 
     for (i = 0; i < MaxJoys; ++i)
-        JoysPresent[i] = checkjoys? INL_StartJoy(i) : false;
+        JoysPresent[i] = checkjoys? INL_StartJoy(static_cast<Uint16>(i)) : false;
 
     IN_Started = true;
 }

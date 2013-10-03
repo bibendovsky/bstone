@@ -154,7 +154,7 @@ extern  Uint16        blockstarts[UPDATEWIDE*UPDATEHIGH];
 
 extern  Uint8            fontcolor,backcolor;
 
-#define SETFONTCOLOR(f,b) fontcolor=f;backcolor=b;
+#define SETFONTCOLOR(f,b) fontcolor=static_cast<Uint8>(f);backcolor=static_cast<Uint8>(b);
 
 #include "3d_menu.h"
 

@@ -95,8 +95,8 @@ void SpawnNewObj (Uint16 tilex, Uint16 tiley, statetype *state)
 	new_actor->state = state;
 	new_actor->ticcount = Random (state->tictime)+1;
 
-	new_actor->tilex = tilex;
-	new_actor->tiley = tiley;
+	new_actor->tilex = static_cast<Uint8>(tilex);
+	new_actor->tiley = static_cast<Uint8>(tiley);
 	new_actor->x = ((Sint32)tilex<<TILESHIFT)+TILEGLOBAL/2;
 	new_actor->y = ((Sint32)tiley<<TILESHIFT)+TILEGLOBAL/2;
 	new_actor->dir = new_actor->trydir = nodir;
@@ -445,7 +445,7 @@ boolean TryWalk (objtype *ob, boolean moveit)
 //--------------------------------------------------------------------------
 boolean ElevatorFloor(char x, char y)
 {
-	Uint8 tile=*(mapsegs[0]+farmapylookup[y]+x);
+	Uint8 tile=static_cast<Uint8>(*(mapsegs[0]+farmapylookup[y]+x));
 
 	if (tile >= HIDDENAREATILE)
 		tile -= HIDDENAREATILE;
@@ -531,8 +531,8 @@ void SelectDodgeDir (objtype *ob)
 //
 // randomize a bit for dodging
 //
-	absdx = abs(deltax);
-	absdy = abs(deltay);
+	absdx = static_cast<Uint16>(abs(deltax));
+	absdy = static_cast<Uint16>(abs(deltay));
 
 	if (absdx > absdy)
 	{
@@ -1231,8 +1231,8 @@ numEnemy[clas]--;
 
    DropCargo(ob);
 
-	ob->tilex = tilex;
-	ob->tiley = tiley;
+	ob->tilex = static_cast<Uint8>(tilex);
+	ob->tiley = static_cast<Uint8>(tiley);
 
 	if ((LastMsgPri == MP_TAKE_DAMAGE) && (LastInfoAttacker == clas))
 		MsgTicsRemain = 1;
@@ -1702,21 +1702,21 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 
 
 
-	x1 = from_obj->x >> UNSIGNEDSHIFT;		// 1/256 tile precision
-	y1 = from_obj->y >> UNSIGNEDSHIFT;
+	x1 = static_cast<Sint16>(from_obj->x >> UNSIGNEDSHIFT);		// 1/256 tile precision
+	y1 = static_cast<Sint16>(from_obj->y >> UNSIGNEDSHIFT);
 	xt1 = x1 >> 8;
 	yt1 = y1 >> 8;
 
 //	x2 = plux;
 //	y2 = pluy;
 
-	x2 = to_obj->x >> UNSIGNEDSHIFT;
-	y2 = to_obj->y >> UNSIGNEDSHIFT;
+	x2 = static_cast<Sint16>(to_obj->x >> UNSIGNEDSHIFT);
+	y2 = static_cast<Sint16>(to_obj->y >> UNSIGNEDSHIFT);
 	xt2 = to_obj->tilex;
 	yt2 = to_obj->tiley;
 
 
-	xdist = abs(xt2-xt1);
+	xdist = static_cast<Sint16>(abs(xt2-xt1));
 
 	if (xdist > 0)
 	{
@@ -1731,7 +1731,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 			xstep = -1;
 		}
 
-		deltafrac = abs(x2-x1);
+		deltafrac = static_cast<Sint16>(abs(x2-x1));
 		if (!deltafrac)
 			deltafrac=1;
 		delta = y2-y1;
@@ -1741,8 +1741,8 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 		else if (ltemp < -0x7fffl)
 			ystep = -0x7fff;
 		else
-			ystep = ltemp;
-		yfrac = y1 + (((Sint32)ystep*partial) >>8);
+			ystep = static_cast<Sint16>(ltemp);
+		yfrac = y1 + ((static_cast<Sint32>(ystep)*partial) >>8);
 
 		x = xt1+xstep;
 		xt2 += xstep;
@@ -1772,7 +1772,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 		} while (x != xt2);
 	}
 
-	ydist = abs(yt2-yt1);
+	ydist = static_cast<Sint16>(abs(yt2-yt1));
 
 	if (ydist > 0)
 	{
@@ -1787,7 +1787,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 			ystep = -1;
 		}
 
-		deltafrac = abs(y2-y1);
+		deltafrac = static_cast<Sint16>(abs(y2-y1));
 		if (!deltafrac)
 			deltafrac=1;
 		delta = x2-x1;
@@ -1797,7 +1797,7 @@ boolean CheckLine (objtype *from_obj, objtype *to_obj)
 		else if (ltemp < -0x7fffl)
 			xstep = -0x7fff;
 		else
-			xstep = ltemp;
+			xstep = static_cast<Sint16>(ltemp);
 		xfrac = x1 + (((Sint32)xstep*partial) >>8);
 
 		y = yt1 + ystep;
@@ -2369,11 +2369,11 @@ boolean CheckView(objtype *from_obj, objtype *to_obj)
 	deltay = to_obj->y - from_obj->y;
 
 
-	fangle = atan2(static_cast<double>(deltay),static_cast<double>(deltax));			// returns -pi to pi
+	fangle = static_cast<float>(atan2(static_cast<double>(deltay),static_cast<double>(deltax)));			// returns -pi to pi
 	if (fangle<0)
-		fangle = M_PI*2+fangle;
+		fangle = static_cast<float>(M_PI*2+fangle);
 
-	angle = fangle/(M_PI*2)*ANGLES+23;
+	angle = static_cast<Sint16>(fangle/(M_PI*2)*ANGLES+23);
 
 	if (angle > 360)
 		angle = 360;
@@ -2585,7 +2585,7 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 		// Randomly choose a door from the list.
 		// (Only choose the last door used if it's the only door in this area!)
 		//
-			doornum = Random(doorsfound);
+			doornum = static_cast<char>(Random(doorsfound));
 			door = doorlist[doornum];
 
 // FIXME

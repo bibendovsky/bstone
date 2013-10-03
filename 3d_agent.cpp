@@ -289,7 +289,8 @@ void CheckWeaponChange (void)
 		{
 			if (gamestate.useable_weapons & (1<<i))
 			{
-				gamestate.weapon = gamestate.chosenweapon = i;
+				gamestate.weapon = static_cast<char>(i);
+                gamestate.chosenweapon = static_cast<char>(i);
 
 				DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
 				DrawWeapon();
@@ -458,7 +459,7 @@ void StatusAllDrawPic(Uint16 x, Uint16 y, Uint16 picnum)
 
 #ifdef PAGEFLIP
 
-	temp = bufferofs;
+	temp = static_cast<Uint16>(bufferofs);
 	bufferofs = PAGE1START+(200-STATUSLINES)*SCREENWIDTH;
 	JLatchDrawPic (x,y,picnum);
 	bufferofs = PAGE2START+(200-STATUSLINES)*SCREENWIDTH;
@@ -512,7 +513,7 @@ void	LatchNumber (Sint16 x, Sint16 y, Sint16 width, Sint32 number)
 
     bstone::C::xitoa(number, str, 10);
 
-	length =	strlen(str);
+	length =	static_cast<Uint16>(strlen(str));
 
 	while ((length<width) && (wide < width))
 	{
@@ -861,7 +862,8 @@ void GiveWeapon (Sint16 weapon)
 
 		if (gamestate.weapon < weapon)
 		{
-			gamestate.weapon = gamestate.chosenweapon = weapon;
+			gamestate.weapon = static_cast<char>(weapon);
+            gamestate.chosenweapon = static_cast<char>(weapon);
 			DrawWeapon();
 		}
 	}
@@ -921,11 +923,11 @@ void DrawAmmo(boolean ForceRefresh)
 	else
 		temp = 0;
 
-	gamestate.ammo_leds = temp;
+	gamestate.ammo_leds = static_cast<char>(temp);
 
 	if ((temp != gamestate.lastammo_leds) || ForceRefresh)
 	{
-		gamestate.lastammo_leds = temp;
+		gamestate.lastammo_leds = static_cast<char>(temp);
 		DrawAmmoPic_COUNT = 3;
 	}
 
@@ -1044,7 +1046,7 @@ void DrawPDAmmoMsg(void)
 void UpdateAmmoMsg(void)
 {
 	if (gamestate.weapon_wait)
-		if ((gamestate.weapon_wait -= tics)<=0)
+		if ((gamestate.weapon_wait -= static_cast<char>(tics))<=0)
 		{
 			gamestate.weapon_wait = 0;
 			DrawAmmoPic_COUNT = 3;
@@ -1079,10 +1081,10 @@ void UpdateRadarGuage(void)
 	else
 		temp = 0;
 
-	gamestate.radar_leds = temp;
+	gamestate.radar_leds = static_cast<char>(temp);
 
 	if (temp != gamestate.lastradar_leds)
-		gamestate.lastradar_leds = temp;
+		gamestate.lastradar_leds = static_cast<char>(temp);
 
 	DrawRadarGuage_COUNT=3;
 }
@@ -1113,7 +1115,7 @@ void DrawLedStrip(Sint16 x,Sint16 y,Sint16 frac,Sint16 max)
 	Uint16 amount;
 	char leds;
 
-	leds = frac;
+	leds = static_cast<char>(frac);
 
 	if (leds)
 		amount = max-leds;
@@ -1348,7 +1350,7 @@ boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTim
 		if (Priority == MP_max_val)			// "System" msgs
 			LastMsgPri = MP_min_val;
 		else
-			LastMsgPri = Priority;
+			LastMsgPri = static_cast<Uint16>(Priority);
 
 		if (MsgTicsRemain = DisplayTime)
 			StatusAllDrawPic(0,40,BRI_LIGHTPIC);
@@ -1574,7 +1576,7 @@ void DrawInfoArea(void)
     first_ch = &buffer[0];
 
 	fontnumber = 2;
-	fontcolor = InfoAreaSetup.text_color;
+	fontcolor = static_cast<Uint8>(InfoAreaSetup.text_color);
 
 	while (first_ch && *first_ch)
 	{
@@ -1691,7 +1693,8 @@ char *HandleControlCodes(char *first_ch)
 		// FONT COLOR -------------------------------------------------------
 		//
 				case TP_CNVT_CODE('F','C'):
-					InfoAreaSetup.text_color = fontcolor = TP_VALUE(first_ch,2);
+					InfoAreaSetup.text_color = TP_VALUE(first_ch,2);
+                    fontcolor = static_cast<Uint8>(TP_VALUE(first_ch,2));
 					first_ch += 2;
 				break;
 
@@ -1965,7 +1968,7 @@ void ForceUpdateStatusBar(void)
 {
 	Uint16 old_ofs,i;
 
-	old_ofs = bufferofs;
+	old_ofs = static_cast<Uint16>(bufferofs);
 
 	DrawScore();
 	DrawWeapon();
@@ -2272,7 +2275,7 @@ void writeTokenStr(char *str)
 {
 	char buffer[3],len;
 
-	len = strlen(str);
+	len = static_cast<char>(strlen(str));
 	if (gamestate.tokens > 9)
         bstone::C::xitoa(gamestate.tokens, buffer, 10);
 	else
@@ -2469,8 +2472,8 @@ void Thrust (Sint16 angle, Sint32 speed)
 
    player_oldtilex = player->tilex;
    player_oldtiley = player->tiley;
-	player->tilex = player->x >> TILESHIFT;		// scale to tile values
-	player->tiley = player->y >> TILESHIFT;
+	player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);		// scale to tile values
+	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 
 	player->areanumber=GetAreaNumber(player->tilex,player->tiley);
 	areabyplayer[player->areanumber] = true;
@@ -2496,7 +2499,7 @@ void Thrust (Sint16 angle, Sint32 speed)
       case SMART_ON_TRIGGER:
 			dx = *map[1]>>8;
 			dy = *map[1]&255;
-         OperateSmartSwitch(dx,dy,(*map[0])-SMART_OFF_TRIGGER,false);
+         OperateSmartSwitch(dx,dy,static_cast<char>((*map[0])-SMART_OFF_TRIGGER),false);
          ignore_map1 = true;
       break;
 
@@ -2626,7 +2629,7 @@ Uint8 ValidAreaTile(Uint16 *ptr)
 
 		default:
 			if (*ptr > AREATILE)
-				return(*ptr);
+				return static_cast<Uint8>(*ptr);
 		break;
 	}
 
@@ -2802,7 +2805,7 @@ void Cmd_Use (void)
 				OperateConcession((Sint16)actorat[checkx][checky]);
 #endif // 0
 
-                OperateConcession((size_t)actorat[checkx][checky]);
+                OperateConcession(reinterpret_cast<Uint16>(actorat[checkx][checky]));
 			break;
 
 			default:
@@ -2862,7 +2865,7 @@ void Cmd_Use (void)
 	else
 	{
 		if (tics < interrogate_delay)
-			interrogate_delay-=tics;
+			interrogate_delay-=static_cast<Uint8>(tics);
 		else
 			interrogate_delay=0;
 
@@ -2966,13 +2969,13 @@ boolean Interrogate(objtype *ob)
 					ob->s_tilex = 0xff;
 				ob->ammo = ob->areanumber;
 				if (ob->s_tilex == 0xff)
-					ob->s_tilex=Random(NumAreaMsgs);
+					ob->s_tilex=static_cast<Uint8>(Random(NumAreaMsgs));
 				msgptr=static_cast<char*>(InfAreaMsgs[ob->s_tilex]);
 			}
 			else
 			{
 				if (ob->s_tiley == 0xff)
-					ob->s_tiley=FirstGenInfMsg+Random(TotalGenInfMsgs);
+					ob->s_tiley=static_cast<Uint8>(FirstGenInfMsg+Random(TotalGenInfMsgs));
 				msgptr=static_cast<char*>(InfHintList.smInfo[ob->s_tiley].mInfo.mSeg);
 			}
 
@@ -3074,7 +3077,7 @@ Sint16 InputFloor(void)
 
 	CacheDrawPic(0,0,TELEPORTBACKTOPPIC);
 	CacheDrawPic(0,12*8,TELEPORTBACKBOTPIC);
-	DisplayTeleportName(tpNum,locked);
+	DisplayTeleportName(static_cast<char>(tpNum),locked);
 	CacheLump(TELEPORT_LUMP_START,TELEPORT_LUMP_END);
 	VWB_DrawMPic(teleX[tpNum],teleY[tpNum],TELEPORT1ONPIC+tpNum);
 
@@ -3174,7 +3177,7 @@ Sint16 InputFloor(void)
 	//
 		if (moveActive)
 		{
-			moveActive -= tics;
+			moveActive -= static_cast<char>(tics);
 			if (moveActive<0)
 				moveActive=0;
 		}
@@ -3236,7 +3239,7 @@ Sint16 InputFloor(void)
 		if (tpNum != lastTpNum)
 		{
 			locked = gamestuff.level[tpNum].locked;
-			DisplayTeleportName(tpNum,locked);
+			DisplayTeleportName(static_cast<char>(tpNum),locked);
 
 			VWB_DrawMPic(teleX[lastTpNum],teleY[lastTpNum],TELEPORT1OFFPIC+lastTpNum);
 			VWB_DrawMPic(teleX[tpNum],teleY[tpNum],TELEPORT1ONPIC+tpNum);
@@ -3475,9 +3478,9 @@ void DisplayTeleportName(char tpNum, boolean locked)
 //--------------------------------------------------------------------------
 void CacheDrawPic(int x, int y, int pic)
 {
-	CA_CacheGrChunk(pic);
+	CA_CacheGrChunk(static_cast<Sint16>(pic));
 	VWB_DrawPic(x,y,pic);
-	UNCACHEGRCHUNK(pic);
+	UNCACHEGRCHUNK(static_cast<Uint16>(pic));
 }
 
 //===========================================================================
@@ -3580,7 +3583,7 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 //
 	if (total)
 	{
-		maxperc=LRATIO(100,total,perc,10);
+		maxperc=static_cast<char>(LRATIO(100,total,perc,10));
 		numbars=LRATIO(48,100,maxperc,10);
 	}
 	else
@@ -3726,7 +3729,7 @@ void B_EManFunc()
 
 	fontnumber = 2;
 
-	temp = bufferofs;
+	temp = static_cast<Uint16>(bufferofs);
 
 	for (i=0;i<3;i++)
 	{
@@ -4678,8 +4681,8 @@ void SpawnPlayer (Sint16 tilex, Sint16 tiley, Sint16 dir)
 
 	player->obclass = playerobj;
 	player->active = ac_yes;
-	player->tilex = tilex;
-	player->tiley = tiley;
+	player->tilex = static_cast<Uint8>(tilex);
+	player->tiley = static_cast<Uint8>(tiley);
 
 	player->areanumber=GetAreaNumber(player->tilex,player->tiley);
 
@@ -4801,8 +4804,8 @@ void	GunAttack (objtype *ob)
 	// hit something
 	//
 
-	dx = abs(closest->tilex - player->tilex);
-	dy = abs(closest->tiley - player->tiley);
+	dx = static_cast<Sint16>(abs(closest->tilex - player->tilex));
+	dy = static_cast<Sint16>(abs(closest->tiley - player->tiley));
 	dist = dx>dy ? dx:dy;
 
 	if (dist<2)
@@ -4860,8 +4863,8 @@ void	T_Attack (objtype *ob)
 
 	ControlMovement (ob);
 
-	player->tilex = player->x >> TILESHIFT;		// scale to tile values
-	player->tiley = player->y >> TILESHIFT;
+	player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);		// scale to tile values
+	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 
 //
 // change frame and fire
@@ -4907,7 +4910,7 @@ void	T_Attack (objtype *ob)
 				{
 					if (gamestate.useable_weapons & (1<<x))
 					{
-						gamestate.weapon = x;
+						gamestate.weapon = static_cast<char>(x);
                   break;
                }
             }
@@ -5112,8 +5115,8 @@ void	T_Player (objtype *ob)
 
 //	plux = player->x >> UNSIGNEDSHIFT;			// scale to fit in unsigned
 //	pluy = player->y >> UNSIGNEDSHIFT;
-	player->tilex = player->x >> TILESHIFT;		// scale to tile values
-	player->tiley = player->y >> TILESHIFT;
+	player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);		// scale to tile values
+	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 }
 
 #if 0

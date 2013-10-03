@@ -1094,7 +1094,7 @@ void VL_SetLineWidth (Uint16 width)
 ==================
 */
 
-const   float   radtoint = (float)FINEANGLES/2/PI;
+const   float   radtoint = static_cast<float>(FINEANGLES/2/PI);
 
 void BuildTables (void)
 {
@@ -1111,8 +1111,8 @@ void BuildTables (void)
 	for (i=0;i<FINEANGLES/8;i++)
 	{
 		tang = tan( (i+0.5)/radtoint);
-		finetangent[i] = tang*TILEGLOBAL;
-		finetangent[FINEANGLES/4-1-i] = 1/tang*TILEGLOBAL;
+		finetangent[i] = static_cast<Sint32>(tang*TILEGLOBAL);
+		finetangent[FINEANGLES/4-1-i] = static_cast<Sint32>(1/tang*TILEGLOBAL);
 	}
 
 //
@@ -1127,7 +1127,7 @@ void BuildTables (void)
   anglestep = static_cast<float>(PI/2/ANGLEQUAD);
   for (i=0;i<=ANGLEQUAD;i++)
   {
-	value=GLOBAL1*sin(static_cast<double>(angle));
+	value=static_cast<fixed>(GLOBAL1*sin(static_cast<double>(angle)));
 	sintable[i]=
 	  sintable[i+ANGLES]=
 	  sintable[ANGLES/2-i] = value;
@@ -1222,7 +1222,7 @@ void CAL_SetupAudioFile (void)
 	if (!handle.is_open())
 		CA_CannotOpen(fname);
 
-	length = handle.get_size();
+	length = static_cast<Sint32>(handle.get_size());
     audiostarts = (Sint32*)malloc(length);
 	handle.read(audiostarts, length);
 	handle.close();
@@ -2356,7 +2356,7 @@ Uint16 scan_atoi(char *s)
 	while (*s && (!isdigit(*s)))			// First scans for a digit...
 		s++;
 
-	return(atoi(s));							// Then converts to integer...
+	return(static_cast<Uint16>(atoi(s)));							// Then converts to integer...
 }
 
 extern const char * MainStrs[];
@@ -2548,7 +2548,7 @@ Sint32 ChecksumFile(char *file, Sint32 checksum)
 		goto exit_func;
 	}
 
-	size=handle.get_size();
+	size=static_cast<Sint32>(handle.get_size());
 	while (size)
 	{
 		if (size >= CFC_BUFFERSIZE)

@@ -51,7 +51,7 @@ static void generic_draw_post(DrawMode draw_mode)
 
     fraction = SCREENBWIDE;
 
-    screen_column = bufferofs + bufx + ylookup[centery] - SCREENBWIDE;
+    screen_column = static_cast<Uint16>(bufferofs + bufx + ylookup[centery] - SCREENBWIDE);
 
     n = postheight;
 

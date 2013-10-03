@@ -889,7 +889,7 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 #endif // 0
 
                     linecmds = (Uint16*)(&dc_seg[shape->dataofs[(Uint16)lastcolumn]]);
-                    ScaleMaskedWidePost(height >> 2, bufferofs, (Uint16)startx, width);
+                    ScaleMaskedWidePost(height >> 2, static_cast<Uint16>(bufferofs), static_cast<Uint16>(startx), width);
 
 					width=1;
 					lastcolumn=-1;
@@ -915,7 +915,7 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 #endif // 0
 
                     linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-                    ScaleMaskedWidePost(height >> 2, bufferofs, (Uint16)startx, width);
+                    ScaleMaskedWidePost(height >> 2, static_cast<Uint16>(bufferofs), (Uint16)startx, width);
 
 					width=1;
 					startx=x1;
@@ -938,7 +938,7 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 #endif // 0
 
             linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-            ScaleMaskedWidePost(height >> 2, bufferofs, (Uint16)startx, width);
+            ScaleMaskedWidePost(height >> 2, static_cast<Uint16>(bufferofs), (Uint16)startx, width);
 			}
 		}
 	else
@@ -966,7 +966,7 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
             linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-			ScaleMaskedPost(height>>2,bufferofs+((Uint16)x1>>2));
+			ScaleMaskedPost(height>>2,static_cast<Uint16>(bufferofs+((Uint16)x1>>2)));
 			}
 		}
 }
@@ -1072,7 +1072,7 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
                     linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
 
-					ScaleMaskedWidePost(height,bufferofs,startx,width);
+					ScaleMaskedWidePost(height,static_cast<Uint16>(bufferofs),startx,width);
 					width=1;
 					startx=x1;
 					lastcolumn=texturecolumn;
@@ -1093,7 +1093,7 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
             linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
 
-			ScaleMaskedWidePost(height,bufferofs,startx,width);
+			ScaleMaskedWidePost(height,static_cast<Uint16>(bufferofs),startx,width);
 			}
 		}
 	else
@@ -1118,7 +1118,7 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
             linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-			ScaleMaskedPost(height,bufferofs+(x1>>2));
+			ScaleMaskedPost(height,static_cast<Uint16>(bufferofs+(x1>>2)));
 			}
 		}
 }
@@ -1322,7 +1322,7 @@ void MegaSimpleScaleShape(
             } else {
                 if (lastcolumn >= 0) {
                     linecmds = (Uint16*)&dc_seg[shape->dataofs[lastcolumn]];
-                    ScaleMaskedWideLSPost(height, bufferofs, startx, width);
+                    ScaleMaskedWideLSPost(height, static_cast<Uint16>(bufferofs), static_cast<Uint16>(startx), static_cast<Uint16>(width));
                     width = 1;
                     startx = x1;
                     lastcolumn = texturecolumn;
@@ -1335,7 +1335,7 @@ void MegaSimpleScaleShape(
 
         if (lastcolumn != -1) {
             linecmds = (Uint16*)&dc_seg[shape->dataofs[lastcolumn]];
-            ScaleMaskedWideLSPost(height, bufferofs, startx, width);
+            ScaleMaskedWideLSPost(height, static_cast<Uint16>(bufferofs), static_cast<Uint16>(startx), static_cast<Uint16>(width));
         }
     } else {
         for ( ; x1 <= x2; ++x1, frac += screenscale) {

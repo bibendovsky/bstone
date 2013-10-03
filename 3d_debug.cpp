@@ -225,7 +225,7 @@ void DebugMemory (void)
    VW_UpdateScreen();
 	IN_Ack ();
 
-	temp = bufferofs;
+	temp = static_cast<Sint16>(bufferofs);
 	WindowW = 253;
   	WindowH = 8;
    fontnumber = 2;
@@ -259,7 +259,7 @@ void CountObjects (void)
 	active = inactive = count = doors = 0;
 
 	US_Print ("Total statics :");
-	total = laststatobj-&statobjlist[0];
+	total = static_cast<Sint16>(laststatobj-&statobjlist[0]);
 	US_PrintUnsigned (total);
 
 	US_Print ("\nIn use statics:");
@@ -607,7 +607,7 @@ Sint16 DebugKeys (void)
 		esc = !US_LineInput (px,py,str,NULL,true,2,0);
 		if (!esc)
 		{
-			level = atoi (str);
+			level = static_cast<Sint16>(atoi (str));
 			if (level>=0 && level<=15)
 				VW_ColorBorder (level);
 		}
@@ -786,7 +786,7 @@ Sint16 DebugKeys (void)
 		esc = !US_LineInput (px,py,str,NULL,true,2,0);
 		if (!esc)
 		{
-			level = atoi (str);
+			level = static_cast<Sint16>(atoi (str));
 			if (level>=0 && level<=8)
 				extravbls = level;
 		}
@@ -820,7 +820,7 @@ Sint16 DebugKeys (void)
 		esc = !US_LineInput (px,py,str,NULL,true,2,0);
 		if (!esc)
 		{
-			level = atoi (str);
+			level = static_cast<Sint16>(atoi (str));
 			if (level>-1 && level<=MAX_WARP_LEVEL)
 			{
 				gamestate.lastmapon = gamestate.mapon;

@@ -252,7 +252,7 @@ void VWB_DrawTile8M (int x, int y, int tile)
 
 void VWB_DrawPic(int x, int y, int chunknum)
 {
-	Sint16	picnum = chunknum - STARTPICS;
+	Sint16	picnum = static_cast<Sint16>(chunknum - STARTPICS);
 	Uint16 width,height;
 
 	x &= ~7;
@@ -260,7 +260,7 @@ void VWB_DrawPic(int x, int y, int chunknum)
 	width = pictable[picnum].width;
 	height = pictable[picnum].height;
 
-	if (VW_MarkUpdateBlock (x,y,x+width-1,y+height-1))
+	if (VW_MarkUpdateBlock (static_cast<Sint16>(x),static_cast<Sint16>(y),static_cast<Sint16>(x+width-1),static_cast<Sint16>(y+height-1)))
 		VL_MemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y);
 }
 

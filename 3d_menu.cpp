@@ -674,7 +674,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 	// END GAME
 	//
 		case sc_F7:
-			VW_ScreenToScreen (displayofs,bufferofs,80,160);
+			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 			CA_CacheGrChunk(STARTFONT+1);
 
 			WindowH=160;
@@ -699,7 +699,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 				strcat(string,SaveGameNames[LSItems.curpos]);
 				strcat(string,"\"?");
-				VW_ScreenToScreen (displayofs,bufferofs,80,160);
+				VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 
 #if IN_DEVELOPMENT
 				if (TestQuickSave || Confirm(string))
@@ -750,7 +750,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 				strcat(string,SaveGameNames[LSItems.curpos]);
 				strcat(string,"\"?");
-				VW_ScreenToScreen (displayofs,bufferofs,80,160); 
+				VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160); 
 
 				if (Confirm(string))
 					CP_LoadGame(1);
@@ -790,7 +790,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 	//
 		case sc_F10:
 			CA_CacheGrChunk(STARTFONT+1);
-			VW_ScreenToScreen (displayofs,bufferofs,80,160);
+			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 
 			WindowX=WindowY=0;
 			WindowW=320;
@@ -2332,7 +2332,7 @@ void DrawCtlScreen(void)
         for (i = 0; i < CtlItems.amount; ++i)
 			if (CtlMenu[i].active)
 			{
-				CtlItems.curpos=i;
+				CtlItems.curpos=static_cast<char>(i);
 				break;
 			}
 
@@ -2515,7 +2515,9 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 	  if ((ci.button0|ci.button1|ci.button2|ci.button3)||
    	  ((type==KEYBOARDBTNS||type==KEYBOARDMOVE) && LastScan==sc_Enter))
 	  {
-   		tick=TimeCount=picked=0;
+   		tick=0;
+        TimeCount=0;
+        picked=0;
 			SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,HIGHLIGHT_BOX_COLOR);
 
 		   do
@@ -2887,7 +2889,7 @@ void DrawCustomScreen(void)
 		for (i=0;i<CusItems.amount;i++)
 		  if (CusMenu[i].active)
 		  {
-				CusItems.curpos=i;
+				CusItems.curpos=static_cast<char>(i);
 				break;
 		  }
 
@@ -2995,7 +2997,7 @@ void DrawCustJoy(Sint16 hilight)
 void PrintCustKeybd(Sint16 i)
 {
 	PrintX=CST_START+CST_SPC*i;
-	US_Print(reinterpret_cast<char*>(IN_GetScanName(buttonscan[order[i]])));
+	US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[order[i]]))));
 }
 
 
@@ -3030,7 +3032,7 @@ void DrawCustKeybd(Sint16 hilight)
 void PrintCustKeys(Sint16 i)
 {
 	PrintX=CST_START+CST_SPC*i;
-	US_Print(reinterpret_cast<char*>(IN_GetScanName(dirscan[moveorder[i]])));
+	US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(dirscan[moveorder[i]]))));
 }
 
 
@@ -3506,7 +3508,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 				{
 					EraseGun(item_i,items,x,y,which);
 					which=i;
-					item_i->curpos=which;			// jtr -testing
+					item_i->curpos=static_cast<char>(which);			// jtr -testing
 					box_on = 1;
 					DrawGun(item_i,items,x,&y,which,basey,routine);
 					VW_UpdateScreen();
@@ -3527,7 +3529,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 					{
 						EraseGun(item_i,items,x,y,which);
 						which=i;
-						item_i->curpos=which;			// jtr -testing
+						item_i->curpos=static_cast<char>(which);			// jtr -testing
 						box_on = 1;
 						DrawGun(item_i,items,x,&y,which,basey,routine);
 						VW_UpdateScreen();
@@ -3561,7 +3563,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 
 				} while(!(items+which)->active);
 
-				item_i->curpos=which;			// jtr -testing
+				item_i->curpos=static_cast<char>(which);			// jtr -testing
 
 				box_on = 1;
 				DrawGun(item_i,items,x,&y,which,basey,routine);
@@ -3585,7 +3587,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 						which++;
 				} while(!(items+which)->active);
 
-				item_i->curpos=which;			// jtr -testing
+				item_i->curpos=static_cast<char>(which);			// jtr -testing
 
 				box_on = 1;
 				DrawGun(item_i,items,x,&y,which,basey,routine);
@@ -3629,7 +3631,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 
 	VW_UpdateScreen();
 
-	item_i->curpos=which;
+	item_i->curpos=static_cast<char>(which);
 
 	lastitem=which;
 
@@ -4365,7 +4367,7 @@ void StartCPMusic(Sint16 song)
 	MM_BombOnError (false);
 #endif // 0
 
-	CA_CacheAudioChunk(STARTMUSIC + chunk);
+	CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + chunk));
 
 // FIXME
 #if 0

@@ -1326,11 +1326,11 @@ Sint32 LZH_Decompress(
 			CIO_WritePtr((Sint32)&outfile,c,PtrTypes);
 #endif // 0
 
-            ::CIO_WritePtr(outfile, c);
+            ::CIO_WritePtr(outfile, static_cast<Uint8>(c));
 
 			datasize--;								// Dec # of bytes to write
 
-			text_buf[r++] = c;
+			text_buf[r++] = static_cast<Uint8>(c);
 			r &= (N - 1);
 			count++;									// inc count of bytes written
 		}
@@ -1353,11 +1353,11 @@ Sint32 LZH_Decompress(
 #if 0
 				CIO_WritePtr((Sint32)&outfile,c,PtrTypes);
 #endif // 0
-                ::CIO_WritePtr(outfile, c);
+                ::CIO_WritePtr(outfile, static_cast<Uint8>(c));
 
 				datasize--;							// dec count of bytes to write
 
-				text_buf[r++] = c;
+				text_buf[r++] = static_cast<Uint8>(c);
 				r &= (N - 1);
 				count++;								// inc count of bytes written
 			}
@@ -1429,7 +1429,7 @@ int LZH_Compress(
         c = ::CIO_ReadPtr(infile);
 
 		datasize++;							// Dec num of bytes to compress
-		text_buf[r + len] = c;
+		text_buf[r + len] = static_cast<Uint8>(c);
 	}
 
 	textsize = len;
@@ -1480,10 +1480,10 @@ int LZH_Compress(
 			datasize++;
 
 			DeleteNode(s);
-			text_buf[s] = c;
+			text_buf[s] = static_cast<Uint8>(c);
 
 			if (s < F - 1)
-				text_buf[s + N] = c;
+				text_buf[s + N] = static_cast<Uint8>(c);
 
 			s = (s + 1) & (N - 1);
 			r = (r + 1) & (N - 1);

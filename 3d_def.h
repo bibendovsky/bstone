@@ -20,9 +20,9 @@
 #define VERSION_TEXT_COLOR				(0x82)
 #define VERSION_TEXT_BKCOLOR			(0x80)
 
-#define NO_SHADING						((char)0x80)
-#define LAMP_ON_SHADING					((char)-12)
-#define EXPLOSION_SHADING				((char)-52)
+#define NO_SHADING						(static_cast<char>(0x80))
+#define LAMP_ON_SHADING					(static_cast<char>(-12))
+#define EXPLOSION_SHADING				(static_cast<char>(-52))
 
 #define PAGEFLIP
 

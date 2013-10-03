@@ -314,7 +314,7 @@ boolean MOVIE_LoadBuffer()
     free_space = BufferLen;
 
     while (free_space) {
-        chunkstart = Movie_FHandle.get_position();
+        chunkstart = static_cast<long>(Movie_FHandle.get_position());
 
         if (Movie_FHandle.read(
             &blk.code,
@@ -558,7 +558,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 
          if (TimeCount < MovieStuff->ticdelay)
          {
-	         wait_time = MovieStuff->ticdelay - TimeCount;
+	         wait_time = static_cast<Uint16>(MovieStuff->ticdelay - TimeCount);
 				VL_WaitVBL(wait_time);
          }
          else

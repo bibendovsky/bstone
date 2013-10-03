@@ -61,7 +61,7 @@ void R_DrawSLSColumn()
 {
     Uint16 i;
     int j;
-    Uint16 screen_offset = dc_dest;
+    Uint16 screen_offset = static_cast<Uint16>(dc_dest);
     Uint8* screen = vga_memory;
 
     for (i = 0; i < dc_length; ++i) {

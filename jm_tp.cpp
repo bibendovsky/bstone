@@ -578,10 +578,11 @@ void TP_Presenter(PresenterInfo *pinfo)
 		cur_y = yl;
 	}
 	first_ch = pi->script[0];
-	pi->pagenum = numanims = 0;
+	pi->pagenum = 0;
+    numanims = 0;
 	disp_str_num = -1;
 
-	old_fontnumber=fontnumber;
+	old_fontnumber=static_cast<char>(fontnumber);
 	fontnumber=pi->fontnumber;
 	TP_PurgeAllGfx();
 	TP_CachePage(first_ch);
@@ -594,23 +595,23 @@ void TP_Presenter(PresenterInfo *pinfo)
 //
 	if (pi->infoline)
 	{
-		char oldf=fontnumber,oldc=fontcolor;
+		char oldf=static_cast<char>(fontnumber),oldc=fontcolor;
 
 		px=xl;
 		py=yh+TP_MARGIN+1;
 		fontnumber=2;
 		fontcolor=0x39;
 		VWB_Bar(xl-TP_MARGIN,py,xh-xl+1+(TP_MARGIN*2),8,bgcolor);
-		ShPrint(pi->infoline,shcolor,false);
+		ShPrint(pi->infoline,static_cast<char>(shcolor),false);
 
 		if (pi->flags & TPF_SHOW_PAGES)
 		{
 			px=246;
 			py=190;
-			ShPrint("PAGE ",shcolor,false);
+			ShPrint("PAGE ",static_cast<char>(shcolor),false);
 			pagex[0]=px;
 			pagey[0]=py;
-			ShPrint("   OF ",shcolor,false);
+			ShPrint("   OF ",static_cast<char>(shcolor),false);
 			pagex[1]=px;
 			pagey[1]=py;
 
@@ -750,7 +751,7 @@ void TP_WrapText()
 	px = cur_x;
 	py = cur_y;
 
-	length = scan_ch-first_ch+1;				// USL_DrawString only works with
+	length = static_cast<Sint16>(scan_ch-first_ch+1);				// USL_DrawString only works with
 //	if (length > MAX_PB)                   //
 //		TP_ERROR(TP_PRESENTER_LONG_TEXT);   //
 //	_fmemcpy(pb,first_ch,length);    		// near pointers...
@@ -800,7 +801,7 @@ tp_newline:;
 	//
 		if (pi->flags & TPF_SHOW_CURSOR)
 		{
-			fontcolor = bgcolor;
+			fontcolor = static_cast<Uint8>(bgcolor);
 			px = last_cur_x;
 			py = last_cur_y;
 			TP_Print("@",true);
@@ -813,8 +814,8 @@ tp_newline:;
 	//
 		if ((pi->flags & TPF_SCROLL_REGION) && (cur_y+(font_height*2) > yh))
 		{
-			VL_ScreenToScreen(bufferofs+((((yl+font_height+is_shadowed)*320)+xl)/4),
-									bufferofs+(((yl*320)+xl)/4),
+			VL_ScreenToScreen(static_cast<Uint16>(bufferofs+((((yl+font_height+is_shadowed)*320)+xl)/4)),
+									static_cast<Uint16>(bufferofs+(((yl*320)+xl)/4)),
 									(xh-xl+1)/4,
 									(yh-yl+1)-font_height+is_shadowed);
 
@@ -995,7 +996,7 @@ void TP_HandleCodes()
 	// HIGHLIGHT COLOR ---------------------------------------------------
 	//
 			case TP_CNVT_CODE('H','C'):
-				pi->highlight_color = TP_VALUE(first_ch,2);
+				pi->highlight_color = static_cast<Uint8>(TP_VALUE(first_ch,2));
 				first_ch += 2;
 			break;
 
@@ -1015,7 +1016,7 @@ void TP_HandleCodes()
 	// ALTER X ----------------------------------------------------------
 	//
 			case TP_CNVT_CODE('A','X'):
-				c = TP_VALUE(first_ch,2);
+				c = static_cast<signed char>(TP_VALUE(first_ch,2));
 				first_ch += 2;
 				cur_x += c;
 			break;
@@ -1023,7 +1024,7 @@ void TP_HandleCodes()
 	// ALTER Y ----------------------------------------------------------
 	//
 			case TP_CNVT_CODE('A','Y'):
-				c = TP_VALUE(first_ch,2);
+				c = static_cast<signed char>(TP_VALUE(first_ch,2));
 				first_ch += 2;
 				cur_y += c;
 			break;
@@ -1061,7 +1062,7 @@ void TP_HandleCodes()
 	// FONT COLOR -------------------------------------------------------
 	//
 			case TP_CNVT_CODE('F','C'):
-				fontcolor = TP_VALUE(first_ch,2);
+				fontcolor = static_cast<Uint8>(TP_VALUE(first_ch,2));
 				first_ch += 2;
 			break;
 
@@ -1099,7 +1100,7 @@ void TP_HandleCodes()
 	// SAVE X LOCATION ---------------------------------------------------
 	//
 			case TP_CNVT_CODE('S','X'):
-				temp = TP_VALUE(first_ch++,1);
+				temp = static_cast<char>(TP_VALUE(first_ch++,1));
 				if (pi->flags & TPF_SHOW_CURSOR)
 					save_cx[temp] = last_cur_x;
 				else
@@ -1109,7 +1110,7 @@ void TP_HandleCodes()
 	// RESTORE X LOCATION ------------------------------------------------
 	//
 			case TP_CNVT_CODE('R','X'):
-				temp = TP_VALUE(first_ch++,1);
+				temp = static_cast<char>(TP_VALUE(first_ch++,1));
 				cur_x = save_cx[temp];
 
 				if (pi->flags & TPF_SHOW_CURSOR)
@@ -1119,7 +1120,7 @@ void TP_HandleCodes()
 	// SAVE Y LOCATION ---------------------------------------------------
 	//
 			case TP_CNVT_CODE('S','Y'):
-				temp = TP_VALUE(first_ch++,1);
+				temp = static_cast<char>(TP_VALUE(first_ch++,1));
 				if (pi->flags & TPF_SHOW_CURSOR)
 					save_cy[temp] = last_cur_y;
 				else
@@ -1129,7 +1130,7 @@ void TP_HandleCodes()
 	// RESTORE Y LOCATION ------------------------------------------------
 	//
 			case TP_CNVT_CODE('R','Y'):
-				temp = TP_VALUE(first_ch++,1);
+				temp = static_cast<char>(TP_VALUE(first_ch++,1));
 				cur_y = save_cy[temp];
 
 				if (pi->flags & TPF_SHOW_CURSOR)
@@ -1359,7 +1360,7 @@ void TP_HandleCodes()
 	// PLAY MUSIC -------------------------------------------------------
 	//
 			case TP_CNVT_CODE('P','M'):
-				temp = TP_VALUE(first_ch,2);
+				temp = static_cast<char>(TP_VALUE(first_ch,2));
 				if ((temp < LASTMUSIC) && (temp != music_num))
 				{
 					music_num=temp;
@@ -1371,7 +1372,7 @@ void TP_HandleCodes()
 	// PLAY SOUND -------------------------------------------------------
 	//
 			case TP_CNVT_CODE('P','S'):
-				temp = TP_VALUE(first_ch,2);
+				temp = static_cast<char>(TP_VALUE(first_ch,2));
 				if ((temp < LASTSOUND)) // && (temp != music_num))
 				{
 					TP_CacheIn(ct_scaled,0);
@@ -1509,7 +1510,7 @@ void TP_HandleCodes()
 void TP_PrintPageNumber()
 {
 	char buffer[5];
-	char oldf=fontnumber,oldc=fontcolor;
+	char oldf=static_cast<char>(fontnumber),oldc=fontcolor;
 
 	if (!(pi->flags & TPF_SHOW_PAGES))
 		return;
@@ -1523,7 +1524,7 @@ void TP_PrintPageNumber()
 	py=pagey[0];
 	VW_Bar(px,py,12,7,0xe3);
 	sprintf(buffer,"%02d",pi->pagenum+1);
-	ShPrint(buffer,shcolor,false);
+	ShPrint(buffer,static_cast<char>(shcolor),false);
 
 // Print current page number.
 //
@@ -1531,7 +1532,7 @@ void TP_PrintPageNumber()
 	{
 		py=pagey[1];
 		sprintf(buffer,"%02d",pi->numpages);
-		ShPrint(buffer,shcolor,false);
+		ShPrint(buffer,static_cast<char>(shcolor),false);
 		pagex[1]=-1;
 	}
 
@@ -1888,7 +1889,7 @@ void TP_JumpCursor()
 {
 	char old_color = fontcolor;
 
-	fontcolor = bgcolor;
+	fontcolor = static_cast<Uint8>(bgcolor);
 	px = last_cur_x;
 	py = last_cur_y;
 	TP_Print("@",true);
@@ -1919,9 +1920,9 @@ void TP_Print(const char *str,boolean single_char)
 	if ((flags & fl_shadowtext) && (*str != '@'))
 	{
 		if (fontcolor == bgcolor)
-			ShPrint(str,bgcolor,single_char);
+			ShPrint(str,static_cast<char>(bgcolor),single_char);
 		else
-			ShPrint(str,shcolor,single_char);
+			ShPrint(str,static_cast<char>(shcolor),single_char);
 	}
 	else
 		if (single_char)
@@ -1957,7 +1958,7 @@ boolean TP_SlowPrint(const char *str, char delay)
 		{
 		// Remove the cursor.
 		//
-			fontcolor = bgcolor;
+			fontcolor = static_cast<Uint8>(bgcolor);
 			px = old_x = last_cur_x;
 			py = old_y = last_cur_y;
 			TP_Print("@",true);
@@ -2149,7 +2150,7 @@ end_func:;
 //-------------------------------------------------------------------------
 void TP_CacheIn(tpCacheType type, Sint16 chunk)
 {
-	Sint16 first_ch_offset=first_ch-pi->script[0];
+	Sint16 first_ch_offset=static_cast<Sint16>(first_ch-pi->script[0]);
 	Sint16 loop,offset[TP_MAX_PAGES];
 
 // Cache graphics and re-assign pointers
@@ -2203,7 +2204,7 @@ void TP_CacheIn(tpCacheType type, Sint16 chunk)
 	// Calc offset of each page pointer
 	//
 		for (loop=1; loop<pi->numpages; loop++)
-			offset[loop] = pi->script[loop]-pi->script[loop-1];
+			offset[loop] = static_cast<Sint16>(pi->script[loop]-pi->script[loop-1]);
 
 	// Re-assign all page pointers
 	//

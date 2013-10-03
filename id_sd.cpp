@@ -2529,7 +2529,7 @@ void SD_Startup()
     }
 
     for (int i = 0; i < 255; ++i)
-        pcSoundLookup[i] = i * 60;
+        pcSoundLookup[i] = static_cast<Uint16>(i * 60);
 
     if (AdLibPresent)
         mixer.initialize(44100);
@@ -2976,7 +2976,7 @@ void SD_StartMusic(
         int length = SDL_SwapLE16(music_data[0]) + 2;
 
         sqHack = music_data;
-        sqHackLen = length;
+        sqHackLen = static_cast<Uint16>(length);
 
         SD_MusicOn();
     } else

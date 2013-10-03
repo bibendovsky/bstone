@@ -493,13 +493,13 @@ memset(numEnemy,0,sizeof(numEnemy));
 					if (!ReuseMsg((mCacheInfo *)ci,st->NumMsgs,sizeof(sci_mCacheInfo)))
 					{
 						CacheMsg((mCacheInfo *)ci,block,ci->mInfo.global_val);
-						ci->mInfo.local_val = InfHintList.NumMsgs;
+						ci->mInfo.local_val = static_cast<Uint8>(InfHintList.NumMsgs);
 					}
 
 					if (++st->NumMsgs > MAX_CACHE_MSGS)
 						GAME_ERROR(SCANINFO_CACHE_MSG_OVERFLOW);
 
-					ci->areanumber=GetAreaNumber(x,y);
+					ci->areanumber=GetAreaNumber(static_cast<char>(x),static_cast<char>(y));
 
 					if (ci->areanumber >= NUMAREAS)
 						ci->areanumber = 0xff;
@@ -921,8 +921,8 @@ memset(numEnemy,0,sizeof(numEnemy));
 						GoldsternInfo.WaitTime = 60;
 					else
 						GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT-MIN_GOLDIE_FIRST_WAIT);
-					GoldieList[GoldsternInfo.SpawnCnt].tilex=x;
-					GoldieList[GoldsternInfo.SpawnCnt].tiley=y;
+					GoldieList[GoldsternInfo.SpawnCnt].tilex=static_cast<Uint8>(x);
+					GoldieList[GoldsternInfo.SpawnCnt].tiley=static_cast<Uint8>(y);
 					GoldsternInfo.SpawnCnt++;
 
 					if (gamestate.mapon == GOLD_MORPH_LEVEL)
@@ -949,8 +949,8 @@ numEnemy[goldsternobj]++;
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 						GAME_ERROR(SETUPGAME_MAX_GOLDIE_SPAWNS);
 
-					GoldieList[GoldsternInfo.SpawnCnt].tilex=x;
-					GoldieList[GoldsternInfo.SpawnCnt].tiley=y;
+					GoldieList[GoldsternInfo.SpawnCnt].tilex=static_cast<Uint8>(x);
+					GoldieList[GoldsternInfo.SpawnCnt].tiley=static_cast<Uint8>(y);
 
 					GoldsternInfo.LastIndex = GoldsternInfo.SpawnCnt++;
 					GoldsternInfo.flags = GS_COORDFOUND;
@@ -2157,7 +2157,8 @@ void AddTotalEnemy(Uint16 enemies)
 	if (loadedgame)
 		return;
 
-	gamestuff.level[gamestate.mapon].stats.total_enemy += enemies;	  
+	gamestuff.level[gamestate.mapon].stats.total_enemy +=
+        static_cast<Uint8>(enemies);
 }
 
 //==========================================================================
@@ -2229,7 +2230,7 @@ void SetupGameLevel (void)
 			if (tile<AREATILE)
 			{
 			// solid wall
-				tilemap[x][y] = tile;
+				tilemap[x][y] = static_cast<Uint8>(tile);
 
 //				if (tile != AMBUSHTILE)
 //					(unsigned)actorat[x][y] = tile;
@@ -2377,7 +2378,7 @@ void SetupGameLevel (void)
 				case SODATILE:
 					if (!loadedgame)
 					{
-						SpawnConcession(x,y,lock,CT_BEVS);
+						SpawnConcession(x,y,static_cast<Uint16>(lock),CT_BEVS);
 						*map1 = 0;
 					}
 				break;
@@ -2387,14 +2388,14 @@ void SetupGameLevel (void)
 				case FOODTILE:
 					if (!loadedgame)
 					{
-						SpawnConcession(x,y,lock,CT_FOOD);
+						SpawnConcession(x,y,static_cast<Uint16>(lock),CT_FOOD);
 						*map1 = 0;
 					}
 				break;
 
 				case EATILE:
-					eaList[NumEAWalls].tilex=x;
-					eaList[NumEAWalls].tiley=y;
+					eaList[NumEAWalls].tilex=static_cast<char>(x);
+					eaList[NumEAWalls].tiley=static_cast<char>(y);
 					eaList[NumEAWalls].aliens_out=0;
 					if ((lock & 0xff00) == 0xfa00)
 						eaList[NumEAWalls].delay=60*(lock&0xff);
@@ -2465,7 +2466,7 @@ void SetupGameLevel (void)
 
                     if (actorat[x][y] == (objtype*)AMBUSHTILE)
 						actorat[x][y] = NULL;
-					*(map-1) = GetAreaNumber(x,y);
+					*(map-1) = GetAreaNumber(static_cast<char>(x),static_cast<char>(y));
             break;
 			}
 		}
@@ -2568,11 +2569,11 @@ void BMAmsg(const char *msg)
 		pi.yl=BMAy2+(BMAh2-cheight)/2;
 		pi.xh=pi.xl+BMAw2-3;
 		pi.yh=pi.yl+cheight-1;
-		pi.bgcolor = BORDER_MED_COLOR;
-		pi.ltcolor = BORDER_HI_COLOR;
+		pi.bgcolor = static_cast<char>(BORDER_MED_COLOR);
+		pi.ltcolor = static_cast<char>(BORDER_HI_COLOR);
 		fontcolor = BORDER_TEXT_COLOR;
-		pi.shcolor = pi.dkcolor = BORDER_LO_COLOR;
-		pi.fontnumber=fontnumber;
+		pi.shcolor = pi.dkcolor = static_cast<char>(BORDER_LO_COLOR);
+		pi.fontnumber=static_cast<char>(fontnumber);
 		TP_InitScript(&pi);
 		TP_Presenter(&pi);
 	}
@@ -2703,7 +2704,7 @@ void ShadowPrintLocationText(sp_type type)
 //--------------------------------------------------------------------------
 void DrawTopInfo(sp_type type)
 {
-	char old=fontnumber;
+	char old=static_cast<char>(fontnumber);
 
 	LatchDrawPic(0,0,TOP_STATUSBARPIC);
 	fontnumber=2;
@@ -2729,7 +2730,7 @@ void DrawPlayScreen (boolean InitInfoMsg)
 	if (playstate != ex_transported)
 		VW_FadeOut ();
 
-	temp = bufferofs;
+	temp = static_cast<Uint16>(bufferofs);
 	WindowW = 253;
   	WindowH = 8;
    fontnumber = 2;
@@ -2770,7 +2771,7 @@ void DrawWarpIn(void)
 	Sint16	i;
 	Uint16 temp;
 
-	temp = bufferofs;
+	temp = static_cast<Uint16>(bufferofs);
 	InitInfoArea();
 	DisplayInfoMsg("\r\r    TRANSPORTING...",MP_POWERUP,2*60,MT_GENERAL);
 
@@ -3223,7 +3224,7 @@ void LoseScreen(void)
 	pi.dkcolor=1;
 	pi.shcolor=1;
 	pi.fontnumber=2;
-	pi.cur_x = -1;
+	pi.cur_x = static_cast<Uint16>(-1);
 	pi.print_delay=2;
 
 	ClearMemory();
@@ -3576,7 +3577,7 @@ strcat (str,str2);							// defined in 3d_main.c
 				CacheBMAmsg(YOUWIN_TEXT);
 				for (loop=0; loop<2; loop++)
 				{
-					VW_ScreenToScreen(displayofs,bufferofs,320,200);
+					VW_ScreenToScreen(static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),320,200);
 					NextBuffer();
 				}
 				UNCACHEGRCHUNK(STARTFONT+1);

@@ -350,8 +350,8 @@ void PollMouseMove (void)
     int dy;
     ::in_get_mouse_deltas(dx, dy);
     ::in_clear_mouse_deltas();
-    mousexmove = dx;
-    mouseymove = dy;
+    mousexmove = static_cast<Sint16>(dx);
+    mouseymove = static_cast<Sint16>(dy);
 
 // Double speed when shift is pressed.
 //
@@ -765,7 +765,7 @@ void CheckKeys (void)
 
 			ClearMemory ();
 			ClearSplitVWB ();
-			VW_ScreenToScreen (displayofs,bufferofs,80,160);
+			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 
 			Message("\n NOW you're jammin'!! \n");
 
@@ -1405,7 +1405,7 @@ void StartMusic(boolean preload)
 		MM_BombOnError(false);
 #endif // 0
 
-		CA_CacheAudioChunk(STARTMUSIC + musicchunk);
+		CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + musicchunk));
 
 // FIXME
 #if 0
@@ -1485,11 +1485,11 @@ void InitRedShifts (void)
 		for (j=0;j<=255;j++)
 		{
 			delta = 64-*baseptr;
-			*workptr++ = *baseptr++ + delta * i / REDSTEPS;
+			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / REDSTEPS);
 			delta = -*baseptr;
-			*workptr++ = *baseptr++ + delta * i / REDSTEPS;
+			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / REDSTEPS);
 			delta = -*baseptr;
-			*workptr++ = *baseptr++ + delta * i / REDSTEPS;
+			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / REDSTEPS);
 		}
 	}
 
@@ -1501,11 +1501,11 @@ void InitRedShifts (void)
 		for (j=0;j<=255;j++)
 		{
 			delta = 64-*baseptr;
-			*workptr++ = *baseptr++ + delta * i / WHITESTEPS;
+			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / WHITESTEPS);
 			delta = 62-*baseptr;
-			*workptr++ = *baseptr++ + delta * i / WHITESTEPS;
+			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / WHITESTEPS);
 			delta = 0-*baseptr;
-			*workptr++ = *baseptr++ + delta * i / WHITESTEPS;
+			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / WHITESTEPS);
 		}
 	}
 }

@@ -1057,7 +1057,7 @@ void NewGame (Sint16 difficulty,Sint16 episode)
 #endif
 		gamestate.mapon = 0;
 
-	gamestate.key_floor = gamestate.mapon+1;
+	gamestate.key_floor = static_cast<char>(gamestate.mapon+1);
 	startgame = true;
 
 	for (loop=0; loop<MAPS_WITH_STATS; loop++)
@@ -1272,7 +1272,7 @@ void ReadInfo(
     } else {
         stream->read(dst, size);
         checksum = ::DoChecksum(reinterpret_cast<Uint8*>(dst),
-            size, checksum);
+            static_cast<Uint16>(size), checksum);
     }
 }
 
@@ -1291,7 +1291,7 @@ int WriteInfo(
     Uint16 csize;
 
     if (compress) {
-        csize = ::LZH_Compress(src, lzh_work_buffer, size);
+        csize = static_cast<Uint16>(::LZH_Compress(src, lzh_work_buffer, size));
 
         if (csize > LZH_WORK_BUFFER_SIZE)
             MAIN_ERROR(WRITEINFO_BIGGER_BUF);
@@ -1308,9 +1308,9 @@ int WriteInfo(
 
         checksum = ::DoChecksum(
             const_cast<Uint8*>(reinterpret_cast<const Uint8*>(src)),
-            size, checksum);
+            static_cast<Uint16>(size), checksum);
 
-        csize = size;
+        csize = static_cast<Uint16>(size);
     }
 
     return csize;
@@ -1877,7 +1877,7 @@ bool SaveLevel(
     Sint32 cksize;
     char chunk[5] = "LVxx";
     Uint16 gflags = gamestate.flags;
-    boolean rt_value = false;
+    bool rt_value = false;
     void* temp;
     Uint16 count;
     objtype* ptr;
@@ -1889,7 +1889,7 @@ bool SaveLevel(
 
     // Make sure floor stats are saved!
     //
-    oldmapon = gamestate.mapon;
+    oldmapon = static_cast<char>(gamestate.mapon);
     gamestate.mapon = gamestate.lastmapon;
     ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
     gamestate.mapon = oldmapon;
@@ -2464,7 +2464,7 @@ bool SaveTheGame(
 
     Sint32 cksize;
     char nbuff[GAME_DESCRIPTION_LEN + 1];
-    boolean rt_value = false;
+    bool rt_value = false;
 
     // Save current level -- saves it into PLAYTEMP.
     //
@@ -2707,7 +2707,7 @@ void CleanUpDoors_N_Actors()
 //--------------------------------------------------------------------------
 void ClearNClose()
 {
-	char x,y,tx=0,ty=0,px=player->x>>TILESHIFT,py=player->y>>TILESHIFT;
+	char x,y,tx=0,ty=0,px=static_cast<char>(player->x>>TILESHIFT),py=static_cast<char>(player->y>>TILESHIFT);
 
 	// Locate the door.
 	//
@@ -2784,7 +2784,7 @@ void CycleColors()
 			c->delay_count = c->init_delay;
 		}
 		else
-			c->delay_count -= tics;
+			c->delay_count -= static_cast<Uint8>(tics);
 	}
 
 	if (changes)
@@ -2849,14 +2849,14 @@ void CalcProjection (Sint32 focal)
 // calculate scale value for vertical height calculations
 // and sprite x calculations
 //
-	scale = halfview*facedist/(VIEWGLOBAL/2);
+	scale = static_cast<fixed>(halfview*facedist/(VIEWGLOBAL/2));
 
 //
 // divide heightnumerator by a posts distance to get the posts height for
 // the heightbuffer.  The pixel height is height>>2
 //
 	heightnumerator = (TILEGLOBAL*scale)>>6;
-	minheightdiv = heightnumerator/0x7fff +1;
+	minheightdiv = static_cast<Sint16>(heightnumerator/0x7fff +1);
 
 //
 // calculate the angle offset from view angle of each pixel's ray
@@ -2866,10 +2866,10 @@ void CalcProjection (Sint32 focal)
 	{
 	// start 1/2 pixel over, so viewangle bisects two middle pixels
 		tang = (Sint32)i*VIEWGLOBAL/viewwidth/facedist;
-		angle = atan(tang);
-		intang = angle*radtoint;
-		pixelangle[halfview-1-i] = intang;
-		pixelangle[halfview+i] = -intang;
+		angle = static_cast<float>(atan(tang));
+		intang = static_cast<Sint32>(angle*radtoint);
+		pixelangle[halfview-1-i] = static_cast<Sint16>(intang);
+		pixelangle[halfview+i] = static_cast<Sint16>(-intang);
 	}
 
 //
@@ -2978,7 +2978,7 @@ boolean SetViewSize (Uint16 width, Uint16 height)
 //
 // build all needed compiled scalers
 //
-	SetupScaling (viewwidth*1.5);
+	SetupScaling (static_cast<Sint16>(viewwidth*1.5));
 
 	view_xl=0;
 	view_xh=view_xl+viewwidth-1;
@@ -2997,7 +2997,7 @@ void ShowViewSize (Sint16 width)
 	oldheight = viewheight;
 
 	viewwidth = width*16;
-	viewheight = width*16*HEIGHTRATIO;
+	viewheight = static_cast<Sint16>(width*16*HEIGHTRATIO);
 	VWB_Bar (0,TOP_STRIP_HEIGHT,320,200-STATUSLINES-TOP_STRIP_HEIGHT,BORDER_MED_COLOR);
 //	VWB_Bar (0,0,320,200-STATUSLINES,BORDER_MED_COLOR);
 	DrawPlayBorder ();
@@ -3014,7 +3014,7 @@ void NewViewSize (Sint16 width)
 	viewsize = width;
 	while (1)
 	{
-		if (SetViewSize (width*16,width*16*HEIGHTRATIO))
+		if (SetViewSize (width*16,static_cast<Uint16>(width*16*HEIGHTRATIO)))
 			break;
 		width--;
 	};
@@ -3237,7 +3237,7 @@ void    DemoLoop (void)
 
 			CA_CacheScreen(TITLE1PIC);
 			CA_CacheGrChunk(TITLEPALETTE);
-			old_bufferofs = bufferofs;
+			old_bufferofs = static_cast<Uint16>(bufferofs);
 			bufferofs=displayofs;
 			VW_Bar(0,0,320,200,0);
 			bufferofs=old_bufferofs;
@@ -3388,10 +3388,10 @@ void DrawCreditsPage()
 	pi.xh=281;
 	pi.yh=170;
 	pi.bgcolor = 2;
-	pi.ltcolor = BORDER_HI_COLOR;
+	pi.ltcolor = static_cast<char>(BORDER_HI_COLOR);
 	fontcolor = BORDER_TEXT_COLOR;
 	pi.shcolor = pi.dkcolor = 0;
-	pi.fontnumber=fontnumber;
+	pi.fontnumber=static_cast<char>(fontnumber);
 
 #ifdef ID_CACHE_CREDITS
 	TP_LoadScript(NULL,&pi,CREDITSTEXT);

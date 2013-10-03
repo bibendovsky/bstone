@@ -126,7 +126,7 @@ Uint16 actor_to_ui16(const objtype* actor)
     if (index >= 0) {
         int offset = OBJLIST_OFFSET + (index * OLD_OBJTYPE_SIZE);
         assert(offset <= 0xFFFF);
-        return offset;
+        return static_cast<Uint16>(offset);
     }
 
     return 0;
@@ -152,7 +152,7 @@ Uint16 static_object_to_ui16(const statobj_t* static_object)
     if (index >= 0) {
         int offset = STATOBJLIST_OFFSET + (index * OLD_STATOBJ_T_SIZE);
         assert(offset <= 0xFFFF);
-        return offset;
+        return static_cast<Uint16>(offset);
     }
 
     return 0;
@@ -178,7 +178,7 @@ Uint16 door_object_to_ui16(const doorobj_t* door_object)
     if (index >= 0) {
         int offset = DOOROBJLIST_OFFSET + (index * OLD_DOOROBJ_T_SIZE);
         assert(offset <= 0xFFFF);
-        return offset;
+        return static_cast<Uint16>(offset);
     }
 
     return 0;

@@ -320,7 +320,7 @@ void TransformActor (objtype *ob)
 	  return;
 	}
 
-	ob->viewx = centerx + ny*scale/nx;	// DEBUG: use assembly divide
+	ob->viewx = static_cast<Sint16>(centerx + ny*scale/nx);	// DEBUG: use assembly divide
 
 // FIXME
 #if 0
@@ -338,7 +338,7 @@ void TransformActor (objtype *ob)
     r = (heightnumerator % (nx >> 8)) & 0xFFFF;
     temp = (r << 16) | q;
 
-	ob->viewheight = temp;
+	ob->viewheight = static_cast<Uint16>(temp);
 }
 
 //==========================================================================
@@ -400,7 +400,7 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 		return false;
 	}
 
-	*dispx = centerx + ny*scale/nx;	// DEBUG: use assembly divide
+	*dispx = static_cast<Sint16>(centerx + ny*scale/nx);	// DEBUG: use assembly divide
 
 // FIXME
 #if 0
@@ -418,7 +418,7 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
     r = (heightnumerator % (nx >> 8)) & 0xFFFF;
     temp = (r << 16) | q;
 
-	*dispheight = temp;
+	*dispheight = static_cast<Sint16>(temp);
 
 //
 // see if it should be grabbed
@@ -593,7 +593,7 @@ void ScalePost()
 
         shadingtable = lightsource + (i << 8);
         bufx = postx >> 2;
-        ofs = ((postx & 3) << 3) + postwidth - 1;
+        ofs = static_cast<Uint8>(((postx & 3) << 3) + postwidth - 1);
         post_planes = ((const Uint8*)mapmasks1)[ofs];
         DrawLSPost();
 
@@ -614,7 +614,7 @@ void ScalePost()
         DrawLSPost();
     } else {
         bufx = postx >> 2;
-        ofs = ((postx & 3) << 3) + postwidth - 1;
+        ofs = static_cast<Uint8>(((postx & 3) << 3) + postwidth - 1);
         post_planes = ((const Uint8*)mapmasks1)[ofs];
         DrawPost();
 
@@ -1722,7 +1722,7 @@ void DrawScaleds (void)
 //
 // draw from back to front
 //
-	numvisable = visptr-&vislist[0];
+	numvisable = static_cast<Sint16>(visptr-&vislist[0]);
 
 	if (!numvisable)
 		return;									// no visable objects
@@ -1902,7 +1902,7 @@ void CalcTics (void)
 		do
 		{
 			newtime = TimeCount;
-			tics = newtime-lasttimecount;
+			tics = static_cast<Uint16>(newtime-lasttimecount);
 		} while (!tics);			// make sure at least one tic passes
 
 		lasttimecount = newtime;
@@ -1943,7 +1943,7 @@ void CalcTics (void)
 
 void	FixOfs (void)
 {
-	VW_ScreenToScreen (displayofs,bufferofs,viewwidth/8,viewheight);
+	VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),viewwidth/8,viewheight);
 }
 
 
@@ -1979,9 +1979,9 @@ void WallRefresh (void)
 	viewty = player->y >> TILESHIFT;
 
 	xpartialdown = viewx&(TILEGLOBAL-1);
-	xpartialup = TILEGLOBAL-xpartialdown;
+	xpartialup = static_cast<Uint16>(TILEGLOBAL-xpartialdown);
 	ypartialdown = viewy&(TILEGLOBAL-1);
-	ypartialup = TILEGLOBAL-ypartialdown;
+	ypartialup = static_cast<Uint16>(TILEGLOBAL-ypartialdown);
 
 	lastside = -1;			// the first pixel is on a new wall
 
@@ -2306,7 +2306,7 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 	{
 		zoom = 0;
 		snow = true;
-		rndindex = US_RndT();
+		rndindex = static_cast<Uint8>(US_RndT());
 	}
 
 	zoom = 1<<zoom;
@@ -2449,7 +2449,7 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 				//
 					if ((flags & OV_ACTORS) && (ob >= objlist) && (!(ob->flags & FL_DEADGUY)) &&
 						 (ob->obclass > deadobj) && (ob->obclass < SPACER1_OBJ))
-						color = 0x10+ob->obclass;
+						color = static_cast<Uint8>(0x10+ob->obclass);
 
 					if ((zoom == 4) || (ExtraRadarFlags & OV_PUSHWALLS))
 					{

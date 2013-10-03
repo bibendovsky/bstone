@@ -24,7 +24,7 @@ static void open_page_file(const char* filename)
     if (!PageFile.is_open())
         PM_ERROR(PML_OPENPAGEFILE_OPEN);
 
-    file_length = PageFile.get_size();
+    file_length = static_cast<Sint32>(PageFile.get_size());
 
     raw_data = (Uint8*)malloc(file_length + PMPageSize);
     memset(&raw_data[file_length], 0, PMPageSize);

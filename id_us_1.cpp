@@ -131,9 +131,9 @@ Sint16 US_CheckParm(const char *parm, const char **strings)
 			cp = *p++;
 
 			if (isupper(cs))
-				cs = tolower(cs);
+				cs = static_cast<char>(tolower(cs));
 			if (isupper(cp))
-				cp = tolower(cp);
+				cp = static_cast<char>(tolower(cp));
 		}
 	}
 	return(-1);
@@ -457,7 +457,7 @@ USL_XORICursor(Sint16 x,Sint16 y,char *s,Uint16 cursor)
 		temp = fontcolor;
 		fontcolor = backcolor;
 		USL_DrawString("\x80");
-		fontcolor = temp;
+		fontcolor = static_cast<Uint8>(temp);
 	}
 
 }
@@ -490,14 +490,14 @@ static void USL_CustomCursor(Sint16 x,Sint16 y,char *s,Uint16 cursor)
 	fontnumber = US_CustomCursor.font_number;
 
 	if (status^=1)
-		fontcolor = US_CustomCursor.cursor_color;
+		fontcolor = static_cast<Uint8>(US_CustomCursor.cursor_color);
 	else
 		fontcolor = backcolor;
 
 	VL_WaitVBL(1);
 
 	USL_DrawString(&US_CustomCursor.cursor_char);
-	fontcolor = temp;
+	fontcolor = static_cast<Uint8>(temp);
 	fontnumber = temp_font;
 
 }
@@ -533,7 +533,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 	else
 		*s = '\0';
 	*olds = '\0';
-	cursor = strlen(s);
+	cursor = static_cast<Uint16>(strlen(s));
 	cursormoved = redraw = true;
 
 	cursorvis = done = false;
@@ -651,7 +651,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 
 		if (c)
 		{
-			len = strlen(s);
+			len = static_cast<Uint16>(strlen(s));
 			USL_MeasureString(s,&w,&h);
 
 			if	( isprint(c) &&	(len < MaxString - 1)
@@ -672,7 +672,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 			temp = fontcolor;
 			fontcolor = backcolor;
 			USL_DrawString(olds);
-			fontcolor = temp;
+			fontcolor = static_cast<Uint8>(temp);
 			strcpy(olds,s);
 
 			px = x;

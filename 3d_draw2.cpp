@@ -85,8 +85,8 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 	toprow = planeylookup[height]+bufferofs;
 	mr_rowofs = mirrorofs[height];
 
-	mr_xstep = (psin<<1)/height;
-	mr_ystep = (pcos<<1)/height;
+	mr_xstep = static_cast<Sint16>((psin<<1)/height);
+	mr_ystep = static_cast<Sint16>((pcos<<1)/height);
 
 	length = basedist[height];
 	startxfrac = (viewx + FixedMul(length,pcos));
@@ -114,8 +114,8 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 #endif // 0
         mr_plane = plane;
 
-		mr_xfrac = startxfrac - (mr_xstep>>2)*prestep;
-		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
+		mr_xfrac = static_cast<Sint16>(startxfrac - (mr_xstep>>2)*prestep);
+		mr_yfrac = static_cast<Sint16>(startyfrac - (mr_ystep>>2)*prestep);
 
 		startx = x1>>2;
 		mr_dest = toprow + startx;
@@ -146,8 +146,8 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 #endif // 0
         mr_plane = plane;
 
-		mr_xfrac = startxfrac - (mr_xstep>>2)*prestep;
-		mr_yfrac = startyfrac - (mr_ystep>>2)*prestep;
+		mr_xfrac = static_cast<Sint16>(startxfrac - (mr_xstep>>2)*prestep);
+		mr_yfrac = static_cast<Sint16>(startyfrac - (mr_ystep>>2)*prestep);
 
 		startx = x1>>2;
 		mr_dest = toprow + startx;

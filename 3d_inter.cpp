@@ -71,7 +71,7 @@ boolean Breifing(breifing_type BreifingType,Uint16 episode)
 
 	HelpPresenter(BreifingText,true,0,false);
 #else
-	HelpPresenter(NULL,true,BRIEF_W1+(episode*2)+BreifingType-1,false);
+	HelpPresenter(NULL,true,static_cast<Uint16>(BRIEF_W1+(episode*2)+BreifingType-1),false);
 #endif
 
 	return(EscPressed);
@@ -110,7 +110,7 @@ void ShPrint(const char *text, char shadow_color, boolean single_char)
 	px++;
 	USL_DrawString(str);						// JTR - This marks blocks!
 
-	fontcolor = old_color;
+	fontcolor = static_cast<Uint8>(old_color);
 	py = old_y;
 	px = old_x;
 	USL_DrawString(str);						// JTR - This marks blocks!

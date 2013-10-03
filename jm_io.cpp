@@ -94,7 +94,7 @@ int IO_LoadFile (const char* filename, void** dst)
 	else
 	{
 		handle.set_position(0);
-		size = handle.get_size();
+		size = static_cast<Sint32>(handle.get_size());
         *dst = malloc(size);
 		if (handle.read(*dst, size) != size)
 		{

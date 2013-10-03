@@ -379,10 +379,10 @@ void VL_SetLineWidth(int width)
     int offset;
 
     offset = 0;
-    linewidth = 2 * width;
+    linewidth = static_cast<Uint16>(2 * width);
 
     for (i = 0; i < MAXSCANLINES; ++i) {
-        ylookup[i] = offset;
+        ylookup[i] = static_cast<Uint16>(offset);
         offset += linewidth;
     }
 }
@@ -593,13 +593,13 @@ void VL_FadeOut (
         for (j = start; j <= end; ++j) {
             orig = *origptr++;
             delta = red-orig;
-            *newptr++ = orig + delta * i / steps;
+            *newptr++ = static_cast<Uint8>(orig + delta * i / steps);
             orig = *origptr++;
             delta = green-orig;
-            *newptr++ = orig + delta * i / steps;
+            *newptr++ = static_cast<Uint8>(orig + delta * i / steps);
             orig = *origptr++;
             delta = blue-orig;
-            *newptr++ = orig + delta * i / steps;
+            *newptr++ = static_cast<Uint8>(orig + delta * i / steps);
         }
 
         VL_SetPalette(0, 256, &palette2[0][0]);
@@ -644,7 +644,7 @@ void VL_FadeIn(
     for (i = 0; i < steps; ++i) {
         for (j = start; j <= end; ++j) {
             delta = palette[j] - palette1[0][j];
-            palette2[0][j] = palette1[0][j] + ((delta * i) / steps);
+            palette2[0][j] = static_cast<Uint8>(palette1[0][j] + ((delta * i) / steps));
         }
 
         VL_SetPalette(0, 256, &palette2[0][0]);
@@ -676,21 +676,21 @@ void VL_SetPaletteIntensity(
     intensity = 63 - intensity;
 
     for (loop = start; loop <= end; ++loop) {
-        red = *palette++ - intensity;
+        red = static_cast<char>(*palette++ - intensity);
 
         if (red < 0)
             red = 0;
 
         *cmap++ = red;
 
-        green = *palette++ - intensity;
+        green = static_cast<char>(*palette++ - intensity);
 
         if (green < 0)
             green = 0;
 
         *cmap++ = green;
 
-        blue = *palette++ - intensity;
+        blue = static_cast<char>(*palette++ - intensity);
 
         if (blue < 0)
             blue = 0;
