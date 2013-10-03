@@ -1,7 +1,12 @@
 [D|d]ebug/
+bin/
+obj/
 ipch/
+*.diff
+*.exe
 *.o
 *.opensdf
+*.rej
 *.sdf
 *.suo
 *.user

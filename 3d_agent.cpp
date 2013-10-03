@@ -510,7 +510,7 @@ void	LatchNumber (Sint16 x, Sint16 y, Sint16 width, Sint32 number)
 	Uint16	length,wide=0,c;
 	char	str[20];
 
-	ltoa(number,str,10);
+    bstone::C::xitoa(number, str, 10);
 
 	length =	strlen(str);
 
@@ -988,7 +988,7 @@ void DrawGAmmoNum(void)
 
    px = PrintX;
    py = PrintY;
-	VW_DrawPropString(ultoa(gamestate.ammo,buffer,10));
+	VW_DrawPropString(bstone::C::xitoa(gamestate.ammo, buffer, 10));
 	VW_DrawPropString("%");
 }
 

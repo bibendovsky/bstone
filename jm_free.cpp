@@ -2423,7 +2423,7 @@ void freed_main()
 				printf("\n"
 						 "     Version: %s\n"
 						 "COMPILE DATE: %s\n\n",
-						 __VERSION__,__DATE__);
+						 __BLAKE_VERSION__,__DATE__);
 				exit(0);
 			break;
 

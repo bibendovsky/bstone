@@ -249,14 +249,14 @@ void	DrawHighScores(void)
 		if (s->score > 9999999)
 			SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR+1,TERM_BACK_COLOR);
 
-		ltoa(s->score,buffer,10);
+        bstone::C::xitoa(s->score, buffer, 10);
 		USL_MeasureString(buffer,&w,&h);
 		ShadowPrint(buffer,205 - w,68 + (SCORE_Y_SPACING * i));		// 235
 
 		//
 		// mission ratio
 		//
-		ltoa(s->ratio,buffer,10);
+		bstone::C::xitoa(s->ratio, buffer, 10);
 		USL_MeasureString(buffer,&w,&h);
 		ShadowPrint(buffer,272-w,68 + (SCORE_Y_SPACING * i));
 	}

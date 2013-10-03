@@ -5,7 +5,9 @@
 #define ID_HEAD_H
 
 
-#include <assert.h>
+#include <cassert>
+#include <cstdlib>
+#include <malloc.h>
 
 #include "SDL.h"
 

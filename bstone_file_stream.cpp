@@ -47,7 +47,7 @@ bool FileStream::open(
     bool can_seek = false;
     bool can_write = false;
 
-    std::ios::open_mode mode = std::ios::binary | std::ios::ate;
+    std::ios::openmode mode = std::ios::binary | std::ios::ate;
 
     if ((open_mode & STREAM_OPEN_READ) != 0) {
         can_read = true;

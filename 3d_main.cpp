@@ -2117,7 +2117,7 @@ char SavegameInfoText[] =
     "    Blake Stone: Aliens Of Gold\n\r"
     "Copyright 1993, JAM Productions, Inc.\n\r"
     "\n\r"
-    "SAVEGAME file is from version: "__VERSION__"\n\r"
+    "SAVEGAME file is from version: "__BLAKE_VERSION__"\n\r"
     " Compile Date :"__DATE__" : "__TIME__"\n\r"
     "-------------------------------------\n\r"
     "\x1a";
@@ -2937,7 +2937,7 @@ boolean MS_CheckParm (char *check)
 			if (!*parm++)
 				break;                          // hit end of string without an alphanum
 
-		if ( !stricmp(check,parm) )
+		if (bstone::C::stricmp(check,parm) == 0)
 			return true;
 	}
 
@@ -3105,8 +3105,8 @@ void Quit (const char *error,...)
 		gotoxy (10,4);
 		cprintf(error,unit,err);
 
-		gotoxy (65-strlen(__VERSION__),2);
-		cprintf(" Ver:%s ",__VERSION__);
+		gotoxy (65-strlen(__BLAKE_VERSION__),2);
+		cprintf(" Ver:%s ",__BLAKE_VERSION__);
 
 		gotoxy (1,8);
 
@@ -3254,7 +3254,7 @@ void    DemoLoop (void)
 			WindowH = 8;
 			VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,VERSION_TEXT_BKCOLOR);
 			SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-			US_Print(__VERSION__);
+			US_Print(__BLAKE_VERSION__);
 
 			VW_UpdateScreen();
 			VL_FadeIn(0,255,reinterpret_cast<Uint8*>(grsegs[TITLEPALETTE]),30);
@@ -3272,7 +3272,7 @@ void    DemoLoop (void)
 			WindowH = 8;
 			VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,VERSION_TEXT_BKCOLOR);
 			SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-			US_Print(__VERSION__);
+			US_Print(__BLAKE_VERSION__);
 
 			// Fizzle whole screen incase of any last minute changes needed
 			// on title intro.

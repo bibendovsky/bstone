@@ -4328,7 +4328,7 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
    // Check for code
 
 	for (i=1; i<g_argc; i++)
-		if (!memicmp(g_argv[i],code_ptr,strlen(code_ptr)))
+		if (bstone::C::memicmp(g_argv[i],code_ptr,strlen(code_ptr)) == 0)
       	return_val = true;
 
 	// free allocated memory

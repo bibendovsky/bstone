@@ -301,7 +301,7 @@ US_PrintUnsigned(Uint32 n)
 {
 	char	buffer[32];
 
-	US_Print(ultoa(n,buffer,10));
+	US_Print(bstone::C::xitoa(n,buffer,10));
 }
 
 

@@ -186,6 +186,9 @@
     <ClCompile Include="bstone_ogl_version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bstone_c.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="id_heads.h">
@@ -357,6 +360,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bstone_ogl_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bstone_c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

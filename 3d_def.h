@@ -10,7 +10,7 @@
 //#define TRACK_ENEMY_COUNT
 #define OBJ_RESERV
 
-#define __VERSION__ "V1.01"
+#define __BLAKE_VERSION__ "V1.01"
 
 // BBi
 #define BS_SAVE_GAME_VERSION "1"

@@ -10,19 +10,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <malloc.h>
 
 #include <memory>
 #include <vector>
 
 #include "SDL.h"
 
+#include "bstone_c.h"
 #include "bstone_file_stream.h"
 #include "bstone_memory_stream.h"
 
-
-#ifndef MSVC
-#define ultoa _ultoa
-#endif
+#pragma GCC diagnostic ignored "-fpermissive"
 
 #define __ID_GLOB__
 
@@ -165,6 +164,5 @@ extern  Uint8            fontcolor,backcolor;
 
 // BBi
 extern Uint8* vga_memory;
-
 
 #endif
