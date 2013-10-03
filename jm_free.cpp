@@ -819,7 +819,6 @@ PM_Startup(void)
 extern boolean US_Started;
 extern const char * US_ParmStrings[];
 extern const char * US_ParmStrings2[];
-extern Sint16 USL_HardError(Uint16 errval,Sint16 ax,Sint16 bp,Sint16 si);
 
 // BBi
 Uint32 sys_timer_callback(Uint32 interval, void* param)
@@ -840,11 +839,6 @@ US_Startup(void)
 
 	if (US_Started)
 		return;
-
-// FIXME
-#if 0
-	harderr(USL_HardError);	// Install the fatal error handler
-#endif // 0
 
     // BBi
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
