@@ -93,7 +93,7 @@ private:
         if (data_offset_ < 0)
             return 0;
 
-        if ((data_offset_ + sizeof(T)) >= data_size_)
+        if ((data_offset_ + static_cast<Sint64>(sizeof(T))) >= data_size_)
             return 0;
 
         T result = *reinterpret_cast<const T*>(&data_[data_offset_]);

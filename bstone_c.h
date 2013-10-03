@@ -69,7 +69,7 @@ public:
     static int memicmp(
         const void* buf1,
         const void* buf2,
-        unsigned int cnt);
+        size_t cnt);
 
     static int stricmp(
         const char* str1,

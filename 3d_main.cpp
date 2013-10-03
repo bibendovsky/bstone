@@ -2480,7 +2480,7 @@ bool SaveTheGame(
     // Write DESC chunk
     //
     memcpy(nbuff, description.c_str(), sizeof(nbuff));
-    cksize = strlen(nbuff) + 1;
+    cksize = static_cast<Sint32>(strlen(nbuff) + 1);
     stream->write("DESC", 4);
     stream->write(&cksize, 4);
     stream->write(nbuff, cksize);

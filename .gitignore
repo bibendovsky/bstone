@@ -1,7 +1,9 @@
 [D|d]ebug/
+[R|r]elease/
 bin/
 obj/
 ipch/
+x64/
 *.diff
 *.exe
 *.o

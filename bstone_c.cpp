@@ -20,7 +20,7 @@ namespace bstone {
 int C::memicmp(
     const void* buf1,
     const void* buf2,
-    unsigned int cnt)
+    size_t cnt)
 {
     const char* a = static_cast<const char*>(buf1);
     const char* b = static_cast<const char*>(buf2);
@@ -32,7 +32,7 @@ int C::memicmp(
 
     int diff = 0;
 
-    for (unsigned int i = 0; diff == 0 && i < cnt; ++i) {
+    for (size_t i = 0; diff == 0 && i < cnt; ++i) {
         diff = static_cast<unsigned char>(ctype.tolower(a[i])) -
             static_cast<unsigned char>(ctype.tolower(b[i]));
     }
@@ -52,7 +52,7 @@ int C::stricmp(
 
     int diff = 0;
 
-    for (unsigned int i = 0; diff == 0; ++i) {
+    for (size_t i = 0; diff == 0; ++i) {
         char a = str1[i];
         char b = str2[i];
 

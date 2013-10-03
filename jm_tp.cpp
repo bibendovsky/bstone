@@ -2047,7 +2047,7 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
 		size = p-((char*)grsegs[id_cache] + 1);
 #endif // 0
 
-        size = p - static_cast<const char*>(pi->scriptstart) - 1;
+        size = static_cast<Sint32>(p - static_cast<const char*>(pi->scriptstart) - 1);
 	}
 	else
 	{
