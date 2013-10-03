@@ -3052,7 +3052,7 @@ void RecordDemo (void)
 void PlayDemo (Sint16 demonumber)
 {
 //   static int numloops=0;
-	Sint16 length,off;
+	Sint16 length;
 
 #ifndef DEMOS_EXTERN
 // debug: load chunk

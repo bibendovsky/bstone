@@ -1896,7 +1896,7 @@ Sint16 CP_SaveGame(Sint16 quick)
 Sint16 CP_SaveGame(
     Sint16 quick)
 {
-    Sint16 handle,which,exit=0;
+    Sint16 which,exit=0;
     char input[GAME_DESCRIPTION_LEN+1];
     boolean temp_caps = allcaps;
     US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
@@ -3338,8 +3338,6 @@ void ReadGameNames()
 
 void ReadGameNames()
 {
-    char name[13];
-
     for (int i = 0; i < 10; ++i) {
         std::string name = SAVE_BASE_NAME;
         name += static_cast<char>('0' + i);
@@ -4537,8 +4535,6 @@ void ShowPromo()
 //-------------------------------------------------------------------------
 void ExitGame()
 {
-	Sint16 i;
-
    VW_FadeOut();
 #if GAME_VERSION == SHAREWARE_VERSION
 	ShowPromo();
@@ -4546,14 +4542,5 @@ void ExitGame()
 
 	SD_MusicOff();
 	SD_StopSound();
-
-// FIXME
-#if 0
-// SHUT-UP THE ADLIB
-//
-	for (i=1;i<=0xf5;i++)
-		alOut(i,0);
-#endif // 0
-
 	Quit("");
 }

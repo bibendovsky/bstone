@@ -764,7 +764,6 @@ bstone::MemoryStream g_playtemp;
 
 void ReadConfig()
 {
-    int file;
     SDMode sd = sdm_Off;
     SMMode sm = smm_Off;
     SDSMode sds = sds_Off;
@@ -960,8 +959,6 @@ void WriteConfig()
     }
 
     bstone::BinaryWriter writer(&stream);
-
-    Sint16 value_i16;
 
     for (int i = 0; i < MaxScores; ++i) {
         HighScore* score = &Scores[i];
