@@ -557,7 +557,7 @@ void DrawHealth (void)
 {
 	char *ptr = gamestate.health_str;
 
-	itoa(gamestate.health,gamestate.health_str,10);
+    bstone::C::xitoa(gamestate.health, gamestate.health_str, 10);
 	while (*ptr)
 		*ptr++ -= '0';
 
@@ -2274,11 +2274,11 @@ void writeTokenStr(char *str)
 
 	len = strlen(str);
 	if (gamestate.tokens > 9)
-		itoa(gamestate.tokens,buffer,10);
+        bstone::C::xitoa(gamestate.tokens, buffer, 10);
 	else
 	{
 		buffer[0]='0';
-		itoa(gamestate.tokens,buffer+1,10);
+        bstone::C::xitoa(gamestate.tokens, buffer + 1, 10);
 	}
 
 	strcpy(str+len-2,buffer);

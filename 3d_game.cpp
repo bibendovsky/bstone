@@ -2657,7 +2657,7 @@ void ShadowPrintLocationText(sp_type type)
 			{
 				ShPrint(" AREA: ",0,false);
 				if (!type)
-					ShPrint(itoa(gamestate.mapon+1,str,10),0,false);
+					ShPrint(bstone::C::xitoa(gamestate.mapon + 1, str, 10),0,false);
 			}
 
 		// Print LIVES info...
@@ -2665,7 +2665,7 @@ void ShadowPrintLocationText(sp_type type)
 			px = 267;
 			ShPrint("LIVES: ",0,false);
 			if (!type)
-				ShPrint(itoa(gamestate.lives,str,10),0,false);
+				ShPrint(bstone::C::xitoa(gamestate.lives, str, 10),0,false);
 
 		// Print location text
       //
