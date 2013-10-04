@@ -579,7 +579,7 @@ void DrawHealthNum(void)
 		if (gamestate.health < check)
 			JLatchDrawPic(16+loop,162,NG_BLANKPIC);
 		else
-			JLatchDrawPic(16+loop,162,gamestate.health_str[num++]+NG_0PIC);
+			JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<Uint8>(num++)]+NG_0PIC);
 }
 
 //---------------------------------------------------------------------------
@@ -790,7 +790,7 @@ void DrawKeyPics(void)
 	DrawKeyPics_COUNT--;
 
 	for (loop=0; loop<NUMKEYS; loop++)
-		if (gamestate.numkeys[loop])
+		if (gamestate.numkeys[static_cast<Uint8>(loop)])
 			JLatchDrawPic(15+2*loop,179,RED_KEYPIC+loop);
 		else
 			JLatchDrawPic(15+2*loop,179,NO_KEYPIC);
@@ -1352,7 +1352,7 @@ boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTim
 		else
 			LastMsgPri = static_cast<Uint16>(Priority);
 
-		if (MsgTicsRemain = DisplayTime)
+		if ((MsgTicsRemain = DisplayTime) != 0)
 			StatusAllDrawPic(0,40,BRI_LIGHTPIC);
 
 		gamestate.msg = Msg;
@@ -1664,8 +1664,8 @@ char *HandleControlCodes(char *first_ch)
 				case TP_CNVT_CODE('A','N'):
 					shapenum = TP_VALUE(first_ch,2);
 					first_ch += 2;
-					memcpy(&piAnimList[InfoAreaSetup.numanims],&piAnimTable[shapenum],sizeof(piAnimInfo));
-					anim = &piAnimList[InfoAreaSetup.numanims++];
+					memcpy(&piAnimList[static_cast<Uint8>(InfoAreaSetup.numanims)],&piAnimTable[shapenum],sizeof(piAnimInfo));
+					anim = &piAnimList[static_cast<Uint8>(InfoAreaSetup.numanims++)];
 					shape = &piShapeTable[anim->baseshape+anim->frame];	// BUG!! (assumes "pia_shapetable")
 //					spr = &spritetable[shape->shapenum-STARTSPRITES];
 
@@ -2015,14 +2015,14 @@ Uint16 static_points[]={	100,		// money bag
 
 Uint16 static_health[][3] =
 {
-	{100,HEALTH2SND,-1},			 					// Full Heal
-	{ 30,HEALTH1SND,-1},			 					// First Aid
+	{100,HEALTH2SND,static_cast<Uint16>(-1)},			 					// Full Heal
+	{ 30,HEALTH1SND,static_cast<Uint16>(-1)},			 					// First Aid
 	{ 20,HEALTH1SND,SPR_STAT_45},					// Steak
 	{ 15,HEALTH1SND,SPR_STAT_43},					// Chicken Leg
 	{ 10,HEALTH1SND,SPR_SANDWICH_WRAPER},	 	// Sandwich
 	{  8,HEALTH1SND,SPR_CANDY_WRAPER},	 		// Candy Bar
 	{  5,HEALTH1SND,SPR_STAT_41},    			// Water bowl
-	{  5,HEALTH1SND,-1},    						// Water puddle
+	{  5,HEALTH1SND,static_cast<Uint8>(-1)},    						// Water puddle
 };
 
 extern char bonus_msg24[];
@@ -2338,7 +2338,7 @@ boolean TryMove (objtype *ob)
 	for (y=yl;y<=yh;y++)
 		for (x=xl;x<=xh;x++)
 		{
-			if (check = actorat[x][y])
+			if ((check = actorat[x][y]) != NULL)
 				if ((check < objlist) || (check->flags & FL_FAKE_STATIC))
 					return(false);
 		}
@@ -2573,12 +2573,12 @@ char GetAreaNumber(char tilex, char tiley)
 
 // Are we on a wall?
 //
-	if (tilemap[tilex][tiley] && (!(tilemap[tilex][tiley]&0xc0)))
+	if (tilemap[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)] && (!(tilemap[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)]&0xc0)))
 		return(127);
 
 // Get initial areanumber from map
 //
-	offset = farmapylookup[tiley]+tilex;
+	offset = farmapylookup[static_cast<Uint8>(tiley)]+tilex;
 	ptr[0]=mapsegs[0]+offset;
 	ptr[1]=mapsegs[1]+offset;
 
@@ -2587,7 +2587,7 @@ char GetAreaNumber(char tilex, char tiley)
 	if (!(areanumber=ValidAreaTile(ptr[0])))
 	{
 		for (loop=0; loop<8; loop++)
-			if (areanumber=ValidAreaTile(ptr[0]+an_offset[loop]))
+			if (areanumber=ValidAreaTile(ptr[0]+an_offset[static_cast<Uint8>(loop)]))
 				break;
 
 		if (loop==8)
@@ -2669,8 +2669,8 @@ void Cmd_Fire (void)
 	player->state = &s_attack;
 
 	gamestate.attackframe = 0;
-	gamestate.attackcount = attackinfo[gamestate.weapon][gamestate.attackframe].tics;
-	gamestate.weaponframe =	attackinfo[gamestate.weapon][gamestate.attackframe].frame;
+	gamestate.attackcount = attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe].tics;
+	gamestate.weaponframe =	attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe].frame;
 }
 
 //===========================================================================
@@ -2805,7 +2805,7 @@ void Cmd_Use (void)
 				OperateConcession((Sint16)actorat[checkx][checky]);
 #endif // 0
 
-                OperateConcession(reinterpret_cast<Uint16>(actorat[checkx][checky]));
+                OperateConcession(static_cast<Uint16>(reinterpret_cast<size_t>(actorat[checkx][checky])));
 			break;
 
 			default:
@@ -3451,7 +3451,7 @@ void SaveOverheadChunk(
 //--------------------------------------------------------------------------
 void DisplayTeleportName(char tpNum, boolean locked)
 {
-	char *s;
+	const char *s;
 	Uint16 w,h;
 
 	if (locked)
@@ -3822,7 +3822,7 @@ void DisplayPinballBonus()
 
 // Check queue for bonuses
 //
-	for (loop=0; loop<sizeof(gamestuff.level[0].bonus_queue)*8; loop++)
+	for (loop=0; loop<static_cast<char>(sizeof(gamestuff.level[0].bonus_queue)*8); loop++)
 		if ((BONUS_QUEUE & (1<<loop)) && (LastMsgPri < MP_PINBALL_BONUS))
 		{
 		// Start this bonus!
@@ -3834,19 +3834,19 @@ void DisplayPinballBonus()
 
             ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
 
-			DisplayInfoMsg(PinballBonus[loop].BonusText,MP_PINBALL_BONUS,7*60,MT_BONUS);
+			DisplayInfoMsg(PinballBonus[static_cast<Uint8>(loop)].BonusText,MP_PINBALL_BONUS,7*60,MT_BONUS);
 
 		// Add to "shown" ... Remove from "queue"
 		//
-			if (!PinballBonus[loop].Recurring)
+			if (!PinballBonus[static_cast<Uint8>(loop)].Recurring)
 				BONUS_SHOWN |= (1<<loop);
 			BONUS_QUEUE &= ~(1<<loop);
 
 		// Give points and execute special function.
 		//
-			GivePoints(PinballBonus[loop].Points,false);
-			if (PinballBonus[loop].func)
-				PinballBonus[loop].func();
+			GivePoints(PinballBonus[static_cast<Uint8>(loop)].Points,false);
+			if (PinballBonus[static_cast<Uint8>(loop)].func)
+				PinballBonus[static_cast<Uint8>(loop)].func();
 		}
 }
 
@@ -4872,7 +4872,7 @@ void	T_Attack (objtype *ob)
 	gamestate.attackcount -= tics;
 	if (gamestate.attackcount <= 0)
 	{
-		cur = &attackinfo[gamestate.weapon][gamestate.attackframe];
+		cur = &attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe];
 		switch (cur->attack)
 		{
 		case -1:
@@ -5067,7 +5067,7 @@ void	T_Attack (objtype *ob)
 		gamestate.attackcount += cur->tics;
 		gamestate.attackframe++;
 		gamestate.weaponframe =
-			attackinfo[gamestate.weapon][gamestate.attackframe].frame;
+			attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe].frame;
 	}
 }
 
@@ -5325,7 +5325,7 @@ boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean F
 
 	what_is_it WhatItIs;
    objtype *obj;
-   statobj_t *stat;
+   statobj_t *stat = NULL;
    Uint8 tile, DoorNum;
    Uint16 iconnum;
 
@@ -5376,7 +5376,7 @@ boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean F
          }
 			else
          {
-         	if (stat = FindStatic(tilex,tiley))
+         	if ((stat = FindStatic(tilex,tiley)) != NULL)
             	WhatItIs = wit_STATIC;
          }
       }

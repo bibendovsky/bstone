@@ -124,7 +124,7 @@ void jsprintf(char *msg, ...);
 #define ObjVisable(from_obj,to_obj)		PosVisable(from_obj->x,from_obj->y,to_obj->x,to_obj->y,from_obj->angle)
 
 // SmartAnim macro
-#define ANIM_INFO(o)					((ofs_anim_t *)&(o)->temp3)
+#define ANIM_INFO(o)					(reinterpret_cast<ofs_anim_t*>(&(o)->temp3))
 
 
 #define DISPLAY_MSG_STD_TIME			(5*60)				// Tics display len
@@ -2155,12 +2155,12 @@ typedef enum
 
 
 
-typedef enum    {
+enum Difficulty {
 	gd_baby,
 	gd_easy,
 	gd_medium,
 	gd_hard
-};
+}; // enum Difficulty
 
 
 

@@ -26,9 +26,9 @@ public:
             return NULL;
 
         str[0] = '\0';
-        std::ios::fmtflags flags;
 
-        std::ostringstream iss;
+        bool is_radix_valid = true;
+        std::ios::fmtflags flags;
 
         switch (radix) {
         case 8:
@@ -44,12 +44,12 @@ public:
             break;
 
         default:
-            flags = 0;
+            is_radix_valid = false;
             break;
         }
 
-        if (flags != 0) {
-
+        if (is_radix_valid) {
+            std::ostringstream iss;
             iss.setf(flags, std::ios::oct | std::ios::dec | std::ios::hex);
             iss << value;
 

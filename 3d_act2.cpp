@@ -469,7 +469,7 @@ Uint16 scan_value;
 //---------------------------------------------------------------------------
 void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 {
-	enemy_t dir_which;
+	enemy_t dir_which = en_rentacop;
 
 	switch (which)
 	{
@@ -712,7 +712,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 
 	CheckForSpecialTile(new_actor,tilex,tiley);
 
-	if (which < SPACER1_OBJ)
+	if (which < static_cast<enemy_t>(SPACER1_OBJ))
 		new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
 }
 
@@ -787,7 +787,7 @@ void T_OfsThink(objtype *obj)
 
 				// Reached end of range?
 
-				if (!(obj->temp1 = grenade_shapes[dist]))
+				if ((obj->temp1 = grenade_shapes[static_cast<Uint8>(dist)]) == 0)
 				{
 					obj->obclass = gr_explosionobj;
 					InitSmartSpeedAnim(obj,SPR_GRENADE_EXPLODE1,0,4,at_ONCE,ad_FWD,3+(US_RndT()&3));
@@ -981,7 +981,7 @@ void T_OfsThink(objtype *obj)
 //---------------------------------------------------------------------------
 Sint16 RandomSphereDir(enemy_t enemy)
 {
-	Sint16 dir;
+	Sint16 dir = 0;
 
 	switch (enemy)
 	{
@@ -1132,7 +1132,7 @@ void T_OfsBounce(objtype *ob)
 				case northwest:
 				case southeast:
 				case southwest:
-					if (ob->trydir != en_diagsphere)
+					if (ob->trydir != static_cast<dirtype>(en_diagsphere))
 					{
 						if (!MoveTrappedDiag(ob))
 							SphereStartDir(ob);
@@ -1155,7 +1155,7 @@ void T_OfsBounce(objtype *ob)
 
 				case north:
 				case south:
-					if (ob->trydir != en_vertsphere)
+					if (ob->trydir != static_cast<dirtype>(en_vertsphere))
 					{
 						if (!MoveTrappedDiag(ob))
 							SphereStartDir(ob);
@@ -1167,7 +1167,7 @@ void T_OfsBounce(objtype *ob)
 
 				case east:
 				case west:
-					if (ob->trydir != en_horzsphere)
+					if (ob->trydir != static_cast<dirtype>(en_horzsphere))
 					{
 						if (!MoveTrappedDiag(ob))
 							SphereStartDir(ob);
@@ -1217,7 +1217,7 @@ boolean MoveTrappedDiag(objtype *ob)
 {
 // Don't mess with HORZs, VERTs, or normal DIAGs.
 //
-	if ((ob->trydir != en_diagsphere) ||
+	if ((ob->trydir != static_cast<dirtype>(en_diagsphere)) ||
 		 ((ob->dir>>1<<1) != ob->dir))
 		return(false);
 
@@ -1365,7 +1365,7 @@ objtype *MoveHiddenOfs(classtype which_class, classtype new_class, fixed x, fixe
 {
 	objtype *obj;
 
-	if (obj=FindHiddenOfs(which_class))
+	if ((obj=FindHiddenOfs(which_class)) != NULL)
 	{
 		obj->obclass = new_class;
 		obj->x = x;
@@ -1426,7 +1426,7 @@ void InitSmartAnimStruct(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 Ma
 
 	obj->temp1 = ShapeNum + AnimStruct.curframe;
 
-	*(ofs_anim_t *)&obj->temp3 = AnimStruct;
+	*reinterpret_cast<ofs_anim_t*>(&obj->temp3) = AnimStruct;
 }
 
 void InitAnim(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 MaxOfs, animtype_t AnimType, animdir_t AnimDir, Uint16 Delay, Uint16 WaitDelay)
@@ -1486,7 +1486,7 @@ void T_SmartThought(objtype *obj)
 			case green2_oozeobj:
 			case black2_oozeobj:
 			{
-				if (((US_RndT()&7) == 7) && ((ofs_anim_t *)&obj->temp3)->curframe == 2 && obj->tilex == player->tilex && obj->tiley == player->tiley)
+				if (((US_RndT()&7) == 7) && reinterpret_cast<const ofs_anim_t*>(&obj->temp3)->curframe == 2 && obj->tilex == player->tilex && obj->tiley == player->tiley)
 					TakeDamage(4,obj);
 			}
 			break;
@@ -2209,7 +2209,7 @@ Sint16 CheckAndConnect(char x,char y, Uint16 code)
             default:
                 break;
 		}
-	} while (ob = ob->next);
+	} while ((ob = ob->next) != NULL);
 
 	return(bars_connected);
 }
@@ -2477,7 +2477,7 @@ void T_BarrierShutdown(objtype *obj)
 						obj->flags &= ~(FL_SOLID|FL_FAKE_STATIC);
 						obj->flags |= (FL_NEVERMARK|FL_NONMARK);
 	      	   	obj->lighting = 0;
-	               obj->temp2 = 5+US_RndT()&0xf;
+	               obj->temp2 = 5+(US_RndT()&0xf);
             	}
 
                obj->hitpoints--;
@@ -4269,7 +4269,7 @@ void DoAttack(objtype *ob)
 			break;
 
 			case liquidobj:
-				if ((dx > 2) || (dy > 2) && US_RndT() < 30)
+				if ((dx > 2 || dy > 2) && US_RndT() < 30)
 				{
 					ob->flags &= ~(FL_OFFSET_STATES);
 					ob->flags |= FL_SOLID;
@@ -5696,7 +5696,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 		for (y=yl;y<=yh;y++)
 			for (x=xl;x<=xh;x++)
 			{
-				if (proj_check = actorat[x][y])
+				if ((proj_check = actorat[x][y]) != NULL)
                 {
 					if (proj_check < objlist)
 					{
@@ -5762,7 +5762,7 @@ boolean ProjectileTryMove(objtype *ob, fixed deltax, fixed deltay)
 void T_Projectile(objtype *ob)
 {
 	Sint32	deltax,deltay;
-	Sint16	damage;
+	Sint16	damage = 0;
 	Sint32	speed;
 	objtype *attacker;
 
@@ -6142,7 +6142,7 @@ void ExplodeFill(char tx, char ty)
 				//
 					case plasma_detonatorobj:
 						if (ff_obj == player ||										// Player shot it with gun
-							ff_obj->tilex == tx && ff_obj->tiley == ty)	 	// Direct Hit with grenade
+							(ff_obj->tilex == tx && ff_obj->tiley == ty))	 	// Direct Hit with grenade
 							DamageActor(proj_check,1,ff_obj);
 						else
 							DamageActor(proj_check,20,ff_obj);					// An explosion has started a chain reaction
@@ -6163,20 +6163,20 @@ void ExplodeFill(char tx, char ty)
 
 // Mark spot as exploded!
 //
-	ff_buffer[bx][by] = 1;
+	ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)] = 1;
 
 // Explode to the EAST!
 //
 	bx += 1;
 	tx += 1;
 
-	door = tilemap[tx][ty];
+	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[tx][ty];
+		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 
-	if ((!ff_buffer[bx][by]) && (no_wall) && (bx <= EX_RADIUS*2))
+	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (bx <= EX_RADIUS*2))
 		ExplodeFill(tx,ty);
 
 // Explode to the WEST!
@@ -6184,13 +6184,13 @@ void ExplodeFill(char tx, char ty)
 	bx -= 2;
 	tx -= 2;
 
-	door = tilemap[tx][ty];
+	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[tx][ty];
+		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 
-	if ((!ff_buffer[bx][by]) && (no_wall) && (bx >= 0))
+	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (bx >= 0))
 		ExplodeFill(tx,ty);
 
 // Explode to the SOUTH!
@@ -6200,13 +6200,13 @@ void ExplodeFill(char tx, char ty)
 	by += 1;
 	ty += 1;
 
-	door = tilemap[tx][ty];
+	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[tx][ty];
+		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 
-	if ((!ff_buffer[bx][by]) && (no_wall) && (by <= EX_RADIUS*2))
+	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (by <= EX_RADIUS*2))
 		ExplodeFill(tx,ty);
 
 // Explode to the NORTH!
@@ -6214,13 +6214,13 @@ void ExplodeFill(char tx, char ty)
 	by -= 2;
 	ty -= 2;
 
-	door = tilemap[tx][ty];
+	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[tx][ty];
+		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
 
-	if ((!ff_buffer[bx][by]) && (no_wall) && (by >= 0))
+	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (by >= 0))
 		ExplodeFill(tx,ty);
 }
 
@@ -6376,7 +6376,7 @@ void T_BlowBack(objtype *obj)
 #endif // 0
 
        if ((killer = SLIDE_TEMP(obj)) == player)
-           *((Uint16*)&obj->hitpoints) = dist_table[gamestate.weapon];
+           *((Uint16*)&obj->hitpoints) = dist_table[static_cast<Uint8>(gamestate.weapon)];
        else
            *((Uint16*)&obj->hitpoints) = dist_table[wp_grenade];
 
