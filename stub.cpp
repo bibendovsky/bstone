@@ -28,8 +28,24 @@ void VH_UpdateScreen()
     ogl_update_screen();
 }
 
-void VL_ScreenToScreen (Uint16 source, Uint16 dest, Sint16 width, Sint16 height)
+void VL_ScreenToScreen(
+    int source,
+    int dest,
+    int width,
+    int height)
 {
+    source *= 4;
+    dest *= 4;
+    width *= 4;
+
+    const Uint8* src = &vga_memory[source];
+    Uint8* dst = &vga_memory[dest];
+
+    for (int y = 0; y < height; ++y) {
+        std::move(src, &src[width], dst);
+        src += vanilla_screen_width;
+        dst += vanilla_screen_width;
+    }
 }
 
 void SDL_SetDS()
