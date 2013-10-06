@@ -5,12 +5,9 @@
 //
 //////////////////////////////////////
 
-typedef enum {
-
-
-
-		ENUMEND
-	     } graphicnums;
+enum graphicnums {
+	ENUMEND
+}; // enum graphicnums
 
 //
 // Data LUMPs

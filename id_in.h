@@ -130,50 +130,80 @@ typedef	Uint8		ScanCode;
 
 #define	MaxJoyValue		5000			// JAM
 
-typedef	enum		{
-						demo_Off,demo_Record,demo_Playback,demo_PlayDone
-					} Demo;
-typedef	enum		{
-						ctrl_None,									// JAM - added
-						ctrl_Keyboard,
-							ctrl_Keyboard1 = ctrl_Keyboard,ctrl_Keyboard2,
-						ctrl_Joystick,
-							ctrl_Joystick1 = ctrl_Joystick,ctrl_Joystick2,
-						ctrl_Mouse
-					} ControlType;
-typedef	enum		{
-						motion_Left = -1,motion_Up = -1,
-						motion_None = 0,
-						motion_Right = 1,motion_Down = 1
-					} Motion;
-typedef	enum		{
-						dir_North,dir_NorthEast,
-						dir_East,dir_SouthEast,
-						dir_South,dir_SouthWest,
-						dir_West,dir_NorthWest,
-						dir_None
-					} Direction;
-typedef	struct		{
-						boolean		button0,button1,button2,button3;
-						Sint16			x,y;
-						Motion		xaxis,yaxis;
-						Direction	dir;
-					} CursorInfo;
-typedef	CursorInfo	ControlInfo;
-typedef	struct		{
-						ScanCode	button0,button1,
-									upleft,		up,		upright,
-									left,				right,
-									downleft,	down,	downright;
-					} KeyboardDef;
-typedef	struct		{
-						Uint16		joyMinX,joyMinY,
-									threshMinX,threshMinY,
-									threshMaxX,threshMaxY,
-									joyMaxX,joyMaxY,
-									joyMultXL,joyMultYL,
-									joyMultXH,joyMultYH;
-					} JoystickDef;
+enum Demo {
+    demo_Off,
+    demo_Record,
+    demo_Playback,
+    demo_PlayDone
+}; // enum Demo
+
+enum ControlType {
+    ctrl_None, // JAM - added
+    ctrl_Keyboard,
+    ctrl_Keyboard1 = ctrl_Keyboard,
+    ctrl_Keyboard2,
+    ctrl_Joystick,
+    ctrl_Joystick1 = ctrl_Joystick,
+    ctrl_Joystick2,
+    ctrl_Mouse
+}; // enum ControlType
+
+enum Motion {
+    motion_Left = -1,
+    motion_Up = -1,
+    motion_None = 0,
+    motion_Right = 1,
+    motion_Down = 1
+}; // enum Motion
+
+enum Direction {
+    dir_North,
+    dir_NorthEast,
+    dir_East,
+    dir_SouthEast,
+    dir_South,
+    dir_SouthWest,
+    dir_West,
+    dir_NorthWest,
+    dir_None
+}; // enum Direction
+
+struct CursorInfo {
+    boolean		button0,button1,button2,button3;
+    Sint16			x,y;
+    Motion		xaxis,yaxis;
+    Direction	dir;
+}; // struct  CursorInfo
+
+typedef CursorInfo ControlInfo;
+
+struct KeyboardDef {
+    ScanCode button0;
+    ScanCode button1;
+    ScanCode upleft;
+    ScanCode up;
+    ScanCode upright;
+    ScanCode left;
+    ScanCode right;
+    ScanCode downleft;
+    ScanCode down;
+    ScanCode downright;
+}; // struct KeyboardDef
+
+struct JoystickDef {
+    Uint16 joyMinX;
+    Uint16 joyMinY;
+    Uint16 threshMinX;
+    Uint16 threshMinY;
+    Uint16 threshMaxX;
+    Uint16 threshMaxY;
+    Uint16 joyMaxX;
+    Uint16 joyMaxY;
+    Uint16 joyMultXL;
+    Uint16 joyMultYL;
+    Uint16 joyMultXH;
+    Uint16 joyMultYH;
+}; // struct JoystickDef
 
 
 // Global variables

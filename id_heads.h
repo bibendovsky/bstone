@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -102,14 +103,15 @@ extern  char            signonv1;
 #define true (1)
 typedef Sint16 boolean;
 
-typedef struct
-		{
-			Sint16     x,y;
-		} Point;
-typedef struct
-		{
-			Point   ul,lr;
-		} Rect;
+struct Point {
+    Sint16 x;
+    Sint16 y;
+}; // struct Point
+
+struct Rect {
+    Point ul;
+    Point lr;
+}; // struct Rect
 
 #define nil     (0l)
 

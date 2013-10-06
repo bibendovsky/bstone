@@ -42,7 +42,7 @@ void VL_ScreenToScreen(
     Uint8* dst = &vga_memory[dest];
 
     for (int y = 0; y < height; ++y) {
-        std::move(src, &src[width], dst);
+        ::memmove(dst, src, width);
         src += vanilla_screen_width;
         dst += vanilla_screen_width;
     }

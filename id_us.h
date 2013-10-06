@@ -21,49 +21,53 @@
 
 #define	MaxHighName	57
 #define	MaxScores	10
-typedef	struct
-		{
-			char	name[MaxHighName + 1];
-			Sint32	score;
-			Uint16	completed,episode,ratio;
-		} HighScore;
+
+struct HighScore {
+    char name[MaxHighName + 1];
+    Sint32 score;
+    Uint16 completed;
+    Uint16 episode;
+    Uint16 ratio;
+}; // struct HighScore
 
 #define	MaxGameName		32
 #define	MaxSaveGames	6
-typedef	struct
-		{
-			char	signature[4];
-			Uint16	*oldtest;
-			boolean	present;
-			char	name[MaxGameName + 1];
-		} SaveGame;
+
+struct SaveGame {
+    char signature[4];
+    Uint16* oldtest;
+    boolean present;
+    char name[MaxGameName + 1];
+}; // struct SaveGame
 
 #define	MaxString	128	// Maximum input string size
 
-typedef	struct
-		{
-			Sint16	x,y,
-				w,h,
-				px,py;
-		} WindowRec;	// Record used to save & restore screen windows
+// Record used to save & restore screen windows
+struct WindowRec {
+    Sint16 x;
+    Sint16 y;
+    Sint16 w;
+    Sint16 h;
+    Sint16 px;
+    Sint16 py;
+}; // struct WindowRec;
 
-typedef	enum
-		{
-			gd_Continue,
-			gd_Easy,
-			gd_Normal,
-			gd_Hard
-		} GameDiff;
+enum GameDiff {
+    gd_Continue,
+    gd_Easy,
+    gd_Normal,
+    gd_Hard
+}; // enum GameDiff
 
 // Custom Cursor struct type for US_LineInput()
 
-typedef struct								  // JAM - Custom Cursor Support
-{
-	char cursor_char;
-	char do_not_use;						 // Space holder for ASCZ string
-	Uint16 cursor_color;
-	Uint16 font_number;
-} US_CursorStruct;
+// JAM - Custom Cursor Support
+struct US_CursorStruct {
+    char cursor_char;
+    char do_not_use;						 // Space holder for ASCZ string
+    Uint16 cursor_color;
+    Uint16 font_number;
+}; // struct US_CursorStruct
 
 //	Hack import for TED launch support
 //extern	boolean		tedlevel;

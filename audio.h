@@ -11,10 +11,10 @@
 //
 // Sound names & indexes
 //
-typedef enum {
-		UNTITLED0SND,            // 0
-		LASTSOUND
-	     } soundnames;
+enum soundnames {
+	UNTITLED0SND,
+	LASTSOUND
+}; // enum soundnames
 
 //
 // Base offsets

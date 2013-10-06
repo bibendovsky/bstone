@@ -68,63 +68,78 @@
 //-------------------------------------------------------------------------
 //  typedefs
 //-------------------------------------------------------------------------
-typedef struct {
-	Uint16 flags,gflags;
-	const char *script[TP_MAX_PAGES];
-	void* scriptstart;
-	char numpages,pagenum;
-	Uint16 xl,yl,xh,yh;
-	char fontnumber;
-	char bgcolor,ltcolor,dkcolor,shcolor;
-	Uint16 cur_x,cur_y;
-	char print_delay;
-	Uint8 highlight_color,fontcolor;
-	Sint16 id_cache;
-	char *infoline;
-} PresenterInfo;
+struct PresenterInfo {
+    Uint16 flags;
+    Uint16 gflags;
+    const char* script[TP_MAX_PAGES];
+    void* scriptstart;
+    char numpages;
+    char pagenum;
+    Uint16 xl;
+    Uint16 yl;
+    Uint16 xh;
+    Uint16 yh;
+    char fontnumber;
+    char bgcolor;
+    char ltcolor;
+    char dkcolor;
+    char shcolor;
+    Uint16 cur_x;
+    Uint16 cur_y;
+    char print_delay;
+    Uint8 highlight_color;
+    Uint8 fontcolor;
+    Sint16 id_cache;
+    char* infoline;
+}; // struct PresenterInfo;
 
-typedef enum tpCacheType {ct_scaled,
-								  ct_chunk,
-								  ct_marks,
-								  ct_music
-} tpCacheType;
+enum tpCacheType {
+    ct_scaled,
+    ct_chunk,
+    ct_marks,
+    ct_music
+}; // enum tpCacheType
 
-typedef enum pisType {pis_pic,
-							 pis_sprite,
-							 pis_scaled,
-							 pis_scwall,
-							 pis_latchpic
+enum pisType {
+    pis_pic,
+    pis_sprite,
+    pis_scaled,
+    pis_scwall,
+    pis_latchpic
+
 #if TP_640x200
     ,
-							 pis_pic2x,
-							 pis_sprite2x
+    pis_pic2x,
+    pis_sprite2x
 #endif
-} pisType;
+}; // enum pisType;
 
-typedef struct {
-	Uint16 shapenum;
-	pisType shapetype;
-} piShapeInfo;
+struct piShapeInfo {
+    Uint16 shapenum;
+    pisType shapetype;
+}; // struct piShapeInfo
 
-typedef enum piaType {pia_grabscript,
-							 pia_shapetable
-} piaType;
+enum piaType {
+    pia_grabscript,
+    pia_shapetable
+}; // enum piaType;
 
-typedef enum pidType {pid_cycle,
-							 pid_rebound
-} pidType;
+enum pidType {
+    pid_cycle,
+    pid_rebound
+}; // enum pidType
 
-typedef struct {
-	Sint16 baseshape;
-	char frame;
-	char maxframes;
-	Sint16 delay;
-	Sint16 maxdelay;
-	piaType animtype;
-	pidType dirtype;
-	Sint16 x,y;
-	char diradd;
-} piAnimInfo;
+struct piAnimInfo {
+    Sint16 baseshape;
+    char frame;
+    char maxframes;
+    Sint16 delay;
+    Sint16 maxdelay;
+    piaType animtype;
+    pidType dirtype;
+    Sint16 x,y;
+    char diradd;
+}; // struct piAnimInfo
 
 //-------------------------------------------------------------------------
 // variable externs

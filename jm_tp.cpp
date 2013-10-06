@@ -518,7 +518,12 @@ Uint8 TPscan;
 static char old_fontnumber;
 static Sint16 length;
 
-enum {jm_left,jm_right,jm_flush};
+enum JustifyMode {
+    jm_left,
+    jm_right,
+    jm_flush
+}; // enum JustifyMode
+
 static char justify_mode = jm_left;
 
 static Uint16 flags;

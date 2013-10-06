@@ -14,14 +14,17 @@
 
 #define MAXSHIFTS	1
 
-typedef struct
-{
-  Sint16	width,
-	height,
-	orgx,orgy,
-	xl,yl,xh,yh,
-	shifts;
-} spritetabletype;
+struct spritetabletype {
+    Sint16 width;
+    Sint16 height;
+    Sint16 orgx;
+    Sint16 orgy;
+    Sint16 xl;
+    Sint16 yl;
+    Sint16 xh;
+    Sint16 yh;
+    Sint16 shifts;
+}; // struct spritetabletype
 
 // FIXME
 #if 0
@@ -34,18 +37,17 @@ typedef	struct
 } spritetype;		// the memptr for each sprite points to this
 #endif // 0
 
-typedef struct
-{
-	Sint16 width,height;
-} pictabletype;
+struct pictabletype {
+    Sint16 width;
+    Sint16 height;
+}; // struct pictabletype
 
 
-typedef struct
-{
-	Sint16 height;
-	Sint16 location[256];
-	char width[256];
-} fontstruct;
+struct fontstruct {
+    Sint16 height;
+    Sint16 location[256];
+    char width[256];
+}; // struct fontstruct
 
 
 //===========================================================================

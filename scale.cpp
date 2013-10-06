@@ -17,10 +17,10 @@ extern int dc_planes;
 extern const Uint8* shadingtable;
 
 
-typedef enum {
+enum DrawMode {
     DRAW_DEFAULT,
     DRAW_LIGHTED
-} DrawMode;
+}; // enum DrawMode
 
 
 static void generic_draw_column(DrawMode draw_mode)

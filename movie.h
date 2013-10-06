@@ -11,20 +11,18 @@
 //==========================================================================
 
 
-typedef struct
-{
-	Uint16 code;
-   Sint32 block_num;
-   Sint32 recsize;
-}anim_frame;
+struct anim_frame {
+    Uint16 code;
+    Sint32 block_num;
+    Sint32 recsize;
+}; // struct anim_frame
 
 
-typedef struct
-{
-	Uint16 opt;
-   Uint16 offset;
-   Uint16 length;
-} anim_chunk;
+struct anim_chunk {
+    Uint16 opt;
+    Uint16 offset;
+    Uint16 length;
+}; // struct anim_chunk
 
 
 //-------------------------------------------------------------------------
@@ -38,19 +36,17 @@ typedef struct
 //  start_line 	-- Starting line of screen to copy to other pages
 //  end_line   	-- Ending line  "   "   "   "   "   "   "   "
 //
-typedef struct
-{
-	char FName[13];
-	char rep;
-	char ticdelay;
+struct MovieStuff_t {
+    char FName[13];
+    char rep;
+    char ticdelay;
 
-   Uint32 MaxMemBuffer;
+    Uint32 MaxMemBuffer;
 
-	Sint16 start_line;
-	Sint16 end_line;
+    Sint16 start_line;
+    Sint16 end_line;
     const void* palette;
-
-} MovieStuff_t;
+}; // struct MovieStuff_t
 
 
 

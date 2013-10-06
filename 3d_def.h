@@ -496,32 +496,32 @@ void jsprintf(char *msg, ...);
 #define CANT_SAVE_GAME_TXT " Can't save this game! \n"    	\
 									"    Hard Disk FULL!"
 
-typedef enum ss_type {
+enum ss_type {
 	ss_normal,
 	ss_quick,
 	ss_justcalc
-} ss_type;
+}; // enum ss_type
 
-typedef enum cds_io_type {
+enum cds_io_type {
 		cds_dos_print,
 		cds_id_print,
 		cds_menu_print
-} cds_io_type;
+}; // enum cds_io_type
 
 
-typedef enum sp_type {
+enum sp_type {
 	sp_normal,
 	sp_loading,
 	sp_saving,
 	sp_changeview,
 	sp_teleporting
-} sp_type;
+}; // enum sp_type
 
 //
 // sprite constants
 //
 
-typedef enum    {
+enum sprite_t {
 		SPR_DEMO,
 
 //
@@ -1177,10 +1177,10 @@ typedef enum    {
 
 
 
-} sprite_t;
+}; // enum sprite_t
 
 #if GAME_VERSION == SHAREWARE_VERSION
-typedef enum {
+enum dummy_sprite_t {
 
 		SPR_STAT_1=0,
 		SPR_STAT_3=0,
@@ -1326,15 +1326,14 @@ typedef enum {
 		SPR_BOSS6_SHOOT1,SPR_BOSS6_SHOOT2,SPR_BOSS6_SHOOT3,
 		SPR_BOSS6_PROJ1,SPR_BOSS6_PROJ2,SPR_BOSS6_PROJ3,
 		SPR_BOSS6_EXP1,SPR_BOSS6_EXP2,SPR_BOSS6_EXP3,
-} dummy_sprite_t;
+}; // enum dummy_sprite_t
 #endif
 
 //
 // Door Objects
 //
 
-typedef enum
-{
+enum doortype {
 		// LOCKED DOORS
 
 		L_METAL,
@@ -1413,26 +1412,26 @@ typedef enum
 		NUMDOORTYPES
 
 
-} doortype;
+}; // enum doortype
 
 
 //
 // Breifing types - Note these are ordered to an char array in Breifing().
 //
 
-typedef enum
+enum breifing_type
 {
 	BT_LOSE,
 	BT_WIN,
 	BT_INTRO
 
-} breifing_type;
+}; // enum breifing_type
 
 // Terminal Messages - These correspond to the order in which they are
 //							  grabbed in VGAGRAPH.BS?.  See BSTONEV.I
 //
 
-typedef enum
+enum term_msg_type
 {
 	TM_HINT,
 	TM_JAM,
@@ -1498,13 +1497,13 @@ typedef enum
 	TM_ALREADY_ACTIVATED,
 	TM_ALREADY_DEACTIVATED,
 	TM_LAST
-} term_msg_type;
+}; // enum term_msg_type
 
 // Terminal Commands - The first set of commands TC_HINT - TC_end_of_1to1
 //							  are directly mapped 1 to 1 to the terminal msgs.
 //
 
-typedef enum
+enum term_cmd_type
 {
 	TC_HINT,
 	TC_JAM,
@@ -1542,13 +1541,13 @@ typedef enum
 	TC_ACTIVATE_SOCKETS,
 
 	TC_LAST
-} term_cmd_type;
+}; // enum term_cmd_type
 
 //
 // Barrier State Transistions
 //
 
-typedef enum
+enum barrier_state_type
 {
    bt_OFF,
 	bt_ON,
@@ -1558,7 +1557,7 @@ typedef enum
    bt_OPENING,				// For physical barriers
    bt_CLOSING				//	      " " "
 
-} barrier_state_type;
+}; // enum barrier_state_type
 
 
 
@@ -1589,37 +1588,37 @@ typedef Sint32 fixed;
 #define PinballBonusShown(bonus)		(BONUS_SHOWN & bonus)
 #define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus)) BONUS_QUEUE |= bonus
 
-typedef struct {
+struct PinballBonusInfo {
 	char* BonusText;			// REBA text pointer
 	Sint32 Points;					// Score for this bonus
 	boolean Recurring;			// Appear multiple times in a single level?
 	void  (*func)();			// Code to execute when you get this bonus.
-} PinballBonusInfo;
+}; // struct PinballBonusInfo
 
-typedef struct
+struct atkinf_t
 {
 	char	tics;
 	char  attack;
 	char  frame;		// attack is 1 for gun, 2 for knife
-} atkinf_t;
+}; // struct atkinf_t
 
 
-typedef enum				// NOTE - This enum list is ORDERED!
-{
+// NOTE - This enum list is ORDERED!
+enum movie_t {
 	mv_intro,
 	mv_final,
 	mv_NUM_MOVIES
+}; // enum movie_t
 
-} movie_t;
-
-typedef enum {
+enum controldir_t {
 	di_north,
 	di_east,
 	di_south,
 	di_west
-} controldir_t;
+}; // enum controldir_t
 
-typedef enum {				// NOTE - This enum list is ORDERED!
+// NOTE - This enum list is ORDERED!
+enum door_t {
 	dr_bio,
 	dr_normal,
 	dr_prison,
@@ -1631,24 +1630,24 @@ typedef enum {				// NOTE - This enum list is ORDERED!
 	dr_oneway_right,
 	dr_oneway_down,
    dr_space
-} door_t;
+}; // enum door_t
 
-typedef enum {
+enum keytype {
 	kt_none =-1,
 	kt_red,
 	kt_yellow,
 	kt_blue,
 	NUMKEYS
-} keytype;
+}; // enum keytype
 
-typedef enum {
+enum activetype {
 	ac_badobject = -1,
 	ac_no,
 	ac_yes,
 	ac_allways
-} activetype;
+}; // enum activetype
 
-typedef enum {
+enum classtype {
 	nothing,
 	playerobj,
 	inertobj,
@@ -1757,16 +1756,18 @@ typedef enum {
 	gr_explosionobj,
 	gold_morphingobj
 
-} classtype;
+}; // enum classtype
 
 // BBi
-inline classtype operator++(classtype& a, int)
+inline classtype operator++(
+    classtype& a,
+    int)
 {
     classtype result = a;
-    a = static_cast<classtype>(static_cast<int>(a) + 1);
+    a = static_cast<classtype>(a + 1);
     return result;
 }
-
+// BBi
 
 //
 // NOTE: When adding bonus objects - Make sure that they are added
@@ -1774,7 +1775,7 @@ inline classtype operator++(classtype& a, int)
 //			updated.
 //
 
-typedef enum {
+enum stat_t {
 	dressing,
 
 	bo_red_key,
@@ -1826,15 +1827,14 @@ typedef enum {
 
 	block
 
-} stat_t;
+}; // enum stat_t
 
-typedef struct
-{
+struct stattype {
 	Sint16		picnum;
 	stat_t	type;
-} stattype;
+}; // struct stattype
 
-typedef enum {
+enum dirtype {
 	east,
 	northeast,
 	north,
@@ -1844,42 +1844,52 @@ typedef enum {
 	south,
 	southeast,
 	nodir
-} dirtype;
+}; // enum dirtype
 
 // BBi
-inline dirtype operator+=(dirtype& a, int b)
+inline dirtype operator+=(
+    dirtype& a,
+    int b)
 {
-    a = static_cast<dirtype>(static_cast<int>(a) + b);
+    a = static_cast<dirtype>(a + b);
     return a;
 }
 
-inline dirtype operator-=(dirtype& a, int b)
+inline dirtype operator-=(
+    dirtype& a,
+    int b)
 {
-    a = static_cast<dirtype>(static_cast<int>(a) - b);
+    a = static_cast<dirtype>(a - b);
     return a;
 }
 
-inline dirtype operator|=(dirtype& a, int b)
+inline dirtype operator|=(
+    dirtype& a,
+    int b)
 {
-    a = static_cast<dirtype>(static_cast<int>(a) | b);
+    a = static_cast<dirtype>(a | b);
     return a;
 }
 
-inline dirtype operator--(dirtype& a, int)
+inline dirtype operator--(
+    dirtype& a,
+    int)
 {
     dirtype result = a;
     a -= 1;
     return result;
 }
 
-inline dirtype operator++(dirtype& a, int)
+inline dirtype operator++(
+    dirtype& a,
+    int)
 {
     dirtype result = a;
     a += 1;
     return result;
 }
 
-typedef enum {
+enum enemy_t {
 	en_rentacop,				// Actors with hitpoints (normal actors)
 	en_hang_terrot,
 	en_gen_scientist,
@@ -1967,7 +1977,7 @@ typedef enum {
 	en_bloodvent,
 	en_watervent,
 	NUMENEMIES
-} enemy_t;
+}; // enum enemy_t
 
 
 #define SF_ROTATE		0x01
@@ -1993,8 +2003,7 @@ struct statetype {
 //
 //---------------------
 
-typedef struct statstruct
-{
+struct statobj_t {
 	Uint8 tilex,tiley;
 	Uint8 areanumber;
 
@@ -2003,7 +2012,7 @@ typedef struct statstruct
 	Uint16    flags;
 	Uint8    itemnumber;
    char	  lighting;				 
-} statobj_t;
+}; // struct statobj_t
 
 //---------------------
 //
@@ -2029,7 +2038,7 @@ struct doorobj_t {
 	DoorAction action;
 	Sint16         ticcount;
 	Uint8    		areanumber[2];
-};
+}; // struct doorobj_t
 
 
 //--------------------
@@ -2091,8 +2100,7 @@ struct objtype
 
 
 
-enum
-{
+enum ButtonState {
 	bt_nobutton=-1,
 	bt_attack=0,
 	bt_strafe,
@@ -2109,11 +2117,10 @@ enum
    bt_SPACER,
 
    NUMBUTTONS							
-};
+}; // enum ButtonState
 
 
-typedef enum
-{
+enum weapontype {
 	wp_autocharge,
 	wp_pistol,
 	wp_burst_rifle,
@@ -2124,7 +2131,7 @@ typedef enum
 
    wp_SPACER,
    NUMWEAPONS
-} weapontype;
+}; // enum weapontype
 
 
 
@@ -2137,12 +2144,10 @@ enum Difficulty {
 
 
 
-typedef enum
-{
+enum backgroundtype {
 	ELEVATOR_BACK,
 	TRANSPORTER_BACK
-
-} backgroundtype;
+}; // enum backgroundtype
 
 
 
@@ -2150,10 +2155,10 @@ typedef enum
 //
 // General Coord (tile) structure
 //
-typedef struct {
+struct tilecoord_t {
     Uint8 tilex;
     Uint8 tiley;
-} tilecoord_t;
+}; // struct tilecoord_t
 
 //-----------------------------------
 //
@@ -2161,10 +2166,10 @@ typedef struct {
 //
 //-----------------------------------
 
-typedef struct {
+struct barrier_type {
     tilecoord_t coord;
     Uint8 on;
-} barrier_type;
+}; // struct barrier_type;
 
 
 //---------------
@@ -2173,7 +2178,7 @@ typedef struct {
 //
 //---------------
 
-typedef struct statsInfoType {
+struct statsInfoType {
     Sint32 total_points;
     Sint32 accum_points;
     Uint8 total_enemy;
@@ -2181,9 +2186,9 @@ typedef struct statsInfoType {
     Uint8 total_inf;
     Uint8 accum_inf;
     Sint16 overall_floor;
-} statsInfoType;
+}; // struct statsInfoType
 
-typedef struct {
+struct levelinfo {
     Uint16 bonus_queue; // bonuses that need to be shown
     Uint16 bonus_shown; // bonuses that have been shown
     boolean locked;
@@ -2191,16 +2196,16 @@ typedef struct {
     Uint8 ptilex;
     Uint8 ptiley;
     Sint16 pangle;
-} levelinfo;
+}; // struct levelinfo
 
 
-typedef struct
+struct fargametype
 {
 	levelinfo	old_levelinfo[MAPS_PER_EPISODE];
 	levelinfo 	level[MAPS_PER_EPISODE];
-} fargametype;
+}; // struct fargametype
 
-typedef struct {
+struct gametype {
     Sint16 turn_around;
     Sint16 turn_angle;
     Uint16 flags;
@@ -2258,9 +2263,9 @@ typedef struct {
     boolean old_boss_key_dropped;
     Sint16 wintilex;
     Sint16 wintiley;
-} gametype;
+}; // struct gametype
 
-typedef enum    {
+enum exit_t {
 	ex_stillplaying,
 	ex_completed,
 	ex_transported,
@@ -2273,41 +2278,46 @@ typedef enum    {
 	ex_demodone,
 	ex_secretlevel,
    ex_title
-} exit_t;
+}; // enum exit_t
 
 
-typedef struct
-{
+struct CycleInfo {
 	Uint8 init_delay;
 	Uint8 delay_count;
 	Uint8 firstreg;
 	Uint8 lastreg;
-} CycleInfo;
+}; // struct CycleInfo
 
 
-typedef struct
-{
+struct visobj_t {
 	Sint16	viewx,
 			viewheight,
 			shapenum;
    char lighting;
    char cloaked;
-} visobj_t;
+}; // struct visobj_t
 
 
-typedef enum {at_NONE=0,at_CYCLE,at_REBOUND,at_ONCE} animtype_t;
-typedef enum {ad_FWD=0,ad_REV} animdir_t;
+enum animtype_t {
+    at_NONE = 0,
+    at_CYCLE,
+    at_REBOUND,
+    at_ONCE
+}; // enum animtype_t
+
+enum animdir_t {
+    ad_FWD = 0,
+    ad_REV
+}; // enum animdir_t
 
 
-typedef struct ofs_anim_struct
-{
+struct ofs_anim_t {
 	Uint16 animtype:2;		// animtype_t
 	Uint16 curframe:5;
 	Uint16 maxframe:5;
 	Uint16 animdir:1;		// animdir_t
 	Uint16 extra:3;
-
-} ofs_anim_t;
+}; // struct ofs_anim_t
 
 
 //
@@ -2319,8 +2329,7 @@ typedef struct ofs_anim_struct
 //
 // Msg_Priorities - Hell.. Lets just make them all the same...
 
-typedef enum
-{
+enum msg_priorities {
 	MP_min_val								= 0,
 
 	MP_HEARTB_SND							= 0x0200,
@@ -2349,10 +2358,9 @@ typedef enum
 
 	MP_POWERUP 								= 0x7000, // Power-Up/Game-Start Value
 	MP_max_val 								= 0x7FFF // DO NOT USE/EXCEED - MAX Val
-} msg_priorities;
+}; // enum msg_priorities
 
-typedef enum
-{
+enum infomsg_type {
 	MT_NOTHING,
 	MT_CLEAR,
    MT_ATTACK,
@@ -2361,22 +2369,19 @@ typedef enum
 	MT_MALFUNCTION,
 	MT_NO_MO_FOOD_TOKENS,
 	MT_BONUS
-
-} infomsg_type;
+}; // enum infomsg_type
 
 
 //
 // Menu Instruction Text types...
 //
-typedef enum
-{
+enum inst_type {
 	IT_STANDARD,
 	IT_HIGHSCORES,
    IT_ENTER_HIGHSCORE,
 	IT_MOUSE_SEN,
 	MAX_INSTRUCTIONS
-
-} inst_type;
+}; // enum inst_type
 
 
 
@@ -2387,63 +2392,62 @@ typedef enum
 
 // Basic 'message info' structure
 //
-typedef struct {
+struct mCacheInfo {
 	Uint8 local_val;	// where msg is in 'local' list
 	Uint8 global_val;	// where msg was in 'global' list
 	char* mSeg;					// pointer to message
-} mCacheInfo;
+}; // struct mCacheInfo
 
 // Basic 'message list' structure
 //
-typedef struct {
+struct mCacheList {
 	Sint16 NumMsgs;									// number of messages
 	mCacheInfo mInfo[MAX_CACHE_MSGS];		// table of message 'info'
-} mCacheList;
+}; // struct mCacheList
 
 //----------------------- CONCESSION STRUCTURES --------------------------
 
 // Concession 'message info' structure
 //
-typedef struct {
+struct con_mCacheInfo {
 	mCacheInfo mInfo;
 	Uint8 type;								// type of concession
 	Uint8 operate_cnt;       			// # of times req'd to operate
-} con_mCacheInfo;
+}; // struct con_mCacheInfo
 
 // Concession 'message list' structure
 //
-typedef struct {
+struct concession_t {
 	Sint16 NumMsgs;										// also, num concessions
 	con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
-} concession_t;
+}; // struct concession_t
 
 //------------------------ INFORMANT STRUCTURES --------------------------
 
 // Informant 'message info' structure
 //
-typedef struct {
+struct sci_mCacheInfo {
 	mCacheInfo mInfo;
 	Uint8 areanumber;								// 'where' msg can be used	  
-} sci_mCacheInfo;
+}; // struct sci_mCacheInfo
 
 // Informant 'message list' structure
 //
-typedef struct {
+struct scientist_t {
 	Sint16 NumMsgs;
 	sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
-} scientist_t;
+}; // struct scientist_t
 
 //------------------------------------------------------------------------
 
 
 // Electro-Alien controller structer
 //
-typedef struct
-{
+struct eaWallInfo {
 	char tilex,tiley;					// where this controller is in the map.
 	char aliens_out;					// aliens spawned by this controller.
 	Sint16 delay;						// delay before spawning another alien.
-} eaWallInfo;
+}; // struct eaWallInfo
 
 
 
@@ -2452,21 +2456,19 @@ typedef struct
 // General Structure to hold goldstern specific stuff...
 //
 
-typedef struct
-{
+struct GoldsternInfo_t {
 	Uint8 LastIndex;						// Last Spawn Coord Index
 	Uint8 SpawnCnt;               		// Num of Spawnpoints for Goldstern
 	Uint16	flags;									// What type of command/operation is needed...
 	Uint16 WaitTime;								// Wait time for Goldstern Spawn (current & Next)
 	boolean     GoldSpawned;						// Has Goldstern been spawned?
-} GoldsternInfo_t;
+}; // struct GoldsternInfo_t
 
 
-typedef struct
-{
+struct star_t {
 	Sint32 x,y,z;
 	Uint8 color;
-} star_t;
+}; // struct star_t
 
 #define MAX_SPACE_THRUST ((Sint32)0x4fff)
 
@@ -2920,12 +2922,11 @@ typedef struct
 }       t_compscale;
 #endif // 0
 
-typedef struct
-{
+struct t_compshape {
 	Uint16        leftpix,rightpix;
 	Uint16        dataofs[64];
 // table data after dataofs[rightpix-leftpix+1]
-}       t_compshape;
+}; // struct t_compshape
 
 // FIXME
 #if 0

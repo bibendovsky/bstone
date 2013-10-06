@@ -31,25 +31,22 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y);
 // Various types for various purposes...
 //
 
-typedef enum
-{
-  	FADE_NONE,
-   FADE_SET,
-   FADE_IN,
-   FADE_OUT,
-   FADE_IN_FRAME,
-   FADE_OUT_FRAME
-} FADES;
+enum FADES {
+    FADE_NONE,
+    FADE_SET,
+    FADE_IN,
+    FADE_OUT,
+    FADE_IN_FRAME,
+    FADE_OUT_FRAME
+}; // enum FADES
 
 
-typedef enum
-{
-   MV_NONE,
-	MV_FILL,
-   MV_SKIP,
-   MV_READ
-
-} MOVIE_FLAGS;
+enum MOVIE_FLAGS {
+    MV_NONE,
+    MV_FILL,
+    MV_SKIP,
+    MV_READ
+}; // enum MOVIE_FLAGS
 
 
 //===========================================================================

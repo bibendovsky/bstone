@@ -130,44 +130,37 @@ typedef enum mm_labels {MM_NEW_MISSION,
 // CP_Switch() menu labels
 //
 
-typedef enum
-{
+enum sw_labels {
 	SW_LIGHTING,
 	SW_REBA_ATTACK_INFO,
 	SW_CEILING,
 	SW_FLOORS
-
-} sw_labels;
+}; // enum sw_labels
 
 
 
 //
 //  ActiveType flags for menu options (SEE CP_itemtype.active)
 //
-typedef enum
-{
+enum activetypes {
 	AT_DISABLED = 0,
 	AT_ENABLED,
 	AT_READIT,
 	AT_NON_SELECTABLE				// Menu Bar/Separator - Not a selectable item.
-
-
-} activetypes;
+}; // enum activetypes
 
 //
 // TYPEDEFS
 //
-typedef struct
-{
+struct CP_cursortype {
 	Uint8 x;
 	char y_ofs;
 	Uint8 width;
 	Uint8 height;
 	char on;
-} CP_cursortype;
+}; // struct CP_cursortype
 
-typedef struct
-{
+struct CP_iteminfo {
 	Uint8 x;
 	Uint8 y;
 	Uint8 amount;
@@ -176,24 +169,21 @@ typedef struct
 	Uint8 y_spacing;
 
 	CP_cursortype cursor;
+}; // struct CP_iteminfo
 
-} CP_iteminfo;
 
-
-typedef struct
-{
+struct CP_itemtype {
 	activetypes active;
 	char string[36];
 	void (* routine)(Sint16 temp1);
 	Uint8 fontnumber;							// Font to print text in
 	Uint8 height;								// Hight of text (Y_Offset from previous line)
-} CP_itemtype;
+}; // struct CP_itemtype
 
 
-typedef struct
-{
+struct CustomCtrls {
 	Sint16 allowed[4];
-} CustomCtrls;
+}; // struct CustomCtrls
 
 extern CP_itemtype MainMenu[],NewEMenu[];
 extern CP_iteminfo MainItems;
@@ -286,15 +276,21 @@ void ShadowPrint(const char *string, Sint16 x, Sint16 y);
 extern Sint16 SaveGamesAvail[10],StartGame,SoundStatus;
 extern char SaveGameNames[10][GAME_DESCRIPTION_LEN+1];
 
-enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE};	// FOR INPUT TYPES
+// FOR INPUT TYPES
+enum MenuInputType {
+    MOUSE,
+    JOYSTICK,
+    KEYBOARDBTNS,
+    KEYBOARDMOVE
+}; // enum MenuInputType
 
 //
 // WL_INTER
 //
-typedef struct {
-		Sint16 kill,secret,treasure;
-		Sint32 time;
-		} LRstruct;
+struct LRstruct {
+	Sint16 kill,secret,treasure;
+	Sint32 time;
+}; // struct LRstruct
 
 extern LRstruct LevelRatios[];
 

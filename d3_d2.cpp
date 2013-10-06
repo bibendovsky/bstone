@@ -6,16 +6,16 @@
 #include "SDL.h"
 
 
-typedef enum {
+enum DrawOptions {
     DO_CEILING,
     DO_FLOORING,
     DO_CEILING_AND_FLOORING
-} DrawOptions;
+}; // enum DrawOptions
 
-typedef enum {
+enum ShadingOptions {
     SO_NONE,
     SO_DEFAULT
-} ShadingOptions;
+}; // enum ShadingOptions
 
 
 extern Sint16 mr_rowofs;

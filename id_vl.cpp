@@ -32,19 +32,19 @@ Uint8		palette1[256][3], palette2[256][3];
 
 
 // BBi
-typedef struct {
+struct ScreenVertex {
     float x;
     float y;
 
     float s;
     float t;
-} ScreenVertex;
+}; // struct ScreenVertex
 
-typedef enum {
+enum OglObjectType {
     OGL_OT_NONE,
     OGL_OT_SHADER,
     OGL_OT_PROGRAM
-} OglObjectType;
+}; // enum OglObjectType
 
 
 void ogl_draw_screen();

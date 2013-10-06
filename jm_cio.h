@@ -89,14 +89,12 @@ struct JAMPHeader
 //
 
 
-typedef struct
-{
-	char NameId[4];
-	Uint32 OriginalLen;			// Original FileLength of compressed Data.
-	ct_TYPES CompType;					// SEE: ct_TYPES above for list of pos.
-	Uint32 CompressLen;			// Length of data after compression (A MUST for LZHUFF!)
-
-} CompHeader_t;
+struct CompHeader_t {
+    char NameId[4];
+    Uint32 OriginalLen; // Original FileLength of compressed Data.
+    ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
+    Uint32 CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+}; // struct CompHeader_t
 
 
 //---------------------------------------------------------------------------

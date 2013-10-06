@@ -22,21 +22,28 @@ void	alOut(Uint8 n,Uint8 b);
 
 #define	TickBase	70		// 70Hz per tick - used as a base for timer 0
 
-typedef	enum	{
-					sdm_Off,
-					sdm_PC,sdm_AdLib
-				}	SDMode;
-typedef	enum	{
-					smm_Off,smm_AdLib
-				}	SMMode;
-typedef	enum	{
-					sds_Off,sds_PC,sds_SoundSource,sds_SoundBlaster
-				}	SDSMode;
-typedef	struct
-		{
-			Uint32	length;
-			Uint16		priority;
-		} SoundCommon;
+enum SDMode {
+    sdm_Off,
+    sdm_PC,
+    sdm_AdLib
+}; // enum SDMode
+
+enum SMMode {
+    smm_Off,
+    smm_AdLib
+}; // enum SMMode
+
+enum SDSMode {
+    sds_Off,
+    sds_PC,
+    sds_SoundSource,
+    sds_SoundBlaster
+}; // enum SDSMode
+
+struct SoundCommon {
+    Uint32 length;
+    Uint16 priority;
+}; // struct SoundCommon
 
 //	PC Sound stuff
 #define	pcTimer		0x42
@@ -45,11 +52,10 @@ typedef	struct
 
 #define	pcSpkBits	3
 
-typedef	struct
-		{
-			SoundCommon	common;
-			Uint8		data[1];
-		} PCSound;
+struct PCSound {
+    SoundCommon common;
+    Uint8 data[1];
+}; // struct PCSound
 
 // 	Registers for the Sound Blaster card - needs to be offset by n0 (0x10,0x20,0x30,0x40,0x50,0x60)
 #define	sbReset		0x206	// W
@@ -87,14 +93,13 @@ typedef	struct
 #define	sbpmCDVol		0x28
 #define	sbpmLineVol		0x2e
 
-typedef	struct
-		{
-			SoundCommon	common;
-			Uint16		hertz;
-			Uint8		bits,
-						reference,
-						data[1];
-		} SampledSound;
+struct SampledSound {
+    SoundCommon common;
+    Uint16 hertz;
+    Uint8 bits;
+    Uint8 reference;
+    Uint8 data[1];
+}; // struct SampledSound
 
 // 	Registers for the AdLib card
 #define	alFMStatus	0x388	// R
@@ -115,28 +120,31 @@ typedef	struct
 // Global stuff
 #define	alEffects	0xbd
 
-typedef	struct
-		{
-			Uint8	mChar,cChar,
-					mScale,cScale,
-					mAttack,cAttack,
-					mSus,cSus,
-					mWave,cWave,
-					nConn,
+struct Instrument {
+    Uint8 mChar;
+    Uint8 cChar;
+    Uint8 mScale;
+    Uint8 cScale;
+    Uint8 mAttack;
+    Uint8 cAttack;
+    Uint8 mSus;
+    Uint8 cSus;
+    Uint8 mWave;
+    Uint8 cWave;
+    Uint8 nConn;
 
-					// These are only for Muse - these bytes are really unused
-					voice,
-					mode,
-					unused[3];
-		} Instrument;
+    // These are only for Muse - these bytes are really unused
+    Uint8 voice;
+    Uint8 mode;
+    Uint8 unused[3];
+}; // struct Instrument
 
-typedef	struct
-		{
-			SoundCommon	common;
-			Instrument	inst;
-			Uint8		block,
-						data[1];
-		} AdLibSound;
+struct AdLibSound {
+    SoundCommon common;
+    Instrument inst;
+    Uint8 block;
+    Uint8 data[1];
+}; // struct AdLibSound
 
 //
 //	Sequencing stuff
@@ -159,11 +167,10 @@ typedef	struct
 #define	sf_Percussive	1
 
 #if 1
-typedef	struct
-		{
-			Uint16	length,
-					values[1];
-		} MusicGroup;
+struct MusicGroup {
+    Uint16 length;
+    Uint16 values[1];
+}; // struct MusicGroup
 #else
 typedef	struct
 		{
@@ -173,17 +180,17 @@ typedef	struct
 		} MusicGroup;
 #endif
 
-typedef	struct
-		{
-			/* This part needs to be set up by the user */
-			Uint16        mood,*moods[sqMaxMoods];
+struct ActiveTrack {
+    // This part needs to be set up by the user
+    Uint16 mood;
+    Uint16* moods[sqMaxMoods];
 
-			/* The rest is set up by the code */
-			Instrument	inst;
-			boolean		percussive;
-			Uint16		*seq;
-			Uint32	nextevent;
-		} ActiveTrack;
+    // The rest is set up by the code
+    Instrument inst;
+    boolean percussive;
+    Uint16* seq;
+    Uint32 nextevent;
+}; // struct ActiveTrack
 
 #define	sqmode_Normal		0
 #define	sqmode_FadeIn		1

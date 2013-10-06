@@ -2340,7 +2340,13 @@ void DrawCtlScreen(void)
 	VW_UpdateScreen();
 }
 
-enum {FIRE,STRAFE,RUN,OPEN};
+enum ControlButton1 {
+    FIRE,
+    STRAFE,
+    RUN,
+    OPEN
+}; // enum ControlButton1
+
 char mbarray[4][3]={"B0","B1","B2","B3"},
 		order[4]={RUN,OPEN,FIRE,STRAFE};
 
@@ -2455,7 +2461,13 @@ bool TestForValidKey(ScanCode Scan)
 // EnterCtrlData() - ENTER CONTROL DATA FOR ANY TYPE OF CONTROL
 //--------------------------------------------------------------------------
 
-enum {FWRD,RIGHT,BKWD,LEFT};
+enum ControlButton2 {
+    FWRD,
+    RIGHT,
+    BKWD,
+    LEFT
+}; // enum ControlButton2
+
 Sint16 moveorder[4]={LEFT,RIGHT,FWRD,BKWD};
 
 void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (*PrintRtn)(Sint16),Sint16 type)

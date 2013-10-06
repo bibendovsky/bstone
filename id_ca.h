@@ -28,25 +28,22 @@ void UNCACHEGRCHUNK(Uint16 chunk);
 
 //===========================================================================
 
-typedef	struct
-{
+struct maptype {
 	Sint32		planestart[3];
 	Uint16	planelength[3];
 	Uint16	width,height;
 	char		name[16];
-} maptype;
+}; // struct maptype
 
-typedef struct
-{
-  Uint16 bit0,bit1;	// 0-255 is a character, > is a pointer to a node
-} huffnode;
+struct huffnode {
+    Uint16 bit0,bit1;	// 0-255 is a character, > is a pointer to a node
+}; // struct huffnode
 
-typedef struct
-{
+struct mapfiletype {
 	Uint16	RLEWtag;
 	Sint32		headeroffsets[100];
 //	Uint8		tileinfo[];
-} mapfiletype;
+}; // struct mapfiletype
 
 //===========================================================================
 
