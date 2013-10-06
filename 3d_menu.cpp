@@ -4295,7 +4295,7 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
 
    // Allocate Dest Memory
 
-    dst = (char*)malloc(data_length);
+    dst = new char[data_length];
     *dst_ptr = dst;
 
    // Decompress and terminate string
@@ -4347,7 +4347,7 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
 
 	// free allocated memory
 
-   free(code);
+    delete [] static_cast<char*>(code);
 
    return(return_val);
 }
@@ -4367,7 +4367,7 @@ void StartCPMusic(Sint16 song)
 	musicnames	chunk;
 
     if (audiosegs[STARTMUSIC + lastmenumusic]) { // JDC
-        free(audiosegs[STARTMUSIC + lastmenumusic]);
+        delete [] audiosegs[STARTMUSIC + lastmenumusic];
         audiosegs[STARTMUSIC + lastmenumusic] = NULL;
     }
 
@@ -4412,7 +4412,7 @@ void FreeMusic (void)
 {
 	SD_MusicOff();
 	if (audiosegs[STARTMUSIC + lastmenumusic]) { // JDC
-        free(audiosegs[STARTMUSIC + lastmenumusic]);
+        delete [] audiosegs[STARTMUSIC + lastmenumusic];
         audiosegs[STARTMUSIC + lastmenumusic] = NULL;
     }
 }

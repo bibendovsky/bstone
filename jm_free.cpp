@@ -499,12 +499,7 @@ void MM_Startup (void)
 // get all available near conventional memory segments
 //
 
-// FIXME
-#if 0
 	length=coreleft();
-#endif // 0
-    length = 64 * 1024;
-
 	start = (void *)(nearheap = malloc(length));
 
 	length -= 16-(FP_OFF(start)&15);
@@ -937,14 +932,11 @@ void	VL_Startup (void)
 
 void	VL_SetVGAPlaneMode (void)
 {
-// FIXME
-#if 0
 asm	mov	ax,0x13
 asm	int	0x10
 	VL_DePlaneVGA ();
 	VGAMAPMASK(15);
 	VL_SetLineWidth (40);
-#endif // 0
 
     const size_t VGA_MEM_SIZE = 4 * 64 * 1024;
 
@@ -952,7 +944,6 @@ asm	int	0x10
     vga_memory = (Uint8*)malloc(VGA_MEM_SIZE);
     memset(vga_memory, 0, VGA_MEM_SIZE);
 }
-#endif // 0
 
 /*
 =================
@@ -966,8 +957,6 @@ asm	int	0x10
 
 void VL_ClearVideo (Uint8 color)
 {
-// FIXME
-#if 0
 asm	mov	dx,GC_INDEX
 asm	mov	al,GC_MODE
 asm	out	dx,al
@@ -987,7 +976,6 @@ asm	mov	ah,al
 asm	mov	cx,0x8000			// 0x8000 words, clearing 8 video bytes/word
 asm	xor	di,di
 asm	rep	stosw
-#endif // 0
 }
 
 /*
@@ -1000,8 +988,6 @@ asm	rep	stosw
 
 void VL_DePlaneVGA (void)
 {
-// FIXME
-#if 0
 //
 // change CPU addressing to non linear mode
 //
@@ -1039,7 +1025,6 @@ void VL_DePlaneVGA (void)
 
 	outportb (CRTC_INDEX,CRTC_MODE);
 	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1)|0x40);
-#endif // 0
 }
 
 /*
@@ -1056,13 +1041,10 @@ void VL_SetLineWidth (Uint16 width)
 {
 	Sint16 i,offset;
 
-// FIXME
-#if 0
 //
 // set wide virtual screen
 //
 	outport (CRTC_INDEX,CRTC_OFFSET+width*256);
-#endif // 0
 
 //
 // set up lookup tables
@@ -1079,6 +1061,7 @@ void VL_SetLineWidth (Uint16 width)
 }
 
 #endif
+#endif // 0
 
 
 /*
@@ -1223,7 +1206,7 @@ void CAL_SetupAudioFile (void)
 		CA_CannotOpen(fname);
 
 	length = static_cast<Sint32>(handle.get_size());
-    audiostarts = (Sint32*)malloc(length);
+    audiostarts = new Sint32[length / 4];
 	handle.read(audiostarts, length);
 	handle.close();
 #else
@@ -1332,7 +1315,7 @@ void CAL_SetupGrFile()
 {
     char fname[13];
     bstone::FileStream handle;
-    void* compseg;
+    Uint8* compseg;
 
     //
     // load ???dict.ext (huffman dictionary for graphics files)
@@ -1351,7 +1334,7 @@ void CAL_SetupGrFile()
     //
     // load the data offsets from ???head.ext
     //
-    grstarts = (Sint32*)malloc((NUMCHUNKS + 1) * FILEPOSSIZE);
+    grstarts = new Sint32[((NUMCHUNKS + 1) * FILEPOSSIZE) / 4];
 
     strcpy(fname, gheadname);
     strcat(fname, extension);
@@ -1372,19 +1355,19 @@ void CAL_SetupGrFile()
     //
     // load the pic and sprite headers into the arrays in the data segment
     //
-    pictable = (pictabletype*)malloc(NUMPICS * sizeof(pictabletype));
+    pictable = new pictabletype[NUMPICS];
     CAL_GetGrChunkLength(STRUCTPIC);		// position file pointer
-    compseg = malloc(chunkcomplen);
+    compseg = new Uint8[chunkcomplen];
     grhandle.read(compseg, chunkcomplen);
 
     CAL_HuffExpand(
-        static_cast<Uint8*>(compseg),
+        compseg,
         (Uint8*)pictable,
         NUMPICS * sizeof(pictabletype),
         grhuffman,
         false);
 
-    free(compseg);
+    delete [] compseg;
 }
 
 
@@ -1501,7 +1484,7 @@ void CAL_SetupMapFile()
         if (pos < 0)
             continue;
 
-        mapheaderseg[i] = (maptype*)malloc(sizeof(maptype));
+        mapheaderseg[i] = new maptype();
         map_header = mapheaderseg[i];
 
         maphandle.set_position(pos);
@@ -1531,7 +1514,7 @@ void CAL_SetupMapFile()
     // allocate space for 3 64*64 planes
     //
     for (i = 0; i < MAPPLANES; ++i)
-        mapsegs[i] = (Uint16*)malloc(2 * 64 * 64);
+        mapsegs[i] = new Uint16[64 * 64];
 
 #if FORCE_FILE_CLOSE
     CloseMapFile();
@@ -2088,7 +2071,7 @@ void PreDemo()
 	//
 		UNCACHEGRCHUNK(APOGEEPALETTE);
 
-        free(audiosegs[STARTMUSIC + APOGFNFM_MUS]);
+        delete [] audiosegs[STARTMUSIC + APOGFNFM_MUS];
         audiosegs[STARTMUSIC + APOGFNFM_MUS] = NULL;
 
       // Do A Blue Flash!
@@ -2524,7 +2507,7 @@ void CheckValidity(char *file, Sint32 valid_checksum)
 
 #define CFC_BUFFERSIZE 65535
 
-void* cfc_buffer;
+char* cfc_buffer;
 
 //-------------------------------------------------------------------------
 // ChecksumFile()
@@ -2537,8 +2520,8 @@ Sint32 ChecksumFile(char *file, Sint32 checksum)
 	Sint32 size,readlen,i;
 	char *p;
 
-    cfc_buffer = malloc(CFC_BUFFERSIZE);
-	p=static_cast<char*>(cfc_buffer);
+    cfc_buffer = new char[CFC_BUFFERSIZE];
+	p=cfc_buffer;
 
     handle.open(file);
 
@@ -2566,7 +2549,7 @@ Sint32 ChecksumFile(char *file, Sint32 checksum)
 
 exit_func:;
 
-    free(cfc_buffer);
+    delete [] cfc_buffer;
     cfc_buffer = NULL;
 
 	return(checksum);

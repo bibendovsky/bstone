@@ -1155,11 +1155,11 @@ void MM_Startup()
 {
     MM_Shutdown();
 
-    bufferseg = malloc(BUFFERSIZE);
+    bufferseg = new char[BUFFERSIZE];
 }
 
 void MM_Shutdown()
 {
-    free(bufferseg);
+    delete [] static_cast<char*>(bufferseg);
     bufferseg = NULL;
 }

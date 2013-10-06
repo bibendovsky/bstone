@@ -1864,10 +1864,8 @@ void FreeMsgCache(mCacheList *mList, Uint16 infoSize)
 
 	while (mList->NumMsgs--)
 	{
-		if (ci->mSeg) {
-            free(ci->mSeg);
-            ci->mSeg = NULL;
-        }
+        delete [] ci->mSeg;
+        ci->mSeg = NULL;
 
 		ch_ptr = (char *)ci;
 		ch_ptr += infoSize;
@@ -1890,12 +1888,12 @@ void CacheMsg(mCacheInfo *ci, Uint16 SegNum, Uint16 MsgNum)
 
 // Alloc memory for message and cache-in seg
 //
-    ci->mSeg = malloc(MAX_CACHE_MSG_LEN);
+    ci->mSeg = new char[MAX_CACHE_MSG_LEN];
 //	hint_buffer = ci->mSeg;
 
 // Load message into CachInfo Message Seg.
 //
-	LoadMsg(static_cast<char*>(ci->mSeg),SegNum,MsgNum,MAX_CACHE_MSG_LEN);
+	LoadMsg(ci->mSeg,SegNum,MsgNum,MAX_CACHE_MSG_LEN);
 }
 
 //---------------------------------------------------------------------------

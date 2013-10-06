@@ -1659,7 +1659,7 @@ SDL_SetupDigi(void)
 	Uint16 pg;
 	Sint16		i;
 
-    list = malloc(PMPageSize);
+    list = new char[PMPageSize];
 	p = (Uint16 *)PM_GetPage(ChunksInFile - 1);
 	memcpy(list, p, PMPageSize);
 	pg = PMSoundStart;
@@ -1669,7 +1669,7 @@ SDL_SetupDigi(void)
 			break;
 		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
 	}
-    DigiList = (Uint16*)malloc(i * sizeof(Uint16) * 2);
+    DigiList = new Uint16[i * 2];
 
 // FIXME
 #if 0
@@ -1684,7 +1684,7 @@ SDL_SetupDigi(void)
         *dst_list++ = SDL_SwapLE16(*src_list++);
     }
 
-    free(list);
+    delete [] static_cast<char*>(list);
 	NumDigi = i;
 
 	for (i = 0;i < sdLastSound;i++)

@@ -70,7 +70,7 @@ Uint8	fi_rate,fo_rate;
 
 // MOVIE_GetFrame & MOVIE_LoadBuffer variables
 
-void* MovieBuffer;					// Ptr to Allocated Memory for Buffer
+char* MovieBuffer;					// Ptr to Allocated Memory for Buffer
 Uint32 BufferLen;			// Len of MovieBuffer (Ammount of RAM allocated)
 Uint32 PageLen;				// Len of data loaded into MovieBuffer
 char * BufferPtr;				// Ptr to next frame in MovieBuffer
@@ -164,7 +164,7 @@ void SetupMovie(MovieStuff_t *MovieStuff)
    if (BufferLen < 64256)
    	BufferLen = 64256;
 
-    MovieBuffer = malloc(BufferLen);
+    MovieBuffer = new char[BufferLen];
 }
 
 
@@ -173,7 +173,7 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 //---------------------------------------------------------------------------
 void ShutdownMovie(void)
 {
-    free(MovieBuffer);
+    delete [] MovieBuffer;
     MovieBuffer = NULL;
 
    Movie_FHandle.close();
@@ -310,7 +310,7 @@ boolean MOVIE_LoadBuffer()
     char* frame;
     Uint32 free_space;
 
-    NextPtr = BufferPtr = frame = (char*)MovieBuffer;
+    NextPtr = BufferPtr = frame = MovieBuffer;
     free_space = BufferLen;
 
     while (free_space) {

@@ -948,7 +948,7 @@ void CheckKeys (void)
 			{
 				ClearMemory();
 
-                free(audiosegs[STARTMUSIC + old_num]);
+                delete [] audiosegs[STARTMUSIC + old_num];
                 audiosegs[STARTMUSIC + old_num] = NULL;
 
 				StartMusic(false);

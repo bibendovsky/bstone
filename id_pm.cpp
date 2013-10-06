@@ -26,7 +26,7 @@ static void open_page_file(const char* filename)
 
     file_length = static_cast<Sint32>(PageFile.get_size());
 
-    raw_data = (Uint8*)malloc(file_length + PMPageSize);
+    raw_data = new Uint8[file_length + PMPageSize];
     memset(&raw_data[file_length], 0, PMPageSize);
 
     if (PageFile.read(raw_data, file_length) != file_length)
@@ -54,7 +54,7 @@ void PM_Shutdown()
     PMSpriteStart = 0;
     PMSoundStart = 0;
 
-    free(raw_data);
+    delete [] raw_data;
     raw_data = NULL;
 
     chunks_offsets = NULL;

@@ -25,7 +25,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <malloc.h>
 
 #include "jm_cio.h"
 #include "jm_lzh.h"
@@ -203,10 +202,10 @@ Uint16 *freq;	/* cumulative freq table */
 Uint8 *text_buf;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
-void* id_son;
-void* id_prnt;
-void* id_freq;
-void* id_text_buf;
+Sint16* id_son;
+Sint16* id_prnt;
+Uint16* id_freq;
+Uint8* id_text_buf;
 #endif
 
 #else
@@ -239,9 +238,9 @@ Uint8 text_buf[N + F - 1];
 static Sint16 *lson, *rson, *dad;
 
 #ifdef LZH_ID_MEMORY_ALLOCATION
-void* id_lson;
-void* id_rson;
-void* id_dad;
+Sint16* id_lson;
+Sint16* id_rson;
+Sint16* id_dad;
 #endif
 #else
 
@@ -391,10 +390,10 @@ bool LZH_Startup()
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 #ifdef LZH_ID_MEMORY_ALLOCATION
-    id_son = malloc(T * sizeof(*son));
-    id_prnt = malloc((T + N_CHAR) * sizeof(*prnt));
-    id_freq = malloc((T + 1) * sizeof(*freq));
-    id_text_buf = malloc((N + F - 1) * sizeof(*text_buf));
+    id_son = new Sint16[T];
+    id_prnt = new Sint16[T + N_CHAR];
+    id_freq = new Uint16[T + 1];
+    id_text_buf = new Uint8[N + F - 1];
 #else
 	if (!(son=farmalloc(T*sizeof(*son))))
 		return(false);
@@ -411,9 +410,9 @@ bool LZH_Startup()
 
 #if INCLUDE_LZH_COMP
 #ifdef LZH_ID_MEMORY_ALLOCATION
-    id_lson = malloc((N + 1) * sizeof(*lson));
-    id_rson = malloc((N + 257) * sizeof(*rson));
-    id_dad = malloc((N + 1) * sizeof(*dad));
+    id_lson = new Sint16[N + 1];
+    id_rson = new Sint16[N + 257];
+    id_dad = new Sint16[N + 1];
 #else
 	if (!(lson=farmalloc((N+1)*sizeof(*lson))))
 		return(false);
@@ -437,16 +436,16 @@ void LZH_Shutdown()
 {
 #ifdef LZH_DYNAMIC_ALLOCATION
 #ifdef LZH_ID_MEMORY_ALLOCATION
-    free(id_son);
+    delete [] id_son;
     id_son = NULL;
 
-    free(id_prnt);
+    delete [] id_prnt;
     id_prnt = NULL;
 
-    free(id_freq);
+    delete [] id_freq;
     id_freq = NULL;
 
-    free(id_text_buf);
+    delete [] id_text_buf;
     id_text_buf = NULL;
 #else
 	if (son)
@@ -464,13 +463,13 @@ void LZH_Shutdown()
 
 #if INCLUDE_LZH_COMP
 #ifdef LZH_ID_MEMORY_ALLOCATION
-    free(id_lson);
+    delete [] id_lson;
     id_lson = NULL;
 
-    free(id_rson);
+    delete [] id_rson;
     id_rson = NULL;
 
-    free(id_dad);
+    delete [] id_dad;
     id_dad = NULL;
 #else
 	if (lson)
@@ -501,13 +500,13 @@ static void StartHuff()
 // Assign _seg pointers to far pointers, always initialized here in case
 // the memory manager shifted things around after LZH_Startup() was called.
 //
-	son=static_cast<Sint16*>(id_son);
-	prnt=static_cast<Sint16*>(id_prnt);
-	freq=static_cast<Uint16*>(id_freq);
-	text_buf=static_cast<Uint8*>(id_text_buf);
-	lson=static_cast<Sint16*>(id_lson);
-	rson=static_cast<Sint16*>(id_rson);
-	dad=static_cast<Sint16*>(id_dad);
+	son=id_son;
+	prnt=id_prnt;
+	freq=id_freq;
+	text_buf=id_text_buf;
+	lson=id_lson;
+	rson=id_rson;
+	dad=id_dad;
 
 #endif
 #endif

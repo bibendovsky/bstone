@@ -7,7 +7,6 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <malloc.h>
 
 #include <memory>
 

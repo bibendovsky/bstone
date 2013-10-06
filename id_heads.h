@@ -10,7 +10,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <malloc.h>
 
 #include <memory>
 #include <vector>

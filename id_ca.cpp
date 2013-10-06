@@ -979,7 +979,7 @@ void CA_CacheAudioChunk (Sint16 chunk)
 
 #ifndef AUDIOHEADERLINKED
 
-    audiosegs[chunk] = (Uint8*)malloc(compressed);
+    audiosegs[chunk] = new Uint8[compressed];
 
 // FIXME
 #if 0
@@ -1141,7 +1141,7 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
 // allocate final space, decompress it, and free bigbuffer
 // Sprites need to have shifts made and various other junk
 //
-    grsegs[chunk] = malloc(expanded);
+    grsegs[chunk] = new char[expanded];
 
 // FIXME
 #if 0
@@ -1166,7 +1166,7 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
 void CA_CacheGrChunk (Sint16 chunk)
 {
 	Sint32	pos,compressed;
-	void*	bigbufferseg = NULL;
+	Uint8*	bigbufferseg = NULL;
 	Uint8	*source;
 	Sint16		next;
 
@@ -1198,15 +1198,15 @@ void CA_CacheGrChunk (Sint16 chunk)
 	}
 	else
 	{
-        bigbufferseg = malloc(compressed);
+        bigbufferseg = new Uint8[compressed];
 		grhandle.read(bigbufferseg, compressed);
-		source = static_cast<Uint8*>(bigbufferseg);
+		source = bigbufferseg;
 	}
 
 	CAL_ExpandGrChunk (chunk,source);
 
 	if (compressed>BUFFERSIZE) {
-        free(bigbufferseg);
+        delete [] bigbufferseg;
         bigbufferseg = NULL;
     }
 
@@ -1230,7 +1230,7 @@ void CA_CacheGrChunk (Sint16 chunk)
 void CA_CacheScreen (Sint16 chunk)
 {
 	Sint32	pos,compressed,expanded;
-	void*	bigbufferseg;
+	Uint8*	bigbufferseg;
 	Uint8	*source;
 	Sint16		next;
 
@@ -1246,9 +1246,9 @@ void CA_CacheScreen (Sint16 chunk)
 
 	grhandle.set_position(pos);
 
-    bigbufferseg = malloc(compressed);
+    bigbufferseg = new Uint8[compressed];
 	grhandle.read(bigbufferseg, compressed);
-	source = static_cast<Uint8*>(bigbufferseg);
+	source = bigbufferseg;
 
 	expanded = *(Sint32 *)source;
 	source += 4;			// skip over length
@@ -1260,7 +1260,7 @@ void CA_CacheScreen (Sint16 chunk)
 	CAL_HuffExpand (source, &vga_memory[4 * bufferofs],expanded,grhuffman,true);
 	VW_MarkUpdateBlock (0,0,319,199);
 
-    free(bigbufferseg);
+    delete [] bigbufferseg;
     bigbufferseg = NULL;
 }
 
@@ -1281,7 +1281,7 @@ void CA_CacheMap (Sint16 mapnum)
 	Sint32	pos,compressed;
 	Sint16		plane;
 	Uint16** dest;
-    void* bigbufferseg = NULL;
+    Uint16* bigbufferseg = NULL;
 	Uint16	size;
 	Uint16	*source;
 #ifdef CARMACIZED
@@ -1312,8 +1312,8 @@ void CA_CacheMap (Sint16 mapnum)
 			source = static_cast<Uint16*>(bufferseg);
 		else
 		{
-            bigbufferseg = malloc(compressed);
-			source = static_cast<Uint16*>(bigbufferseg);
+            bigbufferseg = new Uint16[compressed / 2];
+			source = bigbufferseg;
 		}
 
 		maphandle.read(source, compressed);
@@ -1342,7 +1342,7 @@ void CA_CacheMap (Sint16 mapnum)
 #endif
 
 		if (compressed>BUFFERSIZE) {
-            free(bigbufferseg);
+            delete [] bigbufferseg;
             bigbufferseg = NULL;
         }
 	}
@@ -1526,7 +1526,7 @@ void CA_CacheMarks (void)
 	Sint32	pos,endpos,nextpos,nextendpos,compressed;
 	Sint32	bufferstart,bufferend;	// file position of general buffer
 	Uint8	*source;
-	void*	bigbufferseg = NULL;
+	Uint8*	bigbufferseg = NULL;
 
 	numcache = 0;
 //
@@ -1618,7 +1618,7 @@ void CA_CacheMarks (void)
 			else
 			{
 			// big chunk, allocate temporary buffer
-                bigbufferseg = malloc(compressed);
+                bigbufferseg = new Uint8[compressed];
 
 // FIXME
 #if 0
@@ -1629,7 +1629,7 @@ void CA_CacheMarks (void)
 
 				grhandle.set_position(pos);
 				grhandle.read(bigbufferseg, compressed);
-				source = static_cast<Uint8*>(bigbufferseg);
+				source = bigbufferseg;
 			}
 
 			CAL_ExpandGrChunk (i,source);
@@ -1641,7 +1641,7 @@ void CA_CacheMarks (void)
 #endif // 0
 
 			if (compressed>BUFFERSIZE) {
-                free(bigbufferseg);
+                delete [] bigbufferseg;
                 bigbufferseg = NULL;
             }
 
@@ -1660,7 +1660,7 @@ void CA_CannotOpen(char *string)
 
 void UNCACHEGRCHUNK(Uint16 chunk)
 {
-    free(grsegs[chunk]);
+    delete [] static_cast<char*>(grsegs[chunk]);
     grsegs[chunk] = NULL;
 
     grneeded[chunk] &= ~ca_levelbit;

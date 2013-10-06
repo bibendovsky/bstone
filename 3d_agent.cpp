@@ -2897,7 +2897,7 @@ void Cmd_Use (void)
 
 char msg[MSG_BUFFER_LEN+1];
 
-void* InfAreaMsgs[MAX_INF_AREA_MSGS];
+char* InfAreaMsgs[MAX_INF_AREA_MSGS];
 Uint8 NumAreaMsgs,LastInfArea;
 Sint16 FirstGenInfMsg,TotalGenInfMsgs;
 
@@ -2970,20 +2970,20 @@ boolean Interrogate(objtype *ob)
 				ob->ammo = ob->areanumber;
 				if (ob->s_tilex == 0xff)
 					ob->s_tilex=static_cast<Uint8>(Random(NumAreaMsgs));
-				msgptr=static_cast<char*>(InfAreaMsgs[ob->s_tilex]);
+				msgptr=InfAreaMsgs[ob->s_tilex];
 			}
 			else
 			{
 				if (ob->s_tiley == 0xff)
 					ob->s_tiley=static_cast<Uint8>(FirstGenInfMsg+Random(TotalGenInfMsgs));
-				msgptr=static_cast<char*>(InfHintList.smInfo[ob->s_tiley].mInfo.mSeg);
+				msgptr=InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
 			}
 
 		// Still no msgptr? This is a shared message! Use smInfo[local_val]
 		// for this message.
 		//
 			if (!msgptr)
-				msgptr=static_cast<char*>(InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg);
+				msgptr=InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
 
 			ob->flags |= FL_INTERROGATED;		// Scientist has been interrogated
 		}
@@ -3005,7 +3005,7 @@ boolean Interrogate(objtype *ob)
 			st = &NiceSciList;
 		}
 
-		msgptr=static_cast<char*>(st->smInfo[Random(st->NumMsgs)].mInfo.mSeg);
+		msgptr=st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
 	}
 
 	if (msgptr)
@@ -3049,7 +3049,7 @@ char if_noImage[]="   AREA\n"
 							 " TO TELEPORT";
 
 statsInfoType ov_stats;
-void* ov_buffer;
+static Uint8* ov_buffer;
 boolean ov_noImage=false;
 
 #define TOV_X  16
@@ -3085,7 +3085,7 @@ Sint16 InputFloor(void)
 	player->angle = 90;
 	player->x = player->y = ((Sint32)32<<TILESHIFT)+(TILEGLOBAL/2);
 
-    ov_buffer = malloc(4096);
+    ov_buffer = new Uint8[4096];
 	ShowStats(0,0,ss_justcalc,&gamestuff.level[gamestate.mapon].stats);
 	memcpy(&ov_stats,&gamestuff.level[gamestate.mapon].stats,sizeof(statsInfoType));
 	ShowOverhead(TOV_X,TOV_Y,32,0,RADAR_FLAGS);
@@ -3299,7 +3299,7 @@ Sint16 InputFloor(void)
 	VW_FadeOut();
 #endif
 
-    free(ov_buffer);
+    delete [] ov_buffer;
     ov_buffer = NULL;
 
 	memcpy(player,&old_player,sizeof(objtype));

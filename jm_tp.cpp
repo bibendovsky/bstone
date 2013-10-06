@@ -2085,7 +2085,7 @@ void TP_FreeScript(PresenterInfo *pi,Uint16 id_cache)
 	}
 	else
 		if ((pi->script) && (pi->flags & TPF_CACHED_SCRIPT)) {
-            free(pi->scriptstart);
+            delete [] static_cast<char*>(pi->scriptstart);
             pi->scriptstart = NULL;
         }
 }

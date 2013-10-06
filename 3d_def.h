@@ -2390,7 +2390,7 @@ typedef enum
 typedef struct {
 	Uint8 local_val;	// where msg is in 'local' list
 	Uint8 global_val;	// where msg was in 'global' list
-	void* mSeg;					// pointer to message
+	char* mSeg;					// pointer to message
 } mCacheInfo;
 
 // Basic 'message list' structure
@@ -2977,7 +2977,7 @@ extern scientist_t MeanSciList;
 
 extern Uint16 static_points[];
 extern boolean GAN_HiddenArea;
-extern void* InfAreaMsgs[];
+extern char* InfAreaMsgs[];
 extern Uint8 NumAreaMsgs,LastInfArea;
 extern Sint16 FirstGenInfMsg,TotalGenInfMsgs;
 extern classtype LastInfoAttacker;						 

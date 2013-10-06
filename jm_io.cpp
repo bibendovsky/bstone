@@ -59,7 +59,7 @@ int IO_LoadFile (const char* filename, void** dst)
 			case ct_LZH:
 				LZH_Startup();
 
-                *dst = malloc(head.OriginalLen);
+                *dst = new char[head.OriginalLen];
 
 // FIXME
 #if 0
@@ -95,7 +95,7 @@ int IO_LoadFile (const char* filename, void** dst)
 	{
 		handle.set_position(0);
 		size = static_cast<Sint32>(handle.get_size());
-        *dst = malloc(size);
+        *dst = new char[size];
 		if (handle.read(*dst, size) != size)
 		{
 			return(size);

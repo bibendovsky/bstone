@@ -1557,7 +1557,7 @@ bool LoadLevel(
 
         ::PreloadUpdate(1, 1);
         ForceLoadDefault = false;
-        goto overlay;
+        return true;
     }
 
     gamestate.flags &= ~GS_VIRGIN_LEVEL;
@@ -1594,9 +1594,9 @@ bool LoadLevel(
     // Restore 'save game' actors
     //
     ReadIt(false, &count, sizeof(count));
-    temp = malloc(count * sizeof(objtype));
-    ReadIt(false, temp, count * sizeof(objtype));
-    ptr = static_cast<objtype*>(temp);
+    objtype* actors_tmp = new objtype[count];
+    ReadIt(false, actors_tmp, count * sizeof(objtype));
+    ptr = actors_tmp;
 
     // start with "player" actor
     ::InitActorList();
@@ -1628,8 +1628,8 @@ bool LoadLevel(
         ++ptr;
     }
 
-    ::free(temp);
-    temp = NULL;
+    delete [] actors_tmp;
+    actors_tmp = NULL;
 
 
     //
@@ -1741,8 +1741,6 @@ bool LoadLevel(
     // Check for Strange Door and Actor combos
     //
     ::CleanUpDoors_N_Actors();
-
-overlay:
 
     return true;
 }
@@ -1876,7 +1874,6 @@ bool SaveLevel(
     char chunk[5] = "LVxx";
     Uint16 gflags = gamestate.flags;
     bool rt_value = false;
-    void* temp;
     Uint16 count;
     objtype* ptr;
     objtype** actorat_ptr;
@@ -1919,8 +1916,8 @@ bool SaveLevel(
     // actorat
     //
 
-    temp = malloc(sizeof(actorat));
-    actorat_ptr = (objtype**)temp;
+    objtype** actorat_tmp = new objtype*[MAPSIZE * MAPSIZE];
+    actorat_ptr = actorat_tmp;
     for (i = 0; i < MAPSIZE; ++i) {
         for (j = 0; j < MAPSIZE; ++j) {
             size_t value = (size_t)actorat[i][j];
@@ -1931,13 +1928,13 @@ bool SaveLevel(
                 value |= 0x80000000;
             }
 
-            *actorat_ptr = (objtype*)value;
+            *actorat_ptr = reinterpret_cast<objtype*>(value);
             ++actorat_ptr;
         }
     }
 
-    WriteIt(false, temp, sizeof(actorat));
-    ::free(temp);
+    WriteIt(false, actorat_tmp, sizeof(actorat));
+    delete [] actorat_tmp;
 
     WriteIt(false, areaconnect, sizeof(areaconnect));
     WriteIt(false, areabyplayer, sizeof(areabyplayer));
@@ -1946,8 +1943,8 @@ bool SaveLevel(
     // oblist
     //
 
-    temp = malloc(sizeof(objlist));
-    ptr = (objtype*)temp;
+    objtype* objlist_tmp = new objtype[MAXACTORS];
+    ptr = objlist_tmp;
     count = 0;
 
     for (ob = player; ob != NULL; ob = ob->next) {
@@ -1965,8 +1962,8 @@ bool SaveLevel(
     }
 
     WriteIt(false, &count, sizeof(count));
-    WriteIt(false, temp, count * sizeof(objtype));
-    ::free(temp);
+    WriteIt(false, objlist_tmp, count * sizeof(objtype));
+    delete [] objlist_tmp;
 
     //
     // laststatobj
@@ -1974,8 +1971,10 @@ bool SaveLevel(
 
     statobj_ptr = laststatobj;
 
-    if (statobj_ptr != NULL)
-        statobj_ptr = (statobj_t*)(statobj_ptr - statobjlist);
+    if (statobj_ptr != NULL) {
+        statobj_ptr = reinterpret_cast<statobj_t*>(
+            statobj_ptr - statobjlist);
+    }
 
     WriteIt(false, &statobj_ptr, sizeof(statobj_ptr));
 
@@ -1984,9 +1983,9 @@ bool SaveLevel(
     // statobjlist
     //
 
-    temp = malloc(sizeof(statobjlist));
-    memcpy(temp, statobjlist, sizeof(statobjlist));
-    statobj_ptr = (statobj_t*)temp;
+    statobj_t* statobjlist_tmp = new statobj_t[MAXSTATS];
+    memcpy(statobjlist_tmp, statobjlist, sizeof(statobjlist));
+    statobj_ptr = statobjlist_tmp;
 
     for (i = 0; i < MAXSTATS; ++i) {
         ptrdiff_t offset = statobj_ptr->visspot - &spotvis[0][0];
@@ -1995,8 +1994,8 @@ bool SaveLevel(
         ++statobj_ptr;
     }
 
-    WriteIt(false, temp, sizeof(statobjlist));
-    ::free(temp);
+    WriteIt(false, statobjlist_tmp, sizeof(statobjlist));
+    delete [] statobjlist_tmp;
 
     WriteIt(false, doorposition, sizeof(doorposition));
     WriteIt(false, doorobjlist, sizeof(doorobjlist));
@@ -3349,7 +3348,7 @@ void    DemoLoop (void)
 
 
 		if (audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]) {
-            free(audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC]);
+            delete [] audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC];
             audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC] = NULL;
         }
 

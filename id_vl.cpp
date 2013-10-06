@@ -199,12 +199,12 @@ void VL_SetVGAPlaneMode()
     const size_t VGA_MEM_SIZE = 4 * 64 * 1024;
     const size_t VGA_PAL_SIZE = 3 * 256;
 
-    free(vga_memory);
-    vga_memory = (Uint8*)malloc(VGA_MEM_SIZE);
+    delete [] vga_memory;
+    vga_memory = new Uint8[VGA_MEM_SIZE];
     memset(vga_memory, 0, VGA_MEM_SIZE);
 
-    free(vga_palette);
-    vga_palette = (Uint8*)malloc(VGA_PAL_SIZE);
+    delete [] vga_palette;
+    vga_palette = new Uint8[VGA_PAL_SIZE];
     memset(vga_palette, 0, VGA_PAL_SIZE);
 
 
