@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <malloc.h>
 
+#include <memory>
+
 #include "SDL.h"
 
 

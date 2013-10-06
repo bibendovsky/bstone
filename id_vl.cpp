@@ -123,9 +123,6 @@ static GLint u_screen_tu = -1;
 // uniform: palette texture unit
 static GLint u_palette_tu = -1;
 
-static GLchar* ogl_info_log = NULL;
-static GLchar* ogl_empty_info_log = "";
-
 int window_width = 640;
 int window_height = 480;
 
@@ -1580,71 +1577,63 @@ void ogl_update_screen()
 }
 
 // Returns an information log of a shader or a program.
-static const GLchar* ogl_get_info_log(GLuint object)
+static std::string ogl_get_info_log(
+    GLuint object)
 {
-    GLchar* info_log;
+    if (object == GL_NONE)
+        return std::string();
+
     OglObjectType object_type = OGL_OT_NONE;
     GLint info_log_size = 0; // with a null terminator
-    GLsizei info_log_length; // without a null terminator
 
-    if (ogl_info_log != ogl_empty_info_log)
-        free((void*)ogl_info_log);
-
-    ogl_info_log = ogl_empty_info_log;
-
-    if (object == GL_NONE)
-        return ogl_info_log;
-
-    if (glIsShader(object)) {
+    if (::glIsShader(object)) {
         object_type = OGL_OT_SHADER;
 
-        glGetShaderiv(
+        ::glGetShaderiv(
             object,
             GL_INFO_LOG_LENGTH,
             &info_log_size);
-    } else if (glIsProgram(object)) {
+    } else if (::glIsProgram(object)) {
         object_type = OGL_OT_PROGRAM;
 
-        glGetProgramiv(
+        ::glGetProgramiv(
             object,
             GL_INFO_LOG_LENGTH,
             &info_log_size);
     } else
-        Quit("OGL: %s", "Invalid object.");
+        return std::string();
 
     if (info_log_size <= 1)
-        return ogl_info_log;
+        return std::string();
 
-    info_log = (GLchar*)malloc(info_log_size);
+    GLsizei info_log_length; // without a null terminator
+    std::auto_ptr<GLchar> info_log(new GLchar[info_log_size]);
 
     switch (object_type) {
     case OGL_OT_SHADER:
-        glGetShaderInfoLog(
+        ::glGetShaderInfoLog(
             object,
             info_log_size,
             &info_log_length,
-            info_log);
+            info_log.get());
         break;
 
     case OGL_OT_PROGRAM:
-        glGetProgramInfoLog(
+        ::glGetProgramInfoLog(
             object,
             info_log_size,
             &info_log_length,
-            info_log);
+            info_log.get());
         break;
 
     default:
-        free((void*)info_log);
-        return ogl_info_log;
+        return std::string();
     }
 
     if (info_log_length > 0)
-        ogl_info_log = info_log;
-    else
-        free(info_log);
+        return info_log.get();
 
-    return ogl_info_log;
+    return std::string();
 }
 
 static void ogl_load_shader(
@@ -1652,24 +1641,27 @@ static void ogl_load_shader(
     const GLchar* shader_text)
 {
     GLint compile_status = GL_FALSE;
-    const GLchar* lines[1] = { shader_text, };
-    GLint lengths[1] = { (GLint)SDL_strlen(shader_text), };
-    const GLchar* shader_log;
+    const GLchar* lines[1] = { shader_text };
+    GLint lengths[1] = {
+        static_cast<GLint>(std::string::traits_type::length(shader_text))
+    };
 
-    glShaderSource(shader_object, 1, lines, lengths);
-    glCompileShader(shader_object);
-    glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
+    ::glShaderSource(shader_object, 1, lines, lengths);
+    ::glCompileShader(shader_object);
+    ::glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
 
-    shader_log = ogl_get_info_log(shader_object);
+    std::string shader_log = ::ogl_get_info_log(shader_object);
 
     if (compile_status != GL_FALSE) {
-        if (shader_log != NULL && shader_log[0] != '\0')
-            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", shader_log);
+        if (!shader_log.empty()) {
+            ::SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", shader_log.c_str());
+        }
     } else {
-        if (shader_log == NULL || shader_log[0] == '\0')
+        if (shader_log.empty())
             shader_log = "Generic compile error.";
 
-        Quit("OGL: %s", shader_log);
+        ::Quit("OGL: %s", shader_log.c_str());
     }
 }
 
@@ -1811,51 +1803,51 @@ static void ogl_setup_shaders()
 
 static void ogl_setup_programs()
 {
-    float proj_mat4[16];
-    GLint link_status = GL_FALSE;
-    const GLchar* program_log;
-
-    SDL_LogInfo(
+    ::SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
         "OGL: %s", "Setting up a screen program object...");
 
-    screen_po = glCreateProgram();
+    screen_po = ::glCreateProgram();
 
     if (screen_po == GL_NONE)
         Quit("Failed.");
 
-    glAttachShader(screen_po, screen_fso);
-    glAttachShader(screen_po, screen_vso);
-    glLinkProgram(screen_po);
-    glGetProgramiv(screen_po, GL_LINK_STATUS, &link_status);
+    GLint link_status = GL_FALSE;
 
-    program_log = ogl_get_info_log(screen_po);
+    ::glAttachShader(screen_po, screen_fso);
+    ::glAttachShader(screen_po, screen_vso);
+    ::glLinkProgram(screen_po);
+    ::glGetProgramiv(screen_po, GL_LINK_STATUS, &link_status);
+
+    std::string program_log = ::ogl_get_info_log(screen_po);
 
     if (link_status != GL_FALSE) {
-        if (program_log != NULL && program_log[0] != '\0')
-            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", program_log);
+        if (!program_log.empty()) {
+            ::SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", program_log.c_str());
+        }
     } else {
-        if (program_log == NULL || program_log[0] == '\0')
+        if (program_log.empty())
             program_log = "Generic link error.";
 
-        Quit("%s", program_log);
+        Quit("%s", program_log.c_str());
     }
 
+    ::glUseProgram(screen_po);
 
-    glUseProgram(screen_po);
+    a_pos_vec4 = ::glGetAttribLocation(screen_po, "pos_vec4");
+    a_tc0_vec2 = ::glGetAttribLocation(screen_po, "tc0_vec2");
 
-    a_pos_vec4 = glGetAttribLocation(screen_po, "pos_vec4");
-    a_tc0_vec2 = glGetAttribLocation(screen_po, "tc0_vec2");
+    float proj_mat4[16];
+    u_proj_mat4 = ::glGetUniformLocation(screen_po, "proj_mat4");
+    ::ogl_ortho(vanilla_screen_width, vanilla_screen_height, proj_mat4);
+    ::glUniformMatrix4fv(u_proj_mat4, 1, GL_FALSE, proj_mat4);
 
-    u_proj_mat4 = glGetUniformLocation(screen_po, "proj_mat4");
-    ogl_ortho(vanilla_screen_width, vanilla_screen_height, proj_mat4);
-    glUniformMatrix4fv(u_proj_mat4, 1, GL_FALSE, proj_mat4);
+    u_screen_tu = ::glGetUniformLocation(screen_po, "screen_tu");
+    ::glUniform1i(u_screen_tu, 0);
 
-    u_screen_tu = glGetUniformLocation(screen_po, "screen_tu");
-    glUniform1i(u_screen_tu, 0);
-
-    u_palette_tu = glGetUniformLocation(screen_po, "palette_tu");
-    glUniform1i(u_palette_tu, 1);
+    u_palette_tu = ::glGetUniformLocation(screen_po, "palette_tu");
+    ::glUniform1i(u_palette_tu, 1);
 }
 
 static void ogl_uninitialize_video()
