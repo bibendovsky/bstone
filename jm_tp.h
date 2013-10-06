@@ -24,7 +24,7 @@
 #define TP_MARGIN	1			// distance between xl/xh/yl/yh points and text
 
 #define is_shadowed     ((flags & fl_shadowtext) == fl_shadowtext)
-#define ch_width(ch)		(font->width[ch]) // +((flags & fl_shadowtext) == fl_shadowtext))
+#define ch_width(ch)		(font->width[static_cast<int>(ch)]) // +((flags & fl_shadowtext) == fl_shadowtext))
 #define font_height 		(font->height)     //+((flags & fl_shadowtext) == fl_shadowtext))
 #define TP_INIT_DISPLAY_STR(num,str_ptr)	  {if ((num)<PI_MAX_NUM_DISP_STRS)			\
 																piStringTable[(num)]=(str_ptr);     \
@@ -86,17 +86,18 @@ typedef struct {
 typedef enum tpCacheType {ct_scaled,
 								  ct_chunk,
 								  ct_marks,
-								  ct_music,
+								  ct_music
 } tpCacheType;
 
 typedef enum pisType {pis_pic,
 							 pis_sprite,
 							 pis_scaled,
 							 pis_scwall,
-							 pis_latchpic,
+							 pis_latchpic
 #if TP_640x200
+    ,
 							 pis_pic2x,
-							 pis_sprite2x,
+							 pis_sprite2x
 #endif
 } pisType;
 
@@ -106,11 +107,11 @@ typedef struct {
 } piShapeInfo;
 
 typedef enum piaType {pia_grabscript,
-							 pia_shapetable,
+							 pia_shapetable
 } piaType;
 
 typedef enum pidType {pid_cycle,
-							 pid_rebound,
+							 pid_rebound
 } pidType;
 
 typedef struct {

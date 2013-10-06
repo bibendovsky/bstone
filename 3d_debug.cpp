@@ -156,7 +156,6 @@ asm	int	0x10
 #endif
 Sint16	maporgx;
 Sint16	maporgy;
-enum {mapview,tilemapview,actoratview,visview}	viewtype;
 
 void ViewMap (void);
 

@@ -149,8 +149,12 @@ static	void			(*SoundUserHook)(void);
 		Sint32			LocalTime;
 		Uint16			TimerRate;
 
-		Uint16				NumDigi,DigiLeft,DigiPage;
+        Uint16				NumDigi;
 		Uint16				*DigiList;
+
+// FIXME
+#if 0
+		Uint16				DigiLeft,DigiPage;
 		Uint16				DigiLastStart,DigiLastEnd;
 		boolean	DigiPlaying;
 static	boolean	DigiMissed,DigiLastSegment;
@@ -158,10 +162,14 @@ static	void*		DigiNextAddr;
 static	Uint16		DigiNextLen;
 		Uint32	DigiFailSafe;
 		Uint32			DigiFailTriggered;
+#endif // 0
 
 //	SoundBlaster variables
-		Uint16					SBResetCount;
 static	boolean					sbNoCheck,sbNoProCheck;
+
+// FIXME
+#if 0
+		Uint16					SBResetCount;
 static	volatile boolean		sbSamplePlaying;
 static	Uint8					sbPIC1Mask,sbPIC2Mask;
 static	Uint8					sbOldIntMask = -1,sbOldIntMask2 = -1;
@@ -178,9 +186,13 @@ static	volatile Uint32		sbNextSegLen;
 static	volatile SampledSound	*sbSamples;
 static	void 		(*sbOldIntHand)(void);
 static	Uint8					sbpOldFMMix,sbpOldVOCMix;
+#endif // 0
 
 //	SoundSource variables
 		boolean				ssNoCheck;
+
+// FIXME
+#if 0
 		boolean				ssActive;
 		Uint16				ssControl,ssStatus,ssData;
 		Uint8				ssOn,ssOff;
@@ -188,14 +200,21 @@ static	Uint8					sbpOldFMMix,sbpOldVOCMix;
 		Uint8				ssVolTable[256];
 		volatile Uint8		*ssSample;
 		volatile Uint32	ssLengthLeft;
+#endif // 0
 
 //	PC Sound variables
+// FIXME
+#if 0
 		volatile Uint8	pcLastSample,*pcSound;
 		Uint32		pcLengthLeft;
 		Uint16			pcSoundLookup[255];
+#endif // 0
 
 //	AdLib variables
 		boolean			alNoCheck;
+
+// FIXME
+#if 0
 		Uint8			*alSound;
 		Uint16			alBlock;
 		Uint32		alLengthLeft;
@@ -210,13 +229,23 @@ static	Uint8			carriers[9] =  { 3, 4, 5,11,12,13,19,20,21},
 						pmodifiers[5] = {16,17,18,20,21};
 
 //	Sequencer variables
-		boolean			sqActive;
 static	Uint16			alFXReg;
 static	ActiveTrack		*tracks[sqMaxTracks],
 						mytracks[sqMaxTracks];
 static	Uint16			sqMode,sqFadeStep;
-		Uint16			*sqHack,*sqHackPtr,sqHackLen,sqHackSeqLen;
+#endif // 0
+
+        boolean sqActive;
+        Uint16* sqHack;
+        Uint16 sqHackLen;
+
+// FIXME
+#if 0
+        Uint16* sqHackPtr;
+        Uint16 sqHackSeqLen;
 		Sint32			sqHackTime;
+#endif // 0
+
 		boolean			sqPlayedOnce;
 
 //	Internal routines
@@ -1634,7 +1663,7 @@ SDL_SetupDigi(void)
 	p = (Uint16 *)PM_GetPage(ChunksInFile - 1);
 	memcpy(list, p, PMPageSize);
 	pg = PMSoundStart;
-	for (i = 0;i < PMPageSize / (sizeof(Uint16) * 2);i++,p += 2)
+	for (i = 0;i < static_cast<int>(PMPageSize / (sizeof(Uint16) * 2));i++,p += 2)
 	{
 		if (pg >= ChunksInFile - 1)
 			break;
@@ -2198,7 +2227,7 @@ boolean
 SD_SetSoundMode(SDMode mode)
 {
 	boolean	result = false;
-	Uint16	tableoffset;
+	Uint16	tableoffset = 0;
 
 	SD_StopSound();
 
@@ -2511,7 +2540,6 @@ void SD_Startup()
 
     LocalTime = 0;
     TimeCount = 0;
-    alTimeCount = 0;
 
     SD_SetSoundMode(sdm_Off);
     SD_SetMusicMode(smm_Off);
@@ -2527,9 +2555,6 @@ void SD_Startup()
         if (AdLibPresent && !sbNoCheck)
             SoundBlasterPresent = true;
     }
-
-    for (int i = 0; i < 255; ++i)
-        pcSoundLookup[i] = static_cast<Uint16>(i * 60);
 
     if (AdLibPresent)
         mixer.initialize(44100);
@@ -2578,7 +2603,7 @@ SD_Default(boolean gotit,SDMode sd,SMMode sm)
 
 	if (gotsm)	// Make sure requested music hardware is available
 	{
-		switch (sm)
+		switch (static_cast<SDMode>(sm))
 		{
 		case sdm_AdLib:
 			gotsm = AdLibPresent;

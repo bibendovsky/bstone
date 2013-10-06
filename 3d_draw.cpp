@@ -884,7 +884,7 @@ void HitHorizWall (void)
 
 void HitHorizDoor (void)
 {
-	Uint16	texture,doorpage = -1,doornum,xint;
+	Uint16	texture,doorpage = static_cast<Uint16>(-1),doornum,xint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -1043,7 +1043,7 @@ void HitHorizDoor (void)
 
 void HitVertDoor (void)
 {
-	Uint16	texture,doorpage,doornum,yint;
+	Uint16	texture,doorpage = DOORWALL,doornum,yint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -1749,7 +1749,7 @@ void DrawScaleds (void)
 		//
 		// draw farthest
 		//
-		if (gamestate.flags & GS_LIGHTING && (farthest->lighting != NO_SHADING) || cloaked_shape)
+		if (((gamestate.flags & GS_LIGHTING) != 0 && farthest->lighting != NO_SHADING) || cloaked_shape)
 			ScaleLSShape(farthest->viewx,farthest->shapenum,farthest->viewheight,farthest->lighting);
 		else
 			ScaleShape(farthest->viewx,farthest->shapenum,farthest->viewheight);
@@ -1788,11 +1788,14 @@ void DrawPlayerWeapon (void)
 
 	if (gamestate.weapon != -1)
 	{
-		shapenum = weaponscale[gamestate.weapon]+gamestate.weaponframe;
+		shapenum = weaponscale[static_cast<int>(gamestate.weapon)]+gamestate.weaponframe;
 		if (shapenum)
 		{
+// FIXME
+#if 0
 			static Sint16 vh=63;
 			static Sint16 ce=100;
+#endif // 0
 
 			char v_table[15]={87,81,77,63,61,60,56,53,50,47,43,41,39,35,31};
 			char c_table[15]={88,85,81,80,75,70,64,59,55,50,44,39,34,28,24};
@@ -1875,7 +1878,7 @@ void CalcTics (void)
 //
 // calculate tics since last refresh for adaptive timing
 //
-	if (lasttimecount > TimeCount)
+	if (static_cast<Uint32>(lasttimecount) > TimeCount)
 		TimeCount = lasttimecount;		// if the game was paused a LONG time
 
 
@@ -2020,7 +2023,7 @@ void RedrawStatusAreas()
 		DrawHealthNum();
 
 		bufferofs += SCREENSIZE;
-		if (bufferofs > PAGE3START)
+		if (bufferofs > static_cast<int>(PAGE3START))
 			bufferofs = PAGE1START;
 	}
 }
@@ -2201,7 +2204,7 @@ Sint16 NextBuffer()
 #endif // 0
 
 	bufferofs += SCREENSIZE;
-	if (bufferofs > PAGE3START)
+	if (bufferofs > static_cast<int>(PAGE3START))
 		bufferofs = PAGE1START;
 
     return 0;
@@ -2292,12 +2295,12 @@ void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags
 
     int dstptr;
     int basedst;
-    Uint8 mask;
-    Uint8 startmask;
+    Uint8 mask = 0;
+    Uint8 startmask = 0;
     int i;
 
 	boolean drawplayerok=true;
-	Uint8 rndindex;
+	Uint8 rndindex = 0;
 	boolean snow=false;
 
 // -zoom == make it snow!

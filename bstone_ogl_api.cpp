@@ -511,6 +511,26 @@ namespace {
 typedef std::list<std::string> Strings;
 typedef Strings::const_iterator StringsCIt;
 
+// Pointer-to-object to pointer-to-function cast
+template<class T>
+union Cast {
+public:
+    explicit Cast(
+        void* object) :
+            object_(object)
+    {
+    }
+
+    operator T()
+    {
+        return function_;
+    }
+
+private:
+    T function_;
+    void* object_;
+}; // union Cast
+
 
 template<class T>
 void ogl_api_get_base_symbol(
@@ -518,7 +538,7 @@ void ogl_api_get_base_symbol(
     T& symbol,
     Strings& missing_symbols)
 {
-    symbol = reinterpret_cast<T>(::SDL_GL_GetProcAddress(symbol_name));
+    symbol = Cast<T>(::SDL_GL_GetProcAddress(symbol_name));
 
     if (symbol == NULL)
         missing_symbols.push_back(symbol_name);
@@ -529,7 +549,7 @@ void ogl_api_get_ext_symbol(
     const char* symbol_name,
     T& symbol)
 {
-    symbol = reinterpret_cast<T>(::SDL_GL_GetProcAddress(symbol_name));
+    symbol = Cast<T>(::SDL_GL_GetProcAddress(symbol_name));
 }
 
 

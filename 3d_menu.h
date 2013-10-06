@@ -124,7 +124,7 @@ typedef enum mm_labels {MM_NEW_MISSION,
 								MM_SAVE_MISSION,
 								MM_BLANK2,
 								MM_BACK_TO_DEMO,
-								MM_LOGOFF,
+								MM_LOGOFF
 } mm_labels;
 
 // CP_Switch() menu labels
@@ -135,7 +135,7 @@ typedef enum
 	SW_LIGHTING,
 	SW_REBA_ATTACK_INFO,
 	SW_CEILING,
-	SW_FLOORS,
+	SW_FLOORS
 
 } sw_labels;
 
@@ -149,7 +149,7 @@ typedef enum
 	AT_DISABLED = 0,
 	AT_ENABLED,
 	AT_READIT,
-	AT_NON_SELECTABLE,				// Menu Bar/Separator - Not a selectable item.
+	AT_NON_SELECTABLE				// Menu Bar/Separator - Not a selectable item.
 
 
 } activetypes;

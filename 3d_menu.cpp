@@ -691,13 +691,13 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 	// QUICKSAVE
 	//
 		case sc_F8:
-			if (SaveGamesAvail[LSItems.curpos] && pickquick)
+			if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
 			{
 				char string[100]="Quick Save will overwrite:\n\"";
 
 				CA_CacheGrChunk(STARTFONT+1);
 
-				strcat(string,SaveGameNames[LSItems.curpos]);
+				strcat(string,SaveGameNames[static_cast<int>(LSItems.curpos)]);
 				strcat(string,"\"?");
 				VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 
@@ -742,13 +742,13 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 	// QUICKLOAD
 	//
 		case sc_F9:
-			if (SaveGamesAvail[LSItems.curpos] && pickquick)
+			if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
 			{
 				char string[100]="Quick Load:\n\"";
 
 				CA_CacheGrChunk(STARTFONT+1);
 
-				strcat(string,SaveGameNames[LSItems.curpos]);
+				strcat(string,SaveGameNames[static_cast<int>(LSItems.curpos)]);
 				strcat(string,"\"?");
 				VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160); 
 
@@ -2325,7 +2325,7 @@ void DrawCtlScreen(void)
 	// PICK FIRST AVAILABLE SPOT
 	//
 
-	if (CtlItems.curpos<0 || !CtlMenu[CtlItems.curpos].active)
+	if (CtlItems.curpos<0 || !CtlMenu[static_cast<int>(CtlItems.curpos)].active)
 
         // BBi
 		//for (i=0;i<6;i++)
@@ -2424,7 +2424,7 @@ void DefineKeyMove(void)
 //--------------------------------------------------------------------------
 // TestForValidKey
 //--------------------------------------------------------------------------
-boolean TestForValidKey(ScanCode Scan)
+bool TestForValidKey(ScanCode Scan)
 {
 	char *pos;
 
@@ -2460,9 +2460,9 @@ Sint16 moveorder[4]={LEFT,RIGHT,FWRD,BKWD};
 
 void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (*PrintRtn)(Sint16),Sint16 type)
 {
-	Sint16 j,exit,tick,redraw,which,x,picked;
+	Sint16 j,exit,tick,redraw,which = 0,x = 0,picked;
 	ControlInfo ci;
-  	boolean clean_display = true;
+  	bool clean_display = true;
 
 	ShootSnd();
 	PrintY=CST_Y+13*index;
@@ -2654,10 +2654,12 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 				else
    	      {
-      	   	if (clean_display = TestForValidKey(LastScan))
+              clean_display = TestForValidKey(LastScan);
+
+      	   	if (clean_display)
 						ShootSnd();
 
-					buttonscan[order[which]]=LastScan;
+					buttonscan[static_cast<int>(order[which])]=LastScan;
 					picked=1;
       	   }
 				IN_ClearKeysDown();
@@ -2681,7 +2683,9 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 				else
 	         {
-   	      	if (clean_display = TestForValidKey(LastScan))
+                 clean_display = TestForValidKey(LastScan);
+
+   	      	if (clean_display)
 						ShootSnd();
 
 					dirscan[moveorder[which]]=LastScan;
@@ -2997,7 +3001,7 @@ void DrawCustJoy(Sint16 hilight)
 void PrintCustKeybd(Sint16 i)
 {
 	PrintX=CST_START+CST_SPC*i;
-	US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[order[i]]))));
+	US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[static_cast<int>(order[i])]))));
 }
 
 
@@ -3426,7 +3430,13 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 {
 	#define box_on 	item_i->cursor.on
 	char key;
-	static Sint16 redrawitem=1,lastitem=-1;
+	static Sint16 redrawitem=1;
+
+// FIXME
+#if 0
+    static Sint16 lastitem=-1;
+#endif // 0
+
 	Sint16 i,x,y,basey,exit,which,flash_tics;
 	ControlInfo ci;
 
@@ -3633,7 +3643,10 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 
 	item_i->curpos=static_cast<char>(which);
 
+// FIXME
+#if 0
 	lastitem=which;
+#endif // 0
 
 	switch(exit)
 	{
@@ -3731,7 +3744,7 @@ void TicDelay(Sint16 count)
 
 	do	{
 		ReadAnyControl(&ci);
-	} while(TimeCount<count && ci.dir!=dir_None);
+	} while(TimeCount<static_cast<Uint32>(count) && ci.dir!=dir_None);
 }
 
 //---------------------------------------------------------------------------
@@ -4119,7 +4132,8 @@ Sint16 Confirm(const char *string)
 //---------------------------------------------------------------------------
 void Message(const char *string)
 {
-	Sint16 h=0,w=0,mw=0,i;
+	Sint16 h=0,w=0,mw=0;
+    size_t i;
 	fontstruct *font;
 	Uint16 OldPrintX,OldPrintY;
 
@@ -4138,7 +4152,7 @@ void Message(const char *string)
 			h+=font->height;
 		}
 		else
-			w+=font->width[string[i]];
+			w+=font->width[static_cast<int>(string[i])];
 
 	if (w+10>mw)
 	mw=w+10;
@@ -4316,7 +4330,7 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
 {
    void* code;
    boolean return_val = false;
-   char i;
+   int i;
    char *code_ptr;
 
    // Allocate, Cache & Decomp into ram

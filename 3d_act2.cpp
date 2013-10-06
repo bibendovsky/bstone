@@ -612,7 +612,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 		case en_pod:
 			new_actor->temp1 = SPR_POD_WALK1;
 			new_actor->speed = SPDPATROL;
-			new_actor->ammo = -1;
+			new_actor->ammo = static_cast<Uint8>(-1);
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
 		break;
@@ -657,7 +657,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 		case en_morphing_reptilian_warrior:
 		case en_morphing_mutanthuman2:
 			if (scan_value == 0xffff)
-				new_actor->temp2 = static_cast<Sint16>(0xffff);			// set to max!			// 60*5+(60*(US_RndT()%20));
+				new_actor->temp2 = 0xffff;			// set to max!			// 60*5+(60*(US_RndT()%20));
 			else
 				new_actor->temp2 = scan_value*60;
 
@@ -787,7 +787,7 @@ void T_OfsThink(objtype *obj)
 
 				// Reached end of range?
 
-				if ((obj->temp1 = grenade_shapes[static_cast<Uint8>(dist)]) == 0)
+				if ((obj->temp1 = grenade_shapes[static_cast<int>(dist)]) == 0)
 				{
 					obj->obclass = gr_explosionobj;
 					InitSmartSpeedAnim(obj,SPR_GRENADE_EXPLODE1,0,4,at_ONCE,ad_FWD,3+(US_RndT()&3));
@@ -6163,20 +6163,20 @@ void ExplodeFill(char tx, char ty)
 
 // Mark spot as exploded!
 //
-	ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)] = 1;
+	ff_buffer[static_cast<int>(bx)][static_cast<int>(by)] = 1;
 
 // Explode to the EAST!
 //
 	bx += 1;
 	tx += 1;
 
-	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 
-	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (bx <= EX_RADIUS*2))
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx <= EX_RADIUS*2))
 		ExplodeFill(tx,ty);
 
 // Explode to the WEST!
@@ -6184,13 +6184,13 @@ void ExplodeFill(char tx, char ty)
 	bx -= 2;
 	tx -= 2;
 
-	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 
-	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (bx >= 0))
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx >= 0))
 		ExplodeFill(tx,ty);
 
 // Explode to the SOUTH!
@@ -6200,13 +6200,13 @@ void ExplodeFill(char tx, char ty)
 	by += 1;
 	ty += 1;
 
-	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 
-	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (by <= EX_RADIUS*2))
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by <= EX_RADIUS*2))
 		ExplodeFill(tx,ty);
 
 // Explode to the NORTH!
@@ -6214,13 +6214,13 @@ void ExplodeFill(char tx, char ty)
 	by -= 2;
 	ty -= 2;
 
-	door = tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	if (door & 0x80)
 		no_wall = doorobjlist[door&0x7f].action != dr_closed;
 	else
-		no_wall = !tilemap[static_cast<Uint8>(tx)][static_cast<Uint8>(ty)];
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 
-	if ((!ff_buffer[static_cast<Uint8>(bx)][static_cast<Uint8>(by)]) && (no_wall) && (by >= 0))
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by >= 0))
 		ExplodeFill(tx,ty);
 }
 
@@ -6376,7 +6376,7 @@ void T_BlowBack(objtype *obj)
 #endif // 0
 
        if ((killer = SLIDE_TEMP(obj)) == player)
-           *((Uint16*)&obj->hitpoints) = dist_table[static_cast<Uint8>(gamestate.weapon)];
+           *((Uint16*)&obj->hitpoints) = dist_table[static_cast<int>(gamestate.weapon)];
        else
            *((Uint16*)&obj->hitpoints) = dist_table[wp_grenade];
 

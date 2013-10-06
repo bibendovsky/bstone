@@ -579,7 +579,7 @@ void DrawHealthNum(void)
 		if (gamestate.health < check)
 			JLatchDrawPic(16+loop,162,NG_BLANKPIC);
 		else
-			JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<Uint8>(num++)]+NG_0PIC);
+			JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+NG_0PIC);
 }
 
 //---------------------------------------------------------------------------
@@ -790,7 +790,7 @@ void DrawKeyPics(void)
 	DrawKeyPics_COUNT--;
 
 	for (loop=0; loop<NUMKEYS; loop++)
-		if (gamestate.numkeys[static_cast<Uint8>(loop)])
+		if (gamestate.numkeys[static_cast<int>(loop)])
 			JLatchDrawPic(15+2*loop,179,RED_KEYPIC+loop);
 		else
 			JLatchDrawPic(15+2*loop,179,NO_KEYPIC);
@@ -1664,8 +1664,8 @@ char *HandleControlCodes(char *first_ch)
 				case TP_CNVT_CODE('A','N'):
 					shapenum = TP_VALUE(first_ch,2);
 					first_ch += 2;
-					memcpy(&piAnimList[static_cast<Uint8>(InfoAreaSetup.numanims)],&piAnimTable[shapenum],sizeof(piAnimInfo));
-					anim = &piAnimList[static_cast<Uint8>(InfoAreaSetup.numanims++)];
+					memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)],&piAnimTable[shapenum],sizeof(piAnimInfo));
+					anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
 					shape = &piShapeTable[anim->baseshape+anim->frame];	// BUG!! (assumes "pia_shapetable")
 //					spr = &spritetable[shape->shapenum-STARTSPRITES];
 
@@ -1741,7 +1741,7 @@ char *HandleControlCodes(char *first_ch)
 //--------------------------------------------------------------------------
 Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 {
-	Sint16 width;
+	Sint16 width = 0;
 	Uint16 shade;
 
 //	width=TP_BoxAroundShape(x,y,shapenum,shapetype);
@@ -2573,21 +2573,21 @@ char GetAreaNumber(char tilex, char tiley)
 
 // Are we on a wall?
 //
-	if (tilemap[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)] && (!(tilemap[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)]&0xc0)))
+	if (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] && (!(tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)]&0xc0)))
 		return(127);
 
 // Get initial areanumber from map
 //
-	offset = farmapylookup[static_cast<Uint8>(tiley)]+tilex;
+	offset = farmapylookup[static_cast<int>(tiley)]+tilex;
 	ptr[0]=mapsegs[0]+offset;
 	ptr[1]=mapsegs[1]+offset;
 
 // Special tile areas must use a valid areanumber tile around it.
 //
-	if (!(areanumber=ValidAreaTile(ptr[0])))
+	if ((areanumber=ValidAreaTile(ptr[0])) == 0)
 	{
 		for (loop=0; loop<8; loop++)
-			if (areanumber=ValidAreaTile(ptr[0]+an_offset[static_cast<Uint8>(loop)]))
+			if ((areanumber=ValidAreaTile(ptr[0]+an_offset[static_cast<int>(loop)])) != 0)
 				break;
 
 		if (loop==8)
@@ -2669,8 +2669,8 @@ void Cmd_Fire (void)
 	player->state = &s_attack;
 
 	gamestate.attackframe = 0;
-	gamestate.attackcount = attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe].tics;
-	gamestate.weaponframe =	attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe].frame;
+	gamestate.attackcount = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].tics;
+	gamestate.weaponframe =	attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 }
 
 //===========================================================================
@@ -3834,19 +3834,19 @@ void DisplayPinballBonus()
 
             ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
 
-			DisplayInfoMsg(PinballBonus[static_cast<Uint8>(loop)].BonusText,MP_PINBALL_BONUS,7*60,MT_BONUS);
+			DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText,MP_PINBALL_BONUS,7*60,MT_BONUS);
 
 		// Add to "shown" ... Remove from "queue"
 		//
-			if (!PinballBonus[static_cast<Uint8>(loop)].Recurring)
+			if (!PinballBonus[static_cast<int>(loop)].Recurring)
 				BONUS_SHOWN |= (1<<loop);
 			BONUS_QUEUE &= ~(1<<loop);
 
 		// Give points and execute special function.
 		//
-			GivePoints(PinballBonus[static_cast<Uint8>(loop)].Points,false);
-			if (PinballBonus[static_cast<Uint8>(loop)].func)
-				PinballBonus[static_cast<Uint8>(loop)].func();
+			GivePoints(PinballBonus[static_cast<int>(loop)].Points,false);
+			if (PinballBonus[static_cast<int>(loop)].func)
+				PinballBonus[static_cast<int>(loop)].func();
 		}
 }
 
@@ -4872,7 +4872,7 @@ void	T_Attack (objtype *ob)
 	gamestate.attackcount -= tics;
 	if (gamestate.attackcount <= 0)
 	{
-		cur = &attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe];
+		cur = &attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe];
 		switch (cur->attack)
 		{
 		case -1:
@@ -5067,7 +5067,7 @@ void	T_Attack (objtype *ob)
 		gamestate.attackcount += cur->tics;
 		gamestate.attackframe++;
 		gamestate.weaponframe =
-			attackinfo[static_cast<Uint8>(gamestate.weapon)][gamestate.attackframe].frame;
+			attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 	}
 }
 
@@ -5320,13 +5320,13 @@ boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean F
 		wit_DOOR,
 		wit_WALL,
 		wit_STATIC,
-		wit_ACTOR,
+		wit_ACTOR
    } what_is_it;
 
 	what_is_it WhatItIs;
    objtype *obj;
    statobj_t *stat = NULL;
-   Uint8 tile, DoorNum;
+   Uint8 tile, DoorNum = 0;
    Uint16 iconnum;
 
 	//

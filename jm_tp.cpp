@@ -687,7 +687,7 @@ void TP_WrapText()
 {
 	flags &= ~fl_startofline;
 
-	if (stemp=TP_LineCommented(first_ch))
+	if ((stemp=TP_LineCommented(first_ch)) != 0)
 	{
 		first_ch += stemp;
 		return;
@@ -850,7 +850,7 @@ void TP_HandleCodes()
 	Uint16 shapenum;
 	Sint16 length;
 	const char *s;
-	Sint16 old_bgcolor;
+	Sint16 old_bgcolor = 0;
 	signed char c;
 
 	if ((first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n'))
@@ -1102,16 +1102,16 @@ void TP_HandleCodes()
 			case TP_CNVT_CODE('S','X'):
 				temp = static_cast<char>(TP_VALUE(first_ch++,1));
 				if (pi->flags & TPF_SHOW_CURSOR)
-					save_cx[temp] = last_cur_x;
+					save_cx[static_cast<int>(temp)] = last_cur_x;
 				else
-					save_cx[temp] = cur_x;
+					save_cx[static_cast<int>(temp)] = cur_x;
 			break;
 
 	// RESTORE X LOCATION ------------------------------------------------
 	//
 			case TP_CNVT_CODE('R','X'):
 				temp = static_cast<char>(TP_VALUE(first_ch++,1));
-				cur_x = save_cx[temp];
+				cur_x = save_cx[static_cast<int>(temp)];
 
 				if (pi->flags & TPF_SHOW_CURSOR)
 					TP_JumpCursor();
@@ -1122,16 +1122,16 @@ void TP_HandleCodes()
 			case TP_CNVT_CODE('S','Y'):
 				temp = static_cast<char>(TP_VALUE(first_ch++,1));
 				if (pi->flags & TPF_SHOW_CURSOR)
-					save_cy[temp] = last_cur_y;
+					save_cy[static_cast<int>(temp)] = last_cur_y;
 				else
-					save_cy[temp] = cur_y;
+					save_cy[static_cast<int>(temp)] = cur_y;
 			break;
 
 	// RESTORE Y LOCATION ------------------------------------------------
 	//
 			case TP_CNVT_CODE('R','Y'):
 				temp = static_cast<char>(TP_VALUE(first_ch++,1));
-				cur_y = save_cy[temp];
+				cur_y = save_cy[static_cast<int>(temp)];
 
 				if (pi->flags & TPF_SHOW_CURSOR)
 					TP_JumpCursor();
@@ -1344,7 +1344,7 @@ void TP_HandleCodes()
 
 				old_first_ch = first_ch+2;
 
-				if (first_ch = (char *)piStringTable[disp_str_num])
+				if ((first_ch = const_cast<const char*>(piStringTable[disp_str_num])) != NULL)
 				{
 					while (flags & fl_presenting && *first_ch)
 						if (*first_ch == TP_CONTROL_CHAR)
@@ -1475,7 +1475,7 @@ void TP_HandleCodes()
 				cur_y = yl;
 				if (cur_y+font_height > yh)
 					cur_y = yh-font_height;
-				first_ch = pi->script[pi->pagenum];
+				first_ch = pi->script[static_cast<int>(pi->pagenum)];
 
 				numanims = 0;
 				TP_PurgeAllGfx();
@@ -1683,7 +1683,7 @@ void TP_AnimatePage(Sint16 numanims)
 //--------------------------------------------------------------------------
 Sint16 TP_BoxAroundShape(Sint16 x1, Sint16 y1, Uint16 shapenum, pisType shapetype)
 {
-	Sint16 x2,y2;
+	Sint16 x2 = 0,y2 = 0;
 
 	switch (shapetype)
 	{
@@ -1799,7 +1799,7 @@ void TP_CachePage(const char *script)
 
 	while (!end_of_page)
 	{
-		while (stemp=TP_LineCommented(script))
+		while ((stemp=TP_LineCommented(script)) != 0)
 			script += stemp;
 
 		switch (*script++)
@@ -2003,7 +2003,7 @@ boolean TP_SlowPrint(const char *str, char delay)
 		{
 			LastScan=0;
 			tc = TimeCount;
-			while (TimeCount-tc < delay)
+			while (static_cast<Sint32>(TimeCount)-tc < delay)
 			{
 				VW_WaitVBL(1);
 				CycleColors();
@@ -2101,7 +2101,7 @@ void TP_InitScript(PresenterInfo *pi)
 	pi->numpages = 1;		// Assume at least 1 page
 	while (*script)
 	{
-		while (stemp=TP_LineCommented(script))
+		while ((stemp=TP_LineCommented(script)) != 0)
 		{
 			script += stemp;
 			if (!*script)
@@ -2121,7 +2121,7 @@ void TP_InitScript(PresenterInfo *pi)
 				{
 					case TP_CNVT_CODE('E','P'):
 						if (pi->numpages < TP_MAX_PAGES)
-							pi->script[pi->numpages++] = script;
+							pi->script[static_cast<int>(pi->numpages++)] = script;
 						else
 							TP_ERROR(TP_INITSCRIPT_PAGES_OF);
 					break;

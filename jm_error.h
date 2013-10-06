@@ -27,7 +27,7 @@ ID_PM_ERROR,
 ID_MM_ERROR,
 ID_SD_ERROR,
 DRAW2_ERROR,
-MENU_ERROR,		 
+MENU_ERROR
 };
 
 
@@ -245,7 +245,7 @@ NULL_FUNC_PTR_PASSED=0x01,			// Null Function Pointer passed - MapRowPtr was NOT
 
 // UNIT: 3D_MENU
 //
-CACHE_MESSAGE_NO_END_MARKER,  // A cached message was NOT terminated with "^XX"
+CACHE_MESSAGE_NO_END_MARKER  // A cached message was NOT terminated with "^XX"
 };
 
 

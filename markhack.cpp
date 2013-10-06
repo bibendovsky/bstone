@@ -19,7 +19,7 @@ extern int post_planes;
 
 typedef enum {
     DRAW_DEFAULT,
-    DRAW_LIGHTED,
+    DRAW_LIGHTED
 } DrawMode;
 
 

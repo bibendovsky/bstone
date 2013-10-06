@@ -445,7 +445,7 @@ boolean TryWalk (objtype *ob, boolean moveit)
 //--------------------------------------------------------------------------
 boolean ElevatorFloor(char x, char y)
 {
-	Uint8 tile=static_cast<Uint8>(*(mapsegs[0]+farmapylookup[y]+x));
+	Uint8 tile=static_cast<Uint8>(*(mapsegs[0]+farmapylookup[static_cast<int>(y)]+x));
 
 	if (tile >= HIDDENAREATILE)
 		tile -= HIDDENAREATILE;
@@ -2570,7 +2570,7 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 			if ((door->areanumber[0]==ob->areanumber) ||
 				 (door->areanumber[1]==ob->areanumber))
 			{
-				doorlist[doorsfound] = door;					// add to list
+				doorlist[static_cast<int>(doorsfound)] = door;					// add to list
 				if (++doorsfound == DOOR_CHOICES)			// check for max
 					break;
 			}
@@ -2586,7 +2586,7 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 		// (Only choose the last door used if it's the only door in this area!)
 		//
 			doornum = static_cast<char>(Random(doorsfound));
-			door = doorlist[doornum];
+			door = doorlist[static_cast<int>(doornum)];
 
 // FIXME
 #if 0
@@ -2598,7 +2598,7 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 				doornum++;
 				if (doornum >= doorsfound)
 					doornum=0;
-				door = doorlist[doornum];
+				door = doorlist[static_cast<int>(doornum)];
 			}
 
 // FIXME

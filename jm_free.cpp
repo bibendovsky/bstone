@@ -1192,7 +1192,7 @@ void InitDigiMap (void)
 	char *map;
 
 	for (map = reinterpret_cast<char*>(wolfdigimap);*map != LASTSOUND;map += 2)
-		DigiMap[map[0]] = map[1];
+		DigiMap[static_cast<int>(map[0])] = map[1];
 }
 
 

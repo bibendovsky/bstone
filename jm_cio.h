@@ -62,7 +62,7 @@ typedef enum ct_TYPES
 {
 		ct_NONE = 0,						// No compression - Just data..Rarely used!
 		ct_LZW,								// LZW data compression
-		ct_LZH,
+		ct_LZH
 
 } ct_TYPES;
 

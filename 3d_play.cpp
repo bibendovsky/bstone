@@ -738,8 +738,8 @@ void CheckKeys (void)
 			jam_buff[0]=0;
 
 			for (loop=0; loop<NUMKEYS; loop++)
-				if (gamestate.numkeys[loop] < MAXKEYS)
-					gamestate.numkeys[loop]=1;
+				if (gamestate.numkeys[static_cast<int>(loop)] < MAXKEYS)
+					gamestate.numkeys[static_cast<int>(loop)]=1;
 
 			gamestate.health = 100;
 			gamestate.ammo = MAX_AMMO;

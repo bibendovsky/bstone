@@ -495,11 +495,11 @@ void PlaceReservedItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 
 	for (loop=0; loop<8; loop++)
 	{
-		char x=static_cast<char>(tilex+pint_xy[static_cast<Uint8>(loop)][1]), y=static_cast<char>(tiley+pint_xy[static_cast<Uint8>(loop)][0]);
+		char x=static_cast<char>(tilex+pint_xy[static_cast<int>(loop)][1]), y=static_cast<char>(tiley+pint_xy[static_cast<int>(loop)][0]);
 
-		if (!tilemap[static_cast<Uint8>(x)][static_cast<Uint8>(y)])
+		if (!tilemap[static_cast<int>(x)][static_cast<int>(y)])
 		{
-			if (actorat[static_cast<Uint8>(x)][static_cast<Uint8>(y)] == reinterpret_cast<objtype*>(1))		// Check for a SOLID static
+			if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1))		// Check for a SOLID static
 	        	continue;
 
 			UseReservedStatic(itemtype,x,y);
@@ -577,11 +577,11 @@ void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 
 	for (loop=0; loop<8; loop++)
 	{
-		char x=static_cast<char>(tilex+pint_xy[static_cast<Uint8>(loop)][1]), y=static_cast<char>(tiley+pint_xy[static_cast<Uint8>(loop)][0]);
+		char x=static_cast<char>(tilex+pint_xy[static_cast<int>(loop)][1]), y=static_cast<char>(tiley+pint_xy[static_cast<int>(loop)][0]);
 
-		if (!tilemap[static_cast<Uint8>(x)][static_cast<Uint8>(y)])
+		if (!tilemap[static_cast<int>(x)][static_cast<int>(y)])
 		{
-			if (actorat[static_cast<Uint8>(x)][static_cast<Uint8>(y)] == reinterpret_cast<objtype*>(1))		// Check for a SOLID static
+			if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1))		// Check for a SOLID static
 	        	continue;
 
 			PlaceItemType(itemtype,x,y);
@@ -1192,7 +1192,7 @@ void BlockDoorOpen(Sint16 door)
 //--------------------------------------------------------------------------
 void TryBlastDoor(char door)
 {
-	switch (doorobjlist[static_cast<Uint8>(door)].type)
+	switch (doorobjlist[static_cast<int>(door)].type)
    {
    	case dr_oneway_left:
 		case dr_oneway_up:
@@ -1201,13 +1201,13 @@ void TryBlastDoor(char door)
    	break;
 
 		default:
-			if (doorposition[static_cast<Uint8>(door)] < 0x7fff &&
-			    doorobjlist[static_cast<Uint8>(door)].action != dr_jammed &&
-				 doorobjlist[static_cast<Uint8>(door)].lock == kt_none)
+			if (doorposition[static_cast<int>(door)] < 0x7fff &&
+			    doorobjlist[static_cast<int>(door)].action != dr_jammed &&
+				 doorobjlist[static_cast<int>(door)].lock == kt_none)
 			{
 				BlockDoorOpen(door);
-				SpawnCusExplosion((((fixed)doorobjlist[static_cast<Uint8>(door)].tilex)<<TILESHIFT)+0x7FFF,
-								      (((fixed)doorobjlist[static_cast<Uint8>(door)].tiley)<<TILESHIFT)+0x7FFF,
+				SpawnCusExplosion((((fixed)doorobjlist[static_cast<int>(door)].tilex)<<TILESHIFT)+0x7FFF,
+								      (((fixed)doorobjlist[static_cast<int>(door)].tiley)<<TILESHIFT)+0x7FFF,
 								      SPR_EXPLOSION_1,4,3,doorexplodeobj);
 			}
       break;
@@ -1355,13 +1355,13 @@ Sint16 TransformAreas(char tilex, char tiley, char xform)
 
 // Is this walkway:  Horizontal?   Vertical?   Error?
 //
-	if ((tilemap[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)+1]) && (tilemap[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)-1]))
+	if ((tilemap[static_cast<int>(tilex)][static_cast<int>(tiley+1)]) && (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley-1)]))
 	{
 		xofs = 1;
 		yofs = 0;
 	}
 	else
-		if ((tilemap[static_cast<Uint8>(tilex)+1][static_cast<Uint8>(tiley)]) && (tilemap[static_cast<Uint8>(tilex)-1][static_cast<Uint8>(tiley)]))
+		if ((tilemap[static_cast<int>(tilex+1)][static_cast<int>(tiley)]) && (tilemap[static_cast<int>(tilex-1)][static_cast<int>(tiley)]))
 		{
 			xofs = 0;
 			yofs = 1;
@@ -2076,7 +2076,7 @@ void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinety
 	(Uint16)actorat[tilex][tiley] = ConHintList.NumMsgs;
 #endif // 0
 
-    actorat[static_cast<Uint8>(tilex)][static_cast<Uint8>(tiley)] = (objtype*)ConHintList.NumMsgs;
+    actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
 
 //
 // BORLAND SCREWS UP WHEN COMPILING THE LINE BELOW, EVEN THOUGH
@@ -2290,18 +2290,18 @@ void CheckSpawnEA()
 	for (loop=0; loop<NumEAWalls; loop++)
 	{
 //		unsigned *map=mapsegs[0]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
-		Uint16 *map1=mapsegs[1]+farmapylookup[eaList[static_cast<Uint8>(loop)].tiley]+eaList[static_cast<Uint8>(loop)].tilex;
+		Uint16 *map1=mapsegs[1]+farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)]+eaList[static_cast<int>(loop)].tilex;
 
 	// Limit the number of aliens spawned by each outlet.
 	//
-		if (eaList[static_cast<Uint8>(loop)].aliens_out > gamestate.difficulty)
+		if (eaList[static_cast<int>(loop)].aliens_out > gamestate.difficulty)
 			continue;
 
 	// Decrement 'spawn delay' for current outlet.
 	//
-		if (eaList[static_cast<Uint8>(loop)].delay > tics)
+		if (eaList[static_cast<int>(loop)].delay > tics)
 		{
-			eaList[static_cast<Uint8>(loop)].delay -= tics;
+			eaList[static_cast<int>(loop)].delay -= tics;
 			continue;
 		}
 
@@ -2309,20 +2309,20 @@ void CheckSpawnEA()
 	// If NOT, we'll try again on the next refresh.
 	// If SO, the delay is set to a true value below.
 	//
-		eaList[loop].delay=1;
+		eaList[static_cast<int>(loop)].delay=1;
 
 	// Does this wall touch the 'area' that the player is in?
 	//
 		for (ofs=0; ofs<4; ofs++)
 		{
-			char nx=eaList[static_cast<Uint8>(loop)].tilex+xy_offset[static_cast<Uint8>(ofs)][0];
-			char ny=eaList[static_cast<Uint8>(loop)].tiley+xy_offset[static_cast<Uint8>(ofs)][1];
+			char nx=eaList[static_cast<int>(loop)].tilex+xy_offset[static_cast<int>(ofs)][0];
+			char ny=eaList[static_cast<int>(loop)].tiley+xy_offset[static_cast<int>(ofs)][1];
 			char areanumber=GetAreaNumber(nx,ny);
 
 			if ((nx < 0) || (nx > 63) || (ny < 0) || (ny > 63))
 				continue;
 
-			if (areanumber != 127 && areabyplayer[areanumber])
+			if (areanumber != 127 && areabyplayer[static_cast<int>(areanumber)])
 				break;
 		}
 
@@ -2333,8 +2333,8 @@ void CheckSpawnEA()
 
 	// Setup tile x,y in temp obj.
 	//
-		temp.tilex = eaList[static_cast<Uint8>(loop)].tilex+xy_offset[static_cast<Uint8>(ofs)][0];
-		temp.tiley = eaList[static_cast<Uint8>(loop)].tiley+xy_offset[static_cast<Uint8>(ofs)][1];
+		temp.tilex = eaList[static_cast<int>(loop)].tilex+xy_offset[static_cast<int>(ofs)][0];
+		temp.tiley = eaList[static_cast<int>(loop)].tiley+xy_offset[static_cast<int>(ofs)][1];
 
 	// Is another actor already on this tile?
 	// If so, "continue" if it's alive...
@@ -2375,7 +2375,7 @@ void CheckSpawnEA()
 		usedummy=false;
 		if (new_actor!=&dummyobj)
 		{
-			eaList[static_cast<Uint8>(loop)].aliens_out++;
+			eaList[static_cast<int>(loop)].aliens_out++;
 			new_actor->temp2=loop;
 
 // FIXME
@@ -2389,9 +2389,9 @@ void CheckSpawnEA()
 	// Reset spawn delay.
 	//
 		if ((*map1 & 0xff00) == 0xfa00)
-			eaList[static_cast<Uint8>(loop)].delay=60*((*map1)&0xff);
+			eaList[static_cast<int>(loop)].delay=60*((*map1)&0xff);
 		else
-			eaList[static_cast<Uint8>(loop)].delay=60*8+Random(60*22);
+			eaList[static_cast<int>(loop)].delay=60*8+Random(60*22);
 
 		break;
 	}
@@ -2461,8 +2461,8 @@ void FindNewGoldieSpawnSite(void)
 		// Setup tile x,y in temp obj.
 		//
 
-		temp.tilex = GoldieList[static_cast<Uint8>(loop)].tilex;
-		temp.tiley = GoldieList[static_cast<Uint8>(loop)].tiley;
+		temp.tilex = GoldieList[static_cast<int>(loop)].tilex;
+		temp.tiley = GoldieList[static_cast<int>(loop)].tiley;
 
 		// Setup x,y in temp obj and see if obj is in player's view.
 		//

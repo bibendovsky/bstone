@@ -16,14 +16,14 @@ namespace bstone {
 enum StreamSeekOrigin {
     STREAM_SEEK_BEGIN,
     STREAM_SEEK_CURRENT,
-    STREAM_SEEK_END,
+    STREAM_SEEK_END
 }; // enum StreamSeekOrigin
 
 enum StreamOpenMode {
     STREAM_OPEN_READ = 1,
     STREAM_OPEN_WRITE = 2,
     STREAM_OPEN_READ_WRITE = STREAM_OPEN_READ | STREAM_OPEN_WRITE,
-    STREAM_OPEN_TRUNCATE = 4,
+    STREAM_OPEN_TRUNCATE = 4
 }; // enum StreamOpenMode
 
 

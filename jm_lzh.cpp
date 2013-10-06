@@ -1257,7 +1257,7 @@ static Sint16 DecodePosition(
     while (j--)
         i = (i << 1) + ::GetBit(infile_ptr, CompressLength);
 
-    return c | i & 0x3F;
+    return c | (i & 0x3F);
 }
 
 #endif
@@ -1310,7 +1310,7 @@ Sint32 LZH_Decompress(
 
 	r = N - F;
 
-	for (count = 0; count < textsize; )
+	for (count = 0; count < static_cast<Sint32>(textsize); )
 	{
 // FIXME
 #if 0
@@ -1363,7 +1363,7 @@ Sint32 LZH_Decompress(
 			}
 		}
 
-		if (LZH_DecompressDisplayVector && (count > printcount))
+		if (LZH_DecompressDisplayVector && (count > static_cast<Sint32>(printcount)))
 		{
 			LZH_DecompressDisplayVector(OriginalLength,OriginalLength-datasize);
 			printcount += 1024;

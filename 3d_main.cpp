@@ -1513,9 +1513,7 @@ overlay:;
 bool LoadLevel(
     int levelnum)
 {
-    extern boolean ShowQuickMsg;
     extern boolean ForceLoadDefault;
-    extern Uint16 destoff;
 
     int i;
     int j;
@@ -1539,8 +1537,8 @@ bool LoadLevel(
     gamestuff.level[levelnum].locked = false;
 
     mod = levelnum % 6;
-    normalshade_div = nsd_table[mod];
-    shade_max = sm_table[mod];
+    normalshade_div = nsd_table[static_cast<int>(mod)];
+    shade_max = sm_table[static_cast<int>(mod)];
     normalshade = (3 * (maxscale >> 2)) / normalshade_div;
 
     sprintf(&chunk[2], "%02x",levelnum);
@@ -2269,10 +2267,16 @@ bool LoadTheGame(
         bool& result_;
 
         AtExit(
-            const AtExit& that);
+            const AtExit& that) :
+                result_(that.result_)
+        {
+        }
 
         AtExit& operator=(
-            const AtExit& that);
+            const AtExit& that)
+        {
+            return *this;
+        }
     }; // AtExit
 
     AtExit at_exit(result);
@@ -2724,10 +2728,10 @@ void ClearNClose()
 	//
 	if (tx)
 	{
-		char doornum=tilemap[tx][ty]&63;
+		char doornum=tilemap[static_cast<int>(tx)][static_cast<int>(ty)]&63;
 
-		doorobjlist[doornum].action = dr_closed;		// this door is closed!
-		doorposition[doornum]=0;							// draw it closed!
+		doorobjlist[static_cast<int>(doornum)].action = dr_closed;		// this door is closed!
+		doorposition[static_cast<int>(doornum)]=0;							// draw it closed!
 
 // FIXME
 #if 0
@@ -2735,7 +2739,7 @@ void ClearNClose()
 #endif // 0
 
         // make it solid!
-        actorat[tx][ty] = (objtype*)(doornum | 0x80);
+        actorat[static_cast<int>(tx)][static_cast<int>(ty)] = reinterpret_cast<objtype*>(doornum | 0x80);
 	}
 }
 
@@ -3195,7 +3199,10 @@ void Quit(const char* error, ...)
 
 void    DemoLoop (void)
 {
+#if DEMOS_ENABLED
 	Sint16 	LastDemo=0;
+#endif // DEMOS_ENABLED
+
 	boolean breakit;
 	Uint16 old_bufferofs;
 
@@ -3388,7 +3395,7 @@ void DrawCreditsPage()
 	pi.xh=281;
 	pi.yh=170;
 	pi.bgcolor = 2;
-	pi.ltcolor = static_cast<char>(BORDER_HI_COLOR);
+	pi.ltcolor = BORDER_HI_COLOR;
 	fontcolor = BORDER_TEXT_COLOR;
 	pi.shcolor = pi.dkcolor = 0;
 	pi.fontnumber=static_cast<char>(fontnumber);

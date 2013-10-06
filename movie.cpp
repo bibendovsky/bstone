@@ -38,7 +38,7 @@ typedef enum
    FADE_IN,
    FADE_OUT,
    FADE_IN_FRAME,
-   FADE_OUT_FRAME,
+   FADE_OUT_FRAME
 } FADES;
 
 
@@ -47,7 +47,7 @@ typedef enum
    MV_NONE,
 	MV_FILL,
    MV_SKIP,
-   MV_READ,
+   MV_READ
 
 } MOVIE_FLAGS;
 
@@ -556,7 +556,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 #endif 
    		FlipPages();
 
-         if (TimeCount < MovieStuff->ticdelay)
+         if (TimeCount < static_cast<Uint32>(MovieStuff->ticdelay))
          {
 	         wait_time = static_cast<Uint16>(MovieStuff->ticdelay - TimeCount);
 				VL_WaitVBL(wait_time);
@@ -701,6 +701,6 @@ void FlipPages(void)
 
     bufferofs += SCREENSIZE;
 
-    if (bufferofs > PAGE3START)
+    if (bufferofs > static_cast<int>(PAGE3START))
         bufferofs = PAGE1START;
 }

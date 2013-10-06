@@ -516,9 +516,9 @@ static void USL_CustomCursor(Sint16 x,Sint16 y,char *s,Uint16 cursor)
 boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 				Sint16 maxchars,Sint16 maxwidth)
 {
-	boolean		redraw,
+	bool		redraw,
 				cursorvis,cursormoved,
-				done,result;
+				done,result = false;
 	ScanCode	sc;
 	char		c,
 				s[MaxString],olds[MaxString];

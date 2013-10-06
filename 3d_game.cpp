@@ -342,7 +342,7 @@ void ScanInfoPlane (void)
 	Uint16	x,y;
 	Sint16			tile;
 	Uint16	*start;
-	boolean gotlight = false,gottextures = false;
+    boolean gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
 	boolean gotcolors=false;
@@ -363,8 +363,8 @@ memset(numEnemy,0,sizeof(numEnemy));
 		for (x=0;x<mapwidth;x++)
 		{
 			sci_mCacheInfo *ci;
-			scientist_t *st;
-			Uint8 tilehi,tilelo,block;
+			scientist_t *st = NULL;
+			Uint8 tilehi,tilelo,block = 0;
 
 
          tile = *start++;
@@ -2175,7 +2175,6 @@ Sint16 an_offset[8] = {1,-1,64,-64,-65,-63,63,65};
 
 void SetupGameLevel (void)
 {
-	extern boolean ForceLoadDefault;
    boolean switchon = false;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
 	Sint16	x,y;
@@ -2255,7 +2254,7 @@ void SetupGameLevel (void)
 						(Uint16)actorat[x][y] = tile;
 #endif // 0
 
-                        actorat[x][y] = (objtype*)tile;
+                        actorat[x][y] = reinterpret_cast<objtype*>(tile);
 					break;
 				}
 
@@ -2303,7 +2302,7 @@ void SetupGameLevel (void)
 				// KEYS
 				//
 
-				switch (lock)
+				switch (static_cast<int>(lock))
 				{
 					case 55:
 					case 56:
@@ -2394,13 +2393,13 @@ void SetupGameLevel (void)
 				break;
 
 				case EATILE:
-					eaList[NumEAWalls].tilex=static_cast<char>(x);
-					eaList[NumEAWalls].tiley=static_cast<char>(y);
-					eaList[NumEAWalls].aliens_out=0;
+					eaList[static_cast<int>(NumEAWalls)].tilex=static_cast<char>(x);
+					eaList[static_cast<int>(NumEAWalls)].tiley=static_cast<char>(y);
+					eaList[static_cast<int>(NumEAWalls)].aliens_out=0;
 					if ((lock & 0xff00) == 0xfa00)
-						eaList[NumEAWalls].delay=60*(lock&0xff);
+						eaList[static_cast<int>(NumEAWalls)].delay=60*(lock&0xff);
 					else
-						eaList[NumEAWalls].delay=60*8+Random(60*22);
+						eaList[static_cast<int>(NumEAWalls)].delay=60*8+Random(60*22);
 					if (NumEAWalls++ == MAXEAWALLS)
 						GAME_ERROR(SETUPGAME_MAX_EA_WALLS);
 				break;
@@ -2569,10 +2568,10 @@ void BMAmsg(const char *msg)
 		pi.yl=BMAy2+(BMAh2-cheight)/2;
 		pi.xh=pi.xl+BMAw2-3;
 		pi.yh=pi.yl+cheight-1;
-		pi.bgcolor = static_cast<char>(BORDER_MED_COLOR);
-		pi.ltcolor = static_cast<char>(BORDER_HI_COLOR);
+		pi.bgcolor = BORDER_MED_COLOR;
+		pi.ltcolor = BORDER_HI_COLOR;
 		fontcolor = BORDER_TEXT_COLOR;
-		pi.shcolor = pi.dkcolor = static_cast<char>(BORDER_LO_COLOR);
+		pi.shcolor = pi.dkcolor = BORDER_LO_COLOR;
 		pi.fontnumber=static_cast<char>(fontnumber);
 		TP_InitScript(&pi);
 		TP_Presenter(&pi);
@@ -2635,7 +2634,7 @@ void ShadowPrintLocationText(sp_type type)
 {
 	const char *DemoMsg="-- DEMO --";
     const char *DebugText= "-- DEBUG MODE ENABLED --";
-	const char *s,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
+	const char *s = NULL,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
     char str[8];
 	Uint16 w,h;
 
@@ -3597,7 +3596,7 @@ strcat (str,str2);							// defined in 3d_main.c
 			VW_FadeOut ();
 //       StopMusic();			 // JTR
 
-			sprintf(Score,"%ld",gamestate.score);
+			sprintf(Score,"%d",gamestate.score);
 			piStringTable[0]=Score;
 
 			if (playstate==ex_victorious)

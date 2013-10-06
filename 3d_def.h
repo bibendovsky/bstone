@@ -20,9 +20,9 @@
 #define VERSION_TEXT_COLOR				(0x82)
 #define VERSION_TEXT_BKCOLOR			(0x80)
 
-#define NO_SHADING						(static_cast<char>(0x80))
-#define LAMP_ON_SHADING					(static_cast<char>(-12))
-#define EXPLOSION_SHADING				(static_cast<char>(-52))
+#define NO_SHADING						(0x80)
+#define LAMP_ON_SHADING					(-12)
+#define EXPLOSION_SHADING				(-52)
 
 #define PAGEFLIP
 
@@ -499,13 +499,13 @@ void jsprintf(char *msg, ...);
 typedef enum ss_type {
 	ss_normal,
 	ss_quick,
-	ss_justcalc,
+	ss_justcalc
 } ss_type;
 
 typedef enum cds_io_type {
 		cds_dos_print,
 		cds_id_print,
-		cds_menu_print,
+		cds_menu_print
 } cds_io_type;
 
 
@@ -514,7 +514,7 @@ typedef enum sp_type {
 	sp_loading,
 	sp_saving,
 	sp_changeview,
-	sp_teleporting,
+	sp_teleporting
 } sp_type;
 
 //
@@ -1173,7 +1173,7 @@ typedef enum    {
 // BFG SHOT EXPLOSION
 //
       SPR_BFG_EXP1, SPR_BFG_EXP2, SPR_BFG_EXP3, SPR_BFG_EXP4,
-      SPR_BFG_EXP5, SPR_BFG_EXP6, SPR_BFG_EXP7, SPR_BFG_EXP8,
+      SPR_BFG_EXP5, SPR_BFG_EXP6, SPR_BFG_EXP7, SPR_BFG_EXP8
 
 
 
@@ -1410,7 +1410,7 @@ typedef enum
 
 		// END OF DOOR LIST
 
-		NUMDOORTYPES,
+		NUMDOORTYPES
 
 
 } doortype;
@@ -1424,7 +1424,7 @@ typedef enum
 {
 	BT_LOSE,
 	BT_WIN,
-	BT_INTRO,
+	BT_INTRO
 
 } breifing_type;
 
@@ -1497,7 +1497,7 @@ typedef enum
 	TM_NO_SOCKETS,
 	TM_ALREADY_ACTIVATED,
 	TM_ALREADY_DEACTIVATED,
-	TM_LAST,
+	TM_LAST
 } term_msg_type;
 
 // Terminal Commands - The first set of commands TC_HINT - TC_end_of_1to1
@@ -1541,7 +1541,7 @@ typedef enum
 	TC_DEACTIVATE_SOCKETS,
 	TC_ACTIVATE_SOCKETS,
 
-	TC_LAST,
+	TC_LAST
 } term_cmd_type;
 
 //
@@ -1556,7 +1556,7 @@ typedef enum
    bt_DISABLED,
 
    bt_OPENING,				// For physical barriers
-   bt_CLOSING,				//	      " " "
+   bt_CLOSING				//	      " " "
 
 } barrier_state_type;
 
@@ -1608,7 +1608,7 @@ typedef enum				// NOTE - This enum list is ORDERED!
 {
 	mv_intro,
 	mv_final,
-	mv_NUM_MOVIES,
+	mv_NUM_MOVIES
 
 } movie_t;
 
@@ -1630,7 +1630,7 @@ typedef enum {				// NOTE - This enum list is ORDERED!
 	dr_oneway_up,
 	dr_oneway_right,
 	dr_oneway_down,
-   dr_space,
+   dr_space
 } door_t;
 
 typedef enum {
@@ -1638,7 +1638,7 @@ typedef enum {
 	kt_red,
 	kt_yellow,
 	kt_blue,
-	NUMKEYS,
+	NUMKEYS
 } keytype;
 
 typedef enum {
@@ -1755,12 +1755,12 @@ typedef enum {
 
 	doorexplodeobj,    			         	// Door explosion_anim acto
 	gr_explosionobj,
-	gold_morphingobj,
+	gold_morphingobj
 
 } classtype;
 
 // BBi
-inline classtype operator ++(classtype& a, int)
+inline classtype operator++(classtype& a, int)
 {
     classtype result = a;
     a = static_cast<classtype>(static_cast<int>(a) + 1);
@@ -1824,7 +1824,7 @@ typedef enum {
 
 	bo_nothing,
 
-	block,
+	block
 
 } stat_t;
 
@@ -1847,64 +1847,37 @@ typedef enum {
 } dirtype;
 
 // BBi
-inline dirtype operator +=(dirtype& a, int b)
+inline dirtype operator+=(dirtype& a, int b)
 {
     a = static_cast<dirtype>(static_cast<int>(a) + b);
     return a;
 }
 
-inline dirtype operator -=(dirtype& a, int b)
+inline dirtype operator-=(dirtype& a, int b)
 {
     a = static_cast<dirtype>(static_cast<int>(a) - b);
     return a;
 }
 
-inline dirtype operator |=(dirtype& a, int b)
+inline dirtype operator|=(dirtype& a, int b)
 {
     a = static_cast<dirtype>(static_cast<int>(a) | b);
     return a;
 }
 
-inline dirtype operator --(dirtype& a, int)
+inline dirtype operator--(dirtype& a, int)
 {
     dirtype result = a;
     a -= 1;
     return result;
 }
 
-inline dirtype operator ++(dirtype& a, int)
+inline dirtype operator++(dirtype& a, int)
 {
     dirtype result = a;
     a += 1;
     return result;
 }
-
-//inline dirtype operator +(dirtype a, int b)
-//{
-//    return static_cast<dirtype>(static_cast<int>(a) + b);
-//}
-//
-//inline dirtype operator -(dirtype a, int b)
-//{
-//    return static_cast<dirtype>(static_cast<int>(a) - b);
-//}
-//
-//inline dirtype operator %(dirtype a, int b)
-//{
-//    return static_cast<dirtype>(static_cast<int>(a) % b);
-//}
-//
-//inline dirtype operator &(dirtype a, int b)
-//{
-//    return static_cast<dirtype>(static_cast<int>(a) & b);
-//}
-//
-//inline dirtype operator |(dirtype a, int b)
-//{
-//    return static_cast<dirtype>(static_cast<int>(a) | b);
-//}
-
-
 
 typedef enum {
 	en_rentacop,				// Actors with hitpoints (normal actors)
@@ -2044,7 +2017,7 @@ enum DoorAction {
     dr_closed,
     dr_opening,
     dr_closing,
-    dr_jammed,
+    dr_jammed
 }; // enum DoorAction
 
 struct doorobj_t {
@@ -2135,7 +2108,7 @@ enum
 
    bt_SPACER,
 
-   NUMBUTTONS,							
+   NUMBUTTONS							
 };
 
 
@@ -2150,7 +2123,7 @@ typedef enum
 //	wp_plasma_detonators,
 
    wp_SPACER,
-   NUMWEAPONS,
+   NUMWEAPONS
 } weapontype;
 
 
@@ -2299,7 +2272,7 @@ typedef enum    {
 	ex_abort,
 	ex_demodone,
 	ex_secretlevel,
-   ex_title,      		
+   ex_title
 } exit_t;
 
 
@@ -2375,7 +2348,7 @@ typedef enum
 	MP_FLOOR_UNLOCKED						= 0x3000,
 
 	MP_POWERUP 								= 0x7000, // Power-Up/Game-Start Value
-	MP_max_val 								= 0x7FFF, // DO NOT USE/EXCEED - MAX Val
+	MP_max_val 								= 0x7FFF // DO NOT USE/EXCEED - MAX Val
 } msg_priorities;
 
 typedef enum
@@ -2387,7 +2360,7 @@ typedef enum
 	MT_OUT_OF_AMMO,
 	MT_MALFUNCTION,
 	MT_NO_MO_FOOD_TOKENS,
-	MT_BONUS,
+	MT_BONUS
 
 } infomsg_type;
 
@@ -2401,7 +2374,7 @@ typedef enum
 	IT_HIGHSCORES,
    IT_ENTER_HIGHSCORE,
 	IT_MOUSE_SEN,
-	MAX_INSTRUCTIONS,
+	MAX_INSTRUCTIONS
 
 } inst_type;
 

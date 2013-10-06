@@ -37,7 +37,6 @@ const Uint8 rndtable[256] = {
 
 
 static int rndindex;
-static int LastRnd;
 
 
 void US_InitRndT(boolean randomize)

@@ -129,7 +129,7 @@ Sint32 GRFILEPOS(Sint16 c)
 		value = -1;
 
 	return value;
-};
+}
 #else
 #define	GRFILEPOS(c) (grstarts[c])
 #endif
@@ -1047,7 +1047,7 @@ done:
 
 void CA_LoadAllSounds (void)
 {
-	Uint16	start,i;
+	Uint16	start = 0,i;
 
 	switch (oldsoundmode)
 	{
@@ -1166,7 +1166,7 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
 void CA_CacheGrChunk (Sint16 chunk)
 {
 	Sint32	pos,compressed;
-	void*	bigbufferseg;
+	void*	bigbufferseg = NULL;
 	Uint8	*source;
 	Sint16		next;
 
@@ -1281,7 +1281,7 @@ void CA_CacheMap (Sint16 mapnum)
 	Sint32	pos,compressed;
 	Sint16		plane;
 	Uint16** dest;
-    void* bigbufferseg;
+    void* bigbufferseg = NULL;
 	Uint16	size;
 	Uint16	*source;
 #ifdef CARMACIZED
@@ -1526,7 +1526,7 @@ void CA_CacheMarks (void)
 	Sint32	pos,endpos,nextpos,nextendpos,compressed;
 	Sint32	bufferstart,bufferend;	// file position of general buffer
 	Uint8	*source;
-	void*	bigbufferseg;
+	void*	bigbufferseg = NULL;
 
 	numcache = 0;
 //

@@ -27,7 +27,6 @@ public:
 
         str[0] = '\0';
 
-        bool is_radix_valid = true;
         std::ios::fmtflags flags;
 
         switch (radix) {
@@ -44,23 +43,20 @@ public:
             break;
 
         default:
-            is_radix_valid = false;
-            break;
+            return str;
         }
 
-        if (is_radix_valid) {
-            std::ostringstream iss;
-            iss.setf(flags, std::ios::oct | std::ios::dec | std::ios::hex);
-            iss << value;
+        std::ostringstream iss;
+        iss.setf(flags, std::ios::oct | std::ios::dec | std::ios::hex);
+        iss << value;
 
-            if (iss) {
-                std::string value_str = iss.str();
-                std::string::traits_type::copy(
-                    str,
-                    value_str.c_str(),
-                    value_str.size());
-                str[value_str.size()] = '\0';
-            }
+        if (iss) {
+            std::string value_str = iss.str();
+            std::string::traits_type::copy(
+                str,
+                value_str.c_str(),
+                value_str.size());
+            str[value_str.size()] = '\0';
         }
 
         return str;

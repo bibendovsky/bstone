@@ -43,15 +43,8 @@ typedef struct {
 typedef enum {
     OGL_OT_NONE,
     OGL_OT_SHADER,
-    OGL_OT_PROGRAM,
+    OGL_OT_PROGRAM
 } OglObjectType;
-
-typedef enum {
-    OGL_SB_NONE,
-    OGL_SB_HORIZONTAL,
-    OGL_SB_VERTICAL,
-    OGL_SB_FULL,
-} OglScreenBoxing;
 
 
 void ogl_draw_screen();
@@ -1590,7 +1583,7 @@ void ogl_update_screen()
 static const GLchar* ogl_get_info_log(GLuint object)
 {
     GLchar* info_log;
-    OglObjectType object_type;
+    OglObjectType object_type = OGL_OT_NONE;
     GLint info_log_size = 0; // with a null terminator
     GLsizei info_log_length; // without a null terminator
 
@@ -1640,8 +1633,10 @@ static const GLchar* ogl_get_info_log(GLuint object)
             &info_log_length,
             info_log);
         break;
+
     default:
-        break;
+        free((void*)info_log);
+        return ogl_info_log;
     }
 
     if (info_log_length > 0)

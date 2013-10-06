@@ -593,6 +593,9 @@ void AudioMixer::handle_commands()
         case CMD_STOP_MUSIC:
             handle_stop_music_command();
             break;
+
+        default:
+            break;
         }
     }
 

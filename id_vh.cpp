@@ -283,11 +283,16 @@ void VWB_DrawMPic (Sint16 x, Sint16 y, Sint16 chunknum)
 
 void VWB_DrawPropString(const char* string)
 {
+// FIXME
+#if 0
 	Sint16 x;
+
 	x=px;
+#endif // 0
+
 	VW_DrawPropString (string);
 
-// BBi
+// FIXME
 #if 0
 	VW_MarkUpdateBlock(x,py,px-1,py+bufferheight-1);
 #endif // 0
@@ -514,7 +519,7 @@ boolean FizzleFade(
 
         ++frame;
 
-        while (TimeCount < frame) // don't go too fast
+        while (TimeCount < static_cast<Uint32>(frame)) // don't go too fast
             ;
 
         CalcTics();

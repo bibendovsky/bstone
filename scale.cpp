@@ -19,7 +19,7 @@ extern const Uint8* shadingtable;
 
 typedef enum {
     DRAW_DEFAULT,
-    DRAW_LIGHTED,
+    DRAW_LIGHTED
 } DrawMode;
 
 

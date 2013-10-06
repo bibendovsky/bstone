@@ -96,6 +96,9 @@ boolean			NGinstalled=false;
 
 =============================================================================
 */
+
+// FIXME
+#if 0
 static	Uint8        ASCIINames[] =		// Unshifted ASCII for scan codes
 					{
 //	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
@@ -132,11 +135,15 @@ static	Uint8        ASCIINames[] =		// Unshifted ASCII for scan codes
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 6
 	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0   	// 7
 					};
-
+#endif // 0
 
 boolean		IN_Started;
+
+// FIXME
+#if 0
 static	boolean		CapsLock;
 static	ScanCode	CurCode,LastCode;
+#endif // 0
 
 static	Direction	DirTable[] =		// Quick lookup for total direction
 					{
@@ -145,8 +152,11 @@ static	Direction	DirTable[] =		// Quick lookup for total direction
 						dir_SouthWest,	dir_South,	dir_SouthEast
 					};
 
+// FIXME
+#if 0
 static	void			(*INL_KeyHook)(void);
 static	void (*OldKeyVect)(void);
+#endif // 0
 
 const char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 
@@ -817,12 +827,12 @@ static int INL_GetMouseButtons()
 void
 IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp)
 {
-	Uint8	xb,yb,
-			xs,ys;
-	Uint16	x,y;
-
 // FIXME
 #if 0
+	Uint8	xb,yb;
+	Uint8	xs,ys;
+	Uint16	x,y;
+
 // Handle Notebook Gamepad's joystick.
 //
 	if (NGinstalled)
@@ -840,7 +850,6 @@ IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp)
 
 		return;
 	}
-#endif // 0
 
 // Handle normal PC joystick.
 //
@@ -850,8 +859,6 @@ IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp)
 	ys = joy? 3 : 1;		// Do the same for y axis
 	yb = 1 << ys;
 
-// FIXME
-#if 0
 // Read the absolute joystick values
 asm		pushf				// Save some registers
 asm		push	si
@@ -906,10 +913,13 @@ asm		mov		[y],di
 asm		pop		di
 asm		pop		si
 asm		popf				// Restore the registers
-#endif // 0
 
 	*xp = x;
 	*yp = y;
+#endif // 0
+
+    *xp = 0;
+    *yp = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -922,7 +932,11 @@ void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy)
 {
 	Uint16		x,y;
 	JoystickDef	*def;
+
+// FIXME
+#if 0
 static	Uint32	lasttime;
+#endif // 0
 
 	IN_GetJoyAbs(joy,&x,&y);
 	def = JoyDefs + joy;
@@ -973,7 +987,10 @@ static	Uint32	lasttime;
 	else
 		*dy = 0;
 
+// FIXME
+#if 0
 	lasttime = TimeCount;
+#endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////

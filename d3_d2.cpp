@@ -9,12 +9,12 @@
 typedef enum {
     DO_CEILING,
     DO_FLOORING,
-    DO_CEILING_AND_FLOORING,
+    DO_CEILING_AND_FLOORING
 } DrawOptions;
 
 typedef enum {
     SO_NONE,
-    SO_DEFAULT,
+    SO_DEFAULT
 } ShadingOptions;
 
 

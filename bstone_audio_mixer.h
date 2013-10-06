@@ -18,7 +18,7 @@ enum ActorType {
     AT_NONE,
     AT_ACTOR,
     AT_DOOR,
-    AT_WALL,
+    AT_WALL
 }; // enum ActorType
 
 enum ActorChannel {
@@ -26,14 +26,14 @@ enum ActorChannel {
     AC_WEAPON,
     AC_ITEM,
     AC_HIT_WALL,
-    AC_NO_WAY,
+    AC_NO_WAY
 }; // enum ActorChannel
 
 enum SoundType {
     ST_NONE,
     ST_ADLIB_MUSIC,
     ST_ADLIB_SFX,
-    ST_PCM,
+    ST_PCM
 }; // enum SoundType
 
 
@@ -178,7 +178,7 @@ private:
     enum CommandType {
         CMD_PLAY,
         CMD_STOP_MUSIC,
-        CMD_STOP_ALL_SFX,
+        CMD_STOP_ALL_SFX
     }; // enum CommandType
 
     class Command {

@@ -21,7 +21,11 @@
 #include "bstone_file_stream.h"
 #include "bstone_memory_stream.h"
 
+// FIXME
+// BBi Enable only if neccesary!
+#if 0
 #pragma GCC diagnostic ignored "-fpermissive"
+#endif // 0
 
 #define __ID_GLOB__
 
