@@ -65,63 +65,6 @@ Sint16 VL_VideoID ()
     return 5;
 }
 
-
-Sint8 read_si8(const Uint8** data_ptr)
-{
-    Sint8 result = *(*data_ptr);
-    ++(*data_ptr);
-    return result;
-}
-
-Uint8 read_ui8(const Uint8** data_ptr)
-{
-    Uint8 result = *(*data_ptr);
-    ++(*data_ptr);
-    return result;
-}
-
-Sint16 read_si16(const Uint8** data_ptr)
-{
-    const Sint16* data = (const Sint16*)(*data_ptr);
-    Sint16 result = SDL_SwapLE16(*data);
-    *data_ptr = (const Uint8*)(data + 1);
-    return result;
-}
-
-Uint16 read_ui16(const Uint8** data_ptr)
-{
-    const Uint16* data = (const Uint16*)(*data_ptr);
-    Uint16 result = SDL_SwapLE16(*data);
-    *data_ptr = (const Uint8*)(data + 1);
-    return result;
-}
-
-Sint32 read_si32(const Uint8** data_ptr)
-{
-    const Sint32* data = (const Sint32*)(*data_ptr);
-    Sint32 result = SDL_SwapLE32(*data);
-    *data_ptr = (const Uint8*)(data + 1);
-    return result;
-}
-
-Uint32 read_ui32(const Uint8** data_ptr)
-{
-    const Uint32* data = (const Uint32*)(*data_ptr);
-    Uint32 result = SDL_SwapLE32(*data);
-    *data_ptr = (const Uint8*)(data + 1);
-    return result;
-}
-
-void skip_xi8(const Uint8** data_ptr)
-{
-    *data_ptr += 1;
-}
-
-void skip_xi32(const Uint8** data_ptr)
-{
-    *data_ptr += 4;
-}
-
 objtype* ui16_to_actor(Uint16 value)
 {
     int offset = value - OBJLIST_OFFSET;
