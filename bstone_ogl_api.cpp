@@ -24,6 +24,8 @@ bstone::OglVersion version_;
 // API v1.1
 //
 
+#if !defined(OGL_DIRECT_LINK)
+
 namespace {
 
 
@@ -500,6 +502,7 @@ GLAPI void APIENTRY glVertexAttribPointer(
     glVertexAttribPointer_(index, size, type, normalized, stride, pointer);
 }
 
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 // OglApi
@@ -543,6 +546,8 @@ namespace bstone {
 bool OglApi::initialize()
 {
     uninitialize();
+
+#if !defined(OGL_DIRECT_LINK)
 
     if (::SDL_GL_GetCurrentContext() == NULL) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
@@ -617,6 +622,7 @@ bool OglApi::initialize()
         uninitialize();
         return false;
     }
+#endif
 
     // Vendor
 
@@ -660,6 +666,7 @@ bool OglApi::initialize()
     //
     // Extensions
     //
+#if !defined(OGL_DIRECT_LINK)
 
     ogl_api_get_ext_symbol("glActiveTexture", glActiveTexture_);
     ogl_api_get_ext_symbol("glAttachShader", glAttachShader_);
@@ -697,6 +704,7 @@ bool OglApi::initialize()
     ogl_api_get_ext_symbol("glVertexAttribPointer",
         glVertexAttribPointer_);
 
+#endif
 
     is_initialized_ = true;
     vendor_ = reinterpret_cast<const char*>(vendor);
@@ -708,6 +716,7 @@ bool OglApi::initialize()
 // (static)
 void OglApi::uninitialize()
 {
+#if !defined(OGL_DIRECT_LINK)
     glBindTexture_ = NULL;
     glClear_ = NULL;
     glClearColor_ = NULL;
@@ -753,6 +762,7 @@ void OglApi::uninitialize()
     glUniformMatrix4fv_ = NULL;
     glUseProgram_ = NULL;
     glVertexAttribPointer_ = NULL;
+#endif
 
     is_initialized_ = false;
     vendor_.clear();
