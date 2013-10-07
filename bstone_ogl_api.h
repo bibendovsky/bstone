@@ -20,8 +20,11 @@
 #define GL_GLEXT_PROTOTYPES
 #endif // GL_GLEXT_PROTOTYPES
 
-
+#if defined(USE_GLES)
+#include "GLES2/gl2.h"
+#else
 #include "SDL_opengl.h"
+#endif
 
 #include "bstone_ogl_version.h"
 
