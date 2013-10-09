@@ -2016,7 +2016,7 @@ struct statobj_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2051,7 +2051,7 @@ struct doorobj_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2121,7 +2121,7 @@ struct objtype {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2189,6 +2189,14 @@ enum backgroundtype {
 struct tilecoord_t {
     Uint8 tilex;
     Uint8 tiley;
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum) const;
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct tilecoord_t
 
 //-----------------------------------
@@ -2200,6 +2208,14 @@ struct tilecoord_t {
 struct barrier_type {
     tilecoord_t coord;
     Uint8 on;
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum) const;
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct barrier_type;
 
 
@@ -2217,6 +2233,14 @@ struct statsInfoType {
     Uint8 total_inf;
     Uint8 accum_inf;
     Sint16 overall_floor;
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum) const;
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct statsInfoType
 
 struct levelinfo {
@@ -2227,13 +2251,28 @@ struct levelinfo {
     Uint8 ptilex;
     Uint8 ptiley;
     Sint16 pangle;
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum) const;
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct levelinfo
 
 
-struct fargametype
-{
-	levelinfo	old_levelinfo[MAPS_PER_EPISODE];
-	levelinfo 	level[MAPS_PER_EPISODE];
+struct fargametype {
+    levelinfo old_levelinfo[MAPS_PER_EPISODE];
+    levelinfo level[MAPS_PER_EPISODE];
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum) const;
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct fargametype
 
 struct gametype {
@@ -2294,6 +2333,14 @@ struct gametype {
     boolean old_boss_key_dropped;
     Sint16 wintilex;
     Sint16 wintiley;
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum) const;
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct gametype
 
 enum exit_t {
@@ -2430,7 +2477,7 @@ struct mCacheInfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2455,7 +2502,7 @@ struct con_mCacheInfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2470,7 +2517,7 @@ struct concession_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2506,7 +2553,7 @@ struct eaWallInfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -2529,7 +2576,7 @@ struct GoldsternInfo_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum);
+        Sint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
@@ -3171,7 +3218,7 @@ extern Uint16       doorposition[MAXDOORS],pwallstate;
 
 extern Uint8            areaconnect[NUMAREAS][NUMAREAS];
 
-extern boolean         areabyplayer[NUMAREAS];
+extern bool areabyplayer[NUMAREAS];
 
 extern Uint16 pwallstate;
 extern Uint16 pwallpos;                       // amount a pushable wall has been moved (0-63)

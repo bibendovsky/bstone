@@ -750,6 +750,103 @@ static int get_state_index(statetype* state)
 }
 
 bstone::MemoryStream g_playtemp;
+
+
+template<class T>
+void DoChecksum(
+    const T& value,
+    Sint32& checksum)
+{
+    const Uint8* src = reinterpret_cast<const Uint8*>(&value);
+
+    for (size_t i = 0; i < (sizeof(T) - 1); ++i)
+        checksum += src[i] ^ src[i + 1];
+}
+
+template<class T>
+static bool serialize_field(
+    const T& value,
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    ::DoChecksum(value, checksum);
+    return writer.write(bstone::Endian::le(value));
+}
+
+template<class T,size_t N>
+static bool serialize_field(
+    const T (&value)[N],
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    for (size_t i = 0; i < N; ++i) {
+        if (!::serialize_field<T>(value[i], writer, checksum))
+            return false;
+    }
+
+    return true;
+}
+
+template<class T,size_t M,size_t N>
+static bool serialize_field(
+    const T (&value)[M][N],
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+            if (!::serialize_field<T>(value[i][j], writer, checksum))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+template<class T>
+static bool deserialize_field(
+    T& value,
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!reader.read(value))
+        return false;
+
+    bstone::Endian::lei(value);
+    ::DoChecksum(value, checksum);
+
+    return true;
+}
+
+template<class T,size_t N>
+static bool deserialize_field(
+    T (&value)[N],
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    for (size_t i = 0; i < N; ++i) {
+        if (!::deserialize_field<T>(value[i], reader, checksum))
+            return false;
+    }
+
+    return true;
+}
+
+template<class T,size_t M,size_t N>
+static bool deserialize_field(
+    const T (&value)[M][N],
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+            if (!::deserialize_field<T>(value[i][j], reader, checksum))
+                return false;
+        }
+    }
+
+    return true;
+}
 // BBi
 
 /*
@@ -1138,17 +1235,6 @@ Sint32 DoChecksum(
         checksum += source[i] ^ source[i + 1];
 
     return checksum;
-}
-
-template<class T>
-void DoChecksum(
-    const T& value,
-    Sint32& checksum)
-{
-    const Uint8* src = reinterpret_cast<const Uint8*>(&value);
-
-    for (size_t i = 0; i < (sizeof(T) - 1); ++i)
-        checksum += src[i] ^ src[i + 1];
 }
 
 //--------------------------------------------------------------------------
@@ -1875,26 +1961,47 @@ exit_func:;
 bool SaveLevel(
     int level_index)
 {
-    int i;
-    int j;
-    objtype* ob;
+    class AtExit {
+    public:
+        AtExit(
+            bool& result) :
+                result_(result)
+        {
+        }
+
+        ~AtExit()
+        {
+            ::NewViewSize(viewsize);
+        }
+
+    private:
+        bool& result_;
+
+        AtExit(
+            const AtExit& that) :
+                result_(that.result_)
+        {
+        }
+
+        AtExit& operator=(
+            const AtExit& that)
+        {
+            return *this;
+        }
+    }; // AtExit
+
+
+    bool result = false;
+    AtExit at_exit(result);
+
     bstone::IStream* handle = &g_playtemp;
-    Sint64 offset;
-    Sint32 cksize;
     char chunk[5] = "LVxx";
-    Uint16 gflags = gamestate.flags;
-    bool rt_value = false;
-    Uint16 count;
-    objtype* ptr;
-    objtype** actorat_ptr;
-    statobj_t* statobj_ptr;
-    char oldmapon;
 
     WindowY = 181;
 
     // Make sure floor stats are saved!
     //
-    oldmapon = static_cast<char>(gamestate.mapon);
+    Sint16 oldmapon = gamestate.mapon;
     gamestate.mapon = gamestate.lastmapon;
     ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
     gamestate.mapon = oldmapon;
@@ -1918,128 +2025,154 @@ bool SaveLevel(
     handle->skip(4);
 
     checksum = 0;
-    cksize = 0;
+    Sint64 beg_offset = handle->get_position();
 
-    WriteIt(false, tilemap, sizeof(tilemap));
+    bstone::BinaryWriter writer(handle);
+
+    if (!::serialize_field(tilemap, writer, checksum))
+        return false;
 
     //
     // actorat
     //
 
-    objtype** actorat_tmp = new objtype*[MAPSIZE * MAPSIZE];
-    actorat_ptr = actorat_tmp;
-    for (i = 0; i < MAPSIZE; ++i) {
-        for (j = 0; j < MAPSIZE; ++j) {
-            size_t value = (size_t)actorat[i][j];
+    for (int i = 0; i < MAPSIZE; ++i) {
+        for (int j = 0; j < MAPSIZE; ++j) {
+            Uint32 s_value;
 
-            if (value >= (size_t)objlist) {
-                value -= (size_t)objlist;
-                value /= sizeof(objtype);
-                value |= 0x80000000;
-            }
+            if (actorat[i][j] >= objlist) {
+                s_value = static_cast<Uint32>(actorat[i][j] - objlist);
+                s_value |= 0x80000000;
+            } else
+                s_value = reinterpret_cast<Sint32>(actorat[i][j]);
 
-            *actorat_ptr = reinterpret_cast<objtype*>(value);
-            ++actorat_ptr;
+            if (!::serialize_field(s_value, writer, checksum))
+                return false;
         }
     }
 
-    WriteIt(false, actorat_tmp, sizeof(actorat));
-    delete [] actorat_tmp;
+    if (!::serialize_field(areaconnect, writer, checksum))
+        return false;
 
-    WriteIt(false, areaconnect, sizeof(areaconnect));
-    WriteIt(false, areabyplayer, sizeof(areabyplayer));
+    if (!::serialize_field(areabyplayer, writer, checksum))
+        return false;
 
     //
-    // oblist
+    // objlist
     //
 
-    objtype* objlist_tmp = new objtype[MAXACTORS];
-    ptr = objlist_tmp;
-    count = 0;
+    Sint32 actor_count = 0;
+    const objtype* actor = NULL;
 
-    for (ob = player; ob != NULL; ob = ob->next) {
-        int state_index = get_state_index(ob->state);
+    for (actor = player; actor != NULL; actor = actor->next)
+        ++actor_count;
 
-        if (state_index < 0)
-            Quit("SaveLevel: unknown object's state.");
+    if (!::serialize_field(actor_count, writer, checksum))
+        return false;
 
-        memcpy(ptr, ob, sizeof(objtype));
+    for (actor = player; actor != NULL; actor = actor->next) {
+        if (!actor->serialize(writer, checksum))
+            return false;
 
-        ptr->state = (statetype*)state_index;
-
-        ++count;
-        ++ptr;
+        actor = actor->next;
     }
-
-    WriteIt(false, &count, sizeof(count));
-    WriteIt(false, objlist_tmp, count * sizeof(objtype));
-    delete [] objlist_tmp;
 
     //
     // laststatobj
     //
 
-    statobj_ptr = laststatobj;
+    Uint32 laststatobj_index = 0;
 
-    if (statobj_ptr != NULL) {
-        statobj_ptr = reinterpret_cast<statobj_t*>(
-            statobj_ptr - statobjlist);
+    if (laststatobj != 0) {
+        laststatobj_index = static_cast<Uint32>(laststatobj - statobjlist);
+        laststatobj_index |= 0x80000000;
     }
 
-    WriteIt(false, &statobj_ptr, sizeof(statobj_ptr));
+    if (!::serialize_field(laststatobj_index, writer, checksum))
+        return false;
 
 
     //
     // statobjlist
     //
-
-    statobj_t* statobjlist_tmp = new statobj_t[MAXSTATS];
-    memcpy(statobjlist_tmp, statobjlist, sizeof(statobjlist));
-    statobj_ptr = statobjlist_tmp;
-
-    for (i = 0; i < MAXSTATS; ++i) {
-        ptrdiff_t offset = statobj_ptr->visspot - &spotvis[0][0];
-        statobj_ptr->visspot = (Uint8*)offset;
-
-        ++statobj_ptr;
+    for (int i = 0; i < MAXSTATS; ++i) {
+        if (!statobjlist[i].serialize(writer, checksum))
+            return false;
     }
 
-    WriteIt(false, statobjlist_tmp, sizeof(statobjlist));
-    delete [] statobjlist_tmp;
+    //
 
-    WriteIt(false, doorposition, sizeof(doorposition));
-    WriteIt(false, doorobjlist, sizeof(doorobjlist));
-    WriteIt(false, &pwallstate, sizeof(pwallstate));
-    WriteIt(false, &pwallx, sizeof(pwallx));
-    WriteIt(false, &pwally, sizeof(pwally));
-    WriteIt(false, &pwalldir, sizeof(pwalldir));
-    WriteIt(false, &pwallpos, sizeof(pwallpos));
-    WriteIt(false, &pwalldist, sizeof(pwalldist));
-    WriteIt(false, TravelTable, sizeof(TravelTable));
-    WriteIt(false, &ConHintList, sizeof(ConHintList));
-    WriteIt(false, eaList, sizeof(eaWallInfo) * MAXEAWALLS);
-    WriteIt(false, &GoldsternInfo, sizeof(GoldsternInfo));
-    WriteIt(false, &GoldieList,sizeof(GoldieList));
-    WriteIt(false, gamestate.barrier_table, sizeof(gamestate.barrier_table));
-    WriteIt(false, &gamestate.plasma_detonators, sizeof(gamestate.plasma_detonators));
+    if (!::serialize_field(doorposition, writer, checksum))
+        return false;
+
+    for (int i = 0; i < MAXDOORS; ++i) {
+        if (!doorobjlist[i].serialize(writer, checksum))
+            return false;
+    }
+
+    if (!::serialize_field(pwallstate, writer, checksum))
+        return false;
+
+    if (!::serialize_field(pwallx, writer, checksum))
+        return false;
+
+    if (!::serialize_field(pwally, writer, checksum))
+        return false;
+
+    if (!::serialize_field(pwalldir, writer, checksum))
+        return false;
+
+    if (!::serialize_field(pwallpos, writer, checksum))
+        return false;
+
+    if (!::serialize_field(pwalldist, writer, checksum))
+        return false;
+
+    if (!::serialize_field(TravelTable, writer, checksum))
+        return false;
+
+    if (!ConHintList.serialize(writer, checksum))
+        return false;
+
+    for (int i = 0; i < MAXEAWALLS; ++i) {
+        if (!eaList[i].serialize(writer, checksum))
+            return false;
+    }
+
+    if (!GoldsternInfo.serialize(writer, checksum))
+        return false;
+
+    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i) {
+        if (!GoldieList[i].serialize(writer, checksum))
+            return false;
+    }
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        if (!gamestate.barrier_table[i].serialize(writer, checksum))
+            return false;
+    }
+
+    if (!::serialize_field(gamestate.plasma_detonators, writer, checksum))
+        return false;
 
     // Write checksum and determine size of file
     //
-    WriteIt(false, &checksum, sizeof(checksum));
-    offset = handle->get_position();
+    if (!::serialize_field(checksum, writer, checksum))
+        return false;
+
+    Sint64 end_offset = handle->get_position();
+    Sint32 chunk_size = static_cast<Sint32>(end_offset - beg_offset);
 
     // Write chunk size, set file size, and close file
     //
-    handle->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
-    handle->write(&cksize, 4);
-    handle->set_size(offset);
+    handle->seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
+    if (!writer.write(bstone::Endian::le(chunk_size)))
+        return false;
+    handle->set_size(end_offset);
 
-    rt_value = true;
+    result = true;
 
-    ::NewViewSize(viewsize);
-    gamestate.flags = gflags;
-
-    return rt_value;
+    return true;
 }
 
 //--------------------------------------------------------------------------
@@ -2481,7 +2614,7 @@ bool SaveTheGame(
 
     // Save current level -- saves it into PLAYTEMP.
     //
-    SaveLevel(0xff);
+    SaveLevel(0xFF);
 
     // Write VERSion chunk
     //
@@ -2506,8 +2639,18 @@ bool SaveTheGame(
     // leave four bytes for chunk size
     stream->skip(4);
 
-    WriteIt(false, &gamestate, sizeof(gamestate));
-    WriteIt(false, &gamestuff, sizeof(gamestuff));
+    Sint32 checksum = 0;
+    bstone::BinaryWriter writer(stream);
+
+    Sint64 beg_position = stream->get_position();
+
+    gamestate.serialize(writer, checksum);
+
+    gamestuff.serialize(writer, checksum);
+
+    Sint64 end_position = stream->get_position();
+
+    cksize = static_cast<Sint32>(end_position - beg_position);
 
     stream->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
     stream->write(&cksize, 4);
@@ -3597,62 +3740,9 @@ void ShowMemory(void)
 
 
 // BBi
-template<class T>
-static bool serialize_field(
-    const T& value,
-    bstone::BinaryWriter& writer,
-    Sint32& checksum)
-{
-    ::DoChecksum(value, checksum);
-    return writer.write(bstone::Endian::le(value));
-}
-
-template<class T>
-static bool deserialize_field(
-    T& value,
-    bstone::BinaryReader& reader,
-    Sint32& checksum)
-{
-    if (!reader.read(value))
-        return false;
-
-    bstone::Endian::lei(value);
-    ::DoChecksum(value, checksum);
-
-    return true;
-}
-
-template<class T,size_t N>
-static bool serialize_field(
-    const T (&value)[N],
-    bstone::BinaryWriter& writer,
-    Sint32& checksum)
-{
-    for (size_t i = 0; i < N; ++i) {
-        if (!::serialize_field<T>(value[i], writer, checksum))
-            return false;
-    }
-
-    return true;
-}
-
-template<class T,size_t N>
-static bool deserialize_field(
-    T (&value)[N],
-    bstone::BinaryReader& reader,
-    Sint32& checksum)
-{
-    for (size_t i = 0; i < N; ++i) {
-        if (!::deserialize_field<T>(value[i], reader, checksum))
-            return false;
-    }
-
-    return true;
-}
-
 bool objtype::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -3846,7 +3936,7 @@ bool objtype::deserialize(
 
 bool statobj_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -3912,7 +4002,7 @@ bool statobj_t::deserialize(
 
 bool doorobj_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     bool is_succeed = true;
 
@@ -3986,7 +4076,7 @@ bool doorobj_t::deserialize(
 
 bool mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!::serialize_field(local_val, writer, checksum))
         return false;
@@ -4014,7 +4104,7 @@ bool mCacheInfo::deserialize(
 
 bool con_mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!mInfo.serialize(writer, checksum))
         return false;
@@ -4046,7 +4136,7 @@ bool con_mCacheInfo::deserialize(
 
 bool concession_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!::serialize_field(NumMsgs, writer, checksum))
         return false;
@@ -4076,7 +4166,7 @@ bool concession_t::deserialize(
 
 bool eaWallInfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -4114,7 +4204,7 @@ bool eaWallInfo::deserialize(
 
 bool GoldsternInfo_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Sint32& checksum) const
 {
     if (!::serialize_field(LastIndex, writer, checksum))
         return false;
@@ -4151,6 +4241,541 @@ bool GoldsternInfo_t::deserialize(
         return false;
 
     if (!::deserialize_field(GoldSpawned, reader, checksum))
+        return false;
+
+    return true;
+}
+
+bool tilecoord_t::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum) const
+{
+    if (!::serialize_field(tilex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(tiley, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool tilecoord_t::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(tilex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(tiley, reader, checksum))
+        return false;
+
+    return true;
+}
+
+bool barrier_type::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum) const
+{
+    if (!coord.serialize(writer, checksum))
+        return false;
+
+    if (!::serialize_field(on, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool barrier_type::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!coord.deserialize(reader, checksum))
+        return false;
+
+    if (!::deserialize_field(on, reader, checksum))
+        return false;
+
+    return true;
+}
+
+bool statsInfoType::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum) const
+{
+    if (!::serialize_field(total_points, writer, checksum))
+        return false;
+
+    if (!::serialize_field(accum_points, writer, checksum))
+        return false;
+
+    if (!::serialize_field(total_enemy, writer, checksum))
+        return false;
+
+    if (!::serialize_field(accum_enemy, writer, checksum))
+        return false;
+
+    if (!::serialize_field(total_inf, writer, checksum))
+        return false;
+
+    if (!::serialize_field(accum_inf, writer, checksum))
+        return false;
+
+    if (!::serialize_field(overall_floor, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool statsInfoType::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(total_points, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(accum_points, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(total_enemy, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(accum_enemy, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(total_inf, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(accum_inf, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(overall_floor, reader, checksum))
+        return false;
+
+    return true;
+}
+
+bool levelinfo::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum) const
+{
+    if (!::serialize_field(bonus_queue, writer, checksum))
+        return false;
+
+    if (!::serialize_field(bonus_shown, writer, checksum))
+        return false;
+
+    if (!::serialize_field(locked, writer, checksum))
+        return false;
+
+    if (!stats.serialize(writer, checksum))
+        return false;
+
+    if (!::serialize_field(ptilex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(ptiley, writer, checksum))
+        return false;
+
+    if (!::serialize_field(pangle, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool levelinfo::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(bonus_queue, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(bonus_shown, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(locked, reader, checksum))
+        return false;
+
+    if (!stats.deserialize(reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ptilex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ptiley, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(pangle, reader, checksum))
+        return false;
+
+    return true;
+}
+
+bool fargametype::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum) const
+{
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
+        if (!old_levelinfo[i].serialize(writer, checksum))
+            return false;
+    }
+
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+    {
+        if (!level[i].serialize(writer, checksum))
+            return false;
+    }
+
+    return true;
+}
+
+bool fargametype::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
+        if (!old_levelinfo[i].deserialize(reader, checksum))
+            return false;
+    }
+
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+    {
+        if (!level[i].deserialize(reader, checksum))
+            return false;
+    }
+
+    return true;
+}
+
+bool gametype::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum) const
+{
+    if (!::serialize_field(turn_around, writer, checksum))
+        return false;
+
+    if (!::serialize_field(turn_angle, writer, checksum))
+        return false;
+
+    if (!::serialize_field(flags, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lastmapon, writer, checksum))
+        return false;
+
+    if (!::serialize_field(difficulty, writer, checksum))
+        return false;
+
+    if (!::serialize_field(mapon, writer, checksum))
+        return false;
+
+    if (!::serialize_field(status_refresh, writer, checksum))
+        return false;
+
+    if (!::serialize_field(oldscore, writer, checksum))
+        return false;
+
+    if (!::serialize_field(tic_score, writer, checksum))
+        return false;
+
+    if (!::serialize_field(score, writer, checksum))
+        return false;
+
+    if (!::serialize_field(nextextra, writer, checksum))
+        return false;
+
+    if (!::serialize_field(score_roll_wait, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lives, writer, checksum))
+        return false;
+
+    if (!::serialize_field(health, writer, checksum))
+        return false;
+
+    if (!::serialize_field(health_delay, writer, checksum))
+        return false;
+
+    if (!::serialize_field(health_str, writer, checksum))
+        return false;
+
+    if (!::serialize_field(rpower, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_rpower, writer, checksum))
+        return false;
+
+    if (!::serialize_field(rzoom, writer, checksum))
+        return false;
+
+    if (!::serialize_field(radar_leds, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lastradar_leds, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lastammo_leds, writer, checksum))
+        return false;
+
+    if (!::serialize_field(ammo_leds, writer, checksum))
+        return false;
+
+    if (!::serialize_field(ammo, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_ammo, writer, checksum))
+        return false;
+
+    if (!::serialize_field(plasma_detonators, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_plasma_detonators, writer, checksum))
+        return false;
+
+    if (!::serialize_field(useable_weapons, writer, checksum))
+        return false;
+
+    if (!::serialize_field(weapons, writer, checksum))
+        return false;
+
+    if (!::serialize_field(weapon, writer, checksum))
+        return false;
+
+    if (!::serialize_field(chosenweapon, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_weapons, writer, checksum))
+        return false;
+
+    if (!::serialize_field(key_floor, writer, checksum))
+        return false;
+
+    if (!::serialize_field(weapon_wait, writer, checksum))
+        return false;
+
+    if (!::serialize_field(attackframe, writer, checksum))
+        return false;
+
+    if (!::serialize_field(attackcount, writer, checksum))
+        return false;
+
+    if (!::serialize_field(weaponframe, writer, checksum))
+        return false;
+
+    if (!::serialize_field(episode, writer, checksum))
+        return false;
+
+    Uint32 time_count = TimeCount;
+    if (!::serialize_field(time_count, writer, checksum))
+        return false;
+
+    if (!::serialize_field(killx, writer, checksum))
+        return false;
+
+    if (!::serialize_field(killy, writer, checksum))
+        return false;
+
+    // Skip "msg"
+
+    if (!::serialize_field(numkeys, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_numkeys, writer, checksum))
+        return false;
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        if (!barrier_table[i].serialize(writer, checksum))
+            return false;
+    }
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        if (!old_barrier_table[i].serialize(writer, checksum))
+            return false;
+    }
+
+    if (!::serialize_field(tokens, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_tokens, writer, checksum))
+        return false;
+
+    if (!::serialize_field(boss_key_dropped, writer, checksum))
+        return false;
+
+    if (!::serialize_field(old_boss_key_dropped, writer, checksum))
+        return false;
+
+    if (!::serialize_field(wintilex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(wintiley, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool gametype::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(turn_around, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(turn_angle, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(flags, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lastmapon, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(difficulty, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(mapon, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(status_refresh, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(oldscore, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(tic_score, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(score, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(nextextra, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(score_roll_wait, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lives, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(health, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(health_delay, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(health_str, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(rpower, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_rpower, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(rzoom, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(radar_leds, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lastradar_leds, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lastammo_leds, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ammo_leds, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ammo, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_ammo, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(plasma_detonators, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_plasma_detonators, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(useable_weapons, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(weapons, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(weapon, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(chosenweapon, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_weapons, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(key_floor, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(weapon_wait, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(attackframe, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(attackcount, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(weaponframe, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(episode, reader, checksum))
+        return false;
+
+    Uint32 time_count = 0;
+    if (!::deserialize_field(time_count, reader, checksum))
+        return false;
+    TimeCount = time_count;
+
+    if (!::deserialize_field(killx, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(killy, reader, checksum))
+        return false;
+
+    msg = NULL;
+
+    if (!::deserialize_field(numkeys, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_numkeys, reader, checksum))
+        return false;
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        if (!barrier_table[i].deserialize(reader, checksum))
+            return false;
+    }
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        if (!old_barrier_table[i].deserialize(reader, checksum))
+            return false;
+    }
+
+    if (!::deserialize_field(tokens, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_tokens, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(boss_key_dropped, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(old_boss_key_dropped, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(wintilex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(wintiley, reader, checksum))
         return false;
 
     return true;
