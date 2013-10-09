@@ -2039,14 +2039,23 @@ enum DoorAction {
 }; // enum DoorAction
 
 struct doorobj_t {
-	Uint8    		tilex,tiley;
-	boolean 		vertical;
-	char	 		flags;
-	keytype    	lock;
-	door_t  		type;
-	DoorAction action;
-	Sint16         ticcount;
-	Uint8    		areanumber[2];
+    Uint8 tilex;
+    Uint8 tiley;
+    boolean vertical;
+    char flags;
+    keytype lock;
+    door_t type;
+    DoorAction action;
+    Sint16 ticcount;
+    Uint8 areanumber[2];
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct doorobj_t
 
 

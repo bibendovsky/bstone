@@ -3622,6 +3622,34 @@ static bool deserialize_field(
     return true;
 }
 
+template<class T,size_t N>
+static bool serialize_field(
+    const T value[N],
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    for (size_t i = 0; i < N; ++i) {
+        if (!::serialize_field(value[i]))
+            return false;
+    }
+
+    return true;
+}
+
+template<class T,size_t N>
+static bool deserialize_field(
+    T value[N],
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    for (size_t i = 0; i < N; ++i) {
+        if (!::deserialize_field(value[i]))
+            return false;
+    }
+
+    return true;
+}
+
 bool objtype::serialize(
     bstone::BinaryWriter& writer,
     Sint32& checksum)
@@ -3750,6 +3778,44 @@ bool statobj_t::deserialize(
     is_succeed &= ::deserialize_field(flags, reader, checksum);
     is_succeed &= ::deserialize_field(itemnumber, reader, checksum);
     is_succeed &= ::deserialize_field(lighting, reader, checksum);
+
+    return is_succeed;
+}
+
+bool doorobj_t::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    bool is_succeed = true;
+
+    is_succeed &= ::serialize_field(tilex, writer, checksum);
+    is_succeed &= ::serialize_field(tiley, writer, checksum);
+    is_succeed &= ::serialize_field(vertical, writer, checksum);
+    is_succeed &= ::serialize_field(flags, writer, checksum);
+    is_succeed &= ::serialize_field(lock, writer, checksum);
+    is_succeed &= ::serialize_field(type, writer, checksum);
+    is_succeed &= ::serialize_field(action, writer, checksum);
+    is_succeed &= ::serialize_field(ticcount, writer, checksum);
+    is_succeed &= ::serialize_field(areanumber, writer, checksum);
+
+    return is_succeed;
+}
+
+bool doorobj_t::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    bool is_succeed = true;
+
+    is_succeed &= ::deserialize_field(tilex, reader, checksum);
+    is_succeed &= ::deserialize_field(tiley, reader, checksum);
+    is_succeed &= ::deserialize_field(vertical, reader, checksum);
+    is_succeed &= ::deserialize_field(flags, reader, checksum);
+    is_succeed &= ::deserialize_field(lock, reader, checksum);
+    is_succeed &= ::deserialize_field(type, reader, checksum);
+    is_succeed &= ::deserialize_field(action, reader, checksum);
+    is_succeed &= ::deserialize_field(ticcount, reader, checksum);
+    is_succeed &= ::deserialize_field(areanumber, reader, checksum);
 
     return is_succeed;
 }
