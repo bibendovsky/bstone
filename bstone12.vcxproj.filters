@@ -365,5 +365,8 @@
     <ClInclude Include="bstone_c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bstone_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

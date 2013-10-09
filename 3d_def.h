@@ -2047,54 +2047,67 @@ struct doorobj_t {
 //
 //--------------------
 
-struct objtype
-{
-	Uint8 tilex,tiley;
-	Uint8 areanumber;
+struct objtype {
+    Uint8 tilex;
+    Uint8 tiley;
+    Uint8 areanumber;
 
-	activetype active;
-	Sint16 ticcount;
-	classtype obclass;
-	statetype *state;
+    activetype active;
+    Sint16 ticcount;
+    classtype obclass;
+    statetype* state;
 
-	Uint32 flags;
-   Uint16 flags2;				// Aux flags
+    Uint32 flags;
+    Uint16 flags2; // Aux flags
 
-	Sint32 distance;				// if negative, wait for that door to open
-	dirtype dir;
-	dirtype trydir;			// "bit 7" == "direction to turn" flag
+    Sint32 distance; // if negative, wait for that door to open
+    dirtype dir;
+    dirtype trydir; // "bit 7" == "direction to turn" flag
 
-	fixed x,y;
-	Uint8 s_tilex,s_tiley;		// s_tilex==0, running for corner
+    fixed x;
+    fixed y;
+    Uint8 s_tilex;
+    Uint8 s_tiley; // s_tilex==0, running for corner
 
-	Sint16 viewx;
-	Uint16 viewheight;
-	fixed transx,transy;    // in global coord
-
-    // FIXME
-    // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object.
-	Sint16 hitpoints;
-
-	Uint8 ammo;
-   char lighting;
-	Uint16 linc;
-	Sint16 angle;
-	Sint32 speed;
-
-	Sint16 temp1;
+    Sint16 viewx;
+    Uint16 viewheight;
+    fixed transx;
+    fixed transy; // in global coord
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
     // Since our code is at least 32-bit we are using an index of object.
-	Sint16 temp2;
+    Sint16 hitpoints;
+
+    Uint8 ammo;
+    char lighting;
+    Uint16 linc;
+    Sint16 angle;
+    Sint32 speed;
+
+    Sint16 temp1;
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
     // Since our code is at least 32-bit we are using an index of object.
-	Uint16 temp3;		// holds 'last door used' by 'smart' actors
+    Sint16 temp2;
 
-	objtype *next,*prev;
+    // FIXME
+    // In original code it also used to store a 16-bit pointer to object.
+    // Since our code is at least 32-bit we are using an index of object.
+    Uint16 temp3; // holds 'last door used' by 'smart' actors
+
+    objtype* next;
+    objtype* prev;
+
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct objtype
 
 

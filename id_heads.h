@@ -17,7 +17,10 @@
 
 #include "SDL.h"
 
+#include "bstone_binary_reader.h"
+#include "bstone_binary_writer.h"
 #include "bstone_c.h"
+#include "bstone_endian.h"
 #include "bstone_file_stream.h"
 #include "bstone_memory_stream.h"
 

@@ -225,6 +225,7 @@
     <ClInclude Include="bstone_binary_reader.h" />
     <ClInclude Include="bstone_binary_writer.h" />
     <ClInclude Include="bstone_c.h" />
+    <ClInclude Include="bstone_endian.h" />
     <ClInclude Include="bstone_file_stream.h" />
     <ClInclude Include="bstone_istream.h" />
     <ClInclude Include="bstone_memory_binary_reader.h" />
