@@ -3624,12 +3624,12 @@ static bool deserialize_field(
 
 template<class T,size_t N>
 static bool serialize_field(
-    const T value[N],
+    const T (&value)[N],
     bstone::BinaryWriter& writer,
     Sint32& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
-        if (!::serialize_field(value[i]))
+        if (!::serialize_field<T>(value[i], writer, checksum))
             return false;
     }
 
@@ -3638,12 +3638,12 @@ static bool serialize_field(
 
 template<class T,size_t N>
 static bool deserialize_field(
-    T value[N],
+    T (&value)[N],
     bstone::BinaryReader& reader,
     Sint32& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
-        if (!::deserialize_field(value[i]))
+        if (!::deserialize_field<T>(value[i], reader, checksum))
             return false;
     }
 
@@ -3654,132 +3654,260 @@ bool objtype::serialize(
     bstone::BinaryWriter& writer,
     Sint32& checksum)
 {
-    bool is_succeed = true;
+    if (!::serialize_field(tilex, writer, checksum))
+        return false;
 
-    is_succeed &= ::serialize_field(tilex, writer, checksum);
-    is_succeed &= ::serialize_field(tiley, writer, checksum);
-    is_succeed &= ::serialize_field(areanumber, writer, checksum);
-    is_succeed &= ::serialize_field(active, writer, checksum);
-    is_succeed &= ::serialize_field(ticcount, writer, checksum);
-    is_succeed &= ::serialize_field(obclass, writer, checksum);
+    if (!::serialize_field(tiley, writer, checksum))
+        return false;
+
+    if (!::serialize_field(areanumber, writer, checksum))
+        return false;
+
+    if (!::serialize_field(active, writer, checksum))
+        return false;
+
+    if (!::serialize_field(ticcount, writer, checksum))
+        return false;
+
+    if (!::serialize_field(obclass, writer, checksum))
+        return false;
 
     Sint32 state_index = static_cast<Sint32>(::get_state_index(state));
-    is_succeed &= ::serialize_field(state_index, writer, checksum);
+    if (!::serialize_field(state_index, writer, checksum))
+        return false;
 
-    is_succeed &= ::serialize_field(flags, writer, checksum);
-    is_succeed &= ::serialize_field(flags2, writer, checksum);
-    is_succeed &= ::serialize_field(distance, writer, checksum);
-    is_succeed &= ::serialize_field(dir, writer, checksum);
-    is_succeed &= ::serialize_field(trydir, writer, checksum);
-    is_succeed &= ::serialize_field(x, writer, checksum);
-    is_succeed &= ::serialize_field(y, writer, checksum);
-    is_succeed &= ::serialize_field(s_tilex, writer, checksum);
-    is_succeed &= ::serialize_field(s_tiley, writer, checksum);
-    is_succeed &= ::serialize_field(viewx, writer, checksum);
-    is_succeed &= ::serialize_field(viewheight, writer, checksum);
-    is_succeed &= ::serialize_field(transx, writer, checksum);
-    is_succeed &= ::serialize_field(transy, writer, checksum);
-    is_succeed &= ::serialize_field(hitpoints, writer, checksum);
-    is_succeed &= ::serialize_field(ammo, writer, checksum);
-    is_succeed &= ::serialize_field(lighting, writer, checksum);
-    is_succeed &= ::serialize_field(linc, writer, checksum);
-    is_succeed &= ::serialize_field(angle, writer, checksum);
-    is_succeed &= ::serialize_field(speed, writer, checksum);
-    is_succeed &= ::serialize_field(temp1, writer, checksum);
-    is_succeed &= ::serialize_field(temp2, writer, checksum);
-    is_succeed &= ::serialize_field(temp3, writer, checksum);
+    if (!::serialize_field(flags, writer, checksum))
+        return false;
 
-    return is_succeed;
+    if (!::serialize_field(flags2, writer, checksum))
+        return false;
+
+    if (!::serialize_field(distance, writer, checksum))
+        return false;
+
+    if (!::serialize_field(dir, writer, checksum))
+        return false;
+
+    if (!::serialize_field(trydir, writer, checksum))
+        return false;
+
+    if (!::serialize_field(x, writer, checksum))
+        return false;
+
+    if (!::serialize_field(y, writer, checksum))
+        return false;
+
+    if (!::serialize_field(s_tilex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(s_tiley, writer, checksum))
+        return false;
+
+    if (!::serialize_field(viewx, writer, checksum))
+        return false;
+
+    if (!::serialize_field(viewheight, writer, checksum))
+        return false;
+
+    if (!::serialize_field(transx, writer, checksum))
+        return false;
+
+    if (!::serialize_field(transy, writer, checksum))
+        return false;
+
+    if (!::serialize_field(hitpoints, writer, checksum))
+        return false;
+
+    if (!::serialize_field(ammo, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lighting, writer, checksum))
+        return false;
+
+    if (!::serialize_field(linc, writer, checksum))
+        return false;
+
+    if (!::serialize_field(angle, writer, checksum))
+        return false;
+
+    if (!::serialize_field(speed, writer, checksum))
+        return false;
+
+    if (!::serialize_field(temp1, writer, checksum))
+        return false;
+
+    if (!::serialize_field(temp2, writer, checksum))
+        return false;
+
+    if (!::serialize_field(temp3, writer, checksum))
+        return false;
+
+    return true;
 }
 
 bool objtype::deserialize(
     bstone::BinaryReader& reader,
     Sint32& checksum)
 {
-    bool is_succeed = true;
+    if (!::deserialize_field(tilex, reader, checksum))
+        return false;
 
-    is_succeed &= ::deserialize_field(tilex, reader, checksum);
-    is_succeed &= ::deserialize_field(tiley, reader, checksum);
-    is_succeed &= ::deserialize_field(areanumber, reader, checksum);
-    is_succeed &= ::deserialize_field(active, reader, checksum);
-    is_succeed &= ::deserialize_field(ticcount, reader, checksum);
-    is_succeed &= ::deserialize_field(obclass, reader, checksum);
+    if (!::deserialize_field(tiley, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(areanumber, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(active, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ticcount, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(obclass, reader, checksum))
+        return false;
+
 
     Sint32 state_index = 0;
-    is_succeed &= ::deserialize_field(state_index, reader, checksum);
+    if (!::deserialize_field(state_index, reader, checksum))
+        return false;
 
-    if (is_succeed)
-        state = states_list[state_index];
+    state = states_list[state_index];
 
-    is_succeed &= ::deserialize_field(flags, reader, checksum);
-    is_succeed &= ::deserialize_field(flags2, reader, checksum);
-    is_succeed &= ::deserialize_field(distance, reader, checksum);
-    is_succeed &= ::deserialize_field(dir, reader, checksum);
-    is_succeed &= ::deserialize_field(trydir, reader, checksum);
-    is_succeed &= ::deserialize_field(x, reader, checksum);
-    is_succeed &= ::deserialize_field(y, reader, checksum);
-    is_succeed &= ::deserialize_field(s_tilex, reader, checksum);
-    is_succeed &= ::deserialize_field(s_tiley, reader, checksum);
-    is_succeed &= ::deserialize_field(viewx, reader, checksum);
-    is_succeed &= ::deserialize_field(viewheight, reader, checksum);
-    is_succeed &= ::deserialize_field(transx, reader, checksum);
-    is_succeed &= ::deserialize_field(transy, reader, checksum);
-    is_succeed &= ::deserialize_field(hitpoints, reader, checksum);
-    is_succeed &= ::deserialize_field(ammo, reader, checksum);
-    is_succeed &= ::deserialize_field(lighting, reader, checksum);
-    is_succeed &= ::deserialize_field(linc, reader, checksum);
-    is_succeed &= ::deserialize_field(angle, reader, checksum);
-    is_succeed &= ::deserialize_field(speed, reader, checksum);
-    is_succeed &= ::deserialize_field(temp1, reader, checksum);
-    is_succeed &= ::deserialize_field(temp2, reader, checksum);
-    is_succeed &= ::deserialize_field(temp3, reader, checksum);
+    if (!::deserialize_field(flags, reader, checksum))
+        return false;
 
-    return is_succeed;
+    if (!::deserialize_field(flags2, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(distance, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(dir, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(trydir, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(x, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(y, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(s_tilex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(s_tiley, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(viewx, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(viewheight, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(transx, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(transy, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(hitpoints, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ammo, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lighting, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(linc, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(angle, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(speed, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(temp1, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(temp2, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(temp3, reader, checksum))
+        return false;
+
+
+    return true;
 }
 
 bool statobj_t::serialize(
     bstone::BinaryWriter& writer,
     Sint32& checksum)
 {
-    bool is_succeed = true;
+    if (!::serialize_field(tilex, writer, checksum))
+        return false;
 
-    is_succeed &= ::serialize_field(tilex, writer, checksum);
-    is_succeed &= ::serialize_field(tiley, writer, checksum);
-    is_succeed &= ::serialize_field(areanumber, writer, checksum);
+    if (!::serialize_field(tiley, writer, checksum))
+        return false;
+
+    if (!::serialize_field(areanumber, writer, checksum))
+        return false;
 
     Sint32 vis_index = static_cast<Sint32>(visspot - &spotvis[0][0]);
-    is_succeed &= ::serialize_field(vis_index, writer, checksum);
+    if (!::serialize_field(vis_index, writer, checksum))
+        return false;
 
-    is_succeed &= ::serialize_field(shapenum, writer, checksum);
-    is_succeed &= ::serialize_field(flags, writer, checksum);
-    is_succeed &= ::serialize_field(itemnumber, writer, checksum);
-    is_succeed &= ::serialize_field(lighting, writer, checksum);
+    if (!::serialize_field(shapenum, writer, checksum))
+        return false;
 
-    return is_succeed;
+    if (!::serialize_field(flags, writer, checksum))
+        return false;
+
+    if (!::serialize_field(itemnumber, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lighting, writer, checksum))
+        return false;
+
+    return true;
 }
 
 bool statobj_t::deserialize(
     bstone::BinaryReader& reader,
     Sint32& checksum)
 {
-    bool is_succeed = true;
+    if (!::deserialize_field(tilex, reader, checksum))
+        return false;
 
-    is_succeed &= ::deserialize_field(tilex, reader, checksum);
-    is_succeed &= ::deserialize_field(tiley, reader, checksum);
-    is_succeed &= ::deserialize_field(areanumber, reader, checksum);
+    if (!::deserialize_field(tiley, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(areanumber, reader, checksum))
+        return false;
 
     Sint32 vis_index = 0;
-    is_succeed &= ::deserialize_field(vis_index, reader, checksum);
+    if (!::deserialize_field(vis_index, reader, checksum))
+        return false;
 
-    if (is_succeed)
-        visspot = &(&spotvis[0][0])[vis_index];
+    visspot = &(&spotvis[0][0])[vis_index];
 
-    is_succeed &= ::deserialize_field(shapenum, reader, checksum);
-    is_succeed &= ::deserialize_field(flags, reader, checksum);
-    is_succeed &= ::deserialize_field(itemnumber, reader, checksum);
-    is_succeed &= ::deserialize_field(lighting, reader, checksum);
+    if (!::deserialize_field(shapenum, reader, checksum))
+        return false;
 
-    return is_succeed;
+    if (!::deserialize_field(flags, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(itemnumber, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lighting, reader, checksum))
+        return false;
+
+    return true;
 }
 
 bool doorobj_t::serialize(
@@ -3788,15 +3916,33 @@ bool doorobj_t::serialize(
 {
     bool is_succeed = true;
 
-    is_succeed &= ::serialize_field(tilex, writer, checksum);
-    is_succeed &= ::serialize_field(tiley, writer, checksum);
-    is_succeed &= ::serialize_field(vertical, writer, checksum);
-    is_succeed &= ::serialize_field(flags, writer, checksum);
-    is_succeed &= ::serialize_field(lock, writer, checksum);
-    is_succeed &= ::serialize_field(type, writer, checksum);
-    is_succeed &= ::serialize_field(action, writer, checksum);
-    is_succeed &= ::serialize_field(ticcount, writer, checksum);
-    is_succeed &= ::serialize_field(areanumber, writer, checksum);
+    if (!::serialize_field(tilex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(tiley, writer, checksum))
+        return false;
+
+    if (!::serialize_field(vertical, writer, checksum))
+        return false;
+
+    if (!::serialize_field(flags, writer, checksum))
+        return false;
+
+    if (!::serialize_field(lock, writer, checksum))
+        return false;
+
+    if (!::serialize_field(type, writer, checksum))
+        return false;
+
+    if (!::serialize_field(action, writer, checksum))
+        return false;
+
+    if (!::serialize_field(ticcount, writer, checksum))
+        return false;
+
+    if (!::serialize_field(areanumber, writer, checksum))
+        return false;
+
 
     return is_succeed;
 }
@@ -3807,16 +3953,124 @@ bool doorobj_t::deserialize(
 {
     bool is_succeed = true;
 
-    is_succeed &= ::deserialize_field(tilex, reader, checksum);
-    is_succeed &= ::deserialize_field(tiley, reader, checksum);
-    is_succeed &= ::deserialize_field(vertical, reader, checksum);
-    is_succeed &= ::deserialize_field(flags, reader, checksum);
-    is_succeed &= ::deserialize_field(lock, reader, checksum);
-    is_succeed &= ::deserialize_field(type, reader, checksum);
-    is_succeed &= ::deserialize_field(action, reader, checksum);
-    is_succeed &= ::deserialize_field(ticcount, reader, checksum);
-    is_succeed &= ::deserialize_field(areanumber, reader, checksum);
+    if (!::deserialize_field(tilex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(tiley, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(vertical, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(flags, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(lock, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(type, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(action, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(ticcount, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(areanumber, reader, checksum))
+        return false;
+
 
     return is_succeed;
+}
+
+bool mCacheInfo::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    if (!::serialize_field(local_val, writer, checksum))
+        return false;
+
+    if (!::serialize_field(global_val, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool mCacheInfo::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(local_val, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(global_val, reader, checksum))
+        return false;
+
+    mSeg = NULL;
+
+    return true;
+}
+
+bool con_mCacheInfo::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    if (!mInfo.serialize(writer, checksum))
+        return false;
+
+    if (!::serialize_field(type, writer, checksum))
+        return false;
+
+    if (!::serialize_field(operate_cnt, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool con_mCacheInfo::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!mInfo.deserialize(reader, checksum))
+        return false;
+
+    if (!::deserialize_field(type, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(operate_cnt, reader, checksum))
+        return false;
+
+    return true;
+}
+
+bool concession_t::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    if (!::serialize_field(NumMsgs, writer, checksum))
+        return false;
+
+    for (int i = 0; i < NumMsgs; ++i) {
+        if (!cmInfo[i].serialize(writer, checksum))
+            return false;
+    }
+
+    return true;
+}
+
+bool concession_t::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(NumMsgs, reader, checksum))
+        return false;
+
+    for (int i = 0; i < NumMsgs; ++i) {
+        if (!cmInfo[i].deserialize(reader, checksum))
+            return false;
+    }
+
+    return true;
 }
 // BBi

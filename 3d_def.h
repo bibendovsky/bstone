@@ -2424,9 +2424,17 @@ enum inst_type {
 // Basic 'message info' structure
 //
 struct mCacheInfo {
-	Uint8 local_val;	// where msg is in 'local' list
-	Uint8 global_val;	// where msg was in 'global' list
-	char* mSeg;					// pointer to message
+    Uint8 local_val; // where msg is in 'local' list
+    Uint8 global_val; // where msg was in 'global' list
+    char* mSeg; // pointer to message
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct mCacheInfo
 
 // Basic 'message list' structure
@@ -2441,16 +2449,32 @@ struct mCacheList {
 // Concession 'message info' structure
 //
 struct con_mCacheInfo {
-	mCacheInfo mInfo;
-	Uint8 type;								// type of concession
-	Uint8 operate_cnt;       			// # of times req'd to operate
+    mCacheInfo mInfo;
+    Uint8 type; // type of concession
+    Uint8 operate_cnt; // # of times req'd to operate
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct con_mCacheInfo
 
 // Concession 'message list' structure
 //
 struct concession_t {
-	Sint16 NumMsgs;										// also, num concessions
-	con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
+    Sint16 NumMsgs; // also, num concessions
+    con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct concession_t
 
 //------------------------ INFORMANT STRUCTURES --------------------------
