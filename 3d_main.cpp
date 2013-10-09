@@ -4111,4 +4111,48 @@ bool eaWallInfo::deserialize(
 
     return true;
 }
+
+bool GoldsternInfo_t::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    if (!::serialize_field(LastIndex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(SpawnCnt, writer, checksum))
+        return false;
+
+    if (!::serialize_field(flags, writer, checksum))
+        return false;
+
+    if (!::serialize_field(WaitTime, writer, checksum))
+        return false;
+
+    if (!::serialize_field(GoldSpawned, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool GoldsternInfo_t::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(LastIndex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(SpawnCnt, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(flags, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(WaitTime, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(GoldSpawned, reader, checksum))
+        return false;
+
+    return true;
+}
 // BBi

@@ -2521,11 +2521,19 @@ struct eaWallInfo {
 //
 
 struct GoldsternInfo_t {
-	Uint8 LastIndex;						// Last Spawn Coord Index
-	Uint8 SpawnCnt;               		// Num of Spawnpoints for Goldstern
-	Uint16	flags;									// What type of command/operation is needed...
-	Uint16 WaitTime;								// Wait time for Goldstern Spawn (current & Next)
-	boolean     GoldSpawned;						// Has Goldstern been spawned?
+    Uint8 LastIndex; // Last Spawn Coord Index
+    Uint8 SpawnCnt; // Num of Spawnpoints for Goldstern
+    Uint16	flags; // What type of command/operation is needed...
+    Uint16 WaitTime; // Wait time for Goldstern Spawn (current & Next)
+    boolean GoldSpawned; // Has Goldstern been spawned?
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct GoldsternInfo_t
 
 
