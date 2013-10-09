@@ -694,7 +694,7 @@ Uint16	doorposition[MAXDOORS];		// leading edge of door 0=closed
 
 Uint8		areaconnect[NUMAREAS][NUMAREAS];
 
-boolean		areabyplayer[NUMAREAS];
+bool areabyplayer[NUMAREAS];
 
 
 /*
