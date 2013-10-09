@@ -2499,9 +2499,18 @@ struct scientist_t {
 // Electro-Alien controller structer
 //
 struct eaWallInfo {
-	char tilex,tiley;					// where this controller is in the map.
-	char aliens_out;					// aliens spawned by this controller.
-	Sint16 delay;						// delay before spawning another alien.
+    char tilex;
+    char tiley; // where this controller is in the map.
+    char aliens_out; // aliens spawned by this controller.
+    Sint16 delay; // delay before spawning another alien.
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct eaWallInfo
 
 

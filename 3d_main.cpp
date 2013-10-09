@@ -4073,4 +4073,42 @@ bool concession_t::deserialize(
 
     return true;
 }
+
+bool eaWallInfo::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    if (!::serialize_field(tilex, writer, checksum))
+        return false;
+
+    if (!::serialize_field(tiley, writer, checksum))
+        return false;
+
+    if (!::serialize_field(aliens_out, writer, checksum))
+        return false;
+
+    if (!::serialize_field(delay, writer, checksum))
+        return false;
+
+    return true;
+}
+
+bool eaWallInfo::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    if (!::deserialize_field(tilex, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(tiley, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(aliens_out, reader, checksum))
+        return false;
+
+    if (!::deserialize_field(delay, reader, checksum))
+        return false;
+
+    return true;
+}
 // BBi
