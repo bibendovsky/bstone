@@ -738,12 +738,10 @@ statetype* states_list[] = {
 
 static int get_state_index(statetype* state)
 {
-    int i;
-
     if (state == NULL)
         return 0;
 
-    for (i = 1; states_list[i] != NULL; ++i) {
+    for (int i = 1; states_list[i] != NULL; ++i) {
         if (states_list[i] == state)
             return i;
     }
@@ -3637,7 +3635,7 @@ bool objtype::serialize(
     is_succeed &= ::serialize_field(ticcount, writer, checksum);
     is_succeed &= ::serialize_field(obclass, writer, checksum);
 
-    int state_index = ::get_state_index(state);
+    Sint32 state_index = static_cast<Sint32>(::get_state_index(state));
     is_succeed &= ::serialize_field(state_index, writer, checksum);
 
     is_succeed &= ::serialize_field(flags, writer, checksum);
@@ -3679,8 +3677,11 @@ bool objtype::deserialize(
     is_succeed &= ::deserialize_field(ticcount, reader, checksum);
     is_succeed &= ::deserialize_field(obclass, reader, checksum);
 
-    int state_index = ::get_state_index(state);
+    Sint32 state_index = 0;
     is_succeed &= ::deserialize_field(state_index, reader, checksum);
+
+    if (is_succeed)
+        state = states_list[state_index];
 
     is_succeed &= ::deserialize_field(flags, reader, checksum);
     is_succeed &= ::deserialize_field(flags2, reader, checksum);
@@ -3704,6 +3705,51 @@ bool objtype::deserialize(
     is_succeed &= ::deserialize_field(temp1, reader, checksum);
     is_succeed &= ::deserialize_field(temp2, reader, checksum);
     is_succeed &= ::deserialize_field(temp3, reader, checksum);
+
+    return is_succeed;
+}
+
+bool statobj_t::serialize(
+    bstone::BinaryWriter& writer,
+    Sint32& checksum)
+{
+    bool is_succeed = true;
+
+    is_succeed &= ::serialize_field(tilex, writer, checksum);
+    is_succeed &= ::serialize_field(tiley, writer, checksum);
+    is_succeed &= ::serialize_field(areanumber, writer, checksum);
+
+    Sint32 vis_index = static_cast<Sint32>(visspot - &spotvis[0][0]);
+    is_succeed &= ::serialize_field(vis_index, writer, checksum);
+
+    is_succeed &= ::serialize_field(shapenum, writer, checksum);
+    is_succeed &= ::serialize_field(flags, writer, checksum);
+    is_succeed &= ::serialize_field(itemnumber, writer, checksum);
+    is_succeed &= ::serialize_field(lighting, writer, checksum);
+
+    return is_succeed;
+}
+
+bool statobj_t::deserialize(
+    bstone::BinaryReader& reader,
+    Sint32& checksum)
+{
+    bool is_succeed = true;
+
+    is_succeed &= ::deserialize_field(tilex, reader, checksum);
+    is_succeed &= ::deserialize_field(tiley, reader, checksum);
+    is_succeed &= ::deserialize_field(areanumber, reader, checksum);
+
+    Sint32 vis_index = 0;
+    is_succeed &= ::deserialize_field(vis_index, reader, checksum);
+
+    if (is_succeed)
+        visspot = &(&spotvis[0][0])[vis_index];
+
+    is_succeed &= ::deserialize_field(shapenum, reader, checksum);
+    is_succeed &= ::deserialize_field(flags, reader, checksum);
+    is_succeed &= ::deserialize_field(itemnumber, reader, checksum);
+    is_succeed &= ::deserialize_field(lighting, reader, checksum);
 
     return is_succeed;
 }

@@ -2004,14 +2004,23 @@ struct statetype {
 //---------------------
 
 struct statobj_t {
-	Uint8 tilex,tiley;
-	Uint8 areanumber;
+    Uint8 tilex;
+    Uint8 tiley;
+    Uint8 areanumber;
 
-	Uint8    *visspot;
-	Sint16             shapenum;                       // if shapenum == -1 the obj has been removed
-	Uint16    flags;
-	Uint8    itemnumber;
-   char	  lighting;				 
+    Uint8* visspot;
+    Sint16 shapenum; // if shapenum == -1 the obj has been removed
+    Uint16 flags;
+    Uint8 itemnumber;
+    char lighting;
+
+    bool serialize(
+        bstone::BinaryWriter& writer,
+        Sint32& checksum);
+
+    bool deserialize(
+        bstone::BinaryReader& reader,
+        Sint32& checksum);
 }; // struct statobj_t
 
 //---------------------
