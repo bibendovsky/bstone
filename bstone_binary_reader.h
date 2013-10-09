@@ -64,6 +64,16 @@ public:
         return stream_->read(&value, sizeof(T)) == sizeof(T);
     }
 
+    template<class T,size_t N>
+    bool read(
+        T (&value)[N])
+    {
+        if (!is_open())
+            return false;
+
+        return stream_->read(value, N * sizeof(T)) == N * sizeof(T);
+    }
+
     // Skips a number of octets forward if count is positive or
     // backward otherwise.
     // Returns false on error.

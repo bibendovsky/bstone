@@ -87,6 +87,16 @@ public:
         return stream_->write(&value, sizeof(T));
     }
 
+    template<class T,size_t N>
+    bool write(
+        const T (&value)[N])
+    {
+        if (!is_open())
+            return false;
+
+        return stream_->write(value, N * sizeof(T));
+    }
+
 private:
     IStream* stream_;
 }; // class BinaryWriter
