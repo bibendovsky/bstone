@@ -2016,11 +2016,11 @@ struct statobj_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct statobj_t
 
 //---------------------
@@ -2051,11 +2051,11 @@ struct doorobj_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct doorobj_t
 
 
@@ -2121,11 +2121,11 @@ struct objtype {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct objtype
 
 
@@ -2192,11 +2192,11 @@ struct tilecoord_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct tilecoord_t
 
 //-----------------------------------
@@ -2211,11 +2211,11 @@ struct barrier_type {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct barrier_type;
 
 
@@ -2236,11 +2236,11 @@ struct statsInfoType {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct statsInfoType
 
 struct levelinfo {
@@ -2254,11 +2254,11 @@ struct levelinfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct levelinfo
 
 
@@ -2268,11 +2268,11 @@ struct fargametype {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct fargametype
 
 struct gametype {
@@ -2336,11 +2336,11 @@ struct gametype {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct gametype
 
 enum exit_t {
@@ -2477,11 +2477,11 @@ struct mCacheInfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct mCacheInfo
 
 // Basic 'message list' structure
@@ -2502,11 +2502,11 @@ struct con_mCacheInfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct con_mCacheInfo
 
 // Concession 'message list' structure
@@ -2517,11 +2517,11 @@ struct concession_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct concession_t
 
 //------------------------ INFORMANT STRUCTURES --------------------------
@@ -2553,11 +2553,11 @@ struct eaWallInfo {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct eaWallInfo
 
 
@@ -2576,11 +2576,11 @@ struct GoldsternInfo_t {
 
     bool serialize(
         bstone::BinaryWriter& writer,
-        Sint32& checksum) const;
+        Uint32& checksum) const;
 
     bool deserialize(
         bstone::BinaryReader& reader,
-        Sint32& checksum);
+        Uint32& checksum);
 }; // struct GoldsternInfo_t
 
 

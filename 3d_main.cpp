@@ -755,19 +755,21 @@ bstone::MemoryStream g_playtemp;
 template<class T>
 void DoChecksum(
     const T& value,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     const Uint8* src = reinterpret_cast<const Uint8*>(&value);
 
-    for (size_t i = 0; i < (sizeof(T) - 1); ++i)
-        checksum += src[i] ^ src[i + 1];
+    for (size_t i = 0; i < sizeof(T); ++i) {
+        checksum += src[i] + 1;
+        checksum *= 31;
+    }
 }
 
 template<class T>
 static bool serialize_field(
     const T& value,
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     ::DoChecksum(value, checksum);
     return writer.write(bstone::Endian::le(value));
@@ -777,7 +779,7 @@ template<class T,size_t N>
 static bool serialize_field(
     const T (&value)[N],
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
         if (!::serialize_field<T>(value[i], writer, checksum))
@@ -791,7 +793,7 @@ template<class T,size_t M,size_t N>
 static bool serialize_field(
     const T (&value)[M][N],
     bstone::BinaryWriter& writer,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
@@ -807,7 +809,7 @@ template<class T>
 static bool deserialize_field(
     T& value,
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!reader.read(value))
         return false;
@@ -822,7 +824,7 @@ template<class T,size_t N>
 static bool deserialize_field(
     T (&value)[N],
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
         if (!::deserialize_field<T>(value[i], reader, checksum))
@@ -836,7 +838,7 @@ template<class T,size_t M,size_t N>
 static bool deserialize_field(
     const T (&value)[M][N],
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
@@ -1196,7 +1198,7 @@ bool LevelInPlaytemp(
 #define LZH_WORK_BUFFER_SIZE	8192		
 
 void* lzh_work_buffer;
-Sint32 checksum;
+Uint32 checksum;
 
 //--------------------------------------------------------------------------
 // InitPlaytemp()
@@ -2639,7 +2641,7 @@ bool SaveTheGame(
     // leave four bytes for chunk size
     stream->skip(4);
 
-    Sint32 checksum = 0;
+    Uint32 checksum = 0;
     bstone::BinaryWriter writer(stream);
 
     Sint64 beg_position = stream->get_position();
@@ -3742,7 +3744,7 @@ void ShowMemory(void)
 // BBi
 bool objtype::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -3837,7 +3839,7 @@ bool objtype::serialize(
 
 bool objtype::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(tilex, reader, checksum))
         return false;
@@ -3936,7 +3938,7 @@ bool objtype::deserialize(
 
 bool statobj_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -3968,7 +3970,7 @@ bool statobj_t::serialize(
 
 bool statobj_t::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(tilex, reader, checksum))
         return false;
@@ -4002,7 +4004,7 @@ bool statobj_t::deserialize(
 
 bool doorobj_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     bool is_succeed = true;
 
@@ -4039,7 +4041,7 @@ bool doorobj_t::serialize(
 
 bool doorobj_t::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     bool is_succeed = true;
 
@@ -4076,7 +4078,7 @@ bool doorobj_t::deserialize(
 
 bool mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(local_val, writer, checksum))
         return false;
@@ -4089,7 +4091,7 @@ bool mCacheInfo::serialize(
 
 bool mCacheInfo::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(local_val, reader, checksum))
         return false;
@@ -4104,7 +4106,7 @@ bool mCacheInfo::deserialize(
 
 bool con_mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!mInfo.serialize(writer, checksum))
         return false;
@@ -4120,7 +4122,7 @@ bool con_mCacheInfo::serialize(
 
 bool con_mCacheInfo::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!mInfo.deserialize(reader, checksum))
         return false;
@@ -4136,7 +4138,7 @@ bool con_mCacheInfo::deserialize(
 
 bool concession_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(NumMsgs, writer, checksum))
         return false;
@@ -4151,7 +4153,7 @@ bool concession_t::serialize(
 
 bool concession_t::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(NumMsgs, reader, checksum))
         return false;
@@ -4166,7 +4168,7 @@ bool concession_t::deserialize(
 
 bool eaWallInfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -4185,7 +4187,7 @@ bool eaWallInfo::serialize(
 
 bool eaWallInfo::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(tilex, reader, checksum))
         return false;
@@ -4204,7 +4206,7 @@ bool eaWallInfo::deserialize(
 
 bool GoldsternInfo_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(LastIndex, writer, checksum))
         return false;
@@ -4226,7 +4228,7 @@ bool GoldsternInfo_t::serialize(
 
 bool GoldsternInfo_t::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(LastIndex, reader, checksum))
         return false;
@@ -4248,7 +4250,7 @@ bool GoldsternInfo_t::deserialize(
 
 bool tilecoord_t::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(tilex, writer, checksum))
         return false;
@@ -4261,7 +4263,7 @@ bool tilecoord_t::serialize(
 
 bool tilecoord_t::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(tilex, reader, checksum))
         return false;
@@ -4274,7 +4276,7 @@ bool tilecoord_t::deserialize(
 
 bool barrier_type::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!coord.serialize(writer, checksum))
         return false;
@@ -4287,7 +4289,7 @@ bool barrier_type::serialize(
 
 bool barrier_type::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!coord.deserialize(reader, checksum))
         return false;
@@ -4300,7 +4302,7 @@ bool barrier_type::deserialize(
 
 bool statsInfoType::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(total_points, writer, checksum))
         return false;
@@ -4328,7 +4330,7 @@ bool statsInfoType::serialize(
 
 bool statsInfoType::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(total_points, reader, checksum))
         return false;
@@ -4356,7 +4358,7 @@ bool statsInfoType::deserialize(
 
 bool levelinfo::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(bonus_queue, writer, checksum))
         return false;
@@ -4384,7 +4386,7 @@ bool levelinfo::serialize(
 
 bool levelinfo::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(bonus_queue, reader, checksum))
         return false;
@@ -4412,7 +4414,7 @@ bool levelinfo::deserialize(
 
 bool fargametype::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         if (!old_levelinfo[i].serialize(writer, checksum))
@@ -4430,7 +4432,7 @@ bool fargametype::serialize(
 
 bool fargametype::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         if (!old_levelinfo[i].deserialize(reader, checksum))
@@ -4448,7 +4450,7 @@ bool fargametype::deserialize(
 
 bool gametype::serialize(
     bstone::BinaryWriter& writer,
-    Sint32& checksum) const
+    Uint32& checksum) const
 {
     if (!::serialize_field(turn_around, writer, checksum))
         return false;
@@ -4615,7 +4617,7 @@ bool gametype::serialize(
 
 bool gametype::deserialize(
     bstone::BinaryReader& reader,
-    Sint32& checksum)
+    Uint32& checksum)
 {
     if (!::deserialize_field(turn_around, reader, checksum))
         return false;
