@@ -10,6 +10,18 @@
 #pragma hdrstop
 #endif
 
+#if defined(PANDORA) /* Pandora VSync Support */
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/fb.h>
+
+#ifndef FBIO_WAITFORVSYNC
+#define FBIO_WAITFORVSYNC _IOW('F', 0x20, __u32)
+#endif
+int fbdev = -1;
+#endif
+
 
 //
 // SC_INDEX is expected to stay at SC_MAPMASK for proper operation
@@ -64,24 +76,32 @@ static void ogl_uninitialize_video();
 
 
 static const GLchar* screen_fs_text =
+#if defined(USE_GLES)
+    "precision mediump float;\n"
+#else
     "#version 120\n"
+#endif
 
     "uniform sampler2D screen_tu;\n"
-    "uniform sampler1D palette_tu;\n"
+    "uniform sampler2D palette_tu;\n"
 
     "varying vec2 tc;\n"
 
     "void main()\n"
     "{\n"
-    "    float palette_index = texture2D(screen_tu, tc).r;\n"
-    "    palette_index = clamp(palette_index, 0.0, 1.0);\n"
-    "    vec4 color = texture1D(palette_tu, palette_index);\n"
-    "    gl_FragColor = (color * 255.0) / 63.0;\n"
+    " float palette_index = texture2D(screen_tu, tc).r;\n"
+    " palette_index = clamp(palette_index, 0.0, 1.0);\n"
+    " vec4 color = vec4( texture2D( palette_tu, vec2(palette_index,0.0) ).rgb, 1.0 );\n"
+    " gl_FragColor = (color * 255.0) / 63.0;\n"
     "}\n"
 ;
 
 static const GLchar* screen_vs_text =
+#if defined(USE_GLES)
+    "precision mediump float;\n"
+#else
     "#version 120\n"
+#endif
 
     "attribute vec4 pos_vec4;\n"
     "attribute vec2 tc0_vec2;\n"
@@ -123,8 +143,16 @@ static GLint u_screen_tu = -1;
 // uniform: palette texture unit
 static GLint u_palette_tu = -1;
 
+#if defined(PANDORA)
+int window_width = 800;
+int window_height = 480;
+#elif defined(GCW)
+int window_width = 320;
+int window_height = 240;
+#else
 int window_width = 640;
 int window_height = 480;
+#endif
 
 int vanilla_screen_width = 0;
 int vanilla_screen_height = 0;
@@ -401,7 +429,7 @@ void VL_SetSplitScreen (int linenum)
 	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1) & (255-64));
 }
 
-#endif  
+#endif
 
 
 /*
@@ -439,7 +467,7 @@ void VL_FillPalette(int red, int green, int blue)
 //===========================================================================
 
 
-#if 0		
+#if 0
 /*
 =================
 =
@@ -455,12 +483,12 @@ void VL_SetColor	(int color, int red, int green, int blue)
 	outportb (PEL_DATA,green);
 	outportb (PEL_DATA,blue);
 }
-#endif 
+#endif
 
 
 //===========================================================================
 
-#if 0	  
+#if 0
 
 /*
 =================
@@ -478,7 +506,7 @@ void VL_GetColor	(int color, int *red, int *green, int *blue)
 	*blue = inportb (PEL_DATA);
 }
 
-#endif 	
+#endif
 
 //===========================================================================
 
@@ -505,11 +533,13 @@ void VL_SetPalette(
 
     glActiveTexture(GL_TEXTURE1);
 
-    glTexSubImage1D(
-        GL_TEXTURE_1D,
+    glTexSubImage2D(
+        GL_TEXTURE_2D,
+        0,
         0,
         0,
         256,
+        1,
         GL_RGB,
         GL_UNSIGNED_BYTE,
         vga_palette);
@@ -1355,7 +1385,7 @@ asm	mov	ds,ax
 
 
 
-#if 0	
+#if 0
 /*
 ===================
 =
@@ -1538,6 +1568,12 @@ void ogl_draw_screen()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+#if defined(PANDORA) /* Pandora VSync */
+    if (fbdev >= 0) {
+        int arg = 0;
+        ioctl( fbdev, FBIO_WAITFORVSYNC, &arg );
+    }
+#endif
     SDL_GL_SwapWindow(sdl_window);
 }
 
@@ -1554,7 +1590,7 @@ void ogl_refresh_screen()
         0,
         vanilla_screen_width,
         vanilla_screen_height,
-        GL_RED,
+        GL_LUMINANCE,
         GL_UNSIGNED_BYTE,
         &vga_memory[4 * displayofs]);
 
@@ -1679,10 +1715,14 @@ static void ogl_setup_textures()
     if (screen_tex == GL_NONE)
         Quit("Screen texture failed.");
 
+#if !defined(USE_GLES)
     if (bstone::OglApi::get_version().get_major() >= 3)
         internal_format = GL_R8;
     else
-        internal_format = GL_LUMINANCE8;
+#endif
+    {
+        internal_format = GL_LUMINANCE;
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, screen_tex);
@@ -1698,7 +1738,7 @@ static void ogl_setup_textures()
         vanilla_screen_width,
         vanilla_screen_height,
         0,
-        GL_RED,
+        GL_LUMINANCE,
         GL_UNSIGNED_BYTE,
         NULL);
 
@@ -1710,17 +1750,18 @@ static void ogl_setup_textures()
         Quit("Palette texture failed.");
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_1D, palette_tex);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, palette_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexImage1D(
-        GL_TEXTURE_1D,
+    glTexImage2D(
+        GL_TEXTURE_2D,
         0,
-        GL_RGB8,
+        GL_RGB,
         256,
+        1,
         0,
         GL_RGB,
         GL_UNSIGNED_BYTE,
@@ -1848,6 +1889,10 @@ static void ogl_setup_programs()
 
     u_palette_tu = ::glGetUniformLocation(screen_po, "palette_tu");
     ::glUniform1i(u_palette_tu, 1);
+
+    SDL_LogInfo(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "OGL: %s", "Screen program object complete...");
 }
 
 static void ogl_uninitialize_video()
@@ -1907,6 +1952,11 @@ static void ogl_uninitialize_video()
     a_tc0_vec2 = -1;
     u_screen_tu = -1;
     u_palette_tu = -1;
+
+#if defined(PANDORA) /* Pandora VSync */
+    close( fbdev );
+    fbdev = -1;
+#endif
 }
 
 static void ogl_initialize_video()
@@ -1916,6 +1966,15 @@ static void ogl_initialize_video()
     double scale;
     double h_scale;
     double v_scale;
+
+#if defined(PANDORA) /* Pandora VSync */
+    fbdev = open( "/dev/fb0", O_RDONLY /* O_RDWR */ );
+    if ( fbdev < 0 ) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Couldn't open /dev/fb0 for Pandora Vsync...");
+    }
+#endif
 
     SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
@@ -1931,6 +1990,18 @@ static void ogl_initialize_video()
         SDL_LOG_CATEGORY_APPLICATION,
         "SDL: %s", "Creating a window...");
 
+#if defined(USE_GLES)
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#else
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -1939,6 +2010,7 @@ static void ogl_initialize_video()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+#endif
 
     sdl_window = SDL_CreateWindow(
         "BSPS",
@@ -1946,7 +2018,13 @@ static void ogl_initialize_video()
         100,
         window_width,
         window_height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+        SDL_WINDOW_OPENGL
+#if defined(PANDORA) || defined(GCW)
+         | SDL_WINDOW_FULLSCREEN
+#else
+         | SDL_WINDOW_HIDDEN
+#endif
+    );
 
     if (sdl_window == NULL)
         Quit("%s", SDL_GetError());
@@ -1991,7 +2069,6 @@ static void ogl_initialize_video()
     if (bstone::OglApi::get_version().get_major() < 2)
         Quit("Video system does not support OpenGL 2.0 or higher.");
 
-
     vanilla_screen_width = 320;
     vanilla_screen_height = 200;
     vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
@@ -2021,7 +2098,6 @@ static void ogl_initialize_video()
 
     glViewport(screen_x, screen_y, screen_width, screen_height);
 
-    glEnable(GL_TEXTURE_1D);
     glEnable(GL_TEXTURE_2D);
 
     glDisable(GL_CULL_FACE);
