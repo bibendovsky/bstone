@@ -3431,7 +3431,7 @@ void SaveOverheadChunk(
     // Remove level chunk from file
     //
     ::sprintf(&chunk[2],"%02x",tpNum);
-    ::DeleteChunk(&g_playtemp, chunk);
+    ::DeleteChunk(g_playtemp, chunk);
 
     // Prepare buffer
     //

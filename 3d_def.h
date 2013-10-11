@@ -13,7 +13,7 @@
 #define __BLAKE_VERSION__ "V1.01"
 
 // BBi
-#define BS_SAVE_GAME_VERSION "1"
+#define BS_SAVE_VERSION "2"
 
 #define GOLD_MORPH_LEVEL				(19)			// Level which Dr. GoldFire Morphs.
 
@@ -2014,11 +2014,11 @@ struct statobj_t {
     Uint8 itemnumber;
     char lighting;
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct statobj_t
@@ -2049,11 +2049,11 @@ struct doorobj_t {
     Sint16 ticcount;
     Uint8 areanumber[2];
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct doorobj_t
@@ -2119,11 +2119,11 @@ struct objtype {
     objtype* prev;
 
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct objtype
@@ -2190,11 +2190,11 @@ struct tilecoord_t {
     Uint8 tilex;
     Uint8 tiley;
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct tilecoord_t
@@ -2209,11 +2209,11 @@ struct barrier_type {
     tilecoord_t coord;
     Uint8 on;
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct barrier_type;
@@ -2234,11 +2234,11 @@ struct statsInfoType {
     Uint8 accum_inf;
     Sint16 overall_floor;
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct statsInfoType
@@ -2252,11 +2252,11 @@ struct levelinfo {
     Uint8 ptiley;
     Sint16 pangle;
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct levelinfo
@@ -2266,11 +2266,11 @@ struct fargametype {
     levelinfo old_levelinfo[MAPS_PER_EPISODE];
     levelinfo level[MAPS_PER_EPISODE];
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct fargametype
@@ -2334,11 +2334,11 @@ struct gametype {
     Sint16 wintilex;
     Sint16 wintiley;
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct gametype
@@ -2475,11 +2475,11 @@ struct mCacheInfo {
     Uint8 global_val; // where msg was in 'global' list
     char* mSeg; // pointer to message
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct mCacheInfo
@@ -2500,11 +2500,11 @@ struct con_mCacheInfo {
     Uint8 type; // type of concession
     Uint8 operate_cnt; // # of times req'd to operate
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct con_mCacheInfo
@@ -2515,11 +2515,11 @@ struct concession_t {
     Sint16 NumMsgs; // also, num concessions
     con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct concession_t
@@ -2551,11 +2551,11 @@ struct eaWallInfo {
     char aliens_out; // aliens spawned by this controller.
     Sint16 delay; // delay before spawning another alien.
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct eaWallInfo
@@ -2574,11 +2574,11 @@ struct GoldsternInfo_t {
     Uint16 WaitTime; // Wait time for Goldstern Spawn (current & Next)
     boolean GoldSpawned; // Has Goldstern been spawned?
 
-    bool serialize(
+    void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
 
-    bool deserialize(
+    void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
 }; // struct GoldsternInfo_t
@@ -2667,7 +2667,7 @@ Sint32 DeleteChunk(Sint16 handle, const char *chunk);
 #endif // 0
 
 int DeleteChunk(
-    bstone::IStream* stream,
+    bstone::MemoryStream& stream,
     const std::string& chunk_name);
 
 void 				 LoadFonts(void);

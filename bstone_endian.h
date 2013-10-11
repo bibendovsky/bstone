@@ -107,14 +107,20 @@ public:
     }
 
     // Swaps bytes in place on non little-endian system.
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
     template<class T>
     static void lei(
         T& value)
     {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
         lei_bei(value);
-#endif
     }
+#else
+    template<class T>
+    static void lei(
+        T&)
+    {
+    }
+#endif
 
     // Swaps bytes in place of an array of elements
     // on non little-endian system.
@@ -138,14 +144,20 @@ public:
     }
 
     // Swaps bytes in place on non big-endian system.
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     template<class T>
     static void bei(
         T& value)
     {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         lei_bei(value);
-#endif
     }
+#else
+    template<class T>
+    static void bei(
+        T&)
+    {
+    }
+#endif
 
     // Swaps bytes in place of an array of elements
     // on non big-endian system.
