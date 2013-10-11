@@ -1616,13 +1616,8 @@ bool LoadLevel(
     int i;
     int j;
     boolean oldloaded = loadedgame;
-    Sint32 oldchecksum;
-    objtype* ob;
     bstone::IStream* handle = &g_playtemp;
     void* temp;
-    Uint16 count;
-    objtype* ptr;
-    objtype** actorat_ptr;
     char chunk[5] = "LVxx";
     size_t ob_size;
 
@@ -1644,10 +1639,6 @@ bool LoadLevel(
     g_playtemp.set_position(0);
 
     if ((::FindChunk(handle, chunk) == 0) || ForceLoadDefault) {
-        ::PreloadUpdate(
-            LS_current + ((LS_total - LS_current) >> 1),
-            LS_total);
-
         ::SetupGameLevel();
 
         gamestate.flags |= GS_VIRGIN_LEVEL;
@@ -1668,137 +1659,114 @@ bool LoadLevel(
     ::SetupGameLevel();
     loadedgame = oldloaded;
 
-    ReadIt(false, tilemap, sizeof(tilemap));
-    ReadIt(false, actorat, sizeof(actorat));
+    bstone::BinaryReader reader(handle);
 
-    actorat_ptr = (objtype**)actorat;
+    ::deserialize_field(tilemap, reader, checksum);
 
-    for (i = 0; i < MAPSIZE; ++i) {
-        for (j = 0; j < MAPSIZE; ++j) {
-            size_t value = reinterpret_cast<size_t>(*actorat_ptr);
+    for (int i = 0; i < MAPSIZE; ++i) {
+        for (int j = 0; j < MAPSIZE; ++j) {
+            Sint32 value = 0;
+            ::deserialize_field(value, reader, checksum);
 
-            if ((value & 0x80000000) != 0) {
-                value ^= 0x80000000;
-                *actorat_ptr = &objlist[value];
-            }
-
-            ++actorat_ptr;
+            if (value < 0)
+                actorat[i][j] = &objlist[-value];
+            else
+                actorat[i][j] = reinterpret_cast<objtype*>(value);
         }
     }
 
-    ReadIt(false, areaconnect, sizeof(areaconnect));
-    ReadIt(false, areabyplayer, sizeof(areabyplayer));
+    ::deserialize_field(areaconnect, reader, checksum);
+    ::deserialize_field(areabyplayer, reader, checksum);
 
     // Restore 'save game' actors
     //
-    ReadIt(false, &count, sizeof(count));
-    objtype* actors_tmp = new objtype[count];
-    ReadIt(false, actors_tmp, count * sizeof(objtype));
-    ptr = actors_tmp;
 
-    // start with "player" actor
+    Sint32 actor_count = 0;
+    ::deserialize_field(actor_count, reader, checksum);
+
     ::InitActorList();
+    new_actor->deserialize(reader, checksum);
 
-    ob_size = offsetof(objtype, next);
-
-    // don't copy over links!
-    ::memcpy(new_actor, ptr, ob_size);
-
-    new_actor->state = states_list[(size_t)new_actor->state];
-
-    ++ptr;
-
-    while (--count) {
+    for (Sint32 i = 1; i < actor_count; ++i) {
         ::GetNewActor();
-
-        // don't copy over links!
-        ::memcpy(new_actor, ptr, ob_size);
-
+        new_actor->deserialize(reader, checksum);
         actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
         if ((new_actor->flags & FL_DEADGUY) != 0)
             DeadGuys[NumDeadGuys++] = new_actor;
 #endif
-
-        new_actor->state = states_list[(size_t)new_actor->state];
-
-        ++ptr;
     }
-
-    delete [] actors_tmp;
-    actors_tmp = NULL;
-
 
     //
     //  Re-Establish links to barrier switches
     //
 
-    ob = objlist;
-
-    do {
-        switch (ob->obclass) {
+    for (objtype* actor = objlist; actor != NULL; actor = actor->next) {
+        switch (actor->obclass) {
         case arc_barrierobj:
         case post_barrierobj:
         case vspike_barrierobj:
         case vpost_barrierobj:
-            ob->temp2 = ::ScanBarrierTable(ob->tilex, ob->tiley);
+            actor->temp2 = ::ScanBarrierTable(actor->tilex, actor->tiley);
             break;
 
         default:
             break;
         }
-
-        ob = ob->next;
-    } while (ob != NULL);
+    }
 
     ::ConnectBarriers();
 
     // Read all sorts of stuff...
     //
-    ReadIt(false, &laststatobj, sizeof(laststatobj));
 
-    if (laststatobj != NULL)
-        laststatobj = &statobjlist[(size_t)laststatobj];
+    Sint32 laststatobj_index = 0;
+    ::deserialize_field(laststatobj_index, reader, checksum);
 
-    ReadIt(false, statobjlist, sizeof(statobjlist));
+    if (laststatobj_index < 0)
+        laststatobj = NULL;
+    else
+        laststatobj = &statobjlist[laststatobj_index];
 
-    for (i = 0; i < MAXSTATS; ++i) {
-        ptrdiff_t offset = (ptrdiff_t)statobjlist[i].visspot;
+    for (int i = 0; i < MAXSTATS; ++i)
+        statobjlist[i].deserialize(reader, checksum);
 
-        if (offset >= 0) {
-            statobjlist[i].visspot =
-                &(reinterpret_cast<Uint8*>(spotvis))[offset];
-        } else
-            statobjlist[i].visspot = NULL;
-    }
+    ::deserialize_field(doorposition, reader, checksum);
 
-    ReadIt(false, doorposition, sizeof(doorposition));
-    ReadIt(false, doorobjlist, sizeof(doorobjlist));
-    ReadIt(false, &pwallstate, sizeof(pwallstate));
-    ReadIt(false, &pwallx, sizeof(pwallx));
-    ReadIt(false, &pwally, sizeof(pwally));
-    ReadIt(false, &pwalldir, sizeof(pwalldir));
-    ReadIt(false, &pwallpos, sizeof(pwallpos));
-    ReadIt(false, &pwalldist, sizeof(pwalldist));
-    ReadIt(false, TravelTable, sizeof(TravelTable));
-    ReadIt(false, &ConHintList, sizeof(ConHintList));
+    for (int i = 0; i < MAXDOORS; ++i)
+        doorobjlist[i].deserialize(reader, checksum);
 
-    for (i = 0; i < MAX_CACHE_MSGS; ++i)
-        ConHintList.cmInfo[i].mInfo.mSeg = NULL;
+    ::deserialize_field(pwallstate, reader, checksum);
+    ::deserialize_field(pwallx, reader, checksum);
+    ::deserialize_field(pwally, reader, checksum);
+    ::deserialize_field(pwalldir, reader, checksum);
+    ::deserialize_field(pwallpos, reader, checksum);
+    ::deserialize_field(pwalldist, reader, checksum);
+    ::deserialize_field(TravelTable, reader, checksum);
+    ConHintList.deserialize(reader, checksum);
 
-    ReadIt(false, eaList, sizeof(eaWallInfo) * MAXEAWALLS);
-    ReadIt(false, &GoldsternInfo, sizeof(GoldsternInfo));
-    ReadIt(false, &GoldieList,sizeof(GoldieList));
-    ReadIt(false, gamestate.barrier_table,sizeof(gamestate.barrier_table));
-    ReadIt(false, &gamestate.plasma_detonators,sizeof(gamestate.plasma_detonators));
+    for (int i = 0; i < MAXEAWALLS; ++i)
+        eaList[i].deserialize(reader, checksum);
+
+    GoldsternInfo.deserialize(reader, checksum);
+
+    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+        GoldieList[i].deserialize(reader, checksum);
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+        gamestate.barrier_table[i].deserialize(reader, checksum);
+
+    ::deserialize_field(gamestate.plasma_detonators, reader, checksum);
 
     // Read and evaluate checksum
     //
-    ::PreloadUpdate(LS_current++, LS_total);
-    handle->read(&oldchecksum, sizeof(oldchecksum));
 
-    if (oldchecksum != checksum) {
+    Uint32 saved_checksum = 0;
+    reader.read(saved_checksum);
+    bstone::Endian::lei(saved_checksum);
+
+    if (saved_checksum != checksum) {
         Sint16 old_wx = WindowX;
         Sint16 old_wy = WindowY;
         Sint16 old_ww = WindowW;
@@ -2040,13 +2008,14 @@ bool SaveLevel(
 
     for (int i = 0; i < MAPSIZE; ++i) {
         for (int j = 0; j < MAPSIZE; ++j) {
-            Uint32 s_value;
+            Sint32 s_value;
 
-            if (actorat[i][j] >= objlist) {
-                s_value = static_cast<Uint32>(actorat[i][j] - objlist);
-                s_value |= 0x80000000;
-            } else
-                s_value = reinterpret_cast<Sint32>(actorat[i][j]);
+            if (actorat[i][j] >= objlist)
+                s_value = -static_cast<Sint32>(actorat[i][j] - objlist);
+            else {
+                s_value = static_cast<Sint32>(
+                    reinterpret_cast<size_t>(actorat[i][j]));
+            }
 
             if (!::serialize_field(s_value, writer, checksum))
                 return false;
@@ -2075,20 +2044,14 @@ bool SaveLevel(
     for (actor = player; actor != NULL; actor = actor->next) {
         if (!actor->serialize(writer, checksum))
             return false;
-
-        actor = actor->next;
     }
 
     //
     // laststatobj
     //
 
-    Uint32 laststatobj_index = 0;
-
-    if (laststatobj != 0) {
-        laststatobj_index = static_cast<Uint32>(laststatobj - statobjlist);
-        laststatobj_index |= 0x80000000;
-    }
+    Sint32 laststatobj_index =
+        static_cast<Sint32>(laststatobj - statobjlist);
 
     if (!::serialize_field(laststatobj_index, writer, checksum))
         return false;
@@ -2159,7 +2122,7 @@ bool SaveLevel(
 
     // Write checksum and determine size of file
     //
-    if (!::serialize_field(checksum, writer, checksum))
+    if (!writer.write(bstone::Endian::le(checksum)))
         return false;
 
     Sint64 end_offset = handle->get_position();
@@ -2484,11 +2447,23 @@ bool LoadTheGame(
     if (::FindChunk(stream, "HEAD") == 0)
         return false;
 
-    ReadIt(false, &gamestate, sizeof(gamestate));
+    Uint32 checksum = 0;
+    bstone::BinaryReader reader(stream);
 
-    gamestate.msg = NULL;
+    //ReadIt(false, &gamestate, sizeof(gamestate));
+    gamestate.deserialize(reader, checksum);
 
-    ReadIt(false, &gamestuff, sizeof(gamestuff));
+    //gamestate.msg = NULL;
+
+    //ReadIt(false, &gamestuff, sizeof(gamestuff));
+    gamestuff.deserialize(reader, checksum);
+
+    Uint32 saved_checksum = 0;
+    reader.read(saved_checksum);
+    bstone::Endian::lei(saved_checksum);
+
+    if (saved_checksum != checksum)
+        return false;
 
 #if DUAL_SWAP_FILES
     // Reinitialize page manager
@@ -2647,8 +2622,9 @@ bool SaveTheGame(
     Sint64 beg_position = stream->get_position();
 
     gamestate.serialize(writer, checksum);
-
     gamestuff.serialize(writer, checksum);
+
+    writer.write(bstone::Endian::le(checksum));
 
     Sint64 end_position = stream->get_position();
 
@@ -3859,11 +3835,9 @@ bool objtype::deserialize(
     if (!::deserialize_field(obclass, reader, checksum))
         return false;
 
-
     Sint32 state_index = 0;
     if (!::deserialize_field(state_index, reader, checksum))
         return false;
-
     state = states_list[state_index];
 
     if (!::deserialize_field(flags, reader, checksum))
@@ -3932,7 +3906,6 @@ bool objtype::deserialize(
     if (!::deserialize_field(temp3, reader, checksum))
         return false;
 
-
     return true;
 }
 
@@ -3985,7 +3958,10 @@ bool statobj_t::deserialize(
     if (!::deserialize_field(vis_index, reader, checksum))
         return false;
 
-    visspot = &(&spotvis[0][0])[vis_index];
+    if (vis_index < 0)
+        visspot = NULL;
+    else
+        visspot = &(&spotvis[0][0])[vis_index];
 
     if (!::deserialize_field(shapenum, reader, checksum))
         return false;
@@ -4736,7 +4712,6 @@ bool gametype::deserialize(
     Uint32 time_count = 0;
     if (!::deserialize_field(time_count, reader, checksum))
         return false;
-    TimeCount = time_count;
 
     if (!::deserialize_field(killx, reader, checksum))
         return false;
@@ -4779,6 +4754,8 @@ bool gametype::deserialize(
 
     if (!::deserialize_field(wintiley, reader, checksum))
         return false;
+
+    TimeCount = time_count;
 
     return true;
 }
