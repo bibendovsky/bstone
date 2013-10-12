@@ -800,7 +800,7 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 #endif // 0
 
     // consider it a solid wall
-    actorat[tilex][tiley] = (objtype*)(doornum | 0x80);
+    actorat[tilex][tiley] = reinterpret_cast<objtype*>(doornum | 0x80);
 
 //
 // make the door tile a special tile, and mark the adjacent tiles
@@ -1026,7 +1026,7 @@ void CloseDoor (Sint16 door)
 		= door | 0x80;
 #endif // 0
 
-    actorat[tilex][tiley] = (objtype*)(door | 0x80);
+    actorat[tilex][tiley] = reinterpret_cast<objtype*>(door | 0x80);
 
 	CheckLinkedDoors(door,dr_closing);
 
@@ -1477,7 +1477,7 @@ void DoorClosing (Sint16 door)
 	|| (player->tilex == tilex && player->tiley == tiley) )
 #endif // 0
 
-	if ((actorat[tilex][tiley] != (objtype*)(door | 0x80)) ||
+	if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(door | 0x80)) ||
         (player->tilex == tilex && player->tiley == tiley))
 	{			// something got inside the door
 		OpenDoor (door);

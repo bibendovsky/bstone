@@ -3670,7 +3670,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 			{
 			// Make sure there's room to save when CP_SaveGame() is called.
 			//
-				if ((Sint32)((items+which)->routine)==(Sint32)(CP_SaveGame))
+				if (reinterpret_cast<size_t>(items[which].routine) == reinterpret_cast<size_t>(CP_SaveGame))
 					if (!CheckDiskSpace(DISK_SPACE_NEEDED,CANT_SAVE_GAME_TXT,cds_menu_print))
 						return(which);
 

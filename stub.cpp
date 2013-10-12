@@ -108,10 +108,10 @@ Uint16 static_object_to_ui16(
     ptrdiff_t index = static_object - statobjlist;
 
     if (index < 0)
-        return NULL;
+        return 0;
 
     if (index >= MAXSTATS)
-        return NULL;
+        return 0;
 
     return static_cast<Uint16>(index + STATOBJLIST_OFFSET);
 }
