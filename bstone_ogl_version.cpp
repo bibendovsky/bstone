@@ -10,12 +10,11 @@ OglVersion::OglVersion(
     int major,
     int minor,
     int release,
-    const std::string& vendor) :
+    bool is_es) :
         major_(major),
         minor_(minor),
         release_(release),
-        vendor_(vendor),
-        original_()
+        is_es_(is_es)
 {
 }
 
@@ -31,7 +30,8 @@ OglVersion::OglVersion(
         minor_(that.minor_),
         release_(that.release_),
         vendor_(that.vendor_),
-        original_(that.original_)
+        original_(that.original_),
+        is_es_(that.is_es_)
 {
 }
 
@@ -44,6 +44,7 @@ OglVersion& OglVersion::operator=(
         release_ = that.release_;
         vendor_ = that.vendor_;
         original_ = that.original_;
+        is_es_ = that.is_es_;
     }
 
     return *this;
@@ -59,6 +60,14 @@ void OglVersion::set(
     int next_char;
     std::istringstream iss(version_string);
     iss.unsetf(std::ios::skipws);
+
+    // Check for OpenGL ES.
+    bool is_es = false;
+
+    if (version_string.find(get_es_prefix()) == 0) {
+        is_es = true;
+        iss.ignore(get_es_prefix().size());
+    }
 
     // Major.
     int major = 0;
@@ -112,6 +121,7 @@ void OglVersion::set(
     release_ = release;
     vendor_ = vendor;
     original_ = version_string;
+    is_es_ = is_es;
 }
 
 void OglVersion::reset()
@@ -121,6 +131,7 @@ void OglVersion::reset()
     release_ = 0;
     vendor_.clear();
     original_.clear();
+    is_es_ = false;
 }
 
 int OglVersion::get_major() const
@@ -148,9 +159,17 @@ const std::string& OglVersion::get_original() const
     return original_;
 }
 
+bool OglVersion::is_es() const
+{
+    return is_es_;
+}
+
 std::string OglVersion::to_string() const
 {
     std::ostringstream oss;
+
+    if (is_es())
+        oss << get_es_prefix();
 
     oss << get_major() << '.' << get_minor();
 
@@ -161,6 +180,12 @@ std::string OglVersion::to_string() const
         oss << ' ' << get_vendor();
 
     return oss.str();
+}
+
+const std::string& OglVersion::get_es_prefix() const
+{
+    static std::string result = "OpenGL ES ";
+    return result;
 }
 
 
