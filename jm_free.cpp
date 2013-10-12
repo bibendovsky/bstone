@@ -1334,7 +1334,9 @@ void CAL_SetupGrFile()
     //
     // load the data offsets from ???head.ext
     //
-    grstarts = new Sint32[((NUMCHUNKS + 1) * FILEPOSSIZE) / 4];
+    int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
+
+    grstarts = new Sint32[(grstarts_size + 3) / 4];
 
     strcpy(fname, gheadname);
     strcat(fname, extension);
@@ -1344,8 +1346,7 @@ void CAL_SetupGrFile()
     if (!handle.is_open())
         CA_CannotOpen(fname);
 
-    handle.read(grstarts, (NUMCHUNKS + 1) * FILEPOSSIZE);
-
+    handle.read(grstarts, grstarts_size);
 
     //
     // Open the graphics file, leaving it open until the game is finished
