@@ -2066,9 +2066,6 @@ static void ogl_initialize_video()
         "Parsed version",
         bstone::OglApi::get_version().to_string().c_str());
 
-    if (bstone::OglApi::get_version().get_major() < 2)
-        Quit("Video system does not support OpenGL 2.0 or higher.");
-
     vanilla_screen_width = 320;
     vanilla_screen_height = 200;
     vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;

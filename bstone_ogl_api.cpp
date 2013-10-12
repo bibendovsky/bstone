@@ -630,19 +630,7 @@ bool OglApi::initialize()
 
     ogl_api_get_base_symbol(
         "glViewport", glViewport_, missing_symbols);
-
-    if (!missing_symbols.empty()) {
-        for(StringsCIt i = missing_symbols.begin();
-            i != missing_symbols.end(); ++i)
-        {
-            ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                "OGLAPI: Missing symbol: %s", i->c_str());
-        }
-
-        uninitialize();
-        return false;
-    }
-#endif
+#endif // OGL_DIRECT_LINK
 
     // Vendor
 
@@ -684,47 +672,108 @@ bool OglApi::initialize()
 
 
     //
-    // Extensions
+    // Required extensions
     //
+
 #if !defined(OGL_DIRECT_LINK)
+    ogl_api_get_base_symbol(
+        "glActiveTexture", glActiveTexture_, missing_symbols);
 
-    ogl_api_get_ext_symbol("glActiveTexture", glActiveTexture_);
-    ogl_api_get_ext_symbol("glAttachShader", glAttachShader_);
-    ogl_api_get_ext_symbol("glBindBuffer", glBindBuffer_);
-    ogl_api_get_ext_symbol("glBufferData", glBufferData_);
-    ogl_api_get_ext_symbol("glCompileShader", glCompileShader_);
-    ogl_api_get_ext_symbol("glCreateProgram", glCreateProgram_);
-    ogl_api_get_ext_symbol("glCreateShader", glCreateShader_);
-    ogl_api_get_ext_symbol("glDeleteBuffers", glDeleteBuffers_);
-    ogl_api_get_ext_symbol("glDeleteProgram", glDeleteProgram_);
-    ogl_api_get_ext_symbol("glDeleteShader", glDeleteShader_);
-    ogl_api_get_ext_symbol("glDetachShader", glDetachShader_);
+    ogl_api_get_base_symbol(
+        "glAttachShader", glAttachShader_, missing_symbols);
 
-    ogl_api_get_ext_symbol("glDisableVertexAttribArray",
-        glDisableVertexAttribArray_);
+    ogl_api_get_base_symbol(
+        "glBindBuffer", glBindBuffer_, missing_symbols);
 
-    ogl_api_get_ext_symbol("glEnableVertexAttribArray",
-        glEnableVertexAttribArray_);
+    ogl_api_get_base_symbol(
+        "glBufferData", glBufferData_, missing_symbols);
 
-    ogl_api_get_ext_symbol("glGenBuffers", glGenBuffers_);
-    ogl_api_get_ext_symbol("glGetAttribLocation", glGetAttribLocation_);
-    ogl_api_get_ext_symbol("glGetProgramInfoLog", glGetProgramInfoLog_);
-    ogl_api_get_ext_symbol("glGetProgramiv", glGetProgramiv_);
-    ogl_api_get_ext_symbol("glGetShaderInfoLog", glGetShaderInfoLog_);
-    ogl_api_get_ext_symbol("glGetShaderiv", glGetShaderiv_);
-    ogl_api_get_ext_symbol("glGetUniformLocation", glGetUniformLocation_);
-    ogl_api_get_ext_symbol("glIsProgram", glIsProgram_);
-    ogl_api_get_ext_symbol("glIsShader", glIsShader_);
-    ogl_api_get_ext_symbol("glLinkProgram", glLinkProgram_);
-    ogl_api_get_ext_symbol("glShaderSource", glShaderSource_);
-    ogl_api_get_ext_symbol("glUniform1i", glUniform1i_);
-    ogl_api_get_ext_symbol("glUniformMatrix4fv", glUniformMatrix4fv_);
-    ogl_api_get_ext_symbol("glUseProgram", glUseProgram_);
+    ogl_api_get_base_symbol(
+        "glCompileShader", glCompileShader_, missing_symbols);
 
-    ogl_api_get_ext_symbol("glVertexAttribPointer",
-        glVertexAttribPointer_);
+    ogl_api_get_base_symbol(
+        "glCreateProgram", glCreateProgram_, missing_symbols);
 
-#endif
+    ogl_api_get_base_symbol(
+        "glCreateShader", glCreateShader_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glDeleteBuffers", glDeleteBuffers_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glDeleteProgram", glDeleteProgram_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glDeleteShader", glDeleteShader_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glDetachShader", glDetachShader_, missing_symbols);
+
+    ogl_api_get_base_symbol("glDisableVertexAttribArray",
+        glDisableVertexAttribArray_, missing_symbols);
+
+    ogl_api_get_base_symbol("glEnableVertexAttribArray",
+        glEnableVertexAttribArray_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGenBuffers", glGenBuffers_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGetAttribLocation", glGetAttribLocation_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGetProgramInfoLog", glGetProgramInfoLog_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGetProgramiv", glGetProgramiv_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGetShaderInfoLog", glGetShaderInfoLog_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGetShaderiv", glGetShaderiv_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glGetUniformLocation", glGetUniformLocation_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glIsProgram", glIsProgram_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glIsShader", glIsShader_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glLinkProgram", glLinkProgram_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glShaderSource", glShaderSource_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glUniform1i", glUniform1i_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glUniformMatrix4fv", glUniformMatrix4fv_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glUseProgram", glUseProgram_, missing_symbols);
+
+    ogl_api_get_base_symbol(
+        "glVertexAttribPointer", glVertexAttribPointer_, missing_symbols);
+#endif // OGL_DIRECT_LINK
+
+#if !defined(OGL_DIRECT_LINK)
+    if (!missing_symbols.empty()) {
+        for(StringsCIt i = missing_symbols.begin();
+            i != missing_symbols.end(); ++i)
+        {
+            ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "OGLAPI: Missing symbol: %s", i->c_str());
+        }
+
+        uninitialize();
+        return false;
+    }
+#endif // OGL_DIRECT_LINK
 
     is_initialized_ = true;
     vendor_ = reinterpret_cast<const char*>(vendor);
