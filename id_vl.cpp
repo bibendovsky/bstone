@@ -76,11 +76,12 @@ static void ogl_uninitialize_video();
 
 
 static const GLchar* screen_fs_text =
-#if defined(USE_GLES)
-    "precision mediump float;\n"
-#else
-    "#version 120\n"
-#endif
+    "#ifdef GL_ES\n"
+    "    #version 100\n"
+    "    precision mediump float;\n"
+    "#else\n"
+    "    #version 120\n"
+    "#endif\n"
 
     "uniform sampler2D screen_tu;\n"
     "uniform sampler2D palette_tu;\n"
@@ -89,19 +90,20 @@ static const GLchar* screen_fs_text =
 
     "void main()\n"
     "{\n"
-    " float palette_index = texture2D(screen_tu, tc).r;\n"
-    " palette_index = clamp(palette_index, 0.0, 1.0);\n"
-    " vec4 color = vec4( texture2D( palette_tu, vec2(palette_index,0.0) ).rgb, 1.0 );\n"
-    " gl_FragColor = (color * 255.0) / 63.0;\n"
+    "    vec2 palette_index = texture2D(screen_tu, tc).rg;\n"
+    "    palette_index = clamp(palette_index, 0.0, 1.0);\n"
+    "    vec4 color = vec4(texture2D(palette_tu, palette_index).rgb, 1.0);\n"
+    "    gl_FragColor = (color * 255.0) / 63.0;\n"
     "}\n"
 ;
 
 static const GLchar* screen_vs_text =
-#if defined(USE_GLES)
-    "precision mediump float;\n"
-#else
-    "#version 120\n"
-#endif
+    "#ifdef GL_ES\n"
+    "    #version 100\n"
+    "    precision mediump float;\n"
+    "#else\n"
+    "    #version 120\n"
+    "#endif\n"
 
     "attribute vec4 pos_vec4;\n"
     "attribute vec2 tc0_vec2;\n"
@@ -1581,6 +1583,11 @@ void ogl_draw_screen()
 // draws it.
 void ogl_refresh_screen()
 {
+    GLenum format =
+        bstone::OglApi::has_ext_texture_rg() ?
+            bstone::OglApi::get_gl_red() :
+            GL_LUMINANCE;
+
     glActiveTexture(GL_TEXTURE0);
 
     glTexSubImage2D(
@@ -1590,7 +1597,7 @@ void ogl_refresh_screen()
         0,
         vanilla_screen_width,
         vanilla_screen_height,
-        GL_LUMINANCE,
+        format,
         GL_UNSIGNED_BYTE,
         &vga_memory[4 * displayofs]);
 
@@ -1703,8 +1710,6 @@ static void ogl_load_shader(
 
 static void ogl_setup_textures()
 {
-    GLenum internal_format;
-
     SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
         "OGL: %s", "Setting up textures...");
@@ -1715,12 +1720,14 @@ static void ogl_setup_textures()
     if (screen_tex == GL_NONE)
         Quit("Screen texture failed.");
 
-#if !defined(USE_GLES)
-    if (bstone::OglApi::get_version().get_major() >= 3)
-        internal_format = GL_R8;
-    else
-#endif
-    {
+    GLenum format;
+    GLenum internal_format;
+
+    if (bstone::OglApi::has_ext_texture_rg()) {
+        format = bstone::OglApi::get_gl_red();
+        internal_format = bstone::OglApi::get_gl_r8();
+    } else {
+        format = GL_LUMINANCE;
         internal_format = GL_LUMINANCE;
     }
 
@@ -1738,7 +1745,7 @@ static void ogl_setup_textures()
         vanilla_screen_width,
         vanilla_screen_height,
         0,
-        GL_LUMINANCE,
+        format,
         GL_UNSIGNED_BYTE,
         NULL);
 

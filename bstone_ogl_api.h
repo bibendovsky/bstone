@@ -21,7 +21,7 @@
 #endif // GL_GLEXT_PROTOTYPES
 
 #if defined(USE_GLES)
-#include "GLES2/gl2.h"
+#include "SDL_opengles2.h"
 #else
 #include "SDL_opengl.h"
 #endif
@@ -53,6 +53,16 @@ public:
 
     // Returns a version.
     static const OglVersion& get_version();
+
+    // Returns true if R/RG texture formats are supported or
+    // false otherwise.
+    static bool has_ext_texture_rg();
+
+    // Returns API independent constant GL_R8.
+    static GLenum get_gl_r8();
+
+    // Returns API independent constant GL_RED.
+    static GLenum get_gl_red();
 
 private:
     OglApi();

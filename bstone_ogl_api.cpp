@@ -16,6 +16,10 @@ std::string vendor_;
 std::string renderer_;
 bstone::OglVersion version_;
 
+// True if detected GL_EXT_texture_rg (ES).
+// True if major version equal or greater than 3.
+bool has_ext_texture_rg_ = false;
+
 
 } // namespace
 
@@ -568,7 +572,6 @@ bool OglApi::initialize()
     uninitialize();
 
 #if !defined(OGL_DIRECT_LINK)
-
     if (::SDL_GL_GetCurrentContext() == NULL) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
             "OGLAPI: %s.", "No current context");
@@ -631,44 +634,6 @@ bool OglApi::initialize()
     ogl_api_get_base_symbol(
         "glViewport", glViewport_, missing_symbols);
 #endif // OGL_DIRECT_LINK
-
-    // Vendor
-
-    const GLubyte* vendor = ::glGetString(GL_VENDOR);
-
-    if (vendor == NULL) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s", "Failed to get a vendor.");
-
-        uninitialize();
-        return false;
-    }
-
-    // Renderer
-
-    const GLubyte* renderer = ::glGetString(GL_RENDERER);
-
-    if (renderer == NULL) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s", "Failed to get a renderer.");
-
-        uninitialize();
-        return false;
-    }
-
-    // Version
-
-    const GLubyte* version_string = ::glGetString(GL_VERSION);
-
-    if (version_string == NULL) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s", "Failed to get a version.");
-
-        uninitialize();
-        return false;
-    }
-
-    version_.set(reinterpret_cast<const char*>(version_string));
 
 
     //
@@ -775,6 +740,58 @@ bool OglApi::initialize()
     }
 #endif // OGL_DIRECT_LINK
 
+
+    // Vendor
+
+    const GLubyte* vendor = ::glGetString(GL_VENDOR);
+
+    if (vendor == NULL) {
+        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s", "Failed to get a vendor.");
+
+        uninitialize();
+        return false;
+    }
+
+
+    // Renderer
+
+    const GLubyte* renderer = ::glGetString(GL_RENDERER);
+
+    if (renderer == NULL) {
+        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s", "Failed to get a renderer.");
+
+        uninitialize();
+        return false;
+    }
+
+
+    // Version
+
+    const GLubyte* version_string = ::glGetString(GL_VERSION);
+
+    if (version_string == NULL) {
+        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s", "Failed to get a version.");
+
+        uninitialize();
+        return false;
+    }
+
+    version_.set(reinterpret_cast<const char*>(version_string));
+
+
+    //
+    // Check for features
+    //
+
+    if (version_.is_es()) {
+        has_ext_texture_rg_ = (::SDL_GL_ExtensionSupported(
+            "GL_EXT_texture_rg") != SDL_FALSE);
+    } else
+        has_ext_texture_rg_ = (version_.get_major() >= 3);
+
     is_initialized_ = true;
     vendor_ = reinterpret_cast<const char*>(vendor);
     renderer_ = reinterpret_cast<const char*>(renderer);
@@ -831,12 +848,14 @@ void OglApi::uninitialize()
     glUniformMatrix4fv_ = NULL;
     glUseProgram_ = NULL;
     glVertexAttribPointer_ = NULL;
-#endif
+#endif // OGL_DIRECT_LINK
 
     is_initialized_ = false;
     vendor_.clear();
     renderer_.clear();
     version_.reset();
+
+    has_ext_texture_rg_ = false;
 }
 
 // (static)
@@ -861,6 +880,24 @@ const std::string& OglApi::get_renderer()
 const OglVersion& OglApi::get_version()
 {
     return version_;
+}
+
+// (static)
+bool OglApi::has_ext_texture_rg()
+{
+    return has_ext_texture_rg_;
+}
+
+// (static)
+GLenum OglApi::get_gl_r8()
+{
+    return 0x8229;
+}
+
+// (static)
+GLenum OglApi::get_gl_red()
+{
+    return 0x1903;
 }
 
 
