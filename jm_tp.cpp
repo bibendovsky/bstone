@@ -1409,7 +1409,7 @@ void TP_HandleCodes()
 					bgcolor=anim_bgcolor;
 				}
 
-				while (1)
+				while (true)
 				{
 					CycleColors();							// specific for VGA 3D engine!
                CalcTics();
@@ -2044,7 +2044,7 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
 		pi->id_cache=id_cache;
 		CA_CacheGrChunk(id_cache);
 		pi->scriptstart = grsegs[id_cache];
-		if (!(p=strstr(static_cast<const char*>(grsegs[id_cache]),"^XX")))
+		if ((p=strstr(static_cast<const char*>(grsegs[id_cache]),"^XX")) == NULL)
       	TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
 
         // FIXME
@@ -2057,7 +2057,7 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
 	else
 	{
 		pi->id_cache = -1;
-		if (!(size=IO_LoadFile(filename,&pi->scriptstart)))
+		if ((size=IO_LoadFile(filename,&pi->scriptstart)) == 0)
 			return(0);
 	}
 

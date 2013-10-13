@@ -2707,7 +2707,7 @@ void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay)
 
 // Should actor run away (chase static) or chase player?
 //
-	if ((smart) && (whyrun=CheckRunChase(ob)))
+	if ((smart) && ((whyrun=CheckRunChase(ob))) != 0)
 	{
 	// Initilize seek tile?
 	//

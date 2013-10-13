@@ -3225,7 +3225,7 @@ void    DemoLoop (void)
     // FIXME Just for debugging
     gamestate.flags |= GS_NOWAIT;
 
-	while (1)
+	while (true)
 	{
 		playstate = ex_title;
 		if (!screenfaded)

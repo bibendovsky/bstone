@@ -627,7 +627,7 @@ void DrawMainMenu(void)
 //--------------------------------------------------------------------------
 // READ THIS!
 //--------------------------------------------------------------------------
-void CP_ReadThis(Sint16 temp1)
+void CP_ReadThis(Sint16)
 {
 	ControlPanelFree();
 	HelpScreens();
@@ -638,7 +638,7 @@ void CP_ReadThis(Sint16 temp1)
 //--------------------------------------------------------------------------
 // CP_OrderingInfo()
 //--------------------------------------------------------------------------
-void CP_OrderingInfo(Sint16 temp1)
+void CP_OrderingInfo(Sint16)
 {
 	ControlPanelFree();
 #ifndef ID_CACHE_HELP
@@ -653,7 +653,7 @@ void CP_OrderingInfo(Sint16 temp1)
 //-------------------------------------------------------------------------
 // CP_BlakeStoneSaga()
 //-------------------------------------------------------------------------
-void CP_BlakeStoneSaga(Sint16 temp1)
+void CP_BlakeStoneSaga(Sint16)
 {
 	ControlPanelFree();
 #ifndef ID_CACHE_HELP
@@ -833,7 +833,7 @@ Sint16 CP_EndGame(void)
 //--------------------------------------------------------------------------
 // CP_ViewScores() - VIEW THE HIGH SCORES
 //--------------------------------------------------------------------------
-void CP_ViewScores(Sint16 temp1)
+void CP_ViewScores(Sint16)
 {
 	fontnumber=4;
 	StartCPMusic(ROSTER_MUS);
@@ -851,7 +851,7 @@ void CP_ViewScores(Sint16 temp1)
 //--------------------------------------------------------------------------
 // CP_NewGame() - START A NEW GAME
 //--------------------------------------------------------------------------
-void CP_NewGame(Sint16 temp1)
+void CP_NewGame(Sint16)
 {
 	Sint16 which,episode;
 
@@ -1087,7 +1087,7 @@ void DrawEpisodePic(Sint16 w)
 //--------------------------------------------------------------------------
 // CP_GameOptions() - DRAW THE GAME OPTIONS MENU
 //--------------------------------------------------------------------------
-void CP_GameOptions(Sint16 temp1)
+void CP_GameOptions(Sint16)
 {
 	Sint16 which;
 
@@ -1150,7 +1150,7 @@ void ChangeSwaps(void)
 //--------------------------------------------------------------------------
 // GAME SWITCHES MENU
 //--------------------------------------------------------------------------
-void CP_Switches(Sint16 temp1)
+void CP_Switches(Sint16)
 {
 	Sint16 which;
 
@@ -1301,7 +1301,7 @@ void DrawSwitchDescription(Sint16 which)
 //--------------------------------------------------------------------------
 // HANDLE SOUND MENU
 //--------------------------------------------------------------------------
-void CP_Sound(Sint16 temp1)
+void CP_Sound(Sint16)
 {
 	Sint16 which;
 
@@ -1640,7 +1640,7 @@ Sint16 CP_LoadGame(
             MakeDestPath(name.c_str());
             bstone::FileStream handle(tempPath);
             DrawLSAction(0); // Testing...
-            if (!(loadedgame = ::LoadTheGame(&handle)))
+            if ((loadedgame = ::LoadTheGame(&handle)) == 0)
                 LS_current = -1; // clean up
 
             return loadedgame;
@@ -2010,7 +2010,7 @@ Sint16 CP_SaveGame(
 //--------------------------------------------------------------------------
 // EXIT OPTIONS
 //--------------------------------------------------------------------------
-void CP_ExitOptions(Sint16 temp1)
+void CP_ExitOptions(Sint16)
 {
 	StartGame=1;
 }
@@ -2018,7 +2018,7 @@ void CP_ExitOptions(Sint16 temp1)
 //--------------------------------------------------------------------------
 // DEFINE CONTROLS
 //--------------------------------------------------------------------------
-void CP_Control(Sint16 temp1)
+void CP_Control(Sint16)
 {
 
 	enum {MOUSEENABLE,JOYENABLE,USEPORT2,PADENABLE,CALIBRATEJOY,MOUSESENS,CUSTOMIZE};	 
@@ -2160,7 +2160,7 @@ void CalibrateJoystick(void)
 //--------------------------------------------------------------------------
 // ADJUST MOUSE SENSITIVITY
 //--------------------------------------------------------------------------
-void MouseSensitivity(Sint16 temp1)
+void MouseSensitivity(Sint16)
 {
 	ControlInfo ci;
 	Sint16 exit=0,oldMA;
@@ -2353,7 +2353,7 @@ char mbarray[4][3]={"B0","B1","B2","B3"},
 //--------------------------------------------------------------------------
 // CustomControls() CUSTOMIZE CONTROLS
 //--------------------------------------------------------------------------
-void CustomControls(Sint16 temp1)
+void CustomControls(Sint16)
 {
 	Sint16 which;
 
@@ -3077,7 +3077,7 @@ void DrawCustKeys(Sint16 hilight)
 //---------------------------------------------------------------------------
 // CP_ChangeView()
 //---------------------------------------------------------------------------
-void CP_ChangeView(Sint16 temp1)
+void CP_ChangeView(Sint16)
 {
  Sint16 exit=0,oldview,newview,lastview;
  ControlInfo ci;

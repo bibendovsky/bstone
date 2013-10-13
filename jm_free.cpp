@@ -816,7 +816,7 @@ extern const char * US_ParmStrings[];
 extern const char * US_ParmStrings2[];
 
 // BBi
-Uint32 sys_timer_callback(Uint32 interval, void* param)
+Uint32 sys_timer_callback(Uint32 interval, void*)
 {
     ++TimeCount;
     return interval;

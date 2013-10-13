@@ -275,7 +275,7 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 #endif
 #endif
 
-	if (!(spot = FindEmptyStatic()))
+	if ((spot = FindEmptyStatic()) == NULL)
 		return;
 
 	spot->shapenum = statinfo[type].picnum;
@@ -386,7 +386,7 @@ statobj_t  *ReserveStatic(void)
 {
 	statobj_t	*spot;
 
-	if (!(spot = FindEmptyStatic()))
+	if ((spot = FindEmptyStatic()) == NULL)
 		ACT1_ERROR(SPAWNSTATIC_TOO_MANY);
 
 	// Mark as Used.
@@ -436,7 +436,7 @@ statobj_t *UseReservedStatic(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 	statobj_t	*spot;
 	Sint16			type;
 
-   if (!(spot = FindReservedStatic()))
+   if ((spot = FindReservedStatic()) == NULL)
 		ACT1_ERROR(CANT_FIND_RESERVE_STATIC);
 
 	//
@@ -543,7 +543,7 @@ void PlaceItemType (Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 //
 // find a spot in statobjlist to put it in
 //
-	if (!(spot = FindEmptyStatic()))
+	if ((spot = FindEmptyStatic()) == NULL)
    	return;
 
 //
@@ -1298,7 +1298,7 @@ void TryDropPlasmaDetonator(void)
       return;
    }
 
-   if (!(obj = FindObj(rotating_cubeobj,-1,-1)))
+   if ((obj = FindObj(rotating_cubeobj,-1,-1)) == NULL)
    	ACT1_ERROR(CANT_FIND_LEVELCOMPUTER);
 
    if (obj->areanumber != player->areanumber)
@@ -1922,7 +1922,7 @@ Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen
 //
 	while (--MsgNum)
 	{
-		if (!(Message = strstr(Message,int_xx)))
+		if ((Message = strstr(Message,int_xx)) == NULL)
 			ACT1_ERROR(INVALID_CACHE_MSG_NUM);
 
 		Message += 3;	// Bump to start of next Message
@@ -1935,7 +1935,7 @@ Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen
 
 // Find the end of the message
 //
-	if (!(EndOfMsg = strstr(Message,int_xx)))
+	if ((EndOfMsg = strstr(Message,int_xx)) == NULL)
 		ACT1_ERROR(INVALID_CACHE_MSG_NUM);
 	EndOfMsg += 3;
 

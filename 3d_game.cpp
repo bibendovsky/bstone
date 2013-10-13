@@ -3620,7 +3620,7 @@ strcat (str,str2);							// defined in 3d_main.c
 			break;
 		}
 
-	} while (1);
+	} while (true);
 
 }
 

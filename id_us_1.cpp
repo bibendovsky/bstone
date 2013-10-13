@@ -179,7 +179,7 @@ US_Print(const char *s)
 	while (*s)
 	{
 		se = s;
-		while ((c = *se) && (c != '\n'))
+		while ((c = *se) != '\0' && (c != '\n'))
 			se++;
 		*(char*)se = '\0';
 

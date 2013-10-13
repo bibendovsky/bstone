@@ -4810,7 +4810,7 @@ void	GunAttack (objtype *ob)
 	viewdist = 0x7fffffffl;
 	closest = NULL;
 
-	while (1)
+	while (true)
 	{
 		oldclosest = closest;
 

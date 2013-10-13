@@ -46,7 +46,7 @@ public:
         }
     }
 
-    void AddSamples_s32(uintptr_t len, const int32_t* data)
+    void AddSamples_s32(uintptr_t, const int32_t*)
     {
         assert(!"AddSamples_s32 not implemented.");
     }

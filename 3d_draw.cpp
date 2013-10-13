@@ -1651,11 +1651,11 @@ void DrawScaleds (void)
 
 		if (obj->flags & FL_OFFSET_STATES)
 		{
-			if (!(visptr->shapenum = obj->temp1+obj->state->shapenum))
+			if ((visptr->shapenum = obj->temp1+obj->state->shapenum) == 0)
 				continue;					// no shape
 		}
 		else
-		if (!(visptr->shapenum = obj->state->shapenum))
+		if ((visptr->shapenum = obj->state->shapenum) == NULL)
 			continue;						// no shape
 
 		spotloc = (obj->tilex<<6)+obj->tiley;	// optimize: keep in struct?

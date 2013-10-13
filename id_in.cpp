@@ -1680,8 +1680,8 @@ IN_WaitForASCII(void)
 {
 	char		result;
 
-	while (!(result = LastASCII))
-		;
+	while ((result = LastASCII) == '\0')
+		::in_handle_events();
 	LastASCII = '\0';
 	return(result);
 }

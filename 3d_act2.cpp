@@ -1343,7 +1343,7 @@ objtype *FindHiddenOfs(classtype which)
 {
 	objtype *obj;
 
-   if (!(obj = FindObj(which, -1, -1)))
+   if ((obj = FindObj(which, -1, -1)) == NULL)
    	ACT2_ERROR(CANT_FIND_HIDDEN_OBJ);
 
 	return(obj);
@@ -4962,7 +4962,7 @@ void A_Laugh(objtype *obj)
 //--------------------------------------------------------------------------
 // A_WarpIn() - Plays a warp Sound
 //--------------------------------------------------------------------------
-void A_WarpIn(objtype *obj)
+void A_WarpIn(objtype*)
 {
 // FIXME
 #if 0
@@ -4974,7 +4974,7 @@ void A_WarpIn(objtype *obj)
 //--------------------------------------------------------------------------
 // A_WarpOut() - Plays a warp Sound
 //--------------------------------------------------------------------------
-void A_WarpOut(objtype *obj)
+void A_WarpOut(objtype*)
 {
     // FIXME
 #if 0
@@ -4987,7 +4987,7 @@ void A_WarpOut(objtype *obj)
 //--------------------------------------------------------------------------
 // A_Beep() - Plays a Beep Sound
 //--------------------------------------------------------------------------
-void A_Beep(objtype *obj)
+void A_Beep(objtype*)
 {
 // FIXME
 #if 0
