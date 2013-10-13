@@ -510,6 +510,8 @@ static char in_keyboard_map_to_char(
     if ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0)
         is_caps = !is_caps;
 
+    is_caps |= allcaps;
+
     switch (key_code) {
     case SDLK_ESCAPE:
     case SDLK_BACKSPACE:
