@@ -19,6 +19,8 @@ class AdlibDecoder : public AudioDecoder {
 public:
     AdlibDecoder();
 
+    virtual ~AdlibDecoder();
+
     virtual bool initialize(
         const void* raw_data,
         int raw_size,

@@ -37,6 +37,12 @@ MemoryStream::MemoryStream(
     open(buffer_size, buffer_offset, buffer, open_mode);
 }
 
+// (virtual)
+MemoryStream::~MemoryStream()
+{
+    close();
+}
+
 bool MemoryStream::open(
     int initial_capacity,
     StreamOpenMode open_mode)

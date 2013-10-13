@@ -26,6 +26,8 @@ public:
         const std::string& file_name,
         StreamOpenMode open_mode = STREAM_OPEN_READ);
 
+    virtual ~FileStream();
+
     bool open(
         const std::string& file_name,
         StreamOpenMode open_mode = STREAM_OPEN_READ);

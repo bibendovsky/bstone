@@ -34,6 +34,11 @@ FileStream::FileStream(
     open(file_name, open_mode);
 }
 
+// (virtual)
+FileStream::~FileStream()
+{
+}
+
 bool FileStream::open(
     const std::string& file_name,
     StreamOpenMode open_mode)

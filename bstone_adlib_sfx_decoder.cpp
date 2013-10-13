@@ -35,6 +35,12 @@ AdlibSfxDecoder::AdlibSfxDecoder() :
 }
 
 // (virtual)
+AdlibSfxDecoder::~AdlibSfxDecoder()
+{
+    uninitialize();
+}
+
+// (virtual)
 bool AdlibSfxDecoder::initialize(
     const void* raw_data,
     int raw_size,

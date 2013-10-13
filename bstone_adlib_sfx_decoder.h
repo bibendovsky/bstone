@@ -22,6 +22,8 @@ class AdlibSfxDecoder : public AdlibDecoder {
 public:
     AdlibSfxDecoder();
 
+    virtual ~AdlibSfxDecoder();
+
     virtual bool initialize(
         const void* raw_data,
         int raw_size,

@@ -23,7 +23,6 @@ AudioDecoder::AudioDecoder() :
 // (virtual)
 AudioDecoder::~AudioDecoder()
 {
-    uninitialize();
 }
 
 // (virtual)

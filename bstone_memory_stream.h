@@ -31,6 +31,8 @@ public:
         const Uint8* buffer,
         StreamOpenMode open_mode = STREAM_OPEN_READ);
 
+    virtual ~MemoryStream();
+
     bool open(
         int initial_capacity = 0,
         StreamOpenMode open_mode = STREAM_OPEN_READ_WRITE);

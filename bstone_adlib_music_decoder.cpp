@@ -24,6 +24,12 @@ AdlibMusicDecoder::AdlibMusicDecoder() :
 }
 
 // (virtual)
+AdlibMusicDecoder::~AdlibMusicDecoder()
+{
+    uninitialize();
+}
+
+// (virtual)
 bool AdlibMusicDecoder::initialize(
     const void* raw_data,
     int raw_size,

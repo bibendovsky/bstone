@@ -18,6 +18,8 @@ class PcmDecoder : public AudioDecoder {
 public:
     PcmDecoder();
 
+    virtual ~PcmDecoder();
+
     virtual bool initialize(
         const void* src_raw_data,
         int src_raw_size,

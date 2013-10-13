@@ -19,6 +19,12 @@ AdlibDecoder::AdlibDecoder()
 }
 
 // (virtual)
+AdlibDecoder::~AdlibDecoder()
+{
+    uninitialize();
+}
+
+// (virtual)
 bool AdlibDecoder::initialize(
     const void* raw_data,
     int raw_size,

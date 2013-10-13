@@ -22,6 +22,12 @@ PcmDecoder::PcmDecoder() :
 }
 
 // (virtual)
+PcmDecoder::~PcmDecoder()
+{
+    uninitialize();
+}
+
+// (virtual)
 bool PcmDecoder::initialize(
     const void* src_raw_data,
     int src_raw_size,

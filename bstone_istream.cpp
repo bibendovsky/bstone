@@ -15,7 +15,6 @@ IStream::IStream()
 // (virtual)
 IStream::~IStream()
 {
-    close();
 }
 
 // (virtual)
