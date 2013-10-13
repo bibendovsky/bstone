@@ -1655,7 +1655,7 @@ void DrawScaleds (void)
 				continue;					// no shape
 		}
 		else
-		if ((visptr->shapenum = obj->state->shapenum) == NULL)
+		if ((visptr->shapenum = obj->state->shapenum) == 0)
 			continue;						// no shape
 
 		spotloc = (obj->tilex<<6)+obj->tiley;	// optimize: keep in struct?

@@ -481,7 +481,7 @@ boolean ElevatorFloor(char x, char y)
 
 void SelectDodgeDir (objtype *ob)
 {
-	Sint16 		deltax,deltay,i;
+	Sint16 		deltax = 0,deltay = 0,i;
 	Uint16	absdx,absdy;
 	dirtype 	dirtry[5];
 	dirtype 	turnaround,tdir;
@@ -599,7 +599,7 @@ void SelectDodgeDir (objtype *ob)
 
 void SelectChaseDir (objtype *ob)
 {
-	Sint16 deltax,deltay;
+	Sint16 deltax = 0,deltay = 0;
 	dirtype d[3];
 	dirtype tdir, olddir, turnaround;
 
