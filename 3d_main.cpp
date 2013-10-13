@@ -787,6 +787,8 @@ const char* ArchiveException::what() const throw()
 // ========================================================================
 
 bstone::MemoryStream g_playtemp;
+
+static bool is_config_loaded = false;
 // BBi
 
 /*
@@ -799,49 +801,67 @@ bstone::MemoryStream g_playtemp;
 
 void ReadConfig()
 {
+    is_config_loaded = true;
+
     SDMode sd = sdm_Off;
     SMMode sm = smm_Off;
     SDSMode sds = sds_Off;
 
-    bool config_found = false;
+    bool is_succeed = true;
     Uint16 flags = gamestate.flags;
     MakeDestPath(g_config_file_name.c_str());
 
     bstone::FileStream stream(tempPath);
 
     if (stream.is_open()) {
+        Uint32 checksum = 0;
         bstone::BinaryReader reader(&stream);
 
-        for (int i = 0; i < MaxScores; ++i) {
-            HighScore* score = &Scores[i];
+        try {
+            for (int i = 0; i < MaxScores; ++i) {
+                HighScore* score = &Scores[i];
 
-            reader.read(score->name, sizeof(score->name));
-            reader.read(score->score);
-            reader.read(score->completed);
-            reader.read(score->episode);
-            reader.read(score->ratio);
+                ::deserialize_field(score->name, reader, checksum);
+                ::deserialize_field(score->score, reader, checksum);
+                ::deserialize_field(score->completed, reader, checksum);
+                ::deserialize_field(score->episode, reader, checksum);
+                ::deserialize_field(score->ratio, reader, checksum);
+            }
+
+            ::deserialize_field(sd, reader, checksum);
+            ::deserialize_field(sm, reader, checksum);
+            ::deserialize_field(sds, reader, checksum);
+
+            ::deserialize_field(mouseenabled, reader, checksum);
+            ::deserialize_field(joystickenabled, reader, checksum);
+            ::deserialize_field(joypadenabled, reader, checksum);
+            ::deserialize_field(joystickprogressive, reader, checksum);
+            ::deserialize_field(joystickport, reader, checksum);
+
+            ::deserialize_field(dirscan, reader, checksum);
+            ::deserialize_field(buttonscan, reader, checksum);
+            ::deserialize_field(buttonmouse, reader, checksum);
+            ::deserialize_field(buttonjoy, reader, checksum);
+
+            ::deserialize_field(viewsize, reader, checksum);
+            ::deserialize_field(mouseadjustment, reader, checksum);
+
+            // Use temp so we don't destroy pre-sets.
+            ::deserialize_field(flags, reader, checksum);
+        } catch (const ArchiveException&) {
+            is_succeed = false;
         }
 
-        reader.read(sd);
-        reader.read(sm);
-        reader.read(sds);
+        if (is_succeed) {
+            Uint32 saved_checksum = 0;
+            reader.read(saved_checksum);
+            bstone::Endian::lei(saved_checksum);
 
-        reader.read(mouseenabled);
-        reader.read(joystickenabled);
-        reader.read(joypadenabled);
-        reader.read(joystickprogressive);
-        reader.read(joystickport);
+            is_succeed = (saved_checksum == checksum);
+        }
+    }
 
-        reader.read(dirscan);
-        reader.read(buttonscan);
-        reader.read(buttonmouse);
-        reader.read(buttonjoy);
-
-        reader.read(viewsize);
-        reader.read(mouseadjustment);
-
-        reader.read(flags); // Use temp so we don't destroy pre-sets.
-
+    if (is_succeed) {
         flags &=
             GS_HEARTB_SOUND |
             GS_ATTACK_INFOAREA |
@@ -869,12 +889,10 @@ void ReadConfig()
             joystickenabled = false;
 
         MainMenu[6].active = AT_ENABLED;
-        MainItems.curpos=0;
-
-        config_found = true;
+        MainItems.curpos = 0;
     }
 
-    if (!config_found || !viewsize) {
+    if (!is_succeed || viewsize == 0) {
         //
         // no config file, so select by hardware
         //
@@ -901,8 +919,8 @@ void ReadConfig()
         joystickport = 0;
         joystickprogressive = false;
 
-        viewsize = 17;
-        mouseadjustment=5;
+        viewsize = 20;
+        mouseadjustment = 5;
         gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
 
 #ifdef CEILING_FLOOR_COLORS
@@ -912,9 +930,9 @@ void ReadConfig()
 #endif
     }
 
-    SD_SetMusicMode(sm);
-    SD_SetSoundMode(sd);
-    SD_SetDigiDevice(sds);
+    ::SD_SetMusicMode(sm);
+    ::SD_SetSoundMode(sd);
+    ::SD_SetDigiDevice(sds);
 }
 
 /*
@@ -993,36 +1011,39 @@ void WriteConfig()
         return;
     }
 
+    Uint32 checksum = 0;
     bstone::BinaryWriter writer(&stream);
 
     for (int i = 0; i < MaxScores; ++i) {
         HighScore* score = &Scores[i];
 
-        writer.write(score->name, sizeof(score->name));
-        writer.write(score->score);
-        writer.write(score->completed);
-        writer.write(score->episode);
-        writer.write(score->ratio);
+        ::serialize_field(score->name, writer, checksum);
+        ::serialize_field(score->score, writer, checksum);
+        ::serialize_field(score->completed, writer, checksum);
+        ::serialize_field(score->episode, writer, checksum);
+        ::serialize_field(score->ratio, writer, checksum);
     }
 
-    writer.write(SoundMode);
-    writer.write(MusicMode);
-    writer.write(DigiMode);
+    ::serialize_field(SoundMode, writer, checksum);
+    ::serialize_field(MusicMode, writer, checksum);
+    ::serialize_field(DigiMode, writer, checksum);
 
-    writer.write(mouseenabled);
-    writer.write(joystickenabled);
-    writer.write(joypadenabled);
-    writer.write(joystickprogressive);
-    writer.write(joystickport);
+    ::serialize_field(mouseenabled, writer, checksum);
+    ::serialize_field(joystickenabled, writer, checksum);
+    ::serialize_field(joypadenabled, writer, checksum);
+    ::serialize_field(joystickprogressive, writer, checksum);
+    ::serialize_field(joystickport, writer, checksum);
 
-    writer.write(dirscan);
-    writer.write(buttonscan);
-    writer.write(buttonmouse);
-    writer.write(buttonjoy);
+    ::serialize_field(dirscan, writer, checksum);
+    ::serialize_field(buttonscan, writer, checksum);
+    ::serialize_field(buttonmouse, writer, checksum);
+    ::serialize_field(buttonjoy, writer, checksum);
 
-    writer.write(viewsize);
-    writer.write(mouseadjustment);
-    writer.write(gamestate.flags);
+    ::serialize_field(viewsize, writer, checksum);
+    ::serialize_field(mouseadjustment, writer, checksum);
+    ::serialize_field(gamestate.flags, writer, checksum);
+
+    writer.write(bstone::Endian::le(checksum));
 }
 
 //===========================================================================
@@ -3161,7 +3182,9 @@ void Quit(const char* error, ...)
 
     ClearMemory();
 
-    WriteConfig();
+    if (is_config_loaded)
+        ::WriteConfig();
+
     ShutdownId();
 
     if (error != NULL && *error != '\0') {
