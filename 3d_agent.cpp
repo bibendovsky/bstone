@@ -3367,20 +3367,45 @@ void LoadOverheadChunk(
     //
     ::g_playtemp.set_position(0);
 
-    std::string chunk_name = "LV" + (
+    std::string chunk_name = "OV" + (
         bstone::FormatString() << std::setw(2) << std::setfill('0') <<
         std::hex << std::uppercase << tpNum).to_string();
 
+    bool is_succeed = true;
+    Uint32 checksum = 0;
+    bstone::BinaryReader reader(&g_playtemp);
 
-    if (::FindChunk(&g_playtemp, chunk_name)) {
-        ov_noImage = false;
-        g_playtemp.read(ov_buffer, 4096);
-        g_playtemp.read(&ov_stats, sizeof(statsInfoType));
-    } else {
-        ov_noImage = true;
-        ::memset(ov_buffer, 0x52, 4096);
-        ::memset(&ov_stats, 0, sizeof(statsInfoType));
+    if (::FindChunk(&g_playtemp, chunk_name) > 0) {
+        try {
+            ::deserialize_field(
+                reinterpret_cast<Uint8 (&)[4096]>(ov_buffer[0]),
+                reader, checksum);
+        } catch (const ArchiveException&) {
+            is_succeed = false;
+        }
+
+        ov_stats.deserialize(reader, checksum);
+
+        Uint32 saved_checksum = 0;
+        is_succeed &= reader.read(saved_checksum);
+        bstone::Endian::lei(saved_checksum);
+        is_succeed &= (saved_checksum == checksum);
+    } else
+        is_succeed = false;
+
+    if (!is_succeed) {
+        std::uninitialized_fill_n(
+            ov_buffer,
+            4096,
+            0x52);
+
+        std::uninitialized_fill_n(
+            reinterpret_cast<Uint8*>(&ov_stats),
+            sizeof(statsInfoType),
+            0);
     }
+
+    ov_noImage = !is_succeed;
 }
 
 //--------------------------------------------------------------------------
@@ -3426,11 +3451,9 @@ void SaveOverheadChunk(Sint16 tpNum)
 void SaveOverheadChunk(
     int tpNum)
 {
-    Sint32 cksize = 4096 + sizeof(statsInfoType);
-
     // Remove level chunk from file
     //
-    std::string chunk_name = "LV" + (
+    std::string chunk_name = "OV" + (
         bstone::FormatString() << std::setw(2) << std::setfill('0') <<
         std::hex << std::uppercase << tpNum).to_string();
 
@@ -3438,15 +3461,29 @@ void SaveOverheadChunk(
 
     // Prepare buffer
     //
-    ::VL_ScreenToMem(static_cast<Uint8*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
+    ::VL_ScreenToMem(ov_buffer, 64, 64, TOV_X, TOV_Y);
+
+    Uint32 checksum = 0;
+    bstone::BinaryWriter writer(&g_playtemp);
 
     // Write chunk ID, SIZE, and IMAGE
     //
     g_playtemp.seek(0, bstone::STREAM_SEEK_END);
     g_playtemp.write(chunk_name.c_str(), 4);
-    g_playtemp.write(&cksize, sizeof(cksize));
-    g_playtemp.write(ov_buffer, 4096);
-    g_playtemp.write(&ov_stats, sizeof(statsInfoType));
+    g_playtemp.skip(4);
+
+    Sint64 beg_offset = g_playtemp.get_position();
+
+    ::serialize_field(
+        reinterpret_cast<const Uint8 (&)[4096]>(ov_buffer[0]),
+        writer, checksum);
+    ov_stats.serialize(writer, checksum);
+    writer.write(bstone::Endian::le(checksum));
+
+    Sint64 end_offset = g_playtemp.get_position();
+    Sint32 chunk_size = static_cast<Sint32>(end_offset - beg_offset);
+    g_playtemp.seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
+    writer.write(bstone::Endian::le(chunk_size));
 }
 
 //--------------------------------------------------------------------------

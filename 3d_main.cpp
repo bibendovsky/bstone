@@ -750,124 +750,43 @@ static int get_state_index(statetype* state)
 }
 
 
-class ArchiveException : public std::exception {
-public:
-    explicit ArchiveException(
-        const char* what) throw() :
-        what_(what)
-    {
-    }
+// ========================================================================
+// ArchiveException
 
-    ArchiveException(
-        const ArchiveException& that) throw() :
-            what_(that.what_)
-    {
-    }
+ArchiveException::ArchiveException(
+    const char* what) throw() :
+    what_(what)
+{
+}
 
-    virtual ~ArchiveException() throw()
-    {
-    }
+ArchiveException::ArchiveException(
+    const ArchiveException& that) throw() :
+        what_(that.what_)
+{
+}
 
-    ArchiveException& operator=(
-        const ArchiveException& that) throw()
-    {
-        what_ = that.what_;
-        return *this;
-    }
+// (virtual)
+ArchiveException::~ArchiveException() throw()
+{
+}
 
-    virtual const char* what() const throw()
-    {
-        return what_;
-    }
+ArchiveException& ArchiveException::operator=(
+    const ArchiveException& that) throw()
+{
+    what_ = that.what_;
+    return *this;
+}
 
-private:
-    const char* what_;
-}; // class ArchiveException
+// (virtual)
+const char* ArchiveException::what() const throw()
+{
+    return what_;
+}
 
+// ArchiveException
+// ========================================================================
 
 bstone::MemoryStream g_playtemp;
-
-
-template<class T>
-void DoChecksum(
-    const T& value,
-    Uint32& checksum)
-{
-    const Uint8* src = reinterpret_cast<const Uint8*>(&value);
-
-    for (size_t i = 0; i < sizeof(T); ++i) {
-        checksum += src[i] + 1;
-        checksum *= 31;
-    }
-}
-
-template<class T>
-static void serialize_field(
-    const T& value,
-    bstone::BinaryWriter& writer,
-    Uint32& checksum)
-{
-    ::DoChecksum(value, checksum);
-    if (!writer.write(bstone::Endian::le(value)))
-        throw ArchiveException("serialize_field");
-}
-
-template<class T,size_t N>
-static void serialize_field(
-    const T (&value)[N],
-    bstone::BinaryWriter& writer,
-    Uint32& checksum)
-{
-    for (size_t i = 0; i < N; ++i)
-        ::serialize_field<T>(value[i], writer, checksum);
-}
-
-template<class T,size_t M,size_t N>
-static void serialize_field(
-    const T (&value)[M][N],
-    bstone::BinaryWriter& writer,
-    Uint32& checksum)
-{
-    for (size_t i = 0; i < M; ++i) {
-        for (size_t j = 0; j < N; ++j)
-            ::serialize_field<T>(value[i][j], writer, checksum);
-    }
-}
-
-template<class T>
-static void deserialize_field(
-    T& value,
-    bstone::BinaryReader& reader,
-    Uint32& checksum)
-{
-    if (!reader.read(value))
-        throw ArchiveException("deserialize_field");
-
-    bstone::Endian::lei(value);
-    ::DoChecksum(value, checksum);
-}
-
-template<class T,size_t N>
-static void deserialize_field(
-    T (&value)[N],
-    bstone::BinaryReader& reader,
-    Uint32& checksum)
-{
-    for (size_t i = 0; i < N; ++i)
-        ::deserialize_field<T>(value[i], reader, checksum);
-}
-
-template<class T,size_t M,size_t N>
-static void deserialize_field(
-    const T (&value)[M][N],
-    bstone::BinaryReader& reader,
-    Uint32& checksum)
-{
-    for (size_t i = 0; i < M; ++i) {
-        for (size_t j = 0; j < N; ++j)
-            ::deserialize_field<T>(value[i][j], reader, checksum);
-    }
-}
 // BBi
 
 /*

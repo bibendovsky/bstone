@@ -3594,4 +3594,106 @@ Uint16 static_object_to_ui16(const statobj_t* static_object);
 
 doorobj_t* ui16_to_door_object(Uint16 value);
 Uint16 door_object_to_ui16(const doorobj_t* door_object);
+
+
+class ArchiveException : public std::exception {
+public:
+    explicit ArchiveException(
+        const char* what) throw();
+
+    ArchiveException(
+        const ArchiveException& that) throw();
+
+    virtual ~ArchiveException() throw();
+
+    ArchiveException& operator=(
+        const ArchiveException& that) throw();
+
+    virtual const char* what() const throw();
+
+private:
+    const char* what_;
+}; // class ArchiveException
+
+
+template<class T>
+inline void DoChecksum(
+    const T& value,
+    Uint32& checksum)
+{
+    const Uint8* src = reinterpret_cast<const Uint8*>(&value);
+
+    for (size_t i = 0; i < sizeof(T); ++i) {
+        checksum += src[i] + 1;
+        checksum *= 31;
+    }
+}
+
+template<class T>
+inline void serialize_field(
+    const T& value,
+    bstone::BinaryWriter& writer,
+    Uint32& checksum)
+{
+    ::DoChecksum(value, checksum);
+    if (!writer.write(bstone::Endian::le(value)))
+        throw ArchiveException("serialize_field");
+}
+
+template<class T,size_t N>
+inline void serialize_field(
+    const T (&value)[N],
+    bstone::BinaryWriter& writer,
+    Uint32& checksum)
+{
+    for (size_t i = 0; i < N; ++i)
+        ::serialize_field<T>(value[i], writer, checksum);
+}
+
+template<class T,size_t M,size_t N>
+inline void serialize_field(
+    const T (&value)[M][N],
+    bstone::BinaryWriter& writer,
+    Uint32& checksum)
+{
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < N; ++j)
+            ::serialize_field<T>(value[i][j], writer, checksum);
+    }
+}
+
+template<class T>
+inline void deserialize_field(
+    T& value,
+    bstone::BinaryReader& reader,
+    Uint32& checksum)
+{
+    if (!reader.read(value))
+        throw ArchiveException("deserialize_field");
+
+    bstone::Endian::lei(value);
+    ::DoChecksum(value, checksum);
+}
+
+template<class T,size_t N>
+inline void deserialize_field(
+    T (&value)[N],
+    bstone::BinaryReader& reader,
+    Uint32& checksum)
+{
+    for (size_t i = 0; i < N; ++i)
+        ::deserialize_field<T>(value[i], reader, checksum);
+}
+
+template<class T,size_t M,size_t N>
+inline void deserialize_field(
+    T (&value)[M][N],
+    bstone::BinaryReader& reader,
+    Uint32& checksum)
+{
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < N; ++j)
+            ::deserialize_field<T>(value[i][j], reader, checksum);
+    }
+}
 // BBi
