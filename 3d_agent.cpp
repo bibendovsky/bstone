@@ -3363,15 +3363,16 @@ void LoadOverheadChunk(Sint16 tpNum)
 void LoadOverheadChunk(
     int tpNum)
 {
-    char chunk[5]="OVxx";
-
     // Find and load chunk
     //
     ::g_playtemp.set_position(0);
 
-    ::sprintf(&chunk[2],"%02x",tpNum);
+    std::string chunk_name = "LV" + (
+        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
+        std::hex << std::uppercase << tpNum).to_string();
 
-    if (::FindChunk(&g_playtemp, chunk)) {
+
+    if (::FindChunk(&g_playtemp, chunk_name)) {
         ov_noImage = false;
         g_playtemp.read(ov_buffer, 4096);
         g_playtemp.read(&ov_stats, sizeof(statsInfoType));
@@ -3426,12 +3427,14 @@ void SaveOverheadChunk(
     int tpNum)
 {
     Sint32 cksize = 4096 + sizeof(statsInfoType);
-    char chunk[5]="OVxx";
 
     // Remove level chunk from file
     //
-    ::sprintf(&chunk[2],"%02x",tpNum);
-    ::DeleteChunk(g_playtemp, chunk);
+    std::string chunk_name = "LV" + (
+        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
+        std::hex << std::uppercase << tpNum).to_string();
+
+    ::DeleteChunk(g_playtemp, chunk_name);
 
     // Prepare buffer
     //
@@ -3440,7 +3443,7 @@ void SaveOverheadChunk(
     // Write chunk ID, SIZE, and IMAGE
     //
     g_playtemp.seek(0, bstone::STREAM_SEEK_END);
-    g_playtemp.write(chunk, 4);
+    g_playtemp.write(chunk_name.c_str(), 4);
     g_playtemp.write(&cksize, sizeof(cksize));
     g_playtemp.write(ov_buffer, 4096);
     g_playtemp.write(&ov_stats, sizeof(statsInfoType));

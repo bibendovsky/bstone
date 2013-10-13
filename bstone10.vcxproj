@@ -103,6 +103,7 @@
     <ClCompile Include="bstone_binary_writer.cpp" />
     <ClCompile Include="bstone_c.cpp" />
     <ClCompile Include="bstone_file_stream.cpp" />
+    <ClCompile Include="bstone_format_string.cpp" />
     <ClCompile Include="bstone_istream.cpp" />
     <ClCompile Include="bstone_memory_binary_reader.cpp" />
     <ClCompile Include="bstone_memory_stream.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="bstone_binary_writer.h" />
     <ClInclude Include="bstone_c.h" />
     <ClInclude Include="bstone_file_stream.h" />
+    <ClInclude Include="bstone_format_string.h" />
     <ClInclude Include="bstone_istream.h" />
     <ClInclude Include="bstone_memory_binary_reader.h" />
     <ClInclude Include="bstone_memory_stream.h" />

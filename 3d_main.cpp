@@ -1639,7 +1639,6 @@ bool LoadLevel(
     extern boolean ForceLoadDefault;
 
     boolean oldloaded = loadedgame;
-    char chunk[5] = "LVxx";
 
     extern Sint16 nsd_table[];
     extern Sint16 sm_table[];
@@ -1655,11 +1654,13 @@ bool LoadLevel(
     shade_max = sm_table[mod];
     normalshade = (3 * (maxscale >> 2)) / normalshade_div;
 
-    sprintf(&chunk[2], "%02x",level_index);
+    std::string chunk_name = "LV" + (
+        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
+        std::hex << std::uppercase << level_index).to_string();
 
     g_playtemp.set_position(0);
 
-    if ((::FindChunk(&g_playtemp, chunk) == 0) || ForceLoadDefault) {
+    if ((::FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault) {
         ::SetupGameLevel();
 
         gamestate.flags |= GS_VIRGIN_LEVEL;
@@ -1968,8 +1969,6 @@ exit_func:;
 bool SaveLevel(
     int level_index)
 {
-    char chunk[5] = "LVxx";
-
     WindowY = 181;
 
     // Make sure floor stats are saved!
@@ -1986,14 +1985,17 @@ bool SaveLevel(
 
     // Remove level chunk from file
     //
-    ::sprintf(&chunk[2], "%02x", level_index);
-    ::DeleteChunk(g_playtemp, chunk);
+    std::string chunk_name = "LV" + (
+        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
+        std::hex << std::uppercase << level_index).to_string();
+
+    ::DeleteChunk(g_playtemp, chunk_name);
 
     g_playtemp.seek(0, bstone::STREAM_SEEK_END);
 
     // Write level chunk id
     //
-    g_playtemp.write(chunk, 4);
+    g_playtemp.write(chunk_name.c_str(), 4);
 
     // leave four bytes for chunk size
     g_playtemp.skip(4);

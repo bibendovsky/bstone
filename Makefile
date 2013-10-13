@@ -48,6 +48,7 @@ SRCS       =  dosbox/dbopl.cpp                              \
 	      bstone_binary_writer.cpp                      \
 	      bstone_c.cpp                                  \
 	      bstone_file_stream.cpp                        \
+	      bstone_format_string.cpp                      \
 	      bstone_istream.cpp                            \
 	      bstone_memory_binary_reader.cpp               \
 	      bstone_memory_stream.cpp                      \
@@ -114,4 +115,3 @@ $(OBJDIR)/%.o: %.cpp
 
 clean:
 	rm -f $(PROGRAM) $(OBJS)
- 
