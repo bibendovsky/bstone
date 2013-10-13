@@ -749,6 +749,42 @@ static int get_state_index(statetype* state)
     return -1;
 }
 
+
+class ArchiveException : public std::exception {
+public:
+    explicit ArchiveException(
+        const char* what) throw() :
+        what_(what)
+    {
+    }
+
+    ArchiveException(
+        const ArchiveException& that) throw() :
+            what_(that.what_)
+    {
+    }
+
+    virtual ~ArchiveException() throw()
+    {
+    }
+
+    ArchiveException& operator=(
+        const ArchiveException& that) throw()
+    {
+        what_ = that.what_;
+        return *this;
+    }
+
+    virtual const char* what() const throw()
+    {
+        return what_;
+    }
+
+private:
+    const char* what_;
+}; // class ArchiveException
+
+
 bstone::MemoryStream g_playtemp;
 
 
@@ -772,7 +808,8 @@ static void serialize_field(
     Uint32& checksum)
 {
     ::DoChecksum(value, checksum);
-    writer.write(bstone::Endian::le(value));
+    if (!writer.write(bstone::Endian::le(value)))
+        throw ArchiveException("serialize_field");
 }
 
 template<class T,size_t N>
@@ -803,7 +840,9 @@ static void deserialize_field(
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
-    reader.read(value);
+    if (!reader.read(value))
+        throw ArchiveException("deserialize_field");
+
     bstone::Endian::lei(value);
     ::DoChecksum(value, checksum);
 }
@@ -1595,36 +1634,32 @@ overlay:;
 #endif // 0
 
 bool LoadLevel(
-    int levelnum)
+    int level_index)
 {
     extern boolean ForceLoadDefault;
 
-    int i;
-    int j;
     boolean oldloaded = loadedgame;
-    bstone::MemoryStream& stream = g_playtemp;
-    void* temp;
     char chunk[5] = "LVxx";
-    size_t ob_size;
 
     extern Sint16 nsd_table[];
     extern Sint16 sm_table[];
 
-    char mod;
-
     WindowY = 181;
-    gamestuff.level[levelnum].locked = false;
 
-    mod = levelnum % 6;
-    normalshade_div = nsd_table[static_cast<int>(mod)];
-    shade_max = sm_table[static_cast<int>(mod)];
+    int real_level_index =
+        level_index != 0xFF ? level_index : gamestate.mapon;
+
+    gamestuff.level[real_level_index].locked = false;
+    int mod = real_level_index % 6;
+    normalshade_div = nsd_table[mod];
+    shade_max = sm_table[mod];
     normalshade = (3 * (maxscale >> 2)) / normalshade_div;
 
-    sprintf(&chunk[2], "%02x",levelnum);
+    sprintf(&chunk[2], "%02x",level_index);
 
     g_playtemp.set_position(0);
 
-    if ((::FindChunk(&stream, chunk) == 0) || ForceLoadDefault) {
+    if ((::FindChunk(&g_playtemp, chunk) == 0) || ForceLoadDefault) {
         ::SetupGameLevel();
 
         gamestate.flags |= GS_VIRGIN_LEVEL;
@@ -1647,116 +1682,127 @@ bool LoadLevel(
     ::SetupGameLevel();
     loadedgame = oldloaded;
 
-    bstone::BinaryReader reader(&stream);
+    bstone::BinaryReader reader(&g_playtemp);
 
-    ::deserialize_field(tilemap, reader, checksum);
+    try {
+        ::deserialize_field(tilemap, reader, checksum);
 
-    for (int i = 0; i < MAPSIZE; ++i) {
-        for (int j = 0; j < MAPSIZE; ++j) {
-            Sint32 value = 0;
-            ::deserialize_field(value, reader, checksum);
+        for (int i = 0; i < MAPSIZE; ++i) {
+            for (int j = 0; j < MAPSIZE; ++j) {
+                Sint32 value = 0;
+                ::deserialize_field(value, reader, checksum);
 
-            if (value < 0)
-                actorat[i][j] = &objlist[-value];
-            else
-                actorat[i][j] = reinterpret_cast<objtype*>(value);
+                if (value < 0)
+                    actorat[i][j] = &objlist[-value];
+                else
+                    actorat[i][j] = reinterpret_cast<objtype*>(value);
+            }
         }
-    }
 
-    ::deserialize_field(areaconnect, reader, checksum);
-    ::deserialize_field(areabyplayer, reader, checksum);
+        ::deserialize_field(areaconnect, reader, checksum);
+        ::deserialize_field(areabyplayer, reader, checksum);
 
-    // Restore 'save game' actors
-    //
+        // Restore 'save game' actors
+        //
 
-    Sint32 actor_count = 0;
-    ::deserialize_field(actor_count, reader, checksum);
+        Sint32 actor_count = 0;
+        ::deserialize_field(actor_count, reader, checksum);
 
-    ::InitActorList();
-    new_actor->deserialize(reader, checksum);
+        if (actor_count < 1 || actor_count >= MAXACTORS)
+            throw ArchiveException("actor_count");
 
-    for (Sint32 i = 1; i < actor_count; ++i) {
-        ::GetNewActor();
+        ::InitActorList();
         new_actor->deserialize(reader, checksum);
-        actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
-    #if LOOK_FOR_DEAD_GUYS
-        if ((new_actor->flags & FL_DEADGUY) != 0)
-            DeadGuys[NumDeadGuys++] = new_actor;
-    #endif
-    }
+        for (Sint32 i = 1; i < actor_count; ++i) {
+            ::GetNewActor();
+            new_actor->deserialize(reader, checksum);
+            actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
-    //
-    //  Re-Establish links to barrier switches
-    //
-
-    for (objtype* actor = objlist; actor != NULL;
-        actor = actor->next)
-    {
-        switch (actor->obclass) {
-        case arc_barrierobj:
-        case post_barrierobj:
-        case vspike_barrierobj:
-        case vpost_barrierobj:
-            actor->temp2 = ::ScanBarrierTable(
-                actor->tilex, actor->tiley);
-            break;
-
-        default:
-            break;
+        #if LOOK_FOR_DEAD_GUYS
+            if ((new_actor->flags & FL_DEADGUY) != 0)
+                DeadGuys[NumDeadGuys++] = new_actor;
+        #endif
         }
+
+        //
+        //  Re-Establish links to barrier switches
+        //
+
+        for (objtype* actor = objlist; actor != NULL;
+            actor = actor->next)
+        {
+            switch (actor->obclass) {
+            case arc_barrierobj:
+            case post_barrierobj:
+            case vspike_barrierobj:
+            case vpost_barrierobj:
+                actor->temp2 = ::ScanBarrierTable(
+                    actor->tilex, actor->tiley);
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        ::ConnectBarriers();
+
+        // Read all sorts of stuff...
+        //
+
+        Sint32 laststatobj_index = 0;
+        ::deserialize_field(laststatobj_index, reader, checksum);
+
+        if (laststatobj_index < 0)
+            laststatobj = NULL;
+        else
+            laststatobj = &statobjlist[laststatobj_index];
+
+        for (int i = 0; i < MAXSTATS; ++i)
+            statobjlist[i].deserialize(reader, checksum);
+
+        ::deserialize_field(doorposition, reader, checksum);
+
+        for (int i = 0; i < MAXDOORS; ++i)
+            doorobjlist[i].deserialize(reader, checksum);
+
+        ::deserialize_field(pwallstate, reader, checksum);
+        ::deserialize_field(pwallx, reader, checksum);
+        ::deserialize_field(pwally, reader, checksum);
+        ::deserialize_field(pwalldir, reader, checksum);
+        ::deserialize_field(pwallpos, reader, checksum);
+        ::deserialize_field(pwalldist, reader, checksum);
+        ::deserialize_field(TravelTable, reader, checksum);
+        ConHintList.deserialize(reader, checksum);
+
+        for (int i = 0; i < MAXEAWALLS; ++i)
+            eaList[i].deserialize(reader, checksum);
+
+        GoldsternInfo.deserialize(reader, checksum);
+
+        for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+            GoldieList[i].deserialize(reader, checksum);
+
+        for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+            gamestate.barrier_table[i].deserialize(reader, checksum);
+
+        ::deserialize_field(gamestate.plasma_detonators, reader, checksum);
+    } catch (const ArchiveException&) {
+        is_succeed = false;
     }
-
-    ::ConnectBarriers();
-
-    // Read all sorts of stuff...
-    //
-
-    Sint32 laststatobj_index = 0;
-    ::deserialize_field(laststatobj_index, reader, checksum);
-
-    if (laststatobj_index < 0)
-        laststatobj = NULL;
-    else
-        laststatobj = &statobjlist[laststatobj_index];
-
-    for (int i = 0; i < MAXSTATS; ++i)
-        statobjlist[i].deserialize(reader, checksum);
-
-    ::deserialize_field(doorposition, reader, checksum);
-
-    for (int i = 0; i < MAXDOORS; ++i)
-        doorobjlist[i].deserialize(reader, checksum);
-
-    ::deserialize_field(pwallstate, reader, checksum);
-    ::deserialize_field(pwallx, reader, checksum);
-    ::deserialize_field(pwally, reader, checksum);
-    ::deserialize_field(pwalldir, reader, checksum);
-    ::deserialize_field(pwallpos, reader, checksum);
-    ::deserialize_field(pwalldist, reader, checksum);
-    ::deserialize_field(TravelTable, reader, checksum);
-    ConHintList.deserialize(reader, checksum);
-
-    for (int i = 0; i < MAXEAWALLS; ++i)
-        eaList[i].deserialize(reader, checksum);
-
-    GoldsternInfo.deserialize(reader, checksum);
-
-    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
-        GoldieList[i].deserialize(reader, checksum);
-
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-        gamestate.barrier_table[i].deserialize(reader, checksum);
-
-    ::deserialize_field(gamestate.plasma_detonators, reader, checksum);
 
     // Read and evaluate checksum
     //
-    Uint32 saved_checksum = 0;
-    reader.read(saved_checksum);
-    bstone::Endian::lei(saved_checksum);
+    if (is_succeed) {
+        Uint32 saved_checksum = 0;
+        reader.read(saved_checksum);
+        bstone::Endian::lei(saved_checksum);
 
-    if (saved_checksum != checksum) {
+        is_succeed = (saved_checksum == checksum);
+    }
+
+    if (!is_succeed) {
         Sint16 old_wx = WindowX;
         Sint16 old_wy = WindowY;
         Sint16 old_ww = WindowW;
@@ -1796,7 +1842,8 @@ bool LoadLevel(
 
     // Check for Strange Door and Actor combos
     //
-    ::CleanUpDoors_N_Actors();
+    if (is_succeed)
+        ::CleanUpDoors_N_Actors();
 
     return is_succeed;
 }
@@ -1921,7 +1968,6 @@ exit_func:;
 bool SaveLevel(
     int level_index)
 {
-    bstone::MemoryStream& stream = g_playtemp;
     char chunk[5] = "LVxx";
 
     WindowY = 181;
@@ -1930,7 +1976,8 @@ bool SaveLevel(
     //
     Sint16 oldmapon = gamestate.mapon;
     gamestate.mapon = gamestate.lastmapon;
-    ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
+    ::ShowStats(0, 0, ss_justcalc,
+        &gamestuff.level[gamestate.mapon].stats);
     gamestate.mapon = oldmapon;
 
     // Yeah! We're no longer a virgin!
@@ -1940,23 +1987,21 @@ bool SaveLevel(
     // Remove level chunk from file
     //
     ::sprintf(&chunk[2], "%02x", level_index);
-    ::DeleteChunk(stream, chunk);
+    ::DeleteChunk(g_playtemp, chunk);
 
-    stream.seek(0, bstone::STREAM_SEEK_END);
+    g_playtemp.seek(0, bstone::STREAM_SEEK_END);
 
     // Write level chunk id
     //
-    stream.write(chunk, 4);
+    g_playtemp.write(chunk, 4);
 
     // leave four bytes for chunk size
-    stream.skip(4);
-
-    bool is_succeed = true;
+    g_playtemp.skip(4);
 
     Uint32 checksum = 0;
-    Sint64 beg_offset = stream.get_position();
+    Sint64 beg_offset = g_playtemp.get_position();
 
-    bstone::BinaryWriter writer(&stream);
+    bstone::BinaryWriter writer(&g_playtemp);
 
     ::serialize_field(tilemap, writer, checksum);
 
@@ -2045,21 +2090,20 @@ bool SaveLevel(
 
     // Write checksum and determine size of file
     //
-    if (!writer.write(bstone::Endian::le(checksum)))
-        return false;
+    writer.write(bstone::Endian::le(checksum));
 
-    Sint64 end_offset = stream.get_position();
+    Sint64 end_offset = g_playtemp.get_position();
     Sint32 chunk_size = static_cast<Sint32>(end_offset - beg_offset);
 
     // Write chunk size, set file size, and close file
     //
-    stream.seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
+    g_playtemp.seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
     writer.write(bstone::Endian::le(chunk_size));
-    stream.set_size(end_offset);
+    g_playtemp.set_size(end_offset);
 
     ::NewViewSize(viewsize);
 
-    return is_succeed;
+    return true;
 }
 
 //--------------------------------------------------------------------------
@@ -2144,7 +2188,7 @@ char SavegameInfoText[] =
     "\x1a";
 #endif // 0
 
-char SavegameInfoText[] =
+static const std::string SavegameInfoText =
     "bstone (planet strike) save (v" BS_SAVE_VERSION ")";
 
 
@@ -2266,144 +2310,120 @@ cleanup:;
 bool LoadTheGame(
     bstone::IStream* stream)
 {
-    bool result = false;
+    assert(stream != NULL);
 
-    class AtExit {
-    public:
-        AtExit(
-            bool& result) :
-                result_(result)
-        {
-        }
+    bool is_succeed = true;
 
-        ~AtExit()
-        {
-            ::NewViewSize(viewsize);
-
-            // Load current level
-            //
-            if (result_) {
-                ::LoadLevel(0xFF);
-                ShowQuickMsg = false;
-            }
-        }
-
-    private:
-        bool& result_;
-
-        AtExit(
-            const AtExit& that) :
-                result_(that.result_)
-        {
-        }
-
-        AtExit& operator=(
-            const AtExit& that)
-        {
-            return *this;
-        }
-    }; // AtExit
-
-    AtExit at_exit(result);
-
-    if (stream == NULL)
-        return false;
-
-    g_playtemp.set_size(0);
-    g_playtemp.set_position(0);
-
-    bstone::IStream* handle = stream;
-    Sint32 cksize;
-    char InfoSpace[400];
+    if (is_succeed) {
+        is_succeed &= g_playtemp.set_size(0);
+        is_succeed &= g_playtemp.set_position(0);
+    }
 
     // Read in VERSion chunk
     //
-    if (::FindChunk(stream, "VERS") == 0)
-        return false;
+    if (is_succeed)
+        is_succeed = (::FindChunk(stream, "VERS") != 0);
 
-    cksize = sizeof(SavegameInfoText);
-    stream->read(InfoSpace, cksize);
-
-    if (::memcmp(InfoSpace, SavegameInfoText, cksize) != 0) {
-        // Old Version of game
-
-        Sint16 old_wx = WindowX;
-        Sint16 old_wy = WindowY;
-        Sint16 old_ww = WindowW;
-        Sint16 old_wh = WindowH;
-        Sint16 old_px = px;
-        Sint16 old_py = py;
-
-        WindowX = 0;
-        WindowY = 16;
-        WindowW = 320;
-        WindowH = 168;
-
-        ::CacheMessage(BADSAVEGAME_TEXT);
-
-        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
-
-        WindowX = old_wx;
-        WindowY = old_wy;
-        WindowW = old_ww;
-        WindowH = old_wh;
-
-        px = old_px;
-        py = old_py;
-
-        ::IN_ClearKeysDown();
-        ::IN_Ack();
-
-        ::VW_FadeOut();
-        screenfaded = true;
-
-        return false;
+    if (is_succeed) {
+        int version_size = static_cast<int>(SavegameInfoText.size());
+        std::vector<char> version_buffer;
+        version_buffer.resize(version_size);
+        stream->read(&version_buffer[0], version_size);
+        std::string version(&version_buffer[0], version_size);
+        is_succeed = (SavegameInfoText.compare(version) == 0);
     }
 
     // Read in HEAD chunk
     //
-    if (::FindChunk(stream, "HEAD") == 0)
-        return false;
+    if (is_succeed)
+        is_succeed = (::FindChunk(stream, "HEAD") != 0);
 
     Uint32 checksum = 0;
     bstone::BinaryReader reader(stream);
 
-    //ReadIt(false, &gamestate, sizeof(gamestate));
-    gamestate.deserialize(reader, checksum);
-
-    //gamestate.msg = NULL;
-
-    //ReadIt(false, &gamestuff, sizeof(gamestuff));
-    gamestuff.deserialize(reader, checksum);
-
-    Uint32 saved_checksum = 0;
-    reader.read(saved_checksum);
-    bstone::Endian::lei(saved_checksum);
-
-    if (saved_checksum != checksum)
-        return false;
-
-#if DUAL_SWAP_FILES
-    // Reinitialize page manager
-    //
-    PM_Shutdown();
-    PM_Startup ();
-    PM_UnlockMainMem();
-#endif
-
-    // Start music for the starting level in this loaded game.
-    //
-    ::FreeMusic();
-    ::StartMusic(false);
-
-    if (!stream->copy_to(&g_playtemp)) {
-        g_playtemp.set_size(0);
-        return false;
+    if (is_succeed) {
+        try {
+            gamestate.deserialize(reader, checksum);
+            gamestuff.deserialize(reader, checksum);
+        } catch (const ArchiveException&) {
+            is_succeed = false;
+        }
     }
 
-    result = true;
+    if (is_succeed) {
+        Uint32 saved_checksum = 0;
+        reader.read(saved_checksum);
+        bstone::Endian::lei(saved_checksum);
+        is_succeed = (saved_checksum == checksum);
+    }
 
-    return true;
+    if (is_succeed)
+        is_succeed = stream->copy_to(&g_playtemp);
+
+    ::NewViewSize(viewsize);
+
+    bool show_error_message = true;
+
+    if (is_succeed) {
+#if DUAL_SWAP_FILES
+        // Reinitialize page manager
+        //
+        PM_Shutdown();
+        PM_Startup ();
+        PM_UnlockMainMem();
+#endif
+
+        // Start music for the starting level in this loaded game.
+        //
+        ::FreeMusic();
+        ::StartMusic(false);
+
+        is_succeed = ::LoadLevel(0xFF);
+
+        // Already shown in LoadLevel
+        show_error_message = false;
+    }
+
+    if (is_succeed) {
+        ShowQuickMsg = false;
+    } else {
+        g_playtemp.set_size(0);
+        g_playtemp.set_position(0);
+
+        if (show_error_message) {
+            Sint16 old_wx = WindowX;
+            Sint16 old_wy = WindowY;
+            Sint16 old_ww = WindowW;
+            Sint16 old_wh = WindowH;
+            Sint16 old_px = px;
+            Sint16 old_py = py;
+
+            WindowX = 0;
+            WindowY = 16;
+            WindowW = 320;
+            WindowH = 168;
+
+            ::CacheMessage(BADSAVEGAME_TEXT);
+
+            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+
+            WindowX = old_wx;
+            WindowY = old_wy;
+            WindowW = old_ww;
+            WindowH = old_wh;
+
+            px = old_px;
+            py = old_py;
+
+            ::IN_ClearKeysDown();
+            ::IN_Ack();
+
+            ::VW_FadeOut();
+            screenfaded = true;
+        }
+    }
+
+    return is_succeed;
 }
 
 //--------------------------------------------------------------------------
@@ -2501,69 +2521,73 @@ bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description)
 {
-    bstone::IStream* handle = stream;
+    bool is_succeed = true;
 
     Sint32 cksize;
-    char nbuff[GAME_DESCRIPTION_LEN + 1];
-    bool rt_value = false;
 
     // Save current level -- saves it into PLAYTEMP.
     //
-    SaveLevel(0xFF);
+    ::SaveLevel(0xFF);
 
     // Write VERSion chunk
     //
-    cksize = sizeof(SavegameInfoText);
-    stream->write("VERS", 4);
-    stream->write(&cksize, 4);
-    stream->write(SavegameInfoText, cksize);
+    cksize = static_cast<Sint32>(SavegameInfoText.size());
+    is_succeed &= stream->write("VERS", 4);
+    is_succeed &= stream->write(&cksize, 4);
+    is_succeed &= stream->write(SavegameInfoText.c_str(), cksize);
 
     // Write DESC chunk
     //
-    memcpy(nbuff, description.c_str(), sizeof(nbuff));
-    cksize = static_cast<Sint32>(strlen(nbuff) + 1);
-    stream->write("DESC", 4);
-    stream->write(&cksize, 4);
-    stream->write(nbuff, cksize);
+    std::vector<char> desc_buffer(description.begin(), description.end());
+    desc_buffer.resize(GAME_DESCRIPTION_LEN + 1);
+    cksize = static_cast<Sint32>(desc_buffer.size());
+    is_succeed &= stream->write("DESC", 4);
+    is_succeed &= stream->write(&cksize, 4);
+    is_succeed &= stream->write(&desc_buffer[0], cksize);
 
     // Write HEAD chunk
     //
     cksize = 0;
-    stream->write("HEAD", 4);
+    is_succeed &= stream->write("HEAD", 4);
 
     // leave four bytes for chunk size
-    stream->skip(4);
+    is_succeed &= (stream->skip(4) >= 0);
 
     Uint32 checksum = 0;
     bstone::BinaryWriter writer(stream);
 
     Sint64 beg_position = stream->get_position();
 
-    gamestate.serialize(writer, checksum);
-    gamestuff.serialize(writer, checksum);
+    is_succeed &= (beg_position >= 0);
 
-    writer.write(bstone::Endian::le(checksum));
+    if (is_succeed) {
+        try {
+            gamestate.serialize(writer, checksum);
+            gamestuff.serialize(writer, checksum);
+        } catch (const ArchiveException&) {
+            is_succeed = false;
+        }
+    }
+
+    is_succeed &= writer.write(bstone::Endian::le(checksum));
 
     Sint64 end_position = stream->get_position();
+    is_succeed &= (end_position >= 0);
 
-    cksize = static_cast<Sint32>(end_position - beg_position);
+    if (is_succeed) {
+        cksize = static_cast<Sint32>(end_position - beg_position);
 
-    stream->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
-    stream->write(&cksize, 4);
-    stream->seek(cksize, bstone::STREAM_SEEK_CURRENT);
+        stream->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
+        stream->write(&cksize, 4);
+        stream->seek(cksize, bstone::STREAM_SEEK_CURRENT);
 
-    g_playtemp.set_position(0);
-
-    if (!g_playtemp.copy_to(stream))
-        goto cleanup;
-
-    rt_value = true;
-
-cleanup:
+        g_playtemp.set_position(0);
+        is_succeed = g_playtemp.copy_to(stream);
+    }
 
     ::NewViewSize(viewsize);
 
-    return rt_value;
+    return is_succeed;
 }
 
 //--------------------------------------------------------------------------
