@@ -24,6 +24,7 @@
 #include "bstone_endian.h"
 #include "bstone_file_stream.h"
 #include "bstone_format_string.h"
+#include "bstone_memory_binary_reader.h"
 #include "bstone_memory_stream.h"
 
 // FIXME

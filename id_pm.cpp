@@ -6,44 +6,57 @@
 // File specific variables
 char PageFileName[13] = {"VSWAP."};
 
-static bstone::FileStream PageFile;
-Uint16 ChunksInFile;
-Uint16 PMSpriteStart;
-Uint16 PMSoundStart;
-
-static Uint8* raw_data;
-static Uint32* chunks_offsets;
+int ChunksInFile = 0;
+int PMSpriteStart = 0;
+int PMSoundStart = 0;
 
 
-static void open_page_file(const char* filename)
+namespace {
+
+
+bstone::FileStream PageFile;
+Uint8* raw_data = NULL;
+Uint32* chunks_offsets = NULL;
+
+
+} // namespace
+
+
+static void open_page_file(
+    const char* file_name)
 {
-    Sint32 file_length;
-
-    PageFile.open(filename);
+    PageFile.open(file_name);
 
     if (!PageFile.is_open())
         PM_ERROR(PML_OPENPAGEFILE_OPEN);
 
-    file_length = static_cast<Sint32>(PageFile.get_size());
+    Sint64 file_length = PageFile.get_size();
 
-    raw_data = new Uint8[file_length + PMPageSize];
-    memset(&raw_data[file_length], 0, PMPageSize);
+    if (file_length > 4 * 1024 * 1024)
+        ::Quit("Page file is too large.");
 
-    if (PageFile.read(raw_data, file_length) != file_length)
+    Sint32 file_length_32 = static_cast<Sint32>(file_length);
+
+    raw_data = new Uint8[file_length_32 + PMPageSize];
+    std::uninitialized_fill_n(&raw_data[file_length], PMPageSize, 0);
+
+    if (PageFile.read(raw_data, file_length_32) != file_length_32)
         PM_ERROR(PML_READFROMFILE_READ);
 
-    ChunksInFile = ((Uint16*)raw_data)[0];
-    PMSpriteStart = ((Uint16*)raw_data)[1];
-    PMSoundStart = ((Uint16*)raw_data)[2];
+    bstone::MemoryBinaryReader reader(raw_data, file_length);
 
-    chunks_offsets = (Uint32*)&raw_data[6];
+    ChunksInFile = bstone::Endian::le(reader.read_u16());
+    PMSpriteStart = bstone::Endian::le(reader.read_u16());
+    PMSoundStart = bstone::Endian::le(reader.read_u16());
+
+    chunks_offsets = reinterpret_cast<Uint32*>(raw_data);
+    bstone::Endian::lei(chunks_offsets, ChunksInFile + 1);
 }
 
 void PM_Startup()
 {
-    PM_Shutdown();
-
-    open_page_file(PageFileName);
+    ::PM_Shutdown();
+    ::open_page_file(PageFileName);
 }
 
 void PM_Shutdown()
@@ -60,14 +73,13 @@ void PM_Shutdown()
     chunks_offsets = NULL;
 }
 
-void* PM_GetPage(int page_number)
+void* PM_GetPage(
+    int page_number)
 {
-    Uint32 offset;
-
     if (page_number >= ChunksInFile)
         PM_ERROR(PM_GETPAGE_BAD_PAGE);
 
-    offset = chunks_offsets[page_number];
+    Uint32 offset = chunks_offsets[page_number];
 
     if (offset == 0)
         PM_ERROR(PM_GETPAGE_SPARSE_PAGE);
@@ -75,12 +87,14 @@ void* PM_GetPage(int page_number)
     return &raw_data[offset];
 }
 
-void* PM_GetSoundPage(int page_number)
+void* PM_GetSoundPage(
+    int page_number)
 {
     return PM_GetPage(PMSoundStart + page_number);
 }
 
-void* PM_GetSpritePage(int page_number)
+void* PM_GetSpritePage(
+    int page_number)
 {
     return PM_GetPage(PMSpriteStart + page_number);
 }

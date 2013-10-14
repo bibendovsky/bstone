@@ -80,13 +80,6 @@ public:
 
     // Returns a pointer to data for a current position.
     template<class T>
-    T* get_data()
-    {
-        return reinterpret_cast<T*>(&data_[data_offset_]);
-    }
-
-    // Returns a pointer to data for a current position.
-    template<class T>
     const T* get_data() const
     {
         return reinterpret_cast<const T*>(&data_[data_offset_]);
