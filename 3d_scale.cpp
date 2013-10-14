@@ -317,11 +317,11 @@ void ScaleMaskedLSPost(int height, int buf)
 
     sprtopoffset=((Sint32)viewheight << 15) - (height << 15) + (bounce >> 1);
 
-    end = (*(srcpost++)) >> 1;
+    end = (bstone::Endian::le(*srcpost++)) >> 1;
     for ( ; end != 0; ) {
-        dc_source = *srcpost++;
+        dc_source = bstone::Endian::le(*srcpost++);
 
-        start = (*srcpost++) >> 1;
+        start = bstone::Endian::le(*srcpost++) >> 1;
 
         dc_source += start;
         dc_source %= 65536;
@@ -353,7 +353,7 @@ void ScaleMaskedLSPost(int height, int buf)
                 R_DrawLSColumn();
         }
 
-        end = (*srcpost++) >> 1;
+        end = bstone::Endian::le(*srcpost++) >> 1;
     }
 }
 
@@ -512,11 +512,11 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
 
     sprtopoffset = ((Sint32)viewheight << 15) - ((Sint32)height << 15) + (bounce >> 1);
 
-    end = (*srcpost++) >> 1;
+    end = bstone::Endian::le(*srcpost++) >> 1;
 
     for ( ; end != 0; ) {
-        dc_source = *srcpost++;
-        start = (*srcpost++) >> 1;
+        dc_source = bstone::Endian::le(*srcpost++);
+        start = bstone::Endian::le(*srcpost++) >> 1;
         dc_source += start;
         dc_source %= 65536;
         length = end - start;
@@ -540,7 +540,7 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
             R_DrawColumn();
         }
 
-        end=(*srcpost++) >> 1;
+        end=bstone::Endian::le(*srcpost++) >> 1;
     }
 }
 
