@@ -7,6 +7,8 @@
 
 #include "SDL.h"
 
+#include "bstone_endian.h"
+
 
 namespace {
 } // namespace
@@ -45,7 +47,7 @@ bool AdlibMusicDecoder::initialize(
 
     reader_.initialize(raw_data, raw_size);
 
-    int commands_size = SDL_SwapLE16(reader_.read_u16());
+    int commands_size = bstone::Endian::le(reader_.read_u16());
 
     if ((commands_size % 4) != 0)
         return false;
@@ -63,7 +65,7 @@ bool AdlibMusicDecoder::initialize(
 
     for (int i = 0; i < commands_count_; ++i) {
         reader_.skip(2);
-        ticks_count += reader_.read_u16();
+        ticks_count += bstone::Endian::le(reader_.read_u16());
     }
 
     set_dst_length_in_samples(ticks_count * samples_per_tick_);
@@ -143,7 +145,7 @@ int AdlibMusicDecoder::decode(
             while (command_index_ < commands_count_ && delay == 0) {
                 int command_port = reader_.read_u8();
                 int command_value = reader_.read_u8();
-                delay = reader_.read_u16();
+                delay = bstone::Endian::le(reader_.read_u16());
 
                 emulator_.write(command_port, command_value);
                 ++command_index_;

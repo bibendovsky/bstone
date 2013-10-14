@@ -7,6 +7,8 @@
 
 #include "SDL.h"
 
+#include "bstone_endian.h"
+
 
 namespace bstone {
 
@@ -56,8 +58,7 @@ bool AdlibSfxDecoder::initialize(
 
     reader_.initialize(raw_data, raw_size);
 
-    int sfx_length = SDL_SwapLE32(
-        reader_.read_s32());
+    int sfx_length = bstone::Endian::le(reader_.read_s32());
 
     if (sfx_length <= 0)
         return false;
