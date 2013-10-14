@@ -1133,7 +1133,7 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
 	//
 	// everything else has an explicit size longword
 	//
-		expanded = *(Sint32 *)source;
+		expanded = bstone::Endian::le(*reinterpret_cast<Sint32*>(source));
 		source += 4;			// skip over length
 	}
 
