@@ -149,11 +149,11 @@ static	void			(*SoundUserHook)(void);
 		Sint32			LocalTime;
 		Uint16			TimerRate;
 
-        Uint16				NumDigi;
 		Uint16				*DigiList;
 
 // FIXME
 #if 0
+        Uint16				NumDigi;
 		Uint16				DigiLeft,DigiPage;
 		Uint16				DigiLastStart,DigiLastEnd;
 		boolean	DigiPlaying;
@@ -1656,18 +1656,17 @@ SDL_SetupDigi(void)
 {
 	void*	list;
 	const Uint16* p;
-	Uint16 pg;
-	Sint16		i;
+	int pg;
+	int i;
 
-    list = new char[PMPageSize];
-	p = (Uint16 *)PM_GetPage(ChunksInFile - 1);
+    list = new Uint8[PMPageSize];
+	p = static_cast<const Uint16*>(PM_GetPage(ChunksInFile - 1));
 	memcpy(list, p, PMPageSize);
 	pg = PMSoundStart;
-	for (i = 0;i < static_cast<int>(PMPageSize / (sizeof(Uint16) * 2));i++,p += 2)
-	{
+	for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i, p += 2) {
 		if (pg >= ChunksInFile - 1)
 			break;
-		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
+		pg += (bstone::Endian::le(p[1]) + (PMPageSize - 1)) / PMPageSize;
 	}
     DigiList = new Uint16[i * 2];
 
@@ -1680,12 +1679,16 @@ SDL_SetupDigi(void)
     Uint16* dst_list = DigiList;
 
     for (int j = 0; j < i; ++j) {
-        *dst_list++ = SDL_SwapLE16(*src_list++);
-        *dst_list++ = SDL_SwapLE16(*src_list++);
+        dst_list[j] = bstone::Endian::le(src_list[j]);
+        dst_list[j] = bstone::Endian::le(src_list[j]);
     }
 
-    delete [] static_cast<char*>(list);
+    delete [] static_cast<Uint8*>(list);
+
+// FIXME
+#if 0
 	NumDigi = i;
+#endif // 0
 
 	for (i = 0;i < sdLastSound;i++)
 		DigiMap[i] = -1;
@@ -2998,7 +3001,7 @@ void SD_StartMusic(
         Uint16* music_data = reinterpret_cast<Uint16*>(
             audiosegs[STARTMUSIC + index]);
 
-        int length = SDL_SwapLE16(music_data[0]) + 2;
+        int length = bstone::Endian::le(music_data[0]) + 2;
 
         sqHack = music_data;
         sqHackLen = static_cast<Uint16>(length);
@@ -3101,7 +3104,7 @@ void sd_play_sound(
     if (SoundMode != sdm_Off && sound == NULL)
         SD_ERROR(SD_PLAYSOUND_UNCACHED);
 
-    int priority = sound->priority;
+    int priority = bstone::Endian::le(sound->priority);
 
     int digi_index = DigiMap[sound_index];
 
