@@ -49,7 +49,7 @@ static void open_page_file(
     PMSpriteStart = bstone::Endian::le(reader.read_u16());
     PMSoundStart = bstone::Endian::le(reader.read_u16());
 
-    chunks_offsets = reinterpret_cast<Uint32*>(raw_data);
+    chunks_offsets = reinterpret_cast<Uint32*>(&raw_data[6]);
     bstone::Endian::lei(chunks_offsets, ChunksInFile + 1);
 }
 
