@@ -2,7 +2,7 @@ project(bstone CXX)
 
 cmake_minimum_required(VERSION 2.8)
 
-find_package(SDL)
+find_package(SDL 2 REQUIRED)
 
 if (MSVC)
 # Definitions
@@ -34,6 +34,13 @@ set(TMP "${TMP} /OPT:REF") # References
 set(TMP "${TMP} /OPT:ICF") # Enable COMDAT Folding
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${TMP}")
 endif (MSVC)
+
+if (MINGW)
+# Common linker flags
+set(TMP "${CMAKE_EXE_LINKER_FLAGS}")
+set(TMP "${TMP} -static") # Link system libraries statically
+set(CMAKE_EXE_LINKER_FLAGS "${TMP}")
+endif (MINGW)
 
 include_directories(
 	${SDL_INCLUDE_DIR}
@@ -104,6 +111,12 @@ add_executable(
 	bstone
 	${srcs}
 )
+
+if (MINGW)
+target_link_libraries(bstone
+	mingw32
+)
+endif (MINGW)
 
 target_link_libraries(bstone
 	${SDLMAIN_LIBRARY}
