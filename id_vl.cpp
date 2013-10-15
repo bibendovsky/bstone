@@ -76,12 +76,12 @@ static void ogl_uninitialize_video();
 
 
 static const GLchar* screen_fs_text =
-    "#ifdef GL_ES\n"
-    "    #version 100\n"
-    "    precision mediump float;\n"
-    "#else\n"
-    "    #version 120\n"
-    "#endif\n"
+#ifdef USE_GLES
+    "#version 100\n"
+    "precision mediump float;\n"
+#else
+    "#version 120\n"
+#endif
 
     "uniform sampler2D screen_tu;\n"
     "uniform sampler2D palette_tu;\n"
@@ -98,12 +98,12 @@ static const GLchar* screen_fs_text =
 ;
 
 static const GLchar* screen_vs_text =
-    "#ifdef GL_ES\n"
-    "    #version 100\n"
-    "    precision mediump float;\n"
-    "#else\n"
-    "    #version 120\n"
-    "#endif\n"
+#ifdef USE_GLES
+    "#version 100\n"
+    "precision mediump float;\n"
+#else
+    "#version 120\n"
+#endif
 
     "attribute vec4 pos_vec4;\n"
     "attribute vec2 tc0_vec2;\n"
