@@ -106,6 +106,6 @@ add_executable(
 )
 
 target_link_libraries(bstone
-	${SDL_LIBRARY}
 	${SDLMAIN_LIBRARY}
+	${SDL_LIBRARY}
 )
