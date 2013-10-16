@@ -47,6 +47,70 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/dosbox
 )
 
+set(hdrs
+	${CMAKE_SOURCE_DIR}/dosbox/adlib.h
+	${CMAKE_SOURCE_DIR}/dosbox/dbopl.h
+	${CMAKE_SOURCE_DIR}/dosbox/dosbox.h
+	${CMAKE_SOURCE_DIR}/dosbox/hardware.h
+	${CMAKE_SOURCE_DIR}/dosbox/inout.h
+	${CMAKE_SOURCE_DIR}/dosbox/mixer.h
+	${CMAKE_SOURCE_DIR}/dosbox/pic.h
+	${CMAKE_SOURCE_DIR}/dosbox/setup.h
+	${CMAKE_SOURCE_DIR}/3d_def.h
+	${CMAKE_SOURCE_DIR}/3d_menu.h
+	${CMAKE_SOURCE_DIR}/an_codes.h
+	${CMAKE_SOURCE_DIR}/audio.h
+	${CMAKE_SOURCE_DIR}/audiobs1.h
+	${CMAKE_SOURCE_DIR}/audiofir.h
+	${CMAKE_SOURCE_DIR}/audiovsi.h
+	${CMAKE_SOURCE_DIR}/bstone_adlib_decoder.h
+	${CMAKE_SOURCE_DIR}/bstone_adlib_music_decoder.h
+	${CMAKE_SOURCE_DIR}/bstone_adlib_sfx_decoder.h
+	${CMAKE_SOURCE_DIR}/bstone_audio_decoder.h
+	${CMAKE_SOURCE_DIR}/bstone_audio_mixer.h
+	${CMAKE_SOURCE_DIR}/bstone_binary_reader.h
+	${CMAKE_SOURCE_DIR}/bstone_binary_writer.h
+	${CMAKE_SOURCE_DIR}/bstone_c.h
+	${CMAKE_SOURCE_DIR}/bstone_endian.h
+	${CMAKE_SOURCE_DIR}/bstone_file_stream.h
+	${CMAKE_SOURCE_DIR}/bstone_format_string.h
+	${CMAKE_SOURCE_DIR}/bstone_istream.h
+	${CMAKE_SOURCE_DIR}/bstone_memory_binary_reader.h
+	${CMAKE_SOURCE_DIR}/bstone_memory_stream.h
+	${CMAKE_SOURCE_DIR}/bstone_ogl_api.h
+	${CMAKE_SOURCE_DIR}/bstone_ogl_version.h
+	${CMAKE_SOURCE_DIR}/bstone_opl2.h
+	${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.h
+	${CMAKE_SOURCE_DIR}/bstone_un_value.h
+	${CMAKE_SOURCE_DIR}/gfxe_bs1.h
+	${CMAKE_SOURCE_DIR}/gfxe_fir.h
+	${CMAKE_SOURCE_DIR}/gfxe_vsi.h
+	${CMAKE_SOURCE_DIR}/gfxv_bs1.h
+	${CMAKE_SOURCE_DIR}/gfxv_fir.h
+	${CMAKE_SOURCE_DIR}/gfxv_vsi.h
+	${CMAKE_SOURCE_DIR}/id_ca.h
+	${CMAKE_SOURCE_DIR}/id_head.h
+	${CMAKE_SOURCE_DIR}/id_heads.h
+	${CMAKE_SOURCE_DIR}/id_in.h
+	${CMAKE_SOURCE_DIR}/id_mm.h
+	${CMAKE_SOURCE_DIR}/id_pm.h
+	${CMAKE_SOURCE_DIR}/id_sd.h
+	${CMAKE_SOURCE_DIR}/id_us.h
+	${CMAKE_SOURCE_DIR}/id_vh.h
+	${CMAKE_SOURCE_DIR}/id_vl.h
+	${CMAKE_SOURCE_DIR}/jam_io.h
+	${CMAKE_SOURCE_DIR}/jm_cio.h
+	${CMAKE_SOURCE_DIR}/jm_debug.h
+	${CMAKE_SOURCE_DIR}/jm_error.h
+	${CMAKE_SOURCE_DIR}/jm_io.h
+	${CMAKE_SOURCE_DIR}/jm_lzh.h
+	${CMAKE_SOURCE_DIR}/jm_tp.h
+	${CMAKE_SOURCE_DIR}/jm_vl.h
+	${CMAKE_SOURCE_DIR}/mapsbs1.h
+	${CMAKE_SOURCE_DIR}/mapsvsi.h
+	${CMAKE_SOURCE_DIR}/movie.h
+)
+
 set(srcs
 	${CMAKE_SOURCE_DIR}/dosbox/dbopl.cpp
 	${CMAKE_SOURCE_DIR}/3d_act1.cpp
@@ -110,6 +174,7 @@ set(srcs
 add_executable(
 	bstone
 	${srcs}
+	${hdrs}
 )
 
 if (MINGW)
