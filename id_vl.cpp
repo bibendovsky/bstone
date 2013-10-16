@@ -10,7 +10,7 @@
 #pragma hdrstop
 #endif
 
-#if defined(PANDORA) /* Pandora VSync Support */
+#if defined(BSTONE_PANDORA) // Pandora VSync Support
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -20,7 +20,7 @@
 #define FBIO_WAITFORVSYNC _IOW('F', 0x20, __u32)
 #endif
 int fbdev = -1;
-#endif
+#endif // BSTONE_PANDORA
 
 
 //
@@ -76,7 +76,7 @@ static void ogl_uninitialize_video();
 
 
 static const GLchar* screen_fs_text =
-#ifdef USE_GLES
+#ifdef BSTONE_USE_GLES
     "#version 100\n"
     "precision mediump float;\n"
 #else
@@ -98,7 +98,7 @@ static const GLchar* screen_fs_text =
 ;
 
 static const GLchar* screen_vs_text =
-#ifdef USE_GLES
+#ifdef BSTONE_USE_GLES
     "#version 100\n"
     "precision mediump float;\n"
 #else
@@ -145,7 +145,7 @@ static GLint u_screen_tu = -1;
 // uniform: palette texture unit
 static GLint u_palette_tu = -1;
 
-#if defined(PANDORA)
+#if defined(BSTONE_PANDORA)
 int window_width = 800;
 int window_height = 480;
 #elif defined(GCW)
@@ -1570,12 +1570,14 @@ void ogl_draw_screen()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-#if defined(PANDORA) /* Pandora VSync */
+
+#if defined(BSTONE_PANDORA) // Pandora VSync
     if (fbdev >= 0) {
         int arg = 0;
         ioctl( fbdev, FBIO_WAITFORVSYNC, &arg );
     }
 #endif
+
     SDL_GL_SwapWindow(sdl_window);
 }
 
@@ -1960,7 +1962,7 @@ static void ogl_uninitialize_video()
     u_screen_tu = -1;
     u_palette_tu = -1;
 
-#if defined(PANDORA) /* Pandora VSync */
+#if defined(BSTONE_PANDORA) // Pandora VSync
     close( fbdev );
     fbdev = -1;
 #endif
@@ -1974,7 +1976,7 @@ static void ogl_initialize_video()
     double h_scale;
     double v_scale;
 
-#if defined(PANDORA) /* Pandora VSync */
+#if defined(BSTONE_PANDORA) // Pandora VSync
     fbdev = open( "/dev/fb0", O_RDONLY /* O_RDWR */ );
     if ( fbdev < 0 ) {
         SDL_LogInfo(
@@ -1997,7 +1999,7 @@ static void ogl_initialize_video()
         SDL_LOG_CATEGORY_APPLICATION,
         "SDL: %s", "Creating a window...");
 
-#if defined(USE_GLES)
+#if defined(BSTONE_USE_GLES)
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
@@ -2026,7 +2028,7 @@ static void ogl_initialize_video()
         window_width,
         window_height,
         SDL_WINDOW_OPENGL
-#if defined(PANDORA) || defined(GCW)
+#if defined(BSTONE_PANDORA) || defined(GCW)
          | SDL_WINDOW_FULLSCREEN
 #else
          | SDL_WINDOW_HIDDEN

@@ -48,9 +48,9 @@ endif (MINGW)
 
 if (BSTONE_PANDORA)
 # Definitions
-add_definitions(-DPANDORA)
-add_definitions(-DUSE_GLES)
-add_definitions(-DOGL_DIRECT_LINK)
+add_definitions(-DBSTONE_PANDORA)
+add_definitions(-DBSTONE_USE_GLES)
+add_definitions(-DBSTONE_OGL_DIRECT_LINK)
 
 # Common compiler flags
 set(TMP "${CMAKE_CXX_FLAGS}")

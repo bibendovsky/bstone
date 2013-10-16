@@ -28,7 +28,8 @@ bool has_ext_texture_rg_ = false;
 // API v1.1
 //
 
-#if !defined(OGL_DIRECT_LINK)
+#if !defined(BSTONE_OGL_DIRECT_LINK)
+
 
 namespace {
 
@@ -506,7 +507,9 @@ GLAPI void APIENTRY glVertexAttribPointer(
     glVertexAttribPointer_(index, size, type, normalized, stride, pointer);
 }
 
-#endif
+
+#endif // BSTONE_OGL_DIRECT_LINK
+
 
 ///////////////////////////////////////////////////////////////////////////
 // OglApi
@@ -571,7 +574,7 @@ bool OglApi::initialize()
 {
     uninitialize();
 
-#if !defined(OGL_DIRECT_LINK)
+#if !defined(BSTONE_OGL_DIRECT_LINK)
     if (::SDL_GL_GetCurrentContext() == NULL) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
             "OGLAPI: %s.", "No current context");
@@ -633,14 +636,14 @@ bool OglApi::initialize()
 
     ogl_api_get_base_symbol(
         "glViewport", glViewport_, missing_symbols);
-#endif // OGL_DIRECT_LINK
+#endif // BSTONE_OGL_DIRECT_LINK
 
 
     //
     // Required extensions
     //
 
-#if !defined(OGL_DIRECT_LINK)
+#if !defined(BSTONE_OGL_DIRECT_LINK)
     ogl_api_get_base_symbol(
         "glActiveTexture", glActiveTexture_, missing_symbols);
 
@@ -724,9 +727,9 @@ bool OglApi::initialize()
 
     ogl_api_get_base_symbol(
         "glVertexAttribPointer", glVertexAttribPointer_, missing_symbols);
-#endif // OGL_DIRECT_LINK
+#endif // BSTONE_OGL_DIRECT_LINK
 
-#if !defined(OGL_DIRECT_LINK)
+#if !defined(BSTONE_OGL_DIRECT_LINK)
     if (!missing_symbols.empty()) {
         for(StringsCIt i = missing_symbols.begin();
             i != missing_symbols.end(); ++i)
@@ -738,7 +741,7 @@ bool OglApi::initialize()
         uninitialize();
         return false;
     }
-#endif // OGL_DIRECT_LINK
+#endif // BSTONE_OGL_DIRECT_LINK
 
 
     // Vendor
@@ -802,7 +805,7 @@ bool OglApi::initialize()
 // (static)
 void OglApi::uninitialize()
 {
-#if !defined(OGL_DIRECT_LINK)
+#if !defined(BSTONE_OGL_DIRECT_LINK)
     glBindTexture_ = NULL;
     glClear_ = NULL;
     glClearColor_ = NULL;
@@ -848,7 +851,7 @@ void OglApi::uninitialize()
     glUniformMatrix4fv_ = NULL;
     glUseProgram_ = NULL;
     glVertexAttribPointer_ = NULL;
-#endif // OGL_DIRECT_LINK
+#endif // BSTONE_OGL_DIRECT_LINK
 
     is_initialized_ = false;
     vendor_.clear();

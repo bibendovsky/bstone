@@ -17,7 +17,7 @@ TARGET   = arm-none-linux-gnueabi-
 INCLUDE  = $(PREFIX)/usr/include
 LIBRARY  = $(PREFIX)/usr/lib
 NEON     = -mcpu=cortex-a8 -mfpu=neon -mfloat-abi=softfp -ffast-math -fsingle-precision-constant -fno-inline-functions
-CXXFLAGS += $(NEON) -DUSE_GLES -DOGL_DIRECT_LINK -DPANDORA
+CXXFLAGS += $(NEON) -DBSTONE_USE_GLES -DBSTONE_OGL_DIRECT_LINK -DBSTONE_PANDORA
 LDFLAGS  = $(BASE_LDFLAGS)
 
 # Assign includes
