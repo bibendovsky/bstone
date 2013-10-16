@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 2.8)
 
 find_package(SDL 2 REQUIRED)
 
+option(BSTONE_PANDORA "Make Pandora build")
+
+
 if (MSVC)
 # Definitions
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -41,6 +44,30 @@ set(TMP "${CMAKE_EXE_LINKER_FLAGS}")
 set(TMP "${TMP} -static") # Link system libraries statically
 set(CMAKE_EXE_LINKER_FLAGS "${TMP}")
 endif (MINGW)
+
+
+if (BSTONE_PANDORA)
+# Definitions
+add_definitions(-DPANDORA)
+add_definitions(-DUSE_GLES)
+add_definitions(-DOGL_DIRECT_LINK)
+
+# Common compiler flags
+set(TMP "${CMAKE_CXX_FLAGS}")
+set(TMP "${TMP} -fsigned-char")
+set(TMP "${TMP} -mcpu=cortex-a8")
+set(TMP "${TMP} -mfpu=neon")
+set(TMP "${TMP} -mfloat-abi=softfp")
+set(TMP "${TMP} -ffast-math")
+set(TMP "${TMP} -fsingle-precision-constant")
+set(TMP "${TMP} -fno-inline-functions")
+set(CMAKE_CXX_FLAGS "${TMP}")
+
+include_directories(
+	$ENV{PNDSDK}
+)
+endif (BSTONE_PANDORA)
+
 
 include_directories(
 	${SDL_INCLUDE_DIR}
@@ -182,6 +209,20 @@ target_link_libraries(bstone
 	mingw32
 )
 endif (MINGW)
+
+if (BSTONE_PANDORA)
+target_link_libraries(bstone
+	Xext
+	Xau
+	Xdmcp
+	X11
+	GLESv2
+	EGL
+	IMGegl
+	srv_um
+	ts
+)
+endif (BSTONE_PANDORA)
 
 target_link_libraries(bstone
 	${SDLMAIN_LIBRARY}
