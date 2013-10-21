@@ -1654,19 +1654,17 @@ void SD_SetDigiDevice(
 void
 SDL_SetupDigi(void)
 {
-	void*	list;
 	const Uint16* p;
 	int pg;
 	int i;
 
-    list = new Uint8[PMPageSize];
 	p = static_cast<const Uint16*>(PM_GetPage(ChunksInFile - 1));
-	memcpy(list, p, PMPageSize);
 	pg = PMSoundStart;
-	for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i, p += 2) {
+	for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i) {
 		if (pg >= ChunksInFile - 1)
 			break;
 		pg += (bstone::Endian::le(p[1]) + (PMPageSize - 1)) / PMPageSize;
+        p += 2;
 	}
     DigiList = new Uint16[i * 2];
 
@@ -1675,15 +1673,10 @@ SDL_SetupDigi(void)
 	memcpy(DigiList, list, i * sizeof(Uint16) * 2);
 #endif // 0
 
-    const Uint16* src_list = static_cast<const Uint16*>(list);
-    Uint16* dst_list = DigiList;
+    const Uint16* src_list = static_cast<const Uint16*>(
+        ::PM_GetPage(ChunksInFile - 1));
 
-    for (int j = 0; j < i; ++j) {
-        dst_list[j] = bstone::Endian::le(src_list[j]);
-        dst_list[j] = bstone::Endian::le(src_list[j]);
-    }
-
-    delete [] static_cast<Uint8*>(list);
+    bstone::Endian::le(src_list, i * 2, DigiList);
 
 // FIXME
 #if 0
