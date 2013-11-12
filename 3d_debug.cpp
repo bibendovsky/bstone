@@ -837,7 +837,7 @@ Sint16 DebugKeys (void)
 		if (gamestate.flags & GS_DRAW_CEILING)
 #endif
 		{
-			CeilingTile = DecRange(CeilingTile,NUM_TILES-1);
+			CeilingTile = DecRange(CeilingTile,static_cast<Uint16>(NUM_TILES-1));
 			SetPlaneViewSize ();     // Init new textures
 			return(1);
 		}
@@ -855,7 +855,7 @@ Sint16 DebugKeys (void)
 		if (gamestate.flags & GS_DRAW_CEILING)
 #endif
 		{
-			CeilingTile = IncRange(CeilingTile,NUM_TILES-1);
+			CeilingTile = IncRange(CeilingTile,static_cast<Uint16>(NUM_TILES-1));
 			SetPlaneViewSize ();     // Init new textures
 			return(1);
 		}
@@ -873,7 +873,7 @@ Sint16 DebugKeys (void)
 		if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
 		{
-			FloorTile = DecRange(FloorTile,NUM_TILES-1);
+			FloorTile = DecRange(FloorTile,static_cast<Uint16>(NUM_TILES-1));
 			SetPlaneViewSize ();     // Init new textures
 			return(1);
 		}
@@ -891,7 +891,7 @@ Sint16 DebugKeys (void)
 		if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
 		{
-			FloorTile = IncRange(FloorTile,NUM_TILES-1);
+			FloorTile = IncRange(FloorTile,static_cast<Uint16>(NUM_TILES-1));
 			SetPlaneViewSize ();     // Init new textures
 			return(1);
 		}

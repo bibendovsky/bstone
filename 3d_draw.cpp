@@ -604,7 +604,7 @@ void HitVertWall (void)
 			ytile = yintercept>>TILESHIFT;
 
 			if ((doornum = tilemap[xtile-xtilestep][ytile])&0x80 )
-				wallpic = DOORWALL+DoorJamsShade[doorobjlist[doornum & 0x7f].type];
+				wallpic = static_cast<Sint16>(DOORWALL+DoorJamsShade[doorobjlist[doornum & 0x7f].type]);
 			else
 				wallpic = vertwall[tilehit & ~0x40];
 		}
@@ -684,7 +684,7 @@ void HitHorizWall (void)
 			xtile = xintercept>>TILESHIFT;
 			if ((doornum = tilemap[xtile][ytile-ytilestep]) & 0x80)
 			{
-				wallpic = DOORWALL+DoorJams[doorobjlist[doornum & 0x7f].type];
+				wallpic = static_cast<Sint16>(DOORWALL+DoorJams[doorobjlist[doornum & 0x7f].type]);
 			}
 			else
 				wallpic = horizwall[tilehit & ~0x40];
@@ -779,36 +779,36 @@ void HitHorizDoor (void)
 		switch (doorobjlist[doornum].type)
 		{
 			case dr_normal:
-				doorpage = DOORWALL+L_METAL;
+				doorpage = static_cast<Sint16>(DOORWALL+L_METAL);
 				break;
 
 			case dr_elevator:
-				doorpage = DOORWALL+L_ELEVATOR;
+				doorpage = static_cast<Sint16>(DOORWALL+L_ELEVATOR);
 				break;
 
 			case dr_prison:
-				doorpage = DOORWALL+L_PRISON;
+				doorpage = static_cast<Sint16>(DOORWALL+L_PRISON);
 				break;
 
 			case dr_space:
-				doorpage = DOORWALL+L_SPACE;
+				doorpage = static_cast<Sint16>(DOORWALL+L_SPACE);
 				break;
 
 			case dr_bio:
-				doorpage = DOORWALL+L_BIO;
+				doorpage = static_cast<Sint16>(DOORWALL+L_BIO);
 				break;
 
 			case dr_high_security:
-					doorpage = DOORWALL+L_HIGH_SECURITY;		       	// Reverse View
+					doorpage = static_cast<Sint16>(DOORWALL+L_HIGH_SECURITY);		       	// Reverse View
 			break;
 
 			case dr_oneway_up:
 			case dr_oneway_left:
 				if (player->tiley > doorobjlist[doornum].tiley)
-					doorpage = DOORWALL+L_ENTER_ONLY;				// normal view
+					doorpage = static_cast<Sint16>(DOORWALL+L_ENTER_ONLY);				// normal view
 				else
 				{
-					doorpage = DOORWALL+NOEXIT;		 	      	// Reverse View
+					doorpage = static_cast<Sint16>(DOORWALL+NOEXIT);		 	      	// Reverse View
 					lockable = false;
 				}
 				break;
@@ -817,15 +817,15 @@ void HitHorizDoor (void)
 			case dr_oneway_down:
 				if (player->tiley > doorobjlist[doornum].tiley)
 				{
-					doorpage = DOORWALL+NOEXIT;						// normal view
+					doorpage = static_cast<Sint16>(DOORWALL+NOEXIT);						// normal view
 					lockable = false;
 				}
 				else
-					doorpage = DOORWALL+L_ENTER_ONLY;			// Reverse View
+					doorpage = static_cast<Sint16>(DOORWALL+L_ENTER_ONLY);			// Reverse View
 				break;
 
 			case dr_office:
-				doorpage = DOORWALL+L_HIGH_TECH;
+				doorpage = static_cast<Sint16>(DOORWALL+L_HIGH_TECH);
 				break;
 		}
 
@@ -857,7 +857,7 @@ void HitHorizDoor (void)
 
 void HitVertDoor (void)
 {
-	Uint16	texture,doorpage = DOORWALL,doornum,yint;
+	Uint16	texture,doorpage = static_cast<Uint16>(DOORWALL),doornum,yint;
 	boolean lockable = true;
 
 	doornum = tilehit&0x7f;
@@ -923,36 +923,36 @@ void HitVertDoor (void)
 		switch (doorobjlist[doornum].type)
 		{
 			case dr_normal:
-				doorpage = DOORWALL+L_METAL_SHADE;
+				doorpage = static_cast<Sint16>(DOORWALL+L_METAL_SHADE);
 				break;
 
 			case dr_elevator:
-				doorpage = DOORWALL+L_ELEVATOR_SHADE;
+				doorpage = static_cast<Sint16>(DOORWALL+L_ELEVATOR_SHADE);
 				break;
 
 			case dr_prison:
-				doorpage = DOORWALL+L_PRISON_SHADE;
+				doorpage = static_cast<Sint16>(DOORWALL+L_PRISON_SHADE);
 				break;
 
 			case dr_space:
-				doorpage = DOORWALL+L_SPACE_SHADE;
+				doorpage = static_cast<Sint16>(DOORWALL+L_SPACE_SHADE);
 				break;
 
 			case dr_bio:
-         	doorpage = DOORWALL+L_BIO;
+         	doorpage = static_cast<Sint16>(DOORWALL+L_BIO);
 				break;
 
 			case dr_high_security:
-					doorpage = DOORWALL+L_HIGH_SECURITY_SHADE;
+					doorpage = static_cast<Sint16>(DOORWALL+L_HIGH_SECURITY_SHADE);
 			break;
 
 			case dr_oneway_left:
 			case dr_oneway_up:
 				if (player->tilex > doorobjlist[doornum].tilex)
-					doorpage = DOORWALL+L_ENTER_ONLY_SHADE;			// Reverse View
+					doorpage = static_cast<Sint16>(DOORWALL+L_ENTER_ONLY_SHADE);			// Reverse View
 				else
 				{
-					doorpage = DOORWALL+NOEXIT_SHADE;       			// Normal view
+					doorpage = static_cast<Sint16>(DOORWALL+NOEXIT_SHADE);       			// Normal view
 					lockable = false;
 				}
 				break;
@@ -961,16 +961,16 @@ void HitVertDoor (void)
 			case dr_oneway_down:
 				if (player->tilex > doorobjlist[doornum].tilex)
 				{
-					doorpage = DOORWALL+NOEXIT_SHADE;       		// Reverse View
+					doorpage = static_cast<Sint16>(DOORWALL+NOEXIT_SHADE);       		// Reverse View
 					lockable = false;
 				}
 				else
-					doorpage = DOORWALL+L_ENTER_ONLY_SHADE;		// Normal View
+					doorpage = static_cast<Sint16>(DOORWALL+L_ENTER_ONLY_SHADE);		// Normal View
 				break;
 
 
 			case dr_office:
-				doorpage = DOORWALL+L_HIGH_TECH_SHADE;
+				doorpage = static_cast<Sint16>(DOORWALL+L_HIGH_TECH_SHADE);
 				break;
 
 		}

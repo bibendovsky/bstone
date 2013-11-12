@@ -339,8 +339,8 @@ bool MemoryStream::remove_block(
         return false;
 
     int_buffer_.erase(
-        int_buffer_.begin() + offset,
-        int_buffer_.begin() + offset + count);
+        int_buffer_.begin() + static_cast<ptrdiff_t>(offset),
+        int_buffer_.begin() + static_cast<ptrdiff_t>(offset) + count);
 
     size_ -= count;
 
