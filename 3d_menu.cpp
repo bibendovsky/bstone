@@ -2583,7 +2583,8 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 #if 0
 					 button=_BX;
 #endif // 0
-                     button = 0;
+                     button = static_cast<Sint16>(
+                         ::in_get_mouse_buttons());
 
 		   	    switch(button)
 			       {
