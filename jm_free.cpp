@@ -1168,7 +1168,6 @@ void PreDemo()
 // PC-13
 //---------------------
 		VL_Bar(0,0,320,200,0x14);
-		VW_MarkUpdateBlock(0,0,319,199);
 		CacheDrawPic(0,64,PC13PIC);
 		VW_UpdateScreen();
 		VW_FadeIn();

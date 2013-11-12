@@ -1087,7 +1087,6 @@ void CA_CacheScreen (Sint16 chunk)
 // Sprites need to have shifts made and various other junk
 //
 	CAL_HuffExpand (source, &vga_memory[4 * bufferofs],expanded,grhuffman,true);
-	VW_MarkUpdateBlock (0,0,319,199);
 
     delete [] bigbufferseg;
     bigbufferseg = NULL;

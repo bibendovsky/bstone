@@ -59,7 +59,6 @@ extern	boolean allcaps;
 //
 
 void VW_InitDoubleBuffer (void);
-Sint16	 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 //void VW_UpdateScreen (void);			// Made a macro
 
 //

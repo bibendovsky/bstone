@@ -3149,7 +3149,6 @@ Sint16 InputFloor(void)
 		if (locked)
 		{
 			ShowOverhead(TOV_X,TOV_Y,32,-1,RADAR_FLAGS);
-			VW_MarkUpdateBlock(TOV_X,TOV_Y,79,195);
 		}
 
 		CycleColors();
@@ -3174,7 +3173,6 @@ Sint16 InputFloor(void)
 		if (locked)
 		{
 			ShowOverhead(TOV_X,TOV_Y,32,-locked,RADAR_FLAGS);
-			VW_MarkUpdateBlock(TOV_X,TOV_Y,79,195);
 		}
 
 		CycleColors();
@@ -3203,7 +3201,6 @@ Sint16 InputFloor(void)
 void ShowOverheadChunk(void)
 {
 	VL_MemToScreen(static_cast<const Uint8*>(ov_buffer),64,64,TOV_X,TOV_Y);
-	VW_MarkUpdateBlock(TOV_X,TOV_Y,79,195);
 	ShowStats(235,138,ss_quick,&ov_stats);
 }
 
@@ -3322,7 +3319,6 @@ void DisplayTeleportName(char tpNum, boolean locked)
 	py = 103;
 	px = 160-w/2;
 	VW_Bar(54,101,212,9,0x52);
-	VW_MarkUpdateBlock(54,101,265,108);
 	ShPrint(s,0,false);
 }
 
@@ -3445,7 +3441,6 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 		{
 			fontcolor = 0x57;
 			VW_Bar(bx,by,BAR_W,BAR_H,0);
-			VW_MarkUpdateBlock(bx,by,bx+(BAR_W-1),by+(BAR_H-1));
 			VW_Bar(nx,ny,PERC_W+6,PERC_H,0);
 			PrintX=nx; PrintY=ny;
 			US_Print("N/A");
@@ -3462,7 +3457,6 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 
 	VW_Bar(bx,by,BAR_W,BAR_H,0x07);
 	PrintStatPercent(nx,ny,0);
-	VW_MarkUpdateBlock(bx,by,bx+(BAR_W-1),by+(BAR_H-1));
 	for (loop=0; loop<numbars; loop++)
 	{
 		if (LastScan)
@@ -3470,7 +3464,6 @@ Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32
 
 	// Print one line of bar
 	//
-		VW_MarkUpdateBlock(bx,by,bx,by+(BAR_H-1));
 		VL_Vlin(bx++,by,BAR_H,0xc8);
 
 	// Keep up with current percentage

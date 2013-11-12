@@ -170,34 +170,16 @@ void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
 */
 
 
-/*
-=======================
-=
-= VW_MarkUpdateBlock
-=
-= Takes a pixel bounded block and marks the tiles in bufferblocks
-= Returns 0 if the entire block is off the buffer screen
-=
-=======================
-*/
-
-Sint16 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
-{
-	return 1;
-}
-
 void VWB_DrawTile8 (Sint16 x, Sint16 y, Sint16 tile)
 {
-	if (VW_MarkUpdateBlock (x,y,x+7,y+7))
-		LatchDrawChar(x,y,tile);
+	LatchDrawChar(x,y,tile);
 }
 
 #if 0
 
 void VWB_DrawTile8M (int x, int y, int tile)
 {
-	if (VW_MarkUpdateBlock (x,y,x+7,y+7))
-		VL_MemToScreen (((Uint8 *)grsegs[STARTTILE8M])+tile*64,8,8,x,y);
+	VL_MemToScreen (((Uint8 *)grsegs[STARTTILE8M])+tile*64,8,8,x,y);
 }
 #endif
 
@@ -212,8 +194,7 @@ void VWB_DrawPic(int x, int y, int chunknum)
 	width = pictable[picnum].width;
 	height = pictable[picnum].height;
 
-	if (VW_MarkUpdateBlock (static_cast<Sint16>(x),static_cast<Sint16>(y),static_cast<Sint16>(x+width-1),static_cast<Sint16>(y+height-1)))
-		VL_MemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y);
+	VL_MemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y);
 }
 
 
@@ -228,8 +209,7 @@ void VWB_DrawMPic (Sint16 x, Sint16 y, Sint16 chunknum)
 	width = pictable[picnum].width;
 	height = pictable[picnum].height;
 
-	if (VW_MarkUpdateBlock (x,y,x+width-1,y+height-1))
-		VL_MaskMemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y,255);
+	VL_MaskMemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y,255);
 }
 
 
@@ -241,26 +221,22 @@ void VWB_DrawPropString(const char* string)
 
 void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
 {
-	if (VW_MarkUpdateBlock (x,y,x+width,y+height-1) )
-		VW_Bar (x,y,width,height,color);
+	VW_Bar (x,y,width,height,color);
 }
 
 void VWB_Plot (Sint16 x, Sint16 y, Sint16 color)
 {
-	if (VW_MarkUpdateBlock (x,y,x,y))
-		VW_Plot(x,y,color);
+	VW_Plot(x,y,color);
 }
 
 void VWB_Hlin (Sint16 x1, Sint16 x2, Sint16 y, Sint16 color)
 {
-	if (VW_MarkUpdateBlock (x1,y,x2,y))
-		VW_Hlin(x1,x2,y,color);
+	VW_Hlin(x1,x2,y,color);
 }
 
 void VWB_Vlin (Sint16 y1, Sint16 y2, Sint16 x, Sint16 color)
 {
-	if (VW_MarkUpdateBlock (x,y1,x,y2))
-		VW_Vlin(y1,y2,x,color);
+	VW_Vlin(y1,y2,x,color);
 }
 
 
@@ -298,8 +274,7 @@ void LatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum)
 	height = pictable[picnum-STARTPICS].height;
 	source = latchpics[2+picnum-LATCHPICS_LUMP_START];
 
-	if (VW_MarkUpdateBlock (x,y,x+wide-1,y+height-1))
-		VL_LatchToScreen (source,wide/4,height,x,y);
+	VL_LatchToScreen (source,wide/4,height,x,y);
 }
 
 

@@ -815,7 +815,6 @@ tp_newline:;
 									(yh-yl+1)-font_height+is_shadowed);
 
 			VWB_Bar(cur_x,cur_y,xh-xl+1+(TP_MARGIN*2),yh-cur_y+1,bgcolor);
-			VW_MarkUpdateBlock(xl,yl,xh,yh);
 
 			if (cur_y+font_height > yh)
 				cur_y = yh-font_height+1-is_shadowed;
