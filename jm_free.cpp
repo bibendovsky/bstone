@@ -2475,10 +2475,7 @@ void freed_main()
 
 	bufferofs=SCREENSIZE;
 
-// FIXME Enable later
-#if 0
 	PreDemo();
-#endif // 0
 }
 
 

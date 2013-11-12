@@ -485,34 +485,46 @@ boolean FizzleFade(
     frame = 0;
     LastScan = 0;
 
-    do {
+    bool finished = false;
+    bool do_full_copy = false;
+
+    while (!finished) {
         if (abortable && IN_CheckAck())
             return true;
 
-        pixel_count = pixperframe + remain_pixels;
-        remain_pixels = 0;
+        if (!do_full_copy) {
+            pixel_count = pixperframe + remain_pixels;
+            remain_pixels = 0;
 
-        for (p = 0; p < pixel_count; ++p) {
-            x = (rndval >> 8) & 0xFFFF;
-            y = ((rndval & 0xFF) - 1) & 0xFF;
+            for (p = 0; p < pixel_count; ++p) {
+                x = (rndval >> 8) & 0xFFFF;
+                y = ((rndval & 0xFF) - 1) & 0xFF;
 
-            carry = ((rndval & 1) != 0);
+                carry = ((rndval & 1) != 0);
 
-            rndval >>= 1;
+                rndval >>= 1;
 
-            if (carry)
-                rndval ^= 0x00012000;
+                if (carry)
+                    rndval ^= 0x00012000;
 
-            if (x > width || y > height)
-                continue;
+                if (x > width || y > height)
+                    continue;
 
-            pixel_offset = (y * vanilla_screen_width) + x;
+                pixel_offset = (y * vanilla_screen_width) + x;
 
-            vga_memory[dst_offset + pixel_offset] =
-                vga_memory[src_offset + pixel_offset];
+                vga_memory[dst_offset + pixel_offset] =
+                    vga_memory[src_offset + pixel_offset];
 
-            if (rndval == 1)
-                return false;
+                if (rndval == 1)
+                    do_full_copy = true;
+            }
+        } else {
+            finished = true;
+
+            std::uninitialized_copy(
+                &vga_memory[src_offset],
+                &vga_memory[src_offset + (width * height)],
+                &vga_memory[dst_offset]);
         }
 
         VL_RefreshScreen();
@@ -523,8 +535,7 @@ boolean FizzleFade(
             ;
 
         CalcTics();
+    };
 
-        if ((frame & 3) == 0)
-            ForceUpdateStatusBar();
-    } while (true);
+    return !finished;
 }

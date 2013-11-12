@@ -3223,7 +3223,7 @@ void    DemoLoop (void)
 	Uint16 old_bufferofs;
 
     // FIXME Just for debugging
-    gamestate.flags |= GS_NOWAIT;
+    //gamestate.flags |= GS_NOWAIT;
 
 	while (true)
 	{
