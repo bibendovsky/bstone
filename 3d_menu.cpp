@@ -727,13 +727,6 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 				pickquick=CP_SaveGame(0);
 
 				lasttimecount = TimeCount;
-
-// FIXME
-#if 0
-				if (MousePresent)
-					Mouse(MDelta);						// Clear accumulated mouse movement
-#endif // 0
-
                 ::in_clear_mouse_deltas();
 			}
 
@@ -772,13 +765,6 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 				pickquick=CP_LoadGame(0);
 
 				lasttimecount = TimeCount;
-
-// FIXME
-#if 0
-				if (MousePresent)
-					Mouse(MDelta);	// Clear accumulated mouse movement
-#endif // 0
-
                 ::in_clear_mouse_deltas();
 			}
 
@@ -1540,88 +1526,6 @@ void DrawLSAction(Sint16 which)
 //--------------------------------------------------------------------------
 // CP_LoadGame() - LOAD SAVED GAMES
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-Sint16 CP_LoadGame(Sint16 quick)
-{
- Sint16 handle,which,exit=0;
- char name[13];
-
-
- strcpy(name,SaveName);
-
- //
- // QUICKLOAD?
- //
- if (quick)
- {
-	which=LSItems.curpos;
-
-	if (SaveGamesAvail[which])
-	{
-		name[7]=which+'0';
-      MakeDestPath(name);
-		handle=open(tempPath,O_RDONLY | O_BINARY);
-		DrawLSAction(0);						// Testing...
-		if (!(loadedgame=LoadTheGame(handle)))
-      {
-      	LS_current = -1;		// clean up
-      }
-
-		close(handle);
-		return(loadedgame);
-	}
- }
-
-restart:
-;
-
- DrawLoadSaveScreen(0);
-
- do
- {
-  which=HandleMenu(&LSItems,&LSMenu[0],TrackWhichGame);
-  if (which>=0 && SaveGamesAvail[which])
-  {
-	ShootSnd();
-	name[7]=which+'0';
-
-	MakeDestPath(name);
-	handle=open(tempPath,O_RDONLY | O_BINARY);
-
-	DrawLSAction(0);
-
-	if (!LoadTheGame(handle))
-   {
-		exit = StartGame = loadedgame = 0;
-      LS_current = -1;			// Clean up
-      goto restart;
-   }
-	close(handle);
-
-	loadedgame = StartGame= true;
-	ShootSnd();
-	//
-	// CHANGE "READ THIS!" TO NORMAL COLOR
-	//
-	MainMenu[MM_READ_THIS].active=AT_ENABLED;
-	exit=1;
-	break;
-  }
-
- } while(which>=0);
-
-  if (which==-1)
-	  MenuFadeOut();
-
- if (loadedgame)
-	refresh_screen=false;
-
- return exit;
-}
-#endif // 0
-
 Sint16 CP_LoadGame(
     Sint16 quick)
 {
@@ -1768,131 +1672,6 @@ void PrintLSEntry(Sint16 w,Sint16 color)
 //--------------------------------------------------------------------------
 // SAVE CURRENT GAME
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-Sint16 CP_SaveGame(Sint16 quick)
-{
-
-	Sint16 handle,which,exit=0;
-	char name[13],input[GAME_DESCRIPTION_LEN+1];
-	boolean temp_caps = allcaps;
-	US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
-
-	strcpy(name,SaveName);
-
-	allcaps = true;
-	use_custom_cursor = true;
-	US_CustomCursor = TermCursor;
-
-	//
-	// QUICKSAVE?
-	//
-	if (quick)
-	{
-		which=LSItems.curpos;
-
-		if (SaveGamesAvail[which])
-		{
-			DrawLSAction(1);					// Testing...
-			name[7]=which+'0';
-			unlink(name);
-			_fmode=O_BINARY;
-         MakeDestPath(name);
-			handle=creat(tempPath,S_IREAD|S_IWRITE);
-
-			lseek(handle,0,SEEK_SET);
-			SaveTheGame(handle,&SaveGameNames[which][0]);
-			close(handle);
-
-			return 1;
-		}
-	}
-
-	DrawLoadSaveScreen(1);
-
-	do
-	{
-		which=HandleMenu(&LSItems,&LSMenu[0],TrackWhichGame);
-		if (which>=0)
-		{
-			//
-			// OVERWRITE EXISTING SAVEGAME?
-			//
-			if (SaveGamesAvail[which])
-            {
-				if (!Confirm(GAMESVD))
-		 		{
-					DrawLoadSaveScreen(1);
-					continue;
-		  		}
-		  		else
-	 			{
-		  			DrawLoadSaveScreen(1);
-		  			PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
-	  				VW_UpdateScreen();
-			 	}
-			 	}
-
-			ShootSnd();
-
-			strcpy(input,&SaveGameNames[which][0]);
-			name[7]=which+'0';
-
-			fontnumber=2;
-			VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,HIGHLIGHT_BOX_COLOR);
-         SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,HIGHLIGHT_BOX_COLOR);
-			VW_UpdateScreen();
-
-
-			if (US_LineInput(LSM_X+LSItems.indent+2,LSM_Y+which*LSItems.y_spacing,input,input,true,GAME_DESCRIPTION_LEN,LSM_W-LSItems.indent-10))
-			{
-				SaveGamesAvail[which]=1;
-				strcpy(&SaveGameNames[which][0],input);
-
-				unlink(name);
-				_fmode=O_BINARY;
-            MakeDestPath(name);
-				handle=creat(tempPath,S_IREAD|S_IWRITE);
-				lseek(handle,0,SEEK_SET);
-
-				DrawLSAction(1);
-				SaveTheGame(handle,input);
-
-				close(handle);
-
-				ShootSnd();
-    			exit=1;
-	   	}
-			else
-	   	{
-			 	VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,TERM_BACK_COLOR);
-	   	 	PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
-	   	 	VW_UpdateScreen();
-
-// FIXME
-#if 0
-		    	SD_PlaySound(ESCPRESSEDSND);
-#endif // 0
-
-            ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
-
-   		 	continue;
-			}
-
-	   	fontnumber=1;
-   		break;
-		}
-
- 	} while(which>=0);
-
-	MenuFadeOut();
- 	use_custom_cursor = false;
-   allcaps = temp_caps;
- 	return exit;
-}
-#endif // 0
-
 Sint16 CP_SaveGame(
     Sint16 quick)
 {
@@ -1984,14 +1763,7 @@ Sint16 CP_SaveGame(
                 VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,TERM_BACK_COLOR);
                 PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
                 VW_UpdateScreen();
-
-                // FIXME
-#if 0
-                SD_PlaySound(ESCPRESSEDSND);
-#endif // 0
-
                 ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
-
                 continue;
             }
 
@@ -2039,12 +1811,6 @@ void CP_Control(Sint16)
    case MOUSEENABLE:
      mouseenabled^=1;
 
-// FIXME
-#if 0
-     _CX=_DX=CENTER;
-#endif // 0
-
-     Mouse(4);
      DrawCtlScreen();
      CusItems.curpos=-1;
 	 ShootSnd();
@@ -2179,18 +1945,7 @@ void MouseSensitivity(Sint16)
 					mouseadjustment--;
 	   			DrawMousePos();
       			VW_UpdateScreen();
-
-// FIXME
-#if 0
-      			SD_PlaySound(MOVEGUN1SND);
-#endif // 0
-
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
-
-// FIXME
-#if 0
-      			while(Keyboard[sc_LeftArrow]);
-#endif // 0
 
                 while (Keyboard[sc_LeftArrow])
                     ::in_handle_events();
@@ -2206,18 +1961,7 @@ void MouseSensitivity(Sint16)
 					mouseadjustment++;
 					DrawMousePos();
 					VW_UpdateScreen();
-
-// FIXME
-#if 0
-					SD_PlaySound(MOVEGUN1SND);
-#endif // 0
-
                     ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
-
-// FIXME
-#if 0
-					while(Keyboard[sc_RightArrow]);
-#endif // 0
 
                     while (Keyboard[sc_RightArrow])
                         ::in_handle_events();
@@ -2241,19 +1985,9 @@ void MouseSensitivity(Sint16)
 	if (exit==2)
 	{
 		mouseadjustment=oldMA;
-
-// FIXME
-#if 0
-		SD_PlaySound(ESCPRESSEDSND);
-#endif // 0
-
         ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 	}
 	else
-// FIXME
-#if 0
-		SD_PlaySound(SHOOTSND);
-#endif // 0
         ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 
 	WaitKeyUp();
@@ -2442,12 +2176,6 @@ bool TestForValidKey(ScanCode Scan)
 	if (pos)
    {
    	*pos = sc_None;
-
-// FIXME
-#if 0
-		SD_PlaySound(SHOOTDOORSND);
-#endif // 0
-
         ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
 
 		DrawCustomScreen();
@@ -2558,10 +2286,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 							PrintX=x;
 							US_Print("?");
 
-// FIXME
-#if 0
-							SD_PlaySound(HITWALLSND);
-#endif // 0
                             ::sd_play_player_sound(
                                 HITWALLSND, bstone::AC_ITEM);
 				  	}
@@ -2578,11 +2302,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 		    switch(type)
 		    {
 				 case MOUSE:
-			       Mouse(3);
-// FIXME
-#if 0
-					 button=_BX;
-#endif // 0
                      button = static_cast<Sint16>(
                          ::in_get_mouse_buttons());
 
@@ -2607,10 +2326,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 						buttonmouse[result-1]=order[which];
 						picked=1;
 
-// FIXME
-#if 0
-						SD_PlaySound(SHOOTDOORSND);
-#endif // 0
                         ::sd_play_player_sound(
                             SHOOTDOORSND, bstone::AC_ITEM);
 
@@ -2641,11 +2356,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 				buttonjoy[result-1]=order[which];
 				picked=1;
 
-// FIXME
-#if 0
-				SD_PlaySound(SHOOTDOORSND);
-#endif // 0
-
                 ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
 
 				clean_display = false;
@@ -2659,10 +2369,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
             	break;
 
 	   	  	if (memchr(special_keys,LastScan,sizeof(special_keys)))
-// FIXME
-#if 0
-					SD_PlaySound(NOWAYSND);
-#endif // 0
                 ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 
 				else
@@ -2687,13 +2393,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
    	        	break;
 
 		     	if (memchr(special_keys,LastScan,sizeof(special_keys)))
-// FIXME
-#if 0
-					SD_PlaySound(NOWAYSND);
-#endif // 0
-
                 ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
-
 				else
 	         {
                  clean_display = TestForValidKey(LastScan);
@@ -2753,11 +2453,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
      redraw=1;
 
-// FIXME
-#if 0
-     SD_PlaySound(MOVEGUN1SND);
-#endif // 0
-
      ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
 	  while(ReadAnyControl(&ci),ci.dir!=dir_None);
@@ -2779,11 +2474,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 
 		redraw=1;
 
-// FIXME
-#if 0
-		SD_PlaySound(MOVEGUN1SND);
-#endif // 0
-
         ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
 		while(ReadAnyControl(&ci),ci.dir!=dir_None);
@@ -2802,11 +2492,6 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
  } while(!exit);
 
 	FREEFONT(STARTFONT+fontnumber);
-
-// FIXME
-#if 0
- SD_PlaySound(ESCPRESSEDSND);
-#endif // 0
 
     ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 
@@ -3104,11 +2789,6 @@ void CP_ChangeView(Sint16)
 	  ShowViewSize(newview);
 	  VW_UpdateScreen();
 	  if (newview != lastview)
-// FIXME
-#if 0
-		  SD_PlaySound(HITWALLSND);
-#endif // 0
-
       ::sd_play_player_sound(HITWALLSND, bstone::AC_ITEM);
 
 	  TicDelay(10);
@@ -3123,11 +2803,6 @@ void CP_ChangeView(Sint16)
 	  ShowViewSize(newview);
 	  VW_UpdateScreen();
 	  if (newview != lastview)
-// FIXME
-#if 0
-			SD_PlaySound(HITWALLSND);
-#endif // 0
-
       ::sd_play_player_sound(HITWALLSND, bstone::AC_ITEM);
 
 	  TicDelay(10);
@@ -3145,11 +2820,6 @@ void CP_ChangeView(Sint16)
   {
 	viewwidth=oldview*16;
 
-// FIXME
-#if 0
-	SD_PlaySound(ESCPRESSEDSND);
-#endif // 0
-
     ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 
 	MenuFadeOut();
@@ -3162,11 +2832,6 @@ void CP_ChangeView(Sint16)
 
  if (oldview!=newview)
  {
-// FIXME
-#if 0
-	SD_PlaySound (SHOOTSND);
-#endif // 0
-
     ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 
 	Message(Computing);
@@ -3299,62 +2964,12 @@ void SetupControlPanel(void)
 		MainMenu[MM_SAVE_MISSION].active=AT_ENABLED;
 
 	ReadGameNames();
-
-	//
-	// CENTER MOUSE
-	//
-
-// FIXME
-#if 0
-	_CX=_DX=CENTER;
-#endif // 0
-
-	Mouse(4);
-
 }
 
 
 //---------------------------------------------------------------------------
 // ReadGameNames()
 //---------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void ReadGameNames()
-{
-	struct ffblk f;
-	char name[13];
-	Sint16 which;
-
-// SEE WHICH SAVE GAME FILES ARE AVAILABLE & READ STRING IN
-//
-	strcpy(name,SaveName);
-	MakeDestPath(name);
-	if (!findfirst(tempPath,&f,0))
-		do
-		{
-			which=f.ff_name[7]-'0';
-			if (which<10)
-			{
-				Sint16 handle;
-				char temp[GAME_DESCRIPTION_LEN+1];
-
-				SaveGamesAvail[which]=1;
-				MakeDestPath(f.ff_name);
-				handle=open(tempPath,O_RDONLY | O_BINARY);
-				if (FindChunk(handle,"DESC"))
-				{
-					read(handle,temp,GAME_DESCRIPTION_LEN+1);
-					strcpy(&SaveGameNames[which][0],temp);
-				}
-				else
-					strcpy(&SaveGameNames[which][0],"DESCRIPTION LOST");
-				close(handle);
-			}
-		} while(!findnext(&f));
-}
-#endif // 0
-
 void ReadGameNames()
 {
     for (int i = 0; i < 10; ++i) {
@@ -3444,11 +3059,6 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 	#define box_on 	item_i->cursor.on
 	char key;
 	static Sint16 redrawitem=1;
-
-// FIXME
-#if 0
-    static Sint16 lastitem=-1;
-#endif // 0
 
 	Sint16 i,x,y,basey,exit,which,flash_tics;
 	ControlInfo ci;
@@ -3656,11 +3266,6 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 
 	item_i->curpos=static_cast<char>(which);
 
-// FIXME
-#if 0
-	lastitem=which;
-#endif // 0
-
 	switch(exit)
 	{
 		case 1:
@@ -3692,11 +3297,6 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 			return which;
 
 		case 2:
-// FIXME
-#if 0
-			SD_PlaySound(ESCPRESSEDSND);
-#endif // 0
-
             ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 
 			return -1;
@@ -3817,129 +3417,6 @@ void WaitKeyUp(void)
 //---------------------------------------------------------------------------
 // ReadAnyControl() - READ KEYBOARD, JOYSTICK AND MOUSE FOR INPUT
 //---------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void ReadAnyControl(ControlInfo *ci)
-{
- Sint16 mouseactive=0;
-
- IN_ReadControl(0,ci);
-
- //
- // UNDO some of the ControlInfo vars that were init
- // with IN_ReadControl() for the mouse...
- //
- if (ControlTypeUsed == ctrl_Mouse)
- {
- 	//
-   // Clear directions & buttons (if enabled or not)
-   //
-   ci->dir = dir_None;
-   ci->button0 = ci->button1 = ci->button2 = ci->button3 = 0;
- }
-
- if (mouseenabled)
- {
-  Sint16 mousey,mousex;
-
-
-  // READ MOUSE MOTION COUNTERS
-  // RETURN DIRECTION
-  // HOME MOUSE
-  // CHECK MOUSE BUTTONS
-
-  Mouse(3);
-
-  mousex=_CX;
-  mousey=_DX;
-
-  if (mousey<CENTER-SENSITIVE)
-  {
-	ci->dir=dir_North;
-
-	_CX=_DX=CENTER;
-
-	Mouse(4);
-	mouseactive=1;
-  }
-  else
-  if (mousey>CENTER+SENSITIVE)
-  {
-	ci->dir=dir_South;
-
-	_CX=_DX=CENTER;
-
-	Mouse(4);
-	mouseactive=1;
-  }
-
-  if (mousex<CENTER-SENSITIVE)
-  {
-   ci->dir=dir_West;
-
-   _CX=_DX=CENTER;
-
-   Mouse(4);
-   mouseactive=1;
-  }
-  else
-  if (mousex>CENTER+SENSITIVE)
-  {
-   ci->dir=dir_East;
-
-   _CX=_DX=CENTER;
-
-   Mouse(4);
-   mouseactive=1;
-  }
-
-  if (IN_MouseButtons())
-  {
-   ci->button0=IN_MouseButtons()&1;
-   ci->button1=IN_MouseButtons()&2;
-   ci->button2=IN_MouseButtons()&4;
-   ci->button3=false;
-   mouseactive=1;
-  }
- }
-
- if (joystickenabled && !mouseactive)
- {
-  Sint16 jx,jy,jb;
-
-
-  INL_GetJoyDelta(joystickport,&jx,&jy);
-  if (jy<-SENSITIVE)
-	 ci->dir=dir_North;
-  else
-  if (jy>SENSITIVE)
-	 ci->dir=dir_South;
-
-  if (jx<-SENSITIVE)
-	 ci->dir=dir_West;
-  else
-  if (jx>SENSITIVE)
-	 ci->dir=dir_East;
-
-
-  jb=IN_JoyButtons();
-  if (jb)
-  {
-	ci->button0=jb&1;
-	ci->button1=jb&2;
-	if (joypadenabled)
-	{
-	 ci->button2=jb&4;
-	 ci->button3=jb&8;
-	}
-	else
-	 ci->button2=ci->button3=false;
-  }
- }
-}
-#endif // 0
-
 void ReadAnyControl(
     ControlInfo* ci)
 {
@@ -4126,11 +3603,6 @@ Sint16 Confirm(const char *string)
 
 	IN_ClearKeysDown();
 
-// FIXME
-#if 0
-	SD_PlaySound(static_cast<soundnames>(whichsnd[xit]));
-#endif // 0
-
     ::sd_play_player_sound(
         static_cast<soundnames>(whichsnd[xit]),
         bstone::AC_ITEM);
@@ -4241,51 +3713,6 @@ void CacheMessage(Uint16 MessageNum)
 //
 //---------------------------------------------------------------------------
 
-// FIXME
-#if 0
-Uint32 CacheCompData(unsigned ItemNum, void** dest_loc)
-{
-   char *compdata, *dest_ptr;
-	CompHeader_t *CompHeader;
-   Uint32 data_len;
-
-		// Load compressed data
-
-	CA_CacheGrChunk(ItemNum);
-   compdata = (char*)grsegs[ItemNum];
-
-// FIXME
-#if 0
-	MM_SetLock (&grsegs[ItemNum], true);
-#endif // 0
-
-   CompHeader = (CompHeader_t *)compdata;
-   data_len = CompHeader->OriginalLen;
-
-   compdata+=sizeof(CompHeader_t);
-
-   	// Allocate Dest Memory
-
-    dest_ptr = malloc(data_len);
-    *dest_loc = dest_ptr;
-
-   	// Decompress and terminate string
-
-	if (!LZH_Startup())
-   	Quit("out of memory");
-
-	LZH_Decompress(compdata,dest_ptr,data_len,CompHeader->CompressLen,(SRC_MEM|DEST_MEM));
-   LZH_Shutdown();
-
-   	// Free compressed data
-
-   UNCACHEGRCHUNK(ItemNum);
-
-   	// Return loaded size
-   return(data_len);
-}
-#endif // 0
-
 Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
 {
    char* chunk;
@@ -4388,33 +3815,7 @@ void StartCPMusic(Sint16 song)
 
 	SD_MusicOff();
 	chunk = static_cast<musicnames>(song);
-
-// FIXME
-#if 0
-	MM_BombOnError (false);
-#endif // 0
-
 	CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + chunk));
-
-// FIXME
-#if 0
-	MM_BombOnError (true);
-#endif // 0
-
-// FIXME
-#if 0
-	if (mmerror)
-		mmerror = false;
-	else
-#endif // 0
-
-// FIXME
-#if 0
-	{
-		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + chunk]);
-	}
-#endif
-
     ::SD_StartMusic(chunk);
 }
 
@@ -4513,11 +3914,6 @@ void DrawMenuGun(CP_iteminfo *iteminfo)
 //-------------------------------------------------------------------------
 void ShootSnd(void)
 {
-// FIXME
-#if 0
-	SD_PlaySound(SHOOTSND);
-#endif // 0
-
     ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 }
 

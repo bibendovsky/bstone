@@ -22,10 +22,6 @@ extern Uint8 planepics[8192];	// 4k of ceiling, 4k of floor
 
 Sint16		halfheight = 0;
 
-// FIXME
-#if 0
-Uint8	*planeylookup[MAXVIEWHEIGHT/2];
-#endif // 0
 int planeylookup[MAXVIEWHEIGHT / 2];
 
 Uint16	mirrorofs[MAXVIEWHEIGHT/2];
@@ -45,10 +41,6 @@ Sint16		mr_ystep;
 Sint16		mr_xfrac;
 Sint16		mr_yfrac;
 
-// FIXME
-#if 0
-Sint16		mr_dest;
-#endif // 0
 int mr_dest = 0;
 
 // BBi
@@ -74,10 +66,6 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 	fixed		startxfrac, startyfrac;
 
 	Sint16			startx, plane, startplane;
-// FIXME
-#if 0
-	Uint8		*toprow, *dest;
-#endif
     int toprow;
 
 	Sint32 i;
@@ -108,10 +96,6 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 	prestep = viewwidth/2 - x1;
 	do
 	{
-        // FIXME
-#if 0
-		outportb (SC_INDEX+1,1<<plane);
-#endif // 0
         mr_plane = plane;
 
 		mr_xfrac = static_cast<Sint16>(startxfrac - (mr_xstep>>2)*prestep);
@@ -140,10 +124,6 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 	prestep = viewwidth/2 - x1;
 	do
 	{
-        // FIXME
-#if 0
-		outportb (SC_INDEX+1,1<<plane);
-#endif // 0
         mr_plane = plane;
 
 		mr_xfrac = static_cast<Sint16>(startxfrac - (mr_xstep>>2)*prestep);
@@ -189,10 +169,6 @@ void SetPlaneViewSize (void)
 
 	for (y=0 ; y<halfheight ; y++)
 	{
-        //FIXME
-#if 0
-		planeylookup[y] = (Uint8 *)0xa0000000l + (halfheight-1-y)*SCREENBWIDE;;
-#endif // 0
         planeylookup[y] = (halfheight - 1 - y) * SCREENBWIDE;
 
 		mirrorofs[y] = (y*2+1)*SCREENBWIDE;

@@ -551,23 +551,12 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 				USL_XORICursor(x,y,s,cursor);
 		}
 
-// FIXME
-#if 0
-	asm	pushf
-	asm	cli
-#endif // 0
-
         ::in_handle_events();
 
 		sc = LastScan;
 		LastScan = sc_None;
 		c = LastASCII;
 		LastASCII = key_None;
-
-// FIXME
-#if 0
-	asm	popf
-#endif // 0
 
 		switch (sc)
 		{

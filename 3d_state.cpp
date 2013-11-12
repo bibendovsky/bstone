@@ -167,23 +167,6 @@ void NewState (objtype *ob, statetype *state)
 ==================================
 */
 
-// FIXME
-#if 0
-#define CHECKDIAG(x,y)								\
-{                                                   \
-	temp=(Uint16)actorat[x][y];                   \
-	if (temp)                                       \
-	{                                               \
-		if (temp<256)    										 \
-			return false;                           \
-		if (((objtype *)temp)->flags&FL_SOLID)  \
-			return false;                           \
-	}                                               \
-	if (ElevatorFloor(x,y))							\
-		return(false);                         \
-}
-#endif // 0
-
 #define CHECKDIAG(x,y) \
 { \
     size_t temp; \
@@ -197,28 +180,6 @@ void NewState (objtype *ob, statetype *state)
     if (ElevatorFloor(x,y)) \
         return false; \
 }
-
-
-// FIXME
-#if 0
-#define CHECKSIDE(x,y)								\
-{                                                   \
-	temp=(Uint16)actorat[x][y];                   \
-	if (temp)                                       \
-	{                                               \
-		if (temp<128)                               \
-			return false;                           \
-		if (temp<256)                               \
-		{                                         \
-			doornum = temp&63;                     \
-			if (doorobjlist[doornum].lock!=kt_none)			\
-				return(false);                      \
-		}                                         \
-		else if (((objtype *)temp)->flags&FL_SOLID) \
-			return false;                           \
-	}                                               \
-}
-#endif // 0
 
 #define CHECKSIDE(x,y) \
 { \
@@ -941,11 +902,6 @@ void KillActor (objtype *ob)
 	switch (clas)
 	{
 		case podeggobj:
-// FIXME
-#if 0
-			PlaySoundLocActor(PODHATCHSND,ob);
-#endif // 0
-
             ::sd_play_actor_sound(PODHATCHSND, ob, bstone::AC_VOICE);
 
 			InitSmartSpeedAnim(ob,SPR_POD_HATCH1,0,2,at_ONCE,ad_FWD,7);
@@ -970,11 +926,6 @@ void KillActor (objtype *ob)
 		if (!ob->temp3)
 			Quit("exp crate->temp3 is NULL!");
 	#endif
-
-// FIXME
-#if 0
-		((statobj_t *)(ob->temp3))->shapenum = -1;		// Release reserve static
-#endif // 0
 
         ui16_to_static_object(ob->temp3)->shapenum = -1;
 
@@ -1011,11 +962,6 @@ void KillActor (objtype *ob)
 
    case gold_morphobj:
       GoldsternInfo.flags = GS_NO_MORE;
-
-// FIXME
-#if 0
-	 	PlaySoundLocActor(PODDEATHSND,ob);
-#endif // 0
 
         ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
 
@@ -1125,11 +1071,6 @@ void KillActor (objtype *ob)
 	break;
 
 	case final_boss2obj:
-// FIXME
-#if 0
-	 	PlaySoundLocActor(PODDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
 
    	InitAnim(ob, SPR_BOSS8_DIE1, 0, 4, at_ONCE, ad_FWD, 25, 9);
@@ -1345,11 +1286,6 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			case scan_wait_alienobj:		// These actors do not have an ouch!
 			case lcan_wait_alienobj:		// So... RETURN!
 			case gurney_waitobj:
-// FIXME
-#if 0
-				if (!(ob->temp2 = (Uint16)CheckAndReserve()))
-#endif // 0
-
                 ob->temp2 = actor_to_ui16(CheckAndReserve());
 
                 if (ob->temp2 == 0)
@@ -1380,11 +1316,6 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 
 		}
 
-// FIXME
-#if 0
-		SLIDE_TEMP(ob) = (Uint16)attacker;
-#endif // 0
-
         ob->hitpoints = actor_to_ui16(attacker);
 
 		KillActor (ob);
@@ -1412,11 +1343,6 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			//
 				if (mod_before != mod_after)
 				{
-// FIXME
-#if 0
-					PlaySoundLocActor(SWATDEATH2SND,ob);
-#endif // 0
-
                     ::sd_play_actor_sound(
                         SWATDEATH2SND, ob, bstone::AC_VOICE);
 
@@ -1939,11 +1865,6 @@ void FirstSighting (objtype *ob)
 		if (ob->flags & FL_STATIONARY)
 			return;
 
-// FIXME
-#if 0
-		PlaySoundLocActor(SCOUT_ALERTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(SCOUT_ALERTSND, ob, bstone::AC_VOICE);
 
 		NewState(ob,&s_scout_run);
@@ -1952,11 +1873,6 @@ void FirstSighting (objtype *ob)
 
 
 	case goldsternobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(GOLDSTERNHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(GOLDSTERNHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_goldchase1);
@@ -1964,11 +1880,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case rentacopobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(HALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(HALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_rent_chase1);
@@ -1976,11 +1887,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case gen_scientistobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(SCIENTISTHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(SCIENTISTHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofcchase1);
@@ -1988,11 +1894,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case swatobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(SWATHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(SWATHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_swatchase1);
@@ -2004,11 +1905,6 @@ void FirstSighting (objtype *ob)
 	case genetic_guardobj:
    case final_boss4obj:
    case final_boss2obj:
-// FIXME
-#if 0
-		PlaySoundLocActor(GGUARDHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(GGUARDHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2021,11 +1917,6 @@ void FirstSighting (objtype *ob)
 	case mutant_human1obj:
    case final_boss3obj:
    case final_boss1obj:
-// FIXME
-#if 0
-		PlaySoundLocActor(BLUEBOYHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(BLUEBOYHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2033,11 +1924,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case mutant_human2obj:
-// FIXME
-#if 0
-		PlaySoundLocActor(DOGBOYHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(DOGBOYHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2050,11 +1936,6 @@ void FirstSighting (objtype *ob)
 
 	case spider_mutantobj:
 	case scan_alienobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(SCANHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(SCANHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2062,11 +1943,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case lcan_alienobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(LCANHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(LCANHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2074,11 +1950,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case gurneyobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(GURNEYSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(GURNEYSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2087,11 +1958,6 @@ void FirstSighting (objtype *ob)
 
 	case acid_dragonobj:
 	case podobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(PODHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(PODHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_ofs_chase1);
@@ -2101,11 +1967,6 @@ void FirstSighting (objtype *ob)
 	case gurney_waitobj:
 		if (ob->temp3)
 		{
-// FIXME
-#if 0
-			if (ob->temp2 = (Uint16)CheckAndReserve())
-#endif // 0
-
             ob->temp2 = actor_to_ui16(CheckAndReserve());
 
             if (ob->temp2 != 0)
@@ -2119,11 +1980,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case proguardobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(PROHALTSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(PROHALTSND, ob, bstone::AC_VOICE);
 
 		NewState (ob,&s_prochase1);
@@ -2131,11 +1987,6 @@ void FirstSighting (objtype *ob)
 		break;
 
 	case hang_terrotobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(TURRETSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(TURRETSND, ob, bstone::AC_VOICE);
 
 		NewState(ob,&s_terrot_seek1);
@@ -2588,11 +2439,6 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 			doornum = static_cast<char>(Random(doorsfound));
 			door = doorlist[static_cast<int>(doornum)];
 
-// FIXME
-#if 0
-			if (((Uint16)door == ob->temp3) && (doorsfound > 1))
-#endif // 0
-
             if (door == ui16_to_door_object(ob->temp3) && doorsfound > 1)
 			{
 				doornum++;
@@ -2600,11 +2446,6 @@ boolean LookForGoodies(objtype *ob, Uint16 RunReason)
 					doornum=0;
 				door = doorlist[static_cast<int>(doornum)];
 			}
-
-// FIXME
-#if 0
-			ob->temp3 = (Uint16)door;
-#endif // 0
 
             ob->temp3 = door_object_to_ui16(door);
 

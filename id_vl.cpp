@@ -357,8 +357,6 @@ void VL_DePlaneVGA (void)
 
 //===========================================================================
 
-// FIXME
-#if 0
 /*
 ====================
 =
@@ -368,30 +366,6 @@ void VL_DePlaneVGA (void)
 =
 ====================
 */
-
-void VL_SetLineWidth (unsigned width)
-{
-	int i,offset;
-
-//
-// set wide virtual screen
-//
-	outport (CRTC_INDEX,CRTC_OFFSET+width*256);
-
-//
-// set up lookup tables
-//
-	linewidth = width*2;
-
-	offset = 0;
-
-	for (i=0;i<MAXSCANLINES;i++)
-	{
-		ylookup[i]=offset;
-		offset += linewidth;
-	}
-}
-#endif // 0
 
 void VL_SetLineWidth(int width)
 {
@@ -795,14 +769,6 @@ void VL_TestPaletteSet (void)
 
 void VL_ColorBorder (Sint16 color)
 {
-// FIXME
-#if 0
-	_AH=0x10;
-	_AL=1;
-	_BH=color;
-	geninterrupt (0x10);
-#endif // 0
-
 	bordercolor = color;
 }
 
@@ -828,20 +794,6 @@ Uint8	rightmasks[4] = {1,3,7,15};
 =
 =================
 */
-
-// FIXME
-#if 0
-void VL_Plot (Sint16 x, Sint16 y, Sint16 color)
-{
-	Uint8 mask;
-
-	mask = pixmasks[x&3];
-	VGAMAPMASK(mask);
-	*(Uint8* )MK_FP(SCREENSEG,bufferofs+(ylookup[y]+(x>>2))) = color;
-	VGAMAPMASK(15);
-}
-#endif // 0
-
 void VL_Plot(int x, int y, int color)
 {
     int offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
@@ -856,46 +808,6 @@ void VL_Plot(int x, int y, int color)
 =
 =================
 */
-
-// FIXME
-#if 0
-void VL_Hlin (Uint16 x, Uint16 y, Uint16 width, Uint16 color)
-{
-	Uint16		xbyte;
-	Uint8			*dest;
-	Uint8			leftmask,rightmask;
-	Sint16				midbytes;
-
-	xbyte = x>>2;
-	leftmask = leftmasks[x&3];
-	rightmask = rightmasks[(x+width-1)&3];
-	midbytes = ((x+width+3)>>2) - xbyte - 2;
-
-	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+xbyte);
-
-	if (midbytes<0)
-	{
-	// all in one byte
-		VGAMAPMASK(leftmask&rightmask);
-		*dest = color;
-		VGAMAPMASK(15);
-		return;
-	}
-
-	VGAMAPMASK(leftmask);
-	*dest++ = color;
-
-	VGAMAPMASK(15);
-	memset (dest,color,midbytes);
-	dest+=midbytes;
-
-	VGAMAPMASK(rightmask);
-	*dest = color;
-
-	VGAMAPMASK(15);
-}
-#endif // 0
-
 void VL_Hlin(int x, int y, int width, int color)
 {
     VL_Bar(x, y, width, 1, color);
@@ -909,28 +821,6 @@ void VL_Hlin(int x, int y, int width, int color)
 =
 =================
 */
-
-// FIXME
-#if 0
-void VL_Vlin (Sint16 x, Sint16 y, Sint16 height, Sint16 color)
-{
-	Uint8	*dest,mask;
-
-	mask = pixmasks[x&3];
-	VGAMAPMASK(mask);
-
-	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2));
-
-	while (height--)
-	{
-		*dest = color;
-		dest += linewidth;
-	}
-
-	VGAMAPMASK(15);
-}
-#endif // 0
-
 void VL_Vlin(int x, int y, int height, int color)
 {
     VL_Bar(x, y, 1, height, color);
@@ -944,54 +834,6 @@ void VL_Vlin(int x, int y, int height, int color)
 =
 =================
 */
-
-// FIXME
-#if 0
-void VL_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
-{
-	Uint8	*dest;
-	Uint8	leftmask,rightmask;
-	Sint16		midbytes,linedelta;
-
-	leftmask = leftmasks[x&3];
-	rightmask = rightmasks[(x+width-1)&3];
-	midbytes = ((x+width+3)>>2) - (x>>2) - 2;
-	linedelta = linewidth-(midbytes+1);
-
-	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2));
-
-	if (midbytes<0)
-	{
-	// all in one byte
-		VGAMAPMASK(leftmask&rightmask);
-		while (height--)
-		{
-			*dest = color;
-			dest += linewidth;
-		}
-		VGAMAPMASK(15);
-		return;
-	}
-
-	while (height--)
-	{
-		VGAMAPMASK(leftmask);
-		*dest++ = color;
-
-		VGAMAPMASK(15);
-		memset (dest,color,midbytes);
-		dest+=midbytes;
-
-		VGAMAPMASK(rightmask);
-		*dest = color;
-
-		dest+=linedelta;
-	}
-
-	VGAMAPMASK(15);
-}
-#endif // 0
-
 void VL_Bar(int x, int y, int width, int height, int color)
 {
     int i;
@@ -1025,31 +867,6 @@ void VL_MemToLatch(
     int height,
     int dest)
 {
-// FIXME
-#if 0
-	unsigned	count;
-	Uint8	plane,mask;
-
-	count = ((width+3)/4)*height;
-	mask = 1;
-	for (plane = 0; plane<4 ; plane++)
-	{
-		VGAMAPMASK(mask);
-		mask <<= 1;
-
-asm	mov	cx,count
-asm mov ax,SCREENSEG
-asm mov es,ax
-asm	mov	di,[dest]
-asm	lds	si,[source]
-asm	rep movsb
-asm mov	ax,ss
-asm	mov	ds,ax
-
-		source+= count;
-	}
-#endif // 0
-
     int i;
     int j;
     int count = ((width + 3) / 4) * height;
@@ -1078,31 +895,6 @@ asm	mov	ds,ax
 =================
 */
 
-// FIXME
-#if 0
-void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
-{
-	Uint8   * screen,*dest,mask;
-	Sint16		plane;
-
-	width>>=2;
-	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2) );
-	mask = 1 << (x&3);
-
-	for (plane = 0; plane<4; plane++)
-	{
-		VGAMAPMASK(mask);
-		mask <<= 1;
-		if (mask == 16)
-			mask = 1;
-
-		screen = dest;
-		for (y=0;y<height;y++,screen+=linewidth,source+=width)
-			memcpy (screen,source,width);
-	}
-}
-#endif // 0
-
 void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
 {
     int i;
@@ -1128,47 +920,6 @@ void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
 //------------------------------------------------------------------------
 // VL_MaskMemToScreen()
 //------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void VL_MaskMemToScreen (Uint8* source, Sint16 width, Sint16 height, Sint16 x, Sint16 y, Uint8 mask)
-{
-	Uint8    *screen,*dest,bmask;
-	Sint16		plane,w,h,mod;
-
-	width>>=2;
-	dest = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2));
-	bmask = 1 << (x&3);
-	mod = linewidth - width;
-
-	for (plane = 0; plane<4; plane++)
-	{
-		VGAMAPMASK(bmask);
-
-		screen = dest;
-		h = height;
-		while (h--)
-		{
-			w = width;
-			while (w--)
-			{
-				if (*source != mask)
-					*screen = *source;
-				source++;
-				screen++;
-			}
-			screen += mod;
-		}
-
-		bmask <<= 1;
-		if (bmask == 16)
-		{
-			bmask = 1;
-			dest++;
-		}
-	}
-}
-#endif // 0
 
 void VL_MaskMemToScreen(
     const Uint8* source,
@@ -1208,35 +959,6 @@ void VL_MaskMemToScreen(
 //------------------------------------------------------------------------
 // VL_ScreenToMem()
 //------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void VL_ScreenToMem(Uint8* dest, Sint16 width, Sint16 height, Sint16 x, Sint16 y)
-{
-	Uint8    *screen,*source,mask;
-	Sint16		plane;
-
-	width>>=2;
-	source = MK_FP(SCREENSEG,bufferofs+ylookup[y]+(x>>2) );
-	mask = 0;
-
-	for (plane = 0; plane<4; plane++)
-	{
-		VGAREADMAP(mask);
-
-		screen = source;
-		for (y=0;y<height;y++,screen+=linewidth,dest+=width)
-			memcpy (dest,screen,width);
-
-		mask++;
-		if (mask == 4)
-		{
-			mask = 0;
-			source++;
-		}
-	}
-}
-#endif // 0
 
 void VL_ScreenToMem(
     Uint8* dest,

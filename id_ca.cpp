@@ -37,8 +37,6 @@ loaded into the data segment
 =============================================================================
 */
 
-// FIXME
-//Uint8 		*tinf;
 Uint16 rlew_tag;
 
 Sint16			mapon;
@@ -487,37 +485,6 @@ boolean CA_LoadFile (char *filename, memptr *ptr)
 */
 
 
-#if 0 // FIXME
-/*
-===============
-=
-= CAL_OptimizeNodes
-=
-= Goes through a huffman table and changes the 256-511 node numbers to the
-= actular address of the node.  Must be called before CAL_HuffExpand
-=
-===============
-*/
-
-void CAL_OptimizeNodes (huffnode *table)
-{
-  huffnode *node;
-  Sint16 i;
-
-  node = table;
-
-  for (i=0;i<255;i++)
-  {
-	if (node->bit0 >= 256)
-	  node->bit0 = (Uint16)(table+(node->bit0-256));
-	if (node->bit1 >= 256)
-	  node->bit1 = (Uint16)(table+(node->bit1-256));
-	node++;
-  }
-}
-#endif // 0
-
-
 /*
 ======================
 =
@@ -745,114 +712,6 @@ Sint32 CA_RLEWCompress (Uint16 *source, Sint32 length, Uint16 *dest,
 void CA_RLEWexpand (Uint16 *source, Uint16 *dest,Sint32 length,
   Uint16 rlewtag)
 {
-// FIXME
-#if 0
-
-//  unsigned value,count,i;
-  Uint16 *end;
-  Uint16 sourceseg,sourceoff,destseg,destoff,endseg,endoff;
-
-
-//
-// expand it
-//
-#if 0
-  do
-  {
-	value = *source++;
-	if (value != rlewtag)
-	//
-	// uncompressed
-	//
-	  *dest++=value;
-	else
-	{
-	//
-	// compressed string
-	//
-	  count = *source++;
-	  value = *source++;
-	  for (i=1;i<=count;i++)
-	*dest++ = value;
-	}
-  } while (dest<end);
-#endif
-
-  end = dest + (length)/2;
-  sourceseg = FP_SEG(source);
-  sourceoff = FP_OFF(source);
-  destseg = FP_SEG(dest);
-  destoff = FP_OFF(dest);
-  endseg = FP_SEG(end);
-  endoff = FP_OFF(end);
-
-
-//
-// ax = source value
-// bx = tag value
-// cx = repeat counts
-// dx = scratch
-//
-// NOTE: A repeat count that produces 0xfff0 bytes can blow this!
-//
-
-asm	mov	bx,rlewtag
-asm	mov	si,sourceoff
-asm	mov	di,destoff
-asm	mov	es,destseg
-asm	mov	ds,sourceseg
-
-expand:
-asm	lodsw
-asm	cmp	ax,bx
-asm	je	repeat
-asm	stosw
-asm	jmp	next
-
-repeat:
-asm	lodsw
-asm	mov	cx,ax		// repeat count
-asm	lodsw			// repeat value
-asm	rep stosw
-
-next:
-
-asm	cmp	si,0x10		// normalize ds:si
-asm  	jb	sinorm
-asm	mov	ax,si
-asm	shr	ax,1
-asm	shr	ax,1
-asm	shr	ax,1
-asm	shr	ax,1
-asm	mov	dx,ds
-asm	add	dx,ax
-asm	mov	ds,dx
-asm	and	si,0xf
-sinorm:
-asm	cmp	di,0x10		// normalize es:di
-asm  	jb	dinorm
-asm	mov	ax,di
-asm	shr	ax,1
-asm	shr	ax,1
-asm	shr	ax,1
-asm	shr	ax,1
-asm	mov	dx,es
-asm	add	dx,ax
-asm	mov	es,dx
-asm	and	di,0xf
-dinorm:
-
-asm	cmp     di,ss:endoff
-asm	jne	expand
-asm	mov	ax,es
-asm	cmp	ax,ss:endseg
-asm	jb	expand
-
-asm	mov	ax,ss
-asm	mov	ds,ax
-#endif // 0
-
-
     Uint16 i;
     Uint16 value;
     Uint16 count;
@@ -956,11 +815,6 @@ void CA_CacheAudioChunk (Sint16 chunk)
 
 	if (audiosegs[chunk])
 	{
-// FIXME
-#if 0
-		MM_SetPurge (&(void*)audiosegs[chunk],0);
-#endif // 0
-
 		return;							// allready in memory
 	}
 
@@ -980,18 +834,6 @@ void CA_CacheAudioChunk (Sint16 chunk)
 #ifndef AUDIOHEADERLINKED
 
     audiosegs[chunk] = new Uint8[compressed];
-
-// FIXME
-#if 0
-	if (mmerror)
-   {
-#if FORCE_FILE_CLOSE
-		CloseAudioFile();
-#endif
-		return;
-   }
-#endif // 0
-
     audiohandle.read(audiosegs[chunk], compressed);
 
 #else
@@ -1060,13 +902,6 @@ void CA_LoadAllSounds (void)
 		start = STARTADLIBSOUNDS;
 		break;
 	}
-
-// FIXME
-#if 0
-	for (i=0;i<NUMSOUNDS;i++,start++)
-		if (audiosegs[start])
-			MM_SetPurge (&(void*)audiosegs[start],3);		// make purgable
-#endif // 0
 
 cachein:
 
@@ -1142,12 +977,6 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
 // Sprites need to have shifts made and various other junk
 //
     grsegs[chunk] = new char[expanded];
-
-// FIXME
-#if 0
-	if (mmerror)
-		return;
-#endif // 0
 
 	CAL_HuffExpand (source,static_cast<Uint8*>(grsegs[chunk]),expanded,grhuffman,false);
 }
@@ -1536,23 +1365,10 @@ void CA_CacheMarks (void)
 		if (grneeded[i]&ca_levelbit)
 		{
 			if (grsegs[i])					// its allready in memory, make
-// FIXME
-#if 0
-				MM_SetPurge(&grsegs[i],0);	// sure it stays there!
-#endif // 0
                 ;
 			else
 				numcache++;
 		}
-
-// FIXME
-#if 0
-		else
-		{
-			if (grsegs[i])					// not needed, so make it purgeable
-				MM_SetPurge(&grsegs[i],3);
-		}
-#endif // 0
 
 	if (!numcache)			// nothing to cache!
 		return;
@@ -1619,26 +1435,12 @@ void CA_CacheMarks (void)
 			{
 			// big chunk, allocate temporary buffer
                 bigbufferseg = new Uint8[compressed];
-
-// FIXME
-#if 0
-				if (mmerror)
-					goto getout;
-				MM_SetLock (&bigbufferseg,true);
-#endif // 0
-
 				grhandle.set_position(pos);
 				grhandle.read(bigbufferseg, compressed);
 				source = bigbufferseg;
 			}
 
 			CAL_ExpandGrChunk (i,source);
-
-// FIXME
-#if 0
-			if (mmerror)
-				goto getout;
-#endif // 0
 
 			if (compressed>BUFFERSIZE) {
                 delete [] bigbufferseg;

@@ -44,12 +44,6 @@ void PreloadUpdate(Uint16 current, Uint16 total);
 void OpenAudioFile(void);
 
 
-// FIXME
-#if 0
-int _argc;
-char** _argv;
-#endif // 0
-
 int g_argc;
 char** g_argv;
 
@@ -128,11 +122,6 @@ Sint16                     minheightdiv;
 
 boolean         startgame,loadedgame;
 Sint16             mouseadjustment;
-
-// FIXME
-#if 0
-char	configname[13]="CONFIG.";
-#endif // 0
 
 const std::string g_config_file_name = "bstone_ps_config";
 
@@ -943,59 +932,6 @@ void ReadConfig()
 ====================
 */
 
-// FIXME
-#if 0
-void WriteConfig()
-{
-    FILE* stream = NULL;
-
-    MakeDestPath(configname);
-
-    stream = fopen(tempPath, "wb");
-
-    if (stream != NULL) {
-        int i;
-        Sint16 value_i16;
-
-        for (i = 0; i < MaxScores; ++i) {
-            HighScore* score = &Scores[i];
-
-            fwrite(score->name, 1, sizeof(score->name), stream);
-            fwrite(&score->score, 1, sizeof(score->score), stream);
-            fwrite(&score->completed, 1, sizeof(score->completed), stream);
-            fwrite(&score->episode, 1, sizeof(score->episode), stream);
-            fwrite(&score->ratio, 1, sizeof(score->ratio), stream);
-        }
-
-        value_i16 = (Sint16)SoundMode;
-        fwrite(&value_i16, 1, sizeof(value_i16), stream);
-
-        value_i16 = (Sint16)MusicMode;
-        fwrite(&value_i16, 1, sizeof(value_i16), stream);
-
-        value_i16 = (Sint16)DigiMode;
-        fwrite(&value_i16, 1, sizeof(value_i16), stream);
-
-        fwrite(&mouseenabled, 1, sizeof(mouseenabled), stream);
-        fwrite(&joystickenabled, 1, sizeof(joystickenabled), stream);
-        fwrite(&joypadenabled, 1, sizeof(joypadenabled), stream);
-        fwrite(&joystickprogressive, 1, sizeof(joystickprogressive), stream);
-        fwrite(&joystickport, 1, sizeof(joystickport), stream);
-
-        fwrite(dirscan, 1, sizeof(dirscan), stream);
-        fwrite(buttonscan, 1, sizeof(buttonscan), stream);
-        fwrite(buttonmouse, 1, sizeof(buttonmouse), stream);
-        fwrite(buttonjoy, 1, sizeof(buttonjoy), stream);
-
-        fwrite(&viewsize, 1, sizeof(viewsize), stream);
-        fwrite(&mouseadjustment, 1, sizeof(mouseadjustment), stream);
-        fwrite(&gamestate.flags, 1, sizeof(gamestate.flags), stream);
-
-        fclose(stream);
-    }
-}
-#endif // 0
-
 void WriteConfig()
 {
     MakeDestPath(g_config_file_name.c_str());
@@ -1143,11 +1079,6 @@ void NewGame (Sint16 difficulty,Sint16 episode)
 //
 //==========================================================================
 
-// FIXME
-#if 0
-boolean LevelInPlaytemp(char levelnum);
-#endif // 0
-
 bool LevelInPlaytemp(
     int level_index);
 
@@ -1158,29 +1089,9 @@ bool LevelInPlaytemp(
 
 void* lzh_work_buffer;
 
-// FIXME
-#if 0
-Sint32 checksum;
-#endif // 0
-
 //--------------------------------------------------------------------------
 // InitPlaytemp()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void InitPlaytemp()
-{
-	Sint16 handle;
-
-	MakeDestPath(PLAYTEMP_FILE);
-	if ((handle=open(tempPath,O_CREAT|O_TRUNC|O_RDWR|O_BINARY,S_IREAD|S_IWRITE))==-1)
-		MAIN_ERROR(INITPLAYTEMP_OPEN_ERR);
-
-	close(handle);
-}
-#endif // 0
-
 void InitPlaytemp()
 {
     g_playtemp.open(1 * 1024 * 1024);
@@ -1205,31 +1116,6 @@ Sint32 DoChecksum(
 //--------------------------------------------------------------------------
 // FindChunk()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-Sint32 FindChunk(Sint16 file, const char *chunk)
-{
-	Sint32 chunklen;
-	char fchunk[5]={0,0,0,0,0};
-
-	while (1)
-	{
-		if (read(file,fchunk,4)!=4)			// read chunk id
-			break;
-		read(file,&chunklen,4);					// read chunk length
-
-		if (strstr(fchunk,chunk))				// look for chunk (sub-check!)
-			return(chunklen);						// chunk found!
-
-		lseek(file,chunklen,SEEK_CUR);		// skip this chunk
-	}
-
-	lseek(file,0,SEEK_END);						// make sure we're at the end
-	return(0);
-}
-#endif // 0
-
 int FindChunk(
     bstone::IStream* stream,
     const std::string& chunk_name)
@@ -1264,25 +1150,6 @@ int FindChunk(
 //--------------------------------------------------------------------------
 // NextChunk()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-Sint32 NextChunk(Sint16 file)
-{
-	Sint32 chunklen;
-	char fchunk[5]={0,0,0,0,0};
-
-	if (read(file,fchunk,4) != 4)			// read chunk id
-	{
-		lseek(file,0,SEEK_END);				// make sure we're at the end
-		return(0);
-	}
-
-	read(file,&chunklen,4);					// read chunk length
-	return(chunklen);
-}
-#endif // 0
-
 int NextChunk(
     bstone::IStream* stream)
 {
@@ -1307,272 +1174,9 @@ int NextChunk(
 
 char LS_current=-1,LS_total=-1;
 
-// FIXME
-#if 0
-//--------------------------------------------------------------------------
-// ReadInfo()
-//--------------------------------------------------------------------------
-
-void ReadInfo(
-    boolean decompress,
-    char* dst,
-    int size,
-    bstone::IStream* stream)
-{
-    ::PreloadUpdate(LS_current++, LS_total);
-
-    if (decompress) {
-        Uint16 csize = 0;
-        stream->read(&csize, 2);
-        csize = SDL_SwapLE16(csize);
-        stream->read(lzh_work_buffer, csize);
-        checksum = ::DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),
-            csize, checksum);
-        int dsize = ::LZH_Decompress(lzh_work_buffer, dst, size, csize);
-
-        if (dsize != size)
-            MAIN_ERROR(READINFO_BAD_DECOMP);
-    } else {
-        stream->read(dst, size);
-        checksum = ::DoChecksum(reinterpret_cast<Uint8*>(dst),
-            static_cast<Uint16>(size), checksum);
-    }
-}
-
-//--------------------------------------------------------------------------
-// WriteInfo()
-//--------------------------------------------------------------------------
-
-int WriteInfo(
-    bool compress,
-    const char* src,
-    int size,
-    bstone::IStream* stream)
-{
-    ::PreloadUpdate(LS_current++, LS_total);
-
-    Uint16 csize;
-
-    if (compress) {
-        csize = static_cast<Uint16>(::LZH_Compress(src, lzh_work_buffer, size));
-
-        if (csize > LZH_WORK_BUFFER_SIZE)
-            MAIN_ERROR(WRITEINFO_BIGGER_BUF);
-
-        stream->write(&csize, sizeof(csize));
-        stream->write(lzh_work_buffer, csize);
-
-        checksum = ::DoChecksum(reinterpret_cast<Uint8*>(lzh_work_buffer),
-            csize, checksum);
-
-        csize += sizeof(csize);
-    } else {
-        stream->write(src, size);
-
-        checksum = ::DoChecksum(
-            const_cast<Uint8*>(reinterpret_cast<const Uint8*>(src)),
-            static_cast<Uint16>(size), checksum);
-
-        csize = static_cast<Uint16>(size);
-    }
-
-    return csize;
-}
-#endif // 0
-
 //--------------------------------------------------------------------------
 // LoadLevel()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-boolean LoadLevel(Sint16 levelnum)
-{
-	extern boolean ShowQuickMsg;
-	extern boolean ForceLoadDefault;
-	extern Uint16 destoff;
-
-	boolean oldloaded=loadedgame;
-	Sint32 oldchecksum;
-	objtype *ob;
-	statobj_t *statptr;
-	Sint16 handle,picnum;
-	void* temp;
-	Uint16 count;
-	char *ptr;
-	char chunk[5]="LVxx";
-
-extern Sint16 nsd_table[];
-extern Sint16 sm_table[];
-
-char mod;
-
-	WindowY=181;
-	gamestuff.level[levelnum].locked=false;
-
-	mod = levelnum % 6;
-	normalshade_div = nsd_table[mod];
-	shade_max = sm_table[mod];
-	normalshade=(3*(maxscale>>2))/normalshade_div;
-
-// Open PLAYTEMP file
-//
-	MakeDestPath(PLAYTEMP_FILE);
-	handle=open(tempPath,O_RDONLY|O_BINARY);
-
-// If level exists in PLAYTEMP file, use it; otherwise, load it from scratch!
-//
-	sprintf(&chunk[2],"%02x",levelnum);
-	if ((handle==-1) || (!FindChunk(handle,chunk)) || ForceLoadDefault)
-	{
-		close(handle);
-
-		PreloadUpdate(LS_current+((LS_total-LS_current)>>1),LS_total);
-		SetupGameLevel();
-		gamestate.flags |= GS_VIRGIN_LEVEL;
-		gamestate.turn_around=0;
-
-		PreloadUpdate(1,1);
-		ForceLoadDefault=false;
-		goto overlay;
-	}
-
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
-
-// Setup for LZH decompression
-//
-	LZH_Startup();
-    lzh_work_buffer = malloc(LZH_WORK_BUFFER_SIZE);
-
-// Read all sorts of stuff...
-//
-	checksum = 0;
-
-	loadedgame=true;
-	SetupGameLevel();
-	loadedgame=oldloaded;
-
-	ReadIt(true, tilemap, sizeof(tilemap));
-	ReadIt(true, actorat, sizeof(actorat));
-	ReadIt(true, areaconnect, sizeof(areaconnect));
-	ReadIt(true, areabyplayer, sizeof(areabyplayer));
-
-// Restore 'save game' actors
-//
-	ReadIt(false, &count, sizeof(count));
-    temp = malloc(count * sizeof(*ob));
-	ReadIt(true, temp, count*sizeof(*ob));
-	ptr=temp;
-
-	InitActorList ();							// start with "player" actor
-	memcpy(new_actor,ptr,sizeof(*ob)-4);		// don't copy over links!
-	ptr += sizeof(*ob);						//
-
-	while (--count)
-	{
-		GetNewActor();
-		memcpy(new_actor,ptr,sizeof(*ob)-4);		// don't copy over links!
-		actorat[new_actor->tilex][new_actor->tiley]=new_actor;
-#if LOOK_FOR_DEAD_GUYS
-		if (new_actor->flags & FL_DEADGUY)
-			DeadGuys[NumDeadGuys++]=new_actor;
-#endif
-		ptr += sizeof(*ob);
-	}
-
-    free(temp);
-    temp = NULL;
-
-
-   //
-	//  Re-Establish links to barrier switches
-	//
-
-	ob = objlist;
-	do
-	{
-		switch (ob->obclass)
-		{
-			case arc_barrierobj:
-			case post_barrierobj:
-         case vspike_barrierobj:
-         case vpost_barrierobj:
-				ob->temp2 = ScanBarrierTable(ob->tilex,ob->tiley);
-			break;
-		}
-	} while (ob = ob->next);
-
-	ConnectBarriers();
-
-// Read all sorts of stuff...
-//
-	ReadIt(false, &laststatobj, sizeof(laststatobj));
-	ReadIt(true, statobjlist, sizeof(statobjlist));
-	ReadIt(true, doorposition, sizeof(doorposition));
-	ReadIt(true, doorobjlist, sizeof(doorobjlist));
-	ReadIt(false, &pwallstate, sizeof(pwallstate));
-	ReadIt(false, &pwallx, sizeof(pwallx));
-	ReadIt(false, &pwally, sizeof(pwally));
-	ReadIt(false, &pwalldir, sizeof(pwalldir));
-	ReadIt(false, &pwallpos, sizeof(pwallpos));
-	ReadIt(false, &pwalldist, sizeof(pwalldist));
-	ReadIt(true, TravelTable, sizeof(TravelTable));
-	ReadIt(true, &ConHintList, sizeof(ConHintList));
-	ReadIt(true, eaList, sizeof(eaWallInfo)*MAXEAWALLS);
-	ReadIt(true, &GoldsternInfo, sizeof(GoldsternInfo));
-   ReadIt(true, &GoldieList,sizeof(GoldieList));			
-	ReadIt(false, gamestate.barrier_table,sizeof(gamestate.barrier_table));
-	ReadIt(false, &gamestate.plasma_detonators,sizeof(gamestate.plasma_detonators));
-
-// Read and evaluate checksum
-//
-	PreloadUpdate(LS_current++,LS_total);
-	IO_FarRead (handle,(void *)&oldchecksum,sizeof(oldchecksum));
-
-	if (oldchecksum != checksum)
-	{
-		Sint16 old_wx=WindowX,old_wy=WindowY,old_ww=WindowW,old_wh=WindowH,
-			 old_px=px,old_py=py;
-
-		WindowX=0; WindowY=16; WindowW=320; WindowH=168;
-		CacheMessage(BADINFO_TEXT);
-		WindowX=old_wx; WindowY=old_wy; WindowW=old_ww; WindowH=old_wh;
-		px=old_px; py=old_py;
-
-		IN_ClearKeysDown();
-		IN_Ack();
-
-		gamestate.score = 0;
-		gamestate.nextextra = EXTRAPOINTS;
-		gamestate.lives = 1;
-
-		gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
-		gamestate.weapons = 1<<wp_autocharge;		// |1<<wp_plasma_detonators;
-
-		gamestate.ammo = 8;
-	}
-
-	close(handle);
-
-// Clean-up LZH compression
-//
-    free(lzh_work_buffer);
-    lzh_work_buffer = NULL;
-
-	LZH_Shutdown();
-	NewViewSize(viewsize);
-
-// Check for Strange Door and Actor combos
-//
-	CleanUpDoors_N_Actors();
-
-
-overlay:;
-
-	return(true);
-}
-#endif // 0
-
 bool LoadLevel(
     int level_index)
 {
@@ -1792,120 +1396,6 @@ bool LoadLevel(
 //--------------------------------------------------------------------------
 // SaveLevel()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-boolean SaveLevel(Sint16 levelnum)
-{
-	objtype *ob;
-	Sint16 handle;
-	struct ffblk finfo;
-	Sint32 offset,cksize;
-	char chunk[5]="LVxx";
-	Uint16 gflags = gamestate.flags;
-	boolean rt_value=false;
-	memptr temp;
-	Uint16 count;
-	char *ptr;
-	char oldmapon;
-
-	WindowY=181;
-
-// Make sure floor stats are saved!
-//
-	oldmapon=gamestate.mapon;
-	gamestate.mapon=gamestate.lastmapon;
-	ShowStats(0,0,ss_justcalc,&gamestuff.level[gamestate.mapon].stats);
-	gamestate.mapon=oldmapon;
-
-// Yeah! We're no longer a virgin!
-//
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
-
-// Open PLAYTEMP file
-//
-	MakeDestPath(PLAYTEMP_FILE);
-	if ((handle=open(tempPath,O_CREAT|O_RDWR|O_BINARY,S_IREAD|S_IWRITE))==-1)
-		MAIN_ERROR(SAVELEVEL_DISKERR);
-
-// Remove level chunk from file
-//
-	sprintf(&chunk[2],"%02x",levelnum);
-	DeleteChunk(handle,chunk);
-
-// Setup LZH compression
-//
-	LZH_Startup();
-	MM_GetPtr(&lzh_work_buffer,LZH_WORK_BUFFER_SIZE);
-
-// Write level chunk id
-//
-	write(handle,chunk,4);
-	lseek(handle,4,SEEK_CUR);		// leave four bytes for chunk size
-
-// Write all sorts of info...
-//
-	checksum = cksize = 0;
-	WriteIt(true, tilemap, sizeof(tilemap));
-	WriteIt(true, actorat, sizeof(actorat));
-	WriteIt(true, areaconnect, sizeof(areaconnect));
-	WriteIt(true, areabyplayer, sizeof(areabyplayer));
-
-// Write actor list...
-//
-	MM_GetPtr(&temp,sizeof(objlist));
-	for (ob=player,count=0,ptr=temp; ob; ob=ob->next,count++,ptr+=sizeof(*ob))
-		memcpy(ptr,ob,sizeof(*ob));
-	WriteIt(false, &count, sizeof(count));
-	WriteIt(true, temp, count*sizeof(*ob));
-	MM_FreePtr(&temp);
-
-// Write all sorts of info...
-//
-	WriteIt(false, &laststatobj, sizeof(laststatobj));
-	WriteIt(true, statobjlist, sizeof(statobjlist));
-	WriteIt(true, doorposition, sizeof(doorposition));
-	WriteIt(true, doorobjlist, sizeof(doorobjlist));
-	WriteIt(false, &pwallstate, sizeof(pwallstate));
-	WriteIt(false, &pwallx, sizeof(pwallx));
-	WriteIt(false, &pwally, sizeof(pwally));
-	WriteIt(false, &pwalldir, sizeof(pwalldir));
-	WriteIt(false, &pwallpos, sizeof(pwallpos));
-	WriteIt(false, &pwalldist, sizeof(pwalldist));
-	WriteIt(true, TravelTable, sizeof(TravelTable));
-	WriteIt(true, &ConHintList, sizeof(ConHintList));
-	WriteIt(true, eaList, sizeof(eaWallInfo)*MAXEAWALLS);
-	WriteIt(true, &GoldsternInfo, sizeof(GoldsternInfo));
-	WriteIt(true, &GoldieList,sizeof(GoldieList));
-	WriteIt(false, gamestate.barrier_table,sizeof(gamestate.barrier_table));
-	WriteIt(false, &gamestate.plasma_detonators,sizeof(gamestate.plasma_detonators));
-
-// Write checksum and determine size of file
-//
-	WriteIt(false, &checksum, sizeof(checksum));
-	offset=tell(handle);
-
-// Write chunk size, set file size, and close file
-//
-	lseek(handle,-(cksize+4),SEEK_CUR);
-	write(handle,&cksize,4);
-
-	chsize(handle,offset);
-	close(handle);
-	rt_value=true;
-
-// Clean-up LZH compression
-//
-exit_func:;
-	MM_FreePtr(&lzh_work_buffer);
-	LZH_Shutdown();
-	NewViewSize(viewsize);
-	gamestate.flags = gflags;
-
-	return(rt_value);
-}
-#endif // 0
-
 bool SaveLevel(
     int level_index)
 {
@@ -2051,51 +1541,6 @@ bool SaveLevel(
 //--------------------------------------------------------------------------
 // DeleteChunk()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-Sint32 DeleteChunk(Sint16 handle, const char *chunk)
-{
-	Sint32 filesize,cksize,offset,bmove;
-	Sint16 dhandle;
-
-	lseek(handle,0,SEEK_SET);
-	filesize=lseek(handle,0,SEEK_END);
-	lseek(handle,0,SEEK_SET);
-
-	if (cksize=FindChunk(handle,chunk))
-	{
-		offset=lseek(handle,0,SEEK_CUR)-8; 		// move back to CKID/SIZE
-		bmove=filesize-(offset+8+cksize);	 	// figure bytes to move
-
-		if (bmove)										// any data to move?
-		{
-		// Move data: FROM --> the start of NEXT chunk through the end of file.
-		//              TO --> the start of THIS chunk.
-		//
-		// (ie: erase THIS chunk and re-write it at the end of the file!)
-		//
-			lseek(handle,cksize,SEEK_CUR);			// seek source to NEXT chunk
-
-			MakeDestPath(PLAYTEMP_FILE);
-			if ((dhandle=open(tempPath,O_CREAT|O_RDWR|O_BINARY,S_IREAD|S_IWRITE))==-1)
-				MAIN_ERROR(SAVELEVEL_DISKERR);
-
-			lseek(dhandle,offset,SEEK_SET);  		// seek dest to THIS chunk
-			IO_CopyHandle(handle,dhandle,bmove);	// copy "bmove" bytes
-
-			close(dhandle);
-
-			lseek(handle,offset+bmove,SEEK_SET);	// go to end of data moved
-		}
-		else
-			lseek(handle,offset,SEEK_SET);
-	}
-
-	return(cksize);
-}
-#endif // 0
-
 int DeleteChunk(
     bstone::MemoryStream& stream,
     const std::string& chunk_name)
@@ -2115,21 +1560,6 @@ int DeleteChunk(
 }
 
 
-// FIXME
-#if 0
-char SavegameInfoText[] =
-    "\n\r"
-    "\n\r"
-    "-------------------------------------\n\r"
-    "    Blake Stone: Aliens Of Gold\n\r"
-    "Copyright 1993, JAM Productions, Inc.\n\r"
-    "\n\r"
-    "SAVEGAME file is from version: "__BLAKE_VERSION__"\n\r"
-    " Compile Date :"__DATE__" : "__TIME__"\n\r"
-    "-------------------------------------\n\r"
-    "\x1a";
-#endif // 0
-
 static const std::string SavegameInfoText =
     "bstone (planet strike) save (v" BS_SAVE_VERSION ")";
 
@@ -2137,118 +1567,6 @@ static const std::string SavegameInfoText =
 //--------------------------------------------------------------------------
 // LoadTheGame()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-boolean LoadTheGame(Sint16 handle)
-{
-	extern Sint16 lastmenumusic;
-
-	Sint16 shandle;
-	Sint32 cksize;
-	void* temp=NULL;
-	boolean rt_value=false;
-   char InfoSpace[400];
-   void* tempspace;
-
-// Setup LZH decompression
-//
-	LZH_Startup();
-	lzh_work_buffer = malloc(LZH_WORK_BUFFER_SIZE);
-
-
-// Read in VERSion chunk
-//
-	if (!FindChunk(handle,"VERS"))
-		goto cleanup;
-
-	cksize = sizeof(SavegameInfoText);
-	read(handle, InfoSpace, cksize);
-	if (memcmp(InfoSpace, SavegameInfoText, cksize))
-   {
-		// Old Version of game
-
-		Sint16 old_wx=WindowX,old_wy=WindowY,old_ww=WindowW,old_wh=WindowH,
-			 old_px=px,old_py=py;
-
-		WindowX=0; WindowY=16; WindowW=320; WindowH=168;
-		CacheMessage(BADSAVEGAME_TEXT);
-		SD_PlaySound (NOWAYSND);
-		WindowX=old_wx; WindowY=old_wy; WindowW=old_ww; WindowH=old_wh;
-		px=old_px; py=old_py;
-
-	  	IN_ClearKeysDown();
-	  	IN_Ack();
-
-      VW_FadeOut();
-      screenfaded = true;
-
-     	goto cleanup;
-	}
-
-// Read in HEAD chunk
-//
-	if (!FindChunk(handle,"HEAD"))
-		goto cleanup;
-
-	ReadIt(true, &gamestate, sizeof(gamestate));
-	ReadIt(true, &gamestuff, sizeof(gamestuff));
-
-// Reinitialize page manager
-//
-#if DUAL_SWAP_FILES
-	PM_Shutdown();
-	PM_Startup ();
-	PM_UnlockMainMem();
-#endif
-
-
-// Start music for the starting level in this loaded game.
-//
-
-	FreeMusic();
-	StartMusic(false);
-
-// Copy all remaining chunks to PLAYTEMP file
-//
-	MakeDestPath(PLAYTEMP_FILE);
-	if ((shandle=open(tempPath,O_CREAT|O_RDWR|O_TRUNC|O_BINARY,S_IREAD|S_IWRITE))==-1)
-		goto cleanup;
-
-	while (cksize=NextChunk(handle))
-	{
-		cksize += 8;								// include chunk ID and LENGTH
-		lseek(handle,-8,SEEK_CUR);				// seek to start of chunk
-		temp = malloc(cksize);				// alloc temp buffer
-		IO_FarRead(handle,temp,cksize);		// read chunk from SAVEGAME file
-		IO_FarWrite(shandle,temp,cksize);	// write chunk to PLAYTEMP file
-		free(temp);						// free temp buffer
-	}
-
-	close(shandle);
-	rt_value=true;
-
-// Clean-up LZH decompression
-//
-cleanup:;
-    free(lzh_work_buffer);
-    lzh_work_buffer = NULL;
-
-	LZH_Shutdown();
-	NewViewSize(viewsize);
-
-// Load current level
-//
-	if (rt_value)
-	{
-		LoadLevel(0xff);
-		ShowQuickMsg=false;
-	}
-
-	return(rt_value);
-}
-#endif // 0
-
 bool LoadTheGame(
     bstone::IStream* stream)
 {
@@ -2371,94 +1689,6 @@ bool LoadTheGame(
 //--------------------------------------------------------------------------
 // SaveTheGame()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-boolean SaveTheGame(Sint16 handle, char *description)
-{
-	struct ffblk finfo;
-	Uint32 cksize,offset;
-	Sint16 shandle;
-	memptr temp;
-	char nbuff[GAME_DESCRIPTION_LEN+1];
-	boolean rt_value=false,exists;
-
-//
-// Save PLAYTEMP becuase we'll want to restore it to the way it was
-// before the save.
-//
-//	IO_CopyFile(PLAYTEMP_FILE,OLD_PLAYTEMP_FILE);
-//
-
-// Save current level -- saves it into PLAYTEMP.
-//
-	SaveLevel(0xff);
-
-// Setup LZH compression
-//
-	LZH_Startup();
-	MM_GetPtr(&lzh_work_buffer,LZH_WORK_BUFFER_SIZE);
-
-// Write VERSion chunk
-//
-	cksize=sizeof(SavegameInfoText);
-	write(handle,"VERS",4);
-	write(handle,&cksize,4);
-	IO_FarWrite(handle,SavegameInfoText,cksize);
-
-// Write DESC chunk
-//
-	_fmemcpy(nbuff,description,sizeof(nbuff));
-	cksize=strlen(nbuff)+1;
-	write(handle,"DESC",4);
-	write(handle,&cksize,4);
-	write(handle,nbuff,cksize);
-
-// Write HEAD chunk
-//
-	cksize=0;
-	write(handle,"HEAD",4);
-	lseek(handle,4,SEEK_CUR);		// leave four bytes for chunk size
-
-	WriteIt(true, &gamestate, sizeof(gamestate));
-	WriteIt(true, &gamestuff, sizeof(gamestuff));
-
-	lseek(handle,-(cksize+4),SEEK_CUR);
-	write(handle,&cksize,4);
-	lseek(handle,cksize,SEEK_CUR);
-
-// Append PLAYTEMP file to savegame file
-//
-	MakeDestPath(PLAYTEMP_FILE);
-	if (findfirst(tempPath,&finfo,0))
-		goto cleanup;
-
-	if ((shandle=open(tempPath,O_RDONLY|O_BINARY))==-1)
-		goto cleanup;
-
-	IO_CopyHandle(shandle,handle,-1);
-
-	close(shandle);
-	rt_value=true;
-
-// Clean-up LZH compression
-//
-cleanup:;
-	MM_FreePtr(&lzh_work_buffer);
-	LZH_Shutdown();
-	NewViewSize(viewsize);
-
-//
-// Return PLAYTEMP to original state!
-//
-//	remove(PLAYTEMP_FILE);
-//	rename(OLD_PLAYTEMP_FILE,PLAYTEMP_FILE);
-//
-
-	return(rt_value);
-}
-#endif // 0
-
 bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description)
@@ -2535,33 +1765,6 @@ bool SaveTheGame(
 //--------------------------------------------------------------------------
 // LevelInPlaytemp()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-boolean LevelInPlaytemp(char levelnum)
-{
-	Sint16 handle;
-	char chunk[5]="LVxx";
-	boolean rt_value;
-
-// Open PLAYTEMP file
-//
-	MakeDestPath(PLAYTEMP_FILE);
-	handle=open(tempPath,O_RDONLY|O_BINARY);
-
-// See if level exists in PLAYTEMP file...
-//
-	sprintf(&chunk[2],"%02x",levelnum);
-	rt_value=FindChunk(handle,chunk);
-
-// Close PLAYTEMP file
-//
-	close(handle);
-
-	return(rt_value);
-}
-#endif // 0
-
 bool LevelInPlaytemp(
     int level_index)
 {
@@ -2575,51 +1778,6 @@ bool LevelInPlaytemp(
 //--------------------------------------------------------------------------
 boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type)
 {
-// FIXME
-#if 0
-	struct ffblk finfo;
-	struct diskfree_t dfree;
-	Sint32 avail;
-
-// Figure amount of space free on hard disk and let the gamer know if
-// disk space is too low.
-//
-	if (_dos_getdiskfree(0,&dfree))
-		MAIN_ERROR(CHECKDISK_GDFREE);
-
-	avail = (Sint32)dfree.avail_clusters *
-					  dfree.bytes_per_sector *
-					  dfree.sectors_per_cluster;
-
-	if (avail < needed)
-	{
-		Uint16 old_DS=_DS;
-
-		switch (io_type)
-		{
-			case cds_dos_print:
-				_DS=FP_SEG(text);
-				printf("%s",text);
-				_DS=old_DS;
-				exit(0);
-			break;
-
-			case cds_menu_print:
-			case cds_id_print:
-				WindowX=0; WindowY=16; WindowW=320; WindowH=168;
-				SD_PlaySound (NOWAYSND);
-				Message(text);
-				IN_ClearKeysDown();
-				IN_Ack();
-				if (io_type==cds_menu_print)
-					MenuFadeOut();
-			break;
-		}
-
-		return(false);
-	}
-#endif // 0
-
 	return(true);
 }
 
@@ -2628,54 +1786,6 @@ boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type)
 //--------------------------------------------------------------------------
 // CleanUpDoors_N_Actors()
 //--------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void CleanUpDoors_N_Actors(void)
-{
-	char x,y;
-   objtype *obj;
-   objtype **actor_ptr;
-   Uint8 *tile_ptr;
-	Uint16 door;
-
-   actor_ptr = (objtype **)actorat;
-	tile_ptr = (Uint8 *)tilemap;
-
-   for (y=0;y<mapheight;y++)
-	   for (x=0;x<mapwidth;x++)
-      {
-      	if (*tile_ptr & 0x80)
-         {
-         	// Found a door
-            //
-
-            obj = *actor_ptr;
-            if ((obj >= objlist) && (obj < &objlist[MAXACTORS]))
-            {
-             	// Found an actor
-
-            	// Determine door number...
-
-	         	door = *tile_ptr & 0x3F;
-
-					if ((obj->flags & (FL_SOLID|FL_DEADGUY)) == (FL_SOLID|FL_DEADGUY))
-   	         	obj->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
-
-					// Make sure door is open
-
-					doorobjlist[door].ticcount = 0;
-					doorobjlist[door].action = dr_open;
-					doorposition[door] = 0xffff;
-            }
-         }
-
-         tile_ptr++;
-      	actor_ptr++;
-      }
-}
-#endif // 0
-
 void CleanUpDoors_N_Actors()
 {
     int x;
@@ -2746,11 +1856,6 @@ void ClearNClose()
 
 		doorobjlist[static_cast<int>(doornum)].action = dr_closed;		// this door is closed!
 		doorposition[static_cast<int>(doornum)]=0;							// draw it closed!
-
-// FIXME
-#if 0
-		(Uint16)actorat[tx][ty] = doornum | 0x80;	// make it solid!
-#endif // 0
 
         // make it solid!
         actorat[static_cast<int>(tx)][static_cast<int>(ty)] = reinterpret_cast<objtype*>(doornum | 0x80);
@@ -3050,135 +2155,11 @@ void NewViewSize (Sint16 width)
 ==========================
 */
 
-
-// FIXME
-#if 0
-void Quit (const char *error,...)
-{
-	Uint16        finscreen;
-	void*			diz;
-	char *screen;
-	Uint16 unit,err;
-	va_list ap;
-
-	va_start(ap,error);
-
-// FIXME
-#if 0
-	MakeDestPath(PLAYTEMP_FILE);
-	remove(tempPath);
-	ClearMemory ();
-
-	if (!*error)
-	{
-#if GAME_VERSION != SHAREWARE_VERSION
-		if (gamestate.flags & GS_BAD_DIZ_FILE)
-		{
-			char *end;
-
-			CA_CacheGrChunk(DIZ_ERR_TEXT);
-			diz = grsegs[DIZ_ERR_TEXT];
-			end=strstr(diz,"^XX");
-			*end=0;
-		}
-		else
-		if (!IsA386)
-		{
-			CA_CacheGrChunk (NO386SCREEN);
-			screen = MK_FP(grsegs[NO386SCREEN],7);
-		}
-//		else
-#endif
-
-#if 0
-		{
-			CA_CacheGrChunk (ORDERSCREEN);
-			screen = MK_FP(grsegs[ORDERSCREEN],0);
-		}
-#endif
-	}
-	else
-	{
-		CA_CacheGrChunk (ERRORSCREEN);
-		screen = MK_FP(grsegs[ERRORSCREEN],7);
-	}
-
-	WriteConfig ();
-	ShutdownId ();
-
-	if (error && *error)
-	{
-		FILE *fp;
-
-		unit=va_arg(ap,Uint16);
-		err=va_arg(ap,Uint16);
-//		movedata ((unsigned)screen,7,0xb800,0,7*160);
-		_fmemcpy(MK_FP(0xB800,0), screen, 7*160);
-
-		textcolor(14);
-		textbackground(4);
-		gotoxy (10,4);
-		cprintf(error,unit,err);
-
-		gotoxy (65-strlen(__BLAKE_VERSION__),2);
-		cprintf(" Ver:%s ",__BLAKE_VERSION__);
-
-		gotoxy (1,8);
-
-		MakeDestPath("BS_VSI.ERR");
-		fp = fopen(tempPath,"wb");
-		fprintf(fp,"$%02x%02x",unit,err);
-		if (fp)
-			fclose(fp);
-
-		exit(1);
-	}
-
-#if 0
-	if (!error || !(*error))
-	{
-		Uint16 *clear = MK_FP(0xb800,23*80*2);
-		Uint16 len = 0;
-
-		clrscr();
-#if GAME_VERSION != SHAREWARE_VERSION
-		if (gamestate.flags & GS_BAD_DIZ_FILE)
-			fprint(diz);
-		else
-#endif
-		{
-//			movedata ((unsigned)screen,0,0xb800,0,4000);
-			_fmemcpy(MK_FP(0xB800,0),screen,4000);
-
-			// Far mem set (WORD)! - This is STUPID! Borland SUCKS!
-
-			while (len != 80*2)
-			{
-				*clear++ = 0x700;
-				len++;
-			}
-			gotoxy (1,24);
-		}
-	}
-#endif
-#endif // 0
-
-	va_end(ap);
-	exit(0);
-}
-#endif // 0
-
 void Quit(const char* error, ...)
 {
     va_list ap;
 
     va_start(ap, error);
-
-// FIXME
-#if 0
-    MakeDestPath(PLAYTEMP_FILE);
-    remove(tempPath);
-#endif // 0
 
     ClearMemory();
 
@@ -3222,9 +2203,6 @@ void    DemoLoop (void)
 	boolean breakit;
 	Uint16 old_bufferofs;
 
-    // FIXME Just for debugging
-    //gamestate.flags |= GS_NOWAIT;
-
 	while (true)
 	{
 		playstate = ex_title;
@@ -3243,12 +2221,6 @@ void    DemoLoop (void)
 			// Load and start music
 			//
 				CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
-
-// FIXME
-#if 0
-				SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
-#endif // 0
-
                 ::SD_StartMusic(TITLE_LOOP_MUSIC);
 			}
 
@@ -3466,12 +2438,6 @@ int main(int argc, char* argv[])
 	MakeDestPath(ERROR_LOG);
 	remove(tempPath);
 #endif
-
-// FIXME
-#if 0
-	MakeDestPath(PLAYTEMP_FILE);
-	remove(tempPath);
-#endif // 0
 
 	freed_main();
 

@@ -45,11 +45,6 @@ bool LevelInPlaytemp(int level_index);
 void PreloadUpdate(Uint16 current, Uint16 total);
 void PreloadGraphics(void);
 
-// FIXME
-#if 0
-boolean SaveLevel(int levelnum);
-#endif // 0
-
 bool SaveLevel(
     int level_index);
 
@@ -251,32 +246,8 @@ SetSoundLoc(fixed gx,fixed gy)
 ==========================
 */
 
-// FIXME
-#if 0
-void PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy)
-{
-	SetSoundLoc(gx,gy);
-	SD_PositionSound(leftchannel,rightchannel);
-
-	if (SD_PlaySound(static_cast<soundnames>(s)))
-	{
-		globalsoundx = gx;
-		globalsoundy = gy;
-	}
-}
-#endif // 0
-
 void UpdateSoundLoc(void)
 {
-// FIXME
-#if 0
-	if (SoundPositioned)
-	{
-		SetSoundLoc(globalsoundx,globalsoundy);
-		SD_SetPosition(leftchannel,rightchannel);
-	}
-#endif // 0
-
     ::sd_update_positions();
 }
 
@@ -295,12 +266,6 @@ void UpdateSoundLoc(void)
 
 void ClearMemory (void)
 {
-// FIXME
-#if 0
-	PM_UnlockMainMem();
-	SD_StopDigitized();
-	MM_SortMem ();
-#endif // 0
 }
 
 #if 0
@@ -523,12 +488,6 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate3,x,y);
 					new_actor->temp2 = ExpCrateShapes[tile - 468];
-
-// FIXME
-#if 0
-					new_actor->temp3 = (Uint16)ReserveStatic();
-#endif // 0
-
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
 
 					if ((tile >= 475) && (tile <= 478))
@@ -541,12 +500,6 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate2,x,y);
 					new_actor->temp2 = ExpCrateShapes[tile - 450];
-
-// FIXME
-#if 0
-					new_actor->temp3 = (Uint16)ReserveStatic();
-#endif // 0
-
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
 
 					if ((tile >= 457) && (tile <= 460))
@@ -567,12 +520,6 @@ memset(numEnemy,0,sizeof(numEnemy));
 				{
 					SpawnOffsetObj(en_crate1,x,y);
 					new_actor->temp2 = ExpCrateShapes[tile - 432];
-
-// FIXME
-#if 0
-					new_actor->temp3 = (Uint16)ReserveStatic();
-#endif // 0
-
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
 
 					if ((tile >= 439) && (tile <= 442))
@@ -2249,11 +2196,6 @@ void SetupGameLevel (void)
 					break;
 
 					default:
-// FIXME
-#if 0
-						(Uint16)actorat[x][y] = tile;
-#endif // 0
-
                         actorat[x][y] = reinterpret_cast<objtype*>(tile);
 					break;
 				}
@@ -2458,11 +2400,6 @@ void SetupGameLevel (void)
 				case LINC_TILE:
 				case CLOAK_AMBUSH_TILE:
 					tilemap[x][y] = 0;
-// FIXME
-#if 0
-					if ( (Uint16)actorat[x][y] == AMBUSHTILE)
-#endif // 0
-
                     if (actorat[x][y] == (objtype*)AMBUSHTILE)
 						actorat[x][y] = NULL;
 					*(map-1) = GetAreaNumber(static_cast<char>(x),static_cast<char>(y));
@@ -2794,11 +2731,6 @@ void DrawWarpIn(void)
 
 	bufferofs = temp;
 
-// FIXME
-#if 0
-	SD_PlaySound(WARPINSND);
-#endif // 0
-
     ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 
 	fizzlein = true;
@@ -2835,11 +2767,6 @@ void Warped(void)
 	VW_Bar (0,0,viewwidth,viewheight,BLACK);
 
 	IN_ClearKeysDown ();
-
-// FIXME
-#if 0
-	SD_PlaySound (WARPINSND);
-#endif // 0
 
     ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 
@@ -3101,15 +3028,6 @@ void PlayDemo (Sint16 demonumber)
 	fizzlein = true;
 
 #ifndef DEMOS_EXTERN
-// FIXME
-#if 0
-	off = FP_OFF(demoptr);
-    off = (Sint16)demoptr;
-
-	demoptr = static_cast<char*>(grsegs[dems[demonumber]]);
-	demoptr += off;
-#endif // 0
-
     demoptr = static_cast<char*>(grsegs[dems[demonumber]]);
 #endif
 
@@ -3151,11 +3069,6 @@ void Died (void)
 	Sint16		iangle;
 
 	gamestate.weapon = -1;			// take away weapon
-
-// FIXME
-#if 0
-	SD_PlaySound (PLAYERDEATHSND);
-#endif // 0
 
     ::sd_play_player_sound(PLAYERDEATHSND, bstone::AC_VOICE);
 
@@ -3580,11 +3493,6 @@ strcat (str,str2);							// defined in 3d_main.c
 					NextBuffer();
 				}
 				UNCACHEGRCHUNK(STARTFONT+1);
-
-// FIXME
-#if 0
-				SD_PlaySound(BONUS1SND);
-#endif // 0
 
                 ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);
 

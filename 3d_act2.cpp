@@ -912,11 +912,6 @@ void T_OfsThink(objtype *obj)
 				break;
 			}
 
-// FIXME
-#if 0
-			PlaySoundLocActor(PODHATCHSND,obj);
-#endif // 0
-
             ::sd_play_actor_sound(PODHATCHSND, obj, bstone::AC_VOICE);
 
 			InitSmartSpeedAnim(obj,SPR_POD_HATCH1,0,2,at_ONCE,ad_FWD,7);
@@ -1067,11 +1062,6 @@ void T_OfsBounce(objtype *ob)
 
 	if (dist < TILEGLOBAL)
 	{
-// FIXME
-#if 0
-		PlaySoundLocActor(ELECARCDAMAGESND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(ELECARCDAMAGESND, ob, bstone::AC_WEAPON);
 
 		TakeDamage(4,ob);
@@ -1504,11 +1494,6 @@ void T_SmartThought(objtype *obj)
 
 					if (dy <= 0x16000 && dx <= 0x16000)
 					{
-// FIXME
-#if 0
-						PlaySoundLocActor(ELECARCDAMAGESND,obj);
-#endif // 0
-
                         ::sd_play_actor_sound(
                             ELECARCDAMAGESND, obj, bstone::AC_WEAPON);
 
@@ -1553,11 +1538,6 @@ void T_SmartThought(objtype *obj)
 					dx = obj->obclass - morphing_spider_mutantobj;
 					obj->temp1 = MorphEndShapes[dx];
 
-// FIXME
-#if 0
-					PlaySoundLocActor(MorphSounds[dx],obj);
-#endif // 0
-
                     ::sd_play_actor_sound(
                         MorphSounds[dx], obj, bstone::AC_VOICE);
 
@@ -1578,14 +1558,7 @@ void T_SmartThought(objtype *obj)
 
            	case rotating_cubeobj:
 				   DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED,MT_GENERAL);
-
-// FIXME
-#if 0
-               SD_PlaySound(ROLL_SCORESND);
-#endif // 0
-
                ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
-
                obj->lighting = 0;
             break;
 
@@ -1674,12 +1647,6 @@ void T_SmartThought(objtype *obj)
 						Quit("Gurney->temp2 out of range!");
 #endif
 					if (obj->temp2)
-
-// FIXME
-#if 0
-						RemoveObj((objtype *)obj->temp2);
-#endif // 0
-
                     RemoveObj(ui16_to_actor(obj->temp2));
 #endif
 					SpawnOffsetObj(en_gurney,obj->tilex,obj->tiley);
@@ -1694,12 +1661,6 @@ void T_SmartThought(objtype *obj)
 						Quit("Scan->temp2 out of range!");
 #endif
 					if (obj->temp2)
-
-// FIXME
-#if 0
-						RemoveObj((objtype *)obj->temp2);
-#endif // 0
-
                         RemoveObj(ui16_to_actor(obj->temp2));
 #endif
 
@@ -1715,12 +1676,6 @@ void T_SmartThought(objtype *obj)
 						Quit("Scan->temp2 out of range!");
 #endif
 					if (obj->temp2)
-
-// FIXME
-#if 0
-						RemoveObj((objtype *)obj->temp2);
-#endif // 0
-
                     RemoveObj(ui16_to_actor(obj->temp2));
 
 #endif
@@ -1980,12 +1935,6 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
 	Uint16	mapx,mapy,newwall;
 	Uint16 icon,num;
    Uint8 *tile;
-
-// FIXME
-#if 0
-   Uint16 *actor;
-#endif // 0
-
     size_t* actor;
 
    barrier_type *barrier;
@@ -2006,23 +1955,11 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
       tilemap[x][y] = static_cast<Uint8>(states[barrier->on]);
 
       DisplaySwitchOperateMsg(num);
-
-// FIXME
-#if 0
-      PlaySoundLocActor(SWITCHSND,player);
-#endif // 0
-
       ::sd_play_player_sound(SWITCHSND, bstone::AC_ITEM);
 
 #if UPDATE_OTHER_SWITCHES
 
 		tile = (Uint8 *)tilemap;
-
-// FIXME
-#if 0
-      actor = (Uint16 *)actorat;
-#endif // 0
-
         actor = (size_t*)actorat;
 
 		for (mapx=0;mapx<MAPSIZE;mapx++)
@@ -2048,12 +1985,6 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
    else
    {
 		DISPLAY_TIMED_MSG(SwitchNotActivateMsg,MP_WALLSWITCH_OPERATE,MT_GENERAL);
-
-// FIXME
-#if 0
-      SD_PlaySound(NOWAYSND);
-#endif // 0
-
       ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
    }
 }
@@ -2457,11 +2388,6 @@ void T_BarrierShutdown(objtype *obj)
    	         {
 						obj->temp1 = SPR_ELEC_ARC1+obj->temp3;
 						obj->temp3 = (obj->temp3+1) % 4;
-
-// FIXME
-#if 0
-                  PlaySoundLocActor(ELECARCDAMAGESND,obj);
-#endif // 0
 
                   ::sd_play_actor_sound(
                       ELECARCDAMAGESND, obj, bstone::AC_WEAPON);
@@ -3580,11 +3506,6 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 #if IN_DEVELOPMENT
 	if (new_actor->obclass!=blakeobj)
 	{
-// FIXME
-#if 0
-		if ((Uint16)actorat[new_actor->tilex][new_actor->tiley] == 1)
-#endif // 0
-
         if ((size_t)actorat[new_actor->tilex][new_actor->tiley] == 1)
 			Quit("Actor spawned toward a solid static at %d %d",oldx,oldy);
 
@@ -3623,21 +3544,9 @@ void A_DeathScream (objtype *ob)
 				SWATDEATH2SND
 			};
 
-// FIXME
-#if 0
-		 PlaySoundLocActor(sounds[US_RndT()&1],ob);
-#endif // 0
-
          ::sd_play_actor_sound(sounds[US_RndT()&1], ob, bstone::AC_VOICE);
-
 		 #else
-// FIXME
-#if 0
-		 PlaySoundLocActor(SWATDIESND,ob);
-#endif // 0
-
          ::sd_play_actor_sound(SWATDIESND, ob, bstone::AC_VOICE);
-
 		 #endif
 		}
 		break;
@@ -3653,19 +3562,9 @@ void A_DeathScream (objtype *ob)
 				RENTDEATH2SND,
 			};
 
-// FIXME
-#if 0
-		 PlaySoundLocActor(sounds[US_RndT()&1],ob);
-#endif // 0
-
          ::sd_play_actor_sound(
              sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
 #else
-// FIXME
-#if 0
-		 PlaySoundLocActor(RENTDEATH1SND,ob);
-#endif // 0
-
          ::sd_play_actor_sound(RENTDEATH1SND, ob, bstone::AC_VOICE);
 #endif
 		}
@@ -3686,30 +3585,15 @@ void A_DeathScream (objtype *ob)
 			Sint16 sounds[] = {EXPLODE1SND,
 								EXPLODE2SND};
 
-// FIXME
-#if 0
-			PlaySoundLocActor(sounds[US_RndT()&1],ob);
-#endif // 0
-
             ::sd_play_actor_sound(
                 sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
 #else
-// FIXME
-#if 0
-			PlaySoundLocActor(EXPLODE1SND,ob);
-#endif // 0
-
             ::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
 #endif
 		}
 		break;
 
 		case rotating_cubeobj:
-// FIXME
-#if 0
-			SD_PlaySound(VITAL_GONESND);
-#endif // 0
-
             ::sd_play_player_sound(VITAL_GONESND, bstone::AC_ITEM);
 		break;
 
@@ -3725,11 +3609,6 @@ void A_DeathScream (objtype *ob)
 					INFORMDEATH3SND
 			 };
 
-// FIXME
-#if 0
-			 PlaySoundLocActor(sounds[US_RndT()%3],ob);
-#endif // 0
-
              ::sd_play_actor_sound(
                  sounds[US_RndT() % 3], ob, bstone::AC_VOICE);
 		}
@@ -3742,11 +3621,6 @@ void A_DeathScream (objtype *ob)
 					SCIDEATH3SND
 			 };
 
-// FIXME
-#if 0
-			 PlaySoundLocActor(sounds[US_RndT()%3],ob);
-#endif // 0
-
              ::sd_play_actor_sound(
                  sounds[US_RndT() % 3], ob, bstone::AC_VOICE);
 		}
@@ -3756,18 +3630,8 @@ void A_DeathScream (objtype *ob)
 
 	case gen_scientistobj:
 		if (ob->flags & FL_INFORMANT)
-// FIXME
-#if 0
-			PlaySoundLocActor(INFORMANTDEATHSND,ob);
-#endif // 0
-
             ::sd_play_actor_sound(INFORMANTDEATHSND, ob, bstone::AC_VOICE);
 		else
-// FIXME
-#if 0
-			PlaySoundLocActor(SCIENTISTDEATHSND,ob);
-#endif // 0
-
             ::sd_play_actor_sound(SCIENTISTDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
@@ -3779,20 +3643,10 @@ void A_DeathScream (objtype *ob)
 	case genetic_guardobj:
 	case acid_dragonobj:
 	case podobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(PODDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
 	case liquidobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(LIQUIDDIESND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(LIQUIDDIESND, ob, bstone::AC_VOICE);
 		break;
 
@@ -3805,19 +3659,9 @@ void A_DeathScream (objtype *ob)
 				PRODEATH2SND,
 			};
 
-// FIXME
-#if 0
-		 PlaySoundLocActor(sounds[US_RndT()&1],ob);
-#endif
-
          ::sd_play_actor_sound(
              sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
 #else
-// FIXME
-#if 0
-		 PlaySoundLocActor(PROGUARDDEATHSND,ob);
-#endif // 0
-
          ::sd_play_actor_sound(PROGUARDDEATHSND, ob, bstone::AC_VOICE);
 #endif
 		}
@@ -3826,69 +3670,34 @@ void A_DeathScream (objtype *ob)
 
 	case final_boss1obj:
 	case spider_mutantobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(BLUEBOYDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
 	case mech_guardianobj:
 	case final_boss3obj:
 	case mutant_human2obj:
-// FIXME
-#if 0
-		PlaySoundLocActor(DOGBOYDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
 	case reptilian_warriorobj:
 	case scan_alienobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(SCANDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(SCANDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
 	case lcan_alienobj:
 	case final_boss4obj:
-// FIXME
-#if 0
-		PlaySoundLocActor(LCANDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(LCANDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
 	case gurneyobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(GURNEYDEATHSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::AC_VOICE);
 		break;
 
 	case lcan_wait_alienobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(LCANBREAKSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(LCANBREAKSND, ob, bstone::AC_VOICE);
 		break;
 
 	case scan_wait_alienobj:
-// FIXME
-#if 0
-		PlaySoundLocActor(SCANBREAKSND,ob);
-#endif // 0
-
         ::sd_play_actor_sound(SCANBREAKSND, ob, bstone::AC_VOICE);
 		break;
 
@@ -4645,21 +4454,11 @@ void T_Shoot (objtype *ob)
 
 				case proguardobj:
 				case swatobj:
-// FIXME
-#if 0
-					PlaySoundLocActor(ATKBURSTRIFLESND,ob);
-#endif // 0
-
                     ::sd_play_actor_sound(
                         ATKBURSTRIFLESND, ob, bstone::AC_WEAPON);
 				break;
 
 				default:
-// FIXME
-#if 0
-					PlaySoundLocActor(ATKCHARGEDSND,ob);
-#endif // 0
-
                     ::sd_play_actor_sound(
                         ATKCHARGEDSND, ob, bstone::AC_WEAPON);
 				break;
@@ -4728,12 +4527,6 @@ void T_Hit(objtype *ob)
 		case podobj:
 			hitchance = 220;								// Higher - Better Chance (255 max!)
 			damage = (US_RndT()>>3)|1;
-
-// FIXME
-#if 0
-			PlaySoundLocActor(CLAWATTACKSND,ob);
-#endif // 0
-
             ::sd_play_actor_sound(CLAWATTACKSND, ob, bstone::AC_WEAPON);
 			break;
 
@@ -4741,12 +4534,6 @@ void T_Hit(objtype *ob)
 		case mutant_human2obj:
 			hitchance = 220;								// Higher - Better Chance (255 max!)
 			damage = (US_RndT()>>3)|1;
-
-// FIXME
-#if 0
-			PlaySoundLocActor(PUNCHATTACKSND,ob);
-#endif // 0
-
             ::sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::AC_WEAPON);
 			break;
 
@@ -4951,11 +4738,6 @@ void T_GoldMorph(objtype *obj)
 //--------------------------------------------------------------------------
 void A_Laugh(objtype *obj)
 {
-// FIXME
-#if 0
-	PlaySoundLocActor(GOLDSTERNLAUGHSND,obj);
-#endif // 0
-
     ::sd_play_actor_sound(GOLDSTERNLAUGHSND, obj, bstone::AC_VOICE);
 }
 
@@ -4964,11 +4746,6 @@ void A_Laugh(objtype *obj)
 //--------------------------------------------------------------------------
 void A_WarpIn(objtype*)
 {
-// FIXME
-#if 0
-	PlaySoundLocActor(WARPINSND,obj);
-#endif // 0
-
     ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 }
 //--------------------------------------------------------------------------
@@ -4976,11 +4753,6 @@ void A_WarpIn(objtype*)
 //--------------------------------------------------------------------------
 void A_WarpOut(objtype*)
 {
-    // FIXME
-#if 0
-	PlaySoundLocActor(WARPOUTSND,obj);
-#endif // 0
-
     ::sd_play_player_sound(WARPOUTSND, bstone::AC_ITEM);
 }
 
@@ -4989,11 +4761,6 @@ void A_WarpOut(objtype*)
 //--------------------------------------------------------------------------
 void A_Beep(objtype*)
 {
-// FIXME
-#if 0
-	PlaySoundLocActor(ELEV_BUTTONSND,obj);
-#endif // 0
-
     ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
 }
 
@@ -5100,11 +4867,6 @@ statetype s_scout_dead 	= {false,SPR_GSCOUT_W1_1-SPR_GSCOUT_W1_1,20,NULL,NULL,&s
 //---------------------------------------------------------------------------
 void A_Scout_Alert(objtype *obj)
 {
-// FIXME
-#if 0
-	PlaySoundLocActor(SCOUT_ALERTSND,obj);
-#endif // 0
-
     ::sd_play_actor_sound(SCOUT_ALERTSND, obj, bstone::AC_VOICE);
 
 	MakeAlertNoise(obj);
@@ -5471,11 +5233,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 		case final_boss4shotobj:
 			SpawnNewObj(x>>TILESHIFT,y>>TILESHIFT,&s_ofs_random);
 
-// FIXME
-#if 0
-			PlaySoundLocActor(SPITATTACKSND,new_actor);
-#endif // 0
-
             ::sd_play_actor_sound(
                 SPITATTACKSND, new_actor, bstone::AC_VOICE);
 
@@ -5483,12 +5240,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			angle_adj = 1-(US_RndT()&3);
 			new_actor->temp1 = BossShotShapes[class_type-spider_mutantshotobj];
 			new_actor->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
-
-// FIXME
-#if 0
-			new_actor->temp3 = (Uint16)shooter;
-#endif // 0
-
             new_actor->temp3 = actor_to_ui16(shooter);
 
 		break;
@@ -5499,11 +5250,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 		case final_boss2shotobj:
 			SpawnNewObj(x>>TILESHIFT,y>>TILESHIFT,&s_ofs_shot1);
 
-// FIXME
-#if 0
-			PlaySoundLocActor(ELECTSHOTSND,new_actor);
-#endif // 0
-
             ::sd_play_actor_sound(
                 ELECTSHOTSND, new_actor, bstone::AC_VOICE);
 
@@ -5511,12 +5257,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			angle_adj = 1-(US_RndT()&3);
 			new_actor->temp1 = SPR_ELEC_SHOT1;
 			new_actor->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
-
-// FIXME
-#if 0
-			new_actor->temp3 = (Uint16)shooter;
-#endif // 0
-
             new_actor->temp3 = actor_to_ui16(shooter);
 
 			switch (class_type)
@@ -5541,11 +5281,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 		case dogshotobj:
 			SpawnNewObj(x>>TILESHIFT,y>>TILESHIFT,&s_liquid_shot);
 
-// FIXME
-#if 0
-			PlaySoundLocActor(SPITATTACKSND,new_actor);
-#endif // 0
-
             ::sd_play_actor_sound(
                 SPITATTACKSND, new_actor, bstone::AC_VOICE);
 
@@ -5553,12 +5288,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			new_actor->flags = FL_OFFSET_STATES|FL_PROJ_CHECK_TRANSPARENT|FL_STORED_OBJPTR;
 			new_actor->speed = SPDPROJ+US_RndT();
 			angle_adj = 2-(US_RndT() % 5);
-
-// FIXME
-#if 0
-			new_actor->temp3 = (Uint16)shooter;
-#endif // 0
-
             new_actor->temp3 = actor_to_ui16(shooter);
 		break;
 
@@ -5569,12 +5298,6 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			new_actor->speed = SPDPROJ+US_RndT();
 			angle_adj = 2-(US_RndT() % 5);
 			new_actor->s_tilex = new_actor->s_tiley = 0;
-
-// FIXME
-#if 0
-			new_actor->temp3 = (Uint16)shooter;
-#endif // 0
-
             new_actor->temp3 = actor_to_ui16(shooter);
 		break;
 
@@ -5925,10 +5648,6 @@ BlowIt:
 			ob->y -= deltay;
 
    	   if (ob->flags & FL_STORED_OBJPTR)
-// FIXME
-#if 0
-      		attacker = (objtype *)ob->temp3;
-#endif // 0
         attacker = ui16_to_actor(ob->temp3);
 
 	      else
@@ -6121,11 +5840,6 @@ void ExplodeFill(char tx, char ty)
 							proj_check->lighting = EXPLOSION_SHADING;
 							proj_check->flags &= ~(FL_SOLID|FL_SHOOTABLE);
 							InitSmartSpeedAnim(proj_check,SPR_CUBE_EXP1,0,8,at_ONCE,ad_FWD,5);
-
-// FIXME
-#if 0
-							PlaySoundLocActor(EXPLODE1SND,proj_check);
-#endif // 0
 
                             ::sd_play_actor_sound(
                                 EXPLODE1SND, proj_check, bstone::AC_VOICE);
@@ -6367,14 +6081,6 @@ void T_BlowBack(objtype *obj)
 
 	   obj->angle = CalcAngle(killer,obj);
 
-// FIXME
-#if 0
-	   if ((killer = (objtype *)SLIDE_TEMP(obj)) == player)
-		   SLIDE_TEMP(obj) = dist_table[gamestate.weapon];
-	   else
-		   SLIDE_TEMP(obj) = dist_table[wp_grenade];
-#endif // 0
-
        if ((killer = SLIDE_TEMP(obj)) == player)
            *((Uint16*)&obj->hitpoints) = dist_table[static_cast<int>(gamestate.weapon)];
        else
@@ -6382,21 +6088,6 @@ void T_BlowBack(objtype *obj)
 
       obj->flags |= FL_SLIDE_INIT;
    }
-
-
-// FIXME
-#if 0
-   if (SLIDE_TEMP(obj) > SLIDE_SPEED)
-   {
-   	dist = SLIDE_SPEED;
-      SLIDE_TEMP(obj) -= SLIDE_SPEED;
-   }
-   else
-   {
-   	dist = SLIDE_TEMP(obj);
-      obj->flags |= FL_NO_SLIDE;		// Stop any more sliding
-   }
-#endif // 0
 
    if ((Uint16)obj->hitpoints > SLIDE_SPEED) {
        dist = SLIDE_SPEED;

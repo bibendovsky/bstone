@@ -150,12 +150,7 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 
    // Find out how much memory we have to work with..
 
-// FIXME
-#if 0
-	BufferLen = MM_LargestAvail();
-#endif // 0
     BufferLen = 65535;
-
    BufferLen -= 65535;						// HACK: Save some room for sounds - This is cludgey
 
    if (BufferLen < 64256)
@@ -190,66 +185,6 @@ void ShutdownMovie(void)
 //
 // length		= length of the source image in bytes
 //---------------------------------------------------------------------------
-
-// FIXME
-#if 0
-void JM_DrawBlock(Uint16 dest_offset,Uint16 byte_offset,char *source,Uint16 length)
-{
-	Uint8 numplanes;
-   Uint8 mask,plane;
-	char *dest_ptr;
-	char *source_ptr;
-   char *dest;
-   char *end_ptr;
-   Uint16 count,total_len;
-
-
-   end_ptr = source+length;
-
-   //
-   // Byte offset to determine our starting page to write to...
-   //
-
-   mask = 1<<(byte_offset & 3);
-
-   //
-   // Check to see if we are writting more than 4 bytes (to loop pages...)
-   //
-
-   if (length >= 4)
-   	numplanes = 4;
-   else
-   	numplanes = length;
-
-   //
-   // Compute our DEST memory location
-   //
-
-   dest = (char*)0xA0000 + dest_offset + (byte_offset >> 2);
-
-   //
-   // Move that memory.
-   //
-
-	for (plane = 0; plane<numplanes; plane++)
-	{
-   	dest_ptr = dest;
-	   source_ptr = source+plane;
-
-		VGAMAPMASK(mask);
-		mask <<= 1;
-		if (mask == 16)
-      {
-			mask = 1;
-         dest++;
-      }
-
-		for (count=0;count<length,source_ptr < end_ptr;count+=4,dest_ptr++,source_ptr+=4)
-      	*dest_ptr = *source_ptr;
-	}
-}
-#endif // 0
-
 void JM_DrawBlock(
     int dest_offset,
     int byte_offset,
@@ -425,11 +360,6 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 		{
       	Uint16 sound_chunk;
          sound_chunk = *(Uint16 *)frame;
-
-// FIXME
-#if 0
-      	SD_PlaySound(static_cast<soundnames>(sound_chunk));
-#endif // 0
 
         ::sd_play_player_sound(
             static_cast<soundnames>(sound_chunk),
@@ -660,38 +590,6 @@ boolean MOVIE_Play(MovieStuff_t *MovieStuff)
 //---------------------------------------------------------------------------
 void FlipPages(void)
 {
-
-// FIXME
-#if 0
-#ifndef DRAW_TO_FRONT
-
-	displayofs = bufferofs;
-
-	asm	cli
-	asm	mov	cx,[displayofs]
-	asm	mov	dx,3d4h		// CRTC address register
-	asm	mov	al,0ch		// start address high register
-	asm	out	dx,al
-	asm	inc	dx
-	asm	mov	al,ch
-	asm	out	dx,al   	// set the high byte
-#if 0
-	asm	dec	dx
-	asm	mov	al,0dh		// start address low register
-	asm	out	dx,al
-	asm	inc	dx
-	asm	mov	al,cl
-	asm	out	dx,al		// set the low byte
-#endif
-	asm	sti
-#endif // 0
-
-	bufferofs += SCREENSIZE;
-	if (bufferofs > PAGE3START)
-		bufferofs = PAGE1START;
-
-#endif
-
     displayofs = bufferofs;
 
     VL_RefreshScreen();

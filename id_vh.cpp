@@ -38,11 +38,6 @@ Sint16	px,py;
 Uint8	fontcolor,backcolor;
 Sint16	fontnumber;
 
-// FIXME
-#if 0
-Sint16 bufferwidth,bufferheight;
-#endif // 0
-
 boolean allcaps = false;
 
 
@@ -188,49 +183,6 @@ void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
 
 Sint16 VW_MarkUpdateBlock (Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
 {
-// FIXME
-#if 0
-	Sint16	x,y,xt1,yt1,xt2,yt2,nextline;
-	Uint8 *mark;
-
-	xt1 = x1>>PIXTOBLOCK;
-	yt1 = y1>>PIXTOBLOCK;
-
-	xt2 = x2>>PIXTOBLOCK;
-	yt2 = y2>>PIXTOBLOCK;
-
-	if (xt1<0)
-		xt1=0;
-	else if (xt1>=UPDATEWIDE)
-		return 0;
-
-	if (yt1<0)
-		yt1=0;
-	else if (yt1>UPDATEHIGH)
-		return 0;
-
-	if (xt2<0)
-		return 0;
-	else if (xt2>=UPDATEWIDE)
-		xt2 = UPDATEWIDE-1;
-
-	if (yt2<0)
-		return 0;
-	else if (yt2>=UPDATEHIGH)
-		yt2 = UPDATEHIGH-1;
-
-	mark = updateptr + uwidthtable[yt1] + xt1;
-	nextline = UPDATEWIDE - (xt2-xt1) - 1;
-
-	for (y=yt1;y<=yt2;y++)
-	{
-		for (x=xt1;x<=xt2;x++)
-			*mark++ = 1;			// this tile will need to be updated
-
-		mark += nextline;
-	}
-#endif // 0
-
 	return 1;
 }
 
@@ -283,19 +235,7 @@ void VWB_DrawMPic (Sint16 x, Sint16 y, Sint16 chunknum)
 
 void VWB_DrawPropString(const char* string)
 {
-// FIXME
-#if 0
-	Sint16 x;
-
-	x=px;
-#endif // 0
-
 	VW_DrawPropString (string);
-
-// FIXME
-#if 0
-	VW_MarkUpdateBlock(x,py,px-1,py+bufferheight-1);
-#endif // 0
 }
 
 

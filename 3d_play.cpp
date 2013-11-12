@@ -337,17 +337,9 @@ boolean pollMouseUsed=false;
 void PollMouseMove (void)
 {
 	Sint16	mousexmove,mouseymove;
-
-// FIXME
-#if 0
-	Mouse(MDelta);
-
-	mousexmove = _CX;
-	mouseymove = _DX;
-#endif // 0
-
     int dx;
     int dy;
+
     ::in_get_mouse_deltas(dx, dy);
     ::in_clear_mouse_deltas();
     mousexmove = static_cast<Sint16>(dx);
@@ -828,15 +820,7 @@ void CheckKeys (void)
 		RedrawStatusAreas();
 		SD_MusicOn();
 		Paused = false;
-
-// FIXME
-#if 0
-		if (MousePresent)
-			Mouse(MDelta);	// Clear accumulated mouse movement
-#endif // 0
-
         ::in_clear_mouse_deltas();
-
 		return;
 	}
 
@@ -965,12 +949,6 @@ void CheckKeys (void)
 				CleanDrawPlayBorder();
          }
 
-// FIXME
-#if 0
-			if (MousePresent)
-				Mouse(MDelta);	// Clear accumulated mouse movement
-#endif // 0
-
             ::in_clear_mouse_deltas();
 
 			lasttimecount = TimeCount;
@@ -1042,11 +1020,6 @@ void CheckMusicToggle(void)
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard,MP_BONUS,MT_GENERAL);
 
-// FIXME
-#if 0
-				SD_PlaySound(NOWAYSND);
-#endif // 0
-
                 ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
             return;
 			}
@@ -1110,32 +1083,6 @@ void ChangeSwapFiles(boolean display)
 }
 #endif
 
-
-// FIXME
-#if 0
-//--------------------------------------------------------------------------
-// OpenPageFile()
-//--------------------------------------------------------------------------
-void OpenPageFile(void)
-{
-#if DUAL_SWAP_FILES
-
-	if (gamestate.flags & GS_DRAW_FLOOR || (!ShadowsAvail))
-   {
-   	PML_OpenPageFile(PageFileName);
-      FileUsed = sd_NO_SHADOWS;
-   }
-   else
-   {
-   	PML_OpenPageFile(AltPageFileName);
-      FileUsed = sd_SHADOWS;
-   }
-
-#else
-  	PML_OpenPageFile(PageFileName);
-#endif
-}
-#endif // 0
 
 //--------------------------------------------------------------------------
 // PopupAutoMap()
@@ -1400,38 +1347,11 @@ void StartMusic(boolean preload)
 
 	if (!audiosegs[STARTMUSIC+musicchunk])
 	{
-// FIXME
-#if 0
-		MM_BombOnError(false);
-#endif // 0
-
 		CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + musicchunk));
-
-// FIXME
-#if 0
-		MM_BombOnError(true);
-#endif // 0
 	}
 
-// FIXME
-#if 0
-	if (mmerror)
-		mmerror = false;
-	else
-#endif // 0
-
 	{
-// FIXME
-#if 0
-		MM_SetLock(&((void*)audiosegs[STARTMUSIC + musicchunk]),true);
-#endif // 0
-
 		if (!preload)
-// FIXME
-#if 0
-			SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + musicchunk]);
-#endif // 0
-
         ::SD_StartMusic(musicchunk);
 	}
 }
@@ -1822,12 +1742,6 @@ void PlayLoop (void)
 	ClearPaletteShifts ();
    ForceUpdateStatusBar();
 
-// FIXME
-#if 0
-	if (MousePresent)
-		Mouse(MDelta);	// Clear accumulated mouse movement
-#endif // 0
-
     ::in_clear_mouse_deltas();
 
 	tics = 1;			// for first time through
@@ -1882,11 +1796,6 @@ void PlayLoop (void)
 		ThreeDRefresh ();
 
 		gamestate.TimeCount+=tics;
-
-// FIXME
-#if 0
-		SD_Poll ();
-#endif // 0
 
 		UpdateSoundLoc();	// JAB
 

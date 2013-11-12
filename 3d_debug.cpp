@@ -973,11 +973,6 @@ void OverheadRefresh (void)
 				break;
 #endif
 			case actoratview:
-// FIXME
-#if 0
-				tile = (Uint16)actorat[x][y];
-#endif // 0
-
                 tile = (size_t)actorat[x][y];
 				break;
 			}

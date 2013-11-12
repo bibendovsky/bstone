@@ -317,11 +317,6 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 	switch (statinfo[type].type)
 	{
 		case block:
-// FIXME
-#if 0
-			(Uint16)actorat[tilex][tiley] = 1;		// consider it a blocking tile
-#endif // 0
-
             // consider it a blocking tile
             actorat[tilex][tiley] = (objtype*)1;
 		break;
@@ -794,11 +789,6 @@ void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door
 		lastdoorobj->areanumber[1]=GetAreaNumber(static_cast<char>(tilex),static_cast<char>(tiley+1));
 	}
 
-// FIXME
-#if 0
-	(Uint16)actorat[tilex][tiley] = doornum | 0x80;	// consider it a solid wall
-#endif // 0
-
     // consider it a solid wall
     actorat[tilex][tiley] = reinterpret_cast<objtype*>(doornum | 0x80);
 
@@ -995,21 +985,11 @@ void CloseDoor (Sint16 door)
 			case dr_office:
 			case dr_space:
 			case dr_normal:
-// FIXME
-#if 0
-				PlaySoundLocTile(HTECHDOORCLOSESND,doorobjlist[door].tilex,doorobjlist[door].tiley);
-#endif // 0
-
                 ::sd_play_door_sound(
                     HTECHDOORCLOSESND, &doorobjlist[door]);
 			break;
 
 			default:
-// FIXME
-#if 0
-				PlaySoundLocTile(CLOSEDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);
-#endif // 0
-
                 ::sd_play_door_sound(CLOSEDOORSND, &doorobjlist[door]);
 			break;
 		}
@@ -1019,12 +999,6 @@ void CloseDoor (Sint16 door)
 //
 // make the door space solid
 //
-
-// FIXME
-#if 0
-	(Uint16)actorat[tilex][tiley]
-		= door | 0x80;
-#endif // 0
 
     actorat[tilex][tiley] = reinterpret_cast<objtype*>(door | 0x80);
 
@@ -1091,12 +1065,6 @@ void OperateDoor (Sint16 door)
 		if (doorobjlist[door].action == dr_closed)
 		{
 			DISPLAY_TIMED_MSG(od_oneway,MP_DOOR_OPERATE,MT_GENERAL);
-
-// FIXME
-#if 0
-			SD_PlaySound(NOWAYSND);
-#endif // 0
-
             ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 		}
 
@@ -1112,11 +1080,6 @@ void OperateDoor (Sint16 door)
 	{
 		if (!(gamestate.numkeys[lock-kt_red]))
 		{
-// FIXME
-#if 0
-				SD_PlaySound(NOWAYSND);
-#endif // 0
-
                 ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
 
 				switch (lock)
@@ -1252,12 +1215,6 @@ void DropPlasmaDetonator(void)
    	obj->flags |= FL_SHOOTABLE;
 
 		DISPLAY_TIMED_MSG(pd_dropped,MP_DOOR_OPERATE,MT_GENERAL);
-
-// FIXME
-#if 0
-		SD_PlaySound(ROBOT_SERVOSND);		// jdebug-This sound will probly change.
-#endif // 0
-
         ::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::AC_VOICE);
 
       TakePlasmaDetonator(1);
@@ -1417,21 +1374,11 @@ void DoorOpening (Sint16 door)
 				case dr_office:
 				case dr_space:
 				case dr_normal:
-// FIXME
-#if 0
-					PlaySoundLocTile(HTECHDOOROPENSND,doorobjlist[door].tilex,doorobjlist[door].tiley);
-#endif // 0
-
                     ::sd_play_door_sound(
                         HTECHDOOROPENSND, &doorobjlist[door]);
 				break;
 
 				default:
-// FIXME
-#if 0
-					PlaySoundLocTile(OPENDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);
-#endif // FIXME
-
                     ::sd_play_door_sound(OPENDOORSND, &doorobjlist[door]);
 				break;
 			}
@@ -1470,12 +1417,6 @@ void DoorClosing (Sint16 door)
 
 	tilex = doorobjlist[door].tilex;
 	tiley = doorobjlist[door].tiley;
-
-// FIXME
-#if 0
-	if ( ((Uint16)actorat[tilex][tiley] != (door | 0x80))
-	|| (player->tilex == tilex && player->tiley == tiley) )
-#endif // 0
 
 	if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(door | 0x80)) ||
         (player->tilex == tilex && player->tiley == tiley))
@@ -1607,12 +1548,6 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 			return;
 		}
 
-// FIXME
-#if 0
-		(Uint16)actorat[checkx][checky-1] =
-		tilemap[checkx][checky-1] = oldtile;
-#endif // 0
-
         tilemap[checkx][checky-1] = static_cast<Uint8>(oldtile);
         actorat[checkx][checky-1] = reinterpret_cast<objtype*>(oldtile);
 		break;
@@ -1622,12 +1557,6 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		{
 			return;
 		}
-
-// FIXME
-#if 0
-		(Uint16)actorat[checkx+1][checky] =
-		tilemap[checkx+1][checky] = oldtile;
-#endif // 0
 
         tilemap[checkx+1][checky] = static_cast<Uint8>(oldtile);
         actorat[checkx+1][checky] = reinterpret_cast<objtype*>(oldtile);
@@ -1639,12 +1568,6 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 			return;
 		}
 
-// FIXME
-#if 0
-		(Uint16)actorat[checkx][checky+1] =
-		tilemap[checkx][checky+1] = oldtile;
-#endif // 0
-
         tilemap[checkx][checky+1] = static_cast<Uint8>(oldtile);
         actorat[checkx][checky+1] = reinterpret_cast<objtype*>(oldtile);
 		break;
@@ -1654,12 +1577,6 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 		{
 			return;
 		}
-
-// FIXME
-#if 0
-		(Uint16)actorat[checkx-1][checky] =
-		tilemap[checkx-1][checky] = oldtile;
-#endif // 0
 
         tilemap[checkx-1][checky] = static_cast<Uint8>(oldtile);
         actorat[checkx-1][checky] = reinterpret_cast<objtype*>(oldtile);
@@ -1674,11 +1591,6 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 	pwallpos = 0;
 	tilemap[pwallx][pwally] |= 0xc0;
 	*(mapsegs[1]+farmapylookup[pwally]+pwallx) = 0;	// remove P tile info
-
-// FIXME
-#if 0
-	SD_PlaySound (PUSHWALLSND);
-#endif // 0
 
     ::sd_play_wall_sound(PUSHWALLSND);
 }
@@ -1716,11 +1628,6 @@ void MovePWalls (void)
 		//
 		tilemap[pwallx][pwally] = 0;
 
-// FIXME
-#if 0
-		(Uint16)actorat[pwallx][pwally] = 0;
-#endif // 0
-
         actorat[pwallx][pwally] = NULL;
 
 		areanumber=GetAreaNumber(player->tilex,player->tiley);
@@ -1753,12 +1660,6 @@ void MovePWalls (void)
 					return;
 				}
 
-// FIXME
-#if 0
-				(Uint16)actorat[pwallx][pwally-1] =
-				tilemap[pwallx][pwally-1] = oldtile;
-#endif // 0
-
                 tilemap[pwallx][pwally - 1] = static_cast<Uint8>(oldtile);
                 actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
 				break;
@@ -1770,12 +1671,6 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
-
-// FIXME
-#if 0
-				(Uint16)actorat[pwallx+1][pwally] =
-				tilemap[pwallx+1][pwally] = oldtile;
-#endif // 0
 
                 tilemap[pwallx+1][pwally] = static_cast<Uint8>(oldtile);
                 actorat[pwallx+1][pwally] = reinterpret_cast<objtype*>(oldtile);
@@ -1789,12 +1684,6 @@ void MovePWalls (void)
 					return;
 				}
 
-// FIXME
-#if 0
-				(Uint16)actorat[pwallx][pwally+1] =
-				tilemap[pwallx][pwally+1] = oldtile;
-#endif // 0
-
                 tilemap[pwallx][pwally+1] = static_cast<Uint8>(oldtile);
                 actorat[pwallx][pwally+1] = reinterpret_cast<objtype*>(oldtile);
 				break;
@@ -1806,12 +1695,6 @@ void MovePWalls (void)
 					pwallstate = 0;
 					return;
 				}
-
-// FIXME
-#if 0
-				(Uint16)actorat[pwallx-1][pwally] =
-				tilemap[pwallx-1][pwally] = oldtile;
-#endif // 0
 
                 tilemap[pwallx-1][pwally] = static_cast<Uint8>(oldtile);
                 actorat[pwallx-1][pwally] = reinterpret_cast<objtype*>(oldtile);
@@ -2069,11 +1952,6 @@ void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinety
 	if (++ConHintList.NumMsgs > MAX_CACHE_MSGS)
 		ACT1_ERROR(SPAWNCON_CACHE_MSG_OVERFLOW);
 
-// FIXME
-#if 0
-	(Uint16)actorat[tilex][tiley] = ConHintList.NumMsgs;
-#endif // 0
-
     actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
 
 //
@@ -2177,12 +2055,6 @@ void OperateConcession(Uint16 concession)
 				if (gamestate.health == 100)
 				{
 					DISPLAY_TIMED_MSG(noeat_msg1,MP_CONCESSION_OPERATE,MT_GENERAL);
-
-// FIXME
-#if 0
-               SD_PlaySound(NOWAYSND);
-#endif // 0
-
                     ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 
 					return;
@@ -2219,12 +2091,6 @@ void OperateConcession(Uint16 concession)
 				if (!gamestate.tokens)
 				{
 					DISPLAY_TIMED_MSG(NoFoodTokens,MP_NO_MORE_TOKENS,MT_NO_MO_FOOD_TOKENS);
-
-// FIXME
-#if 0
-               SD_PlaySound(NOWAYSND);
-#endif // 0
-
                     ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 
 					return;
@@ -2233,12 +2099,6 @@ void OperateConcession(Uint16 concession)
 					gamestate.tokens--;
 
 				ci->mInfo.local_val--;
-
-// FIXME
-#if 0
-				SD_PlaySound(CONCESSIONSSND);
-#endif // 0
-
                 ::sd_play_player_sound(CONCESSIONSSND, bstone::AC_ITEM);
 
 				switch (ci->type)
@@ -2261,12 +2121,6 @@ void OperateConcession(Uint16 concession)
 	else
 	{
 		DISPLAY_TIMED_MSG(OutOrder,MP_CONCESSION_OUT_ORDER,MT_GENERAL);
-
-// FIXME
-#if 0
-		SD_PlaySound(NOWAYSND);
-#endif // 0
-
         ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 	}
 }
@@ -2363,11 +2217,6 @@ void CheckSpawnEA()
 		usedummy=true;
 		SpawnStand(en_electro_alien,temp.tilex,temp.tiley,0);
 
-// FIXME
-#if 0
-		SD_PlaySound(ELECAPPEARSND);
-#endif // 0
-
         ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
 
 		usedummy=false;
@@ -2375,12 +2224,6 @@ void CheckSpawnEA()
 		{
 			eaList[static_cast<int>(loop)].aliens_out++;
 			new_actor->temp2=loop;
-
-// FIXME
-#if 0
-			PlaySoundLocActor(ELECAPPEARSND,new_actor);
-#endif // 0
-
             ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
 		}
 

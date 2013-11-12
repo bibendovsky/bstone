@@ -34,13 +34,6 @@
 
 #define	MouseInt	0x33
 
-// FIXME
-#if 0
-#define	Mouse(x)	_AX = x,geninterrupt(MouseInt)
-#endif // 0
-
-#define Mouse(x)
-
 //
 // joystick constants
 //
@@ -97,53 +90,7 @@ boolean			NGinstalled=false;
 =============================================================================
 */
 
-// FIXME
-#if 0
-static	Uint8        ASCIINames[] =		// Unshifted ASCII for scan codes
-					{
-//	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-	0  ,27 ,'1','2','3','4','5','6','7','8','9','0','-','=',8  ,9  ,	// 0
-	'q','w','e','r','t','y','u','i','o','p','[',']',13 ,0  ,'a','s',	// 1
-	'd','f','g','h','j','k','l',';',39 ,'`',0  ,92 ,'z','x','c','v',	// 2
-	'b','n','m',',','.','/',0  ,'*',0  ,' ',0  ,0  ,0  ,0  ,0  ,0  ,	// 3
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,'7','8','9','-','4','5','6','+','1',	// 4
-	'2','3','0',127,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 5
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 6
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0		// 7
-					},
-					ShiftNames[] =		// Shifted ASCII for scan codes
-					{
-//	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-	0  ,27 ,'!','@','#','$','%','^','&','*','(',')','_','+',8  ,9  ,	// 0
-	'Q','W','E','R','T','Y','U','I','O','P','{','}',13 ,0  ,'A','S',	// 1
-	'D','F','G','H','J','K','L',':',34 ,'~',0  ,'|','Z','X','C','V',	// 2
-	'B','N','M','<','>','?',0  ,'*',0  ,' ',0  ,0  ,0  ,0  ,0  ,0  ,	// 3
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,'7','8','9','-','4','5','6','+','1',	// 4
-	'2','3','0',127,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 5
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 6
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0   	// 7
-					},
-					SpecialNames[] =	// ASCII for 0xe0 prefixed codes
-					{
-//	 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 0
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,13 ,0  ,0  ,0  ,	// 1
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 2
-	0  ,0  ,0  ,0  ,0  ,'/',0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 3
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 4
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 5
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,	// 6
-	0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0   	// 7
-					};
-#endif // 0
-
 boolean		IN_Started;
-
-// FIXME
-#if 0
-static	boolean		CapsLock;
-static	ScanCode	CurCode,LastCode;
-#endif // 0
 
 static	Direction	DirTable[] =		// Quick lookup for total direction
 					{
@@ -152,98 +99,9 @@ static	Direction	DirTable[] =		// Quick lookup for total direction
 						dir_SouthWest,	dir_South,	dir_SouthEast
 					};
 
-// FIXME
-#if 0
-static	void			(*INL_KeyHook)(void);
-static	void (*OldKeyVect)(void);
-#endif // 0
-
 const char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 
 //	Internal routines
-
-// FIXME
-#if 0
-///////////////////////////////////////////////////////////////////////////
-//
-//	INL_KeyService() - Handles a keyboard interrupt (key up/down)
-//
-///////////////////////////////////////////////////////////////////////////
-static void
-INL_KeyService(void)
-{
-static	boolean	special;
-		Uint8	k,c,
-				temp;
-		int		i;
-
-	k = inportb(0x60);	// Get the scan code
-
-	// Tell the XT keyboard controller to clear the key
-	outportb(0x61,(temp = inportb(0x61)) | 0x80);
-	outportb(0x61,temp);
-
-	if (k == 0xe0)		// Special key prefix
-		special = true;
-	else if (k == 0xe1)	// Handle Pause key
-		Paused = true;
-	else
-	{
-		if (k & 0x80)	// Break code
-		{
-			k &= 0x7f;
-
-// DEBUG - handle special keys: ctl-alt-delete, print scrn
-
-			Keyboard[k] = false;
-		}
-		else			// Make code
-		{
-			LastCode = CurCode;
-			CurCode = LastScan = k;
-			Keyboard[k] = true;
-
-			if (special)
-				c = SpecialNames[k];
-			else
-			{
-				if (k == sc_CapsLock)
-				{
-					CapsLock ^= true;
-					// DEBUG - make caps lock light work
-				}
-
-				if (Keyboard[sc_LShift] || Keyboard[sc_RShift])	// If shifted
-				{
-					c = ShiftNames[k];
-					if ((c >= 'A') && (c <= 'Z') && CapsLock)
-						c += 'a' - 'A';
-				}
-				else
-				{
-					c = ASCIINames[k];
-					if ((c >= 'a') && (c <= 'z') && CapsLock)
-						c -= 'a' - 'A';
-				}
-			}
-			if (c)
-				LastASCII = c;
-
-			if (c)
-				if (allcaps)
-					LastASCII = toupper(c);
-				else
-					LastASCII = c;
-		}
-
-		special = false;
-	}
-
-	if (INL_KeyHook && !special)
-		INL_KeyHook();
-	outportb(0x20,0x20);
-}
-#endif // 0
 
 // BBi
 static int in_keyboard_map_to_bstone(
@@ -760,19 +618,6 @@ static void in_handle_mouse(
 //		mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
-
-// FIXME
-#if 0
-static void
-INL_GetMouseDelta(Sint16 *x,Sint16 *y)
-{
-	Mouse(MDelta);
-
-	*x = _CX;
-	*y = _DX;
-}
-#endif // 0
-
 static void INL_GetMouseDelta(
     Sint16* x,
     Sint16* y)
@@ -787,22 +632,6 @@ static void INL_GetMouseDelta(
 //		mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
-
-// FIXME
-#if 0
-static Uint16
-INL_GetMouseButtons(void)
-{
-	Uint16	buttons;
-
-	Mouse(MButtons);
-
-	buttons = _BX;
-
-	return(buttons);
-}
-#endif // 0
-
 static int INL_GetMouseButtons()
 {
     ::in_handle_events();
@@ -1087,52 +916,10 @@ static void INL_ShutKbd()
 //	INL_StartMouse() - Detects and sets up the mouse
 //
 ///////////////////////////////////////////////////////////////////////////
-
-// FIXME
-#if 0
-boolean
-INL_StartMouse(void)
-{
-#if 0
-	if (getvect(MouseInt))
-	{
-		Mouse(MReset);
-		if (_AX == 0xffff)
-			return(true);
-	}
-	return(false);
-#endif
- union REGS regs;
- Uint8 *vector;
-
-
- if ((vector=MK_FP(peek(0,0x33*4+2),peek(0,0x33*4)))==NULL)
-   return false;
-
- if (*vector == 207)
-   return false;
-
- Mouse(MReset);
- return true;
-}
-#endif // 0
-
 boolean INL_StartMouse()
 {
     return true;
 }
-
-#if 0
-///////////////////////////////////////////////////////////////////////////
-//
-//	INL_ShutMouse() - Cleans up after the mouse
-//
-///////////////////////////////////////////////////////////////////////////
-static void
-INL_ShutMouse(void)
-{
-}
-#endif
 
 // BBi
 static void INL_ShutMouse()
@@ -1783,20 +1570,6 @@ boolean IN_UserInput(Uint32 delay)
 =
 ===================
 */
-
-// FIXME
-#if 0
-Uint8	IN_MouseButtons (void)
-{
-	if (MousePresent)
-	{
-		Mouse(MButtons);
-		return _BX;
-	}
-	else
-		return 0;
-}
-#endif // 0
 
 Uint8 IN_MouseButtons()
 {

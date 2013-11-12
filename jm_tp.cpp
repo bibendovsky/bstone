@@ -736,11 +736,6 @@ void TP_WrapText()
 //
 	temp = *scan_ch;
 
-// FIXME
-#if 0
-	*(char*)scan_ch = 0;
-#endif // 0
-
     const_cast<char*>(scan_ch)[0] = '\0';
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
@@ -768,11 +763,6 @@ void TP_WrapText()
 		else
 			TP_Print(first_ch,false);
 	}
-
-// FIXME
-#if 0
-	*(char*)*scan_ch = temp;
-#endif // 0
 
     const_cast<char*>(scan_ch)[0] = temp;
 
@@ -1274,11 +1264,6 @@ void TP_HandleCodes()
 	// BELL -------------------------------------------------------------
 	//
 			case TP_CNVT_CODE('B','E'):
-// FIXME
-#if 0
-				SD_PlaySound(TERM_BEEPSND);
-#endif // 0
-
                 ::sd_play_player_sound(TERM_BEEPSND, bstone::AC_ITEM);
 
 				SD_WaitSoundDone();
@@ -1381,12 +1366,6 @@ void TP_HandleCodes()
 				if ((temp < LASTSOUND)) // && (temp != music_num))
 				{
 					TP_CacheIn(ct_scaled,0);
-
-// FIXME
-#if 0
-					SD_PlaySound(static_cast<soundnames>(temp));
-#endif // 0
-
                     ::sd_play_player_sound(temp, bstone::AC_ITEM);
 				}
 				first_ch += 2;
@@ -1996,10 +1975,6 @@ boolean TP_SlowPrint(const char *str, char delay)
 	//
 		if (pi->flags & TPF_TERM_SOUND)
 			if (*str != ' ')
-// FIXME
-#if 0
-				SD_PlaySound(TERM_TYPESND);
-#endif // 0
         ::sd_play_player_sound(TERM_TYPESND, bstone::AC_ITEM);
 
 	// Delay and check for abort (if needed).
@@ -2046,12 +2021,6 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
 		pi->scriptstart = grsegs[id_cache];
 		if ((p=strstr(static_cast<const char*>(grsegs[id_cache]),"^XX")) == NULL)
       	TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
-
-        // FIXME
-#if 0
-		size = p-((char*)grsegs[id_cache] + 1);
-#endif // 0
-
         size = static_cast<Sint32>(p - static_cast<const char*>(pi->scriptstart) - 1);
 	}
 	else
@@ -2061,14 +2030,7 @@ Sint32 TP_LoadScript(const char *filename,PresenterInfo *pi, Uint16 id_cache)
 			return(0);
 	}
 
-    // FIXME
 	pi->script[0] = (char*)pi->scriptstart;
-
-    // FIXME
-#if 0
-	*(char*)pi->script[0][size+4] = 0;		 			// Last byte is trashed!
-#endif // 0
-
     const_cast<char*>(pi->script[0])[size + 4] = '\0'; // Last byte is trashed!
 
 	pi->flags |= TPF_CACHED_SCRIPT;
