@@ -2302,8 +2302,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 		    switch(type)
 		    {
 				 case MOUSE:
-                     button = static_cast<Sint16>(
-                         ::in_get_mouse_buttons());
+                     button = ::IN_MouseButtons();
 
 		   	    switch(button)
 			       {

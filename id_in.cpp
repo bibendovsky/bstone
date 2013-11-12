@@ -1673,20 +1673,4 @@ void in_clear_mouse_deltas()
     in_mouse_dx = 0;
     in_mouse_dy = 0;
 }
-
-int in_get_mouse_buttons()
-{
-    Uint32 buttons = ::SDL_GetMouseState(NULL, NULL);
-
-    if ((buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0)
-        return 1;
-
-    if ((buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0)
-        return 2;
-
-    if ((buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0)
-        return 4;
-
-    return 0;
-}
 // BBi

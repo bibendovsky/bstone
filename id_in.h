@@ -262,8 +262,6 @@ void in_get_mouse_deltas(
     int& dy);
 
 void in_clear_mouse_deltas();
-
-int in_get_mouse_buttons();
 // BBi
 
 
