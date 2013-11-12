@@ -20,12 +20,6 @@ extern void (*LZH_DecompressDisplayVector)(Uint32, Uint32);
 bool LZH_Startup(void);
 void LZH_Shutdown(void);
 
-// FIXME
-#if 0
-Sint32 LZH_Compress(const void *infile, void *outfile,Uint32 DataLength,Uint16 PtrTypes);
-Sint32 LZH_Decompress(void *infile, void *outfile, Uint32 OrginalLength, Uint32 CompressLength, Uint16 PtrTypes);
-#endif // 0
-
 int LZH_Compress(
     const void* infile,
     void* outfile,

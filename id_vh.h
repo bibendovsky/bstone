@@ -26,17 +26,6 @@ struct spritetabletype {
     Sint16 shifts;
 }; // struct spritetabletype
 
-// FIXME
-#if 0
-typedef	struct
-{
-	Uint16	sourceoffset[MAXSHIFTS];
-	Uint16	planesize[MAXSHIFTS];
-	Uint16	width[MAXSHIFTS];
-	Uint8		data[];
-} spritetype;		// the memptr for each sprite points to this
-#endif // 0
-
 struct pictabletype {
     Sint16 width;
     Sint16 height;

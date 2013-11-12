@@ -41,12 +41,6 @@
 #define BETA_DAY		1
 #define BETA_YEAR		1994
 
-// FIXME
-#if 0
-#define PLAYTEMP_FILE				"PLAYTEMP"
-#define OLD_PLAYTEMP_FILE			"OLDPTEMP"
-#endif // 0
-
 #define DISK_SPACE_NEEDED	(1024l*1024l)
 
 #define BORDER_HI_COLOR		0x85
@@ -146,11 +140,6 @@ void jsprintf(char *msg, ...);
 
 #define MAX_BARRIER_SWITCHES	  		40	 // max number level wall switches
 
-
-// FIXME
-#if 0
-#define SLIDE_TEMP(obj)				((Uint16)obj->hitpoints)
-#endif // 0
 
 #define SLIDE_TEMP(obj) (ui16_to_actor(obj->hitpoints))
 
@@ -2661,11 +2650,6 @@ extern  char    configname[13];
 
 extern boolean ShowQuickMsg;
 
-// FIXME
-#if 0
-Sint32 DeleteChunk(Sint16 handle, const char *chunk);
-#endif // 0
-
 int DeleteChunk(
     bstone::MemoryStream& stream,
     const std::string& chunk_name);
@@ -2689,11 +2673,6 @@ Uint16 UseFunc(const char *first, const char *next);
 boolean DoMovie(movie_t movie, void* palette);
 boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type);
 
-// FIXME
-#if 0
-boolean SaveTheGame(int handle, const char* description);
-#endif // 0
-
 bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description);
@@ -2714,12 +2693,6 @@ void CleanUpDoors_N_Actors(void);
 
 void MakeDestPath(const char *file);
 void InitDestPath(void);
-
-// FIXME
-#if 0
-extern Sint32 FindChunk(Sint16 file, const char *chunk);
-extern Sint32 NextChunk(Sint16 file);
-#endif // 0
 
 int FindChunk(
     bstone::IStream* stream,
@@ -3031,26 +3004,11 @@ objtype *CheckAndReserve(void);
 
 #define COMPSCALECODESTART      (65*4)          // offset to start of code in comp scaler
 
-// FIXME
-#if 0
-typedef struct
-{
-	Uint16        codeofs[65];
-	Uint16        width[65];
-	Uint8            code[];
-}       t_compscale;
-#endif // 0
-
 struct t_compshape {
 	Uint16        leftpix,rightpix;
 	Uint16        dataofs[64];
 // table data after dataofs[rightpix-leftpix+1]
 }; // struct t_compshape
-
-// FIXME
-#if 0
-extern  t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
-#endif // 0
 
 extern  Sint32                    fullscalefarcall[MAXSCALEHEIGHT+1];
 

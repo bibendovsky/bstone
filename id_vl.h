@@ -123,29 +123,7 @@ extern SDL_Window* sdl_window;
 // VGA hardware routines
 //
 
-// FIXME
-#if 0
-#define VGAWRITEMODE(x) asm{\
-cli;\
-mov dx,GC_INDEX;\
-mov al,GC_MODE;\
-out dx,al;\
-inc dx;\
-in al,dx;\
-and al,252;\
-or al,x;\
-out dx,al;\
-sti;}
-#endif // 0
-
 #define VGAWRITEMODE(x)
-
-// FIXME
-#if 0
-#define VGAMAPMASK(x) asm{cli;mov dx,SC_INDEX;mov al,SC_MAPMASK;mov ah,x;out dx,ax;sti;}
-#define VGAREADMAP(x) asm{cli;mov dx,GC_INDEX;mov al,GC_READMAP;mov ah,x;out dx,ax;sti;}
-#endif // 0
-
 #define VGAMAPMASK(x)
 #define VGAREADMAP(x)
 

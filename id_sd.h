@@ -225,13 +225,7 @@ extern	boolean	SD_PlaySound(soundnames sound);
 extern	void	SD_SetPosition(Sint16 leftvol,Sint16 rightvol),
 				SD_StopSound(void),
 				SD_WaitSoundDone(void),
-
-// FIXME
-#if 0
-				SD_StartMusic(MusicGroup *music),
-#endif // 0
                 SD_StartMusic(int index),
-
 				SD_MusicOn(void),
 				SD_MusicOff(void),
 				SD_FadeOutMusic(void),
@@ -240,12 +234,6 @@ extern	void	SD_SetPosition(Sint16 leftvol,Sint16 rightvol),
 extern	boolean	SD_MusicPlaying(void),
 				SD_SetSoundMode(SDMode mode),
 				SD_SetMusicMode(SMMode mode);
-
-// FIXME
-#if 0
-extern	Uint16	SD_SoundPlaying(void);
-#endif // 0
-
     bool SD_SoundPlaying();
 
 extern	void	SD_SetDigiDevice(SDSMode),

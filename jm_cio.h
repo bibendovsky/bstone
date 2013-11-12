@@ -103,12 +103,6 @@ struct CompHeader_t {
 //
 //---------------------------------------------------------------------------
 
-// FIXME
-#if 0
-char CIO_WritePtr(Sint32 outfile, Uint8 data, Uint16 PtrType);
-Sint16 CIO_ReadPtr(Sint32 infile, Uint16 PtrType);
-#endif // 0
-
 char CIO_WritePtr(
     void*& dst,
     Uint8 value);
