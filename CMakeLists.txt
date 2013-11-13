@@ -108,6 +108,7 @@ set(hdrs
 	${CMAKE_SOURCE_DIR}/bstone_ogl_version.h
 	${CMAKE_SOURCE_DIR}/bstone_opl2.h
 	${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.h
+	${CMAKE_SOURCE_DIR}/bstone_string_helper.h
 	${CMAKE_SOURCE_DIR}/bstone_un_value.h
 	${CMAKE_SOURCE_DIR}/gfxe_bs1.h
 	${CMAKE_SOURCE_DIR}/gfxe_fir.h
@@ -171,6 +172,7 @@ set(srcs
 	${CMAKE_SOURCE_DIR}/bstone_ogl_version.cpp
 	${CMAKE_SOURCE_DIR}/bstone_opl2.cpp
 	${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.cpp
+	${CMAKE_SOURCE_DIR}/bstone_string_helper.cpp
 	${CMAKE_SOURCE_DIR}/colormap.cpp
 	${CMAKE_SOURCE_DIR}/d3.cpp
 	${CMAKE_SOURCE_DIR}/d3_d2.cpp

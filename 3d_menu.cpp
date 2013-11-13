@@ -7,8 +7,7 @@
 #endif
 
 
-extern int g_argc;
-extern char** g_argv;
+extern bstone::StringList g_argv;
 
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
@@ -3780,9 +3779,12 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
 
    // Check for code
 
-	for (i=1; i<g_argc; i++)
-		if (bstone::C::memicmp(g_argv[i],code_ptr,strlen(code_ptr)) == 0)
-      	return_val = true;
+   for (size_t i = 0; i < ::g_argv.size(); ++i) {
+       if (bstone::StringHelper::is_iequal(::g_argv[i], code_ptr)) {
+           return_val = true;
+           break;
+       }
+   }
 
 	// free allocated memory
 

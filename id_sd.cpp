@@ -86,8 +86,7 @@ extern	Uint16	sdStartALSounds;
 extern	Sint16		sdLastSound;
 extern	Sint16		DigiMap[];
 
-extern int g_argc;
-extern char** g_argv;
+extern bstone::StringList g_argv;
 
 //	Global variables
 	boolean		SoundSourcePresent,
@@ -341,8 +340,8 @@ void SD_Startup()
     sbNoProCheck = false;
 
 #ifndef _MUSE_
-    for (int i = 1; i < g_argc; ++i) {
-        switch (US_CheckParm(g_argv[i], ParmStrings)) {
+    for (size_t i = 1; i < ::g_argv.size(); ++i) {
+        switch (US_CheckParm(::g_argv[i].c_str(), ParmStrings)) {
         case 0: // No AdLib detection
             alNoCheck = true;
             break;

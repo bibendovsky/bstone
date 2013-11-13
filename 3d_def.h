@@ -2610,7 +2610,8 @@ extern levelinfo default_level[MAPS_PER_EPISODE];
 extern Sint16 view_xl,view_xh,view_yl,view_yh;
 extern Sint16 starting_level, debug_value, starting_episode, starting_difficulty;		
 
-extern  boolean         MS_CheckParm (char *string);
+extern bool MS_CheckParm(
+    const std::string& value);
 
 extern signed char lastmap_tilex,lastmap_tiley;
 extern  Uint16 TopColor, BottomColor;

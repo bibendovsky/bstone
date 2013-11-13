@@ -26,6 +26,7 @@
 #include "bstone_format_string.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_memory_stream.h"
+#include "bstone_string_helper.h"
 
 // FIXME
 // BBi Enable only if neccesary!

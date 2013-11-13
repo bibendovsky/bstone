@@ -42,8 +42,7 @@
 //#define	MaxJoyValue		5000
 
 
-extern int g_argc;
-extern char** g_argv;
+extern bstone::StringList g_argv;
 
 
 /*
@@ -1629,8 +1628,8 @@ void IN_Startup()
     checkjoys = true;
     checkmouse = true;
 
-    for (i = 1; i < g_argc; ++i) {
-        switch (US_CheckParm(g_argv[i], IN_ParmStrings)) {
+    for (i = 1; i < ::g_argv.size(); ++i) {
+        switch (US_CheckParm(::g_argv[i].c_str(), IN_ParmStrings)) {
         case 0:
             checkjoys = false;
             break;

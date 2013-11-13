@@ -62,8 +62,7 @@ void ReadConfig();
 
 #endif
 
-extern int g_argc;
-extern char** g_argv;
+extern bstone::StringList g_argv;
 extern SDL_TimerID sys_timer_id;
 
 void SDL_SBSetDMA(Uint8 channel);
@@ -364,9 +363,9 @@ US_Startup(void)
 
 	US_InitRndT(true);		// Initialize the random number generator
 
-	for (i = 1;i < g_argc;i++)
+	for (i = 1;i < ::g_argv.size();i++)
 	{
-		switch (US_CheckParm(g_argv[i],US_ParmStrings2))
+		switch (US_CheckParm(g_argv[i].c_str(),US_ParmStrings2))
 		{
 		case 0:
 			compatability = true;
@@ -378,9 +377,9 @@ US_Startup(void)
 	}
 
 	// Check for TED launching here
-	for (i = 1;i < g_argc;i++)
+	for (i = 1;i < ::g_argv.size();i++)
 	{
-		n = US_CheckParm(g_argv[i],US_ParmStrings);
+		n = US_CheckParm(::g_argv[i].c_str(),US_ParmStrings);
 		switch(n)
 		{
 		 case 0:
@@ -418,8 +417,8 @@ void	VL_Startup (void)
 #endif // 0
 
 	videocard = VL_VideoID ();
-	for (i = 1;i < g_argc;i++)
-		if (US_CheckParm(g_argv[i],ParmStrings) == 0)
+	for (i = 1;i < ::g_argv.size();i++)
+		if (US_CheckParm(::g_argv[i].c_str(),ParmStrings) == 0)
 		{
 			videocard = 5;
 			break;
@@ -756,8 +755,8 @@ extern int  CheckIs386(void);
 
 	Sint16     i;
 
-	for (i = 1;i < g_argc;i++)
-		switch (US_CheckParm(g_argv[i],JHParmStrings))
+	for (i = 1;i < ::g_argv.size();i++)
+		switch (US_CheckParm(::g_argv[i].c_str(),JHParmStrings))
       {
       	case 0:
 				IsA386 = false;
@@ -1331,7 +1330,7 @@ void ShowSystem()
 //-------------------------------------------------------------------------
 // scan_atoi()
 //-------------------------------------------------------------------------
-Uint16 scan_atoi(char *s)
+Uint16 scan_atoi(const char *s)
 {
 	while (*s && (!isdigit(*s)))			// First scans for a digit...
 		s++;
@@ -1364,8 +1363,8 @@ void freed_main()
 
 	Patch386();
 
-	for (i=1; i<g_argc; i++)
-		switch (US_CheckParm(g_argv[i],MainStrs))
+	for (i=1; i<::g_argv.size(); i++)
+		switch (US_CheckParm(::g_argv[i].c_str(),MainStrs))
 		{
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
 			case 0:											// quick run
@@ -1378,12 +1377,12 @@ void freed_main()
 
 			case 2:											// starting level
 				gamestate.flags |= GS_STARTLEVEL;
-				starting_level=scan_atoi(g_argv[i]);
+				starting_level=scan_atoi(::g_argv[i].c_str());
 			break;
 
 			case 3:
 				gamestate.flags |= GS_STARTLEVEL;
-				starting_episode=scan_atoi(g_argv[i])-1;
+				starting_episode=scan_atoi(::g_argv[i].c_str())-1;
 			break;
 
 			case 4:
@@ -1423,7 +1422,7 @@ void freed_main()
 
 			case 11:
 				gamestate.flags |= GS_STARTLEVEL;
-				starting_difficulty=scan_atoi(g_argv[i])-1;
+				starting_difficulty=scan_atoi(::g_argv[i].c_str())-1;
 			break;
 
 			case 10:
