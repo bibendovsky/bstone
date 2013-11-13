@@ -708,85 +708,6 @@ void CAL_SetupMapFile()
 
 // --------------------- Other general functions ------------------------
 
-/*
-========================
-=
-= Patch386
-=
-= Patch ldiv to use 32 bit instructions
-=
-========================
-*/
-
-void Patch386 (void)
-{
-extern void jabhack2(void);
-extern int  CheckIs386(void);
-
-	Sint16     i;
-
-	for (i = 1;i < ::g_argv.size();i++)
-		switch (US_CheckParm(::g_argv[i].c_str(),JHParmStrings))
-      {
-      	case 0:
-				IsA386 = false;
-			return;
-
-         case 1:
-         	IsA386 = true;
-         return;
-		}
-
-	if (CheckIs386())
-	{
-		IsA386 = true;
-		jabhack2();
-	}
-	else
-		IsA386 = false;
-}
-
-
-#if 0
-
-//------------------------------------------------------------------------
-// CheckIs386()
-//------------------------------------------------------------------------
-int CheckIs386()
-{
-
-asm	pushf						// Save flag registers, we use them here
-asm	xor	ax,ax				// Clear AX and...
-asm	push	ax					// ...push it onto the stack
-asm	popf						// Pop 0 into flag registers (all bits to 0),
-asm	pushf						// attempting to set bits 12-15 of flags to 0's
-asm	pop	ax					// Recover the save flags
-asm	and	ax,08000h		// If bits 12-15 of flags are set to
-asm	cmp	ax,08000h		// zero then it's 8088/86 or 80188/186
-asm	jz	not386
-
-asm	mov	ax,07000h		// Try to set flag bits 12-14 to 1's
-asm	push	ax					// Push the test value onto the stack
-asm	popf						// Pop it into the flag register
-asm	pushf						// Push it back onto the stack
-asm	pop	ax					// Pop it into AX for check
-asm	and	ax,07000h		// if bits 12-14 are cleared then
-asm	jz	not386				// the chip is an 80286
-
-asm	mov	ax,1				// We now assume it's a 80386 or better
-asm	popf
-asm	retf
-
-not386:
-asm	xor	ax,ax
-asm	popf
-asm	retf
-
-}
-
-#endif
-
-
 #define CHECK_FOR_EPISODES
 
 extern CP_itemtype NewEmenu[];
@@ -1331,8 +1252,6 @@ void freed_main()
 //
 	CheckForEpisodes();
 
-	Patch386();
-
 	for (i=1; i<::g_argv.size(); i++)
 		switch (US_CheckParm(::g_argv[i].c_str(),MainStrs))
 		{
@@ -1429,9 +1348,6 @@ void freed_main()
 #endif
 
 	InitGame ();
-
-	if (!IsA386)
-		Quit("");
 
 	bufferofs=SCREENSIZE;
 
