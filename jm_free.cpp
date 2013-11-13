@@ -399,36 +399,6 @@ US_Startup(void)
 	US_Started = true;
 }
 
-/*
-=======================
-=
-= VL_Startup	// WOLFENSTEIN HACK
-=
-=======================
-*/
-
-
-void	VL_Startup (void)
-{
-	Sint16 i,videocard;
-
-#if 0
-	asm	cld;
-#endif // 0
-
-	videocard = VL_VideoID ();
-	for (i = 1;i < ::g_argv.size();i++)
-		if (US_CheckParm(::g_argv[i].c_str(),ParmStrings) == 0)
-		{
-			videocard = 5;
-			break;
-		}
-
-	if (videocard != 5)
-		Quit ("Improper video card! Try the -HIDDENCARD command line parameter!");
-
-}
-
 
 /*
 ==================

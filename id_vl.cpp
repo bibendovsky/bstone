@@ -201,6 +201,12 @@ void	VL_Startup (void)
 
 #endif
 
+// BBi Moved from jm_free.cpp
+void VL_Startup()
+{
+}
+// BBi
+
 /*
 =======================
 =
@@ -209,9 +215,9 @@ void	VL_Startup (void)
 =======================
 */
 
-void	VL_Shutdown (void)
+void VL_Shutdown()
 {
-	VL_SetTextMode ();
+    ogl_uninitialize_video();
 }
 
 #if !RESTART_PICTURE_PAUSE
@@ -243,18 +249,6 @@ void VL_SetVGAPlaneMode()
 
 #endif
 
-/*
-=======================
-=
-= VL_SetTextMode
-=
-=======================
-*/
-
-void VL_SetTextMode()
-{
-    ogl_uninitialize_video();
-}
 
 //===========================================================================
 
