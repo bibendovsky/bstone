@@ -62,7 +62,6 @@ void ReadConfig();
 
 #endif
 
-extern bstone::StringList g_argv;
 extern SDL_TimerID sys_timer_id;
 
 void SDL_SBSetDMA(Uint8 channel);
@@ -363,37 +362,31 @@ US_Startup(void)
 
 	US_InitRndT(true);		// Initialize the random number generator
 
-	for (i = 1;i < ::g_argv.size();i++)
+	switch (::g_args.check_argument(US_ParmStrings2))
 	{
-		switch (US_CheckParm(g_argv[i].c_str(),US_ParmStrings2))
-		{
-		case 0:
-			compatability = true;
-			break;
-		case 1:
-			compatability = false;
-			break;
-		}
+	case 0:
+		compatability = true;
+		break;
+	case 1:
+		compatability = false;
+		break;
 	}
 
 	// Check for TED launching here
-	for (i = 1;i < ::g_argv.size();i++)
+	n = ::g_args.check_argument(US_ParmStrings);
+	switch(n)
 	{
-		n = US_CheckParm(::g_argv[i].c_str(),US_ParmStrings);
-		switch(n)
-		{
-		 case 0:
+		case 0:
 #if 0
-			tedlevelnum = atoi(g_argv[i + 1]);
+		tedlevelnum = atoi(g_argv[i + 1]);
 //		   if (tedlevelnum >= 0)
-			  tedlevel = true;
+			tedlevel = true;
 #endif
-			break;
+		break;
 
 //		 case 1:
 //			NoWait = true;
 //			break;
-		}
 	}
 
 	US_Started = true;
@@ -1252,76 +1245,77 @@ void freed_main()
 //
 	CheckForEpisodes();
 
-	for (i=1; i<::g_argv.size(); i++)
-		switch (US_CheckParm(::g_argv[i].c_str(),MainStrs))
-		{
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-			case 0:											// quick run
-				gamestate.flags |= GS_QUICKRUN;
+    std::string arg;
 
-			case 1:											// no wait
-				gamestate.flags |= GS_NOWAIT;
-			break;
+	switch (::g_args.check_argument(MainStrs, arg))
+	{
+#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+		case 0:											// quick run
+			gamestate.flags |= GS_QUICKRUN;
+
+		case 1:											// no wait
+			gamestate.flags |= GS_NOWAIT;
+		break;
 #endif
 
-			case 2:											// starting level
-				gamestate.flags |= GS_STARTLEVEL;
-				starting_level=scan_atoi(::g_argv[i].c_str());
-			break;
+		case 2:											// starting level
+			gamestate.flags |= GS_STARTLEVEL;
+			starting_level=scan_atoi(arg.c_str());
+		break;
 
-			case 3:
-				gamestate.flags |= GS_STARTLEVEL;
-				starting_episode=scan_atoi(::g_argv[i].c_str())-1;
-			break;
+		case 3:
+			gamestate.flags |= GS_STARTLEVEL;
+			starting_episode=scan_atoi(arg.c_str())-1;
+		break;
 
-			case 4:
-				fprint(cinfo_text);
+		case 4:
+			fprint(cinfo_text);
 
-				printf("\n"
-						 "     Version: %s\n"
-						 "COMPILE DATE: %s\n\n",
-						 __BLAKE_VERSION__,__DATE__);
-				exit(0);
-			break;
+			printf("\n"
+						"     Version: %s\n"
+						"COMPILE DATE: %s\n\n",
+						__BLAKE_VERSION__,__DATE__);
+			exit(0);
+		break;
 
-			case 5:
-				ShowSystem();
-				exit(0);
-			break;
+		case 5:
+			ShowSystem();
+			exit(0);
+		break;
 
 #if IN_DEVELOPMENT
 #ifdef DEBUG_VALUE
-			case 6:
-				debug_value=scan_atoi(g_argv[i]);
-			break;
+		case 6:
+			debug_value=scan_atoi(g_argv[i]);
+		break;
 #endif
 #endif
 
-			case 7:
-				gamestate.flags |= GS_TICS_FOR_SCORE;
-			break;
+		case 7:
+			gamestate.flags |= GS_TICS_FOR_SCORE;
+		break;
 
-			case 8:
+		case 8:
 //				gamestate.flags |= GS_MEM_FOR_SCORE;
-			break;
+		break;
 
-			case 9:
-				PowerBall = 1;
-			break;
+		case 9:
+			PowerBall = 1;
+		break;
 
-			case 11:
-				gamestate.flags |= GS_STARTLEVEL;
-				starting_difficulty=scan_atoi(::g_argv[i].c_str())-1;
-			break;
+		case 11:
+			gamestate.flags |= GS_STARTLEVEL;
+			starting_difficulty=scan_atoi(arg.c_str())-1;
+		break;
 
-			case 10:
-				gamestate.flags |= GS_MUSIC_TEST;
-			break;
+		case 10:
+			gamestate.flags |= GS_MUSIC_TEST;
+		break;
 
-			case 12:
-				gamestate.flags |= GS_SHOW_OVERHEAD;
-			break;
-		}
+		case 12:
+			gamestate.flags |= GS_SHOW_OVERHEAD;
+		break;
+	}
 
 
 #if BETA_TEST

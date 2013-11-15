@@ -27,6 +27,7 @@
 #include "bstone_memory_binary_reader.h"
 #include "bstone_memory_stream.h"
 #include "bstone_string_helper.h"
+#include "bstone_cl_args.h"
 
 // FIXME
 // BBi Enable only if neccesary!
@@ -176,5 +177,7 @@ extern  Uint8            fontcolor,backcolor;
 
 // BBi
 extern Uint8* vga_memory;
+extern bstone::ClArgs g_args;
+// BBi
 
 #endif

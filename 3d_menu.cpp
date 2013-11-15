@@ -7,8 +7,6 @@
 #endif
 
 
-extern bstone::StringList g_argv;
-
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
 void	DrawHighScores(void);
@@ -3778,13 +3776,8 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
    TerminateStr(code_ptr);
 
    // Check for code
-
-   for (size_t i = 0; i < ::g_argv.size(); ++i) {
-       if (bstone::StringHelper::is_iequal(::g_argv[i], code_ptr)) {
-           return_val = true;
-           break;
-       }
-   }
+   if (::g_args.find_argument(code_ptr))
+       return_val = true;
 
 	// free allocated memory
 

@@ -44,7 +44,7 @@ void PreloadUpdate(Uint16 current, Uint16 total);
 void OpenAudioFile(void);
 
 
-bstone::StringList g_argv;
+bstone::ClArgs g_args;
 
 
 #define SKIP_TITLE_AND_CREDITS		(0)
@@ -2041,6 +2041,7 @@ boolean DoMovie(movie_t movie, void* palette)
 =
 =================
 */
+// FIXME
 #if 0
 boolean MS_CheckParm (char *check)
 {
@@ -2061,23 +2062,7 @@ boolean MS_CheckParm (char *check)
 
 	return false;
 }
-#endif
-bool MS_CheckParm (
-    const std::string& value)
-{
-    for (size_t i = 1; i < ::g_argv.size(); ++i) {
-        const std::string& arg = ::g_argv[i];
-
-        size_t pos = arg.find_first_not_of("\\/-", 0);
-
-        if (pos != arg.npos) {
-            if (bstone::StringHelper::is_iequal(value, arg.substr(pos)))
-                return true;
-        }
-    }
-
-    return false;
-}
+#endif // 0
 
 //===========================================================================
 
@@ -2446,10 +2431,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    g_argv.resize(argc);
-
-    for (int i = 0; i < argc; ++i)
-        g_argv[i] = argv[i];
+    ::g_args.initialize(argc, argv);
 
 #if IN_DEVELOPMENT
 	MakeDestPath(ERROR_LOG);

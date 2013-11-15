@@ -86,7 +86,6 @@ extern	Uint16	sdStartALSounds;
 extern	Sint16		sdLastSound;
 extern	Sint16		DigiMap[];
 
-extern bstone::StringList g_argv;
 
 //	Global variables
 	boolean		SoundSourcePresent,
@@ -340,34 +339,32 @@ void SD_Startup()
     sbNoProCheck = false;
 
 #ifndef _MUSE_
-    for (size_t i = 1; i < ::g_argv.size(); ++i) {
-        switch (US_CheckParm(::g_argv[i].c_str(), ParmStrings)) {
-        case 0: // No AdLib detection
-            alNoCheck = true;
-            break;
+    switch (::g_args.check_argument(ParmStrings)) {
+    case 0: // No AdLib detection
+        alNoCheck = true;
+        break;
 
-        case 1: // No SoundBlaster detection
-            sbNoCheck = true;
-            break;
+    case 1: // No SoundBlaster detection
+        sbNoCheck = true;
+        break;
 
-        case 2: // No SoundBlaster Pro detection
-            sbNoProCheck = true;
-            break;
+    case 2: // No SoundBlaster Pro detection
+        sbNoProCheck = true;
+        break;
 
-        case 3:
-            ssNoCheck = true; // No Sound Source detection
-            break;
+    case 3:
+        ssNoCheck = true; // No Sound Source detection
+        break;
 
-        case 4: // Tandy Sound Source handling
-            ssIsTandy = true;
-            break;
+    case 4: // Tandy Sound Source handling
+        ssIsTandy = true;
+        break;
 
-        case 5: // Sound Source present at LPT1
-        case 6: // Sound Source present at LPT2
-        case 7: // Sound Source present at LPT3
-            // FIXME Print a warning?
-            break;
-        }
+    case 5: // Sound Source present at LPT1
+    case 6: // Sound Source present at LPT2
+    case 7: // Sound Source present at LPT3
+        // FIXME Print a warning?
+        break;
     }
 #endif
 
