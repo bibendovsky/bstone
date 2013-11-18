@@ -18,10 +18,10 @@ void VL_WaitVBL (Uint32 vbls)
     SDL_Delay(8 * vbls);
 }
 
-void VH_UpdateScreen()
-{
-    ogl_update_screen();
-}
+//void VH_UpdateScreen()
+//{
+//    ogl_update_screen();
+//}
 
 void VL_ScreenToScreen(
     int source,
