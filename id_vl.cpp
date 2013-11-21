@@ -401,17 +401,6 @@ void VL_WaitVBL (Uint32 vbls);
 =======================
 */
 
-#if 0
-void	VL_Startup (void)
-{
-	if ( !MS_CheckParm ("HIDDENCARD") && VL_VideoID () != 5)
-		MS_Quit ("You need a VGA graphics card to run this!");
-
-	asm	cld;				// all string instructions assume forward
-}
-
-#endif
-
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
@@ -462,105 +451,6 @@ void VL_SetVGAPlaneMode()
 
 //===========================================================================
 
-#if RESTART_PICTURE_PAUSE
-
-/*
-=================
-=
-= VL_ClearVideo
-=
-= Fill the entire video buffer with a given color
-=
-=================
-*/
-
-void VL_ClearVideo (Uint8 color)
-{
-asm	mov	dx,GC_INDEX
-asm	mov	al,GC_MODE
-asm	out	dx,al
-asm	inc	dx
-asm	in	al,dx
-asm	and	al,0xfc				// write mode 0 to store directly to video
-asm	out	dx,al
-
-asm	mov	dx,SC_INDEX
-asm	mov	ax,SC_MAPMASK+15*256
-asm	out	dx,ax				// write through all four planes
-
-asm	mov	ax,SCREENSEG
-asm	mov	es,ax
-asm	mov	al,[color]
-asm	mov	ah,al
-asm	mov	cx,0x8000			// 0x8000 words, clearing 8 video bytes/word
-asm	xor	di,di
-asm	rep	stosw
-}
-
-
-/*
-=============================================================================
-
-			VGA REGISTER MANAGEMENT ROUTINES
-
-=============================================================================
-*/
-
-
-/*
-=================
-=
-= VL_DePlaneVGA
-=
-=================
-*/
-
-void VL_DePlaneVGA (void)
-{
-
-//
-// change CPU addressing to non linear mode
-//
-
-//
-// turn off chain 4 and odd/even
-//
-	outportb (SC_INDEX,SC_MEMMODE);
-	outportb (SC_INDEX+1,(inportb(SC_INDEX+1)&~8)|4);
-
-	outportb (SC_INDEX,SC_MAPMASK);		// leave this set throughought
-
-//
-// turn off odd/even and set write mode 0
-//
-	outportb (GC_INDEX,GC_MODE);
-	outportb (GC_INDEX+1,inportb(GC_INDEX+1)&~0x13);
-
-//
-// turn off chain
-//
-	outportb (GC_INDEX,GC_MISCELLANEOUS);
-	outportb (GC_INDEX+1,inportb(GC_INDEX+1)&~2);
-
-//
-// clear the entire buffer space, because int 10h only did 16 k / plane
-//
-	VL_ClearVideo (0);
-
-//
-// change CRTC scanning from doubleword to byte mode, allowing >64k scans
-//
-	outportb (CRTC_INDEX,CRTC_UNDERLINE);
-	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1)&~0x40);
-
-	outportb (CRTC_INDEX,CRTC_MODE);
-	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1)|0x40);
-}
-
-#endif // RESTART_PICTURE_PAUSE
-
-//===========================================================================
-
 /*
 ====================
 =
@@ -584,32 +474,6 @@ void VL_SetLineWidth(int width)
         offset += linewidth;
     }
 }
-
-
-
-#if 0
-
-/*
-====================
-=
-= VL_SetSplitScreen
-=
-====================
-*/
-
-void VL_SetSplitScreen (int linenum)
-{
-	VL_WaitVBL (1);
-	linenum=linenum*2-1;
-	outportb (CRTC_INDEX,CRTC_LINECOMPARE);
-	outportb (CRTC_INDEX+1,linenum % 256);
-	outportb (CRTC_INDEX,CRTC_OVERFLOW);
-	outportb (CRTC_INDEX+1, 1+16*(linenum/256));
-	outportb (CRTC_INDEX,CRTC_MAXSCANLINE);
-	outportb (CRTC_INDEX+1,inportb(CRTC_INDEX+1) & (255-64));
-}
-
-#endif
 
 
 /*
@@ -644,49 +508,6 @@ void VL_FillPalette(int red, int green, int blue)
     VL_SetPalette(0, 255, vga_palette);
 }
 
-//===========================================================================
-
-
-#if 0
-/*
-=================
-=
-= VL_SetColor
-=
-=================
-*/
-
-void VL_SetColor	(int color, int red, int green, int blue)
-{
-	outportb (PEL_WRITE_ADR,color);
-	outportb (PEL_DATA,red);
-	outportb (PEL_DATA,green);
-	outportb (PEL_DATA,blue);
-}
-#endif
-
-
-//===========================================================================
-
-#if 0
-
-/*
-=================
-=
-= VL_GetColor
-=
-=================
-*/
-
-void VL_GetColor	(int color, int *red, int *green, int *blue)
-{
-	outportb (PEL_READ_ADR,color);
-	*red = inportb (PEL_DATA);
-	*green = inportb (PEL_DATA);
-	*blue = inportb (PEL_DATA);
-}
-
-#endif
 
 //===========================================================================
 
@@ -913,67 +734,6 @@ void VL_SetPaletteIntensity(
     VL_SetPalette(start, end - start + 1, &palette1[0][0]);
 }
 
-#if 0
-//------------------------------------------------------------------------
-// FadeOut()
-//------------------------------------------------------------------------
-void FadeOut(char *colormap, Sint16 numcolors, char delay)
-{
-	Sint16 loop;
-
-	for (loop=63; loop>=0; loop--)
-	{
-		SetPaletteIntensity(colormap,numcolors,loop);
-		if (delay)
-			WaitVBL(delay);
-	}
-}
-
-//------------------------------------------------------------------------
-// FadeIn()
-//------------------------------------------------------------------------
-void FadeIn(char *colormap, Sint16 numcolors, char delay)
-{
-	Sint16 loop;
-
-	for (loop=0; loop<64; loop++)
-	{
-		SetPaletteIntensity(colormap,numcolors,loop);
-		if (delay)
-			WaitVBL(delay);
-	}
-}
-#endif
-
-
-
-
-#if 0
-/*
-=================
-=
-= VL_TestPaletteSet
-=
-= Sets the palette with outsb, then reads it in and compares
-= If it compares ok, fastpalette is set to true.
-=
-=================
-*/
-
-void VL_TestPaletteSet (void)
-{
-	int	i;
-
-	for (i=0;i<768;i++)
-		palette1[0][i] = i;
-
-	fastpalette = true;
-	VL_SetPalette (0,256,&palette1[0][0]);
-	VL_GetPalette (0,256,&palette2[0][0]);
-	if (_fmemcmp (&palette1[0][0],&palette2[0][0],768))
-		fastpalette = false;
-}
-#endif
 
 /*
 ==================
@@ -1219,41 +979,6 @@ void VL_ScreenToMem(
 
 void VL_LatchToScreen(int source, int width, int height, int x, int y)
 {
-// FIXEM
-#if 0
-	VGAWRITEMODE(1);
-	VGAMAPMASK(15);
-
-asm	mov	di,[y]				// dest = bufferofs+ylookup[y]+(x>>2)
-asm	shl	di,1
-asm	mov	di,[WORD PTR ylookup+di]
-asm	add	di,[bufferofs]
-asm	mov	ax,[x]
-asm	shr	ax,2
-asm	add	di,ax
-
-asm	mov	si,[source]
-asm	mov	ax,[width]
-asm	mov	bx,[linewidth]
-asm	sub	bx,ax
-asm	mov	dx,[height]
-asm	mov	cx,SCREENSEG
-asm	mov	ds,cx
-asm	mov	es,cx
-
-drawline:
-asm	mov	cx,ax
-asm	rep movsb
-asm	add	di,bx
-asm	dec	dx
-asm	jnz	drawline
-
-asm	mov	ax,ss
-asm	mov	ds,ax
-
-	VGAWRITEMODE(0);
-#endif // 0
-
     int i;
     int count = 4 * width;
     int src_offset = (4 * source);
@@ -1273,189 +998,25 @@ asm	mov	ds,ax
 
 //===========================================================================
 
-#if 0
-
-/*
-=================
-=
-= VL_ScreenToScreen
-=
-=================
-*/
-
-void VL_ScreenToScreen (unsigned source, unsigned dest,int width, int height)
+void VL_ScreenToScreen(
+    int source,
+    int dest,
+    int width,
+    int height)
 {
-	VGAWRITEMODE(1);
-	VGAMAPMASK(15);
+    source *= 4;
+    dest *= 4;
+    width *= 4;
 
-asm	mov	si,[source]
-asm	mov	di,[dest]
-asm	mov	ax,[width]
-asm	mov	bx,[linewidth]
-asm	sub	bx,ax
-asm	mov	dx,[height]
-asm	mov	cx,SCREENSEG
-asm	mov	ds,cx
-asm	mov	es,cx
+    const Uint8* src = &vga_memory[source];
+    Uint8* dst = &vga_memory[dest];
 
-drawline:
-asm	mov	cx,ax
-asm	rep movsb
-asm	add	si,bx
-asm	add	di,bx
-asm	dec	dx
-asm	jnz	drawline
-
-asm	mov	ax,ss
-asm	mov	ds,ax
-
-	VGAWRITEMODE(0);
+    for (int y = 0; y < height; ++y) {
+        memmove(dst, src, width);
+        src += vanilla_screen_width;
+        dst += vanilla_screen_width;
+    }
 }
-
-
-#endif
-
-/*
-=============================================================================
-
-						STRING OUTPUT ROUTINES
-
-=============================================================================
-*/
-
-
-
-#if 0
-/*
-===================
-=
-= VL_DrawTile8String
-=
-===================
-*/
-
-void VL_DrawTile8String (char *str, char *tile8ptr, int printx, int printy)
-{
-	int		i;
-	unsigned	*dest,*screen,*src;
-
-	dest = MK_FP(SCREENSEG,bufferofs+ylookup[printy]+(printx>>2));
-
-	while (*str)
-	{
-		src = (unsigned *)(tile8ptr + (*str<<6));
-		// each character is 64 bytes
-
-		VGAMAPMASK(1);
-		screen = dest;
-		for (i=0;i<8;i++,screen+=linewidth)
-			*screen = *src++;
-		VGAMAPMASK(2);
-		screen = dest;
-		for (i=0;i<8;i++,screen+=linewidth)
-			*screen = *src++;
-		VGAMAPMASK(4);
-		screen = dest;
-		for (i=0;i<8;i++,screen+=linewidth)
-			*screen = *src++;
-		VGAMAPMASK(8);
-		screen = dest;
-		for (i=0;i<8;i++,screen+=linewidth)
-			*screen = *src++;
-
-		str++;
-		printx += 8;
-		dest+=2;
-	}
-}
-#endif
-
-#if 0
-/*
-===================
-=
-= VL_DrawLatch8String
-=
-===================
-*/
-
-void VL_DrawLatch8String (char *str, unsigned tile8ptr, int printx, int printy)
-{
-	int		i;
-	unsigned	src,dest;
-
-	dest = bufferofs+ylookup[printy]+(printx>>2);
-
-	VGAWRITEMODE(1);
-	VGAMAPMASK(15);
-
-	while (*str)
-	{
-		src = tile8ptr + (*str<<4);		// each character is 16 latch bytes
-
-asm	mov	si,[src]
-asm	mov	di,[dest]
-asm	mov	dx,[linewidth]
-
-asm	mov	ax,SCREENSEG
-asm	mov	ds,ax
-
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-asm	lodsw
-asm	mov	[di],ax
-asm	add	di,dx
-
-asm	mov	ax,ss
-asm	mov	ds,ax
-
-		str++;
-		printx += 8;
-		dest+=2;
-	}
-
-	VGAWRITEMODE(0);
-}
-
-#endif
-
-
-#if 0
-
-/*
-===================
-=
-= VL_SizeTile8String
-=
-===================
-*/
-
-void VL_SizeTile8String (char *str, int *width, int *height)
-{
-	*height = 8;
-	*width = 8*strlen(str);
-}
-
-#endif
 
 
 // BBi
@@ -2118,67 +1679,6 @@ bool ogl_initialize_renderer()
     }
 
     return is_succeed;
-}
-
-bool ogl_initialize_video()
-{
-    bool is_succeed = true;
-    int sdl_result = 0;
-
-    if (is_succeed)
-        is_succeed = ogl_pre_subsystem_creation();
-
-    if (is_succeed) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "SDL: %s", "Setting up a video subsystem...");
-
-        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-        if (sdl_result != 0) {
-            is_succeed = false;
-            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
-        }
-    }
-
-    if (is_succeed)
-        is_succeed = ogl_pre_window_creation();
-
-    if (is_succeed) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "SDL: %s", "Creating a window...");
-
-        // FIXME window offset, fullscreen/windowed mode
-        sdl_window = SDL_CreateWindow(
-            "BSPS",
-            100,
-            100,
-            window_width,
-            window_height,
-            ogl_get_window_flags() |
-#if defined(BSTONE_PANDORA) || defined(GCW)
-            SDL_WINDOW_FULLSCREEN
-#else
-            SDL_WINDOW_HIDDEN
-#endif
-            );
-
-        if (sdl_window == NULL) {
-            is_succeed = false;
-            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
-        }
-    }
-
-    if (is_succeed)
-        is_succeed = ogl_initialize_renderer();
-
-    if (is_succeed)
-        return true;
-
-    ogl_uninitialize_video();
-
-    return false;
 }
 
 // Just draws a screen texture.

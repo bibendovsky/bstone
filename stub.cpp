@@ -18,31 +18,6 @@ void VL_WaitVBL (Uint32 vbls)
     SDL_Delay(8 * vbls);
 }
 
-//void VH_UpdateScreen()
-//{
-//    ogl_update_screen();
-//}
-
-void VL_ScreenToScreen(
-    int source,
-    int dest,
-    int width,
-    int height)
-{
-    source *= 4;
-    dest *= 4;
-    width *= 4;
-
-    const Uint8* src = &vga_memory[source];
-    Uint8* dst = &vga_memory[dest];
-
-    for (int y = 0; y < height; ++y) {
-        ::memmove(dst, src, width);
-        src += vanilla_screen_width;
-        dst += vanilla_screen_width;
-    }
-}
-
 void SDL_SetDS()
 {
 }
