@@ -1268,10 +1268,11 @@ bool ogl_initialize_textures()
         palette_tex = GL_NONE;
         glGenTextures(1, &palette_tex);
 
-        if (palette_tex == GL_NONE)
+        if (palette_tex == GL_NONE) {
             is_succeed = false;
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                 "%s", "Palette texture failed.");
+        }
     }
 
     if (is_succeed) {
@@ -1518,20 +1519,13 @@ void ogl_uninitialize_video()
         bstone::OglApi::uninitialize();
     }
 
-    if (sdl_window != NULL) {
-        SDL_DestroyWindow(sdl_window);
-        sdl_window = NULL;
-    }
-
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
-
     a_pos_vec4 = -1;
     a_tc0_vec2 = -1;
     u_screen_tu = -1;
     u_palette_tu = -1;
 
 #if defined(BSTONE_PANDORA) // Pandora VSync
-    close( fbdev );
+    close(fbdev);
     fbdev = -1;
 #endif
 }
@@ -1792,13 +1786,6 @@ void soft_uninitialize_video()
         SDL_DestroyRenderer(sdl_soft_renderer);
         sdl_soft_renderer = NULL;
     }
-
-    if (sdl_window != NULL) {
-        SDL_DestroyWindow(sdl_window);
-        sdl_window = NULL;
-    }
-
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 bool soft_pre_subsystem_creation()
@@ -1889,38 +1876,6 @@ bool x_initialize_video()
     int sdl_result = 0;
 
     if (is_succeed)
-        is_succeed = vid_pre_subsystem_creation();
-
-    if (is_succeed) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "SDL: %s", "Setting up a video subsystem...");
-
-        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-        if (sdl_result != 0) {
-            is_succeed = false;
-            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
-        }
-    }
-
-    if (is_succeed) {
-        sdl_result = SDL_GetDesktopDisplayMode(0, &display_mode);
-
-        if (sdl_result != 0) {
-            is_succeed = false;
-            Quit("SDL: %s", "Failed to get a display mode.");
-        }
-    }
-
-    if (is_succeed) {
-        if (!sdl_is_windowed) {
-            window_width = display_mode.w;
-            window_height = display_mode.h;
-        }
-    }
-
-    if (is_succeed)
         is_succeed = vid_pre_window_creation();
 
     if (is_succeed) {
@@ -1953,7 +1908,7 @@ bool x_initialize_video()
         }
 
         sdl_window = SDL_CreateWindow(
-            "BSPS",
+            "Blake Stone: Planet Strike",
             sdl_window_x,
             sdl_window_y,
             window_width,
@@ -2007,6 +1962,95 @@ void initialize_video()
             sdl_use_custom_window_position = true;
     }
 
+
+    //
+    // Renderer initialization
+    //
+
+    g_renderer_type = RT_NONE;
+
+    int ren_opt_index = g_args.find_option("ren");
+
+    std::string ren_string;
+
+    if (ren_opt_index >= 0) {
+        ren_string = g_args[ren_opt_index + 1];
+
+        if (!ren_string.empty()) {
+            if (ren_string == "soft")
+                g_renderer_type = RT_SOFTWARE;
+            else if (ren_string == "ogl")
+                g_renderer_type = RT_OPEN_GL;
+            else {
+                SDL_LogInfo(
+                    SDL_LOG_CATEGORY_APPLICATION,
+                    "CL: %s: %s", "Unknown renderer type", ren_string.c_str());
+            }
+        } else {
+            SDL_LogInfo(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "CL: %s.", "Expected a renderer type");
+        }
+    }
+
+    if (g_renderer_type == RT_NONE)
+        g_renderer_type = RT_AUTO_DETECT;
+
+
+    bool initialize_result = false;
+
+    switch (g_renderer_type) {
+    case RT_AUTO_DETECT:
+        g_renderer_type = RT_OPEN_GL;
+
+    case RT_OPEN_GL:
+        vid_pre_subsystem_creation = ogl_pre_subsystem_creation;
+        vid_pre_window_creation = ogl_pre_window_creation;
+        vid_get_window_flags = ogl_get_window_flags;
+        vid_initialize_renderer = ogl_initialize_renderer;
+        vid_refresh_screen = ogl_refresh_screen;
+        vid_update_screen = ogl_update_screen;
+        vid_uninitialize_video = ogl_uninitialize_video;
+        break;
+
+    case RT_SOFTWARE:
+        vid_pre_subsystem_creation = soft_pre_subsystem_creation;
+        vid_pre_window_creation = soft_pre_window_creation;
+        vid_get_window_flags = soft_get_window_flags;
+        vid_initialize_renderer = soft_initialize_renderer;
+        vid_refresh_screen = soft_refresh_screen;
+        vid_update_screen = soft_update_screen;
+        vid_uninitialize_video = soft_uninitialize_video;
+        break;
+
+    default:
+        throw std::runtime_error("g_renderer_type");
+    }
+
+    int sdl_result = 0;
+
+    if (!vid_pre_subsystem_creation())
+        Quit("%s", "Failed to pre-initialize video subsystem.");
+
+    SDL_LogInfo(
+        SDL_LOG_CATEGORY_APPLICATION,
+        "SDL: %s", "Setting up a video subsystem...");
+
+    sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+    if (sdl_result != 0)
+        Quit("%s", SDL_GetError());
+
+    sdl_result = SDL_GetDesktopDisplayMode(0, &display_mode);
+
+    if (sdl_result != 0)
+        Quit("SDL: %s", "Failed to get a display mode.");
+
+    if (!sdl_is_windowed) {
+        window_width = display_mode.w;
+        window_height = display_mode.h;
+    }
+
     vanilla_screen_width = 320;
     vanilla_screen_height = 200;
     vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
@@ -2035,68 +2079,6 @@ void initialize_video()
 
     VL_SetLineWidth(40);
 
-
-    //
-    // Renderer initialization
-    //
-
-    g_renderer_type = RT_NONE;
-
-    int ren_opt_index = g_args.find_option("ren");
-
-    std::string ren_string;
-
-    if (ren_opt_index >= 0)
-        ren_string = g_args[ren_opt_index + 1];
-
-    if (!ren_string.empty()) {
-        if (ren_string == "soft")
-            g_renderer_type = RT_SOFTWARE;
-        else if (ren_string == "ogl")
-            g_renderer_type = RT_OPEN_GL;
-        else {
-            SDL_LogInfo(
-                SDL_LOG_CATEGORY_APPLICATION,
-                "CL: %s: %s", "Unknown renderer type", ren_string.c_str());
-        }
-    } else {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "CL: %s.", "Expected a renderer type");
-    }
-
-    if (g_renderer_type == RT_NONE)
-        g_renderer_type = RT_AUTO_DETECT;
-
-
-    bool initialize_result = false;
-
-    switch (g_renderer_type) {
-    case RT_AUTO_DETECT:
-    case RT_OPEN_GL:
-        vid_pre_subsystem_creation = ogl_pre_subsystem_creation;
-        vid_pre_window_creation = ogl_pre_window_creation;
-        vid_get_window_flags = ogl_get_window_flags;
-        vid_initialize_renderer = ogl_initialize_renderer;
-        vid_refresh_screen = ogl_refresh_screen;
-        vid_update_screen = ogl_update_screen;
-        vid_uninitialize_video = ogl_uninitialize_video;
-        break;
-
-    case RT_SOFTWARE:
-        vid_pre_subsystem_creation = soft_pre_subsystem_creation;
-        vid_pre_window_creation = soft_pre_window_creation;
-        vid_get_window_flags = soft_get_window_flags;
-        vid_initialize_renderer = soft_initialize_renderer;
-        vid_refresh_screen = soft_refresh_screen;
-        vid_update_screen = soft_update_screen;
-        vid_uninitialize_video = soft_uninitialize_video;
-        break;
-
-    default:
-        throw std::runtime_error("g_renderer_type");
-    }
-
     initialize_result = x_initialize_video();
 
     if (!initialize_result && g_renderer_type == RT_AUTO_DETECT) {
@@ -2104,6 +2086,7 @@ void initialize_video()
             SDL_LOG_CATEGORY_APPLICATION,
             "SDL: %s", "Falling back to software renderer...");
 
+        g_renderer_type = RT_SOFTWARE;
         vid_pre_subsystem_creation = soft_pre_subsystem_creation;
         vid_pre_window_creation = soft_pre_window_creation;
         vid_get_window_flags = soft_get_window_flags;
@@ -2125,6 +2108,13 @@ void uninitialize_video()
 {
     if (vid_uninitialize_video != NULL)
         vid_uninitialize_video();
+
+    if (sdl_window != NULL) {
+        SDL_DestroyWindow(sdl_window);
+        sdl_window = NULL;
+    }
+
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 
