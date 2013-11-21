@@ -98,6 +98,7 @@ set(hdrs
 	${CMAKE_SOURCE_DIR}/bstone_binary_reader.h
 	${CMAKE_SOURCE_DIR}/bstone_binary_writer.h
 	${CMAKE_SOURCE_DIR}/bstone_c.h
+	${CMAKE_SOURCE_DIR}/bstone_cl_args.h
 	${CMAKE_SOURCE_DIR}/bstone_endian.h
 	${CMAKE_SOURCE_DIR}/bstone_file_stream.h
 	${CMAKE_SOURCE_DIR}/bstone_format_string.h
@@ -163,6 +164,7 @@ set(srcs
 	${CMAKE_SOURCE_DIR}/bstone_binary_reader.cpp
 	${CMAKE_SOURCE_DIR}/bstone_binary_writer.cpp
 	${CMAKE_SOURCE_DIR}/bstone_c.cpp
+	${CMAKE_SOURCE_DIR}/bstone_cl_args.cpp
 	${CMAKE_SOURCE_DIR}/bstone_file_stream.cpp
 	${CMAKE_SOURCE_DIR}/bstone_format_string.cpp
 	${CMAKE_SOURCE_DIR}/bstone_istream.cpp
