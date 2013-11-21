@@ -3,7 +3,9 @@
 
 
 #include <locale>
+#include <stdexcept>
 #include <string>
+#include <sstream>
 #include <vector>
 
 
@@ -25,6 +27,34 @@ public:
 
     static std::string to_lower(
         const std::string& value);
+
+    template<typename T,typename U>
+    static T lexical_cast(
+        const U& src_value)
+    {
+        std::stringstream oss;
+        oss << src_value;
+
+        T result;
+        oss >> result;
+
+        if (oss)
+            return result;
+
+        throw std::runtime_error("lexical_cast");
+    }
+
+    template<typename T,typename U>
+    static bool lexical_cast(
+        const T& src_value,
+        U& dst_value)
+    {
+        std::stringstream oss;
+        oss.unsetf(std::ios_base::skipws);
+        oss << src_value;
+        oss >> dst_value;
+        return !oss.fail();
+    }
 
     static bool is_iequal(
         const std::string& a,
