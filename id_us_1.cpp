@@ -55,8 +55,8 @@ void VH_UpdateScreen();
 //	Internal variables
 #define	ConfigVersion	1
 
-const char		* US_ParmStrings[] = {"TEDLEVEL","NOWAIT"},
-					* US_ParmStrings2[] = {"COMP","NOCOMP"};
+const char		* US_ParmStrings[] = {"TEDLEVEL","NOWAIT",NULL},
+					* US_ParmStrings2[] = {"COMP","NOCOMP",NULL};
 boolean		US_Started;
 
 		boolean		Button0,Button1,

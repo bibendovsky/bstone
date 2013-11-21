@@ -1,9 +1,9 @@
 // ID_VL.C
 
+#include <stdexcept>
 #include <vector>
 
-#include "id_head.h"
-#include "id_vl.h"
+#include "id_heads.h"
 
 #include "bstone_ogl_api.h"
 
@@ -49,13 +49,39 @@ Uint8		palette1[256][3], palette2[256][3];
 namespace {
 
 
-struct ScreenVertex {
-    float x;
-    float y;
+//
+// Common stuff
+//
 
-    float s;
-    float t;
-}; // struct ScreenVertex
+#if defined(BSTONE_PANDORA)
+int window_width = 800;
+int window_height = 480;
+#elif defined(GCW)
+int window_width = 320;
+int window_height = 240;
+#else
+int window_width = 640;
+int window_height = 480;
+#endif
+
+
+Uint8* vga_palette = NULL;
+
+bool (*vid_pre_subsystem_creation)() = NULL;
+bool (*vid_pre_window_creation)() = NULL;
+uint32_t (*vid_get_window_flags)() = NULL;
+bool (*vid_initialize_renderer)() = NULL;
+void (*vid_refresh_screen)() = NULL;
+void (*vid_update_screen)() = NULL;
+void (*vid_uninitialize_video)() = NULL;
+
+void initialize_video();
+void uninitialize_video();
+
+
+//
+// OpenGL stuff
+//
 
 enum OglObjectType {
     OGL_OT_NONE,
@@ -64,14 +90,20 @@ enum OglObjectType {
 }; // enum OglObjectType
 
 
+struct ScreenVertex {
+    float x;
+    float y;
+
+    float s;
+    float t;
+}; // struct ScreenVertex
+
+
 void ogl_draw_screen();
 void ogl_refresh_screen();
 void ogl_update_screen();
 
-static Uint8* vga_palette = NULL;
-
-
-void ogl_initialize_video();
+bool ogl_initialize_video();
 void ogl_uninitialize_video();
 
 
@@ -145,22 +177,171 @@ GLint u_screen_tu = -1;
 // uniform: palette texture unit
 GLint u_palette_tu = -1;
 
-#if defined(BSTONE_PANDORA)
-int window_width = 800;
-int window_height = 480;
-#elif defined(GCW)
-int window_width = 320;
-int window_height = 240;
-#else
-int window_width = 640;
-int window_height = 480;
-#endif
-
 
 SDL_GLContext sdl_ogl_context = NULL;
 
+
+//
+// Software stuff
+//
+
+const uint32_t sdl_pixel_format = SDL_PIXELFORMAT_RGBA8888;
+
+
+class SdlPalette {
+public:
+    SdlPalette() :
+        palette_(),
+        color_shifts_()
+    {
+    }
+
+    ~SdlPalette()
+    {
+    }
+
+    uint32_t operator[](
+        int index) const
+    {
+        if (!is_initialized())
+            throw std::runtime_error("Not initialized.");
+
+        return palette_[index];
+    }
+
+    bool initialize(
+        uint32_t pixel_format)
+    {
+        uninitialize();
+
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Initializing SDL palette...");
+
+        typedef std::vector<uint32_t> Masks;
+
+        int bpp = 0;
+        Masks masks(4);
+
+        SDL_bool sdl_result = SDL_FALSE;
+
+        sdl_result = SDL_PixelFormatEnumToMasks(
+            pixel_format, &bpp,
+            &masks[0], &masks[1], &masks[2], &masks[3]);
+
+        if (sdl_result == SDL_FALSE) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "SDL: %s", SDL_GetError());
+            return false;
+        }
+
+        if (bpp != 32) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR,
+                "SDL: %s", "Pixel format should have 32 bits per pixel");
+            return false;
+        }
+
+        Palette palette(256);
+
+        ColorShifts color_shifts(4);
+
+        for (int i = 0; i < 4; ++i)
+            color_shifts[i] = get_color_shift(masks[i]);
+
+        palette_.swap(palette);
+        color_shifts_.swap(color_shifts);
+
+        return true;
+    }
+
+    void uninitialize()
+    {
+        Palette().swap(palette_);
+        ColorShifts().swap(color_shifts_);
+    }
+
+    void update(
+        const uint8_t* palette,
+        int offset,
+        int count)
+    {
+        if (!is_initialized())
+            throw std::runtime_error("Not initialized.");
+
+        if (offset < 0 || offset > 256)
+            throw std::out_of_range("offset");
+
+        if (count < 0 || count > 256)
+            throw std::out_of_range("count");
+
+        if ((offset + count) > 256)
+            throw std::out_of_range("offset + count");
+
+        int index_to = offset + count;
+
+        for (int i = offset; i < index_to; ++i) {
+            const uint8_t* palette_color = &palette[3 * i];
+
+            uint32_t color = 0;
+
+            for (int j = 0; j < 3; ++j) {
+                uint32_t vga_color =
+                    static_cast<uint32_t>(palette_color[j]);
+
+                uint32_t pc_color = (255 * vga_color) / 63;
+
+                color |= pc_color << color_shifts_[j];
+            }
+
+            color |= 0x000000FF << color_shifts_[3];
+
+            palette_[i] = color;
+        }
+    }
+
+    bool is_initialized() const
+    {
+        return !palette_.empty();
+    }
+
+private:
+    typedef std::vector<uint32_t> Palette;
+    typedef std::vector<int> ColorShifts;
+
+    Palette palette_;
+    ColorShifts color_shifts_;
+
+    SdlPalette(
+        const SdlPalette& that);
+
+    SdlPalette& operator=(
+        const SdlPalette& that);
+
+    static int get_color_shift(
+        uint32_t mask)
+    {
+        switch (mask) {
+        case 0x000000FF:
+            return 0;
+
+        case 0x0000FF00:
+            return 8;
+
+        case 0x00FF0000:
+            return 16;
+
+        case 0xFF000000:
+            return 24;
+
+        default:
+            return -1;
+        }
+    }
+}; // class SdlPalette
+
+
 SDL_Renderer* sdl_soft_renderer = NULL;
 SDL_Texture* sdl_soft_screen_tex = NULL;
+SdlPalette sdl_palette;
 
 
 void soft_draw_screen();
@@ -172,6 +353,14 @@ void soft_uninitialize_video();
 
 
 } // namespace
+
+
+enum RendererType {
+    RT_NONE,
+    RT_AUTO_DETECT,
+    RT_SOFTWARE,
+    RT_OPEN_GL
+}; // enum RendererType
 
 
 extern const Uint8 vgapal[768];
@@ -189,6 +378,7 @@ int screen_width = 0;
 int screen_height = 0;
 
 SDL_Window* sdl_window = NULL;
+RendererType g_renderer_type;
 // BBi
 
 //===========================================================================
@@ -238,8 +428,7 @@ void VL_Startup()
 
 void VL_Shutdown()
 {
-    //ogl_uninitialize_video();
-    soft_uninitialize_video();
+    uninitialize_video();
 }
 
 #if !RESTART_PICTURE_PAUSE
@@ -265,9 +454,7 @@ void VL_SetVGAPlaneMode()
     vga_palette = new Uint8[VGA_PAL_SIZE];
     memset(vga_palette, 0, VGA_PAL_SIZE);
 
-
-    //ogl_initialize_video();
-    soft_initialize_video();
+    initialize_video();
 }
 
 #endif
@@ -524,24 +711,32 @@ void VL_SetPalette(
 
     memmove(&vga_palette[offset], palette, size);
 
-#if 0
-    glActiveTexture(GL_TEXTURE1);
+    switch (g_renderer_type) {
+    case RT_OPEN_GL:
+        glActiveTexture(GL_TEXTURE1);
 
-    glTexSubImage2D(
-        GL_TEXTURE_2D,
-        0,
-        0,
-        0,
-        256,
-        1,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        vga_palette);
+        glTexSubImage2D(
+            GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            256,
+            1,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            vga_palette);
 
-    ogl_refresh_screen();
-#endif
+        ogl_refresh_screen();
+        break;
 
-    soft_refresh_screen();
+    case RT_SOFTWARE:
+        sdl_palette.update(palette, first, count);
+        soft_refresh_screen();
+        break;
+
+    default:
+        throw std::runtime_error("g_renderer_type");
+    }
 }
 
 
@@ -1304,7 +1499,7 @@ boolean ogl_check_for_and_clear_errors()
 {
     boolean result = false;
 
-    while (glGetError())
+    while (glGetError() != GL_NONE)
         result = true;
 
     return result;
@@ -1426,7 +1621,7 @@ std::string ogl_get_info_log(
     return std::string();
 }
 
-void ogl_load_shader(
+bool ogl_load_shader(
     GLuint shader_object,
     const GLchar* shader_text)
 {
@@ -1447,95 +1642,129 @@ void ogl_load_shader(
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
                 "%s", shader_log.c_str());
         }
-    } else {
-        if (shader_log.empty())
-            shader_log = "Generic compile error.";
 
-        Quit("OGL: %s", shader_log.c_str());
+        return true;
     }
+
+    if (shader_log.empty())
+        shader_log = "Generic compile error.";
+
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+        "%s", shader_log.c_str());
+
+    return false;
 }
 
-void ogl_setup_textures()
+bool ogl_initialize_textures()
 {
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGL: %s", "Setting up textures...");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+        "OGL: %s", "Initializing textures...");
 
-    screen_tex = GL_NONE;
-    glGenTextures(1, &screen_tex);
+    bool is_succeed = true;
 
-    if (screen_tex == GL_NONE)
-        Quit("Screen texture failed.");
+    if (is_succeed) {
+        screen_tex = GL_NONE;
+        glGenTextures(1, &screen_tex);
 
-    GLenum format;
-    GLenum internal_format;
-
-    if (bstone::OglApi::has_ext_texture_rg()) {
-        format = bstone::OglApi::get_gl_red();
-        internal_format = bstone::OglApi::get_gl_r8();
-    } else {
-        format = GL_LUMINANCE;
-        internal_format = GL_LUMINANCE;
+        if (screen_tex == GL_NONE) {
+            is_succeed = false;
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", "Screen texture failed.");
+        }
     }
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, screen_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    GLenum format = GL_NONE;
+    GLenum internal_format = GL_NONE;
 
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        internal_format,
-        vanilla_screen_width,
-        vanilla_screen_height,
-        0,
-        format,
-        GL_UNSIGNED_BYTE,
-        NULL);
+    if (is_succeed) {
+        if (bstone::OglApi::has_ext_texture_rg()) {
+            format = bstone::OglApi::get_gl_red();
+            internal_format = bstone::OglApi::get_gl_r8();
+        } else {
+            format = GL_LUMINANCE;
+            internal_format = GL_LUMINANCE;
+        }
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, screen_tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    palette_tex = GL_NONE;
-    glGenTextures(1, &palette_tex);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            internal_format,
+            vanilla_screen_width,
+            vanilla_screen_height,
+            0,
+            format,
+            GL_UNSIGNED_BYTE,
+            NULL);
+    }
 
-    if (palette_tex == GL_NONE)
-        Quit("Palette texture failed.");
+    if (is_succeed) {
+        palette_tex = GL_NONE;
+        glGenTextures(1, &palette_tex);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, palette_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        if (palette_tex == GL_NONE)
+            is_succeed = false;
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", "Palette texture failed.");
+    }
 
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGB,
-        256,
-        1,
-        0,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        NULL);
+    if (is_succeed) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, palette_tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            256,
+            1,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            NULL);
+    }
+
+    if (is_succeed)
+        return true;
+
+    if (screen_tex != GL_NONE) {
+        glDeleteTextures(1, &screen_tex);
+        screen_tex = GL_NONE;
+    }
+
+    if (palette_tex != GL_NONE) {
+        glDeleteTextures(1, &palette_tex);
+        palette_tex = GL_NONE;
+    }
+
+    return false;
 }
 
-void ogl_setup_vertex_buffers()
+bool ogl_initialize_vertex_buffers()
 {
     ScreenVertex* vertex;
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
         "OGL: %s", "Setting up a screen buffer object...");
 
     screen_vbo = GL_NONE;
     glGenBuffers(1, &screen_vbo);
 
-    if (screen_vbo == GL_NONE)
-        Quit("Failed.");
-
+    if (screen_vbo == GL_NONE) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_ERROR,
+            "%s", "Failed to create an object.");
+        return false;
+    }
 
     vertex = &screen_vertices[0];
     vertex->x = 0.0F;
@@ -1545,19 +1774,19 @@ void ogl_setup_vertex_buffers()
 
     vertex = &screen_vertices[1];
     vertex->x = 0.0F;
-    vertex->y = (float)vanilla_screen_height;
+    vertex->y = static_cast<float>(vanilla_screen_height);
     vertex->s = 0.0F;
     vertex->t = 1.0F;
 
     vertex = &screen_vertices[2];
-    vertex->x = (float)vanilla_screen_width;
+    vertex->x = static_cast<float>(vanilla_screen_width);
     vertex->y = 0.0F;
     vertex->s = 1.0F;
     vertex->t = 0.0F;
 
     vertex = &screen_vertices[3];
-    vertex->x = (float)vanilla_screen_width;
-    vertex->y = (float)vanilla_screen_height;
+    vertex->x = static_cast<float>(vanilla_screen_width);
+    vertex->y = static_cast<float>(vanilla_screen_height);
     vertex->s = 1.0F;
     vertex->t = 1.0F;
 
@@ -1568,85 +1797,119 @@ void ogl_setup_vertex_buffers()
         sizeof(screen_vertices),
         screen_vertices,
         GL_STATIC_DRAW);
+
+    return true;
 }
 
-void ogl_setup_shaders()
+bool ogl_initialize_shaders()
 {
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGL: %s", "Loading a screen fragment shader...");
+    bool is_succeed = true;
 
-    screen_fso = glCreateShader(GL_FRAGMENT_SHADER);
+    if (is_succeed) {
+        screen_fso = glCreateShader(GL_FRAGMENT_SHADER);
 
-    if (screen_fso == GL_NONE)
-        Quit("Failed.");
+        if (screen_fso == GL_NONE) {
+            is_succeed = false;
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", "Failed to create an object.");
+        }
+    }
 
+    if (is_succeed) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "OGL: %s", "Loading a screen fragment shader...");
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGL: %s", "Loading a screen vertex shader...");
+        is_succeed = ogl_load_shader(screen_fso, screen_fs_text);
+    }
 
-    ogl_load_shader(screen_fso, screen_fs_text);
+    if (is_succeed) {
+        screen_vso = glCreateShader(GL_VERTEX_SHADER);
 
-    screen_vso = glCreateShader(GL_VERTEX_SHADER);
+        if (screen_vso == GL_NONE) {
+            is_succeed = false;
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", "Failed to create an object.");
+        }
+    }
 
-    if (screen_vso == GL_NONE)
-        Quit("Failed.");
+    if (is_succeed) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "OGL: %s", "Loading a screen vertex shader...");
 
-    ogl_load_shader(screen_vso, screen_vs_text);
+        is_succeed = ogl_load_shader(screen_vso, screen_vs_text);
+    }
+
+    return is_succeed;
 }
 
-void ogl_setup_programs()
+bool ogl_initialize_programs()
 {
     SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
         "OGL: %s", "Setting up a screen program object...");
 
-    screen_po = glCreateProgram();
+    bool is_succeed = true;
 
-    if (screen_po == GL_NONE)
-        Quit("Failed.");
+    if (is_succeed) {
+        screen_po = glCreateProgram();
 
-    GLint link_status = GL_FALSE;
+        if (screen_po == GL_NONE) {
+            is_succeed = false;
 
-    glAttachShader(screen_po, screen_fso);
-    glAttachShader(screen_po, screen_vso);
-    glLinkProgram(screen_po);
-    glGetProgramiv(screen_po, GL_LINK_STATUS, &link_status);
-
-    std::string program_log = ogl_get_info_log(screen_po);
-
-    if (link_status != GL_FALSE) {
-        if (!program_log.empty()) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
-                "%s", program_log.c_str());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", "Failed to create an object.");
         }
-    } else {
-        if (program_log.empty())
-            program_log = "Generic link error.";
-
-        Quit("%s", program_log.c_str());
     }
 
-    glUseProgram(screen_po);
+    if (is_succeed) {
+        GLint link_status = GL_FALSE;
 
-    a_pos_vec4 = glGetAttribLocation(screen_po, "pos_vec4");
-    a_tc0_vec2 = glGetAttribLocation(screen_po, "tc0_vec2");
+        glAttachShader(screen_po, screen_fso);
+        glAttachShader(screen_po, screen_vso);
+        glLinkProgram(screen_po);
+        glGetProgramiv(screen_po, GL_LINK_STATUS, &link_status);
 
-    float proj_mat4[16];
-    u_proj_mat4 = glGetUniformLocation(screen_po, "proj_mat4");
-    ogl_ortho(vanilla_screen_width, vanilla_screen_height, proj_mat4);
-    glUniformMatrix4fv(u_proj_mat4, 1, GL_FALSE, proj_mat4);
+        std::string program_log = ogl_get_info_log(screen_po);
 
-    u_screen_tu = glGetUniformLocation(screen_po, "screen_tu");
-    glUniform1i(u_screen_tu, 0);
+        if (link_status != GL_FALSE) {
+            if (!program_log.empty()) {
+                SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                    "%s", program_log.c_str());
+            }
+        } else {
+            is_succeed = false;
 
-    u_palette_tu = glGetUniformLocation(screen_po, "palette_tu");
-    glUniform1i(u_palette_tu, 1);
+            if (program_log.empty())
+                program_log = "Generic link error.";
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGL: %s", "Screen program object complete...");
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", program_log.c_str());
+        }
+    }
+
+    if (is_succeed) {
+        glUseProgram(screen_po);
+
+        a_pos_vec4 = glGetAttribLocation(screen_po, "pos_vec4");
+        a_tc0_vec2 = glGetAttribLocation(screen_po, "tc0_vec2");
+
+        float proj_mat4[16];
+        u_proj_mat4 = glGetUniformLocation(screen_po, "proj_mat4");
+        ogl_ortho(vanilla_screen_width, vanilla_screen_height, proj_mat4);
+        glUniformMatrix4fv(u_proj_mat4, 1, GL_FALSE, proj_mat4);
+
+        u_screen_tu = glGetUniformLocation(screen_po, "screen_tu");
+        glUniform1i(u_screen_tu, 0);
+
+        u_palette_tu = glGetUniformLocation(screen_po, "palette_tu");
+        glUniform1i(u_palette_tu, 1);
+
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "OGL: %s", "Screen program object complete...");
+    }
+
+    return is_succeed;
 }
 
 void ogl_uninitialize_video()
@@ -1713,174 +1976,210 @@ void ogl_uninitialize_video()
 #endif
 }
 
-void ogl_initialize_video()
+bool ogl_pre_subsystem_creation()
 {
-    int sdl_result = 0;
-
-    double scale;
-    double h_scale;
-    double v_scale;
-
 #if defined(BSTONE_PANDORA) // Pandora VSync
-    fbdev = open( "/dev/fb0", O_RDONLY /* O_RDWR */ );
-    if ( fbdev < 0 ) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
+    fbdev = open("/dev/fb0", O_RDONLY /* O_RDWR */);
+    if (fbdev < 0) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
             "SDL: %s", "Couldn't open /dev/fb0 for Pandora Vsync...");
     }
 #endif
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Setting up a video subsystem...");
-
-    sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    if (sdl_result != 0)
-        Quit("%s", SDL_GetError());
-
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Creating a window...");
-
-#if defined(BSTONE_USE_GLES)
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-#else
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-#endif
-
-    sdl_window = SDL_CreateWindow(
-        "BSPS",
-        100,
-        100,
-        window_width,
-        window_height,
-        SDL_WINDOW_OPENGL
-#if defined(BSTONE_PANDORA) || defined(GCW)
-         | SDL_WINDOW_FULLSCREEN
-#else
-         | SDL_WINDOW_HIDDEN
-#endif
-    );
-
-    if (sdl_window == NULL)
-        Quit("%s", SDL_GetError());
-
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Creating an OpenGL context...");
-
-    sdl_ogl_context = SDL_GL_CreateContext(sdl_window);
-
-    if (sdl_ogl_context == NULL)
-        Quit("%s", SDL_GetError());
-
-    if (!bstone::OglApi::initialize())
-        Quit("");
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGLAPI: %s: %s",
-        "Vendor",
-        bstone::OglApi::get_vendor().c_str());
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGLAPI: %s: %s",
-        "Renderer",
-        bstone::OglApi::get_renderer().c_str());
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGLAPI: %s: %s",
-        "Original version",
-        bstone::OglApi::get_version().get_original().c_str());
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGLAPI: %s: %s",
-        "Parsed version",
-        bstone::OglApi::get_version().to_string().c_str());
-
-    vanilla_screen_width = 320;
-    vanilla_screen_height = 200;
-    vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
-
-    h_scale = (double)window_width / (double)vanilla_screen_width;
-    v_scale = (double)window_height / (double)vanilla_screen_height;
-
-    if (h_scale <= v_scale)
-        scale = h_scale;
-    else
-        scale = v_scale;
-
-    screen_width = (int)((vanilla_screen_width * scale) + 0.5);
-    screen_height = (int)((vanilla_screen_height * scale) + 0.5);
-
-    screen_x = (window_width - screen_width) / 2;
-    screen_y = (window_height - screen_height) / 2;
-
-    VL_SetLineWidth(40);
-
-    ogl_setup_textures();
-    ogl_setup_vertex_buffers();
-    ogl_setup_shaders();
-    ogl_setup_programs();
-
-    SDL_ShowWindow(sdl_window);
-
-    glViewport(screen_x, screen_y, screen_width, screen_height);
-
-    glEnable(GL_TEXTURE_2D);
-
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-
-    if (a_pos_vec4 != -1) {
-        glVertexAttribPointer(
-            a_pos_vec4,
-            2,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(ScreenVertex),
-            (const GLvoid*)offsetof(ScreenVertex,x));
-
-        glEnableVertexAttribArray(a_pos_vec4);
-    }
-
-    if (a_tc0_vec2 != -1) {
-        glVertexAttribPointer(
-            a_tc0_vec2,
-            2,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(ScreenVertex),
-            (const GLvoid*)offsetof(ScreenVertex,s));
-
-        glEnableVertexAttribArray(a_tc0_vec2);
-    }
-
-    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+    return true;
 }
 
+bool ogl_pre_window_creation()
+{
+    int errors = 0;
+
+#if defined(BSTONE_USE_GLES)
+    errors += SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+    errors += SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+    errors += SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    errors += SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+    errors += SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
+    errors += SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    errors += SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    errors += SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    errors += SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+        SDL_GL_CONTEXT_PROFILE_ES);
+    errors &= SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#else
+    errors += SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    errors += SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    errors += SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    errors += SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    errors += SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+    errors += SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    errors += SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    errors += SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+#endif
+
+    return errors == 0;
+}
+
+uint32_t ogl_get_window_flags()
+{
+    return SDL_WINDOW_OPENGL;
+}
+
+bool ogl_initialize_renderer()
+{
+    bool is_succeed = true;
+
+    if (is_succeed) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Creating an OpenGL context...");
+
+        sdl_ogl_context = SDL_GL_CreateContext(sdl_window);
+
+        if (sdl_ogl_context == NULL) {
+            is_succeed = false;
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+        }
+    }
+
+    if (is_succeed)
+        is_succeed = bstone::OglApi::initialize();
+
+    if (is_succeed) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s: %s",
+            "Vendor",
+            bstone::OglApi::get_vendor().c_str());
+
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s: %s",
+            "Renderer",
+            bstone::OglApi::get_renderer().c_str());
+
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s: %s",
+            "Original version",
+            bstone::OglApi::get_version().get_original().c_str());
+
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "OGLAPI: %s: %s",
+            "Parsed version",
+            bstone::OglApi::get_version().to_string().c_str());
+    }
+
+    if (is_succeed)
+        is_succeed = ogl_initialize_textures();
+
+    if (is_succeed)
+        is_succeed = ogl_initialize_vertex_buffers();
+
+    if (is_succeed)
+        is_succeed = ogl_initialize_shaders();
+
+    if (is_succeed)
+        is_succeed = ogl_initialize_programs();
+
+    if (is_succeed) {
+        glViewport(screen_x, screen_y, screen_width, screen_height);
+
+        glEnable(GL_TEXTURE_2D);
+
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_DEPTH_TEST);
+
+        if (a_pos_vec4 != -1) {
+            glVertexAttribPointer(
+                a_pos_vec4,
+                2,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(ScreenVertex),
+                reinterpret_cast<const GLvoid*>(offsetof(ScreenVertex,x)));
+
+            glEnableVertexAttribArray(a_pos_vec4);
+        }
+
+        if (a_tc0_vec2 != -1) {
+            glVertexAttribPointer(
+                a_tc0_vec2,
+                2,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(ScreenVertex),
+                reinterpret_cast<const GLvoid*>(offsetof(ScreenVertex,s)));
+
+            glEnableVertexAttribArray(a_tc0_vec2);
+        }
+
+        glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+    }
+
+    return is_succeed;
+}
+
+bool ogl_initialize_video()
+{
+    bool is_succeed = true;
+    int sdl_result = 0;
+
+    if (is_succeed)
+        is_succeed = ogl_pre_subsystem_creation();
+
+    if (is_succeed) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Setting up a video subsystem...");
+
+        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+        if (sdl_result != 0) {
+            is_succeed = false;
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+        }
+    }
+
+    if (is_succeed)
+        is_succeed = ogl_pre_window_creation();
+
+    if (is_succeed) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Creating a window...");
+
+        // FIXME window offset, fullscreen/windowed mode
+        sdl_window = SDL_CreateWindow(
+            "BSPS",
+            100,
+            100,
+            window_width,
+            window_height,
+            ogl_get_window_flags() |
+#if defined(BSTONE_PANDORA) || defined(GCW)
+            SDL_WINDOW_FULLSCREEN
+#else
+            SDL_WINDOW_HIDDEN
+#endif
+            );
+
+        if (sdl_window == NULL) {
+            is_succeed = false;
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+        }
+    }
+
+    if (is_succeed)
+        is_succeed = ogl_initialize_renderer();
+
+    if (is_succeed)
+        return true;
+
+    ogl_uninitialize_video();
+
+    return false;
+}
 
 // Just draws a screen texture.
 void soft_draw_screen()
@@ -1924,25 +2223,17 @@ void soft_refresh_screen()
     sdl_result = SDL_LockTexture(
         sdl_soft_screen_tex, &screen_rect, &data, &pitch);
 
-    int pitch_diff = pitch - (4 * vanilla_screen_width);
-    uint8_t* dst_pixels = static_cast<uint8_t*>(data);
+    uint8_t* octets = static_cast<uint8_t*>(data);
 
     for (int y = 0; y < vanilla_screen_height; ++y) {
-        for (int x = 0; x < vanilla_screen_width; ++x) {
-            int src_offset =
-                (4 * displayofs) + (y * vanilla_screen_width) + x;
-            const uint8_t* palette =
-                &vga_palette[3 * vga_memory[src_offset]];
+        int vga_offset = (4 * displayofs) + (y * vanilla_screen_width);
 
-            dst_pixels[3] = (255 * palette[0]) / 63;
-            dst_pixels[2] = (255 * palette[1]) / 63;
-            dst_pixels[1] = (255 * palette[2]) / 63;
-            dst_pixels[0] = 255;
+        uint32_t* row = reinterpret_cast<uint32_t*>(octets);
 
-            dst_pixels += 4;
-        }
+        for (int x = 0; x < vanilla_screen_width; ++x)
+            row[x] = sdl_palette[vga_memory[vga_offset + x]];
 
-        dst_pixels += pitch_diff;
+        octets += pitch;
     }
 
     SDL_UnlockTexture(sdl_soft_screen_tex);
@@ -1965,30 +2256,25 @@ void soft_update_screen()
     soft_refresh_screen();
 }
 
-void soft_initialize_textures()
+bool soft_initialize_textures()
 {
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
         "SDL: %s", "Creating a screen texture...");
 
     sdl_soft_screen_tex = SDL_CreateTexture(
         sdl_soft_renderer,
-        SDL_PIXELFORMAT_RGBA8888,
+        sdl_pixel_format,
         SDL_TEXTUREACCESS_STREAMING,
         vanilla_screen_width,
         vanilla_screen_height);
 
-    Uint32 format = 0;
+    if (sdl_soft_screen_tex != NULL)
+        return true;
 
-    SDL_QueryTexture(
-        sdl_soft_screen_tex,
-        &format,
-        NULL,
-        NULL,
-        NULL);
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+        "%s", SDL_GetError());
 
-    if (sdl_soft_screen_tex == NULL)
-        Quit("%s", SDL_GetError());
+    return false;
 }
 
 void soft_uninitialize_textures()
@@ -2016,49 +2302,154 @@ void soft_uninitialize_video()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-bool soft_initialize_video()
+bool soft_pre_subsystem_creation()
 {
+    return true;
+}
+
+bool soft_pre_window_creation()
+{
+    return sdl_palette.initialize(sdl_pixel_format);
+}
+
+uint32_t soft_get_window_flags()
+{
+    return 0;
+}
+
+bool soft_initialize_renderer()
+{
+    bool is_succeed = true;
+
+    if (is_succeed) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Creating a software renderer...");
+
+        sdl_soft_renderer = SDL_CreateRenderer(
+            sdl_window, -1, SDL_RENDERER_SOFTWARE);
+
+        if (sdl_soft_renderer == NULL) {
+            is_succeed = false;
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", SDL_GetError());
+        }
+    }
+
     int sdl_result = 0;
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Setting up a video subsystem...");
+    if (is_succeed)
+        is_succeed = soft_initialize_textures();
 
-    sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    if (is_succeed) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Initializing a view port...");
 
-    if (sdl_result != 0)
-        Quit("%s", SDL_GetError());
+        SDL_Rect view_port;
+        view_port.x = screen_x;
+        view_port.y = screen_y;
+        view_port.w = screen_width;
+        view_port.h = screen_height;
 
+        sdl_result = SDL_RenderSetViewport(
+            sdl_soft_renderer, &view_port);
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Creating a window...");
+        if (sdl_result != 0) {
+            is_succeed = false;
 
-    sdl_window = SDL_CreateWindow(
-        "BSPS",
-        100,
-        100,
-        window_width,
-        window_height,
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", SDL_GetError());
+        }
+    }
+
+    if (is_succeed) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Initializing default draw color...");
+
+        sdl_result = SDL_SetRenderDrawColor(
+            sdl_soft_renderer, 0, 0, 0, 255);
+
+        if (sdl_result != 0) {
+            is_succeed = false;
+
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "%s", SDL_GetError());
+        }
+    }
+
+    return is_succeed;
+}
+
+bool soft_initialize_video()
+{
+    return false;
+}
+
+bool x_initialize_video()
+{
+    bool is_succeed = true;
+    int sdl_result = 0;
+
+    if (is_succeed)
+        is_succeed = vid_pre_subsystem_creation();
+
+    if (is_succeed) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Setting up a video subsystem...");
+
+        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+        if (sdl_result != 0) {
+            is_succeed = false;
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+        }
+    }
+
+    if (is_succeed)
+        is_succeed = vid_pre_window_creation();
+
+    if (is_succeed) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Creating a window...");
+
+        // FIXME window offset, fullscreen/windowed mode
+        sdl_window = SDL_CreateWindow(
+            "BSPS",
+            100,
+            100,
+            window_width,
+            window_height,
+            vid_get_window_flags() |
 #if defined(BSTONE_PANDORA) || defined(GCW)
-         SDL_WINDOW_FULLSCREEN
+            SDL_WINDOW_FULLSCREEN
 #else
-         SDL_WINDOW_HIDDEN
+            SDL_WINDOW_HIDDEN
 #endif
-    );
+            );
 
-    if (sdl_window == NULL)
-        Quit("%s", SDL_GetError());
+        if (sdl_window == NULL) {
+            is_succeed = false;
+            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+        }
+    }
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Creating a software renderer...");
+    if (is_succeed)
+        is_succeed = vid_initialize_renderer();
 
-    sdl_soft_renderer = SDL_CreateRenderer(
-        sdl_window, -1, SDL_RENDERER_SOFTWARE);
+    if (is_succeed)
+        return true;
 
-    if (sdl_soft_renderer == NULL)
-        Quit("%s", SDL_GetError());
+    uninitialize_video();
+
+    return false;
+}
+
+void initialize_video()
+{
+    //
+    // Common initialization
+    //
 
     vanilla_screen_width = 320;
     vanilla_screen_height = 200;
@@ -2070,41 +2461,114 @@ bool soft_initialize_video()
     double v_scale =
         static_cast<double>(window_height) / vanilla_screen_height;
 
-    double scale = 0.0;
+    double scale;
 
     if (h_scale <= v_scale)
         scale = h_scale;
     else
         scale = v_scale;
 
-    screen_width =
-        static_cast<int>((vanilla_screen_width * scale) + 0.5);
+    screen_width = static_cast<int>(
+        (vanilla_screen_width * scale) + 0.5);
 
-    screen_height =
-        static_cast<int>((vanilla_screen_height * scale) + 0.5);
+    screen_height = static_cast<int>(
+        (vanilla_screen_height * scale) + 0.5);
 
     screen_x = (window_width - screen_width) / 2;
     screen_y = (window_height - screen_height) / 2;
 
     VL_SetLineWidth(40);
 
-    soft_initialize_textures();
+
+    //
+    // Renderer initialization
+    //
+
+    g_renderer_type = RT_NONE;
+
+    int ren_opt_index = g_args.find_option("ren");
+
+    std::string ren_string;
+
+    if (ren_opt_index >= 0)
+        ren_string = g_args[ren_opt_index + 1];
+
+    if (!ren_string.empty()) {
+        if (ren_string == "soft")
+            g_renderer_type = RT_SOFTWARE;
+        else if (ren_string == "ogl")
+            g_renderer_type = RT_OPEN_GL;
+        else {
+            SDL_LogInfo(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "CL: %s: %s", "Unknown renderer type", ren_string.c_str());
+        }
+    } else {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "CL: %s.", "Expected a renderer type");
+    }
+
+    if (g_renderer_type == RT_NONE)
+        g_renderer_type = RT_AUTO_DETECT;
+
+
+    bool initialize_result = false;
+
+    switch (g_renderer_type) {
+    case RT_AUTO_DETECT:
+    case RT_OPEN_GL:
+        vid_pre_subsystem_creation = ogl_pre_subsystem_creation;
+        vid_pre_window_creation = ogl_pre_window_creation;
+        vid_get_window_flags = ogl_get_window_flags;
+        vid_initialize_renderer = ogl_initialize_renderer;
+        vid_refresh_screen = ogl_refresh_screen;
+        vid_update_screen = ogl_update_screen;
+        vid_uninitialize_video = ogl_uninitialize_video;
+        break;
+
+    case RT_SOFTWARE:
+        vid_pre_subsystem_creation = soft_pre_subsystem_creation;
+        vid_pre_window_creation = soft_pre_window_creation;
+        vid_get_window_flags = soft_get_window_flags;
+        vid_initialize_renderer = soft_initialize_renderer;
+        vid_refresh_screen = soft_refresh_screen;
+        vid_update_screen = soft_update_screen;
+        vid_uninitialize_video = soft_uninitialize_video;
+        break;
+
+    default:
+        throw std::runtime_error("g_renderer_type");
+    }
+
+    initialize_result = x_initialize_video();
+
+    if (!initialize_result && g_renderer_type == RT_AUTO_DETECT) {
+        SDL_LogInfo(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "SDL: %s", "Falling back to software renderer...");
+
+        vid_pre_subsystem_creation = soft_pre_subsystem_creation;
+        vid_pre_window_creation = soft_pre_window_creation;
+        vid_get_window_flags = soft_get_window_flags;
+        vid_initialize_renderer = soft_initialize_renderer;
+        vid_refresh_screen = soft_refresh_screen;
+        vid_update_screen = soft_update_screen;
+        vid_uninitialize_video = soft_uninitialize_video;
+
+        initialize_result = x_initialize_video();
+    }
+
+    if (!initialize_result)
+        Quit("SDL: %s", "Failed to initialize a renderer.");
 
     SDL_ShowWindow(sdl_window);
+}
 
-    SDL_Rect view_port;
-    view_port.x = screen_x;
-    view_port.y = screen_y;
-    view_port.w = screen_width;
-    view_port.h = screen_height;
-
-    sdl_result = SDL_RenderSetViewport(
-        sdl_soft_renderer, &view_port);
-
-    sdl_result = SDL_SetRenderDrawColor(
-        sdl_soft_renderer, 0, 0, 0, 255);
-
-    return true;
+void uninitialize_video()
+{
+    if (vid_uninitialize_video != NULL)
+        vid_uninitialize_video();
 }
 
 
@@ -2118,12 +2582,11 @@ void JM_VGALinearFill(int start, int length, char fill)
 
 void VL_RefreshScreen()
 {
-    //ogl_refresh_screen();
-    soft_refresh_screen();
+    vid_refresh_screen();
 }
 
 void VH_UpdateScreen()
 {
-    soft_update_screen();
+    vid_update_screen();
 }
 // BBi

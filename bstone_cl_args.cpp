@@ -33,6 +33,11 @@ ClArgs& ClArgs::operator=(
 const std::string& ClArgs::operator[](
     int index) const
 {
+    static std::string empty_string;
+
+    if (index < 0 || index >= get_count())
+        return empty_string;
+
     return args_[index];
 }
 
