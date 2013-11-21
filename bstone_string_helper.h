@@ -2,6 +2,7 @@
 #define BSTONE_STRING_HELPER_H
 
 
+#include <locale>
 #include <string>
 #include <vector>
 
