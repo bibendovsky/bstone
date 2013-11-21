@@ -53,16 +53,10 @@ namespace {
 // Common stuff
 //
 
-#if defined(BSTONE_PANDORA)
-int window_width = 800;
-int window_height = 480;
-#elif defined(GCW)
+SDL_DisplayMode display_mode;
+
 int window_width = 320;
-int window_height = 240;
-#else
-int window_width = 640;
-int window_height = 480;
-#endif
+int window_height = 200;
 
 
 Uint8* vga_palette = NULL;
@@ -74,6 +68,10 @@ bool (*vid_initialize_renderer)() = NULL;
 void (*vid_refresh_screen)() = NULL;
 void (*vid_update_screen)() = NULL;
 void (*vid_uninitialize_video)() = NULL;
+
+bool sdl_use_custom_window_position = false;
+int sdl_window_x = 0;
+int sdl_window_y = 0;
 
 void initialize_video();
 void uninitialize_video();
@@ -377,6 +375,7 @@ int screen_y = 0;
 int screen_width = 0;
 int screen_height = 0;
 
+bool sdl_is_windowed = false;
 SDL_Window* sdl_window = NULL;
 RendererType g_renderer_type;
 // BBi
@@ -1905,28 +1904,61 @@ bool x_initialize_video()
         }
     }
 
+    if (is_succeed) {
+        sdl_result = SDL_GetDesktopDisplayMode(0, &display_mode);
+
+        if (sdl_result != 0) {
+            is_succeed = false;
+            Quit("SDL: %s", "Failed to get a display mode.");
+        }
+    }
+
+    if (is_succeed) {
+        if (!sdl_is_windowed) {
+            window_width = display_mode.w;
+            window_height = display_mode.h;
+        }
+    }
+
     if (is_succeed)
         is_succeed = vid_pre_window_creation();
 
     if (is_succeed) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
             "SDL: %s", "Creating a window...");
 
-        // FIXME window offset, fullscreen/windowed mode
+        if (!sdl_use_custom_window_position) {
+            sdl_window_x = (display_mode.w - window_width) / 2;
+            sdl_window_y = (display_mode.h - window_height) / 2;
+        }
+
+        if (sdl_window_x < 0)
+            sdl_window_x = 0;
+
+        if (sdl_window_y < 0)
+            sdl_window_y = 0;
+
+        uint32_t flags = 0;
+
+        flags |= SDL_WINDOW_HIDDEN;
+        flags |= vid_get_window_flags();
+
+        if (!sdl_is_windowed) {
+            if (window_width == display_mode.w &&
+                window_height == display_mode.h)
+            {
+                flags |= SDL_WINDOW_BORDERLESS;
+            } else
+                flags |= SDL_WINDOW_FULLSCREEN;
+        }
+
         sdl_window = SDL_CreateWindow(
             "BSPS",
-            100,
-            100,
+            sdl_window_x,
+            sdl_window_y,
             window_width,
             window_height,
-            vid_get_window_flags() |
-#if defined(BSTONE_PANDORA) || defined(GCW)
-            SDL_WINDOW_FULLSCREEN
-#else
-            SDL_WINDOW_HIDDEN
-#endif
-            );
+            flags);
 
         if (sdl_window == NULL) {
             is_succeed = false;
@@ -1951,15 +1983,39 @@ void initialize_video()
     // Common initialization
     //
 
+    sdl_is_windowed = (g_args.find_option("windowed") >= 0);
+
+    sdl_use_custom_window_position = false;
+
+    sdl_window_x = 0;
+    int winx_opt_index = g_args.find_option("winx");
+
+    if (winx_opt_index >= 0) {
+        const std::string& winx_str = g_args[winx_opt_index + 1];
+
+        if (bstone::StringHelper::lexical_cast(winx_str, sdl_window_x))
+            sdl_use_custom_window_position = true;
+    }
+
+    sdl_window_y = 0;
+    int winy_opt_index = g_args.find_option("winy");
+
+    if (winy_opt_index >= 0) {
+        const std::string& winy_str = g_args[winy_opt_index + 1];
+
+        if (bstone::StringHelper::lexical_cast(winy_str, sdl_window_y))
+            sdl_use_custom_window_position = true;
+    }
+
     vanilla_screen_width = 320;
     vanilla_screen_height = 200;
     vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
 
-    double h_scale =
-        static_cast<double>(window_width) / vanilla_screen_width;
+    double h_scale = static_cast<double>(window_width) /
+        vanilla_screen_width;
 
-    double v_scale =
-        static_cast<double>(window_height) / vanilla_screen_height;
+    double v_scale = static_cast<double>(window_height) /
+        vanilla_screen_height;
 
     double scale;
 
