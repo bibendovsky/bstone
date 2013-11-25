@@ -3776,7 +3776,7 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
    TerminateStr(code_ptr);
 
    // Check for code
-   if (::g_args.find_argument(code_ptr))
+   if (::g_args.find_argument(code_ptr) >= 0)
        return_val = true;
 
 	// free allocated memory
