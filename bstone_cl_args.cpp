@@ -197,5 +197,22 @@ const std::string& ClArgs::get_option_value(
     return get_argument(option_index);
 }
 
+void ClArgs::get_option_values(
+    const std::string& option_name,
+    std::string& value1,
+    std::string& value2) const
+{
+    value1.clear();
+    value2.clear();
+
+    int option_index = find_option(option_name);
+
+    if (option_index < 0)
+        return;
+
+    value1 = get_argument(option_index + 1);
+    value2 = get_argument(option_index + 2);
+}
+
 
 } // namespace bstone

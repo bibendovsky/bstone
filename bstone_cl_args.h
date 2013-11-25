@@ -50,6 +50,11 @@ public:
     const std::string& get_option_value(
         const std::string& option_name) const;
 
+    void get_option_values(
+        const std::string& option_name,
+        std::string& value1,
+        std::string& value2) const;
+
 private:
     StringList args_;
     StringList lc_args_;
