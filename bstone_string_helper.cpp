@@ -92,5 +92,12 @@ bool StringHelper::is(
     return Internals::get_ctype_facet().is(mask, value);
 }
 
+// (static)
+const std::string& StringHelper::get_empty()
+{
+    static const std::string result;
+    return result;
+}
+
 
 } // namespace bstone

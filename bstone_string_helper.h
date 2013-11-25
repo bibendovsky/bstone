@@ -64,6 +64,8 @@ public:
         std::ctype_base::mask mask,
         char value);
 
+    static const std::string& get_empty();
+
 private:
     StringHelper();
 
