@@ -52,7 +52,7 @@ void ClArgs::initialize(
 
     for (int i = 0; i < argc; ++i) {
         args_[i] = argv[i];
-        lc_args_[i] = StringHelper::to_lower(args_.back());
+        lc_args_[i] = StringHelper::to_lower(args_[i]);
     }
 }
 
