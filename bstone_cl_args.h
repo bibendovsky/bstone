@@ -44,6 +44,12 @@ public:
 
     int get_count() const;
 
+    const std::string& get_argument(
+        int index) const;
+
+    const std::string& get_option_value(
+        const std::string& option_name) const;
+
 private:
     StringList args_;
     StringList lc_args_;

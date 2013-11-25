@@ -33,12 +33,7 @@ ClArgs& ClArgs::operator=(
 const std::string& ClArgs::operator[](
     int index) const
 {
-    static std::string empty_string;
-
-    if (index < 0 || index >= get_count())
-        return empty_string;
-
-    return args_[index];
+    return get_argument(index);
 }
 
 void ClArgs::initialize(
@@ -180,6 +175,26 @@ int ClArgs::check_argument(
 int ClArgs::get_count() const
 {
     return static_cast<int>(args_.size());
+}
+
+const std::string& ClArgs::get_argument(
+    int index) const
+{
+    if (index < 0 || index >= get_count())
+        return StringHelper::get_empty();
+
+    return args_[index];
+}
+
+const std::string& ClArgs::get_option_value(
+    const std::string& option_name) const
+{
+    int option_index = find_option(option_name);
+
+    if (option_index >= 0)
+        ++option_index;
+
+    return get_argument(option_index);
 }
 
 
