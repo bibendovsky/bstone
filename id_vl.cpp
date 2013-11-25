@@ -1938,29 +1938,53 @@ void initialize_video()
     // Common initialization
     //
 
+    vanilla_screen_width = 320;
+    vanilla_screen_height = 200;
+    vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
+
+    //
+    // Option "windowed"
+    //
+
     sdl_is_windowed = (g_args.find_option("windowed") >= 0);
 
     sdl_use_custom_window_position = false;
 
-    sdl_window_x = 0;
-    int winx_opt_index = g_args.find_option("winx");
+    //
+    // Option "winx"
+    //
 
-    if (winx_opt_index >= 0) {
-        const std::string& winx_str = g_args[winx_opt_index + 1];
+    const std::string& winx_str = g_args.get_option_value("winx");
 
-        if (bstone::StringHelper::lexical_cast(winx_str, sdl_window_x))
-            sdl_use_custom_window_position = true;
-    }
+    if (bstone::StringHelper::lexical_cast(winx_str, sdl_window_x))
+        sdl_use_custom_window_position = true;
 
-    sdl_window_y = 0;
-    int winy_opt_index = g_args.find_option("winy");
+    //
+    // Option "winy"
+    //
 
-    if (winy_opt_index >= 0) {
-        const std::string& winy_str = g_args[winy_opt_index + 1];
+    const std::string& winy_str = g_args.get_option_value("winy");
 
-        if (bstone::StringHelper::lexical_cast(winy_str, sdl_window_y))
-            sdl_use_custom_window_position = true;
-    }
+    if (bstone::StringHelper::lexical_cast(winy_str, sdl_window_y))
+        sdl_use_custom_window_position = true;
+
+    //
+    // Option "res"
+    //
+
+    std::string width_str;
+    std::string height_str;
+
+    g_args.get_option_values("res", width_str, height_str);
+
+    bstone::StringHelper::lexical_cast(width_str, window_width);
+    bstone::StringHelper::lexical_cast(height_str, window_height);
+
+    if (window_width < vanilla_screen_width)
+        window_width = vanilla_screen_width;
+
+    if (window_height < vanilla_screen_height)
+        window_height = vanilla_screen_height;
 
 
     //
@@ -1969,27 +1993,17 @@ void initialize_video()
 
     g_renderer_type = RT_NONE;
 
-    int ren_opt_index = g_args.find_option("ren");
+    std::string ren_string = g_args.get_option_value("ren");
 
-    std::string ren_string;
-
-    if (ren_opt_index >= 0) {
-        ren_string = g_args[ren_opt_index + 1];
-
-        if (!ren_string.empty()) {
-            if (ren_string == "soft")
-                g_renderer_type = RT_SOFTWARE;
-            else if (ren_string == "ogl")
-                g_renderer_type = RT_OPEN_GL;
-            else {
-                SDL_LogInfo(
-                    SDL_LOG_CATEGORY_APPLICATION,
-                    "CL: %s: %s", "Unknown renderer type", ren_string.c_str());
-            }
-        } else {
+    if (!ren_string.empty()) {
+        if (ren_string == "soft")
+            g_renderer_type = RT_SOFTWARE;
+        else if (ren_string == "ogl")
+            g_renderer_type = RT_OPEN_GL;
+        else {
             SDL_LogInfo(
                 SDL_LOG_CATEGORY_APPLICATION,
-                "CL: %s.", "Expected a renderer type");
+                "CL: %s: %s", "Unknown renderer type", ren_string.c_str());
         }
     }
 
@@ -2050,10 +2064,6 @@ void initialize_video()
         window_width = display_mode.w;
         window_height = display_mode.h;
     }
-
-    vanilla_screen_width = 320;
-    vanilla_screen_height = 200;
-    vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
 
     double h_scale = static_cast<double>(window_width) /
         vanilla_screen_width;
