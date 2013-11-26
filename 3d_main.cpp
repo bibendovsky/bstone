@@ -808,33 +808,36 @@ void ReadConfig()
             for (int i = 0; i < MaxScores; ++i) {
                 HighScore* score = &Scores[i];
 
-                ::deserialize_field(score->name, reader, checksum);
-                ::deserialize_field(score->score, reader, checksum);
-                ::deserialize_field(score->completed, reader, checksum);
-                ::deserialize_field(score->episode, reader, checksum);
-                ::deserialize_field(score->ratio, reader, checksum);
+                deserialize_field(score->name, reader, checksum);
+                deserialize_field(score->score, reader, checksum);
+                deserialize_field(score->completed, reader, checksum);
+                deserialize_field(score->episode, reader, checksum);
+                deserialize_field(score->ratio, reader, checksum);
             }
 
-            ::deserialize_field(sd, reader, checksum);
-            ::deserialize_field(sm, reader, checksum);
-            ::deserialize_field(sds, reader, checksum);
+            deserialize_field(sd, reader, checksum);
+            deserialize_field(sm, reader, checksum);
+            deserialize_field(sds, reader, checksum);
 
-            ::deserialize_field(mouseenabled, reader, checksum);
-            ::deserialize_field(joystickenabled, reader, checksum);
-            ::deserialize_field(joypadenabled, reader, checksum);
-            ::deserialize_field(joystickprogressive, reader, checksum);
-            ::deserialize_field(joystickport, reader, checksum);
+            deserialize_field(mouseenabled, reader, checksum);
+            deserialize_field(joystickenabled, reader, checksum);
+            deserialize_field(joypadenabled, reader, checksum);
+            deserialize_field(joystickprogressive, reader, checksum);
+            deserialize_field(joystickport, reader, checksum);
 
-            ::deserialize_field(dirscan, reader, checksum);
-            ::deserialize_field(buttonscan, reader, checksum);
-            ::deserialize_field(buttonmouse, reader, checksum);
-            ::deserialize_field(buttonjoy, reader, checksum);
+            deserialize_field(dirscan, reader, checksum);
+            deserialize_field(buttonscan, reader, checksum);
+            deserialize_field(buttonmouse, reader, checksum);
+            deserialize_field(buttonjoy, reader, checksum);
 
-            ::deserialize_field(viewsize, reader, checksum);
-            ::deserialize_field(mouseadjustment, reader, checksum);
+            deserialize_field(viewsize, reader, checksum);
+            deserialize_field(mouseadjustment, reader, checksum);
 
             // Use temp so we don't destroy pre-sets.
-            ::deserialize_field(flags, reader, checksum);
+            deserialize_field(flags, reader, checksum);
+
+            deserialize_field(g_sfx_volume, reader, checksum);
+            deserialize_field(g_music_volume, reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
         }
@@ -877,6 +880,18 @@ void ReadConfig()
 
         MainMenu[6].active = AT_ENABLED;
         MainItems.curpos = 0;
+
+        if (g_sfx_volume < MIN_VOLUME)
+            g_sfx_volume = MIN_VOLUME;
+
+        if (g_sfx_volume > MAX_VOLUME)
+            g_sfx_volume = MAX_VOLUME;
+
+        if (g_music_volume < MIN_VOLUME)
+            g_music_volume = MIN_VOLUME;
+
+        if (g_music_volume > MAX_VOLUME)
+            g_music_volume = MAX_VOLUME;
     }
 
     if (!is_succeed || viewsize == 0) {
@@ -915,11 +930,17 @@ void ReadConfig()
 #else
         gamestate.flags |= GS_LIGHTING;
 #endif
+
+        g_sfx_volume = MAX_VOLUME;
+        g_music_volume = MAX_VOLUME;
     }
 
     ::SD_SetMusicMode(sm);
     ::SD_SetSoundMode(sd);
     ::SD_SetDigiDevice(sds);
+
+    sd_set_sfx_volume(g_sfx_volume);
+    sd_set_music_volume(g_music_volume);
 }
 
 /*
@@ -951,31 +972,34 @@ void WriteConfig()
     for (int i = 0; i < MaxScores; ++i) {
         HighScore* score = &Scores[i];
 
-        ::serialize_field(score->name, writer, checksum);
-        ::serialize_field(score->score, writer, checksum);
-        ::serialize_field(score->completed, writer, checksum);
-        ::serialize_field(score->episode, writer, checksum);
-        ::serialize_field(score->ratio, writer, checksum);
+        serialize_field(score->name, writer, checksum);
+        serialize_field(score->score, writer, checksum);
+        serialize_field(score->completed, writer, checksum);
+        serialize_field(score->episode, writer, checksum);
+        serialize_field(score->ratio, writer, checksum);
     }
 
-    ::serialize_field(SoundMode, writer, checksum);
-    ::serialize_field(MusicMode, writer, checksum);
-    ::serialize_field(DigiMode, writer, checksum);
+    serialize_field(SoundMode, writer, checksum);
+    serialize_field(MusicMode, writer, checksum);
+    serialize_field(DigiMode, writer, checksum);
 
-    ::serialize_field(mouseenabled, writer, checksum);
-    ::serialize_field(joystickenabled, writer, checksum);
-    ::serialize_field(joypadenabled, writer, checksum);
-    ::serialize_field(joystickprogressive, writer, checksum);
-    ::serialize_field(joystickport, writer, checksum);
+    serialize_field(mouseenabled, writer, checksum);
+    serialize_field(joystickenabled, writer, checksum);
+    serialize_field(joypadenabled, writer, checksum);
+    serialize_field(joystickprogressive, writer, checksum);
+    serialize_field(joystickport, writer, checksum);
 
-    ::serialize_field(dirscan, writer, checksum);
-    ::serialize_field(buttonscan, writer, checksum);
-    ::serialize_field(buttonmouse, writer, checksum);
-    ::serialize_field(buttonjoy, writer, checksum);
+    serialize_field(dirscan, writer, checksum);
+    serialize_field(buttonscan, writer, checksum);
+    serialize_field(buttonmouse, writer, checksum);
+    serialize_field(buttonjoy, writer, checksum);
 
-    ::serialize_field(viewsize, writer, checksum);
-    ::serialize_field(mouseadjustment, writer, checksum);
-    ::serialize_field(gamestate.flags, writer, checksum);
+    serialize_field(viewsize, writer, checksum);
+    serialize_field(mouseadjustment, writer, checksum);
+    serialize_field(gamestate.flags, writer, checksum);
+
+    serialize_field(g_sfx_volume, writer, checksum);
+    serialize_field(g_music_volume, writer, checksum);
 
     writer.write(bstone::Endian::le(checksum));
 }

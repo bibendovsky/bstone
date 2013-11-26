@@ -84,17 +84,19 @@ bool AudioMixer::Sound::is_audible() const
 }
 
 AudioMixer::AudioMixer() :
-    is_initialized_(false),
-    dst_rate_(0),
-    device_id_(0),
-    mutex_(NULL),
-    thread_(NULL),
-    mix_samples_count_(0),
-    is_data_available_(false),
-    quit_thread_(false),
-    mute_(false),
-    is_music_playing_(false),
-    is_any_sfx_playing_(false)
+    is_initialized_(),
+    dst_rate_(),
+    device_id_(),
+    mutex_(),
+    thread_(),
+    mix_samples_count_(),
+    is_data_available_(),
+    quit_thread_(),
+    mute_(),
+    is_music_playing_(),
+    is_any_sfx_playing_(),
+    sfx_volume_(1.0F),
+    music_volume_(1.0F)
 {
 }
 
@@ -359,6 +361,40 @@ bool AudioMixer::set_mute(
     return true;
 }
 
+bool AudioMixer::set_sfx_volume(
+    float volume)
+{
+    if (!is_initialized())
+        return false;
+
+    if (volume < 0.0F)
+        volume = 0.0F;
+
+    if (volume > 1.0F)
+        volume = 1.0F;
+
+    sfx_volume_ = volume;
+
+    return true;
+}
+
+bool AudioMixer::set_music_volume(
+    float volume)
+{
+    if (!is_initialized())
+        return false;
+
+    if (volume < 0.0F)
+        volume = 0.0F;
+
+    if (volume > 1.0F)
+        volume = 1.0F;
+
+    music_volume_ = volume;
+
+    return true;
+}
+
 bool AudioMixer::is_music_playing() const
 {
     if (!is_initialized())
@@ -426,6 +462,9 @@ void AudioMixer::mix_samples()
 {
     spatialize_sounds();
 
+    float sfx_volume = sfx_volume_;
+    float music_volume = music_volume_;
+
     float min_left_sample = 32767;
     float max_left_sample = -32768;
 
@@ -454,12 +493,15 @@ void AudioMixer::mix_samples()
 
             switch (sound->type) {
             case ST_ADLIB_MUSIC:
+                scale = 8.0F * music_volume;
+                break;
+
             case ST_ADLIB_SFX:
-                scale = 8;
+                scale = 8.0F * sfx_volume;
                 break;
 
             default:
-                scale = 1;
+                scale = sfx_volume;
                 break;
             }
 

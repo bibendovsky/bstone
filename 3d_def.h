@@ -2447,6 +2447,10 @@ enum inst_type {
 	IT_HIGHSCORES,
    IT_ENTER_HIGHSCORE,
 	IT_MOUSE_SEN,
+
+    // BBi
+    IT_SOUND_VOLUME,
+
 	MAX_INSTRUCTIONS
 }; // enum inst_type
 

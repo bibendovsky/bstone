@@ -249,6 +249,12 @@ extern	void	SDL_PCPlaySound(PCSound *sound),
 #endif
 
 // BBi
+const int MIN_VOLUME = 0;
+const int MAX_VOLUME = 9;
+
+extern int g_sfx_volume;
+extern int g_music_volume;
+
 void sd_play_sound(
     int sound_index,
     const void* actor,
@@ -275,6 +281,12 @@ void sd_update_positions();
 
 bool sd_is_player_channel_playing(
     bstone::ActorChannel channel);
+
+void sd_set_sfx_volume(
+    int volume);
+
+void sd_set_music_volume(
+    int volume);
 // BBi
 
 

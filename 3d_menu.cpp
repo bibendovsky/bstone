@@ -73,6 +73,10 @@ void DrawSwitchMenu(void);
 void DrawAllSwitchLights(Sint16 which);
 void DrawSwitchDescription(Sint16 which);
 
+// BBi
+void cp_sound_volume(
+    Sint16);
+
 
 extern boolean refresh_screen;
 
@@ -85,7 +89,7 @@ extern boolean refresh_screen;
 
 CP_iteminfo
 	MainItems=	{MENU_X,MENU_Y,12,MM_READ_THIS,0,9,{77, 1,154,9,1}},
-	GopItems=	{MENU_X,MENU_Y+30,4,0,0,9,{77, 1,154,9,1}},
+	GopItems=	{MENU_X,MENU_Y+30,5,0,0,9,{77, 1,154,9,1}},
 	SndItems=	{SM_X,SM_Y,12,0,0,7,		{87,-1,144,7,1}},
 	LSItems=	{LSM_X,LSM_Y,10,0,0,8,	{86,-1,144,8,1}},
 	CtlItems=	{CTL_X,CTL_Y,7,-1,0,9,	{87,1,174,9,1}},
@@ -118,6 +122,9 @@ GopMenu[]=
 	{AT_ENABLED,"CONTROLS",CP_Control},
 	{AT_ENABLED,"CHANGE VIEW",CP_ChangeView},
 	{AT_ENABLED,"SWITCHES",CP_Switches},
+
+    // BBi
+    {AT_ENABLED, "SOUND VOLUME", cp_sound_volume}
 },
 
 SndMenu[]=
@@ -970,10 +977,15 @@ void DrawInstructions(inst_type Type)
 {
 	#define INSTRUCTIONS_Y_POS		154+10
 
-	const char *instr[MAX_INSTRUCTIONS] = {"UP/DN SELECTS - ENTER CHOOSES - ESC EXITS",
-                                           "PRESS ANY KEY TO CONTINUE",
-										   "ENTER YOUR NAME AND PRESS ENTER",
-                                           "RT/LF ARROW SELECTS - ENTER CHOOSES"};
+    const char* instr[MAX_INSTRUCTIONS] = {
+        "UP/DN SELECTS - ENTER CHOOSES - ESC EXITS",
+        "PRESS ANY KEY TO CONTINUE",
+        "ENTER YOUR NAME AND PRESS ENTER",
+        "RT/LF ARROW SELECTS - ENTER CHOOSES",
+
+        // BBi
+        "UP/DN SELECTS - RT/LF CHANGES - ESC EXITS"
+    };
 
 	fontnumber = 2;
 
@@ -3963,3 +3975,165 @@ void ExitGame()
 	SD_StopSound();
 	Quit("");
 }
+
+// BBi
+int volume_index = 0;
+int* const volumes[2] = {&g_sfx_volume, &g_music_volume};
+
+void draw_volume_control(
+    int index,
+    int volume,
+    bool is_enabled)
+{
+    int16_t slider_color =
+        is_enabled ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
+
+    int16_t outline_color =
+        is_enabled ? HIGHLIGHT_TEXT_COLOR : DEACTIAVED_TEXT_COLOR;
+
+    int y = 82 + (index * 40);
+
+    VWB_Bar(74, y, 160, 8, HIGHLIGHT_BOX_COLOR);
+    DrawOutline(73, y - 1, 161, 9, outline_color, outline_color);
+    VWB_Bar(74 + ((160 * volume) / (MAX_VOLUME + 1)),
+        y, 16, 8, slider_color);
+}
+
+void draw_volume_controls()
+{
+    for (int i = 0; i < 2; ++i)
+        draw_volume_control(i, *(volumes[i]), i == volume_index);
+}
+
+void cp_sound_volume(
+    Sint16)
+{
+    ClearMScreen();
+    DrawMenuTitle("SOUND VOLUME");
+    DrawInstructions(IT_SOUND_VOLUME);
+
+    fontnumber = 4;
+
+    SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
+
+    PrintX = 150;
+    PrintY = 60;
+    US_Print("SFX");
+
+    PrintX = 145;
+    PrintY = 105;
+    US_Print("MUSIC");
+
+    for (int i = 0; i < 2; ++i) {
+        PrintX = 36;
+        PrintY = 81 + (i * 40);
+        US_Print("MUTE");
+
+        PrintX = 242;
+        US_Print("LOUD");
+    }
+
+    draw_volume_controls();
+
+    VW_UpdateScreen();
+    MenuFadeIn();
+
+    ControlInfo ci;
+
+    int old_volumes[2];
+    for (int i = 0; i < 2; ++i)
+        old_volumes[i] = *volumes[i];
+
+    for (bool quit = false; !quit; ) {
+        bool update_volumes = false;
+        bool redraw_controls = false;
+
+        ReadAnyControl(&ci);
+
+        switch (ci.dir) {
+        case dir_North:
+            if (volume_index == 1) {
+                redraw_controls = true;
+                volume_index = 0;
+                draw_volume_controls();
+                VW_UpdateScreen();
+            }
+
+            while (Keyboard[sc_UpArrow])
+                ::in_handle_events();
+            break;
+
+        case dir_South:
+            if (volume_index == 0) {
+                redraw_controls = true;
+                volume_index = 1;
+                draw_volume_controls();
+                VW_UpdateScreen();
+            }
+
+            while (Keyboard[sc_DownArrow])
+                ::in_handle_events();
+            break;
+
+        case dir_West:
+            if (*volumes[volume_index] > MIN_VOLUME) {
+                redraw_controls = true;
+                update_volumes = true;
+                --(*volumes[volume_index]);
+                draw_volume_controls();
+                VW_UpdateScreen();
+            }
+
+            while (Keyboard[sc_LeftArrow])
+                ::in_handle_events();
+            break;
+
+        case dir_East:
+            if (*volumes[volume_index] < MAX_VOLUME) {
+                redraw_controls = true;
+                update_volumes = true;
+                ++(*volumes[volume_index]);
+            }
+
+            while (Keyboard[sc_RightArrow])
+                ::in_handle_events();
+            break;
+
+        default:
+            break;
+        }
+
+        if (update_volumes) {
+            update_volumes = false;
+
+            if (old_volumes[0] != *volumes[0]) {
+                float volume =
+                    static_cast<float>(*volumes[0]) / MAX_VOLUME;
+
+                sd_set_sfx_volume(g_sfx_volume);
+                sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+            }
+
+            if (old_volumes[1] != *volumes[1]) {
+                float volume =
+                    static_cast<float>(*volumes[1]) / MAX_VOLUME;
+
+                sd_set_music_volume(g_music_volume);
+            }
+        }
+
+        if (redraw_controls) {
+            redraw_controls = false;
+            draw_volume_controls();
+            VW_UpdateScreen();
+        }
+
+        quit = (ci.button1 || Keyboard[sc_Escape]);
+    }
+
+    sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+
+    WaitKeyUp();
+    MenuFadeIn();
+}
+// BBi

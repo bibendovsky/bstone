@@ -84,6 +84,12 @@ public:
     bool set_mute(
         bool value);
 
+    bool set_sfx_volume(
+        float volume);
+
+    bool set_music_volume(
+        float volume);
+
     bool is_music_playing() const;
 
     bool is_any_sfx_playing() const;
@@ -215,6 +221,8 @@ private:
     volatile int player_channels_state_;
     volatile bool is_music_playing_;
     volatile bool is_any_sfx_playing_;
+    volatile float sfx_volume_;
+    volatile float music_volume_;
 
     void callback(
         Uint8* dst_data,

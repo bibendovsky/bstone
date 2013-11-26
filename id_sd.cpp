@@ -47,6 +47,7 @@
 
 #include "bstone_audio_mixer.h"
 #include "bstone_memory_binary_reader.h"
+// BBi
 
 #ifdef	nil
 #undef	nil
@@ -151,6 +152,9 @@ static	boolean					sbNoCheck,sbNoProCheck;
 // BBi
 static int music_index = -1;
 static bstone::AudioMixer mixer;
+
+int g_sfx_volume = MAX_VOLUME;
+int g_music_volume = MAX_VOLUME;
 
 //
 //	Stuff for digitized sounds
@@ -692,5 +696,29 @@ bool sd_is_player_channel_playing(
     bstone::ActorChannel channel)
 {
     return mixer.is_player_channel_playing(channel);
+}
+
+void sd_set_sfx_volume(
+    int volume)
+{
+    if (volume < MIN_VOLUME)
+        volume = MIN_VOLUME;
+
+    if (volume > MAX_VOLUME)
+        volume = MAX_VOLUME;
+
+    mixer.set_sfx_volume(static_cast<float>(volume) / MAX_VOLUME);
+}
+
+void sd_set_music_volume(
+    int volume)
+{
+    if (volume < MIN_VOLUME)
+        volume = MIN_VOLUME;
+
+    if (volume > MAX_VOLUME)
+        volume = MAX_VOLUME;
+
+    mixer.set_music_volume(static_cast<float>(volume) / MAX_VOLUME);
 }
 // BBi
