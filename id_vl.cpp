@@ -1873,7 +1873,6 @@ bool soft_initialize_video()
 bool x_initialize_video()
 {
     bool is_succeed = true;
-    int sdl_result = 0;
 
     if (is_succeed)
         is_succeed = vid_pre_window_creation();

@@ -336,7 +336,7 @@ Uint32 sys_timer_callback(Uint32 interval, void*)
 void
 US_Startup(void)
 {
-	Sint16	i,n;
+	Sint16	n;
 
     // BBi
     int sdl_result;
@@ -373,7 +373,7 @@ US_Startup(void)
 	}
 
 	// Check for TED launching here
-	n = ::g_args.check_argument(US_ParmStrings);
+	n = static_cast<int16_t>(g_args.check_argument(US_ParmStrings));
 	switch(n)
 	{
 		case 0:
@@ -1231,8 +1231,6 @@ extern Sint16 starting_episode,starting_level,starting_difficulty;
 //-------------------------------------------------------------------------
 void freed_main()
 {
-	Sint16     i;
-
 // Setup for APOGEECD thingie.
 //
 	InitDestPath();

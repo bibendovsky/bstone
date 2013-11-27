@@ -3778,7 +3778,6 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
 {
    void* code;
    boolean return_val = false;
-   int i;
    char *code_ptr;
 
    // Allocate, Cache & Decomp into ram
@@ -3993,10 +3992,11 @@ void draw_volume_control(
 
     int y = 82 + (index * 40);
 
-    VWB_Bar(74, y, 160, 8, HIGHLIGHT_BOX_COLOR);
-    DrawOutline(73, y - 1, 161, 9, outline_color, outline_color);
-    VWB_Bar(74 + ((160 * volume) / (MAX_VOLUME + 1)),
-        y, 16, 8, slider_color);
+    VWB_Bar(74, static_cast<int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
+    DrawOutline(73, static_cast<int16_t>(y - 1), 161, 9,
+        outline_color, outline_color);
+    VWB_Bar(static_cast<int16_t>(74 + ((160 * volume) / (MAX_VOLUME + 1))),
+        static_cast<int16_t>(y), 16, 8, slider_color);
 }
 
 void draw_volume_controls()
@@ -4026,7 +4026,7 @@ void cp_sound_volume(
 
     for (int i = 0; i < 2; ++i) {
         PrintX = 36;
-        PrintY = 81 + (i * 40);
+        PrintY = static_cast<uint16_t>(81 + (i * 40));
         US_Print("MUTE");
 
         PrintX = 242;
@@ -4107,19 +4107,12 @@ void cp_sound_volume(
             update_volumes = false;
 
             if (old_volumes[0] != *volumes[0]) {
-                float volume =
-                    static_cast<float>(*volumes[0]) / MAX_VOLUME;
-
                 sd_set_sfx_volume(g_sfx_volume);
                 sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
             }
 
-            if (old_volumes[1] != *volumes[1]) {
-                float volume =
-                    static_cast<float>(*volumes[1]) / MAX_VOLUME;
-
+            if (old_volumes[1] != *volumes[1])
                 sd_set_music_volume(g_music_volume);
-            }
         }
 
         if (redraw_controls) {
