@@ -49,7 +49,7 @@ extern	spritetabletype *spritetable;
 extern	Uint8	fontcolor;
 extern	Sint16	fontnumber;
 extern	Sint16	px,py;
-extern	boolean allcaps;
+extern	bool allcaps;
 
 
 

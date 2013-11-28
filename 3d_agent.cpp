@@ -4023,7 +4023,7 @@ void ActivateTerminal(boolean skiplink)
 {
    #define MAX_INPUT		30
    char buffer[MAX_INPUT];
-	boolean temp_caps = allcaps,ExitMoFo;
+	bool temp_caps = allcaps,ExitMoFo;
 	Uint16 oldwidth;
 	US_CursorStruct TermCursor = {'@',0,0x58,2};			// Holds Font#, etc.
    Sint16 msgnum;

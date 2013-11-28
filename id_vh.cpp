@@ -38,7 +38,7 @@ Sint16	px,py;
 Uint8	fontcolor,backcolor;
 Sint16	fontnumber;
 
-boolean allcaps = false;
+bool allcaps = false;
 
 
 //==========================================================================

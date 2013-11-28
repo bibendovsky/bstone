@@ -343,7 +343,8 @@ static char in_keyboard_map_to_char(
     const SDL_KeyboardEvent& e)
 {
     Uint16 flags = e.keysym.mod;
-    boolean is_caps = false;
+    bool is_caps = false;
+    bool is_shift = false;
     SDL_Keycode key_code = e.keysym.sym;
 
     if ((flags & (
@@ -358,14 +359,6 @@ static char in_keyboard_map_to_char(
         return sc_None;
     }
 
-    if ((flags & KMOD_CAPS) != 0)
-        is_caps = !is_caps;
-
-    if ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0)
-        is_caps = !is_caps;
-
-    is_caps |= allcaps;
-
     switch (key_code) {
     case SDLK_ESCAPE:
     case SDLK_BACKSPACE:
@@ -376,58 +369,24 @@ static char in_keyboard_map_to_char(
         return static_cast<char>(key_code);
     }
 
-    if (!is_caps) {
-        switch (key_code) {
-        case SDLK_1:
-        case SDLK_2:
-        case SDLK_3:
-        case SDLK_4:
-        case SDLK_5:
-        case SDLK_6:
-        case SDLK_7:
-        case SDLK_8:
-        case SDLK_9:
-        case SDLK_0:
-        case SDLK_MINUS:
-        case SDLK_EQUALS:
-        case SDLK_LEFTBRACKET:
-        case SDLK_RIGHTBRACKET:
-        case SDLK_SEMICOLON:
-        case SDLK_QUOTE:
-        case SDLK_BACKQUOTE:
-        case SDLK_BACKSLASH:
-        case SDLK_COMMA:
-        case SDLK_PERIOD:
-        case SDLK_SLASH:
-        case SDLK_a:
-        case SDLK_b:
-        case SDLK_c:
-        case SDLK_d:
-        case SDLK_e:
-        case SDLK_f:
-        case SDLK_g:
-        case SDLK_h:
-        case SDLK_i:
-        case SDLK_j:
-        case SDLK_k:
-        case SDLK_l:
-        case SDLK_m:
-        case SDLK_n:
-        case SDLK_o:
-        case SDLK_p:
-        case SDLK_q:
-        case SDLK_r:
-        case SDLK_s:
-        case SDLK_t:
-        case SDLK_u:
-        case SDLK_v:
-        case SDLK_w:
-        case SDLK_x:
-        case SDLK_y:
-        case SDLK_z:
-            return static_cast<char>(key_code);
-        }
-    } else {
+
+    is_shift = ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0);
+
+    if (allcaps)
+        is_caps = true;
+    else {
+        if ((flags & KMOD_CAPS) != 0)
+            is_caps = !is_caps;
+
+        if (is_shift)
+            is_caps = !is_caps;
+    }
+
+    //
+    // Keys which depends on L/R Shift
+    //
+
+    if (is_shift) {
         switch (key_code) {
         case SDLK_1:
             return '!';
@@ -491,35 +450,68 @@ static char in_keyboard_map_to_char(
 
         case SDLK_SLASH:
             return '?';
-
-        case SDLK_a:
-        case SDLK_b:
-        case SDLK_c:
-        case SDLK_d:
-        case SDLK_e:
-        case SDLK_f:
-        case SDLK_g:
-        case SDLK_h:
-        case SDLK_i:
-        case SDLK_j:
-        case SDLK_k:
-        case SDLK_l:
-        case SDLK_m:
-        case SDLK_n:
-        case SDLK_o:
-        case SDLK_p:
-        case SDLK_q:
-        case SDLK_r:
-        case SDLK_s:
-        case SDLK_t:
-        case SDLK_u:
-        case SDLK_v:
-        case SDLK_w:
-        case SDLK_x:
-        case SDLK_y:
-        case SDLK_z:
-            return static_cast<char>(::SDL_toupper(key_code));
         }
+    } else {
+        switch (key_code) {
+        case SDLK_1:
+        case SDLK_2:
+        case SDLK_3:
+        case SDLK_4:
+        case SDLK_5:
+        case SDLK_6:
+        case SDLK_7:
+        case SDLK_8:
+        case SDLK_9:
+        case SDLK_0:
+        case SDLK_MINUS:
+        case SDLK_EQUALS:
+        case SDLK_LEFTBRACKET:
+        case SDLK_RIGHTBRACKET:
+        case SDLK_SEMICOLON:
+        case SDLK_QUOTE:
+        case SDLK_BACKQUOTE:
+        case SDLK_BACKSLASH:
+        case SDLK_COMMA:
+        case SDLK_PERIOD:
+        case SDLK_SLASH:
+            return static_cast<char>(key_code);
+        }
+    }
+
+
+    //
+    // Keys which depends on Caps Lock & L/R Shift
+    //
+
+    switch (key_code) {
+    case SDLK_a:
+    case SDLK_b:
+    case SDLK_c:
+    case SDLK_d:
+    case SDLK_e:
+    case SDLK_f:
+    case SDLK_g:
+    case SDLK_h:
+    case SDLK_i:
+    case SDLK_j:
+    case SDLK_k:
+    case SDLK_l:
+    case SDLK_m:
+    case SDLK_n:
+    case SDLK_o:
+    case SDLK_p:
+    case SDLK_q:
+    case SDLK_r:
+    case SDLK_s:
+    case SDLK_t:
+    case SDLK_u:
+    case SDLK_v:
+    case SDLK_w:
+    case SDLK_x:
+    case SDLK_y:
+    case SDLK_z:
+        return is_caps ? static_cast<char>(::SDL_toupper(key_code)) :
+            static_cast<char>(key_code);
     }
 
     return sc_None;

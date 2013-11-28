@@ -1686,7 +1686,7 @@ Sint16 CP_SaveGame(
 {
     Sint16 which,exit=0;
     char input[GAME_DESCRIPTION_LEN+1];
-    boolean temp_caps = allcaps;
+    bool temp_caps = allcaps;
     US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
 
     allcaps = true;
