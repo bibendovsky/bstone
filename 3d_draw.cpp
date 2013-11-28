@@ -1948,23 +1948,10 @@ Uint8 TravelTable[MAPSIZE][MAPSIZE];
 //--------------------------------------------------------------------------
 void UpdateTravelTable()
 {
-// FIXME
-#if 0
-asm	mov	si,OFFSET [spotvis]
-asm	mov	ax,SEG [TravelTable]
-asm	mov	es,ax
-asm	mov	di,OFFSET [TravelTable]
-asm	mov	cx,00800h							// HARDCODED for 64x64 / 2!!
-
-loop1:
-asm	mov	ax,[si]
-asm	inc	si
-asm   inc   si
-asm	or		[es:di],ax
-asm	inc	di
-asm	inc	di
-asm	loop	loop1
-#endif // 0
+    for (int i = 0; i < MAPSIZE; ++i) {
+        for (int j = 0; j < MAPSIZE; ++j)
+            TravelTable[i][j] |= spotvis[i][j];
+    }
 }
 
 extern Sint16 an_offset[];
