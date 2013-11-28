@@ -1211,94 +1211,49 @@ asm	out	dx,al
 =====================
 */
 
+// BBi
+namespace {
+
+void vga_clear_screen(
+    int y_offset,
+    int height,
+    int color)
+{
+    int pixel_offset = (4 * bufferofs) + (y_offset * vanilla_screen_width);
+
+    if (viewwidth == vanilla_screen_width) {
+        std::uninitialized_fill_n(
+            &vga_memory[pixel_offset],
+            height * viewwidth,
+            static_cast<uint8_t>(color));
+    } else {
+        for (int y = 0; y < height; ++y) {
+            std::uninitialized_fill_n(
+                &vga_memory[pixel_offset],
+                viewwidth,
+                static_cast<uint8_t>(color));
+
+            pixel_offset += vanilla_screen_width;
+        }
+    }
+}
+
+} // namespace
+// BBi
+
 void VGAClearScreen (void)
 {
 	viewflags = gamestate.flags;
 
-// FIXME
-#if 0
-//
-// clear the screen
-//
+    int half_height = viewheight / 2;
 
-asm	mov	dx,SC_INDEX
-asm	mov	ax,SC_MAPMASK+15*256	// write through all planes
-asm	out	dx,ax
+    if ((viewflags & GS_DRAW_CEILING) == 0)
+        vga_clear_screen(0, half_height, TopColor);
 
-asm	mov	dx,80
-asm	mov	ax,[viewwidth]
-asm	shr	ax,2
-asm	sub	dx,ax					// dx = 40-viewwidth/2
-
-asm	mov	bx,[viewwidth]
-asm	shr	bx,3					// bl = viewwidth/8
-asm	mov	bh,BYTE PTR [viewheight]
-asm	shr	bh,1
-
-asm	mov	es,[screenseg]
-asm	mov	di,[bufferofs]
-
-asm 	mov	ax,[viewflags]
-asm	test	ax,GS_DRAW_CEILING
-asm   jnz   skiptop
-
-asm	mov	ax,[TopColor]
-
-//
-// Draw Top
-//
-
-toploop:
-
-asm	mov	cl,bl
-asm	rep	stosw
-asm	add	di,dx
-asm	dec	bh
-asm	jnz	toploop
-
-//
-//   Skip 'SkipTop' mods...
-//
-
-
-asm	jmp	bottominit
-
-//
-//  SkipTop mods - Compute the correct offset for the  floor
-//
-
-skiptop:
-asm	mov	al,bh
-asm	mov   cl,80
-asm	mul	cl
-asm	add	di,ax
-
-//
-// Test to see if bottom needs drawing
-//
-
-bottominit:
-asm 	mov	ax,[viewflags]
-asm	test	ax,GS_DRAW_FLOOR
-asm   jnz   exit_mofo
-
-asm	mov	bh,BYTE PTR [viewheight]
-asm	shr	bh,1
-asm	mov	ax,[BottomColor]
-
-//
-// Draw Bottom
-//
-
-bottomloop:
-asm	mov	cl,bl
-asm	rep	stosw
-asm	add	di,dx
-asm	dec	bh
-asm	jnz	bottomloop
-
-exit_mofo:
-#endif // 0
+    if ((viewflags & GS_DRAW_FLOOR) == 0) {
+        vga_clear_screen(
+            viewheight - half_height, half_height, BottomColor);
+    }
 }
 #endif
 
