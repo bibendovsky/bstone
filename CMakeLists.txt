@@ -176,7 +176,6 @@ set(srcs
 	${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.cpp
 	${CMAKE_SOURCE_DIR}/bstone_string_helper.cpp
 	${CMAKE_SOURCE_DIR}/colormap.cpp
-	${CMAKE_SOURCE_DIR}/d3.cpp
 	${CMAKE_SOURCE_DIR}/d3_d2.cpp
 	${CMAKE_SOURCE_DIR}/d3_dr2.cpp
 	${CMAKE_SOURCE_DIR}/id_ca.cpp
