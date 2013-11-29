@@ -2058,38 +2058,6 @@ boolean DoMovie(movie_t movie, void* palette)
 
 //===========================================================================
 
-/*
-=================
-=
-= MS_CheckParm
-=
-=================
-*/
-// FIXME
-#if 0
-boolean MS_CheckParm (char *check)
-{
-	Sint16             i;
-	char    *parm;
-
-	for (i = 1;i<g_argc;i++)
-	{
-		parm = g_argv[i];
-
-		while ( !isalpha(*parm) )       // skip - / \ etc.. in front of parm
-			if (!*parm++)
-				break;                          // hit end of string without an alphanum
-
-		if (bstone::C::stricmp(check,parm) == 0)
-			return true;
-	}
-
-	return false;
-}
-#endif // 0
-
-//===========================================================================
-
 //--------------------------------------------------------------------------
 // LoadFonts()
 //--------------------------------------------------------------------------
