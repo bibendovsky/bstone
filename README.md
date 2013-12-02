@@ -8,9 +8,10 @@ Contents
 ========
 
 1. Disclaimer
-2. Third party use
-3. Credits
-4. Links
+2. Command-line options
+3. Third party use
+4. Credits
+5. Links
 
 
 1 - Disclaimer
@@ -39,10 +40,37 @@ For a copy of the GNU General Public License see file LICENSE.
 For an original source code license see file "Blake Stone source code license.doc".
 
 
-2 - Third party use
+2 - Command-line options
+========================
+
+* --ren [soft|ogl]  
+  Forces to use a specified renderer.  
+  "soft" selects a software renderer.  
+  "ogl" selects an Open GL 2.x compatible renderer.  
+  Default order without this option: ogl, soft.
+
+* --windowed  
+  Runs the game in windowed mode.  
+  Default resolution mode: 320x200
+
+* --res width height  
+  Selects the specified resolution for windowed mode.  
+  Minimum width: 320  
+  Minimum height: 200
+
+* --winx offset  
+  Sets a horizontal offset from the left side of the desktop screen.  
+  Applicable only for windowed mode.
+
+* --winy offset  
+  Sets a vertical offset from the top side of the desktop screen.  
+  Applicable only for windowed mode.
+
+
+3 - Third party use
 ===================
 
-* Simple DirectMedia Library (SDL2)  
+* Simple DirectMedia Library (v2)  
   <http://libsdl.org/>  
   See file COPYING-SDL2.txt for a license information.
 
@@ -52,8 +80,12 @@ For an original source code license see file "Blake Stone source code license.do
   Note: The source port uses only an OPL emulation code.
 
 
-3 - Credits
+4 - Credits
 ===========
+
+* id Software  
+  Developing Wolfenstein 3D engine.  
+  Web-site: <http://www.idsoftware.com/>
 
 * JAM Productions  
   Developing the game.
@@ -70,7 +102,7 @@ For an original source code license see file "Blake Stone source code license.do
   Adaption to Pandora console, various fixies.
 
 
-4 - Links
+5 - Links
 =========
 
 * The source port code and binary releases:  
