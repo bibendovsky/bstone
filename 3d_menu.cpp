@@ -113,7 +113,7 @@ extern boolean refresh_screen;
 CP_iteminfo
 	MainItems=	{MENU_X,MENU_Y,12,MM_READ_THIS,0,9,{77, 1,154,9,1}},
 	GopItems=	{MENU_X,MENU_Y+30,5,0,0,9,{77, 1,154,9,1}},
-	SndItems=	{SM_X,SM_Y,12,0,0,7,		{87,-1,144,7,1}},
+	SndItems=	{SM_X,SM_Y,6,0,0,7,		{87,-1,144,7,1}},
 	LSItems=	{LSM_X,LSM_Y,10,0,0,8,	{86,-1,144,8,1}},
 	CtlItems=	{CTL_X,CTL_Y,7,-1,0,9,	{87,1,174,9,1}},
 	CusItems=	{CST_X,CST_Y+7,6,-1,0,15,{54,-1,203,7,1}},
@@ -153,13 +153,7 @@ GopMenu[]=
 SndMenu[]=
 {
  {AT_ENABLED,"NONE",0},
- {AT_ENABLED,"PC SPEAKER",0},
  {AT_ENABLED,"ADLIB/SOUND BLASTER",0},
- {AT_DISABLED,"",0},
- {AT_DISABLED,"",0},
- {AT_ENABLED,"NONE",0},
- {AT_ENABLED,"DISNEY SOUND SOURCE",0},
- {AT_ENABLED,"SOUND BLASTER",0},
  {AT_DISABLED,"",0},
  {AT_DISABLED,"",0},
  {AT_ENABLED,"NONE",0},
@@ -1337,7 +1331,7 @@ void CP_Sound(Sint16)
   switch(which)
   {
 	//
-	// SOUND EFFECTS
+	// SOUND EFFECTS / DIGITIZED SOUND
 	//
 	case 0:
 	 if (SoundMode!=sdm_Off)
@@ -1350,66 +1344,21 @@ void CP_Sound(Sint16)
 	 break;
 
 	case 1:
-	  if (SoundMode!=sdm_PC)
-	  {
-		SD_WaitSoundDone();
-		SD_SetSoundMode(sdm_PC);
-		CA_LoadAllSounds();
-		DrawSoundMenu();
-		ShootSnd();
-	  }
-	  break;
-
-	case 2:
 	  if (SoundMode!=sdm_AdLib)
 	  {
 		SD_WaitSoundDone();
 		SD_SetSoundMode(sdm_AdLib);
+        SD_SetDigiDevice(sds_SoundBlaster);
 		CA_LoadAllSounds();
 		DrawSoundMenu();
 		ShootSnd();
-	  }
-	  break;
-
-	//
-	// DIGITIZED SOUND
-	//
-	case 5:
-	  if (DigiMode!=sds_Off)
-	  {
-		SD_SetDigiDevice(sds_Off);
-		DrawSoundMenu();
-	  }
-	  break;
-
-	case 6:
-	  if (DigiMode!=sds_SoundSource)
-	  {
-      if (SoundMode==sdm_Off)
-			SD_SetSoundMode(sdm_PC);
-		SD_SetDigiDevice(sds_SoundSource);
-		CA_LoadAllSounds();
-		DrawSoundMenu();
-		ShootSnd();
-	  }
-	  break;
-
-	case 7:
-	  if (DigiMode!=sds_SoundBlaster)
-	  {
-      if (SoundMode==sdm_Off)
-			SD_SetSoundMode(sdm_PC);
-		SD_SetDigiDevice(sds_SoundBlaster);
-		CA_LoadAllSounds();
-		DrawSoundMenu();
-	   ShootSnd();
 	  }
 	  break;
 
 	//
 	// MUSIC
 	//
-	case 10:
+	case 4:
 	  if (MusicMode!=smm_Off)
 	  {
 		SD_SetMusicMode(smm_Off);
@@ -1418,7 +1367,7 @@ void CP_Sound(Sint16)
 	  }
 	  break;
 
-	case 11:
+	case 5:
 	  if (MusicMode!=smm_AdLib)
 	  {
 		SD_SetMusicMode(smm_AdLib);
@@ -1452,24 +1401,14 @@ void DrawSoundMenu(void)
 
 	if (!AdLibPresent && !SoundBlasterPresent)
 	{
-		SndMenu[2].active=SndMenu[10].active=SndMenu[11].active=AT_DISABLED;
+		SndMenu[1].active=SndMenu[5].active=AT_DISABLED;
 	}
-
-	if (!SoundSourcePresent)
-		SndMenu[6].active=AT_DISABLED;
-
-	if (!SoundBlasterPresent)
-		SndMenu[7].active=AT_DISABLED;
-
-	if (!SoundSourcePresent && !SoundBlasterPresent)
-		SndMenu[5].active=AT_DISABLED;
 
 	fontnumber = 4;
 
 	SETFONTCOLOR(DISABLED_TEXT_COLOR,TERM_BACK_COLOR);
-	ShadowPrint("SOUND EFFECTS",105,52);
-	ShadowPrint("DIGITIZED SOUNDS",105,87);
-	ShadowPrint("BACKGROUND MUSIC",105,121);
+	ShadowPrint("SOUND EFFECTS",105,72);
+	ShadowPrint("BACKGROUND MUSIC",105,100);
 
 	fontnumber = 2;
 	DrawMenu(&SndItems,&SndMenu[0]);
@@ -1505,24 +1444,16 @@ void DrawAllSoundLights(Sint16 which)
 			switch(i)
 			{
 				//
-			  	// SOUND EFFECTS
+			  	// SOUND EFFECTS / DIGITIZED SOUND
 				//
 				case 0: if (SoundMode==sdm_Off) Shape++; break;
-				case 1: if (SoundMode==sdm_PC) Shape++; break;
-			  	case 2: if (SoundMode==sdm_AdLib) Shape++; break;
-
-			  	//
-			  	// DIGITIZED SOUND
-			  	//
-			  	case 5: if (DigiMode==sds_Off) Shape++; break;
-				case 6: if (DigiMode==sds_SoundSource) Shape++; break;
-				case 7: if (DigiMode==sds_SoundBlaster) Shape++; break;
+				case 1: if (SoundMode==sdm_AdLib) Shape++; break;
 
 				//
 				// MUSIC
 				//
-				case 10: if (MusicMode==smm_Off) Shape++; break;
-				case 11: if (MusicMode==smm_AdLib) Shape++; break;
+				case 4: if (MusicMode==smm_Off) Shape++; break;
+				case 5: if (MusicMode==smm_AdLib) Shape++; break;
 			}
 
 			VWB_DrawPic(SndItems.x-16,SndItems.y+i*SndItems.y_spacing-1,Shape);

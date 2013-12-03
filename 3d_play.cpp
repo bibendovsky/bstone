@@ -721,7 +721,7 @@ void CheckKeys (void)
 				if (SoundBlasterPresent || AdLibPresent)
 					SD_SetSoundMode(sdm_AdLib);
 				else
-					SD_SetSoundMode(sdm_PC);
+					SD_SetSoundMode(sdm_Off);
 
 				if (SoundBlasterPresent)
 					SD_SetDigiDevice(sds_SoundBlaster);

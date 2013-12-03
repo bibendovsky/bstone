@@ -108,7 +108,7 @@ Free Software Foundation, Inc.,
 #define MENU_Y	50
 
 #define SM_X	121
-#define SM_Y	64
+#define SM_Y	84
 #define SM_W	54
 
 #define CTL_X	100

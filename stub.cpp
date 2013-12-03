@@ -41,18 +41,6 @@ void VL_WaitVBL (Uint32 vbls)
     SDL_Delay(8 * vbls);
 }
 
-void SDL_SetDS()
-{
-}
-
-void SDL_t0FastAsmService()
-{
-}
-
-void SDL_t0SlowAsmService()
-{
-}
-
 Sint16 VL_VideoID ()
 {
     return 5;

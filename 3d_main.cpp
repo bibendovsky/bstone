@@ -884,16 +884,26 @@ void ReadConfig()
 
         gamestate.flags |= flags; // Must "OR", some flags are already set.
 
-        if (sd == sdm_AdLib &&
-            (!AdLibPresent || !SoundBlasterPresent))
-        {
-            sd = sdm_PC;
-            sd = sdm_Off;
+        if (sd != sdm_Off) {
+            if (AdLibPresent || SoundBlasterPresent)
+                sd = sdm_AdLib;
+            else
+                sd = sdm_Off;
         }
 
-        if ((sds == sds_SoundBlaster && !SoundBlasterPresent) ||
-            (sds == sds_SoundSource && !SoundSourcePresent))
-            sds = sds_Off;
+        if (sm != smm_Off) {
+            if (AdLibPresent || SoundBlasterPresent)
+                sm = smm_AdLib;
+            else
+                sm = smm_Off;
+        }
+
+        if (sds != sds_Off) {
+            if (AdLibPresent || SoundBlasterPresent)
+                sds = sds_SoundBlaster;
+            else
+                sds = sds_Off;
+        }
 
         if (!MousePresent)
             mouseenabled = false;
@@ -925,14 +935,12 @@ void ReadConfig()
             sd = sdm_AdLib;
             sm = smm_AdLib;
         } else {
-            sd = sdm_PC;
+            sd = sdm_Off;
             sm = smm_Off;
         }
 
         if (SoundBlasterPresent)
             sds = sds_SoundBlaster;
-        else if (SoundSourcePresent)
-            sds = sds_SoundSource;
         else
             sds = sds_Off;
 

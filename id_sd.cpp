@@ -72,30 +72,7 @@ Free Software Foundation, Inc.,
 #include "bstone_memory_binary_reader.h"
 // BBi
 
-#ifdef	nil
-#undef	nil
-#endif
-#define	nil	0
-
 #define	SDL_SoundFinished()	{SoundNumber = HITWALLSND; SoundPriority = 0;}
-
-#define sbOut(n,b)
-#define sbIn(n) (0)
-
-
-#define	sbSimpleWriteDelay()	while (sbIn(sbWriteStat) & 0x80);
-#define	sbReadDelay()			while (sbIn(sbDataAvail) & 0x80);
-
-// Macros for AdLib stuff
-#define selreg(n)
-#define writereg(n)
-#define readstat()
-
-
-//	Imports from ID_SD_A.ASM
-extern	void			SDL_SetDS(void);
-extern	void SDL_t0FastAsmService(void),
-						SDL_t0SlowAsmService(void);
 
 //	Imports from ID_SDD.C
 #undef	NUMSOUNDS
@@ -125,9 +102,6 @@ extern	Sint16		DigiMap[];
 
     Uint8** SoundTable;
 
-	boolean		ssIsTandy;
-	Uint16		ssPort = 2;
-
 //	Internal variables
 static	boolean			SD_Started;
 		boolean			nextsoundpos;
@@ -142,13 +116,11 @@ static	const char * 	ParmStrings[] =
 							"ss1",
 							"ss2",
 							"ss3",
-							nil
+							NULL
 						};
-static	void			(*SoundUserHook)(void);
 		soundnames		SoundNumber,DigiNumber;
 		Uint16			SoundPriority,DigiPriority;
 		Sint16				LeftPosition,RightPosition;
-		void (*t0OldService)(void);
 		Sint32			LocalTime;
 		Uint16			TimerRate;
 
@@ -191,7 +163,6 @@ void SD_SetDigiDevice(
 
     switch (mode) {
     case sds_SoundBlaster:
-    case sds_SoundSource:
         DigiMode = sds_SoundBlaster;
         break;
 
@@ -282,7 +253,7 @@ SD_SetSoundMode(SDMode mode)
 
 #ifndef	_MUSE_
 	if ((mode == sdm_AdLib) && !AdLibPresent)
-		mode = sdm_PC;
+		mode = sdm_Off;
 
 	switch (mode)
 	{
@@ -291,11 +262,7 @@ SD_SetSoundMode(SDMode mode)
 		NeedsDigitized = false;
 		result = true;
 		break;
-	case sdm_PC:
-		tableoffset = sdStartPCSounds;
-		NeedsDigitized = false;
-		result = true;
-		break;
+
 	case sdm_AdLib:
 		if (AdLibPresent)
 		{
@@ -359,7 +326,6 @@ void SD_Startup()
     if (SD_Started)
         return;
 
-    ssIsTandy = false;
     ssNoCheck = false;
     alNoCheck = false;
     sbNoCheck = false;
@@ -378,24 +344,8 @@ void SD_Startup()
     case 2: // No SoundBlaster Pro detection
         sbNoProCheck = true;
         break;
-
-    case 3:
-        ssNoCheck = true; // No Sound Source detection
-        break;
-
-    case 4: // Tandy Sound Source handling
-        ssIsTandy = true;
-        break;
-
-    case 5: // Sound Source present at LPT1
-    case 6: // Sound Source present at LPT2
-    case 7: // Sound Source present at LPT3
-        // FIXME Print a warning?
-        break;
     }
 #endif
-
-    SoundUserHook = 0;
 
     LocalTime = 0;
     TimeCount = 0;
@@ -454,7 +404,7 @@ SD_Default(boolean gotit,SDMode sd,SMMode sm)
 		if (AdLibPresent)
 			sd = sdm_AdLib;
 		else
-			sd = sdm_PC;
+			sd = sdm_Off;
 	}
 	if (sd != SoundMode)
 		SD_SetSoundMode(sd);
@@ -506,9 +456,6 @@ void SD_Shutdown() {
 bool SD_SoundPlaying()
 {
     switch (SoundMode) {
-    case sdm_PC:
-        return false;
-
     case sdm_AdLib:
         return mixer.is_any_sfx_playing();
 

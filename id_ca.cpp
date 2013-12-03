@@ -917,10 +917,8 @@ void CA_LoadAllSounds (void)
 	switch (oldsoundmode)
 	{
 	case sdm_Off:
-		goto cachein;
-	case sdm_PC:
-		start = STARTPCSOUNDS;
 		break;
+
 	case sdm_AdLib:
 		start = STARTADLIBSOUNDS;
 		break;
@@ -932,9 +930,7 @@ cachein:
 	{
 	case sdm_Off:
 		return;
-	case sdm_PC:
-		start = STARTPCSOUNDS;
-		break;
+
 	case sdm_AdLib:
 		start = STARTADLIBSOUNDS;
 		break;
