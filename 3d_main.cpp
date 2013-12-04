@@ -1135,9 +1135,6 @@ void NewGame (Sint16 difficulty,Sint16 episode)
 bool LevelInPlaytemp(
     int level_index);
 
-#define WriteIt(c,p,s)	cksize+=WriteInfo(c,(char *)p,s,handle)
-#define ReadIt(d,p,s)	ReadInfo(d,(char *)p,s,handle)
-
 #define LZH_WORK_BUFFER_SIZE	8192		
 
 void* lzh_work_buffer;
