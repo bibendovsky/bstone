@@ -8,10 +8,11 @@ Contents
 ========
 
 1. Disclaimer
-2. Command-line options
-3. Third party use
-4. Credits
-5. Links
+2. Compiling
+3. Command-line options
+4. Third party use
+5. Credits
+6. Links
 
 
 1 - Disclaimer
@@ -40,7 +41,17 @@ For a copy of the GNU General Public License see file LICENSE.
 For an original source code license see file "Blake Stone source code license.doc".
 
 
-2 - Command-line options
+2 - Compiling
+=============
+
+The build system is based on CMake (<http://cmake.org/>).
+
+Required libraries:
+
+* SDL v2 or higher.
+
+
+3 - Command-line options
 ========================
 
 * --ren [soft|ogl]  
@@ -67,7 +78,7 @@ For an original source code license see file "Blake Stone source code license.do
   Applicable only for windowed mode.
 
 
-3 - Third party use
+4 - Third party use
 ===================
 
 * Simple DirectMedia Library (v2)  
@@ -80,7 +91,7 @@ For an original source code license see file "Blake Stone source code license.do
   Note: The source port uses only an OPL emulation code.
 
 
-4 - Credits
+5 - Credits
 ===========
 
 * id Software  
@@ -102,7 +113,7 @@ For an original source code license see file "Blake Stone source code license.do
   Adaption to Pandora console, various fixies.
 
 
-5 - Links
+6 - Links
 =========
 
 * The source port code and binary releases:  
