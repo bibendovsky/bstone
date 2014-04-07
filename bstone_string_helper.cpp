@@ -37,7 +37,7 @@ public:
 
     static const CType& get_ctype_facet()
     {
-        static std::locale locale("");
+        static std::locale locale;
 
         static const CType& result =
             std::use_facet<CType>(locale);
