@@ -5990,14 +5990,14 @@ Sint16 CalcAngle(objtype *from_obj, objtype *to_obj)
 	angle = static_cast<float>(atan2 (static_cast<double>(deltay),static_cast<double>(deltax)));
 
 	if (angle<0)
-		angle = static_cast<float>(M_PI*2+angle);
+		angle = static_cast<float>(bstone::C::m_pi()*2+angle);
 //	else
 //		if (!angle)
 //   		angle = 1;
 
 	// Convert rads to degs
 
-	iangle = static_cast<Sint16>(angle/(M_PI*2)*ANGLES);
+	iangle = static_cast<Sint16>(angle/(bstone::C::m_pi()*2)*ANGLES);
 
 	return(iangle);
 }

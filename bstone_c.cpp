@@ -89,5 +89,11 @@ int C::stricmp(
     return diff;
 }
 
+// (static)
+double C::m_pi()
+{
+    return 3.14159265358979323846;
+}
+
 
 } // namespace bstone

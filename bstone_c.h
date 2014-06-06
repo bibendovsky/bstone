@@ -93,6 +93,8 @@ public:
     static int stricmp(
         const char* str1,
         const char* str2);
+
+    static double m_pi();
 }; // class C
 
 

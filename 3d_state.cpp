@@ -2245,9 +2245,9 @@ boolean CheckView(objtype *from_obj, objtype *to_obj)
 
 	fangle = static_cast<float>(atan2(static_cast<double>(deltay),static_cast<double>(deltax)));			// returns -pi to pi
 	if (fangle<0)
-		fangle = static_cast<float>(M_PI*2+fangle);
+		fangle = static_cast<float>(bstone::C::m_pi()*2+fangle);
 
-	angle = static_cast<Sint16>(fangle/(M_PI*2)*ANGLES+23);
+	angle = static_cast<Sint16>(fangle/(bstone::C::m_pi()*2)*ANGLES+23);
 
 	if (angle > 360)
 		angle = 360;
