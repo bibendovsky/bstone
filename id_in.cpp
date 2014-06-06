@@ -124,16 +124,22 @@ const char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 
 // BBi
 static int in_keyboard_map_to_bstone(
-    SDL_Keycode key_code)
+    SDL_Keycode key_code,
+    SDL_Keymod key_mod)
 {
+    // FIXME There is no reliable way to check for numlock state in SDL2.
+    bool is_numlock_active = true;
+
     switch (key_code) {
     case SDLK_RETURN:
+    case SDLK_KP_ENTER:
         return sc_Return;
 
     case SDLK_ESCAPE:
         return sc_Escape;
 
     case SDLK_SPACE:
+    case SDLK_KP_SPACE:
         return sc_Space;
 
     case SDLK_MINUS:
@@ -143,9 +149,11 @@ static int in_keyboard_map_to_bstone(
         return sc_Plus;
 
     case SDLK_BACKSPACE:
+    case SDLK_KP_BACKSPACE:
         return sc_BackSpace;
 
     case SDLK_TAB:
+    case SDLK_KP_TAB:
         return sc_Tab;
 
     case SDLK_LALT:
@@ -153,9 +161,11 @@ static int in_keyboard_map_to_bstone(
         return sc_Alt;
 
     case SDLK_LEFTBRACKET:
+    case SDLK_KP_LEFTBRACE:
         return sc_LBrace;
 
     case SDLK_RIGHTBRACKET:
+    case SDLK_KP_RIGHTBRACE:
         return sc_RBrace;
 
     case SDLK_LCTRL:
@@ -174,34 +184,95 @@ static int in_keyboard_map_to_bstone(
     case SDLK_UP:
         return sc_UpArrow;
 
+    case SDLK_KP_8:
+        if (is_numlock_active)
+            return sc_UpArrow;
+        else
+            return sc_8;
+
     case SDLK_DOWN:
         return sc_DownArrow;
+
+    case SDLK_KP_2:
+        if (is_numlock_active)
+            return sc_DownArrow;
+        else
+            return sc_2;
 
     case SDLK_LEFT:
         return sc_LeftArrow;
 
+    case SDLK_KP_4:
+        if (is_numlock_active)
+            return sc_LeftArrow;
+        else
+            return sc_4;
+
     case SDLK_RIGHT:
         return sc_RightArrow;
+
+    case SDLK_KP_6:
+        if (is_numlock_active)
+            return sc_RightArrow;
+        else
+            return sc_6;
 
     case SDLK_INSERT:
         return sc_Insert;
 
+    case SDLK_KP_0:
+        if (is_numlock_active)
+            return sc_Insert;
+        else
+            return sc_0;
+
     case SDLK_DELETE:
         return sc_Delete;
+
+    case SDLK_KP_PERIOD:
+        if (is_numlock_active)
+            return sc_Delete;
+        else
+            return '.';
 
     case SDLK_HOME:
         return sc_Home;
 
+    case SDLK_KP_7:
+        if (is_numlock_active)
+            return sc_Home;
+        else
+            return sc_7;
+
     case SDLK_END:
         return sc_End;
+
+    case SDLK_KP_1:
+        if (is_numlock_active)
+            return sc_End;
+        else
+            return sc_1;
 
     case SDLK_PAGEUP:
         return sc_PgUp;
 
+    case SDLK_KP_9:
+        if (is_numlock_active)
+            return sc_PgUp;
+        else
+            return sc_9;
+
     case SDLK_PAGEDOWN:
         return sc_PgDn;
 
+    case SDLK_KP_3:
+        if (is_numlock_active)
+            return sc_PgDn;
+        else
+            return sc_3;
+
     case SDLK_SLASH:
+    case SDLK_KP_DIVIDE:
         return sc_Slash;
 
     case SDLK_F1:
@@ -274,21 +345,27 @@ static int in_keyboard_map_to_bstone(
         return sc_0;
 
     case SDLK_a:
+    case SDLK_KP_A:
         return sc_A;
 
     case SDLK_b:
+    case SDLK_KP_B:
         return sc_B;
 
     case SDLK_c:
+    case SDLK_KP_C:
         return sc_C;
 
     case SDLK_d:
+    case SDLK_KP_D:
         return sc_D;
 
     case SDLK_e:
+    case SDLK_KP_E:
         return sc_E;
 
     case SDLK_f:
+    case SDLK_KP_F:
         return sc_F;
 
     case SDLK_g:
@@ -544,8 +621,9 @@ static void in_handle_keyboard(
     const SDL_KeyboardEvent& e)
 {
     SDL_Keycode key_code = e.keysym.sym;
-    int key = ::in_keyboard_map_to_bstone(key_code);
-    SDL_Keymod key_mod;
+    SDL_Keymod key_mod = ::SDL_GetModState();
+    int key = ::in_keyboard_map_to_bstone(key_code, key_mod);
+
     char key_char;
     boolean is_pressed;
 
@@ -556,8 +634,6 @@ static void in_handle_keyboard(
 
     if (key == sc_None)
         return;
-
-    key_mod = ::SDL_GetModState();
 
     switch (key) {
     case sc_Alt:
