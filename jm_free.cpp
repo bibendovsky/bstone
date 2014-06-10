@@ -959,6 +959,9 @@ void PreDemo()
    	   {
       		VL_WaitVBL(1);
 
+            // BBi
+            ::in_handle_events();
+
 				if (Keyboard[sc_LShift] && Keyboard[sc_RShift])
 		      {
 					CA_LoadAllSounds();
