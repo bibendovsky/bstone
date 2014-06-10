@@ -113,7 +113,7 @@ int ClArgs::find_argument(
     std::string lc_name = StringHelper::to_lower(name);
 
     for (int i = 1; i < get_count(); ++i) {
-        if (name == args_[i])
+        if (lc_name == args_[i])
             return i;
     }
 
