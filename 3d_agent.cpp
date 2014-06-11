@@ -5258,6 +5258,11 @@ boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean F
 		// Handle Statics
 		//
 		case wit_STATIC:
+            stat = ::FindStatic(tilex, tiley);
+
+            if (!stat)
+                return false;
+
 			SW_HandleStatic(stat,tilex,tiley);
 		return (true);
 
