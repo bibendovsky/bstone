@@ -789,6 +789,7 @@ extern char bc_buffer[];
 //------------------------------------------------------------------------
 void PreDemo()
 {
+#if SKIP_TITLE_AND_CREDITS
 #if TECH_SUPPORT_VERSION
 
 	fontnumber=4;
@@ -995,6 +996,7 @@ void PreDemo()
       VL_FadeOut (0, 255, 39, 0, 0, 20);
 		VW_FadeOut();
 	}
+#endif // SKIP_TITLE_AND_CREDITS
 }
 
 //------------------------------------------------------------------------

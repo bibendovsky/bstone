@@ -70,7 +70,11 @@ void OpenAudioFile(void);
 bstone::ClArgs g_args;
 
 
-#define SKIP_TITLE_AND_CREDITS		(0)
+#ifndef _DEBUG
+    #define SKIP_TITLE_AND_CREDITS (0)
+#else
+    #define SKIP_TITLE_AND_CREDITS (1)
+#endif // _DEBUG
 
 
 #define FOCALLENGTH     (0x5700l)               // in global coordinates
@@ -2230,6 +2234,7 @@ void    DemoLoop (void)
 			VW_FadeOut();
 		VL_SetPaletteIntensity(0,255,vgapal,0);
 
+#if !SKIP_TITLE_AND_CREDITS
 		while (!(gamestate.flags & GS_NOWAIT))
 		{
 			extern boolean sqActive;
@@ -2354,7 +2359,7 @@ void    DemoLoop (void)
 			VW_FadeOut();
 #endif
 		}
-
+#endif // SKIP_TITLE_AND_CREDITS
 
 		if (audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]) {
             delete [] audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC];
