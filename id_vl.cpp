@@ -1766,10 +1766,13 @@ void soft_refresh_screen()
 void soft_update_screen()
 {
     if (displayofs != bufferofs) {
-        memmove(
-            &vga_memory[4 * displayofs],
-            &vga_memory[4 * bufferofs],
-            vga_area);
+        int src_offset = vl_get_offset(bufferofs);
+        int dst_offset = vl_get_offset(displayofs);
+
+        std::uninitialized_copy(
+            &vga_memory[src_offset],
+            &vga_memory[src_offset + vga_area],
+            &vga_memory[dst_offset]);
     }
 
     soft_refresh_screen();
