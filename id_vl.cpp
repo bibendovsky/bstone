@@ -1955,14 +1955,6 @@ bool x_initialize_video()
 void initialize_video()
 {
     //
-    // Common initialization
-    //
-
-    vga_width = 320;
-    vga_height = 200;
-    vga_area = vga_width * vga_height;
-
-    //
     // Option "windowed"
     //
 
@@ -2000,11 +1992,23 @@ void initialize_video()
     bstone::StringHelper::lexical_cast(width_str, window_width);
     bstone::StringHelper::lexical_cast(height_str, window_height);
 
-    if (window_width < vga_width)
-        window_width = vga_width;
+    if (window_width < k_ref_width)
+        window_width = k_ref_width;
 
-    if (window_height < vga_height)
-        window_height = vga_height;
+    if (window_height < k_ref_height)
+        window_height = k_ref_height;
+
+    vga_scale = 0;
+    vga_width = 0;
+    vga_height = 0;
+
+    while (vga_width < window_width || vga_height < window_height) {
+        ++vga_scale;
+        vga_width += k_ref_width;
+        vga_height += k_ref_height;
+    }
+
+    vga_area = vga_width * vga_height;
 
 
     //
