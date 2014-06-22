@@ -938,26 +938,13 @@ void VL_MaskMemToScreen(
     int y,
     int mask)
 {
-    int plane;
-    int row;
-    int column;
-    int q_width = width / 4;
-    int offset;
-    int base_offset;
+    for (int p = 0; p < 4; ++p) {
+        for (int h = 0; h < height; ++h) {
+            for (int w = p; w < width; w += 4) {
+                Uint8 color = *source++;
 
-    base_offset = (4 * bufferofs) + (vga_width * y) + x;
-
-    for (plane = 0; plane < 4; ++plane) {
-        for (row = 0; row < height; ++row) {
-            offset = base_offset + (row * vga_width) + plane;
-
-            for (column = 0; column < q_width; ++column) {
-                Uint8 pixel = *source++;
-
-                if (pixel != mask)
-                    vga_memory[offset] = pixel;
-
-                offset += 4;
+                if (color != mask)
+                    VL_Plot(x + w, y + h, color);
             }
         }
     }
