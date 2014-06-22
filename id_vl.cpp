@@ -2169,4 +2169,18 @@ void VH_UpdateScreen()
 {
     vid_update_screen();
 }
+
+int vl_get_offset(
+    int base_offset)
+{
+    return vga_scale * vga_scale * 4 * base_offset;
+}
+
+int vl_get_offset(
+    int base_offset,
+    int x,
+    int y)
+{
+    return vga_scale * (vga_scale * (4 * base_offset) + (y * vga_width) + x);
+}
 // BBi

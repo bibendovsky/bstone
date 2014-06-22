@@ -214,5 +214,13 @@ void VL_SizePropString (char *str, Sint16 *width, Sint16 *height, char* font);
 // BBi
 void VL_RefreshScreen();
 
+int vl_get_offset(
+    int base_offset);
+
+int vl_get_offset(
+    int base_offset,
+    int x,
+    int y);
+
 
 #endif // ID_VL_H
