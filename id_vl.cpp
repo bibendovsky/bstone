@@ -834,12 +834,24 @@ void VL_Vlin(int x, int y, int height, int color)
 */
 void VL_Bar(int x, int y, int width, int height, int color)
 {
-    int i;
-    int offset = (4 * bufferofs) + (y * vga_width) + x;
+    width *= vga_scale;
+    height *= vga_scale;
 
-    for (i = 0; i < height; ++i) {
-        memset(&vga_memory[offset], color, width);
-        offset += vga_width;
+    int offset = vl_get_offset(bufferofs, x, y);
+
+    if (x == 0 && width == vga_width) {
+        int count = height * vga_width;
+
+        std::uninitialized_fill_n(
+                &vga_memory[offset], count, static_cast<Uint8>(color));
+    } else {
+
+        for (int i = 0; i < height; ++i) {
+            std::uninitialized_fill_n(
+                &vga_memory[offset], width, static_cast<Uint8>(color));
+
+            offset += vga_width;
+        }
     }
 }
 
