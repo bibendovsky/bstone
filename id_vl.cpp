@@ -388,6 +388,7 @@ extern const Uint8 vgapal[768];
 
 Uint8* vga_memory = NULL;
 
+int vga_scale = 0;
 int vga_width = 0;
 int vga_height = 0;
 int vga_area = 0;

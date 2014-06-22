@@ -145,6 +145,7 @@ extern int screen_y;
 extern int screen_width;
 extern int screen_height;
 
+extern int vga_scale;
 extern int vga_width;
 extern int vga_height;
 extern int vga_area;
