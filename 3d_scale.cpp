@@ -312,41 +312,6 @@ void ScaleMaskedLSPost(int height, int buf)
 /*
 =======================
 =
-= ScaleMaskedWideLSPost with Light sourcing
-=
-=======================
-*/
-
-void ScaleMaskedWideLSPost(int height, int buf, Uint16 xx, Uint16 pwidth)
-{
-    Uint8  ofs;
-    Uint8  msk;
-
-    buf += xx >> 2;
-    ofs = ((Uint8)(xx & 3) << 3) + (Uint8)pwidth - 1;
-    dc_planes = ((Uint8*)mapmasks1)[ofs];
-    ScaleMaskedLSPost(height, buf);
-    msk = ((Uint8*)mapmasks2)[ofs];
-
-    if (msk == 0)
-        return;
-
-    ++buf;
-    dc_planes = msk;
-    ScaleMaskedLSPost(height, buf);
-    msk = ((Uint8*)mapmasks3)[ofs];
-
-    if (msk == 0)
-        return;
-
-    ++buf;
-    dc_planes = msk;
-    ScaleMaskedLSPost(height, buf);
-}
-
-/*
-=======================
-=
 = ScaleMaskedPost without Light sourcing
 =
 =======================
@@ -409,44 +374,6 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
     }
 }
 
-
-
-/*
-=======================
-=
-= ScaleMaskedWidePost without Light sourcing
-=
-=======================
-*/
-
-void ScaleMaskedWidePost(Sint16 height, Uint16 buf, Uint16 xx, Uint16 pwidth)
-{
-    Uint8 ofs;
-    Uint8 msk;
-
-    buf += xx >> 2;
-    ofs = ((Uint8)(xx & 3) << 3) + (Uint8)pwidth - 1;
-    dc_planes = ((Uint8*)mapmasks1)[ofs];
-    ScaleMaskedPost(height, buf);
-    msk = ((Uint8*)mapmasks2)[ofs];
-
-    if (msk == 0)
-        return;
-
-    ++buf;
-    dc_planes = msk;
-    ScaleMaskedPost(height, buf);
-    msk = ((Uint8*)mapmasks3)[ofs];
-
-    if (msk == 0)
-        return;
-
-    ++buf;
-    dc_planes = msk;
-    ScaleMaskedPost(height, buf);
-}
-
-
 /*
 =======================
 =
@@ -476,13 +403,10 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 	t_compshape	*shape;
 	Sint16      i;
 	Uint32 frac;
-	Uint16 width;
 	Sint16      x1,x2;
 	Uint32 xscale;
 	Uint32 screenscale;
 	Sint32		texturecolumn;
-	Sint32     lastcolumn;
-	Sint16      startx;
 	Uint16 swidth;
 	Sint32     xcent;
 
@@ -528,75 +452,21 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 
 	shadingtable=lightsource+(i<<8);
 	swidth=shape->rightpix-shape->leftpix;
-	if (height>256)
+
+	for (; x1<=x2 ; x1++, frac += screenscale)
 		{
-		width=1;
-		startx=0;
-		lastcolumn=-1;
-		for (; x1<=x2 ; x1++, frac += screenscale)
-		  {
-			if (wallheight[x1]>height)
-				{
-				if (lastcolumn>=0)
-					{
-                    linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-                    ScaleMaskedWideLSPost(height >> 2, bufferofs, (Uint16)startx, width);
+		if (wallheight[x1]>height)
+			continue;
 
-					width=1;
-					lastcolumn=-1;
-					}
-				continue;
-				}
-			texturecolumn = (Sint32)(frac>>20);
-			if (texturecolumn>swidth)
-				texturecolumn=swidth;
-			if (texturecolumn==lastcolumn)
-				{
-				width++;
-				continue;
-				}
-			else
-				{
-				if (lastcolumn>=0)
-					{
-                    linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-                    ScaleMaskedWideLSPost(height >> 2, bufferofs, (Uint16)startx, width);
+        dc_planes = 1 << (x1 & 3);
 
-					width=1;
-					startx=x1;
-					lastcolumn=texturecolumn;
-					}
-				else
-					{
-					startx=x1;
-					width=1;
-					lastcolumn=texturecolumn;
-					}
-				}
-			}
-		if (lastcolumn!=-1)
-			{
-                linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-                ScaleMaskedWideLSPost(height >> 2, bufferofs, (Uint16)startx, width);
-			}
-		}
-	else
-		{
-		for (; x1<=x2 ; x1++, frac += screenscale)
-		  {
-			if (wallheight[x1]>height)
-				continue;
+		texturecolumn=frac>>20;
+		if (texturecolumn>swidth)
+			texturecolumn=swidth;
 
-            dc_planes = 1 << (x1 & 3);
+        linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-			texturecolumn=frac>>20;
-			if (texturecolumn>swidth)
-				texturecolumn=swidth;
-
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
-
-			ScaleMaskedLSPost(height>>2,bufferofs+((Uint16)x1>>2));
-			}
+		ScaleMaskedLSPost(height>>2,bufferofs+((Uint16)x1>>2));
 		}
 }
 
@@ -628,13 +498,10 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 {
 	t_compshape	*shape;
 	Uint32 frac;
-	Uint16 width;
 	Sint16      x1,x2;
 	Uint32 xscale;
 	Uint32 screenscale;
 	Sint32		texturecolumn;
-	Sint32     lastcolumn;
-	Sint16      startx;
 	Sint32     xcent;
 	Uint16 swidth;
 
@@ -671,75 +538,21 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 		frac=screenscale>>1;
 	x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 	swidth=shape->rightpix-shape->leftpix;
-	if (height>256)
+
+	for (; x1<=x2 ; x1++, frac += screenscale)
 		{
-		width=1;
-		startx=0;
-		lastcolumn=-1;
-		for (; x1<=x2 ; x1++, frac += screenscale)
-		  {
-			if (wallheight[x1]>height)
-				{
-				if (lastcolumn>=0)
-					{
-                    linecmds = (Uint16*)(&dc_seg[shape->dataofs[(Uint16)lastcolumn]]);
-                    ScaleMaskedWidePost(height >> 2, static_cast<Uint16>(bufferofs), static_cast<Uint16>(startx), width);
+		if (wallheight[x1]>height)
+			continue;
 
-					width=1;
-					lastcolumn=-1;
-					}
-				continue;
-				}
-			texturecolumn = (Sint32)(frac>>20);
-			if (texturecolumn>swidth)
-				texturecolumn=swidth;
-			if (texturecolumn==lastcolumn)
-				{
-				width++;
-				continue;
-				}
-			else
-				{
-				if (lastcolumn>=0)
-					{
-                    linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-                    ScaleMaskedWidePost(height >> 2, static_cast<Uint16>(bufferofs), (Uint16)startx, width);
+        dc_planes = 1 << (Uint8)(x1 & 3);
 
-					width=1;
-					startx=x1;
-					lastcolumn=texturecolumn;
-					}
-				else
-					{
-					startx=x1;
-					width=1;
-					lastcolumn=texturecolumn;
-					}
-				}
-			}
-		if (lastcolumn!=-1)
-			{
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
-            ScaleMaskedWidePost(height >> 2, static_cast<Uint16>(bufferofs), (Uint16)startx, width);
-			}
-		}
-	else
-		{
-		for (; x1<=x2 ; x1++, frac += screenscale)
-		  {
-			if (wallheight[x1]>height)
-				continue;
+		texturecolumn=frac>>20;
+		if (texturecolumn>swidth)
+			texturecolumn=swidth;
 
-            dc_planes = 1 << (Uint8)(x1 & 3);
+        linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-			texturecolumn=frac>>20;
-			if (texturecolumn>swidth)
-				texturecolumn=swidth;
-
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
-
-			ScaleMaskedPost(height>>2,static_cast<Uint16>(bufferofs+((Uint16)x1>>2)));
-			}
+		ScaleMaskedPost(height>>2,static_cast<Uint16>(bufferofs+((Uint16)x1>>2)));
 		}
 }
 
@@ -773,13 +586,10 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 {
 	t_compshape	*shape;
 	Uint32 frac;
-	Sint16      width;
 	Sint16      x1,x2;
 	Uint32 xscale;
 	Uint32 screenscale;
 	Sint32		texturecolumn;
-	Sint32     lastcolumn;
-	Sint16      startx;
 	Sint32     xcent;
 	Uint16 swidth;
 
@@ -813,60 +623,18 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 		frac=screenscale>>1;
 	x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 	swidth=shape->rightpix-shape->leftpix;
-	if (height>64)
+
+	for (; x1<=x2 ; x1++, frac += screenscale)
 		{
-		width=1;
-		startx=0;
-		lastcolumn=-1;
-		for (; x1<=x2 ; x1++, frac += screenscale)
-		  {
-			texturecolumn = (Sint32)(frac>>16);
-			if (texturecolumn>swidth)
-				texturecolumn=swidth;
-			if (texturecolumn==lastcolumn)
-				{
-				width++;
-				continue;
-				}
-			else
-				{
-				if (lastcolumn>=0)
-					{
-                    linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
+        dc_planes = 1 << (x1 & 3);
 
-					ScaleMaskedWidePost(height,static_cast<Uint16>(bufferofs),startx,width);
-					width=1;
-					startx=x1;
-					lastcolumn=texturecolumn;
-					}
-				else
-					{
-					startx=x1;
-					lastcolumn=texturecolumn;
-					}
-				}
-			}
-		if (lastcolumn!=-1)
-			{
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)lastcolumn]];
+		texturecolumn=frac>>16;
+		if (texturecolumn>swidth)
+			texturecolumn=swidth;
 
-			ScaleMaskedWidePost(height,static_cast<Uint16>(bufferofs),startx,width);
-			}
-		}
-	else
-		{
-		for (; x1<=x2 ; x1++, frac += screenscale)
-		  {
-            dc_planes = 1 << (x1 & 3);
+        linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-			texturecolumn=frac>>16;
-			if (texturecolumn>swidth)
-				texturecolumn=swidth;
-
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
-
-			ScaleMaskedPost(height,static_cast<Uint16>(bufferofs+(x1>>2)));
-			}
+		ScaleMaskedPost(height,static_cast<Uint16>(bufferofs+(x1>>2)));
 		}
 }
 
@@ -887,14 +655,11 @@ void MegaSimpleScaleShape(
 {
     t_compshape* shape;
     unsigned frac;
-    int width;
     int x1;
     int x2;
     unsigned xscale;
     unsigned screenscale;
     int texturecolumn;
-    int lastcolumn;
-    int startx;
     int xcent;
     int old_bufferofs;
     int swidth;
@@ -944,47 +709,16 @@ void MegaSimpleScaleShape(
     x2 = x2 >= viewwidth ? viewwidth - 1 : x2;
     swidth = shape->rightpix-shape->leftpix;
 
-    if (height > 64) {
-        width = 1;
-        startx = 0;
-        lastcolumn = -1;
+    for ( ; x1 <= x2; ++x1, frac += screenscale) {
+        dc_planes = 1 << (x1 & 3);
 
-        for ( ; x1 <= x2; ++x1, frac += screenscale) {
-            texturecolumn = (Sint32)(frac >> 20);
+        texturecolumn = frac >> 20;
 
-            if (texturecolumn == lastcolumn) {
-                ++width;
-                continue;
-            } else {
-                if (lastcolumn >= 0) {
-                    linecmds = (Uint16*)&dc_seg[shape->dataofs[lastcolumn]];
-                    ScaleMaskedWideLSPost(height, static_cast<Uint16>(bufferofs), static_cast<Uint16>(startx), static_cast<Uint16>(width));
-                    width = 1;
-                    startx = x1;
-                    lastcolumn = texturecolumn;
-                } else {
-                    startx = x1;
-                    lastcolumn = texturecolumn;
-                }
-            }
-        }
+        if (texturecolumn > swidth)
+            texturecolumn = swidth;
 
-        if (lastcolumn != -1) {
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[lastcolumn]];
-            ScaleMaskedWideLSPost(height, static_cast<Uint16>(bufferofs), static_cast<Uint16>(startx), static_cast<Uint16>(width));
-        }
-    } else {
-        for ( ; x1 <= x2; ++x1, frac += screenscale) {
-            dc_planes = 1 << (x1 & 3);
-
-            texturecolumn = frac >> 20;
-
-            if (texturecolumn > swidth)
-                texturecolumn = swidth;
-
-            linecmds = (Uint16*)&dc_seg[shape->dataofs[texturecolumn]];
-            ScaleMaskedLSPost(height, bufferofs + (x1 >> 2));
-        }
+        linecmds = (Uint16*)&dc_seg[shape->dataofs[texturecolumn]];
+        ScaleMaskedLSPost(height, bufferofs + (x1 >> 2));
     }
 
     bufferofs = old_bufferofs;
