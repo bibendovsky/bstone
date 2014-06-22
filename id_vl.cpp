@@ -1745,7 +1745,7 @@ void soft_refresh_screen()
     uint8_t* octets = static_cast<uint8_t*>(data);
 
     for (int y = 0; y < vga_height; ++y) {
-        int vga_offset = (4 * displayofs) + (y * vga_width);
+        int vga_offset = vl_get_offset(displayofs, 0, y);
 
         uint32_t* row = reinterpret_cast<uint32_t*>(octets);
 
