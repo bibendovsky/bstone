@@ -2165,7 +2165,10 @@ void uninitialize_video()
 
 void JM_VGALinearFill(int start, int length, char fill)
 {
-    memset(&vga_memory[4 * start], fill, 4 * length);
+    std::uninitialized_fill_n(
+        &vga_memory[vl_get_offset(start)],
+        vga_scale * vga_scale * 4 * length,
+        static_cast<Uint8>(fill));
 }
 
 void VL_RefreshScreen()
