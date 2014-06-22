@@ -70,44 +70,34 @@ void	VWL_UpdateScreenBlocks (void);
 
 //==========================================================================
 
-void VW_DrawPropString (const char* string)
+void VW_DrawPropString(const char* string)
 {
-    fontstruct* font;
-    int width;
-    int height;
-    size_t i;
-    size_t string_length;
-    int j;
-    int k;
-    Uint8* source;
-    Uint8 *dest;
-    Uint8 ch;
+    fontstruct* font =
+        static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]);
 
-    font = (fontstruct*)grsegs[STARTFONT + fontnumber];
-    height = font->height;
+    int height = font->height;
 
-    dest = &vga_memory[(4 * bufferofs) + (py * vga_width) + px];
+    int string_length = static_cast<int>(strlen(string));
 
-    string_length = strlen(string);
+    for (int c = 0; c < string_length; ++c) {
+        Uint8 ch = string[c];
+        int width = font->width[ch];
 
-    for (i = 0; i < string_length; ++i) {
-        ch = string[i];
-        width = font->width[ch];
-        source = ((Uint8*)font) + font->location[ch];
+        const Uint8* source =
+            (reinterpret_cast<const Uint8*>(font)) + font->location[ch];
 
-        for (j = 0; j < width; ++j) {
-            for (k = 0; k < height; ++k) {
-                if (source[k * width])
-                    dest[k * vga_width] = fontcolor;
+        for (int w = 0; w < width; ++w) {
+            for (int h = 0; h < height; ++h) {
+                if (source[h * width] != 0)
+                    VL_Plot(px + w, py + h, fontcolor);
             }
 
             ++source;
-            ++px;
-            ++dest;
         }
+
+        px += width;
     }
 }
-
 
 //==========================================================================
 
