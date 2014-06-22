@@ -388,9 +388,9 @@ extern const Uint8 vgapal[768];
 
 Uint8* vga_memory = NULL;
 
-int vanilla_screen_width = 0;
-int vanilla_screen_height = 0;
-int vanilla_screen_area = 0;
+int vga_width = 0;
+int vga_height = 0;
+int vga_area = 0;
 
 int screen_x = 0;
 int screen_y = 0;
@@ -794,7 +794,7 @@ Uint8	rightmasks[4] = {1,3,7,15};
 */
 void VL_Plot(int x, int y, int color)
 {
-    int offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+    int offset = (4 * bufferofs) + (y * vga_width) + x;
     vga_memory[offset] = (Uint8)color;
 }
 
@@ -835,11 +835,11 @@ void VL_Vlin(int x, int y, int height, int color)
 void VL_Bar(int x, int y, int width, int height, int color)
 {
     int i;
-    int offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+    int offset = (4 * bufferofs) + (y * vga_width) + x;
 
     for (i = 0; i < height; ++i) {
         memset(&vga_memory[offset], color, width);
-        offset += vanilla_screen_width;
+        offset += vga_width;
     }
 }
 
@@ -899,11 +899,11 @@ void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
     int j;
     int k;
     int q_width = width / 4;
-    int base_offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+    int base_offset = (4 * bufferofs) + (y * vga_width) + x;
 
     for (i = 0; i < 4; ++i) {
         for (j = 0; j < height; ++j) {
-            int offset = base_offset + i + (j * vanilla_screen_width);
+            int offset = base_offset + i + (j * vga_width);
 
             for (k = 0; k < q_width; ++k) {
                 vga_memory[offset] = *source++;
@@ -934,11 +934,11 @@ void VL_MaskMemToScreen(
     int offset;
     int base_offset;
 
-    base_offset = (4 * bufferofs) + (vanilla_screen_width * y) + x;
+    base_offset = (4 * bufferofs) + (vga_width * y) + x;
 
     for (plane = 0; plane < 4; ++plane) {
         for (row = 0; row < height; ++row) {
-            offset = base_offset + (row * vanilla_screen_width) + plane;
+            offset = base_offset + (row * vga_width) + plane;
 
             for (column = 0; column < q_width; ++column) {
                 Uint8 pixel = *source++;
@@ -972,11 +972,11 @@ void VL_ScreenToMem(
     int offset;
     int base_offset;
 
-    base_offset = (4 * bufferofs) + (vanilla_screen_width * y) + x;
+    base_offset = (4 * bufferofs) + (vga_width * y) + x;
 
     for (plane = 0; plane < 4; ++plane) {
         for (row = 0; row < height; ++row) {
-            offset = base_offset + (row * vanilla_screen_width) + plane;
+            offset = base_offset + (row * vga_width) + plane;
 
             for (column = 0; column < q_width; ++column) {
                 *dest = vga_memory[offset];
@@ -1004,7 +1004,7 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y)
     int i;
     int count = 4 * width;
     int src_offset = (4 * source);
-    int dst_offset = (4 * bufferofs) + (y * vanilla_screen_width) + x;
+    int dst_offset = (4 * bufferofs) + (y * vga_width) + x;
 
     for (i = 0; i < height; ++i) {
         memmove(
@@ -1013,7 +1013,7 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y)
             count);
 
         src_offset += count;
-        dst_offset += vanilla_screen_width;
+        dst_offset += vga_width;
     }
 }
 
@@ -1035,8 +1035,8 @@ void VL_ScreenToScreen(
 
     for (int y = 0; y < height; ++y) {
         memmove(dst, src, width);
-        src += vanilla_screen_width;
-        dst += vanilla_screen_width;
+        src += vga_width;
+        dst += vga_width;
     }
 }
 
@@ -1120,8 +1120,8 @@ void ogl_refresh_screen()
         0,
         0,
         0,
-        vanilla_screen_width,
-        vanilla_screen_height,
+        vga_width,
+        vga_height,
         format,
         GL_UNSIGNED_BYTE,
         &vga_memory[4 * displayofs]);
@@ -1138,7 +1138,7 @@ void ogl_update_screen()
         memmove(
             &vga_memory[4 * displayofs],
             &vga_memory[4 * bufferofs],
-            vanilla_screen_area);
+            vga_area);
     }
 
     ogl_refresh_screen();
@@ -1279,8 +1279,8 @@ bool ogl_initialize_textures()
             GL_TEXTURE_2D,
             0,
             internal_format,
-            vanilla_screen_width,
-            vanilla_screen_height,
+            vga_width,
+            vga_height,
             0,
             format,
             GL_UNSIGNED_BYTE,
@@ -1358,19 +1358,19 @@ bool ogl_initialize_vertex_buffers()
 
     vertex = &screen_vertices[1];
     vertex->x = 0.0F;
-    vertex->y = static_cast<float>(vanilla_screen_height);
+    vertex->y = static_cast<float>(vga_height);
     vertex->s = 0.0F;
     vertex->t = 1.0F;
 
     vertex = &screen_vertices[2];
-    vertex->x = static_cast<float>(vanilla_screen_width);
+    vertex->x = static_cast<float>(vga_width);
     vertex->y = 0.0F;
     vertex->s = 1.0F;
     vertex->t = 0.0F;
 
     vertex = &screen_vertices[3];
-    vertex->x = static_cast<float>(vanilla_screen_width);
-    vertex->y = static_cast<float>(vanilla_screen_height);
+    vertex->x = static_cast<float>(vga_width);
+    vertex->y = static_cast<float>(vga_height);
     vertex->s = 1.0F;
     vertex->t = 1.0F;
 
@@ -1479,7 +1479,7 @@ bool ogl_initialize_programs()
 
         float proj_mat4[16];
         u_proj_mat4 = glGetUniformLocation(screen_po, "proj_mat4");
-        ogl_ortho(vanilla_screen_width, vanilla_screen_height, proj_mat4);
+        ogl_ortho(vga_width, vga_height, proj_mat4);
         glUniformMatrix4fv(u_proj_mat4, 1, GL_FALSE, proj_mat4);
 
         u_screen_tu = glGetUniformLocation(screen_po, "screen_tu");
@@ -1703,8 +1703,8 @@ void soft_draw_screen()
     SDL_Rect src_rect;
     src_rect.x = 0;
     src_rect.y = 0;
-    src_rect.w = vanilla_screen_width;
-    src_rect.h = vanilla_screen_height;
+    src_rect.w = vga_width;
+    src_rect.h = vga_height;
 
     SDL_Rect dst_rect;
     dst_rect.x = 0;
@@ -1729,8 +1729,8 @@ void soft_refresh_screen()
     SDL_Rect screen_rect;
     screen_rect.x = 0;
     screen_rect.y = 0;
-    screen_rect.w = vanilla_screen_width;
-    screen_rect.h = vanilla_screen_height;
+    screen_rect.w = vga_width;
+    screen_rect.h = vga_height;
 
     int sdl_result = 0;
     int pitch = 0;
@@ -1741,12 +1741,12 @@ void soft_refresh_screen()
 
     uint8_t* octets = static_cast<uint8_t*>(data);
 
-    for (int y = 0; y < vanilla_screen_height; ++y) {
-        int vga_offset = (4 * displayofs) + (y * vanilla_screen_width);
+    for (int y = 0; y < vga_height; ++y) {
+        int vga_offset = (4 * displayofs) + (y * vga_width);
 
         uint32_t* row = reinterpret_cast<uint32_t*>(octets);
 
-        for (int x = 0; x < vanilla_screen_width; ++x)
+        for (int x = 0; x < vga_width; ++x)
             row[x] = sdl_palette[vga_memory[vga_offset + x]];
 
         octets += pitch;
@@ -1766,7 +1766,7 @@ void soft_update_screen()
         memmove(
             &vga_memory[4 * displayofs],
             &vga_memory[4 * bufferofs],
-            vanilla_screen_area);
+            vga_area);
     }
 
     soft_refresh_screen();
@@ -1781,8 +1781,8 @@ bool soft_initialize_textures()
         sdl_soft_renderer,
         sdl_pixel_format,
         SDL_TEXTUREACCESS_STREAMING,
-        vanilla_screen_width,
-        vanilla_screen_height);
+        vga_width,
+        vga_height);
 
     if (sdl_soft_screen_tex != NULL)
         return true;
@@ -1960,9 +1960,9 @@ void initialize_video()
     // Common initialization
     //
 
-    vanilla_screen_width = 320;
-    vanilla_screen_height = 200;
-    vanilla_screen_area = vanilla_screen_width * vanilla_screen_height;
+    vga_width = 320;
+    vga_height = 200;
+    vga_area = vga_width * vga_height;
 
     //
     // Option "windowed"
@@ -2002,11 +2002,11 @@ void initialize_video()
     bstone::StringHelper::lexical_cast(width_str, window_width);
     bstone::StringHelper::lexical_cast(height_str, window_height);
 
-    if (window_width < vanilla_screen_width)
-        window_width = vanilla_screen_width;
+    if (window_width < vga_width)
+        window_width = vga_width;
 
-    if (window_height < vanilla_screen_height)
-        window_height = vanilla_screen_height;
+    if (window_height < vga_height)
+        window_height = vga_height;
 
 
     //
@@ -2088,10 +2088,10 @@ void initialize_video()
     }
 
     double h_scale = static_cast<double>(window_width) /
-        vanilla_screen_width;
+        vga_width;
 
     double v_scale = static_cast<double>(window_height) /
-        vanilla_screen_height;
+        vga_height;
 
     double scale;
 
@@ -2101,10 +2101,10 @@ void initialize_video()
         scale = v_scale;
 
     screen_width = static_cast<int>(
-        (vanilla_screen_width * scale) + 0.5);
+        (vga_width * scale) + 0.5);
 
     screen_height = static_cast<int>(
-        (vanilla_screen_height * scale) + 0.5);
+        (vga_height * scale) + 0.5);
 
     screen_x = (window_width - screen_width) / 2;
     screen_y = (window_height - screen_height) / 2;

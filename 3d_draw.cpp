@@ -1242,9 +1242,9 @@ void vga_clear_screen(
     int height,
     int color)
 {
-    int pixel_offset = (4 * bufferofs) + (y_offset * vanilla_screen_width);
+    int pixel_offset = (4 * bufferofs) + (y_offset * vga_width);
 
-    if (viewwidth == vanilla_screen_width) {
+    if (viewwidth == vga_width) {
         std::uninitialized_fill_n(
             &vga_memory[pixel_offset],
             height * viewwidth,
@@ -1256,7 +1256,7 @@ void vga_clear_screen(
                 viewwidth,
                 static_cast<uint8_t>(color));
 
-            pixel_offset += vanilla_screen_width;
+            pixel_offset += vga_width;
         }
     }
 }

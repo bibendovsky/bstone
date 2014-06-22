@@ -86,7 +86,7 @@ void VW_DrawPropString (const char* string)
     font = (fontstruct*)grsegs[STARTFONT + fontnumber];
     height = font->height;
 
-    dest = &vga_memory[(4 * bufferofs) + (py * vanilla_screen_width) + px];
+    dest = &vga_memory[(4 * bufferofs) + (py * vga_width) + px];
 
     string_length = strlen(string);
 
@@ -98,7 +98,7 @@ void VW_DrawPropString (const char* string)
         for (j = 0; j < width; ++j) {
             for (k = 0; k < height; ++k) {
                 if (source[k * width])
-                    dest[k * vanilla_screen_width] = fontcolor;
+                    dest[k * vga_width] = fontcolor;
             }
 
             ++source;
@@ -448,7 +448,7 @@ boolean FizzleFade(
                 if (x > width || y > height)
                     continue;
 
-                pixel_offset = (y * vanilla_screen_width) + x;
+                pixel_offset = (y * vga_width) + x;
 
                 vga_memory[dst_offset + pixel_offset] =
                     vga_memory[src_offset + pixel_offset];

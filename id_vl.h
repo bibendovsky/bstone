@@ -133,8 +133,9 @@ extern int screen_y;
 extern int screen_width;
 extern int screen_height;
 
-extern int vanilla_screen_width;
-extern int vanilla_screen_height;
+extern int vga_width;
+extern int vga_height;
+extern int vga_area;
 
 extern int window_width;
 extern int window_height;
