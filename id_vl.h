@@ -130,6 +130,15 @@ extern	Uint16	bordercolor;
 const int k_ref_width = 320;
 const int k_ref_height = 200;
 
+const int k_vga_ref_size = 256 * 1024;
+const int k_vga_plane_count = 4;
+const int k_vga_plane_width = k_ref_width / 4;
+const int k_vga_plane_height = k_ref_height + 8;
+const int k_vga_plane_size = k_vga_plane_width * k_vga_plane_height;
+const int k_vga_page_size = k_vga_plane_count * k_vga_plane_size;
+const int k_vga_page_count = 3;
+const int k_vga_palette_size = 3 * 256;
+
 extern int screen_x;
 extern int screen_y;
 
