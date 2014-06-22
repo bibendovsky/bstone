@@ -916,20 +916,10 @@ void VL_MemToLatch(
 
 void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
 {
-    int i;
-    int j;
-    int k;
-    int q_width = width / 4;
-    int base_offset = (4 * bufferofs) + (y * vga_width) + x;
-
-    for (i = 0; i < 4; ++i) {
-        for (j = 0; j < height; ++j) {
-            int offset = base_offset + i + (j * vga_width);
-
-            for (k = 0; k < q_width; ++k) {
-                vga_memory[offset] = *source++;
-                offset += 4;
-            }
+    for (int p = 0; p < 4; ++p) {
+        for (int h = 0; h < height; ++h) {
+            for (int w = p; w < width; w += 4)
+                VL_Plot(x + w, y + h, *source++);
         }
     }
 }
