@@ -1124,7 +1124,7 @@ void ogl_refresh_screen()
         vga_height,
         format,
         GL_UNSIGNED_BYTE,
-        &vga_memory[4 * displayofs]);
+        &vga_memory[vl_get_offset(displayofs)]);
 
     ogl_draw_screen();
 }
