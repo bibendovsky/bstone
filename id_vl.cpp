@@ -455,18 +455,15 @@ void VL_Shutdown()
 
 void VL_SetVGAPlaneMode()
 {
-    const size_t VGA_MEM_SIZE = 4 * 64 * 1024;
-    const size_t VGA_PAL_SIZE = 3 * 256;
+    initialize_video();
 
     delete [] vga_memory;
-    vga_memory = new Uint8[VGA_MEM_SIZE];
-    memset(vga_memory, 0, VGA_MEM_SIZE);
+    vga_memory = new Uint8[k_vga_ref_size];
+    std::uninitialized_fill_n(vga_memory, k_vga_ref_size, 0);
 
     delete [] vga_palette;
-    vga_palette = new Uint8[VGA_PAL_SIZE];
-    memset(vga_palette, 0, VGA_PAL_SIZE);
-
-    initialize_video();
+    vga_palette = new Uint8[k_vga_palette_size];
+    std::uninitialized_fill_n(vga_palette, k_vga_palette_size, 0);
 }
 
 #endif
