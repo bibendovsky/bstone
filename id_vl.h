@@ -127,6 +127,9 @@ extern	Uint16	bordercolor;
 
 
 // BBi
+const int k_ref_width = 320;
+const int k_ref_height = 200;
+
 extern int screen_x;
 extern int screen_y;
 
