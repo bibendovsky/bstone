@@ -794,8 +794,18 @@ Uint8	rightmasks[4] = {1,3,7,15};
 */
 void VL_Plot(int x, int y, int color)
 {
-    int offset = (4 * bufferofs) + (y * vga_width) + x;
-    vga_memory[offset] = (Uint8)color;
+    int offset = vl_get_offset(bufferofs, x, y);
+
+    if (vga_scale == 1)
+        vga_memory[offset] = static_cast<Uint8>(color);
+    else {
+        for (int i = 0; i < vga_scale; ++i) {
+            std::uninitialized_fill_n(
+                &vga_memory[offset], vga_scale, static_cast<Uint8>(color));
+
+            offset += vga_width;
+        }
+    }
 }
 
 
@@ -845,7 +855,6 @@ void VL_Bar(int x, int y, int width, int height, int color)
         std::uninitialized_fill_n(
                 &vga_memory[offset], count, static_cast<Uint8>(color));
     } else {
-
         for (int i = 0; i < height; ++i) {
             std::uninitialized_fill_n(
                 &vga_memory[offset], width, static_cast<Uint8>(color));
