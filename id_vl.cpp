@@ -457,9 +457,11 @@ void VL_SetVGAPlaneMode()
 {
     initialize_video();
 
+    const int k_vga_size = vga_scale * vga_scale * k_vga_ref_size;
+
     delete [] vga_memory;
-    vga_memory = new Uint8[k_vga_ref_size];
-    std::uninitialized_fill_n(vga_memory, k_vga_ref_size, 0);
+    vga_memory = new Uint8[k_vga_size];
+    std::uninitialized_fill_n(vga_memory, k_vga_size, 0);
 
     delete [] vga_palette;
     vga_palette = new Uint8[k_vga_palette_size];
