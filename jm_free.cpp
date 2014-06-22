@@ -535,8 +535,7 @@ void CAL_SetupGrFile()
         compseg,
         (Uint8*)pictable,
         NUMPICS * sizeof(pictabletype),
-        grhuffman,
-        false);
+        grhuffman);
 
     delete [] compseg;
 }

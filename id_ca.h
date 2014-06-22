@@ -165,8 +165,16 @@ void CA_CacheMarks (void);
 void CAL_SetupAudioFile (void);
 void CAL_SetupGrFile (void);
 void CAL_SetupMapFile (void);
-void CAL_HuffExpand (Uint8 *source, Uint8 *dest,
-  Sint32 length,huffnode *hufftable, boolean screenhack);
+
+void CAL_HuffExpand(
+    Uint8* source,
+    Uint8* dest,
+    Sint32 length,
+    huffnode* hufftable);
+
+void ca_huff_expand_on_screen(
+    Uint8* source,
+    huffnode* hufftable);
 
 void CloseGrFile(void);
 void OpenGrFile(void);

@@ -524,39 +524,56 @@ void CAL_HuffExpand(
     Uint8* source,
     Uint8* destination,
     Sint32 length,
-    huffnode* hufftable,
-    boolean screenhack)
+    huffnode* hufftable)
 {
-    int i;
-    int dst_step = 1;
-    Uint8* dst;
-    Uint8* end;
-    huffnode* headptr;
-    huffnode* huffptr;
     Uint8 val = *source++;
     Uint8 mask = 1;
     Uint16 nodeval;
-    boolean update_screen = false;
-    int plane_count = 1;
 
-    headptr = &hufftable[254]; // head node is always node 254
+    huffnode* headptr = &hufftable[254]; // head node is always node 254
 
-    update_screen =
-        screenhack &&
-        (length < 0xFFF0);
+    Uint8* dst = destination;
+    Uint8* end = dst + length;
 
-    if (update_screen) {
-        plane_count = 4;
-        dst_step = 4;
+    huffnode* huffptr = headptr;
+
+    while (dst < end) {
+        if ((val & mask) == 0)
+            nodeval = huffptr->bit0;
+        else
+            nodeval = huffptr->bit1;
+
+        if (mask == 0x80) {
+            val = *source++;
+            mask = 1;
+        } else
+            mask <<= 1;
+
+        if (nodeval < 256) {
+            dst[0] = static_cast<Uint8>(nodeval);
+            ++dst;
+            huffptr = headptr;
+        } else
+            huffptr = &hufftable[nodeval - 256];
     }
+}
 
-    dst = destination;
-    end = dst + length;
+void ca_huff_expand_on_screen(
+    Uint8* source,
+    huffnode* hufftable)
+{
+    Uint8 val = *source++;
+    Uint8 mask = 1;
+    Uint16 nodeval;
 
-    huffptr = headptr;
+    huffnode* headptr = &hufftable[254]; // head node is always node 254
+    huffnode* huffptr = headptr;
 
-    for (i = 0; i < plane_count; ++i) {
-        while (true) {
+    for (int p = 0; p < 4; ++p) {
+        int x = p;
+        int y = 0;
+
+        while (y < k_ref_height) {
             if ((val & mask) == 0)
                 nodeval = huffptr->bit0;
             else
@@ -569,23 +586,20 @@ void CAL_HuffExpand(
                 mask <<= 1;
 
             if (nodeval < 256) {
-                dst[0] = (Uint8)nodeval;
-                dst += dst_step;
+                VL_Plot(x, y, static_cast<Uint8>(nodeval));
                 huffptr = headptr;
 
-                if (dst >= end)
-                    break;
+                x += 4;
+
+                if (x >= k_ref_width) {
+                    x = p;
+                    ++y;
+                }
             } else
                 huffptr = &hufftable[nodeval - 256];
         }
-
-        if (update_screen) {
-            dst = destination + i + 1;
-            end = destination + length;
-        }
     }
 }
-
 
 /*
 ======================
@@ -997,7 +1011,7 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
 //
     grsegs[chunk] = new char[expanded];
 
-	CAL_HuffExpand (source,static_cast<Uint8*>(grsegs[chunk]),expanded,grhuffman,false);
+    CAL_HuffExpand(source,static_cast<Uint8*>(grsegs[chunk]),expanded,grhuffman);
 }
 
 
@@ -1105,7 +1119,7 @@ void CA_CacheScreen (Sint16 chunk)
 // allocate final space, decompress it, and free bigbuffer
 // Sprites need to have shifts made and various other junk
 //
-	CAL_HuffExpand (source, &vga_memory[4 * bufferofs],expanded,grhuffman,true);
+    ca_huff_expand_on_screen(source, grhuffman);
 
     delete [] bigbufferseg;
     bigbufferseg = NULL;
