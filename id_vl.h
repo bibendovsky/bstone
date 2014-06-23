@@ -222,5 +222,10 @@ int vl_get_offset(
     int x,
     int y);
 
+Uint8 vl_get_pixel(
+    int base_offset,
+    int x,
+    int y);
+
 
 #endif // ID_VL_H
