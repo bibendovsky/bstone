@@ -2200,4 +2200,12 @@ int vl_get_offset(
 {
     return vga_scale * (vga_scale * (4 * base_offset) + (y * vga_width) + x);
 }
+
+Uint8 vl_get_pixel(
+    int base_offset,
+    int x,
+    int y)
+{
+    return vga_memory[vl_get_offset(base_offset, x, y)];
+}
 // BBi
