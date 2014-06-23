@@ -969,25 +969,10 @@ void VL_ScreenToMem(
     int x,
     int y)
 {
-    int plane;
-    int row;
-    int column;
-    int q_width = width / 4;
-    int offset;
-    int base_offset;
-
-    base_offset = (4 * bufferofs) + (vga_width * y) + x;
-
-    for (plane = 0; plane < 4; ++plane) {
-        for (row = 0; row < height; ++row) {
-            offset = base_offset + (row * vga_width) + plane;
-
-            for (column = 0; column < q_width; ++column) {
-                *dest = vga_memory[offset];
-
-                offset += 4;
-                ++dest;
-            }
+    for (int p = 0; p < 4; ++p) {
+        for (int h = 0; h < height; ++h) {
+            for (int w = p; w < width; w += 4)
+                *dest++ = vl_get_pixel(bufferofs, x + w, y + h);
         }
     }
 }
