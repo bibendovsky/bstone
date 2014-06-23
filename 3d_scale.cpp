@@ -224,8 +224,8 @@ unsigned dc_length;
 unsigned dc_dest;
 
 // BBi
-// A mask of planes to draw in.
-int dc_planes = 1;
+// An index of plane to draw in.
+int dc_plane = 1;
 
 #define SFRACUNIT 0x10000
 
@@ -416,8 +416,6 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 
     dc_seg = (Uint8*)shape;
 
-    dc_planes = 1;
-
 	xscale=(Uint32)height<<12;
 	xcent=(Sint32)((Sint32)xcenter<<20)-((Sint32)height<<17)+0x80000;
 //
@@ -458,7 +456,7 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 		if (wallheight[x1]>height)
 			continue;
 
-        dc_planes = 1 << (x1 & 3);
+        dc_plane = x1 & 3;
 
 		texturecolumn=frac>>20;
 		if (texturecolumn>swidth)
@@ -512,8 +510,6 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
     dc_seg = (Uint8*)shape;
 
-    dc_planes = 1;
-
 	xscale=(Uint32)height<<12;
 	xcent=(Sint32)((Sint32)xcenter<<20)-((Sint32)height<<(17))+0x80000;
 //
@@ -544,7 +540,7 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 		if (wallheight[x1]>height)
 			continue;
 
-        dc_planes = 1 << (Uint8)(x1 & 3);
+        dc_plane = x1 & 3;
 
 		texturecolumn=frac>>20;
 		if (texturecolumn>swidth)
@@ -597,8 +593,6 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
     dc_seg = (Uint8*)shape;
 
-    dc_planes = 1;
-
 	xscale=(Uint32)height<<10;
 	xcent=(Sint32)((Sint32)xcenter<<16)-((Sint32)height<<(15))+0x8000;
 //
@@ -626,7 +620,7 @@ void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 
 	for (; x1<=x2 ; x1++, frac += screenscale)
 		{
-        dc_planes = 1 << (x1 & 3);
+        dc_plane = x1 & 3;
 
 		texturecolumn=frac>>16;
 		if (texturecolumn>swidth)
@@ -663,9 +657,6 @@ void MegaSimpleScaleShape(
     int xcent;
     int old_bufferofs;
     int swidth;
-
-
-    dc_planes = 1;
 
     old_bufferofs = bufferofs;
     ycenter -=34;
@@ -710,7 +701,7 @@ void MegaSimpleScaleShape(
     swidth = shape->rightpix-shape->leftpix;
 
     for ( ; x1 <= x2; ++x1, frac += screenscale) {
-        dc_planes = 1 << (x1 & 3);
+        dc_plane = x1 & 3;
 
         texturecolumn = frac >> 20;
 
