@@ -218,12 +218,16 @@ unsigned BuildCompScale (int height, memptr *finalspot)
 
 Uint32 dc_iscale;
 Uint32 dc_frac;
-unsigned dc_source;
+Uint32 dc_source;
 Uint8* dc_seg;
-unsigned dc_length;
-unsigned dc_dest;
+Uint32 dc_length;
+Uint32 dc_dest;
 
 // BBi
+Sint32 dc_x;
+Sint32 dc_y;
+Sint32 dc_dy;
+
 // An index of plane to draw in.
 int dc_plane = 1;
 
@@ -245,48 +249,41 @@ fixed bounceOffset=0;
 
 void ScaleMaskedLSPost(int height, int buf)
 {
-    Sint16 length;
-    Uint16 end;
-    Uint16 start;
-    Sint32 sprtopoffset;
-    Sint32 topscreen;
-    Sint32 bottomscreen;
-    Uint32 screenstep;
-    Sint32 dc_yl,dc_yh;
-    Uint16 * srcpost;
-
-
-    fixed bounce;
+    int bounce;
 
     if (useBounceOffset)
         bounce = bounceOffset;
     else
         bounce = 0;
 
-    srcpost = linecmds;
-    dc_iscale= (64U * 65536U) / (Uint32)height;
-    screenstep = ((Uint32)height) << 10;
+    bounce *= vga_scale;
 
-    sprtopoffset=((Sint32)viewheight << 15) - (height << 15) + (bounce >> 1);
+    const Uint16* srcpost = linecmds;
+    dc_iscale = (64U * 65536U) / static_cast<unsigned int>(height);
+    unsigned int screenstep = static_cast<unsigned int>(height) << 10;
 
-    end = (bstone::Endian::le(*srcpost++)) >> 1;
-    for ( ; end != 0; ) {
+    int sprtopoffset = ((viewheight * vga_scale) << 15) -
+        (height << 15) + (bounce >> 1);
+
+    int end = (bstone::Endian::le(*srcpost++)) / 2;
+
+    while (end != 0) {
         dc_source = bstone::Endian::le(*srcpost++);
 
-        start = bstone::Endian::le(*srcpost++) >> 1;
+        int start = bstone::Endian::le(*srcpost++) / 2;
 
         dc_source += start;
         dc_source %= 65536;
 
-        length = end - start;
-        topscreen = sprtopoffset + (Sint32)(screenstep * (Sint32)start);
-        bottomscreen = topscreen + (Sint32)(screenstep * (Sint32)length);
+        int length = end - start;
+        int topscreen = sprtopoffset + static_cast<int>(screenstep * start);
+        int bottomscreen = topscreen + static_cast<int>(screenstep * length);
 
-        dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
-        dc_yh = (bottomscreen - 1) >> 16;
+        int dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
+        int dc_yh = (bottomscreen - 1) >> 16;
 
-        if (dc_yh >= viewheight)
-            dc_yh = viewheight - 1;
+        if (dc_yh >= (viewheight * vga_scale))
+            dc_yh = (viewheight * vga_scale) - 1;
 
         if (dc_yl < 0) {
             dc_frac = dc_iscale * (-dc_yl);
@@ -295,7 +292,7 @@ void ScaleMaskedLSPost(int height, int buf)
             dc_frac = 0;
 
         if (dc_yl <= dc_yh) {
-            dc_dest = buf + ylookup[dc_yl];
+            dc_dy = dc_yl;
             dc_length = dc_yh - dc_yl + 1;
 #if CLOAKED_SHAPES
             if (cloaked_shape)
@@ -305,7 +302,7 @@ void ScaleMaskedLSPost(int height, int buf)
                 R_DrawLSColumn();
         }
 
-        end = bstone::Endian::le(*srcpost++) >> 1;
+        end = bstone::Endian::le(*srcpost++) / 2;
     }
 }
 
@@ -647,41 +644,35 @@ void MegaSimpleScaleShape(
     int height,
     int shade)
 {
-    t_compshape* shape;
-    unsigned frac;
-    int x1;
-    int x2;
-    unsigned xscale;
-    unsigned screenscale;
-    int texturecolumn;
-    int xcent;
-    int old_bufferofs;
-    int swidth;
+    dc_y = 0;
+    dc_y -= (viewheight - 64) / 2;
+    dc_y += ycenter - 34;
+    dc_y *= vga_scale;
 
-    old_bufferofs = bufferofs;
-    ycenter -=34;
-    bufferofs -= ((viewheight - 64) >> 1) * SCREENBWIDE;
-    bufferofs += SCREENBWIDE * ycenter;
+    xcenter *= vga_scale;
+    height *= vga_scale;
 
-    shape = (t_compshape*)PM_GetSpritePage(shapenum);
-    dc_seg = (Uint8*)shape;
-    xscale=(Uint32)height << 14;
-    xcent = (xcenter << 20) - (height << 19) + 0x80000;
+    t_compshape* shape =
+        static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
+
+    dc_seg = reinterpret_cast<Uint8*>(shape);
+    unsigned int xscale = static_cast<Uint32>(height) << 14;
+    int xcent = (xcenter << 20) - (height << 19) + 0x80000;
 
     //
     // calculate edges of the shape
     //
-    x1 = (Sint16)((Sint32)(xcent + (shape->leftpix * xscale)) >> 20);
+    int x1 = static_cast<Sint32>(xcent + (shape->leftpix * xscale)) >> 20;
 
-    if (x1 >= viewwidth)
+    if (x1 >= (viewwidth * vga_scale))
         return; // off the right side
 
-    x2 = (Sint16)((Sint32)(xcent + (shape->rightpix * xscale)) >> 20);
+    int x2 = static_cast<Sint32>(xcent + (shape->rightpix * xscale)) >> 20;
 
     if (x2 < 0)
         return; // off the left side
 
-    screenscale = (64L << 20L) / (Uint32)height;
+    unsigned int screenscale = (64UL << 20UL) / static_cast<Uint32>(height);
 
     //
     // Choose shade table.
@@ -691,28 +682,30 @@ void MegaSimpleScaleShape(
     //
     // store information in a vissprite
     //
+    unsigned int frac;
+
     if (x1 < 0) {
         frac = screenscale * (-x1);
         x1 = 0;
     } else
         frac = screenscale >> 1;
 
-    x2 = x2 >= viewwidth ? viewwidth - 1 : x2;
-    swidth = shape->rightpix-shape->leftpix;
+    x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
+    int swidth = shape->rightpix - shape->leftpix;
 
-    for ( ; x1 <= x2; ++x1, frac += screenscale) {
-        dc_plane = x1 & 3;
+    for (; x1 <= x2; ++x1, frac += screenscale) {
+        dc_x = x1;
 
-        texturecolumn = frac >> 20;
+        int texturecolumn = static_cast<int>(frac >> 20);
 
         if (texturecolumn > swidth)
             texturecolumn = swidth;
 
-        linecmds = (Uint16*)&dc_seg[shape->dataofs[texturecolumn]];
-        ScaleMaskedLSPost(height, bufferofs + (x1 >> 2));
-    }
+        linecmds = reinterpret_cast<Uint16*>(
+            &dc_seg[shape->dataofs[texturecolumn]]);
 
-    bufferofs = old_bufferofs;
+        ScaleMaskedLSPost(height, 0);
+    }
 }
 
 

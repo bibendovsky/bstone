@@ -31,11 +31,12 @@ Free Software Foundation, Inc.,
 
 extern Uint32 dc_iscale;
 extern Uint32 dc_frac;
-extern unsigned dc_source;
+extern Uint32 dc_source;
 extern Uint8* dc_seg;
-extern unsigned dc_length;
-extern unsigned dc_dest;
-extern int dc_plane;
+extern Uint32 dc_length;
+extern Sint32 dc_x;
+extern Sint32 dc_y;
+extern Sint32 dc_dy;
 
 extern const Uint8* shadingtable;
 
@@ -48,15 +49,13 @@ enum DrawMode {
 
 static void generic_draw_column(DrawMode draw_mode)
 {
-    Uint16 i;
-    Uint8 pixel;
-    Sint32 fraction = dc_frac;
+    unsigned int fraction = dc_frac;
 
     Uint8* source = dc_seg + dc_source;
-    int screen_offset = dc_dest;
-    Uint8* screen = vga_memory;
+    int base_offset = vl_get_offset(bufferofs) + dc_x;
 
-    for (i = 0; i < dc_length; ++i) {
+    for (unsigned int i = 0; i < dc_length; ++i) {
+        Uint8 pixel;
         Uint8 pixel_index = source[fraction >> 16];
 
         if (draw_mode == DRAW_LIGHTED)
@@ -64,9 +63,9 @@ static void generic_draw_column(DrawMode draw_mode)
         else
             pixel = pixel_index;
 
-        screen[(4 * screen_offset) + dc_plane] = pixel;
+        int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
+        vga_memory[offset] = pixel;
 
-        screen_offset += SCREENWIDTH;
         fraction += dc_iscale;
     }
 }
@@ -78,17 +77,13 @@ void R_DrawColumn()
 
 void R_DrawSLSColumn()
 {
-    Uint16 i;
-    Uint16 screen_offset = static_cast<Uint16>(dc_dest);
-    Uint8* screen = vga_memory;
+    int base_offset = vl_get_offset(bufferofs) + dc_x;
 
-    for (i = 0; i < dc_length; ++i) {
-        int offset = (4 * screen_offset) + dc_plane;
-        Uint8 pixel_index = screen[offset];
+    for (unsigned int i = 0; i < dc_length; ++i) {
+        int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
+        Uint8 pixel_index = vga_memory[offset];
         Uint8 pixel = shadingtable[0x1000 | pixel_index];
-        screen[offset] = pixel;
-
-        screen_offset += SCREENWIDTH;
+        vga_memory[offset] = pixel;
     }
 }
 
