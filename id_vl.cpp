@@ -1017,17 +1017,22 @@ void VL_ScreenToScreen(
     int width,
     int height)
 {
-    source *= 4;
-    dest *= 4;
-    width *= 4;
+    source *= 4 * vga_scale * vga_scale;
+    dest *= 4 * vga_scale * vga_scale;
+    width *= 4 * vga_scale;
+    height *= vga_scale;
 
-    const Uint8* src = &vga_memory[source];
-    Uint8* dst = &vga_memory[dest];
+    const Uint8* src_pixels = &vga_memory[source];
+    Uint8* dst_pixels = &vga_memory[dest];
 
-    for (int y = 0; y < height; ++y) {
-        memmove(dst, src, width);
-        src += vga_width;
-        dst += vga_width;
+    for (int h = 0; h < height; ++h) {
+        std::uninitialized_copy(
+            src_pixels,
+            src_pixels + width,
+            dst_pixels);
+
+        src_pixels += vga_width;
+        dst_pixels += vga_width;
     }
 }
 
