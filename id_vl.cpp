@@ -1749,16 +1749,16 @@ void soft_refresh_screen()
         sdl_soft_screen_tex, &screen_rect, &data, &pitch);
 
     uint8_t* octets = static_cast<uint8_t*>(data);
+    int vga_offset = vl_get_offset(displayofs);
 
     for (int y = 0; y < vga_height; ++y) {
-        int vga_offset = vl_get_offset(displayofs, 0, y);
-
         uint32_t* row = reinterpret_cast<uint32_t*>(octets);
 
         for (int x = 0; x < vga_width; ++x)
             row[x] = sdl_palette[vga_memory[vga_offset + x]];
 
         octets += pitch;
+        vga_offset += vga_width;
     }
 
     SDL_UnlockTexture(sdl_soft_screen_tex);
