@@ -468,9 +468,10 @@ void ScalePost()
             i = 63;
 
         shadingtable = lightsource + (i << 8);
-    }
 
-    DrawLSPost();
+        DrawLSPost();
+    } else
+        DrawPost();
 }
 
 void FarScalePost() // just so other files can call
