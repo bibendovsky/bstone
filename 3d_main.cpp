@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 
-
+void VL_LatchToScreen(int source, int width, int height, int x, int y);
 /*
 =============================================================================
 
@@ -2010,51 +2010,45 @@ void ShutdownId (void)
 
 void CalcProjection (Sint32 focal)
 {
-	Sint16             i;
-	Sint32            intang;
-	float   angle;
-	double  tang;
-	Sint16             halfview;
-	double  facedist;
+    focallength = focal;
+    double facedist = focal + MINDIST;
+    int halfview = (viewwidth * vga_scale) / 2; // half view in pixels
 
+    //
+    // calculate scale value for vertical height calculations
+    // and sprite x calculations
+    //
+    scale = static_cast<fixed>(halfview * facedist / (VIEWGLOBAL / 2));
 
-	focallength = focal;
-	facedist = focal+MINDIST;
-	halfview = viewwidth/2;                                 // half view in pixels
+    //
+    // divide heightnumerator by a posts distance to get the posts height for
+    // the heightbuffer.  The pixel height is height>>2
+    //
+    heightnumerator = (TILEGLOBAL * scale) >> 6;
+    minheightdiv = static_cast<Sint16>((heightnumerator / 0x7FFF) + 1);
 
-//
-// calculate scale value for vertical height calculations
-// and sprite x calculations
-//
-	scale = static_cast<fixed>(halfview*facedist/(VIEWGLOBAL/2));
+    //
+    // calculate the angle offset from view angle of each pixel's ray
+    //
 
-//
-// divide heightnumerator by a posts distance to get the posts height for
-// the heightbuffer.  The pixel height is height>>2
-//
-	heightnumerator = (TILEGLOBAL*scale)>>6;
-	minheightdiv = static_cast<Sint16>(heightnumerator/0x7fff +1);
+    delete [] pixelangle;
+    pixelangle = new int[vga_width];
 
-//
-// calculate the angle offset from view angle of each pixel's ray
-//
+    for (int i = 0; i < halfview; i++) {
+        // start 1/2 pixel over, so viewangle bisects two middle pixels
+        double tang = i * VIEWGLOBAL / (viewwidth * vga_scale) / facedist;
+        float angle = static_cast<float>(atan(tang));
+        int intang = static_cast<int>(angle * radtoint);
+        pixelangle[halfview - 1 - i] = intang;
+        pixelangle[halfview + i] = -intang;
+    }
 
-	for (i=0;i<halfview;i++)
-	{
-	// start 1/2 pixel over, so viewangle bisects two middle pixels
-		tang = (Sint32)i*VIEWGLOBAL/viewwidth/facedist;
-		angle = static_cast<float>(atan(tang));
-		intang = static_cast<Sint32>(angle*radtoint);
-		pixelangle[halfview-1-i] = static_cast<Sint16>(intang);
-		pixelangle[halfview+i] = static_cast<Sint16>(-intang);
-	}
-
-//
-// if a point's abs(y/x) is greater than maxslope, the point is outside
-// the view area
-//
-	maxslope = finetangent[pixelangle[0]];
-	maxslope >>= 8;
+    //
+    // if a point's abs(y/x) is greater than maxslope, the point is outside
+    // the view area
+    //
+    maxslope = finetangent[pixelangle[0]];
+    maxslope >>= 8;
 }
 
 
