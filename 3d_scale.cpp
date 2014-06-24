@@ -323,7 +323,7 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
     Sint32 topscreen;
     Sint32 bottomscreen;
     Uint32 screenstep;
-    Sint32 dc_yl,dc_yh;
+    Sint32 dc_yl, dc_yh;
     Uint16 * srcpost;
 
     fixed bounce;
@@ -333,15 +333,17 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
     else
         bounce = 0;
 
+    bounce *= vga_scale;
+
     srcpost = linecmds;
     dc_iscale = (64U * 65536U) / (Uint32)height;
     screenstep = ((Uint32)height) << 10;
 
-    sprtopoffset = ((Sint32)viewheight << 15) - ((Sint32)height << 15) + (bounce >> 1);
+    sprtopoffset = ((Sint32)(viewheight * vga_scale) << 15) - ((Sint32)height << 15) + (bounce >> 1);
 
     end = bstone::Endian::le(*srcpost++) >> 1;
 
-    for ( ; end != 0; ) {
+    for (; end != 0;) {
         dc_source = bstone::Endian::le(*srcpost++);
         start = bstone::Endian::le(*srcpost++) >> 1;
         dc_source += start;
@@ -352,8 +354,8 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
         dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
         dc_yh = (bottomscreen - 1) >> 16;
 
-        if (dc_yh >= viewheight)
-            dc_yh = viewheight - 1;
+        if (dc_yh >= (viewheight * vga_scale))
+            dc_yh = (viewheight * vga_scale) - 1;
 
         if (dc_yl < 0) {
             dc_frac = dc_iscale * (-dc_yl);
@@ -362,12 +364,13 @@ void ScaleMaskedPost(Sint16 height, Uint16 buf)
             dc_frac = 0;
 
         if (dc_yl <= dc_yh) {
+            dc_dy = dc_yl;
             dc_dest = buf + ylookup[(Uint16)dc_yl];
             dc_length = (Uint16)(dc_yh - dc_yl + 1);
             R_DrawColumn();
         }
 
-        end=bstone::Endian::le(*srcpost++) >> 1;
+        end = bstone::Endian::le(*srcpost++) >> 1;
     }
 }
 
@@ -397,72 +400,76 @@ extern const Uint8 * lightsource;
 
 void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting)
 {
-	t_compshape	*shape;
-	Sint16      i;
-	Uint32 frac;
-	Sint16      x1,x2;
-	Uint32 xscale;
-	Uint32 screenscale;
-	Sint32		texturecolumn;
-	Uint16 swidth;
-	Sint32     xcent;
+    t_compshape	*shape;
+    Sint16      i;
+    Uint32 frac;
+    Sint16      x1, x2;
+    Uint32 xscale;
+    Uint32 screenscale;
+    Sint32		texturecolumn;
+    Uint16 swidth;
+    Sint32     xcent;
 
-	if ((height>>1>maxscaleshl2)||(!(height>>1)))
-		return;
-	shape = (t_compshape*)PM_GetSpritePage(shapenum);
+    height *= vga_scale;
+
+    if ((height >> 1 > (maxscaleshl2 * vga_scale)) || (!(height >> 1)))
+        return;
+
+    dc_y = 0;
+    xcenter *= vga_scale;
+
+    shape = (t_compshape*)PM_GetSpritePage(shapenum);
 
     dc_seg = (Uint8*)shape;
 
-	xscale=(Uint32)height<<12;
-	xcent=(Sint32)((Sint32)xcenter<<20)-((Sint32)height<<17)+0x80000;
-//
-// calculate edges of the shape
-//
-	x1 = (Sint16)((Sint32)(xcent+((Sint32)shape->leftpix*xscale))>>20);
-	if (x1 >= viewwidth)
-		 return;               // off the right side
-	x2 = (Sint16)((Sint32)(xcent+((Sint32)shape->rightpix*xscale))>>20);
-	if (x2 < 0)
-		 return;         // off the left side
-	screenscale=(256L<<20L)/(Uint32)height;
-//
-// store information in a vissprite
-//
-	if (x1<0)
-		{
-		frac=((Sint32)-x1)*(Sint32)screenscale;
-		x1=0;
-		}
-	else
-		frac=screenscale>>1;
-	x2 = x2 >= viewwidth ? viewwidth-1 : x2;
+    xscale = (Uint32)height << 12;
+    xcent = (Sint32)((Sint32)xcenter << 20) - ((Sint32)height << 17) + 0x80000;
+    //
+    // calculate edges of the shape
+    //
+    x1 = (Sint16)((Sint32)(xcent + ((Sint32)shape->leftpix*xscale)) >> 20);
+    if (x1 >= (viewwidth * vga_scale))
+        return;               // off the right side
+    x2 = (Sint16)((Sint32)(xcent + ((Sint32)shape->rightpix*xscale)) >> 20);
+    if (x2 < 0)
+        return;         // off the left side
+    screenscale = (256L << 20L) / (Uint32)height;
+    //
+    // store information in a vissprite
+    //
+    if (x1 < 0) {
+        frac = ((Sint32)-x1)*(Sint32)screenscale;
+        x1 = 0;
+    } else
+        frac = screenscale >> 1;
+    x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
 
-	i=shade_max-(63l*(Uint32)(height>>3)/(Uint32)normalshade)+lighting;
+    i = shade_max - (63l * (Uint32)(height >> 3) / (Uint32)normalshade) + lighting;
 
-	if (i<0)
-		i=0;
-   else
-  	if (i > 63)
-   	i = 63;
+    if (i < 0)
+        i = 0;
+    else
+        if (i > 63)
+            i = 63;
 
-	shadingtable=lightsource+(i<<8);
-	swidth=shape->rightpix-shape->leftpix;
+    shadingtable = lightsource + (i << 8);
+    swidth = shape->rightpix - shape->leftpix;
 
-	for (; x1<=x2 ; x1++, frac += screenscale)
-		{
-		if (wallheight[x1]>height)
-			continue;
+    for (; x1 <= x2; x1++, frac += screenscale) {
+        if (wallheight[x1] > height)
+            continue;
 
+        dc_x = x1;
         dc_plane = x1 & 3;
 
-		texturecolumn=frac>>20;
-		if (texturecolumn>swidth)
-			texturecolumn=swidth;
+        texturecolumn = frac >> 20;
+        if (texturecolumn > swidth)
+            texturecolumn = swidth;
 
         linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-		ScaleMaskedLSPost(height>>2,bufferofs+((Uint16)x1>>2));
-		}
+        ScaleMaskedLSPost(height >> 2, bufferofs + ((Uint16)x1 >> 2));
+    }
 }
 
 
@@ -491,62 +498,65 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 */
 void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 {
-	t_compshape	*shape;
-	Uint32 frac;
-	Sint16      x1,x2;
-	Uint32 xscale;
-	Uint32 screenscale;
-	Sint32		texturecolumn;
-	Sint32     xcent;
-	Uint16 swidth;
+    height *= vga_scale;
 
+    if ((height >> 1) > (maxscaleshl2 * vga_scale) || ((height >> 1) == 0))
+        return;
 
-	if ((height>>1>maxscaleshl2)||(!(height>>1)))
-		return;
-	shape = (t_compshape*)PM_GetSpritePage(shapenum);
+    dc_y = 0;
+    xcenter *= vga_scale;
+
+    t_compshape* shape = (t_compshape*)PM_GetSpritePage(shapenum);
 
     dc_seg = (Uint8*)shape;
 
-	xscale=(Uint32)height<<12;
-	xcent=(Sint32)((Sint32)xcenter<<20)-((Sint32)height<<(17))+0x80000;
-//
-// calculate edges of the shape
-//
-	x1 = (Sint16)((Sint32)(xcent+((Sint32)shape->leftpix*xscale))>>20);
-	if (x1 >= viewwidth)
-		 return;               // off the right side
-	x2 = (Sint16)((Sint32)(xcent+((Sint32)shape->rightpix*xscale))>>20);
-	if (x2 < 0)
-		 return;         // off the left side
-	screenscale=(256L<<20L)/(Uint32)height;
-//
-// store information in a vissprite
-//
-	if (x1<0)
-		{
-		frac=((Sint32)-x1)*(Sint32)screenscale;
-		x1=0;
-		}
-	else
-		frac=screenscale>>1;
-	x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-	swidth=shape->rightpix-shape->leftpix;
+    unsigned int xscale = height << 12;
+    int xcent = (Sint32)((Sint32)xcenter << 20) - ((Sint32)height << (17)) + 0x80000;
 
-	for (; x1<=x2 ; x1++, frac += screenscale)
-		{
-		if (wallheight[x1]>height)
-			continue;
+    //
+    // calculate edges of the shape
+    //
+    int x1 = (Sint32)(xcent + ((Sint32)shape->leftpix*xscale)) >> 20;
 
+    if (x1 >= (viewwidth * vga_scale))
+        return; // off the right side
+
+    int x2 = (Sint32)(xcent + ((Sint32)shape->rightpix*xscale)) >> 20;
+
+    if (x2 < 0)
+        return; // off the left side
+
+    unsigned int screenscale = (256UL << 20UL) / height;
+
+    //
+    // store information in a vissprite
+    //
+    Uint32 frac;
+
+    if (x1 < 0) {
+        frac = (-x1) * screenscale;
+        x1 = 0;
+    } else
+        frac = screenscale >> 1;
+
+    x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
+    int swidth = shape->rightpix - shape->leftpix;
+
+    for ( ; x1 <= x2; x1++, frac += screenscale) {
+        if (wallheight[x1] > height)
+            continue;
+
+        dc_x = x1;
         dc_plane = x1 & 3;
 
-		texturecolumn=frac>>20;
-		if (texturecolumn>swidth)
-			texturecolumn=swidth;
+        unsigned int texturecolumn = frac >> 20;
+        if (texturecolumn > swidth)
+            texturecolumn = swidth;
 
         linecmds = (Uint16*)&dc_seg[shape->dataofs[(Uint16)texturecolumn]];
 
-		ScaleMaskedPost(height>>2,static_cast<Uint16>(bufferofs+((Uint16)x1>>2)));
-		}
+        ScaleMaskedPost(height >> 2, static_cast<Uint16>(bufferofs + ((Uint16)x1 >> 2)));
+    }
 }
 
 
