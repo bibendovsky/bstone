@@ -2186,7 +2186,7 @@ void SetupGameLevel (void)
 	memset (gamestate.old_barrier_table,0xff,sizeof(gamestate.old_barrier_table));
 	memset (tilemap,0,sizeof(tilemap));
 	memset (actorat,0,sizeof(actorat));
-	memset (wallheight,0,sizeof(wallheight));
+    std::uninitialized_fill_n(wallheight, vga_width, 0);
 
 	map = mapsegs[0];
 	map2 = mapsegs[1];

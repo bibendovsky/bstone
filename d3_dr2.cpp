@@ -63,7 +63,7 @@ extern Uint16 ypartialup;
 extern Uint16 ypartialdown;
 extern Uint16 tilehit;
 extern Uint16 pixx;
-extern Uint16 wallheight[MAXVIEWWIDTH];
+extern Uint16* wallheight;
 extern Sint16 xtile;
 extern Sint16 ytile;
 extern Sint16 xtilestep;

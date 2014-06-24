@@ -95,7 +95,7 @@ Sint32 	lasttimecount;
 Sint32 	frameon;
 Sint32 framecount;
 
-Uint16	wallheight[MAXVIEWWIDTH];
+Uint16* wallheight = NULL;
 
 fixed	mindist		= MINDIST;
 
