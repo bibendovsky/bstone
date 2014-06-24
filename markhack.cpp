@@ -32,12 +32,9 @@ Free Software Foundation, Inc.,
 extern Sint16 viewwidth;
 extern Sint16 viewheight;
 extern int bufferofs;
-extern Uint16 ylookup[MAXSCANLINES];
 extern Uint16 centery;
-extern Uint16 bufx;
 extern Uint16 postheight;
 extern const Uint8* shadingtable;
-extern int post_planes;
 
 
 enum DrawMode {

@@ -446,21 +446,14 @@ Sint16 CalcHeight()
 
 const Uint8* postsource;
 Uint16       postx;
-Uint16       bufx;
 Uint16       postheight;
 const Uint8 *     shadingtable;
 extern const Uint8 * lightsource;
-
-// BBi
-// A bit mask of planes to draw in.
-int post_planes;
 
 void ScalePost()
 {
     Sint16 height;
     Sint32 i;
-    Uint8 ofs;
-    Uint8 msk;
 
     height = wallheight[postx] >> 3;
     postheight = height;
