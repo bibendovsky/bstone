@@ -447,7 +447,6 @@ Sint16 CalcHeight()
 const Uint8* postsource;
 Uint16       postx;
 Uint16       bufx;
-Uint16       postwidth;
 Uint16       postheight;
 const Uint8 *     shadingtable;
 extern const Uint8 * lightsource;
@@ -477,7 +476,7 @@ void ScalePost()
 
         shadingtable = lightsource + (i << 8);
         bufx = postx >> 2;
-        ofs = static_cast<Uint8>(((postx & 3) << 3) + postwidth - 1);
+        ofs = static_cast<Uint8>((postx & 3) << 3);
         post_planes = ((const Uint8*)mapmasks1)[ofs];
         DrawLSPost();
 
@@ -498,7 +497,7 @@ void ScalePost()
         DrawLSPost();
     } else {
         bufx = postx >> 2;
-        ofs = static_cast<Uint8>(((postx & 3) << 3) + postwidth - 1);
+        ofs = static_cast<Uint8>((postx & 3) << 3);
         post_planes = ((const Uint8*)mapmasks1)[ofs];
         DrawPost();
 
@@ -586,24 +585,12 @@ void HitVertWall (void)
 
 	if (lastside==1 && lastintercept == xtile && lasttilehit == tilehit)
 	{
-		// in the same wall type as last time, so check for optimized draw
-        if (texture == last_texture_offset && postwidth < 8)
-		{
-		// wide scale
-			postwidth++;
-			wallheight[pixx] = wallheight[pixx-1];
-			return;
-		}
-		else
-		{
-			ScalePost ();
+		ScalePost ();
 
-            last_texture_offset = texture;
-            postsource = &last_texture_data[last_texture_offset];
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 
-			postwidth = 1;
-			postx = pixx;
-		}
+		postx = pixx;
 	}
 	else
 	{
@@ -617,7 +604,6 @@ void HitVertWall (void)
 
 		lasttilehit = tilehit;
 		postx = pixx;
-		postwidth = 1;
 
 		if (tilehit & 0x40)
 		{
@@ -666,25 +652,12 @@ void HitHorizWall (void)
 
 	if (lastside==0 && lastintercept == ytile && lasttilehit == tilehit)
 	{
-		// in the same wall type as last time, so check for optimized draw
+		ScalePost ();
 
-        if (texture == last_texture_offset && postwidth < 8)
-		{
-		// wide scale
-			postwidth++;
-			wallheight[pixx] = wallheight[pixx-1];
-			return;
-		}
-		else
-		{
-			ScalePost ();
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 
-            last_texture_offset = texture;
-            postsource = &last_texture_data[last_texture_offset];
-
-			postwidth = 1;
-			postx = pixx;
-		}
+		postx = pixx;
 	}
 	else
 	{
@@ -697,7 +670,6 @@ void HitHorizWall (void)
 
 		lasttilehit = tilehit;
 		postx = pixx;
-		postwidth = 1;
 
 
 
@@ -758,30 +730,16 @@ void HitHorizDoor (void)
 
 	if (lasttilehit == tilehit)
 	{
-		// in the same door as last time, so check for optimized draw
-
-        if (texture == last_texture_offset && postwidth < 8)
-		{
-			// wide scale
-
-			postwidth++;
-			wallheight[pixx] = wallheight[pixx-1];
-			return;
-		}
-		else
-		{
 #if MASKABLE_DOORS
-			ScaleMPost();
+		ScaleMPost();
 #else
-			ScalePost ();
+		ScalePost ();
 #endif
 
-            last_texture_offset = texture;
-            postsource = &last_texture_data[last_texture_offset];
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 
-			postwidth = 1;
-			postx = pixx;
-		}
+		postx = pixx;
 	}
 	else
 	{
@@ -797,7 +755,6 @@ void HitHorizDoor (void)
 		lastside = 2;
 		lasttilehit = tilehit;
 		postx = pixx;
-		postwidth = 1;
 
 		switch (doorobjlist[doornum].type)
 		{
@@ -902,30 +859,16 @@ void HitVertDoor (void)
 
 	if (lasttilehit == tilehit)
 	{
-	// in the same door as last time, so check for optimized draw
-
-        if (texture == last_texture_offset && postwidth < 8)
-		{
-			// wide scale
-
-			postwidth++;
-			wallheight[pixx] = wallheight[pixx-1];
-			return;
-		}
-		else
-		{
 #if MASKABLE_DOORS
-			ScaleMPost();
+		ScaleMPost();
 #else
-			ScalePost ();
+		ScalePost ();
 #endif
 
-            last_texture_offset = texture;
-            postsource = &last_texture_data[last_texture_offset];
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 
-			postwidth = 1;
-			postx = pixx;
-		}
+		postx = pixx;
 	}
 	else
 	{
@@ -941,7 +884,6 @@ void HitVertDoor (void)
 		lastside = 2;
 		lasttilehit = tilehit;
 		postx = pixx;
-		postwidth = 1;
 
 		switch (doorobjlist[doornum].type)
 		{
@@ -1042,25 +984,12 @@ void HitHorizPWall (void)
 
 	if (lasttilehit == tilehit)
 	{
-		// in the same wall type as last time, so check for optimized draw
+		ScalePost ();
 
-        if (texture == last_texture_offset && postwidth < 8)
-		{
-		// wide scale
-			postwidth++;
-			wallheight[pixx] = wallheight[pixx-1];
-			return;
-		}
-		else
-		{
-			ScalePost ();
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 
-            last_texture_offset = texture;
-            postsource = &last_texture_data[last_texture_offset];
-
-			postwidth = 1;
-			postx = pixx;
-		}
+		postx = pixx;
 	}
 	else
 	{
@@ -1070,7 +999,6 @@ void HitHorizPWall (void)
 
 		lasttilehit = tilehit;
 		postx = pixx;
-		postwidth = 1;
 
 		wallpic = horizwall[tilehit&63];
 
@@ -1110,25 +1038,12 @@ void HitVertPWall (void)
 
 	if (lasttilehit == tilehit)
 	{
-		// in the same wall type as last time, so check for optimized draw
+		ScalePost ();
 
-        if (texture == last_texture_offset && postwidth < 8)
-		{
-		// wide scale
-			postwidth++;
-			wallheight[pixx] = wallheight[pixx-1];
-			return;
-		}
-		else
-		{
-			ScalePost ();
+        last_texture_offset = texture;
+        postsource = &last_texture_data[last_texture_offset];
 
-            last_texture_offset = texture;
-            postsource = &last_texture_data[last_texture_offset];
-
-			postwidth = 1;
-			postx = pixx;
-		}
+		postx = pixx;
 	}
 	else
 	{
@@ -1138,7 +1053,6 @@ void HitVertPWall (void)
 
 		lasttilehit = tilehit;
 		postx = pixx;
-		postwidth = 1;
 
 		wallpic = vertwall[tilehit&63];
 

@@ -1579,7 +1579,6 @@ Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 			addr = PM_GetPage(shapenum);
 			bufferofs += (y-30)*SCREENWIDTH;
 			postx = x;
-			postwidth = 1;
 			postsource = (const Uint8*)addr;
 			for (x=0;x<64;x++,postx++,postsource+=64)
 			{

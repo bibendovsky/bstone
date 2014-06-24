@@ -2930,7 +2930,6 @@ extern  fixed   viewsin,viewcos;
 
 extern  const Uint8* postsource;
 extern  Uint16        postx;
-extern  Uint16        postwidth;
 
 
 extern  Sint16             horizwall[],vertwall[];
