@@ -1156,19 +1156,21 @@ void vga_clear_screen(
     int height,
     int color)
 {
-    int pixel_offset = (4 * bufferofs) + (y_offset * vga_width);
+    height *= vga_scale;
 
-    if (viewwidth == vga_width) {
+    int pixel_offset = vl_get_offset(bufferofs, 0, y_offset);
+
+    if (viewwidth == k_ref_width) {
         std::uninitialized_fill_n(
             &vga_memory[pixel_offset],
-            height * viewwidth,
-            static_cast<uint8_t>(color));
+            height * vga_width,
+            static_cast<Uint8>(color));
     } else {
         for (int y = 0; y < height; ++y) {
             std::uninitialized_fill_n(
                 &vga_memory[pixel_offset],
-                viewwidth,
-                static_cast<uint8_t>(color));
+                vga_scale * viewwidth,
+                static_cast<Uint8>(color));
 
             pixel_offset += vga_width;
         }
