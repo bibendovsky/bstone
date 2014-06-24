@@ -63,7 +63,7 @@ static void generic_draw_post(DrawMode draw_mode)
     int n = postheight;
 
     if (postheight > (centery * vga_scale))
-        n = centery;
+        n = centery * vga_scale;
 
     for (int h = 0; h < n; ++h) {
         // top half
