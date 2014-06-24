@@ -2663,7 +2663,7 @@ extern  Sint16             mouseadjustment;
 //
 // math tables
 //
-extern  Sint16                     pixelangle[MAXVIEWWIDTH];
+extern int* pixelangle;
 extern  Sint32            finetangent[FINEANGLES/4];
 extern  fixed           sintable[],*costable;
 
@@ -2911,7 +2911,7 @@ extern  fixed   mindist;
 //
 // math tables
 //
-extern  Sint16                     pixelangle[MAXVIEWWIDTH];
+extern int* pixelangle;
 extern  Sint32            finetangent[FINEANGLES/4];
 extern  fixed           sintable[],*costable;
 

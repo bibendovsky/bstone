@@ -103,7 +103,7 @@ fixed	mindist		= MINDIST;
 //
 // math tables
 //
-Sint16			pixelangle[MAXVIEWWIDTH];
+int* pixelangle = NULL;
 Sint32		finetangent[FINEANGLES/4];
 fixed 		sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 

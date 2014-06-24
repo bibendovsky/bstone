@@ -49,7 +49,7 @@ void HitVertPWall();
 extern Sint16 viewwidth;
 extern Uint8 tilemap[MAPSIZE][MAPSIZE];
 extern Uint8 spotvis[MAPSIZE][MAPSIZE];
-extern Sint16 pixelangle[MAXVIEWWIDTH];
+extern int* pixelangle;
 extern Sint16 midangle;
 extern Sint16 focaltx;
 extern Sint16 focalty;
