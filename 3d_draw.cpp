@@ -475,48 +475,9 @@ void ScalePost()
             i = 63;
 
         shadingtable = lightsource + (i << 8);
-        bufx = postx >> 2;
-        ofs = static_cast<Uint8>((postx & 3) << 3);
-        post_planes = ((const Uint8*)mapmasks1)[ofs];
-        DrawLSPost();
-
-        msk = ((const Uint8*)mapmasks2)[ofs];
-        if (msk == 0)
-            return;
-
-        ++bufx;
-        post_planes = msk;
-        DrawLSPost();
-
-        msk = ((const Uint8*)mapmasks3)[ofs];
-        if (msk == 0)
-            return;
-
-        ++bufx;
-        post_planes = msk;
-        DrawLSPost();
-    } else {
-        bufx = postx >> 2;
-        ofs = static_cast<Uint8>((postx & 3) << 3);
-        post_planes = ((const Uint8*)mapmasks1)[ofs];
-        DrawPost();
-
-        msk = ((const Uint8*)mapmasks2)[ofs];
-        if (msk == 0)
-            return;
-
-        ++bufx;
-        post_planes = msk;
-        DrawPost();
-
-        msk = ((const Uint8*)mapmasks3)[ofs];
-        if (msk == 0)
-            return;
-
-        ++bufx;
-        post_planes = msk;
-        DrawPost();
     }
+
+    DrawLSPost();
 }
 
 void FarScalePost() // just so other files can call
