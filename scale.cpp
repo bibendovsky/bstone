@@ -29,14 +29,14 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 
 
-extern Uint32 dc_iscale;
-extern Uint32 dc_frac;
-extern Uint32 dc_source;
+extern int dc_iscale;
+extern int dc_frac;
+extern int dc_source;
 extern Uint8* dc_seg;
-extern Uint32 dc_length;
-extern Sint32 dc_x;
-extern Sint32 dc_y;
-extern Sint32 dc_dy;
+extern int dc_length;
+extern int dc_x;
+extern int dc_y;
+extern int dc_dy;
 
 extern const Uint8* shadingtable;
 
@@ -49,12 +49,12 @@ enum DrawMode {
 
 static void generic_draw_column(DrawMode draw_mode)
 {
-    unsigned int fraction = dc_frac;
+    int fraction = dc_frac;
 
     Uint8* source = dc_seg + dc_source;
     int base_offset = vl_get_offset(bufferofs) + dc_x;
 
-    for (unsigned int i = 0; i < dc_length; ++i) {
+    for (int i = 0; i < dc_length; ++i) {
         Uint8 pixel;
         Uint8 pixel_index = source[fraction >> 16];
 
@@ -79,7 +79,7 @@ void R_DrawSLSColumn()
 {
     int base_offset = vl_get_offset(bufferofs) + dc_x;
 
-    for (unsigned int i = 0; i < dc_length; ++i) {
+    for (int i = 0; i < dc_length; ++i) {
         int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
         Uint8 pixel_index = vga_memory[offset];
         Uint8 pixel = shadingtable[0x1000 | pixel_index];
