@@ -1578,13 +1578,19 @@ Sint16 TP_DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 			TP_CacheIn(ct_scaled,0);
 			addr = PM_GetPage(shapenum);
 			bufferofs += (y-30)*SCREENWIDTH;
-			postx = x;
-			postsource = (const Uint8*)addr;
-			for (x=0;x<64;x++,postx++,postsource+=64)
-			{
-				wallheight[postx] = 256;
-				FarScalePost();
-			}
+            postx = x * vga_scale;
+            postsource = static_cast<const Uint8*>(addr);
+
+            for (x = 0; x < 64; ++x) {
+                for (int s  = 0; s < vga_scale; ++s) {
+                    wallheight[postx] = 256 * vga_scale;
+                    FarScalePost();
+                    ++postx;
+                }
+
+                postsource += 64;
+            }
+
 			bufferofs -= (y-30)*SCREENWIDTH;
 		break;
 
