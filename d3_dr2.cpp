@@ -483,6 +483,6 @@ horizentry:
 nextpix:
     ++pixx;
 
-    if (pixx < viewwidth)
+    if (pixx < (viewwidth * vga_scale))
         goto pixxloop;
 }
