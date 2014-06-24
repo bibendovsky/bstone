@@ -48,40 +48,27 @@ enum DrawMode {
 
 static void generic_draw_post(DrawMode draw_mode)
 {
-    Sint32 step;
-    Sint32 cur_step;
-
-    Uint16 i;
-    int j;
-    Uint16 n;
-    Uint16 fraction;
-    Uint16 screen_column;
-    Uint8 pixel;
-    Uint8 pixel_index;
-    int column_offset;
-
-    Uint8* screen;
-
     if (postheight == 0)
         return;
 
-    cur_step = (32L * 65536L) / postheight;
+    Uint8 pixel;
+    Uint8 pixel_index;
 
-    step = cur_step;
-    cur_step >>= 1;
+    int cur_step = (32L * 65536L) / postheight;
 
-    screen = vga_memory;
+    int step = cur_step;
+    cur_step /= 2;
 
-    fraction = SCREENBWIDE;
+    int fraction = vga_width;
 
-    screen_column = static_cast<Uint16>(bufferofs + bufx + ylookup[centery] - SCREENBWIDE);
+    int screen_column = vl_get_offset(bufferofs, 0, centery - 1) + postx;
 
-    n = postheight;
+    int n = postheight;
 
-    if (postheight > centery)
+    if (postheight > (centery * vga_scale))
         n = centery;
 
-    for (i = 0; i < n; ++i) {
+    for (int h = 0; h < n; ++h) {
         // top half
 
         pixel_index = postsource[31 - (cur_step >> 16)];
@@ -91,12 +78,7 @@ static void generic_draw_post(DrawMode draw_mode)
         else
             pixel = pixel_index;
 
-        column_offset = 4 * screen_column;
-
-        for (j = 0; j < 4; ++j) {
-            if ((post_planes & (1 << j)) != 0)
-                screen[column_offset + j] = pixel;
-        }
+        vga_memory[screen_column] = pixel;
 
 
         // bottom half
@@ -108,15 +90,10 @@ static void generic_draw_post(DrawMode draw_mode)
         else
             pixel = pixel_index;
 
-        column_offset = 4 * (screen_column + fraction);
+        vga_memory[screen_column + fraction] = pixel;
 
-        for (j = 0; j < 4; ++j) {
-            if ((post_planes & (1 << j)) != 0)
-                screen[column_offset + j] = pixel;
-        }
-
-        screen_column -= SCREENBWIDE;
-        fraction += 2 * SCREENBWIDE;
+        screen_column -= vga_width;
+        fraction += 2 * vga_width;
         cur_step += step;
     }
 }
