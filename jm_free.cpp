@@ -407,7 +407,6 @@ void SetupWalls (void)
 		vertwall[i]=(i-1)*2+1;
 	}
 
-    // BBi
     delete [] wallheight;
     wallheight = new Uint16[vga_width];
 }
