@@ -526,11 +526,13 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 
 	shadingtable=lightsource+(i<<8);
 	swidth=shape->rightpix-shape->leftpix;
+    dc_y = 0;
 		for (; x1<=x2 ; x1++, frac += screenscale)
 		  {
 			if (wallheight[x1]>height)
 				continue;
 
+            dc_x = x1;
             dc_planes = 1 << (x1 & 3);
 
 			texturecolumn=frac>>20;
@@ -611,11 +613,13 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 		frac=screenscale>>1;
 	x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 	swidth=shape->rightpix-shape->leftpix;
+    dc_y = 0;
 		for (; x1<=x2 ; x1++, frac += screenscale)
 		  {
 			if (wallheight[x1]>height)
 				continue;
 
+            dc_x = x1;
             dc_planes = 1 << (Uint8)(x1 & 3);
 
 			texturecolumn=frac>>20;
