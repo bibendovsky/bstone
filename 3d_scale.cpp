@@ -329,8 +329,11 @@ void generic_scale_shape(
     Uint16 swidth;
     Sint32     xcent;
 
-    if ((height >> 1 > maxscaleshl2) || (!(height >> 1)))
+    if ((height >> 1 > (maxscaleshl2 * vga_scale)) || (!(height >> 1)))
         return;
+
+    xcenter += centerx * (vga_scale - 1);
+
     shape = (t_compshape*) PM_GetSpritePage(shapenum);
 
     dc_seg = (Uint8*) shape;
@@ -341,7 +344,7 @@ void generic_scale_shape(
     // calculate edges of the shape
     //
     x1 = (Sint16) ((Sint32) (xcent + ((Sint32) shape->leftpix*xscale)) >> 20);
-    if (x1 >= viewwidth)
+    if (x1 >= (viewwidth * vga_scale))
         return;               // off the right side
     x2 = (Sint16) ((Sint32) (xcent + ((Sint32) shape->rightpix*xscale)) >> 20);
     if (x2 < 0)
@@ -355,7 +358,7 @@ void generic_scale_shape(
         x1 = 0;
     } else
         frac = screenscale >> 1;
-    x2 = x2 >= viewwidth ? viewwidth - 1 : x2;
+    x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
 
     if (draw_mode == e_sdm_shaded) {
         i = shade_max - (63l * (Uint32) (height >> 3) / (Uint32) normalshade) + lighting;
