@@ -181,7 +181,7 @@ void DrawPlanes()
     int lastheight = halfheight;
 
     for (x = 0; x < viewwidth * vga_scale; ++x) {
-        height = wallheight[x] / 8;
+        height = (wallheight[x] / 8) - 4;
 
         if (height < lastheight) { // more starts
             do {
