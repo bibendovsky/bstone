@@ -460,7 +460,7 @@ void ScalePost()
     postheight = height;
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
-        i = shade_max - (63L * (Uint32)height / (Uint32)normalshade);
+        i = shade_max - (63L * (Uint32)height / ((Uint32)normalshade * vga_scale));
 
         if (i < 0)
             i = 0;
