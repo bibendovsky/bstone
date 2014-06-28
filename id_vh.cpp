@@ -404,8 +404,8 @@ boolean FizzleFade(
     rndval = 1;
     pixperframe = 64000 / frames;
     remain_pixels = 64000 - (frames * pixperframe);
-    src_offset = 4 * source;
-    dst_offset = 4 * dest;
+    src_offset = vl_get_offset(source);
+    dst_offset = vl_get_offset(dest);
 
     IN_StartAck();
 
@@ -438,10 +438,18 @@ boolean FizzleFade(
                 if (x > width || y > height)
                     continue;
 
-                pixel_offset = (y * vga_width) + x;
+                pixel_offset = vga_scale * ((y * vga_width) + x);
 
-                vga_memory[dst_offset + pixel_offset] =
-                    vga_memory[src_offset + pixel_offset];
+                for (int dy = 0; dy < vga_scale; ++dy) {
+                    for (int dx = 0; dx < vga_scale; ++dx) {
+                        int offset = pixel_offset + dx;
+
+                        vga_memory[dst_offset + offset] =
+                            vga_memory[src_offset + offset];
+                    }
+
+                    pixel_offset += vga_width;
+                }
 
                 if (rndval == 1)
                     do_full_copy = true;
