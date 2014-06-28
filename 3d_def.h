@@ -2928,8 +2928,8 @@ extern  fixed   viewx,viewy;                    // the focal point
 extern  Sint16             viewangle;
 extern  fixed   viewsin,viewcos;
 
-extern  const Uint8* postsource;
-extern  Uint16        postx;
+extern const Uint8* postsource;
+extern int postx;
 
 
 extern  Sint16             horizwall[],vertwall[];
@@ -3047,12 +3047,13 @@ extern  Uint8            mapmasks1[4][8];
 extern  Uint8            mapmasks2[4][8];
 extern  Uint8            mapmasks3[4][8];
 
-extern  Sint16                     maxscale,maxscaleshl2;
-extern  boolean	scaledir_avail;
+extern int maxscale;
+extern int maxscaleshl2;
+extern boolean	scaledir_avail;
 
-extern Sint16 normalshade;
-extern Sint16 normalshade_div;
-extern Sint16 shade_max;
+extern int normalshade;
+extern int normalshade_div;
+extern int shade_max;
 
 
 void FreeScaleDirectory(void);

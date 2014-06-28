@@ -446,29 +446,25 @@ Sint16 CalcHeight()
 */
 
 const Uint8* postsource;
-Uint16       postx;
-Uint16       postheight;
-const Uint8 *     shadingtable;
-extern const Uint8 * lightsource;
+int postx;
+int postheight;
+const Uint8* shadingtable;
+extern const Uint8* lightsource;
 
 void ScalePost()
 {
-    Sint16 height;
-    Sint32 i;
-
-    height = wallheight[postx] >> 3;
+    int height = wallheight[postx] / 8;
     postheight = height;
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
-        i = shade_max - (63L * (Uint32)height / ((Uint32)normalshade * vga_scale));
+        int i = shade_max - ((63 * height) / (normalshade * vga_scale));
 
         if (i < 0)
             i = 0;
-
-        if (i > 63)
+        else if (i > 63)
             i = 63;
 
-        shadingtable = lightsource + (i << 8);
+        shadingtable = &lightsource[i * 256];
 
         DrawLSPost();
     } else

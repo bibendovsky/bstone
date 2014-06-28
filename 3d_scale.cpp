@@ -59,12 +59,13 @@ void R_DrawColumn();
 //t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
 //long			fullscalefarcall[MAXSCALEHEIGHT+1];
 
-Sint16			maxscale,maxscaleshl2;
-Uint16    centery;
+int maxscale;
+int maxscaleshl2;
+int centery;
 
-Sint16 normalshade;
-Sint16 normalshade_div = 1;
-Sint16 shade_max = 1;
+int normalshade;
+int normalshade_div = 1;
+int shade_max = 1;
 
 Sint16 nsd_table[] = { 1, 6, 3, 4, 1, 2};
 Sint16 sm_table[] =  {36,51,62,63,18,52};

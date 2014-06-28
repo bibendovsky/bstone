@@ -32,8 +32,8 @@ Free Software Foundation, Inc.,
 extern Sint16 viewwidth;
 extern Sint16 viewheight;
 extern int bufferofs;
-extern Uint16 centery;
-extern Uint16 postheight;
+extern int centery;
+extern int postheight;
 extern const Uint8* shadingtable;
 
 
