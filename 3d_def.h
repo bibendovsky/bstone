@@ -3057,7 +3057,7 @@ extern int shade_max;
 
 
 void FreeScaleDirectory(void);
-void SetupScaling (Sint16 maxscaleheight);
+void SetupScaling (int maxscaleheight);
 void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height);
 void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height);
 

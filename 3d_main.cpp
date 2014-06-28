@@ -2119,7 +2119,7 @@ boolean SetViewSize (Uint16 width, Uint16 height)
 //
 // build all needed compiled scalers
 //
-	SetupScaling (static_cast<Sint16>(viewwidth*1.5));
+	SetupScaling((3 * viewwidth) / 2);
 
 	view_xl=0;
 	view_xh=view_xl+viewwidth-1;

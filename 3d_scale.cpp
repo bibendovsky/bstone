@@ -101,25 +101,15 @@ void BadScale (void)
 }
 #endif
 
-
-
-
-/*
-==========================
-=
-= SetupScaling
-=
-==========================
-*/
-
-void SetupScaling (Sint16 maxscaleheight)
+void SetupScaling(
+    int maxscaleheight)
 {
-	maxscaleheight/=2;			// one scaler every two pixels
+    maxscaleheight /= 2; // one scaler every two pixels
 
-	maxscale = maxscaleheight-1;
-	maxscaleshl2 = maxscale<<2;
-	normalshade=(3*(maxscale>>2))/normalshade_div;
-	centery=viewheight>>1;
+    maxscale = maxscaleheight - 1;
+    maxscaleshl2 = maxscale * 4;
+    normalshade = (3 * maxscale) / (4 * normalshade_div);
+    centery = viewheight / 2;
 }
 
 //===========================================================================
