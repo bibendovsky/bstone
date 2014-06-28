@@ -164,6 +164,7 @@ Sint16		horizwall[MAXWALLTILES],vertwall[MAXWALLTILES];
 
 Uint16 viewflags;
 extern Uint8 lightson;
+extern const Uint8 rndtable[256];
 
 // Global Cloaked Shape flag..
 
@@ -1835,243 +1836,172 @@ void DrawRadar()
 
 Uint16 tc_time;
 
-
-//--------------------------------------------------------------------------
-// ShowOverhead()
-//--------------------------------------------------------------------------
-void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags)
+void ShowOverhead(
+    int bx,
+    int by,
+    int radius,
+    int zoom,
+    int flags)
 {
-	#define PLAYER_COLOR 	0xf1
-	#define UNMAPPED_COLOR	0x52
-	#define MAPPED_COLOR		0x55
+    const Uint8 PLAYER_COLOR = 0xF1;
+    const Uint8 UNMAPPED_COLOR = 0x52;
+    const Uint8 MAPPED_COLOR = 0x55;
 
-	extern Uint8 pixmasks[];
-	extern const Uint8 rndtable[256];
+    bool snow = false;
+    Uint8 rndindex = 0;
+    bool drawplayerok = true;
 
-	Uint8 color;
-	Uint8 tile,door;
-	objtype *ob;
+    // -zoom == make it snow!
+    //
+    if (zoom < 0) {
+        zoom = 0;
+        snow = true;
+        rndindex = static_cast<Uint8>(US_RndT());
+    }
 
-	fixed dx,dy,psin,pcos,lmx,lmy,baselmx,baselmy,xinc,yinc;
-	Sint16 rx,ry,mx,my;
+    zoom = 1 << zoom;
+    radius /= zoom;
 
-    int dstptr;
-    int basedst;
-    Uint8 mask = 0;
-    Uint8 startmask = 0;
-    int i;
+    // Get sin/cos values
+    //
+    int psin = sintable[player->angle];
+    int pcos = costable[player->angle];
 
-	boolean drawplayerok=true;
-	Uint8 rndindex = 0;
-	boolean snow=false;
+    // Convert radius to fixed integer and calc rotation.
+    //
+    int dx = radius << TILESHIFT;
+    int dy = dx;
 
-// -zoom == make it snow!
-//
-	if (zoom<0)
-	{
-		zoom = 0;
-		snow = true;
-		rndindex = static_cast<Uint8>(US_RndT());
-	}
+    int baselmx = player->x + (FixedByFrac(dx, pcos) - FixedByFrac(dy, psin));
+    int baselmy = player->y - (FixedByFrac(dx, psin) + FixedByFrac(dy, pcos));
 
-	zoom = 1<<zoom;
-	radius /= zoom;
+    // Carmack's sin/cos tables use one's complement for negative numbers --
+    // convert it to two's complement!
+    //
+    if ((pcos & 0x80000000) != 0)
+        pcos = -(pcos & 0xFFFF);
 
-// Get sin/cos values
-//
-	psin=sintable[player->angle];
-	pcos=costable[player->angle];
+    if ((psin & 0x80000000) != 0)
+        psin = -(psin & 0xFFFF);
 
-// Convert radius to fixed integer and calc rotation.
-//
-	dx = dy = (Sint32)radius<<TILESHIFT;
-	baselmx = player->x+(FixedByFrac(dx,pcos)-FixedByFrac(dy,psin));
-	baselmy = player->y-(FixedByFrac(dx,psin)+FixedByFrac(dy,pcos));
+    // Get x/y increment values.
+    //
+    int xinc = -pcos;
+    int yinc = psin;
 
-// Carmack's sin/cos tables use one's complement for negative numbers --
-// convert it to two's complement!
-//
-	if (pcos & 0x80000000)
-		pcos = -(pcos & 0xffff);
+    int diameter = radius * 2;
 
-	if (psin & 0x80000000)
-		psin = -(psin & 0xffff);
+    // Draw rotated radar.
+    //
 
-// Get x/y increment values.
-//
-	xinc = -pcos;
-	yinc = psin;
+    for (int x = 0; x < diameter; ++x) {
+        int lmx = baselmx;
+        int lmy = baselmy;
 
-// Calculate starting destination address.
-//
-    basedst = bufferofs + ylookup[by] + (bx >> 2);
+        for (int y = 0; y < diameter; ++y) {
+            Uint8 color;
+            bool go_to_draw = false;
 
-	switch (zoom)
-	{
-		case 1:
-			startmask = 1;
-			mask = pixmasks[bx&3];
-		break;
+            if (snow) {
+                color = 0x42 + (rndtable[rndindex] & 3);
+                rndindex++;
+                go_to_draw = true;
+            }
 
-		case 2:							// bx MUST be byte aligned for 2x zoom
-			mask = startmask = 3;
-		break;
+            // Don't evaluate if point is outside of map.
+            //
+            color = UNMAPPED_COLOR;
+            int mx = lmx >> 16;
+            int my = lmy >> 16;
 
-		case 4:							// bx MUST be byte aligned for 4x zoom
-			mask = startmask = 15;
-		break;
-	}
+            if (mx < 0 || mx > 63 || my < 0 || my > 63)
+                go_to_draw = true;
 
-// Draw rotated radar.
-//
-	rx = radius*2;
-	while (rx--)
-	{
-		lmx = baselmx;
-		lmy = baselmy;
+            // SHOW PLAYER
+            //
+            if (!go_to_draw &&
+                drawplayerok &&
+                player->tilex == mx &&
+                player->tiley == my)
+            {
+                color = PLAYER_COLOR;
+                drawplayerok = false;
+            } else if (!go_to_draw) {
+                // SHOW TRAVELED
+                //
+                if ((TravelTable[mx][my] & TT_TRAVELED) != 0 ||
+                    (flags & OV_SHOWALL) != 0)
+                {
+                    // What's at this map location?
+                    //
+                    Uint8 tile = tilemap[mx][my];
+                    Uint8 door = tile & 0x3F;
 
-		dstptr = basedst;
+                    // Evaluate wall or floor?
+                    //
+                    if (tile != 0) {
+                        // SHOW DOORS
+                        //
+                        if ((tile & 0x80) != 0) {
+                            if (doorobjlist[door].lock != kt_none)
+                                color = 0x18; // locked!
+                            else {
+                                if (doorobjlist[door].action == dr_closed)
+                                    color = 0x58; // closed!
+                                else
+                                    color = MAPPED_COLOR; // floor!
+                            }
+                        }
+                    } else
+                        color = MAPPED_COLOR; // floor!
 
-		ry = radius*2;
-		while (ry--)
-		{
-			if (snow)
-			{
-				color = 0x42+(rndtable[rndindex]&3);
-				rndindex++; 		// += ((rndindex<<1) + 1);
-				goto nextx;
-			}
-
-		// Don't evaluate if point is outside of map.
-		//
-			color = UNMAPPED_COLOR;
-			mx = lmx>>16;
-			my = lmy>>16;
-			if (mx<0 || mx>63 || my<0 || my>63)
-				goto nextx;
-
-		// SHOW PLAYER
-		//
-			if (drawplayerok && player->tilex==mx && player->tiley==my)
-			{
-				color = PLAYER_COLOR;
-				drawplayerok=false;
-			}
-			else
-		// SHOW TRAVELED
-		//
-			if ((TravelTable[mx][my] & TT_TRAVELED) || (flags & OV_SHOWALL))
-			{
-			// What's at this map location?
-			//
-				tile=tilemap[mx][my];
-				door=tile&0x3f;
-
-			// Evaluate wall or floor?
-			//
-				if (tile)
-				{
-				// SHOW DOORS
-				//
-					if (tile & 0x80)
+                    // SHOW KEYS
+                    //
+                    if ((flags & OV_KEYS) != 0 &&
+                        (TravelTable[mx][my] & TT_KEYS) != 0)
                     {
-							if (doorobjlist[door].lock!=kt_none)
-                            {
-								color=0x18;										// locked!
-                            }
-							else
-                            {
-								if (doorobjlist[door].action==dr_closed)
-									color=0x58;									// closed!
-								else
-									color = MAPPED_COLOR;					// floor!
-                            }
+                        color = 0xF3;
                     }
-				}
-				else
-					color = MAPPED_COLOR;									// floor!
 
-			// SHOW KEYS
-			//
-				if ((flags & OV_KEYS) && (TravelTable[mx][my] & TT_KEYS))
-					color = 0xf3;
+                    if (zoom > 1 || (ExtraRadarFlags & OV_ACTORS) != 0) {
+                        objtype* ob = actorat[mx][my];
 
-				if ((zoom > 1) || (ExtraRadarFlags & OV_ACTORS))
-				{
-					ob=(objtype *)actorat[mx][my];
+                        // SHOW ACTORS
+                        //
+                        if ((flags & OV_ACTORS) != 0 &&
+                            (ob >= objlist) &&
+                            (ob->flags & FL_DEADGUY) == 0 &&
+                            (ob->obclass > deadobj) &&
+                            (ob->obclass < SPACER1_OBJ))
+                        {
+                            color = static_cast<Uint8>(0x10 + ob->obclass);
+                        }
 
-				// SHOW ACTORS
-				//
-					if ((flags & OV_ACTORS) && (ob >= objlist) && (!(ob->flags & FL_DEADGUY)) &&
-						 (ob->obclass > deadobj) && (ob->obclass < SPACER1_OBJ))
-						color = static_cast<Uint8>(0x10+ob->obclass);
+                        if ((zoom == 4) ||
+                            (ExtraRadarFlags & OV_PUSHWALLS) != 0)
+                        {
+                            int iconnum = *(mapsegs[1] + farmapylookup[my] + mx);
 
-					if ((zoom == 4) || (ExtraRadarFlags & OV_PUSHWALLS))
-					{
-						Uint16 iconnum;
-
-						iconnum = *(mapsegs[1]+farmapylookup[my]+mx);
-
-					// SHOW PUSHWALLS
-					//
-						if ((flags & OV_PUSHWALLS) && (iconnum == PUSHABLETILE))
-							color = 0x79;
-					}
-				}
-			}
-			else
-				color = UNMAPPED_COLOR;
-
-nextx:;
-		// Display pixel for this quadrant and add x/y increments
-		//
-
-            for (i = 0; i < 4; ++i) {
-                if ((mask & (1 << i)) != 0)
-                    vga_memory[(4 * dstptr) + i] = color;
+                            // SHOW PUSHWALLS
+                            //
+                            if ((flags & OV_PUSHWALLS) != 0 &&
+                                (iconnum == PUSHABLETILE))
+                            {
+                                color = 0x79;
+                            }
+                        }
+                    }
+                } else
+                    color = UNMAPPED_COLOR;
             }
 
-            dstptr += 80;
+            VL_Bar(bx + (x * zoom), by + (y * zoom), zoom, zoom, color);
 
-            // handle 2x zoom
-            if (zoom > 1) {
-                for (i = 0; i < 4; ++i) {
-                    if ((mask & (1 << i)) != 0)
-                        vga_memory[(4 * dstptr) + i] = color;
-                }
+            lmx += xinc;
+            lmy += yinc;
+        }
 
-                dstptr += 80;
-
-                // handle 4x zoom
-                if (zoom > 2) {
-                    for (i = 0; i < 4; ++i) {
-                        if ((mask & (1 << i)) != 0)
-                            vga_memory[(4 * dstptr) + i] = color;
-                    }
-
-                    dstptr += 80;
-
-                    for (i = 0; i < 4; ++i) {
-                        if ((mask & (1 << i)) != 0)
-                            vga_memory[(4 * dstptr) + i] = color;
-                    }
-
-                    dstptr += 80;
-                }
-            }
-
-			lmx += xinc;
-			lmy += yinc;
-		}
-
-		baselmx += yinc;
-		baselmy -= xinc;
-
-		mask <<= zoom;
-		if (mask>15)
-		{
-			mask=startmask;
-			basedst++;
-		}
-	}
+        baselmx += yinc;
+        baselmy -= xinc;
+    }
 }

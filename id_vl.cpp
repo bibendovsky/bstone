@@ -990,7 +990,7 @@ void VL_ScreenToMem(
 
 void VL_LatchToScreen(int source, int width, int height, int x, int y)
 {
-    int src_pitch = vga_scale * width;
+    int src_pitch = vga_scale * 4 * width;
     int src_offset = vl_get_offset(source);
     int dst_offset = vl_get_offset(bufferofs, x, y);
 

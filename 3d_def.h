@@ -2958,7 +2958,7 @@ void ComputeActorPosition(objtype *ob, char adjust_x, char adjust_y);
 void WrapDrawScaleds (void);
 boolean WrapActorPosition(objtype *obj);
 void WrapStaticPosition(statobj_t *statptr, visobj_t *visptr);
-void ShowOverhead(Sint16 bx, Sint16 by, Sint16 radius, Sint16 zoom, Uint16 flags);
+void ShowOverhead(int bx, int by, int radius, int zoom, int flags);
 void UpdateTravelTable(void);
 
 
