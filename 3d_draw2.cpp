@@ -92,7 +92,7 @@ void DrawSpans(
     int startyfrac = viewy - FixedMul(length, psin);
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
-        int i = shade_max - ((63 * height) / normalshade);
+        int i = shade_max - ((63 * height) / (vga_scale * normalshade));
 
         if (i < 0)
             i = 0;
