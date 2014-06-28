@@ -36,36 +36,36 @@ Uint16 CeilingTile=126, FloorTile=126;
 
 void (*MapRowPtr)();
 
-int* spanstart;
-int* stepscale;
-int* basedist;
-int* planeylookup;
-int* mirrorofs;
+int* spanstart = NULL;
+int* stepscale = NULL;
+int* basedist = NULL;
+int* planeylookup = NULL;
+int* mirrorofs = NULL;
 
 extern Uint8 planepics[8192];	// 4k of ceiling, 4k of floor
+extern const Uint8* lightsource;
+extern const Uint8* shadingtable;
 
 int halfheight = 0;
 
 fixed psin;
 fixed pcos;
 
-fixed FixedMul (fixed a, fixed b)
+fixed FixedMul(
+    fixed a,
+    fixed b)
 {
-	return (a>>8)*(b>>8);
+    return (a >> 8) * (b >> 8);
 }
 
 
-int mr_rowofs;
-int mr_count;
-int mr_xstep;
-int mr_ystep;
-int mr_xfrac;
-int mr_yfrac;
-
+int mr_rowofs = 0;
+int mr_count = 0;
+int mr_xstep = 0;
+int mr_ystep = 0;
+int mr_xfrac = 0;
+int mr_yfrac = 0;
 int mr_dest = 0;
-
-// BBi
-int mr_plane = 0;
 
 
 /*
@@ -76,39 +76,23 @@ int mr_plane = 0;
 = Height ranges from 0 (infinity) to viewheight/2 (nearest)
 ==============
 */
-extern const Uint8 * lightsource;
-extern const Uint8 * shadingtable;
-
-
 void DrawSpans(
     int x1,
     int x2,
     int height)
 {
-    fixed length;
-    int prestep;
-    fixed startxfrac;
-    fixed startyfrac;
-    int startx;
-    int plane;
-    int startplane;
-    int toprow;
-    int i;
-
-    toprow = planeylookup[height] + bufferofs;
+    int toprow = vl_get_offset(bufferofs) + planeylookup[height];
     mr_rowofs = mirrorofs[height];
 
-    mr_xstep = (psin * 2) / height;
-    mr_ystep = (pcos * 2) / height;
+    mr_xstep = psin / (2 * height);
+    mr_ystep = pcos / (2 * height);
 
-    length = basedist[height];
-    startxfrac = (viewx + FixedMul(length, pcos));
-    startyfrac = (viewy - FixedMul(length, psin));
-
-    // draw two spans simultaniously
+    int length = basedist[height];
+    int startxfrac = viewx + FixedMul(length, pcos);
+    int startyfrac = viewy - FixedMul(length, psin);
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
-        i = shade_max - ((63 * height) / normalshade);
+        int i = shade_max - ((63 * height) / normalshade);
 
         if (i < 0)
             i = 0;
@@ -118,47 +102,26 @@ void DrawSpans(
         shadingtable = lightsource + (i * 256);
     }
 
-    plane = startplane = x1 & 3;
-    prestep = (viewwidth / 2) - x1;
+    int prestep = ((viewwidth * vga_scale) / 2) - x1;
 
-    do {
-        mr_plane = plane;
+    mr_xfrac = startxfrac - (mr_xstep * prestep);
+    mr_yfrac = startyfrac - (mr_ystep * prestep);
 
-        mr_xfrac = startxfrac - (mr_xstep / 4) * prestep;
-        mr_yfrac = startyfrac - (mr_ystep / 4) * prestep;
-
-        startx = x1 / 4;
-        mr_dest = toprow + startx;
-        mr_count = ((x2 - plane) / 4) - startx + 1;
-        x1++;
-        prestep--;
+    mr_dest = toprow + x1;
+    mr_count = x2 - x1 + 1;
 
 #if GAMESTATE_TEST
-        if (mr_count > 0)
-            MapRowPtr();
+    if (mr_count > 0)
+        MapRowPtr();
 #else
-        if (mr_count > 0) {
-            if ((gamestate.flags & GS_LIGHTING) != 0)
-                MapLSRow();
-            else
-                MapRow();
-        }
+    if (mr_count > 0) {
+        if ((gamestate.flags & GS_LIGHTING) != 0)
+            MapLSRow();
+        else
+            MapRow();
+    }
 #endif
-
-        plane = (plane + 1) & 3;
-    } while (plane != startplane);
 }
-
-
-
-
-/*
-===================
-=
-= SetPlaneViewSize
-=
-===================
-*/
 
 void SetPlaneViewSize (void)
 {
@@ -167,9 +130,9 @@ void SetPlaneViewSize (void)
 
     halfheight = (viewheight * vga_scale) / 2;
 
-    for (int y = 0; y < halfheight; y++) {
-        planeylookup[y] = (halfheight - 1 - y) * SCREENBWIDE;
-        mirrorofs[y] = (y * 2 + 1) * SCREENBWIDE;
+    for (int y = 0; y < halfheight; ++y) {
+        planeylookup[y] = (halfheight - 1 - y) * vga_width;
+        mirrorofs[y] = (y * 2 + 1) * vga_width;
         stepscale[y] = y * GLOBAL1 / 32;
 
         if (y > 0)
@@ -179,7 +142,7 @@ void SetPlaneViewSize (void)
     src = static_cast<const Uint8*>(PM_GetPage(CeilingTile));
     dest = planepics;
 
-    for (int x = 0; x < 4096; x++) {
+    for (int x = 0; x < 4096; ++x) {
         *dest = *src++;
         dest += 2;
     }
@@ -187,33 +150,20 @@ void SetPlaneViewSize (void)
     src = static_cast<const Uint8*>(PM_GetPage(FloorTile));
     dest = planepics + 1;
 
-    for (int x = 0; x < 4096; x++) {
+    for (int x = 0; x < 4096; ++x) {
         *dest = *src++;
         dest += 2;
     }
 }
 
-
-/*
-===================
-=
-= DrawPlanes
-=
-===================
-*/
-
 void DrawPlanes()
 {
-    int height;
-    int lastheight;
-    int x;
-
 #if IN_DEVELOPMENT
     if (!MapRowPtr)
         DRAW2_ERROR(NULL_FUNC_PTR_PASSED);
 #endif
 
-    if ((viewheight / 2) != halfheight)
+    if (((viewheight * vga_scale) / 2) != halfheight)
         SetPlaneViewSize(); // screen size has changed
 
     psin = viewsin;
@@ -226,12 +176,11 @@ void DrawPlanes()
     if (pcos < 0)
         pcos = -(pcos & 0xFFFF);
 
-    //
-    // loop over all columns
-    //
-    lastheight = halfheight;
+    int x = 0;
+    int height = 0;
+    int lastheight = halfheight;
 
-    for (x = 0; x < viewwidth; ++x) {
+    for (x = 0; x < viewwidth * vga_scale; ++x) {
         height = wallheight[x] / 8;
 
         if (height < lastheight) { // more starts

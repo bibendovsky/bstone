@@ -48,7 +48,6 @@ extern int mr_ystep;
 extern int mr_xfrac;
 extern int mr_yfrac;
 extern int mr_dest;
-extern int mr_plane;
 
 extern const Uint8* shadingtable;
 extern Uint8* vga_memory;
@@ -61,18 +60,13 @@ static void generic_map_row(
     DrawOptions draw_options,
     ShadingOptions shading_options)
 {
-    int rowofs = mr_rowofs;
-    int count = mr_count;
-
     int xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
     int xy_frac = (mr_yfrac << 16) | (mr_xfrac & 0xFFFF);
 
-    int dest = mr_dest;
+    int screen_offset = mr_dest;
 
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < mr_count; ++i) {
         int xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
-
-        xy_frac += xy_step;
 
         int pics_index = xy & 0xFFFF;
 
@@ -80,27 +74,30 @@ static void generic_map_row(
             draw_options == DO_CEILING_AND_FLOORING)
         {
             Uint8 ceiling_index = planepics[pics_index + 0];
-            int screen_offset = (4 * dest) + mr_plane;
 
-            if (shading_options == SO_DEFAULT)
-                vga_memory[screen_offset] = shadingtable[ceiling_index];
-            else
-                vga_memory[screen_offset] = ceiling_index;
+            Uint8 ceiling_pixel =
+                (shading_options == SO_DEFAULT) ?
+                shadingtable[ceiling_index] :
+                ceiling_index;
+
+            vga_memory[screen_offset] = ceiling_pixel;
         }
 
         if (draw_options == DO_FLOORING ||
             draw_options == DO_CEILING_AND_FLOORING)
         {
             Uint8 flooring_index = planepics[pics_index + 1];
-            int screen_offset = (4 * (dest + rowofs)) + mr_plane;
 
-            if (shading_options == SO_DEFAULT)
-                vga_memory[screen_offset] = shadingtable[flooring_index];
-            else
-                vga_memory[screen_offset] = flooring_index;
+            Uint8 flooring_pixel =
+                (shading_options == SO_DEFAULT) ?
+                shadingtable[flooring_index] :
+                flooring_index;
+
+            vga_memory[screen_offset + mr_rowofs] = flooring_pixel;
         }
 
-        ++dest;
+        ++screen_offset;
+        xy_frac += xy_step;
     }
 }
 
