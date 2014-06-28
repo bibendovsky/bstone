@@ -55,7 +55,7 @@ void DrawRadar(void);
 void DrawLSPost();
 void DrawPost();
 void GetBonus (statobj_t *check);
-void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting);
+void ScaleLSShape(int xcenter, int shapenum, int height, char lighting);
 void DrawAmmoPic(void);
 void DrawScoreNum(void);
 void DrawWeaponPic(void);

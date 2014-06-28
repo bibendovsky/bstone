@@ -403,7 +403,11 @@ void generic_scale_shape(
 =
 =======================
 */
-void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting)
+void ScaleLSShape(
+    int xcenter,
+    int shapenum,
+    int height,
+    char lighting)
 {
     generic_scale_shape(xcenter, shapenum, height, lighting, e_sdm_shaded);
 }
@@ -429,7 +433,10 @@ void ScaleLSShape (Sint16 xcenter, Sint16 shapenum, Uint16 height, char lighting
 =
 =======================
 */
-void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
+void ScaleShape(
+    int xcenter,
+    int shapenum,
+    int height)
 {
     generic_scale_shape(xcenter, shapenum, height, 0, e_sdm_simple);
 }
@@ -457,7 +464,10 @@ void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
 =
 =======================
 */
-void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height)
+void SimpleScaleShape(
+    int xcenter,
+    int shapenum,
+    int height)
 {
     generic_scale_shape(xcenter, shapenum, height, 0, e_sdm_simple);
 }
@@ -522,10 +532,12 @@ void MegaSimpleScaleShape(
     } else
         frac = screenscale >> 1;
 
-    x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
+    if (x2 >= (viewwidth * vga_scale))
+        x2 = (viewwidth * vga_scale) - 1;
+
     int swidth = shape->rightpix - shape->leftpix;
 
-    for (; x1 <= x2; ++x1, frac += screenscale) {
+    for ( ; x1 <= x2; ++x1, frac += screenscale) {
         dc_x = x1;
 
         int texturecolumn = frac >> 20;

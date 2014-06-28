@@ -3037,19 +3037,9 @@ struct t_compshape {
 // table data after dataofs[rightpix-leftpix+1]
 }; // struct t_compshape
 
-extern  Sint32                    fullscalefarcall[MAXSCALEHEIGHT+1];
-
-extern  Uint8            bitmasks1[8][8];
-extern  Uint8            bitmasks2[8][8];
-extern  Uint16        wordmasks[8][8];
-
-extern  Uint8            mapmasks1[4][8];
-extern  Uint8            mapmasks2[4][8];
-extern  Uint8            mapmasks3[4][8];
-
 extern int maxscale;
 extern int maxscaleshl2;
-extern boolean	scaledir_avail;
+extern boolean scaledir_avail;
 
 extern int normalshade;
 extern int normalshade_div;
@@ -3058,8 +3048,8 @@ extern int shade_max;
 
 void FreeScaleDirectory(void);
 void SetupScaling (int maxscaleheight);
-void ScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height);
-void SimpleScaleShape (Sint16 xcenter, Sint16 shapenum, Uint16 height);
+void ScaleShape(int xcenter, int shapenum, int height);
+void SimpleScaleShape(int xcenter, int shapenum, int height);
 
 void MegaSimpleScaleShape(
     int xcenter,
