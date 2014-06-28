@@ -36,20 +36,18 @@ Uint16 CeilingTile=126, FloorTile=126;
 
 void (*MapRowPtr)();
 
-Sint16  spanstart[MAXVIEWHEIGHT/2];		// jtr - far
-
-fixed	stepscale[MAXVIEWHEIGHT/2];
-fixed	basedist[MAXVIEWHEIGHT/2];
+int* spanstart;
+int* stepscale;
+int* basedist;
+int* planeylookup;
+int* mirrorofs;
 
 extern Uint8 planepics[8192];	// 4k of ceiling, 4k of floor
 
-Sint16		halfheight = 0;
+int halfheight = 0;
 
-int planeylookup[MAXVIEWHEIGHT / 2];
-
-Uint16	mirrorofs[MAXVIEWHEIGHT/2];
-
-fixed	psin, pcos;
+fixed psin;
+fixed pcos;
 
 fixed FixedMul (fixed a, fixed b)
 {
@@ -57,12 +55,12 @@ fixed FixedMul (fixed a, fixed b)
 }
 
 
-Sint16		mr_rowofs;
-Sint16		mr_count;
-Sint16		mr_xstep;
-Sint16		mr_ystep;
-Sint16		mr_xfrac;
-Sint16		mr_yfrac;
+int mr_rowofs;
+int mr_count;
+int mr_xstep;
+int mr_ystep;
+int mr_xfrac;
+int mr_yfrac;
 
 int mr_dest = 0;
 
@@ -82,93 +80,73 @@ extern const Uint8 * lightsource;
 extern const Uint8 * shadingtable;
 
 
-void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
+void DrawSpans(
+    int x1,
+    int x2,
+    int height)
 {
-	fixed		length;
-	Sint16			prestep;
-	fixed		startxfrac, startyfrac;
-
-	Sint16			startx, plane, startplane;
+    fixed length;
+    int prestep;
+    fixed startxfrac;
+    fixed startyfrac;
+    int startx;
+    int plane;
+    int startplane;
     int toprow;
+    int i;
 
-	Sint32 i;
+    toprow = planeylookup[height] + bufferofs;
+    mr_rowofs = mirrorofs[height];
 
-	toprow = planeylookup[height]+bufferofs;
-	mr_rowofs = mirrorofs[height];
+    mr_xstep = (psin * 2) / height;
+    mr_ystep = (pcos * 2) / height;
 
-	mr_xstep = static_cast<Sint16>((psin<<1)/height);
-	mr_ystep = static_cast<Sint16>((pcos<<1)/height);
+    length = basedist[height];
+    startxfrac = (viewx + FixedMul(length, pcos));
+    startyfrac = (viewy - FixedMul(length, psin));
 
-	length = basedist[height];
-	startxfrac = (viewx + FixedMul(length,pcos));
-	startyfrac = (viewy - FixedMul(length,psin));
+    // draw two spans simultaniously
 
-// draw two spans simultaniously
+    if ((gamestate.flags & GS_LIGHTING) != 0) {
+        i = shade_max - ((63 * height) / normalshade);
 
-	if (gamestate.flags & GS_LIGHTING)
-	{
+        if (i < 0)
+            i = 0;
+        else if (i > 63)
+            i = 63;
 
-	i=shade_max-(63l*(Uint32)height/(Uint32)normalshade);
-	if (i<0)
-		i=0;
-   else
-   	if (i>63)
-      	i = 63;
-	shadingtable=lightsource+(i<<8);
-	plane = startplane = x1&3;
-	prestep = viewwidth/2 - x1;
-	do
-	{
+        shadingtable = lightsource + (i * 256);
+    }
+
+    plane = startplane = x1 & 3;
+    prestep = (viewwidth / 2) - x1;
+
+    do {
         mr_plane = plane;
 
-		mr_xfrac = static_cast<Sint16>(startxfrac - (mr_xstep>>2)*prestep);
-		mr_yfrac = static_cast<Sint16>(startyfrac - (mr_ystep>>2)*prestep);
+        mr_xfrac = startxfrac - (mr_xstep / 4) * prestep;
+        mr_yfrac = startyfrac - (mr_ystep / 4) * prestep;
 
-		startx = x1>>2;
-		mr_dest = toprow + startx;
-		mr_count = ((x2-plane)>>2) - startx + 1;
-		x1++;
-		prestep--;
-
-#if GAMESTATE_TEST
-		if (mr_count)
-			MapRowPtr();
-#else
-		if (mr_count)
-			MapLSRow ();
-#endif
-
-		plane = (plane+1)&3;
-	} while (plane != startplane);
-	}
-	else
-	{
-	plane = startplane = x1&3;
-	prestep = viewwidth/2 - x1;
-	do
-	{
-        mr_plane = plane;
-
-		mr_xfrac = static_cast<Sint16>(startxfrac - (mr_xstep>>2)*prestep);
-		mr_yfrac = static_cast<Sint16>(startyfrac - (mr_ystep>>2)*prestep);
-
-		startx = x1>>2;
-		mr_dest = toprow + startx;
-		mr_count = ((x2-plane)>>2) - startx + 1;
-		x1++;
-		prestep--;
+        startx = x1 / 4;
+        mr_dest = toprow + startx;
+        mr_count = ((x2 - plane) / 4) - startx + 1;
+        x1++;
+        prestep--;
 
 #if GAMESTATE_TEST
-		if (mr_count)
-			MapRowPtr();
+        if (mr_count > 0)
+            MapRowPtr();
 #else
-		if (mr_count)
-			MapRow ();
+        if (mr_count > 0) {
+            if ((gamestate.flags & GS_LIGHTING) != 0)
+                MapLSRow();
+            else
+                MapRow();
+        }
 #endif
 
-		plane = (plane+1)&3;
-	} while (plane != startplane);
-	}
+        plane = (plane + 1) & 3;
+    } while (plane != startplane);
 }
 
 
@@ -184,38 +162,35 @@ void DrawSpans (Sint16 x1, Sint16 x2, Sint16 height)
 
 void SetPlaneViewSize (void)
 {
-	Sint16		x,y;
-	Uint8 	*dest, *src;
+    const Uint8* src;
+    Uint8* dest;
 
-	halfheight = viewheight>>1;
+    halfheight = (viewheight * vga_scale) / 2;
 
-
-	for (y=0 ; y<halfheight ; y++)
-	{
+    for (int y = 0; y < halfheight; y++) {
         planeylookup[y] = (halfheight - 1 - y) * SCREENBWIDE;
+        mirrorofs[y] = (y * 2 + 1) * SCREENBWIDE;
+        stepscale[y] = y * GLOBAL1 / 32;
 
-		mirrorofs[y] = (y*2+1)*SCREENBWIDE;
+        if (y > 0)
+            basedist[y] = GLOBAL1 / 2 * scale / y;
+    }
 
-		stepscale[y] = y*GLOBAL1/32;
-		if (y>0)
-			basedist[y] = GLOBAL1/2*scale/y;
-	}
+    src = static_cast<const Uint8*>(PM_GetPage(CeilingTile));
+    dest = planepics;
 
-	src = static_cast<Uint8*>(PM_GetPage(CeilingTile));
-	dest = planepics;
-	for (x=0 ; x<4096 ; x++)
-	{
-		*dest = *src++;
-		dest += 2;
-	}
-	src = static_cast<Uint8*>(PM_GetPage(FloorTile));
-	dest = planepics+1;
-	for (x=0 ; x<4096 ; x++)
-	{
-		*dest = *src++;
-		dest += 2;
-	}
+    for (int x = 0; x < 4096; x++) {
+        *dest = *src++;
+        dest += 2;
+    }
 
+    src = static_cast<const Uint8*>(PM_GetPage(FloorTile));
+    dest = planepics + 1;
+
+    for (int x = 0; x < 4096; x++) {
+        *dest = *src++;
+        dest += 2;
+    }
 }
 
 
@@ -227,56 +202,57 @@ void SetPlaneViewSize (void)
 ===================
 */
 
-void DrawPlanes (void)
+void DrawPlanes()
 {
-	Sint16		height, lastheight;
-	Sint16		x;
+    int height;
+    int lastheight;
+    int x;
 
 #if IN_DEVELOPMENT
-	if (!MapRowPtr)
-   	DRAW2_ERROR(NULL_FUNC_PTR_PASSED);
+    if (!MapRowPtr)
+        DRAW2_ERROR(NULL_FUNC_PTR_PASSED);
 #endif
 
+    if ((viewheight / 2) != halfheight)
+        SetPlaneViewSize(); // screen size has changed
 
-	if (viewheight>>1 != halfheight)
-		SetPlaneViewSize ();		// screen size has changed
+    psin = viewsin;
 
+    if (psin < 0)
+        psin = -(psin & 0xFFFF);
 
-	psin = viewsin;
-	if (psin < 0)
-		psin = -(psin&0xffff);
-	pcos = viewcos;
-	if (pcos < 0)
-		pcos = -(pcos&0xffff);
+    pcos = viewcos;
 
-//
-// loop over all columns
-//
-	lastheight = halfheight;
+    if (pcos < 0)
+        pcos = -(pcos & 0xFFFF);
 
-	for (x=0 ; x<viewwidth ; x++)
-	{
-		height = wallheight[x]>>3;
-		if (height < lastheight)
-		{	// more starts
-			do
-			{
-				spanstart[--lastheight] = x;
-			} while (lastheight > height);
-		}
-		else if (height > lastheight)
-		{	// draw spans
-			if (height > halfheight)
-				height = halfheight;
-			for ( ; lastheight < height ; lastheight++)
-         	if (lastheight>0)
-					DrawSpans (spanstart[lastheight], x-1, lastheight);
-		}
-	}
+    //
+    // loop over all columns
+    //
+    lastheight = halfheight;
 
-	height = halfheight;
-	for ( ; lastheight < height ; lastheight++)
-     	if (lastheight>0)
-			DrawSpans (spanstart[lastheight], x-1, lastheight);
+    for (x = 0; x < viewwidth; ++x) {
+        height = wallheight[x] / 8;
+
+        if (height < lastheight) { // more starts
+            do {
+                spanstart[--lastheight] = x;
+            } while (lastheight > height);
+        } else if (height > lastheight) { // draw spans
+            if (height > halfheight)
+                height = halfheight;
+
+            for ( ; lastheight < height; ++lastheight)
+                if (lastheight > 0)
+                    DrawSpans(spanstart[lastheight], x - 1, lastheight);
+        }
+    }
+
+    height = halfheight;
+
+    for ( ; lastheight < height; ++lastheight) {
+        if (lastheight > 0)
+            DrawSpans(spanstart[lastheight], x - 1, lastheight);
+    }
 }
 

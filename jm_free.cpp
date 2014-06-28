@@ -38,6 +38,13 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 
 
+extern int* spanstart;
+extern int* stepscale;
+extern int* basedist;
+extern int* planeylookup;
+extern int* mirrorofs;
+
+
 void MML_ClearBlock (void);
 Sint16 VL_VideoID (void);
 void CA_CannotOpen(char *string);
@@ -409,6 +416,28 @@ void SetupWalls (void)
 
     delete [] wallheight;
     wallheight = new Uint16[vga_width];
+
+    const int k_half_height = vga_height / 2;
+
+    delete [] spanstart;
+    spanstart = new int[k_half_height];
+    std::uninitialized_fill_n(spanstart, k_half_height, 0);
+
+    delete [] stepscale;
+    stepscale = new int[k_half_height];
+    std::uninitialized_fill_n(stepscale, k_half_height, 0);
+
+    delete [] basedist;
+    basedist = new int[k_half_height];
+    std::uninitialized_fill_n(basedist, k_half_height, 0);
+
+    delete [] planeylookup;
+    planeylookup = new int[k_half_height];
+    std::uninitialized_fill_n(planeylookup, k_half_height, 0);
+
+    delete [] mirrorofs;
+    mirrorofs = new int[k_half_height];
+    std::uninitialized_fill_n(mirrorofs, k_half_height, 0);
 }
 
 

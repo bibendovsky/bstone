@@ -41,12 +41,12 @@ enum ShadingOptions {
 }; // enum ShadingOptions
 
 
-extern Sint16 mr_rowofs;
-extern Sint16 mr_count;
-extern Sint16 mr_xstep;
-extern Sint16 mr_ystep;
-extern Sint16 mr_xfrac;
-extern Sint16 mr_yfrac;
+extern int mr_rowofs;
+extern int mr_count;
+extern int mr_xstep;
+extern int mr_ystep;
+extern int mr_xfrac;
+extern int mr_yfrac;
 extern int mr_dest;
 extern int mr_plane;
 
@@ -61,61 +61,43 @@ static void generic_map_row(
     DrawOptions draw_options,
     ShadingOptions shading_options)
 {
-    Sint16 i;
-    int dest;
-    Sint16 count;
-    Sint16 rowofs;
-    Uint32 xy;
-    Uint32 xy_step;
-    Uint32 xy_frac;
-    Uint16 pics_index;
-    Uint8 ceiling_index;
-    Uint8 flooring_index;
-    Uint8* screen;
-    int screen_offset;
+    int rowofs = mr_rowofs;
+    int count = mr_count;
 
-    rowofs = mr_rowofs;
-    count = mr_count;
+    int xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
+    int xy_frac = (mr_yfrac << 16) | (mr_xfrac & 0xFFFF);
 
-    xy_step = ((Uint32)mr_ystep) << 16;
-    xy_step |= ((Uint32)mr_xstep) & 0xFFFF;
+    int dest = mr_dest;
 
-    xy_frac = ((Uint32)mr_yfrac) << 16;
-    xy_frac |= ((Uint32)mr_xfrac) & 0xFFFF;
-
-    dest = mr_dest;
-
-    screen = vga_memory;
-
-    for (i = 0; i < count; ++i) {
-        xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
+    for (int i = 0; i < count; ++i) {
+        int xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
 
         xy_frac += xy_step;
 
-        pics_index = xy & 0xFFFF;
+        int pics_index = xy & 0xFFFF;
 
         if (draw_options == DO_CEILING ||
             draw_options == DO_CEILING_AND_FLOORING)
         {
-            ceiling_index = planepics[pics_index + 0];
-            screen_offset = (4 * dest) + mr_plane;
+            Uint8 ceiling_index = planepics[pics_index + 0];
+            int screen_offset = (4 * dest) + mr_plane;
 
             if (shading_options == SO_DEFAULT)
-                screen[screen_offset] = shadingtable[ceiling_index];
+                vga_memory[screen_offset] = shadingtable[ceiling_index];
             else
-                screen[screen_offset] = ceiling_index;
+                vga_memory[screen_offset] = ceiling_index;
         }
 
         if (draw_options == DO_FLOORING ||
             draw_options == DO_CEILING_AND_FLOORING)
         {
-            flooring_index = planepics[pics_index + 1];
-            screen_offset = (4 * (dest + rowofs)) + mr_plane;
+            Uint8 flooring_index = planepics[pics_index + 1];
+            int screen_offset = (4 * (dest + rowofs)) + mr_plane;
 
             if (shading_options == SO_DEFAULT)
-                screen[screen_offset] = shadingtable[flooring_index];
+                vga_memory[screen_offset] = shadingtable[flooring_index];
             else
-                screen[screen_offset] = flooring_index;
+                vga_memory[screen_offset] = flooring_index;
         }
 
         ++dest;
