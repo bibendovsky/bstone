@@ -361,7 +361,7 @@ void generic_scale_shape(
     x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
 
     if (draw_mode == e_sdm_shaded) {
-        i = shade_max - (63l * (Uint32) (height >> 3) / (Uint32) normalshade) + lighting;
+        i = shade_max - (63l * (Uint32) height / ((Uint32) normalshade * 8 * vga_scale)) + lighting;
 
         if (i < 0)
             i = 0;
