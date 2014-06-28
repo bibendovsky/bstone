@@ -230,7 +230,7 @@ int dc_dy;
 
 #define SFRACUNIT 0x10000
 
-extern Uint16 * linecmds;
+extern Uint16* linecmds;
 
 extern boolean useBounceOffset;
 
@@ -238,11 +238,8 @@ fixed bounceOffset=0;
 
 void generic_scale_masked_post(
     int height,
-    int buf,
     ShapeDrawMode draw_mode)
 {
-    static_cast<void>(buf);
-
     int bounce;
 
     if (useBounceOffset)
@@ -304,80 +301,84 @@ void generic_scale_masked_post(
 }
 
 void generic_scale_shape(
-    Sint16 xcenter,
-    Sint16 shapenum,
-    Uint16 height,
+    int xcenter,
+    int shapenum,
+    int height,
     char lighting,
     ShapeDrawMode draw_mode)
 {
-    t_compshape	*shape;
-    Sint16      i;
-    Uint32 frac;
-    Sint16      x1, x2;
-    Uint32 xscale;
-    Uint32 screenscale;
-    Sint32		texturecolumn;
-    Uint16 swidth;
-    Sint32     xcent;
-
-    if ((height >> 1 > (maxscaleshl2 * vga_scale)) || (!(height >> 1)))
+    if ((height / 2) > (maxscaleshl2 * vga_scale) || ((height / 2) == 0))
         return;
 
     xcenter += centerx * (vga_scale - 1);
 
-    shape = (t_compshape*) PM_GetSpritePage(shapenum);
+    t_compshape* shape =
+        static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
 
-    dc_seg = (Uint8*) shape;
+    dc_seg = reinterpret_cast<Uint8*>(shape);
 
-    xscale = (Uint32) height << 12;
-    xcent = (Sint32) ((Sint32) xcenter << 20) - ((Sint32) height << 17) + 0x80000;
+    int xscale = height << 12;
+    int xcent = (xcenter << 20) - (height << 17) + 0x80000;
+
     //
     // calculate edges of the shape
     //
-    x1 = (Sint16) ((Sint32) (xcent + ((Sint32) shape->leftpix*xscale)) >> 20);
+    int x1 = (xcent + (shape->leftpix * xscale)) >> 20;
+
     if (x1 >= (viewwidth * vga_scale))
-        return;               // off the right side
-    x2 = (Sint16) ((Sint32) (xcent + ((Sint32) shape->rightpix*xscale)) >> 20);
+        return; // off the right side
+
+    int x2 = (xcent + (shape->rightpix * xscale)) >> 20;
+
     if (x2 < 0)
-        return;         // off the left side
-    screenscale = (256L << 20L) / (Uint32) height;
+        return; // off the left side
+
+    int screenscale = (256 << 20) / height;
+
     //
     // store information in a vissprite
     //
+    int frac;
+
     if (x1 < 0) {
-        frac = ((Sint32) -x1)*(Sint32) screenscale;
+        frac = (-x1) * screenscale;
         x1 = 0;
     } else
-        frac = screenscale >> 1;
-    x2 = x2 >= (viewwidth * vga_scale) ? (viewwidth * vga_scale) - 1 : x2;
+        frac = screenscale / 2;
+
+    if (x2 >= (viewwidth * vga_scale))
+        x2 = (viewwidth * vga_scale) - 1;
 
     if (draw_mode == e_sdm_shaded) {
-        i = shade_max - (63l * (Uint32) height / ((Uint32) normalshade * 8 * vga_scale)) + lighting;
+        int i = shade_max - (63 * height / (normalshade * 8 * vga_scale)) +
+            lighting;
 
         if (i < 0)
             i = 0;
-        else
-            if (i > 63)
-                i = 63;
+        else if (i > 63)
+            i = 63;
 
-        shadingtable = lightsource + (i << 8);
+        shadingtable = &lightsource[i * 256];
     }
 
-    swidth = shape->rightpix - shape->leftpix;
     dc_y = 0;
-    for (; x1 <= x2; x1++, frac += screenscale) {
+    int swidth = shape->rightpix - shape->leftpix;
+
+    for ( ; x1 <= x2; ++x1, frac += screenscale) {
         if (wallheight[x1] > height)
             continue;
 
         dc_x = x1;
 
-        texturecolumn = frac >> 20;
+        int texturecolumn = frac >> 20;
+
         if (texturecolumn > swidth)
             texturecolumn = swidth;
 
-        linecmds = (Uint16*) &dc_seg[shape->dataofs[(Uint16) texturecolumn]];
+        linecmds = reinterpret_cast<Uint16*>(
+            &dc_seg[shape->dataofs[texturecolumn]]);
 
-        generic_scale_masked_post(height >> 2, bufferofs + ((Uint16) x1 >> 2), draw_mode);
+        generic_scale_masked_post(height / 4, draw_mode);
     }
 }
 
@@ -535,6 +536,6 @@ void MegaSimpleScaleShape(
         linecmds = reinterpret_cast<Uint16*>(
             &dc_seg[shape->dataofs[texturecolumn]]);
 
-        generic_scale_masked_post(height, 0, e_sdm_shaded);
+        generic_scale_masked_post(height, e_sdm_shaded);
     }
 }
