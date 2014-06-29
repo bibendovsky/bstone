@@ -2664,7 +2664,7 @@ extern  Sint16             mouseadjustment;
 // math tables
 //
 extern int* pixelangle;
-extern int finetangent[FINEANGLES/4];
+extern int finetangent[FINEANGLES / 4];
 extern int sintable[];
 extern int *costable;
 
@@ -2675,8 +2675,9 @@ extern int scale;
 extern int maxslope;
 extern int heightnumerator;
 extern int minheightdiv;
+extern int mindist;
 
-extern  char    configname[13];
+extern char configname[13];
 
 extern boolean ShowQuickMsg;
 
@@ -2909,21 +2910,6 @@ extern int* wallheight;
 
 extern  fixed   focallength;
 extern  fixed   mindist;
-
-//
-// math tables
-//
-extern int* pixelangle;
-extern int finetangent[FINEANGLES/4];
-extern int sintable[];
-extern int *costable;
-
-//
-// derived constants
-//
-extern int scale;
-extern int heightnumerator;
-extern int mindist;
 
 //
 // refresh variables

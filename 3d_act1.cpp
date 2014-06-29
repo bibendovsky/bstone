@@ -1161,7 +1161,7 @@ void BlockDoorOpen(Sint16 door)
 {
 	doorobjlist[door].action = dr_jammed;
 	doorobjlist[door].ticcount = 0;
-	doorposition[door] = 0xffff;
+	doorposition[door] = 0xFFFF;
 	doorobjlist[door].lock = kt_none;
 	doorobjlist[door].flags &= ~DR_BLASTABLE;
 
