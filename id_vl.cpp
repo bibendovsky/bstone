@@ -693,29 +693,20 @@ void VL_SetPaletteIntensity(
 =============================================================================
 */
 
-/*
-=================
-=
-= VL_Plot
-=
-=================
-*/
-void VL_Plot(int x, int y, int color)
+void VL_Plot(
+    int x,
+    int y,
+    Uint8 color)
 {
     int offset = vl_get_offset(bufferofs, x, y);
 
-    if (vga_scale == 1)
-        vga_memory[offset] = static_cast<Uint8>(color);
-    else {
-        for (int i = 0; i < vga_scale; ++i) {
-            std::uninitialized_fill_n(
-                &vga_memory[offset], vga_scale, static_cast<Uint8>(color));
+    for (int i = 0; i < vga_scale; ++i) {
+        std::uninitialized_fill_n(
+            &vga_memory[offset], vga_scale, color);
 
-            offset += vga_width;
-        }
+        offset += vga_width;
     }
 }
-
 
 /*
 =================

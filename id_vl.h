@@ -111,7 +111,7 @@ void VL_FadeOut(int start, int end, int red, int green, int blue, int steps);
 void VL_FadeIn(int start, int end, const Uint8* palette, int steps);
 void VL_ColorBorder(Sint16 color);
 
-void VL_Plot (int x, int y, int color);
+void VL_Plot(int x, int y, Uint8 color);
 void VL_Hlin (int x, int y, int width, int color);
 void VL_Vlin (int x, int y, int height, int color);
 void VL_Bar(int x, int y, int width, int height, int color);
