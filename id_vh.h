@@ -73,8 +73,6 @@ void VWB_Bar(int x, int y, int width, int height, Uint8 color);
 
 void VWB_DrawPropString(const char* string);
 void VW_DrawPropString(const char* string);
-void VWB_DrawMPropString (const char* string);
-void VWB_DrawSprite (int x, int y, int chunknum);
 void VWB_Plot (int x, int y, Uint8 color);
 void VWB_Hlin (int x1, int x2, int y, Uint8 color);
 void VWB_Vlin (int y1, int y2, int x, Uint8 color);
