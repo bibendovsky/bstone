@@ -107,9 +107,12 @@ void VW_MeasurePropString(
 =============================================================================
 */
 
-void VWB_DrawTile8 (int x, int y, int tile)
+void VWB_DrawTile8(
+    int x,
+    int y,
+    int tile)
 {
-	LatchDrawChar(x,y,tile);
+    LatchDrawChar(x, y, tile);
 }
 
 void VWB_DrawPic(int x, int y, int chunknum)
