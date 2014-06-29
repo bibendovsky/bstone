@@ -48,7 +48,7 @@ void Quit (const char *error,...);
 //===========================================================================
 
 extern int bufferofs; // all drawing is reletive to this
-extern int displayofs,pelpan; // last setscreen coordinates
+extern int displayofs; // last setscreen coordinates
 
 extern int* ylookup;
 

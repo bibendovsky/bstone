@@ -53,7 +53,7 @@ int fbdev = -1;
 //
 
 int	bufferofs;
-int	displayofs,pelpan;
+int	displayofs;
 
 int* ylookup = NULL;
 
