@@ -115,19 +115,24 @@ void VWB_DrawTile8(
     LatchDrawChar(x, y, tile);
 }
 
-void VWB_DrawPic(int x, int y, int chunknum)
+void VWB_DrawPic(
+    int x,
+    int y,
+    int chunknum)
 {
-	Sint16	picnum = static_cast<Sint16>(chunknum - STARTPICS);
-	Uint16 width,height;
+    int picnum = chunknum - STARTPICS;
+    int width = pictable[picnum].width;
+    int height = pictable[picnum].height;
 
-	x &= ~7;
+    x &= ~7;
 
-	width = pictable[picnum].width;
-	height = pictable[picnum].height;
-
-	VL_MemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y);
+    VL_MemToScreen(
+        static_cast<const Uint8*>(grsegs[chunknum]),
+        width,
+        height,
+        x,
+        y);
 }
-
 
 //--------------------------------------------------------------------------
 // VWB_DrawMPic()
