@@ -708,18 +708,14 @@ void VL_Plot(
     }
 }
 
-/*
-=================
-=
-= VL_Hlin
-=
-=================
-*/
-void VL_Hlin(int x, int y, int width, int color)
+void VL_Hlin(
+    int x,
+    int y,
+    int width,
+    Uint8 color)
 {
     VL_Bar(x, y, width, 1, color);
 }
-
 
 /*
 =================
