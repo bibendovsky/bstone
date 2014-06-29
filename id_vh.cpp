@@ -134,20 +134,23 @@ void VWB_DrawPic(
         y);
 }
 
-//--------------------------------------------------------------------------
-// VWB_DrawMPic()
-//--------------------------------------------------------------------------
-void VWB_DrawMPic (int x, int y, int chunknum)
+void VWB_DrawMPic(
+    int x,
+    int y,
+    int chunknum)
 {
-	Sint16	picnum = chunknum - STARTPICS;
-	Uint16 width,height;
+    int picnum = chunknum - STARTPICS;
+    int width = pictable[picnum].width;
+    int height = pictable[picnum].height;
 
-	width = pictable[picnum].width;
-	height = pictable[picnum].height;
-
-	VL_MaskMemToScreen (static_cast<const Uint8*>(grsegs[chunknum]),width,height,x,y,255);
+    VL_MaskMemToScreen(
+        static_cast<const Uint8*>(grsegs[chunknum]),
+        width,
+        height,
+        x,
+        y,
+        255);
 }
-
 
 void VWB_DrawPropString(const char* string)
 {
