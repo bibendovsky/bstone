@@ -920,10 +920,10 @@ void ogl_ortho(
 }
 
 // Clears error flags and returns true if any error flag was set,
-// otherwise it return false.
-boolean ogl_check_for_and_clear_errors()
+// otherwise returns false.
+bool ogl_check_for_and_clear_errors()
 {
-    boolean result = false;
+    bool result = false;
 
     while (glGetError() != GL_NONE)
         result = true;
