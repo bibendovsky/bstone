@@ -36,17 +36,15 @@ enum ShapeDrawMode {
 }; // enum ShapeDrawMode
 
 
-extern const Uint8 * shadingtable;
-extern const Uint8 * lightsource;
+extern const Uint8* shadingtable;
+extern const Uint8* lightsource;
 
 void R_DrawSLSColumn();
 void R_DrawLSColumn();
 void R_DrawColumn();
 
 
-#define OP_RETF	0xcb
-
-#define CLOAKED_SHAPES			(1)
+#define CLOAKED_SHAPES (1)
 
 /*
 =============================================================================
@@ -55,9 +53,6 @@ void R_DrawColumn();
 
 =============================================================================
 */
-
-//t_compscale *scaledirectory[MAXSCALEHEIGHT+1];
-//long			fullscalefarcall[MAXSCALEHEIGHT+1];
 
 int maxscale;
 int maxscaleshl2;
@@ -71,35 +66,6 @@ Sint16 nsd_table[] = { 1, 6, 3, 4, 1, 2};
 Sint16 sm_table[] =  {36,51,62,63,18,52};
 Uint16* linecmds;
 
-/*
-=============================================================================
-
-						  LOCALS
-
-=============================================================================
-*/
-
-//t_compscale 	*work;
-Uint16 BuildCompScale (Sint16 height, void**finalspot);
-
-Sint16			stepbytwo;
-
-//===========================================================================
-
-#if 0
-/*
-==============
-=
-= BadScale
-=
-==============
-*/
-
-void BadScale (void)
-{
-	SCALE_ERROR(BADSCALE_ERROR);
-}
-#endif
 
 void SetupScaling(
     int maxscaleheight)
@@ -111,108 +77,6 @@ void SetupScaling(
     normalshade = (3 * maxscale) / (4 * normalshade_div);
     centery = viewheight / 2;
 }
-
-//===========================================================================
-
-/*
-========================
-=
-= BuildCompScale
-=
-= Builds a compiled scaler object that will scale a 64 tall object to
-= the given height (centered vertically on the screen)
-=
-= height should be even
-=
-= Call with
-= ---------
-= DS:SI		Source for scale
-= ES:DI		Dest for scale
-=
-= Calling the compiled scaler only destroys AL
-=
-========================
-*/
-
-#if 0
-unsigned BuildCompScale (int height, memptr *finalspot)
-{
-	Uint8		*code;
-
-	int			i;
-	Sint32		fix,step;
-	unsigned	src,totalscaled,totalsize;
-	int			startpix,endpix,toppix;
-
-
-	step = ((Sint32)height<<16) / 64;
-	code = &work->code[0];
-	toppix = (viewheight-height)/2;
-	fix = 0;
-
-	for (src=0;src<=64;src++)
-	{
-		startpix = fix>>16;
-		fix += step;
-		endpix = fix>>16;
-
-		if (endpix>startpix)
-			work->width[src] = endpix-startpix;
-		else
-			work->width[src] = 0;
-
-//
-// mark the start of the code
-//
-		work->codeofs[src] = FP_OFF(code);
-
-//
-// compile some code if the source pixel generates any screen pixels
-//
-		startpix+=toppix;
-		endpix+=toppix;
-
-		if (startpix == endpix || endpix < 0 || startpix >= viewheight || src == 64)
-			continue;
-
-	//
-	// mov al,[si+src]
-	//
-		*code++ = 0x8a;
-		*code++ = 0x44;
-		*code++ = src;
-
-		for (;startpix<endpix;startpix++)
-		{
-			if (startpix >= viewheight)
-				break;						// off the bottom of the view area
-			if (startpix < 0)
-				continue;					// not into the view area
-
-		//
-		// mov [es:di+heightofs],al
-		//
-			*code++ = 0x26;
-			*code++ = 0x88;
-			*code++ = 0x85;
-			*((unsigned *)code)++ = startpix*SCREENBWIDE;
-		}
-
-	}
-
-//
-// retf
-//
-	*code++ = 0xcb;
-
-	totalsize = FP_OFF(code);
-	MM_GetPtr (finalspot,totalsize);
-	_fmemcpy ((Uint8 *)(*finalspot),(Uint8 *)work,totalsize);
-
-	return totalsize;
-}
-
-#endif
 
 
 // Draw Column vars
@@ -228,13 +92,11 @@ int dc_y;
 int dc_dy;
 
 
-#define SFRACUNIT 0x10000
-
-extern Uint16* linecmds;
+#define SFRACUNIT (0x10000)
 
 extern boolean useBounceOffset;
 
-fixed bounceOffset=0;
+int bounceOffset = 0;
 
 void generic_scale_masked_post(
     int height,
