@@ -32,21 +32,6 @@ boolean IN_CheckAck (void);
 void CalcTics (void);
 void ForceUpdateStatusBar(void);
 
-
-#define	SCREENWIDTH		80
-#define CHARWIDTH		2
-#define TILEWIDTH		4
-#define GRPLANES		4
-#define BYTEPIXELS		4
-
-#define SCREENXMASK		(~3)
-#define SCREENXPLUS		(3)
-#define SCREENXDIV		(4)
-
-#define VIEWWIDTH		80
-
-#define PIXTOBLOCK		4		// 16 pixels to an update block
-
 //#define UNCACHEGRCHUNK(chunk)	{MM_FreePtr(&grsegs[chunk]);grneeded[chunk]&=~ca_levelbit;}
 
 //Uint8	update[UPDATEHIGH][UPDATEWIDE];	// MIKE this is the second declaration for this variable!?!?
@@ -361,8 +346,6 @@ void LoadLatchMem (void)
 		destoff += width/4 *height;
 		UNCACHEGRCHUNK(i);
 	}
-
-	EGAMAPMASK(15);
 }
 
 
