@@ -496,8 +496,6 @@ void VL_FillPalette(
     VL_SetPalette(0, 255, vga_palette);
 }
 
-//===========================================================================
-
 void VL_SetPalette(
     int first,
     int count,
@@ -539,20 +537,6 @@ void VL_SetPalette(
     }
 }
 
-
-//===========================================================================
-
-/*
-=================
-=
-= VL_GetPalette
-=
-= This does not use the port string instructions,
-= due to some incompatabilities
-=
-=================
-*/
-
 void VL_GetPalette(
     int first,
     int count,
@@ -561,11 +545,11 @@ void VL_GetPalette(
     int offset = 3 * first;
     int size = 3 * count;
 
-    memmove(palette, &vga_palette[offset], size);
+    std::uninitialized_copy(
+        &vga_palette[offset],
+        &vga_palette[offset + size],
+        palette);
 }
-
-//===========================================================================
-
 
 /*
 =================
