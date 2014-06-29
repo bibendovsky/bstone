@@ -331,9 +331,6 @@ bool FizzleFade(
 
         ++frame;
 
-        while (TimeCount < static_cast<Uint32>(frame))
-            ; // don't go too fast
-
         CalcTics();
     };
 
