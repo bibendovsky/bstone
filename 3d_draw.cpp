@@ -137,28 +137,41 @@ void	ThreeDRefresh (void);
 //
 // wall optimization variables
 //
-Sint16		lastside;		// true for vertical
-Sint32	lastintercept;
-Sint16		lasttilehit;
+int lastside; // true for vertical
+int lastintercept;
+int lasttilehit;
 
 
 //
 // ray tracing variables
 //
-Sint16			focaltx,focalty,viewtx,viewty;
+int focaltx;
+int focalty;
+int viewtx;
+int viewty;
 
-Sint16			midangle,angle;
-Uint16	xpartial,ypartial;
-Uint16	xpartialup,xpartialdown,ypartialup,ypartialdown;
-Uint16	xinttile,yinttile;
+int midangle;
+int angle;
+int xpartial;
+int ypartial;
+int xpartialup;
+int xpartialdown;
+int ypartialup;
+int ypartialdown;
+int xinttile;
+int yinttile;
 
-Uint16	tilehit;
+int tilehit;
 int pixx;
 
-Sint16		xtile,ytile;
-Sint16		xtilestep,ytilestep;
-Sint32	xintercept,yintercept;
-Sint32	xstep,ystep;
+int xtile;
+int ytile;
+int xtilestep;
+int ytilestep;
+int xintercept;
+int yintercept;
+int xstep;
+int ystep;
 
 Sint16		horizwall[MAXWALLTILES],vertwall[MAXWALLTILES];
 

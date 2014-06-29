@@ -31,10 +31,10 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 
 
-static const Sint16 DEG90 = 900;
-static const Sint16 DEG180 = 1800;
-static const Sint16 DEG270 = 2700;
-static const Sint16 DEG360 = 3600;
+static const int DEG90 = 900;
+static const int DEG180 = 1800;
+static const int DEG270 = 2700;
+static const int DEG360 = 3600;
 
 
 extern Sint32 finetangent[FINEANGLES / 4];
@@ -50,28 +50,28 @@ extern int viewwidth;
 extern Uint8 tilemap[MAPSIZE][MAPSIZE];
 extern Uint8 spotvis[MAPSIZE][MAPSIZE];
 extern int* pixelangle;
-extern Sint16 midangle;
-extern Sint16 focaltx;
-extern Sint16 focalty;
-extern Sint16 viewtx;
-extern Sint16 viewty;
+extern int midangle;
+extern int focaltx;
+extern int focalty;
+extern int viewtx;
+extern int viewty;
 extern int viewx;
 extern int viewy;
-extern Uint16 xpartialup;
-extern Uint16 xpartialdown;
-extern Uint16 ypartialup;
-extern Uint16 ypartialdown;
-extern Uint16 tilehit;
+extern int xpartialup;
+extern int xpartialdown;
+extern int ypartialup;
+extern int ypartialdown;
+extern int tilehit;
 extern int pixx;
 extern int* wallheight;
-extern Sint16 xtile;
-extern Sint16 ytile;
-extern Sint16 xtilestep;
-extern Sint16 ytilestep;
-extern Sint32 xintercept;
-extern Sint32 yintercept;
-extern Sint32 xstep;
-extern Sint32 ystep;
+extern int xtile;
+extern int ytile;
+extern int xtilestep;
+extern int ytilestep;
+extern int xintercept;
+extern int yintercept;
+extern int xstep;
+extern int ystep;
 extern Uint16 doorposition[MAXDOORS];
 extern Uint16 pwallpos;
 
