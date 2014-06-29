@@ -405,33 +405,29 @@ boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight)
 ====================
 */
 
-Sint16 CalcHeight()
+int CalcHeight()
 {
-	fixed gxt,gyt,nx;
-	Sint32	gx,gy;
-    Sint16 result;
+    int gx = xintercept - viewx;
+    int gxt = FixedByFrac(gx, viewcos);
 
-	gx = xintercept-viewx;
-	gxt = FixedByFrac(gx,viewcos);
+    int gy = yintercept - viewy;
+    int gyt = FixedByFrac(gy, viewsin);
 
-	gy = yintercept-viewy;
-	gyt = FixedByFrac(gy,viewsin);
+    int nx = gxt - gyt;
 
-	nx = gxt-gyt;
+    //
+    // calculate perspective ratio (heightnumerator/(nx>>8))
+    //
 
-  	//
-  	// calculate perspective ratio (heightnumerator/(nx>>8))
-	//
+    if (nx < mindist)
+        nx = mindist;			// don't let divide overflow
 
-	if (nx<mindist)
-		nx=mindist;			// don't let divide overflow
-
-    result = (Sint16)(heightnumerator / (nx >> 8));
+    int result = heightnumerator / (nx / 256);
 
     if (result < 8)
         result = 8;
 
-   return result;
+    return result;
 }
 
 
