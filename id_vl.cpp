@@ -650,44 +650,37 @@ void VL_FadeIn(
     screenfaded = false;
 }
 
-//------------------------------------------------------------------------
-// VL_SetPaletteIntensity()
-//------------------------------------------------------------------------
 void VL_SetPaletteIntensity(
     int start,
     int end,
     const Uint8* palette,
     int intensity)
 {
-    int loop;
-    char red;
-    char green;
-    char blue;
     Uint8* cmap = &palette1[0][0] + (start * 3);
 
     intensity = 63 - intensity;
 
-    for (loop = start; loop <= end; ++loop) {
-        red = static_cast<char>(*palette++ - intensity);
+    for (int loop = start; loop <= end; ++loop) {
+        int red = *palette++ - intensity;
 
         if (red < 0)
             red = 0;
 
-        *cmap++ = red;
+        *cmap++ = static_cast<Uint8>(red);
 
-        green = static_cast<char>(*palette++ - intensity);
+        int green = *palette++ - intensity;
 
         if (green < 0)
             green = 0;
 
-        *cmap++ = green;
+        *cmap++ = static_cast<Uint8>(green);
 
-        blue = static_cast<char>(*palette++ - intensity);
+        int blue = *palette++ - intensity;
 
         if (blue < 0)
             blue = 0;
 
-        *cmap++ = blue;
+        *cmap++ = static_cast<Uint8>(blue);
     }
 
     VL_SetPalette(start, end - start + 1, &palette1[0][0]);
