@@ -86,9 +86,16 @@ void VWL_MeasureString(
     }
 }
 
-void	VW_MeasurePropString (const char* string, int* width, int* height)
+void VW_MeasurePropString(
+    const char* string,
+    int* width,
+    int* height)
 {
-	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONT+fontnumber]);
+    VWL_MeasureString(
+        string,
+        width,
+        height,
+        static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]));
 }
 
 #if 0
