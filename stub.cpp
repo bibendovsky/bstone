@@ -36,9 +36,12 @@ const int DOOROBJLIST_OFFSET = 0xFFFF - MAXDOORS;
 void ogl_update_screen();
 
 
-void VL_WaitVBL (Uint32 vbls)
+void VL_WaitVBL(
+    Uint32 vbls)
 {
+#if 0
     SDL_Delay(8 * vbls);
+#endif // 0
 }
 
 objtype* ui16_to_actor(
