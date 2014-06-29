@@ -414,7 +414,7 @@ void SetupWalls (void)
 	}
 
     delete [] wallheight;
-    wallheight = new Uint16[vga_width];
+    wallheight = new int[vga_width];
 
     const int k_half_height = vga_height / 2;
 

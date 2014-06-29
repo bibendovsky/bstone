@@ -2905,7 +2905,7 @@ extern  Sint32    framecount;
 extern  Sint32    frameon;
 extern  boolean fizzlein;
 
-extern Uint16* wallheight;
+extern int* wallheight;
 
 extern  fixed   focallength;
 extern  fixed   mindist;

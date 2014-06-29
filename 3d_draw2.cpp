@@ -163,7 +163,7 @@ void DrawPlanes()
         DRAW2_ERROR(NULL_FUNC_PTR_PASSED);
 #endif
 
-    if (((viewheight * vga_scale) / 2) != halfheight)
+    if (((viewheight / 2) * vga_scale) != halfheight)
         SetPlaneViewSize(); // screen size has changed
 
     psin = viewsin;
@@ -181,7 +181,7 @@ void DrawPlanes()
     int lastheight = halfheight;
 
     for (x = 0; x < viewwidth * vga_scale; ++x) {
-        height = (wallheight[x] / 8) - 4;
+        height = wallheight[x] / 8;
 
         if (height < lastheight) { // more starts
             do {
