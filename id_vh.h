@@ -88,30 +88,18 @@ extern const Uint8 vgapal[768];
 #define VW_Shutdown VL_Shutdown
 #define VW_Bar VL_Bar
 #define VW_Plot VL_Plot
-#define VW_Hlin(x,z,y,c) VL_Hlin(x,y,(z)-(x)+1,c)
-#define VW_Vlin(y,z,x,c) VL_Vlin(x,y,(z)-(y)+1,c)
-#define VW_DrawPic VH_DrawPic
-#define VW_SetSplitScreen VL_SetSplitScreen
-#define VW_SetLineWidth VL_SetLineWidth
+#define VW_Hlin(x,z,y,c) VL_Hlin((x), (y), (z) - (x) + 1, (c))
+#define VW_Vlin(y,z,x,c) VL_Vlin((x), (y), (z) - (y) + 1, (c))
 #define VW_ColorBorder
 #define VW_WaitVBL VL_WaitVBL
 #define VW_FadeIn() VL_FadeIn(0,255,vgapal,30);
 #define VW_FadeOut() VL_FadeOut(0,255,0,0,0,30);
 #define VW_ScreenToScreen VL_ScreenToScreen
 void VW_MeasurePropString(const char* string, int* width, int* height);
-#define EGAMAPMASK(x) VGAMAPMASK(x)
-#define EGAWRITEMODE(x) VGAWRITEMODE(x)
+#define VW_UpdateScreen() VH_UpdateScreen()
 
-//#define VW_MemToScreen	VL_MemToLatch
-
-#define VW_UpdateScreen() 	VH_UpdateScreen()
-
-
-#define MS_Quit			Quit
-
-
-#define LatchDrawChar(x,y,p) VL_LatchToScreen(latchpics[0]+(p)*16,2,8,x,y)
-#define LatchDrawTile(x,y,p) VL_LatchToScreen(latchpics[1]+(p)*64,4,16,x,y)
+#define LatchDrawChar(x,y,p) VL_LatchToScreen(latchpics[0] + (p) * 16, 2, 8, x, y)
+#define LatchDrawTile(x,y,p) VL_LatchToScreen(latchpics[1] + (p) * 64, 4, 16, x, y)
 
 void LatchDrawPic (int x, int y, int picnum);
 void LoadLatchMem();

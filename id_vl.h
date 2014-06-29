@@ -32,9 +32,6 @@ Free Software Foundation, Inc.,
 
 
 // wolf compatability
-
-#define MS_Quit	Quit
-
 void Quit (const char *error,...);
 
 //===========================================================================
@@ -95,7 +92,6 @@ void VL_SetVGAPlaneMode (void);
 void VL_ClearVideo (Uint8 color);
 
 void VL_SetLineWidth(int width);
-void VL_SetSplitScreen (Sint16 linenum);
 void WaitVBL (Sint16 vbls);
 
 void VL_WaitVBL(Uint32 vbls);
