@@ -21,26 +21,17 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// ID_VH.C
-
 #include "id_heads.h"
 
 
 void VL_LatchToScreen(int source, int width, int height, int x, int y);
-void IN_StartAck(void);
-boolean IN_CheckAck (void);
-void CalcTics (void);
-void ForceUpdateStatusBar(void);
+void IN_StartAck();
+boolean IN_CheckAck();
+void CalcTics();
+void ForceUpdateStatusBar();
 
-//#define UNCACHEGRCHUNK(chunk)	{MM_FreePtr(&grsegs[chunk]);grneeded[chunk]&=~ca_levelbit;}
-
-//Uint8	update[UPDATEHIGH][UPDATEWIDE];	// MIKE this is the second declaration for this variable!?!?
-
-//==========================================================================
-
-pictabletype	*pictable;
-pictabletype   *picmtable;			
-
+pictabletype* pictable;
+pictabletype* picmtable;
 
 int px;
 int py;
@@ -50,12 +41,6 @@ int fontnumber;
 
 bool allcaps = false;
 
-
-//==========================================================================
-
-void	VWL_UpdateScreenBlocks();
-
-//==========================================================================
 
 void VW_DrawPropString(const char* string)
 {

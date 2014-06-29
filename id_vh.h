@@ -101,7 +101,7 @@ void VW_MeasurePropString(const char* string, int* width, int* height);
 #define LatchDrawChar(x,y,p) VL_LatchToScreen(latchpics[0] + (p) * 16, 2, 8, x, y)
 #define LatchDrawTile(x,y,p) VL_LatchToScreen(latchpics[1] + (p) * 64, 4, 16, x, y)
 
-void LatchDrawPic (int x, int y, int picnum);
+void LatchDrawPic(int x, int y, int picnum);
 void LoadLatchMem();
 
 boolean FizzleFade(
@@ -112,8 +112,7 @@ boolean FizzleFade(
     int frames,
     boolean abortable);
 
-
-#define NUMLATCHPICS	100
+#define NUMLATCHPICS (100)
 extern int latchpics[NUMLATCHPICS];
 extern int freelatch;
 
