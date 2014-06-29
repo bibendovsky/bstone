@@ -152,39 +152,47 @@ void VWB_DrawMPic(
         255);
 }
 
-void VWB_DrawPropString(const char* string)
+void VWB_DrawPropString(
+    const char* string)
 {
-	VW_DrawPropString (string);
+    VW_DrawPropString(string);
 }
 
-
-void VWB_Bar (int x, int y, int width, int height, Uint8 color)
+void VWB_Bar(
+    int x,
+    int y,
+    int width,
+    int height,
+    Uint8 color)
 {
-	VW_Bar (x,y,width,height,color);
+    VW_Bar(x, y, width, height, color);
 }
 
-void VWB_Plot (int x, int y, Uint8 color)
+void VWB_Plot(
+    int x,
+    int y,
+    Uint8 color)
 {
-	VW_Plot(x,y,color);
+    VW_Plot(x, y, color);
 }
 
-void VWB_Hlin (int x1, int x2, int y, Uint8 color)
+void VWB_Hlin(
+    int x1,
+    int x2,
+    int y,
+    Uint8 color)
 {
-	VW_Hlin(x1,x2,y,color);
+    VW_Hlin(x1, x2, y, color);
 }
 
-void VWB_Vlin (int y1, int y2, int x, Uint8 color)
+void VWB_Vlin(
+    int y1,
+    int y2,
+    int x,
+    Uint8 color)
 {
-	VW_Vlin(y1,y2,x,color);
+    VW_Vlin(y1, y2, x, color);
 }
-
-
-#if 0		/// MADE A MACRO
-void VW_UpdateScreen (void)
-{
-	VH_UpdateScreen ();
-}
-#endif
 
 
 /*
