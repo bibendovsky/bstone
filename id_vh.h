@@ -117,8 +117,6 @@ void VH_SetDefaultColors();
 
 #define VW_Startup		VL_Startup
 #define VW_Shutdown		VL_Shutdown
-#define VW_SetCRTC		VL_SetCRTC
-#define VW_SetScreen	VL_SetScreen
 #define VW_Bar			VL_Bar
 #define VW_Plot			VL_Plot
 #define VW_Hlin(x,z,y,c)	VL_Hlin(x,y,(z)-(x)+1,c)

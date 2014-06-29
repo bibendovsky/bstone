@@ -75,8 +75,8 @@ namespace {
 
 SDL_DisplayMode display_mode;
 
-int window_width = 320;
-int window_height = 200;
+int window_width = 0;
+int window_height = 0;
 
 
 Uint8* vga_palette = NULL;
@@ -405,35 +405,16 @@ RendererType g_renderer_type;
 
 // asm
 
-Sint16	 VL_VideoID (void);
-void VL_SetCRTC (Sint16 crtc);
-void VL_SetScreen (Sint16 crtc, Sint16 pelpan);
-void VL_WaitVBL (Uint32 vbls);
+void VL_WaitVBL(Uint32 vbls);
 
 //===========================================================================
 
-
-/*
-=======================
-=
-= VL_Startup
-=
-=======================
-*/
 
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
 }
 // BBi
-
-/*
-=======================
-=
-= VL_Shutdown
-=
-=======================
-*/
 
 void VL_Shutdown()
 {

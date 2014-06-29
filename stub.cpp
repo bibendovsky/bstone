@@ -41,11 +41,6 @@ void VL_WaitVBL (Uint32 vbls)
     SDL_Delay(8 * vbls);
 }
 
-Sint16 VL_VideoID ()
-{
-    return 5;
-}
-
 objtype* ui16_to_actor(
     Uint16 value)
 {

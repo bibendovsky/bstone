@@ -46,7 +46,6 @@ extern int* mirrorofs;
 
 
 void MML_ClearBlock (void);
-Sint16 VL_VideoID (void);
 void CA_CannotOpen(char *string);
 void CAL_GetGrChunkLength (Sint16 chunk);
 void CA_CacheScreen (Sint16 chunk);

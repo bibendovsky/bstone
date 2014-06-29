@@ -102,7 +102,6 @@ void WaitVBL (Sint16 vbls);
 
 void VL_WaitVBL(Uint32 vbls);
 void VL_CrtcStart (Sint16 crtc);
-void VL_SetScreen (Sint16 crtc, Sint16 pelpan);
 
 void VL_FillPalette(int red, int green, int blue);
 void VL_SetColor(int color, int red, int green, int blue);
