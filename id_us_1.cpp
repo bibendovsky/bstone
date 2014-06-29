@@ -86,7 +86,7 @@ boolean		US_Started;
 					CursorBad;
 		Sint16			CursorX,CursorY;
 
-		void		(*USL_MeasureString)(const char*, Uint16*, Uint16*) = VW_MeasurePropString,
+		void		(*USL_MeasureString)(const char*, int*, int*) = VW_MeasurePropString,
 					(*USL_DrawString)(const char*) = VWB_DrawPropString;
 
 		SaveGame	Games[MaxSaveGames];
@@ -197,7 +197,7 @@ US_Print(const char *s)
 
 	char	c;
 	const char *se;
-	Uint16	w,h;
+	int	w,h;
 
 	while (*s)
 	{
@@ -263,7 +263,7 @@ US_PrintSigned(Sint32 n)
 void
 USL_PrintInCenter(const char *s,Rect r)
 {
-	Uint16	w,h,
+	int	w,h,
 			rw,rh;
 
 	USL_MeasureString(s,&w,&h);
@@ -302,7 +302,7 @@ US_PrintCentered(const char *s)
 void
 US_CPrintLine(const char *s)
 {
-	Uint16	w,h;
+	int	w,h;
 
 	USL_MeasureString(s,&w,&h);
 
@@ -459,8 +459,8 @@ USL_XORICursor(Sint16 x,Sint16 y,char *s,Uint16 cursor)
 {
 	static	boolean	status;		// VGA doesn't XOR...
 	char	buf[MaxString];
-	Sint16		temp;
-	Uint16	w,h;
+	int		temp;
+	int	w,h;
 
 	strcpy(buf,s);
 	buf[cursor] = '\0';
@@ -497,8 +497,8 @@ static void USL_CustomCursor(Sint16 x,Sint16 y,char *s,Uint16 cursor)
 {
 	static	boolean	status;		// VGA doesn't XOR...
 	char	buf[MaxString];
-	Sint16		temp,temp_font;
-	Uint16	w,h;
+	int		temp,temp_font;
+	int	w,h;
 
 	strcpy(buf,s);
 	buf[cursor] = '\0';
@@ -545,7 +545,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 	ScanCode	sc;
 	char		c,
 				s[MaxString],olds[MaxString];
-	Uint16		i,
+	int		i,
 				cursor,
 				w,h,
 				len,temp;

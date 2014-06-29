@@ -107,7 +107,7 @@ Free Software Foundation, Inc.,
 
 
 
-void VWL_MeasureString (const char* string, Uint16* width, Uint16* height, fontstruct* font);
+void VWL_MeasureString (const char* string, int* width, int* height, fontstruct* font);
 void VH_UpdateScreen();
 void ClearMemory (void);
 
@@ -763,7 +763,7 @@ void TP_WrapText()
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
 	{
-		Uint16 width,height;
+		int width,height;
 
 		VWL_MeasureString(first_ch,&width,&height,font);
 		cur_x = xh-width+1;

@@ -85,11 +85,11 @@ star_t *firststar,*laststar;
 
 
 #ifdef DEBUGWALLS
-Uint16 screenloc[3]= {PAGE1START,PAGE1START,PAGE1START};
+int screenloc[3]= {PAGE1START,PAGE1START,PAGE1START};
 #else
-Uint16 screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
+int screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
 #endif
-Uint16 freelatch = FREESTART;
+int freelatch = FREESTART;
 
 Sint32 	lasttimecount;
 Sint32 	frameon;
@@ -110,9 +110,11 @@ fixed 		sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 //
 // refresh variables
 //
-fixed	viewx,viewy;			// the focal point
-Sint16		viewangle;
-fixed	viewsin,viewcos;
+int viewx;
+int viewy; // the focal point
+int viewangle;
+int viewsin;
+int viewcos;
 
 #ifndef WOLFDOORS
 char thetile[64];
@@ -151,7 +153,7 @@ Uint16	xpartialup,xpartialdown,ypartialup,ypartialdown;
 Uint16	xinttile,yinttile;
 
 Uint16	tilehit;
-Uint16	pixx;
+int pixx;
 
 Sint16		xtile,ytile;
 Sint16		xtilestep,ytilestep;

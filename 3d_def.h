@@ -2648,13 +2648,13 @@ extern  char            str[80],str2[20];
 extern  boolean         nospr;
 extern  boolean         IsA386;
 
-extern  fixed           focallength;
-extern  Uint16        viewangles;
-extern  Uint16        screenofs;
-extern  Sint16                 viewwidth;
-extern  Sint16                     viewheight;
-extern  Sint16                     centerx;
-extern  Sint16                     shootdelta;
+extern int focallength;
+extern int viewangles;
+extern int screenofs;
+extern int viewwidth;
+extern int viewheight;
+extern int centerx;
+extern int shootdelta;
 
 extern  Sint16                     dirangle[9];
 
@@ -2664,15 +2664,17 @@ extern  Sint16             mouseadjustment;
 // math tables
 //
 extern int* pixelangle;
-extern  Sint32            finetangent[FINEANGLES/4];
-extern  fixed           sintable[],*costable;
+extern int finetangent[FINEANGLES/4];
+extern int sintable[];
+extern int *costable;
 
 //
 // derived constants
 //
-extern  fixed   scale,maxslope;
-extern  Sint32    heightnumerator;
-extern  Sint16             minheightdiv;
+extern int scale;
+extern int maxslope;
+extern int heightnumerator;
+extern int minheightdiv;
 
 extern  char    configname[13];
 
@@ -2748,7 +2750,7 @@ extern Uint8 VitalsRemain,VitalsOnFloor;
 extern  eaWallInfo eaList[];
 extern  char NumEAWalls,NumEASpawned;
 extern  boolean         ingame,fizzlein,screensplit;
-extern  Uint16        latchpics[NUMLATCHPICS];
+extern  int latchpics[NUMLATCHPICS];
 extern  gametype        gamestate;
 extern  Sint16                     doornum;
 
@@ -2791,7 +2793,7 @@ void LoadLocationText(Sint16 textNum);
 =============================================================================
 */
 
-extern Sint16 objcount;
+extern int objcount;
 
 extern objtype *DeadGuys[],dummyobj;
 extern Uint8 NumDeadGuys;
@@ -2838,7 +2840,7 @@ extern  Sint16                     buttonjoy[4];
 
 extern  boolean         buttonheld[NUMBUTTONS];
 
-extern  Sint16                     viewsize;
+extern Sint16                     viewsize;
 
 //
 // curent user input
@@ -2893,8 +2895,8 @@ extern  Sint16             plaqueon,plaquetime,plaquetimefrac,getpic;
 
 extern  statobj_t *firststarobj;	 
 
-extern  Uint16 screenloc[3];
-extern  Uint16 freelatch;
+extern  int screenloc[3];
+extern  int freelatch;
 
 extern Sint32 space_xmove,space_ymove;	
 
@@ -2912,21 +2914,25 @@ extern  fixed   mindist;
 // math tables
 //
 extern int* pixelangle;
-extern  Sint32            finetangent[FINEANGLES/4];
-extern  fixed           sintable[],*costable;
+extern int finetangent[FINEANGLES/4];
+extern int sintable[];
+extern int *costable;
 
 //
 // derived constants
 //
-extern  fixed   scale;
-extern  Sint32    heightnumerator,mindist;
+extern int scale;
+extern int heightnumerator;
+extern int mindist;
 
 //
 // refresh variables
 //
-extern  fixed   viewx,viewy;                    // the focal point
-extern  Sint16             viewangle;
-extern  fixed   viewsin,viewcos;
+extern int viewx;
+extern int viewy; // the focal point
+extern int viewangle;
+extern int viewsin;
+extern int viewcos;
 
 extern const Uint8* postsource;
 extern int postx;

@@ -57,16 +57,18 @@ pictabletype	*pictable;
 pictabletype   *picmtable;			
 
 
-Sint16	px,py;
-Uint8	fontcolor,backcolor;
-Sint16	fontnumber;
+int px;
+int py;
+Uint8 fontcolor;
+Uint8 backcolor;
+int fontnumber;
 
 bool allcaps = false;
 
 
 //==========================================================================
 
-void	VWL_UpdateScreenBlocks (void);
+void	VWL_UpdateScreenBlocks();
 
 //==========================================================================
 
@@ -151,8 +153,8 @@ void VL_MungePic (Uint8 *source, unsigned width, unsigned height)
 
 void VWL_MeasureString(
     const char* string,
-    Uint16* width,
-    Uint16* height,
+    int* width,
+    int* height,
     fontstruct* font)
 {
 	*height = font->height;
@@ -160,7 +162,7 @@ void VWL_MeasureString(
 		*width += font->width[*((const Uint8*)string)];	// proportional width
 }
 
-void	VW_MeasurePropString (const char* string, Uint16* width, Uint16* height)
+void	VW_MeasurePropString (const char* string, int* width, int* height)
 {
 	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONT+fontnumber]);
 }
@@ -183,7 +185,7 @@ void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
 */
 
 
-void VWB_DrawTile8 (Sint16 x, Sint16 y, Sint16 tile)
+void VWB_DrawTile8 (int x, int y, int tile)
 {
 	LatchDrawChar(x,y,tile);
 }
@@ -214,7 +216,7 @@ void VWB_DrawPic(int x, int y, int chunknum)
 //--------------------------------------------------------------------------
 // VWB_DrawMPic()
 //--------------------------------------------------------------------------
-void VWB_DrawMPic (Sint16 x, Sint16 y, Sint16 chunknum)
+void VWB_DrawMPic (int x, int y, int chunknum)
 {
 	Sint16	picnum = chunknum - STARTPICS;
 	Uint16 width,height;
@@ -232,22 +234,22 @@ void VWB_DrawPropString(const char* string)
 }
 
 
-void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color)
+void VWB_Bar (int x, int y, int width, int height, Uint8 color)
 {
 	VW_Bar (x,y,width,height,color);
 }
 
-void VWB_Plot (Sint16 x, Sint16 y, Sint16 color)
+void VWB_Plot (int x, int y, Uint8 color)
 {
 	VW_Plot(x,y,color);
 }
 
-void VWB_Hlin (Sint16 x1, Sint16 x2, Sint16 y, Sint16 color)
+void VWB_Hlin (int x1, int x2, int y, Uint8 color)
 {
 	VW_Hlin(x1,x2,y,color);
 }
 
-void VWB_Vlin (Sint16 y1, Sint16 y2, Sint16 x, Sint16 color)
+void VWB_Vlin (int y1, int y2, int x, Uint8 color)
 {
 	VW_Vlin(y1,y2,x,color);
 }
@@ -278,7 +280,7 @@ void VW_UpdateScreen (void)
 */
 
 
-void LatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum)
+void LatchDrawPic (int x, int y, int picnum)
 {
 	Uint16 wide, height, source;
 

@@ -46,7 +46,7 @@ void HitHorizPWall();
 void HitVertPWall();
 
 
-extern Sint16 viewwidth;
+extern int viewwidth;
 extern Uint8 tilemap[MAPSIZE][MAPSIZE];
 extern Uint8 spotvis[MAPSIZE][MAPSIZE];
 extern int* pixelangle;
@@ -55,14 +55,14 @@ extern Sint16 focaltx;
 extern Sint16 focalty;
 extern Sint16 viewtx;
 extern Sint16 viewty;
-extern fixed viewx;
-extern fixed viewy;
+extern int viewx;
+extern int viewy;
 extern Uint16 xpartialup;
 extern Uint16 xpartialdown;
 extern Uint16 ypartialup;
 extern Uint16 ypartialdown;
 extern Uint16 tilehit;
-extern Uint16 pixx;
+extern int pixx;
 extern Uint16* wallheight;
 extern Sint16 xtile;
 extern Sint16 ytile;
@@ -88,7 +88,7 @@ static Sint32 partial_by_step(
 
 void AsmRefresh()
 {
-    Sint16 angle;
+    int angle;
 
     Sint16 h_op;
     Sint16 v_op;

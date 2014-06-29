@@ -1176,7 +1176,7 @@ next element.
 =========================
 */
 
-Sint16	objcount;
+int objcount;
 
 void InitActorList (void)
 {

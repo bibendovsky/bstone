@@ -3325,7 +3325,8 @@ void SaveOverheadChunk(
 void DisplayTeleportName(char tpNum, boolean locked)
 {
 	const char *s;
-	Uint16 w,h;
+	int w;
+    int h;
 
 	if (locked)
 	{

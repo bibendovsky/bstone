@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 
 
-extern Sint16 viewwidth;
-extern Sint16 viewheight;
+extern int viewwidth;
+extern int viewheight;
 extern int bufferofs;
 extern int centery;
 extern int postheight;

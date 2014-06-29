@@ -134,15 +134,16 @@ Sint16 dirangle[9] = {0,ANGLES/8,2*ANGLES/8,3*ANGLES/8,4*ANGLES/8,5*ANGLES/8,6*A
 //
 // proejection variables
 //
-fixed           focallength;
-Uint16        screenofs;
-Sint16             viewwidth;
-Sint16             viewheight;
-Sint16             centerx;
-Sint16             shootdelta;                     // pixels away from centerx a target can be
-fixed           scale,maxslope;
-Sint32            heightnumerator;
-Sint16                     minheightdiv;
+int focallength;
+int screenofs;
+int viewwidth;
+int viewheight;
+int centerx;
+int shootdelta; // pixels away from centerx a target can be
+int scale;
+int maxslope;
+int heightnumerator;
+int minheightdiv;
 
 
 boolean         startgame,loadedgame;

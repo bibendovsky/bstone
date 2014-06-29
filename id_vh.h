@@ -69,10 +69,11 @@ extern	pictabletype	*pictable;
 extern	pictabletype	*picmtable;
 extern	spritetabletype *spritetable;
 
-extern	Uint8	fontcolor;
-extern	Sint16	fontnumber;
-extern	Sint16	px,py;
-extern	bool allcaps;
+extern Uint8 fontcolor;
+extern int fontnumber;
+extern int px;
+extern int py;
+extern bool allcaps;
 
 
 
@@ -81,7 +82,7 @@ extern	bool allcaps;
 // Double buffer management routines
 //
 
-void VW_InitDoubleBuffer (void);
+void VW_InitDoubleBuffer();
 //void VW_UpdateScreen (void);			// Made a macro
 
 //
@@ -90,21 +91,21 @@ void VW_InitDoubleBuffer (void);
 // regions marked in double buffer
 //
 
-void VWB_DrawTile8 (Sint16 x, Sint16 y, Sint16 tile);
-void VWB_DrawTile8M (Sint16 x, Sint16 y, Sint16 tile);
-void VWB_DrawTile16 (Sint16 x, Sint16 y, Sint16 tile);
-void VWB_DrawTile16M (Sint16 x, Sint16 y, Sint16 tile);
+void VWB_DrawTile8(int x, int y, int tile);
+void VWB_DrawTile8M(int x, int y, int tile);
+void VWB_DrawTile16(int x, int y, int tile);
+void VWB_DrawTile16M(int x, int y, int tile);
 void VWB_DrawPic(int x, int y, int chunknum);
-void VWB_DrawMPic(Sint16 x, Sint16 y, Sint16 chunknum);
-void VWB_Bar (Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 color);
+void VWB_DrawMPic(int x, int y, int chunknum);
+void VWB_Bar(int x, int y, int width, int height, Uint8 color);
 
 void VWB_DrawPropString(const char* string);
 void VW_DrawPropString(const char* string);
 void VWB_DrawMPropString (const char* string);
-void VWB_DrawSprite (Sint16 x, Sint16 y, Sint16 chunknum);
-void VWB_Plot (Sint16 x, Sint16 y, Sint16 color);
-void VWB_Hlin (Sint16 x1, Sint16 x2, Sint16 y, Sint16 color);
-void VWB_Vlin (Sint16 y1, Sint16 y2, Sint16 x, Sint16 color);
+void VWB_DrawSprite (int x, int y, int chunknum);
+void VWB_Plot (int x, int y, Uint8 color);
+void VWB_Hlin (int x1, int x2, int y, Uint8 color);
+void VWB_Vlin (int y1, int y2, int x, Uint8 color);
 
 
 //
@@ -112,7 +113,7 @@ void VWB_Vlin (Sint16 y1, Sint16 y2, Sint16 x, Sint16 color);
 //
 extern const Uint8 vgapal[768];
 
-void VH_SetDefaultColors (void);
+void VH_SetDefaultColors();
 
 #define VW_Startup		VL_Startup
 #define VW_Shutdown		VL_Shutdown
@@ -131,7 +132,7 @@ void VH_SetDefaultColors (void);
 #define VW_FadeOut()	VL_FadeOut(0,255,0,0,0,30);
 #define VW_ScreenToScreen	VL_ScreenToScreen
 #define VW_SetDefaultColors	VH_SetDefaultColors
-void VW_MeasurePropString(const char* string, Uint16* width, Uint16* height);
+void VW_MeasurePropString(const char* string, int* width, int* height);
 #define EGAMAPMASK(x)	VGAMAPMASK(x)
 #define EGAWRITEMODE(x)	VGAWRITEMODE(x)
 
@@ -146,7 +147,7 @@ void VW_MeasurePropString(const char* string, Uint16* width, Uint16* height);
 #define LatchDrawChar(x,y,p) VL_LatchToScreen(latchpics[0]+(p)*16,2,8,x,y)
 #define LatchDrawTile(x,y,p) VL_LatchToScreen(latchpics[1]+(p)*64,4,16,x,y)
 
-void LatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum);
+void LatchDrawPic (int x, int y, int picnum);
 void LoadLatchMem();
 
 boolean FizzleFade(
@@ -159,7 +160,7 @@ boolean FizzleFade(
 
 
 #define NUMLATCHPICS	100
-extern	Uint16	latchpics[NUMLATCHPICS];
-extern	Uint16 freelatch;
+extern int latchpics[NUMLATCHPICS];
+extern int freelatch;
 
-extern Uint16 LatchMemFree;
+extern int LatchMemFree;

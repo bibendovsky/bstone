@@ -93,7 +93,7 @@ classtype debug_bonus[2][800];
 fargametype gamestuff;
 gametype gamestate;
 boolean		ingame,fizzlein;
-Uint16	latchpics[NUMLATCHPICS];
+int latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
 char NumEAWalls;
 
@@ -2596,7 +2596,7 @@ void ShadowPrintLocationText(sp_type type)
     const char *DebugText= "-- DEBUG MODE ENABLED --";
 	const char *s = NULL,*ls_text[3]={"-- LOADING --","-- SAVING --","-- CHANGE VIEW SIZE --"};
     char str[8];
-	Uint16 w,h;
+	int w,h;
 
 // Used for all fields...
 //
