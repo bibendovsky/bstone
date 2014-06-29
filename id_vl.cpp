@@ -498,7 +498,8 @@ void VL_FillPalette(
 void VL_SetPalette(
     int first,
     int count,
-    const Uint8* palette)
+    const Uint8* palette,
+    bool refresh_screen)
 {
     int offset = 3 * first;
     int size = 3 * count;
@@ -523,12 +524,14 @@ void VL_SetPalette(
             GL_UNSIGNED_BYTE,
             vga_palette);
 
-        ogl_refresh_screen();
+        if (refresh_screen)
+            ogl_refresh_screen();
         break;
 
     case RT_SOFTWARE:
         sdl_palette.update(palette, first, count);
-        soft_refresh_screen();
+        if (refresh_screen)
+            soft_refresh_screen();
         break;
 
     default:

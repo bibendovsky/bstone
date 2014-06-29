@@ -100,7 +100,13 @@ void VL_CrtcStart (Sint16 crtc);
 void VL_FillPalette(Uint8 red, Uint8 green, Uint8 blue);
 void VL_SetColor(int color, int red, int green, int blue);
 void VL_GetColor(int color, int* red, int* green, int* blue);
-void VL_SetPalette(int first, int count, const Uint8* palette);
+
+void VL_SetPalette(
+    int first,
+    int count,
+    const Uint8* palette,
+    bool refresh_screen = true);
+
 void VL_GetPalette(int first, int count, Uint8* palette);
 void VL_SetPaletteIntensity(int start, int end, const Uint8* palette, int intensity);
 void VL_FadeOut(int start, int end, int red, int green, int blue, int steps);
