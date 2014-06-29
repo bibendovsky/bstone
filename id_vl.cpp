@@ -55,8 +55,7 @@ int fbdev = -1;
 int	bufferofs;
 int	displayofs,pelpan;
 
-Uint16	linewidth;
-Uint16	ylookup[MAXSCANLINES];
+int* ylookup = NULL;
 
 boolean		screenfaded;
 Uint16	bordercolor;
@@ -481,18 +480,14 @@ void VL_SetVGAPlaneMode()
 ====================
 */
 
-void VL_SetLineWidth(int width)
+void VL_SetLineWidth(
+    int width)
 {
-    int i;
-    int offset;
+    delete [] ylookup;
+    ylookup = new int[vga_height];
 
-    offset = 0;
-    linewidth = static_cast<Uint16>(2 * width);
-
-    for (i = 0; i < MAXSCANLINES; ++i) {
-        ylookup[i] = static_cast<Uint16>(offset);
-        offset += linewidth;
-    }
+    for (int i = 0; i < vga_height; ++i)
+        ylookup[i] = i * vga_width;
 }
 
 
