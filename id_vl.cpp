@@ -717,14 +717,11 @@ void VL_Hlin(
     VL_Bar(x, y, width, 1, color);
 }
 
-/*
-=================
-=
-= VL_Vlin
-=
-=================
-*/
-void VL_Vlin(int x, int y, int height, int color)
+void VL_Vlin(
+    int x,
+    int y,
+    int height,
+    Uint8 color)
 {
     VL_Bar(x, y, 1, height, color);
 }

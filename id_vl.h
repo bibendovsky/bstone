@@ -113,7 +113,7 @@ void VL_ColorBorder(Sint16 color);
 
 void VL_Plot(int x, int y, Uint8 color);
 void VL_Hlin(int x, int y, int width, Uint8 color);
-void VL_Vlin (int x, int y, int height, int color);
+void VL_Vlin(int x, int y, int height, Uint8 color);
 void VL_Bar(int x, int y, int width, int height, int color);
 
 void VL_MungePic (Uint8* source, Uint16 width, Uint16 height);
