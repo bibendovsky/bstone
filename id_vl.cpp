@@ -833,15 +833,12 @@ void VL_ScreenToMem(
     }
 }
 
-/*
-=================
-=
-= VL_LatchToScreen
-=
-=================
-*/
-
-void VL_LatchToScreen(int source, int width, int height, int x, int y)
+void VL_LatchToScreen(
+    int source,
+    int width,
+    int height,
+    int x,
+    int y)
 {
     int src_pitch = vga_scale * 4 * width;
     int src_offset = vl_get_offset(source);
@@ -860,9 +857,6 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y)
         src_offset += src_pitch;
     }
 }
-
-
-//===========================================================================
 
 void VL_ScreenToScreen(
     int source,
