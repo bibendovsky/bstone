@@ -98,14 +98,6 @@ void VW_MeasurePropString(
         static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]));
 }
 
-#if 0
-
-void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
-{
-	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONTM+fontnumber]);
-}
-#endif
-
 
 /*
 =============================================================================
@@ -114,7 +106,6 @@ void	VW_MeasureMPropString  (char *string, Uint16 *width, Uint16 *height)
 
 =============================================================================
 */
-
 
 void VWB_DrawTile8 (int x, int y, int tile)
 {
