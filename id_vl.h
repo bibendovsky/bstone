@@ -112,7 +112,6 @@ void VL_Hlin(int x, int y, int width, Uint8 color);
 void VL_Vlin(int x, int y, int height, Uint8 color);
 void VL_Bar(int x, int y, int width, int height, Uint8 color);
 
-void VL_MungePic (Uint8* source, Uint16 width, Uint16 height);
 void VL_DrawPicBare (Sint16 x, Sint16 y, Uint8* pic, Sint16 width, Sint16 height);
 void VL_MemToLatch(const Uint8* source, int width, int height, int dest);
 void VL_ScreenToScreen(int source, int dest, int width, int height);

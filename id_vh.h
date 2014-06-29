@@ -112,7 +112,10 @@ boolean FizzleFade(
     int frames,
     boolean abortable);
 
-#define NUMLATCHPICS (100)
+#ifndef NUMLATCHPICS
+    #define NUMLATCHPICS (100)
+#endif
+
 extern int latchpics[NUMLATCHPICS];
 extern int freelatch;
 
