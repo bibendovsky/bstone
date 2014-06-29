@@ -104,13 +104,13 @@ void VW_MeasurePropString(const char* string, int* width, int* height);
 void LatchDrawPic(int x, int y, int picnum);
 void LoadLatchMem();
 
-boolean FizzleFade(
+bool FizzleFade(
     int source,
     int dest,
     int width,
     int height,
     int frames,
-    boolean abortable);
+    bool abortable);
 
 #define NUMLATCHPICS (100)
 extern int latchpics[NUMLATCHPICS];

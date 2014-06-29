@@ -254,54 +254,27 @@ void LoadLatchMem()
     }
 }
 
+extern ControlInfo c;
 
-//==========================================================================
-
-
-/*
-===================
-=
-= FizzleFade
-=
-= returns true if aborted
-=
-===================
-*/
-
-extern	ControlInfo	c;
-
-boolean FizzleFade(
+// Returns true if aborted
+bool FizzleFade(
     int source,
     int dest,
     int width,
     int height,
     int frames,
-    boolean abortable)
+    bool abortable)
 {
-    int pixperframe;
-    int remain_pixels;
-    Uint16 x;
-    Uint16 y;
-    int p;
-    int frame;
-    Sint32 rndval;
-    boolean carry;
-    int src_offset;
-    int dst_offset;
-    int pixel_offset;
-    int pixel_count;
-
-    y = 0;
-    rndval = 1;
-    pixperframe = 64000 / frames;
-    remain_pixels = 64000 - (frames * pixperframe);
-    src_offset = vl_get_offset(source);
-    dst_offset = vl_get_offset(dest);
+    int rndval = 1;
+    int pixperframe = 64000 / frames;
+    int remain_pixels = 64000 - (frames * pixperframe);
+    int src_offset = vl_get_offset(source);
+    int dst_offset = vl_get_offset(dest);
 
     IN_StartAck();
 
     TimeCount = 0;
-    frame = 0;
+    int frame = 0;
     LastScan = 0;
 
     bool finished = false;
@@ -312,14 +285,14 @@ boolean FizzleFade(
             return true;
 
         if (!do_full_copy) {
-            pixel_count = pixperframe + remain_pixels;
+            int pixel_count = pixperframe + remain_pixels;
             remain_pixels = 0;
 
-            for (p = 0; p < pixel_count; ++p) {
-                x = (rndval >> 8) & 0xFFFF;
-                y = ((rndval & 0xFF) - 1) & 0xFF;
+            for (int p = 0; p < pixel_count; ++p) {
+                int x = (rndval >> 8) & 0xFFFF;
+                int y = ((rndval & 0xFF) - 1) & 0xFF;
 
-                carry = ((rndval & 1) != 0);
+                bool carry = ((rndval & 1) != 0);
 
                 rndval >>= 1;
 
@@ -329,7 +302,7 @@ boolean FizzleFade(
                 if (x > width || y > height)
                     continue;
 
-                pixel_offset = vga_scale * ((y * vga_width) + x);
+                int pixel_offset = vga_scale * ((y * vga_width) + x);
 
                 for (int dy = 0; dy < vga_scale; ++dy) {
                     for (int dx = 0; dx < vga_scale; ++dx) {
@@ -358,8 +331,8 @@ boolean FizzleFade(
 
         ++frame;
 
-        while (TimeCount < static_cast<Uint32>(frame)) // don't go too fast
-            ;
+        while (TimeCount < static_cast<Uint32>(frame))
+            ; // don't go too fast
 
         CalcTics();
     };
