@@ -213,72 +213,45 @@ void LatchDrawPic(
     VL_LatchToScreen(source, wide / 4, height, x * 8, y);
 }
 
-/*
-===================
-=
-= LoadLatchMem
-=
-===================
-*/
+int destoff;
 
-//unsigned LatchMemFree = 0xffff;		
-Uint16	destoff;
-
-void LoadLatchMem (void)
+void LoadLatchMem()
 {
-	Sint16	i,width,height;
-	Uint8	*src;
-	Uint16	picnum=0;
+    int picnum = 0;
 
+    //
+    // tile 8s
+    //
+    latchpics[picnum++] = freelatch;
+    CA_CacheGrChunk(STARTTILE8);
+    const Uint8* src = static_cast<const Uint8*>(grsegs[STARTTILE8]);
+    destoff = freelatch;
 
-//
-// tile 8s
-//
-	latchpics[picnum++] = freelatch;
-	CA_CacheGrChunk (STARTTILE8);
-	src = (Uint8 *)grsegs[STARTTILE8];
-	destoff = freelatch;
+    for (int i = 0; i < NUMTILE8; ++i) {
+        VL_MemToLatch(src, 8, 8, destoff);
+        src += 64;
+        destoff += 16;
+    }
 
-	for (i=0;i<NUMTILE8;i++)
-	{
-		VL_MemToLatch (src,8,8,destoff);
-		src += 64;
-		destoff +=16;
-	}
-	UNCACHEGRCHUNK (STARTTILE8);
+    UNCACHEGRCHUNK(STARTTILE8);
 
-#if 0	// ran out of latch space!
-//
-// tile 16s
-//
-	src = (Uint8 *)grsegs[STARTTILE16];
-	latchpics[picnum++] = destoff;
+    //
+    // pics
+    //
+    ++picnum;
 
-	for (i=0;i<NUMTILE16;i++)
-	{
-		CA_CacheGrChunk (STARTTILE16+i);
-		src = (Uint8 *)grsegs[STARTTILE16+i];
-		VL_MemToLatch (src,16,16,destoff);
-		destoff+=64;
-		if (src)
-			UNCACHEGRCHUNK (STARTTILE16+i);
-	}
-#endif
+    for (int i = LATCHPICS_LUMP_START; i <= LATCHPICS_LUMP_END; ++i) {
+        latchpics[picnum++] = destoff;
+        CA_CacheGrChunk(i);
+        int width = pictable[i - STARTPICS].width;
+        int height = pictable[i - STARTPICS].height;
 
-//
-// pics
-//
-	picnum++;
-	for (i=LATCHPICS_LUMP_START;i<=LATCHPICS_LUMP_END;i++)	  
-	{
-		latchpics[picnum++] = destoff;
-		CA_CacheGrChunk (i);
-		width = pictable[i-STARTPICS].width;
-		height = pictable[i-STARTPICS].height;
-		VL_MemToLatch (static_cast<const Uint8*>(grsegs[i]),width,height,destoff);
-		destoff += width/4 *height;
-		UNCACHEGRCHUNK(i);
-	}
+        VL_MemToLatch(static_cast<const Uint8*>(grsegs[i]),
+            width, height, destoff);
+
+        destoff += (width / 4) * height;
+        UNCACHEGRCHUNK(i);
+    }
 }
 
 
