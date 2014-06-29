@@ -56,12 +56,15 @@ static void generic_draw_post(
 
     int fraction = vga_width;
 
-    int screen_column = vl_get_offset(bufferofs, 0, centery - 1) + postx;
+    const int max_height = (viewheight / 2) * vga_scale;
+
+    int screen_column = vl_get_offset(bufferofs) +
+        ((max_height - 1) * vga_width) + postx;
 
     int n = postheight;
 
-    if (n > (centery * vga_scale))
-        n = centery * vga_scale;
+    if (n > max_height)
+        n = max_height;
 
     for (int h = 0; h < n; ++h) {
         Uint8 pixel;
