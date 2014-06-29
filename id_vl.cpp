@@ -1993,8 +1993,11 @@ void initialize_video()
 
     g_args.get_option_values("res", width_str, height_str);
 
-    bstone::StringHelper::lexical_cast(width_str, window_width);
-    bstone::StringHelper::lexical_cast(height_str, window_height);
+    static_cast<void>(bstone::StringHelper::lexical_cast(
+        width_str, window_width));
+
+    static_cast<void>(bstone::StringHelper::lexical_cast(
+        height_str, window_height));
 
     if (window_width < k_ref_width)
         window_width = k_ref_width;
@@ -2010,6 +2013,26 @@ void initialize_video()
         ++vga_scale;
         vga_width += k_ref_width;
         vga_height += k_ref_height;
+    }
+
+
+    //
+    // Option "scale"
+    //
+
+    std::string scale_str = g_args.get_option_value("scale");
+
+    if (!scale_str.empty()) {
+        int scale = 0;
+
+        if (bstone::StringHelper::lexical_cast(scale_str, scale)) {
+            if (scale < 1)
+                scale = 1;
+
+            vga_scale = scale;
+            vga_width = scale * k_ref_width;
+            vga_height = scale * k_ref_height;
+        }
     }
 
     vga_area = vga_width * vga_height;
