@@ -1416,15 +1416,15 @@ bool ogl_pre_window_creation()
 {
     int errors = 0;
 
+    SDL_GL_ResetAttributes();
+
 #if defined(BSTONE_USE_GLES)
     errors += SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     errors += SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
     errors += SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
     errors += SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
     errors += SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-    errors += SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     errors += SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    errors += SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     errors += SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
         SDL_GL_CONTEXT_PROFILE_ES);
     errors &= SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -1434,10 +1434,11 @@ bool ogl_pre_window_creation()
     errors += SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     errors += SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
     errors += SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-    errors += SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     errors += SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    errors += SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 #endif
+
+    errors += SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    errors += SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     return errors == 0;
 }
