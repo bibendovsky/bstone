@@ -21,21 +21,9 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// ID_VH.H
+#define WHITE (15) // graphics mode independant colors
+#define BLACK (0)
 
-
-#define WHITE			15			// graphics mode independant colors
-#define BLACK			0
-#define FIRSTCOLOR		1
-#define SECONDCOLOR		12
-#define F_WHITE			15
-#define F_BLACK			0
-#define F_FIRSTCOLOR	1
-#define F_SECONDCOLOR	12
-
-//===========================================================================
-
-#define MAXSHIFTS	1
 
 struct spritetabletype {
     Sint16 width;
@@ -54,7 +42,6 @@ struct pictabletype {
     Sint16 height;
 }; // struct pictabletype
 
-
 struct fontstruct {
     Sint16 height;
     Sint16 location[256];
@@ -62,20 +49,15 @@ struct fontstruct {
 }; // struct fontstruct
 
 
-//===========================================================================
-
-
-extern	pictabletype	*pictable;
-extern	pictabletype	*picmtable;
-extern	spritetabletype *spritetable;
+extern pictabletype* pictable;
+extern pictabletype* picmtable;
+extern spritetabletype* spritetable;
 
 extern Uint8 fontcolor;
 extern int fontnumber;
 extern int px;
 extern int py;
 extern bool allcaps;
-
-
 
 
 //
