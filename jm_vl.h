@@ -40,7 +40,7 @@ Free Software Foundation, Inc.,
 //---------------------------------------------------------------------
 // VGA Routines
 //---------------------------------------------------------------------
-void JM_VGALinearFill(int start,int length, char fill);
+void JM_VGALinearFill(int start, int length, Uint8 fill);
 
 
 

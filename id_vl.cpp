@@ -1814,6 +1814,7 @@ void initialize_video()
 
     sdl_use_custom_window_position = false;
 
+
     //
     // Option "winx"
     //
@@ -1823,6 +1824,7 @@ void initialize_video()
     if (bstone::StringHelper::lexical_cast(winx_str, sdl_window_x))
         sdl_use_custom_window_position = true;
 
+
     //
     // Option "winy"
     //
@@ -1831,6 +1833,7 @@ void initialize_video()
 
     if (bstone::StringHelper::lexical_cast(winy_str, sdl_window_y))
         sdl_use_custom_window_position = true;
+
 
     //
     // Option "res"
@@ -2030,12 +2033,15 @@ void uninitialize_video()
 } // namespace
 
 
-void JM_VGALinearFill(int start, int length, char fill)
+void JM_VGALinearFill(
+    int start,
+    int length,
+    Uint8 fill)
 {
     std::uninitialized_fill_n(
         &vga_memory[vl_get_offset(start)],
         vga_scale * vga_scale * 4 * length,
-        static_cast<Uint8>(fill));
+        fill);
 }
 
 void VL_RefreshScreen()
