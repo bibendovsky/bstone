@@ -491,14 +491,15 @@ void VL_SetLineWidth(
 =================
 */
 
-void VL_FillPalette(int red, int green, int blue)
+void VL_FillPalette(
+    Uint8 red,
+    Uint8 green,
+    Uint8 blue)
 {
-    int i;
-
-    for (i = 0; i < 256; ++i) {
-        vga_palette[(3 * i) + 0] = (Uint8)red;
-        vga_palette[(3 * i) + 1] = (Uint8)green;
-        vga_palette[(3 * i) + 2] = (Uint8)blue;
+    for (int i = 0; i < 256; ++i) {
+        vga_palette[(3 * i) + 0] = red;
+        vga_palette[(3 * i) + 1] = green;
+        vga_palette[(3 * i) + 2] = blue;
     }
 
     VL_SetPalette(0, 255, vga_palette);

@@ -103,7 +103,7 @@ void WaitVBL (Sint16 vbls);
 void VL_WaitVBL(Uint32 vbls);
 void VL_CrtcStart (Sint16 crtc);
 
-void VL_FillPalette(int red, int green, int blue);
+void VL_FillPalette(Uint8 red, Uint8 green, Uint8 blue);
 void VL_SetColor(int color, int red, int green, int blue);
 void VL_GetColor(int color, int* red, int* green, int* blue);
 void VL_SetPalette(int first, int count, const Uint8* palette);
