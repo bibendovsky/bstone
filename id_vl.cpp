@@ -783,21 +783,12 @@ void VL_MemToLatch(
     }
 }
 
-
-//===========================================================================
-
-
-/*
-=================
-=
-= VL_MemToScreen
-=
-= Draws a block of data to the screen.
-=
-=================
-*/
-
-void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y)
+void VL_MemToScreen(
+    const Uint8* source,
+    int width,
+    int height,
+    int x,
+    int y)
 {
     for (int p = 0; p < 4; ++p) {
         for (int h = 0; h < height; ++h) {
