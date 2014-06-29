@@ -362,18 +362,21 @@ void MegaSimpleScaleShape(
         static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
 
     dc_seg = reinterpret_cast<Uint8*>(shape);
-    int xscale = height << 14;
-    int xcent = (xcenter << 20) - (height << 19) + 0x80000;
+
+    Sint64 xscale = static_cast<Sint64>(height) << 14;
+
+    Sint64 xcent = (static_cast<Sint64>(xcenter) << 20) -
+        (static_cast<Sint64>(height) << 19) + 0x80000;
 
     //
     // calculate edges of the shape
     //
-    int x1 = (xcent + (shape->leftpix * xscale)) >> 20;
+    int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
 
     if (x1 >= (viewwidth * vga_scale))
         return; // off the right side
 
-    int x2 = (xcent + (shape->rightpix * xscale)) >> 20;
+    int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
 
     if (x2 < 0)
         return; // off the left side
@@ -383,7 +386,7 @@ void MegaSimpleScaleShape(
     //
     // Choose shade table.
     //
-    shadingtable = lightsource + (shade << 8);
+    shadingtable = &lightsource[shade * 256];
 
     //
     // store information in a vissprite
@@ -394,7 +397,7 @@ void MegaSimpleScaleShape(
         frac = screenscale * (-x1);
         x1 = 0;
     } else
-        frac = screenscale >> 1;
+        frac = screenscale / 2;
 
     if (x2 >= (viewwidth * vga_scale))
         x2 = (viewwidth * vga_scale) - 1;
