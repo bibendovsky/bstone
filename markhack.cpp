@@ -43,13 +43,11 @@ enum DrawMode {
 }; // enum DrawMode
 
 
-static void generic_draw_post(DrawMode draw_mode)
+static void generic_draw_post(
+    DrawMode draw_mode)
 {
     if (postheight == 0)
         return;
-
-    Uint8 pixel;
-    Uint8 pixel_index;
 
     int cur_step = (32L * 65536L) / postheight;
 
@@ -62,10 +60,13 @@ static void generic_draw_post(DrawMode draw_mode)
 
     int n = postheight;
 
-    if (postheight > (centery * vga_scale))
+    if (n > (centery * vga_scale))
         n = centery * vga_scale;
 
     for (int h = 0; h < n; ++h) {
+        Uint8 pixel;
+        Uint8 pixel_index;
+
         // top half
 
         pixel_index = postsource[31 - (cur_step >> 16)];
