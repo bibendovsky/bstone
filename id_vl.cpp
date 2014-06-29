@@ -575,9 +575,9 @@ void VL_FadeOut (
     VL_GetPalette(0, 256, &palette1[0][0]);
 
     std::uninitialized_copy(
-        reinterpret_cast<const Uint8*>(palette1),
-        reinterpret_cast<const Uint8*>(palette1) + 768,
-        reinterpret_cast<Uint8*>(palette2));
+        &palette1[0][0],
+        &palette1[0][0] + 768,
+        &palette2[0][0]);
 
     //
     // fade through intermediate frames
@@ -612,27 +612,18 @@ void VL_FadeOut (
     screenfaded = true;
 }
 
-
-/*
-=================
-=
-= VL_FadeIn
-=
-=================
-*/
-
 void VL_FadeIn(
     int start,
     int end,
     const Uint8* palette,
     int steps)
 {
-    int i;
-    int j;
-    int delta;
-
     VL_GetPalette(0, 256, &palette1[0][0]);
-    memcpy(&palette2[0][0], &palette1[0][0], sizeof(palette1));
+
+    std::uninitialized_copy(
+        &palette1[0][0],
+        &palette1[0][0] + 768,
+        &palette2[0][0]);
 
     start *= 3;
     end = (end * 3) + 2;
@@ -640,10 +631,12 @@ void VL_FadeIn(
     //
     // fade through intermediate frames
     //
-    for (i = 0; i < steps; ++i) {
-        for (j = start; j <= end; ++j) {
-            delta = palette[j] - palette1[0][j];
-            palette2[0][j] = static_cast<Uint8>(palette1[0][j] + ((delta * i) / steps));
+    for (int i = 0; i < steps; ++i) {
+        for (int j = start; j <= end; ++j) {
+            int delta = palette[j] - palette1[0][j];
+
+            palette2[0][j] =
+                static_cast<Uint8>(palette1[0][j] + ((delta * i) / steps));
         }
 
         VL_SetPalette(0, 256, &palette2[0][0]);
