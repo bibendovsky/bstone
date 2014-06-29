@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 void InitWeaponBounce(void);
 void HandleWeaponBounce(void);
 void VL_LatchToScreen(int source, int width, int height, int x, int y);
-void StartDamageFlash(Sint16 damage);
+void StartDamageFlash(int damage);
 void StartBonusFlash (void);
 Sint16 CalcAngle(objtype *from_obj, objtype *to_obj);
 void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir);

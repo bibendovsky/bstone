@@ -1387,192 +1387,149 @@ void StartMusic(boolean preload)
 =============================================================================
 */
 
-#define NUMREDSHIFTS	6
-#define REDSTEPS		8
+const int NUMREDSHIFTS = 6;
+const int REDSTEPS = 8;
 
-#define NUMWHITESHIFTS	3
-#define WHITESTEPS		20
-#define WHITETICS		6
-
-
-Uint8	redshifts[NUMREDSHIFTS][768];
-Uint8	whiteshifts[NUMREDSHIFTS][768];
-
-Sint16		damagecount,bonuscount;
-boolean	palshifted;
+const int NUMWHITESHIFTS = 3;
+const int WHITESTEPS = 20;
+const int WHITETICS = 6;
 
 
-/*
-=====================
-=
-= InitRedShifts
-=
-=====================
-*/
+Uint8 redshifts[NUMREDSHIFTS][768];
+Uint8 whiteshifts[NUMREDSHIFTS][768];
 
-void InitRedShifts (void)
+int damagecount;
+int bonuscount;
+bool palshifted;
+
+
+void InitRedShifts()
 {
-	Uint8	*workptr;
-    const Uint8* baseptr;
-	Sint16		i,j,delta;
+    //
+    // fade through intermediate frames
+    //
+    for (int i = 1; i <= NUMREDSHIFTS; i++) {
+        Uint8* workptr = &redshifts[i - 1][0];
+        const Uint8* baseptr = vgapal;
 
+        for (int j = 0; j <= 255; ++j) {
+            int delta = 64 - baseptr[0];
 
-//
-// fade through intermediate frames
-//
-	for (i=1;i<=NUMREDSHIFTS;i++)
-	{
-		workptr = (Uint8 *)&redshifts[i-1][0];
-		baseptr = vgapal;
+            workptr[0] = static_cast<Uint8>(
+                baseptr[0] + ((delta * i) / REDSTEPS));
 
-		for (j=0;j<=255;j++)
-		{
-			delta = 64-*baseptr;
-			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / REDSTEPS);
-			delta = -*baseptr;
-			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / REDSTEPS);
-			delta = -*baseptr;
-			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / REDSTEPS);
-		}
-	}
+            delta = -baseptr[1];
 
-	for (i=1;i<=NUMWHITESHIFTS;i++)
-	{
-		workptr = (Uint8 *)&whiteshifts[i-1][0];
-		baseptr = vgapal;
+            workptr[1] = static_cast<Uint8>(
+                baseptr[1] + ((delta * i) / REDSTEPS));
 
-		for (j=0;j<=255;j++)
-		{
-			delta = 64-*baseptr;
-			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / WHITESTEPS);
-			delta = 62-*baseptr;
-			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / WHITESTEPS);
-			delta = 0-*baseptr;
-			*workptr++ = static_cast<Uint8>(*baseptr++ + delta * i / WHITESTEPS);
-		}
-	}
+            delta = -baseptr[2];
+
+            workptr[2] = static_cast<Uint8>(
+                baseptr[2] + ((delta * i) / REDSTEPS));
+
+            baseptr += 3;
+            workptr += 3;
+        }
+    }
+
+    for (int i = 1; i <= NUMWHITESHIFTS; i++) {
+        Uint8* workptr = &whiteshifts[i - 1][0];
+        const Uint8* baseptr = vgapal;
+
+        for (int j = 0; j <= 255; ++j) {
+            int delta = 64 - baseptr[0];
+
+            workptr[0] = static_cast<Uint8>(
+                baseptr[0] + ((delta * i) / WHITESTEPS));
+
+            delta = 62 - baseptr[1];
+
+            workptr[1] = static_cast<Uint8>(
+                baseptr[1] + ((delta * i) / WHITESTEPS));
+
+            delta = 0 - baseptr[2];
+
+            workptr[2] = static_cast<Uint8>(
+                baseptr[2] + ((delta * i) / WHITESTEPS));
+
+            baseptr += 3;
+            workptr += 3;
+        }
+    }
 }
 
-
-/*
-=====================
-=
-= ClearPaletteShifts
-=
-=====================
-*/
-
-void ClearPaletteShifts (void)
+void ClearPaletteShifts()
 {
-	bonuscount = damagecount = 0;
+    bonuscount = 0;
+    damagecount = 0;
 }
 
-
-/*
-=====================
-=
-= StartBonusFlash
-=
-=====================
-*/
-
-void StartBonusFlash (void)
+void StartBonusFlash()
 {
-	bonuscount = NUMWHITESHIFTS*WHITETICS;		// white shift palette
+    // white shift palette
+    bonuscount = NUMWHITESHIFTS * WHITETICS;
 }
 
-
-/*
-=====================
-=
-= StartDamageFlash
-=
-=====================
-*/
-
-void StartDamageFlash (Sint16 damage)
+void StartDamageFlash(
+    int damage)
 {
-	damagecount += damage;
+    damagecount += damage;
 }
 
-
-/*
-=====================
-=
-= UpdatePaletteShifts
-=
-=====================
-*/
-
-void UpdatePaletteShifts (void)
+void UpdatePaletteShifts()
 {
-	Sint16	red,white;
+    int red = 0;
+    int white = 0;
 
-	if (bonuscount)
-	{
-		white = bonuscount/WHITETICS +1;
-		if (white>NUMWHITESHIFTS)
-			white = NUMWHITESHIFTS;
-		bonuscount -= tics;
-		if (bonuscount < 0)
-			bonuscount = 0;
-	}
-	else
-		white = 0;
+    if (bonuscount > 0) {
+        white = (bonuscount / WHITETICS) + 1;
 
+        if (white > NUMWHITESHIFTS)
+            white = NUMWHITESHIFTS;
 
-	if (damagecount)
-	{
-		red = damagecount/10 +1;
-		if (red>NUMREDSHIFTS)
-			red = NUMREDSHIFTS;
+        bonuscount -= tics;
 
-		damagecount -= tics;
-		if (damagecount < 0)
-			damagecount = 0;
-	}
-	else
-		red = 0;
+        if (bonuscount < 0)
+            bonuscount = 0;
+    } else
+        white = 0;
 
-	if (red)
-	{
-		VW_WaitVBL(1);
-		VL_SetPalette (0,256,redshifts[red-1]);
-		palshifted = true;
-	}
-	else if (white)
-	{
-		VW_WaitVBL(1);
-		VL_SetPalette (0,256,whiteshifts[white-1]);	
-		palshifted = true;
-	}
-	else if (palshifted)
-	{
-		VW_WaitVBL(1);
-		VL_SetPalette (0,256,vgapal);		// back to normal
-		palshifted = false;
-	}
+    if (damagecount > 0) {
+        red = (damagecount / 10) + 1;
+
+        if (red > NUMREDSHIFTS)
+            red = NUMREDSHIFTS;
+
+        damagecount -= tics;
+
+        if (damagecount < 0)
+            damagecount = 0;
+    } else
+        red = 0;
+
+    if (red > 0) {
+        VW_WaitVBL(1);
+        VL_SetPalette(0, 256, redshifts[red - 1], false);
+        palshifted = true;
+    } else if (white > 0) {
+        VW_WaitVBL(1);
+        VL_SetPalette(0, 256, whiteshifts[white - 1], false);
+        palshifted = true;
+    } else if (palshifted) {
+        VW_WaitVBL(1);
+        VL_SetPalette(0, 256, vgapal, false); // back to normal
+        palshifted = false;
+    }
 }
 
-
-/*
-=====================
-=
-= FinishPaletteShifts
-=
-= Resets palette to normal if needed
-=
-=====================
-*/
-
-void FinishPaletteShifts (void)
+void FinishPaletteShifts()
 {
-	if (palshifted)
-	{
-		palshifted = 0;
-		VW_WaitVBL(1);
-		VL_SetPalette (0,256,vgapal);
-	}
+    if (palshifted) {
+        palshifted = false;
+        VW_WaitVBL(1);
+        VL_SetPalette(0, 256, vgapal);
+    }
 }
 
 
