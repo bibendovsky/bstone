@@ -55,8 +55,6 @@ int fbdev = -1;
 int	bufferofs;
 int	displayofs,pelpan;
 
-Uint16	screenseg=SCREENSEG;		// set to 0xa000 for asm convenience
-
 Uint16	linewidth;
 Uint16	ylookup[MAXSCANLINES];
 

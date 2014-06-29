@@ -117,8 +117,6 @@ void Quit (const char *error,...);
 extern	int	bufferofs;			// all drawing is reletive to this
 extern	int	displayofs,pelpan;	// last setscreen coordinates
 
-extern	Uint16	screenseg;			// set to 0xa000 for asm convenience
-
 extern	Uint16	linewidth;
 extern	Uint16	ylookup[MAXSCANLINES];
 
