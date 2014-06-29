@@ -78,9 +78,12 @@ void VWL_MeasureString(
     int* height,
     fontstruct* font)
 {
-	*height = font->height;
-	for (*width = 0;*string;string++)
-		*width += font->width[*((const Uint8*)string)];	// proportional width
+    *height = font->height;
+
+    for (*width = 0; string[0] != '\0'; ++string) {
+        // proportional width
+        *width += font->width[static_cast<Uint8>(*string)];
+    }
 }
 
 void	VW_MeasurePropString (const char* string, int* width, int* height)
