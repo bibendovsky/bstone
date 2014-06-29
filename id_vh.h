@@ -67,7 +67,6 @@ extern bool allcaps;
 //
 
 void VWB_DrawTile8(int x, int y, int tile);
-void VWB_DrawTile8M(int x, int y, int tile);
 void VWB_DrawTile16(int x, int y, int tile);
 void VWB_DrawTile16M(int x, int y, int tile);
 void VWB_DrawPic(int x, int y, int chunknum);

@@ -175,15 +175,6 @@ void VWB_DrawTile8 (int x, int y, int tile)
 	LatchDrawChar(x,y,tile);
 }
 
-#if 0
-
-void VWB_DrawTile8M (int x, int y, int tile)
-{
-	VL_MemToScreen (((Uint8 *)grsegs[STARTTILE8M])+tile*64,8,8,x,y);
-}
-#endif
-
-
 void VWB_DrawPic(int x, int y, int chunknum)
 {
 	Sint16	picnum = static_cast<Sint16>(chunknum - STARTPICS);
