@@ -124,13 +124,11 @@ void VWB_DrawPic(
     int width = pictable[picnum].width;
     int height = pictable[picnum].height;
 
-    x &= ~7;
-
     VL_MemToScreen(
         static_cast<const Uint8*>(grsegs[chunknum]),
         width,
         height,
-        x,
+        x & (~7),
         y);
 }
 
@@ -203,29 +201,17 @@ void VWB_Vlin(
 =============================================================================
 */
 
-/*
-=====================
-=
-= LatchDrawPic
-=
-=====================
-*/
-
-
-void LatchDrawPic (int x, int y, int picnum)
+void LatchDrawPic(
+    int x,
+    int y,
+    int picnum)
 {
-	Uint16 wide, height, source;
+    int wide = pictable[picnum - STARTPICS].width;
+    int height = pictable[picnum - STARTPICS].height;
+    int source = latchpics[2 + picnum - LATCHPICS_LUMP_START];
 
-	x <<= 3;
-	wide = pictable[picnum-STARTPICS].width;
-	height = pictable[picnum-STARTPICS].height;
-	source = latchpics[2+picnum-LATCHPICS_LUMP_START];
-
-	VL_LatchToScreen (source,wide/4,height,x,y);
+    VL_LatchToScreen(source, wide / 4, height, x * 8, y);
 }
-
-
-//==========================================================================
 
 /*
 ===================
