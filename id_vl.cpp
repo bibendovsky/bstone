@@ -569,33 +569,33 @@ void VL_FadeOut (
     int blue,
     int steps)
 {
-    int i;
-    int j;
     int orig;
     int delta;
-    Uint8* origptr;
-    Uint8* newptr;
 
     VL_GetPalette(0, 256, &palette1[0][0]);
-    memcpy(palette2, palette1, 768);
+
+    std::uninitialized_copy(
+        reinterpret_cast<const Uint8*>(palette1),
+        reinterpret_cast<const Uint8*>(palette1) + 768,
+        reinterpret_cast<Uint8*>(palette2));
 
     //
     // fade through intermediate frames
     //
-    for (i = 0; i < steps; ++i) {
-        origptr = &palette1[start][0];
-        newptr = &palette2[start][0];
+    for (int i = 0; i < steps; ++i) {
+        const Uint8* origptr = &palette1[start][0];
+        Uint8* newptr = &palette2[start][0];
 
-        for (j = start; j <= end; ++j) {
+        for (int j = start; j <= end; ++j) {
             orig = *origptr++;
-            delta = red-orig;
-            *newptr++ = static_cast<Uint8>(orig + delta * i / steps);
+            delta = red - orig;
+            *newptr++ = static_cast<Uint8>(orig + ((delta * i) / steps));
             orig = *origptr++;
-            delta = green-orig;
-            *newptr++ = static_cast<Uint8>(orig + delta * i / steps);
+            delta = green - orig;
+            *newptr++ = static_cast<Uint8>(orig + ((delta * i) / steps));
             orig = *origptr++;
-            delta = blue-orig;
-            *newptr++ = static_cast<Uint8>(orig + delta * i / steps);
+            delta = blue - orig;
+            *newptr++ = static_cast<Uint8>(orig + ((delta * i) / steps));
         }
 
         VL_SetPalette(0, 256, &palette2[0][0]);
@@ -604,7 +604,10 @@ void VL_FadeOut (
     //
     // final color
     //
-    VL_FillPalette(red, green, blue);
+    VL_FillPalette(
+        static_cast<Uint8>(red),
+        static_cast<Uint8>(green),
+        static_cast<Uint8>(blue));
 
     screenfaded = true;
 }
