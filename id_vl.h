@@ -53,8 +53,6 @@ extern int displayofs; // last setscreen coordinates
 extern int* ylookup;
 
 extern boolean screenfaded;
-extern Uint16 bordercolor;
-
 
 // BBi
 const int k_ref_width = 320;

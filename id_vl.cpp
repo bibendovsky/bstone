@@ -58,7 +58,6 @@ int	displayofs;
 int* ylookup = NULL;
 
 boolean		screenfaded;
-Uint16	bordercolor;
 
 //boolean		fastpalette;				// if true, use outsb to set
 
@@ -685,22 +684,6 @@ void VL_SetPaletteIntensity(
 
     VL_SetPalette(start, end - start + 1, &palette1[0][0]);
 }
-
-
-/*
-==================
-=
-= VL_ColorBorder
-=
-==================
-*/
-
-void VL_ColorBorder (Sint16 color)
-{
-	bordercolor = color;
-}
-
-
 
 /*
 =============================================================================

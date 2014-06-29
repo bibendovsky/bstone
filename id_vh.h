@@ -124,7 +124,7 @@ void VH_SetDefaultColors();
 #define VW_DrawPic		VH_DrawPic
 #define VW_SetSplitScreen	VL_SetSplitScreen
 #define VW_SetLineWidth		VL_SetLineWidth
-#define VW_ColorBorder	VL_ColorBorder
+#define VW_ColorBorder
 #define VW_WaitVBL		VL_WaitVBL
 #define VW_FadeIn()		VL_FadeIn(0,255,vgapal,30);
 #define VW_FadeOut()	VL_FadeOut(0,255,0,0,0,30);
