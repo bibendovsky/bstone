@@ -482,15 +482,6 @@ void VL_SetLineWidth(
 =============================================================================
 */
 
-
-/*
-=================
-=
-= VL_FillPalette
-=
-=================
-*/
-
 void VL_FillPalette(
     Uint8 red,
     Uint8 green,
@@ -505,19 +496,7 @@ void VL_FillPalette(
     VL_SetPalette(0, 255, vga_palette);
 }
 
-
 //===========================================================================
-
-/*
-=================
-=
-= VL_SetPalette
-=
-= If fast palette setting has been tested for, it is used
-= (some cards don't like outsb palette setting)
-=
-=================
-*/
 
 void VL_SetPalette(
     int first,
@@ -527,7 +506,10 @@ void VL_SetPalette(
     int offset = 3 * first;
     int size = 3 * count;
 
-    memmove(&vga_palette[offset], palette, size);
+    std::uninitialized_copy(
+        palette,
+        palette + size,
+        &vga_palette[offset]);
 
     switch (g_renderer_type) {
     case RT_OPEN_GL:
