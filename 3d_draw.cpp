@@ -1838,12 +1838,17 @@ void ShowOverhead(
 
             // Don't evaluate if point is outside of map.
             //
-            color = UNMAPPED_COLOR;
-            int mx = lmx >> 16;
-            int my = lmy >> 16;
+            int mx;
+            int my;
 
-            if (mx < 0 || mx > 63 || my < 0 || my > 63)
-                go_to_draw = true;
+            if (!go_to_draw) {
+                color = UNMAPPED_COLOR;
+                mx = lmx >> 16;
+                my = lmy >> 16;
+
+                if (mx < 0 || mx > 63 || my < 0 || my > 63)
+                    go_to_draw = true;
+            }
 
             // SHOW PLAYER
             //
