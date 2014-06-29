@@ -726,15 +726,12 @@ void VL_Vlin(
     VL_Bar(x, y, 1, height, color);
 }
 
-
-/*
-=================
-=
-= VL_Bar
-=
-=================
-*/
-void VL_Bar(int x, int y, int width, int height, int color)
+void VL_Bar(
+    int x,
+    int y,
+    int width,
+    int height,
+    Uint8 color)
 {
     width *= vga_scale;
     height *= vga_scale;
@@ -743,14 +740,10 @@ void VL_Bar(int x, int y, int width, int height, int color)
 
     if (x == 0 && width == vga_width) {
         int count = height * vga_width;
-
-        std::uninitialized_fill_n(
-                &vga_memory[offset], count, static_cast<Uint8>(color));
+        std::uninitialized_fill_n(&vga_memory[offset], count, color);
     } else {
         for (int i = 0; i < height; ++i) {
-            std::uninitialized_fill_n(
-                &vga_memory[offset], width, static_cast<Uint8>(color));
-
+            std::uninitialized_fill_n(&vga_memory[offset], width, color);
             offset += vga_width;
         }
     }
