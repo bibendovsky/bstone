@@ -61,13 +61,6 @@ extern bool allcaps;
 
 
 //
-// Double buffer management routines
-//
-
-void VW_InitDoubleBuffer();
-//void VW_UpdateScreen (void);			// Made a macro
-
-//
 // mode independant routines
 // coordinates in pixels, rounded to best screen res
 // regions marked in double buffer
