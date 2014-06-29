@@ -1809,6 +1809,8 @@ bool x_initialize_video()
 
 void initialize_video()
 {
+    bool is_custom_scale = false;
+
     //
     // Option "windowed"
     //
@@ -1859,16 +1861,6 @@ void initialize_video()
     if (window_height < k_ref_height)
         window_height = k_ref_height;
 
-    vga_scale = 0;
-    vga_width = 0;
-    vga_height = 0;
-
-    while (vga_width < window_width || vga_height < window_height) {
-        ++vga_scale;
-        vga_width += k_ref_width;
-        vga_height += k_ref_height;
-    }
-
 
     //
     // Option "scale"
@@ -1884,12 +1876,9 @@ void initialize_video()
                 scale = 1;
 
             vga_scale = scale;
-            vga_width = scale * k_ref_width;
-            vga_height = scale * k_ref_height;
+            is_custom_scale = true;
         }
     }
-
-    vga_area = vga_width * vga_height;
 
 
     //
@@ -1969,6 +1958,24 @@ void initialize_video()
         window_width = display_mode.w;
         window_height = display_mode.h;
     }
+
+    vga_width = 0;
+    vga_height = 0;
+
+    if (is_custom_scale) {
+        vga_width = vga_scale * k_ref_width;
+        vga_height = vga_scale * k_ref_height;
+    } else {
+        vga_scale = 0;
+
+        while (vga_width < window_width || vga_height < window_height) {
+            ++vga_scale;
+            vga_width += k_ref_width;
+            vga_height += k_ref_height;
+        }
+    }
+
+    vga_area = vga_width * vga_height;
 
     double h_scale = static_cast<double>(window_width) /
         vga_width;
