@@ -2342,8 +2342,10 @@ boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove)
 		return(true);
 #endif
 
-    if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL))
-        ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+    if (!g_no_wall_hit_sound) {
+        if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL))
+            ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+    }
 
 	ob->x = (basex+xmove);
 	ob->y = basey;

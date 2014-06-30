@@ -3569,6 +3569,8 @@ Uint16 static_object_to_ui16(const statobj_t* static_object);
 doorobj_t* ui16_to_door_object(Uint16 value);
 Uint16 door_object_to_ui16(const doorobj_t* door_object);
 
+extern bool g_no_wall_hit_sound;
+
 
 class ArchiveException : public std::exception {
 public:

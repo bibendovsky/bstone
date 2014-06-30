@@ -157,7 +157,10 @@ enum sw_labels {
 	SW_LIGHTING,
 	SW_REBA_ATTACK_INFO,
 	SW_CEILING,
-	SW_FLOORS
+	SW_FLOORS,
+
+    // BBi
+    SW_NO_WALL_HIT_SOUND
 }; // enum sw_labels
 
 
