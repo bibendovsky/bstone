@@ -141,11 +141,12 @@ CP_itemtype MainMenu[]=
 GopMenu[]=
 {
 	{AT_ENABLED,"SOUND",CP_Sound},
-	{AT_ENABLED,"CONTROLS",CP_Control},
-	{AT_ENABLED,"SWITCHES",CP_Switches},
 
     // BBi
-    {AT_ENABLED, "SOUND VOLUME", cp_sound_volume}
+    {AT_ENABLED, "SOUND VOLUME", cp_sound_volume},
+
+	{AT_ENABLED,"CONTROLS",CP_Control},
+	{AT_ENABLED,"SWITCHES",CP_Switches}
 },
 
 SndMenu[]=
@@ -3894,7 +3895,7 @@ void cp_sound_volume(
 
     int old_volumes[2];
     for (int i = 0; i < 2; ++i)
-        old_volumes[i] = *volumes[i];
+        old_volumes[i] = -1;
 
     for (bool quit = false; !quit; ) {
         bool update_volumes = false;
