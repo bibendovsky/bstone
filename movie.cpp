@@ -214,10 +214,19 @@ void JM_DrawBlock(
     const char* source,
     int length)
 {
-    char* dest;
+    int x = byte_offset % k_ref_width;
+    int y = byte_offset / k_ref_width;
 
-    dest = (char*)&vga_memory[(4 * dest_offset) + byte_offset];
-    memcpy(dest, source, length);
+    for (int i = 0; i < length; ++i) {
+        VL_Plot(x, y, static_cast<Uint8>(source[i]));
+
+        ++x;
+
+        if (x == k_ref_width) {
+            x = 0;
+            ++y;
+        }
+    }
 }
 
 
