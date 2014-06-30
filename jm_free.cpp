@@ -1136,7 +1136,7 @@ void InitGame (void)
 	LoadLatchMem ();
 	BuildTables ();          // trig tables
 	SetupWalls ();
-	NewViewSize (viewsize);
+	NewViewSize ();
 
 //
 // initialize variables

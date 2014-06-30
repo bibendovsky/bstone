@@ -279,7 +279,6 @@ void CP_Sound(Sint16 temp1);
 Sint16  CP_LoadGame(Sint16 quick);
 Sint16  CP_SaveGame(Sint16 quick);
 void CP_Control(Sint16 temp1);
-void CP_ChangeView(Sint16 temp1);
 void CP_ExitOptions(Sint16 temp1);
 void CP_Quit(void);
 void CP_ViewScores(Sint16 temp1);

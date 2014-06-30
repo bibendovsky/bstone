@@ -36,7 +36,6 @@ void	DrawHighScores(void);
 void ClearMemory (void);
 void DrawTopInfo(sp_type type);
 void PreloadUpdate(Uint16 current, Uint16 total);
-void ShowViewSize (Sint16 width);
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
 boolean LoadTheGame(int handle);
 boolean IN_CheckAck();
@@ -112,7 +111,7 @@ extern boolean refresh_screen;
 
 CP_iteminfo
 	MainItems=	{MENU_X,MENU_Y,12,MM_READ_THIS,0,9,{77, 1,154,9,1}},
-	GopItems=	{MENU_X,MENU_Y+30,5,0,0,9,{77, 1,154,9,1}},
+	GopItems=	{MENU_X,MENU_Y+30,4,0,0,9,{77, 1,154,9,1}},
 	SndItems=	{SM_X,SM_Y,6,0,0,7,		{87,-1,144,7,1}},
 	LSItems=	{LSM_X,LSM_Y,10,0,0,8,	{86,-1,144,8,1}},
 	CtlItems=	{CTL_X,CTL_Y,7,-1,0,9,	{87,1,174,9,1}},
@@ -143,7 +142,6 @@ GopMenu[]=
 {
 	{AT_ENABLED,"SOUND",CP_Sound},
 	{AT_ENABLED,"CONTROLS",CP_Control},
-	{AT_ENABLED,"CHANGE VIEW",CP_ChangeView},
 	{AT_ENABLED,"SWITCHES",CP_Switches},
 
     // BBi
@@ -420,7 +418,7 @@ void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boo
 //
 	oldwidth = viewwidth/16;
 	if (oldwidth != FULL_VIEW_WIDTH)
-		NewViewSize(FULL_VIEW_WIDTH);
+		NewViewSize();
 
 // Draw help border
 //
@@ -462,7 +460,7 @@ void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boo
 // Reset view size
 //
 	if (oldwidth != FULL_VIEW_WIDTH)
-		NewViewSize(oldwidth);
+		NewViewSize();
 
 	if (startmusic && TPscan==sc_Escape)
 		StartCPMusic(MENUSONG);
@@ -527,9 +525,12 @@ void US_ControlPanel(Uint8 scancode)
     CP_Sound(0);
 	 goto finishup;
 
+// BBi
+#if 0
   case sc_F5:
     CP_ChangeView(0);
     goto finishup;
+#endif // 0
 
   case sc_F6:
     CP_Control(0);
@@ -2721,109 +2722,6 @@ void DrawCustKeys(Sint16 hilight)
 		PrintCustKeys(i);
 }
 
-
-//---------------------------------------------------------------------------
-// CP_ChangeView()
-//---------------------------------------------------------------------------
-void CP_ChangeView(Sint16)
-{
- Sint16 exit=0,oldview,newview,lastview;
- ControlInfo ci;
-
-
- WindowX=WindowY=0;
- WindowW=320;
- WindowH=200;
- newview=oldview=lastview=viewwidth/16;
- DrawChangeView(oldview);
-
- do
- {
-  CheckPause();
-  ReadAnyControl(&ci);
-  switch(ci.dir)
-  {
-	case dir_South:
-	case dir_West:
-	  newview--;
-	  if (newview<6)
-		 newview=6;
-	  ShowViewSize(newview);
-	  VW_UpdateScreen();
-	  if (newview != lastview)
-      ::sd_play_player_sound(HITWALLSND, bstone::AC_ITEM);
-
-	  TicDelay(10);
-	  lastview=newview;
-	  break;
-
-	case dir_North:
-	case dir_East:
-	  newview++;
-	  if (newview>20)
-		 newview=20;
-	  ShowViewSize(newview);
-	  VW_UpdateScreen();
-	  if (newview != lastview)
-      ::sd_play_player_sound(HITWALLSND, bstone::AC_ITEM);
-
-	  TicDelay(10);
-	  lastview=newview;
-	  break;
-
-    default:
-        break;
-  }
-
-  if (ci.button0 || Keyboard[sc_Enter])
-	 exit=1;
-  else
-  if (ci.button1 || Keyboard[sc_Escape])
-  {
-	viewwidth=oldview*16;
-
-    ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
-
-	MenuFadeOut();
-	return;
-  }
-
- } while(!exit);
-
- ControlPanelFree();
-
- if (oldview!=newview)
- {
-    ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
-
-	Message(Computing);
-	NewViewSize(newview);
- }
-
- ControlPanelAlloc();
-
- ShootSnd();
- MenuFadeOut();
-}
-
-//---------------------------------------------------------------------------
-// DrawChangeView()
-//---------------------------------------------------------------------------
-void DrawChangeView(Sint16 view)
-{
-	DrawTopInfo(sp_changeview);
-	ShowViewSize(view);
-
-	fontnumber = 1;
-	CA_CacheGrChunk(STARTFONT+1);
-	CacheBMAmsg(CHANGEVIEW_TEXT);
-	FREEFONT(STARTFONT+1);
-
-	VW_UpdateScreen();
-
-	MenuFadeIn();
-}
-
 //---------------------------------------------------------------------------
 // CP_Quit() - QUIT THIS INFERNAL GAME!
 //---------------------------------------------------------------------------
@@ -2977,7 +2875,7 @@ void CleanupControlPanel(void)
 void ControlPanelFree(void)
 {
 	UnCacheLump(CONTROLS_LUMP_START,CONTROLS_LUMP_END);
-	NewViewSize(viewsize);
+	NewViewSize();
 }
 
 //---------------------------------------------------------------------------

@@ -2700,9 +2700,9 @@ void            HelpScreens (void);
 void            OrderingInfo (void);
 void            TEDDeath(void);
 void            CalcProjection (Sint32 focal);
-boolean         SetViewSize (Uint16 width, Uint16 height);
+void SetViewSize(int width, int height);
 void            NewGame (Sint16 difficulty,Sint16 episode);
-void            NewViewSize (Sint16 width);
+void NewViewSize();
 Uint16 scan_atoi(const char *s);
 void 				AlignPlayerOnTransporter(void);
 
@@ -2847,7 +2847,7 @@ extern  Sint16                     buttonjoy[4];
 
 extern  boolean         buttonheld[NUMBUTTONS];
 
-extern Sint16                     viewsize;
+extern const int viewsize;
 
 //
 // curent user input

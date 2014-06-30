@@ -136,7 +136,7 @@ Sint16			buttonscan[NUMBUTTONS] =
 Sint16			buttonmouse[4]={bt_attack,bt_strafe,bt_use,bt_nobutton};
 Sint16			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
 
-Sint16			viewsize;
+const int viewsize = 20;
 
 boolean		buttonheld[NUMBUTTONS];
 

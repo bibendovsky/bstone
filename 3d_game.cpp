@@ -3538,7 +3538,7 @@ strcat (str,str2);							// defined in 3d_main.c
 				DoMovie(mv_final,grsegs[ENDINGPALETTE]);
 
 				UNCACHEGRCHUNK(ENDINGPALETTE);
-				NewViewSize(viewsize);		// Recreates & Allocs the ScaleDirectory
+				NewViewSize();		// Recreates & Allocs the ScaleDirectory
 				Breifing(BT_WIN,gamestate.episode);
 			}
 

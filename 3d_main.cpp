@@ -851,7 +851,9 @@ void ReadConfig()
             deserialize_field(buttonmouse, reader, checksum);
             deserialize_field(buttonjoy, reader, checksum);
 
-            deserialize_field(viewsize, reader, checksum);
+            Sint16 dummy_viewsize;
+            deserialize_field(dummy_viewsize, reader, checksum);
+
             deserialize_field(mouseadjustment, reader, checksum);
 
             // Use temp so we don't destroy pre-sets.
@@ -950,7 +952,11 @@ void ReadConfig()
         joystickport = 0;
         joystickprogressive = false;
 
+// BBi
+#if 0
         viewsize = 20;
+#endif // 0
+
         mouseadjustment = 5;
         gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
 
@@ -1023,7 +1029,9 @@ void WriteConfig()
     serialize_field(buttonmouse, writer, checksum);
     serialize_field(buttonjoy, writer, checksum);
 
-    serialize_field(viewsize, writer, checksum);
+    Sint16 dummy_viewsize = viewsize;
+    serialize_field(dummy_viewsize, writer, checksum);
+
     serialize_field(mouseadjustment, writer, checksum);
     serialize_field(gamestate.flags, writer, checksum);
 
@@ -1431,7 +1439,7 @@ bool LoadLevel(
         gamestate.ammo = 8;
     }
 
-    ::NewViewSize(viewsize);
+    ::NewViewSize();
 
     // Check for Strange Door and Actor combos
     //
@@ -1581,7 +1589,7 @@ bool SaveLevel(
     writer.write(bstone::Endian::le(chunk_size));
     g_playtemp.set_size(end_offset);
 
-    ::NewViewSize(viewsize);
+    ::NewViewSize();
 
     return true;
 }
@@ -1668,7 +1676,7 @@ bool LoadTheGame(
     if (is_succeed)
         is_succeed = stream->copy_to(&g_playtemp);
 
-    ::NewViewSize(viewsize);
+    ::NewViewSize();
 
     bool show_error_message = true;
 
@@ -1805,7 +1813,7 @@ bool SaveTheGame(
         is_succeed = g_playtemp.copy_to(stream);
     }
 
-    ::NewViewSize(viewsize);
+    ::NewViewSize();
 
     return is_succeed;
 }
@@ -2097,63 +2105,39 @@ void LoadFonts(void)
 ==========================
 */
 
-boolean SetViewSize (Uint16 width, Uint16 height)
+void SetViewSize(
+    int width,
+    int height)
 {
-	viewwidth = width&~15;                  // must be divisable by 16
-	viewheight = height&~1;                 // must be even
-	centerx = viewwidth/2-1;
-	shootdelta = viewwidth/10;
-	screenofs = ((200-STATUSLINES-viewheight+TOP_STRIP_HEIGHT)/2*SCREENWIDTH+(320-viewwidth)/8);
+    viewwidth = width & ~15; // must be divisable by 16
+    viewheight = height & ~1; // must be even
+    centerx = (viewwidth / 2) - 1;
+    shootdelta = viewwidth / 10;
 
-//
-// calculate trace angles and projection constants
-//
-	CalcProjection (FOCALLENGTH);
+    screenofs = ((200 - STATUSLINES - viewheight + TOP_STRIP_HEIGHT) /
+        2 * SCREENWIDTH) + ((320 - viewwidth) / 8);
 
-//
-// build all needed compiled scalers
-//
-	SetupScaling((3 * viewwidth) / 2);
+    //
+    // calculate trace angles and projection constants
+    //
+    CalcProjection(FOCALLENGTH);
 
-	view_xl=0;
-	view_xh=view_xl+viewwidth-1;
-	view_yl=0;
-	view_yh=view_yl+viewheight-1;
+    //
+    // build all needed compiled scalers
+    //
+    SetupScaling((3 * viewwidth) / 2);
 
-	return true;
+    view_xl = 0;
+    view_xh = view_xl + viewwidth - 1;
+    view_yl = 0;
+    view_yh = view_yl + viewheight - 1;
 }
 
-
-void ShowViewSize (Sint16 width)
+void NewViewSize()
 {
-	Sint16     oldwidth,oldheight;
-
-	oldwidth = viewwidth;
-	oldheight = viewheight;
-
-	viewwidth = width*16;
-	viewheight = static_cast<Sint16>(width*16*HEIGHTRATIO);
-	VWB_Bar (0,TOP_STRIP_HEIGHT,320,200-STATUSLINES-TOP_STRIP_HEIGHT,BORDER_MED_COLOR);
-//	VWB_Bar (0,0,320,200-STATUSLINES,BORDER_MED_COLOR);
-	DrawPlayBorder ();
-
-	viewheight = oldheight;
-	viewwidth = oldwidth;
-}
-
-
-void NewViewSize (Sint16 width)
-{
-	CA_UpLevel ();
-
-	viewsize = width;
-	while (1)
-	{
-		if (SetViewSize (width*16,static_cast<Uint16>(width*16*HEIGHTRATIO)))
-			break;
-		width--;
-	};
-	CA_DownLevel ();
+    CA_UpLevel();
+    SetViewSize(viewsize * 16, static_cast<int>(viewsize * 16 * HEIGHTRATIO));
+    CA_DownLevel();
 }
 
 
