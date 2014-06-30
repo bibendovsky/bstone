@@ -57,7 +57,7 @@ Required libraries:
 * --ren [soft|ogl]  
   Forces to use a specified renderer.  
   "soft" selects a software renderer.  
-  "ogl" selects an Open GL 2.x compatible renderer.  
+  "ogl" selects an OpenGL 2.x compatible renderer.  
   Default order without this option: ogl, soft.
 
 * --windowed  
@@ -66,8 +66,18 @@ Required libraries:
 
 * --res width height  
   Selects the specified resolution for windowed mode.  
+  Without this option the game will use desktop's resolution.  
   Minimum width: 320  
   Minimum height: 200
+
+* --scale factor  
+  Refinement factor. The higher a value the greater internal resolution  
+  mode will be used to render a scene. The dimensions of the resolution mode  
+  are proportional to the original one (320x200) by 'factor' value.  
+  This option can greatly affect the performance of a renderer (especially a  
+  software one).  
+  Minimum factor: 1 (identical to the original game)  
+  Default factor: depends on the game's resolution mode.
 
 * --winx offset  
   Sets a horizontal offset from the left side of the desktop screen.  
@@ -110,13 +120,13 @@ Required libraries:
   Email: <bibendovsky@hotmail.com>
 
 * Scott Smith  
-  Adaption to Pandora console, various fixies.
+  Adaptation to Pandora console, various fixes.
 
 
 6 - Links
 =========
 
-* The source port code and binary releases:  
+* The port's source code and binary releases:  
   <https://github.com/bibendovsky/bstone/>
 
 * Apogee's article about releasing of an original source code:  
