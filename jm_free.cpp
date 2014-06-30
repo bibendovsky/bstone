@@ -819,7 +819,7 @@ extern char bc_buffer[];
 //------------------------------------------------------------------------
 void PreDemo()
 {
-#if SKIP_TITLE_AND_CREDITS
+#if !SKIP_TITLE_AND_CREDITS
 #if TECH_SUPPORT_VERSION
 
 	fontnumber=4;
