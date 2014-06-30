@@ -38,6 +38,12 @@ Free Software Foundation, Inc.,
 // BBi
 #define BS_SAVE_VERSION "2"
 
+#ifdef _DEBUG
+    #define SKIP_TITLE_AND_CREDITS (1)
+#else
+    #define SKIP_TITLE_AND_CREDITS (0)
+#endif // _DEBUG
+
 #define GOLD_MORPH_LEVEL				(19)			// Level which Dr. GoldFire Morphs.
 
 #define VERSION_TEXT_COLOR				(0x82)

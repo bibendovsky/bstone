@@ -70,13 +70,6 @@ void OpenAudioFile(void);
 bstone::ClArgs g_args;
 
 
-#ifndef _DEBUG
-    #define SKIP_TITLE_AND_CREDITS (0)
-#else
-    #define SKIP_TITLE_AND_CREDITS (1)
-#endif // _DEBUG
-
-
 #define FOCALLENGTH     (0x5700l)               // in global coordinates
 #define VIEWGLOBAL      0x10000                 // globals visable flush to wall
 
