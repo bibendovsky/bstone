@@ -859,8 +859,6 @@ void VL_LatchToScreen(
             src_offset += src_pitch;
             dst_offset += vga_width;
         }
-
-        //src_offset += src_pitch;
     }
 }
 
