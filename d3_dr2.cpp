@@ -228,17 +228,17 @@ vertentry:
                 // hit a sliding vertical wall
                 //
 
-                intercept = yintercept + ((ystep * pwallpos) >> 6);
-                intercept_l = yintercept & 0xFFFF;
-                intercept_h = yintercept >> 16;
+                intercept = (ystep * pwallpos) >> 6;
+                yint = (intercept & 0xFFFF) + (yintercept & 0xFFFF);
+                intercept_l = yint & 0xFFFF;
+                intercept_h = (intercept >> 16) + yint_h + (yint >> 16);
 
-                if ((yintercept >> 16) == intercept_h) {
+                if (yint_h == intercept_h) {
                     //
                     // draw the pushable wall at the new height
                     //
 
-                    yintercept = intercept;
-                    xt = xtile;
+                    yintercept = (intercept_h << 16) | intercept_l;
                     xintercept = xt << 16;
 
                     HitVertPWall();
@@ -319,7 +319,7 @@ vertentry:
         }
     }
 
-    ((Uint8*)spotvis)[xs] = 1;
+    reinterpret_cast<Uint8*>(spotvis)[xs] = 1;
 
     xt += xtilestep;
 
