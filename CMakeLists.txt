@@ -229,6 +229,14 @@ if (MINGW)
     )
 endif ()
 
+if (WIN32)
+    set_target_properties(
+        "${BSTONE_TARGET}"
+        PROPERTIES
+        WIN32_EXECUTABLE "TRUE"
+    )
+endif ()
+
 if (BSTONE_USE_STATIC_CRT)
     if (BSTONE_IS_GNU)
         set_target_properties(
