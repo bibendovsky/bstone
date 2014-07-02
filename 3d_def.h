@@ -2940,7 +2940,7 @@ fixed   FixedByFrac (fixed a, fixed b);
 void    TransformActor (objtype *ob);
 void    BuildTables (void);
 void    ClearScreen (void);
-Sint16             CalcRotate (objtype *ob);
+Sint16 CalcRotate(objtype* ob);
 void    DrawScaleds (void);
 void    CalcTics (void);
 void    FixOfs (void);

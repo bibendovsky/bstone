@@ -127,7 +127,7 @@ fixed	FixedByFrac (fixed a, fixed b);
 void	TransformActor (objtype *ob);
 void	BuildTables (void);
 void	ClearScreen (void);
-Sint16		CalcRotate (objtype *ob);
+Sint16 CalcRotate(objtype* ob);
 void	DrawScaleds (void);
 void	CalcTics (void);
 void	FixOfs (void);
@@ -1042,8 +1042,10 @@ void HitVertPWall (void)
 =====================
 */
 
+
 // BBi
 namespace {
+
 
 void vga_clear_screen(
     int y_offset,
@@ -1071,8 +1073,10 @@ void vga_clear_screen(
     }
 }
 
+
 } // namespace
 // BBi
+
 
 void VGAClearScreen (void)
 {
@@ -1090,40 +1094,33 @@ void VGAClearScreen (void)
 }
 #endif
 
-//==========================================================================
-
-/*
-=====================
-=
-= CalcRotate
-=
-=====================
-*/
-
-Sint16	CalcRotate (objtype *ob)
+Sint16 CalcRotate(
+    objtype* ob)
 {
-	Sint16	angle,viewangle;
-	dirtype dir=ob->dir;
+    dirtype dir = ob->dir;
 
-	// this isn't exactly correct, as it should vary by a trig value,
-	// but it is close enough with only eight rotations
+    // this isn't exactly correct, as it should vary by a trig value,
+    // but it is close enough with only eight rotations
 
-	viewangle = player->angle + (centerx - ob->viewx)/8;
+    int viewangle = player->angle + ((centerx - ob->viewx) / (8 * vga_scale));
 
-	if (dir == nodir)
-		dir = static_cast<dirtype>(ob->trydir&127);
-	angle =  (viewangle-180)- dirangle[dir];
+    if (dir == nodir)
+        dir = static_cast<dirtype>(ob->trydir & 127);
 
-	angle+=ANGLES/16;
-	while (angle>=ANGLES)
-		angle-=ANGLES;
-	while (angle<0)
-		angle+=ANGLES;
+    int angle = (viewangle - 180) - dirangle[dir];
 
-	if ((ob->state->flags & SF_PAINFRAME)) // 2 rotation pain frame
-		return 4*(angle/(ANGLES/2));        // seperated by 3 (art layout...)
+    angle += ANGLES / 16;
 
-	return angle/(ANGLES/8);
+    while (angle >= ANGLES)
+        angle -= ANGLES;
+
+    while (angle < 0)
+        angle += ANGLES;
+
+    if ((ob->state->flags & SF_PAINFRAME) != 0) // 2 rotation pain frame
+        return 4 * (angle / (ANGLES / 2));      // seperated by 3 (art layout...)
+
+    return angle / (ANGLES / 8);
 }
 
 
