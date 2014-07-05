@@ -345,42 +345,42 @@ static Uint8* ScanNames[] = { // Scan code names with single chars
 
 // Scan codes with >1 char names
 static ScanCode ExtScanCodes[] = {
-    sc_Escape,
-    sc_BackSpace,
-    sc_Tab,
-    sc_Control,
-    sc_LShift,
-    sc_Space,
-    sc_CapsLock,
-    sc_F1,
-    sc_F2,
-    sc_F3,
-    sc_F4,
-    sc_F5,
-    sc_F6,
-    sc_F7,
-    sc_F8,
-    sc_F9,
-    sc_F10,
-    sc_F11,
-    sc_F12,
+    sc_escape,
+    sc_backspace,
+    sc_tab,
+    sc_control,
+    sc_left_shift,
+    sc_space,
+    sc_caps_lock,
+    sc_f1,
+    sc_f2,
+    sc_f3,
+    sc_f4,
+    sc_f5,
+    sc_f6,
+    sc_f7,
+    sc_f8,
+    sc_f9,
+    sc_f10,
+    sc_f11,
+    sc_f12,
     sc_scroll_lock,
-    sc_Return,
-    sc_RShift,
+    sc_return,
+    sc_right_shift,
     sc_print_screen,
-    sc_Alt,
-    sc_Home,
-    sc_PgUp,
-    sc_End,
-    sc_PgDn,
-    sc_Insert,
-    sc_Delete,
+    sc_alt,
+    sc_home,
+    sc_page_up,
+    sc_end,
+    sc_page_down,
+    sc_insert,
+    sc_delete,
     sc_num_lock,
-    sc_UpArrow,
-    sc_DownArrow,
-    sc_LeftArrow,
-    sc_RightArrow,
-    sc_None
+    sc_up_arrow,
+    sc_down_arrow,
+    sc_left_arrow,
+    sc_right_arrow,
+    sc_none
 }; // ExtScanCodes
 
 static Uint8* ExtScanNames[] = { // Names corresponding to ExtScanCodes
@@ -413,7 +413,7 @@ ScanCode *ExtScanCodes;
 
 static Uint8 special_keys[] =
 {
-	sc_Tilde,sc_Plus,sc_Minus,sc_L,sc_P,sc_M,sc_S,sc_I,sc_Q,sc_W,sc_E,sc_Enter,sc_1,sc_2,sc_3,sc_4,sc_5,sc_Tab
+	sc_back_quote,sc_equals,sc_minus,sc_l,sc_p,sc_m,sc_s,sc_i,sc_q,sc_w,sc_e,sc_return,sc_1,sc_2,sc_3,sc_4,sc_5,sc_tab
 };
 
 
@@ -498,7 +498,7 @@ void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boo
 	if (oldwidth != FULL_VIEW_WIDTH)
 		NewViewSize();
 
-	if (startmusic && TPscan==sc_Escape)
+	if (startmusic && TPscan==sc_escape)
 		StartCPMusic(MENUSONG);
 	IN_ClearKeysDown();
 }
@@ -543,32 +543,32 @@ void US_ControlPanel(Uint8 scancode)
  //
  switch(scancode)
  {
-  case sc_F1:
+  case sc_f1:
 	 CleanupControlPanel();
 	 HelpScreens();
 	 return;
 
-  case sc_F2:
+  case sc_f2:
 	 CP_SaveGame(0);
     goto finishup;
 
-  case sc_F3:
+  case sc_f3:
 	 CP_LoadGame(0);
 //	 refresh_screen=false;
     goto finishup;
 
-  case sc_F4:
+  case sc_f4:
     CP_Sound(0);
 	 goto finishup;
 
 // BBi
 #if 0
-  case sc_F5:
+  case sc_f5:
     CP_ChangeView(0);
     goto finishup;
 #endif // 0
 
-  case sc_F6:
+  case sc_f6:
     CP_Control(0);
     goto finishup;
 
@@ -731,7 +731,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 	{
 	// END GAME
 	//
-		case sc_F7:
+		case sc_f7:
 			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 			CA_CacheGrChunk(STARTFONT+1);
 
@@ -748,7 +748,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 	// QUICKSAVE
 	//
-		case sc_F8:
+		case sc_f8:
 			if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
 			{
 				char string[100]="Quick Save will overwrite:\n\"";
@@ -792,7 +792,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 	// QUICKLOAD
 	//
-		case sc_F9:
+		case sc_f9:
 			if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
 			{
 				char string[100]="Quick Load:\n\"";
@@ -832,7 +832,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 	// QUIT
 	//
-		case sc_F10:
+		case sc_f10:
 			CA_CacheGrChunk(STARTFONT+1);
 			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
 
@@ -1915,8 +1915,8 @@ void CalibrateJoystick(void)
 	VW_UpdateScreen();
 
 	while (IN_GetJoyButtonsDB(joystickport));
-	while ((LastScan != sc_Escape) && !IN_GetJoyButtonsDB(joystickport));
-	if (LastScan == sc_Escape)
+	while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport));
+	if (LastScan == sc_escape)
 		return;
 
 	IN_GetJoyAbs(joystickport,&minx,&miny);
@@ -1925,8 +1925,8 @@ void CalibrateJoystick(void)
 	CacheMessage(CALJOY2_TEXT);			  
 	VW_UpdateScreen();
 
-	while ((LastScan != sc_Escape) && !IN_GetJoyButtonsDB(joystickport));
-	if (LastScan == sc_Escape)
+	while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport));
+	if (LastScan == sc_escape)
 		return;
 
 	IN_GetJoyAbs(joystickport,&maxx,&maxy);
@@ -1965,7 +1965,7 @@ void MouseSensitivity(Sint16)
       			VW_UpdateScreen();
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
-                while (Keyboard[sc_LeftArrow])
+                while (Keyboard[sc_left_arrow])
                     ::in_handle_events();
 
       			WaitKeyUp();
@@ -1981,7 +1981,7 @@ void MouseSensitivity(Sint16)
 					VW_UpdateScreen();
                     ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
-                    while (Keyboard[sc_RightArrow])
+                    while (Keyboard[sc_right_arrow])
                         ::in_handle_events();
 
 					WaitKeyUp();
@@ -1992,10 +1992,10 @@ void MouseSensitivity(Sint16)
             break;
 		}
 
-		if (ci.button0 || Keyboard[sc_Space] || Keyboard[sc_Enter])
+		if (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return])
 			exit=1;
 		else
-		if (ci.button1 || Keyboard[sc_Escape])
+		if (ci.button1 || Keyboard[sc_escape])
 			exit=2;
 
 	} while(!exit);
@@ -2193,7 +2193,7 @@ bool TestForValidKey(ScanCode Scan)
 
 	if (pos)
    {
-   	*pos = sc_None;
+   	*pos = sc_none;
         ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
 
 		DrawCustomScreen();
@@ -2260,7 +2260,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 		ReadAnyControl(&ci);
 
   		if (type==MOUSE || type==JOYSTICK)
-	 		if (IN_KeyDown(sc_Enter)||IN_KeyDown(sc_Control)||IN_KeyDown(sc_Alt))
+	 		if (IN_KeyDown(sc_return)||IN_KeyDown(sc_control)||IN_KeyDown(sc_alt))
 			{
 		   	 IN_ClearKeysDown();
 				 ci.button0=ci.button1=false;
@@ -2271,7 +2271,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 	  //
 
 	  if ((ci.button0|ci.button1|ci.button2|ci.button3)||
-   	  ((type==KEYBOARDBTNS||type==KEYBOARDMOVE) && LastScan==sc_Enter))
+   	  ((type==KEYBOARDBTNS||type==KEYBOARDMOVE) && LastScan==sc_return))
 	  {
    		tick=0;
         TimeCount=0;
@@ -2382,7 +2382,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
    	  case KEYBOARDBTNS:
 	       if (LastScan)
    	    {
-          	if (LastScan == sc_Escape)
+          	if (LastScan == sc_escape)
             	break;
 
 	   	  	if (memchr(special_keys,LastScan,sizeof(special_keys)))
@@ -2406,7 +2406,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 	     case KEYBOARDMOVE:
 	       if (LastScan)
 	       {
-	        	if (LastScan == sc_Escape)
+	        	if (LastScan == sc_escape)
    	        	break;
 
 		     	if (memchr(special_keys,LastScan,sizeof(special_keys)))
@@ -2431,7 +2431,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
    	 // EXIT INPUT?
 	    //
 
-		 if (IN_KeyDown(sc_Escape))
+		 if (IN_KeyDown(sc_escape))
    	 {
 	   	  picked=1;
 		     continue;
@@ -2448,7 +2448,7 @@ void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (
 	continue;
   }
 
-  if (ci.button1 || IN_KeyDown(sc_Escape))
+  if (ci.button1 || IN_KeyDown(sc_escape))
     exit=1;
 
   //
@@ -3148,10 +3148,10 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
                 break;
 		}
 
-		if (ci.button0 ||	Keyboard[sc_Space] || Keyboard[sc_Enter])
+		if (ci.button0 ||	Keyboard[sc_space] || Keyboard[sc_return])
 			exit=1;
 
-		if (ci.button1 || Keyboard[sc_Escape])
+		if (ci.button1 || Keyboard[sc_escape])
 			exit=2;
 
 	} while(!exit);
@@ -3323,9 +3323,9 @@ void WaitKeyUp(void)
 									  ci.button1 |
 									  ci.button2 |
 									  ci.button3|
-									  Keyboard[sc_Space]|
-									  Keyboard[sc_Enter]|
-									  Keyboard[sc_Escape]);
+									  Keyboard[sc_space]|
+									  Keyboard[sc_return]|
+									  Keyboard[sc_escape]);
 }
 
 //---------------------------------------------------------------------------
@@ -3497,10 +3497,10 @@ Sint16 Confirm(const char *string)
 
         // BBi
         IN_CheckAck();
-	} while(!Keyboard[sc_Y] && !Keyboard[sc_N] && !Keyboard[sc_Escape]);
+	} while(!Keyboard[sc_y] && !Keyboard[sc_n] && !Keyboard[sc_escape]);
 
 
-	if (Keyboard[sc_Y])
+	if (Keyboard[sc_y])
 	{
 		xit=1;
 		ShootSnd();
@@ -3508,10 +3508,10 @@ Sint16 Confirm(const char *string)
 
 // BBi
 #if 0
-	while(Keyboard[sc_Y] || Keyboard[sc_N] || Keyboard[sc_Escape]);
+	while(Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_Escape]);
 #endif
 
-    while(Keyboard[sc_Y] || Keyboard[sc_N] || Keyboard[sc_Escape])
+    while(Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_escape])
         IN_CheckAck();
 // BBi
 
@@ -3965,7 +3965,7 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_UpArrow])
+            while (Keyboard[sc_up_arrow])
                 ::in_handle_events();
             break;
 
@@ -3977,7 +3977,7 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_DownArrow])
+            while (Keyboard[sc_down_arrow])
                 ::in_handle_events();
             break;
 
@@ -3990,7 +3990,7 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_LeftArrow])
+            while (Keyboard[sc_left_arrow])
                 ::in_handle_events();
             break;
 
@@ -4001,7 +4001,7 @@ void cp_sound_volume(
                 ++(*volumes[volume_index]);
             }
 
-            while (Keyboard[sc_RightArrow])
+            while (Keyboard[sc_right_arrow])
                 ::in_handle_events();
             break;
 
@@ -4027,7 +4027,7 @@ void cp_sound_volume(
             VW_UpdateScreen();
         }
 
-        quit = (ci.button1 || Keyboard[sc_Escape]);
+        quit = (ci.button1 || Keyboard[sc_escape]);
     }
 
     sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);

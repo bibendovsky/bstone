@@ -562,7 +562,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 	cursorvis = done = false;
 	lasttime = TimeCount;
 	LastASCII = key_None;
-	LastScan = sc_None;
+	LastScan = sc_none;
 
 	while (!done)
 	{
@@ -577,7 +577,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
         ::in_handle_events();
 
 		sc = LastScan;
-		LastScan = sc_None;
+		LastScan = sc_none;
 		c = LastASCII;
 		LastASCII = key_None;
 
@@ -605,7 +605,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 			cursormoved = true;
          redraw = use_custom_cursor;		// JAM -
 			break;
-		case sc_End:
+		case sc_end:
 			cursor = strlen(s);
 			c = key_None;
 			cursormoved = true;
@@ -613,13 +613,13 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 
 #endif 	
 
-		case sc_Return:
+		case sc_return:
 			strcpy(buf,s);
 			done = true;
 			result = true;
 			c = key_None;
 			break;
-		case sc_Escape:
+		case sc_escape:
 			if (escok)
 			{
 				done = true;
@@ -628,7 +628,7 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 			c = key_None;
 			break;
 
-		case sc_BackSpace:
+		case sc_backspace:
 			if (cursor)
 			{
 				strcpy(s + cursor - 1,s + cursor);
@@ -652,11 +652,11 @@ boolean US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 #endif
 
 		case 0x4c:	// Keypad 5
-		case sc_UpArrow:
-		case sc_DownArrow:
-		case sc_PgUp:
-		case sc_PgDn:
-		case sc_Insert:
+		case sc_up_arrow:
+		case sc_down_arrow:
+		case sc_page_up:
+		case sc_page_down:
+		case sc_insert:
 			c = key_None;
 			break;
 		}

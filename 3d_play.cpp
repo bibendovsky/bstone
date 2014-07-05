@@ -130,9 +130,9 @@ Uint8		update[UPDATESIZE];
 //
 boolean		mouseenabled,joystickenabled,joypadenabled,joystickprogressive;
 Sint16			joystickport;
-Sint16			dirscan[4] = {sc_UpArrow,sc_RightArrow,sc_DownArrow,sc_LeftArrow};
+Sint16			dirscan[4] = {sc_up_arrow,sc_right_arrow,sc_down_arrow,sc_left_arrow};
 Sint16			buttonscan[NUMBUTTONS] =
-				{sc_Control,sc_Alt,sc_RShift,sc_Space,sc_1,sc_2,sc_3,sc_4,sc_5,sc_6,sc_7};
+				{sc_control,sc_alt,sc_right_shift,sc_space,sc_1,sc_2,sc_3,sc_4,sc_5,sc_6,sc_7};
 Sint16			buttonmouse[4]={bt_attack,bt_strafe,bt_use,bt_nobutton};
 Sint16			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
 
@@ -370,7 +370,7 @@ void PollMouseMove (void)
 
 // Double speed when shift is pressed.
 //
-	if (Keyboard[sc_LShift] || Keyboard[sc_RShift] || buttonstate[bt_run])
+	if (Keyboard[sc_left_shift] || Keyboard[sc_right_shift] || buttonstate[bt_run])
 	{
 		controly += (mouseymove*20/(13-mouseadjustment))*4;
 		controlx += (mousexmove*10/(13-mouseadjustment))/2;
@@ -620,7 +620,7 @@ extern Sint16 pickquick;
 
 boolean refresh_screen;
 #if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
-Uint8 jam_buff_cmp[]={sc_J,sc_A,sc_M};
+Uint8 jam_buff_cmp[]={sc_j,sc_a,sc_m};
 Uint8 jam_buff[sizeof(jam_buff_cmp)];
 #endif
 
@@ -636,7 +636,7 @@ void CheckKeys (void)
 	static boolean S_KeyReleased;
 
 #if IN_DEVELOPMENT || BETA_TEST
-//	if (DebugOk && (Keyboard[sc_P] || PP_step))
+//	if (DebugOk && (Keyboard[sc_p] || PP_step))
 //		PicturePause ();
 #endif
 
@@ -659,7 +659,7 @@ void CheckKeys (void)
 	//
 
 #if GAME_VERSION != SHAREWARE_VERSION
-	if (Keyboard[sc_J] || Keyboard[sc_A] || Keyboard[sc_M])
+	if (Keyboard[sc_j] || Keyboard[sc_a] || Keyboard[sc_m])
 	{
 		if (jam_buff[sizeof(jam_buff_cmp)-1] != LastScan)
 		{
@@ -673,7 +673,7 @@ void CheckKeys (void)
 
 	if (gamestate.rpower)
 	{
-		if (Keyboard[sc_Plus] || Keyboard[sc_kpPlus])
+		if (Keyboard[sc_equals] || Keyboard[sc_kp_plus])
 		{
 			if (Plus_KeyReleased && gamestate.rzoom<2)
 			{
@@ -685,7 +685,7 @@ void CheckKeys (void)
 		else
 			Plus_KeyReleased=true;
 
-		if (Keyboard[sc_Minus] || Keyboard[sc_kpMinus])
+		if (Keyboard[sc_minus] || Keyboard[sc_kp_minus])
 		{
 			if (Minus_KeyReleased && gamestate.rzoom)
 			{
@@ -698,7 +698,7 @@ void CheckKeys (void)
 			Minus_KeyReleased=true;
 	}
 
-	if (Keyboard[sc_S])
+	if (Keyboard[sc_s])
 	{
 		if (S_KeyReleased)
 		{
@@ -743,7 +743,7 @@ void CheckKeys (void)
 	else
 		S_KeyReleased=true;
 
-	if (Keyboard[sc_Enter])
+	if (Keyboard[sc_return])
 	{
 #if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
 		char loop;
@@ -800,7 +800,7 @@ void CheckKeys (void)
 	{
 	// 90 degrees left
 	//
-		if (Keyboard[sc_Q])
+		if (Keyboard[sc_q])
 		{
 			gamestate.turn_around = -90;
 			gamestate.turn_angle = player->angle + 90;
@@ -810,7 +810,7 @@ void CheckKeys (void)
 
 	// 180 degrees right
 	//
-		if ((Keyboard[sc_W]) || (one_eighty))
+		if ((Keyboard[sc_w]) || (one_eighty))
 		{
 			gamestate.turn_around = 180;
 			gamestate.turn_angle = player->angle + 180;
@@ -820,7 +820,7 @@ void CheckKeys (void)
 
 	// 90 degrees right
 	//
-		if (Keyboard[sc_E])
+		if (Keyboard[sc_e])
 		{
 			gamestate.turn_around = 90;
 			gamestate.turn_angle = player->angle - 90;
@@ -832,7 +832,7 @@ void CheckKeys (void)
 //
 // pause key weirdness can't be checked as a scan code
 //
-	if (Paused || Keyboard[sc_P])
+	if (Paused || Keyboard[sc_p])
 	{
 		SD_MusicOff();
 		fontnumber = 4;
@@ -851,7 +851,7 @@ void CheckKeys (void)
 	if (TestQuickSave)
 	{
 //   	TestQuickSave--;
-		scan = sc_F8;
+		scan = sc_f8;
 	}
 
 	if (TestAutoMapper)
@@ -861,16 +861,16 @@ void CheckKeys (void)
 
 	switch (scan)
 	{
-		case sc_F7:							// END GAME
-		case sc_F10:						// QUIT TO DOS
+		case sc_f7:							// END GAME
+		case sc_f10:						// QUIT TO DOS
 			FinishPaletteShifts();
 			ClearMemory();
 			US_ControlPanel(scan);
 			CleanDrawPlayBorder();
 			return;
 
-		case sc_F2:							// SAVE MISSION
-		case sc_F8:							// QUICK SAVE
+		case sc_f2:							// SAVE MISSION
+		case sc_f8:							// QUICK SAVE
 		// Make sure there's room to save...
 		//
 			ClearMemory();
@@ -881,15 +881,15 @@ void CheckKeys (void)
 				break;
 			}
 
-		case sc_F1:							// HELP
-		case sc_F3:							// LOAD MISSION
-		case sc_F4:							// SOUND MENU
-		case sc_F5:							//	RESIZE VIEW
-		case sc_F6:							// CONTROLS MENU
-		case sc_F9:							// QUICK LOAD
-		case sc_Escape:					// MAIN MENU
+		case sc_f1:							// HELP
+		case sc_f3:							// LOAD MISSION
+		case sc_f4:							// SOUND MENU
+		case sc_f5:							//	RESIZE VIEW
+		case sc_f6:							// CONTROLS MENU
+		case sc_f9:							// QUICK LOAD
+		case sc_escape:					// MAIN MENU
 			refresh_screen=true;
-			if (scan < sc_F8)
+			if (scan < sc_f8)
 				VW_FadeOut();
 			StopMusic();
 			ClearMemory();
@@ -921,34 +921,34 @@ void CheckKeys (void)
 			return;
 	}
 
-	if (Keyboard[sc_Tab])
+	if (Keyboard[sc_tab])
 		PopupAutoMap();
 
-  	if (Keyboard[sc_Tilde])
+  	if (Keyboard[sc_back_quote])
    {
-      Keyboard[sc_Tilde] = 0;
+      Keyboard[sc_back_quote] = 0;
    	TryDropPlasmaDetonator();
    }
 
 
-	if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_BackSpace]))
+	if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_backspace]))
 	{
 		Uint8 old_num=music_num;
 
 		if (gamestate.flags & GS_MUSIC_TEST)
 		{
-			if (Keyboard[sc_LeftArrow])
+			if (Keyboard[sc_left_arrow])
 			{
 				if (music_num)
 					music_num--;
-				Keyboard[sc_LeftArrow]=false;
+				Keyboard[sc_left_arrow]=false;
 			}
 			else
-			if (Keyboard[sc_RightArrow])
+			if (Keyboard[sc_right_arrow])
 			{
 				if (music_num < LASTMUSIC-1)
 					music_num++;
-				Keyboard[sc_RightArrow]=false;
+				Keyboard[sc_right_arrow]=false;
 			}
 
 			if (old_num != music_num)
@@ -979,7 +979,7 @@ void CheckKeys (void)
 		}
 	}
 
-	if (Keyboard[sc_I])
+	if (Keyboard[sc_i])
 	{
 		if (I_KeyReleased)
 		{
@@ -996,29 +996,29 @@ void CheckKeys (void)
 
 
 #ifdef CEILING_FLOOR_COLORS
-	if (Keyboard[sc_C])
+	if (Keyboard[sc_c])
 	{
 		gamestate.flags ^= GS_DRAW_CEILING;
-		Keyboard[sc_C] = 0;
+		Keyboard[sc_c] = 0;
 	}
 
-	if (Keyboard[sc_F])
+	if (Keyboard[sc_f])
 	{
 		ThreeDRefresh();
 		ThreeDRefresh();
 
 		gamestate.flags ^= GS_DRAW_FLOOR;
 
-		Keyboard[sc_F] = 0;
+		Keyboard[sc_f] = 0;
 #if DUAL_SWAP_FILES
 		ChangeSwapFiles(true);
 #endif
 	}
 #endif
 
-	if (Keyboard[sc_L])
+	if (Keyboard[sc_l])
 	{
-		Keyboard[sc_L]=0;
+		Keyboard[sc_l]=0;
 		gamestate.flags ^= GS_LIGHTING;
 	}
 }
@@ -1031,11 +1031,11 @@ void CheckMusicToggle(void)
 {
 	static boolean M_KeyReleased;
 
-	if (Keyboard[sc_M])
+	if (Keyboard[sc_m])
 	{
 		if (M_KeyReleased
 #if GAME_VERSION != SHAREWARE_VERSION
-			 && ((jam_buff[0] != sc_J) || (jam_buff[1] != sc_A))
+			 && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))
 #endif
 			)
 		{
@@ -1124,7 +1124,7 @@ void PopupAutoMap()
 
 	ShowStats(BASE_X+101,BASE_Y+22,ss_quick,&gamestuff.level[gamestate.mapon].stats);
 
-	while (Keyboard[sc_Tilde])
+	while (Keyboard[sc_back_quote])
 		CalcTics();
 
 #if GAME_VERSION != SHAREWARE_VERSION && IN_DEVELOPMENT

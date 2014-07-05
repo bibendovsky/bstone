@@ -993,7 +993,7 @@ void PreDemo()
             // BBi
             ::in_handle_events();
 
-				if (Keyboard[sc_LShift] && Keyboard[sc_RShift])
+				if (Keyboard[sc_left_shift] && Keyboard[sc_right_shift])
 		      {
 					CA_LoadAllSounds();
 

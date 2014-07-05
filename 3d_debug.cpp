@@ -106,7 +106,7 @@ void PicturePause (void)
 	{
 		switch (LastScan)
 		{
-			case sc_O:
+			case sc_o:
 			case sc_Space:
 			case sc_Control:
 			case sc_Alt:
@@ -515,27 +515,27 @@ static	char	buf[10];
 			if (++i >= ChunksInFile)
 				i--;
 			break;
-		case sc_W:	// Walls
+		case sc_w:	// Walls
 			i = 0;
 			break;
-		case sc_S:	// Sprites
+		case sc_s:	// Sprites
 			i = PMSpriteStart;
 			break;
-		case sc_D:	// Digitized
+		case sc_d:	// Digitized
 			i = PMSoundStart;
 			break;
-		case sc_I:	// Digitized info
+		case sc_i:	// Digitized info
 			i = ChunksInFile - 1;
 			break;
-		case sc_L:	// Load all pages
+		case sc_l:	// Load all pages
 			for (j = 0;j < ChunksInFile;j++)
 				PM_GetPage(j);
 			break;
-		case sc_P:
+		case sc_p:
 			if (sound != -1)
 				SD_PlaySound(sound);
 			break;
-		case sc_Escape:
+		case sc_escape:
 			done = true;
 			break;
 		case sc_Enter:
@@ -607,7 +607,7 @@ Sint16 DebugKeys (void)
 	boolean esc;
 	Sint16 level,i;
 
-   if (Keyboard[sc_A])		// A = Show Actors on AutoMap
+   if (Keyboard[sc_a])		// A = Show Actors on AutoMap
 	{
    	ExtraRadarFlags ^= OV_ACTORS;
 		CenterWindow (24,3);
@@ -620,7 +620,7 @@ Sint16 DebugKeys (void)
 		return 1;
    }
    else
-	if (Keyboard[sc_B])		// B = border color
+	if (Keyboard[sc_b])		// B = border color
 	{
 		CenterWindow(24,3);
 		PrintY+=6;
@@ -636,22 +636,22 @@ Sint16 DebugKeys (void)
 		return 1;
 	}
 
-	if (Keyboard[sc_K])		// K = Map Content totals
+	if (Keyboard[sc_k])		// K = Map Content totals
 	{
 		CountTotals();
 		return 1;
 	}
-	else if (Keyboard[sc_C])		// C = count objects
+	else if (Keyboard[sc_c])		// C = count objects
 	{
 		CountObjects();
 		return 1;
 	}
-	else if (Keyboard[sc_R])		// C = count objects
+	else if (Keyboard[sc_r])		// C = count objects
 	{
 		ShowMap();
 		return 1;
 	}
-	else if (Keyboard[sc_D])			// D = Dumb/Blind Objects (Player Invisable)
+	else if (Keyboard[sc_d])			// D = Dumb/Blind Objects (Player Invisable)
 	{
 		CenterWindow (19,3);
 		PlayerInvisable ^= 1;
@@ -664,7 +664,7 @@ Sint16 DebugKeys (void)
 		IN_Ack ();
 		return 1;
 	}
-	else if (Keyboard[sc_E])			// E = Win Mission
+	else if (Keyboard[sc_e])			// E = Win Mission
 	{
 		CenterWindow (19,3);
 		US_PrintCentered ("Instant Wiener!");
@@ -675,7 +675,7 @@ Sint16 DebugKeys (void)
 		return 1;
 	}
 	else
-	if (Keyboard[sc_F])		// F = facing spot
+	if (Keyboard[sc_f])		// F = facing spot
 	{
 		CenterWindow (18,5);
 		US_Print ("X:");
@@ -695,7 +695,7 @@ Sint16 DebugKeys (void)
 		return 1;
 	}
 
-	if (Keyboard[sc_G])		// G = god mode
+	if (Keyboard[sc_g])		// G = god mode
 	{
 		CenterWindow (12,2);
 		if (godmode)
@@ -709,13 +709,13 @@ Sint16 DebugKeys (void)
 	}
 
 
-	if (Keyboard[sc_H])		// H = hurt self
+	if (Keyboard[sc_h])		// H = hurt self
 	{
 		IN_ClearKeysDown ();
 		TakeDamage (1,NULL);
 	}
 	else
-	if (Keyboard[sc_I])			// I = item cheat
+	if (Keyboard[sc_i])			// I = item cheat
 	{
 		CenterWindow (12,3);
 		US_PrintCentered ("Free items!");
@@ -739,14 +739,14 @@ Sint16 DebugKeys (void)
 		return 1;
 	}
 	else
-	if (Keyboard[sc_M])			// M = memory info
+	if (Keyboard[sc_m])			// M = memory info
 	{
 		DebugMemory();
 		return 1;
 	}
 #if IN_DEVELOPMENT
 #if (!BETA_TEST)
-	else if (Keyboard[sc_N])			// N = no clip
+	else if (Keyboard[sc_n])			// N = no clip
 	{
 		gamestate.flags ^= GS_CLIP_WALLS;
 		CenterWindow (18,3);
@@ -759,22 +759,22 @@ Sint16 DebugKeys (void)
 		return 1;
 	}
 #endif
-	else if (Keyboard[sc_P])			// P = pause with no screen disruptioon
+	else if (Keyboard[sc_p])			// P = pause with no screen disruptioon
 	{
 		PicturePause ();
 		return 1;
 	}
 #endif
-	else if (Keyboard[sc_Q])			// Q = fast quit
+	else if (Keyboard[sc_q])			// Q = fast quit
 		Quit ("");
 #if IN_DEVELOPMENT
-	else if (Keyboard[sc_T])			// T = shape test
+	else if (Keyboard[sc_t])			// T = shape test
 	{
 		ShapeTest ();
 		return 1;
 	}
 #endif
-	else if (Keyboard[sc_O])			// O = Show Push Walls
+	else if (Keyboard[sc_o])			// O = Show Push Walls
    {
    	ExtraRadarFlags ^= OV_PUSHWALLS;
 		CenterWindow (24,3);
@@ -786,7 +786,7 @@ Sint16 DebugKeys (void)
 		IN_Ack();
    	return 1;
    }
-	else if (Keyboard[sc_U])			// Unlock All Floors
+	else if (Keyboard[sc_u])			// Unlock All Floors
 	{
    	Sint16 i;
 		CenterWindow (24,3);
@@ -799,7 +799,7 @@ Sint16 DebugKeys (void)
 
       return 1;
 	}
-	else if (Keyboard[sc_V])			// V = extra VBLs
+	else if (Keyboard[sc_v])			// V = extra VBLs
 	{
 		CenterWindow(30,3);
 		PrintY+=6;
@@ -815,7 +815,7 @@ Sint16 DebugKeys (void)
 		return 1;
 	}
 	else
-	if (Keyboard[sc_S])			// S = slow motion
+	if (Keyboard[sc_s])			// S = slow motion
 	{
 		singlestep^=1;
 		CenterWindow (18,3);
@@ -827,9 +827,9 @@ Sint16 DebugKeys (void)
 		IN_Ack ();
 		return 1;
 	}
-	else if (Keyboard[sc_W])			// W = warp to level
+	else if (Keyboard[sc_w])			// W = warp to level
 	{
-		ForceLoadDefault=Keyboard[sc_LShift]|Keyboard[sc_RShift]|Keyboard[sc_CapsLock];
+		ForceLoadDefault=Keyboard[sc_left_shift]|Keyboard[sc_right_shift]|Keyboard[sc_caps_lock];
 
 		CenterWindow(26,5);
 		PrintY+=6;
@@ -854,7 +854,7 @@ Sint16 DebugKeys (void)
 		}
 		return 1;
 	}
-	else if (Keyboard[sc_Home])		// Dec top color
+	else if (Keyboard[sc_home])		// Dec top color
 	{
 #ifdef CEILING_FLOOR_COLORS
 		if (gamestate.flags & GS_DRAW_CEILING)
@@ -872,7 +872,7 @@ Sint16 DebugKeys (void)
 		}
 #endif
 	}
-	else if (Keyboard[sc_PgUp])		// Inc top color
+	else if (Keyboard[sc_page_up])		// Inc top color
 	{
 #ifdef CEILING_FLOOR_COLORS
 		if (gamestate.flags & GS_DRAW_CEILING)
@@ -890,7 +890,7 @@ Sint16 DebugKeys (void)
 		}
 #endif
 	}
-	else if (Keyboard[sc_End])			// Dec bottom color
+	else if (Keyboard[sc_end])			// Dec bottom color
 	{
 #ifdef CEILING_FLOOR_COLORS
 		if (gamestate.flags & GS_DRAW_FLOOR)
@@ -908,7 +908,7 @@ Sint16 DebugKeys (void)
 		}
 #endif
 	}
-	else if (Keyboard[sc_PgDn])		// Inc bottom color
+	else if (Keyboard[sc_page_down])		// Inc bottom color
 	{
 #ifdef CEILING_FLOOR_COLORS
 		if (gamestate.flags & GS_DRAW_FLOOR)
@@ -929,7 +929,7 @@ Sint16 DebugKeys (void)
 
 #if (IN_DEVELOPMENT)
 #if !BETA_TEST
-	else if (Keyboard[sc_Y])
+	else if (Keyboard[sc_y])
 	{
 		GivePoints(100000L,false);
 	}
@@ -938,18 +938,18 @@ Sint16 DebugKeys (void)
 
 	if (gamestate.flags & GS_LIGHTING)			// Shading adjustments
 	{
-   	if (Keyboard[sc_Plus] && normalshade_div < 12)
+   	if (Keyboard[sc_equals] && normalshade_div < 12)
       	normalshade_div++;
       else
-   	if (Keyboard[sc_Minus] && normalshade_div>1)
+   	if (Keyboard[sc_minus] && normalshade_div>1)
       	normalshade_div--;
 
 		normalshade=(3*(maxscale>>2))/normalshade_div;
 
-   	if (Keyboard[sc_RBrace] && shade_max < 63)
+   	if (Keyboard[sc_right_bracket] && shade_max < 63)
       	shade_max++;
       else
-   	if (Keyboard[sc_LBrace] && shade_max > 5)
+   	if (Keyboard[sc_left_bracket] && shade_max > 5)
       	shade_max--;
 	}
 

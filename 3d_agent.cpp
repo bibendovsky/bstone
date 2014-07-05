@@ -3028,23 +3028,23 @@ Sint16 InputFloor(void)
         // BBi
         ::in_handle_events();
 
-		if (Keyboard[sc_LeftArrow])
+		if (Keyboard[sc_left_arrow])
 			controlx = -1;
 		else
-			if (Keyboard[sc_RightArrow])
+			if (Keyboard[sc_right_arrow])
 				controlx = 1;
 			else
 				controlx = 0;
 
-		if (Keyboard[sc_UpArrow])
+		if (Keyboard[sc_up_arrow])
 			controly = -1;
 		else
-			if (Keyboard[sc_DownArrow])
+			if (Keyboard[sc_down_arrow])
 				controly = 1;
 			else
 				controly = 0;
 
-		if (Keyboard[sc_Escape] || buttonstate[bt_strafe])
+		if (Keyboard[sc_escape] || buttonstate[bt_strafe])
 		{
 			rt_code=-1;													// ABORT
 
@@ -3052,7 +3052,7 @@ Sint16 InputFloor(void)
 			break;
 		}
 		else
-			if (Keyboard[sc_Enter] || buttonstate[bt_attack])
+			if (Keyboard[sc_return] || buttonstate[bt_attack])
 			{
 				if (locked)
 				{
@@ -3392,7 +3392,7 @@ Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats)
 
 // Setup to test for bypassing stats.
 //
-	LastScan=sc_None;
+	LastScan=sc_none;
 
 	if (type == ss_quick)
 		show_stats_quick=true;
@@ -4128,7 +4128,7 @@ void ActivateTerminal(boolean skiplink)
    {
 	   CacheTerminalPrint(TM_LINK,false);
 
-	   if (Keyboard[sc_H] & Keyboard[sc_O] & Keyboard[sc_T])
+	   if (Keyboard[sc_h] & Keyboard[sc_o] & Keyboard[sc_t])
    	{
 	   	CacheTerminalPrint(TM_CHEATER,false);
 	   }

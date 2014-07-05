@@ -720,7 +720,7 @@ void MoveObj (objtype *ob, Sint32 move)
 {
 	Sint32	deltax,deltay;
 
-//	if (DebugOk && Keyboard[sc_Z])
+//	if (DebugOk && Keyboard[sc_z])
 //		return;
 
 	switch (ob->dir)

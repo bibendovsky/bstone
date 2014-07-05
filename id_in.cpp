@@ -91,16 +91,16 @@ boolean			NGinstalled=false;
 		ScanCode	LastScan;
 
 KeyboardDef KbdDefs = {
-    sc_Control,
-    sc_Alt,
-    sc_Home,
-    sc_UpArrow,
-    sc_PgUp,
-    sc_LeftArrow,
-    sc_RightArrow,
-    sc_End,
-    sc_DownArrow,
-    sc_PgDn
+    sc_control,
+    sc_alt,
+    sc_home,
+    sc_up_arrow,
+    sc_page_up,
+    sc_left_arrow,
+    sc_right_arrow,
+    sc_end,
+    sc_down_arrow,
+    sc_page_down
 }; // KeyboardDef KbdDefs
 
 		JoystickDef	JoyDefs[MaxJoys];
@@ -145,186 +145,186 @@ static int in_keyboard_map_to_bstone(
     switch (key_code) {
     case SDLK_RETURN:
     case SDLK_KP_ENTER:
-        return sc_Return;
+        return sc_return;
 
     case SDLK_ESCAPE:
-        return sc_Escape;
+        return sc_escape;
 
     case SDLK_SPACE:
     case SDLK_KP_SPACE:
-        return sc_Space;
+        return sc_space;
 
     case SDLK_MINUS:
-        return sc_Minus;
+        return sc_minus;
 
     case SDLK_EQUALS:
-        return sc_Plus;
+        return sc_equals;
 
     case SDLK_BACKSPACE:
     case SDLK_KP_BACKSPACE:
-        return sc_BackSpace;
+        return sc_backspace;
 
     case SDLK_TAB:
     case SDLK_KP_TAB:
-        return sc_Tab;
+        return sc_tab;
 
     case SDLK_LALT:
     case SDLK_RALT:
-        return sc_Alt;
+        return sc_alt;
 
     case SDLK_LEFTBRACKET:
     case SDLK_KP_LEFTBRACE:
-        return sc_LBrace;
+        return sc_left_bracket;
 
     case SDLK_RIGHTBRACKET:
     case SDLK_KP_RIGHTBRACE:
-        return sc_RBrace;
+        return sc_right_bracket;
 
     case SDLK_LCTRL:
     case SDLK_RCTRL:
-        return sc_Control;
+        return sc_control;
 
     case SDLK_CAPSLOCK:
-        return sc_CapsLock;
+        return sc_caps_lock;
 
     case SDLK_LSHIFT:
-        return sc_LShift;
+        return sc_left_shift;
 
     case SDLK_RSHIFT:
-        return sc_RShift;
+        return sc_right_shift;
 
     case SDLK_UP:
-        return sc_UpArrow;
+        return sc_up_arrow;
 
     case SDLK_KP_8:
         if (is_numlock_active)
-            return sc_UpArrow;
+            return sc_up_arrow;
         else
             return sc_8;
 
     case SDLK_DOWN:
-        return sc_DownArrow;
+        return sc_down_arrow;
 
     case SDLK_KP_2:
         if (is_numlock_active)
-            return sc_DownArrow;
+            return sc_down_arrow;
         else
             return sc_2;
 
     case SDLK_LEFT:
-        return sc_LeftArrow;
+        return sc_left_arrow;
 
     case SDLK_KP_4:
         if (is_numlock_active)
-            return sc_LeftArrow;
+            return sc_left_arrow;
         else
             return sc_4;
 
     case SDLK_RIGHT:
-        return sc_RightArrow;
+        return sc_right_arrow;
 
     case SDLK_KP_6:
         if (is_numlock_active)
-            return sc_RightArrow;
+            return sc_right_arrow;
         else
             return sc_6;
 
     case SDLK_INSERT:
-        return sc_Insert;
+        return sc_insert;
 
     case SDLK_KP_0:
         if (is_numlock_active)
-            return sc_Insert;
+            return sc_insert;
         else
             return sc_0;
 
     case SDLK_DELETE:
-        return sc_Delete;
+        return sc_delete;
 
     case SDLK_KP_PERIOD:
         if (is_numlock_active)
-            return sc_Delete;
+            return sc_delete;
         else
             return '.';
 
     case SDLK_HOME:
-        return sc_Home;
+        return sc_home;
 
     case SDLK_KP_7:
         if (is_numlock_active)
-            return sc_Home;
+            return sc_home;
         else
             return sc_7;
 
     case SDLK_END:
-        return sc_End;
+        return sc_end;
 
     case SDLK_KP_1:
         if (is_numlock_active)
-            return sc_End;
+            return sc_end;
         else
             return sc_1;
 
     case SDLK_PAGEUP:
-        return sc_PgUp;
+        return sc_page_up;
 
     case SDLK_KP_9:
         if (is_numlock_active)
-            return sc_PgUp;
+            return sc_page_up;
         else
             return sc_9;
 
     case SDLK_PAGEDOWN:
-        return sc_PgDn;
+        return sc_page_down;
 
     case SDLK_KP_3:
         if (is_numlock_active)
-            return sc_PgDn;
+            return sc_page_down;
         else
             return sc_3;
 
     case SDLK_SLASH:
     case SDLK_KP_DIVIDE:
-        return sc_Slash;
+        return sc_slash;
 
     case SDLK_F1:
-        return sc_F1;
+        return sc_f1;
 
     case SDLK_F2:
-        return sc_F2;
+        return sc_f2;
 
     case SDLK_F3:
-        return sc_F3;
+        return sc_f3;
 
     case SDLK_F4:
-        return sc_F4;
+        return sc_f4;
 
     case SDLK_F5:
-        return sc_F5;
+        return sc_f5;
 
     case SDLK_F6:
-        return sc_F6;
+        return sc_f6;
 
     case SDLK_F7:
-        return sc_F7;
+        return sc_f7;
 
     case SDLK_F8:
-        return sc_F8;
+        return sc_f8;
 
     case SDLK_F9:
-        return sc_F9;
+        return sc_f9;
 
     case SDLK_F10:
-        return sc_F10;
+        return sc_f10;
 
     case SDLK_F11:
-        return sc_F11;
+        return sc_f11;
 
     case SDLK_F12:
-        return sc_F12;
+        return sc_f12;
 
     case SDLK_BACKQUOTE:
-        return sc_Tilde;
+        return sc_back_quote;
 
     case SDLK_1:
         return sc_1;
@@ -358,96 +358,96 @@ static int in_keyboard_map_to_bstone(
 
     case SDLK_a:
     case SDLK_KP_A:
-        return sc_A;
+        return sc_a;
 
     case SDLK_b:
     case SDLK_KP_B:
-        return sc_B;
+        return sc_b;
 
     case SDLK_c:
     case SDLK_KP_C:
-        return sc_C;
+        return sc_c;
 
     case SDLK_d:
     case SDLK_KP_D:
-        return sc_D;
+        return sc_d;
 
     case SDLK_e:
     case SDLK_KP_E:
-        return sc_E;
+        return sc_e;
 
     case SDLK_f:
     case SDLK_KP_F:
-        return sc_F;
+        return sc_f;
 
     case SDLK_g:
-        return sc_G;
+        return sc_g;
 
     case SDLK_h:
-        return sc_H;
+        return sc_h;
 
     case SDLK_i:
-        return sc_I;
+        return sc_i;
 
     case SDLK_j:
-        return sc_J;
+        return sc_j;
 
     case SDLK_k:
-        return sc_K;
+        return sc_k;
 
     case SDLK_l:
-        return sc_L;
+        return sc_l;
 
     case SDLK_m:
-        return sc_M;
+        return sc_m;
 
     case SDLK_n:
-        return sc_N;
+        return sc_n;
 
     case SDLK_o:
-        return sc_O;
+        return sc_o;
 
     case SDLK_p:
-        return sc_P;
+        return sc_p;
 
     case SDLK_q:
-        return sc_Q;
+        return sc_q;
 
     case SDLK_r:
-        return sc_R;
+        return sc_r;
 
     case SDLK_s:
-        return sc_S;
+        return sc_s;
 
     case SDLK_t:
-        return sc_T;
+        return sc_t;
 
     case SDLK_u:
-        return sc_U;
+        return sc_u;
 
     case SDLK_v:
-        return sc_V;
+        return sc_v;
 
     case SDLK_w:
-        return sc_W;
+        return sc_w;
 
     case SDLK_x:
-        return sc_X;
+        return sc_x;
 
     case SDLK_y:
-        return sc_Y;
+        return sc_y;
 
     case SDLK_z:
-        return sc_Z;
+        return sc_z;
 
     case SDLK_KP_MINUS:
-        return sc_kpMinus;
+        return sc_kp_minus;
 
     case SDLK_KP_PLUS:
-        return sc_kpPlus;
+        return sc_kp_plus;
 
     default:
-        return sc_None;
+        return sc_none;
     }
 }
 
@@ -468,7 +468,7 @@ static char in_keyboard_map_to_char(
         KMOD_RGUI |
         KMOD_MODE)) != 0)
     {
-        return sc_None;
+        return sc_none;
     }
 
     switch (key_code) {
@@ -626,7 +626,7 @@ static char in_keyboard_map_to_char(
             static_cast<char>(key_code);
     }
 
-    return sc_None;
+    return sc_none;
 }
 
 static void in_handle_keyboard(
@@ -644,15 +644,15 @@ static void in_handle_keyboard(
         return;
     }
 
-    if (key == sc_None)
+    if (key == sc_none)
         return;
 
     switch (key) {
-    case sc_Alt:
+    case sc_alt:
         is_pressed = ((key_mod & KMOD_ALT) != 0);
         break;
 
-    case sc_Control:
+    case sc_control:
         is_pressed = ((key_mod & KMOD_CTRL) != 0);
         break;
 
@@ -1242,7 +1242,7 @@ IN_SetKeyHook(void (*hook)())
 void
 IN_ClearKeysDown(void)
 {
-	LastScan = sc_None;
+	LastScan = sc_none;
 	LastASCII = key_None;
 	memset (Keyboard,0,sizeof(Keyboard));
 }

@@ -1327,7 +1327,7 @@ void TP_HandleCodes()
 				else
 					TP_Print(TP_MORE_TEXT,false);
 
-				LastScan = sc_None;
+				LastScan = sc_none;
 				do {
 					IN_ReadControl(0,&ci);
 				} while (!ci.button0 && !ci.button1 && !ci.button2 &&
@@ -1339,7 +1339,7 @@ void TP_HandleCodes()
 				if (pi->flags & TPF_SHOW_CURSOR)
 					TP_JumpCursor();
 
-				if (LastScan == sc_Escape)
+				if (LastScan == sc_escape)
 					flags &= ~fl_presenting;
 				TPscan=LastScan;
 			break;
@@ -1422,24 +1422,24 @@ void TP_HandleCodes()
 #endif
 					ReadAnyControl(&ci);
 
-					if (Keyboard[sc_PgUp])
+					if (Keyboard[sc_page_up])
 						ci.dir = dir_North;
 					else
-					if (Keyboard[sc_PgDn])
+					if (Keyboard[sc_page_down])
 						ci.dir = dir_South;
 
-					if (pi->flags & TPF_CONTINUE && (ci.button0 || Keyboard[sc_Space] || Keyboard[sc_Enter]))
+					if (pi->flags & TPF_CONTINUE && (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return]))
 					{
 						EscPressed = false;
 						flags &= ~fl_presenting;
 						break;
 					}
 
-					if (ci.button1 || Keyboard[sc_Escape])
+					if (ci.button1 || Keyboard[sc_escape])
 					{
 						EscPressed = true;
 						flags &= ~fl_presenting;
-						TPscan=sc_Escape;
+						TPscan=sc_escape;
 						break;
 					}
 					else
@@ -1923,7 +1923,7 @@ void TP_Print(const char *str,boolean single_char)
 //
 // This should eventually be changed...
 //
-	LastScan = sc_None;
+	LastScan = sc_none;
 
 	last_cur_x = cur_x;
 	last_cur_y = cur_y;
@@ -2008,7 +2008,7 @@ boolean TP_SlowPrint(const char *str, char delay)
 	//
 		if (!aborted)
 		{
-			LastScan=sc_None;
+			LastScan=sc_none;
 			tc = TimeCount;
 			while (static_cast<Sint32>(TimeCount)-tc < delay)
 			{

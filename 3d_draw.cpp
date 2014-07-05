@@ -1354,23 +1354,23 @@ void DrawPlayerWeapon (void)
 			useBounceOffset=true;
 #if 1
 #if 0
-			if (Keyboard[sc_PgUp])
+			if (Keyboard[sc_page_up])
 			{
 				vh++;
-				Keyboard[sc_PgUp] = 0;
+				Keyboard[sc_page_up] = 0;
 			}
 
-			if (Keyboard[sc_PgDn])
+			if (Keyboard[sc_page_down])
 			{
 				if (vh)
 					vh--;
-				Keyboard[sc_PgDn] = 0;
+				Keyboard[sc_page_down] = 0;
 			}
 
-			if (Keyboard[sc_End])
+			if (Keyboard[sc_end])
 			{
 				ce++;
-				Keyboard[sc_End] = 0;
+				Keyboard[sc_end] = 0;
 			}
 
 			if (Keyboard[sc_Home])
