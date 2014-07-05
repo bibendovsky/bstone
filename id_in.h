@@ -129,7 +129,13 @@ enum ScanCode {
     sc_z = 0x2C,
 
     sc_kp_minus = 0x4A,
-    sc_kp_plus = 0x4E
+    sc_kp_plus = 0x4E,
+
+    sc_mouse_left = 0x64,
+    sc_mouse_middle = 0x65,
+    sc_mouse_right = 0x66,
+    sc_mouse_x1 = 0x67,
+    sc_mouse_x2 = 0x68
 }; // enum ScanCode
 
 #define	key_None		0
