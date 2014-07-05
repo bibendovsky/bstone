@@ -158,7 +158,7 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 
    movie_reps = MovieStuff->rep;
 	movie_flag = MV_FILL;
-   LastScan = 0;										  
+   LastScan = sc_None;										  
    PageLen = 0;
    MorePagesAvail = true;
 	ExitMovie = false;
@@ -169,7 +169,7 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 	JM_VGALinearFill(screenloc[0],3*80*208,0);
 
 	VL_FillPalette (0,0,0);
-   LastScan = 0;
+   LastScan = sc_None;
 
    // Find out how much memory we have to work with..
 
@@ -475,7 +475,7 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
 
          // BBi
          // FIXME Clear entire input state.
-         LastScan = 0;
+         LastScan = sc_None;
          ci.button0 = 0;
          ci.button1 = 0;
          // BBi

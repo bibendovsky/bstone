@@ -275,7 +275,7 @@ bool FizzleFade(
 
     TimeCount = 0;
     int frame = 0;
-    LastScan = 0;
+    LastScan = sc_None;
 
     bool finished = false;
     bool do_full_copy = false;

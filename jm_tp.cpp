@@ -1327,7 +1327,7 @@ void TP_HandleCodes()
 				else
 					TP_Print(TP_MORE_TEXT,false);
 
-				LastScan = 0;
+				LastScan = sc_None;
 				do {
 					IN_ReadControl(0,&ci);
 				} while (!ci.button0 && !ci.button1 && !ci.button2 &&
@@ -1923,7 +1923,7 @@ void TP_Print(const char *str,boolean single_char)
 //
 // This should eventually be changed...
 //
-	LastScan = 0;
+	LastScan = sc_None;
 
 	last_cur_x = cur_x;
 	last_cur_y = cur_y;
@@ -2008,7 +2008,7 @@ boolean TP_SlowPrint(const char *str, char delay)
 	//
 		if (!aborted)
 		{
-			LastScan=0;
+			LastScan=sc_None;
 			tc = TimeCount;
 			while (static_cast<Sint32>(TimeCount)-tc < delay)
 			{

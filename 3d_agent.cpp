@@ -3392,7 +3392,7 @@ Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats)
 
 // Setup to test for bypassing stats.
 //
-	LastScan=0;
+	LastScan=sc_None;
 
 	if (type == ss_quick)
 		show_stats_quick=true;

@@ -40,89 +40,93 @@ Free Software Foundation, Inc.,
 #define	MaxJoys		2
 #define	NumCodes	128
 
-typedef	Uint8		ScanCode;
-#define	sc_None			0
-#define	sc_Bad			0xff
-#define	sc_Return		0x1c
-#define	sc_Enter		sc_Return
-#define	sc_Escape		0x01
-#define	sc_Space			0x39
-#define 	sc_Minus			0x0C			 
-#define	sc_Plus			0x0D			 
-#define	sc_BackSpace	0x0e
-#define	sc_Tab			0x0f
-#define	sc_Alt			0x38
-#define	sc_LBrace		0x1A			
-#define	sc_RBrace		0x1B
-#define	sc_Control		0x1d
-#define	sc_CapsLock		0x3a
-#define	sc_LShift		0x2a
-#define	sc_RShift		0x36
-#define	sc_UpArrow		0x48
-#define	sc_DownArrow	0x50
-#define	sc_LeftArrow	0x4b
-#define	sc_RightArrow	0x4d
-#define	sc_Insert		0x52
-#define	sc_Delete		0x53
-#define	sc_Home			0x47
-#define	sc_End			0x4f
-#define	sc_PgUp			0x49
-#define	sc_PgDn			0x51
-#define  sc_Slash		0x35
-#define	sc_F1			0x3b
-#define	sc_F2			0x3c
-#define	sc_F3			0x3d
-#define	sc_F4			0x3e
-#define	sc_F5			0x3f
-#define	sc_F6			0x40
-#define	sc_F7			0x41
-#define	sc_F8			0x42
-#define	sc_F9			0x43
-#define	sc_F10			0x44
-#define	sc_F11			0x57
-#define	sc_F12			0x59
-#define	sc_Tilde		0x29
+enum ScanCode {
+    sc_None = 0,
+    sc_Bad = 0xFF,
+    sc_Return = 0x1C,
+    sc_Enter = sc_Return,
+    sc_Escape = 0x01,
+    sc_Space = 0x39,
+    sc_Minus = 0x0C,
+    sc_Plus = 0x0D,
+    sc_BackSpace = 0x0E,
+    sc_Tab = 0x0F,
+    sc_Alt = 0x38,
+    sc_LBrace = 0x1A,
+    sc_RBrace = 0x1B,
+    sc_Control = 0x1D,
+    sc_CapsLock = 0x3A,
+    sc_num_lock = 0x45,
+    sc_scroll_lock = 0x46,
+    sc_LShift = 0x2A,
+    sc_RShift = 0x36,
+    sc_UpArrow = 0x48,
+    sc_DownArrow = 0x50,
+    sc_LeftArrow = 0x4B,
+    sc_RightArrow = 0x4D,
+    sc_Insert = 0x52,
+    sc_Delete = 0x53,
+    sc_Home = 0x47,
+    sc_End = 0x4F,
+    sc_PgUp = 0x49,
+    sc_PgDn = 0x51,
+    sc_Slash = 0x35,
+    sc_F1 = 0x3B,
+    sc_F2 = 0x3C,
+    sc_F3 = 0x3D,
+    sc_F4 = 0x3E,
+    sc_F5 = 0x3F,
+    sc_F6 = 0x40,
+    sc_F7 = 0x41,
+    sc_F8 = 0x42,
+    sc_F9 = 0x43,
+    sc_F10 = 0x44,
+    sc_F11 = 0x57,
+    sc_F12 = 0x59,
+    sc_print_screen = 0x37,
+    sc_Tilde = 0x29,
 
-#define	sc_1			0x02
-#define	sc_2			0x03
-#define	sc_3			0x04
-#define	sc_4			0x05
-#define	sc_5			0x06
-#define	sc_6			0x07
-#define	sc_7			0x08
-#define	sc_8			0x09
-#define	sc_9			0x0a
-#define	sc_0			0x0b
+    sc_1 = 0x02,
+    sc_2 = 0x03,
+    sc_3 = 0x04,
+    sc_4 = 0x05,
+    sc_5 = 0x06,
+    sc_6 = 0x07,
+    sc_7 = 0x08,
+    sc_8 = 0x09,
+    sc_9 = 0x0a,
+    sc_0 = 0x0b,
 
-#define	sc_A			0x1e
-#define	sc_B			0x30
-#define	sc_C			0x2e
-#define	sc_D			0x20
-#define	sc_E			0x12
-#define	sc_F			0x21
-#define	sc_G			0x22
-#define	sc_H			0x23
-#define	sc_I			0x17
-#define	sc_J			0x24
-#define	sc_K			0x25
-#define	sc_L			0x26
-#define	sc_M			0x32
-#define	sc_N			0x31
-#define	sc_O			0x18
-#define	sc_P			0x19
-#define	sc_Q			0x10
-#define	sc_R			0x13
-#define	sc_S			0x1f
-#define	sc_T			0x14
-#define	sc_U			0x16
-#define	sc_V			0x2f
-#define	sc_W			0x11
-#define	sc_X			0x2d
-#define	sc_Y			0x15
-#define	sc_Z			0x2c
+    sc_A = 0x1E,
+    sc_B = 0x30,
+    sc_C = 0x2E,
+    sc_D = 0x20,
+    sc_E = 0x12,
+    sc_F = 0x21,
+    sc_G = 0x22,
+    sc_H = 0x23,
+    sc_I = 0x17,
+    sc_J = 0x24,
+    sc_K = 0x25,
+    sc_L = 0x26,
+    sc_M = 0x32,
+    sc_N = 0x31,
+    sc_O = 0x18,
+    sc_P = 0x19,
+    sc_Q = 0x10,
+    sc_R = 0x13,
+    sc_S = 0x1F,
+    sc_T = 0x14,
+    sc_U = 0x16,
+    sc_V = 0x2F,
+    sc_W = 0x11,
+    sc_X = 0x2D,
+    sc_Y = 0x15,
+    sc_Z = 0x2C,
 
-#define	sc_kpMinus	0x4a
-#define	sc_kpPlus	0x4e
+    sc_kpMinus = 0x4A,
+    sc_kpPlus = 0x4E
+}; // enum ScanCode
 
 #define	key_None		0
 #define	key_Return		0x0d
