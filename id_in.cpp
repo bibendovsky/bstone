@@ -187,6 +187,12 @@ static int in_keyboard_map_to_bstone(
     case SDLK_CAPSLOCK:
         return sc_caps_lock;
 
+    case SDLK_NUMLOCKCLEAR:
+        return sc_num_lock;
+
+    case SDLK_SCROLLLOCK:
+        return sc_scroll_lock;
+
     case SDLK_LSHIFT:
         return sc_left_shift;
 
@@ -241,11 +247,11 @@ static int in_keyboard_map_to_bstone(
     case SDLK_DELETE:
         return sc_delete;
 
-    case SDLK_KP_PERIOD:
+    case SDLK_KP_COMMA:
         if (is_numlock_active)
             return sc_delete;
         else
-            return '.';
+            return sc_comma;
 
     case SDLK_HOME:
         return sc_home;
@@ -287,6 +293,18 @@ static int in_keyboard_map_to_bstone(
     case SDLK_KP_DIVIDE:
         return sc_slash;
 
+    case SDLK_BACKSLASH:
+        return sc_backslash;
+
+    case SDLK_SEMICOLON:
+        return sc_semicolon;
+
+    case SDLK_QUOTE:
+        return sc_quote;
+
+    case SDLK_PERIOD:
+        return sc_period;
+
     case SDLK_F1:
         return sc_f1;
 
@@ -322,6 +340,9 @@ static int in_keyboard_map_to_bstone(
 
     case SDLK_F12:
         return sc_f12;
+
+    case SDLK_PRINTSCREEN:
+        return sc_print_screen;
 
     case SDLK_BACKQUOTE:
         return sc_back_quote;

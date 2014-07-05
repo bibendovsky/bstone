@@ -42,6 +42,7 @@ Free Software Foundation, Inc.,
 
 enum ScanCode {
     sc_none = 0,
+
     sc_return = 0x1C,
     sc_escape = 0x01,
     sc_space = 0x39,
@@ -83,6 +84,11 @@ enum ScanCode {
     sc_f12 = 0x59,
     sc_print_screen = 0x37,
     sc_back_quote = 0x29,
+    sc_semicolon = 0x27,
+    sc_quote = 0x28,
+    sc_backslash = 0x2B,
+    sc_comma = 0x33,
+    sc_period = 0x34,
 
     sc_1 = 0x02,
     sc_2 = 0x03,
