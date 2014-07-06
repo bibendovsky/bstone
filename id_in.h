@@ -307,9 +307,9 @@ extern boolean			NGinstalled; 				// JAM
 
 extern boolean JoystickCalibrated;				// JAM - added
 extern ControlType ControlTypeUsed;				// JAM - added
-extern	boolean		Keyboard[],
-					MousePresent,
-					JoysPresent[];
+extern bool Keyboard[];
+extern boolean MousePresent;
+extern boolean JoysPresent[];
 extern	boolean		Paused;
 extern	char		LastASCII;
 extern	ScanCode	LastScan;

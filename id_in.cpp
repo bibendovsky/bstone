@@ -85,7 +85,7 @@ boolean			NGinstalled=false;
 // 	Global variables
 		boolean JoystickCalibrated;				// JAM - added
 		ControlType ControlTypeUsed;				// JAM - added
-		boolean		Keyboard[NumCodes];
+bool Keyboard[NumCodes];
 		boolean		Paused;
 		char		LastASCII;
 		ScanCode	LastScan;
@@ -663,11 +663,10 @@ static void in_handle_keyboard(
     SDL_Keymod key_mod = ::SDL_GetModState();
     ScanCode key = ::in_keyboard_map_to_bstone(key_code, key_mod);
 
-    char key_char;
-    boolean is_pressed;
-
     if (key == sc_none)
         return;
+
+    bool is_pressed;
 
     switch (key) {
     case sc_alt:
@@ -688,7 +687,7 @@ static void in_handle_keyboard(
     if (is_pressed) {
         LastScan = key;
 
-        key_char = ::in_keyboard_map_to_char(e);
+        char key_char = ::in_keyboard_map_to_char(e);
 
         if (key_char != '\0')
             LastASCII = key_char;
