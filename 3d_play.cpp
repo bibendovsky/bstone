@@ -231,21 +231,15 @@ Sint16 songs[]=
 
 #define JOYSCALE		2
 
-/*
-===================
-=
-= PollKeyboardButtons
-=
-===================
-*/
 
-void PollKeyboardButtons (void)
+void PollKeyboardButtons()
 {
-	Sint16		i;
+    if (in_use_modern_bindings)
+        return;
 
-	for (i=0;i<NUMBUTTONS;i++)
-		if (Keyboard[buttonscan[i]])
-			buttonstate[i] = true;
+    for (int i = 0; i < NUMBUTTONS; ++i)
+        if (Keyboard[buttonscan[i]])
+            buttonstate[i] = true;
 }
 
 
