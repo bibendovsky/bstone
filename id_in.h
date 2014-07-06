@@ -198,6 +198,52 @@ enum Direction {
     dir_None
 }; // enum Direction
 
+// BBi
+enum BindingId {
+    e_bi_forward,
+    e_bi_backward,
+    e_bi_left,
+    e_bi_right,
+    e_bi_strafe_left,
+    e_bi_strafe_right,
+    e_bi_quick_left,
+    e_bi_quick_right,
+    e_bi_turn_around,
+    e_bi_run,
+
+    e_bi_attack,
+    e_bi_weapon_1,
+    e_bi_weapon_2,
+    e_bi_weapon_3,
+    e_bi_weapon_4,
+    e_bi_weapon_5,
+    e_bi_weapon_6,
+
+    e_bi_use,
+
+    e_bi_stats,
+    e_bi_radar_magnify,
+    e_bi_radar_minify,
+
+    e_bi_help,
+    e_bi_save,
+    e_bi_load,
+    e_bi_sound,
+    e_bi_controls,
+    e_bi_end_game,
+    e_bi_quick_save,
+    e_bi_quick_load,
+    e_bi_quick_exit,
+
+    e_bi_attack_info,
+    e_bi_lightning,
+    e_bi_music,
+    e_bi_ceiling,
+    e_bi_flooring,
+
+    e_bi_pause
+}; // enum BindingId
+
 struct CursorInfo {
     boolean		button0,button1,button2,button3;
     Sint16			x,y;
