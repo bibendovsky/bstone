@@ -138,7 +138,7 @@ Sint16			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
 
 const int viewsize = 20;
 
-boolean		buttonheld[NUMBUTTONS];
+bool buttonheld[NUMBUTTONS];
 
 boolean		demorecord,demoplayback;
 char		*demoptr, *lastdemoptr;
@@ -153,7 +153,7 @@ Uint8 lightson;
 //
 int controlx;
 int controly; // range from -100 to 100 per tic
-boolean		buttonstate[NUMBUTTONS];
+bool buttonstate[NUMBUTTONS];
 
 
 //===========================================================================

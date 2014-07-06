@@ -2845,7 +2845,7 @@ extern  Sint16                     buttonscan[NUMBUTTONS];
 extern  Sint16                     buttonmouse[4];
 extern  Sint16                     buttonjoy[4];
 
-extern  boolean         buttonheld[NUMBUTTONS];
+extern bool buttonheld[NUMBUTTONS];
 
 extern const int viewsize;
 
@@ -2854,7 +2854,7 @@ extern const int viewsize;
 //
 extern int controlx;
 extern int controly; // range from -100 to 100
-extern  boolean         buttonstate[NUMBUTTONS];
+extern bool buttonstate[NUMBUTTONS];
 
 extern  boolean         demorecord,demoplayback;
 extern  char            *demoptr, *lastdemoptr;
