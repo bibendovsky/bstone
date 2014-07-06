@@ -356,6 +356,9 @@ void in_get_mouse_deltas(
     int& dy);
 
 void in_clear_mouse_deltas();
+
+bool in_is_binding_pressed(
+    BindingId binding_id);
 // BBi
 
 

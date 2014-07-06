@@ -40,7 +40,7 @@ Free Software Foundation, Inc.,
 //	DEBUG - there are more globals
 //
 
-#include "id_heads.h"
+#include "3d_def.h"
 
 #ifdef MSVC
 #pragma hdrstop
@@ -1879,5 +1879,129 @@ void in_set_default_bindings()
 
     in_bindings[e_bi_pause][0] = sc_p;
     in_bindings[e_bi_pause][1] = sc_pause;
+}
+
+bool in_is_binding_pressed(
+    BindingId binding_id)
+{
+    if (in_use_modern_bindings) {
+        const Binding& binding = in_bindings[binding_id];
+
+        return
+            (binding[0] != sc_none && Keyboard[binding[0]]) ||
+            (binding[1] != sc_none && Keyboard[binding[1]]);
+    } else {
+        switch (binding_id) {
+        case e_bi_forward:
+            return Keyboard[dirscan[di_north]];
+
+        case e_bi_backward:
+            return Keyboard[dirscan[di_south]];
+
+        case e_bi_left:
+            return Keyboard[dirscan[di_west]];
+
+        case e_bi_right:
+            return Keyboard[dirscan[di_east]];
+
+        case e_bi_quick_left:
+            return Keyboard[sc_q];
+
+        case e_bi_quick_right:
+            return Keyboard[sc_e];
+
+        case e_bi_turn_around:
+            return Keyboard[sc_w] || Keyboard[sc_return];
+
+        case e_bi_run:
+            return Keyboard[buttonscan[bt_run]];
+
+        case e_bi_attack:
+            return Keyboard[buttonscan[bt_attack]];
+
+        case e_bi_weapon_1:
+            return Keyboard[sc_1];
+
+        case e_bi_weapon_2:
+            return Keyboard[sc_2];
+
+        case e_bi_weapon_3:
+            return Keyboard[sc_3];
+
+        case e_bi_weapon_4:
+            return Keyboard[sc_4];
+
+        case e_bi_weapon_5:
+            return Keyboard[sc_5];
+
+        case e_bi_weapon_6:
+            return Keyboard[sc_6];
+
+        case e_bi_use:
+            return Keyboard[sc_space];
+
+        case e_bi_stats:
+            return Keyboard[sc_tab];
+
+        case e_bi_radar_magnify:
+            return Keyboard[sc_equals];
+
+        case e_bi_radar_minify:
+            return Keyboard[sc_minus];
+
+        case e_bi_help:
+            return Keyboard[sc_f1];
+
+        case e_bi_save:
+            return Keyboard[sc_f2];
+
+        case e_bi_load:
+            return Keyboard[sc_f3];
+
+        case e_bi_sound:
+            return Keyboard[sc_f4];
+
+        case e_bi_controls:
+            return Keyboard[sc_f6];
+
+        case e_bi_end_game:
+            return Keyboard[sc_f7];
+
+        case e_bi_quick_save:
+            return Keyboard[sc_f8];
+
+        case e_bi_quick_load:
+            return Keyboard[sc_f9];
+
+        case e_bi_quick_exit:
+            return Keyboard[sc_f10];
+
+        case e_bi_attack_info:
+            return Keyboard[sc_i];
+
+        case e_bi_lightning:
+            return Keyboard[sc_l];
+
+        case e_bi_sfx:
+            return Keyboard[sc_s];
+
+        case e_bi_music:
+            return Keyboard[sc_m];
+
+        case e_bi_ceiling:
+            return Keyboard[sc_c];
+
+        case e_bi_flooring:
+            return Keyboard[sc_f];
+
+        case e_bi_pause:
+            return Keyboard[sc_p] || Keyboard[sc_pause];
+
+        default:
+            return false;
+        }
+    }
+
+    return false;
 }
 // BBi
