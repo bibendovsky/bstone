@@ -35,6 +35,9 @@ Free Software Foundation, Inc.,
 #define	__DEBUG_InputMgr__
 #endif
 
+#include <memory>
+#include <vector>
+
 #define	MaxPlayers	4
 #define	MaxKbds		2
 #define	MaxJoys		2
@@ -241,8 +244,20 @@ enum BindingId {
     e_bi_ceiling,
     e_bi_flooring,
 
-    e_bi_pause
+    e_bi_pause,
+
+    e_bi_last_entry
 }; // enum BindingId
+
+const int k_max_binding_keys = 2;
+const int k_max_bindings = e_bi_last_entry;
+
+typedef ScanCode Binding[k_max_binding_keys];
+typedef Binding Bindings[k_max_bindings];
+
+extern Bindings in_bindings;
+
+void in_set_default_bindings();
 
 struct CursorInfo {
     boolean		button0,button1,button2,button3;

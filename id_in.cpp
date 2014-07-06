@@ -113,6 +113,8 @@ KeyboardDef KbdDefs = {
 		Uint16		DemoOffset,DemoSize;
 #endif
 
+Bindings in_bindings;
+
 /*
 =============================================================================
 
@@ -1823,5 +1825,58 @@ void in_clear_mouse_deltas()
 {
     in_mouse_dx = 0;
     in_mouse_dy = 0;
+}
+
+void in_set_default_bindings()
+{
+    for (int b = 0; b < k_max_bindings; ++b) {
+        for (int k = 0; k < k_max_binding_keys; ++k)
+            in_bindings[b][k] = sc_none;
+    }
+
+    in_bindings[e_bi_forward][0] = sc_w;
+    in_bindings[e_bi_backward][0] = sc_s;
+    in_bindings[e_bi_left][0] = sc_left_arrow;
+    in_bindings[e_bi_right][0] = sc_right_arrow;
+    in_bindings[e_bi_strafe_left][0] = sc_a;
+    in_bindings[e_bi_strafe_right][0] = sc_d;
+    in_bindings[e_bi_quick_left][0] = sc_q;
+    in_bindings[e_bi_quick_right][0] = sc_e;
+    in_bindings[e_bi_turn_around][0] = sc_r;
+    in_bindings[e_bi_run][0] = sc_left_shift;
+
+    in_bindings[e_bi_attack][0] = sc_control;
+    in_bindings[e_bi_attack][1] = sc_mouse_left;
+    in_bindings[e_bi_weapon_1][0] = sc_1;
+    in_bindings[e_bi_weapon_2][0] = sc_2;
+    in_bindings[e_bi_weapon_3][0] = sc_3;
+    in_bindings[e_bi_weapon_4][0] = sc_4;
+    in_bindings[e_bi_weapon_5][0] = sc_5;
+    in_bindings[e_bi_weapon_6][0] = sc_6;
+
+    in_bindings[e_bi_use][0] = sc_space;
+    in_bindings[e_bi_use][1] = sc_mouse_right;
+
+    in_bindings[e_bi_stats][0] = sc_tab;
+    in_bindings[e_bi_radar_magnify][0] = sc_equals;
+    in_bindings[e_bi_radar_minify][0] = sc_minus;
+
+    in_bindings[e_bi_help][0] = sc_f1;
+    in_bindings[e_bi_save][0] = sc_f2;
+    in_bindings[e_bi_load][0] = sc_f3;
+    in_bindings[e_bi_sound][0] = sc_f4;
+    in_bindings[e_bi_controls][0] = sc_f6;
+    in_bindings[e_bi_end_game][0] = sc_f7;
+    in_bindings[e_bi_quick_save][0] = sc_f8;
+    in_bindings[e_bi_quick_load][0] = sc_f9;
+    in_bindings[e_bi_quick_exit][0] = sc_f10;
+
+    in_bindings[e_bi_attack_info][0] = sc_i;
+    in_bindings[e_bi_lightning][0] = sc_l;
+    in_bindings[e_bi_music][0] = sc_m;
+    in_bindings[e_bi_ceiling][0] = sc_c;
+    in_bindings[e_bi_flooring][0] = sc_f;
+
+    in_bindings[e_bi_pause][0] = sc_p;
 }
 // BBi
