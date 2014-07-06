@@ -360,6 +360,9 @@ void in_clear_mouse_deltas();
 
 bool in_is_binding_pressed(
     BindingId binding_id);
+
+void in_reset_binding_state(
+    BindingId binding_id);
 // BBi
 
 

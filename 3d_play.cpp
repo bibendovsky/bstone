@@ -234,12 +234,43 @@ Sint16 songs[]=
 
 void PollKeyboardButtons()
 {
-    if (in_use_modern_bindings)
-        return;
+    if (in_use_modern_bindings) {
+        if (in_is_binding_pressed(e_bi_attack))
+            buttonstate[bt_attack] = true;
 
-    for (int i = 0; i < NUMBUTTONS; ++i)
-        if (Keyboard[buttonscan[i]])
-            buttonstate[i] = true;
+        if (in_is_binding_pressed(e_bi_strafe))
+            buttonstate[bt_strafe] = true;
+
+        if (in_is_binding_pressed(e_bi_run))
+            buttonstate[bt_run] = true;
+
+        if (in_is_binding_pressed(e_bi_use))
+            buttonstate[bt_use] = true;
+
+        if (in_is_binding_pressed(e_bi_weapon_1))
+            buttonstate[bt_ready_autocharge] = true;
+
+        if (in_is_binding_pressed(e_bi_weapon_2))
+            buttonstate[bt_ready_pistol] = true;
+
+        if (in_is_binding_pressed(e_bi_weapon_3))
+            buttonstate[bt_ready_burst_rifle] = true;
+
+        if (in_is_binding_pressed(e_bi_weapon_4))
+            buttonstate[bt_ready_ion_cannon] = true;
+
+        if (in_is_binding_pressed(e_bi_weapon_5))
+            buttonstate[bt_ready_grenade] = true;
+
+        if (in_is_binding_pressed(e_bi_weapon_6))
+            buttonstate[bt_ready_bfg_cannon] = true;
+
+        buttonstate[bt_ready_plasma_detonators] = false;
+    } else {
+        for (int i = 0; i < NUMBUTTONS; ++i)
+            if (Keyboard[buttonscan[i]])
+                buttonstate[i] = true;
+    }
 }
 
 
@@ -251,18 +282,21 @@ void PollKeyboardButtons()
 ===================
 */
 
-void PollMouseButtons (void)
+void PollMouseButtons()
 {
-	Sint16	buttons;
+    if (in_use_modern_bindings)
+        return;
 
-	buttons = IN_MouseButtons ();
+    Uint8 buttons = IN_MouseButtons();
 
-	if (buttons&1)
-		buttonstate[buttonmouse[0]] = true;
-	if (buttons&2)
-		buttonstate[buttonmouse[1]] = true;
-	if (buttons&4)
-		buttonstate[buttonmouse[2]] = true;
+    if ((buttons & 1) != 0)
+        buttonstate[buttonmouse[0]] = true;
+
+    if ((buttons & 2) != 0)
+        buttonstate[buttonmouse[1]] = true;
+
+    if ((buttons & 4) != 0)
+        buttonstate[buttonmouse[2]] = true;
 }
 
 
@@ -346,7 +380,7 @@ void PollMouseMove (void)
 
 // Double speed when shift is pressed.
 //
-	if (Keyboard[sc_left_shift] || Keyboard[sc_right_shift] || buttonstate[bt_run])
+	if (in_is_binding_pressed(e_bi_run))
 	{
 		controly += (mouseymove*20/(13-mouseadjustment))*4;
 		controlx += (mousexmove*10/(13-mouseadjustment))/2;
@@ -649,7 +683,7 @@ void CheckKeys (void)
 
 	if (gamestate.rpower)
 	{
-		if (Keyboard[sc_equals] || Keyboard[sc_kp_plus])
+		if (in_is_binding_pressed(e_bi_radar_magnify))
 		{
 			if (Plus_KeyReleased && gamestate.rzoom<2)
 			{
@@ -661,7 +695,7 @@ void CheckKeys (void)
 		else
 			Plus_KeyReleased=true;
 
-		if (Keyboard[sc_minus] || Keyboard[sc_kp_minus])
+		if (in_is_binding_pressed(e_bi_radar_minify))
 		{
 			if (Minus_KeyReleased && gamestate.rzoom)
 			{
@@ -674,8 +708,7 @@ void CheckKeys (void)
 			Minus_KeyReleased=true;
 	}
 
-	if (Keyboard[sc_s])
-	{
+	if (in_is_binding_pressed(e_bi_sfx)) {
 		if (S_KeyReleased)
 		{
 			if ((SoundMode != sdm_Off) || (DigiMode!=sds_Off))
@@ -765,7 +798,7 @@ void CheckKeys (void)
 
 			CleanDrawPlayBorder();
 		}
-		else
+		else if (!in_use_modern_bindings)
 #endif
 			one_eighty=true;
 	}
@@ -776,7 +809,7 @@ void CheckKeys (void)
 	{
 	// 90 degrees left
 	//
-		if (Keyboard[sc_q])
+		if (in_is_binding_pressed(e_bi_quick_left))
 		{
 			gamestate.turn_around = -90;
 			gamestate.turn_angle = player->angle + 90;
@@ -786,7 +819,7 @@ void CheckKeys (void)
 
 	// 180 degrees right
 	//
-		if ((Keyboard[sc_w]) || (one_eighty))
+		if (in_is_binding_pressed(e_bi_turn_around) || one_eighty)
 		{
 			gamestate.turn_around = 180;
 			gamestate.turn_angle = player->angle + 180;
@@ -796,7 +829,7 @@ void CheckKeys (void)
 
 	// 90 degrees right
 	//
-		if (Keyboard[sc_e])
+		if (in_is_binding_pressed(e_bi_quick_right))
 		{
 			gamestate.turn_around = 90;
 			gamestate.turn_angle = player->angle - 90;
@@ -808,7 +841,7 @@ void CheckKeys (void)
 //
 // pause key weirdness can't be checked as a scan code
 //
-	if (Paused || Keyboard[sc_p])
+	if (in_is_binding_pressed(e_bi_pause))
 	{
 		SD_MusicOff();
 		fontnumber = 4;
@@ -835,69 +868,89 @@ void CheckKeys (void)
 
 #endif
 
-	switch (scan)
-	{
-		case sc_f7:							// END GAME
-		case sc_f10:						// QUIT TO DOS
-			FinishPaletteShifts();
-			ClearMemory();
-			US_ControlPanel(scan);
-			CleanDrawPlayBorder();
-			return;
+    scan = sc_none;
 
-		case sc_f2:							// SAVE MISSION
-		case sc_f8:							// QUICK SAVE
-		// Make sure there's room to save...
-		//
-			ClearMemory();
-			FinishPaletteShifts();
-			if (!CheckDiskSpace(DISK_SPACE_NEEDED,CANT_SAVE_GAME_TXT,cds_id_print))
-			{
-				CleanDrawPlayBorder();
-				break;
-			}
+    if (Keyboard[sc_escape])
+        scan = sc_escape;
+    else if (in_is_binding_pressed(e_bi_help))
+        scan = sc_f1;
+    if (in_is_binding_pressed(e_bi_save))
+        scan = sc_f2;
+    else if (in_is_binding_pressed(e_bi_load))
+        scan = sc_f3;
+    else if (in_is_binding_pressed(e_bi_sound))
+        scan = sc_f4;
+    else if (in_is_binding_pressed(e_bi_controls))
+        scan = sc_f6;
+    else if (in_is_binding_pressed(e_bi_end_game))
+        scan = sc_f7;
+    else if (in_is_binding_pressed(e_bi_quick_save))
+        scan = sc_f8;
+    else if (in_is_binding_pressed(e_bi_quick_load))
+        scan = sc_f9;
+    else if (in_is_binding_pressed(e_bi_quick_exit))
+        scan = sc_f10;
 
-		case sc_f1:							// HELP
-		case sc_f3:							// LOAD MISSION
-		case sc_f4:							// SOUND MENU
-		case sc_f5:							//	RESIZE VIEW
-		case sc_f6:							// CONTROLS MENU
-		case sc_f9:							// QUICK LOAD
-		case sc_escape:					// MAIN MENU
-			refresh_screen=true;
-			if (scan < sc_f8)
-				VW_FadeOut();
-			StopMusic();
-			ClearMemory();
-			ClearSplitVWB();
-			US_ControlPanel(scan);
-			if (refresh_screen)
-			{
-				boolean old=loadedgame;
+    switch (scan) {
+    case sc_f7:							// END GAME
+    case sc_f10:						// QUIT TO DOS
+        FinishPaletteShifts();
+        ClearMemory();
+        US_ControlPanel(scan);
+        CleanDrawPlayBorder();
+        return;
 
-				loadedgame=false;
-				DrawPlayScreen(false);
-				loadedgame=old;
-			}
-			ClearMemory();
-			if (!sqActive || !loadedgame)
-				StartMusic(false);
-			IN_ClearKeysDown();
-			if (loadedgame)
-			{
-				PreloadGraphics();
-				loadedgame=false;
-				DrawPlayScreen(false);
-			}
-			else
-				if (!refresh_screen)
-					CleanDrawPlayBorder();
-			if (!sqActive)
-				StartMusic(false);
-			return;
-	}
+    case sc_f2:							// SAVE MISSION
+    case sc_f8:							// QUICK SAVE
+        // Make sure there's room to save...
+        //
+        ClearMemory();
+        FinishPaletteShifts();
+        if (!CheckDiskSpace(DISK_SPACE_NEEDED, CANT_SAVE_GAME_TXT, cds_id_print)) {
+            CleanDrawPlayBorder();
+            break;
+        }
 
-	if (Keyboard[sc_tab])
+    case sc_f1:							// HELP
+    case sc_f3:							// LOAD MISSION
+    case sc_f4:							// SOUND MENU
+    case sc_f5:							//	RESIZE VIEW
+    case sc_f6:							// CONTROLS MENU
+    case sc_f9:							// QUICK LOAD
+    case sc_escape:					// MAIN MENU
+        refresh_screen = true;
+        if (scan < sc_f8)
+            VW_FadeOut();
+        StopMusic();
+        ClearMemory();
+        ClearSplitVWB();
+        US_ControlPanel(scan);
+        if (refresh_screen) {
+            boolean old = loadedgame;
+
+            loadedgame = false;
+            DrawPlayScreen(false);
+            loadedgame = old;
+        }
+        ClearMemory();
+        if (!sqActive || !loadedgame)
+            StartMusic(false);
+        IN_ClearKeysDown();
+        if (loadedgame) {
+            PreloadGraphics();
+            loadedgame = false;
+            DrawPlayScreen(false);
+        } else
+            if (!refresh_screen)
+                CleanDrawPlayBorder();
+        if (!sqActive)
+            StartMusic(false);
+        return;
+    }
+
+    scan = sc_none;
+
+	if (in_is_binding_pressed(e_bi_stats))
 		PopupAutoMap();
 
   	if (Keyboard[sc_back_quote])
@@ -955,7 +1008,7 @@ void CheckKeys (void)
 		}
 	}
 
-	if (Keyboard[sc_i])
+	if (in_is_binding_pressed(e_bi_attack_info))
 	{
 		if (I_KeyReleased)
 		{
@@ -972,29 +1025,29 @@ void CheckKeys (void)
 
 
 #ifdef CEILING_FLOOR_COLORS
-	if (Keyboard[sc_c])
+	if (in_is_binding_pressed(e_bi_ceiling))
 	{
 		gamestate.flags ^= GS_DRAW_CEILING;
-		Keyboard[sc_c] = 0;
+		in_reset_binding_state(e_bi_ceiling);
 	}
 
-	if (Keyboard[sc_f])
+	if (in_is_binding_pressed(e_bi_flooring))
 	{
 		ThreeDRefresh();
 		ThreeDRefresh();
 
 		gamestate.flags ^= GS_DRAW_FLOOR;
 
-		Keyboard[sc_f] = 0;
+		in_reset_binding_state(e_bi_flooring);
 #if DUAL_SWAP_FILES
 		ChangeSwapFiles(true);
 #endif
 	}
 #endif
 
-	if (Keyboard[sc_l])
+	if (in_is_binding_pressed(e_bi_lightning))
 	{
-		Keyboard[sc_l]=0;
+		in_reset_binding_state(e_bi_lightning);
 		gamestate.flags ^= GS_LIGHTING;
 	}
 }
@@ -1007,7 +1060,7 @@ void CheckMusicToggle(void)
 {
 	static boolean M_KeyReleased;
 
-	if (Keyboard[sc_m])
+	if (in_is_binding_pressed(e_bi_music))
 	{
 		if (M_KeyReleased
 #if GAME_VERSION != SHAREWARE_VERSION

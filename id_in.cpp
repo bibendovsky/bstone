@@ -2009,4 +2009,166 @@ bool in_is_binding_pressed(
 
     return false;
 }
+
+void in_reset_binding_state(
+    BindingId binding_id)
+{
+    if (in_use_modern_bindings) {
+        const Binding& binding = in_bindings[binding_id];
+
+        if (binding[0] != sc_none)
+            Keyboard[binding[0]] = sc_none;
+
+        if (binding[1] != sc_none)
+            Keyboard[binding[1]] = sc_none;
+    } else {
+        switch (binding_id) {
+        case e_bi_forward:
+            Keyboard[dirscan[di_north]] = sc_none;
+            break;
+
+        case e_bi_backward:
+            Keyboard[dirscan[di_south]] = sc_none;
+            break;
+
+        case e_bi_left:
+            Keyboard[dirscan[di_west]] = sc_none;
+            break;
+
+        case e_bi_right:
+            Keyboard[dirscan[di_east]] = sc_none;
+            break;
+
+        case e_bi_strafe:
+            Keyboard[buttonscan[bt_strafe]] = sc_none;
+            break;
+
+        case e_bi_quick_left:
+            Keyboard[sc_q] = sc_none;
+            break;
+
+        case e_bi_quick_right:
+            Keyboard[sc_e] = sc_none;
+            break;
+
+        case e_bi_turn_around:
+            Keyboard[sc_w] = sc_none;
+            Keyboard[sc_return] = sc_none;
+            break;
+
+        case e_bi_run:
+            Keyboard[buttonscan[bt_run]] = sc_none;
+            break;
+
+        case e_bi_attack:
+            Keyboard[buttonscan[bt_attack]] = sc_none;
+            break;
+
+        case e_bi_weapon_1:
+            Keyboard[sc_1] = sc_none;
+            break;
+
+        case e_bi_weapon_2:
+            Keyboard[sc_2] = sc_none;
+            break;
+
+        case e_bi_weapon_3:
+            Keyboard[sc_3] = sc_none;
+            break;
+
+        case e_bi_weapon_4:
+            Keyboard[sc_4] = sc_none;
+            break;
+
+        case e_bi_weapon_5:
+            Keyboard[sc_5] = sc_none;
+            break;
+
+        case e_bi_weapon_6:
+            Keyboard[sc_6] = sc_none;
+            break;
+
+        case e_bi_use:
+            Keyboard[sc_space] = sc_none;
+            break;
+
+        case e_bi_stats:
+            Keyboard[sc_tab] = sc_none;
+            break;
+
+        case e_bi_radar_magnify:
+            Keyboard[sc_equals] = sc_none;
+            break;
+
+        case e_bi_radar_minify:
+            Keyboard[sc_minus] = sc_none;
+            break;
+
+        case e_bi_help:
+            Keyboard[sc_f1] = sc_none;
+            break;
+
+        case e_bi_save:
+            Keyboard[sc_f2] = sc_none;
+            break;
+
+        case e_bi_load:
+            Keyboard[sc_f3] = sc_none;
+            break;
+
+        case e_bi_sound:
+            Keyboard[sc_f4] = sc_none;
+            break;
+
+        case e_bi_controls:
+            Keyboard[sc_f6] = sc_none;
+            break;
+
+        case e_bi_end_game:
+            Keyboard[sc_f7] = sc_none;
+            break;
+
+        case e_bi_quick_save:
+            Keyboard[sc_f8] = sc_none;
+            break;
+
+        case e_bi_quick_load:
+            Keyboard[sc_f9] = sc_none;
+            break;
+
+        case e_bi_quick_exit:
+            Keyboard[sc_f10] = sc_none;
+            break;
+
+        case e_bi_attack_info:
+            Keyboard[sc_i] = sc_none;
+            break;
+
+        case e_bi_lightning:
+            Keyboard[sc_l] = sc_none;
+            break;
+
+        case e_bi_sfx:
+            Keyboard[sc_s] = sc_none;
+            break;
+
+        case e_bi_music:
+            Keyboard[sc_m] = sc_none;
+            break;
+
+        case e_bi_ceiling:
+            Keyboard[sc_c] = sc_none;
+            break;
+
+        case e_bi_flooring:
+            Keyboard[sc_f] = sc_none;
+            break;
+
+        case e_bi_pause:
+            Keyboard[sc_p] = sc_none;
+            Keyboard[sc_pause] = sc_none;
+            break;
+        }
+    }
+}
 // BBi
