@@ -335,121 +335,123 @@ void CheckWeaponChange (void)
 =======================
 */
 
-void ControlMovement (objtype *ob)
+void ControlMovement(
+    objtype* ob)
 {
-	Sint32	oldx,oldy;
-	Sint16		angle;
-	Sint16		angleunits;
+    bool use_classic_strafe =
+        (in_use_modern_bindings && in_is_binding_pressed(e_bi_strafe)) ||
+        (!in_use_modern_bindings && buttonstate[bt_strafe]);
 
-	thrustspeed = 0;
+    bool use_modern_strafe = false;
 
-	oldx = player->x;
-	oldy = player->y;
+    thrustspeed = 0;
 
-//
-// side to side move
-//
+    int oldx = player->x;
+    int oldy = player->y;
 
-	if ((buttonstate[bt_strafe]) && !(gamestate.turn_around))
-	{
-	//
-	// strafing
-	//
-	//
-		if (controlx > 0)
-		{
-			angle = ob->angle - ANGLES/4;
-			if (angle < 0)
-				angle += ANGLES;
-			Thrust (angle,controlx*MOVESCALE);	// move to left
-		}
-		else if (controlx < 0)
-		{
-			angle = ob->angle + ANGLES/4;
-			if (angle >= ANGLES)
-				angle -= ANGLES;
-			Thrust (angle,-controlx*MOVESCALE);	// move to right
-		}
-	}
-	else
-	{
-		if (gamestate.turn_around)
-		{
-			controlx = 100*tics;
-			if (gamestate.turn_around < 0)
-				controlx = -controlx;
-		}
+    //
+    // side to side move
+    //
 
-	//
-	// not strafing
-	//
-		anglefrac += controlx;
-		angleunits = anglefrac/ANGLESCALE;
-		anglefrac -= angleunits*ANGLESCALE;
-		ob->angle -= angleunits;
+    if (use_classic_strafe) {
+        if (in_use_modern_bindings)
+            use_modern_strafe = true;
+        else {
+            if (controlx > 0) {
+                int angle = ob->angle - ANGLES / 4;
+                if (angle < 0)
+                    angle += ANGLES;
+                Thrust(angle, controlx*MOVESCALE);	// move to left
+            } else if (controlx < 0) {
+                int angle = ob->angle + ANGLES / 4;
+                if (angle >= ANGLES)
+                    angle -= ANGLES;
+                Thrust(angle, -controlx*MOVESCALE);	// move to right
+            }
+        }
+    } else if (!gamestate.turn_around)
+        use_modern_strafe = true;
 
-		if (ob->angle >= ANGLES)
-			ob->angle -= ANGLES;
-		if (ob->angle < 0)
-			ob->angle += ANGLES;
+    if (use_modern_strafe && strafe_value != 0) {
+        int sign = (strafe_value > 0) ? 1 : -1;
+        int angle = ob->angle + (sign * (ANGLES / 4));
 
-		if (gamestate.turn_around)
-		{
-			boolean done=false;
+        if (angle < 0)
+            angle += ANGLES;
+        else if (angle >= ANGLES)
+            angle -= ANGLES;
 
-			if (gamestate.turn_around > 0)
-			{
-				gamestate.turn_around -= angleunits;
-				if (gamestate.turn_around <= 0)
-					done=true;
-			}
-			else
-			{
-				gamestate.turn_around -= angleunits;
-				if (gamestate.turn_around >= 0)
-					done=true;
-			}
+        Thrust(angle, -abs(strafe_value) * MOVESCALE);
+    }
 
-			if (done)
-			{
-				gamestate.turn_around=0;
-				ob->angle = gamestate.turn_angle;
-			}
-		}
-	}
+    if (!use_classic_strafe) {
+        if (gamestate.turn_around) {
+            controlx = 100 * tics;
+            if (gamestate.turn_around < 0)
+                controlx = -controlx;
+        }
+
+        //
+        // not strafing
+        //
+        anglefrac += controlx;
+        int angleunits = anglefrac / ANGLESCALE;
+        anglefrac -= angleunits*ANGLESCALE;
+        ob->angle -= angleunits;
+
+        if (ob->angle >= ANGLES)
+            ob->angle -= ANGLES;
+        if (ob->angle < 0)
+            ob->angle += ANGLES;
+
+        if (gamestate.turn_around) {
+            boolean done = false;
+
+            if (gamestate.turn_around > 0) {
+                gamestate.turn_around -= angleunits;
+                if (gamestate.turn_around <= 0)
+                    done = true;
+            } else {
+                gamestate.turn_around -= angleunits;
+                if (gamestate.turn_around >= 0)
+                    done = true;
+            }
+
+            if (done) {
+                gamestate.turn_around = 0;
+                ob->angle = gamestate.turn_angle;
+            }
+        }
+    }
 
 
-//
-// forward/backwards move
-//
-	if (controly < 0)
-	{
-		Thrust (ob->angle,-controly*MOVESCALE);	// move forwards
-	}
-	else if (controly > 0)
-	{
-		angle = ob->angle + ANGLES/2;
-		if (angle >= ANGLES)
-			angle -= ANGLES;
-		Thrust (angle,controly*BACKMOVESCALE);		// move backwards
-	}
-	else
-		if (bounceOk)
-			bounceOk--;
+    //
+    // forward/backwards move
+    //
+    if (controly < 0) {
+        Thrust(ob->angle, -controly*MOVESCALE);	// move forwards
+    } else if (controly > 0) {
+        int angle = ob->angle + ANGLES / 2;
+        if (angle >= ANGLES)
+            angle -= ANGLES;
+        Thrust(angle, controly*BACKMOVESCALE);		// move backwards
+    } else
+        if (bounceOk)
+            bounceOk--;
 
-	if (controly)
-		bounceOk = 8;
-	else
-		if (bounceOk)
-			bounceOk--;
+    if (controly)
+        bounceOk = 8;
+    else
+        if (bounceOk)
+            bounceOk--;
 
-	ob->dir = static_cast<dirtype>(((ob->angle + 22) % 360)/45);
+    ob->dir = static_cast<dirtype>(((ob->angle + 22) % 360) / 45);
 
-//
-// calculate total move
-//
-	playerxmove = player->x - oldx;
-	playerymove = player->y - oldy;
+    //
+    // calculate total move
+    //
+    playerxmove = player->x - oldx;
+    playerymove = player->y - oldy;
 }
 
 /*

@@ -154,6 +154,7 @@ Uint8 lightson;
 int controlx;
 int controly; // range from -100 to 100 per tic
 bool buttonstate[NUMBUTTONS];
+int strafe_value = 0;
 
 
 //===========================================================================
@@ -225,12 +226,12 @@ Sint16 songs[]=
 */
 
 
-#define BASEMOVE		35
-#define RUNMOVE			70
-#define BASETURN		35
-#define RUNTURN			70
+const int BASEMOVE = 35;
+const int RUNMOVE = 70;
+const int BASETURN = 35;
+const int RUNTURN = 70;
 
-#define JOYSCALE		2
+const int JOYSCALE = 2;
 
 
 void PollKeyboardButtons()
@@ -354,46 +355,46 @@ void PollKeyboardMove()
 
     if (in_is_binding_pressed(e_bi_right))
         controlx += value;
+
+    strafe_value = 0;
+
+    if (in_is_binding_pressed(e_bi_strafe)) {
+        if (in_is_binding_pressed(e_bi_left))
+            strafe_value = -value;
+        else if (in_is_binding_pressed(e_bi_right))
+            strafe_value = value;
+    } else if (in_is_binding_pressed(e_bi_strafe_left))
+        strafe_value = -value;
+    else if (in_is_binding_pressed(e_bi_strafe_right))
+        strafe_value = value;
 }
-
-
-/*
-===================
-=
-= PollMouseMove
-=
-===================
-*/
 
 
 boolean pollMouseUsed=false;
 
-void PollMouseMove (void)
+void PollMouseMove()
 {
-	Sint16	mousexmove,mouseymove;
-    int dx;
-    int dy;
-
-    ::in_get_mouse_deltas(dx, dy);
+    int mousexmove;
+    int mouseymove;
+    ::in_get_mouse_deltas(mousexmove, mouseymove);
     ::in_clear_mouse_deltas();
-    mousexmove = static_cast<Sint16>(dx);
-    mouseymove = static_cast<Sint16>(dy);
 
-// Double speed when shift is pressed.
-//
-	if (in_is_binding_pressed(e_bi_run))
-	{
-		controly += (mouseymove*20/(13-mouseadjustment))*4;
-		controlx += (mousexmove*10/(13-mouseadjustment))/2;
-	}
+    if (in_is_binding_pressed(e_bi_run)) {
+        if (!in_use_modern_bindings)
+            controly += (mouseymove * 20 / (13 - mouseadjustment)) * 4;
 
-	controlx += mousexmove*10/(13-mouseadjustment);
-	controly += mouseymove*20/(13-mouseadjustment);
+        controlx += (mousexmove * 10 / (13 - mouseadjustment)) / 2;
+    }
 
-	if (mousexmove || mouseymove)
-		pollMouseUsed=true;
-	else
-		pollMouseUsed=false;
+    controlx += mousexmove * 10 / (13 - mouseadjustment);
+
+    if (!in_use_modern_bindings)
+        controly += mouseymove * 20 / (13 - mouseadjustment);
+
+    if (mousexmove || mouseymove)
+        pollMouseUsed = true;
+    else
+        pollMouseUsed = false;
 }
 
 

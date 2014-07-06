@@ -2855,6 +2855,7 @@ extern const int viewsize;
 extern int controlx;
 extern int controly; // range from -100 to 100
 extern bool buttonstate[NUMBUTTONS];
+extern int strafe_value;
 
 extern  boolean         demorecord,demoplayback;
 extern  char            *demoptr, *lastdemoptr;
