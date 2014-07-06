@@ -1878,5 +1878,6 @@ void in_set_default_bindings()
     in_bindings[e_bi_flooring][0] = sc_f;
 
     in_bindings[e_bi_pause][0] = sc_p;
+    in_bindings[e_bi_pause][1] = sc_pause;
 }
 // BBi
