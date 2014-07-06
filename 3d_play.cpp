@@ -304,39 +304,21 @@ void PollJoystickButtons (void)
 	}
 }
 
-
-/*
-===================
-=
-= PollKeyboardMove
-=
-===================
-*/
-
-void PollKeyboardMove (void)
+void PollKeyboardMove()
 {
-	if (buttonstate[bt_run])
-	{
-		if (Keyboard[dirscan[di_north]])
-			controly -= RUNMOVE*tics;
-		if (Keyboard[dirscan[di_south]])
-			controly += RUNMOVE*tics;
-		if (Keyboard[dirscan[di_west]])
-			controlx -= RUNMOVE*tics;
-		if (Keyboard[dirscan[di_east]])
-			controlx += RUNMOVE*tics;
-	}
-	else
-	{
-		if (Keyboard[dirscan[di_north]])
-			controly -= BASEMOVE*tics;
-		if (Keyboard[dirscan[di_south]])
-			controly += BASEMOVE*tics;
-		if (Keyboard[dirscan[di_west]])
-			controlx -= BASEMOVE*tics;
-		if (Keyboard[dirscan[di_east]])
-			controlx += BASEMOVE*tics;
-	}
+    int value = tics * (in_is_binding_pressed(e_bi_run) ? RUNMOVE : BASEMOVE);
+
+    if (in_is_binding_pressed(e_bi_forward))
+        controly -= value;
+
+    if (in_is_binding_pressed(e_bi_backward))
+        controly += value;
+
+    if (in_is_binding_pressed(e_bi_left))
+        controlx -= value;
+
+    if (in_is_binding_pressed(e_bi_right))
+        controlx += value;
 }
 
 

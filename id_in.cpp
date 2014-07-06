@@ -1803,6 +1803,8 @@ void IN_Startup()
     for (i = 0; i < MaxJoys; ++i)
         JoysPresent[i] = checkjoys? INL_StartJoy(static_cast<Uint16>(i)) : false;
 
+    in_set_default_bindings();
+
     IN_Started = true;
 }
 
