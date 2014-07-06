@@ -2852,7 +2852,8 @@ extern const int viewsize;
 //
 // curent user input
 //
-extern  Sint16                     controlx,controly;              // range from -100 to 100
+extern int controlx;
+extern int controly; // range from -100 to 100
 extern  boolean         buttonstate[NUMBUTTONS];
 
 extern  boolean         demorecord,demoplayback;

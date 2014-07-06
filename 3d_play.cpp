@@ -151,7 +151,8 @@ Uint8 lightson;
 //
 // curent user input
 //
-Sint16			controlx,controly;		// range from -100 to 100 per tic
+int controlx;
+int controly; // range from -100 to 100 per tic
 boolean		buttonstate[NUMBUTTONS];
 
 
@@ -499,8 +500,8 @@ void PollControls (void)
 		if (demoptr == lastdemoptr)
 			playstate = ex_completed;		// demo is done
 
-		controlx *= (Sint16)tics;
-		controly *= (Sint16)tics;
+		controlx *= tics;
+		controly *= tics;
 
 
 		return;
