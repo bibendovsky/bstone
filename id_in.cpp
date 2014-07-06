@@ -1837,6 +1837,7 @@ void in_set_default_bindings()
     in_bindings[e_bi_backward][0] = sc_s;
     in_bindings[e_bi_left][0] = sc_left_arrow;
     in_bindings[e_bi_right][0] = sc_right_arrow;
+    in_bindings[e_bi_strafe][0] = sc_alt;
     in_bindings[e_bi_strafe_left][0] = sc_a;
     in_bindings[e_bi_strafe_right][0] = sc_d;
     in_bindings[e_bi_quick_left][0] = sc_q;
@@ -1903,6 +1904,9 @@ bool in_is_binding_pressed(
 
         case e_bi_right:
             return Keyboard[dirscan[di_east]];
+
+        case e_bi_strafe:
+            return Keyboard[buttonscan[bt_strafe]];
 
         case e_bi_quick_left:
             return Keyboard[sc_q];

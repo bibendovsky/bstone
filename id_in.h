@@ -208,6 +208,7 @@ enum BindingId {
     e_bi_backward,
     e_bi_left,
     e_bi_right,
+    e_bi_strafe,
     e_bi_strafe_left,
     e_bi_strafe_right,
     e_bi_quick_left,
