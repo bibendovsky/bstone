@@ -86,6 +86,7 @@ enum ScanCode {
     sc_f11 = 0x57,
     sc_f12 = 0x59,
     sc_print_screen = 0x37,
+    sc_pause = 0x54,
     sc_back_quote = 0x29,
     sc_semicolon = 0x27,
     sc_quote = 0x28,
