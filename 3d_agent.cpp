@@ -2957,8 +2957,6 @@ boolean Interrogate(objtype *ob)
 //==========================================================================
 
 
-extern boolean pollMouseUsed;
-
 char if_help[]="UP/DN MOVES SELECTOR - ENTER ACTIVATES";
 char if_noImage[]="   AREA\n"
 							 "  UNMAPPED\n"

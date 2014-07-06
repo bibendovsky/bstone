@@ -369,9 +369,6 @@ void PollKeyboardMove()
         strafe_value = value;
 }
 
-
-boolean pollMouseUsed=false;
-
 void PollMouseMove()
 {
     int mousexmove;
@@ -390,11 +387,6 @@ void PollMouseMove()
 
     if (!in_use_modern_bindings)
         controly += mouseymove * 20 / (13 - mouseadjustment);
-
-    if (mousexmove || mouseymove)
-        pollMouseUsed = true;
-    else
-        pollMouseUsed = false;
 }
 
 
