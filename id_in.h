@@ -241,6 +241,7 @@ enum BindingId {
 
     e_bi_attack_info,
     e_bi_lightning,
+    e_bi_sfx,
     e_bi_music,
     e_bi_ceiling,
     e_bi_flooring,

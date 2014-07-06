@@ -1872,6 +1872,7 @@ void in_set_default_bindings()
 
     in_bindings[e_bi_attack_info][0] = sc_i;
     in_bindings[e_bi_lightning][0] = sc_l;
+    in_bindings[e_bi_sfx][0] = sc_x;
     in_bindings[e_bi_music][0] = sc_m;
     in_bindings[e_bi_ceiling][0] = sc_c;
     in_bindings[e_bi_flooring][0] = sc_f;
