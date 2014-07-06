@@ -267,7 +267,8 @@ void PollKeyboardButtons()
         if (in_is_binding_pressed(e_bi_weapon_6))
             buttonstate[bt_ready_bfg_cannon] = true;
 
-        buttonstate[bt_ready_plasma_detonators] = false;
+        if (in_is_binding_pressed(e_bi_weapon_7))
+            buttonstate[bt_ready_plasma_detonators] = true;
     } else {
         for (int i = 0; i < NUMBUTTONS; ++i)
             if (Keyboard[buttonscan[i]])

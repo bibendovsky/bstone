@@ -223,6 +223,7 @@ enum BindingId {
     e_bi_weapon_4,
     e_bi_weapon_5,
     e_bi_weapon_6,
+    e_bi_weapon_7,
 
     e_bi_use,
 

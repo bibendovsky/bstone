@@ -1854,6 +1854,7 @@ void in_set_default_bindings()
     in_bindings[e_bi_weapon_4][0] = sc_4;
     in_bindings[e_bi_weapon_5][0] = sc_5;
     in_bindings[e_bi_weapon_6][0] = sc_6;
+    in_bindings[e_bi_weapon_7][0] = sc_back_quote;
 
     in_bindings[e_bi_use][0] = sc_space;
     in_bindings[e_bi_use][1] = sc_mouse_right;
@@ -1941,6 +1942,9 @@ bool in_is_binding_pressed(
 
         case e_bi_weapon_6:
             return Keyboard[sc_6];
+
+        case e_bi_weapon_7:
+            return Keyboard[sc_back_quote];
 
         case e_bi_use:
             return Keyboard[sc_space];
@@ -2086,6 +2090,10 @@ void in_reset_binding_state(
 
         case e_bi_weapon_6:
             Keyboard[sc_6] = sc_none;
+            break;
+
+        case e_bi_weapon_7:
+            Keyboard[sc_back_quote] = sc_none;
             break;
 
         case e_bi_use:
