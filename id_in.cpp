@@ -138,7 +138,7 @@ const char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
 //	Internal routines
 
 // BBi
-static int in_keyboard_map_to_bstone(
+static ScanCode in_keyboard_map_to_bstone(
     SDL_Keycode key_code,
     SDL_Keymod key_mod)
 {
@@ -346,6 +346,9 @@ static int in_keyboard_map_to_bstone(
 
     case SDLK_PRINTSCREEN:
         return sc_print_screen;
+
+    case SDLK_PAUSE:
+        return sc_pause;
 
     case SDLK_BACKQUOTE:
         return sc_back_quote;
@@ -658,15 +661,10 @@ static void in_handle_keyboard(
 {
     SDL_Keycode key_code = e.keysym.sym;
     SDL_Keymod key_mod = ::SDL_GetModState();
-    int key = ::in_keyboard_map_to_bstone(key_code, key_mod);
+    ScanCode key = ::in_keyboard_map_to_bstone(key_code, key_mod);
 
     char key_char;
     boolean is_pressed;
-
-    if (key_code == SDLK_PAUSE && e.state == SDL_PRESSED) {
-        Paused = true;
-        return;
-    }
 
     if (key == sc_none)
         return;
@@ -688,7 +686,7 @@ static void in_handle_keyboard(
     Keyboard[key] = is_pressed;
 
     if (is_pressed) {
-        LastScan = static_cast<ScanCode>(key);
+        LastScan = key;
 
         key_char = ::in_keyboard_map_to_char(e);
 
