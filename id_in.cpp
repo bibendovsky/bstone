@@ -694,16 +694,32 @@ static void in_handle_keyboard(
     }
 }
 
-
-static int mouse_buttons;
-
 static void in_handle_mouse_buttons(
     const SDL_MouseButtonEvent& e)
 {
-    if (e.state == SDL_PRESSED)
-        mouse_buttons |= SDL_BUTTON(e.button);
-    else
-        mouse_buttons &= ~SDL_BUTTON(e.button);
+    bool is_pressed = (e.state == SDL_PRESSED);
+
+    switch (e.button) {
+    case SDL_BUTTON_LEFT:
+        Keyboard[sc_mouse_left] = is_pressed;
+        break;
+
+    case SDL_BUTTON_MIDDLE:
+        Keyboard[sc_mouse_middle] = is_pressed;
+        break;
+
+    case SDL_BUTTON_RIGHT:
+        Keyboard[sc_mouse_right] = is_pressed;
+        break;
+
+    case SDL_BUTTON_X1:
+        Keyboard[sc_mouse_x1] = is_pressed;
+        break;
+
+    case SDL_BUTTON_X2:
+        Keyboard[sc_mouse_x2] = is_pressed;
+        break;
+    }
 }
 
 static int in_mouse_dx;
@@ -758,14 +774,20 @@ static int INL_GetMouseButtons()
 
     int result = 0;
 
-    if ((mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0)
+    if (Keyboard[sc_mouse_left])
         result |= 1;
 
-    if ((mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0)
+    if (Keyboard[sc_mouse_middle])
         result |= 4;
 
-    if ((mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0)
+    if (Keyboard[sc_mouse_right])
         result |= 2;
+
+    if (Keyboard[sc_mouse_x1])
+        result |= 8;
+
+    if (Keyboard[sc_mouse_x2])
+        result |= 16;
 
     return result;
 }
@@ -1272,18 +1294,29 @@ IN_ClearKeysDown(void)
 static void in_handle_window(
     const SDL_WindowEvent& e)
 {
+    bool clear_state = false;
+
     switch (e.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
-        mouse_buttons = 0;
+        clear_state = true;
         ::SDL_SetRelativeMouseMode(SDL_TRUE);
-        ::in_clear_mouse_deltas();
+
         break;
 
     case SDL_WINDOWEVENT_FOCUS_LOST:
-        mouse_buttons = 0;
+        clear_state = true;
         ::SDL_SetRelativeMouseMode(SDL_FALSE);
-        ::in_clear_mouse_deltas();
         break;
+    }
+
+    if (clear_state) {
+        ::in_clear_mouse_deltas();
+
+        Keyboard[sc_mouse_left] = false;
+        Keyboard[sc_mouse_middle] = false;
+        Keyboard[sc_mouse_right] = false;
+        Keyboard[sc_mouse_x1] = false;
+        Keyboard[sc_mouse_x2] = false;
     }
 }
 
