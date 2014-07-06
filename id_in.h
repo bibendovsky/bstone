@@ -310,7 +310,7 @@ extern ControlType ControlTypeUsed;				// JAM - added
 extern bool Keyboard[];
 extern boolean MousePresent;
 extern boolean JoysPresent[];
-extern	boolean		Paused;
+extern bool Paused;
 extern	char		LastASCII;
 extern	ScanCode	LastScan;
 extern	KeyboardDef	KbdDefs;

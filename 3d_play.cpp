@@ -842,20 +842,19 @@ void CheckKeys (void)
 //
 // pause key weirdness can't be checked as a scan code
 //
-	if (in_is_binding_pressed(e_bi_pause))
-	{
-		SD_MusicOff();
-		fontnumber = 4;
-		BMAmsg(PAUSED_MSG);
-		IN_Ack();
-		IN_ClearKeysDown();
-		fontnumber = 2;
-		RedrawStatusAreas();
-		SD_MusicOn();
-		Paused = false;
+    if (in_is_binding_pressed(e_bi_pause)) {
+        SD_MusicOff();
+        fontnumber = 4;
+        BMAmsg(PAUSED_MSG);
+        IN_Ack();
+        IN_ClearKeysDown();
+        fontnumber = 2;
+        RedrawStatusAreas();
+        SD_MusicOn();
+        Paused = false;
         ::in_clear_mouse_deltas();
-		return;
-	}
+        return;
+    }
 
 #if IN_DEVELOPMENT
 	if (TestQuickSave)

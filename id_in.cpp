@@ -86,7 +86,7 @@ boolean			NGinstalled=false;
 		boolean JoystickCalibrated;				// JAM - added
 		ControlType ControlTypeUsed;				// JAM - added
 bool Keyboard[NumCodes];
-		boolean		Paused;
+bool Paused;
 		char		LastASCII;
 		ScanCode	LastScan;
 
