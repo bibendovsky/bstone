@@ -150,8 +150,8 @@ Sint16 view_xl,view_xh,view_yl,view_yh;
 Uint16	democount=0,jim=0;
 #endif
 
-bool g_no_wall_hit_sound = true;
-static const bool k_no_wall_hit_sound_default = false;
+static const bool k_no_wall_hit_sound_default = true;
+bool g_no_wall_hit_sound = k_no_wall_hit_sound_default;
 
 /*
 =============================================================================
