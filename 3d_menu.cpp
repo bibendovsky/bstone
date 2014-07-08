@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
+#include <map>
 #include "3d_def.h"
-
 #include "jm_lzh.h"
 
 #ifdef MSVC
@@ -417,6 +417,711 @@ static Uint8 special_keys[] =
 };
 
 
+// BBi
+namespace {
+
+
+typedef std::map<ScanCode,const char*> BindsNames;
+typedef BindsNames::const_iterator BindsNamesCIt;
+
+
+enum BindsFindDirection {
+    e_bfd_forward,
+    e_bfd_backward
+}; // enum BindsFindDirection
+
+enum BindsFindFrom {
+    e_bff_current,
+    e_bff_not_current
+}; // enum BindingFindFrom
+
+
+class BindsItem {
+public:
+    const char* name;
+    int name_width;
+    Binding* binding;
+}; // class BindsItem
+
+static BindsItem binds[] = {
+    { "MOVEMENT", 0, NULL },
+    { "FORWARD", 0, &in_bindings[e_bi_forward] },
+    { "BACKWARD", 0, &in_bindings[e_bi_backward] },
+    { "LEFT", 0, &in_bindings[e_bi_left] },
+    { "RIGHT", 0, &in_bindings[e_bi_right] },
+    { "STRAFE", 0, &in_bindings[e_bi_strafe] },
+    { "STRAFE LEFT", 0, &in_bindings[e_bi_strafe_left] },
+    { "STRAFE RIGHT", 0, &in_bindings[e_bi_strafe_right] },
+    { "QUICK LEFT", 0, &in_bindings[e_bi_quick_left] },
+    { "QUICK RIGHT", 0, &in_bindings[e_bi_quick_right] },
+    { "TURN AROUND", 0, &in_bindings[e_bi_turn_around] },
+    { "RUN", 0, &in_bindings[e_bi_run] },
+    { "", 0, NULL },
+
+    { "WEAPONS", 0, NULL },
+    { "ATTACK", 0, &in_bindings[e_bi_attack] },
+    { "AUTO CHARGE PISTOL", 0, &in_bindings[e_bi_weapon_1] },
+    { "SLOW FIRE PROTECTOR", 0, &in_bindings[e_bi_weapon_2] },
+    { "RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3] },
+    { "DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4] },
+    { "PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5] },
+    { "ANTI-PLASMA CANNON", 0, &in_bindings[e_bi_weapon_6] },
+    { "FISSION DETONATOR", 0, &in_bindings[e_bi_weapon_7] },
+    { "", 0, NULL },
+
+    { "INTERACTION", 0, NULL },
+    { "USE", 0, &in_bindings[e_bi_use] },
+    { "", 0, NULL },
+
+    { "HUD", 0, NULL },
+    { "STATS", 0, &in_bindings[e_bi_stats] },
+    { "MAGNIFY RADAR", 0, &in_bindings[e_bi_radar_magnify] },
+    { "MINIFY RADAR", 0, &in_bindings[e_bi_radar_minify] },
+    { "", 0, NULL },
+
+    { "MENU", 0, NULL },
+    { "HELP", 0, &in_bindings[e_bi_help] },
+    { "SAVE", 0, &in_bindings[e_bi_save] },
+    { "LOAD", 0, &in_bindings[e_bi_load] },
+    { "SOUND OPTIONS", 0, &in_bindings[e_bi_sound] },
+    { "CONTROLS", 0, &in_bindings[e_bi_controls] },
+    { "END GAME", 0, &in_bindings[e_bi_end_game] },
+    { "QUICK SAVE", 0, &in_bindings[e_bi_quick_save] },
+    { "QUICK LOAD", 0, &in_bindings[e_bi_quick_load] },
+    { "QUICK EXIT", 0, &in_bindings[e_bi_quick_exit] },
+    { "", 0, NULL },
+
+    { "OPTIONS", 0, NULL },
+    { "ATTACK INFO", 0, &in_bindings[e_bi_attack_info] },
+    { "LIGHTNING", 0, &in_bindings[e_bi_lightning] },
+    { "SOUND", 0, &in_bindings[e_bi_sfx] },
+    { "MUSIC", 0, &in_bindings[e_bi_music] },
+    { "CEILING", 0, &in_bindings[e_bi_ceiling] },
+    { "FLOORING", 0, &in_bindings[e_bi_flooring] },
+    { "", 0, NULL },
+
+    { "MISC", 0, NULL },
+    { "PAUSE", 0, &in_bindings[e_bi_pause] },
+    { NULL, 0, NULL }
+}; // binds
+
+
+const int k_binds_max_per_window = 14;
+const int k_binds_text_keys_gap = 3;
+const int k_binds_line_spacing = 1;
+const int k_binds_top = 28;
+
+const Uint8 k_binds_category_color = 0x4A;
+const Uint8 k_binds_text_color = 0x56;
+const Uint8 k_binds_key_text_color = 0x7F;
+const Uint8 k_binds_key_bar_default_color = 0x03;
+const Uint8 k_binds_key_bar_active_color = 0x31;
+const Uint8 k_binds_key_bar_assign_color = 0x14;
+
+int binds_count;
+int binds_window;
+int binds_window_offset;
+int binds_key_index;
+int binds_key_width;
+int binds_max_text_width;
+int binds_text_height;
+int binds_text_x;
+int binds_key_x[k_max_binding_keys];
+bool binds_is_assigning = false;
+
+BindsNames binds_names;
+
+
+void binds_initialize_menu()
+{
+    static bool is_initialized = false;
+
+    if (is_initialized)
+        return;
+
+    binds_count = 0;
+    binds_window = 0;
+    binds_window_offset = 0;
+    binds_key_index = 0;
+    binds_key_width = 0;
+    binds_max_text_width = 0;
+    binds_text_height = 0;
+    binds_is_assigning = false;
+
+    bool has_bindings = false;
+
+    fontnumber = 2;
+
+    for (BindsItem* i = binds; i->name; ++i) {
+        ++binds_count;
+
+        if (i->name != NULL && i->name[0] != '\0') {
+            int width = 0;
+            int height = 0;
+            VW_MeasurePropString(i->name, &width, &height);
+
+            i->name_width = width;
+
+            if (width > binds_max_text_width)
+                binds_max_text_width = width;
+
+            if (height > binds_text_height)
+                binds_text_height = height;
+
+            has_bindings = true;
+        }
+    }
+
+    if (!has_bindings) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "No bindings.\n");
+        Quit("no bindings");
+    }
+
+    binds_names.clear();
+    binds_names[sc_return] = "ENTER";
+    binds_names[sc_space] = "SPACE";
+    binds_names[sc_minus] = "-";
+    binds_names[sc_equals] = "=";
+    binds_names[sc_backspace] = "BACKSPACE";
+    binds_names[sc_tab] = "TAB";
+    binds_names[sc_alt] = "ALT";
+    binds_names[sc_left_bracket] = "[";
+    binds_names[sc_right_bracket] = "]";
+    binds_names[sc_control] = "CTRL";
+    binds_names[sc_caps_lock] = "CAPS LOCK";
+    binds_names[sc_num_lock] = "NUM LOCK";
+    binds_names[sc_scroll_lock] = "SCROLL LOCK";
+    binds_names[sc_left_shift] = "L-SHIFT";
+    binds_names[sc_right_shift] = "R-SHIFT";
+    binds_names[sc_up_arrow] = "UP";
+    binds_names[sc_down_arrow] = "DOWN";
+    binds_names[sc_left_arrow] = "LEFT";
+    binds_names[sc_right_arrow] = "RIGHT";
+    binds_names[sc_insert] = "INS";
+    binds_names[sc_delete] = "DEL";
+    binds_names[sc_home] = "HOME";
+    binds_names[sc_end] = "END";
+    binds_names[sc_page_up] = "PGUP";
+    binds_names[sc_page_down] = "PGDN";
+    binds_names[sc_slash] = "/";
+    binds_names[sc_f1] = "F1";
+    binds_names[sc_f2] = "F2";
+    binds_names[sc_f3] = "F3";
+    binds_names[sc_f4] = "F4";
+    binds_names[sc_f5] = "F5";
+    binds_names[sc_f6] = "F6";
+    binds_names[sc_f7] = "F7";
+    binds_names[sc_f8] = "F8";
+    binds_names[sc_f9] = "F9";
+    binds_names[sc_f10] = "F10";
+    binds_names[sc_f11] = "F11";
+    binds_names[sc_f12] = "F12";
+    binds_names[sc_print_screen] = "PRT SCR";
+    binds_names[sc_pause] = "PAUSE";
+    binds_names[sc_back_quote] = "`";
+    binds_names[sc_semicolon] = ";";
+    binds_names[sc_quote] = "'";
+    binds_names[sc_backslash] = "\\";
+    binds_names[sc_comma] = ",";
+    binds_names[sc_period] = ".";
+
+    binds_names[sc_1] = "1";
+    binds_names[sc_2] = "2";
+    binds_names[sc_3] = "3";
+    binds_names[sc_4] = "4";
+    binds_names[sc_5] = "5";
+    binds_names[sc_6] = "6";
+    binds_names[sc_7] = "7";
+    binds_names[sc_8] = "8";
+    binds_names[sc_9] = "9";
+    binds_names[sc_0] = "0";
+
+    binds_names[sc_a] = "A";
+    binds_names[sc_b] = "B";
+    binds_names[sc_c] = "C";
+    binds_names[sc_d] = "D";
+    binds_names[sc_e] = "E";
+    binds_names[sc_f] = "F";
+    binds_names[sc_g] = "G";
+    binds_names[sc_h] = "H";
+    binds_names[sc_i] = "I";
+    binds_names[sc_j] = "J";
+    binds_names[sc_k] = "K";
+    binds_names[sc_l] = "L";
+    binds_names[sc_m] = "M";
+    binds_names[sc_n] = "N";
+    binds_names[sc_o] = "O";
+    binds_names[sc_p] = "P";
+    binds_names[sc_q] = "Q";
+    binds_names[sc_r] = "R";
+    binds_names[sc_s] = "S";
+    binds_names[sc_t] = "T";
+    binds_names[sc_u] = "U";
+    binds_names[sc_v] = "V";
+    binds_names[sc_w] = "W";
+    binds_names[sc_x] = "X";
+    binds_names[sc_y] = "Y";
+    binds_names[sc_z] = "Z";
+
+    binds_names[sc_kp_minus] = "KP MINUS";
+    binds_names[sc_kp_plus] = "KP PLUS";
+
+    binds_names[sc_mouse_left] = "MOUSE 1";
+    binds_names[sc_mouse_middle] = "MOUSE 2";
+    binds_names[sc_mouse_right] = "MOUSE 3";
+    binds_names[sc_mouse_x1] = "MOUSE 4";
+    binds_names[sc_mouse_x2] = "MOUSE 5";
+
+    for (BindsNamesCIt i = binds_names.begin();
+        i != binds_names.end();
+        ++i)
+    {
+        int width = 0;
+        int height = 0;
+        VW_MeasurePropString(i->second, &width, &height);
+
+        if (width > binds_key_width)
+            binds_key_width = width;
+    }
+
+    int max_keys_width = k_max_binding_keys * (binds_key_width + 1);
+    int max_text_width = 2 + binds_max_text_width;
+    int max_width = max_keys_width + k_binds_text_keys_gap + max_text_width;
+
+    int text_x = (SCREEN_W - max_width) / 2;
+
+    int base_key_x = text_x + max_text_width + k_binds_text_keys_gap;
+
+    binds_text_x = text_x;
+
+    for (int i = 0; i < k_max_binding_keys; ++i)
+        binds_key_x[i] = base_key_x + (i * (binds_key_width + 1));
+
+    is_initialized = true;
+}
+
+bool binds_advance_to_item(
+    BindsFindDirection direction)
+{
+    switch (direction) {
+    case e_bfd_forward:
+        if ((binds_window + binds_window_offset + 1) < binds_count) {
+            ++binds_window_offset;
+
+            if (binds_window_offset == k_binds_max_per_window) {
+                ++binds_window;
+                --binds_window_offset;
+            }
+
+            return true;
+        } else
+            return false;
+
+    case e_bfd_backward:
+        if ((binds_window + binds_window_offset) > 0) {
+            --binds_window_offset;
+
+            if (binds_window_offset < 0) {
+                --binds_window;
+                binds_window_offset = 0;
+            }
+
+            return true;
+        } else
+            return false;
+
+    default:
+        return false;
+    }
+
+    return false;
+}
+
+bool binds_find_item(
+    BindsFindDirection direction,
+    BindsFindFrom from)
+{
+    if (from == e_bff_not_current) {
+        if (!binds_advance_to_item(direction))
+            return false;
+    }
+
+    while (true) {
+        if (binds[binds_window + binds_window_offset].binding)
+            return true;
+
+        if (!binds_advance_to_item(direction))
+            return false;
+    }
+
+    return false;
+}
+
+bool binds_assign_new_key(
+    ScanCode key,
+    Binding& binding)
+{
+    BindsNamesCIt it =
+        binds_names.find(LastScan);
+
+    if (it == binds_names.end())
+        return false;
+
+    for (int b = 0; b < k_max_bindings; ++b) {
+        for (int k = 0; k < k_max_binding_keys; ++k) {
+            if (in_bindings[b][k] == key)
+                in_bindings[b][k] = sc_none;
+        }
+    }
+
+    binding[binds_key_index] = key;
+
+    return true;
+}
+
+void binds_remove_binding()
+{
+    BindsItem& item = binds[binds_window + binds_window_offset];
+    (*item.binding)[binds_key_index] = sc_none;
+}
+
+void binds_draw_item_text(
+    int item_index)
+{
+    BindsItem& item = binds[binds_window + item_index];
+
+    if (item.name[0] == '\0')
+        return;
+
+    int x = SCREEN_X + binds_text_x;
+    int y = SCREEN_Y + k_binds_top +
+        (item_index * (binds_text_height + k_binds_line_spacing));
+
+    int text_left_offset = 0;
+    int text_width = 0;
+
+    if (item.binding) {
+        text_width = item.name_width;
+        text_left_offset = binds_max_text_width - item.name_width;
+
+        if (text_left_offset < 0) {
+            text_left_offset = 0;
+            text_width = binds_max_text_width;
+        }
+    } else
+        text_width = SCREEN_W;
+
+    PrintX = x + text_left_offset;
+    PrintY = y;
+    WindowX = PrintX;
+    WindowY = PrintY;
+    WindowW = text_width;
+    WindowH = binds_text_height;
+
+    if (item.binding) {
+        fontcolor = k_binds_text_color;
+        US_Print(item.name);
+    } else {
+        fontcolor = k_binds_category_color;
+        US_PrintCentered(item.name);
+    }
+}
+
+void binds_draw_keys(
+    int item_index)
+{
+    const BindsItem& item =
+        binds[binds_window + item_index];
+
+    if (!item.binding)
+        return;
+
+    int y = SCREEN_Y + k_binds_top +
+        (item_index * (binds_text_height + k_binds_line_spacing));
+
+    bool is_current = (item_index == binds_window_offset);
+
+    for (int k = 0; k < k_max_binding_keys; ++k) {
+        Uint8 color;
+        ScanCode key;
+        const char* key_name;
+
+        bool is_active = is_current && (binds_key_index == k);
+
+        if (is_active) {
+            color =
+                binds_is_assigning ?
+                    k_binds_key_bar_assign_color :
+                    k_binds_key_bar_active_color;
+        } else
+            color = k_binds_key_bar_default_color;
+
+        int x = SCREEN_X + binds_key_x[k];
+
+        VWB_Bar(
+            x,
+            y,
+            binds_key_width,
+            binds_text_height,
+            color);
+
+        PrintX = x;
+        PrintY = y;
+        WindowX = PrintX;
+        WindowY = PrintY;
+        WindowW = binds_key_width;
+        WindowH = binds_text_height;
+
+        if (!(is_active && binds_is_assigning)) {
+            key = (*item.binding)[k];
+
+            if (key != sc_none) {
+                key_name = "???";
+
+                BindsNamesCIt name_it = binds_names.find(key);
+
+                if (name_it != binds_names.end())
+                    key_name = name_it->second;
+
+                fontcolor = k_binds_key_text_color;
+                US_PrintCentered(key_name);
+            }
+        }
+    }
+}
+
+void binds_draw()
+{
+    bool found_item = false;
+
+    found_item = binds_find_item(e_bfd_forward, e_bff_current);
+
+    if (!found_item)
+        found_item = binds_find_item(e_bfd_backward, e_bff_current);
+
+    ClearMScreen();
+    DrawMenuTitle("CUSTOMIZE CONTROLS");
+
+    DrawInstructions(
+        binds_is_assigning ? IT_CONTROLS_ASSIGNING_KEY : IT_CONTROLS);
+
+    fontnumber = 2;
+
+    BindsItem* items = &binds[binds_window];
+
+    for (int i = 0; i < k_binds_max_per_window; ++i) {
+        int item_index = binds_window + i;
+
+        if (item_index == binds_count)
+            break;
+
+        binds_draw_item_text(i);
+        binds_draw_keys(i);
+    }
+}
+
+void binds_draw_menu()
+{
+    bool is_up_pressed = false;
+    bool is_down_pressed = false;
+    bool is_left_pressed = false;
+    bool is_right_pressed = false;
+    bool is_pgdn_pressed = false;
+    bool is_pgup_pressed = false;
+    bool is_enter_pressed = false;
+    bool is_delete_pressed = false;
+    bool is_escape_pressed = false;
+
+    bool handle_up = false;
+    bool handle_down = false;
+    bool handle_left = false;
+    bool handle_right = false;
+    bool handle_pgdn = false;
+    bool handle_pgup = false;
+    bool handle_enter = false;
+    bool handle_delete = false;
+    bool handle_escape = false;
+
+    bool fade_in = true;
+
+    CA_CacheGrChunk(STARTFONT + 2);
+    CA_CacheGrChunk(STARTFONT + 4);
+    binds_initialize_menu();
+
+    binds_is_assigning = false;
+
+    while (true) {
+        binds_draw();
+        VW_UpdateScreen();
+
+        if (fade_in) {
+            fade_in = false;
+            MenuFadeIn();
+        }
+
+        in_handle_events();
+
+        if (binds_is_assigning) {
+            LastScan = sc_none;
+            bool quit = false;
+
+            while (!quit) {
+                LastScan = sc_none;
+                in_handle_events();
+
+                if (Keyboard[sc_escape]) {
+                    quit = true;
+                    sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+                } else if (LastScan != sc_none) {
+                    BindsItem& item =
+                        binds[binds_window + binds_window_offset];
+
+                    if (binds_assign_new_key(LastScan, *item.binding)) {
+                        ShootSnd();
+                        quit = true;
+                    } else
+                        sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                }
+            }
+
+            is_escape_pressed = true;
+            binds_is_assigning = false;
+        } else {
+            if (Keyboard[sc_up_arrow]) {
+                if (!is_up_pressed) {
+                    handle_up = true;
+                    is_up_pressed = true;
+                }
+            } else
+                is_up_pressed = false;
+
+            if (Keyboard[sc_down_arrow]) {
+                if (!is_down_pressed) {
+                    handle_down = true;
+                    is_down_pressed = true;
+                }
+            } else
+                is_down_pressed = false;
+
+            if (Keyboard[sc_left_arrow]) {
+                if (!is_left_pressed) {
+                    handle_left = true;
+                    is_left_pressed = true;
+                }
+            } else
+                is_left_pressed = false;
+
+            if (Keyboard[sc_right_arrow]) {
+                if (!is_right_pressed) {
+                    handle_right = true;
+                    is_right_pressed = true;
+                }
+            } else
+                is_right_pressed = false;
+
+            if (Keyboard[sc_page_down]) {
+                if (!is_pgdn_pressed) {
+                    handle_pgdn = true;
+                    is_pgdn_pressed = true;
+                }
+            } else
+                is_pgdn_pressed = false;
+
+            if (Keyboard[sc_page_up]) {
+                if (!is_pgup_pressed) {
+                    handle_pgup = true;
+                    is_pgup_pressed = true;
+                }
+            } else
+                is_pgup_pressed = false;
+
+            if (Keyboard[sc_return]) {
+                if (!is_enter_pressed) {
+                    handle_enter = true;
+                    is_enter_pressed = true;
+                }
+            } else
+                is_enter_pressed = false;
+
+            if (Keyboard[sc_delete]) {
+                if (!is_delete_pressed) {
+                    handle_delete = true;
+                    is_delete_pressed = true;
+                }
+            } else
+                is_delete_pressed = false;
+
+            if (Keyboard[sc_escape]) {
+                if (!is_escape_pressed) {
+                    handle_escape = true;
+                    is_escape_pressed = true;
+                }
+            } else
+                is_escape_pressed = false;
+
+            if (handle_up) {
+                handle_up = false;
+                binds_find_item(e_bfd_backward, e_bff_not_current);
+            }
+
+            if (handle_down) {
+                handle_down = false;
+                binds_find_item(e_bfd_forward, e_bff_not_current);
+            }
+
+            if (handle_left) {
+                handle_left = false;
+
+                if (binds_key_index == 1)
+                    binds_key_index = 0;
+            }
+
+            if (handle_right) {
+                handle_right = false;
+
+                if (binds_key_index == 0)
+                    binds_key_index = 1;
+            }
+
+            if (handle_pgdn) {
+                handle_pgdn = false;
+
+                for (int i = 0; i < k_binds_max_per_window; ++i)
+                    binds_find_item(e_bfd_forward, e_bff_not_current);
+            }
+
+            if (handle_pgup) {
+                handle_pgup = false;
+
+                for (int i = 0; i < k_binds_max_per_window; ++i)
+                    binds_find_item(e_bfd_backward, e_bff_not_current);
+            }
+
+            if (handle_enter) {
+                handle_enter = false;
+                binds_is_assigning = true;
+            }
+
+            if (handle_delete) {
+                handle_delete = false;
+                binds_remove_binding();
+                ShootSnd();
+            }
+
+            if (handle_escape) {
+                handle_escape = false;
+                sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+                break;
+            }
+        }
+    }
+
+    MenuFadeOut();
+}
+
+
+} // namespace
+// BBi
 
 
 //-------------------------------------------------------------------------
@@ -1038,7 +1743,9 @@ void DrawInstructions(inst_type Type)
         "RT/LF ARROW SELECTS - ENTER CHOOSES",
 
         // BBi
-        "UP/DN SELECTS - RT/LF CHANGES - ESC EXITS"
+        "UP/DN SELECTS - LF/RT CHANGES - ESC EXITS",
+        "ARROWS SELECTS - ENTER CHOOSES - DEL REMOVES",
+        "ESC EXITS"
     };
 
 	fontnumber = 2;
@@ -2107,6 +2814,11 @@ char mbarray[4][3]={"B0","B1","B2","B3"},
 //--------------------------------------------------------------------------
 void CustomControls(Sint16)
 {
+    if (in_use_modern_bindings) {
+        binds_draw_menu();
+        return;
+    }
+
 	Sint16 which;
 
  DrawCustomScreen();

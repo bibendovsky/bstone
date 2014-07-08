@@ -2479,6 +2479,8 @@ enum inst_type {
 
     // BBi
     IT_SOUND_VOLUME,
+    IT_CONTROLS,
+    IT_CONTROLS_ASSIGNING_KEY,
 
 	MAX_INSTRUCTIONS
 }; // enum inst_type
