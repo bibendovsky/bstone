@@ -697,28 +697,36 @@ static void in_handle_keyboard(
 static void in_handle_mouse_buttons(
     const SDL_MouseButtonEvent& e)
 {
+    ScanCode key = sc_none;
     bool is_pressed = (e.state == SDL_PRESSED);
 
     switch (e.button) {
     case SDL_BUTTON_LEFT:
-        Keyboard[sc_mouse_left] = is_pressed;
+        key = sc_mouse_left;
         break;
 
     case SDL_BUTTON_MIDDLE:
-        Keyboard[sc_mouse_middle] = is_pressed;
+        key = sc_mouse_middle;
         break;
 
     case SDL_BUTTON_RIGHT:
-        Keyboard[sc_mouse_right] = is_pressed;
+        key = sc_mouse_right;
         break;
 
     case SDL_BUTTON_X1:
-        Keyboard[sc_mouse_x1] = is_pressed;
+        key = sc_mouse_x1;
         break;
 
     case SDL_BUTTON_X2:
-        Keyboard[sc_mouse_x2] = is_pressed;
+        key = sc_mouse_x2;
         break;
+    }
+
+    if (key != sc_none) {
+        Keyboard[key] = is_pressed;
+
+        if (is_pressed)
+            LastScan = key;
     }
 }
 
