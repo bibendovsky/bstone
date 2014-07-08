@@ -105,7 +105,7 @@ fixed	mindist		= MINDIST;
 //
 int* pixelangle = NULL;
 int finetangent[FINEANGLES / 4];
-int sintable[ANGLES + (ANGLES / 4)];
+int sintable[ANGLES + (ANGLES / 4) + 1];
 int* costable = &sintable[ANGLES / 4];
 
 //
