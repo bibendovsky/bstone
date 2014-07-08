@@ -160,7 +160,8 @@ enum sw_labels {
 	SW_FLOORS,
 
     // BBi
-    SW_NO_WALL_HIT_SOUND
+    SW_NO_WALL_HIT_SOUND,
+    SW_MODERN_CONTROLS
 }; // enum sw_labels
 
 

@@ -113,7 +113,7 @@ KeyboardDef KbdDefs = {
 		Uint16		DemoOffset,DemoSize;
 #endif
 
-bool in_use_modern_bindings = true;
+bool in_use_modern_bindings = k_in_use_modern_bindings_default;
 Bindings in_bindings;
 
 /*

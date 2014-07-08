@@ -118,7 +118,7 @@ CP_iteminfo
 	CusItems=	{CST_X,CST_Y+7,6,-1,0,15,{54,-1,203,7,1}},
 	NewEitems=	{NE_X,NE_Y,11,0,0,16,	{43,-2,119,16,1}},
 	NewItems=	{NM_X,NM_Y,4,1,0,16,		{60,-2,105,16,1}},
-	SwitchItems=	{MENU_X,MENU_Y+25,5,0,0,9,{87,-1,132,7,1}};
+	SwitchItems=	{MENU_X,MENU_Y+25,6,0,0,9,{87,-1,132,7,1}};
 
 
 
@@ -177,7 +177,8 @@ SwitchMenu[] = {
      { AT_ENABLED, "SHOW FLOORS", 0 },
 
      // BBi
-     { AT_ENABLED, "NO WALL HIT SOUND", 0 }
+     { AT_ENABLED, "NO WALL HIT SOUND", 0 },
+     { AT_ENABLED, "MODERN CONTROLS", 0 }
  },
 
 
@@ -1951,6 +1952,12 @@ void CP_Switches(Sint16)
                 ShootSnd();
                 DrawSwitchMenu();
                 break;
+
+            case SW_MODERN_CONTROLS:
+                in_use_modern_bindings = !in_use_modern_bindings;
+                ShootSnd();
+                DrawSwitchMenu();
+                break;
 		}
 
 	} while(which>=0);
@@ -2025,6 +2032,11 @@ void DrawAllSwitchLights(Sint16 which)
                     if (g_no_wall_hit_sound)
                         ++Shape;
                     break;
+
+                case SW_MODERN_CONTROLS:
+                    if (in_use_modern_bindings)
+                        ++Shape;
+                    break;
 			}
 
 			VWB_DrawPic(SwitchItems.x-16,SwitchItems.y+i*SwitchItems.y_spacing-1,Shape);
@@ -2049,7 +2061,8 @@ void DrawSwitchDescription(Sint16 which)
         "TOGGLES FLOOR MAPPING",
 
         // BBi
-        "TOGGLES WALL HIT SOUND"
+        "TOGGLES WALL HIT SOUND",
+        "TOGGLES BETWEEN CLASSIC AND MODERN CONTROLS"
     };
 
 	fontnumber = 2;

@@ -893,6 +893,7 @@ void ReadConfig()
             deserialize_field(g_music_volume, reader, checksum);
 
             deserialize_field(g_no_wall_hit_sound, reader, checksum);
+            deserialize_field(in_use_modern_bindings, reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
         }
@@ -1004,6 +1005,7 @@ void ReadConfig()
         g_music_volume = MAX_VOLUME;
 
         g_no_wall_hit_sound = k_no_wall_hit_sound_default;
+        in_use_modern_bindings = k_in_use_modern_bindings_default;
     }
 
     ::SD_SetMusicMode(sm);
@@ -1077,6 +1079,7 @@ void WriteConfig()
     serialize_field(g_music_volume, writer, checksum);
 
     serialize_field(g_no_wall_hit_sound, writer, checksum);
+    serialize_field(in_use_modern_bindings, writer, checksum);
 
     writer.write(bstone::Endian::le(checksum));
 }
