@@ -879,6 +879,8 @@ void ReadConfig()
             deserialize_field(buttonmouse, reader, checksum);
             deserialize_field(buttonjoy, reader, checksum);
 
+            deserialize_field(in_bindings, reader, checksum);
+
             Sint16 dummy_viewsize;
             deserialize_field(dummy_viewsize, reader, checksum);
 
@@ -982,6 +984,8 @@ void ReadConfig()
         joystickport = 0;
         joystickprogressive = false;
 
+        in_set_default_bindings();
+
 // BBi
 #if 0
         viewsize = 20;
@@ -1060,6 +1064,8 @@ void WriteConfig()
     serialize_field(buttonscan, writer, checksum);
     serialize_field(buttonmouse, writer, checksum);
     serialize_field(buttonjoy, writer, checksum);
+
+    serialize_field(in_bindings, writer, checksum);
 
     Sint16 dummy_viewsize = viewsize;
     serialize_field(dummy_viewsize, writer, checksum);
