@@ -343,7 +343,12 @@ void PollJoystickButtons (void)
 
 void PollKeyboardMove()
 {
-    int value = tics * (in_is_binding_pressed(e_bi_run) ? RUNMOVE : BASEMOVE);
+    bool is_running = in_is_binding_pressed(e_bi_run);
+
+    if (g_always_run)
+        is_running = !is_running;
+
+    int value = tics * (is_running ? RUNMOVE : BASEMOVE);
 
     if (in_is_binding_pressed(e_bi_forward))
         controly -= value;
@@ -377,7 +382,12 @@ void PollMouseMove()
     ::in_get_mouse_deltas(mousexmove, mouseymove);
     ::in_clear_mouse_deltas();
 
-    if (in_is_binding_pressed(e_bi_run)) {
+    bool is_running = in_is_binding_pressed(e_bi_run);
+
+    if (g_always_run)
+        is_running = !is_running;
+
+    if (is_running) {
         if (!in_use_modern_bindings)
             controly += (mouseymove * 20 / (13 - mouseadjustment)) * 4;
 

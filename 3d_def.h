@@ -3574,6 +3574,7 @@ doorobj_t* ui16_to_door_object(Uint16 value);
 Uint16 door_object_to_ui16(const doorobj_t* door_object);
 
 extern bool g_no_wall_hit_sound;
+extern bool g_always_run;
 
 
 class ArchiveException : public std::exception {

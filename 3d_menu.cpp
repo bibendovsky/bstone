@@ -118,7 +118,7 @@ CP_iteminfo
 	CusItems=	{CST_X,CST_Y+7,6,-1,0,15,{54,-1,203,7,1}},
 	NewEitems=	{NE_X,NE_Y,11,0,0,16,	{43,-2,119,16,1}},
 	NewItems=	{NM_X,NM_Y,4,1,0,16,		{60,-2,105,16,1}},
-	SwitchItems=	{MENU_X,MENU_Y+25,6,0,0,9,{87,-1,132,7,1}};
+	SwitchItems=	{MENU_X,MENU_Y+15,7,0,0,9,{87,-1,132,7,1}};
 
 
 
@@ -178,7 +178,8 @@ SwitchMenu[] = {
 
      // BBi
      { AT_ENABLED, "NO WALL HIT SOUND", 0 },
-     { AT_ENABLED, "MODERN CONTROLS", 0 }
+     { AT_ENABLED, "MODERN CONTROLS", 0 },
+     { AT_ENABLED, "ALWAYS RUN", 0 }
  },
 
 
@@ -1958,6 +1959,12 @@ void CP_Switches(Sint16)
                 ShootSnd();
                 DrawSwitchMenu();
                 break;
+
+            case SW_ALWAYS_RUN:
+                g_always_run = !g_always_run;
+                ShootSnd();
+                DrawSwitchMenu();
+                break;
 		}
 
 	} while(which>=0);
@@ -2037,6 +2044,11 @@ void DrawAllSwitchLights(Sint16 which)
                     if (in_use_modern_bindings)
                         ++Shape;
                     break;
+
+                case SW_ALWAYS_RUN:
+                    if (g_always_run)
+                        ++Shape;
+                    break;
 			}
 
 			VWB_DrawPic(SwitchItems.x-16,SwitchItems.y+i*SwitchItems.y_spacing-1,Shape);
@@ -2062,7 +2074,8 @@ void DrawSwitchDescription(Sint16 which)
 
         // BBi
         "TOGGLES WALL HIT SOUND",
-        "TOGGLES BETWEEN CLASSIC AND MODERN CONTROLS"
+        "TOGGLES BETWEEN CLASSIC AND MODERN CONTROLS",
+        "TOGGLES ALWAYS RUN MODE"
     };
 
 	fontnumber = 2;

@@ -161,7 +161,8 @@ enum sw_labels {
 
     // BBi
     SW_NO_WALL_HIT_SOUND,
-    SW_MODERN_CONTROLS
+    SW_MODERN_CONTROLS,
+    SW_ALWAYS_RUN
 }; // enum sw_labels
 
 

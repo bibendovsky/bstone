@@ -153,6 +153,9 @@ Uint16	democount=0,jim=0;
 static const bool k_no_wall_hit_sound_default = true;
 bool g_no_wall_hit_sound = k_no_wall_hit_sound_default;
 
+static const bool k_always_run_default = true;
+bool g_always_run = k_always_run_default;
+
 /*
 =============================================================================
 
@@ -894,6 +897,7 @@ void ReadConfig()
 
             deserialize_field(g_no_wall_hit_sound, reader, checksum);
             deserialize_field(in_use_modern_bindings, reader, checksum);
+            deserialize_field(g_always_run, reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
         }
@@ -1006,6 +1010,7 @@ void ReadConfig()
 
         g_no_wall_hit_sound = k_no_wall_hit_sound_default;
         in_use_modern_bindings = k_in_use_modern_bindings_default;
+        g_always_run = k_always_run_default;
     }
 
     ::SD_SetMusicMode(sm);
@@ -1080,6 +1085,7 @@ void WriteConfig()
 
     serialize_field(g_no_wall_hit_sound, writer, checksum);
     serialize_field(in_use_modern_bindings, writer, checksum);
+    serialize_field(g_always_run, writer, checksum);
 
     writer.write(bstone::Endian::le(checksum));
 }
