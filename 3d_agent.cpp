@@ -4797,7 +4797,7 @@ void	T_Attack (objtype *ob)
 				if (objfreelist)
 					gamestate.attackframe -= 2;
             }
-            else
+            else if (gamestate.ammo == 0)
             {
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
             }
@@ -4878,7 +4878,7 @@ void	T_Attack (objtype *ob)
 				if (objfreelist)
 					gamestate.attackframe -= 2;
             }
-            else
+            else if (gamestate.ammo == 0)
             {
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
             }
