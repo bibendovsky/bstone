@@ -2764,17 +2764,20 @@ void Cmd_Use (void)
 				dist = dx<dy ? dx:dy;
 				if ((ob->obclass==gen_scientistobj) &&
 					 ((ob->flags&(FL_FRIENDLY|FL_VISABLE))==(FL_FRIENDLY|FL_VISABLE)) &&
-                    (ob->flags & FL_ATTACKMODE) == 0 &&
 					 (dist < intg_dist))
 				{
-					Sint16 angle=CalcAngle(player,ob);
+                    if ((ob->flags & FL_ATTACKMODE) != 0)
+                        ob->flags &= ~(FL_FRIENDLY | FL_INFORMANT);
+                    else {
+                        Sint16 angle = CalcAngle(player, ob);
 
-					angle = ABS(player->angle-angle);
-					if (angle > INTG_ANGLE/2)
-						continue;
+                        angle = ABS(player->angle - angle);
+                        if (angle > INTG_ANGLE / 2)
+                            continue;
 
-					intg_ob=ob;
-					intg_dist=dist;
+                        intg_ob = ob;
+                        intg_dist = dist;
+                    }
 				}
 			}
 
