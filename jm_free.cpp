@@ -687,7 +687,8 @@ void CheckForEpisodes(void)
         strcpy(extension, "FSW");
 #endif
     else {
-        printf("No Fire Strike data files found!");
+        SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION,
+            "%s\n", "No data files found.");
         exit(0);
     }
 
