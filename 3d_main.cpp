@@ -2220,8 +2220,6 @@ void Quit(const char* error, ...)
             SDL_LOG_CATEGORY_APPLICATION,
             SDL_LOG_PRIORITY_CRITICAL,
             error, ap);
-
-        scanf("%c", &dummy);
     }
 
     va_end(ap);
