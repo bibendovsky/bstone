@@ -31,6 +31,10 @@ if (MINGW)
     set(CMAKE_EXE_LINKER_FLAGS "${TMP}")
 endif ()
 
+if (APPLE)
+    add_definitions("-DBSTONE_OGL_DIRECT_LINK")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework OpenGL")
+endif ()
 
 if (BSTONE_PANDORA)
     # Definitions
