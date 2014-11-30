@@ -443,6 +443,10 @@ void SD_Shutdown() {
 
     mixer.uninitialize();
 
+    // Free music data
+    for (int i = 0; i < LASTMUSIC; ++i)
+        delete [] static_cast<uint8_t*>(::audiosegs[STARTMUSIC + i]);
+
     SD_Started = false;
 }
 

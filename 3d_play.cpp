@@ -1370,14 +1370,7 @@ void RemoveObj (objtype *gone)
 
 void StopMusic(void)
 {
-	Sint16	i;
-
 	SD_MusicOff();
-	for (i = 0;i < LASTMUSIC;i++)
-        if (audiosegs[STARTMUSIC + i]) {
-            free(audiosegs[STARTMUSIC + i]);
-            audiosegs[STARTMUSIC + i] = NULL;
-        }
 }
 
 //==========================================================================

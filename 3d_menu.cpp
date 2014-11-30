@@ -4455,11 +4455,6 @@ void StartCPMusic(Sint16 song)
 {
 	musicnames	chunk;
 
-    if (audiosegs[STARTMUSIC + lastmenumusic]) { // JDC
-        delete [] audiosegs[STARTMUSIC + lastmenumusic];
-        audiosegs[STARTMUSIC + lastmenumusic] = NULL;
-    }
-
 	lastmenumusic = song;
 
 	SD_MusicOff();
@@ -4474,10 +4469,6 @@ void StartCPMusic(Sint16 song)
 void FreeMusic (void)
 {
 	SD_MusicOff();
-	if (audiosegs[STARTMUSIC + lastmenumusic]) { // JDC
-        delete [] audiosegs[STARTMUSIC + lastmenumusic];
-        audiosegs[STARTMUSIC + lastmenumusic] = NULL;
-    }
 }
 
 

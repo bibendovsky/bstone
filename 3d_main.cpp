@@ -2380,11 +2380,6 @@ void    DemoLoop (void)
 		}
 #endif // SKIP_TITLE_AND_CREDITS
 
-		if (audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]) {
-            delete [] audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC];
-            audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC] = NULL;
-        }
-
 		if (!screenfaded)
 			VW_FadeOut();
 
