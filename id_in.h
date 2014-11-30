@@ -259,7 +259,7 @@ const int k_max_bindings = e_bi_last_entry;
 typedef ScanCode Binding[k_max_binding_keys];
 typedef Binding Bindings[k_max_bindings];
 
-const bool k_in_use_modern_bindings_default = true;
+const bool k_in_use_modern_bindings_default = false;
 extern bool in_use_modern_bindings;
 extern Bindings in_bindings;
 

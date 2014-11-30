@@ -150,10 +150,10 @@ Sint16 view_xl,view_xh,view_yl,view_yh;
 Uint16	democount=0,jim=0;
 #endif
 
-static const bool k_no_wall_hit_sound_default = true;
+static const bool k_no_wall_hit_sound_default = false;
 bool g_no_wall_hit_sound = k_no_wall_hit_sound_default;
 
-static const bool k_always_run_default = true;
+static const bool k_always_run_default = false;
 bool g_always_run = k_always_run_default;
 
 /*
@@ -909,7 +909,8 @@ void ReadConfig()
 
             is_succeed = (saved_checksum == checksum);
         }
-    }
+    } else
+        is_succeed = false;
 
     if (is_succeed) {
         flags &=
