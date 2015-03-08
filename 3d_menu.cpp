@@ -1189,8 +1189,13 @@ void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boo
 	else
 		pi.infoline = (char *)"           UP / DN - PAGES            ESC - EXITS";
 
-	if (startmusic)
+	if (startmusic) {
+#ifdef BSTONE_AOG
+        // FIXME
+#else
 		StartCPMusic(TEXTSONG);
+#endif // BSTONE_AOG
+    }
 
 // Load, present, and free help text.
 //
@@ -1205,8 +1210,14 @@ void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boo
 	if (oldwidth != FULL_VIEW_WIDTH)
 		NewViewSize();
 
-	if (startmusic && TPscan==sc_escape)
+	if (startmusic && TPscan==sc_escape) {
+#ifdef BSTONE_AOG
+        // FIXME
+#else
 		StartCPMusic(MENUSONG);
+#endif // BSTONE_AOG
+    }
+
 	IN_ClearKeysDown();
 }
 
@@ -1243,7 +1254,12 @@ void US_ControlPanel(Uint8 scancode)
 			return;
 
 	SetupControlPanel();
+
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 	StartCPMusic(MENUSONG);
+#endif // BSTONE_AOG
 
  //
  // F-KEYS FROM WITHIN GAME
@@ -1488,7 +1504,12 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 				VW_FadeOut ();
 
+#ifdef BSTONE_AOG
+                // FIXME
+#else
 				StartCPMusic(MENUSONG);
+#endif // BSTONE_AOG
+
 				pickquick=CP_SaveGame(0);
 
 				lasttimecount = TimeCount;
@@ -1526,7 +1547,12 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 
 				VW_FadeOut ();
 
+#ifdef BSTONE_AOG
+                // FIXME
+#else
 				StartCPMusic(MENUSONG);
+#endif // BSTONE_AOG
+
 				pickquick=CP_LoadGame(0);
 
 				lasttimecount = TimeCount;
@@ -1587,7 +1613,13 @@ Sint16 CP_EndGame(void)
 void CP_ViewScores(Sint16)
 {
 	fontnumber=4;
+
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 	StartCPMusic(ROSTER_MUS);
+#endif // BSTONE_AOG
+
 	DrawHighScores ();
 	VW_UpdateScreen ();
 	MenuFadeIn();
@@ -1595,7 +1627,12 @@ void CP_ViewScores(Sint16)
 
 	IN_Ack();
 
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 	StartCPMusic(MENUSONG);
+#endif // BSTONE_AOG
+
 	MenuFadeOut();
 }
 
@@ -2161,7 +2198,12 @@ void CP_Sound(Sint16)
 		SD_SetMusicMode(smm_AdLib);
 		DrawSoundMenu();
 		ShootSnd();
+
+#ifdef BSTONE_AOG
+        // FIXME
+#else
 		StartCPMusic(MENUSONG);
+#endif // BSTONE_AOG
 	  }
 	  break;
   }

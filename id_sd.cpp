@@ -74,6 +74,7 @@ Free Software Foundation, Inc.,
 
 #define	SDL_SoundFinished()	{SoundNumber = HITWALLSND; SoundPriority = 0;}
 
+#if 0
 //	Imports from ID_SDD.C
 #undef	NUMSOUNDS
 #undef	NUMSNDCHUNKS
@@ -81,6 +82,7 @@ Free Software Foundation, Inc.,
 #undef	STARTADLIBSOUNDS
 #undef	STARTDIGISOUNDS
 #undef	STARTMUSIC
+#endif // 0
 
 extern	Uint16	sdStartPCSounds;
 extern	Uint16	sdStartALSounds;

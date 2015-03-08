@@ -407,14 +407,22 @@ piShapeInfo piShapeTable[] = {
 		{SPR_GREEN2_OOZE1,pis_scaled},			// 226 - Green2 Ooze
 		{SPR_BLACK2_OOZE1,pis_scaled},			// 227 - Black2 Ooze
 		{SPR_STAT_34,pis_scaled},					// 228 - BFG Cannon AKA Anti-Plasma Cannon
+#ifdef BSTONE_AOG
+        // FIXME
+#else
 		{H_PLUSPIC,pis_pic},							// 229 - PLUS key
+#endif // BSTONE_AOG
 		{SPR_DOORBOMB,pis_scaled},					// 230 - Plasma Detonator
 		{SPR_DETONATOR_EXP3,pis_scaled},			// 231 - Plasma Detonator Explosion
 		{SPR_MGOLD_WALK1,pis_scaled},      		// 232 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK2,pis_scaled},      		// 233 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK3,pis_scaled},      		// 234 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK4,pis_scaled},      		// 235 - Morphed Dr Goldstern - Walking
+#ifdef BSTONE_AOG
+        // FIXME
+#else
 		{H_MINUSPIC,pis_pic},						// 236 - MINUS key
+#endif // BSTONE_AOG
 		{H_6PIC,pis_pic},								// 237 - 6 KEY
 		{H_TILDEPIC,pis_pic},						// 238 - TILDE KEY
 		{AUTOMAP_MAG1PIC,pis_pic},					// 239 - AutoMap pic MAG1 (normal)

@@ -334,7 +334,12 @@ void	CheckHighScore (Sint32 score,Uint16 other)
 		}
 	}
 
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 	StartCPMusic (ROSTER_MUS);
+#endif // BSTONE_AOG
+
 	DrawHighScores ();
 
 	VW_FadeIn ();

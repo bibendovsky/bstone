@@ -2129,11 +2129,13 @@ void GetBonus (statobj_t *check)
 		}
 		break;
 
+#ifdef BSTONE_PS
 	case	bo_plasma_detonator:
 		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
 		GivePlasmaDetonator(1);
         ::sd_play_player_sound(GETDETONATORSND, bstone::AC_ITEM);
 		break;
+#endif // BSTONE_PS
 
 	case	bo_pistol:
         ::sd_play_player_sound(GETPISTOLSND, bstone::AC_ITEM);
@@ -2178,6 +2180,7 @@ void GetBonus (statobj_t *check)
 		writeTokenStr(bonus_msg25);
 	break;
 
+#ifdef BSTONE_PS
 		case bo_automapper1:
 			if (gamestate.rpower > MAX_RADAR_ENERGY-(RADAR_PAK_VALUE/8))
 				return;
@@ -2187,6 +2190,7 @@ void GetBonus (statobj_t *check)
 
 			UpdateRadarGuage();
 		break;
+#endif // BSTONE_PS
 	}
 
 	if (givepoints)
@@ -3010,6 +3014,10 @@ boolean ov_noImage=false;
 //--------------------------------------------------------------------------
 Sint16 InputFloor(void)
 {
+#ifdef BSTONE_AOG
+    // FIXME
+    return -1;
+#else
 	#define RADAR_FLAGS		OV_KEYS
 	#define MAX_TELEPORTS 	20
 	#define MAX_MOVE_DELAY	10
@@ -3251,6 +3259,7 @@ Sint16 InputFloor(void)
 	IN_ClearKeysDown();
 
 	return(rt_code);
+#endif // BSTONE_AOG
 }
 
 //--------------------------------------------------------------------------

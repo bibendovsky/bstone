@@ -191,6 +191,27 @@ objtype dummyobj;
 
 Sint16 songs[]=
 {
+#ifdef BSTONE_AOG
+	S2100A_MUS,              // 0
+	GOLDA_MUS,               // 1
+	APOGFNFM_MUS,            // 2
+	DRKHALLA_MUS,            // 3
+	FREEDOMA_MUS,            // 4
+	GENEFUNK_MUS,            // 5
+	TIMEA_MUS,               // 6
+	HIDINGA_MUS,             // 7
+	INCNRATN_MUS,            // 8
+	JUNGLEA_MUS,             // 9
+	LEVELA_MUS,              // 10
+	MEETINGA_MUS,            // 11
+	STRUTA_MUS,              // 12
+	RACSHUFL_MUS,            // 13
+	RUMBAA_MUS,              // 14
+	SEARCHNA_MUS,            // 15
+	THEME_MUS,               // 16
+	THEWAYA_MUS,             // 17
+	INTRIGEA_MUS             // 18
+#else
 	MAJMIN_MUS,              // 0
 	STICKS_MUS,              // 1
 	MOURNING_MUS,            // 2
@@ -215,6 +236,7 @@ Sint16 songs[]=
 	PLOT_MUS,					 // 21
 	GIVING_MUS,              // 22
 	VACCINAP_MUS,            // 23
+#endif // BSTONE_AOG
 };
 
 /*
@@ -1387,6 +1409,10 @@ void StartMusic(boolean preload)
 	musicnames	musicchunk;
 
 	SD_MusicOff();
+
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 #if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
 	if (gamestate.flags & GS_MUSIC_TEST)
 		musicchunk=static_cast<musicnames>(music_num);
@@ -1406,6 +1432,7 @@ void StartMusic(boolean preload)
 		if (!preload)
         ::SD_StartMusic(musicchunk);
 	}
+#endif // BSTONE_AOG
 }
 
 /*
