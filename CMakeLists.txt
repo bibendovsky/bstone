@@ -6,6 +6,7 @@ PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 
 option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically")
 option(BSTONE_PANDORA "Build for Pandora")
+option(BSTONE_AOG "Build Aliens of Gold")
 
 set(BSTONE_TARGET "bstone")
 
@@ -55,6 +56,12 @@ if (BSTONE_PANDORA)
     include_directories(
         $ENV{PNDSDK}
     )
+endif ()
+
+if (BSTONE_AOG)
+    add_definitions("-DBSTONE_AOG")
+else ()
+    add_definitions("-DBSTONE_PS")
 endif ()
 
 include_directories(
