@@ -671,28 +671,30 @@ extern Sint16 EpisodeSelect[];
 //-------------------------------------------------------------------------
 // CheckForEpisodes() - CHECK FOR VERSION/EXTESION
 //-------------------------------------------------------------------------
-void CheckForEpisodes(void)
+void CheckForEpisodes()
 {
-	Sint16 i;
+    const std::string file_base_name = "VSWAP.";
 
-#if (GAME_VERSION != SHAREWARE_VERSION)
-    bstone::FileStream stream("VSWAP.VSI");
-
-    if (stream.is_open())
-        strcpy(extension, "VSI");
+    const std::string file_ext =
+#ifdef BSTONE_AOG
+        "BS6";
 #else
-    bstone::FileStream stream("VSWAP.FSW");
-
-    if (stream.is_open())
-        strcpy(extension, "FSW");
+        "VSI";
 #endif
-    else {
+
+    const std::string file_name = file_base_name + file_ext;
+
+    bstone::FileStream stream(file_name);
+
+    if (!stream.is_open()) {
         SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION,
             "%s\n", "No data files found.");
         exit(0);
     }
 
-	for (i=0;i<mv_NUM_MOVIES;i++)
+    ::strcat(extension, file_ext.c_str());
+
+	for (int i=0;i<mv_NUM_MOVIES;i++)
 		strcat(Movies[i].FName,extension);
 
 #ifdef ACTIVATE_TERMINAL
