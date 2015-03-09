@@ -142,7 +142,13 @@ int minheightdiv;
 boolean         startgame,loadedgame;
 Sint16             mouseadjustment;
 
-const std::string g_config_file_name = "bstone_ps_config";
+const std::string g_config_file_name =
+#ifdef BSTONE_AOG
+    "bstone_aog_config"
+#else
+    "bstone_ps_config"
+#endif // BSTONE_AOG
+;
 
 Sint16 view_xl,view_xh,view_yl,view_yh;
 
