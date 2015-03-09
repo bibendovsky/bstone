@@ -128,6 +128,9 @@ Sint32		chunkcomplen,chunkexplen;
 
 SDMode		oldsoundmode;
 
+// BBi
+int ca_gr_last_expanded_size;
+
 
 void	CAL_CarmackExpand (Uint16 *source, Uint16 *dest,
 		Uint16 length);
@@ -1012,6 +1015,8 @@ void CAL_ExpandGrChunk (Sint16 chunk, Uint8 *source)
     grsegs[chunk] = new char[expanded];
 
     CAL_HuffExpand(source,static_cast<Uint8*>(grsegs[chunk]),expanded,grhuffman);
+
+    ca_gr_last_expanded_size = expanded;
 }
 
 

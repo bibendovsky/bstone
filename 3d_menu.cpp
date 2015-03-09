@@ -4418,6 +4418,9 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
     CA_CacheGrChunk(item_number);
     chunk = (char*)grsegs[item_number];
 
+#ifdef BSTONE_AOG
+    data_length = ::ca_gr_last_expanded_size;
+#else
     memcpy(CompHeader.NameId, &chunk[0], 4);
     CompHeader.OriginalLen = ((Uint32*)&chunk[4])[0];
     CompHeader.CompType = (ct_TYPES)((Sint16*)&chunk[8])[0];
@@ -4426,12 +4429,19 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
     data_length = CompHeader.OriginalLen;
 
    chunk += 14;
+#endif // BSTONE_AOG
 
    // Allocate Dest Memory
 
     dst = new char[data_length];
     *dst_ptr = dst;
 
+#ifdef BSTONE_AOG
+    std::copy(
+        chunk,
+        &chunk[data_length],
+        dst);
+#else
    // Decompress and terminate string
 
     if (!LZH_Startup())
@@ -4444,6 +4454,7 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
         CompHeader.CompressLen);
 
     LZH_Shutdown();
+#endif // BSTONE_AOG
 
     // Free compressed data
     UNCACHEGRCHUNK(item_number);

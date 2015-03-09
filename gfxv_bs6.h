@@ -225,7 +225,10 @@ enum graphicnums {
 
 
 
-	POWERBALLTEXT=196,
+	POWERBALLTEXT=197,
+	TICSTEXT,                            // 198
+	MUSICTEXT,                           // 199
+	RADARTEXT,                           // 200
 	PIRACYPALETTE,                       // 197
 	APOGEEPALETTE,                       // 198
 	ENDINGPALETTE,                       // 199
@@ -233,9 +236,6 @@ enum graphicnums {
 	ORDERSCREEN,                         // 201
 	ERRORSCREEN,                         // 202
 	NO386SCREEN,                         // 203
-	MUSICTEXT,                           // 204
-	RADARTEXT,                           // 205
-	TICSTEXT,                            // 206
 	T_DEMO0,                             // 207
 	T_DEMO1,                             // 208
 	T_DEMO2,                             // 209

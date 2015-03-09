@@ -179,5 +179,8 @@ void ca_huff_expand_on_screen(
 void CloseGrFile(void);
 void OpenGrFile(void);
 
+// BBi
+extern int ca_gr_last_expanded_size;
+
 
 #endif // ID_CA_H
