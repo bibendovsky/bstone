@@ -23,24 +23,218 @@ Free Software Foundation, Inc.,
 
 //////////////////////////////////////
 //
-// Graphics .H file for .BS1
+// Graphics .H file for .BS6
 // IGRAB-ed on Wed Mar 30 18:12:07 1994
 //
 //////////////////////////////////////
 
 enum graphicnums {
-	TELEPORTBACKPIC=6,
-	// Lump Start
-	TELEPORT1ONPIC,                      // 7
-	TELEPORT2ONPIC,                      // 8
-	TELEPORT3ONPIC,                      // 9
-	TELEPORT4ONPIC,                      // 10
-	TELEPORT5ONPIC,                      // 11
-	TELEPORT6ONPIC,                      // 12
-	TELEPORT7ONPIC,                      // 13
-	TELEPORT8ONPIC,                      // 14
-	TELEPORT9ONPIC,                      // 15
-	TELEPORT10ONPIC,                     // 16
+    TELEPORTBACKPIC = 6,
+    TELEPORT1OFFPIC = 7,
+    TELEPORT2OFFPIC = 8,
+    TELEPORT3OFFPIC = 9,
+    TELEPORT4OFFPIC = 10,
+    TELEPORT5OFFPIC = 11,
+    TELEPORT6OFFPIC = 12,
+    TELEPORT7OFFPIC = 13,
+    TELEPORT8OFFPIC = 14,
+    TELEPORT9OFFPIC = 15,
+    TELEPORT10OFFPIC = 16,
+    TELEPORT1ONPIC = 17,
+    TELEPORT2ONPIC = 18,
+    TELEPORT3ONPIC = 19,
+    TELEPORT4ONPIC = 20,
+    TELEPORT5ONPIC = 21,
+    TELEPORT6ONPIC = 22,
+    TELEPORT7ONPIC = 23,
+    TELEPORT8ONPIC = 24,
+    TELEPORT9ONPIC = 25,
+    TELEPORT10ONPIC = 26,
+    BACKGROUND_SCREENPIC = 28,
+    APOGEEPIC = 29,
+    PIRACYPIC = 30,
+    PC13PIC = 31,
+    LOSEPIC = 32,
+    AUTOMAPPIC = 33,
+    H_ALTPIC = 34,
+    H_CTRLPIC = 35,
+    H_SPACEPIC = 36,
+    H_PAUSEPIC = 37,
+    H_ESCPIC = 38,
+    H_LTARROWPIC = 39,
+    H_UPARROWPIC = 40,
+    H_DNARROWPIC = 41,
+    H_RTARROWPIC = 42,
+    H_ENTERPIC = 43,
+    H_QPIC = 44,
+    H_WPIC = 45,
+    H_EPIC = 46,
+    H_IPIC = 47,
+    H_HPIC = 48,
+    H_1PIC = 49,
+    H_2PIC = 50,
+    H_3PIC = 51,
+    H_4PIC = 52,
+    H_5PIC = 53,
+    H_F1PIC = 54,
+    H_F2PIC = 55,
+    H_F3PIC = 56,
+    H_F4PIC = 57,
+    H_F5PIC = 58,
+    H_F6PIC = 59,
+    H_F7PIC = 60,
+    H_F8PIC = 61,
+    H_F9PIC = 62,
+    H_F10PIC = 63,
+    H_TABPIC = 64,
+    H_CPIC = 65,
+    H_FPIC = 66,
+    H_PPIC = 67,
+    H_MPIC = 68,
+    H_LPIC = 69,
+    H_SHIFTPIC = 70,
+    APOGEE_LOGOPIC = 71,
+    VISAPIC = 72,
+    MCPIC = 73,
+    FAXPIC = 74,
+    H_TOPWINDOWPIC = 75,
+    H_LEFTWINDOWPIC = 76,
+    H_RIGHTWINDOWPIC = 77,
+    H_BOTTOMINFOPIC = 78,
+    C_NOTSELECTEDPIC = 79,
+    C_SELECTEDPIC = 80,
+    C_NOTSELECTED_HIPIC = 81,
+    C_SELECTED_HIPIC = 82,
+    C_BABYMODEPIC = 83,
+    C_EASYPIC = 84,
+    C_NORMALPIC = 85,
+    C_HARDPIC = 86,
+    C_EPISODE1PIC = 87,
+    C_EPISODE2PIC = 88,
+    C_EPISODE3PIC = 89,
+    C_EPISODE4PIC = 90,
+    C_EPISODE5PIC = 91,
+    C_EPISODE6PIC = 92,
+    BIGGOLDSTERNPIC = 93,
+    STARLOGOPIC = 94,
+    BLAKEWITHGUNPIC = 95,
+    STARINSTITUTEPIC = 96,
+    MEDALOFHONORPIC = 97,
+    SMALLGOLDSTERNPIC = 98,
+    BLAKEWINPIC = 99,
+    SHUTTLEEXPPIC = 100,
+    PLANETSPIC = 101,
+    MOUSEPIC = 102,
+    JOYSTICKPIC = 103,
+    GRAVISPADPIC = 104,
+    TITLEPIC = 105,
+    WEAPON1PIC = 106,
+    WEAPON2PIC = 107,
+    WEAPON3PIC = 108,
+    WEAPON4PIC = 109,
+    WEAPON5PIC = 110,
+    WAITPIC = 111,
+    READYPIC = 112,
+    N_BLANKPIC = 113,
+    N_0PIC = 114,
+    N_1PIC = 115,
+    N_2PIC = 116,
+    N_3PIC = 117,
+    N_4PIC = 118,
+    N_5PIC = 119,
+    N_6PIC = 120,
+    N_7PIC = 121,
+    N_8PIC = 122,
+    N_9PIC = 123,
+    N_RPIC = 124,
+    N_OPIC = 125,
+    N_LPIC = 126,
+    N_DASHPIC = 127,
+    DIM_LIGHTPIC = 128,
+    BRI_LIGHTPIC = 129,
+    EKG_HEART_GOOD = 130,
+    EKG_HEART_BAD = 131,
+    EKG_GRID_PIECE = 132,
+    EKG_HEARTBEAT_00 = 134,
+    EKG_HEARTBEAT_01 = 135,
+    EKG_HEARTBEAT_02 = 136,
+    EKG_HEARTBEAT_03 = 137,
+    EKG_HEARTBEAT_04 = 138,
+    EKG_HEARTBEAT_05 = 139,
+    EKG_HEARTBEAT_06 = 140,
+    EKG_HEARTBEAT_07 = 141,
+    EKG_HEARTBEAT_08 = 142,
+    EKG_HEARTBEAT_09 = 143,
+    EKG_HEARTBEAT_10 = 144,
+    EKG_HEARTBEAT_11 = 145,
+    EKG_HEARTBEAT_12 = 146,
+    EKG_HEARTBEAT_13 = 147,
+    EKG_PALPITATION_00 = 148,
+    EKG_PALPITATION_01 = 149,
+    EKG_PALPITATION_02 = 150,
+    EKG_PALPITATION_03 = 151,
+    EKG_PALPITATION_04 = 152,
+    EKG_PALPITATION_05 = 153,
+    EKG_PALPITATION_06 = 154,
+    EKG_PALPITATION_07 = 155,
+    EKG_PALPITATION_08 = 156,
+    EKG_PALPITATION_09 = 157,
+    EKG_PALPITATION_10 = 158,
+    EKG_PALPITATION_11 = 159,
+    EKG_PALPITATION_12 = 160,
+    EKG_PALPITATION_13 = 161,
+    INFOAREAPIC = 162,
+    TOP_STATUSBARPIC = 163,
+    STATUSBARPIC = 164,
+    PIRACYPALETTE = 167,
+    APOGEEPALETTE = 168,
+    TITLEPALETTE = 169,
+    ORDERSCREEN = 170,
+    ERRORSCREEN = 171,
+    INFORMANT_HINTS = 181,
+    NICE_SCIE_HINTS = 182,
+    MEAN_SCIE_HINTS = 183,
+    BRIEF_W1 = 184,
+    BRIEF_I1 = 185,
+    BRIEF_W2 = 186,
+    BRIEF_I2 = 187,
+    BRIEF_W3 = 188,
+    BRIEF_I3 = 189,
+    BRIEF_W4 = 190,
+    BRIEF_I4 = 191,
+    BRIEF_W5 = 192,
+    BRIEF_I5 = 193,
+    BRIEF_W6 = 194,
+    BRIEF_I6 = 195,
+    LEVEL_DESCS = 196,
+    POWERBALLTEXT = 197,
+    TICSTEXT = 198,
+    MUSICTEXT = 199,
+    RADARTEXT = 200,
+    HELPTEXT = 201,
+    SAGATEXT = 202,
+    LOSETEXT = 203,
+    ORDERTEXT = 204,
+    CREDITSTEXT = 205,
+    MUSTBE386TEXT = 206,
+    QUICK_INFO1_TEXT = 207,
+    QUICK_INFO2_TEXT = 208,
+    BADINFO_TEXT = 209,
+    CALJOY1_TEXT = 210,
+    CALJOY2_TEXT = 211,
+    READTHIS_TEXT = 212,
+    ELEVMSG0_TEXT = 213,
+    ELEVMSG1_TEXT = 214,
+    ELEVMSG4_TEXT = 215,
+    ELEVMSG5_TEXT = 216,
+    FLOORMSG_TEXT = 217,
+    YOUWIN_TEXT = 218,
+    CHANGEVIEW_TEXT = 219,
+    DIZ_ERR_TEXT = 220,
+    BADLEVELSTEXT = 221,
+    BADSAVEGAME_TEXT = 222,
+
+/* FIXME Unknown pictures
 	TELEPORT11ONPIC,                     // 17
 	TELEPORT12ONPIC,                     // 18
 	TELEPORT13ONPIC,                     // 19
@@ -55,16 +249,6 @@ enum graphicnums {
 	TELEDNONPIC,                         // 28
 	TELEUPOFFPIC,                        // 29
 	TELEDNOFFPIC,                        // 30
-	TELEPORT1OFFPIC,                     // 31
-	TELEPORT2OFFPIC,                     // 32
-	TELEPORT3OFFPIC,                     // 33
-	TELEPORT4OFFPIC,                     // 34
-	TELEPORT5OFFPIC,                     // 35
-	TELEPORT6OFFPIC,                     // 36
-	TELEPORT7OFFPIC,                     // 37
-	TELEPORT8OFFPIC,                     // 38
-	TELEPORT9OFFPIC,                     // 39
-	TELEPORT10OFFPIC,                    // 40
 	TELEPORT11OFFPIC,                    // 41
 	TELEPORT12OFFPIC,                    // 42
 	TELEPORT13OFFPIC,                    // 43
@@ -75,90 +259,11 @@ enum graphicnums {
 	TELEPORT18OFFPIC,                    // 48
 	TELEPORT19OFFPIC,                    // 49
 	TELEPORT20OFFPIC,                    // 50
-	BACKGROUND_SCREENPIC,                // 51
-	APOGEEPIC,                           // 52
-	PIRACYPIC,                           // 53
-	PC13PIC,                             // 54
-	LOSEPIC,                             // 55
-	AUTOMAPPIC,                          // 56
 	AUTOMAP_MAG1PIC,                     // 57
 	AUTOMAP_MAG2PIC,                     // 58
 	AUTOMAP_MAG4PIC,                     // 59
-	// Lump Start
-	H_ALTPIC,                            // 60
-	H_CTRLPIC,                           // 61
-	H_SPACEPIC,                          // 62
-	H_PAUSEPIC,                          // 63
-	H_ESCPIC,                            // 64
-	H_LTARROWPIC,                        // 65
-	H_UPARROWPIC,                        // 66
-	H_DNARROWPIC,                        // 67
-	H_RTARROWPIC,                        // 68
-	H_ENTERPIC,                          // 69
-	H_QPIC,                              // 70
-	H_WPIC,                              // 71
-	H_EPIC,                              // 72
-	H_IPIC,                              // 73
-	H_HPIC,                              // 74
-	H_1PIC,                              // 75
-	H_2PIC,                              // 76
-	H_3PIC,                              // 77
-	H_4PIC,                              // 78
-	H_5PIC,                              // 79
-	H_F1PIC,                             // 80
-	H_F2PIC,                             // 81
-	H_F3PIC,                             // 82
-	H_F4PIC,                             // 83
-	H_F5PIC,                             // 84
-	H_F6PIC,                             // 85
-	H_F7PIC,                             // 86
-	H_F8PIC,                             // 87
-	H_F9PIC,                             // 88
-	H_F10PIC,                            // 89
-	H_TABPIC,                            // 90
-	H_CPIC,                              // 91
-	H_FPIC,                              // 92
-	H_PPIC,                              // 93
-	H_MPIC,                              // 94
-	H_LPIC,                              // 95
-	H_SHIFTPIC,                          // 96
 	H_6PIC,                              // 97
 	H_TILDEPIC,                          // 98
-	APOGEE_LOGOPIC,                      // 99
-	VISAPIC,                             // 100
-	MCPIC,                               // 101
-	FAXPIC,                              // 102
-	H_TOPWINDOWPIC,                      // 103
-	H_LEFTWINDOWPIC,                     // 104
-	H_RIGHTWINDOWPIC,                    // 105
-	H_BOTTOMINFOPIC,                     // 106
-	// Lump Start
-	C_NOTSELECTEDPIC,                    // 107
-	C_SELECTEDPIC,                       // 108
-	C_NOTSELECTED_HIPIC,                 // 109
-	C_SELECTED_HIPIC,                    // 110
-	C_BABYMODEPIC,                       // 111
-	C_EASYPIC,                           // 112
-	C_NORMALPIC,                         // 113
-	C_HARDPIC,                           // 114
-	C_EPISODE1PIC,                       // 115
-	C_EPISODE2PIC,                       // 116
-	C_EPISODE3PIC,                       // 117
-	C_EPISODE4PIC,                       // 118
-	C_EPISODE5PIC,                       // 119
-	C_EPISODE6PIC,                       // 120
-	BIGGOLDSTERNPIC,                     // 121
-	STARLOGOPIC,                         // 122
-	BLAKEWITHGUNPIC,                     // 123
-	STARINSTITUTEPIC,                    // 124
-	MEDALOFHONORPIC,                     // 125
-	SMALLGOLDSTERNPIC,                   // 126
-	BLAKEWINPIC,                         // 127
-	SHUTTLEEXPPIC,                       // 128
-	PLANETSPIC,                          // 129
-	MOUSEPIC,                            // 130
-	JOYSTICKPIC,                         // 131
-	GRAVISPADPIC,                        // 132
 	STARPORTPIC,                         // 133
 	BOSSPIC,                             // 134
 	THREEPLANETSPIC,                     // 135
@@ -167,13 +272,6 @@ enum graphicnums {
 	GFLOGOSPIC,                          // 138
 	BLAKEHEADPIC,                        // 139
 	PROJECTFOLDERPIC,                    // 140
-	TITLEPIC,                            // 141
-	// Lump Start
-	WEAPON1PIC,                          // 142
-	WEAPON2PIC,                          // 143
-	WEAPON3PIC,                          // 144
-	WEAPON4PIC,                          // 145
-	WEAPON5PIC,                          // 146
 	WEAPON6PIC,                          // 147
 	WEAPON7PIC,                          // 148
 	W1_CORNERPIC,                        // 149
@@ -182,23 +280,6 @@ enum graphicnums {
 	W4_CORNERPIC,                        // 152
 	W5_CORNERPIC,                        // 153
 	W6_CORNERPIC,                        // 154
-	WAITPIC,                             // 155
-	READYPIC,                            // 156
-	N_BLANKPIC,                          // 157
-	N_0PIC,                              // 158
-	N_1PIC,                              // 159
-	N_2PIC,                              // 160
-	N_3PIC,                              // 161
-	N_4PIC,                              // 162
-	N_5PIC,                              // 163
-	N_6PIC,                              // 164
-	N_7PIC,                              // 165
-	N_8PIC,                              // 166
-	N_9PIC,                              // 167
-	N_RPIC,                              // 168
-	N_OPIC,                              // 169
-	N_LPIC,                              // 170
-	N_DASHPIC,                           // 171
 	NG_BLANKPIC,                         // 172
 	NG_0PIC,                             // 173
 	NG_1PIC,                             // 174
@@ -210,31 +291,11 @@ enum graphicnums {
 	NG_7PIC,                             // 180
 	NG_8PIC,                             // 181
 	NG_9PIC,                             // 182
-	DIM_LIGHTPIC,                        // 183
-	BRI_LIGHTPIC,                        // 184
-	INFOAREAPIC,                         // 185
-	TOP_STATUSBARPIC,                    // 186
-	STATUSBARPIC,                        // 187
-	ONEXZOOMPIC,                         // 188
-	TWOXZOOMPIC,                         // 189
-	FOURXZOOMPIC,                        // 190
 	NO_KEYPIC,                           // 191
 	RED_KEYPIC,                          // 192
 	YEL_KEYPIC,                          // 193
 	BLU_KEYPIC,                          // 194
-
-
-
-	POWERBALLTEXT=197,
-	TICSTEXT,                            // 198
-	MUSICTEXT,                           // 199
-	RADARTEXT,                           // 200
-	PIRACYPALETTE,                       // 197
-	APOGEEPALETTE,                       // 198
 	ENDINGPALETTE,                       // 199
-	TITLEPALETTE,                        // 200
-	ORDERSCREEN,                         // 201
-	ERRORSCREEN,                         // 202
 	NO386SCREEN,                         // 203
 	T_DEMO0,                             // 207
 	T_DEMO1,                             // 208
@@ -242,48 +303,12 @@ enum graphicnums {
 	T_DEMO3,                             // 210
 	T_DEMO4,                             // 211
 	T_DEMO5,                             // 212
-	INFORMANT_HINTS,                     // 213
-	NICE_SCIE_HINTS,                     // 214
-	MEAN_SCIE_HINTS,                     // 215
-	BRIEF_W1,                            // 216
-	BRIEF_I1,                            // 217
-	BRIEF_W2,                            // 218
-	BRIEF_I2,                            // 219
-	BRIEF_W3,                            // 220
-	BRIEF_I3,                            // 221
-	BRIEF_W4,                            // 222
-	BRIEF_I4,                            // 223
-	BRIEF_W5,                            // 224
-	BRIEF_I5,                            // 225
-	BRIEF_W6,                            // 226
-	BRIEF_I6,                            // 227
-	LEVEL_DESCS,                         // 228
 	DECOY,                               // 229
 	DECOY2,                              // 230
 	DECOY3,                              // 231
 	DECOY4,                              // 232
-	HELPTEXT,                            // 233
-	SAGATEXT,                            // 234
-	LOSETEXT,                            // 235
-	ORDERTEXT,                           // 236
-	CREDITSTEXT,                         // 237
-	MUSTBE386TEXT,                       // 238
-	QUICK_INFO1_TEXT,                    // 239
-	QUICK_INFO2_TEXT,                    // 240
-	BADINFO_TEXT,                        // 241
-	CALJOY1_TEXT,                        // 242
-	CALJOY2_TEXT,                        // 243
-	READTHIS_TEXT,                       // 244
-	ELEVMSG0_TEXT,                       // 245
-	ELEVMSG1_TEXT,                       // 246
-	ELEVMSG4_TEXT,                       // 247
-	ELEVMSG5_TEXT,                       // 248
-	FLOORMSG_TEXT,                       // 249
-	YOUWIN_TEXT,                         // 250
-	CHANGEVIEW_TEXT,                     // 251
-	DIZ_ERR_TEXT,                        // 252
-	BADLEVELSTEXT,                       // 253
-	BADSAVEGAME_TEXT,                    // 254
+*/
+
 	ENUMEND
 }; // enum graphicnums
 
@@ -306,10 +331,10 @@ enum graphicnums {
 //
 // Amount of each data item
 //
-#define NUMCHUNKS    255
+#define NUMCHUNKS    223
 #define NUMFONT      5
 #define NUMFONTM     0
-#define NUMPICS      189
+#define NUMPICS      159
 #define NUMPICM      0
 #define NUMSPRITES   0
 #define NUMTILE8     72
@@ -318,7 +343,7 @@ enum graphicnums {
 #define NUMTILE16M   0
 #define NUMTILE32    0
 #define NUMTILE32M   0
-#define NUMEXTERNS   59
+#define NUMEXTERNS   58
 //
 // File offsets for data items
 //
@@ -327,15 +352,15 @@ enum graphicnums {
 #define STARTFONT    1
 #define STARTFONTM   6
 #define STARTPICS    6
-#define STARTPICM    195
-#define STARTSPRITES 195
-#define STARTTILE8   195
-#define STARTTILE8M  196
-#define STARTTILE16  196
-#define STARTTILE16M 196
-#define STARTTILE32  196
-#define STARTTILE32M 196
-#define STARTEXTERNS 196
+#define STARTPICM    165
+#define STARTSPRITES 165
+#define STARTTILE8   165
+#define STARTTILE8M  166
+#define STARTTILE16  166
+#define STARTTILE16M 166
+#define STARTTILE32  166
+#define STARTTILE32M 166
+#define STARTEXTERNS 166
 
 //
 // Thank you for using IGRAB!

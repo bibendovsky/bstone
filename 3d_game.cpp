@@ -3001,6 +3001,9 @@ void RecordDemo (void)
 
 void PlayDemo (Sint16 demonumber)
 {
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 //   static int numloops=0;
 	Sint16 length;
 
@@ -3073,6 +3076,7 @@ void PlayDemo (Sint16 demonumber)
 	ClearMemory ();
 
 	playstate = ex_title;
+#endif // BSTONE_AOG
 }
 
 //==========================================================================
@@ -3532,12 +3536,17 @@ strcat (str,str2);							// defined in 3d_main.c
 
 			if (playstate==ex_victorious)
 			{
+#ifdef BSTONE_AOG
+                // FIXME
+#else
 				CA_CacheGrChunk(ENDINGPALETTE);
 //				VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
 
 				DoMovie(mv_final,grsegs[ENDINGPALETTE]);
 
 				UNCACHEGRCHUNK(ENDINGPALETTE);
+#endif // BSTONE_AOG
+
 				NewViewSize();		// Recreates & Allocs the ScaleDirectory
 				Breifing(BT_WIN,gamestate.episode);
 			}

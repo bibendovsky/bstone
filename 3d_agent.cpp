@@ -596,9 +596,17 @@ void DrawHealthNum(void)
 
 	for (loop=num=0; loop<3; loop++,check /= 10)
 		if (gamestate.health < check)
+#ifdef BSTONE_AOG
+            JLatchDrawPic(16+loop,162,N_BLANKPIC);
+#else
 			JLatchDrawPic(16+loop,162,NG_BLANKPIC);
+#endif // BSTONE_AOG
 		else
+#ifdef BSTONE_AOG
+            JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+N_0PIC);
+#else
 			JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+NG_0PIC);
+#endif // BSTONE_AOG
 }
 
 //---------------------------------------------------------------------------
@@ -808,11 +816,15 @@ void DrawKeyPics(void)
 
 	DrawKeyPics_COUNT--;
 
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 	for (loop=0; loop<NUMKEYS; loop++)
 		if (gamestate.numkeys[static_cast<int>(loop)])
 			JLatchDrawPic(15+2*loop,179,RED_KEYPIC+loop);
 		else
 			JLatchDrawPic(15+2*loop,179,NO_KEYPIC);
+#endif // BSTONE_AOG
 }
 
 //---------------------------------------------------------------------------
@@ -1005,7 +1017,11 @@ void DrawGAmmoNum(void)
 			PrintX+=AMMO_SMALL_FONT_NUM_WIDTH;
 	}
 
+#ifdef BSTONE_AOG
+    JLatchDrawPic(31,184,WEAPON1PIC+gamestate.weapon);
+#else
 	JLatchDrawPic(31,184,W1_CORNERPIC+gamestate.weapon);
+#endif // BSTONE_AOG
 
    px = PrintX;
    py = PrintY;
@@ -1122,7 +1138,11 @@ void DrawRadarGuage(void)
 	else
 		zoom = 0;
 
+#ifdef BSTONE_AOG
+    // FIXME
+#else
 	JLatchDrawPic(22,152,ONEXZOOMPIC+zoom);
+#endif // BSTONE_AOG
 }
 
 //---------------------------------------------------------------------------

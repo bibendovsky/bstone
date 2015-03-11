@@ -396,6 +396,9 @@ piShapeInfo piShapeTable[] = {
 		{H_SHIFTPIC, pis_pic},						// 215 - Shift key
 		{SPR_DOORBOMB,pis_scaled},					// 216 - DoorBomb
 		{SPR_AUTOMAPPER,pis_scaled},				// 217 - Radar Powerup.
+#ifdef BSTONE_AOG
+        // FIXME
+#else
 		{STARPORTPIC,pis_pic},						// 218 - Star Port
 		{BOSSPIC,pis_pic},          			   // 219 - AOG Boss
 		{THREEPLANETSPIC,pis_pic},      		   // 220 - Three Planets
@@ -404,6 +407,7 @@ piShapeInfo piShapeTable[] = {
 		{GFLOGOSPIC,pis_pic},         	      // 223 - Goldfire 'n Logos
 		{BLAKEHEADPIC,pis_pic},       	      // 224 - Blake's Big Head
 		{PROJECTFOLDERPIC,pis_pic},            // 225 - Project Folder
+#endif // BSTONE_AOG
 		{SPR_GREEN2_OOZE1,pis_scaled},			// 226 - Green2 Ooze
 		{SPR_BLACK2_OOZE1,pis_scaled},			// 227 - Black2 Ooze
 		{SPR_STAT_34,pis_scaled},					// 228 - BFG Cannon AKA Anti-Plasma Cannon
@@ -422,12 +426,12 @@ piShapeInfo piShapeTable[] = {
         // FIXME
 #else
 		{H_MINUSPIC,pis_pic},						// 236 - MINUS key
-#endif // BSTONE_AOG
 		{H_6PIC,pis_pic},								// 237 - 6 KEY
 		{H_TILDEPIC,pis_pic},						// 238 - TILDE KEY
 		{AUTOMAP_MAG1PIC,pis_pic},					// 239 - AutoMap pic MAG1 (normal)
 		{AUTOMAP_MAG2PIC,pis_pic},					// 240 - AutoMap pic MAG2
 		{AUTOMAP_MAG4PIC,pis_pic},					// 241 - AutoMap pic MAG4
+#endif // BSTONE_AOG
 		{SPR_VPOST1,pis_scaled},					// 242 - VPost Barrier
 		{SPR_VPOST2,pis_scaled},					// 243 - VPost Barrier
 		{SPR_VPOST3,pis_scaled},					// 244 - VPost Barrier
