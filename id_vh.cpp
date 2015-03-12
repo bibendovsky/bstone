@@ -235,6 +235,9 @@ void LoadLatchMem()
 
     UNCACHEGRCHUNK(STARTTILE8);
 
+#ifdef BSTONE_AOG
+    // FIXME There are no any latches?
+#else
     //
     // pics
     //
@@ -252,6 +255,7 @@ void LoadLatchMem()
         destoff += (width / 4) * height;
         UNCACHEGRCHUNK(i);
     }
+#endif // BSTONE_AOG
 }
 
 extern ControlInfo c;
