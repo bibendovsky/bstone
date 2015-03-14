@@ -156,6 +156,13 @@ bool g_no_wall_hit_sound = k_no_wall_hit_sound_default;
 static const bool k_always_run_default = false;
 bool g_always_run = k_always_run_default;
 
+// BBi AOG only options
+static const bool default_heart_beat_sound = false;
+bool g_heart_beat_sound = default_heart_beat_sound;
+
+static const bool default_rotated_automap = false;
+bool g_rotated_automap = default_rotated_automap;
+
 /*
 =============================================================================
 
@@ -898,6 +905,10 @@ void ReadConfig()
             deserialize_field(g_no_wall_hit_sound, reader, checksum);
             deserialize_field(in_use_modern_bindings, reader, checksum);
             deserialize_field(g_always_run, reader, checksum);
+
+            // BBi AOG options
+            deserialize_field(g_heart_beat_sound, reader, checksum);
+            deserialize_field(g_rotated_automap, reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
         }
@@ -1012,6 +1023,9 @@ void ReadConfig()
         g_no_wall_hit_sound = k_no_wall_hit_sound_default;
         in_use_modern_bindings = k_in_use_modern_bindings_default;
         g_always_run = k_always_run_default;
+
+        g_heart_beat_sound = false;
+        g_rotated_automap = false;
     }
 
     ::SD_SetMusicMode(sm);
@@ -1087,6 +1101,10 @@ void WriteConfig()
     serialize_field(g_no_wall_hit_sound, writer, checksum);
     serialize_field(in_use_modern_bindings, writer, checksum);
     serialize_field(g_always_run, writer, checksum);
+
+    // BBi AOG options
+    serialize_field(g_heart_beat_sound, writer, checksum);
+    serialize_field(g_rotated_automap, writer, checksum);
 
     writer.write(bstone::Endian::le(checksum));
 }

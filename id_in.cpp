@@ -1887,6 +1887,7 @@ void in_set_default_bindings()
     in_bindings[e_bi_music][0] = sc_m;
     in_bindings[e_bi_ceiling][0] = sc_c;
     in_bindings[e_bi_flooring][0] = sc_f;
+    in_bindings[e_bi_heart_beat][0] = sc_h;
 
     in_bindings[e_bi_pause][0] = sc_p;
     in_bindings[e_bi_pause][1] = sc_pause;

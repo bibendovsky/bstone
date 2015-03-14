@@ -247,6 +247,7 @@ enum BindingId {
     e_bi_music,
     e_bi_ceiling,
     e_bi_flooring,
+    e_bi_heart_beat,
 
     e_bi_pause,
 

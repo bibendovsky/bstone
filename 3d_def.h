@@ -3576,6 +3576,10 @@ Uint16 door_object_to_ui16(const doorobj_t* door_object);
 extern bool g_no_wall_hit_sound;
 extern bool g_always_run;
 
+// BBi AOG only options
+extern bool g_heart_beat_sound;
+extern bool g_rotated_automap;
+
 
 class ArchiveException : public std::exception {
 public:

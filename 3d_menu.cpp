@@ -118,7 +118,11 @@ CP_iteminfo
 	CusItems=	{CST_X,CST_Y+7,6,-1,0,15,{54,-1,203,7,1}},
 	NewEitems=	{NE_X,NE_Y,11,0,0,16,	{43,-2,119,16,1}},
 	NewItems=	{NM_X,NM_Y,4,1,0,16,		{60,-2,105,16,1}},
+#ifdef BSTONE_AOG
+    SwitchItems=	{MENU_X,MENU_Y+7,9,0,0,9,{87,-1,132,7,1}};
+#else
 	SwitchItems=	{MENU_X,MENU_Y+15,7,0,0,9,{87,-1,132,7,1}};
+#endif // BSTONE_AOG
 
 
 
@@ -180,6 +184,12 @@ SwitchMenu[] = {
      { AT_ENABLED, "NO WALL HIT SOUND", 0 },
      { AT_ENABLED, "MODERN CONTROLS", 0 },
      { AT_ENABLED, "ALWAYS RUN", 0 }
+
+#ifdef BSTONE_AOG
+     ,
+     { AT_ENABLED, "HEART BEAT SOUND", 0 },
+     { AT_ENABLED, "ROTATED AUTOMAP", 0 }
+#endif // BSTONE_AOG
  },
 
 
@@ -467,8 +477,10 @@ static BindsItem binds[] = {
     { "RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3] },
     { "DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4] },
     { "PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5] },
+#ifdef BSTONE_PS
     { "ANTI-PLASMA CANNON", 0, &in_bindings[e_bi_weapon_6] },
     { "FISSION DETONATOR", 0, &in_bindings[e_bi_weapon_7] },
+#endif // BSTONE_PS
     { "", 0, NULL },
 
     { "INTERACTION", 0, NULL },
@@ -477,8 +489,10 @@ static BindsItem binds[] = {
 
     { "HUD", 0, NULL },
     { "STATS", 0, &in_bindings[e_bi_stats] },
+#ifdef BSTONE_PS
     { "MAGNIFY RADAR", 0, &in_bindings[e_bi_radar_magnify] },
     { "MINIFY RADAR", 0, &in_bindings[e_bi_radar_minify] },
+#endif // BSTONE_PS
     { "", 0, NULL },
 
     { "MENU", 0, NULL },
@@ -500,6 +514,9 @@ static BindsItem binds[] = {
     { "MUSIC", 0, &in_bindings[e_bi_music] },
     { "CEILING", 0, &in_bindings[e_bi_ceiling] },
     { "FLOORING", 0, &in_bindings[e_bi_flooring] },
+#ifdef BSTONE_AOG
+    { "HEART BEAT", 0, &in_bindings[e_bi_heart_beat] },
+#endif // BSTONE_AOG
     { "", 0, NULL },
 
     { "MISC", 0, NULL },
@@ -2002,6 +2019,20 @@ void CP_Switches(Sint16)
                 ShootSnd();
                 DrawSwitchMenu();
                 break;
+
+#ifdef BSTONE_AOG
+            case SW_HEART_BEAT_SOUND:
+                g_heart_beat_sound = !g_heart_beat_sound;
+                ShootSnd();
+                DrawSwitchMenu();
+                break;
+
+            case SW_ROTATED_AUTOMAP:
+                g_rotated_automap = !g_rotated_automap;
+                ShootSnd();
+                DrawSwitchMenu();
+                break;
+#endif // BSTONE_AOG
 		}
 
 	} while(which>=0);
@@ -2086,6 +2117,18 @@ void DrawAllSwitchLights(Sint16 which)
                     if (g_always_run)
                         ++Shape;
                     break;
+
+#ifdef BSTONE_AOG
+                case SW_HEART_BEAT_SOUND:
+                    if (g_heart_beat_sound)
+                        ++Shape;
+                    break;
+
+                case SW_ROTATED_AUTOMAP:
+                    if (g_rotated_automap)
+                        ++Shape;
+                    break;
+#endif // BSTONE_AOG
 			}
 
 			VWB_DrawPic(SwitchItems.x-16,SwitchItems.y+i*SwitchItems.y_spacing-1,Shape);
@@ -2099,10 +2142,15 @@ void DrawAllSwitchLights(Sint16 which)
 //--------------------------------------------------------------------------
 //  DrawSwitchDescription()
 //--------------------------------------------------------------------------
+
+#ifdef BSTONE_AOG
+    #define DESCRIPTIONS_Y_POS (144)
+#else
+    #define DESCRIPTIONS_Y_POS (134)
+#endif // BSTONE_AOG
+
 void DrawSwitchDescription(Sint16 which)
 {
-	#define DESCRIPTIONS_Y_POS		134
-
     const char *instr[] = {
         "TOGGLES LIGHT SOURCING IN HALLWAYS",
         "TOGGLES DETAILED ATTACKER INFO",
@@ -2113,6 +2161,12 @@ void DrawSwitchDescription(Sint16 which)
         "TOGGLES WALL HIT SOUND",
         "TOGGLES BETWEEN CLASSIC AND MODERN CONTROLS",
         "TOGGLES ALWAYS RUN MODE"
+
+#ifdef BSTONE_AOG
+        ,
+        "TOGGLES HEART BEAT SOUND WITH EKG",
+        "TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS"
+#endif // BSTONE_AOG
     };
 
 	fontnumber = 2;
