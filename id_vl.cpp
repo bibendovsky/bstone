@@ -1784,7 +1784,11 @@ bool x_initialize_video()
         }
 
         sdl_window = SDL_CreateWindow(
+#ifdef BSTONE_AOG
+            "Blake Stone: Aliens of Gold",
+#else
             "Blake Stone: Planet Strike",
+#endif // BSTONE_AOG
             sdl_window_x,
             sdl_window_y,
             window_width,
