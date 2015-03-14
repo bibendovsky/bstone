@@ -804,13 +804,7 @@ bstone::MemoryStream g_playtemp;
 
 static bool is_config_loaded = false;
 
-static const char* k_sdl_log_file_name =
-#ifdef BSTONE_AOG
-    "bstone_aog_log.txt"
-#else
-    "bstone_ps_log.txt"
-#endif // BSTONE_AOG
-;
+static const char* k_sdl_log_file_name = "bstone_log.txt";
 static std::ofstream g_sdl_log;
 
 static void sdl_log_output_callback(
