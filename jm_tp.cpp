@@ -397,7 +397,14 @@ piShapeInfo piShapeTable[] = {
 		{SPR_DOORBOMB,pis_scaled},					// 216 - DoorBomb
 		{SPR_AUTOMAPPER,pis_scaled},				// 217 - Radar Powerup.
 #ifdef BSTONE_AOG
-        // FIXME
+        { 0, pis_pic }, // 218 - Star Port
+        { 0, pis_pic }, // 219 - AOG Boss
+        { 0, pis_pic }, // 220 - Three Planets
+        { 0, pis_pic }, // 221 - Solar System
+        { 0, pis_pic }, // 222 - AOG Ending
+        { 0, pis_pic }, // 223 - Goldfire 'n Logos
+        { 0, pis_pic }, // 224 - Blake's Big Head
+        { 0, pis_pic }, // 225 - Project Folder
 #else
 		{STARPORTPIC,pis_pic},						// 218 - Star Port
 		{BOSSPIC,pis_pic},          			   // 219 - AOG Boss
@@ -412,7 +419,7 @@ piShapeInfo piShapeTable[] = {
 		{SPR_BLACK2_OOZE1,pis_scaled},			// 227 - Black2 Ooze
 		{SPR_STAT_34,pis_scaled},					// 228 - BFG Cannon AKA Anti-Plasma Cannon
 #ifdef BSTONE_AOG
-        // FIXME
+        {0,pis_pic}, // 229 - PLUS key
 #else
 		{H_PLUSPIC,pis_pic},							// 229 - PLUS key
 #endif // BSTONE_AOG
@@ -423,7 +430,12 @@ piShapeInfo piShapeTable[] = {
 		{SPR_MGOLD_WALK3,pis_scaled},      		// 234 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK4,pis_scaled},      		// 235 - Morphed Dr Goldstern - Walking
 #ifdef BSTONE_AOG
-        // FIXME
+        { 0, pis_pic }, // 236 - MINUS key
+        { 0, pis_pic }, // 237 - 6 KEY
+        { 0, pis_pic }, // 238 - TILDE KEY
+        { 0, pis_pic }, // 239 - AutoMap pic MAG1 (normal)
+        { 0, pis_pic }, // 240 - AutoMap pic MAG2
+        { 0, pis_pic }, // 241 - AutoMap pic MAG4
 #else
 		{H_MINUSPIC,pis_pic},						// 236 - MINUS key
 		{H_6PIC,pis_pic},								// 237 - 6 KEY
