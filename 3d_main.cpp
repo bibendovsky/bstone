@@ -2277,8 +2277,13 @@ void    DemoLoop (void)
 			{
 			// Load and start music
 			//
+#ifdef BSTONE_AOG
+				CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+                ::SD_StartMusic(MEETINGA_MUS);
+#else
 				CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
                 ::SD_StartMusic(TITLE_LOOP_MUSIC);
+#endif // BSTONE_AOG
 			}
 
 //
@@ -2287,7 +2292,12 @@ void    DemoLoop (void)
 #if !SKIP_TITLE_AND_CREDITS
 			breakit = false;
 
+#ifdef BSTONE_AOG
+            CA_CacheScreen(TITLEPIC);
+#else
 			CA_CacheScreen(TITLE1PIC);
+#endif // BSTONE_AOG
+
 			CA_CacheGrChunk(TITLEPALETTE);
 			old_bufferofs = static_cast<Uint16>(bufferofs);
 			bufferofs=displayofs;
@@ -2296,6 +2306,7 @@ void    DemoLoop (void)
 			VL_SetPalette (0,256,reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]));
 			VL_SetPaletteIntensity(0,255,reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]),0);
 
+#ifdef BSTONE_PS
 			fontnumber = 2;
 			PrintX = WindowX = 270;
 			PrintY = WindowY = 179;
@@ -2304,10 +2315,13 @@ void    DemoLoop (void)
 			VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,VERSION_TEXT_BKCOLOR);
 			SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
 			US_Print(__BLAKE_VERSION__);
+#endif // BSTONE_PS
 
 			VW_UpdateScreen();
 			VL_FadeIn(0,255,reinterpret_cast<Uint8*>(grsegs[TITLEPALETTE]),30);
 			UNCACHEGRCHUNK(TITLEPALETTE);
+
+#ifdef BSTONE_PS
 			if (IN_UserInput(TickBase*6))
 				breakit= true;
 
@@ -2334,6 +2348,8 @@ void    DemoLoop (void)
 // BBi
 
 			IN_UserInput(TickBase*2);
+#endif // BSTONE_PS
+
 			if (breakit || IN_UserInput(TickBase*6))
 				break;
 			VW_FadeOut();

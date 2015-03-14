@@ -886,7 +886,7 @@ void PreDemo()
 
 	if (!(gamestate.flags & GS_NOWAIT))
 	{
-#if (0)				// GAME_VERSION != SHAREWARE_VERSION
+#if defined(BSTONE_AOG) && GAME_VERSION != SHAREWARE_VERSION
 //---------------------
 // Anti-piracy screen
 //---------------------
@@ -897,12 +897,12 @@ void PreDemo()
 	// Cache and set palette.  AND  Fade it in!
 	//
 		CA_CacheGrChunk(PIRACYPALETTE);
-		VL_SetPalette (0,256,grsegs[PIRACYPALETTE]);
-		VL_SetPaletteIntensity(0,255,grsegs[PIRACYPALETTE],0);
+		VL_SetPalette (0,256,static_cast<const Uint8*>(grsegs[PIRACYPALETTE]));
+		VL_SetPaletteIntensity(0,255,static_cast<const Uint8*>(grsegs[PIRACYPALETTE]),0);
 		VW_UpdateScreen();
 
 		VL_FadeOut (0, 255, 0, 0, 25, 20);
-		VL_FadeIn(0,255,grsegs[PIRACYPALETTE],30);
+		VL_FadeIn(0,255,static_cast<const Uint8*>(grsegs[PIRACYPALETTE]),30);
 
 	// Wait a little
 	//
@@ -924,7 +924,7 @@ void PreDemo()
 		VL_Bar(0,0,320,200,0);
 		bufferofs=old_bufferofs;
 		}
-#endif
+#endif // BSTONE_AOG
 
 //---------------------
 // Apogee presents
@@ -945,7 +945,11 @@ void PreDemo()
 		VL_SetPalette (0,256,static_cast<const Uint8*>(grsegs[APOGEEPALETTE]));
 		VL_SetPaletteIntensity(0,255,static_cast<const Uint8*>(grsegs[APOGEEPALETTE]),0);
 		VW_UpdateScreen();
+#ifdef BSTONE_AOG
+        VL_FadeOut (0, 255, 0, 0, 0, 20);
+#else
 		VL_FadeOut (0, 255, 25, 29, 53, 20);
+#endif // BSTONE_AOG
 		VL_FadeIn(0,255,static_cast<const Uint8*>(grsegs[APOGEEPALETTE]),30);
 
 	// Wait for end of fanfare
@@ -967,9 +971,11 @@ void PreDemo()
         delete [] audiosegs[STARTMUSIC + APOGFNFM_MUS];
         audiosegs[STARTMUSIC + APOGFNFM_MUS] = NULL;
 
+#ifdef BSTONE_PS
       // Do A Blue Flash!
-
       VL_FadeOut (0, 255, 25, 29, 53, 20);
+#endif // BSTONE_PS
+
       VL_FadeOut (0, 255, 0, 	0,  0,  30);
 
 //---------------------
@@ -977,8 +983,13 @@ void PreDemo()
 //---------------------
 	// Load and start music
 	//
+#ifdef BSTONE_AOG
+      CA_CacheAudioChunk(STARTMUSIC + GOLDA_MUS);
+    ::SD_StartMusic(GOLDA_MUS);
+#else
 		CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
         ::SD_StartMusic(TITLE_LOOP_MUSIC);
+#endif // BSTONE_AOG
 
 	// Show JAM logo
 	//
@@ -1009,8 +1020,13 @@ void PreDemo()
 				   ClearMemory();
 		      	DebugOk = 1;
 
+#ifdef BSTONE_AOG
+					CA_CacheAudioChunk(STARTMUSIC + GOLDA_MUS);
+                    ::SD_StartMusic(GOLDA_MUS);
+#else
 					CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
                     ::SD_StartMusic(TITLE_LOOP_MUSIC);
+#endif // BSTONE_AOG
       		}
          }
       }
