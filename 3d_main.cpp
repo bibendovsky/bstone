@@ -2413,6 +2413,19 @@ void    DemoLoop (void)
 			VW_FadeOut();
 #endif
 		}
+#else
+    // Start music when coming from menu...
+    if (!sqActive) {
+        // Load and start music
+        //
+#ifdef BSTONE_AOG
+        CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+        ::SD_StartMusic(MEETINGA_MUS);
+#else
+        CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
+        ::SD_StartMusic(TITLE_LOOP_MUSIC);
+#endif // BSTONE_AOG
+    }
 #endif // SKIP_TITLE_AND_CREDITS
 
 		if (!screenfaded)
