@@ -32,9 +32,19 @@ Free Software Foundation, Inc.,
 #include "SDL.h"
 
 
-#define NUM_EPISODES			1
-#define MAPS_PER_EPISODE	25
-#define MAPS_WITH_STATS		20
+#ifdef BSTONE_AOG
+#if GAME_VERSION != SHAREWARE_VERSION
+#define NUM_EPISODES (6)
+#else
+#define NUM_EPISODES (1)
+#endif
+#define MAPS_PER_EPISODE (10)
+#define MAPS_WITH_STATS (10)
+#else
+#define NUM_EPISODES (1)
+#define MAPS_PER_EPISODE (25)
+#define MAPS_WITH_STATS (20)
+#endif
 
 #define NUMMAPS				NUM_EPISODES*MAPS_PER_EPISODE
 #define MAPPLANES	2
