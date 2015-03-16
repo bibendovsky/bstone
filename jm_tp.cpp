@@ -192,7 +192,11 @@ piShapeInfo piShapeTable[] = {
 
 		{SHUTTLEEXPPIC,pis_pic},   				// 51 - Shuttle Explode
 		{PLANETSPIC,pis_pic},    					// 52 - Planets Pic
+#ifdef BSTONE_AOG
+        {0,pis_pic}, // 53 - Rotating Cube
+#else
 		{SPR_CUBE1,pis_scaled},						// 53 - Rotating Cube
+#endif
 
 		{H_PPIC,pis_pic},                      // 54 - M key
 		{MOUSEPIC,pis_pic}, 		               // 55 - Mouse Pad			
@@ -231,10 +235,17 @@ piShapeInfo piShapeTable[] = {
 		{SPR_MUTHUM1_W3,pis_scaled},     		// 81 - mutant_human1 - walking
 		{SPR_MUTHUM1_W4,pis_scaled},     		// 82 - mutant_human1 - walking
 
+#ifdef BSTONE_AOG
+        { 0, pis_pic }, // 83 - mutant_human2 - walking
+        { 0, pis_pic }, // 84 - mutant_human2 - walking
+        { 0, pis_pic }, // 85 - mutant_human2 - walking
+        { 0, pis_pic }, // 86 - mutant_human2 - walking
+#else
 		{SPR_MUTHUM2_W1,pis_scaled},     		// 83 - mutant_human2 - walking
 		{SPR_MUTHUM2_W2,pis_scaled},     		// 84 - mutant_human2 - walking
 		{SPR_MUTHUM2_W3,pis_scaled},     		// 85 - mutant_human2 - walking
 		{SPR_MUTHUM2_W4,pis_scaled},     		// 86 - mutant_human2 - walking
+#endif
 
 		{SPR_LCAN_ALIEN_READY,pis_scaled},  	// 87 - Large canister for lg_Aln
 
@@ -283,7 +294,11 @@ piShapeInfo piShapeTable[] = {
 		{SPR_FSCOUT_W3_8,pis_scaled}, 		  	// 120 - Floating Bomb - moving
 		{SPR_FSCOUT_W4_8,pis_scaled},      		// 121 - Floating Bomb - moving
 
+#ifdef BSTONE_AOG
+        { 0, pis_pic }, // 122 - ** OPEN **
+#else
 		{SPR_CUBE1,pis_scaled},      				// 122 - ** OPEN **
+#endif
 
 		{SPR_ELEC_SHOT1,pis_scaled},    		  	// 123 - Electro Aln Shot - floating
 		{SPR_ELEC_SHOT2,pis_scaled},      		// 124 - Electro Aln Shot - floating
@@ -394,9 +409,10 @@ piShapeInfo piShapeTable[] = {
 		{FAXPIC, pis_pic},    		           	// 213 - Fax Machine
 		{H_LPIC, pis_pic},							// 214 - L key
 		{H_SHIFTPIC, pis_pic},						// 215 - Shift key
-		{SPR_DOORBOMB,pis_scaled},					// 216 - DoorBomb
-		{SPR_AUTOMAPPER,pis_scaled},				// 217 - Radar Powerup.
+
 #ifdef BSTONE_AOG
+        { 0, pis_pic }, // 216 - DoorBomb
+        { 0, pis_pic }, // 217 - Radar Powerup.
         { 0, pis_pic }, // 218 - Star Port
         { 0, pis_pic }, // 219 - AOG Boss
         { 0, pis_pic }, // 220 - Three Planets
@@ -405,7 +421,11 @@ piShapeInfo piShapeTable[] = {
         { 0, pis_pic }, // 223 - Goldfire 'n Logos
         { 0, pis_pic }, // 224 - Blake's Big Head
         { 0, pis_pic }, // 225 - Project Folder
+        { 0, pis_pic }, // 226 - Green2 Ooze
+        { 0, pis_pic }, // 227 - Black2 Ooze
 #else
+		{SPR_DOORBOMB,pis_scaled},					// 216 - DoorBomb
+		{SPR_AUTOMAPPER,pis_scaled},				// 217 - Radar Powerup.
 		{STARPORTPIC,pis_pic},						// 218 - Star Port
 		{BOSSPIC,pis_pic},          			   // 219 - AOG Boss
 		{THREEPLANETSPIC,pis_pic},      		   // 220 - Three Planets
@@ -414,21 +434,30 @@ piShapeInfo piShapeTable[] = {
 		{GFLOGOSPIC,pis_pic},         	      // 223 - Goldfire 'n Logos
 		{BLAKEHEADPIC,pis_pic},       	      // 224 - Blake's Big Head
 		{PROJECTFOLDERPIC,pis_pic},            // 225 - Project Folder
-#endif // BSTONE_AOG
 		{SPR_GREEN2_OOZE1,pis_scaled},			// 226 - Green2 Ooze
 		{SPR_BLACK2_OOZE1,pis_scaled},			// 227 - Black2 Ooze
+#endif // BSTONE_AOG
+
 		{SPR_STAT_34,pis_scaled},					// 228 - BFG Cannon AKA Anti-Plasma Cannon
+
 #ifdef BSTONE_AOG
-        {0,pis_pic}, // 229 - PLUS key
+        { 0, pis_pic }, // 229 - PLUS key
+        { 0, pis_pic }, // 230 - Plasma Detonator
+        { 0, pis_pic }, // 231 - Plasma Detonator Explosion
+        { 0, pis_pic }, // 232 - Morphed Dr Goldstern - Walking
+        { 0, pis_pic }, // 233 - Morphed Dr Goldstern - Walking
+        { 0, pis_pic }, // 234 - Morphed Dr Goldstern - Walking
+        { 0, pis_pic }, // 235 - Morphed Dr Goldstern - Walking
 #else
 		{H_PLUSPIC,pis_pic},							// 229 - PLUS key
-#endif // BSTONE_AOG
 		{SPR_DOORBOMB,pis_scaled},					// 230 - Plasma Detonator
 		{SPR_DETONATOR_EXP3,pis_scaled},			// 231 - Plasma Detonator Explosion
 		{SPR_MGOLD_WALK1,pis_scaled},      		// 232 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK2,pis_scaled},      		// 233 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK3,pis_scaled},      		// 234 - Morphed Dr Goldstern - Walking
 		{SPR_MGOLD_WALK4,pis_scaled},      		// 235 - Morphed Dr Goldstern - Walking
+#endif // BSTONE_AOG
+
 #ifdef BSTONE_AOG
         { 0, pis_pic }, // 236 - MINUS key
         { 0, pis_pic }, // 237 - 6 KEY
@@ -436,6 +465,53 @@ piShapeInfo piShapeTable[] = {
         { 0, pis_pic }, // 239 - AutoMap pic MAG1 (normal)
         { 0, pis_pic }, // 240 - AutoMap pic MAG2
         { 0, pis_pic }, // 241 - AutoMap pic MAG4
+
+        { 0, pis_pic }, // 242 - VPost Barrier
+        { 0, pis_pic }, // 243 - VPost Barrier
+        { 0, pis_pic }, // 244 - VPost Barrier
+        { 0, pis_pic }, // 245 - VPost Barrier
+        { 0, pis_pic }, // 246 - VPost Barrier
+        { 0, pis_pic }, // 247 - VPost Barrier
+        { 0, pis_pic }, // 248 - VPost Barrier
+        { 0, pis_pic }, // 249 - VPost Barrier
+        { 0, pis_pic }, // 250 - VSpike Barrier
+        { 0, pis_pic }, // 251 - VSpike Barrier
+        { 0, pis_pic }, // 252 - VSpike Barrier
+        { 0, pis_pic }, // 253 - VSpike Barrier
+        { 0, pis_pic }, // 254 - VSpike Barrier
+        { 0, pis_pic }, // 255 - VSpike Barrier
+        { 0, pis_pic }, // 256 - VSpike Barrier
+        { 0, pis_pic }, // 257 - VSpike Barrier
+        { 0, pis_pic }, // 258 - Security Cube - Rotating
+        { 0, pis_pic }, // 259 - Security Cube - Rotating
+        { 0, pis_pic }, // 260 - Security Cube - Rotating
+        { 0, pis_pic }, // 261 - Security Cube - Rotating
+        { 0, pis_pic }, // 262 - Security Cube - Rotating
+        { 0, pis_pic }, // 263 - Security Cube - Rotating
+        { 0, pis_pic }, // 264 - Security Cube - Rotating
+        { 0, pis_pic }, // 265 - Security Cube - Rotating
+        { 0, pis_pic }, // 266 - Security Cube - Rotating
+        { 0, pis_pic }, // 267 - Security Cube - Rotating
+
+        { 0, pis_pic }, // 268 - Final Boss 1 Walking
+        { 0, pis_pic }, // 269 - Final Boss 1 Walking
+        { 0, pis_pic }, // 270 - Final Boss 1 Walking
+        { 0, pis_pic }, // 271 - Final Boss 1 Walking
+
+        { 0, pis_pic }, // 272 - Final Boss 2 Walking
+        { 0, pis_pic }, // 273 - Final Boss 2 Walking
+        { 0, pis_pic }, // 274 - Final Boss 2 Walking
+        { 0, pis_pic }, // 275 - Final Boss 2 Walking
+
+        { 0, pis_pic }, // 276 - Final Boss 3 Walking
+        { 0, pis_pic }, // 277 - Final Boss 3 Walking
+        { 0, pis_pic }, // 278 - Final Boss 3 Walking
+        { 0, pis_pic }, // 279 - Final Boss 3 Walking
+
+        { 0, pis_pic }, // 280 - Final Boss 4 Walking
+        { 0, pis_pic }, // 281 - Final Boss 4 Walking
+        { 0, pis_pic }, // 282 - Final Boss 4 Walking
+        { 0, pis_pic }, // 283 - Final Boss 4 Walking
 #else
 		{H_MINUSPIC,pis_pic},						// 236 - MINUS key
 		{H_6PIC,pis_pic},								// 237 - 6 KEY
@@ -443,7 +519,7 @@ piShapeInfo piShapeTable[] = {
 		{AUTOMAP_MAG1PIC,pis_pic},					// 239 - AutoMap pic MAG1 (normal)
 		{AUTOMAP_MAG2PIC,pis_pic},					// 240 - AutoMap pic MAG2
 		{AUTOMAP_MAG4PIC,pis_pic},					// 241 - AutoMap pic MAG4
-#endif // BSTONE_AOG
+
 		{SPR_VPOST1,pis_scaled},					// 242 - VPost Barrier
 		{SPR_VPOST2,pis_scaled},					// 243 - VPost Barrier
 		{SPR_VPOST3,pis_scaled},					// 244 - VPost Barrier
@@ -490,6 +566,7 @@ piShapeInfo piShapeTable[] = {
 		{SPR_BOSS10_W2,pis_scaled},				// 281 - Final Boss 4 Walking
 		{SPR_BOSS10_W3,pis_scaled},				// 282 - Final Boss 4 Walking
 		{SPR_BOSS10_W4,pis_scaled},				// 283 - Final Boss 4 Walking
+#endif // BSTONE_AOG
 };
 
 // anim table holds info about each different animation.

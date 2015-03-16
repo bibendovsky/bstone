@@ -5162,9 +5162,12 @@ void SW_HandleStatic(statobj_t *stat, Uint16 tilex, Uint16 tiley)
    {
      	case bo_clip:
      	case bo_clip2:
+// FIXME
+#ifdef BSTONE_PS
 			SpawnCusExplosion((((fixed)tilex)<<TILESHIFT)+0x7FFF,
 									(((fixed)tiley)<<TILESHIFT)+0x7FFF,
 									SPR_CLIP_EXP1, 7, 30+(US_RndT()&0x27),explosionobj);
+#endif
 			stat->shapenum = -1;
 			stat->itemnumber = bo_nothing;
       break;

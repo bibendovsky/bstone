@@ -99,7 +99,11 @@ stattype statinfo[] =
 {SPR_STAT_27,bo_burst_rifle},		// Auto-Burst Rifle
 {SPR_STAT_28,bo_ion_cannon},		// Particle Charged ION
 {SPR_STAT_29,bo_firstaid},			// First Aid
+#ifdef BSTONE_AOG
+{0,bo_nothing},
+#else
 {SPR_VSPIKE8,block},					// Static VSPIKE
+#endif
 
 {SPR_STAT_26,bo_clip2},				// Big Charge pack/clip
 
@@ -121,7 +125,11 @@ stattype statinfo[] =
 {SPR_STAT_46,bo_grenade},			// Grande Launcher
 {SPR_STAT_47},							// Video Game Machine
 
+#ifdef BSTONE_AOG
+{0,bo_nothing},
+#else
 {SPR_VPOST8,block},					// Static VPOST
+#endif
 
 //				-- VARIOUS --
 
@@ -187,7 +195,11 @@ stattype statinfo[] =
 {SPR_GSCOUT_DEAD},					//
 {SPR_FSCOUT_DEAD},					//
 {SPR_MUTHUM1_DEAD},
+#ifdef BSTONE_AOG
+{0,bo_nothing},
+#else
 {SPR_MUTHUM2_DEAD},
+#endif
 {SPR_LCAN_ALIEN_DEAD},
 {SPR_SCAN_ALIEN_DEAD},
 {SPR_GURNEY_MUT_DEAD},
@@ -197,6 +209,18 @@ stattype statinfo[] =
 {SPR_STAT_78,bo_coin5},				// Concession Machine Money
 {SPR_STAT_79},							// Auto-Charge Pistol
 
+#ifdef BSTONE_AOG
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+{0,bo_nothing},
+#else
 {SPR_DOORBOMB,bo_plasma_detonator},			// Plasma Detonator		
 {SPR_RUBBLE},								// Door Rubble
 {SPR_AUTOMAPPER,bo_automapper1},		// Auto Mapper Bonus #1
@@ -207,6 +231,7 @@ stattype statinfo[] =
 {SPR_DEAD_RENT},						// Dead AOG: Rent A Cop
 {SPR_DEAD_PRO},						// Dead AOG: Pro Guard
 {SPR_DEAD_SWAT},						// Dead AOG: Swat Guad
+#endif
 
 
 {-1}										// terminator
@@ -625,6 +650,11 @@ void PlaceItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 //--------------------------------------------------------------------------
 void ExplodeStatics(Sint16 tilex, Sint16 tiley)
 {
+// FIXME PS only?
+#ifdef BSTONE_AOG
+    static_cast<void>(tilex);
+    static_cast<void>(tiley);
+#else
 	statobj_t *spot;
    Sint16 y_diff,x_diff;
 	boolean remove;
@@ -672,6 +702,7 @@ void ExplodeStatics(Sint16 tilex, Sint16 tiley)
 				}
 			}
 		}
+#endif
 }
 
 

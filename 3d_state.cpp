@@ -983,6 +983,7 @@ void KillActor (objtype *ob)
 		clas = goldsternobj;
 	break;
 
+#ifdef BSTONE_PS
    case gold_morphobj:
       GoldsternInfo.flags = GS_NO_MORE;
 
@@ -991,6 +992,7 @@ void KillActor (objtype *ob)
       ob->flags |= FL_OFFSET_STATES;
    	InitAnim(ob, SPR_GOLD_DEATH1, 0, 4, at_ONCE, ad_FWD, 25, 9);
    break;
+#endif
 
 	case gen_scientistobj:
 		if (ob->flags & FL_INFORMANT)
@@ -1093,11 +1095,13 @@ void KillActor (objtype *ob)
 		NewState (ob,&s_ofs_die1);
 	break;
 
+#ifdef BSTONE_PS
 	case final_boss2obj:
         ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
 
    	InitAnim(ob, SPR_BOSS8_DIE1, 0, 4, at_ONCE, ad_FWD, 25, 9);
    break;
+#endif
 
 	case genetic_guardobj:
 	case final_boss1obj:

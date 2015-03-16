@@ -1328,8 +1328,19 @@ void DrawScaleds (void)
 ==============
 */
 
-Sint16	weaponscale[NUMWEAPONS] = {SPR_KNIFEREADY,SPR_PISTOLREADY
-		,SPR_MACHINEGUNREADY,SPR_CHAINREADY,SPR_GRENADEREADY,SPR_BFG_WEAPON1,0};
+Sint16	weaponscale[NUMWEAPONS] = {
+    SPR_KNIFEREADY,
+    SPR_PISTOLREADY,
+    SPR_MACHINEGUNREADY,
+    SPR_CHAINREADY,
+    SPR_GRENADEREADY,
+#ifdef BSTONE_AOG
+    0,
+#else
+    SPR_BFG_WEAPON1,
+#endif
+    0
+};
 
 boolean useBounceOffset=false;
 

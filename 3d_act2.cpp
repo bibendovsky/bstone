@@ -288,11 +288,81 @@ Sint16	starthitpoints[4][NUMHITENEMIES] =
 	  }
 };
 
-Uint16 BossShotShapes[] = {SPR_BOSS1_PROJ1,0,0,0,SPR_BOSS5_PROJ1,0,0,SPR_BOSS10_SPIT1};
-Uint16 BossShapes[] = {SPR_BOSS1_W1,SPR_BOSS2_W1,SPR_BOSS3_W1,SPR_BOSS4_W1,SPR_BOSS5_W1,SPR_BOSS6_W1,SPR_BOSS7_W1,SPR_BOSS8_W1,SPR_BOSS9_W1,SPR_BOSS10_W1};
-Uint16 MorphShapes[] = {SPR_BOSS1_MORPH1, SPR_BOSS4_MORPH1, SPR_MUTHUM2_MORPH1};
+Uint16 BossShotShapes[] = {
+    SPR_BOSS1_PROJ1,
+    0,
+    0,
+    0,
+    SPR_BOSS5_PROJ1,
+    0,
+    0,
+#ifdef BSTONE_AOG
+    0
+#else
+    SPR_BOSS10_SPIT1
+#endif
+};
+
+Uint16 BossShapes[] = {
+    SPR_BOSS1_W1,
+
+#if GAME_VERSION != SHAREWARE_VERSION
+    SPR_BOSS2_W1,
+    SPR_BOSS3_W1,
+    SPR_BOSS4_W1,
+    SPR_BOSS5_W1,
+    SPR_BOSS6_W1,
+#else
+    0,
+    0,
+    0,
+    0,
+    0,
+#endif
+
+#ifdef BSTONE_AOG
+    0,
+    0,
+    0,
+    0
+#else
+    SPR_BOSS7_W1,
+    SPR_BOSS8_W1,
+    SPR_BOSS9_W1,
+    SPR_BOSS10_W1
+#endif
+};
+
+Uint16 MorphShapes[] = {
+#ifdef BSTONE_AOG
+    0,
+    0,
+    0
+#else
+    SPR_BOSS1_MORPH1,
+    SPR_BOSS4_MORPH1,
+    SPR_MUTHUM2_MORPH1,
+#endif
+};
+
 Uint16 MorphClass[] = {spider_mutantobj,reptilian_warriorobj,mutant_human2obj};
-Uint16 MorphEndShapes[] = {SPR_BOSS1_W1,SPR_BOSS4_W1,SPR_MUTHUM2_W1};
+
+Uint16 MorphEndShapes[] = {
+    SPR_BOSS1_W1,
+
+#if GAME_VERSION != SHAREWARE_VERSION
+    SPR_BOSS4_W1,
+#else
+    0,
+#endif
+
+#ifdef BSTONE_AOG
+    0
+#else
+    SPR_MUTHUM2_W1
+#endif
+};
+
 char MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
 Uint16 bars_connected = 0;
 
@@ -546,6 +616,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->flags &= ~(FL_SHOOTABLE|FL_SOLID);
 		break;
 
+#ifdef BSTONE_PS
 		case en_green2_ooze:
 			InitSmartSpeedAnim(new_actor,SPR_GREEN2_OOZE1,US_RndT()%3,2,at_CYCLE,ad_FWD,5+(US_RndT()&2));
 			new_actor->flags &= ~(FL_SHOOTABLE|FL_SOLID);
@@ -555,7 +626,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			InitSmartSpeedAnim(new_actor,SPR_BLACK2_OOZE1,US_RndT()%3,2,at_CYCLE,ad_FWD,5+(US_RndT()&2));
 			new_actor->flags &= ~(FL_SHOOTABLE|FL_SOLID);
 		break;
-
+#endif
 
 		case en_crate1:
 		case en_crate2:
@@ -567,11 +638,13 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			//			 this object is a "blastable" or not.
 		break;
 
+#ifdef BSTONE_PS
 		case en_rotating_cube:
 			InitSmartSpeedAnim(new_actor,SPR_CUBE1,0,9,at_CYCLE,ad_FWD,5);
 			new_actor->flags2 = FL2_BFGSHOT_SOLID;
          new_actor->lighting = LAMP_ON_SHADING;
 		break;
+#endif
 
 		case en_ventdrip:
 			if (dir_which == en_bloodvent)
@@ -584,6 +657,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->flags &= ~(FL_SHOOTABLE|FL_SOLID);
 		break;
 
+#ifdef BSTONE_PS
 		case en_plasma_detonator:
 		case en_plasma_detonator_reserve:
 			NewState(new_actor,&s_ofs_random);
@@ -593,6 +667,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
          if (detonators_spawned++)
          	ACT2_ERROR(TOO_MANY_DETONATORS);
       break;
+#endif
 
 		case en_flickerlight:
 			new_actor->temp1 = SPR_DECO_ARC_1;
@@ -656,6 +731,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
 		break;
 
+#ifdef BSTONE_PS
 		case en_mutant_human2:
 			new_actor->temp1 = SPR_MUTHUM2_W1;
 			new_actor->speed = ALIENSPEED;
@@ -663,6 +739,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
 		break;
+#endif
 
 		case en_scan_wait_alien:
 			new_actor->temp1 = SPR_SCAN_ALIEN_READY;
@@ -760,6 +837,7 @@ void T_OfsThink(objtype *obj)
 
 	switch (obj->obclass)
 	{
+#ifdef BSTONE_PS
 		case plasma_detonator_reserveobj:
 		break;
 
@@ -789,6 +867,7 @@ void T_OfsThink(objtype *obj)
             	obj->temp1 = SPR_DOORBOMB;
          }
       break;
+#endif
 
 		case grenadeobj:
 		{
@@ -825,7 +904,7 @@ void T_OfsThink(objtype *obj)
 		}
 		break;
 
-
+#ifdef BSTONE_PS
 		case bfg_shotobj:
 		{
 			T_Projectile(obj);
@@ -852,7 +931,7 @@ void T_OfsThink(objtype *obj)
 			}
 		}
 		break;
-
+#endif
 
 	case ventdripobj:
 		// Decrement timer...
@@ -2209,8 +2288,13 @@ void T_BarrierTransition(objtype *obj);
 void T_BarrierShutdown(objtype *obj);
 
 statetype s_barrier_transition	= {0,0,15,T_BarrierTransition,NULL,&s_barrier_transition};
+#ifdef BSTONE_AOG
+statetype s_vpost_barrier;
+statetype s_spike_barrier;
+#else
 statetype s_vpost_barrier			= {0,SPR_VPOST1,15,T_BarrierTransition,NULL,&s_vpost_barrier};
 statetype s_spike_barrier			= {0,SPR_VSPIKE1,15,T_BarrierTransition,NULL,&s_spike_barrier};
+#endif
 statetype s_barrier_shutdown		= {0,0,15,T_BarrierShutdown,NULL,&s_barrier_shutdown};
 
 
@@ -2274,7 +2358,7 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
          }
 		break;
 
-
+#ifdef BSTONE_PS
 		case en_vpost_barrier:
       	NewState(new_actor,&s_vpost_barrier);
          if (OnOff)
@@ -2287,6 +2371,7 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
          if (OnOff)
 				new_actor->temp1 = SPR_VSPIKE8-SPR_VSPIKE1;
 		break;
+#endif
 
         default:
             break;
@@ -4706,6 +4791,28 @@ statetype s_goldwarp_in5	= {false,SPR_GOLD_WARP1,15,NULL,NULL,&s_goldpath1};
 
 statetype s_goldmorphwait1	= {false, SPR_GOLD_WRIST_1, 10, NULL, T_GoldMorphWait, &s_goldmorphwait1};
 
+#ifdef BSTONE_AOG
+statetype s_goldmorph1;
+statetype s_goldmorph2;
+statetype s_goldmorph3;
+statetype s_goldmorph4;
+statetype s_goldmorph5;
+statetype s_goldmorph6;
+statetype s_goldmorph7;
+statetype s_goldmorph8;
+
+statetype s_mgold_chase1;
+statetype s_mgold_chase2;
+statetype s_mgold_chase3;
+statetype s_mgold_chase4;
+
+statetype s_mgold_shoot1;
+statetype s_mgold_shoot2;
+statetype s_mgold_shoot3;
+statetype s_mgold_shoot4;
+
+statetype s_mgold_pain;
+#else
 statetype s_goldmorph1		= {false, SPR_GOLD_MORPH1, 10, NULL, NULL, &s_goldmorph2};
 statetype s_goldmorph2		= {false, SPR_GOLD_MORPH2, 10, NULL, NULL, &s_goldmorph3};
 statetype s_goldmorph3		= {false, SPR_GOLD_MORPH3, 10, NULL, NULL, &s_goldmorph4};
@@ -4726,6 +4833,7 @@ statetype s_mgold_shoot3 	= {false,SPR_MGOLD_ATTACK3, 14, T_Shoot,NULL,&s_mgold_
 statetype s_mgold_shoot4 	= {false,SPR_MGOLD_ATTACK4, 12, T_Shade,NULL,&s_mgold_chase1};
 
 statetype s_mgold_pain 		= {false,SPR_MGOLD_OUCH,  25, NULL,NULL,&s_mgold_chase1};
+#endif
 
 
 boolean noShots = false;
@@ -5284,9 +5392,11 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 
 			switch (class_type)
 			{
+#ifdef BSTONE_PS
 				case final_boss2shotobj:
 				case goldmorphshotobj:
 					new_actor->temp1 = SPR_MGOLD_SHOT1;
+#endif
 
 				case electroshotobj:
 					new_actor->lighting = NO_SHADING;
@@ -5338,6 +5448,7 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			new_actor->s_tiley = static_cast<Uint8>(y>>TILESHIFT);
 		break;
 
+#ifdef BSTONE_PS
 		case bfg_shotobj:
 			SpawnNewObj(x>>TILESHIFT,y>>TILESHIFT,&s_ofs_random);
 			new_actor->speed = SPDPROJ+Random(SPDPROJ);
@@ -5351,6 +5462,7 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 			new_actor->s_tilex = static_cast<Uint8>(x>>TILESHIFT);
 			new_actor->s_tiley = static_cast<Uint8>(y>>TILESHIFT);
 		break;
+#endif
 
         default:
             break;
@@ -5547,6 +5659,7 @@ void T_Projectile(objtype *ob)
 				return;
 			break;
 
+#ifdef BSTONE_PS
          case final_boss2shotobj:
          case goldmorphshotobj:
 				InitSmartSpeedAnim(ob,SPR_MGOLD_SHOT_EXP1,0,1,at_ONCE,ad_FWD,5+(US_RndT()&3));
@@ -5557,6 +5670,7 @@ void T_Projectile(objtype *ob)
 				InitSmartSpeedAnim(ob,SPR_BOSS10_SPIT_EXP1,0,1,at_ONCE,ad_FWD,5+(US_RndT()&3));
          	return;
          break;
+#endif
 
 			case lcanshotobj:						// Explode on walls
 			case podshotobj:
@@ -5594,7 +5708,7 @@ void T_Projectile(objtype *ob)
 				return;
 			break;
 
-
+#ifdef BSTONE_PS
 			case bfg_shotobj:
 
 #if BFG_SHOT_STOPS
@@ -5645,6 +5759,7 @@ BlowIt:
 				A_DeathScream(ob);
 				return;
 			break;
+#endif
 
             default:
                 break;
@@ -5684,6 +5799,7 @@ BlowIt:
 					InitSmartSpeedAnim(ob,SPR_ELEC_SHOT_EXP1,0,1,at_ONCE,ad_FWD,3+(US_RndT()&7));
 				break;
 
+#ifdef BSTONE_PS
 	         case final_boss4shotobj:
 					damage = (US_RndT()>>4);
 					InitSmartSpeedAnim(ob,SPR_BOSS10_SPIT_EXP1,0,1,at_ONCE,ad_FWD,3+(US_RndT()&3));
@@ -5694,6 +5810,7 @@ BlowIt:
 					damage = (US_RndT()>>4);
 					InitSmartSpeedAnim(ob,SPR_MGOLD_SHOT_EXP1,0,1,at_ONCE,ad_FWD,5+(US_RndT()&7));
          	break;
+#endif
 
 				case lcanshotobj:
 				case podshotobj:
@@ -5854,6 +5971,7 @@ void ExplodeFill(char tx, char ty)
                case vspike_barrierobj:
 					break;
 
+#ifdef BSTONE_PS
 				//
 				// Test for Level completion object
 				//
@@ -5884,7 +6002,7 @@ void ExplodeFill(char tx, char ty)
 						else
 							DamageActor(proj_check,20,ff_obj);					// An explosion has started a chain reaction
 					break;
-
+#endif
 
 				// Everyone else gets the shit kicked
 				// out of them...
