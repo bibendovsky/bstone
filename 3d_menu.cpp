@@ -116,7 +116,7 @@ CP_iteminfo
 	LSItems=	{LSM_X,LSM_Y,10,0,0,8,	{86,-1,144,8,1}},
 	CtlItems=	{CTL_X,CTL_Y,7,-1,0,9,	{87,1,174,9,1}},
 	CusItems=	{CST_X,CST_Y+7,6,-1,0,15,{54,-1,203,7,1}},
-	NewEitems=	{NE_X,NE_Y,11,0,0,16,	{43,-2,119,16,1}},
+	NewEitems=	{NE_X,NE_Y,6,0,0,16,	{43,-2,119,16,1}},
 	NewItems=	{NM_X,NM_Y,4,1,0,16,		{60,-2,105,16,1}},
 #ifdef BSTONE_AOG
     SwitchItems=	{MENU_X,MENU_Y+7,9,0,0,9,{87,-1,132,7,1}};
@@ -193,7 +193,7 @@ SwitchMenu[] = {
  },
 
 
-#if 0
+#ifdef BSTONE_AOG
 NewEmenu[]=
 {
  {AT_ENABLED,"MISSION 1:\n"
@@ -270,7 +270,23 @@ Sint16 color_norml[]=
 	DEACTIAVED_TEXT_COLOR,
 };
 
-Sint16 EpisodeSelect[6]={1};
+Sint16 EpisodeSelect[6] = {
+    1,
+
+#if defined(BSTONE_AOG) && GAME_VERSION != SHAREWARE_VERSION
+    1,
+    1,
+    1,
+    1,
+    1
+#else
+    0,
+    0,
+    0,
+    0,
+    0
+#endif
+};
 
 Sint16 SaveGamesAvail[10],StartGame,SoundStatus=1,pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN+1];
@@ -1664,7 +1680,7 @@ void CP_NewGame(Sint16)
 	DrawInstructions(IT_STANDARD);
 
 
-#if 0
+#ifdef BSTONE_AOG
 
 firstpart:
 
@@ -1681,7 +1697,7 @@ firstpart:
 	default:
 	 if (!EpisodeSelect[which])
 	 {
-	  SD_PlaySound (NOWAYSND);
+	  ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 	  CacheMessage(READTHIS_TEXT);
 	  IN_ClearKeysDown();
 	  IN_Ack();
@@ -1704,7 +1720,7 @@ firstpart:
  episode = 0;
 #endif
 
-#if 0
+#ifdef BSTONE_AOG
  //
  // ALREADY IN A GAME?
  //
@@ -1727,7 +1743,7 @@ secondpart:
  if (which<0)
  {
   MenuFadeOut();
-#if 0
+#ifdef BSTONE_AOG
   goto firstpart;
 #else
   return;
@@ -1823,7 +1839,7 @@ void DrawInstructions(inst_type Type)
 	US_PrintCentered(instr[Type]);
 }
 
-#if 0
+#ifdef BSTONE_AOG
 
 //--------------------------------------------------------------------------
 // DrawNewEpisode() - DRAW NEW EPISODE MENU
@@ -1839,7 +1855,7 @@ void DrawNewEpisode(void)
 	WindowX=58;
 
 	fontnumber = 2;							// six point font
-	DrawMenu(&NewEitems,&NewEmenu7[0]);
+	DrawMenu(&NewEitems,&NewEmenu[0]);
 
 	DrawEpisodePic(NewEitems.curpos);
 
