@@ -2375,7 +2375,9 @@ void SetupGameLevel (void)
 #ifdef BSTONE_AOG
                     Uint8 level = 0xFF;
 
-                    if (map1[0] != 0xF8FF) {
+                    if (map1[0] == 0xF8FF) {
+                        level = gamestate.mapon;
+                    } else {
                         level = static_cast<Uint8>(map1[0] & 0xFF);
                     }
 
