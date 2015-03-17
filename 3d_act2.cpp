@@ -2122,11 +2122,9 @@ void DisplaySwitchOperateMsg(Uint16 coords)
     }
 
 #ifdef BSTONE_AOG
-    if (barrier->level != gamestate.mapon) {
-        message +=
-            "\r      ON FLOOR   " +
-            bstone::StringHelper::lexical_cast<std::string>(barrier->level);
-    }
+    message +=
+        "\r      ON FLOOR   " +
+        bstone::StringHelper::lexical_cast<std::string>(barrier->level);
 #endif
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
