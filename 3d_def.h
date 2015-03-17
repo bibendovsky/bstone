@@ -4364,6 +4364,9 @@ struct tilecoord_t {
 //-----------------------------------
 
 struct barrier_type {
+#ifdef BSTONE_AOG
+    Uint8 level;
+#endif
     tilecoord_t coord;
     Uint8 on;
 

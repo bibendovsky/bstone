@@ -2924,6 +2924,9 @@ void barrier_type::serialize(
     bstone::BinaryWriter& writer,
     Uint32& checksum) const
 {
+#ifdef BSTONE_AOG
+    ::serialize_field(level, writer, checksum);
+#endif
     coord.serialize(writer, checksum);
     ::serialize_field(on, writer, checksum);
 }
@@ -2932,6 +2935,9 @@ void barrier_type::deserialize(
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
+#ifdef BSTONE_AOG
+    ::deserialize_field(level, reader, checksum);
+#endif
     coord.deserialize(reader, checksum);
     ::deserialize_field(on, reader, checksum);
 }
