@@ -1408,8 +1408,10 @@ bool LoadLevel(
             switch (actor->obclass) {
             case arc_barrierobj:
             case post_barrierobj:
+#ifdef BSTONE_PS
             case vspike_barrierobj:
             case vpost_barrierobj:
+#endif
                 actor->temp2 = ::ScanBarrierTable(
                     actor->tilex, actor->tiley);
                 break;

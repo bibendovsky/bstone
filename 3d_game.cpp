@@ -2371,13 +2371,32 @@ void SetupGameLevel (void)
 
 				case ON_SWITCH:
             	switchon = true;
-				case OFF_SWITCH:
-					*(map1) = 0xf800 | UpdateBarrierTable((*(map1)>>8),*(map1)&0xff,switchon);
+				case OFF_SWITCH: {
+#ifdef BSTONE_AOG
+                    Uint8 level = 0xFF;
+
+                    if (map1[0] != 0xF8FF) {
+                        level = static_cast<Uint8>(map1[0] & 0xFF);
+                    }
+
+                    Uint8 x = static_cast<Uint8>((map1[1] / 256) & 0xFF);
+                    Uint8 y = static_cast<Uint8>(map1[1] & 0xFF);
+
+                    map1[1] = 0;
+
+                    map1[0] = 0xF800 | UpdateBarrierTable(level, x, y, switchon);
+#else
+                    Uint8 x = static_cast<Uint8>((map1[0] / 256) & 0xFF);
+                    Uint8 y = static_cast<Uint8>(map1[0] & 0xFF);
+
+					map1[0] = 0xF800 | UpdateBarrierTable(0xFF, x, y, switchon);
+#endif
 
                // Init for next time.
 
 	            switchon = false;
 				break;
+                }
 			}
 
 			map1++;
@@ -2436,12 +2455,16 @@ void SetupGameLevel (void)
 //
 	CA_LoadAllSounds ();
 
+#ifdef BSTONE_AOG
+    // FIXME Check for red keys?
+#else
 //
 // Check and make sure a detonator is in a 'locked' level.
 //
 
    if (gamestate.mapon < 20 && (!detonators_spawned) && gamestuff.level[gamestate.mapon+1].locked)
    	GAME_ERROR(NO_DETONATORS_IN_LEVEL);
+#endif
 }
 
 

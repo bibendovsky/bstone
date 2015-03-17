@@ -78,8 +78,10 @@ boolean ClipMove(objtype* ob, Sint32 xmove, Sint32 ymove);
 #define EXPLODE_DAMAGE				(20)		// 5
 #define OOZE_ANIMATE_SPEED			(20)
 
+#ifdef BSTONE_PS
 #define VPOST_BARRIER_SPEED		(7)			// Tics per anim step
 #define VPOST_WAIT_DELAY			(90)			// Tics delay in cycling
+#endif
 
 #define DR_MIN_STATICS				(50)			// Min number of statics avail
 															// before 50/50 chance of door rubble on exp. doors.
@@ -2054,7 +2056,14 @@ void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y)
       barrier = &gamestate.barrier_table[num];
       barrier->on ^= 1;
       newwall = states[barrier->on];
-      tilemap[x][y] = static_cast<Uint8>(states[barrier->on]);
+
+#ifdef BSTONE_AOG
+      if (barrier->level == gamestate.mapon) {
+#else
+      {
+#endif
+        tilemap[x][y] = static_cast<Uint8>(states[barrier->on]);
+      }
 
       DisplaySwitchOperateMsg(num);
       ::sd_play_player_sound(SWITCHSND, bstone::AC_ITEM);
@@ -2102,18 +2111,25 @@ char OffSwitchMessage[] = "\r\r DEACTIVATING BARRIER";
 
 void DisplaySwitchOperateMsg(Uint16 coords)
 {
-   barrier_type *Barrier;
+    barrier_type* barrier = &gamestate.barrier_table[coords];
 
-	Barrier = &gamestate.barrier_table[coords];
+    std::string message;
 
-  	if (Barrier->on)
-   {
-		DISPLAY_TIMED_MSG(OnSwitchMessage,MP_WALLSWITCH_OPERATE,MT_GENERAL);
-   }
-	else
-   {
-		DISPLAY_TIMED_MSG(OffSwitchMessage,MP_WALLSWITCH_OPERATE,MT_GENERAL);
-   }
+    if (barrier->on != 0) {
+        message = "\r\r  ACTIVATING BARRIER";
+    } else {
+        message = "\r\r DEACTIVATING BARRIER";
+    }
+
+#ifdef BSTONE_AOG
+    if (barrier->level != gamestate.mapon) {
+        message +=
+            "\r      ON FLOOR   " +
+            bstone::StringHelper::lexical_cast<std::string>(barrier->level);
+    }
+#endif
+
+    DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
 }
 
 
@@ -2123,37 +2139,45 @@ void DisplaySwitchOperateMsg(Uint16 coords)
 // RETURNS: Offset into barrier_table[] for a particular arc
 //
 //--------------------------------------------------------------------------
-Uint16 UpdateBarrierTable(Uint8 x, Uint8 y, boolean OnOff)
+Uint16 UpdateBarrierTable(Uint8 level, Uint8 x, Uint8 y, boolean OnOff)
 {
-   barrier_type *Barrier;
-   Sint16 num;
+#ifdef BSTONE_PS
+    static_cast<void>(level);
+#endif
 
-	//
-   // Scan Table...
-   //
+    //
+    // Scan Table...
+    //
 
-  	Barrier = gamestate.barrier_table;
+    barrier_type* Barrier = gamestate.barrier_table;
 
-   for (num = 0;num < MAX_BARRIER_SWITCHES;num++,Barrier++)
-   {
-   	if (Barrier->coord.tilex == x && Barrier->coord.tiley == y)
-      {
-         return(num);
-      }
-      else
-   	if (Barrier->on == 0xff)				// Empty?
-      {
-      	// We have hit end of list - Add
+    for (Uint16 num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
+#ifdef BSTONE_AOG
+        if (Barrier->level == level &&
+            Barrier->coord.tilex == x &&
+            Barrier->coord.tiley == y)
+        {
+#else
+        if (Barrier->coord.tilex == x && Barrier->coord.tiley == y) {
+#endif
+            return num;
+        } else {
+            if (Barrier->on == 0xFF) // Empty?
+            {
+                // We have hit end of list - Add
+#ifdef BSTONE_AOG
+                Barrier->level = level;
+#endif
+                Barrier->coord.tilex = x;
+                Barrier->coord.tiley = y;
+                Barrier->on = static_cast<Uint8>(OnOff);
+                return num;
+            }
+        }
+    }
 
-  	      Barrier->coord.tilex = x;
-     	   Barrier->coord.tiley = y;
-         Barrier->on = static_cast<Uint8>(OnOff);
-         return(num);
-      }
-   }
-
-  	AGENT_ERROR(SWITCH_TABLE_OVERFLOW);
-	return(0);
+    AGENT_ERROR(SWITCH_TABLE_OVERFLOW);
+    return 0;
 }
 
 
@@ -2175,7 +2199,13 @@ Uint16 ScanBarrierTable(Uint8 x, Uint8 y)
 
    for (num=0;num<MAX_BARRIER_SWITCHES;num++,Barrier++)
    {
-      if (Barrier->coord.tilex == x && Barrier->coord.tiley == y)
+#ifdef BSTONE_AOG
+      if (Barrier->level == gamestate.mapon &&
+          Barrier->coord.tilex == x &&
+          Barrier->coord.tiley == y)
+#else
+       if (Barrier->coord.tilex == x && Barrier->coord.tiley == y)
+#endif
       {
       	// Found switch...
 
@@ -2262,7 +2292,11 @@ void ConnectBarriers(void)
 
    for (num=0;num<MAX_BARRIER_SWITCHES;num++,Barrier++)
    {
-      if (Barrier->on != 0xff)
+#ifdef BSTONE_AOG
+        if (Barrier->level == gamestate.mapon && Barrier->on != 0xff)
+#else
+       if (Barrier->on != 0xff)
+#endif
       {
 		   bars_connected = 0;
 
@@ -2431,10 +2465,12 @@ void ToggleBarrier(objtype *obj)
                TurnPostOff(obj);
             break;
 
+#ifdef BSTONE_PS
             case vpost_barrierobj:
             case vspike_barrierobj:
             	BARRIER_STATE(obj) = bt_OPENING;
             break;
+#endif
 
             default:
                 break;
@@ -2460,10 +2496,12 @@ void ToggleBarrier(objtype *obj)
                TurnPostOn(obj);
             break;
 
+#ifdef BSTONE_PS
             case vpost_barrierobj:
             case vspike_barrierobj:
             	BARRIER_STATE(obj) = bt_CLOSING;
             break;
+#endif
 
             default:
                 break;
@@ -2590,7 +2628,7 @@ void T_BarrierTransition(objtype *obj)
            	ToggleBarrier(obj);
       break;
 
-
+#ifdef BSTONE_PS
       //
       // CLOSING/TURNING ON
       //
@@ -2652,7 +2690,6 @@ void T_BarrierTransition(objtype *obj)
    	        	ToggleBarrier(obj);
       break;
 
-
       //
       // OPENING/TURNNING OFF
       //
@@ -2699,6 +2736,7 @@ void T_BarrierTransition(objtype *obj)
 				if (gamestate.barrier_table[obj->temp2].on)
    	        	ToggleBarrier(obj);
       break;
+#endif
    }
 }
 
@@ -5967,8 +6005,10 @@ void ExplodeFill(char tx, char ty)
 					case hang_terrotobj:
                case arc_barrierobj:
                case post_barrierobj:
+#ifdef BSTONE_PS
                case vpost_barrierobj:
                case vspike_barrierobj:
+#endif
 					break;
 
 #ifdef BSTONE_PS

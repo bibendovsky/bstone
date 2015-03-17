@@ -5310,7 +5310,7 @@ void CacheDrawPic(int x, int y, int pic);
 void LoadTerminalCommands(void);
 
 void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y);
-Uint16 UpdateBarrierTable(Uint8 x, Uint8 y, boolean OnOff);
+Uint16 UpdateBarrierTable(Uint8 level, Uint8 x, Uint8 y, boolean OnOff);
 Uint16 ScanBarrierTable(Uint8 x, Uint8 y);
 void DisplaySwitchOperateMsg(Uint16 coords);
 
