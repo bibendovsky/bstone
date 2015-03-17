@@ -38,8 +38,8 @@ Free Software Foundation, Inc.,
 #else
 #define NUM_EPISODES (1)
 #endif
-#define MAPS_PER_EPISODE (10)
-#define MAPS_WITH_STATS (10)
+#define MAPS_PER_EPISODE (15)
+#define MAPS_WITH_STATS (11)
 #else
 #define NUM_EPISODES (1)
 #define MAPS_PER_EPISODE (25)
