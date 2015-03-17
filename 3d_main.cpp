@@ -1174,7 +1174,11 @@ void NewGame (Sint16 difficulty,Sint16 episode)
 	}
 	else
 #endif
+#ifdef BSTONE_AOG
+        gamestate.mapon = 1;
+#else
 		gamestate.mapon = 0;
+#endif
 
 	gamestate.key_floor = static_cast<char>(gamestate.mapon+1);
 	startgame = true;
