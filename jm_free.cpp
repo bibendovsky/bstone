@@ -697,6 +697,12 @@ void CheckForEpisodes()
 	for (int i=0;i<mv_NUM_MOVIES;i++)
 		strcat(Movies[i].FName,extension);
 
+#if GAME_VERSION != SHAREWARE_VERSION
+    for (int i = 1; i < 6; ++i) {
+        NewEmenu[i].active = AT_ENABLED;
+    }
+#endif
+
 #ifdef ACTIVATE_TERMINAL
 	strcat(term_com_name,extension);
 	strcat(term_msg_name,extension);
