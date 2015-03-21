@@ -1710,7 +1710,9 @@ void	ThreeDRefresh (void)
 
 	bufferofs -= screenofs;
 
+#ifdef BSTONE_PS
 	DrawRadar();
+#endif
 
 //	VW_WaitVBL(1);		// mike check this out
 
