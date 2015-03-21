@@ -867,7 +867,11 @@ void DrawWeaponPic(void)
 	if (gamestate.weapon == -1)
 		return;
 
+#if BSTONE_AOG
+    LatchDrawPic(22,152,WEAPON1PIC+gamestate.weapon);
+#else
 	LatchDrawPic(31,176,WEAPON1PIC+gamestate.weapon);
+#endif
 
 	DrawWeaponPic_COUNT--;
 }
@@ -970,7 +974,11 @@ void DrawAmmoNum(void)
 	fontnumber = 2;
 	fontcolor = 0x9D;
 
+#ifdef BSTONE_AOG
+    PrintX = 211;
+#else
 	PrintX = 252;
+#endif
 	PrintY = 200-STATUSLINES+38;
 
 #if 0
@@ -1009,11 +1017,9 @@ void DrawGAmmoNum(void)
 			PrintX+=AMMO_SMALL_FONT_NUM_WIDTH;
 	}
 
-#ifdef BSTONE_AOG
-    LatchDrawPic(31,184,WEAPON1PIC+gamestate.weapon);
-#else
+#ifdef BSTONE_PS
 	LatchDrawPic(31,184,W1_CORNERPIC+gamestate.weapon);
-#endif // BSTONE_AOG
+#endif
 
    px = PrintX;
    py = PrintY;
