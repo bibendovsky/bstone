@@ -1005,10 +1005,9 @@ void DrawAmmoNum(void)
 #endif
 	PrintY = 200-STATUSLINES+38;
 
-#if 0
+#ifdef BSTONE_AOG
 	switch (gamestate.weapon)
 	{
-		case wp_plasma_detonators:
 		case wp_autocharge:
       break;
 
@@ -1243,6 +1242,9 @@ void	GiveAmmo (Sint16 ammo)
 
 	DrawAmmo(false);
 
+#ifdef BSTONE_AOG
+    DrawWeapon();
+#else
    if (gamestate.weapon != gamestate.chosenweapon)
 	{
 	   if (gamestate.useable_weapons & (1<<gamestate.chosenweapon))
@@ -1251,6 +1253,7 @@ void	GiveAmmo (Sint16 ammo)
 			DrawWeapon ();
      	}
 	}
+#endif
 
     ::sd_play_player_sound(GETAMMOSND, bstone::AC_ITEM);
 
@@ -4875,7 +4878,11 @@ void	T_Attack (objtype *ob)
 			GunAttack (ob);
 			if (!godmode)
 				gamestate.ammo--;
+#ifdef BSTONE_AOG
+            DrawWeapon();
+#else
 			DrawAmmo(false);
+#endif
 			break;
 
 		case 2:
@@ -4883,7 +4890,11 @@ void	T_Attack (objtype *ob)
 				break;
 			GunAttack (ob);
 			gamestate.weapon_wait	= AUTOCHARGE_WAIT;
+#ifdef BSTONE_AOG
+            DrawWeapon();
+#else
 			DrawAmmo(false);
+#endif
 			break;
 
 		case 3:
@@ -4919,7 +4930,11 @@ void	T_Attack (objtype *ob)
 					if (gamestate.ammo >= GRENADE_ENERGY_USE)
 					{
 						gamestate.ammo-=GRENADE_ENERGY_USE;
+#ifdef BSTONE_AOG
+                        DrawWeapon();
+#else
 						DrawAmmo(false);
+#endif
 					}
 					else
 						gamestate.attackframe++;
