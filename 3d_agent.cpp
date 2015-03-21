@@ -228,7 +228,12 @@ Sint16 LastInfoAttacker_Cloaked = 0;
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
 
+#ifdef BSTONE_AOG
 char DrawRadarGuage_COUNT = 3;
+#else
+char DrawRadarGuage_COUNT = 0;
+#endif
+
 char DrawAmmoNum_COUNT = 3;
 char DrawAmmoPic_COUNT = 3;
 //char DrawPDAmmoPic_COUNT = 3;
@@ -1088,6 +1093,7 @@ void DrawAmmoGuage(void)
 //---------------------------------------------------------------------------
 void UpdateRadarGuage(void)
 {
+#ifdef BSTONE_PS
 	Sint16 temp;
 
 	if (gamestate.rpower)
@@ -1109,6 +1115,7 @@ void UpdateRadarGuage(void)
 		gamestate.lastradar_leds = static_cast<char>(temp);
 
 	DrawRadarGuage_COUNT=3;
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -1116,6 +1123,7 @@ void UpdateRadarGuage(void)
 //---------------------------------------------------------------------------
 void DrawRadarGuage(void)
 {
+#ifdef BSTONE_PS
 	char zoom;
 
 	DrawLedStrip(235,155,gamestate.radar_leds,NUM_AMMO_SEGS);
@@ -1125,9 +1133,6 @@ void DrawRadarGuage(void)
 	else
 		zoom = 0;
 
-#ifdef BSTONE_AOG
-    // FIXME
-#else
 	LatchDrawPic(22,152,ONEXZOOMPIC+zoom);
 #endif // BSTONE_AOG
 }
