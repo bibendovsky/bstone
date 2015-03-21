@@ -589,10 +589,10 @@ void DrawHealthNum(void)
         health_string);
 
     if (gamestate.health < 100) {
-        health_string += ' ';
+        health_string.insert(0, 1, ' ');
 
         if (gamestate.health < 10) {
-            health_string += ' ';
+            health_string.insert(0, 1, ' ');
         }
     }
 
