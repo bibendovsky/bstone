@@ -462,7 +462,7 @@ void ControlMovement(
 =============================================================================
 */
 
-#define STATUSDRAWPIC(x, y, picnum)			JLatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
+#define STATUSDRAWPIC(x, y, picnum)			LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
 
 
 /*
@@ -480,40 +480,27 @@ void StatusAllDrawPic(Uint16 x, Uint16 y, Uint16 picnum)
 
 	temp = static_cast<Uint16>(bufferofs);
 	bufferofs = PAGE1START+(200-STATUSLINES)*SCREENWIDTH;
-	JLatchDrawPic (x,y,picnum);
+	LatchDrawPic (x,y,picnum);
 	bufferofs = PAGE2START+(200-STATUSLINES)*SCREENWIDTH;
-	JLatchDrawPic (x,y,picnum);
+	LatchDrawPic (x,y,picnum);
 	bufferofs = PAGE3START+(200-STATUSLINES)*SCREENWIDTH;
-	JLatchDrawPic (x,y,picnum);
+	LatchDrawPic (x,y,picnum);
 	bufferofs = temp;
 
 #else
 
 	temp = bufferofs;
 	bufferofs = screenloc[0]+(200-STATUSLINES)*SCREENWIDTH;
-	JLatchDrawPic (x,y,picnum);
+	LatchDrawPic (x,y,picnum);
 	bufferofs = screenloc[1]+(200-STATUSLINES)*SCREENWIDTH;
-	JLatchDrawPic (x,y,picnum);
+	LatchDrawPic (x,y,picnum);
 	bufferofs = screenloc[2]+(200-STATUSLINES)*SCREENWIDTH;
-	JLatchDrawPic (x,y,picnum);
+	LatchDrawPic (x,y,picnum);
 	bufferofs = temp;
 
 #endif
 
 }
-
-
-void JLatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum)
-{
-	Uint16 wide, height, source;
-
-	x <<= 3;
-	wide = pictable[picnum-STARTPICS].width;
-	height = pictable[picnum-STARTPICS].height;
-	source = latchpics[2+picnum-LATCHPICS_LUMP_START];
-	VL_LatchToScreen (source,wide/4,height,x,y);
-}
-
 
 
 /*
@@ -597,15 +584,15 @@ void DrawHealthNum(void)
 	for (loop=num=0; loop<3; loop++,check /= 10)
 		if (gamestate.health < check)
 #ifdef BSTONE_AOG
-            JLatchDrawPic(16+loop,162,N_BLANKPIC);
+            LatchDrawPic(16+loop,162,N_BLANKPIC);
 #else
-			JLatchDrawPic(16+loop,162,NG_BLANKPIC);
+			LatchDrawPic(16+loop,162,NG_BLANKPIC);
 #endif // BSTONE_AOG
 		else
 #ifdef BSTONE_AOG
-            JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+N_0PIC);
+            LatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+N_0PIC);
 #else
-			JLatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+NG_0PIC);
+			LatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+NG_0PIC);
 #endif // BSTONE_AOG
 }
 
@@ -703,13 +690,13 @@ void	DrawScoreNum(void)
 	{
 		if (gamestate.score_roll_wait)
 		{
-			JLatchDrawPic(X+0,(200-STATUSLINES)+Y,N_BLANKPIC);
-			JLatchDrawPic(X+1,(200-STATUSLINES)+Y,N_DASHPIC);
-			JLatchDrawPic(X+2,(200-STATUSLINES)+Y,N_RPIC);
-			JLatchDrawPic(X+3,(200-STATUSLINES)+Y,N_OPIC);
-			JLatchDrawPic(X+4,(200-STATUSLINES)+Y,N_LPIC);
-			JLatchDrawPic(X+5,(200-STATUSLINES)+Y,N_LPIC);
-			JLatchDrawPic(X+6,(200-STATUSLINES)+Y,N_DASHPIC);
+			LatchDrawPic(X+0,(200-STATUSLINES)+Y,N_BLANKPIC);
+			LatchDrawPic(X+1,(200-STATUSLINES)+Y,N_DASHPIC);
+			LatchDrawPic(X+2,(200-STATUSLINES)+Y,N_RPIC);
+			LatchDrawPic(X+3,(200-STATUSLINES)+Y,N_OPIC);
+			LatchDrawPic(X+4,(200-STATUSLINES)+Y,N_LPIC);
+			LatchDrawPic(X+5,(200-STATUSLINES)+Y,N_LPIC);
+			LatchDrawPic(X+6,(200-STATUSLINES)+Y,N_DASHPIC);
 		}
 		else
 		{
@@ -821,9 +808,9 @@ void DrawKeyPics(void)
 #else
 	for (loop=0; loop<NUMKEYS; loop++)
 		if (gamestate.numkeys[static_cast<int>(loop)])
-			JLatchDrawPic(15+2*loop,179,RED_KEYPIC+loop);
+			LatchDrawPic(15+2*loop,179,RED_KEYPIC+loop);
 		else
-			JLatchDrawPic(15+2*loop,179,NO_KEYPIC);
+			LatchDrawPic(15+2*loop,179,NO_KEYPIC);
 #endif // BSTONE_AOG
 }
 
@@ -875,7 +862,7 @@ void DrawWeaponPic(void)
 	if (gamestate.weapon == -1)
 		return;
 
-	JLatchDrawPic(31,176,WEAPON1PIC+gamestate.weapon);
+	LatchDrawPic(31,176,WEAPON1PIC+gamestate.weapon);
 
 	DrawWeaponPic_COUNT--;
 }
@@ -1018,9 +1005,9 @@ void DrawGAmmoNum(void)
 	}
 
 #ifdef BSTONE_AOG
-    JLatchDrawPic(31,184,WEAPON1PIC+gamestate.weapon);
+    LatchDrawPic(31,184,WEAPON1PIC+gamestate.weapon);
 #else
-	JLatchDrawPic(31,184,W1_CORNERPIC+gamestate.weapon);
+	LatchDrawPic(31,184,W1_CORNERPIC+gamestate.weapon);
 #endif // BSTONE_AOG
 
    px = PrintX;
@@ -1058,9 +1045,9 @@ void DrawAmmoPic(void)
 void DrawAmmoMsg(void)
 {
 	if (gamestate.weapon_wait)
-		JLatchDrawPic(30,(200-STATUSLINES),WAITPIC);
+		LatchDrawPic(30,(200-STATUSLINES),WAITPIC);
 	else
-		JLatchDrawPic(30,(200-STATUSLINES),READYPIC);
+		LatchDrawPic(30,(200-STATUSLINES),READYPIC);
 }
 
 //---------------------------------------------------------------------------
@@ -1069,9 +1056,9 @@ void DrawAmmoMsg(void)
 void DrawPDAmmoMsg(void)
 {
 	if (gamestate.plasma_detonators)
-		JLatchDrawPic(30,(200-STATUSLINES),READYPIC);
+		LatchDrawPic(30,(200-STATUSLINES),READYPIC);
 	else
-		JLatchDrawPic(30,(200-STATUSLINES),WAITPIC);
+		LatchDrawPic(30,(200-STATUSLINES),WAITPIC);
 }
 
 
@@ -1141,7 +1128,7 @@ void DrawRadarGuage(void)
 #ifdef BSTONE_AOG
     // FIXME
 #else
-	JLatchDrawPic(22,152,ONEXZOOMPIC+zoom);
+	LatchDrawPic(22,152,ONEXZOOMPIC+zoom);
 #endif // BSTONE_AOG
 }
 
@@ -1417,7 +1404,7 @@ void ClearInfoArea(void)
 	InfoAreaSetup.y = INFOAREA_Y;
 	InfoAreaSetup.framecount = InfoAreaSetup.numanims = 0;
 
-	JLatchDrawPic(0,200-STATUSLINES,INFOAREAPIC);
+	LatchDrawPic(0,200-STATUSLINES,INFOAREAPIC);
 }
 
 
@@ -1800,7 +1787,7 @@ Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 //			for (i=0;i<3;i++)
 //			{
 //				bufferofs = screenloc[i];
-				JLatchDrawPic(x>>3,y,shapenum);
+				LatchDrawPic(x>>3,y,shapenum);
 //			}
 //			bufferofs = old_ofs;
 		break;
@@ -3647,7 +3634,7 @@ void B_EManFunc()
 	for (i=0;i<3;i++)
 	{
 		bufferofs = screenloc[i];
-		JLatchDrawPic(0,0,TOP_STATUSBARPIC);
+		LatchDrawPic(0,0,TOP_STATUSBARPIC);
 		ShadowPrintLocationText(sp_normal);
 	}
 

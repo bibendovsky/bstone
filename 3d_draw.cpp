@@ -1573,7 +1573,7 @@ void RedrawStatusAreas()
 		LatchDrawPic(0,0,TOP_STATUSBARPIC);
 		ShadowPrintLocationText(sp_normal);
 
-		JLatchDrawPic(0,200-STATUSLINES,STATUSBARPIC);
+		LatchDrawPic(0,200-STATUSLINES,STATUSBARPIC);
 		DrawAmmoPic();
 		DrawScoreNum();
 		DrawWeaponPic();

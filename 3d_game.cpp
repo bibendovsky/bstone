@@ -2724,7 +2724,7 @@ void DrawPlayScreen (boolean InitInfoMsg)
 		bufferofs = screenloc[i];
 		DrawPlayBorder();
 
-		JLatchDrawPic(0,200-STATUSLINES,STATUSBARPIC);
+		LatchDrawPic(0,200-STATUSLINES,STATUSBARPIC);
 		LatchDrawPic(0,0,TOP_STATUSBARPIC);
 
 		ShadowPrintLocationText(sp_normal);
@@ -2770,7 +2770,7 @@ void DrawWarpIn(void)
 	{
 		bufferofs = screenloc[i];
 		VW_Bar ((320-viewwidth)/2,(200-STATUSLINES-viewheight+TOP_STRIP_HEIGHT)/2,viewwidth,viewheight,BLACK);
-		JLatchDrawPic(0,200-STATUSLINES,STATUSBARPIC);
+		LatchDrawPic(0,200-STATUSLINES,STATUSBARPIC);
 		LatchDrawPic(0,0,TOP_STATUSBARPIC);
 
 		ShadowPrintLocationText(sp_normal);

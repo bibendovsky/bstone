@@ -140,7 +140,7 @@ void jsprintf(char *msg, ...);
 #define ABS(x)          ((Sint16)(x)>0?(x):-(x))
 #define LABS(x)         ((Sint32)(x)>0?(x):-(x))
 
-//#define STATUSDRAWPIC(x, y, picnum)			JLatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
+//#define STATUSDRAWPIC(x, y, picnum)			LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
 
 #define FMAPWIDTH			((fixed)mapwidth<<TILESHIFT)
 #define FMAPHEIGHT		((fixed)mapheight<<TILESHIFT)
@@ -5249,8 +5249,6 @@ extern  Uint16 			RadarSw;
 // Location Bar message string...
 
 extern char LocationText[MAX_LOCATION_DESC_LEN];
-
-void JLatchDrawPic (Uint16 x, Uint16 y, Uint16 picnum);
 
 
 //
