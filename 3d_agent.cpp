@@ -581,6 +581,37 @@ void DrawHealth (void)
 //--------------------------------------------------------------------------
 void DrawHealthNum(void)
 {
+#ifdef BSTONE_AOG
+    std::string health_string(4, ' ');
+
+    bstone::StringHelper::lexical_cast(
+        gamestate.health,
+        health_string);
+
+    if (gamestate.health < 100) {
+        health_string += ' ';
+
+        if (gamestate.health < 10) {
+            health_string += ' ';
+        }
+    }
+
+    health_string += '%';
+
+
+    fontnumber = 2;
+
+    // FIXME Should be slightly blue
+    fontcolor = 0x9D;
+
+    PrintX = 149;
+    PrintY = 200 - STATUSLINES + 34;
+
+    px = PrintX;
+    py = PrintY;
+
+    VW_DrawPropString(health_string.c_str());
+#else
 	char loop,num;
 	Sint16 check=100;
 
@@ -588,17 +619,10 @@ void DrawHealthNum(void)
 
 	for (loop=num=0; loop<3; loop++,check /= 10)
 		if (gamestate.health < check)
-#ifdef BSTONE_AOG
-            LatchDrawPic(16+loop,162,N_BLANKPIC);
-#else
 			LatchDrawPic(16+loop,162,NG_BLANKPIC);
-#endif // BSTONE_AOG
 		else
-#ifdef BSTONE_AOG
-            LatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+N_0PIC);
-#else
 			LatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+NG_0PIC);
-#endif // BSTONE_AOG
+#endif
 }
 
 //---------------------------------------------------------------------------
