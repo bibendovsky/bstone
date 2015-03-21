@@ -1049,10 +1049,18 @@ void DrawAmmoPic(void)
 //---------------------------------------------------------------------------
 void DrawAmmoMsg(void)
 {
+    int x =
+#ifdef BSTONE_AOG
+        29
+#else
+        30
+#endif
+        ;
+
 	if (gamestate.weapon_wait)
-		LatchDrawPic(30,(200-STATUSLINES),WAITPIC);
+		LatchDrawPic(x,(200-STATUSLINES),WAITPIC);
 	else
-		LatchDrawPic(30,(200-STATUSLINES),READYPIC);
+		LatchDrawPic(x,(200-STATUSLINES),READYPIC);
 }
 
 //---------------------------------------------------------------------------
@@ -1085,7 +1093,11 @@ void UpdateAmmoMsg(void)
 //---------------------------------------------------------------------------
 void DrawAmmoGuage(void)
 {
+#ifdef BSTONE_AOG
+    DrawLedStrip(234,155,gamestate.ammo_leds,NUM_AMMO_SEGS);
+#else
 	DrawLedStrip(243,155,gamestate.ammo_leds,NUM_AMMO_SEGS);
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -1153,20 +1165,28 @@ void DrawLedStrip(Sint16 x,Sint16 y,Sint16 frac,Sint16 max)
 	else
 		amount = max;
 
+    int width =
+#ifdef BSTONE_AOG
+        11
+#else
+        5
+#endif
+        ;
+
 // Draw dim LEDs.
 //
 	for (ypos = 0;ypos < amount;ypos++)
 	{
-		VW_Hlin (x,x+4,y++,DimAmmo[0][amount]);
-		VW_Hlin (x,x+4,y++,DimAmmo[1][amount]);
+		VW_Hlin (x,x+(width-1),y++,DimAmmo[0][amount]);
+		VW_Hlin (x,x+(width-1),y++,DimAmmo[1][amount]);
 	}
 
 // Draw lit LEDs.
 //
 	for (;ypos<NUM_AMMO_SEGS;ypos++)
 	{
-		VW_Hlin (x,x+4,y++,LitAmmo[0][amount]);
-		VW_Hlin (x,x+4,y++,LitAmmo[1][amount]);
+		VW_Hlin (x,x+(width-1),y++,LitAmmo[0][amount]);
+		VW_Hlin (x,x+(width-1),y++,LitAmmo[1][amount]);
 	}
 }
 
