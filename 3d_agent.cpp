@@ -557,7 +557,151 @@ void	LatchNumber (Sint16 x, Sint16 y, Sint16 width, Sint32 number)
 //===========================================================================
 
 
+namespace {
 
+int ecg_scroll_tics = 0;
+int ecg_next_scroll_tics = 0;
+std::deque<int> ecg_legend(6);
+std::deque<int> ecg_segments(6);
+
+int heart_picture_index = ECG_GRID_PIECE;
+int heart_sign_tics = 0;
+int heart_sign_next_tics = 0;
+
+} // namespace
+
+// Draws electrocardiogram (ECG) and the heart sign
+void DrawHealthMonitor()
+{
+    //
+    // ECG
+    //
+
+    // ECG segment indices:
+    // 0 - silence
+    // 1..8 - shape #1 (health 66%-100%)
+    // 9..17 - shape #2 (health 33%-65%)
+    // 18..27 - shape #3 (health 0%-32%)
+
+    // ECG segment legend:
+    // 0 - silence
+    // 1 - signal #1 (health 66%-100%)
+    // 2 - signal #2 (health 33%-65%)
+    // 3 - signal #3 (health 0%-32%)
+
+    if (ecg_scroll_tics >= ecg_next_scroll_tics) {
+        ecg_scroll_tics = 0;
+        ecg_next_scroll_tics = HEALTH_SCROLL_RATE;
+
+        bool carry = false;
+
+        for (int i = 5; i >= 0; --i) {
+            if (carry) {
+                carry = false;
+                ecg_legend[i] = ecg_legend[i + 1];
+                ecg_segments[i] = ecg_segments[i + 1] - 4;
+            } else if (ecg_segments[i] != 0) {
+                ecg_segments[i] += 1;
+
+                bool use_carry = false;
+
+                if (ecg_legend[i] == 1 && ecg_segments[i] == 5) {
+                    use_carry = true;
+                } else if (ecg_legend[i] == 2 && ecg_segments[i] == 13) {
+                    use_carry = true;
+                } if (ecg_legend[i] == 3 &&
+                    (ecg_segments[i] == 22 || ecg_segments[i] == 27))
+                {
+                    use_carry = true;
+                }
+
+                if (use_carry) {
+                    carry = true;
+                } else {
+                    bool skip = false;
+
+                    if (ecg_legend[i] == 1 && ecg_segments[i] > 8) {
+                        skip = true;
+                    } else if (ecg_legend[i] == 2 && ecg_segments[i] > 17) {
+                        skip = true;
+                    } if (ecg_legend[i] == 3 && ecg_segments[i] > 27) {
+                        skip = true;
+                    }
+
+                    if (skip) {
+                        ecg_legend[i] = 0;
+                        ecg_segments[i] = 0;
+                    }
+                }
+            }
+        }
+
+        if (gamestate.health > 0 && ecg_legend[5] == 0) {
+            if (gamestate.health < 33) {
+                ecg_legend[5] = 3;
+                ecg_segments[5] = 18;
+            } else if (gamestate.health >= 66) {
+                if (ecg_legend[4] == 0 || ecg_legend[4] != 1) {
+                    ecg_legend[5] = 1;
+                    ecg_segments[5] = 1;
+                }
+            } else {
+                ecg_legend[5] = 2;
+                ecg_segments[5] = 9;
+            }
+        }
+    } else {
+        ecg_scroll_tics += tics;
+    }
+
+    for (int i = 0; i < 6; ++i) {
+        ::CA_CacheGrChunk(
+            static_cast<Sint16>(ECG_HEARTBEAT_00 + ecg_segments[i]));
+
+        ::VWB_DrawPic(
+            120 + (i * 8),
+            200 - STATUSLINES + 8,
+            ECG_HEARTBEAT_00 + ecg_segments[i]);
+    }
+
+
+    //
+    // Heart sign
+    //
+
+    bool reset_heart_tics = false;
+
+    if (gamestate.health <= 0) {
+        reset_heart_tics = true;
+        heart_picture_index = ECG_GRID_PIECE;
+    } else if (gamestate.health < 40) {
+        reset_heart_tics = true;
+        heart_picture_index = ECG_HEART_BAD;
+    } else if (heart_sign_tics >= heart_sign_next_tics) {
+        reset_heart_tics = true;
+
+        if (heart_picture_index == ECG_GRID_PIECE) {
+            heart_picture_index = ECG_HEART_GOOD;
+        } else {
+            heart_picture_index = ECG_GRID_PIECE;
+        }
+    }
+
+    if (reset_heart_tics) {
+        heart_sign_tics = 0;
+        heart_sign_next_tics = HEALTH_PULSE / 2;
+    } else {
+        heart_sign_tics += 1;
+    }
+
+    ::CA_CacheGrChunk(
+            static_cast<Sint16>(heart_picture_index));
+
+    ::VWB_DrawPic(
+        120,
+        200 - STATUSLINES + 32,
+        heart_picture_index);
+}
 
 //--------------------------------------------------------------------------
 // DrawHealth()
@@ -567,11 +711,13 @@ void	LatchNumber (Sint16 x, Sint16 y, Sint16 width, Sint32 number)
 //--------------------------------------------------------------------------
 void DrawHealth (void)
 {
+#ifdef BSTONE_PS
 	char *ptr = gamestate.health_str;
 
     bstone::C::xitoa(gamestate.health, gamestate.health_str, 10);
 	while (*ptr)
 		*ptr++ -= '0';
+#endif
 
 	DrawHealthNum_COUNT=3;
 }
@@ -598,7 +744,6 @@ void DrawHealthNum(void)
 
     health_string += '%';
 
-
     fontnumber = 2;
 
     // FIXME Should be slightly blue
@@ -611,6 +756,8 @@ void DrawHealthNum(void)
     py = PrintY;
 
     VW_DrawPropString(health_string.c_str());
+
+    DrawHealthNum_COUNT -= 1;
 #else
 	char loop,num;
 	Sint16 check=100;
@@ -2028,6 +2175,9 @@ void UpdateStatusBar(void)
 	if (gamestate.flags & (GS_TICS_FOR_SCORE))
    	DrawScore();
 
+#ifdef BSTONE_AOG
+    DrawHealthMonitor();
+#endif
 }
 
 //---------------------------------------------------------------------------
