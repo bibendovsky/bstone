@@ -2636,13 +2636,25 @@ void ShadowPrintLocationText(sp_type type)
 		// Print LEVEL info...
 		//
 			px = 13;
+#ifdef BSTONE_AOG
+            if ((gamestate.mapon % 10) == 0)
+#else
 			if (gamestate.mapon>19)
+#endif
 				ShPrint(" SECRET ",0,false);
 			else
 			{
+#ifdef BSTONE_AOG
+                ShPrint("FLOOR: ",0,false);
+#else
 				ShPrint(" AREA: ",0,false);
+#endif
 				if (!type)
+#ifdef BSTONE_AOG
+                    ShPrint(bstone::C::xitoa(gamestate.mapon, str, 10),0,false);
+#else
 					ShPrint(bstone::C::xitoa(gamestate.mapon + 1, str, 10),0,false);
+#endif
 			}
 
 		// Print LIVES info...
