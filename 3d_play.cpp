@@ -171,7 +171,7 @@ void SpaceEntryExit(boolean entry);
 void FinishPaletteShifts (void);
 void ShowQuickInstructions(void);
 void CleanDrawPlayBorder(void);
-void PopupAutoMap(void);
+void PopupAutoMap(bool is_shift_pressed);
 
 
 /*
@@ -979,8 +979,9 @@ void CheckKeys (void)
 
     scan = sc_none;
 
-	if (in_is_binding_pressed(e_bi_stats))
-		PopupAutoMap();
+	if (in_is_binding_pressed(e_bi_stats)) {
+		PopupAutoMap(Keyboard[sc_left_shift] || Keyboard[sc_right_shift]);
+    }
 
   	if (Keyboard[sc_back_quote])
    {
@@ -1168,7 +1169,8 @@ void ChangeSwapFiles(boolean display)
 //--------------------------------------------------------------------------
 // PopupAutoMap()
 //--------------------------------------------------------------------------
-void PopupAutoMap()
+void PopupAutoMap(
+    bool is_shift_pressed)
 {
 #ifdef BSTONE_AOG
     #define BASE_X (40)
@@ -1185,6 +1187,23 @@ void PopupAutoMap()
 	CacheDrawPic(BASE_X,BASE_Y,AUTOMAPPIC);
 
 #ifdef BSTONE_AOG
+    bool show_whole_map = true;
+    int overlay_flags = OV_KEYS | OV_PUSHWALLS | OV_ACTORS;
+
+    if (is_shift_pressed) {
+        show_whole_map = !show_whole_map;
+    }
+
+    if (g_rotated_automap) {
+        show_whole_map = !show_whole_map;
+    }
+
+    if (show_whole_map) {
+        overlay_flags |= OV_WHOLE_MAP;
+    }
+
+    ::ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
+
     ShowStats(BASE_X+157,BASE_Y+25,ss_quick,&gamestuff.level[gamestate.mapon].stats);
 #else
 	ShowStats(BASE_X+101,BASE_Y+22,ss_quick,&gamestuff.level[gamestate.mapon].stats);

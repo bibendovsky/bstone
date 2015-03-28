@@ -215,6 +215,10 @@ void jsprintf(char *msg, ...);
 #define OV_KEYS		0x0004
 #define OV_PUSHWALLS	0x0008
 
+// BBi
+#define OV_WHOLE_MAP (0x0010)
+
+
 #define TT_TRAVELED	0x01
 #define TT_KEYS		0x02
 

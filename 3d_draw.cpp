@@ -1792,7 +1792,11 @@ void ShowOverhead(
     int flags)
 {
     const Uint8 PLAYER_COLOR = 0xF1;
+#ifdef BSTONE_AOG
+    const Uint8 UNMAPPED_COLOR = 0x06;
+#else
     const Uint8 UNMAPPED_COLOR = 0x52;
+#endif
     const Uint8 MAPPED_COLOR = 0x55;
 
     bool snow = false;
@@ -1810,18 +1814,28 @@ void ShowOverhead(
     zoom = 1 << zoom;
     radius /= zoom;
 
+    int player_angle = player->angle;
+    int player_x = player->x;
+    int player_y = player->y;
+
+    if ((flags & OV_WHOLE_MAP) != 0) {
+        player_angle = 90;
+        player_x = ((Sint32)32 << TILESHIFT) + (TILEGLOBAL / 2);
+        player_y = player_x;
+    }
+
     // Get sin/cos values
     //
-    int psin = sintable[player->angle];
-    int pcos = costable[player->angle];
+    int psin = sintable[player_angle];
+    int pcos = costable[player_angle];
 
     // Convert radius to fixed integer and calc rotation.
     //
     int dx = radius << TILESHIFT;
     int dy = dx;
 
-    int baselmx = player->x + (FixedByFrac(dx, pcos) - FixedByFrac(dy, psin));
-    int baselmy = player->y - (FixedByFrac(dx, psin) + FixedByFrac(dy, pcos));
+    int baselmx = player_x + (FixedByFrac(dx, pcos) - FixedByFrac(dy, psin));
+    int baselmy = player_y - (FixedByFrac(dx, psin) + FixedByFrac(dy, pcos));
 
     // Carmack's sin/cos tables use one's complement for negative numbers --
     // convert it to two's complement!
