@@ -980,7 +980,35 @@ void DrawKeyPics(void)
 	DrawKeyPics_COUNT--;
 
 #ifdef BSTONE_AOG
-    // FIXME
+    static const int indices[NUMKEYS] = {
+        0, 1, 3, 2, 4
+    }; // indices
+
+    static const Uint8 off_colors[NUMKEYS] = {
+        0x11, 0x31, 0x91, 0x51, 0x21
+    }; // off_colors
+
+    static const Uint8 on_colors[NUMKEYS] = {
+        0xC9, 0xB9, 0x9C, 0x5B, 0x2B
+    }; // on_colors
+
+    for (int i = 0; i < NUMKEYS; ++i) {
+        int index = indices[i];
+        Uint8 color = 0;
+
+        if (gamestate.numkeys[index] > 0) {
+            color = on_colors[index];
+        } else {
+            color = off_colors[index];
+        }
+
+        ::VWB_Bar(
+            257 + (i * 8),
+            200 - STATUSLINES + 25,
+            7,
+            7,
+            color);
+    }
 #else
 	for (loop=0; loop<NUMKEYS; loop++)
 		if (gamestate.numkeys[static_cast<int>(loop)])

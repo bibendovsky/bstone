@@ -3795,6 +3795,10 @@ enum keytype {
 	kt_red,
 	kt_yellow,
 	kt_blue,
+#ifdef BSTONE_AOG
+    kt_green,
+    kt_gold,
+#endif
 	NUMKEYS
 }; // enum keytype
 
