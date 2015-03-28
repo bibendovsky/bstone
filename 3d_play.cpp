@@ -1170,7 +1170,11 @@ void ChangeSwapFiles(boolean display)
 //--------------------------------------------------------------------------
 void PopupAutoMap()
 {
+#ifdef BSTONE_AOG
+    #define BASE_X (40)
+#else
 	#define BASE_X	64
+#endif
 	#define BASE_Y	44
 
 	ThreeDRefresh();
@@ -1180,7 +1184,11 @@ void PopupAutoMap()
 	ClearMemory();
 	CacheDrawPic(BASE_X,BASE_Y,AUTOMAPPIC);
 
+#ifdef BSTONE_AOG
+    ShowStats(BASE_X+157,BASE_Y+25,ss_quick,&gamestuff.level[gamestate.mapon].stats);
+#else
 	ShowStats(BASE_X+101,BASE_Y+22,ss_quick,&gamestuff.level[gamestate.mapon].stats);
+#endif
 
 	while (Keyboard[sc_back_quote])
 		CalcTics();

@@ -3706,7 +3706,11 @@ Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats)
 
 // Show OVERALL FLOOR ratio.
 //
+#ifdef BSTONE_AOG
+    by += 12;
+#else
 	by += 13;
+#endif
 	floor=p1+p2+p3;
 	ShowRatio(bx,by,bx+52,by,maxPerFloor,floor,type);
 
