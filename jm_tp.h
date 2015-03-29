@@ -114,6 +114,7 @@ struct PresenterInfo {
     Uint8 fontcolor;
     Sint16 id_cache;
     char* infoline;
+    int custom_line_height;
 }; // struct PresenterInfo;
 
 enum tpCacheType {

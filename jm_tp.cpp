@@ -943,8 +943,13 @@ tp_newline:;
 			if (cur_y+font_height > yh)
 				cur_y = yh-font_height+1-is_shadowed;
 		}
-		else
-			cur_y += font_height+is_shadowed;
+		else {
+            if (pi->custom_line_height > 0) {
+                cur_y += pi->custom_line_height+is_shadowed;
+            } else {
+                cur_y += font_height+is_shadowed;
+            }
+        }
 
 	// Display cursor.
 	//
