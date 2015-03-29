@@ -1504,3 +1504,30 @@ void UNCACHEGRCHUNK(Uint16 chunk)
 
     grneeded[chunk] &= ~ca_levelbit;
 }
+
+std::string ca_load_script(
+    int chunk_id,
+    bool strip_xx)
+{
+    ::CA_CacheGrChunk(static_cast<Sint16>(chunk_id));
+
+    const char* script = static_cast<const char*>(grsegs[chunk_id]);
+
+    int length = 0;;
+
+    for (int i = 0; script[i] != '\x1A'; ++i) {
+        if (script[i] == '^' && script[i + 1] == 'X' && script[i + 2] == 'X') {
+            length = i + 3;
+        }
+    }
+
+    if (length == 0) {
+        ::Quit("Invalid script.");
+    }
+
+    if (strip_xx) {
+        length -= 3;
+    }
+
+    return std::string(script, length);
+}

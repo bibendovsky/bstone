@@ -192,5 +192,9 @@ void OpenGrFile(void);
 // BBi
 extern int ca_gr_last_expanded_size;
 
+std::string ca_load_script(
+    int chunk_id,
+    bool strip_xx = false);
+
 
 #endif // ID_CA_H
