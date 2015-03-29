@@ -43,7 +43,7 @@ void VH_UpdateScreen();
 void InitAreas (void);
 void FirstSighting(objtype* ob);
 void OpenDoor(Sint16 door);
-
+void DrawTopInfo(sp_type type);
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
 
@@ -3255,11 +3255,234 @@ boolean ov_noImage=false;
 //--------------------------------------------------------------------------
 // InputFloor
 //--------------------------------------------------------------------------
-Sint16 InputFloor(void)
+Sint16 InputFloor()
 {
 #ifdef BSTONE_AOG
-    // FIXME
-    return -1;
+    const std::string messages[4] = {
+        // "Current floor:\nSelect a floor."
+        ::ca_load_script(ELEVMSG0_TEXT),
+        // "RED access card used to unlock floor!"
+        ::ca_load_script(ELEVMSG1_TEXT),
+        // "Floor is locked. Try another floor."
+        ::ca_load_script(ELEVMSG4_TEXT),
+        // "You must first get the red access keycard!"
+        ::ca_load_script(ELEVMSG5_TEXT)
+    }; // messages
+
+    const char* const floor_number_strings[10] = {
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+    };
+
+    ::CA_CacheGrChunk(TELEPORT_TEXT_BG);
+
+    for (int i = 0; i < 20; ++i) {
+        ::CA_CacheGrChunk(TELEPORT1OFFPIC + i);
+    }
+
+    ::CA_CacheGrChunk(STARTFONT + 3);
+
+    ::VW_FadeOut();
+
+    ::DrawTopInfo(sp_normal);
+
+    int border_width = 7;
+    int border_height = 5;
+    int outer_height = 200 - STATUSLINES - TOP_STRIP_HEIGHT;
+
+    ::BevelBox(
+        0,
+        TOP_STRIP_HEIGHT,
+        320,
+        outer_height,
+        BORDER_HI_COLOR,
+        BORDER_MED_COLOR,
+        BORDER_LO_COLOR);
+
+    ::BevelBox(
+        border_width,
+        TOP_STRIP_HEIGHT + border_height,
+        320 - (2 * border_width),
+        outer_height - (2 * border_height),
+        BORDER_LO_COLOR,
+        BORDER_MED_COLOR,
+        BORDER_HI_COLOR);
+
+    ::CacheDrawPic(8, TOP_STRIP_HEIGHT + 6, TELEPORTBACKPIC);
+
+    ::fontnumber = 1;
+    ::CA_CacheGrChunk(STARTFONT + 1);
+    ::CacheBMAmsg(FLOORMSG_TEXT);
+    ::UNCACHEGRCHUNK(STARTFONT + 1);
+
+    ::ShowOverhead(
+        14,
+        TOP_STRIP_HEIGHT + 55,
+        32,
+        0,
+        OV_KEYS | OV_PUSHWALLS | OV_ACTORS | OV_WHOLE_MAP);
+
+    ::IN_ClearKeysDown();
+
+    int result = -2;
+    bool draw_stats = true;
+    bool draw_message = true;
+    bool draw_current_floor = true;
+    bool draw_locked_floor = false;
+    bool use_delay = false;
+    bool draw_button = false;
+    int button_index = 0;
+    int is_button_pressed = false;
+    const std::string* message = &messages[0];
+
+    PresenterInfo pi;
+    ::memset(&pi, 0, sizeof(pi));
+    pi.xl = 24;
+    pi.yl = TOP_STRIP_HEIGHT + 8;
+    pi.xh = pi.xl + 210;
+    pi.yh = pi.yl + 34;
+    pi.fontnumber = 3;
+    pi.custom_line_height = 17;
+
+    ::fontcolor = 0x38;
+
+    while (result == -2) {
+        ::CalcTics();
+        ::in_handle_events();
+
+        if (::Keyboard[sc_escape]) {
+            result = -1;
+        }
+
+        int target_level = 0;
+
+        for (int i = sc_1; i <= sc_0; ++i) {
+            if (::Keyboard[i]) {
+                target_level = i - sc_1 + 1;
+                break;
+            }
+        }
+
+        if (target_level > 0 && target_level != ::gamestate.mapon) {
+            draw_button = true;
+            is_button_pressed = true;
+            button_index = target_level - 1;
+
+            if (!::gamestuff.level[target_level].locked) {
+                result = target_level;
+            } else if (::gamestate.numkeys[kt_red] > 0) {
+                result = target_level;
+
+                use_delay = true;
+                draw_message = true;
+                draw_current_floor = false;
+                message = &messages[1];
+            } else {
+                use_delay = true;
+                draw_message = true;
+                draw_current_floor = false;
+
+                if (::gamestate.mapon == 1 && target_level == 2) {
+                    draw_locked_floor = false;
+                    message = &messages[3];
+                } else {
+                    draw_locked_floor = true;
+                    message = &messages[2];
+                }
+            }
+        }
+
+        if (draw_message) {
+            draw_message = false;
+
+            ::VWB_DrawPic(24, TOP_STRIP_HEIGHT + 10, TELEPORT_TEXT_BG);
+
+            ::fontcolor = 0x97;
+            pi.script[0] = message->c_str();
+            pi.flags = TPF_CACHE_NO_GFX | TPF_USE_CURRENT;
+            pi.cur_x = 0xFFFF;
+            pi.cur_y = 0xFFFF;
+            ::TP_InitScript(&pi);
+            ::TP_Presenter(&pi);
+
+            if (draw_current_floor) {
+                ::fontnumber = 3;
+                ::fontcolor = 0x38;
+
+                ::px = 167;
+                ::py = TOP_STRIP_HEIGHT + 10;
+
+                ::USL_DrawString(
+                    floor_number_strings[::gamestate.mapon - 1]);
+            }
+
+            if (draw_locked_floor) {
+                ::fontnumber = 3;
+                ::fontcolor = 0x38;
+
+                ::px = 82;
+                ::py = TOP_STRIP_HEIGHT + 10;
+
+                ::USL_DrawString(
+                    floor_number_strings[target_level - 1]);
+            }
+
+            if (draw_button) {
+                draw_button = false;
+
+                int base_x = 264;
+                int base_y = TOP_STRIP_HEIGHT + 98;
+                int step_x = 24;
+                int step_y = 20;
+
+                int x = base_x + (step_x * (button_index % 2));
+                int y = base_y - (step_y * (button_index / 2));
+
+                int base_pic =
+                    is_button_pressed ?
+                    TELEPORT1ONPIC :
+                    TELEPORT1OFFPIC;
+
+                ::VWB_DrawPic(
+                    x,
+                    y,
+                    base_pic + button_index);
+            }
+        }
+
+        ::CycleColors();
+        ::VW_UpdateScreen();
+
+        if (::screenfaded){
+            ::VW_FadeIn();
+        }
+
+        if (draw_stats) {
+            draw_stats = false;
+
+            static_cast<void>(::ShowStats(
+                167,
+                TOP_STRIP_HEIGHT + 76,
+                ss_normal,
+                &::gamestuff.level[::gamestate.mapon].stats));
+        }
+
+        if (use_delay) {
+            use_delay = false;
+            draw_message = true;
+            draw_current_floor = true;
+            draw_locked_floor = false;
+            draw_button = true;
+            is_button_pressed = false;
+            message = &messages[0];
+
+            ::IN_UserInput(210);
+            ::IN_ClearKeysDown();
+        }
+    }
+
+    ::IN_ClearKeysDown();
+
+    return static_cast<Sint16>(result);
 #else
 	#define RADAR_FLAGS		OV_KEYS
 	#define MAX_TELEPORTS 	20
