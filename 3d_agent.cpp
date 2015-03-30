@@ -728,6 +728,15 @@ void DrawHealth (void)
 void DrawHealthNum(void)
 {
 #ifdef BSTONE_AOG
+    ::CA_CacheGrChunk(ECG_GRID_PIECE);
+
+    for (int i = 0; i < 3; ++i) {
+        ::VWB_DrawPic(
+            144 + (i * 8),
+            200 - STATUSLINES + 32,
+            ECG_GRID_PIECE);
+    }
+
     std::string health_string(4, ' ');
 
     bstone::StringHelper::lexical_cast(
