@@ -1330,6 +1330,11 @@ void freed_main()
 	}
 #endif
 
+    // BBi
+    if (::g_args.find_option("cheats") >= 0) {
+        DebugOk = true;
+    }
+
 	InitGame ();
 
 	bufferofs=SCREENSIZE;
