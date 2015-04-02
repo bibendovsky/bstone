@@ -727,7 +727,15 @@ Sint16 DebugKeys (void)
 		HealSelf (99);
 		GiveToken(5);
 
-		for (i=wp_autocharge;i<=wp_bfg_cannon;i++)
+        const Sint16 n =
+#ifdef BSTONE_AOG
+            wp_grenade
+#else
+            wp_bfg_cannon
+#endif
+        ;
+
+		for (i=wp_autocharge;i<=n;i++)
 			if (!(gamestate.weapons & (1<<i)))
 			{
 				GiveWeapon (i);

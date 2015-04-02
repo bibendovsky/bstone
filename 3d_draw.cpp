@@ -1334,9 +1334,7 @@ Sint16	weaponscale[NUMWEAPONS] = {
     SPR_MACHINEGUNREADY,
     SPR_CHAINREADY,
     SPR_GRENADEREADY,
-#ifdef BSTONE_AOG
-    0,
-#else
+#ifdef BSTONE_PS
     SPR_BFG_WEAPON1,
 #endif
     0

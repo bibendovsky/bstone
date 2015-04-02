@@ -93,7 +93,9 @@ void DrawTopInfo(sp_type type);
 #define INFOAREA_TSHAD_COLOR	0x04			// Text Shadow Color
 
 #define GRENADE_ENERGY_USE		4
+#ifdef BSTONE_PS
 #define BFG_ENERGY_USE			(GRENADE_ENERGY_USE<<1)
+#endif
 
 
 #define NUM_AMMO_SEGS			21
@@ -304,8 +306,15 @@ void	T_Stand (objtype *ob);
 void CheckWeaponChange (void)
 {
 	Sint16	i;
+    const Sint16 n =
+#ifdef BSTONE_AOG
+        wp_grenade
+#else
+        wp_bfg_cannon
+#endif
+    ;
 
-	for (i=wp_autocharge;i<=wp_bfg_cannon;i++)
+	for (i=wp_autocharge;i<=n;i++)
 	{
 		if (buttonstate[bt_ready_autocharge+i-wp_autocharge])
 		{
@@ -1491,6 +1500,7 @@ void ComputeAvailWeapons(void)
 
    if (gamestate.ammo)
    {
+#ifdef BSTONE_PS
 	   if (gamestate.ammo >= BFG_ENERGY_USE)
 			gamestate.useable_weapons = (1<<wp_bfg_cannon)
 			                          | (1<<wp_grenade)
@@ -1499,6 +1509,7 @@ void ComputeAvailWeapons(void)
 			                          | (1<<wp_pistol)
                                    | (1<<wp_autocharge);
 		else
+#endif
 		   if (gamestate.ammo >= GRENADE_ENERGY_USE)
 				gamestate.useable_weapons = (1<<wp_grenade)
 				                          | (1<<wp_ion_cannon)
@@ -2409,12 +2420,12 @@ void GetBonus (statobj_t *check)
 		GiveWeapon (wp_grenade);
 		break;
 
-
+#ifdef BSTONE_PS
 	case	bo_bfg_cannon:
         ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
 		GiveWeapon (wp_bfg_cannon);
 		break;
-
+#endif
 
 	case bo_coin:
 		if (gamestate.tokens == MAX_TOKENS)
@@ -5252,8 +5263,15 @@ void	T_Attack (objtype *ob)
 			{
 				// Check to see what weapons are possible.
 				//
+                const Sint16 n_x =
+#ifdef BSTONE_AOG
+                    wp_grenade
+#else
+                    wp_bfg_cannon
+#endif
+                ;
 
-				for (x=wp_bfg_cannon;x>=wp_autocharge;x--)
+				for (x=n_x;x>=wp_autocharge;x--)
 				{
 					if (gamestate.useable_weapons & (1<<x))
 					{
@@ -5372,6 +5390,7 @@ void	T_Attack (objtype *ob)
 				gamestate.attackframe -= 2;
 			break;
 
+#if BSTONE_PS
 		case 9:
 			if (!objfreelist)
 			{
@@ -5400,6 +5419,7 @@ void	T_Attack (objtype *ob)
 				MakeAlertNoise(ob);
 			}
 		break;
+#endif
 
 		case 10:
 			if (gamestate.ammo && buttonstate[bt_attack])

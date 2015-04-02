@@ -4323,7 +4323,9 @@ enum weapontype {
 	wp_burst_rifle,
 	wp_ion_cannon,
 	wp_grenade,
+#ifdef BSTONE_PS
 	wp_bfg_cannon,
+#endif
 //	wp_plasma_detonators,
 
    wp_SPACER,
