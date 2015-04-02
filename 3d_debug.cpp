@@ -51,7 +51,11 @@ void SetPlaneViewSize (void);
 #define VIEWTILEX	(viewwidth/16)
 #define VIEWTILEY	(viewheight/16)
 
+#ifdef BSTONE_AOG
+#define MAX_WARP_LEVEL (10)
+#else
 #define MAX_WARP_LEVEL	23
+#endif
 
 /*
 =============================================================================
@@ -840,7 +844,7 @@ Sint16 DebugKeys (void)
 		US_Print("\n  Enter map number: ");
 		VW_UpdateScreen();
 		esc = !US_LineInput (px,py,str,NULL,true,2,0);
-		if (!esc)
+		if (!esc && str[0] != '\0')
 		{
 			level = static_cast<Sint16>(atoi (str));
 			if (level>-1 && level<=MAX_WARP_LEVEL)
