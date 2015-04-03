@@ -226,7 +226,10 @@ typedef struct InfoArea_Struct
 Uint16 LastMsgPri = 0;
 Sint16 MsgTicsRemain = 0;
 classtype LastInfoAttacker = nothing;
+
+#ifdef BSTONE_PS
 Sint16 LastInfoAttacker_Cloaked = 0;
+#endif
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
 
@@ -807,7 +810,9 @@ void	TakeDamage (Sint16 points, objtype *attacker)
 				if (DISPLAY_TIMED_MSG(ActorInfoMsg[attacker->obclass-rentacopobj],MP_TAKE_DAMAGE,MT_ATTACK))
             {
 					LastInfoAttacker = attacker->obclass;
+#ifdef BSTONE_PS
                LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
+#endif
             }
 			}
 		}
@@ -1630,8 +1635,10 @@ boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTim
 
       LastMsgType = static_cast<infomsg_type>(MsgType);
 
+#ifdef BSTONE_PS
       if (LastMsgType != MT_ATTACK)
       	LastInfoAttacker_Cloaked = 0;
+#endif
 
 		return(true);
 	}
@@ -2013,9 +2020,11 @@ Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 	//
 	// If Image is Cloaked... Shade the image
 	//
+#ifdef BSTONE_PS
 	if (LastInfoAttacker_Cloaked)
 		shade = 35;				// 63 == BLACK | 0 == NO SHADING
 	else
+#endif
 		shade = 0;
 
 	switch (shapetype)
@@ -2692,6 +2701,7 @@ void Thrust (Sint16 angle, Sint32 speed)
          ignore_map1 = true;
 		break;
 
+#ifdef BSTONE_PS
       case SMART_OFF_TRIGGER:
       case SMART_ON_TRIGGER:
 			dx = *map[1]>>8;
@@ -2699,6 +2709,7 @@ void Thrust (Sint16 angle, Sint32 speed)
          OperateSmartSwitch(dx,dy,static_cast<char>((*map[0])-SMART_OFF_TRIGGER),false);
          ignore_map1 = true;
       break;
+#endif
 
 		case WINTIGGERTILE:
 			playstate = ex_victorious;
@@ -2840,11 +2851,15 @@ Uint8 ValidAreaTile(Uint16 *ptr)
 		case HIDDENAREATILE:
 		case DOORTRIGGERTILE:
 		case WINTIGGERTILE:
+#ifdef BSTONE_PS
       case SMART_ON_TRIGGER:
       case SMART_OFF_TRIGGER:
+#endif
 		case AMBUSHTILE:
+#ifdef BSTONE_PS
 		case LINC_TILE:
 		case CLOAK_AMBUSH_TILE:
+#endif
 		break;
 
 		default:
@@ -5419,7 +5434,6 @@ void	T_Attack (objtype *ob)
 				MakeAlertNoise(ob);
 			}
 		break;
-#endif
 
 		case 10:
 			if (gamestate.ammo && buttonstate[bt_attack])
@@ -5432,7 +5446,7 @@ void	T_Attack (objtype *ob)
 					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
             }
 		break;
-
+#endif
 		}
 
 		gamestate.attackcount += cur->tics;

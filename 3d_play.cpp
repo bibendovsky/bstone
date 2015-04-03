@@ -132,7 +132,11 @@ boolean		mouseenabled,joystickenabled,joypadenabled,joystickprogressive;
 Sint16			joystickport;
 Sint16			dirscan[4] = {sc_up_arrow,sc_right_arrow,sc_down_arrow,sc_left_arrow};
 Sint16			buttonscan[NUMBUTTONS] =
-				{sc_control,sc_alt,sc_right_shift,sc_space,sc_1,sc_2,sc_3,sc_4,sc_5,sc_6,sc_7};
+				{sc_control,sc_alt,sc_right_shift,sc_space,sc_1,sc_2,sc_3,sc_4,sc_5,sc_6
+#ifdef BSTONE_PS
+                ,sc_7
+#endif
+};
 Sint16			buttonmouse[4]={bt_attack,bt_strafe,bt_use,bt_nobutton};
 Sint16			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
 
@@ -286,11 +290,13 @@ void PollKeyboardButtons()
         if (in_is_binding_pressed(e_bi_weapon_5))
             buttonstate[bt_ready_grenade] = true;
 
+#ifdef BSTONE_PS
         if (in_is_binding_pressed(e_bi_weapon_6))
             buttonstate[bt_ready_bfg_cannon] = true;
 
         if (in_is_binding_pressed(e_bi_weapon_7))
             buttonstate[bt_ready_plasma_detonators] = true;
+#endif
     } else {
         for (int i = 0; i < NUMBUTTONS; ++i)
             if (Keyboard[buttonscan[i]])

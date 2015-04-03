@@ -1152,7 +1152,9 @@ void KillActor (objtype *ob)
 	if (KeepSolid)
 	{
 		ob->flags &= ~(FL_SHOOTABLE);
+#ifdef BSTONE_PS
 	   ob->flags2 &= ~FL2_BFG_SHOOTABLE;
+#endif
       if (deadguy)
 			ob->flags |= FL_DEADGUY;
 	}
@@ -1178,7 +1180,9 @@ numEnemy[clas]--;
         }
 
 		ob->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
+#ifdef BSTONE_PS
 		ob->flags2 &= ~FL2_BFGSHOT_SOLID;
+#endif
 
 		if ((actorat[ob->tilex][ob->tiley]) == ob)
 		{
@@ -1303,7 +1307,9 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 		damage <<= 1;
 
 	ob->hitpoints -= damage;
+#ifdef BSTONE_PS
 	ob->flags2 |= FL2_DAMAGE_CLOAK;
+#endif
 
 	if (ob->hitpoints<=0)
 	{

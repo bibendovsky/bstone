@@ -369,7 +369,10 @@ char MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
 Uint16 bars_connected = 0;
 
 Uint16 SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
-									     FL2_DROP_BFG,FL2_DROP_ION,FL2_DROP_DETONATOR};
+#ifdef BSTONE_PS
+									     FL2_DROP_BFG,FL2_DROP_ION,FL2_DROP_DETONATOR
+#endif
+};
 
 
 void	T_Path (objtype *ob);
@@ -605,7 +608,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags |= FL_PROJ_TRANSPARENT;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE|FL2_BFGSHOT_SOLID;
+#endif
 		break;
 
 		case en_green_ooze:
@@ -706,7 +713,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			if (new_actor->temp2==0xff*60)
 				new_actor->flags &= ~FL_SHOOTABLE;
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE|FL_FAKE_STATIC;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_pod:
@@ -714,7 +725,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = SPDPATROL;
 			new_actor->ammo = static_cast<Uint8>(-1);
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_genetic_guard:
@@ -722,7 +737,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_mutant_human1:
@@ -730,7 +749,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 #ifdef BSTONE_PS
@@ -746,13 +769,22 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 		case en_scan_wait_alien:
 			new_actor->temp1 = SPR_SCAN_ALIEN_READY;
 			new_actor->flags |= FL_STATIONARY|FL_NO_SLIDE|FL_FAKE_STATIC;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_lcan_wait_alien:
 			new_actor->temp1 = SPR_LCAN_ALIEN_READY;
 			new_actor->flags |= FL_STATIONARY|FL_NO_SLIDE|FL_FAKE_STATIC;
+
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_morphing_spider_mutant:
@@ -770,7 +802,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->temp1 = MorphShapes[which-en_morphing_spider_mutant];
 			new_actor->flags |= FL_FAKE_STATIC;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 			NewState(new_actor,&s_ofs_random);
       break;
 
@@ -781,7 +817,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 				new_actor->temp3 = (scan_value & 0xff)*60;
 			new_actor->temp1 = SPR_GURNEY_MUT_READY;
 			new_actor->flags |= FL_STATIONARY|FL_PROJ_TRANSPARENT|FL_NO_SLIDE|FL_FAKE_STATIC;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_lcan_alien:						// Large Canister Alien - Out of can.
@@ -789,7 +829,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_scan_alien:						// Small Canister Alien - Out of can.
@@ -797,7 +841,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags |= FL_PROJ_TRANSPARENT;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_gurney:							// Gurney Mutant - Off of gurney.
@@ -805,7 +853,11 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			new_actor->speed = ALIENSPEED;
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
 			new_actor->ammo = ALIENAMMOINIT;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
         default:
@@ -2347,12 +2399,19 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
 	new_actor->obclass = static_cast<classtype>(rentacopobj+which);
 	new_actor->ammo = static_cast<Uint8>(OnOff);
 	new_actor->temp2 = ScanBarrierTable(static_cast<Uint8>(tilex),static_cast<Uint8>(tiley));
+
+#ifdef BSTONE_AOG
+    new_actor->flags2 = 0;
+#else
 	new_actor->flags2 = FL2_BFGSHOT_SOLID;
+#endif
 
 	switch (which)
 	{
 		case en_arc_barrier:
+#ifdef BSTONE_PS
 			new_actor->flags2 |= FL2_BFG_SHOOTABLE;
+#endif
       	if (OnOff)
          {
 				InitSmartSpeedAnim(new_actor,SPR_ELEC_ARC1,US_RndT()%3,2,at_CYCLE,ad_FWD,3+(US_RndT()&3));
@@ -2446,7 +2505,9 @@ void ToggleBarrier(objtype *obj)
 	switch (BARRIER_STATE(obj))
 	{
 		case bt_ON:				// Same as closed
+#ifdef BSTONE_PS
       case bt_CLOSING:
+#endif
 			//
 			// Turn OFF/Open
 			//
@@ -2477,7 +2538,9 @@ void ToggleBarrier(objtype *obj)
 		break;
 
 		case bt_OFF:			// Same as open
+#ifdef BSTONE_PS
       case bt_OPENING:
+#endif
 			//
 			// Turn ON/Closed
 			//
@@ -3325,7 +3388,11 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 		case en_goldstern:
 			SpawnNewObj (tilex,tiley,&s_goldwarp_in1);
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->speed = SPDPATROL;
 			if (gamestate.mapon==9)
 				new_actor->hitpoints = starthitpoints[gamestate.difficulty][which]*15;
@@ -3342,21 +3409,33 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 		case en_liquid:
 			SpawnNewObj(tilex,tiley,&s_liquid_wait);
 			new_actor->flags = FL_OFFSET_STATES|FL_PROJ_TRANSPARENT;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->speed = SPDPATROL*3;
 		break;
 
 		case en_rentacop:
 			SpawnNewObj (tilex,tiley,&s_rent_stand);
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->speed = SPDPATROL;
 		break;
 
 		case en_gen_scientist:
 			SpawnNewObj (tilex,tiley,&s_ofcstand);
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_FRIENDLY | FL_RANDOM_TURN;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			if (US_RndT()&1)
 				new_actor->flags |= FL_INFORMANT;
 			new_actor->speed = SPDPATROL;
@@ -3365,7 +3444,11 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 		case en_swat:
 			SpawnNewObj (tilex,tiley,&s_swatstand);
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->speed = SPDPATROL;
 			ammo = 30;
 			if (scan_value == 0xffff)
@@ -3377,7 +3460,11 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 		case en_proguard:
 			SpawnNewObj (tilex,tiley,&s_prostand);
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->speed = SPDPATROL;
 			ammo = 25;
 		break;
@@ -3392,7 +3479,11 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 			SpawnNewObj (tilex,tiley,&s_scout_stand);
 			new_actor->speed = SPDPATROL;
 			new_actor->temp1 = SPR_FSCOUT_W1_1;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES|FL_FAKE_STATIC;
 		break;
 
@@ -3401,7 +3492,11 @@ void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 			new_actor->speed = SPDPATROL;
 			new_actor->temp1 = SPR_GSCOUT_W1_1;
 			new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_STATIONARY|FL_FAKE_STATIC;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_steamgrate:
@@ -3469,29 +3564,36 @@ void CheckForSpecialTile(objtype *obj, Uint16 tilex, Uint16 tiley)
 
    switch (*map)
    {
+#ifdef BSTONE_PS
       case CLOAK_AMBUSH_TILE:
       	obj->flags2 |= FL2_CLOAKED;
+#endif
 
    	case AMBUSHTILE:
 			obj->flags |= FL_AMBUSH|FL_SHOOTABLE|FL_SOLID;
          getarea = true;
       break;
 
+#ifdef BSTONE_PS
 		case DETONATOR_TILE:
       	old_new =new_actor;
 			SpawnHiddenOfs(en_plasma_detonator_reserve, tilex, tiley);
          new_actor = old_new;
 			obj->flags &= ~FL_INFORMANT;
+#endif
 		case RKEY_TILE:
 		case YKEY_TILE:
 		case BKEY_TILE:
+#ifdef BSTONE_PS
 		case BFG_TILE:
 		case ION_TILE:
+#endif
       	ReserveStatic();
 			obj->flags2 |= SpecialSpawnFlags[(*map)-RKEY_TILE];
          getarea = true;
       break;
 
+#ifdef BSTONE_PS
       case CLOAK_TILE:
       	obj->flags2 |= FL2_CLOAKED;
          getarea = true;
@@ -3505,6 +3607,7 @@ void CheckForSpecialTile(objtype *obj, Uint16 tilex, Uint16 tiley)
 	      obj->linc = *map1;
    	   *map1 = 0;
       break;
+#endif
    }
 
    //
@@ -3548,14 +3651,22 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 
 		case en_rentacop:
 			SpawnNewObj (tilex,tiley,&s_rent_path1);
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			new_actor->speed = SPDPATROL;
 		break;
 
 		case en_gen_scientist:
 			SpawnNewObj (tilex,tiley,&s_ofcpath1);
 			new_actor->flags = FL_FRIENDLY | FL_RANDOM_TURN;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			if (US_RndT()&1)
 				new_actor->flags |= FL_INFORMANT;
 			new_actor->speed = SPDPATROL;
@@ -3564,7 +3675,11 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 		case en_proguard:
 			SpawnNewObj (tilex,tiley,&s_propath1);
 			new_actor->speed = SPDPATROL;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 			ammo = 25;
 		break;
 
@@ -3576,7 +3691,11 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 				new_actor->temp1 = US_RndT()&1;
 			else
 				new_actor->temp1 = scan_value;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_floatingbomb:
@@ -3584,7 +3703,11 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 			new_actor->speed = SPDPATROL;
 			new_actor->temp1 = SPR_FSCOUT_W1_1;
 			new_actor->flags = FL_OFFSET_STATES;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
 		case en_volatiletransport:
@@ -3592,7 +3715,11 @@ void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir)
 			new_actor->speed = SPDPATROL;
 			new_actor->temp1 = SPR_GSCOUT_W1_1;
 			new_actor->flags = FL_OFFSET_STATES;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 		break;
 
         default:
@@ -3880,6 +4007,7 @@ void DropCargo(objtype *obj)
    if (obj->flags2 & FL2_DROP_BKEY)
    	PlaceReservedItemNearTile(bo_blue_key, obj->tilex, obj->tiley);
 
+#ifdef BSTONE_PS
    if (obj->flags2 & FL2_DROP_BFG)
    	PlaceReservedItemNearTile(bo_bfg_cannon, obj->tilex, obj->tiley);
 
@@ -3893,6 +4021,7 @@ void DropCargo(objtype *obj)
    {
       OperateSmartSwitch(obj->linc>>8,obj->linc&255,ST_TURN_OFF,true);
    }
+#endif
 }
 
 
@@ -4893,7 +5022,11 @@ void T_GoldMorph(objtype *obj)
 	obj->speed = ALIENSPEED<<2;
 	obj->ammo = ALIENAMMOINIT;
 	obj->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE|FL_SHOOTABLE|FL_SOLID;
+#ifdef BSTONE_AOG
+    obj->flags2 = 0;
+#else
 	obj->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
+#endif
 	obj->hitpoints = starthitpoints[gamestate.difficulty][en_gold_morph];
 	obj->obclass = gold_morphobj;
 
@@ -6046,7 +6179,9 @@ void ExplodeFill(char tx, char ty)
 				// out of them...
 				//
 					default:
+#ifdef BSTONE_PS
 						if (!(proj_check->flags2 & FL2_CLOAKED))
+#endif
 							SpawnFlash(proj_check->x,proj_check->y);
 						DamageActor(proj_check,ff_damage,ff_obj);
 					break;

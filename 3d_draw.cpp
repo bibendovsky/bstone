@@ -1242,19 +1242,23 @@ void DrawScaleds (void)
 			if (!obj->viewheight)
 				continue;						// too close or far away
 
+#ifdef BSTONE_PS
          if ((obj->flags2 & (FL2_CLOAKED|FL2_DAMAGE_CLOAK)) == (FL2_CLOAKED))
          {
 				visptr->cloaked = 1;
 				visptr->lighting = 0;
          }
          else
+#endif
          {
          	visptr->cloaked = 0;
 				visptr->lighting = obj->lighting;
          }
 
+#ifdef BSTONE_PS
 			if (!(obj->flags & FL_DEADGUY))
 				obj->flags2 &= ~FL2_DAMAGE_CLOAK;
+#endif
 
 			visptr->viewx = obj->viewx;
 			visptr->viewheight = obj->viewheight;

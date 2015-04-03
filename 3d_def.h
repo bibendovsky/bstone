@@ -261,8 +261,12 @@ void jsprintf(char *msg, ...);
 #define HIDDENAREATILE			  	162										 // first of hidden floor tiles
 #define NUMAREAS                	45
 #define DOORTRIGGERTILE				158
+
+#ifdef BSTONE_PS
 #define SMART_OFF_TRIGGER			159
 #define SMART_ON_TRIGGER			160
+#endif
+
 #define ELEVATORTILE2				27										 // Space Will Switch
 #define TRANSPORTERTILE    	  	21
 #define DIRECTTRANSPORTTILE		32										 // Wall to use on direct level transporters
@@ -273,12 +277,16 @@ void jsprintf(char *msg, ...);
 #define RKEY_TILE        			72
 #define YKEY_TILE        			73
 #define BKEY_TILE        			74
+
+#ifdef BSTONE_PS
 #define BFG_TILE        			75
 #define ION_TILE        			76
 #define DETONATOR_TILE    			77
 #define CLOAK_TILE    				78
 #define LINC_TILE    				79
 #define CLOAK_AMBUSH_TILE			80
+#endif
+
 #define EATILE							24
 #define ON_SWITCH						45										// ON Wall Switch -
 #define OFF_SWITCH					57										// OFF Wall Switch -
@@ -450,19 +458,25 @@ void jsprintf(char *msg, ...);
 
 // object flags2 values
 
+#ifdef BSTONE_PS
 #define FL2_BFGSHOT_SOLID				0x0001
 #define FL2_BFG_SHOOTABLE				0x0002
+#endif
+
 #define FL2_NOTGUNSHOOTABLE			0x0004
 #define FL2_SCARED          			0x0008
 #define FL2_DROP_RKEY					0x0010
 #define FL2_DROP_YKEY               0x0020
 #define FL2_DROP_BKEY               0x0040
+
+#ifdef BSTONE_PS
 #define FL2_DROP_BFG                0x0080
 #define FL2_DROP_ION                0x0100
 #define FL2_DROP_DETONATOR          0x0200
 #define FL2_CLOAKED						0x0400
 #define FL2_LINC							0x0800
 #define FL2_DAMAGE_CLOAK				0x1000
+#endif
 
 
 // Run Reason Flags -- Why am I running..Duh..
@@ -3716,9 +3730,10 @@ enum barrier_state_type
    bt_DISABLING,
    bt_DISABLED,
 
+#ifdef BSTONE_PS
    bt_OPENING,				// For physical barriers
    bt_CLOSING				//	      " " "
-
+#endif
 }; // enum barrier_state_type
 
 
@@ -4308,8 +4323,11 @@ enum ButtonState {
 	bt_ready_burst_rifle,
 	bt_ready_ion_cannon,
 	bt_ready_grenade,
+
+#ifdef BSTONE_PS
    bt_ready_bfg_cannon,
    bt_ready_plasma_detonators,
+#endif
 
    bt_SPACER,
 
@@ -5232,7 +5250,10 @@ extern char* InfAreaMsgs[];
 extern Uint8 NumAreaMsgs,LastInfArea;
 extern Sint16 FirstGenInfMsg,TotalGenInfMsgs;
 extern classtype LastInfoAttacker;						 
+
+#ifdef BSTONE_PS
 extern Sint16 LastInfoAttacker_Cloaked;
+#endif
 
 extern char term_com_name[];
 extern char term_msg_name[];
