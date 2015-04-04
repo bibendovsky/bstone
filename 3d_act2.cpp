@@ -2177,7 +2177,7 @@ void DisplaySwitchOperateMsg(Uint16 coords)
 {
     barrier_type* barrier = &gamestate.barrier_table[coords];
 
-    std::string message;
+    static std::string message;
 
     if (barrier->on != 0) {
         message = "\r\r  ACTIVATING BARRIER";
@@ -2187,8 +2187,9 @@ void DisplaySwitchOperateMsg(Uint16 coords)
 
 #ifdef BSTONE_AOG
     message +=
-        "\r      ON FLOOR   " +
-        bstone::StringHelper::lexical_cast<std::string>(barrier->level);
+        "\r      ON FLOOR " +
+        bstone::StringHelper::lexical_cast<std::string>(
+            static_cast<int>(barrier->level));
 #endif
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
