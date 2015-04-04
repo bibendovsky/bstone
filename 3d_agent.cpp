@@ -2997,12 +2997,19 @@ void Cmd_Use (void)
 
 					gamestuff.level[gamestate.mapon].ptilex = player->tilex;
 					gamestuff.level[gamestate.mapon].ptiley = player->tiley;
+#ifdef BSTONE_PS
 					angle = player->angle - 180;
 					if (angle < 0)
 						angle += ANGLES;
+#endif
 					gamestuff.level[gamestate.mapon].pangle = angle;
 
+#ifdef BSTONE_AOG
+                    playstate=ex_warped;
+#else
 					playstate=ex_transported;
+#endif
+
 					gamestate.lastmapon=gamestate.mapon;
 					gamestate.mapon=new_floor-1;
 				}
@@ -3018,6 +3025,21 @@ void Cmd_Use (void)
 						playstate = ex_transported;
 						gamestate.lastmapon=gamestate.mapon;
 						gamestate.mapon=(iconnum & 0xff)-1;
+
+#ifdef BSTONE_AOG
+                        gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
+                        gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
+
+                        {
+                            int angle = player->angle - 180;
+
+                            if (angle < 0) {
+                                angle += ANGLES;
+                            }
+
+                            gamestuff.level[gamestate.mapon + 1].pangle = angle;
+                        }
+#endif
 					break;
 
 					default:

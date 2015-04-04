@@ -4522,6 +4522,7 @@ struct gametype {
     Sint16 wintilex;
     Sint16 wintiley;
 
+
     void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;

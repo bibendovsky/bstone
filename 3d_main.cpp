@@ -1385,7 +1385,26 @@ bool LoadLevel(
             throw ArchiveException("actor_count");
 
         ::InitActorList();
+
+        // First actor is always player
         new_actor->deserialize(reader, checksum);
+
+#if 0
+        if (playstate == ex_transported) {
+            int tx = gamestate.transported_tile_x;
+            int ty = gamestate.transported_tile_y;
+
+            new_actor->tilex = tx;
+            new_actor->tiley = ty;
+
+
+            int x = (tx << TILESHIFT) + (TILEGLOBAL / 2);
+            int y = (tx << TILESHIFT) + (TILEGLOBAL / 2);
+
+            new_actor->x = x;
+            new_actor->y = y;
+        }
+#endif
 
         for (Sint32 i = 1; i < actor_count; ++i) {
             ::GetNewActor();
