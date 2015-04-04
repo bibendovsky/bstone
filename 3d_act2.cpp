@@ -592,17 +592,21 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 
 	switch (which)
 	{
+#ifdef BSTONE_PS
       case en_final_boss2:
          new_actor->lighting = NO_SHADING;
+#endif
 		case en_spider_mutant:
 		case en_breather_beast:
 		case en_cyborg_warrior:
 		case en_reptilian_warrior:
 		case en_acid_dragon:
 		case en_mech_guardian:
+#ifdef BSTONE_PS
       case en_final_boss1:
       case en_final_boss3:
       case en_final_boss4:
+#endif
 			new_actor->temp1 = BossShapes[which-en_spider_mutant];
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;

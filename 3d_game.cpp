@@ -2048,7 +2048,7 @@ numEnemy[new_actor->obclass]++;
 				new_actor->flags &= ~FL_RANDOM_TURN;
 			break;
 
-
+#ifdef BSTONE_PS
 //-----------------------
 // BOSS ACTORS
 //-----------------------
@@ -2059,7 +2059,7 @@ numEnemy[new_actor->obclass]++;
          case 633:	// FINAL BOSS 4
          	SpawnOffsetObj(static_cast<enemy_t>(en_final_boss1+tile-630),x,y);
 			break;
-
+#endif
 			}
 
 		// If "new_actor" is an object that gives points, add those points to level total...
