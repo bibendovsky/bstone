@@ -369,9 +369,18 @@ char * BonusMsg[]=
 //
 //---------------------------------------------------------------------------
 
-//	Sector Patrol
-char actor_info4[]="^AN04^FC17\r\r  ATTACKING:\r"
+//	Sector Patrol (AOG) / Sector Guard (PS)
+#ifdef BSTONE_AOG
+const char actor_info4[]=
+    "^AN04^FC17\r"
+    "\r"
+    "  ATTACKING:\r"
+    "^FCA6SECTOR PATROL"
+;
+#else
+const char actor_info4[]="^AN04^FC17\r\r  ATTACKING:\r"
 										  "^FCA6 SECTOR GUARD";
+#endif
 
 //	hang_terrotobj,
 char actor_info5[]="^AN05^FC17\r  ATTACKING:\r"
@@ -392,9 +401,21 @@ char actor_info11[]="^AN0B^FC17\r  ATTACKING:\r"
 //	electrosphereobj,
 char actor_info12[]="^AN0C^FC17\r\r  ATTACKING:\r"
 											"^FCA6PLASMA SPHERE";
-//	STAR Sentinel
-char actor_info13[]="^AN0D^FC17\r\r  ATTACKING:\r"
+
+// STAR Sentinel (AOG) / Tech Warrior (PS)
+#ifdef BSTONE_AOG
+const char actor_info13[]=
+    "^AN0D^FC17\r"
+    "\r"
+    "  ATTACKING:\r"
+    "^FCA6STAR SENTINEL"
+;
+
+#else
+const char actor_info13[]="^AN0D^FC17\r\r  ATTACKING:\r"
 											"^FCA6 TECH WARRIOR";
+#endif
+
 //	genetic_guardobj,
 char actor_info14[]="^AN0E^FC17\r  ATTACKING:\r"
 										 "^FCA6 HIGH-SECURITY\r"
@@ -423,10 +444,19 @@ char actor_info22[]="^AN16^FC17\r  ATTACKING:\r"
 										 "^FCA6   MUTATED\r"
 												"    GUARD";
 
-//	Alien Protector (old STAR Trooper)
-char actor_info24[]="^AN18^FC17\r  ATTACKING:\r"
+// STAR Trooper (AOG) / Alien Protector (PS)
+#ifdef BSTONE_AOG
+const char actor_info24[]=
+    "^AN18^FC17\r"
+    "\r"
+    "  ATTACKING:\r"
+    "^FCA6 STAR TROOPER"
+;
+#else
+const char actor_info24[]="^AN18^FC17\r  ATTACKING:\r"
 									    "^FCA6    ALIEN\r"
 										      "  PROTECTOR";
+#endif
 
 //	goldsternobj,
 char actor_info25[]="^AN19^FC17\r\r  ATTACKING:\r"
@@ -558,7 +588,7 @@ char actor_info56[]="^AN2c^FC17\r  ATTACKING:\r"
 
 
 
-char * ActorInfoMsg[]=
+const char * ActorInfoMsg[]=
 {
 //			0,0,						// nothing,player
 //			0,0,0,					// inert,fixup,dead

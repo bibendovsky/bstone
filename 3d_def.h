@@ -5673,7 +5673,7 @@ extern char bonus_msg26[];
 #endif
 
 extern char *BonusMsg[];
-extern char *ActorInfoMsg[];
+extern const char *ActorInfoMsg[];
 extern char ekg_heartbeat_enabled[];
 extern char ekg_heartbeat_disabled[];
 extern char attacker_info_enabled[];
