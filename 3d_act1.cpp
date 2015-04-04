@@ -2080,8 +2080,14 @@ boolean ReuseMsg(mCacheInfo *ci, Sint16 count, Sint16 struct_size)
 // OperateConcession()
 //--------------------------------------------------------------------------
 
+#ifdef BSTONE_AOG
+extern const char food_msg1[];
+extern const char bevs_msg1[];
+#else
 extern char food_msg1[];
 extern char bevs_msg1[];
+#endif
+
 extern void writeTokenStr(char *str);
 
 char OutOrder[] 	= {"\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"};
@@ -2159,13 +2165,17 @@ void OperateConcession(Uint16 concession)
 				switch (ci->type)
 				{
 					case CT_FOOD:
+#ifdef BSTONE_PS
 						writeTokenStr(food_msg1);
+#endif
 						DISPLAY_TIMED_MSG(food_msg1,MP_CONCESSION_OPERATE,MT_GENERAL);
 						HealSelf(10);
 					break;
 
 					case CT_BEVS:
+#ifdef BSTONE_PS
 						writeTokenStr(bevs_msg1);
+#endif
 						DISPLAY_TIMED_MSG(bevs_msg1,MP_CONCESSION_OPERATE,MT_GENERAL);
 						HealSelf(7);
 					break;

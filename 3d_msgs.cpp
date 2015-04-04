@@ -31,10 +31,18 @@ Free Software Foundation, Inc.,
 //
 //---------------------------------------------------------------------------
 
+#ifdef BSTONE_AOG
+const char food_msg1[] =
+    "\r"
+    " FOOD UNIT DISPENSES\r"
+    " SOMETHING RESEMBLING\r"
+    "        FOOD."
+;
+#else
 char food_msg1[]="\r FOOD UNIT DISPENSES\r"
 							  "  SOMETHING EDIBLE.\r"
 							"\r     TOKENS: XX";
-
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -42,11 +50,18 @@ char food_msg1[]="\r FOOD UNIT DISPENSES\r"
 //
 //---------------------------------------------------------------------------
 
-
+#ifdef BSTONE_AOG
+const char bevs_msg1[]=
+    "\r"
+    "\r"
+    " FOOD UNIT DISPENSES\r"
+    "  A COLD BEVERAGE."
+;
+#else
 char bevs_msg1[]="\r FOOD UNIT DISPENSES\r"
 							  "  A COLD BEVERAGE.\r"
 							"\r     TOKENS: XX";
-
+#endif
 
 //---------------------------------------------------------------------------
 //

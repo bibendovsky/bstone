@@ -5657,8 +5657,14 @@ extern  void    EndText(void);
 
 
 extern char noeat_msg1[];
+
+#ifdef BSTONE_AOG
+extern const char bevs_msg1[];
+extern const char food_msg1[];
+#else
 extern char bevs_msg1[];
 extern char food_msg1[];
+#endif
 
 extern char bonus_msg7[];
 
