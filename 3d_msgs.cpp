@@ -122,11 +122,12 @@ char SoundOn[] =  "^FC57\r\r       SOUNDS:\r"
 								  "^FCA6   SOUND EFFECTS\r"
 										 "       ARE XXXX";
 
-
+#ifdef BSTONE_AOG
 char ekg_heartbeat_enabled[] = "\r\r     EKG HEART BEAT\r"
 													"     SOUND ENABLED.";
 char ekg_heartbeat_disabled[] = "\r\r     EKG HEART BEAT\r"
 													 "     SOUND DISABLED.";
+#endif
 
 char attacker_info_enabled[] = "\r\rDETAILED ATTACKER INFO\r"
 													"   DISPLAY ENABLED.";
@@ -139,10 +140,10 @@ char WeaponNotAvailMsg[]  = "\r\r  SELECTED WEAPON NOT\r"
 char WeaponAvailMsg[]  = "\r\r   SELECTED WEAPON\r"
 											" ACTIVATED AND READY.";
 
-
+#ifdef BSTONE_PS
 char RadarEnergyGoneMsg[]  = "\r\r  RADAR MAGNIFICATION\r"
 												 "    ENERGY DEPLETED.";
-
+#endif
 
 char EnergyPackDepleted[] = "^FC19\r       WARNING:\r"
 											 "^FC17ENERGY PACK DEPLETED\r"
@@ -267,9 +268,11 @@ char bonus_msg21[]="^SH08A^FC57\r   WEAPON:\r"
 												" DISCHARGE\r"
 												"    UNIT";
 
+#ifdef BSTONE_PS
 char bonus_msg21a[]="^SH0E4^FC57\r\r   WEAPON:\r"
 											 "^FCA6 ANTI-PLASMA\r"
 													"   CANNON";
+#endif
 
 char bonus_msg24[]="^SH020^FC57\r  FOOD TOKEN:\r"
 										 "^FCA6   1 CREDIT\r"
@@ -309,16 +312,22 @@ char bonus_msg26[]=   "^SH0D8^FC57   FISSION\r"
 												 "  DETONATOR\r\r"
 										  "^FCA6PRESS TILDE OR\r"
 												 "SPACE TO DROP";
-#endif
 
 char bonus_msg27[]=   "^SH0D9^FC57\r   RADAR:  \r"
 											 "^FCA6MAGNIFICATION\r"
 													"   ENERGY";
+#endif
 
 char * BonusMsg[]=
 {
 			bonus_msg1,bonus_msg2,bonus_msg4,
-			bonus_msg7,bonus_msg7,bonus_msg8,bonus_msg9,bonus_msg10,bonus_msg21,bonus_msg21a,
+			bonus_msg7,bonus_msg7,bonus_msg8,bonus_msg9,bonus_msg10,bonus_msg21,
+
+#ifdef BSTONE_AOG
+            0,
+#else
+            bonus_msg21a,
+#endif
 
 			bonus_msg12,bonus_msg11,
 			bonus_msg18,bonus_msg17,bonus_msg23,bonus_msg22,bonus_msg19,
@@ -332,10 +341,11 @@ char * BonusMsg[]=
 			bonus_msg24,bonus_msg25,
 #ifdef BSTONE_AOG
             0,
+            0,
 #else
 			bonus_msg26,
-#endif
             bonus_msg27,
+#endif
 };
 
 //---------------------------------------------------------------------------
@@ -445,7 +455,7 @@ char actor_info42[]="^SH08C^FC17\r  ATTACKING:\r"
 										  "^FCA6 STANDING IN\r"
 												 " TOXIC SLUDGE.";
 
-
+#ifdef BSTONE_PS
 char actor_info41a[]="^SH0E2^FC17\r  ATTACKING:\r"
 										   "^FCA6 STANDING IN\r"
 												  " TOXIC SLUDGE.";
@@ -455,13 +465,13 @@ char actor_info42a[]="^SH0E3^FC17\r  ATTACKING:\r"
 										   "^FCA6 STANDING IN\r"
 											 	  "  BIO TOXIC\r"
 												  "    WASTE.";
-
+#endif
 
 char actor_info43[]="^AN1D^FC17\r  ATTACKING:\r"
 										 "^FCA6 ELECTRIC ARC\r"
 												"   BARRIER.";
 
-
+#ifdef BSTONE_PS
 char actor_info43a[]="^SH0F4^FC17\r  ATTACKING:\r"
 											"^FCA6    POST\r"
 												  "   BARRIER.";
@@ -469,7 +479,7 @@ char actor_info43a[]="^SH0F4^FC17\r  ATTACKING:\r"
 char actor_info43b[]="^SH0FC^FC17\r  ATTACKING:\r"
 									  	   "^FCA6    SPIKE\r"
 											 	  "   BARRIER.";
-
+#endif
 
 char actor_info44[]="^AN1e^FC17\r  ATTACKING:\r"
   										 "^FCA6   SPIDER\r"
@@ -592,8 +602,13 @@ char * ActorInfoMsg[]=
 
 			actor_info41,        // Green Ooze
 			actor_info42,        // Black Ooze
+#ifdef BSTONE_AOG
+            0,
+            0,
+#else
 			actor_info41a,       // Green2 Ooze
 			actor_info42a,       // Black2 Ooze
+#endif
 			0,							// Pod Egg
 
 			actor_info44,			// morphing_spider mutant
@@ -605,8 +620,13 @@ char * ActorInfoMsg[]=
 			actor_info31,        // Electro-Alien SHOT
 			0,                   // Post Barrier
 			actor_info43,        // Arc Barrier
+#ifdef BSTONE_AOG
+            0,
+            0,
+#else
 			actor_info43a,       // VPost Barrier
 			actor_info43b,       // VSpike Barrier
+#endif
 
 #ifdef BSTONE_AOG
             0,
