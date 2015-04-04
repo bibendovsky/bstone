@@ -4044,6 +4044,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 					if (!CheckDiskSpace(DISK_SPACE_NEEDED,CANT_SAVE_GAME_TXT,cds_menu_print))
 						return(which);
 
+#ifdef BSTONE_PS
 			 //
 			 // ALREADY IN A GAME?
 			 //
@@ -4053,6 +4054,7 @@ Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 
 						MenuFadeOut();
 						return 0;
 					}
+#endif
 
 				ShootSnd();
 				MenuFadeOut();
