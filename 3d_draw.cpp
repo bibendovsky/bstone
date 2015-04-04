@@ -51,7 +51,10 @@ Free Software Foundation, Inc.,
 
 #define ACTORSIZE	0x4000
 
+#ifdef BSTONE_PS
 void DrawRadar(void);
+#endif
+
 void DrawLSPost();
 void DrawPost();
 void GetBonus (statobj_t *check);
@@ -1756,7 +1759,7 @@ void UpdateTravelTable()
 
 extern Sint16 an_offset[];
 
-
+#ifdef BSTONE_PS
 //--------------------------------------------------------------------------
 // DrawRadar()
 //--------------------------------------------------------------------------
@@ -1783,6 +1786,7 @@ void DrawRadar()
 
 	ShowOverhead(192,156,16,zoom,flags);
 }
+#endif
 
 Uint16 tc_time;
 
