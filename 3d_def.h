@@ -387,9 +387,11 @@ void jsprintf(char *msg, ...);
 //#define NUM_AMMO_SEGS				42			// 42 Color segments (OR 21 2-Color segs)
 #define MAX_AMMO 						100		// Max ammount of ammo for any weapon
 #define AUTOCHARGE_WAIT				50			// Tics wait time for a full charge
+
+#ifdef BSTONE_PS
 #define MAX_PLASMA_DETONATORS		100		// Max number of Plasma Detonators	 
 #define PLASMA_DETONATORS_DELAY	60*4		// Number of tics before plasma detonator explodes
-
+#endif
 
 
 
@@ -4325,11 +4327,8 @@ enum ButtonState {
 	bt_ready_burst_rifle,
 	bt_ready_ion_cannon,
 	bt_ready_grenade,
-
-#ifdef BSTONE_PS
    bt_ready_bfg_cannon,
    bt_ready_plasma_detonators,
-#endif
 
    bt_SPACER,
 
@@ -4343,9 +4342,7 @@ enum weapontype {
 	wp_burst_rifle,
 	wp_ion_cannon,
 	wp_grenade,
-#ifdef BSTONE_PS
 	wp_bfg_cannon,
-#endif
 //	wp_plasma_detonators,
 
    wp_SPACER,
@@ -5334,8 +5331,10 @@ void		GiveKey(Sint16 key);
 void		TakeKey(Sint16 key);
 void	GiveToken (Sint16 tokens);
 
+#ifdef BSTONE_PS
 void	TakePlasmaDetonator (Sint16 count);		  
 void	GivePlasmaDetonator (Sint16 count);		  
+#endif
 
 void CacheDrawPic(int x, int y, int pic);	
 void LoadTerminalCommands(void);
@@ -5401,7 +5400,10 @@ Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen
 void CacheConcessionMsg(void);
 boolean ReuseMsg(mCacheInfo *ci, Sint16 count, Sint16 struct_size);
 
+#ifdef BSTONE_PS
 void DropPlasmaDetonator(void);
+#endif
+
 void BlockDoorOpen(Sint16 door);
 void BlastNearDoors(Sint16 tilex, Sint16 tiley);
 void TryBlastDoor(char door);
@@ -5433,7 +5435,10 @@ void ExplodeStatics(Sint16 tilex, Sint16 tiley);
 void MakeFakeStatic(objtype *ob);
 void UnmakeFakeStatic(objtype *ob);
 
+#ifdef BSTONE_PS
 extern char detonators_spawned;
+#endif
+
 extern Sint16 starthitpoints[][NUMHITENEMIES];			
 
 #ifdef BSTONE_PS
@@ -5655,7 +5660,10 @@ extern char bevs_msg1[];
 extern char food_msg1[];
 
 extern char bonus_msg7[];
+
+#ifdef BSTONE_PS
 extern char bonus_msg26[];
+#endif
 
 extern char *BonusMsg[];
 extern char *ActorInfoMsg[];
@@ -5685,6 +5693,7 @@ extern char MusicOff[];
 extern char SoundOn[];
 extern char SoundOff[];
 
+#ifdef BSTONE_PS
 extern char pd_dropped[];
 extern char pd_nomore[];
 extern char pd_switching[];
@@ -5694,7 +5703,7 @@ extern char pd_floorunlocked[];
 extern char pd_donthaveany[];
 extern char pd_no_computer[];
 extern char pd_floornotlocked[];
-
+#endif
 
 
 /*

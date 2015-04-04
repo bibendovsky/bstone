@@ -372,7 +372,9 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 		case	bo_red_key:
 		case	bo_yellow_key:
 		case	bo_blue_key:
+#ifdef BSTONE_PS
 		case  bo_plasma_detonator:
+#endif
 			TravelTable[tilex][tiley] |= TT_KEYS;
 
 		case	bo_gold1:
@@ -1256,7 +1258,7 @@ void BlastNearDoors(Sint16 tilex, Sint16 tiley)
 }
 
 
-
+#ifdef BSTONE_PS
 //--------------------------------------------------------------------------
 // DropPlasmaDetonator()  - Will move a Chaff from reserve to the player location.
 //--------------------------------------------------------------------------
@@ -1277,7 +1279,6 @@ void DropPlasmaDetonator(void)
 
 	ACT1_ERROR(NO_DOORBOMB_SPARES);
 }
-
 
 
 //--------------------------------------------------------------------------
@@ -1332,7 +1333,7 @@ void TryDropPlasmaDetonator(void)
    else
    	DropPlasmaDetonator();
 }
-
+#endif
 
 //===========================================================================
 

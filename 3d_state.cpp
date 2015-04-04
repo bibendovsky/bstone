@@ -1287,6 +1287,7 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
      	case rotating_cubeobj:
       return;
 
+#ifdef BSTONE_PS
 	 	case plasma_detonatorobj:
    	  	//
 	      // Detonate 'Em!
@@ -1296,6 +1297,7 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			else
 				ob->temp3 = damage;
 		return;
+#endif
 
         default:
             break;

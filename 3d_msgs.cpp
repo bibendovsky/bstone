@@ -166,7 +166,7 @@ char NoFoodTokens[]  = "\r\r  YOU DON'T HAVE ANY\r"
 
 
 
-
+#ifdef BSTONE_PS
 //---------------------------------------------------------------------------
 //
 //						        FISSION DETONATOR(S) MESSAGES
@@ -214,7 +214,7 @@ char pd_floornotlocked[] ="^SH035^FCA6\r TRANSPORTER\r"
 														 " SECURITY\r"
 														 " ALREADY\r"
 														 " DISABLED.";
-
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -304,10 +304,12 @@ char bonus_msg19[]="^SH012^FC57\r\r    FOOD:\r"
 char bonus_msg20[]="^SH013^FC57\r\r    FOOD:\r"
 											"^FCA6 WATER PUDDLE";
 
+#ifdef BSTONE_PS
 char bonus_msg26[]=   "^SH0D8^FC57   FISSION\r"
 												 "  DETONATOR\r\r"
 										  "^FCA6PRESS TILDE OR\r"
 												 "SPACE TO DROP";
+#endif
 
 char bonus_msg27[]=   "^SH0D9^FC57\r   RADAR:  \r"
 											 "^FCA6MAGNIFICATION\r"
@@ -328,7 +330,12 @@ char * BonusMsg[]=
 
 			0,0,0,
 			bonus_msg24,bonus_msg25,
-			bonus_msg26,bonus_msg27,
+#ifdef BSTONE_AOG
+            0,
+#else
+			bonus_msg26,
+#endif
+            bonus_msg27,
 };
 
 //---------------------------------------------------------------------------
@@ -487,7 +494,7 @@ char actor_info49[]="^AN23^FC17\r  ATTACKING:\r"
 										 "^FCA6   BIO-MECH\r"
 												"   GUARDIAN";
 
-
+#ifdef BSTONE_PS
 char actor_info50[]="^SH07A^FC17\r  ATTACKING:\r"
 										  "^FCA6   SECURITY\r"
 										   	 "    CUBE\r"
@@ -502,6 +509,7 @@ char actor_info51[]="^SH08B^FC17\r  ATTACKING:\r"
 char actor_info52[]="^SH0E6^FC17\r  ATTACKING:\r"
 										  "^FCA6  DETONATOR\r"
 										       "  EXPLOSION";
+#endif
 
 // Final Boss #1
 char actor_info53[]="^AN29^FC17\r  ATTACKING:\r"
@@ -522,7 +530,6 @@ char actor_info55[]="^AN2b^FC17\r  ATTACKING:\r"
 char actor_info56[]="^AN2c^FC17\r  ATTACKING:\r"
 										   "^FCA6 THE CRAWLER\r"
                                       "    BEAST";
-
 
 
 
@@ -562,7 +569,11 @@ char * ActorInfoMsg[]=
 			actor_info27,        // Volatile Transport
 			actor_info28,        // Floating Bomb
 
+#ifdef BSTONE_AOG
+            0,
+#else
 			actor_info50,			// vital defence
+#endif
 
 			actor_info44,			// Spider Mutant
 			actor_info45,			// breather beast
@@ -620,8 +631,14 @@ char * ActorInfoMsg[]=
 			0,							// grenade,
 
          0,							// BFG Shot
+
+#ifdef BSTONE_AOG
+         0,
+         0,
+#else
 			actor_info51,        // BFG Explosion
 			actor_info52,        // BFG Explosion
+#endif
 
 			actor_info44,			// Boss 1 SHOT
 			actor_info45,			// Boss 2 SHOT
@@ -633,7 +650,12 @@ char * ActorInfoMsg[]=
 			actor_info56,			// Boss 10 SHOT
 
          0,							// Doorexplosion
+
+#ifdef BSTONE_AOG
+         0,
+#else
          actor_info52,			// gr_explosion
+#endif
 };
 
 

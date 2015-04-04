@@ -42,7 +42,11 @@ void ForceUpdateStatusBar(void);
 void ClearSplitVWB (void);
 void RedrawStatusAreas();
 void PreloadGraphics(void);
+
+#ifdef BSTONE_PS
 void TryDropPlasmaDetonator(void);
+#endif
+
 void IN_StartAck(void);
 boolean IN_CheckAck (void);
 void MoveDoors (void);
@@ -992,7 +996,10 @@ void CheckKeys (void)
   	if (Keyboard[sc_back_quote])
    {
       Keyboard[sc_back_quote] = 0;
+
+#ifdef BSTONE_PS
    	TryDropPlasmaDetonator();
+#endif
    }
 
 

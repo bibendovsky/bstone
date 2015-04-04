@@ -72,9 +72,13 @@ boolean ClipMove(objtype* ob, Sint32 xmove, Sint32 ymove);
 #define ALIENAMMOINIT   (30+(US_RndT()%60))
 
 #define GR_DAMAGE       		   (40+(US_RndT() & 0x7f))		// 20 & 3f
+
+#ifdef BSTONE_PS
 #define BFG_DAMAGE					(GR_DAMAGE<<1)				// Hit Point damage cause by BFG
 #define PLASMA_DETONATOR_DAMAGE  (500)
 #define DETONATOR_FLASH_RATE		(20)
+#endif
+
 #define EXPLODE_DAMAGE				(20)		// 5
 #define OOZE_ANIMATE_SPEED			(20)
 
@@ -93,7 +97,9 @@ boolean ClipMove(objtype* ob, Sint32 xmove, Sint32 ymove);
 =============================================================================
 */
 
+#ifdef BSTONE_PS
 char detonators_spawned = 0;
+#endif
 
 /*
 =============================================================================
@@ -1709,11 +1715,13 @@ void T_SmartThought(objtype *obj)
 					obj->hitpoints = starthitpoints[gamestate.difficulty][en_pod];
 				break;
 
+#ifdef BSTONE_PS
            	case rotating_cubeobj:
 				   DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED,MT_GENERAL);
                ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
                obj->lighting = 0;
             break;
+#endif
 
 				case inertobj:
 				case fixup_inertobj:
@@ -1777,6 +1785,7 @@ void T_SmartThought(objtype *obj)
                  }
             break;
 
+#ifdef BSTONE_PS
             case pd_explosionobj:
             	  if (!obj->temp2)
                  {
@@ -1793,7 +1802,7 @@ void T_SmartThought(objtype *obj)
                     obj->temp2 = 1;
                  }
             break;
-
+#endif
 
 				case gurney_waitobj:
 #ifdef OBJ_RESERV

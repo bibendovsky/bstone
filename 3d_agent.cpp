@@ -37,7 +37,11 @@ void StartBonusFlash (void);
 Sint16 CalcAngle(objtype *from_obj, objtype *to_obj);
 void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir);
 void OperateDoor (Sint16 door);
+
+#ifdef BSTONE_PS
 void TryDropPlasmaDetonator(void);
+#endif
+
 void ClearMemory (void);
 void VH_UpdateScreen();
 void InitAreas (void);
@@ -114,7 +118,9 @@ void DrawTopInfo(sp_type type);
 extern boolean noShots;
 extern Sint16 bounceOk;
 
+#ifdef BSTONE_PS
 Sint16 tryDetonatorDelay=0;
+#endif
 
 //
 // player state info
@@ -1290,6 +1296,7 @@ void DrawAmmoMsg(void)
 		LatchDrawPic(x,(200-STATUSLINES),READYPIC);
 }
 
+#ifdef BSTONE_PS
 //---------------------------------------------------------------------------
 // DrawPDAmmoMsg() -
 //---------------------------------------------------------------------------
@@ -1300,7 +1307,7 @@ void DrawPDAmmoMsg(void)
 	else
 		LatchDrawPic(30,(200-STATUSLINES),WAITPIC);
 }
-
+#endif
 
 //---------------------------------------------------------------------------
 // UpdateAmmoMsg() -
@@ -1547,7 +1554,7 @@ void ComputeAvailWeapons(void)
 
 
 
-
+#ifdef BSTONE_PS
 //---------------------------------------------------------------------------
 // TakePlasmaDetonator()
 //---------------------------------------------------------------------------
@@ -1577,7 +1584,7 @@ void GivePlasmaDetonator(Sint16 count)
 
 	ComputeAvailWeapons();
 }
-
+#endif
 
 //---------------------------------------------------------------------------
 // GiveToken()
@@ -1741,11 +1748,13 @@ char default_msg[] = {   "\r    NO MESSAGES."
 						  "                                 "
 						  };
 
+#ifdef BSTONE_PS
 char needDetonator_msg[]="\r\r^FC39 FIND THE DETONATOR!";
 
 char haveDetonator_msg[]="\r\r^FC39DESTROY SECURITY CUBE!";
 
 char destroyGoldfire_msg[]="\r\r^FC39  DESTROY GOLDFIRE!";
+#endif
 
 void DisplayNoMoMsgs(void)
 {
@@ -1765,7 +1774,9 @@ void DisplayNoMoMsgs(void)
 		switch (gamestate.mapon)
 		{
 			case 19:
+#ifdef BSTONE_PS
 				strcat(default_msg,destroyGoldfire_msg);
+#endif
 			break;
 
 			case 20:
@@ -1775,10 +1786,12 @@ void DisplayNoMoMsgs(void)
 			break;
 
 			default:
+#ifdef BSTONE_PS
 				if (gamestate.plasma_detonators)
 					strcat(default_msg,haveDetonator_msg);
 				else
 					strcat(default_msg,needDetonator_msg);
+#endif
 			break;
 		}
 	}
@@ -2916,7 +2929,10 @@ void Cmd_Use (void)
 	Sint16			checkx,checky,doornum,dir;
 	Uint16 iconnum;
 	Uint8 static interrogate_delay=0;
+
+#ifdef BSTONE_PS
 	boolean tryDetonator = false;
+#endif
 
 // Find which cardinal direction the player is facing
 //
@@ -3039,7 +3055,9 @@ void Cmd_Use (void)
 			break;
 
 			default:
+#ifdef BSTONE_SP
 				tryDetonator = true;
+#endif
 			break;
 		}
 	}
@@ -3099,8 +3117,10 @@ void Cmd_Use (void)
 			else
 				interrogate_delay=120;		// Non-informants have 2 sec delay
 		}
+#ifdef BSTONE_PS
 		else
 			tryDetonator = true;
+#endif
 	}
 	else
 	{
@@ -3109,9 +3129,12 @@ void Cmd_Use (void)
 		else
 			interrogate_delay=0;
 
+#ifdef BSTONE_PS
 		tryDetonator = true;
+#endif
 	}
 
+#ifdef BSTONE_PS
 	if (tryDetonator)
 	{
 		if ((!tryDetonatorDelay) && gamestate.plasma_detonators)
@@ -3122,6 +3145,7 @@ void Cmd_Use (void)
 	}
 	else
 		tryDetonatorDelay = 60;
+#endif
 
 	if (!buttonheld[bt_use])
 		interrogate_delay=0;
@@ -5394,7 +5418,7 @@ void	T_Attack (objtype *ob)
 			}
 		break;
 
-
+#ifdef BSTONE_PS
 		case 7:
 	   	TryDropPlasmaDetonator();
      		DrawAmmo(false);
@@ -5405,7 +5429,6 @@ void	T_Attack (objtype *ob)
 				gamestate.attackframe -= 2;
 			break;
 
-#if BSTONE_PS
 		case 9:
 			if (!objfreelist)
 			{
@@ -5474,10 +5497,12 @@ void	T_Player (objtype *ob)
 	if (gamestate.weapon == wp_autocharge)
 		UpdateAmmoMsg();
 
+#ifdef BSTONE_PS
 	if (tryDetonatorDelay > tics)
 		tryDetonatorDelay -= tics;
 	else
 		tryDetonatorDelay = 0;
+#endif
 
 	if ( buttonstate[bt_use] )
 	{

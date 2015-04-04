@@ -339,7 +339,10 @@ void ScanInfoPlane (void)
 #if IN_DEVELOPMENT
 	db_count=0;
 #endif
+
+#ifdef BSTONE_PS
 	detonators_spawned = 0;
+#endif
 
 #ifdef TRACK_ENEMY_COUNT
 memset(numEnemy,0,sizeof(numEnemy));
@@ -714,10 +717,12 @@ memset(numEnemy,0,sizeof(numEnemy));
 				SpawnStatic(x,y,tile-315);
 			break;
 
+#ifdef BSTONE_PS
 			case 486:				// Plasma Detonator
 				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y);			// Spawn a reserve  
 				SpawnStatic(x,y,486-375);
 			break;
+#endif
 
 			case 487:				// Door rubble
          case 488:				// AutoMapper Bonus #1
@@ -953,7 +958,7 @@ numEnemy[goldsternobj]++;
 				break;
 
 
-
+#ifdef BSTONE_PS
 		//
 		// Rotating Cube
 		//
@@ -962,6 +967,7 @@ numEnemy[goldsternobj]++;
 				SpawnOffsetObj(en_rotating_cube,x,y);
 				new_actor = NULL;
 			break;
+#endif
 
 		//
 		// RENT-A-COP
