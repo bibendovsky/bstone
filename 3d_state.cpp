@@ -932,6 +932,7 @@ void KillActor (objtype *ob)
 			deadguy = givepoints=false;
 		break;
 
+#ifdef BSTONE_PS
 		case morphing_spider_mutantobj:
    	case morphing_reptilian_warriorobj:
 		case morphing_mutanthuman2obj:
@@ -940,7 +941,7 @@ void KillActor (objtype *ob)
          KeepSolid = true;
          deadguy = givepoints = false;
      	break;
-
+#endif
 
 	case crate1obj:
 	case crate2obj:
@@ -1329,6 +1330,7 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			break;
 #endif
 
+#ifdef BSTONE_PS
 			case goldsternobj:
 				if (gamestate.mapon == GOLD_MORPH_LEVEL)
 				{
@@ -1343,6 +1345,7 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 					return;
 				}
 			break;
+#endif
 
             default:
                 break;
@@ -1413,9 +1416,11 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			NewState(ob,&s_goldpain);
 			break;
 
+#ifdef BSTONE_PS
 		case gold_morphobj:
 			NewState(ob,&s_mgold_pain);
 			break;
+#endif
 
 		case liquidobj:
 			NewState(ob,&s_liquid_ouch);

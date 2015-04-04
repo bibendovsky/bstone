@@ -5595,9 +5595,11 @@ void SW_HandleActor(objtype *obj)
          	FirstSighting(obj);
       break;
 
+#ifdef BSTONE_PS
 		case morphing_spider_mutantobj:
    	case morphing_reptilian_warriorobj:
 		case morphing_mutanthuman2obj:
+#endif
       case crate1obj:
       case crate2obj:
       case crate3obj:

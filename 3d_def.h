@@ -44,7 +44,9 @@ Free Software Foundation, Inc.,
     #define SKIP_TITLE_AND_CREDITS (0)
 #endif // _DEBUG
 
+#ifdef BSTONE_PS
 #define GOLD_MORPH_LEVEL				(19)			// Level which Dr. GoldFire Morphs.
+#endif
 
 #define VERSION_TEXT_COLOR				(0x82)
 #define VERSION_TEXT_BKCOLOR			(0x80)
@@ -5433,7 +5435,10 @@ void UnmakeFakeStatic(objtype *ob);
 
 extern char detonators_spawned;
 extern Sint16 starthitpoints[][NUMHITENEMIES];			
+
+#ifdef BSTONE_PS
 extern Uint16 MorphClass[];
+#endif
 
 extern statetype s_ofs_bounce;
 

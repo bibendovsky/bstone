@@ -335,16 +335,11 @@ Uint16 BossShapes[] = {
 #endif
 };
 
+#ifdef BSTONE_PS
 Uint16 MorphShapes[] = {
-#ifdef BSTONE_AOG
-    0,
-    0,
-    0
-#else
     SPR_BOSS1_MORPH1,
     SPR_BOSS4_MORPH1,
     SPR_MUTHUM2_MORPH1,
-#endif
 };
 
 Uint16 MorphClass[] = {spider_mutantobj,reptilian_warriorobj,mutant_human2obj};
@@ -358,14 +353,12 @@ Uint16 MorphEndShapes[] = {
     0,
 #endif
 
-#ifdef BSTONE_AOG
-    0
-#else
     SPR_MUTHUM2_W1
-#endif
 };
 
 char MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
+#endif
+
 Uint16 bars_connected = 0;
 
 Uint16 SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
@@ -787,6 +780,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 #endif
 		break;
 
+#ifdef BSTONE_PS
 		case en_morphing_spider_mutant:
 		case en_morphing_reptilian_warrior:
 		case en_morphing_mutanthuman2:
@@ -809,6 +803,7 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 #endif
 			NewState(new_actor,&s_ofs_random);
       break;
+#endif
 
 		case en_gurney_wait:
 			if (scan_value == 0xffff)
@@ -1073,7 +1068,7 @@ void T_OfsThink(objtype *obj)
 			InitSmartSpeedAnim(obj,SPR_POD_HATCH1,0,2,at_ONCE,ad_FWD,7);
 		break;
 
-
+#ifdef BSTONE_PS
 		case morphing_spider_mutantobj:
 		case morphing_reptilian_warriorobj:
 		case morphing_mutanthuman2obj:
@@ -1100,7 +1095,7 @@ void T_OfsThink(objtype *obj)
          obj->flags &= ~FL_SHOOTABLE;
 			InitSmartSpeedAnim(obj,obj->temp1,0,8,at_ONCE,ad_FWD,2);
       break;
-
+#endif
 
 		case crate1obj:
 		case crate2obj:
@@ -1688,6 +1683,7 @@ void T_SmartThought(objtype *obj)
 		{
 			switch (obj->obclass)
 			{
+#ifdef BSTONE_PS
 				case morphing_spider_mutantobj:
 				case morphing_reptilian_warriorobj:
 				case morphing_mutanthuman2obj:
@@ -1703,6 +1699,7 @@ void T_SmartThought(objtype *obj)
 					obj->flags |= FL_PROJ_TRANSPARENT|FL_SHOOTABLE;
 					NewState (obj,&s_ofs_chase1);
          	break;
+#endif
 
 				case podeggobj:
 					obj->flags |= FL_SHOOTABLE;
@@ -1725,6 +1722,7 @@ void T_SmartThought(objtype *obj)
 				case gurney_waitobj:
 				break;
 
+#ifdef BSTONE_PS
 				case gold_morphobj:
              	//
              	// Game completed!
@@ -1732,6 +1730,7 @@ void T_SmartThought(objtype *obj)
                playstate = ex_victorious;
 					obj->state = NULL;				// Mark to be removed.
             break;
+#endif
 
 
 				case volatiletransportobj:
@@ -4118,12 +4117,14 @@ void T_Chase (objtype *ob)
 			case reptilian_warriorobj:
 			case acid_dragonobj:
 			case mech_guardianobj:
+
+#ifdef BSTONE_PS
 			case gold_morphobj:
 			case final_boss1obj:
 			case final_boss2obj:
 			case final_boss3obj:
 			case final_boss4obj:
-
+#endif
 			// Check for mode change
 			//
 				if (ob->ammo > tics)
@@ -4169,11 +4170,13 @@ void T_Chase (objtype *ob)
 				case reptilian_warriorobj:
 				case acid_dragonobj:
 				case mech_guardianobj:
+#ifdef BSTONE_PS
 				case gold_morphobj:
 				case final_boss1obj:
 				case final_boss2obj:
 				case final_boss3obj:
 				case final_boss4obj:
+#endif
 
 				// Always shoot when in SHOOTMODE -- Never shoot when not!
 				//
@@ -4300,8 +4303,11 @@ void ChangeShootMode(objtype *ob)
 	{
 		ob->flags |= FL_SHOOTMODE;
 		ob->ammo = 1+(US_RndT()%2);
+
+#ifdef BSTONE_PS
 		if (ob->obclass == gold_morphobj)
 			ob->ammo += 3+(US_RndT()%5);
+#endif
 	}
 }
 
@@ -4334,9 +4340,11 @@ void DoAttack(objtype *ob)
 				NewState (ob,&s_goldshoot1);
 			break;
 
+#ifdef BSTONE_PS
 			case gold_morphobj:
 				NewState (ob,&s_mgold_shoot1);
 			break;
+#endif
 
 			case rentacopobj:
 				NewState (ob,&s_rent_shoot1);
@@ -4592,7 +4600,9 @@ void T_Path (objtype *ob)
 =============================================================================
 */
 
+#ifdef BSTONE_PS
 Sint16 morph_angle_adj=0;
+#endif
 
 void T_Shoot (objtype *ob)
 {
@@ -4633,6 +4643,7 @@ void T_Shoot (objtype *ob)
 			SpawnProjectile(ob,scanshotobj);
 		break;
 
+#ifdef BSTONE_PS
 		case gold_morphobj:
 			SpawnProjectile(ob,goldmorphshotobj);
 
@@ -4658,6 +4669,7 @@ void T_Shoot (objtype *ob)
 				morph_angle_adj = 0;
 			}
 		break;
+#endif
 
 		case spider_mutantobj:
 		case acid_dragonobj:
@@ -4665,6 +4677,7 @@ void T_Shoot (objtype *ob)
 //			SpawnProjectile(ob,spider_mutantshotobj+(ob->obclass-spider_mutantobj));
 		break;
 
+#ifdef BSTONE_PS
 		case final_boss2obj:
 			SpawnProjectile(ob,final_boss2shotobj);
 		break;
@@ -4672,7 +4685,7 @@ void T_Shoot (objtype *ob)
 		case final_boss4obj:
 			SpawnProjectile(ob,final_boss4shotobj);
 		break;
-
+#endif
 
 		default:
 			hitchance = 128;
@@ -4856,7 +4869,10 @@ void A_Beep(objtype *obj);
 void A_Laugh(objtype *obj);
 void A_WarpIn(objtype *obj);
 void A_WarpOut(objtype *obj);
+
+#ifdef BSTONE_PS
 void T_GoldMorph(objtype *obj);
+#endif
 
 
 extern statetype s_goldstand;
@@ -4907,7 +4923,9 @@ extern statetype s_goldwarp_in5;
 extern statetype s_goldmorphwait1;
 extern statetype s_goldmorphwait2;
 
+#ifdef BSTONE_PS
 extern void T_GoldMorphWait(objtype *obj);
+#endif
 
 statetype s_goldstand 	= {true,SPR_GOLD_S_1,20,T_Stand,NULL,&s_goldpath1};
 
@@ -4954,9 +4972,9 @@ statetype s_goldwarp_in3	= {false,SPR_GOLD_WARP3,15,NULL,NULL,&s_goldwarp_in4};
 statetype s_goldwarp_in4	= {false,SPR_GOLD_WARP2,15,NULL,NULL,&s_goldwarp_in5};
 statetype s_goldwarp_in5	= {false,SPR_GOLD_WARP1,15,NULL,NULL,&s_goldpath1};
 
-statetype s_goldmorphwait1	= {false, SPR_GOLD_WRIST_1, 10, NULL, T_GoldMorphWait, &s_goldmorphwait1};
-
 #ifdef BSTONE_AOG
+statetype s_goldmorphwait1;
+
 statetype s_goldmorph1;
 statetype s_goldmorph2;
 statetype s_goldmorph3;
@@ -4978,6 +4996,8 @@ statetype s_mgold_shoot4;
 
 statetype s_mgold_pain;
 #else
+statetype s_goldmorphwait1	= {false, SPR_GOLD_WRIST_1, 10, NULL, T_GoldMorphWait, &s_goldmorphwait1};
+
 statetype s_goldmorph1		= {false, SPR_GOLD_MORPH1, 10, NULL, NULL, &s_goldmorph2};
 statetype s_goldmorph2		= {false, SPR_GOLD_MORPH2, 10, NULL, NULL, &s_goldmorph3};
 statetype s_goldmorph3		= {false, SPR_GOLD_MORPH3, 10, NULL, NULL, &s_goldmorph4};
@@ -5002,6 +5022,8 @@ statetype s_mgold_pain 		= {false,SPR_MGOLD_OUCH,  25, NULL,NULL,&s_mgold_chase1
 
 
 boolean noShots = false;
+
+#ifdef BSTONE_PS
 Sint16 morphWaitTime;
 
 //--------------------------------------------------------------------------
@@ -5022,16 +5044,13 @@ void T_GoldMorph(objtype *obj)
 	obj->speed = ALIENSPEED<<2;
 	obj->ammo = ALIENAMMOINIT;
 	obj->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE|FL_SHOOTABLE|FL_SOLID;
-#ifdef BSTONE_AOG
-    obj->flags2 = 0;
-#else
 	obj->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
-#endif
 	obj->hitpoints = starthitpoints[gamestate.difficulty][en_gold_morph];
 	obj->obclass = gold_morphobj;
 
 	noShots = false;
 }
+#endif
 
 //--------------------------------------------------------------------------
 // A_Laugh() - Plays a Goldstern Laugh Sound
@@ -5545,9 +5564,13 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 		break;
 
 		case mut_hum1shotobj:
+#ifdef BSTONE_PS
 		case goldmorphshotobj:
+#endif
 		case electroshotobj:
+#ifdef BSTONE_PS
 		case final_boss2shotobj:
+#endif
 			SpawnNewObj(x>>TILESHIFT,y>>TILESHIFT,&s_ofs_shot1);
 
             ::sd_play_actor_sound(
@@ -5650,8 +5673,10 @@ void SpawnProjectile(objtype *shooter, classtype class_type)
 	if (class_type != grenadeobj && class_type != bfg_shotobj)
 		new_actor->angle=CalcAngle(new_actor,player)+angle_adj;
 
+#ifdef BSTONE_PS
 	if (shooter->obclass == gold_morphobj)
 		new_actor->angle += morph_angle_adj;
+#endif
 
 	if (new_actor->angle<=0)
 		new_actor->angle+=359;

@@ -897,6 +897,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 					GoldieList[GoldsternInfo.SpawnCnt].tiley=static_cast<Uint8>(y);
 					GoldsternInfo.SpawnCnt++;
 
+#ifdef BSTONE_PS
 					if (gamestate.mapon == GOLD_MORPH_LEVEL)
 					{
 						AddTotalPoints(actor_points[goldsternobj-rentacopobj]);
@@ -905,6 +906,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 numEnemy[goldsternobj]++;
 #endif
 					}
+#endif
 				}
 				break;
 
@@ -1662,7 +1664,7 @@ numEnemy[podobj]++;
 				scan_value=0xffff;
 			break;
 
-
+#ifdef BSTONE_PS
 		// Morphing Brown/LBlue Post -> Spider Mutant
 		//
 			case 610:
@@ -1740,7 +1742,7 @@ numEnemy[new_actor->obclass]++;
 				}
 				scan_value=0xffff;
 			break;
-
+#endif
 
 
 		// P.O.D. Alien

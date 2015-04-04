@@ -371,6 +371,7 @@ char actor_info14[]="^AN0E^FC17\r  ATTACKING:\r"
 char actor_info15[]="^AN0F^FC17\r  ATTACKING:\r"
 										 "^FCA6 EXPERIMENTAL\r"
 												" MECH-SENTINEL";
+
 //	mutant_human2obj,
 char actor_info16[]="^AN10^FC17\r  ATTACKING:\r"
 										 "^FCA6 EXPERIMENTAL\r"
@@ -399,10 +400,12 @@ char actor_info24[]="^AN18^FC17\r  ATTACKING:\r"
 char actor_info25[]="^AN19^FC17\r\r  ATTACKING:\r"
 											"^FCA6 DR GOLDFIRE";
 
+#ifdef BSTONE_PS
 //	gold_morphobj,
 char actor_info25m[]="^AN28^FC17\r\r  ATTACKING:\r"
 											 "^FCA6   MORPHED\r"
 											      " DR GOLDFIRE";
+#endif
 
 //	volatiletransportobj,
 char actor_info27[]="^SH072^FC17\r  ATTACKING:\r"
@@ -537,7 +540,11 @@ char * ActorInfoMsg[]=
 			actor_info13,        // STAR Sentinel
 			actor_info14,        // Genetic Guard
 			actor_info15,        // Mutant Human 1
+#ifdef BSTONE_AOG
+            0,
+#else
 			actor_info16,        // Mutant Human 2
+#endif
 			0,							// lg canister wait
 			actor_info18,        // Lg Canister Alien
 			0,							// sm canister wait
@@ -547,7 +554,11 @@ char * ActorInfoMsg[]=
 			actor_info36,        // Liquid Alien
 			actor_info24,        // Alien Protector (old STAR Trooper)
 			actor_info25,        // Goldstern
+#ifdef BSTONE_AOG
+            0,
+#else
 			actor_info25m,       // Goldstern Morphed
+#endif
 			actor_info27,        // Volatile Transport
 			actor_info28,        // Floating Bomb
 
@@ -556,6 +567,7 @@ char * ActorInfoMsg[]=
 			actor_info44,			// Spider Mutant
 			actor_info45,			// breather beast
 			actor_info46,			// cyborg warrior
+
 			actor_info47,			// reptilian warrior
 			actor_info48,			// acid dragon
 			actor_info49,			// mech guardian
@@ -584,7 +596,13 @@ char * ActorInfoMsg[]=
 			actor_info43,        // Arc Barrier
 			actor_info43a,       // VPost Barrier
 			actor_info43b,       // VSpike Barrier
+
+#ifdef BSTONE_AOG
+            0,
+#else
          actor_info25m,			// Gold Morph Shot obj
+#endif
+
 			0,                   // Security Light
 			actor_info33,        // Explosion
 			0, 0,                // Steam Grate, Steam Pipe
