@@ -2456,7 +2456,11 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
 #endif
       	if (OnOff)
          {
+#ifdef BSTONE_AOG
+             InitSmartSpeedAnim(new_actor,SPR_ELEC_ARC1,US_RndT()%3,2,at_CYCLE,ad_FWD,20+(US_RndT()&7));
+#else
 				InitSmartSpeedAnim(new_actor,SPR_ELEC_ARC1,US_RndT()%3,2,at_CYCLE,ad_FWD,3+(US_RndT()&3));
+#endif
       	   new_actor->lighting = LAMP_ON_SHADING;
 //         	new_actor->flags |= FL_SHOOTABLE;
          }
@@ -2476,7 +2480,11 @@ void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff)
 		case en_post_barrier:
       	if (OnOff)
          {
+#ifdef BSTONE_AOG
+             InitSmartSpeedAnim(new_actor,SPR_ELEC_POST1,US_RndT()%3,2,at_CYCLE,ad_FWD,20+(US_RndT()&7));
+#else
 				InitSmartSpeedAnim(new_actor,SPR_ELEC_POST1,US_RndT()%3,2,at_CYCLE,ad_FWD,3+(US_RndT()&3));
+#endif
    	      new_actor->lighting = LAMP_ON_SHADING;
          }
          else
@@ -2590,12 +2598,20 @@ void ToggleBarrier(objtype *obj)
 			switch (obj->obclass)
          {
          	case post_barrierobj:
+#ifdef BSTONE_AOG
+                InitSmartSpeedAnim(obj,SPR_ELEC_POST1,US_RndT()%3,2,at_CYCLE,ad_FWD,20+(US_RndT()&7));
+#else
 					InitSmartSpeedAnim(obj,SPR_ELEC_POST1,US_RndT()%3,2,at_CYCLE,ad_FWD,3+(US_RndT()&3));
+#endif
                TurnPostOn(obj);
             break;
 
             case arc_barrierobj:
+#ifdef BSTONE_AOG
+                InitSmartSpeedAnim(obj,SPR_ELEC_ARC1,US_RndT()%3,2,at_CYCLE,ad_FWD,20+(US_RndT()&7));
+#else
 					InitSmartSpeedAnim(obj,SPR_ELEC_ARC1,US_RndT()%3,2,at_CYCLE,ad_FWD,3+(US_RndT()&3));
+#endif
                TurnPostOn(obj);
             break;
 
