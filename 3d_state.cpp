@@ -982,6 +982,11 @@ void KillActor (objtype *ob)
 
 		GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT-MIN_GOLDIE_WAIT);			// Reinit Delay Timer before spawning on new position
 		clas = goldsternobj;
+
+        if (::gamestate.mapon == 9) {
+            static_cast<void>(::ReserveStatic());
+            ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+        }
 	break;
 
 #ifdef BSTONE_PS
