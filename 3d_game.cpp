@@ -793,10 +793,11 @@ memset(numEnemy,0,sizeof(numEnemy));
 			break;
 
 
-
-		// Arc Barrier
+		// Plasma Post Barrier
 		//
+#ifdef BSTONE_PS
 			case 174:
+#endif
          case 175:
          	//
             // 174=off,175=on
@@ -804,8 +805,13 @@ memset(numEnemy,0,sizeof(numEnemy));
 				SpawnBarrier(en_post_barrier,x,y,tile-174);
 			break;
 
-		// Plasma Post Barrier
+		// Arc Barrier
 		//
+#ifdef BSTONE_AOG
+         case 174:
+             SpawnBarrier(en_arc_barrier,x,y,true);
+             break;
+#else
 			case 138:
          case 139:
          	//
@@ -813,8 +819,9 @@ memset(numEnemy,0,sizeof(numEnemy));
             //
 				SpawnBarrier(en_arc_barrier,x,y,tile-138);
 			break;
+#endif
 
-
+#ifdef BSTONE_PS
 		//
       // VPOST Barrier
       //
@@ -866,7 +873,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 			case 428:
 				SpawnBarrier(en_vspike_barrier,x,y,0);
 				break;
-
+#endif
 
 		//
 		// STEAM GRATE
@@ -2393,17 +2400,17 @@ void SetupGameLevel (void)
                         level = static_cast<Uint8>(map1[0] & 0xFF);
                     }
 
-                    Uint8 x = static_cast<Uint8>((map1[1] / 256) & 0xFF);
-                    Uint8 y = static_cast<Uint8>(map1[1] & 0xFF);
+                    Uint8 switch_x = static_cast<Uint8>((map1[1] / 256) & 0xFF);
+                    Uint8 switch_y = static_cast<Uint8>(map1[1] & 0xFF);
 
                     map1[1] = 0;
 
-                    map1[0] = 0xF800 | UpdateBarrierTable(level, x, y, switchon);
+                    map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
 #else
-                    Uint8 x = static_cast<Uint8>((map1[0] / 256) & 0xFF);
-                    Uint8 y = static_cast<Uint8>(map1[0] & 0xFF);
+                    Uint8 switch_x = static_cast<Uint8>((map1[0] / 256) & 0xFF);
+                    Uint8 switch_y = static_cast<Uint8>(map1[0] & 0xFF);
 
-					map1[0] = 0xF800 | UpdateBarrierTable(0xFF, x, y, switchon);
+					map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
 #endif
 
                // Init for next time.

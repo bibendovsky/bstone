@@ -2316,8 +2316,10 @@ Sint16 CheckAndConnect(char x,char y, Uint16 code)
 		{
 			case arc_barrierobj:
 			case post_barrierobj:
+#ifdef BSTONE_PS
 			case vpost_barrierobj:
 			case vspike_barrierobj:
+#endif
 			{
 				for (loop = 0;loop<4;loop++)
 				{
@@ -2363,8 +2365,35 @@ void ConnectBarriers(void)
       {
 		   bars_connected = 0;
 
-			if (!CheckAndConnect(Barrier->coord.tilex, Barrier->coord.tiley, num))
+#ifdef BSTONE_AOG
+           if (::CheckAndConnect(
+               Barrier->coord.tilex,
+               Barrier->coord.tiley,
+               num) == 0)
+           {
+               objtype* actor =
+                   actorat[Barrier->coord.tilex][Barrier->coord.tiley];
+
+               if (!actor) {
+                   AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+               }
+
+               switch (actor->obclass) {
+               case arc_barrierobj:
+               case post_barrierobj:
+                   break;
+
+               default:
+                   AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+                   break;
+               }
+
+               static_cast<void>(::CheckActor(actor, num));
+           }
+#else
+			if (CheckAndConnect(Barrier->coord.tilex, Barrier->coord.tiley, num) == 0)
          	AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+#endif
       }
    }
 }
