@@ -629,7 +629,9 @@ memset(numEnemy,0,sizeof(numEnemy));
 			case 50:
 			case 51:
 			case 52:
+#ifdef BSTONE_PS
 			case 53:
+#endif
 			case 54:
 
 			case 55:
@@ -649,7 +651,9 @@ memset(numEnemy,0,sizeof(numEnemy));
 			case 68:
 			case 69:
 			case 70:
+#ifdef BSTONE_PS
          case 71:					// BFG Weapon		  
+#endif
 			case 72:					// Gurney Mutant
 			case 73:             // Large Canister
 			case 74:             // Small Canister
@@ -922,6 +926,7 @@ numEnemy[goldsternobj]++;
 				}
 				break;
 
+#ifdef BSTONE_PS
 		//
 		// GOLDFIRE SPAWN - IMMEDEATLY
 		//
@@ -946,6 +951,7 @@ numEnemy[goldsternobj]++;
 					new_actor = NULL;
 				}
 				break;
+#endif
 
 //
 // P wall
