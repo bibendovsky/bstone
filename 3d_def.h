@@ -4010,8 +4010,10 @@ enum stat_t {
 
 	bo_nothing,
 
-	block
+	block,
 
+    bo_green_key,
+    bo_gold_key
 }; // enum stat_t
 
 struct stattype {

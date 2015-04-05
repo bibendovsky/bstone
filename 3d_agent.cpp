@@ -2327,8 +2327,38 @@ void GetBonus (statobj_t *check)
 	case	bo_red_key:
 	case	bo_yellow_key:
 	case	bo_blue_key:
+#ifdef BSTONE_AOG
+    case bo_green_key:
+    case bo_gold_key:
+#endif
 	{
+#ifdef BSTONE_AOG
+        Uint16 keynum = 0;
+
+        switch (check->itemnumber) {
+        case bo_red_key:
+            keynum = 0;
+            break;
+
+        case bo_yellow_key:
+            keynum = 1;
+            break;
+
+        case bo_blue_key:
+            keynum = 2;
+            break;
+
+        case bo_green_key:
+            keynum = 3;
+            break;
+
+        case bo_gold_key:
+            keynum = 4;
+            break;
+        }
+#else
 		Uint16 keynum = check->itemnumber - bo_red_key;
+#endif
 
 		if (gamestate.numkeys[keynum] >= MAXKEYS)
 			return;

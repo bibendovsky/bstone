@@ -109,9 +109,17 @@ stattype statinfo[] =
 
 {SPR_STAT_32,bo_red_key},			// Red Key  						SPR5V
 {SPR_STAT_33,bo_yellow_key},		// Yellow Key
+#ifdef BSTONE_AOG
+{SPR_STAT_34,bo_green_key}, // Green Key
+#else
 {SPR_STAT_34,bo_bfg_cannon},	   // BFG Cannon
+#endif
 {SPR_STAT_35,bo_blue_key},			// Blue Key
+#ifdef BSTONE_AOG
+{SPR_STAT_36, bo_gold_key}, // Gold Key
+#else
 {SPR_STAT_36},							// OPEN
+#endif
 {SPR_STAT_37,block},					// Office Desk
 {SPR_STAT_38,block},	 				// Office Chair
 {SPR_STAT_39,block},					// Security Desk
@@ -372,6 +380,10 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 		case	bo_red_key:
 		case	bo_yellow_key:
 		case	bo_blue_key:
+#ifdef BSTONE_AOG
+        case bo_green_key:
+        case bo_gold_key:
+#endif
 #ifdef BSTONE_PS
 		case  bo_plasma_detonator:
 #endif
@@ -506,6 +518,10 @@ statobj_t *UseReservedStatic(Sint16 itemtype, Sint16 tilex, Sint16 tiley)
 		case	bo_red_key:
 		case	bo_yellow_key:
 		case	bo_blue_key:
+#ifdef BSTONE_AOG
+        case bo_green_key:
+        case bo_gold_key:
+#endif
 			TravelTable[tilex][tiley] |= TT_KEYS;
       break;
    }
@@ -1077,6 +1093,23 @@ char od_locked[]="\r\r   DOOR PERMANENTLY\r        LOCKED.\r^XX";
 char od_reddenied[]="\r\r      RED LEVEL\r    ACCESS DENIED!\r^XX";
 char od_yellowdenied[]="\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r^XX";
 char od_bluedenied[]="\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
+#ifdef BSTONE_AOG
+char od_green_denied[] =
+    "\r"
+    "\r"
+    "     GREEN LEVEL\r"
+    "    ACCESS DENIED!\r"
+    "^XX"
+;
+
+char od_gold_denied[] =
+    "\r"
+    "\r"
+    "      GOLD LEVEL\r"
+    "    ACCESS DENIED!\r"
+    "^XX"
+;
+#endif
 char od_granted[]="\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
 char od_operating[]="\r\r    OPERATING DOOR.\r^XX";
 
@@ -1151,6 +1184,16 @@ void OperateDoor (Sint16 door)
 					case kt_blue:
 						DISPLAY_TIMED_MSG(od_bluedenied,MP_DOOR_OPERATE,MT_GENERAL);
 					break;
+
+#ifdef BSTONE_AOG
+					case kt_green:
+						DISPLAY_TIMED_MSG(od_green_denied,MP_DOOR_OPERATE,MT_GENERAL);
+					break;
+
+					case kt_gold:
+						DISPLAY_TIMED_MSG(od_gold_denied,MP_DOOR_OPERATE,MT_GENERAL);
+					break;
+#endif
 
 					default:
 						DISPLAY_TIMED_MSG(od_locked,MP_DOOR_OPERATE,MT_GENERAL);

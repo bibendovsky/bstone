@@ -2317,6 +2317,18 @@ void SetupGameLevel (void)
 						*map1 = 0;
 						break;
 
+#ifdef BSTONE_AOG
+                    case 57:
+                        lock = kt_green;
+                        *map1 = 0;
+                        break;
+
+                    case 59:
+                        lock = kt_gold;
+                        *map1 = 0;
+                        break;
+#endif
+
 					default:
 						lock = kt_none;
 				}

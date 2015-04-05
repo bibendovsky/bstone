@@ -248,6 +248,22 @@ char bonus_msg2[]="^SH002^FC57\r\r ACCESS CARD:\r"
 char bonus_msg4[]="^SH004^FC57\r\r ACCESS CARD:\r"
 										  "^FCA6  BLUE LEVEL";
 
+#ifdef BSTONE_AOG
+char bonus_msg4a[] =
+    "^SH003^FC57\r"
+    "\r"
+    " ACCESS CARD:\r"
+    "^FCA6 GREEN LEVEL"
+;
+
+char bonus_msg4b[] =
+    "^SH005^FC57\r"
+    "\r"
+    " ACCESS CARD:\r"
+    "^FCA6  GOLD LEVEL"
+;
+#endif
+
 char bonus_msg7[]=   "^SH006^FC57\r   WEAPON:\r"
 											"^FCA6 ENERGY PACK\r"
 												  "   (  UNITS)";
@@ -333,6 +349,7 @@ char bonus_msg27[]=   "^SH0D9^FC57\r   RADAR:  \r"
 													"   ENERGY";
 #endif
 
+
 char * BonusMsg[]=
 {
 			bonus_msg1,bonus_msg2,bonus_msg4,
@@ -360,6 +377,13 @@ char * BonusMsg[]=
 #else
 			bonus_msg26,
             bonus_msg27,
+#endif
+
+#ifdef BSTONE_AOG
+            0,
+            0,
+            bonus_msg4a,
+            bonus_msg4b
 #endif
 };
 
