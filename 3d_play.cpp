@@ -678,7 +678,10 @@ void CheckKeys (void)
 	{
 		if (jam_buff[sizeof(jam_buff_cmp)-1] != LastScan)
 		{
-			memcpy(jam_buff,jam_buff+1,sizeof(jam_buff_cmp)-1);
+			for(unsigned int i = 1; i < sizeof(jam_buff_cmp); i++)
+			{
+				jam_buff[i-1] = jam_buff[i];
+			}
 			jam_buff[sizeof(jam_buff_cmp)-1] = LastScan;
 		}
 	}
