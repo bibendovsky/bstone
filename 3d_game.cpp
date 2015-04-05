@@ -2255,7 +2255,7 @@ void SetupGameLevel (void)
 			tile = *map++;
 			lock = static_cast<keytype>(*map1);
 
-			if (*map==30)
+			if (y < 63 && x < 63 && *map==30)
 			{
 				gamestate.wintilex=x+1;
 				gamestate.wintiley=y;
