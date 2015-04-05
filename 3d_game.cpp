@@ -1370,12 +1370,14 @@ numEnemy[goldsternobj]++;
 		//
 		// Cyborg Warrior
 		//
+#ifdef BSTONE_PS
 			case 603:
 				if (gamestate.difficulty<gd_hard)
 					break;
 			case 585:
 				if (gamestate.difficulty<gd_medium)
 					break;
+#endif
 			case 250:
 				SpawnOffsetObj(en_cyborg_warrior,x,y);
 				break;
@@ -1384,12 +1386,14 @@ numEnemy[goldsternobj]++;
 		//
 		// Spider Mutant
 		//
+#ifdef BSTONE_PS
 			case 601:
 				if (gamestate.difficulty<gd_hard)
 					break;
 			case 583:
 				if (gamestate.difficulty<gd_medium)
 					break;
+#endif
 			case 232:
 				SpawnOffsetObj(en_spider_mutant,x,y);
 				break;
@@ -1397,12 +1401,14 @@ numEnemy[goldsternobj]++;
 		//
 		// Acid Dragon
 		//
+#ifdef BSTONE_PS
 			case 605:
 				if (gamestate.difficulty<gd_hard)
 					break;
 			case 587:
 				if (gamestate.difficulty<gd_medium)
 					break;
+#endif
 			case 268:
 				SpawnOffsetObj(en_acid_dragon,x,y);
 				break;
@@ -1410,12 +1416,14 @@ numEnemy[goldsternobj]++;
 		//
 		// Breather beast
 		//
+#ifdef BSTONE_PS
 			case 602:
 				if (gamestate.difficulty<gd_hard)
 					break;
 			case 584:
 				if (gamestate.difficulty<gd_medium)
 					break;
+#endif
 			case 233:
 				SpawnOffsetObj(en_breather_beast,x,y);
 				break;
@@ -1423,12 +1431,14 @@ numEnemy[goldsternobj]++;
 		//
 				// Mech Guardian
 //
+#ifdef BSTONE_PS
 			case 606:
 				if (gamestate.difficulty<gd_hard)
 					break;
 			case 588:
 				if (gamestate.difficulty<gd_medium)
 					break;
+#endif
 			case 269:
 				SpawnOffsetObj(en_mech_guardian,x,y);
 				break;
@@ -1436,12 +1446,14 @@ numEnemy[goldsternobj]++;
 		//
 		// Reptilian Warrior,
 		//
+#ifdef BSTONE_PS
 			case 604:
 				if (gamestate.difficulty<gd_hard)
 					break;
 			case 586:
 				if (gamestate.difficulty<gd_medium)
 					break;
+#endif
 			case 251:
 				SpawnOffsetObj(en_reptilian_warrior,x,y);
 				break;
