@@ -1274,7 +1274,7 @@ numEnemy[goldsternobj]++;
 #endif
 
 
-
+#ifdef BSTONE_PS
 		//
 		//		Black Ooze
 		//
@@ -1306,7 +1306,7 @@ numEnemy[goldsternobj]++;
 			case 286:
 				SpawnOffsetObj(en_green2_ooze,x,y);
 			break;
-
+#endif
 
 
 		//
