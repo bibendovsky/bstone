@@ -2242,10 +2242,10 @@ void SetupGameLevel (void)
 				switch (tile)
 				{
 					case AMBUSHTILE:
+#ifdef BSTONE_PS
 					case RKEY_TILE:
 					case YKEY_TILE:
 					case BKEY_TILE:
-#ifdef BSTONE_PS
 					case BFG_TILE:
 					case ION_TILE:
 					case DETONATOR_TILE:
@@ -2471,10 +2471,10 @@ void SetupGameLevel (void)
 			switch (tile)
 			{
          	case AMBUSHTILE:
+#ifdef BSTONE_PS
 				case RKEY_TILE:
 				case YKEY_TILE:
 				case BKEY_TILE:
-#ifdef BSTONE_PS
 				case BFG_TILE:
 				case ION_TILE:
 				case DETONATOR_TILE:

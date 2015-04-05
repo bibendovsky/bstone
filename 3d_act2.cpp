@@ -367,12 +367,11 @@ char MorphSounds[] = {SCANHALTSND,GGUARDHALTSND,DOGBOYHALTSND};
 
 Uint16 bars_connected = 0;
 
-Uint16 SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
 #ifdef BSTONE_PS
+Uint16 SpecialSpawnFlags[] = {FL2_DROP_RKEY,FL2_DROP_YKEY,FL2_DROP_BKEY,
 									     FL2_DROP_BFG,FL2_DROP_ION,FL2_DROP_DETONATOR
-#endif
 };
-
+#endif
 
 void	T_Path (objtype *ob);
 void	T_Shoot (objtype *ob);
@@ -3638,20 +3637,16 @@ void CheckForSpecialTile(objtype *obj, Uint16 tilex, Uint16 tiley)
 			SpawnHiddenOfs(en_plasma_detonator_reserve, tilex, tiley);
          new_actor = old_new;
 			obj->flags &= ~FL_INFORMANT;
-#endif
 		case RKEY_TILE:
 		case YKEY_TILE:
 		case BKEY_TILE:
-#ifdef BSTONE_PS
 		case BFG_TILE:
 		case ION_TILE:
-#endif
       	ReserveStatic();
 			obj->flags2 |= SpecialSpawnFlags[(*map)-RKEY_TILE];
          getarea = true;
       break;
 
-#ifdef BSTONE_PS
       case CLOAK_TILE:
       	obj->flags2 |= FL2_CLOAKED;
          getarea = true;
@@ -4056,6 +4051,7 @@ void DropCargo(objtype *obj)
    // Keep seperate... May later have MULTI "cargo's"
    //
 
+#ifdef BSTONE_PS
    if (obj->flags2 & FL2_DROP_RKEY)
    	PlaceReservedItemNearTile(bo_red_key, obj->tilex, obj->tiley);
 
@@ -4065,7 +4061,6 @@ void DropCargo(objtype *obj)
    if (obj->flags2 & FL2_DROP_BKEY)
    	PlaceReservedItemNearTile(bo_blue_key, obj->tilex, obj->tiley);
 
-#ifdef BSTONE_PS
    if (obj->flags2 & FL2_DROP_BFG)
    	PlaceReservedItemNearTile(bo_bfg_cannon, obj->tilex, obj->tiley);
 

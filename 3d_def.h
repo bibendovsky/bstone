@@ -276,11 +276,11 @@ void jsprintf(char *msg, ...);
 #define TERMINALTILE				  	17
 #define FOODTILE					 	18
 #define AMBUSHTILE              	106
+
+#ifdef BSTONE_PS
 #define RKEY_TILE        			72
 #define YKEY_TILE        			73
 #define BKEY_TILE        			74
-
-#ifdef BSTONE_PS
 #define BFG_TILE        			75
 #define ION_TILE        			76
 #define DETONATOR_TILE    			77
