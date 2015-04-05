@@ -2775,6 +2775,12 @@ void Cmd_Use (void)
 		for (y=-MDIST;y<MDIST+1;y++)
 			for (x=-MDIST;x<MDIST+1;x++)
 			{
+				// Don't check outside of the map plane:
+				if (player->tilex+x > 63 || player->tiley+y > 63)
+				{
+					continue;
+				}
+
 				if ((!tilemap[player->tilex+x][player->tiley+y]) &&
 					 (actorat[player->tilex+x][player->tiley+y] >= objlist))
 					ob = actorat[player->tilex+x][player->tiley+y];
