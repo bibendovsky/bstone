@@ -1085,21 +1085,41 @@ void KillActor (objtype *ob)
 		actorat[ob->tilex][ob->tiley] = NULL;
 	break;
 
+#ifdef BSTONE_PS
 	case cyborg_warriorobj:
 	case mech_guardianobj:
 	case reptilian_warriorobj:
+#endif
 	case mutant_human1obj:
 		PlaceItemNearTile(bo_clip2,tilex,tiley);
+#ifdef BSTONE_PS
 	case spider_mutantobj:
 	case breather_beastobj:
 	case acid_dragonobj:
 	case final_boss3obj:
 	case final_boss4obj:
+#endif
 	case mutant_human2obj:
 	case scan_alienobj:
 	case lcan_alienobj:
 		NewState (ob,&s_ofs_die1);
 	break;
+
+#ifdef BSTONE_AOG
+    case cyborg_warriorobj:
+    case mech_guardianobj:
+    case reptilian_warriorobj:
+    case spider_mutantobj:
+    case breather_beastobj:
+    case acid_dragonobj:
+        ::NewState(ob, &s_ofs_die1);
+
+        static_cast<void>(::ReserveStatic());
+        ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+
+        ActivatePinballBonus(B_GALIEN_DESTROYED);
+        break;
+#endif
 
 #ifdef BSTONE_PS
 	case final_boss2obj:
