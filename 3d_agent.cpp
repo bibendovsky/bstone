@@ -48,6 +48,11 @@ void InitAreas (void);
 void FirstSighting(objtype* ob);
 void OpenDoor(Sint16 door);
 void DrawTopInfo(sp_type type);
+void DoActor (objtype *ob);
+
+#ifdef BSTONE_AOG
+void RunBlakeRun();
+#endif
 
 #define VW_UpdateScreen() 	VH_UpdateScreen()
 
@@ -2761,6 +2766,9 @@ void Thrust (Sint16 angle, Sint32 speed)
 			dumb.flags = 0;
 			dangle=CalcAngle(player,&dumb);
 			RotateView(dangle,2);
+#ifdef BSTONE_AOG
+            RunBlakeRun();
+#endif
          ignore_map1 = true;
 		break;
 
@@ -5575,7 +5583,7 @@ void	T_Player (objtype *ob)
 	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 }
 
-#if 0
+#if BSTONE_AOG
 //-------------------------------------------------------------------------
 // RunBlakeRun()
 //-------------------------------------------------------------------------
@@ -5590,7 +5598,7 @@ void RunBlakeRun()
 // Spawn Blake and set pointer.
 //
 	SpawnPatrol(en_blake,player->tilex,player->tiley,player->dir>>1);
-	blake=new;
+	blake=new_actor;
 
 // Blake object starts one tile behind player object.
 //
@@ -5648,6 +5656,8 @@ void RunBlakeRun()
 		dy=blake->tiley-starty;
 		dy=ABS(dy);
 
+        // BBi
+        ::in_handle_events();
 	} while ((dx < 6) && (dy < 6));
 }
 
