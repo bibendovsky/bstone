@@ -872,6 +872,19 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 
 	if (which < static_cast<enemy_t>(SPACER1_OBJ))
 		new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
+
+#ifdef BSTONE_AOG
+    switch (which) {
+    case en_spider_mutant:
+    case en_breather_beast:
+    case en_cyborg_warrior:
+    case en_reptilian_warrior:
+    case en_acid_dragon:
+    case en_mech_guardian:
+        ::new_actor->hitpoints *= 15;
+        break;
+    }
+#endif
 }
 
 
