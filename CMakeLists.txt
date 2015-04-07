@@ -1,7 +1,8 @@
 project(bstone CXX)
 cmake_minimum_required(VERSION 2.8)
 
-find_package(SDL 2 REQUIRED)
+INCLUDE(FindPkgConfig)
+PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 
 option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically")
 option(BSTONE_PANDORA "Build for Pandora")
@@ -57,7 +58,7 @@ if (BSTONE_PANDORA)
 endif ()
 
 include_directories(
-    "${SDL_INCLUDE_DIR}"
+    "${SDL2_INCLUDE_DIRS}"
     "${CMAKE_SOURCE_DIR}/dosbox"
 )
 
@@ -221,7 +222,7 @@ endif ()
 target_link_libraries(
     "${BSTONE_TARGET}"
     "${SDLMAIN_LIBRARY}"
-    "${SDL_LIBRARY}"
+    "${SDL2_LIBRARIES}"
 )
 
 if (MINGW)

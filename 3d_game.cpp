@@ -370,7 +370,7 @@ memset(numEnemy,0,sizeof(numEnemy));
 			tilehi = (tile&0xff00)>>8;
 			tilelo = (tile&0xff);
 
-			if ((*start & 0xff00) == 0xfa00)
+			if (y < 63 && x < 63 && (*start & 0xff00) == 0xfa00)
 				scan_value = *start & 0x00ff;
 			else
 				scan_value = 0xffff;
@@ -2255,7 +2255,7 @@ void SetupGameLevel (void)
 			tile = *map++;
 			lock = static_cast<keytype>(*map1);
 
-			if (*map==30)
+			if (y < 63 && x < 63 && *map==30)
 			{
 				gamestate.wintilex=x+1;
 				gamestate.wintiley=y;

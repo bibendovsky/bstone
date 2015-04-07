@@ -2514,11 +2514,34 @@ char GetAreaNumber(char tilex, char tiley)
 
 // Special tile areas must use a valid areanumber tile around it.
 //
+	int this_offset = 0;
 	if ((areanumber=ValidAreaTile(ptr[0])) == 0)
 	{
 		for (loop=0; loop<8; loop++)
-			if ((areanumber=ValidAreaTile(ptr[0]+an_offset[static_cast<int>(loop)])) != 0)
+		{
+			this_offset = an_offset[static_cast<int>(loop)];
+
+			// Skip border cases:
+			if(tiley == 63 && this_offset > 1)
+			{
+				continue;
+			}
+			if(tiley == 0 && this_offset < -1)
+			{
+				continue;
+			}
+			if(tilex == 0 && (this_offset == -1 || this_offset == -65 || this_offset  == 63))
+			{
+				continue;
+			}
+			if(tilex == 63 && (this_offset == 1 || this_offset == 65 || this_offset  == -63))
+			{
+				continue;
+			}
+
+			if ((areanumber=ValidAreaTile(ptr[0]+this_offset)) != 0)
 				break;
+		}
 
 		if (loop==8)
 			areanumber = AREATILE;
@@ -2752,6 +2775,12 @@ void Cmd_Use (void)
 		for (y=-MDIST;y<MDIST+1;y++)
 			for (x=-MDIST;x<MDIST+1;x++)
 			{
+				// Don't check outside of the map plane:
+				if (player->tilex+x > 63 || player->tiley+y > 63)
+				{
+					continue;
+				}
+
 				if ((!tilemap[player->tilex+x][player->tiley+y]) &&
 					 (actorat[player->tilex+x][player->tiley+y] >= objlist))
 					ob = actorat[player->tilex+x][player->tiley+y];
