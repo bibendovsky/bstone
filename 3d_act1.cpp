@@ -982,6 +982,24 @@ void OpenDoor (Sint16 door)
 
 }
 
+// FIXME Use for PS too?
+#ifdef BSTONE_AOG
+objtype* get_actor_near_door(
+    int tile_x,
+    int tile_y)
+{
+    for (int i = 0; i < doornum; ++i) {
+        const doorobj_t& door = doorobjlist[i];
+
+        if (door.tilex == tile_x && door.tiley == tile_y) {
+            // It's a closing door, not an actor.
+            return NULL;
+        }
+    }
+
+    return actorat[tile_x][tile_y];
+}
+#endif
 
 /*
 =====================
@@ -1020,10 +1038,18 @@ void CloseDoor (Sint16 door)
 			if ( ((player->x-MINDIST) >>TILESHIFT) == tilex )
 				return;
 		}
+#ifdef BSTONE_AOG
+        check = ::get_actor_near_door(tilex - 1, tiley);
+#else
 		check = actorat[tilex-1][tiley];
+#endif
 		if (check && ((check->x+MINDIST) >> TILESHIFT) == tilex )
 			return;
+#ifdef BSTONE_AOG
+        check = ::get_actor_near_door(tilex + 1, tiley);
+#else
 		check = actorat[tilex+1][tiley];
+#endif
 		if (check && ((check->x-MINDIST) >> TILESHIFT) == tilex )
 			return;
 	}
@@ -1036,10 +1062,18 @@ void CloseDoor (Sint16 door)
 			if ( ((player->y-MINDIST) >>TILESHIFT) == tiley )
 				return;
 		}
+#ifdef BSTONE_AOG
+        check = ::get_actor_near_door(tilex, tiley - 1);
+#else
 		check = actorat[tilex][tiley-1];
+#endif
 		if (check && ((check->y+MINDIST) >> TILESHIFT) == tiley )
 			return;
+#ifdef BSTONE_AOG
+        check = ::get_actor_near_door(tilex, tiley + 1);
+#else
 		check = actorat[tilex][tiley+1];
+#endif
 		if (check && ((check->y-MINDIST) >> TILESHIFT) == tiley )
 			return;
 	}
