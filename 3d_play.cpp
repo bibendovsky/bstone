@@ -1222,8 +1222,14 @@ void PopupAutoMap(
 	ShowStats(BASE_X+101,BASE_Y+22,ss_quick,&gamestuff.level[gamestate.mapon].stats);
 #endif
 
-	while (Keyboard[sc_back_quote])
+	while (Keyboard[sc_back_quote]) {
 		CalcTics();
+
+#ifdef BSTONE_AOG
+        ::CycleColors();
+        ::in_handle_events();
+#endif
+    }
 
 #if GAME_VERSION != SHAREWARE_VERSION && IN_DEVELOPMENT
 //	if (DebugOk && PP_step)
@@ -1231,8 +1237,14 @@ void PopupAutoMap(
 #endif
 
 	IN_StartAck ();
-	while (!IN_CheckAck ())
+	while (!IN_CheckAck ()) {
 		CalcTics();
+
+#ifdef BSTONE_AOG
+        ::CycleColors();
+        ::in_handle_events();
+#endif
+    }
 
 	CleanDrawPlayBorder();
 	IN_ClearKeysDown();
