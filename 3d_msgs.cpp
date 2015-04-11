@@ -626,11 +626,7 @@ const char * ActorInfoMsg[]=
 			actor_info13,        // STAR Sentinel
 			actor_info14,        // Genetic Guard
 			actor_info15,        // Mutant Human 1
-#ifdef BSTONE_AOG
-            0,
-#else
 			actor_info16,        // Mutant Human 2
-#endif
 			0,							// lg canister wait
 			actor_info18,        // Lg Canister Alien
 			0,							// sm canister wait

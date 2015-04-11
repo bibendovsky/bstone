@@ -758,15 +758,17 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 #endif
 		break;
 
-#ifdef BSTONE_PS
 		case en_mutant_human2:
 			new_actor->temp1 = SPR_MUTHUM2_W1;
 			new_actor->speed = ALIENSPEED;
 			new_actor->ammo = ALIENAMMOINIT;
 			new_actor->flags |= FL_PROJ_TRANSPARENT|FL_NO_SLIDE;
+#ifdef BSTONE_AOG
+            new_actor->flags2 = 0;
+#else
 			new_actor->flags2 = FL2_BFGSHOT_SOLID|FL2_BFG_SHOOTABLE;
-		break;
 #endif
+		break;
 
 		case en_scan_wait_alien:
 			new_actor->temp1 = SPR_SCAN_ALIEN_READY;
@@ -4691,7 +4693,11 @@ void T_Shoot (objtype *ob)
 	{
 		case electroobj:
 		case mutant_human2obj:
+#ifdef BSTONE_AOG
+            SpawnProjectile(ob,scanshotobj);
+#else
 			SpawnProjectile(ob,electroshotobj);
+#endif
 		break;
 
 		case liquidobj:

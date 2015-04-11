@@ -235,17 +235,10 @@ piShapeInfo piShapeTable[] = {
 		{SPR_MUTHUM1_W3,pis_scaled},     		// 81 - mutant_human1 - walking
 		{SPR_MUTHUM1_W4,pis_scaled},     		// 82 - mutant_human1 - walking
 
-#ifdef BSTONE_AOG
-        { 0, pis_pic }, // 83 - mutant_human2 - walking
-        { 0, pis_pic }, // 84 - mutant_human2 - walking
-        { 0, pis_pic }, // 85 - mutant_human2 - walking
-        { 0, pis_pic }, // 86 - mutant_human2 - walking
-#else
 		{SPR_MUTHUM2_W1,pis_scaled},     		// 83 - mutant_human2 - walking
 		{SPR_MUTHUM2_W2,pis_scaled},     		// 84 - mutant_human2 - walking
 		{SPR_MUTHUM2_W3,pis_scaled},     		// 85 - mutant_human2 - walking
 		{SPR_MUTHUM2_W4,pis_scaled},     		// 86 - mutant_human2 - walking
-#endif
 
 		{SPR_LCAN_ALIEN_READY,pis_scaled},  	// 87 - Large canister for lg_Aln
 
