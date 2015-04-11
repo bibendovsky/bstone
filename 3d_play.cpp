@@ -1521,7 +1521,9 @@ void StartMusic(boolean preload)
 
 	SD_MusicOff();
 
-#ifdef BSTONE_PS
+#ifdef BSTONE_AOG
+    musicchunk = static_cast<musicnames>(songs[gamestate.mapon+gamestate.episode*MAPS_WITH_STATS]);
+#else
 #if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
 	if (gamestate.flags & GS_MUSIC_TEST)
 		musicchunk=static_cast<musicnames>(music_num);
@@ -1530,8 +1532,8 @@ void StartMusic(boolean preload)
 	if (playstate==ex_victorious)
 		musicchunk = FORTRESS_MUS;
 	else
-#endif
 		musicchunk = static_cast<musicnames>(songs[gamestate.mapon+gamestate.episode*MAPS_PER_EPISODE]);
+#endif
 
 	if (!audiosegs[STARTMUSIC+musicchunk])
 	{
