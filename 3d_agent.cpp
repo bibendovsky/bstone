@@ -1855,6 +1855,9 @@ void DrawInfoArea(void)
 
 	DrawInfoArea_COUNT--;
 
+    if (!gamestate.msg)
+        return;
+
 	if (!*gamestate.msg)
 		return;
 
