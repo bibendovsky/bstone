@@ -4692,6 +4692,9 @@ void T_Shoot (objtype *ob)
 	switch (ob->obclass)
 	{
 		case electroobj:
+            ::SpawnProjectile(ob, electroshotobj);
+            break;
+
 		case mutant_human2obj:
 #ifdef BSTONE_AOG
             SpawnProjectile(ob,scanshotobj);
