@@ -502,6 +502,7 @@ void SD_WaitSoundDone()
 
 void SD_MusicOn()
 {
+    ::sqActive = true;
     mixer.play_adlib_music(music_index, sqHack, sqHackLen);
 }
 
@@ -513,6 +514,7 @@ void SD_MusicOn()
 
 void SD_MusicOff()
 {
+    ::sqActive = false;
     mixer.stop_music();
 }
 
