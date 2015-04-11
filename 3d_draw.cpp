@@ -1916,6 +1916,11 @@ void ShowOverhead(
                         // SHOW DOORS
                         //
                         if ((tile & 0x80) != 0) {
+#ifdef BSTONE_AOG
+                            if (doorobjlist[door].type == dr_elevator) {
+                                color = 0xFD;
+                            } else
+#endif
                             if (doorobjlist[door].lock != kt_none)
                                 color = 0x18; // locked!
                             else {
