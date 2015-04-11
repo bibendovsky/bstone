@@ -964,13 +964,21 @@ void KillActor (objtype *ob)
 	case floatingbombobj:
       ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
+#ifdef BSTONE_AOG
+        InitSmartSpeedAnim(ob,SPR_FSCOUT_DIE1,0,7,at_ONCE,ad_FWD,17);
+#else
 		InitSmartSpeedAnim(ob,SPR_FSCOUT_DIE1,0,7,at_ONCE,ad_FWD,5);
+#endif
 	break;
 
 	case volatiletransportobj:
       ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
+#ifdef BSTONE_AOG
+        InitSmartSpeedAnim(ob,SPR_GSCOUT_DIE1,0,8,at_ONCE,ad_FWD,17);
+#else
 		InitSmartSpeedAnim(ob,SPR_GSCOUT_DIE1,0,8,at_ONCE,ad_FWD,5);
+#endif
 	break;
 
 	case goldsternobj:
