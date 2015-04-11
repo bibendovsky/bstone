@@ -5425,9 +5425,13 @@ void ExplodeStatics(Sint16 tilex, Sint16 tiley);
 
 #define	BARRIER_STATE(obj)	((obj)->ammo)
 
+#ifdef BSTONE_AOG
+#define InitSmartAnim(obj, ShapeNum, StartOfs,  MaxOfs, AnimType,  AnimDir)						\
+        InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 21)
+#else
 #define InitSmartAnim(obj, ShapeNum, StartOfs,  MaxOfs, AnimType,  AnimDir)						\
         InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 7)
-
+#endif
 
 
 void MakeFakeStatic(objtype *ob);
