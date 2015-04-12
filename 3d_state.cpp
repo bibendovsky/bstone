@@ -1170,6 +1170,15 @@ void KillActor (objtype *ob)
       ob->lighting = EXPLOSION_SHADING;
 		break;
 
+#ifdef BSTONE_AOG
+    case rotating_cubeobj:
+        ::A_DeathScream(ob);
+        ob->ammo = 0;
+        ob->lighting = EXPLOSION_SHADING;
+        InitSmartSpeedAnim(ob,SPR_VITAL_DIE_1,0,7,at_ONCE,ad_FWD,7);
+        break;
+#endif
+
     default:
         break;
 	}
@@ -1317,7 +1326,9 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 			return;
 
       case post_barrierobj:
+#ifdef BSTONE_PS
      	case rotating_cubeobj:
+#endif
       return;
 
 #ifdef BSTONE_PS
@@ -1509,6 +1520,17 @@ void DamageActor (objtype *ob, Uint16 damage, objtype *attacker)
 		case proguardobj:
 			NewState (ob,&s_propain);
 		break;
+
+#ifdef BSTONE_AOG
+        case rotating_cubeobj:
+            // Show 'pain' animation only once
+            if ((ob->hitpoints + damage) ==
+                starthitpoints[gamestate.difficulty][en_rotating_cube])
+            {
+                InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
+            }
+            break;
+#endif
 
         default:
             break;

@@ -971,16 +971,14 @@ numEnemy[goldsternobj]++;
 				break;
 
 
-#ifdef BSTONE_PS
 		//
-		// Rotating Cube
+		// Projection Generator (AOG) / Rotating Cube (PS)
 		//
 
 			case 177:
 				SpawnOffsetObj(en_rotating_cube,x,y);
 				new_actor = NULL;
 			break;
-#endif
 
 		//
 		// RENT-A-COP

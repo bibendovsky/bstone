@@ -400,6 +400,57 @@ boolean CheckTrappedDiag(objtype *ob);
 
 void ChangeShootMode(objtype *ob);
 
+
+#ifdef BSTONE_AOG
+static int get_remaining_generators()
+{
+    int remaining_generators = 0;
+
+    for (objtype* o = player->next; o; o = o->next) {
+        if (o->obclass != rotating_cubeobj) {
+            continue;
+        }
+
+        if ((o->flags & FL_SHOOTABLE) == 0) {
+            continue;
+        }
+
+        remaining_generators += 1;
+    }
+
+    return remaining_generators;
+}
+
+static void display_remaining_generators()
+{
+    static const std::string message_part_1 =
+        "^FC57 PROJECTION GENERATOR\r"
+        "      DESTROYED!\r"
+        "\r"
+        "^FCA6   - "
+    ;
+
+    static const std::string message_part_2 =
+        " REMAINING -\r"
+        " DESTROY THEM TO WIN!"
+    ;
+
+
+    int remaining_generators = ::get_remaining_generators();
+
+
+    static std::string message;
+
+    message =
+        message_part_1 +
+        bstone::StringHelper::lexical_cast<std::string>(remaining_generators) +
+        message_part_2;
+
+    DISPLAY_TIMED_MSG(message.c_str(), MP_FLOOR_UNLOCKED,MT_GENERAL);
+}
+#endif
+
+
 //===========================================================================
 //
 //								OFFSET OBJECT ROUTINES
@@ -649,13 +700,15 @@ void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley)
 			//			 this object is a "blastable" or not.
 		break;
 
-#ifdef BSTONE_PS
 		case en_rotating_cube:
+#ifdef BSTONE_AOG
+            InitSmartSpeedAnim(new_actor,SPR_VITAL_STAND,0,0,at_NONE,ad_FWD,0);
+#else
 			InitSmartSpeedAnim(new_actor,SPR_CUBE1,0,9,at_CYCLE,ad_FWD,5);
 			new_actor->flags2 = FL2_BFGSHOT_SOLID;
+#endif
          new_actor->lighting = LAMP_ON_SHADING;
 		break;
-#endif
 
 		case en_ventdrip:
 			if (dir_which == en_bloodvent)
@@ -1703,7 +1756,10 @@ void T_SmartThought(objtype *obj)
 
 	if (ANIM_INFO(obj)->animtype)
 	{
-		if (AnimateOfsObj(obj))
+        int old_frame = ANIM_INFO(obj)->curframe;
+        bool is_animated = ::AnimateOfsObj(obj);
+
+		if (is_animated)
 		{
 			switch (obj->obclass)
 			{
@@ -1733,13 +1789,30 @@ void T_SmartThought(objtype *obj)
 					obj->hitpoints = starthitpoints[gamestate.difficulty][en_pod];
 				break;
 
-#ifdef BSTONE_PS
            	case rotating_cubeobj:
+#ifdef BSTONE_AOG
+                switch (obj->temp1) {
+                case SPR_VITAL_OUCH:
+                    InitSmartSpeedAnim(obj,SPR_VITAL_STAND,0,0,at_NONE,ad_FWD,0);
+                    break;
+
+                case SPR_VITAL_DIE_8:
+                    InitSmartSpeedAnim(obj,SPR_VITAL_DEAD_1,0,2,at_CYCLE,ad_FWD,16);
+
+                    if (::get_remaining_generators() == 0) {
+                        obj->ammo = 1;
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+#else
 				   DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED,MT_GENERAL);
                ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
                obj->lighting = 0;
-            break;
 #endif
+            break;
 
 				case inertobj:
 				case fixup_inertobj:
@@ -1771,6 +1844,37 @@ void T_SmartThought(objtype *obj)
 			}
 		}
 
+        int new_frame = ANIM_INFO(obj)->curframe;
+        bool is_frame_changed = (old_frame != new_frame);
+
+#ifdef BSTONE_AOG
+        if (!is_animated &&
+            is_frame_changed &&
+            obj->obclass == rotating_cubeobj)
+        {
+            switch (obj->temp1) {
+            case SPR_VITAL_DIE_2:
+                ::display_remaining_generators();
+
+            case SPR_VITAL_DIE_4:
+                ::ExplodeRadius(obj, 35 + (::US_RndT() & 15), true);
+                break;
+
+            case SPR_VITAL_DEAD_1:
+                if (obj->ammo > 0) {
+                    obj->ammo -= 1;
+
+                    if (obj->ammo == 0) {
+                        playstate = ex_victorious;
+                    }
+                }
+                break;
+
+            default:
+                break;
+            }
+        }
+#endif
 
 		if (ANIM_INFO(obj)->curframe == 3)
 		{
@@ -3933,6 +4037,7 @@ void A_DeathScream (objtype *ob)
 		break;
 
 		case rotating_cubeobj:
+            ::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
             ::sd_play_player_sound(VITAL_GONESND, bstone::AC_ITEM);
 		break;
 

@@ -288,7 +288,7 @@ piShapeInfo piShapeTable[] = {
 		{SPR_FSCOUT_W4_8,pis_scaled},      		// 121 - Floating Bomb - moving
 
 #ifdef BSTONE_AOG
-        { 0, pis_pic }, // 122 - ** OPEN **
+        { SPR_VITAL_STAND, pis_scaled }, // 122 - ** OPEN **
 #else
 		{SPR_CUBE1,pis_scaled},      				// 122 - ** OPEN **
 #endif

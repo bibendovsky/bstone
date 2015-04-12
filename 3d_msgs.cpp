@@ -573,12 +573,22 @@ char actor_info49[]="^AN23^FC17\r  ATTACKING:\r"
 										 "^FCA6   BIO-MECH\r"
 												"   GUARDIAN";
 
-#ifdef BSTONE_PS
+#ifdef BSTONE_AOG
+char actor_info50[]=
+    "^SH07A^FC17\r"
+    "  ATTACKING:\r"
+    "^FCA6  PROJECTION\r"
+    "  GENERATOR\r"
+    "  EXPLOSION\r"
+;
+#else
 char actor_info50[]="^SH07A^FC17\r  ATTACKING:\r"
 										  "^FCA6   SECURITY\r"
 										   	 "    CUBE\r"
                                      "  EXPLOSION";
+#endif
 
+#ifdef BSTONE_PS
 //	explosionobj,
 char actor_info51[]="^SH08B^FC17\r  ATTACKING:\r"
 										  "^FCA6 ANTI-PLASMA\r"
@@ -643,12 +653,7 @@ const char * ActorInfoMsg[]=
 #endif
 			actor_info27,        // Volatile Transport
 			actor_info28,        // Floating Bomb
-
-#ifdef BSTONE_AOG
-            0,
-#else
 			actor_info50,			// vital defence
-#endif
 
 			actor_info44,			// Spider Mutant
 			actor_info45,			// breather beast
