@@ -120,6 +120,11 @@ MovieStuff_t Movies[] =
 {
 	{{"IANIM."},1,3,0,0,200},				//mv_intro
 	{{"EANIM."},1,30,0,0,200},				//mv_final
+
+#ifdef BSTONE_AOG
+    {{"SANIM."},1,30,0,0,200}, // mv_final2
+    {{"GANIM."},1,60,0,0,200}, // mv_final3
+#endif
 };
 
 
@@ -518,10 +523,10 @@ void MOVIE_HandlePage(MovieStuff_t *MovieStuff)
          if (TimeCount < static_cast<Uint32>(MovieStuff->ticdelay))
          {
 	         wait_time = static_cast<Uint16>(MovieStuff->ticdelay - TimeCount);
-				VL_WaitVBL(wait_time);
+             ::SDL_Delay(wait_time);
          }
          else
-				VL_WaitVBL(1);
+                ::SDL_Delay(10);
 
 			TimeCount = 0;
 

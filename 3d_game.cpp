@@ -3623,7 +3623,26 @@ strcat (str,str2);							// defined in 3d_main.c
 			if (playstate==ex_victorious)
 			{
 #ifdef BSTONE_AOG
-                // FIXME
+                movie_t movie = mv_intro;
+
+                switch (gamestate.episode) {
+                case 0:
+                case 1:
+                case 3:
+                    movie = mv_final2;
+                    break;
+
+                case 2:
+                case 4:
+                    movie = mv_final3;
+                    break;
+
+                case 5:
+                    movie = mv_final;
+                    break;
+                }
+
+                ::DoMovie(movie, NULL);
 #else
 				CA_CacheGrChunk(ENDINGPALETTE);
 //				VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
