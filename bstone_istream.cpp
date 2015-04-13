@@ -22,9 +22,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_istream.h"
-
 #include <vector>
-
 #include "bstone_un_value.h"
 
 
@@ -46,21 +44,21 @@ void IStream::close()
 }
 
 // (virtual)
-Sint64 IStream::skip(
+int64_t IStream::skip(
     int count)
 {
     return seek(count, STREAM_SEEK_CURRENT);
 }
 
 // (virtual)
-Sint64 IStream::get_position()
+int64_t IStream::get_position()
 {
     return seek(0, STREAM_SEEK_CURRENT);
 }
 
 // (virtual)
 bool IStream::set_position(
-    Sint64 position)
+    int64_t position)
 {
     return seek(position) >= 0;
 }
@@ -68,17 +66,18 @@ bool IStream::set_position(
 // (virtual)
 int IStream::read_octet()
 {
-    Uint8 value = 0;
+    uint8_t value = 0;
 
-    if (read(&value, 1) > 0)
+    if (read(&value, 1) > 0) {
         return value;
-    else
+    } else {
         return 0;
+    }
 }
 
 // (virtual)
 bool IStream::write_octet(
-    Uint8 value)
+    uint8_t value)
 {
     return write(&value, 1);
 }
@@ -87,22 +86,26 @@ bool IStream::copy_to(
     IStream* dst_stream,
     int buffer_size)
 {
-    if (dst_stream == NULL)
+    if (!dst_stream) {
         return false;
+    }
 
-    if (!dst_stream->can_write())
+    if (!dst_stream->can_write()) {
         return false;
+    }
 
-    if (buffer_size <= 0)
+    if (buffer_size <= 0) {
         buffer_size = get_default_copy_buffer_size();
+    }
 
-    std::vector<UnValue<char> > buffer(buffer_size);
+    std::vector<UnValue<char>> buffer(buffer_size);
 
-    for (int count = -1; count != 0; ) {
+    for (auto count = -1; count != 0; ) {
         count = read(&buffer[0], buffer_size);
 
-        if (!dst_stream->write(&buffer[0], count))
+        if (!dst_stream->write(&buffer[0], count)) {
             return false;
+        }
     }
 
     return true;

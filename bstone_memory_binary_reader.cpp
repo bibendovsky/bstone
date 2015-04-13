@@ -33,88 +33,90 @@ namespace bstone {
 
 
 MemoryBinaryReader::MemoryBinaryReader() :
-    data_(NULL),
-    data_size_(0),
-    data_offset_(0)
+        data_(),
+        data_size_(),
+        data_offset_()
 {
 }
 
 MemoryBinaryReader::MemoryBinaryReader(
     const void* data,
-    Sint64 data_size)
+    int64_t data_size)
 {
-    initialize(data, data_size);
+    open(data, data_size);
 }
 
 bool MemoryBinaryReader::is_initialized() const
 {
-    return data_ != NULL;
+    return data_ != nullptr;
 }
 
-bool MemoryBinaryReader::initialize(
+bool MemoryBinaryReader::open(
     const void* data,
-    Sint64 data_size)
+    int64_t data_size)
 {
-    uninitialize();
+    close();
 
-    if (data == NULL)
+    if (!data) {
         return false;
+    }
 
-    if (data_size <= 0)
+    if (data_size <= 0) {
         return false;
+    }
 
-    data_ = static_cast<const Uint8*>(data);
+    data_ = static_cast<const uint8_t*>(data);
     data_size_ = data_size;
     data_offset_ = 0;
 
     return true;
 }
 
-void MemoryBinaryReader::uninitialize()
+void MemoryBinaryReader::close()
 {
-    data_ = NULL;
+    data_ = nullptr;
     data_size_ = 0;
     data_offset_ = 0;
 }
 
-Sint8 MemoryBinaryReader::read_s8()
+int8_t MemoryBinaryReader::read_s8()
 {
     return read<int8_t>();
 }
 
-Uint8 MemoryBinaryReader::read_u8()
+uint8_t MemoryBinaryReader::read_u8()
 {
-    return read<Uint8>();
+    return read<uint8_t>();
 }
 
-Sint16 MemoryBinaryReader::read_s16()
+int16_t MemoryBinaryReader::read_s16()
 {
-    return read<Sint16>();
+    return read<int16_t>();
 }
 
-Uint16 MemoryBinaryReader::read_u16()
+uint16_t MemoryBinaryReader::read_u16()
 {
-    return read<Uint16>();
+    return read<uint16_t>();
 }
 
-Sint32 MemoryBinaryReader::read_s32()
+int32_t MemoryBinaryReader::read_s32()
 {
-    return read<Sint32>();
+    return read<int32_t>();
 }
 
-Uint32 MemoryBinaryReader::read_u32()
+uint32_t MemoryBinaryReader::read_u32()
 {
-    return read<Uint32>();
+    return read<uint32_t>();
 }
 
-Sint64 MemoryBinaryReader::read_s64()
+int64_t MemoryBinaryReader::read_s64()
 {
-    return read<Sint64>();
+    return read<int64_t>();
 }
 
-Uint64 MemoryBinaryReader::read_u64()
+uint64_t MemoryBinaryReader::read_u64()
 {
-    return read<Uint64>();
+    return read<uint64_t>();
 }
 
 float MemoryBinaryReader::read_r32()
@@ -128,37 +130,38 @@ double MemoryBinaryReader::read_r64()
 }
 
 bool MemoryBinaryReader::skip(
-    Sint64 count)
+    int64_t count)
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return false;
+    }
 
-    Sint64 new_offset = data_offset_ + count;
+    auto new_offset = data_offset_ + count;
 
-    if (new_offset < 0)
+    if (new_offset < 0) {
         return false;
+    }
 
     data_offset_ = new_offset;
 
     return true;
 }
 
-Sint64 MemoryBinaryReader::get_position() const
+int64_t MemoryBinaryReader::get_position() const
 {
-    if (!is_initialized())
-        return false;
-
     return data_offset_;
 }
 
 bool MemoryBinaryReader::set_position(
-    Sint64 position)
+    int64_t position)
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return false;
+    }
 
-    if (position < 0)
+    if (position < 0) {
         return false;
+    }
 
     data_offset_ = position;
 

@@ -68,7 +68,7 @@ bool AdlibMusicDecoder::initialize(
         return false;
     }
 
-    reader_.initialize(raw_data, raw_size);
+    reader_.open(raw_data, raw_size);
 
     int commands_size = bstone::Endian::le(reader_.read_u16());
 
@@ -103,7 +103,7 @@ bool AdlibMusicDecoder::initialize(
 // (virtual)
 void AdlibMusicDecoder::uninitialize()
 {
-    reader_.uninitialize();
+    reader_.close();
     commands_count_ = 0;
     command_index_ = 0;
     samples_per_tick_ = 0;

@@ -26,13 +26,11 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_MEMORY_BINARY_READER_H
-#define BSTONE_MEMORY_BINARY_READER_H
+#ifndef BSTONE_MEMORY_BINARY_READER_INCLUDED
+#define BSTONE_MEMORY_BINARY_READER_INCLUDED
 
 
-#include <cstddef>
-
-#include "SDL.h"
+#include <cstdint>
 
 
 namespace bstone {
@@ -45,43 +43,44 @@ public:
 
     MemoryBinaryReader(
         const void* data,
-        Sint64 data_size);
+        int64_t data_size);
 
-    // Initializes the reader.
-    bool initialize(
+
+    // Opens the reader.
+    bool open(
         const void* data,
-        Sint64 data_size);
+        int64_t data_size);
 
-    // Uninitializes the reader.
-    void uninitialize();
+    // Closes the reader.
+    void close();
 
     // Returns true if the reader is initialized or
     // false otherwise.
     bool is_initialized() const;
 
     // Reads a signed 8-bit integer value.
-    Sint8 read_s8();
+    int8_t read_s8();
 
     // Reads an unsigned 8-bit integer value.
-    Uint8 read_u8();
+    uint8_t read_u8();
 
     // Reads a signed 16-bit integer value.
-    Sint16 read_s16();
+    int16_t read_s16();
 
     // Reads an unsigned 16-bit integer value.
-    Uint16 read_u16();
+    uint16_t read_u16();
 
     // Reads a signed 32-bit integer value.
-    Sint32 read_s32();
+    int32_t read_s32();
 
     // Reads an unsigned 32-bit integer value.
-    Uint32 read_u32();
+    uint32_t read_u32();
 
     // Reads a signed 64-bit integer value.
-    Sint64 read_s64();
+    int64_t read_s64();
 
     // Reads an unsigned 64-bit integer value.
-    Uint64 read_u64();
+    uint64_t read_u64();
 
     // Reads a 32-bit float-point value.
     float read_r32();
@@ -92,47 +91,50 @@ public:
     // Skips a specified number of octets forward if count positive
     // or backward otherwise.
     bool skip(
-        Sint64 count);
+        int64_t count);
 
     // Returns a current position.
-    Sint64 get_position() const;
+    int64_t get_position() const;
 
     // Sets a current position to a specified one.
     bool set_position(
-        Sint64 position);
+        int64_t position);
 
     // Returns a pointer to data for a current position.
-    template<class T>
+    template<typename T>
     const T* get_data() const
     {
         return reinterpret_cast<const T*>(&data_[data_offset_]);
     }
 
 private:
-    const Uint8* data_;
-    Sint64 data_size_;
-    Sint64 data_offset_;
+    const uint8_t* data_;
+    int64_t data_size_;
+    int64_t data_offset_;
 
-    template<class T>
+    template<typename T>
     T read()
     {
-        if (!is_initialized())
+        if (!is_initialized()) {
             return 0;
+        }
 
-        if (data_offset_ < 0)
+        if (data_offset_ < 0) {
             return 0;
+        }
 
-        if ((data_offset_ + static_cast<Sint64>(sizeof(T))) >= data_size_)
+        if ((data_offset_ + static_cast<int64_t>(sizeof(T))) >= data_size_) {
             return 0;
+        }
 
         T result = *reinterpret_cast<const T*>(&data_[data_offset_]);
         data_offset_ += sizeof(T);
         return result;
     }
-}; // class MemoryBinaryReader
+}; // MemoryBinaryReader
 
 
-} // namespace bstone
+} // bstone
 
 
-#endif // BSTONE_MEMORY_BINARY_READER_H
+#endif // BSTONE_MEMORY_BINARY_READER_INCLUDED

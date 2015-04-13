@@ -33,26 +33,26 @@ namespace bstone {
 
 
 FileStream::FileStream() :
-    size_(0),
-    position_(0),
-    can_read_(false),
-    can_seek_(false),
-    can_write_(false),
-    need_sync_read_position_(false),
-    need_sync_write_position_(false)
+        size_(),
+        position_(),
+        can_read_(),
+        can_seek_(),
+        can_write_(),
+        need_sync_read_position_(),
+        need_sync_write_position_()
 {
 }
 
 FileStream::FileStream(
     const std::string& file_name,
     StreamOpenMode open_mode) :
-        size_(0),
-        position_(0),
-        can_read_(false),
-        can_seek_(false),
-        can_write_(false),
-        need_sync_read_position_(false),
-        need_sync_write_position_(false)
+        size_(),
+        position_(),
+        can_read_(),
+        can_seek_(),
+        can_write_(),
+        need_sync_read_position_(),
+        need_sync_write_position_()
 {
     open(file_name, open_mode);
 }
@@ -68,14 +68,15 @@ bool FileStream::open(
 {
     close();
 
-    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0)
+    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0) {
         return false;
+    }
 
-    bool can_read = false;
-    bool can_seek = false;
-    bool can_write = false;
+    auto can_read = false;
+    auto can_seek = false;
+    auto can_write = false;
 
-    std::ios::openmode mode = std::ios::binary | std::ios::ate;
+    auto mode = std::ios::binary | std::ios::ate;
 
     if ((open_mode & STREAM_OPEN_READ) != 0) {
         can_read = true;
@@ -88,26 +89,29 @@ bool FileStream::open(
     }
 
     if ((open_mode & STREAM_OPEN_TRUNCATE) != 0) {
-        if (!can_write)
+        if (!can_write) {
             return false;
+        }
 
         mode |= std::ios::trunc;
     }
 
     stream_.open(file_name.c_str(), mode);
 
-    if (!stream_.is_open())
+    if (!stream_.is_open()) {
         return false;
+    }
 
-    bool is_succeed = true;
+    auto is_succeed = true;
 
     std::ios::pos_type end_pos = -1;
 
     if (is_succeed) {
-        if (can_read)
+        if (can_read) {
             end_pos = stream_.tellg();
-        else
+        } else {
             end_pos = stream_.tellp();
+        }
 
         stream_.clear();
     }
@@ -128,12 +132,12 @@ bool FileStream::open(
         }
     }
 
-    Sint64 size = 0;
+    auto size = 0LL;
 
     if (is_succeed) {
         if (end_pos != std::ios::pos_type(-1)) {
             can_seek = true;
-            size = static_cast<Sint64>(end_pos - std::ios::pos_type(0));
+            size = static_cast<int64_t>(end_pos - std::ios::pos_type(0));
         }
     }
 
@@ -168,23 +172,26 @@ bool FileStream::is_open() const
 }
 
 // (virtual)
-Sint64 FileStream::get_size()
+int64_t FileStream::get_size()
 {
-    if (!is_open())
+    if (!is_open()) {
         return -1;
+    }
 
     return size_;
 }
 
 // (virtual)
 bool FileStream::set_size(
-    Sint64 size)
+    int64_t size)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
-    if (size < 0)
+    if (size < 0) {
         return false;
+    }
 
     return false;
 }
@@ -192,28 +199,31 @@ bool FileStream::set_size(
 // (virtual)
 bool FileStream::flush()
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     stream_.flush();
-    bool result = !stream_.bad();
+    auto result = !stream_.bad();
     stream_.clear();
 
     return result;
 }
 
 // (virtual)
-Sint64 FileStream::seek(
-    Sint64 offset,
+int64_t FileStream::seek(
+    int64_t offset,
     StreamSeekOrigin origin)
 {
-    if (!is_open())
+    if (!is_open()) {
         return -1;
+    }
 
-    if (!can_seek())
+    if (!can_seek()) {
         return -1;
+    }
 
-    Sint64 new_position;
+    auto new_position = 0LL;
 
     switch (origin) {
     case STREAM_SEEK_BEGIN:
@@ -232,8 +242,9 @@ Sint64 FileStream::seek(
         return -1;
     }
 
-    if (new_position < 0)
+    if (new_position < 0) {
         new_position = 0;
+    }
 
     if (new_position != position_) {
         need_sync_read_position_ = true;
@@ -250,17 +261,21 @@ int FileStream::read(
     void* buffer,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return 0;
+    }
 
-    if (!can_read())
+    if (!can_read()) {
         return 0;
+    }
 
-    if (buffer == NULL)
+    if (!buffer) {
         return 0;
+    }
 
-    if (count <= 0)
+    if (count <= 0) {
         return 0;
+    }
 
     if (can_seek() && need_sync_read_position_) {
         need_sync_read_position_ = false;
@@ -272,7 +287,7 @@ int FileStream::read(
     stream_.read(static_cast<char*>(buffer), count);
     stream_.clear();
 
-    int actual_count = static_cast<int>(stream_.gcount());
+    auto actual_count = static_cast<int>(stream_.gcount());
 
     if (can_seek() && actual_count > 0) {
         position_ += actual_count;
@@ -287,20 +302,25 @@ bool FileStream::write(
     const void* buffer,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
-    if (!can_write())
+    if (!can_write()) {
         return false;
+    }
 
-    if (count < 0)
+    if (count < 0) {
         return false;
+    }
 
-    if (count == 0)
+    if (count == 0) {
         return true;
+    }
 
-    if (buffer == NULL)
+    if (!buffer) {
         return false;
+    }
 
     if (can_seek() && need_sync_write_position_) {
         need_sync_write_position_ = false;
@@ -311,7 +331,7 @@ bool FileStream::write(
 
     stream_.write(static_cast<const char*>(buffer), count);
 
-    bool result = false;
+    auto result = false;
 
     if (can_seek()) {
         if (stream_) {
@@ -319,16 +339,18 @@ bool FileStream::write(
             position_ += count;
         } else {
             result = false;
-            std::ios::pos_type cur_pos = stream_.tellp();
-            position_ = static_cast<Sint64>(cur_pos - std::ios::pos_type(0));
+            auto cur_pos = stream_.tellp();
+            position_ = static_cast<int64_t>(cur_pos - std::ios::pos_type(0));
         }
 
-        if (position_ > size_)
+        if (position_ > size_) {
             size_ = position_;
+        }
 
         need_sync_read_position_ = true;
-    } else
+    } else {
         result = !stream_;
+    }
 
     stream_.clear();
 
@@ -351,6 +373,17 @@ bool FileStream::can_seek() const
 bool FileStream::can_write() const
 {
     return is_open() && can_write_;
+}
+
+// (static)
+bool FileStream::is_exists(
+    const std::string& file_name)
+{
+    std::ifstream stream(
+        file_name.c_str(),
+        std::ios_base::in | std::ios_base::binary | std::ios_base::ate);
+
+    return stream.is_open();
 }
 
 

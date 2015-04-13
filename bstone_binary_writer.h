@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef BSTONE_BINARY_WRITER_H
-#define BSTONE_BINARY_WRITER_H
+#ifndef BSTONE_BINARY_WRITER_INCLUDED
+#define BSTONE_BINARY_WRITER_INCLUDED
 
 
 #include "bstone_istream.h"
@@ -34,46 +34,54 @@ namespace bstone {
 class BinaryWriter {
 public:
     BinaryWriter(
-        IStream* stream = NULL);
+        IStream* stream = nullptr);
+
+    BinaryWriter(
+        const BinaryWriter& that) = delete;
+
+    BinaryWriter& operator=(
+        const BinaryWriter& that) = delete;
+
 
     bool open(
         IStream* stream);
 
+    // Closes the writer but stream.
     void close();
 
     bool is_open() const;
 
     // Writes a signed 8-bit integer value.
     bool write_s8(
-        Sint8 value);
+        int8_t value);
 
     // Writes an unsigned 8-bit integer value.
     bool write_u8(
-        Uint8 value);
+        uint8_t value);
 
     // Writes a signed 16-bit integer value.
     bool write_s16(
-        Sint16 value);
+        int16_t value);
 
     // Writes an unsigned 16-bit integer value.
     bool write_u16(
-        Uint16 value);
+        uint16_t value);
 
     // Writes a signed 32-bit integer value.
     bool write_s32(
-        Sint32 value);
+        int32_t value);
 
     // Writes an unsigned 32-bit integer value.
     bool write_u32(
-        Uint32 value);
+        uint32_t value);
 
     // Writes a signed 64-bit integer value.
     bool write_s64(
-        Sint64 value);
+        int64_t value);
 
     // Writes an unsigned 64-bit integer value.
     bool write_u64(
-        Uint64 value);
+        uint64_t value);
 
     // Writes a 32-bit float-point value.
     bool write_r32(
@@ -94,38 +102,41 @@ public:
         int count);
 
     // Returns a current position.
-    Sint64 get_position() const;
+    int64_t get_position() const;
 
     // Sets a current position to a specified one.
     bool set_position(
-        Sint64 position);
+        int64_t position);
 
-    template<class T>
+    template<typename T>
     bool write(
         const T& value)
     {
-        if (!is_open())
+        if (!is_open()) {
             return false;
+        }
 
         return stream_->write(&value, sizeof(T));
     }
 
-    template<class T,size_t N>
+    template<typename T,size_t N>
     bool write(
         const T (&value)[N])
     {
-        if (!is_open())
+        if (!is_open()) {
             return false;
+        }
 
         return stream_->write(value, N * sizeof(T));
     }
+
 
 private:
     IStream* stream_;
 }; // class BinaryWriter
 
 
-} // namespace bstone
+} // bstone
 
 
-#endif // BSTONE_BINARY_WRITER_H
+#endif // BSTONE_BINARY_WRITER_INCLUDED

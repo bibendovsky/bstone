@@ -79,7 +79,7 @@ bool AdlibSfxDecoder::initialize(
         return false;
     }
 
-    reader_.initialize(raw_data, raw_size);
+    reader_.open(raw_data, raw_size);
 
     int sfx_length = bstone::Endian::le(reader_.read_s32());
 
@@ -128,7 +128,7 @@ bool AdlibSfxDecoder::initialize(
 // (virtual)
 void AdlibSfxDecoder::uninitialize()
 {
-    reader_.uninitialize();
+    reader_.close();
     instrument_.reset();
     commands_count_ = 0;
     command_index_ = 0;

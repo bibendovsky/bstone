@@ -26,12 +26,11 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_MEMORY_STREAM_H
-#define BSTONE_MEMORY_STREAM_H
+#ifndef BSTONE_MEMORY_STREAM_INCLUDED
+#define BSTONE_MEMORY_STREAM_INCLUDED
 
 
 #include <vector>
-
 #include "bstone_istream.h"
 #include "bstone_un_value.h"
 
@@ -51,10 +50,17 @@ public:
     MemoryStream(
         int buffer_size,
         int buffer_offset,
-        const Uint8* buffer,
+        const uint8_t* buffer,
         StreamOpenMode open_mode = STREAM_OPEN_READ);
 
+    MemoryStream(
+        const MemoryStream& that) = delete;
+
+    MemoryStream& operator=(
+        const MemoryStream& that) = delete;
+
     virtual ~MemoryStream();
+
 
     bool open(
         int initial_capacity = 0,
@@ -63,25 +69,25 @@ public:
     bool open(
         int buffer_size,
         int buffer_offset,
-        const Uint8* buffer,
+        const uint8_t* buffer,
         StreamOpenMode open_mode = STREAM_OPEN_READ);
 
     virtual void close();
 
     virtual bool is_open() const;
 
-    virtual Sint64 get_size();
+    virtual int64_t get_size();
 
     virtual bool set_size(
-        Sint64 size);
+        int64_t size);
 
     virtual bool flush();
 
-    virtual Sint64 seek(
-        Sint64 offset,
+    virtual int64_t seek(
+        int64_t offset,
         StreamSeekOrigin origin = STREAM_SEEK_BEGIN);
 
-    virtual Sint64 get_position();
+    virtual int64_t get_position();
 
     virtual int read(
         void* buffer,
@@ -97,30 +103,30 @@ public:
 
     virtual bool can_write() const;
 
-    Uint8* get_data();
+    uint8_t* get_data();
 
-    const Uint8* get_data() const;
+    const uint8_t* get_data() const;
 
     bool remove_block(
-        Sint64 offset,
+        int64_t offset,
         int count);
 
 private:
-    typedef std::vector<UnValue<Uint8> > Buffer;
+    using Buffer = std::vector<UnValue<uint8_t>>;
 
     bool is_open_;
     bool can_read_;
     bool can_write_;
-    Sint64 position_;
-    Sint64 size_;
-    Sint64 ext_size_;
-    Uint8* buffer_;
-    Uint8* ext_buffer_;
+    int64_t position_;
+    int64_t size_;
+    int64_t ext_size_;
+    uint8_t* buffer_;
+    uint8_t* ext_buffer_;
     Buffer int_buffer_;
-}; // class IStream
+}; // IStream
 
 
-} // namespace bstone
+} // bstone
 
 
-#endif // BSTONE_MEMORY_STREAM_H
+#endif // BSTONE_MEMORY_STREAM_INCLUDED

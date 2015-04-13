@@ -26,11 +26,11 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_ISTREAM_H
-#define BSTONE_ISTREAM_H
+#ifndef BSTONE_ISTREAM_INCLUDED
+#define BSTONE_ISTREAM_INCLUDED
 
 
-#include "SDL.h"
+#include <cstdint>
 
 
 namespace bstone {
@@ -62,31 +62,31 @@ public:
     virtual bool is_open() const = 0;
 
     // Returns a size of the stream or a negative value on error.
-    virtual Sint64 get_size() = 0;
+    virtual int64_t get_size() = 0;
 
     // Sets a new size of the stream.
     // Returns false on error or if the stream is not seekable.
     virtual bool set_size(
-        Sint64 size) = 0;
+        int64_t size) = 0;
 
     virtual bool flush() = 0;
 
     // Returns a new position or a negative value on error.
-    virtual Sint64 seek(
-        Sint64 offset,
+    virtual int64_t seek(
+        int64_t offset,
         StreamSeekOrigin origin = STREAM_SEEK_BEGIN) = 0;
 
     // Skips a number of octets forward if count is positive or
     // backward otherwise.
     // Returns a negative value on error.
-    virtual Sint64 skip(
+    virtual int64_t skip(
         int count);
 
     // Returns a current position or a negative value on error.
-    virtual Sint64 get_position();
+    virtual int64_t get_position();
 
     virtual bool set_position(
-        Sint64 position);
+        int64_t position);
 
     // Reads a specified number of octets and returns an actual
     // read number of octets.
@@ -103,7 +103,7 @@ public:
     virtual int read_octet();
 
     virtual bool write_octet(
-        Uint8 value);
+        uint8_t value);
 
     virtual bool can_read() const = 0;
 
@@ -118,10 +118,10 @@ public:
         int buffer_size = 0);
 
     static int get_default_copy_buffer_size();
-}; // class IStream
+}; // IStream
 
 
-} // namespace bstone
+} // bstone
 
 
-#endif // BSTONE_ISTREAM_H
+#endif // BSTONE_ISTREAM_INCLUDED

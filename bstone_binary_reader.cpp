@@ -29,7 +29,7 @@ namespace bstone {
 
 BinaryReader::BinaryReader(
     IStream* stream) :
-        stream_(NULL)
+        stream_()
 {
     open(stream);
 }
@@ -39,11 +39,13 @@ bool BinaryReader::open(
 {
     close();
 
-    if (stream == NULL)
+    if (!stream) {
         return false;
+    }
 
-    if (!stream->can_read())
+    if (!stream->can_read()) {
         return false;
+    }
 
     stream_ = stream;
 
@@ -52,52 +54,52 @@ bool BinaryReader::open(
 
 void BinaryReader::close()
 {
-    stream_ = NULL;
+    stream_ = nullptr;
 }
 
 bool BinaryReader::is_open() const
 {
-    return stream_ != NULL;
+    return stream_ != nullptr;
 }
 
-Sint8 BinaryReader::read_s8()
+int8_t BinaryReader::read_s8()
 {
-    return read<Sint8>();
+    return read<int8_t>();
 }
 
-Uint8 BinaryReader::read_u8()
+uint8_t BinaryReader::read_u8()
 {
-    return read<Uint8>();
+    return read<uint8_t>();
 }
 
-Sint16 BinaryReader::read_s16()
+int16_t BinaryReader::read_s16()
 {
-    return read<Sint16>();
+    return read<int16_t>();
 }
 
-Uint16 BinaryReader::read_u16()
+uint16_t BinaryReader::read_u16()
 {
-    return read<Uint16>();
+    return read<uint16_t>();
 }
 
-Sint32 BinaryReader::read_s32()
+int32_t BinaryReader::read_s32()
 {
-    return read<Sint32>();
+    return read<int32_t>();
 }
 
-Uint32 BinaryReader::read_u32()
+uint32_t BinaryReader::read_u32()
 {
-    return read<Uint32>();
+    return read<uint32_t>();
 }
 
-Sint64 BinaryReader::read_s64()
+int64_t BinaryReader::read_s64()
 {
-    return read<Sint64>();
+    return read<int64_t>();
 }
 
-Uint64 BinaryReader::read_u64()
+uint64_t BinaryReader::read_u64()
 {
-    return read<Uint64>();
+    return read<uint64_t>();
 }
 
 float BinaryReader::read_r32()
@@ -114,8 +116,9 @@ bool BinaryReader::read(
     void* buffer,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     return stream_->read(buffer, count) == count;
 }
@@ -123,25 +126,28 @@ bool BinaryReader::read(
 bool BinaryReader::skip(
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     return stream_->skip(count) >= 0;
 }
 
-Sint64 BinaryReader::get_position() const
+int64_t BinaryReader::get_position() const
 {
-    if (!is_open())
-        return false;
+    if (!is_open()) {
+        return 0;
+    }
 
     return stream_->get_position();
 }
 
 bool BinaryReader::set_position(
-    Sint64 position)
+    int64_t position)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     return stream_->set_position(position);
 }

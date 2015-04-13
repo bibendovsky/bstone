@@ -22,7 +22,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_memory_stream.h"
-
 #include <algorithm>
 
 namespace bstone {
@@ -31,14 +30,14 @@ namespace bstone {
 MemoryStream::MemoryStream(
     int initial_capacity,
     StreamOpenMode open_mode) :
-        is_open_(false),
-        can_read_(false),
-        can_write_(false),
-        position_(0),
-        size_(0),
-        ext_size_(0),
-        buffer_(NULL),
-        ext_buffer_(NULL)
+        is_open_(),
+        can_read_(),
+        can_write_(),
+        position_(),
+        size_(),
+        ext_size_(),
+        buffer_(),
+        ext_buffer_()
 {
     open(initial_capacity, open_mode);
 }
@@ -46,16 +45,16 @@ MemoryStream::MemoryStream(
 MemoryStream::MemoryStream(
     int buffer_size,
     int buffer_offset,
-    const Uint8* buffer,
+    const uint8_t* buffer,
     StreamOpenMode open_mode) :
-        is_open_(false),
-        can_read_(false),
-        can_write_(false),
-        position_(0),
-        size_(0),
-        ext_size_(0),
-        buffer_(NULL),
-        ext_buffer_(NULL)
+        is_open_(),
+        can_read_(),
+        can_write_(),
+        position_(),
+        size_(),
+        ext_size_(),
+        buffer_(),
+        ext_buffer_()
 {
     open(buffer_size, buffer_offset, buffer, open_mode);
 }
@@ -72,14 +71,17 @@ bool MemoryStream::open(
 {
     close();
 
-    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0)
+    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0) {
         return false;
+    }
 
-    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0)
+    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0) {
         return false;
+    }
 
-    if (initial_capacity < 0)
+    if (initial_capacity < 0) {
         initial_capacity = 0;
+    }
 
     int_buffer_.reserve(initial_capacity);
 
@@ -93,29 +95,33 @@ bool MemoryStream::open(
 bool MemoryStream::open(
     int buffer_size,
     int buffer_offset,
-    const Uint8* buffer,
+    const uint8_t* buffer,
     StreamOpenMode open_mode)
 {
     close();
 
-    if (buffer_size < 0)
+    if (buffer_size < 0) {
         buffer_size = 0;
+    }
 
-    if (buffer == NULL)
+    if (!buffer) {
         return false;
+    }
 
-    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0)
+    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0) {
         return false;
+    }
 
-    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0)
+    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0) {
         return false;
+    }
 
     is_open_ = true;
     can_read_ = ((open_mode & STREAM_OPEN_READ) != 0);
     can_write_ = ((open_mode & STREAM_OPEN_WRITE) != 0);
     size_ = buffer_size;
     ext_size_ = buffer_size;
-    buffer_ = const_cast<Uint8*>(&buffer[buffer_offset]);
+    buffer_ = const_cast<uint8_t*>(&buffer[buffer_offset]);
     ext_buffer_ = buffer_;
 
     return true;
@@ -129,8 +135,8 @@ void MemoryStream::close()
     position_ = 0;
     size_ = 0;
     ext_size_ = 0;
-    buffer_ = NULL;
-    ext_buffer_ = NULL;
+    buffer_ = nullptr;
+    ext_buffer_ = nullptr;
     Buffer().swap(int_buffer_);
 }
 
@@ -141,38 +147,40 @@ bool MemoryStream::is_open() const
 }
 
 // (virtual)
-Sint64 MemoryStream::get_size()
+int64_t MemoryStream::get_size()
 {
-    if (!is_open())
-        return 0;
-
     return size_;
 }
 
 // (virtual)
 bool MemoryStream::set_size(
-    Sint64 size)
+    int64_t size)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
-    if (!can_write())
+    if (!can_write()) {
         return false;
+    }
 
-    if (size < 0)
+    if (size < 0) {
         return false;
+    }
 
-    if (ext_buffer_ != NULL)
+    if (ext_buffer_) {
         return false;
+    }
 
     int_buffer_.resize(static_cast<size_t>(size));
 
     size_ = size;
 
-    if (size_ > 0)
-        buffer_ = reinterpret_cast<Uint8*>(&int_buffer_[0]);
-    else
-        buffer_ = NULL;
+    if (size_ > 0) {
+        buffer_ = reinterpret_cast<uint8_t*>(&int_buffer_[0]);
+    } else {
+        buffer_ = nullptr;
+    }
 
     return true;
 }
@@ -184,15 +192,17 @@ bool MemoryStream::flush()
 }
 
 // (virtual)
-Sint64 MemoryStream::seek(
-    Sint64 offset,
+int64_t MemoryStream::seek(
+    int64_t offset,
     StreamSeekOrigin origin)
 {
-    if (!is_open())
+    if (!is_open()) {
         return -1;
+    }
 
-    if (!can_seek())
+    if (!can_seek()) {
         return -1;
+    }
 
     switch (origin) {
     case STREAM_SEEK_BEGIN:
@@ -211,21 +221,16 @@ Sint64 MemoryStream::seek(
         return -1;
     }
 
-    if (position_ < 0)
+    if (position_ < 0) {
         position_ = 0;
+    }
 
     return position_;
 }
 
 // (virtual)
-Sint64 MemoryStream::get_position()
+int64_t MemoryStream::get_position()
 {
-    if (!is_open())
-        return -1;
-
-    if (!can_seek())
-        return -1;
-
     return position_;
 }
 
@@ -234,30 +239,36 @@ int MemoryStream::read(
     void* buffer,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return 0;
+    }
 
-    if (!can_read())
+    if (!can_read()) {
         return 0;
+    }
 
-    if (buffer == NULL)
+    if (!buffer) {
         return 0;
+    }
 
-    if (count <= 0)
+    if (count <= 0) {
         return 0;
+    }
 
-    Sint64 remain = size_ - position_;
+    auto remain = size_ - position_;
 
-    if (remain <= 0)
+    if (remain <= 0) {
         return 0;
+    }
 
-    int read_count = static_cast<int>(std::min(
-        static_cast<Sint64>(count), remain));
+    auto read_count = static_cast<int>(std::min(
+        static_cast<int64_t>(count),
+        remain));
 
-    std::uninitialized_copy(
+    std::uninitialized_copy_n(
         &buffer_[position_],
-        &buffer_[position_ + read_count],
-        static_cast<Uint8*>(buffer));
+        read_count,
+        static_cast<uint8_t*>(buffer));
 
     position_ += read_count;
 
@@ -269,38 +280,44 @@ bool MemoryStream::write(
     const void* buffer,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
-    if (!can_write())
+    if (!can_write()) {
         return false;
+    }
 
-    if (count < 0)
+    if (count < 0) {
         return false;
+    }
 
-    if (count == 0)
+    if (count == 0) {
         return true;
+    }
 
-    if (buffer == NULL)
+    if (!buffer) {
         return false;
+    }
 
-    if (ext_buffer_ == NULL) {
-        Sint64 new_size = position_ + count;
+    if (!ext_buffer_) {
+        auto new_size = position_ + count;
 
         if (new_size > size_) {
             int_buffer_.resize(static_cast<size_t>(new_size));
 
             size_ = new_size;
-            buffer_ = reinterpret_cast<Uint8*>(&int_buffer_[0]);
+            buffer_ = reinterpret_cast<uint8_t*>(&int_buffer_[0]);
         }
     } else {
-        if ((position_ + count) > ext_size_)
+        if ((position_ + count) > ext_size_) {
             return false;
+        }
     }
 
-    std::uninitialized_copy(
-        static_cast<const Uint8*>(buffer),
-        &static_cast<const Uint8*>(buffer)[count],
+    std::uninitialized_copy_n(
+        static_cast<const uint8_t*>(buffer),
+        count,
         &buffer_[position_]);
 
     position_ += count;
@@ -326,40 +343,39 @@ bool MemoryStream::can_write() const
     return is_open() && can_write_;
 }
 
-Uint8* MemoryStream::get_data()
+uint8_t* MemoryStream::get_data()
 {
-    if (!is_open())
-        return NULL;
-
     return buffer_;
 }
 
-const Uint8* MemoryStream::get_data() const
+const uint8_t* MemoryStream::get_data() const
 {
-    if (!is_open())
-        return NULL;
-
     return buffer_;
 }
 
 bool MemoryStream::remove_block(
-    Sint64 offset,
+    int64_t offset,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
-    if (offset < 0)
+    if (offset < 0) {
         return false;
+    }
 
-    if (count < 0)
+    if (count < 0) {
         return false;
+    }
 
-    if (count == 0)
+    if (count == 0) {
         return true;
+    }
 
-    if ((offset + count) > size_)
+    if ((offset + count) > size_) {
         return false;
+    }
 
     int_buffer_.erase(
         int_buffer_.begin() + static_cast<ptrdiff_t>(offset),
@@ -371,4 +387,4 @@ bool MemoryStream::remove_block(
 }
 
 
-} // namespace bstone
+} // bstone

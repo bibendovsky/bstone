@@ -21,20 +21,17 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-//
-// A wrapper to make a value uninitalized.
-//
-
-
-#ifndef BSTONE_UN_VALUE_H
-#define BSTONE_UN_VALUE_H
+#ifndef BSTONE_UN_VALUE_INCLUDED
+#define BSTONE_UN_VALUE_INCLUDED
 
 
 namespace bstone {
 
 
+//
 // A wrapper to make a value uninitalized.
-template<class T>
+//
+template<typename T>
 class UnValue {
 public:
     UnValue()
@@ -54,10 +51,10 @@ public:
 
 private:
     T value_;
-}; // class UnValue
+}; // UnValue
 
 
-} // namespace bstone
+} // bstone
 
 
-#endif // BSTONE_UN_VALUE_H
+#endif // BSTONE_UN_VALUE_INCLUDED

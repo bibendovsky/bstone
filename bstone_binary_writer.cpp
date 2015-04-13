@@ -29,7 +29,7 @@ namespace bstone {
 
 BinaryWriter::BinaryWriter(
     IStream* stream) :
-        stream_(NULL)
+        stream_()
 {
     open(stream);
 }
@@ -39,11 +39,13 @@ bool BinaryWriter::open(
 {
     close();
 
-    if (stream == NULL)
+    if (!stream) {
         return false;
+    }
 
-    if (!stream->can_write())
+    if (!stream->can_write()) {
         return false;
+    }
 
     stream_ = stream;
 
@@ -52,58 +54,58 @@ bool BinaryWriter::open(
 
 void BinaryWriter::close()
 {
-    stream_ = NULL;
+    stream_ = nullptr;
 }
 
 bool BinaryWriter::is_open() const
 {
-    return stream_ != NULL;
+    return stream_ != nullptr;
 }
 
 bool BinaryWriter::write_s8(
-    Sint8 value)
+    int8_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_u8(
-    Uint8 value)
+    uint8_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_s16(
-    Sint16 value)
+    int16_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_u16(
-    Uint16 value)
+    uint16_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_s32(
-    Sint32 value)
+    int32_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_u32(
-    Uint32 value)
+    uint32_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_s64(
-    Sint64 value)
+    int64_t value)
 {
     return write(value);
 }
 
 bool BinaryWriter::write_u64(
-    Uint64 value)
+    uint64_t value)
 {
     return write(value);
 }
@@ -124,8 +126,9 @@ bool BinaryWriter::write(
     const void* buffer,
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     return stream_->write(buffer, count);
 }
@@ -133,28 +136,31 @@ bool BinaryWriter::write(
 bool BinaryWriter::skip(
     int count)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     return stream_->skip(count) >= 0;
 }
 
-Sint64 BinaryWriter::get_position() const
+int64_t BinaryWriter::get_position() const
 {
-    if (!is_open())
-        return false;
+    if (!is_open()) {
+        return 0;
+    }
 
     return stream_->get_position();
 }
 
 bool BinaryWriter::set_position(
-    Sint64 position)
+    int64_t position)
 {
-    if (!is_open())
+    if (!is_open()) {
         return false;
+    }
 
     return stream_->set_position(position);
 }
 
 
-} // namespace bstone
+} // bstone
