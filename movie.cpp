@@ -124,11 +124,8 @@ const void* movie_palette;
 MovieStuff_t Movies[] = {
     { { "IANIM." }, 1, 3, 0, 0, 200 }, // mv_intro
     { { "EANIM." }, 1, 30, 0, 0, 200 }, // mv_final
-
-#ifdef BSTONE_AOG
     { { "SANIM." }, 1, 30, 0, 0, 200 }, // mv_final2
     { { "GANIM." }, 1, 60, 0, 0, 200 }, // mv_final3
-#endif
 };
 
 
