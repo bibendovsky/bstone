@@ -38,10 +38,11 @@ public:
     ClArgs(
         const ClArgs& that);
 
-    ~ClArgs();
-
     ClArgs& operator=(
         const ClArgs& that);
+
+    ~ClArgs();
+
 
     const std::string& operator[](
         int index) const;
@@ -51,6 +52,9 @@ public:
         char* const* argv);
 
     void unintialize();
+
+    bool has_option(
+        const std::string& option_name) const;
 
     int find_option(
         const std::string& option_name) const;
