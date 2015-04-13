@@ -105,18 +105,20 @@ extern  char            signonv1;
 
 #ifndef SPEAR
 
-#ifndef BSTONE_AOG
-#include "gfxv_vsi.h"
-#include "audiovsi.h"
-
-// FIXME Got "unexpected end of file" error
-//#include "mapsvsi.h"
-#else
+#ifdef BSTONE_AOG
+#if GAME_VERSION != SHAREWARE_VERSION
 #include "gfxv_bs6.h"
 #include "audiobs6.h"
-
-// FIXME Got "unexpected end of file" error
-//#include "mapsbs6.h"
+#include "mapsbs6.h"
+#else
+#include "gfxv_bs1.h"
+#include "audiobs1.h"
+#include "mapsbs1.h"
+#endif
+#else
+#include "gfxv_vsi.h"
+#include "audiovsi.h"
+#include "mapsvsi.h"
 #endif // BSTONE_AOG
 
 #else
