@@ -33,15 +33,20 @@ Free Software Foundation, Inc.,
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 
-void VL_LatchToScreen(int source, int width, int height, int x, int y);
+void VL_LatchToScreen(
+    int source,
+    int width,
+    int height,
+    int x,
+    int y);
 /*
 =============================================================================
 
-											BLAKE STONE
-						 (C)opyright 1993, JAM Productions, Inc.
+                                                                                        BLAKE STONE
+                                                 (C)opyright 1993, JAM Productions, Inc.
 
-						 3D engine licensed by ID Software, Inc.
-					Shareware distribution by Apogee Software, Inc.
+                                                 3D engine licensed by ID Software, Inc.
+                                        Shareware distribution by Apogee Software, Inc.
 
 =============================================================================
 */
@@ -49,7 +54,7 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y);
 /*
 =============================================================================
 
-						 LOCAL CONSTANTS
+                                                 LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -57,32 +62,36 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y);
 
 void ConnectBarriers();
 void FreeMusic();
-void ClearMemory ();
-void CA_CacheScreen (Sint16 chunk);
+void ClearMemory();
+void CA_CacheScreen(
+    Sint16 chunk);
 void VH_UpdateScreen();
-void PlayDemo (Sint16 demonumber);
-void	DrawHighScores();
+void PlayDemo(
+    Sint16 demonumber);
+void DrawHighScores();
 void freed_main();
-void PreloadUpdate(Uint16 current, Uint16 total);
+void PreloadUpdate(
+    Uint16 current,
+    Uint16 total);
 void OpenAudioFile();
 
 
 bstone::ClArgs g_args;
 
 
-#define FOCALLENGTH     (0x5700l)               // in global coordinates
-#define VIEWGLOBAL      0x10000                 // globals visable flush to wall
+#define FOCALLENGTH (0x5700l) // in global coordinates
+#define VIEWGLOBAL 0x10000 // globals visable flush to wall
 
-#define VIEWWIDTH       256                     // size of view window
-#define VIEWHEIGHT      144
+#define VIEWWIDTH 256 // size of view window
+#define VIEWHEIGHT 144
 
 
-#define MAX_DEST_PATH_LEN	30
+#define MAX_DEST_PATH_LEN 30
 
 /*
 =============================================================================
 
-						 GLOBAL VARIABLES
+                                                 GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -94,35 +103,35 @@ void DrawCreditsPage();
 void unfreed_main();
 void ShowPromo();
 
-const char * MainStrs[] = {
-										"q","nowait","l","e",
-										"version","system",
-										"dval","tics","mem","powerball","music","d",
-										"radar",BETA_CODE,
-										nil
+const char* MainStrs[] = {
+    "q", "nowait", "l", "e",
+    "version", "system",
+    "dval", "tics", "mem", "powerball", "music", "d",
+    "radar", BETA_CODE,
+    nil
 };
 
-Sint16 starting_episode,starting_level,starting_difficulty;
+Sint16 starting_episode, starting_level, starting_difficulty;
 
-char destPath[MAX_DEST_PATH_LEN+1];
-char tempPath[MAX_DEST_PATH_LEN+15];
+char destPath[MAX_DEST_PATH_LEN + 1];
+char tempPath[MAX_DEST_PATH_LEN + 15];
 
 #if BETA_TEST
-char bc_buffer[]=BETA_CODE;
+char bc_buffer[] = BETA_CODE;
 #endif
 
 void InitPlaytemp();
 
 
-char QuitMsg[] = {"Unit: $%02x Error: $%02x"};
+char QuitMsg[] = { "Unit: $%02x Error: $%02x" };
 
 #ifdef CEILING_FLOOR_COLORS
-Uint16 TopColor,BottomColor;
+Uint16 TopColor, BottomColor;
 #endif
 
-boolean         nospr;
+boolean nospr;
 
-Sint16 dirangle[9] = {0,ANGLES/8,2*ANGLES/8,3*ANGLES/8,4*ANGLES/8,5*ANGLES/8,6*ANGLES/8,7*ANGLES/8,ANGLES};
+Sint16 dirangle[9] = { 0, ANGLES / 8, 2 * ANGLES / 8, 3 * ANGLES / 8, 4 * ANGLES / 8, 5 * ANGLES / 8, 6 * ANGLES / 8, 7 * ANGLES / 8, ANGLES };
 
 //
 // proejection variables
@@ -139,15 +148,15 @@ int heightnumerator;
 int minheightdiv;
 
 
-boolean         startgame,loadedgame;
-Sint16             mouseadjustment;
+boolean startgame, loadedgame;
+Sint16 mouseadjustment;
 
 const std::string g_config_file_name = "bstone_config";
 
-Sint16 view_xl,view_xh,view_yl,view_yh;
+Sint16 view_xl, view_xh, view_yl, view_yh;
 
 #if IN_DEVELOPMENT
-Uint16	democount=0,jim=0;
+Uint16 democount = 0, jim = 0;
 #endif
 
 static const bool k_no_wall_hit_sound_default = false;
@@ -166,7 +175,7 @@ bool g_rotated_automap = default_rotated_automap;
 /*
 =============================================================================
 
-						 LOCAL VARIABLES
+                                                 LOCAL VARIABLES
 
 =============================================================================
 */
@@ -177,13 +186,12 @@ unsigned mspeed;
 
 void CalcSpeedRating()
 {
-	Sint16 loop;
+    Sint16 loop;
 
-	for (loop=0; loop<10; loop++)
-	{
-		ThreeDRefresh();
-		mspeed += tics;
-	}
+    for (loop = 0; loop < 10; loop++) {
+        ThreeDRefresh();
+        mspeed += tics;
+    }
 }
 
 #endif
@@ -757,14 +765,17 @@ statetype* states_list[] = {
     NULL,
 };
 
-static int get_state_index(statetype* state)
+static int get_state_index(
+    statetype* state)
 {
-    if (state == NULL)
+    if (state == NULL) {
         return 0;
+    }
 
     for (int i = 1; states_list[i] != NULL; ++i) {
-        if (states_list[i] == state)
+        if (states_list[i] == state) {
             return i;
+        }
     }
 
     return -1;
@@ -775,31 +786,31 @@ static int get_state_index(statetype* state)
 // ArchiveException
 
 ArchiveException::ArchiveException(
-    const char* what) throw() :
+    const char* what) throw () :
     what_(what)
 {
 }
 
 ArchiveException::ArchiveException(
-    const ArchiveException& that) throw() :
-        what_(that.what_)
+    const ArchiveException& that) throw () :
+    what_(that.what_)
 {
 }
 
 // (virtual)
-ArchiveException::~ArchiveException() throw()
+ArchiveException::~ArchiveException() throw ()
 {
 }
 
 ArchiveException& ArchiveException::operator=(
-    const ArchiveException& that) throw()
+    const ArchiveException& that) throw ()
 {
     what_ = that.what_;
     return *this;
 }
 
 // (virtual)
-const char* ArchiveException::what() const throw()
+const char* ArchiveException::what() const throw ()
 {
     return what_;
 }
@@ -920,8 +931,9 @@ void ReadConfig()
 
             is_succeed = (saved_checksum == checksum);
         }
-    } else
+    } else {
         is_succeed = false;
+    }
 
     if (is_succeed) {
         flags &=
@@ -934,46 +946,55 @@ void ReadConfig()
         gamestate.flags |= flags; // Must "OR", some flags are already set.
 
         if (sd != sdm_Off) {
-            if (AdLibPresent || SoundBlasterPresent)
+            if (AdLibPresent || SoundBlasterPresent) {
                 sd = sdm_AdLib;
-            else
+            } else {
                 sd = sdm_Off;
+            }
         }
 
         if (sm != smm_Off) {
-            if (AdLibPresent || SoundBlasterPresent)
+            if (AdLibPresent || SoundBlasterPresent) {
                 sm = smm_AdLib;
-            else
+            } else {
                 sm = smm_Off;
+            }
         }
 
         if (sds != sds_Off) {
-            if (AdLibPresent || SoundBlasterPresent)
+            if (AdLibPresent || SoundBlasterPresent) {
                 sds = sds_SoundBlaster;
-            else
+            } else {
                 sds = sds_Off;
+            }
         }
 
-        if (!MousePresent)
+        if (!MousePresent) {
             mouseenabled = false;
+        }
 
-        if (!JoysPresent[joystickport])
+        if (!JoysPresent[joystickport]) {
             joystickenabled = false;
+        }
 
         MainMenu[6].active = AT_ENABLED;
         MainItems.curpos = 0;
 
-        if (g_sfx_volume < MIN_VOLUME)
+        if (g_sfx_volume < MIN_VOLUME) {
             g_sfx_volume = MIN_VOLUME;
+        }
 
-        if (g_sfx_volume > MAX_VOLUME)
+        if (g_sfx_volume > MAX_VOLUME) {
             g_sfx_volume = MAX_VOLUME;
+        }
 
-        if (g_music_volume < MIN_VOLUME)
+        if (g_music_volume < MIN_VOLUME) {
             g_music_volume = MIN_VOLUME;
+        }
 
-        if (g_music_volume > MAX_VOLUME)
+        if (g_music_volume > MAX_VOLUME) {
             g_music_volume = MAX_VOLUME;
+        }
     }
 
     if (!is_succeed || viewsize == 0) {
@@ -988,13 +1009,15 @@ void ReadConfig()
             sm = smm_Off;
         }
 
-        if (SoundBlasterPresent)
+        if (SoundBlasterPresent) {
             sds = sds_SoundBlaster;
-        else
+        } else {
             sds = sds_Off;
+        }
 
-        if (MousePresent)
+        if (MousePresent) {
             mouseenabled = true;
+        }
 
         joystickenabled = false;
         joypadenabled = false;
@@ -1109,7 +1132,7 @@ void WriteConfig()
     writer.write(bstone::Endian::le(checksum));
 }
 
-//===========================================================================
+// ===========================================================================
 
 /*
 =====================
@@ -1122,79 +1145,79 @@ void WriteConfig()
 */
 
 boolean ShowQuickMsg;
-void NewGame (Sint16 difficulty,Sint16 episode)
+void NewGame(
+    Sint16 difficulty,
+    Sint16 episode)
 {
-	Uint16 oldf=gamestate.flags,loop;
+    Uint16 oldf = gamestate.flags, loop;
 
-	InitPlaytemp();
-	playstate = ex_stillplaying;
+    InitPlaytemp();
+    playstate = ex_stillplaying;
 
-	ShowQuickMsg=true;
-	memset (&gamestuff,0,sizeof(gamestuff));
-	memset (&gamestate,0,sizeof(gamestate));
+    ShowQuickMsg = true;
+    memset(&gamestuff, 0, sizeof(gamestuff));
+    memset(&gamestate, 0, sizeof(gamestate));
 
-	memset(&gamestate.barrier_table,0xff,sizeof(gamestate.barrier_table));
-	memset(&gamestate.old_barrier_table,0xff,sizeof(gamestate.old_barrier_table));
-	gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
-//	LoadAccessCodes();
+    memset(&gamestate.barrier_table, 0xff, sizeof(gamestate.barrier_table));
+    memset(&gamestate.old_barrier_table, 0xff, sizeof(gamestate.old_barrier_table));
+    gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
+//      LoadAccessCodes();
 
-	gamestate.difficulty = difficulty;
+    gamestate.difficulty = difficulty;
 
 
 //
 // The following are set to 0 by the memset() to gamestate - Good catch! :JR
 //
-//	gamestate.rzoom
-//	gamestate.rpower
-//	gamestate.old_door_bombs
+//      gamestate.rzoom
+//      gamestate.rpower
+//      gamestate.old_door_bombs
 // gamestate.plasma_detonators
 //
 
-	gamestate.weapons	 = 1<<wp_autocharge;			// |1<<wp_plasma_detonators;
-	gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
-	gamestate.old_weapons[0] = gamestate.weapons;
-	gamestate.old_weapons[1] = gamestate.weapon;
-	gamestate.old_weapons[2] = gamestate.chosenweapon;
+    gamestate.weapons = 1 << wp_autocharge;                             // |1<<wp_plasma_detonators;
+    gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
+    gamestate.old_weapons[0] = gamestate.weapons;
+    gamestate.old_weapons[1] = gamestate.weapon;
+    gamestate.old_weapons[2] = gamestate.chosenweapon;
 
-	gamestate.health = 100;
-	gamestate.old_ammo = gamestate.ammo = STARTAMMO;
-//	gamestate.dollars = START_DOLLARS;
-//	gamestate.cents   = START_CENTS;
-	gamestate.lives = 3;
-	gamestate.nextextra = EXTRAPOINTS;
-	gamestate.episode=episode;
-	gamestate.flags |= (GS_CLIP_WALLS|GS_ATTACK_INFOAREA);	//|GS_DRAW_CEILING|GS_DRAW_FLOOR);
+    gamestate.health = 100;
+    gamestate.old_ammo = gamestate.ammo = STARTAMMO;
+//      gamestate.dollars = START_DOLLARS;
+//      gamestate.cents   = START_CENTS;
+    gamestate.lives = 3;
+    gamestate.nextextra = EXTRAPOINTS;
+    gamestate.episode = episode;
+    gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA);    // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-	if (gamestate.flags & GS_STARTLEVEL)
-	{
-		gamestate.mapon = starting_level;
-		gamestate.difficulty = starting_difficulty;
-		gamestate.episode = starting_episode;
-	}
-	else
+    if (gamestate.flags & GS_STARTLEVEL) {
+        gamestate.mapon = starting_level;
+        gamestate.difficulty = starting_difficulty;
+        gamestate.episode = starting_episode;
+    } else
 #endif
 #ifdef BSTONE_AOG
-        gamestate.mapon = 1;
+    gamestate.mapon = 1;
 #else
-		gamestate.mapon = 0;
+    gamestate.mapon = 0;
 #endif
 
-	gamestate.key_floor = static_cast<char>(gamestate.mapon+1);
-	startgame = true;
+    gamestate.key_floor = static_cast<char>(gamestate.mapon + 1);
+    startgame = true;
 
-	for (loop=0; loop<MAPS_WITH_STATS; loop++)
-	{
-		gamestuff.old_levelinfo[loop].stats.overall_floor=100;
-		if (loop)
-			gamestuff.old_levelinfo[loop].locked=true;
-	}
+    for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
+        gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
+        if (loop) {
+            gamestuff.old_levelinfo[loop].locked = true;
+        }
+    }
 
-//	normalshade_div = SHADE_DIV;
-//	shade_max = SHADE_MAX;
-	ExtraRadarFlags = InstantWin = InstantQuit = 0;
+//      normalshade_div = SHADE_DIV;
+//      shade_max = SHADE_MAX;
+    ExtraRadarFlags = InstantWin = InstantQuit = 0;
 
-	pickquick = 0;
+    pickquick = 0;
 
     // BBi
     g_playtemp.set_size(0);
@@ -1202,24 +1225,24 @@ void NewGame (Sint16 difficulty,Sint16 episode)
     // BBi
 }
 
-//===========================================================================
+// ===========================================================================
 
-//==========================================================================
+// ==========================================================================
 //
 //             'LOAD/SAVE game' and 'LOAD/SAVE level' code
 //
-//==========================================================================
+// ==========================================================================
 
 bool LevelInPlaytemp(
     int level_index);
 
-#define LZH_WORK_BUFFER_SIZE	8192		
+#define LZH_WORK_BUFFER_SIZE 8192
 
 void* lzh_work_buffer;
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // InitPlaytemp()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void InitPlaytemp()
 {
     g_playtemp.open(1 * 1024 * 1024);
@@ -1227,23 +1250,24 @@ void InitPlaytemp()
     g_playtemp.set_position(0);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DoChecksum()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 Sint32 DoChecksum(
     const Uint8* source,
     int size,
     Sint32 checksum)
 {
-    for (int i = 0; i < size - 1; ++i)
+    for (int i = 0; i < size - 1; ++i) {
         checksum += source[i] ^ source[i + 1];
+    }
 
     return checksum;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // FindChunk()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 int FindChunk(
     bstone::IStream* stream,
     const std::string& chunk_name)
@@ -1253,20 +1277,23 @@ int FindChunk(
     std::string name;
 
     while (true) {
-        if (stream->read(name_buffer, 4) != 4)
+        if (stream->read(name_buffer, 4) != 4) {
             break;
+        }
 
         Sint32 chunk_size = 0;
 
-        if (stream->read(&chunk_size, 4) != 4)
+        if (stream->read(&chunk_size, 4) != 4) {
             break;
+        }
 
         chunk_size = SDL_SwapLE32(chunk_size);
 
         name = name_buffer;
 
-        if (name.find(chunk_name) != std::string::npos)
+        if (name.find(chunk_name) != std::string::npos) {
             return chunk_size;
+        }
 
         stream->skip(chunk_size);
     }
@@ -1275,9 +1302,9 @@ int FindChunk(
     return 0;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // NextChunk()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 int NextChunk(
     bstone::IStream* stream)
 {
@@ -1290,21 +1317,23 @@ int NextChunk(
 
     Sint32 chunk_size = 0;
 
-    if (is_succeed)
+    if (is_succeed) {
         is_succeed = (stream->read(&chunk_size, 4) == 4);
+    }
 
-    if (is_succeed)
+    if (is_succeed) {
         return chunk_size;
+    }
 
     stream->seek(0, bstone::STREAM_SEEK_END);
     return 0;
 }
 
-char LS_current=-1,LS_total=-1;
+char LS_current = -1, LS_total = -1;
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // LoadLevel()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 bool LoadLevel(
     int level_index)
 {
@@ -1365,10 +1394,11 @@ bool LoadLevel(
                 Sint32 value = 0;
                 ::deserialize_field(value, reader, checksum);
 
-                if (value < 0)
+                if (value < 0) {
                     actorat[i][j] = &objlist[-value];
-                else
+                } else {
                     actorat[i][j] = reinterpret_cast<objtype*>(value);
+                }
             }
         }
 
@@ -1381,8 +1411,9 @@ bool LoadLevel(
         Sint32 actor_count = 0;
         ::deserialize_field(actor_count, reader, checksum);
 
-        if (actor_count < 1 || actor_count >= MAXACTORS)
+        if (actor_count < 1 || actor_count >= MAXACTORS) {
             throw ArchiveException("actor_count");
+        }
 
         ::InitActorList();
 
@@ -1411,10 +1442,11 @@ bool LoadLevel(
             new_actor->deserialize(reader, checksum);
             actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
-        #if LOOK_FOR_DEAD_GUYS
-            if ((new_actor->flags & FL_DEADGUY) != 0)
+#if LOOK_FOR_DEAD_GUYS
+            if ((new_actor->flags & FL_DEADGUY) != 0) {
                 DeadGuys[NumDeadGuys++] = new_actor;
-        #endif
+            }
+#endif
         }
 
         //
@@ -1422,7 +1454,7 @@ bool LoadLevel(
         //
 
         for (objtype* actor = objlist; actor != NULL;
-            actor = actor->next)
+             actor = actor->next)
         {
             switch (actor->obclass) {
             case arc_barrierobj:
@@ -1448,18 +1480,21 @@ bool LoadLevel(
         Sint32 laststatobj_index = 0;
         ::deserialize_field(laststatobj_index, reader, checksum);
 
-        if (laststatobj_index < 0)
+        if (laststatobj_index < 0) {
             laststatobj = NULL;
-        else
+        } else {
             laststatobj = &statobjlist[laststatobj_index];
+        }
 
-        for (int i = 0; i < MAXSTATS; ++i)
+        for (int i = 0; i < MAXSTATS; ++i) {
             statobjlist[i].deserialize(reader, checksum);
+        }
 
         ::deserialize_field(doorposition, reader, checksum);
 
-        for (int i = 0; i < MAXDOORS; ++i)
+        for (int i = 0; i < MAXDOORS; ++i) {
             doorobjlist[i].deserialize(reader, checksum);
+        }
 
         ::deserialize_field(pwallstate, reader, checksum);
         ::deserialize_field(pwallx, reader, checksum);
@@ -1470,16 +1505,19 @@ bool LoadLevel(
         ::deserialize_field(TravelTable, reader, checksum);
         ConHintList.deserialize(reader, checksum);
 
-        for (int i = 0; i < MAXEAWALLS; ++i)
+        for (int i = 0; i < MAXEAWALLS; ++i) {
             eaList[i].deserialize(reader, checksum);
+        }
 
         GoldsternInfo.deserialize(reader, checksum);
 
-        for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+        for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i) {
             GoldieList[i].deserialize(reader, checksum);
+        }
 
-        for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+        for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
             gamestate.barrier_table[i].deserialize(reader, checksum);
+        }
 
         ::deserialize_field(gamestate.plasma_detonators, reader, checksum);
     } catch (const ArchiveException&) {
@@ -1536,15 +1574,16 @@ bool LoadLevel(
 
     // Check for Strange Door and Actor combos
     //
-    if (is_succeed)
+    if (is_succeed) {
         ::CleanUpDoors_N_Actors();
+    }
 
     return is_succeed;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // SaveLevel()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 bool SaveLevel(
     int level_index)
 {
@@ -1555,7 +1594,7 @@ bool SaveLevel(
     Sint16 oldmapon = gamestate.mapon;
     gamestate.mapon = gamestate.lastmapon;
     ::ShowStats(0, 0, ss_justcalc,
-        &gamestuff.level[gamestate.mapon].stats);
+                &gamestuff.level[gamestate.mapon].stats);
     gamestate.mapon = oldmapon;
 
     // Yeah! We're no longer a virgin!
@@ -1616,13 +1655,15 @@ bool SaveLevel(
     Sint32 actor_count = 0;
     const objtype* actor = NULL;
 
-    for (actor = player; actor != NULL; actor = actor->next)
+    for (actor = player; actor != NULL; actor = actor->next) {
         ++actor_count;
+    }
 
     ::serialize_field(actor_count, writer, checksum);
 
-    for (actor = player; actor != NULL; actor = actor->next)
+    for (actor = player; actor != NULL; actor = actor->next) {
         actor->serialize(writer, checksum);
+    }
 
     //
     // laststatobj
@@ -1637,15 +1678,17 @@ bool SaveLevel(
     //
     // statobjlist
     //
-    for (int i = 0; i < MAXSTATS; ++i)
+    for (int i = 0; i < MAXSTATS; ++i) {
         statobjlist[i].serialize(writer, checksum);
+    }
 
     //
 
     ::serialize_field(doorposition, writer, checksum);
 
-    for (int i = 0; i < MAXDOORS; ++i)
+    for (int i = 0; i < MAXDOORS; ++i) {
         doorobjlist[i].serialize(writer, checksum);
+    }
 
     ::serialize_field(pwallstate, writer, checksum);
     ::serialize_field(pwallx, writer, checksum);
@@ -1656,16 +1699,19 @@ bool SaveLevel(
     ::serialize_field(TravelTable, writer, checksum);
     ConHintList.serialize(writer, checksum);
 
-    for (int i = 0; i < MAXEAWALLS; ++i)
+    for (int i = 0; i < MAXEAWALLS; ++i) {
         eaList[i].serialize(writer, checksum);
+    }
 
     GoldsternInfo.serialize(writer, checksum);
 
-    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i) {
         GoldieList[i].serialize(writer, checksum);
+    }
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         gamestate.barrier_table[i].serialize(writer, checksum);
+    }
 
     ::serialize_field(gamestate.plasma_detonators, writer, checksum);
 
@@ -1687,9 +1733,9 @@ bool SaveLevel(
     return true;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DeleteChunk()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 int DeleteChunk(
     bstone::MemoryStream& stream,
     const std::string& chunk_name)
@@ -1713,9 +1759,9 @@ static const std::string SavegameInfoText =
     "bstone (planet strike) save (v" BS_SAVE_VERSION ")";
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // LoadTheGame()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 bool LoadTheGame(
     bstone::IStream* stream)
 {
@@ -1730,8 +1776,9 @@ bool LoadTheGame(
 
     // Read in VERSion chunk
     //
-    if (is_succeed)
+    if (is_succeed) {
         is_succeed = (::FindChunk(stream, "VERS") != 0);
+    }
 
     if (is_succeed) {
         int version_size = static_cast<int>(SavegameInfoText.size());
@@ -1744,8 +1791,9 @@ bool LoadTheGame(
 
     // Read in HEAD chunk
     //
-    if (is_succeed)
+    if (is_succeed) {
         is_succeed = (::FindChunk(stream, "HEAD") != 0);
+    }
 
     Uint32 checksum = 0;
     bstone::BinaryReader reader(stream);
@@ -1766,8 +1814,9 @@ bool LoadTheGame(
         is_succeed = (saved_checksum == checksum);
     }
 
-    if (is_succeed)
+    if (is_succeed) {
         is_succeed = stream->copy_to(&g_playtemp);
+    }
 
     ::NewViewSize();
 
@@ -1778,7 +1827,7 @@ bool LoadTheGame(
         // Reinitialize page manager
         //
         PM_Shutdown();
-        PM_Startup ();
+        PM_Startup();
         PM_UnlockMainMem();
 #endif
 
@@ -1835,9 +1884,9 @@ bool LoadTheGame(
     return is_succeed;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // SaveTheGame()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description)
@@ -1911,9 +1960,9 @@ bool SaveTheGame(
     return is_succeed;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // LevelInPlaytemp()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 bool LevelInPlaytemp(
     int level_index)
 {
@@ -1922,19 +1971,22 @@ bool LevelInPlaytemp(
     return ::FindChunk(&g_playtemp, chunk) != 0;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CheckDiskSpace()
-//--------------------------------------------------------------------------
-boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type)
+// --------------------------------------------------------------------------
+boolean CheckDiskSpace(
+    Sint32 needed,
+    const char* text,
+    cds_io_type io_type)
 {
-	return(true);
+    return true;
 }
 
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CleanUpDoors_N_Actors()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void CleanUpDoors_N_Actors()
 {
     int x;
@@ -1959,8 +2011,9 @@ void CleanUpDoors_N_Actors()
 
                     door = tile & 0x3F;
 
-                    if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY))
+                    if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY)) {
                         actor->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
+                    }
 
                     // Make sure door is open
 
@@ -1974,99 +2027,96 @@ void CleanUpDoors_N_Actors()
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ClearNClose() - Use when changing levels via standard elevator.
 //
 //               - This code doesn't CLEAR the elevator door as originally
 //                 planned because, actors were coded to stay out of the
 //                 elevator doorway.
 //
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void ClearNClose()
 {
-	char x,y,tx=0,ty=0,px=static_cast<char>(player->x>>TILESHIFT),py=static_cast<char>(player->y>>TILESHIFT);
+    char x, y, tx = 0, ty = 0, px = static_cast<char>(player->x >> TILESHIFT), py = static_cast<char>(player->y >> TILESHIFT);
 
-	// Locate the door.
-	//
-	for (x=-1; x<2 && !tx; x+=2)
-		for (y=-1; y<2; y+=2)
-			if (tilemap[px+x][py+y] & 0x80)
-			{
-				tx=px+x;
-				ty=py+y;
-				break;
-			}
+    // Locate the door.
+    //
+    for (x = -1; x < 2 && !tx; x += 2) {
+        for (y = -1; y < 2; y += 2) {
+            if (tilemap[px + x][py + y] & 0x80) {
+                tx = px + x;
+                ty = py + y;
+                break;
+            }
+        }
+    }
 
-	// Close the door!
-	//
-	if (tx)
-	{
-		char doornum=tilemap[static_cast<int>(tx)][static_cast<int>(ty)]&63;
+    // Close the door!
+    //
+    if (tx) {
+        char doornum = tilemap[static_cast<int>(tx)][static_cast<int>(ty)] & 63;
 
-		doorobjlist[static_cast<int>(doornum)].action = dr_closed;		// this door is closed!
-		doorposition[static_cast<int>(doornum)]=0;							// draw it closed!
+        doorobjlist[static_cast<int>(doornum)].action = dr_closed;                      // this door is closed!
+        doorposition[static_cast<int>(doornum)] = 0;                                                            // draw it closed!
 
         // make it solid!
         actorat[static_cast<int>(tx)][static_cast<int>(ty)] = reinterpret_cast<objtype*>(doornum | 0x80);
-	}
+    }
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CycleColors()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void CycleColors()
 {
-	#define NUM_RANGES 	5
-	#define CRNG_LOW		0xf0
-	#define CRNG_HIGH		0xfe
-	#define CRNG_SIZE		(CRNG_HIGH-CRNG_LOW+1)
+#define NUM_RANGES 5
+#define CRNG_LOW 0xf0
+#define CRNG_HIGH 0xfe
+#define CRNG_SIZE (CRNG_HIGH - CRNG_LOW + 1)
 
-	static CycleInfo crng[NUM_RANGES] = {{7,0,0xf0,0xf1},
-													 {15,0,0xf2,0xf3},
-													 {30,0,0xf4,0xf5},
-													 {10,0,0xf6,0xf9},
-													 {12,0,0xfa,0xfe},
-													};
+    static CycleInfo crng[NUM_RANGES] = { { 7, 0, 0xf0, 0xf1 },
+                                          { 15, 0, 0xf2, 0xf3 },
+                                          { 30, 0, 0xf4, 0xf5 },
+                                          { 10, 0, 0xf6, 0xf9 },
+                                          { 12, 0, 0xfa, 0xfe }, };
 
-	Uint8 loop,cbuffer[CRNG_SIZE][3];
-	boolean changes=false;
+    Uint8 loop, cbuffer[CRNG_SIZE][3];
+    boolean changes = false;
 
-	for (loop=0; loop<NUM_RANGES; loop++)
-	{
-		CycleInfo *c=&crng[loop];
+    for (loop = 0; loop < NUM_RANGES; loop++) {
+        CycleInfo* c = &crng[loop];
 
-		if (tics >= c->delay_count)
-		{
-			Uint8 temp[3],first,last,numregs;
+        if (tics >= c->delay_count) {
+            Uint8 temp[3], first, last, numregs;
 
-			if (!changes)
-			{
-				VL_GetPalette(CRNG_LOW,CRNG_SIZE,(Uint8 *)cbuffer);
-				changes=true;
-			}
+            if (!changes) {
+                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (Uint8*)cbuffer);
+                changes = true;
+            }
 
-			first = c->firstreg-CRNG_LOW;
-			numregs = c->lastreg-c->firstreg;	// is one less than in range
-			last = first+numregs;
+            first = c->firstreg - CRNG_LOW;
+            numregs = c->lastreg - c->firstreg;                 // is one less than in range
+            last = first + numregs;
 
-			memcpy(temp,cbuffer[last],3);
-			memmove(cbuffer[first+1],cbuffer[first],numregs*3);
-			memcpy(cbuffer[first],temp,3);
+            memcpy(temp, cbuffer[last], 3);
+            memmove(cbuffer[first + 1], cbuffer[first], numregs * 3);
+            memcpy(cbuffer[first], temp, 3);
 
-			c->delay_count = c->init_delay;
-		}
-		else
-			c->delay_count -= static_cast<Uint8>(tics);
-	}
+            c->delay_count = c->init_delay;
+        } else {
+            c->delay_count -= static_cast<Uint8>(tics);
+        }
+    }
 
-	if (changes)
-		VL_SetPalette(CRNG_LOW,CRNG_SIZE,(Uint8 *)cbuffer);
-	else
-		VW_WaitVBL(1);
+    if (changes) {
+        VL_SetPalette(CRNG_LOW, CRNG_SIZE, (Uint8*)cbuffer);
+    } else {
+        VW_WaitVBL(1);
+    }
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 /*
 ==========================
@@ -2078,19 +2128,19 @@ void CycleColors()
 ==========================
 */
 
-void ShutdownId ()
+void ShutdownId()
 {
-	US_Shutdown ();
-	SD_Shutdown ();
-	PM_Shutdown ();
-	IN_Shutdown ();
-	VW_Shutdown ();
-	CA_Shutdown ();
-	MM_Shutdown ();
+    US_Shutdown();
+    SD_Shutdown();
+    PM_Shutdown();
+    IN_Shutdown();
+    VW_Shutdown();
+    CA_Shutdown();
+    MM_Shutdown();
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 
 /*
@@ -2103,7 +2153,8 @@ void ShutdownId ()
 ====================
 */
 
-void CalcProjection (Sint32 focal)
+void CalcProjection(
+    Sint32 focal)
 {
     focallength = focal;
     double facedist = focal + MINDIST;
@@ -2148,47 +2199,50 @@ void CalcProjection (Sint32 focal)
 
 
 
-//===========================================================================
+// ===========================================================================
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DoMovie()
-//--------------------------------------------------------------------------
-boolean DoMovie(movie_t movie, void* palette)
+// --------------------------------------------------------------------------
+boolean DoMovie(
+    movie_t movie,
+    void* palette)
 {
-	boolean  ReturnVal;
-//	StopMusic();
-	SD_StopSound();
+    boolean ReturnVal;
+//      StopMusic();
+    SD_StopSound();
 
-	ClearMemory();
-	UnCacheLump(STARTFONT,STARTFONT+NUMFONT);
-	CA_LoadAllSounds();
+    ClearMemory();
+    UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
+    CA_LoadAllSounds();
 
-   if (palette)
-   	Movies[movie].palette = palette;
-   else
-   	Movies[movie].palette = vgapal;
+    if (palette) {
+        Movies[movie].palette = palette;
+    } else {
+        Movies[movie].palette = vgapal;
+    }
 
-	ReturnVal = MOVIE_Play(&Movies[movie]);
+    ReturnVal = MOVIE_Play(&Movies[movie]);
 
-	SD_StopSound();
-	ClearMemory();
-	LoadFonts();
+    SD_StopSound();
+    ClearMemory();
+    LoadFonts();
 
-	return(ReturnVal);
+    return ReturnVal;
 }
 
-//===========================================================================
+// ===========================================================================
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // LoadFonts()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void LoadFonts()
 {
-	CA_CacheGrChunk(STARTFONT+4);
-	CA_CacheGrChunk(STARTFONT+2);
+    CA_CacheGrChunk(STARTFONT + 4);
+    CA_CacheGrChunk(STARTFONT + 2);
 }
 
-//===========================================================================
+// ===========================================================================
 
 /*
 ==========================
@@ -2208,7 +2262,7 @@ void SetViewSize(
     shootdelta = viewwidth / 10;
 
     screenofs = ((200 - STATUSLINES - viewheight + TOP_STRIP_HEIGHT) /
-        2 * SCREENWIDTH) + ((320 - viewwidth) / 8);
+                 2 * SCREENWIDTH) + ((320 - viewwidth) / 8);
 
     //
     // calculate trace angles and projection constants
@@ -2234,7 +2288,7 @@ void NewViewSize()
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 /*
 ==========================
@@ -2244,7 +2298,9 @@ void NewViewSize()
 ==========================
 */
 
-void Quit(const char* error, ...)
+void Quit(
+    const char* error,
+    ...)
 {
     va_list ap;
 
@@ -2252,8 +2308,9 @@ void Quit(const char* error, ...)
 
     ClearMemory();
 
-    if (is_config_loaded)
+    if (is_config_loaded) {
         ::WriteConfig();
+    }
 
     ShutdownId();
 
@@ -2271,7 +2328,7 @@ void Quit(const char* error, ...)
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 /*
 =====================
@@ -2281,119 +2338,120 @@ void Quit(const char* error, ...)
 =====================
 */
 
-void    DemoLoop ()
+void DemoLoop()
 {
 #if DEMOS_ENABLED
-	Sint16 	LastDemo=0;
+    Sint16 LastDemo = 0;
 #endif // DEMOS_ENABLED
 
-	boolean breakit;
-	Uint16 old_bufferofs;
+    boolean breakit;
+    Uint16 old_bufferofs;
 
-	while (true)
-	{
-		playstate = ex_title;
-		if (!screenfaded)
-			VW_FadeOut();
-		VL_SetPaletteIntensity(0,255,vgapal,0);
+    while (true) {
+        playstate = ex_title;
+        if (!screenfaded) {
+            VW_FadeOut();
+        }
+        VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
 #if !SKIP_TITLE_AND_CREDITS
-		while (!(gamestate.flags & GS_NOWAIT))
-		{
-			extern boolean sqActive;
+        while (!(gamestate.flags & GS_NOWAIT)) {
+            extern boolean sqActive;
 
-		// Start music when coming from menu...
-		//
-			if (!sqActive)
-			{
-			// Load and start music
-			//
+            // Start music when coming from menu...
+            //
+            if (!sqActive) {
+                // Load and start music
+                //
 #ifdef BSTONE_AOG
-				CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+                CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
                 ::SD_StartMusic(MEETINGA_MUS);
 #else
-				CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
+                CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
                 ::SD_StartMusic(TITLE_LOOP_MUSIC);
 #endif // BSTONE_AOG
-			}
+            }
 
 //
 // title page
 //
 #if !SKIP_TITLE_AND_CREDITS
-			breakit = false;
+            breakit = false;
 
 #ifdef BSTONE_AOG
             CA_CacheScreen(TITLEPIC);
 #else
-			CA_CacheScreen(TITLE1PIC);
+            CA_CacheScreen(TITLE1PIC);
 #endif // BSTONE_AOG
 
-			CA_CacheGrChunk(TITLEPALETTE);
-			old_bufferofs = static_cast<Uint16>(bufferofs);
-			bufferofs=displayofs;
-			VW_Bar(0,0,320,200,0);
-			bufferofs=old_bufferofs;
-			VL_SetPalette (0,256,reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]));
-			VL_SetPaletteIntensity(0,255,reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]),0);
+            CA_CacheGrChunk(TITLEPALETTE);
+            old_bufferofs = static_cast<Uint16>(bufferofs);
+            bufferofs = displayofs;
+            VW_Bar(0, 0, 320, 200, 0);
+            bufferofs = old_bufferofs;
+            VL_SetPalette(0, 256, reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]));
+            VL_SetPaletteIntensity(0, 255, reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]), 0);
 
 #ifdef BSTONE_PS
-			fontnumber = 2;
-			PrintX = WindowX = 270;
-			PrintY = WindowY = 179;
-			WindowW = 29;
-			WindowH = 8;
-			VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,VERSION_TEXT_BKCOLOR);
-			SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-			US_Print(__BLAKE_VERSION__);
+            fontnumber = 2;
+            PrintX = WindowX = 270;
+            PrintY = WindowY = 179;
+            WindowW = 29;
+            WindowH = 8;
+            VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
+            SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+            US_Print(__BLAKE_VERSION__);
 #endif // BSTONE_PS
 
-			VW_UpdateScreen();
-			VL_FadeIn(0,255,reinterpret_cast<Uint8*>(grsegs[TITLEPALETTE]),30);
-			UNCACHEGRCHUNK(TITLEPALETTE);
+            VW_UpdateScreen();
+            VL_FadeIn(0, 255, reinterpret_cast<Uint8*>(grsegs[TITLEPALETTE]), 30);
+            UNCACHEGRCHUNK(TITLEPALETTE);
 
 #ifdef BSTONE_PS
-			if (IN_UserInput(TickBase*6))
-				breakit= true;
+            if (IN_UserInput(TickBase * 6)) {
+                breakit = true;
+            }
 
-		// Cache screen 2 with Warnings and Copyrights
+            // Cache screen 2 with Warnings and Copyrights
 
-			CA_CacheScreen(TITLE2PIC);
-			fontnumber = 2;
-			PrintX = WindowX = 270;
-			PrintY = WindowY = 179;
-			WindowW = 29;
-			WindowH = 8;
-			VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,VERSION_TEXT_BKCOLOR);
-			SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-			US_Print(__BLAKE_VERSION__);
+            CA_CacheScreen(TITLE2PIC);
+            fontnumber = 2;
+            PrintX = WindowX = 270;
+            PrintY = WindowY = 179;
+            WindowW = 29;
+            WindowH = 8;
+            VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
+            SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+            US_Print(__BLAKE_VERSION__);
 
-			// Fizzle whole screen incase of any last minute changes needed
-			// on title intro.
+            // Fizzle whole screen incase of any last minute changes needed
+            // on title intro.
 
 // BBi Made abortable.
 #if 0
-			FizzleFade(bufferofs,displayofs,320,200,70,false);
+            FizzleFade(bufferofs, displayofs, 320, 200, 70, false);
 #endif
             FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
 // BBi
 
-			IN_UserInput(TickBase*2);
+            IN_UserInput(TickBase * 2);
 #endif // BSTONE_PS
 
-			if (breakit || IN_UserInput(TickBase*6))
-				break;
-			VW_FadeOut();
+            if (breakit || IN_UserInput(TickBase * 6)) {
+                break;
+            }
+            VW_FadeOut();
 
 //
 // credits page
 //
-			DrawCreditsPage();
-			VW_UpdateScreen();
-			VW_FadeIn();
-			if (IN_UserInput(TickBase*6))
-				break;
-			VW_FadeOut();
+            DrawCreditsPage();
+            VW_UpdateScreen();
+            VW_FadeIn();
+            if (IN_UserInput(TickBase * 6)) {
+                break;
+            }
+            VW_FadeOut();
 
 #endif
 
@@ -2403,114 +2461,113 @@ void    DemoLoop ()
 
 #if DEMOS_ENABLED
 #if IN_DEVELOPMENT
-		if (!MS_CheckParm("recdemo"))
+            if (!MS_CheckParm("recdemo"))
 #endif
-			PlayDemo(LastDemo++%6);
+            PlayDemo(LastDemo++ % 6);
 
-			if (playstate == ex_abort)
-				break;
-			else
-			{
-			// Start music when coming from menu...
-			//
-				if (!sqActive)
-//				if (!SD_MusicPlaying())
-				{
-				// Load and start music
-				//
-					CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
-					SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+TITLE_LOOP_MUSIC]);
-				}
-			}
+            if (playstate == ex_abort) {
+                break;
+            } else {
+                // Start music when coming from menu...
+                //
+                if (!sqActive) {
+//                              if (!SD_MusicPlaying())
+                    // Load and start music
+                    //
+                    CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+                    SD_StartMusic((MusicGroup*)audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC]);
+                }
+            }
 #endif
 
 //
 // high scores
 //
 #if !SKIP_TITLE_AND_CREDITS
-			CA_CacheScreen (BACKGROUND_SCREENPIC);
-			DrawHighScores ();
-			VW_UpdateScreen ();
-			VW_FadeIn ();
+            CA_CacheScreen(BACKGROUND_SCREENPIC);
+            DrawHighScores();
+            VW_UpdateScreen();
+            VW_FadeIn();
 
-			if (IN_UserInput(TickBase*9))
-				break;
-			VW_FadeOut();
+            if (IN_UserInput(TickBase * 9)) {
+                break;
+            }
+            VW_FadeOut();
 #endif
-		}
+        }
 #else
-    // Start music when coming from menu...
-    if (!sqActive) {
-        // Load and start music
-        //
+        // Start music when coming from menu...
+        if (!sqActive) {
+            // Load and start music
+            //
 #ifdef BSTONE_AOG
-        CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-        ::SD_StartMusic(MEETINGA_MUS);
+            CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+            ::SD_StartMusic(MEETINGA_MUS);
 #else
-        CA_CacheAudioChunk(STARTMUSIC+TITLE_LOOP_MUSIC);
-        ::SD_StartMusic(TITLE_LOOP_MUSIC);
+            CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+            ::SD_StartMusic(TITLE_LOOP_MUSIC);
 #endif // BSTONE_AOG
-    }
+        }
 #endif // SKIP_TITLE_AND_CREDITS
 
-		if (!screenfaded)
-			VW_FadeOut();
+        if (!screenfaded) {
+            VW_FadeOut();
+        }
 
 #ifdef DEMOS_EXTERN
-		if (MS_CheckParm("recdemo"))
-			RecordDemo ();
-		else
+        if (MS_CheckParm("recdemo")) {
+            RecordDemo();
+        } else
 #endif
-		{
+        {
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-			if (gamestate.flags & GS_QUICKRUN)
-			{
-				ReadGameNames();
-				CA_LoadAllSounds();
-				NewGame(2,gamestate.episode);
-				startgame = true;
-			}
-			else
-#endif													 
-				US_ControlPanel (0);
-		}
-		if (startgame || loadedgame)
-			GameLoop ();
-	}
+            if (gamestate.flags & GS_QUICKRUN) {
+                ReadGameNames();
+                CA_LoadAllSounds();
+                NewGame(2, gamestate.episode);
+                startgame = true;
+            } else
+#endif
+            US_ControlPanel(0);
+        }
+        if (startgame || loadedgame) {
+            GameLoop();
+        }
+    }
 }
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // DrawCreditsPage()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void DrawCreditsPage()
 {
-	PresenterInfo pi;
+    PresenterInfo pi;
 
-	CA_CacheScreen(BACKGROUND_SCREENPIC);
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
 
-	memset(&pi,0,sizeof(pi));
-	pi.flags = TPF_CACHE_NO_GFX;
-	pi.xl=38;
-	pi.yl=28;
-	pi.xh=281;
-	pi.yh=170;
-	pi.bgcolor = 2;
-	pi.ltcolor = BORDER_HI_COLOR;
-	fontcolor = BORDER_TEXT_COLOR;
-	pi.shcolor = pi.dkcolor = 0;
-	pi.fontnumber=static_cast<char>(fontnumber);
+    memset(&pi, 0, sizeof(pi));
+    pi.flags = TPF_CACHE_NO_GFX;
+    pi.xl = 38;
+    pi.yl = 28;
+    pi.xh = 281;
+    pi.yh = 170;
+    pi.bgcolor = 2;
+    pi.ltcolor = BORDER_HI_COLOR;
+    fontcolor = BORDER_TEXT_COLOR;
+    pi.shcolor = pi.dkcolor = 0;
+    pi.fontnumber = static_cast<char>(fontnumber);
 
 #ifdef ID_CACHE_CREDITS
-	TP_LoadScript(NULL,&pi,CREDITSTEXT);
+    TP_LoadScript(NULL, &pi, CREDITSTEXT);
 #else
-	TP_LoadScript("CREDITS.TXT",&pi,0);
+    TP_LoadScript("CREDITS.TXT", &pi, 0);
 #endif
 
-	TP_Presenter(&pi);
+    TP_Presenter(&pi);
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 
 extern void JM_FREE_START();
@@ -2525,13 +2582,15 @@ extern void JM_FREE_END();
 ==========================
 */
 
-//char    *nosprtxt[] = {"nospr",nil};
+// char    *nosprtxt[] = {"nospr",nil};
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-Sint16 starting_episode=0,starting_level=0,starting_difficulty=2;
+Sint16 starting_episode = 0, starting_level = 0, starting_difficulty = 2;
 #endif
-Sint16 debug_value=0;
+Sint16 debug_value = 0;
 
-int main(int argc, char* argv[])
+int main(
+    int argc,
+    char* argv[])
 {
     int sdl_result = 0;
 
@@ -2547,59 +2606,64 @@ int main(int argc, char* argv[])
     ::g_args.initialize(argc, argv);
 
 #if IN_DEVELOPMENT
-	MakeDestPath(ERROR_LOG);
-	remove(tempPath);
+    MakeDestPath(ERROR_LOG);
+    remove(tempPath);
 #endif
 
-	freed_main();
+    freed_main();
 
 #if FREE_FUNCTIONS
-	UseFunc((char *)JM_FREE_START,(char *)JM_FREE_END);
-	UseFunc((char *)JM_FREE_DATA_START,(char *)JM_FREE_DATA_END);
+    UseFunc((char*)JM_FREE_START, (char*)JM_FREE_END);
+    UseFunc((char*)JM_FREE_DATA_START, (char*)JM_FREE_DATA_END);
 #endif
 
-	DemoLoop();
+    DemoLoop();
 
-	Quit("");
+    Quit("");
 
     return 0;
 }
 
 #if FREE_FUNCTIONS
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // UseFunc()
-//-------------------------------------------------------------------------
-unsigned UseFunc(char *first, char *next)
+// -------------------------------------------------------------------------
+unsigned UseFunc(
+    char* first,
+    char* next)
 {
-	unsigned start,end;
-	unsigned pars;
+    unsigned start, end;
+    unsigned pars;
 
-	first += 15;
-	next++;
-	next--;
+    first += 15;
+    next++;
+    next--;
 
-	start = FP_SEG(first);
-	end = FP_SEG(next);
-	if (!FP_OFF(next))
-		end--;
-	pars = end - start - 1;
-	_fmemset(MK_FP(start,0),0,pars*16);
-	MML_UseSpace(start,pars);
+    start = FP_SEG(first);
+    end = FP_SEG(next);
+    if (!FP_OFF(next)) {
+        end--;
+    }
+    pars = end - start - 1;
+    _fmemset(MK_FP(start, 0), 0, pars * 16);
+    MML_UseSpace(start, pars);
 
-	return(pars);
+    return pars;
 }
 
 #endif
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // fprint()
-//-------------------------------------------------------------------------
-void fprint(char *text)
+// -------------------------------------------------------------------------
+void fprint(
+    char* text)
 {
-	while (*text)
-		printf("%c",*text++);
+    while (*text) {
+        printf("%c", *text++);
+    }
 }
 
 // FIXME Make cross-platform
@@ -2626,8 +2690,9 @@ void InitDestPath()
 
         strcpy(destPath, env_value);
 
-        if (destPath[len-1] == '\\')
-            destPath[len-1] = '\0';
+        if (destPath[len - 1] == '\\') {
+            destPath[len - 1] = '\0';
+        }
 
         fd_handle = _findfirst(destPath, &fd);
         fd_result = (fd_handle != -1) ? 0 : -1;
@@ -2645,8 +2710,9 @@ void InitDestPath()
         }
 
         strcat(destPath, "\\");
-    } else
+    } else {
         strcpy(destPath, "");
+    }
 }
 #endif // 0
 
@@ -2655,27 +2721,28 @@ void InitDestPath()
     destPath[0] = '\0';
 }
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // MakeDestPath()
-//-------------------------------------------------------------------------
-void MakeDestPath(const char *file)
+// -------------------------------------------------------------------------
+void MakeDestPath(
+    const char* file)
 {
-	strcpy(tempPath,destPath);
-	strcat(tempPath,file);
+    strcpy(tempPath, destPath);
+    strcat(tempPath, file);
 }
 
 #if IN_DEVELOPMENT
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // ShowMemory()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void ShowMemory()
 {
-	Sint32 psize,size;
+    Sint32 psize, size;
 
-	size = MM_TotalFree();
-	psize = MM_LargestAvail();
-	mprintf("Mem free: %ld   %ld\n",size,psize);
+    size = MM_TotalFree();
+    psize = MM_LargestAvail();
+    mprintf("Mem free: %ld   %ld\n", size, psize);
 }
 
 #endif
@@ -2787,10 +2854,11 @@ void statobj_t::deserialize(
     Sint32 vis_index = 0;
     ::deserialize_field(vis_index, reader, checksum);
 
-    if (vis_index < 0)
+    if (vis_index < 0) {
         visspot = NULL;
-    else
+    } else {
         visspot = &(&spotvis[0][0])[vis_index];
+    }
 
     ::deserialize_field(shapenum, reader, checksum);
     ::deserialize_field(flags, reader, checksum);
@@ -2869,8 +2937,9 @@ void concession_t::serialize(
 {
     ::serialize_field(NumMsgs, writer, checksum);
 
-    for (int i = 0; i < NumMsgs; ++i)
+    for (int i = 0; i < NumMsgs; ++i) {
         cmInfo[i].serialize(writer, checksum);
+    }
 }
 
 void concession_t::deserialize(
@@ -2879,8 +2948,9 @@ void concession_t::deserialize(
 {
     ::deserialize_field(NumMsgs, reader, checksum);
 
-    for (int i = 0; i < NumMsgs; ++i)
+    for (int i = 0; i < NumMsgs; ++i) {
         cmInfo[i].deserialize(reader, checksum);
+    }
 }
 
 void eaWallInfo::serialize(
@@ -3019,22 +3089,26 @@ void fargametype::serialize(
     bstone::BinaryWriter& writer,
     Uint32& checksum) const
 {
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         old_levelinfo[i].serialize(writer, checksum);
+    }
 
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         level[i].serialize(writer, checksum);
+    }
 }
 
 void fargametype::deserialize(
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         old_levelinfo[i].deserialize(reader, checksum);
+    }
 
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         level[i].deserialize(reader, checksum);
+    }
 }
 
 void gametype::serialize(
@@ -3089,11 +3163,13 @@ void gametype::serialize(
     ::serialize_field(numkeys, writer, checksum);
     ::serialize_field(old_numkeys, writer, checksum);
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         barrier_table[i].serialize(writer, checksum);
+    }
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         old_barrier_table[i].serialize(writer, checksum);
+    }
 
     ::serialize_field(tokens, writer, checksum);
     ::serialize_field(old_tokens, writer, checksum);
@@ -3155,11 +3231,13 @@ void gametype::deserialize(
     ::deserialize_field(numkeys, reader, checksum);
     ::deserialize_field(old_numkeys, reader, checksum);
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         barrier_table[i].deserialize(reader, checksum);
+    }
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         old_barrier_table[i].deserialize(reader, checksum);
+    }
 
     ::deserialize_field(tokens, reader, checksum);
     ::deserialize_field(old_tokens, reader, checksum);

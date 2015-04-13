@@ -25,16 +25,16 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 
-#define	MAXVIEWHEIGHT	200
-#define  GAMESTATE_TEST 	(1)
+#define MAXVIEWHEIGHT 200
+#define  GAMESTATE_TEST (1)
 
 
 void MapLSRow();
 
 
-Uint16 CeilingTile=126, FloorTile=126;
+Uint16 CeilingTile = 126, FloorTile = 126;
 
-void (*MapRowPtr)();
+void (* MapRowPtr)();
 
 int* spanstart = NULL;
 int* stepscale = NULL;
@@ -42,7 +42,7 @@ int* basedist = NULL;
 int* planeylookup = NULL;
 int* mirrorofs = NULL;
 
-extern Uint8 planepics[8192];	// 4k of ceiling, 4k of floor
+extern Uint8 planepics[8192]; // 4k of ceiling, 4k of floor
 extern const Uint8* lightsource;
 extern const Uint8* shadingtable;
 
@@ -94,10 +94,11 @@ void DrawSpans(
     if ((gamestate.flags & GS_LIGHTING) != 0) {
         int i = shade_max - ((63 * height) / (vga_scale * normalshade));
 
-        if (i < 0)
+        if (i < 0) {
             i = 0;
-        else if (i > 63)
+        } else if (i > 63) {
             i = 63;
+        }
 
         shadingtable = lightsource + (i * 256);
     }
@@ -111,19 +112,21 @@ void DrawSpans(
     mr_count = x2 - x1 + 1;
 
 #if GAMESTATE_TEST
-    if (mr_count > 0)
+    if (mr_count > 0) {
         MapRowPtr();
+    }
 #else
     if (mr_count > 0) {
-        if ((gamestate.flags & GS_LIGHTING) != 0)
+        if ((gamestate.flags & GS_LIGHTING) != 0) {
             MapLSRow();
-        else
+        } else {
             MapRow();
+        }
     }
 #endif
 }
 
-void SetPlaneViewSize ()
+void SetPlaneViewSize()
 {
     const Uint8* src;
     Uint8* dest;
@@ -135,8 +138,9 @@ void SetPlaneViewSize ()
         mirrorofs[y] = (y * 2 + 1) * vga_width;
         stepscale[y] = y * GLOBAL1 / 32;
 
-        if (y > 0)
+        if (y > 0) {
             basedist[y] = GLOBAL1 / 2 * scale / y;
+        }
     }
 
     src = static_cast<const Uint8*>(PM_GetPage(CeilingTile));
@@ -159,22 +163,26 @@ void SetPlaneViewSize ()
 void DrawPlanes()
 {
 #if IN_DEVELOPMENT
-    if (!MapRowPtr)
+    if (!MapRowPtr) {
         DRAW2_ERROR(NULL_FUNC_PTR_PASSED);
+    }
 #endif
 
-    if (((viewheight / 2) * vga_scale) != halfheight)
+    if (((viewheight / 2) * vga_scale) != halfheight) {
         SetPlaneViewSize(); // screen size has changed
 
+    }
     psin = viewsin;
 
-    if (psin < 0)
+    if (psin < 0) {
         psin = -(psin & 0xFFFF);
+    }
 
     pcos = viewcos;
 
-    if (pcos < 0)
+    if (pcos < 0) {
         pcos = -(pcos & 0xFFFF);
+    }
 
     int x = 0;
     int height = 0;
@@ -188,20 +196,23 @@ void DrawPlanes()
                 spanstart[--lastheight] = x;
             } while (lastheight > height);
         } else if (height > lastheight) { // draw spans
-            if (height > halfheight)
+            if (height > halfheight) {
                 height = halfheight;
+            }
 
-            for ( ; lastheight < height; ++lastheight)
-                if (lastheight > 0)
+            for (; lastheight < height; ++lastheight) {
+                if (lastheight > 0) {
                     DrawSpans(spanstart[lastheight], x - 1, lastheight);
+                }
+            }
         }
     }
 
     height = halfheight;
 
-    for ( ; lastheight < height; ++lastheight) {
-        if (lastheight > 0)
+    for (; lastheight < height; ++lastheight) {
+        if (lastheight > 0) {
             DrawSpans(spanstart[lastheight], x - 1, lastheight);
+        }
     }
 }
-

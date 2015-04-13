@@ -60,48 +60,48 @@ Free Software Foundation, Inc.,
 
 #define __ID_GLOB__
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 #define DEBUG_VALUE
 #define CEILING_FLOOR_COLORS
 
 
-//#define CARMACIZED
+// #define CARMACIZED
 #define WOLF
-#define FREE_FUNCTIONS					(0)
-#define FREE_DATA							(0)
-#define DEMOS_ENABLED					(0)
-#define RESTART_PICTURE_PAUSE			(0)
-#define GEORGE_CHEAT						(0)
+#define FREE_FUNCTIONS (0)
+#define FREE_DATA (0)
+#define DEMOS_ENABLED (0)
+#define RESTART_PICTURE_PAUSE (0)
+#define GEORGE_CHEAT (0)
 
-#define FORCE_FILE_CLOSE				(1)		// true - forces all files closed once they are used
+#define FORCE_FILE_CLOSE (1) // true - forces all files closed once they are used
 
 //
 // GAME VERSION TYPES
 //
 
-#define SHAREWARE_VERSION			0x0001
-#define MISSIONS_1_THR_3			0x0003
-#define MISSIONS_4_THR_6			0x0004
-#define MISSIONS_1_THR_6			0x0007
+#define SHAREWARE_VERSION 0x0001
+#define MISSIONS_1_THR_3 0x0003
+#define MISSIONS_4_THR_6 0x0004
+#define MISSIONS_1_THR_6 0x0007
 
 //
 // CURRENT GAME VERSION DEFINE - Change this define according to the
-//											game release versions 1,1-3,4-6, or 1-6.
+//                                                                                      game release versions 1,1-3,4-6, or 1-6.
 
-#define GAME_VERSION					(MISSIONS_1_THR_6)
-//#define GAME_VERSION      			(MISSIONS_1_THR_3)
-//#define GAME_VERSION					(SHAREWARE_VERSION)
+#define GAME_VERSION (MISSIONS_1_THR_6)
+// #define GAME_VERSION                         (MISSIONS_1_THR_3)
+// #define GAME_VERSION                                 (SHAREWARE_VERSION)
 
 
-#define TECH_SUPPORT_VERSION		(0)
-#define IN_DEVELOPMENT				(0)
+#define TECH_SUPPORT_VERSION (0)
+#define IN_DEVELOPMENT (0)
 
-#define ERROR_LOG						"ERROR.LOG"			// Text filename for critical memory errors
-#define DUAL_SWAP_FILES				(0)				//(GAME_VERSION != SHAREWARE_VERSION)				// Support for Shadowed and NonShadowed page files
+#define ERROR_LOG "ERROR.LOG" // Text filename for critical memory errors
+#define DUAL_SWAP_FILES (0) // (GAME_VERSION != SHAREWARE_VERSION)                              // Support for Shadowed and NonShadowed page files
 
-extern  char            signonv1;
-#define introscn        signonv1
+extern char signonv1;
+#define introscn signonv1
 
 #ifndef SPEAR
 
@@ -129,10 +129,10 @@ extern  char            signonv1;
 
 #endif
 
-//-----------------
+// -----------------
 
 
-#define GREXT   "VGA"
+#define GREXT "VGA"
 
 //
 //      ID Engine
@@ -154,7 +154,7 @@ struct Rect {
     Point lr;
 }; // struct Rect
 
-#define nil     (0l)
+#define nil (0l)
 
 
 #include "id_mm.h"
@@ -172,7 +172,9 @@ struct Rect {
 
 #include "movie.h"
 
-void    Quit (const char *error,...);             // defined in user program
+void Quit(
+    const char* error,
+    ...);                                         // defined in user program
 
 extern void CalcMemFree();
 
@@ -180,32 +182,32 @@ extern void CalcMemFree();
 // replacing refresh manager with custom routines
 //
 
-#define PORTTILESWIDE           20      // all drawing takes place inside a
-#define PORTTILESHIGH           13              // non displayed port of this size
+#define PORTTILESWIDE 20 // all drawing takes place inside a
+#define PORTTILESHIGH 13 // non displayed port of this size
 
-#define UPDATEWIDE                      PORTTILESWIDE
-#define UPDATEHIGH                      PORTTILESHIGH
+#define UPDATEWIDE PORTTILESWIDE
+#define UPDATEHIGH PORTTILESHIGH
 
-#define MAXTICS                         10
-#define DEMOTICS                        4
+#define MAXTICS 10
+#define DEMOTICS 4
 
 #define UPDATETERMINATE 0x0301
 
-extern  Uint16        mapwidth,mapheight,tics,realtics;
-extern  boolean         compatability;
+extern Uint16 mapwidth, mapheight, tics, realtics;
+extern boolean compatability;
 
-extern  Uint8            *updateptr;
-extern  Uint16        uwidthtable[UPDATEHIGH];
-extern  Uint16        blockstarts[UPDATEWIDE*UPDATEHIGH];
+extern Uint8* updateptr;
+extern Uint16 uwidthtable[UPDATEHIGH];
+extern Uint16 blockstarts[UPDATEWIDE * UPDATEHIGH];
 
-extern  Uint8            fontcolor,backcolor;
+extern Uint8 fontcolor, backcolor;
 
-#define SETFONTCOLOR(f,b) fontcolor=static_cast<Uint8>(f);backcolor=static_cast<Uint8>(b);
+#define SETFONTCOLOR(f, b) fontcolor = static_cast<Uint8>(f); backcolor = static_cast<Uint8>(b);
 
 #include "3d_menu.h"
 
 
-#define CA_FarRead(h,d,s)	IO_FarRead((Sint16)h,(Uint8 *)d,(Sint32)s)
+#define CA_FarRead(h, d, s) IO_FarRead((Sint16)h, (Uint8*)d, (Sint32)s)
 
 
 // BBi

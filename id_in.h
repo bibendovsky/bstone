@@ -22,26 +22,26 @@ Free Software Foundation, Inc.,
 
 
 //
-//	ID Engine
-//	ID_IN.h - Header file for Input Manager
-//	v1.0d1
-//	By Jason Blochowiak
+//      ID Engine
+//      ID_IN.h - Header file for Input Manager
+//      v1.0d1
+//      By Jason Blochowiak
 //
 
-#ifndef	__ID_IN__
-#define	__ID_IN__
+#ifndef __ID_IN__
+#define __ID_IN__
 
-#ifdef	__DEBUG__
-#define	__DEBUG_InputMgr__
+#ifdef  __DEBUG__
+#define __DEBUG_InputMgr__
 #endif
 
 #include <memory>
 #include <vector>
 
-#define	MaxPlayers	4
-#define	MaxKbds		2
-#define	MaxJoys		2
-#define	NumCodes	128
+#define MaxPlayers 4
+#define MaxKbds 2
+#define MaxJoys 2
+#define NumCodes 128
 
 enum ScanCode {
     sc_none = 0,
@@ -142,27 +142,27 @@ enum ScanCode {
     sc_mouse_x2 = 0x68
 }; // enum ScanCode
 
-#define	key_None		0
-#define	key_Return		0x0d
-#define	key_Enter		key_Return
-#define	key_Escape		0x1b
-#define	key_Space		0x20
-#define	key_BackSpace	0x08
-#define	key_Tab			0x09
-#define	key_Delete		0x7f
-#define	key_UnderScore 0x0c
+#define key_None 0
+#define key_Return 0x0d
+#define key_Enter key_Return
+#define key_Escape 0x1b
+#define key_Space 0x20
+#define key_BackSpace 0x08
+#define key_Tab 0x09
+#define key_Delete 0x7f
+#define key_UnderScore 0x0c
 
-// 	Stuff for the mouse
-#define	MReset		0
-#define	MButtons	3
-#define	MDelta		11
+//      Stuff for the mouse
+#define MReset 0
+#define MButtons 3
+#define MDelta 11
 
-#define	MouseInt	0x33
+#define MouseInt 0x33
 
-#define  NGint	0x15
-#define  NGjoy(com)	_AH=0x84;_DX=com;geninterrupt(NGint);
+#define  NGint 0x15
+#define  NGjoy(com) _AH = 0x84; _DX = com; geninterrupt(NGint);
 
-#define	MaxJoyValue		5000			// JAM
+#define MaxJoyValue 5000 // JAM
 
 enum Demo {
     demo_Off,
@@ -267,10 +267,10 @@ extern Bindings in_bindings;
 void in_set_default_bindings();
 
 struct CursorInfo {
-    boolean		button0,button1,button2,button3;
-    Sint16			x,y;
-    Motion		xaxis,yaxis;
-    Direction	dir;
+    boolean button0, button1, button2, button3;
+    Sint16 x, y;
+    Motion xaxis, yaxis;
+    Direction dir;
 }; // struct  CursorInfo
 
 typedef CursorInfo ControlInfo;
@@ -306,50 +306,52 @@ struct JoystickDef {
 
 // Global variables
 
-extern boolean			NGinstalled; 				// JAM
+extern boolean NGinstalled; // JAM
 
-extern boolean JoystickCalibrated;				// JAM - added
-extern ControlType ControlTypeUsed;				// JAM - added
+extern boolean JoystickCalibrated; // JAM - added
+extern ControlType ControlTypeUsed; // JAM - added
 extern bool Keyboard[];
 extern boolean MousePresent;
 extern boolean JoysPresent[];
 extern bool Paused;
-extern	char		LastASCII;
-extern	ScanCode	LastScan;
-extern	KeyboardDef	KbdDefs;
-extern	JoystickDef	JoyDefs[];
-extern	ControlType	Controls[MaxPlayers];
+extern char LastASCII;
+extern ScanCode LastScan;
+extern KeyboardDef KbdDefs;
+extern JoystickDef JoyDefs[];
+extern ControlType Controls[MaxPlayers];
 
-extern	Uint8 *DemoBuffer;
-extern	Uint16		DemoOffset,DemoSize;
+extern Uint8* DemoBuffer;
+extern Uint16 DemoOffset, DemoSize;
 
 // Function prototypes
-#define	IN_KeyDown(code)	(Keyboard[(code)])
-#define	IN_ClearKey(code)	{Keyboard[code] = false;\
-							if (code == LastScan) LastScan = sc_none;}
+#define IN_KeyDown(code) (Keyboard[(code)])
+#define IN_ClearKey(code) { Keyboard[code] = false; \
+                            if (code == LastScan) { LastScan = sc_none; } }
 
 // DEBUG - put names in prototypes
-extern	void		IN_Startup(),IN_Shutdown(),
-					IN_Default(boolean gotit,ControlType in),
-					IN_SetKeyHook(void (*)()),
-					IN_ClearKeysDown(),
-					IN_ReadCursor(CursorInfo *),
-					IN_ReadControl(Sint16,ControlInfo *),
-					IN_SetControlType(Sint16,ControlType),
-					IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp),
-					IN_SetupJoy(Uint16 joy,Uint16 minx,Uint16 maxx,
-								Uint16 miny,Uint16 maxy),
-					IN_StopDemo(),IN_FreeDemoBuffer(),
-					IN_Ack(),IN_AckBack();
-extern	boolean		IN_UserInput(Uint32 delay);
-extern	char		IN_WaitForASCII();
-extern	ScanCode	IN_WaitForKey();
-extern	Uint16		IN_GetJoyButtonsDB(Uint16 joy);
-extern	Uint8		*IN_GetScanName(ScanCode);
+extern void IN_Startup(), IN_Shutdown(),
+IN_Default(boolean gotit, ControlType in),
+IN_SetKeyHook(void (*)()),
+IN_ClearKeysDown(),
+IN_ReadCursor(CursorInfo*),
+IN_ReadControl(Sint16, ControlInfo*),
+IN_SetControlType(Sint16, ControlType),
+IN_GetJoyAbs(Uint16 joy, Uint16 * xp, Uint16 * yp),
+IN_SetupJoy(Uint16 joy, Uint16 minx, Uint16 maxx,
+            Uint16 miny, Uint16 maxy),
+IN_StopDemo(), IN_FreeDemoBuffer(),
+IN_Ack(), IN_AckBack();
+extern boolean IN_UserInput(
+    Uint32 delay);
+extern char IN_WaitForASCII();
+extern ScanCode IN_WaitForKey();
+extern Uint16 IN_GetJoyButtonsDB(
+    Uint16 joy);
+extern Uint8* IN_GetScanName(ScanCode);
 
 
-Uint8	IN_MouseButtons ();
-Uint8	IN_JoyButtons ();
+Uint8 IN_MouseButtons();
+Uint8 IN_JoyButtons();
 
 
 // BBi

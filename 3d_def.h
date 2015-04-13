@@ -28,9 +28,9 @@ Free Software Foundation, Inc.,
 #include "jm_io.h"
 #include "jm_cio.h"
 
-//#define DEMOS_EXTERN
-//#define MYPROFILE
-//#define TRACK_ENEMY_COUNT
+// #define DEMOS_EXTERN
+// #define MYPROFILE
+// #define TRACK_ENEMY_COUNT
 #define OBJ_RESERV
 
 #define __BLAKE_VERSION__ "V1.01"
@@ -39,57 +39,57 @@ Free Software Foundation, Inc.,
 #define BS_SAVE_VERSION "2"
 
 #ifdef _DEBUG
-    #define SKIP_TITLE_AND_CREDITS (1)
+#define SKIP_TITLE_AND_CREDITS (1)
 #else
-    #define SKIP_TITLE_AND_CREDITS (0)
+#define SKIP_TITLE_AND_CREDITS (0)
 #endif // _DEBUG
 
 #ifdef BSTONE_PS
-#define GOLD_MORPH_LEVEL				(19)			// Level which Dr. GoldFire Morphs.
+#define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 #endif
 
-#define VERSION_TEXT_COLOR				(0x82)
-#define VERSION_TEXT_BKCOLOR			(0x80)
+#define VERSION_TEXT_COLOR (0x82)
+#define VERSION_TEXT_BKCOLOR (0x80)
 
-#define NO_SHADING						(0x80)
-#define LAMP_ON_SHADING					(-12)
-#define EXPLOSION_SHADING				(-52)
+#define NO_SHADING (0x80)
+#define LAMP_ON_SHADING (-12)
+#define EXPLOSION_SHADING (-52)
 
 #define PAGEFLIP
 
-#define BETA_TEST							(0)
-#define LOOK_FOR_DEAD_GUYS				(0)
+#define BETA_TEST (0)
+#define LOOK_FOR_DEAD_GUYS (0)
 
-#define BETA_CODE						   "NEWGAME"
+#define BETA_CODE "NEWGAME"
 
-#define MIN_MEM_NEEDED				(231568l)		// 560K
+#define MIN_MEM_NEEDED (231568l) // 560K
 #define LIMITED_AMMO
 
-#define SHADE_MAX						51
-#define SHADE_DIV						6
+#define SHADE_MAX 51
+#define SHADE_DIV 6
 
-#define BETA_MONTH	8
-#define BETA_DAY		1
-#define BETA_YEAR		1994
+#define BETA_MONTH 8
+#define BETA_DAY 1
+#define BETA_YEAR 1994
 
-#define DISK_SPACE_NEEDED	(1024l*1024l)
+#define DISK_SPACE_NEEDED (1024l * 1024l)
 
-#define BORDER_HI_COLOR		0x85
-#define BORDER_MED_COLOR	0x82
-#define BORDER_LO_COLOR		0x80
-#define BORDER_TEXT_COLOR	0xaf
+#define BORDER_HI_COLOR 0x85
+#define BORDER_MED_COLOR 0x82
+#define BORDER_LO_COLOR 0x80
+#define BORDER_TEXT_COLOR 0xaf
 
 
 // FONT DEFINES
 //
-#define  ID_FONT				(STARTFONT)
-#define  BIG_FONT				(STARTFONT+1)
-#define	SIXPOINT_FONT		(STARTFONT+2)
-#define 	TALL_FONT			(STARTFONT+3)
-#define 	COAL_FONT			(STARTFONT+4)
-#define  RADAR_FONT			(STARTFONT+5)
+#define  ID_FONT (STARTFONT)
+#define  BIG_FONT (STARTFONT + 1)
+#define SIXPOINT_FONT (STARTFONT + 2)
+#define         TALL_FONT (STARTFONT + 3)
+#define         COAL_FONT (STARTFONT + 4)
+#define  RADAR_FONT (STARTFONT + 5)
 
-//#define LOCKED_FLOORS
+// #define LOCKED_FLOORS
 
 #define ID_CACHE_BRIEFS
 #define ID_CACHE_HELP
@@ -97,79 +97,81 @@ Free Software Foundation, Inc.,
 #define ID_CACHE_CREDITS
 
 
-//#define DEBUG_STATICS
-//#define DEBUG_ACTORS
+// #define DEBUG_STATICS
+// #define DEBUG_ACTORS
 
-//==========================================================================
+// ==========================================================================
 //
-//							GAME VERSION DEPENDANT DEFINATIONS
+//                                                      GAME VERSION DEPENDANT DEFINATIONS
 //
-//==========================================================================
+// ==========================================================================
 
-void jsprintf(char *msg, ...);
+void jsprintf(
+    char* msg,
+    ...);
 
 /*
 =============================================================================
 
-							MACROS
+                                                        MACROS
 
 =============================================================================
 */
 
 
-#define BASE_GRAY			0x8
-#define HIGH_GRAY			0xb
-#define LOW_GRAY			0x5
-#define BASE_GRN			0x76
-#define HIGH_GRN			0x78
-#define LOW_GRN			0x74
+#define BASE_GRAY 0x8
+#define HIGH_GRAY 0xb
+#define LOW_GRAY 0x5
+#define BASE_GRN 0x76
+#define HIGH_GRN 0x78
+#define LOW_GRN 0x74
 
 
-#define MAX_GUN_DELAY		12
+#define MAX_GUN_DELAY 12
 
-#define MAX_RADAR_ENERGY	14400
-#define RADAR_PAK_VALUE		60*15
+#define MAX_RADAR_ENERGY 14400
+#define RADAR_PAK_VALUE 60 * 15
 
-#define MAXKEYS	1
+#define MAXKEYS 1
 
-#define COLORBORDER(color)              asm{mov dx,STATUS_REGISTER_1;in al,dx;\
-	mov dx,ATR_INDEX;mov al,ATR_OVERSCAN;out dx,al;mov al,color;out dx,al;\
-	mov     al,32;out dx,al};
+#define COLORBORDER(color) asm { mov dx, STATUS_REGISTER_1; in al, dx; \
+                                 mov dx, ATR_INDEX; mov al, ATR_OVERSCAN; out dx, al; mov al, color; out dx, al; \
+                                 mov al, 32; out dx, al };
 
-#define MAPSPOT(x,y,plane)              (*(mapsegs[plane]+farmapylookup[y]+x))
+#define MAPSPOT(x, y, plane) (*(mapsegs[plane] + farmapylookup[y] + x))
 
-#define SIGN(x)         ((x)>0?1:-1)
-#define ABS(x)          ((Sint16)(x)>0?(x):-(x))
-#define LABS(x)         ((Sint32)(x)>0?(x):-(x))
+#define SIGN(x) ((x) > 0 ? 1 : -1)
+#define ABS(x) ((Sint16)(x) > 0 ? (x) : -(x))
+#define LABS(x) ((Sint32)(x) > 0 ? (x) : -(x))
 
-//#define STATUSDRAWPIC(x, y, picnum)			LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
+// #define STATUSDRAWPIC(x, y, picnum)                  LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
 
-#define FMAPWIDTH			((fixed)mapwidth<<TILESHIFT)
-#define FMAPHEIGHT		((fixed)mapheight<<TILESHIFT)
-#define ObjVisable(from_obj,to_obj)		PosVisable(from_obj->x,from_obj->y,to_obj->x,to_obj->y,from_obj->angle)
+#define FMAPWIDTH ((fixed)mapwidth << TILESHIFT)
+#define FMAPHEIGHT ((fixed)mapheight << TILESHIFT)
+#define ObjVisable(from_obj, to_obj) PosVisable(from_obj->x, from_obj->y, to_obj->x, to_obj->y, from_obj->angle)
 
 // SmartAnim macro
-#define ANIM_INFO(o)					(reinterpret_cast<ofs_anim_t*>(&(o)->temp3))
+#define ANIM_INFO(o) (reinterpret_cast<ofs_anim_t*>(&(o)->temp3))
 
 
-#define DISPLAY_MSG_STD_TIME			(5*60)				// Tics display len
-#define DISPLAY_TIMED_MSG(msg,pri,type)	DisplayInfoMsg((msg),(pri),DISPLAY_MSG_STD_TIME,(type))
-#define DISPLAY_MSG(msg,pri,type)			DisplayInfoMsg((msg),(pri),0,(type))
+#define DISPLAY_MSG_STD_TIME (5 * 60) // Tics display len
+#define DISPLAY_TIMED_MSG(msg, pri, type) DisplayInfoMsg((msg), (pri), DISPLAY_MSG_STD_TIME, (type))
+#define DISPLAY_MSG(msg, pri, type) DisplayInfoMsg((msg), (pri), 0, (type))
 
 
 // SMART_ACTORS is the "case" used for certain switch statements.
 //
 
-#define SMART_ACTORS				proguardobj:				\
-								case 	rentacopobj:            \
-								case 	gen_scientistobj
+#define SMART_ACTORS proguardobj : \
+case rentacopobj : \
+case gen_scientistobj
 
 
-#define SECURITY_LAMPS_ALERTED		(madenoise)
+#define SECURITY_LAMPS_ALERTED (madenoise)
 
 // Barrier Code Stuff
 
-#define MAX_BARRIER_SWITCHES	  		40	 // max number level wall switches
+#define MAX_BARRIER_SWITCHES 40 // max number level wall switches
 
 
 #define SLIDE_TEMP(obj) (ui16_to_actor(obj->hitpoints))
@@ -191,63 +193,63 @@ void jsprintf(char *msg, ...);
 //
 // LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
 //
-#define RATIO(M_BASE1,M_BASE2,F_BASE2,SCALE) ((Uint16)(M_BASE1*((F_BASE2<<SCALE)/M_BASE2))>>SCALE)
-#define LRATIO(M_BASE1,M_BASE2,F_BASE2,SCALE) (((Sint32)M_BASE1*(((Sint32)F_BASE2<<SCALE)/M_BASE2))>>SCALE)
+#define RATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) ((Uint16)(M_BASE1 * ((F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
+#define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((Sint32)M_BASE1 * (((Sint32)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
 
 
-#define MAX_INF_AREA_MSGS	6
-#define MAX_LOCATION_DESC_LEN		45
+#define MAX_INF_AREA_MSGS 6
+#define MAX_LOCATION_DESC_LEN 45
 
-#define DOOR_RUBBLE_STATNUM				112			// Door Rubble sprite
+#define DOOR_RUBBLE_STATNUM 112 // Door Rubble sprite
 
-#define SpawnExplosion(a,b)							  SpawnCusExplosion((a),(b),SPR_EXPLOSION_1,4,5,explosionobj)
-#define SpawnFlash(a,b)									  SpawnCusExplosion((a),(b),SPR_EXPLOSION_1,4,5,deadobj)
-#define InitSmartSpeedAnim(a, b, c, d, e, f, g)   InitAnim((a),(b),(c),(d),(e),(f),(g),(g))
+#define SpawnExplosion(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, explosionobj)
+#define SpawnFlash(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, deadobj)
+#define InitSmartSpeedAnim(a, b, c, d, e, f, g) InitAnim((a), (b), (c), (d), (e), (f), (g), (g))
 
 /*
 =============================================================================
 
-						 GLOBAL CONSTANTS
+                                                 GLOBAL CONSTANTS
 
 =============================================================================
 */
 
-#define OV_ACTORS		0x0001
-#define OV_SHOWALL 	0x0002
-#define OV_KEYS		0x0004
-#define OV_PUSHWALLS	0x0008
+#define OV_ACTORS 0x0001
+#define OV_SHOWALL 0x0002
+#define OV_KEYS 0x0004
+#define OV_PUSHWALLS 0x0008
 
 // BBi
 #define OV_WHOLE_MAP (0x0010)
 
 
-#define TT_TRAVELED	0x01
-#define TT_KEYS		0x02
+#define TT_TRAVELED 0x01
+#define TT_KEYS 0x02
 
 // Max number of concession reply messages
 
-//#define CON_HINTS															// Un/Comment to support concession hints
+// #define CON_HINTS                                                                                                                    // Un/Comment to support concession hints
 
-#define MAXACTORS               150                             // max number of nazis, etc / map
-#define MAXSTATS                400                             // max number of lamps, bonus, etc
-#define MAXDOORS                64                              // max number of sliding doors
-#define MAXCONCESSIONS          15                              // max number of concession machines
-#define MAXWALLTILES    		  64                              // max number of wall tiles
-#define MAXEAWALLS		  		  12										 // max electro-alien wall sockets
-
-
+#define MAXACTORS 150 // max number of nazis, etc / map
+#define MAXSTATS 400 // max number of lamps, bonus, etc
+#define MAXDOORS 64 // max number of sliding doors
+#define MAXCONCESSIONS 15 // max number of concession machines
+#define MAXWALLTILES 64 // max number of wall tiles
+#define MAXEAWALLS 12 // max electro-alien wall sockets
 
 
-#define GS_NEEDCOORD				  0
-#define GS_FIRSTTIME				  1
-#define GS_COORDFOUND           2
-#define GS_NO_MORE				  3
 
-#define GOLDIE_MAX_SPAWNS		  10										 // Max Number of spawn points for Goldstern
-#define MIN_GOLDIE_FIRST_WAIT	  (5*60)									 // Min wait time for FIRST goldstern (5 Secs)
-#define MAX_GOLDIE_FIRST_WAIT	  (15*60)								 // Max wait time for FIRST goldstern (15 Secs)
-#define MIN_GOLDIE_WAIT			  (30*60)								 // Min wait time for next goldstern (30 Secs)
-#define MAX_GOLDIE_WAIT			  (4*60*60)								 // Max wait time for next goldstern (4 Mins)
+
+#define GS_NEEDCOORD 0
+#define GS_FIRSTTIME 1
+#define GS_COORDFOUND 2
+#define GS_NO_MORE 3
+
+#define GOLDIE_MAX_SPAWNS 10 // Max Number of spawn points for Goldstern
+#define MIN_GOLDIE_FIRST_WAIT (5 * 60) // Min wait time for FIRST goldstern (5 Secs)
+#define MAX_GOLDIE_FIRST_WAIT (15 * 60) // Max wait time for FIRST goldstern (15 Secs)
+#define MIN_GOLDIE_WAIT (30 * 60) // Min wait time for next goldstern (30 Secs)
+#define MAX_GOLDIE_WAIT (4 * 60 * 60) // Max wait time for next goldstern (4 Mins)
 
 
 
@@ -256,305 +258,305 @@ void jsprintf(char *msg, ...);
 // tile constants
 //
 
-#define ICONARROWS              	90
-#define PUSHABLETILE    			98
-#define EXITTILE                	99                              // at end of castle
-#define AREATILE                	108                             // first of NUMAREAS floor tiles
-#define HIDDENAREATILE			  	162										 // first of hidden floor tiles
-#define NUMAREAS                	45
-#define DOORTRIGGERTILE				158
+#define ICONARROWS 90
+#define PUSHABLETILE 98
+#define EXITTILE 99 // at end of castle
+#define AREATILE 108 // first of NUMAREAS floor tiles
+#define HIDDENAREATILE 162 // first of hidden floor tiles
+#define NUMAREAS 45
+#define DOORTRIGGERTILE 158
 
 #ifdef BSTONE_PS
-#define SMART_OFF_TRIGGER			159
-#define SMART_ON_TRIGGER			160
+#define SMART_OFF_TRIGGER 159
+#define SMART_ON_TRIGGER 160
 #endif
 
-#define ELEVATORTILE2				27										 // Space Will Switch
-#define TRANSPORTERTILE    	  	21
-#define DIRECTTRANSPORTTILE		32										 // Wall to use on direct level transporters
-#define SODATILE					 	15
-#define TERMINALTILE				  	17
-#define FOODTILE					 	18
-#define AMBUSHTILE              	106
+#define ELEVATORTILE2 27 // Space Will Switch
+#define TRANSPORTERTILE 21
+#define DIRECTTRANSPORTTILE 32 // Wall to use on direct level transporters
+#define SODATILE 15
+#define TERMINALTILE 17
+#define FOODTILE 18
+#define AMBUSHTILE 106
 
 #ifdef BSTONE_PS
-#define RKEY_TILE        			72
-#define YKEY_TILE        			73
-#define BKEY_TILE        			74
-#define BFG_TILE        			75
-#define ION_TILE        			76
-#define DETONATOR_TILE    			77
-#define CLOAK_TILE    				78
-#define LINC_TILE    				79
-#define CLOAK_AMBUSH_TILE			80
+#define RKEY_TILE 72
+#define YKEY_TILE 73
+#define BKEY_TILE 74
+#define BFG_TILE 75
+#define ION_TILE 76
+#define DETONATOR_TILE 77
+#define CLOAK_TILE 78
+#define LINC_TILE 79
+#define CLOAK_AMBUSH_TILE 80
 #endif
 
-#define EATILE							24
-#define ON_SWITCH						45										// ON Wall Switch -
-#define OFF_SWITCH					57										// OFF Wall Switch -
-#define WINTIGGERTILE				157									// Win Tile
-#define NUMBERCHARS     			9
+#define EATILE 24
+#define ON_SWITCH 45 // ON Wall Switch -
+#define OFF_SWITCH 57 // OFF Wall Switch -
+#define WINTIGGERTILE 157 // Win Tile
+#define NUMBERCHARS 9
 
-#define START_TEXTURES				125									// Start of Textures - (Also LAST_WALL_TILE NUM)
-#define NUM_TILES	(PMSpriteStart)
-
-
-//----------------
-
-#define EXTRAPOINTS             400000
-
-#define MAX_EXTRA_LIVES			  4
-
-#define PLAYERSPEED             3000
-#define RUNSPEED                6000
-
-#define SCREENSEG               0xa000
-
-#define SCREENBWIDE             80
-
-#define HEIGHTRATIO             0.41
-#define TOP_STRIP_HEIGHT		  16							// Pix height of top strip.
-
-//#define BORDERCOLOR     116
-#define FLASHCOLOR      5
-#define FLASHTICS       4
+#define START_TEXTURES 125 // Start of Textures - (Also LAST_WALL_TILE NUM)
+#define NUM_TILES (PMSpriteStart)
 
 
-#define PLAYERSIZE      MINDIST                 // player radius
-#define MINACTORDIST    0x10000l                // minimum dist from player center
-																// to any actor center
+// ----------------
 
-#define NUMLATCHPICS    100
+#define EXTRAPOINTS 400000
 
+#define MAX_EXTRA_LIVES 4
 
-#define PI      			3.141592657
+#define PLAYERSPEED 3000
+#define RUNSPEED 6000
 
-#define GLOBAL1         (1l<<16)
-#define TILEGLOBAL  		GLOBAL1
-#define PIXGLOBAL       (GLOBAL1/64)
-#define TILESHIFT       16l
-#define UNSIGNEDSHIFT   8
+#define SCREENSEG 0xa000
 
-#define ANGLES          360                                     // must be divisable by 4
-#define ANGLEQUAD       (ANGLES/4)
-#define FINEANGLES      3600
-#define ANG90           (FINEANGLES/4)
-#define ANG180          (ANG90*2)
-#define ANG270          (ANG90*3)
-#define ANG360          (ANG90*4)
-#define VANG90          (ANGLES/4)
-#define VANG180         (VANG90*2)
-#define VANG270         (VANG90*3)
-#define VANG360         (VANG90*4)
+#define SCREENBWIDE 80
 
-#define MINDIST         (0x5800l)
+#define HEIGHTRATIO 0.41
+#define TOP_STRIP_HEIGHT 16 // Pix height of top strip.
 
-#define MAX_WVIEW_DIST	(44)								// Max wrap_view dist in TILES	
+// #define BORDERCOLOR     116
+#define FLASHCOLOR 5
+#define FLASHTICS 4
 
 
+#define PLAYERSIZE MINDIST // player radius
+#define MINACTORDIST 0x10000l // minimum dist from player center
+// to any actor center
 
-#define MAXSCALEHEIGHT  256                        // largest scale on largest view
-#define MAXVIEWWIDTH    320
-
-#define MAPSIZE         64                                      // maps are 64*64 max
-#define NORTH   0
-#define EAST    1
-#define SOUTH   2
-#define WEST    3
+#define NUMLATCHPICS 100
 
 
-#define STATUSLINES             48
+#define PI 3.141592657
 
-#define SCREENSIZE              (SCREENBWIDE*208)
-#define PAGE1START              0
-#define PAGE2START              (SCREENSIZE)
-#define PAGE3START              (SCREENSIZE*2u)
-#define FREESTART               (SCREENSIZE*3u)
+#define GLOBAL1 (1l << 16)
+#define TILEGLOBAL GLOBAL1
+#define PIXGLOBAL (GLOBAL1 / 64)
+#define TILESHIFT 16l
+#define UNSIGNEDSHIFT 8
+
+#define ANGLES 360 // must be divisable by 4
+#define ANGLEQUAD (ANGLES / 4)
+#define FINEANGLES 3600
+#define ANG90 (FINEANGLES / 4)
+#define ANG180 (ANG90 * 2)
+#define ANG270 (ANG90 * 3)
+#define ANG360 (ANG90 * 4)
+#define VANG90 (ANGLES / 4)
+#define VANG180 (VANG90 * 2)
+#define VANG270 (VANG90 * 3)
+#define VANG360 (VANG90 * 4)
+
+#define MINDIST (0x5800l)
+
+#define MAX_WVIEW_DIST (44) // Max wrap_view dist in TILES
 
 
-#define PIXRADIUS               512
 
-#define STARTAMMO               8
+#define MAXSCALEHEIGHT 256 // largest scale on largest view
+#define MAXVIEWWIDTH 320
+
+#define MAPSIZE 64 // maps are 64*64 max
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
+
+
+#define STATUSLINES 48
+
+#define SCREENSIZE (SCREENBWIDE * 208)
+#define PAGE1START 0
+#define PAGE2START (SCREENSIZE)
+#define PAGE3START (SCREENSIZE * 2u)
+#define FREESTART (SCREENSIZE * 3u)
+
+
+#define PIXRADIUS 512
+
+#define STARTAMMO 8
 
 // Token Definations
 
-#define MAX_TOKENS					25
+#define MAX_TOKENS 25
 
 
 
 // Ammo/Weapon Definations
 
-//#define NUM_AMMO_SEGS				42			// 42 Color segments (OR 21 2-Color segs)
-#define MAX_AMMO 						100		// Max ammount of ammo for any weapon
-#define AUTOCHARGE_WAIT				50			// Tics wait time for a full charge
+// #define NUM_AMMO_SEGS                                42                      // 42 Color segments (OR 21 2-Color segs)
+#define MAX_AMMO 100 // Max ammount of ammo for any weapon
+#define AUTOCHARGE_WAIT 50 // Tics wait time for a full charge
 
 #ifdef BSTONE_PS
-#define MAX_PLASMA_DETONATORS		100		// Max number of Plasma Detonators	 
-#define PLASMA_DETONATORS_DELAY	60*4		// Number of tics before plasma detonator explodes
+#define MAX_PLASMA_DETONATORS 100 // Max number of Plasma Detonators
+#define PLASMA_DETONATORS_DELAY 60 * 4 // Number of tics before plasma detonator explodes
 #endif
 
 
 
 // gamestate.flags flag values
 
-#define GS_HEARTB_SOUND				0x0001
+#define GS_HEARTB_SOUND 0x0001
 
 #ifdef CEILING_FLOOR_COLORS
-#define GS_DRAW_CEILING      		0x0002
+#define GS_DRAW_CEILING 0x0002
 #endif
 
-#define GS_CLIP_WALLS				0x0004
+#define GS_CLIP_WALLS 0x0004
 
 #ifdef CEILING_FLOOR_COLORS
-#define GS_DRAW_FLOOR				0x0008
+#define GS_DRAW_FLOOR 0x0008
 #endif
 
-#define GS_VIRGIN_LEVEL				0x0010
-#define GS_CHECK_STATS_BONUS		0x0020
-#define GS_ATTACK_INFOAREA			0x0040
-#define GS_KILL_INF_WARN			0x0080
-#define GS_SHOW_OVERHEAD			0x0100
-#define GS_BAD_DIZ_FILE				0x0200
-#define GS_MUSIC_TEST				0x0400
-#define GS_LIGHTING					0x0800
-#define GS_TICS_FOR_SCORE			0x1000
-#define GS_NOWAIT						0x2000
-#define GS_STARTLEVEL				0x4000
-#define GS_QUICKRUN					0x8000
+#define GS_VIRGIN_LEVEL 0x0010
+#define GS_CHECK_STATS_BONUS 0x0020
+#define GS_ATTACK_INFOAREA 0x0040
+#define GS_KILL_INF_WARN 0x0080
+#define GS_SHOW_OVERHEAD 0x0100
+#define GS_BAD_DIZ_FILE 0x0200
+#define GS_MUSIC_TEST 0x0400
+#define GS_LIGHTING 0x0800
+#define GS_TICS_FOR_SCORE 0x1000
+#define GS_NOWAIT 0x2000
+#define GS_STARTLEVEL 0x4000
+#define GS_QUICKRUN 0x8000
 
 // object flag values - Oh Shit Longs!
 
-#define FL_SHOOTABLE    				0x00000001
-#define FL_BONUS        	        	0x00000002
-#define FL_NEVERMARK  	  				0x00000004
-#define FL_VISABLE            		0x00000008
-#define FL_ATTACKMODE   				0x00000010
-#define FL_FIRSTATTACK  				0x00000020
-#define FL_AMBUSH       	        	0x00000040
-#define FL_NONMARK    	          	0x00000080
-#define FL_SOLID							0x00000100
-#define FL_STATIONARY					0x00000200
-#define FL_FRIENDLY						0x00000400
-#define FL_DEADGUY						0x00000800
-#define FL_RUNAWAY						0x00001000
-#define FL_RUNTOSTATIC					0x00002000
-#define FL_OFFSET_STATES				0x00004000
-#define FL_INFORMANT						0x00008000
-#define FL_INTERROGATED					0x00010000
-#define FL_RANDOM_TURN					0x00020000
-#define FL_NO_SLIDE						0x00040000
-#define FL_MUST_ATTACK					0x00080000
-#define FL_ALERTED						0x00100000
-#define FL_FREEZE							0x00200000
-#define FL_HAS_AMMO						0x00400000
-#define FL_PROJ_TRANSPARENT			0x00800000
-#define FL_PROJ_CHECK_TRANSPARENT	0x01000000
-#define FL_HAS_TOKENS					0x02000000
-#define FL_LOCKED_STATE					0x04000000
-#define FL_BARRIER						0x08000000
-#define FL_SHOOTMODE						0x10000000
-#define FL_SLIDE_INIT					0x20000000
-#define FL_STORED_OBJPTR				0x40000000
-#define FL_FAKE_STATIC					0x80000000
+#define FL_SHOOTABLE 0x00000001
+#define FL_BONUS 0x00000002
+#define FL_NEVERMARK 0x00000004
+#define FL_VISABLE 0x00000008
+#define FL_ATTACKMODE 0x00000010
+#define FL_FIRSTATTACK 0x00000020
+#define FL_AMBUSH 0x00000040
+#define FL_NONMARK 0x00000080
+#define FL_SOLID 0x00000100
+#define FL_STATIONARY 0x00000200
+#define FL_FRIENDLY 0x00000400
+#define FL_DEADGUY 0x00000800
+#define FL_RUNAWAY 0x00001000
+#define FL_RUNTOSTATIC 0x00002000
+#define FL_OFFSET_STATES 0x00004000
+#define FL_INFORMANT 0x00008000
+#define FL_INTERROGATED 0x00010000
+#define FL_RANDOM_TURN 0x00020000
+#define FL_NO_SLIDE 0x00040000
+#define FL_MUST_ATTACK 0x00080000
+#define FL_ALERTED 0x00100000
+#define FL_FREEZE 0x00200000
+#define FL_HAS_AMMO 0x00400000
+#define FL_PROJ_TRANSPARENT 0x00800000
+#define FL_PROJ_CHECK_TRANSPARENT 0x01000000
+#define FL_HAS_TOKENS 0x02000000
+#define FL_LOCKED_STATE 0x04000000
+#define FL_BARRIER 0x08000000
+#define FL_SHOOTMODE 0x10000000
+#define FL_SLIDE_INIT 0x20000000
+#define FL_STORED_OBJPTR 0x40000000
+#define FL_FAKE_STATIC 0x80000000
 
-#define FL_BARRIER_DAMAGE		FL_HAS_TOKENS
+#define FL_BARRIER_DAMAGE FL_HAS_TOKENS
 
 
 // object flags2 values
 
 #ifdef BSTONE_PS
-#define FL2_BFGSHOT_SOLID				0x0001
-#define FL2_BFG_SHOOTABLE				0x0002
+#define FL2_BFGSHOT_SOLID 0x0001
+#define FL2_BFG_SHOOTABLE 0x0002
 #endif
 
-#define FL2_NOTGUNSHOOTABLE			0x0004
-#define FL2_SCARED          			0x0008
-#define FL2_DROP_RKEY					0x0010
-#define FL2_DROP_YKEY               0x0020
-#define FL2_DROP_BKEY               0x0040
+#define FL2_NOTGUNSHOOTABLE 0x0004
+#define FL2_SCARED 0x0008
+#define FL2_DROP_RKEY 0x0010
+#define FL2_DROP_YKEY 0x0020
+#define FL2_DROP_BKEY 0x0040
 
 #ifdef BSTONE_PS
-#define FL2_DROP_BFG                0x0080
-#define FL2_DROP_ION                0x0100
-#define FL2_DROP_DETONATOR          0x0200
-#define FL2_CLOAKED						0x0400
-#define FL2_LINC							0x0800
-#define FL2_DAMAGE_CLOAK				0x1000
+#define FL2_DROP_BFG 0x0080
+#define FL2_DROP_ION 0x0100
+#define FL2_DROP_DETONATOR 0x0200
+#define FL2_CLOAKED 0x0400
+#define FL2_LINC 0x0800
+#define FL2_DAMAGE_CLOAK 0x1000
 #endif
 
 
 // Run Reason Flags -- Why am I running..Duh..
 
-#define RR_AMMO						0x0001
-#define RR_HEALTH						0x0002
-#define RR_INTERROGATED				0x0004
-#define RR_CASUAL_PICKUP			0x0008
-#define RR_SCARED						0x0010
+#define RR_AMMO 0x0001
+#define RR_HEALTH 0x0002
+#define RR_INTERROGATED 0x0004
+#define RR_CASUAL_PICKUP 0x0008
+#define RR_SCARED 0x0010
 
 // 0xFFxx Special Tile Flags (Flags in MASKED plane of Ted Maps)
 
-#define TF_STARFIELD					0x01
-#define TF_WRAP_VIEW					0x02
+#define TF_STARFIELD 0x01
+#define TF_WRAP_VIEW 0x02
 
 //
 // Concession Machine Types
 
-#define CT_HINT						0x0
-#define CT_FOOD						0x1
-#define CT_BEVS						0x2
+#define CT_HINT 0x0
+#define CT_FOOD 0x1
+#define CT_BEVS 0x2
 
 
 //
 // Radar switches for terminal Floor Cheat
 
-#define RS_GOLDSTERN_TRACKER		0x0001
-#define RS_PERSONNEL_TRACKER		0x0002
-#define RS_SECURITY_STATUS			0x0004
+#define RS_GOLDSTERN_TRACKER 0x0001
+#define RS_PERSONNEL_TRACKER 0x0002
+#define RS_SECURITY_STATUS 0x0004
 
 //
 // Door Flags
 //
-#define	DR_BLASTABLE				0x01
+#define DR_BLASTABLE 0x01
 
 //
 // Smart Trigger Possiblities
 //
-#define ST_TURN_OFF  				0x00
-#define ST_TURN_ON					0x01
-#define ST_TOGGLE						0x02
+#define ST_TURN_OFF 0x00
+#define ST_TURN_ON 0x01
+#define ST_TOGGLE 0x02
 
 
 //
 //
 //
 
-#define LT_GUN_DELAY		gamestate.lastammo_leds
-#define RT_GUN_DELAY 	gamestate.ammo_leds
-#define GUN_TOGGLE		gamestate.ammo
+#define LT_GUN_DELAY gamestate.lastammo_leds
+#define RT_GUN_DELAY gamestate.ammo_leds
+#define GUN_TOGGLE gamestate.ammo
 
 
-#define CANT_SAVE_GAME_TXT " Can't save this game! \n"    	\
-									"    Hard Disk FULL!"
+#define CANT_SAVE_GAME_TXT " Can't save this game! \n" \
+    "    Hard Disk FULL!"
 
 enum ss_type {
-	ss_normal,
-	ss_quick,
-	ss_justcalc
+    ss_normal,
+    ss_quick,
+    ss_justcalc
 }; // enum ss_type
 
 enum cds_io_type {
-		cds_dos_print,
-		cds_id_print,
-		cds_menu_print
+    cds_dos_print,
+    cds_id_print,
+    cds_menu_print
 }; // enum cds_io_type
 
 
 enum sp_type {
-	sp_normal,
-	sp_loading,
-	sp_saving,
-	sp_changeview,
-	sp_teleporting
+    sp_normal,
+    sp_loading,
+    sp_saving,
+    sp_changeview,
+    sp_teleporting
 }; // enum sp_type
 
 //
@@ -3357,150 +3359,150 @@ enum sprite_t {
 
 #if GAME_VERSION == SHAREWARE_VERSION
 enum dummy_sprite_t {
-		SPR_STAT_1=0,
-		SPR_STAT_3=0,
-		SPR_STAT_4=0,
-		SPR_STAT_5=0,
-		SPR_STAT_6=0,
-		SPR_STAT_7=0,
-		SPR_STAT_16=0,
-		SPR_STAT_17=0,
-		SPR_STAT_19=0,
-		SPR_STAT_20=0,
-		SPR_STAT_21=0,
-		SPR_STAT_22=0,
-		SPR_STAT_23=0,
-		SPR_STAT_25=0,
-		SPR_STAT_30=0,
-		SPR_STAT_37=0,
-		SPR_STAT_39=0,
-		SPR_CRATE_2=0,
-		SPR_CRATE_3=0,
-		SPR_STAT_58=0,
-		SPR_STAT_59=0,
-		SPR_STAT_64=0,
-		SPR_STAT_70=0,
-		SPR_STAT_71=0,
-		SPR_STAT_72=0,
-		SPR_STAT_73=0,
-		SPR_STAT_74=0,
-		SPR_STAT_75=0,
-		SPR_STAT_76=0,
+    SPR_STAT_1 = 0,
+    SPR_STAT_3 = 0,
+    SPR_STAT_4 = 0,
+    SPR_STAT_5 = 0,
+    SPR_STAT_6 = 0,
+    SPR_STAT_7 = 0,
+    SPR_STAT_16 = 0,
+    SPR_STAT_17 = 0,
+    SPR_STAT_19 = 0,
+    SPR_STAT_20 = 0,
+    SPR_STAT_21 = 0,
+    SPR_STAT_22 = 0,
+    SPR_STAT_23 = 0,
+    SPR_STAT_25 = 0,
+    SPR_STAT_30 = 0,
+    SPR_STAT_37 = 0,
+    SPR_STAT_39 = 0,
+    SPR_CRATE_2 = 0,
+    SPR_CRATE_3 = 0,
+    SPR_STAT_58 = 0,
+    SPR_STAT_59 = 0,
+    SPR_STAT_64 = 0,
+    SPR_STAT_70 = 0,
+    SPR_STAT_71 = 0,
+    SPR_STAT_72 = 0,
+    SPR_STAT_73 = 0,
+    SPR_STAT_74 = 0,
+    SPR_STAT_75 = 0,
+    SPR_STAT_76 = 0,
 
-		SPR_GSCOUT_W1_1,SPR_GSCOUT_W1_2,SPR_GSCOUT_W1_3,SPR_GSCOUT_W1_4,
-		SPR_GSCOUT_W1_5,SPR_GSCOUT_W1_6,SPR_GSCOUT_W1_7,SPR_GSCOUT_W1_8,
+    SPR_GSCOUT_W1_1, SPR_GSCOUT_W1_2, SPR_GSCOUT_W1_3, SPR_GSCOUT_W1_4,
+    SPR_GSCOUT_W1_5, SPR_GSCOUT_W1_6, SPR_GSCOUT_W1_7, SPR_GSCOUT_W1_8,
 
-		SPR_GSCOUT_W2_1,SPR_GSCOUT_W2_2,SPR_GSCOUT_W2_3,SPR_GSCOUT_W2_4,
-		SPR_GSCOUT_W2_5,SPR_GSCOUT_W2_6,SPR_GSCOUT_W2_7,SPR_GSCOUT_W2_8,
+    SPR_GSCOUT_W2_1, SPR_GSCOUT_W2_2, SPR_GSCOUT_W2_3, SPR_GSCOUT_W2_4,
+    SPR_GSCOUT_W2_5, SPR_GSCOUT_W2_6, SPR_GSCOUT_W2_7, SPR_GSCOUT_W2_8,
 
-		SPR_GSCOUT_W3_1,SPR_GSCOUT_W3_2,SPR_GSCOUT_W3_3,SPR_GSCOUT_W3_4,
-		SPR_GSCOUT_W3_5,SPR_GSCOUT_W3_6,SPR_GSCOUT_W3_7,SPR_GSCOUT_W3_8,
+    SPR_GSCOUT_W3_1, SPR_GSCOUT_W3_2, SPR_GSCOUT_W3_3, SPR_GSCOUT_W3_4,
+    SPR_GSCOUT_W3_5, SPR_GSCOUT_W3_6, SPR_GSCOUT_W3_7, SPR_GSCOUT_W3_8,
 
-		SPR_GSCOUT_W4_1,SPR_GSCOUT_W4_2,SPR_GSCOUT_W4_3,SPR_GSCOUT_W4_4,
-		SPR_GSCOUT_W4_5,SPR_GSCOUT_W4_6,SPR_GSCOUT_W4_7,SPR_GSCOUT_W4_8,
+    SPR_GSCOUT_W4_1, SPR_GSCOUT_W4_2, SPR_GSCOUT_W4_3, SPR_GSCOUT_W4_4,
+    SPR_GSCOUT_W4_5, SPR_GSCOUT_W4_6, SPR_GSCOUT_W4_7, SPR_GSCOUT_W4_8,
 
-		SPR_GSCOUT_DIE1,SPR_GSCOUT_DIE2,SPR_GSCOUT_DIE3,SPR_GSCOUT_DIE4,
-		SPR_GSCOUT_DIE5,SPR_GSCOUT_DIE6,SPR_GSCOUT_DIE7,SPR_GSCOUT_DIE8,
+    SPR_GSCOUT_DIE1, SPR_GSCOUT_DIE2, SPR_GSCOUT_DIE3, SPR_GSCOUT_DIE4,
+    SPR_GSCOUT_DIE5, SPR_GSCOUT_DIE6, SPR_GSCOUT_DIE7, SPR_GSCOUT_DIE8,
 
-		SPR_GSCOUT_DEAD,
+    SPR_GSCOUT_DEAD,
 
-		SPR_FSCOUT_W2_1,SPR_FSCOUT_W2_2,SPR_FSCOUT_W2_3,SPR_FSCOUT_W2_4,
-		SPR_FSCOUT_W2_5,SPR_FSCOUT_W2_6,SPR_FSCOUT_W2_7,SPR_FSCOUT_W2_8,
+    SPR_FSCOUT_W2_1, SPR_FSCOUT_W2_2, SPR_FSCOUT_W2_3, SPR_FSCOUT_W2_4,
+    SPR_FSCOUT_W2_5, SPR_FSCOUT_W2_6, SPR_FSCOUT_W2_7, SPR_FSCOUT_W2_8,
 
-		SPR_FSCOUT_W3_1,SPR_FSCOUT_W3_2,SPR_FSCOUT_W3_3,SPR_FSCOUT_W3_4,
-		SPR_FSCOUT_W3_5,SPR_FSCOUT_W3_6,SPR_FSCOUT_W3_7,SPR_FSCOUT_W3_8,
+    SPR_FSCOUT_W3_1, SPR_FSCOUT_W3_2, SPR_FSCOUT_W3_3, SPR_FSCOUT_W3_4,
+    SPR_FSCOUT_W3_5, SPR_FSCOUT_W3_6, SPR_FSCOUT_W3_7, SPR_FSCOUT_W3_8,
 
-		SPR_FSCOUT_W4_1,SPR_FSCOUT_W4_2,SPR_FSCOUT_W4_3,SPR_FSCOUT_W4_4,
-		SPR_FSCOUT_W4_5,SPR_FSCOUT_W4_6,SPR_FSCOUT_W4_7,SPR_FSCOUT_W4_8,
+    SPR_FSCOUT_W4_1, SPR_FSCOUT_W4_2, SPR_FSCOUT_W4_3, SPR_FSCOUT_W4_4,
+    SPR_FSCOUT_W4_5, SPR_FSCOUT_W4_6, SPR_FSCOUT_W4_7, SPR_FSCOUT_W4_8,
 
-		SPR_VITAL_STAND,
-		SPR_VITAL_DIE_1, SPR_VITAL_DIE_2, SPR_VITAL_DIE_3,SPR_VITAL_DIE_4,
-		SPR_VITAL_DIE_5, SPR_VITAL_DIE_6, SPR_VITAL_DIE_7, SPR_VITAL_DIE_8,
-		SPR_VITAL_DEAD_1,SPR_VITAL_DEAD_2,SPR_VITAL_DEAD_3,
-		SPR_VITAL_OUCH,
+    SPR_VITAL_STAND,
+    SPR_VITAL_DIE_1, SPR_VITAL_DIE_2, SPR_VITAL_DIE_3, SPR_VITAL_DIE_4,
+    SPR_VITAL_DIE_5, SPR_VITAL_DIE_6, SPR_VITAL_DIE_7, SPR_VITAL_DIE_8,
+    SPR_VITAL_DEAD_1, SPR_VITAL_DEAD_2, SPR_VITAL_DEAD_3,
+    SPR_VITAL_OUCH,
 
-		SPR_MUTHUM2_W1,SPR_MUTHUM2_W2,SPR_MUTHUM2_W3,SPR_MUTHUM2_W4,
-		SPR_MUTHUM2_SWING1,SPR_MUTHUM2_SWING2,SPR_MUTHUM2_SWING3,
-		SPR_MUTHUM2_DEAD,
-		SPR_MUTHUM2_DIE1,SPR_MUTHUM2_DIE2,SPR_MUTHUM2_DIE3,SPR_MUTHUM2_DIE4,
-		SPR_MUTHUM2_OUCH,
-		SPR_MUTHUM2_SPIT1,SPR_MUTHUM2_SPIT2,SPR_MUTHUM2_SPIT3,
+    SPR_MUTHUM2_W1, SPR_MUTHUM2_W2, SPR_MUTHUM2_W3, SPR_MUTHUM2_W4,
+    SPR_MUTHUM2_SWING1, SPR_MUTHUM2_SWING2, SPR_MUTHUM2_SWING3,
+    SPR_MUTHUM2_DEAD,
+    SPR_MUTHUM2_DIE1, SPR_MUTHUM2_DIE2, SPR_MUTHUM2_DIE3, SPR_MUTHUM2_DIE4,
+    SPR_MUTHUM2_OUCH,
+    SPR_MUTHUM2_SPIT1, SPR_MUTHUM2_SPIT2, SPR_MUTHUM2_SPIT3,
 
-		SPR_LCAN_ALIEN_READY,SPR_LCAN_ALIEN_B1,SPR_LCAN_ALIEN_B2,
-		SPR_LCAN_ALIEN_B3,SPR_LCAN_ALIEN_EMPTY,
+    SPR_LCAN_ALIEN_READY, SPR_LCAN_ALIEN_B1, SPR_LCAN_ALIEN_B2,
+    SPR_LCAN_ALIEN_B3, SPR_LCAN_ALIEN_EMPTY,
 
-		SPR_LCAN_ALIEN_W1,SPR_LCAN_ALIEN_W2,SPR_LCAN_ALIEN_W3,SPR_LCAN_ALIEN_W4,
-		SPR_LCAN_ALIEN_SWING1,SPR_LCAN_ALIEN_SWING2,SPR_LCAN_ALIEN_SWING3,
-		SPR_LCAN_ALIEN_DEAD,
-		SPR_LCAN_ALIEN_DIE1,SPR_LCAN_ALIEN_DIE2,SPR_LCAN_ALIEN_DIE3,
-		SPR_LCAN_ALIEN_DIE4,SPR_LCAN_ALIEN_OUCH,
-		SPR_LCAN_ALIEN_SPIT1,SPR_LCAN_ALIEN_SPIT2,SPR_LCAN_ALIEN_SPIT3,
+    SPR_LCAN_ALIEN_W1, SPR_LCAN_ALIEN_W2, SPR_LCAN_ALIEN_W3, SPR_LCAN_ALIEN_W4,
+    SPR_LCAN_ALIEN_SWING1, SPR_LCAN_ALIEN_SWING2, SPR_LCAN_ALIEN_SWING3,
+    SPR_LCAN_ALIEN_DEAD,
+    SPR_LCAN_ALIEN_DIE1, SPR_LCAN_ALIEN_DIE2, SPR_LCAN_ALIEN_DIE3,
+    SPR_LCAN_ALIEN_DIE4, SPR_LCAN_ALIEN_OUCH,
+    SPR_LCAN_ALIEN_SPIT1, SPR_LCAN_ALIEN_SPIT2, SPR_LCAN_ALIEN_SPIT3,
 
-		SPR_GURNEY_MUT_READY,SPR_GURNEY_MUT_B1,SPR_GURNEY_MUT_B2,
-		SPR_GURNEY_MUT_B3,SPR_GURNEY_MUT_EMPTY,
+    SPR_GURNEY_MUT_READY, SPR_GURNEY_MUT_B1, SPR_GURNEY_MUT_B2,
+    SPR_GURNEY_MUT_B3, SPR_GURNEY_MUT_EMPTY,
 
-		SPR_GURNEY_MUT_W1,SPR_GURNEY_MUT_W2,SPR_GURNEY_MUT_W3,SPR_GURNEY_MUT_W4,
-		SPR_GURNEY_MUT_SWING1,SPR_GURNEY_MUT_SWING2,SPR_GURNEY_MUT_SWING3,
-		SPR_GURNEY_MUT_DEAD,
-		SPR_GURNEY_MUT_DIE1,SPR_GURNEY_MUT_DIE2,SPR_GURNEY_MUT_DIE3,
-		SPR_GURNEY_MUT_DIE4,SPR_GURNEY_MUT_OUCH,
+    SPR_GURNEY_MUT_W1, SPR_GURNEY_MUT_W2, SPR_GURNEY_MUT_W3, SPR_GURNEY_MUT_W4,
+    SPR_GURNEY_MUT_SWING1, SPR_GURNEY_MUT_SWING2, SPR_GURNEY_MUT_SWING3,
+    SPR_GURNEY_MUT_DEAD,
+    SPR_GURNEY_MUT_DIE1, SPR_GURNEY_MUT_DIE2, SPR_GURNEY_MUT_DIE3,
+    SPR_GURNEY_MUT_DIE4, SPR_GURNEY_MUT_OUCH,
 
-		SPR_LIQUID_M1,SPR_LIQUID_M2,SPR_LIQUID_M3,
-		SPR_LIQUID_R1,SPR_LIQUID_R2,SPR_LIQUID_R3,SPR_LIQUID_R4,
-		SPR_LIQUID_S1,SPR_LIQUID_S2,SPR_LIQUID_S3,
-		SPR_LIQUID_OUCH,
-		SPR_LIQUID_DIE_1,SPR_LIQUID_DIE_2,SPR_LIQUID_DIE_3,SPR_LIQUID_DIE_4,
-		SPR_LIQUID_DEAD,
-		SPR_LIQUID_SHOT_FLY_1,SPR_LIQUID_SHOT_FLY_2,SPR_LIQUID_SHOT_FLY_3,
-		SPR_LIQUID_SHOT_BURST_1,SPR_LIQUID_SHOT_BURST_2,SPR_LIQUID_SHOT_BURST_3,
+    SPR_LIQUID_M1, SPR_LIQUID_M2, SPR_LIQUID_M3,
+    SPR_LIQUID_R1, SPR_LIQUID_R2, SPR_LIQUID_R3, SPR_LIQUID_R4,
+    SPR_LIQUID_S1, SPR_LIQUID_S2, SPR_LIQUID_S3,
+    SPR_LIQUID_OUCH,
+    SPR_LIQUID_DIE_1, SPR_LIQUID_DIE_2, SPR_LIQUID_DIE_3, SPR_LIQUID_DIE_4,
+    SPR_LIQUID_DEAD,
+    SPR_LIQUID_SHOT_FLY_1, SPR_LIQUID_SHOT_FLY_2, SPR_LIQUID_SHOT_FLY_3,
+    SPR_LIQUID_SHOT_BURST_1, SPR_LIQUID_SHOT_BURST_2, SPR_LIQUID_SHOT_BURST_3,
 
-		SPR_GREEN_OOZE1,SPR_GREEN_OOZE2,SPR_GREEN_OOZE3,
-		SPR_BLACK_OOZE1,SPR_BLACK_OOZE2,SPR_BLACK_OOZE3,
+    SPR_GREEN_OOZE1, SPR_GREEN_OOZE2, SPR_GREEN_OOZE3,
+    SPR_BLACK_OOZE1, SPR_BLACK_OOZE2, SPR_BLACK_OOZE3,
 
-		SPR_BOSS2_W1,SPR_BOSS2_W2,SPR_BOSS2_W3,SPR_BOSS2_W4,
-		SPR_BOSS2_SWING1,SPR_BOSS2_SWING2,SPR_BOSS2_SWING3,
-		SPR_BOSS2_DEAD,
-		SPR_BOSS2_DIE1,SPR_BOSS2_DIE2,SPR_BOSS2_DIE3,SPR_BOSS2_DIE4,
-		SPR_BOSS2_OUCH,
-		SPR_BOSS2_SHOOT1,SPR_BOSS2_SHOOT2,SPR_BOSS2_SHOOT3,
-		SPR_BOSS2_PROJ1,SPR_BOSS2_PROJ2,SPR_BOSS2_PROJ3,
-		SPR_BOSS2_EXP1,SPR_BOSS2_EXP2,SPR_BOSS2_EXP3,
+    SPR_BOSS2_W1, SPR_BOSS2_W2, SPR_BOSS2_W3, SPR_BOSS2_W4,
+    SPR_BOSS2_SWING1, SPR_BOSS2_SWING2, SPR_BOSS2_SWING3,
+    SPR_BOSS2_DEAD,
+    SPR_BOSS2_DIE1, SPR_BOSS2_DIE2, SPR_BOSS2_DIE3, SPR_BOSS2_DIE4,
+    SPR_BOSS2_OUCH,
+    SPR_BOSS2_SHOOT1, SPR_BOSS2_SHOOT2, SPR_BOSS2_SHOOT3,
+    SPR_BOSS2_PROJ1, SPR_BOSS2_PROJ2, SPR_BOSS2_PROJ3,
+    SPR_BOSS2_EXP1, SPR_BOSS2_EXP2, SPR_BOSS2_EXP3,
 
-		SPR_BOSS3_W1,SPR_BOSS3_W2,SPR_BOSS3_W3,SPR_BOSS3_W4,
-		SPR_BOSS3_SWING1,SPR_BOSS3_SWING2,SPR_BOSS3_SWING3,
-		SPR_BOSS3_DEAD,
-		SPR_BOSS3_DIE1,SPR_BOSS3_DIE2,SPR_BOSS3_DIE3,SPR_BOSS3_DIE4,
-		SPR_BOSS3_OUCH,
-		SPR_BOSS3_SHOOT1,SPR_BOSS3_SHOOT2,SPR_BOSS3_SHOOT3,
-		SPR_BOSS3_PROJ1,SPR_BOSS3_PROJ2,SPR_BOSS3_PROJ3,
-		SPR_BOSS3_EXP1,SPR_BOSS3_EXP2,SPR_BOSS3_EXP3,
+    SPR_BOSS3_W1, SPR_BOSS3_W2, SPR_BOSS3_W3, SPR_BOSS3_W4,
+    SPR_BOSS3_SWING1, SPR_BOSS3_SWING2, SPR_BOSS3_SWING3,
+    SPR_BOSS3_DEAD,
+    SPR_BOSS3_DIE1, SPR_BOSS3_DIE2, SPR_BOSS3_DIE3, SPR_BOSS3_DIE4,
+    SPR_BOSS3_OUCH,
+    SPR_BOSS3_SHOOT1, SPR_BOSS3_SHOOT2, SPR_BOSS3_SHOOT3,
+    SPR_BOSS3_PROJ1, SPR_BOSS3_PROJ2, SPR_BOSS3_PROJ3,
+    SPR_BOSS3_EXP1, SPR_BOSS3_EXP2, SPR_BOSS3_EXP3,
 
-		SPR_BOSS4_W1,SPR_BOSS4_W2,SPR_BOSS4_W3,SPR_BOSS4_W4,
-		SPR_BOSS4_SWING1,SPR_BOSS4_SWING2,SPR_BOSS4_SWING3,
-		SPR_BOSS4_DEAD,
-		SPR_BOSS4_DIE1,SPR_BOSS4_DIE2,SPR_BOSS4_DIE3,SPR_BOSS4_DIE4,
-		SPR_BOSS4_OUCH,
-		SPR_BOSS4_SHOOT1,SPR_BOSS4_SHOOT2,SPR_BOSS4_SHOOT3,
-		SPR_BOSS4_PROJ1,SPR_BOSS4_PROJ2,SPR_BOSS4_PROJ3,
-		SPR_BOSS4_EXP1,SPR_BOSS4_EXP2,SPR_BOSS4_EXP3,
+    SPR_BOSS4_W1, SPR_BOSS4_W2, SPR_BOSS4_W3, SPR_BOSS4_W4,
+    SPR_BOSS4_SWING1, SPR_BOSS4_SWING2, SPR_BOSS4_SWING3,
+    SPR_BOSS4_DEAD,
+    SPR_BOSS4_DIE1, SPR_BOSS4_DIE2, SPR_BOSS4_DIE3, SPR_BOSS4_DIE4,
+    SPR_BOSS4_OUCH,
+    SPR_BOSS4_SHOOT1, SPR_BOSS4_SHOOT2, SPR_BOSS4_SHOOT3,
+    SPR_BOSS4_PROJ1, SPR_BOSS4_PROJ2, SPR_BOSS4_PROJ3,
+    SPR_BOSS4_EXP1, SPR_BOSS4_EXP2, SPR_BOSS4_EXP3,
 
-		SPR_BOSS5_W1,SPR_BOSS5_W2,SPR_BOSS5_W3,SPR_BOSS5_W4,
-		SPR_BOSS5_SWING1,SPR_BOSS5_SWING2,SPR_BOSS5_SWING3,
-		SPR_BOSS5_DEAD,
-		SPR_BOSS5_DIE1,SPR_BOSS5_DIE2,SPR_BOSS5_DIE3,SPR_BOSS5_DIE4,
-		SPR_BOSS5_OUCH,
-		SPR_BOSS5_SHOOT1,SPR_BOSS5_SHOOT2,SPR_BOSS5_SHOOT3,
-		SPR_BOSS5_PROJ1,SPR_BOSS5_PROJ2,SPR_BOSS5_PROJ3,
-		SPR_BOSS5_EXP1,SPR_BOSS5_EXP2,SPR_BOSS5_EXP3,
+    SPR_BOSS5_W1, SPR_BOSS5_W2, SPR_BOSS5_W3, SPR_BOSS5_W4,
+    SPR_BOSS5_SWING1, SPR_BOSS5_SWING2, SPR_BOSS5_SWING3,
+    SPR_BOSS5_DEAD,
+    SPR_BOSS5_DIE1, SPR_BOSS5_DIE2, SPR_BOSS5_DIE3, SPR_BOSS5_DIE4,
+    SPR_BOSS5_OUCH,
+    SPR_BOSS5_SHOOT1, SPR_BOSS5_SHOOT2, SPR_BOSS5_SHOOT3,
+    SPR_BOSS5_PROJ1, SPR_BOSS5_PROJ2, SPR_BOSS5_PROJ3,
+    SPR_BOSS5_EXP1, SPR_BOSS5_EXP2, SPR_BOSS5_EXP3,
 
-		SPR_BOSS6_W1,SPR_BOSS6_W2,SPR_BOSS6_W3,SPR_BOSS6_W4,
-		SPR_BOSS6_SWING1,SPR_BOSS6_SWING2,SPR_BOSS6_SWING3,
-		SPR_BOSS6_DEAD,
-		SPR_BOSS6_DIE1,SPR_BOSS6_DIE2,SPR_BOSS6_DIE3,SPR_BOSS6_DIE4,
-		SPR_BOSS6_OUCH,
-		SPR_BOSS6_SHOOT1,SPR_BOSS6_SHOOT2,SPR_BOSS6_SHOOT3,
-		SPR_BOSS6_PROJ1,SPR_BOSS6_PROJ2,SPR_BOSS6_PROJ3,
-		SPR_BOSS6_EXP1,SPR_BOSS6_EXP2,SPR_BOSS6_EXP3,
+    SPR_BOSS6_W1, SPR_BOSS6_W2, SPR_BOSS6_W3, SPR_BOSS6_W4,
+    SPR_BOSS6_SWING1, SPR_BOSS6_SWING2, SPR_BOSS6_SWING3,
+    SPR_BOSS6_DEAD,
+    SPR_BOSS6_DIE1, SPR_BOSS6_DIE2, SPR_BOSS6_DIE3, SPR_BOSS6_DIE4,
+    SPR_BOSS6_OUCH,
+    SPR_BOSS6_SHOOT1, SPR_BOSS6_SHOOT2, SPR_BOSS6_SHOOT3,
+    SPR_BOSS6_PROJ1, SPR_BOSS6_PROJ2, SPR_BOSS6_PROJ3,
+    SPR_BOSS6_EXP1, SPR_BOSS6_EXP2, SPR_BOSS6_EXP3,
 }; // enum dummy_sprite_t
 #endif
 
@@ -3509,82 +3511,82 @@ enum dummy_sprite_t {
 //
 
 enum doortype {
-		// LOCKED DOORS
+    // LOCKED DOORS
 
-		L_METAL,
-		L_METAL_SHADE,
+    L_METAL,
+    L_METAL_SHADE,
 
-		L_BIO,
-		L_BIO_SHADE,
+    L_BIO,
+    L_BIO_SHADE,
 
-		L_ELEVATOR,
-		L_ELEVATOR_SHADE,
+    L_ELEVATOR,
+    L_ELEVATOR_SHADE,
 
-      L_SPACE,
-      L_SPACE_SHADE,
+    L_SPACE,
+    L_SPACE_SHADE,
 
-		L_PRISON,
-		L_PRISON_SHADE,
+    L_PRISON,
+    L_PRISON_SHADE,
 
-		L_HIGH_SECURITY,
-		L_HIGH_SECURITY_SHADE,
+    L_HIGH_SECURITY,
+    L_HIGH_SECURITY_SHADE,
 
-		L_ENTER_ONLY,
-		L_ENTER_ONLY_SHADE,
+    L_ENTER_ONLY,
+    L_ENTER_ONLY_SHADE,
 
-		L_HIGH_TECH,
-		L_HIGH_TECH_SHADE,
+    L_HIGH_TECH,
+    L_HIGH_TECH_SHADE,
 
-		// UNLOCKED DOORS
+    // UNLOCKED DOORS
 
 
-		UL_METAL,
-		UL_METAL_SHADE,
+    UL_METAL,
+    UL_METAL_SHADE,
 
-		UL_BIO,
-		UL_BIO_SHADE,
+    UL_BIO,
+    UL_BIO_SHADE,
 
-		UL_ELEVATOR,
-		UL_ELEVATOR_SHADE,
+    UL_ELEVATOR,
+    UL_ELEVATOR_SHADE,
 
-		UL_SPACE,
-		UL_SPACE_SHADE,
+    UL_SPACE,
+    UL_SPACE_SHADE,
 
-		UL_PRISON,
-		UL_PRISON_SHADE,
+    UL_PRISON,
+    UL_PRISON_SHADE,
 
-		UL_HIGH_SECURITY,
-		UL_HIGH_SECURITY_SHADE,
+    UL_HIGH_SECURITY,
+    UL_HIGH_SECURITY_SHADE,
 
-		UL_ENTER_ONLY,
-		UL_ENTER_ONLY_SHADE,
+    UL_ENTER_ONLY,
+    UL_ENTER_ONLY_SHADE,
 
-		UL_HIGH_TECH,
-		UL_HIGH_TECH_SHADE,
+    UL_HIGH_TECH,
+    UL_HIGH_TECH_SHADE,
 
-		// MISC DOORS
+    // MISC DOORS
 
-		NOEXIT,
-		NOEXIT_SHADE,
+    NOEXIT,
+    NOEXIT_SHADE,
 
-		STEEL_JAM,
-		STEEL_JAM_SHADE,
+    STEEL_JAM,
+    STEEL_JAM_SHADE,
 
-		SPACE_JAM,
-		SPACE_JAM_SHADE,
+    SPACE_JAM,
+    SPACE_JAM_SHADE,
 
-		OFFICE_JAM,
-		OFFICE_JAM_SHADE,
+    OFFICE_JAM,
+    OFFICE_JAM_SHADE,
 
-		BIO_JAM,
-		BIO_JAM_SHADE,
+    BIO_JAM,
+    BIO_JAM_SHADE,
 
-		SPACE_JAM_2,
-		SPACE_JAM_2_SHADE,
+    SPACE_JAM_2,
+    SPACE_JAM_2_SHADE,
 
-		// END OF DOOR LIST
+    // END OF DOOR LIST
 
-		NUMDOORTYPES
+    NUMDOORTYPES
 
 
 }; // enum doortype
@@ -3594,144 +3596,140 @@ enum doortype {
 // Breifing types - Note these are ordered to an char array in Breifing().
 //
 
-enum breifing_type
-{
-	BT_LOSE,
-	BT_WIN,
-	BT_INTRO
+enum breifing_type {
+    BT_LOSE,
+    BT_WIN,
+    BT_INTRO
 
 }; // enum breifing_type
 
 // Terminal Messages - These correspond to the order in which they are
-//							  grabbed in VGAGRAPH.BS?.  See BSTONEV.I
+//                                                        grabbed in VGAGRAPH.BS?.  See BSTONEV.I
 //
 
-enum term_msg_type
-{
-	TM_HINT,
-	TM_JAM,
-	TM_HELP,
-	TM_APOGEE,
-	TM_ID,
-	TM_GOOBERS,
-	TM_MIKE,
-	TM_JIM,
-   TM_JERRY,
+enum term_msg_type {
+    TM_HINT,
+    TM_JAM,
+    TM_HELP,
+    TM_APOGEE,
+    TM_ID,
+    TM_GOOBERS,
+    TM_MIKE,
+    TM_JIM,
+    TM_JERRY,
 
-	TM_JOSHUA,
+    TM_JOSHUA,
 
-	TM_STAR,
+    TM_STAR,
 
-	TM_VITALS1,
-	TM_VITALS2,
+    TM_VITALS1,
+    TM_VITALS2,
 
-	TM_DEACTIVATE_TURRET,
-	TM_TURRETS_ACTIVATED,
-	TM_TURRETS_DEACTIVATED,
+    TM_DEACTIVATE_TURRET,
+    TM_TURRETS_ACTIVATED,
+    TM_TURRETS_DEACTIVATED,
 
-	TM_LINK,
-	TM_LINK_OK,
-	TM_LINK_BAD,
+    TM_LINK,
+    TM_LINK_OK,
+    TM_LINK_BAD,
 
-	TM_RADAR_OFF,
-	TM_RADAR_ON,
+    TM_RADAR_OFF,
+    TM_RADAR_ON,
 
-	TM_SOUND_OFF,
-	TM_SOUND_ON,
+    TM_SOUND_OFF,
+    TM_SOUND_ON,
 
-	TM_GOLDSTERN_TRACK_OFF,
-	TM_GOLDSTERN_TRACK_ON,
-	TM_GOLDSTERN_ARRIVED,
-	TM_GOLDSTERN_WILL_AR,
-	TM_GOLDSTERN_NO_PICK,
-	TM_GOLDSTERN_NO_INFO,
+    TM_GOLDSTERN_TRACK_OFF,
+    TM_GOLDSTERN_TRACK_ON,
+    TM_GOLDSTERN_ARRIVED,
+    TM_GOLDSTERN_WILL_AR,
+    TM_GOLDSTERN_NO_PICK,
+    TM_GOLDSTERN_NO_INFO,
 
-	TM_RESET_SECURITY,
-	TM_SECURITY_STATUS_OFF,
-	TM_SECURITY_STATUS_ON,
+    TM_RESET_SECURITY,
+    TM_SECURITY_STATUS_OFF,
+    TM_SECURITY_STATUS_ON,
 
-	TM_TURRET_DEACTIVATE_BAD,
-	TM_TURRET_DEACTIVATE_GOOD,
+    TM_TURRET_DEACTIVATE_BAD,
+    TM_TURRET_DEACTIVATE_GOOD,
 
-	TM_UNRECOGNIZED_COMMAND,
-	TM_READY,
-	TM_RETURN,
-	TM_SECONDS,
-	TM_CHEATER,
-	TM_BLUEPRINTS,
+    TM_UNRECOGNIZED_COMMAND,
+    TM_READY,
+    TM_RETURN,
+    TM_SECONDS,
+    TM_CHEATER,
+    TM_BLUEPRINTS,
 
-	TM_PROFILE_WHO,
-	TM_PROFILE_SARA,
-	TM_PROFILE_BLAKE,
-	TM_PROFILE_GOLDSTERN,
-	TM_PROFILE_UNKNOWN,
-	TM_DEACTIVATE_SOCKETS,
-	TM_ACTIVATE_SOCKETS,
-	TM_UNABLE_TO_PERFORM,
-	TM_NO_SOCKETS,
-	TM_ALREADY_ACTIVATED,
-	TM_ALREADY_DEACTIVATED,
-	TM_LAST
+    TM_PROFILE_WHO,
+    TM_PROFILE_SARA,
+    TM_PROFILE_BLAKE,
+    TM_PROFILE_GOLDSTERN,
+    TM_PROFILE_UNKNOWN,
+    TM_DEACTIVATE_SOCKETS,
+    TM_ACTIVATE_SOCKETS,
+    TM_UNABLE_TO_PERFORM,
+    TM_NO_SOCKETS,
+    TM_ALREADY_ACTIVATED,
+    TM_ALREADY_DEACTIVATED,
+    TM_LAST
 }; // enum term_msg_type
 
 // Terminal Commands - The first set of commands TC_HINT - TC_end_of_1to1
-//							  are directly mapped 1 to 1 to the terminal msgs.
+//                                                        are directly mapped 1 to 1 to the terminal msgs.
 //
 
-enum term_cmd_type
-{
-	TC_HINT,
-	TC_JAM,
-	TC_HELP,
-	TC_APOGEE,
-	TC_THANKS,
-	TC_GOOBERS,
-	TC_MIKE,
-	TC_JIM,
-	TC_JERRY,			
+enum term_cmd_type {
+    TC_HINT,
+    TC_JAM,
+    TC_HELP,
+    TC_APOGEE,
+    TC_THANKS,
+    TC_GOOBERS,
+    TC_MIKE,
+    TC_JIM,
+    TC_JERRY,
 
-	// END OF ONE TO ONE LIST
+    // END OF ONE TO ONE LIST
 
-	TC_JOSHUA,
-	TC_STAR,
-	TC_BLUEPRINT,
-	TC_EXIT,
-	TC_QUIT,
-	TC_OFF,
-	TC_BYE,
-	TC_DISPLAY_PERSONNEL,
-	TC_SOUND,
-	TC_DISPLAY_GOLDSTERN,
-	TC_ARRIVAL_GOLDSTERN,
-	TC_DEACTIVATE_SECURITY,
-	TC_DISPLAY_SECURITY,
-	TC_SATALITE_STATUS,
-	TC_DEACTIVATE_TURRETS,
-	TC_TURRET_STATUS,
-	TC_PROFILE,
-	TC_SSTONE,
-	TC_BSTONE,
-	TC_GOLDSTERN,
-	TC_DEACTIVATE_SOCKETS,
-	TC_ACTIVATE_SOCKETS,
+    TC_JOSHUA,
+    TC_STAR,
+    TC_BLUEPRINT,
+    TC_EXIT,
+    TC_QUIT,
+    TC_OFF,
+    TC_BYE,
+    TC_DISPLAY_PERSONNEL,
+    TC_SOUND,
+    TC_DISPLAY_GOLDSTERN,
+    TC_ARRIVAL_GOLDSTERN,
+    TC_DEACTIVATE_SECURITY,
+    TC_DISPLAY_SECURITY,
+    TC_SATALITE_STATUS,
+    TC_DEACTIVATE_TURRETS,
+    TC_TURRET_STATUS,
+    TC_PROFILE,
+    TC_SSTONE,
+    TC_BSTONE,
+    TC_GOLDSTERN,
+    TC_DEACTIVATE_SOCKETS,
+    TC_ACTIVATE_SOCKETS,
 
-	TC_LAST
+    TC_LAST
 }; // enum term_cmd_type
 
 //
 // Barrier State Transistions
 //
 
-enum barrier_state_type
-{
-   bt_OFF,
-	bt_ON,
-   bt_DISABLING,
-   bt_DISABLED,
+enum barrier_state_type {
+    bt_OFF,
+    bt_ON,
+    bt_DISABLING,
+    bt_DISABLED,
 
 #ifdef BSTONE_PS
-   bt_OPENING,				// For physical barriers
-   bt_CLOSING				//	      " " "
+    bt_OPENING,                         // For physical barriers
+    bt_CLOSING                          //            " " "
 #endif
 }; // enum barrier_state_type
 
@@ -3740,7 +3738,7 @@ enum barrier_state_type
 /*
 =============================================================================
 
-							GLOBAL TYPES
+                                                        GLOBAL TYPES
 
 =============================================================================
 */
@@ -3750,195 +3748,194 @@ typedef Sint32 fixed;
 // Display priority is determined by the order of these bits!
 // And, this order must match the PinballBonus table in AGENT.C!
 //
-#define B_GALIEN_DESTROYED		0x0001
-#define B_SCORE_ROLLED			0x0002
-#define B_ONE_MILLION			0x0004
-#define B_EXTRA_MAN				0x0008
-#define B_ENEMY_DESTROYED		0x0010
-#define B_TOTAL_POINTS			0x0020
-#define B_INFORMANTS_ALIVE		0x0040
+#define B_GALIEN_DESTROYED 0x0001
+#define B_SCORE_ROLLED 0x0002
+#define B_ONE_MILLION 0x0004
+#define B_EXTRA_MAN 0x0008
+#define B_ENEMY_DESTROYED 0x0010
+#define B_TOTAL_POINTS 0x0020
+#define B_INFORMANTS_ALIVE 0x0040
 
 #define BONUS_QUEUE gamestuff.level[gamestate.mapon].bonus_queue
 #define BONUS_SHOWN gamestuff.level[gamestate.mapon].bonus_shown
 
-#define PinballBonusShown(bonus)		(BONUS_SHOWN & bonus)
-#define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus)) BONUS_QUEUE |= bonus
+#define PinballBonusShown(bonus) (BONUS_SHOWN & bonus)
+#define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus))BONUS_QUEUE |= bonus
 
 struct PinballBonusInfo {
-	char* BonusText;			// REBA text pointer
-	Sint32 Points;					// Score for this bonus
-	boolean Recurring;			// Appear multiple times in a single level?
-	void  (*func)();			// Code to execute when you get this bonus.
+    char* BonusText;                            // REBA text pointer
+    Sint32 Points;                                      // Score for this bonus
+    boolean Recurring;                          // Appear multiple times in a single level?
+    void (* func)();                            // Code to execute when you get this bonus.
 }; // struct PinballBonusInfo
 
-struct atkinf_t
-{
-	char	tics;
-	char  attack;
-	char  frame;		// attack is 1 for gun, 2 for knife
+struct atkinf_t {
+    char tics;
+    char attack;
+    char frame;                 // attack is 1 for gun, 2 for knife
 }; // struct atkinf_t
 
 
 // NOTE - This enum list is ORDERED!
 enum movie_t {
-	mv_intro,
-	mv_final,
+    mv_intro,
+    mv_final,
 #ifdef BSTONE_AOG
     mv_final2, // Episode 3/5
     mv_final3, // Episode 6
 #endif
-	mv_NUM_MOVIES
+    mv_NUM_MOVIES
 }; // enum movie_t
 
 enum controldir_t {
-	di_north,
-	di_east,
-	di_south,
-	di_west
+    di_north,
+    di_east,
+    di_south,
+    di_west
 }; // enum controldir_t
 
 // NOTE - This enum list is ORDERED!
 enum door_t {
-	dr_bio,
-	dr_normal,
-	dr_prison,
-	dr_elevator,
-	dr_high_security,
-	dr_office,
-	dr_oneway_left,
-	dr_oneway_up,
-	dr_oneway_right,
-	dr_oneway_down,
-   dr_space
+    dr_bio,
+    dr_normal,
+    dr_prison,
+    dr_elevator,
+    dr_high_security,
+    dr_office,
+    dr_oneway_left,
+    dr_oneway_up,
+    dr_oneway_right,
+    dr_oneway_down,
+    dr_space
 }; // enum door_t
 
 enum keytype {
-	kt_none =-1,
-	kt_red,
-	kt_yellow,
-	kt_blue,
+    kt_none = -1,
+    kt_red,
+    kt_yellow,
+    kt_blue,
 #ifdef BSTONE_AOG
     kt_green,
     kt_gold,
 #endif
-	NUMKEYS
+    NUMKEYS
 }; // enum keytype
 
 enum activetype {
-	ac_badobject = -1,
-	ac_no,
-	ac_yes,
-	ac_allways
+    ac_badobject = -1,
+    ac_no,
+    ac_yes,
+    ac_allways
 }; // enum activetype
 
 enum classtype {
-	nothing,
-	playerobj,
-	inertobj,
-	fixup_inertobj,
-	deadobj,
+    nothing,
+    playerobj,
+    inertobj,
+    fixup_inertobj,
+    deadobj,
 
 
-   // BEGIN - Start of ordered list for ActorInfoMsg[] for attacking
-   //         actor REBA messages
+    // BEGIN - Start of ordered list for ActorInfoMsg[] for attacking
+    //         actor REBA messages
 
-	rentacopobj,
-	hang_terrotobj,
-	gen_scientistobj,
-	podobj,
-	electroobj,
-	electrosphereobj,
-	proguardobj,
-	genetic_guardobj,
-	mutant_human1obj,
-	mutant_human2obj,
-	lcan_wait_alienobj,
-	lcan_alienobj,
-	scan_wait_alienobj,
-	scan_alienobj,
-	gurney_waitobj,
-	gurneyobj,
-	liquidobj,
-	swatobj,
-	goldsternobj,
-	gold_morphobj,
-	volatiletransportobj,
-	floatingbombobj,
-	rotating_cubeobj,
+    rentacopobj,
+    hang_terrotobj,
+    gen_scientistobj,
+    podobj,
+    electroobj,
+    electrosphereobj,
+    proguardobj,
+    genetic_guardobj,
+    mutant_human1obj,
+    mutant_human2obj,
+    lcan_wait_alienobj,
+    lcan_alienobj,
+    scan_wait_alienobj,
+    scan_alienobj,
+    gurney_waitobj,
+    gurneyobj,
+    liquidobj,
+    swatobj,
+    goldsternobj,
+    gold_morphobj,
+    volatiletransportobj,
+    floatingbombobj,
+    rotating_cubeobj,
 
-	spider_mutantobj,
-	breather_beastobj,
-	cyborg_warriorobj,
-	reptilian_warriorobj,
-	acid_dragonobj,
-	mech_guardianobj,
+    spider_mutantobj,
+    breather_beastobj,
+    cyborg_warriorobj,
+    reptilian_warriorobj,
+    acid_dragonobj,
+    mech_guardianobj,
 
-   final_boss1obj,
-   final_boss2obj,
-   final_boss3obj,
-   final_boss4obj,
+    final_boss1obj,
+    final_boss2obj,
+    final_boss3obj,
+    final_boss4obj,
 
-	blakeobj,
+    blakeobj,
 
-	crate1obj,
-	crate2obj,
-	crate3obj,
+    crate1obj,
+    crate2obj,
+    crate3obj,
 
-	green_oozeobj,
-	black_oozeobj,
-	green2_oozeobj,
-	black2_oozeobj,
-	podeggobj,
+    green_oozeobj,
+    black_oozeobj,
+    green2_oozeobj,
+    black2_oozeobj,
+    podeggobj,
 
-   morphing_spider_mutantobj,
-   morphing_reptilian_warriorobj,
-   morphing_mutanthuman2obj,
+    morphing_spider_mutantobj,
+    morphing_reptilian_warriorobj,
+    morphing_mutanthuman2obj,
 
-	SPACER1_OBJ,
-	electroshotobj,			// NON-HITPOINT objects...
-	post_barrierobj,
-	arc_barrierobj,
-	vpost_barrierobj,
-	vspike_barrierobj,
-   goldmorphshotobj,
+    SPACER1_OBJ,
+    electroshotobj,                     // NON-HITPOINT objects...
+    post_barrierobj,
+    arc_barrierobj,
+    vpost_barrierobj,
+    vspike_barrierobj,
+    goldmorphshotobj,
 
-	security_lightobj,
-	explosionobj,
-	steamgrateobj,
-	steampipeobj,
+    security_lightobj,
+    explosionobj,
+    steamgrateobj,
+    steampipeobj,
 
-	liquidshotobj,
+    liquidshotobj,
 
-	lcanshotobj,
-	podshotobj,
-	scanshotobj,
-	dogshotobj,
-	mut_hum1shotobj,
+    lcanshotobj,
+    podshotobj,
+    scanshotobj,
+    dogshotobj,
+    mut_hum1shotobj,
 
-	ventdripobj,
-	playerspshotobj,
-	flickerlightobj,
+    ventdripobj,
+    playerspshotobj,
+    flickerlightobj,
 
-	plasma_detonatorobj,
-	plasma_detonator_reserveobj,
+    plasma_detonatorobj,
+    plasma_detonator_reserveobj,
 
-	grenadeobj,
-	bfg_shotobj,
-	bfg_explosionobj,
-	pd_explosionobj,
+    grenadeobj,
+    bfg_shotobj,
+    bfg_explosionobj,
+    pd_explosionobj,
 
-	spider_mutantshotobj,
-	breather_beastshotobj,
-	cyborg_warriorshotobj,
-	reptilian_warriorshotobj,
-	acid_dragonshotobj,
-	mech_guardianshotobj,
-	final_boss2shotobj,
-	final_boss4shotobj,
+    spider_mutantshotobj,
+    breather_beastshotobj,
+    cyborg_warriorshotobj,
+    reptilian_warriorshotobj,
+    acid_dragonshotobj,
+    mech_guardianshotobj,
+    final_boss2shotobj,
+    final_boss4shotobj,
 
-	doorexplodeobj,    			         	// Door explosion_anim acto
-	gr_explosionobj,
-	gold_morphingobj
+    doorexplodeobj,                                             // Door explosion_anim acto
+    gr_explosionobj,
+    gold_morphingobj
 
 }; // enum classtype
 
@@ -3955,81 +3952,81 @@ inline classtype operator++(
 
 //
 // NOTE: When adding bonus objects - Make sure that they are added
-//	-----	at the bottom of the list or that BonusMsg[] is correctly
-//			updated.
+//      -----   at the bottom of the list or that BonusMsg[] is correctly
+//                      updated.
 //
 
 enum stat_t {
-	dressing,
+    dressing,
 
-	bo_red_key,
-	bo_yellow_key,
-	bo_blue_key,
+    bo_red_key,
+    bo_yellow_key,
+    bo_blue_key,
 
-	bo_clip,
-	bo_clip2,
-	bo_pistol,
-	bo_burst_rifle,
-	bo_ion_cannon,
-	bo_grenade,
-   bo_bfg_cannon,	 
+    bo_clip,
+    bo_clip2,
+    bo_pistol,
+    bo_burst_rifle,
+    bo_ion_cannon,
+    bo_grenade,
+    bo_bfg_cannon,
 
-   // START of Bonus Health Ordered list
+    // START of Bonus Health Ordered list
 
-	bo_fullheal,
-	bo_firstaid,
-	bo_ham,
-	bo_chicken,
-	bo_sandwich,
-	bo_candybar,
-	bo_water,
-	bo_water_puddle,
+    bo_fullheal,
+    bo_firstaid,
+    bo_ham,
+    bo_chicken,
+    bo_sandwich,
+    bo_candybar,
+    bo_water,
+    bo_water_puddle,
 
-   // END of ordered ...
+    // END of ordered ...
 
-	bo_money_bag,
-	bo_loot,
+    bo_money_bag,
+    bo_loot,
 
-   bo_gold1,
-   bo_gold2,
-   bo_gold3,
+    bo_gold1,
+    bo_gold2,
+    bo_gold3,
 
-	bo_gold,
-	bo_bonus,
+    bo_gold,
+    bo_bonus,
 
-	bo_plainvent,
-	bo_bloodvent,
-	bo_watervent,
+    bo_plainvent,
+    bo_bloodvent,
+    bo_watervent,
 
-	bo_coin,
-	bo_coin5,
+    bo_coin,
+    bo_coin5,
 
-	bo_plasma_detonator,				  
-	bo_automapper1,
+    bo_plasma_detonator,
+    bo_automapper1,
 
-	bo_nothing,
+    bo_nothing,
 
-	block,
+    block,
 
     bo_green_key,
     bo_gold_key
 }; // enum stat_t
 
 struct stattype {
-	Sint16		picnum;
-	stat_t	type;
+    Sint16 picnum;
+    stat_t type;
 }; // struct stattype
 
 enum dirtype {
-	east,
-	northeast,
-	north,
-	northwest,
-	west,
-	southwest,
-	south,
-	southeast,
-	nodir
+    east,
+    northeast,
+    north,
+    northwest,
+    west,
+    southwest,
+    south,
+    southeast,
+    nodir
 }; // enum dirtype
 
 // BBi
@@ -4076,98 +4073,98 @@ inline dirtype operator++(
 }
 
 enum enemy_t {
-	en_rentacop,				// Actors with hitpoints (normal actors)
-	en_hang_terrot,
-	en_gen_scientist,
-	en_pod,
-	en_electro_alien,
-	en_electrosphere,
-	en_proguard,
-	en_genetic_guard,
-	en_mutant_human1,
-	en_mutant_human2,
-	en_lcan_wait_alien,
-	en_lcan_alien,
-	en_scan_wait_alien,
-	en_scan_alien,
-	en_gurney_wait,
-	en_gurney,
-	en_liquid,
-	en_swat,
-	en_goldstern,
-	en_gold_morph,
-	en_volatiletransport,
-	en_floatingbomb,
-	en_rotating_cube,
+    en_rentacop,                                // Actors with hitpoints (normal actors)
+    en_hang_terrot,
+    en_gen_scientist,
+    en_pod,
+    en_electro_alien,
+    en_electrosphere,
+    en_proguard,
+    en_genetic_guard,
+    en_mutant_human1,
+    en_mutant_human2,
+    en_lcan_wait_alien,
+    en_lcan_alien,
+    en_scan_wait_alien,
+    en_scan_alien,
+    en_gurney_wait,
+    en_gurney,
+    en_liquid,
+    en_swat,
+    en_goldstern,
+    en_gold_morph,
+    en_volatiletransport,
+    en_floatingbomb,
+    en_rotating_cube,
 
-	en_spider_mutant,
-	en_breather_beast,
-	en_cyborg_warrior,
-	en_reptilian_warrior,
-	en_acid_dragon,
-	en_mech_guardian,
+    en_spider_mutant,
+    en_breather_beast,
+    en_cyborg_warrior,
+    en_reptilian_warrior,
+    en_acid_dragon,
+    en_mech_guardian,
 
-   en_final_boss1,
-   en_final_boss2,
-   en_final_boss3,
-   en_final_boss4,
+    en_final_boss1,
+    en_final_boss2,
+    en_final_boss3,
+    en_final_boss4,
 
-	en_blake,
+    en_blake,
 
-	en_crate1,
-	en_crate2,
-	en_crate3,
+    en_crate1,
+    en_crate2,
+    en_crate3,
 
-	en_green_ooze,
-	en_black_ooze,
-	en_green2_ooze,
-	en_black2_ooze,
-	en_podegg,
+    en_green_ooze,
+    en_black_ooze,
+    en_green2_ooze,
+    en_black2_ooze,
+    en_podegg,
 
-   en_morphing_spider_mutant,
-   en_morphing_reptilian_warrior,
-   en_morphing_mutanthuman2,
+    en_morphing_spider_mutant,
+    en_morphing_reptilian_warrior,
+    en_morphing_mutanthuman2,
 
-	NUMHITENEMIES,
+    NUMHITENEMIES,
 
-	en_electro_shot,			// Actors WITHOUT hitpoints (abnormal actors?)
-	en_post_barrier,
-	en_arc_barrier,
-	en_vpost_barrier,
-	en_vspike_barrier,
-   en_goldmorphshot,
+    en_electro_shot,                            // Actors WITHOUT hitpoints (abnormal actors?)
+    en_post_barrier,
+    en_arc_barrier,
+    en_vpost_barrier,
+    en_vspike_barrier,
+    en_goldmorphshot,
 
-	en_security_light,
-	en_explosion,
-	en_steamgrate,
-	en_steampipe,
+    en_security_light,
+    en_explosion,
+    en_steamgrate,
+    en_steampipe,
 
-	en_liquidshot,
+    en_liquidshot,
 
-	en_lcanshot,
-	en_podshot,
-	en_scanshot,
-	en_dogshot,
-	en_mut_hum1shot,
+    en_lcanshot,
+    en_podshot,
+    en_scanshot,
+    en_dogshot,
+    en_mut_hum1shot,
 
-	en_ventdrip,
-	en_playerspshotobj,
-	en_flickerlight,
+    en_ventdrip,
+    en_playerspshotobj,
+    en_flickerlight,
 
-	en_plasma_detonator,
-	en_plasma_detonator_reserve,
+    en_plasma_detonator,
+    en_plasma_detonator_reserve,
 
-	en_vertsphere,				// Actor types only used for spawning.
-	en_horzsphere,
-	en_diagsphere,
-	en_bloodvent,
-	en_watervent,
-	NUMENEMIES
+    en_vertsphere,                              // Actor types only used for spawning.
+    en_horzsphere,
+    en_diagsphere,
+    en_bloodvent,
+    en_watervent,
+    NUMENEMIES
 }; // enum enemy_t
 
 
-#define SF_ROTATE		0x01
-#define SF_PAINFRAME	0x02
+#define SF_ROTATE 0x01
+#define SF_PAINFRAME 0x02
 
 
 struct objtype;
@@ -4177,17 +4174,19 @@ struct statetype {
     Uint8 flags;
     Sint16 shapenum; // a shapenum of -1 means get from ob->temp1
     Sint16 tictime;
-    void (*think)(objtype* actor);
-    void (*action)(objtype* actor);
+    void (* think)(
+        objtype* actor);
+    void (* action)(
+        objtype* actor);
     statetype* next;
 }; // struct statetype
 
 
-//---------------------
+// ---------------------
 //
 // trivial actor structure
 //
-//---------------------
+// ---------------------
 
 struct statobj_t {
     Uint8 tilex;
@@ -4209,11 +4208,11 @@ struct statobj_t {
         Uint32& checksum);
 }; // struct statobj_t
 
-//---------------------
+// ---------------------
 //
 // door actor structure
 //
-//---------------------
+// ---------------------
 
 // BBi
 enum DoorAction {
@@ -4245,11 +4244,11 @@ struct doorobj_t {
 }; // struct doorobj_t
 
 
-//--------------------
+// --------------------
 //
 // thinking actor structure
 //
-//--------------------
+// --------------------
 
 struct objtype {
     Uint8 tilex;
@@ -4318,52 +4317,52 @@ struct objtype {
 
 
 enum ButtonState {
-	bt_nobutton=-1,
-	bt_attack=0,
-	bt_strafe,
-	bt_run,
-	bt_use,
-	bt_ready_autocharge,
-	bt_ready_pistol,
-	bt_ready_burst_rifle,
-	bt_ready_ion_cannon,
-	bt_ready_grenade,
-   bt_ready_bfg_cannon,
-   bt_ready_plasma_detonators,
+    bt_nobutton = -1,
+    bt_attack = 0,
+    bt_strafe,
+    bt_run,
+    bt_use,
+    bt_ready_autocharge,
+    bt_ready_pistol,
+    bt_ready_burst_rifle,
+    bt_ready_ion_cannon,
+    bt_ready_grenade,
+    bt_ready_bfg_cannon,
+    bt_ready_plasma_detonators,
 
-   bt_SPACER,
+    bt_SPACER,
 
-   NUMBUTTONS							
+    NUMBUTTONS
 }; // enum ButtonState
 
 
 enum weapontype {
-	wp_autocharge,
-	wp_pistol,
-	wp_burst_rifle,
-	wp_ion_cannon,
-	wp_grenade,
-	wp_bfg_cannon,
-//	wp_plasma_detonators,
+    wp_autocharge,
+    wp_pistol,
+    wp_burst_rifle,
+    wp_ion_cannon,
+    wp_grenade,
+    wp_bfg_cannon,
+//      wp_plasma_detonators,
 
-   wp_SPACER,
-   NUMWEAPONS
+    wp_SPACER,
+    NUMWEAPONS
 }; // enum weapontype
 
 
 
 enum Difficulty {
-	gd_baby,
-	gd_easy,
-	gd_medium,
-	gd_hard
+    gd_baby,
+    gd_easy,
+    gd_medium,
+    gd_hard
 }; // enum Difficulty
 
 
 
 enum backgroundtype {
-	ELEVATOR_BACK,
-	TRANSPORTER_BACK
+    ELEVATOR_BACK,
+    TRANSPORTER_BACK
 }; // enum backgroundtype
 
 
@@ -4385,11 +4384,11 @@ struct tilecoord_t {
         Uint32& checksum);
 }; // struct tilecoord_t
 
-//-----------------------------------
+// -----------------------------------
 //
 // barrier coord/table structure
 //
-//-----------------------------------
+// -----------------------------------
 
 struct barrier_type {
 #ifdef BSTONE_AOG
@@ -4408,11 +4407,11 @@ struct barrier_type {
 }; // struct barrier_type;
 
 
-//---------------
+// ---------------
 //
 // gamestate structure
 //
-//---------------
+// ---------------
 
 struct statsInfoType {
     Sint32 total_points;
@@ -4534,35 +4533,35 @@ struct gametype {
 }; // struct gametype
 
 enum exit_t {
-	ex_stillplaying,
-	ex_completed,
-	ex_transported,
-	ex_died,
-	ex_warped,
-	ex_resetgame,
-	ex_loadedgame,
-	ex_victorious,
-	ex_abort,
-	ex_demodone,
-	ex_secretlevel,
-   ex_title
+    ex_stillplaying,
+    ex_completed,
+    ex_transported,
+    ex_died,
+    ex_warped,
+    ex_resetgame,
+    ex_loadedgame,
+    ex_victorious,
+    ex_abort,
+    ex_demodone,
+    ex_secretlevel,
+    ex_title
 }; // enum exit_t
 
 
 struct CycleInfo {
-	Uint8 init_delay;
-	Uint8 delay_count;
-	Uint8 firstreg;
-	Uint8 lastreg;
+    Uint8 init_delay;
+    Uint8 delay_count;
+    Uint8 firstreg;
+    Uint8 lastreg;
 }; // struct CycleInfo
 
 
 struct visobj_t {
-	Sint16	viewx,
-			viewheight,
-			shapenum;
-   char lighting;
-   char cloaked;
+    Sint16 viewx,
+           viewheight,
+           shapenum;
+    char lighting;
+    char cloaked;
 }; // struct visobj_t
 
 
@@ -4580,11 +4579,11 @@ enum animdir_t {
 
 
 struct ofs_anim_t {
-	Uint16 animtype:2;		// animtype_t
-	Uint16 curframe:5;
-	Uint16 maxframe:5;
-	Uint16 animdir:1;		// animdir_t
-	Uint16 extra:3;
+    Uint16 animtype: 2;                 // animtype_t
+    Uint16 curframe : 5;
+    Uint16 maxframe : 5;
+    Uint16 animdir : 1;                 // animdir_t
+    Uint16 extra : 3;
 }; // struct ofs_anim_t
 
 
@@ -4598,45 +4597,45 @@ struct ofs_anim_t {
 // Msg_Priorities - Hell.. Lets just make them all the same...
 
 enum msg_priorities {
-	MP_min_val								= 0,
+    MP_min_val = 0,
 
-	MP_HEARTB_SND							= 0x0200,
-	MP_WALLSWITCH_OPERATE				= 0x0200,
+    MP_HEARTB_SND = 0x0200,
+    MP_WALLSWITCH_OPERATE = 0x0200,
 
-	MP_DOOR_OPERATE 						= 0x0200,
-	MP_CONCESSION_OPERATE				= 0x0200,
-	MP_WEAPON_AVAIL						= 0x0200,
+    MP_DOOR_OPERATE = 0x0200,
+    MP_CONCESSION_OPERATE = 0x0200,
+    MP_WEAPON_AVAIL = 0x0200,
 
-	MP_ATTACK_INFO							= 0x0200,
-	MP_NO_MORE_AMMO						= 0x0200,
-	MP_WEAPON_MALFUNCTION				= 0x0200,
+    MP_ATTACK_INFO = 0x0200,
+    MP_NO_MORE_AMMO = 0x0200,
+    MP_WEAPON_MALFUNCTION = 0x0200,
 
-	MP_INTERROGATE	   					= 0x0200,
-	MP_CONCESSION_HINT					= 0x0200,
-	MP_NO_MORE_TOKENS						= 0x0200,
-	MP_CONCESSION_OUT_ORDER 			= 0x0200,
+    MP_INTERROGATE = 0x0200,
+    MP_CONCESSION_HINT = 0x0200,
+    MP_NO_MORE_TOKENS = 0x0200,
+    MP_CONCESSION_OUT_ORDER = 0x0200,
 
-	MP_BONUS 								= 0x0200,
+    MP_BONUS = 0x0200,
 
-	MP_TAKE_DAMAGE							= 0x0200,
-   MP_DETONATOR							= 0x0200,
+    MP_TAKE_DAMAGE = 0x0200,
+    MP_DETONATOR = 0x0200,
 
-	MP_PINBALL_BONUS						= 0x3000,
-	MP_FLOOR_UNLOCKED						= 0x3000,
+    MP_PINBALL_BONUS = 0x3000,
+    MP_FLOOR_UNLOCKED = 0x3000,
 
-	MP_POWERUP 								= 0x7000, // Power-Up/Game-Start Value
-	MP_max_val 								= 0x7FFF // DO NOT USE/EXCEED - MAX Val
+    MP_POWERUP = 0x7000,                                                                  // Power-Up/Game-Start Value
+    MP_max_val = 0x7FFF                                                                  // DO NOT USE/EXCEED - MAX Val
 }; // enum msg_priorities
 
 enum infomsg_type {
-	MT_NOTHING,
-	MT_CLEAR,
-   MT_ATTACK,
-   MT_GENERAL,
-	MT_OUT_OF_AMMO,
-	MT_MALFUNCTION,
-	MT_NO_MO_FOOD_TOKENS,
-	MT_BONUS
+    MT_NOTHING,
+    MT_CLEAR,
+    MT_ATTACK,
+    MT_GENERAL,
+    MT_OUT_OF_AMMO,
+    MT_MALFUNCTION,
+    MT_NO_MO_FOOD_TOKENS,
+    MT_BONUS
 }; // enum infomsg_type
 
 
@@ -4644,25 +4643,25 @@ enum infomsg_type {
 // Menu Instruction Text types...
 //
 enum inst_type {
-	IT_STANDARD,
-	IT_HIGHSCORES,
-   IT_ENTER_HIGHSCORE,
-	IT_MOUSE_SEN,
+    IT_STANDARD,
+    IT_HIGHSCORES,
+    IT_ENTER_HIGHSCORE,
+    IT_MOUSE_SEN,
 
     // BBi
     IT_SOUND_VOLUME,
     IT_CONTROLS,
     IT_CONTROLS_ASSIGNING_KEY,
 
-	MAX_INSTRUCTIONS
+    MAX_INSTRUCTIONS
 }; // enum inst_type
 
 
 
-#define MAX_CACHE_MSGS 		30	  	 
-#define MAX_CACHE_MSG_LEN	190
+#define MAX_CACHE_MSGS 30
+#define MAX_CACHE_MSG_LEN 190
 
-//------------------------- BASIC STRUCTURES -----------------------------
+// ------------------------- BASIC STRUCTURES -----------------------------
 
 // Basic 'message info' structure
 //
@@ -4683,11 +4682,11 @@ struct mCacheInfo {
 // Basic 'message list' structure
 //
 struct mCacheList {
-	Sint16 NumMsgs;									// number of messages
-	mCacheInfo mInfo[MAX_CACHE_MSGS];		// table of message 'info'
+    Sint16 NumMsgs;                                                                     // number of messages
+    mCacheInfo mInfo[MAX_CACHE_MSGS];                   // table of message 'info'
 }; // struct mCacheList
 
-//----------------------- CONCESSION STRUCTURES --------------------------
+// ----------------------- CONCESSION STRUCTURES --------------------------
 
 // Concession 'message info' structure
 //
@@ -4720,23 +4719,23 @@ struct concession_t {
         Uint32& checksum);
 }; // struct concession_t
 
-//------------------------ INFORMANT STRUCTURES --------------------------
+// ------------------------ INFORMANT STRUCTURES --------------------------
 
 // Informant 'message info' structure
 //
 struct sci_mCacheInfo {
-	mCacheInfo mInfo;
-	Uint8 areanumber;								// 'where' msg can be used	  
+    mCacheInfo mInfo;
+    Uint8 areanumber;                                                                   // 'where' msg can be used
 }; // struct sci_mCacheInfo
 
 // Informant 'message list' structure
 //
 struct scientist_t {
-	Sint16 NumMsgs;
-	sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
+    Sint16 NumMsgs;
+    sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
 }; // struct scientist_t
 
-//------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 
 // Electro-Alien controller structer
@@ -4766,7 +4765,7 @@ struct eaWallInfo {
 struct GoldsternInfo_t {
     Uint8 LastIndex; // Last Spawn Coord Index
     Uint8 SpawnCnt; // Num of Spawnpoints for Goldstern
-    Uint16	flags; // What type of command/operation is needed...
+    Uint16 flags; // What type of command/operation is needed...
     Uint16 WaitTime; // Wait time for Goldstern Spawn (current & Next)
     boolean GoldSpawned; // Has Goldstern been spawned?
 
@@ -4781,14 +4780,14 @@ struct GoldsternInfo_t {
 
 
 struct star_t {
-	Sint32 x,y,z;
-	Uint8 color;
+    Sint32 x, y, z;
+    Uint8 color;
 }; // struct star_t
 
 #define MAX_SPACE_THRUST ((Sint32)0x4fff)
 
-#define MAX_STARS					128
-#define MAX_SPACE_STATS			(((MAXSTATS*sizeof(statobj_t))-((MAX_STARS+1)*sizeof(star_t)))/sizeof(statobj_t))
+#define MAX_STARS 128
+#define MAX_SPACE_STATS (((MAXSTATS * sizeof(statobj_t)) - ((MAX_STARS + 1) * sizeof(star_t))) / sizeof(statobj_t))
 
 
 
@@ -4797,36 +4796,36 @@ struct star_t {
 /*
 =============================================================================
 
-						 3D_MAIN DEFINITIONS
+                                                 3D_MAIN DEFINITIONS
 
 =============================================================================
 */
 
-#define TITLE_LOOP_MUSIC	PLOT_MUS
+#define TITLE_LOOP_MUSIC PLOT_MUS
 
-#define CANT_PLAY_TXT "\n"																	\
-							 "ERROR: Insufficient disk space.\n"                  \
-							 "Try deleting some files from your hard disk.\n\n"
+#define CANT_PLAY_TXT "\n" \
+    "ERROR: Insufficient disk space.\n" \
+    "Try deleting some files from your hard disk.\n\n"
 
 
 extern char tempPath[];
 
-extern const   float   radtoint;	// = (float)FINEANGLES/2/PI;
+extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
 extern levelinfo default_level[MAPS_PER_EPISODE];
-extern Sint16 view_xl,view_xh,view_yl,view_yh;
-extern Sint16 starting_level, debug_value, starting_episode, starting_difficulty;		
+extern Sint16 view_xl, view_xh, view_yl, view_yh;
+extern Sint16 starting_level, debug_value, starting_episode, starting_difficulty;
 
 extern bool MS_CheckParm(
     const std::string& value);
 
-extern signed char lastmap_tilex,lastmap_tiley;
-extern  Uint16 TopColor, BottomColor;
-extern  char            str[80],str2[20];
-//extern  unsigned        tedlevelnum;
-//extern  boolean         tedlevel;
-extern  boolean         nospr;
-extern  boolean         IsA386;
+extern signed char lastmap_tilex, lastmap_tiley;
+extern Uint16 TopColor, BottomColor;
+extern char str[80], str2[20];
+// extern  unsigned        tedlevelnum;
+// extern  boolean         tedlevel;
+extern boolean nospr;
+extern boolean IsA386;
 
 extern int focallength;
 extern int viewangles;
@@ -4836,17 +4835,17 @@ extern int viewheight;
 extern int centerx;
 extern int shootdelta;
 
-extern  Sint16                     dirangle[9];
+extern Sint16 dirangle[9];
 
-extern  boolean         startgame,loadedgame;
-extern  Sint16             mouseadjustment;
+extern boolean startgame, loadedgame;
+extern Sint16 mouseadjustment;
 //
 // math tables
 //
 extern int* pixelangle;
 extern int finetangent[FINEANGLES / 4];
 extern int sintable[];
-extern int *costable;
+extern int* costable;
 
 //
 // derived constants
@@ -4865,44 +4864,63 @@ int DeleteChunk(
     bstone::MemoryStream& stream,
     const std::string& chunk_name);
 
-void 				 LoadFonts();
-void 				 ClearNClose();
-void 				 CycleColors();
-void 				 LoadAccessCodes();
-void 				 AlignPlayerInElevator();
-void            HelpScreens ();
-void            OrderingInfo ();
-void            TEDDeath();
-void            CalcProjection (Sint32 focal);
-void SetViewSize(int width, int height);
-void            NewGame (Sint16 difficulty,Sint16 episode);
+void LoadFonts();
+void ClearNClose();
+void CycleColors();
+void LoadAccessCodes();
+void AlignPlayerInElevator();
+void HelpScreens();
+void OrderingInfo();
+void TEDDeath();
+void CalcProjection(
+    Sint32 focal);
+void SetViewSize(
+    int width,
+    int height);
+void NewGame(
+    Sint16 difficulty,
+    Sint16 episode);
 void NewViewSize();
-Uint16 scan_atoi(const char *s);
-void 				AlignPlayerOnTransporter();
+Uint16 scan_atoi(
+    const char* s);
+void AlignPlayerOnTransporter();
 
-Uint16 UseFunc(const char *first, const char *next);
-boolean DoMovie(movie_t movie, void* palette);
-boolean CheckDiskSpace(Sint32 needed,const char *text,cds_io_type io_type);
+Uint16 UseFunc(
+    const char* first,
+    const char* next);
+boolean DoMovie(
+    movie_t movie,
+    void* palette);
+boolean CheckDiskSpace(
+    Sint32 needed,
+    const char* text,
+    cds_io_type io_type);
 
 bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description);
 
-Sint32 ChecksumFile(char *file, Sint32 checksum);
+Sint32 ChecksumFile(
+    char* file,
+    Sint32 checksum);
 void BadChecksum();
 void InvalidLevels();
-void CheckValidity(char *file, Sint32 valid_checksum);
+void CheckValidity(
+    char* file,
+    Sint32 valid_checksum);
 void UnauthorizedLevels();
 void ShowChecksums();
-void fprint(char *text);
+void fprint(
+    char* text);
 
-void SetupWalls ();
-void InitDigiMap ();
+void SetupWalls();
+void InitDigiMap();
 
 void CleanUpDoors_N_Actors();
 
 
-void MakeDestPath(const char *file);
+void MakeDestPath(
+    const char* file);
 void InitDestPath();
 
 int FindChunk(
@@ -4915,7 +4933,7 @@ int NextChunk(
 /*
 =============================================================================
 
-						 3D_GAME DEFINITIONS
+                                                 3D_GAME DEFINITIONS
 
 =============================================================================
 */
@@ -4926,98 +4944,117 @@ extern fargametype gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
-extern Uint8 VitalsRemain,VitalsOnFloor;
+extern Uint8 VitalsRemain, VitalsOnFloor;
 
-extern  eaWallInfo eaList[];
-extern  char NumEAWalls,NumEASpawned;
-extern  boolean         ingame,fizzlein,screensplit;
-extern  int latchpics[NUMLATCHPICS];
-extern  gametype        gamestate;
-extern  Sint16                     doornum;
+extern eaWallInfo eaList[];
+extern char NumEAWalls, NumEASpawned;
+extern boolean ingame, fizzlein, screensplit;
+extern int latchpics[NUMLATCHPICS];
+extern gametype gamestate;
+extern Sint16 doornum;
 
-extern  char            demoname[13];
+extern char demoname[13];
 
-void    DrawPlayBorder ();
-void    ScanInfoPlane ();
-void    SetupGameLevel ();
-void    NormalScreen ();
-void    DrawPlayScreen (boolean);		  
-void    FizzleOut ();
-void    GameLoop ();
+void DrawPlayBorder();
+void ScanInfoPlane();
+void SetupGameLevel();
+void NormalScreen();
+void DrawPlayScreen(boolean);
+void FizzleOut();
+void GameLoop();
 
 // JAB
-#define PlaySoundLocTile(s,tx,ty)       PlaySoundLocGlobal(s,(((Sint32)(tx) << TILESHIFT) + (1L << (TILESHIFT - 1))),(((Sint32)ty << TILESHIFT) + (1L << (TILESHIFT - 1))))
-#define PlaySoundLocActor(s,ob)         PlaySoundLocGlobal(s,(ob)->x,(ob)->y)
-void    PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy);
+#define PlaySoundLocTile(s, tx, ty) PlaySoundLocGlobal(s, (((Sint32)(tx) << TILESHIFT) + (1L << (TILESHIFT - 1))), (((Sint32)ty << TILESHIFT) + (1L << (TILESHIFT - 1))))
+#define PlaySoundLocActor(s, ob) PlaySoundLocGlobal(s, (ob)->x, (ob)->y)
+void PlaySoundLocGlobal(
+    Uint16 s,
+    fixed gx,
+    fixed gy);
 
 
-void Warped ();
-void RotateView(Sint16 DestAngle,Uint8 RotSpeed);
+void Warped();
+void RotateView(
+    Sint16 DestAngle,
+    Uint8 RotSpeed);
 void DrawWarpIn();
-void BMAmsg(const char *msg);
-void CacheBMAmsg(Uint16 MsgNum);	  
-void BevelBox(Sint16 xl, Sint16 yl, Sint16 w, Sint16 h, Uint8 hi, Uint8 med, Uint8 lo);
+void BMAmsg(
+    const char* msg);
+void CacheBMAmsg(
+    Uint16 MsgNum);
+void BevelBox(
+    Sint16 xl,
+    Sint16 yl,
+    Sint16 w,
+    Sint16 h,
+    Uint8 hi,
+    Uint8 med,
+    Uint8 lo);
 
-void AddTotalPoints(Uint16 points);
-void AddTotalInformants(char informants);
-void AddTotalEnemy(Uint16 enemies);
+void AddTotalPoints(
+    Uint16 points);
+void AddTotalInformants(
+    char informants);
+void AddTotalEnemy(
+    Uint16 enemies);
 
-void ShadowPrintLocationText(sp_type type);
+void ShadowPrintLocationText(
+    sp_type type);
 void LoseScreen();
-void LoadLocationText(Sint16 textNum);	
+void LoadLocationText(
+    Sint16 textNum);
 
 /*
 =============================================================================
 
-						 3D_PLAY DEFINITIONS
+                                                 3D_PLAY DEFINITIONS
 
 =============================================================================
 */
 
 extern int objcount;
 
-extern objtype *DeadGuys[],dummyobj;
+extern objtype* DeadGuys[], dummyobj;
 extern Uint8 NumDeadGuys;
 
-extern  exit_t          playstate;
+extern exit_t playstate;
 
-extern  Sint16                     bordertime;
+extern Sint16 bordertime;
 
-extern  boolean         madenoise,usedummy,nevermark;
-extern Uint8		alerted,alerted_areanum;
+extern boolean madenoise, usedummy, nevermark;
+extern Uint8 alerted, alerted_areanum;
 
-extern  objtype         objlist[MAXACTORS],*new_actor,*player,*lastobj,
-					*objfreelist,*killerobj;
-extern  statobj_t       statobjlist[MAXSTATS],*laststatobj;
-extern  doorobj_t       doorobjlist[MAXDOORS],*lastdoorobj;
+extern objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
+               * objfreelist, * killerobj;
+extern statobj_t statobjlist[MAXSTATS], * laststatobj;
+extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
 
-extern  Uint16        farmapylookup[MAPSIZE];
-extern  Uint8            *nearmapylookup[MAPSIZE];
+extern Uint16 farmapylookup[MAPSIZE];
+extern Uint8* nearmapylookup[MAPSIZE];
 
-extern  Uint8            tilemap[MAPSIZE][MAPSIZE];      // wall values only
-extern  Uint8            spotvis[MAPSIZE][MAPSIZE];
-extern  objtype         *actorat[MAPSIZE][MAPSIZE];
+extern Uint8 tilemap[MAPSIZE][MAPSIZE]; // wall values only
+extern Uint8 spotvis[MAPSIZE][MAPSIZE];
+extern objtype* actorat[MAPSIZE][MAPSIZE];
 
-#define UPDATESIZE                      (UPDATEWIDE*UPDATEHIGH)
-extern  Uint8            update[UPDATESIZE];
+#define UPDATESIZE (UPDATEWIDE * UPDATEHIGH)
+extern Uint8 update[UPDATESIZE];
 
-extern  boolean         singlestep,godmode,noclip;
-extern  Sint16                     extravbls;
-extern  Sint16			  		DebugOk;
-extern  Sint16			  		InstantWin, InstantQuit;
+extern boolean singlestep, godmode, noclip;
+extern Sint16 extravbls;
+extern Sint16 DebugOk;
+extern Sint16 InstantWin, InstantQuit;
 extern boolean PowerBall;
-extern  Sint16 TestQuickSave, TestAutoMapper;
-extern Uint16	ExtraRadarFlags;
+extern Sint16 TestQuickSave, TestAutoMapper;
+extern Uint16 ExtraRadarFlags;
 
 //
 // control info
 //
-extern  boolean         mouseenabled,joystickenabled,joypadenabled,joystickprogressive;
-extern  Sint16                     joystickport;
-extern  Sint16                     dirscan[4];
-extern  Sint16                     buttonscan[NUMBUTTONS];
-extern  Sint16                     buttonmouse[4];
-extern  Sint16                     buttonjoy[4];
+extern boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
+extern Sint16 joystickport;
+extern Sint16 dirscan[4];
+extern Sint16 buttonscan[NUMBUTTONS];
+extern Sint16 buttonmouse[4];
+extern Sint16 buttonjoy[4];
 
 extern bool buttonheld[NUMBUTTONS];
 
@@ -5031,67 +5068,72 @@ extern int controly; // range from -100 to 100
 extern bool buttonstate[NUMBUTTONS];
 extern int strafe_value;
 
-extern  boolean         demorecord,demoplayback;
-extern  char            *demoptr, *lastdemoptr;
-extern  void*          demobuffer;
+extern boolean demorecord, demoplayback;
+extern char* demoptr, * lastdemoptr;
+extern void* demobuffer;
 
 extern char Computing[];
 
 
-void    CenterWindow(Uint16 w,Uint16 h);
-void    InitActorList ();
-void    GetNewActor ();
-void    RemoveObj (objtype *gone);
-void    PollControls ();
-void    StopMusic();
-void    StartMusic(boolean startit);
-void    PlayLoop ();
+void CenterWindow(
+    Uint16 w,
+    Uint16 h);
+void InitActorList();
+void GetNewActor();
+void RemoveObj(
+    objtype* gone);
+void PollControls();
+void StopMusic();
+void StartMusic(
+    boolean startit);
+void PlayLoop();
 
-void ChangeSwapFiles(boolean display);
+void ChangeSwapFiles(
+    boolean display);
 void OpenPageFile();
-void CheckMusicToggle();	 
+void CheckMusicToggle();
 
 /*
 =============================================================================
 
-							3D_DEBUG
+                                                        3D_DEBUG
 
 =============================================================================
 */
 
-Sint16 DebugKeys ();
-void CalcMemFree();	  
+Sint16 DebugKeys();
+void CalcMemFree();
 
 
 /*
 =============================================================================
 
-						 3D_DRAW DEFINITIONS
+                                                 3D_DRAW DEFINITIONS
 
 =============================================================================
 */
 
 extern Uint8 TravelTable[MAPSIZE][MAPSIZE];
 
-extern  Sint16             weaponchangetics,itemchangetics,bodychangetics;
-extern  Sint16             plaqueon,plaquetime,plaquetimefrac,getpic;
+extern Sint16 weaponchangetics, itemchangetics, bodychangetics;
+extern Sint16 plaqueon, plaquetime, plaquetimefrac, getpic;
 
-extern  statobj_t *firststarobj;	 
+extern statobj_t* firststarobj;
 
-extern  int screenloc[3];
-extern  int freelatch;
+extern int screenloc[3];
+extern int freelatch;
 
-extern Sint32 space_xmove,space_ymove;	
+extern Sint32 space_xmove, space_ymove;
 
-extern  Sint32    lasttimecount;
-extern  Sint32    framecount;
-extern  Sint32    frameon;
-extern  boolean fizzlein;
+extern Sint32 lasttimecount;
+extern Sint32 framecount;
+extern Sint32 frameon;
+extern boolean fizzlein;
 
 extern int* wallheight;
 
-extern  fixed   focallength;
-extern  fixed   mindist;
+extern fixed focallength;
+extern fixed mindist;
 
 //
 // refresh variables
@@ -5106,33 +5148,53 @@ extern const Uint8* postsource;
 extern int postx;
 
 
-extern  Sint16             horizwall[],vertwall[];
+extern Sint16 horizwall[], vertwall[];
 
-extern  Uint16        pwallpos;
+extern Uint16 pwallpos;
 
 extern boolean cloaked_shape;
 
-fixed   FixedByFrac (fixed a, fixed b);
-void    TransformActor (objtype *ob);
-void    BuildTables ();
-void    ClearScreen ();
-Sint16 CalcRotate(objtype* ob);
-void    DrawScaleds ();
-void    CalcTics ();
-void    FixOfs ();
-void    ThreeDRefresh ();
-void  FarScalePost ();
+fixed FixedByFrac(
+    fixed a,
+    fixed b);
+void TransformActor(
+    objtype* ob);
+void BuildTables();
+void ClearScreen();
+Sint16 CalcRotate(
+    objtype* ob);
+void DrawScaleds();
+void CalcTics();
+void FixOfs();
+void ThreeDRefresh();
+void FarScalePost();
 void DrawStars();
 
 
 
-boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight);
-void WrapTransformActor (objtype *ob);
-void ComputeActorPosition(objtype *ob, char adjust_x, char adjust_y);
-void WrapDrawScaleds ();
-boolean WrapActorPosition(objtype *obj);
-void WrapStaticPosition(statobj_t *statptr, visobj_t *visptr);
-void ShowOverhead(int bx, int by, int radius, int zoom, int flags);
+boolean TransformTile(
+    Sint16 tx,
+    Sint16 ty,
+    Sint16* dispx,
+    Sint16* dispheight);
+void WrapTransformActor(
+    objtype* ob);
+void ComputeActorPosition(
+    objtype* ob,
+    char adjust_x,
+    char adjust_y);
+void WrapDrawScaleds();
+boolean WrapActorPosition(
+    objtype* obj);
+void WrapStaticPosition(
+    statobj_t* statptr,
+    visobj_t* visptr);
+void ShowOverhead(
+    int bx,
+    int by,
+    int radius,
+    int zoom,
+    int flags);
 void UpdateTravelTable();
 
 
@@ -5140,14 +5202,14 @@ void UpdateTravelTable();
 /*
 =============================================================================
 
-						 3D_DRAW2 DEFINITIONS
+                                                 3D_DRAW2 DEFINITIONS
 
 =============================================================================
 */
 extern Uint16 CeilingTile, FloorTile;
-extern void (*MapRowPtr)();			  
+extern void (* MapRowPtr)();
 
-void DrawPlanes ();
+void DrawPlanes();
 
 
 void MapRow();
@@ -5158,56 +5220,91 @@ void F_MapRow();
 /*
 =============================================================================
 
-						 3D_STATE DEFINITIONS
+                                                 3D_STATE DEFINITIONS
 
 =============================================================================
 */
 
-extern  Uint16 actor_points[];
-extern  dirtype opposite[9];
-extern  dirtype diagonal[9][9];
+extern Uint16 actor_points[];
+extern dirtype opposite[9];
+extern dirtype diagonal[9][9];
 
 
-void SeekPlayerOrStatic(objtype *ob, Sint16 *deltax, Sint16 *deltay);
-Uint16 CheckRunChase(objtype *ob);
-void GetCornerSeek(objtype *ob);
-boolean LookForGoodies(objtype *ob, Uint16 RunReason);
-void    InitHitRect (objtype *ob, Uint16 radius);
-void    SpawnNewObj (Uint16 tilex, Uint16 tiley, statetype *state);
-void    NewState (objtype *ob, statetype *state);
+void SeekPlayerOrStatic(
+    objtype* ob,
+    Sint16* deltax,
+    Sint16* deltay);
+Uint16 CheckRunChase(
+    objtype* ob);
+void GetCornerSeek(
+    objtype* ob);
+boolean LookForGoodies(
+    objtype* ob,
+    Uint16 RunReason);
+void InitHitRect(
+    objtype* ob,
+    Uint16 radius);
+void SpawnNewObj(
+    Uint16 tilex,
+    Uint16 tiley,
+    statetype* state);
+void NewState(
+    objtype* ob,
+    statetype* state);
 
-boolean TryWalk (objtype *ob, boolean moveit);
-void    SelectChaseDir (objtype *ob);
-void    SelectDodgeDir (objtype *ob);
-void    MoveObj (objtype *ob, Sint32 move);
+boolean TryWalk(
+    objtype* ob,
+    boolean moveit);
+void SelectChaseDir(
+    objtype* ob);
+void SelectDodgeDir(
+    objtype* ob);
+void MoveObj(
+    objtype* ob,
+    Sint32 move);
 
-void    KillActor (objtype *ob);
-void DamageActor (objtype *ob, Uint16 damage, objtype *attacker);
+void KillActor(
+    objtype* ob);
+void DamageActor(
+    objtype* ob,
+    Uint16 damage,
+    objtype* attacker);
 
-boolean CheckLine (objtype *from_obj, objtype *to_obj);
-boolean CheckSight (objtype *from_obj, objtype *to_obj);
+boolean CheckLine(
+    objtype* from_obj,
+    objtype* to_obj);
+boolean CheckSight(
+    objtype* from_obj,
+    objtype* to_obj);
 
-boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, Sint16 from_angle);
-boolean PlayerIsBlocking(objtype *ob);		
+boolean PosVisable(
+    fixed from_x,
+    fixed from_y,
+    fixed to_x,
+    fixed to_y,
+    Sint16 from_angle);
+boolean PlayerIsBlocking(
+    objtype* ob);
 
-void MakeAlertNoise(objtype *obj);
-objtype *CheckAndReserve();
+void MakeAlertNoise(
+    objtype* obj);
+objtype* CheckAndReserve();
 
 
 /*
 =============================================================================
 
-						 3D_SCALE DEFINITIONS
+                                                 3D_SCALE DEFINITIONS
 
 =============================================================================
 */
 
 
-#define COMPSCALECODESTART      (65*4)          // offset to start of code in comp scaler
+#define COMPSCALECODESTART (65 * 4) // offset to start of code in comp scaler
 
 struct t_compshape {
-	Uint16        leftpix,rightpix;
-	Uint16        dataofs[64];
+    Uint16 leftpix, rightpix;
+    Uint16 dataofs[64];
 // table data after dataofs[rightpix-leftpix+1]
 }; // struct t_compshape
 
@@ -5221,9 +5318,16 @@ extern int shade_max;
 
 
 void FreeScaleDirectory();
-void SetupScaling (int maxscaleheight);
-void ScaleShape(int xcenter, int shapenum, int height);
-void SimpleScaleShape(int xcenter, int shapenum, int height);
+void SetupScaling(
+    int maxscaleheight);
+void ScaleShape(
+    int xcenter,
+    int shapenum,
+    int height);
+void SimpleScaleShape(
+    int xcenter,
+    int shapenum,
+    int height);
 
 void MegaSimpleScaleShape(
     int xcenter,
@@ -5236,7 +5340,7 @@ void MegaSimpleScaleShape(
 /*
 =============================================================================
 
-						 3D_AGENT DEFINITIONS
+                                                 3D_AGENT DEFINITIONS
 
 =============================================================================
 */
@@ -5248,9 +5352,9 @@ extern scientist_t MeanSciList;
 extern Uint16 static_points[];
 extern boolean GAN_HiddenArea;
 extern char* InfAreaMsgs[];
-extern Uint8 NumAreaMsgs,LastInfArea;
-extern Sint16 FirstGenInfMsg,TotalGenInfMsgs;
-extern classtype LastInfoAttacker;						 
+extern Uint8 NumAreaMsgs, LastInfArea;
+extern Sint16 FirstGenInfMsg, TotalGenInfMsgs;
+extern classtype LastInfoAttacker;
 
 #ifdef BSTONE_PS
 extern Sint16 LastInfoAttacker_Cloaked;
@@ -5264,10 +5368,10 @@ extern atkinf_t attackinfo[7][14];
 //
 // player state info
 //
-extern  boolean         commandmode;
-extern  Sint32            thrustspeed;
-extern  Uint16        plux,pluy;              // player coordinates scaled to unsigned
-extern  boolean 			PlayerInvisable;
+extern boolean commandmode;
+extern Sint32 thrustspeed;
+extern Uint16 plux, pluy; // player coordinates scaled to unsigned
+extern boolean PlayerInvisable;
 extern char DrawInfoArea_COUNT;
 extern char InitInfoArea_COUNT;
 
@@ -5276,7 +5380,7 @@ extern Uint16 player_oldtiley;
 
 // Terminal variables
 
-extern  Uint16 			RadarSw;
+extern Uint16 RadarSw;
 
 // Location Bar message string...
 
@@ -5286,77 +5390,127 @@ extern char LocationText[MAX_LOCATION_DESC_LEN];
 //
 // search / move info
 //
-extern  Uint16        searchon;                               // held object number looking at
-extern  Sint16                     searchtics;                             // when it reaches SEARCHTICS, get an obj
-extern  objtype         *searchobj;                             // current object being searched
-extern  Uint16        foundflag;                              // only show NOTHING if nothing was found
-extern  objtype         *moveobj;                               // current object being draged
+extern Uint16 searchon; // held object number looking at
+extern Sint16 searchtics; // when it reaches SEARCHTICS, get an obj
+extern objtype* searchobj; // current object being searched
+extern Uint16 foundflag; // only show NOTHING if nothing was found
+extern objtype* moveobj; // current object being draged
 
-extern  Sint16                     anglefrac;
-extern  Sint16                     facecount;
+extern Sint16 anglefrac;
+extern Sint16 facecount;
 
 extern Uint16 LastMsgPri;
 extern Sint16 MsgTicsRemain;
 
-void    GivePoints(Sint32 score,boolean add_to_stats);
-void    SpawnPlayer (Sint16 tilex, Sint16 tiley, Sint16 dir);
-void 	  DrawCash();
-void 		UpdateHealth();
+void GivePoints(
+    Sint32 score,
+    boolean add_to_stats);
+void SpawnPlayer(
+    Sint16 tilex,
+    Sint16 tiley,
+    Sint16 dir);
+void DrawCash();
+void UpdateHealth();
 
 void DrawAmmoGuage();
 void DrawAmmoMsg();
-void DrawAmmo(boolean ForceRefresh);
-boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MessageType);
+void DrawAmmo(
+    boolean ForceRefresh);
+boolean DisplayInfoMsg(
+    const char* Msg,
+    msg_priorities Priority,
+    Sint16 DisplayTime,
+    Sint16 MessageType);
 void UpdateInfoAreaClock();
 void UpdateInfoArea();
 void DrawHealthMonitor();
 void CalcHealthDisplay();
 void UpdateScore();
 
-Uint8 ValidAreaTile(Uint16 *ptr);
-char GetAreaNumber(char tilex, char tiley);
+Uint8 ValidAreaTile(
+    Uint16* ptr);
+char GetAreaNumber(
+    char tilex,
+    char tiley);
 Sint16 InputFloor();
 
 void RestoreInfoArea();
 void DrawHeartPic();
 void DrawInfoArea();
-Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype);
+Sint16 DrawShape(
+    Sint16 x,
+    Sint16 y,
+    Sint16 shapenum,
+    pisType shapetype);
 
-void AnimatePage();			
+void AnimatePage();
 
 void ActivateTerminal(boolean);
-void TerminalPrint(char *msg,boolean FastPrint);
-void FloorCheat(Uint16 RadarFlags);
-boolean Interrogate(objtype *ob);
+void TerminalPrint(
+    char* msg,
+    boolean FastPrint);
+void FloorCheat(
+    Uint16 RadarFlags);
+boolean Interrogate(
+    objtype* ob);
 
-void		GiveKey(Sint16 key);
-void		TakeKey(Sint16 key);
-void	GiveToken (Sint16 tokens);
+void GiveKey(
+    Sint16 key);
+void TakeKey(
+    Sint16 key);
+void GiveToken(
+    Sint16 tokens);
 
 #ifdef BSTONE_PS
-void	TakePlasmaDetonator (Sint16 count);		  
-void	GivePlasmaDetonator (Sint16 count);		  
+void TakePlasmaDetonator(
+    Sint16 count);
+void GivePlasmaDetonator(
+    Sint16 count);
 #endif
 
-void CacheDrawPic(int x, int y, int pic);	
+void CacheDrawPic(
+    int x,
+    int y,
+    int pic);
 void LoadTerminalCommands();
 
-void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y);
-Uint16 UpdateBarrierTable(Uint8 level, Uint8 x, Uint8 y, boolean OnOff);
-Uint16 ScanBarrierTable(Uint8 x, Uint8 y);
-void DisplaySwitchOperateMsg(Uint16 coords);
+void ActivateWallSwitch(
+    Uint16 iconnum,
+    Sint16 x,
+    Sint16 y);
+Uint16 UpdateBarrierTable(
+    Uint8 level,
+    Uint8 x,
+    Uint8 y,
+    boolean OnOff);
+Uint16 ScanBarrierTable(
+    Uint8 x,
+    Uint8 y);
+void DisplaySwitchOperateMsg(
+    Uint16 coords);
 
 void DisplayNoMoMsgs();
-void PrintStatPercent(Sint16 nx, Sint16 ny, char percentage);
-Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats);
+void PrintStatPercent(
+    Sint16 nx,
+    Sint16 ny,
+    char percentage);
+Sint16 ShowStats(
+    Sint16 bx,
+    Sint16 by,
+    ss_type type,
+    statsInfoType* stats);
 boolean PerfectStats();
 boolean CheckPerfectStats();
-boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean Force);
+boolean OperateSmartSwitch(
+    Uint16 tilex,
+    Uint16 tiley,
+    char Operation,
+    boolean Force);
 
 /*
 =============================================================================
 
-						 3D_ACT1 DEFINITIONS
+                                                 3D_ACT1 DEFINITIONS
 
 =============================================================================
 */
@@ -5364,62 +5518,112 @@ extern char xy_offset[8][2];
 extern stattype statinfo[];
 extern concession_t ConHintList;
 
-extern doorobj_t       doorobjlist[MAXDOORS],*lastdoorobj;
-extern Sint16                     doornum;
+extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
+extern Sint16 doornum;
 
-extern Uint16       doorposition[MAXDOORS],pwallstate;
+extern Uint16 doorposition[MAXDOORS], pwallstate;
 
-extern Uint8            areaconnect[NUMAREAS][NUMAREAS];
+extern Uint8 areaconnect[NUMAREAS][NUMAREAS];
 
 extern bool areabyplayer[NUMAREAS];
 
 extern Uint16 pwallstate;
-extern Uint16 pwallpos;                       // amount a pushable wall has been moved (0-63)
-extern Uint16 pwallx,pwally;
-extern Sint16                      pwalldir,pwalldist;
+extern Uint16 pwallpos; // amount a pushable wall has been moved (0-63)
+extern Uint16 pwallx, pwally;
+extern Sint16 pwalldir, pwalldist;
 
 
-statobj_t *ReserveStatic();
-void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type);
-void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door_t type);
+statobj_t* ReserveStatic();
+void SpawnStatic(
+    Sint16 tilex,
+    Sint16 tiley,
+    Sint16 type);
+void SpawnDoor(
+    Sint16 tilex,
+    Sint16 tiley,
+    boolean vertical,
+    keytype lock,
+    door_t type);
 
-void OperateConcession(Uint16 concession);
-void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinetype);
-Uint16 LoadConcessionHint(Uint16 MsgNum);
-void CacheInfoAreaMsg(Uint16 block, Uint16 MsgNum, char *hint_buffer,Uint16 MaxBufferLen);
+void OperateConcession(
+    Uint16 concession);
+void SpawnConcession(
+    Sint16 tilex,
+    Sint16 tiley,
+    Uint16 credits,
+    Uint16 machinetype);
+Uint16 LoadConcessionHint(
+    Uint16 MsgNum);
+void CacheInfoAreaMsg(
+    Uint16 block,
+    Uint16 MsgNum,
+    char* hint_buffer,
+    Uint16 MaxBufferLen);
 void CheckSpawnEA();
 
-Sint16 TransformAreas(char tilex, char tiley, char xform);
+Sint16 TransformAreas(
+    char tilex,
+    char tiley,
+    char xform);
 
 
 void CheckSpawnGoldstern();
 void FindNewGoldieSpawnSite();
 
-void InitMsgCache(mCacheList *mList, Uint16 listSize, Uint16 infoSize);
-void FreeMsgCache(mCacheList *mList, Uint16 listSize);
-void CacheMsg(mCacheInfo *ci, Uint16 SegNum, Uint16 MsgNum);
-Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen);
+void InitMsgCache(
+    mCacheList* mList,
+    Uint16 listSize,
+    Uint16 infoSize);
+void FreeMsgCache(
+    mCacheList* mList,
+    Uint16 listSize);
+void CacheMsg(
+    mCacheInfo* ci,
+    Uint16 SegNum,
+    Uint16 MsgNum);
+Sint16 LoadMsg(
+    char* hint_buffer,
+    Uint16 SegNum,
+    Uint16 MsgNum,
+    Uint16 MaxMsgLen);
 void CacheConcessionMsg();
-boolean ReuseMsg(mCacheInfo *ci, Sint16 count, Sint16 struct_size);
+boolean ReuseMsg(
+    mCacheInfo* ci,
+    Sint16 count,
+    Sint16 struct_size);
 
 #ifdef BSTONE_PS
 void DropPlasmaDetonator();
 #endif
 
-void BlockDoorOpen(Sint16 door);
-void BlastNearDoors(Sint16 tilex, Sint16 tiley);
-void TryBlastDoor(char door);
+void BlockDoorOpen(
+    Sint16 door);
+void BlastNearDoors(
+    Sint16 tilex,
+    Sint16 tiley);
+void TryBlastDoor(
+    char door);
 
-statobj_t *FindStatic(Uint16 tilex, Uint16 tiley);
-statobj_t *UseReservedStatic(Sint16 itemtype, Sint16 tilex, Sint16 tiley);
-void PlaceReservedItemNearTile(Sint16 itemtype, Sint16 tilex, Sint16 tiley);
-void ExplodeStatics(Sint16 tilex, Sint16 tiley);
+statobj_t* FindStatic(
+    Uint16 tilex,
+    Uint16 tiley);
+statobj_t* UseReservedStatic(
+    Sint16 itemtype,
+    Sint16 tilex,
+    Sint16 tiley);
+void PlaceReservedItemNearTile(
+    Sint16 itemtype,
+    Sint16 tilex,
+    Sint16 tiley);
+void ExplodeStatics(
+    Sint16 tilex,
+    Sint16 tiley);
 
 
 /*
 =============================================================================
 
-						 3D_ACT2 DEFINITIONS
+                                                 3D_ACT2 DEFINITIONS
 
 =============================================================================
 */
@@ -5427,25 +5631,27 @@ void ExplodeStatics(Sint16 tilex, Sint16 tiley);
 #define s_nakedbody s_static10
 
 
-#define	BARRIER_STATE(obj)	((obj)->ammo)
+#define BARRIER_STATE(obj) ((obj)->ammo)
 
 #ifdef BSTONE_AOG
-#define InitSmartAnim(obj, ShapeNum, StartOfs,  MaxOfs, AnimType,  AnimDir)						\
-        InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 21)
+#define InitSmartAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir) \
+    InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 21)
 #else
-#define InitSmartAnim(obj, ShapeNum, StartOfs,  MaxOfs, AnimType,  AnimDir)						\
-        InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 7)
+#define InitSmartAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir) \
+    InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 7)
 #endif
 
 
-void MakeFakeStatic(objtype *ob);
-void UnmakeFakeStatic(objtype *ob);
+void MakeFakeStatic(
+    objtype* ob);
+void UnmakeFakeStatic(
+    objtype* ob);
 
 #ifdef BSTONE_PS
 extern char detonators_spawned;
 #endif
 
-extern Sint16 starthitpoints[][NUMHITENEMIES];			
+extern Sint16 starthitpoints[][NUMHITENEMIES];
 
 #ifdef BSTONE_PS
 extern Uint16 MorphClass[];
@@ -5458,30 +5664,30 @@ extern statetype s_ofs_ouch;
 
 extern statetype s_ofs_static;
 
-extern  statetype s_rent_die1;
-extern  statetype s_ofcdie1;
-extern  statetype s_swatdie1;
-extern  statetype s_prodie1;
-extern  statetype s_proshoot1;	  
+extern statetype s_rent_die1;
+extern statetype s_ofcdie1;
+extern statetype s_swatdie1;
+extern statetype s_prodie1;
+extern statetype s_proshoot1;
 
 
-extern  statetype s_rent_chase1;
-extern  statetype s_ofcchase1;
+extern statetype s_rent_chase1;
+extern statetype s_ofcchase1;
 extern statetype s_prochase1;
-extern  statetype s_swatchase1;
+extern statetype s_swatchase1;
 
 
-extern  statetype s_rent_pain;
-extern  statetype s_ofcpain;
-extern  statetype s_propain;
-extern  statetype s_swatpain;
+extern statetype s_rent_pain;
+extern statetype s_ofcpain;
+extern statetype s_propain;
+extern statetype s_swatpain;
 
 extern statetype s_hold;
 
 
-extern  statetype s_swatwounded1;
+extern statetype s_swatwounded1;
 
-extern  statetype s_deathcam;
+extern statetype s_deathcam;
 
 
 extern statetype s_terrot_wait;
@@ -5519,7 +5725,7 @@ extern statetype s_goldpath1;
 extern statetype s_goldpain;
 extern statetype s_goldshoot1;
 extern statetype s_goldchase1;
-extern statetype s_goldwarp_it;				// Warp In w/button pressing
+extern statetype s_goldwarp_it; // Warp In w/button pressing
 extern statetype s_goldwarp_out1;
 extern statetype s_goldwarp_in1;
 
@@ -5580,82 +5786,158 @@ extern statetype s_ooze_chase;
 extern statetype s_vpost_barrier;
 extern statetype s_spike_barrier;
 
-void T_PainThink(objtype *obj);
-void T_ExplodeScout(objtype *obj);
+void T_PainThink(
+    objtype* obj);
+void T_ExplodeScout(
+    objtype* obj);
 
 
 
-void T_Security(objtype *obj);
+void T_Security(
+    objtype* obj);
 
-void T_ChangeShape(objtype *obj);
-void T_MakeOffset(objtype *obj);
-void T_LiquidStand(objtype *obj);
+void T_ChangeShape(
+    objtype* obj);
+void T_MakeOffset(
+    objtype* obj);
+void T_LiquidStand(
+    objtype* obj);
 
-void PlaceTowardPlayer(objtype *obj);
+void PlaceTowardPlayer(
+    objtype* obj);
 
-void T_Seek(objtype *ob);
+void T_Seek(
+    objtype* ob);
 
-void SpawnProjectile(objtype *shooter, classtype class_type);
-void SpawnStand (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir);
-void SpawnPatrol (enemy_t which, Sint16 tilex, Sint16 tiley, Sint16 dir);
-void KillActor (objtype *ob);
+void SpawnProjectile(
+    objtype* shooter,
+    classtype class_type);
+void SpawnStand(
+    enemy_t which,
+    Sint16 tilex,
+    Sint16 tiley,
+    Sint16 dir);
+void SpawnPatrol(
+    enemy_t which,
+    Sint16 tilex,
+    Sint16 tiley,
+    Sint16 dir);
+void KillActor(
+    objtype* ob);
 
-void    US_ControlPanel(Uint8);
+void US_ControlPanel(Uint8);
 
-Sint16 IntSqrt(Sint32 va);
-Uint16 CalcDistance(Uint16 x1, Uint16 y1, Uint16 x2, Uint16 y2);
+Sint16 IntSqrt(
+    Sint32 va);
+Uint16 CalcDistance(
+    Uint16 x1,
+    Uint16 y1,
+    Uint16 x2,
+    Uint16 y2);
 
 
-void T_Hit(objtype *ob);
-void SpawnOffsetObj (enemy_t which, Sint16 tilex, Sint16 tiley);
+void T_Hit(
+    objtype* ob);
+void SpawnOffsetObj(
+    enemy_t which,
+    Sint16 tilex,
+    Sint16 tiley);
 
 
-void InitSmartAnimStruct(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 MaxOfs, animtype_t AnimType, animdir_t AnimDir);
-boolean AnimateOfsObj(objtype *obj);
-void AdvanceAnimREV(objtype *obj);
-void AdvanceAnimFWD(objtype *obj);
+void InitSmartAnimStruct(
+    objtype* obj,
+    Uint16 ShapeNum,
+    Uint8 StartOfs,
+    Uint8 MaxOfs,
+    animtype_t AnimType,
+    animdir_t AnimDir);
+boolean AnimateOfsObj(
+    objtype* obj);
+void AdvanceAnimREV(
+    objtype* obj);
+void AdvanceAnimFWD(
+    objtype* obj);
 
-void SpawnCusExplosion(fixed x, fixed y, Uint16 StartFrame, Uint16 NumFrames, Uint16 Delay, Uint16 Class);
-void T_SpawnExplosion(objtype *obj);
-void T_ExplodeDamage(objtype *obj);
+void SpawnCusExplosion(
+    fixed x,
+    fixed y,
+    Uint16 StartFrame,
+    Uint16 NumFrames,
+    Uint16 Delay,
+    Uint16 Class);
+void T_SpawnExplosion(
+    objtype* obj);
+void T_ExplodeDamage(
+    objtype* obj);
 
-void ExplodeRadius(objtype *obj, Sint16 damage,boolean damageplayer);
+void ExplodeRadius(
+    objtype* obj,
+    Sint16 damage,
+    boolean damageplayer);
 
 extern statetype s_barrier_transition;
 extern statetype s_barrier_shutdown;
 
-void SpawnBarrier (enemy_t which, Sint16 tilex, Sint16 tiley,boolean OnOff);
-void ToggleBarrier(objtype *obj);
+void SpawnBarrier(
+    enemy_t which,
+    Sint16 tilex,
+    Sint16 tiley,
+    boolean OnOff);
+void ToggleBarrier(
+    objtype* obj);
 
-void InitAnim(objtype *obj, Uint16 ShapeNum, Uint8 StartOfs, Uint8 MaxOfs, animtype_t AnimType, animdir_t AnimDir, Uint16 Delay, Uint16 WaitDelay);
+void InitAnim(
+    objtype* obj,
+    Uint16 ShapeNum,
+    Uint8 StartOfs,
+    Uint8 MaxOfs,
+    animtype_t AnimType,
+    animdir_t AnimDir,
+    Uint16 Delay,
+    Uint16 WaitDelay);
 
-objtype *FindObj(classtype which, Sint16 tilex, Sint16 tiley);
-objtype *FindHiddenOfs(classtype which);
-void SpawnHiddenOfs(enemy_t which, Sint16 tilex, Sint16 tiley);
-objtype *MoveHiddenOfs(classtype which_class, classtype new1, fixed x, fixed y);
+objtype* FindObj(
+    classtype which,
+    Sint16 tilex,
+    Sint16 tiley);
+objtype* FindHiddenOfs(
+    classtype which);
+void SpawnHiddenOfs(
+    enemy_t which,
+    Sint16 tilex,
+    Sint16 tiley);
+objtype* MoveHiddenOfs(
+    classtype which_class,
+    classtype new1,
+    fixed x,
+    fixed y);
 
-void CheckForSpecialTile(objtype *obj, Uint16 tilex, Uint16 tiley);
-void DropCargo(objtype *obj);
+void CheckForSpecialTile(
+    objtype* obj,
+    Uint16 tilex,
+    Uint16 tiley);
+void DropCargo(
+    objtype* obj);
 
 
 /*
 =============================================================================
 
-						 3D_TEXT DEFINITIONS
+                                                 3D_TEXT DEFINITIONS
 
 =============================================================================
 */
 
-extern  char    helpfilename[],endfilename[];
+extern char helpfilename[], endfilename[];
 
-extern  void    HelpScreens();
-extern  void    EndText();
+extern void HelpScreens();
+extern void EndText();
 
 
 /*
 =============================================================================
 
-						 3D_MSGS TEXT DEFINITIONS
+                                                 3D_MSGS TEXT DEFINITIONS
 
 =============================================================================
 */
@@ -5677,8 +5959,8 @@ extern char bonus_msg7[];
 extern char bonus_msg26[];
 #endif
 
-extern char *BonusMsg[];
-extern const char *ActorInfoMsg[];
+extern char* BonusMsg[];
+extern const char* ActorInfoMsg[];
 extern char ekg_heartbeat_enabled[];
 extern char ekg_heartbeat_disabled[];
 extern char attacker_info_enabled[];
@@ -5721,40 +6003,53 @@ extern char pd_floornotlocked[];
 /*
 =============================================================================
 
-						 3D_INTER DEFINITIONS
+                                                 3D_INTER DEFINITIONS
 
 =============================================================================
 */
 
 extern char BreifingText[];
 
-void UpdateScreenPic();				 
-void DisplayPrepingMsg(const char *text);
-boolean Breifing(breifing_type BreifingType,Uint16 episode);
-void ShPrint(const char *text, char shadow_color, boolean single_char);
-Uint16 Random(Uint16 Max);
+void UpdateScreenPic();
+void DisplayPrepingMsg(
+    const char* text);
+boolean Breifing(
+    breifing_type BreifingType,
+    Uint16 episode);
+void ShPrint(
+    const char* text,
+    char shadow_color,
+    boolean single_char);
+Uint16 Random(
+    Uint16 Max);
 
 
-//===========================================================================
+// ===========================================================================
 //
-//					3D_MENU DEFINATIONS - WHICH NEED TO BE GLOBAL
+//                                      3D_MENU DEFINATIONS - WHICH NEED TO BE GLOBAL
 //
-//===========================================================================
+// ===========================================================================
 
 extern boolean EscPressed;
 
-void DrawInstructions(inst_type Type);
-void CacheMessage(Uint16 MessageNum);
-void TerminateStr(char *pos);
-Uint32 CacheCompData(Uint16 ItemNum, void** dest_loc);
-boolean CheckForSpecialCode(Uint16 shortItemNum);
+void DrawInstructions(
+    inst_type Type);
+void CacheMessage(
+    Uint16 MessageNum);
+void TerminateStr(
+    char* pos);
+Uint32 CacheCompData(
+    Uint16 ItemNum,
+    void** dest_loc);
+boolean CheckForSpecialCode(
+    Uint16 shortItemNum);
 
 
-//===========================================================================
+// ===========================================================================
 //
-//					3D_FREE DEFINATIONS - WHICH NEED TO BE GLOBAL
+//                                      3D_FREE DEFINATIONS - WHICH NEED TO BE GLOBAL
 //
-//===========================================================================
+// ===========================================================================
 
 
 extern char JM_FREE_DATA_END[];
@@ -5762,14 +6057,20 @@ extern char JM_FREE_DATA_START[];
 
 
 // BBi
-objtype* ui16_to_actor(Uint16 value);
-Uint16 actor_to_ui16(const objtype* actor);
+objtype* ui16_to_actor(
+    Uint16 value);
+Uint16 actor_to_ui16(
+    const objtype* actor);
 
-statobj_t* ui16_to_static_object(Uint16 value);
-Uint16 static_object_to_ui16(const statobj_t* static_object);
+statobj_t* ui16_to_static_object(
+    Uint16 value);
+Uint16 static_object_to_ui16(
+    const statobj_t* static_object);
 
-doorobj_t* ui16_to_door_object(Uint16 value);
-Uint16 door_object_to_ui16(const doorobj_t* door_object);
+doorobj_t* ui16_to_door_object(
+    Uint16 value);
+Uint16 door_object_to_ui16(
+    const doorobj_t* door_object);
 
 extern bool g_no_wall_hit_sound;
 extern bool g_always_run;
@@ -5781,21 +6082,21 @@ extern bool g_rotated_automap;
 
 class ArchiveException : public std::exception {
 public:
-    explicit ArchiveException(
-        const char* what) throw();
+explicit ArchiveException(
+    const char* what) throw ();
 
-    ArchiveException(
-        const ArchiveException& that) throw();
+ArchiveException(
+    const ArchiveException& that) throw ();
 
-    virtual ~ArchiveException() throw();
+virtual ~ArchiveException() throw ();
 
-    ArchiveException& operator=(
-        const ArchiveException& that) throw();
+ArchiveException& operator=(
+    const ArchiveException& that) throw ();
 
-    virtual const char* what() const throw();
+virtual const char* what() const throw ();
 
 private:
-    const char* what_;
+const char* what_;
 }; // class ArchiveException
 
 
@@ -5819,29 +6120,32 @@ inline void serialize_field(
     Uint32& checksum)
 {
     ::DoChecksum(value, checksum);
-    if (!writer.write(bstone::Endian::le(value)))
+    if (!writer.write(bstone::Endian::le(value))) {
         throw ArchiveException("serialize_field");
+    }
 }
 
-template<class T,size_t N>
+template<class T, size_t N>
 inline void serialize_field(
-    const T (&value)[N],
+    const T(&value)[N],
     bstone::BinaryWriter& writer,
     Uint32& checksum)
 {
-    for (size_t i = 0; i < N; ++i)
+    for (size_t i = 0; i < N; ++i) {
         ::serialize_field<T>(value[i], writer, checksum);
+    }
 }
 
-template<class T,size_t M,size_t N>
+template<class T, size_t M, size_t N>
 inline void serialize_field(
-    const T (&value)[M][N],
+    const T(&value)[M][N],
     bstone::BinaryWriter& writer,
     Uint32& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
-        for (size_t j = 0; j < N; ++j)
+        for (size_t j = 0; j < N; ++j) {
             ::serialize_field<T>(value[i][j], writer, checksum);
+        }
     }
 }
 
@@ -5851,32 +6155,35 @@ inline void deserialize_field(
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
-    if (!reader.read(value))
+    if (!reader.read(value)) {
         throw ArchiveException("deserialize_field");
+    }
 
     bstone::Endian::lei(value);
     ::DoChecksum(value, checksum);
 }
 
-template<class T,size_t N>
+template<class T, size_t N>
 inline void deserialize_field(
-    T (&value)[N],
+    T(&value)[N],
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
-    for (size_t i = 0; i < N; ++i)
+    for (size_t i = 0; i < N; ++i) {
         ::deserialize_field<T>(value[i], reader, checksum);
+    }
 }
 
-template<class T,size_t M,size_t N>
+template<class T, size_t M, size_t N>
 inline void deserialize_field(
-    T (&value)[M][N],
+    T(&value)[M][N],
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
-        for (size_t j = 0; j < N; ++j)
+        for (size_t j = 0; j < N; ++j) {
             ::deserialize_field<T>(value[i][j], reader, checksum);
+        }
     }
 }
 // BBi

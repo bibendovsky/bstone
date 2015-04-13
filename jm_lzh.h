@@ -28,16 +28,18 @@ Free Software Foundation, Inc.,
 #include "SDL.h"
 
 
-extern void (*LZH_CompressDisplayVector)(Uint32, Uint32);
-extern void (*LZH_DecompressDisplayVector)(Uint32, Uint32);
+extern void (* LZH_CompressDisplayVector)(Uint32, Uint32);
+extern void (* LZH_DecompressDisplayVector)(
+    Uint32,
+    Uint32);
 
 
 
-//===========================================================================
+// ===========================================================================
 //
-//											PROTOTYPES
+//                                                                                      PROTOTYPES
 //
-//===========================================================================
+// ===========================================================================
 
 
 bool LZH_Startup();

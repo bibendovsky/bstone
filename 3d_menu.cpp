@@ -30,14 +30,22 @@ Free Software Foundation, Inc.,
 #endif
 
 
-void CA_CacheScreen (Sint16 chunk);
+void CA_CacheScreen(
+    Sint16 chunk);
 void VH_UpdateScreen();
-void	DrawHighScores();
-void ClearMemory ();
-void DrawTopInfo(sp_type type);
-void PreloadUpdate(Uint16 current, Uint16 total);
-void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
-boolean LoadTheGame(int handle);
+void DrawHighScores();
+void ClearMemory();
+void DrawTopInfo(
+    sp_type type);
+void PreloadUpdate(
+    Uint16 current,
+    Uint16 total);
+void INL_GetJoyDelta(
+    Uint16 joy,
+    Sint16* dx,
+    Sint16* dy);
+boolean LoadTheGame(
+    int handle);
 boolean IN_CheckAck();
 
 // BBi
@@ -47,53 +55,59 @@ bool LoadTheGame(
 // As is, this switch will not work ... the data associated with this
 // is not saved out correctly.
 //
-//#define CACHE_KEY_DATA
+// #define CACHE_KEY_DATA
 
 
 //
 // End game message
 //
 
-char EndGameStr[] = {"    End current game?\n"
-								 " Are you sure (Y or N)?"
-};
+char EndGameStr[] = { "    End current game?\n"
+                      " Are you sure (Y or N)?" };
 
 
-#define ENDGAMESTR	(EndGameStr)
+#define ENDGAMESTR (EndGameStr)
 
-char QuitToDosStr[] = {"      Quit to DOS?\n"
-									" Are you sure (Y or N)?"
-};
+char QuitToDosStr[] = { "      Quit to DOS?\n"
+                        " Are you sure (Y or N)?" };
 
-//#define FREEFONT(fontnum)	{MM_SetPurge (&(memptr)grsegs[fontnum],3);}
-#define FREEFONT(fontnum) {if (fontnum != STARTFONT+2 && grsegs[fontnum]) UNCACHEGRCHUNK(fontnum);}
+// #define FREEFONT(fontnum)    {MM_SetPurge (&(memptr)grsegs[fontnum],3);}
+#define FREEFONT(fontnum) { if (fontnum != STARTFONT + 2 && grsegs[fontnum]) { UNCACHEGRCHUNK(fontnum); } }
 
 
 boolean EscPressed = false;
 
-Sint16	lastmenumusic;
+Sint16 lastmenumusic;
 
 
-//===========================================================================
+// ===========================================================================
 //
-// 							    PRIVATE PROTOTYPES
+//                                                          PRIVATE PROTOTYPES
 //
-//===========================================================================
+// ===========================================================================
 
-void CP_ReadThis(Sint16 temp1);
-void CP_OrderingInfo(Sint16 temp1);
-void DrawEpisodePic(Sint16 w);
-void DrawAllSoundLights(Sint16 which);
+void CP_ReadThis(
+    Sint16 temp1);
+void CP_OrderingInfo(
+    Sint16 temp1);
+void DrawEpisodePic(
+    Sint16 w);
+void DrawAllSoundLights(
+    Sint16 which);
 void ReadGameNames();
 void FreeMusic();
-void CP_GameOptions(Sint16 temp1);
+void CP_GameOptions(
+    Sint16 temp1);
 void DrawGopMenu();
 void CalibrateJoystick();
 void ExitGame();
-void CP_Switches(Sint16 temp1);
+void CP_Switches(
+    Sint16 temp1);
 void DrawSwitchMenu();
-void DrawAllSwitchLights(Sint16 which);
-void DrawSwitchDescription(Sint16 which);
+void DrawAllSwitchLights(
+    Sint16 which);
+void DrawSwitchDescription(
+    Sint16 which);
 
 // BBi
 void cp_sound_volume(
@@ -103,171 +117,161 @@ void cp_sound_volume(
 extern boolean refresh_screen;
 
 
-//===========================================================================
+// ===========================================================================
 //
-// 							       LOCAL DATA...
+//                                                             LOCAL DATA...
 //
-//===========================================================================
+// ===========================================================================
 
 CP_iteminfo
-	MainItems=	{MENU_X,MENU_Y,12,MM_READ_THIS,0,9,{77, 1,154,9,1}},
-	GopItems=	{MENU_X,MENU_Y+30,4,0,0,9,{77, 1,154,9,1}},
-	SndItems=	{SM_X,SM_Y,6,0,0,7,		{87,-1,144,7,1}},
-	LSItems=	{LSM_X,LSM_Y,10,0,0,8,	{86,-1,144,8,1}},
-	CtlItems=	{CTL_X,CTL_Y,7,-1,0,9,	{87,1,174,9,1}},
-	CusItems=	{CST_X,CST_Y+7,6,-1,0,15,{54,-1,203,7,1}},
-	NewEitems=	{NE_X,NE_Y,6,0,0,16,	{43,-2,119,16,1}},
-	NewItems=	{NM_X,NM_Y,4,1,0,16,		{60,-2,105,16,1}},
+    MainItems = { MENU_X, MENU_Y, 12, MM_READ_THIS, 0, 9, { 77, 1, 154, 9, 1 } },
+    GopItems = { MENU_X, MENU_Y + 30, 4, 0, 0, 9, { 77, 1, 154, 9, 1 } },
+    SndItems = { SM_X, SM_Y, 6, 0, 0, 7, { 87, -1, 144, 7, 1 } },
+    LSItems = { LSM_X, LSM_Y, 10, 0, 0, 8, { 86, -1, 144, 8, 1 } },
+    CtlItems = { CTL_X, CTL_Y, 7, -1, 0, 9, { 87, 1, 174, 9, 1 } },
+    CusItems = { CST_X, CST_Y + 7, 6, -1, 0, 15, { 54, -1, 203, 7, 1 } },
+    NewEitems = { NE_X, NE_Y, 6, 0, 0, 16, { 43, -2, 119, 16, 1 } },
+    NewItems = { NM_X, NM_Y, 4, 1, 0, 16, { 60, -2, 105, 16, 1 } },
 #ifdef BSTONE_AOG
-    SwitchItems=	{MENU_X,MENU_Y+7,9,0,0,9,{87,-1,132,7,1}};
+    SwitchItems = { MENU_X, MENU_Y + 7, 9, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 #else
-	SwitchItems=	{MENU_X,MENU_Y+15,7,0,0,9,{87,-1,132,7,1}};
+SwitchItems = { MENU_X, MENU_Y + 15, 7, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 #endif // BSTONE_AOG
 
 
 
-CP_itemtype MainMenu[]=
-{
-	{AT_ENABLED,"NEW MISSION",CP_NewGame,COAL_FONT},
-	{AT_READIT,"ORDERING INFO",CP_OrderingInfo},
-	{AT_READIT,"INSTRUCTIONS",CP_ReadThis},
-	{AT_ENABLED,"STORY",CP_BlakeStoneSaga},
-	{AT_DISABLED,"",0},
-	{AT_ENABLED,"GAME OPTIONS",CP_GameOptions},
-	{AT_ENABLED,"HIGH SCORES",CP_ViewScores},
-	{AT_ENABLED,"LOAD MISSION",reinterpret_cast<void (*)(Sint16)>(CP_LoadGame)},
-	{AT_DISABLED,"SAVE MISSION",reinterpret_cast<void (*)(Sint16)>(CP_SaveGame)},
-	{AT_DISABLED,"",0},
-	{AT_ENABLED,"BACK TO DEMO",CP_ExitOptions},
-	{AT_ENABLED,"LOGOFF",0}
+CP_itemtype MainMenu[] = {
+    { AT_ENABLED, "NEW MISSION", CP_NewGame, COAL_FONT },
+    { AT_READIT, "ORDERING INFO", CP_OrderingInfo },
+    { AT_READIT, "INSTRUCTIONS", CP_ReadThis },
+    { AT_ENABLED, "STORY", CP_BlakeStoneSaga },
+    { AT_DISABLED, "", 0 },
+    { AT_ENABLED, "GAME OPTIONS", CP_GameOptions },
+    { AT_ENABLED, "HIGH SCORES", CP_ViewScores },
+    { AT_ENABLED, "LOAD MISSION", reinterpret_cast<void (*)(Sint16)>(CP_LoadGame) },
+    { AT_DISABLED, "SAVE MISSION", reinterpret_cast<void (*)(Sint16)>(CP_SaveGame) },
+    { AT_DISABLED, "", 0 },
+    { AT_ENABLED, "BACK TO DEMO", CP_ExitOptions },
+    { AT_ENABLED, "LOGOFF", 0 }
 },
 
-GopMenu[]=
-{
-	{AT_ENABLED,"SOUND",CP_Sound},
+            GopMenu[] = {
+    { AT_ENABLED, "SOUND", CP_Sound },
 
     // BBi
-    {AT_ENABLED, "SOUND VOLUME", cp_sound_volume},
+    { AT_ENABLED, "SOUND VOLUME", cp_sound_volume },
 
-	{AT_ENABLED,"CONTROLS",CP_Control},
-	{AT_ENABLED,"SWITCHES",CP_Switches}
+    { AT_ENABLED, "CONTROLS", CP_Control },
+    { AT_ENABLED, "SWITCHES", CP_Switches }
 },
 
-SndMenu[]=
-{
- {AT_ENABLED,"NONE",0},
- {AT_ENABLED,"ADLIB/SOUND BLASTER",0},
- {AT_DISABLED,"",0},
- {AT_DISABLED,"",0},
- {AT_ENABLED,"NONE",0},
- {AT_ENABLED,"ADLIB/SOUND BLASTER",0}
+            SndMenu[] = {
+    { AT_ENABLED, "NONE", 0 },
+    { AT_ENABLED, "ADLIB/SOUND BLASTER", 0 },
+    { AT_DISABLED, "", 0 },
+    { AT_DISABLED, "", 0 },
+    { AT_ENABLED, "NONE", 0 },
+    { AT_ENABLED, "ADLIB/SOUND BLASTER", 0 }
 },
 
-CtlMenu[]=
-{
- {AT_DISABLED,"MOUSE ENABLED",0},
- {AT_DISABLED,"JOYSTICK ENABLED",0},
- {AT_DISABLED,"USE JOYSTICK PORT 2",0},
- {AT_DISABLED,"GRAVIS GAMEPAD ENABLED",0},
- {AT_DISABLED,"CALIBRATE JOYSTICK",0},
- {AT_DISABLED,"MOUSE SENSITIVITY",MouseSensitivity},
- {AT_ENABLED,"CUSTOMIZE CONTROLS",CustomControls}
+            CtlMenu[] = {
+    { AT_DISABLED, "MOUSE ENABLED", 0 },
+    { AT_DISABLED, "JOYSTICK ENABLED", 0 },
+    { AT_DISABLED, "USE JOYSTICK PORT 2", 0 },
+    { AT_DISABLED, "GRAVIS GAMEPAD ENABLED", 0 },
+    { AT_DISABLED, "CALIBRATE JOYSTICK", 0 },
+    { AT_DISABLED, "MOUSE SENSITIVITY", MouseSensitivity },
+    { AT_ENABLED, "CUSTOMIZE CONTROLS", CustomControls }
 },
 
-SwitchMenu[] = {
-     { AT_ENABLED, "LIGHTING", 0 },
-     { AT_ENABLED, "REBA ATTACK INFO", 0 },
-     { AT_ENABLED, "SHOW CEILINGS", 0 },
-     { AT_ENABLED, "SHOW FLOORS", 0 },
+            SwitchMenu[] = {
+    { AT_ENABLED, "LIGHTING", 0 },
+    { AT_ENABLED, "REBA ATTACK INFO", 0 },
+    { AT_ENABLED, "SHOW CEILINGS", 0 },
+    { AT_ENABLED, "SHOW FLOORS", 0 },
 
-     // BBi
-     { AT_ENABLED, "NO WALL HIT SOUND", 0 },
-     { AT_ENABLED, "MODERN CONTROLS", 0 },
-     { AT_ENABLED, "ALWAYS RUN", 0 }
+    // BBi
+    { AT_ENABLED, "NO WALL HIT SOUND", 0 },
+    { AT_ENABLED, "MODERN CONTROLS", 0 },
+    { AT_ENABLED, "ALWAYS RUN", 0 }
 
 #ifdef BSTONE_AOG
-     ,
-     { AT_ENABLED, "HEART BEAT SOUND", 0 },
-     { AT_ENABLED, "ROTATED AUTOMAP", 0 }
+    ,
+    { AT_ENABLED, "HEART BEAT SOUND", 0 },
+    { AT_ENABLED, "ROTATED AUTOMAP", 0 }
 #endif // BSTONE_AOG
- },
+},
 
 
 #ifdef BSTONE_AOG
-NewEmenu[]=
-{
- {AT_ENABLED,"MISSION 1:\n"
-				 "STAR INSTITUTE",0},
+            NewEmenu[] = {
+    { AT_ENABLED, "MISSION 1:\n"
+      "STAR INSTITUTE", 0 },
 
- {AT_NON_SELECTABLE,"MISSION 2:\n"
-				  "FLOATING FORTRESS",0},
+    { AT_NON_SELECTABLE, "MISSION 2:\n"
+      "FLOATING FORTRESS", 0 },
 
- {AT_NON_SELECTABLE,"MISSION 3:\n"
-				  "UNDERGROUND NETWORK",0},
+    { AT_NON_SELECTABLE, "MISSION 3:\n"
+      "UNDERGROUND NETWORK", 0 },
 
- {AT_NON_SELECTABLE,"MISSION 4:\n"
-				  "STAR PORT",0},
+    { AT_NON_SELECTABLE, "MISSION 4:\n"
+      "STAR PORT", 0 },
 
- {AT_NON_SELECTABLE,"MISSION 5:\n"
-				  "HABITAT II",0},
+    { AT_NON_SELECTABLE, "MISSION 5:\n"
+      "HABITAT II", 0 },
 
- {AT_NON_SELECTABLE,"MISSION 6:\n"
-				  "SATELLITE DEFENSE",0},
+    { AT_NON_SELECTABLE, "MISSION 6:\n"
+      "SATELLITE DEFENSE", 0 },
 },
 #endif
 
-NewMenu[]=
-{
- {AT_ENABLED,"LEVEL 1:\n"
-				 "NOVICE AGENT",0},
- {AT_ENABLED,"LEVEL 2:\n"
-				 "SKILLED AGENT",0},
- {AT_ENABLED,"LEVEL 3:\n"
-				 "EXPERT AGENT",0},
- {AT_ENABLED,"LEVEL 4:\n"
-				 "VETERAN AGENT",0}
+NewMenu[] = {
+    { AT_ENABLED, "LEVEL 1:\n"
+      "NOVICE AGENT", 0 },
+    { AT_ENABLED, "LEVEL 2:\n"
+      "SKILLED AGENT", 0 },
+    { AT_ENABLED, "LEVEL 3:\n"
+      "EXPERT AGENT", 0 },
+    { AT_ENABLED, "LEVEL 4:\n"
+      "VETERAN AGENT", 0 }
 },
 
-LSMenu[]=
-{
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0}
+            LSMenu[] = {
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 }
 },
 
-CusMenu[]=
-{
- {AT_ENABLED,"",0},
- {AT_DISABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_DISABLED,"",0},
- {AT_ENABLED,"",0},
- {AT_ENABLED,"",0}
+            CusMenu[] = {
+    { AT_ENABLED, "", 0 },
+    { AT_DISABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_DISABLED, "", 0 },
+    { AT_ENABLED, "", 0 },
+    { AT_ENABLED, "", 0 }
 }
 ;
 
 
-Sint16 color_hlite[]=
-{
-	HIGHLIGHT_DISABLED_COLOR,
-	HIGHLIGHT_TEXT_COLOR,
-	READHCOLOR,
-	HIGHLIGHT_DEACTIAVED_COLOR,
+Sint16 color_hlite[] = {
+    HIGHLIGHT_DISABLED_COLOR,
+    HIGHLIGHT_TEXT_COLOR,
+    READHCOLOR,
+    HIGHLIGHT_DEACTIAVED_COLOR,
 };
 
-Sint16 color_norml[]=
-{
-	DISABLED_TEXT_COLOR,
-	ENABLED_TEXT_COLOR,
-	READCOLOR,
-	DEACTIAVED_TEXT_COLOR,
+Sint16 color_norml[] = {
+    DISABLED_TEXT_COLOR,
+    ENABLED_TEXT_COLOR,
+    READCOLOR,
+    DEACTIAVED_TEXT_COLOR,
 };
 
 Sint16 EpisodeSelect[6] = {
@@ -288,8 +292,8 @@ Sint16 EpisodeSelect[6] = {
 #endif
 };
 
-Sint16 SaveGamesAvail[10],StartGame,SoundStatus=1,pickquick;
-char SaveGameNames[10][GAME_DESCRIPTION_LEN+1];
+Sint16 SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
+char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
 
@@ -302,7 +306,7 @@ static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
 #ifndef CACHE_KEY_DATA
 
-#define type_cast(x,y) (reinterpret_cast<x>(const_cast<char*>(y)))
+#define type_cast(x, y) (reinterpret_cast<x>(const_cast<char*>(y)))
 
 static Uint8* ScanNames[] = { // Scan code names with single chars
     type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
@@ -434,14 +438,13 @@ static Uint8* ExtScanNames[] = { // Names corresponding to ExtScanCodes
 
 #else
 
-Uint8 *ScanNames, * ExtScanNames;
-ScanCode *ExtScanCodes;
+Uint8* ScanNames, * ExtScanNames;
+ScanCode* ExtScanCodes;
 
 #endif
 
-static Uint8 special_keys[] =
-{
-	sc_back_quote,sc_equals,sc_minus,sc_l,sc_p,sc_m,sc_s,sc_i,sc_q,sc_w,sc_e,sc_return,sc_1,sc_2,sc_3,sc_4,sc_5,sc_tab
+static Uint8 special_keys[] = {
+    sc_back_quote, sc_equals, sc_minus, sc_l, sc_p, sc_m, sc_s, sc_i, sc_q, sc_w, sc_e, sc_return, sc_1, sc_2, sc_3, sc_4, sc_5, sc_tab
 };
 
 
@@ -449,7 +452,7 @@ static Uint8 special_keys[] =
 namespace {
 
 
-typedef std::map<ScanCode,const char*> BindsNames;
+typedef std::map<ScanCode, const char*> BindsNames;
 typedef BindsNames::const_iterator BindsNamesCIt;
 
 
@@ -466,9 +469,9 @@ enum BindsFindFrom {
 
 class BindsItem {
 public:
-    const char* name;
-    int name_width;
-    Binding* binding;
+const char* name;
+int name_width;
+Binding* binding;
 }; // class BindsItem
 
 static BindsItem binds[] = {
@@ -571,8 +574,9 @@ void binds_initialize_menu()
 {
     static bool is_initialized = false;
 
-    if (is_initialized)
+    if (is_initialized) {
         return;
+    }
 
     binds_count = 0;
     binds_window = 0;
@@ -597,11 +601,13 @@ void binds_initialize_menu()
 
             i->name_width = width;
 
-            if (width > binds_max_text_width)
+            if (width > binds_max_text_width) {
                 binds_max_text_width = width;
+            }
 
-            if (height > binds_text_height)
+            if (height > binds_text_height) {
                 binds_text_height = height;
+            }
 
             has_bindings = true;
         }
@@ -708,15 +714,16 @@ void binds_initialize_menu()
     binds_names[sc_mouse_x2] = "MOUSE 5";
 
     for (BindsNamesCIt i = binds_names.begin();
-        i != binds_names.end();
-        ++i)
+         i != binds_names.end();
+         ++i)
     {
         int width = 0;
         int height = 0;
         VW_MeasurePropString(i->second, &width, &height);
 
-        if (width > binds_key_width)
+        if (width > binds_key_width) {
             binds_key_width = width;
+        }
     }
 
     int max_keys_width = k_max_binding_keys * (binds_key_width + 1);
@@ -729,8 +736,9 @@ void binds_initialize_menu()
 
     binds_text_x = text_x;
 
-    for (int i = 0; i < k_max_binding_keys; ++i)
+    for (int i = 0; i < k_max_binding_keys; ++i) {
         binds_key_x[i] = base_key_x + (i * (binds_key_width + 1));
+    }
 
     is_initialized = true;
 }
@@ -749,8 +757,9 @@ bool binds_advance_to_item(
             }
 
             return true;
-        } else
+        } else {
             return false;
+        }
 
     case e_bfd_backward:
         if ((binds_window + binds_window_offset) > 0) {
@@ -762,8 +771,9 @@ bool binds_advance_to_item(
             }
 
             return true;
-        } else
+        } else {
             return false;
+        }
 
     default:
         return false;
@@ -777,16 +787,19 @@ bool binds_find_item(
     BindsFindFrom from)
 {
     if (from == e_bff_not_current) {
-        if (!binds_advance_to_item(direction))
+        if (!binds_advance_to_item(direction)) {
             return false;
+        }
     }
 
     while (true) {
-        if (binds[binds_window + binds_window_offset].binding)
+        if (binds[binds_window + binds_window_offset].binding) {
             return true;
+        }
 
-        if (!binds_advance_to_item(direction))
+        if (!binds_advance_to_item(direction)) {
             return false;
+        }
     }
 
     return false;
@@ -799,13 +812,15 @@ bool binds_assign_new_key(
     BindsNamesCIt it =
         binds_names.find(LastScan);
 
-    if (it == binds_names.end())
+    if (it == binds_names.end()) {
         return false;
+    }
 
     for (int b = 0; b < k_max_bindings; ++b) {
         for (int k = 0; k < k_max_binding_keys; ++k) {
-            if (in_bindings[b][k] == key)
+            if (in_bindings[b][k] == key) {
                 in_bindings[b][k] = sc_none;
+            }
         }
     }
 
@@ -825,12 +840,13 @@ void binds_draw_item_text(
 {
     BindsItem& item = binds[binds_window + item_index];
 
-    if (item.name[0] == '\0')
+    if (item.name[0] == '\0') {
         return;
+    }
 
     int x = SCREEN_X + binds_text_x;
     int y = SCREEN_Y + k_binds_top +
-        (item_index * (binds_text_height + k_binds_line_spacing));
+            (item_index * (binds_text_height + k_binds_line_spacing));
 
     int text_left_offset = 0;
     int text_width = 0;
@@ -843,8 +859,9 @@ void binds_draw_item_text(
             text_left_offset = 0;
             text_width = binds_max_text_width;
         }
-    } else
+    } else {
         text_width = SCREEN_W;
+    }
 
     PrintX = x + text_left_offset;
     PrintY = y;
@@ -868,11 +885,12 @@ void binds_draw_keys(
     const BindsItem& item =
         binds[binds_window + item_index];
 
-    if (!item.binding)
+    if (!item.binding) {
         return;
+    }
 
     int y = SCREEN_Y + k_binds_top +
-        (item_index * (binds_text_height + k_binds_line_spacing));
+            (item_index * (binds_text_height + k_binds_line_spacing));
 
     bool is_current = (item_index == binds_window_offset);
 
@@ -886,10 +904,11 @@ void binds_draw_keys(
         if (is_active) {
             color =
                 binds_is_assigning ?
-                    k_binds_key_bar_assign_color :
-                    k_binds_key_bar_active_color;
-        } else
+                k_binds_key_bar_assign_color :
+                k_binds_key_bar_active_color;
+        } else {
             color = k_binds_key_bar_default_color;
+        }
 
         int x = SCREEN_X + binds_key_x[k];
 
@@ -915,8 +934,9 @@ void binds_draw_keys(
 
                 BindsNamesCIt name_it = binds_names.find(key);
 
-                if (name_it != binds_names.end())
+                if (name_it != binds_names.end()) {
                     key_name = name_it->second;
+                }
 
                 fontcolor = k_binds_key_text_color;
                 US_PrintCentered(key_name);
@@ -931,8 +951,9 @@ void binds_draw()
 
     found_item = binds_find_item(e_bfd_forward, e_bff_current);
 
-    if (!found_item)
+    if (!found_item) {
         found_item = binds_find_item(e_bfd_backward, e_bff_current);
+    }
 
     ClearMScreen();
     DrawMenuTitle("CUSTOMIZE CONTROLS");
@@ -947,8 +968,9 @@ void binds_draw()
     for (int i = 0; i < k_binds_max_per_window; ++i) {
         int item_index = binds_window + i;
 
-        if (item_index == binds_count)
+        if (item_index == binds_count) {
             break;
+        }
 
         binds_draw_item_text(i);
         binds_draw_keys(i);
@@ -1014,8 +1036,9 @@ void binds_draw_menu()
                     if (binds_assign_new_key(LastScan, *item.binding)) {
                         ShootSnd();
                         quit = true;
-                    } else
+                    } else {
                         sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                    }
                 }
             }
 
@@ -1027,72 +1050,81 @@ void binds_draw_menu()
                     handle_up = true;
                     is_up_pressed = true;
                 }
-            } else
+            } else {
                 is_up_pressed = false;
+            }
 
             if (Keyboard[sc_down_arrow]) {
                 if (!is_down_pressed) {
                     handle_down = true;
                     is_down_pressed = true;
                 }
-            } else
+            } else {
                 is_down_pressed = false;
+            }
 
             if (Keyboard[sc_left_arrow]) {
                 if (!is_left_pressed) {
                     handle_left = true;
                     is_left_pressed = true;
                 }
-            } else
+            } else {
                 is_left_pressed = false;
+            }
 
             if (Keyboard[sc_right_arrow]) {
                 if (!is_right_pressed) {
                     handle_right = true;
                     is_right_pressed = true;
                 }
-            } else
+            } else {
                 is_right_pressed = false;
+            }
 
             if (Keyboard[sc_page_down]) {
                 if (!is_pgdn_pressed) {
                     handle_pgdn = true;
                     is_pgdn_pressed = true;
                 }
-            } else
+            } else {
                 is_pgdn_pressed = false;
+            }
 
             if (Keyboard[sc_page_up]) {
                 if (!is_pgup_pressed) {
                     handle_pgup = true;
                     is_pgup_pressed = true;
                 }
-            } else
+            } else {
                 is_pgup_pressed = false;
+            }
 
             if (Keyboard[sc_return]) {
                 if (!is_enter_pressed) {
                     handle_enter = true;
                     is_enter_pressed = true;
                 }
-            } else
+            } else {
                 is_enter_pressed = false;
+            }
 
             if (Keyboard[sc_delete]) {
                 if (!is_delete_pressed) {
                     handle_delete = true;
                     is_delete_pressed = true;
                 }
-            } else
+            } else {
                 is_delete_pressed = false;
+            }
 
             if (Keyboard[sc_escape]) {
                 if (!is_escape_pressed) {
                     handle_escape = true;
                     is_escape_pressed = true;
                 }
-            } else
+            } else {
                 is_escape_pressed = false;
+            }
 
             if (handle_up) {
                 handle_up = false;
@@ -1107,29 +1139,33 @@ void binds_draw_menu()
             if (handle_left) {
                 handle_left = false;
 
-                if (binds_key_index == 1)
+                if (binds_key_index == 1) {
                     binds_key_index = 0;
+                }
             }
 
             if (handle_right) {
                 handle_right = false;
 
-                if (binds_key_index == 0)
+                if (binds_key_index == 0) {
                     binds_key_index = 1;
+                }
             }
 
             if (handle_pgdn) {
                 handle_pgdn = false;
 
-                for (int i = 0; i < k_binds_max_per_window; ++i)
+                for (int i = 0; i < k_binds_max_per_window; ++i) {
                     binds_find_item(e_bfd_forward, e_bff_not_current);
+                }
             }
 
             if (handle_pgup) {
                 handle_pgup = false;
 
-                for (int i = 0; i < k_binds_max_per_window; ++i)
+                for (int i = 0; i < k_binds_max_per_window; ++i) {
                     binds_find_item(e_bfd_backward, e_bff_not_current);
+                }
             }
 
             if (handle_enter) {
@@ -1159,116 +1195,125 @@ void binds_draw_menu()
 // BBi
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // HelpScreens()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void HelpScreens()
 {
 #ifndef ID_CACHE_HELP
-	HelpPresenter("HELP.TXT",false,0,true);
+    HelpPresenter("HELP.TXT", false, 0, true);
 #else
-	HelpPresenter(NULL,false,HELPTEXT,true);
+    HelpPresenter(NULL, false, HELPTEXT, true);
 #endif
 }
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // HelpPresenter()
-//-------------------------------------------------------------------------
-void HelpPresenter(const char *fname,boolean continue_keys, Uint16 id_cache, boolean startmusic)
+// -------------------------------------------------------------------------
+void HelpPresenter(
+    const char* fname,
+    boolean continue_keys,
+    Uint16 id_cache,
+    boolean startmusic)
 {
-	#define FULL_VIEW_WIDTH			19
+#define FULL_VIEW_WIDTH 19
 
-	PresenterInfo pi;
-	Sint16 oldwidth;
+    PresenterInfo pi;
+    Sint16 oldwidth;
 
-	memset(&pi,0,sizeof(pi));
+    memset(&pi, 0, sizeof(pi));
 
-	pi.flags = TPF_SHOW_PAGES;
-	if (continue_keys)
-		pi.flags |= TPF_CONTINUE;
+    pi.flags = TPF_SHOW_PAGES;
+    if (continue_keys) {
+        pi.flags |= TPF_CONTINUE;
+    }
 
-	VW_FadeOut();
+    VW_FadeOut();
 
 // Change view size to MAX! (scaler clips shapes on smaller views)
 //
-	oldwidth = viewwidth/16;
-	if (oldwidth != FULL_VIEW_WIDTH)
-		NewViewSize();
+    oldwidth = viewwidth / 16;
+    if (oldwidth != FULL_VIEW_WIDTH) {
+        NewViewSize();
+    }
 
 // Draw help border
 //
-	CacheLump(H_TOPWINDOWPIC,H_BOTTOMINFOPIC);
-	VWB_DrawPic (0,0,H_TOPWINDOWPIC);
-	VWB_DrawPic (0,8,H_LEFTWINDOWPIC);
-	VWB_DrawPic (312,8,H_RIGHTWINDOWPIC);
-	VWB_DrawPic (8,176,H_BOTTOMINFOPIC);
-	UnCacheLump(H_TOPWINDOWPIC,H_BOTTOMINFOPIC);
+    CacheLump(H_TOPWINDOWPIC, H_BOTTOMINFOPIC);
+    VWB_DrawPic(0, 0, H_TOPWINDOWPIC);
+    VWB_DrawPic(0, 8, H_LEFTWINDOWPIC);
+    VWB_DrawPic(312, 8, H_RIGHTWINDOWPIC);
+    VWB_DrawPic(8, 176, H_BOTTOMINFOPIC);
+    UnCacheLump(H_TOPWINDOWPIC, H_BOTTOMINFOPIC);
 
 // Setup for text presenter
 //
-	pi.xl=8;
-	pi.yl=8;
-	pi.xh=311;
-	pi.yh=175;
-	pi.ltcolor=0x7b;
-	pi.bgcolor=0x7d;
-	pi.dkcolor=0x7f;
-	pi.shcolor=0x00;
-	pi.fontnumber=4;
+    pi.xl = 8;
+    pi.yl = 8;
+    pi.xh = 311;
+    pi.yh = 175;
+    pi.ltcolor = 0x7b;
+    pi.bgcolor = 0x7d;
+    pi.dkcolor = 0x7f;
+    pi.shcolor = 0x00;
+    pi.fontnumber = 4;
 
-	if (continue_keys)
-		pi.infoline = (char *)" UP / DN - PAGES       ENTER - CONTINUES         ESC - EXITS";
-	else
-		pi.infoline = (char *)"           UP / DN - PAGES            ESC - EXITS";
+    if (continue_keys) {
+        pi.infoline = (char*)" UP / DN - PAGES       ENTER - CONTINUES         ESC - EXITS";
+    } else {
+        pi.infoline = (char*)"           UP / DN - PAGES            ESC - EXITS";
+    }
 
-	if (startmusic) {
+    if (startmusic) {
 #ifdef BSTONE_AOG
         // FIXME
 #else
-		StartCPMusic(TEXTSONG);
+        StartCPMusic(TEXTSONG);
 #endif // BSTONE_AOG
     }
 
 // Load, present, and free help text.
 //
-	TP_LoadScript(fname,&pi,id_cache);
-	TP_Presenter(&pi);
-	TP_FreeScript(&pi,id_cache);
+    TP_LoadScript(fname, &pi, id_cache);
+    TP_Presenter(&pi);
+    TP_FreeScript(&pi, id_cache);
 
-	MenuFadeOut();
+    MenuFadeOut();
 
 // Reset view size
 //
-	if (oldwidth != FULL_VIEW_WIDTH)
-		NewViewSize();
+    if (oldwidth != FULL_VIEW_WIDTH) {
+        NewViewSize();
+    }
 
-	if (startmusic && TPscan==sc_escape) {
+    if (startmusic && TPscan == sc_escape) {
 #ifdef BSTONE_AOG
         // FIXME
 #else
-		StartCPMusic(MENUSONG);
+        StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
     }
 
-	IN_ClearKeysDown();
+    IN_ClearKeysDown();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // US_ControlPanel() - Control Panel!  Ta Da!
-//--------------------------------------------------------------------------
-void US_ControlPanel(Uint8 scancode)
+// --------------------------------------------------------------------------
+void US_ControlPanel(
+    Uint8 scancode)
 {
-	Sint16 which;
+    Sint16 which;
 
 #ifdef CACHE_KEY_DATA
- CA_CacheGrChunk(SCANNAMES_DATA);
- CA_CacheGrChunk(EXTSCANNAMES_DATA);
- CA_CacheGrChunk(EXTSCANCODES_DATA);
+    CA_CacheGrChunk(SCANNAMES_DATA);
+    CA_CacheGrChunk(EXTSCANNAMES_DATA);
+    CA_CacheGrChunk(EXTSCANCODES_DATA);
 
- ScanNames = grsegs[SCANNAMES_DATA];
- ExtScanNames = grsegs[EXTSCANNAMES_DATA];
- ExtScanCodes = grsegs[EXTSCANCODES_DATA];
+    ScanNames = grsegs[SCANNAMES_DATA];
+    ExtScanNames = grsegs[EXTSCANNAMES_DATA];
+    ExtScanCodes = grsegs[EXTSCANCODES_DATA];
 #else
 
 //
@@ -1276,537 +1321,530 @@ void US_ControlPanel(Uint8 scancode)
 // for SCANNAMES and EXTSCANCODES...
 //
 
-//	IO_WriteFile("SCANNAME.BIN",ScanNames,sizeof(ScanNames));
-//	IO_WriteFile("EXTSCNAM.BIN",ExtScanNames,sizeof(ExtScanNames));
-//	IO_WriteFile("EXTSCCOD.BIN",ExtScanCodes,sizeof(ExtScanCodes));
+//      IO_WriteFile("SCANNAME.BIN",ScanNames,sizeof(ScanNames));
+//      IO_WriteFile("EXTSCNAM.BIN",ExtScanNames,sizeof(ExtScanNames));
+//      IO_WriteFile("EXTSCCOD.BIN",ExtScanCodes,sizeof(ExtScanCodes));
 
 #endif
 
-	if (ingame)
-		if (CP_CheckQuick(scancode))
-			return;
+    if (ingame) {
+        if (CP_CheckQuick(scancode)) {
+            return;
+        }
+    }
 
-	SetupControlPanel();
+    SetupControlPanel();
 
 #ifdef BSTONE_AOG
     // FIXME
 #else
-	StartCPMusic(MENUSONG);
+    StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
 
- //
- // F-KEYS FROM WITHIN GAME
- //
- switch(scancode)
- {
-  case sc_f1:
-	 CleanupControlPanel();
-	 HelpScreens();
-	 return;
+    //
+    // F-KEYS FROM WITHIN GAME
+    //
+    switch (scancode) {
+    case sc_f1:
+        CleanupControlPanel();
+        HelpScreens();
+        return;
 
-  case sc_f2:
-	 CP_SaveGame(0);
-    goto finishup;
+    case sc_f2:
+        CP_SaveGame(0);
+        goto finishup;
 
-  case sc_f3:
-	 CP_LoadGame(0);
-//	 refresh_screen=false;
-    goto finishup;
+    case sc_f3:
+        CP_LoadGame(0);
+//       refresh_screen=false;
+        goto finishup;
 
-  case sc_f4:
-    CP_Sound(0);
-	 goto finishup;
+    case sc_f4:
+        CP_Sound(0);
+        goto finishup;
 
 // BBi
 #if 0
-  case sc_f5:
-    CP_ChangeView(0);
-    goto finishup;
+    case sc_f5:
+        CP_ChangeView(0);
+        goto finishup;
 #endif // 0
 
-  case sc_f6:
-    CP_Control(0);
-    goto finishup;
+    case sc_f6:
+        CP_Control(0);
+        goto finishup;
 
-  finishup:
-	 CleanupControlPanel();
-	 return;
- }
-
-
- DrawMainMenu();
- MenuFadeIn();
- StartGame=0;
-
- //
- // MAIN MENU LOOP
- //
- do
- {
-  which=HandleMenu(&MainItems,&MainMenu[0],NULL);
-
-  switch(which)
-  {
-	case MM_VIEW_SCORES:
-	  if (MainMenu[MM_VIEW_SCORES].routine == NULL)
-		 if (CP_EndGame())
-			 StartGame=1;
-
-	  DrawMainMenu();
-	  MenuFadeIn();
-	  break;
-
-	case -1:
-	case MM_LOGOFF:
-	  CP_Quit();
-	  break;
-
-	default:
-	  if (!StartGame)
-	  {
-		DrawMainMenu();
-		MenuFadeIn();
-	  }
-  }
-
- //
- // "EXIT OPTIONS" OR "NEW GAME" EXITS
- //
- } while(!StartGame);
-
- //
- // DEALLOCATE EVERYTHING
- //
- CleanupControlPanel();
- if (!loadedgame)
-	 StopMusic();
+finishup:
+        CleanupControlPanel();
+        return;
+    }
 
 
- //
- // CHANGE MAINMENU ITEM
- //
- if (startgame || loadedgame)
- {
-  MainMenu[MM_VIEW_SCORES].routine = NULL;
-  strcpy(MainMenu[MM_VIEW_SCORES].string,"END GAME");
- }
+    DrawMainMenu();
+    MenuFadeIn();
+    StartGame = 0;
 
- if (ingame && loadedgame)
-	refresh_screen=false;
+    //
+    // MAIN MENU LOOP
+    //
+    do {
+        which = HandleMenu(&MainItems, &MainMenu[0], NULL);
+
+        switch (which) {
+        case MM_VIEW_SCORES:
+            if (MainMenu[MM_VIEW_SCORES].routine == NULL) {
+                if (CP_EndGame()) {
+                    StartGame = 1;
+                }
+            }
+
+            DrawMainMenu();
+            MenuFadeIn();
+            break;
+
+        case -1:
+        case MM_LOGOFF:
+            CP_Quit();
+            break;
+
+        default:
+            if (!StartGame) {
+                DrawMainMenu();
+                MenuFadeIn();
+            }
+        }
+
+        //
+        // "EXIT OPTIONS" OR "NEW GAME" EXITS
+        //
+    } while (!StartGame);
+
+    //
+    // DEALLOCATE EVERYTHING
+    //
+    CleanupControlPanel();
+    if (!loadedgame) {
+        StopMusic();
+    }
+
+
+    //
+    // CHANGE MAINMENU ITEM
+    //
+    if (startgame || loadedgame) {
+        MainMenu[MM_VIEW_SCORES].routine = NULL;
+        strcpy(MainMenu[MM_VIEW_SCORES].string, "END GAME");
+    }
+
+    if (ingame && loadedgame) {
+        refresh_screen = false;
+    }
 
 
 #ifdef CACHE_KEY_DATA
- FREEFONT(SCANNAMES_DATA);
- FREEFONT(EXTSCANNAMES_DATA);
- FREEFONT(EXTSCANCODES_DATA);
+    FREEFONT(SCANNAMES_DATA);
+    FREEFONT(EXTSCANNAMES_DATA);
+    FREEFONT(EXTSCANCODES_DATA);
 #endif
 
- // RETURN/START GAME EXECUTION
+    // RETURN/START GAME EXECUTION
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawMainMenu()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawMainMenu()
 {
-	ControlPanelFree();
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
-	ControlPanelAlloc();
+    ControlPanelFree();
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+    ControlPanelAlloc();
 
-	ClearMScreen();
-	DrawMenuTitle("MAIN OPTIONS");
-	DrawInstructions(IT_STANDARD);
+    ClearMScreen();
+    DrawMenuTitle("MAIN OPTIONS");
+    DrawInstructions(IT_STANDARD);
 
- //
- // CHANGE "MISSION" AND "DEMO"
- //
-	if (ingame)
-	{
-		strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8],"MISSION");
-		MainMenu[MM_BACK_TO_DEMO].active=AT_READIT;
-	}
-	else
-	{
-		strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8],"DEMO");
-		MainMenu[MM_BACK_TO_DEMO].active=AT_ENABLED;
-	}
+    //
+    // CHANGE "MISSION" AND "DEMO"
+    //
+    if (ingame) {
+        strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8], "MISSION");
+        MainMenu[MM_BACK_TO_DEMO].active = AT_READIT;
+    } else {
+        strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8], "DEMO");
+        MainMenu[MM_BACK_TO_DEMO].active = AT_ENABLED;
+    }
 
-	fontnumber = 4;				// COAL
+    fontnumber = 4;                             // COAL
 
-	DrawMenu(&MainItems,&MainMenu[0]);
+    DrawMenu(&MainItems, &MainMenu[0]);
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // READ THIS!
-//--------------------------------------------------------------------------
-void CP_ReadThis(Sint16)
+// --------------------------------------------------------------------------
+void CP_ReadThis(
+    Sint16)
 {
-	ControlPanelFree();
-	HelpScreens();
-	ControlPanelAlloc();
+    ControlPanelFree();
+    HelpScreens();
+    ControlPanelAlloc();
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CP_OrderingInfo()
-//--------------------------------------------------------------------------
-void CP_OrderingInfo(Sint16)
+// --------------------------------------------------------------------------
+void CP_OrderingInfo(
+    Sint16)
 {
-	ControlPanelFree();
+    ControlPanelFree();
 #ifndef ID_CACHE_HELP
-	HelpPresenter("ORDER.TXT",false,0,true);
+    HelpPresenter("ORDER.TXT", false, 0, true);
 #else
-	HelpPresenter("",false,ORDERTEXT,true);
+    HelpPresenter("", false, ORDERTEXT, true);
 #endif
-	ControlPanelAlloc();
+    ControlPanelAlloc();
 }
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // CP_BlakeStoneSaga()
-//-------------------------------------------------------------------------
-void CP_BlakeStoneSaga(Sint16)
+// -------------------------------------------------------------------------
+void CP_BlakeStoneSaga(
+    Sint16)
 {
-	ControlPanelFree();
+    ControlPanelFree();
 #ifndef ID_CACHE_HELP
-	HelpPresenter("SAGA.TXT",false,0,true);
+    HelpPresenter("SAGA.TXT", false, 0, true);
 #else
-	HelpPresenter("",false,SAGATEXT,true);
+    HelpPresenter("", false, SAGATEXT, true);
 #endif
-	ControlPanelAlloc();
+    ControlPanelAlloc();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CP_CheckQuick() - CHECK QUICK-KEYS & QUIT (WHILE IN A GAME)
-//--------------------------------------------------------------------------
-Sint16 CP_CheckQuick(Uint16 scancode)
+// --------------------------------------------------------------------------
+Sint16 CP_CheckQuick(
+    Uint16 scancode)
 {
-	switch(scancode)
-	{
-	// END GAME
-	//
-		case sc_f7:
-			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
-			CA_CacheGrChunk(STARTFONT+1);
+    switch (scancode) {
+    // END GAME
+    //
+    case sc_f7:
+        VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
+        CA_CacheGrChunk(STARTFONT + 1);
 
-			WindowH=160;
-			if (Confirm(ENDGAMESTR))
-			{
-				playstate = ex_died;
-				pickquick = gamestate.lives = 0;
-			}
+        WindowH = 160;
+        if (Confirm(ENDGAMESTR)) {
+            playstate = ex_died;
+            pickquick = gamestate.lives = 0;
+        }
 
-			WindowH=200;
-			fontnumber=4;
-			return(1);
+        WindowH = 200;
+        fontnumber = 4;
+        return 1;
 
-	// QUICKSAVE
-	//
-		case sc_f8:
-			if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
-			{
-				char string[100]="Quick Save will overwrite:\n\"";
+    // QUICKSAVE
+    //
+    case sc_f8:
+        if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick) {
+            char string[100] = "Quick Save will overwrite:\n\"";
 
-				CA_CacheGrChunk(STARTFONT+1);
+            CA_CacheGrChunk(STARTFONT + 1);
 
-				strcat(string,SaveGameNames[static_cast<int>(LSItems.curpos)]);
-				strcat(string,"\"?");
-				VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
+            strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
+            strcat(string, "\"?");
+            VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
 
 #if IN_DEVELOPMENT
-				if (TestQuickSave || Confirm(string))
-				{
-            	if (TestQuickSave)
-               	TestQuickSave--;
+            if (TestQuickSave || Confirm(string)) {
+                if (TestQuickSave) {
+                    TestQuickSave--;
+                }
 #else
-				if (Confirm(string))
-            {
+            if (Confirm(string)) {
 #endif
-					CA_CacheGrChunk(STARTFONT+1);
-					CP_SaveGame(1);
-					fontnumber=4;
-				}
-				else
-					refresh_screen=false;
-			}
-			else
-			{
-				CA_CacheGrChunk(STARTFONT+1);
+                CA_CacheGrChunk(STARTFONT + 1);
+                CP_SaveGame(1);
+                fontnumber = 4;
+            } else {
+                refresh_screen = false;
+            }
+        } else {
+            CA_CacheGrChunk(STARTFONT + 1);
 
-				VW_FadeOut ();
+            VW_FadeOut();
 
 #ifdef BSTONE_AOG
-                // FIXME
+            // FIXME
 #else
-				StartCPMusic(MENUSONG);
+            StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
 
-				pickquick=CP_SaveGame(0);
+            pickquick = CP_SaveGame(0);
 
-				lasttimecount = TimeCount;
-                ::in_clear_mouse_deltas();
-			}
+            lasttimecount = TimeCount;
+            ::in_clear_mouse_deltas();
+        }
 
-			return(1);
+        return 1;
 
-	// QUICKLOAD
-	//
-		case sc_f9:
-			if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
-			{
-				char string[100]="Quick Load:\n\"";
+    // QUICKLOAD
+    //
+    case sc_f9:
+        if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick) {
+            char string[100] = "Quick Load:\n\"";
 
-				CA_CacheGrChunk(STARTFONT+1);
+            CA_CacheGrChunk(STARTFONT + 1);
 
-				strcat(string,SaveGameNames[static_cast<int>(LSItems.curpos)]);
-				strcat(string,"\"?");
-				VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160); 
+            strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
+            strcat(string, "\"?");
+            VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
 
-				if (Confirm(string))
-					CP_LoadGame(1);
-				else
-				{
-					refresh_screen=false;
-					return(1);
-				}
+            if (Confirm(string)) {
+                CP_LoadGame(1);
+            } else {
+                refresh_screen = false;
+                return 1;
+            }
 
-				fontnumber=4;
-			}
-			else
-			{
-				CA_CacheGrChunk(STARTFONT+1);
+            fontnumber = 4;
+        } else {
+            CA_CacheGrChunk(STARTFONT + 1);
 
-				VW_FadeOut ();
+            VW_FadeOut();
 
 #ifdef BSTONE_AOG
-                // FIXME
+            // FIXME
 #else
-				StartCPMusic(MENUSONG);
+            StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
 
-				pickquick=CP_LoadGame(0);
+            pickquick = CP_LoadGame(0);
 
-				lasttimecount = TimeCount;
-                ::in_clear_mouse_deltas();
-			}
+            lasttimecount = TimeCount;
+            ::in_clear_mouse_deltas();
+        }
 
-			if (pickquick)
-				refresh_screen=false;
-			return(1);
+        if (pickquick) {
+            refresh_screen = false;
+        }
+        return 1;
 
-	// QUIT
-	//
-		case sc_f10:
-			CA_CacheGrChunk(STARTFONT+1);
-			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
+    // QUIT
+    //
+    case sc_f10:
+        CA_CacheGrChunk(STARTFONT + 1);
+        VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
 
-			WindowX=WindowY=0;
-			WindowW=320;
-			WindowH=160;
-			if (Confirm(QuitToDosStr))
-				ExitGame();
+        WindowX = WindowY = 0;
+        WindowW = 320;
+        WindowH = 160;
+        if (Confirm(QuitToDosStr)) {
+            ExitGame();
+        }
 
-			refresh_screen=false;
-			WindowH=200;
-			fontnumber=4;
+        refresh_screen = false;
+        WindowH = 200;
+        fontnumber = 4;
 
-			return(1);
-	}
+        return 1;
+    }
 
-	return(0);
+    return 0;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // END THE CURRENT GAME
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 Sint16 CP_EndGame()
 {
-	if (!Confirm(ENDGAMESTR))
-		return 0;
+    if (!Confirm(ENDGAMESTR)) {
+        return 0;
+    }
 
-	pickquick = gamestate.lives = 0;
-	playstate = ex_died;
-   InstantQuit = 1;
+    pickquick = gamestate.lives = 0;
+    playstate = ex_died;
+    InstantQuit = 1;
 
 #if 0
 #pragma warn -sus
-	 MainMenu[MM_VIEW_SCORES].routine=&CP_ViewScores;
-	_fstrcpy(MainMenu[MM_VIEW_SCORES].string,"HIGH SCORES");
+    MainMenu[MM_VIEW_SCORES].routine = &CP_ViewScores;
+    _fstrcpy(MainMenu[MM_VIEW_SCORES].string, "HIGH SCORES");
 #pragma warn +sus
 #endif
 
-	return 1;
+    return 1;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CP_ViewScores() - VIEW THE HIGH SCORES
-//--------------------------------------------------------------------------
-void CP_ViewScores(Sint16)
+// --------------------------------------------------------------------------
+void CP_ViewScores(
+    Sint16)
 {
-	fontnumber=4;
+    fontnumber = 4;
 
 #ifdef BSTONE_AOG
     // FIXME
 #else
-	StartCPMusic(ROSTER_MUS);
+    StartCPMusic(ROSTER_MUS);
 #endif // BSTONE_AOG
 
-	DrawHighScores ();
-	VW_UpdateScreen ();
-	MenuFadeIn();
-	fontnumber=1;
+    DrawHighScores();
+    VW_UpdateScreen();
+    MenuFadeIn();
+    fontnumber = 1;
 
-	IN_Ack();
+    IN_Ack();
 
 #ifdef BSTONE_AOG
     // FIXME
 #else
-	StartCPMusic(MENUSONG);
+    StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
 
-	MenuFadeOut();
+    MenuFadeOut();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CP_NewGame() - START A NEW GAME
-//--------------------------------------------------------------------------
-void CP_NewGame(Sint16)
+// --------------------------------------------------------------------------
+void CP_NewGame(
+    Sint16)
 {
-	Sint16 which,episode;
+    Sint16 which, episode;
 
-	DrawMenuTitle("Difficulty Level");
-	DrawInstructions(IT_STANDARD);
+    DrawMenuTitle("Difficulty Level");
+    DrawInstructions(IT_STANDARD);
 
 
 #ifdef BSTONE_AOG
 
 firstpart:
 
- DrawNewEpisode();
- do
- {
-  which=HandleMenu(&NewEitems,&NewEmenu[0],DrawEpisodePic);
-  switch(which)
-  {
-	case -1:
-	 MenuFadeOut();
-	 return;
+    DrawNewEpisode();
+    do {
+        which = HandleMenu(&NewEitems, &NewEmenu[0], DrawEpisodePic);
+        switch (which) {
+        case -1:
+            MenuFadeOut();
+            return;
 
-	default:
-	 if (!EpisodeSelect[which])
-	 {
-	  ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
-	  CacheMessage(READTHIS_TEXT);
-	  IN_ClearKeysDown();
-	  IN_Ack();
-	  VL_Bar(35,69,250,62,TERM_BACK_COLOR);
-	  DrawNewEpisode();
-	  which = 0;
-	 }
-	 else
-	 {
-	  episode = which;
-	  which = 1;
-	 }
-	 break;
-  }
+        default:
+            if (!EpisodeSelect[which]) {
+                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                CacheMessage(READTHIS_TEXT);
+                IN_ClearKeysDown();
+                IN_Ack();
+                VL_Bar(35, 69, 250, 62, TERM_BACK_COLOR);
+                DrawNewEpisode();
+                which = 0;
+            } else {
+                episode = which;
+                which = 1;
+            }
+            break;
+        }
 
- } while (!which);
+    } while (!which);
 
- ShootSnd();
+    ShootSnd();
 #else
- episode = 0;
+    episode = 0;
 #endif
 
 #ifdef BSTONE_AOG
- //
- // ALREADY IN A GAME?
- //
-	if (ingame)
-		if (!Confirm(CURGAME))
-		{
-			MenuFadeOut();
-			return;
-		}
+    //
+    // ALREADY IN A GAME?
+    //
+    if (ingame) {
+        if (!Confirm(CURGAME)) {
+            MenuFadeOut();
+            return;
+        }
+    }
 #endif
 
 secondpart:
 
-	MenuFadeOut();
-	if (ingame)
-		CA_CacheScreen(BACKGROUND_SCREENPIC);
-	DrawNewGame();
-	which=HandleMenu(&NewItems,&NewMenu[0],DrawNewGameDiff);
+    MenuFadeOut();
+    if (ingame) {
+        CA_CacheScreen(BACKGROUND_SCREENPIC);
+    }
+    DrawNewGame();
+    which = HandleMenu(&NewItems, &NewMenu[0], DrawNewGameDiff);
 
- if (which<0)
- {
-  MenuFadeOut();
+    if (which < 0) {
+        MenuFadeOut();
 #ifdef BSTONE_AOG
-  goto firstpart;
+        goto firstpart;
 #else
-  return;
+        return;
 #endif
- }
+    }
 
- ShootSnd();
- MenuFadeOut();
- ControlPanelFree();
+    ShootSnd();
+    MenuFadeOut();
+    ControlPanelFree();
 
- if (Breifing(BT_INTRO,episode))
- {
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
-	ControlPanelAlloc();
-	goto secondpart;
- }
+    if (Breifing(BT_INTRO, episode)) {
+        CA_CacheScreen(BACKGROUND_SCREENPIC);
+        ControlPanelAlloc();
+        goto secondpart;
+    }
 
- StartGame=1;
- NewGame(which,episode);
+    StartGame = 1;
+    NewGame(which, episode);
 
- //
- // CHANGE "READ THIS!" TO NORMAL COLOR
- //
- MainMenu[MM_READ_THIS].active=AT_ENABLED;
+    //
+    // CHANGE "READ THIS!" TO NORMAL COLOR
+    //
+    MainMenu[MM_READ_THIS].active = AT_ENABLED;
 
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawMenuTitle() - Draws the menu title
-//---------------------------------------------------------------------------
-void DrawMenuTitle(const char *title)
+// ---------------------------------------------------------------------------
+void DrawMenuTitle(
+    const char* title)
 {
 
-	fontnumber = 3;
-	CA_CacheGrChunk(STARTFONT+3);
+    fontnumber = 3;
+    CA_CacheGrChunk(STARTFONT + 3);
 
-	PrintX = WindowX = 32;
-	PrintY = WindowY = 32;
-	WindowW = 244;
-	WindowH = 20;
+    PrintX = WindowX = 32;
+    PrintY = WindowY = 32;
+    WindowW = 244;
+    WindowH = 20;
 
-	SETFONTCOLOR(TERM_SHADOW_COLOR,TERM_BACK_COLOR);
-	US_PrintCentered(title);
+    SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(title);
 
-	WindowX = 32-1;
-	WindowY = 32-1;
+    WindowX = 32 - 1;
+    WindowY = 32 - 1;
 
-	SETFONTCOLOR(ENABLED_TEXT_COLOR,TERM_BACK_COLOR);
-	US_PrintCentered(title);
+    SETFONTCOLOR(ENABLED_TEXT_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(title);
 
-	FREEFONT(STARTFONT+3);
+    FREEFONT(STARTFONT + 3);
 
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawInstructions() - Draws instructions centered at the bottom of
-//								the view screen.
+//                                                              the view screen.
 //
 // NOTES: Orginal font number or font color is not maintained.
-//---------------------------------------------------------------------------
-void DrawInstructions(inst_type Type)
+// ---------------------------------------------------------------------------
+void DrawInstructions(
+    inst_type Type)
 {
-	#define INSTRUCTIONS_Y_POS		154+10
+#define INSTRUCTIONS_Y_POS 154 + 10
 
     const char* instr[MAX_INSTRUCTIONS] = {
         "UP/DN SELECTS - ENTER CHOOSES - ESC EXITS",
@@ -1820,354 +1858,366 @@ void DrawInstructions(inst_type Type)
         "ESC EXITS"
     };
 
-	fontnumber = 2;
+    fontnumber = 2;
 
-	WindowX = 48;
-   WindowY = INSTRUCTIONS_Y_POS;
-	WindowW = 236;
-   WindowH = 8;
+    WindowX = 48;
+    WindowY = INSTRUCTIONS_Y_POS;
+    WindowW = 236;
+    WindowH = 8;
 
-   VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,TERM_BACK_COLOR);
+    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, TERM_BACK_COLOR);
 
-	SETFONTCOLOR(TERM_SHADOW_COLOR,TERM_BACK_COLOR);
-	US_PrintCentered(instr[Type]);
+    SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(instr[Type]);
 
-   WindowX--;
-   WindowY--;
+    WindowX--;
+    WindowY--;
 
-	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR,TERM_BACK_COLOR);
-	US_PrintCentered(instr[Type]);
+    SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(instr[Type]);
 }
 
 #ifdef BSTONE_AOG
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawNewEpisode() - DRAW NEW EPISODE MENU
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawNewEpisode()
 {
-	ClearMScreen();
+    ClearMScreen();
 
-	DrawMenuTitle("CHOOSE A MISSION");
-	DrawInstructions(IT_STANDARD);
+    DrawMenuTitle("CHOOSE A MISSION");
+    DrawInstructions(IT_STANDARD);
 
-	PrintY=51;
-	WindowX=58;
+    PrintY = 51;
+    WindowX = 58;
 
-	fontnumber = 2;							// six point font
-	DrawMenu(&NewEitems,&NewEmenu[0]);
+    fontnumber = 2;                                                     // six point font
+    DrawMenu(&NewEitems, &NewEmenu[0]);
 
-	DrawEpisodePic(NewEitems.curpos);
+    DrawEpisodePic(NewEitems.curpos);
 
-	VW_UpdateScreen();
-	MenuFadeIn();
-	WaitKeyUp();
+    VW_UpdateScreen();
+    MenuFadeIn();
+    WaitKeyUp();
 
 }
 
 #endif
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawNewGame() - DRAW NEW GAME MENU
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawNewGame()
 {
-	ClearMScreen();
-	DrawMenuTitle("DIFFICULTY LEVEL");
-	DrawInstructions(IT_STANDARD);
+    ClearMScreen();
+    DrawMenuTitle("DIFFICULTY LEVEL");
+    DrawInstructions(IT_STANDARD);
 
-	fontnumber = 2;							// six point font
-	DrawMenu(&NewItems,&NewMenu[0]);
+    fontnumber = 2;                                                     // six point font
+    DrawMenu(&NewItems, &NewMenu[0]);
 
-	DrawNewGameDiff(NewItems.curpos);
+    DrawNewGameDiff(NewItems.curpos);
 
-	px=48;
-	py=INSTRUCTIONS_Y_POS-24;
-	ShPrint("        HIGHER DIFFICULTY LEVELS CONTAIN",TERM_SHADOW_COLOR,false);
+    px = 48;
+    py = INSTRUCTIONS_Y_POS - 24;
+    ShPrint("        HIGHER DIFFICULTY LEVELS CONTAIN", TERM_SHADOW_COLOR, false);
 
-	px=48;
-	py+=6;
-	ShPrint("            MORE, STRONGER ENEMIES",TERM_SHADOW_COLOR,false);
+    px = 48;
+    py += 6;
+    ShPrint("            MORE, STRONGER ENEMIES", TERM_SHADOW_COLOR, false);
 
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 
-	MenuFadeIn();
-	WaitKeyUp();
+    MenuFadeIn();
+    WaitKeyUp();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DRAW NEW GAME GRAPHIC
-//--------------------------------------------------------------------------
-void DrawNewGameDiff(Sint16 w)
+// --------------------------------------------------------------------------
+void DrawNewGameDiff(
+    Sint16 w)
 {
-	VWB_DrawPic(192,77,w+C_BABYMODEPIC);
+    VWB_DrawPic(192, 77, w + C_BABYMODEPIC);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DRAW NEW GAME GRAPHIC
-//--------------------------------------------------------------------------
-void DrawEpisodePic(Sint16 w)
+// --------------------------------------------------------------------------
+void DrawEpisodePic(
+    Sint16 w)
 {
-	VWB_DrawPic(176,72,w+C_EPISODE1PIC);
+    VWB_DrawPic(176, 72, w + C_EPISODE1PIC);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CP_GameOptions() - DRAW THE GAME OPTIONS MENU
-//--------------------------------------------------------------------------
-void CP_GameOptions(Sint16)
+// --------------------------------------------------------------------------
+void CP_GameOptions(
+    Sint16)
 {
-	Sint16 which;
+    Sint16 which;
 
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
-	DrawGopMenu();
-	MenuFadeIn();
-	WaitKeyUp();
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+    DrawGopMenu();
+    MenuFadeIn();
+    WaitKeyUp();
 
-	do
-	{
-		which=HandleMenu(&GopItems,&GopMenu[0],NULL);
+    do {
+        which = HandleMenu(&GopItems, &GopMenu[0], NULL);
 
-		if (which != -1)
-		{
-			DrawGopMenu();
-			MenuFadeIn();
-		}
+        if (which != -1) {
+            DrawGopMenu();
+            MenuFadeIn();
+        }
 
-	} while(which>=0);
+    } while (which >= 0);
 
-	MenuFadeOut();
+    MenuFadeOut();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawGopMenu()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawGopMenu()
 {
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
 
-	ClearMScreen();
-	DrawMenuTitle("GAME OPTIONS");
-	DrawInstructions(IT_STANDARD);
+    ClearMScreen();
+    DrawMenuTitle("GAME OPTIONS");
+    DrawInstructions(IT_STANDARD);
 
-	fontnumber = 4;				// COAL
+    fontnumber = 4;                             // COAL
 
-	DrawMenu(&GopItems,&GopMenu[0]);
+    DrawMenu(&GopItems, &GopMenu[0]);
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 }
 
 
 void ChangeSwaps()
 {
-	WindowX=WindowY=0;
-	WindowW=320;
-	WindowH=200;
-   Message(Computing);
+    WindowX = WindowY = 0;
+    WindowW = 320;
+    WindowH = 200;
+    Message(Computing);
 
-	PM_Shutdown();
-	PM_Startup ();
-	ClearMemory();
-	ControlPanelAlloc();
+    PM_Shutdown();
+    PM_Startup();
+    ClearMemory();
+    ControlPanelAlloc();
 
-   IN_UserInput(50);
-	IN_ClearKeysDown();
+    IN_UserInput(50);
+    IN_ClearKeysDown();
 
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // GAME SWITCHES MENU
-//--------------------------------------------------------------------------
-void CP_Switches(Sint16)
+// --------------------------------------------------------------------------
+void CP_Switches(
+    Sint16)
 {
-	Sint16 which;
+    Sint16 which;
 
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
-	DrawSwitchMenu();
-	MenuFadeIn();
-	WaitKeyUp();
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+    DrawSwitchMenu();
+    MenuFadeIn();
+    WaitKeyUp();
 
-	do
-	{
-		which=HandleMenu(&SwitchItems,&SwitchMenu[0],DrawAllSwitchLights);
+    do {
+        which = HandleMenu(&SwitchItems, &SwitchMenu[0], DrawAllSwitchLights);
 
-		switch (which)
-		{
-			case	SW_LIGHTING:
-				gamestate.flags ^= GS_LIGHTING;
-				ShootSnd();
-				DrawSwitchMenu();
-			break;
+        switch (which) {
+        case SW_LIGHTING:
+            gamestate.flags ^= GS_LIGHTING;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
 
-			case	SW_REBA_ATTACK_INFO:
-				gamestate.flags ^= GS_ATTACK_INFOAREA;
-				ShootSnd();
-				DrawSwitchMenu();
-			break;
+        case SW_REBA_ATTACK_INFO:
+            gamestate.flags ^= GS_ATTACK_INFOAREA;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
 
-			case	SW_CEILING:
-				gamestate.flags ^= GS_DRAW_CEILING;
-				ShootSnd();
-				DrawSwitchMenu();
-			break;
+        case SW_CEILING:
+            gamestate.flags ^= GS_DRAW_CEILING;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
 
-			case	SW_FLOORS:
-				gamestate.flags ^= GS_DRAW_FLOOR;
-				ShootSnd();
-				DrawSwitchMenu();
-			break;
+        case SW_FLOORS:
+            gamestate.flags ^= GS_DRAW_FLOOR;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+
+        // BBi
+        case SW_NO_WALL_HIT_SOUND:
+            g_no_wall_hit_sound = !g_no_wall_hit_sound;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+
+        case SW_MODERN_CONTROLS:
+            in_use_modern_bindings = !in_use_modern_bindings;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+
+        case SW_ALWAYS_RUN:
+            g_always_run = !g_always_run;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+
+#ifdef BSTONE_AOG
+        case SW_HEART_BEAT_SOUND:
+            g_heart_beat_sound = !g_heart_beat_sound;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+
+        case SW_ROTATED_AUTOMAP:
+            g_rotated_automap = !g_rotated_automap;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+#endif // BSTONE_AOG
+        }
+
+    } while (which >= 0);
+
+    MenuFadeOut();
+}
+
+// --------------------------------------------------------------------------
+// DrawSwitchMenu()
+// --------------------------------------------------------------------------
+void DrawSwitchMenu()
+{
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+
+    ClearMScreen();
+    DrawMenuTitle("GAME SWITCHES");
+    DrawInstructions(IT_STANDARD);
+
+    fontnumber = 2;
+
+    DrawMenu(&SwitchItems, &SwitchMenu[0]);
+    DrawAllSwitchLights(SwitchItems.curpos);
+
+    VW_UpdateScreen();
+}
+
+// --------------------------------------------------------------------------
+// DrawAllSwitchLights()
+// --------------------------------------------------------------------------
+void DrawAllSwitchLights(
+    Sint16 which)
+{
+    Sint16 i;
+    Uint16 Shape;
+
+    for (i = 0; i < SwitchItems.amount; i++) {
+        if (SwitchMenu[i].string[0]) {
+            Shape = C_NOTSELECTEDPIC;
+
+            //
+            // DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
+            //
+
+            if (SwitchItems.cursor.on) {
+                if (i == which) {                               // Is the cursor sitting on this pic?
+                    Shape += 2;
+                }
+            }
+
+            switch (i) {
+            case SW_LIGHTING:
+                if (gamestate.flags & GS_LIGHTING) {
+                    Shape++;
+                }
+                break;
+
+            case SW_REBA_ATTACK_INFO:
+                if (gamestate.flags & GS_ATTACK_INFOAREA) {
+                    Shape++;
+                }
+                break;
+
+            case SW_CEILING:
+                if (gamestate.flags & GS_DRAW_CEILING) {
+                    Shape++;
+                }
+                break;
+
+            case SW_FLOORS:
+                if (gamestate.flags & GS_DRAW_FLOOR) {
+                    Shape++;
+                }
+                break;
 
             // BBi
             case SW_NO_WALL_HIT_SOUND:
-                g_no_wall_hit_sound = !g_no_wall_hit_sound;
-                ShootSnd();
-                DrawSwitchMenu();
+                if (g_no_wall_hit_sound) {
+                    ++Shape;
+                }
                 break;
 
             case SW_MODERN_CONTROLS:
-                in_use_modern_bindings = !in_use_modern_bindings;
-                ShootSnd();
-                DrawSwitchMenu();
+                if (in_use_modern_bindings) {
+                    ++Shape;
+                }
                 break;
 
             case SW_ALWAYS_RUN:
-                g_always_run = !g_always_run;
-                ShootSnd();
-                DrawSwitchMenu();
+                if (g_always_run) {
+                    ++Shape;
+                }
                 break;
 
 #ifdef BSTONE_AOG
             case SW_HEART_BEAT_SOUND:
-                g_heart_beat_sound = !g_heart_beat_sound;
-                ShootSnd();
-                DrawSwitchMenu();
+                if (g_heart_beat_sound) {
+                    ++Shape;
+                }
                 break;
 
             case SW_ROTATED_AUTOMAP:
-                g_rotated_automap = !g_rotated_automap;
-                ShootSnd();
-                DrawSwitchMenu();
+                if (g_rotated_automap) {
+                    ++Shape;
+                }
                 break;
 #endif // BSTONE_AOG
-		}
+            }
 
-	} while(which>=0);
+            VWB_DrawPic(SwitchItems.x - 16, SwitchItems.y + i * SwitchItems.y_spacing - 1, Shape);
+        }
+    }
 
-	MenuFadeOut();
-}
-
-//--------------------------------------------------------------------------
-// DrawSwitchMenu()
-//--------------------------------------------------------------------------
-void DrawSwitchMenu()
-{
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
-
-	ClearMScreen();
-	DrawMenuTitle("GAME SWITCHES");
-	DrawInstructions(IT_STANDARD);
-
-	fontnumber = 2;
-
-	DrawMenu(&SwitchItems,&SwitchMenu[0]);
-	DrawAllSwitchLights(SwitchItems.curpos);
-
-	VW_UpdateScreen();
-}
-
-//--------------------------------------------------------------------------
-// DrawAllSwitchLights()
-//--------------------------------------------------------------------------
-void DrawAllSwitchLights(Sint16 which)
-{
-	Sint16 i;
-	Uint16 Shape;
-
-	for (i=0;i<SwitchItems.amount;i++)
-		if (SwitchMenu[i].string[0])
-		{
-			Shape = C_NOTSELECTEDPIC;
-
-			//
-			// DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
-			//
-
-			if (SwitchItems.cursor.on)
-				if (i == which)			// Is the cursor sitting on this pic?
-					Shape +=2;
-
-			switch(i)
-			{
-				case SW_LIGHTING:
-					if (gamestate.flags & GS_LIGHTING)
-						Shape++;
-				break;
-
-				case SW_REBA_ATTACK_INFO:
-					if (gamestate.flags & GS_ATTACK_INFOAREA)
-						Shape++;
-				break;
-
-				case SW_CEILING:
-					if (gamestate.flags & GS_DRAW_CEILING)
-						Shape++;
-				break;
-
-				case SW_FLOORS:
-					if (gamestate.flags & GS_DRAW_FLOOR)
-						Shape++;
-				break;
-
-                // BBi
-                case SW_NO_WALL_HIT_SOUND:
-                    if (g_no_wall_hit_sound)
-                        ++Shape;
-                    break;
-
-                case SW_MODERN_CONTROLS:
-                    if (in_use_modern_bindings)
-                        ++Shape;
-                    break;
-
-                case SW_ALWAYS_RUN:
-                    if (g_always_run)
-                        ++Shape;
-                    break;
-
-#ifdef BSTONE_AOG
-                case SW_HEART_BEAT_SOUND:
-                    if (g_heart_beat_sound)
-                        ++Shape;
-                    break;
-
-                case SW_ROTATED_AUTOMAP:
-                    if (g_rotated_automap)
-                        ++Shape;
-                    break;
-#endif // BSTONE_AOG
-			}
-
-			VWB_DrawPic(SwitchItems.x-16,SwitchItems.y+i*SwitchItems.y_spacing-1,Shape);
-		}
-
-	DrawSwitchDescription(which);
+    DrawSwitchDescription(which);
 
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 //  DrawSwitchDescription()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 #ifdef BSTONE_AOG
-    #define DESCRIPTIONS_Y_POS (144)
+#define DESCRIPTIONS_Y_POS (144)
 #else
-    #define DESCRIPTIONS_Y_POS (134)
+#define DESCRIPTIONS_Y_POS (134)
 #endif // BSTONE_AOG
 
-void DrawSwitchDescription(Sint16 which)
+void DrawSwitchDescription(
+    Sint16 which)
 {
-    const char *instr[] = {
+    const char* instr[] = {
         "TOGGLES LIGHT SOURCING IN HALLWAYS",
         "TOGGLES DETAILED ATTACKER INFO",
         "TOGGLES CEILING MAPPING",
@@ -2185,210 +2235,220 @@ void DrawSwitchDescription(Sint16 which)
 #endif // BSTONE_AOG
     };
 
-	fontnumber = 2;
+    fontnumber = 2;
 
-	WindowX = 48;
-	WindowY = DESCRIPTIONS_Y_POS;
-	WindowW = 236;
-	WindowH = 8;
+    WindowX = 48;
+    WindowY = DESCRIPTIONS_Y_POS;
+    WindowW = 236;
+    WindowH = 8;
 
-	VWB_Bar(WindowX,WindowY-1,WindowW,WindowH,TERM_BACK_COLOR);
+    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, TERM_BACK_COLOR);
 
-	SETFONTCOLOR(TERM_SHADOW_COLOR,TERM_BACK_COLOR);
-	US_PrintCentered(instr[which]);
+    SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(instr[which]);
 
-	WindowX--;
-	WindowY--;
+    WindowX--;
+    WindowY--;
 
-	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR,TERM_BACK_COLOR);
-	US_PrintCentered(instr[which]);
+    SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(instr[which]);
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // HANDLE SOUND MENU
-//--------------------------------------------------------------------------
-void CP_Sound(Sint16)
+// --------------------------------------------------------------------------
+void CP_Sound(
+    Sint16)
 {
-	Sint16 which;
+    Sint16 which;
 
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
- DrawSoundMenu();
- MenuFadeIn();
- WaitKeyUp();
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+    DrawSoundMenu();
+    MenuFadeIn();
+    WaitKeyUp();
 
- do
- {
-  which=HandleMenu(&SndItems,&SndMenu[0],DrawAllSoundLights);
-  //
-  // HANDLE MENU CHOICES
-  //
-  switch(which)
-  {
-	//
-	// SOUND EFFECTS / DIGITIZED SOUND
-	//
-	case 0:
-	 if (SoundMode!=sdm_Off)
-	 {
-	  SD_WaitSoundDone();
-	  SD_SetSoundMode(sdm_Off);
-	  SD_SetDigiDevice(sds_Off);
-	  DrawSoundMenu();
-	 }
-	 break;
+    do {
+        which = HandleMenu(&SndItems, &SndMenu[0], DrawAllSoundLights);
+        //
+        // HANDLE MENU CHOICES
+        //
+        switch (which) {
+        //
+        // SOUND EFFECTS / DIGITIZED SOUND
+        //
+        case 0:
+            if (SoundMode != sdm_Off) {
+                SD_WaitSoundDone();
+                SD_SetSoundMode(sdm_Off);
+                SD_SetDigiDevice(sds_Off);
+                DrawSoundMenu();
+            }
+            break;
 
-	case 1:
-	  if (SoundMode!=sdm_AdLib)
-	  {
-		SD_WaitSoundDone();
-		SD_SetSoundMode(sdm_AdLib);
-        SD_SetDigiDevice(sds_SoundBlaster);
-		CA_LoadAllSounds();
-		DrawSoundMenu();
-		ShootSnd();
-	  }
-	  break;
+        case 1:
+            if (SoundMode != sdm_AdLib) {
+                SD_WaitSoundDone();
+                SD_SetSoundMode(sdm_AdLib);
+                SD_SetDigiDevice(sds_SoundBlaster);
+                CA_LoadAllSounds();
+                DrawSoundMenu();
+                ShootSnd();
+            }
+            break;
 
-	//
-	// MUSIC
-	//
-	case 4:
-	  if (MusicMode!=smm_Off)
-	  {
-		SD_SetMusicMode(smm_Off);
-		DrawSoundMenu();
-		ShootSnd();
-	  }
-	  break;
+        //
+        // MUSIC
+        //
+        case 4:
+            if (MusicMode != smm_Off) {
+                SD_SetMusicMode(smm_Off);
+                DrawSoundMenu();
+                ShootSnd();
+            }
+            break;
 
-	case 5:
-	  if (MusicMode!=smm_AdLib)
-	  {
-		SD_SetMusicMode(smm_AdLib);
-		DrawSoundMenu();
-		ShootSnd();
+        case 5:
+            if (MusicMode != smm_AdLib) {
+                SD_SetMusicMode(smm_AdLib);
+                DrawSoundMenu();
+                ShootSnd();
 
 #ifdef BSTONE_AOG
-        // FIXME
+                // FIXME
 #else
-		StartCPMusic(MENUSONG);
+                StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
-	  }
-	  break;
-  }
- } while(which>=0);
+            }
+            break;
+        }
+    } while (which >= 0);
 
- MenuFadeOut();
+    MenuFadeOut();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawSoundMenu() - DRAW THE SOUND MENU
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawSoundMenu()
 {
-	//
-	// DRAW SOUND MENU
-	//
+    //
+    // DRAW SOUND MENU
+    //
 
-	ClearMScreen();
-	DrawMenuTitle("SOUND SETTINGS");
-	DrawInstructions(IT_STANDARD);
+    ClearMScreen();
+    DrawMenuTitle("SOUND SETTINGS");
+    DrawInstructions(IT_STANDARD);
 
-	//
-	// IF NO ADLIB, NON-CHOOSENESS!
-	//
+    //
+    // IF NO ADLIB, NON-CHOOSENESS!
+    //
 
-	if (!AdLibPresent && !SoundBlasterPresent)
-	{
-		SndMenu[1].active=SndMenu[5].active=AT_DISABLED;
-	}
+    if (!AdLibPresent && !SoundBlasterPresent) {
+        SndMenu[1].active = SndMenu[5].active = AT_DISABLED;
+    }
 
-	fontnumber = 4;
+    fontnumber = 4;
 
-	SETFONTCOLOR(DISABLED_TEXT_COLOR,TERM_BACK_COLOR);
-	ShadowPrint("SOUND EFFECTS",105,72);
-	ShadowPrint("BACKGROUND MUSIC",105,100);
+    SETFONTCOLOR(DISABLED_TEXT_COLOR, TERM_BACK_COLOR);
+    ShadowPrint("SOUND EFFECTS", 105, 72);
+    ShadowPrint("BACKGROUND MUSIC", 105, 100);
 
-	fontnumber = 2;
-	DrawMenu(&SndItems,&SndMenu[0]);
+    fontnumber = 2;
+    DrawMenu(&SndItems, &SndMenu[0]);
 
 
-	DrawAllSoundLights(SndItems.curpos);
+    DrawAllSoundLights(SndItems.curpos);
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawAllSoundLights()
-//--------------------------------------------------------------------------
-void DrawAllSoundLights(Sint16 which)
+// --------------------------------------------------------------------------
+void DrawAllSoundLights(
+    Sint16 which)
 {
-	Sint16 i;
-	Uint16 Shape;
+    Sint16 i;
+    Uint16 Shape;
 
-	for (i=0;i<SndItems.amount;i++)
-		if (SndMenu[i].string[0])
-		{
-			Shape = C_NOTSELECTEDPIC;
+    for (i = 0; i < SndItems.amount; i++) {
+        if (SndMenu[i].string[0]) {
+            Shape = C_NOTSELECTEDPIC;
 
-	 		//
-	 		// DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
-	 		//
+            //
+            // DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
+            //
 
-			if (SndItems.cursor.on)
-			   if (i == which)			// Is the cursor sitting on this pic?
-			   	Shape +=2;
+            if (SndItems.cursor.on) {
+                if (i == which) {                               // Is the cursor sitting on this pic?
+                    Shape += 2;
+                }
+            }
 
-			switch(i)
-			{
-				//
-			  	// SOUND EFFECTS / DIGITIZED SOUND
-				//
-				case 0: if (SoundMode==sdm_Off) Shape++; break;
-				case 1: if (SoundMode==sdm_AdLib) Shape++; break;
+            switch (i) {
+            //
+            // SOUND EFFECTS / DIGITIZED SOUND
+            //
+            case 0: if (SoundMode == sdm_Off) {
+                    Shape++;
+            }
+                break;
+            case 1: if (SoundMode == sdm_AdLib) {
+                    Shape++;
+            }
+                break;
 
-				//
-				// MUSIC
-				//
-				case 4: if (MusicMode==smm_Off) Shape++; break;
-				case 5: if (MusicMode==smm_AdLib) Shape++; break;
-			}
+            //
+            // MUSIC
+            //
+            case 4: if (MusicMode == smm_Off) {
+                    Shape++;
+            }
+                break;
+            case 5: if (MusicMode == smm_AdLib) {
+                    Shape++;
+            }
+                break;
+            }
 
-			VWB_DrawPic(SndItems.x-16,SndItems.y+i*SndItems.y_spacing-1,Shape);
-		}
+            VWB_DrawPic(SndItems.x - 16, SndItems.y + i * SndItems.y_spacing - 1, Shape);
+        }
+    }
 }
 
-char LOADSAVE_GAME_MSG[2][25]={"^ST1^CELoading Game\r^XX",
-											  "^ST1^CESaving Game\r^XX"};
+char LOADSAVE_GAME_MSG[2][25] = { "^ST1^CELoading Game\r^XX",
+                                  "^ST1^CESaving Game\r^XX" };
 
-extern char LS_current,LS_total;
+extern char LS_current, LS_total;
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawLSAction() - DRAW LOAD/SAVE IN PROGRESS
-//--------------------------------------------------------------------------
-void DrawLSAction(Sint16 which)
+// --------------------------------------------------------------------------
+void DrawLSAction(
+    Sint16 which)
 {
-	char total[]={19,19};
+    char total[] = { 19, 19 };
 
-   VW_FadeOut();
-   screenfaded = true;
-	DrawTopInfo(static_cast<sp_type>(sp_loading+which));
-	DrawPlayBorder();
-	DisplayPrepingMsg(LOADSAVE_GAME_MSG[which]);
+    VW_FadeOut();
+    screenfaded = true;
+    DrawTopInfo(static_cast<sp_type>(sp_loading + which));
+    DrawPlayBorder();
+    DisplayPrepingMsg(LOADSAVE_GAME_MSG[which]);
 
-	if (which)
-		PreloadUpdate(1,1);	// GFX: bar is full when saving...
+    if (which) {
+        PreloadUpdate(1, 1);            // GFX: bar is full when saving...
 
-	LS_current=1;
-	LS_total=total[which];
-	WindowY = 181;
+    }
+    LS_current = 1;
+    LS_total = total[which];
+    WindowY = 181;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CP_LoadGame() - LOAD SAVED GAMES
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 Sint16 CP_LoadGame(
     Sint16 quick)
 {
@@ -2407,9 +2467,10 @@ Sint16 CP_LoadGame(
             MakeDestPath(name.c_str());
             bstone::FileStream handle(tempPath);
             DrawLSAction(0); // Testing...
-            if ((loadedgame = ::LoadTheGame(&handle)) == 0)
+            if ((loadedgame = ::LoadTheGame(&handle)) == 0) {
                 LS_current = -1; // clean up
 
+            }
             return loadedgame;
         }
     }
@@ -2442,7 +2503,7 @@ restart:
             }
 
             loadedgame = true;
-            StartGame= true;
+            StartGame = true;
 
             ::ShootSnd();
 
@@ -2455,11 +2516,13 @@ restart:
         }
     } while (which >= 0);
 
-    if (which == -1)
+    if (which == -1) {
         MenuFadeOut();
+    }
 
-    if (loadedgame)
+    if (loadedgame) {
         refresh_screen = false;
+    }
 
     return exit;
 }
@@ -2468,80 +2531,87 @@ restart:
 //
 // HIGHLIGHT CURRENT SELECTED ENTRY
 //
-void TrackWhichGame(Sint16 w)
+void TrackWhichGame(
+    Sint16 w)
 {
-	static Sint16 lastgameon=0;
+    static Sint16 lastgameon = 0;
 
-	PrintLSEntry(lastgameon,ENABLED_TEXT_COLOR);
-	PrintLSEntry(w,HIGHLIGHT_TEXT_COLOR);
+    PrintLSEntry(lastgameon, ENABLED_TEXT_COLOR);
+    PrintLSEntry(w, HIGHLIGHT_TEXT_COLOR);
 
-	lastgameon=w;
+    lastgameon = w;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DRAW THE LOAD/SAVE SCREEN
-//--------------------------------------------------------------------------
-void DrawLoadSaveScreen(Sint16 loadsave)
+// --------------------------------------------------------------------------
+void DrawLoadSaveScreen(
+    Sint16 loadsave)
 {
-	#define DISKX	100
-	#define DISKY	0
+#define DISKX 100
+#define DISKY 0
 
-	Sint16 i;
+    Sint16 i;
 
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
-	ClearMScreen();
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+    ClearMScreen();
 
-	fontnumber=1;
+    fontnumber = 1;
 
-	if (!loadsave)
-		DrawMenuTitle("Load Mission");
-	else
-		DrawMenuTitle("Save Mission");
+    if (!loadsave) {
+        DrawMenuTitle("Load Mission");
+    } else {
+        DrawMenuTitle("Save Mission");
+    }
 
-	DrawInstructions(IT_STANDARD);
+    DrawInstructions(IT_STANDARD);
 
-	for (i=0;i<10;i++)
-		PrintLSEntry(i,ENABLED_TEXT_COLOR);
+    for (i = 0; i < 10; i++) {
+        PrintLSEntry(i, ENABLED_TEXT_COLOR);
+    }
 
-	fontnumber = 4;
-	DrawMenu(&LSItems,&LSMenu[0]);
+    fontnumber = 4;
+    DrawMenu(&LSItems, &LSMenu[0]);
 
-	VW_UpdateScreen();
-	MenuFadeIn();
-	WaitKeyUp();
+    VW_UpdateScreen();
+    MenuFadeIn();
+    WaitKeyUp();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // PRINT LOAD/SAVE GAME ENTRY W/BOX OUTLINE
-//--------------------------------------------------------------------------
-void PrintLSEntry(Sint16 w,Sint16 color)
+// --------------------------------------------------------------------------
+void PrintLSEntry(
+    Sint16 w,
+    Sint16 color)
 {
-	SETFONTCOLOR(color,BKGDCOLOR);
-	DrawOutline(LSM_X+LSItems.indent,LSM_Y+w*LSItems.y_spacing-2,LSM_W-LSItems.indent,8,color,color);
+    SETFONTCOLOR(color, BKGDCOLOR);
+    DrawOutline(LSM_X + LSItems.indent, LSM_Y + w * LSItems.y_spacing - 2, LSM_W - LSItems.indent, 8, color, color);
 
-	fontnumber=2;
+    fontnumber = 2;
 
-	PrintX=LSM_X+LSItems.indent+2;
-	PrintY=LSM_Y+w*LSItems.y_spacing;
+    PrintX = LSM_X + LSItems.indent + 2;
+    PrintY = LSM_Y + w * LSItems.y_spacing;
 
-	if (SaveGamesAvail[w])
-		US_Print(SaveGameNames[w]);
-	else
-		US_Print("       ----- EMPTY -----");
+    if (SaveGamesAvail[w]) {
+        US_Print(SaveGameNames[w]);
+    } else {
+        US_Print("       ----- EMPTY -----");
+    }
 
-	fontnumber=1;
+    fontnumber = 1;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // SAVE CURRENT GAME
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 Sint16 CP_SaveGame(
     Sint16 quick)
 {
-    Sint16 which,exit=0;
-    char input[GAME_DESCRIPTION_LEN+1];
+    Sint16 which, exit = 0;
+    char input[GAME_DESCRIPTION_LEN + 1];
     bool temp_caps = allcaps;
-    US_CursorStruct TermCursor = {'@',0,HIGHLIGHT_TEXT_COLOR,2};
+    US_CursorStruct TermCursor = { '@', 0, HIGHLIGHT_TEXT_COLOR, 2 };
 
     allcaps = true;
     use_custom_cursor = true;
@@ -2550,12 +2620,10 @@ Sint16 CP_SaveGame(
     //
     // QUICKSAVE?
     //
-    if (quick)
-    {
-        which=LSItems.curpos;
+    if (quick) {
+        which = LSItems.curpos;
 
-        if (SaveGamesAvail[which])
-        {
+        if (SaveGamesAvail[which]) {
             DrawLSAction(1); // Testing...
             std::string name = SAVE_BASE_NAME;
             name += static_cast<char>('0' + which);
@@ -2571,70 +2639,61 @@ Sint16 CP_SaveGame(
 
     DrawLoadSaveScreen(1);
 
-    do
-    {
-        which=HandleMenu(&LSItems,&LSMenu[0],TrackWhichGame);
-        if (which>=0)
-        {
+    do {
+        which = HandleMenu(&LSItems, &LSMenu[0], TrackWhichGame);
+        if (which >= 0) {
             //
             // OVERWRITE EXISTING SAVEGAME?
             //
-            if (SaveGamesAvail[which])
-            {
-                if (!Confirm(GAMESVD))
-                {
+            if (SaveGamesAvail[which]) {
+                if (!Confirm(GAMESVD)) {
                     DrawLoadSaveScreen(1);
                     continue;
-                }
-                else
-                {
+                } else {
                     DrawLoadSaveScreen(1);
-                    PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
+                    PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
                     VW_UpdateScreen();
                 }
             }
 
             ShootSnd();
 
-            strcpy(input,&SaveGameNames[which][0]);
+            strcpy(input, &SaveGameNames[which][0]);
 
             std::string name = SAVE_BASE_NAME;
             name += static_cast<char>('0' + which);
 
-            fontnumber=2;
-            VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,HIGHLIGHT_BOX_COLOR);
-            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,HIGHLIGHT_BOX_COLOR);
+            fontnumber = 2;
+            VWB_Bar(LSM_X + LSItems.indent + 1, LSM_Y + which * LSItems.y_spacing - 1, LSM_W - LSItems.indent - 1, 7, HIGHLIGHT_BOX_COLOR);
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, HIGHLIGHT_BOX_COLOR);
             VW_UpdateScreen();
 
 
-            if (US_LineInput(LSM_X+LSItems.indent+2,LSM_Y+which*LSItems.y_spacing,input,input,true,GAME_DESCRIPTION_LEN,LSM_W-LSItems.indent-10))
-            {
-                SaveGamesAvail[which]=1;
-                strcpy(&SaveGameNames[which][0],input);
+            if (US_LineInput(LSM_X + LSItems.indent + 2, LSM_Y + which * LSItems.y_spacing, input, input, true, GAME_DESCRIPTION_LEN, LSM_W - LSItems.indent - 10)) {
+                SaveGamesAvail[which] = 1;
+                strcpy(&SaveGameNames[which][0], input);
 
                 MakeDestPath(name.c_str());
                 bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
 
                 DrawLSAction(1);
-                SaveTheGame(&stream,input);
+                SaveTheGame(&stream, input);
 
                 ShootSnd();
-                exit=1;
-            }
-            else
-            {
-                VWB_Bar(LSM_X+LSItems.indent+1,LSM_Y+which*LSItems.y_spacing-1,LSM_W-LSItems.indent-1,7,TERM_BACK_COLOR);
-                PrintLSEntry(which,HIGHLIGHT_TEXT_COLOR);
+                exit = 1;
+            } else {
+                VWB_Bar(LSM_X + LSItems.indent + 1, LSM_Y + which * LSItems.y_spacing - 1, LSM_W - LSItems.indent - 1, 7, TERM_BACK_COLOR);
+                PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
                 VW_UpdateScreen();
                 ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
                 continue;
             }
 
-            fontnumber=1;
+            fontnumber = 1;
             break;
         }
 
-    } while(which>=0);
+    } while (which >= 0);
 
     MenuFadeOut();
     use_custom_cursor = false;
@@ -2642,299 +2701,311 @@ Sint16 CP_SaveGame(
     return exit;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // EXIT OPTIONS
-//--------------------------------------------------------------------------
-void CP_ExitOptions(Sint16)
+// --------------------------------------------------------------------------
+void CP_ExitOptions(
+    Sint16)
 {
-	StartGame=1;
+    StartGame = 1;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DEFINE CONTROLS
-//--------------------------------------------------------------------------
-void CP_Control(Sint16)
+// --------------------------------------------------------------------------
+void CP_Control(
+    Sint16)
 {
 
-	enum {MOUSEENABLE,JOYENABLE,USEPORT2,PADENABLE,CALIBRATEJOY,MOUSESENS,CUSTOMIZE};	 
+    enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, CALIBRATEJOY, MOUSESENS, CUSTOMIZE};
 
- 	Sint16 which;
+    Sint16 which;
 
-	CA_CacheScreen (BACKGROUND_SCREENPIC);
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
 
- DrawCtlScreen();
- MenuFadeIn();
- WaitKeyUp();
+    DrawCtlScreen();
+    MenuFadeIn();
+    WaitKeyUp();
 
- do
- {
-  which=HandleMenu(&CtlItems,&CtlMenu[0],NULL);
-  switch(which)
-  {
-   case MOUSEENABLE:
-     mouseenabled^=1;
+    do {
+        which = HandleMenu(&CtlItems, &CtlMenu[0], NULL);
+        switch (which) {
+        case MOUSEENABLE:
+            mouseenabled ^= 1;
 
-     DrawCtlScreen();
-     CusItems.curpos=-1;
-	 ShootSnd();
-     break;
+            DrawCtlScreen();
+            CusItems.curpos = -1;
+            ShootSnd();
+            break;
 
-   case JOYENABLE:
-     joystickenabled^=1;
-	  if (joystickenabled)
-		  CalibrateJoystick();		 
-     DrawCtlScreen();
-     CusItems.curpos=-1;
-     ShootSnd();
-     break;
+        case JOYENABLE:
+            joystickenabled ^= 1;
+            if (joystickenabled) {
+                CalibrateJoystick();
+            }
+            DrawCtlScreen();
+            CusItems.curpos = -1;
+            ShootSnd();
+            break;
 
-	case USEPORT2:
-	  joystickport^=1;
-	  DrawCtlScreen();
-	  ShootSnd();
-	  break;
+        case USEPORT2:
+            joystickport ^= 1;
+            DrawCtlScreen();
+            ShootSnd();
+            break;
 
-	case PADENABLE:
-	  joypadenabled^=1;
-	  DrawCtlScreen();
-	  ShootSnd();
-	  break;
+        case PADENABLE:
+            joypadenabled ^= 1;
+            DrawCtlScreen();
+            ShootSnd();
+            break;
 
-	case CALIBRATEJOY:
-		CalibrateJoystick();
-		DrawCtlScreen();
-	break;
+        case CALIBRATEJOY:
+            CalibrateJoystick();
+            DrawCtlScreen();
+            break;
 
 
-	case MOUSESENS:
-	case CUSTOMIZE:
-	  DrawCtlScreen();
-	  MenuFadeIn();
-	  WaitKeyUp();
-	  break;
-  }
- } while(which>=0);
+        case MOUSESENS:
+        case CUSTOMIZE:
+            DrawCtlScreen();
+            MenuFadeIn();
+            WaitKeyUp();
+            break;
+        }
+    } while (which >= 0);
 
- MenuFadeOut();
+    MenuFadeOut();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DRAW MOUSE SENSITIVITY SCREEN
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawMousePos()
 {
-	VWB_Bar(74,92,160,8,HIGHLIGHT_BOX_COLOR);
-	DrawOutline(73,91,161,9,ENABLED_TEXT_COLOR,ENABLED_TEXT_COLOR);
-	VWB_Bar(74+160/10*mouseadjustment,92,16,8,HIGHLIGHT_TEXT_COLOR);
+    VWB_Bar(74, 92, 160, 8, HIGHLIGHT_BOX_COLOR);
+    DrawOutline(73, 91, 161, 9, ENABLED_TEXT_COLOR, ENABLED_TEXT_COLOR);
+    VWB_Bar(74 + 160 / 10 * mouseadjustment, 92, 16, 8, HIGHLIGHT_TEXT_COLOR);
 }
 
 void DrawMouseSens()
 {
-	ClearMScreen();
-	DrawMenuTitle("MOUSE SENSITIVITY");
-	DrawInstructions(IT_MOUSE_SEN);
+    ClearMScreen();
+    DrawMenuTitle("MOUSE SENSITIVITY");
+    DrawInstructions(IT_MOUSE_SEN);
 
-	fontnumber = 4;
+    fontnumber = 4;
 
-	SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,TERM_BACK_COLOR);
-	PrintX=36;
-	PrintY=91;
-	US_Print("SLOW");
-	PrintX=242;
-	US_Print("FAST");
+    SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
+    PrintX = 36;
+    PrintY = 91;
+    US_Print("SLOW");
+    PrintX = 242;
+    US_Print("FAST");
 
-	DrawMousePos();
+    DrawMousePos();
 
-	VW_UpdateScreen();
-	MenuFadeIn();
+    VW_UpdateScreen();
+    MenuFadeIn();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CalibrateJoystick()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void CalibrateJoystick()
 {
-	Uint16 minx,maxx,miny,maxy;
+    Uint16 minx, maxx, miny, maxy;
 
-	CacheMessage(CALJOY1_TEXT);		 
-	VW_UpdateScreen();
+    CacheMessage(CALJOY1_TEXT);
+    VW_UpdateScreen();
 
-	while (IN_GetJoyButtonsDB(joystickport));
-	while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport));
-	if (LastScan == sc_escape)
-		return;
+    while (IN_GetJoyButtonsDB(joystickport)) {
+    }
+    while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport)) {
+    }
+    if (LastScan == sc_escape) {
+        return;
+    }
 
-	IN_GetJoyAbs(joystickport,&minx,&miny);
-	while (IN_GetJoyButtonsDB(joystickport));
+    IN_GetJoyAbs(joystickport, &minx, &miny);
+    while (IN_GetJoyButtonsDB(joystickport)) {
+    }
 
-	CacheMessage(CALJOY2_TEXT);			  
-	VW_UpdateScreen();
+    CacheMessage(CALJOY2_TEXT);
+    VW_UpdateScreen();
 
-	while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport));
-	if (LastScan == sc_escape)
-		return;
+    while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport)) {
+    }
+    if (LastScan == sc_escape) {
+        return;
+    }
 
-	IN_GetJoyAbs(joystickport,&maxx,&maxy);
-	if ((minx == maxx) || (miny == maxy))
-		return;
+    IN_GetJoyAbs(joystickport, &maxx, &maxy);
+    if ((minx == maxx) || (miny == maxy)) {
+        return;
+    }
 
-	IN_SetupJoy(joystickport,minx,maxx,miny,maxy);
-	while (IN_GetJoyButtonsDB(joystickport));
+    IN_SetupJoy(joystickport, minx, maxx, miny, maxy);
+    while (IN_GetJoyButtonsDB(joystickport)) {
+    }
 
-	IN_ClearKeysDown();
-	JoystickCalibrated = true;
+    IN_ClearKeysDown();
+    JoystickCalibrated = true;
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ADJUST MOUSE SENSITIVITY
-//--------------------------------------------------------------------------
-void MouseSensitivity(Sint16)
+// --------------------------------------------------------------------------
+void MouseSensitivity(
+    Sint16)
 {
-	ControlInfo ci;
-	Sint16 exit=0,oldMA;
+    ControlInfo ci;
+    Sint16 exit = 0, oldMA;
 
-	oldMA=mouseadjustment;
-	DrawMouseSens();
-	do
-	{
-		ReadAnyControl(&ci);
-		switch(ci.dir)
-		{
-			case dir_North:
-   		case dir_West:
-     			if (mouseadjustment)
-				{
-					mouseadjustment--;
-	   			DrawMousePos();
-      			VW_UpdateScreen();
+    oldMA = mouseadjustment;
+    DrawMouseSens();
+    do {
+        ReadAnyControl(&ci);
+        switch (ci.dir) {
+        case dir_North:
+        case dir_West:
+            if (mouseadjustment) {
+                mouseadjustment--;
+                DrawMousePos();
+                VW_UpdateScreen();
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
-                while (Keyboard[sc_left_arrow])
+                while (Keyboard[sc_left_arrow]) {
                     ::in_handle_events();
+                }
 
-      			WaitKeyUp();
-     			}
-     		break;
+                WaitKeyUp();
+            }
+            break;
 
-   		case dir_South:
-   		case dir_East:
-				if (mouseadjustment<9)
-				{
-					mouseadjustment++;
-					DrawMousePos();
-					VW_UpdateScreen();
-                    ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+        case dir_South:
+        case dir_East:
+            if (mouseadjustment < 9) {
+                mouseadjustment++;
+                DrawMousePos();
+                VW_UpdateScreen();
+                ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
-                    while (Keyboard[sc_right_arrow])
-                        ::in_handle_events();
+                while (Keyboard[sc_right_arrow]) {
+                    ::in_handle_events();
+                }
 
-					WaitKeyUp();
-				}
-			break;
+                WaitKeyUp();
+            }
+            break;
 
         default:
             break;
-		}
+        }
 
-		if (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return])
-			exit=1;
-		else
-		if (ci.button1 || Keyboard[sc_escape])
-			exit=2;
+        if (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return]) {
+            exit = 1;
+        } else if (ci.button1 || Keyboard[sc_escape]) {
+            exit = 2;
+        }
 
-	} while(!exit);
+    } while (!exit);
 
-	if (exit==2)
-	{
-		mouseadjustment=oldMA;
+    if (exit == 2) {
+        mouseadjustment = oldMA;
         ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
-	}
-	else
+    } else {
         ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
+    }
 
-	WaitKeyUp();
-	MenuFadeOut();
+    WaitKeyUp();
+    MenuFadeOut();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawCtlScreen() - DRAW CONTROL MENU SCREEN
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawCtlScreen()
 {
-	#define Y_CTL_PIC_OFS	(3)
+#define Y_CTL_PIC_OFS (3)
 
-	Sint16 i,x,y;
+    Sint16 i, x, y;
 
-	ClearMScreen();
-	DrawMenuTitle("CONTROL");
-	DrawInstructions(IT_STANDARD);
+    ClearMScreen();
+    DrawMenuTitle("CONTROL");
+    DrawInstructions(IT_STANDARD);
 
-	WindowX=0;
-	WindowW=320;
-	SETFONTCOLOR(TEXTCOLOR,BKGDCOLOR);
+    WindowX = 0;
+    WindowW = 320;
+    SETFONTCOLOR(TEXTCOLOR, BKGDCOLOR);
 
-	if (JoysPresent[0])
-		CtlMenu[1].active=
-		CtlMenu[2].active=
-		CtlMenu[3].active=
-		CtlMenu[4].active=AT_ENABLED;
+    if (JoysPresent[0]) {
+        CtlMenu[1].active =
+            CtlMenu[2].active =
+                CtlMenu[3].active =
+                    CtlMenu[4].active = AT_ENABLED;
+    }
 
-	CtlMenu[2].active=CtlMenu[3].active=CtlMenu[4].active=static_cast<activetypes>(joystickenabled);
+    CtlMenu[2].active = CtlMenu[3].active = CtlMenu[4].active = static_cast<activetypes>(joystickenabled);
 
-	if (MousePresent)
-	{
-		CtlMenu[5].active=
-		CtlMenu[0].active=AT_ENABLED;
-	}
+    if (MousePresent) {
+        CtlMenu[5].active =
+            CtlMenu[0].active = AT_ENABLED;
+    }
 
-	CtlMenu[5].active=static_cast<activetypes>(mouseenabled);
+    CtlMenu[5].active = static_cast<activetypes>(mouseenabled);
 
-	fontnumber = 4;
-	DrawMenu(&CtlItems,&CtlMenu[0]);
+    fontnumber = 4;
+    DrawMenu(&CtlItems, &CtlMenu[0]);
 
-	x=CTL_X+CtlItems.indent-24;
-	y=CTL_Y+Y_CTL_PIC_OFS;
-	if (mouseenabled)
-		VWB_DrawPic(x,y,C_SELECTEDPIC);
-	else
-		VWB_DrawPic(x,y,C_NOTSELECTEDPIC);
+    x = CTL_X + CtlItems.indent - 24;
+    y = CTL_Y + Y_CTL_PIC_OFS;
+    if (mouseenabled) {
+        VWB_DrawPic(x, y, C_SELECTEDPIC);
+    } else {
+        VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
+    }
 
-	y=CTL_Y+9+Y_CTL_PIC_OFS;
-	if (joystickenabled)
-		VWB_DrawPic(x,y,C_SELECTEDPIC);
-	else
-		VWB_DrawPic(x,y,C_NOTSELECTEDPIC);
+    y = CTL_Y + 9 + Y_CTL_PIC_OFS;
+    if (joystickenabled) {
+        VWB_DrawPic(x, y, C_SELECTEDPIC);
+    } else {
+        VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
+    }
 
-	y=CTL_Y+9*2+Y_CTL_PIC_OFS;
-	if (joystickport)
-		VWB_DrawPic(x,y,C_SELECTEDPIC);
-	else
-		VWB_DrawPic(x,y,C_NOTSELECTEDPIC);
+    y = CTL_Y + 9 * 2 + Y_CTL_PIC_OFS;
+    if (joystickport) {
+        VWB_DrawPic(x, y, C_SELECTEDPIC);
+    } else {
+        VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
+    }
 
-	y=CTL_Y+9*3+Y_CTL_PIC_OFS;
-	if (joypadenabled)
-		VWB_DrawPic(x,y,C_SELECTEDPIC);
-	else
-		VWB_DrawPic(x,y,C_NOTSELECTEDPIC);
+    y = CTL_Y + 9 * 3 + Y_CTL_PIC_OFS;
+    if (joypadenabled) {
+        VWB_DrawPic(x, y, C_SELECTEDPIC);
+    } else {
+        VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
+    }
 
-	//
-	// PICK FIRST AVAILABLE SPOT
-	//
+    //
+    // PICK FIRST AVAILABLE SPOT
+    //
 
-	if (CtlItems.curpos<0 || !CtlMenu[static_cast<int>(CtlItems.curpos)].active)
+    if (CtlItems.curpos < 0 || !CtlMenu[static_cast<int>(CtlItems.curpos)].active) {
 
         // BBi
-		//for (i=0;i<6;i++)
-        for (i = 0; i < CtlItems.amount; ++i)
-			if (CtlMenu[i].active)
-			{
-				CtlItems.curpos=static_cast<char>(i);
-				break;
-			}
+        // for (i=0;i<6;i++)
+        for (i = 0; i < CtlItems.amount; ++i) {
+            if (CtlMenu[i].active) {
+                CtlItems.curpos = static_cast<char>(i);
+                break;
+            }
+        }
+    }
 
-	DrawMenuGun(&CtlItems);
-	VW_UpdateScreen();
+    DrawMenuGun(&CtlItems);
+    VW_UpdateScreen();
 }
 
 enum ControlButton1 {
@@ -2944,118 +3015,118 @@ enum ControlButton1 {
     OPEN
 }; // enum ControlButton1
 
-char mbarray[4][3]={"B0","B1","B2","B3"},
-		order[4]={RUN,OPEN,FIRE,STRAFE};
+char mbarray[4][3] = { "B0", "B1", "B2", "B3" },
+     order[4] = { RUN, OPEN, FIRE, STRAFE };
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CustomControls() CUSTOMIZE CONTROLS
-//--------------------------------------------------------------------------
-void CustomControls(Sint16)
+// --------------------------------------------------------------------------
+void CustomControls(
+    Sint16)
 {
     if (in_use_modern_bindings) {
         binds_draw_menu();
         return;
     }
 
-	Sint16 which;
+    Sint16 which;
 
- DrawCustomScreen();
+    DrawCustomScreen();
 
- do
- {
-  which=HandleMenu(&CusItems,&CusMenu[0],FixupCustom);
+    do {
+        which = HandleMenu(&CusItems, &CusMenu[0], FixupCustom);
 
-  switch(which)
-  {
-	case 0:
-	  DefineMouseBtns();
-	  DrawCustMouse(1);
-	  break;
+        switch (which) {
+        case 0:
+            DefineMouseBtns();
+            DrawCustMouse(1);
+            break;
 
-	case 2:
-	  DefineJoyBtns();
-	  DrawCustJoy(0);
-	  break;
+        case 2:
+            DefineJoyBtns();
+            DrawCustJoy(0);
+            break;
 
-	case 4:
-	  DefineKeyBtns();
-	  DrawCustKeybd(0);
-	  break;
+        case 4:
+            DefineKeyBtns();
+            DrawCustKeybd(0);
+            break;
 
-	case 5:
-	  DefineKeyMove();
-	  DrawCustKeys(0);
-  }
- } while(which>=0);
+        case 5:
+            DefineKeyMove();
+            DrawCustKeys(0);
+        }
+    } while (which >= 0);
 
 
 
- MenuFadeOut();
+    MenuFadeOut();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DEFINE THE MOUSE BUTTONS
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DefineMouseBtns()
 {
-	CustomCtrls mouseallowed={1,1,1,1};
-	EnterCtrlData(2,&mouseallowed,DrawCustMouse,PrintCustMouse,MOUSE);
+    CustomCtrls mouseallowed = { 1, 1, 1, 1 };
+    EnterCtrlData(2, &mouseallowed, DrawCustMouse, PrintCustMouse, MOUSE);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DEFINE THE JOYSTICK BUTTONS
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DefineJoyBtns()
 {
-	CustomCtrls joyallowed={1,1,1,1};
-	EnterCtrlData(5,&joyallowed,DrawCustJoy,PrintCustJoy,JOYSTICK);
+    CustomCtrls joyallowed = { 1, 1, 1, 1 };
+    EnterCtrlData(5, &joyallowed, DrawCustJoy, PrintCustJoy, JOYSTICK);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DEFINE THE KEYBOARD BUTTONS
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DefineKeyBtns()
 {
-	CustomCtrls keyallowed={1,1,1,1};
-	EnterCtrlData(8,&keyallowed,DrawCustKeybd,PrintCustKeybd,KEYBOARDBTNS);
+    CustomCtrls keyallowed = { 1, 1, 1, 1 };
+    EnterCtrlData(8, &keyallowed, DrawCustKeybd, PrintCustKeybd, KEYBOARDBTNS);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DEFINE THE KEYBOARD BUTTONS
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DefineKeyMove()
 {
-	CustomCtrls keyallowed={1,1,1,1};
-	EnterCtrlData(10,&keyallowed,DrawCustKeys,PrintCustKeys,KEYBOARDMOVE);
+    CustomCtrls keyallowed = { 1, 1, 1, 1 };
+    EnterCtrlData(10, &keyallowed, DrawCustKeys, PrintCustKeys, KEYBOARDMOVE);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // TestForValidKey
-//--------------------------------------------------------------------------
-bool TestForValidKey(ScanCode Scan)
+// --------------------------------------------------------------------------
+bool TestForValidKey(
+    ScanCode Scan)
 {
-	char *pos;
+    char* pos;
 
-    pos = static_cast<char*>(memchr(buttonscan,Scan,sizeof(buttonscan)));
+    pos = static_cast<char*>(memchr(buttonscan, Scan, sizeof(buttonscan)));
 
-	if (!pos)
-  		pos = static_cast<char*>(memchr(dirscan,Scan,sizeof(dirscan)));
+    if (!pos) {
+        pos = static_cast<char*>(memchr(dirscan, Scan, sizeof(dirscan)));
+    }
 
-	if (pos)
-   {
-   	*pos = sc_none;
+    if (pos) {
+        *pos = sc_none;
         ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
 
-		DrawCustomScreen();
-   }
+        DrawCustomScreen();
+    }
 
-	return(!((pos > 0) ? true : false));
+    return !((pos > 0) ? true : false);
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // EnterCtrlData() - ENTER CONTROL DATA FOR ANY TYPE OF CONTROL
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 enum ControlButton2 {
     FWRD,
@@ -3064,577 +3135,600 @@ enum ControlButton2 {
     LEFT
 }; // enum ControlButton2
 
-Sint16 moveorder[4]={LEFT,RIGHT,FWRD,BKWD};
+Sint16 moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
 
-void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (*PrintRtn)(Sint16),Sint16 type)
+void EnterCtrlData(
+    Sint16 index,
+    CustomCtrls* cust,
+    void (* DrawRtn)(Sint16),
+    void (* PrintRtn)(Sint16),
+    Sint16 type)
 {
-	Sint16 j,exit,tick,redraw,which = 0,x = 0,picked;
-	ControlInfo ci;
-  	bool clean_display = true;
+    Sint16 j, exit, tick, redraw, which = 0, x = 0, picked;
+    ControlInfo ci;
+    bool clean_display = true;
 
-	ShootSnd();
-	PrintY=CST_Y+13*index;
-	IN_ClearKeysDown();
-	exit=0;
-	redraw=1;
+    ShootSnd();
+    PrintY = CST_Y + 13 * index;
+    IN_ClearKeysDown();
+    exit = 0;
+    redraw = 1;
 
-	CA_CacheGrChunk(STARTFONT+fontnumber);
+    CA_CacheGrChunk(STARTFONT + fontnumber);
 
-	//
-	// FIND FIRST SPOT IN ALLOWED ARRAY
-	//
-	for (j=0;j<4;j++)
-		if (cust->allowed[j])
-		{
-			 which=j;
-			 break;
-		}
+    //
+    // FIND FIRST SPOT IN ALLOWED ARRAY
+    //
+    for (j = 0; j < 4; j++) {
+        if (cust->allowed[j]) {
+            which = j;
+            break;
+        }
+    }
 
-	do
-	{
-	  if (redraw)
-	  {
-	  		x=CST_START+CST_SPC*which;
-	  		DrawRtn(1);
+    do {
+        if (redraw) {
+            x = CST_START + CST_SPC * which;
+            DrawRtn(1);
 
-			VWB_Bar(x-1,PrintY-1,CST_SPC,7,HIGHLIGHT_BOX_COLOR);
-			SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,HIGHLIGHT_BOX_COLOR);
-			PrintRtn(which);
-   		PrintX=x;
-   		SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,TERM_BACK_COLOR);
-			VW_UpdateScreen();
-   		WaitKeyUp();
-   		redraw=0;
-		}
+            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, HIGHLIGHT_BOX_COLOR);
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, HIGHLIGHT_BOX_COLOR);
+            PrintRtn(which);
+            PrintX = x;
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
+            VW_UpdateScreen();
+            WaitKeyUp();
+            redraw = 0;
+        }
 
-		ReadAnyControl(&ci);
+        ReadAnyControl(&ci);
 
-  		if (type==MOUSE || type==JOYSTICK)
-	 		if (IN_KeyDown(sc_return)||IN_KeyDown(sc_control)||IN_KeyDown(sc_alt))
-			{
-		   	 IN_ClearKeysDown();
-				 ci.button0=ci.button1=false;
-		   }
+        if (type == MOUSE || type == JOYSTICK) {
+            if (IN_KeyDown(sc_return) || IN_KeyDown(sc_control) || IN_KeyDown(sc_alt)) {
+                IN_ClearKeysDown();
+                ci.button0 = ci.button1 = false;
+            }
+        }
 
-	  //
-	  // CHANGE BUTTON VALUE?
-	  //
+        //
+        // CHANGE BUTTON VALUE?
+        //
 
-	  if ((ci.button0|ci.button1|ci.button2|ci.button3)||
-   	  ((type==KEYBOARDBTNS||type==KEYBOARDMOVE) && LastScan==sc_return))
-	  {
-   		tick=0;
-        TimeCount=0;
-        picked=0;
-			SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,HIGHLIGHT_BOX_COLOR);
+        if ((ci.button0 | ci.button1 | ci.button2 | ci.button3) ||
+            ((type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_return))
+        {
+            tick = 0;
+            TimeCount = 0;
+            picked = 0;
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, HIGHLIGHT_BOX_COLOR);
 
-		   do
-		   {
-			   Sint16 button,result=0;
+            do {
+                Sint16 button, result = 0;
 
-			   if (type==KEYBOARDBTNS||type==KEYBOARDMOVE)
-			      IN_ClearKeysDown();
+                if (type == KEYBOARDBTNS || type == KEYBOARDMOVE) {
+                    IN_ClearKeysDown();
+                }
 
-               // BBi
-               ::in_handle_events();
+                // BBi
+                ::in_handle_events();
 
-			   //
-			   // FLASH CURSOR
-			   //
+                //
+                // FLASH CURSOR
+                //
 
-				if (TimeCount>10)
-			   {
-			   	switch(tick)
-			     	{
-				   	case 0:
-							VWB_Bar(x-1,PrintY-1,CST_SPC,7,HIGHLIGHT_BOX_COLOR);
-						break;
+                if (TimeCount > 10) {
+                    switch (tick) {
+                    case 0:
+                        VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, HIGHLIGHT_BOX_COLOR);
+                        break;
 
-				      case 1:
-							PrintX=x;
-							US_Print("?");
+                    case 1:
+                        PrintX = x;
+                        US_Print("?");
 
-                            ::sd_play_player_sound(
-                                HITWALLSND, bstone::AC_ITEM);
-				  	}
+                        ::sd_play_player_sound(
+                            HITWALLSND, bstone::AC_ITEM);
+                    }
 
-			     	tick^=1;
-			     	TimeCount=0;
-			     	VW_UpdateScreen();
-			   }
+                    tick ^= 1;
+                    TimeCount = 0;
+                    VW_UpdateScreen();
+                }
 
-		    //
-		    // WHICH TYPE OF INPUT DO WE PROCESS?
-			 //
+                //
+                // WHICH TYPE OF INPUT DO WE PROCESS?
+                //
 
-		    switch(type)
-		    {
-				 case MOUSE:
-                     button = ::IN_MouseButtons();
+                switch (type) {
+                case MOUSE:
+                    button = ::IN_MouseButtons();
 
-		   	    switch(button)
-			       {
-						case 1: result=1; break;
-						case 2: result=2; break;
-						case 4: result=3; break;
-			       }
+                    switch (button) {
+                    case 1: result = 1;
+                        break;
+                    case 2: result = 2;
+                        break;
+                    case 4: result = 3;
+                        break;
+                    }
 
-			       if (result)
-			       {
-						Sint16 z;
+                    if (result) {
+                        Sint16 z;
 
-						for (z=0;z<4;z++)
-						  if (order[which]==buttonmouse[z])
-						  {
-							   buttonmouse[z]=bt_nobutton;
-	   						break;
-						  }
+                        for (z = 0; z < 4; z++) {
+                            if (order[which] == buttonmouse[z]) {
+                                buttonmouse[z] = bt_nobutton;
+                                break;
+                            }
+                        }
 
-						buttonmouse[result-1]=order[which];
-						picked=1;
+                        buttonmouse[result - 1] = order[which];
+                        picked = 1;
 
                         ::sd_play_player_sound(
                             SHOOTDOORSND, bstone::AC_ITEM);
 
-						clean_display = false;
-		 	       }
-   	    	 break;
+                        clean_display = false;
+                    }
+                    break;
 
-	     case JOYSTICK:
-   	    if (ci.button0) result=1;
-      	 else
-	       if (ci.button1) result=2;
-   	    else
-	       if (ci.button2) result=3;
-			 else
-      	 if (ci.button3) result=4;
+                case JOYSTICK:
+                    if (ci.button0) {
+                        result = 1;
+                    } else if (ci.button1) {
+                        result = 2;
+                    } else if (ci.button2) {
+                        result = 3;
+                    } else if (ci.button3) {
+                        result = 4;
+                    }
 
-	       if (result)
-			 {
-				Sint16 z;
+                    if (result) {
+                        Sint16 z;
 
-				for (z=0;z<4;z++)
-				  if (order[which]==buttonjoy[z])
-				  {
-					   buttonjoy[z]=bt_nobutton;
-					   break;
-				  }
+                        for (z = 0; z < 4; z++) {
+                            if (order[which] == buttonjoy[z]) {
+                                buttonjoy[z] = bt_nobutton;
+                                break;
+                            }
+                        }
 
-				buttonjoy[result-1]=order[which];
-				picked=1;
+                        buttonjoy[result - 1] = order[which];
+                        picked = 1;
 
-                ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
+                        ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
 
-				clean_display = false;
-				}
-	  	  break;
+                        clean_display = false;
+                    }
+                    break;
 
-   	  case KEYBOARDBTNS:
-	       if (LastScan)
-   	    {
-          	if (LastScan == sc_escape)
-            	break;
+                case KEYBOARDBTNS:
+                    if (LastScan) {
+                        if (LastScan == sc_escape) {
+                            break;
+                        }
 
-	   	  	if (memchr(special_keys,LastScan,sizeof(special_keys)))
-                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                        if (memchr(special_keys, LastScan, sizeof(special_keys))) {
+                            ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                        } else {
+                            clean_display = TestForValidKey(LastScan);
 
-				else
-   	      {
-              clean_display = TestForValidKey(LastScan);
+                            if (clean_display) {
+                                ShootSnd();
+                            }
 
-      	   	if (clean_display)
-						ShootSnd();
-
-					buttonscan[static_cast<int>(order[which])]=LastScan;
-					picked=1;
-      	   }
-				IN_ClearKeysDown();
-   	    }
-	     break;
-
-
-	     case KEYBOARDMOVE:
-	       if (LastScan)
-	       {
-	        	if (LastScan == sc_escape)
-   	        	break;
-
-		     	if (memchr(special_keys,LastScan,sizeof(special_keys)))
-                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
-				else
-	         {
-                 clean_display = TestForValidKey(LastScan);
-
-   	      	if (clean_display)
-						ShootSnd();
-
-					dirscan[moveorder[which]]=LastScan;
-					picked=1;
-      	   }
-				IN_ClearKeysDown();
-			 }
-	     break;
-	    }
+                            buttonscan[static_cast<int>(order[which])] = LastScan;
+                            picked = 1;
+                        }
+                        IN_ClearKeysDown();
+                    }
+                    break;
 
 
-	    //
-   	 // EXIT INPUT?
-	    //
+                case KEYBOARDMOVE:
+                    if (LastScan) {
+                        if (LastScan == sc_escape) {
+                            break;
+                        }
 
-		 if (IN_KeyDown(sc_escape))
-   	 {
-	   	  picked=1;
-		     continue;
-		 }
+                        if (memchr(special_keys, LastScan, sizeof(special_keys))) {
+                            ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                        } else {
+                            clean_display = TestForValidKey(LastScan);
 
-   } while(!picked);
+                            if (clean_display) {
+                                ShootSnd();
+                            }
 
-   if (!clean_display)
-     	DrawCustomScreen();
-
-	SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,TERM_BACK_COLOR);
-   redraw=1;
-   WaitKeyUp();
-	continue;
-  }
-
-  if (ci.button1 || IN_KeyDown(sc_escape))
-    exit=1;
-
-  //
-  // MOVE TO ANOTHER SPOT?
-  //
-  switch(ci.dir)
-  {
-
-   case dir_West:
-		VWB_Bar(x-1,PrintY-1,CST_SPC,7,TERM_BACK_COLOR);
-		SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,TERM_BACK_COLOR);
-  		PrintRtn(which);
-     	do
-     	{
-      	which--;
-	      if (which<0)
-				which=3;
-     	} while(!cust->allowed[which]);
-
-     redraw=1;
-
-     ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
-
-	  while(ReadAnyControl(&ci),ci.dir!=dir_None);
-	  IN_ClearKeysDown();
-	break;
+                            dirscan[moveorder[which]] = LastScan;
+                            picked = 1;
+                        }
+                        IN_ClearKeysDown();
+                    }
+                    break;
+                }
 
 
+                //
+                // EXIT INPUT?
+                //
 
-	case dir_East:
-		VWB_Bar(x-1,PrintY-1,CST_SPC,7,TERM_BACK_COLOR);
-		SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR,TERM_BACK_COLOR);
-		PrintRtn(which);
-		do
-		{
-			which++;
-			if (which>3)
-				which=0;
-		} while(!cust->allowed[which]);
+                if (IN_KeyDown(sc_escape)) {
+                    picked = 1;
+                    continue;
+                }
 
-		redraw=1;
+            } while (!picked);
 
-        ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+            if (!clean_display) {
+                DrawCustomScreen();
+            }
 
-		while(ReadAnyControl(&ci),ci.dir!=dir_None);
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
+            redraw = 1;
+            WaitKeyUp();
+            continue;
+        }
 
-	   IN_ClearKeysDown();
-   break;
+        if (ci.button1 || IN_KeyDown(sc_escape)) {
+            exit = 1;
+        }
 
-	case dir_North:
-   case dir_South:
-	  exit=1;
+        //
+        // MOVE TO ANOTHER SPOT?
+        //
+        switch (ci.dir) {
 
-    default:
-        break;
-  }
+        case dir_West:
+            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, TERM_BACK_COLOR);
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
+            PrintRtn(which);
+            do {
+                which--;
+                if (which < 0) {
+                    which = 3;
+                }
+            } while (!cust->allowed[which]);
 
- } while(!exit);
+            redraw = 1;
 
-	FREEFONT(STARTFONT+fontnumber);
+            ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+
+            while (ReadAnyControl(&ci), ci.dir != dir_None) {
+            }
+            IN_ClearKeysDown();
+            break;
+
+
+
+        case dir_East:
+            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, TERM_BACK_COLOR);
+            SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
+            PrintRtn(which);
+            do {
+                which++;
+                if (which > 3) {
+                    which = 0;
+                }
+            } while (!cust->allowed[which]);
+
+            redraw = 1;
+
+            ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+
+            while (ReadAnyControl(&ci), ci.dir != dir_None) {
+            }
+
+            IN_ClearKeysDown();
+            break;
+
+        case dir_North:
+        case dir_South:
+            exit = 1;
+
+        default:
+            break;
+        }
+
+    } while (!exit);
+
+    FREEFONT(STARTFONT + fontnumber);
 
     ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 
- WaitKeyUp();
+    WaitKeyUp();
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // FixupCustom() - FIXUP GUN CURSOR OVERDRAW SHIT
-//--------------------------------------------------------------------------
-void FixupCustom(Sint16 w)
+// --------------------------------------------------------------------------
+void FixupCustom(
+    Sint16 w)
 {
-	static Sint16 lastwhich=-1;
+    static Sint16 lastwhich = -1;
 
-	switch(w)
-	{
-		case 0: DrawCustMouse(1); break;
-  		case 2: DrawCustJoy(1); break;
-  		case 4: DrawCustKeybd(1); break;
-  		case 5: DrawCustKeys(1);
-	}
+    switch (w) {
+    case 0: DrawCustMouse(1);
+        break;
+    case 2: DrawCustJoy(1);
+        break;
+    case 4: DrawCustKeybd(1);
+        break;
+    case 5: DrawCustKeys(1);
+    }
 
 
-	if (lastwhich>=0)
-	{
-		if (lastwhich!=w)
-			switch(lastwhich)
-    		{
-	  			case 0: DrawCustMouse(0); break;
-     			case 2: DrawCustJoy(0); break;
-     			case 4: DrawCustKeybd(0); break;
-     			case 5: DrawCustKeys(0);
-    		}
-	}
+    if (lastwhich >= 0) {
+        if (lastwhich != w) {
+            switch (lastwhich) {
+            case 0: DrawCustMouse(0);
+                break;
+            case 2: DrawCustJoy(0);
+                break;
+            case 4: DrawCustKeybd(0);
+                break;
+            case 5: DrawCustKeys(0);
+            }
+        }
+    }
 
-	lastwhich=w;
+    lastwhich = w;
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawCustomScreen() - DRAW CUSTOMIZE SCREEN
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawCustomScreen()
 {
-	Sint16 i;
+    Sint16 i;
 
-	ClearMScreen();
-	DrawMenuTitle("CUSTOMIZE");
-	DrawInstructions(IT_STANDARD);
+    ClearMScreen();
+    DrawMenuTitle("CUSTOMIZE");
+    DrawInstructions(IT_STANDARD);
 
-	//
-	// MOUSE
-	//
+    //
+    // MOUSE
+    //
 
-	WindowX=32;
-	WindowW=244;
+    WindowX = 32;
+    WindowW = 244;
 
-	fontnumber = 4;
+    fontnumber = 4;
 
-	SETFONTCOLOR(0x0C,TERM_BACK_COLOR);
-
-
-	PrintY=49;
-	US_CPrint("MOUSE\n");
-	PrintY=79;
-	US_CPrint("JOYSTICK/GRAVIS GAMEPAD\n");
-	PrintY=109;
-	US_CPrint("KEYBOARD\n");
-
-	fontnumber = 2;
-
-	SETFONTCOLOR(DISABLED_TEXT_COLOR,TERM_BACK_COLOR);
-
-   for (i=60;i<=120;i+=30)
-   {
-		ShadowPrint("RUN",CST_START,i);
-		ShadowPrint("OPEN",CST_START+CST_SPC*1,i);
-		ShadowPrint("FIRE",CST_START+CST_SPC*2,i);
-		ShadowPrint("STRAFE",CST_START+CST_SPC*3,i);
-	}
-
-	ShadowPrint("LEFT",CST_START,135);
-	ShadowPrint("RIGHT",CST_START+CST_SPC*1,135);
-	ShadowPrint("FWRD",CST_START+CST_SPC*2,135);
-	ShadowPrint("BKWRD",CST_START+CST_SPC*3,135);
+    SETFONTCOLOR(0x0C, TERM_BACK_COLOR);
 
 
-	DrawCustMouse(0);
-	DrawCustJoy(0);
-	DrawCustKeybd(0);
-	DrawCustKeys(0);
+    PrintY = 49;
+    US_CPrint("MOUSE\n");
+    PrintY = 79;
+    US_CPrint("JOYSTICK/GRAVIS GAMEPAD\n");
+    PrintY = 109;
+    US_CPrint("KEYBOARD\n");
 
-	//
-	// PICK STARTING POINT IN MENU
-	//
-	if (CusItems.curpos<0)
-		for (i=0;i<CusItems.amount;i++)
-		  if (CusMenu[i].active)
-		  {
-				CusItems.curpos=static_cast<char>(i);
-				break;
-		  }
+    fontnumber = 2;
 
-	VW_UpdateScreen();
-	MenuFadeIn();
+    SETFONTCOLOR(DISABLED_TEXT_COLOR, TERM_BACK_COLOR);
+
+    for (i = 60; i <= 120; i += 30) {
+        ShadowPrint("RUN", CST_START, i);
+        ShadowPrint("OPEN", CST_START + CST_SPC * 1, i);
+        ShadowPrint("FIRE", CST_START + CST_SPC * 2, i);
+        ShadowPrint("STRAFE", CST_START + CST_SPC * 3, i);
+    }
+
+    ShadowPrint("LEFT", CST_START, 135);
+    ShadowPrint("RIGHT", CST_START + CST_SPC * 1, 135);
+    ShadowPrint("FWRD", CST_START + CST_SPC * 2, 135);
+    ShadowPrint("BKWRD", CST_START + CST_SPC * 3, 135);
+
+
+    DrawCustMouse(0);
+    DrawCustJoy(0);
+    DrawCustKeybd(0);
+    DrawCustKeys(0);
+
+    //
+    // PICK STARTING POINT IN MENU
+    //
+    if (CusItems.curpos < 0) {
+        for (i = 0; i < CusItems.amount; i++) {
+            if (CusMenu[i].active) {
+                CusItems.curpos = static_cast<char>(i);
+                break;
+            }
+        }
+    }
+
+    VW_UpdateScreen();
+    MenuFadeIn();
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // PrintCustMouse
-//---------------------------------------------------------------------------
-void PrintCustMouse(Sint16 i)
+// ---------------------------------------------------------------------------
+void PrintCustMouse(
+    Sint16 i)
 {
-	Sint16 j;
+    Sint16 j;
 
-	for (j=0;j<4;j++)
-		if (order[i]==buttonmouse[j])
-		{
-			PrintX=CST_START+CST_SPC*i;
-			US_Print(mbarray[j]);
-			break;
-		}
+    for (j = 0; j < 4; j++) {
+        if (order[i] == buttonmouse[j]) {
+            PrintX = CST_START + CST_SPC * i;
+            US_Print(mbarray[j]);
+            break;
+        }
+    }
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawCustMouse
-//---------------------------------------------------------------------------
-void DrawCustMouse(Sint16 hilight)
+// ---------------------------------------------------------------------------
+void DrawCustMouse(
+    Sint16 hilight)
 {
-	Sint16 i,color;
+    Sint16 i, color;
 
-	color=ENABLED_TEXT_COLOR;
+    color = ENABLED_TEXT_COLOR;
 
-	if (hilight)
-		color=HIGHLIGHT_TEXT_COLOR;
+    if (hilight) {
+        color = HIGHLIGHT_TEXT_COLOR;
+    }
 
-	SETFONTCOLOR(color,TERM_BACK_COLOR);
+    SETFONTCOLOR(color, TERM_BACK_COLOR);
 
-	if (!mouseenabled)
-	{
-		SETFONTCOLOR(DISABLED_TEXT_COLOR,TERM_BACK_COLOR);
-		CusMenu[0].active=AT_DISABLED;
-	}
-	else
-		CusMenu[0].active=AT_ENABLED;
+    if (!mouseenabled) {
+        SETFONTCOLOR(DISABLED_TEXT_COLOR, TERM_BACK_COLOR);
+        CusMenu[0].active = AT_DISABLED;
+    } else {
+        CusMenu[0].active = AT_ENABLED;
+    }
 
-	PrintY=CST_Y+7;
-	for (i=0;i<4;i++)
-		PrintCustMouse(i);
+    PrintY = CST_Y + 7;
+    for (i = 0; i < 4; i++) {
+        PrintCustMouse(i);
+    }
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // PrintCustJoy
-//---------------------------------------------------------------------------
-void PrintCustJoy(Sint16 i)
+// ---------------------------------------------------------------------------
+void PrintCustJoy(
+    Sint16 i)
 {
-	Sint16 j;
+    Sint16 j;
 
-	for (j=0;j<4;j++)
-		if (order[i]==buttonjoy[j])
-		{
-			PrintX=CST_START+CST_SPC*i;
-			US_Print(mbarray[j]);
-			break;
-		}
+    for (j = 0; j < 4; j++) {
+        if (order[i] == buttonjoy[j]) {
+            PrintX = CST_START + CST_SPC * i;
+            US_Print(mbarray[j]);
+            break;
+        }
+    }
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawCustJoy
-//---------------------------------------------------------------------------
-void DrawCustJoy(Sint16 hilight)
+// ---------------------------------------------------------------------------
+void DrawCustJoy(
+    Sint16 hilight)
 {
-	Sint16 i,color;
+    Sint16 i, color;
 
 
-	color=ENABLED_TEXT_COLOR;
-	if (hilight)
-		color=HIGHLIGHT_TEXT_COLOR;
+    color = ENABLED_TEXT_COLOR;
+    if (hilight) {
+        color = HIGHLIGHT_TEXT_COLOR;
+    }
 
-	SETFONTCOLOR(color,TERM_BACK_COLOR);
+    SETFONTCOLOR(color, TERM_BACK_COLOR);
 
-	if (!joystickenabled)
-	{
-		SETFONTCOLOR(DISABLED_TEXT_COLOR,TERM_BACK_COLOR);
-		CusMenu[2].active=AT_DISABLED;
-	}
-	else
-		CusMenu[2].active=AT_ENABLED;
+    if (!joystickenabled) {
+        SETFONTCOLOR(DISABLED_TEXT_COLOR, TERM_BACK_COLOR);
+        CusMenu[2].active = AT_DISABLED;
+    } else {
+        CusMenu[2].active = AT_ENABLED;
+    }
 
-	PrintY=CST_Y+37;
-	for (i=0;i<4;i++)
-		PrintCustJoy(i);
+    PrintY = CST_Y + 37;
+    for (i = 0; i < 4; i++) {
+        PrintCustJoy(i);
+    }
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // PrintCustKeybd
-//---------------------------------------------------------------------------
-void PrintCustKeybd(Sint16 i)
+// ---------------------------------------------------------------------------
+void PrintCustKeybd(
+    Sint16 i)
 {
-	PrintX=CST_START+CST_SPC*i;
-	US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[static_cast<int>(order[i])]))));
+    PrintX = CST_START + CST_SPC * i;
+    US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[static_cast<int>(order[i])]))));
 }
 
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawCustKeybd
-//---------------------------------------------------------------------------
-void DrawCustKeybd(Sint16 hilight)
+// ---------------------------------------------------------------------------
+void DrawCustKeybd(
+    Sint16 hilight)
 {
-	Sint16 i,color;
+    Sint16 i, color;
 
-   if (hilight)
-		color=HIGHLIGHT_TEXT_COLOR;
-   else
- 		color=ENABLED_TEXT_COLOR;
+    if (hilight) {
+        color = HIGHLIGHT_TEXT_COLOR;
+    } else {
+        color = ENABLED_TEXT_COLOR;
+    }
 
-	SETFONTCOLOR(color,TERM_BACK_COLOR);
+    SETFONTCOLOR(color, TERM_BACK_COLOR);
 
-	PrintY=CST_Y+67;
+    PrintY = CST_Y + 67;
 
-	for (i=0;i<4;i++)
-		PrintCustKeybd(i);
+    for (i = 0; i < 4; i++) {
+        PrintCustKeybd(i);
+    }
 }
 
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // PrintCustKeys()
-//---------------------------------------------------------------------------
-void PrintCustKeys(Sint16 i)
+// ---------------------------------------------------------------------------
+void PrintCustKeys(
+    Sint16 i)
 {
-	PrintX=CST_START+CST_SPC*i;
-	US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(dirscan[moveorder[i]]))));
+    PrintX = CST_START + CST_SPC * i;
+    US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(dirscan[moveorder[i]]))));
 }
 
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawCustKeys()
-//---------------------------------------------------------------------------
-void DrawCustKeys(Sint16 hilight)
+// ---------------------------------------------------------------------------
+void DrawCustKeys(
+    Sint16 hilight)
 {
-	Sint16 i,color;
+    Sint16 i, color;
 
-	color=ENABLED_TEXT_COLOR;
+    color = ENABLED_TEXT_COLOR;
 
-	if (hilight)
-		color=HIGHLIGHT_TEXT_COLOR;
+    if (hilight) {
+        color = HIGHLIGHT_TEXT_COLOR;
+    }
 
-	SETFONTCOLOR(color,TERM_BACK_COLOR);
+    SETFONTCOLOR(color, TERM_BACK_COLOR);
 
-	PrintY=CST_Y+82;
-	for (i=0;i<4;i++)
-		PrintCustKeys(i);
+    PrintY = CST_Y + 82;
+    for (i = 0; i < 4; i++) {
+        PrintCustKeys(i);
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CP_Quit() - QUIT THIS INFERNAL GAME!
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void CP_Quit()
 {
-	if (Confirm(QuitToDosStr))
-		ExitGame();
+    if (Confirm(QuitToDosStr)) {
+        ExitGame();
+    }
 
-	DrawMainMenu();
+    DrawMainMenu();
 }
 
 
@@ -3646,94 +3740,112 @@ void CP_Quit()
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Clear Menu screens to dark red
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void ClearMScreen()
 {
-	VWB_Bar(SCREEN_X,SCREEN_Y,SCREEN_W,SCREEN_H,TERM_BACK_COLOR);
+    VWB_Bar(SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, TERM_BACK_COLOR);
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Un/Cache a LUMP of graphics
-//---------------------------------------------------------------------------
-void CacheLump(Sint16 lumpstart,Sint16 lumpend)
+// ---------------------------------------------------------------------------
+void CacheLump(
+    Sint16 lumpstart,
+    Sint16 lumpend)
 {
-	Sint16 i;
+    Sint16 i;
 
-	for (i=lumpstart;i<=lumpend;i++)
-		CA_CacheGrChunk(i);
+    for (i = lumpstart; i <= lumpend; i++) {
+        CA_CacheGrChunk(i);
+    }
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // UnCacheLump
-//---------------------------------------------------------------------------
-void UnCacheLump(Sint16 lumpstart,Sint16 lumpend)
+// ---------------------------------------------------------------------------
+void UnCacheLump(
+    Sint16 lumpstart,
+    Sint16 lumpend)
 {
-	Sint16 i;
+    Sint16 i;
 
-	for (i=lumpstart;i<=lumpend;i++)
-		FREEFONT(i);
+    for (i = lumpstart; i <= lumpend; i++) {
+        FREEFONT(i);
+    }
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Draw a window for a menu
-//---------------------------------------------------------------------------
-void DrawWindow(Sint16 x,Sint16 y,Sint16 w,Sint16 h,Sint16 wcolor)
+// ---------------------------------------------------------------------------
+void DrawWindow(
+    Sint16 x,
+    Sint16 y,
+    Sint16 w,
+    Sint16 h,
+    Sint16 wcolor)
 {
-	VWB_Bar(x,y,w,h,wcolor);
-	DrawOutline(x,y,w,h,BORD2COLOR,DEACTIVE);
+    VWB_Bar(x, y, w, h, wcolor);
+    DrawOutline(x, y, w, h, BORD2COLOR, DEACTIVE);
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawOutline
-//---------------------------------------------------------------------------
-void DrawOutline(Sint16 x,Sint16 y,Sint16 w,Sint16 h,Sint16 color1,Sint16 color2)
+// ---------------------------------------------------------------------------
+void DrawOutline(
+    Sint16 x,
+    Sint16 y,
+    Sint16 w,
+    Sint16 h,
+    Sint16 color1,
+    Sint16 color2)
 {
-	VWB_Hlin(x,x+w,y,color2);
-	VWB_Vlin(y,y+h,x,color2);
-	VWB_Hlin(x,x+w,y+h,color1);
-	VWB_Vlin(y,y+h,x+w,color1);
+    VWB_Hlin(x, x + w, y, color2);
+    VWB_Vlin(y, y + h, x, color2);
+    VWB_Hlin(x, x + w, y + h, color1);
+    VWB_Vlin(y, y + h, x + w, color1);
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // SetupControlPanel() - Setup Control Panel stuff - graphics, etc.
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void SetupControlPanel()
 {
 
-	//
-	// CACHE GRAPHICS & SOUNDS
-	//
-//	CA_CacheScreen (BACKGROUND_SCREENPIC);
+    //
+    // CACHE GRAPHICS & SOUNDS
+    //
+//      CA_CacheScreen (BACKGROUND_SCREENPIC);
 
-	ControlPanelAlloc();
+    ControlPanelAlloc();
 
-//	SETFONTCOLOR(TEXTCOLOR,BKGDCOLOR);
-	fontnumber=2;
+//      SETFONTCOLOR(TEXTCOLOR,BKGDCOLOR);
+    fontnumber = 2;
 
-	WindowH=200;
+    WindowH = 200;
 
-	if (!ingame)
-		CA_LoadAllSounds();
-	else
-		MainMenu[MM_SAVE_MISSION].active=AT_ENABLED;
+    if (!ingame) {
+        CA_LoadAllSounds();
+    } else {
+        MainMenu[MM_SAVE_MISSION].active = AT_ENABLED;
+    }
 
-	ReadGameNames();
+    ReadGameNames();
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ReadGameNames()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void ReadGameNames()
 {
     for (int i = 0; i < 10; ++i) {
@@ -3742,12 +3854,13 @@ void ReadGameNames()
 
         ::MakeDestPath(name.c_str());
 
-        char temp[GAME_DESCRIPTION_LEN+1];
+        char temp[GAME_DESCRIPTION_LEN + 1];
 
         bstone::FileStream stream(tempPath);
 
-        if (!stream.is_open())
+        if (!stream.is_open()) {
             continue;
+        }
 
         SaveGamesAvail[i] = 1;
 
@@ -3756,433 +3869,454 @@ void ReadGameNames()
         if (chunk_size > 0) {
             stream.read(temp, chunk_size);
             ::strcpy(&SaveGameNames[i][0], temp);
-        } else
+        } else {
             ::strcpy(&SaveGameNames[i][0], "DESCRIPTION LOST");
+        }
     }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CleanupControlPanel() - Clean up all the Control Panel stuff
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void CleanupControlPanel()
 {
-	if (!loadedgame)
-		FreeMusic();
-	ControlPanelFree();
-	fontnumber = 4;
+    if (!loadedgame) {
+        FreeMusic();
+    }
+    ControlPanelFree();
+    fontnumber = 4;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ControlPanelFree() - This FREES the control panel lump from memory
-//								 and REALLOCS the ScaledDirectory
-//---------------------------------------------------------------------------
+//                                                               and REALLOCS the ScaledDirectory
+// ---------------------------------------------------------------------------
 void ControlPanelFree()
 {
-	UnCacheLump(CONTROLS_LUMP_START,CONTROLS_LUMP_END);
-	NewViewSize();
+    UnCacheLump(CONTROLS_LUMP_START, CONTROLS_LUMP_END);
+    NewViewSize();
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ControlPanelAlloc() - This CACHEs the control panel lump into memory
-//							    and FREEs the ScaledDirectory.
-//---------------------------------------------------------------------------
+//                                                          and FREEs the ScaledDirectory.
+// ---------------------------------------------------------------------------
 void ControlPanelAlloc()
 {
-	CacheLump(CONTROLS_LUMP_START,CONTROLS_LUMP_END);
+    CacheLump(CONTROLS_LUMP_START, CONTROLS_LUMP_END);
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ShadowPrint() - Shadow Prints given text @ a given x & y in default font
 //
 // NOTE: Font MUST already be loaded
-//---------------------------------------------------------------------------
-void ShadowPrint(const char *strng,Sint16 x, Sint16 y)
+// ---------------------------------------------------------------------------
+void ShadowPrint(
+    const char* strng,
+    Sint16 x,
+    Sint16 y)
 {
-	Sint16 old_bc,old_fc;
+    Sint16 old_bc, old_fc;
 
-	old_fc = fontcolor;
-	old_bc = backcolor;
+    old_fc = fontcolor;
+    old_bc = backcolor;
 
-	PrintX = x+1;
-	PrintY = y+1;
+    PrintX = x + 1;
+    PrintY = y + 1;
 
-	SETFONTCOLOR(TERM_SHADOW_COLOR,TERM_BACK_COLOR);
-	US_Print(strng);
+    SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+    US_Print(strng);
 
-	PrintX = x;
-	PrintY = y;
-	SETFONTCOLOR(old_fc,old_bc);
-	US_Print(strng);
+    PrintX = x;
+    PrintY = y;
+    SETFONTCOLOR(old_fc, old_bc);
+    US_Print(strng);
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // HandleMenu() - Handle moving gun around a menu
-//---------------------------------------------------------------------------
-Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 w))
+// ---------------------------------------------------------------------------
+Sint16 HandleMenu(
+    CP_iteminfo* item_i,
+    CP_itemtype* items,
+    void (* routine)(Sint16 w))
 {
-	#define box_on 	item_i->cursor.on
-	char key;
-	static Sint16 redrawitem=1;
+#define box_on item_i->cursor.on
+    char key;
+    static Sint16 redrawitem = 1;
 
-	Sint16 i,x,y,basey,exit,which,flash_tics;
-	ControlInfo ci;
+    Sint16 i, x, y, basey, exit, which, flash_tics;
+    ControlInfo ci;
 
-	which=item_i->curpos;
-	x=item_i->x;
-	basey=item_i->y;
-	y=basey+which*item_i->y_spacing;
-	box_on = 1;
-	DrawGun(item_i,items,x,&y,which,basey,routine);
+    which = item_i->curpos;
+    x = item_i->x;
+    basey = item_i->y;
+    y = basey + which * item_i->y_spacing;
+    box_on = 1;
+    DrawGun(item_i, items, x, &y, which, basey, routine);
 
-	SetTextColor(items+which,1);
+    SetTextColor(items + which, 1);
 
-	if (redrawitem)
-	{
-		ShadowPrint((items+which)->string,item_i->x+item_i->indent,item_i->y+which*item_i->y_spacing);
-	}
+    if (redrawitem) {
+        ShadowPrint((items + which)->string, item_i->x + item_i->indent, item_i->y + which * item_i->y_spacing);
+    }
 
-	//
-	// CALL CUSTOM ROUTINE IF IT IS NEEDED
-	//
+    //
+    // CALL CUSTOM ROUTINE IF IT IS NEEDED
+    //
 
-	if (routine)
-		routine(which);
+    if (routine) {
+        routine(which);
+    }
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 
-	flash_tics=40;
-	exit=0;
-	TimeCount=0;
-	IN_ClearKeysDown();
+    flash_tics = 40;
+    exit = 0;
+    TimeCount = 0;
+    IN_ClearKeysDown();
 
-	do
-	{
-		CalcTics();
-		flash_tics -= tics;
+    do {
+        CalcTics();
+        flash_tics -= tics;
 
-		CycleColors();
+        CycleColors();
 
-		//
-		// CHANGE GUN SHAPE
-		//
+        //
+        // CHANGE GUN SHAPE
+        //
 
-		if (flash_tics <= 0)
-		{
-			flash_tics = 40;
+        if (flash_tics <= 0) {
+            flash_tics = 40;
 
-			box_on ^= 1;
+            box_on ^= 1;
 
-			if (box_on)
-				DrawGun(item_i,items,x,&y,which,basey,routine);
-			else
-			{
-				EraseGun(item_i,items,x,y,which);
-				if (routine)
-					routine(which);
-			}
+            if (box_on) {
+                DrawGun(item_i, items, x, &y, which, basey, routine);
+            } else {
+                EraseGun(item_i, items, x, y, which);
+                if (routine) {
+                    routine(which);
+                }
+            }
 
 
-			VW_UpdateScreen();
-		}
+            VW_UpdateScreen();
+        }
 
-		CheckPause();
+        CheckPause();
 
 
-		//
-		// SEE IF ANY KEYS ARE PRESSED FOR INITIAL CHAR FINDING
-		//
+        //
+        // SEE IF ANY KEYS ARE PRESSED FOR INITIAL CHAR FINDING
+        //
 
-		key=LastASCII;
-		if (key)
-		{
-			Sint16 ok=0;
+        key = LastASCII;
+        if (key) {
+            Sint16 ok = 0;
 
-			if (key>='a')
-				key-='a'-'A';
+            if (key >= 'a') {
+                key -= 'a' - 'A';
+            }
 
-			for (i=which+1;i<item_i->amount;i++)
-				if ((items+i)->active && (items+i)->string[0]==key)
-				{
-					EraseGun(item_i,items,x,y,which);
-					which=i;
-					item_i->curpos=static_cast<char>(which);			// jtr -testing
-					box_on = 1;
-					DrawGun(item_i,items,x,&y,which,basey,routine);
-					VW_UpdateScreen();
+            for (i = which + 1; i < item_i->amount; i++) {
+                if ((items + i)->active && (items + i)->string[0] == key) {
+                    EraseGun(item_i, items, x, y, which);
+                    which = i;
+                    item_i->curpos = static_cast<char>(which);                                          // jtr -testing
+                    box_on = 1;
+                    DrawGun(item_i, items, x, &y, which, basey, routine);
+                    VW_UpdateScreen();
 
-					ok=1;
-					IN_ClearKeysDown();
-					break;
-				}
+                    ok = 1;
+                    IN_ClearKeysDown();
+                    break;
+                }
+            }
 
-			//
-			// DIDN'T FIND A MATCH FIRST TIME THRU. CHECK AGAIN.
-			//
+            //
+            // DIDN'T FIND A MATCH FIRST TIME THRU. CHECK AGAIN.
+            //
 
-			if (!ok)
-			{
-				for (i=0;i<which;i++)
-					if ((items+i)->active && (items+i)->string[0]==key)
-					{
-						EraseGun(item_i,items,x,y,which);
-						which=i;
-						item_i->curpos=static_cast<char>(which);			// jtr -testing
-						box_on = 1;
-						DrawGun(item_i,items,x,&y,which,basey,routine);
-						VW_UpdateScreen();
+            if (!ok) {
+                for (i = 0; i < which; i++) {
+                    if ((items + i)->active && (items + i)->string[0] == key) {
+                        EraseGun(item_i, items, x, y, which);
+                        which = i;
+                        item_i->curpos = static_cast<char>(which);                                              // jtr -testing
+                        box_on = 1;
+                        DrawGun(item_i, items, x, &y, which, basey, routine);
+                        VW_UpdateScreen();
 
-						IN_ClearKeysDown();
-						break;
-					}
-			}
-		}
+                        IN_ClearKeysDown();
+                        break;
+                    }
+                }
+            }
+        }
 
-		//
-		// GET INPUT
-		//
+        //
+        // GET INPUT
+        //
 
-		ReadAnyControl(&ci);
+        ReadAnyControl(&ci);
 
-		switch(ci.dir)
-		{
-			//------------------------
-			// MOVE UP
-			//
-			case dir_North:
-				EraseGun(item_i,items,x,y,which);
+        switch (ci.dir) {
+        // ------------------------
+        // MOVE UP
+        //
+        case dir_North:
+            EraseGun(item_i, items, x, y, which);
 
-				do
-				{
-					if (!which)
-						which=item_i->amount-1;
-					else
-						which--;
+            do {
+                if (!which) {
+                    which = item_i->amount - 1;
+                } else {
+                    which--;
+                }
 
-				} while(!(items+which)->active);
+            } while (!(items + which)->active);
 
-				item_i->curpos=static_cast<char>(which);			// jtr -testing
+            item_i->curpos = static_cast<char>(which);                                          // jtr -testing
 
-				box_on = 1;
-				DrawGun(item_i,items,x,&y,which,basey,routine);
+            box_on = 1;
+            DrawGun(item_i, items, x, &y, which, basey, routine);
 
-				VW_UpdateScreen();
+            VW_UpdateScreen();
 
-				TicDelay(20);
-			break;
+            TicDelay(20);
+            break;
 
-			//--------------------------
-			// MOVE DOWN
-			//
-			case dir_South:
-				EraseGun(item_i,items,x,y,which);
+        // --------------------------
+        // MOVE DOWN
+        //
+        case dir_South:
+            EraseGun(item_i, items, x, y, which);
 
-				do
-				{
-					if (which==item_i->amount-1)
-						which=0;
-					else
-						which++;
-				} while(!(items+which)->active);
+            do {
+                if (which == item_i->amount - 1) {
+                    which = 0;
+                } else {
+                    which++;
+                }
+            } while (!(items + which)->active);
 
-				item_i->curpos=static_cast<char>(which);			// jtr -testing
+            item_i->curpos = static_cast<char>(which);                                          // jtr -testing
 
-				box_on = 1;
-				DrawGun(item_i,items,x,&y,which,basey,routine);
+            box_on = 1;
+            DrawGun(item_i, items, x, &y, which, basey, routine);
 
-				VW_UpdateScreen();
+            VW_UpdateScreen();
 
-				TicDelay(20);
-			break;
+            TicDelay(20);
+            break;
 
-			default:
-                break;
-		}
+        default:
+            break;
+        }
 
-		if (ci.button0 ||	Keyboard[sc_space] || Keyboard[sc_return])
-			exit=1;
+        if (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return]) {
+            exit = 1;
+        }
 
-		if (ci.button1 || Keyboard[sc_escape])
-			exit=2;
+        if (ci.button1 || Keyboard[sc_escape]) {
+            exit = 2;
+        }
 
-	} while(!exit);
+    } while (!exit);
 
-	IN_ClearKeysDown();
+    IN_ClearKeysDown();
 
-	//
-	// ERASE EVERYTHING
-	//
+    //
+    // ERASE EVERYTHING
+    //
 
-//	if (lastitem!=which)
-//	{
-		box_on = 0;
-		redrawitem=1;
-		EraseGun(item_i,items,x,y,which);
-//	}
-//	else
-//		redrawitem=0;
+//      if (lastitem!=which)
+//      {
+    box_on = 0;
+    redrawitem = 1;
+    EraseGun(item_i, items, x, y, which);
+//      }
+//      else
+//              redrawitem=0;
 
-	if (routine)
-	{
-		routine(which);
-	}
+    if (routine) {
+        routine(which);
+    }
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 
-	item_i->curpos=static_cast<char>(which);
+    item_i->curpos = static_cast<char>(which);
 
-	switch(exit)
-	{
-		case 1:
-			//
-			// CALL THE ROUTINE
-			//
-			if ((items+which)->routine!=NULL)
-			{
-			// Make sure there's room to save when CP_SaveGame() is called.
-			//
-				if (reinterpret_cast<size_t>(items[which].routine) == reinterpret_cast<size_t>(CP_SaveGame))
-					if (!CheckDiskSpace(DISK_SPACE_NEEDED,CANT_SAVE_GAME_TXT,cds_menu_print))
-						return(which);
+    switch (exit) {
+    case 1:
+        //
+        // CALL THE ROUTINE
+        //
+        if ((items + which)->routine != NULL) {
+            // Make sure there's room to save when CP_SaveGame() is called.
+            //
+            if (reinterpret_cast<size_t>(items[which].routine) == reinterpret_cast<size_t>(CP_SaveGame)) {
+                if (!CheckDiskSpace(DISK_SPACE_NEEDED, CANT_SAVE_GAME_TXT, cds_menu_print)) {
+                    return which;
+                }
+            }
 
 #ifdef BSTONE_PS
-			 //
-			 // ALREADY IN A GAME?
-			 //
-				if (ingame && ((items+which)->routine == CP_NewGame))
-					if (!Confirm(CURGAME))
-					{
-						MenuFadeOut();
-						return 0;
-					}
+            //
+            // ALREADY IN A GAME?
+            //
+            if (ingame && ((items + which)->routine == CP_NewGame)) {
+                if (!Confirm(CURGAME)) {
+                    MenuFadeOut();
+                    return 0;
+                }
+            }
 #endif
 
-				ShootSnd();
-				MenuFadeOut();
-				(items+which)->routine(0);
-			}
-			return which;
+            ShootSnd();
+            MenuFadeOut();
+            (items + which)->routine(0);
+        }
+        return which;
 
-		case 2:
-            ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+    case 2:
+        ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
 
-			return -1;
-	}
+        return -1;
+    }
 
-	return 0; // JUST TO SHUT UP THE ERROR MESSAGES!
+    return 0;     // JUST TO SHUT UP THE ERROR MESSAGES!
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // EraseGun() - ERASE GUN & DE-HIGHLIGHT STRING
-//---------------------------------------------------------------------------
-void EraseGun(CP_iteminfo *item_i,CP_itemtype *items,Sint16 x,Sint16 y,Sint16 which)
+// ---------------------------------------------------------------------------
+void EraseGun(
+    CP_iteminfo* item_i,
+    CP_itemtype* items,
+    Sint16 x,
+    Sint16 y,
+    Sint16 which)
 {
-	VWB_Bar(item_i->cursor.x,y+item_i->cursor.y_ofs,item_i->cursor.width,item_i->cursor.height,TERM_BACK_COLOR);
-	SetTextColor(items+which,0);
+    VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, TERM_BACK_COLOR);
+    SetTextColor(items + which, 0);
 
-   ShadowPrint((items+which)->string,item_i->x+item_i->indent,y);
+    ShadowPrint((items + which)->string, item_i->x + item_i->indent, y);
 
-//	VW_UpdateScreen();
+//      VW_UpdateScreen();
 
- 	x++;				// Shut up compiler
+    x++;                                // Shut up compiler
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawGun() - DRAW GUN AT NEW POSITION
-//---------------------------------------------------------------------------
-void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,Sint16 x,Sint16 *y,Sint16 which,Sint16 basey,void (*routine)(Sint16 w))
+// ---------------------------------------------------------------------------
+void DrawGun(
+    CP_iteminfo* item_i,
+    CP_itemtype* items,
+    Sint16 x,
+    Sint16* y,
+    Sint16 which,
+    Sint16 basey,
+    void (* routine)(Sint16 w))
 {
-	*y=basey+which*item_i->y_spacing;
+    *y = basey + which * item_i->y_spacing;
 
-   VWB_Bar(item_i->cursor.x,*y+item_i->cursor.y_ofs,item_i->cursor.width,item_i->cursor.height,HIGHLIGHT_BOX_COLOR);
-	SetTextColor(items+which,1);
+    VWB_Bar(item_i->cursor.x, *y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, HIGHLIGHT_BOX_COLOR);
+    SetTextColor(items + which, 1);
 
-   ShadowPrint((items+which)->string,item_i->x+item_i->indent,item_i->y+which*item_i->y_spacing);
+    ShadowPrint((items + which)->string, item_i->x + item_i->indent, item_i->y + which * item_i->y_spacing);
 
-	//
-	// CALL CUSTOM ROUTINE IF IT IS NEEDED
-	//
+    //
+    // CALL CUSTOM ROUTINE IF IT IS NEEDED
+    //
 
-	if (routine)
-		routine(which);
+    if (routine) {
+        routine(which);
+    }
 
-//	VW_UpdateScreen();
-//	SD_PlaySound(MOVEGUN2SND);
+//      VW_UpdateScreen();
+//      SD_PlaySound(MOVEGUN2SND);
 
-	x++;				// Shutup compiler
+    x++;                                // Shutup compiler
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // TicDelay() - DELAY FOR AN AMOUNT OF TICS OR UNTIL CONTROLS ARE INACTIVE
-//---------------------------------------------------------------------------
-void TicDelay(Sint16 count)
+// ---------------------------------------------------------------------------
+void TicDelay(
+    Sint16 count)
 {
-	ControlInfo ci;
+    ControlInfo ci;
 
-	TimeCount=0;
+    TimeCount = 0;
 
-	do	{
-		ReadAnyControl(&ci);
-	} while(TimeCount<static_cast<Uint32>(count) && ci.dir!=dir_None);
+    do {
+        ReadAnyControl(&ci);
+    } while (TimeCount < static_cast<Uint32>(count) && ci.dir != dir_None);
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawMenu() - Draw a menu
 //
 //       This also calculates the Y position of the current items in the
-//			CP_itemtype structures.
-//---------------------------------------------------------------------------
-void DrawMenu(CP_iteminfo *item_i,CP_itemtype *items)	 
+//                      CP_itemtype structures.
+// ---------------------------------------------------------------------------
+void DrawMenu(
+    CP_iteminfo* item_i,
+    CP_itemtype* items)
 {
-	Sint16 i,which=item_i->curpos;
+    Sint16 i, which = item_i->curpos;
 
-	WindowX=PrintX=item_i->x+item_i->indent;
-	WindowY=PrintY=item_i->y;
+    WindowX = PrintX = item_i->x + item_i->indent;
+    WindowY = PrintY = item_i->y;
 
-	WindowW=320;
-	WindowH=200;
+    WindowW = 320;
+    WindowH = 200;
 
-	for (i=0;i<item_i->amount;i++)
-	{
-		SetTextColor(items+i,which==i);
-		ShadowPrint((items+i)->string,WindowX,item_i->y+i*item_i->y_spacing);
-	}
+    for (i = 0; i < item_i->amount; i++) {
+        SetTextColor(items + i, which == i);
+        ShadowPrint((items + i)->string, WindowX, item_i->y + i * item_i->y_spacing);
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // SetTextColor() - SET TEXT COLOR (HIGHLIGHT OR NO)
-//---------------------------------------------------------------------------
-void SetTextColor(CP_itemtype *items,Sint16 hlight)
+// ---------------------------------------------------------------------------
+void SetTextColor(
+    CP_itemtype* items,
+    Sint16 hlight)
 {
-	if (hlight)
-	{
-		SETFONTCOLOR(color_hlite[items->active],TERM_BACK_COLOR);
-	}
-	else
-	{
-		SETFONTCOLOR(color_norml[items->active],TERM_BACK_COLOR);
-	}
+    if (hlight) {
+        SETFONTCOLOR(color_hlite[items->active], TERM_BACK_COLOR);
+    } else {
+        SETFONTCOLOR(color_norml[items->active], TERM_BACK_COLOR);
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // WaitKeyUp() - WAIT FOR CTRLKEY-UP OR BUTTON-UP
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void WaitKeyUp()
 {
-	ControlInfo ci;
+    ControlInfo ci;
 
-	while(ReadAnyControl(&ci),ci.button0 |
-									  ci.button1 |
-									  ci.button2 |
-									  ci.button3|
-									  Keyboard[sc_space]|
-									  Keyboard[sc_return]|
-									  Keyboard[sc_escape]);
+    while (ReadAnyControl(&ci), ci.button0 |
+           ci.button1 |
+           ci.button2 |
+           ci.button3 |
+           Keyboard[sc_space] |
+           Keyboard[sc_return] |
+           Keyboard[sc_escape])
+    {
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ReadAnyControl() - READ KEYBOARD, JOYSTICK AND MOUSE FOR INPUT
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void ReadAnyControl(
     ControlInfo* ci)
 {
@@ -4234,8 +4368,9 @@ void ReadAnyControl(
             ci->dir = dir_East;
         }
 
-        if (mouseactive)
+        if (mouseactive) {
             ::in_set_mouse_cursor_position(CENTER, CENTER);
+        }
 #endif
 
         const int DELTA_THRESHOLD = 10;
@@ -4274,25 +4409,27 @@ void ReadAnyControl(
 
         ::INL_GetJoyDelta(joystickport, &jx, &jy);
 
-        if (jy < -SENSITIVE)
+        if (jy < -SENSITIVE) {
             ci->dir = dir_North;
-        else if (jy > SENSITIVE)
+        } else if (jy > SENSITIVE) {
             ci->dir = dir_South;
+        }
 
-        if (jx < -SENSITIVE)
+        if (jx < -SENSITIVE) {
             ci->dir = dir_West;
-        else if (jx > SENSITIVE)
+        } else if (jx > SENSITIVE) {
             ci->dir = dir_East;
+        }
 
         jb = ::IN_JoyButtons();
 
         if (jb != 0) {
-            ci->button0 =jb & 1;
-            ci->button1 =jb & 2;
+            ci->button0 = jb & 1;
+            ci->button1 = jb & 2;
 
             if (joypadenabled) {
-                ci->button2 =jb & 4;
-                ci->button3 =jb & 8;
+                ci->button2 = jb & 4;
+                ci->button3 = jb & 8;
             } else {
                 ci->button2 = false;
                 ci->button3 = false;
@@ -4306,169 +4443,174 @@ void ReadAnyControl(
 // DRAW DIALOG AND CONFIRM YES OR NO TO QUESTION
 //
 ////////////////////////////////////////////////////////////////////
-Sint16 Confirm(const char *string)
+Sint16 Confirm(
+    const char* string)
 {
-	Sint16 xit=0,x,y,tick=0,whichsnd[2]={ESCPRESSEDSND,SHOOTSND};
+    Sint16 xit = 0, x, y, tick = 0, whichsnd[2] = { ESCPRESSEDSND, SHOOTSND };
 
 
-	Message(string);
+    Message(string);
 
 // Next two lines needed for flashing cursor ...
 //
-	SETFONTCOLOR(BORDER_TEXT_COLOR,BORDER_MED_COLOR);
-	CA_CacheGrChunk(STARTFONT+fontnumber);
+    SETFONTCOLOR(BORDER_TEXT_COLOR, BORDER_MED_COLOR);
+    CA_CacheGrChunk(STARTFONT + fontnumber);
 
-	IN_ClearKeysDown();
+    IN_ClearKeysDown();
 
-	//
-	// BLINK CURSOR
-	//
-	x=PrintX;
-	y=PrintY;
-	TimeCount=0;
-	do
-	{
-		if (TimeCount>=10)
-		{
-			switch(tick)
-			{
-				case 0:
-					VWB_Bar(x,y,8,13,BORDER_MED_COLOR);
-					break;
+    //
+    // BLINK CURSOR
+    //
+    x = PrintX;
+    y = PrintY;
+    TimeCount = 0;
+    do {
+        if (TimeCount >= 10) {
+            switch (tick) {
+            case 0:
+                VWB_Bar(x, y, 8, 13, BORDER_MED_COLOR);
+                break;
 
-				case 1:
-					PrintX=x;
-					PrintY=y;
-					US_Print("_");
-			}
+            case 1:
+                PrintX = x;
+                PrintY = y;
+                US_Print("_");
+            }
 
-			VW_UpdateScreen();
-			tick^=1;
-			TimeCount=0;
-		}
+            VW_UpdateScreen();
+            tick ^= 1;
+            TimeCount = 0;
+        }
 
         // BBi
         IN_CheckAck();
-	} while(!Keyboard[sc_y] && !Keyboard[sc_n] && !Keyboard[sc_escape]);
+    } while (!Keyboard[sc_y] && !Keyboard[sc_n] && !Keyboard[sc_escape]);
 
 
-	if (Keyboard[sc_y])
-	{
-		xit=1;
-		ShootSnd();
-	}
+    if (Keyboard[sc_y]) {
+        xit = 1;
+        ShootSnd();
+    }
 
 // BBi
 #if 0
-	while(Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_Escape]);
+    while (Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_Escape]) {
+    }
 #endif
 
-    while(Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_escape])
+    while (Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_escape]) {
         IN_CheckAck();
+    }
 // BBi
 
-	IN_ClearKeysDown();
+    IN_ClearKeysDown();
 
     ::sd_play_player_sound(
         static_cast<soundnames>(whichsnd[xit]),
         bstone::AC_ITEM);
 
-	FREEFONT(STARTFONT+fontnumber);		
+    FREEFONT(STARTFONT + fontnumber);
 
-	return xit;
+    return xit;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Message() - PRINT A MESSAGE IN A WINDOW
-//---------------------------------------------------------------------------
-void Message(const char *string)
+// ---------------------------------------------------------------------------
+void Message(
+    const char* string)
 {
-	Sint16 h=0,w=0,mw=0;
+    Sint16 h = 0, w = 0, mw = 0;
     size_t i;
-	fontstruct *font;
-	Uint16 OldPrintX,OldPrintY;
+    fontstruct* font;
+    Uint16 OldPrintX, OldPrintY;
 
-	fontnumber=1;
-	CA_CacheGrChunk(STARTFONT+1);
+    fontnumber = 1;
+    CA_CacheGrChunk(STARTFONT + 1);
 
-	font=static_cast<fontstruct*>(grsegs[STARTFONT+fontnumber]);
+    font = static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]);
 
-	h=font->height;
-	for (i=0;i<strlen(string);i++)
-		if (string[i]=='\n')
-		{
-			if (w>mw)
-				mw=w;
-			w=0;
-			h+=font->height;
-		}
-		else
-			w+=font->width[static_cast<int>(string[i])];
+    h = font->height;
+    for (i = 0; i < strlen(string); i++) {
+        if (string[i] == '\n') {
+            if (w > mw) {
+                mw = w;
+            }
+            w = 0;
+            h += font->height;
+        } else {
+            w += font->width[static_cast<int>(string[i])];
+        }
+    }
 
-	if (w+10>mw)
-	mw=w+10;
+    if (w + 10 > mw) {
+        mw = w + 10;
+    }
 
-	OldPrintY = PrintY=(WindowH/2)-h/2;
-	OldPrintX = PrintX=WindowX=160-mw/2;
+    OldPrintY = PrintY = (WindowH / 2) - h / 2;
+    OldPrintX = PrintX = WindowX = 160 - mw / 2;
 
-	// bump down and to right for shadow
+    // bump down and to right for shadow
 
-	PrintX++;
-	PrintY++;
-	WindowX++;
+    PrintX++;
+    PrintY++;
+    WindowX++;
 
-	BevelBox(WindowX-6,PrintY-6,mw+10,h+10,BORDER_HI_COLOR,BORDER_MED_COLOR,BORDER_LO_COLOR);
+    BevelBox(WindowX - 6, PrintY - 6, mw + 10, h + 10, BORDER_HI_COLOR, BORDER_MED_COLOR, BORDER_LO_COLOR);
 
-	SETFONTCOLOR(BORDER_LO_COLOR,BORDER_MED_COLOR);
-	US_Print(string);
+    SETFONTCOLOR(BORDER_LO_COLOR, BORDER_MED_COLOR);
+    US_Print(string);
 
-	PrintY=OldPrintY;
-	WindowX=PrintX=OldPrintX;
+    PrintY = OldPrintY;
+    WindowX = PrintX = OldPrintX;
 
-	SETFONTCOLOR(BORDER_TEXT_COLOR,BORDER_MED_COLOR);
-	US_Print(string);
+    SETFONTCOLOR(BORDER_TEXT_COLOR, BORDER_MED_COLOR);
+    US_Print(string);
 
-	FREEFONT(STARTFONT+1);
+    FREEFONT(STARTFONT + 1);
 
-	VW_UpdateScreen();
+    VW_UpdateScreen();
 }
 
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // TerminateStr - Searches for an "^XX" and replaces with a 0 (NULL)
-//--------------------------------------------------------------------------
-void TerminateStr(char *pos)
+// --------------------------------------------------------------------------
+void TerminateStr(
+    char* pos)
 {
-   pos = strstr(pos,"^XX");
+    pos = strstr(pos, "^XX");
 
 #if IN_DEVELOPMENT
-   if (!pos)
-   	MENU_ERROR(CACHE_MESSAGE_NO_END_MARKER);
+    if (!pos) {
+        MENU_ERROR(CACHE_MESSAGE_NO_END_MARKER);
+    }
 #endif
 
-	*pos = 0;
+    *pos = 0;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CacheMessage() - Caches and prints a message in a window.
-//---------------------------------------------------------------------------
-void CacheMessage(Uint16 MessageNum)
+// ---------------------------------------------------------------------------
+void CacheMessage(
+    Uint16 MessageNum)
 {
-	char *string;
+    char* string;
 
-	CA_CacheGrChunk(MessageNum);
-   string = (char*)grsegs[MessageNum];
+    CA_CacheGrChunk(MessageNum);
+    string = (char*)grsegs[MessageNum];
 
-   TerminateStr(string);
+    TerminateStr(string);
 
-   Message(string);
+    Message(string);
 
-	FREEFONT(MessageNum);
+    FREEFONT(MessageNum);
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CacheCompData() - Caches and Decompresses data from the VGAGRAPH
 //
 // NOTE: - User is responsible for freeing loaded data
@@ -4477,14 +4619,16 @@ void CacheMessage(Uint16 MessageNum)
 //
 // RETURNS: Lenght of loaded (decompressed) data
 //
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
-Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
+Uint32 CacheCompData(
+    Uint16 item_number,
+    void** dst_ptr)
 {
-   char* chunk;
-   char* dst;
+    char* chunk;
+    char* dst;
     CompHeader_t CompHeader;
-   Uint32 data_length;
+    Uint32 data_length;
 
     // Load compressed data
     CA_CacheGrChunk(item_number);
@@ -4500,10 +4644,10 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
 
     data_length = CompHeader.OriginalLen;
 
-   chunk += 14;
+    chunk += 14;
 #endif // BSTONE_AOG
 
-   // Allocate Dest Memory
+    // Allocate Dest Memory
 
     dst = new char[data_length];
     *dst_ptr = dst;
@@ -4514,10 +4658,11 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
         &chunk[data_length],
         dst);
 #else
-   // Decompress and terminate string
+    // Decompress and terminate string
 
-    if (!LZH_Startup())
+    if (!LZH_Startup()) {
         Quit("out of memory");
+    }
 
     ::LZH_Decompress(
         chunk,
@@ -4531,39 +4676,41 @@ Uint32 CacheCompData(Uint16 item_number, void** dst_ptr)
     // Free compressed data
     UNCACHEGRCHUNK(item_number);
 
-   // Return loaded size
-   return data_length;
+    // Return loaded size
+    return data_length;
 }
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // CheckForSpecialCode() - Scans the Command Line parameters for
-//									special code word and returns true if found.
+//                                                                      special code word and returns true if found.
 //
 // NOTE: - Requires that the MEMORY and CACHE manager be started up.
 //       - The chunk being checked MUST be JAMPAKd - (this may change)
 //
-//-------------------------------------------------------------------------
-boolean CheckForSpecialCode(Uint16 ItemNum)
+// -------------------------------------------------------------------------
+boolean CheckForSpecialCode(
+    Uint16 ItemNum)
 {
-   void* code;
-   boolean return_val = false;
-   char *code_ptr;
+    void* code;
+    boolean return_val = false;
+    char* code_ptr;
 
-   // Allocate, Cache & Decomp into ram
+    // Allocate, Cache & Decomp into ram
 
-   CacheCompData(ItemNum, &code);
-   code_ptr = (char*)code;
-   TerminateStr(code_ptr);
+    CacheCompData(ItemNum, &code);
+    code_ptr = (char*)code;
+    TerminateStr(code_ptr);
 
-   // Check for code
-   if (::g_args.find_argument(code_ptr) >= 0)
-       return_val = true;
+    // Check for code
+    if (::g_args.find_argument(code_ptr) >= 0) {
+        return_val = true;
+    }
 
-	// free allocated memory
+    // free allocated memory
 
     delete [] static_cast<char*>(code);
 
-   return(return_val);
+    return return_val;
 }
 
 
@@ -4573,110 +4720,116 @@ boolean CheckForSpecialCode(Uint16 ItemNum)
 //
 ////////////////////////////////////////////////////////////////////
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // StartCPMusic()
-//---------------------------------------------------------------------------
-void StartCPMusic(Sint16 song)
+// ---------------------------------------------------------------------------
+void StartCPMusic(
+    Sint16 song)
 {
-	musicnames	chunk;
+    musicnames chunk;
 
-	lastmenumusic = song;
+    lastmenumusic = song;
 
-	SD_MusicOff();
-	chunk = static_cast<musicnames>(song);
-	CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + chunk));
+    SD_MusicOff();
+    chunk = static_cast<musicnames>(song);
+    CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + chunk));
     ::SD_StartMusic(chunk);
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // FreeMusic ()
-//---------------------------------------------------------------------------
-void FreeMusic ()
+// ---------------------------------------------------------------------------
+void FreeMusic()
 {
-	SD_MusicOff();
+    SD_MusicOff();
 }
 
 
 #ifdef CACHE_KEY_DATA
 
-//---------------------------------------------------------------------------
-//	IN_GetScanName() - 	Returns a string containing the name of the
-//								specified scan code
-//---------------------------------------------------------------------------
-Uint8 far* IN_GetScanName(ScanCode scan)
+// ---------------------------------------------------------------------------
+//      IN_GetScanName() -      Returns a string containing the name of the
+//                                                              specified scan code
+// ---------------------------------------------------------------------------
+Uint8 far* IN_GetScanName(
+    ScanCode scan)
 {
-	Uint8		*p;
-	ScanCode	*s;
+    Uint8* p;
+    ScanCode* s;
 
-	for (s = ExtScanCodes,p = ExtScanNames;*s;p+=7,s++)
-		if (*s == scan)
-			return((Uint8 *)p);
+    for (s = ExtScanCodes, p = ExtScanNames; *s; p += 7, s++) {
+        if (*s == scan) {
+            return (Uint8*)p;
+        }
+    }
 
-	return((Uint8 *)(ScanNames+(scan<<1)));
+    return (Uint8*)(ScanNames + (scan << 1));
 }
 
 #else
 
-//---------------------------------------------------------------------------
-//	IN_GetScanName() - 	Returns a string containing the name of the
-//								specified scan code
-//---------------------------------------------------------------------------
-Uint8* IN_GetScanName(ScanCode scan)
+// ---------------------------------------------------------------------------
+//      IN_GetScanName() -      Returns a string containing the name of the
+//                                                              specified scan code
+// ---------------------------------------------------------------------------
+Uint8* IN_GetScanName(
+    ScanCode scan)
 {
-	Uint8		**p;
-	ScanCode	*s;
+    Uint8** p;
+    ScanCode* s;
 
-	for (s = ExtScanCodes,p = ExtScanNames;*s;p++,s++)
-		if (*s == scan)
-			return(*p);
+    for (s = ExtScanCodes, p = ExtScanNames; *s; p++, s++) {
+        if (*s == scan) {
+            return *p;
+        }
+    }
 
-	return(ScanNames[scan]);
+    return ScanNames[scan];
 }
 
 #endif
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CheckPause() - CHECK FOR PAUSE KEY (FOR MUSIC ONLY)
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void CheckPause()
 {
-	if (Paused)
-	{
-		switch(SoundStatus)
-		{
-			case 0:
-				SD_MusicOn();
-				break;
+    if (Paused) {
+        switch (SoundStatus) {
+        case 0:
+            SD_MusicOn();
+            break;
 
-			case 1:
-				SD_MusicOff();
-				break;
-		}
+        case 1:
+            SD_MusicOff();
+            break;
+        }
 
-		SoundStatus^=1;
-		VW_WaitVBL(3);
-		IN_ClearKeysDown();
-		Paused=false;
-	}
+        SoundStatus ^= 1;
+        VW_WaitVBL(3);
+        IN_ClearKeysDown();
+        Paused = false;
+    }
 }
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // DrawMenuGun() - DRAW GUN CURSOR AT CORRECT POSITION IN MENU
-//-------------------------------------------------------------------------
-void DrawMenuGun(CP_iteminfo *iteminfo)
+// -------------------------------------------------------------------------
+void DrawMenuGun(
+    CP_iteminfo* iteminfo)
 {
-	Sint16 x,y;
+    Sint16 x, y;
 
-	x=iteminfo->cursor.x;
-	y=iteminfo->y+iteminfo->curpos*iteminfo->y_spacing+iteminfo->cursor.y_ofs;
+    x = iteminfo->cursor.x;
+    y = iteminfo->y + iteminfo->curpos * iteminfo->y_spacing + iteminfo->cursor.y_ofs;
 
-	VWB_Bar(x,y,iteminfo->cursor.width,iteminfo->cursor.height,HIGHLIGHT_BOX_COLOR);
+    VWB_Bar(x, y, iteminfo->cursor.width, iteminfo->cursor.height, HIGHLIGHT_BOX_COLOR);
 }
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // ShootSnd()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void ShootSnd()
 {
     ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
@@ -4685,59 +4838,59 @@ void ShootSnd()
 #if GAME_VERSION == SHAREWARE_VERSION
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // ShowPromo()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void ShowPromo()
 {
-	#define PROMO_MUSIC HIDINGA_MUS
+#define PROMO_MUSIC HIDINGA_MUS
 
 // Load and start music
 //
-	CA_CacheAudioChunk(STARTMUSIC+PROMO_MUSIC);
-	SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC+PROMO_MUSIC]);
+    CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
+    SD_StartMusic((MusicGroup*)audiosegs[STARTMUSIC + PROMO_MUSIC]);
 
 // Show promo screen 1
 //
-	MenuFadeOut();
-	CA_CacheScreen(PROMO1PIC);
-	VW_UpdateScreen();
-	MenuFadeIn();
-	IN_UserInput(TickBase*20);
+    MenuFadeOut();
+    CA_CacheScreen(PROMO1PIC);
+    VW_UpdateScreen();
+    MenuFadeIn();
+    IN_UserInput(TickBase * 20);
 
 // Show promo screen 2
 //
-	MenuFadeOut();
-	CA_CacheScreen(PROMO2PIC);
-	VW_UpdateScreen();
-	MenuFadeIn();
-	IN_UserInput(TickBase*20);
+    MenuFadeOut();
+    CA_CacheScreen(PROMO2PIC);
+    VW_UpdateScreen();
+    MenuFadeIn();
+    IN_UserInput(TickBase * 20);
 
 // Music off and freed!
 //
-	StopMusic();
+    StopMusic();
 }
 
 #endif
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // ExitGame()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void ExitGame()
 {
-   VW_FadeOut();
+    VW_FadeOut();
 #if GAME_VERSION == SHAREWARE_VERSION
-	ShowPromo();
+    ShowPromo();
 #endif
 
-	SD_MusicOff();
-	SD_StopSound();
-	Quit("");
+    SD_MusicOff();
+    SD_StopSound();
+    Quit("");
 }
 
 // BBi
 int volume_index = 0;
-int* const volumes[2] = {&g_sfx_volume, &g_music_volume};
+int* const volumes[2] = { &g_sfx_volume, &g_music_volume };
 
 void draw_volume_control(
     int index,
@@ -4754,15 +4907,16 @@ void draw_volume_control(
 
     VWB_Bar(74, static_cast<int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
     DrawOutline(73, static_cast<int16_t>(y - 1), 161, 9,
-        outline_color, outline_color);
+                outline_color, outline_color);
     VWB_Bar(static_cast<int16_t>(74 + ((160 * volume) / (MAX_VOLUME + 1))),
-        static_cast<int16_t>(y), 16, 8, slider_color);
+            static_cast<int16_t>(y), 16, 8, slider_color);
 }
 
 void draw_volume_controls()
 {
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i) {
         draw_volume_control(i, *(volumes[i]), i == volume_index);
+    }
 }
 
 void cp_sound_volume(
@@ -4801,8 +4955,9 @@ void cp_sound_volume(
     ControlInfo ci;
 
     int old_volumes[2];
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i) {
         old_volumes[i] = -1;
+    }
 
     for (bool quit = false; !quit; ) {
         bool update_volumes = false;
@@ -4819,8 +4974,9 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_up_arrow])
+            while (Keyboard[sc_up_arrow]) {
                 ::in_handle_events();
+            }
             break;
 
         case dir_South:
@@ -4831,8 +4987,9 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_down_arrow])
+            while (Keyboard[sc_down_arrow]) {
                 ::in_handle_events();
+            }
             break;
 
         case dir_West:
@@ -4844,8 +5001,9 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_left_arrow])
+            while (Keyboard[sc_left_arrow]) {
                 ::in_handle_events();
+            }
             break;
 
         case dir_East:
@@ -4855,8 +5013,9 @@ void cp_sound_volume(
                 ++(*volumes[volume_index]);
             }
 
-            while (Keyboard[sc_right_arrow])
+            while (Keyboard[sc_right_arrow]) {
                 ::in_handle_events();
+            }
             break;
 
         default:
@@ -4871,8 +5030,9 @@ void cp_sound_volume(
                 sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
             }
 
-            if (old_volumes[1] != *volumes[1])
+            if (old_volumes[1] != *volumes[1]) {
                 sd_set_music_volume(g_music_volume);
+            }
         }
 
         if (redraw_controls) {

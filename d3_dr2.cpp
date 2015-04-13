@@ -111,11 +111,13 @@ pixxloop:
 
     int angle = midangle + pixelangle[pixx];
 
-    while (angle < 0)
+    while (angle < 0) {
         angle += FINEANGLES;
+    }
 
-    while (angle >= DEG360)
+    while (angle >= DEG360) {
         angle -= FINEANGLES;
+    }
 
     if (angle >= DEG270) {
         xtilestep = 1;
@@ -202,8 +204,9 @@ pixxloop:
 
 vertcheck:
 
-    if ((v_op < 0 && yint_h <= yt) || (v_op > 0 && yint_h >= yt))
+    if ((v_op < 0 && yint_h <= yt) || (v_op > 0 && yint_h >= yt)) {
         goto horizentry;
+    }
 
 vertentry:
 
@@ -277,8 +280,9 @@ vertentry:
                         }
                     }
 #else
-                    if (intercept_l < doorposition[doorpos])
+                    if (intercept_l < doorposition[doorpos]) {
                         skip_draw = true;
+                    }
 #endif // W3D
 
                     if (!skip_draw) {
@@ -341,8 +345,9 @@ vertentry:
 
 horizcheck:
 
-    if ((h_op > 0 && xint_h >= xt) || (h_op < 0 && xint_h <= xt))
+    if ((h_op > 0 && xint_h >= xt) || (h_op < 0 && xint_h <= xt)) {
         goto vertentry;
+    }
 
 horizentry:
 
@@ -417,8 +422,9 @@ horizentry:
                         }
                     }
 #else
-                    if (intercept_l < doorposition[doorpos])
+                    if (intercept_l < doorposition[doorpos]) {
                         skip_draw = true;
+                    }
 #endif // W3D
 
                     if (!skip_draw) {
@@ -479,6 +485,7 @@ horizentry:
 nextpix:
     ++pixx;
 
-    if (pixx < (viewwidth * vga_scale))
+    if (pixx < (viewwidth * vga_scale)) {
         goto pixxloop;
+    }
 }

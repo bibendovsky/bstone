@@ -62,12 +62,14 @@ const Uint8 rndtable[256] = {
 static int rndindex;
 
 
-void US_InitRndT(boolean randomize)
+void US_InitRndT(
+    boolean randomize)
 {
-    if (!randomize)
+    if (!randomize) {
         rndindex = 0;
-    else
+    } else {
         rndindex = (int)(SDL_GetTicks() % 256);
+    }
 }
 
 Sint16 US_RndT()

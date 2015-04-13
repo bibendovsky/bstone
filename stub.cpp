@@ -49,11 +49,13 @@ objtype* ui16_to_actor(
 {
     int index = value - OBJLIST_OFFSET;
 
-    if (index < 0)
+    if (index < 0) {
         return NULL;
+    }
 
-    if (index >= MAXACTORS)
+    if (index >= MAXACTORS) {
         return NULL;
+    }
 
     return &objlist[index];
 }
@@ -63,11 +65,13 @@ Uint16 actor_to_ui16(
 {
     ptrdiff_t index = actor - objlist;
 
-    if (index < 0)
+    if (index < 0) {
         return 0;
+    }
 
-    if (index >= MAXACTORS)
+    if (index >= MAXACTORS) {
         return 0;
+    }
 
     return static_cast<Uint16>(index + OBJLIST_OFFSET);
 }
@@ -77,11 +81,13 @@ statobj_t* ui16_to_static_object(
 {
     int index = value - STATOBJLIST_OFFSET;
 
-    if (index < 0)
+    if (index < 0) {
         return NULL;
+    }
 
-    if (index >= MAXSTATS)
+    if (index >= MAXSTATS) {
         return NULL;
+    }
 
     return &statobjlist[index];
 }
@@ -91,11 +97,13 @@ Uint16 static_object_to_ui16(
 {
     ptrdiff_t index = static_object - statobjlist;
 
-    if (index < 0)
+    if (index < 0) {
         return 0;
+    }
 
-    if (index >= MAXSTATS)
+    if (index >= MAXSTATS) {
         return 0;
+    }
 
     return static_cast<Uint16>(index + STATOBJLIST_OFFSET);
 }
@@ -105,11 +113,13 @@ doorobj_t* ui16_to_door_object(
 {
     int index = value - DOOROBJLIST_OFFSET;
 
-    if (index < 0)
+    if (index < 0) {
         return NULL;
+    }
 
-    if (index >= MAXDOORS)
+    if (index >= MAXDOORS) {
         return NULL;
+    }
 
     return &doorobjlist[index];
 }
@@ -119,11 +129,13 @@ Uint16 door_object_to_ui16(
 {
     ptrdiff_t index = door_object - doorobjlist;
 
-    if (index < 0)
+    if (index < 0) {
         return 0;
+    }
 
-    if (index >= MAXDOORS)
+    if (index >= MAXDOORS) {
         return 0;
+    }
 
     return static_cast<Uint16>(index + DOOROBJLIST_OFFSET);
 }

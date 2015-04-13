@@ -47,7 +47,8 @@ enum DrawMode {
 }; // enum DrawMode
 
 
-static void generic_draw_column(DrawMode draw_mode)
+static void generic_draw_column(
+    DrawMode draw_mode)
 {
     int fraction = dc_frac;
 
@@ -58,10 +59,11 @@ static void generic_draw_column(DrawMode draw_mode)
         Uint8 pixel;
         Uint8 pixel_index = source[fraction >> 16];
 
-        if (draw_mode == DRAW_LIGHTED)
+        if (draw_mode == DRAW_LIGHTED) {
             pixel = shadingtable[pixel_index];
-        else
+        } else {
             pixel = pixel_index;
+        }
 
         int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
         vga_memory[offset] = pixel;

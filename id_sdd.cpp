@@ -22,8 +22,8 @@ Free Software Foundation, Inc.,
 
 
 //
-//	ID Engine
-//	ID_SDD.c - Sound Manager dummy file
+//      ID Engine
+//      ID_SDD.c - Sound Manager dummy file
 //
 
 #include "id_heads.h"
@@ -32,8 +32,8 @@ Free Software Foundation, Inc.,
 #pragma hdrstop
 #endif
 
-	Uint16	sdStartPCSounds = STARTPCSOUNDS;
-	Uint16	sdStartALSounds = STARTADLIBSOUNDS;
+Uint16 sdStartPCSounds = STARTPCSOUNDS;
+Uint16 sdStartALSounds = STARTADLIBSOUNDS;
 
-    Sint16		sdLastSound = LASTSOUND;
-	Sint16		DigiMap[LASTSOUND];
+Sint16 sdLastSound = LASTSOUND;
+Sint16 DigiMap[LASTSOUND];

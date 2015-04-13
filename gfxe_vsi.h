@@ -29,7 +29,7 @@ Free Software Foundation, Inc.,
 //////////////////////////////////////
 
 enum graphicnums {
-	ENUMEND
+    ENUMEND
 }; // enum graphicnums
 
 //
@@ -39,32 +39,32 @@ enum graphicnums {
 //
 // Amount of each data item
 //
-#define NUMCHUNKS    864
-#define NUMFONT      0
-#define NUMFONTM     0
-#define NUMPICS      0
-#define NUMPICM      0
-#define NUMSPRITES   0
-#define NUMTILE8     0
-#define NUMTILE8M    0
-#define NUMTILE16    216
-#define NUMTILE16M   648
-#define NUMTILE32    0
-#define NUMTILE32M   0
-#define NUMEXTERNS   0
+#define NUMCHUNKS 864
+#define NUMFONT 0
+#define NUMFONTM 0
+#define NUMPICS 0
+#define NUMPICM 0
+#define NUMSPRITES 0
+#define NUMTILE8 0
+#define NUMTILE8M 0
+#define NUMTILE16 216
+#define NUMTILE16M 648
+#define NUMTILE32 0
+#define NUMTILE32M 0
+#define NUMEXTERNS 0
 //
 // File offsets for data items
 //
-#define STARTFONT    0
-#define STARTFONTM   0
-#define STARTPICS    0
-#define STARTPICM    0
+#define STARTFONT 0
+#define STARTFONTM 0
+#define STARTPICS 0
+#define STARTPICM 0
 #define STARTSPRITES 0
-#define STARTTILE8   0
-#define STARTTILE8M  0
-#define STARTTILE16  0
+#define STARTTILE8 0
+#define STARTTILE8M 0
+#define STARTTILE16 0
 #define STARTTILE16M 216
-#define STARTTILE32  864
+#define STARTTILE32 864
 #define STARTTILE32M 864
 #define STARTEXTERNS 864
 

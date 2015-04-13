@@ -30,16 +30,20 @@ Free Software Foundation, Inc.,
 #endif
 
 
-void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
+void INL_GetJoyDelta(
+    Uint16 joy,
+    Sint16* dx,
+    Sint16* dy);
 void UpdateRadarGuage();
-void ClearMemory ();
-void GiveWeapon (Sint16 weapon);
-void DrawWeapon ();
-void DrawHealth ();
-void DrawKeys ();
+void ClearMemory();
+void GiveWeapon(
+    Sint16 weapon);
+void DrawWeapon();
+void DrawHealth();
+void DrawKeys();
 void DrawScore();
 void ForceUpdateStatusBar();
-void ClearSplitVWB ();
+void ClearSplitVWB();
 void RedrawStatusAreas();
 void PreloadGraphics();
 
@@ -48,54 +52,54 @@ void TryDropPlasmaDetonator();
 #endif
 
 void IN_StartAck();
-boolean IN_CheckAck ();
-void MoveDoors ();
-void MovePWalls ();
-void ConnectAreas ();
+boolean IN_CheckAck();
+void MoveDoors();
+void MovePWalls();
+void ConnectAreas();
 void UpdateSoundLoc();
 
 
 /*
 =============================================================================
 
-						 LOCAL CONSTANTS
+                                                 LOCAL CONSTANTS
 
 =============================================================================
 */
 
-#define sc_Question	0x35
+#define sc_Question 0x35
 
 /*
 =============================================================================
 
-						 GLOBAL VARIABLES
+                                                 GLOBAL VARIABLES
 
 =============================================================================
 */
 
 
-Uint8 music_num=0;
+Uint8 music_num = 0;
 
 #if LOOK_FOR_DEAD_GUYS
-objtype *DeadGuys[MAXACTORS];
+objtype* DeadGuys[MAXACTORS];
 Uint8 NumDeadGuys;
 #endif
 
-boolean		madenoise;					// true when shooting or screaming
-Uint8 alerted = 0,alerted_areanum;
+boolean madenoise; // true when shooting or screaming
+Uint8 alerted = 0, alerted_areanum;
 
 
-exit_t		playstate;
+exit_t playstate;
 
 boolean PowerBall = false;
 
 #if TECH_SUPPORT_VERSION
-Sint16			bordertime,DebugOk = true,InstantWin = 0,InstantQuit = 0;
+Sint16 bordertime, DebugOk = true, InstantWin = 0, InstantQuit = 0;
 #else
-Sint16			bordertime,DebugOk = false,InstantWin = 0,InstantQuit = 0;
+Sint16 bordertime, DebugOk = false, InstantWin = 0, InstantQuit = 0;
 #endif
 
-Uint16 ExtraRadarFlags	= 0;
+Uint16 ExtraRadarFlags = 0;
 
 
 
@@ -105,52 +109,52 @@ Sint16 TestQuickSave = 0, TestAutoMapper = 0;
 
 #endif
 
-objtype 	objlist[MAXACTORS],*new_actor,*player,*lastobj,
-			*objfreelist,*killerobj;
+objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
+        * objfreelist, * killerobj;
 
-Uint16	farmapylookup[MAPSIZE];
-Uint8		*nearmapylookup[MAPSIZE];
+Uint16 farmapylookup[MAPSIZE];
+Uint8* nearmapylookup[MAPSIZE];
 
-boolean		singlestep=false,godmode;	//,noclip;
-Sint16			extravbls = 0;
+boolean singlestep = false, godmode; // ,noclip;
+Sint16 extravbls = 0;
 
-Uint8		tilemap[MAPSIZE][MAPSIZE];	// wall values only
-Uint8		spotvis[MAPSIZE][MAPSIZE];
-objtype		*actorat[MAPSIZE][MAPSIZE];
+Uint8 tilemap[MAPSIZE][MAPSIZE]; // wall values only
+Uint8 spotvis[MAPSIZE][MAPSIZE];
+objtype* actorat[MAPSIZE][MAPSIZE];
 
 //
 // replacing refresh manager
 //
-Uint16	mapwidth,mapheight,tics,realtics;
-boolean		compatability,usedummy=false, nevermark = false;
-Uint8		*updateptr;
-Uint16	mapwidthtable[64];
-Uint16	uwidthtable[UPDATEHIGH];
-Uint16	blockstarts[UPDATEWIDE*UPDATEHIGH];
-Uint8		update[UPDATESIZE];
+Uint16 mapwidth, mapheight, tics, realtics;
+boolean compatability, usedummy = false, nevermark = false;
+Uint8* updateptr;
+Uint16 mapwidthtable[64];
+Uint16 uwidthtable[UPDATEHIGH];
+Uint16 blockstarts[UPDATEWIDE * UPDATEHIGH];
+Uint8 update[UPDATESIZE];
 
 //
 // control info
 //
-boolean		mouseenabled,joystickenabled,joypadenabled,joystickprogressive;
-Sint16			joystickport;
-Sint16			dirscan[4] = {sc_up_arrow,sc_right_arrow,sc_down_arrow,sc_left_arrow};
-Sint16			buttonscan[NUMBUTTONS] =
-				{sc_control,sc_alt,sc_right_shift,sc_space,sc_1,sc_2,sc_3,sc_4,sc_5,sc_6
+boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
+Sint16 joystickport;
+Sint16 dirscan[4] = { sc_up_arrow, sc_right_arrow, sc_down_arrow, sc_left_arrow };
+Sint16 buttonscan[NUMBUTTONS] =
+{ sc_control, sc_alt, sc_right_shift, sc_space, sc_1, sc_2, sc_3, sc_4, sc_5, sc_6
 #ifdef BSTONE_PS
-                ,sc_7
+  , sc_7
 #endif
 };
-Sint16			buttonmouse[4]={bt_attack,bt_strafe,bt_use,bt_nobutton};
-Sint16			buttonjoy[4]={bt_attack,bt_strafe,bt_use,bt_run};
+Sint16 buttonmouse[4] = { bt_attack, bt_strafe, bt_use, bt_nobutton };
+Sint16 buttonjoy[4] = { bt_attack, bt_strafe, bt_use, bt_run };
 
 const int viewsize = 20;
 
 bool buttonheld[NUMBUTTONS];
 
-boolean		demorecord,demoplayback;
-char		*demoptr, *lastdemoptr;
-void*		demobuffer;
+boolean demorecord, demoplayback;
+char* demoptr, * lastdemoptr;
+void* demobuffer;
 
 // Light sourcing flag
 
@@ -165,27 +169,33 @@ bool buttonstate[NUMBUTTONS];
 int strafe_value = 0;
 
 
-//===========================================================================
+// ===========================================================================
 
 
-void	CenterWindow(Uint16 w,Uint16 h);
-void 	InitObjList ();
-void 	RemoveObj (objtype *gone);
-void 	PollControls ();
-void 	StopMusic();
-void StartMusic(boolean preload);
-void	PlayLoop ();
-void SpaceEntryExit(boolean entry);
-void FinishPaletteShifts ();
+void CenterWindow(
+    Uint16 w,
+    Uint16 h);
+void InitObjList();
+void RemoveObj(
+    objtype* gone);
+void PollControls();
+void StopMusic();
+void StartMusic(
+    boolean preload);
+void PlayLoop();
+void SpaceEntryExit(
+    boolean entry);
+void FinishPaletteShifts();
 void ShowQuickInstructions();
 void CleanDrawPlayBorder();
-void PopupAutoMap(bool is_shift_pressed);
+void PopupAutoMap(
+    bool is_shift_pressed);
 
 
 /*
 =============================================================================
 
-						 LOCAL VARIABLES
+                                                 LOCAL VARIABLES
 
 =============================================================================
 */
@@ -197,8 +207,7 @@ objtype dummyobj;
 // LIST OF SONGS FOR EACH LEVEL
 //
 
-Sint16 songs[]=
-{
+Sint16 songs[] = {
 #ifdef BSTONE_AOG
     // Episode 1
     INCNRATN_MUS,
@@ -278,30 +287,30 @@ Sint16 songs[]=
     DRKHALLA_MUS,
     INCNRATN_MUS
 #else
-	MAJMIN_MUS,              // 0
-	STICKS_MUS,              // 1
-	MOURNING_MUS,            // 2
-	LURKING_MUS,             // 3
-	CIRCLES_MUS,             // 4
-	TIME_MUS,                // 5
-	TOHELL_MUS,              // 6
-	FORTRESS_MUS,            // 7
-	GIVING_MUS,              // 8
-	HARTBEAT_MUS,            // 9
-	MOURNING_MUS,            // 10
-	MAJMIN_MUS,              // 11
-	VACCINAP_MUS,            // 12
-	LURKING_MUS,             // 13
-	MONASTRY_MUS,            // 14
-	TOMBP_MUS,               // 15
-	DARKNESS_MUS,            // 16
-	MOURNING_MUS,            // 17
-	SERPENT_MUS,             // 18
-	TIME_MUS,                // 19
-	CATACOMB_MUS,            // 20
-	PLOT_MUS,					 // 21
-	GIVING_MUS,              // 22
-	VACCINAP_MUS,            // 23
+    MAJMIN_MUS,                  // 0
+    STICKS_MUS,                  // 1
+    MOURNING_MUS,                // 2
+    LURKING_MUS,                 // 3
+    CIRCLES_MUS,                 // 4
+    TIME_MUS,                    // 5
+    TOHELL_MUS,                  // 6
+    FORTRESS_MUS,                // 7
+    GIVING_MUS,                  // 8
+    HARTBEAT_MUS,                // 9
+    MOURNING_MUS,                // 10
+    MAJMIN_MUS,                  // 11
+    VACCINAP_MUS,                // 12
+    LURKING_MUS,                 // 13
+    MONASTRY_MUS,                // 14
+    TOMBP_MUS,                   // 15
+    DARKNESS_MUS,                // 16
+    MOURNING_MUS,                // 17
+    SERPENT_MUS,                 // 18
+    TIME_MUS,                    // 19
+    CATACOMB_MUS,                // 20
+    PLOT_MUS,                                            // 21
+    GIVING_MUS,                  // 22
+    VACCINAP_MUS,                // 23
 #endif
 };
 
@@ -309,7 +318,7 @@ Sint16 songs[]=
 /*
 =============================================================================
 
-						  USER CONTROL
+                                                  USER CONTROL
 
 =============================================================================
 */
@@ -326,44 +335,57 @@ const int JOYSCALE = 2;
 void PollKeyboardButtons()
 {
     if (in_use_modern_bindings) {
-        if (in_is_binding_pressed(e_bi_attack))
+        if (in_is_binding_pressed(e_bi_attack)) {
             buttonstate[bt_attack] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_strafe))
+        if (in_is_binding_pressed(e_bi_strafe)) {
             buttonstate[bt_strafe] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_run))
+        if (in_is_binding_pressed(e_bi_run)) {
             buttonstate[bt_run] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_use))
+        if (in_is_binding_pressed(e_bi_use)) {
             buttonstate[bt_use] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_weapon_1))
+        if (in_is_binding_pressed(e_bi_weapon_1)) {
             buttonstate[bt_ready_autocharge] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_weapon_2))
+        if (in_is_binding_pressed(e_bi_weapon_2)) {
             buttonstate[bt_ready_pistol] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_weapon_3))
+        if (in_is_binding_pressed(e_bi_weapon_3)) {
             buttonstate[bt_ready_burst_rifle] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_weapon_4))
+        if (in_is_binding_pressed(e_bi_weapon_4)) {
             buttonstate[bt_ready_ion_cannon] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_weapon_5))
+        if (in_is_binding_pressed(e_bi_weapon_5)) {
             buttonstate[bt_ready_grenade] = true;
+        }
 
 #ifdef BSTONE_PS
-        if (in_is_binding_pressed(e_bi_weapon_6))
+        if (in_is_binding_pressed(e_bi_weapon_6)) {
             buttonstate[bt_ready_bfg_cannon] = true;
+        }
 
-        if (in_is_binding_pressed(e_bi_weapon_7))
+        if (in_is_binding_pressed(e_bi_weapon_7)) {
             buttonstate[bt_ready_plasma_detonators] = true;
+        }
 #endif
     } else {
-        for (int i = 0; i < NUMBUTTONS; ++i)
-            if (Keyboard[buttonscan[i]])
+        for (int i = 0; i < NUMBUTTONS; ++i) {
+            if (Keyboard[buttonscan[i]]) {
                 buttonstate[i] = true;
+            }
+        }
     }
 }
 
@@ -378,19 +400,23 @@ void PollKeyboardButtons()
 
 void PollMouseButtons()
 {
-    if (in_use_modern_bindings)
+    if (in_use_modern_bindings) {
         return;
+    }
 
     Uint8 buttons = IN_MouseButtons();
 
-    if ((buttons & 1) != 0)
+    if ((buttons & 1) != 0) {
         buttonstate[buttonmouse[0]] = true;
+    }
 
-    if ((buttons & 2) != 0)
+    if ((buttons & 2) != 0) {
         buttonstate[buttonmouse[1]] = true;
+    }
 
-    if ((buttons & 4) != 0)
+    if ((buttons & 4) != 0) {
         buttonstate[buttonmouse[2]] = true;
+    }
 }
 
 
@@ -403,67 +429,76 @@ void PollMouseButtons()
 ===================
 */
 
-void PollJoystickButtons ()
+void PollJoystickButtons()
 {
-	Sint16	buttons;
+    Sint16 buttons;
 
-	buttons = IN_JoyButtons ();
+    buttons = IN_JoyButtons();
 
-	if (joystickport && !joypadenabled)
-	{
-		if (buttons&4)
-			buttonstate[buttonjoy[0]] = true;
-		if (buttons&8)
-			buttonstate[buttonjoy[1]] = true;
-	}
-	else
-	{
-		if (buttons&1)
-			buttonstate[buttonjoy[0]] = true;
-		if (buttons&2)
-			buttonstate[buttonjoy[1]] = true;
-		if (joypadenabled)
-		{
-			if (buttons&4)
-				buttonstate[buttonjoy[2]] = true;
-			if (buttons&8)
-				buttonstate[buttonjoy[3]] = true;
-		}
-	}
+    if (joystickport && !joypadenabled) {
+        if (buttons & 4) {
+            buttonstate[buttonjoy[0]] = true;
+        }
+        if (buttons & 8) {
+            buttonstate[buttonjoy[1]] = true;
+        }
+    } else {
+        if (buttons & 1) {
+            buttonstate[buttonjoy[0]] = true;
+        }
+        if (buttons & 2) {
+            buttonstate[buttonjoy[1]] = true;
+        }
+        if (joypadenabled) {
+            if (buttons & 4) {
+                buttonstate[buttonjoy[2]] = true;
+            }
+            if (buttons & 8) {
+                buttonstate[buttonjoy[3]] = true;
+            }
+        }
+    }
 }
 
 void PollKeyboardMove()
 {
     bool is_running = in_is_binding_pressed(e_bi_run);
 
-    if (g_always_run)
+    if (g_always_run) {
         is_running = !is_running;
+    }
 
     int value = tics * (is_running ? RUNMOVE : BASEMOVE);
 
-    if (in_is_binding_pressed(e_bi_forward))
+    if (in_is_binding_pressed(e_bi_forward)) {
         controly -= value;
+    }
 
-    if (in_is_binding_pressed(e_bi_backward))
+    if (in_is_binding_pressed(e_bi_backward)) {
         controly += value;
+    }
 
-    if (in_is_binding_pressed(e_bi_left))
+    if (in_is_binding_pressed(e_bi_left)) {
         controlx -= value;
+    }
 
-    if (in_is_binding_pressed(e_bi_right))
+    if (in_is_binding_pressed(e_bi_right)) {
         controlx += value;
+    }
 
     strafe_value = 0;
 
     if (in_is_binding_pressed(e_bi_strafe)) {
-        if (in_is_binding_pressed(e_bi_left))
+        if (in_is_binding_pressed(e_bi_left)) {
             strafe_value = -value;
-        else if (in_is_binding_pressed(e_bi_right))
+        } else if (in_is_binding_pressed(e_bi_right)) {
             strafe_value = value;
-    } else if (in_is_binding_pressed(e_bi_strafe_left))
+        }
+    } else if (in_is_binding_pressed(e_bi_strafe_left)) {
         strafe_value = -value;
-    else if (in_is_binding_pressed(e_bi_strafe_right))
+    } else if (in_is_binding_pressed(e_bi_strafe_right)) {
         strafe_value = value;
+    }
 }
 
 void PollMouseMove()
@@ -475,20 +510,23 @@ void PollMouseMove()
 
     bool is_running = in_is_binding_pressed(e_bi_run);
 
-    if (g_always_run)
+    if (g_always_run) {
         is_running = !is_running;
+    }
 
     if (is_running) {
-        if (!in_use_modern_bindings)
+        if (!in_use_modern_bindings) {
             controly += (mouseymove * 20 / (13 - mouseadjustment)) * 4;
+        }
 
         controlx += (mousexmove * 10 / (13 - mouseadjustment)) / 2;
     }
 
     controlx += mousexmove * 10 / (13 - mouseadjustment);
 
-    if (!in_use_modern_bindings)
+    if (!in_use_modern_bindings) {
         controly += mouseymove * 20 / (13 - mouseadjustment);
+    }
 }
 
 
@@ -500,45 +538,46 @@ void PollMouseMove()
 ===================
 */
 
-void PollJoystickMove ()
+void PollJoystickMove()
 {
-	Sint16	joyx,joyy;
+    Sint16 joyx, joyy;
 
-	INL_GetJoyDelta(joystickport,&joyx,&joyy);
+    INL_GetJoyDelta(joystickport, &joyx, &joyy);
 
-	if (joystickprogressive)
-	{
-		if (joyx > 64)
-			controlx += (joyx-64)*JOYSCALE*tics;
-		else if (joyx < -64)
-			controlx -= (-joyx-64)*JOYSCALE*tics;
-		if (joyy > 64)
-			controlx += (joyy-64)*JOYSCALE*tics;
-		else if (joyy < -64)
-			controly -= (-joyy-64)*JOYSCALE*tics;
-	}
-	else if (buttonstate[bt_run])
-	{
-		if (joyx > 64)
-			controlx += RUNMOVE*tics;
-		else if (joyx < -64)
-			controlx -= RUNMOVE*tics;
-		if (joyy > 64)
-			controly += RUNMOVE*tics;
-		else if (joyy < -64)
-			controly -= RUNMOVE*tics;
-	}
-	else
-	{
-		if (joyx > 64)
-			controlx += BASEMOVE*tics;
-		else if (joyx < -64)
-			controlx -= BASEMOVE*tics;
-		if (joyy > 64)
-			controly += BASEMOVE*tics;
-		else if (joyy < -64)
-			controly -= BASEMOVE*tics;
-	}
+    if (joystickprogressive) {
+        if (joyx > 64) {
+            controlx += (joyx - 64) * JOYSCALE * tics;
+        } else if (joyx < -64) {
+            controlx -= (-joyx - 64) * JOYSCALE * tics;
+        }
+        if (joyy > 64) {
+            controlx += (joyy - 64) * JOYSCALE * tics;
+        } else if (joyy < -64) {
+            controly -= (-joyy - 64) * JOYSCALE * tics;
+        }
+    } else if (buttonstate[bt_run]) {
+        if (joyx > 64) {
+            controlx += RUNMOVE * tics;
+        } else if (joyx < -64) {
+            controlx -= RUNMOVE * tics;
+        }
+        if (joyy > 64) {
+            controly += RUNMOVE * tics;
+        } else if (joyy < -64) {
+            controly -= RUNMOVE * tics;
+        }
+    } else {
+        if (joyx > 64) {
+            controlx += BASEMOVE * tics;
+        } else if (joyx < -64) {
+            controlx -= BASEMOVE * tics;
+        }
+        if (joyy > 64) {
+            controly += BASEMOVE * tics;
+        } else if (joyy < -64) {
+            controly -= BASEMOVE * tics;
+        }
+    }
 }
 
 
@@ -549,168 +588,176 @@ void PollJoystickMove ()
 =
 = Gets user or demo input, call once each frame
 =
-= controlx		set between -100 and 100 per tic
+= controlx              set between -100 and 100 per tic
 = controly
-= buttonheld[]	the state of the buttons LAST frame
-= buttonstate[]	the state of the buttons THIS frame
+= buttonheld[]  the state of the buttons LAST frame
+= buttonstate[] the state of the buttons THIS frame
 =
 ===================
 */
 
-void PollControls ()
+void PollControls()
 {
-	Sint16		max,min,i;
-	Uint8	buttonbits;
+    Sint16 max, min, i;
+    Uint8 buttonbits;
 
-	controlx = 0;
-	controly = 0;
-	memcpy (buttonheld,buttonstate,sizeof(buttonstate));
-	memset (buttonstate,0,sizeof(buttonstate));
+    controlx = 0;
+    controly = 0;
+    memcpy(buttonheld, buttonstate, sizeof(buttonstate));
+    memset(buttonstate, 0, sizeof(buttonstate));
 
 #ifdef MYPROFILE
-	controlx = 100;			// just spin in place
-	return;
+    controlx = 100;                     // just spin in place
+    return;
 #endif
 
-	if (demoplayback)
-	{
-	//
-	// read commands from demo buffer
-	//
-		buttonbits = *demoptr++;
-		for (i=0;i<NUMBUTTONS;i++)
-		{
-			buttonstate[i] = buttonbits&1;
-			buttonbits >>= 1;
-		}
+    if (demoplayback) {
+        //
+        // read commands from demo buffer
+        //
+        buttonbits = *demoptr++;
+        for (i = 0; i < NUMBUTTONS; i++) {
+            buttonstate[i] = buttonbits & 1;
+            buttonbits >>= 1;
+        }
 
-		controlx = *demoptr++;
-		controly = *demoptr++;
-		tics = *demoptr++;
+        controlx = *demoptr++;
+        controly = *demoptr++;
+        tics = *demoptr++;
 
-		while (TimeCount-lasttimecount < tics)
-		;
-		lasttimecount = TimeCount;
+        while (TimeCount - lasttimecount < tics) {
+        }
+        lasttimecount = TimeCount;
 
-		if (demoptr == lastdemoptr)
-			playstate = ex_completed;		// demo is done
+        if (demoptr == lastdemoptr) {
+            playstate = ex_completed;                           // demo is done
 
-		controlx *= tics;
-		controly *= tics;
+        }
+        controlx *= tics;
+        controly *= tics;
 
 
-		return;
-	}
+        return;
+    }
 
 //
 // get timing info for last frame
 //
-	CalcTics ();
+    CalcTics();
 
     // BBi
     ::in_handle_events();
 //
 // get button states
 //
-	PollKeyboardButtons ();
+    PollKeyboardButtons();
 
-	if (mouseenabled)
-		PollMouseButtons ();
+    if (mouseenabled) {
+        PollMouseButtons();
+    }
 
-	if (joystickenabled)
-		PollJoystickButtons ();
+    if (joystickenabled) {
+        PollJoystickButtons();
+    }
 
 #if 0
-if (buttonstate[bt_run])
-	VL_ColorBorder (1);
-else
-	VL_ColorBorder (0);
+    if (buttonstate[bt_run]) {
+        VL_ColorBorder(1);
+    } else {
+        VL_ColorBorder(0);
+    }
 #endif
 
 //
 // get movements
 //
-	PollKeyboardMove ();
+    PollKeyboardMove();
 
-	if (mouseenabled)
-		PollMouseMove ();
+    if (mouseenabled) {
+        PollMouseMove();
+    }
 
-	if (joystickenabled)
-		PollJoystickMove ();
+    if (joystickenabled) {
+        PollJoystickMove();
+    }
 
 //
 // bound movement to a maximum
 //
-	max = 100*tics;
-	min = -max;
-	if (controlx > max)
-		controlx = max;
-	else if (controlx < min)
-		controlx = min;
+    max = 100 * tics;
+    min = -max;
+    if (controlx > max) {
+        controlx = max;
+    } else if (controlx < min) {
+        controlx = min;
+    }
 
-	if (controly > max)
-		controly = max;
-	else if (controly < min)
-		controly = min;
+    if (controly > max) {
+        controly = max;
+    } else if (controly < min) {
+        controly = min;
+    }
 
 #ifdef DEMOS_EXTERN
 
-	if (demorecord)
-	{
-	//
-	// save info out to demo buffer
-	//
-		controlx /= (Sint16)tics;
-		controly /= (Sint16)tics;
+    if (demorecord) {
+        //
+        // save info out to demo buffer
+        //
+        controlx /= (Sint16)tics;
+        controly /= (Sint16)tics;
 
-		buttonbits = 0;
+        buttonbits = 0;
 
-		for (i=NUMBUTTONS-1;i>=0;i--)
-		{
-			buttonbits <<= 1;
-			if (buttonstate[i])
-				buttonbits |= 1;
-		}
+        for (i = NUMBUTTONS - 1; i >= 0; i--) {
+            buttonbits <<= 1;
+            if (buttonstate[i]) {
+                buttonbits |= 1;
+            }
+        }
 
-		*demoptr++ = buttonbits;
-		*demoptr++ = controlx;
-		*demoptr++ = controly;
-		*demoptr++ = tics;
+        *demoptr++ = buttonbits;
+        *demoptr++ = controlx;
+        *demoptr++ = controly;
+        *demoptr++ = tics;
 
-		if (demoptr >= lastdemoptr)
-			PLAY_ERROR(POLLCONTROLS_DEMO_OV);
+        if (demoptr >= lastdemoptr) {
+            PLAY_ERROR(POLLCONTROLS_DEMO_OV);
+        }
 
-		controlx *= (Sint16)tics;
-		controly *= (Sint16)tics;
-	}
+        controlx *= (Sint16)tics;
+        controly *= (Sint16)tics;
+    }
 
-#endif			
+#endif
 
 }
 
 
 
-//==========================================================================
+// ==========================================================================
 
 
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	CenterWindow() - Generates a window of a given width & height in the
-//		middle of the screen
+//      CenterWindow() - Generates a window of a given width & height in the
+//              middle of the screen
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#define MAXX	320
-#define MAXY	160
+#define MAXX 320
+#define MAXY 160
 
-void	CenterWindow(Uint16 w,Uint16 h)
+void CenterWindow(
+    Uint16 w,
+    Uint16 h)
 {
-	FixOfs ();
-	US_DrawWindow(((MAXX / 8) - w) / 2,((MAXY / 8) - h) / 2,w,h);
+    FixOfs();
+    US_DrawWindow(((MAXX / 8) - w) / 2, ((MAXY / 8) - h) / 2, w, h);
 }
 
-//===========================================================================
+// ===========================================================================
 
 
 /*
@@ -721,221 +768,210 @@ void	CenterWindow(Uint16 w,Uint16 h)
 =====================
 */
 
-extern boolean PP_step,sqActive;	
+extern boolean PP_step, sqActive;
 extern Sint16 pickquick;
 
 boolean refresh_screen;
 #if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
-Uint8 jam_buff_cmp[]={sc_j,sc_a,sc_m};
+Uint8 jam_buff_cmp[] = { sc_j, sc_a, sc_m };
 Uint8 jam_buff[sizeof(jam_buff_cmp)];
 #endif
 
-char PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
+char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
-void CheckKeys ()
+void CheckKeys()
 {
-	boolean one_eighty=false;
-	Uint8	scan;
-	static boolean Plus_KeyReleased;
-	static boolean Minus_KeyReleased;
-	static boolean I_KeyReleased;
-	static boolean S_KeyReleased;
+    boolean one_eighty = false;
+    Uint8 scan;
+    static boolean Plus_KeyReleased;
+    static boolean Minus_KeyReleased;
+    static boolean I_KeyReleased;
+    static boolean S_KeyReleased;
 
 #if IN_DEVELOPMENT || BETA_TEST
-//	if (DebugOk && (Keyboard[sc_p] || PP_step))
-//		PicturePause ();
+//      if (DebugOk && (Keyboard[sc_p] || PP_step))
+//              PicturePause ();
 #endif
 
 
-	if (screenfaded || demoplayback)	// don't do anything with a faded screen
-		return;
+    if (screenfaded || demoplayback) {          // don't do anything with a faded screen
+        return;
+    }
 
-	scan = LastScan;
+    scan = LastScan;
 
 
 #if IN_DEVELOPMENT
 #ifdef ACTIVATE_TERMINAL
-	if (Keyboard[sc_9] && Keyboard[sc_0])
-		ActivateTerminal(true);
+    if (Keyboard[sc_9] && Keyboard[sc_0]) {
+        ActivateTerminal(true);
+    }
 #endif
 #endif
 
-	//
-	// SECRET CHEAT CODE: 'JAM'
-	//
+    //
+    // SECRET CHEAT CODE: 'JAM'
+    //
 
 #if GAME_VERSION != SHAREWARE_VERSION
-	if (Keyboard[sc_j] || Keyboard[sc_a] || Keyboard[sc_m])
-	{
-		if (jam_buff[sizeof(jam_buff_cmp)-1] != LastScan)
-		{
-			for(unsigned int i = 1; i < sizeof(jam_buff_cmp); i++)
-			{
-				jam_buff[i-1] = jam_buff[i];
-			}
-			jam_buff[sizeof(jam_buff_cmp)-1] = LastScan;
-		}
-	}
+    if (Keyboard[sc_j] || Keyboard[sc_a] || Keyboard[sc_m]) {
+        if (jam_buff[sizeof(jam_buff_cmp) - 1] != LastScan) {
+            for (unsigned int i = 1; i < sizeof(jam_buff_cmp); i++) {
+                jam_buff[i - 1] = jam_buff[i];
+            }
+            jam_buff[sizeof(jam_buff_cmp) - 1] = LastScan;
+        }
+    }
 #endif
 
-	CheckMusicToggle();
+    CheckMusicToggle();
 
-	if (gamestate.rpower)
-	{
-		if (in_is_binding_pressed(e_bi_radar_magnify))
-		{
-			if (Plus_KeyReleased && gamestate.rzoom<2)
-			{
-				UpdateRadarGuage();
-				gamestate.rzoom++;
-				Plus_KeyReleased=false;
-			}
-		}
-		else
-			Plus_KeyReleased=true;
+    if (gamestate.rpower) {
+        if (in_is_binding_pressed(e_bi_radar_magnify)) {
+            if (Plus_KeyReleased && gamestate.rzoom < 2) {
+                UpdateRadarGuage();
+                gamestate.rzoom++;
+                Plus_KeyReleased = false;
+            }
+        } else {
+            Plus_KeyReleased = true;
+        }
 
-		if (in_is_binding_pressed(e_bi_radar_minify))
-		{
-			if (Minus_KeyReleased && gamestate.rzoom)
-			{
-				UpdateRadarGuage();
-				gamestate.rzoom--;
-				Minus_KeyReleased=false;
-			}
-		}
-		else
-			Minus_KeyReleased=true;
-	}
+        if (in_is_binding_pressed(e_bi_radar_minify)) {
+            if (Minus_KeyReleased && gamestate.rzoom) {
+                UpdateRadarGuage();
+                gamestate.rzoom--;
+                Minus_KeyReleased = false;
+            }
+        } else {
+            Minus_KeyReleased = true;
+        }
+    }
 
-	if (in_is_binding_pressed(e_bi_sfx)) {
-		if (S_KeyReleased)
-		{
-			if ((SoundMode != sdm_Off) || (DigiMode!=sds_Off))
-			{
-				if (SoundMode != sdm_Off)
-				{
-					SD_WaitSoundDone();
-					SD_SetSoundMode(sdm_Off);
-				}
+    if (in_is_binding_pressed(e_bi_sfx)) {
+        if (S_KeyReleased) {
+            if ((SoundMode != sdm_Off) || (DigiMode != sds_Off)) {
+                if (SoundMode != sdm_Off) {
+                    SD_WaitSoundDone();
+                    SD_SetSoundMode(sdm_Off);
+                }
 
-				if (DigiMode!=sds_Off)
-					SD_SetDigiDevice(sds_Off);
+                if (DigiMode != sds_Off) {
+                    SD_SetDigiDevice(sds_Off);
+                }
 
-				memcpy((char *)&SoundOn[55],"OFF.",4);
-			}
-			else
-			{
-				ClearMemory();
-				if (SoundBlasterPresent || AdLibPresent)
-					SD_SetSoundMode(sdm_AdLib);
-				else
-					SD_SetSoundMode(sdm_Off);
+                memcpy((char*)&SoundOn[55], "OFF.", 4);
+            } else {
+                ClearMemory();
+                if (SoundBlasterPresent || AdLibPresent) {
+                    SD_SetSoundMode(sdm_AdLib);
+                } else {
+                    SD_SetSoundMode(sdm_Off);
+                }
 
-				if (SoundBlasterPresent)
-					SD_SetDigiDevice(sds_SoundBlaster);
-				else
-				if (SoundSourcePresent)
-					SD_SetDigiDevice(sds_SoundSource);
-				else
-					SD_SetDigiDevice(sds_Off);
+                if (SoundBlasterPresent) {
+                    SD_SetDigiDevice(sds_SoundBlaster);
+                } else if (SoundSourcePresent) {
+                    SD_SetDigiDevice(sds_SoundSource);
+                } else {
+                    SD_SetDigiDevice(sds_Off);
+                }
 
-				CA_LoadAllSounds();
+                CA_LoadAllSounds();
 
-				memcpy((char *)&SoundOn[55],"ON. ",4);
-			}
+                memcpy((char*)&SoundOn[55], "ON. ", 4);
+            }
 
-			DISPLAY_TIMED_MSG(SoundOn,MP_BONUS,MT_GENERAL);
-			S_KeyReleased=false;
-		}
-	}
-	else
-		S_KeyReleased=true;
+            DISPLAY_TIMED_MSG(SoundOn, MP_BONUS, MT_GENERAL);
+            S_KeyReleased = false;
+        }
+    } else {
+        S_KeyReleased = true;
+    }
 
-	if (Keyboard[sc_return])
-	{
+    if (Keyboard[sc_return]) {
 #if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
-		char loop;
+        char loop;
 
-		if ((!memcmp(jam_buff,jam_buff_cmp,sizeof(jam_buff_cmp))))
-		{
-			jam_buff[0]=0;
+        if ((!memcmp(jam_buff, jam_buff_cmp, sizeof(jam_buff_cmp)))) {
+            jam_buff[0] = 0;
 
-			for (loop=0; loop<NUMKEYS; loop++)
-				if (gamestate.numkeys[static_cast<int>(loop)] < MAXKEYS)
-					gamestate.numkeys[static_cast<int>(loop)]=1;
+            for (loop = 0; loop < NUMKEYS; loop++) {
+                if (gamestate.numkeys[static_cast<int>(loop)] < MAXKEYS) {
+                    gamestate.numkeys[static_cast<int>(loop)] = 1;
+                }
+            }
 
-			gamestate.health = 100;
-			gamestate.ammo = MAX_AMMO;
-			gamestate.rpower = MAX_RADAR_ENERGY;
+            gamestate.health = 100;
+            gamestate.ammo = MAX_AMMO;
+            gamestate.rpower = MAX_RADAR_ENERGY;
 
-			if (!DebugOk)
-			{
-				gamestate.score = 0;
-				gamestate.nextextra = EXTRAPOINTS;
-			}
+            if (!DebugOk) {
+                gamestate.score = 0;
+                gamestate.nextextra = EXTRAPOINTS;
+            }
 
-			gamestate.TimeCount += 42000L;
+            gamestate.TimeCount += 42000L;
 
-			for (loop=0; loop<NUMWEAPONS-1; loop++)
-				GiveWeapon(loop);
+            for (loop = 0; loop < NUMWEAPONS - 1; loop++) {
+                GiveWeapon(loop);
+            }
 
-			DrawWeapon();
-			DrawHealth();
-			DrawKeys();
-			DrawScore();
-			DISPLAY_TIMED_MSG("\r\r     YOU CHEATER!",MP_INTERROGATE,MT_GENERAL);
-			ForceUpdateStatusBar();
+            DrawWeapon();
+            DrawHealth();
+            DrawKeys();
+            DrawScore();
+            DISPLAY_TIMED_MSG("\r\r     YOU CHEATER!", MP_INTERROGATE, MT_GENERAL);
+            ForceUpdateStatusBar();
 
-			ClearMemory ();
-			ClearSplitVWB ();
-			VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),80,160);
+            ClearMemory();
+            ClearSplitVWB();
+            VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
 
-			Message("\n NOW you're jammin'!! \n");
+            Message("\n NOW you're jammin'!! \n");
 
-			IN_ClearKeysDown();
-			IN_Ack();
+            IN_ClearKeysDown();
+            IN_Ack();
 
-			CleanDrawPlayBorder();
-		}
-		else if (!in_use_modern_bindings)
+            CleanDrawPlayBorder();
+        } else if (!in_use_modern_bindings)
 #endif
-			one_eighty=true;
-	}
+        one_eighty = true;
+    }
 
 // Handle quick turning!
 //
-	if (!gamestate.turn_around)
-	{
-	// 90 degrees left
-	//
-		if (in_is_binding_pressed(e_bi_quick_left))
-		{
-			gamestate.turn_around = -90;
-			gamestate.turn_angle = player->angle + 90;
-			if (gamestate.turn_angle > 359)
-				gamestate.turn_angle -= ANGLES;
-		}
+    if (!gamestate.turn_around) {
+        // 90 degrees left
+        //
+        if (in_is_binding_pressed(e_bi_quick_left)) {
+            gamestate.turn_around = -90;
+            gamestate.turn_angle = player->angle + 90;
+            if (gamestate.turn_angle > 359) {
+                gamestate.turn_angle -= ANGLES;
+            }
+        }
 
-	// 180 degrees right
-	//
-		if (in_is_binding_pressed(e_bi_turn_around) || one_eighty)
-		{
-			gamestate.turn_around = 180;
-			gamestate.turn_angle = player->angle + 180;
-			if (gamestate.turn_angle > 359)
-				gamestate.turn_angle -= ANGLES;
-		}
+        // 180 degrees right
+        //
+        if (in_is_binding_pressed(e_bi_turn_around) || one_eighty) {
+            gamestate.turn_around = 180;
+            gamestate.turn_angle = player->angle + 180;
+            if (gamestate.turn_angle > 359) {
+                gamestate.turn_angle -= ANGLES;
+            }
+        }
 
-	// 90 degrees right
-	//
-		if (in_is_binding_pressed(e_bi_quick_right))
-		{
-			gamestate.turn_around = 90;
-			gamestate.turn_angle = player->angle - 90;
-			if (gamestate.turn_angle < 0)
-				gamestate.turn_angle += ANGLES;
-		}
-	}
+        // 90 degrees right
+        //
+        if (in_is_binding_pressed(e_bi_quick_right)) {
+            gamestate.turn_around = 90;
+            gamestate.turn_angle = player->angle - 90;
+            if (gamestate.turn_angle < 0) {
+                gamestate.turn_angle += ANGLES;
+            }
+        }
+    }
 
 //
 // pause key weirdness can't be checked as a scan code
@@ -955,51 +991,53 @@ void CheckKeys ()
     }
 
 #if IN_DEVELOPMENT
-	if (TestQuickSave)
-	{
-//   	TestQuickSave--;
-		scan = sc_f8;
-	}
+    if (TestQuickSave) {
+//      TestQuickSave--;
+        scan = sc_f8;
+    }
 
-	if (TestAutoMapper)
-		PopupAutoMap();
+    if (TestAutoMapper) {
+        PopupAutoMap();
+    }
 
 #endif
 
     scan = sc_none;
 
-    if (Keyboard[sc_escape])
+    if (Keyboard[sc_escape]) {
         scan = sc_escape;
-    else if (in_is_binding_pressed(e_bi_help))
+    } else if (in_is_binding_pressed(e_bi_help)) {
         scan = sc_f1;
-    if (in_is_binding_pressed(e_bi_save))
+    }
+    if (in_is_binding_pressed(e_bi_save)) {
         scan = sc_f2;
-    else if (in_is_binding_pressed(e_bi_load))
+    } else if (in_is_binding_pressed(e_bi_load)) {
         scan = sc_f3;
-    else if (in_is_binding_pressed(e_bi_sound))
+    } else if (in_is_binding_pressed(e_bi_sound)) {
         scan = sc_f4;
-    else if (in_is_binding_pressed(e_bi_controls))
+    } else if (in_is_binding_pressed(e_bi_controls)) {
         scan = sc_f6;
-    else if (in_is_binding_pressed(e_bi_end_game))
+    } else if (in_is_binding_pressed(e_bi_end_game)) {
         scan = sc_f7;
-    else if (in_is_binding_pressed(e_bi_quick_save))
+    } else if (in_is_binding_pressed(e_bi_quick_save)) {
         scan = sc_f8;
-    else if (in_is_binding_pressed(e_bi_quick_load))
+    } else if (in_is_binding_pressed(e_bi_quick_load)) {
         scan = sc_f9;
-    else if (in_is_binding_pressed(e_bi_quick_exit))
+    } else if (in_is_binding_pressed(e_bi_quick_exit)) {
         scan = sc_f10;
+    }
 
     switch (scan) {
-    case sc_f7:							// END GAME
-    case sc_f10:						// QUIT TO DOS
+    case sc_f7: // END GAME
+    case sc_f10: // QUIT TO DOS
         FinishPaletteShifts();
         ClearMemory();
         US_ControlPanel(scan);
         CleanDrawPlayBorder();
         return;
 
-    case sc_f2:							// SAVE MISSION
-    case sc_f8:							// QUICK SAVE
+    case sc_f2: // SAVE MISSION
+    case sc_f8: // QUICK SAVE
         // Make sure there's room to save...
         //
         ClearMemory();
@@ -1009,16 +1047,17 @@ void CheckKeys ()
             break;
         }
 
-    case sc_f1:							// HELP
-    case sc_f3:							// LOAD MISSION
-    case sc_f4:							// SOUND MENU
-    case sc_f5:							//	RESIZE VIEW
-    case sc_f6:							// CONTROLS MENU
-    case sc_f9:							// QUICK LOAD
-    case sc_escape:					// MAIN MENU
+    case sc_f1: // HELP
+    case sc_f3: // LOAD MISSION
+    case sc_f4: // SOUND MENU
+    case sc_f5: //      RESIZE VIEW
+    case sc_f6: // CONTROLS MENU
+    case sc_f9: // QUICK LOAD
+    case sc_escape: // MAIN MENU
         refresh_screen = true;
-        if (scan < sc_f8)
+        if (scan < sc_f8) {
             VW_FadeOut();
+        }
         StopMusic();
         ClearMemory();
         ClearSplitVWB();
@@ -1031,232 +1070,214 @@ void CheckKeys ()
             loadedgame = old;
         }
         ClearMemory();
-        if (!sqActive || !loadedgame)
+        if (!sqActive || !loadedgame) {
             StartMusic(false);
+        }
         IN_ClearKeysDown();
         if (loadedgame) {
             PreloadGraphics();
             loadedgame = false;
             DrawPlayScreen(false);
-        } else
-            if (!refresh_screen)
-                CleanDrawPlayBorder();
-        if (!sqActive)
+        } else if (!refresh_screen) {
+            CleanDrawPlayBorder();
+        }
+        if (!sqActive) {
             StartMusic(false);
+        }
         return;
     }
 
     scan = sc_none;
 
-	if (in_is_binding_pressed(e_bi_stats)) {
-		PopupAutoMap(Keyboard[sc_left_shift] || Keyboard[sc_right_shift]);
+    if (in_is_binding_pressed(e_bi_stats)) {
+        PopupAutoMap(Keyboard[sc_left_shift] || Keyboard[sc_right_shift]);
     }
 
-  	if (Keyboard[sc_back_quote])
-   {
-      Keyboard[sc_back_quote] = 0;
+    if (Keyboard[sc_back_quote]) {
+        Keyboard[sc_back_quote] = 0;
 
 #ifdef BSTONE_PS
-   	TryDropPlasmaDetonator();
+        TryDropPlasmaDetonator();
 #endif
-   }
+    }
 
 
-	if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_backspace]))
-	{
-		Uint8 old_num=music_num;
+    if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_backspace])) {
+        Uint8 old_num = music_num;
 
-		if (gamestate.flags & GS_MUSIC_TEST)
-		{
-			if (Keyboard[sc_left_arrow])
-			{
-				if (music_num)
-					music_num--;
-				Keyboard[sc_left_arrow]=false;
-			}
-			else
-			if (Keyboard[sc_right_arrow])
-			{
-				if (music_num < LASTMUSIC-1)
-					music_num++;
-				Keyboard[sc_right_arrow]=false;
-			}
+        if (gamestate.flags & GS_MUSIC_TEST) {
+            if (Keyboard[sc_left_arrow]) {
+                if (music_num) {
+                    music_num--;
+                }
+                Keyboard[sc_left_arrow] = false;
+            } else if (Keyboard[sc_right_arrow]) {
+                if (music_num < LASTMUSIC - 1) {
+                    music_num++;
+                }
+                Keyboard[sc_right_arrow] = false;
+            }
 
-			if (old_num != music_num)
-			{
-				ClearMemory();
+            if (old_num != music_num) {
+                ClearMemory();
 
                 delete [] audiosegs[STARTMUSIC + old_num];
                 audiosegs[STARTMUSIC + old_num] = NULL;
 
-				StartMusic(false);
-				DrawScore();
-			}
-		}
+                StartMusic(false);
+                DrawScore();
+            }
+        }
 
-		if (old_num == music_num)
-		{
-			fontnumber=4;
-			SETFONTCOLOR(0,15);
-			if (DebugKeys())
-         {
-				CleanDrawPlayBorder();
-         }
+        if (old_num == music_num) {
+            fontnumber = 4;
+            SETFONTCOLOR(0, 15);
+            if (DebugKeys()) {
+                CleanDrawPlayBorder();
+            }
 
             ::in_clear_mouse_deltas();
 
-			lasttimecount = TimeCount;
-			return;
-		}
-	}
+            lasttimecount = TimeCount;
+            return;
+        }
+    }
 
-	if (in_is_binding_pressed(e_bi_attack_info))
-	{
-		if (I_KeyReleased)
-		{
-			gamestate.flags ^= GS_ATTACK_INFOAREA;
-			if (gamestate.flags & GS_ATTACK_INFOAREA)
-				DISPLAY_TIMED_MSG(attacker_info_enabled,MP_ATTACK_INFO,MT_GENERAL);
-			else
-				DISPLAY_TIMED_MSG(attacker_info_disabled,MP_ATTACK_INFO,MT_GENERAL);
-			I_KeyReleased = false;
-		}
-	}
-	else
-		I_KeyReleased = true;
+    if (in_is_binding_pressed(e_bi_attack_info)) {
+        if (I_KeyReleased) {
+            gamestate.flags ^= GS_ATTACK_INFOAREA;
+            if (gamestate.flags & GS_ATTACK_INFOAREA) {
+                DISPLAY_TIMED_MSG(attacker_info_enabled, MP_ATTACK_INFO, MT_GENERAL);
+            } else {
+                DISPLAY_TIMED_MSG(attacker_info_disabled, MP_ATTACK_INFO, MT_GENERAL);
+            }
+            I_KeyReleased = false;
+        }
+    } else {
+        I_KeyReleased = true;
+    }
 
 
 #ifdef CEILING_FLOOR_COLORS
-	if (in_is_binding_pressed(e_bi_ceiling))
-	{
-		gamestate.flags ^= GS_DRAW_CEILING;
-		in_reset_binding_state(e_bi_ceiling);
-	}
+    if (in_is_binding_pressed(e_bi_ceiling)) {
+        gamestate.flags ^= GS_DRAW_CEILING;
+        in_reset_binding_state(e_bi_ceiling);
+    }
 
-	if (in_is_binding_pressed(e_bi_flooring))
-	{
-		ThreeDRefresh();
-		ThreeDRefresh();
+    if (in_is_binding_pressed(e_bi_flooring)) {
+        ThreeDRefresh();
+        ThreeDRefresh();
 
-		gamestate.flags ^= GS_DRAW_FLOOR;
+        gamestate.flags ^= GS_DRAW_FLOOR;
 
-		in_reset_binding_state(e_bi_flooring);
+        in_reset_binding_state(e_bi_flooring);
 #if DUAL_SWAP_FILES
-		ChangeSwapFiles(true);
+        ChangeSwapFiles(true);
 #endif
-	}
+    }
 #endif
 
-	if (in_is_binding_pressed(e_bi_lightning))
-	{
-		in_reset_binding_state(e_bi_lightning);
-		gamestate.flags ^= GS_LIGHTING;
-	}
+    if (in_is_binding_pressed(e_bi_lightning)) {
+        in_reset_binding_state(e_bi_lightning);
+        gamestate.flags ^= GS_LIGHTING;
+    }
 }
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // CheckMusicToggle()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void CheckMusicToggle()
 {
-	static boolean M_KeyReleased;
+    static boolean M_KeyReleased;
 
-	if (in_is_binding_pressed(e_bi_music))
-	{
-		if (M_KeyReleased
+    if (in_is_binding_pressed(e_bi_music)) {
+        if (M_KeyReleased
 #if GAME_VERSION != SHAREWARE_VERSION
-			 && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))
+            && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))
 #endif
-			)
-		{
-			if (!AdLibPresent)
-			{
-				DISPLAY_TIMED_MSG(NoAdLibCard,MP_BONUS,MT_GENERAL);
+            )
+        {
+            if (!AdLibPresent) {
+                DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
                 ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
-            return;
-			}
-			else
-			if (MusicMode != smm_Off)
-			{
-				SD_SetMusicMode(smm_Off);
-				memcpy((char *)&MusicOn[58],"OFF.",4);
-			}
-			else
-			{
-				SD_SetMusicMode(smm_AdLib);
-				StartMusic(false);
-				memcpy((char *)&MusicOn[58],"ON. ",4);
-			}
+                return;
+            } else if (MusicMode != smm_Off) {
+                SD_SetMusicMode(smm_Off);
+                memcpy((char*)&MusicOn[58], "OFF.", 4);
+            } else {
+                SD_SetMusicMode(smm_AdLib);
+                StartMusic(false);
+                memcpy((char*)&MusicOn[58], "ON. ", 4);
+            }
 
-			DISPLAY_TIMED_MSG(MusicOn,MP_BONUS,MT_GENERAL);
-			M_KeyReleased=false;
-		}
-	}
-	else
-		M_KeyReleased=true;
+            DISPLAY_TIMED_MSG(MusicOn, MP_BONUS, MT_GENERAL);
+            M_KeyReleased = false;
+        }
+    } else {
+        M_KeyReleased = true;
+    }
 }
 
 
-char Computing[] = {"Computing..."};
+char Computing[] = { "Computing..." };
 
 #if DUAL_SWAP_FILES
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ChangeSwapFiles()
 //
 // PURPOSE: To chance out swap files durring game play -
 //
 // ASSUMES: PageManager is installed.
 //
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
-void ChangeSwapFiles(boolean display)
+void ChangeSwapFiles(
+    boolean display)
 {
-	ClearMemory();
+    ClearMemory();
 
-   if (display)
-   {
-		WindowX=WindowY=0;
-		WindowW=320;
-		WindowH=200;
-	   Message(Computing);
-   }
+    if (display) {
+        WindowX = WindowY = 0;
+        WindowW = 320;
+        WindowH = 200;
+        Message(Computing);
+    }
 
-	PM_Shutdown();
-	PM_Startup ();
+    PM_Shutdown();
+    PM_Startup();
 
-	PM_CheckMainMem();
+    PM_CheckMainMem();
 
-   if (display)
-   {
-	   IN_UserInput(50);
-		CleanDrawPlayBorder();
-		IN_ClearKeysDown();
-   }
+    if (display) {
+        IN_UserInput(50);
+        CleanDrawPlayBorder();
+        IN_ClearKeysDown();
+    }
 }
 #endif
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // PopupAutoMap()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void PopupAutoMap(
     bool is_shift_pressed)
 {
 #ifdef BSTONE_AOG
-    #define BASE_X (40)
+#define BASE_X (40)
 #else
-	#define BASE_X	64
+#define BASE_X 64
 #endif
-	#define BASE_Y	44
+#define BASE_Y 44
 
-	ThreeDRefresh();
-	ThreeDRefresh();
+    ThreeDRefresh();
+    ThreeDRefresh();
 
-	SD_StopSound();
-	ClearMemory();
-	CacheDrawPic(BASE_X,BASE_Y,AUTOMAPPIC);
+    SD_StopSound();
+    ClearMemory();
+    CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
 #ifdef BSTONE_AOG
     bool show_whole_map = true;
@@ -1276,13 +1297,13 @@ void PopupAutoMap(
 
     ::ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
 
-    ShowStats(BASE_X+157,BASE_Y+25,ss_quick,&gamestuff.level[gamestate.mapon].stats);
+    ShowStats(BASE_X + 157, BASE_Y + 25, ss_quick, &gamestuff.level[gamestate.mapon].stats);
 #else
-	ShowStats(BASE_X+101,BASE_Y+22,ss_quick,&gamestuff.level[gamestate.mapon].stats);
+    ShowStats(BASE_X + 101, BASE_Y + 22, ss_quick, &gamestuff.level[gamestate.mapon].stats);
 #endif
 
-	while (Keyboard[sc_back_quote]) {
-		CalcTics();
+    while (Keyboard[sc_back_quote]) {
+        CalcTics();
 
 #ifdef BSTONE_AOG
         ::CycleColors();
@@ -1291,13 +1312,13 @@ void PopupAutoMap(
     }
 
 #if GAME_VERSION != SHAREWARE_VERSION && IN_DEVELOPMENT
-//	if (DebugOk && PP_step)
-//		PicturePause();
+//      if (DebugOk && PP_step)
+//              PicturePause();
 #endif
 
-	IN_StartAck ();
-	while (!IN_CheckAck ()) {
-		CalcTics();
+    IN_StartAck();
+    while (!IN_CheckAck()) {
+        CalcTics();
 
 #ifdef BSTONE_AOG
         ::CycleColors();
@@ -1305,17 +1326,17 @@ void PopupAutoMap(
 #endif
     }
 
-	CleanDrawPlayBorder();
-	IN_ClearKeysDown();
+    CleanDrawPlayBorder();
+    IN_ClearKeysDown();
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 /*
 #############################################################################
 
-				  The objlist data structure
+                                  The objlist data structure
 
 #############################################################################
 
@@ -1347,40 +1368,39 @@ next element.
 
 int objcount;
 
-void InitActorList ()
+void InitActorList()
 {
-	Sint16	i;
+    Sint16 i;
 
 //
 // init the actor lists
 //
 #if LOOK_FOR_DEAD_GUYS
-	NumDeadGuys=0;
-	memset(DeadGuys,0,sizeof(DeadGuys));
+    NumDeadGuys = 0;
+    memset(DeadGuys, 0, sizeof(DeadGuys));
 #endif
 
-	memset(statobjlist,0,sizeof(statobjlist));
-	for (i=0;i<MAXACTORS;i++)
-	{
-		objlist[i].prev = &objlist[i+1];
-		objlist[i].next = NULL;
-	}
+    memset(statobjlist, 0, sizeof(statobjlist));
+    for (i = 0; i < MAXACTORS; i++) {
+        objlist[i].prev = &objlist[i + 1];
+        objlist[i].next = NULL;
+    }
 
-	objlist[MAXACTORS-1].prev = NULL;
+    objlist[MAXACTORS - 1].prev = NULL;
 
-	objfreelist = &objlist[0];
-	lastobj = NULL;
+    objfreelist = &objlist[0];
+    lastobj = NULL;
 
-	objcount = 0;
+    objcount = 0;
 
 //
 // give the player the first free spots
 //
-	GetNewActor ();
-	player = new_actor;
+    GetNewActor();
+    player = new_actor;
 }
 
-//===========================================================================
+// ===========================================================================
 
 /*
 =========================
@@ -1396,53 +1416,49 @@ void InitActorList ()
 =========================
 */
 
-void GetNewActor ()
+void GetNewActor()
 {
-	if (objcount >= MAXACTORS-1)
-	{
-		objtype *obj=player->next;
+    if (objcount >= MAXACTORS - 1) {
+        objtype* obj = player->next;
 
-		while (obj)
-		{
-			if ((obj->flags & (FL_DEADGUY|FL_VISABLE)) == FL_DEADGUY)
-			{
-				RemoveObj(obj);
-				obj = NULL;
-			}
-			else
-				obj = obj->next;
-		}
-	}
+        while (obj) {
+            if ((obj->flags & (FL_DEADGUY | FL_VISABLE)) == FL_DEADGUY) {
+                RemoveObj(obj);
+                obj = NULL;
+            } else {
+                obj = obj->next;
+            }
+        }
+    }
 
-	if (!objfreelist)
-		if (usedummy)
-      {
-			new_actor = &dummyobj;
-			memset (new_actor,0,sizeof(*new_actor));
-      }
-		else
-			PLAY_ERROR(GETNEWACTOR_NO_FREE_SPOTS);
-   else
-   {
-		new_actor = objfreelist;
-		objfreelist = new_actor->prev;
+    if (!objfreelist) {
+        if (usedummy) {
+            new_actor = &dummyobj;
+            memset(new_actor, 0, sizeof(*new_actor));
+        } else {
+            PLAY_ERROR(GETNEWACTOR_NO_FREE_SPOTS);
+        }
+    } else {
+        new_actor = objfreelist;
+        objfreelist = new_actor->prev;
 
-		memset (new_actor,0,sizeof(*new_actor));
+        memset(new_actor, 0, sizeof(*new_actor));
 
-		if (lastobj)
-			lastobj->next = new_actor;
+        if (lastobj) {
+            lastobj->next = new_actor;
+        }
 
-		new_actor->prev = lastobj;	// new_actor->next is allready NULL from memset
+        new_actor->prev = lastobj;              // new_actor->next is allready NULL from memset
 
-//		new_actor->active = false;
-		lastobj = new_actor;
+//              new_actor->active = false;
+        lastobj = new_actor;
 
-		objcount++;
-	}
+        objcount++;
+    }
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 /*
 =========================
@@ -1455,42 +1471,46 @@ void GetNewActor ()
 =========================
 */
 
-void RemoveObj (objtype *gone)
+void RemoveObj(
+    objtype* gone)
 {
-   if (gone == &dummyobj)
-   	return;
+    if (gone == &dummyobj) {
+        return;
+    }
 
-	if (gone == player)
-		PLAY_ERROR(REMOVEOBJ_REMOVED_PLAYER);
+    if (gone == player) {
+        PLAY_ERROR(REMOVEOBJ_REMOVED_PLAYER);
+    }
 
-	gone->state = NULL;
+    gone->state = NULL;
 
 //
 // fix the next object's back link
 //
-	if (gone == lastobj)
-		lastobj = (objtype *)gone->prev;
-	else
-		gone->next->prev = gone->prev;
+    if (gone == lastobj) {
+        lastobj = (objtype*)gone->prev;
+    } else {
+        gone->next->prev = gone->prev;
+    }
 
 //
 // fix the previous object's forward link
 //
-	gone->prev->next = gone->next;
+    gone->prev->next = gone->next;
 
 //
 // add it back in to the free list
 //
-	gone->prev = objfreelist;
-	objfreelist = gone;
+    gone->prev = objfreelist;
+    objfreelist = gone;
 
-	objcount--;
+    objcount--;
 }
 
 /*
 =============================================================================
 
-						MUSIC STUFF
+                                                MUSIC STUFF
 
 =============================================================================
 */
@@ -1506,50 +1526,52 @@ void RemoveObj (objtype *gone)
 
 void StopMusic()
 {
-	SD_MusicOff();
+    SD_MusicOff();
 }
 
-//==========================================================================
+// ==========================================================================
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // StartMusic()
-//		o preload = true, music is cached but not started
-//-------------------------------------------------------------------------
-void StartMusic(boolean preload)
+//              o preload = true, music is cached but not started
+// -------------------------------------------------------------------------
+void StartMusic(
+    boolean preload)
 {
-	musicnames	musicchunk;
+    musicnames musicchunk;
 
-	SD_MusicOff();
+    SD_MusicOff();
 
 #ifdef BSTONE_AOG
-    musicchunk = static_cast<musicnames>(songs[gamestate.mapon+gamestate.episode*MAPS_WITH_STATS]);
+    musicchunk = static_cast<musicnames>(songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS]);
 #else
 #if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
-	if (gamestate.flags & GS_MUSIC_TEST)
-		musicchunk=static_cast<musicnames>(music_num);
-	else
+    if (gamestate.flags & GS_MUSIC_TEST) {
+        musicchunk = static_cast<musicnames>(music_num);
+    } else
 #endif
-	if (playstate==ex_victorious)
-		musicchunk = FORTRESS_MUS;
-	else
-		musicchunk = static_cast<musicnames>(songs[gamestate.mapon+gamestate.episode*MAPS_PER_EPISODE]);
+    if (playstate == ex_victorious) {
+        musicchunk = FORTRESS_MUS;
+    } else {
+        musicchunk = static_cast<musicnames>(songs[gamestate.mapon + gamestate.episode * MAPS_PER_EPISODE]);
+    }
 #endif
 
-	if (!audiosegs[STARTMUSIC+musicchunk])
-	{
-		CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + musicchunk));
-	}
+    if (!audiosegs[STARTMUSIC + musicchunk]) {
+        CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + musicchunk));
+    }
 
-	{
-		if (!preload)
-        ::SD_StartMusic(musicchunk);
-	}
+    {
+        if (!preload) {
+            ::SD_StartMusic(musicchunk);
+        }
+    }
 }
 
 /*
 =============================================================================
 
-					PALETTE SHIFTING STUFF
+                                        PALETTE SHIFTING STUFF
 
 =============================================================================
 */
@@ -1652,28 +1674,34 @@ void UpdatePaletteShifts()
     if (bonuscount > 0) {
         white = (bonuscount / WHITETICS) + 1;
 
-        if (white > NUMWHITESHIFTS)
+        if (white > NUMWHITESHIFTS) {
             white = NUMWHITESHIFTS;
+        }
 
         bonuscount -= tics;
 
-        if (bonuscount < 0)
+        if (bonuscount < 0) {
             bonuscount = 0;
-    } else
+        }
+    } else {
         white = 0;
+    }
 
     if (damagecount > 0) {
         red = (damagecount / 10) + 1;
 
-        if (red > NUMREDSHIFTS)
+        if (red > NUMREDSHIFTS) {
             red = NUMREDSHIFTS;
+        }
 
         damagecount -= tics;
 
-        if (damagecount < 0)
+        if (damagecount < 0) {
             damagecount = 0;
-    } else
+        }
+    } else {
         red = 0;
+    }
 
     if (red > 0) {
         VW_WaitVBL(1);
@@ -1703,7 +1731,7 @@ void FinishPaletteShifts()
 /*
 =============================================================================
 
-						CORE PLAYLOOP
+                                                CORE PLAYLOOP
 
 =============================================================================
 */
@@ -1717,150 +1745,133 @@ void FinishPaletteShifts()
 =====================
 */
 
-void DoActor (objtype *ob)
+void DoActor(
+    objtype* ob)
 {
-	void (*think)(objtype *);
-	objtype *actor;
+    void (* think)(
+        objtype*);
+    objtype* actor;
 
 
-	if (ob->flags & FL_FREEZE)
-		return;
+    if (ob->flags & FL_FREEZE) {
+        return;
+    }
 
-	if (ob->flags & FL_BARRIER)
-	{
-		actor = actorat[ob->tilex][ob->tiley];
-		if (BARRIER_STATE(ob) == bt_ON)
-		{
-			if (actor)
-			{
-				Sint16 damage = 0;
+    if (ob->flags & FL_BARRIER) {
+        actor = actorat[ob->tilex][ob->tiley];
+        if (BARRIER_STATE(ob) == bt_ON) {
+            if (actor) {
+                Sint16 damage = 0;
 
-				actor->flags |= FL_BARRIER_DAMAGE;
-				if ((US_RndT() < 0x7f) && (actor->flags & FL_SHOOTABLE))
-				{
-					switch (ob->obclass)
-					{
-						case arc_barrierobj:			// arc barrier - Mild Damage
-							damage = 500;			// 100
-						break;
+                actor->flags |= FL_BARRIER_DAMAGE;
+                if ((US_RndT() < 0x7f) && (actor->flags & FL_SHOOTABLE)) {
+                    switch (ob->obclass) {
+                    case arc_barrierobj:                                                // arc barrier - Mild Damage
+                        damage = 500;                                                   // 100
+                        break;
 
-						case post_barrierobj:		// post barrier - Butt kicker
-							damage = 500;
-						break;
+                    case post_barrierobj:                                       // post barrier - Butt kicker
+                        damage = 500;
+                        break;
 
-                        default:
-                            break;
-					}
-					DamageActor(actor,damage,ob);
-				}
-			}
-		}
-		else
-			if (actor)
-				actor->flags &= ~FL_BARRIER_DAMAGE;
-	}
+                    default:
+                        break;
+                    }
+                    DamageActor(actor, damage, ob);
+                }
+            }
+        } else if (actor) {
+            actor->flags &= ~FL_BARRIER_DAMAGE;
+        }
+    }
 
-	if (!ob->active && !areabyplayer[ob->areanumber])
-		return;
+    if (!ob->active && !areabyplayer[ob->areanumber]) {
+        return;
+    }
 
-	if (!(ob->flags&(FL_NONMARK|FL_NEVERMARK)) )
-		actorat[ob->tilex][ob->tiley] = NULL;
+    if (!(ob->flags & (FL_NONMARK | FL_NEVERMARK))) {
+        actorat[ob->tilex][ob->tiley] = NULL;
+    }
 
 //
 // non transitional object
 //
 
-	if (!ob->ticcount)
-	{
-		think =	ob->state->think;
-		if (think)
-		{
-			think (ob);
-			if (!ob->state)
-			{
-				RemoveObj (ob);
-				return;
-			}
-		}
+    if (!ob->ticcount) {
+        think = ob->state->think;
+        if (think) {
+            think(ob);
+            if (!ob->state) {
+                RemoveObj(ob);
+                return;
+            }
+        }
 
-		if (!(ob->flags&FL_NEVERMARK) )
-		{
-			if (ob->flags&FL_NONMARK)
-			{
-				if (actorat[ob->tilex][ob->tiley])
-				{
-					return;
-				}
-			}
-			actorat[ob->tilex][ob->tiley] = ob;
-		}
-		return;
-	}
+        if (!(ob->flags & FL_NEVERMARK)) {
+            if (ob->flags & FL_NONMARK) {
+                if (actorat[ob->tilex][ob->tiley]) {
+                    return;
+                }
+            }
+            actorat[ob->tilex][ob->tiley] = ob;
+        }
+        return;
+    }
 
 //
 // transitional object
 //
-	ob->ticcount-=tics;
-	while ( ob->ticcount <= 0)
-	{
-		think = ob->state->action;			// end of state action
-		if (think)
-		{
-			think (ob);
-			if (!ob->state)
-			{
-				RemoveObj (ob);
-				return;
-			}
-		}
+    ob->ticcount -= tics;
+    while (ob->ticcount <= 0) {
+        think = ob->state->action;                              // end of state action
+        if (think) {
+            think(ob);
+            if (!ob->state) {
+                RemoveObj(ob);
+                return;
+            }
+        }
 
-		ob->state = ob->state->next;
+        ob->state = ob->state->next;
 
-		if (!ob->state)
-		{
-			RemoveObj (ob);
-			return;
-		}
+        if (!ob->state) {
+            RemoveObj(ob);
+            return;
+        }
 
-		if (!ob->state->tictime)
-		{
-			ob->ticcount = 0;
-			goto think;
-		}
+        if (!ob->state->tictime) {
+            ob->ticcount = 0;
+            goto think;
+        }
 
-		ob->ticcount += ob->state->tictime;
-	}
+        ob->ticcount += ob->state->tictime;
+    }
 
 think:
-	//
-	// think
-	//
-	think =	ob->state->think;
-	if (think)
-	{
-		think (ob);
-		if (!ob->state)
-		{
-			RemoveObj (ob);
-			return;
-		}
-	}
+    //
+    // think
+    //
+    think = ob->state->think;
+    if (think) {
+        think(ob);
+        if (!ob->state) {
+            RemoveObj(ob);
+            return;
+        }
+    }
 
-	if ( !(ob->flags&FL_NEVERMARK) )
-	{
-		if (ob->flags&FL_NONMARK)
-		{
-			if (actorat[ob->tilex][ob->tiley])
-			{
-				return;
-			}
-		}
-		actorat[ob->tilex][ob->tiley] = ob;
-	}
-	return;
+    if (!(ob->flags & FL_NEVERMARK)) {
+        if (ob->flags & FL_NONMARK) {
+            if (actorat[ob->tilex][ob->tiley]) {
+                return;
+            }
+        }
+        actorat[ob->tilex][ob->tiley] = ob;
+    }
+    return;
 }
 
-//==========================================================================
+// ==========================================================================
 
 
 /*
@@ -1874,148 +1885,155 @@ think:
 extern boolean ShowQuickMsg;
 
 
-void PlayLoop ()
+void PlayLoop()
 {
-	boolean reset_areas=false;
-	objtype *obj;
+    boolean reset_areas = false;
+    objtype* obj;
 
     lasttimecount = 0;
     TimeCount = 0;
-	playstate = ex_stillplaying;
+    playstate = ex_stillplaying;
 
-	framecount = frameon = 0;
-	pwallstate = anglefrac = 0;
-	memset (buttonstate,0,sizeof(buttonstate));
-	ClearPaletteShifts ();
-   ForceUpdateStatusBar();
+    framecount = frameon = 0;
+    pwallstate = anglefrac = 0;
+    memset(buttonstate, 0, sizeof(buttonstate));
+    ClearPaletteShifts();
+    ForceUpdateStatusBar();
 
     ::in_clear_mouse_deltas();
 
-	tics = 1;			// for first time through
-	if (demoplayback)
-		IN_StartAck ();
+    tics = 1;                           // for first time through
+    if (demoplayback) {
+        IN_StartAck();
+    }
 
-	do
-	{
-		PollControls();
+    do {
+        PollControls();
 
 //
 // actor thinking
 //
-		madenoise = false;
+        madenoise = false;
 
-		if (alerted)
-			alerted--;
+        if (alerted) {
+            alerted--;
+        }
 
-		MoveDoors ();
-		MovePWalls ();
+        MoveDoors();
+        MovePWalls();
 
-		for (obj = player;obj;obj = obj->next)
-		{
-			if ((obj != player) && (Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk)
-			{
-				if (!reset_areas)
-					memset(areabyplayer,1,sizeof(areabyplayer));
-				reset_areas=true;
+        for (obj = player; obj; obj = obj->next) {
+            if ((obj != player) && (Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk) {
+                if (!reset_areas) {
+                    memset(areabyplayer, 1, sizeof(areabyplayer));
+                }
+                reset_areas = true;
 
-				if ((((!(obj->flags & FL_INFORMANT)) && (obj->flags & FL_SHOOTABLE))) ||
-					 (obj->obclass == liquidobj && !(obj->flags & FL_DEADGUY)))
-					DamageActor(obj,1000,player);
-			}
-			else
-				if (reset_areas)
-				{
-					ConnectAreas();
-					reset_areas=false;
-				}
-			DoActor (obj);
-		}
+                if ((((!(obj->flags & FL_INFORMANT)) && (obj->flags & FL_SHOOTABLE))) ||
+                    (obj->obclass == liquidobj && !(obj->flags & FL_DEADGUY)))
+                {
+                    DamageActor(obj, 1000, player);
+                }
+            } else if (reset_areas) {
+                ConnectAreas();
+                reset_areas = false;
+            }
+            DoActor(obj);
+        }
 
-		if (NumEAWalls)
-			CheckSpawnEA();
+        if (NumEAWalls) {
+            CheckSpawnEA();
+        }
 
-		if ((!GoldsternInfo.GoldSpawned) && GoldsternInfo.SpawnCnt)
-			CheckSpawnGoldstern();
+        if ((!GoldsternInfo.GoldSpawned) && GoldsternInfo.SpawnCnt) {
+            CheckSpawnGoldstern();
+        }
 
-		UpdatePaletteShifts ();
+        UpdatePaletteShifts();
 
 
-		ThreeDRefresh ();
+        ThreeDRefresh();
 
-		gamestate.TimeCount+=tics;
+        gamestate.TimeCount += tics;
 
-		UpdateSoundLoc();	// JAB
+        UpdateSoundLoc();               // JAB
 
-		if (screenfaded & !playstate)
-			VW_FadeIn();
+        if (screenfaded & !playstate) {
+            VW_FadeIn();
+        }
 
-	// Display first-time instructions.
-	//
-		if (ShowQuickMsg)
-			ShowQuickInstructions();
+        // Display first-time instructions.
+        //
+        if (ShowQuickMsg) {
+            ShowQuickInstructions();
+        }
 
-		CheckKeys();
+        CheckKeys();
 
-		if (demoplayback && demoptr == lastdemoptr)
-			playstate = ex_title;
+        if (demoplayback && demoptr == lastdemoptr) {
+            playstate = ex_title;
+        }
 
 //
 // debug aids
 //
-		if (singlestep)
-		{
-			VW_WaitVBL(14);
-			lasttimecount = TimeCount;
-		}
-		if (extravbls)
-			VW_WaitVBL(extravbls);
+        if (singlestep) {
+            VW_WaitVBL(14);
+            lasttimecount = TimeCount;
+        }
+        if (extravbls) {
+            VW_WaitVBL(extravbls);
+        }
 
-		if ((demoplayback) && (IN_CheckAck()))
-		{
-			IN_ClearKeysDown ();
-			playstate = ex_abort;
-		}
+        if ((demoplayback) && (IN_CheckAck())) {
+            IN_ClearKeysDown();
+            playstate = ex_abort;
+        }
 
 
-	}while (!playstate && !startgame);
+    } while (!playstate && !startgame);
 
-	if (playstate != ex_died)
-		FinishPaletteShifts ();
+    if (playstate != ex_died) {
+        FinishPaletteShifts();
+    }
 
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
+    gamestate.flags &= ~GS_VIRGIN_LEVEL;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ShowQuickInstructions()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void ShowQuickInstructions()
 {
-	ShowQuickMsg=false;
+    ShowQuickMsg = false;
 
-	if ((demoplayback) || (gamestate.mapon) || (gamestate.flags & GS_QUICKRUN))
-		return;
+    if ((demoplayback) || (gamestate.mapon) || (gamestate.flags & GS_QUICKRUN)) {
+        return;
+    }
 
-	ThreeDRefresh();
-	ThreeDRefresh();
-	ClearMemory();
-	WindowX=0; WindowY=16; WindowW=320; WindowH=168;
-	CacheMessage(QUICK_INFO1_TEXT);
-	VW_WaitVBL(120);
-	CacheMessage(QUICK_INFO2_TEXT);
-	IN_Ack();
-	IN_ClearKeysDown();
-	CleanDrawPlayBorder();
+    ThreeDRefresh();
+    ThreeDRefresh();
+    ClearMemory();
+    WindowX = 0;
+    WindowY = 16;
+    WindowW = 320;
+    WindowH = 168;
+    CacheMessage(QUICK_INFO1_TEXT);
+    VW_WaitVBL(120);
+    CacheMessage(QUICK_INFO2_TEXT);
+    IN_Ack();
+    IN_ClearKeysDown();
+    CleanDrawPlayBorder();
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CleanDrawPlayBorder()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void CleanDrawPlayBorder()
 {
-	DrawPlayBorder();
-	ThreeDRefresh();
-	DrawPlayBorder();
-	ThreeDRefresh();
-	DrawPlayBorder();
+    DrawPlayBorder();
+    ThreeDRefresh();
+    DrawPlayBorder();
+    ThreeDRefresh();
+    DrawPlayBorder();
 }
-

@@ -236,130 +236,130 @@ enum graphicnums {
     BADSAVEGAME_TEXT = 222,
 
 /* FIXME Unknown pictures
-	TELEPORT11ONPIC,                     // 17
-	TELEPORT12ONPIC,                     // 18
-	TELEPORT13ONPIC,                     // 19
-	TELEPORT14ONPIC,                     // 20
-	TELEPORT15ONPIC,                     // 21
-	TELEPORT16ONPIC,                     // 22
-	TELEPORT17ONPIC,                     // 23
-	TELEPORT18ONPIC,                     // 24
-	TELEPORT19ONPIC,                     // 25
-	TELEPORT20ONPIC,                     // 26
-	TELEUPONPIC,                         // 27
-	TELEDNONPIC,                         // 28
-	TELEUPOFFPIC,                        // 29
-	TELEDNOFFPIC,                        // 30
-	TELEPORT11OFFPIC,                    // 41
-	TELEPORT12OFFPIC,                    // 42
-	TELEPORT13OFFPIC,                    // 43
-	TELEPORT14OFFPIC,                    // 44
-	TELEPORT15OFFPIC,                    // 45
-	TELEPORT16OFFPIC,                    // 46
-	TELEPORT17OFFPIC,                    // 47
-	TELEPORT18OFFPIC,                    // 48
-	TELEPORT19OFFPIC,                    // 49
-	TELEPORT20OFFPIC,                    // 50
-	AUTOMAP_MAG1PIC,                     // 57
-	AUTOMAP_MAG2PIC,                     // 58
-	AUTOMAP_MAG4PIC,                     // 59
-	H_6PIC,                              // 97
-	H_TILDEPIC,                          // 98
-	STARPORTPIC,                         // 133
-	BOSSPIC,                             // 134
-	THREEPLANETSPIC,                     // 135
-	SOLARSYSTEMPIC,                      // 136
-	AOGENDINGPIC,                        // 137
-	GFLOGOSPIC,                          // 138
-	BLAKEHEADPIC,                        // 139
-	PROJECTFOLDERPIC,                    // 140
-	WEAPON6PIC,                          // 147
-	WEAPON7PIC,                          // 148
-	W1_CORNERPIC,                        // 149
-	W2_CORNERPIC,                        // 150
-	W3_CORNERPIC,                        // 151
-	W4_CORNERPIC,                        // 152
-	W5_CORNERPIC,                        // 153
-	W6_CORNERPIC,                        // 154
-	NG_BLANKPIC,                         // 172
-	NG_0PIC,                             // 173
-	NG_1PIC,                             // 174
-	NG_2PIC,                             // 175
-	NG_3PIC,                             // 176
-	NG_4PIC,                             // 177
-	NG_5PIC,                             // 178
-	NG_6PIC,                             // 179
-	NG_7PIC,                             // 180
-	NG_8PIC,                             // 181
-	NG_9PIC,                             // 182
-	NO_KEYPIC,                           // 191
-	RED_KEYPIC,                          // 192
-	YEL_KEYPIC,                          // 193
-	BLU_KEYPIC,                          // 194
-	ENDINGPALETTE,                       // 199
-	NO386SCREEN,                         // 203
-	T_DEMO0,                             // 207
-	T_DEMO1,                             // 208
-	T_DEMO2,                             // 209
-	T_DEMO3,                             // 210
-	T_DEMO4,                             // 211
-	T_DEMO5,                             // 212
-	DECOY,                               // 229
-	DECOY2,                              // 230
-	DECOY3,                              // 231
-	DECOY4,                              // 232
+        TELEPORT11ONPIC,                     // 17
+        TELEPORT12ONPIC,                     // 18
+        TELEPORT13ONPIC,                     // 19
+        TELEPORT14ONPIC,                     // 20
+        TELEPORT15ONPIC,                     // 21
+        TELEPORT16ONPIC,                     // 22
+        TELEPORT17ONPIC,                     // 23
+        TELEPORT18ONPIC,                     // 24
+        TELEPORT19ONPIC,                     // 25
+        TELEPORT20ONPIC,                     // 26
+        TELEUPONPIC,                         // 27
+        TELEDNONPIC,                         // 28
+        TELEUPOFFPIC,                        // 29
+        TELEDNOFFPIC,                        // 30
+        TELEPORT11OFFPIC,                    // 41
+        TELEPORT12OFFPIC,                    // 42
+        TELEPORT13OFFPIC,                    // 43
+        TELEPORT14OFFPIC,                    // 44
+        TELEPORT15OFFPIC,                    // 45
+        TELEPORT16OFFPIC,                    // 46
+        TELEPORT17OFFPIC,                    // 47
+        TELEPORT18OFFPIC,                    // 48
+        TELEPORT19OFFPIC,                    // 49
+        TELEPORT20OFFPIC,                    // 50
+        AUTOMAP_MAG1PIC,                     // 57
+        AUTOMAP_MAG2PIC,                     // 58
+        AUTOMAP_MAG4PIC,                     // 59
+        H_6PIC,                              // 97
+        H_TILDEPIC,                          // 98
+        STARPORTPIC,                         // 133
+        BOSSPIC,                             // 134
+        THREEPLANETSPIC,                     // 135
+        SOLARSYSTEMPIC,                      // 136
+        AOGENDINGPIC,                        // 137
+        GFLOGOSPIC,                          // 138
+        BLAKEHEADPIC,                        // 139
+        PROJECTFOLDERPIC,                    // 140
+        WEAPON6PIC,                          // 147
+        WEAPON7PIC,                          // 148
+        W1_CORNERPIC,                        // 149
+        W2_CORNERPIC,                        // 150
+        W3_CORNERPIC,                        // 151
+        W4_CORNERPIC,                        // 152
+        W5_CORNERPIC,                        // 153
+        W6_CORNERPIC,                        // 154
+        NG_BLANKPIC,                         // 172
+        NG_0PIC,                             // 173
+        NG_1PIC,                             // 174
+        NG_2PIC,                             // 175
+        NG_3PIC,                             // 176
+        NG_4PIC,                             // 177
+        NG_5PIC,                             // 178
+        NG_6PIC,                             // 179
+        NG_7PIC,                             // 180
+        NG_8PIC,                             // 181
+        NG_9PIC,                             // 182
+        NO_KEYPIC,                           // 191
+        RED_KEYPIC,                          // 192
+        YEL_KEYPIC,                          // 193
+        BLU_KEYPIC,                          // 194
+        ENDINGPALETTE,                       // 199
+        NO386SCREEN,                         // 203
+        T_DEMO0,                             // 207
+        T_DEMO1,                             // 208
+        T_DEMO2,                             // 209
+        T_DEMO3,                             // 210
+        T_DEMO4,                             // 211
+        T_DEMO5,                             // 212
+        DECOY,                               // 229
+        DECOY2,                              // 230
+        DECOY3,                              // 231
+        DECOY4,                              // 232
 */
 
-	ENUMEND
+    ENUMEND
 }; // enum graphicnums
 
 //
 // Data LUMPs
 //
-#define TELEPORT_LUMP_START		7
-#define TELEPORT_LUMP_END		50
+#define TELEPORT_LUMP_START 7
+#define TELEPORT_LUMP_END 50
 
-#define README_LUMP_START		60
-#define README_LUMP_END			106
+#define README_LUMP_START 60
+#define README_LUMP_END 106
 
-#define CONTROLS_LUMP_START		C_NOTSELECTEDPIC
-#define CONTROLS_LUMP_END		C_EPISODE6PIC
+#define CONTROLS_LUMP_START C_NOTSELECTEDPIC
+#define CONTROLS_LUMP_END C_EPISODE6PIC
 
-#define LATCHPICS_LUMP_START		WEAPON1PIC
-#define LATCHPICS_LUMP_END		STATUSBARPIC
+#define LATCHPICS_LUMP_START WEAPON1PIC
+#define LATCHPICS_LUMP_END STATUSBARPIC
 
 
 //
 // Amount of each data item
 //
-#define NUMCHUNKS    223
-#define NUMFONT      5
-#define NUMFONTM     0
-#define NUMPICS      159
-#define NUMPICM      0
-#define NUMSPRITES   0
-#define NUMTILE8     72
-#define NUMTILE8M    0
-#define NUMTILE16    0
-#define NUMTILE16M   0
-#define NUMTILE32    0
-#define NUMTILE32M   0
-#define NUMEXTERNS   58
+#define NUMCHUNKS 223
+#define NUMFONT 5
+#define NUMFONTM 0
+#define NUMPICS 159
+#define NUMPICM 0
+#define NUMSPRITES 0
+#define NUMTILE8 72
+#define NUMTILE8M 0
+#define NUMTILE16 0
+#define NUMTILE16M 0
+#define NUMTILE32 0
+#define NUMTILE32M 0
+#define NUMEXTERNS 58
 //
 // File offsets for data items
 //
-#define STRUCTPIC    0
+#define STRUCTPIC 0
 
-#define STARTFONT    1
-#define STARTFONTM   6
-#define STARTPICS    6
-#define STARTPICM    165
+#define STARTFONT 1
+#define STARTFONTM 6
+#define STARTPICS 6
+#define STARTPICM 165
 #define STARTSPRITES 165
-#define STARTTILE8   165
-#define STARTTILE8M  166
-#define STARTTILE16  166
+#define STARTTILE8 165
+#define STARTTILE8M 166
+#define STARTTILE16 166
 #define STARTTILE16M 166
-#define STARTTILE32  166
+#define STARTTILE32 166
 #define STARTTILE32M 166
 #define STARTEXTERNS 166
 

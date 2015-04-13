@@ -49,7 +49,7 @@ void R_DrawColumn();
 /*
 =============================================================================
 
-						  GLOBALS
+                                                  GLOBALS
 
 =============================================================================
 */
@@ -62,8 +62,8 @@ int normalshade;
 int normalshade_div = 1;
 int shade_max = 1;
 
-Sint16 nsd_table[] = { 1, 6, 3, 4, 1, 2};
-Sint16 sm_table[] =  {36,51,62,63,18,52};
+Sint16 nsd_table[] = { 1, 6, 3, 4, 1, 2 };
+Sint16 sm_table[] = { 36, 51, 62, 63, 18, 52 };
 Uint16* linecmds;
 
 
@@ -104,10 +104,11 @@ void generic_scale_masked_post(
 {
     int bounce;
 
-    if (useBounceOffset)
+    if (useBounceOffset) {
         bounce = bounceOffset;
-    else
+    } else {
         bounce = 0;
+    }
 
     bounce *= vga_scale;
 
@@ -116,7 +117,7 @@ void generic_scale_masked_post(
     int screenstep = height << 10;
 
     int sprtopoffset = ((viewheight * vga_scale) << 15) -
-        (height << 15) + (bounce >> 1);
+                       (height << 15) + (bounce >> 1);
 
     int end = (bstone::Endian::le(*srcpost++)) / 2;
 
@@ -135,27 +136,30 @@ void generic_scale_masked_post(
         int dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
         int dc_yh = (bottomscreen - 1) >> 16;
 
-        if (dc_yh >= (viewheight * vga_scale))
+        if (dc_yh >= (viewheight * vga_scale)) {
             dc_yh = (viewheight * vga_scale) - 1;
+        }
 
         if (dc_yl < 0) {
             dc_frac = dc_iscale * (-dc_yl);
             dc_yl = 0;
-        } else
+        } else {
             dc_frac = 0;
+        }
 
         if (dc_yl <= dc_yh) {
             dc_dy = dc_yl;
             dc_length = dc_yh - dc_yl + 1;
             if (draw_mode == e_sdm_shaded) {
 #if CLOAKED_SHAPES
-                if (cloaked_shape)
+                if (cloaked_shape) {
                     R_DrawSLSColumn();
-                else
+                } else
 #endif
-                    R_DrawLSColumn();
-            } else
+                R_DrawLSColumn();
+            } else {
                 R_DrawColumn();
+            }
         }
 
         end = bstone::Endian::le(*srcpost++) / 2;
@@ -169,8 +173,9 @@ void generic_scale_shape(
     char lighting,
     ShapeDrawMode draw_mode)
 {
-    if ((height / 2) > (maxscaleshl2 * vga_scale) || ((height / 2) == 0))
+    if ((height / 2) > (maxscaleshl2 * vga_scale) || ((height / 2) == 0)) {
         return;
+    }
 
     xcenter += centerx * (vga_scale - 1);
 
@@ -182,21 +187,23 @@ void generic_scale_shape(
     Sint64 xscale = static_cast<Sint64>(height) << 12;
 
     Sint64 xcent = (static_cast<Sint64>(xcenter) << 20) -
-        (static_cast<Sint64>(height) << 17) + 0x80000;
+                   (static_cast<Sint64>(height) << 17) + 0x80000;
 
     //
     // calculate edges of the shape
     //
     int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
 
-    if (x1 >= (viewwidth * vga_scale))
+    if (x1 >= (viewwidth * vga_scale)) {
         return; // off the right side
 
+    }
     int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
 
-    if (x2 < 0)
+    if (x2 < 0) {
         return; // off the left side
 
+    }
     int screenscale = (256 << 20) / height;
 
     //
@@ -207,20 +214,23 @@ void generic_scale_shape(
     if (x1 < 0) {
         frac = (-x1) * screenscale;
         x1 = 0;
-    } else
+    } else {
         frac = screenscale / 2;
+    }
 
-    if (x2 >= (viewwidth * vga_scale))
+    if (x2 >= (viewwidth * vga_scale)) {
         x2 = (viewwidth * vga_scale) - 1;
+    }
 
     if (draw_mode == e_sdm_shaded) {
         int i = shade_max - (63 * height / (normalshade * 8 * vga_scale)) +
-            lighting;
+                lighting;
 
-        if (i < 0)
+        if (i < 0) {
             i = 0;
-        else if (i > 63)
+        } else if (i > 63) {
             i = 63;
+        }
 
         shadingtable = &lightsource[i * 256];
     }
@@ -228,16 +238,18 @@ void generic_scale_shape(
     dc_y = 0;
     int swidth = shape->rightpix - shape->leftpix;
 
-    for ( ; x1 <= x2; ++x1, frac += screenscale) {
-        if (wallheight[x1] > height)
+    for (; x1 <= x2; ++x1, frac += screenscale) {
+        if (wallheight[x1] > height) {
             continue;
+        }
 
         dc_x = x1;
 
         int texturecolumn = frac >> 20;
 
-        if (texturecolumn > swidth)
+        if (texturecolumn > swidth) {
             texturecolumn = swidth;
+        }
 
         linecmds = reinterpret_cast<Uint16*>(
             &dc_seg[shape->dataofs[texturecolumn]]);
@@ -254,16 +266,16 @@ void generic_scale_shape(
 = Draws a compiled shape at [scale] pixels high
 =
 = each vertical line of the shape has a pointer to segment data:
-= 	end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
-= 	top of virtual line with segment in proper place
-=	start of segment pixel*2, used to jsl into compiled scaler
-=	<repeat>
+=       end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
+=       top of virtual line with segment in proper place
+=       start of segment pixel*2, used to jsl into compiled scaler
+=       <repeat>
 =
 = Setup for call
 = --------------
-= GC_MODE			read mode 1, write mode 2
+= GC_MODE                       read mode 1, write mode 2
 = GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX			pointing at GC_BITMASK
+= GC_INDEX                      pointing at GC_BITMASK
 =
 =======================
 */
@@ -284,16 +296,16 @@ void ScaleLSShape(
 = Draws a compiled shape at [scale] pixels high
 =
 = each vertical line of the shape has a pointer to segment data:
-= 	end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
-= 	top of virtual line with segment in proper place
-=	start of segment pixel*2, used to jsl into compiled scaler
-=	<repeat>
+=       end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
+=       top of virtual line with segment in proper place
+=       start of segment pixel*2, used to jsl into compiled scaler
+=       <repeat>
 =
 = Setup for call
 = --------------
-= GC_MODE			read mode 1, write mode 2
+= GC_MODE                       read mode 1, write mode 2
 = GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX			pointing at GC_BITMASK
+= GC_INDEX                      pointing at GC_BITMASK
 =
 =======================
 */
@@ -315,16 +327,16 @@ void ScaleShape(
 = Draws a compiled shape at [scale] pixels high
 =
 = each vertical line of the shape has a pointer to segment data:
-= 	end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
-= 	top of virtual line with segment in proper place
-=	start of segment pixel*2, used to jsl into compiled scaler
-=	<repeat>
+=       end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
+=       top of virtual line with segment in proper place
+=       start of segment pixel*2, used to jsl into compiled scaler
+=       <repeat>
 =
 = Setup for call
 = --------------
-= GC_MODE			read mode 1, write mode 2
+= GC_MODE                       read mode 1, write mode 2
 = GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX			pointing at GC_BITMASK
+= GC_INDEX                      pointing at GC_BITMASK
 =
 =======================
 */
@@ -336,13 +348,13 @@ void SimpleScaleShape(
     generic_scale_shape(xcenter, shapenum, height, 0, e_sdm_simple);
 }
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // MegaSimpleScaleShape()
 //
 // NOTE: Parameter SHADE determines which Shade palette to use on the shape.
 //       0 == NO Shading
 //       63 == Max Shade (BLACK or near)
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void MegaSimpleScaleShape(
     int xcenter,
     int ycenter,
@@ -366,21 +378,23 @@ void MegaSimpleScaleShape(
     Sint64 xscale = static_cast<Sint64>(height) << 14;
 
     Sint64 xcent = (static_cast<Sint64>(xcenter) << 20) -
-        (static_cast<Sint64>(height) << 19) + 0x80000;
+                   (static_cast<Sint64>(height) << 19) + 0x80000;
 
     //
     // calculate edges of the shape
     //
     int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
 
-    if (x1 >= (viewwidth * vga_scale))
+    if (x1 >= (viewwidth * vga_scale)) {
         return; // off the right side
 
+    }
     int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
 
-    if (x2 < 0)
+    if (x2 < 0) {
         return; // off the left side
 
+    }
     int screenscale = (64 << 20) / height;
 
     //
@@ -396,21 +410,24 @@ void MegaSimpleScaleShape(
     if (x1 < 0) {
         frac = screenscale * (-x1);
         x1 = 0;
-    } else
+    } else {
         frac = screenscale / 2;
+    }
 
-    if (x2 >= (viewwidth * vga_scale))
+    if (x2 >= (viewwidth * vga_scale)) {
         x2 = (viewwidth * vga_scale) - 1;
+    }
 
     int swidth = shape->rightpix - shape->leftpix;
 
-    for ( ; x1 <= x2; ++x1, frac += screenscale) {
+    for (; x1 <= x2; ++x1, frac += screenscale) {
         dc_x = x1;
 
         int texturecolumn = frac >> 20;
 
-        if (texturecolumn > swidth)
+        if (texturecolumn > swidth) {
             texturecolumn = swidth;
+        }
 
         linecmds = reinterpret_cast<Uint16*>(
             &dc_seg[shape->dataofs[texturecolumn]]);

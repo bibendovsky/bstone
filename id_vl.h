@@ -32,9 +32,11 @@ Free Software Foundation, Inc.,
 
 
 // wolf compatability
-void Quit (const char *error,...);
+void Quit(
+    const char* error,
+    ...);
 
-//===========================================================================
+// ===========================================================================
 
 #define NOFADE_CODE
 
@@ -42,7 +44,7 @@ void Quit (const char *error,...);
 
 #define TILEWIDTH (4)
 
-//===========================================================================
+// ===========================================================================
 
 extern int bufferofs; // all drawing is reletive to this
 extern int displayofs; // last setscreen coordinates
@@ -80,26 +82,42 @@ extern int window_height;
 
 extern SDL_Window* sdl_window;
 
-//===========================================================================
+// ===========================================================================
 
-void VL_Startup ();
-void VL_Shutdown ();
+void VL_Startup();
+void VL_Shutdown();
 
-void VL_SetVGAPlane ();
-void VL_SetTextMode ();
-void VL_DePlaneVGA ();
-void VL_SetVGAPlaneMode ();
-void VL_ClearVideo (Uint8 color);
+void VL_SetVGAPlane();
+void VL_SetTextMode();
+void VL_DePlaneVGA();
+void VL_SetVGAPlaneMode();
+void VL_ClearVideo(
+    Uint8 color);
 
-void VL_SetLineWidth(int width);
-void WaitVBL (Sint16 vbls);
+void VL_SetLineWidth(
+    int width);
+void WaitVBL(
+    Sint16 vbls);
 
-void VL_WaitVBL(Uint32 vbls);
-void VL_CrtcStart (Sint16 crtc);
+void VL_WaitVBL(
+    Uint32 vbls);
+void VL_CrtcStart(
+    Sint16 crtc);
 
-void VL_FillPalette(Uint8 red, Uint8 green, Uint8 blue);
-void VL_SetColor(int color, int red, int green, int blue);
-void VL_GetColor(int color, int* red, int* green, int* blue);
+void VL_FillPalette(
+    Uint8 red,
+    Uint8 green,
+    Uint8 blue);
+void VL_SetColor(
+    int color,
+    int red,
+    int green,
+    int blue);
+void VL_GetColor(
+    int color,
+    int* red,
+    int* green,
+    int* blue);
 
 void VL_SetPalette(
     int first,
@@ -107,29 +125,111 @@ void VL_SetPalette(
     const Uint8* palette,
     bool refresh_screen = true);
 
-void VL_GetPalette(int first, int count, Uint8* palette);
-void VL_SetPaletteIntensity(int start, int end, const Uint8* palette, int intensity);
-void VL_FadeOut(int start, int end, int red, int green, int blue, int steps);
-void VL_FadeIn(int start, int end, const Uint8* palette, int steps);
-void VL_ColorBorder(Sint16 color);
+void VL_GetPalette(
+    int first,
+    int count,
+    Uint8* palette);
+void VL_SetPaletteIntensity(
+    int start,
+    int end,
+    const Uint8* palette,
+    int intensity);
+void VL_FadeOut(
+    int start,
+    int end,
+    int red,
+    int green,
+    int blue,
+    int steps);
+void VL_FadeIn(
+    int start,
+    int end,
+    const Uint8* palette,
+    int steps);
+void VL_ColorBorder(
+    Sint16 color);
 
-void VL_Plot(int x, int y, Uint8 color);
-void VL_Hlin(int x, int y, int width, Uint8 color);
-void VL_Vlin(int x, int y, int height, Uint8 color);
-void VL_Bar(int x, int y, int width, int height, Uint8 color);
+void VL_Plot(
+    int x,
+    int y,
+    Uint8 color);
+void VL_Hlin(
+    int x,
+    int y,
+    int width,
+    Uint8 color);
+void VL_Vlin(
+    int x,
+    int y,
+    int height,
+    Uint8 color);
+void VL_Bar(
+    int x,
+    int y,
+    int width,
+    int height,
+    Uint8 color);
 
-void VL_DrawPicBare (Sint16 x, Sint16 y, Uint8* pic, Sint16 width, Sint16 height);
-void VL_MemToLatch(const Uint8* source, int width, int height, int dest);
-void VL_ScreenToScreen(int source, int dest, int width, int height);
-void VL_MemToScreen(const Uint8* source, int width, int height, int x, int y);
-void VL_MaskMemToScreen(const Uint8* source, int width, int height, int x, int y, Uint8 mask);
-void VL_ScreenToMem(Uint8* dest, int width, int height, int x, int y);
+void VL_DrawPicBare(
+    Sint16 x,
+    Sint16 y,
+    Uint8* pic,
+    Sint16 width,
+    Sint16 height);
+void VL_MemToLatch(
+    const Uint8* source,
+    int width,
+    int height,
+    int dest);
+void VL_ScreenToScreen(
+    int source,
+    int dest,
+    int width,
+    int height);
+void VL_MemToScreen(
+    const Uint8* source,
+    int width,
+    int height,
+    int x,
+    int y);
+void VL_MaskMemToScreen(
+    const Uint8* source,
+    int width,
+    int height,
+    int x,
+    int y,
+    Uint8 mask);
+void VL_ScreenToMem(
+    Uint8* dest,
+    int width,
+    int height,
+    int x,
+    int y);
 
-void VL_DrawTile8String (char *str, char* tile8ptr, Sint16 printx, Sint16 printy);
-void VL_DrawLatch8String (char *str, Uint16 tile8ptr, Sint16 printx, Sint16 printy);
-void VL_SizeTile8String (char *str, Sint16 *width, Sint16 *height);
-void VL_DrawPropString (char *str, Uint16 tile8ptr, Sint16 printx, Sint16 printy);
-void VL_SizePropString (char *str, Sint16 *width, Sint16 *height, char* font);
+void VL_DrawTile8String(
+    char* str,
+    char* tile8ptr,
+    Sint16 printx,
+    Sint16 printy);
+void VL_DrawLatch8String(
+    char* str,
+    Uint16 tile8ptr,
+    Sint16 printx,
+    Sint16 printy);
+void VL_SizeTile8String(
+    char* str,
+    Sint16* width,
+    Sint16* height);
+void VL_DrawPropString(
+    char* str,
+    Uint16 tile8ptr,
+    Sint16 printx,
+    Sint16 printy);
+void VL_SizePropString(
+    char* str,
+    Sint16* width,
+    Sint16* height,
+    char* font);
 
 // BBi
 void VL_RefreshScreen();

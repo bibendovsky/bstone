@@ -24,7 +24,12 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 
 
-void VL_LatchToScreen(int source, int width, int height, int x, int y);
+void VL_LatchToScreen(
+    int source,
+    int width,
+    int height,
+    int x,
+    int y);
 void IN_StartAck();
 boolean IN_CheckAck();
 void CalcTics();
@@ -61,8 +66,9 @@ void VW_DrawPropString(
 
         for (int w = 0; w < width; ++w) {
             for (int h = 0; h < height; ++h) {
-                if (source[h * width] != 0)
+                if (source[h * width] != 0) {
                     VL_Plot(px + w, py + h, fontcolor);
+                }
             }
 
             ++source;
@@ -102,7 +108,7 @@ void VW_MeasurePropString(
 /*
 =============================================================================
 
-				Double buffer management routines
+                                Double buffer management routines
 
 =============================================================================
 */
@@ -196,7 +202,7 @@ void VWB_Vlin(
 /*
 =============================================================================
 
-						WOLFENSTEIN STUFF
+                                                WOLFENSTEIN STUFF
 
 =============================================================================
 */
@@ -247,7 +253,7 @@ void LoadLatchMem()
         int height = pictable[i - STARTPICS].height;
 
         VL_MemToLatch(static_cast<const Uint8*>(grsegs[i]),
-            width, height, destoff);
+                      width, height, destoff);
 
         destoff += (width / 4) * height;
         UNCACHEGRCHUNK(i);
@@ -281,8 +287,9 @@ bool FizzleFade(
     bool do_full_copy = false;
 
     while (!finished) {
-        if (abortable && IN_CheckAck())
+        if (abortable && IN_CheckAck()) {
             return true;
+        }
 
         if (!do_full_copy) {
             int pixel_count = pixperframe + remain_pixels;
@@ -296,11 +303,13 @@ bool FizzleFade(
 
                 rndval >>= 1;
 
-                if (carry)
+                if (carry) {
                     rndval ^= 0x00012000;
+                }
 
-                if (x > width || y > height)
+                if (x > width || y > height) {
                     continue;
+                }
 
                 int pixel_offset = vga_scale * ((y * vga_width) + x);
 
@@ -315,8 +324,9 @@ bool FizzleFade(
                     pixel_offset += vga_width;
                 }
 
-                if (rndval == 1)
+                if (rndval == 1) {
                     do_full_copy = true;
+                }
             }
         } else {
             finished = true;
@@ -332,7 +342,7 @@ bool FizzleFade(
         ++frame;
 
         CalcTics();
-    };
+    }
 
     return !finished;
 }

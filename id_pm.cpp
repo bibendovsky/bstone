@@ -27,7 +27,7 @@ Free Software Foundation, Inc.,
 
 
 // File specific variables
-char PageFileName[13] = {"VSWAP."};
+char PageFileName[13] = { "VSWAP." };
 
 int ChunksInFile = 0;
 int PMSpriteStart = 0;
@@ -50,21 +50,24 @@ static void open_page_file(
 {
     PageFile.open(file_name);
 
-    if (!PageFile.is_open())
+    if (!PageFile.is_open()) {
         PM_ERROR(PML_OPENPAGEFILE_OPEN);
+    }
 
     Sint64 file_length = PageFile.get_size();
 
-    if (file_length > 4 * 1024 * 1024)
+    if (file_length > 4 * 1024 * 1024) {
         ::Quit("Page file is too large.");
+    }
 
     Sint32 file_length_32 = static_cast<Sint32>(file_length);
 
     raw_data = new Uint8[file_length_32 + PMPageSize];
     std::uninitialized_fill_n(&raw_data[file_length], PMPageSize, 0);
 
-    if (PageFile.read(raw_data, file_length_32) != file_length_32)
+    if (PageFile.read(raw_data, file_length_32) != file_length_32) {
         PM_ERROR(PML_READFROMFILE_READ);
+    }
 
     bstone::MemoryBinaryReader reader(raw_data, file_length);
 
@@ -99,13 +102,15 @@ void PM_Shutdown()
 void* PM_GetPage(
     int page_number)
 {
-    if (page_number >= ChunksInFile)
+    if (page_number >= ChunksInFile) {
         PM_ERROR(PM_GETPAGE_BAD_PAGE);
+    }
 
     Uint32 offset = chunks_offsets[page_number];
 
-    if (offset == 0)
+    if (offset == 0) {
         PM_ERROR(PM_GETPAGE_SPARSE_PAGE);
+    }
 
     return &raw_data[offset];
 }

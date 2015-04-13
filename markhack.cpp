@@ -46,8 +46,9 @@ enum DrawMode {
 static void generic_draw_post(
     DrawMode draw_mode)
 {
-    if (postheight == 0)
+    if (postheight == 0) {
         return;
+    }
 
     int cur_step = (32L * 65536L) / postheight;
 
@@ -59,12 +60,13 @@ static void generic_draw_post(
     const int max_height = (viewheight / 2) * vga_scale;
 
     int screen_column = vl_get_offset(bufferofs) +
-        ((max_height - 1) * vga_width) + postx;
+                        ((max_height - 1) * vga_width) + postx;
 
     int n = postheight;
 
-    if (n > max_height)
+    if (n > max_height) {
         n = max_height;
+    }
 
     for (int h = 0; h < n; ++h) {
         Uint8 pixel;
@@ -74,10 +76,11 @@ static void generic_draw_post(
 
         pixel_index = postsource[31 - (cur_step >> 16)];
 
-        if (draw_mode == DRAW_LIGHTED)
+        if (draw_mode == DRAW_LIGHTED) {
             pixel = shadingtable[pixel_index];
-        else
+        } else {
             pixel = pixel_index;
+        }
 
         vga_memory[screen_column] = pixel;
 
@@ -86,10 +89,11 @@ static void generic_draw_post(
 
         pixel_index = postsource[32 + (cur_step >> 16)];
 
-        if (draw_mode == DRAW_LIGHTED)
+        if (draw_mode == DRAW_LIGHTED) {
             pixel = shadingtable[pixel_index];
-        else
+        } else {
             pixel = pixel_index;
+        }
 
         vga_memory[screen_column + fraction] = pixel;
 

@@ -31,91 +31,107 @@ Free Software Foundation, Inc.,
 
 void InitWeaponBounce();
 void HandleWeaponBounce();
-void VL_LatchToScreen(int source, int width, int height, int x, int y);
-void StartDamageFlash(int damage);
-void StartBonusFlash ();
-Sint16 CalcAngle(objtype *from_obj, objtype *to_obj);
-void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir);
-void OperateDoor (Sint16 door);
+void VL_LatchToScreen(
+    int source,
+    int width,
+    int height,
+    int x,
+    int y);
+void StartDamageFlash(
+    int damage);
+void StartBonusFlash();
+Sint16 CalcAngle(
+    objtype* from_obj,
+    objtype* to_obj);
+void PushWall(
+    Sint16 checkx,
+    Sint16 checky,
+    Sint16 dir);
+void OperateDoor(
+    Sint16 door);
 
 #ifdef BSTONE_PS
 void TryDropPlasmaDetonator();
 #endif
 
-void ClearMemory ();
+void ClearMemory();
 void VH_UpdateScreen();
-void InitAreas ();
-void FirstSighting(objtype* ob);
-void OpenDoor(Sint16 door);
-void DrawTopInfo(sp_type type);
-void DoActor (objtype *ob);
+void InitAreas();
+void FirstSighting(
+    objtype* ob);
+void OpenDoor(
+    Sint16 door);
+void DrawTopInfo(
+    sp_type type);
+void DoActor(
+    objtype* ob);
 
 #ifdef BSTONE_AOG
 void RunBlakeRun();
 #endif
 
-#define VW_UpdateScreen() 	VH_UpdateScreen()
+#define VW_UpdateScreen() VH_UpdateScreen()
 
 
 /*
 =============================================================================
 
-						 LOCAL CONSTANTS
+                                                 LOCAL CONSTANTS
 
 =============================================================================
 */
 
-//#define ACTIVATE_TERMINAL
+// #define ACTIVATE_TERMINAL
 
-#define MAXMOUSETURN			10
+#define MAXMOUSETURN 10
 
-#define MOVESCALE				150l
-#define BACKMOVESCALE		100l
-#define ANGLESCALE			20
-#define MAX_DA 				100
+#define MOVESCALE 150l
+#define BACKMOVESCALE 100l
+#define ANGLESCALE 20
+#define MAX_DA 100
 
-#define MAX_TERM_COMMAND_LEN	31
+#define MAX_TERM_COMMAND_LEN 31
 
 // Max Score displayable
 
-#define MAX_DISPLAY_SCORE 			(9999999L)
-#define SCORE_ROLL_WAIT				(60*10)			// Tics
+#define MAX_DISPLAY_SCORE (9999999L)
+#define SCORE_ROLL_WAIT (60 * 10) // Tics
 
 // IFDEF switches
 
-//#define NO_STATUS_BAR
+// #define NO_STATUS_BAR
 
 // ECG scroll rate (delay).
 
-#define HEALTH_SCROLL_RATE		7
-#define HEALTH_PULSE				70
+#define HEALTH_SCROLL_RATE 7
+#define HEALTH_PULSE 70
 
 // Text "InfoArea" defines
-#define INFOAREA_X				3
-#define INFOAREA_Y				((Uint16)200-STATUSLINES+3)
-#define INFOAREA_W				109
-#define INFOAREA_H				37
+#define INFOAREA_X 3
+#define INFOAREA_Y ((Uint16)200 - STATUSLINES + 3)
+#define INFOAREA_W 109
+#define INFOAREA_H 37
 
-#define INFOAREA_BCOLOR			0x01
-#define INFOAREA_CCOLOR    	0x1A
-#define INFOAREA_TCOLOR			0xA6
-#define INFOAREA_TSHAD_COLOR	0x04			// Text Shadow Color
+#define INFOAREA_BCOLOR 0x01
+#define INFOAREA_CCOLOR 0x1A
+#define INFOAREA_TCOLOR 0xA6
+#define INFOAREA_TSHAD_COLOR 0x04 // Text Shadow Color
 
-#define GRENADE_ENERGY_USE		4
+#define GRENADE_ENERGY_USE 4
 #ifdef BSTONE_PS
-#define BFG_ENERGY_USE			(GRENADE_ENERGY_USE<<1)
+#define BFG_ENERGY_USE (GRENADE_ENERGY_USE << 1)
 #endif
 
 
-#define NUM_AMMO_SEGS			21
+#define NUM_AMMO_SEGS 21
 
 
-#define AMMO_SMALL_FONT_NUM_WIDTH	5
+#define AMMO_SMALL_FONT_NUM_WIDTH 5
 
 /*
 =============================================================================
 
-						 GLOBAL VARIABLES
+                                                 GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -124,27 +140,27 @@ extern boolean noShots;
 extern Sint16 bounceOk;
 
 #ifdef BSTONE_PS
-Sint16 tryDetonatorDelay=0;
+Sint16 tryDetonatorDelay = 0;
 #endif
 
 //
 // player state info
 //
-Sint32		thrustspeed;
+Sint32 thrustspeed;
 
-//unsigned	plux,pluy;			// player coordinates scaled to unsigned
+// unsigned     plux,pluy;                      // player coordinates scaled to unsigned
 
-Sint16			anglefrac;
+Sint16 anglefrac;
 
-objtype		*LastAttacker;
+objtype* LastAttacker;
 
-boolean 	PlayerInvisable = false;
+boolean PlayerInvisable = false;
 
 char LocationText[MAX_LOCATION_DESC_LEN];
 
 #ifdef ACTIVATE_TERMINAL
-char term_com_name[13]= {"TERM_CMD."};
-char term_msg_name[13]= {"TERM_MSG."};
+char term_com_name[13] = { "TERM_CMD." };
+char term_msg_name[13] = { "TERM_MSG." };
 #endif
 
 Uint16 player_oldtilex;
@@ -156,48 +172,58 @@ extern bstone::MemoryStream g_playtemp;
 /*
 =============================================================================
 
-						 LOCAL VARIABLES
+                                                 LOCAL VARIABLES
 
 =============================================================================
 */
 
-void writeTokenStr(char *str);
+void writeTokenStr(
+    char* str);
 
 void ShowOverheadChunk();
 
-void LoadOverheadChunk(int tpNum);
-void SaveOverheadChunk(int tpNum);
+void LoadOverheadChunk(
+    int tpNum);
+void SaveOverheadChunk(
+    int tpNum);
 
-void DisplayTeleportName(char tpNum, boolean locked);
+void DisplayTeleportName(
+    char tpNum,
+    boolean locked);
 
 void ForceUpdateStatusBar();
 
 void UpdateRadarGuage();
-void DrawLedStrip(Sint16 x,Sint16 y,Sint16 frac,Sint16 max);
+void DrawLedStrip(
+    Sint16 x,
+    Sint16 y,
+    Sint16 frac,
+    Sint16 max);
 void DisplayPinballBonus();
-void CheckPinballBonus(Sint32 points);
+void CheckPinballBonus(
+    Sint32 points);
 Uint8 LevelCompleted();
-void	T_Player (objtype *ob);
-void	T_Attack (objtype *ob);
+void T_Player(
+    objtype* ob);
+void T_Attack(
+    objtype* ob);
 
-statetype s_player = {0,0,0,&T_Player,NULL,NULL};
-statetype s_attack = {0,0,0,&T_Attack,NULL,NULL};
+statetype s_player = { 0, 0, 0, &T_Player, NULL, NULL };
+statetype s_attack = { 0, 0, 0, &T_Attack, NULL, NULL };
 
-Sint32	playerxmove,playerymove;
+Sint32 playerxmove, playerymove;
 
-atkinf_t attackinfo[7][14] =
-
-{
-{ {6,0,1},{6,2,2},{6,0,3},{6,-1,4} },     // Auto charge
-{ {6,0,1},{6,1,2},{6,0,3},{6,-1,4} },     // Pistol
-{ {6,0,1},{6,1,2},{5,3,3},{5,-1,4} },		// Pulse
-{ {6,0,1},{6,1,2},{3,4,3},{3,-1,4} },		// ION
-{ {6,0,1},{6,5,2},{6,6,3},{6,-1,4} },
-{ {6,0,1},{6,9,2},{6,10,3},{6,-1,4} },
-{ {5,7,0},{5,8,0},{2,-2,0},{0,0,0} },
+atkinf_t attackinfo[7][14] = {
+    { { 6, 0, 1 }, { 6, 2, 2 }, { 6, 0, 3 }, { 6, -1, 4 } }, // Auto charge
+    { { 6, 0, 1 }, { 6, 1, 2 }, { 6, 0, 3 }, { 6, -1, 4 } }, // Pistol
+    { { 6, 0, 1 }, { 6, 1, 2 }, { 5, 3, 3 }, { 5, -1, 4 } }, // Pulse
+    { { 6, 0, 1 }, { 6, 1, 2 }, { 3, 4, 3 }, { 3, -1, 4 } }, // ION
+    { { 6, 0, 1 }, { 6, 5, 2 }, { 6, 6, 3 }, { 6, -1, 4 } },
+    { { 6, 0, 1 }, { 6, 9, 2 }, { 6, 10, 3 }, { 6, -1, 4 } },
+    { { 5, 7, 0 }, { 5, 8, 0 }, { 2, -2, 0 }, { 0, 0, 0 } },
 };
 
-//int	strafeangle[9] = {0,90,180,270,45,135,225,315,0};
+// int  strafeangle[9] = {0,90,180,270,45,135,225,315,0};
 
 #define GD0 0x55
 #define YD0 0x35
@@ -207,8 +233,8 @@ atkinf_t attackinfo[7][14] =
 #define YD1 0x33
 #define RD1 0x13
 
-char  DimAmmo[2][22] = {{GD0,GD0,GD0,GD0,GD0,GD0,GD0,YD0,YD0,YD0,YD0,YD0,YD0,YD0,RD0,RD0,RD0,RD0,RD0,RD0,RD0,RD0},
-									 {GD1,GD1,GD1,GD1,GD1,GD1,GD1,YD1,YD1,YD1,YD1,YD1,YD1,YD1,RD1,RD1,RD1,RD1,RD1,RD1,RD1,RD1}};
+char DimAmmo[2][22] = { { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0, YD0, YD0, YD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0 },
+                        { GD1, GD1, GD1, GD1, GD1, GD1, GD1, YD1, YD1, YD1, YD1, YD1, YD1, YD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1 } };
 
 #define GL0 0x58
 #define YL0 0x38
@@ -218,20 +244,19 @@ char  DimAmmo[2][22] = {{GD0,GD0,GD0,GD0,GD0,GD0,GD0,YD0,YD0,YD0,YD0,YD0,YD0,YD0
 #define YL1 0x36
 #define RL1 0x16
 
-char  LitAmmo[2][22] = {{GL0,GL0,GL0,GL0,GL0,GL0,GL0,YL0,YL0,YL0,YL0,YL0,YL0,YL0,RL0,RL0,RL0,RL0,RL0,RL0,RL0,RL0},
-									 {GL1,GL1,GL1,GL1,GL1,GL1,GL1,YL1,YL1,YL1,YL1,YL1,YL1,YL1,RL1,RL1,RL1,RL1,RL1,RL1,RL1,RL1}};
+char LitAmmo[2][22] = { { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0, YL0, YL0, YL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0 },
+                        { GL1, GL1, GL1, GL1, GL1, GL1, GL1, YL1, YL1, YL1, YL1, YL1, YL1, YL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1 } };
 
 
-#define IA_MAX_LINE			30
-typedef struct InfoArea_Struct
-{
-	Sint16	x,y;
-	Sint16	text_color;
-	Sint16	backgr_color;
-	Sint16 	left_margin;
-	char	delay;
-	char numanims;
-	char framecount;
+#define IA_MAX_LINE 30
+typedef struct InfoArea_Struct {
+    Sint16 x, y;
+    Sint16 text_color;
+    Sint16 backgr_color;
+    Sint16 left_margin;
+    char delay;
+    char numanims;
+    char framecount;
 } InfoArea_Struct;
 
 Uint16 LastMsgPri = 0;
@@ -252,7 +277,7 @@ char DrawRadarGuage_COUNT = 0;
 
 char DrawAmmoNum_COUNT = 3;
 char DrawAmmoPic_COUNT = 3;
-//char DrawPDAmmoPic_COUNT = 3;
+// char DrawPDAmmoPic_COUNT = 3;
 char DrawScoreNum_COUNT = 3;
 char DrawWeaponPic_COUNT = 3;
 char DrawKeyPics_COUNT = 3;
@@ -262,45 +287,71 @@ char DrawInfoArea_COUNT = 3;
 char InitInfoArea_COUNT = 3;
 char ClearInfoArea_COUNT = 3;
 
-void DrawWeapon ();
-void GiveWeapon (Sint16 weapon);
-void	GiveAmmo (Sint16 ammo);
+void DrawWeapon();
+void GiveWeapon(
+    Sint16 weapon);
+void GiveAmmo(
+    Sint16 ammo);
 void DrawGAmmoNum();
 void DrawMAmmoNum();
 void DrawPDAmmoMsg();
 void ComputeAvailWeapons();
-void SW_HandleActor(objtype *obj);
-void SW_HandleStatic(statobj_t *stat,Uint16 tilex, Uint16 tiley);
+void SW_HandleActor(
+    objtype* obj);
+void SW_HandleStatic(
+    statobj_t* stat,
+    Uint16 tilex,
+    Uint16 tiley);
 
-//===========================================================================
+// ===========================================================================
 
-//----------
+// ----------
 
-Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 px, Sint16 py, Sint32 total, Sint32 perc, ss_type type);
-void Attack ();
-void Use ();
-void Search (objtype *ob);
-void SelectWeapon ();
-void SelectItem ();
+Uint8 ShowRatio(
+    Sint16 bx,
+    Sint16 by,
+    Sint16 px,
+    Sint16 py,
+    Sint32 total,
+    Sint32 perc,
+    ss_type type);
+void Attack();
+void Use();
+void Search(
+    objtype* ob);
+void SelectWeapon();
+void SelectItem();
 
-//----------
+// ----------
 
-void SpawnPlayer (Sint16 tilex, Sint16 tiley, Sint16 dir);
-void Thrust (Sint16 angle, Sint32 speed);
-boolean TryMove (objtype *ob);
-void T_Player (objtype *ob);
+void SpawnPlayer(
+    Sint16 tilex,
+    Sint16 tiley,
+    Sint16 dir);
+void Thrust(
+    Sint16 angle,
+    Sint32 speed);
+boolean TryMove(
+    objtype* ob);
+void T_Player(
+    objtype* ob);
 
-boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove);
+boolean ClipMove(
+    objtype* ob,
+    Sint32 xmove,
+    Sint32 ymove);
 
-void SocketToggle(boolean TurnOn);
+void SocketToggle(
+    boolean TurnOn);
 void CheckStatsBonus();
 
-void	T_Stand (objtype *ob);
+void T_Stand(
+    objtype* ob);
 
 /*
 =============================================================================
 
-						CONTROL STUFF
+                                                CONTROL STUFF
 
 =============================================================================
 */
@@ -317,9 +368,9 @@ void	T_Stand (objtype *ob);
 */
 
 
-void CheckWeaponChange ()
+void CheckWeaponChange()
 {
-	Sint16	i;
+    Sint16 i;
     const Sint16 n =
 #ifdef BSTONE_AOG
         wp_grenade
@@ -328,23 +379,20 @@ void CheckWeaponChange ()
 #endif
     ;
 
-	for (i=wp_autocharge;i<=n;i++)
-	{
-		if (buttonstate[bt_ready_autocharge+i-wp_autocharge])
-		{
-			if (gamestate.useable_weapons & (1<<i))
-			{
-				gamestate.weapon = static_cast<char>(i);
+    for (i = wp_autocharge; i <= n; i++) {
+        if (buttonstate[bt_ready_autocharge + i - wp_autocharge]) {
+            if (gamestate.useable_weapons & (1 << i)) {
+                gamestate.weapon = static_cast<char>(i);
                 gamestate.chosenweapon = static_cast<char>(i);
 
-				DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
-				DrawWeapon();
-				return;
-			}
-			else
-				DISPLAY_TIMED_MSG(WeaponNotAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
-		}
-	}
+                DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
+                DrawWeapon();
+                return;
+            } else {
+                DISPLAY_TIMED_MSG(WeaponNotAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
+            }
+        }
+    }
 }
 
 
@@ -382,32 +430,36 @@ void ControlMovement(
     //
 
     if (use_classic_strafe) {
-        if (in_use_modern_bindings)
+        if (in_use_modern_bindings) {
             use_modern_strafe = true;
-        else {
+        } else {
             if (controlx > 0) {
                 int angle = ob->angle - ANGLES / 4;
-                if (angle < 0)
+                if (angle < 0) {
                     angle += ANGLES;
-                Thrust(angle, controlx*MOVESCALE);	// move to left
+                }
+                Thrust(angle, controlx * MOVESCALE); // move to left
             } else if (controlx < 0) {
                 int angle = ob->angle + ANGLES / 4;
-                if (angle >= ANGLES)
+                if (angle >= ANGLES) {
                     angle -= ANGLES;
-                Thrust(angle, -controlx*MOVESCALE);	// move to right
+                }
+                Thrust(angle, -controlx * MOVESCALE); // move to right
             }
         }
-    } else if (!gamestate.turn_around)
+    } else if (!gamestate.turn_around) {
         use_modern_strafe = true;
+    }
 
     if (use_modern_strafe && strafe_value != 0) {
         int sign = (strafe_value > 0) ? 1 : -1;
         int angle = ob->angle + (sign * (ANGLES / 4));
 
-        if (angle < 0)
+        if (angle < 0) {
             angle += ANGLES;
-        else if (angle >= ANGLES)
+        } else if (angle >= ANGLES) {
             angle -= ANGLES;
+        }
 
         Thrust(angle, -abs(strafe_value) * MOVESCALE);
     }
@@ -415,8 +467,9 @@ void ControlMovement(
     if (!use_classic_strafe) {
         if (gamestate.turn_around) {
             controlx = 100 * tics;
-            if (gamestate.turn_around < 0)
+            if (gamestate.turn_around < 0) {
                 controlx = -controlx;
+            }
         }
 
         //
@@ -424,25 +477,29 @@ void ControlMovement(
         //
         anglefrac += controlx;
         int angleunits = anglefrac / ANGLESCALE;
-        anglefrac -= angleunits*ANGLESCALE;
+        anglefrac -= angleunits * ANGLESCALE;
         ob->angle -= angleunits;
 
-        if (ob->angle >= ANGLES)
+        if (ob->angle >= ANGLES) {
             ob->angle -= ANGLES;
-        if (ob->angle < 0)
+        }
+        if (ob->angle < 0) {
             ob->angle += ANGLES;
+        }
 
         if (gamestate.turn_around) {
             boolean done = false;
 
             if (gamestate.turn_around > 0) {
                 gamestate.turn_around -= angleunits;
-                if (gamestate.turn_around <= 0)
+                if (gamestate.turn_around <= 0) {
                     done = true;
+                }
             } else {
                 gamestate.turn_around -= angleunits;
-                if (gamestate.turn_around >= 0)
+                if (gamestate.turn_around >= 0) {
                     done = true;
+                }
             }
 
             if (done) {
@@ -457,21 +514,22 @@ void ControlMovement(
     // forward/backwards move
     //
     if (controly < 0) {
-        Thrust(ob->angle, -controly*MOVESCALE);	// move forwards
+        Thrust(ob->angle, -controly * MOVESCALE); // move forwards
     } else if (controly > 0) {
         int angle = ob->angle + ANGLES / 2;
-        if (angle >= ANGLES)
+        if (angle >= ANGLES) {
             angle -= ANGLES;
-        Thrust(angle, controly*BACKMOVESCALE);		// move backwards
-    } else
-        if (bounceOk)
-            bounceOk--;
+        }
+        Thrust(angle, controly * BACKMOVESCALE); // move backwards
+    } else if (bounceOk) {
+        bounceOk--;
+    }
 
-    if (controly)
+    if (controly) {
         bounceOk = 8;
-    else
-        if (bounceOk)
-            bounceOk--;
+    } else if (bounceOk) {
+        bounceOk--;
+    }
 
     ob->dir = static_cast<dirtype>(((ob->angle + 22) % 360) / 45);
 
@@ -485,12 +543,12 @@ void ControlMovement(
 /*
 =============================================================================
 
-					STATUS WINDOW STUFF
+                                        STATUS WINDOW STUFF
 
 =============================================================================
 */
 
-#define STATUSDRAWPIC(x, y, picnum)			LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
+#define STATUSDRAWPIC(x, y, picnum) LatchDrawPic((x), (y + (200 - STATUSLINES)), (picnum))
 
 
 /*
@@ -500,31 +558,34 @@ void ControlMovement(
 =
 ==================
 */
-void StatusAllDrawPic(Uint16 x, Uint16 y, Uint16 picnum)
+void StatusAllDrawPic(
+    Uint16 x,
+    Uint16 y,
+    Uint16 picnum)
 {
-	Uint16	temp;
+    Uint16 temp;
 
 #ifdef PAGEFLIP
 
-	temp = static_cast<Uint16>(bufferofs);
-	bufferofs = PAGE1START+(200-STATUSLINES)*SCREENWIDTH;
-	LatchDrawPic (x,y,picnum);
-	bufferofs = PAGE2START+(200-STATUSLINES)*SCREENWIDTH;
-	LatchDrawPic (x,y,picnum);
-	bufferofs = PAGE3START+(200-STATUSLINES)*SCREENWIDTH;
-	LatchDrawPic (x,y,picnum);
-	bufferofs = temp;
+    temp = static_cast<Uint16>(bufferofs);
+    bufferofs = PAGE1START + (200 - STATUSLINES) * SCREENWIDTH;
+    LatchDrawPic(x, y, picnum);
+    bufferofs = PAGE2START + (200 - STATUSLINES) * SCREENWIDTH;
+    LatchDrawPic(x, y, picnum);
+    bufferofs = PAGE3START + (200 - STATUSLINES) * SCREENWIDTH;
+    LatchDrawPic(x, y, picnum);
+    bufferofs = temp;
 
 #else
 
-	temp = bufferofs;
-	bufferofs = screenloc[0]+(200-STATUSLINES)*SCREENWIDTH;
-	LatchDrawPic (x,y,picnum);
-	bufferofs = screenloc[1]+(200-STATUSLINES)*SCREENWIDTH;
-	LatchDrawPic (x,y,picnum);
-	bufferofs = screenloc[2]+(200-STATUSLINES)*SCREENWIDTH;
-	LatchDrawPic (x,y,picnum);
-	bufferofs = temp;
+    temp = bufferofs;
+    bufferofs = screenloc[0] + (200 - STATUSLINES) * SCREENWIDTH;
+    LatchDrawPic(x, y, picnum);
+    bufferofs = screenloc[1] + (200 - STATUSLINES) * SCREENWIDTH;
+    LatchDrawPic(x, y, picnum);
+    bufferofs = screenloc[2] + (200 - STATUSLINES) * SCREENWIDTH;
+    LatchDrawPic(x, y, picnum);
+    bufferofs = temp;
 
 #endif
 
@@ -540,44 +601,46 @@ void StatusAllDrawPic(Uint16 x, Uint16 y, Uint16 picnum)
 =
 ===============
 */
-void	LatchNumber (Sint16 x, Sint16 y, Sint16 width, Sint32 number)
+void LatchNumber(
+    Sint16 x,
+    Sint16 y,
+    Sint16 width,
+    Sint32 number)
 {
-	Uint16	length,wide=0,c;
-	char	str[20];
+    Uint16 length, wide = 0, c;
+    char str[20];
 
     bstone::C::xitoa(number, str, 10);
 
-	length =	static_cast<Uint16>(strlen(str));
+    length = static_cast<Uint16>(strlen(str));
 
-	while ((length<width) && (wide < width))
-	{
-		STATUSDRAWPIC(x,y,N_BLANKPIC);
-		x++;
-		wide++;
-		length++;
-	}
+    while ((length < width) && (wide < width)) {
+        STATUSDRAWPIC(x, y, N_BLANKPIC);
+        x++;
+        wide++;
+        length++;
+    }
 
-	c = 0;
+    c = 0;
 
-	while (wide<width)
-	{
-		STATUSDRAWPIC (x,y,str[c]-'0'+ N_0PIC);
-		x++;
-		c++;
-		wide++;
-	}
+    while (wide < width) {
+        STATUSDRAWPIC(x, y, str[c] - '0' + N_0PIC);
+        x++;
+        c++;
+        wide++;
+    }
 }
 
 
 
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//								SCORE DISPLAY ROUTINES
+//                                                              SCORE DISPLAY ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
 
 namespace {
@@ -632,7 +695,8 @@ void DrawHealthMonitor()
                     use_carry = true;
                 } else if (ecg_legend[i] == 2 && ecg_segments[i] == 13) {
                     use_carry = true;
-                } if (ecg_legend[i] == 3 &&
+                }
+                if (ecg_legend[i] == 3 &&
                     (ecg_segments[i] == 22 || ecg_segments[i] == 27))
                 {
                     use_carry = true;
@@ -647,7 +711,8 @@ void DrawHealthMonitor()
                         skip = true;
                     } else if (ecg_legend[i] == 2 && ecg_segments[i] > 17) {
                         skip = true;
-                    } if (ecg_legend[i] == 3 && ecg_segments[i] > 27) {
+                    }
+                    if (ecg_legend[i] == 3 && ecg_segments[i] > 27) {
                         skip = true;
                     }
 
@@ -718,7 +783,7 @@ void DrawHealthMonitor()
     }
 
     ::CA_CacheGrChunk(
-            static_cast<Sint16>(heart_picture_index));
+        static_cast<Sint16>(heart_picture_index));
 
     ::VWB_DrawPic(
         120,
@@ -726,28 +791,29 @@ void DrawHealthMonitor()
         heart_picture_index);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawHealth()
 //
 // PURPOSE : Marks the Health_NUM to be refreshed durring the next
-//				 StatusBarRefresh.
-//--------------------------------------------------------------------------
-void DrawHealth ()
+//                               StatusBarRefresh.
+// --------------------------------------------------------------------------
+void DrawHealth()
 {
 #ifdef BSTONE_PS
-	char *ptr = gamestate.health_str;
+    char* ptr = gamestate.health_str;
 
     bstone::C::xitoa(gamestate.health, gamestate.health_str, 10);
-	while (*ptr)
-		*ptr++ -= '0';
+    while (*ptr) {
+        *ptr++ -= '0';
+    }
 #endif
 
-	DrawHealthNum_COUNT=3;
+    DrawHealthNum_COUNT = 3;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawHealthNum()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DrawHealthNum()
 {
 #ifdef BSTONE_AOG
@@ -791,227 +857,229 @@ void DrawHealthNum()
 
     DrawHealthNum_COUNT -= 1;
 #else
-	char loop,num;
-	Sint16 check=100;
+    char loop, num;
+    Sint16 check = 100;
 
-	DrawHealthNum_COUNT--;
+    DrawHealthNum_COUNT--;
 
-	for (loop=num=0; loop<3; loop++,check /= 10)
-		if (gamestate.health < check)
-			LatchDrawPic(16+loop,162,NG_BLANKPIC);
-		else
-			LatchDrawPic(16+loop,162,gamestate.health_str[static_cast<int>(num++)]+NG_0PIC);
+    for (loop = num = 0; loop < 3; loop++, check /= 10) {
+        if (gamestate.health < check) {
+            LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
+        } else {
+            LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
+        }
+    }
 #endif
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // TakeDamage()
-//---------------------------------------------------------------------------
-void	TakeDamage (Sint16 points, objtype *attacker)
+// ---------------------------------------------------------------------------
+void TakeDamage(
+    Sint16 points,
+    objtype* attacker)
 {
-	LastAttacker = attacker;
+    LastAttacker = attacker;
 
-	if (gamestate.flags & GS_ATTACK_INFOAREA)
-		if (attacker)
-		{
-			if ((LastMsgType == MT_ATTACK) && (LastInfoAttacker == attacker->obclass))
-				MsgTicsRemain = DISPLAY_MSG_STD_TIME;
-			else
-			{
-				if (DISPLAY_TIMED_MSG(ActorInfoMsg[attacker->obclass-rentacopobj],MP_TAKE_DAMAGE,MT_ATTACK))
-            {
-					LastInfoAttacker = attacker->obclass;
+    if (gamestate.flags & GS_ATTACK_INFOAREA) {
+        if (attacker) {
+            if ((LastMsgType == MT_ATTACK) && (LastInfoAttacker == attacker->obclass)) {
+                MsgTicsRemain = DISPLAY_MSG_STD_TIME;
+            } else {
+                if (DISPLAY_TIMED_MSG(ActorInfoMsg[attacker->obclass - rentacopobj], MP_TAKE_DAMAGE, MT_ATTACK)) {
+                    LastInfoAttacker = attacker->obclass;
 #ifdef BSTONE_PS
-               LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
+                    LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
 #endif
+                }
             }
-			}
-		}
+        }
+    }
 
-	if (godmode)
-		return;
+    if (godmode) {
+        return;
+    }
 
-	if (gamestate.difficulty==gd_baby)
-	  points>>=2;
+    if (gamestate.difficulty == gd_baby) {
+        points >>= 2;
+    }
 
-	gamestate.health -= points;
+    gamestate.health -= points;
 
-	if (gamestate.health<=0)
-	{
-		gamestate.health = 0;
-		playstate = ex_died;
-		killerobj = attacker;
-		if (killerobj)
-			killerobj->flags |= FL_FREEZE;
-	}
+    if (gamestate.health <= 0) {
+        gamestate.health = 0;
+        playstate = ex_died;
+        killerobj = attacker;
+        if (killerobj) {
+            killerobj->flags |= FL_FREEZE;
+        }
+    }
 
-	StartDamageFlash (points);
-	DrawHealth();
+    StartDamageFlash(points);
+    DrawHealth();
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // HealSelf()
-//---------------------------------------------------------------------------
-void	HealSelf(Sint16 points)
+// ---------------------------------------------------------------------------
+void HealSelf(
+    Sint16 points)
 {
-	gamestate.health += points;
-	if (gamestate.health > 100)
-		gamestate.health = 100;
+    gamestate.health += points;
+    if (gamestate.health > 100) {
+        gamestate.health = 100;
+    }
 
-	DrawHealth ();
+    DrawHealth();
 }
 
 
 
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//								SCORE DISPLAY ROUTINES
+//                                                              SCORE DISPLAY ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawScore()
 //
 // PURPOSE : Marks the Score to be refreshed durring the next
-//				 StatusBarRefresh.
-//--------------------------------------------------------------------------
-void	DrawScore()
+//                               StatusBarRefresh.
+// --------------------------------------------------------------------------
+void DrawScore()
 {
-	DrawScoreNum_COUNT = 3;
+    DrawScoreNum_COUNT = 3;
 }
 
 extern Uint8 music_num;
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawScoreNum()
 //
 // NOTE : Could do some sort of "scrolling" animation on LED screen with
-//			 chars and a simple table.....
-//--------------------------------------------------------------------------
-void	DrawScoreNum()
+//                       chars and a simple table.....
+// --------------------------------------------------------------------------
+void DrawScoreNum()
 {
-	#define Y	3
-	#define X	32
+#define Y 3
+#define X 32
 
-	if (gamestate.tic_score > MAX_DISPLAY_SCORE)
-	{
-		if (gamestate.score_roll_wait)
-		{
-			LatchDrawPic(X+0,(200-STATUSLINES)+Y,N_BLANKPIC);
-			LatchDrawPic(X+1,(200-STATUSLINES)+Y,N_DASHPIC);
-			LatchDrawPic(X+2,(200-STATUSLINES)+Y,N_RPIC);
-			LatchDrawPic(X+3,(200-STATUSLINES)+Y,N_OPIC);
-			LatchDrawPic(X+4,(200-STATUSLINES)+Y,N_LPIC);
-			LatchDrawPic(X+5,(200-STATUSLINES)+Y,N_LPIC);
-			LatchDrawPic(X+6,(200-STATUSLINES)+Y,N_DASHPIC);
-		}
-		else
-		{
-			LatchNumber(X,Y,7,gamestate.tic_score%(MAX_DISPLAY_SCORE+1));
-		}
-	}
-	else
-	{
-		if (gamestate.flags & GS_TICS_FOR_SCORE)
-			LatchNumber(X,Y,7,realtics);
-		else
-		if (gamestate.flags & GS_MUSIC_TEST)
-			LatchNumber(X,Y,7,music_num);
-		else
-			LatchNumber(X,Y,7,gamestate.tic_score);
-	}
+    if (gamestate.tic_score > MAX_DISPLAY_SCORE) {
+        if (gamestate.score_roll_wait) {
+            LatchDrawPic(X + 0, (200 - STATUSLINES) + Y, N_BLANKPIC);
+            LatchDrawPic(X + 1, (200 - STATUSLINES) + Y, N_DASHPIC);
+            LatchDrawPic(X + 2, (200 - STATUSLINES) + Y, N_RPIC);
+            LatchDrawPic(X + 3, (200 - STATUSLINES) + Y, N_OPIC);
+            LatchDrawPic(X + 4, (200 - STATUSLINES) + Y, N_LPIC);
+            LatchDrawPic(X + 5, (200 - STATUSLINES) + Y, N_LPIC);
+            LatchDrawPic(X + 6, (200 - STATUSLINES) + Y, N_DASHPIC);
+        } else {
+            LatchNumber(X, Y, 7, gamestate.tic_score % (MAX_DISPLAY_SCORE + 1));
+        }
+    } else {
+        if (gamestate.flags & GS_TICS_FOR_SCORE) {
+            LatchNumber(X, Y, 7, realtics);
+        } else if (gamestate.flags & GS_MUSIC_TEST) {
+            LatchNumber(X, Y, 7, music_num);
+        } else {
+            LatchNumber(X, Y, 7, gamestate.tic_score);
+        }
+    }
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // UpdateScore()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void UpdateScore()
 {
-	Sint32 score_diff, temp_tics;
+    Sint32 score_diff, temp_tics;
 
-	score_diff = gamestate.score - gamestate.tic_score;
+    score_diff = gamestate.score - gamestate.tic_score;
 
-	if (score_diff)
-	{
-		if (score_diff > 1500)
-			temp_tics = score_diff>>2;
-		else
-			temp_tics = tics<<3;
+    if (score_diff) {
+        if (score_diff > 1500) {
+            temp_tics = score_diff >> 2;
+        } else {
+            temp_tics = tics << 3;
+        }
 
-		if (score_diff > temp_tics)
-			gamestate.tic_score += temp_tics;
-		else
-			gamestate.tic_score = gamestate.score;
+        if (score_diff > temp_tics) {
+            gamestate.tic_score += temp_tics;
+        } else {
+            gamestate.tic_score = gamestate.score;
+        }
 
-		DrawScore();
-	}
+        DrawScore();
+    }
 
 
-	if (gamestate.score_roll_wait)
-	{
-		if ((gamestate.score_roll_wait-=tics) <= 0)
-		{
-			gamestate.score_roll_wait = 0;
-		}
-		DrawScore();
-	}
+    if (gamestate.score_roll_wait) {
+        if ((gamestate.score_roll_wait -= tics) <= 0) {
+            gamestate.score_roll_wait = 0;
+        }
+        DrawScore();
+    }
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // GivePoints()
 //
-// .score 		= Holds real score
+// .score               = Holds real score
 // .tic_score  = Holds displayed score (tic'ing toward .score)
 //
-//--------------------------------------------------------------------------
-void GivePoints(Sint32 points,boolean add_to_stats)
+// --------------------------------------------------------------------------
+void GivePoints(
+    Sint32 points,
+    boolean add_to_stats)
 {
 // Add score to statistics.
 //
-	if (add_to_stats)
-		gamestuff.level[gamestate.mapon].stats.accum_points += points;
+    if (add_to_stats) {
+        gamestuff.level[gamestate.mapon].stats.accum_points += points;
+    }
 
 // Check for bonuses!
 //
-	CheckPinballBonus(points);
+    CheckPinballBonus(points);
 
 // Add points to score
 //
-	gamestate.score += points;
+    gamestate.score += points;
 }
 
-//===========================================================================
+// ===========================================================================
 //
 //
 //                      SECURITY KEY DISPLAY ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawKeys()
 //
 // PURPOSE : Marks the security key pics to be refreshed during the next
-//				 StatusBarRefresh.
-//---------------------------------------------------------------------------
-void DrawKeys ()
+//                               StatusBarRefresh.
+// ---------------------------------------------------------------------------
+void DrawKeys()
 {
-	DrawKeyPics_COUNT = 3;
+    DrawKeyPics_COUNT = 3;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawKeyPics()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawKeyPics()
 {
-	char loop;
+    char loop;
 
-	DrawKeyPics_COUNT--;
+    DrawKeyPics_COUNT--;
 
 #ifdef BSTONE_AOG
     static const int indices[NUMKEYS] = {
@@ -1044,247 +1112,249 @@ void DrawKeyPics()
             color);
     }
 #else
-	for (loop=0; loop<NUMKEYS; loop++)
-		if (gamestate.numkeys[static_cast<int>(loop)])
-			LatchDrawPic(15+2*loop,179,RED_KEYPIC+loop);
-		else
-			LatchDrawPic(15+2*loop,179,NO_KEYPIC);
+    for (loop = 0; loop < NUMKEYS; loop++) {
+        if (gamestate.numkeys[static_cast<int>(loop)]) {
+            LatchDrawPic(15 + 2 * loop, 179, RED_KEYPIC + loop);
+        } else {
+            LatchDrawPic(15 + 2 * loop, 179, NO_KEYPIC);
+        }
+    }
 #endif // BSTONE_AOG
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // GiveKey
-//---------------------------------------------------------------------------
-void GiveKey (Sint16 key)
+// ---------------------------------------------------------------------------
+void GiveKey(
+    Sint16 key)
 {
-	gamestate.numkeys[key]++;
-	DrawKeys();
+    gamestate.numkeys[key]++;
+    DrawKeys();
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // TakeKey
-//---------------------------------------------------------------------------
-void TakeKey (Sint16 key)
+// ---------------------------------------------------------------------------
+void TakeKey(
+    Sint16 key)
 {
-	gamestate.numkeys[key]--;
-	DrawKeys();
+    gamestate.numkeys[key]--;
+    DrawKeys();
 }
 
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//                      	WEAPON DISPLAY ROUTINES
+//                              WEAPON DISPLAY ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawWeapon()
 //
 // PURPOSE : Marks the Weapon pics to be refreshed durring the next
-//				 StatusBarRefresh.
-//---------------------------------------------------------------------------
+//                               StatusBarRefresh.
+// ---------------------------------------------------------------------------
 void DrawWeapon()
 {
-	DrawWeaponPic_COUNT=3;
-	DrawAmmo(true);
+    DrawWeaponPic_COUNT = 3;
+    DrawAmmo(true);
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawWeaponPic()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawWeaponPic()
 {
-	if (gamestate.weapon == -1)
-		return;
+    if (gamestate.weapon == -1) {
+        return;
+    }
 
 #if BSTONE_AOG
-    LatchDrawPic(22,152,WEAPON1PIC+gamestate.weapon);
+    LatchDrawPic(22, 152, WEAPON1PIC + gamestate.weapon);
 #else
-	LatchDrawPic(31,176,WEAPON1PIC+gamestate.weapon);
+    LatchDrawPic(31, 176, WEAPON1PIC + gamestate.weapon);
 #endif
 
-	DrawWeaponPic_COUNT--;
+    DrawWeaponPic_COUNT--;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // GiveWeapon()
-//---------------------------------------------------------------------------
-void GiveWeapon (Sint16 weapon)
+// ---------------------------------------------------------------------------
+void GiveWeapon(
+    Sint16 weapon)
 {
-	GiveAmmo (6);
+    GiveAmmo(6);
 
-	if (!(gamestate.weapons & (1<<weapon)))
-	{
-		gamestate.weapons |= (1<<weapon);
+    if (!(gamestate.weapons & (1 << weapon))) {
+        gamestate.weapons |= (1 << weapon);
 
-		if (gamestate.weapon < weapon)
-		{
-			gamestate.weapon = static_cast<char>(weapon);
+        if (gamestate.weapon < weapon) {
+            gamestate.weapon = static_cast<char>(weapon);
             gamestate.chosenweapon = static_cast<char>(weapon);
-			DrawWeapon();
-		}
-	}
+            DrawWeapon();
+        }
+    }
 }
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//                      	AMMO DISPLAY ROUTINES
+//                              AMMO DISPLAY ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawAmmo()
 //
 // PURPOSE : Marks the AMMO NUM & AMMO PIC (if necessary) to be refreshed
-//				 durring the next StatusBarRefresh.
+//                               durring the next StatusBarRefresh.
 //
 // NOTE : This re-computes the number of LEDs to be lit.
-//---------------------------------------------------------------------------
-void DrawAmmo(boolean ForceRefresh)
+// ---------------------------------------------------------------------------
+void DrawAmmo(
+    boolean ForceRefresh)
 {
-	Sint16 temp;
-   Uint16 ammo,max_ammo;
+    Sint16 temp;
+    Uint16 ammo, max_ammo;
 
-   ComputeAvailWeapons();
+    ComputeAvailWeapons();
 
-   //
-   // Which weapon are we needing a refresh for?
-   //
+    //
+    // Which weapon are we needing a refresh for?
+    //
 
-	switch (gamestate.weapon)
-	{
+    switch (gamestate.weapon) {
 //      case wp_plasma_detonators:
-//			DrawAmmoPic_COUNT = 3;
-//			DrawAmmoNum_COUNT = 0;
-//		return;
+//                      DrawAmmoPic_COUNT = 3;
+//                      DrawAmmoNum_COUNT = 0;
+//              return;
 
-		case wp_autocharge:
-			DrawAmmoPic_COUNT = 3;
-			DrawAmmoNum_COUNT = 0;
-		return;
+    case wp_autocharge:
+        DrawAmmoPic_COUNT = 3;
+        DrawAmmoNum_COUNT = 0;
+        return;
 
-      default:
-      	ammo = gamestate.ammo;
-         max_ammo = MAX_AMMO;
-      break;
-	}
+    default:
+        ammo = gamestate.ammo;
+        max_ammo = MAX_AMMO;
+        break;
+    }
 
-	if (ammo)
-	{
-		temp = (ammo*NUM_AMMO_SEGS)/max_ammo;
-		if (!temp)
-			temp = 1;
-	}
-	else
-		temp = 0;
+    if (ammo) {
+        temp = (ammo * NUM_AMMO_SEGS) / max_ammo;
+        if (!temp) {
+            temp = 1;
+        }
+    } else {
+        temp = 0;
+    }
 
-	gamestate.ammo_leds = static_cast<char>(temp);
+    gamestate.ammo_leds = static_cast<char>(temp);
 
-	if ((temp != gamestate.lastammo_leds) || ForceRefresh)
-	{
-		gamestate.lastammo_leds = static_cast<char>(temp);
-		DrawAmmoPic_COUNT = 3;
-	}
+    if ((temp != gamestate.lastammo_leds) || ForceRefresh) {
+        gamestate.lastammo_leds = static_cast<char>(temp);
+        DrawAmmoPic_COUNT = 3;
+    }
 
-	DrawAmmoNum_COUNT=3;
+    DrawAmmoNum_COUNT = 3;
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawAmmoNum()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawAmmoNum()
 {
-	if (gamestate.weapon == -1)
-		return;
+    if (gamestate.weapon == -1) {
+        return;
+    }
 
-	fontnumber = 2;
-	fontcolor = 0x9D;
+    fontnumber = 2;
+    fontcolor = 0x9D;
 
 #ifdef BSTONE_AOG
     PrintX = 211;
 #else
-	PrintX = 252;
+    PrintX = 252;
 #endif
-	PrintY = 200-STATUSLINES+38;
+    PrintY = 200 - STATUSLINES + 38;
 
 #ifdef BSTONE_AOG
-	switch (gamestate.weapon)
-	{
-		case wp_autocharge:
-      break;
+    switch (gamestate.weapon) {
+    case wp_autocharge:
+        break;
 
-      default:
-		   DrawGAmmoNum();
-      break;
-	}
+    default:
+        DrawGAmmoNum();
+        break;
+    }
 #else
 
-   DrawGAmmoNum();
+    DrawGAmmoNum();
 
 #endif
 
-	DrawAmmoNum_COUNT--;
+    DrawAmmoNum_COUNT--;
 }
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawGAmmoNum()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawGAmmoNum()
 {
-	char	buffer[32];
+    char buffer[32];
 
-	if (gamestate.ammo <100)
-	{
-		PrintX+=AMMO_SMALL_FONT_NUM_WIDTH;
-		if (gamestate.ammo <10)
-			PrintX+=AMMO_SMALL_FONT_NUM_WIDTH;
-	}
+    if (gamestate.ammo < 100) {
+        PrintX += AMMO_SMALL_FONT_NUM_WIDTH;
+        if (gamestate.ammo < 10) {
+            PrintX += AMMO_SMALL_FONT_NUM_WIDTH;
+        }
+    }
 
 #ifdef BSTONE_PS
-	LatchDrawPic(31,184,W1_CORNERPIC+gamestate.weapon);
+    LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
 #endif
 
-   px = PrintX;
-   py = PrintY;
-	VW_DrawPropString(bstone::C::xitoa(gamestate.ammo, buffer, 10));
-	VW_DrawPropString("%");
+    px = PrintX;
+    py = PrintY;
+    VW_DrawPropString(bstone::C::xitoa(gamestate.ammo, buffer, 10));
+    VW_DrawPropString("%");
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawAmmoPic()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawAmmoPic()
 {
-	switch (gamestate.weapon)
-	{
-		case wp_autocharge:
-			DrawAmmoMsg();
-      break;
+    switch (gamestate.weapon) {
+    case wp_autocharge:
+        DrawAmmoMsg();
+        break;
 
-//		case wp_plasma_detonators:
-//			DrawPDAmmoMsg();
+//              case wp_plasma_detonators:
+//                      DrawPDAmmoMsg();
 //     break;
 
-      default:
-			DrawAmmoGuage();
-      break;
-   }
+    default:
+        DrawAmmoGuage();
+        break;
+    }
 
-	DrawAmmoPic_COUNT--;
+    DrawAmmoPic_COUNT--;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawAmmoMsg() -
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawAmmoMsg()
 {
     int x =
@@ -1293,116 +1363,126 @@ void DrawAmmoMsg()
 #else
         30
 #endif
-        ;
+    ;
 
-	if (gamestate.weapon_wait)
-		LatchDrawPic(x,(200-STATUSLINES),WAITPIC);
-	else
-		LatchDrawPic(x,(200-STATUSLINES),READYPIC);
+    if (gamestate.weapon_wait) {
+        LatchDrawPic(x, (200 - STATUSLINES), WAITPIC);
+    } else {
+        LatchDrawPic(x, (200 - STATUSLINES), READYPIC);
+    }
 }
 
 #ifdef BSTONE_PS
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawPDAmmoMsg() -
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawPDAmmoMsg()
 {
-	if (gamestate.plasma_detonators)
-		LatchDrawPic(30,(200-STATUSLINES),READYPIC);
-	else
-		LatchDrawPic(30,(200-STATUSLINES),WAITPIC);
+    if (gamestate.plasma_detonators) {
+        LatchDrawPic(30, (200 - STATUSLINES), READYPIC);
+    } else {
+        LatchDrawPic(30, (200 - STATUSLINES), WAITPIC);
+    }
 }
 #endif
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // UpdateAmmoMsg() -
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void UpdateAmmoMsg()
 {
-	if (gamestate.weapon_wait)
-		if ((gamestate.weapon_wait -= static_cast<char>(tics))<=0)
-		{
-			gamestate.weapon_wait = 0;
-			DrawAmmoPic_COUNT = 3;
-		}
+    if (gamestate.weapon_wait) {
+        if ((gamestate.weapon_wait -= static_cast<char>(tics)) <= 0) {
+            gamestate.weapon_wait = 0;
+            DrawAmmoPic_COUNT = 3;
+        }
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawAmmoGuage()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawAmmoGuage()
 {
 #ifdef BSTONE_AOG
-    DrawLedStrip(234,155,gamestate.ammo_leds,NUM_AMMO_SEGS);
+    DrawLedStrip(234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
 #else
-	DrawLedStrip(243,155,gamestate.ammo_leds,NUM_AMMO_SEGS);
+    DrawLedStrip(243, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
 #endif
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // UpdateRadarGuage()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void UpdateRadarGuage()
 {
 #ifdef BSTONE_PS
-	Sint16 temp;
+    Sint16 temp;
 
-	if (gamestate.rpower)
-	{
-		temp = ((Sint32)gamestate.rpower*NUM_AMMO_SEGS)/MAX_RADAR_ENERGY;
+    if (gamestate.rpower) {
+        temp = ((Sint32)gamestate.rpower * NUM_AMMO_SEGS) / MAX_RADAR_ENERGY;
 
-		if (temp > NUM_AMMO_SEGS)
-			temp = NUM_AMMO_SEGS;
+        if (temp > NUM_AMMO_SEGS) {
+            temp = NUM_AMMO_SEGS;
+        }
 
-		if (!temp)
-			temp = 1;
-	}
-	else
-		temp = 0;
+        if (!temp) {
+            temp = 1;
+        }
+    } else {
+        temp = 0;
+    }
 
-	gamestate.radar_leds = static_cast<char>(temp);
+    gamestate.radar_leds = static_cast<char>(temp);
 
-	if (temp != gamestate.lastradar_leds)
-		gamestate.lastradar_leds = static_cast<char>(temp);
+    if (temp != gamestate.lastradar_leds) {
+        gamestate.lastradar_leds = static_cast<char>(temp);
+    }
 
-	DrawRadarGuage_COUNT=3;
+    DrawRadarGuage_COUNT = 3;
 #endif
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawRadarGuage()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void DrawRadarGuage()
 {
 #ifdef BSTONE_PS
-	char zoom;
+    char zoom;
 
-	DrawLedStrip(235,155,gamestate.radar_leds,NUM_AMMO_SEGS);
+    DrawLedStrip(235, 155, gamestate.radar_leds, NUM_AMMO_SEGS);
 
-	if (gamestate.rpower)
-		zoom = gamestate.rzoom;
-	else
-		zoom = 0;
+    if (gamestate.rpower) {
+        zoom = gamestate.rzoom;
+    } else {
+        zoom = 0;
+    }
 
-	LatchDrawPic(22,152,ONEXZOOMPIC+zoom);
+    LatchDrawPic(22, 152, ONEXZOOMPIC + zoom);
 #endif // BSTONE_AOG
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DrawLedStrip()
-//---------------------------------------------------------------------------
-void DrawLedStrip(Sint16 x,Sint16 y,Sint16 frac,Sint16 max)
+// ---------------------------------------------------------------------------
+void DrawLedStrip(
+    Sint16 x,
+    Sint16 y,
+    Sint16 frac,
+    Sint16 max)
 {
-	Sint16 ypos;
-	Uint16 amount;
-	char leds;
+    Sint16 ypos;
+    Uint16 amount;
+    char leds;
 
-	leds = static_cast<char>(frac);
+    leds = static_cast<char>(frac);
 
-	if (leds)
-		amount = max-leds;
-	else
-		amount = max;
+    if (leds) {
+        amount = max - leds;
+    } else {
+        amount = max;
+    }
 
     int width =
 #ifdef BSTONE_AOG
@@ -1410,59 +1490,54 @@ void DrawLedStrip(Sint16 x,Sint16 y,Sint16 frac,Sint16 max)
 #else
         5
 #endif
-        ;
+    ;
 
 // Draw dim LEDs.
 //
-	for (ypos = 0;ypos < amount;ypos++)
-	{
-		VW_Hlin (x,x+(width-1),y++,DimAmmo[0][amount]);
-		VW_Hlin (x,x+(width-1),y++,DimAmmo[1][amount]);
-	}
+    for (ypos = 0; ypos < amount; ypos++) {
+        VW_Hlin(x, x + (width - 1), y++, DimAmmo[0][amount]);
+        VW_Hlin(x, x + (width - 1), y++, DimAmmo[1][amount]);
+    }
 
 // Draw lit LEDs.
 //
-	for (;ypos<NUM_AMMO_SEGS;ypos++)
-	{
-		VW_Hlin (x,x+(width-1),y++,LitAmmo[0][amount]);
-		VW_Hlin (x,x+(width-1),y++,LitAmmo[1][amount]);
-	}
+    for (; ypos < NUM_AMMO_SEGS; ypos++) {
+        VW_Hlin(x, x + (width - 1), y++, LitAmmo[0][amount]);
+        VW_Hlin(x, x + (width - 1), y++, LitAmmo[1][amount]);
+    }
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // GiveAmmo()
-//---------------------------------------------------------------------------
-void	GiveAmmo (Sint16 ammo)
+// ---------------------------------------------------------------------------
+void GiveAmmo(
+    Sint16 ammo)
 {
 
 #if MP_NO_MORE_AMMO > MP_BONUS
-	if (LastMsgType == MT_OUT_OF_AMMO)
-	{
-		MsgTicsRemain = 1;
-		LastMsgType = MT_CLEAR;
-	}
+    if (LastMsgType == MT_OUT_OF_AMMO) {
+        MsgTicsRemain = 1;
+        LastMsgType = MT_CLEAR;
+    }
 #endif
 
-	gamestate.ammo += ammo;
-	if (gamestate.ammo > MAX_AMMO)
-	{
-		gamestate.ammo = MAX_AMMO;
-	}
+    gamestate.ammo += ammo;
+    if (gamestate.ammo > MAX_AMMO) {
+        gamestate.ammo = MAX_AMMO;
+    }
 
-	DrawAmmo(false);
+    DrawAmmo(false);
 
 #ifdef BSTONE_AOG
     DrawWeapon();
 #else
-   if (gamestate.weapon != gamestate.chosenweapon)
-	{
-	   if (gamestate.useable_weapons & (1<<gamestate.chosenweapon))
-		{
-			gamestate.weapon = gamestate.chosenweapon;
-			DrawWeapon ();
-     	}
-	}
+    if (gamestate.weapon != gamestate.chosenweapon) {
+        if (gamestate.useable_weapons & (1 << gamestate.chosenweapon)) {
+            gamestate.weapon = gamestate.chosenweapon;
+            DrawWeapon();
+        }
+    }
 #endif
 
     ::sd_play_player_sound(GETAMMOSND, bstone::AC_ITEM);
@@ -1470,355 +1545,359 @@ void	GiveAmmo (Sint16 ammo)
 
 #if 0
 #if MP_NO_MORE_AMMO > MP_BONUS
-	if (LastMsgType == MT_OUT_OF_AMMO)
-	{
-		MsgTicsRemain = 1;
-		LastMsgType = MT_CLEAR;
-	}
+    if (LastMsgType == MT_OUT_OF_AMMO) {
+        MsgTicsRemain = 1;
+        LastMsgType = MT_CLEAR;
+    }
 #endif
 
-	gamestate.ammo += ammo;
-	if (gamestate.ammo > MAX_AMMO)
-	{
-		gamestate.ammo = MAX_AMMO;
-	}
+    gamestate.ammo += ammo;
+    if (gamestate.ammo > MAX_AMMO) {
+        gamestate.ammo = MAX_AMMO;
+    }
 
-   // JIM - This needs to be optomized.
+    // JIM - This needs to be optomized.
 
-   if (gamestate.weapon != gamestate.chosenweapon)
-	{
-	   if (!((gamestate.chosenweapon == wp_grenade) && (gamestate.ammo < GRENADE_ENERGY_USE)) ||
-		    !((gamestate.chosenweapon == wp_bfg_cannon) && (gamestate.ammo < BFG_ENERGY_USE)))
-		{
-			gamestate.weapon = gamestate.chosenweapon;
-			DrawWeapon ();
-     	}
-	}
+    if (gamestate.weapon != gamestate.chosenweapon) {
+        if (!((gamestate.chosenweapon == wp_grenade) && (gamestate.ammo < GRENADE_ENERGY_USE)) ||
+            !((gamestate.chosenweapon == wp_bfg_cannon) && (gamestate.ammo < BFG_ENERGY_USE)))
+        {
+            gamestate.weapon = gamestate.chosenweapon;
+            DrawWeapon();
+        }
+    }
 
-	DrawAmmo(false);
-	SD_PlaySound (GETAMMOSND);
+    DrawAmmo(false);
+    SD_PlaySound(GETAMMOSND);
 #endif
 }
 
 
-//---------------------------------------------------------------------------
-//ComputeAvailWeapons()
+// ---------------------------------------------------------------------------
+// ComputeAvailWeapons()
 //
 // This function creates a Bit MASK for gamestate.weapons according to what
 // weapon is available for useage due to ammo avail.
 //
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void ComputeAvailWeapons()
 {
 
-   //
-   // Determine what ammo ammounts we have avail
-   //
+    //
+    // Determine what ammo ammounts we have avail
+    //
 
-   if (gamestate.ammo)
-   {
+    if (gamestate.ammo) {
 #ifdef BSTONE_PS
-	   if (gamestate.ammo >= BFG_ENERGY_USE)
-			gamestate.useable_weapons = (1<<wp_bfg_cannon)
-			                          | (1<<wp_grenade)
-			                          | (1<<wp_ion_cannon)
-			                          | (1<<wp_burst_rifle)
-			                          | (1<<wp_pistol)
-                                   | (1<<wp_autocharge);
-		else
+        if (gamestate.ammo >= BFG_ENERGY_USE) {
+            gamestate.useable_weapons = (1 << wp_bfg_cannon)
+                                        | (1 << wp_grenade)
+                                        | (1 << wp_ion_cannon)
+                                        | (1 << wp_burst_rifle)
+                                        | (1 << wp_pistol)
+                                        | (1 << wp_autocharge);
+        } else
 #endif
-		   if (gamestate.ammo >= GRENADE_ENERGY_USE)
-				gamestate.useable_weapons = (1<<wp_grenade)
-				                          | (1<<wp_ion_cannon)
-			                             | (1<<wp_burst_rifle)
-			                             | (1<<wp_pistol)
-                                      | (1<<wp_autocharge);
-         else
-				gamestate.useable_weapons = (1<<wp_ion_cannon)
-												  | (1<<wp_burst_rifle)
-				                          | (1<<wp_pistol)
-		                                | (1<<wp_autocharge);
-   }
-   else
-		gamestate.useable_weapons = (1<<wp_autocharge);
+        if (gamestate.ammo >= GRENADE_ENERGY_USE) {
+            gamestate.useable_weapons = (1 << wp_grenade)
+                                        | (1 << wp_ion_cannon)
+                                        | (1 << wp_burst_rifle)
+                                        | (1 << wp_pistol)
+                                        | (1 << wp_autocharge);
+        } else {
+            gamestate.useable_weapons = (1 << wp_ion_cannon)
+                                        | (1 << wp_burst_rifle)
+                                        | (1 << wp_pistol)
+                                        | (1 << wp_autocharge);
+        }
+    } else {
+        gamestate.useable_weapons = (1 << wp_autocharge);
+    }
 
-   //
-   // Do special weapons.
-   //
+    //
+    // Do special weapons.
+    //
 
 //   if (gamestate.plasma_detonators)
-//		gamestate.useable_weapons |= (1<<wp_plasma_detonators);
+//              gamestate.useable_weapons |= (1<<wp_plasma_detonators);
 
-	//
-   // mask off with the weapons being carried.
-   //
+    //
+    // mask off with the weapons being carried.
+    //
 
-	gamestate.useable_weapons &= gamestate.weapons;
+    gamestate.useable_weapons &= gamestate.weapons;
 
 }
 
 
 
 #ifdef BSTONE_PS
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // TakePlasmaDetonator()
-//---------------------------------------------------------------------------
-void	TakePlasmaDetonator(Sint16 count)
+// ---------------------------------------------------------------------------
+void TakePlasmaDetonator(
+    Sint16 count)
 {
-	if (gamestate.plasma_detonators < count)
-		gamestate.plasma_detonators = 0;
-	else
-		gamestate.plasma_detonators -= count;
+    if (gamestate.plasma_detonators < count) {
+        gamestate.plasma_detonators = 0;
+    } else {
+        gamestate.plasma_detonators -= count;
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // GivePlasmaDetonator()
-//---------------------------------------------------------------------------
-void GivePlasmaDetonator(Sint16 count)
+// ---------------------------------------------------------------------------
+void GivePlasmaDetonator(
+    Sint16 count)
 {
-	gamestate.plasma_detonators += count;
+    gamestate.plasma_detonators += count;
 
-	if (gamestate.plasma_detonators > MAX_PLASMA_DETONATORS)
-		gamestate.plasma_detonators = MAX_PLASMA_DETONATORS;
+    if (gamestate.plasma_detonators > MAX_PLASMA_DETONATORS) {
+        gamestate.plasma_detonators = MAX_PLASMA_DETONATORS;
+    }
 
 //   if (gamestate.chosenweapon == wp_plasma_detonators)
-//	{
-//		gamestate.weapon = gamestate.chosenweapon;
-//		DrawWeapon ();
-//	}
+//      {
+//              gamestate.weapon = gamestate.chosenweapon;
+//              DrawWeapon ();
+//      }
 
-	ComputeAvailWeapons();
+    ComputeAvailWeapons();
 }
 #endif
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // GiveToken()
-//---------------------------------------------------------------------------
-void	GiveToken (Sint16 tokens)
+// ---------------------------------------------------------------------------
+void GiveToken(
+    Sint16 tokens)
 {
 #if MP_NO_MORE_TOKENS > MP_BONUS
-	if (LastMsgType == MT_NO_MO_FOOD_TOKENS)
-	{
-		MsgTicsRemain = 1;
-		LastMsgType = MT_CLEAR;
-	}
+    if (LastMsgType == MT_NO_MO_FOOD_TOKENS) {
+        MsgTicsRemain = 1;
+        LastMsgType = MT_CLEAR;
+    }
 #endif
 
-	gamestate.tokens += tokens;
-	if (gamestate.tokens > MAX_TOKENS)
-	{
-		gamestate.tokens = MAX_TOKENS;
-	}
+    gamestate.tokens += tokens;
+    if (gamestate.tokens > MAX_TOKENS) {
+        gamestate.tokens = MAX_TOKENS;
+    }
 
     ::sd_play_player_sound(GOTTOKENSND, bstone::AC_ITEM);
 }
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//                      	 INFO AREA ROUTINES
+//                               INFO AREA ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DisplayInfoMsg() - Returns if Higher Pri message is holding.
 //
-// SEE MACROS:	 DISPLAY_TIMED_MSG() & DISPLAY_MSG()					-- Def.h
+// SEE MACROS:   DISPLAY_TIMED_MSG() & DISPLAY_MSG()                                    -- Def.h
 //
-//		 DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
-//     DISPLAY_MSG(msg,pri,type)		 - For E-Z NON-Timed Msgs.
-//--------------------------------------------------------------------------
-boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MsgType)
+//               DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
+//     DISPLAY_MSG(msg,pri,type)                 - For E-Z NON-Timed Msgs.
+// --------------------------------------------------------------------------
+boolean DisplayInfoMsg(
+    const char* Msg,
+    msg_priorities Priority,
+    Sint16 DisplayTime,
+    Sint16 MsgType)
 {
-	if (Priority >= LastMsgPri)
-	{
-		if (Priority == MP_max_val)			// "System" msgs
-			LastMsgPri = MP_min_val;
-		else
-			LastMsgPri = static_cast<Uint16>(Priority);
+    if (Priority >= LastMsgPri) {
+        if (Priority == MP_max_val) {                           // "System" msgs
+            LastMsgPri = MP_min_val;
+        } else {
+            LastMsgPri = static_cast<Uint16>(Priority);
+        }
 
-		if ((MsgTicsRemain = DisplayTime) != 0)
-			StatusAllDrawPic(0,40,BRI_LIGHTPIC);
+        if ((MsgTicsRemain = DisplayTime) != 0) {
+            StatusAllDrawPic(0, 40, BRI_LIGHTPIC);
+        }
 
-		gamestate.msg = Msg;
+        gamestate.msg = Msg;
 
-      DrawInfoArea_COUNT = InitInfoArea_COUNT = 3;
+        DrawInfoArea_COUNT = InitInfoArea_COUNT = 3;
 
-      LastMsgType = static_cast<infomsg_type>(MsgType);
+        LastMsgType = static_cast<infomsg_type>(MsgType);
 
 #ifdef BSTONE_PS
-      if (LastMsgType != MT_ATTACK)
-      	LastInfoAttacker_Cloaked = 0;
+        if (LastMsgType != MT_ATTACK) {
+            LastInfoAttacker_Cloaked = 0;
+        }
 #endif
 
-		return(true);
-	}
-	else
-		return(false);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ClearInfoArea()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void ClearInfoArea()
 {
 #if IN_DEVELOPMENT
-	if (gamestate.flags & GS_SHOW_OVERHEAD)
-		return;
+    if (gamestate.flags & GS_SHOW_OVERHEAD) {
+        return;
+    }
 #endif
 
-	if (ClearInfoArea_COUNT)
-	   ClearInfoArea_COUNT--;
+    if (ClearInfoArea_COUNT) {
+        ClearInfoArea_COUNT--;
+    }
 
-	InfoAreaSetup.x = InfoAreaSetup.left_margin;
-	InfoAreaSetup.y = INFOAREA_Y;
-	InfoAreaSetup.framecount = InfoAreaSetup.numanims = 0;
+    InfoAreaSetup.x = InfoAreaSetup.left_margin;
+    InfoAreaSetup.y = INFOAREA_Y;
+    InfoAreaSetup.framecount = InfoAreaSetup.numanims = 0;
 
-	LatchDrawPic(0,200-STATUSLINES,INFOAREAPIC);
+    LatchDrawPic(0, 200 - STATUSLINES, INFOAREAPIC);
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // InitInfoArea()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void InitInfoArea()
 {
-	InfoAreaSetup.left_margin = INFOAREA_X;
-	InfoAreaSetup.text_color = INFOAREA_TCOLOR;
-	InfoAreaSetup.backgr_color = INFOAREA_BCOLOR;
-	InitInfoArea_COUNT--;
+    InfoAreaSetup.left_margin = INFOAREA_X;
+    InfoAreaSetup.text_color = INFOAREA_TCOLOR;
+    InfoAreaSetup.backgr_color = INFOAREA_BCOLOR;
+    InitInfoArea_COUNT--;
 
-	ClearInfoArea();
+    ClearInfoArea();
 }
 
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // UpdateInfoArea()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void UpdateInfoArea()
 {
 
-	if (InfoAreaSetup.numanims)
-	{
-		AnimatePage();
-	}
+    if (InfoAreaSetup.numanims) {
+        AnimatePage();
+    }
 
-	if (InitInfoArea_COUNT)
-		InitInfoArea();
-	else
-	if (ClearInfoArea_COUNT)
-		ClearInfoArea();
+    if (InitInfoArea_COUNT) {
+        InitInfoArea();
+    } else if (ClearInfoArea_COUNT) {
+        ClearInfoArea();
+    }
 
-	if (DrawInfoArea_COUNT)
-		DrawInfoArea();
+    if (DrawInfoArea_COUNT) {
+        DrawInfoArea();
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // UpdateInfoAreaClock() - This routine is called ONLY ONCE per refresh
-//								   to update the InfoArea Clock and to release
-//								   any messages that have expired.
-//---------------------------------------------------------------------------
+//                                                                 to update the InfoArea Clock and to release
+//                                                                 any messages that have expired.
+// ---------------------------------------------------------------------------
 void UpdateInfoAreaClock()
 {
 
-  	if (playstate == ex_title || playstate == ex_victorious)
-		return;
+    if (playstate == ex_title || playstate == ex_victorious) {
+        return;
+    }
 
-	//
-	// Check for existing timed messages
-	//
+    //
+    // Check for existing timed messages
+    //
 
-	if (LastMsgPri && MsgTicsRemain)
-	{
-		//
-		// Tic' that 'Puppy' down - Yea!
-		//
+    if (LastMsgPri && MsgTicsRemain) {
+        //
+        // Tic' that 'Puppy' down - Yea!
+        //
 
-		if ((MsgTicsRemain -= tics) <= 0)
-		{
-			// Message has expired.
-			DisplayNoMoMsgs();
-		}
-	}
+        if ((MsgTicsRemain -= tics) <= 0) {
+            // Message has expired.
+            DisplayNoMoMsgs();
+        }
+    }
 
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DisplayTokens()
-//---------------------------------------------------------------------------
-char default_msg[] = {   "\r    NO MESSAGES."
-						  "^FCA8\r    FOOD TOKENS:      "
-						  "                                 "
-						  };
+// ---------------------------------------------------------------------------
+char default_msg[] = { "\r    NO MESSAGES."
+                       "^FCA8\r    FOOD TOKENS:      "
+                       "                                 " };
 
 #ifdef BSTONE_PS
-char needDetonator_msg[]="\r\r^FC39 FIND THE DETONATOR!";
+char needDetonator_msg[] = "\r\r^FC39 FIND THE DETONATOR!";
 
-char haveDetonator_msg[]="\r\r^FC39DESTROY SECURITY CUBE!";
+char haveDetonator_msg[] = "\r\r^FC39DESTROY SECURITY CUBE!";
 
-char destroyGoldfire_msg[]="\r\r^FC39  DESTROY GOLDFIRE!";
+char destroyGoldfire_msg[] = "\r\r^FC39  DESTROY GOLDFIRE!";
 #endif
 
 void DisplayNoMoMsgs()
 {
-	LastMsgPri = MP_min_val;
+    LastMsgPri = MP_min_val;
 
-	if (BONUS_QUEUE)
-	{
-		DisplayPinballBonus();
-		return;
-	}
+    if (BONUS_QUEUE) {
+        DisplayPinballBonus();
+        return;
+    }
 
-	MsgTicsRemain = 0;
-	StatusAllDrawPic (0,40,DIM_LIGHTPIC);
-	sprintf((char *)&default_msg[40],"%-d",gamestate.tokens);
-	if (gamestuff.level[gamestate.mapon+1].locked)
-	{
-		switch (gamestate.mapon)
-		{
-			case 19:
+    MsgTicsRemain = 0;
+    StatusAllDrawPic(0, 40, DIM_LIGHTPIC);
+    sprintf((char*)&default_msg[40], "%-d", gamestate.tokens);
+    if (gamestuff.level[gamestate.mapon + 1].locked) {
+        switch (gamestate.mapon) {
+        case 19:
 #ifdef BSTONE_PS
-				strcat(default_msg,destroyGoldfire_msg);
+            strcat(default_msg, destroyGoldfire_msg);
 #endif
-			break;
+            break;
 
-			case 20:
-			case 21:
-			case 22:
-			case 23:
-			break;
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+            break;
 
-			default:
+        default:
 #ifdef BSTONE_PS
-				if (gamestate.plasma_detonators)
-					strcat(default_msg,haveDetonator_msg);
-				else
-					strcat(default_msg,needDetonator_msg);
+            if (gamestate.plasma_detonators) {
+                strcat(default_msg, haveDetonator_msg);
+            } else {
+                strcat(default_msg, needDetonator_msg);
+            }
 #endif
-			break;
-		}
-	}
+            break;
+        }
+    }
 
-	DisplayInfoMsg(default_msg,MP_max_val,0,MT_NOTHING);
+    DisplayInfoMsg(default_msg, MP_max_val, 0, MT_NOTHING);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawInfoArea()
 //
 //
 // Active control codes:
 //
-//  ^ANnn			- define animation
-//  ^FCnn			- set font color
-//  ^LMnnn			- set left margin (if 'nnn' == "fff" uses current x)
-//  ^EP				- end of page (waits for 'M' to read MORE)
-//  ^PXnnn			- move x to coordinate 'n'
-//  ^PYnnn			- move y to coordinate 'n'
-//  ^SHnnn			- display shape 'n' at current x,y
-//  ^BGn	 			- set background color
-//  ^DM				- Default Margins
+//  ^ANnn                       - define animation
+//  ^FCnn                       - set font color
+//  ^LMnnn                      - set left margin (if 'nnn' == "fff" uses current x)
+//  ^EP                         - end of page (waits for 'M' to read MORE)
+//  ^PXnnn                      - move x to coordinate 'n'
+//  ^PYnnn                      - move y to coordinate 'n'
+//  ^SHnnn                      - display shape 'n' at current x,y
+//  ^BGn                                - set background color
+//  ^DM                         - Default Margins
 //
 // Other info:
 //
@@ -1835,31 +1914,35 @@ void DisplayNoMoMsgs()
 // sprite animations will be difficult to implement unless all frames are
 // of the same dimensions.
 //
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
-char *HandleControlCodes(char *first_ch);
+char* HandleControlCodes(
+    char* first_ch);
 
 
 void DrawInfoArea()
 {
-	#define IA_FONT_HEIGHT	6
+#define IA_FONT_HEIGHT 6
 
-//	Sint16 length,i;
-	char *first_ch;
-	char *scan_ch,temp;
+//      Sint16 length,i;
+    char* first_ch;
+    char* scan_ch, temp;
 
 #if IN_DEVELOPMENT
-	if (gamestate.flags & GS_SHOW_OVERHEAD)
-		return;
+    if (gamestate.flags & GS_SHOW_OVERHEAD) {
+        return;
+    }
 #endif
 
-	DrawInfoArea_COUNT--;
+    DrawInfoArea_COUNT--;
 
-    if (!gamestate.msg)
+    if (!gamestate.msg) {
         return;
+    }
 
-	if (!*gamestate.msg)
-		return;
+    if (!*gamestate.msg) {
+        return;
+    }
 
     std::vector<char> buffer(
         gamestate.msg,
@@ -1867,426 +1950,431 @@ void DrawInfoArea()
 
     first_ch = &buffer[0];
 
-	fontnumber = 2;
-	fontcolor = static_cast<Uint8>(InfoAreaSetup.text_color);
+    fontnumber = 2;
+    fontcolor = static_cast<Uint8>(InfoAreaSetup.text_color);
 
-	while (first_ch && *first_ch)
-	{
+    while (first_ch && *first_ch) {
 
-		if (*first_ch != TP_CONTROL_CHAR)
-		{
-			scan_ch = first_ch;
+        if (*first_ch != TP_CONTROL_CHAR) {
+            scan_ch = first_ch;
 
-			while ((*scan_ch) && (*scan_ch != '\n') && (*scan_ch != TP_RETURN_CHAR) && (*scan_ch != TP_CONTROL_CHAR))
-				scan_ch++;
+            while ((*scan_ch) && (*scan_ch != '\n') && (*scan_ch != TP_RETURN_CHAR) && (*scan_ch != TP_CONTROL_CHAR)) {
+                scan_ch++;
+            }
 
-			// print current line
-			//
+            // print current line
+            //
 
-			temp = *scan_ch;
-			*scan_ch = 0;
+            temp = *scan_ch;
+            *scan_ch = 0;
 
-			if (*first_ch != TP_RETURN_CHAR)
-			{
-				char temp_color;
+            if (*first_ch != TP_RETURN_CHAR) {
+                char temp_color;
 
-				temp_color = fontcolor;
-				fontcolor = INFOAREA_TSHAD_COLOR;
+                temp_color = fontcolor;
+                fontcolor = INFOAREA_TSHAD_COLOR;
 
-				px = InfoAreaSetup.x+1;
-				py = InfoAreaSetup.y+1;
-				VW_DrawPropString(first_ch);
-				fontcolor = temp_color;
+                px = InfoAreaSetup.x + 1;
+                py = InfoAreaSetup.y + 1;
+                VW_DrawPropString(first_ch);
+                fontcolor = temp_color;
 
-				px = InfoAreaSetup.x;
-				py = InfoAreaSetup.y;
-				VW_DrawPropString(first_ch);
-			}
+                px = InfoAreaSetup.x;
+                py = InfoAreaSetup.y;
+                VW_DrawPropString(first_ch);
+            }
 
-			*scan_ch = temp;
-			first_ch = scan_ch;
+            *scan_ch = temp;
+            first_ch = scan_ch;
 
-			// skip SPACES / RETURNS at end of line
-			//
+            // skip SPACES / RETURNS at end of line
+            //
 
-			if ((*first_ch==' ') || (*first_ch==TP_RETURN_CHAR))
-				first_ch++;
+            if ((*first_ch == ' ') || (*first_ch == TP_RETURN_CHAR)) {
+                first_ch++;
+            }
 
-			// TP_CONTROL_CHARs don't advance to next character line
-			//
+            // TP_CONTROL_CHARs don't advance to next character line
+            //
 
-			if (*scan_ch != TP_CONTROL_CHAR)
-			{
-				InfoAreaSetup.x = InfoAreaSetup.left_margin;
-				InfoAreaSetup.y += IA_FONT_HEIGHT;
-			}
-			else
-				InfoAreaSetup.x = px;
-		}
-		else
-			first_ch = HandleControlCodes(first_ch);
-	}
+            if (*scan_ch != TP_CONTROL_CHAR) {
+                InfoAreaSetup.x = InfoAreaSetup.left_margin;
+                InfoAreaSetup.y += IA_FONT_HEIGHT;
+            } else {
+                InfoAreaSetup.x = px;
+            }
+        } else {
+            first_ch = HandleControlCodes(first_ch);
+        }
+    }
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // HandleControlCodes()
-//---------------------------------------------------------------------------
-char *HandleControlCodes(char *first_ch)
+// ---------------------------------------------------------------------------
+char* HandleControlCodes(
+    char* first_ch)
 {
-//	piShapeInfo *shape_info;
-	piShapeInfo *shape;
-	piAnimInfo *anim;
-	Uint16 shapenum;
+//      piShapeInfo *shape_info;
+    piShapeInfo* shape;
+    piAnimInfo* anim;
+    Uint16 shapenum;
 
-	first_ch++;
+    first_ch++;
 
 #ifndef TP_CASE_SENSITIVE
-	*first_ch=toupper(*first_ch);
-	*(first_ch+1)=toupper(*(first_ch+1));
+    *first_ch = toupper(*first_ch);
+    *(first_ch + 1) = toupper(*(first_ch + 1));
 #endif
 
     Uint16 code = *reinterpret_cast<const Uint16*>(first_ch);
     first_ch += 2;
 
-	switch (code)
-	{
+    switch (code) {
 
-		// INIT ANIMATION ---------------------------------------------------
-		//
-				case TP_CNVT_CODE('A','N'):
-					shapenum = TP_VALUE(first_ch,2);
-					first_ch += 2;
-					memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)],&piAnimTable[shapenum],sizeof(piAnimInfo));
-					anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
-					shape = &piShapeTable[anim->baseshape+anim->frame];	// BUG!! (assumes "pia_shapetable")
-//					spr = &spritetable[shape->shapenum-STARTSPRITES];
+    // INIT ANIMATION ---------------------------------------------------
+    //
+    case TP_CNVT_CODE('A', 'N'):
+        shapenum = TP_VALUE(first_ch, 2);
+        first_ch += 2;
+        memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)], &piAnimTable[shapenum], sizeof(piAnimInfo));
+        anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
+        shape = &piShapeTable[anim->baseshape + anim->frame];                                   // BUG!! (assumes "pia_shapetable")
+//                                      spr = &spritetable[shape->shapenum-STARTSPRITES];
 
-					anim->y=InfoAreaSetup.y;
-					anim->x=DrawShape(InfoAreaSetup.x,InfoAreaSetup.y,shape->shapenum,shape->shapetype);
-               InfoAreaSetup.framecount = 3;
-					InfoAreaSetup.left_margin = InfoAreaSetup.x;
-				break;
+        anim->y = InfoAreaSetup.y;
+        anim->x = DrawShape(InfoAreaSetup.x, InfoAreaSetup.y, shape->shapenum, shape->shapetype);
+        InfoAreaSetup.framecount = 3;
+        InfoAreaSetup.left_margin = InfoAreaSetup.x;
+        break;
 
-		// DRAW SHAPE -------------------------------------------------------
-		//
-				case TP_CNVT_CODE('S','H'):
+    // DRAW SHAPE -------------------------------------------------------
+    //
+    case TP_CNVT_CODE('S', 'H'):
 
-					// NOTE : This needs to handle the left margin....
+        // NOTE : This needs to handle the left margin....
 
-					shapenum = TP_VALUE(first_ch,3);
-					first_ch += 3;
-					shape = &piShapeTable[shapenum];
-//					spr = &spritetable[shape->shapenum-STARTSPRITES];
+        shapenum = TP_VALUE(first_ch, 3);
+        first_ch += 3;
+        shape = &piShapeTable[shapenum];
+//                                      spr = &spritetable[shape->shapenum-STARTSPRITES];
 
-					DrawShape(InfoAreaSetup.x,InfoAreaSetup.y,shape->shapenum,shape->shapetype);
-					InfoAreaSetup.left_margin = InfoAreaSetup.x;
-				break;
+        DrawShape(InfoAreaSetup.x, InfoAreaSetup.y, shape->shapenum, shape->shapetype);
+        InfoAreaSetup.left_margin = InfoAreaSetup.x;
+        break;
 
-		// FONT COLOR -------------------------------------------------------
-		//
-				case TP_CNVT_CODE('F','C'):
-					InfoAreaSetup.text_color = TP_VALUE(first_ch,2);
-                    fontcolor = static_cast<Uint8>(TP_VALUE(first_ch,2));
-					first_ch += 2;
-				break;
+    // FONT COLOR -------------------------------------------------------
+    //
+    case TP_CNVT_CODE('F', 'C'):
+        InfoAreaSetup.text_color = TP_VALUE(first_ch, 2);
+        fontcolor = static_cast<Uint8>(TP_VALUE(first_ch, 2));
+        first_ch += 2;
+        break;
 
-		// BACKGROUND COLOR -------------------------------------------------
-		//
-				case TP_CNVT_CODE('B','G'):
-					InfoAreaSetup.backgr_color = TP_VALUE(first_ch,2);
-					first_ch += 2;
-				break;
+    // BACKGROUND COLOR -------------------------------------------------
+    //
+    case TP_CNVT_CODE('B', 'G'):
+        InfoAreaSetup.backgr_color = TP_VALUE(first_ch, 2);
+        first_ch += 2;
+        break;
 
-		// DEFAULT MARGINS -------------------------------------------------
-		//
-				case TP_CNVT_CODE('D','M'):
-					InfoAreaSetup.left_margin = INFOAREA_X;
-				break;
+    // DEFAULT MARGINS -------------------------------------------------
+    //
+    case TP_CNVT_CODE('D', 'M'):
+        InfoAreaSetup.left_margin = INFOAREA_X;
+        break;
 
-		// LEFT MARGIN ------------------------------------------------------
-		//
-				case TP_CNVT_CODE('L','M'):
-					shapenum = TP_VALUE(first_ch,3);
-					first_ch += 3;
-					if (shapenum == 0xfff)
-						InfoAreaSetup.left_margin = InfoAreaSetup.x;
-					else
-						InfoAreaSetup.left_margin = shapenum;
-				break;
+    // LEFT MARGIN ------------------------------------------------------
+    //
+    case TP_CNVT_CODE('L', 'M'):
+        shapenum = TP_VALUE(first_ch, 3);
+        first_ch += 3;
+        if (shapenum == 0xfff) {
+            InfoAreaSetup.left_margin = InfoAreaSetup.x;
+        } else {
+            InfoAreaSetup.left_margin = shapenum;
+        }
+        break;
 
 #ifdef UNLOCK_FLOORS
-		// UNLOCK FLOOR ----------------------------------------------------
-		//
-				case TP_CNVT_CODE('U','F'):
-					shapenum = TP_VALUE(first_ch++,1);
-					gamestuff.level[shapenum].locked=false;
-				break;
+    // UNLOCK FLOOR ----------------------------------------------------
+    //
+    case TP_CNVT_CODE('U', 'F'):
+        shapenum = TP_VALUE(first_ch++, 1);
+        gamestuff.level[shapenum].locked = false;
+        break;
 #endif
-	}
+    }
 
-	return(first_ch);
+    return first_ch;
 
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DrawShape()
-//--------------------------------------------------------------------------
-Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
+// --------------------------------------------------------------------------
+Sint16 DrawShape(
+    Sint16 x,
+    Sint16 y,
+    Sint16 shapenum,
+    pisType shapetype)
 {
-	Sint16 width = 0;
-	Uint16 shade;
+    Sint16 width = 0;
+    Uint16 shade;
 
-//	width=TP_BoxAroundShape(x,y,shapenum,shapetype);
+//      width=TP_BoxAroundShape(x,y,shapenum,shapetype);
 
-	//
-	// If Image is Cloaked... Shade the image
-	//
+    //
+    // If Image is Cloaked... Shade the image
+    //
 #ifdef BSTONE_PS
-	if (LastInfoAttacker_Cloaked)
-		shade = 35;				// 63 == BLACK | 0 == NO SHADING
-	else
+    if (LastInfoAttacker_Cloaked) {
+        shade = 35;                                     // 63 == BLACK | 0 == NO SHADING
+    } else
 #endif
-		shade = 0;
+    shade = 0;
 
-	switch (shapetype)
-	{
-		case pis_scaled:
-//			old_ofs = bufferofs;
-//			for (i=0;i<3;i++)
-//			{
-//				bufferofs = screenloc[i];
-//				VWB_Bar(x,y,37,37,InfoAreaSetup.backgr_color);
-				VW_Bar(x,y,37,37,InfoAreaSetup.backgr_color);				// JTR changed
-				MegaSimpleScaleShape(x+19,y+20,shapenum,37,shade);
-//			}
-//			bufferofs = old_ofs;
-			width = 37;
-		break;
+    switch (shapetype) {
+    case pis_scaled:
+//                      old_ofs = bufferofs;
+//                      for (i=0;i<3;i++)
+//                      {
+//                              bufferofs = screenloc[i];
+//                              VWB_Bar(x,y,37,37,InfoAreaSetup.backgr_color);
+        VW_Bar(x, y, 37, 37, InfoAreaSetup.backgr_color);                                               // JTR changed
+        MegaSimpleScaleShape(x + 19, y + 20, shapenum, 37, shade);
+//                      }
+//                      bufferofs = old_ofs;
+        width = 37;
+        break;
 
 #if NUMPICS
-		case pis_latchpic:
-			x = (x+7) & 0xFFF8;
-//			old_ofs = bufferofs;
-//			for (i=0;i<3;i++)
-//			{
-//				bufferofs = screenloc[i];
-				LatchDrawPic(x>>3,y,shapenum);
-//			}
-//			bufferofs = old_ofs;
-		break;
+    case pis_latchpic:
+        x = (x + 7) & 0xFFF8;
+//                      old_ofs = bufferofs;
+//                      for (i=0;i<3;i++)
+//                      {
+//                              bufferofs = screenloc[i];
+        LatchDrawPic(x >> 3, y, shapenum);
+//                      }
+//                      bufferofs = old_ofs;
+        break;
 
-		case pis_pic:
-			x = (x+7) & 0xFFF8;
-			width = pictable[shapenum-STARTPICS].width;
-			CA_MarkGrChunk(shapenum);
-			CA_CacheMarks();
-//			old_ofs = bufferofs;
-//			for (i=0;i<3;i++)
-//			{
-//				bufferofs = screenloc[i];
-				VWB_DrawPic(x,y,shapenum);
-//			}
-//			bufferofs = old_ofs;
-			UNCACHEGRCHUNK(shapenum);
-		break;
+    case pis_pic:
+        x = (x + 7) & 0xFFF8;
+        width = pictable[shapenum - STARTPICS].width;
+        CA_MarkGrChunk(shapenum);
+        CA_CacheMarks();
+//                      old_ofs = bufferofs;
+//                      for (i=0;i<3;i++)
+//                      {
+//                              bufferofs = screenloc[i];
+        VWB_DrawPic(x, y, shapenum);
+//                      }
+//                      bufferofs = old_ofs;
+        UNCACHEGRCHUNK(shapenum);
+        break;
 #endif
 
 #if NUMSPRITES && 0
-		case pis_sprite:
-//			VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
-		break;
+    case pis_sprite:
+//                      VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
+        break;
 #endif
 
-        default:
-            break;
-	}
+    default:
+        break;
+    }
 
-	InfoAreaSetup.x += width;
-	return(x);
+    InfoAreaSetup.x += width;
+    return x;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // AnimatePage()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void AnimatePage()
 {
-	piAnimInfo *anim=piAnimList;
-	piShapeInfo *shape;
+    piAnimInfo* anim = piAnimList;
+    piShapeInfo* shape;
 
-	// Dec Timers
-	//
+    // Dec Timers
+    //
 
-	anim->delay += tics;
+    anim->delay += tics;
 
-	if (anim->delay >= anim->maxdelay)
-	{
-		InfoAreaSetup.framecount = 3;
-		anim->delay = 0;
-	}
+    if (anim->delay >= anim->maxdelay) {
+        InfoAreaSetup.framecount = 3;
+        anim->delay = 0;
+    }
 
-	// Test framecount - Do we need to draw a shape?
-	//
+    // Test framecount - Do we need to draw a shape?
+    //
 
-	if (InfoAreaSetup.framecount)
-	{
-		// Draw shapes
+    if (InfoAreaSetup.framecount) {
+        // Draw shapes
 
-		switch (anim->animtype)
-		{
-			case pia_shapetable:
-				shape = &piShapeTable[anim->baseshape+anim->frame];
-				DrawShape(anim->x,anim->y,shape->shapenum,shape->shapetype);
-			break;
+        switch (anim->animtype) {
+        case pia_shapetable:
+            shape = &piShapeTable[anim->baseshape + anim->frame];
+            DrawShape(anim->x, anim->y, shape->shapenum, shape->shapetype);
+            break;
 
-			case pia_grabscript:
-				shape = &piShapeTable[anim->baseshape];
-				DrawShape(anim->x,anim->y,shape->shapenum+anim->frame,shape->shapetype);
-			break;
-		}
+        case pia_grabscript:
+            shape = &piShapeTable[anim->baseshape];
+            DrawShape(anim->x, anim->y, shape->shapenum + anim->frame, shape->shapetype);
+            break;
+        }
 
-		// Dec frame count
+        // Dec frame count
 
-		InfoAreaSetup.framecount--;
-		if (!InfoAreaSetup.framecount)
-		{
-			// Have drawn all pages... Inc Frame count
+        InfoAreaSetup.framecount--;
+        if (!InfoAreaSetup.framecount) {
+            // Have drawn all pages... Inc Frame count
 
-			anim->frame++;
-			if (anim->frame == anim->maxframes)
-				anim->frame = 0;
-		}
-	}
+            anim->frame++;
+            if (anim->frame == anim->maxframes) {
+                anim->frame = 0;
+            }
+        }
+    }
 
 }
 
 #if 0
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // AnimatePage()
-//--------------------------------------------------------------------------
-void AnimatePage(Sint16 numanims)
+// --------------------------------------------------------------------------
+void AnimatePage(
+    Sint16 numanims)
 {
-	piAnimInfo *anim=piAnimList;
-	piShapeInfo *shape;
+    piAnimInfo* anim = piAnimList;
+    piShapeInfo* shape;
 
-	anim->delay += tics;
+    anim->delay += tics;
 
-	if (anim->delay >= anim->maxdelay)
-	{
-		anim->delay = 0;
-		anim->frame++;
+    if (anim->delay >= anim->maxdelay) {
+        anim->delay = 0;
+        anim->frame++;
 
-		if (anim->frame == anim->maxframes)
-			anim->frame = 0;
+        if (anim->frame == anim->maxframes) {
+            anim->frame = 0;
+        }
 
-		switch (anim->animtype)
-		{
-			case pia_shapetable:
-				shape = &piShapeTable[anim->baseshape+anim->frame];
-				DrawShape(anim->x,anim->y,shape->shapenum,shape->shapetype);
-			break;
+        switch (anim->animtype) {
+        case pia_shapetable:
+            shape = &piShapeTable[anim->baseshape + anim->frame];
+            DrawShape(anim->x, anim->y, shape->shapenum, shape->shapetype);
+            break;
 
-			case pia_grabscript:
-				shape = &piShapeTable[anim->baseshape];
-				DrawShape(anim->x,anim->y,shape->shapenum+anim->frame,shape->shapetype);
-			break;
-		}
-	}
+        case pia_grabscript:
+            shape = &piShapeTable[anim->baseshape];
+            DrawShape(anim->x, anim->y, shape->shapenum + anim->frame, shape->shapetype);
+            break;
+        }
+    }
 }
 
 #endif
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//                     	 STATUS BAR REFRESH ROUTINES
+//                       STATUS BAR REFRESH ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // UpdateStatusBar()
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void UpdateStatusBar()
 {
-	if (playstate == ex_title || playstate == ex_victorious)
-		return;
+    if (playstate == ex_title || playstate == ex_victorious) {
+        return;
+    }
 
 #ifdef NO_STATUS_BAR
-	return;
+    return;
 #endif
 
 
-	//
-	// Call specific status bar managers
-	//
+    //
+    // Call specific status bar managers
+    //
 
-	UpdateScore();
-	UpdateInfoArea();
+    UpdateScore();
+    UpdateInfoArea();
 
-	//
-	// Refresh Status Area
-	//
+    //
+    // Refresh Status Area
+    //
 
-	if (DrawAmmoPic_COUNT)
-		DrawAmmoPic();
+    if (DrawAmmoPic_COUNT) {
+        DrawAmmoPic();
+    }
 
-//	if (DrawScoreNum_COUNT)
-		DrawScoreNum();
+//      if (DrawScoreNum_COUNT)
+    DrawScoreNum();
 
-	if (DrawWeaponPic_COUNT)
-		DrawWeaponPic();
+    if (DrawWeaponPic_COUNT) {
+        DrawWeaponPic();
+    }
 
-	if (DrawRadarGuage_COUNT)
-		DrawRadarGuage();
+    if (DrawRadarGuage_COUNT) {
+        DrawRadarGuage();
+    }
 
-//	if (DrawAmmoNum_COUNT)
-		DrawAmmoNum();
+//      if (DrawAmmoNum_COUNT)
+    DrawAmmoNum();
 
-	if (DrawKeyPics_COUNT)
-		DrawKeyPics();
+    if (DrawKeyPics_COUNT) {
+        DrawKeyPics();
+    }
 
-	if (DrawHealthNum_COUNT)
-		DrawHealthNum();
+    if (DrawHealthNum_COUNT) {
+        DrawHealthNum();
+    }
 
-	if (gamestate.flags & (GS_TICS_FOR_SCORE))
-   	DrawScore();
+    if (gamestate.flags & (GS_TICS_FOR_SCORE)) {
+        DrawScore();
+    }
 
 #ifdef BSTONE_AOG
     DrawHealthMonitor();
 #endif
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ForceUpdateStatusBar() - Force Draw status bar onto ALL display pages
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void ForceUpdateStatusBar()
 {
-	Uint16 old_ofs,i;
+    Uint16 old_ofs, i;
 
-	old_ofs = static_cast<Uint16>(bufferofs);
+    old_ofs = static_cast<Uint16>(bufferofs);
 
-	DrawScore();
-	DrawWeapon();
-	DrawKeys();
-	DrawHealth();
-	UpdateRadarGuage();
+    DrawScore();
+    DrawWeapon();
+    DrawKeys();
+    DrawHealth();
+    UpdateRadarGuage();
 
-	for (i=0;i<3;i++)
-	{
-		bufferofs = screenloc[i];
-		UpdateStatusBar();
-   }
+    for (i = 0; i < 3; i++) {
+        bufferofs = screenloc[i];
+        UpdateStatusBar();
+    }
 
-   bufferofs = old_ofs;
+    bufferofs = old_ofs;
 }
 
 
 /*
 =============================================================================
 
-							MOVEMENT
+                                                        MOVEMENT
 
 =============================================================================
 */
@@ -2301,251 +2389,256 @@ void ForceUpdateStatusBar()
 ===================
 */
 
-Uint16 static_points[]={	100,		// money bag
-											500,     // loot
-											250,     // gold1
-											500,     // gold2
-											750,     // gold3
-											1000,    // major gold!
-											5000     // bonus
+Uint16 static_points[] = { 100, // money bag
+                           500,                                                                  // loot
+                           250,                                                                  // gold1
+                           500,                                                                  // gold2
+                           750,                                                                  // gold3
+                           1000,                                                                 // major gold!
+                           5000                                                                  // bonus
 };
 
-Uint16 static_health[][3] =
-{
-	{100,HEALTH2SND,static_cast<Uint16>(-1)},			 					// Full Heal
-	{ 30,HEALTH1SND,static_cast<Uint16>(-1)},			 					// First Aid
-	{ 20,HEALTH1SND,SPR_STAT_45},					// Steak
-	{ 15,HEALTH1SND,SPR_STAT_43},					// Chicken Leg
-	{ 10,HEALTH1SND,SPR_SANDWICH_WRAPER},	 	// Sandwich
-	{  8,HEALTH1SND,SPR_CANDY_WRAPER},	 		// Candy Bar
-	{  5,HEALTH1SND,SPR_STAT_41},    			// Water bowl
-	{  5,HEALTH1SND,static_cast<Uint8>(-1)},    						// Water puddle
+Uint16 static_health[][3] = {
+    { 100, HEALTH2SND, static_cast<Uint16>(-1) },                                                               // Full Heal
+    { 30, HEALTH1SND, static_cast<Uint16>(-1) },                                                                // First Aid
+    { 20, HEALTH1SND, SPR_STAT_45 },                                    // Steak
+    { 15, HEALTH1SND, SPR_STAT_43 },                                    // Chicken Leg
+    { 10, HEALTH1SND, SPR_SANDWICH_WRAPER },            // Sandwich
+    { 8, HEALTH1SND, SPR_CANDY_WRAPER },                        // Candy Bar
+    { 5, HEALTH1SND, SPR_STAT_41 },                             // Water bowl
+    { 5, HEALTH1SND, static_cast<Uint8>(-1) },                                                  // Water puddle
 };
 
 extern char bonus_msg24[];
 extern char bonus_msg25[];
 
-void GetBonus (statobj_t *check)
+void GetBonus(
+    statobj_t* check)
 {
-	boolean givepoints=false;
-	Sint16 shapenum = -1;
+    boolean givepoints = false;
+    Sint16 shapenum = -1;
 
-	switch (check->itemnumber)
-	{
-	case	bo_red_key:
-	case	bo_yellow_key:
-	case	bo_blue_key:
+    switch (check->itemnumber) {
+    case bo_red_key:
+    case bo_yellow_key:
+    case bo_blue_key:
 #ifdef BSTONE_AOG
     case bo_green_key:
     case bo_gold_key:
 #endif
-	{
+        {
 #ifdef BSTONE_AOG
-        Uint16 keynum = 0;
+            Uint16 keynum = 0;
 
-        switch (check->itemnumber) {
-        case bo_red_key:
-            keynum = 0;
-            break;
+            switch (check->itemnumber) {
+            case bo_red_key:
+                keynum = 0;
+                break;
 
-        case bo_yellow_key:
-            keynum = 1;
-            break;
+            case bo_yellow_key:
+                keynum = 1;
+                break;
 
-        case bo_blue_key:
-            keynum = 2;
-            break;
+            case bo_blue_key:
+                keynum = 2;
+                break;
 
-        case bo_green_key:
-            keynum = 3;
-            break;
+            case bo_green_key:
+                keynum = 3;
+                break;
 
-        case bo_gold_key:
-            keynum = 4;
-            break;
-        }
+            case bo_gold_key:
+                keynum = 4;
+                break;
+            }
 #else
-		Uint16 keynum = check->itemnumber - bo_red_key;
+            Uint16 keynum = check->itemnumber - bo_red_key;
 #endif
 
-		if (gamestate.numkeys[keynum] >= MAXKEYS)
-			return;
+            if (gamestate.numkeys[keynum] >= MAXKEYS) {
+                return;
+            }
 
-		GiveKey(keynum);
+            GiveKey(keynum);
 
-        ::sd_play_player_sound(GETKEYSND, bstone::AC_ITEM);
+            ::sd_play_player_sound(GETKEYSND, bstone::AC_ITEM);
 
-		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
-		break;
-	}
+            TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
+            break;
+        }
 
-	case	bo_money_bag:
+    case bo_money_bag:
         ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);
-		givepoints=true;
-		break;
+        givepoints = true;
+        break;
 
-	case	bo_loot:
+    case bo_loot:
         ::sd_play_player_sound(BONUS2SND, bstone::AC_ITEM);
 
-		givepoints=true;
-		break;
+        givepoints = true;
+        break;
 
 
-	case	bo_gold1:
-	case	bo_gold2:
-	case	bo_gold3:
-	case	bo_gold:
+    case bo_gold1:
+    case bo_gold2:
+    case bo_gold3:
+    case bo_gold:
         ::sd_play_player_sound(BONUS3SND, bstone::AC_ITEM);
-		givepoints=true;
-		break;
+        givepoints = true;
+        break;
 
 
-	case	bo_bonus:
+    case bo_bonus:
 #if 0
-		SD_PlaySound (BONUS4SND);
+        SD_PlaySound(BONUS4SND);
 #endif // 0
 
         ::sd_play_player_sound(BONUS4SND, bstone::AC_ITEM);
 
-		givepoints=true;
-		break;
+        givepoints = true;
+        break;
 
-	case bo_water_puddle:
-		if (gamestate.health > 15)
-			return;
-	case bo_fullheal:
-	case bo_firstaid:
-	case bo_ham:			// STEAK
-	case bo_chicken:
-	case bo_sandwich:
-	case bo_candybar:
-	case bo_water:
-		if (gamestate.health == 100)
-			return;
+    case bo_water_puddle:
+        if (gamestate.health > 15) {
+            return;
+        }
+    case bo_fullheal:
+    case bo_firstaid:
+    case bo_ham:                        // STEAK
+    case bo_chicken:
+    case bo_sandwich:
+    case bo_candybar:
+    case bo_water:
+        if (gamestate.health == 100) {
+            return;
+        }
 
         ::sd_play_player_sound(static_cast<soundnames>(
-                static_health[check->itemnumber - bo_fullheal][1]),
-            bstone::AC_ITEM);
+                                   static_health[check->itemnumber - bo_fullheal][1]),
+                               bstone::AC_ITEM);
 
-		HealSelf (static_health[check->itemnumber-bo_fullheal][0]);
-		check->flags &= ~FL_BONUS;
-		shapenum = static_health[check->itemnumber-bo_fullheal][2];
-	break;
+        HealSelf(static_health[check->itemnumber - bo_fullheal][0]);
+        check->flags &= ~FL_BONUS;
+        shapenum = static_health[check->itemnumber - bo_fullheal][2];
+        break;
 
-	case	bo_clip:
-		if (gamestate.ammo == MAX_AMMO)
-			return;
-		GiveAmmo (8);
-		bonus_msg7[45] = '8';
-		break;
+    case bo_clip:
+        if (gamestate.ammo == MAX_AMMO) {
+            return;
+        }
+        GiveAmmo(8);
+        bonus_msg7[45] = '8';
+        break;
 
-	case	bo_clip2:
-   	{
-			Uint8 ammo;
+    case bo_clip2: {
+        Uint8 ammo;
 
-			if (gamestate.ammo == MAX_AMMO)
-				return;
+        if (gamestate.ammo == MAX_AMMO) {
+            return;
+        }
 
-			ammo = 1+(US_RndT() & 0x7);
-      	bonus_msg7[45] = '0'+ammo;
-			GiveAmmo (ammo);
-		}
-		break;
+        ammo = 1 + (US_RndT() & 0x7);
+        bonus_msg7[45] = '0' + ammo;
+        GiveAmmo(ammo);
+    }
+    break;
 
 #ifdef BSTONE_PS
-	case	bo_plasma_detonator:
-		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
-		GivePlasmaDetonator(1);
+    case bo_plasma_detonator:
+        TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
+        GivePlasmaDetonator(1);
         ::sd_play_player_sound(GETDETONATORSND, bstone::AC_ITEM);
-		break;
+        break;
 #endif // BSTONE_PS
 
-	case	bo_pistol:
+    case bo_pistol:
         ::sd_play_player_sound(GETPISTOLSND, bstone::AC_ITEM);
-		GiveWeapon(wp_pistol);
-		break;
+        GiveWeapon(wp_pistol);
+        break;
 
-	case	bo_burst_rifle:
+    case bo_burst_rifle:
         ::sd_play_player_sound(GETBURSTRIFLESND, bstone::AC_ITEM);
-		GiveWeapon (wp_burst_rifle);
-		break;
+        GiveWeapon(wp_burst_rifle);
+        break;
 
-	case	bo_ion_cannon:
+    case bo_ion_cannon:
         ::sd_play_player_sound(GETIONCANNONSND, bstone::AC_ITEM);
-		GiveWeapon (wp_ion_cannon);
-		break;
+        GiveWeapon(wp_ion_cannon);
+        break;
 
-	case	bo_grenade:
+    case bo_grenade:
         ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
-		GiveWeapon (wp_grenade);
-		break;
+        GiveWeapon(wp_grenade);
+        break;
 
 #ifdef BSTONE_PS
-	case	bo_bfg_cannon:
+    case bo_bfg_cannon:
         ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
-		GiveWeapon (wp_bfg_cannon);
-		break;
+        GiveWeapon(wp_bfg_cannon);
+        break;
 #endif
 
-	case bo_coin:
-		if (gamestate.tokens == MAX_TOKENS)
-			return;
-		GiveToken(1);
+    case bo_coin:
+        if (gamestate.tokens == MAX_TOKENS) {
+            return;
+        }
+        GiveToken(1);
 
-		writeTokenStr(bonus_msg24);
-	break;
+        writeTokenStr(bonus_msg24);
+        break;
 
-	case bo_coin5:
-		if (gamestate.tokens == MAX_TOKENS)
-			return;
-		GiveToken(5);
+    case bo_coin5:
+        if (gamestate.tokens == MAX_TOKENS) {
+            return;
+        }
+        GiveToken(5);
 
-		writeTokenStr(bonus_msg25);
-	break;
+        writeTokenStr(bonus_msg25);
+        break;
 
 #ifdef BSTONE_PS
-		case bo_automapper1:
-			if (gamestate.rpower > MAX_RADAR_ENERGY-(RADAR_PAK_VALUE/8))
-				return;
-			gamestate.rpower += RADAR_PAK_VALUE;
+    case bo_automapper1:
+        if (gamestate.rpower > MAX_RADAR_ENERGY - (RADAR_PAK_VALUE / 8)) {
+            return;
+        }
+        gamestate.rpower += RADAR_PAK_VALUE;
 
-         ::sd_play_player_sound(RADAR_POWERUPSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(RADAR_POWERUPSND, bstone::AC_ITEM);
 
-			UpdateRadarGuage();
-		break;
+        UpdateRadarGuage();
+        break;
 #endif // BSTONE_PS
-	}
+    }
 
-	if (givepoints)
-	{
-		GivePoints(static_points[check->itemnumber-bo_money_bag],true);
+    if (givepoints) {
+        GivePoints(static_points[check->itemnumber - bo_money_bag], true);
 #if IN_DEVELOPMENT
 #ifdef DEBUG_STATICS
-		debug_bonus[1][db_count++] = static_points[check->itemnumber-bo_money_bag];
+        debug_bonus[1][db_count++] = static_points[check->itemnumber - bo_money_bag];
 #endif
 #endif
-	}
+    }
 
-	DISPLAY_TIMED_MSG(BonusMsg[check->itemnumber-1],MP_BONUS,MT_BONUS);
-	StartBonusFlash ();
-	check->shapenum = shapenum;			// remove from list if shapenum == -1
-	check->itemnumber = bo_nothing;
+    DISPLAY_TIMED_MSG(BonusMsg[check->itemnumber - 1], MP_BONUS, MT_BONUS);
+    StartBonusFlash();
+    check->shapenum = shapenum;                         // remove from list if shapenum == -1
+    check->itemnumber = bo_nothing;
 }
 
-void writeTokenStr(char *str)
+void writeTokenStr(
+    char* str)
 {
-	char buffer[3],len;
+    char buffer[3], len;
 
-	len = static_cast<char>(strlen(str));
-	if (gamestate.tokens > 9)
+    len = static_cast<char>(strlen(str));
+    if (gamestate.tokens > 9) {
         bstone::C::xitoa(gamestate.tokens, buffer, 10);
-	else
-	{
-		buffer[0]='0';
+    } else {
+        buffer[0] = '0';
         bstone::C::xitoa(gamestate.tokens, buffer + 1, 10);
-	}
+    }
 
-	strcpy(str+len-2,buffer);
+    strcpy(str + len - 2, buffer);
 }
 
 
@@ -2560,86 +2653,84 @@ void writeTokenStr(char *str)
 */
 
 
-boolean TryMove (objtype *ob)
+boolean TryMove(
+    objtype* ob)
 {
-	Sint16			xl,yl,xh,yh,x,y,xx,yy;
-	objtype		*check;
-	Sint32		deltax,deltay;
+    Sint16 xl, yl, xh, yh, x, y, xx, yy;
+    objtype* check;
+    Sint32 deltax, deltay;
 
-	if (ob==player)
-	{
-		xl = (ob->x-PLAYERSIZE) >>TILESHIFT;
-		yl = (ob->y-PLAYERSIZE) >>TILESHIFT;
-		xh = (ob->x+PLAYERSIZE) >>TILESHIFT;
-		yh = (ob->y+PLAYERSIZE) >>TILESHIFT;
-	}
-	else
-	{
-		if (ob->obclass == blakeobj)
-		{
-			xl = (ob->x-(0x1000l)) >>TILESHIFT;
-			yl = (ob->y-(0x1000l)) >>TILESHIFT;
-			xh = (ob->x+(0x1000l)) >>TILESHIFT;
-			yh = (ob->y+(0x1000l)) >>TILESHIFT;
-		}
-		else
-		{
-			xl = (ob->x-(0x7FFFl)) >>TILESHIFT;
-			yl = (ob->y-(0x7FFFl)) >>TILESHIFT;
-			xh = (ob->x+(0x7FFFl)) >>TILESHIFT;
-			yh = (ob->y+(0x7FFFl)) >>TILESHIFT;
-		}
-   }
+    if (ob == player) {
+        xl = (ob->x - PLAYERSIZE) >> TILESHIFT;
+        yl = (ob->y - PLAYERSIZE) >> TILESHIFT;
+        xh = (ob->x + PLAYERSIZE) >> TILESHIFT;
+        yh = (ob->y + PLAYERSIZE) >> TILESHIFT;
+    } else {
+        if (ob->obclass == blakeobj) {
+            xl = (ob->x - (0x1000l)) >> TILESHIFT;
+            yl = (ob->y - (0x1000l)) >> TILESHIFT;
+            xh = (ob->x + (0x1000l)) >> TILESHIFT;
+            yh = (ob->y + (0x1000l)) >> TILESHIFT;
+        } else {
+            xl = (ob->x - (0x7FFFl)) >> TILESHIFT;
+            yl = (ob->y - (0x7FFFl)) >> TILESHIFT;
+            xh = (ob->x + (0x7FFFl)) >> TILESHIFT;
+            yh = (ob->y + (0x7FFFl)) >> TILESHIFT;
+        }
+    }
 
 
 //
 // check for solid walls
 //
 
-	for (y=yl;y<=yh;y++)
-		for (x=xl;x<=xh;x++)
-		{
-			if ((check = actorat[x][y]) != NULL)
-				if ((check < objlist) || (check->flags & FL_FAKE_STATIC))
-					return(false);
-		}
+    for (y = yl; y <= yh; y++) {
+        for (x = xl; x <= xh; x++) {
+            if ((check = actorat[x][y]) != NULL) {
+                if ((check < objlist) || (check->flags & FL_FAKE_STATIC)) {
+                    return false;
+                }
+            }
+        }
+    }
 
 //
 // check for actors....
 //
 
-	yl-=2;
-	yh+=2;
-	xl-=2;
-	xh+=2;
+    yl -= 2;
+    yh += 2;
+    xl -= 2;
+    xh += 2;
 
-	// NOTE: xl,yl may go NEGITIVE!
-	//	----  xh,yh may exceed 63 (MAPWIDTH-1)
+    // NOTE: xl,yl may go NEGITIVE!
+    //  ----  xh,yh may exceed 63 (MAPWIDTH-1)
 
-	for (y=yl;y<=yh;y++)
-		for (x=xl;x<=xh;x++)
-		{
-			xx = x & 0x3f;
+    for (y = yl; y <= yh; y++) {
+        for (x = xl; x <= xh; x++) {
+            xx = x & 0x3f;
 
-			yy = y & 0x3f;
+            yy = y & 0x3f;
 
-			check = actorat[xx][yy];
+            check = actorat[xx][yy];
 
-			if ((check > objlist) && ((check->flags & (FL_SOLID|FL_FAKE_STATIC)) == FL_SOLID))
-			{
-				deltax = ob->x - check->x;
-				if ((deltax < -MINACTORDIST) || (deltax > MINACTORDIST))
-					continue;
+            if ((check > objlist) && ((check->flags & (FL_SOLID | FL_FAKE_STATIC)) == FL_SOLID)) {
+                deltax = ob->x - check->x;
+                if ((deltax < -MINACTORDIST) || (deltax > MINACTORDIST)) {
+                    continue;
+                }
 
-				deltay = ob->y - check->y;
-				if ((deltay < -MINACTORDIST) || (deltay > MINACTORDIST))
-					continue;
+                deltay = ob->y - check->y;
+                if ((deltay < -MINACTORDIST) || (deltay > MINACTORDIST)) {
+                    continue;
+                }
 
-				return(false);
-			}
-		}
+                return false;
+            }
+        }
+    }
 
-	return(true);
+    return true;
 }
 
 
@@ -2653,49 +2744,57 @@ boolean TryMove (objtype *ob)
 ===================
 */
 
-boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove)
+boolean ClipMove(
+    objtype* ob,
+    Sint32 xmove,
+    Sint32 ymove)
 {
-	Sint32	basex,basey;
+    Sint32 basex, basey;
 
-	basex = ob->x;
-	basey = ob->y;
+    basex = ob->x;
+    basey = ob->y;
 
-	ob->x = (basex+xmove);
-	ob->y = (basey+ymove);
+    ob->x = (basex + xmove);
+    ob->y = (basey + ymove);
 
-	if (TryMove(ob))
-		return(false);
+    if (TryMove(ob)) {
+        return false;
+    }
 
 #if (!BETA_TEST) && IN_DEVELOPMENT
-	if ((!(gamestate.flags & GS_CLIP_WALLS)) && (ob == player))
-		return(true);
+    if ((!(gamestate.flags & GS_CLIP_WALLS)) && (ob == player)) {
+        return true;
+    }
 #endif
 
     if (!g_no_wall_hit_sound) {
-        if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL))
+        if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL)) {
             ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+        }
     }
 
-	ob->x = (basex+xmove);
-	ob->y = basey;
+    ob->x = (basex + xmove);
+    ob->y = basey;
 
-	if (TryMove (ob))
-	   return(true);
+    if (TryMove(ob)) {
+        return true;
+    }
 
-	ob->x = basex;
-	ob->y = (basey+ymove);
+    ob->x = basex;
+    ob->y = (basey + ymove);
 
 
-	if (TryMove (ob))
-	   return(true);
+    if (TryMove(ob)) {
+        return true;
+    }
 
-	ob->x = basex;
-	ob->y = basey;
+    ob->x = basex;
+    ob->y = basey;
 
-   return(true);
+    return true;
 }
 
-//==========================================================================
+// ==========================================================================
 
 /*
 ===================
@@ -2705,117 +2804,120 @@ boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove)
 ===================
 */
 
-void Thrust (Sint16 angle, Sint32 speed)
+void Thrust(
+    Sint16 angle,
+    Sint32 speed)
 {
-	extern Uint8 TravelTable[MAPSIZE][MAPSIZE];
-	objtype dumb;
-	Sint32 xmove,ymove;
-	Uint16	offset, *map[2];
-	Sint16 dx,dy;
-	Sint16 dangle;
-   boolean ignore_map1;
+    extern Uint8 TravelTable[MAPSIZE][MAPSIZE];
+    objtype dumb;
+    Sint32 xmove, ymove;
+    Uint16 offset, * map[2];
+    Sint16 dx, dy;
+    Sint16 dangle;
+    boolean ignore_map1;
 
-	thrustspeed += speed;
+    thrustspeed += speed;
 //
 // moving bounds speed
 //
-	if (speed >= MINDIST*2)
-		speed = MINDIST*2-1;
+    if (speed >= MINDIST * 2) {
+        speed = MINDIST * 2 - 1;
+    }
 
-	xmove = FixedByFrac(speed,costable[angle]);
-	ymove = -FixedByFrac(speed,sintable[angle]);
+    xmove = FixedByFrac(speed, costable[angle]);
+    ymove = -FixedByFrac(speed, sintable[angle]);
 
-	ClipMove(player,xmove,ymove);
+    ClipMove(player, xmove, ymove);
 
-   player_oldtilex = player->tilex;
-   player_oldtiley = player->tiley;
-	player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);		// scale to tile values
-	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
+    player_oldtilex = player->tilex;
+    player_oldtiley = player->tiley;
+    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);                 // scale to tile values
+    player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 
-	player->areanumber=GetAreaNumber(player->tilex,player->tiley);
-	areabyplayer[player->areanumber] = true;
-	TravelTable[player->tilex][player->tiley] |= TT_TRAVELED;
+    player->areanumber = GetAreaNumber(player->tilex, player->tiley);
+    areabyplayer[player->areanumber] = true;
+    TravelTable[player->tilex][player->tiley] |= TT_TRAVELED;
 
-	offset = farmapylookup[player->tiley]+player->tilex;
-	map[0]=mapsegs[0]+offset;
-	map[1]=mapsegs[1]+offset;
+    offset = farmapylookup[player->tiley] + player->tilex;
+    map[0] = mapsegs[0] + offset;
+    map[1] = mapsegs[1] + offset;
 
 // Check for trigger tiles.
 //
-	switch (*map[0])
-	{
-		case DOORTRIGGERTILE:
-			dx = *map[1]>>8;									// x
-			dy = *map[1]&255;									// y
-         if (OperateSmartSwitch(dx,dy,ST_TOGGLE,false))	// Operate & Check for removeal
-         	*map[0] = AREATILE+player->areanumber;	// Remove switch
-         ignore_map1 = true;
-		break;
+    switch (*map[0]) {
+    case DOORTRIGGERTILE:
+        dx = *map[1] >> 8;                                                                                      // x
+        dy = *map[1] & 255;                                                                                     // y
+        if (OperateSmartSwitch(dx, dy, ST_TOGGLE, false)) { // Operate & Check for removeal
+            *map[0] = AREATILE + player->areanumber;    // Remove switch
+        }
+        ignore_map1 = true;
+        break;
 
 #ifdef BSTONE_PS
-      case SMART_OFF_TRIGGER:
-      case SMART_ON_TRIGGER:
-			dx = *map[1]>>8;
-			dy = *map[1]&255;
-         OperateSmartSwitch(dx,dy,static_cast<char>((*map[0])-SMART_OFF_TRIGGER),false);
-         ignore_map1 = true;
-      break;
+    case SMART_OFF_TRIGGER:
+    case SMART_ON_TRIGGER:
+        dx = *map[1] >> 8;
+        dy = *map[1] & 255;
+        OperateSmartSwitch(dx, dy, static_cast<char>((*map[0]) - SMART_OFF_TRIGGER), false);
+        ignore_map1 = true;
+        break;
 #endif
 
-		case WINTIGGERTILE:
-			playstate = ex_victorious;
-			dumb.x = ((Sint32)gamestate.wintilex<<TILESHIFT)+TILEGLOBAL/2;
-			dumb.y = ((Sint32)gamestate.wintiley<<TILESHIFT)+TILEGLOBAL/2;
-			dumb.flags = 0;
-			dangle=CalcAngle(player,&dumb);
-			RotateView(dangle,2);
+    case WINTIGGERTILE:
+        playstate = ex_victorious;
+        dumb.x = ((Sint32)gamestate.wintilex << TILESHIFT) + TILEGLOBAL / 2;
+        dumb.y = ((Sint32)gamestate.wintiley << TILESHIFT) + TILEGLOBAL / 2;
+        dumb.flags = 0;
+        dangle = CalcAngle(player, &dumb);
+        RotateView(dangle, 2);
 #ifdef BSTONE_AOG
-            RunBlakeRun();
+        RunBlakeRun();
 #endif
-         ignore_map1 = true;
-		break;
+        ignore_map1 = true;
+        break;
 
-      default:
-         ignore_map1 = false;
-      break;
-	}
+    default:
+        ignore_map1 = false;
+        break;
+    }
 
-   if (!ignore_map1)
-	{
-		// Change sky and ground color on-the-fly.
-		//
+    if (!ignore_map1) {
+        // Change sky and ground color on-the-fly.
+        //
 
-		offset=*(map[1]+1);					// 'offset' used as temp...
-		switch (*map[1])
-		{
+        offset = *(map[1] + 1);                                         // 'offset' used as temp...
+        switch (*map[1]) {
 #ifdef CEILING_FLOOR_COLORS
-			case 0xfe00:
-				TopColor = offset&0xff00;
-				TopColor |= TopColor>>8;
-				BottomColor = offset&0xff;
-				BottomColor |= BottomColor<<8;
-			break;
+        case 0xfe00:
+            TopColor = offset & 0xff00;
+            TopColor |= TopColor >> 8;
+            BottomColor = offset & 0xff;
+            BottomColor |= BottomColor << 8;
+            break;
 #else
 #if IN_DEVELOPMENT
-			case 0xfe00:
-         	// Give error
-			break;
+        case 0xfe00:
+            // Give error
+            break;
 #endif
 #endif
 
 #if 0
-			case 0xF600:									// Lighting effects
-				normalshade_div = (offset&0xff00) >> 8;
-				if (normalshade_div > 12)
-					AGENT_ERROR(NORMAL_SHADE_TOO_BIG);
-				shade_max = offset&0xff;
-				if (shade_max > 63 || shade_max < 5)
-					AGENT_ERROR(SHADEMAX_VALUE_BAD);
-				normalshade=(3*(maxscale>>2))/normalshade_div;
-			break;
+        case 0xF600:                                                                                    // Lighting effects
+            normalshade_div = (offset & 0xff00) >> 8;
+            if (normalshade_div > 12) {
+                AGENT_ERROR(NORMAL_SHADE_TOO_BIG);
+            }
+            shade_max = offset & 0xff;
+            if (shade_max > 63 || shade_max < 5) {
+                AGENT_ERROR(SHADEMAX_VALUE_BAD);
+            }
+            normalshade = (3 * (maxscale >> 2)) / normalshade_div;
+            break;
 #endif
-		}
-   }
+        }
+    }
 
 }
 
@@ -2823,113 +2925,112 @@ extern Sint16 an_offset[];
 
 boolean GAN_HiddenArea;
 
-//------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // GetAreaNumber()
-//------------------------------------------------------------------------
-char GetAreaNumber(char tilex, char tiley)
+// ------------------------------------------------------------------------
+char GetAreaNumber(
+    char tilex,
+    char tiley)
 {
-	Uint16 offset, *ptr[2], loop;
-	Uint8 areanumber;
+    Uint16 offset, * ptr[2], loop;
+    Uint8 areanumber;
 
-	GAN_HiddenArea = false;
+    GAN_HiddenArea = false;
 
 // Are we on a wall?
 //
-	if (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] && (!(tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)]&0xc0)))
-		return(127);
+    if (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] && (!(tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] & 0xc0))) {
+        return 127;
+    }
 
 // Get initial areanumber from map
 //
-	offset = farmapylookup[static_cast<int>(tiley)]+tilex;
-	ptr[0]=mapsegs[0]+offset;
-	ptr[1]=mapsegs[1]+offset;
+    offset = farmapylookup[static_cast<int>(tiley)] + tilex;
+    ptr[0] = mapsegs[0] + offset;
+    ptr[1] = mapsegs[1] + offset;
 
 // Special tile areas must use a valid areanumber tile around it.
 //
-	int this_offset = 0;
-	if ((areanumber=ValidAreaTile(ptr[0])) == 0)
-	{
-		for (loop=0; loop<8; loop++)
-		{
-			this_offset = an_offset[static_cast<int>(loop)];
+    int this_offset = 0;
+    if ((areanumber = ValidAreaTile(ptr[0])) == 0) {
+        for (loop = 0; loop < 8; loop++) {
+            this_offset = an_offset[static_cast<int>(loop)];
 
-			// Skip border cases:
-			if(tiley == 63 && this_offset > 1)
-			{
-				continue;
-			}
-			if(tiley == 0 && this_offset < -1)
-			{
-				continue;
-			}
-			if(tilex == 0 && (this_offset == -1 || this_offset == -65 || this_offset  == 63))
-			{
-				continue;
-			}
-			if(tilex == 63 && (this_offset == 1 || this_offset == 65 || this_offset  == -63))
-			{
-				continue;
-			}
+            // Skip border cases:
+            if (tiley == 63 && this_offset > 1) {
+                continue;
+            }
+            if (tiley == 0 && this_offset < -1) {
+                continue;
+            }
+            if (tilex == 0 && (this_offset == -1 || this_offset == -65 || this_offset == 63)) {
+                continue;
+            }
+            if (tilex == 63 && (this_offset == 1 || this_offset == 65 || this_offset == -63)) {
+                continue;
+            }
 
-			if ((areanumber=ValidAreaTile(ptr[0]+this_offset)) != 0)
-				break;
-		}
+            if ((areanumber = ValidAreaTile(ptr[0] + this_offset)) != 0) {
+                break;
+            }
+        }
 
-		if (loop==8)
-			areanumber = AREATILE;
-	}
+        if (loop == 8) {
+            areanumber = AREATILE;
+        }
+    }
 
 // Merge hidden areanumbers into non-hidden areanumbers AND pull all
 // values down to an indexable range.
 //
-	if (areanumber >= HIDDENAREATILE)
-	{
-		GAN_HiddenArea = true;
-		areanumber -= HIDDENAREATILE;
-	}
-	else
-		areanumber -= AREATILE;
+    if (areanumber >= HIDDENAREATILE) {
+        GAN_HiddenArea = true;
+        areanumber -= HIDDENAREATILE;
+    } else {
+        areanumber -= AREATILE;
+    }
 
-	return(areanumber);
+    return areanumber;
 }
 
 
-//------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ValidAreaTile()
-//------------------------------------------------------------------------
-Uint8 ValidAreaTile(Uint16 *ptr)
+// ------------------------------------------------------------------------
+Uint8 ValidAreaTile(
+    Uint16* ptr)
 {
-	switch (*ptr)
-	{
-		case AREATILE:
-		case HIDDENAREATILE:
-		case DOORTRIGGERTILE:
-		case WINTIGGERTILE:
+    switch (*ptr) {
+    case AREATILE:
+    case HIDDENAREATILE:
+    case DOORTRIGGERTILE:
+    case WINTIGGERTILE:
 #ifdef BSTONE_PS
-      case SMART_ON_TRIGGER:
-      case SMART_OFF_TRIGGER:
+    case SMART_ON_TRIGGER:
+    case SMART_OFF_TRIGGER:
 #endif
-		case AMBUSHTILE:
+    case AMBUSHTILE:
 #ifdef BSTONE_PS
-		case LINC_TILE:
-		case CLOAK_AMBUSH_TILE:
+    case LINC_TILE:
+    case CLOAK_AMBUSH_TILE:
 #endif
-		break;
+        break;
 
-		default:
-			if (*ptr > AREATILE)
-				return static_cast<Uint8>(*ptr);
-		break;
-	}
+    default:
+        if (*ptr > AREATILE) {
+            return static_cast<Uint8>(*ptr);
+        }
+        break;
+    }
 
-	return(0);
+    return 0;
 }
 
 
 /*
 =============================================================================
 
-								ACTIONS
+                                                                ACTIONS
 
 =============================================================================
 */
@@ -2943,440 +3044,416 @@ Uint8 ValidAreaTile(Uint16 *ptr)
 ===============
 */
 
-void Cmd_Fire ()
+void Cmd_Fire()
 {
-	if (noShots)
-		return;
+    if (noShots) {
+        return;
+    }
 
-	if ((gamestate.weapon == wp_autocharge) && (gamestate.weapon_wait))
-		return;
+    if ((gamestate.weapon == wp_autocharge) && (gamestate.weapon_wait)) {
+        return;
+    }
 
-	buttonheld[bt_attack] = true;
+    buttonheld[bt_attack] = true;
 
-	gamestate.weaponframe = 0;
+    gamestate.weaponframe = 0;
 
-	player->state = &s_attack;
+    player->state = &s_attack;
 
-	gamestate.attackframe = 0;
-	gamestate.attackcount = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].tics;
-	gamestate.weaponframe =	attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
+    gamestate.attackframe = 0;
+    gamestate.attackcount = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].tics;
+    gamestate.weaponframe = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 }
 
-//===========================================================================
+// ===========================================================================
 
 
-void Cmd_Use ()
+void Cmd_Use()
 {
-	Sint16			checkx,checky,doornum,dir;
-	Uint16 iconnum;
-	Uint8 static interrogate_delay=0;
+    Sint16 checkx, checky, doornum, dir;
+    Uint16 iconnum;
+    Uint8 static interrogate_delay = 0;
 
 #ifdef BSTONE_PS
-	boolean tryDetonator = false;
+    boolean tryDetonator = false;
 #endif
 
 // Find which cardinal direction the player is facing
 //
-	if (player->angle < ANGLES/8 || player->angle > 7*ANGLES/8)
-	{
-		checkx = player->tilex + 1;
-		checky = player->tiley;
-		dir = di_east;
-	}
-	else if (player->angle < 3*ANGLES/8)
-	{
-		checkx = player->tilex;
-		checky = player->tiley-1;
-		dir = di_north;
-	}
-	else if (player->angle < 5*ANGLES/8)
-	{
-		checkx = player->tilex - 1;
-		checky = player->tiley;
-		dir = di_west;
-	}
-	else
-	{
-		checkx = player->tilex;
-		checky = player->tiley + 1;
-		dir = di_south;
-	}
+    if (player->angle < ANGLES / 8 || player->angle > 7 * ANGLES / 8) {
+        checkx = player->tilex + 1;
+        checky = player->tiley;
+        dir = di_east;
+    } else if (player->angle < 3 * ANGLES / 8) {
+        checkx = player->tilex;
+        checky = player->tiley - 1;
+        dir = di_north;
+    } else if (player->angle < 5 * ANGLES / 8) {
+        checkx = player->tilex - 1;
+        checky = player->tiley;
+        dir = di_west;
+    } else {
+        checkx = player->tilex;
+        checky = player->tiley + 1;
+        dir = di_south;
+    }
 
-	doornum = tilemap[checkx][checky];
-	iconnum = *(mapsegs[1]+farmapylookup[checky]+checkx);
+    doornum = tilemap[checkx][checky];
+    iconnum = *(mapsegs[1] + farmapylookup[checky] + checkx);
 
 // Test for a pushable wall
 //
-	if (iconnum == PUSHABLETILE)
-	{
-		PushWall (checkx,checky,dir);
-	}
-	else
-	if (!buttonheld[bt_use])
-	{
-	// Test for doors / elevator
-	//
-		if ((doornum & 0x80) && ((pwallx != checkx) || (pwally != checky)))
-		{
-			buttonheld[bt_use] = true;
-			OperateDoor(doornum & ~0x80);
-		}
-		else
-	// Test for special tile types...
-	//
-		switch (doornum & 63)
-		{
-		// Test for 'display elevator buttons'
-		//
-			case TRANSPORTERTILE:
-			{
-				Sint16 new_floor;
+    if (iconnum == PUSHABLETILE) {
+        PushWall(checkx, checky, dir);
+    } else if (!buttonheld[bt_use]) {
+        // Test for doors / elevator
+        //
+        if ((doornum & 0x80) && ((pwallx != checkx) || (pwally != checky))) {
+            buttonheld[bt_use] = true;
+            OperateDoor(doornum & ~0x80);
+        } else {
+            // Test for special tile types...
+            //
+            switch (doornum & 63) {
+            // Test for 'display elevator buttons'
+            //
+            case TRANSPORTERTILE: {
+                Sint16 new_floor;
 
-				if ((new_floor=InputFloor()) != -1 && new_floor != gamestate.mapon)
-				{
-					Sint16 angle = player->angle;
+                if ((new_floor = InputFloor()) != -1 && new_floor != gamestate.mapon) {
+                    Sint16 angle = player->angle;
 
-					gamestuff.level[gamestate.mapon].ptilex = player->tilex;
-					gamestuff.level[gamestate.mapon].ptiley = player->tiley;
+                    gamestuff.level[gamestate.mapon].ptilex = player->tilex;
+                    gamestuff.level[gamestate.mapon].ptiley = player->tiley;
 #ifdef BSTONE_PS
-					angle = player->angle - 180;
-					if (angle < 0)
-						angle += ANGLES;
+                    angle = player->angle - 180;
+                    if (angle < 0) {
+                        angle += ANGLES;
+                    }
 #endif
-					gamestuff.level[gamestate.mapon].pangle = angle;
+                    gamestuff.level[gamestate.mapon].pangle = angle;
 
 #ifdef BSTONE_AOG
-                    playstate=ex_warped;
+                    playstate = ex_warped;
 #else
-					playstate=ex_transported;
+                    playstate = ex_transported;
 #endif
 
-					gamestate.lastmapon=gamestate.mapon;
-					gamestate.mapon=new_floor-1;
-				}
-				else
-					DrawPlayScreen(false);
-			}
-			break;
+                    gamestate.lastmapon = gamestate.mapon;
+                    gamestate.mapon = new_floor - 1;
+                } else {
+                    DrawPlayScreen(false);
+                }
+            }
+            break;
 
-			case DIRECTTRANSPORTTILE:
-				switch (iconnum & 0xff00)
-				{
-					case 0xf400:
-						playstate = ex_transported;
-						gamestate.lastmapon=gamestate.mapon;
-						gamestate.mapon=(iconnum & 0xff)-1;
+            case DIRECTTRANSPORTTILE:
+                switch (iconnum & 0xff00) {
+                case 0xf400:
+                    playstate = ex_transported;
+                    gamestate.lastmapon = gamestate.mapon;
+                    gamestate.mapon = (iconnum & 0xff) - 1;
 
 #ifdef BSTONE_AOG
-                        gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
-                        gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
+                    gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
+                    gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
 
-                        {
-                            int angle = player->angle - 180;
+                    {
+                        int angle = player->angle - 180;
 
-                            if (angle < 0) {
-                                angle += ANGLES;
-                            }
-
-                            gamestuff.level[gamestate.mapon + 1].pangle = angle;
+                        if (angle < 0) {
+                            angle += ANGLES;
                         }
+
+                        gamestuff.level[gamestate.mapon + 1].pangle = angle;
+                    }
 #endif
-					break;
+                    break;
 
-					default:
-						// Stay in current level warp to new location
+                default:
+                    // Stay in current level warp to new location
 
-						playstate = ex_transported;
-						Warped();
-						playstate = ex_stillplaying;
+                    playstate = ex_transported;
+                    Warped();
+                    playstate = ex_stillplaying;
 
-						player->tilex = (iconnum >> 8);
-						player->tiley = iconnum & 0xff;
-						player->x = ((Sint32)player->tilex<<TILESHIFT)+TILEGLOBAL/2;
-						player->y = ((Sint32)player->tiley<<TILESHIFT)+TILEGLOBAL/2;
+                    player->tilex = (iconnum >> 8);
+                    player->tiley = iconnum & 0xff;
+                    player->x = ((Sint32)player->tilex << TILESHIFT) + TILEGLOBAL / 2;
+                    player->y = ((Sint32)player->tiley << TILESHIFT) + TILEGLOBAL / 2;
 
-						DrawWarpIn();
-					break;
-				}
-			break;
+                    DrawWarpIn();
+                    break;
+                }
+                break;
 
-			//
-			// Test for Wall Switch Activation
-			//
-			case OFF_SWITCH:
-			case ON_SWITCH:
-				ActivateWallSwitch(iconnum,checkx,checky);
-			break;
+            //
+            // Test for Wall Switch Activation
+            //
+            case OFF_SWITCH:
+            case ON_SWITCH:
+                ActivateWallSwitch(iconnum, checkx, checky);
+                break;
 
 
-			// Test for Concession Machines
-			//
+            // Test for Concession Machines
+            //
 
-			case FOODTILE:
-			case SODATILE:
+            case FOODTILE:
+            case SODATILE:
                 OperateConcession(static_cast<Uint16>(reinterpret_cast<size_t>(actorat[checkx][checky])));
-			break;
+                break;
 
-			default:
+            default:
 #ifdef BSTONE_SP
-				tryDetonator = true;
+                tryDetonator = true;
 #endif
-			break;
-		}
-	}
-	else
-	if (!interrogate_delay)
-	{
-		#define	INTERROGATEDIST	(MINACTORDIST)
-		#define	MDIST					2
-		#define	INTG_ANGLE			45
+                break;
+            }
+        }
+    } else if (!interrogate_delay) {
+#define INTERROGATEDIST (MINACTORDIST)
+#define MDIST 2
+#define INTG_ANGLE 45
 
-		char x,y;
-		objtype *intg_ob=NULL,*ob;
-		Sint32 dx,dy,dist,intg_dist=INTERROGATEDIST+1;
+        char x, y;
+        objtype* intg_ob = NULL, * ob;
+        Sint32 dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
 
-		for (y=-MDIST;y<MDIST+1;y++)
-			for (x=-MDIST;x<MDIST+1;x++)
-			{
-				// Don't check outside of the map plane:
-				if (player->tilex+x > 63 || player->tiley+y > 63)
-				{
-					continue;
-				}
+        for (y = -MDIST; y < MDIST + 1; y++) {
+            for (x = -MDIST; x < MDIST + 1; x++) {
+                // Don't check outside of the map plane:
+                if (player->tilex + x > 63 || player->tiley + y > 63) {
+                    continue;
+                }
 
-				if ((!tilemap[player->tilex+x][player->tiley+y]) &&
-					 (actorat[player->tilex+x][player->tiley+y] >= objlist))
-					ob = actorat[player->tilex+x][player->tiley+y];
-				else
-					continue;
-				dx = player->x - ob->x;
-				dx = LABS(dx);
-				dy = player->y - ob->y;
-				dy = LABS(dy);
-				dist = dx<dy ? dx:dy;
-				if ((ob->obclass==gen_scientistobj) &&
-					 ((ob->flags&(FL_FRIENDLY|FL_VISABLE))==(FL_FRIENDLY|FL_VISABLE)) &&
-					 (dist < intg_dist))
-				{
-                    if ((ob->flags & FL_ATTACKMODE) != 0)
+                if ((!tilemap[player->tilex + x][player->tiley + y]) &&
+                    (actorat[player->tilex + x][player->tiley + y] >= objlist))
+                {
+                    ob = actorat[player->tilex + x][player->tiley + y];
+                } else {
+                    continue;
+                }
+                dx = player->x - ob->x;
+                dx = LABS(dx);
+                dy = player->y - ob->y;
+                dy = LABS(dy);
+                dist = dx < dy ? dx : dy;
+                if ((ob->obclass == gen_scientistobj) &&
+                    ((ob->flags & (FL_FRIENDLY | FL_VISABLE)) == (FL_FRIENDLY | FL_VISABLE)) &&
+                    (dist < intg_dist))
+                {
+                    if ((ob->flags & FL_ATTACKMODE) != 0) {
                         ob->flags &= ~(FL_FRIENDLY | FL_INFORMANT);
-                    else {
+                    } else {
                         Sint16 angle = CalcAngle(player, ob);
 
                         angle = ABS(player->angle - angle);
-                        if (angle > INTG_ANGLE / 2)
+                        if (angle > INTG_ANGLE / 2) {
                             continue;
+                        }
 
                         intg_ob = ob;
                         intg_dist = dist;
                     }
-				}
-			}
+                }
+            }
+        }
 
-		if (intg_ob)
-		{
-			if (Interrogate(intg_ob))
-				interrogate_delay=20;		// Informants have 1/3 sec delay
-			else
-				interrogate_delay=120;		// Non-informants have 2 sec delay
-		}
+        if (intg_ob) {
+            if (Interrogate(intg_ob)) {
+                interrogate_delay = 20;                         // Informants have 1/3 sec delay
+            } else {
+                interrogate_delay = 120;                        // Non-informants have 2 sec delay
+            }
+        }
 #ifdef BSTONE_PS
-		else
-			tryDetonator = true;
+        else {
+            tryDetonator = true;
+        }
 #endif
-	}
-	else
-	{
-		if (tics < interrogate_delay)
-			interrogate_delay-=static_cast<Uint8>(tics);
-		else
-			interrogate_delay=0;
-
-#ifdef BSTONE_PS
-		tryDetonator = true;
-#endif
-	}
+    } else {
+        if (tics < interrogate_delay) {
+            interrogate_delay -= static_cast<Uint8>(tics);
+        } else {
+            interrogate_delay = 0;
+        }
 
 #ifdef BSTONE_PS
-	if (tryDetonator)
-	{
-		if ((!tryDetonatorDelay) && gamestate.plasma_detonators)
-		{
-			TryDropPlasmaDetonator();
-			tryDetonatorDelay = 60;
-		}
-	}
-	else
-		tryDetonatorDelay = 60;
+        tryDetonator = true;
+#endif
+    }
+
+#ifdef BSTONE_PS
+    if (tryDetonator) {
+        if ((!tryDetonatorDelay) && gamestate.plasma_detonators) {
+            TryDropPlasmaDetonator();
+            tryDetonatorDelay = 60;
+        }
+    } else {
+        tryDetonatorDelay = 60;
+    }
 #endif
 
-	if (!buttonheld[bt_use])
-		interrogate_delay=0;
+    if (!buttonheld[bt_use]) {
+        interrogate_delay = 0;
+    }
 }
 
-//==========================================================================
+// ==========================================================================
 //
 //                           INTERROGATE CODE
 //
-//==========================================================================
+// ==========================================================================
 
 #define MSG_BUFFER_LEN 150
 
-char msg[MSG_BUFFER_LEN+1];
+char msg[MSG_BUFFER_LEN + 1];
 
 char* InfAreaMsgs[MAX_INF_AREA_MSGS];
-Uint8 NumAreaMsgs,LastInfArea;
-Sint16 FirstGenInfMsg,TotalGenInfMsgs;
+Uint8 NumAreaMsgs, LastInfArea;
+Sint16 FirstGenInfMsg, TotalGenInfMsgs;
 
-scientist_t InfHintList;		// Informant messages
-scientist_t NiceSciList;		// Non-informant, non-pissed messages
-scientist_t MeanSciList;		// Non-informant, pissed messages
+scientist_t InfHintList; // Informant messages
+scientist_t NiceSciList; // Non-informant, non-pissed messages
+scientist_t MeanSciList; // Non-informant, pissed messages
 
-char int_interrogate[]="INTERROGATE:",
-	  int_informant[]=" ^FC3aINFORMANT^FCa6",
-	  int_rr[]="\r\r",
-	  int_xx[]="^XX",
-	  int_haveammo[]=" HEY BLAKE,\r TAKE MY CHARGE PACK!",
-	  int_havetoken[]=" HEY BLAKE,\r TAKE MY FOOD TOKENS!";
+char int_interrogate[] = "INTERROGATE:",
+     int_informant[] = " ^FC3aINFORMANT^FCa6",
+     int_rr[] = "\r\r",
+     int_xx[] = "^XX",
+     int_haveammo[] = " HEY BLAKE,\r TAKE MY CHARGE PACK!",
+     int_havetoken[] = " HEY BLAKE,\r TAKE MY FOOD TOKENS!";
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Interrogate()
-//--------------------------------------------------------------------------
-boolean Interrogate(objtype *ob)
+// --------------------------------------------------------------------------
+boolean Interrogate(
+    objtype* ob)
 {
-	boolean rt_value=true;
-	char *msgptr=NULL;
+    boolean rt_value = true;
+    char* msgptr = NULL;
 
-	strcpy(msg,int_interrogate);
+    strcpy(msg, int_interrogate);
 
-	if (ob->flags & FL_INFORMANT)						// Informant
-	{
-		strcat(msg,int_informant);
+    if (ob->flags & FL_INFORMANT) {                                             // Informant
+        strcat(msg, int_informant);
 
-		if (ob->flags & FL_INTERROGATED)
-		{
-			if ((ob->flags & FL_HAS_AMMO) && (gamestate.ammo != MAX_AMMO))
-			{
-				GiveAmmo((US_RndT()%8)+1);
-				ob->flags &= ~FL_HAS_AMMO;
-				msgptr=int_haveammo;
-			}
-			else
-			if ((ob->flags & FL_HAS_TOKENS) && (gamestate.tokens != MAX_TOKENS))
-			{
-				GiveToken(5);
-				ob->flags &= ~FL_HAS_TOKENS;
-				msgptr=int_havetoken;
-			}
-		}
+        if (ob->flags & FL_INTERROGATED) {
+            if ((ob->flags & FL_HAS_AMMO) && (gamestate.ammo != MAX_AMMO)) {
+                GiveAmmo((US_RndT() % 8) + 1);
+                ob->flags &= ~FL_HAS_AMMO;
+                msgptr = int_haveammo;
+            } else if ((ob->flags & FL_HAS_TOKENS) && (gamestate.tokens != MAX_TOKENS)) {
+                GiveToken(5);
+                ob->flags &= ~FL_HAS_TOKENS;
+                msgptr = int_havetoken;
+            }
+        }
 
-		if (!msgptr)
-		{
-		// If new areanumber OR no 'area msgs' have been compiled, compile
-		// a list of all special messages for this areanumber.
-		//
-			if ((LastInfArea==0xff) || (LastInfArea!=ob->areanumber))
-			{
-				sci_mCacheInfo *ci = InfHintList.smInfo;
+        if (!msgptr) {
+            // If new areanumber OR no 'area msgs' have been compiled, compile
+            // a list of all special messages for this areanumber.
+            //
+            if ((LastInfArea == 0xff) || (LastInfArea != ob->areanumber)) {
+                sci_mCacheInfo* ci = InfHintList.smInfo;
 
-				NumAreaMsgs=0;
-				for (;ci->areanumber != 0xff;ci++)
-					if (ci->areanumber == ob->areanumber)
-						InfAreaMsgs[NumAreaMsgs++]=InfHintList.smInfo[ci->mInfo.local_val].mInfo.mSeg;
+                NumAreaMsgs = 0;
+                for (; ci->areanumber != 0xff; ci++) {
+                    if (ci->areanumber == ob->areanumber) {
+                        InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci->mInfo.local_val].mInfo.mSeg;
+                    }
+                }
 
-				LastInfArea=ob->areanumber;
-			}
+                LastInfArea = ob->areanumber;
+            }
 
-		// Randomly select an informant hint, either: specific to areanumber
-		// or general hint...
-		//
-			if (NumAreaMsgs)
-			{
-				if (ob->ammo != ob->areanumber)
-					ob->s_tilex = 0xff;
-				ob->ammo = ob->areanumber;
-				if (ob->s_tilex == 0xff)
-					ob->s_tilex=static_cast<Uint8>(Random(NumAreaMsgs));
-				msgptr=InfAreaMsgs[ob->s_tilex];
-			}
-			else
-			{
-				if (ob->s_tiley == 0xff)
-					ob->s_tiley=static_cast<Uint8>(FirstGenInfMsg+Random(TotalGenInfMsgs));
-				msgptr=InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
-			}
+            // Randomly select an informant hint, either: specific to areanumber
+            // or general hint...
+            //
+            if (NumAreaMsgs) {
+                if (ob->ammo != ob->areanumber) {
+                    ob->s_tilex = 0xff;
+                }
+                ob->ammo = ob->areanumber;
+                if (ob->s_tilex == 0xff) {
+                    ob->s_tilex = static_cast<Uint8>(Random(NumAreaMsgs));
+                }
+                msgptr = InfAreaMsgs[ob->s_tilex];
+            } else {
+                if (ob->s_tiley == 0xff) {
+                    ob->s_tiley = static_cast<Uint8>(FirstGenInfMsg + Random(TotalGenInfMsgs));
+                }
+                msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
+            }
 
-		// Still no msgptr? This is a shared message! Use smInfo[local_val]
-		// for this message.
-		//
-			if (!msgptr)
-				msgptr=InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+            // Still no msgptr? This is a shared message! Use smInfo[local_val]
+            // for this message.
+            //
+            if (!msgptr) {
+                msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+            }
 
-			ob->flags |= FL_INTERROGATED;		// Scientist has been interrogated
-		}
-	}
-	else														// Non-Informant
-	{
-		scientist_t *st;
+            ob->flags |= FL_INTERROGATED;                       // Scientist has been interrogated
+        }
+    } else {                                                                                                            // Non-Informant
+        scientist_t* st;
 
-		rt_value=false;
-		if ((ob->flags & FL_MUST_ATTACK) || (US_RndT()&1))		// Mean
-		{
-			ob->flags &= ~FL_FRIENDLY;		  	// Make him attack!
-			ob->flags |= FL_INTERROGATED;		//  "    "     "
-			st = &MeanSciList;
-		}
-		else																	// Nice
-		{
-			ob->flags |= FL_MUST_ATTACK;		// Make him mean!
-			st = &NiceSciList;
-		}
+        rt_value = false;
+        if ((ob->flags & FL_MUST_ATTACK) || (US_RndT() & 1)) {                  // Mean
+            ob->flags &= ~FL_FRIENDLY;                                  // Make him attack!
+            ob->flags |= FL_INTERROGATED;                       //  "    "     "
+            st = &MeanSciList;
+        } else {                                                                                                                                        // Nice
+            ob->flags |= FL_MUST_ATTACK;                        // Make him mean!
+            st = &NiceSciList;
+        }
 
-		msgptr=st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
-	}
+        msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
+    }
 
-	if (msgptr)
-	{
-		strcat(msg,int_rr);
-		strcat(msg,msgptr);
-		strcat(msg,int_xx);
-		if (strlen(msg) > MSG_BUFFER_LEN)
-			AGENT_ERROR(INTERROGATE_LONG_MSG);
-		DisplayInfoMsg(msg,MP_INTERROGATE,DISPLAY_MSG_STD_TIME*2,MT_GENERAL);
+    if (msgptr) {
+        strcat(msg, int_rr);
+        strcat(msg, msgptr);
+        strcat(msg, int_xx);
+        if (strlen(msg) > MSG_BUFFER_LEN) {
+            AGENT_ERROR(INTERROGATE_LONG_MSG);
+        }
+        DisplayInfoMsg(msg, MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
 
         // BBi
         // FIXME Create a new actor channel type for interrogation?
         ::sd_play_player_sound(INTERROGATESND, bstone::AC_ITEM);
-	}
+    }
 
-	return(rt_value);
+    return rt_value;
 }
 
-//==========================================================================
+// ==========================================================================
 //
 //                            ELEVATOR CODE
 //
-//==========================================================================
+// ==========================================================================
 
 
-char if_help[]="UP/DN MOVES SELECTOR - ENTER ACTIVATES";
-char if_noImage[]="   AREA\n"
-							 "  UNMAPPED\n"
-							 "\n"
-							 "\n"
-							 " PRESS ENTER\n"
-							 " TO TELEPORT";
+char if_help[] = "UP/DN MOVES SELECTOR - ENTER ACTIVATES";
+char if_noImage[] = "   AREA\n"
+                    "  UNMAPPED\n"
+                    "\n"
+                    "\n"
+                    " PRESS ENTER\n"
+                    " TO TELEPORT";
 
 statsInfoType ov_stats;
 static Uint8* ov_buffer;
-boolean ov_noImage=false;
+boolean ov_noImage = false;
 
-#define TOV_X  16
-#define TOV_Y	132
+#define TOV_X 16
+#define TOV_Y 132
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // InputFloor
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 Sint16 InputFloor()
 {
 #ifdef BSTONE_AOG
@@ -3574,7 +3651,7 @@ Sint16 InputFloor()
         ::CycleColors();
         ::VW_UpdateScreen();
 
-        if (::screenfaded){
+        if (::screenfaded) {
             ::VW_FadeIn();
         }
 
@@ -3582,10 +3659,10 @@ Sint16 InputFloor()
             draw_stats = false;
 
             static_cast<void>(::ShowStats(
-                167,
-                TOP_STRIP_HEIGHT + 76,
-                ss_normal,
-                &::gamestuff.level[::gamestate.mapon].stats));
+                                  167,
+                                  TOP_STRIP_HEIGHT + 76,
+                                  ss_normal,
+                                  &::gamestuff.level[::gamestate.mapon].stats));
         }
 
         if (use_delay) {
@@ -3606,262 +3683,240 @@ Sint16 InputFloor()
 
     return static_cast<Sint16>(result);
 #else
-	#define RADAR_FLAGS		OV_KEYS
-	#define MAX_TELEPORTS 	20
-	#define MAX_MOVE_DELAY	10
+#define RADAR_FLAGS OV_KEYS
+#define MAX_TELEPORTS 20
+#define MAX_MOVE_DELAY 10
 
-	Sint16 buttonPic,buttonY;
-	Sint16 rt_code=-2,tpNum=gamestate.mapon,lastTpNum=tpNum;
-	Sint16 teleX[MAX_TELEPORTS]={16,40,86,23,44,62,83,27,118,161,161,161,213,213,184,205,226,256,276,276};
-	Sint16 teleY[MAX_TELEPORTS]={13,26, 9,50,50,50,50,62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30};
-	char moveActive=0;
-	objtype old_player;
-	boolean locked=false,buttonsDrawn=false;
+    Sint16 buttonPic, buttonY;
+    Sint16 rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
+    Sint16 teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
+    Sint16 teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
+    char moveActive = 0;
+    objtype old_player;
+    boolean locked = false, buttonsDrawn = false;
 
-	ClearMemory();
-	VW_FadeOut();
+    ClearMemory();
+    VW_FadeOut();
 
-	CacheDrawPic(0,0,TELEPORTBACKTOPPIC);
-	CacheDrawPic(0,12*8,TELEPORTBACKBOTPIC);
-	DisplayTeleportName(static_cast<char>(tpNum),locked);
-	CacheLump(TELEPORT_LUMP_START,TELEPORT_LUMP_END);
-	VWB_DrawMPic(teleX[tpNum],teleY[tpNum],TELEPORT1ONPIC+tpNum);
+    CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
+    CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
+    DisplayTeleportName(static_cast<char>(tpNum), locked);
+    CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+    VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
-	memcpy(&old_player,player,sizeof(objtype));
-	player->angle = 90;
-	player->x = player->y = ((Sint32)32<<TILESHIFT)+(TILEGLOBAL/2);
+    memcpy(&old_player, player, sizeof(objtype));
+    player->angle = 90;
+    player->x = player->y = ((Sint32)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
     ov_buffer = new Uint8[4096];
-	ShowStats(0,0,ss_justcalc,&gamestuff.level[gamestate.mapon].stats);
-	memcpy(&ov_stats,&gamestuff.level[gamestate.mapon].stats,sizeof(statsInfoType));
-	ShowOverhead(TOV_X,TOV_Y,32,0,RADAR_FLAGS);
-	SaveOverheadChunk(tpNum);
+    ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
+    memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
+    ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
+    SaveOverheadChunk(tpNum);
 
-	px = 115;
-	py = 188;
-	fontcolor = 0xaf;
-	fontnumber = 2;
-	ShPrint(if_help,0,false);
+    px = 115;
+    py = 188;
+    fontcolor = 0xaf;
+    fontnumber = 2;
+    ShPrint(if_help, 0, false);
 
-	controlx = controly = 0;
-	IN_ClearKeysDown();
-	while (rt_code == -2)
-	{
-	// Handle ABORT and ACCEPT
-	//
-//		if (!screenfaded)
-//			PollControls();
+    controlx = controly = 0;
+    IN_ClearKeysDown();
+    while (rt_code == -2) {
+        // Handle ABORT and ACCEPT
+        //
+//              if (!screenfaded)
+//                      PollControls();
 
-		CalcTics();
+        CalcTics();
 
         // BBi
         ::in_handle_events();
 
-		if (Keyboard[sc_left_arrow])
-			controlx = -1;
-		else
-			if (Keyboard[sc_right_arrow])
-				controlx = 1;
-			else
-				controlx = 0;
+        if (Keyboard[sc_left_arrow]) {
+            controlx = -1;
+        } else if (Keyboard[sc_right_arrow]) {
+            controlx = 1;
+        } else {
+            controlx = 0;
+        }
 
-		if (Keyboard[sc_up_arrow])
-			controly = -1;
-		else
-			if (Keyboard[sc_down_arrow])
-				controly = 1;
-			else
-				controly = 0;
+        if (Keyboard[sc_up_arrow]) {
+            controly = -1;
+        } else if (Keyboard[sc_down_arrow]) {
+            controly = 1;
+        } else {
+            controly = 0;
+        }
 
-		if (Keyboard[sc_escape] || buttonstate[bt_strafe])
-		{
-			rt_code=-1;													// ABORT
+        if (Keyboard[sc_escape] || buttonstate[bt_strafe]) {
+            rt_code = -1;                                                                                                               // ABORT
 
-			LoadLocationText(gamestate.mapon+MAPS_PER_EPISODE*gamestate.episode);
-			break;
-		}
-		else
-			if (Keyboard[sc_return] || buttonstate[bt_attack])
-			{
-				if (locked)
-				{
-                    if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY))
-                        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
-				}
-				else
-				{
-					char loop;
+            LoadLocationText(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
+            break;
+        } else if (Keyboard[sc_return] || buttonstate[bt_attack]) {
+            if (locked) {
+                if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY)) {
+                    ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+                }
+            } else {
+                char loop;
 
-					rt_code=tpNum;											// ACCEPT
+                rt_code = tpNum;                                                                                                        // ACCEPT
 
-				// Flash selection
-				//
-					for (loop=0; loop<10; loop++)
-					{
-						VWB_DrawMPic(teleX[tpNum],teleY[tpNum],TELEPORT1OFFPIC+tpNum);
-						VW_UpdateScreen();
-						VW_WaitVBL(4);
+                // Flash selection
+                //
+                for (loop = 0; loop < 10; loop++) {
+                    VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1OFFPIC + tpNum);
+                    VW_UpdateScreen();
+                    VW_WaitVBL(4);
 
-						VWB_DrawMPic(teleX[tpNum],teleY[tpNum],TELEPORT1ONPIC+tpNum);
-						VW_UpdateScreen();
-						VW_WaitVBL(4);
-					}
+                    VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
+                    VW_UpdateScreen();
+                    VW_WaitVBL(4);
+                }
 
-					break;
-				}
-			}
+                break;
+            }
+        }
 
-		CheckMusicToggle();
+        CheckMusicToggle();
 
-	// Handle delay
-	//
-		if (moveActive)
-		{
-			moveActive -= static_cast<char>(tics);
-			if (moveActive<0)
-				moveActive=0;
-		}
+        // Handle delay
+        //
+        if (moveActive) {
+            moveActive -= static_cast<char>(tics);
+            if (moveActive < 0) {
+                moveActive = 0;
+            }
+        }
 
-	// Move to NEXT / PREV teleport?
-	//
-		buttonY=0;
-		if (controlx>0 || controly>0)
-		{
-			if (!moveActive && tpNum<MAX_TELEPORTS-1)
-			{
-				tpNum++;												// MOVE NEXT
-				moveActive=MAX_MOVE_DELAY;
-			}
+        // Move to NEXT / PREV teleport?
+        //
+        buttonY = 0;
+        if (controlx > 0 || controly > 0) {
+            if (!moveActive && tpNum < MAX_TELEPORTS - 1) {
+                tpNum++;                                                                                                                // MOVE NEXT
+                moveActive = MAX_MOVE_DELAY;
+            }
 
-			buttonPic = TELEDNONPIC;
-			buttonY = 104;
-		}
-		else
-			if (controlx<0 || controly<0)
-			{
-				if (!moveActive && tpNum)
-				{
-					tpNum--;											// MOVE PREV
-					moveActive=MAX_MOVE_DELAY;
-				}
+            buttonPic = TELEDNONPIC;
+            buttonY = 104;
+        } else if (controlx < 0 || controly < 0) {
+            if (!moveActive && tpNum) {
+                tpNum--;                                                                                                                // MOVE PREV
+                moveActive = MAX_MOVE_DELAY;
+            }
 
-				buttonPic = TELEUPONPIC;
-				buttonY = 91;
-			}
+            buttonPic = TELEUPONPIC;
+            buttonY = 91;
+        }
 
-	// Light buttons?
-	//
-		if (buttonY)
-		{
-			VWB_DrawMPic(34,91,TELEUPOFFPIC);
-			VWB_DrawMPic(270,91,TELEUPOFFPIC);
-			VWB_DrawMPic(34,104,TELEDNOFFPIC);
-			VWB_DrawMPic(270,104,TELEDNOFFPIC);
+        // Light buttons?
+        //
+        if (buttonY) {
+            VWB_DrawMPic(34, 91, TELEUPOFFPIC);
+            VWB_DrawMPic(270, 91, TELEUPOFFPIC);
+            VWB_DrawMPic(34, 104, TELEDNOFFPIC);
+            VWB_DrawMPic(270, 104, TELEDNOFFPIC);
 
-			VWB_DrawMPic(34,buttonY,buttonPic);
-			VWB_DrawMPic(270,buttonY,buttonPic);
-			buttonsDrawn=true;
-		}
-		else
-		// Unlight buttons?
-		//
-			if (buttonsDrawn)
-			{
-				VWB_DrawMPic(34,91,TELEUPOFFPIC);
-				VWB_DrawMPic(270,91,TELEUPOFFPIC);
-				VWB_DrawMPic(34,104,TELEDNOFFPIC);
-				VWB_DrawMPic(270,104,TELEDNOFFPIC);
-				buttonsDrawn=false;
-			}
+            VWB_DrawMPic(34, buttonY, buttonPic);
+            VWB_DrawMPic(270, buttonY, buttonPic);
+            buttonsDrawn = true;
+        } else
+        // Unlight buttons?
+        //
+        if (buttonsDrawn) {
+            VWB_DrawMPic(34, 91, TELEUPOFFPIC);
+            VWB_DrawMPic(270, 91, TELEUPOFFPIC);
+            VWB_DrawMPic(34, 104, TELEDNOFFPIC);
+            VWB_DrawMPic(270, 104, TELEDNOFFPIC);
+            buttonsDrawn = false;
+        }
 
-	// Change visual information
-	//
-		if (tpNum != lastTpNum)
-		{
-			locked = gamestuff.level[tpNum].locked;
-			DisplayTeleportName(static_cast<char>(tpNum),locked);
+        // Change visual information
+        //
+        if (tpNum != lastTpNum) {
+            locked = gamestuff.level[tpNum].locked;
+            DisplayTeleportName(static_cast<char>(tpNum), locked);
 
-			VWB_DrawMPic(teleX[lastTpNum],teleY[lastTpNum],TELEPORT1OFFPIC+lastTpNum);
-			VWB_DrawMPic(teleX[tpNum],teleY[tpNum],TELEPORT1ONPIC+tpNum);
+            VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
+            VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
-			LoadOverheadChunk(tpNum);
-			ShowOverheadChunk();
-			if (ov_noImage)
-			{
-				fontcolor = 0x57;
-				WindowX = WindowW = TOV_X;
-				WindowY = WindowH = TOV_Y;
-				WindowW += 63;
-				WindowH += 63;
-				PrintX = TOV_X+5;
-				PrintY = TOV_Y+13;
-				US_Print(if_noImage);
-			}
-			lastTpNum = tpNum;
-		}
+            LoadOverheadChunk(tpNum);
+            ShowOverheadChunk();
+            if (ov_noImage) {
+                fontcolor = 0x57;
+                WindowX = WindowW = TOV_X;
+                WindowY = WindowH = TOV_Y;
+                WindowW += 63;
+                WindowH += 63;
+                PrintX = TOV_X + 5;
+                PrintY = TOV_Y + 13;
+                US_Print(if_noImage);
+            }
+            lastTpNum = tpNum;
+        }
 
-		if (locked)
-		{
-			ShowOverhead(TOV_X,TOV_Y,32,-1,RADAR_FLAGS);
-		}
+        if (locked) {
+            ShowOverhead(TOV_X, TOV_Y, 32, -1, RADAR_FLAGS);
+        }
 
-		CycleColors();
-		VW_UpdateScreen();
-		if (screenfaded)
-		{
-			VW_FadeIn();
-			ShowStats(235,138,ss_normal,&ov_stats);
-			IN_ClearKeysDown();
-			controlx = controly = 0;
-		}
-	}
+        CycleColors();
+        VW_UpdateScreen();
+        if (screenfaded) {
+            VW_FadeIn();
+            ShowStats(235, 138, ss_normal, &ov_stats);
+            IN_ClearKeysDown();
+            controlx = controly = 0;
+        }
+    }
 
 #if 0
-	for (buttonY=63; buttonY>=0; buttonY -= 2)
-	{
-		char shps[]={TELEPORT1ONPIC,TELEPORT1OFFPIC};
+    for (buttonY = 63; buttonY >= 0; buttonY -= 2) {
+        char shps[] = { TELEPORT1ONPIC, TELEPORT1OFFPIC };
 
-		if (rt_code != -1)
-			VWB_DrawMPic(teleX[tpNum],teleY[tpNum],shps[(buttonY&4)>>2]+tpNum);
+        if (rt_code != -1) {
+            VWB_DrawMPic(teleX[tpNum], teleY[tpNum], shps[(buttonY & 4) >> 2] + tpNum);
+        }
 
-		if (locked)
-		{
-			ShowOverhead(TOV_X,TOV_Y,32,-locked,RADAR_FLAGS);
-		}
+        if (locked) {
+            ShowOverhead(TOV_X, TOV_Y, 32, -locked, RADAR_FLAGS);
+        }
 
-		CycleColors();
-		VL_SetPaletteIntensity(0,255,&vgapal,buttonY);
-		VW_UpdateScreen();
-	}
+        CycleColors();
+        VL_SetPaletteIntensity(0, 255, &vgapal, buttonY);
+        VW_UpdateScreen();
+    }
 #else
-	VW_FadeOut();
+    VW_FadeOut();
 #endif
 
     delete [] ov_buffer;
     ov_buffer = NULL;
 
-	memcpy(player,&old_player,sizeof(objtype));
-	UnCacheLump(TELEPORT_LUMP_START,TELEPORT_LUMP_END);
+    memcpy(player, &old_player, sizeof(objtype));
+    UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
-	DrawPlayScreen(false);
-	IN_ClearKeysDown();
+    DrawPlayScreen(false);
+    IN_ClearKeysDown();
 
-	return(rt_code);
+    return rt_code;
 #endif // BSTONE_AOG
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ShowOverheadChunk()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void ShowOverheadChunk()
 {
-	VL_MemToScreen(static_cast<const Uint8*>(ov_buffer),64,64,TOV_X,TOV_Y);
-	ShowStats(235,138,ss_quick,&ov_stats);
+    VL_MemToScreen(static_cast<const Uint8*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
+    ShowStats(235, 138, ss_quick, &ov_stats);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // LoadOverheadChunk()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void LoadOverheadChunk(
     int tpNum)
 {
@@ -3880,7 +3935,7 @@ void LoadOverheadChunk(
     if (::FindChunk(&g_playtemp, chunk_name) > 0) {
         try {
             ::deserialize_field(
-                reinterpret_cast<Uint8 (&)[4096]>(ov_buffer[0]),
+                reinterpret_cast<Uint8(&)[4096]>(ov_buffer[0]),
                 reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
@@ -3892,8 +3947,9 @@ void LoadOverheadChunk(
         is_succeed &= reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
         is_succeed &= (saved_checksum == checksum);
-    } else
+    } else {
         is_succeed = false;
+    }
 
     if (!is_succeed) {
         std::uninitialized_fill_n(
@@ -3910,9 +3966,9 @@ void LoadOverheadChunk(
     ov_noImage = !is_succeed;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // SaveOverheadChunk()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void SaveOverheadChunk(
     int tpNum)
 {
@@ -3940,7 +3996,7 @@ void SaveOverheadChunk(
     Sint64 beg_offset = g_playtemp.get_position();
 
     ::serialize_field(
-        reinterpret_cast<const Uint8 (&)[4096]>(ov_buffer[0]),
+        reinterpret_cast<const Uint8(&)[4096]>(ov_buffer[0]),
         writer, checksum);
     ov_stats.serialize(writer, checksum);
     writer.write(bstone::Endian::le(checksum));
@@ -3951,83 +4007,91 @@ void SaveOverheadChunk(
     writer.write(bstone::Endian::le(chunk_size));
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DisplayTeleportName()
-//--------------------------------------------------------------------------
-void DisplayTeleportName(char tpNum, boolean locked)
+// --------------------------------------------------------------------------
+void DisplayTeleportName(
+    char tpNum,
+    boolean locked)
 {
-	const char *s;
-	int w;
+    const char* s;
+    int w;
     int h;
 
-	if (locked)
-	{
-		fontcolor = 0xf5;
-		s = "-- TELEPORT DISABLED --";
-	}
-	else
-	{
-		fontcolor = 0x57;
-		LoadLocationText(tpNum);
-		s = LocationText;
-	}
-	VW_MeasurePropString(s,&w,&h);
-	py = 103;
-	px = 160-w/2;
-	VW_Bar(54,101,212,9,0x52);
-	ShPrint(s,0,false);
+    if (locked) {
+        fontcolor = 0xf5;
+        s = "-- TELEPORT DISABLED --";
+    } else {
+        fontcolor = 0x57;
+        LoadLocationText(tpNum);
+        s = LocationText;
+    }
+    VW_MeasurePropString(s, &w, &h);
+    py = 103;
+    px = 160 - w / 2;
+    VW_Bar(54, 101, 212, 9, 0x52);
+    ShPrint(s, 0, false);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CacheDrawPic()
-//--------------------------------------------------------------------------
-void CacheDrawPic(int x, int y, int pic)
+// --------------------------------------------------------------------------
+void CacheDrawPic(
+    int x,
+    int y,
+    int pic)
 {
-	CA_CacheGrChunk(static_cast<Sint16>(pic));
-	VWB_DrawPic(x,y,pic);
-	UNCACHEGRCHUNK(static_cast<Uint16>(pic));
+    CA_CacheGrChunk(static_cast<Sint16>(pic));
+    VWB_DrawPic(x, y, pic);
+    UNCACHEGRCHUNK(static_cast<Uint16>(pic));
 }
 
-//===========================================================================
+// ===========================================================================
 //
-//						     MISSION STATISTICS CODE
+//                                                   MISSION STATISTICS CODE
 //
-//===========================================================================
+// ===========================================================================
 
-	#define BAR_W			48
-	#define BAR_H			5
+#define BAR_W 48
+#define BAR_H 5
 
-	#define BAR1_COLOR	0xe0
-	#define BAR2_COLOR	0x30
-	#define BAR3_COLOR	0x10
+#define BAR1_COLOR 0xe0
+#define BAR2_COLOR 0x30
+#define BAR3_COLOR 0x10
 
-	#define PERC_W			13
-	#define PERC_H			5
+#define PERC_W 13
+#define PERC_H 5
 
 boolean show_stats_quick;
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ShowStats()
-//--------------------------------------------------------------------------
-Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats)
+// --------------------------------------------------------------------------
+Sint16 ShowStats(
+    Sint16 bx,
+    Sint16 by,
+    ss_type type,
+    statsInfoType* stats)
 {
-	Sint16 floor,total=0,mission=0,p1,p2,p3,loop,maxPerFloor;
+    Sint16 floor, total = 0, mission = 0, p1, p2, p3, loop, maxPerFloor;
 
 // Define max points per floor...
 //
-	if (stats->total_points || stats->total_inf || stats->total_enemy)
-		maxPerFloor = 300;
-	else
-		maxPerFloor = 0;
+    if (stats->total_points || stats->total_inf || stats->total_enemy) {
+        maxPerFloor = 300;
+    } else {
+        maxPerFloor = 0;
+    }
 
 // Setup to test for bypassing stats.
 //
-	LastScan=sc_none;
+    LastScan = sc_none;
 
-	if (type == ss_quick)
-		show_stats_quick=true;
-	else
-		show_stats_quick=false;
+    if (type == ss_quick) {
+        show_stats_quick = true;
+    } else {
+        show_stats_quick = false;
+    }
 
 // Show ratio for each statistic:
 //
@@ -4037,396 +4101,415 @@ Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats)
 
 // Show TOTAL POINTS ratio.
 //
-	p1=ShowRatio(bx,by,bx+52,by,stats->total_points,stats->accum_points,type);
+    p1 = ShowRatio(bx, by, bx + 52, by, stats->total_points, stats->accum_points, type);
 
 // Show INFORMANTS ALIVE ratio.
 //
-	by += 7;
-	p2=ShowRatio(bx,by,bx+52,by,stats->total_inf,stats->accum_inf,type);
+    by += 7;
+    p2 = ShowRatio(bx, by, bx + 52, by, stats->total_inf, stats->accum_inf, type);
 
 // Show ENEMY DESTROYED ratio.
 //
-	by += 7;
-	p3=ShowRatio(bx,by,bx+52,by,stats->total_enemy,stats->accum_enemy,type);
+    by += 7;
+    p3 = ShowRatio(bx, by, bx + 52, by, stats->total_enemy, stats->accum_enemy, type);
 
 // Show OVERALL FLOOR ratio.
 //
 #ifdef BSTONE_AOG
     by += 12;
 #else
-	by += 13;
+    by += 13;
 #endif
-	floor=p1+p2+p3;
-	ShowRatio(bx,by,bx+52,by,maxPerFloor,floor,type);
+    floor = p1 + p2 + p3;
+    ShowRatio(bx, by, bx + 52, by, maxPerFloor, floor, type);
 
 // Show OVERALL MISSION ratio.
 //
-	by += 7;
-	stats->overall_floor=floor;
-	for (loop=0; loop<MAPS_WITH_STATS; loop++)
-	{
-		total+=300;
-		mission+=gamestuff.level[loop].stats.overall_floor;
-	}
-	mission=ShowRatio(bx,by,bx+52,by,total,mission,type);
+    by += 7;
+    stats->overall_floor = floor;
+    for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
+        total += 300;
+        mission += gamestuff.level[loop].stats.overall_floor;
+    }
+    mission = ShowRatio(bx, by, bx + 52, by, total, mission, type);
 
-	if (show_stats_quick)
-		VW_UpdateScreen();
+    if (show_stats_quick) {
+        VW_UpdateScreen();
+    }
 
-	return(mission);
+    return mission;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // ShowRatio()
-//--------------------------------------------------------------------------
-Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 nx, Sint16 ny, Sint32 total, Sint32 perc, ss_type type)
+// --------------------------------------------------------------------------
+Uint8 ShowRatio(
+    Sint16 bx,
+    Sint16 by,
+    Sint16 nx,
+    Sint16 ny,
+    Sint32 total,
+    Sint32 perc,
+    ss_type type)
 {
-	char numbars;
-	char maxperc;
-	char percentage=1,loop;
+    char numbars;
+    char maxperc;
+    char percentage = 1, loop;
 
-//	if (perc > total)
-//		perc = total;
+//      if (perc > total)
+//              perc = total;
 
 // Catch those nasty divide-by-zeros!
 //
-	if (total)
-	{
-		maxperc=static_cast<char>(LRATIO(100,total,perc,10));
-		numbars=LRATIO(48,100,maxperc,10);
-	}
-	else
-	{
-		if (type != ss_justcalc)
-		{
-			fontcolor = 0x57;
-			VW_Bar(bx,by,BAR_W,BAR_H,0);
-			VW_Bar(nx,ny,PERC_W+6,PERC_H,0);
-			PrintX=nx; PrintY=ny;
-			US_Print("N/A");
-		}
-		return(100);
-	}
+    if (total) {
+        maxperc = static_cast<char>(LRATIO(100, total, perc, 10));
+        numbars = LRATIO(48, 100, maxperc, 10);
+    } else {
+        if (type != ss_justcalc) {
+            fontcolor = 0x57;
+            VW_Bar(bx, by, BAR_W, BAR_H, 0);
+            VW_Bar(nx, ny, PERC_W + 6, PERC_H, 0);
+            PrintX = nx;
+            PrintY = ny;
+            US_Print("N/A");
+        }
+        return 100;
+    }
 
-	if (type == ss_justcalc)
-		return(maxperc);
+    if (type == ss_justcalc) {
+        return maxperc;
+    }
 
-	PrintY=ny;
-	fontcolor=0xaf;
-	fontnumber=2;
+    PrintY = ny;
+    fontcolor = 0xaf;
+    fontnumber = 2;
 
-	VW_Bar(bx,by,BAR_W,BAR_H,0x07);
-	PrintStatPercent(nx,ny,0);
-	for (loop=0; loop<numbars; loop++)
-	{
-		if (LastScan)
-			show_stats_quick=true;
+    VW_Bar(bx, by, BAR_W, BAR_H, 0x07);
+    PrintStatPercent(nx, ny, 0);
+    for (loop = 0; loop < numbars; loop++) {
+        if (LastScan) {
+            show_stats_quick = true;
+        }
 
-	// Print one line of bar
-	//
-		VL_Vlin(bx++,by,BAR_H,0xc8);
+        // Print one line of bar
+        //
+        VL_Vlin(bx++, by, BAR_H, 0xc8);
 
-	// Keep up with current percentage
-	//
-		if (loop==numbars-1)
-			percentage = maxperc;
-		else
-			percentage += 2;
+        // Keep up with current percentage
+        //
+        if (loop == numbars - 1) {
+            percentage = maxperc;
+        } else {
+            percentage += 2;
+        }
 
-		PrintStatPercent(nx,ny,percentage);
+        PrintStatPercent(nx, ny, percentage);
 
-		if (!show_stats_quick)
-		{
-			if (!(loop%2))
-            ::sd_play_player_sound(STATS1SND, bstone::AC_ITEM);
-			VW_WaitVBL(1);
-			VW_UpdateScreen();
-		}
-	}
+        if (!show_stats_quick) {
+            if (!(loop % 2)) {
+                ::sd_play_player_sound(STATS1SND, bstone::AC_ITEM);
+            }
+            VW_WaitVBL(1);
+            VW_UpdateScreen();
+        }
+    }
 
-	if (!show_stats_quick && numbars)
-	{
+    if (!show_stats_quick && numbars) {
         ::sd_play_player_sound(STATS2SND, bstone::AC_ITEM);
 
-        while (::SD_SoundPlaying() && !LastScan)
+        while (::SD_SoundPlaying() && !LastScan) {
             ::in_handle_events();
-	}
+        }
+    }
 
-	return(maxperc);
+    return maxperc;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // PrintStatPercent()
-//--------------------------------------------------------------------------
-void PrintStatPercent(Sint16 nx, Sint16 ny, char percentage)
+// --------------------------------------------------------------------------
+void PrintStatPercent(
+    Sint16 nx,
+    Sint16 ny,
+    char percentage)
 {
-	if (percentage < 10)
-		PrintX=nx+9;
-	else
-	if (percentage < 100)
-		PrintX=nx+4;
-	else
-		PrintX=nx-1;
+    if (percentage < 10) {
+        PrintX = nx + 9;
+    } else if (percentage < 100) {
+        PrintX = nx + 4;
+    } else {
+        PrintX = nx - 1;
+    }
 
-	VW_Bar(nx,ny,PERC_W+5,PERC_H,0);
-	US_PrintUnsigned(percentage);
-	US_Print("%");
+    VW_Bar(nx, ny, PERC_W + 5, PERC_H, 0);
+    US_PrintUnsigned(percentage);
+    US_Print("%");
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // PerfectStats()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 boolean PerfectStats()
 {
-	if ((gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points) &&
-		 (gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&
-		 (gamestuff.level[gamestate.mapon].stats.total_enemy == gamestuff.level[gamestate.mapon].stats.accum_enemy))
-		return(true);
+    if ((gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points) &&
+        (gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&
+        (gamestuff.level[gamestate.mapon].stats.total_enemy == gamestuff.level[gamestate.mapon].stats.accum_enemy))
+    {
+        return true;
+    }
 
-	return(false);
+    return false;
 }
 
-//===========================================================================
+// ===========================================================================
 //
-//  				           PINBALL BONUS DISPLAY CODE
+//                                         PINBALL BONUS DISPLAY CODE
 //
-//===========================================================================
+// ===========================================================================
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // B_GAliFunc()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void B_GAliFunc()
 {
-	extern char B_GAlienDead2[];
+    extern char B_GAlienDead2[];
 
-	if (gamestate.episode == 5)
-		DisplayInfoMsg(B_GAlienDead2,MP_PINBALL_BONUS,7*60,MT_BONUS);
+    if (gamestate.episode == 5) {
+        DisplayInfoMsg(B_GAlienDead2, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
+    }
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // B_EManFunc()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void B_EManFunc()
 {
-	Uint16 temp,i;
+    Uint16 temp, i;
 
     ::sd_play_player_sound(EXTRA_MANSND, bstone::AC_ITEM);
 
-	fontnumber = 2;
+    fontnumber = 2;
 
-	temp = static_cast<Uint16>(bufferofs);
+    temp = static_cast<Uint16>(bufferofs);
 
-	for (i=0;i<3;i++)
-	{
-		bufferofs = screenloc[i];
-		LatchDrawPic(0,0,TOP_STATUSBARPIC);
-		ShadowPrintLocationText(sp_normal);
-	}
+    for (i = 0; i < 3; i++) {
+        bufferofs = screenloc[i];
+        LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+        ShadowPrintLocationText(sp_normal);
+    }
 
-	bufferofs = temp;
+    bufferofs = temp;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // B_MillFunc()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void B_MillFunc()
 {
-	GiveAmmo(99);
-	HealSelf(99);
+    GiveAmmo(99);
+    HealSelf(99);
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // B_RollFunc()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void B_RollFunc()
 {
-	B_MillFunc();
-	gamestate.score_roll_wait	= SCORE_ROLL_WAIT;
+    B_MillFunc();
+    gamestate.score_roll_wait = SCORE_ROLL_WAIT;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Pinball Bonus Text
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 char B_GAlienDead2[] = "^FC57    GUARDIAN ALIEN\r"
-										  "      DESTROYED!\r\r"
-									"^FCA6 FIND AND DESTROY ALL\r"
-										  "PROJECTION GENERATORS!";
+                       "      DESTROYED!\r\r"
+                       "^FCA6 FIND AND DESTROY ALL\r"
+                       "PROJECTION GENERATORS!";
 
-char B_GAlienDead[] =  "^FC57    GUARDIAN ALIEN\r"
-										 "      DESTROYED!\r\r"
-								  "^FCA6   FIND THE EXIT TO\r"
-										 "COMPLETE THIS MISSION";
+char B_GAlienDead[] = "^FC57    GUARDIAN ALIEN\r"
+                      "      DESTROYED!\r\r"
+                      "^FCA6   FIND THE EXIT TO\r"
+                      "COMPLETE THIS MISSION";
 
 char B_ScoreRolled[] = "^FC57\rROLLED SCORE DISPLAY!\r"
-									"^FCA6   FULL AMMO BONUS!\r"
-										  "  FULL HEALTH BONUS!\r"
-										  "1,000,000 POINT BONUS!";
+                       "^FCA6   FULL AMMO BONUS!\r"
+                       "  FULL HEALTH BONUS!\r"
+                       "1,000,000 POINT BONUS!";
 
-char B_OneMillion[]  = "^FC57\r     GREAT SCORE!\r"
-									"^FCA6   FULL AMMO BONUS!\r"
-										  "  FULL HEALTH BONUS!\r"
-										  "1,000,000 POINT BONUS!";
+char B_OneMillion[] = "^FC57\r     GREAT SCORE!\r"
+                      "^FCA6   FULL AMMO BONUS!\r"
+                      "  FULL HEALTH BONUS!\r"
+                      "1,000,000 POINT BONUS!";
 
-char B_ExtraMan[]  = "^FC57\r\r     GREAT SCORE!\r"
-									"^FCA6  EXTRA LIFE BONUS!\r";
+char B_ExtraMan[] = "^FC57\r\r     GREAT SCORE!\r"
+                    "^FCA6  EXTRA LIFE BONUS!\r";
 
-char B_EnemyDestroyed[]  = "^FC57\r\r ALL ENEMY DESTROYED!\r"
-									  "^FCA6  50,000 POINT BONUS!\r";
+char B_EnemyDestroyed[] = "^FC57\r\r ALL ENEMY DESTROYED!\r"
+                          "^FCA6  50,000 POINT BONUS!\r";
 
-char B_TotalPoints[]  =  "^FC57\r\r ALL POINTS COLLECTED!\r"
-									"^FCA6  50,000 POINT BONUS!\r";
+char B_TotalPoints[] = "^FC57\r\r ALL POINTS COLLECTED!\r"
+                       "^FCA6  50,000 POINT BONUS!\r";
 
-char B_InformantsAlive[]  = "^FC57\r\r ALL INFORMANTS ALIVE!\r"
-										"^FCA6  50,000 POINT BONUS!\r";
+char B_InformantsAlive[] = "^FC57\r\r ALL INFORMANTS ALIVE!\r"
+                           "^FCA6  50,000 POINT BONUS!\r";
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Pinball Bonus Table
-//--------------------------------------------------------------------------
-PinballBonusInfo PinballBonus[]={
+// --------------------------------------------------------------------------
+PinballBonusInfo PinballBonus[] = {
 
 //                                        Special
-//  BonusText           Points   Recur?	Function
-//-----------------------------------------------------
-	{B_GAlienDead,			0,			false,	B_GAliFunc},
-	{B_ScoreRolled,		1000000l,true,		B_RollFunc},
-	{B_OneMillion,		  	1000000l,false,	B_MillFunc},
-	{B_ExtraMan,	 		0,			true,		B_EManFunc},
-	{B_EnemyDestroyed,	50000l,	false,	NULL},
-	{B_TotalPoints,		50000l,	false,	NULL},
-	{B_InformantsAlive,	50000l,	false,	NULL},
+//  BonusText           Points   Recur? Function
+// -----------------------------------------------------
+    { B_GAlienDead, 0, false, B_GAliFunc },
+    { B_ScoreRolled, 1000000l, true, B_RollFunc },
+    { B_OneMillion, 1000000l, false, B_MillFunc },
+    { B_ExtraMan, 0, true, B_EManFunc },
+    { B_EnemyDestroyed, 50000l, false, NULL },
+    { B_TotalPoints, 50000l, false, NULL },
+    { B_InformantsAlive, 50000l, false, NULL },
 
 };
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // DisplayPinballBonus()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void DisplayPinballBonus()
 {
-	char loop;
+    char loop;
 
 // Check queue for bonuses
 //
-	for (loop=0; loop<static_cast<char>(sizeof(gamestuff.level[0].bonus_queue)*8); loop++)
-		if ((BONUS_QUEUE & (1<<loop)) && (LastMsgPri < MP_PINBALL_BONUS))
-		{
-		// Start this bonus!
-		//
+    for (loop = 0; loop < static_cast<char>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++) {
+        if ((BONUS_QUEUE & (1 << loop)) && (LastMsgPri < MP_PINBALL_BONUS)) {
+            // Start this bonus!
+            //
             ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
 
-			DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText,MP_PINBALL_BONUS,7*60,MT_BONUS);
+            DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
 
-		// Add to "shown" ... Remove from "queue"
-		//
-			if (!PinballBonus[static_cast<int>(loop)].Recurring)
-				BONUS_SHOWN |= (1<<loop);
-			BONUS_QUEUE &= ~(1<<loop);
+            // Add to "shown" ... Remove from "queue"
+            //
+            if (!PinballBonus[static_cast<int>(loop)].Recurring) {
+                BONUS_SHOWN |= (1 << loop);
+            }
+            BONUS_QUEUE &= ~(1 << loop);
 
-		// Give points and execute special function.
-		//
-			GivePoints(PinballBonus[static_cast<int>(loop)].Points,false);
-			if (PinballBonus[static_cast<int>(loop)].func)
-				PinballBonus[static_cast<int>(loop)].func();
-		}
+            // Give points and execute special function.
+            //
+            GivePoints(PinballBonus[static_cast<int>(loop)].Points, false);
+            if (PinballBonus[static_cast<int>(loop)].func) {
+                PinballBonus[static_cast<int>(loop)].func();
+            }
+        }
+    }
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // CheckPinballBonus()
-//--------------------------------------------------------------------------
-void CheckPinballBonus(Sint32 points)
+// --------------------------------------------------------------------------
+void CheckPinballBonus(
+    Sint32 points)
 {
-	Sint32 score_before=gamestate.score,
-		  score_after=gamestate.score+points;
+    Sint32 score_before = gamestate.score,
+           score_after = gamestate.score + points;
 
 // Check SCORE ROLLED bonus
 //
-	if (score_before <= MAX_DISPLAY_SCORE && score_after > MAX_DISPLAY_SCORE)
-		ActivatePinballBonus(B_SCORE_ROLLED);
+    if (score_before <= MAX_DISPLAY_SCORE && score_after > MAX_DISPLAY_SCORE) {
+        ActivatePinballBonus(B_SCORE_ROLLED);
+    }
 
 // Check ONE MILLION bonus
 //
-	if	(score_before < 500000l && score_after >= 500000l)
-		ActivatePinballBonus(B_ONE_MILLION);
+    if (score_before < 500000l && score_after >= 500000l) {
+        ActivatePinballBonus(B_ONE_MILLION);
+    }
 
 // Check EXTRA MAN bonus
 //
-	if (score_after >= gamestate.nextextra)
-	{
-		gamestate.nextextra += EXTRAPOINTS;
-		if (gamestate.lives < MAX_EXTRA_LIVES)
-		{
-			gamestate.lives++;
-			ActivatePinballBonus(B_EXTRA_MAN);
-		}
-	}
+    if (score_after >= gamestate.nextextra) {
+        gamestate.nextextra += EXTRAPOINTS;
+        if (gamestate.lives < MAX_EXTRA_LIVES) {
+            gamestate.lives++;
+            ActivatePinballBonus(B_EXTRA_MAN);
+        }
+    }
 
 // Check TOTAL ENEMY bonus
 //
-	if (gamestuff.level[gamestate.mapon].stats.total_enemy == gamestuff.level[gamestate.mapon].stats.accum_enemy)
-		ActivatePinballBonus(B_ENEMY_DESTROYED);
+    if (gamestuff.level[gamestate.mapon].stats.total_enemy == gamestuff.level[gamestate.mapon].stats.accum_enemy) {
+        ActivatePinballBonus(B_ENEMY_DESTROYED);
+    }
 
 // Check TOTAL POINTS bonus
 //
-	if (gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points)
-		ActivatePinballBonus(B_TOTAL_POINTS);
+    if (gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points) {
+        ActivatePinballBonus(B_TOTAL_POINTS);
+    }
 
 // Check INFORMANTS ALIVE bonus
 //
-	if ((gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&	// All informants alive?
-		  (gamestuff.level[gamestate.mapon].stats.total_inf) &&																							// Any informants in level?
-		  ((BONUS_SHOWN & (B_TOTAL_POINTS|B_ENEMY_DESTROYED)) == (B_TOTAL_POINTS|B_ENEMY_DESTROYED)))														// Got ENEMY and POINTS bonuses?
-		ActivatePinballBonus(B_INFORMANTS_ALIVE);
+    if ((gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&       // All informants alive?
+        (gamestuff.level[gamestate.mapon].stats.total_inf) &&                                                                                                                                                                                           // Any informants in level?
+        ((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) == (B_TOTAL_POINTS | B_ENEMY_DESTROYED)))                                                                                                                 // Got ENEMY and POINTS bonuses?
+    {
+        ActivatePinballBonus(B_INFORMANTS_ALIVE);
+    }
 
 // Display bonuses?
 //
-	if (BONUS_QUEUE)
-		DisplayPinballBonus();
+    if (BONUS_QUEUE) {
+        DisplayPinballBonus();
+    }
 }
 
-//===========================================================================
+// ===========================================================================
 //
 //
-//								COMPUTER TERMINAL ROUTINES
+//                                                              COMPUTER TERMINAL ROUTINES
 //
 //
-//===========================================================================
+// ===========================================================================
 
 #ifdef ACTIVATE_TERMINAL
 
 #define TERM_BUFFERED_DISPLAY
-#define TERM_VIEW_WIDTH					246
-#define TERM_VIEW_HEIGHT				95
-//#define TERM_BACK_COLOR					2			// Defined in 3d)menu.h
-#define TERM_BACK_XOFS					8
-#define TERM_BACK_YOFS					22
-#define TERM_BACK_WIDTH 				304
-#define TERM_BACK_HEIGHT				124
+#define TERM_VIEW_WIDTH 246
+#define TERM_VIEW_HEIGHT 95
+// #define TERM_BACK_COLOR                                      2                       // Defined in 3d)menu.h
+#define TERM_BACK_XOFS 8
+#define TERM_BACK_YOFS 22
+#define TERM_BACK_WIDTH 304
+#define TERM_BACK_HEIGHT 124
 
-#define TERM_BCOLOR						3		// Dark Grey
-#define TERM_TCOLOR						88		// Green MONO text color 87=LOW intensity
-#define TERM_TSHAD_COLOR				0     // "Shadow" color
+#define TERM_BCOLOR 3 // Dark Grey
+#define TERM_TCOLOR 88 // Green MONO text color 87=LOW intensity
+#define TERM_TSHAD_COLOR 0 // "Shadow" color
 
-#define TERM_SCREEN_XOFS				(TERM_BACK_XOFS+19)
-#define TERM_SCREEN_YOFS				(TERM_BACK_YOFS+14)
+#define TERM_SCREEN_XOFS (TERM_BACK_XOFS + 19)
+#define TERM_SCREEN_YOFS (TERM_BACK_YOFS + 14)
 
 static Uint16 tcursor_x = TERM_SCREEN_XOFS,
-					 tcursor_y = TERM_SCREEN_YOFS;
+              tcursor_y = TERM_SCREEN_YOFS;
 
 
 char TERM_sound_on = 1;
 
 
-char *Commands[TC_LAST];
+char* Commands[TC_LAST];
 
 memptr TermMessages = NULL;
 memptr TermCommands = NULL;
 
-#define FreeTerminalCommands()	MM_FreePtr(&TermCommands)
-#define FreeTerminalMessages()	MM_FreePtr(&TermMessages)
-#define LoadTerminalText()			IO_LoadFile(term_msg_name,&TermMessages)
-//#define LoadTerminalText()			IO_LoadFile("TERM_MSG.TXT",&TermMessages)
+#define FreeTerminalCommands() MM_FreePtr(&TermCommands)
+#define FreeTerminalMessages() MM_FreePtr(&TermMessages)
+#define LoadTerminalText() IO_LoadFile(term_msg_name, &TermMessages)
+// #define LoadTerminalText()                   IO_LoadFile("TERM_MSG.TXT",&TermMessages)
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 //
 // LoadTerminalCommands()
 //
@@ -4438,33 +4521,34 @@ memptr TermCommands = NULL;
 // NOTE: This expects that TC_LAST in the enum list of commands is concurrent
 //       with the grseg TERM_COMMANDS.
 //
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void LoadTerminalCommands()
 {
-	char *Message;
-	Uint8 pos;
+    char* Message;
+    Uint8 pos;
 
-//	IO_LoadFile("TERM_CMD.TXT",&TermCommands);
-	IO_LoadFile(term_com_name,&TermCommands);
-	Message = TermCommands;
+//      IO_LoadFile("TERM_CMD.TXT",&TermCommands);
+    IO_LoadFile(term_com_name, &TermCommands);
+    Message = TermCommands;
 
-	for (pos = 0;pos<TC_LAST;pos++)
-   {
-      // Bump past any leading returns/linefeeds
+    for (pos = 0; pos < TC_LAST; pos++) {
+        // Bump past any leading returns/linefeeds
 
-      while (*Message == '\n' || *Message == '\r')
-      	Message++;
+        while (*Message == '\n' || *Message == '\r') {
+            Message++;
+        }
 
-      // Assign ptrs
+        // Assign ptrs
 
-      Commands[pos] = Message;
+        Commands[pos] = Message;
 
-		if (!(Message = _fstrstr(Message,int_xx)))
-			ACT1_ERROR(INVALID_CACHE_MSG_NUM);
+        if (!(Message = _fstrstr(Message, int_xx))) {
+            ACT1_ERROR(INVALID_CACHE_MSG_NUM);
+        }
 
-      *Message = 0;	// Null Terminate String
-		Message += 3;	// Bump to start of next Message
-	}
+        *Message = 0;   // Null Terminate String
+        Message += 3;           // Bump to start of next Message
+    }
 }
 
 
@@ -4477,161 +4561,158 @@ boolean shadow_text = true;
 
 PresenterInfo Terminal_PI;
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // TerminalPrint()
-//---------------------------------------------------------------------------
-void TerminalPrint(char *msg, boolean FastPrint)
+// ---------------------------------------------------------------------------
+void TerminalPrint(
+    char* msg,
+    boolean FastPrint)
 {
-	Terminal_PI.print_delay = !FastPrint;
-	Terminal_PI.script[0] = msg;
-	TP_Presenter(&Terminal_PI);
+    Terminal_PI.print_delay = !FastPrint;
+    Terminal_PI.script[0] = msg;
+    TP_Presenter(&Terminal_PI);
 }
 
 #else
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // TerminalPrint()
 //
 // NOTE : Terminal Control Chars
 //
 //          @ - Square Box (IE. Cursor)
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
-void TerminalPrint(char *msg,boolean FastPrint)
+void TerminalPrint(
+    char* msg,
+    boolean FastPrint)
 {
-	#define TERM_PRINT_DELAY			1
-	fontstruct *font;
-	char buf[2] = {0,0};
-	char old_color,old_color2;
-	char fontheight;
+#define TERM_PRINT_DELAY 1
+    fontstruct* font;
+    char buf[2] = { 0, 0 };
+    char old_color, old_color2;
+    char fontheight;
 
-	font = (fontstruct *)grsegs[STARTFONT+fontnumber];
-	fontheight = font->height;
+    font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+    fontheight = font->height;
 
-	while (msg && *msg)
-	{
-		buf[0] = *msg++;
+    while (msg && *msg) {
+        buf[0] = *msg++;
 
-		if (buf[0] == '^')
-		{
-			//
-			//  Handle Control Codes
-			//
+        if (buf[0] == '^') {
+            //
+            //  Handle Control Codes
+            //
 
-			switch (*((Uint16 *)msg)++)
-			{
-				// FONT COLOR
-				//
-				case TP_CNVT_CODE('F','C'):
-					fontcolor = TP_VALUE(msg,2);
-					msg += 2;
-				break;
+            switch (*((Uint16*)msg)++) {
+            // FONT COLOR
+            //
+            case TP_CNVT_CODE('F', 'C'):
+                fontcolor = TP_VALUE(msg, 2);
+                msg += 2;
+                break;
 
-				// BELL
-				//
-				case TP_CNVT_CODE('B','E'):
-					SD_PlaySound(TERM_BEEPSND);
-					SD_WaitSoundDone();
-				break;
+            // BELL
+            //
+            case TP_CNVT_CODE('B', 'E'):
+                SD_PlaySound(TERM_BEEPSND);
+                SD_WaitSoundDone();
+                break;
 
-				// HIDE CURSOR
-				//
-				case TP_CNVT_CODE('H','I'):
-					px = tcursor_x;
-					py = tcursor_y;
-					old_color = fontcolor;
-					fontcolor = TERM_BCOLOR;
-					VW_DrawPropString("@");
-					fontcolor = old_color;
-				break;
+            // HIDE CURSOR
+            //
+            case TP_CNVT_CODE('H', 'I'):
+                px = tcursor_x;
+                py = tcursor_y;
+                old_color = fontcolor;
+                fontcolor = TERM_BCOLOR;
+                VW_DrawPropString("@");
+                fontcolor = old_color;
+                break;
 
 
-				// PAUSE
-				//
-				case TP_CNVT_CODE('P','A'):
-					VW_WaitVBL(30);
-				break;
+            // PAUSE
+            //
+            case TP_CNVT_CODE('P', 'A'):
+                VW_WaitVBL(30);
+                break;
 
 
             // END OF MSG
             //
 
-            case TP_CNVT_CODE('X','X'):
-            	msg = NULL;
-            break;
+            case TP_CNVT_CODE('X', 'X'):
+                msg = NULL;
+                break;
 
-			}
-		}
-		else
-		{
-			//
-			// Process Text Char (Like print it!)
-			//
+            }
+        } else {
+            //
+            // Process Text Char (Like print it!)
+            //
 
-			bufferofs = displayofs;
+            bufferofs = displayofs;
 
-			if (term_cursor_vis)
-			{
-				px = tcursor_x;
-				py = tcursor_y;
+            if (term_cursor_vis) {
+                px = tcursor_x;
+                py = tcursor_y;
 
-				old_color = fontcolor;		// Store Cursor Color
-				fontcolor = TERM_BCOLOR;
+                old_color = fontcolor;                          // Store Cursor Color
+                fontcolor = TERM_BCOLOR;
 
-				VW_DrawPropString("@");
+                VW_DrawPropString("@");
 
-				fontcolor = old_color;
-			}
+                fontcolor = old_color;
+            }
 
-			if (buf[0] != '\n')
-			{
-				// Blast "Shadow" on screen
+            if (buf[0] != '\n') {
+                // Blast "Shadow" on screen
 
-				if (shadow_text)
-				{
-					px = tcursor_x+1;
-					py = tcursor_y+1;
-					old_color2 = fontcolor;					// STORE	Old Colr
-					fontcolor =	TERM_TSHAD_COLOR;
-					VW_DrawPropString(buf);
-					fontcolor = old_color2;					// RESTORE Old Colr
-				}
+                if (shadow_text) {
+                    px = tcursor_x + 1;
+                    py = tcursor_y + 1;
+                    old_color2 = fontcolor;                                                     // STORE        Old Colr
+                    fontcolor = TERM_TSHAD_COLOR;
+                    VW_DrawPropString(buf);
+                    fontcolor = old_color2;                                                     // RESTORE Old Colr
+                }
 
-				// Blast normal Text color to screen
+                // Blast normal Text color to screen
 
-				px = tcursor_x;
-				py = tcursor_y;
-				VW_DrawPropString(buf);
+                px = tcursor_x;
+                py = tcursor_y;
+                VW_DrawPropString(buf);
 
-				if (sound_on)
-					if (buf[0] != ' ')
-						SD_PlaySound(TERM_TYPESND);
+                if (sound_on) {
+                    if (buf[0] != ' ') {
+                        SD_PlaySound(TERM_TYPESND);
+                    }
+                }
 
-				tcursor_x = px;
+                tcursor_x = px;
 
-				if (term_cursor_vis)
-				{
-					VW_DrawPropString("@");
-				}
-			}
-			else
-			{
-				if (tcursor_y > 90+TERM_SCREEN_XOFS)
-					VL_ScreenToScreen(displayofs+((TERM_SCREEN_YOFS+fontheight)*SCREENWIDTH)+(TERM_SCREEN_XOFS/4),
-											displayofs+TERM_SCREEN_YOFS*SCREENWIDTH+TERM_SCREEN_XOFS/4,
-											(248/4),93);
-				else
-					tcursor_y += fontheight;
+                if (term_cursor_vis) {
+                    VW_DrawPropString("@");
+                }
+            } else {
+                if (tcursor_y > 90 + TERM_SCREEN_XOFS) {
+                    VL_ScreenToScreen(displayofs + ((TERM_SCREEN_YOFS + fontheight) * SCREENWIDTH) + (TERM_SCREEN_XOFS / 4),
+                                      displayofs + TERM_SCREEN_YOFS * SCREENWIDTH + TERM_SCREEN_XOFS / 4,
+                                      (248 / 4), 93);
+                } else {
+                    tcursor_y += fontheight;
+                }
 
-				tcursor_x = TERM_SCREEN_XOFS;
-			}
+                tcursor_x = TERM_SCREEN_XOFS;
+            }
 
-			if (!FastPrint)
-				VL_WaitVBL(TERM_PRINT_DELAY);
+            if (!FastPrint) {
+                VL_WaitVBL(TERM_PRINT_DELAY);
+            }
 
-			VW_UpdateScreen();
-		}
-	}
+            VW_UpdateScreen();
+        }
+    }
 }
 
 #endif
@@ -4639,499 +4720,467 @@ void TerminalPrint(char *msg,boolean FastPrint)
 
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CacheTerminalPrint()
 //
 // This prints a message in the TERM_MESSAGES grsegs which MUST
 // already be loaded into memory.
-//---------------------------------------------------------------------------
-void CacheTerminalPrint(Sint16 MsgNum,boolean FastPrint)
+// ---------------------------------------------------------------------------
+void CacheTerminalPrint(
+    Sint16 MsgNum,
+    boolean FastPrint)
 {
-	char *Message;
+    char* Message;
 
-	Message = TermMessages;
+    Message = TermMessages;
 
 // Search for end of MsgNum-1 (Start of our message)
 //
 #pragma warn -pia
-	while (MsgNum--)
-	{
-		if (!(Message = _fstrstr(Message,int_xx)))
-			AGENT_ERROR(BAD_TERMINAL_MSG_NUM);
-		Message += 3;	// Bump to start of next Message
-	}
+    while (MsgNum--) {
+        if (!(Message = _fstrstr(Message, int_xx))) {
+            AGENT_ERROR(BAD_TERMINAL_MSG_NUM);
+        }
+        Message += 3;           // Bump to start of next Message
+    }
 #pragma warn +pia
 
 // Move past LFs and CRs that follow "^XX"
 //
-//	while ((*Message=='\n') || (*Message=='\r'))
-//		Message++;
+//      while ((*Message=='\n') || (*Message=='\r'))
+//              Message++;
 
-	Message += 2;		// Move past LF and CR that follows "^XX"	  
+    Message += 2;               // Move past LF and CR that follows "^XX"
 
-	TerminalPrint(Message,FastPrint);
+    TerminalPrint(Message, FastPrint);
 }
 
 
 
-char TERM_MSG[]="^ST1^CEEnter commands and press ENTER.\r^CEPress ESC to exit terminal.^XX";
+char TERM_MSG[] = "^ST1^CEEnter commands and press ENTER.\r^CEPress ESC to exit terminal.^XX";
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // ActivateTerminal()
-//---------------------------------------------------------------------------
-void ActivateTerminal(boolean skiplink)
+// ---------------------------------------------------------------------------
+void ActivateTerminal(
+    boolean skiplink)
 {
-   #define MAX_INPUT		30
-   char buffer[MAX_INPUT];
-	bool temp_caps = allcaps,ExitMoFo;
-	Uint16 oldwidth;
-	US_CursorStruct TermCursor = {'@',0,0x58,2};			// Holds Font#, etc.
-   Sint16 msgnum;
+#define MAX_INPUT 30
+    char buffer[MAX_INPUT];
+    bool temp_caps = allcaps, ExitMoFo;
+    Uint16 oldwidth;
+    US_CursorStruct TermCursor = { '@', 0, 0x58, 2 };                   // Holds Font#, etc.
+    Sint16 msgnum;
 
 
 // Setup for text presenter
 //
-	memset(&Terminal_PI,0,sizeof(Terminal_PI));
-	Terminal_PI.flags=TPF_USE_CURRENT|TPF_SHOW_CURSOR|TPF_SCROLL_REGION;
-	Terminal_PI.xl=21;
-	Terminal_PI.yl=32;
-	Terminal_PI.xh=277;
-	Terminal_PI.yh=134;
-	Terminal_PI.ltcolor=255;
-	Terminal_PI.bgcolor=TERM_BCOLOR;
-	Terminal_PI.dkcolor=255;
-	Terminal_PI.shcolor=TERM_TSHAD_COLOR;
-	Terminal_PI.fontnumber=2;
-	Terminal_PI.cur_x = -1;
-	Terminal_PI.print_delay=1;
+    memset(&Terminal_PI, 0, sizeof(Terminal_PI));
+    Terminal_PI.flags = TPF_USE_CURRENT | TPF_SHOW_CURSOR | TPF_SCROLL_REGION;
+    Terminal_PI.xl = 21;
+    Terminal_PI.yl = 32;
+    Terminal_PI.xh = 277;
+    Terminal_PI.yh = 134;
+    Terminal_PI.ltcolor = 255;
+    Terminal_PI.bgcolor = TERM_BCOLOR;
+    Terminal_PI.dkcolor = 255;
+    Terminal_PI.shcolor = TERM_TSHAD_COLOR;
+    Terminal_PI.fontnumber = 2;
+    Terminal_PI.cur_x = -1;
+    Terminal_PI.print_delay = 1;
 
 
-	#ifndef TERM_BUFFERED_DISPLAY
-	bufferofs = displayofs;
-	#endif
+#ifndef TERM_BUFFERED_DISPLAY
+    bufferofs = displayofs;
+#endif
 
-	ClearMemory();
+    ClearMemory();
 
-	oldwidth = viewwidth/16;
-	if (oldwidth != FULL_VIEW_WIDTH)
-		NewViewSize(FULL_VIEW_WIDTH);
-
-
-	DrawPlayScreen(false);
-
-	StopMusic();
-
-	fontnumber = 1;
-	CA_CacheGrChunk(STARTFONT+FONT2);						// Medium font
-
-	BMAmsg(TERM_MSG);
-
-	CacheDrawPic(TERM_BACK_XOFS,TERM_BACK_YOFS,TERMINAL_SCREENPIC);
-
-   LoadTerminalText();
-   LoadTerminalCommands();
-
-	#ifdef TERM_BUFFERED_DISPLAY
-	VW_UpdateScreen();
-	#endif
+    oldwidth = viewwidth / 16;
+    if (oldwidth != FULL_VIEW_WIDTH) {
+        NewViewSize(FULL_VIEW_WIDTH);
+    }
 
 
-	fontnumber = 2;
-	allcaps = true;
-	fontcolor = TERM_TCOLOR;
-	tcursor_x = TERM_SCREEN_XOFS;
-	tcursor_y = TERM_SCREEN_YOFS;
+    DrawPlayScreen(false);
 
-	//
-	// Set up custom cursor
-	//
+    StopMusic();
 
-	use_custom_cursor = true;
-	US_CustomCursor = TermCursor;
+    fontnumber = 1;
+    CA_CacheGrChunk(STARTFONT + FONT2);                                                 // Medium font
 
-	//
-	// Start term stuff..
-	//
+    BMAmsg(TERM_MSG);
 
-	VW_FadeIn();
+    CacheDrawPic(TERM_BACK_XOFS, TERM_BACK_YOFS, TERMINAL_SCREENPIC);
 
-   ExitMoFo = false;
+    LoadTerminalText();
+    LoadTerminalCommands();
 
-	TerminalPrint("^ST1^XX",false);	 
-	if (!skiplink)
-   {
-	   CacheTerminalPrint(TM_LINK,false);
-
-	   if (Keyboard[sc_h] & Keyboard[sc_o] & Keyboard[sc_t])
-   	{
-	   	CacheTerminalPrint(TM_CHEATER,false);
-	   }
-   	else
-	   {
-			VW_WaitVBL(1*60 + (US_RndT() % 60*2));	 
-
-			if (gamestate.TimeCount & 0x1000)
-			{
-				CacheTerminalPrint(TM_LINK_BAD,false);
-				IN_Ack();
-				ExitMoFo = true;
-			}
-			else
-			{
-				CacheTerminalPrint(TM_LINK_OK,false);
-			}
-   	}
-   }
+#ifdef TERM_BUFFERED_DISPLAY
+    VW_UpdateScreen();
+#endif
 
 
-	IN_ClearKeysDown();
+    fontnumber = 2;
+    allcaps = true;
+    fontcolor = TERM_TCOLOR;
+    tcursor_x = TERM_SCREEN_XOFS;
+    tcursor_y = TERM_SCREEN_YOFS;
 
-	while (!ExitMoFo)
-	{
-		backcolor = TERM_BCOLOR;
-		CacheTerminalPrint(TM_READY,false);
+    //
+    // Set up custom cursor
+    //
 
-		if (US_LineInput(px+1,py,buffer,nil,true,MAX_INPUT,240+TERM_SCREEN_XOFS-px))
-		{
-			CacheTerminalPrint(TM_RETURN,false);
-			if (*buffer)
-			switch (msgnum = US_CheckParm(buffer,Commands))
-			{
-         	case TC_HINT:
-//         	case TC_GOLDSTERN:
-            case TC_JAM:
-            case TC_HELP:
-            case TC_APOGEE:
-            case TC_THANKS:
-				case TC_GOOBERS:
+    use_custom_cursor = true;
+    US_CustomCursor = TermCursor;
+
+    //
+    // Start term stuff..
+    //
+
+    VW_FadeIn();
+
+    ExitMoFo = false;
+
+    TerminalPrint("^ST1^XX", false);
+    if (!skiplink) {
+        CacheTerminalPrint(TM_LINK, false);
+
+        if (Keyboard[sc_h] & Keyboard[sc_o] & Keyboard[sc_t]) {
+            CacheTerminalPrint(TM_CHEATER, false);
+        } else {
+            VW_WaitVBL(1 * 60 + (US_RndT() % 60 * 2));
+
+            if (gamestate.TimeCount & 0x1000) {
+                CacheTerminalPrint(TM_LINK_BAD, false);
+                IN_Ack();
+                ExitMoFo = true;
+            } else {
+                CacheTerminalPrint(TM_LINK_OK, false);
+            }
+        }
+    }
+
+
+    IN_ClearKeysDown();
+
+    while (!ExitMoFo) {
+        backcolor = TERM_BCOLOR;
+        CacheTerminalPrint(TM_READY, false);
+
+        if (US_LineInput(px + 1, py, buffer, nil, true, MAX_INPUT, 240 + TERM_SCREEN_XOFS - px)) {
+            CacheTerminalPrint(TM_RETURN, false);
+            if (*buffer) {
+                switch (msgnum = US_CheckParm(buffer, Commands)) {
+                case TC_HINT:
+//              case TC_GOLDSTERN:
+                case TC_JAM:
+                case TC_HELP:
+                case TC_APOGEE:
+                case TC_THANKS:
+                case TC_GOOBERS:
 //          case TC_BSTONE:
-				case TC_JERRY:
-				case TC_MIKE:
-				case TC_JIM:
-					CacheTerminalPrint(msgnum,false);
-				break;
+                case TC_JERRY:
+                case TC_MIKE:
+                case TC_JIM:
+                    CacheTerminalPrint(msgnum, false);
+                    break;
 
 
-				case TC_EXIT:
-				case TC_QUIT:
-				case TC_OFF:
-				case TC_BYE:
-					ExitMoFo = true;
-				break;
+                case TC_EXIT:
+                case TC_QUIT:
+                case TC_OFF:
+                case TC_BYE:
+                    ExitMoFo = true;
+                    break;
 
-            case TC_STAR:
-            	CacheTerminalPrint(TM_STAR,false);
-            break;
+                case TC_STAR:
+                    CacheTerminalPrint(TM_STAR, false);
+                    break;
 
-				case TC_JOSHUA:
-					CacheTerminalPrint(TM_JOSHUA,false);
-//            	PowerBall = 1;
-            break;
+                case TC_JOSHUA:
+                    CacheTerminalPrint(TM_JOSHUA, false);
+//              PowerBall = 1;
+                    break;
 
-            case TC_BLUEPRINT:
-					FloorCheat(255);
-				break;
+                case TC_BLUEPRINT:
+                    FloorCheat(255);
+                    break;
 
-				case TC_SOUND:
-					TERM_sound_on ^= 1;
-					CacheTerminalPrint(TM_SOUND_OFF+TERM_sound_on,false);
-				break;
+                case TC_SOUND:
+                    TERM_sound_on ^= 1;
+                    CacheTerminalPrint(TM_SOUND_OFF + TERM_sound_on, false);
+                    break;
 
-				case TC_ARRIVAL_GOLDSTERN:
-				{
-					if (GoldsternInfo.GoldSpawned)
-						CacheTerminalPrint(TM_GOLDSTERN_ARRIVED,false);
-					else
-					if (GoldsternInfo.flags == GS_COORDFOUND)
-					{
-						CacheTerminalPrint(TM_GOLDSTERN_WILL_AR,false);
-						sprintf(buffer," %d^XX",GoldsternInfo.WaitTime/60);
-						TerminalPrint(buffer,false);
-						CacheTerminalPrint(TM_SECONDS,false);
-					}
-					else
-					{
-						if (GoldsternInfo.WaitTime)
-						{
-							CacheTerminalPrint(TM_GOLDSTERN_NO_PICK,false);
-							sprintf(buffer," %d^XX",GoldsternInfo.WaitTime/60);
-							TerminalPrint(buffer,false);
-							CacheTerminalPrint(TM_SECONDS,false);
-						}
-						else
-							CacheTerminalPrint(TM_GOLDSTERN_NO_INFO,false);
-					}
-				}
-				break;
+                case TC_ARRIVAL_GOLDSTERN: {
+                    if (GoldsternInfo.GoldSpawned) {
+                        CacheTerminalPrint(TM_GOLDSTERN_ARRIVED, false);
+                    } else if (GoldsternInfo.flags == GS_COORDFOUND) {
+                        CacheTerminalPrint(TM_GOLDSTERN_WILL_AR, false);
+                        sprintf(buffer, " %d^XX", GoldsternInfo.WaitTime / 60);
+                        TerminalPrint(buffer, false);
+                        CacheTerminalPrint(TM_SECONDS, false);
+                    } else {
+                        if (GoldsternInfo.WaitTime) {
+                            CacheTerminalPrint(TM_GOLDSTERN_NO_PICK, false);
+                            sprintf(buffer, " %d^XX", GoldsternInfo.WaitTime / 60);
+                            TerminalPrint(buffer, false);
+                            CacheTerminalPrint(TM_SECONDS, false);
+                        } else {
+                            CacheTerminalPrint(TM_GOLDSTERN_NO_INFO, false);
+                        }
+                    }
+                }
+                break;
 
-				case TC_DEACTIVATE_SECURITY:
-				{
-					objtype *obj;
+                case TC_DEACTIVATE_SECURITY: {
+                    objtype* obj;
 
-					CacheTerminalPrint(TM_RESET_SECURITY,false);
-					for (obj = player;obj;obj = obj->next)
-					{
-						if (obj->obclass == security_lightobj)
-						{
-							obj->temp1 = 0;
-                     obj->flags &= ~FL_ALERTED;
-                  }
-					}
-				}
-				break;
+                    CacheTerminalPrint(TM_RESET_SECURITY, false);
+                    for (obj = player; obj; obj = obj->next) {
+                        if (obj->obclass == security_lightobj) {
+                            obj->temp1 = 0;
+                            obj->flags &= ~FL_ALERTED;
+                        }
+                    }
+                }
+                break;
 
-				case TC_SATALITE_STATUS:
-					{
-						CacheTerminalPrint(TM_VITALS1,false);
-						TerminalPrint(buffer,false);
+                case TC_SATALITE_STATUS: {
+                    CacheTerminalPrint(TM_VITALS1, false);
+                    TerminalPrint(buffer, false);
 
-						CacheTerminalPrint(TM_VITALS2,false);
-						sprintf(buffer, " %d\r\n^XX", gamestate.VitalsRemain);
-						TerminalPrint(buffer,false);
-					}
-					break;
+                    CacheTerminalPrint(TM_VITALS2, false);
+                    sprintf(buffer, " %d\r\n^XX", gamestate.VitalsRemain);
+                    TerminalPrint(buffer, false);
+                }
+                break;
 
-				case TC_PROFILE:
-					CacheTerminalPrint(TM_PROFILE_WHO,false);
-					if (US_LineInput(px+1,py,buffer,nil,true,MAX_INPUT,246+TERM_SCREEN_XOFS-px))
-					{
-						CacheTerminalPrint(TM_RETURN,false);
-						if (*buffer)
-							switch (US_CheckParm(buffer,Commands))
-							{
-								case TC_GOLDSTERN:
-									CacheTerminalPrint(TM_PROFILE_GOLDSTERN,false);
-								break;
+                case TC_PROFILE:
+                    CacheTerminalPrint(TM_PROFILE_WHO, false);
+                    if (US_LineInput(px + 1, py, buffer, nil, true, MAX_INPUT, 246 + TERM_SCREEN_XOFS - px)) {
+                        CacheTerminalPrint(TM_RETURN, false);
+                        if (*buffer) {
+                            switch (US_CheckParm(buffer, Commands)) {
+                            case TC_GOLDSTERN:
+                                CacheTerminalPrint(TM_PROFILE_GOLDSTERN, false);
+                                break;
 
-								case TC_BSTONE:
-									CacheTerminalPrint(TM_PROFILE_BLAKE,false);
-								break;
+                            case TC_BSTONE:
+                                CacheTerminalPrint(TM_PROFILE_BLAKE, false);
+                                break;
 
-								case TC_SSTONE:
-									CacheTerminalPrint(TM_PROFILE_SARA,false);
-								break;
+                            case TC_SSTONE:
+                                CacheTerminalPrint(TM_PROFILE_SARA, false);
+                                break;
 
-								default:
-									CacheTerminalPrint(TM_PROFILE_UNKNOWN,false);
-								break;
-							}
-					}
-				break;
+                            default:
+                                CacheTerminalPrint(TM_PROFILE_UNKNOWN, false);
+                                break;
+                            }
+                        }
+                    }
+                    break;
 
-				default:
-					CacheTerminalPrint(TM_UNRECOGNIZED_COMMAND,false);
-				break;
-			}
-		}
-		else
-		{
-			// User pressed escape....
+                default:
+                    CacheTerminalPrint(TM_UNRECOGNIZED_COMMAND, false);
+                    break;
+                }
+            }
+        } else {
+            // User pressed escape....
 
-			ExitMoFo = true;
-		}
+            ExitMoFo = true;
+        }
 
-		#ifdef TERM_BUFFERED_DISPLAY
-			VW_UpdateScreen();
-		#endif
-	}
+#ifdef TERM_BUFFERED_DISPLAY
+        VW_UpdateScreen();
+#endif
+    }
 
-	//
-	// Free everything cached in...Exit terminal
-	//
+    //
+    // Free everything cached in...Exit terminal
+    //
 
-   FreeTerminalCommands();
-   FreeTerminalMessages();
+    FreeTerminalCommands();
+    FreeTerminalMessages();
 
-	UNCACHEGRCHUNK(STARTFONT+1);
-	NewViewSize(oldwidth);
+    UNCACHEGRCHUNK(STARTFONT + 1);
+    NewViewSize(oldwidth);
 
 
-	StartMusic(false);
-	PM_CheckMainMem();
+    StartMusic(false);
+    PM_CheckMainMem();
 
-	DrawPlayScreen(false);
+    DrawPlayScreen(false);
 
-	IN_ClearKeysDown();
-	allcaps = temp_caps;
-	use_custom_cursor = false;
+    IN_ClearKeysDown();
+    allcaps = temp_caps;
+    use_custom_cursor = false;
 
 }
 
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // FloorCheat()
-//---------------------------------------------------------------------------
-void FloorCheat(Uint16 RadarFlags)
+// ---------------------------------------------------------------------------
+void FloorCheat(
+    Uint16 RadarFlags)
 {
-	#define FC_EMBED_COLOR(ColorCodes)	{_fstrncpy(&pbuffer[pos],ColorCodes,5);pos+=5;}
-	#define FC_NORM_COLOR()					FC_EMBED_COLOR("^FC57")
+#define FC_EMBED_COLOR(ColorCodes) { _fstrncpy(&pbuffer[pos], ColorCodes, 5); pos += 5; }
+#define FC_NORM_COLOR() FC_EMBED_COLOR("^FC57")
 
-	Uint16 x,y,pos;
-	objtype *actor;
-   char *pbuffer;
-   memptr buffer;
+    Uint16 x, y, pos;
+    objtype* actor;
+    char* pbuffer;
+    memptr buffer;
 
-	MM_GetPtr(&buffer,512);
+    MM_GetPtr(&buffer, 512);
 
-	pbuffer = buffer;
+    pbuffer = buffer;
 
-	CacheTerminalPrint(TM_BLUEPRINTS,false);
+    CacheTerminalPrint(TM_BLUEPRINTS, false);
 
-	shadow_text = term_cursor_vis = false;
-	Terminal_PI.flags &= ~TPF_SHOW_CURSOR;
+    shadow_text = term_cursor_vis = false;
+    Terminal_PI.flags &= ~TPF_SHOW_CURSOR;
 
-	//
-	// Cache in the "Radar Font"
-	//
+    //
+    // Cache in the "Radar Font"
+    //
 
-	CA_CacheGrChunk(STARTFONT+5);
-//	fontnumber = 5;
-	Terminal_PI.fontnumber = 5;			
+    CA_CacheGrChunk(STARTFONT + 5);
+//      fontnumber = 5;
+    Terminal_PI.fontnumber = 5;
 
-	//
-	// Display the radar/floor-plans
+    //
+    // Display the radar/floor-plans
 
-//	TerminalPrint("\r\n^XX",true);
-	for (y=0;y<64;y++)
-	{
-		pos = 0;
-		for (x=0;x<64;x++)
-		{
-			//
-			// Get wall/actor && Check for force placement of player on radar..
-			//
+//      TerminalPrint("\r\n^XX",true);
+    for (y = 0; y < 64; y++) {
+        pos = 0;
+        for (x = 0; x < 64; x++) {
+            //
+            // Get wall/actor && Check for force placement of player on radar..
+            //
 
-			if (DebugOk && x == player->tilex && y == player->tiley)
-				actor = player;
-			else
-				actor = actorat[x][y];
+            if (DebugOk && x == player->tilex && y == player->tiley) {
+                actor = player;
+            } else {
+                actor = actorat[x][y];
+            }
 
-			//
-			//  Check for walls
+            //
+            //  Check for walls
 
-			if (!TravelTable[x][y])		// Map only shows where you've seen!
-			{
-				pbuffer[pos++]='!';
-			}
-			else
-			if (((Uint16)actor && (Uint16)actor<108) ||			// 108 == LAST WALL TILE
+            if (!TravelTable[x][y]) {                   // Map only shows where you've seen!
+                pbuffer[pos++] = '!';
+            } else if (((Uint16)actor && (Uint16)actor < 108) ||                        // 108 == LAST WALL TILE
 
 #if IN_DEVELOPMENT
 
-				(*(mapsegs[0]+farmapylookup[y]+x) >= HIDDENAREATILE && (!DebugOk)) ||
+                       (*(mapsegs[0] + farmapylookup[y] + x) >= HIDDENAREATILE && (!DebugOk)) ||
 
 #endif
 
-				(((Uint16)actor & 0x80) && actor<objlist && (!DebugOk))) 	// Treat doors as walls in NoDebug
-			{
-				// Mark Wall piece
-				//
-				pbuffer[pos++] = '!';
-			}
-			else
-			{
-				// Not a wall Piece
-				//
-				if (((RadarFlags & RS_PERSONNEL_TRACKER) && actor >= objlist) && (!(actor->flags & FL_DEADGUY)))
-				{
-					switch (actor->obclass)
-					{
-						case playerobj:
-							if (RadarFlags & RS_PERSONNEL_TRACKER)
-							{
-								//
-								// Mark map piece as the "player"
-								//
-								FC_EMBED_COLOR("^FC0F");		//  WHITE
-								pbuffer[pos++] = '!';
-								FC_NORM_COLOR();
-							}
-							else
-								pbuffer[pos++] = ' ';
-						break;
+                       (((Uint16)actor & 0x80) && actor < objlist && (!DebugOk)))               // Treat doors as walls in NoDebug
+            {
+                // Mark Wall piece
+                //
+                pbuffer[pos++] = '!';
+            } else {
+                // Not a wall Piece
+                //
+                if (((RadarFlags & RS_PERSONNEL_TRACKER) && actor >= objlist) && (!(actor->flags & FL_DEADGUY))) {
+                    switch (actor->obclass) {
+                    case playerobj:
+                        if (RadarFlags & RS_PERSONNEL_TRACKER) {
+                            //
+                            // Mark map piece as the "player"
+                            //
+                            FC_EMBED_COLOR("^FC0F");                                                    //  WHITE
+                            pbuffer[pos++] = '!';
+                            FC_NORM_COLOR();
+                        } else {
+                            pbuffer[pos++] = ' ';
+                        }
+                        break;
 
-						case security_lightobj:
-							if (RadarFlags & RS_SECURITY_STATUS)
-							{
-								//
-								// Mark map piece as "Alerted Security Lamp"
-								//
-								if (actor->temp1)
-								{
-									FC_EMBED_COLOR("^FC1C");			// Red
-								}
-								else
-								{
-									FC_EMBED_COLOR("^FC5C");			// Green
-								}
+                    case security_lightobj:
+                        if (RadarFlags & RS_SECURITY_STATUS) {
+                            //
+                            // Mark map piece as "Alerted Security Lamp"
+                            //
+                            if (actor->temp1) {
+                                FC_EMBED_COLOR("^FC1C");                                                                // Red
+                            } else {
+                                FC_EMBED_COLOR("^FC5C");                                                                // Green
+                            }
 
-								pbuffer[pos++] = '!';
-								FC_NORM_COLOR();
-								break;
-							}
-							else
-								pbuffer[pos++] = ' ';
-							break;
+                            pbuffer[pos++] = '!';
+                            FC_NORM_COLOR();
+                            break;
+                        } else {
+                            pbuffer[pos++] = ' ';
+                        }
+                        break;
 
-						case lcan_wait_alienobj:
-						case scan_wait_alienobj:
-						case hang_terrotobj:
-						case gurney_waitobj:
-								pbuffer[pos++] = ' ';
-						break;
+                    case lcan_wait_alienobj:
+                    case scan_wait_alienobj:
+                    case hang_terrotobj:
+                    case gurney_waitobj:
+                        pbuffer[pos++] = ' ';
+                        break;
 
-						case goldsternobj:
-							if (RadarFlags & RS_GOLDSTERN_TRACKER)
-							{
-								//
-								// Mark map piece as "goldstern"
-								//
-								FC_EMBED_COLOR("^FC38");		//  Yellow ...or.. err, like gold!
-								pbuffer[pos++] = '!';
-								FC_NORM_COLOR();
-								break;
-							}
-							else
-								pbuffer[pos++] = ' ';
-							break;
+                    case goldsternobj:
+                        if (RadarFlags & RS_GOLDSTERN_TRACKER) {
+                            //
+                            // Mark map piece as "goldstern"
+                            //
+                            FC_EMBED_COLOR("^FC38");                                                    //  Yellow ...or.. err, like gold!
+                            pbuffer[pos++] = '!';
+                            FC_NORM_COLOR();
+                            break;
+                        } else {
+                            pbuffer[pos++] = ' ';
+                        }
+                        break;
 
-						default:
-							if (RadarFlags & RS_PERSONNEL_TRACKER)
-							{
-								//
-								// Mark map piece as a "general object"
-								//
-								FC_EMBED_COLOR("^FC18");		// Red
-								pbuffer[pos++] = '!';
-								FC_NORM_COLOR();
-							}
-							else
-								pbuffer[pos++] = ' ';
-						break;
-					}
-				}
-				else
-					pbuffer[pos++] = ' ';
+                    default:
+                        if (RadarFlags & RS_PERSONNEL_TRACKER) {
+                            //
+                            // Mark map piece as a "general object"
+                            //
+                            FC_EMBED_COLOR("^FC18");                                                    // Red
+                            pbuffer[pos++] = '!';
+                            FC_NORM_COLOR();
+                        } else {
+                            pbuffer[pos++] = ' ';
+                        }
+                        break;
+                    }
+                } else {
+                    pbuffer[pos++] = ' ';
+                }
 
-			}
+            }
 
-		}
+        }
 
-//		pbuffer[pos++] = '\n';
-		_fstrcpy(pbuffer+pos,"\r\n^XX");
-		pbuffer[pos+5] = 0;
+//              pbuffer[pos++] = '\n';
+        _fstrcpy(pbuffer + pos, "\r\n^XX");
+        pbuffer[pos + 5] = 0;
 
-		TerminalPrint(pbuffer,true);
-	}
+        TerminalPrint(pbuffer, true);
+    }
 
 
-	TerminalPrint("\r\n\r\n\r\n\r\n^XX",true);
-	MM_FreePtr(&buffer);
+    TerminalPrint("\r\n\r\n\r\n\r\n^XX", true);
+    MM_FreePtr(&buffer);
 
-	UNCACHEGRCHUNK(STARTFONT+5);
-	Terminal_PI.fontnumber = 2;
-	TerminalPrint("\r\n^XX",true);
-	Terminal_PI.flags |= TPF_SHOW_CURSOR;
+    UNCACHEGRCHUNK(STARTFONT + 5);
+    Terminal_PI.fontnumber = 2;
+    TerminalPrint("\r\n^XX", true);
+    Terminal_PI.flags |= TPF_SHOW_CURSOR;
 
 }
 
@@ -5141,7 +5190,7 @@ void FloorCheat(Uint16 RadarFlags)
 /*
 =============================================================================
 
-							PLAYER CONTROL
+                                                        PLAYER CONTROL
 
 =============================================================================
 */
@@ -5149,146 +5198,152 @@ void FloorCheat(Uint16 RadarFlags)
 
 
 
-void SpawnPlayer (Sint16 tilex, Sint16 tiley, Sint16 dir)
+void SpawnPlayer(
+    Sint16 tilex,
+    Sint16 tiley,
+    Sint16 dir)
 {
-	if (gamestuff.level[gamestate.mapon].ptilex &&
-		 gamestuff.level[gamestate.mapon].ptiley)
-	{
-		tilex = gamestuff.level[gamestate.mapon].ptilex;
-		tiley = gamestuff.level[gamestate.mapon].ptiley;
-		dir = 1+(gamestuff.level[gamestate.mapon].pangle/90);
-	}
+    if (gamestuff.level[gamestate.mapon].ptilex &&
+        gamestuff.level[gamestate.mapon].ptiley)
+    {
+        tilex = gamestuff.level[gamestate.mapon].ptilex;
+        tiley = gamestuff.level[gamestate.mapon].ptiley;
+        dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
+    }
 
-	player->obclass = playerobj;
-	player->active = ac_yes;
-	player->tilex = static_cast<Uint8>(tilex);
-	player->tiley = static_cast<Uint8>(tiley);
+    player->obclass = playerobj;
+    player->active = ac_yes;
+    player->tilex = static_cast<Uint8>(tilex);
+    player->tiley = static_cast<Uint8>(tiley);
 
-	player->areanumber=GetAreaNumber(player->tilex,player->tiley);
+    player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 
-	player->x = ((Sint32)tilex<<TILESHIFT)+TILEGLOBAL/2;
-	player->y = ((Sint32)tiley<<TILESHIFT)+TILEGLOBAL/2;
-	player->state = &s_player;
-	player->angle = (1-dir)*90;
-	if (player->angle<0)
-		player->angle += ANGLES;
-	player->flags = FL_NEVERMARK;
-	Thrust (0,0);				// set some variables
+    player->x = ((Sint32)tilex << TILESHIFT) + TILEGLOBAL / 2;
+    player->y = ((Sint32)tiley << TILESHIFT) + TILEGLOBAL / 2;
+    player->state = &s_player;
+    player->angle = (1 - dir) * 90;
+    if (player->angle < 0) {
+        player->angle += ANGLES;
+    }
+    player->flags = FL_NEVERMARK;
+    Thrust(0, 0);                               // set some variables
 
-	InitAreas ();
+    InitAreas();
 
-	InitWeaponBounce();
+    InitWeaponBounce();
 }
 
 
-//===========================================================================
+// ===========================================================================
 
-//------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // GunAttack()
-//------------------------------------------------------------------------
-void	GunAttack (objtype *ob)
+// ------------------------------------------------------------------------
+void GunAttack(
+    objtype* ob)
 {
-	objtype *check,*closest,*oldclosest;
-	Sint16		damage;
-	Sint16		dx,dy,dist;
-	Sint32	viewdist;
-   boolean skip = false;
+    objtype* check, * closest, * oldclosest;
+    Sint16 damage;
+    Sint16 dx, dy, dist;
+    Sint32 viewdist;
+    boolean skip = false;
 
-	if (gamestate.weapon != wp_autocharge)
-	{
-		MakeAlertNoise(ob);
-	}
+    if (gamestate.weapon != wp_autocharge) {
+        MakeAlertNoise(ob);
+    }
 
-	switch (gamestate.weapon)
-	{
-		case wp_autocharge:
+    switch (gamestate.weapon) {
+    case wp_autocharge:
         ::sd_play_player_sound(ATKAUTOCHARGESND, bstone::AC_WEAPON);
 
-         skip = true;
-		break;
+        skip = true;
+        break;
 
-		case wp_pistol:
+    case wp_pistol:
         ::sd_play_player_sound(ATKCHARGEDSND, bstone::AC_WEAPON);
 
-         skip = true;
-		break;
+        skip = true;
+        break;
 
-		case wp_burst_rifle:
-            ::sd_play_player_sound(ATKBURSTRIFLESND, bstone::AC_WEAPON);
-		break;
+    case wp_burst_rifle:
+        ::sd_play_player_sound(ATKBURSTRIFLESND, bstone::AC_WEAPON);
+        break;
 
-		case wp_ion_cannon:
-            ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
-		break;
+    case wp_ion_cannon:
+        ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
+        break;
 
-	}
+    }
 
-	//
-	// find potential targets
-	//
+    //
+    // find potential targets
+    //
 
-	viewdist = 0x7fffffffl;
-	closest = NULL;
+    viewdist = 0x7fffffffl;
+    closest = NULL;
 
-	while (true)
-	{
-		oldclosest = closest;
+    while (true) {
+        oldclosest = closest;
 
-		for (check=ob->next ; check ; check=check->next)
-			if ((check->flags & FL_SHOOTABLE) &&
-				 (check->flags & FL_VISABLE) &&
-				 (abs(check->viewx-centerx) < shootdelta))
-			{
-				if (check->transx < viewdist)
-				{
-            	if ((skip && (check->obclass == hang_terrotobj))
-					   || (check->flags2 & FL2_NOTGUNSHOOTABLE))
-               	continue;
+        for (check = ob->next; check; check = check->next) {
+            if ((check->flags & FL_SHOOTABLE) &&
+                (check->flags & FL_VISABLE) &&
+                (abs(check->viewx - centerx) < shootdelta))
+            {
+                if (check->transx < viewdist) {
+                    if ((skip && (check->obclass == hang_terrotobj))
+                        || (check->flags2 & FL2_NOTGUNSHOOTABLE))
+                    {
+                        continue;
+                    }
 
-					viewdist = check->transx;
-					closest = check;
-				}
-			}
+                    viewdist = check->transx;
+                    closest = check;
+                }
+            }
+        }
 
-		if (closest == oldclosest)
-			return;						// no more targets, all missed
+        if (closest == oldclosest) {
+            return;                                                     // no more targets, all missed
 
-	//
-	// trace a line from player to enemey
-	//
-		if (CheckLine(closest,player))
-			break;
-	}
+        }
+        //
+        // trace a line from player to enemey
+        //
+        if (CheckLine(closest, player)) {
+            break;
+        }
+    }
 
-	//
-	// hit something
-	//
+    //
+    // hit something
+    //
 
-	dx = static_cast<Sint16>(abs(closest->tilex - player->tilex));
-	dy = static_cast<Sint16>(abs(closest->tiley - player->tiley));
-	dist = dx>dy ? dx:dy;
+    dx = static_cast<Sint16>(abs(closest->tilex - player->tilex));
+    dy = static_cast<Sint16>(abs(closest->tiley - player->tiley));
+    dist = dx > dy ? dx : dy;
 
-	if (dist<2)
-		damage = US_RndT() / 2;			// 4
-	else if (dist<4)
-		damage = US_RndT() / 4;			// 6
-	else
-	{
-		if ( (US_RndT() / 12) < dist)		// missed
-			return;
-		damage = US_RndT() / 4;			// 6
-	}
+    if (dist < 2) {
+        damage = US_RndT() / 2;                         // 4
+    } else if (dist < 4) {
+        damage = US_RndT() / 4;                         // 6
+    } else {
+        if ((US_RndT() / 12) < dist) {                  // missed
+            return;
+        }
+        damage = US_RndT() / 4;                         // 6
+    }
 
-	DamageActor (closest,damage,player);
+    DamageActor(closest, damage, player);
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 
 
 
-//===========================================================================
+// ===========================================================================
 
 
 /*
@@ -5300,71 +5355,66 @@ void	GunAttack (objtype *ob)
 */
 
 
-void	T_Attack (objtype *ob)
+void T_Attack(
+    objtype* ob)
 {
-	atkinf_t	*cur;
-	Sint16 x;
+    atkinf_t* cur;
+    Sint16 x;
 
-	if (noShots)
-	{
-		ob->state = &s_player;
-		gamestate.attackframe = gamestate.weaponframe = 0;
-		return;
-	}
+    if (noShots) {
+        ob->state = &s_player;
+        gamestate.attackframe = gamestate.weaponframe = 0;
+        return;
+    }
 
-	if (gamestate.weapon == wp_autocharge)
-			UpdateAmmoMsg();
+    if (gamestate.weapon == wp_autocharge) {
+        UpdateAmmoMsg();
+    }
 
-	if ( buttonstate[bt_use] && !buttonheld[bt_use] )
-		buttonstate[bt_use] = false;
+    if (buttonstate[bt_use] && !buttonheld[bt_use]) {
+        buttonstate[bt_use] = false;
+    }
 
-	if ( buttonstate[bt_attack] && !buttonheld[bt_attack])
-		buttonstate[bt_attack] = false;
+    if (buttonstate[bt_attack] && !buttonheld[bt_attack]) {
+        buttonstate[bt_attack] = false;
+    }
 
-	ControlMovement (ob);
+    ControlMovement(ob);
 
-	player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);		// scale to tile values
-	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
+    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);                 // scale to tile values
+    player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 
 //
 // change frame and fire
 //
-	gamestate.attackcount -= tics;
-	if (gamestate.attackcount <= 0)
-	{
-		cur = &attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe];
-		switch (cur->attack)
-		{
-		case -1:
-			ob->state = &s_player;
+    gamestate.attackcount -= tics;
+    if (gamestate.attackcount <= 0) {
+        cur = &attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe];
+        switch (cur->attack) {
+        case -1:
+            ob->state = &s_player;
 
-			if (!gamestate.ammo)
-			{
-				if (gamestate.weapon != wp_autocharge)
-				{
-					gamestate.weapon = wp_autocharge;
-					DrawWeapon();
-					DisplayInfoMsg(EnergyPackDepleted,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
-				}
-			}
-			else
-			{
-				if (!(gamestate.useable_weapons & (1<<gamestate.weapon)))
-				{
-					gamestate.weapon = wp_autocharge;
-					DrawWeapon();
-					DisplayInfoMsg(NotEnoughEnergyForWeapon,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
-				}
-			};
-			gamestate.attackframe = gamestate.weaponframe = 0;
-			return;
+            if (!gamestate.ammo) {
+                if (gamestate.weapon != wp_autocharge) {
+                    gamestate.weapon = wp_autocharge;
+                    DrawWeapon();
+                    DisplayInfoMsg(EnergyPackDepleted, MP_NO_MORE_AMMO, DISPLAY_MSG_STD_TIME << 1, MT_OUT_OF_AMMO);
+                }
+            } else {
+                if (!(gamestate.useable_weapons & (1 << gamestate.weapon))) {
+                    gamestate.weapon = wp_autocharge;
+                    DrawWeapon();
+                    DisplayInfoMsg(NotEnoughEnergyForWeapon, MP_NO_MORE_AMMO, DISPLAY_MSG_STD_TIME << 1, MT_OUT_OF_AMMO);
+                }
+            }
+            gamestate.attackframe = gamestate.weaponframe = 0;
+            return;
 
-		case -2:
-			ob->state = &s_player;
-			if (!gamestate.plasma_detonators)
-			{
-				// Check to see what weapons are possible.
-				//
+        case -2:
+            ob->state = &s_player;
+            if (!gamestate.plasma_detonators) {
+                // Check to see what weapons are possible.
+                //
                 const Sint16 n_x =
 #ifdef BSTONE_AOG
                     wp_grenade
@@ -5373,177 +5423,168 @@ void	T_Attack (objtype *ob)
 #endif
                 ;
 
-				for (x=n_x;x>=wp_autocharge;x--)
-				{
-					if (gamestate.useable_weapons & (1<<x))
-					{
-						gamestate.weapon = static_cast<char>(x);
-                  break;
-               }
+                for (x = n_x; x >= wp_autocharge; x--) {
+                    if (gamestate.useable_weapons & (1 << x)) {
+                        gamestate.weapon = static_cast<char>(x);
+                        break;
+                    }
+                }
+
+                DrawWeapon();
+//                              DisplayInfoMsg(pd_switching,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
+            }
+            gamestate.attackframe = gamestate.weaponframe = 0;
+            return;
+
+        case 4:
+            if (!gamestate.ammo) {
+                break;
+            }
+            if (buttonstate[bt_attack]) {
+                gamestate.attackframe -= 2;
             }
 
-				DrawWeapon();
-//				DisplayInfoMsg(pd_switching,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
-			}
-			gamestate.attackframe = gamestate.weaponframe = 0;
-			return;
+        case 0:
+            if (gamestate.weapon == wp_grenade) {
+                if (!objfreelist) {
+                    DISPLAY_TIMED_MSG(WeaponMalfunction, MP_WEAPON_MALFUNCTION, MT_MALFUNCTION);
+                    gamestate.attackframe++;
+                }
+            }
+            break;
 
-		case 4:
-			if (!gamestate.ammo)
-				break;
-			if (buttonstate[bt_attack])
-				gamestate.attackframe -= 2;
-
-      case 0:
-         if (gamestate.weapon == wp_grenade)
-	         if (!objfreelist)
-   	      {
-					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
-	            gamestate.attackframe++;
-				}
-      	break;
-
-		case 1:
-			if (!gamestate.ammo)
-			{	// can only happen with chain gun
-				gamestate.attackframe++;
-				break;
-			}
-			GunAttack (ob);
-			if (!godmode)
-				gamestate.ammo--;
+        case 1:
+            if (!gamestate.ammo) { // can only happen with chain gun
+                gamestate.attackframe++;
+                break;
+            }
+            GunAttack(ob);
+            if (!godmode) {
+                gamestate.ammo--;
+            }
 #ifdef BSTONE_AOG
             DrawWeapon();
 #else
-			DrawAmmo(false);
+            DrawAmmo(false);
 #endif
-			break;
+            break;
 
-		case 2:
-			if (gamestate.weapon_wait)
-				break;
-			GunAttack (ob);
-			gamestate.weapon_wait	= AUTOCHARGE_WAIT;
+        case 2:
+            if (gamestate.weapon_wait) {
+                break;
+            }
+            GunAttack(ob);
+            gamestate.weapon_wait = AUTOCHARGE_WAIT;
 #ifdef BSTONE_AOG
             DrawWeapon();
 #else
-			DrawAmmo(false);
+            DrawAmmo(false);
 #endif
-			break;
+            break;
 
-		case 3:
-			if (gamestate.ammo && buttonstate[bt_attack])
-				gamestate.attackframe -= 2;
-			break;
-
-		case 6:
-			if (gamestate.ammo && buttonstate[bt_attack])
-            {
-				if (objfreelist)
-					gamestate.attackframe -= 2;
+        case 3:
+            if (gamestate.ammo && buttonstate[bt_attack]) {
+                gamestate.attackframe -= 2;
             }
-            else if (gamestate.ammo == 0)
-            {
-					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
+            break;
+
+        case 6:
+            if (gamestate.ammo && buttonstate[bt_attack]) {
+                if (objfreelist) {
+                    gamestate.attackframe -= 2;
+                }
+            } else if (gamestate.ammo == 0) {
+                DISPLAY_TIMED_MSG(WeaponMalfunction, MP_WEAPON_MALFUNCTION, MT_MALFUNCTION);
             }
-			break;
+            break;
 
-		case 5:
-			if (!objfreelist)
-			{
-				DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
-				gamestate.attackframe++;
-			}
-			else
-			{
-				if (LastMsgType == MT_MALFUNCTION)
-					MsgTicsRemain = 1;		// Clear Malfuction Msg before anim
+        case 5:
+            if (!objfreelist) {
+                DISPLAY_TIMED_MSG(WeaponMalfunction, MP_WEAPON_MALFUNCTION, MT_MALFUNCTION);
+                gamestate.attackframe++;
+            } else {
+                if (LastMsgType == MT_MALFUNCTION) {
+                    MsgTicsRemain = 1;                                  // Clear Malfuction Msg before anim
 
-				if (!godmode)
-				{
-					if (gamestate.ammo >= GRENADE_ENERGY_USE)
-					{
-						gamestate.ammo-=GRENADE_ENERGY_USE;
+                }
+                if (!godmode) {
+                    if (gamestate.ammo >= GRENADE_ENERGY_USE) {
+                        gamestate.ammo -= GRENADE_ENERGY_USE;
 #ifdef BSTONE_AOG
                         DrawWeapon();
 #else
-						DrawAmmo(false);
+                        DrawAmmo(false);
 #endif
-					}
-					else
-						gamestate.attackframe++;
-				}
+                    } else {
+                        gamestate.attackframe++;
+                    }
+                }
 
                 ::sd_play_player_sound(ATKGRENADESND, bstone::AC_WEAPON);
 
-				SpawnProjectile(ob,grenadeobj);
-				MakeAlertNoise(ob);
-			}
-		break;
+                SpawnProjectile(ob, grenadeobj);
+                MakeAlertNoise(ob);
+            }
+            break;
 
 #ifdef BSTONE_PS
-		case 7:
-	   	TryDropPlasmaDetonator();
-     		DrawAmmo(false);
-	      break;
+        case 7:
+            TryDropPlasmaDetonator();
+            DrawAmmo(false);
+            break;
 
-      case 8:
-			if (gamestate.plasma_detonators && buttonstate[bt_attack])
-				gamestate.attackframe -= 2;
-			break;
+        case 8:
+            if (gamestate.plasma_detonators && buttonstate[bt_attack]) {
+                gamestate.attackframe -= 2;
+            }
+            break;
 
-		case 9:
-			if (!objfreelist)
-			{
-				DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
-				gamestate.attackframe++;
-			}
-			else
-			{
-				if (LastMsgType == MT_MALFUNCTION)
-					MsgTicsRemain = 1;		// Clear Malfuction Msg before anim
+        case 9:
+            if (!objfreelist) {
+                DISPLAY_TIMED_MSG(WeaponMalfunction, MP_WEAPON_MALFUNCTION, MT_MALFUNCTION);
+                gamestate.attackframe++;
+            } else {
+                if (LastMsgType == MT_MALFUNCTION) {
+                    MsgTicsRemain = 1;                                  // Clear Malfuction Msg before anim
 
-				if (!godmode)
-				{
-					if (gamestate.ammo >= BFG_ENERGY_USE)
-					{
-						gamestate.ammo-=BFG_ENERGY_USE;
-						DrawAmmo(false);
-					}
-					else
-						gamestate.attackframe++;
-				}
+                }
+                if (!godmode) {
+                    if (gamestate.ammo >= BFG_ENERGY_USE) {
+                        gamestate.ammo -= BFG_ENERGY_USE;
+                        DrawAmmo(false);
+                    } else {
+                        gamestate.attackframe++;
+                    }
+                }
 
                 ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
 
-				SpawnProjectile(ob,bfg_shotobj);
-				MakeAlertNoise(ob);
-			}
-		break;
+                SpawnProjectile(ob, bfg_shotobj);
+                MakeAlertNoise(ob);
+            }
+            break;
 
-		case 10:
-			if (gamestate.ammo && buttonstate[bt_attack])
-            {
-				if (objfreelist)
-					gamestate.attackframe -= 2;
+        case 10:
+            if (gamestate.ammo && buttonstate[bt_attack]) {
+                if (objfreelist) {
+                    gamestate.attackframe -= 2;
+                }
+            } else if (gamestate.ammo == 0) {
+                DISPLAY_TIMED_MSG(WeaponMalfunction, MP_WEAPON_MALFUNCTION, MT_MALFUNCTION);
             }
-            else if (gamestate.ammo == 0)
-            {
-					DISPLAY_TIMED_MSG(WeaponMalfunction,MP_WEAPON_MALFUNCTION,MT_MALFUNCTION);
-            }
-		break;
+            break;
 #endif
-		}
+        }
 
-		gamestate.attackcount += cur->tics;
-		gamestate.attackframe++;
-		gamestate.weaponframe =
-			attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
-	}
+        gamestate.attackcount += cur->tics;
+        gamestate.attackframe++;
+        gamestate.weaponframe =
+            attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
+    }
 }
 
 
-//===========================================================================
+// ===========================================================================
 
 /*
 ===============
@@ -5553,484 +5594,473 @@ void	T_Attack (objtype *ob)
 ===============
 */
 
-void	T_Player (objtype *ob)
+void T_Player(
+    objtype* ob)
 {
-	CheckWeaponChange ();
+    CheckWeaponChange();
 
-	if (gamestate.weapon == wp_autocharge)
-		UpdateAmmoMsg();
+    if (gamestate.weapon == wp_autocharge) {
+        UpdateAmmoMsg();
+    }
 
 #ifdef BSTONE_PS
-	if (tryDetonatorDelay > tics)
-		tryDetonatorDelay -= tics;
-	else
-		tryDetonatorDelay = 0;
+    if (tryDetonatorDelay > tics) {
+        tryDetonatorDelay -= tics;
+    } else {
+        tryDetonatorDelay = 0;
+    }
 #endif
 
-	if ( buttonstate[bt_use] )
-	{
-		Cmd_Use();
+    if (buttonstate[bt_use]) {
+        Cmd_Use();
         ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
-	}
+    }
 
-	if ( buttonstate[bt_attack] && !buttonheld[bt_attack])
-		Cmd_Fire ();
+    if (buttonstate[bt_attack] && !buttonheld[bt_attack]) {
+        Cmd_Fire();
+    }
 
-	ControlMovement (ob);
-	HandleWeaponBounce();
+    ControlMovement(ob);
+    HandleWeaponBounce();
 
 
-//	plux = player->x >> UNSIGNEDSHIFT;			// scale to fit in unsigned
-//	pluy = player->y >> UNSIGNEDSHIFT;
-	player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);		// scale to tile values
-	player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
+//      plux = player->x >> UNSIGNEDSHIFT;                      // scale to fit in unsigned
+//      pluy = player->y >> UNSIGNEDSHIFT;
+    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);                 // scale to tile values
+    player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 }
 
 #if BSTONE_AOG
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // RunBlakeRun()
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 void RunBlakeRun()
 {
-	#define	BLAKE_SPEED	(MOVESCALE*50)
+#define BLAKE_SPEED (MOVESCALE * 50)
 
-	Sint32 xmove,ymove,speed;
-	objtype *blake;
-	Sint16 startx,starty,dx,dy;
+    Sint32 xmove, ymove, speed;
+    objtype* blake;
+    Sint16 startx, starty, dx, dy;
 
 // Spawn Blake and set pointer.
 //
-	SpawnPatrol(en_blake,player->tilex,player->tiley,player->dir>>1);
-	blake=new_actor;
+    SpawnPatrol(en_blake, player->tilex, player->tiley, player->dir >> 1);
+    blake = new_actor;
 
 // Blake object starts one tile behind player object.
 //
-	switch (blake->dir)
-	{
-		case north:
-			blake->tiley+=2;
-		break;
+    switch (blake->dir) {
+    case north:
+        blake->tiley += 2;
+        break;
 
-		case south:
-			blake->tiley-=2;
-		break;
+    case south:
+        blake->tiley -= 2;
+        break;
 
-		case east:
-			blake->tilex-=2;
-		break;
+    case east:
+        blake->tilex -= 2;
+        break;
 
-		case west:
-			blake->tilex+=2;
-		break;
-	}
+    case west:
+        blake->tilex += 2;
+        break;
+    }
 
 // Align Blake on the middle of the tile.
 //
-	blake->x = ((Sint32)blake->tilex<<TILESHIFT)+TILEGLOBAL/2;
-	blake->y = ((Sint32)blake->tiley<<TILESHIFT)+TILEGLOBAL/2;
-	startx=blake->tilex = blake->x >> TILESHIFT;
-	starty=blake->tiley = blake->y >> TILESHIFT;
+    blake->x = ((Sint32)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
+    blake->y = ((Sint32)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
+    startx = blake->tilex = blake->x >> TILESHIFT;
+    starty = blake->tiley = blake->y >> TILESHIFT;
 
 // Run, Blake, Run!
 //
-	do
-	{
-	// Calc movement in X and Y directions.
-	//
-		xmove = FixedByFrac(BLAKE_SPEED,costable[player->angle]);
-		ymove = -FixedByFrac(BLAKE_SPEED,sintable[player->angle]);
+    do {
+        // Calc movement in X and Y directions.
+        //
+        xmove = FixedByFrac(BLAKE_SPEED, costable[player->angle]);
+        ymove = -FixedByFrac(BLAKE_SPEED, sintable[player->angle]);
 
-	// Move, animate, and redraw.
-	//
-		if (ClipMove(blake,xmove,ymove))
-			break;
-		DoActor(blake);
-		ThreeDRefresh();
+        // Move, animate, and redraw.
+        //
+        if (ClipMove(blake, xmove, ymove)) {
+            break;
+        }
+        DoActor(blake);
+        ThreeDRefresh();
 
-	// Calc new tile X/Y.
-	//
-		blake->tilex = blake->x >> TILESHIFT;
-		blake->tiley = blake->y >> TILESHIFT;
+        // Calc new tile X/Y.
+        //
+        blake->tilex = blake->x >> TILESHIFT;
+        blake->tiley = blake->y >> TILESHIFT;
 
-	// Evaluate distance from start.
-	//
-		dx=blake->tilex-startx;
-		dx=ABS(dx);
-		dy=blake->tiley-starty;
-		dy=ABS(dy);
+        // Evaluate distance from start.
+        //
+        dx = blake->tilex - startx;
+        dx = ABS(dx);
+        dy = blake->tiley - starty;
+        dy = ABS(dy);
 
         // BBi
         ::in_handle_events();
-	} while ((dx < 6) && (dy < 6));
+    } while ((dx < 6) && (dy < 6));
 }
 
 #endif
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // SW_HandleActor() - Handle all actors connected to a smart switch.
-//-------------------------------------------------------------------------
-void SW_HandleActor(objtype *obj)
+// -------------------------------------------------------------------------
+void SW_HandleActor(
+    objtype* obj)
 {
-   if (!obj->active)
-   	obj->active = ac_yes;
+    if (!obj->active) {
+        obj->active = ac_yes;
+    }
 
-  	switch (obj->obclass)
-   {
-		case rentacopobj:
-		case gen_scientistobj:
-		case swatobj:
-		case goldsternobj:
-		case proguardobj:
-         if (!(obj->flags & (FL_ATTACKMODE|FL_FIRSTATTACK)))
-         	FirstSighting(obj);
-      break;
+    switch (obj->obclass) {
+    case rentacopobj:
+    case gen_scientistobj:
+    case swatobj:
+    case goldsternobj:
+    case proguardobj:
+        if (!(obj->flags & (FL_ATTACKMODE | FL_FIRSTATTACK))) {
+            FirstSighting(obj);
+        }
+        break;
 
 #ifdef BSTONE_PS
-		case morphing_spider_mutantobj:
-   	case morphing_reptilian_warriorobj:
-		case morphing_mutanthuman2obj:
+    case morphing_spider_mutantobj:
+    case morphing_reptilian_warriorobj:
+    case morphing_mutanthuman2obj:
 #endif
-      case crate1obj:
-      case crate2obj:
-      case crate3obj:
-      case podeggobj:
-			KillActor(obj);
-      break;
+    case crate1obj:
+    case crate2obj:
+    case crate3obj:
+    case podeggobj:
+        KillActor(obj);
+        break;
 
-		case gurney_waitobj:
-		case scan_wait_alienobj:
-		case lcan_wait_alienobj:
-      break;
+    case gurney_waitobj:
+    case scan_wait_alienobj:
+    case lcan_wait_alienobj:
+        break;
 
-//		case electrosphereobj:
+//              case electrosphereobj:
 //    break;
 
-		case floatingbombobj:
-		case volatiletransportobj:
-			if (obj->flags & FL_STATIONARY)
-         	KillActor(obj);
-         else
-         if (!(obj->flags & (FL_ATTACKMODE|FL_FIRSTATTACK)))
-  	      	FirstSighting(obj);
-      break;
+    case floatingbombobj:
+    case volatiletransportobj:
+        if (obj->flags & FL_STATIONARY) {
+            KillActor(obj);
+        } else if (!(obj->flags & (FL_ATTACKMODE | FL_FIRSTATTACK))) {
+            FirstSighting(obj);
+        }
+        break;
 
-		case spider_mutantobj:
-		case breather_beastobj:
-		case cyborg_warriorobj:
-		case reptilian_warriorobj:
-		case acid_dragonobj:
-		case mech_guardianobj:
-		case liquidobj:
-		case genetic_guardobj:
-		case mutant_human1obj:
-		case mutant_human2obj:
-		case lcan_alienobj:
-		case scan_alienobj:
-		case gurneyobj:
-		case podobj:
-		case final_boss1obj:
-		case final_boss2obj:
-		case final_boss3obj:
-		case final_boss4obj:
-         if (!(obj->flags & (FL_ATTACKMODE|FL_FIRSTATTACK)))
-         	FirstSighting(obj);
-      break;
+    case spider_mutantobj:
+    case breather_beastobj:
+    case cyborg_warriorobj:
+    case reptilian_warriorobj:
+    case acid_dragonobj:
+    case mech_guardianobj:
+    case liquidobj:
+    case genetic_guardobj:
+    case mutant_human1obj:
+    case mutant_human2obj:
+    case lcan_alienobj:
+    case scan_alienobj:
+    case gurneyobj:
+    case podobj:
+    case final_boss1obj:
+    case final_boss2obj:
+    case final_boss3obj:
+    case final_boss4obj:
+        if (!(obj->flags & (FL_ATTACKMODE | FL_FIRSTATTACK))) {
+            FirstSighting(obj);
+        }
+        break;
 
-//		case electroobj:
-//		case liquidobj:
+//              case electroobj:
+//              case liquidobj:
 //    break;
 
-		case post_barrierobj:
-		case arc_barrierobj:
-      break;
+    case post_barrierobj:
+    case arc_barrierobj:
+        break;
 
-        default:
-            break;
-   }
+    default:
+        break;
+    }
 }
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // SW_HandleStatic() - Handle all statics connected to a smart switch.
-//-------------------------------------------------------------------------
-void SW_HandleStatic(statobj_t *stat, Uint16 tilex, Uint16 tiley)
+// -------------------------------------------------------------------------
+void SW_HandleStatic(
+    statobj_t* stat,
+    Uint16 tilex,
+    Uint16 tiley)
 {
-	switch (stat->itemnumber)
-   {
-     	case bo_clip:
-     	case bo_clip2:
+    switch (stat->itemnumber) {
+    case bo_clip:
+    case bo_clip2:
 // FIXME
 #ifdef BSTONE_PS
-			SpawnCusExplosion((((fixed)tilex)<<TILESHIFT)+0x7FFF,
-									(((fixed)tiley)<<TILESHIFT)+0x7FFF,
-									SPR_CLIP_EXP1, 7, 30+(US_RndT()&0x27),explosionobj);
+        SpawnCusExplosion((((fixed)tilex) << TILESHIFT) + 0x7FFF,
+                          (((fixed)tiley) << TILESHIFT) + 0x7FFF,
+                          SPR_CLIP_EXP1, 7, 30 + (US_RndT() & 0x27), explosionobj);
 #endif
-			stat->shapenum = -1;
-			stat->itemnumber = bo_nothing;
-      break;
-   }
+        stat->shapenum = -1;
+        stat->itemnumber = bo_nothing;
+        break;
+    }
 }
 
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // OperateSmartSwitch() - Operates a Smart Switch
 //
 // PARAMETERS:
-//			tilex - Tile X coord that the Smart switch points to.
-//			tiley - Tile Y coord that the Smart switch points to.
+//                      tilex - Tile X coord that the Smart switch points to.
+//                      tiley - Tile Y coord that the Smart switch points to.
 //       force - Force switch operation.  Will not check the players current
 //               and last tilex & tiley coords.  This is usefull for other
 //               actors toggling barrier switches.
 //
 // RETURNS: Boolean: TRUE  - Remove switch from map
-//							FALSE - Keep switch in map
+//                                                      FALSE - Keep switch in map
 //
-//-------------------------------------------------------------------------
-boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean Force)
+// -------------------------------------------------------------------------
+boolean OperateSmartSwitch(
+    Uint16 tilex,
+    Uint16 tiley,
+    char Operation,
+    boolean Force)
 {
-	typedef enum
-   {
-   	wit_NOTHING,
-		wit_DOOR,
-		wit_WALL,
-		wit_STATIC,
-		wit_ACTOR
-   } what_is_it;
+    typedef enum {
+        wit_NOTHING,
+        wit_DOOR,
+        wit_WALL,
+        wit_STATIC,
+        wit_ACTOR
+    } what_is_it;
 
-	what_is_it WhatItIs;
-   objtype *obj;
-   statobj_t *stat = NULL;
-   Uint8 tile, DoorNum = 0;
-   Uint16 iconnum;
+    what_is_it WhatItIs;
+    objtype* obj;
+    statobj_t* stat = NULL;
+    Uint8 tile, DoorNum = 0;
+    Uint16 iconnum;
 
-	//
-   // Get some information about what
-   // this switch is pointing to.
-   //
+    //
+    // Get some information about what
+    // this switch is pointing to.
+    //
 
-   tile = tilemap[tilex][tiley];
-   obj = actorat[tilex][tiley];
-	iconnum = *(mapsegs[1]+farmapylookup[tiley]+tilex);
-   WhatItIs  = wit_NOTHING;
+    tile = tilemap[tilex][tiley];
+    obj = actorat[tilex][tiley];
+    iconnum = *(mapsegs[1] + farmapylookup[tiley] + tilex);
+    WhatItIs = wit_NOTHING;
 
-   //
-   // Deterimine if the switch points to an
-	// actor, door, wall, static or is Special.
-   //
+    //
+    // Deterimine if the switch points to an
+    // actor, door, wall, static or is Special.
+    //
 
-   if (obj < objlist)
-	{
-		if (obj == (objtype *)1 && tile == 0)
-		{
-			// We have a SOLID static!
+    if (obj < objlist) {
+        if (obj == (objtype*)1 && tile == 0) {
+            // We have a SOLID static!
 
-         WhatItIs = wit_STATIC;
-  	   }
-     	else
-		{
-      	if (tile)
-         {
-         	//
-            // We have a wall of some type (maybe a door).
-            //
+            WhatItIs = wit_STATIC;
+        } else {
+            if (tile) {
+                //
+                // We have a wall of some type (maybe a door).
+                //
 
-	         if (tile & 0x80)
-   	      {
-	         	// We have a door
+                if (tile & 0x80) {
+                    // We have a door
 
-	   	      WhatItIs = wit_DOOR;
-         	   DoorNum = tile & 0x7f;
-	         }
-   	      else
-      	   {
-         		// We have a wall
+                    WhatItIs = wit_DOOR;
+                    DoorNum = tile & 0x7f;
+                } else {
+                    // We have a wall
 
-	   	      WhatItIs = wit_WALL;
-   	      }
-         }
-			else
-         {
-         	if ((stat = FindStatic(tilex,tiley)) != NULL)
-            	WhatItIs = wit_STATIC;
-         }
-      }
-	}
-	else
-   {
-		if (obj < &objlist[MAXACTORS])
-		{
-	     	// We have an actor.
+                    WhatItIs = wit_WALL;
+                }
+            } else {
+                if ((stat = FindStatic(tilex, tiley)) != NULL) {
+                    WhatItIs = wit_STATIC;
+                }
+            }
+        }
+    } else {
+        if (obj < &objlist[MAXACTORS]) {
+            // We have an actor.
 
-         WhatItIs = wit_ACTOR;
-		}
-		else
-		   WhatItIs  = wit_NOTHING;
-   }
+            WhatItIs = wit_ACTOR;
+        } else {
+            WhatItIs = wit_NOTHING;
+        }
+    }
 
-   //
-   // Ok... Now do that voodoo that you do so well...
-   //
+    //
+    // Ok... Now do that voodoo that you do so well...
+    //
 
-   switch (WhatItIs)
-   {
-   	//
-      // Handle Doors
-      //
-   	case wit_DOOR:
-	      if (doorobjlist[DoorNum].action == dr_jammed)
-   	      return(false);
+    switch (WhatItIs) {
+    //
+    // Handle Doors
+    //
+    case wit_DOOR:
+        if (doorobjlist[DoorNum].action == dr_jammed) {
+            return false;
+        }
 
-	     	doorobjlist[DoorNum].lock = kt_none;
-			OpenDoor(DoorNum);
-     	return(false);
+        doorobjlist[DoorNum].lock = kt_none;
+        OpenDoor(DoorNum);
+        return false;
 
 
-   	//
-      // Handle Actors
-      //
-		case wit_ACTOR:
-			if (!(obj->flags & FL_DEADGUY))
-   	   	SW_HandleActor(obj);
-		return(true);
+    //
+    // Handle Actors
+    //
+    case wit_ACTOR:
+        if (!(obj->flags & FL_DEADGUY)) {
+            SW_HandleActor(obj);
+        }
+        return true;
 
 
-   	//
-      // Handle Walls
-      //
-      case wit_WALL:
-      {
-        	if (Force || player_oldtilex != player->tilex || player_oldtiley != player->tiley)
-		      switch (tile)
-   		   {
-					case OFF_SWITCH:
-	     	      	if (Operation == ST_TURN_OFF)
-         	      	return(false);
+    //
+    // Handle Walls
+    //
+    case wit_WALL: {
+        if (Force || player_oldtilex != player->tilex || player_oldtiley != player->tiley) {
+            switch (tile) {
+            case OFF_SWITCH:
+                if (Operation == ST_TURN_OFF) {
+                    return false;
+                }
 
-						ActivateWallSwitch(iconnum, tilex, tiley);
-					break;
+                ActivateWallSwitch(iconnum, tilex, tiley);
+                break;
 
-					case ON_SWITCH:
-   	         	if (Operation == ST_TURN_ON)
-      	         	return(false);
-						ActivateWallSwitch(iconnum, tilex, tiley);
-					break;
-   		   }
-		}
-      return(false);
-
-
-   	//
-		// Handle Statics
-		//
-		case wit_STATIC:
-            stat = ::FindStatic(tilex, tiley);
-
-            if (!stat)
-                return false;
-
-			SW_HandleStatic(stat,tilex,tiley);
-		return (true);
+            case ON_SWITCH:
+                if (Operation == ST_TURN_ON) {
+                    return false;
+                }
+                ActivateWallSwitch(iconnum, tilex, tiley);
+                break;
+            }
+        }
+    }
+        return false;
 
 
-		//
-		// Handle NON connected smart switches...
-		//
-		case wit_NOTHING:
-			// Actor (or something) that was to be triggered has
-			// moved... SSSOOOoo, Remove the switch.
-		return(true);
-	}
+    //
+    // Handle Statics
+    //
+    case wit_STATIC:
+        stat = ::FindStatic(tilex, tiley);
 
-	return(false);
+        if (!stat) {
+            return false;
+        }
+
+        SW_HandleStatic(stat, tilex, tiley);
+        return true;
+
+
+    //
+    // Handle NON connected smart switches...
+    //
+    case wit_NOTHING:
+        // Actor (or something) that was to be triggered has
+        // moved... SSSOOOoo, Remove the switch.
+        return true;
+    }
+
+    return false;
 }
 
-//==========================================================================
+// ==========================================================================
 //
 //                         WEAPON BOUNCE CODE
 //
-//==========================================================================
+// ==========================================================================
 
-#define wb_MaxPoint		((Sint32)10 << TILESHIFT)
-#define wb_MidPoint		((Sint32)6 << TILESHIFT)
-#define wb_MinPoint		((Sint32)2 << TILESHIFT)
-#define wb_MaxGoalDist	(wb_MaxPoint - wb_MidPoint)
+#define wb_MaxPoint ((Sint32)10 << TILESHIFT)
+#define wb_MidPoint ((Sint32)6 << TILESHIFT)
+#define wb_MinPoint ((Sint32)2 << TILESHIFT)
+#define wb_MaxGoalDist (wb_MaxPoint - wb_MidPoint)
 
-#define wb_MaxOffset		(wb_MaxPoint+((Sint32)2 << TILESHIFT))
-#define wb_MinOffset		(wb_MinPoint-((Sint32)2 << TILESHIFT))
+#define wb_MaxOffset (wb_MaxPoint + ((Sint32)2 << TILESHIFT))
+#define wb_MinOffset (wb_MinPoint - ((Sint32)2 << TILESHIFT))
 
 extern fixed bounceOffset;
 
-fixed bounceVel,bounceDest;
+fixed bounceVel, bounceDest;
 Sint16 bounceOk;
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // InitWeaponBounce()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void InitWeaponBounce()
 {
-	bounceOffset = wb_MidPoint;
-	bounceDest = wb_MaxPoint;
-	bounceVel = bounceOk = 0;
+    bounceOffset = wb_MidPoint;
+    bounceDest = wb_MaxPoint;
+    bounceVel = bounceOk = 0;
 }
 
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // HandleWeaponBounce()
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 void HandleWeaponBounce()
 {
-	Sint16 bounceSpeed;
+    Sint16 bounceSpeed;
 
-	bounceSpeed = 90-((20-viewsize)*6);
+    bounceSpeed = 90 - ((20 - viewsize) * 6);
 
-	if (bounceOk)
-	{
-		if (bounceOffset < bounceDest)
-		{
-			bounceVel += (sintable[bounceSpeed]+1) >> 1;
-			bounceOffset += bounceVel;
-			if (bounceOffset > bounceDest)
-			{
-				bounceDest = wb_MinPoint;
-				bounceVel >>= 2;
-			}
-		}
-		else
-		if (bounceOffset > bounceDest)
-		{
-			bounceVel -= sintable[bounceSpeed] >> 2;
-			bounceOffset += bounceVel;
+    if (bounceOk) {
+        if (bounceOffset < bounceDest) {
+            bounceVel += (sintable[bounceSpeed] + 1) >> 1;
+            bounceOffset += bounceVel;
+            if (bounceOffset > bounceDest) {
+                bounceDest = wb_MinPoint;
+                bounceVel >>= 2;
+            }
+        } else if (bounceOffset > bounceDest) {
+            bounceVel -= sintable[bounceSpeed] >> 2;
+            bounceOffset += bounceVel;
 
-			if (bounceOffset < bounceDest)
-			{
-				bounceDest = wb_MaxPoint;
-				bounceVel >>= 2;
-			}
-		}
-	}
-	else
-	{
-		if (bounceOffset > wb_MidPoint)
-		{
-			bounceOffset -= ((Sint32)2<<TILESHIFT);
-			if (bounceOffset < wb_MidPoint)
-				bounceOffset = wb_MidPoint;
-		}
-		else
-		if (bounceOffset < wb_MidPoint)
-		{
-			bounceOffset += ((Sint32)2<<TILESHIFT);
-			if (bounceOffset > wb_MidPoint)
-				bounceOffset = wb_MidPoint;
-		}
+            if (bounceOffset < bounceDest) {
+                bounceDest = wb_MaxPoint;
+                bounceVel >>= 2;
+            }
+        }
+    } else {
+        if (bounceOffset > wb_MidPoint) {
+            bounceOffset -= ((Sint32)2 << TILESHIFT);
+            if (bounceOffset < wb_MidPoint) {
+                bounceOffset = wb_MidPoint;
+            }
+        } else if (bounceOffset < wb_MidPoint) {
+            bounceOffset += ((Sint32)2 << TILESHIFT);
+            if (bounceOffset > wb_MidPoint) {
+                bounceOffset = wb_MidPoint;
+            }
+        }
 
-		bounceDest = wb_MaxPoint;
-		bounceVel = 0;
-	}
+        bounceDest = wb_MaxPoint;
+        bounceVel = 0;
+    }
 
-	if (bounceOffset > wb_MaxOffset)
-		bounceOffset = wb_MaxOffset;
-	else
-		if (bounceOffset < wb_MinOffset)
-			bounceOffset = wb_MinOffset;
+    if (bounceOffset > wb_MaxOffset) {
+        bounceOffset = wb_MaxOffset;
+    } else if (bounceOffset < wb_MinOffset) {
+        bounceOffset = wb_MinOffset;
+    }
 }
-

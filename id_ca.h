@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 
 
 // ID_CA.H
-//===========================================================================
+// ===========================================================================
 
 
 #ifndef ID_CA_H
@@ -46,135 +46,159 @@ Free Software Foundation, Inc.,
 #define MAPS_WITH_STATS (20)
 #endif
 
-#define NUMMAPS				NUM_EPISODES*MAPS_PER_EPISODE
-#define MAPPLANES	2
+#define NUMMAPS NUM_EPISODES * MAPS_PER_EPISODE
+#define MAPPLANES 2
 
-void UNCACHEGRCHUNK(Uint16 chunk);
+void UNCACHEGRCHUNK(
+    Uint16 chunk);
 
 #define THREEBYTEGRSTARTS
 
 #ifdef THREEBYTEGRSTARTS
-#define FILEPOSSIZE	3
+#define FILEPOSSIZE 3
 #else
-#define FILEPOSSIZE	4
+#define FILEPOSSIZE 4
 #endif
 
-//===========================================================================
+// ===========================================================================
 
 struct maptype {
-	Sint32		planestart[3];
-	Uint16	planelength[3];
-	Uint16	width,height;
-	char		name[16];
+    Sint32 planestart[3];
+    Uint16 planelength[3];
+    Uint16 width, height;
+    char name[16];
 }; // struct maptype
 
 struct huffnode {
-    Uint16 bit0,bit1;	// 0-255 is a character, > is a pointer to a node
+    Uint16 bit0, bit1; // 0-255 is a character, > is a pointer to a node
 }; // struct huffnode
 
 struct mapfiletype {
-	Uint16	RLEWtag;
-	Sint32		headeroffsets[100];
-//	Uint8		tileinfo[];
+    Uint16 RLEWtag;
+    Sint32 headeroffsets[100];
+//      Uint8           tileinfo[];
 }; // struct mapfiletype
 
-//===========================================================================
+// ===========================================================================
 
-extern	char		audioname[13];
+extern char audioname[13];
 
 extern Uint16 rlew_tag;
 
-extern	Sint16			mapon;
+extern Sint16 mapon;
 
-extern	Uint16	*mapsegs[MAPPLANES];
-extern	maptype		*mapheaderseg[NUMMAPS];
-extern	Uint8		*audiosegs[NUMSNDCHUNKS];
-extern	void		*grsegs[NUMCHUNKS];
+extern Uint16* mapsegs[MAPPLANES];
+extern maptype* mapheaderseg[NUMMAPS];
+extern Uint8* audiosegs[NUMSNDCHUNKS];
+extern void* grsegs[NUMCHUNKS];
 
-extern	Uint8		grneeded[NUMCHUNKS];
-extern	Uint8		ca_levelbit,ca_levelnum;
+extern Uint8 grneeded[NUMCHUNKS];
+extern Uint8 ca_levelbit, ca_levelnum;
 
-extern	char		*titleptr[8];
+extern char* titleptr[8];
 
-extern	Sint16			profilehandle,debughandle;
+extern Sint16 profilehandle, debughandle;
 
-extern	char		extension[5],
-			gheadname[10],
-			gfilename[10],
-			gdictname[10],
-			mheadname[10],
-			mfilename[10],
-			aheadname[10],
-			afilename[10];
+extern char extension[5],
+            gheadname[10],
+            gfilename[10],
+            gdictname[10],
+            mheadname[10],
+            mfilename[10],
+            aheadname[10],
+            afilename[10];
 
-extern Sint32		*grstarts;	// array of offsets in egagraph, -1 for sparse
-extern Sint32		*audiostarts;	// array of offsets in audio / audiot
+extern Sint32* grstarts; // array of offsets in egagraph, -1 for sparse
+extern Sint32* audiostarts; // array of offsets in audio / audiot
 //
 // hooks for custom cache dialogs
 //
-extern	void	(*drawcachebox)		(char *title, Uint16 numcache);
-extern	void	(*updatecachebox)	();
-extern	void	(*finishcachebox)	();
+extern void (* drawcachebox)(
+    char* title,
+    Uint16 numcache);
+extern void (* updatecachebox)();
+extern void (* finishcachebox)();
 
 extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
 extern bstone::FileStream audiohandle;
 
-extern Sint32		chunkcomplen,chunkexplen;
+extern Sint32 chunkcomplen, chunkexplen;
 
 #ifdef GRHEADERLINKED
-extern huffnode	*grhuffman;
+extern huffnode* grhuffman;
 #else
-extern huffnode	grhuffman[255];
+extern huffnode grhuffman[255];
 #endif
 
-//===========================================================================
+// ===========================================================================
 
 // just for the score box reshifting
 
-void CAL_ShiftSprite (Uint16 segment,Uint16 source,Uint16 dest,
-	Uint16 width, Uint16 height, Uint16 pixshift);
+void CAL_ShiftSprite(
+    Uint16 segment,
+    Uint16 source,
+    Uint16 dest,
+    Uint16 width,
+    Uint16 height,
+    Uint16 pixshift);
 
-//===========================================================================
+// ===========================================================================
 
-void CA_OpenDebug ();
-void CA_CloseDebug ();
+void CA_OpenDebug();
+void CA_CloseDebug();
 
-boolean CA_ReadFile (char *filename, void** ptr);
-boolean CA_LoadFile (char *filename, void** ptr);
-boolean CA_WriteFile (char *filename, void *ptr, Sint32 length);
+boolean CA_ReadFile(
+    char* filename,
+    void** ptr);
+boolean CA_LoadFile(
+    char* filename,
+    void** ptr);
+boolean CA_WriteFile(
+    char* filename,
+    void* ptr,
+    Sint32 length);
 
-Sint32 CA_RLEWCompress (Uint16 *source, Sint32 length, Uint16 *dest,
-  Uint16 rlewtag);
+Sint32 CA_RLEWCompress(
+    Uint16* source,
+    Sint32 length,
+    Uint16* dest,
+    Uint16 rlewtag);
 
-void CA_RLEWexpand (Uint16 *source, Uint16 *dest,Sint32 length,
-  Uint16 rlewtag);
+void CA_RLEWexpand(
+    Uint16* source,
+    Uint16* dest,
+    Sint32 length,
+    Uint16 rlewtag);
 
-void CA_Startup ();
-void CA_Shutdown ();
+void CA_Startup();
+void CA_Shutdown();
 
-void CA_SetGrPurge ();
-void CA_CacheAudioChunk (Sint16 chunk);
-void CA_LoadAllSounds ();
+void CA_SetGrPurge();
+void CA_CacheAudioChunk(
+    Sint16 chunk);
+void CA_LoadAllSounds();
 
-void CA_UpLevel ();
-void CA_DownLevel ();
+void CA_UpLevel();
+void CA_DownLevel();
 
-void CA_SetAllPurge ();
+void CA_SetAllPurge();
 
-void CA_ClearMarks ();
-void CA_ClearAllMarks ();
+void CA_ClearMarks();
+void CA_ClearAllMarks();
 
-#define CA_MarkGrChunk(chunk)	grneeded[chunk]|=ca_levelbit
+#define CA_MarkGrChunk(chunk) grneeded[chunk] |= ca_levelbit
 
-void CA_CacheGrChunk (Sint16 chunk);
-void CA_CacheMap (Sint16 mapnum);
+void CA_CacheGrChunk(
+    Sint16 chunk);
+void CA_CacheMap(
+    Sint16 mapnum);
 
-void CA_CacheMarks ();
+void CA_CacheMarks();
 
-void CAL_SetupAudioFile ();
-void CAL_SetupGrFile ();
-void CAL_SetupMapFile ();
+void CAL_SetupAudioFile();
+void CAL_SetupGrFile();
+void CAL_SetupMapFile();
 
 void CAL_HuffExpand(
     Uint8* source,

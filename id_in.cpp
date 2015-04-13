@@ -22,22 +22,22 @@ Free Software Foundation, Inc.,
 
 
 //
-//	ID Engine
-//	ID_IN.c - Input Manager
-//	v1.0d1
-//	By Jason Blochowiak
+//      ID Engine
+//      ID_IN.c - Input Manager
+//      v1.0d1
+//      By Jason Blochowiak
 //
 
 //
-//	This module handles dealing with the various input devices
+//      This module handles dealing with the various input devices
 //
-//	Depends on: Memory Mgr (for demo recording), Sound Mgr (for timing stuff),
-//				User Mgr (for command line parms)
+//      Depends on: Memory Mgr (for demo recording), Sound Mgr (for timing stuff),
+//                              User Mgr (for command line parms)
 //
-//	Globals:
-//		LastScan - The keyboard scan code of the last key pressed
-//		LastASCII - The ASCII value of the last key pressed
-//	DEBUG - there are more globals
+//      Globals:
+//              LastScan - The keyboard scan code of the last key pressed
+//              LastASCII - The ASCII value of the last key pressed
+//      DEBUG - there are more globals
 //
 
 #include "3d_def.h"
@@ -46,29 +46,29 @@ Free Software Foundation, Inc.,
 #pragma hdrstop
 #endif
 
-#define	KeyInt		9	// The keyboard ISR number
+#define KeyInt 9 // The keyboard ISR number
 
 //
 // mouse constants
 //
-#define	MReset		0
-#define	MButtons	3
-#define	MDelta		11
+#define MReset 0
+#define MButtons 3
+#define MDelta 11
 
-#define	MouseInt	0x33
+#define MouseInt 0x33
 
 //
 // joystick constants
 //
-#define	JoyScaleMax		32768
-#define	JoyScaleShift	8
-//#define	MaxJoyValue		5000
+#define JoyScaleMax 32768
+#define JoyScaleShift 8
+// #define      MaxJoyValue             5000
 
 
 /*
 =============================================================================
 
-					GLOBAL VARIABLES
+                                        GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -76,19 +76,19 @@ Free Software Foundation, Inc.,
 //
 // configuration variables
 //
-boolean			MousePresent;
-boolean			JoysPresent[MaxJoys];
-boolean			JoyPadPresent;
-boolean			NGinstalled=false;
+boolean MousePresent;
+boolean JoysPresent[MaxJoys];
+boolean JoyPadPresent;
+boolean NGinstalled = false;
 
 
-// 	Global variables
-		boolean JoystickCalibrated;				// JAM - added
-		ControlType ControlTypeUsed;				// JAM - added
+//      Global variables
+boolean JoystickCalibrated;                                             // JAM - added
+ControlType ControlTypeUsed;                                            // JAM - added
 bool Keyboard[NumCodes];
 bool Paused;
-		char		LastASCII;
-		ScanCode	LastScan;
+char LastASCII;
+ScanCode LastScan;
 
 KeyboardDef KbdDefs = {
     sc_control,
@@ -103,14 +103,14 @@ KeyboardDef KbdDefs = {
     sc_page_down
 }; // KeyboardDef KbdDefs
 
-		JoystickDef	JoyDefs[MaxJoys];
-		ControlType	Controls[MaxPlayers];
+JoystickDef JoyDefs[MaxJoys];
+ControlType Controls[MaxPlayers];
 
-		Uint32	MouseDownCount;
+Uint32 MouseDownCount;
 
 #if DEMOS_ENABLED
-		Uint8 *DemoBuffer;
-		Uint16		DemoOffset,DemoSize;
+Uint8* DemoBuffer;
+Uint16 DemoOffset, DemoSize;
 #endif
 
 bool in_use_modern_bindings = k_in_use_modern_bindings_default;
@@ -119,23 +119,23 @@ Bindings in_bindings;
 /*
 =============================================================================
 
-					LOCAL VARIABLES
+                                        LOCAL VARIABLES
 
 =============================================================================
 */
 
-boolean		IN_Started;
+boolean IN_Started;
 
-static	Direction	DirTable[] =		// Quick lookup for total direction
-					{
-						dir_NorthWest,	dir_North,	dir_NorthEast,
-						dir_West,		dir_None,	dir_East,
-						dir_SouthWest,	dir_South,	dir_SouthEast
-					};
+static Direction DirTable[] = // Quick lookup for total direction
+{
+    dir_NorthWest, dir_North, dir_NorthEast,
+    dir_West, dir_None, dir_East,
+    dir_SouthWest, dir_South, dir_SouthEast
+};
 
-const char			* IN_ParmStrings[] = {"nojoys","nomouse","enablegp",nil};
+const char* IN_ParmStrings[] = { "nojoys", "nomouse", "enablegp", nil };
 
-//	Internal routines
+//      Internal routines
 
 // BBi
 static ScanCode in_keyboard_map_to_bstone(
@@ -206,91 +206,101 @@ static ScanCode in_keyboard_map_to_bstone(
         return sc_up_arrow;
 
     case SDLK_KP_8:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_up_arrow;
-        else
+        } else {
             return sc_8;
+        }
 
     case SDLK_DOWN:
         return sc_down_arrow;
 
     case SDLK_KP_2:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_down_arrow;
-        else
+        } else {
             return sc_2;
+        }
 
     case SDLK_LEFT:
         return sc_left_arrow;
 
     case SDLK_KP_4:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_left_arrow;
-        else
+        } else {
             return sc_4;
+        }
 
     case SDLK_RIGHT:
         return sc_right_arrow;
 
     case SDLK_KP_6:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_right_arrow;
-        else
+        } else {
             return sc_6;
+        }
 
     case SDLK_INSERT:
         return sc_insert;
 
     case SDLK_KP_0:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_insert;
-        else
+        } else {
             return sc_0;
+        }
 
     case SDLK_DELETE:
         return sc_delete;
 
     case SDLK_KP_COMMA:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_delete;
-        else
+        } else {
             return sc_comma;
+        }
 
     case SDLK_HOME:
         return sc_home;
 
     case SDLK_KP_7:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_home;
-        else
+        } else {
             return sc_7;
+        }
 
     case SDLK_END:
         return sc_end;
 
     case SDLK_KP_1:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_end;
-        else
+        } else {
             return sc_1;
+        }
 
     case SDLK_PAGEUP:
         return sc_page_up;
 
     case SDLK_KP_9:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_page_up;
-        else
+        } else {
             return sc_9;
+        }
 
     case SDLK_PAGEDOWN:
         return sc_page_down;
 
     case SDLK_KP_3:
-        if (is_numlock_active)
+        if (is_numlock_active) {
             return sc_page_down;
-        else
+        } else {
             return sc_3;
+        }
 
     case SDLK_SLASH:
     case SDLK_KP_DIVIDE:
@@ -487,13 +497,13 @@ static char in_keyboard_map_to_char(
     SDL_Keycode key_code = e.keysym.sym;
 
     if ((flags & (
-        KMOD_LCTRL |
-        KMOD_RCTRL |
-        KMOD_LALT |
-        KMOD_RALT |
-        KMOD_LGUI |
-        KMOD_RGUI |
-        KMOD_MODE)) != 0)
+             KMOD_LCTRL |
+             KMOD_RCTRL |
+             KMOD_LALT |
+             KMOD_RALT |
+             KMOD_LGUI |
+             KMOD_RGUI |
+             KMOD_MODE)) != 0)
     {
         return sc_none;
     }
@@ -511,14 +521,16 @@ static char in_keyboard_map_to_char(
 
     is_shift = ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0);
 
-    if (allcaps)
+    if (allcaps) {
         is_caps = true;
-    else {
-        if ((flags & KMOD_CAPS) != 0)
+    } else {
+        if ((flags & KMOD_CAPS) != 0) {
             is_caps = !is_caps;
+        }
 
-        if (is_shift)
+        if (is_shift) {
             is_caps = !is_caps;
+        }
     }
 
     //
@@ -650,7 +662,7 @@ static char in_keyboard_map_to_char(
     case SDLK_y:
     case SDLK_z:
         return is_caps ? static_cast<char>(::SDL_toupper(key_code)) :
-            static_cast<char>(key_code);
+               static_cast<char>(key_code);
     }
 
     return sc_none;
@@ -663,8 +675,9 @@ static void in_handle_keyboard(
     SDL_Keymod key_mod = ::SDL_GetModState();
     ScanCode key = ::in_keyboard_map_to_bstone(key_code, key_mod);
 
-    if (key == sc_none)
+    if (key == sc_none) {
         return;
+    }
 
     bool is_pressed;
 
@@ -689,8 +702,9 @@ static void in_handle_keyboard(
 
         char key_char = ::in_keyboard_map_to_char(e);
 
-        if (key_char != '\0')
+        if (key_char != '\0') {
             LastASCII = key_char;
+        }
     }
 }
 
@@ -725,8 +739,9 @@ static void in_handle_mouse_buttons(
     if (key != sc_none) {
         Keyboard[key] = is_pressed;
 
-        if (is_pressed)
+        if (is_pressed) {
             LastScan = key;
+        }
     }
 }
 
@@ -758,8 +773,8 @@ static void in_handle_mouse(
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_GetMouseDelta() - Gets the amount that the mouse has moved from the
-//		mouse driver
+//      INL_GetMouseDelta() - Gets the amount that the mouse has moved from the
+//              mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
 static void INL_GetMouseDelta(
@@ -772,8 +787,8 @@ static void INL_GetMouseDelta(
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_GetMouseButtons() - Gets the status of the mouse buttons from the
-//		mouse driver
+//      INL_GetMouseButtons() - Gets the status of the mouse buttons from the
+//              mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
 static int INL_GetMouseButtons()
@@ -782,121 +797,129 @@ static int INL_GetMouseButtons()
 
     int result = 0;
 
-    if (Keyboard[sc_mouse_left])
+    if (Keyboard[sc_mouse_left]) {
         result |= 1;
+    }
 
-    if (Keyboard[sc_mouse_middle])
+    if (Keyboard[sc_mouse_middle]) {
         result |= 4;
+    }
 
-    if (Keyboard[sc_mouse_right])
+    if (Keyboard[sc_mouse_right]) {
         result |= 2;
+    }
 
-    if (Keyboard[sc_mouse_x1])
+    if (Keyboard[sc_mouse_x1]) {
         result |= 8;
+    }
 
-    if (Keyboard[sc_mouse_x2])
+    if (Keyboard[sc_mouse_x2]) {
         result |= 16;
+    }
 
     return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_GetJoyAbs() - Reads the absolute position of the specified joystick
+//      IN_GetJoyAbs() - Reads the absolute position of the specified joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp)
+void IN_GetJoyAbs(
+    Uint16 joy,
+    Uint16* xp,
+    Uint16* yp)
 {
 // FIXME
 #if 0
-	Uint8	xb,yb;
-	Uint8	xs,ys;
-	Uint16	x,y;
+    Uint8 xb, yb;
+    Uint8 xs, ys;
+    Uint16 x, y;
 
 // Handle Notebook Gamepad's joystick.
 //
-	if (NGinstalled)
-	{
-		unsigned ax,bx;
+    if (NGinstalled) {
+        unsigned ax, bx;
 
-		joy++;
+        joy++;
 
-		_AL=0x01;
-		_BX=joy;
-		NGjoy(0x01);
+        _AL = 0x01;
+        _BX = joy;
+        NGjoy(0x01);
 
-		ax=_AX;		bx=_BX;
-		*xp=ax;		*yp=bx;
+        ax = _AX;
+        bx = _BX;
+        *xp = ax;
+        *yp = bx;
 
-		return;
-	}
+        return;
+    }
 
 // Handle normal PC joystick.
 //
-	x = y = 0;
-	xs = joy? 2 : 0;		// Find shift value for x axis
-	xb = 1 << xs;			// Use shift value to get x bit mask
-	ys = joy? 3 : 1;		// Do the same for y axis
-	yb = 1 << ys;
+    x = y = 0;
+    xs = joy ? 2 : 0;                   // Find shift value for x axis
+    xb = 1 << xs;                       // Use shift value to get x bit mask
+    ys = joy ? 3 : 1;                   // Do the same for y axis
+    yb = 1 << ys;
 
 // Read the absolute joystick values
-asm		pushf				// Save some registers
-asm		push	si
-asm		push	di
-asm		cli					// Make sure an interrupt doesn't screw the timings
+    asm             pushf                       // Save some registers
+    asm             push si
+    asm             push di
+    asm             cli                                 // Make sure an interrupt doesn't screw the timings
 
 
-asm		mov		dx,0x201
-asm		in		al,dx
-asm		out		dx,al		// Clear the resistors
+    asm             mov dx, 0x201
+    asm             in al, dx
+    asm             out dx, al                  // Clear the resistors
 
-asm		mov		ah,[xb]		// Get masks into registers
-asm		mov		ch,[yb]
+    asm             mov ah, [xb]                // Get masks into registers
+    asm             mov ch, [yb]
 
-asm		xor		si,si		// Clear count registers
-asm		xor		di,di
-asm		xor		bh,bh		// Clear high byte of bx for later
+    asm             xor             si, si      // Clear count registers
+    asm             xor             di, di
+    asm             xor             bh, bh      // Clear high byte of bx for later
 
-asm		push	bp			// Don't mess up stack frame
-asm		mov		bp,MaxJoyValue
+    asm             push bp                     // Don't mess up stack frame
+    asm             mov bp, MaxJoyValue
 
 loop:
-asm		in		al,dx		// Get bits indicating whether all are finished
+    asm             in al, dx                   // Get bits indicating whether all are finished
 
-asm		dec		bp			// Check bounding register
-asm		jz		done		// We have a silly value - abort
+    asm             dec bp                              // Check bounding register
+    asm             jz done                     // We have a silly value - abort
 
-asm		mov		bl,al		// Duplicate the bits
-asm		and		bl,ah		// Mask off useless bits (in [xb])
-asm		add		si,bx		// Possibly increment count register
-asm		mov		cl,bl		// Save for testing later
+    asm             mov bl, al                  // Duplicate the bits
+    asm             and bl, ah                  // Mask off useless bits (in [xb])
+    asm             add si, bx                  // Possibly increment count register
+    asm             mov cl, bl                  // Save for testing later
 
-asm		mov		bl,al
-asm		and		bl,ch		// [yb]
-asm		add		di,bx
+    asm             mov bl, al
+    asm             and bl, ch                  // [yb]
+    asm             add di, bx
 
-asm		add		cl,bl
-asm		jnz		loop 		// If both bits were 0, drop out
+    asm             add cl, bl
+    asm             jnz loop                    // If both bits were 0, drop out
 
 done:
-asm     pop		bp
+    asm     pop bp
 
-asm		mov		cl,[xs]		// Get the number of bits to shift
-asm		shr		si,cl		//  and shift the count that many times
+    asm             mov cl, [xs]                // Get the number of bits to shift
+    asm             shr si, cl                  //  and shift the count that many times
 
-asm		mov		cl,[ys]
-asm		shr		di,cl
+    asm             mov cl, [ys]
+    asm             shr di, cl
 
-asm		mov		[x],si		// Store the values into the variables
-asm		mov		[y],di
+    asm             mov             [x], si     // Store the values into the variables
+    asm             mov             [y], di
 
-asm		pop		di
-asm		pop		si
-asm		popf				// Restore the registers
+    asm             pop di
+    asm             pop si
+    asm             popf                        // Restore the registers
 
-	*xp = x;
-	*yp = y;
+    * xp = x;
+    *yp = y;
 #endif // 0
 
     *xp = 0;
@@ -905,115 +928,115 @@ asm		popf				// Restore the registers
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_GetJoyDelta() - Returns the relative movement of the specified
-//		joystick (from +/-127)
+//      INL_GetJoyDelta() - Returns the relative movement of the specified
+//              joystick (from +/-127)
 //
 ///////////////////////////////////////////////////////////////////////////
-void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy)
+void INL_GetJoyDelta(
+    Uint16 joy,
+    Sint16* dx,
+    Sint16* dy)
 {
-	Uint16		x,y;
-	JoystickDef	*def;
+    Uint16 x, y;
+    JoystickDef* def;
 
 // FIXME
 #if 0
-static	Uint32	lasttime;
+    static Uint32 lasttime;
 #endif // 0
 
-	IN_GetJoyAbs(joy,&x,&y);
-	def = JoyDefs + joy;
+    IN_GetJoyAbs(joy, &x, &y);
+    def = JoyDefs + joy;
 
-	if (x < def->threshMinX)
-	{
-		if (x < def->joyMinX)
-			x = def->joyMinX;
+    if (x < def->threshMinX) {
+        if (x < def->joyMinX) {
+            x = def->joyMinX;
+        }
 
-		x = -(x - def->threshMinX);
-		x *= def->joyMultXL;
-		x >>= JoyScaleShift;
-		*dx = (x > 127)? -127 : -x;
-	}
-	else if (x > def->threshMaxX)
-	{
-		if (x > def->joyMaxX)
-			x = def->joyMaxX;
+        x = -(x - def->threshMinX);
+        x *= def->joyMultXL;
+        x >>= JoyScaleShift;
+        *dx = (x > 127) ? -127 : -x;
+    } else if (x > def->threshMaxX) {
+        if (x > def->joyMaxX) {
+            x = def->joyMaxX;
+        }
 
-		x = x - def->threshMaxX;
-		x *= def->joyMultXH;
-		x >>= JoyScaleShift;
-		*dx = (x > 127)? 127 : x;
-	}
-	else
-		*dx = 0;
+        x = x - def->threshMaxX;
+        x *= def->joyMultXH;
+        x >>= JoyScaleShift;
+        *dx = (x > 127) ? 127 : x;
+    } else {
+        *dx = 0;
+    }
 
-	if (y < def->threshMinY)
-	{
-		if (y < def->joyMinY)
-			y = def->joyMinY;
+    if (y < def->threshMinY) {
+        if (y < def->joyMinY) {
+            y = def->joyMinY;
+        }
 
-		y = -(y - def->threshMinY);
-		y *= def->joyMultYL;
-		y >>= JoyScaleShift;
-		*dy = (y > 127)? -127 : -y;
-	}
-	else if (y > def->threshMaxY)
-	{
-		if (y > def->joyMaxY)
-			y = def->joyMaxY;
+        y = -(y - def->threshMinY);
+        y *= def->joyMultYL;
+        y >>= JoyScaleShift;
+        *dy = (y > 127) ? -127 : -y;
+    } else if (y > def->threshMaxY) {
+        if (y > def->joyMaxY) {
+            y = def->joyMaxY;
+        }
 
-		y = y - def->threshMaxY;
-		y *= def->joyMultYH;
-		y >>= JoyScaleShift;
-		*dy = (y > 127)? 127 : y;
-	}
-	else
-		*dy = 0;
+        y = y - def->threshMaxY;
+        y *= def->joyMultYH;
+        y >>= JoyScaleShift;
+        *dy = (y > 127) ? 127 : y;
+    } else {
+        *dy = 0;
+    }
 
 // FIXME
 #if 0
-	lasttime = TimeCount;
+    lasttime = TimeCount;
 #endif // 0
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_GetJoyButtons() - Returns the button status of the specified
-//		joystick
+//      INL_GetJoyButtons() - Returns the button status of the specified
+//              joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-static Uint16
-INL_GetJoyButtons(Uint16 joy)
+static Uint16 INL_GetJoyButtons(
+    Uint16 joy)
 {
 // FIXME
 #if 0
-register	Uint16	result;
+    register Uint16 result;
 
 // Handle Notebook Gamepad's joystick.
 //
-	if (NGinstalled)
-	{
-		unsigned ax,bx;
+    if (NGinstalled) {
+        unsigned ax, bx;
 
-		joy++;
+        joy++;
 
-		_AL=0x01;
-		_BX=joy;
-		NGjoy(0x00);
+        _AL = 0x01;
+        _BX = joy;
+        NGjoy(0x00);
 
-		result=_AL;
-		result >>= joy? 6 : 4;	// Shift into bits 0-1
-		result &= 3;				// Mask off the useless bits
-		result ^= 3;
+        result = _AL;
+        result >>= joy ? 6 : 4;         // Shift into bits 0-1
+        result &= 3;                                    // Mask off the useless bits
+        result ^= 3;
 
-		return(result);
-	}
+        return result;
+    }
 
 // Handle normal PC joystick.
 //
-	result = inportb(0x201);	// Get all the joystick buttons
-	result >>= joy? 6 : 4;	// Shift into bits 0-1
-	result &= 3;				// Mask off the useless bits
-	result ^= 3;
-	return(result);
+    result = inportb(0x201);            // Get all the joystick buttons
+    result >>= joy ? 6 : 4;     // Shift into bits 0-1
+    result &= 3;                                // Mask off the useless bits
+    result ^= 3;
+    return result;
 #endif // 0
 
     return 0;
@@ -1021,30 +1044,29 @@ register	Uint16	result;
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_GetJoyButtonsDB() - Returns the de-bounced button status of the
-//		specified joystick
+//      IN_GetJoyButtonsDB() - Returns the de-bounced button status of the
+//              specified joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-Uint16
-IN_GetJoyButtonsDB(Uint16 joy)
+Uint16 IN_GetJoyButtonsDB(
+    Uint16 joy)
 {
-	Uint32	lasttime;
-	Uint16		result1,result2;
+    Uint32 lasttime;
+    Uint16 result1, result2;
 
-	do
-	{
-		result1 = INL_GetJoyButtons(joy);
-		lasttime = TimeCount;
-		while (TimeCount == lasttime)
-			;
-		result2 = INL_GetJoyButtons(joy);
-	} while (result1 != result2);
-	return(result1);
+    do {
+        result1 = INL_GetJoyButtons(joy);
+        lasttime = TimeCount;
+        while (TimeCount == lasttime) {
+        }
+        result2 = INL_GetJoyButtons(joy);
+    } while (result1 != result2);
+    return result1;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_StartKbd() - Sets up my keyboard stuff for use
+//      INL_StartKbd() - Sets up my keyboard stuff for use
 //
 ///////////////////////////////////////////////////////////////////////////
 void INL_StartKbd()
@@ -1054,7 +1076,7 @@ void INL_StartKbd()
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_ShutKbd() - Restores keyboard control to the BIOS
+//      INL_ShutKbd() - Restores keyboard control to the BIOS
 //
 ///////////////////////////////////////////////////////////////////////////
 static void INL_ShutKbd()
@@ -1063,7 +1085,7 @@ static void INL_ShutKbd()
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_StartMouse() - Detects and sets up the mouse
+//      INL_StartMouse() - Detects and sets up the mouse
 //
 ///////////////////////////////////////////////////////////////////////////
 boolean INL_StartMouse()
@@ -1074,66 +1096,70 @@ boolean INL_StartMouse()
 // BBi
 static void INL_ShutMouse()
 {
-    //::SDL_ShowCursor(SDL_TRUE);
+    // ::SDL_ShowCursor(SDL_TRUE);
 }
 // BBi
 
 
 //
-//	INL_SetJoyScale() - Sets up scaling values for the specified joystick
+//      INL_SetJoyScale() - Sets up scaling values for the specified joystick
 //
-static void
-INL_SetJoyScale(Uint16 joy)
+static void INL_SetJoyScale(
+    Uint16 joy)
 {
-	JoystickDef	*def;
+    JoystickDef* def;
 
-	def = &JoyDefs[joy];
-	def->joyMultXL = JoyScaleMax / (def->threshMinX - def->joyMinX);
-	def->joyMultXH = JoyScaleMax / (def->joyMaxX - def->threshMaxX);
-	def->joyMultYL = JoyScaleMax / (def->threshMinY - def->joyMinY);
-	def->joyMultYH = JoyScaleMax / (def->joyMaxY - def->threshMaxY);
+    def = &JoyDefs[joy];
+    def->joyMultXL = JoyScaleMax / (def->threshMinX - def->joyMinX);
+    def->joyMultXH = JoyScaleMax / (def->joyMaxX - def->threshMaxX);
+    def->joyMultYL = JoyScaleMax / (def->threshMinY - def->joyMinY);
+    def->joyMultYH = JoyScaleMax / (def->joyMaxY - def->threshMaxY);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_SetupJoy() - Sets up thresholding values and calls INL_SetJoyScale()
-//		to set up scaling values
+//      IN_SetupJoy() - Sets up thresholding values and calls INL_SetJoyScale()
+//              to set up scaling values
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_SetupJoy(Uint16 joy,Uint16 minx,Uint16 maxx,Uint16 miny,Uint16 maxy)
+void IN_SetupJoy(
+    Uint16 joy,
+    Uint16 minx,
+    Uint16 maxx,
+    Uint16 miny,
+    Uint16 maxy)
 {
-	Uint16		d,r;
-	JoystickDef	*def;
+    Uint16 d, r;
+    JoystickDef* def;
 
-	def = &JoyDefs[joy];
+    def = &JoyDefs[joy];
 
-	def->joyMinX = minx;
-	def->joyMaxX = maxx;
-	r = maxx - minx;
-	d = r / 5;
-	def->threshMinX = ((r / 2) - d) + minx;
-	def->threshMaxX = ((r / 2) + d) + minx;
+    def->joyMinX = minx;
+    def->joyMaxX = maxx;
+    r = maxx - minx;
+    d = r / 5;
+    def->threshMinX = ((r / 2) - d) + minx;
+    def->threshMaxX = ((r / 2) + d) + minx;
 
-	def->joyMinY = miny;
-	def->joyMaxY = maxy;
-	r = maxy - miny;
-	d = r / 5;
-	def->threshMinY = ((r / 2) - d) + miny;
-	def->threshMaxY = ((r / 2) + d) + miny;
+    def->joyMinY = miny;
+    def->joyMaxY = maxy;
+    r = maxy - miny;
+    d = r / 5;
+    def->threshMinY = ((r / 2) - d) + miny;
+    def->threshMaxY = ((r / 2) + d) + miny;
 
-	INL_SetJoyScale(joy);
+    INL_SetJoyScale(joy);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_ShutJoy() - Cleans up the joystick stuff
+//      INL_ShutJoy() - Cleans up the joystick stuff
 //
 ///////////////////////////////////////////////////////////////////////////
-static void
-INL_ShutJoy(Uint16 joy)
+static void INL_ShutJoy(
+    Uint16 joy)
 {
-	JoysPresent[joy] = false;
+    JoysPresent[joy] = false;
 }
 
 #if 0
@@ -1141,82 +1167,81 @@ INL_ShutJoy(Uint16 joy)
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	INL_StartJoy() - Detects & auto-configures the specified joystick
-//					The auto-config assumes the joystick is centered
+//      INL_StartJoy() - Detects & auto-configures the specified joystick
+//                                      The auto-config assumes the joystick is centered
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean
-INL_StartJoy(Uint16 joy)
+boolean INL_StartJoy(
+    Uint16 joy)
 {
-	Uint16		x,y;
+    Uint16 x, y;
 
-	IN_GetJoyAbs(joy,&x,&y);
+    IN_GetJoyAbs(joy, &x, &y);
 
-	if
-	(
-		((x == 0) || (x > MaxJoyValue - 10))
-	||	((y == 0) || (y > MaxJoyValue - 10))
-	)
-		return(false);
-	else
-	{
-		IN_SetupJoy(joy,0,x * 2,0,y * 2);
-		return(true);
-	}
+    if
+    (
+        ((x == 0) || (x > MaxJoyValue - 10))
+        || ((y == 0) || (y > MaxJoyValue - 10))
+    )
+    {
+        return false;
+    } else {
+        IN_SetupJoy(joy, 0, x * 2, 0, y * 2);
+        return true;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_Startup() - Starts up the Input Mgr
+//      IN_Startup() - Starts up the Input Mgr
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_Startup()
+void IN_Startup()
 {
-	boolean	checkjoys,checkmouse,checkNG;
-	Uint16	i;
+    boolean checkjoys, checkmouse, checkNG;
+    Uint16 i;
 
-	if (IN_Started)
-		return;
+    if (IN_Started) {
+        return;
+    }
 
-	checkjoys = true;
-	checkmouse = true;
-	checkNG = false;
+    checkjoys = true;
+    checkmouse = true;
+    checkNG = false;
 
-	for (i = 1;i < g_argc;i++)
-	{
-		switch (US_CheckParm(g_argv[i],IN_ParmStrings))
-		{
-			case 0:
-				checkjoys = false;
-			break;
+    for (i = 1; i < g_argc; i++) {
+        switch (US_CheckParm(g_argv[i], IN_ParmStrings)) {
+        case 0:
+            checkjoys = false;
+            break;
 
-			case 1:
-				checkmouse = false;
-			break;
+        case 1:
+            checkmouse = false;
+            break;
 
-			case 2:
-				checkNG = true;
-			break;
-		}
-	}
+        case 2:
+            checkNG = true;
+            break;
+        }
+    }
 
-	if (checkNG)
-	{
-		#define WORD_CODE(c1,c2)	((c2)|(c1<<8))
+    if (checkNG) {
+#define WORD_CODE(c1, c2) ((c2) | (c1 << 8))
 
-		NGjoy(0xf0);
-		if ((_AX==WORD_CODE('S','G')) && _BX)
-			NGinstalled=true;
-	}
+        NGjoy(0xf0);
+        if ((_AX == WORD_CODE('S', 'G')) && _BX) {
+            NGinstalled = true;
+        }
+    }
 
-	INL_StartKbd();
-	MousePresent = checkmouse? INL_StartMouse() : false;
+    INL_StartKbd();
+    MousePresent = checkmouse ? INL_StartMouse() : false;
 
-	for (i = 0;i < MaxJoys;i++)
-		JoysPresent[i] = checkjoys? INL_StartJoy(i) : false;
+    for (i = 0; i < MaxJoys; i++) {
+        JoysPresent[i] = checkjoys ? INL_StartJoy(i) : false;
+    }
 
-	IN_Started = true;
+    IN_Started = true;
 }
 
 #endif
@@ -1226,60 +1251,64 @@ IN_Startup()
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_Default() - Sets up default conditions for the Input Mgr
+//      IN_Default() - Sets up default conditions for the Input Mgr
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_Default(boolean gotit,ControlType in)
+void IN_Default(
+    boolean gotit,
+    ControlType in)
 {
-	if
-	(
-		(!gotit)
-	|| 	((in == ctrl_Joystick1) && !JoysPresent[0])
-	|| 	((in == ctrl_Joystick2) && !JoysPresent[1])
-	|| 	((in == ctrl_Mouse) && !MousePresent)
-	)
-		in = ctrl_Keyboard1;
-	IN_SetControlType(0,in);
+    if
+    (
+        (!gotit)
+        || ((in == ctrl_Joystick1) && !JoysPresent[0])
+        || ((in == ctrl_Joystick2) && !JoysPresent[1])
+        || ((in == ctrl_Mouse) && !MousePresent)
+    )
+    {
+        in = ctrl_Keyboard1;
+    }
+    IN_SetControlType(0, in);
 }
 
 #endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_Shutdown() - Shuts down the Input Mgr
+//      IN_Shutdown() - Shuts down the Input Mgr
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_Shutdown()
+void IN_Shutdown()
 {
-	Uint16	i;
+    Uint16 i;
 
-	if (!IN_Started)
-		return;
+    if (!IN_Started) {
+        return;
+    }
 
-	for (i = 0;i < MaxJoys;i++)
-		INL_ShutJoy(i);
-	INL_ShutKbd();
+    for (i = 0; i < MaxJoys; i++) {
+        INL_ShutJoy(i);
+    }
+    INL_ShutKbd();
 
     // BBi
     ::INL_ShutMouse();
 
-	IN_Started = false;
+    IN_Started = false;
 }
 
 #if 0
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_SetKeyHook() - Sets the routine that gets called by INL_KeyService()
-//			everytime a real make/break code gets hit
+//      IN_SetKeyHook() - Sets the routine that gets called by INL_KeyService()
+//                      everytime a real make/break code gets hit
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_SetKeyHook(void (*hook)())
+void IN_SetKeyHook(
+    void (* hook)())
 {
-	INL_KeyHook = hook;
+    INL_KeyHook = hook;
 }
 
 #endif
@@ -1287,15 +1316,14 @@ IN_SetKeyHook(void (*hook)())
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_ClearKeysDown() - Clears the keyboard array
+//      IN_ClearKeysDown() - Clears the keyboard array
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_ClearKeysDown()
+void IN_ClearKeysDown()
 {
-	LastScan = sc_none;
-	LastASCII = key_None;
-	memset (Keyboard,0,sizeof(Keyboard));
+    LastScan = sc_none;
+    LastASCII = key_None;
+    memset(Keyboard, 0, sizeof(Keyboard));
 }
 
 // BBi
@@ -1373,321 +1401,333 @@ void in_handle_events()
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_ReadControl() - Reads the device associated with the specified
-//		player and fills in the control info struct
+//      IN_ReadControl() - Reads the device associated with the specified
+//              player and fills in the control info struct
 //
 ///////////////////////////////////////////////////////////////////////////
-void
-IN_ReadControl(Sint16 player,ControlInfo *info)
+void IN_ReadControl(
+    Sint16 player,
+    ControlInfo* info)
 {
-			boolean		realdelta=false;
-			Uint16		buttons;
-			Sint16			dx,dy;
-			Motion		mx,my;
-register	KeyboardDef	*def;
+    boolean realdelta = false;
+    Uint16 buttons;
+    Sint16 dx, dy;
+    Motion mx, my;
+    register KeyboardDef* def;
 
     // BBi
     ::in_handle_events();
 
-	player=player;					// shut up compiler!
+    player = player;                                    // shut up compiler!
 
-	dx = dy = 0;
-	mx = my = motion_None;
-	buttons = 0;
+    dx = dy = 0;
+    mx = my = motion_None;
+    buttons = 0;
 
-#if 0												 
-	if (DemoMode == demo_Playback)
-	{
-		dbyte = DemoBuffer[DemoOffset + 1];
-		my = (dbyte & 3) - 1;
-		mx = ((dbyte >> 2) & 3) - 1;
-		buttons = (dbyte >> 4) & 3;
+#if 0
+    if (DemoMode == demo_Playback) {
+        dbyte = DemoBuffer[DemoOffset + 1];
+        my = (dbyte & 3) - 1;
+        mx = ((dbyte >> 2) & 3) - 1;
+        buttons = (dbyte >> 4) & 3;
 
-		if (!(--DemoBuffer[DemoOffset]))
-		{
-			DemoOffset += 2;
-			if (DemoOffset >= DemoSize)
-				DemoMode = demo_PlayDone;
-		}
+        if (!(--DemoBuffer[DemoOffset])) {
+            DemoOffset += 2;
+            if (DemoOffset >= DemoSize) {
+                DemoMode = demo_PlayDone;
+            }
+        }
 
-		realdelta = false;
-	}
-	else if (DemoMode == demo_PlayDone)
-		IN_ERROR(IN_READCONTROL_PLAY_EXC);
-	else
+        realdelta = false;
+    } else if (DemoMode == demo_PlayDone) {
+        IN_ERROR(IN_READCONTROL_PLAY_EXC);
+    } else
 #endif
-	{
+    {
 
 // JAM begin
-		ControlTypeUsed = ctrl_None;
+        ControlTypeUsed = ctrl_None;
 
-		// Handle keyboard input...
-		//
-		if (ControlTypeUsed == ctrl_None)
-		{
-			def = &KbdDefs;
+        // Handle keyboard input...
+        //
+        if (ControlTypeUsed == ctrl_None) {
+            def = &KbdDefs;
 
-			if (Keyboard[def->upleft])
-				mx = motion_Left,my = motion_Up;
-			else if (Keyboard[def->upright])
-				mx = motion_Right,my = motion_Up;
-			else if (Keyboard[def->downleft])
-				mx = motion_Left,my = motion_Down;
-			else if (Keyboard[def->downright])
-				mx = motion_Right,my = motion_Down;
+            if (Keyboard[def->upleft]) {
+                mx = motion_Left, my = motion_Up;
+            } else if (Keyboard[def->upright]) {
+                mx = motion_Right, my = motion_Up;
+            } else if (Keyboard[def->downleft]) {
+                mx = motion_Left, my = motion_Down;
+            } else if (Keyboard[def->downright]) {
+                mx = motion_Right, my = motion_Down;
+            }
 
-			if (Keyboard[def->up])
-				my = motion_Up;
-			else if (Keyboard[def->down])
-				my = motion_Down;
+            if (Keyboard[def->up]) {
+                my = motion_Up;
+            } else if (Keyboard[def->down]) {
+                my = motion_Down;
+            }
 
-			if (Keyboard[def->left])
-				mx = motion_Left;
-			else if (Keyboard[def->right])
-				mx = motion_Right;
+            if (Keyboard[def->left]) {
+                mx = motion_Left;
+            } else if (Keyboard[def->right]) {
+                mx = motion_Right;
+            }
 
-			if (Keyboard[def->button0])
-				buttons += 1 << 0;
-			if (Keyboard[def->button1])
-				buttons += 1 << 1;
-			realdelta = false;
-			if (mx || my || buttons)
-				ControlTypeUsed = ctrl_Keyboard;
-		}
+            if (Keyboard[def->button0]) {
+                buttons += 1 << 0;
+            }
+            if (Keyboard[def->button1]) {
+                buttons += 1 << 1;
+            }
+            realdelta = false;
+            if (mx || my || buttons) {
+                ControlTypeUsed = ctrl_Keyboard;
+            }
+        }
 
-		// Handle mouse input...
-		//
-		if (MousePresent && (ControlTypeUsed == ctrl_None))
-		{
-			INL_GetMouseDelta(&dx,&dy);
-			buttons = static_cast<Uint16>(INL_GetMouseButtons());
-			realdelta = true;
-			if (dx || dy || buttons)
-				ControlTypeUsed = ctrl_Mouse;
-		}
+        // Handle mouse input...
+        //
+        if (MousePresent && (ControlTypeUsed == ctrl_None)) {
+            INL_GetMouseDelta(&dx, &dy);
+            buttons = static_cast<Uint16>(INL_GetMouseButtons());
+            realdelta = true;
+            if (dx || dy || buttons) {
+                ControlTypeUsed = ctrl_Mouse;
+            }
+        }
 
-		// Handle joystick input...
-		//
-		if (JoystickCalibrated && (ControlTypeUsed == ctrl_None))
-		{
-			INL_GetJoyDelta(ctrl_Joystick1 - ctrl_Joystick,&dx,&dy);
-			buttons = INL_GetJoyButtons(ctrl_Joystick1 - ctrl_Joystick);
-			realdelta = true;
-			if (dx || dy || buttons)
-				ControlTypeUsed = ctrl_Joystick;
-		}
+        // Handle joystick input...
+        //
+        if (JoystickCalibrated && (ControlTypeUsed == ctrl_None)) {
+            INL_GetJoyDelta(ctrl_Joystick1 - ctrl_Joystick, &dx, &dy);
+            buttons = INL_GetJoyButtons(ctrl_Joystick1 - ctrl_Joystick);
+            realdelta = true;
+            if (dx || dy || buttons) {
+                ControlTypeUsed = ctrl_Joystick;
+            }
+        }
 
 // JAM end
 
 
 #if 0
-		switch (type = Controls[player])
-		{
+        switch (type = Controls[player]) {
 
-		case ctrl_Keyboard:
-			def = &KbdDefs;
+        case ctrl_Keyboard:
+            def = &KbdDefs;
 
-			if (Keyboard[def->upleft])
-				mx = motion_Left,my = motion_Up;
-			else if (Keyboard[def->upright])
-				mx = motion_Right,my = motion_Up;
-			else if (Keyboard[def->downleft])
-				mx = motion_Left,my = motion_Down;
-			else if (Keyboard[def->downright])
-				mx = motion_Right,my = motion_Down;
+            if (Keyboard[def->upleft]) {
+                mx = motion_Left, my = motion_Up;
+            } else if (Keyboard[def->upright]) {
+                mx = motion_Right, my = motion_Up;
+            } else if (Keyboard[def->downleft]) {
+                mx = motion_Left, my = motion_Down;
+            } else if (Keyboard[def->downright]) {
+                mx = motion_Right, my = motion_Down;
+            }
 
-			if (Keyboard[def->up])
-				my = motion_Up;
-			else if (Keyboard[def->down])
-				my = motion_Down;
+            if (Keyboard[def->up]) {
+                my = motion_Up;
+            } else if (Keyboard[def->down]) {
+                my = motion_Down;
+            }
 
-			if (Keyboard[def->left])
-				mx = motion_Left;
-			else if (Keyboard[def->right])
-				mx = motion_Right;
+            if (Keyboard[def->left]) {
+                mx = motion_Left;
+            } else if (Keyboard[def->right]) {
+                mx = motion_Right;
+            }
 
-			if (Keyboard[def->button0])
-				buttons += 1 << 0;
-			if (Keyboard[def->button1])
-				buttons += 1 << 1;
-			realdelta = false;
-		break;
+            if (Keyboard[def->button0]) {
+                buttons += 1 << 0;
+            }
+            if (Keyboard[def->button1]) {
+                buttons += 1 << 1;
+            }
+            realdelta = false;
+            break;
 
-		case ctrl_Joystick1:
-		case ctrl_Joystick2:
-			INL_GetJoyDelta(type - ctrl_Joystick,&dx,&dy);
-			buttons = INL_GetJoyButtons(type - ctrl_Joystick);
-			realdelta = true;
-		break;
+        case ctrl_Joystick1:
+        case ctrl_Joystick2:
+            INL_GetJoyDelta(type - ctrl_Joystick, &dx, &dy);
+            buttons = INL_GetJoyButtons(type - ctrl_Joystick);
+            realdelta = true;
+            break;
 
-		case ctrl_Mouse:
-			INL_GetMouseDelta(&dx,&dy);
-			buttons = INL_GetMouseButtons();
-			realdelta = true;
-		break;
+        case ctrl_Mouse:
+            INL_GetMouseDelta(&dx, &dy);
+            buttons = INL_GetMouseButtons();
+            realdelta = true;
+            break;
 
-		}
+        }
 #endif
-	}
+    }
 
-	if (realdelta)
-	{
-		mx = (dx < 0)? motion_Left : ((dx > 0)? motion_Right : motion_None);
-		my = (dy < 0)? motion_Up : ((dy > 0)? motion_Down : motion_None);
-	}
-	else
-	{
-		dx = static_cast<Sint16>(mx * 127);
-		dy = static_cast<Sint16>(my * 127);
-	}
+    if (realdelta) {
+        mx = (dx < 0) ? motion_Left : ((dx > 0) ? motion_Right : motion_None);
+        my = (dy < 0) ? motion_Up : ((dy > 0) ? motion_Down : motion_None);
+    } else {
+        dx = static_cast<Sint16>(mx * 127);
+        dy = static_cast<Sint16>(my * 127);
+    }
 
-	info->x = dx;
-	info->xaxis = mx;
-	info->y = dy;
-	info->yaxis = my;
-	info->button0 = buttons & (1 << 0);
-	info->button1 = buttons & (1 << 1);
-	info->button2 = buttons & (1 << 2);
-	info->button3 = buttons & (1 << 3);
-	info->dir = DirTable[((my + 1) * 3) + (mx + 1)];
+    info->x = dx;
+    info->xaxis = mx;
+    info->y = dy;
+    info->yaxis = my;
+    info->button0 = buttons & (1 << 0);
+    info->button1 = buttons & (1 << 1);
+    info->button2 = buttons & (1 << 2);
+    info->button3 = buttons & (1 << 3);
+    info->dir = DirTable[((my + 1) * 3) + (mx + 1)];
 
 #if 0
-	if (DemoMode == demo_Record)
-	{
-		// Pack the control info into a byte
-		dbyte = (buttons << 4) | ((mx + 1) << 2) | (my + 1);
+    if (DemoMode == demo_Record) {
+        // Pack the control info into a byte
+        dbyte = (buttons << 4) | ((mx + 1) << 2) | (my + 1);
 
-		if
-		(
-			(DemoBuffer[DemoOffset + 1] == dbyte)
-		&&	(DemoBuffer[DemoOffset] < 255)
-		)
-			(DemoBuffer[DemoOffset])++;
-		else
-		{
-			if (DemoOffset || DemoBuffer[DemoOffset])
-				DemoOffset += 2;
+        if
+        (
+            (DemoBuffer[DemoOffset + 1] == dbyte)
+            && (DemoBuffer[DemoOffset] < 255)
+        )
+        {
+            (DemoBuffer[DemoOffset])++;
+        } else {
+            if (DemoOffset || DemoBuffer[DemoOffset]) {
+                DemoOffset += 2;
+            }
 
-			if (DemoOffset >= DemoSize)
-				IN_ERROR(IN_READCONTROL_BUF_OV);
+            if (DemoOffset >= DemoSize) {
+                IN_ERROR(IN_READCONTROL_BUF_OV);
+            }
 
-			DemoBuffer[DemoOffset] = 1;
-			DemoBuffer[DemoOffset + 1] = dbyte;
-		}
-	}
+            DemoBuffer[DemoOffset] = 1;
+            DemoBuffer[DemoOffset + 1] = dbyte;
+        }
+    }
 #endif
 }
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-//
-//	IN_SetControlType() - Sets the control type to be used by the specified
-//		player
-//
-///////////////////////////////////////////////////////////////////////////
-void
-IN_SetControlType(Sint16 player,ControlType type)
-{
-	// DEBUG - check that requested type is present?
-	Controls[player] = type;
-}
-
-#endif
-
 
 #if 0
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_WaitForKey() - Waits for a scan code, then clears LastScan and
-//		returns the scan code
+//      IN_SetControlType() - Sets the control type to be used by the specified
+//              player
 //
 ///////////////////////////////////////////////////////////////////////////
-ScanCode
-IN_WaitForKey()
+void IN_SetControlType(
+    Sint16 player,
+    ControlType type)
 {
-	ScanCode	result;
+    // DEBUG - check that requested type is present?
+    Controls[player] = type;
+}
 
-	while (!(result = LastScan))
-		;
-	LastScan = 0;
-	return(result);
+#endif
+
+
+#if 0
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      IN_WaitForKey() - Waits for a scan code, then clears LastScan and
+//              returns the scan code
+//
+///////////////////////////////////////////////////////////////////////////
+ScanCode IN_WaitForKey()
+{
+    ScanCode result;
+
+    while (!(result = LastScan)) {
+    }
+    LastScan = 0;
+    return result;
 }
 
 #endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_WaitForASCII() - Waits for an ASCII char, then clears LastASCII and
-//		returns the ASCII value
+//      IN_WaitForASCII() - Waits for an ASCII char, then clears LastASCII and
+//              returns the ASCII value
 //
 ///////////////////////////////////////////////////////////////////////////
-char
-IN_WaitForASCII()
+char IN_WaitForASCII()
 {
-	char		result;
+    char result;
 
-	while ((result = LastASCII) == '\0')
-		::in_handle_events();
-	LastASCII = '\0';
-	return(result);
+    while ((result = LastASCII) == '\0') {
+        ::in_handle_events();
+    }
+    LastASCII = '\0';
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_Ack() - waits for a button or key press.  If a button is down, upon
+//      IN_Ack() - waits for a button or key press.  If a button is down, upon
 // calling, it must be released for it to be recognized
 //
 ///////////////////////////////////////////////////////////////////////////
 
-boolean	btnstate[8];
+boolean btnstate[8];
 
 void IN_StartAck()
 {
-	Uint16	i,buttons;
+    Uint16 i, buttons;
 
 //
 // get initial state of everything
 //
-	IN_ClearKeysDown();
-	memset (btnstate,0,sizeof(btnstate));
+    IN_ClearKeysDown();
+    memset(btnstate, 0, sizeof(btnstate));
 
-	buttons = IN_JoyButtons () << 4;
-	if (MousePresent)
-		buttons |= IN_MouseButtons ();
+    buttons = IN_JoyButtons() << 4;
+    if (MousePresent) {
+        buttons |= IN_MouseButtons();
+    }
 
-	for (i=0;i<8;i++,buttons>>=1)
-		if (buttons&1)
-			btnstate[i] = true;
+    for (i = 0; i < 8; i++, buttons >>= 1) {
+        if (buttons & 1) {
+            btnstate[i] = true;
+        }
+    }
 }
 
 
-boolean IN_CheckAck ()
+boolean IN_CheckAck()
 {
-	Uint16	i,buttons;
+    Uint16 i, buttons;
 
     in_handle_events();
 //
 // see if something has been pressed
 //
-	if (LastScan)
-		return true;
+    if (LastScan) {
+        return true;
+    }
 
-	buttons = IN_JoyButtons () << 4;
-	if (MousePresent)
-		buttons |= IN_MouseButtons ();
+    buttons = IN_JoyButtons() << 4;
+    if (MousePresent) {
+        buttons |= IN_MouseButtons();
+    }
 
-	for (i=0;i<8;i++,buttons>>=1)
-		if ( buttons&1 )
-		{
-			if (!btnstate[i])
-				return true;
-		}
-		else
-			btnstate[i]=false;
+    for (i = 0; i < 8; i++, buttons >>= 1) {
+        if (buttons & 1) {
+            if (!btnstate[i]) {
+                return true;
+            }
+        } else {
+            btnstate[i] = false;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 
@@ -1695,34 +1735,35 @@ void IN_Ack()
 {
     IN_StartAck();
 
-    while (!IN_CheckAck())
-        ;
+    while (!IN_CheckAck()) {
+    }
 }
 
 
 ///////////////////////////////////////////////////////////////////////////
 //
-//	IN_UserInput() - Waits for the specified delay time (in ticks) or the
-//		user pressing a key or a mouse button. If the clear flag is set, it
-//		then either clears the key or waits for the user to let the mouse
-//		button up.
+//      IN_UserInput() - Waits for the specified delay time (in ticks) or the
+//              user pressing a key or a mouse button. If the clear flag is set, it
+//              then either clears the key or waits for the user to let the mouse
+//              button up.
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean IN_UserInput(Uint32 delay)
+boolean IN_UserInput(
+    Uint32 delay)
 {
-	Uint32	lasttime;
+    Uint32 lasttime;
 
-	lasttime = TimeCount;
-	IN_StartAck ();
-	do
-	{
-		VL_WaitVBL(1);
-		if (IN_CheckAck())
-			return true;
-	} while (TimeCount - lasttime < delay);
-	return(false);
+    lasttime = TimeCount;
+    IN_StartAck();
+    do {
+        VL_WaitVBL(1);
+        if (IN_CheckAck()) {
+            return true;
+        }
+    } while (TimeCount - lasttime < delay);
+    return false;
 }
-//===========================================================================
+// ===========================================================================
 
 /*
 ===================
@@ -1745,23 +1786,24 @@ Uint8 IN_MouseButtons()
 ===================
 */
 
-Uint8	IN_JoyButtons ()
+Uint8 IN_JoyButtons()
 {
 // FIXME
 #if 0
-	unsigned joybits;
+    unsigned joybits;
 
-	joybits = inportb(0x201);	// Get all the joystick buttons
-	joybits >>= 4;				// only the high bits are useful
-	joybits ^= 15;				// return with 1=pressed
+    joybits = inportb(0x201);           // Get all the joystick buttons
+    joybits >>= 4;                              // only the high bits are useful
+    joybits ^= 15;                              // return with 1=pressed
 
-	return joybits;
+    return joybits;
 #endif // 0
 
     return 0;
 }
 
-boolean INL_StartJoy(Uint16 joy)
+boolean INL_StartJoy(
+    Uint16 joy)
 {
     Uint16 x;
     Uint16 y;
@@ -1784,8 +1826,9 @@ void IN_Startup()
     boolean checkjoys;
     boolean checkmouse;
 
-    if (IN_Started)
+    if (IN_Started) {
         return;
+    }
 
     checkjoys = true;
     checkmouse = true;
@@ -1805,10 +1848,11 @@ void IN_Startup()
     }
 
     INL_StartKbd();
-    MousePresent = checkmouse? INL_StartMouse() : false;
+    MousePresent = checkmouse ? INL_StartMouse() : false;
 
-    for (i = 0; i < MaxJoys; ++i)
-        JoysPresent[i] = checkjoys? INL_StartJoy(static_cast<Uint16>(i)) : false;
+    for (i = 0; i < MaxJoys; ++i) {
+        JoysPresent[i] = checkjoys ? INL_StartJoy(static_cast<Uint16>(i)) : false;
+    }
 
     in_set_default_bindings();
 
@@ -1838,8 +1882,9 @@ void in_clear_mouse_deltas()
 void in_set_default_bindings()
 {
     for (int b = 0; b < k_max_bindings; ++b) {
-        for (int k = 0; k < k_max_binding_keys; ++k)
+        for (int k = 0; k < k_max_binding_keys; ++k) {
             in_bindings[b][k] = sc_none;
+        }
     }
 
     in_bindings[e_bi_forward][0] = sc_w;
@@ -1899,9 +1944,8 @@ bool in_is_binding_pressed(
     if (in_use_modern_bindings) {
         const Binding& binding = in_bindings[binding_id];
 
-        return
-            (binding[0] != sc_none && Keyboard[binding[0]]) ||
-            (binding[1] != sc_none && Keyboard[binding[1]]);
+        return (binding[0] != sc_none && Keyboard[binding[0]]) ||
+               (binding[1] != sc_none && Keyboard[binding[1]]);
     } else {
         switch (binding_id) {
         case e_bi_forward:
@@ -2029,11 +2073,13 @@ void in_reset_binding_state(
     if (in_use_modern_bindings) {
         const Binding& binding = in_bindings[binding_id];
 
-        if (binding[0] != sc_none)
+        if (binding[0] != sc_none) {
             Keyboard[binding[0]] = sc_none;
+        }
 
-        if (binding[1] != sc_none)
+        if (binding[1] != sc_none) {
             Keyboard[binding[1]] = sc_none;
+        }
     } else {
         switch (binding_id) {
         case e_bi_forward:
