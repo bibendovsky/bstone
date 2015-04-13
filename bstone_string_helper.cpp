@@ -35,35 +35,30 @@ public:
     typedef std::ctype<char> CType;
 
 
+    Internals() = delete;
+
+    Internals(
+        const Internals& that) = delete;
+
+    Internals& operator=(
+        const Internals& that) = delete;
+
+    ~Internals() = delete;
+
+
     static const CType& get_ctype_facet()
     {
         static std::locale locale;
-
-        static const CType& result =
-            std::use_facet<CType>(locale);
-
+        static const auto& result = std::use_facet<CType>(locale);
         return result;
     }
 
-    static bool icompare_predicate(
-        char a,
-        char b)
+    static char to_lower(
+        char value)
     {
-        return get_ctype_facet().tolower(a) ==
-            get_ctype_facet().tolower(b);
+        return get_ctype_facet().tolower(value);
     }
-
-private:
-    Internals();
-
-    Internals(
-        const Internals& that);
-
-    ~Internals();
-
-    Internals& operator=(
-        const Internals& that);
-}; // class Internals
+}; // Internals
 
 
 } // namespace
@@ -76,19 +71,20 @@ namespace bstone {
 char StringHelper::to_lower(
     char value)
 {
-    return Internals::get_ctype_facet().tolower(value);
+    return Internals::to_lower(value);
 }
 
 // (static)
 std::string StringHelper::to_lower(
     const std::string& value)
 {
-    std::string result(value);
+    auto result = value;
 
-    if (!value.empty()) {
-        Internals::get_ctype_facet().tolower(
-            &result[0], &(&result[0])[value.size()]);
-    }
+    std::transform(
+        result.begin(),
+        result.end(),
+        result.begin(),
+        Internals::to_lower);
 
     return result;
 }
@@ -98,13 +94,19 @@ bool StringHelper::is_iequal(
     const std::string& a,
     const std::string& b)
 {
-    std::pair<const char*,const char*> result = std::mismatch(
-        a.c_str(),
-        &(a.c_str())[a.size()],
-        b.c_str(),
-        Internals::icompare_predicate);
+    auto result = std::mismatch(
+        a.cbegin(),
+        a.cend(),
+        b.cbegin(),
+        [] (char a, char b)
+        {
+            return
+                Internals::get_ctype_facet().tolower(a) ==
+                Internals::get_ctype_facet().tolower(b);
+        }
+    );
 
-    return result.first == &(a.c_str())[a.size()];
+    return result.first == a.cend();
 }
 
 // (static)
@@ -123,4 +125,4 @@ const std::string& StringHelper::get_empty()
 }
 
 
-} // namespace bstone
+} // bstone

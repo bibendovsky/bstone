@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef BSTONE_CL_ARGS_H
-#define BSTONE_CL_ARGS_H
+#ifndef BSTONE_CL_ARGS_INCLUDED
+#define BSTONE_CL_ARGS_INCLUDED
 
 
 #include "bstone_string_helper.h"
@@ -91,4 +91,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_CL_ARGS_H
+#endif // BSTONE_CL_ARGS_INCLUDED

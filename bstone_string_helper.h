@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef BSTONE_STRING_HELPER_H
-#define BSTONE_STRING_HELPER_H
+#ifndef BSTONE_STRING_HELPER_INCLUDED
+#define BSTONE_STRING_HELPER_INCLUDED
 
 
 #include <locale>
@@ -35,23 +35,29 @@ Free Software Foundation, Inc.,
 namespace bstone {
 
 
-typedef std::string::iterator StringIt;
-typedef std::string::const_iterator StringCIt;
-
-typedef std::vector<std::string> StringList;
-typedef StringList::iterator StringListIt;
-typedef StringList::const_iterator StringListCIt;
+using StringList = std::vector<std::string>;
 
 
 class StringHelper {
 public:
+    StringHelper() = delete;
+
+    StringHelper(
+        const StringHelper& that) = delete;
+
+    StringHelper& operator=(
+        const StringHelper& that) = delete;
+
+    ~StringHelper() = delete;
+
+
     static char to_lower(
         char value);
 
     static std::string to_lower(
         const std::string& value);
 
-    template<typename T,typename U>
+    template<typename T, typename U>
     static T lexical_cast(
         const U& src_value)
     {
@@ -61,13 +67,14 @@ public:
         T result;
         oss >> result;
 
-        if (oss)
+        if (oss) {
             return result;
+        }
 
         throw std::runtime_error("lexical_cast");
     }
 
-    template<typename T,typename U>
+    template<typename T, typename U>
     static bool lexical_cast(
         const T& src_value,
         U& dst_value)
@@ -88,21 +95,10 @@ public:
         char value);
 
     static const std::string& get_empty();
-
-private:
-    StringHelper();
-
-    StringHelper(
-        const StringHelper& that);
-
-    ~StringHelper();
-
-    StringHelper& operator=(
-        const StringHelper& that);
 }; // StringHelper
 
 
-} // namespace bstone
+} // bstone
 
 
-#endif // BSTONE_STRING_HELPER_H
+#endif // BSTONE_STRING_HELPER_INCLUDED
