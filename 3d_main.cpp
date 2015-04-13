@@ -172,6 +172,9 @@ bool g_heart_beat_sound = default_heart_beat_sound;
 static const bool default_rotated_automap = false;
 bool g_rotated_automap = default_rotated_automap;
 
+GameType g_game_type;
+
+
 /*
 =============================================================================
 

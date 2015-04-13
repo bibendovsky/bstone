@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include "jm_io.h"
 #include "jm_cio.h"
 
+
 // #define DEMOS_EXTERN
 // #define MYPROFILE
 // #define TRACK_ENEMY_COUNT
@@ -6186,4 +6187,14 @@ inline void deserialize_field(
         }
     }
 }
+
+
+enum class GameType {
+    none,
+    aog, // Aliens Of Gold (full)
+    aog_sw, // Aliens Of Gold (shareware)
+    ps, // Planet Strike
+}; // GameType
+
+extern GameType g_game_type;
 // BBi
