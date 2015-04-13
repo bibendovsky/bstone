@@ -1171,7 +1171,7 @@ INL_StartJoy(Uint16 joy)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_Startup(void)
+IN_Startup()
 {
 	boolean	checkjoys,checkmouse,checkNG;
 	Uint16	i;
@@ -1251,7 +1251,7 @@ IN_Default(boolean gotit,ControlType in)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_Shutdown(void)
+IN_Shutdown()
 {
 	Uint16	i;
 
@@ -1291,7 +1291,7 @@ IN_SetKeyHook(void (*hook)())
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-IN_ClearKeysDown(void)
+IN_ClearKeysDown()
 {
 	LastScan = sc_none;
 	LastASCII = key_None;
@@ -1605,7 +1605,7 @@ IN_SetControlType(Sint16 player,ControlType type)
 //
 ///////////////////////////////////////////////////////////////////////////
 ScanCode
-IN_WaitForKey(void)
+IN_WaitForKey()
 {
 	ScanCode	result;
 
@@ -1624,7 +1624,7 @@ IN_WaitForKey(void)
 //
 ///////////////////////////////////////////////////////////////////////////
 char
-IN_WaitForASCII(void)
+IN_WaitForASCII()
 {
 	char		result;
 
@@ -1643,7 +1643,7 @@ IN_WaitForASCII(void)
 
 boolean	btnstate[8];
 
-void IN_StartAck(void)
+void IN_StartAck()
 {
 	Uint16	i,buttons;
 
@@ -1663,7 +1663,7 @@ void IN_StartAck(void)
 }
 
 
-boolean IN_CheckAck (void)
+boolean IN_CheckAck ()
 {
 	Uint16	i,buttons;
 
@@ -1745,7 +1745,7 @@ Uint8 IN_MouseButtons()
 ===================
 */
 
-Uint8	IN_JoyButtons (void)
+Uint8	IN_JoyButtons ()
 {
 // FIXME
 #if 0

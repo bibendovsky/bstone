@@ -115,7 +115,7 @@ boolean		US_Started;
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-US_Shutdown(void)
+US_Shutdown()
 {
 	if (!US_Started)
 		return;
@@ -357,7 +357,7 @@ US_CPrint(const char *s)
 //
 ///////////////////////////////////////////////////////////////////////////
 void
-US_ClearWindow(void)
+US_ClearWindow()
 {
 	VWB_Bar(WindowX,WindowY,WindowW,WindowH,0xEF);
 	PrintX = WindowX;

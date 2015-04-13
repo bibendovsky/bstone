@@ -105,14 +105,14 @@ Free Software Foundation, Inc.,
 //==========================================================================
 
 
-static void StartHuff(void);
-static void reconst(void);
+static void StartHuff();
+static void reconst();
 static void update(Sint16 c);
 
 
 static void DeleteNode(Sint16 p);  /* Deleting node from the tree */
 static void InsertNode(Sint16 r);  /* Inserting node to the tree */
-static void InitTree(void);  /* Initializing tree */
+static void InitTree();  /* Initializing tree */
 
 static void Putcode(
     void*& outfile_ptr,
@@ -801,7 +801,7 @@ static void InsertNode(Sint16 r)  /* Inserting node to the tree */
 //---------------------------------------------------------------------------
 // InitTree
 //---------------------------------------------------------------------------
-static void InitTree(void)  /* Initializing tree */
+static void InitTree()  /* Initializing tree */
 {
 	Sint16  i;
 

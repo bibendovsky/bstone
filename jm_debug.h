@@ -40,7 +40,7 @@ Free Software Foundation, Inc.,
 //-------------------------------------------------------------------------
 // Function prototypes
 //-------------------------------------------------------------------------
-void mclear(void);
+void mclear();
 void mprintf(char *msg, ...);
 void fmprint(char *text);
 

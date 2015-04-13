@@ -894,7 +894,7 @@ Uint16 actor_points[]={	1025,				// rent-a-cop
 //								to the new object or a NULL.
 //
 //---------------------------------------------------------------------------
-objtype *CheckAndReserve(void)
+objtype *CheckAndReserve()
 {
 	usedummy = nevermark = true;
 	SpawnNewObj(0,0,&s_hold);

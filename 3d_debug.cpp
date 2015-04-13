@@ -31,11 +31,11 @@ Free Software Foundation, Inc.,
 
 void VH_UpdateScreen();
 void TakeDamage(Sint16 points, objtype* attacker);
-void SetPlaneViewSize (void);
+void SetPlaneViewSize ();
 void HealSelf(Sint16 points);
 void GiveWeapon (Sint16 weapon);
-void DrawScore(void);
-void SetPlaneViewSize (void);
+void DrawScore();
+void SetPlaneViewSize ();
 
 
 /*
@@ -67,7 +67,7 @@ void SetPlaneViewSize (void);
 
 boolean ForceLoadDefault=false;
 
-Sint16 DebugKeys (void);
+Sint16 DebugKeys ();
 
 /*
 =============================================================================
@@ -86,7 +86,7 @@ boolean PP_step=false;
 =
 ================
 */
-void PicturePause (void)
+void PicturePause ()
 {
 	Sint16			i;
 	Uint8		p;
@@ -184,7 +184,7 @@ asm	int	0x10
 Sint16	maporgx;
 Sint16	maporgy;
 
-void ViewMap (void);
+void ViewMap ();
 
 //===========================================================================
 
@@ -195,7 +195,7 @@ void ViewMap (void);
 =
 ==================
 */
-void DebugMemory (void)
+void DebugMemory ()
 {
 	Sint16	i,temp;
 
@@ -276,7 +276,7 @@ void DebugMemory (void)
 ==================
 */
 
-void CountObjects (void)
+void CountObjects ()
 {
 	Sint16	i,total,count,active,inactive,doors;
 	objtype	*obj;
@@ -321,7 +321,7 @@ void CountObjects (void)
 //------------------------------------------------------------------------
 // CountTotals
 //------------------------------------------------------------------------
-void CountTotals(void)
+void CountTotals()
 {
 	CenterWindow (20,11);
 
@@ -344,7 +344,7 @@ void CountTotals(void)
 //------------------------------------------------------------------------
 // ShowMap()
 //------------------------------------------------------------------------
-void ShowMap(void)
+void ShowMap()
 {
    objtype old_player;
 
@@ -378,7 +378,7 @@ void ShowMap(void)
 */
 
 #pragma warn -pia
-void ShapeTest (void)
+void ShapeTest ()
 {
 extern	Uint16	NumDigi;
 extern	Uint16	*DigiList;
@@ -605,7 +605,7 @@ char TestQuickSaveMsg[] = {"QUICK SAVE TEST\n ENTER COUNT:"};
 #endif
 
 
-Sint16 DebugKeys (void)
+Sint16 DebugKeys ()
 {
 	char str[3];
 	boolean esc;
@@ -977,7 +977,7 @@ Sint16 DebugKeys (void)
 ===================
 */
 
-void OverheadRefresh (void)
+void OverheadRefresh ()
 {
 	Uint16	x,y,endx,endy,sx,sy;
 	Uint16	tile;
@@ -1034,7 +1034,7 @@ void OverheadRefresh (void)
 ===================
 */
 
-void ViewMap (void)
+void ViewMap ()
 {
 	boolean		button0held;
 
@@ -1094,7 +1094,7 @@ void ViewMap (void)
 //-------------------------------------------------------------------------
 // CalcMemFree()
 //-------------------------------------------------------------------------
-void CalcMemFree(void)
+void CalcMemFree()
 {
 	__PUR_MEM_AVAIL__ = MM_TotalFree();
 	__FREE_MEM_AVAIL__ = MM_UnusedMemory();

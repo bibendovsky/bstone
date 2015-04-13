@@ -123,7 +123,7 @@ void DrawSpans(
 #endif
 }
 
-void SetPlaneViewSize (void)
+void SetPlaneViewSize ()
 {
     const Uint8* src;
     Uint8* dest;

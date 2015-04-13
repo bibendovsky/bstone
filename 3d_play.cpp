@@ -31,28 +31,28 @@ Free Software Foundation, Inc.,
 
 
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
-void UpdateRadarGuage(void);
-void ClearMemory (void);
+void UpdateRadarGuage();
+void ClearMemory ();
 void GiveWeapon (Sint16 weapon);
-void DrawWeapon (void);
-void DrawHealth (void);
-void DrawKeys (void);
-void DrawScore(void);
-void ForceUpdateStatusBar(void);
-void ClearSplitVWB (void);
+void DrawWeapon ();
+void DrawHealth ();
+void DrawKeys ();
+void DrawScore();
+void ForceUpdateStatusBar();
+void ClearSplitVWB ();
 void RedrawStatusAreas();
-void PreloadGraphics(void);
+void PreloadGraphics();
 
 #ifdef BSTONE_PS
-void TryDropPlasmaDetonator(void);
+void TryDropPlasmaDetonator();
 #endif
 
-void IN_StartAck(void);
-boolean IN_CheckAck (void);
-void MoveDoors (void);
-void MovePWalls (void);
-void ConnectAreas (void);
-void UpdateSoundLoc(void);
+void IN_StartAck();
+boolean IN_CheckAck ();
+void MoveDoors ();
+void MovePWalls ();
+void ConnectAreas ();
+void UpdateSoundLoc();
 
 
 /*
@@ -169,16 +169,16 @@ int strafe_value = 0;
 
 
 void	CenterWindow(Uint16 w,Uint16 h);
-void 	InitObjList (void);
+void 	InitObjList ();
 void 	RemoveObj (objtype *gone);
-void 	PollControls (void);
-void 	StopMusic(void);
+void 	PollControls ();
+void 	StopMusic();
 void StartMusic(boolean preload);
-void	PlayLoop (void);
+void	PlayLoop ();
 void SpaceEntryExit(boolean entry);
-void FinishPaletteShifts (void);
-void ShowQuickInstructions(void);
-void CleanDrawPlayBorder(void);
+void FinishPaletteShifts ();
+void ShowQuickInstructions();
+void CleanDrawPlayBorder();
 void PopupAutoMap(bool is_shift_pressed);
 
 
@@ -403,7 +403,7 @@ void PollMouseButtons()
 ===================
 */
 
-void PollJoystickButtons (void)
+void PollJoystickButtons ()
 {
 	Sint16	buttons;
 
@@ -500,7 +500,7 @@ void PollMouseMove()
 ===================
 */
 
-void PollJoystickMove (void)
+void PollJoystickMove ()
 {
 	Sint16	joyx,joyy;
 
@@ -557,7 +557,7 @@ void PollJoystickMove (void)
 ===================
 */
 
-void PollControls (void)
+void PollControls ()
 {
 	Sint16		max,min,i;
 	Uint8	buttonbits;
@@ -732,7 +732,7 @@ Uint8 jam_buff[sizeof(jam_buff_cmp)];
 
 char PAUSED_MSG[]="^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
-void CheckKeys (void)
+void CheckKeys ()
 {
 	boolean one_eighty=false;
 	Uint8	scan;
@@ -1158,7 +1158,7 @@ void CheckKeys (void)
 //-------------------------------------------------------------------------
 // CheckMusicToggle()
 //-------------------------------------------------------------------------
-void CheckMusicToggle(void)
+void CheckMusicToggle()
 {
 	static boolean M_KeyReleased;
 
@@ -1347,7 +1347,7 @@ next element.
 
 int objcount;
 
-void InitActorList (void)
+void InitActorList ()
 {
 	Sint16	i;
 
@@ -1396,7 +1396,7 @@ void InitActorList (void)
 =========================
 */
 
-void GetNewActor (void)
+void GetNewActor ()
 {
 	if (objcount >= MAXACTORS-1)
 	{
@@ -1504,7 +1504,7 @@ void RemoveObj (objtype *gone)
 =================
 */
 
-void StopMusic(void)
+void StopMusic()
 {
 	SD_MusicOff();
 }
@@ -1874,7 +1874,7 @@ think:
 extern boolean ShowQuickMsg;
 
 
-void PlayLoop (void)
+void PlayLoop ()
 {
 	boolean reset_areas=false;
 	objtype *obj;

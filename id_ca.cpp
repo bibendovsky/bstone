@@ -178,13 +178,13 @@ Sint32 GRFILEPOS(Sint16 c)
 ============================
 */
 
-void CA_OpenDebug (void)
+void CA_OpenDebug ()
 {
 	unlink ("DEBUG.TXT");
 	debughandle = open("DEBUG.TXT", O_CREAT | O_WRONLY | O_TEXT);
 }
 
-void CA_CloseDebug (void)
+void CA_CloseDebug ()
 {
 	close (debughandle);
 }
@@ -196,7 +196,7 @@ void CA_CloseDebug (void)
 //-----------------------------------------------------------------------
 // OpenGrFile()
 //------------------------------------------------------------------------
-void OpenGrFile(void)
+void OpenGrFile()
 {
     char fname[13];
     strcpy(fname,gfilename);
@@ -222,7 +222,7 @@ void CloseGrFile()
 //-----------------------------------------------------------------------
 // OpenMapFile()
 //------------------------------------------------------------------------
-void OpenMapFile(void)
+void OpenMapFile()
 {
 	char fname[13];
 
@@ -258,7 +258,7 @@ void CloseMapFile()
 //-----------------------------------------------------------------------
 // OpenAudioFile()
 //------------------------------------------------------------------------
-void OpenAudioFile(void)
+void OpenAudioFile()
 {
 	char fname[13];
 
@@ -927,7 +927,7 @@ done:
 ======================
 */
 
-void CA_LoadAllSounds (void)
+void CA_LoadAllSounds ()
 {
 	Uint16	start = 0,i;
 
@@ -1233,7 +1233,7 @@ void CA_CacheMap (Sint16 mapnum)
 ======================
 */
 
-void CA_UpLevel (void)
+void CA_UpLevel ()
 {
 	if (ca_levelnum==7)
 		CA_ERROR(CA_UPLEVEL_PAST_MAX);
@@ -1255,7 +1255,7 @@ void CA_UpLevel (void)
 ======================
 */
 
-void CA_DownLevel (void)
+void CA_DownLevel ()
 {
 	if (!ca_levelnum)
 		CA_ERROR(CA_DOWNLEVEL_PAST_MIN);
@@ -1279,7 +1279,7 @@ void CA_DownLevel (void)
 ======================
 */
 
-void CA_ClearMarks (void)
+void CA_ClearMarks ()
 {
 	Sint16 i;
 
@@ -1304,7 +1304,7 @@ void CA_ClearMarks (void)
 ======================
 */
 
-void CA_ClearAllMarks (void)
+void CA_ClearAllMarks ()
 {
 	_fmemset (grneeded,0,sizeof(grneeded));
 	ca_levelbit = 1;
@@ -1326,7 +1326,7 @@ void CA_ClearAllMarks (void)
 =
 ======================
 */
-void CA_SetGrPurge (void)
+void CA_SetGrPurge ()
 {
 	Sint16 i;
 
@@ -1354,7 +1354,7 @@ void CA_SetGrPurge (void)
 ======================
 */
 
-void CA_SetAllPurge (void)
+void CA_SetAllPurge ()
 {
 	Sint16 i;
 
@@ -1386,7 +1386,7 @@ void CA_SetAllPurge (void)
 */
 #define MAXEMPTYREAD	1024
 
-void CA_CacheMarks (void)
+void CA_CacheMarks ()
 {
 	Sint16 	i,next,numcache;
 	Sint32	pos,endpos,nextpos,nextendpos,compressed;

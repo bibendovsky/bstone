@@ -82,13 +82,13 @@ extern SDL_Window* sdl_window;
 
 //===========================================================================
 
-void VL_Startup (void);
-void VL_Shutdown (void);
+void VL_Startup ();
+void VL_Shutdown ();
 
-void VL_SetVGAPlane (void);
-void VL_SetTextMode (void);
-void VL_DePlaneVGA (void);
-void VL_SetVGAPlaneMode (void);
+void VL_SetVGAPlane ();
+void VL_SetTextMode ();
+void VL_DePlaneVGA ();
+void VL_SetVGAPlaneMode ();
 void VL_ClearVideo (Uint8 color);
 
 void VL_SetLineWidth(int width);

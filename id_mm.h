@@ -98,29 +98,29 @@ extern	boolean		mmerror;
 Uint32 __PUR_MEM_AVAIL__;
 Uint32 __FREE_MEM_AVAIL__;
 
-extern	void		(* beforesort) (void);
-extern	void		(* aftersort) (void);
+extern	void		(* beforesort) ();
+extern	void		(* aftersort) ();
 
 extern char* gp_fartext;
 
 //==========================================================================
 
-void MM_Startup (void);
-void MM_Shutdown (void);
-void MM_MapEMS (void);
+void MM_Startup ();
+void MM_Shutdown ();
+void MM_MapEMS ();
 
 void MM_GetPtr (void** baseptr,Uint32 size);
 void MM_FreePtr (void** baseptr);
 
 void MM_SetPurge (void** baseptr, int purge);
 void MM_SetLock (void** baseptr, boolean locked);
-void MM_SortMem (void);
+void MM_SortMem ();
 
-void MM_ShowMemory (void);
+void MM_ShowMemory ();
 
-Sint32 MM_UnusedMemory (void);
-Sint32 MM_TotalFree (void);
-Sint32 MM_LargestAvail (void);
+Sint32 MM_UnusedMemory ();
+Sint32 MM_TotalFree ();
+Sint32 MM_LargestAvail ();
 
 void MM_BombOnError (boolean bomb);
 

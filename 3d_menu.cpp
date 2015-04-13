@@ -32,8 +32,8 @@ Free Software Foundation, Inc.,
 
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
-void	DrawHighScores(void);
-void ClearMemory (void);
+void	DrawHighScores();
+void ClearMemory ();
 void DrawTopInfo(sp_type type);
 void PreloadUpdate(Uint16 current, Uint16 total);
 void INL_GetJoyDelta(Uint16 joy,Sint16 *dx,Sint16 *dy);
@@ -84,14 +84,14 @@ void CP_ReadThis(Sint16 temp1);
 void CP_OrderingInfo(Sint16 temp1);
 void DrawEpisodePic(Sint16 w);
 void DrawAllSoundLights(Sint16 which);
-void ReadGameNames(void);
-void FreeMusic(void);
+void ReadGameNames();
+void FreeMusic();
 void CP_GameOptions(Sint16 temp1);
-void DrawGopMenu(void);
-void CalibrateJoystick(void);
-void ExitGame(void);
+void DrawGopMenu();
+void CalibrateJoystick();
+void ExitGame();
 void CP_Switches(Sint16 temp1);
-void DrawSwitchMenu(void);
+void DrawSwitchMenu();
 void DrawAllSwitchLights(Sint16 which);
 void DrawSwitchDescription(Sint16 which);
 
@@ -1405,9 +1405,9 @@ void US_ControlPanel(Uint8 scancode)
 }
 
 //--------------------------------------------------------------------------
-// DrawMainMenu(void)
+// DrawMainMenu()
 //--------------------------------------------------------------------------
-void DrawMainMenu(void)
+void DrawMainMenu()
 {
 	ControlPanelFree();
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
@@ -1621,7 +1621,7 @@ Sint16 CP_CheckQuick(Uint16 scancode)
 //--------------------------------------------------------------------------
 // END THE CURRENT GAME
 //--------------------------------------------------------------------------
-Sint16 CP_EndGame(void)
+Sint16 CP_EndGame()
 {
 	if (!Confirm(ENDGAMESTR))
 		return 0;
@@ -1844,7 +1844,7 @@ void DrawInstructions(inst_type Type)
 //--------------------------------------------------------------------------
 // DrawNewEpisode() - DRAW NEW EPISODE MENU
 //--------------------------------------------------------------------------
-void DrawNewEpisode(void)
+void DrawNewEpisode()
 {
 	ClearMScreen();
 
@@ -1870,7 +1870,7 @@ void DrawNewEpisode(void)
 //--------------------------------------------------------------------------
 // DrawNewGame() - DRAW NEW GAME MENU
 //--------------------------------------------------------------------------
-void DrawNewGame(void)
+void DrawNewGame()
 {
 	ClearMScreen();
 	DrawMenuTitle("DIFFICULTY LEVEL");
@@ -1940,9 +1940,9 @@ void CP_GameOptions(Sint16)
 }
 
 //--------------------------------------------------------------------------
-// DrawGopMenu(void)
+// DrawGopMenu()
 //--------------------------------------------------------------------------
-void DrawGopMenu(void)
+void DrawGopMenu()
 {
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 
@@ -1958,7 +1958,7 @@ void DrawGopMenu(void)
 }
 
 
-void ChangeSwaps(void)
+void ChangeSwaps()
 {
 	WindowX=WindowY=0;
 	WindowW=320;
@@ -2057,9 +2057,9 @@ void CP_Switches(Sint16)
 }
 
 //--------------------------------------------------------------------------
-// DrawSwitchMenu(void)
+// DrawSwitchMenu()
 //--------------------------------------------------------------------------
-void DrawSwitchMenu(void)
+void DrawSwitchMenu()
 {
 	CA_CacheScreen (BACKGROUND_SCREENPIC);
 
@@ -2285,7 +2285,7 @@ void CP_Sound(Sint16)
 //--------------------------------------------------------------------------
 // DrawSoundMenu() - DRAW THE SOUND MENU
 //--------------------------------------------------------------------------
-void DrawSoundMenu(void)
+void DrawSoundMenu()
 {
 	//
 	// DRAW SOUND MENU
@@ -2721,14 +2721,14 @@ void CP_Control(Sint16)
 //--------------------------------------------------------------------------
 // DRAW MOUSE SENSITIVITY SCREEN
 //--------------------------------------------------------------------------
-void DrawMousePos(void)
+void DrawMousePos()
 {
 	VWB_Bar(74,92,160,8,HIGHLIGHT_BOX_COLOR);
 	DrawOutline(73,91,161,9,ENABLED_TEXT_COLOR,ENABLED_TEXT_COLOR);
 	VWB_Bar(74+160/10*mouseadjustment,92,16,8,HIGHLIGHT_TEXT_COLOR);
 }
 
-void DrawMouseSens(void)
+void DrawMouseSens()
 {
 	ClearMScreen();
 	DrawMenuTitle("MOUSE SENSITIVITY");
@@ -2752,7 +2752,7 @@ void DrawMouseSens(void)
 //--------------------------------------------------------------------------
 // CalibrateJoystick()
 //--------------------------------------------------------------------------
-void CalibrateJoystick(void)
+void CalibrateJoystick()
 {
 	Uint16 minx,maxx,miny,maxy;
 
@@ -2860,7 +2860,7 @@ void MouseSensitivity(Sint16)
 //--------------------------------------------------------------------------
 // DrawCtlScreen() - DRAW CONTROL MENU SCREEN
 //--------------------------------------------------------------------------
-void DrawCtlScreen(void)
+void DrawCtlScreen()
 {
 	#define Y_CTL_PIC_OFS	(3)
 
@@ -2996,7 +2996,7 @@ void CustomControls(Sint16)
 //--------------------------------------------------------------------------
 // DEFINE THE MOUSE BUTTONS
 //--------------------------------------------------------------------------
-void DefineMouseBtns(void)
+void DefineMouseBtns()
 {
 	CustomCtrls mouseallowed={1,1,1,1};
 	EnterCtrlData(2,&mouseallowed,DrawCustMouse,PrintCustMouse,MOUSE);
@@ -3005,7 +3005,7 @@ void DefineMouseBtns(void)
 //--------------------------------------------------------------------------
 // DEFINE THE JOYSTICK BUTTONS
 //--------------------------------------------------------------------------
-void DefineJoyBtns(void)
+void DefineJoyBtns()
 {
 	CustomCtrls joyallowed={1,1,1,1};
 	EnterCtrlData(5,&joyallowed,DrawCustJoy,PrintCustJoy,JOYSTICK);
@@ -3014,7 +3014,7 @@ void DefineJoyBtns(void)
 //--------------------------------------------------------------------------
 // DEFINE THE KEYBOARD BUTTONS
 //--------------------------------------------------------------------------
-void DefineKeyBtns(void)
+void DefineKeyBtns()
 {
 	CustomCtrls keyallowed={1,1,1,1};
 	EnterCtrlData(8,&keyallowed,DrawCustKeybd,PrintCustKeybd,KEYBOARDBTNS);
@@ -3023,7 +3023,7 @@ void DefineKeyBtns(void)
 //--------------------------------------------------------------------------
 // DEFINE THE KEYBOARD BUTTONS
 //--------------------------------------------------------------------------
-void DefineKeyMove(void)
+void DefineKeyMove()
 {
 	CustomCtrls keyallowed={1,1,1,1};
 	EnterCtrlData(10,&keyallowed,DrawCustKeys,PrintCustKeys,KEYBOARDMOVE);
@@ -3401,7 +3401,7 @@ void FixupCustom(Sint16 w)
 //---------------------------------------------------------------------------
 // DrawCustomScreen() - DRAW CUSTOMIZE SCREEN
 //---------------------------------------------------------------------------
-void DrawCustomScreen(void)
+void DrawCustomScreen()
 {
 	Sint16 i;
 
@@ -3629,7 +3629,7 @@ void DrawCustKeys(Sint16 hilight)
 //---------------------------------------------------------------------------
 // CP_Quit() - QUIT THIS INFERNAL GAME!
 //---------------------------------------------------------------------------
-void CP_Quit(void)
+void CP_Quit()
 {
 	if (Confirm(QuitToDosStr))
 		ExitGame();
@@ -3649,7 +3649,7 @@ void CP_Quit(void)
 //---------------------------------------------------------------------------
 // Clear Menu screens to dark red
 //---------------------------------------------------------------------------
-void ClearMScreen(void)
+void ClearMScreen()
 {
 	VWB_Bar(SCREEN_X,SCREEN_Y,SCREEN_W,SCREEN_H,TERM_BACK_COLOR);
 }
@@ -3707,7 +3707,7 @@ void DrawOutline(Sint16 x,Sint16 y,Sint16 w,Sint16 h,Sint16 color1,Sint16 color2
 //---------------------------------------------------------------------------
 // SetupControlPanel() - Setup Control Panel stuff - graphics, etc.
 //---------------------------------------------------------------------------
-void SetupControlPanel(void)
+void SetupControlPanel()
 {
 
 	//
@@ -3764,7 +3764,7 @@ void ReadGameNames()
 //---------------------------------------------------------------------------
 // CleanupControlPanel() - Clean up all the Control Panel stuff
 //---------------------------------------------------------------------------
-void CleanupControlPanel(void)
+void CleanupControlPanel()
 {
 	if (!loadedgame)
 		FreeMusic();
@@ -3776,7 +3776,7 @@ void CleanupControlPanel(void)
 // ControlPanelFree() - This FREES the control panel lump from memory
 //								 and REALLOCS the ScaledDirectory
 //---------------------------------------------------------------------------
-void ControlPanelFree(void)
+void ControlPanelFree()
 {
 	UnCacheLump(CONTROLS_LUMP_START,CONTROLS_LUMP_END);
 	NewViewSize();
@@ -3786,7 +3786,7 @@ void ControlPanelFree(void)
 // ControlPanelAlloc() - This CACHEs the control panel lump into memory
 //							    and FREEs the ScaledDirectory.
 //---------------------------------------------------------------------------
-void ControlPanelAlloc(void)
+void ControlPanelAlloc()
 {
 	CacheLump(CONTROLS_LUMP_START,CONTROLS_LUMP_END);
 }
@@ -4167,7 +4167,7 @@ void SetTextColor(CP_itemtype *items,Sint16 hlight)
 //---------------------------------------------------------------------------
 // WaitKeyUp() - WAIT FOR CTRLKEY-UP OR BUTTON-UP
 //---------------------------------------------------------------------------
-void WaitKeyUp(void)
+void WaitKeyUp()
 {
 	ControlInfo ci;
 
@@ -4591,7 +4591,7 @@ void StartCPMusic(Sint16 song)
 //---------------------------------------------------------------------------
 // FreeMusic ()
 //---------------------------------------------------------------------------
-void FreeMusic (void)
+void FreeMusic ()
 {
 	SD_MusicOff();
 }
@@ -4639,7 +4639,7 @@ Uint8* IN_GetScanName(ScanCode scan)
 //---------------------------------------------------------------------------
 // CheckPause() - CHECK FOR PAUSE KEY (FOR MUSIC ONLY)
 //---------------------------------------------------------------------------
-void CheckPause(void)
+void CheckPause()
 {
 	if (Paused)
 	{
@@ -4677,7 +4677,7 @@ void DrawMenuGun(CP_iteminfo *iteminfo)
 //-------------------------------------------------------------------------
 // ShootSnd()
 //-------------------------------------------------------------------------
-void ShootSnd(void)
+void ShootSnd()
 {
     ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 }

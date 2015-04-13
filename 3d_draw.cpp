@@ -52,22 +52,22 @@ Free Software Foundation, Inc.,
 #define ACTORSIZE	0x4000
 
 #ifdef BSTONE_PS
-void DrawRadar(void);
+void DrawRadar();
 #endif
 
 void DrawLSPost();
 void DrawPost();
 void GetBonus (statobj_t *check);
 void ScaleLSShape(int xcenter, int shapenum, int height, char lighting);
-void DrawAmmoPic(void);
-void DrawScoreNum(void);
-void DrawWeaponPic(void);
-void DrawAmmoNum(void);
-void DrawKeyPics(void);
-void DrawHealthNum(void);
-void UpdateStatusBar(void);
+void DrawAmmoPic();
+void DrawScoreNum();
+void DrawWeaponPic();
+void DrawAmmoNum();
+void DrawKeyPics();
+void DrawHealthNum();
+void UpdateStatusBar();
 Sint16 NextBuffer();
-void UpdateRadarGuage(void);
+void UpdateRadarGuage();
 
 
 /*
@@ -128,13 +128,13 @@ Uint8 * mytile;
 
 fixed	FixedByFrac (fixed a, fixed b);
 void	TransformActor (objtype *ob);
-void	BuildTables (void);
-void	ClearScreen (void);
+void	BuildTables ();
+void	ClearScreen ();
 Sint16 CalcRotate(objtype* ob);
-void	DrawScaleds (void);
-void	CalcTics (void);
-void	FixOfs (void);
-void	ThreeDRefresh (void);
+void	DrawScaleds ();
+void	CalcTics ();
+void	FixOfs ();
+void	ThreeDRefresh ();
 
 
 
@@ -200,8 +200,8 @@ boolean cloaked_shape = false;
 */
 
 
-void AsmRefresh (void);					// in 3D_DR_A.ASM
-void NoWallAsmRefresh (void);			// in 3D_DR_A.ASM
+void AsmRefresh ();					// in 3D_DR_A.ASM
+void NoWallAsmRefresh ();			// in 3D_DR_A.ASM
 
 
 // BBi
@@ -535,7 +535,7 @@ Uint16 DoorJams[] =
 
 
 
-void HitVertWall (void)
+void HitVertWall ()
 {
 	Sint16			wallpic;
 	Uint16	texture;
@@ -604,7 +604,7 @@ void HitVertWall (void)
 =
 ====================
 */
-void HitHorizWall (void)
+void HitHorizWall ()
 {
 	Sint16			wallpic;
 	Uint16	texture;
@@ -672,7 +672,7 @@ void HitHorizWall (void)
 ====================
 */
 
-void HitHorizDoor (void)
+void HitHorizDoor ()
 {
 	Uint16	texture,doorpage = static_cast<Uint16>(-1),doornum,xint;
 	boolean lockable = true;
@@ -802,7 +802,7 @@ void HitHorizDoor (void)
 ====================
 */
 
-void HitVertDoor (void)
+void HitVertDoor ()
 {
 	Uint16	texture,doorpage = static_cast<Uint16>(DOORWALL),doornum,yint;
 	boolean lockable = true;
@@ -932,7 +932,7 @@ void HitVertDoor (void)
 ====================
 */
 
-void HitHorizPWall (void)
+void HitHorizPWall ()
 {
 	Sint16			wallpic;
 	Uint16	texture,offset;
@@ -986,7 +986,7 @@ void HitHorizPWall (void)
 ====================
 */
 
-void HitVertPWall (void)
+void HitVertPWall ()
 {
 	Sint16			wallpic;
 	Uint16	texture,offset;
@@ -1081,7 +1081,7 @@ void vga_clear_screen(
 // BBi
 
 
-void VGAClearScreen (void)
+void VGAClearScreen ()
 {
 	viewflags = gamestate.flags;
 
@@ -1153,7 +1153,7 @@ typedef struct
 visobj_t	vislist[MAXVISABLE],*visptr,*visstep,*farthest;
 
 
-void DrawScaleds (void)
+void DrawScaleds ()
 {
 	Sint16 		i,least,numvisable,height;
 	Uint8		*tilespot,*visspot;
@@ -1349,7 +1349,7 @@ Sint16	weaponscale[NUMWEAPONS] = {
 
 boolean useBounceOffset=false;
 
-void DrawPlayerWeapon (void)
+void DrawPlayerWeapon ()
 {
 	Sint16	shapenum;
 
@@ -1430,7 +1430,7 @@ void DrawPlayerWeapon (void)
 =====================
 */
 
-void CalcTics (void)
+void CalcTics ()
 {
 	Sint32	newtime;
 
@@ -1508,7 +1508,7 @@ void CalcTics (void)
 ========================
 */
 
-void	FixOfs (void)
+void	FixOfs ()
 {
 	VW_ScreenToScreen (static_cast<Uint16>(displayofs),static_cast<Uint16>(bufferofs),viewwidth/8,viewheight);
 }
@@ -1526,7 +1526,7 @@ void	FixOfs (void)
 ====================
 */
 
-void WallRefresh (void)
+void WallRefresh ()
 {
 //
 // set up variables for this view
@@ -1605,7 +1605,7 @@ void MapLSRow();
 ========================
 */
 
-void	ThreeDRefresh (void)
+void	ThreeDRefresh ()
 {
     memset(spotvis, 0, sizeof(spotvis));
 

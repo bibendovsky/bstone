@@ -29,22 +29,22 @@ Free Software Foundation, Inc.,
 #endif
 
 
-void InitWeaponBounce(void);
-void HandleWeaponBounce(void);
+void InitWeaponBounce();
+void HandleWeaponBounce();
 void VL_LatchToScreen(int source, int width, int height, int x, int y);
 void StartDamageFlash(int damage);
-void StartBonusFlash (void);
+void StartBonusFlash ();
 Sint16 CalcAngle(objtype *from_obj, objtype *to_obj);
 void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir);
 void OperateDoor (Sint16 door);
 
 #ifdef BSTONE_PS
-void TryDropPlasmaDetonator(void);
+void TryDropPlasmaDetonator();
 #endif
 
-void ClearMemory (void);
+void ClearMemory ();
 void VH_UpdateScreen();
-void InitAreas (void);
+void InitAreas ();
 void FirstSighting(objtype* ob);
 void OpenDoor(Sint16 door);
 void DrawTopInfo(sp_type type);
@@ -163,20 +163,20 @@ extern bstone::MemoryStream g_playtemp;
 
 void writeTokenStr(char *str);
 
-void ShowOverheadChunk(void);
+void ShowOverheadChunk();
 
 void LoadOverheadChunk(int tpNum);
 void SaveOverheadChunk(int tpNum);
 
 void DisplayTeleportName(char tpNum, boolean locked);
 
-void ForceUpdateStatusBar(void);
+void ForceUpdateStatusBar();
 
-void UpdateRadarGuage(void);
+void UpdateRadarGuage();
 void DrawLedStrip(Sint16 x,Sint16 y,Sint16 frac,Sint16 max);
-void DisplayPinballBonus(void);
+void DisplayPinballBonus();
 void CheckPinballBonus(Sint32 points);
-Uint8 LevelCompleted(void);
+Uint8 LevelCompleted();
 void	T_Player (objtype *ob);
 void	T_Attack (objtype *ob);
 
@@ -262,13 +262,13 @@ char DrawInfoArea_COUNT = 3;
 char InitInfoArea_COUNT = 3;
 char ClearInfoArea_COUNT = 3;
 
-void DrawWeapon (void);
+void DrawWeapon ();
 void GiveWeapon (Sint16 weapon);
 void	GiveAmmo (Sint16 ammo);
-void DrawGAmmoNum(void);
-void DrawMAmmoNum(void);
-void DrawPDAmmoMsg(void);
-void ComputeAvailWeapons(void);
+void DrawGAmmoNum();
+void DrawMAmmoNum();
+void DrawPDAmmoMsg();
+void ComputeAvailWeapons();
 void SW_HandleActor(objtype *obj);
 void SW_HandleStatic(statobj_t *stat,Uint16 tilex, Uint16 tiley);
 
@@ -277,11 +277,11 @@ void SW_HandleStatic(statobj_t *stat,Uint16 tilex, Uint16 tiley);
 //----------
 
 Uint8 ShowRatio(Sint16 bx, Sint16 by, Sint16 px, Sint16 py, Sint32 total, Sint32 perc, ss_type type);
-void Attack (void);
-void Use (void);
+void Attack ();
+void Use ();
 void Search (objtype *ob);
-void SelectWeapon (void);
-void SelectItem (void);
+void SelectWeapon ();
+void SelectItem ();
 
 //----------
 
@@ -293,7 +293,7 @@ void T_Player (objtype *ob);
 boolean ClipMove (objtype *ob, Sint32 xmove, Sint32 ymove);
 
 void SocketToggle(boolean TurnOn);
-void CheckStatsBonus(void);
+void CheckStatsBonus();
 
 void	T_Stand (objtype *ob);
 
@@ -317,7 +317,7 @@ void	T_Stand (objtype *ob);
 */
 
 
-void CheckWeaponChange (void)
+void CheckWeaponChange ()
 {
 	Sint16	i;
     const Sint16 n =
@@ -732,7 +732,7 @@ void DrawHealthMonitor()
 // PURPOSE : Marks the Health_NUM to be refreshed durring the next
 //				 StatusBarRefresh.
 //--------------------------------------------------------------------------
-void DrawHealth (void)
+void DrawHealth ()
 {
 #ifdef BSTONE_PS
 	char *ptr = gamestate.health_str;
@@ -748,7 +748,7 @@ void DrawHealth (void)
 //--------------------------------------------------------------------------
 // DrawHealthNum()
 //--------------------------------------------------------------------------
-void DrawHealthNum(void)
+void DrawHealthNum()
 {
 #ifdef BSTONE_AOG
     ::CA_CacheGrChunk(ECG_GRID_PIECE);
@@ -878,7 +878,7 @@ void	HealSelf(Sint16 points)
 // PURPOSE : Marks the Score to be refreshed durring the next
 //				 StatusBarRefresh.
 //--------------------------------------------------------------------------
-void	DrawScore(void)
+void	DrawScore()
 {
 	DrawScoreNum_COUNT = 3;
 }
@@ -891,7 +891,7 @@ extern Uint8 music_num;
 // NOTE : Could do some sort of "scrolling" animation on LED screen with
 //			 chars and a simple table.....
 //--------------------------------------------------------------------------
-void	DrawScoreNum(void)
+void	DrawScoreNum()
 {
 	#define Y	3
 	#define X	32
@@ -928,7 +928,7 @@ void	DrawScoreNum(void)
 //--------------------------------------------------------------------------
 // UpdateScore()
 //--------------------------------------------------------------------------
-void UpdateScore(void)
+void UpdateScore()
 {
 	Sint32 score_diff, temp_tics;
 
@@ -999,7 +999,7 @@ void GivePoints(Sint32 points,boolean add_to_stats)
 // PURPOSE : Marks the security key pics to be refreshed during the next
 //				 StatusBarRefresh.
 //---------------------------------------------------------------------------
-void DrawKeys (void)
+void DrawKeys ()
 {
 	DrawKeyPics_COUNT = 3;
 }
@@ -1007,7 +1007,7 @@ void DrawKeys (void)
 //---------------------------------------------------------------------------
 // DrawKeyPics()
 //---------------------------------------------------------------------------
-void DrawKeyPics(void)
+void DrawKeyPics()
 {
 	char loop;
 
@@ -1086,7 +1086,7 @@ void TakeKey (Sint16 key)
 // PURPOSE : Marks the Weapon pics to be refreshed durring the next
 //				 StatusBarRefresh.
 //---------------------------------------------------------------------------
-void DrawWeapon(void)
+void DrawWeapon()
 {
 	DrawWeaponPic_COUNT=3;
 	DrawAmmo(true);
@@ -1095,7 +1095,7 @@ void DrawWeapon(void)
 //---------------------------------------------------------------------------
 // DrawWeaponPic()
 //---------------------------------------------------------------------------
-void DrawWeaponPic(void)
+void DrawWeaponPic()
 {
 	if (gamestate.weapon == -1)
 		return;
@@ -1199,7 +1199,7 @@ void DrawAmmo(boolean ForceRefresh)
 //---------------------------------------------------------------------------
 // DrawAmmoNum()
 //---------------------------------------------------------------------------
-void DrawAmmoNum(void)
+void DrawAmmoNum()
 {
 	if (gamestate.weapon == -1)
 		return;
@@ -1238,7 +1238,7 @@ void DrawAmmoNum(void)
 //---------------------------------------------------------------------------
 // DrawGAmmoNum()
 //---------------------------------------------------------------------------
-void DrawGAmmoNum(void)
+void DrawGAmmoNum()
 {
 	char	buffer[32];
 
@@ -1262,7 +1262,7 @@ void DrawGAmmoNum(void)
 //---------------------------------------------------------------------------
 // DrawAmmoPic()
 //---------------------------------------------------------------------------
-void DrawAmmoPic(void)
+void DrawAmmoPic()
 {
 	switch (gamestate.weapon)
 	{
@@ -1285,7 +1285,7 @@ void DrawAmmoPic(void)
 //---------------------------------------------------------------------------
 // DrawAmmoMsg() -
 //---------------------------------------------------------------------------
-void DrawAmmoMsg(void)
+void DrawAmmoMsg()
 {
     int x =
 #ifdef BSTONE_AOG
@@ -1305,7 +1305,7 @@ void DrawAmmoMsg(void)
 //---------------------------------------------------------------------------
 // DrawPDAmmoMsg() -
 //---------------------------------------------------------------------------
-void DrawPDAmmoMsg(void)
+void DrawPDAmmoMsg()
 {
 	if (gamestate.plasma_detonators)
 		LatchDrawPic(30,(200-STATUSLINES),READYPIC);
@@ -1317,7 +1317,7 @@ void DrawPDAmmoMsg(void)
 //---------------------------------------------------------------------------
 // UpdateAmmoMsg() -
 //---------------------------------------------------------------------------
-void UpdateAmmoMsg(void)
+void UpdateAmmoMsg()
 {
 	if (gamestate.weapon_wait)
 		if ((gamestate.weapon_wait -= static_cast<char>(tics))<=0)
@@ -1330,7 +1330,7 @@ void UpdateAmmoMsg(void)
 //---------------------------------------------------------------------------
 // DrawAmmoGuage()
 //---------------------------------------------------------------------------
-void DrawAmmoGuage(void)
+void DrawAmmoGuage()
 {
 #ifdef BSTONE_AOG
     DrawLedStrip(234,155,gamestate.ammo_leds,NUM_AMMO_SEGS);
@@ -1342,7 +1342,7 @@ void DrawAmmoGuage(void)
 //---------------------------------------------------------------------------
 // UpdateRadarGuage()
 //---------------------------------------------------------------------------
-void UpdateRadarGuage(void)
+void UpdateRadarGuage()
 {
 #ifdef BSTONE_PS
 	Sint16 temp;
@@ -1372,7 +1372,7 @@ void UpdateRadarGuage(void)
 //---------------------------------------------------------------------------
 // DrawRadarGuage()
 //---------------------------------------------------------------------------
-void DrawRadarGuage(void)
+void DrawRadarGuage()
 {
 #ifdef BSTONE_PS
 	char zoom;
@@ -1508,7 +1508,7 @@ void	GiveAmmo (Sint16 ammo)
 // weapon is available for useage due to ammo avail.
 //
 //---------------------------------------------------------------------------
-void ComputeAvailWeapons(void)
+void ComputeAvailWeapons()
 {
 
    //
@@ -1662,7 +1662,7 @@ boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTim
 //--------------------------------------------------------------------------
 // ClearInfoArea()
 //--------------------------------------------------------------------------
-void ClearInfoArea(void)
+void ClearInfoArea()
 {
 #if IN_DEVELOPMENT
 	if (gamestate.flags & GS_SHOW_OVERHEAD)
@@ -1683,7 +1683,7 @@ void ClearInfoArea(void)
 //--------------------------------------------------------------------------
 // InitInfoArea()
 //--------------------------------------------------------------------------
-void InitInfoArea(void)
+void InitInfoArea()
 {
 	InfoAreaSetup.left_margin = INFOAREA_X;
 	InfoAreaSetup.text_color = INFOAREA_TCOLOR;
@@ -1697,7 +1697,7 @@ void InitInfoArea(void)
 //--------------------------------------------------------------------------
 // UpdateInfoArea()
 //--------------------------------------------------------------------------
-void UpdateInfoArea(void)
+void UpdateInfoArea()
 {
 
 	if (InfoAreaSetup.numanims)
@@ -1720,7 +1720,7 @@ void UpdateInfoArea(void)
 //								   to update the InfoArea Clock and to release
 //								   any messages that have expired.
 //---------------------------------------------------------------------------
-void UpdateInfoAreaClock(void)
+void UpdateInfoAreaClock()
 {
 
   	if (playstate == ex_title || playstate == ex_victorious)
@@ -1761,7 +1761,7 @@ char haveDetonator_msg[]="\r\r^FC39DESTROY SECURITY CUBE!";
 char destroyGoldfire_msg[]="\r\r^FC39  DESTROY GOLDFIRE!";
 #endif
 
-void DisplayNoMoMsgs(void)
+void DisplayNoMoMsgs()
 {
 	LastMsgPri = MP_min_val;
 
@@ -1840,7 +1840,7 @@ void DisplayNoMoMsgs(void)
 char *HandleControlCodes(char *first_ch);
 
 
-void DrawInfoArea(void)
+void DrawInfoArea()
 {
 	#define IA_FONT_HEIGHT	6
 
@@ -2108,7 +2108,7 @@ Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype)
 //--------------------------------------------------------------------------
 // AnimatePage()
 //--------------------------------------------------------------------------
-void AnimatePage(void)
+void AnimatePage()
 {
 	piAnimInfo *anim=piAnimList;
 	piShapeInfo *shape;
@@ -2208,7 +2208,7 @@ void AnimatePage(Sint16 numanims)
 //---------------------------------------------------------------------------
 // UpdateStatusBar()
 //---------------------------------------------------------------------------
-void UpdateStatusBar(void)
+void UpdateStatusBar()
 {
 	if (playstate == ex_title || playstate == ex_victorious)
 		return;
@@ -2261,7 +2261,7 @@ void UpdateStatusBar(void)
 //---------------------------------------------------------------------------
 // ForceUpdateStatusBar() - Force Draw status bar onto ALL display pages
 //---------------------------------------------------------------------------
-void ForceUpdateStatusBar(void)
+void ForceUpdateStatusBar()
 {
 	Uint16 old_ofs,i;
 
@@ -2943,7 +2943,7 @@ Uint8 ValidAreaTile(Uint16 *ptr)
 ===============
 */
 
-void Cmd_Fire (void)
+void Cmd_Fire ()
 {
 	if (noShots)
 		return;
@@ -2965,7 +2965,7 @@ void Cmd_Fire (void)
 //===========================================================================
 
 
-void Cmd_Use (void)
+void Cmd_Use ()
 {
 	Sint16			checkx,checky,doornum,dir;
 	Uint16 iconnum;
@@ -3853,7 +3853,7 @@ Sint16 InputFloor()
 //--------------------------------------------------------------------------
 // ShowOverheadChunk()
 //--------------------------------------------------------------------------
-void ShowOverheadChunk(void)
+void ShowOverheadChunk()
 {
 	VL_MemToScreen(static_cast<const Uint8*>(ov_buffer),64,64,TOV_X,TOV_Y);
 	ShowStats(235,138,ss_quick,&ov_stats);
@@ -4439,7 +4439,7 @@ memptr TermCommands = NULL;
 //       with the grseg TERM_COMMANDS.
 //
 //---------------------------------------------------------------------------
-void LoadTerminalCommands(void)
+void LoadTerminalCommands()
 {
 	char *Message;
 	Uint8 pos;

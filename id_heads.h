@@ -174,7 +174,7 @@ struct Rect {
 
 void    Quit (const char *error,...);             // defined in user program
 
-extern void CalcMemFree(void);
+extern void CalcMemFree();
 
 //
 // replacing refresh manager with custom routines

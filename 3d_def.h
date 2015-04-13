@@ -4865,20 +4865,20 @@ int DeleteChunk(
     bstone::MemoryStream& stream,
     const std::string& chunk_name);
 
-void 				 LoadFonts(void);
-void 				 ClearNClose(void);
-void 				 CycleColors(void);
-void 				 LoadAccessCodes(void);
-void 				 AlignPlayerInElevator(void);
-void            HelpScreens (void);
-void            OrderingInfo (void);
-void            TEDDeath(void);
+void 				 LoadFonts();
+void 				 ClearNClose();
+void 				 CycleColors();
+void 				 LoadAccessCodes();
+void 				 AlignPlayerInElevator();
+void            HelpScreens ();
+void            OrderingInfo ();
+void            TEDDeath();
 void            CalcProjection (Sint32 focal);
 void SetViewSize(int width, int height);
 void            NewGame (Sint16 difficulty,Sint16 episode);
 void NewViewSize();
 Uint16 scan_atoi(const char *s);
-void 				AlignPlayerOnTransporter(void);
+void 				AlignPlayerOnTransporter();
 
 Uint16 UseFunc(const char *first, const char *next);
 boolean DoMovie(movie_t movie, void* palette);
@@ -4889,21 +4889,21 @@ bool SaveTheGame(
     const std::string& description);
 
 Sint32 ChecksumFile(char *file, Sint32 checksum);
-void BadChecksum(void);
-void InvalidLevels(void);
+void BadChecksum();
+void InvalidLevels();
 void CheckValidity(char *file, Sint32 valid_checksum);
-void UnauthorizedLevels(void);
-void ShowChecksums(void);
+void UnauthorizedLevels();
+void ShowChecksums();
 void fprint(char *text);
 
-void SetupWalls (void);
-void InitDigiMap (void);
+void SetupWalls ();
+void InitDigiMap ();
 
-void CleanUpDoors_N_Actors(void);
+void CleanUpDoors_N_Actors();
 
 
 void MakeDestPath(const char *file);
-void InitDestPath(void);
+void InitDestPath();
 
 int FindChunk(
     bstone::IStream* stream,
@@ -4937,13 +4937,13 @@ extern  Sint16                     doornum;
 
 extern  char            demoname[13];
 
-void    DrawPlayBorder (void);
-void    ScanInfoPlane (void);
-void    SetupGameLevel (void);
-void    NormalScreen (void);
+void    DrawPlayBorder ();
+void    ScanInfoPlane ();
+void    SetupGameLevel ();
+void    NormalScreen ();
 void    DrawPlayScreen (boolean);		  
-void    FizzleOut (void);
-void    GameLoop (void);
+void    FizzleOut ();
+void    GameLoop ();
 
 // JAB
 #define PlaySoundLocTile(s,tx,ty)       PlaySoundLocGlobal(s,(((Sint32)(tx) << TILESHIFT) + (1L << (TILESHIFT - 1))),(((Sint32)ty << TILESHIFT) + (1L << (TILESHIFT - 1))))
@@ -4951,9 +4951,9 @@ void    GameLoop (void);
 void    PlaySoundLocGlobal(Uint16 s,fixed gx,fixed gy);
 
 
-void Warped (void);
+void Warped ();
 void RotateView(Sint16 DestAngle,Uint8 RotSpeed);
-void DrawWarpIn(void);
+void DrawWarpIn();
 void BMAmsg(const char *msg);
 void CacheBMAmsg(Uint16 MsgNum);	  
 void BevelBox(Sint16 xl, Sint16 yl, Sint16 w, Sint16 h, Uint8 hi, Uint8 med, Uint8 lo);
@@ -4963,7 +4963,7 @@ void AddTotalInformants(char informants);
 void AddTotalEnemy(Uint16 enemies);
 
 void ShadowPrintLocationText(sp_type type);
-void LoseScreen(void);
+void LoseScreen();
 void LoadLocationText(Sint16 textNum);	
 
 /*
@@ -5039,17 +5039,17 @@ extern char Computing[];
 
 
 void    CenterWindow(Uint16 w,Uint16 h);
-void    InitActorList (void);
-void    GetNewActor (void);
+void    InitActorList ();
+void    GetNewActor ();
 void    RemoveObj (objtype *gone);
-void    PollControls (void);
-void    StopMusic(void);
+void    PollControls ();
+void    StopMusic();
 void    StartMusic(boolean startit);
-void    PlayLoop (void);
+void    PlayLoop ();
 
 void ChangeSwapFiles(boolean display);
-void OpenPageFile(void);
-void CheckMusicToggle(void);	 
+void OpenPageFile();
+void CheckMusicToggle();	 
 
 /*
 =============================================================================
@@ -5059,8 +5059,8 @@ void CheckMusicToggle(void);
 =============================================================================
 */
 
-Sint16 DebugKeys (void);
-void CalcMemFree(void);	  
+Sint16 DebugKeys ();
+void CalcMemFree();	  
 
 
 /*
@@ -5114,26 +5114,26 @@ extern boolean cloaked_shape;
 
 fixed   FixedByFrac (fixed a, fixed b);
 void    TransformActor (objtype *ob);
-void    BuildTables (void);
-void    ClearScreen (void);
+void    BuildTables ();
+void    ClearScreen ();
 Sint16 CalcRotate(objtype* ob);
-void    DrawScaleds (void);
-void    CalcTics (void);
-void    FixOfs (void);
-void    ThreeDRefresh (void);
-void  FarScalePost (void);
-void DrawStars(void);
+void    DrawScaleds ();
+void    CalcTics ();
+void    FixOfs ();
+void    ThreeDRefresh ();
+void  FarScalePost ();
+void DrawStars();
 
 
 
 boolean TransformTile (Sint16 tx, Sint16 ty, Sint16 *dispx, Sint16 *dispheight);
 void WrapTransformActor (objtype *ob);
 void ComputeActorPosition(objtype *ob, char adjust_x, char adjust_y);
-void WrapDrawScaleds (void);
+void WrapDrawScaleds ();
 boolean WrapActorPosition(objtype *obj);
 void WrapStaticPosition(statobj_t *statptr, visobj_t *visptr);
 void ShowOverhead(int bx, int by, int radius, int zoom, int flags);
-void UpdateTravelTable(void);
+void UpdateTravelTable();
 
 
 
@@ -5147,7 +5147,7 @@ void UpdateTravelTable(void);
 extern Uint16 CeilingTile, FloorTile;
 extern void (*MapRowPtr)();			  
 
-void DrawPlanes (void);
+void DrawPlanes ();
 
 
 void MapRow();
@@ -5191,7 +5191,7 @@ boolean PosVisable(fixed from_x, fixed from_y, fixed to_x, fixed to_y, Sint16 fr
 boolean PlayerIsBlocking(objtype *ob);		
 
 void MakeAlertNoise(objtype *obj);
-objtype *CheckAndReserve(void);
+objtype *CheckAndReserve();
 
 
 /*
@@ -5220,7 +5220,7 @@ extern int normalshade_div;
 extern int shade_max;
 
 
-void FreeScaleDirectory(void);
+void FreeScaleDirectory();
 void SetupScaling (int maxscaleheight);
 void ScaleShape(int xcenter, int shapenum, int height);
 void SimpleScaleShape(int xcenter, int shapenum, int height);
@@ -5300,29 +5300,29 @@ extern Sint16 MsgTicsRemain;
 
 void    GivePoints(Sint32 score,boolean add_to_stats);
 void    SpawnPlayer (Sint16 tilex, Sint16 tiley, Sint16 dir);
-void 	  DrawCash(void);
-void 		UpdateHealth(void);
+void 	  DrawCash();
+void 		UpdateHealth();
 
-void DrawAmmoGuage(void);
-void DrawAmmoMsg(void);
+void DrawAmmoGuage();
+void DrawAmmoMsg();
 void DrawAmmo(boolean ForceRefresh);
 boolean DisplayInfoMsg(const char *Msg,msg_priorities Priority,Sint16 DisplayTime,Sint16 MessageType);
-void UpdateInfoAreaClock(void);
-void UpdateInfoArea(void);
-void DrawHealthMonitor(void);
-void CalcHealthDisplay(void);
-void UpdateScore(void);
+void UpdateInfoAreaClock();
+void UpdateInfoArea();
+void DrawHealthMonitor();
+void CalcHealthDisplay();
+void UpdateScore();
 
 Uint8 ValidAreaTile(Uint16 *ptr);
 char GetAreaNumber(char tilex, char tiley);
-Sint16 InputFloor(void);
+Sint16 InputFloor();
 
-void RestoreInfoArea(void);
-void DrawHeartPic(void);
-void DrawInfoArea(void);
+void RestoreInfoArea();
+void DrawHeartPic();
+void DrawInfoArea();
 Sint16 DrawShape(Sint16 x, Sint16 y, Sint16 shapenum, pisType shapetype);
 
-void AnimatePage(void);			
+void AnimatePage();			
 
 void ActivateTerminal(boolean);
 void TerminalPrint(char *msg,boolean FastPrint);
@@ -5339,18 +5339,18 @@ void	GivePlasmaDetonator (Sint16 count);
 #endif
 
 void CacheDrawPic(int x, int y, int pic);	
-void LoadTerminalCommands(void);
+void LoadTerminalCommands();
 
 void ActivateWallSwitch(Uint16 iconnum, Sint16 x, Sint16 y);
 Uint16 UpdateBarrierTable(Uint8 level, Uint8 x, Uint8 y, boolean OnOff);
 Uint16 ScanBarrierTable(Uint8 x, Uint8 y);
 void DisplaySwitchOperateMsg(Uint16 coords);
 
-void DisplayNoMoMsgs(void);
+void DisplayNoMoMsgs();
 void PrintStatPercent(Sint16 nx, Sint16 ny, char percentage);
 Sint16 ShowStats(Sint16 bx, Sint16 by, ss_type type, statsInfoType *stats);
-boolean PerfectStats(void);
-boolean CheckPerfectStats(void);
+boolean PerfectStats();
+boolean CheckPerfectStats();
 boolean OperateSmartSwitch(Uint16 tilex, Uint16 tiley, char Operation, boolean Force);
 
 /*
@@ -5379,7 +5379,7 @@ extern Uint16 pwallx,pwally;
 extern Sint16                      pwalldir,pwalldist;
 
 
-statobj_t *ReserveStatic(void);
+statobj_t *ReserveStatic();
 void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type);
 void SpawnDoor (Sint16 tilex, Sint16 tiley, boolean vertical, keytype lock, door_t type);
 
@@ -5387,23 +5387,23 @@ void OperateConcession(Uint16 concession);
 void SpawnConcession(Sint16 tilex, Sint16 tiley, Uint16 credits,Uint16 machinetype);
 Uint16 LoadConcessionHint(Uint16 MsgNum);
 void CacheInfoAreaMsg(Uint16 block, Uint16 MsgNum, char *hint_buffer,Uint16 MaxBufferLen);
-void CheckSpawnEA(void);
+void CheckSpawnEA();
 
 Sint16 TransformAreas(char tilex, char tiley, char xform);
 
 
-void CheckSpawnGoldstern(void);
-void FindNewGoldieSpawnSite(void);
+void CheckSpawnGoldstern();
+void FindNewGoldieSpawnSite();
 
 void InitMsgCache(mCacheList *mList, Uint16 listSize, Uint16 infoSize);
 void FreeMsgCache(mCacheList *mList, Uint16 listSize);
 void CacheMsg(mCacheInfo *ci, Uint16 SegNum, Uint16 MsgNum);
 Sint16 LoadMsg(char *hint_buffer, Uint16 SegNum, Uint16 MsgNum, Uint16 MaxMsgLen);
-void CacheConcessionMsg(void);
+void CacheConcessionMsg();
 boolean ReuseMsg(mCacheInfo *ci, Sint16 count, Sint16 struct_size);
 
 #ifdef BSTONE_PS
-void DropPlasmaDetonator(void);
+void DropPlasmaDetonator();
 #endif
 
 void BlockDoorOpen(Sint16 door);
@@ -5648,8 +5648,8 @@ void DropCargo(objtype *obj);
 
 extern  char    helpfilename[],endfilename[];
 
-extern  void    HelpScreens(void);
-extern  void    EndText(void);
+extern  void    HelpScreens();
+extern  void    EndText();
 
 
 /*
@@ -5728,7 +5728,7 @@ extern char pd_floornotlocked[];
 
 extern char BreifingText[];
 
-void UpdateScreenPic(void);				 
+void UpdateScreenPic();				 
 void DisplayPrepingMsg(const char *text);
 boolean Breifing(breifing_type BreifingType,Uint16 episode);
 void ShPrint(const char *text, char shadow_color, boolean single_char);

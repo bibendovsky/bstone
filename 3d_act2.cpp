@@ -2466,7 +2466,7 @@ Sint16 CheckAndConnect(char x,char y, Uint16 code)
 //							  there are any surrounding barriers that need to be
 //							  connected also.
 //--------------------------------------------------------------------------
-void ConnectBarriers(void)
+void ConnectBarriers()
 {
    barrier_type *Barrier;
 	Uint16 num;
@@ -5268,7 +5268,7 @@ void A_Beep(objtype*)
 //--------------------------------------------------------------------------
 // InitGoldsternInfo()
 //--------------------------------------------------------------------------
-void InitGoldsternInfo(void)
+void InitGoldsternInfo()
 {
 	memset(&GoldsternInfo,0,sizeof(GoldsternInfo));
 	GoldsternInfo.LastIndex = GOLDIE_MAX_SPAWNS;

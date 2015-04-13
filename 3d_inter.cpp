@@ -61,7 +61,7 @@ char BreifingText[13] = {"BRIEF_Wx.TXT"};
 ==================
 */
 
-void ClearSplitVWB (void)
+void ClearSplitVWB ()
 {
 	memset (update,0,sizeof(update));
 	WindowX = 0;
@@ -196,7 +196,7 @@ void DisplayPrepingMsg(const char *text)
 		VW_FadeIn();
 }
 
-void PreloadGraphics(void)
+void PreloadGraphics()
 {
 	WindowY=188;
 
@@ -224,7 +224,7 @@ void PreloadGraphics(void)
 
 #define SCORE_Y_SPACING			7			//
 
-void	DrawHighScores(void)
+void	DrawHighScores()
 {
 	char		buffer[16];
 	int		i,

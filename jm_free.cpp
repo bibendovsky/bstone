@@ -45,21 +45,21 @@ extern int* planeylookup;
 extern int* mirrorofs;
 
 
-void MML_ClearBlock (void);
+void MML_ClearBlock ();
 void CA_CannotOpen(char *string);
 void CAL_GetGrChunkLength (Sint16 chunk);
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
-void IN_StartAck(void);
-boolean IN_CheckAck (void);
-void OpenMapFile(void);
-void CloseMapFile(void);
-void ClearMemory (void);
+void IN_StartAck();
+boolean IN_CheckAck ();
+void OpenMapFile();
+void CloseMapFile();
+void ClearMemory ();
 void PM_SetMainMemPurge(Sint16 level);
-void ShutdownId (void);
-void InitRedShifts (void);
+void ShutdownId ();
+void InitRedShifts ();
 void CAL_OptimizeNodes (huffnode *table);
-void OpenAudioFile(void);
+void OpenAudioFile();
 void ReadConfig();
 
 
@@ -94,7 +94,7 @@ void ReadConfig();
 extern SDL_TimerID sys_timer_id;
 
 void SDL_SBSetDMA(Uint8 channel);
-void SDL_SetupDigi(void);
+void SDL_SetupDigi();
 
 //=========================================================================
 //
@@ -271,7 +271,7 @@ Uint32 sys_timer_callback(Uint32 interval, void*)
 // BBi
 
 void
-US_Startup(void)
+US_Startup()
 {
 	Sint16	n;
 
@@ -345,7 +345,7 @@ US_Startup(void)
 
 const   float   radtoint = static_cast<float>(FINEANGLES/2/PI);
 
-void BuildTables (void)
+void BuildTables ()
 {
   Sint16           i;
   float         angle,anglestep;
@@ -398,7 +398,7 @@ void BuildTables (void)
 ===================
 */
 
-void SetupWalls (void)
+void SetupWalls ()
 {
 	Sint16     i;
 
@@ -451,7 +451,7 @@ void SetupWalls (void)
 */
 // 3D_GAME.C
 
-void InitDigiMap (void)
+void InitDigiMap ()
 {
 	char *map;
 
@@ -469,7 +469,7 @@ void InitDigiMap (void)
 ======================
 */
 
-void CAL_SetupAudioFile (void)
+void CAL_SetupAudioFile ()
 {
 	bstone::FileStream handle;
 	Sint32 length;
@@ -726,7 +726,7 @@ void CheckForEpisodes()
 //-------------------------------------------------------------------------
 // CheckForEpisodes() - CHECK FOR EPISODES
 //-------------------------------------------------------------------------
-void CheckForEpisodes(void)
+void CheckForEpisodes()
 {
 	struct ffblk f;
 	Sint16 i;
@@ -1057,7 +1057,7 @@ void PreDemo()
 //------------------------------------------------------------------------
 // InitGame()
 //------------------------------------------------------------------------
-void InitGame (void)
+void InitGame ()
 {
 	Sint16                     i,x,y;
 	Uint16        *blockstart;

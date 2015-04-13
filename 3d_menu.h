@@ -229,17 +229,17 @@ extern CP_iteminfo MainItems;
 //
 // FUNCTION PROTOTYPES
 //
-void SetupControlPanel(void);
-void CleanupControlPanel(void);
-void ControlPanelFree(void);
-void ControlPanelAlloc(void);
+void SetupControlPanel();
+void CleanupControlPanel();
+void ControlPanelFree();
+void ControlPanelAlloc();
 
 void DrawMenu(CP_iteminfo *item_i,CP_itemtype *items);			
 Sint16 HandleMenu(CP_iteminfo *item_i,CP_itemtype *items,void (*routine)(Sint16 w));	
-void ClearMScreen(void);
+void ClearMScreen();
 void DrawWindow(Sint16 x,Sint16 y,Sint16 w,Sint16 h,Sint16 wcolor);
 void DrawOutline(Sint16 x,Sint16 y,Sint16 w,Sint16 h,Sint16 color1,Sint16 color2);
-void WaitKeyUp(void);
+void WaitKeyUp();
 void ReadAnyControl(ControlInfo *ci);
 void TicDelay(Sint16 count);
 void CacheLump(Sint16 lumpstart,Sint16 lumpend);
@@ -247,9 +247,9 @@ void UnCacheLump(Sint16 lumpstart,Sint16 lumpend);
 void StartCPMusic(Sint16 song);
 Sint16  Confirm(const char *string);
 void Message(const char *string);
-void CheckPause(void);
-void ShootSnd(void);
-void CheckSecretMissions(void);
+void CheckPause();
+void ShootSnd();
+void CheckSecretMissions();
 
 void DrawGun(CP_iteminfo *item_i,CP_itemtype *items,Sint16 x,Sint16 *y,Sint16 which,Sint16 basey,void (*routine)(Sint16 w));	
 void DrawHalfStep(Sint16 x,Sint16 y,Sint16 y_spacing);
@@ -258,21 +258,21 @@ void SetTextColor(CP_itemtype *items,Sint16 hlight);
 void DrawMenuGun(CP_iteminfo *iteminfo);
 void DrawStripes(Sint16 y);
 
-void DefineMouseBtns(void);
-void DefineJoyBtns(void);
-void DefineKeyBtns(void);
-void DefineKeyMove(void);
+void DefineMouseBtns();
+void DefineJoyBtns();
+void DefineKeyBtns();
+void DefineKeyMove();
 void EnterCtrlData(Sint16 index,CustomCtrls *cust,void (*DrawRtn)(Sint16),void (*PrintRtn)(Sint16),Sint16 type);
 
-void DrawMainMenu(void);
-void DrawSoundMenu(void);
+void DrawMainMenu();
+void DrawSoundMenu();
 void DrawLoadSaveScreen(Sint16 loadsave);
-void DrawNewEpisode(void);
-void DrawNewGame(void);
+void DrawNewEpisode();
+void DrawNewGame();
 void DrawChangeView(Sint16 view);
-void DrawMouseSens(void);
-void DrawCtlScreen(void);
-void DrawCustomScreen(void);
+void DrawMouseSens();
+void DrawCtlScreen();
+void DrawCustomScreen();
 void DrawLSAction(Sint16 which);
 void DrawCustMouse(Sint16 hilight);
 void DrawCustJoy(Sint16 hilight);
@@ -295,15 +295,15 @@ Sint16  CP_LoadGame(Sint16 quick);
 Sint16  CP_SaveGame(Sint16 quick);
 void CP_Control(Sint16 temp1);
 void CP_ExitOptions(Sint16 temp1);
-void CP_Quit(void);
+void CP_Quit();
 void CP_ViewScores(Sint16 temp1);
-Sint16  CP_EndGame(void);
+Sint16  CP_EndGame();
 Sint16  CP_CheckQuick(Uint16 scancode);
 void CustomControls(Sint16 temp1);
 void MouseSensitivity(Sint16 temp1);
 
 void DrawMenuTitle(const char *title);
-void CheckForEpisodes(void);
+void CheckForEpisodes();
 void HelpPresenter(const char *fname,boolean continuekeys, Uint16 id_cache, boolean startmusic);
 void ShadowPrint(const char *string, Sint16 x, Sint16 y);
 

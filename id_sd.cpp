@@ -144,7 +144,7 @@ static	boolean					sbNoCheck,sbNoProCheck;
 		boolean			sqPlayedOnce;
 
 //	Internal routines
-		void			SDL_DigitizedDone(void);
+		void			SDL_DigitizedDone();
 
 // BBi
 static int music_index = -1;
@@ -174,7 +174,7 @@ void SD_SetDigiDevice(
 }
 
 void
-SDL_SetupDigi(void)
+SDL_SetupDigi()
 {
 	const Uint16* p;
 	int pg;

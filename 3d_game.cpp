@@ -44,29 +44,29 @@ Free Software Foundation, Inc.,
 #define LOCATION_TEXT_COLOR 0xAF
 extern char prep_msg[];
 extern char LS_current,LS_total;
-void Died (void);
+void Died ();
 void PM_SetMainMemPurge(Sint16 level);
-void InitGoldsternInfo(void);
-void InitDoorList (void);
-void InitStaticList (void);
-void ConnectBarriers(void);
-void DrawHealth (void);
-void DrawKeys (void);
-void DrawWeapon (void);
-void DrawScore(void);
-void InitInfoArea(void);
-void ForceUpdateStatusBar(void);
-void UpdateStatusBar(void);
+void InitGoldsternInfo();
+void InitDoorList ();
+void InitStaticList ();
+void ConnectBarriers();
+void DrawHealth ();
+void DrawKeys ();
+void DrawWeapon ();
+void DrawScore();
+void InitInfoArea();
+void ForceUpdateStatusBar();
+void UpdateStatusBar();
 bool LoadLevel(int levelnum);
-void SetPlaneViewSize (void);
+void SetPlaneViewSize ();
 Sint16 CalcAngle(objtype* from_obj, objtype* to_obj);
-void FinishPaletteShifts (void);
+void FinishPaletteShifts ();
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
 void DoActor (objtype *ob);
 bool LevelInPlaytemp(int level_index);
 void PreloadUpdate(Uint16 current, Uint16 total);
-void PreloadGraphics(void);
+void PreloadGraphics();
 
 bool SaveLevel(
     int level_index);
@@ -108,11 +108,11 @@ extern Uint16 scan_value;
 //
 // int ElevatorBackTo[]={1,1,7,3,5,3};
 
-void ScanInfoPlane (void);
-void SetupGameLevel (void);
+void ScanInfoPlane ();
+void SetupGameLevel ();
 void DrawPlayScreen (boolean InitInfoMsg);
-void LoadLatchMem (void);
-void GameLoop (void);
+void LoadLatchMem ();
+void GameLoop ();
 
 /*
 =============================================================================
@@ -269,7 +269,7 @@ SetSoundLoc(fixed gx,fixed gy)
 ==========================
 */
 
-void UpdateSoundLoc(void)
+void UpdateSoundLoc()
 {
     ::sd_update_positions();
 }
@@ -287,7 +287,7 @@ void UpdateSoundLoc(void)
 ==========================
 */
 
-void ClearMemory (void)
+void ClearMemory ()
 {
 }
 
@@ -300,7 +300,7 @@ void ClearMemory (void)
 // NOTE: If any sounds, music, etc are currently playing, they will
 //			adbruply cut off.
 //-------------------------------------------------------------------------
-void FreeAllMemory(void)
+void FreeAllMemory()
 {
 	StopMusic();
 	SD_StopSound();
@@ -325,7 +325,7 @@ Sint16 numEnemy[gold_morphingobj];
 
 #define INVALID_ACTOR_ERR Quit("Invalid actor: %d %d",x,y)
 
-void ScanInfoPlane (void)
+void ScanInfoPlane ()
 {
 	Uint16	x,y;
 	Sint16			tile;
@@ -2176,7 +2176,7 @@ void AddTotalEnemy(Uint16 enemies)
 
 Sint16 an_offset[8] = {1,-1,64,-64,-65,-63,63,65};
 
-void SetupGameLevel (void)
+void SetupGameLevel ()
 {
    boolean switchon = false;
 	sci_mCacheInfo *ci = InfHintList.smInfo;
@@ -2545,7 +2545,7 @@ void LoadLocationText(Sint16 textNum)
 =
 ===================
 */
-void DrawPlayBorder (void)
+void DrawPlayBorder ()
 {
 	Sint16	xl,yl;
 
@@ -2809,9 +2809,9 @@ void DrawPlayScreen (boolean InitInfoMsg)
 }
 
 //---------------------------------------------------------------------------
-// void DrawWarpIn(void)
+// void DrawWarpIn()
 //---------------------------------------------------------------------------
-void DrawWarpIn(void)
+void DrawWarpIn()
 {
 	Sint16	i;
 	Uint16 temp;
@@ -2851,7 +2851,7 @@ void DrawWarpIn(void)
 //---------------------------------------------------------------------------
 // Warped
 //---------------------------------------------------------------------------
-void Warped(void)
+void Warped()
 {
 	Sint16		iangle;
 
@@ -2928,7 +2928,7 @@ void StartDemoRecord (Sint16 levelnumber)
 ==================
 */
 
-void FinishDemoRecord (void)
+void FinishDemoRecord ()
 {
 	char str[3];
 	Sint32	length,level;
@@ -2978,7 +2978,7 @@ void FinishDemoRecord (void)
 
 #if 0		// JAM's Modified Version - HELP! - Comment out
 
-void RecordDemo (void)
+void RecordDemo ()
 {
 	CenterWindow(26,3);
 	PrintY+=6;
@@ -3014,7 +3014,7 @@ void RecordDemo (void)
 
 #endif
 
-void RecordDemo (void)
+void RecordDemo ()
 {
 	char str[3];
 	Sint16 level,esc;
@@ -3177,7 +3177,7 @@ void PlayDemo (Sint16 demonumber)
 
 #define DEATHROTATE 2
 
-void Died (void)
+void Died ()
 {
 	Sint16		iangle;
 
@@ -3232,7 +3232,7 @@ void Died (void)
 //--------------------------------------------------------------------------
 // LoseScreen()   - Displays the Goldstern/DamagedReba message...
 //--------------------------------------------------------------------------
-void LoseScreen(void)
+void LoseScreen()
 {
 	PresenterInfo pi;
 
@@ -3379,7 +3379,7 @@ void RotateView(Sint16 DestAngle,Uint8 RotSpeed)
 ===================
 */
 
-void GameLoop (void)
+void GameLoop ()
 {
 	extern boolean sqActive;
 

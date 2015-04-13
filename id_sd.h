@@ -239,36 +239,36 @@ extern	boolean		sqActive;
 extern	boolean		sqPlayedOnce;
 
 // Function prototypes
-extern	void	SD_Startup(void),
-				SD_Shutdown(void),
+extern	void	SD_Startup(),
+				SD_Shutdown(),
 				SD_Default(boolean gotit,SDMode sd,SMMode sm),
 
 				SD_PositionSound(Sint16 leftvol,Sint16 rightvol);
 extern	boolean	SD_PlaySound(soundnames sound);
 extern	void	SD_SetPosition(Sint16 leftvol,Sint16 rightvol),
-				SD_StopSound(void),
-				SD_WaitSoundDone(void),
+				SD_StopSound(),
+				SD_WaitSoundDone(),
                 SD_StartMusic(int index),
-				SD_MusicOn(void),
-				SD_MusicOff(void),
-				SD_FadeOutMusic(void),
+				SD_MusicOn(),
+				SD_MusicOff(),
+				SD_FadeOutMusic(),
 
-				SD_SetUserHook(void (*hook)(void));
-extern	boolean	SD_MusicPlaying(void),
+				SD_SetUserHook(void (*hook)());
+extern	boolean	SD_MusicPlaying(),
 				SD_SetSoundMode(SDMode mode),
 				SD_SetMusicMode(SMMode mode);
     bool SD_SoundPlaying();
 
 extern	void	SD_SetDigiDevice(SDSMode),
 				SD_PlayDigitized(Uint16 which,Sint16 leftpos,Sint16 rightpos),
-				SD_StopDigitized(void),
-				SD_Poll(void);
+				SD_StopDigitized(),
+				SD_Poll();
 
 #ifdef	_MUSE_	// MUSE Goes directly to the lower level routines
 extern	void	SDL_PCPlaySound(PCSound *sound),
-				SDL_PCStopSound(void),
+				SDL_PCStopSound(),
 				SDL_ALPlaySound(AdLibSound *sound),
-				SDL_ALStopSound(void);
+				SDL_ALStopSound();
 #endif
 
 // BBi

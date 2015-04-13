@@ -113,8 +113,8 @@ extern Sint32		*audiostarts;	// array of offsets in audio / audiot
 // hooks for custom cache dialogs
 //
 extern	void	(*drawcachebox)		(char *title, Uint16 numcache);
-extern	void	(*updatecachebox)	(void);
-extern	void	(*finishcachebox)	(void);
+extern	void	(*updatecachebox)	();
+extern	void	(*finishcachebox)	();
 
 extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
@@ -137,8 +137,8 @@ void CAL_ShiftSprite (Uint16 segment,Uint16 source,Uint16 dest,
 
 //===========================================================================
 
-void CA_OpenDebug (void);
-void CA_CloseDebug (void);
+void CA_OpenDebug ();
+void CA_CloseDebug ();
 
 boolean CA_ReadFile (char *filename, void** ptr);
 boolean CA_LoadFile (char *filename, void** ptr);
@@ -150,31 +150,31 @@ Sint32 CA_RLEWCompress (Uint16 *source, Sint32 length, Uint16 *dest,
 void CA_RLEWexpand (Uint16 *source, Uint16 *dest,Sint32 length,
   Uint16 rlewtag);
 
-void CA_Startup (void);
-void CA_Shutdown (void);
+void CA_Startup ();
+void CA_Shutdown ();
 
-void CA_SetGrPurge (void);
+void CA_SetGrPurge ();
 void CA_CacheAudioChunk (Sint16 chunk);
-void CA_LoadAllSounds (void);
+void CA_LoadAllSounds ();
 
-void CA_UpLevel (void);
-void CA_DownLevel (void);
+void CA_UpLevel ();
+void CA_DownLevel ();
 
-void CA_SetAllPurge (void);
+void CA_SetAllPurge ();
 
-void CA_ClearMarks (void);
-void CA_ClearAllMarks (void);
+void CA_ClearMarks ();
+void CA_ClearAllMarks ();
 
 #define CA_MarkGrChunk(chunk)	grneeded[chunk]|=ca_levelbit
 
 void CA_CacheGrChunk (Sint16 chunk);
 void CA_CacheMap (Sint16 mapnum);
 
-void CA_CacheMarks (void);
+void CA_CacheMarks ();
 
-void CAL_SetupAudioFile (void);
-void CAL_SetupGrFile (void);
-void CAL_SetupMapFile (void);
+void CAL_SetupAudioFile ();
+void CAL_SetupGrFile ();
+void CAL_SetupMapFile ();
 
 void CAL_HuffExpand(
     Uint8* source,
@@ -186,8 +186,8 @@ void ca_huff_expand_on_screen(
     Uint8* source,
     huffnode* hufftable);
 
-void CloseGrFile(void);
-void OpenGrFile(void);
+void CloseGrFile();
+void OpenGrFile();
 
 // BBi
 extern int ca_gr_last_expanded_size;

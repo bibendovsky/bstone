@@ -135,11 +135,11 @@ MovieStuff_t Movies[] =
 //
 //===========================================================================
 
-void JM_MemToScreen(void);
+void JM_MemToScreen();
 void JM_ClearVGAScreen(Uint8 fill);
-void FlipPages(void);
-boolean CheckFading(void);
-boolean CheckPostFade(void);
+void FlipPages();
+boolean CheckFading();
+boolean CheckPostFade();
 
 
 //===========================================================================
@@ -189,9 +189,9 @@ void SetupMovie(MovieStuff_t *MovieStuff)
 
 
 //---------------------------------------------------------------------------
-// void ShutdownMovie(void)
+// void ShutdownMovie()
 //---------------------------------------------------------------------------
-void ShutdownMovie(void)
+void ShutdownMovie()
 {
     delete [] MovieBuffer;
     MovieBuffer = NULL;
@@ -625,7 +625,7 @@ boolean MOVIE_Play(MovieStuff_t *MovieStuff)
 //--------------------------------------------------------------------------
 // FlipPages()
 //---------------------------------------------------------------------------
-void FlipPages(void)
+void FlipPages()
 {
     displayofs = bufferofs;
 

@@ -55,16 +55,16 @@ void VL_LatchToScreen(int source, int width, int height, int x, int y);
 */
 
 
-void ConnectBarriers(void);
-void FreeMusic(void);
-void ClearMemory (void);
+void ConnectBarriers();
+void FreeMusic();
+void ClearMemory ();
 void CA_CacheScreen (Sint16 chunk);
 void VH_UpdateScreen();
 void PlayDemo (Sint16 demonumber);
-void	DrawHighScores(void);
+void	DrawHighScores();
 void freed_main();
 void PreloadUpdate(Uint16 current, Uint16 total);
-void OpenAudioFile(void);
+void OpenAudioFile();
 
 
 bstone::ClArgs g_args;
@@ -90,9 +90,9 @@ bstone::ClArgs g_args;
 extern Sint16 pickquick;
 
 
-void DrawCreditsPage(void);
-void unfreed_main(void);
-void ShowPromo(void);
+void DrawCreditsPage();
+void unfreed_main();
+void ShowPromo();
 
 const char * MainStrs[] = {
 										"q","nowait","l","e",
@@ -2078,7 +2078,7 @@ void CycleColors()
 ==========================
 */
 
-void ShutdownId (void)
+void ShutdownId ()
 {
 	US_Shutdown ();
 	SD_Shutdown ();
@@ -2182,7 +2182,7 @@ boolean DoMovie(movie_t movie, void* palette)
 //--------------------------------------------------------------------------
 // LoadFonts()
 //--------------------------------------------------------------------------
-void LoadFonts(void)
+void LoadFonts()
 {
 	CA_CacheGrChunk(STARTFONT+4);
 	CA_CacheGrChunk(STARTFONT+2);
@@ -2281,7 +2281,7 @@ void Quit(const char* error, ...)
 =====================
 */
 
-void    DemoLoop (void)
+void    DemoLoop ()
 {
 #if DEMOS_ENABLED
 	Sint16 	LastDemo=0;
@@ -2669,7 +2669,7 @@ void MakeDestPath(const char *file)
 //-------------------------------------------------------------------------
 // ShowMemory()
 //-------------------------------------------------------------------------
-void ShowMemory(void)
+void ShowMemory()
 {
 	Sint32 psize,size;
 

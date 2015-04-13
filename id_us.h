@@ -95,7 +95,7 @@ struct US_CursorStruct {
 //	Hack import for TED launch support
 //extern	boolean		tedlevel;
 //extern	Uint16		tedlevelnum;		 
-extern	void		TEDDeath(void);
+extern	void		TEDDeath();
 
 extern	boolean		ingame,		// Set by game code if a game is in progress
 					abortgame,	// Set if a game load failed
@@ -116,7 +116,7 @@ extern	void		(*USL_MeasureString)(const char*, int*, int*),
 					(*USL_DrawString)(const char*);
 
 extern	boolean		(*USL_SaveGame)(Sint16),(*USL_LoadGame)(Sint16);
-extern	void		(*USL_ResetGame)(void);
+extern	void		(*USL_ResetGame)();
 extern	SaveGame	Games[MaxSaveGames];
 extern	HighScore	Scores[];
 
@@ -125,21 +125,21 @@ extern boolean use_custom_cursor;				// JAM
 
 #define	US_HomeWindow()	{PrintX = WindowX; PrintY = WindowY;}
 
-extern	void	US_Startup(void),
-				US_Setup(void),
-				US_Shutdown(void),
+extern	void	US_Startup(),
+				US_Setup(),
+				US_Shutdown(),
 				US_InitRndT(boolean randomize),
 				US_SetLoadSaveHooks(boolean (*load)(Sint16),
 									boolean (*save)(Sint16),
-									void (*reset)(void)),
-				US_TextScreen(void),
-				US_UpdateTextScreen(void),
-				US_FinishTextScreen(void),
+									void (*reset)()),
+				US_TextScreen(),
+				US_UpdateTextScreen(),
+				US_FinishTextScreen(),
 				US_DrawWindow(Uint16 x,Uint16 y,Uint16 w,Uint16 h),
 				US_CenterWindow(Uint16,Uint16),
 				US_SaveWindow(WindowRec *win),
 				US_RestoreWindow(WindowRec *win),
-				US_ClearWindow(void),
+				US_ClearWindow(),
 				US_SetPrintRoutines(void (*measure)(char *,Uint16 *,Uint16 *),
 									void (*print)(char *)),
 				US_PrintCentered(const char *s),
@@ -148,16 +148,16 @@ extern	void	US_Startup(void),
 				US_Print(const char *s),
 				US_PrintUnsigned(Uint32 n),
 				US_PrintSigned(Sint32 n),
-				US_StartCursor(void),
-				US_ShutCursor(void),
+				US_StartCursor(),
+				US_ShutCursor(),
 				US_CheckHighScore(Sint32 score,Uint16 other),
 				US_DisplayHighScores(Sint16 which);
-extern	boolean	US_UpdateCursor(void),
+extern	boolean	US_UpdateCursor(),
 				US_LineInput(Sint16 x,Sint16 y,char *buf,char *def,boolean escok,
 								Sint16 maxchars,Sint16 maxwidth);
 extern	Sint16		US_CheckParm(const char *parm,const char **strings),
 
-				US_RndT(void);
+				US_RndT();
 
 		void	USL_PrintInCenter(const char *s,Rect r);
 		char 	*USL_GiveSaveName(Uint16 game);

@@ -329,27 +329,27 @@ extern	Uint16		DemoOffset,DemoSize;
 							if (code == LastScan) LastScan = sc_none;}
 
 // DEBUG - put names in prototypes
-extern	void		IN_Startup(void),IN_Shutdown(void),
+extern	void		IN_Startup(),IN_Shutdown(),
 					IN_Default(boolean gotit,ControlType in),
 					IN_SetKeyHook(void (*)()),
-					IN_ClearKeysDown(void),
+					IN_ClearKeysDown(),
 					IN_ReadCursor(CursorInfo *),
 					IN_ReadControl(Sint16,ControlInfo *),
 					IN_SetControlType(Sint16,ControlType),
 					IN_GetJoyAbs(Uint16 joy,Uint16 *xp,Uint16 *yp),
 					IN_SetupJoy(Uint16 joy,Uint16 minx,Uint16 maxx,
 								Uint16 miny,Uint16 maxy),
-					IN_StopDemo(void),IN_FreeDemoBuffer(void),
-					IN_Ack(void),IN_AckBack(void);
+					IN_StopDemo(),IN_FreeDemoBuffer(),
+					IN_Ack(),IN_AckBack();
 extern	boolean		IN_UserInput(Uint32 delay);
-extern	char		IN_WaitForASCII(void);
-extern	ScanCode	IN_WaitForKey(void);
+extern	char		IN_WaitForASCII();
+extern	ScanCode	IN_WaitForKey();
 extern	Uint16		IN_GetJoyButtonsDB(Uint16 joy);
 extern	Uint8		*IN_GetScanName(ScanCode);
 
 
-Uint8	IN_MouseButtons (void);
-Uint8	IN_JoyButtons (void);
+Uint8	IN_MouseButtons ();
+Uint8	IN_JoyButtons ();
 
 
 // BBi

@@ -109,7 +109,7 @@ Free Software Foundation, Inc.,
 
 void VWL_MeasureString (const char* string, int* width, int* height, fontstruct* font);
 void VH_UpdateScreen();
-void ClearMemory (void);
+void ClearMemory ();
 
 
 //#define DRAW_TO_FRONT

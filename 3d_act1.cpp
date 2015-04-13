@@ -255,7 +255,7 @@ stattype statinfo[] =
 ===============
 */
 
-void InitStaticList (void)
+void InitStaticList ()
 {
 	laststatobj = &statobjlist[0];
 }
@@ -289,7 +289,7 @@ statobj_t *FindStatic(Uint16 tilex, Uint16 tiley)
 // RETURNS: Ptr == Pointer to empty static obj.
 //          NULL == static objlist full.
 //---------------------------------------------------------------------------
-statobj_t *FindEmptyStatic(void)
+statobj_t *FindEmptyStatic()
 {
 	statobj_t	*spot;
 
@@ -439,7 +439,7 @@ void SpawnStatic (Sint16 tilex, Sint16 tiley, Sint16 type)
 // Reserves a static object at location 0,0 (unseen).  This function is
 // used to gaurantee that a static will be available.
 //---------------------------------------------------------------------------
-statobj_t  *ReserveStatic(void)
+statobj_t  *ReserveStatic()
 {
 	statobj_t	*spot;
 
@@ -463,7 +463,7 @@ statobj_t  *ReserveStatic(void)
 // Finds a Reserved static object at location 0,0 (unseen).  This function is
 // used to gaurantee that a static will be available.
 //---------------------------------------------------------------------------
-statobj_t  *FindReservedStatic(void)
+statobj_t  *FindReservedStatic()
 {
 	statobj_t	*spot;
 
@@ -789,7 +789,7 @@ void RecursiveConnect (Sint16 areanumber)
 }
 
 
-void ConnectAreas (void)
+void ConnectAreas ()
 {
 	memset (areabyplayer,0,sizeof(areabyplayer));
 	areabyplayer[player->areanumber] = true;
@@ -797,7 +797,7 @@ void ConnectAreas (void)
 }
 
 
-void InitAreas (void)
+void InitAreas ()
 {
 	memset (areabyplayer,0,sizeof(areabyplayer));
 	areabyplayer[player->areanumber] = true;
@@ -813,7 +813,7 @@ void InitAreas (void)
 ===============
 */
 
-void InitDoorList (void)
+void InitDoorList ()
 {
 	memset (areabyplayer,0,sizeof(areabyplayer));
 	memset (areaconnect,0,sizeof(areaconnect));
@@ -1339,7 +1339,7 @@ void BlastNearDoors(Sint16 tilex, Sint16 tiley)
 //--------------------------------------------------------------------------
 // DropPlasmaDetonator()  - Will move a Chaff from reserve to the player location.
 //--------------------------------------------------------------------------
-void DropPlasmaDetonator(void)
+void DropPlasmaDetonator()
 {
 	objtype *obj;
 
@@ -1362,7 +1362,7 @@ void DropPlasmaDetonator(void)
 // TryDropPlasmaDetonator()  - Will check to see if player is close enough to
 //										 drop a detonator.
 //--------------------------------------------------------------------------
-void TryDropPlasmaDetonator(void)
+void TryDropPlasmaDetonator()
 {
 	#define MAX_RANGE_DIST        2
 	objtype *obj;
@@ -1614,7 +1614,7 @@ void DoorClosing (Sint16 door)
 =
 =====================
 */
-void MoveDoors (void)
+void MoveDoors ()
 {
 	Sint16		door;
 
@@ -1735,7 +1735,7 @@ void PushWall (Sint16 checkx, Sint16 checky, Sint16 dir)
 =================
 */
 
-void MovePWalls (void)
+void MovePWalls ()
 {
 	Sint16		oldblock,oldtile;
 
@@ -2383,7 +2383,7 @@ void CheckSpawnEA()
 //--------------------------------------------------------------------------
 // CheckSpawnGoldstern()
 //--------------------------------------------------------------------------
-void CheckSpawnGoldstern(void)
+void CheckSpawnGoldstern()
 {
 	if (GoldsternInfo.WaitTime > tics)
 	{
@@ -2426,7 +2426,7 @@ void CheckSpawnGoldstern(void)
 //---------------------------------------------------------------------------
 // FindNewGoldieSpawnSite()
 //---------------------------------------------------------------------------
-void FindNewGoldieSpawnSite(void)
+void FindNewGoldieSpawnSite()
 {
 	objtype temp;
 	char loop;

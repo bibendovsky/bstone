@@ -1326,7 +1326,7 @@ void Chip::Setup( Bit32u rate ) {
 }
 
 static bool doneTables = false;
-void InitTables( void ) {
+void InitTables() {
 	if ( doneTables )
 		return;
 	doneTables = true;
