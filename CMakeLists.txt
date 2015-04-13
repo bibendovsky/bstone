@@ -14,6 +14,10 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(BSTONE_IS_GNU "TRUE")
 endif ()
 
+if (NOT MSVC)
+    add_compile_options("-std=c++11")
+endif ()
+
 if (MSVC)
     # Definitions
     add_definitions("-D_CRT_SECURE_NO_WARNINGS")
