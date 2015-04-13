@@ -3781,10 +3781,8 @@ struct atkinf_t {
 enum movie_t {
     mv_intro,
     mv_final,
-#ifdef BSTONE_AOG
-    mv_final2, // Episode 3/5
-    mv_final3, // Episode 6
-#endif
+    mv_final2, // AOG Episode 3/5
+    mv_final3, // AOG Episode 6
     mv_NUM_MOVIES
 }; // enum movie_t
 
