@@ -28,7 +28,7 @@ Free Software Foundation, Inc.,
 // UNIT : JM_CIO.h
 //
 // FUNCTION : General defines, prototypes, typedefs used in all the
-//                                supported compression techniques used in JAMPAK Ver x.x
+// supported compression techniques used in JAMPAK Ver x.x
 //
 //
 
@@ -43,7 +43,7 @@ Free Software Foundation, Inc.,
 
 // ==========================================================================
 //
-//                                                              PARAMETER PASSING TYPES
+// PARAMETER PASSING TYPES
 //
 //
 // SOURCE PARAMS (LO BYTE)
@@ -68,7 +68,7 @@ Free Software Foundation, Inc.,
 
 // =========================================================================
 //
-//                                                              FILE CHUNK IDs
+// FILE CHUNK IDs
 //
 // NOTE: The only reason for changing from COMP to CMP1 and having multi
 //                      comp header structs is for downward compatablity.
@@ -82,8 +82,8 @@ Free Software Foundation, Inc.,
 //      COMPRESSION TYPES
 //
 typedef enum ct_TYPES {
-    ct_NONE = 0,                                                        // No compression - Just data..Rarely used!
-    ct_LZW,                                                                     // LZW data compression
+    ct_NONE = 0, // No compression - Just data..Rarely used!
+    ct_LZW, // LZW data compression
     ct_LZH
 
 } ct_TYPES;
@@ -98,9 +98,9 @@ struct COMPStruct {
 
 
 struct JAMPHeader {
-    Uint32 OriginalLen;                         // Original FileLength of compressed Data.
-    ct_TYPES CompType;                                          // SEE: ct_TYPES above for list of pos.
-    Uint32 CompressLen;                         // Length of data after compression (A MUST for LZHUFF!)
+    Uint32 OriginalLen; // Original FileLength of compressed Data.
+    ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
+    Uint32 CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };
 
 
@@ -119,7 +119,7 @@ struct CompHeader_t {
 
 // ---------------------------------------------------------------------------
 //
-//                                                              FUNCTION PROTOTYPEING
+// FUNCTION PROTOTYPEING
 //
 // ---------------------------------------------------------------------------
 

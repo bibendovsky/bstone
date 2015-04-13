@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 
 // ===========================================================================
 //
-//                                                      PROTOTYPES
+// PROTOTYPES
 //
 // ===========================================================================
 
@@ -50,7 +50,7 @@ void HealSelf(
 
 // ===========================================================================
 //
-//                                                      LOCALS
+// LOCALS
 //
 // ===========================================================================
 
@@ -61,151 +61,151 @@ concession_t ConHintList = { 0 };
 /*
 =============================================================================
 
-                                                        STATICS
+ STATICS
 
 =============================================================================
 */
 statobj_t statobjlist[MAXSTATS], * laststatobj;
 
 stattype statinfo[] = {
-    { SPR_STAT_0, bo_water_puddle },    // Water Puddle                                 SPR1V
-    { SPR_STAT_1, block },                              // Containment Canister
-    { SPR_STAT_2, block },                              // Lunch Table
-    { SPR_STAT_3, block },                              // Floor Lamp
-    { SPR_STAT_4, block },                              // Lab Table
-    { SPR_STAT_5, block },                              // Pillar
-    { SPR_STAT_6 },                                             // Blood Puddle
-    { SPR_STAT_7 },                                             // Piss Puddle
+    { SPR_STAT_0, bo_water_puddle }, // Water Puddle SPR1V
+    { SPR_STAT_1, block }, // Containment Canister
+    { SPR_STAT_2, block }, // Lunch Table
+    { SPR_STAT_3, block }, // Floor Lamp
+    { SPR_STAT_4, block }, // Lab Table
+    { SPR_STAT_5, block }, // Pillar
+    { SPR_STAT_6 }, // Blood Puddle
+    { SPR_STAT_7 }, // Piss Puddle
 
-    { SPR_STAT_8, block },                              // Ficus Tree                                           SPR2V
-    { SPR_STAT_9 },                                             // Half-Eaten Corpse
-    { SPR_STAT_10, block },                             // Water Fountain
-    { SPR_STAT_11, block },                             // Plant 1
-    { SPR_STAT_12, block },                             // Vase
-    { SPR_STAT_13, block },                             // General Table
-    { SPR_STAT_14 },                                            // Ceiling Light
-    { SPR_STAT_15, block },                             // General Chair
+    { SPR_STAT_8, block }, // Ficus Tree SPR2V
+    { SPR_STAT_9 }, // Half-Eaten Corpse
+    { SPR_STAT_10, block }, // Water Fountain
+    { SPR_STAT_11, block }, // Plant 1
+    { SPR_STAT_12, block }, // Vase
+    { SPR_STAT_13, block }, // General Table
+    { SPR_STAT_14 }, // Ceiling Light
+    { SPR_STAT_15, block }, // General Chair
 
-    { SPR_STAT_16, block },                     // Kitchen Trash                                        SPR3V
-    { SPR_STAT_17 },                                            // Office Trash
-    { SPR_STAT_18, block },                             // Plant 2
-    { SPR_STAT_19, block },                             // Gurney No-Blood
-    { SPR_STAT_20 },                                            // Indirect Half-Sphere
-    { SPR_STAT_21 },                                            // Exit Sign
-    { SPR_STAT_22 },                                            // Transporter
-    { SPR_STAT_23, block },                             // Body Can
+    { SPR_STAT_16, block }, // Kitchen Trash SPR3V
+    { SPR_STAT_17 }, // Office Trash
+    { SPR_STAT_18, block }, // Plant 2
+    { SPR_STAT_19, block }, // Gurney No-Blood
+    { SPR_STAT_20 }, // Indirect Half-Sphere
+    { SPR_STAT_21 }, // Exit Sign
+    { SPR_STAT_22 }, // Transporter
+    { SPR_STAT_23, block }, // Body Can
 
-    { SPR_STAT_24, bo_pistol },                 // PISTOL                                                       SPR4V
-    { SPR_STAT_25, block },                             // Statue
+    { SPR_STAT_24, bo_pistol }, // PISTOL SPR4V
+    { SPR_STAT_25, block }, // Statue
 
-    { SPR_STAT_31, bo_clip },                   // Charge Unit
+    { SPR_STAT_31, bo_clip }, // Charge Unit
 
-    { SPR_STAT_27, bo_burst_rifle },    // Auto-Burst Rifle
-    { SPR_STAT_28, bo_ion_cannon },     // Particle Charged ION
-    { SPR_STAT_29, bo_firstaid },               // First Aid
+    { SPR_STAT_27, bo_burst_rifle }, // Auto-Burst Rifle
+    { SPR_STAT_28, bo_ion_cannon }, // Particle Charged ION
+    { SPR_STAT_29, bo_firstaid }, // First Aid
 #ifdef BSTONE_AOG
     { 0, bo_nothing },
 #else
-    { SPR_VSPIKE8, block },                             // Static VSPIKE
+    { SPR_VSPIKE8, block }, // Static VSPIKE
 #endif
 
-    { SPR_STAT_26, bo_clip2 },                  // Big Charge pack/clip
+    { SPR_STAT_26, bo_clip2 }, // Big Charge pack/clip
 
-    { SPR_STAT_32, bo_red_key },                // Red Key                                              SPR5V
-    { SPR_STAT_33, bo_yellow_key },     // Yellow Key
+    { SPR_STAT_32, bo_red_key }, // Red Key SPR5V
+    { SPR_STAT_33, bo_yellow_key }, // Yellow Key
 #ifdef BSTONE_AOG
     { SPR_STAT_34, bo_green_key }, // Green Key
 #else
     { SPR_STAT_34, bo_bfg_cannon }, // BFG Cannon
 #endif
-    { SPR_STAT_35, bo_blue_key },               // Blue Key
+    { SPR_STAT_35, bo_blue_key }, // Blue Key
 #ifdef BSTONE_AOG
     { SPR_STAT_36, bo_gold_key }, // Gold Key
 #else
-    { SPR_STAT_36 },                                            // OPEN
+    { SPR_STAT_36 }, // OPEN
 #endif
-    { SPR_STAT_37, block },                             // Office Desk
-    { SPR_STAT_38, block },                             // Office Chair
-    { SPR_STAT_39, block },                             // Security Desk
+    { SPR_STAT_37, block }, // Office Desk
+    { SPR_STAT_38, block }, // Office Chair
+    { SPR_STAT_39, block }, // Security Desk
 
-    { SPR_STAT_40, bo_water },                  // Full Water Bowl                              SPR7V
-    { SPR_STAT_41 },                                            // Empty Water Bowl
-    { SPR_STAT_42, bo_chicken },                // Chicken Leg
-    { SPR_STAT_43 },                                            // Chicken Bone
-    { SPR_STAT_44, bo_ham },                    // Ham
-    { SPR_STAT_45 },                                            // Ham Bone
-    { SPR_STAT_46, bo_grenade },                // Grande Launcher
-    { SPR_STAT_47 },                                            // Video Game Machine
+    { SPR_STAT_40, bo_water }, // Full Water Bowl SPR7V
+    { SPR_STAT_41 }, // Empty Water Bowl
+    { SPR_STAT_42, bo_chicken }, // Chicken Leg
+    { SPR_STAT_43 }, // Chicken Bone
+    { SPR_STAT_44, bo_ham }, // Ham
+    { SPR_STAT_45 }, // Ham Bone
+    { SPR_STAT_46, bo_grenade }, // Grande Launcher
+    { SPR_STAT_47 }, // Video Game Machine
 
 #ifdef BSTONE_AOG
     { 0, bo_nothing },
 #else
-    { SPR_VPOST8, block },                              // Static VPOST
+    { SPR_VPOST8, block }, // Static VPOST
 #endif
 
-//                              -- VARIOUS --
+// -- VARIOUS --
 
-    { SPR_GURNEY_MUT_READY, block },    // 49 Gurney Mutant
-    { SPR_LCAN_ALIEN_READY, block },    // 50 Large     Alien Canister
-    { SPR_SCAN_ALIEN_READY, block },    // 51 Small Alien Canister
+    { SPR_GURNEY_MUT_READY, block }, // 49 Gurney Mutant
+    { SPR_LCAN_ALIEN_READY, block }, // 50 Large     Alien Canister
+    { SPR_SCAN_ALIEN_READY, block }, // 51 Small Alien Canister
 
-    { SPR_GURNEY_MUT_EMPTY, block },    // 52 Gurney Mutant
-    { SPR_LCAN_ALIEN_EMPTY, block },    // 53 Large     Alien Canister
+    { SPR_GURNEY_MUT_EMPTY, block }, // 52 Gurney Mutant
+    { SPR_LCAN_ALIEN_EMPTY, block }, // 53 Large     Alien Canister
     { SPR_SCAN_ALIEN_EMPTY, block }, // 54 Small Alien Canister
 
-    { SPR_OFC_DEAD },                                   // 55 Dead Gen Sci.
+    { SPR_OFC_DEAD }, // 55 Dead Gen Sci.
 
-    { 0 },                                                                      // 56 Spacer
+    { 0 }, // 56 Spacer
 
-    { SPR_AIR_VENT, bo_plainvent },     // 57 Plain air vent
-    { SPR_AIR_VENT, bo_bloodvent },     // 58 Blood air vent
-    { SPR_AIR_VENT, bo_watervent },     // 59 Water air vent
-    { SPR_GRATE },                                              // 60 Floor Grate
-    { SPR_STEAM_PIPE },                                         // 61 Steam Pipe
+    { SPR_AIR_VENT, bo_plainvent }, // 57 Plain air vent
+    { SPR_AIR_VENT, bo_bloodvent }, // 58 Blood air vent
+    { SPR_AIR_VENT, bo_watervent }, // 59 Water air vent
+    { SPR_GRATE }, // 60 Floor Grate
+    { SPR_STEAM_PIPE }, // 61 Steam Pipe
 
-    { SPR_STAT_48, bo_money_bag },      // 62 money bag
-    { SPR_STAT_49, bo_loot },                   // 63 loot
-    { SPR_STAT_50, bo_gold },                   // 64 gold
-    { SPR_STAT_51, bo_bonus },                  // 65 bonus
+    { SPR_STAT_48, bo_money_bag }, // 62 money bag
+    { SPR_STAT_49, bo_loot }, // 63 loot
+    { SPR_STAT_50, bo_gold }, // 64 gold
+    { SPR_STAT_51, bo_bonus }, // 65 bonus
 
-    { SPR_STAT_52, block },                     // 66 Greek Post
-    { SPR_STAT_53, block },                     // 67 Red/Blue post
-    { SPR_STAT_54, block },                     // 68 Red HiTech Post
-    { SPR_STAT_55 },                                            // 69 Ceiling Lamp #2
-    { SPR_STAT_56 },                                            // 70 Ceiling Lamp #3
-    { SPR_STAT_57 },                                            // 71 Body Parts
-    { SPR_STAT_58 },                                            // 72 OR Lamp
-    { SPR_STAT_59, block },                             // 73 Office Sink
-    { SPR_STAT_57, dressing },                                  // EMPTY - Copy of 71 - Body Parts...
-    { SPR_CANDY_BAR, bo_candybar },     // 75 candy bar
-    { SPR_SANDWICH, bo_sandwich },      // 76 sandwich
-    { SPR_CRATE_1, block },                             // 77 Crate #1
-    { SPR_CRATE_2, block },                             // 78 Crate #2
-    { SPR_CRATE_3, block },                             // 79 Crate #3
-    { SPR_STAT_61, block },                             //      80 Table
-    { SPR_STAT_62, block },                             //      81 Chair
-    { SPR_STAT_63, block },                             //      82 Stool
-    { SPR_STAT_64 },                                            //      83 Gore
+    { SPR_STAT_52, block }, // 66 Greek Post
+    { SPR_STAT_53, block }, // 67 Red/Blue post
+    { SPR_STAT_54, block }, // 68 Red HiTech Post
+    { SPR_STAT_55 }, // 69 Ceiling Lamp #2
+    { SPR_STAT_56 }, // 70 Ceiling Lamp #3
+    { SPR_STAT_57 }, // 71 Body Parts
+    { SPR_STAT_58 }, // 72 OR Lamp
+    { SPR_STAT_59, block }, // 73 Office Sink
+    { SPR_STAT_57, dressing }, // EMPTY - Copy of 71 - Body Parts...
+    { SPR_CANDY_BAR, bo_candybar }, // 75 candy bar
+    { SPR_SANDWICH, bo_sandwich }, // 76 sandwich
+    { SPR_CRATE_1, block }, // 77 Crate #1
+    { SPR_CRATE_2, block }, // 78 Crate #2
+    { SPR_CRATE_3, block }, // 79 Crate #3
+    { SPR_STAT_61, block }, //      80 Table
+    { SPR_STAT_62, block }, //      81 Chair
+    { SPR_STAT_63, block }, //      82 Stool
+    { SPR_STAT_64 }, //      83 Gore
 
-    { SPR_STAT_65, bo_gold3 },                  // Gold 3
-    { SPR_STAT_66, bo_gold2 },                  // Gold 2
-    { SPR_STAT_67, bo_gold1 },                  // Gold 1
+    { SPR_STAT_65, bo_gold3 }, // Gold 3
+    { SPR_STAT_66, bo_gold2 }, // Gold 2
+    { SPR_STAT_67, bo_gold1 }, // Gold 1
 
-    { SPR_STAT_68, block },                             //
-    { SPR_STAT_69, block },                             //
-    { SPR_STAT_70, block },                             //
-    { SPR_STAT_71, block },                             //
-    { SPR_STAT_72, block },                             //
-    { SPR_STAT_73 },                                            //
-    { SPR_STAT_74 },                                            //
-    { SPR_STAT_75 },                                            //
-    { SPR_STAT_76 },                                            //
+    { SPR_STAT_68, block }, //
+    { SPR_STAT_69, block }, //
+    { SPR_STAT_70, block }, //
+    { SPR_STAT_71, block }, //
+    { SPR_STAT_72, block }, //
+    { SPR_STAT_73 }, //
+    { SPR_STAT_74 }, //
+    { SPR_STAT_75 }, //
+    { SPR_STAT_76 }, //
 
-    { SPR_RENT_DEAD },                                          //
-    { SPR_PRO_DEAD },                                   //
-    { SPR_SWAT_DEAD },                                          //
-    { SPR_GSCOUT_DEAD },                                //
-    { SPR_FSCOUT_DEAD },                                //
+    { SPR_RENT_DEAD }, //
+    { SPR_PRO_DEAD }, //
+    { SPR_SWAT_DEAD }, //
+    { SPR_GSCOUT_DEAD }, //
+    { SPR_FSCOUT_DEAD }, //
     { SPR_MUTHUM1_DEAD },
 #ifdef BSTONE_AOG
     { 0, bo_nothing },
@@ -217,9 +217,9 @@ stattype statinfo[] = {
     { SPR_GURNEY_MUT_DEAD },
     { SPR_TERROT_DEAD },
     { SPR_POD_DIE3 },
-    { SPR_STAT_77, bo_coin },                   // Concession Machine Money
-    { SPR_STAT_78, bo_coin5 },                  // Concession Machine Money
-    { SPR_STAT_79 },                                            // Auto-Charge Pistol
+    { SPR_STAT_77, bo_coin }, // Concession Machine Money
+    { SPR_STAT_78, bo_coin5 }, // Concession Machine Money
+    { SPR_STAT_79 }, // Auto-Charge Pistol
 
 #ifdef BSTONE_AOG
     { 0, bo_nothing },
@@ -233,20 +233,20 @@ stattype statinfo[] = {
     { 0, bo_nothing },
     { 0, bo_nothing },
 #else
-    { SPR_DOORBOMB, bo_plasma_detonator },              // Plasma Detonator
-    { SPR_RUBBLE },                                                     // Door Rubble
-    { SPR_AUTOMAPPER, bo_automapper1 },         // Auto Mapper Bonus #1
-    { SPR_BONZI_TREE, block },                          // BonziTree
-    { SPR_POT_PLANT, block },                           // Yellow Potted Plant
-    { SPR_TUBE_PLANT, block },                          // Tube Plant
-    { SPR_HITECH_CHAIR, block },                        // Hi Tech table and chair
-    { SPR_DEAD_RENT },                                          // Dead AOG: Rent A Cop
-    { SPR_DEAD_PRO },                                   // Dead AOG: Pro Guard
-    { SPR_DEAD_SWAT },                                          // Dead AOG: Swat Guad
+    { SPR_DOORBOMB, bo_plasma_detonator }, // Plasma Detonator
+    { SPR_RUBBLE }, // Door Rubble
+    { SPR_AUTOMAPPER, bo_automapper1 }, // Auto Mapper Bonus #1
+    { SPR_BONZI_TREE, block }, // BonziTree
+    { SPR_POT_PLANT, block }, // Yellow Potted Plant
+    { SPR_TUBE_PLANT, block }, // Tube Plant
+    { SPR_HITECH_CHAIR, block }, // Hi Tech table and chair
+    { SPR_DEAD_RENT }, // Dead AOG: Rent A Cop
+    { SPR_DEAD_PRO }, // Dead AOG: Pro Guard
+    { SPR_DEAD_SWAT }, // Dead AOG: Swat Guad
 #endif
 
 
-    { -1 }                                                                      // terminator
+    { -1 } // terminator
 
 };
 
@@ -268,7 +268,7 @@ void InitStaticList()
 // FindStatic()
 //
 // FUNCTION: Searches the stat obj list and returns ptr to a static obj
-//                               at a particular tile x & tile y coords.
+//           at a particular tile x & tile y coords.
 //
 // RETURNS: Ptr == Pointer to static obj.
 //          NULL == No static found.
@@ -292,7 +292,7 @@ statobj_t* FindStatic(
 // FindEmptyStatic()
 //
 // FUNCTION: Searches the stat obj list and returns ptr to an empty
-//                               static object.
+//          static object.
 //
 // RETURNS: Ptr == Pointer to empty static obj.
 //          NULL == static objlist full.
@@ -306,11 +306,11 @@ statobj_t* FindEmptyStatic()
             if (spot == &statobjlist[MAXSTATS]) {
                 return NULL;
             }
-            laststatobj++;                                                      // space at end
+            laststatobj++; // space at end
             break;
         }
 
-        if (spot->shapenum == -1) {                                     // -1 is a free spot
+        if (spot->shapenum == -1) { // -1 is a free spot
             break;
         }
     }
@@ -364,11 +364,11 @@ void SpawnStatic(
 
     switch (spot->shapenum) {
 #if GAME_VERSION != SHAREWARE_VERSION
-    case SPR_STAT_3:                            // floor lamp
+    case SPR_STAT_3: // floor lamp
 #endif
-    case SPR_STAT_14:                   // ceiling light
+    case SPR_STAT_14: // ceiling light
 #if GAME_VERSION != SHAREWARE_VERSION
-    case SPR_STAT_20:                   //
+    case SPR_STAT_20: //
 #endif
     case SPR_STAT_47:
     case SPR_STAT_51:
@@ -482,7 +482,7 @@ statobj_t* FindReservedStatic()
     statobj_t* spot;
 
     for (spot = &statobjlist[0]; spot < &statobjlist[MAXSTATS]; spot++) {
-        if (spot->shapenum == 1 && (!spot->tilex) && (!spot->tiley)) {                                  // -1 is a free spot
+        if (spot->shapenum == 1 && (!spot->tilex) && (!spot->tiley)) { // -1 is a free spot
             return spot;
         }
     }
@@ -519,11 +519,11 @@ statobj_t* UseReservedStatic(
     //
 
     for (type = 0;; type++) {
-        if (statinfo[type].picnum == -1) {                      // End of Static List...
+        if (statinfo[type].picnum == -1) { // End of Static List...
             ACT1_ERROR(PLACEITEMTYPE_NO_TYPE);
         }
 
-        if (statinfo[type].type == itemtype) {          // Bingo, Found it!
+        if (statinfo[type].type == itemtype) { // Bingo, Found it!
             break;
         }
     }
@@ -580,7 +580,7 @@ void PlaceReservedItemNearTile(
         char x = static_cast<char>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<char>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
         if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
-            if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) {                   // Check for a SOLID static
+            if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
                 continue;
             }
 
@@ -618,7 +618,7 @@ void PlaceItemType(
 // find the item number
 //
     for (type = 0;; type++) {
-        if (statinfo[type].picnum == -1) {                      // end of list
+        if (statinfo[type].picnum == -1) { // end of list
             ACT1_ERROR(PLACEITEMTYPE_NO_TYPE);
         }
         if (statinfo[type].type == itemtype) {
@@ -670,7 +670,7 @@ void PlaceItemNearTile(
         char x = static_cast<char>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<char>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
         if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
-            if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) {                   // Check for a SOLID static
+            if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
                 continue;
             }
 
@@ -756,7 +756,7 @@ void ExplodeStatics(
 /*
 =============================================================================
 
-                                                        DOORS
+ DOORS
 
 doorobjlist[] holds most of the information for the doors
 
@@ -874,14 +874,14 @@ void SpawnDoor(
         ACT1_ERROR(SPAWNDOOR_TOO_MANY);
     }
 
-    doorposition[doornum] = 0;                  // doors start out fully closed
+    doorposition[doornum] = 0; // doors start out fully closed
     lastdoorobj->tilex = static_cast<Uint8>(tilex);
     lastdoorobj->tiley = static_cast<Uint8>(tiley);
     lastdoorobj->vertical = vertical;
     lastdoorobj->lock = lock;
     lastdoorobj->type = type;
     lastdoorobj->action = dr_closed;
-    lastdoorobj->flags = DR_BLASTABLE;          // JIM - Do something with this! jdebug
+    lastdoorobj->flags = DR_BLASTABLE; // JIM - Do something with this! jdebug
 
     if (vertical) {
         lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<char>(tilex + 1), static_cast<char>(tiley));
@@ -1003,9 +1003,9 @@ void OpenDoor(
     }
 
     if (doorobjlist[door].action == dr_open) {
-        doorobjlist[door].ticcount = 0;                         // reset open time
+        doorobjlist[door].ticcount = 0; // reset open time
     } else {
-        doorobjlist[door].action = dr_opening;          // start it opening
+        doorobjlist[door].action = dr_opening; // start it opening
 
     }
     CheckLinkedDoors(door, dr_opening);
@@ -1668,7 +1668,7 @@ void MoveDoors()
 /*
 =============================================================================
 
-                                                PUSHABLE WALLS
+ PUSHABLE WALLS
 
 =============================================================================
 */
@@ -1945,10 +1945,10 @@ void CacheMsg(
 // the memory address provided.  Memory allocation and handleing prior and
 // after this function usage is responsiblity of the calling function(s).
 //
-// PARAMS:  hint_buffer         - Destination address to store message
-//                         SegNum                  - GrSeg for messages in VGAGRAPH.BS?
-//                         MsgNum                       - Message number to load
-//                              MaxMsgLen               - Max len of cache msg (Len of hint_buffer)
+// PARAMS:  hint_buffer - Destination address to store message
+//          SegNum - GrSeg for messages in VGAGRAPH.BS?
+//          MsgNum - Message number to load
+//          MaxMsgLen - Max len of cache msg (Len of hint_buffer)
 //
 // RETURNS : Returns the length of the loaded message
 // ---------------------------------------------------------------------------
@@ -2001,7 +2001,7 @@ Sint16 LoadMsg(
         Message++;
     }
 
-    hint_buffer[pos] = 0;               // Null Terminate
+    hint_buffer[pos] = 0; // Null Terminate
     UNCACHEGRCHUNK(SegNum);
 
     return pos;
@@ -2080,7 +2080,7 @@ void CacheMsg(
 /*
 =============================================================================
 
-                                                        CONCESSION MACHINES
+ CONCESSION MACHINES
 
 =============================================================================
 */
@@ -2106,18 +2106,18 @@ void SpawnConcession(
         switch (credits & 0xff00) {
         case 0:
 #ifdef CON_HINTS
-        case 0xFD00:                                                                                                    // Hint Id
+        case 0xFD00: // Hint Id
             ci->mInfo.global_val = credits & 0xff;
             ci->mInfo.local_val = 0xff;
             ci->operate_cnt = 3 + (US_RndT() & 0x03);
             if ((credits != 0xFDFF) && (credits)) {
                 CacheConcessionMsg();
             }
-            ci->type = CT_HINT;                                                                          // Force to Hint Type
+            ci->type = CT_HINT; // Force to Hint Type
             break;
 #endif
 
-        case 0xFC00:                                                                                                    // Food Id
+        case 0xFC00: // Food Id
             ci->mInfo.local_val = credits & 0xff;
             ci->operate_cnt = 0;
             ci->type = static_cast<Uint8>(machinetype);
@@ -2265,7 +2265,7 @@ void OperateConcession(
                 msgptr = ConHintList.cmInfo[ci->mInfo.local_val].mInfo.mSeg;
                 DISPLAY_TIMED_MSG(msgptr, MP_CONCESSION_HINT, MT_GENERAL);
             }
-            ci->mInfo.local_val = 0;                                                    // Mark as Out Of Order
+            ci->mInfo.local_val = 0; // Mark as Out Of Order
             break;
 #endif
         case CT_FOOD:
@@ -2310,7 +2310,7 @@ void OperateConcession(
 }
 
 char xy_offset[8][2] = { { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
-                         { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 } };                              // diagnals
+                         { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 } }; // diagnals
 
 // --------------------------------------------------------------------------
 // CheckSpawnEA()
@@ -2504,9 +2504,9 @@ void FindNewGoldieSpawnSite()
         if (gamestate.mapon == 9) {
             GoldsternInfo.WaitTime = 60;
         } else if (GoldsternInfo.flags == GS_FIRSTTIME) {
-            GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT - MIN_GOLDIE_FIRST_WAIT);                             // Reinit Delay Timer before spawning on new position
+            GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT - MIN_GOLDIE_FIRST_WAIT); // Reinit Delay Timer before spawning on new position
         } else {
-            GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT);                               // Reinit Delay Timer before spawning on new position
+            GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
 
         }
         GoldsternInfo.flags = GS_COORDFOUND;

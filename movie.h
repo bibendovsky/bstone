@@ -52,12 +52,12 @@ struct anim_chunk {
 //   MovieStuff Anim Stucture...
 //
 //
-//  fname                       -- File Name of the Anim to be played..
-//       rep                            -- Number of repetitions to play the anim
-//       ticdelay               -- Tic wait between frames
-//  maxmembuffer        -- Maximum ammount to use as a ram buffer
-//  start_line  -- Starting line of screen to copy to other pages
-//  end_line    -- Ending line  "   "   "   "   "   "   "   "
+//  fname -- File Name of the Anim to be played..
+//  rep -- Number of repetitions to play the anim
+//  ticdelay -- Tic wait between frames
+//  maxmembuffer -- Maximum ammount to use as a ram buffer
+//  start_line -- Starting line of screen to copy to other pages
+//  end_line -- Ending line  "   "   "   "   "   "   "   "
 //
 struct MovieStuff_t {
     char FName[13];
@@ -75,7 +75,7 @@ struct MovieStuff_t {
 
 // =========================================================================
 //
-//                                                                                      EXTERNS
+// EXTERNS
 //
 // =========================================================================
 
@@ -84,7 +84,7 @@ extern MovieStuff_t Movies[];
 
 // ===========================================================================
 //
-//                                                                   Prototypes
+// Prototypes
 //
 // ===========================================================================
 

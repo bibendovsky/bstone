@@ -49,7 +49,7 @@ void ChangeShootMode(
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -58,7 +58,7 @@ void ChangeShootMode(
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -114,7 +114,7 @@ boolean ElevatorFloor(
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -132,7 +132,7 @@ boolean ElevatorFloor(
 = Spaws a new actor at the given TILE coordinates, with the given state, and
 = the given size in GLOBAL units.
 =
-= new                   = a pointer to an initialized new actor
+= new = a pointer to an initialized new actor
 =
 ===================
 */
@@ -210,10 +210,10 @@ void NewState(
 =
 = If move is either clear or blocked only by a door, returns TRUE and sets
 =
-= ob->tilex                     = new destination
+= ob->tilex = new destination
 = ob->tiley
-= ob->areanumber    = the floor tile number (0-(NUMAREAS-1)) of destination
-= ob->distance          = TILEGLOBAl, or -doornumber if a door is blocking the way
+= ob->areanumber = the floor tile number (0-(NUMAREAS-1)) of destination
+= ob->distance = TILEGLOBAl, or -doornumber if a door is blocking the way
 =
 = If a door is in the way, an OpenDoor call is made to start it opening.
 = The actor code should wait until
@@ -269,11 +269,11 @@ boolean TryWalk(
 
     switch (ob->dir) {
     case north:
-//              if (ob->obclass == dogobj || ob->obclass == fakeobj)
-//              {
-//                      CHECKDIAG(ob->tilex,ob->tiley-1);
-//              }
-//              else
+// if (ob->obclass == dogobj || ob->obclass == fakeobj)
+// {
+//      CHECKDIAG(ob->tilex,ob->tiley-1);
+// }
+// else
     {
         CHECKSIDE(ob->tilex, ob->tiley - 1);
     }
@@ -294,8 +294,8 @@ boolean TryWalk(
         CHECKDIAG(ob->tilex + 1, ob->tiley);
         CHECKDIAG(ob->tilex, ob->tiley - 1);
 
-//              if (ElevatorFloor(ob->tilex+1,ob->tiley-1))
-//                      return(false);
+// if (ElevatorFloor(ob->tilex+1,ob->tiley-1))
+//      return(false);
 
         if (!moveit) {
             return true;
@@ -306,11 +306,11 @@ boolean TryWalk(
         break;
 
     case east:
-//              if (ob->obclass == dogobj || ob->obclass == fakeobj)
-//              {
-//                      CHECKDIAG(ob->tilex+1,ob->tiley);
-//              }
-//              else
+// if (ob->obclass == dogobj || ob->obclass == fakeobj)
+// {
+//      CHECKDIAG(ob->tilex+1,ob->tiley);
+// }
+// else
     {
         CHECKSIDE(ob->tilex + 1, ob->tiley);
     }
@@ -335,8 +335,8 @@ boolean TryWalk(
         CHECKDIAG(ob->tilex + 1, ob->tiley);
         CHECKDIAG(ob->tilex, ob->tiley + 1);
 
-//              if (ElevatorFloor(ob->tilex+1,ob->tiley+1))
-//                      return(false);
+// if (ElevatorFloor(ob->tilex+1,ob->tiley+1))
+//      return(false);
 
         if (!moveit) {
             return true;
@@ -347,11 +347,11 @@ boolean TryWalk(
         break;
 
     case south:
-//              if (ob->obclass == dogobj || ob->obclass == fakeobj)
-//              {
-//                      CHECKDIAG(ob->tilex,ob->tiley+1);
-//              }
-//              else
+// if (ob->obclass == dogobj || ob->obclass == fakeobj)
+// {
+//      CHECKDIAG(ob->tilex,ob->tiley+1);
+// }
+// else
     {
         CHECKSIDE(ob->tilex, ob->tiley + 1);
     }
@@ -372,8 +372,8 @@ boolean TryWalk(
         CHECKDIAG(ob->tilex - 1, ob->tiley);
         CHECKDIAG(ob->tilex, ob->tiley + 1);
 
-//              if (ElevatorFloor(ob->tilex-1,ob->tiley+1))
-//                      return(false);
+// if (ElevatorFloor(ob->tilex-1,ob->tiley+1))
+//      return(false);
 
         if (!moveit) {
             return true;
@@ -384,11 +384,11 @@ boolean TryWalk(
         break;
 
     case west:
-//              if (ob->obclass == dogobj || ob->obclass == fakeobj)
-//              {
-//                      CHECKDIAG(ob->tilex-1,ob->tiley);
-//              }
-//              else
+// if (ob->obclass == dogobj || ob->obclass == fakeobj)
+// {
+//      CHECKDIAG(ob->tilex-1,ob->tiley);
+// }
+// else
     {
         CHECKSIDE(ob->tilex - 1, ob->tiley);
     }
@@ -413,8 +413,8 @@ boolean TryWalk(
         CHECKDIAG(ob->tilex - 1, ob->tiley);
         CHECKDIAG(ob->tilex, ob->tiley - 1);
 
-//              if (ElevatorFloor(ob->tilex-1,ob->tiley-1))
-//                      return(false);
+// if (ElevatorFloor(ob->tilex-1,ob->tiley-1))
+//      return(false);
 
         if (!moveit) {
             return true;
@@ -428,8 +428,8 @@ boolean TryWalk(
         return false;
 
     default:
-//              STATE_ERROR(TRYWALK_BAD_DIR);                   // jam/jdebug
-        return false;                                                           // jam/jdebug
+// STATE_ERROR(TRYWALK_BAD_DIR); // jam/jdebug
+        return false; // jam/jdebug
 
     }
 
@@ -496,15 +496,15 @@ boolean ElevatorFloor(
 =
 = If there is no possible move (ob is totally surrounded)
 =
-= ob->dir                       =       nodir
+= ob->dir = nodir
 =
 = Otherwise
 =
-= ob->dir                       = new direction to follow
-= ob->distance          = TILEGLOBAL or -doornumber
-= ob->tilex                     = new destination
+= ob->dir = new direction to follow
+= ob->distance = TILEGLOBAL or -doornumber
+= ob->tilex = new destination
 = ob->tiley
-= ob->areanumber    = the floor tile number (0-(NUMAREAS-1)) of destination
+= ob->areanumber = the floor tile number (0-(NUMAREAS-1)) of destination
 =
 ==================================
 */
@@ -666,7 +666,7 @@ void SelectChaseDir(
     if (d[1] != nodir) {
         ob->dir = d[1];
         if (TryWalk(ob, true)) {
-            return;                 /*either moved forward or attacked*/
+            return; /*either moved forward or attacked*/
         }
     }
 
@@ -686,7 +686,7 @@ void SelectChaseDir(
         }
     }
 
-    if (US_RndT() > 128) {      /*randomly determine direction of search*/
+    if (US_RndT() > 128) { /*randomly determine direction of search*/
         for (tdir = north; tdir <= west; tdir++) {
             if (tdir != turnaround) {
                 ob->dir = tdir;
@@ -715,7 +715,7 @@ void SelectChaseDir(
         }
     }
 
-    ob->dir = nodir;                    // can't move
+    ob->dir = nodir; // can't move
     if (ob->obclass == electrosphereobj) {
         ob->s_tilex = 0;
     }
@@ -729,7 +729,7 @@ void SelectChaseDir(
 void GetCornerSeek(
     objtype* ob)
 {
-    Uint8 SeekPointX[] = { 32, 63, 32, 1 };             // s_tilex can't seek to 0!
+    Uint8 SeekPointX[] = { 32, 63, 32, 1 }; // s_tilex can't seek to 0!
     Uint8 SeekPointY[] = { 1, 63, 32, 1 };
     Uint8 seek_tile = US_RndT() & 3;
 
@@ -749,7 +749,7 @@ void GetCornerSeek(
 = Actors are not allowed to move inside the player
 = Does NOT check to see if the move is tile map valid
 =
-= ob->x                 = adjusted for new position
+= ob->x = adjusted for new position
 = ob->y
 =
 =================
@@ -865,7 +865,7 @@ moveok:
 /*
 =============================================================================
 
-                                                        STUFF
+ STUFF
 
 =============================================================================
 */
@@ -889,51 +889,51 @@ char dki_msg[] =
     "	    INFORMANTS!!\r";
 
 Uint16 actor_points[] = { 1025, // rent-a-cop
-                          1050,                                                                                 // turret
-                          500,                                                                                  // general scientist
-                          5075,                                                                                 // pod alien
-                          5150,                                                                                 // electric alien
-                          2055,                                                                                 // electro-sphere
-                          5000,                                                                                 // pro guard
-                          10000,                                                                        // genetic guard
-                          5055,                                                                                 // mutant human1
-                          6055,                                                                                 // mutant human2
-                          0,                                                                                            // large canister wait
-                          6050,                                                                                 // large canister alien
-                          0,                                                                                            // small canister wait
-                          3750,                                                                                 // small canister alien
-                          0,                                                                                            // gurney wait
-                          3750,                                                                                 // gurney
-                          12000,                                                                        // liquid
-                          7025,                                                                                 // swat
-                          5000,                                                                                 // goldtern
-                          5000,                                                                                 // goldstern Morphed
-                          2025,                                                                                 // volatile transport
-                          2025,                                                                                 // floating bomb
-                          0,                                                                                            // rotating cube
+                          1050, // turret
+                          500, // general scientist
+                          5075, // pod alien
+                          5150, // electric alien
+                          2055, // electro-sphere
+                          5000, // pro guard
+                          10000, // genetic guard
+                          5055, // mutant human1
+                          6055, // mutant human2
+                          0, // large canister wait
+                          6050, // large canister alien
+                          0, // small canister wait
+                          3750, // small canister alien
+                          0, // gurney wait
+                          3750, // gurney
+                          12000, // liquid
+                          7025, // swat
+                          5000, // goldtern
+                          5000, // goldstern Morphed
+                          2025, // volatile transport
+                          2025, // floating bomb
+                          0, // rotating cube
 
-                          5000,                                                                                 // spider_mutant
-                          6000,                                                                                 // breather_beast
-                          7000,                                                                                 // cyborg_warror
-                          8000,                                                                                 // reptilian_warrior
-                          9000,                                                                                 // acid_dragon
-                          9000,                                                                                 // mech_guardian
-                          30000,                                                                        // final boss #1
-                          40000,                                                                        // final_boss #2
-                          50000,                                                                // final_boss #3
-                          60000,                                                                // final_boss #4
+                          5000, // spider_mutant
+                          6000, // breather_beast
+                          7000, // cyborg_warror
+                          8000, // reptilian_warrior
+                          9000, // acid_dragon
+                          9000, // mech_guardian
+                          30000, // final boss #1
+                          40000, // final_boss #2
+                          50000, // final_boss #3
+                          60000, // final_boss #4
 
-                          0, 0, 0, 0, 0,                                                                // blake,crate1/2/3, oozes
-                          0,                                                                                            // pod egg
+                          0, 0, 0, 0, 0, // blake,crate1/2/3, oozes
+                          0, // pod egg
 
-                          5000,                                                                                 // morphing_spider_mutant
-                          8000,                                                                                 // morphing_reptilian_warrior
-                          6055,                                                                                 // morphing_mutant human2
+                          5000, // morphing_spider_mutant
+                          8000, // morphing_reptilian_warrior
+                          6055, // morphing_mutant human2
 };
 
 // ---------------------------------------------------------------------------
 //  CheckAndReserve() - Checks for room in the obj_list and returns a ptr
-//                                                              to the new object or a NULL.
+//      to the new object or a NULL.
 //
 // ---------------------------------------------------------------------------
 objtype* CheckAndReserve()
@@ -960,7 +960,7 @@ void KillActor(
     boolean KeepSolid = false, givepoints = true, deadguy = true;
     classtype clas;
 
-    tilex = ob->x >> TILESHIFT;                 // drop item on center
+    tilex = ob->x >> TILESHIFT; // drop item on center
     tiley = ob->y >> TILESHIFT;
 
     ob->flags &= ~(FL_FRIENDLY | FL_SHOOTABLE);
@@ -999,7 +999,7 @@ void KillActor(
 
         SpawnStatic(tilex, tiley, ob->temp2);
         ob->obclass = deadobj;
-        ob->lighting = NO_SHADING;              // No Shading
+        ob->lighting = NO_SHADING; // No Shading
         InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
         A_DeathScream(ob);
         MakeAlertNoise(ob);
@@ -1032,7 +1032,7 @@ void KillActor(
 
         // Init timer.  Search for a location out of all possible locations.
 
-        GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT);                           // Reinit Delay Timer before spawning on new position
+        GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
         clas = goldsternobj;
 
         if (::gamestate.mapon == 9) {
@@ -1187,19 +1187,19 @@ void KillActor(
         NewState(ob, &s_ofs_die1);
         break;
 
-    case gurney_waitobj:                                                                // mutant asleep on gurney
+    case gurney_waitobj: // mutant asleep on gurney
         InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
         KeepSolid = true;
         givepoints = false;
         break;
 
-    case scan_wait_alienobj:                            // Actual Canister - Destroyed
+    case scan_wait_alienobj: // Actual Canister - Destroyed
         InitSmartAnim(ob, SPR_SCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
         KeepSolid = true;
         givepoints = false;
         break;
 
-    case lcan_wait_alienobj:                    // Actual Canister - Destroyed
+    case lcan_wait_alienobj: // Actual Canister - Destroyed
         InitSmartAnim(ob, SPR_LCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
         KeepSolid = true;
         givepoints = false;
@@ -1405,8 +1405,8 @@ void DamageActor(
     if (ob->hitpoints <= 0) {
         switch (ob->obclass) {
 #ifdef OBJ_RESERV
-        case scan_wait_alienobj:                                // These actors do not have an ouch!
-        case lcan_wait_alienobj:                                // So... RETURN!
+        case scan_wait_alienobj: // These actors do not have an ouch!
+        case lcan_wait_alienobj: // So... RETURN!
         case gurney_waitobj:
             ob->temp2 = actor_to_ui16(CheckAndReserve());
 
@@ -1485,7 +1485,7 @@ void DamageActor(
             if ((ob->obclass == gen_scientistobj) && (ob->flags & FL_INFORMANT)) {
                 return;
             }
-            FirstSighting(ob);                          // put into combat mode
+            FirstSighting(ob); // put into combat mode
         }
 
         switch (ob->obclass) {
@@ -1591,7 +1591,7 @@ void DamageActor(
 /*
 =============================================================================
 
-                                                        CHECKSIGHT
+ CHECKSIGHT
 
 =============================================================================
 */
@@ -1623,7 +1623,7 @@ boolean CheckLine(
 
 
 
-    x1 = ob->x >> UNSIGNEDSHIFT;                // 1/256 tile precision
+    x1 = ob->x >> UNSIGNEDSHIFT; // 1/256 tile precision
     y1 = ob->y >> UNSIGNEDSHIFT;
     xt1 = x1 >> 8;
     yt1 = y1 >> 8;
@@ -1762,7 +1762,7 @@ boolean CheckLine(
 
 
 
-    x1 = static_cast<Sint16>(from_obj->x >> UNSIGNEDSHIFT);             // 1/256 tile precision
+    x1 = static_cast<Sint16>(from_obj->x >> UNSIGNEDSHIFT); // 1/256 tile precision
     y1 = static_cast<Sint16>(from_obj->y >> UNSIGNEDSHIFT);
     xt1 = x1 >> 8;
     yt1 = y1 >> 8;
@@ -2012,7 +2012,7 @@ void FirstSighting(
         ::sd_play_actor_sound(SCOUT_ALERTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_scout_run);
-        ob->speed *= 3;                         // Haul Ass
+        ob->speed *= 3; // Haul Ass
         break;
 
 
@@ -2020,28 +2020,28 @@ void FirstSighting(
         ::sd_play_actor_sound(GOLDSTERNHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_goldchase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case rentacopobj:
         ::sd_play_actor_sound(HALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_rent_chase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case gen_scientistobj:
         ::sd_play_actor_sound(SCIENTISTHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofcchase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case swatobj:
         ::sd_play_actor_sound(SWATHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_swatchase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case breather_beastobj:
@@ -2052,7 +2052,7 @@ void FirstSighting(
         ::sd_play_actor_sound(GGUARDHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofs_chase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
 
@@ -2064,14 +2064,14 @@ void FirstSighting(
         ::sd_play_actor_sound(BLUEBOYHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofs_chase1);
-        ob->speed *= 2;                         // go faster when chasing player
+        ob->speed *= 2; // go faster when chasing player
         break;
 
     case mutant_human2obj:
         ::sd_play_actor_sound(DOGBOYHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofs_chase1);
-        ob->speed *= 2;                         // go faster when chasing player
+        ob->speed *= 2; // go faster when chasing player
         break;
 
     case liquidobj:
@@ -2083,21 +2083,21 @@ void FirstSighting(
         ::sd_play_actor_sound(SCANHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofs_chase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case lcan_alienobj:
         ::sd_play_actor_sound(LCANHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofs_chase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case gurneyobj:
         ::sd_play_actor_sound(GURNEYSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_ofs_chase1);
-        ob->speed *= 3;                         // go faster when chasing player
+        ob->speed *= 3; // go faster when chasing player
         break;
 
     case acid_dragonobj:
@@ -2125,7 +2125,7 @@ void FirstSighting(
         ::sd_play_actor_sound(PROHALTSND, ob, bstone::AC_VOICE);
 
         NewState(ob, &s_prochase1);
-        ob->speed *= 4;                         // go faster when chasing player
+        ob->speed *= 4; // go faster when chasing player
         break;
 
     case hang_terrotobj:
@@ -2139,8 +2139,8 @@ void FirstSighting(
 
     }
 
-//      if (ob->distance < 0)
-//              ob->distance = 0;       // ignore the door opening command
+// if (ob->distance < 0)
+//      ob->distance = 0; // ignore the door opening command
 
     ob->flags |= FL_ATTACKMODE | FL_FIRSTATTACK;
 }
@@ -2176,7 +2176,7 @@ boolean SightPlayer(
     if (ob->flags & FL_ATTACKMODE) {
         return true;
     }
-//              STATE_ERROR(SIGHTPLAYER_IN_ATKMODE);
+// STATE_ERROR(SIGHTPLAYER_IN_ATKMODE);
 
     if (ob->temp2) {
         //
@@ -2186,7 +2186,7 @@ boolean SightPlayer(
         if (ob->temp2 > 0) {
             return false;
         }
-        ob->temp2 = 0;                                          // time to react
+        ob->temp2 = 0; // time to react
     } else {
         if (!areabyplayer[ob->areanumber]) {
             return false;
@@ -2303,10 +2303,10 @@ boolean SightPlayer(
 #if 0
 // --------------------------------------------------------------------------
 // PosVisable()  Checks a straight line from two map coords and then checks
-//                                        to see if the passed from_angle is pointing in that direction
-//                                        (if the position is seeable by the player).
+//      to see if the passed from_angle is pointing in that direction
+//      (if the position is seeable by the player).
 //
-// SEE ALSO: MACRO "ObjVisable(from_obj,to_obj)"                                        -- 3D_DEF.h
+// SEE ALSO: MACRO "ObjVisable(from_obj,to_obj)" -- 3D_DEF.h
 //
 // --------------------------------------------------------------------------
 boolean PosVisable(
@@ -2323,7 +2323,7 @@ boolean PosVisable(
     deltax = from_x - to_x;
     deltay = to_y - from_y;
 
-    fangle = atan2(deltay, deltax);                     // returns -pi to pi
+    fangle = atan2(deltay, deltax); // returns -pi to pi
 
     if (fangle < 0) {
         fangle += M_PI * 2;
@@ -2348,11 +2348,11 @@ boolean PosVisable(
 
 // --------------------------------------------------------------------------
 // CheckView()  Checks a straight line between player and current object
-//                                If the sight is ok, check angle to see if they notice
-//                                returns true if the player has been spoted
+//      If the sight is ok, check angle to see if they notice
+//      returns true if the player has been spoted
 // --------------------------------------------------------------------------
 Sint16 AdjAngleTable[2][8] = { { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upper Bound
-                               { 180, 225, 270, 315, 0, 45, 90, 135 } };                                           // Lower Bound
+                               { 180, 225, 270, 315, 0, 45, 90, 135 } }; // Lower Bound
 
 
 boolean CheckView(
@@ -2375,7 +2375,7 @@ boolean CheckView(
     deltay = to_obj->y - from_obj->y;
 
 
-    fangle = static_cast<float>(atan2(static_cast<double>(deltay), static_cast<double>(deltax)));                       // returns -pi to pi
+    fangle = static_cast<float>(atan2(static_cast<double>(deltay), static_cast<double>(deltax))); // returns -pi to pi
     if (fangle < 0) {
         fangle = static_cast<float>(bstone::C::m_pi() * 2 + fangle);
     }
@@ -2441,7 +2441,7 @@ boolean LookForGoodies(
     if (RunReason == RR_INTERROGATED) {
         just_find_door = true;
         if (US_RndT() < 128) {
-            ob->flags &= ~FL_INTERROGATED;                      // No longer runs, now attacks!
+            ob->flags &= ~FL_INTERROGATED; // No longer runs, now attacks!
         }
     }
 
@@ -2479,8 +2479,8 @@ boolean LookForGoodies(
                         switch (statptr->itemnumber) {
                         case bo_clip:
                         case bo_clip2:
-                            if (ob->ammo) {                                                     // this actor has plenty
-                                continue;                                                               // of ammo!
+                            if (ob->ammo) { // this actor has plenty
+                                continue; // of ammo!
                             }
                             ob->ammo += 8;
                             break;
@@ -2489,7 +2489,7 @@ boolean LookForGoodies(
                         case bo_sandwich:
                         case bo_chicken:
                             if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1)) {
-                                continue;                                                               // actor has plenty of health!
+                                continue; // actor has plenty of health!
                             }
                             ob->hitpoints += 8;
                             shapenum = statptr->shapenum + 1;
@@ -2497,7 +2497,7 @@ boolean LookForGoodies(
 
                         case bo_ham:
                             if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1)) {
-                                continue;                                                               // actor has plenty of health!
+                                continue; // actor has plenty of health!
                             }
                             ob->hitpoints += 12;
                             shapenum = statptr->shapenum + 1;
@@ -2505,15 +2505,15 @@ boolean LookForGoodies(
 
                         case bo_water:
                             if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1)) {
-                                continue;                                                               // actor has plenty of health!
+                                continue; // actor has plenty of health!
                             }
                             ob->hitpoints += 2;
                             shapenum = statptr->shapenum + 1;
                             break;
                         }
 
-                        ob->s_tilex = 0;                                                        // reset for next search!
-                        statptr->shapenum = shapenum;                                   // remove from list if necessary
+                        ob->s_tilex = 0; // reset for next search!
+                        statptr->shapenum = shapenum; // remove from list if necessary
                         statptr->itemnumber = bo_nothing;
                         statptr->flags &= ~FL_BONUS;
                         return true;
@@ -2533,7 +2533,7 @@ boolean LookForGoodies(
 
                     // Give actor a chance to run towards this object.
                     //
-                    if ((!(ob->flags & FL_RUNTOSTATIC))) {                 // &&(US_RndT()<25))
+                    if ((!(ob->flags & FL_RUNTOSTATIC))) { // &&(US_RndT()<25))
                         if (
                             ((RunReason & RR_AMMO) &&
                              ((statptr->itemnumber == bo_clip) ||
@@ -2591,8 +2591,8 @@ boolean LookForGoodies(
             if ((door->areanumber[0] == ob->areanumber) ||
                 (door->areanumber[1] == ob->areanumber))
             {
-                doorlist[static_cast<int>(doorsfound)] = door;                                                  // add to list
-                if (++doorsfound == DOOR_CHOICES) {                                     // check for max
+                doorlist[static_cast<int>(doorsfound)] = door; // add to list
+                if (++doorsfound == DOOR_CHOICES) { // check for max
                     break;
                 }
             }
@@ -2652,31 +2652,31 @@ Uint16 CheckRunChase(
 
 // Mark the reason for running.
 //
-    if (!ob->ammo) {                                                                    // Out of ammo!
+    if (!ob->ammo) { // Out of ammo!
         RunReason |= RR_AMMO;
     }
 
     if (ob->hitpoints <= (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1)) {
-        RunReason |= RR_HEALTH;                                         // Feeling sickly!
+        RunReason |= RR_HEALTH; // Feeling sickly!
 
     }
     if ((ob->flags & (FL_FRIENDLY | FL_INTERROGATED)) == FL_INTERROGATED) {
-        RunReason |= RR_INTERROGATED;                           // Non-informant was interrogated!
+        RunReason |= RR_INTERROGATED; // Non-informant was interrogated!
 
     }
 //      if (ob->flags2 & FL2_SCARED)
-//      RunReason |= RR_SCARED;                                 // GenSci is scared.
+//      RunReason |= RR_SCARED; // GenSci is scared.
 
 
 // Time to RUN or CHASE?
 //
-    if (RunReason) {                                                                    // run, Run, RUN!
+    if (RunReason) { // run, Run, RUN!
         if (!(ob->flags & FL_RUNAWAY)) {
             ob->temp3 = 0;
             ob->flags |= FL_RUNAWAY;
             ob->speed += RUNAWAY_SPEED;
         }
-    } else {                                                                                            // chase, Chase, CHASE!
+    } else { // chase, Chase, CHASE!
         if (ob->flags & FL_RUNAWAY) {
             ob->flags &= ~FL_RUNAWAY;
             ob->speed -= RUNAWAY_SPEED;
@@ -2731,10 +2731,10 @@ void SeekPlayerOrStatic(
         if (!LookForGoodies(ob, whyrun)) {
             // Change seek tile when actor reaches it.
             //
-            if ((ob->tilex == ob->s_tilex) && (ob->tiley == ob->s_tiley)) {     // don't forget me!
+            if ((ob->tilex == ob->s_tilex) && (ob->tiley == ob->s_tiley)) { // don't forget me!
                 GetCornerSeek(ob);
                 ob->flags &= ~FL_INTERROGATED;
-            }                                                                                                                           // add me, too
+            } // add me, too
 
             // Calculate horizontal / vertical distance to seek point.
             //

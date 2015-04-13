@@ -49,7 +49,7 @@ void R_DrawColumn();
 /*
 =============================================================================
 
-                                                  GLOBALS
+ GLOBALS
 
 =============================================================================
 */
@@ -273,9 +273,9 @@ void generic_scale_shape(
 =
 = Setup for call
 = --------------
-= GC_MODE                       read mode 1, write mode 2
+= GC_MODE read mode 1, write mode 2
 = GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX                      pointing at GC_BITMASK
+= GC_INDEX pointing at GC_BITMASK
 =
 =======================
 */
@@ -303,9 +303,9 @@ void ScaleLSShape(
 =
 = Setup for call
 = --------------
-= GC_MODE                       read mode 1, write mode 2
+= GC_MODE read mode 1, write mode 2
 = GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX                      pointing at GC_BITMASK
+= GC_INDEX pointing at GC_BITMASK
 =
 =======================
 */
@@ -334,9 +334,9 @@ void ScaleShape(
 =
 = Setup for call
 = --------------
-= GC_MODE                       read mode 1, write mode 2
+= GC_MODE read mode 1, write mode 2
 = GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX                      pointing at GC_BITMASK
+= GC_INDEX pointing at GC_BITMASK
 =
 =======================
 */

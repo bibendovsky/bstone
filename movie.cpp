@@ -79,7 +79,7 @@ enum MOVIE_FLAGS {
 
 // ===========================================================================
 //
-//                                                                                      VARIABLES
+// VARIABLES
 //
 // ===========================================================================
 
@@ -122,8 +122,8 @@ const void* movie_palette;
 
 
 MovieStuff_t Movies[] = {
-    { { "IANIM." }, 1, 3, 0, 0, 200 },                          // mv_intro
-    { { "EANIM." }, 1, 30, 0, 0, 200 },                         // mv_final
+    { { "IANIM." }, 1, 3, 0, 0, 200 }, // mv_intro
+    { { "EANIM." }, 1, 30, 0, 0, 200 }, // mv_final
 
 #ifdef BSTONE_AOG
     { { "SANIM." }, 1, 30, 0, 0, 200 }, // mv_final2
@@ -135,7 +135,7 @@ MovieStuff_t Movies[] = {
 
 // ===========================================================================
 //
-//                                                                              LOCAL PROTO TYPES
+// LOCAL PROTO TYPES
 //
 // ===========================================================================
 
@@ -149,7 +149,7 @@ boolean CheckPostFade();
 
 // ===========================================================================
 //
-//                                                                                 FUNCTIONS
+// FUNCTIONS
 //
 // ===========================================================================
 
@@ -185,7 +185,7 @@ void SetupMovie(
     // Find out how much memory we have to work with..
 
     BufferLen = 65535;
-    BufferLen -= 65535;                                         // HACK: Save some room for sounds - This is cludgey
+    BufferLen -= 65535; // HACK: Save some room for sounds - This is cludgey
 
     if (BufferLen < 64256) {
         BufferLen = 64256;
@@ -212,13 +212,13 @@ void ShutdownMovie()
 // dest_offset = Correct offset value for memory location for Paged/Latch mem
 //
 // byte_offset = Offset for the image to be drawn - This address is NOT
-//                                        a calculated Paged/Latch value but a byte offset in
-//                                        conventional memory.
+// a calculated Paged/Latch value but a byte offset in
+// conventional memory.
 //
-// source               = Source image of graphic to be blasted to latch memory.  This
+// source = Source image of graphic to be blasted to latch memory.  This
 //                                        pic is NOT 'munged'
 //
-// length               = length of the source image in bytes
+// length = length of the source image in bytes
 // ---------------------------------------------------------------------------
 void JM_DrawBlock(
     int dest_offset,
@@ -275,8 +275,8 @@ void MOVIE_ShowFrame(
 // ---------------------------------------------------------------------------
 // MOVIE_LoadBuffer() - Loads the RAM Buffer full of graphics...
 //
-// RETURNS:  true       - MORE Pages avail on disk..
-//                               false   - LAST Pages from disk..
+// RETURNS:  true - MORE Pages avail on disk..
+//          false   - LAST Pages from disk..
 //
 // PageLen = Length of data loaded into buffer
 //
@@ -347,10 +347,10 @@ boolean MOVIE_LoadBuffer()
 // MOVIE_GetFrame() - Returns pointer to next Block/Screen of animation
 //
 // PURPOSE: This function "Buffers" the movie presentation from allocated
-//                              ram.  It loads and buffers incomming frames of animation..
+//      ram.  It loads and buffers incomming frames of animation..
 //
 // RETURNS:  0 - Ok
-//                               1 - End Of File
+//          1 - End Of File
 // ---------------------------------------------------------------------------
 Sint16 MOVIE_GetFrame()
 {
@@ -376,7 +376,7 @@ Sint16 MOVIE_GetFrame()
 
 // ---------------------------------------------------------------------------
 // MOVIE_HandlePage() - This handles the current page of data from the
-//                                                              ram buffer...
+//      ram buffer...
 //
 // PURPOSE: Process current Page of anim.
 //
@@ -404,7 +404,7 @@ void MOVIE_HandlePage(
     //
     // -------------------------------------------
 
-    case AN_SOUND:                                      // Sound Chunk
+    case AN_SOUND: // Sound Chunk
     {
         Uint16 sound_chunk;
         sound_chunk = *(Uint16*)frame;
@@ -424,16 +424,16 @@ void MOVIE_HandlePage(
         // -------------------------------------------
 
 #if 0
-    case MV_CNVT_CODE('P', 'M'):                                        // Play Music
+    case MV_CNVT_CODE('P', 'M'): // Play Music
     {
         unsigned song_chunk;
         song_chunk = *(unsigned*)frame;
         SD_MusicOff();
 
         if (!audiosegs[STARTMUSIC + musicchunk]) {
-//                              MM_BombOnError(false);
+// MM_BombOnError(false);
             CA_CacheAudioChunk(STARTMUSIC + musicchunk);
-//                              MM_BombOnError(true);
+// MM_BombOnError(true);
         }
 
         if (mmerror) {
@@ -454,7 +454,7 @@ void MOVIE_HandlePage(
     //
     // -------------------------------------------
 
-    case AN_FADE_IN_FRAME:                                      // Fade In Page
+    case AN_FADE_IN_FRAME: // Fade In Page
         VL_FadeIn(0, 255, (const Uint8*)movie_palette, 30);
         fade_flags = FADE_NONE;
         EverFaded = true;
@@ -468,7 +468,7 @@ void MOVIE_HandlePage(
     //
     // -------------------------------------------
 
-    case AN_FADE_OUT_FRAME:                                     // Fade Out Page
+    case AN_FADE_OUT_FRAME: // Fade Out Page
         VW_FadeOut();
         screenfaded = true;
         fade_flags = FADE_NONE;
@@ -480,7 +480,7 @@ void MOVIE_HandlePage(
     //
     // -------------------------------------------
 
-    case AN_PAUSE:                                      // Pause
+    case AN_PAUSE: // Pause
     {
         Uint16 vbls;
         vbls = *(Uint16*)frame;
@@ -503,7 +503,7 @@ void MOVIE_HandlePage(
     //
     // -------------------------------------------
 
-    case AN_PAGE:                               // Graphics Chunk
+    case AN_PAGE: // Graphics Chunk
 #if 1
         if (movie_flag == MV_FILL) {
             // First page comming in.. Fill screen with fill color...
@@ -537,7 +537,7 @@ void MOVIE_HandlePage(
 
         if ((!screenfaded) && (ci.button0 || ci.button1 || LastScan)) {
             ExitMovie = true;
-            if (EverFaded) {                                                    // This needs to be a passed flag...
+            if (EverFaded) { // This needs to be a passed flag...
                 VW_FadeOut();
                 screenfaded = true;
             }
@@ -551,7 +551,7 @@ void MOVIE_HandlePage(
     //
     // -------------------------------------------
 
-    case AN_PRELOAD_BEGIN:                              // These are NOT handled YET!
+    case AN_PRELOAD_BEGIN: // These are NOT handled YET!
     case AN_PRELOAD_END:
         break;
 
@@ -582,7 +582,7 @@ void MOVIE_HandlePage(
 // MOVIE_Play() - Playes an Animation
 //
 // RETURNS: true  - Movie File was found and "played"
-//                              false - Movie file was NOT found!
+//      false - Movie file was NOT found!
 // ---------------------------------------------------------------------------
 boolean MOVIE_Play(
     MovieStuff_t* MovieStuff)

@@ -47,7 +47,7 @@ loaded into the data segment
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -55,7 +55,7 @@ loaded into the data segment
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -79,7 +79,7 @@ char audioname[13] = "AUDIO.";
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -359,7 +359,7 @@ boolean CA_FarRead(
         asm             mov cx, [readlen]
         asm             mov dx, [WORD PTR dest]
         asm             mov ds, [WORD PTR dest + 2]
-        asm             mov ah, 0x3f                    // READ w/handle
+        asm             mov ah, 0x3f // READ w/handle
         asm             int 21h
         asm             pop ds
         asm             jnc good
@@ -410,7 +410,7 @@ boolean CA_FarWrite(
         asm             mov cx, [writelen]
         asm             mov dx, [WORD PTR source]
         asm             mov ds, [WORD PTR source + 2]
-        asm             mov ah, 0x40            // WRITE w/handle
+        asm             mov ah, 0x40 // WRITE w/handle
         asm             int 21h
         asm             pop ds
         asm             jnc good
@@ -670,7 +670,7 @@ void CAL_CarmackExpand(
         chhigh = ch >> 8;
         if (chhigh == NEARTAG) {
             count = ch & 0xff;
-            if (!count) {                               // have to insert a word containing the tag byte
+            if (!count) { // have to insert a word containing the tag byte
                 ch |= *((Uint8*)inptr)++;
                 *outptr++ = ch;
                 length--;
@@ -684,7 +684,7 @@ void CAL_CarmackExpand(
             }
         } else if (chhigh == FARTAG) {
             count = ch & 0xff;
-            if (!count) {                               // have to insert a word containing the tag byte
+            if (!count) { // have to insert a word containing the tag byte
                 ch |= *((Uint8*)inptr)++;
                 *outptr++ = ch;
                 length--;
@@ -805,7 +805,7 @@ void CA_RLEWexpand(
 /*
 =============================================================================
 
-                                         CACHE MANAGER ROUTINES
+ CACHE MANAGER ROUTINES
 
 =============================================================================
 */
@@ -883,7 +883,7 @@ void CA_CacheAudioChunk(
 
 
     if (audiosegs[chunk]) {
-        return;                                                         // allready in memory
+        return; // allready in memory
     }
 
 //
@@ -923,7 +923,7 @@ void CA_CacheAudioChunk(
     }
 
     expanded = *(Sint32*)source;
-    source += 4;                        // skip over length
+    source += 4; // skip over length
     MM_GetPtr(&(memptr)audiosegs[chunk], expanded);
     if (mmerror) {
         goto done;
@@ -1012,7 +1012,7 @@ void CAL_ExpandGrChunk(
 #define BLOCK 64
 #define MASKBLOCK 128
 
-        if (chunk < STARTTILE8M) {                      // tile 8s are all in one chunk!
+        if (chunk < STARTTILE8M) { // tile 8s are all in one chunk!
             expanded = BLOCK * NUMTILE8;
         } else if (chunk < STARTTILE16) {
             expanded = MASKBLOCK * NUMTILE8M;
@@ -1030,7 +1030,7 @@ void CAL_ExpandGrChunk(
         // everything else has an explicit size longword
         //
         expanded = bstone::Endian::le(*reinterpret_cast<Sint32*>(source));
-        source += 4;                            // skip over length
+        source += 4; // skip over length
     }
 
 //
@@ -1063,9 +1063,9 @@ void CA_CacheGrChunk(
     Uint8* source;
     Sint16 next;
 
-    grneeded[chunk] |= ca_levelbit;             // make sure it doesn't get removed
+    grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
     if (grsegs[chunk]) {
-        return;                                                         // allready in memory
+        return; // allready in memory
 
     }
 //
@@ -1073,12 +1073,12 @@ void CA_CacheGrChunk(
 // a larger buffer
 //
     pos = GRFILEPOS(chunk);
-    if (pos < 0) {                                                      // $FFFFFFFF start is a sparse tile
+    if (pos < 0) { // $FFFFFFFF start is a sparse tile
         return;
     }
 
     next = chunk + 1;
-    while (GRFILEPOS(next) == -1) {             // skip past any sparse tiles
+    while (GRFILEPOS(next) == -1) { // skip past any sparse tiles
         next++;
     }
 
@@ -1134,7 +1134,7 @@ void CA_CacheScreen(
 //
     pos = GRFILEPOS(chunk);
     next = chunk + 1;
-    while (GRFILEPOS(next) == -1) {             // skip past any sparse tiles
+    while (GRFILEPOS(next) == -1) { // skip past any sparse tiles
         next++;
     }
     compressed = GRFILEPOS(next) - pos;
@@ -1146,7 +1146,7 @@ void CA_CacheScreen(
     source = bigbufferseg;
 
     expanded = *(Sint32*)source;
-    source += 4;                        // skip over length
+    source += 4; // skip over length
 
 //
 // allocate final space, decompress it, and free bigbuffer
@@ -1424,7 +1424,7 @@ void CA_CacheMarks()
 {
     Sint16 i, next, numcache;
     Sint32 pos, endpos, nextpos, nextendpos, compressed;
-    Sint32 bufferstart, bufferend;      // file position of general buffer
+    Sint32 bufferstart, bufferend; // file position of general buffer
     Uint8* source;
     Uint8* bigbufferseg = NULL;
 
@@ -1434,14 +1434,14 @@ void CA_CacheMarks()
 //
     for (i = 0; i < NUMCHUNKS; i++) {
         if (grneeded[i] & ca_levelbit) {
-            if (grsegs[i]) {                                            // its allready in memory, make
+            if (grsegs[i]) { // its allready in memory, make
             } else {
                 numcache++;
             }
         }
     }
 
-    if (!numcache) {                    // nothing to cache!
+    if (!numcache) { // nothing to cache!
         return;
     }
 
@@ -1449,7 +1449,7 @@ void CA_CacheMarks()
 //
 // go through and load in anything still needed
 //
-    bufferstart = bufferend = 0;                // nothing good in buffer now
+    bufferstart = bufferend = 0; // nothing good in buffer now
 
     for (i = 0; i < NUMCHUNKS; i++) {
         if ((grneeded[i] & ca_levelbit) && !grsegs[i]) {
@@ -1459,7 +1459,7 @@ void CA_CacheMarks()
             }
 
             next = i + 1;
-            while (GRFILEPOS(next) == -1) {                     // skip past any sparse tiles
+            while (GRFILEPOS(next) == -1) { // skip past any sparse tiles
                 next++;
             }
 
@@ -1486,7 +1486,7 @@ void CA_CacheMarks()
                         }
 
                         nextpos = GRFILEPOS(next);
-                        while (GRFILEPOS(++next) == -1) {                       // skip past any sparse tiles
+                        while (GRFILEPOS(++next) == -1) { // skip past any sparse tiles
                         }
                         nextendpos = GRFILEPOS(next);
                         if (nextpos - endpos <= MAXEMPTYREAD
@@ -1494,7 +1494,7 @@ void CA_CacheMarks()
                         {
                             endpos = nextendpos;
                         } else {
-                            next = NUMCHUNKS;                                                   // read pos to posend
+                            next = NUMCHUNKS; // read pos to posend
                         }
                     }
 

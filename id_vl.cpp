@@ -59,7 +59,7 @@ int* ylookup = NULL;
 
 boolean screenfaded;
 
-// boolean              fastpalette;                            // if true, use outsb to set
+// boolean fastpalette; // if true, use outsb to set
 
 Uint8 palette1[256][3], palette2[256][3];
 
@@ -704,7 +704,7 @@ void VL_SetPaletteIntensity(
 /*
 =============================================================================
 
-                                                        PIXEL OPS
+ PIXEL OPS
 
 =============================================================================
 */
@@ -768,7 +768,7 @@ void VL_Bar(
 /*
 ============================================================================
 
-                                                        MEMORY OPS
+ MEMORY OPS
 
 ============================================================================
 */

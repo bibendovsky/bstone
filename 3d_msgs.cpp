@@ -27,7 +27,7 @@ Free Software Foundation, Inc.,
 
 // ---------------------------------------------------------------------------
 //
-//                                                                      FOOD MACHINE MESSAGES
+// FOOD MACHINE MESSAGES
 //
 // ---------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ char food_msg1[] = "\r FOOD UNIT DISPENSES\r"
 
 // ---------------------------------------------------------------------------
 //
-//                                                              BEVERAGE MACHINE MESSAGES
+// BEVERAGE MACHINE MESSAGES
 //
 // ---------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ char bevs_msg1[] = "\r FOOD UNIT DISPENSES\r"
 
 // ---------------------------------------------------------------------------
 //
-//                                                              GENERAL HINT MESSAGES
+// GENERAL HINT MESSAGES
 //
 // ---------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ char* ConcessionGenHints[NUM_GEN_HINTS] = {
 
 // ---------------------------------------------------------------------------
 //
-//                                                              NO EAT MESSAGES
+// NO EAT MESSAGES
 //
 // ---------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ char noeat_msg1[] = "\r\r    CAN'T EAT NOW,"
 
 // ---------------------------------------------------------------------------
 //
-//                                                                      GENERAL MESSAGES
+// GENERAL MESSAGES
 //
 // ---------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ char NoFoodTokens[] = "\r\r  YOU DON'T HAVE ANY\r"
 #ifdef BSTONE_PS
 // ---------------------------------------------------------------------------
 //
-//                                                      FISSION DETONATOR(S) MESSAGES
+// FISSION DETONATOR(S) MESSAGES
 //
 // ---------------------------------------------------------------------------
 
@@ -233,7 +233,7 @@ char pd_floornotlocked[] = "^SH035^FCA6\r TRANSPORTER\r"
 
 // ---------------------------------------------------------------------------
 //
-//                                                                      BONUS MSGS
+// BONUS MSGS
 //
 // ---------------------------------------------------------------------------
 
@@ -387,7 +387,7 @@ char* BonusMsg[] = {
 
 // ---------------------------------------------------------------------------
 //
-//                                                              ACTOR MSGS (ATTACKING & GEN INFO)
+// ACTOR MSGS (ATTACKING & GEN INFO)
 //
 // ---------------------------------------------------------------------------
 
@@ -621,126 +621,126 @@ char actor_info56[] = "^AN2c^FC17\r  ATTACKING:\r"
 
 
 const char* ActorInfoMsg[] = {
-//                      0,0,                                            // nothing,player
-//                      0,0,0,                                  // inert,fixup,dead
+//                      0,0, // nothing,player
+//                      0,0,0, // inert,fixup,dead
 
-    actor_info4,                                        // Sector Patrol
-    actor_info5,                                        // Turret
-    actor_info9,                                        // Bio-Tech
-    actor_info10,                            // Pod
-    actor_info11,                            // Electro-Alien
-    actor_info12,                            // Electro-Sphere
-    actor_info13,                            // STAR Sentinel
-    actor_info14,                            // Genetic Guard
-    actor_info15,                            // Mutant Human 1
-    actor_info16,                            // Mutant Human 2
-    0,                                                                          // lg canister wait
-    actor_info18,                            // Lg Canister Alien
-    0,                                                                          // sm canister wait
-    actor_info20,                            // Sm canister Alien
-    0,                                       // gurney wait
-    actor_info22,                            // Gurney Mutant
-    actor_info36,                            // Liquid Alien
-    actor_info24,                            // Alien Protector (old STAR Trooper)
-    actor_info25,                            // Goldstern
+    actor_info4, // Sector Patrol
+    actor_info5, // Turret
+    actor_info9, // Bio-Tech
+    actor_info10, // Pod
+    actor_info11, // Electro-Alien
+    actor_info12, // Electro-Sphere
+    actor_info13, // STAR Sentinel
+    actor_info14, // Genetic Guard
+    actor_info15, // Mutant Human 1
+    actor_info16, // Mutant Human 2
+    0, // lg canister wait
+    actor_info18, // Lg Canister Alien
+    0, // sm canister wait
+    actor_info20, // Sm canister Alien
+    0, // gurney wait
+    actor_info22, // Gurney Mutant
+    actor_info36, // Liquid Alien
+    actor_info24, // Alien Protector (old STAR Trooper)
+    actor_info25, // Goldstern
 #ifdef BSTONE_AOG
     0,
 #else
-    actor_info25m,                           // Goldstern Morphed
+    actor_info25m, // Goldstern Morphed
 #endif
-    actor_info27,                            // Volatile Transport
-    actor_info28,                            // Floating Bomb
-    actor_info50,                                       // vital defence
+    actor_info27, // Volatile Transport
+    actor_info28, // Floating Bomb
+    actor_info50, // vital defence
 
-    actor_info44,                                       // Spider Mutant
-    actor_info45,                                       // breather beast
-    actor_info46,                                       // cyborg warrior
+    actor_info44, // Spider Mutant
+    actor_info45, // breather beast
+    actor_info46, // cyborg warrior
 
-    actor_info47,                                       // reptilian warrior
-    actor_info48,                                       // acid dragon
-    actor_info49,                                       // mech guardian
+    actor_info47, // reptilian warrior
+    actor_info48, // acid dragon
+    actor_info49, // mech guardian
 
-    actor_info53,                       // Final Boss 1
-    actor_info54,                                       // Final Boss 2
-    actor_info55,                                       // Final Boss 3
-    actor_info56,                                       // Final Boss 4
+    actor_info53, // Final Boss 1
+    actor_info54, // Final Boss 2
+    actor_info55, // Final Boss 3
+    actor_info56, // Final Boss 4
 
-    0, 0, 0, 0,                                                         // blake,crate 1, crate 2, crate 3,
+    0, 0, 0, 0, // blake,crate 1, crate 2, crate 3,
 
-    actor_info41,                            // Green Ooze
-    actor_info42,                            // Black Ooze
+    actor_info41, // Green Ooze
+    actor_info42, // Black Ooze
 #ifdef BSTONE_AOG
     0,
     0,
 #else
-    actor_info41a,                           // Green2 Ooze
-    actor_info42a,                           // Black2 Ooze
+    actor_info41a, // Green2 Ooze
+    actor_info42a, // Black2 Ooze
 #endif
-    0,                                                                          // Pod Egg
+    0, // Pod Egg
 
-    actor_info44,                                       // morphing_spider mutant
-    actor_info47,                                       // morphing_reptilian warrior
-    actor_info16,                            // morphing_Mutant Human 2
+    actor_info44, // morphing_spider mutant
+    actor_info47, // morphing_reptilian warrior
+    actor_info16, // morphing_Mutant Human 2
 
-    0,                                       // SPACER
+    0, // SPACER
 
-    actor_info31,                            // Electro-Alien SHOT
-    0,                                       // Post Barrier
-    actor_info43,                            // Arc Barrier
+    actor_info31, // Electro-Alien SHOT
+    0, // Post Barrier
+    actor_info43, // Arc Barrier
 #ifdef BSTONE_AOG
     0,
     0,
 #else
-    actor_info43a,                           // VPost Barrier
-    actor_info43b,                           // VSpike Barrier
-#endif
-
-#ifdef BSTONE_AOG
-    0,
-#else
-    actor_info25m,                      // Gold Morph Shot obj
+    actor_info43a, // VPost Barrier
+    actor_info43b, // VSpike Barrier
 #endif
 
-    0,                                       // Security Light
-    actor_info33,                            // Explosion
-    0, 0,                                    // Steam Grate, Steam Pipe
-    actor_info36,                            // Liquid SHOT
-
-    actor_info18,                            // Lg Canister Alien SHOT
-    actor_info10,                            // POD Alien SHOT
-    actor_info20,                            // Genetic Alien SHOT
-    actor_info16,                            // Mutant Human 2 SHOT
-    actor_info15,                            // Mutant Human 1 SHOT
-
-    0, 0,                                                               // vent drip, player sp shot,
-    0,                                                                          // flicker light,
-    0, 0,                                                               // Door Bomb, Door Bomb reserve
-    0,                                                                          // grenade,
-
-    0,                                                          // BFG Shot
-
 #ifdef BSTONE_AOG
     0,
-    0,
 #else
-    actor_info51,                            // BFG Explosion
-    actor_info52,                            // BFG Explosion
+    actor_info25m, // Gold Morph Shot obj
 #endif
 
-    actor_info44,                                       // Boss 1 SHOT
-    actor_info45,                                       // Boss 2 SHOT
-    actor_info46,                                       // Boss 3 SHOT
-    actor_info47,                                       // Boss 4 SHOT
-    actor_info48,                                       // Boss 5 SHOT
-    actor_info49,                                       // Boss 6 SHOT
-    actor_info54,                                       // Boss 8 SHOT
-    actor_info56,                                       // Boss 10 SHOT
+    0, // Security Light
+    actor_info33, // Explosion
+    0, 0, // Steam Grate, Steam Pipe
+    actor_info36, // Liquid SHOT
 
-    0,                                                          // Doorexplosion
+    actor_info18, // Lg Canister Alien SHOT
+    actor_info10, // POD Alien SHOT
+    actor_info20, // Genetic Alien SHOT
+    actor_info16, // Mutant Human 2 SHOT
+    actor_info15, // Mutant Human 1 SHOT
+
+    0, 0, // vent drip, player sp shot,
+    0, // flicker light,
+    0, 0, // Door Bomb, Door Bomb reserve
+    0, // grenade,
+
+    0, // BFG Shot
+
+#ifdef BSTONE_AOG
+    0,
+    0,
+#else
+    actor_info51, // BFG Explosion
+    actor_info52, // BFG Explosion
+#endif
+
+    actor_info44, // Boss 1 SHOT
+    actor_info45, // Boss 2 SHOT
+    actor_info46, // Boss 3 SHOT
+    actor_info47, // Boss 4 SHOT
+    actor_info48, // Boss 5 SHOT
+    actor_info49, // Boss 6 SHOT
+    actor_info54, // Boss 8 SHOT
+    actor_info56, // Boss 10 SHOT
+
+    0, // Doorexplosion
 
 #ifdef BSTONE_AOG
     0,
 #else
-    actor_info52,                       // gr_explosion
+    actor_info52, // gr_explosion
 #endif
 };

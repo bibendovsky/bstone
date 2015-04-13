@@ -42,11 +42,11 @@ void VL_LatchToScreen(
 /*
 =============================================================================
 
-                                                                                        BLAKE STONE
-                                                 (C)opyright 1993, JAM Productions, Inc.
+ BLAKE STONE
+ (C)opyright 1993, JAM Productions, Inc.
 
-                                                 3D engine licensed by ID Software, Inc.
-                                        Shareware distribution by Apogee Software, Inc.
+ 3D engine licensed by ID Software, Inc.
+ Shareware distribution by Apogee Software, Inc.
 
 =============================================================================
 */
@@ -54,7 +54,7 @@ void VL_LatchToScreen(
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -91,7 +91,7 @@ bstone::ClArgs g_args;
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -175,7 +175,7 @@ bool g_rotated_automap = default_rotated_automap;
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -1175,7 +1175,7 @@ void NewGame(
 // gamestate.plasma_detonators
 //
 
-    gamestate.weapons = 1 << wp_autocharge;                             // |1<<wp_plasma_detonators;
+    gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
     gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
     gamestate.old_weapons[0] = gamestate.weapons;
     gamestate.old_weapons[1] = gamestate.weapon;
@@ -1188,7 +1188,7 @@ void NewGame(
     gamestate.lives = 3;
     gamestate.nextextra = EXTRAPOINTS;
     gamestate.episode = episode;
-    gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA);    // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
+    gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
     if (gamestate.flags & GS_STARTLEVEL) {
@@ -2030,9 +2030,9 @@ void CleanUpDoors_N_Actors()
 // --------------------------------------------------------------------------
 // ClearNClose() - Use when changing levels via standard elevator.
 //
-//               - This code doesn't CLEAR the elevator door as originally
-//                 planned because, actors were coded to stay out of the
-//                 elevator doorway.
+// - This code doesn't CLEAR the elevator door as originally
+// planned because, actors were coded to stay out of the
+// elevator doorway.
 //
 // --------------------------------------------------------------------------
 void ClearNClose()
@@ -2056,8 +2056,8 @@ void ClearNClose()
     if (tx) {
         char doornum = tilemap[static_cast<int>(tx)][static_cast<int>(ty)] & 63;
 
-        doorobjlist[static_cast<int>(doornum)].action = dr_closed;                      // this door is closed!
-        doorposition[static_cast<int>(doornum)] = 0;                                                            // draw it closed!
+        doorobjlist[static_cast<int>(doornum)].action = dr_closed; // this door is closed!
+        doorposition[static_cast<int>(doornum)] = 0; // draw it closed!
 
         // make it solid!
         actorat[static_cast<int>(tx)][static_cast<int>(ty)] = reinterpret_cast<objtype*>(doornum | 0x80);

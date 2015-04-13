@@ -72,8 +72,8 @@ char* abortprogram;
 Uint16 PrintX, PrintY;
 Uint16 WindowX, WindowY, WindowW, WindowH;
 
-US_CursorStruct US_CustomCursor;                                                // JAM
-boolean use_custom_cursor = false;                                              // JAM
+US_CursorStruct US_CustomCursor; // JAM
+boolean use_custom_cursor = false; // JAM
 
 //      Internal variables
 #define ConfigVersion 1
@@ -472,7 +472,7 @@ static void USL_XORICursor(
     char* s,
     Uint16 cursor)
 {
-    static boolean status;              // VGA doesn't XOR...
+    static boolean status; // VGA doesn't XOR...
     char buf[MaxString];
     int temp;
     int w, h;
@@ -511,7 +511,7 @@ static void USL_CustomCursor(
     char* s,
     Uint16 cursor)
 {
-    static boolean status;              // VGA doesn't XOR...
+    static boolean status; // VGA doesn't XOR...
     char buf[MaxString];
     int temp, temp_font;
     int w, h;
@@ -590,8 +590,8 @@ boolean US_LineInput(
 
     while (!done) {
         if (cursorvis) {
-            if (use_custom_cursor) {                                                    // JAM
-                USL_CustomCursor(x, y, s, cursor);                                      // JAM
+            if (use_custom_cursor) { // JAM
+                USL_CustomCursor(x, y, s, cursor); // JAM
             } else {
                 USL_XORICursor(x, y, s, cursor);
             }
@@ -613,7 +613,7 @@ boolean US_LineInput(
             }
             c = key_None;
             cursormoved = true;
-            redraw = use_custom_cursor;         // JAM -
+            redraw = use_custom_cursor; // JAM -
             break;
         case sc_RightArrow:
             if (s[cursor]) {
@@ -621,13 +621,13 @@ boolean US_LineInput(
             }
             c = key_None;
             cursormoved = true;
-            redraw = use_custom_cursor;         // JAM -
+            redraw = use_custom_cursor; // JAM -
             break;
         case sc_Home:
             cursor = 0;
             c = key_None;
             cursormoved = true;
-            redraw = use_custom_cursor;         // JAM -
+            redraw = use_custom_cursor; // JAM -
             break;
         case sc_end:
             cursor = strlen(s);
@@ -672,7 +672,7 @@ boolean US_LineInput(
             break;
 #endif
 
-        case 0x4c:              // Keypad 5
+        case 0x4c: // Keypad 5
         case sc_up_arrow:
         case sc_down_arrow:
         case sc_page_up:
@@ -728,8 +728,8 @@ boolean US_LineInput(
         }
 
         if (cursorvis) {
-            if (use_custom_cursor) {                                                    // JAM
-                USL_CustomCursor(x, y, s, cursor);                                      // JAM
+            if (use_custom_cursor) { // JAM
+                USL_CustomCursor(x, y, s, cursor); // JAM
             } else {
                 USL_XORICursor(x, y, s, cursor);
             }
@@ -739,8 +739,8 @@ boolean US_LineInput(
     }
 
     if (cursorvis) {
-        if (use_custom_cursor) {                                                // JAM
-            USL_CustomCursor(x, y, s, cursor);                                  // JAM
+        if (use_custom_cursor) { // JAM
+            USL_CustomCursor(x, y, s, cursor); // JAM
         } else {
             USL_XORICursor(x, y, s, cursor);
         }

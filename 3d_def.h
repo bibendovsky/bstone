@@ -102,7 +102,7 @@ Free Software Foundation, Inc.,
 
 // ==========================================================================
 //
-//                                                      GAME VERSION DEPENDANT DEFINATIONS
+// GAME VERSION DEPENDANT DEFINATIONS
 //
 // ==========================================================================
 
@@ -113,7 +113,7 @@ void jsprintf(
 /*
 =============================================================================
 
-                                                        MACROS
+ MACROS
 
 =============================================================================
 */
@@ -144,7 +144,7 @@ void jsprintf(
 #define ABS(x) ((Sint16)(x) > 0 ? (x) : -(x))
 #define LABS(x) ((Sint32)(x) > 0 ? (x) : -(x))
 
-// #define STATUSDRAWPIC(x, y, picnum)                  LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
+// #define STATUSDRAWPIC(x, y, picnum) LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
 
 #define FMAPWIDTH ((fixed)mapwidth << TILESHIFT)
 #define FMAPHEIGHT ((fixed)mapheight << TILESHIFT)
@@ -228,7 +228,7 @@ case gen_scientistobj
 
 // Max number of concession reply messages
 
-// #define CON_HINTS                                                                                                                    // Un/Comment to support concession hints
+// #define CON_HINTS // Un/Comment to support concession hints
 
 #define MAXACTORS 150 // max number of nazis, etc / map
 #define MAXSTATS 400 // max number of lamps, bonus, etc
@@ -386,7 +386,7 @@ case gen_scientistobj
 
 // Ammo/Weapon Definations
 
-// #define NUM_AMMO_SEGS                                42                      // 42 Color segments (OR 21 2-Color segs)
+// #define NUM_AMMO_SEGS 42 // 42 Color segments (OR 21 2-Color segs)
 #define MAX_AMMO 100 // Max ammount of ammo for any weapon
 #define AUTOCHARGE_WAIT 50 // Tics wait time for a full charge
 
@@ -3604,7 +3604,7 @@ enum breifing_type {
 }; // enum breifing_type
 
 // Terminal Messages - These correspond to the order in which they are
-//                                                        grabbed in VGAGRAPH.BS?.  See BSTONEV.I
+// grabbed in VGAGRAPH.BS?.  See BSTONEV.I
 //
 
 enum term_msg_type {
@@ -3675,7 +3675,7 @@ enum term_msg_type {
 }; // enum term_msg_type
 
 // Terminal Commands - The first set of commands TC_HINT - TC_end_of_1to1
-//                                                        are directly mapped 1 to 1 to the terminal msgs.
+// are directly mapped 1 to 1 to the terminal msgs.
 //
 
 enum term_cmd_type {
@@ -3738,7 +3738,7 @@ enum barrier_state_type {
 /*
 =============================================================================
 
-                                                        GLOBAL TYPES
+ GLOBAL TYPES
 
 =============================================================================
 */
@@ -3763,10 +3763,10 @@ typedef Sint32 fixed;
 #define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus))BONUS_QUEUE |= bonus
 
 struct PinballBonusInfo {
-    char* BonusText;                            // REBA text pointer
-    Sint32 Points;                                      // Score for this bonus
-    boolean Recurring;                          // Appear multiple times in a single level?
-    void (* func)();                            // Code to execute when you get this bonus.
+    char* BonusText; // REBA text pointer
+    Sint32 Points; // Score for this bonus
+    boolean Recurring; // Appear multiple times in a single level?
+    void (* func)(); // Code to execute when you get this bonus.
 }; // struct PinballBonusInfo
 
 struct atkinf_t {
@@ -3837,7 +3837,7 @@ enum classtype {
 
 
     // BEGIN - Start of ordered list for ActorInfoMsg[] for attacking
-    //         actor REBA messages
+    // actor REBA messages
 
     rentacopobj,
     hang_terrotobj,
@@ -3892,7 +3892,7 @@ enum classtype {
     morphing_mutanthuman2obj,
 
     SPACER1_OBJ,
-    electroshotobj,                     // NON-HITPOINT objects...
+    electroshotobj, // NON-HITPOINT objects...
     post_barrierobj,
     arc_barrierobj,
     vpost_barrierobj,
@@ -3933,7 +3933,7 @@ enum classtype {
     final_boss2shotobj,
     final_boss4shotobj,
 
-    doorexplodeobj,                                             // Door explosion_anim acto
+    doorexplodeobj, // Door explosion_anim acto
     gr_explosionobj,
     gold_morphingobj
 
@@ -3952,8 +3952,8 @@ inline classtype operator++(
 
 //
 // NOTE: When adding bonus objects - Make sure that they are added
-//      -----   at the bottom of the list or that BonusMsg[] is correctly
-//                      updated.
+// at the bottom of the list or that BonusMsg[] is correctly
+// updated.
 //
 
 enum stat_t {
@@ -4073,7 +4073,7 @@ inline dirtype operator++(
 }
 
 enum enemy_t {
-    en_rentacop,                                // Actors with hitpoints (normal actors)
+    en_rentacop, // Actors with hitpoints (normal actors)
     en_hang_terrot,
     en_gen_scientist,
     en_pod,
@@ -4127,7 +4127,7 @@ enum enemy_t {
 
     NUMHITENEMIES,
 
-    en_electro_shot,                            // Actors WITHOUT hitpoints (abnormal actors?)
+    en_electro_shot, // Actors WITHOUT hitpoints (abnormal actors?)
     en_post_barrier,
     en_arc_barrier,
     en_vpost_barrier,
@@ -4154,7 +4154,7 @@ enum enemy_t {
     en_plasma_detonator,
     en_plasma_detonator_reserve,
 
-    en_vertsphere,                              // Actor types only used for spawning.
+    en_vertsphere, // Actor types only used for spawning.
     en_horzsphere,
     en_diagsphere,
     en_bloodvent,
@@ -4579,10 +4579,10 @@ enum animdir_t {
 
 
 struct ofs_anim_t {
-    Uint16 animtype: 2;                 // animtype_t
+    Uint16 animtype: 2; // animtype_t
     Uint16 curframe : 5;
     Uint16 maxframe : 5;
-    Uint16 animdir : 1;                 // animdir_t
+    Uint16 animdir : 1; // animdir_t
     Uint16 extra : 3;
 }; // struct ofs_anim_t
 
@@ -4623,8 +4623,8 @@ enum msg_priorities {
     MP_PINBALL_BONUS = 0x3000,
     MP_FLOOR_UNLOCKED = 0x3000,
 
-    MP_POWERUP = 0x7000,                                                                  // Power-Up/Game-Start Value
-    MP_max_val = 0x7FFF                                                                  // DO NOT USE/EXCEED - MAX Val
+    MP_POWERUP = 0x7000, // Power-Up/Game-Start Value
+    MP_max_val = 0x7FFF // DO NOT USE/EXCEED - MAX Val
 }; // enum msg_priorities
 
 enum infomsg_type {
@@ -4682,8 +4682,8 @@ struct mCacheInfo {
 // Basic 'message list' structure
 //
 struct mCacheList {
-    Sint16 NumMsgs;                                                                     // number of messages
-    mCacheInfo mInfo[MAX_CACHE_MSGS];                   // table of message 'info'
+    Sint16 NumMsgs; // number of messages
+    mCacheInfo mInfo[MAX_CACHE_MSGS]; // table of message 'info'
 }; // struct mCacheList
 
 // ----------------------- CONCESSION STRUCTURES --------------------------
@@ -4725,7 +4725,7 @@ struct concession_t {
 //
 struct sci_mCacheInfo {
     mCacheInfo mInfo;
-    Uint8 areanumber;                                                                   // 'where' msg can be used
+    Uint8 areanumber; // 'where' msg can be used
 }; // struct sci_mCacheInfo
 
 // Informant 'message list' structure
@@ -4933,7 +4933,7 @@ int NextChunk(
 /*
 =============================================================================
 
-                                                 3D_GAME DEFINITIONS
+ 3D_GAME DEFINITIONS
 
 =============================================================================
 */
@@ -5006,7 +5006,7 @@ void LoadLocationText(
 /*
 =============================================================================
 
-                                                 3D_PLAY DEFINITIONS
+ 3D_PLAY DEFINITIONS
 
 =============================================================================
 */
@@ -5096,7 +5096,7 @@ void CheckMusicToggle();
 /*
 =============================================================================
 
-                                                        3D_DEBUG
+ 3D_DEBUG
 
 =============================================================================
 */
@@ -5108,7 +5108,7 @@ void CalcMemFree();
 /*
 =============================================================================
 
-                                                 3D_DRAW DEFINITIONS
+ 3D_DRAW DEFINITIONS
 
 =============================================================================
 */
@@ -5202,7 +5202,7 @@ void UpdateTravelTable();
 /*
 =============================================================================
 
-                                                 3D_DRAW2 DEFINITIONS
+ 3D_DRAW2 DEFINITIONS
 
 =============================================================================
 */
@@ -5220,7 +5220,7 @@ void F_MapRow();
 /*
 =============================================================================
 
-                                                 3D_STATE DEFINITIONS
+ 3D_STATE DEFINITIONS
 
 =============================================================================
 */
@@ -5294,7 +5294,7 @@ objtype* CheckAndReserve();
 /*
 =============================================================================
 
-                                                 3D_SCALE DEFINITIONS
+ 3D_SCALE DEFINITIONS
 
 =============================================================================
 */
@@ -5340,7 +5340,7 @@ void MegaSimpleScaleShape(
 /*
 =============================================================================
 
-                                                 3D_AGENT DEFINITIONS
+ 3D_AGENT DEFINITIONS
 
 =============================================================================
 */
@@ -5510,7 +5510,7 @@ boolean OperateSmartSwitch(
 /*
 =============================================================================
 
-                                                 3D_ACT1 DEFINITIONS
+ 3D_ACT1 DEFINITIONS
 
 =============================================================================
 */
@@ -5623,7 +5623,7 @@ void ExplodeStatics(
 /*
 =============================================================================
 
-                                                 3D_ACT2 DEFINITIONS
+ 3D_ACT2 DEFINITIONS
 
 =============================================================================
 */
@@ -5923,7 +5923,7 @@ void DropCargo(
 /*
 =============================================================================
 
-                                                 3D_TEXT DEFINITIONS
+ 3D_TEXT DEFINITIONS
 
 =============================================================================
 */
@@ -5937,7 +5937,7 @@ extern void EndText();
 /*
 =============================================================================
 
-                                                 3D_MSGS TEXT DEFINITIONS
+ 3D_MSGS TEXT DEFINITIONS
 
 =============================================================================
 */
@@ -6003,7 +6003,7 @@ extern char pd_floornotlocked[];
 /*
 =============================================================================
 
-                                                 3D_INTER DEFINITIONS
+ 3D_INTER DEFINITIONS
 
 =============================================================================
 */
@@ -6026,7 +6026,7 @@ Uint16 Random(
 
 // ===========================================================================
 //
-//                                      3D_MENU DEFINATIONS - WHICH NEED TO BE GLOBAL
+// 3D_MENU DEFINATIONS - WHICH NEED TO BE GLOBAL
 //
 // ===========================================================================
 
@@ -6047,7 +6047,7 @@ boolean CheckForSpecialCode(
 
 // ===========================================================================
 //
-//                                      3D_FREE DEFINATIONS - WHICH NEED TO BE GLOBAL
+// 3D_FREE DEFINATIONS - WHICH NEED TO BE GLOBAL
 //
 // ===========================================================================
 

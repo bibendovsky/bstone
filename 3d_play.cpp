@@ -62,7 +62,7 @@ void UpdateSoundLoc();
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -72,7 +72,7 @@ void UpdateSoundLoc();
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -195,7 +195,7 @@ void PopupAutoMap(
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -308,7 +308,7 @@ Sint16 songs[] = {
     SERPENT_MUS,                 // 18
     TIME_MUS,                    // 19
     CATACOMB_MUS,                // 20
-    PLOT_MUS,                                            // 21
+    PLOT_MUS,                    // 21
     GIVING_MUS,                  // 22
     VACCINAP_MUS,                // 23
 #endif
@@ -318,7 +318,7 @@ Sint16 songs[] = {
 /*
 =============================================================================
 
-                                                  USER CONTROL
+ USER CONTROL
 
 =============================================================================
 */
@@ -607,7 +607,7 @@ void PollControls()
     memset(buttonstate, 0, sizeof(buttonstate));
 
 #ifdef MYPROFILE
-    controlx = 100;                     // just spin in place
+    controlx = 100; // just spin in place
     return;
 #endif
 
@@ -630,7 +630,7 @@ void PollControls()
         lasttimecount = TimeCount;
 
         if (demoptr == lastdemoptr) {
-            playstate = ex_completed;                           // demo is done
+            playstate = ex_completed; // demo is done
 
         }
         controlx *= tics;
@@ -1448,9 +1448,9 @@ void GetNewActor()
             lastobj->next = new_actor;
         }
 
-        new_actor->prev = lastobj;              // new_actor->next is allready NULL from memset
+        new_actor->prev = lastobj; // new_actor->next is allready NULL from memset
 
-//              new_actor->active = false;
+// new_actor->active = false;
         lastobj = new_actor;
 
         objcount++;
@@ -1510,7 +1510,7 @@ void RemoveObj(
 /*
 =============================================================================
 
-                                                MUSIC STUFF
+ MUSIC STUFF
 
 =============================================================================
 */
@@ -1731,7 +1731,7 @@ void FinishPaletteShifts()
 /*
 =============================================================================
 
-                                                CORE PLAYLOOP
+ CORE PLAYLOOP
 
 =============================================================================
 */
@@ -1766,11 +1766,11 @@ void DoActor(
                 actor->flags |= FL_BARRIER_DAMAGE;
                 if ((US_RndT() < 0x7f) && (actor->flags & FL_SHOOTABLE)) {
                     switch (ob->obclass) {
-                    case arc_barrierobj:                                                // arc barrier - Mild Damage
-                        damage = 500;                                                   // 100
+                    case arc_barrierobj: // arc barrier - Mild Damage
+                        damage = 500; // 100
                         break;
 
-                    case post_barrierobj:                                       // post barrier - Butt kicker
+                    case post_barrierobj: // post barrier - Butt kicker
                         damage = 500;
                         break;
 
@@ -1823,7 +1823,7 @@ void DoActor(
 //
     ob->ticcount -= tics;
     while (ob->ticcount <= 0) {
-        think = ob->state->action;                              // end of state action
+        think = ob->state->action; // end of state action
         if (think) {
             think(ob);
             if (!ob->state) {
@@ -1902,7 +1902,7 @@ void PlayLoop()
 
     ::in_clear_mouse_deltas();
 
-    tics = 1;                           // for first time through
+    tics = 1; // for first time through
     if (demoplayback) {
         IN_StartAck();
     }

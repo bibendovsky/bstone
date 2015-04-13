@@ -54,7 +54,7 @@ boolean ClipMove(
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -104,7 +104,7 @@ boolean ClipMove(
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -116,7 +116,7 @@ char detonators_spawned = 0;
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -127,184 +127,184 @@ Sint16 starthitpoints[4][NUMHITENEMIES] =
     // BABY MODE
     //
 {
-    { 4,                // Rent-A-Cop
-      4,                // Hang Terrot
-      4,                // general scientist
-      22,               // pod alien
-      13,               // Electro-Alien
-      1,                // Electro-Sphere
-      33,               // ProGuard
-      20,               // Genetic Guard
-      24,               // Mutant Human Type 1
-      24,               // Mutant Human Type 2
-      1,                // Large Canister Alien - CONTAINER HP
-      34,               // Large Can-Alien - ALIEN HP
-      1,                // Small Canister Alien - CONTAINER HP
-      25,               // Small Can-Alien - ALIEN HP
-      1,                // Gurney Mutant - Waiting HP
-      27,               // Gurney Mutant - Spawned HP
-      30,               // Liquid Alien -
-      78,               // Swat Guards
-      90,               // Goldstern
-      4000,     // Morphed Goldstern
-      17,               // Volatile Material Transport
-      15,               // Floating Bomb
-      175,      // Vital Defence Obj  - DON'T CHANGE
-      60,               // spider_mutant
-      65,               // breather_beast
-      70,               // cyborg_warror
-      65,               // reptilian_warrior
-      60,               // acid_dragon
-      65,               // mech_guardian
-      1600,     // final_boss 1
-      1700,     // final_boss 2
-      1800,     // final_boss 3
-      1900,     // final_boss 4
-      1,                // Crate 1
-      1,                // Crate 2
-      1,                // Crate 3
-      1,                // Pod egg
-      1,                // morphing_spider_mutant
-      1,                // morphing_reptilian_warrior
-      1,                // morphing_Mutant Human Type 2
+    { 4, // Rent-A-Cop
+      4, // Hang Terrot
+      4, // general scientist
+      22, // pod alien
+      13, // Electro-Alien
+      1, // Electro-Sphere
+      33, // ProGuard
+      20, // Genetic Guard
+      24, // Mutant Human Type 1
+      24, // Mutant Human Type 2
+      1, // Large Canister Alien - CONTAINER HP
+      34, // Large Can-Alien - ALIEN HP
+      1, // Small Canister Alien - CONTAINER HP
+      25, // Small Can-Alien - ALIEN HP
+      1, // Gurney Mutant - Waiting HP
+      27, // Gurney Mutant - Spawned HP
+      30, // Liquid Alien -
+      78, // Swat Guards
+      90, // Goldstern
+      4000, // Morphed Goldstern
+      17, // Volatile Material Transport
+      15, // Floating Bomb
+      175, // Vital Defence Obj  - DON'T CHANGE
+      60, // spider_mutant
+      65, // breather_beast
+      70, // cyborg_warror
+      65, // reptilian_warrior
+      60, // acid_dragon
+      65, // mech_guardian
+      1600, // final_boss 1
+      1700, // final_boss 2
+      1800, // final_boss 3
+      1900, // final_boss 4
+      1, // Crate 1
+      1, // Crate 2
+      1, // Crate 3
+      1, // Pod egg
+      1, // morphing_spider_mutant
+      1, // morphing_reptilian_warrior
+      1, // morphing_Mutant Human Type 2
     },
 
     //
     // DON'T HURT ME MODE
     //
 
-    { 9,                // Rent-A-Cop
-      9,                // Hang Terrot
-      9,                // general scientist
-      60,               // pod alien
-      37,               // Electro-Alien
-      1,                // Electro-Sphere
-      63,               // ProGuard
-      60,               // Genetic Guard
-      50,               // Mutant Human Type 1
-      50,               // Mutant Human Type 2
-      1,                // Large Canister Alien - CONTAINER HP
-      75,               // Large Can-Alien - ALIEN HP
-      1,                // Small Canister Alien - CONTAINER HP
-      60,               // Small Can-Alien - ALIEN HP
-      1,                // Gurney Mutant - Waiting HP
-      37,               // Gurney Mutant - Spawned HP
-      66,               // Liquid Alien -
-      112,      // SWAT Guards
-      100,      // Goldstern
-      4500,     // Morphed Goldstern
-      25,               // Volatile Material Transport
-      40,               // Floating Bomb
-      175,      // Vital Defence Obj  - DON'T CHANGE
-      100,      // spider_mutant
-      115,      // breather_beast
-      100,      // cyborg_warror
-      115,      // reptilian_warrior
-      100,      // acid_dragon
-      115,      // mech_guardian
-      1700,     // final_boss 1
-      1800,     // final_boss 2
-      1900,     // final_boss 3
-      2000,     // final_boss 4
-      1,                // Crate 1
-      1,                // Crate 2
-      1,                // Crate 3
-      1,                // Pod egg
-      1,                // morphing_spider_mutant
-      1,                // morphing_reptilian_warrior
-      1,                // morphing_Mutant Human Type 2
+    { 9, // Rent-A-Cop
+      9, // Hang Terrot
+      9, // general scientist
+      60, // pod alien
+      37, // Electro-Alien
+      1, // Electro-Sphere
+      63, // ProGuard
+      60, // Genetic Guard
+      50, // Mutant Human Type 1
+      50, // Mutant Human Type 2
+      1, // Large Canister Alien - CONTAINER HP
+      75, // Large Can-Alien - ALIEN HP
+      1, // Small Canister Alien - CONTAINER HP
+      60, // Small Can-Alien - ALIEN HP
+      1, // Gurney Mutant - Waiting HP
+      37, // Gurney Mutant - Spawned HP
+      66, // Liquid Alien -
+      112, // SWAT Guards
+      100, // Goldstern
+      4500, // Morphed Goldstern
+      25, // Volatile Material Transport
+      40, // Floating Bomb
+      175, // Vital Defence Obj  - DON'T CHANGE
+      100, // spider_mutant
+      115, // breather_beast
+      100, // cyborg_warror
+      115, // reptilian_warrior
+      100, // acid_dragon
+      115, // mech_guardian
+      1700, // final_boss 1
+      1800, // final_boss 2
+      1900, // final_boss 3
+      2000, // final_boss 4
+      1, // Crate 1
+      1, // Crate 2
+      1, // Crate 3
+      1, // Pod egg
+      1, // morphing_spider_mutant
+      1, // morphing_reptilian_warrior
+      1, // morphing_Mutant Human Type 2
     },
 
     //
     // BRING 'EM ON MODE
     //
 
-    { 25,               // Rent-A-Cop
-      23,               // Hang Terrot
-      23,               // general scientist
-      160,      // pod alien
-      112,      // Electro-Alien
-      1,                // Electro-Sphere
-      150,      // ProGuard
-      180,      // Genetic Guard
-      155,      // Mutant Human Type 1
-      155,      // Mutant Human Type 2
-      1,                // Large Canister Alien - CONTAINER HP
-      225,      // Large Can-Alien - ALIEN HP
-      1,                // Small Canister Alien - CONTAINER HP
-      180,      // Small Can-Alien - ALIEN HP
-      1,                // Gurney Mutant - Waiting HP
-      150,      // Gurney Mutant - Spawned HP
-      163,      // Liquid Alien -
-      325,      // SWAT Guards
-      150,      // Goldstern
-      4800,     // Morphed Goldstern
-      63,               // Volatile Material Transport
-      60,               // Floating Bomb
-      175,      // Vital Defence Obj  - DON'T CHANGE
-      150,      // spider_mutant
-      165,      // breather_beast
-      150,      // cyborg_warror
-      165,      // reptilian_warrior
-      150,      // acid_dragon
-      165,      // mech_guardian
-      1800,     // final_boss 1
-      1900,     // final_boss 2
-      2000,     // final_boss 3
-      2100,     // final_boss 4
-      1,                // Crate 1
-      1,                // Crate 2
-      1,                // Crate 3
-      1,                // Pod egg
-      1,                // morphing_spider_mutant
-      1,                // morphing_reptilian_warrior
-      1,                // morphing_Mutant Human Type 2
+    { 25, // Rent-A-Cop
+      23, // Hang Terrot
+      23, // general scientist
+      160, // pod alien
+      112, // Electro-Alien
+      1, // Electro-Sphere
+      150, // ProGuard
+      180, // Genetic Guard
+      155, // Mutant Human Type 1
+      155, // Mutant Human Type 2
+      1, // Large Canister Alien - CONTAINER HP
+      225, // Large Can-Alien - ALIEN HP
+      1, // Small Canister Alien - CONTAINER HP
+      180, // Small Can-Alien - ALIEN HP
+      1, // Gurney Mutant - Waiting HP
+      150, // Gurney Mutant - Spawned HP
+      163, // Liquid Alien -
+      325, // SWAT Guards
+      150, // Goldstern
+      4800, // Morphed Goldstern
+      63, // Volatile Material Transport
+      60, // Floating Bomb
+      175, // Vital Defence Obj  - DON'T CHANGE
+      150, // spider_mutant
+      165, // breather_beast
+      150, // cyborg_warror
+      165, // reptilian_warrior
+      150, // acid_dragon
+      165, // mech_guardian
+      1800, // final_boss 1
+      1900, // final_boss 2
+      2000, // final_boss 3
+      2100, // final_boss 4
+      1, // Crate 1
+      1, // Crate 2
+      1, // Crate 3
+      1, // Pod egg
+      1, // morphing_spider_mutant
+      1, // morphing_reptilian_warrior
+      1, // morphing_Mutant Human Type 2
     },
 
     //
     // DEATH INCARNATE MODE
     //
 
-    { 38,               // Rent-A-Cop
-      28,               // Hang Terrot
-      28,               // general scientist
-      210,      // pod alien
-      150,      // Electro-Alien
-      1,                // Electro-Sphere
-      175,      // ProGuard
-      240,      // Genetic Guard
-      210,      // Mutant Human Type 1
-      210,      // Mutant Human Type 2
-      1,                // Large Canister Alien - CONTAINER HP
-      300,      // Large Can-Alien - ALIEN HP
-      1,                // Small Canister Alien - CONTAINER HP
-      240,      // Small Can-Alien - ALIEN HP
-      1,                // Gurney Mutant - Waiting HP
-      200,      // Gurney Mutant - Spawned HP
-      210,      // Liquid Alien -
-      425,      // SWAT Gaurds
-      250,      // Goldstern
-      5400,     // Morphed Goldstern
-      75,               // Volatile Material Transport
-      85,               // Floating Bomb
-      175,      // Vital Defence Obj - DON'T CHANGE
-      200,      // spider_mutant
-      225,      // breather_beast
-      200,      // cyborg_warror
-      225,      // reptilian_warrior
-      200,      // acid_dragon
-      225,      // mech_guardian
-      1900,     // final_boss 1
-      2000,     // final_boss 2
-      2100,     // final_boss 3
-      2200,     // final_boss 4
-      1,                // Crate 1
-      1,                // Crate 2
-      1,                // Crate 3
-      1,                // Pod egg
-      1,                // morphing_spider_mutant
-      1,                // morphing_reptilian_warrior
-      1,                // morphing_Mutant Human Type 2
+    { 38, // Rent-A-Cop
+      28, // Hang Terrot
+      28, // general scientist
+      210, // pod alien
+      150, // Electro-Alien
+      1, // Electro-Sphere
+      175, // ProGuard
+      240, // Genetic Guard
+      210, // Mutant Human Type 1
+      210, // Mutant Human Type 2
+      1, // Large Canister Alien - CONTAINER HP
+      300, // Large Can-Alien - ALIEN HP
+      1, // Small Canister Alien - CONTAINER HP
+      240, // Small Can-Alien - ALIEN HP
+      1, // Gurney Mutant - Waiting HP
+      200, // Gurney Mutant - Spawned HP
+      210, // Liquid Alien -
+      425, // SWAT Gaurds
+      250, // Goldstern
+      5400, // Morphed Goldstern
+      75, // Volatile Material Transport
+      85, // Floating Bomb
+      175, // Vital Defence Obj - DON'T CHANGE
+      200, // spider_mutant
+      225, // breather_beast
+      200, // cyborg_warror
+      225, // reptilian_warrior
+      200, // acid_dragon
+      225, // mech_guardian
+      1900, // final_boss 1
+      2000, // final_boss 2
+      2100, // final_boss 3
+      2200, // final_boss 4
+      1, // Crate 1
+      1, // Crate 2
+      1, // Crate 3
+      1, // Pod egg
+      1, // morphing_spider_mutant
+      1, // morphing_reptilian_warrior
+      1, // morphing_Mutant Human Type 2
     }
 };
 
@@ -482,7 +482,7 @@ static void display_remaining_generators()
 
 // ===========================================================================
 //
-//                                                              OFFSET OBJECT ROUTINES
+// OFFSET OBJECT ROUTINES
 //
 // * NOTES: OffsetObjects require the use of TEMP1 of the object structure!
 //
@@ -786,7 +786,7 @@ void SpawnOffsetObj(
         break;
 
     case en_security_light:
-        new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);                                 // ick - this is stupid...
+        new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE); // ick - this is stupid...
         NewState(new_actor, &s_security_light);
         break;
 
@@ -795,7 +795,7 @@ void SpawnOffsetObj(
         new_actor->flags &= ~FL_SOLID;
         new_actor->temp1 = SPR_ELECTRO_SPHERE_ROAM1;
         new_actor->speed = 3096;
-        new_actor->lighting = NO_SHADING;                       // NO shading
+        new_actor->lighting = NO_SHADING; // NO shading
         NewState(new_actor, &s_ofs_bounce);
         SphereStartDir(new_actor);
         break;
@@ -894,7 +894,7 @@ void SpawnOffsetObj(
     case en_morphing_reptilian_warrior:
     case en_morphing_mutanthuman2:
         if (scan_value == 0xffff) {
-            new_actor->temp2 = 0xffff;                                          // set to max!                  // 60*5+(60*(US_RndT()%20));
+            new_actor->temp2 = 0xffff; // set to max! // 60*5+(60*(US_RndT()%20));
         } else {
             new_actor->temp2 = scan_value * 60;
         }
@@ -931,7 +931,7 @@ void SpawnOffsetObj(
 #endif
         break;
 
-    case en_lcan_alien:                                                         // Large Canister Alien - Out of can.
+    case en_lcan_alien: // Large Canister Alien - Out of can.
         new_actor->temp1 = SPR_LCAN_ALIEN_W1;
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
@@ -943,7 +943,7 @@ void SpawnOffsetObj(
 #endif
         break;
 
-    case en_scan_alien:                                                         // Small Canister Alien - Out of can.
+    case en_scan_alien: // Small Canister Alien - Out of can.
         new_actor->temp1 = SPR_SCAN_ALIEN_W1;
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
@@ -955,7 +955,7 @@ void SpawnOffsetObj(
 #endif
         break;
 
-    case en_gurney:                                                             // Gurney Mutant - Off of gurney.
+    case en_gurney: // Gurney Mutant - Off of gurney.
         new_actor->temp1 = SPR_GURNEY_MUT_W1;
         new_actor->speed = ALIENSPEED;
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
@@ -1222,8 +1222,8 @@ void T_OfsThink(
     case crate1obj:
     case crate2obj:
     case crate3obj:
-    case lcan_wait_alienobj:                            // These objs wait till they are destroyed
-    case scan_wait_alienobj:                            //   before doing anything.
+    case lcan_wait_alienobj: // These objs wait till they are destroyed
+    case scan_wait_alienobj: //   before doing anything.
         break;
 
     case gurney_waitobj:
@@ -1284,7 +1284,7 @@ void SphereStartDir(
     actorat[ob->tilex][ob->tiley] = NULL;
     for (loop = 0; loop < 3; loop++) {
         ob->dir = static_cast<dirtype>(RandomSphereDir(
-                                           static_cast<enemy_t>(en_vertsphere + ((ob->trydir - en_vertsphere + loop) % 3))));
+            static_cast<enemy_t>(en_vertsphere + ((ob->trydir - en_vertsphere + loop) % 3))));
 
         if (!TryWalk(ob, true)) {
             ob->dir = opposite[ob->dir];
@@ -1360,7 +1360,7 @@ void T_OfsBounce(
         // Can actor move without reaching destination tile?
         //
         if (move < ob->distance) {
-            MoveObj(ob, move);                                                                  // YES!
+            MoveObj(ob, move); // YES!
             break;
         }
 
@@ -1400,17 +1400,17 @@ void T_OfsBounce(
                     continue;
                 }
 
-                ob->dir = static_cast<dirtype>((ob->dir + 2) % 8);                              // Try 90 degrees to the left
+                ob->dir = static_cast<dirtype>((ob->dir + 2) % 8); // Try 90 degrees to the left
                 if (TryWalk(ob, false)) {
                     break;
                 }
 
-                ob->dir = opposite[ob->dir];                            // Try 90 degrees to the right
+                ob->dir = opposite[ob->dir]; // Try 90 degrees to the right
                 if (TryWalk(ob, false)) {
                     break;
                 }
 
-                ob->dir = static_cast<dirtype>((ob->dir + 2) % 8);                              // Back to original direction..
+                ob->dir = static_cast<dirtype>((ob->dir + 2) % 8); // Back to original direction..
                 // Must be in a corner...
 
                 check_opposite = true;
@@ -1540,12 +1540,12 @@ boolean CheckTrappedDiag(
 
 // ---------------------------------------------------------------------------
 // FindObj() - This function will search the objlist for an object
-//                                      of a given type at a given tilex & tiley coords.
+//              of a given type at a given tilex & tiley coords.
 //
 // PARAMETERS:
-//                              which - objtype of actor to look for.
-//                              tilex - tile x coord of actor looking for (-1 == Dont care)
-//                              tiley - tile y coord of actor looking for (-1 == Dont care)
+//  which - objtype of actor to look for.
+//  tilex - tile x coord of actor looking for (-1 == Dont care)
+//  tiley - tile y coord of actor looking for (-1 == Dont care)
 //
 // ---------------------------------------------------------------------------
 objtype* FindObj(
@@ -1580,10 +1580,10 @@ objtype* FindObj(
 
 // ---------------------------------------------------------------------------
 // SpawnHiddenOfs() - This function will spawn a given offset actor at a passed
-//                                                       x & y coords and then move the actor to (0,0) for hidding
+//                  x & y coords and then move the actor to (0,0) for hidding
 //
 // PURPOSE: This function was created mainly for spawning reserve objects that
-//                              would later be simply moved from their (0,0) coords to a new
+//          would later be simply moved from their (0,0) coords to a new
 //          location.
 //
 // NOTE: When this actor is moved from it's (0,0) coords, you will need to
@@ -1596,7 +1596,7 @@ void SpawnHiddenOfs(
     Sint16 tiley)
 {
     nevermark = true;
-    SpawnOffsetObj(which, tilex, tiley);                        // Spawn a reserve
+    SpawnOffsetObj(which, tilex, tiley); // Spawn a reserve
     nevermark = false;
     new_actor->tilex = 0;
     new_actor->tiley = 0;
@@ -1607,8 +1607,8 @@ void SpawnHiddenOfs(
 
 // ---------------------------------------------------------------------------
 // FindHiddenOfs() - This function will find a hidden ofs actor which was
-//                                                      hidden using SpawnHiddenOfs() and will return a pointer
-//                                                      to the actor in the objlist.
+//                  hidden using SpawnHiddenOfs() and will return a pointer
+//                  to the actor in the objlist.
 //
 // NOTE: When this actor is moved from it's (0,0) coords, you will need to
 //       update the area number that this actor is standing in or use
@@ -1629,8 +1629,8 @@ objtype* FindHiddenOfs(
 
 // ---------------------------------------------------------------------------
 // MoveHiddenOfs() - This function will find a hidden ofs actor which was
-//                                                      hidden using SpawnHiddenOfs() and will move the actor
-//                                                      to a new passed coords and change the actors class.
+//                  hidden using SpawnHiddenOfs() and will move the actor
+//                  to a new passed coords and change the actors class.
 //
 // RETURNS: Success = Ptr to the object that was moved.
 //          Failure = NULL.
@@ -1664,7 +1664,7 @@ objtype* MoveHiddenOfs(
 
 // ===========================================================================
 //
-//                                              SMART_ANIM ANIMATION ROUTINES
+//  SMART_ANIM ANIMATION ROUTINES
 //
 //
 // * NOTES: OffsetObjects require the use of TEMP1 of the object structure!
@@ -1678,12 +1678,12 @@ objtype* MoveHiddenOfs(
 // ---------------------------------------------------------------------------
 // InitSmartAnim() - Sets up an object for a SmartAnimation
 //
-// PARAMETERS: Obj              - Ptr to object structure
-//             ShapeNum - First shape number in anim
-//                                      StartOfs - Starting offset in the animation to start with.
-//                                      MaxOfs  - Ending offset in the animation.
-//                                      AnimType - Type of animation (at_CYCLE,at_ONCE,or at_REBOUND)
-//                                      AnimDir - Direction of animation to start (ad_FWD, or ad_REV)
+// PARAMETERS:  Obj  - Ptr to object structure
+//              ShapeNum - First shape number in anim
+//              StartOfs - Starting offset in the animation to start with.
+//              MaxOfs  - Ending offset in the animation.
+//              AnimType - Type of animation (at_CYCLE,at_ONCE,or at_REBOUND)
+//              AnimDir - Direction of animation to start (ad_FWD, or ad_REV)
 //
 // ** This function should ALWAY be used to init/start SmartAnimations! **
 //
@@ -1733,21 +1733,21 @@ void InitAnim(
 
 //
 // "s_ofs_smart_anim" - The following structure is designed for "Smart
-//                                                              Animations."
+//  Animations."
 //
 // OVERVIEW:    This structure will allow the flexiblity to perform ANY type
-//                                              of animation, custom, etc. using one single structure.
-//                                              All of the animations are using "Offset" techniques, where
-//                                         the current shapenumber of the object is in TEMP1 of the
-//                                              object structure,  Code is then written to handle changing
-//                                              the shapenumber of each object individually.
+//  of animation, custom, etc. using one single structure.
+//  All of the animations are using "Offset" techniques, where
+//  the current shapenumber of the object is in TEMP1 of the
+//  object structure,  Code is then written to handle changing
+//  the shapenumber of each object individually.
 //
 // FUNCTIONS:  T_SmartThink() - Is a think that is call continusly and is
-//                                              special coded for an object/actor.
+//  special coded for an object/actor.
 //
-//                                      T_SmartThought() - Is called only once allowing for other
-//                                              special codeing, (Ex. the spawning of another animation at
-//                                              anypoint in the current animation, death screams, sounds,etc)
+// T_SmartThought() - Is called only once allowing for other
+//  special codeing, (Ex. the spawning of another animation at
+//  anypoint in the current animation, death screams, sounds,etc)
 //
 // * NOTES:     The T_SmartThink could be modified to handle generic animations
 //          like cycle, once, rebound, etc. using flags in the object struct.
@@ -1766,8 +1766,8 @@ statetype s_ofs_smart_anim2 = { false, 0, 1, T_SmartThought, NULL, &s_ofs_smart_
 
 // ---------------------------------------------
 // T_SmartThought() - A think for ofset objects
-//                                                       that is called ONLY ONCE
-//                                                       per state change.
+//  that is called ONLY ONCE
+//  per state change.
 // ---------------------------------------------
 void T_SmartThought(
     objtype* obj)
@@ -1901,7 +1901,7 @@ void T_SmartThought(
                 // Game completed!
                 //
                 playstate = ex_victorious;
-                obj->state = NULL;                                                      // Mark to be removed.
+                obj->state = NULL;  // Mark to be removed.
                 break;
 #endif
 
@@ -1913,7 +1913,7 @@ void T_SmartThought(
                 return;
 
             default:
-                obj->state = NULL;                                                      // Mark to be removed.
+                obj->state = NULL;  // Mark to be removed.
                 break;
             }
         }
@@ -2010,7 +2010,7 @@ void T_SmartThought(
 #endif
                 SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
                 NewState(obj, &s_ofs_static);
-//                                      obj->obclass = fixup_inertobj;
+// obj->obclass = fixup_inertobj;
                 break;
 
             case scan_wait_alienobj:
@@ -2027,7 +2027,7 @@ void T_SmartThought(
 
                 SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
                 NewState(obj, &s_ofs_static);
-//                                      obj->obclass = fixup_inertobj;
+// obj->obclass = fixup_inertobj;
                 break;
 
             case lcan_wait_alienobj:
@@ -2044,7 +2044,7 @@ void T_SmartThought(
 #endif
                 SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
                 NewState(obj, &s_ofs_static);
-//                                      obj->obclass = fixup_inertobj;
+// obj->obclass = fixup_inertobj;
                 break;
 
             default:
@@ -2088,42 +2088,42 @@ void T_SmartThought(
 // """"""""""""""  AnimateObj() function!
 //
 //
-// obj->TEMP1                           - Holds the current shape number.
+// obj->TEMP1   - Holds the current shape number.
 //
 // obj->TEMP3.maxframe  - Frames in anim. (0 == 1 Frame, 1 == 2 Frames, etc))
 //
 // obj->TEMP3.curframe  - Holds the the shape offset which TEMP1 is off from
-//                                                                the 1st shape in the anim. ALWAYS POSITIVE NUMBER!
-//                                                                REVerse animations have the "curframe" on the last
-//                                                                offset and TEMP1-CURFRAME should equ the first frame
-//                                                                and MAXFRAME should equ the offset for the first
-//                                                                frame.
+//      the 1st shape in the anim. ALWAYS POSITIVE NUMBER!
+//      REVerse animations have the "curframe" on the last
+//      offset and TEMP1-CURFRAME should equ the first frame
+//      and MAXFRAME should equ the offset for the first
+//      frame.
 //
 // obj->TEMP3.animdir   - Determines the direction of the animation.
 //
 //
-// obj->S_TILEX                         - Current number of tics remaining before advancing
-//                                                                to next frame.
+// obj->S_TILEX - Current number of tics remaining before advancing
+//      to next frame.
 //
-// obj->S_TILEY                 - Delay Tic value per frame - This value is copied
-//                                                                into  S_TILEX upon reaching the end of a frame.
+// obj->S_TILEY - Delay Tic value per frame - This value is copied
+//      into  S_TILEX upon reaching the end of a frame.
 //
 //      IF you want to do a reverse animation then you would need to init
 // TEMP1 to the shape number of the LAST Shape, "curframe" to the       offset
 //      value from the FIRST FRAME in anim and set "animdir" to at_REV.
 //
 // * NOTES: This is an OffsetObject which requires the use of TEMP1 of the
-//                              object structure!
+//      object structure!
 //
 // * NOTES: The use of a SmartAnim requires the use of TEMP3 of the object
-//                              structure!!! Therefore, Any other THINKS (like LookForGoodies)
-//                              CAN NOT be used while this routine is being called also.
+//      structure!!! Therefore, Any other THINKS (like LookForGoodies)
+//      CAN NOT be used while this routine is being called also.
 //
 // * NOTES: ALL SmartAnimations have the SAME animation delay rates!    Sorry!
 //
 // * NOTES: The SmartAnimations use S_TILEX & S_TILEY for animation delay
-//                              values - All SMART actors can not be used if they are using
-//                              a "smart" think!
+//      values - All SMART actors can not be used if they are using
+//      a "smart" think!
 //
 // ------------------------------------------------------------------
 boolean AnimateOfsObj(
@@ -2133,14 +2133,14 @@ boolean AnimateOfsObj(
 
 #if 0 // Anim existance test moved to the calling function.
 
-    if (ANIM_INFO(obj)->animtype == at_NONE) {                  // Animation finished?
-        return true;                                                                                    // YEP!
+    if (ANIM_INFO(obj)->animtype == at_NONE) {  // Animation finished?
+        return true;    // YEP!
 
     }
 #endif
 
 
-    if (obj->s_tilex) {                                         // Check animation delay.
+    if (obj->s_tilex) { // Check animation delay.
         if (obj->s_tilex < tics) {
             obj->s_tilex = 0;
         } else {
@@ -2149,7 +2149,7 @@ boolean AnimateOfsObj(
         return false;
     }
 
-    switch (ANIM_INFO(obj)->animtype) {                                 // Animate this puppy!
+    switch (ANIM_INFO(obj)->animtype) { // Animate this puppy!
     case at_ONCE:
     case at_CYCLE:
         switch (ANIM_INFO(obj)->animdir) {
@@ -2194,7 +2194,7 @@ boolean AnimateOfsObj(
                 ANIM_INFO(obj)->animtype = at_NONE;
                 Done = true;
             }
-            break;                             // REV
+            break; // REV
 
 #endif
 
@@ -2211,7 +2211,7 @@ boolean AnimateOfsObj(
                 AdvanceAnimFWD(obj);
             } else {
                 ANIM_INFO(obj)->animdir = ad_REV;
-//                                              ANIM_INFO(obj)->animdelay = 1;
+// ANIM_INFO(obj)->animdelay = 1;
             }
             break;
 
@@ -2220,12 +2220,12 @@ boolean AnimateOfsObj(
                 AdvanceAnimREV(obj);
             } else {
                 ANIM_INFO(obj)->animdir = ad_FWD;
-//                                              ANIM_INFO(obj)->animdelay = 1;
+// ANIM_INFO(obj)->animdelay = 1;
                 Done = true;
             }
             break;
         }
-        break;                 /* REBOUND */
+        break; /* REBOUND */
 
 #endif
 
@@ -2242,7 +2242,7 @@ boolean AnimateOfsObj(
 void AdvanceAnimFWD(
     objtype* obj)
 {
-    ANIM_INFO(obj)->curframe++;                  // INC frames
+    ANIM_INFO(obj)->curframe++; // INC frames
 
     obj->temp1++;
     obj->s_tilex = obj->s_tiley;
@@ -2257,10 +2257,10 @@ void AdvanceAnimFWD(
 void AdvanceAnimREV(
     objtype* obj)
 {
-    ANIM_INFO(obj)->curframe--;                  // Dec frames
+    ANIM_INFO(obj)->curframe--; // Dec frames
     obj->temp1--;
 
-//      ANIM_INFO(obj)->animdelay = ANIM_INFO(obj)->maxdelay;
+// ANIM_INFO(obj)->animdelay = ANIM_INFO(obj)->maxdelay;
 }
 
 #endif
@@ -2269,7 +2269,7 @@ void AdvanceAnimREV(
 
 // ==========================================================================
 //
-//                                                              WALL SWITCH ACTIVATION
+// WALL SWITCH ACTIVATION
 //
 // ==========================================================================
 
@@ -2345,7 +2345,7 @@ void ActivateWallSwitch(
 
 // --------------------------------------------------------------------------
 // DisplaySwitchOperateMsg() - Displays the Operating Barrier Switch message
-//                                                                               for a particular level across the InfoArea.
+//      for a particular level across the InfoArea.
 // --------------------------------------------------------------------------
 char OnSwitchMessage[] = "\r\r  ACTIVATING BARRIER";
 
@@ -2432,8 +2432,8 @@ Uint16 UpdateBarrierTable(
 // ScanBarrierTable(x,y) - Scans a switch table for a arc in this level
 //
 // RETURNS :
-//         0xFFFF    - Not found in table
-//              barrier   - barrier_table of the barrier for [num]
+//      0xFFFF - Not found in table
+//      barrier - barrier_table of the barrier for [num]
 //
 // --------------------------------------------------------------------------
 Uint16 ScanBarrierTable(
@@ -2460,7 +2460,7 @@ Uint16 ScanBarrierTable(
         }
     }
 
-    return 0xffff;              // Mark as EMPTY
+    return 0xffff; // Mark as EMPTY
 }
 
 
@@ -2471,12 +2471,12 @@ boolean CheckActor(
     objtype* actor,
     Uint16 code)
 {
-    if ((Uint16)actor->temp2 == 0xffff) {                       // Is this actor free?
+    if ((Uint16)actor->temp2 == 0xffff) { // Is this actor free?
         //
         // Connect actor to barrier switch (code is index into barrier table)
         //
 
-        actor->temp2 = code;                            // This actor is NO longer a cycle actor.
+        actor->temp2 = code; // This actor is NO longer a cycle actor.
         return true;
     }
 
@@ -2529,9 +2529,9 @@ Sint16 CheckAndConnect(
 
 // --------------------------------------------------------------------------
 // ConnectBarriers() - Scans the object list and finds the single barrier
-//                     that is connected by switch and checks to see if
-//                                                        there are any surrounding barriers that need to be
-//                                                        connected also.
+//      that is connected by switch and checks to see if
+//      there are any surrounding barriers that need to be
+//      connected also.
 // --------------------------------------------------------------------------
 void ConnectBarriers()
 {
@@ -2588,7 +2588,7 @@ void ConnectBarriers()
 /*
 =============================================================================
 
-                                                                        BARRIERS
+    BARRIERS
 
 =============================================================================
 */
@@ -2712,7 +2712,7 @@ void SpawnBarrier(
 //
 // OBJECT STATES:
 //
-// bt_ON                                -> bt_TURNING_OFF and think is changed to T_BarrierTrans
+// bt_ON -> bt_TURNING_OFF and think is changed to T_BarrierTrans
 //
 // ---------------------------------------------------------------------------
 
@@ -2743,7 +2743,7 @@ void ToggleBarrier(
     objtype* obj)
 {
     switch (BARRIER_STATE(obj)) {
-    case bt_ON:                                         // Same as closed
+    case bt_ON: // Same as closed
 #ifdef BSTONE_PS
     case bt_CLOSING:
 #endif
@@ -2775,7 +2775,7 @@ void ToggleBarrier(
 
         break;
 
-    case bt_OFF:                                // Same as open
+    case bt_OFF: // Same as open
 #ifdef BSTONE_PS
     case bt_OPENING:
 #endif
@@ -2824,7 +2824,7 @@ void ToggleBarrier(
 
 // ---------------------------------------------------------------------------
 // T_BarrierShutdown() - This is used ONLY for electric arc barriers
-//                                                               which "flicker" out when disabled/destroyed.
+//      which "flicker" out when disabled/destroyed.
 //
 // ---------------------------------------------------------------------------
 void T_BarrierShutdown(
@@ -3045,7 +3045,7 @@ void T_BarrierTransition(
 /*
 =============================================================================
 
-                                                        GUARD
+ GUARD
 
 =============================================================================
 */
@@ -3603,8 +3603,8 @@ void T_SwatWound(
         }
 
 
-//              if ((ob->tilex != player->tilex) && (ob->tiley != player->tiley))
-//                      NewState(ob,&s_swatunwounded1);
+// if ((ob->tilex != player->tilex) && (ob->tiley != player->tiley))
+//      NewState(ob,&s_swatunwounded1);
     }
 }
 
@@ -3645,7 +3645,7 @@ void SpawnStand(
         SpawnNewObj(tilex, tiley, &s_electro_appear1);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_PROJ_TRANSPARENT;
         new_actor->speed = SPDPATROL;
-        new_actor->lighting = NO_SHADING;               // no shading
+        new_actor->lighting = NO_SHADING; // no shading
         break;
 
     case en_liquid:
@@ -3781,7 +3781,7 @@ void SpawnStand(
 
 // ---------------------------------------------------------------------------
 // CheckForSpecialTile() - Adds special attributes to actor if standing on
-//                                             special tiles.
+//      special tiles.
 // ---------------------------------------------------------------------------
 void CheckForSpecialTile(
     objtype* obj,
@@ -3843,7 +3843,7 @@ void CheckForSpecialTile(
 
     case LINC_TILE:
         obj->flags2 |= FL2_LINC;
-        obj->flags &= ~FL_INFORMANT;                                            // Make sure informants dont have links
+        obj->flags &= ~FL_INFORMANT; // Make sure informants dont have links
         getarea = true;
         map1 = mapsegs[1] + farmapylookup[tiley] + tilex + 1;
         obj->linc = *map1;
@@ -3991,7 +3991,7 @@ void SpawnPatrol(
 
     CheckForSpecialTile(new_actor, tilex, tiley);
 
-    actorat[new_actor->tilex][new_actor->tiley] = NULL;                 // don't use original spot
+    actorat[new_actor->tilex][new_actor->tiley] = NULL; // don't use original spot
 
 #if IN_DEVELOPMENT
     oldx = new_actor->tilex;
@@ -4220,7 +4220,7 @@ void A_DeathScream(
 
 // ============================================================================
 //
-//                                                              DROP
+// DROP
 //
 // ============================================================================
 
@@ -4272,7 +4272,7 @@ void DropCargo(
 /*
 ============================================================================
 
-                                                        STAND
+ STAND
 
 ============================================================================
 */
@@ -4296,7 +4296,7 @@ void T_Stand(
 /*
 ============================================================================
 
-                                                                CHASE
+ CHASE
 
 ============================================================================
 */
@@ -4470,7 +4470,7 @@ void T_Chase(
 #endif
 
         if (ob->dir == nodir) {
-            return;                                                             // object is blocked in
+            return; // object is blocked in
         }
     }
 
@@ -4485,7 +4485,7 @@ void T_Chase(
             if (doorobjlist[-ob->distance - 1].action != dr_open) {
                 return;
             }
-            ob->distance = TILEGLOBAL;                  // go ahead, the door is now opoen
+            ob->distance = TILEGLOBAL; // go ahead, the door is now opoen
         }
 
         if (move < ob->distance) {
@@ -4526,7 +4526,7 @@ void T_Chase(
 #endif
 
         if (ob->dir == nodir) {
-            return;                                                             // object is blocked in
+            return; // object is blocked in
         }
     }
 }
@@ -4658,7 +4658,7 @@ void DoAttack(
 /*
 ============================================================================
 
-                                                                PATH
+ PATH
 
 ============================================================================
 */
@@ -4716,12 +4716,12 @@ dirtype SelectPathDir(
         // Turn this actor
         //
         if (ob->trydir & 128) {
-            ob->dir--;                                                                  // turn clockwise
+            ob->dir--; // turn clockwise
             if (ob->dir < east) {
                 ob->dir = static_cast<dirtype>(nodir - 1);
             }
         } else {
-            ob->dir++;                                                                  // turn counter-clockwise
+            ob->dir++; // turn counter-clockwise
             if (ob->dir >= nodir) {
                 ob->dir = east;
             }
@@ -4816,7 +4816,7 @@ void T_Path(
             if (doorobjlist[-ob->distance - 1].action != dr_open) {
                 return;
             }
-            ob->distance = TILEGLOBAL;                  // go ahead, the door is now opoen
+            ob->distance = TILEGLOBAL; // go ahead, the door is now opoen
         }
 
         if (move < ob->distance) {
@@ -4827,7 +4827,7 @@ void T_Path(
         if (ob->tilex > MAPSIZE || ob->tiley > MAPSIZE) {
             ACT2_ERROR(T_PATH_HIT_WALL);
         }
-//                      Quit("T_Path hit a wall at %u,%u, dir %u",ob->tilex,ob->tiley,ob->dir);
+// Quit("T_Path hit a wall at %u,%u, dir %u",ob->tilex,ob->tiley,ob->dir);
 
         ob->x = ((Sint32)ob->tilex << TILESHIFT) + TILEGLOBAL / 2;
         ob->y = ((Sint32)ob->tiley << TILESHIFT) + TILEGLOBAL / 2;
@@ -4842,7 +4842,7 @@ void T_Path(
 /*
 =============================================================================
 
-                                                                FIGHT
+ FIGHT
 
 =============================================================================
 */
@@ -4928,7 +4928,7 @@ void T_Shoot(
     case spider_mutantobj:
     case acid_dragonobj:
         SpawnProjectile(ob, static_cast<classtype>(spider_mutantshotobj + (ob->obclass - spider_mutantobj)));
-//                      SpawnProjectile(ob,spider_mutantshotobj+(ob->obclass-spider_mutantobj));
+// SpawnProjectile(ob,spider_mutantshotobj+(ob->obclass-spider_mutantobj));
         break;
 
 #ifdef BSTONE_PS
@@ -4950,7 +4950,7 @@ void T_Shoot(
             return;
         }
 
-        if (!CheckLine(ob, player)) {                                   // player is behind a wall
+        if (!CheckLine(ob, player)) { // player is behind a wall
             return;
         }
 
@@ -4960,19 +4960,19 @@ void T_Shoot(
 
         if (ob->obclass == swatobj) {
             if (dist) {
-                dist = dist * 2 / 3;                                                            // ss are better shots
+                dist = dist * 2 / 3; // ss are better shots
 
             }
         }
         if (thrustspeed >= RUNSPEED) {
             if (ob->flags & FL_VISABLE) {
-                hitchance = 160 - dist * 16;                                    // player can see to dodge
+                hitchance = 160 - dist * 16; // player can see to dodge
             } else {
                 hitchance = 160 - dist * 8;
             }
         } else {
             if (ob->flags & FL_VISABLE) {
-                hitchance = 256 - dist * 16;                                    // player can see to dodge
+                hitchance = 256 - dist * 16; // player can see to dodge
             } else {
                 hitchance = 256 - dist * 8;
             }
@@ -5065,20 +5065,20 @@ void T_Hit(
     case scan_alienobj:
     case lcan_alienobj:
     case podobj:
-        hitchance = 220;                                                                                // Higher - Better Chance (255 max!)
+        hitchance = 220; // Higher - Better Chance (255 max!)
         damage = (US_RndT() >> 3) | 1;
         ::sd_play_actor_sound(CLAWATTACKSND, ob, bstone::AC_WEAPON);
         break;
 
     case genetic_guardobj:
     case mutant_human2obj:
-        hitchance = 220;                                                                                // Higher - Better Chance (255 max!)
+        hitchance = 220; // Higher - Better Chance (255 max!)
         damage = (US_RndT() >> 3) | 1;
         ::sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::AC_WEAPON);
         break;
 
     default:
-        hitchance = 200;                                                                                // Higher - Better Chance (255 max!)
+        hitchance = 200; // Higher - Better Chance (255 max!)
         damage = US_RndT() >> 4;
         break;
 
@@ -5113,7 +5113,7 @@ void T_Hit(
 /*
 ============================================================================
 
-                                                        DR. GOLDSTERN STATES & ROUTINES
+ DR. GOLDSTERN STATES & ROUTINES
 
 ============================================================================
 */
@@ -5365,7 +5365,7 @@ void InitGoldsternInfo()
 // ===========================================================================
 //
 //
-//                                                      RED FLASHING SECURITY LAMPS
+// RED FLASHING SECURITY LAMPS
 //
 //
 // ===========================================================================
@@ -5565,7 +5565,7 @@ void T_PainThink(
 
 // ==========================================================================
 //
-//                                              EXPLOSION STUFF
+// EXPLOSION STUFF
 //
 // ==========================================================================
 
@@ -5607,7 +5607,7 @@ void T_SpawnExplosion(
 
 // ==========================================================================
 //
-//                                              STEAM OBJECT STUFF
+// STEAM OBJECT STUFF
 //
 // ==========================================================================
 void T_SteamObj(
@@ -5638,7 +5638,7 @@ void T_SteamObj(
     if (obj->flags & FL_VISABLE) {
         if ((obj->temp2 -= tics) <= 0) {
             NewState(obj, &s_steamrelease1);
-            obj->temp2 = US_RndT() << 3;                                        // Up to 34 Seconds
+            obj->temp2 = US_RndT() << 3; // Up to 34 Seconds
         } else {
             obj->temp2 -= tics;
         }
@@ -5691,7 +5691,7 @@ boolean CheckPosition(
 // ===========================================================================
 //
 //
-//                                                              HANGING TERROT GUN
+// HANGING TERROT GUN
 //
 //
 // ===========================================================================
@@ -5737,7 +5737,7 @@ statetype s_terrot_die5 = { false, SPR_TERROT_DEAD, 0, NULL, NULL, &s_terrot_die
 
 // ============================================================================
 //
-//                                                                                        SEEK
+// SEEK
 //
 // ============================================================================
 
@@ -5745,7 +5745,7 @@ statetype s_terrot_die5 = { false, SPR_TERROT_DEAD, 0, NULL, NULL, &s_terrot_die
 
 // ---------------------------------------------------------------------------
 // T_Seek() - Will rotate an object (not moving) until seeing it is able
-//                                to see the player in the facing direction.
+//      to see the player in the facing direction.
 //
 // NOTE : This may change so that it will seek for any object.
 // ---------------------------------------------------------------------------
@@ -5760,7 +5760,7 @@ void T_Seek(
     target_found = false;
 
 
-    if (((player->tilex != ob->tilex) || (player->tiley != ob->tiley)) &&               // Can you see
+    if (((player->tilex != ob->tilex) || (player->tiley != ob->tiley)) && // Can you see
         CheckView(ob, player) && (!PlayerInvisable))
     {
         dx = ob->tilex - player->tilex;
@@ -5899,8 +5899,8 @@ void SpawnProjectile(
         new_actor->speed = SPDPROJ + Random(SPDPROJ >> 1);
         new_actor->angle = player->angle + 1 - (US_RndT() & 3);
         new_actor->temp1 = grenade_shapes[0];
-        new_actor->flags = FL_OFFSET_STATES;                 // |FL_PROJ_CHECK_TRANSPARENT;
-        new_actor->lighting = NO_SHADING;                               // no shading
+        new_actor->flags = FL_OFFSET_STATES; // |FL_PROJ_CHECK_TRANSPARENT;
+        new_actor->lighting = NO_SHADING; // no shading
 
         // Store off start tile x & y
 
@@ -6108,7 +6108,7 @@ void T_Projectile(
             break;
 
         case mut_hum1shotobj:
-        case electroshotobj:                                                            // Explode on walls
+        case electroshotobj: // Explode on walls
             InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
@@ -6126,20 +6126,20 @@ void T_Projectile(
             break;
 #endif
 
-        case lcanshotobj:                                                               // Explode on walls
+        case lcanshotobj: // Explode on walls
         case podshotobj:
             InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
 
-        case scanshotobj:                                                               // Explode on walls
+        case scanshotobj: // Explode on walls
         case dogshotobj:
             InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
             return;
             break;
 
 
-        case liquidshotobj:                                                             // Explode on walls
+        case liquidshotobj: // Explode on walls
             InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
             return;
             break;
@@ -6188,7 +6188,7 @@ void T_Projectile(
                 if (proj_check->flags2 & FL2_BFG_SHOOTABLE) {
                     // Damage that actor
 
-                    DamageActor(proj_check, BFG_DAMAGE >> 1, ob);                            // bfg_damage>>3
+                    DamageActor(proj_check, BFG_DAMAGE >> 1, ob); // bfg_damage>>3
 
                     // Stop on actors that you don't kill.
 
@@ -6455,12 +6455,12 @@ void ExplodeFill(
                 // Plasma/Fision Detonators (already armed)
                 //
                 case plasma_detonatorobj:
-                    if (ff_obj == player ||                                                                                                     // Player shot it with gun
-                        (ff_obj->tilex == tx && ff_obj->tiley == ty))                                           // Direct Hit with grenade
+                    if (ff_obj == player || // Player shot it with gun
+                        (ff_obj->tilex == tx && ff_obj->tiley == ty)) // Direct Hit with grenade
                     {
                         DamageActor(proj_check, 1, ff_obj);
                     } else {
-                        DamageActor(proj_check, 20, ff_obj);                                                                    // An explosion has started a chain reaction
+                        DamageActor(proj_check, 20, ff_obj); // An explosion has started a chain reaction
                     }
                     break;
 #endif
@@ -6677,11 +6677,11 @@ void T_BlowBack(
 {
 #define SLIDE_SPEED 0x2000
 
-    Uint16 dist_table[] = { 0x1000,             //      wp_autocharge,
-                            0x2000,                                                             //      wp_pistol,
-                            0x3000,                                                             //      wp_burst_rifle,
-                            0x4000,                                                             //      wp_ion_cannon,
-                            0x5000,                                                             // wp_grenade,
+    Uint16 dist_table[] = { 0x1000, // wp_autocharge,
+                            0x2000, // wp_pistol,
+                            0x3000, // wp_burst_rifle,
+                            0x4000, // wp_ion_cannon,
+                            0x5000, // wp_grenade,
     };
 
     Sint32 deltax, deltay;
@@ -6717,11 +6717,11 @@ void T_BlowBack(
         *((Uint16*)&obj->hitpoints) -= SLIDE_SPEED;
     } else {
         dist = (Uint16)obj->hitpoints;
-        obj->flags |= FL_NO_SLIDE;              // Stop any more sliding
+        obj->flags |= FL_NO_SLIDE; // Stop any more sliding
     }
 
-    deltax = FixedByFrac(dist, costable[obj->angle]);                   // Optomize - Store in actor
-    deltay = -FixedByFrac(dist, sintable[obj->angle]);        //
+    deltax = FixedByFrac(dist, costable[obj->angle]); // Optomize - Store in actor
+    deltay = -FixedByFrac(dist, sintable[obj->angle]); //
 
     if (ClipMove(obj, deltax, deltay)) {
         obj->flags |= FL_NO_SLIDE;

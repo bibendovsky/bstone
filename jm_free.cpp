@@ -104,7 +104,7 @@ void SDL_SetupDigi();
 
 // =========================================================================
 //
-//                                                               FAR FREE DATA
+// FAR FREE DATA
 //
 // =========================================================================
 
@@ -151,8 +151,8 @@ static Uint8 wolfdigimap[] = {
     GOLDSTERNHALTSND, 8,
     GOLDSTERNLAUGHSND, 24,
 
-    HALTSND, 9,                                                                 // Rent-A-Cop 1st sighting
-    RENTDEATH1SND, 10,                                                  // Rent-A-Cop Death
+    HALTSND, 9, // Rent-A-Cop 1st sighting
+    RENTDEATH1SND, 10, // Rent-A-Cop Death
 
     EXPLODE1SND, 11,
 
@@ -183,11 +183,11 @@ static Uint8 wolfdigimap[] = {
     ELECAPPEARSND, 28,
     ELECDIESND, 29,
 
-    INFORMDEATH2SND, 39,                                                // Informant Death #2
-    RENTDEATH2SND, 34,                                         // Rent-A-Cop Death #2
-    PRODEATH2SND, 42,                                              // PRO Death #2
-    SWATDEATH2SND, 48,                                                  // SWAT Death #2
-    SCIDEATH2SND, 53,                                                                   // Gen. Sci Death #2
+    INFORMDEATH2SND, 39, // Informant Death #2
+    RENTDEATH2SND, 34, // Rent-A-Cop Death #2
+    PRODEATH2SND, 42, // PRO Death #2
+    SWATDEATH2SND, 48, // SWAT Death #2
+    SCIDEATH2SND, 53, // Gen. Sci Death #2
 
     LIQUIDDIESND, 30,
 
@@ -202,11 +202,11 @@ static Uint8 wolfdigimap[] = {
     LCANHALTSND, 36,
     LCANDEATHSND, 37,
 
-//                      RENTDEATH3SND,                      38,         // Rent-A-Cop Death #3
-    INFORMDEATH3SND, 40,                                                // Informant Death #3
-//                      PRODEATH3SND,                 43,      // PRO Death #3
-//                      SWATDEATH3SND,                                          52,             // Swat Guard #3
-    SCIDEATH3SND, 54,                                                                           // Gen. Sci Death #3
+// RENTDEATH3SND, 38, // Rent-A-Cop Death #3
+    INFORMDEATH3SND, 40, // Informant Death #3
+// PRODEATH3SND, 43, // PRO Death #3
+// SWATDEATH3SND, 52, // Swat Guard #3
+    SCIDEATH3SND, 54, // Gen. Sci Death #3
 
     LCANBREAKSND, 44,
     SCANBREAKSND, 45,
@@ -238,7 +238,7 @@ const Uint8* lightsource;
 
 // =========================================================================
 //
-//                                                               FREE FUNCTIONS
+// FREE FUNCTIONS
 //
 // =========================================================================
 
@@ -306,7 +306,7 @@ void US_Startup()
     }
     // BBi
 
-    US_InitRndT(true);                  // Initialize the random number generator
+    US_InitRndT(true); // Initialize the random number generator
 
     switch (::g_args.check_argument(US_ParmStrings2)) {
     case 0:
@@ -846,7 +846,7 @@ void PreDemo()
     VW_UpdateScreen();
     CA_LoadAllSounds();
     PM_CheckMainMem();
-    SD_PlaySound(INFORMDEATH2SND);              // Nooooo!
+    SD_PlaySound(INFORMDEATH2SND); // Nooooo!
     IN_UserInput(TickBase * 20);
     ClearMemory();
 
@@ -1069,7 +1069,7 @@ void InitGame()
     Uint16* blockstart;
 // long mmsize;
 
-    MM_Startup();                       // so the signon screen can be freed
+    MM_Startup(); // so the signon screen can be freed
 #if IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM
     if (MS_CheckParm("checksum")) {
         ShowChecksums();
@@ -1172,7 +1172,7 @@ void InitGame()
     LoadFonts();
 
     LoadLatchMem();
-    BuildTables();               // trig tables
+    BuildTables(); // trig tables
     SetupWalls();
     NewViewSize();
 
@@ -1221,11 +1221,11 @@ void ShowSystem()
 Uint16 scan_atoi(
     const char* s)
 {
-    while (*s && (!isdigit(*s))) {                      // First scans for a digit...
+    while (*s && (!isdigit(*s))) { // First scans for a digit...
         s++;
     }
 
-    return static_cast<Uint16>(atoi(s));                                                        // Then converts to integer...
+    return static_cast<Uint16>(atoi(s)); // Then converts to integer...
 }
 
 extern const char* MainStrs[];
@@ -1253,15 +1253,15 @@ void freed_main()
 
     switch (::g_args.check_argument(MainStrs, arg)) {
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-    case 0:                                                                                             // quick run
+    case 0: // quick run
         gamestate.flags |= GS_QUICKRUN;
 
-    case 1:                                                                                             // no wait
+    case 1: // no wait
         gamestate.flags |= GS_NOWAIT;
         break;
 #endif
 
-    case 2:                                                                                             // starting level
+    case 2: // starting level
         gamestate.flags |= GS_STARTLEVEL;
         starting_level = scan_atoi(arg.c_str());
         break;
@@ -1299,7 +1299,7 @@ void freed_main()
         break;
 
     case 8:
-//                              gamestate.flags |= GS_MEM_FOR_SCORE;
+// gamestate.flags |= GS_MEM_FOR_SCORE;
         break;
 
     case 9:

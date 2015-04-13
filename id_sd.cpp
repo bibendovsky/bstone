@@ -395,7 +395,7 @@ void SD_Default(
 
     gotsd = gotsm = gotit;
 
-    if (gotsd) {        // Make sure requested sound hardware is available
+    if (gotsd) { // Make sure requested sound hardware is available
         switch (sd) {
         case sdm_AdLib:
             gotsd = AdLibPresent;
@@ -416,7 +416,7 @@ void SD_Default(
     }
 
 
-    if (gotsm) {        // Make sure requested music hardware is available
+    if (gotsm) { // Make sure requested music hardware is available
         switch (static_cast<SDMode>(sm)) {
         case sdm_AdLib:
             gotsm = AdLibPresent;

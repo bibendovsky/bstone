@@ -37,14 +37,14 @@ void CA_CacheScreen(
 
 // ==========================================================================
 //
-//                                                                      LOCAL CONSTANTS
+// LOCAL CONSTANTS
 //
 // ==========================================================================
 
 
 // ==========================================================================
 //
-//                                                                      LOCAL VARABLES
+// LOCAL VARABLES
 //
 // ==========================================================================
 
@@ -136,12 +136,12 @@ void ShPrint(
     fontcolor = shadow_color;
     py++;
     px++;
-    USL_DrawString(str);                                                // JTR - This marks blocks!
+    USL_DrawString(str); // JTR - This marks blocks!
 
     fontcolor = static_cast<Uint8>(old_color);
     py = old_y;
     px = old_x;
-    USL_DrawString(str);                                                // JTR - This marks blocks!
+    USL_DrawString(str); // JTR - This marks blocks!
 }
 
 void PreloadUpdate(
@@ -291,7 +291,7 @@ void DrawHighScores()
 
         bstone::C::xitoa(s->score, buffer, 10);
         USL_MeasureString(buffer, &w, &h);
-        ShadowPrint(buffer, 205 - w, 68 + (SCORE_Y_SPACING * i));               // 235
+        ShadowPrint(buffer, 205 - w, 68 + (SCORE_Y_SPACING * i)); // 235
 
         //
         // mission ratio

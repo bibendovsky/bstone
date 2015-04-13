@@ -98,15 +98,15 @@ struct US_CursorStruct {
 extern void TEDDeath();
 
 extern boolean ingame, // Set by game code if a game is in progress
-               abortgame,                               // Set if a game load failed
-               loadedgame,                              // Set if the current game was loaded
+               abortgame, // Set if a game load failed
+               loadedgame, // Set if the current game was loaded
                NoWait,
                HighScoresDirty;
 extern char* abortprogram; // Set to error msg if program is dying
 extern GameDiff restartgame; // Normally gd_Continue, else starts game
 extern Uint16 PrintX, PrintY; // Current printing location in the window
 extern Uint16 WindowX, WindowY, // Current location of window
-              WindowW, WindowH;                         // Current size of window
+              WindowW, WindowH; // Current size of window
 
 extern boolean Button0, Button1,
                CursorBad;

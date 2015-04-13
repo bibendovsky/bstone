@@ -87,18 +87,18 @@ Free Software Foundation, Inc.,
 
 //
 // CURRENT GAME VERSION DEFINE - Change this define according to the
-//                                                                                      game release versions 1,1-3,4-6, or 1-6.
+// game release versions 1,1-3,4-6, or 1-6.
 
 #define GAME_VERSION (MISSIONS_1_THR_6)
-// #define GAME_VERSION                         (MISSIONS_1_THR_3)
-// #define GAME_VERSION                                 (SHAREWARE_VERSION)
+// #define GAME_VERSION (MISSIONS_1_THR_3)
+// #define GAME_VERSION (SHAREWARE_VERSION)
 
 
 #define TECH_SUPPORT_VERSION (0)
 #define IN_DEVELOPMENT (0)
 
 #define ERROR_LOG "ERROR.LOG" // Text filename for critical memory errors
-#define DUAL_SWAP_FILES (0) // (GAME_VERSION != SHAREWARE_VERSION)                              // Support for Shadowed and NonShadowed page files
+#define DUAL_SWAP_FILES (0) // (GAME_VERSION != SHAREWARE_VERSION) // Support for Shadowed and NonShadowed page files
 
 extern char signonv1;
 #define introscn signonv1
@@ -174,7 +174,7 @@ struct Rect {
 
 void Quit(
     const char* error,
-    ...);                                         // defined in user program
+    ...); // defined in user program
 
 extern void CalcMemFree();
 

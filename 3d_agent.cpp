@@ -76,7 +76,7 @@ void RunBlakeRun();
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -131,7 +131,7 @@ void RunBlakeRun();
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -148,7 +148,7 @@ Sint16 tryDetonatorDelay = 0;
 //
 Sint32 thrustspeed;
 
-// unsigned     plux,pluy;                      // player coordinates scaled to unsigned
+// unsigned plux,pluy; // player coordinates scaled to unsigned
 
 Sint16 anglefrac;
 
@@ -172,7 +172,7 @@ extern bstone::MemoryStream g_playtemp;
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -351,7 +351,7 @@ void T_Stand(
 /*
 =============================================================================
 
-                                                CONTROL STUFF
+ CONTROL STUFF
 
 =============================================================================
 */
@@ -543,7 +543,7 @@ void ControlMovement(
 /*
 =============================================================================
 
-                                        STATUS WINDOW STUFF
+ STATUS WINDOW STUFF
 
 =============================================================================
 */
@@ -637,7 +637,7 @@ void LatchNumber(
 // ===========================================================================
 //
 //
-//                                                              SCORE DISPLAY ROUTINES
+// SCORE DISPLAY ROUTINES
 //
 //
 // ===========================================================================
@@ -939,7 +939,7 @@ void HealSelf(
 // ===========================================================================
 //
 //
-//                                                              SCORE DISPLAY ROUTINES
+// SCORE DISPLAY ROUTINES
 //
 //
 // ===========================================================================
@@ -948,7 +948,7 @@ void HealSelf(
 // DrawScore()
 //
 // PURPOSE : Marks the Score to be refreshed durring the next
-//                               StatusBarRefresh.
+//      StatusBarRefresh.
 // --------------------------------------------------------------------------
 void DrawScore()
 {
@@ -961,7 +961,7 @@ extern Uint8 music_num;
 // DrawScoreNum()
 //
 // NOTE : Could do some sort of "scrolling" animation on LED screen with
-//                       chars and a simple table.....
+//      chars and a simple table.....
 // --------------------------------------------------------------------------
 void DrawScoreNum()
 {
@@ -1028,7 +1028,7 @@ void UpdateScore()
 // --------------------------------------------------------------------------
 // GivePoints()
 //
-// .score               = Holds real score
+// .score = Holds real score
 // .tic_score  = Holds displayed score (tic'ing toward .score)
 //
 // --------------------------------------------------------------------------
@@ -1065,7 +1065,7 @@ void GivePoints(
 // DrawKeys()
 //
 // PURPOSE : Marks the security key pics to be refreshed during the next
-//                               StatusBarRefresh.
+//      StatusBarRefresh.
 // ---------------------------------------------------------------------------
 void DrawKeys()
 {
@@ -1156,7 +1156,7 @@ void TakeKey(
 // DrawWeapon()
 //
 // PURPOSE : Marks the Weapon pics to be refreshed durring the next
-//                               StatusBarRefresh.
+//      StatusBarRefresh.
 // ---------------------------------------------------------------------------
 void DrawWeapon()
 {
@@ -1699,9 +1699,9 @@ void GiveToken(
 // --------------------------------------------------------------------------
 // DisplayInfoMsg() - Returns if Higher Pri message is holding.
 //
-// SEE MACROS:   DISPLAY_TIMED_MSG() & DISPLAY_MSG()                                    -- Def.h
+// SEE MACROS:   DISPLAY_TIMED_MSG() & DISPLAY_MSG() -- Def.h
 //
-//               DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
+//      DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
 //     DISPLAY_MSG(msg,pri,type)                 - For E-Z NON-Timed Msgs.
 // --------------------------------------------------------------------------
 boolean DisplayInfoMsg(
@@ -1711,7 +1711,7 @@ boolean DisplayInfoMsg(
     Sint16 MsgType)
 {
     if (Priority >= LastMsgPri) {
-        if (Priority == MP_max_val) {                           // "System" msgs
+        if (Priority == MP_max_val) { // "System" msgs
             LastMsgPri = MP_min_val;
         } else {
             LastMsgPri = static_cast<Uint16>(Priority);
@@ -1800,8 +1800,8 @@ void UpdateInfoArea()
 
 // ---------------------------------------------------------------------------
 // UpdateInfoAreaClock() - This routine is called ONLY ONCE per refresh
-//                                                                 to update the InfoArea Clock and to release
-//                                                                 any messages that have expired.
+//      to update the InfoArea Clock and to release
+//      any messages that have expired.
 // ---------------------------------------------------------------------------
 void UpdateInfoAreaClock()
 {
@@ -2039,8 +2039,8 @@ char* HandleControlCodes(
         first_ch += 2;
         memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)], &piAnimTable[shapenum], sizeof(piAnimInfo));
         anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
-        shape = &piShapeTable[anim->baseshape + anim->frame];                                   // BUG!! (assumes "pia_shapetable")
-//                                      spr = &spritetable[shape->shapenum-STARTSPRITES];
+        shape = &piShapeTable[anim->baseshape + anim->frame]; // BUG!! (assumes "pia_shapetable")
+// spr = &spritetable[shape->shapenum-STARTSPRITES];
 
         anim->y = InfoAreaSetup.y;
         anim->x = DrawShape(InfoAreaSetup.x, InfoAreaSetup.y, shape->shapenum, shape->shapetype);
@@ -2057,7 +2057,7 @@ char* HandleControlCodes(
         shapenum = TP_VALUE(first_ch, 3);
         first_ch += 3;
         shape = &piShapeTable[shapenum];
-//                                      spr = &spritetable[shape->shapenum-STARTSPRITES];
+// spr = &spritetable[shape->shapenum-STARTSPRITES];
 
         DrawShape(InfoAreaSetup.x, InfoAreaSetup.y, shape->shapenum, shape->shapetype);
         InfoAreaSetup.left_margin = InfoAreaSetup.x;
@@ -2122,42 +2122,42 @@ Sint16 DrawShape(
     Sint16 width = 0;
     Uint16 shade;
 
-//      width=TP_BoxAroundShape(x,y,shapenum,shapetype);
+// width=TP_BoxAroundShape(x,y,shapenum,shapetype);
 
     //
     // If Image is Cloaked... Shade the image
     //
 #ifdef BSTONE_PS
     if (LastInfoAttacker_Cloaked) {
-        shade = 35;                                     // 63 == BLACK | 0 == NO SHADING
+        shade = 35; // 63 == BLACK | 0 == NO SHADING
     } else
 #endif
     shade = 0;
 
     switch (shapetype) {
     case pis_scaled:
-//                      old_ofs = bufferofs;
-//                      for (i=0;i<3;i++)
-//                      {
-//                              bufferofs = screenloc[i];
-//                              VWB_Bar(x,y,37,37,InfoAreaSetup.backgr_color);
-        VW_Bar(x, y, 37, 37, InfoAreaSetup.backgr_color);                                               // JTR changed
+// old_ofs = bufferofs;
+// for (i=0;i<3;i++)
+// {
+//      bufferofs = screenloc[i];
+//      VWB_Bar(x,y,37,37,InfoAreaSetup.backgr_color);
+        VW_Bar(x, y, 37, 37, InfoAreaSetup.backgr_color); // JTR changed
         MegaSimpleScaleShape(x + 19, y + 20, shapenum, 37, shade);
-//                      }
-//                      bufferofs = old_ofs;
+// }
+// bufferofs = old_ofs;
         width = 37;
         break;
 
 #if NUMPICS
     case pis_latchpic:
         x = (x + 7) & 0xFFF8;
-//                      old_ofs = bufferofs;
-//                      for (i=0;i<3;i++)
-//                      {
-//                              bufferofs = screenloc[i];
+// old_ofs = bufferofs;
+// for (i=0;i<3;i++)
+// {
+//      bufferofs = screenloc[i];
         LatchDrawPic(x >> 3, y, shapenum);
-//                      }
-//                      bufferofs = old_ofs;
+// }
+// bufferofs = old_ofs;
         break;
 
     case pis_pic:
@@ -2165,20 +2165,20 @@ Sint16 DrawShape(
         width = pictable[shapenum - STARTPICS].width;
         CA_MarkGrChunk(shapenum);
         CA_CacheMarks();
-//                      old_ofs = bufferofs;
-//                      for (i=0;i<3;i++)
-//                      {
-//                              bufferofs = screenloc[i];
+// old_ofs = bufferofs;
+// for (i=0;i<3;i++)
+// {
+//      bufferofs = screenloc[i];
         VWB_DrawPic(x, y, shapenum);
-//                      }
-//                      bufferofs = old_ofs;
+// }
+// bufferofs = old_ofs;
         UNCACHEGRCHUNK(shapenum);
         break;
 #endif
 
 #if NUMSPRITES && 0
     case pis_sprite:
-//                      VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
+// VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
         break;
 #endif
 
@@ -2374,7 +2374,7 @@ void ForceUpdateStatusBar()
 /*
 =============================================================================
 
-                                                        MOVEMENT
+ MOVEMENT
 
 =============================================================================
 */
@@ -2390,23 +2390,23 @@ void ForceUpdateStatusBar()
 */
 
 Uint16 static_points[] = { 100, // money bag
-                           500,                                                                  // loot
-                           250,                                                                  // gold1
-                           500,                                                                  // gold2
-                           750,                                                                  // gold3
-                           1000,                                                                 // major gold!
-                           5000                                                                  // bonus
+                           500, // loot
+                           250, // gold1
+                           500, // gold2
+                           750, // gold3
+                           1000, // major gold!
+                           5000 // bonus
 };
 
 Uint16 static_health[][3] = {
-    { 100, HEALTH2SND, static_cast<Uint16>(-1) },                                                               // Full Heal
-    { 30, HEALTH1SND, static_cast<Uint16>(-1) },                                                                // First Aid
-    { 20, HEALTH1SND, SPR_STAT_45 },                                    // Steak
-    { 15, HEALTH1SND, SPR_STAT_43 },                                    // Chicken Leg
-    { 10, HEALTH1SND, SPR_SANDWICH_WRAPER },            // Sandwich
-    { 8, HEALTH1SND, SPR_CANDY_WRAPER },                        // Candy Bar
-    { 5, HEALTH1SND, SPR_STAT_41 },                             // Water bowl
-    { 5, HEALTH1SND, static_cast<Uint8>(-1) },                                                  // Water puddle
+    { 100, HEALTH2SND, static_cast<Uint16>(-1) }, // Full Heal
+    { 30, HEALTH1SND, static_cast<Uint16>(-1) }, // First Aid
+    { 20, HEALTH1SND, SPR_STAT_45 }, // Steak
+    { 15, HEALTH1SND, SPR_STAT_43 }, // Chicken Leg
+    { 10, HEALTH1SND, SPR_SANDWICH_WRAPER }, // Sandwich
+    { 8, HEALTH1SND, SPR_CANDY_WRAPER }, // Candy Bar
+    { 5, HEALTH1SND, SPR_STAT_41 }, // Water bowl
+    { 5, HEALTH1SND, static_cast<Uint8>(-1) }, // Water puddle
 };
 
 extern char bonus_msg24[];
@@ -2504,7 +2504,7 @@ void GetBonus(
         }
     case bo_fullheal:
     case bo_firstaid:
-    case bo_ham:                        // STEAK
+    case bo_ham: // STEAK
     case bo_chicken:
     case bo_sandwich:
     case bo_candybar:
@@ -2621,7 +2621,7 @@ void GetBonus(
 
     DISPLAY_TIMED_MSG(BonusMsg[check->itemnumber - 1], MP_BONUS, MT_BONUS);
     StartBonusFlash();
-    check->shapenum = shapenum;                         // remove from list if shapenum == -1
+    check->shapenum = shapenum; // remove from list if shapenum == -1
     check->itemnumber = bo_nothing;
 }
 
@@ -2831,7 +2831,7 @@ void Thrust(
 
     player_oldtilex = player->tilex;
     player_oldtiley = player->tiley;
-    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);                 // scale to tile values
+    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT); // scale to tile values
     player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 
     player->areanumber = GetAreaNumber(player->tilex, player->tiley);
@@ -2846,8 +2846,8 @@ void Thrust(
 //
     switch (*map[0]) {
     case DOORTRIGGERTILE:
-        dx = *map[1] >> 8;                                                                                      // x
-        dy = *map[1] & 255;                                                                                     // y
+        dx = *map[1] >> 8; // x
+        dy = *map[1] & 255; // y
         if (OperateSmartSwitch(dx, dy, ST_TOGGLE, false)) { // Operate & Check for removeal
             *map[0] = AREATILE + player->areanumber;    // Remove switch
         }
@@ -2886,7 +2886,7 @@ void Thrust(
         // Change sky and ground color on-the-fly.
         //
 
-        offset = *(map[1] + 1);                                         // 'offset' used as temp...
+        offset = *(map[1] + 1); // 'offset' used as temp...
         switch (*map[1]) {
 #ifdef CEILING_FLOOR_COLORS
         case 0xfe00:
@@ -2904,7 +2904,7 @@ void Thrust(
 #endif
 
 #if 0
-        case 0xF600:                                                                                    // Lighting effects
+        case 0xF600: // Lighting effects
             normalshade_div = (offset & 0xff00) >> 8;
             if (normalshade_div > 12) {
                 AGENT_ERROR(NORMAL_SHADE_TOO_BIG);
@@ -3030,7 +3030,7 @@ Uint8 ValidAreaTile(
 /*
 =============================================================================
 
-                                                                ACTIONS
+ ACTIONS
 
 =============================================================================
 */
@@ -3262,9 +3262,9 @@ void Cmd_Use()
 
         if (intg_ob) {
             if (Interrogate(intg_ob)) {
-                interrogate_delay = 20;                         // Informants have 1/3 sec delay
+                interrogate_delay = 20; // Informants have 1/3 sec delay
             } else {
-                interrogate_delay = 120;                        // Non-informants have 2 sec delay
+                interrogate_delay = 120; // Non-informants have 2 sec delay
             }
         }
 #ifdef BSTONE_PS
@@ -3336,7 +3336,7 @@ boolean Interrogate(
 
     strcpy(msg, int_interrogate);
 
-    if (ob->flags & FL_INFORMANT) {                                             // Informant
+    if (ob->flags & FL_INFORMANT) { // Informant
         strcat(msg, int_informant);
 
         if (ob->flags & FL_INTERROGATED) {
@@ -3394,18 +3394,18 @@ boolean Interrogate(
                 msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
             }
 
-            ob->flags |= FL_INTERROGATED;                       // Scientist has been interrogated
+            ob->flags |= FL_INTERROGATED; // Scientist has been interrogated
         }
-    } else {                                                                                                            // Non-Informant
+    } else { // Non-Informant
         scientist_t* st;
 
         rt_value = false;
-        if ((ob->flags & FL_MUST_ATTACK) || (US_RndT() & 1)) {                  // Mean
-            ob->flags &= ~FL_FRIENDLY;                                  // Make him attack!
-            ob->flags |= FL_INTERROGATED;                       //  "    "     "
+        if ((ob->flags & FL_MUST_ATTACK) || (US_RndT() & 1)) { // Mean
+            ob->flags &= ~FL_FRIENDLY; // Make him attack!
+            ob->flags |= FL_INTERROGATED; //  "    "     "
             st = &MeanSciList;
-        } else {                                                                                                                                        // Nice
-            ob->flags |= FL_MUST_ATTACK;                        // Make him mean!
+        } else { // Nice
+            ob->flags |= FL_MUST_ATTACK; // Make him mean!
             st = &NiceSciList;
         }
 
@@ -3750,7 +3750,7 @@ Sint16 InputFloor()
         }
 
         if (Keyboard[sc_escape] || buttonstate[bt_strafe]) {
-            rt_code = -1;                                                                                                               // ABORT
+            rt_code = -1; // ABORT
 
             LoadLocationText(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
             break;
@@ -3762,7 +3762,7 @@ Sint16 InputFloor()
             } else {
                 char loop;
 
-                rt_code = tpNum;                                                                                                        // ACCEPT
+                rt_code = tpNum; // ACCEPT
 
                 // Flash selection
                 //
@@ -3796,7 +3796,7 @@ Sint16 InputFloor()
         buttonY = 0;
         if (controlx > 0 || controly > 0) {
             if (!moveActive && tpNum < MAX_TELEPORTS - 1) {
-                tpNum++;                                                                                                                // MOVE NEXT
+                tpNum++; // MOVE NEXT
                 moveActive = MAX_MOVE_DELAY;
             }
 
@@ -3804,7 +3804,7 @@ Sint16 InputFloor()
             buttonY = 104;
         } else if (controlx < 0 || controly < 0) {
             if (!moveActive && tpNum) {
-                tpNum--;                                                                                                                // MOVE PREV
+                tpNum--; // MOVE PREV
                 moveActive = MAX_MOVE_DELAY;
             }
 
@@ -4048,7 +4048,7 @@ void CacheDrawPic(
 
 // ===========================================================================
 //
-//                                                   MISSION STATISTICS CODE
+// MISSION STATISTICS CODE
 //
 // ===========================================================================
 
@@ -4263,7 +4263,7 @@ boolean PerfectStats()
 
 // ===========================================================================
 //
-//                                         PINBALL BONUS DISPLAY CODE
+// PINBALL BONUS DISPLAY CODE
 //
 // ===========================================================================
 
@@ -4452,9 +4452,9 @@ void CheckPinballBonus(
 
 // Check INFORMANTS ALIVE bonus
 //
-    if ((gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&       // All informants alive?
-        (gamestuff.level[gamestate.mapon].stats.total_inf) &&                                                                                                                                                                                           // Any informants in level?
-        ((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) == (B_TOTAL_POINTS | B_ENEMY_DESTROYED)))                                                                                                                 // Got ENEMY and POINTS bonuses?
+    if ((gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
+        (gamestuff.level[gamestate.mapon].stats.total_inf) && // Any informants in level?
+        ((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) == (B_TOTAL_POINTS | B_ENEMY_DESTROYED))) // Got ENEMY and POINTS bonuses?
     {
         ActivatePinballBonus(B_INFORMANTS_ALIVE);
     }
@@ -4469,7 +4469,7 @@ void CheckPinballBonus(
 // ===========================================================================
 //
 //
-//                                                              COMPUTER TERMINAL ROUTINES
+// COMPUTER TERMINAL ROUTINES
 //
 //
 // ===========================================================================
@@ -4479,7 +4479,7 @@ void CheckPinballBonus(
 #define TERM_BUFFERED_DISPLAY
 #define TERM_VIEW_WIDTH 246
 #define TERM_VIEW_HEIGHT 95
-// #define TERM_BACK_COLOR                                      2                       // Defined in 3d)menu.h
+// #define TERM_BACK_COLOR 2 // Defined in 3d)menu.h
 #define TERM_BACK_XOFS 8
 #define TERM_BACK_YOFS 22
 #define TERM_BACK_WIDTH 304
@@ -4507,7 +4507,7 @@ memptr TermCommands = NULL;
 #define FreeTerminalCommands() MM_FreePtr(&TermCommands)
 #define FreeTerminalMessages() MM_FreePtr(&TermMessages)
 #define LoadTerminalText() IO_LoadFile(term_msg_name, &TermMessages)
-// #define LoadTerminalText()                   IO_LoadFile("TERM_MSG.TXT",&TermMessages)
+// #define LoadTerminalText() IO_LoadFile("TERM_MSG.TXT",&TermMessages)
 
 // ---------------------------------------------------------------------------
 //
@@ -4547,7 +4547,7 @@ void LoadTerminalCommands()
         }
 
         *Message = 0;   // Null Terminate String
-        Message += 3;           // Bump to start of next Message
+        Message += 3; // Bump to start of next Message
     }
 }
 
@@ -4657,7 +4657,7 @@ void TerminalPrint(
                 px = tcursor_x;
                 py = tcursor_y;
 
-                old_color = fontcolor;                          // Store Cursor Color
+                old_color = fontcolor; // Store Cursor Color
                 fontcolor = TERM_BCOLOR;
 
                 VW_DrawPropString("@");
@@ -4671,10 +4671,10 @@ void TerminalPrint(
                 if (shadow_text) {
                     px = tcursor_x + 1;
                     py = tcursor_y + 1;
-                    old_color2 = fontcolor;                                                     // STORE        Old Colr
+                    old_color2 = fontcolor; // STORE Old Colr
                     fontcolor = TERM_TSHAD_COLOR;
                     VW_DrawPropString(buf);
-                    fontcolor = old_color2;                                                     // RESTORE Old Colr
+                    fontcolor = old_color2; // RESTORE Old Colr
                 }
 
                 // Blast normal Text color to screen
@@ -4750,7 +4750,7 @@ void CacheTerminalPrint(
 //      while ((*Message=='\n') || (*Message=='\r'))
 //              Message++;
 
-    Message += 2;               // Move past LF and CR that follows "^XX"
+    Message += 2; // Move past LF and CR that follows "^XX"
 
     TerminalPrint(Message, FastPrint);
 }
@@ -4769,7 +4769,7 @@ void ActivateTerminal(
     char buffer[MAX_INPUT];
     bool temp_caps = allcaps, ExitMoFo;
     Uint16 oldwidth;
-    US_CursorStruct TermCursor = { '@', 0, 0x58, 2 };                   // Holds Font#, etc.
+    US_CursorStruct TermCursor = { '@', 0, 0x58, 2 }; // Holds Font#, etc.
     Sint16 msgnum;
 
 
@@ -5072,9 +5072,9 @@ void FloorCheat(
             //
             //  Check for walls
 
-            if (!TravelTable[x][y]) {                   // Map only shows where you've seen!
+            if (!TravelTable[x][y]) { // Map only shows where you've seen!
                 pbuffer[pos++] = '!';
-            } else if (((Uint16)actor && (Uint16)actor < 108) ||                        // 108 == LAST WALL TILE
+            } else if (((Uint16)actor && (Uint16)actor < 108) || // 108 == LAST WALL TILE
 
 #if IN_DEVELOPMENT
 
@@ -5082,7 +5082,7 @@ void FloorCheat(
 
 #endif
 
-                       (((Uint16)actor & 0x80) && actor < objlist && (!DebugOk)))               // Treat doors as walls in NoDebug
+                       (((Uint16)actor & 0x80) && actor < objlist && (!DebugOk))) // Treat doors as walls in NoDebug
             {
                 // Mark Wall piece
                 //
@@ -5097,7 +5097,7 @@ void FloorCheat(
                             //
                             // Mark map piece as the "player"
                             //
-                            FC_EMBED_COLOR("^FC0F");                                                    //  WHITE
+                            FC_EMBED_COLOR("^FC0F"); //  WHITE
                             pbuffer[pos++] = '!';
                             FC_NORM_COLOR();
                         } else {
@@ -5111,9 +5111,9 @@ void FloorCheat(
                             // Mark map piece as "Alerted Security Lamp"
                             //
                             if (actor->temp1) {
-                                FC_EMBED_COLOR("^FC1C");                                                                // Red
+                                FC_EMBED_COLOR("^FC1C"); // Red
                             } else {
-                                FC_EMBED_COLOR("^FC5C");                                                                // Green
+                                FC_EMBED_COLOR("^FC5C"); // Green
                             }
 
                             pbuffer[pos++] = '!';
@@ -5136,7 +5136,7 @@ void FloorCheat(
                             //
                             // Mark map piece as "goldstern"
                             //
-                            FC_EMBED_COLOR("^FC38");                                                    //  Yellow ...or.. err, like gold!
+                            FC_EMBED_COLOR("^FC38"); //  Yellow ...or.. err, like gold!
                             pbuffer[pos++] = '!';
                             FC_NORM_COLOR();
                             break;
@@ -5150,7 +5150,7 @@ void FloorCheat(
                             //
                             // Mark map piece as a "general object"
                             //
-                            FC_EMBED_COLOR("^FC18");                                                    // Red
+                            FC_EMBED_COLOR("^FC18"); // Red
                             pbuffer[pos++] = '!';
                             FC_NORM_COLOR();
                         } else {
@@ -5190,7 +5190,7 @@ void FloorCheat(
 /*
 =============================================================================
 
-                                                        PLAYER CONTROL
+ PLAYER CONTROL
 
 =============================================================================
 */
@@ -5226,7 +5226,7 @@ void SpawnPlayer(
         player->angle += ANGLES;
     }
     player->flags = FL_NEVERMARK;
-    Thrust(0, 0);                               // set some variables
+    Thrust(0, 0); // set some variables
 
     InitAreas();
 
@@ -5304,7 +5304,7 @@ void GunAttack(
         }
 
         if (closest == oldclosest) {
-            return;                                                     // no more targets, all missed
+            return; // no more targets, all missed
 
         }
         //
@@ -5324,14 +5324,14 @@ void GunAttack(
     dist = dx > dy ? dx : dy;
 
     if (dist < 2) {
-        damage = US_RndT() / 2;                         // 4
+        damage = US_RndT() / 2; // 4
     } else if (dist < 4) {
-        damage = US_RndT() / 4;                         // 6
+        damage = US_RndT() / 4; // 6
     } else {
-        if ((US_RndT() / 12) < dist) {                  // missed
+        if ((US_RndT() / 12) < dist) { // missed
             return;
         }
-        damage = US_RndT() / 4;                         // 6
+        damage = US_RndT() / 4; // 6
     }
 
     DamageActor(closest, damage, player);
@@ -5381,7 +5381,7 @@ void T_Attack(
 
     ControlMovement(ob);
 
-    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);                 // scale to tile values
+    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT); // scale to tile values
     player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 
 //
@@ -5431,7 +5431,7 @@ void T_Attack(
                 }
 
                 DrawWeapon();
-//                              DisplayInfoMsg(pd_switching,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
+// DisplayInfoMsg(pd_switching,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
             }
             gamestate.attackframe = gamestate.weaponframe = 0;
             return;
@@ -5504,7 +5504,7 @@ void T_Attack(
                 gamestate.attackframe++;
             } else {
                 if (LastMsgType == MT_MALFUNCTION) {
-                    MsgTicsRemain = 1;                                  // Clear Malfuction Msg before anim
+                    MsgTicsRemain = 1; // Clear Malfuction Msg before anim
 
                 }
                 if (!godmode) {
@@ -5545,7 +5545,7 @@ void T_Attack(
                 gamestate.attackframe++;
             } else {
                 if (LastMsgType == MT_MALFUNCTION) {
-                    MsgTicsRemain = 1;                                  // Clear Malfuction Msg before anim
+                    MsgTicsRemain = 1; // Clear Malfuction Msg before anim
 
                 }
                 if (!godmode) {
@@ -5624,9 +5624,9 @@ void T_Player(
     HandleWeaponBounce();
 
 
-//      plux = player->x >> UNSIGNEDSHIFT;                      // scale to fit in unsigned
+//      plux = player->x >> UNSIGNEDSHIFT; // scale to fit in unsigned
 //      pluy = player->y >> UNSIGNEDSHIFT;
-    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT);                 // scale to tile values
+    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT); // scale to tile values
     player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 }
 
@@ -5747,7 +5747,7 @@ void SW_HandleActor(
     case lcan_wait_alienobj:
         break;
 
-//              case electrosphereobj:
+// case electrosphereobj:
 //    break;
 
     case floatingbombobj:
@@ -5782,8 +5782,8 @@ void SW_HandleActor(
         }
         break;
 
-//              case electroobj:
-//              case liquidobj:
+// case electroobj:
+// case liquidobj:
 //    break;
 
     case post_barrierobj:
@@ -5824,14 +5824,14 @@ void SW_HandleStatic(
 // OperateSmartSwitch() - Operates a Smart Switch
 //
 // PARAMETERS:
-//                      tilex - Tile X coord that the Smart switch points to.
-//                      tiley - Tile Y coord that the Smart switch points to.
-//       force - Force switch operation.  Will not check the players current
-//               and last tilex & tiley coords.  This is usefull for other
-//               actors toggling barrier switches.
+//      tilex - Tile X coord that the Smart switch points to.
+//      tiley - Tile Y coord that the Smart switch points to.
+//      force - Force switch operation.  Will not check the players current
+//              and last tilex & tiley coords.  This is usefull for other
+//              actors toggling barrier switches.
 //
 // RETURNS: Boolean: TRUE  - Remove switch from map
-//                                                      FALSE - Keep switch in map
+//      FALSE - Keep switch in map
 //
 // -------------------------------------------------------------------------
 boolean OperateSmartSwitch(

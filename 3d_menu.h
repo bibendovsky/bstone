@@ -140,18 +140,20 @@ Free Software Foundation, Inc.,
 #define LSA_W 130
 #define LSA_H 42
 
-typedef enum mm_labels {MM_NEW_MISSION,
-                        MM_ORDERING_INFO,
-                        MM_READ_THIS,
-                        MM_BLAKE_STONE_SAGA,
-                        MM_BLANK1,
-                        MM_GAME_OPTIONS,
-                        MM_VIEW_SCORES,
-                        MM_LOAD_MISSION,
-                        MM_SAVE_MISSION,
-                        MM_BLANK2,
-                        MM_BACK_TO_DEMO,
-                        MM_LOGOFF} mm_labels;
+typedef enum mm_labels {
+    MM_NEW_MISSION,
+    MM_ORDERING_INFO,
+    MM_READ_THIS,
+    MM_BLAKE_STONE_SAGA,
+    MM_BLANK1,
+    MM_GAME_OPTIONS,
+    MM_VIEW_SCORES,
+    MM_LOAD_MISSION,
+    MM_SAVE_MISSION,
+    MM_BLANK2,
+    MM_BACK_TO_DEMO,
+    MM_LOGOFF
+} mm_labels;
 
 // CP_Switch() menu labels
 //
@@ -183,7 +185,7 @@ enum activetypes {
     AT_DISABLED = 0,
     AT_ENABLED,
     AT_READIT,
-    AT_NON_SELECTABLE                                   // Menu Bar/Separator - Not a selectable item.
+    AT_NON_SELECTABLE // Menu Bar/Separator - Not a selectable item.
 }; // enum activetypes
 
 //
@@ -214,8 +216,8 @@ struct CP_itemtype {
     char string[36];
     void (* routine)(
         Sint16 temp1);
-    Uint8 fontnumber;                                                           // Font to print text in
-    Uint8 height;                                                               // Hight of text (Y_Offset from previous line)
+    Uint8 fontnumber; // Font to print text in
+    Uint8 height; // Hight of text (Y_Offset from previous line)
 }; // struct CP_itemtype
 
 

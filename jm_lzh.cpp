@@ -23,20 +23,20 @@ Free Software Foundation, Inc.,
 
 // ===========================================================================
 //
-//                                                               LZHUFF COMPRESSION ROUTINES
-//                                                                                VERSION 1.0
+// LZHUFF COMPRESSION ROUTINES
+// VERSION 1.0
 //
-//                              Compression algrythim by Haruhiko OKUMURA
-//                                              Implementation by Jim T. Row
+// Compression algrythim by Haruhiko OKUMURA
+// Implementation by Jim T. Row
 //
 //
-//   Copyright (c) 1992 -
+// Copyright (c) 1992 -
 //
 // ===========================================================================
 //
 // Compiler #ifdef switches
 //
-//      LZHUFF_COMPRESSION & LZHUFF_DECOMPRESSION               - not yet functional!
+// LZHUFF_COMPRESSION & LZHUFF_DECOMPRESSION - not yet functional!
 //
 // Usage Explanition :
 //
@@ -55,7 +55,7 @@ Free Software Foundation, Inc.,
 
 // ===========================================================================
 //
-//                                                                                      SWITCHES
+// SWITCHES
 //
 // NOTE : Make sure the appropriate switches are set in SOFT.c for Softlib
 //                       archive support.
@@ -74,7 +74,7 @@ Free Software Foundation, Inc.,
 
 // ===========================================================================
 //
-//                                                                                      DEFINES
+// DEFINES
 //
 // ===========================================================================
 
@@ -100,7 +100,7 @@ Free Software Foundation, Inc.,
 
 // ==========================================================================
 //
-//                                                              LOCAL PROTOTYPES
+// LOCAL PROTOTYPES
 //
 // ==========================================================================
 
@@ -112,9 +112,9 @@ static void update(
 
 
 static void DeleteNode(
-    Sint16 p);                     /* Deleting node from the tree */
+    Sint16 p); /* Deleting node from the tree */
 static void InsertNode(
-    Sint16 r);                     /* Inserting node to the tree */
+    Sint16 r); /* Inserting node to the tree */
 static void InitTree(); /* Initializing tree */
 
 static void Putcode(
@@ -152,7 +152,7 @@ static Sint16 DecodePosition(
 
 // ==========================================================================
 //
-//                                                              USER AVAILABLE VECTORS
+// USER AVAILABLE VECTORS
 //
 // ==========================================================================
 
@@ -161,7 +161,7 @@ static Sint16 DecodePosition(
 
 // ---------------------------------------------------------------------------
 //
-//                                                              LZHUFF DISPLAY VECTORS
+// LZHUFF DISPLAY VECTORS
 //
 // These vectors allow you to hook up any form of display you desire for
 // displaying the compression/decompression status.
@@ -189,7 +189,7 @@ void (* LZH_DecompressDisplayVector)(Uint32, Uint32) = NULL;
 
 // ===========================================================================
 //
-//                                                                                      GLOBAL VARIABLES
+// GLOBAL VARIABLES
 //
 // ===========================================================================
 /* pointing children nodes (son[], son[] + 1)*/
@@ -384,7 +384,7 @@ Uint16 getlen = 0;
 
 // ===========================================================================
 //
-//                                                      COMPRESSION & DECOMPRESSION ROUTINES
+// COMPRESSION & DECOMPRESSION ROUTINES
 //
 // ===========================================================================
 
@@ -507,7 +507,7 @@ void LZH_Shutdown()
 #endif
 #endif
 
-    son = NULL;                 // Must be zeroed on shutdown!
+    son = NULL; // Must be zeroed on shutdown!
 #endif
 }
 
@@ -672,7 +672,7 @@ static void update(
 
 // ===========================================================================
 //
-//                                                                       COMPRESSION ROUTINES
+// COMPRESSION ROUTINES
 //
 // ===========================================================================
 
@@ -688,12 +688,12 @@ static void update(
 // DeleteNode
 // ---------------------------------------------------------------------------
 static void DeleteNode(
-    Sint16 p)                     /* Deleting node from the tree */
+    Sint16 p) /* Deleting node from the tree */
 {
     Sint16 q;
 
     if (dad[p] == NIL) {
-        return;                         /* unregistered */
+        return; /* unregistered */
 
     }
     if (rson[p] == NIL) {
@@ -737,7 +737,7 @@ static void DeleteNode(
 //  InsertNode
 // ---------------------------------------------------------------------------
 static void InsertNode(
-    Sint16 r)                     /* Inserting node to the tree */
+    Sint16 r) /* Inserting node to the tree */
 {
     Sint16 i, p, cmp;
     Uint8* key;
@@ -802,7 +802,7 @@ static void InsertNode(
         lson[dad[p]] = r;
     }
 
-    dad[p] = NIL;      /* remove p */
+    dad[p] = NIL; /* remove p */
 }
 
 
@@ -817,11 +817,11 @@ static void InitTree() /* Initializing tree */
     Sint16 i;
 
     for (i = N + 1; i <= N + 256; i++) {
-        rson[i] = NIL;                          /* root */
+        rson[i] = NIL; /* root */
 
     }
     for (i = 0; i < N; i++) {
-        dad[i] = NIL;                           /* node */
+        dad[i] = NIL; /* node */
     }
 }
 
@@ -944,7 +944,7 @@ static void EncodeEnd(
 
 // ===========================================================================
 //
-//                                                                      DECOMPRESSION ROUTINES
+// DECOMPRESSION ROUTINES
 //
 // ===========================================================================
 
@@ -1082,9 +1082,9 @@ static Sint16 DecodePosition(
 
 // ===========================================================================
 //
-//                                                                      EXTERNAL REFERENCED
-//                                                        COMPRESSION & DECOMPRESSION
-//                                                                           ROUTINES
+// EXTERNAL REFERENCED
+// COMPRESSION & DECOMPRESSION
+// ROUTINES
 //
 // ===========================================================================
 
@@ -1126,11 +1126,11 @@ Sint32 LZH_Decompress(
         if (c < 256) {
             ::CIO_WritePtr(outfile, static_cast<Uint8>(c));
 
-            datasize--;                                                                         // Dec # of bytes to write
+            datasize--; // Dec # of bytes to write
 
             text_buf[r++] = static_cast<Uint8>(c);
             r &= (N - 1);
-            count++;                                                                                    // inc count of bytes written
+            count++; // inc count of bytes written
         } else {
             i = (r - ::DecodePosition(infile, &CompressLength) - 1) & (N - 1);
 
@@ -1141,11 +1141,11 @@ Sint32 LZH_Decompress(
 
                 ::CIO_WritePtr(outfile, static_cast<Uint8>(c));
 
-                datasize--;                                                                     // dec count of bytes to write
+                datasize--; // dec count of bytes to write
 
                 text_buf[r++] = static_cast<Uint8>(c);
                 r &= (N - 1);
-                count++;                                                                                // inc count of bytes written
+                count++; // inc count of bytes written
             }
         }
 
@@ -1188,9 +1188,9 @@ int LZH_Compress(
 
     getbuf = 0;
     getlen = 0;
-    textsize = 0;                       /* rewind and rescan */
+    textsize = 0; /* rewind and rescan */
     codesize = 0;
-    datasize = 0;                       // Init our counter of ReadData...
+    datasize = 0; // Init our counter of ReadData...
     StartHuff();
     InitTree();
 
@@ -1204,7 +1204,7 @@ int LZH_Compress(
     for (len = 0; len < F && (DataLength > datasize); len++) {
         c = ::CIO_ReadPtr(infile);
 
-        datasize++;                                                             // Dec num of bytes to compress
+        datasize++; // Dec num of bytes to compress
         text_buf[r + len] = static_cast<Uint8>(c);
     }
 

@@ -82,7 +82,7 @@ Sint16 lastmenumusic;
 
 // ===========================================================================
 //
-//                                                          PRIVATE PROTOTYPES
+// PRIVATE PROTOTYPES
 //
 // ===========================================================================
 
@@ -119,7 +119,7 @@ extern boolean refresh_screen;
 
 // ===========================================================================
 //
-//                                                             LOCAL DATA...
+// LOCAL DATA...
 //
 // ===========================================================================
 
@@ -1837,7 +1837,7 @@ void DrawMenuTitle(
 
 // ---------------------------------------------------------------------------
 // DrawInstructions() - Draws instructions centered at the bottom of
-//                                                              the view screen.
+//      the view screen.
 //
 // NOTES: Orginal font number or font color is not maintained.
 // ---------------------------------------------------------------------------
@@ -1892,7 +1892,7 @@ void DrawNewEpisode()
     PrintY = 51;
     WindowX = 58;
 
-    fontnumber = 2;                                                     // six point font
+    fontnumber = 2; // six point font
     DrawMenu(&NewEitems, &NewEmenu[0]);
 
     DrawEpisodePic(NewEitems.curpos);
@@ -1914,7 +1914,7 @@ void DrawNewGame()
     DrawMenuTitle("DIFFICULTY LEVEL");
     DrawInstructions(IT_STANDARD);
 
-    fontnumber = 2;                                                     // six point font
+    fontnumber = 2; // six point font
     DrawMenu(&NewItems, &NewMenu[0]);
 
     DrawNewGameDiff(NewItems.curpos);
@@ -1989,7 +1989,7 @@ void DrawGopMenu()
     DrawMenuTitle("GAME OPTIONS");
     DrawInstructions(IT_STANDARD);
 
-    fontnumber = 4;                             // COAL
+    fontnumber = 4; // COAL
 
     DrawMenu(&GopItems, &GopMenu[0]);
 
@@ -2131,7 +2131,7 @@ void DrawAllSwitchLights(
             //
 
             if (SwitchItems.cursor.on) {
-                if (i == which) {                               // Is the cursor sitting on this pic?
+                if (i == which) { // Is the cursor sitting on this pic?
                     Shape += 2;
                 }
             }
@@ -2382,7 +2382,7 @@ void DrawAllSoundLights(
             //
 
             if (SndItems.cursor.on) {
-                if (i == which) {                               // Is the cursor sitting on this pic?
+                if (i == which) { // Is the cursor sitting on this pic?
                     Shape += 2;
                 }
             }
@@ -2438,7 +2438,7 @@ void DrawLSAction(
     DisplayPrepingMsg(LOADSAVE_GAME_MSG[which]);
 
     if (which) {
-        PreloadUpdate(1, 1);            // GFX: bar is full when saving...
+        PreloadUpdate(1, 1); // GFX: bar is full when saving...
 
     }
     LS_current = 1;
@@ -3889,7 +3889,7 @@ void CleanupControlPanel()
 
 // ---------------------------------------------------------------------------
 // ControlPanelFree() - This FREES the control panel lump from memory
-//                                                               and REALLOCS the ScaledDirectory
+//      and REALLOCS the ScaledDirectory
 // ---------------------------------------------------------------------------
 void ControlPanelFree()
 {
@@ -3899,7 +3899,7 @@ void ControlPanelFree()
 
 // ---------------------------------------------------------------------------
 // ControlPanelAlloc() - This CACHEs the control panel lump into memory
-//                                                          and FREEs the ScaledDirectory.
+//      and FREEs the ScaledDirectory.
 // ---------------------------------------------------------------------------
 void ControlPanelAlloc()
 {
@@ -4023,7 +4023,7 @@ Sint16 HandleMenu(
                 if ((items + i)->active && (items + i)->string[0] == key) {
                     EraseGun(item_i, items, x, y, which);
                     which = i;
-                    item_i->curpos = static_cast<char>(which);                                          // jtr -testing
+                    item_i->curpos = static_cast<char>(which); // jtr -testing
                     box_on = 1;
                     DrawGun(item_i, items, x, &y, which, basey, routine);
                     VW_UpdateScreen();
@@ -4043,7 +4043,7 @@ Sint16 HandleMenu(
                     if ((items + i)->active && (items + i)->string[0] == key) {
                         EraseGun(item_i, items, x, y, which);
                         which = i;
-                        item_i->curpos = static_cast<char>(which);                                              // jtr -testing
+                        item_i->curpos = static_cast<char>(which); // jtr -testing
                         box_on = 1;
                         DrawGun(item_i, items, x, &y, which, basey, routine);
                         VW_UpdateScreen();
@@ -4077,7 +4077,7 @@ Sint16 HandleMenu(
 
             } while (!(items + which)->active);
 
-            item_i->curpos = static_cast<char>(which);                                          // jtr -testing
+            item_i->curpos = static_cast<char>(which); // jtr -testing
 
             box_on = 1;
             DrawGun(item_i, items, x, &y, which, basey, routine);
@@ -4101,7 +4101,7 @@ Sint16 HandleMenu(
                 }
             } while (!(items + which)->active);
 
-            item_i->curpos = static_cast<char>(which);                                          // jtr -testing
+            item_i->curpos = static_cast<char>(which); // jtr -testing
 
             box_on = 1;
             DrawGun(item_i, items, x, &y, which, basey, routine);
@@ -4240,7 +4240,7 @@ void DrawGun(
 //      VW_UpdateScreen();
 //      SD_PlaySound(MOVEGUN2SND);
 
-    x++;                                // Shutup compiler
+    x++; // Shutup compiler
 }
 
 // ---------------------------------------------------------------------------
@@ -4682,7 +4682,7 @@ Uint32 CacheCompData(
 
 // -------------------------------------------------------------------------
 // CheckForSpecialCode() - Scans the Command Line parameters for
-//                                                                      special code word and returns true if found.
+//      special code word and returns true if found.
 //
 // NOTE: - Requires that the MEMORY and CACHE manager be started up.
 //       - The chunk being checked MUST be JAMPAKd - (this may change)
@@ -4748,8 +4748,8 @@ void FreeMusic()
 #ifdef CACHE_KEY_DATA
 
 // ---------------------------------------------------------------------------
-//      IN_GetScanName() -      Returns a string containing the name of the
-//                                                              specified scan code
+// IN_GetScanName() - Returns a string containing the name of the
+//      specified scan code
 // ---------------------------------------------------------------------------
 Uint8 far* IN_GetScanName(
     ScanCode scan)
@@ -4769,8 +4769,8 @@ Uint8 far* IN_GetScanName(
 #else
 
 // ---------------------------------------------------------------------------
-//      IN_GetScanName() -      Returns a string containing the name of the
-//                                                              specified scan code
+// IN_GetScanName() - Returns a string containing the name of the
+//      specified scan code
 // ---------------------------------------------------------------------------
 Uint8* IN_GetScanName(
     ScanCode scan)

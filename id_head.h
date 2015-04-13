@@ -61,7 +61,7 @@ typedef struct  {
 
 void Quit(
     char* error,
-    ...);                               // defined in user program
+    ...); // defined in user program
 
 
 #endif // ID_HEAD_H

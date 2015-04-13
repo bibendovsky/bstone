@@ -40,7 +40,7 @@ Free Software Foundation, Inc.,
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -78,7 +78,7 @@ void UpdateRadarGuage();
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -203,7 +203,7 @@ boolean cloaked_shape = false;
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -275,12 +275,12 @@ fixed FixedByFrac(
 = TransformActor
 =
 = Takes paramaters:
-=   gx,gy                               : globalx/globaly of point
+=   gx,gy : globalx/globaly of point
 =
 = globals:
 =   viewx,viewy         : point of view
 =   viewcos,viewsin     : sin/cos of viewangle
-=   scale                               : conversion from global value to screen value
+=   scale               : conversion from global value to screen value
 =
 = sets:
 =   screenx,transx,transy,screenheight: projected edge location and size
@@ -311,7 +311,7 @@ void TransformActor(
 //
     gxt = FixedByFrac(gx, viewcos);
     gyt = FixedByFrac(gy, viewsin);
-    nx = gxt - gyt - ACTORSIZE;         // fudge the shape forward a bit, because
+    nx = gxt - gyt - ACTORSIZE; // fudge the shape forward a bit, because
     // the midpoint could put parts of the shape
     // into an adjacent wall
 
@@ -328,7 +328,7 @@ void TransformActor(
     ob->transx = nx;
     ob->transy = ny;
 
-    if (nx < mindist) {                 // too close, don't overflow the divide
+    if (nx < mindist) { // too close, don't overflow the divide
         ob->viewheight = 0;
         return;
     }
@@ -386,7 +386,7 @@ boolean TransformTile(
 //
     gxt = FixedByFrac(gx, viewcos);
     gyt = FixedByFrac(gy, viewsin);
-    nx = gxt - gyt - 0x2000;            // 0x2000 is size of object
+    nx = gxt - gyt - 0x2000; // 0x2000 is size of object
 
 //
 // calculate newy
@@ -399,12 +399,12 @@ boolean TransformTile(
 //
 // calculate perspective ratio
 //
-    if (nx < mindist) {                 // too close, don't overflow the divide
+    if (nx < mindist) { // too close, don't overflow the divide
         *dispheight = 0;
         return false;
     }
 
-    *dispx = static_cast<Sint16>(centerx + ny * scale / nx);    // DEBUG: use assembly divide
+    *dispx = static_cast<Sint16>(centerx + ny * scale / nx); // DEBUG: use assembly divide
 
     q = (heightnumerator / (nx >> 8)) & 0xFFFF;
     r = (heightnumerator % (nx >> 8)) & 0xFFFF;
@@ -523,31 +523,31 @@ void FarScalePost() // just so other files can call
 */
 
 Uint16 DoorJamsShade[] = {
-    BIO_JAM_SHADE,                                      // dr_bio
-    SPACE_JAM_2_SHADE,                          // dr_normal
-    STEEL_JAM_SHADE,                                    // dr_prison
-    SPACE_JAM_2_SHADE,                          // dr_elevator
-    STEEL_JAM_SHADE,                                    // dr_high_sec
-    OFFICE_JAM_SHADE,                                   // dr_office
-    STEEL_JAM_SHADE,                                    // dr_oneway_left
-    STEEL_JAM_SHADE,                                    // dr_oneway_up
-    STEEL_JAM_SHADE,                                    // dr_oneway_right
-    STEEL_JAM_SHADE,                                    // dr_oneway_down
-    SPACE_JAM_SHADE,                                    // dr_space
+    BIO_JAM_SHADE, // dr_bio
+    SPACE_JAM_2_SHADE, // dr_normal
+    STEEL_JAM_SHADE, // dr_prison
+    SPACE_JAM_2_SHADE, // dr_elevator
+    STEEL_JAM_SHADE, // dr_high_sec
+    OFFICE_JAM_SHADE, // dr_office
+    STEEL_JAM_SHADE, // dr_oneway_left
+    STEEL_JAM_SHADE, // dr_oneway_up
+    STEEL_JAM_SHADE, // dr_oneway_right
+    STEEL_JAM_SHADE, // dr_oneway_down
+    SPACE_JAM_SHADE, // dr_space
 };
 
 Uint16 DoorJams[] = {
-    BIO_JAM,                                            // dr_bio
-    SPACE_JAM_2,                        // dr_normal
-    STEEL_JAM,                                  // dr_prison
-    SPACE_JAM_2,                        // dr_elevator
-    STEEL_JAM,                                  // dr_high_sec
-    OFFICE_JAM,                                 // dr_office
-    STEEL_JAM,                                  // dr_oneway_left
-    STEEL_JAM,                                  // dr_oneway_up
-    STEEL_JAM,                                  // dr_oneway_right
-    STEEL_JAM,                                  // dr_oneway_down
-    SPACE_JAM,                                  // dr_space
+    BIO_JAM, // dr_bio
+    SPACE_JAM_2, // dr_normal
+    STEEL_JAM, // dr_prison
+    SPACE_JAM_2, // dr_elevator
+    STEEL_JAM, // dr_high_sec
+    OFFICE_JAM, // dr_office
+    STEEL_JAM, // dr_oneway_left
+    STEEL_JAM, // dr_oneway_up
+    STEEL_JAM, // dr_oneway_right
+    STEEL_JAM, // dr_oneway_down
+    SPACE_JAM, // dr_space
 };
 
 
@@ -576,7 +576,7 @@ void HitVertWall()
     } else {
         // new wall
 
-        if (lastside != -1) {                                   // if not the first scaled post
+        if (lastside != -1) { // if not the first scaled post
             ScalePost();
         }
 
@@ -641,7 +641,7 @@ void HitHorizWall()
         postx = pixx;
     } else {
         // new wall
-        if (lastside != -1) {                                   // if not the first scaled post
+        if (lastside != -1) { // if not the first scaled post
             ScalePost();
         }
 
@@ -653,7 +653,7 @@ void HitHorizWall()
 
 
 
-        if (tilehit & 0x40) {                                                   // check for adjacent doors
+        if (tilehit & 0x40) { // check for adjacent doors
 
             xtile = xintercept >> TILESHIFT;
             if ((doornum = tilemap[xtile][ytile - ytilestep]) & 0x80) {
@@ -720,7 +720,7 @@ void HitHorizDoor()
 
         postx = pixx;
     } else {
-        if (lastside != -1)                                     // if not the first scaled post
+        if (lastside != -1) // if not the first scaled post
 #if MASKABLE_DOORS
         { ScaleMPost();
         }
@@ -757,15 +757,15 @@ void HitHorizDoor()
             break;
 
         case dr_high_security:
-            doorpage = static_cast<Sint16>(DOORWALL + L_HIGH_SECURITY);                                                 // Reverse View
+            doorpage = static_cast<Sint16>(DOORWALL + L_HIGH_SECURITY); // Reverse View
             break;
 
         case dr_oneway_up:
         case dr_oneway_left:
             if (player->tiley > doorobjlist[doornum].tiley) {
-                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY);                                                // normal view
+                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY); // normal view
             } else {
-                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT);                                                      // Reverse View
+                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT); // Reverse View
                 lockable = false;
             }
             break;
@@ -773,10 +773,10 @@ void HitHorizDoor()
         case dr_oneway_right:
         case dr_oneway_down:
             if (player->tiley > doorobjlist[doornum].tiley) {
-                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT);                                                                      // normal view
+                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT); // normal view
                 lockable = false;
             } else {
-                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY);                                        // Reverse View
+                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY); // Reverse View
             }
             break;
 
@@ -848,7 +848,7 @@ void HitVertDoor()
 
         postx = pixx;
     } else {
-        if (lastside != -1)                                     // if not the first scaled post
+        if (lastside != -1) // if not the first scaled post
 #if MASKABLE_DOORS
         { ScaleMPost();
         }
@@ -891,9 +891,9 @@ void HitVertDoor()
         case dr_oneway_left:
         case dr_oneway_up:
             if (player->tilex > doorobjlist[doornum].tilex) {
-                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY_SHADE);                                          // Reverse View
+                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY_SHADE); // Reverse View
             } else {
-                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT_SHADE);                                                // Normal view
+                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT_SHADE); // Normal view
                 lockable = false;
             }
             break;
@@ -901,10 +901,10 @@ void HitVertDoor()
         case dr_oneway_right:
         case dr_oneway_down:
             if (player->tilex > doorobjlist[doornum].tilex) {
-                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT_SHADE);                                        // Reverse View
+                doorpage = static_cast<Sint16>(DOORWALL + NOEXIT_SHADE); // Reverse View
                 lockable = false;
             } else {
-                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY_SHADE);                                  // Normal View
+                doorpage = static_cast<Sint16>(DOORWALL + L_ENTER_ONLY_SHADE); // Normal View
             }
             break;
 
@@ -966,7 +966,7 @@ void HitHorizPWall()
         postx = pixx;
     } else {
         // new wall
-        if (lastside != -1) {                                   // if not the first scaled post
+        if (lastside != -1) { // if not the first scaled post
             ScalePost();
         }
 
@@ -1017,7 +1017,7 @@ void HitVertPWall()
         postx = pixx;
     } else {
         // new wall
-        if (lastside != -1) {                                   // if not the first scaled post
+        if (lastside != -1) { // if not the first scaled post
             ScalePost();
         }
 
@@ -1176,7 +1176,7 @@ void DrawScaleds()
 //
     for (statptr = &statobjlist[0]; statptr != laststatobj; statptr++) {
         if ((visptr->shapenum = statptr->shapenum) == -1) {
-            continue;                                                           // object has been deleted
+            continue; // object has been deleted
 
         }
         if ((Keyboard[sc_6] && (Keyboard[sc_7] || Keyboard[sc_8]) && DebugOk) && (statptr->flags & FL_BONUS)) {
@@ -1185,7 +1185,7 @@ void DrawScaleds()
         }
 
         if (!*statptr->visspot) {
-            continue;                                                           // not visable
+            continue; // not visable
 
 
         }
@@ -1197,13 +1197,13 @@ void DrawScaleds()
         }
 
         if (!visptr->viewheight) {
-            continue;                                                           // to close to the object
+            continue; // to close to the object
 
         }
         visptr->cloaked = false;
-        visptr->lighting = statptr->lighting;                           // Could add additional
+        visptr->lighting = statptr->lighting; // Could add additional
         // flashing/lighting
-        if (visptr < &vislist[MAXVISABLE - 1]) {        // don't let it overflow
+        if (visptr < &vislist[MAXVISABLE - 1]) { // don't let it overflow
             visptr++;
         }
     }
@@ -1216,13 +1216,13 @@ void DrawScaleds()
 
         if (obj->flags & FL_OFFSET_STATES) {
             if ((visptr->shapenum = obj->temp1 + obj->state->shapenum) == 0) {
-                continue;                                                       // no shape
+                continue; // no shape
             }
         } else if ((visptr->shapenum = obj->state->shapenum) == 0) {
-            continue;                                                           // no shape
+            continue; // no shape
 
         }
-        spotloc = (obj->tilex << 6) + obj->tiley;       // optimize: keep in struct?
+        spotloc = (obj->tilex << 6) + obj->tiley; // optimize: keep in struct?
 
         // BBi Do not draw detonator if it's not visible.
         if (spotloc == 0) {
@@ -1251,7 +1251,7 @@ void DrawScaleds()
             TransformActor(obj);
 
             if (!obj->viewheight) {
-                continue;                                                               // too close or far away
+                continue; // too close or far away
 
             }
 #ifdef BSTONE_PS
@@ -1275,14 +1275,14 @@ void DrawScaleds()
             visptr->viewheight = obj->viewheight;
 
             if (visptr->shapenum == -1) {
-                visptr->shapenum = obj->temp1;                  // special shape
+                visptr->shapenum = obj->temp1; // special shape
 
             }
             if (obj->state->flags & SF_ROTATE) {
                 visptr->shapenum += CalcRotate(obj);
             }
 
-            if (visptr < &vislist[MAXVISABLE - 1]) {            // don't let it overflow
+            if (visptr < &vislist[MAXVISABLE - 1]) { // don't let it overflow
                 visptr++;
             }
             obj->flags |= FL_VISABLE;
@@ -1297,7 +1297,7 @@ void DrawScaleds()
     numvisable = static_cast<Sint16>(visptr - &vislist[0]);
 
     if (!numvisable) {
-        return;                                                                         // no visable objects
+        return; // no visable objects
 
     }
     for (i = 0; i < numvisable; i++) {
@@ -1450,13 +1450,13 @@ void CalcTics()
 // calculate tics since last refresh for adaptive timing
 //
     if (static_cast<Uint32>(lasttimecount) > TimeCount) {
-        TimeCount = lasttimecount;                      // if the game was paused a LONG time
+        TimeCount = lasttimecount; // if the game was paused a LONG time
 
 
     }
 #if 0
 
-    if (DemoMode) {                                     // demo recording and playback needs
+    if (DemoMode) { // demo recording and playback needs
         // to be constant
 //
 // take DEMOTICS or more tics, and modify Timecount to reflect time taken
@@ -1476,7 +1476,7 @@ void CalcTics()
         do {
             newtime = TimeCount;
             tics = static_cast<Uint16>(newtime - lasttimecount);
-        } while (!tics);                                // make sure at least one tic passes
+        } while (!tics); // make sure at least one tic passes
 
         lasttimecount = newtime;
         framecount++;
@@ -1555,10 +1555,10 @@ void WallRefresh()
     ypartialdown = viewy & (TILEGLOBAL - 1);
     ypartialup = static_cast<Uint16>(TILEGLOBAL - ypartialdown);
 
-    lastside = -1;                      // the first pixel is on a new wall
+    lastside = -1; // the first pixel is on a new wall
 
     AsmRefresh();
-    ScalePost();                        // no more optimization on last post
+    ScalePost(); // no more optimization on last post
 }
 
 
@@ -1702,9 +1702,9 @@ void ThreeDRefresh()
 // draw all the scaled images
 //
 
-    DrawScaleds();                      // draw scaled stuf
+    DrawScaleds(); // draw scaled stuf
 
-    DrawPlayerWeapon();         // draw player's hands
+    DrawPlayerWeapon(); // draw player's hands
 
 
 //
@@ -1714,7 +1714,7 @@ void ThreeDRefresh()
         FizzleFade(bufferofs, displayofs + screenofs, viewwidth, viewheight, 70, false);
         fizzlein = false;
 
-        lasttimecount = TimeCount;                      // don't make a big tic count
+        lasttimecount = TimeCount; // don't make a big tic count
     }
 
     bufferofs -= screenofs;
@@ -1723,7 +1723,7 @@ void ThreeDRefresh()
     DrawRadar();
 #endif
 
-//      VW_WaitVBL(1);          // mike check this out
+//      VW_WaitVBL(1); // mike check this out
 
 #ifdef PAGEFLIP
     NextBuffer();

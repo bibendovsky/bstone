@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -89,7 +89,7 @@ void CheckHighScore(
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -129,7 +129,7 @@ void GameLoop();
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -142,24 +142,24 @@ void GameLoop();
 //
 
 char ExpCrateShapes[] = {
-    42,                         // Chicken Leg
-    44,                         // Ham/Steak
-    26,                         // Clip
-    24,                         // Pistol
-    27,                         // Pulse
-    28,                         // ION
-    46,                 // Grenade
-    62,                 // Money Bag
-    63,                 // Loot
-    64,                 // Gold
-    65,                 // Bonus
-    71,                 // Gore 1
-    74,                 // Gore 2
-    32,                         // red key
-    33,                         // yel key
-    52 - 23,            // grn key
-    35,                 // blu key
-    488 - 375,          // gld key
+    42, // Chicken Leg
+    44, // Ham/Steak
+    26, // Clip
+    24, // Pistol
+    27, // Pulse
+    28, // ION
+    46, // Grenade
+    62, // Money Bag
+    63, // Loot
+    64, // Gold
+    65, // Bonus
+    71, // Gore 1
+    74, // Gore 2
+    32, // red key
+    33, // yel key
+    52 - 23, // grn key
+    35, // blu key
+    488 - 375, // gld key
 };
 
 
@@ -174,9 +174,9 @@ char ExpCrateShapes[] = {
 ==========================
 =
 = SetSoundLoc - Given the location of an object (in terms of global
-=       coordinates, held in globalsoundx and globalsoundy), munges the values
-=       for an approximate distance from the left and right ear, and puts
-=       those values into leftchannel and rightchannel.
+=   coordinates, held in globalsoundx and globalsoundy), munges the values
+=   for an approximate distance from the left and right ear, and puts
+=   those values into leftchannel and rightchannel.
 =
 = JAB
 =
@@ -310,7 +310,7 @@ void ClearMemory()
 
 // -------------------------------------------------------------------------
 // FreeAllMemory() - This is an attempt to FREE All possible memory
-//                                                      for memory hungry routines (ie. MOVIE_Play())
+//      for memory hungry routines (ie. MOVIE_Play())
 //
 // NOTE: If any sounds, music, etc are currently playing, they will
 //                      adbruply cut off.
@@ -397,12 +397,12 @@ void ScanInfoPlane()
             switch (tilehi) {
 
 
-//                              case 0xff:                                                                                      // Special background
-//                                      continue;
-//                              break;
+// case 0xff: // Special background
+//      continue;
+// break;
 
 #ifdef CEILING_FLOOR_COLORS
-            case 0xfe:                                                                                  // Top/Bottom colors
+            case 0xfe: // Top/Bottom colors
                 if (gotcolors) {
                     break;
                 }
@@ -416,7 +416,7 @@ void ScanInfoPlane()
                 continue;
                 break;
 #else
-            case 0xfe:                                                                                  // Top/Bottom colors
+            case 0xfe: // Top/Bottom colors
                 x++;
                 tile = *start++;
                 // Give error
@@ -425,7 +425,7 @@ void ScanInfoPlane()
 #endif
 
 
-            case 0xFB:                                                                                  // Global Ceiling/Floor textures
+            case 0xFB: // Global Ceiling/Floor textures
                 if (gottextures) {
                     break;
                 }
@@ -447,14 +447,14 @@ void ScanInfoPlane()
                 break;
 
 
-            case 0xf5:                                                                                          // IntraLevel warp
-                *(start - 1) = *start;                                                          // Move Coord right on top
+            case 0xf5: // IntraLevel warp
+                *(start - 1) = *start; // Move Coord right on top
                 *start = 0;
                 continue;
                 break;
 
 #if 0
-            case 0xF6:                                                                                          // Lighting effects
+            case 0xF6: // Lighting effects
                 if (gotlight) {
                     break;
                 }
@@ -479,9 +479,9 @@ void ScanInfoPlane()
             case 0xfa:
                 continue;
 
-            case 0xf1:                                  // Informant messages
-            case 0xf2:                                  // "Nice" scientist messages
-            case 0xf3:                                  // "Mean" scientist messages
+            case 0xf1: // Informant messages
+            case 0xf2: // "Nice" scientist messages
+            case 0xf3: // "Mean" scientist messages
                 switch (tilehi) {
                 case 0xf1:
                     block = INFORMANT_HINTS;
@@ -597,10 +597,10 @@ void ScanInfoPlane()
                 SpawnPlayer(x, y, NORTH + tile - 19);
                 break;
 
-            case 85:                                                    // Money bag
-            case 86:                                                    // Loot
-            case 87:                                                    // Gold
-            case 88:                                                    // Bonus
+            case 85: // Money bag
+            case 86: // Loot
+            case 87: // Gold
+            case 88: // Bonus
                 AddTotalPoints(static_points[statinfo[tile - 23].type - bo_money_bag]);
 #if IN_DEVELOPMENT
 #ifdef DEBUG_STATICS
@@ -618,7 +618,7 @@ void ScanInfoPlane()
 
 
 #if GAME_VERSION != SHAREWARE_VERSION
-            case 30:                                                                                    // Yellow Puddle
+            case 30: // Yellow Puddle
 #endif
 
             case 31:
@@ -668,25 +668,25 @@ void ScanInfoPlane()
             case 69:
             case 70:
 #ifdef BSTONE_PS
-            case 71:                                    // BFG Weapon
+            case 71: // BFG Weapon
 #endif
-            case 72:                                                    // Gurney Mutant
-            case 73:                         // Large Canister
-            case 74:                         // Small Canister
-            case 75:                         // Empty Gurney
-            case 76:                                                    // Empty Large Canister
-            case 77:                                                    // Empty Small Canister
-            case 78:                                                    // Dead Gen. Sci.
+            case 72: // Gurney Mutant
+            case 73: // Large Canister
+            case 74: // Small Canister
+            case 75: // Empty Gurney
+            case 76: // Empty Large Canister
+            case 77: // Empty Small Canister
+            case 78: // Dead Gen. Sci.
 
             case 80:
-            case 83:                                                    // Floor Grate
-            case 84:                                                    // Floor Pipe
+            case 83: // Floor Grate
+            case 84: // Floor Pipe
                 SpawnStatic(x, y, tile - 23);
                 break;
 
-            case 399:                                           // gold 1
-            case 400:                                           // gold 2
-            case 401:                                           // gold 3
+            case 399: // gold 1
+            case 400: // gold 2
+            case 401: // gold 3
                 AddTotalPoints(static_points[statinfo[tile - 315].type - bo_money_bag]);
 #if IN_DEVELOPMENT
 #ifdef DEBUG_STATICS
@@ -702,69 +702,69 @@ void ScanInfoPlane()
             case 386:
             case 387:
             case 388:
-//                      case 389:
-            case 390:                           // candy bar
-            case 391:                                           // sandwich
+// case 389:
+            case 390: // candy bar
+            case 391: // sandwich
 
-            case 395:                                           // Table
-            case 396:                                           // Chair
-            case 397:                                           // Stool
-            case 398:                                           // Gore
+            case 395: // Table
+            case 396: // Chair
+            case 397: // Stool
+            case 398: // Gore
 
-            case 402:                                           //
-            case 403:                                           //
-            case 404:                                           //
-            case 405:                                           //
-            case 406:                                           //
-            case 407:                                           //
-            case 408:                                           //
-            case 409:                                           //
-            case 410:                                           //
-            case 411:                                           //
-            case 412:                                           //
-            case 413:                                           //
-            case 414:                                           //
-            case 415:                                           //
-            case 416:                                           //
-            case 417:                                           //
-            case 418:                                           //
-            case 419:                                           //
-            case 420:                                           //
-            case 421:                                           //
-            case 422:                                           //
-            case 423:                                           // bo_coin
-            case 424:                                           // bo_coin5
+            case 402: //
+            case 403: //
+            case 404: //
+            case 405: //
+            case 406: //
+            case 407: //
+            case 408: //
+            case 409: //
+            case 410: //
+            case 411: //
+            case 412: //
+            case 413: //
+            case 414: //
+            case 415: //
+            case 416: //
+            case 417: //
+            case 418: //
+            case 419: //
+            case 420: //
+            case 421: //
+            case 422: //
+            case 423: // bo_coin
+            case 424: // bo_coin5
                 SpawnStatic(x, y, tile - 315);
                 break;
 
 #ifdef BSTONE_PS
-            case 486:                                           // Plasma Detonator
-                SpawnHiddenOfs(en_plasma_detonator_reserve, x, y);                                      // Spawn a reserve
+            case 486: // Plasma Detonator
+                SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
                 SpawnStatic(x, y, 486 - 375);
                 break;
 #endif
 
-            case 487:                                           // Door rubble
-            case 488:                           // AutoMapper Bonus #1
-            case 489:                           // BonziTree
-            case 490:                           // Yellow Potted plant
-            case 491:                           // Tube Plant
-            case 492:                           // HiTech Chair
-            case 493:                           // AOG: Rent A Cop - Dead.
-            case 494:                           // AOG: Pro Guard - Dead.
-            case 495:                                           // AOG: Swat Guard - Dead.
+            case 487: // Door rubble
+            case 488: // AutoMapper Bonus #1
+            case 489: // BonziTree
+            case 490: // Yellow Potted plant
+            case 491: // Tube Plant
+            case 492: // HiTech Chair
+            case 493: // AOG: Rent A Cop - Dead.
+            case 494: // AOG: Pro Guard - Dead.
+            case 495: // AOG: Swat Guard - Dead.
                 SpawnStatic(x, y, tile - 375);
                 break;
 
 
-            case 393:                                           // crate 2
-            case 394:                                           // crate 3
+            case 393: // crate 2
+            case 394: // crate 3
 #if GAME_VERSION == SHAREWARE_VERSION
 #if IN_DEVELOPMENT
                 INVALID_ACTOR_ERR;
 #endif
 #endif
-            case 392:                                           // crate 1
+            case 392: // crate 1
                 SpawnStatic(x, y, tile - 315);
                 break;
 
@@ -853,8 +853,8 @@ void ScanInfoPlane()
             //
             // Switchable
             //
-            case 563:                   // On
-            case 562:               // Off
+            case 563: // On
+            case 562: // Off
                 SpawnBarrier(en_vpost_barrier, x, y, tile - 562);
                 break;
 
@@ -881,8 +881,8 @@ void ScanInfoPlane()
             //
             // Switchable
             //
-            case 426:                   // On
-            case 425:                   // Off
+            case 426: // On
+            case 425: // Off
                 SpawnBarrier(en_vspike_barrier, x, y, tile - 425);
                 break;
 
@@ -981,10 +981,10 @@ void ScanInfoPlane()
 //
 // P wall
 //
-//                      case 98:
-//                              if (!loadedgame)
-//                                gamestate.secrettotal++;
-//                              break;
+// case 98:
+//      if (!loadedgame)
+//          gamestate.secrettotal++;
+//      break;
 
 
 
@@ -1056,13 +1056,9 @@ void ScanInfoPlane()
                 break;
 
 
-//                      case 124:
-//                              SpawnDeadGuard (x,y);
-//                              break;
-
-
-
-
+// case 124:
+//      SpawnDeadGuard (x,y);
+//      break;
 
 
             //
@@ -1193,7 +1189,7 @@ void ScanInfoPlane()
 
 
             //
-            //          FLOATING BOMB - Stationary
+            // FLOATING BOMB - Stationary
             //
 
             case 364:
@@ -1222,7 +1218,7 @@ void ScanInfoPlane()
 
 
             //
-            //          FLOATING BOMB - Start Stationary
+            // FLOATING BOMB - Start Stationary
             //
 
             case 296:
@@ -1250,7 +1246,7 @@ void ScanInfoPlane()
 
 
             //
-            //          FLOATING BOMB - Start Moving
+            // FLOATING BOMB - Start Moving
             //
 
             case 300:
@@ -1278,7 +1274,7 @@ void ScanInfoPlane()
 
 
                 //
-                //              VOLATILE MAT. TRANSPORT - Stationary
+                // VOLATILE MAT. TRANSPORT - Stationary
                 //
 #if GAME_VERSION != SHAREWARE_VERSION
             case 350:
@@ -1325,7 +1321,7 @@ void ScanInfoPlane()
 
 #ifdef BSTONE_PS
             //
-            //          Black Ooze
+            // Black Ooze
             //
             case 313:
                 if (gamestate.difficulty < gd_hard) {
@@ -1344,7 +1340,7 @@ void ScanInfoPlane()
 
 
             //
-            //          Green Ooze
+            // Green Ooze
             //
             case 322:
                 if (gamestate.difficulty < gd_hard) {
@@ -1363,7 +1359,7 @@ void ScanInfoPlane()
 
 
                 //
-                //              VOLATILE MAT. TRANSPORT - Moving
+                // VOLATILE MAT. TRANSPORT - Moving
                 //
 #if GAME_VERSION != SHAREWARE_VERSION
             case 354:
@@ -2060,7 +2056,7 @@ void ScanInfoPlane()
                 break;
 
             //
-            //          VOLATILE MAT. TRANSPORT
+            // VOLATILE MAT. TRANSPORT
             //
 
             case 548:
@@ -2177,10 +2173,10 @@ void ScanInfoPlane()
 // BOSS ACTORS
 // -----------------------
 
-            case 630:                   // FINAL BOSS 1
-            case 631:   // FINAL BOSS 2
-            case 632:   // FINAL BOSS 3
-            case 633:   // FINAL BOSS 4
+            case 630: // FINAL BOSS 1
+            case 631: // FINAL BOSS 2
+            case 632: // FINAL BOSS 3
+            case 633: // FINAL BOSS 4
                 SpawnOffsetObj(static_cast<enemy_t>(en_final_boss1 + tile - 630), x, y);
                 break;
 #endif
@@ -2339,8 +2335,8 @@ void SetupGameLevel()
                 // solid wall
                 tilemap[x][y] = static_cast<Uint8>(tile);
 
-//                              if (tile != AMBUSHTILE)
-//                                      (unsigned)actorat[x][y] = tile;
+// if (tile != AMBUSHTILE)
+//      (unsigned)actorat[x][y] = tile;
 
                 switch (tile) {
                 case AMBUSHTILE:
@@ -2373,7 +2369,7 @@ void SetupGameLevel()
 //
 // spawn doors
 //
-    InitActorList();                            // start spawning things with a clean slate
+    InitActorList(); // start spawning things with a clean slate
     InitDoorList();
 
     InitMsgCache((mCacheList*)&ConHintList, sizeof(ConHintList), sizeof(ConHintList.cmInfo[0]));
@@ -2464,10 +2460,10 @@ void SetupGameLevel()
                     SpawnDoor(x, y, !(tile % 2), lock, dr_high_security);
                     break;
 
-                case 98:                                                                                // oneway left  - Vert
-                case 99:                                                                                // oneway up    - Horz
-                case 100:                                                                       // oneway right - Vert
-                case 101:                                                                       // oneway down  - Horz
+                case 98: // oneway left  - Vert
+                case 99: // oneway up    - Horz
+                case 100: // oneway right - Vert
+                case 101: // oneway down  - Horz
                     SpawnDoor(x, y, !(tile % 2), lock, static_cast<door_t>(dr_oneway_left + (tile - 98)));
                     break;
 
@@ -2674,12 +2670,12 @@ void DrawPlayBorder()
 void BMAmsg(
     const char* msg)
 {
-#define         BMAx1 0                                                         // outer bevel
+#define         BMAx1 0 // outer bevel
 #define BMAy1 152
 #define BMAw1 320
 #define BMAh1 48
 
-#define         BMAx2 (BMAx1 + 7)                               // inner bevel
+#define         BMAx2 (BMAx1 + 7) // inner bevel
 #define BMAy2 (BMAy1 + 4)
 #define BMAw2 (BMAw1 - 14)
 #define BMAh2 (BMAh1 - 8)
@@ -2720,7 +2716,7 @@ void BMAmsg(
 
 // ----------------------------------------------------------------------
 // CacheBMAmsg() - Caches in a Message Number and displays it using
-//                                               BMAmsg()
+//      BMAmsg()
 // ----------------------------------------------------------------------
 void CacheBMAmsg(
     Uint16 MsgNum)
@@ -2754,7 +2750,7 @@ void BevelBox(
     Sint16 xh = xl + w - 1, yh = yl + h - 1;
     Uint8 hc;
 
-    VWB_Bar(xl, yl, w, h, med);                                 // inside
+    VWB_Bar(xl, yl, w, h, med); // inside
 
 #if 0
     hc = (hi - lo + 1) / 2;
@@ -2768,12 +2764,12 @@ void BevelBox(
     hc = med + 1;
 #endif
 
-    VWB_Hlin(xl, xh, yl, hi);                                   // top
-    VWB_Hlin(xl, xh, yh, lo);                                   // bottom
-    VWB_Vlin(yl, yh, xl, hi);                                   // left
-    VWB_Vlin(yl, yh, xh, lo);                                   // right
-    VWB_Plot(xl, yh, hc);                                               // lower-left
-    VWB_Plot(xh, yl, hc);                                               // upper-right
+    VWB_Hlin(xl, xh, yl, hi); // top
+    VWB_Hlin(xl, xh, yh, lo); // bottom
+    VWB_Vlin(yl, yh, xl, hi); // left
+    VWB_Vlin(yl, yh, xh, lo); // right
+    VWB_Plot(xl, yh, hc); // lower-left
+    VWB_Plot(xh, yl, hc); // upper-right
 }
 
 // --------------------------------------------------------------------------
@@ -2978,7 +2974,7 @@ void Warped()
 
     DisplayInfoMsg("\r\r\r   TRANSPORTING OUT", MP_POWERUP, 7 * 60, MT_GENERAL);
     gamestate.old_weapons[3] = gamestate.weapon;
-    gamestate.weapon = -1;                      // take away weapon
+    gamestate.weapon = -1; // take away weapon
 
     ThreeDRefresh();
 
@@ -3038,7 +3034,7 @@ void StartDemoRecord(
     lastdemoptr = demoptr + MAXDEMOSIZE;
 
     *demoptr = levelnumber;
-    demoptr += 4;                               // leave space for length
+    demoptr += 4; // leave space for length
     demorecord = true;
 }
 
@@ -3306,7 +3302,7 @@ void Died()
 {
     Sint16 iangle;
 
-    gamestate.weapon = -1;                      // take away weapon
+    gamestate.weapon = -1; // take away weapon
 
     ::sd_play_player_sound(PLAYERDEATHSND, bstone::AC_VOICE);
 
@@ -3336,7 +3332,7 @@ void Died()
 
     if (gamestate.lives > -1) {
         gamestate.health = 100;
-        gamestate.weapons = 1 << wp_autocharge;                         // |1<<wp_plasma_detonators;
+        gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
         gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
 
         gamestate.ammo = STARTAMMO;
@@ -3412,8 +3408,8 @@ void LoseScreen()
 // RotateView()
 //
 // PARAMETERS:
-//                                      DestAngle - Destination angle to rotate player->angle to.
-//                                      RotSpeed  - Rotation Speed
+//      DestAngle - Destination angle to rotate player->angle to.
+//      RotSpeed  - Rotation Speed
 // --------------------------------------------------------------------------
 void RotateView(
     Sint16 DestAngle,
@@ -3576,15 +3572,15 @@ restartgame:
 
         startgame = false;
         if (!loadedgame) {
-//                      ClearMemory();
+// ClearMemory();
             if (LS_current == -1) {
-//                              ClearMemory();
+// ClearMemory();
                 DrawTopInfo(sp_loading);
                 DisplayPrepingMsg(prep_msg);
                 LS_current = 1;
                 LS_total = 20;
             }
-//                      ClearMemory();
+// ClearMemory();
             LoadLevel(gamestate.mapon);
         }
 
@@ -3623,9 +3619,9 @@ restartgame:
 #ifdef MYPROFILE
         end = clock();
         strcpy(str, "300 frames in 1/18ths:"); // defined in 3d_main.c
-        itoa(end - start, str2, 10);                            // defined in 3d_main.c
-        strcat(str, str2);                                              // defined in 3d_main.c
-        Quit(str);                                                                      // defined in 3d_main.c
+        itoa(end - start, str2, 10); // defined in 3d_main.c
+        strcat(str, str2); // defined in 3d_main.c
+        Quit(str); // defined in 3d_main.c
 #endif
 
 #ifdef DEMOS_EXTERN
@@ -3640,7 +3636,7 @@ restartgame:
 
         switch (playstate) {
 
-        case ex_transported:                                    // Same as ex_completed
+        case ex_transported: // Same as ex_completed
             Warped();
 
         case ex_completed:
@@ -3651,7 +3647,7 @@ restartgame:
             DrawKeys();
             VW_FadeOut();
 #endif
-//         StopMusic();                 // JTR
+// StopMusic(); // JTR
             ClearMemory();
             gamestate.mapon++;
             ClearNClose();
@@ -3677,7 +3673,7 @@ restartgame:
 
 #if 0
             if (gamestate.mapon == 9) {
-                gamestate.mapon = ElevatorBackTo[gamestate.episode];                    // back from secret
+                gamestate.mapon = ElevatorBackTo[gamestate.episode]; // back from secret
             } else if (playstate == ex_secretlevel) {
                 gamestate.mapon = 9;
             } else
@@ -3690,11 +3686,11 @@ restartgame:
             } else {
                 Died();
 
-                died = true;                                    // don't "get psyched!"
+                died = true; // don't "get psyched!"
 
                 if (gamestate.lives > -1) {
                     ClearMemory();
-                    break;                                              // more lives left
+                    break; // more lives left
                 }
 
                 LoseScreen();
@@ -3763,14 +3759,14 @@ restartgame:
                 ::DoMovie(movie, NULL);
 #else
                 CA_CacheGrChunk(ENDINGPALETTE);
-//                              VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
+// VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
 
                 DoMovie(mv_final, grsegs[ENDINGPALETTE]);
 
                 UNCACHEGRCHUNK(ENDINGPALETTE);
 #endif // BSTONE_AOG
 
-                NewViewSize();                          // Recreates & Allocs the ScaleDirectory
+                NewViewSize(); // Recreates & Allocs the ScaleDirectory
                 Breifing(BT_WIN, gamestate.episode);
             }
 

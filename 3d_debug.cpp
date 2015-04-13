@@ -45,7 +45,7 @@ void SetPlaneViewSize();
 /*
 =============================================================================
 
-                                                 LOCAL CONSTANTS
+ LOCAL CONSTANTS
 
 =============================================================================
 */
@@ -64,7 +64,7 @@ void SetPlaneViewSize();
 /*
 =============================================================================
 
-                                                 GLOBAL VARIABLES
+ GLOBAL VARIABLES
 
 =============================================================================
 */
@@ -76,7 +76,7 @@ Sint16 DebugKeys();
 /*
 =============================================================================
 
-                                                 LOCAL VARIABLES
+ LOCAL VARIABLES
 
 =============================================================================
 */
@@ -294,7 +294,7 @@ void CountObjects()
         if (statobjlist[i].shapenum != -1) {
             count++;
         } else {
-            doors++;                    // debug
+            doors++; // debug
         }
     }
     US_PrintUnsigned(count);
@@ -514,19 +514,19 @@ void ShapeTest()
                 i--;
             }
             break;
-        case sc_w:              // Walls
+        case sc_w: // Walls
             i = 0;
             break;
-        case sc_s:              // Sprites
+        case sc_s: // Sprites
             i = PMSpriteStart;
             break;
-        case sc_d:              // Digitized
+        case sc_d: // Digitized
             i = PMSoundStart;
             break;
-        case sc_i:              // Digitized info
+        case sc_i: // Digitized info
             i = ChunksInFile - 1;
             break;
-        case sc_l:              // Load all pages
+        case sc_l: // Load all pages
             for (j = 0; j < ChunksInFile; j++) {
                 PM_GetPage(j);
             }
@@ -625,7 +625,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_b]) {        // B = border color
+    } else if (Keyboard[sc_b]) { // B = border color
         CenterWindow(24, 3);
         PrintY += 6;
         US_Print(" Border color (0-15):");
@@ -640,16 +640,16 @@ Sint16 DebugKeys()
         return 1;
     }
 
-    if (Keyboard[sc_k]) {               // K = Map Content totals
+    if (Keyboard[sc_k]) { // K = Map Content totals
         CountTotals();
         return 1;
-    } else if (Keyboard[sc_c]) {                // C = count objects
+    } else if (Keyboard[sc_c]) { // C = count objects
         CountObjects();
         return 1;
-    } else if (Keyboard[sc_r]) {                // C = count objects
+    } else if (Keyboard[sc_r]) { // C = count objects
         ShowMap();
         return 1;
-    } else if (Keyboard[sc_d]) {                        // D = Dumb/Blind Objects (Player Invisable)
+    } else if (Keyboard[sc_d]) { // D = Dumb/Blind Objects (Player Invisable)
         CenterWindow(19, 3);
         PlayerInvisable ^= 1;
         if (PlayerInvisable) {
@@ -661,7 +661,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_e]) {                        // E = Win Mission
+    } else if (Keyboard[sc_e]) { // E = Win Mission
         CenterWindow(19, 3);
         US_PrintCentered("Instant Wiener!");
         InstantWin = 1;
@@ -669,7 +669,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_f]) {        // F = facing spot
+    } else if (Keyboard[sc_f]) { // F = facing spot
         CenterWindow(18, 5);
         US_Print("X:");
         US_PrintUnsigned(player->x);
@@ -688,7 +688,7 @@ Sint16 DebugKeys()
         return 1;
     }
 
-    if (Keyboard[sc_g]) {               // G = god mode
+    if (Keyboard[sc_g]) { // G = god mode
         CenterWindow(12, 2);
         if (godmode) {
             US_PrintCentered("God mode OFF");
@@ -702,10 +702,10 @@ Sint16 DebugKeys()
     }
 
 
-    if (Keyboard[sc_h]) {               // H = hurt self
+    if (Keyboard[sc_h]) { // H = hurt self
         IN_ClearKeysDown();
         TakeDamage(1, NULL);
-    } else if (Keyboard[sc_i]) {                // I = item cheat
+    } else if (Keyboard[sc_i]) { // I = item cheat
         CenterWindow(12, 3);
         US_PrintCentered("Free items!");
         VW_UpdateScreen();
@@ -735,13 +735,13 @@ Sint16 DebugKeys()
         DrawScore();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_m]) {                // M = memory info
+    } else if (Keyboard[sc_m]) { // M = memory info
         DebugMemory();
         return 1;
     }
 #if IN_DEVELOPMENT
 #if (!BETA_TEST)
-    else if (Keyboard[sc_n]) {                          // N = no clip
+    else if (Keyboard[sc_n]) { // N = no clip
         gamestate.flags ^= GS_CLIP_WALLS;
         CenterWindow(18, 3);
         if (gamestate.flags & GS_CLIP_WALLS) {
@@ -754,21 +754,21 @@ Sint16 DebugKeys()
         return 1;
     }
 #endif
-    else if (Keyboard[sc_p]) {                          // P = pause with no screen disruptioon
+    else if (Keyboard[sc_p]) { // P = pause with no screen disruptioon
         PicturePause();
         return 1;
     }
 #endif
-    else if (Keyboard[sc_q]) {                          // Q = fast quit
+    else if (Keyboard[sc_q]) { // Q = fast quit
         Quit("");
     }
 #if IN_DEVELOPMENT
-    else if (Keyboard[sc_t]) {                          // T = shape test
+    else if (Keyboard[sc_t]) { // T = shape test
         ShapeTest();
         return 1;
     }
 #endif
-    else if (Keyboard[sc_o]) {                          // O = Show Push Walls
+    else if (Keyboard[sc_o]) { // O = Show Push Walls
         ExtraRadarFlags ^= OV_PUSHWALLS;
         CenterWindow(24, 3);
         if (ExtraRadarFlags & OV_PUSHWALLS) {
@@ -779,7 +779,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_u]) {                        // Unlock All Floors
+    } else if (Keyboard[sc_u]) { // Unlock All Floors
         Sint16 i;
         CenterWindow(24, 3);
         US_PrintCentered("Unlock All Floors!");
@@ -791,7 +791,7 @@ Sint16 DebugKeys()
         }
 
         return 1;
-    } else if (Keyboard[sc_v]) {                        // V = extra VBLs
+    } else if (Keyboard[sc_v]) { // V = extra VBLs
         CenterWindow(30, 3);
         PrintY += 6;
         US_Print("  Add how many extra VBLs(0-8):");
@@ -804,7 +804,7 @@ Sint16 DebugKeys()
             }
         }
         return 1;
-    } else if (Keyboard[sc_s]) {                // S = slow motion
+    } else if (Keyboard[sc_s]) { // S = slow motion
         singlestep ^= 1;
         CenterWindow(18, 3);
         if (singlestep) {
@@ -815,7 +815,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_w]) {                        // W = warp to level
+    } else if (Keyboard[sc_w]) { // W = warp to level
         ForceLoadDefault = Keyboard[sc_left_shift] | Keyboard[sc_right_shift] | Keyboard[sc_caps_lock];
 
         CenterWindow(26, 5);
@@ -840,13 +840,13 @@ Sint16 DebugKeys()
             }
         }
         return 1;
-    } else if (Keyboard[sc_home]) {             // Dec top color
+    } else if (Keyboard[sc_home]) { // Dec top color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_CEILING)
 #endif
         {
             CeilingTile = DecRange(CeilingTile, static_cast<Uint16>(NUM_TILES - 1));
-            SetPlaneViewSize();                  // Init new textures
+            SetPlaneViewSize(); // Init new textures
             return 1;
         }
 #ifdef CEILING_FLOOR_COLORS
@@ -855,13 +855,13 @@ Sint16 DebugKeys()
             TopColor |= (TopColor << 8);
         }
 #endif
-    } else if (Keyboard[sc_page_up]) {          // Inc top color
+    } else if (Keyboard[sc_page_up]) { // Inc top color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_CEILING)
 #endif
         {
             CeilingTile = IncRange(CeilingTile, static_cast<Uint16>(NUM_TILES - 1));
-            SetPlaneViewSize();                  // Init new textures
+            SetPlaneViewSize(); // Init new textures
             return 1;
         }
 #ifdef CEILING_FLOOR_COLORS
@@ -870,13 +870,13 @@ Sint16 DebugKeys()
             TopColor |= (TopColor << 8);
         }
 #endif
-    } else if (Keyboard[sc_end]) {                      // Dec bottom color
+    } else if (Keyboard[sc_end]) { // Dec bottom color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
         {
             FloorTile = DecRange(FloorTile, static_cast<Uint16>(NUM_TILES - 1));
-            SetPlaneViewSize();                  // Init new textures
+            SetPlaneViewSize(); // Init new textures
             return 1;
         }
 #ifdef CEILING_FLOOR_COLORS
@@ -885,13 +885,13 @@ Sint16 DebugKeys()
             BottomColor |= (BottomColor << 8);
         }
 #endif
-    } else if (Keyboard[sc_page_down]) {                // Inc bottom color
+    } else if (Keyboard[sc_page_down]) { // Inc bottom color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
         {
             FloorTile = IncRange(FloorTile, static_cast<Uint16>(NUM_TILES - 1));
-            SetPlaneViewSize();                  // Init new textures
+            SetPlaneViewSize(); // Init new textures
             return 1;
         }
 #ifdef CEILING_FLOOR_COLORS
@@ -910,7 +910,7 @@ Sint16 DebugKeys()
 #endif
 #endif
 
-    if (gamestate.flags & GS_LIGHTING) {                        // Shading adjustments
+    if (gamestate.flags & GS_LIGHTING) { // Shading adjustments
         if (Keyboard[sc_equals] && normalshade_div < 12) {
             normalshade_div++;
         } else if (Keyboard[sc_minus] && normalshade_div > 1) {
