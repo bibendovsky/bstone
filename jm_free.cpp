@@ -679,50 +679,179 @@ extern CP_itemtype NewEmenu[];
 extern Sint16 EpisodeSelect[];
 
 
+static bool are_files_exist(
+    const bstone::StringList& file_names)
+{
+    for (const auto& file_name : file_names) {
+        if (!bstone::FileStream::is_exists(file_name)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // -------------------------------------------------------------------------
 // CheckForEpisodes() - CHECK FOR VERSION/EXTESION
 // -------------------------------------------------------------------------
 void CheckForEpisodes()
 {
-    const std::string file_base_name = "VSWAP.";
+    const bstone::StringList aog_file_names = {
+        "AUDIOHED.BS6",
+        "AUDIOT.BS6",
+        "EANIM.BS6",
+        "GANIM.BS6",
+        "IANIM.BS6",
+        "MAPHEAD.BS6",
+        "MAPTEMP.BS6",
+        "SANIM.BS6",
+        "VGADICT.BS6",
+        "VGAGRAPH.BS6",
+        "VGAHEAD.BS6",
+        "VSWAP.BS6",
+    }; // aog_file_names
 
-    const std::string file_ext =
-#ifdef BSTONE_AOG
-        "BS6";
-#else
-        "VSI";
-#endif
+    const bstone::StringList aog_sw_file_names = {
+        "AUDIOHED.BS1",
+        "AUDIOT.BS1",
+        "IANIM.BS1",
+        "MAPHEAD.BS1",
+        "MAPTEMP.BS1",
+        "SANIM.BS1",
+        "VGADICT.BS1",
+        "VGAGRAPH.BS1",
+        "VGAHEAD.BS1",
+        "VSWAP.BS1",
+    }; // aog_sw_file_names
 
-    const std::string file_name = file_base_name + file_ext;
+    const bstone::StringList ps_file_names = {
+        "AUDIOHED.VSI",
+        "AUDIOT.VSI",
+        "EANIM.VSI",
+        "IANIM.VSI",
+        "MAPHEAD.VSI",
+        "MAPTEMP.VSI",
+        "VGADICT.VSI",
+        "VGAGRAPH.VSI",
+        "VGAHEAD.VSI",
+        "VSWAP.VSI",
+    }; // ps_file_names
 
-    bstone::FileStream stream(file_name);
 
-    if (!stream.is_open()) {
-        SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION,
-                        "%s\n", "No data files found.");
-        exit(0);
+    if (::g_args.has_option("aog")) {
+        ::g_game_type = GameType::aog;
+
+        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "%s\n", "Forcing Aliens Of Gold (full).");
+    } else if (::g_args.has_option("aog_sw")) {
+        ::g_game_type = GameType::aog_sw;
+
+        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "%s\n", "Forcing Aliens Of Gold (shareware).");
+    } else if (::g_args.has_option("ps")) {
+        ::g_game_type = GameType::ps;
+
+        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "%s\n", "Forcing Planet Strike.");
+    }
+
+
+    auto is_succeed = true;
+    std::string error_message = "All expected files not found.";
+
+    switch (::g_game_type) {
+    case GameType::aog:
+        if (!::are_files_exist(aog_file_names)) {
+            is_succeed = false;
+        }
+        break;
+
+    case GameType::aog_sw:
+        if (!::are_files_exist(aog_sw_file_names)) {
+            is_succeed = false;
+        }
+        break;
+
+    case GameType::ps:
+        if (!::are_files_exist(ps_file_names)) {
+            is_succeed = false;
+        }
+        break;
+
+    default:
+        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+            "%s\n", "Determining the game type.");
+
+        if (::are_files_exist(aog_file_names)) {
+            ::g_game_type = GameType::aog;
+
+            ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "%s\n", "Found Aliens Of Gold (full).");
+        } else if (::are_files_exist(ps_file_names)) {
+            ::g_game_type = GameType::ps;
+
+            ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "%s\n", "Found Planet Strike.");
+        } else if (::are_files_exist(aog_sw_file_names)) {
+            ::g_game_type = GameType::aog_sw;
+
+            ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                "%s\n", "Found Aliens Of Gold (shareware).");
+        } else {
+            is_succeed = false;
+            error_message = "Unable to find all expected files of any game.";
+        }
+        break;
+    }
+
+    if (!is_succeed) {
+        ::SDL_LogCritical(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "%s\n", error_message.c_str());
+
+        ::exit(1);
+    }
+
+
+    std::string file_ext;
+
+    switch (::g_game_type) {
+    case GameType::aog:
+        file_ext = "BS6";
+        break;
+
+    case GameType::aog_sw:
+        file_ext = "BS1";
+        break;
+
+    case GameType::ps:
+        file_ext = "PS";
+        break;
+
+    default:
+        throw std::runtime_error("Invalid game type.");
     }
 
     ::strcat(extension, file_ext.c_str());
 
-    for (int i = 0; i < mv_NUM_MOVIES; i++) {
-        strcat(Movies[i].FName, extension);
+    for (auto i = 0; i < mv_NUM_MOVIES; ++i) {
+        ::strcat(::Movies[i].FName, ::extension);
     }
 
-#if GAME_VERSION != SHAREWARE_VERSION
-    for (int i = 1; i < 6; ++i) {
-        NewEmenu[i].active = AT_ENABLED;
+    if (::is_aog()) {
+        for (auto i = 1; i < 6; ++i) {
+            ::NewEmenu[i].active = AT_ENABLED;
+        }
     }
-#endif
 
 #ifdef ACTIVATE_TERMINAL
     strcat(term_com_name, extension);
     strcat(term_msg_name, extension);
 #endif
 
-    strcat(PageFileName, extension);
-    strcat(audioname, extension);
-    strcat(demoname, extension);
+    ::strcat(::PageFileName, ::extension);
+    ::strcat(::audioname, ::extension);
+    ::strcat(::demoname, ::extension);
 
 #if DUAL_SWAP_FILES
     strcat(AltPageFileName, extension);
