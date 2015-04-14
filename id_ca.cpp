@@ -74,7 +74,7 @@ Uint8 ca_levelbit, ca_levelnum;
 
 Sint16 profilehandle, debughandle;
 
-char audioname[13] = "AUDIO.";
+std::string audioname = "AUDIO.";
 
 /*
 =============================================================================
@@ -94,17 +94,17 @@ extern Uint8 audiohead;
 extern Uint8 audiodict;
 
 
-char extension[5], // Need a string, not constant to change cache files
-     gheadname[10] = GREXT "HEAD.",
-     gfilename[10] = GREXT "GRAPH.",
-     gdictname[10] = GREXT "DICT.",
-     mheadname[10] = "MAPHEAD.",
-     mfilename[10] = "MAPTEMP.",
-     aheadname[10] = "AUDIOHED.",
-     afilename[10] = "AUDIOT.";
+std::string extension; // Need a string, not constant to change cache files
+std::string gheadname = GREXT "HEAD.";
+std::string gfilename = GREXT "GRAPH.";
+std::string gdictname = GREXT "DICT.";
+std::string mheadname = "MAPHEAD.";
+std::string mfilename = "MAPTEMP.";
+std::string aheadname = "AUDIOHED.";
+std::string afilename = "AUDIOT.";
 
 void CA_CannotOpen(
-    char* string);
+    const std::string& string);
 
 Sint32* grstarts; // array of offsets in egagraph, -1 for sparse
 Sint32* audiostarts; // array of offsets in audio / audiot
@@ -203,14 +203,12 @@ void CA_CloseDebug()
 // ------------------------------------------------------------------------
 void OpenGrFile()
 {
-    char fname[13];
-    strcpy(fname, gfilename);
-    strcat(fname, extension);
+    auto fname = ::gfilename + ::extension;
 
-    grhandle.open(fname);
+    ::grhandle.open(fname);
 
-    if (!grhandle.is_open()) {
-        CA_CannotOpen(fname);
+    if (!::grhandle.is_open()) {
+        ::CA_CannotOpen(fname);
     }
 }
 
@@ -221,7 +219,7 @@ void OpenGrFile()
 // ------------------------------------------------------------------------
 void CloseGrFile()
 {
-    grhandle.close();
+    ::grhandle.close();
 }
 
 
@@ -230,7 +228,7 @@ void CloseGrFile()
 // ------------------------------------------------------------------------
 void OpenMapFile()
 {
-    char fname[13];
+    std::string fname;
 
 #ifdef CARMACIZED
     strcpy(fname, "GAMEMAPS.");
@@ -242,13 +240,12 @@ void OpenMapFile()
         CA_CannotOpen(fname);
     }
 #else
-    strcpy(fname, mfilename);
-    strcat(fname, extension);
+    fname = ::mfilename + ::extension;
 
-    maphandle.open(fname);
+    ::maphandle.open(fname);
 
-    if (!maphandle.is_open()) {
-        CA_CannotOpen(fname);
+    if (!::maphandle.is_open()) {
+        ::CA_CannotOpen(fname);
     }
 #endif
 }
@@ -259,7 +256,7 @@ void OpenMapFile()
 // ------------------------------------------------------------------------
 void CloseMapFile()
 {
-    maphandle.close();
+    ::maphandle.close();
 }
 
 
@@ -269,16 +266,15 @@ void CloseMapFile()
 // ------------------------------------------------------------------------
 void OpenAudioFile()
 {
-    char fname[13];
+    std::string fname;
 
 #ifndef AUDIOHEADERLINKED
-    strcpy(fname, afilename);
-    strcat(fname, extension);
+    fname = ::afilename + ::extension;
 
-    audiohandle.open(fname);
+    ::audiohandle.open(fname);
 
-    if (!audiohandle.is_open()) {
-        CA_CannotOpen(fname);
+    if (!::audiohandle.is_open()) {
+        ::CA_CannotOpen(fname);
     }
 #else
     if ((audiohandle = open("AUDIO."EXTENSION,
@@ -295,7 +291,7 @@ void OpenAudioFile()
 // ------------------------------------------------------------------------
 void CloseAudioFile()
 {
-    audiohandle.close();
+    ::audiohandle.close();
 }
 
 
@@ -1524,14 +1520,10 @@ void CA_CacheMarks()
 }
 
 void CA_CannotOpen(
-    char* string)
+    const std::string& string)
 {
-    char str[30];
-
-    strcpy(str, "Can't open ");
-    strcat(str, string);
-    strcat(str, "!\n");
-    Quit(str);
+    auto str = "Can't open " + string + "!\n";
+    ::Quit(str.c_str());
 }
 
 void UNCACHEGRCHUNK(

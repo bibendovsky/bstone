@@ -4900,7 +4900,7 @@ bool SaveTheGame(
     const std::string& description);
 
 Sint32 ChecksumFile(
-    char* file,
+    const std::string& file,
     Sint32 checksum);
 void BadChecksum();
 void InvalidLevels();
@@ -4952,7 +4952,7 @@ extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
 extern Sint16 doornum;
 
-extern char demoname[13];
+extern std::string demoname;
 
 void DrawPlayBorder();
 void ScanInfoPlane();

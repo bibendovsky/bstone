@@ -27,7 +27,7 @@ Free Software Foundation, Inc.,
 
 
 // File specific variables
-char PageFileName[13] = { "VSWAP." };
+std::string PageFileName = "VSWAP.";
 
 int ChunksInFile = 0;
 int PMSpriteStart = 0;
@@ -46,7 +46,7 @@ Uint32* chunks_offsets = NULL;
 
 
 static void open_page_file(
-    const char* file_name)
+    const std::string& file_name)
 {
     PageFile.open(file_name);
 

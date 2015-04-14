@@ -3008,9 +3008,9 @@ void Warped()
 // ==========================================================================
 
 #if GAME_VERSION == SHAREWARE_VERSION
-char demoname[13] = "DEMO?S.";
+std::string demoname = "DEMO?S.";
 #else
-char demoname[13] = "DEMO?.";
+std::string demoname = "DEMO?.";
 #endif
 
 #ifdef DEMOS_EXTERN

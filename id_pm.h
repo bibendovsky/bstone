@@ -25,6 +25,9 @@ Free Software Foundation, Inc.,
 #define ID_PM_H
 
 
+#include <string>
+
+
 const int PMPageSize = 4096;
 
 
@@ -32,7 +35,7 @@ extern int ChunksInFile;
 extern int PMSpriteStart;
 extern int PMSoundStart;
 
-extern char PageFileName[13];
+extern std::string PageFileName;
 
 
 void PM_Startup();

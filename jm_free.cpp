@@ -47,7 +47,7 @@ extern int* mirrorofs;
 
 void MML_ClearBlock();
 void CA_CannotOpen(
-    char* string);
+    const std::string& string);
 void CAL_GetGrChunkLength(
     Sint16 chunk);
 void CA_CacheScreen(
@@ -477,24 +477,23 @@ void InitDigiMap()
 void CAL_SetupAudioFile()
 {
     bstone::FileStream handle;
-    Sint32 length;
-    char fname[13];
+    int32_t length;
+    std::string fname;
 
 //
 // load maphead.ext (offsets and tileinfo for map file)
 //
 #ifndef AUDIOHEADERLINKED
-    strcpy(fname, aheadname);
-    strcat(fname, extension);
+    fname = ::aheadname + ::extension;
 
     handle.open(fname);
     if (!handle.is_open()) {
-        CA_CannotOpen(fname);
+        ::CA_CannotOpen(fname);
     }
 
-    length = static_cast<Sint32>(handle.get_size());
-    audiostarts = new Sint32[length / 4];
-    handle.read(audiostarts, length);
+    length = static_cast<int32_t>(handle.get_size());
+    ::audiostarts = new int32_t[length / 4];
+    handle.read(::audiostarts, length);
     handle.close();
 #else
     audiohuffman = (huffnode*)&audiodict;
@@ -505,7 +504,7 @@ void CAL_SetupAudioFile()
 //
 // open the data file
 //
-    OpenAudioFile();
+    ::OpenAudioFile();
 }
 
 
@@ -520,7 +519,7 @@ void CAL_SetupAudioFile()
 
 void CAL_SetupGrFile()
 {
-    char fname[13];
+    std::string fname;
     bstone::FileStream handle;
     Uint8* compseg;
 
@@ -528,53 +527,51 @@ void CAL_SetupGrFile()
     // load ???dict.ext (huffman dictionary for graphics files)
     //
 
-    strcpy(fname, gdictname);
-    strcat(fname, extension);
+    fname = ::gdictname + ::extension;
 
     handle.open(fname);
 
     if (!handle.is_open()) {
-        CA_CannotOpen(fname);
+        ::CA_CannotOpen(fname);
     }
 
-    handle.read(&grhuffman, sizeof(grhuffman));
+    handle.read(&::grhuffman, sizeof(::grhuffman));
 
     //
     // load the data offsets from ???head.ext
     //
     int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
 
-    grstarts = new Sint32[(grstarts_size + 3) / 4];
+    ::grstarts = new int32_t[(grstarts_size + 3) / 4];
 
-    strcpy(fname, gheadname);
-    strcat(fname, extension);
+    fname = ::gheadname + ::extension;
 
     handle.open(fname);
 
     if (!handle.is_open()) {
-        CA_CannotOpen(fname);
+        ::CA_CannotOpen(fname);
     }
 
-    handle.read(grstarts, grstarts_size);
+    handle.read(::grstarts, grstarts_size);
 
     //
     // Open the graphics file, leaving it open until the game is finished
     //
-    OpenGrFile();
+    ::OpenGrFile();
 
     //
     // load the pic and sprite headers into the arrays in the data segment
     //
-    pictable = new pictabletype[NUMPICS];
-    CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-    compseg = new Uint8[chunkcomplen];
-    grhandle.read(compseg, chunkcomplen);
+    ::pictable = new pictabletype[NUMPICS];
+    ::CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
+    compseg = new Uint8[::chunkcomplen];
+    ::grhandle.read(compseg, ::chunkcomplen);
 
-    CAL_HuffExpand(
+    ::CAL_HuffExpand(
         compseg,
-        (Uint8*)pictable,
+        reinterpret_cast<uint8_t*>(pictable),
         NUMPICS * sizeof(pictabletype),
-        grhuffman);
+        ::grhuffman);
 
     delete [] compseg;
 }
@@ -594,7 +591,7 @@ void CAL_SetupMapFile()
     Sint16 i;
     bstone::FileStream handle;
     Sint32 pos;
-    char fname[13];
+    std::string fname;
     mapfiletype header;
     maptype* map_header;
 
@@ -602,8 +599,7 @@ void CAL_SetupMapFile()
     // load maphead.ext (offsets and tileinfo for map file)
     //
 
-    strcpy(fname, mheadname);
-    strcat(fname, extension);
+    fname = mheadname + extension;
 
     handle.open(fname);
 
@@ -813,29 +809,25 @@ void CheckForEpisodes()
     }
 
 
-    std::string file_ext;
-
     switch (::g_game_type) {
     case GameType::aog:
-        file_ext = "BS6";
+        ::extension = "BS6";
         break;
 
     case GameType::aog_sw:
-        file_ext = "BS1";
+        ::extension = "BS1";
         break;
 
     case GameType::ps:
-        file_ext = "PS";
+        ::extension = "PS";
         break;
 
     default:
         throw std::runtime_error("Invalid game type.");
     }
 
-    ::strcat(extension, file_ext.c_str());
-
     for (auto i = 0; i < mv_NUM_MOVIES; ++i) {
-        ::strcat(::Movies[i].FName, ::extension);
+        ::strcat(::Movies[i].FName, ::extension.c_str());
     }
 
     if (::is_aog()) {
@@ -849,9 +841,9 @@ void CheckForEpisodes()
     strcat(term_msg_name, extension);
 #endif
 
-    ::strcat(::PageFileName, ::extension);
-    ::strcat(::audioname, ::extension);
-    ::strcat(::demoname, ::extension);
+    ::PageFileName += ::extension;
+    ::audioname += ::extension;
+    ::demoname += ::extension;
 
 #if DUAL_SWAP_FILES
     strcat(AltPageFileName, extension);
@@ -1493,20 +1485,19 @@ void CheckValidity(
     char* file,
     Sint32 valid_checksum)
 {
-    char filename[13];
+    std::string filename;
     Sint32 checksum;
 
-    if (strlen(file) > 9) {
+    if (::strlen(file) > 9) {
         MAIN_ERROR(CHECK_FILENAME_TOO_LONG);
     }
 
-    strcpy(filename, file);
-    strcat(filename, extension);
+    filename = file + ::extension;
 
-    checksum = ChecksumFile(filename, 0);
+    checksum = ::ChecksumFile(filename, 0);
     if (checksum != valid_checksum)
 #if GAME_VERSION != SHAREWARE_VERSION
-    { if (strstr(file, "MAP")) {
+    { if (::strstr(file, "MAP")) {
           InvalidLevels();
       }
     }
@@ -1524,7 +1515,7 @@ char* cfc_buffer;
 // ChecksumFile()
 // -------------------------------------------------------------------------
 Sint32 ChecksumFile(
-    char* file,
+    const std::string& file,
     Sint32 checksum)
 {
 #define JUMPSIZE 8

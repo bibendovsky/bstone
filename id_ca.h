@@ -81,7 +81,7 @@ struct mapfiletype {
 
 // ===========================================================================
 
-extern char audioname[13];
+extern std::string audioname;
 
 extern Uint16 rlew_tag;
 
@@ -99,14 +99,14 @@ extern char* titleptr[8];
 
 extern Sint16 profilehandle, debughandle;
 
-extern char extension[5],
-            gheadname[10],
-            gfilename[10],
-            gdictname[10],
-            mheadname[10],
-            mfilename[10],
-            aheadname[10],
-            afilename[10];
+extern std::string extension;
+extern std::string gheadname;
+extern std::string gfilename;
+extern std::string gdictname;
+extern std::string mheadname;
+extern std::string mfilename;
+extern std::string aheadname;
+extern std::string afilename;
 
 extern Sint32* grstarts; // array of offsets in egagraph, -1 for sparse
 extern Sint32* audiostarts; // array of offsets in audio / audiot
