@@ -7,8 +7,10 @@ PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically")
 option(BSTONE_PANDORA "Build for Pandora")
 option(BSTONE_AOG "Build Aliens of Gold")
+option(BSTONE_USE_PCH "Use precompiled headers")
 
 set(BSTONE_TARGET "bstone")
+set(BSTONE_PCH_BASE_NAME "bstone_precompiled")
 
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(BSTONE_IS_GNU "TRUE")
@@ -19,10 +21,14 @@ if (NOT MSVC)
 endif ()
 
 if (MSVC)
-    # Definitions
     add_definitions("-D_CRT_SECURE_NO_WARNINGS")
     add_definitions("-D_SCL_SECURE_NO_WARNINGS")
     add_definitions("-D_BIND_TO_CURRENT_VCLIBS_VERSION=1")
+
+    if (BSTONE_USE_PCH)
+        add_compile_options("-Yu${BSTONE_PCH_BASE_NAME}.h")
+        add_compile_options("-FI${BSTONE_PCH_BASE_NAME}.h")
+    endif ()
 
     if (BSTONE_USE_STATIC_CRT)
         add_compile_options("$<$<CONFIG:DEBUG>:-MTd>")
@@ -63,9 +69,9 @@ if (BSTONE_PANDORA)
 endif ()
 
 if (BSTONE_AOG)
-    add_definitions("-DBSTONE_AOG")
+    add_definitions(-DBSTONE_AOG)
 else ()
-    add_definitions("-DBSTONE_PS")
+    add_definitions(-DBSTONE_PS)
 endif ()
 
 include_directories(
@@ -142,6 +148,7 @@ set(
     "${CMAKE_SOURCE_DIR}/mapsbs6.h"
     "${CMAKE_SOURCE_DIR}/mapsvsi.h"
     "${CMAKE_SOURCE_DIR}/movie.h"
+    "${CMAKE_SOURCE_DIR}/${BSTONE_PCH_BASE_NAME}.h"
 )
 
 set(
@@ -202,9 +209,19 @@ set(
     "${CMAKE_SOURCE_DIR}/markhack.cpp"
     "${CMAKE_SOURCE_DIR}/movie.cpp"
     "${CMAKE_SOURCE_DIR}/scale.cpp"
+    "${CMAKE_SOURCE_DIR}/${BSTONE_PCH_BASE_NAME}.cpp"
     "${CMAKE_SOURCE_DIR}/stub.cpp"
     "${CMAKE_SOURCE_DIR}/vgapal.cpp"
 )
+
+if (MSVC AND BSTONE_USE_PCH)
+    set_source_files_properties(
+        ${BSTONE_PCH_BASE_NAME}.cpp
+        PROPERTIES
+            # Precompiled Header (Create)
+            COMPILE_FLAGS -Yc
+    )
+endif ()
 
 add_executable(
     "${BSTONE_TARGET}"
