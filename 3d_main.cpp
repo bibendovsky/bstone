@@ -2597,13 +2597,12 @@ int main(
 {
     int sdl_result = 0;
 
-    sdl_log_initialize();
+    ::sdl_log_initialize();
 
-    sdl_result = SDL_Init(0);
+    sdl_result = ::SDL_Init(0);
 
     if (sdl_result != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
-        exit(1);
+        ::Quit("%s", ::SDL_GetError());
     }
 
     ::g_args.initialize(argc, argv);

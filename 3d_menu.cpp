@@ -614,8 +614,7 @@ void binds_initialize_menu()
     }
 
     if (!has_bindings) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "No bindings.\n");
-        Quit("no bindings");
+        ::Quit("No bindings.");
     }
 
     binds_names.clear();

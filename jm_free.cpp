@@ -801,11 +801,7 @@ void CheckForEpisodes()
     }
 
     if (!is_succeed) {
-        ::SDL_LogCritical(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "%s\n", error_message.c_str());
-
-        ::exit(1);
+        ::Quit("%s\n", error_message.c_str());
     }
 
 
