@@ -175,6 +175,3741 @@ bool g_rotated_automap = default_rotated_automap;
 GameType g_game_type;
 
 
+// ==========================================================================
+// Sprites
+
+int SPR_DEMO = 0;
+
+int SPR_STAT_0 = 0;
+int SPR_STAT_1 = 0;
+int SPR_STAT_2 = 0;
+int SPR_STAT_3 = 0;
+int SPR_STAT_4 = 0;
+int SPR_STAT_5 = 0;
+int SPR_STAT_6 = 0;
+int SPR_STAT_7 = 0;
+int SPR_STAT_8 = 0;
+int SPR_STAT_9 = 0;
+int SPR_STAT_10 = 0;
+int SPR_STAT_11 = 0;
+int SPR_STAT_12 = 0;
+int SPR_STAT_13 = 0;
+int SPR_STAT_14 = 0;
+int SPR_STAT_15 = 0;
+int SPR_STAT_16 = 0;
+int SPR_STAT_17 = 0;
+int SPR_STAT_18 = 0;
+int SPR_STAT_19 = 0;
+int SPR_STAT_20 = 0;
+int SPR_STAT_21 = 0;
+int SPR_STAT_22 = 0;
+int SPR_STAT_23 = 0;
+int SPR_STAT_24 = 0;
+int SPR_STAT_25 = 0;
+int SPR_STAT_26 = 0;
+int SPR_STAT_27 = 0;
+int SPR_STAT_28 = 0;
+int SPR_STAT_29 = 0;
+int SPR_STAT_30 = 0;
+int SPR_STAT_31 = 0;
+int SPR_STAT_32 = 0;
+int SPR_STAT_33 = 0;
+int SPR_STAT_34 = 0;
+int SPR_STAT_35 = 0;
+int SPR_STAT_36 = 0;
+int SPR_STAT_37 = 0;
+int SPR_STAT_38 = 0;
+int SPR_STAT_39 = 0;
+int SPR_STAT_40 = 0;
+int SPR_STAT_41 = 0;
+int SPR_STAT_42 = 0;
+int SPR_STAT_43 = 0;
+int SPR_STAT_44 = 0;
+int SPR_STAT_45 = 0;
+int SPR_STAT_46 = 0;
+int SPR_STAT_47 = 0;
+int SPR_STAT_48 = 0;
+int SPR_STAT_49 = 0;
+int SPR_STAT_50 = 0;
+int SPR_STAT_51 = 0;
+int SPR_STAT_52 = 0;
+int SPR_STAT_53 = 0;
+int SPR_STAT_54 = 0;
+int SPR_STAT_55 = 0;
+int SPR_STAT_56 = 0;
+
+int SPR_CRATE_1 = 0;
+int SPR_CRATE_2 = 0;
+int SPR_CRATE_3 = 0;
+
+int SPR_STAT_57 = 0;
+int SPR_STAT_58 = 0;
+int SPR_STAT_59 = 0;
+int SPR_STAT_60 = 0;
+int SPR_STAT_61 = 0;
+int SPR_STAT_62 = 0;
+int SPR_STAT_63 = 0;
+int SPR_STAT_64 = 0;
+int SPR_STAT_65 = 0;
+int SPR_STAT_66 = 0;
+int SPR_STAT_67 = 0;
+int SPR_STAT_68 = 0;
+int SPR_STAT_69 = 0;
+int SPR_STAT_70 = 0;
+int SPR_STAT_71 = 0;
+int SPR_STAT_72 = 0;
+int SPR_STAT_73 = 0;
+int SPR_STAT_74 = 0;
+int SPR_STAT_75 = 0;
+int SPR_STAT_76 = 0;
+int SPR_STAT_77 = 0;
+int SPR_STAT_78 = 0;
+int SPR_STAT_79 = 0;
+
+int SPR_DOORBOMB = 0;
+int SPR_ALT_DOORBOMB = 0;
+int SPR_RUBBLE = 0;
+int SPR_BONZI_TREE = 0;
+int SPR_AUTOMAPPER = 0;
+int SPR_POT_PLANT = 0;
+int SPR_TUBE_PLANT = 0;
+int SPR_HITECH_CHAIR = 0;
+
+int SPR_AIR_VENT = 0;
+int SPR_BLOOD_DRIP1 = 0;
+int SPR_BLOOD_DRIP2 = 0;
+int SPR_BLOOD_DRIP3 = 0;
+int SPR_BLOOD_DRIP4 = 0;
+int SPR_WATER_DRIP1 = 0;
+int SPR_WATER_DRIP2 = 0;
+int SPR_WATER_DRIP3 = 0;
+int SPR_WATER_DRIP4 = 0;
+
+int SPR_DECO_ARC_1 = 0;
+int SPR_DECO_ARC_2 = 0;
+int SPR_DECO_ARC_3 = 0;
+
+int SPR_GRATE = 0;
+int SPR_STEAM_1 = 0;
+int SPR_STEAM_2 = 0;
+int SPR_STEAM_3 = 0;
+int SPR_STEAM_4 = 0;
+
+int SPR_STEAM_PIPE = 0;
+int SPR_PIPE_STEAM_1 = 0;
+int SPR_PIPE_STEAM_2 = 0;
+int SPR_PIPE_STEAM_3 = 0;
+int SPR_PIPE_STEAM_4 = 0;
+
+int SPR_DEAD_RENT = 0;
+int SPR_DEAD_PRO = 0;
+int SPR_DEAD_SWAT = 0;
+
+int SPR_RENT_S_1 = 0;
+int SPR_RENT_S_2 = 0;
+int SPR_RENT_S_3 = 0;
+int SPR_RENT_S_4 = 0;
+int SPR_RENT_S_5 = 0;
+int SPR_RENT_S_6 = 0;
+int SPR_RENT_S_7 = 0;
+int SPR_RENT_S_8 = 0;
+
+int SPR_RENT_W1_1 = 0;
+int SPR_RENT_W1_2 = 0;
+int SPR_RENT_W1_3 = 0;
+int SPR_RENT_W1_4 = 0;
+int SPR_RENT_W1_5 = 0;
+int SPR_RENT_W1_6 = 0;
+int SPR_RENT_W1_7 = 0;
+int SPR_RENT_W1_8 = 0;
+
+int SPR_RENT_W2_1 = 0;
+int SPR_RENT_W2_2 = 0;
+int SPR_RENT_W2_3 = 0;
+int SPR_RENT_W2_4 = 0;
+int SPR_RENT_W2_5 = 0;
+int SPR_RENT_W2_6 = 0;
+int SPR_RENT_W2_7 = 0;
+int SPR_RENT_W2_8 = 0;
+
+int SPR_RENT_W3_1 = 0;
+int SPR_RENT_W3_2 = 0;
+int SPR_RENT_W3_3 = 0;
+int SPR_RENT_W3_4 = 0;
+int SPR_RENT_W3_5 = 0;
+int SPR_RENT_W3_6 = 0;
+int SPR_RENT_W3_7 = 0;
+int SPR_RENT_W3_8 = 0;
+
+int SPR_RENT_W4_1 = 0;
+int SPR_RENT_W4_2 = 0;
+int SPR_RENT_W4_3 = 0;
+int SPR_RENT_W4_4 = 0;
+int SPR_RENT_W4_5 = 0;
+int SPR_RENT_W4_6 = 0;
+int SPR_RENT_W4_7 = 0;
+int SPR_RENT_W4_8 = 0;
+
+int SPR_RENT_DIE_1 = 0;
+int SPR_RENT_DIE_2 = 0;
+int SPR_RENT_DIE_3 = 0;
+int SPR_RENT_DIE_4 = 0;
+int SPR_RENT_PAIN_1 = 0;
+int SPR_RENT_DEAD = 0;
+
+int SPR_RENT_SHOOT1 = 0;
+int SPR_RENT_SHOOT2 = 0;
+int SPR_RENT_SHOOT3 = 0;
+
+int SPR_PRO_S_1 = 0;
+int SPR_PRO_S_2 = 0;
+int SPR_PRO_S_3 = 0;
+int SPR_PRO_S_4 = 0;
+int SPR_PRO_S_5 = 0;
+int SPR_PRO_S_6 = 0;
+int SPR_PRO_S_7 = 0;
+int SPR_PRO_S_8 = 0;
+
+int SPR_PRO_W1_1 = 0;
+int SPR_PRO_W1_2 = 0;
+int SPR_PRO_W1_3 = 0;
+int SPR_PRO_W1_4 = 0;
+int SPR_PRO_W1_5 = 0;
+int SPR_PRO_W1_6 = 0;
+int SPR_PRO_W1_7 = 0;
+int SPR_PRO_W1_8 = 0;
+
+int SPR_PRO_W2_1 = 0;
+int SPR_PRO_W2_2 = 0;
+int SPR_PRO_W2_3 = 0;
+int SPR_PRO_W2_4 = 0;
+int SPR_PRO_W2_5 = 0;
+int SPR_PRO_W2_6 = 0;
+int SPR_PRO_W2_7 = 0;
+int SPR_PRO_W2_8 = 0;
+
+int SPR_PRO_W3_1 = 0;
+int SPR_PRO_W3_2 = 0;
+int SPR_PRO_W3_3 = 0;
+int SPR_PRO_W3_4 = 0;
+int SPR_PRO_W3_5 = 0;
+int SPR_PRO_W3_6 = 0;
+int SPR_PRO_W3_7 = 0;
+int SPR_PRO_W3_8 = 0;
+
+int SPR_PRO_W4_1 = 0;
+int SPR_PRO_W4_2 = 0;
+int SPR_PRO_W4_3 = 0;
+int SPR_PRO_W4_4 = 0;
+int SPR_PRO_W4_5 = 0;
+int SPR_PRO_W4_6 = 0;
+int SPR_PRO_W4_7 = 0;
+int SPR_PRO_W4_8 = 0;
+
+int SPR_PRO_PAIN_1 = 0;
+int SPR_PRO_DIE_1 = 0;
+int SPR_PRO_DIE_2 = 0;
+int SPR_PRO_DIE_3 = 0;
+int SPR_PRO_PAIN_2 = 0;
+int SPR_PRO_DIE_4 = 0;
+int SPR_PRO_DEAD = 0;
+
+int SPR_PRO_SHOOT1 = 0;
+int SPR_PRO_SHOOT2 = 0;
+int SPR_PRO_SHOOT3 = 0;
+
+int SPR_SWAT_S_1 = 0;
+int SPR_SWAT_S_2 = 0;
+int SPR_SWAT_S_3 = 0;
+int SPR_SWAT_S_4 = 0;
+int SPR_SWAT_S_5 = 0;
+int SPR_SWAT_S_6 = 0;
+int SPR_SWAT_S_7 = 0;
+int SPR_SWAT_S_8 = 0;
+
+int SPR_SWAT_W1_1 = 0;
+int SPR_SWAT_W1_2 = 0;
+int SPR_SWAT_W1_3 = 0;
+int SPR_SWAT_W1_4 = 0;
+int SPR_SWAT_W1_5 = 0;
+int SPR_SWAT_W1_6 = 0;
+int SPR_SWAT_W1_7 = 0;
+int SPR_SWAT_W1_8 = 0;
+
+int SPR_SWAT_W2_1 = 0;
+int SPR_SWAT_W2_2 = 0;
+int SPR_SWAT_W2_3 = 0;
+int SPR_SWAT_W2_4 = 0;
+int SPR_SWAT_W2_5 = 0;
+int SPR_SWAT_W2_6 = 0;
+int SPR_SWAT_W2_7 = 0;
+int SPR_SWAT_W2_8 = 0;
+
+int SPR_SWAT_W3_1 = 0;
+int SPR_SWAT_W3_2 = 0;
+int SPR_SWAT_W3_3 = 0;
+int SPR_SWAT_W3_4 = 0;
+int SPR_SWAT_W3_5 = 0;
+int SPR_SWAT_W3_6 = 0;
+int SPR_SWAT_W3_7 = 0;
+int SPR_SWAT_W3_8 = 0;
+
+int SPR_SWAT_W4_1 = 0;
+int SPR_SWAT_W4_2 = 0;
+int SPR_SWAT_W4_3 = 0;
+int SPR_SWAT_W4_4 = 0;
+int SPR_SWAT_W4_5 = 0;
+int SPR_SWAT_W4_6 = 0;
+int SPR_SWAT_W4_7 = 0;
+int SPR_SWAT_W4_8 = 0;
+
+int SPR_SWAT_PAIN_1 = 0;
+int SPR_SWAT_DIE_1 = 0;
+int SPR_SWAT_DIE_2 = 0;
+int SPR_SWAT_DIE_3 = 0;
+int SPR_SWAT_PAIN_2 = 0;
+int SPR_SWAT_DIE_4 = 0;
+int SPR_SWAT_DEAD = 0;
+
+int SPR_SWAT_SHOOT1 = 0;
+int SPR_SWAT_SHOOT2 = 0;
+int SPR_SWAT_SHOOT3 = 0;
+
+int SPR_SWAT_WOUNDED1 = 0;
+int SPR_SWAT_WOUNDED2 = 0;
+int SPR_SWAT_WOUNDED3 = 0;
+int SPR_SWAT_WOUNDED4 = 0;
+
+int SPR_OFC_S_1 = 0;
+int SPR_OFC_S_2 = 0;
+int SPR_OFC_S_3 = 0;
+int SPR_OFC_S_4 = 0;
+int SPR_OFC_S_5 = 0;
+int SPR_OFC_S_6 = 0;
+int SPR_OFC_S_7 = 0;
+int SPR_OFC_S_8 = 0;
+
+int SPR_OFC_W1_1 = 0;
+int SPR_OFC_W1_2 = 0;
+int SPR_OFC_W1_3 = 0;
+int SPR_OFC_W1_4 = 0;
+int SPR_OFC_W1_5 = 0;
+int SPR_OFC_W1_6 = 0;
+int SPR_OFC_W1_7 = 0;
+int SPR_OFC_W1_8 = 0;
+
+int SPR_OFC_W2_1 = 0;
+int SPR_OFC_W2_2 = 0;
+int SPR_OFC_W2_3 = 0;
+int SPR_OFC_W2_4 = 0;
+int SPR_OFC_W2_5 = 0;
+int SPR_OFC_W2_6 = 0;
+int SPR_OFC_W2_7 = 0;
+int SPR_OFC_W2_8 = 0;
+
+int SPR_OFC_W3_1 = 0;
+int SPR_OFC_W3_2 = 0;
+int SPR_OFC_W3_3 = 0;
+int SPR_OFC_W3_4 = 0;
+int SPR_OFC_W3_5 = 0;
+int SPR_OFC_W3_6 = 0;
+int SPR_OFC_W3_7 = 0;
+int SPR_OFC_W3_8 = 0;
+
+int SPR_OFC_W4_1 = 0;
+int SPR_OFC_W4_2 = 0;
+int SPR_OFC_W4_3 = 0;
+int SPR_OFC_W4_4 = 0;
+int SPR_OFC_W4_5 = 0;
+int SPR_OFC_W4_6 = 0;
+int SPR_OFC_W4_7 = 0;
+int SPR_OFC_W4_8 = 0;
+
+int SPR_OFC_PAIN_1 = 0;
+int SPR_OFC_DIE_1 = 0;
+int SPR_OFC_DIE_2 = 0;
+int SPR_OFC_DIE_3 = 0;
+int SPR_OFC_PAIN_2 = 0;
+int SPR_OFC_DIE_4 = 0;
+int SPR_OFC_DEAD = 0;
+
+int SPR_OFC_SHOOT1 = 0;
+int SPR_OFC_SHOOT2 = 0;
+int SPR_OFC_SHOOT3 = 0;
+
+int SPR_GOLD_S_1 = 0;
+int SPR_GOLD_S_2 = 0;
+int SPR_GOLD_S_3 = 0;
+int SPR_GOLD_S_4 = 0;
+int SPR_GOLD_S_5 = 0;
+int SPR_GOLD_S_6 = 0;
+int SPR_GOLD_S_7 = 0;
+int SPR_GOLD_S_8 = 0;
+
+int SPR_GOLD_W1_1 = 0;
+int SPR_GOLD_W1_2 = 0;
+int SPR_GOLD_W1_3 = 0;
+int SPR_GOLD_W1_4 = 0;
+int SPR_GOLD_W1_5 = 0;
+int SPR_GOLD_W1_6 = 0;
+int SPR_GOLD_W1_7 = 0;
+int SPR_GOLD_W1_8 = 0;
+
+int SPR_GOLD_W2_1 = 0;
+int SPR_GOLD_W2_2 = 0;
+int SPR_GOLD_W2_3 = 0;
+int SPR_GOLD_W2_4 = 0;
+int SPR_GOLD_W2_5 = 0;
+int SPR_GOLD_W2_6 = 0;
+int SPR_GOLD_W2_7 = 0;
+int SPR_GOLD_W2_8 = 0;
+
+int SPR_GOLD_W3_1 = 0;
+int SPR_GOLD_W3_2 = 0;
+int SPR_GOLD_W3_3 = 0;
+int SPR_GOLD_W3_4 = 0;
+int SPR_GOLD_W3_5 = 0;
+int SPR_GOLD_W3_6 = 0;
+int SPR_GOLD_W3_7 = 0;
+int SPR_GOLD_W3_8 = 0;
+
+int SPR_GOLD_W4_1 = 0;
+int SPR_GOLD_W4_2 = 0;
+int SPR_GOLD_W4_3 = 0;
+int SPR_GOLD_W4_4 = 0;
+int SPR_GOLD_W4_5 = 0;
+int SPR_GOLD_W4_6 = 0;
+int SPR_GOLD_W4_7 = 0;
+int SPR_GOLD_W4_8 = 0;
+
+int SPR_GOLD_PAIN_1 = 0;
+
+int SPR_GOLD_WRIST_1 = 0;
+int SPR_GOLD_WRIST_2 = 0;
+
+int SPR_GOLD_SHOOT1 = 0;
+int SPR_GOLD_SHOOT2 = 0;
+int SPR_GOLD_SHOOT3 = 0;
+
+int SPR_GOLD_WARP1 = 0;
+int SPR_GOLD_WARP2 = 0;
+int SPR_GOLD_WARP3 = 0;
+int SPR_GOLD_WARP4 = 0;
+int SPR_GOLD_WARP5 = 0;
+
+int SPR_GOLD_DEATH1 = 0;
+int SPR_GOLD_DEATH2 = 0;
+int SPR_GOLD_DEATH3 = 0;
+int SPR_GOLD_DEATH4 = 0;
+int SPR_GOLD_DEATH5 = 0;
+int SPR_MGOLD_OUCH = 0;
+
+int SPR_GOLD_MORPH1 = 0;
+int SPR_GOLD_MORPH2 = 0;
+int SPR_GOLD_MORPH3 = 0;
+int SPR_GOLD_MORPH4 = 0;
+int SPR_GOLD_MORPH5 = 0;
+int SPR_GOLD_MORPH6 = 0;
+int SPR_GOLD_MORPH7 = 0;
+int SPR_GOLD_MORPH8 = 0;
+
+int SPR_MGOLD_WALK1 = 0;
+int SPR_MGOLD_WALK2 = 0;
+int SPR_MGOLD_WALK3 = 0;
+int SPR_MGOLD_WALK4 = 0;
+int SPR_MGOLD_ATTACK1 = 0;
+int SPR_MGOLD_ATTACK2 = 0;
+int SPR_MGOLD_ATTACK3 = 0;
+int SPR_MGOLD_ATTACK4 = 0;
+
+int SPR_MGOLD_SHOT1 = 0;
+int SPR_MGOLD_SHOT2 = 0;
+int SPR_MGOLD_SHOT3 = 0;
+int SPR_MGOLD_SHOT_EXP1 = 0;
+int SPR_MGOLD_SHOT_EXP2 = 0;
+int SPR_MGOLD_SHOT_EXP3 = 0;
+
+int SPR_GSCOUT_W1_1 = 0;
+int SPR_GSCOUT_W1_2 = 0;
+int SPR_GSCOUT_W1_3 = 0;
+int SPR_GSCOUT_W1_4 = 0;
+int SPR_GSCOUT_W1_5 = 0;
+int SPR_GSCOUT_W1_6 = 0;
+int SPR_GSCOUT_W1_7 = 0;
+int SPR_GSCOUT_W1_8 = 0;
+
+int SPR_GSCOUT_W2_1 = 0;
+int SPR_GSCOUT_W2_2 = 0;
+int SPR_GSCOUT_W2_3 = 0;
+int SPR_GSCOUT_W2_4 = 0;
+int SPR_GSCOUT_W2_5 = 0;
+int SPR_GSCOUT_W2_6 = 0;
+int SPR_GSCOUT_W2_7 = 0;
+int SPR_GSCOUT_W2_8 = 0;
+
+int SPR_GSCOUT_W3_1 = 0;
+int SPR_GSCOUT_W3_2 = 0;
+int SPR_GSCOUT_W3_3 = 0;
+int SPR_GSCOUT_W3_4 = 0;
+int SPR_GSCOUT_W3_5 = 0;
+int SPR_GSCOUT_W3_6 = 0;
+int SPR_GSCOUT_W3_7 = 0;
+int SPR_GSCOUT_W3_8 = 0;
+
+int SPR_GSCOUT_W4_1 = 0;
+int SPR_GSCOUT_W4_2 = 0;
+int SPR_GSCOUT_W4_3 = 0;
+int SPR_GSCOUT_W4_4 = 0;
+int SPR_GSCOUT_W4_5 = 0;
+int SPR_GSCOUT_W4_6 = 0;
+int SPR_GSCOUT_W4_7 = 0;
+int SPR_GSCOUT_W4_8 = 0;
+
+int SPR_GSCOUT_DIE1 = 0;
+int SPR_GSCOUT_DIE2 = 0;
+int SPR_GSCOUT_DIE3 = 0;
+int SPR_GSCOUT_DIE4 = 0;
+int SPR_GSCOUT_DIE5 = 0;
+int SPR_GSCOUT_DIE6 = 0;
+int SPR_GSCOUT_DIE7 = 0;
+int SPR_GSCOUT_DIE8 = 0;
+
+int SPR_GSCOUT_DEAD = 0;
+
+int SPR_FSCOUT_W1_1 = 0;
+int SPR_FSCOUT_W1_2 = 0;
+int SPR_FSCOUT_W1_3 = 0;
+int SPR_FSCOUT_W1_4 = 0;
+int SPR_FSCOUT_W1_5 = 0;
+int SPR_FSCOUT_W1_6 = 0;
+int SPR_FSCOUT_W1_7 = 0;
+int SPR_FSCOUT_W1_8 = 0;
+
+int SPR_FSCOUT_W2_1 = 0;
+int SPR_FSCOUT_W2_2 = 0;
+int SPR_FSCOUT_W2_3 = 0;
+int SPR_FSCOUT_W2_4 = 0;
+int SPR_FSCOUT_W2_5 = 0;
+int SPR_FSCOUT_W2_6 = 0;
+int SPR_FSCOUT_W2_7 = 0;
+int SPR_FSCOUT_W2_8 = 0;
+
+int SPR_FSCOUT_W3_1 = 0;
+int SPR_FSCOUT_W3_2 = 0;
+int SPR_FSCOUT_W3_3 = 0;
+int SPR_FSCOUT_W3_4 = 0;
+int SPR_FSCOUT_W3_5 = 0;
+int SPR_FSCOUT_W3_6 = 0;
+int SPR_FSCOUT_W3_7 = 0;
+int SPR_FSCOUT_W3_8 = 0;
+
+int SPR_FSCOUT_W4_1 = 0;
+int SPR_FSCOUT_W4_2 = 0;
+int SPR_FSCOUT_W4_3 = 0;
+int SPR_FSCOUT_W4_4 = 0;
+int SPR_FSCOUT_W4_5 = 0;
+int SPR_FSCOUT_W4_6 = 0;
+int SPR_FSCOUT_W4_7 = 0;
+int SPR_FSCOUT_W4_8 = 0;
+
+int SPR_FSCOUT_DIE1 = 0;
+int SPR_FSCOUT_DIE2 = 0;
+int SPR_FSCOUT_DIE3 = 0;
+int SPR_FSCOUT_DIE4 = 0;
+int SPR_FSCOUT_DIE5 = 0;
+int SPR_FSCOUT_DIE6 = 0;
+int SPR_FSCOUT_DIE7 = 0;
+int SPR_FSCOUT_DEAD = 0;
+
+int SPR_EXPLOSION_1 = 0;
+int SPR_EXPLOSION_2 = 0;
+int SPR_EXPLOSION_3 = 0;
+int SPR_EXPLOSION_4 = 0;
+int SPR_EXPLOSION_5 = 0;
+
+int SPR_VITAL_STAND = 0;
+int SPR_VITAL_DIE_1 = 0;
+int SPR_VITAL_DIE_2 = 0;
+int SPR_VITAL_DIE_3 = 0;
+int SPR_VITAL_DIE_4 = 0;
+int SPR_VITAL_DIE_5 = 0;
+int SPR_VITAL_DIE_6 = 0;
+int SPR_VITAL_DIE_7 = 0;
+int SPR_VITAL_DIE_8 = 0;
+int SPR_VITAL_DEAD_1 = 0;
+int SPR_VITAL_DEAD_2 = 0;
+int SPR_VITAL_DEAD_3 = 0;
+int SPR_VITAL_OUCH = 0;
+
+int SPR_CUBE1 = 0;
+int SPR_CUBE2 = 0;
+int SPR_CUBE3 = 0;
+int SPR_CUBE4 = 0;
+int SPR_CUBE5 = 0;
+int SPR_CUBE6 = 0;
+int SPR_CUBE7 = 0;
+int SPR_CUBE8 = 0;
+int SPR_CUBE9 = 0;
+int SPR_CUBE10 = 0;
+int SPR_CUBE_EXP1 = 0;
+int SPR_CUBE_EXP2 = 0;
+int SPR_CUBE_EXP3 = 0;
+int SPR_CUBE_EXP4 = 0;
+int SPR_CUBE_EXP5 = 0;
+int SPR_CUBE_EXP6 = 0;
+int SPR_CUBE_EXP7 = 0;
+int SPR_CUBE_EXP8 = 0;
+int SPR_DEAD_CUBE = 0;
+
+int SPR_SECURITY_NORMAL = 0;
+int SPR_SECURITY_ALERT = 0;
+
+int SPR_POD_EGG = 0;
+int SPR_POD_HATCH1 = 0;
+int SPR_POD_HATCH2 = 0;
+int SPR_POD_HATCH3 = 0;
+int SPR_POD_WALK1 = 0;
+int SPR_POD_WALK2 = 0;
+int SPR_POD_WALK3 = 0;
+int SPR_POD_WALK4 = 0;
+int SPR_POD_ATTACK1 = 0;
+int SPR_POD_ATTACK2 = 0;
+int SPR_POD_ATTACK3 = 0;
+int SPR_POD_OUCH = 0;
+int SPR_POD_DIE1 = 0;
+int SPR_POD_DIE2 = 0;
+int SPR_POD_DIE3 = 0;
+int SPR_POD_SPIT1 = 0;
+int SPR_POD_SPIT2 = 0;
+int SPR_POD_SPIT3 = 0;
+
+int SPR_ELEC_APPEAR1 = 0;
+int SPR_ELEC_APPEAR2 = 0;
+int SPR_ELEC_APPEAR3 = 0;
+int SPR_ELEC_WALK1 = 0;
+int SPR_ELEC_WALK2 = 0;
+int SPR_ELEC_WALK3 = 0;
+int SPR_ELEC_WALK4 = 0;
+int SPR_ELEC_OUCH = 0;
+int SPR_ELEC_SHOOT1 = 0;
+int SPR_ELEC_SHOOT2 = 0;
+int SPR_ELEC_SHOOT3 = 0;
+int SPR_ELEC_DIE1 = 0;
+int SPR_ELEC_DIE2 = 0;
+int SPR_ELEC_DIE3 = 0;
+int SPR_ELEC_SHOT1 = 0;
+int SPR_ELEC_SHOT2 = 0;
+int SPR_ELEC_SHOT_EXP1 = 0;
+int SPR_ELEC_SHOT_EXP2 = 0;
+
+int SPR_ELECTRO_SPHERE_ROAM1 = 0;
+int SPR_ELECTRO_SPHERE_ROAM2 = 0;
+int SPR_ELECTRO_SPHERE_ROAM3 = 0;
+int SPR_ELECTRO_SPHERE_OUCH = 0;
+int SPR_ELECTRO_SPHERE_DIE1 = 0;
+int SPR_ELECTRO_SPHERE_DIE2 = 0;
+int SPR_ELECTRO_SPHERE_DIE3 = 0;
+int SPR_ELECTRO_SPHERE_DIE4 = 0;
+
+int SPR_GENETIC_W1 = 0;
+int SPR_GENETIC_W2 = 0;
+int SPR_GENETIC_W3 = 0;
+int SPR_GENETIC_W4 = 0;
+int SPR_GENETIC_SWING1 = 0;
+int SPR_GENETIC_SWING2 = 0;
+int SPR_GENETIC_SWING3 = 0;
+int SPR_GENETIC_DEAD = 0;
+int SPR_GENETIC_DIE1 = 0;
+int SPR_GENETIC_DIE2 = 0;
+int SPR_GENETIC_DIE3 = 0;
+int SPR_GENETIC_DIE4 = 0;
+int SPR_GENETIC_OUCH = 0;
+int SPR_GENETIC_SHOOT1 = 0;
+int SPR_GENETIC_SHOOT2 = 0;
+int SPR_GENETIC_SHOOT3 = 0;
+
+int SPR_MUTHUM1_W1 = 0;
+int SPR_MUTHUM1_W2 = 0;
+int SPR_MUTHUM1_W3 = 0;
+int SPR_MUTHUM1_W4 = 0;
+int SPR_MUTHUM1_SWING1 = 0;
+int SPR_MUTHUM1_SWING2 = 0;
+int SPR_MUTHUM1_SWING3 = 0;
+int SPR_MUTHUM1_DEAD = 0;
+int SPR_MUTHUM1_DIE1 = 0;
+int SPR_MUTHUM1_DIE2 = 0;
+int SPR_MUTHUM1_DIE3 = 0;
+int SPR_MUTHUM1_DIE4 = 0;
+int SPR_MUTHUM1_OUCH = 0;
+int SPR_MUTHUM1_SPIT1 = 0;
+int SPR_MUTHUM1_SPIT2 = 0;
+int SPR_MUTHUM1_SPIT3 = 0;
+
+int SPR_MUTHUM2_W1 = 0;
+int SPR_MUTHUM2_W2 = 0;
+int SPR_MUTHUM2_W3 = 0;
+int SPR_MUTHUM2_W4 = 0;
+int SPR_MUTHUM2_SWING1 = 0;
+int SPR_MUTHUM2_SWING2 = 0;
+int SPR_MUTHUM2_SWING3 = 0;
+int SPR_MUTHUM2_DEAD = 0;
+int SPR_MUTHUM2_DIE1 = 0;
+int SPR_MUTHUM2_DIE2 = 0;
+int SPR_MUTHUM2_DIE3 = 0;
+int SPR_MUTHUM2_DIE4 = 0;
+int SPR_MUTHUM2_OUCH = 0;
+int SPR_MUTHUM2_SPIT1 = 0;
+int SPR_MUTHUM2_SPIT2 = 0;
+int SPR_MUTHUM2_SPIT3 = 0;
+
+int SPR_MUTHUM2_MORPH1 = 0;
+int SPR_MUTHUM2_MORPH2 = 0;
+int SPR_MUTHUM2_MORPH3 = 0;
+int SPR_MUTHUM2_MORPH4 = 0;
+int SPR_MUTHUM2_MORPH5 = 0;
+int SPR_MUTHUM2_MORPH6 = 0;
+int SPR_MUTHUM2_MORPH7 = 0;
+int SPR_MUTHUM2_MORPH8 = 0;
+int SPR_MUTHUM2_MORPH9 = 0;
+
+int SPR_LCAN_ALIEN_READY = 0;
+int SPR_LCAN_ALIEN_B1 = 0;
+int SPR_LCAN_ALIEN_B2 = 0;
+int SPR_LCAN_ALIEN_B3 = 0;
+int SPR_LCAN_ALIEN_EMPTY = 0;
+
+int SPR_LCAN_ALIEN_W1 = 0;
+int SPR_LCAN_ALIEN_W2 = 0;
+int SPR_LCAN_ALIEN_W3 = 0;
+int SPR_LCAN_ALIEN_W4 = 0;
+int SPR_LCAN_ALIEN_SWING1 = 0;
+int SPR_LCAN_ALIEN_SWING2 = 0;
+int SPR_LCAN_ALIEN_SWING3 = 0;
+int SPR_LCAN_ALIEN_DEAD = 0;
+int SPR_LCAN_ALIEN_DIE1 = 0;
+int SPR_LCAN_ALIEN_DIE2 = 0;
+int SPR_LCAN_ALIEN_DIE3 = 0;
+int SPR_LCAN_ALIEN_DIE4 = 0;
+int SPR_LCAN_ALIEN_OUCH = 0;
+int SPR_LCAN_ALIEN_SPIT1 = 0;
+int SPR_LCAN_ALIEN_SPIT2 = 0;
+int SPR_LCAN_ALIEN_SPIT3 = 0;
+
+int SPR_SCAN_ALIEN_READY = 0;
+int SPR_SCAN_ALIEN_B1 = 0;
+int SPR_SCAN_ALIEN_B2 = 0;
+int SPR_SCAN_ALIEN_B3 = 0;
+int SPR_SCAN_ALIEN_EMPTY = 0;
+
+int SPR_SCAN_ALIEN_W1 = 0;
+int SPR_SCAN_ALIEN_W2 = 0;
+int SPR_SCAN_ALIEN_W3 = 0;
+int SPR_SCAN_ALIEN_W4 = 0;
+int SPR_SCAN_ALIEN_SWING1 = 0;
+int SPR_SCAN_ALIEN_SWING2 = 0;
+int SPR_SCAN_ALIEN_SWING3 = 0;
+int SPR_SCAN_ALIEN_DEAD = 0;
+int SPR_SCAN_ALIEN_DIE1 = 0;
+int SPR_SCAN_ALIEN_DIE2 = 0;
+int SPR_SCAN_ALIEN_DIE3 = 0;
+int SPR_SCAN_ALIEN_DIE4 = 0;
+int SPR_SCAN_ALIEN_OUCH = 0;
+
+int SPR_SCAN_ALIEN_SPIT1 = 0;
+int SPR_SCAN_ALIEN_SPIT2 = 0;
+int SPR_SCAN_ALIEN_SPIT3 = 0;
+
+int SPR_GURNEY_MUT_READY = 0;
+int SPR_GURNEY_MUT_B1 = 0;
+int SPR_GURNEY_MUT_B2 = 0;
+int SPR_GURNEY_MUT_B3 = 0;
+int SPR_GURNEY_MUT_EMPTY = 0;
+
+int SPR_GURNEY_MUT_W1 = 0;
+int SPR_GURNEY_MUT_W2 = 0;
+int SPR_GURNEY_MUT_W3 = 0;
+int SPR_GURNEY_MUT_W4 = 0;
+int SPR_GURNEY_MUT_SWING1 = 0;
+int SPR_GURNEY_MUT_SWING2 = 0;
+int SPR_GURNEY_MUT_SWING3 = 0;
+int SPR_GURNEY_MUT_DEAD = 0;
+int SPR_GURNEY_MUT_DIE1 = 0;
+int SPR_GURNEY_MUT_DIE2 = 0;
+int SPR_GURNEY_MUT_DIE3 = 0;
+int SPR_GURNEY_MUT_DIE4 = 0;
+int SPR_GURNEY_MUT_OUCH = 0;
+
+int SPR_LIQUID_M1 = 0;
+int SPR_LIQUID_M2 = 0;
+int SPR_LIQUID_M3 = 0;
+int SPR_LIQUID_R1 = 0;
+int SPR_LIQUID_R2 = 0;
+int SPR_LIQUID_R3 = 0;
+int SPR_LIQUID_R4 = 0;
+int SPR_LIQUID_S1 = 0;
+int SPR_LIQUID_S2 = 0;
+int SPR_LIQUID_S3 = 0;
+int SPR_LIQUID_OUCH = 0;
+int SPR_LIQUID_DIE_1 = 0;
+int SPR_LIQUID_DIE_2 = 0;
+int SPR_LIQUID_DIE_3 = 0;
+int SPR_LIQUID_DIE_4 = 0;
+int SPR_LIQUID_DEAD = 0;
+int SPR_LIQUID_SHOT_FLY_1 = 0;
+int SPR_LIQUID_SHOT_FLY_2 = 0;
+int SPR_LIQUID_SHOT_FLY_3 = 0;
+int SPR_LIQUID_SHOT_BURST_1 = 0;
+int SPR_LIQUID_SHOT_BURST_2 = 0;
+int SPR_LIQUID_SHOT_BURST_3 = 0;
+
+int SPR_SPIT1_1 = 0;
+int SPR_SPIT1_2 = 0;
+int SPR_SPIT1_3 = 0;
+int SPR_SPIT_EXP1_1 = 0;
+int SPR_SPIT_EXP1_2 = 0;
+int SPR_SPIT_EXP1_3 = 0;
+
+int SPR_SPIT2_1 = 0;
+int SPR_SPIT2_2 = 0;
+int SPR_SPIT2_3 = 0;
+int SPR_SPIT_EXP2_1 = 0;
+int SPR_SPIT_EXP2_2 = 0;
+int SPR_SPIT_EXP2_3 = 0;
+
+int SPR_SPIT3_1 = 0;
+int SPR_SPIT3_2 = 0;
+int SPR_SPIT3_3 = 0;
+int SPR_SPIT_EXP3_1 = 0;
+int SPR_SPIT_EXP3_2 = 0;
+int SPR_SPIT_EXP3_3 = 0;
+
+int SPR_TERROT_1 = 0;
+int SPR_TERROT_2 = 0;
+int SPR_TERROT_3 = 0;
+int SPR_TERROT_4 = 0;
+int SPR_TERROT_5 = 0;
+int SPR_TERROT_6 = 0;
+int SPR_TERROT_7 = 0;
+int SPR_TERROT_8 = 0;
+
+int SPR_TERROT_FIRE_1 = 0;
+int SPR_TERROT_FIRE_2 = 0;
+int SPR_TERROT_DIE_1 = 0;
+int SPR_TERROT_DIE_2 = 0;
+int SPR_TERROT_DIE_3 = 0;
+int SPR_TERROT_DIE_4 = 0;
+int SPR_TERROT_DEAD = 0;
+
+int SPR_KNIFEREADY = 0;
+int SPR_KNIFEATK1 = 0;
+int SPR_KNIFEATK2 = 0;
+int SPR_KNIFEATK3 = 0;
+int SPR_KNIFEATK4 = 0;
+
+int SPR_PISTOLREADY = 0;
+int SPR_PISTOLATK1 = 0;
+int SPR_PISTOLATK2 = 0;
+int SPR_PISTOLATK3 = 0;
+int SPR_PISTOLATK4 = 0;
+
+int SPR_MACHINEGUNREADY = 0;
+int SPR_MACHINEGUNATK1 = 0;
+int SPR_MACHINEGUNATK2 = 0;
+int SPR_MACHINEGUNATK3 = 0;
+int SPR_MACHINEGUNATK4 = 0;
+
+int SPR_CHAINREADY = 0;
+int SPR_CHAINATK1 = 0;
+int SPR_CHAINATK2 = 0;
+int SPR_CHAINATK3 = 0;
+int SPR_CHAINATK4 = 0;
+
+int SPR_GRENADEREADY = 0;
+int SPR_GRENADEATK1 = 0;
+int SPR_GRENADEATK2 = 0;
+int SPR_GRENADEATK3 = 0;
+int SPR_GRENADEATK4 = 0;
+
+int SPR_GRENADE_FLY1 = 0;
+int SPR_GRENADE_FLY2 = 0;
+int SPR_GRENADE_FLY3 = 0;
+int SPR_GRENADE_FLY4 = 0;
+int SPR_GRENADE_EXPLODE1 = 0;
+int SPR_GRENADE_EXPLODE2 = 0;
+int SPR_GRENADE_EXPLODE3 = 0;
+int SPR_GRENADE_EXPLODE4 = 0;
+int SPR_GRENADE_EXPLODE5 = 0;
+
+int SPR_ELEC_ARC1 = 0;
+int SPR_ELEC_ARC2 = 0;
+int SPR_ELEC_ARC3 = 0;
+int SPR_ELEC_ARC4 = 0;
+int SPR_ELEC_POST1 = 0;
+int SPR_ELEC_POST2 = 0;
+int SPR_ELEC_POST3 = 0;
+int SPR_ELEC_POST4 = 0;
+
+int SPR_VPOST1 = 0;
+int SPR_VPOST2 = 0;
+int SPR_VPOST3 = 0;
+int SPR_VPOST4 = 0;
+int SPR_VPOST5 = 0;
+int SPR_VPOST6 = 0;
+int SPR_VPOST7 = 0;
+int SPR_VPOST8 = 0;
+
+int SPR_VSPIKE1 = 0;
+int SPR_VSPIKE2 = 0;
+int SPR_VSPIKE3 = 0;
+int SPR_VSPIKE4 = 0;
+int SPR_VSPIKE5 = 0;
+int SPR_VSPIKE6 = 0;
+int SPR_VSPIKE7 = 0;
+int SPR_VSPIKE8 = 0;
+
+int SPR_GREEN_OOZE1 = 0;
+int SPR_GREEN_OOZE2 = 0;
+int SPR_GREEN_OOZE3 = 0;
+int SPR_BLACK_OOZE1 = 0;
+int SPR_BLACK_OOZE2 = 0;
+int SPR_BLACK_OOZE3 = 0;
+
+int SPR_GREEN2_OOZE1 = 0;
+int SPR_GREEN2_OOZE2 = 0;
+int SPR_GREEN2_OOZE3 = 0;
+int SPR_BLACK2_OOZE1 = 0;
+int SPR_BLACK2_OOZE2 = 0;
+int SPR_BLACK2_OOZE3 = 0;
+
+int SPR_CANDY_BAR = 0;
+int SPR_CANDY_WRAPER = 0;
+int SPR_SANDWICH = 0;
+int SPR_SANDWICH_WRAPER = 0;
+
+int SPR_BLAKE_W1 = 0;
+int SPR_BLAKE_W2 = 0;
+int SPR_BLAKE_W3 = 0;
+int SPR_BLAKE_W4 = 0;
+
+int SPR_BOSS1_W1 = 0;
+int SPR_BOSS1_W2 = 0;
+int SPR_BOSS1_W3 = 0;
+int SPR_BOSS1_W4 = 0;
+int SPR_BOSS1_SWING1 = 0;
+int SPR_BOSS1_SWING2 = 0;
+int SPR_BOSS1_SWING3 = 0;
+int SPR_BOSS1_DEAD = 0;
+int SPR_BOSS1_DIE1 = 0;
+int SPR_BOSS1_DIE2 = 0;
+int SPR_BOSS1_DIE3 = 0;
+int SPR_BOSS1_DIE4 = 0;
+int SPR_BOSS1_OUCH = 0;
+int SPR_BOSS1_PROJ1 = 0;
+int SPR_BOSS1_PROJ2 = 0;
+int SPR_BOSS1_PROJ3 = 0;
+int SPR_BOSS1_EXP1 = 0;
+int SPR_BOSS1_EXP2 = 0;
+int SPR_BOSS1_EXP3 = 0;
+int SPR_BOSS1_MORPH1 = 0;
+int SPR_BOSS1_MORPH2 = 0;
+int SPR_BOSS1_MORPH3 = 0;
+int SPR_BOSS1_MORPH4 = 0;
+int SPR_BOSS1_MORPH5 = 0;
+int SPR_BOSS1_MORPH6 = 0;
+int SPR_BOSS1_MORPH7 = 0;
+int SPR_BOSS1_MORPH8 = 0;
+int SPR_BOSS1_MORPH9 = 0;
+
+int SPR_BOSS2_W1 = 0;
+int SPR_BOSS2_W2 = 0;
+int SPR_BOSS2_W3 = 0;
+int SPR_BOSS2_W4 = 0;
+int SPR_BOSS2_SWING1 = 0;
+int SPR_BOSS2_SWING2 = 0;
+int SPR_BOSS2_SWING3 = 0;
+int SPR_BOSS2_DEAD = 0;
+int SPR_BOSS2_DIE1 = 0;
+int SPR_BOSS2_DIE2 = 0;
+int SPR_BOSS2_DIE3 = 0;
+int SPR_BOSS2_DIE4 = 0;
+int SPR_BOSS2_OUCH = 0;
+
+int SPR_BOSS3_W1 = 0;
+int SPR_BOSS3_W2 = 0;
+int SPR_BOSS3_W3 = 0;
+int SPR_BOSS3_W4 = 0;
+int SPR_BOSS3_SWING1 = 0;
+int SPR_BOSS3_SWING2 = 0;
+int SPR_BOSS3_SWING3 = 0;
+int SPR_BOSS3_DEAD = 0;
+int SPR_BOSS3_DIE1 = 0;
+int SPR_BOSS3_DIE2 = 0;
+int SPR_BOSS3_DIE3 = 0;
+int SPR_BOSS3_DIE4 = 0;
+int SPR_BOSS3_OUCH = 0;
+
+int SPR_BOSS4_W1 = 0;
+int SPR_BOSS4_W2 = 0;
+int SPR_BOSS4_W3 = 0;
+int SPR_BOSS4_W4 = 0;
+int SPR_BOSS4_SWING1 = 0;
+int SPR_BOSS4_SWING2 = 0;
+int SPR_BOSS4_SWING3 = 0;
+int SPR_BOSS4_DEAD = 0;
+int SPR_BOSS4_DIE1 = 0;
+int SPR_BOSS4_DIE2 = 0;
+int SPR_BOSS4_DIE3 = 0;
+int SPR_BOSS4_DIE4 = 0;
+int SPR_BOSS4_OUCH = 0;
+int SPR_BOSS4_MORPH1 = 0;
+int SPR_BOSS4_MORPH2 = 0;
+int SPR_BOSS4_MORPH3 = 0;
+int SPR_BOSS4_MORPH4 = 0;
+int SPR_BOSS4_MORPH5 = 0;
+int SPR_BOSS4_MORPH6 = 0;
+int SPR_BOSS4_MORPH7 = 0;
+int SPR_BOSS4_MORPH8 = 0;
+int SPR_BOSS4_MORPH9 = 0;
+
+int SPR_BOSS5_W1 = 0;
+int SPR_BOSS5_W2 = 0;
+int SPR_BOSS5_W3 = 0;
+int SPR_BOSS5_W4 = 0;
+int SPR_BOSS5_SWING1 = 0;
+int SPR_BOSS5_SWING2 = 0;
+int SPR_BOSS5_SWING3 = 0;
+int SPR_BOSS5_DEAD = 0;
+int SPR_BOSS5_DIE1 = 0;
+int SPR_BOSS5_DIE2 = 0;
+int SPR_BOSS5_DIE3 = 0;
+int SPR_BOSS5_DIE4 = 0;
+int SPR_BOSS5_OUCH = 0;
+int SPR_BOSS5_PROJ1 = 0;
+int SPR_BOSS5_PROJ2 = 0;
+int SPR_BOSS5_PROJ3 = 0;
+int SPR_BOSS5_EXP1 = 0;
+int SPR_BOSS5_EXP2 = 0;
+int SPR_BOSS5_EXP3 = 0;
+
+int SPR_BOSS6_W1 = 0;
+int SPR_BOSS6_W2 = 0;
+int SPR_BOSS6_W3 = 0;
+int SPR_BOSS6_W4 = 0;
+int SPR_BOSS6_SWING1 = 0;
+int SPR_BOSS6_SWING2 = 0;
+int SPR_BOSS6_SWING3 = 0;
+int SPR_BOSS6_DEAD = 0;
+int SPR_BOSS6_DIE1 = 0;
+int SPR_BOSS6_DIE2 = 0;
+int SPR_BOSS6_DIE3 = 0;
+int SPR_BOSS6_DIE4 = 0;
+int SPR_BOSS6_OUCH = 0;
+
+int SPR_BOSS7_W1 = 0;
+int SPR_BOSS7_W2 = 0;
+int SPR_BOSS7_W3 = 0;
+int SPR_BOSS7_W4 = 0;
+int SPR_BOSS7_SHOOT1 = 0;
+int SPR_BOSS7_SHOOT2 = 0;
+int SPR_BOSS7_SHOOT3 = 0;
+int SPR_BOSS7_DEAD = 0;
+int SPR_BOSS7_DIE1 = 0;
+int SPR_BOSS7_DIE2 = 0;
+int SPR_BOSS7_DIE3 = 0;
+int SPR_BOSS7_DIE4 = 0;
+int SPR_BOSS7_OUCH = 0;
+
+int SPR_BOSS8_W1 = 0;
+int SPR_BOSS8_W2 = 0;
+int SPR_BOSS8_W3 = 0;
+int SPR_BOSS8_W4 = 0;
+int SPR_BOSS8_SHOOT1 = 0;
+int SPR_BOSS8_SHOOT2 = 0;
+int SPR_BOSS8_SHOOT3 = 0;
+int SPR_BOSS8_DIE1 = 0;
+int SPR_BOSS8_DIE2 = 0;
+int SPR_BOSS8_DIE3 = 0;
+int SPR_BOSS8_DIE4 = 0;
+int SPR_BOSS8_DEAD = 0;
+int SPR_BOSS8_OUCH = 0;
+
+int SPR_BOSS9_W1 = 0;
+int SPR_BOSS9_W2 = 0;
+int SPR_BOSS9_W3 = 0;
+int SPR_BOSS9_W4 = 0;
+int SPR_BOSS9_SHOOT1 = 0;
+int SPR_BOSS9_SHOOT2 = 0;
+int SPR_BOSS9_SHOOT3 = 0;
+int SPR_BOSS9_DIE1 = 0;
+int SPR_BOSS9_DIE2 = 0;
+int SPR_BOSS9_DIE3 = 0;
+int SPR_BOSS9_DIE4 = 0;
+int SPR_BOSS9_DEAD = 0;
+int SPR_BOSS9_OUCH = 0;
+
+int SPR_BOSS10_W1 = 0;
+int SPR_BOSS10_W2 = 0;
+int SPR_BOSS10_W3 = 0;
+int SPR_BOSS10_W4 = 0;
+int SPR_BOSS10_SHOOT1 = 0;
+int SPR_BOSS10_SHOOT2 = 0;
+int SPR_BOSS10_SHOOT3 = 0;
+int SPR_BOSS10_DEAD = 0;
+int SPR_BOSS10_DIE1 = 0;
+int SPR_BOSS10_DIE2 = 0;
+int SPR_BOSS10_DIE3 = 0;
+int SPR_BOSS10_DIE4 = 0;
+int SPR_BOSS10_OUCH = 0;
+
+int SPR_BOSS10_SPIT1 = 0;
+int SPR_BOSS10_SPIT2 = 0;
+int SPR_BOSS10_SPIT3 = 0;
+int SPR_BOSS10_SPIT_EXP1 = 0;
+int SPR_BOSS10_SPIT_EXP2 = 0;
+int SPR_BOSS10_SPIT_EXP3 = 0;
+
+int SPR_DETONATOR_EXP1 = 0;
+int SPR_DETONATOR_EXP2 = 0;
+int SPR_DETONATOR_EXP3 = 0;
+int SPR_DETONATOR_EXP4 = 0;
+int SPR_DETONATOR_EXP5 = 0;
+int SPR_DETONATOR_EXP6 = 0;
+int SPR_DETONATOR_EXP7 = 0;
+int SPR_DETONATOR_EXP8 = 0;
+
+int SPR_CLIP_EXP1 = 0;
+int SPR_CLIP_EXP2 = 0;
+int SPR_CLIP_EXP3 = 0;
+int SPR_CLIP_EXP4 = 0;
+int SPR_CLIP_EXP5 = 0;
+int SPR_CLIP_EXP6 = 0;
+int SPR_CLIP_EXP7 = 0;
+int SPR_CLIP_EXP8 = 0;
+
+int SPR_BFG_WEAPON1 = 0;
+int SPR_BFG_WEAPON2 = 0;
+int SPR_BFG_WEAPON3 = 0;
+int SPR_BFG_WEAPON4 = 0;
+int SPR_BFG_WEAPON5 = 0;
+
+int SPR_BFG_WEAPON_SHOT1 = 0;
+int SPR_BFG_WEAPON_SHOT2 = 0;
+int SPR_BFG_WEAPON_SHOT3 = 0;
+
+int SPR_BFG_EXP1 = 0;
+int SPR_BFG_EXP2 = 0;
+int SPR_BFG_EXP3 = 0;
+int SPR_BFG_EXP4 = 0;
+int SPR_BFG_EXP5 = 0;
+int SPR_BFG_EXP6 = 0;
+int SPR_BFG_EXP7 = 0;
+int SPR_BFG_EXP8 = 0;
+
+
+void initialize_sprite_ids()
+{
+    if (!::is_aog_sw()) {
+        SPR_STAT_0 = 1;
+        SPR_STAT_1 = 2;
+        SPR_STAT_2 = 3;
+        SPR_STAT_3 = 4;
+        SPR_STAT_4 = 5;
+        SPR_STAT_5 = 6;
+        SPR_STAT_6 = 7;
+        SPR_STAT_7 = 8;
+        SPR_STAT_8 = 9;
+        SPR_STAT_9 = 10;
+        SPR_STAT_10 = 11;
+        SPR_STAT_11 = 12;
+        SPR_STAT_12 = 13;
+        SPR_STAT_13 = 14;
+        SPR_STAT_14 = 15;
+        SPR_STAT_15 = 16;
+        SPR_STAT_16 = 17;
+        SPR_STAT_17 = 18;
+        SPR_STAT_18 = 19;
+        SPR_STAT_19 = 20;
+        SPR_STAT_20 = 21;
+        SPR_STAT_21 = 22;
+        SPR_STAT_22 = 23;
+        SPR_STAT_23 = 24;
+        SPR_STAT_24 = 25;
+        SPR_STAT_25 = 26;
+        SPR_STAT_26 = 27;
+        SPR_STAT_27 = 28;
+        SPR_STAT_28 = 29;
+        SPR_STAT_29 = 30;
+        SPR_STAT_30 = 31;
+        SPR_STAT_31 = 32;
+        SPR_STAT_32 = 33;
+        SPR_STAT_33 = 34;
+        SPR_STAT_34 = 35;
+        SPR_STAT_35 = 36;
+        SPR_STAT_36 = 37;
+        SPR_STAT_37 = 38;
+        SPR_STAT_38 = 39;
+        SPR_STAT_39 = 40;
+        SPR_STAT_40 = 41;
+        SPR_STAT_41 = 42;
+        SPR_STAT_42 = 43;
+        SPR_STAT_43 = 44;
+        SPR_STAT_44 = 45;
+        SPR_STAT_45 = 46;
+        SPR_STAT_46 = 47;
+        SPR_STAT_47 = 48;
+        SPR_STAT_48 = 49;
+        SPR_STAT_49 = 50;
+        SPR_STAT_50 = 51;
+        SPR_STAT_51 = 52;
+        SPR_STAT_52 = 53;
+        SPR_STAT_53 = 54;
+        SPR_STAT_54 = 55;
+        SPR_STAT_55 = 56;
+        SPR_STAT_56 = 57;
+
+        SPR_CRATE_1 = 58;
+        SPR_CRATE_2 = 59;
+        SPR_CRATE_3 = 60;
+
+        SPR_STAT_57 = 61;
+        SPR_STAT_58 = 62;
+        SPR_STAT_59 = 63;
+        SPR_STAT_60 = 64;
+        SPR_STAT_61 = 65;
+        SPR_STAT_62 = 66;
+        SPR_STAT_63 = 67;
+        SPR_STAT_64 = 68;
+        SPR_STAT_65 = 69;
+        SPR_STAT_66 = 70;
+        SPR_STAT_67 = 71;
+        SPR_STAT_68 = 72;
+        SPR_STAT_69 = 73;
+        SPR_STAT_70 = 74;
+        SPR_STAT_71 = 75;
+        SPR_STAT_72 = 76;
+        SPR_STAT_73 = 77;
+        SPR_STAT_74 = 78;
+        SPR_STAT_75 = 79;
+        SPR_STAT_76 = 80;
+        SPR_STAT_77 = 81;
+        SPR_STAT_78 = 82;
+        SPR_STAT_79 = 83;
+    } else {
+        SPR_STAT_0 = 1;
+        SPR_STAT_2 = 2;
+        SPR_STAT_8 = 3;
+        SPR_STAT_9 = 4;
+        SPR_STAT_10 = 5;
+        SPR_STAT_11 = 6;
+        SPR_STAT_12 = 7;
+        SPR_STAT_13 = 8;
+        SPR_STAT_14 = 9;
+        SPR_STAT_15 = 10;
+        SPR_STAT_18 = 11;
+        SPR_STAT_24 = 12;
+        SPR_STAT_26 = 13;
+        SPR_STAT_27 = 14;
+        SPR_STAT_28 = 15;
+        SPR_STAT_29 = 16;
+        SPR_STAT_31 = 17;
+        SPR_STAT_32 = 18;
+        SPR_STAT_33 = 19;
+        SPR_STAT_34 = 20;
+        SPR_STAT_35 = 21;
+        SPR_STAT_36 = 22;
+        SPR_STAT_38 = 23;
+        SPR_STAT_40 = 24;
+        SPR_STAT_41 = 25;
+        SPR_STAT_42 = 26;
+        SPR_STAT_43 = 27;
+        SPR_STAT_44 = 28;
+        SPR_STAT_45 = 29;
+        SPR_STAT_46 = 30;
+        SPR_STAT_47 = 31;
+        SPR_STAT_48 = 32;
+        SPR_STAT_49 = 33;
+        SPR_STAT_50 = 34;
+        SPR_STAT_51 = 35;
+        SPR_STAT_52 = 36;
+        SPR_STAT_53 = 37;
+        SPR_STAT_54 = 38;
+        SPR_STAT_55 = 39;
+        SPR_STAT_56 = 40;
+        SPR_CRATE_1 = 41;
+        SPR_STAT_57 = 42;
+        SPR_STAT_60 = 43;
+        SPR_STAT_61 = 44;
+        SPR_STAT_62 = 45;
+        SPR_STAT_63 = 46;
+        SPR_STAT_65 = 47;
+        SPR_STAT_66 = 48;
+        SPR_STAT_67 = 49;
+        SPR_STAT_68 = 50;
+        SPR_STAT_69 = 51;
+        SPR_STAT_77 = 52;
+        SPR_STAT_78 = 53;
+        SPR_STAT_79 = 54;
+    }
+
+    if (::is_ps()) {
+        SPR_DOORBOMB = 84;
+        SPR_ALT_DOORBOMB = 85;
+        SPR_RUBBLE = 86;
+        SPR_BONZI_TREE = 87;
+        SPR_AUTOMAPPER = 88;
+        SPR_POT_PLANT = 89;
+        SPR_TUBE_PLANT = 90;
+        SPR_HITECH_CHAIR = 91;
+    }
+
+    if (::is_aog()) {
+        SPR_AIR_VENT = 84;
+        SPR_BLOOD_DRIP1 = 85;
+        SPR_BLOOD_DRIP2 = 86;
+        SPR_BLOOD_DRIP3 = 87;
+        SPR_BLOOD_DRIP4 = 88;
+        SPR_WATER_DRIP1 = 89;
+        SPR_WATER_DRIP2 = 90;
+        SPR_WATER_DRIP3 = 91;
+        SPR_WATER_DRIP4 = 92;
+
+        SPR_DECO_ARC_1 = 93;
+        SPR_DECO_ARC_2 = 94;
+        SPR_DECO_ARC_3 = 95;
+
+        SPR_GRATE = 96;
+        SPR_STEAM_1 = 97;
+        SPR_STEAM_2 = 98;
+        SPR_STEAM_3 = 99;
+        SPR_STEAM_4 = 100;
+
+        SPR_STEAM_PIPE = 101;
+        SPR_PIPE_STEAM_1 = 102;
+        SPR_PIPE_STEAM_2 = 103;
+        SPR_PIPE_STEAM_3 = 104;
+        SPR_PIPE_STEAM_4 = 105;
+    } else if (::is_aog_sw()) {
+        SPR_AIR_VENT = 55;
+        SPR_BLOOD_DRIP1 = 56;
+        SPR_BLOOD_DRIP2 = 57;
+        SPR_BLOOD_DRIP3 = 58;
+        SPR_BLOOD_DRIP4 = 59;
+        SPR_WATER_DRIP1 = 60;
+        SPR_WATER_DRIP2 = 61;
+        SPR_WATER_DRIP3 = 62;
+        SPR_WATER_DRIP4 = 63;
+
+        SPR_DECO_ARC_1 = 64;
+        SPR_DECO_ARC_2 = 65;
+        SPR_DECO_ARC_3 = 66;
+
+        SPR_GRATE = 67;
+        SPR_STEAM_1 = 68;
+        SPR_STEAM_2 = 69;
+        SPR_STEAM_3 = 70;
+        SPR_STEAM_4 = 71;
+
+        SPR_STEAM_PIPE = 72;
+        SPR_PIPE_STEAM_1 = 73;
+        SPR_PIPE_STEAM_2 = 74;
+        SPR_PIPE_STEAM_3 = 75;
+        SPR_PIPE_STEAM_4 = 76;
+    } else if (::is_ps()) {
+        SPR_AIR_VENT = 92;
+        SPR_BLOOD_DRIP1 = 93;
+        SPR_BLOOD_DRIP2 = 94;
+        SPR_BLOOD_DRIP3 = 95;
+        SPR_BLOOD_DRIP4 = 96;
+        SPR_WATER_DRIP1 = 97;
+        SPR_WATER_DRIP2 = 98;
+        SPR_WATER_DRIP3 = 99;
+        SPR_WATER_DRIP4 = 100;
+
+        SPR_DECO_ARC_1 = 101;
+        SPR_DECO_ARC_2 = 102;
+        SPR_DECO_ARC_3 = 103;
+
+        SPR_GRATE = 104;
+        SPR_STEAM_1 = 105;
+        SPR_STEAM_2 = 106;
+        SPR_STEAM_3 = 107;
+        SPR_STEAM_4 = 108;
+
+        SPR_STEAM_PIPE = 109;
+        SPR_PIPE_STEAM_1 = 110;
+        SPR_PIPE_STEAM_2 = 111;
+        SPR_PIPE_STEAM_3 = 112;
+        SPR_PIPE_STEAM_4 = 113;
+    }
+
+    if (::is_ps()) {
+        SPR_DEAD_RENT = 114;
+        SPR_DEAD_PRO = 115;
+        SPR_DEAD_SWAT = 116;
+    }
+
+    if (::is_aog()) {
+        SPR_RENT_S_1 = 106;
+        SPR_RENT_S_2 = 107;
+        SPR_RENT_S_3 = 108;
+        SPR_RENT_S_4 = 109;
+        SPR_RENT_S_5 = 110;
+        SPR_RENT_S_6 = 111;
+        SPR_RENT_S_7 = 112;
+        SPR_RENT_S_8 = 113;
+
+        SPR_RENT_W1_1 = 114;
+        SPR_RENT_W1_2 = 115;
+        SPR_RENT_W1_3 = 116;
+        SPR_RENT_W1_4 = 117;
+        SPR_RENT_W1_5 = 118;
+        SPR_RENT_W1_6 = 119;
+        SPR_RENT_W1_7 = 120;
+        SPR_RENT_W1_8 = 121;
+
+        SPR_RENT_W2_1 = 122;
+        SPR_RENT_W2_2 = 123;
+        SPR_RENT_W2_3 = 124;
+        SPR_RENT_W2_4 = 125;
+        SPR_RENT_W2_5 = 126;
+        SPR_RENT_W2_6 = 127;
+        SPR_RENT_W2_7 = 128;
+        SPR_RENT_W2_8 = 129;
+
+        SPR_RENT_W3_1 = 130;
+        SPR_RENT_W3_2 = 131;
+        SPR_RENT_W3_3 = 132;
+        SPR_RENT_W3_4 = 133;
+        SPR_RENT_W3_5 = 134;
+        SPR_RENT_W3_6 = 135;
+        SPR_RENT_W3_7 = 136;
+        SPR_RENT_W3_8 = 137;
+
+        SPR_RENT_W4_1 = 138;
+        SPR_RENT_W4_2 = 139;
+        SPR_RENT_W4_3 = 140;
+        SPR_RENT_W4_4 = 141;
+        SPR_RENT_W4_5 = 142;
+        SPR_RENT_W4_6 = 143;
+        SPR_RENT_W4_7 = 144;
+        SPR_RENT_W4_8 = 145;
+
+        SPR_RENT_DIE_1 = 146;
+        SPR_RENT_DIE_2 = 147;
+        SPR_RENT_DIE_3 = 148;
+        SPR_RENT_DIE_4 = 149;
+        SPR_RENT_PAIN_1 = 150;
+        SPR_RENT_DEAD = 151;
+
+        SPR_RENT_SHOOT1 = 152;
+        SPR_RENT_SHOOT2 = 153;
+        SPR_RENT_SHOOT3 = 154;
+    } else if (::is_ps()) {
+        SPR_RENT_S_1 = 77;
+        SPR_RENT_S_2 = 78;
+        SPR_RENT_S_3 = 79;
+        SPR_RENT_S_4 = 80;
+        SPR_RENT_S_5 = 81;
+        SPR_RENT_S_6 = 82;
+        SPR_RENT_S_7 = 83;
+        SPR_RENT_S_8 = 84;
+
+        SPR_RENT_W1_1 = 85;
+        SPR_RENT_W1_2 = 86;
+        SPR_RENT_W1_3 = 87;
+        SPR_RENT_W1_4 = 88;
+        SPR_RENT_W1_5 = 89;
+        SPR_RENT_W1_6 = 90;
+        SPR_RENT_W1_7 = 91;
+        SPR_RENT_W1_8 = 92;
+
+        SPR_RENT_W2_1 = 93;
+        SPR_RENT_W2_2 = 94;
+        SPR_RENT_W2_3 = 95;
+        SPR_RENT_W2_4 = 96;
+        SPR_RENT_W2_5 = 97;
+        SPR_RENT_W2_6 = 98;
+        SPR_RENT_W2_7 = 99;
+        SPR_RENT_W2_8 = 100;
+
+        SPR_RENT_W3_1 = 101;
+        SPR_RENT_W3_2 = 102;
+        SPR_RENT_W3_3 = 103;
+        SPR_RENT_W3_4 = 104;
+        SPR_RENT_W3_5 = 105;
+        SPR_RENT_W3_6 = 106;
+        SPR_RENT_W3_7 = 107;
+        SPR_RENT_W3_8 = 108;
+
+        SPR_RENT_W4_1 = 109;
+        SPR_RENT_W4_2 = 110;
+        SPR_RENT_W4_3 = 111;
+        SPR_RENT_W4_4 = 112;
+        SPR_RENT_W4_5 = 113;
+        SPR_RENT_W4_6 = 114;
+        SPR_RENT_W4_7 = 115;
+        SPR_RENT_W4_8 = 116;
+
+        SPR_RENT_DIE_1 = 117;
+        SPR_RENT_DIE_2 = 118;
+        SPR_RENT_DIE_3 = 119;
+        SPR_RENT_DIE_4 = 120;
+        SPR_RENT_PAIN_1 = 121;
+        SPR_RENT_DEAD = 122;
+
+        SPR_RENT_SHOOT1 = 123;
+        SPR_RENT_SHOOT2 = 124;
+        SPR_RENT_SHOOT3 = 125;
+    }
+
+    if (::is_aog()) {
+        SPR_PRO_S_1 = 155;
+        SPR_PRO_S_2 = 156;
+        SPR_PRO_S_3 = 157;
+        SPR_PRO_S_4 = 158;
+        SPR_PRO_S_5 = 159;
+        SPR_PRO_S_6 = 160;
+        SPR_PRO_S_7 = 161;
+        SPR_PRO_S_8 = 162;
+
+        SPR_PRO_W1_1 = 163;
+        SPR_PRO_W1_2 = 164;
+        SPR_PRO_W1_3 = 165;
+        SPR_PRO_W1_4 = 166;
+        SPR_PRO_W1_5 = 167;
+        SPR_PRO_W1_6 = 168;
+        SPR_PRO_W1_7 = 169;
+        SPR_PRO_W1_8 = 170;
+
+        SPR_PRO_W2_1 = 171;
+        SPR_PRO_W2_2 = 172;
+        SPR_PRO_W2_3 = 173;
+        SPR_PRO_W2_4 = 174;
+        SPR_PRO_W2_5 = 175;
+        SPR_PRO_W2_6 = 176;
+        SPR_PRO_W2_7 = 177;
+        SPR_PRO_W2_8 = 178;
+
+        SPR_PRO_W3_1 = 179;
+        SPR_PRO_W3_2 = 180;
+        SPR_PRO_W3_3 = 181;
+        SPR_PRO_W3_4 = 182;
+        SPR_PRO_W3_5 = 183;
+        SPR_PRO_W3_6 = 184;
+        SPR_PRO_W3_7 = 185;
+        SPR_PRO_W3_8 = 186;
+
+        SPR_PRO_W4_1 = 187;
+        SPR_PRO_W4_2 = 188;
+        SPR_PRO_W4_3 = 189;
+        SPR_PRO_W4_4 = 190;
+        SPR_PRO_W4_5 = 191;
+        SPR_PRO_W4_6 = 192;
+        SPR_PRO_W4_7 = 193;
+        SPR_PRO_W4_8 = 194;
+
+        SPR_PRO_PAIN_1 = 195;
+        SPR_PRO_DIE_1 = 196;
+        SPR_PRO_DIE_2 = 197;
+        SPR_PRO_DIE_3 = 198;
+        SPR_PRO_PAIN_2 = 199;
+        SPR_PRO_DIE_4 = 200;
+        SPR_PRO_DEAD = 201;
+
+        SPR_PRO_SHOOT1 = 202;
+        SPR_PRO_SHOOT2 = 203;
+        SPR_PRO_SHOOT3 = 204;
+    } else if (::is_aog_sw()) {
+        SPR_PRO_S_1 = 126;
+        SPR_PRO_S_2 = 127;
+        SPR_PRO_S_3 = 128;
+        SPR_PRO_S_4 = 129;
+        SPR_PRO_S_5 = 130;
+        SPR_PRO_S_6 = 131;
+        SPR_PRO_S_7 = 132;
+        SPR_PRO_S_8 = 133;
+
+        SPR_PRO_W1_1 = 134;
+        SPR_PRO_W1_2 = 135;
+        SPR_PRO_W1_3 = 136;
+        SPR_PRO_W1_4 = 137;
+        SPR_PRO_W1_5 = 138;
+        SPR_PRO_W1_6 = 139;
+        SPR_PRO_W1_7 = 140;
+        SPR_PRO_W1_8 = 141;
+
+        SPR_PRO_W2_1 = 142;
+        SPR_PRO_W2_2 = 143;
+        SPR_PRO_W2_3 = 144;
+        SPR_PRO_W2_4 = 145;
+        SPR_PRO_W2_5 = 146;
+        SPR_PRO_W2_6 = 147;
+        SPR_PRO_W2_7 = 148;
+        SPR_PRO_W2_8 = 149;
+
+        SPR_PRO_W3_1 = 150;
+        SPR_PRO_W3_2 = 151;
+        SPR_PRO_W3_3 = 152;
+        SPR_PRO_W3_4 = 153;
+        SPR_PRO_W3_5 = 154;
+        SPR_PRO_W3_6 = 155;
+        SPR_PRO_W3_7 = 156;
+        SPR_PRO_W3_8 = 157;
+
+        SPR_PRO_W4_1 = 158;
+        SPR_PRO_W4_2 = 159;
+        SPR_PRO_W4_3 = 160;
+        SPR_PRO_W4_4 = 161;
+        SPR_PRO_W4_5 = 162;
+        SPR_PRO_W4_6 = 163;
+        SPR_PRO_W4_7 = 164;
+        SPR_PRO_W4_8 = 165;
+
+        SPR_PRO_PAIN_1 = 166;
+        SPR_PRO_DIE_1 = 167;
+        SPR_PRO_DIE_2 = 168;
+        SPR_PRO_DIE_3 = 169;
+        SPR_PRO_PAIN_2 = 170;
+        SPR_PRO_DIE_4 = 171;
+        SPR_PRO_DEAD = 172;
+
+        SPR_PRO_SHOOT1 = 173;
+        SPR_PRO_SHOOT2 = 174;
+        SPR_PRO_SHOOT3 = 175;
+    } else if (::is_ps()) {
+        SPR_PRO_S_1 = 166;
+        SPR_PRO_S_2 = 167;
+        SPR_PRO_S_3 = 168;
+        SPR_PRO_S_4 = 169;
+        SPR_PRO_S_5 = 170;
+        SPR_PRO_S_6 = 171;
+        SPR_PRO_S_7 = 172;
+        SPR_PRO_S_8 = 173;
+
+        SPR_PRO_W1_1 = 174;
+        SPR_PRO_W1_2 = 175;
+        SPR_PRO_W1_3 = 176;
+        SPR_PRO_W1_4 = 177;
+        SPR_PRO_W1_5 = 178;
+        SPR_PRO_W1_6 = 179;
+        SPR_PRO_W1_7 = 180;
+        SPR_PRO_W1_8 = 181;
+
+        SPR_PRO_W2_1 = 182;
+        SPR_PRO_W2_2 = 183;
+        SPR_PRO_W2_3 = 184;
+        SPR_PRO_W2_4 = 185;
+        SPR_PRO_W2_5 = 186;
+        SPR_PRO_W2_6 = 187;
+        SPR_PRO_W2_7 = 188;
+        SPR_PRO_W2_8 = 189;
+
+        SPR_PRO_W3_1 = 190;
+        SPR_PRO_W3_2 = 191;
+        SPR_PRO_W3_3 = 192;
+        SPR_PRO_W3_4 = 193;
+        SPR_PRO_W3_5 = 194;
+        SPR_PRO_W3_6 = 195;
+        SPR_PRO_W3_7 = 196;
+        SPR_PRO_W3_8 = 197;
+
+        SPR_PRO_W4_1 = 198;
+        SPR_PRO_W4_2 = 199;
+        SPR_PRO_W4_3 = 200;
+        SPR_PRO_W4_4 = 201;
+        SPR_PRO_W4_5 = 202;
+        SPR_PRO_W4_6 = 203;
+        SPR_PRO_W4_7 = 204;
+        SPR_PRO_W4_8 = 205;
+
+        SPR_PRO_PAIN_1 = 206;
+        SPR_PRO_DIE_1 = 207;
+        SPR_PRO_DIE_2 = 208;
+        SPR_PRO_DIE_3 = 209;
+        SPR_PRO_PAIN_2 = 210;
+        SPR_PRO_DIE_4 = 211;
+        SPR_PRO_DEAD = 212;
+
+        SPR_PRO_SHOOT1 = 213;
+        SPR_PRO_SHOOT2 = 214;
+        SPR_PRO_SHOOT3 = 215;
+    }
+
+    if (::is_aog()) {
+        SPR_SWAT_S_1 = 205;
+        SPR_SWAT_S_2 = 206;
+        SPR_SWAT_S_3 = 207;
+        SPR_SWAT_S_4 = 208;
+        SPR_SWAT_S_5 = 209;
+        SPR_SWAT_S_6 = 210;
+        SPR_SWAT_S_7 = 211;
+        SPR_SWAT_S_8 = 212;
+
+        SPR_SWAT_W1_1 = 213;
+        SPR_SWAT_W1_2 = 214;
+        SPR_SWAT_W1_3 = 215;
+        SPR_SWAT_W1_4 = 216;
+        SPR_SWAT_W1_5 = 217;
+        SPR_SWAT_W1_6 = 218;
+        SPR_SWAT_W1_7 = 219;
+        SPR_SWAT_W1_8 = 220;
+
+        SPR_SWAT_W2_1 = 221;
+        SPR_SWAT_W2_2 = 222;
+        SPR_SWAT_W2_3 = 223;
+        SPR_SWAT_W2_4 = 224;
+        SPR_SWAT_W2_5 = 225;
+        SPR_SWAT_W2_6 = 226;
+        SPR_SWAT_W2_7 = 227;
+        SPR_SWAT_W2_8 = 228;
+
+        SPR_SWAT_W3_1 = 229;
+        SPR_SWAT_W3_2 = 230;
+        SPR_SWAT_W3_3 = 231;
+        SPR_SWAT_W3_4 = 232;
+        SPR_SWAT_W3_5 = 233;
+        SPR_SWAT_W3_6 = 234;
+        SPR_SWAT_W3_7 = 235;
+        SPR_SWAT_W3_8 = 236;
+
+        SPR_SWAT_W4_1 = 237;
+        SPR_SWAT_W4_2 = 238;
+        SPR_SWAT_W4_3 = 239;
+        SPR_SWAT_W4_4 = 240;
+        SPR_SWAT_W4_5 = 241;
+        SPR_SWAT_W4_6 = 242;
+        SPR_SWAT_W4_7 = 243;
+        SPR_SWAT_W4_8 = 244;
+
+        SPR_SWAT_PAIN_1 = 245;
+        SPR_SWAT_DIE_1 = 246;
+        SPR_SWAT_DIE_2 = 247;
+        SPR_SWAT_DIE_3 = 248;
+        SPR_SWAT_PAIN_2 = 249;
+        SPR_SWAT_DIE_4 = 250;
+        SPR_SWAT_DEAD = 251;
+
+        SPR_SWAT_SHOOT1 = 252;
+        SPR_SWAT_SHOOT2 = 253;
+        SPR_SWAT_SHOOT3 = 254;
+
+        SPR_SWAT_WOUNDED1 = 255;
+        SPR_SWAT_WOUNDED2 = 256;
+        SPR_SWAT_WOUNDED3 = 257;
+        SPR_SWAT_WOUNDED4 = 258;
+    } else if (::is_aog_sw()) {
+        SPR_SWAT_S_1 = 176;
+        SPR_SWAT_S_2 = 177;
+        SPR_SWAT_S_3 = 178;
+        SPR_SWAT_S_4 = 179;
+        SPR_SWAT_S_5 = 180;
+        SPR_SWAT_S_6 = 181;
+        SPR_SWAT_S_7 = 182;
+        SPR_SWAT_S_8 = 183;
+
+        SPR_SWAT_W1_1 = 184;
+        SPR_SWAT_W1_2 = 185;
+        SPR_SWAT_W1_3 = 186;
+        SPR_SWAT_W1_4 = 187;
+        SPR_SWAT_W1_5 = 188;
+        SPR_SWAT_W1_6 = 189;
+        SPR_SWAT_W1_7 = 190;
+        SPR_SWAT_W1_8 = 191;
+
+        SPR_SWAT_W2_1 = 192;
+        SPR_SWAT_W2_2 = 193;
+        SPR_SWAT_W2_3 = 194;
+        SPR_SWAT_W2_4 = 195;
+        SPR_SWAT_W2_5 = 196;
+        SPR_SWAT_W2_6 = 197;
+        SPR_SWAT_W2_7 = 198;
+        SPR_SWAT_W2_8 = 199;
+
+        SPR_SWAT_W3_1 = 200;
+        SPR_SWAT_W3_2 = 201;
+        SPR_SWAT_W3_3 = 202;
+        SPR_SWAT_W3_4 = 203;
+        SPR_SWAT_W3_5 = 204;
+        SPR_SWAT_W3_6 = 205;
+        SPR_SWAT_W3_7 = 206;
+        SPR_SWAT_W3_8 = 207;
+
+        SPR_SWAT_W4_1 = 208;
+        SPR_SWAT_W4_2 = 209;
+        SPR_SWAT_W4_3 = 210;
+        SPR_SWAT_W4_4 = 211;
+        SPR_SWAT_W4_5 = 212;
+        SPR_SWAT_W4_6 = 213;
+        SPR_SWAT_W4_7 = 214;
+        SPR_SWAT_W4_8 = 215;
+
+        SPR_SWAT_PAIN_1 = 216;
+        SPR_SWAT_DIE_1 = 217;
+        SPR_SWAT_DIE_2 = 218;
+        SPR_SWAT_DIE_3 = 219;
+        SPR_SWAT_PAIN_2 = 220;
+        SPR_SWAT_DIE_4 = 221;
+        SPR_SWAT_DEAD = 222;
+
+        SPR_SWAT_SHOOT1 = 223;
+        SPR_SWAT_SHOOT2 = 224;
+        SPR_SWAT_SHOOT3 = 225;
+
+        SPR_SWAT_WOUNDED1 = 226;
+        SPR_SWAT_WOUNDED2 = 227;
+        SPR_SWAT_WOUNDED3 = 228;
+        SPR_SWAT_WOUNDED4 = 229;
+    } else if (::is_ps()) {
+        SPR_SWAT_S_1 = 216;
+        SPR_SWAT_S_2 = 217;
+        SPR_SWAT_S_3 = 218;
+        SPR_SWAT_S_4 = 219;
+        SPR_SWAT_S_5 = 220;
+        SPR_SWAT_S_6 = 221;
+        SPR_SWAT_S_7 = 222;
+        SPR_SWAT_S_8 = 223;
+
+        SPR_SWAT_W1_1 = 224;
+        SPR_SWAT_W1_2 = 225;
+        SPR_SWAT_W1_3 = 226;
+        SPR_SWAT_W1_4 = 227;
+        SPR_SWAT_W1_5 = 228;
+        SPR_SWAT_W1_6 = 229;
+        SPR_SWAT_W1_7 = 230;
+        SPR_SWAT_W1_8 = 231;
+
+        SPR_SWAT_W2_1 = 232;
+        SPR_SWAT_W2_2 = 233;
+        SPR_SWAT_W2_3 = 234;
+        SPR_SWAT_W2_4 = 235;
+        SPR_SWAT_W2_5 = 236;
+        SPR_SWAT_W2_6 = 237;
+        SPR_SWAT_W2_7 = 238;
+        SPR_SWAT_W2_8 = 239;
+
+        SPR_SWAT_W3_1 = 240;
+        SPR_SWAT_W3_2 = 241;
+        SPR_SWAT_W3_3 = 242;
+        SPR_SWAT_W3_4 = 243;
+        SPR_SWAT_W3_5 = 244;
+        SPR_SWAT_W3_6 = 245;
+        SPR_SWAT_W3_7 = 246;
+        SPR_SWAT_W3_8 = 247;
+
+        SPR_SWAT_W4_1 = 248;
+        SPR_SWAT_W4_2 = 249;
+        SPR_SWAT_W4_3 = 250;
+        SPR_SWAT_W4_4 = 251;
+        SPR_SWAT_W4_5 = 252;
+        SPR_SWAT_W4_6 = 253;
+        SPR_SWAT_W4_7 = 254;
+        SPR_SWAT_W4_8 = 255;
+
+        SPR_SWAT_PAIN_1 = 256;
+        SPR_SWAT_DIE_1 = 257;
+        SPR_SWAT_DIE_2 = 258;
+        SPR_SWAT_DIE_3 = 259;
+        SPR_SWAT_PAIN_2 = 260;
+        SPR_SWAT_DIE_4 = 261;
+        SPR_SWAT_DEAD = 262;
+
+        SPR_SWAT_SHOOT1 = 263;
+        SPR_SWAT_SHOOT2 = 264;
+        SPR_SWAT_SHOOT3 = 265;
+
+        SPR_SWAT_WOUNDED1 = 266;
+        SPR_SWAT_WOUNDED2 = 267;
+        SPR_SWAT_WOUNDED3 = 268;
+        SPR_SWAT_WOUNDED4 = 269;
+    }
+
+    if (::is_aog()) {
+        SPR_OFC_S_1 = 259;
+        SPR_OFC_S_2 = 260;
+        SPR_OFC_S_3 = 261;
+        SPR_OFC_S_4 = 262;
+        SPR_OFC_S_5 = 263;
+        SPR_OFC_S_6 = 264;
+        SPR_OFC_S_7 = 265;
+        SPR_OFC_S_8 = 266;
+
+        SPR_OFC_W1_1 = 267;
+        SPR_OFC_W1_2 = 268;
+        SPR_OFC_W1_3 = 269;
+        SPR_OFC_W1_4 = 270;
+        SPR_OFC_W1_5 = 271;
+        SPR_OFC_W1_6 = 272;
+        SPR_OFC_W1_7 = 273;
+        SPR_OFC_W1_8 = 274;
+
+        SPR_OFC_W2_1 = 275;
+        SPR_OFC_W2_2 = 276;
+        SPR_OFC_W2_3 = 277;
+        SPR_OFC_W2_4 = 278;
+        SPR_OFC_W2_5 = 279;
+        SPR_OFC_W2_6 = 280;
+        SPR_OFC_W2_7 = 281;
+        SPR_OFC_W2_8 = 282;
+
+        SPR_OFC_W3_1 = 283;
+        SPR_OFC_W3_2 = 284;
+        SPR_OFC_W3_3 = 285;
+        SPR_OFC_W3_4 = 286;
+        SPR_OFC_W3_5 = 287;
+        SPR_OFC_W3_6 = 288;
+        SPR_OFC_W3_7 = 289;
+        SPR_OFC_W3_8 = 290;
+
+        SPR_OFC_W4_1 = 291;
+        SPR_OFC_W4_2 = 292;
+        SPR_OFC_W4_3 = 293;
+        SPR_OFC_W4_4 = 294;
+        SPR_OFC_W4_5 = 295;
+        SPR_OFC_W4_6 = 296;
+        SPR_OFC_W4_7 = 297;
+        SPR_OFC_W4_8 = 298;
+
+        SPR_OFC_PAIN_1 = 299;
+        SPR_OFC_DIE_1 = 300;
+        SPR_OFC_DIE_2 = 301;
+        SPR_OFC_DIE_3 = 302;
+        SPR_OFC_PAIN_2 = 303;
+        SPR_OFC_DIE_4 = 304;
+        SPR_OFC_DEAD = 305;
+
+        SPR_OFC_SHOOT1 = 306;
+        SPR_OFC_SHOOT2 = 307;
+        SPR_OFC_SHOOT3 = 308;
+    } else if (::is_aog_sw()) {
+        SPR_OFC_S_1 = 230;
+        SPR_OFC_S_2 = 231;
+        SPR_OFC_S_3 = 232;
+        SPR_OFC_S_4 = 233;
+        SPR_OFC_S_5 = 234;
+        SPR_OFC_S_6 = 235;
+        SPR_OFC_S_7 = 236;
+        SPR_OFC_S_8 = 237;
+
+        SPR_OFC_W1_1 = 238;
+        SPR_OFC_W1_2 = 239;
+        SPR_OFC_W1_3 = 240;
+        SPR_OFC_W1_4 = 241;
+        SPR_OFC_W1_5 = 242;
+        SPR_OFC_W1_6 = 243;
+        SPR_OFC_W1_7 = 244;
+        SPR_OFC_W1_8 = 245;
+
+        SPR_OFC_W2_1 = 246;
+        SPR_OFC_W2_2 = 247;
+        SPR_OFC_W2_3 = 248;
+        SPR_OFC_W2_4 = 249;
+        SPR_OFC_W2_5 = 250;
+        SPR_OFC_W2_6 = 251;
+        SPR_OFC_W2_7 = 252;
+        SPR_OFC_W2_8 = 253;
+
+        SPR_OFC_W3_1 = 254;
+        SPR_OFC_W3_2 = 255;
+        SPR_OFC_W3_3 = 256;
+        SPR_OFC_W3_4 = 257;
+        SPR_OFC_W3_5 = 258;
+        SPR_OFC_W3_6 = 259;
+        SPR_OFC_W3_7 = 260;
+        SPR_OFC_W3_8 = 261;
+
+        SPR_OFC_W4_1 = 262;
+        SPR_OFC_W4_2 = 263;
+        SPR_OFC_W4_3 = 264;
+        SPR_OFC_W4_4 = 265;
+        SPR_OFC_W4_5 = 266;
+        SPR_OFC_W4_6 = 267;
+        SPR_OFC_W4_7 = 268;
+        SPR_OFC_W4_8 = 269;
+
+        SPR_OFC_PAIN_1 = 270;
+        SPR_OFC_DIE_1 = 271;
+        SPR_OFC_DIE_2 = 272;
+        SPR_OFC_DIE_3 = 273;
+        SPR_OFC_PAIN_2 = 274;
+        SPR_OFC_DIE_4 = 275;
+        SPR_OFC_DEAD = 276;
+
+        SPR_OFC_SHOOT1 = 277;
+        SPR_OFC_SHOOT2 = 278;
+        SPR_OFC_SHOOT3 = 279;
+    } else if (::is_ps()) {
+        SPR_OFC_S_1 = 270;
+        SPR_OFC_S_2 = 271;
+        SPR_OFC_S_3 = 272;
+        SPR_OFC_S_4 = 273;
+        SPR_OFC_S_5 = 274;
+        SPR_OFC_S_6 = 275;
+        SPR_OFC_S_7 = 276;
+        SPR_OFC_S_8 = 277;
+
+        SPR_OFC_W1_1 = 278;
+        SPR_OFC_W1_2 = 279;
+        SPR_OFC_W1_3 = 280;
+        SPR_OFC_W1_4 = 281;
+        SPR_OFC_W1_5 = 282;
+        SPR_OFC_W1_6 = 283;
+        SPR_OFC_W1_7 = 284;
+        SPR_OFC_W1_8 = 285;
+
+        SPR_OFC_W2_1 = 286;
+        SPR_OFC_W2_2 = 287;
+        SPR_OFC_W2_3 = 288;
+        SPR_OFC_W2_4 = 289;
+        SPR_OFC_W2_5 = 290;
+        SPR_OFC_W2_6 = 291;
+        SPR_OFC_W2_7 = 292;
+        SPR_OFC_W2_8 = 293;
+
+        SPR_OFC_W3_1 = 294;
+        SPR_OFC_W3_2 = 295;
+        SPR_OFC_W3_3 = 296;
+        SPR_OFC_W3_4 = 297;
+        SPR_OFC_W3_5 = 298;
+        SPR_OFC_W3_6 = 299;
+        SPR_OFC_W3_7 = 300;
+        SPR_OFC_W3_8 = 301;
+
+        SPR_OFC_W4_1 = 302;
+        SPR_OFC_W4_2 = 303;
+        SPR_OFC_W4_3 = 304;
+        SPR_OFC_W4_4 = 305;
+        SPR_OFC_W4_5 = 306;
+        SPR_OFC_W4_6 = 307;
+        SPR_OFC_W4_7 = 308;
+        SPR_OFC_W4_8 = 309;
+
+        SPR_OFC_PAIN_1 = 310;
+        SPR_OFC_DIE_1 = 311;
+        SPR_OFC_DIE_2 = 312;
+        SPR_OFC_DIE_3 = 313;
+        SPR_OFC_PAIN_2 = 314;
+        SPR_OFC_DIE_4 = 315;
+        SPR_OFC_DEAD = 316;
+
+        SPR_OFC_SHOOT1 = 317;
+        SPR_OFC_SHOOT2 = 318;
+        SPR_OFC_SHOOT3 = 319;
+    }
+
+    if (::is_aog()) {
+        SPR_GOLD_S_1 = 309;
+        SPR_GOLD_S_2 = 310;
+        SPR_GOLD_S_3 = 311;
+        SPR_GOLD_S_4 = 312;
+        SPR_GOLD_S_5 = 313;
+        SPR_GOLD_S_6 = 314;
+        SPR_GOLD_S_7 = 315;
+        SPR_GOLD_S_8 = 316;
+
+        SPR_GOLD_W1_1 = 317;
+        SPR_GOLD_W1_2 = 318;
+        SPR_GOLD_W1_3 = 319;
+        SPR_GOLD_W1_4 = 320;
+        SPR_GOLD_W1_5 = 321;
+        SPR_GOLD_W1_6 = 322;
+        SPR_GOLD_W1_7 = 323;
+        SPR_GOLD_W1_8 = 324;
+
+        SPR_GOLD_W2_1 = 325;
+        SPR_GOLD_W2_2 = 326;
+        SPR_GOLD_W2_3 = 327;
+        SPR_GOLD_W2_4 = 328;
+        SPR_GOLD_W2_5 = 329;
+        SPR_GOLD_W2_6 = 330;
+        SPR_GOLD_W2_7 = 331;
+        SPR_GOLD_W2_8 = 332;
+
+        SPR_GOLD_W3_1 = 333;
+        SPR_GOLD_W3_2 = 334;
+        SPR_GOLD_W3_3 = 335;
+        SPR_GOLD_W3_4 = 336;
+        SPR_GOLD_W3_5 = 337;
+        SPR_GOLD_W3_6 = 338;
+        SPR_GOLD_W3_7 = 339;
+        SPR_GOLD_W3_8 = 340;
+
+        SPR_GOLD_W4_1 = 341;
+        SPR_GOLD_W4_2 = 342;
+        SPR_GOLD_W4_3 = 343;
+        SPR_GOLD_W4_4 = 344;
+        SPR_GOLD_W4_5 = 345;
+        SPR_GOLD_W4_6 = 346;
+        SPR_GOLD_W4_7 = 347;
+        SPR_GOLD_W4_8 = 348;
+
+        SPR_GOLD_PAIN_1 = 349;
+
+        SPR_GOLD_WRIST_1 = 350;
+        SPR_GOLD_WRIST_2 = 351;
+
+        SPR_GOLD_SHOOT1 = 352;
+        SPR_GOLD_SHOOT2 = 353;
+        SPR_GOLD_SHOOT3 = 354;
+
+        SPR_GOLD_WARP1 = 355;
+        SPR_GOLD_WARP2 = 356;
+        SPR_GOLD_WARP3 = 357;
+        SPR_GOLD_WARP4 = 358;
+        SPR_GOLD_WARP5 = 359;
+    } else if (::is_aog_sw()) {
+        SPR_GOLD_S_1 = 280;
+        SPR_GOLD_S_2 = 281;
+        SPR_GOLD_S_3 = 282;
+        SPR_GOLD_S_4 = 283;
+        SPR_GOLD_S_5 = 284;
+        SPR_GOLD_S_6 = 285;
+        SPR_GOLD_S_7 = 286;
+        SPR_GOLD_S_8 = 287;
+
+        SPR_GOLD_W1_1 = 288;
+        SPR_GOLD_W1_2 = 289;
+        SPR_GOLD_W1_3 = 290;
+        SPR_GOLD_W1_4 = 291;
+        SPR_GOLD_W1_5 = 292;
+        SPR_GOLD_W1_6 = 293;
+        SPR_GOLD_W1_7 = 294;
+        SPR_GOLD_W1_8 = 295;
+
+        SPR_GOLD_W2_1 = 296;
+        SPR_GOLD_W2_2 = 297;
+        SPR_GOLD_W2_3 = 298;
+        SPR_GOLD_W2_4 = 299;
+        SPR_GOLD_W2_5 = 300;
+        SPR_GOLD_W2_6 = 301;
+        SPR_GOLD_W2_7 = 302;
+        SPR_GOLD_W2_8 = 303;
+
+        SPR_GOLD_W3_1 = 304;
+        SPR_GOLD_W3_2 = 305;
+        SPR_GOLD_W3_3 = 306;
+        SPR_GOLD_W3_4 = 307;
+        SPR_GOLD_W3_5 = 308;
+        SPR_GOLD_W3_6 = 309;
+        SPR_GOLD_W3_7 = 310;
+        SPR_GOLD_W3_8 = 311;
+
+        SPR_GOLD_W4_1 = 312;
+        SPR_GOLD_W4_2 = 313;
+        SPR_GOLD_W4_3 = 314;
+        SPR_GOLD_W4_4 = 315;
+        SPR_GOLD_W4_5 = 316;
+        SPR_GOLD_W4_6 = 317;
+        SPR_GOLD_W4_7 = 318;
+        SPR_GOLD_W4_8 = 319;
+
+        SPR_GOLD_PAIN_1 = 320;
+
+        SPR_GOLD_WRIST_1 = 321;
+        SPR_GOLD_WRIST_2 = 322;
+
+        SPR_GOLD_SHOOT1 = 323;
+        SPR_GOLD_SHOOT2 = 324;
+        SPR_GOLD_SHOOT3 = 325;
+
+        SPR_GOLD_WARP1 = 326;
+        SPR_GOLD_WARP2 = 327;
+        SPR_GOLD_WARP3 = 328;
+        SPR_GOLD_WARP4 = 329;
+        SPR_GOLD_WARP5 = 330;
+    } else if (::is_ps()) {
+        SPR_GOLD_S_1 = 320;
+        SPR_GOLD_S_2 = 321;
+        SPR_GOLD_S_3 = 322;
+        SPR_GOLD_S_4 = 323;
+        SPR_GOLD_S_5 = 324;
+        SPR_GOLD_S_6 = 325;
+        SPR_GOLD_S_7 = 326;
+        SPR_GOLD_S_8 = 327;
+
+        SPR_GOLD_W1_1 = 328;
+        SPR_GOLD_W1_2 = 329;
+        SPR_GOLD_W1_3 = 330;
+        SPR_GOLD_W1_4 = 331;
+        SPR_GOLD_W1_5 = 332;
+        SPR_GOLD_W1_6 = 333;
+        SPR_GOLD_W1_7 = 334;
+        SPR_GOLD_W1_8 = 335;
+
+        SPR_GOLD_W2_1 = 336;
+        SPR_GOLD_W2_2 = 337;
+        SPR_GOLD_W2_3 = 338;
+        SPR_GOLD_W2_4 = 339;
+        SPR_GOLD_W2_5 = 340;
+        SPR_GOLD_W2_6 = 341;
+        SPR_GOLD_W2_7 = 342;
+        SPR_GOLD_W2_8 = 343;
+
+        SPR_GOLD_W3_1 = 344;
+        SPR_GOLD_W3_2 = 345;
+        SPR_GOLD_W3_3 = 346;
+        SPR_GOLD_W3_4 = 347;
+        SPR_GOLD_W3_5 = 348;
+        SPR_GOLD_W3_6 = 349;
+        SPR_GOLD_W3_7 = 350;
+        SPR_GOLD_W3_8 = 351;
+
+        SPR_GOLD_W4_1 = 352;
+        SPR_GOLD_W4_2 = 353;
+        SPR_GOLD_W4_3 = 354;
+        SPR_GOLD_W4_4 = 355;
+        SPR_GOLD_W4_5 = 356;
+        SPR_GOLD_W4_6 = 357;
+        SPR_GOLD_W4_7 = 358;
+        SPR_GOLD_W4_8 = 359;
+
+        SPR_GOLD_PAIN_1 = 360;
+
+        SPR_GOLD_WRIST_1 = 361;
+        SPR_GOLD_WRIST_2 = 362;
+
+        SPR_GOLD_SHOOT1 = 363;
+        SPR_GOLD_SHOOT2 = 364;
+        SPR_GOLD_SHOOT3 = 365;
+
+        SPR_GOLD_WARP1 = 366;
+        SPR_GOLD_WARP2 = 367;
+        SPR_GOLD_WARP3 = 368;
+        SPR_GOLD_WARP4 = 369;
+        SPR_GOLD_WARP5 = 370;
+    }
+
+    if (::is_ps()) {
+        SPR_GOLD_DEATH1 = 371;
+        SPR_GOLD_DEATH2 = 372;
+        SPR_GOLD_DEATH3 = 373;
+        SPR_GOLD_DEATH4 = 374;
+        SPR_GOLD_DEATH5 = 375;
+        SPR_MGOLD_OUCH = 376;
+
+        SPR_GOLD_MORPH1 = 377;
+        SPR_GOLD_MORPH2 = 378;
+        SPR_GOLD_MORPH3 = 379;
+        SPR_GOLD_MORPH4 = 380;
+        SPR_GOLD_MORPH5 = 381;
+        SPR_GOLD_MORPH6 = 382;
+        SPR_GOLD_MORPH7 = 383;
+        SPR_GOLD_MORPH8 = 384;
+
+        SPR_MGOLD_WALK1 = 385;
+        SPR_MGOLD_WALK2 = 386;
+        SPR_MGOLD_WALK3 = 387;
+        SPR_MGOLD_WALK4 = 388;
+        SPR_MGOLD_ATTACK1 = 389;
+        SPR_MGOLD_ATTACK2 = 390;
+        SPR_MGOLD_ATTACK3 = 391;
+        SPR_MGOLD_ATTACK4 = 392;
+
+        SPR_MGOLD_SHOT1 = 393;
+        SPR_MGOLD_SHOT2 = 394;
+        SPR_MGOLD_SHOT3 = 395;
+        SPR_MGOLD_SHOT_EXP1 = 396;
+        SPR_MGOLD_SHOT_EXP2 = 397;
+        SPR_MGOLD_SHOT_EXP3 = 398;
+    }
+
+    if (::is_aog()) {
+        SPR_GSCOUT_W1_1 = 360;
+        SPR_GSCOUT_W1_2 = 361;
+        SPR_GSCOUT_W1_3 = 362;
+        SPR_GSCOUT_W1_4 = 363;
+        SPR_GSCOUT_W1_5 = 364;
+        SPR_GSCOUT_W1_6 = 365;
+        SPR_GSCOUT_W1_7 = 366;
+        SPR_GSCOUT_W1_8 = 367;
+
+        SPR_GSCOUT_W2_1 = 368;
+        SPR_GSCOUT_W2_2 = 369;
+        SPR_GSCOUT_W2_3 = 370;
+        SPR_GSCOUT_W2_4 = 371;
+        SPR_GSCOUT_W2_5 = 372;
+        SPR_GSCOUT_W2_6 = 373;
+        SPR_GSCOUT_W2_7 = 374;
+        SPR_GSCOUT_W2_8 = 375;
+
+        SPR_GSCOUT_W3_1 = 376;
+        SPR_GSCOUT_W3_2 = 377;
+        SPR_GSCOUT_W3_3 = 378;
+        SPR_GSCOUT_W3_4 = 379;
+        SPR_GSCOUT_W3_5 = 380;
+        SPR_GSCOUT_W3_6 = 381;
+        SPR_GSCOUT_W3_7 = 382;
+        SPR_GSCOUT_W3_8 = 383;
+
+        SPR_GSCOUT_W4_1 = 384;
+        SPR_GSCOUT_W4_2 = 385;
+        SPR_GSCOUT_W4_3 = 386;
+        SPR_GSCOUT_W4_4 = 387;
+        SPR_GSCOUT_W4_5 = 388;
+        SPR_GSCOUT_W4_6 = 389;
+        SPR_GSCOUT_W4_7 = 390;
+        SPR_GSCOUT_W4_8 = 391;
+
+        SPR_GSCOUT_DIE1 = 392;
+        SPR_GSCOUT_DIE2 = 393;
+        SPR_GSCOUT_DIE3 = 394;
+        SPR_GSCOUT_DIE4 = 395;
+        SPR_GSCOUT_DIE5 = 396;
+        SPR_GSCOUT_DIE6 = 397;
+        SPR_GSCOUT_DIE7 = 398;
+        SPR_GSCOUT_DIE8 = 399;
+
+        SPR_GSCOUT_DEAD = 400;
+    } else if (::is_ps()) {
+        SPR_GSCOUT_W1_1 = 399;
+        SPR_GSCOUT_W1_2 = 400;
+        SPR_GSCOUT_W1_3 = 401;
+        SPR_GSCOUT_W1_4 = 402;
+        SPR_GSCOUT_W1_5 = 403;
+        SPR_GSCOUT_W1_6 = 404;
+        SPR_GSCOUT_W1_7 = 405;
+        SPR_GSCOUT_W1_8 = 406;
+
+        SPR_GSCOUT_W2_1 = 407;
+        SPR_GSCOUT_W2_2 = 408;
+        SPR_GSCOUT_W2_3 = 409;
+        SPR_GSCOUT_W2_4 = 410;
+        SPR_GSCOUT_W2_5 = 411;
+        SPR_GSCOUT_W2_6 = 412;
+        SPR_GSCOUT_W2_7 = 413;
+        SPR_GSCOUT_W2_8 = 414;
+
+        SPR_GSCOUT_W3_1 = 415;
+        SPR_GSCOUT_W3_2 = 416;
+        SPR_GSCOUT_W3_3 = 417;
+        SPR_GSCOUT_W3_4 = 418;
+        SPR_GSCOUT_W3_5 = 419;
+        SPR_GSCOUT_W3_6 = 420;
+        SPR_GSCOUT_W3_7 = 421;
+        SPR_GSCOUT_W3_8 = 422;
+
+        SPR_GSCOUT_W4_1 = 423;
+        SPR_GSCOUT_W4_2 = 424;
+        SPR_GSCOUT_W4_3 = 425;
+        SPR_GSCOUT_W4_4 = 426;
+        SPR_GSCOUT_W4_5 = 427;
+        SPR_GSCOUT_W4_6 = 428;
+        SPR_GSCOUT_W4_7 = 429;
+        SPR_GSCOUT_W4_8 = 430;
+
+        SPR_GSCOUT_DIE1 = 431;
+        SPR_GSCOUT_DIE2 = 432;
+        SPR_GSCOUT_DIE3 = 433;
+        SPR_GSCOUT_DIE4 = 434;
+        SPR_GSCOUT_DIE5 = 435;
+        SPR_GSCOUT_DIE6 = 436;
+        SPR_GSCOUT_DIE7 = 437;
+        SPR_GSCOUT_DIE8 = 438;
+
+        SPR_GSCOUT_DEAD = 439;
+    }
+
+    if (::is_aog()) {
+        SPR_FSCOUT_W1_1 = 401;
+        SPR_FSCOUT_W1_2 = 402;
+        SPR_FSCOUT_W1_3 = 403;
+        SPR_FSCOUT_W1_4 = 404;
+        SPR_FSCOUT_W1_5 = 405;
+        SPR_FSCOUT_W1_6 = 406;
+        SPR_FSCOUT_W1_7 = 407;
+        SPR_FSCOUT_W1_8 = 408;
+
+        SPR_FSCOUT_W2_1 = 409;
+        SPR_FSCOUT_W2_2 = 410;
+        SPR_FSCOUT_W2_3 = 411;
+        SPR_FSCOUT_W2_4 = 412;
+        SPR_FSCOUT_W2_5 = 413;
+        SPR_FSCOUT_W2_6 = 414;
+        SPR_FSCOUT_W2_7 = 415;
+        SPR_FSCOUT_W2_8 = 416;
+
+        SPR_FSCOUT_W3_1 = 417;
+        SPR_FSCOUT_W3_2 = 418;
+        SPR_FSCOUT_W3_3 = 419;
+        SPR_FSCOUT_W3_4 = 420;
+        SPR_FSCOUT_W3_5 = 421;
+        SPR_FSCOUT_W3_6 = 422;
+        SPR_FSCOUT_W3_7 = 423;
+        SPR_FSCOUT_W3_8 = 424;
+
+        SPR_FSCOUT_W4_1 = 425;
+        SPR_FSCOUT_W4_2 = 426;
+        SPR_FSCOUT_W4_3 = 427;
+        SPR_FSCOUT_W4_4 = 428;
+        SPR_FSCOUT_W4_5 = 429;
+        SPR_FSCOUT_W4_6 = 430;
+        SPR_FSCOUT_W4_7 = 431;
+        SPR_FSCOUT_W4_8 = 432;
+
+        SPR_FSCOUT_DIE1 = 433;
+        SPR_FSCOUT_DIE2 = 434;
+        SPR_FSCOUT_DIE3 = 435;
+        SPR_FSCOUT_DIE4 = 436;
+        SPR_FSCOUT_DIE5 = 437;
+        SPR_FSCOUT_DIE6 = 438;
+        SPR_FSCOUT_DIE7 = 439;
+        SPR_FSCOUT_DEAD = 440;
+    } else if (::is_aog_sw()) {
+        SPR_FSCOUT_W1_1 = 331;
+        SPR_FSCOUT_W1_2 = 332;
+        SPR_FSCOUT_W1_3 = 333;
+        SPR_FSCOUT_W1_4 = 334;
+        SPR_FSCOUT_W1_5 = 335;
+        SPR_FSCOUT_W1_6 = 336;
+        SPR_FSCOUT_W1_7 = 337;
+        SPR_FSCOUT_W1_8 = 338;
+
+        SPR_FSCOUT_DIE1 = 339;
+        SPR_FSCOUT_DIE2 = 340;
+        SPR_FSCOUT_DIE3 = 341;
+        SPR_FSCOUT_DIE4 = 342;
+        SPR_FSCOUT_DIE5 = 343;
+        SPR_FSCOUT_DIE6 = 344;
+        SPR_FSCOUT_DIE7 = 345;
+        SPR_FSCOUT_DEAD = 346;
+    } else if (::is_ps()) {
+        SPR_FSCOUT_W1_1 = 440;
+        SPR_FSCOUT_W1_2 = 441;
+        SPR_FSCOUT_W1_3 = 442;
+        SPR_FSCOUT_W1_4 = 443;
+        SPR_FSCOUT_W1_5 = 444;
+        SPR_FSCOUT_W1_6 = 445;
+        SPR_FSCOUT_W1_7 = 446;
+        SPR_FSCOUT_W1_8 = 447;
+
+        SPR_FSCOUT_W2_1 = 448;
+        SPR_FSCOUT_W2_2 = 449;
+        SPR_FSCOUT_W2_3 = 450;
+        SPR_FSCOUT_W2_4 = 451;
+        SPR_FSCOUT_W2_5 = 452;
+        SPR_FSCOUT_W2_6 = 453;
+        SPR_FSCOUT_W2_7 = 454;
+        SPR_FSCOUT_W2_8 = 455;
+
+        SPR_FSCOUT_W3_1 = 456;
+        SPR_FSCOUT_W3_2 = 457;
+        SPR_FSCOUT_W3_3 = 458;
+        SPR_FSCOUT_W3_4 = 459;
+        SPR_FSCOUT_W3_5 = 460;
+        SPR_FSCOUT_W3_6 = 461;
+        SPR_FSCOUT_W3_7 = 462;
+        SPR_FSCOUT_W3_8 = 463;
+
+        SPR_FSCOUT_W4_1 = 464;
+        SPR_FSCOUT_W4_2 = 465;
+        SPR_FSCOUT_W4_3 = 466;
+        SPR_FSCOUT_W4_4 = 467;
+        SPR_FSCOUT_W4_5 = 468;
+        SPR_FSCOUT_W4_6 = 469;
+        SPR_FSCOUT_W4_7 = 470;
+        SPR_FSCOUT_W4_8 = 471;
+
+        SPR_FSCOUT_DIE1 = 472;
+        SPR_FSCOUT_DIE2 = 473;
+        SPR_FSCOUT_DIE3 = 474;
+        SPR_FSCOUT_DIE4 = 475;
+        SPR_FSCOUT_DIE5 = 476;
+        SPR_FSCOUT_DIE6 = 477;
+        SPR_FSCOUT_DIE7 = 478;
+        SPR_FSCOUT_DEAD = 479;
+    }
+
+    if (::is_aog()) {
+        SPR_EXPLOSION_1 = 441;
+        SPR_EXPLOSION_2 = 442;
+        SPR_EXPLOSION_3 = 443;
+        SPR_EXPLOSION_4 = 444;
+        SPR_EXPLOSION_5 = 445;
+    } else if (::is_aog_sw()) {
+        SPR_EXPLOSION_1 = 347;
+        SPR_EXPLOSION_2 = 348;
+        SPR_EXPLOSION_3 = 349;
+        SPR_EXPLOSION_4 = 350;
+        SPR_EXPLOSION_5 = 351;
+    } else if (::is_ps()) {
+        SPR_EXPLOSION_1 = 480;
+        SPR_EXPLOSION_2 = 481;
+        SPR_EXPLOSION_3 = 482;
+        SPR_EXPLOSION_4 = 483;
+        SPR_EXPLOSION_5 = 484;
+    }
+
+    if (::is_aog()) {
+        SPR_VITAL_STAND = 446;
+        SPR_VITAL_DIE_1 = 447;
+        SPR_VITAL_DIE_2 = 448;
+        SPR_VITAL_DIE_3 = 449;
+        SPR_VITAL_DIE_4 = 450;
+        SPR_VITAL_DIE_5 = 451;
+        SPR_VITAL_DIE_6 = 452;
+        SPR_VITAL_DIE_7 = 453;
+        SPR_VITAL_DIE_8 = 454;
+        SPR_VITAL_DEAD_1 = 455;
+        SPR_VITAL_DEAD_2 = 456;
+        SPR_VITAL_DEAD_3 = 457;
+        SPR_VITAL_OUCH = 458;
+    }
+
+    if (::is_ps()) {
+        SPR_CUBE1 = 485;
+        SPR_CUBE2 = 486;
+        SPR_CUBE3 = 487;
+        SPR_CUBE4 = 488;
+        SPR_CUBE5 = 489;
+        SPR_CUBE6 = 490;
+        SPR_CUBE7 = 491;
+        SPR_CUBE8 = 492;
+        SPR_CUBE9 = 493;
+        SPR_CUBE10 = 494;
+        SPR_CUBE_EXP1 = 495;
+        SPR_CUBE_EXP2 = 496;
+        SPR_CUBE_EXP3 = 497;
+        SPR_CUBE_EXP4 = 498;
+        SPR_CUBE_EXP5 = 499;
+        SPR_CUBE_EXP6 = 500;
+        SPR_CUBE_EXP7 = 501;
+        SPR_CUBE_EXP8 = 502;
+        SPR_DEAD_CUBE = 503;
+    }
+
+    if (::is_aog()) {
+        SPR_SECURITY_NORMAL = 459;
+        SPR_SECURITY_ALERT = 460;
+    } else if (::is_aog_sw()) {
+        SPR_SECURITY_NORMAL = 352;
+        SPR_SECURITY_ALERT = 353;
+    } else if (::is_ps()) {
+        SPR_SECURITY_NORMAL = 504;
+        SPR_SECURITY_ALERT = 505;
+    }
+
+     if (::is_aog()) {
+        SPR_POD_EGG = 461;
+        SPR_POD_HATCH1 = 462;
+        SPR_POD_HATCH2 = 463;
+        SPR_POD_HATCH3 = 464;
+        SPR_POD_WALK1 = 465;
+        SPR_POD_WALK2 = 466;
+        SPR_POD_WALK3 = 467;
+        SPR_POD_WALK4 = 468;
+        SPR_POD_ATTACK1 = 469;
+        SPR_POD_ATTACK2 = 470;
+        SPR_POD_ATTACK3 = 471;
+        SPR_POD_OUCH = 472;
+        SPR_POD_DIE1 = 473;
+        SPR_POD_DIE2 = 474;
+        SPR_POD_DIE3 = 475;
+        SPR_POD_SPIT1 = 476;
+        SPR_POD_SPIT2 = 477;
+        SPR_POD_SPIT3 = 478;
+     } else if (::is_aog_sw()) {
+        SPR_POD_EGG = 354;
+        SPR_POD_HATCH1 = 355;
+        SPR_POD_HATCH2 = 356;
+        SPR_POD_HATCH3 = 357;
+        SPR_POD_WALK1 = 358;
+        SPR_POD_WALK2 = 359;
+        SPR_POD_WALK3 = 360;
+        SPR_POD_WALK4 = 361;
+        SPR_POD_ATTACK1 = 362;
+        SPR_POD_ATTACK2 = 363;
+        SPR_POD_ATTACK3 = 364;
+        SPR_POD_OUCH = 365;
+        SPR_POD_DIE1 = 366;
+        SPR_POD_DIE2 = 367;
+        SPR_POD_DIE3 = 368;
+        SPR_POD_SPIT1 = 369;
+        SPR_POD_SPIT2 = 370;
+        SPR_POD_SPIT3 = 371;
+     } else if (::is_ps()) {
+        SPR_POD_EGG = 506;
+        SPR_POD_HATCH1 = 507;
+        SPR_POD_HATCH2 = 508;
+        SPR_POD_HATCH3 = 509;
+        SPR_POD_WALK1 = 510;
+        SPR_POD_WALK2 = 511;
+        SPR_POD_WALK3 = 512;
+        SPR_POD_WALK4 = 513;
+        SPR_POD_ATTACK1 = 514;
+        SPR_POD_ATTACK2 = 515;
+        SPR_POD_ATTACK3 = 516;
+        SPR_POD_OUCH = 517;
+        SPR_POD_DIE1 = 518;
+        SPR_POD_DIE2 = 519;
+        SPR_POD_DIE3 = 520;
+        SPR_POD_SPIT1 = 521;
+        SPR_POD_SPIT2 = 522;
+        SPR_POD_SPIT3 = 523;
+     }
+
+    if (::is_aog()) {
+        SPR_ELEC_APPEAR1 = 479;
+        SPR_ELEC_APPEAR2 = 480;
+        SPR_ELEC_APPEAR3 = 481;
+        SPR_ELEC_WALK1 = 482;
+        SPR_ELEC_WALK2 = 483;
+        SPR_ELEC_WALK3 = 484;
+        SPR_ELEC_WALK4 = 485;
+        SPR_ELEC_OUCH = 486;
+        SPR_ELEC_SHOOT1 = 487;
+        SPR_ELEC_SHOOT2 = 488;
+        SPR_ELEC_SHOOT3 = 489;
+        SPR_ELEC_DIE1 = 490;
+        SPR_ELEC_DIE2 = 491;
+        SPR_ELEC_DIE3 = 492;
+        SPR_ELEC_SHOT1 = 493;
+        SPR_ELEC_SHOT2 = 494;
+        SPR_ELEC_SHOT_EXP1 = 495;
+        SPR_ELEC_SHOT_EXP2 = 496;
+    } else if (::is_aog_sw()) {
+        SPR_ELEC_APPEAR1 = 372;
+        SPR_ELEC_APPEAR2 = 373;
+        SPR_ELEC_APPEAR3 = 374;
+        SPR_ELEC_WALK1 = 375;
+        SPR_ELEC_WALK2 = 376;
+        SPR_ELEC_WALK3 = 377;
+        SPR_ELEC_WALK4 = 378;
+        SPR_ELEC_OUCH = 379;
+        SPR_ELEC_SHOOT1 = 380;
+        SPR_ELEC_SHOOT2 = 381;
+        SPR_ELEC_SHOOT3 = 382;
+        SPR_ELEC_DIE1 = 383;
+        SPR_ELEC_DIE2 = 384;
+        SPR_ELEC_DIE3 = 385;
+        SPR_ELEC_SHOT1 = 386;
+        SPR_ELEC_SHOT2 = 387;
+        SPR_ELEC_SHOT_EXP1 = 388;
+        SPR_ELEC_SHOT_EXP2 = 389;
+    } else if (::is_ps()) {
+        SPR_ELEC_APPEAR1 = 524;
+        SPR_ELEC_APPEAR2 = 525;
+        SPR_ELEC_APPEAR3 = 526;
+        SPR_ELEC_WALK1 = 527;
+        SPR_ELEC_WALK2 = 528;
+        SPR_ELEC_WALK3 = 529;
+        SPR_ELEC_WALK4 = 530;
+        SPR_ELEC_OUCH = 531;
+        SPR_ELEC_SHOOT1 = 532;
+        SPR_ELEC_SHOOT2 = 533;
+        SPR_ELEC_SHOOT3 = 534;
+        SPR_ELEC_DIE1 = 535;
+        SPR_ELEC_DIE2 = 536;
+        SPR_ELEC_DIE3 = 537;
+        SPR_ELEC_SHOT1 = 538;
+        SPR_ELEC_SHOT2 = 539;
+        SPR_ELEC_SHOT_EXP1 = 540;
+        SPR_ELEC_SHOT_EXP2 = 541;
+    }
+
+    if (::is_aog()) {
+        SPR_ELECTRO_SPHERE_ROAM1 = 497;
+        SPR_ELECTRO_SPHERE_ROAM2 = 498;
+        SPR_ELECTRO_SPHERE_ROAM3 = 499;
+        SPR_ELECTRO_SPHERE_OUCH = 500;
+        SPR_ELECTRO_SPHERE_DIE1 = 501;
+        SPR_ELECTRO_SPHERE_DIE2 = 502;
+        SPR_ELECTRO_SPHERE_DIE3 = 503;
+        SPR_ELECTRO_SPHERE_DIE4 = 504;
+    } else if (::is_aog_sw()) {
+        SPR_ELECTRO_SPHERE_ROAM1 = 390;
+        SPR_ELECTRO_SPHERE_ROAM2 = 391;
+        SPR_ELECTRO_SPHERE_ROAM3 = 392;
+        SPR_ELECTRO_SPHERE_OUCH = 393;
+        SPR_ELECTRO_SPHERE_DIE1 = 394;
+        SPR_ELECTRO_SPHERE_DIE2 = 395;
+        SPR_ELECTRO_SPHERE_DIE3 = 396;
+        SPR_ELECTRO_SPHERE_DIE4 = 397;
+    } else if (::is_ps()) {
+        SPR_ELECTRO_SPHERE_ROAM1 = 542;
+        SPR_ELECTRO_SPHERE_ROAM2 = 543;
+        SPR_ELECTRO_SPHERE_ROAM3 = 544;
+        SPR_ELECTRO_SPHERE_OUCH = 545;
+        SPR_ELECTRO_SPHERE_DIE1 = 546;
+        SPR_ELECTRO_SPHERE_DIE2 = 547;
+        SPR_ELECTRO_SPHERE_DIE3 = 548;
+        SPR_ELECTRO_SPHERE_DIE4 = 549;
+    }
+
+    if (::is_aog()) {
+        SPR_GENETIC_W1 = 505;
+        SPR_GENETIC_W2 = 506;
+        SPR_GENETIC_W3 = 507;
+        SPR_GENETIC_W4 = 508;
+        SPR_GENETIC_SWING1 = 509;
+        SPR_GENETIC_SWING2 = 510;
+        SPR_GENETIC_SWING3 = 511;
+        SPR_GENETIC_DEAD = 512;
+        SPR_GENETIC_DIE1 = 513;
+        SPR_GENETIC_DIE2 = 514;
+        SPR_GENETIC_DIE3 = 515;
+        SPR_GENETIC_DIE4 = 516;
+        SPR_GENETIC_OUCH = 517;
+        SPR_GENETIC_SHOOT1 = 518;
+        SPR_GENETIC_SHOOT2 = 519;
+        SPR_GENETIC_SHOOT3 = 520;
+    } else if (::is_aog_sw()) {
+        SPR_GENETIC_W1 = 398;
+        SPR_GENETIC_W2 = 399;
+        SPR_GENETIC_W3 = 400;
+        SPR_GENETIC_W4 = 401;
+        SPR_GENETIC_SWING1 = 402;
+        SPR_GENETIC_SWING2 = 403;
+        SPR_GENETIC_SWING3 = 404;
+        SPR_GENETIC_DEAD = 405;
+        SPR_GENETIC_DIE1 = 406;
+        SPR_GENETIC_DIE2 = 407;
+        SPR_GENETIC_DIE3 = 408;
+        SPR_GENETIC_DIE4 = 409;
+        SPR_GENETIC_OUCH = 410;
+        SPR_GENETIC_SHOOT1 = 411;
+        SPR_GENETIC_SHOOT2 = 412;
+        SPR_GENETIC_SHOOT3 = 413;
+    } else if (::is_ps()) {
+        SPR_GENETIC_W1 = 550;
+        SPR_GENETIC_W2 = 551;
+        SPR_GENETIC_W3 = 552;
+        SPR_GENETIC_W4 = 553;
+        SPR_GENETIC_SWING1 = 554;
+        SPR_GENETIC_SWING2 = 555;
+        SPR_GENETIC_SWING3 = 556;
+        SPR_GENETIC_DEAD = 557;
+        SPR_GENETIC_DIE1 = 558;
+        SPR_GENETIC_DIE2 = 559;
+        SPR_GENETIC_DIE3 = 560;
+        SPR_GENETIC_DIE4 = 561;
+        SPR_GENETIC_OUCH = 562;
+        SPR_GENETIC_SHOOT1 = 563;
+        SPR_GENETIC_SHOOT2 = 564;
+        SPR_GENETIC_SHOOT3 = 565;
+    }
+
+    if (::is_aog()) {
+        SPR_MUTHUM1_W1 = 521;
+        SPR_MUTHUM1_W2 = 522;
+        SPR_MUTHUM1_W3 = 523;
+        SPR_MUTHUM1_W4 = 524;
+        SPR_MUTHUM1_SWING1 = 525;
+        SPR_MUTHUM1_SWING2 = 526;
+        SPR_MUTHUM1_SWING3 = 527;
+        SPR_MUTHUM1_DEAD = 528;
+        SPR_MUTHUM1_DIE1 = 529;
+        SPR_MUTHUM1_DIE2 = 530;
+        SPR_MUTHUM1_DIE3 = 531;
+        SPR_MUTHUM1_DIE4 = 532;
+        SPR_MUTHUM1_OUCH = 533;
+        SPR_MUTHUM1_SPIT1 = 534;
+        SPR_MUTHUM1_SPIT2 = 535;
+        SPR_MUTHUM1_SPIT3 = 536;
+    } else if (::is_aog_sw()) {
+        SPR_MUTHUM1_W1 = 414;
+        SPR_MUTHUM1_W2 = 415;
+        SPR_MUTHUM1_W3 = 416;
+        SPR_MUTHUM1_W4 = 417;
+        SPR_MUTHUM1_SWING1 = 418;
+        SPR_MUTHUM1_SWING2 = 419;
+        SPR_MUTHUM1_SWING3 = 420;
+        SPR_MUTHUM1_DEAD = 421;
+        SPR_MUTHUM1_DIE1 = 422;
+        SPR_MUTHUM1_DIE2 = 423;
+        SPR_MUTHUM1_DIE3 = 424;
+        SPR_MUTHUM1_DIE4 = 425;
+        SPR_MUTHUM1_OUCH = 426;
+        SPR_MUTHUM1_SPIT1 = 427;
+        SPR_MUTHUM1_SPIT2 = 428;
+        SPR_MUTHUM1_SPIT3 = 429;
+    } else if (::is_ps()) {
+        SPR_MUTHUM1_W1 = 566;
+        SPR_MUTHUM1_W2 = 567;
+        SPR_MUTHUM1_W3 = 568;
+        SPR_MUTHUM1_W4 = 569;
+        SPR_MUTHUM1_SWING1 = 570;
+        SPR_MUTHUM1_SWING2 = 571;
+        SPR_MUTHUM1_SWING3 = 572;
+        SPR_MUTHUM1_DEAD = 573;
+        SPR_MUTHUM1_DIE1 = 574;
+        SPR_MUTHUM1_DIE2 = 575;
+        SPR_MUTHUM1_DIE3 = 576;
+        SPR_MUTHUM1_DIE4 = 577;
+        SPR_MUTHUM1_OUCH = 578;
+        SPR_MUTHUM1_SPIT1 = 579;
+        SPR_MUTHUM1_SPIT2 = 580;
+        SPR_MUTHUM1_SPIT3 = 581;
+    }
+
+    if (::is_aog()) {
+        SPR_MUTHUM2_W1 = 537;
+        SPR_MUTHUM2_W2 = 538;
+        SPR_MUTHUM2_W3 = 539;
+        SPR_MUTHUM2_W4 = 540;
+        SPR_MUTHUM2_SWING1 = 541;
+        SPR_MUTHUM2_SWING2 = 542;
+        SPR_MUTHUM2_SWING3 = 543;
+        SPR_MUTHUM2_DEAD = 544;
+        SPR_MUTHUM2_DIE1 = 545;
+        SPR_MUTHUM2_DIE2 = 546;
+        SPR_MUTHUM2_DIE3 = 547;
+        SPR_MUTHUM2_DIE4 = 548;
+        SPR_MUTHUM2_OUCH = 549;
+        SPR_MUTHUM2_SPIT1 = 550;
+        SPR_MUTHUM2_SPIT2 = 551;
+        SPR_MUTHUM2_SPIT3 = 552;
+    } else if (::is_ps()) {
+        SPR_MUTHUM2_W1 = 582;
+        SPR_MUTHUM2_W2 = 583;
+        SPR_MUTHUM2_W3 = 584;
+        SPR_MUTHUM2_W4 = 585;
+        SPR_MUTHUM2_SWING1 = 586;
+        SPR_MUTHUM2_SWING2 = 587;
+        SPR_MUTHUM2_SWING3 = 588;
+        SPR_MUTHUM2_DEAD = 589;
+        SPR_MUTHUM2_DIE1 = 590;
+        SPR_MUTHUM2_DIE2 = 591;
+        SPR_MUTHUM2_DIE3 = 592;
+        SPR_MUTHUM2_DIE4 = 593;
+        SPR_MUTHUM2_OUCH = 594;
+        SPR_MUTHUM2_SPIT1 = 595;
+        SPR_MUTHUM2_SPIT2 = 596;
+        SPR_MUTHUM2_SPIT3 = 597;
+
+        SPR_MUTHUM2_MORPH1 = 598;
+        SPR_MUTHUM2_MORPH2 = 599;
+        SPR_MUTHUM2_MORPH3 = 600;
+        SPR_MUTHUM2_MORPH4 = 601;
+        SPR_MUTHUM2_MORPH5 = 602;
+        SPR_MUTHUM2_MORPH6 = 603;
+        SPR_MUTHUM2_MORPH7 = 604;
+        SPR_MUTHUM2_MORPH8 = 605;
+        SPR_MUTHUM2_MORPH9 = 606;
+    }
+
+    if (::is_aog()) {
+        SPR_LCAN_ALIEN_READY = 553;
+        SPR_LCAN_ALIEN_B1 = 554;
+        SPR_LCAN_ALIEN_B2 = 555;
+        SPR_LCAN_ALIEN_B3 = 556;
+        SPR_LCAN_ALIEN_EMPTY = 557;
+
+        SPR_LCAN_ALIEN_W1 = 558;
+        SPR_LCAN_ALIEN_W2 = 559;
+        SPR_LCAN_ALIEN_W3 = 560;
+        SPR_LCAN_ALIEN_W4 = 561;
+        SPR_LCAN_ALIEN_SWING1 = 562;
+        SPR_LCAN_ALIEN_SWING2 = 563;
+        SPR_LCAN_ALIEN_SWING3 = 564;
+        SPR_LCAN_ALIEN_DEAD = 565;
+        SPR_LCAN_ALIEN_DIE1 = 566;
+        SPR_LCAN_ALIEN_DIE2 = 567;
+        SPR_LCAN_ALIEN_DIE3 = 568;
+        SPR_LCAN_ALIEN_DIE4 = 569;
+        SPR_LCAN_ALIEN_OUCH = 570;
+        SPR_LCAN_ALIEN_SPIT1 = 571;
+        SPR_LCAN_ALIEN_SPIT2 = 572;
+        SPR_LCAN_ALIEN_SPIT3 = 573;
+    } else if (::is_ps()) {
+        SPR_LCAN_ALIEN_READY = 607;
+        SPR_LCAN_ALIEN_B1 = 608;
+        SPR_LCAN_ALIEN_B2 = 609;
+        SPR_LCAN_ALIEN_B3 = 610;
+        SPR_LCAN_ALIEN_EMPTY = 611;
+
+        SPR_LCAN_ALIEN_W1 = 612;
+        SPR_LCAN_ALIEN_W2 = 613;
+        SPR_LCAN_ALIEN_W3 = 614;
+        SPR_LCAN_ALIEN_W4 = 615;
+        SPR_LCAN_ALIEN_SWING1 = 616;
+        SPR_LCAN_ALIEN_SWING2 = 617;
+        SPR_LCAN_ALIEN_SWING3 = 618;
+        SPR_LCAN_ALIEN_DEAD = 619;
+        SPR_LCAN_ALIEN_DIE1 = 620;
+        SPR_LCAN_ALIEN_DIE2 = 621;
+        SPR_LCAN_ALIEN_DIE3 = 622;
+        SPR_LCAN_ALIEN_DIE4 = 623;
+        SPR_LCAN_ALIEN_OUCH = 624;
+        SPR_LCAN_ALIEN_SPIT1 = 625;
+        SPR_LCAN_ALIEN_SPIT2 = 626;
+        SPR_LCAN_ALIEN_SPIT3 = 627;
+    }
+
+    if (::is_aog()) {
+        SPR_SCAN_ALIEN_READY = 574;
+        SPR_SCAN_ALIEN_B1 = 575;
+        SPR_SCAN_ALIEN_B2 = 576;
+        SPR_SCAN_ALIEN_B3 = 577;
+        SPR_SCAN_ALIEN_EMPTY = 578;
+
+        SPR_SCAN_ALIEN_W1 = 579;
+        SPR_SCAN_ALIEN_W2 = 580;
+        SPR_SCAN_ALIEN_W3 = 581;
+        SPR_SCAN_ALIEN_W4 = 582;
+        SPR_SCAN_ALIEN_SWING1 = 583;
+        SPR_SCAN_ALIEN_SWING2 = 584;
+        SPR_SCAN_ALIEN_SWING3 = 585;
+        SPR_SCAN_ALIEN_DEAD = 586;
+        SPR_SCAN_ALIEN_DIE1 = 587;
+        SPR_SCAN_ALIEN_DIE2 = 588;
+        SPR_SCAN_ALIEN_DIE3 = 589;
+        SPR_SCAN_ALIEN_DIE4 = 590;
+        SPR_SCAN_ALIEN_OUCH = 591;
+
+        SPR_SCAN_ALIEN_SPIT1 = 592;
+        SPR_SCAN_ALIEN_SPIT2 = 593;
+        SPR_SCAN_ALIEN_SPIT3 = 594;
+    } else if (::is_aog_sw()) {
+        SPR_SCAN_ALIEN_READY = 430;
+        SPR_SCAN_ALIEN_B1 = 431;
+        SPR_SCAN_ALIEN_B2 = 432;
+        SPR_SCAN_ALIEN_B3 = 433;
+        SPR_SCAN_ALIEN_EMPTY = 434;
+
+        SPR_SCAN_ALIEN_W1 = 435;
+        SPR_SCAN_ALIEN_W2 = 436;
+        SPR_SCAN_ALIEN_W3 = 437;
+        SPR_SCAN_ALIEN_W4 = 438;
+        SPR_SCAN_ALIEN_SWING1 = 439;
+        SPR_SCAN_ALIEN_SWING2 = 440;
+        SPR_SCAN_ALIEN_SWING3 = 441;
+        SPR_SCAN_ALIEN_DEAD = 442;
+        SPR_SCAN_ALIEN_DIE1 = 443;
+        SPR_SCAN_ALIEN_DIE2 = 444;
+        SPR_SCAN_ALIEN_DIE3 = 445;
+        SPR_SCAN_ALIEN_DIE4 = 446;
+        SPR_SCAN_ALIEN_OUCH = 447;
+
+        SPR_SCAN_ALIEN_SPIT1 = 448;
+        SPR_SCAN_ALIEN_SPIT2 = 449;
+        SPR_SCAN_ALIEN_SPIT3 = 450;
+    } else if (::is_ps()) {
+        SPR_SCAN_ALIEN_READY = 628;
+        SPR_SCAN_ALIEN_B1 = 629;
+        SPR_SCAN_ALIEN_B2 = 630;
+        SPR_SCAN_ALIEN_B3 = 631;
+        SPR_SCAN_ALIEN_EMPTY = 632;
+
+        SPR_SCAN_ALIEN_W1 = 633;
+        SPR_SCAN_ALIEN_W2 = 634;
+        SPR_SCAN_ALIEN_W3 = 635;
+        SPR_SCAN_ALIEN_W4 = 636;
+        SPR_SCAN_ALIEN_SWING1 = 637;
+        SPR_SCAN_ALIEN_SWING2 = 638;
+        SPR_SCAN_ALIEN_SWING3 = 639;
+        SPR_SCAN_ALIEN_DEAD = 640;
+        SPR_SCAN_ALIEN_DIE1 = 641;
+        SPR_SCAN_ALIEN_DIE2 = 642;
+        SPR_SCAN_ALIEN_DIE3 = 643;
+        SPR_SCAN_ALIEN_DIE4 = 644;
+        SPR_SCAN_ALIEN_OUCH = 645;
+
+        SPR_SCAN_ALIEN_SPIT1 = 646;
+        SPR_SCAN_ALIEN_SPIT2 = 647;
+        SPR_SCAN_ALIEN_SPIT3 = 648;
+    }
+
+    if (::is_aog()) {
+        SPR_GURNEY_MUT_READY = 595;
+        SPR_GURNEY_MUT_B1 = 596;
+        SPR_GURNEY_MUT_B2 = 597;
+        SPR_GURNEY_MUT_B3 = 598;
+        SPR_GURNEY_MUT_EMPTY = 599;
+
+        SPR_GURNEY_MUT_W1 = 600;
+        SPR_GURNEY_MUT_W2 = 601;
+        SPR_GURNEY_MUT_W3 = 602;
+        SPR_GURNEY_MUT_W4 = 603;
+        SPR_GURNEY_MUT_SWING1 = 604;
+        SPR_GURNEY_MUT_SWING2 = 605;
+        SPR_GURNEY_MUT_SWING3 = 606;
+        SPR_GURNEY_MUT_DEAD = 607;
+        SPR_GURNEY_MUT_DIE1 = 608;
+        SPR_GURNEY_MUT_DIE2 = 609;
+        SPR_GURNEY_MUT_DIE3 = 610;
+        SPR_GURNEY_MUT_DIE4 = 611;
+        SPR_GURNEY_MUT_OUCH = 612;
+    } else if (::is_ps()) {
+        SPR_GURNEY_MUT_READY = 649;
+        SPR_GURNEY_MUT_B1 = 650;
+        SPR_GURNEY_MUT_B2 = 651;
+        SPR_GURNEY_MUT_B3 = 652;
+        SPR_GURNEY_MUT_EMPTY = 653;
+
+        SPR_GURNEY_MUT_W1 = 654;
+        SPR_GURNEY_MUT_W2 = 655;
+        SPR_GURNEY_MUT_W3 = 656;
+        SPR_GURNEY_MUT_W4 = 657;
+        SPR_GURNEY_MUT_SWING1 = 658;
+        SPR_GURNEY_MUT_SWING2 = 659;
+        SPR_GURNEY_MUT_SWING3 = 660;
+        SPR_GURNEY_MUT_DEAD = 661;
+        SPR_GURNEY_MUT_DIE1 = 662;
+        SPR_GURNEY_MUT_DIE2 = 663;
+        SPR_GURNEY_MUT_DIE3 = 664;
+        SPR_GURNEY_MUT_DIE4 = 665;
+        SPR_GURNEY_MUT_OUCH = 666;
+    }
+
+    if (::is_aog()) {
+        SPR_LIQUID_M1 = 613;
+        SPR_LIQUID_M2 = 614;
+        SPR_LIQUID_M3 = 615;
+        SPR_LIQUID_R1 = 616;
+        SPR_LIQUID_R2 = 617;
+        SPR_LIQUID_R3 = 618;
+        SPR_LIQUID_R4 = 619;
+        SPR_LIQUID_S1 = 620;
+        SPR_LIQUID_S2 = 621;
+        SPR_LIQUID_S3 = 622;
+        SPR_LIQUID_OUCH = 623;
+        SPR_LIQUID_DIE_1 = 624;
+        SPR_LIQUID_DIE_2 = 625;
+        SPR_LIQUID_DIE_3 = 626;
+        SPR_LIQUID_DIE_4 = 627;
+        SPR_LIQUID_DEAD = 628;
+        SPR_LIQUID_SHOT_FLY_1 = 629;
+        SPR_LIQUID_SHOT_FLY_2 = 630;
+        SPR_LIQUID_SHOT_FLY_3 = 631;
+        SPR_LIQUID_SHOT_BURST_1 = 632;
+        SPR_LIQUID_SHOT_BURST_2 = 633;
+        SPR_LIQUID_SHOT_BURST_3 = 634;
+    } else if (::is_ps()) {
+        SPR_LIQUID_M1 = 667;
+        SPR_LIQUID_M2 = 668;
+        SPR_LIQUID_M3 = 669;
+        SPR_LIQUID_R1 = 670;
+        SPR_LIQUID_R2 = 671;
+        SPR_LIQUID_R3 = 672;
+        SPR_LIQUID_R4 = 673;
+        SPR_LIQUID_S1 = 674;
+        SPR_LIQUID_S2 = 675;
+        SPR_LIQUID_S3 = 676;
+        SPR_LIQUID_OUCH = 677;
+        SPR_LIQUID_DIE_1 = 678;
+        SPR_LIQUID_DIE_2 = 679;
+        SPR_LIQUID_DIE_3 = 680;
+        SPR_LIQUID_DIE_4 = 681;
+        SPR_LIQUID_DEAD = 682;
+        SPR_LIQUID_SHOT_FLY_1 = 683;
+        SPR_LIQUID_SHOT_FLY_2 = 684;
+        SPR_LIQUID_SHOT_FLY_3 = 685;
+        SPR_LIQUID_SHOT_BURST_1 = 686;
+        SPR_LIQUID_SHOT_BURST_2 = 687;
+        SPR_LIQUID_SHOT_BURST_3 = 688;
+    }
+
+    if (::is_aog()) {
+        SPR_SPIT1_1 = 635;
+        SPR_SPIT1_2 = 636;
+        SPR_SPIT1_3 = 637;
+        SPR_SPIT_EXP1_1 = 638;
+        SPR_SPIT_EXP1_2 = 639;
+        SPR_SPIT_EXP1_3 = 640;
+
+        SPR_SPIT2_1 = 641;
+        SPR_SPIT2_2 = 642;
+        SPR_SPIT2_3 = 643;
+        SPR_SPIT_EXP2_1 = 644;
+        SPR_SPIT_EXP2_2 = 645;
+        SPR_SPIT_EXP2_3 = 646;
+
+        SPR_SPIT3_1 = 647;
+        SPR_SPIT3_2 = 648;
+        SPR_SPIT3_3 = 649;
+        SPR_SPIT_EXP3_1 = 650;
+        SPR_SPIT_EXP3_2 = 651;
+        SPR_SPIT_EXP3_3 = 652;
+    } else if (::is_aog_sw()) {
+        SPR_SPIT1_1 = 451;
+        SPR_SPIT1_2 = 452;
+        SPR_SPIT1_3 = 453;
+        SPR_SPIT_EXP1_1 = 454;
+        SPR_SPIT_EXP1_2 = 455;
+        SPR_SPIT_EXP1_3 = 456;
+
+        SPR_SPIT2_1 = 457;
+        SPR_SPIT2_2 = 458;
+        SPR_SPIT2_3 = 459;
+        SPR_SPIT_EXP2_1 = 460;
+        SPR_SPIT_EXP2_2 = 461;
+        SPR_SPIT_EXP2_3 = 462;
+
+        SPR_SPIT3_1 = 463;
+        SPR_SPIT3_2 = 464;
+        SPR_SPIT3_3 = 465;
+        SPR_SPIT_EXP3_1 = 466;
+        SPR_SPIT_EXP3_2 = 467;
+        SPR_SPIT_EXP3_3 = 468;
+    } else if (::is_ps()) {
+        SPR_SPIT1_1 = 689;
+        SPR_SPIT1_2 = 690;
+        SPR_SPIT1_3 = 691;
+        SPR_SPIT_EXP1_1 = 692;
+        SPR_SPIT_EXP1_2 = 693;
+        SPR_SPIT_EXP1_3 = 694;
+
+        SPR_SPIT2_1 = 695;
+        SPR_SPIT2_2 = 696;
+        SPR_SPIT2_3 = 697;
+        SPR_SPIT_EXP2_1 = 698;
+        SPR_SPIT_EXP2_2 = 699;
+        SPR_SPIT_EXP2_3 = 700;
+
+        SPR_SPIT3_1 = 701;
+        SPR_SPIT3_2 = 702;
+        SPR_SPIT3_3 = 703;
+        SPR_SPIT_EXP3_1 = 704;
+        SPR_SPIT_EXP3_2 = 705;
+        SPR_SPIT_EXP3_3 = 706;
+    }
+
+    if (::is_aog()) {
+        SPR_TERROT_1 = 653;
+        SPR_TERROT_2 = 654;
+        SPR_TERROT_3 = 655;
+        SPR_TERROT_4 = 656;
+        SPR_TERROT_5 = 657;
+        SPR_TERROT_6 = 658;
+        SPR_TERROT_7 = 659;
+        SPR_TERROT_8 = 660;
+
+        SPR_TERROT_FIRE_1 = 661;
+        SPR_TERROT_FIRE_2 = 662;
+        SPR_TERROT_DIE_1 = 663;
+        SPR_TERROT_DIE_2 = 664;
+        SPR_TERROT_DIE_3 = 665;
+        SPR_TERROT_DIE_4 = 666;
+        SPR_TERROT_DEAD = 667;
+    } else if (::is_aog_sw()) {
+        SPR_TERROT_1 = 469;
+        SPR_TERROT_2 = 470;
+        SPR_TERROT_3 = 471;
+        SPR_TERROT_4 = 472;
+        SPR_TERROT_5 = 473;
+        SPR_TERROT_6 = 474;
+        SPR_TERROT_7 = 475;
+        SPR_TERROT_8 = 476;
+
+        SPR_TERROT_FIRE_1 = 477;
+        SPR_TERROT_FIRE_2 = 478;
+        SPR_TERROT_DIE_1 = 479;
+        SPR_TERROT_DIE_2 = 480;
+        SPR_TERROT_DIE_3 = 481;
+        SPR_TERROT_DIE_4 = 482;
+        SPR_TERROT_DEAD = 483;
+    } else if (::is_ps()) {
+        SPR_TERROT_1 = 707;
+        SPR_TERROT_2 = 708;
+        SPR_TERROT_3 = 709;
+        SPR_TERROT_4 = 710;
+        SPR_TERROT_5 = 711;
+        SPR_TERROT_6 = 712;
+        SPR_TERROT_7 = 713;
+        SPR_TERROT_8 = 714;
+
+        SPR_TERROT_FIRE_1 = 715;
+        SPR_TERROT_FIRE_2 = 716;
+        SPR_TERROT_DIE_1 = 717;
+        SPR_TERROT_DIE_2 = 718;
+        SPR_TERROT_DIE_3 = 719;
+        SPR_TERROT_DIE_4 = 720;
+        SPR_TERROT_DEAD = 721;
+    }
+
+    if (::is_aog()) {
+        SPR_KNIFEREADY = 668;
+        SPR_KNIFEATK1 = 669;
+        SPR_KNIFEATK2 = 670;
+        SPR_KNIFEATK3 = 671;
+        SPR_KNIFEATK4 = 672;
+
+        SPR_PISTOLREADY = 673;
+        SPR_PISTOLATK1 = 674;
+        SPR_PISTOLATK2 = 675;
+        SPR_PISTOLATK3 = 676;
+        SPR_PISTOLATK4 = 677;
+
+        SPR_MACHINEGUNREADY = 678;
+        SPR_MACHINEGUNATK1 = 679;
+        SPR_MACHINEGUNATK2 = 680;
+        SPR_MACHINEGUNATK3 = 681;
+        SPR_MACHINEGUNATK4 = 682;
+
+        SPR_CHAINREADY = 683;
+        SPR_CHAINATK1 = 684;
+        SPR_CHAINATK2 = 685;
+        SPR_CHAINATK3 = 686;
+        SPR_CHAINATK4 = 687;
+
+        SPR_GRENADEREADY = 688;
+        SPR_GRENADEATK1 = 689;
+        SPR_GRENADEATK2 = 690;
+        SPR_GRENADEATK3 = 691;
+        SPR_GRENADEATK4 = 692;
+
+        SPR_GRENADE_FLY1 = 693;
+        SPR_GRENADE_FLY2 = 694;
+        SPR_GRENADE_FLY3 = 695;
+        SPR_GRENADE_FLY4 = 696;
+        SPR_GRENADE_EXPLODE1 = 697;
+        SPR_GRENADE_EXPLODE2 = 698;
+        SPR_GRENADE_EXPLODE3 = 699;
+        SPR_GRENADE_EXPLODE4 = 700;
+        SPR_GRENADE_EXPLODE5 = 701;
+    } else if (::is_aog_sw()) {
+        SPR_KNIFEREADY = 484;
+        SPR_KNIFEATK1 = 485;
+        SPR_KNIFEATK2 = 486;
+        SPR_KNIFEATK3 = 487;
+        SPR_KNIFEATK4 = 488;
+
+        SPR_PISTOLREADY = 489;
+        SPR_PISTOLATK1 = 490;
+        SPR_PISTOLATK2 = 491;
+        SPR_PISTOLATK3 = 492;
+        SPR_PISTOLATK4 = 493;
+
+        SPR_MACHINEGUNREADY = 494;
+        SPR_MACHINEGUNATK1 = 495;
+        SPR_MACHINEGUNATK2 = 496;
+        SPR_MACHINEGUNATK3 = 497;
+        SPR_MACHINEGUNATK4 = 498;
+
+        SPR_CHAINREADY = 499;
+        SPR_CHAINATK1 = 500;
+        SPR_CHAINATK2 = 501;
+        SPR_CHAINATK3 = 502;
+        SPR_CHAINATK4 = 503;
+
+        SPR_GRENADEREADY = 504;
+        SPR_GRENADEATK1 = 505;
+        SPR_GRENADEATK2 = 506;
+        SPR_GRENADEATK3 = 507;
+        SPR_GRENADEATK4 = 508;
+
+        SPR_GRENADE_FLY1 = 509;
+        SPR_GRENADE_FLY2 = 510;
+        SPR_GRENADE_FLY3 = 511;
+        SPR_GRENADE_FLY4 = 512;
+        SPR_GRENADE_EXPLODE1 = 513;
+        SPR_GRENADE_EXPLODE2 = 514;
+        SPR_GRENADE_EXPLODE3 = 515;
+        SPR_GRENADE_EXPLODE4 = 516;
+        SPR_GRENADE_EXPLODE5 = 517;
+    } else if (::is_ps()) {
+        SPR_KNIFEREADY = 722;
+        SPR_KNIFEATK1 = 723;
+        SPR_KNIFEATK2 = 724;
+        SPR_KNIFEATK3 = 725;
+        SPR_KNIFEATK4 = 726;
+
+        SPR_PISTOLREADY = 727;
+        SPR_PISTOLATK1 = 728;
+        SPR_PISTOLATK2 = 729;
+        SPR_PISTOLATK3 = 730;
+        SPR_PISTOLATK4 = 731;
+
+        SPR_MACHINEGUNREADY = 732;
+        SPR_MACHINEGUNATK1 = 733;
+        SPR_MACHINEGUNATK2 = 734;
+        SPR_MACHINEGUNATK3 = 735;
+        SPR_MACHINEGUNATK4 = 736;
+
+        SPR_CHAINREADY = 737;
+        SPR_CHAINATK1 = 738;
+        SPR_CHAINATK2 = 739;
+        SPR_CHAINATK3 = 740;
+        SPR_CHAINATK4 = 741;
+
+        SPR_GRENADEREADY = 742;
+        SPR_GRENADEATK1 = 743;
+        SPR_GRENADEATK2 = 744;
+        SPR_GRENADEATK3 = 745;
+        SPR_GRENADEATK4 = 746;
+
+        SPR_GRENADE_FLY1 = 747;
+        SPR_GRENADE_FLY2 = 748;
+        SPR_GRENADE_FLY3 = 749;
+        SPR_GRENADE_FLY4 = 750;
+        SPR_GRENADE_EXPLODE1 = 751;
+        SPR_GRENADE_EXPLODE2 = 752;
+        SPR_GRENADE_EXPLODE3 = 753;
+        SPR_GRENADE_EXPLODE4 = 754;
+        SPR_GRENADE_EXPLODE5 = 755;
+    }
+
+    if (::is_aog()) {
+        SPR_ELEC_ARC1 = 702;
+        SPR_ELEC_ARC2 = 703;
+        SPR_ELEC_ARC3 = 704;
+        SPR_ELEC_ARC4 = 705;
+        SPR_ELEC_POST1 = 706;
+        SPR_ELEC_POST2 = 707;
+        SPR_ELEC_POST3 = 708;
+        SPR_ELEC_POST4 = 709;
+    } else if (::is_aog_sw()) {
+        SPR_ELEC_ARC1 = 518;
+        SPR_ELEC_ARC2 = 519;
+        SPR_ELEC_ARC3 = 520;
+        SPR_ELEC_ARC4 = 521;
+        SPR_ELEC_POST1 = 522;
+        SPR_ELEC_POST2 = 523;
+        SPR_ELEC_POST3 = 524;
+        SPR_ELEC_POST4 = 525;
+    } else if (::is_ps()) {
+        SPR_ELEC_ARC1 = 756;
+        SPR_ELEC_ARC2 = 757;
+        SPR_ELEC_ARC3 = 758;
+        SPR_ELEC_ARC4 = 759;
+        SPR_ELEC_POST1 = 760;
+        SPR_ELEC_POST2 = 761;
+        SPR_ELEC_POST3 = 762;
+        SPR_ELEC_POST4 = 763;
+    }
+
+    if (::is_ps()) {
+        SPR_VPOST1 = 764;
+        SPR_VPOST2 = 765;
+        SPR_VPOST3 = 766;
+        SPR_VPOST4 = 767;
+        SPR_VPOST5 = 768;
+        SPR_VPOST6 = 769;
+        SPR_VPOST7 = 770;
+        SPR_VPOST8 = 771;
+
+        SPR_VSPIKE1 = 772;
+        SPR_VSPIKE2 = 773;
+        SPR_VSPIKE3 = 774;
+        SPR_VSPIKE4 = 775;
+        SPR_VSPIKE5 = 776;
+        SPR_VSPIKE6 = 777;
+        SPR_VSPIKE7 = 778;
+        SPR_VSPIKE8 = 779;
+    }
+
+    if (!::is_aog_sw()) {
+        SPR_GREEN_OOZE1 = 710;
+        SPR_GREEN_OOZE2 = 711;
+        SPR_GREEN_OOZE3 = 712;
+        SPR_BLACK_OOZE1 = 713;
+        SPR_BLACK_OOZE2 = 714;
+        SPR_BLACK_OOZE3 = 715;
+    } else {
+        SPR_GREEN_OOZE1 = 780;
+        SPR_GREEN_OOZE2 = 781;
+        SPR_GREEN_OOZE3 = 782;
+        SPR_BLACK_OOZE1 = 783;
+        SPR_BLACK_OOZE2 = 784;
+        SPR_BLACK_OOZE3 = 785;
+    }
+
+    if (::is_ps()) {
+        SPR_GREEN2_OOZE1 = 786;
+        SPR_GREEN2_OOZE2 = 787;
+        SPR_GREEN2_OOZE3 = 788;
+        SPR_BLACK2_OOZE1 = 789;
+        SPR_BLACK2_OOZE2 = 790;
+        SPR_BLACK2_OOZE3 = 791;
+    }
+
+    if (::is_aog()) {
+        SPR_CANDY_BAR = 716;
+        SPR_CANDY_WRAPER = 717;
+        SPR_SANDWICH = 718;
+        SPR_SANDWICH_WRAPER = 719;
+
+        SPR_BLAKE_W1 = 720;
+        SPR_BLAKE_W2 = 721;
+        SPR_BLAKE_W3 = 722;
+        SPR_BLAKE_W4 = 723;
+    } else if (::is_aog_sw()) {
+        SPR_CANDY_BAR = 526;
+        SPR_CANDY_WRAPER = 527;
+        SPR_SANDWICH = 528;
+        SPR_SANDWICH_WRAPER = 529;
+
+        SPR_BLAKE_W1 = 530;
+        SPR_BLAKE_W2 = 531;
+        SPR_BLAKE_W3 = 532;
+        SPR_BLAKE_W4 = 533;
+    } else if (::is_ps()) {
+        SPR_CANDY_BAR = 792;
+        SPR_CANDY_WRAPER = 793;
+        SPR_SANDWICH = 794;
+        SPR_SANDWICH_WRAPER = 795;
+
+        SPR_BLAKE_W1 = 796;
+        SPR_BLAKE_W2 = 797;
+        SPR_BLAKE_W3 = 798;
+        SPR_BLAKE_W4 = 799;
+    }
+
+    if (::is_aog()) {
+        SPR_BOSS1_W1 = 724;
+        SPR_BOSS1_W2 = 725;
+        SPR_BOSS1_W3 = 726;
+        SPR_BOSS1_W4 = 727;
+        SPR_BOSS1_SWING1 = 728;
+        SPR_BOSS1_SWING2 = 729;
+        SPR_BOSS1_SWING3 = 730;
+        SPR_BOSS1_DEAD = 731;
+        SPR_BOSS1_DIE1 = 732;
+        SPR_BOSS1_DIE2 = 733;
+        SPR_BOSS1_DIE3 = 734;
+        SPR_BOSS1_DIE4 = 735;
+        SPR_BOSS1_OUCH = 736;
+        SPR_BOSS1_PROJ1 = 737;
+        SPR_BOSS1_PROJ2 = 738;
+        SPR_BOSS1_PROJ3 = 739;
+        SPR_BOSS1_EXP1 = 740;
+        SPR_BOSS1_EXP2 = 741;
+        SPR_BOSS1_EXP3 = 742;
+    } else if (::is_aog_sw()) {
+        SPR_BOSS1_W1 = 534;
+        SPR_BOSS1_W2 = 535;
+        SPR_BOSS1_W3 = 536;
+        SPR_BOSS1_W4 = 537;
+        SPR_BOSS1_SWING1 = 538;
+        SPR_BOSS1_SWING2 = 539;
+        SPR_BOSS1_SWING3 = 540;
+        SPR_BOSS1_DEAD = 541;
+        SPR_BOSS1_DIE1 = 542;
+        SPR_BOSS1_DIE2 = 543;
+        SPR_BOSS1_DIE3 = 544;
+        SPR_BOSS1_DIE4 = 545;
+        SPR_BOSS1_OUCH = 546;
+        SPR_BOSS1_PROJ1 = 547;
+        SPR_BOSS1_PROJ2 = 548;
+        SPR_BOSS1_PROJ3 = 549;
+        SPR_BOSS1_EXP1 = 550;
+        SPR_BOSS1_EXP2 = 551;
+        SPR_BOSS1_EXP3 = 552;
+    } else if (::is_ps()) {
+        SPR_BOSS1_W1 = 800;
+        SPR_BOSS1_W2 = 801;
+        SPR_BOSS1_W3 = 802;
+        SPR_BOSS1_W4 = 803;
+        SPR_BOSS1_SWING1 = 804;
+        SPR_BOSS1_SWING2 = 805;
+        SPR_BOSS1_SWING3 = 806;
+        SPR_BOSS1_DEAD = 807;
+        SPR_BOSS1_DIE1 = 808;
+        SPR_BOSS1_DIE2 = 809;
+        SPR_BOSS1_DIE3 = 810;
+        SPR_BOSS1_DIE4 = 811;
+        SPR_BOSS1_OUCH = 812;
+        SPR_BOSS1_PROJ1 = 813;
+        SPR_BOSS1_PROJ2 = 814;
+        SPR_BOSS1_PROJ3 = 815;
+        SPR_BOSS1_EXP1 = 816;
+        SPR_BOSS1_EXP2 = 817;
+        SPR_BOSS1_EXP3 = 818;
+        SPR_BOSS1_MORPH1 = 819;
+        SPR_BOSS1_MORPH2 = 820;
+        SPR_BOSS1_MORPH3 = 821;
+        SPR_BOSS1_MORPH4 = 822;
+        SPR_BOSS1_MORPH5 = 823;
+        SPR_BOSS1_MORPH6 = 824;
+        SPR_BOSS1_MORPH7 = 825;
+        SPR_BOSS1_MORPH8 = 826;
+        SPR_BOSS1_MORPH9 = 827;
+    }
+
+    if (::is_aog()) {
+        SPR_BOSS2_W1 = 743;
+        SPR_BOSS2_W2 = 744;
+        SPR_BOSS2_W3 = 745;
+        SPR_BOSS2_W4 = 746;
+        SPR_BOSS2_SWING1 = 747;
+        SPR_BOSS2_SWING2 = 748;
+        SPR_BOSS2_SWING3 = 749;
+        SPR_BOSS2_DEAD = 750;
+        SPR_BOSS2_DIE1 = 751;
+        SPR_BOSS2_DIE2 = 752;
+        SPR_BOSS2_DIE3 = 753;
+        SPR_BOSS2_DIE4 = 754;
+        SPR_BOSS2_OUCH = 755;
+    } else if (::is_ps()) {
+        SPR_BOSS2_W1 = 828;
+        SPR_BOSS2_W2 = 829;
+        SPR_BOSS2_W3 = 830;
+        SPR_BOSS2_W4 = 831;
+        SPR_BOSS2_SWING1 = 832;
+        SPR_BOSS2_SWING2 = 833;
+        SPR_BOSS2_SWING3 = 834;
+        SPR_BOSS2_DEAD = 835;
+        SPR_BOSS2_DIE1 = 836;
+        SPR_BOSS2_DIE2 = 837;
+        SPR_BOSS2_DIE3 = 838;
+        SPR_BOSS2_DIE4 = 839;
+        SPR_BOSS2_OUCH = 840;
+    }
+
+    if (::is_aog()) {
+        SPR_BOSS3_W1 = 756;
+        SPR_BOSS3_W2 = 757;
+        SPR_BOSS3_W3 = 758;
+        SPR_BOSS3_W4 = 759;
+        SPR_BOSS3_SWING1 = 760;
+        SPR_BOSS3_SWING2 = 761;
+        SPR_BOSS3_SWING3 = 762;
+        SPR_BOSS3_DEAD = 763;
+        SPR_BOSS3_DIE1 = 764;
+        SPR_BOSS3_DIE2 = 765;
+        SPR_BOSS3_DIE3 = 766;
+        SPR_BOSS3_DIE4 = 767;
+        SPR_BOSS3_OUCH = 768;
+    } else if (::is_ps()) {
+        SPR_BOSS3_W1 = 841;
+        SPR_BOSS3_W2 = 842;
+        SPR_BOSS3_W3 = 843;
+        SPR_BOSS3_W4 = 844;
+        SPR_BOSS3_SWING1 = 845;
+        SPR_BOSS3_SWING2 = 846;
+        SPR_BOSS3_SWING3 = 847;
+        SPR_BOSS3_DEAD = 848;
+        SPR_BOSS3_DIE1 = 849;
+        SPR_BOSS3_DIE2 = 850;
+        SPR_BOSS3_DIE3 = 851;
+        SPR_BOSS3_DIE4 = 852;
+        SPR_BOSS3_OUCH = 853;
+    }
+
+    if (::is_aog()) {
+        SPR_BOSS4_W1 = 769;
+        SPR_BOSS4_W2 = 770;
+        SPR_BOSS4_W3 = 771;
+        SPR_BOSS4_W4 = 772;
+        SPR_BOSS4_SWING1 = 773;
+        SPR_BOSS4_SWING2 = 774;
+        SPR_BOSS4_SWING3 = 775;
+        SPR_BOSS4_DEAD = 776;
+        SPR_BOSS4_DIE1 = 777;
+        SPR_BOSS4_DIE2 = 778;
+        SPR_BOSS4_DIE3 = 779;
+        SPR_BOSS4_DIE4 = 780;
+        SPR_BOSS4_OUCH = 781;
+    } else if (::is_ps()) {
+        SPR_BOSS4_W1 = 854;
+        SPR_BOSS4_W2 = 855;
+        SPR_BOSS4_W3 = 856;
+        SPR_BOSS4_W4 = 857;
+        SPR_BOSS4_SWING1 = 858;
+        SPR_BOSS4_SWING2 = 859;
+        SPR_BOSS4_SWING3 = 860;
+        SPR_BOSS4_DEAD = 861;
+        SPR_BOSS4_DIE1 = 862;
+        SPR_BOSS4_DIE2 = 863;
+        SPR_BOSS4_DIE3 = 864;
+        SPR_BOSS4_DIE4 = 865;
+        SPR_BOSS4_OUCH = 866;
+        SPR_BOSS4_MORPH1 = 867;
+        SPR_BOSS4_MORPH2 = 868;
+        SPR_BOSS4_MORPH3 = 869;
+        SPR_BOSS4_MORPH4 = 870;
+        SPR_BOSS4_MORPH5 = 871;
+        SPR_BOSS4_MORPH6 = 872;
+        SPR_BOSS4_MORPH7 = 873;
+        SPR_BOSS4_MORPH8 = 874;
+        SPR_BOSS4_MORPH9 = 875;
+    }
+
+    if (::is_aog()) {
+        SPR_BOSS5_W1 = 782;
+        SPR_BOSS5_W2 = 783;
+        SPR_BOSS5_W3 = 784;
+        SPR_BOSS5_W4 = 785;
+        SPR_BOSS5_SWING1 = 786;
+        SPR_BOSS5_SWING2 = 787;
+        SPR_BOSS5_SWING3 = 788;
+        SPR_BOSS5_DEAD = 789;
+        SPR_BOSS5_DIE1 = 790;
+        SPR_BOSS5_DIE2 = 791;
+        SPR_BOSS5_DIE3 = 792;
+        SPR_BOSS5_DIE4 = 793;
+        SPR_BOSS5_OUCH = 794;
+        SPR_BOSS5_PROJ1 = 795;
+        SPR_BOSS5_PROJ2 = 796;
+        SPR_BOSS5_PROJ3 = 797;
+        SPR_BOSS5_EXP1 = 798;
+        SPR_BOSS5_EXP2 = 799;
+        SPR_BOSS5_EXP3 = 800;
+    } else if (::is_ps()) {
+        SPR_BOSS5_W1 = 876;
+        SPR_BOSS5_W2 = 877;
+        SPR_BOSS5_W3 = 878;
+        SPR_BOSS5_W4 = 879;
+        SPR_BOSS5_SWING1 = 880;
+        SPR_BOSS5_SWING2 = 881;
+        SPR_BOSS5_SWING3 = 882;
+        SPR_BOSS5_DEAD = 883;
+        SPR_BOSS5_DIE1 = 884;
+        SPR_BOSS5_DIE2 = 885;
+        SPR_BOSS5_DIE3 = 886;
+        SPR_BOSS5_DIE4 = 887;
+        SPR_BOSS5_OUCH = 888;
+        SPR_BOSS5_PROJ1 = 889;
+        SPR_BOSS5_PROJ2 = 890;
+        SPR_BOSS5_PROJ3 = 891;
+        SPR_BOSS5_EXP1 = 892;
+        SPR_BOSS5_EXP2 = 893;
+        SPR_BOSS5_EXP3 = 894;
+    }
+
+    if (::is_aog()) {
+        SPR_BOSS6_W1 = 801;
+        SPR_BOSS6_W2 = 802;
+        SPR_BOSS6_W3 = 803;
+        SPR_BOSS6_W4 = 804;
+        SPR_BOSS6_SWING1 = 805;
+        SPR_BOSS6_SWING2 = 806;
+        SPR_BOSS6_SWING3 = 807;
+        SPR_BOSS6_DEAD = 808;
+        SPR_BOSS6_DIE1 = 809;
+        SPR_BOSS6_DIE2 = 810;
+        SPR_BOSS6_DIE3 = 811;
+        SPR_BOSS6_DIE4 = 812;
+        SPR_BOSS6_OUCH = 813;
+    } else if (::is_ps()) {
+        SPR_BOSS6_W1 = 895;
+        SPR_BOSS6_W2 = 896;
+        SPR_BOSS6_W3 = 897;
+        SPR_BOSS6_W4 = 898;
+        SPR_BOSS6_SWING1 = 899;
+        SPR_BOSS6_SWING2 = 900;
+        SPR_BOSS6_SWING3 = 901;
+        SPR_BOSS6_DEAD = 902;
+        SPR_BOSS6_DIE1 = 903;
+        SPR_BOSS6_DIE2 = 904;
+        SPR_BOSS6_DIE3 = 905;
+        SPR_BOSS6_DIE4 = 906;
+        SPR_BOSS6_OUCH = 907;
+    }
+
+
+    if (::is_ps()) {
+        SPR_BOSS7_W1 = 908;
+        SPR_BOSS7_W2 = 909;
+        SPR_BOSS7_W3 = 910;
+        SPR_BOSS7_W4 = 911;
+        SPR_BOSS7_SHOOT1 = 912;
+        SPR_BOSS7_SHOOT2 = 913;
+        SPR_BOSS7_SHOOT3 = 914;
+        SPR_BOSS7_DEAD = 915;
+        SPR_BOSS7_DIE1 = 916;
+        SPR_BOSS7_DIE2 = 917;
+        SPR_BOSS7_DIE3 = 918;
+        SPR_BOSS7_DIE4 = 919;
+        SPR_BOSS7_OUCH = 920;
+    }
+
+    if (::is_ps()) {
+        SPR_BOSS8_W1 = 921;
+        SPR_BOSS8_W2 = 922;
+        SPR_BOSS8_W3 = 923;
+        SPR_BOSS8_W4 = 924;
+        SPR_BOSS8_SHOOT1 = 925;
+        SPR_BOSS8_SHOOT2 = 926;
+        SPR_BOSS8_SHOOT3 = 927;
+        SPR_BOSS8_DIE1 = 928;
+        SPR_BOSS8_DIE2 = 929;
+        SPR_BOSS8_DIE3 = 930;
+        SPR_BOSS8_DIE4 = 931;
+        SPR_BOSS8_DEAD = 932;
+        SPR_BOSS8_OUCH = 933;
+    }
+
+    if (::is_ps()) {
+        SPR_BOSS9_W1 = 934;
+        SPR_BOSS9_W2 = 935;
+        SPR_BOSS9_W3 = 936;
+        SPR_BOSS9_W4 = 937;
+        SPR_BOSS9_SHOOT1 = 938;
+        SPR_BOSS9_SHOOT2 = 939;
+        SPR_BOSS9_SHOOT3 = 940;
+        SPR_BOSS9_DIE1 = 941;
+        SPR_BOSS9_DIE2 = 942;
+        SPR_BOSS9_DIE3 = 943;
+        SPR_BOSS9_DIE4 = 944;
+        SPR_BOSS9_DEAD = 945;
+        SPR_BOSS9_OUCH = 946;
+    }
+
+    if (::is_ps()) {
+        SPR_BOSS10_W1 = 947;
+        SPR_BOSS10_W2 = 948;
+        SPR_BOSS10_W3 = 949;
+        SPR_BOSS10_W4 = 950;
+        SPR_BOSS10_SHOOT1 = 951;
+        SPR_BOSS10_SHOOT2 = 952;
+        SPR_BOSS10_SHOOT3 = 953;
+        SPR_BOSS10_DEAD = 954;
+        SPR_BOSS10_DIE1 = 955;
+        SPR_BOSS10_DIE2 = 956;
+        SPR_BOSS10_DIE3 = 957;
+        SPR_BOSS10_DIE4 = 958;
+        SPR_BOSS10_OUCH = 959;
+
+        SPR_BOSS10_SPIT1 = 960;
+        SPR_BOSS10_SPIT2 = 961;
+        SPR_BOSS10_SPIT3 = 962;
+        SPR_BOSS10_SPIT_EXP1 = 963;
+        SPR_BOSS10_SPIT_EXP2 = 964;
+        SPR_BOSS10_SPIT_EXP3 = 965;
+    }
+
+    if (::is_ps()) {
+        SPR_DETONATOR_EXP1 = 966;
+        SPR_DETONATOR_EXP2 = 967;
+        SPR_DETONATOR_EXP3 = 968;
+        SPR_DETONATOR_EXP4 = 969;
+        SPR_DETONATOR_EXP5 = 970;
+        SPR_DETONATOR_EXP6 = 971;
+        SPR_DETONATOR_EXP7 = 972;
+        SPR_DETONATOR_EXP8 = 973;
+    }
+
+    if (::is_ps()) {
+        SPR_CLIP_EXP1 = 974;
+        SPR_CLIP_EXP2 = 975;
+        SPR_CLIP_EXP3 = 976;
+        SPR_CLIP_EXP4 = 977;
+        SPR_CLIP_EXP5 = 978;
+        SPR_CLIP_EXP6 = 979;
+        SPR_CLIP_EXP7 = 980;
+        SPR_CLIP_EXP8 = 981;
+    }
+
+    if (::is_ps()) {
+        SPR_BFG_WEAPON1 = 982;
+        SPR_BFG_WEAPON2 = 983;
+        SPR_BFG_WEAPON3 = 984;
+        SPR_BFG_WEAPON4 = 985;
+        SPR_BFG_WEAPON5 = 986;
+    }
+
+    if (::is_ps()) {
+        SPR_BFG_WEAPON_SHOT1 = 987;
+        SPR_BFG_WEAPON_SHOT2 = 988;
+        SPR_BFG_WEAPON_SHOT3 = 989;
+    }
+
+    if (::is_ps()) {
+        SPR_BFG_EXP1 = 990;
+        SPR_BFG_EXP2 = 991;
+        SPR_BFG_EXP3 = 992;
+        SPR_BFG_EXP4 = 993;
+        SPR_BFG_EXP5 = 994;
+        SPR_BFG_EXP6 = 995;
+        SPR_BFG_EXP7 = 996;
+        SPR_BFG_EXP8 = 997;
+    }
+}
+
+// Sprites
+// ==========================================================================
+
+
 /*
 =============================================================================
 
