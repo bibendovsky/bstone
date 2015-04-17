@@ -643,6 +643,7 @@ void LatchNumber(
 // ===========================================================================
 
 
+#ifdef BSTONE_AOG
 namespace {
 
 int ecg_scroll_tics = 0;
@@ -790,6 +791,7 @@ void DrawHealthMonitor()
         200 - STATUSLINES + 32,
         heart_picture_index);
 }
+#endif
 
 // --------------------------------------------------------------------------
 // DrawHealth()

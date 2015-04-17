@@ -203,7 +203,6 @@ CP_itemtype MainMenu[] = {
 },
 
 
-#ifdef BSTONE_AOG
             NewEmenu[] = {
     { AT_ENABLED, "MISSION 1:\n"
       "STAR INSTITUTE", 0 },
@@ -223,7 +222,6 @@ CP_itemtype MainMenu[] = {
     { AT_NON_SELECTABLE, "MISSION 6:\n"
       "SATELLITE DEFENSE", 0 },
 },
-#endif
 
 NewMenu[] = {
     { AT_ENABLED, "LEVEL 1:\n"

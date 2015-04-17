@@ -430,7 +430,6 @@ void ChangeShootMode(
     objtype* ob);
 
 
-#ifdef BSTONE_AOG
 static int get_remaining_generators()
 {
     int remaining_generators = 0;
@@ -477,7 +476,6 @@ static void display_remaining_generators()
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_FLOOR_UNLOCKED, MT_GENERAL);
 }
-#endif
 
 
 // ===========================================================================
