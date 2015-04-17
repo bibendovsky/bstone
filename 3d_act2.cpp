@@ -1864,28 +1864,21 @@ void T_SmartThought(
                 break;
 
             case rotating_cubeobj:
-#ifdef BSTONE_AOG
-                switch (obj->temp1) {
-                case SPR_VITAL_OUCH:
-                    InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
-                    break;
+                if (::is_aog()) {
+                    if (obj->temp1 == SPR_VITAL_OUCH) {
+                        InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+                    } else if (obj->temp1 == SPR_VITAL_DIE_8) {
+                        InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
 
-                case SPR_VITAL_DIE_8:
-                    InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
-
-                    if (::get_remaining_generators() == 0) {
-                        obj->ammo = 1;
+                        if (::get_remaining_generators() == 0) {
+                            obj->ammo = 1;
+                        }
                     }
-                    break;
-
-                default:
-                    break;
+                } else if (::is_ps()) {
+                    DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
+                    ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
+                    obj->lighting = 0;
                 }
-#else
-                DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
-                ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
-                obj->lighting = 0;
-#endif
                 break;
 
             case inertobj:
@@ -1921,20 +1914,17 @@ void T_SmartThought(
         int new_frame = ANIM_INFO(obj)->curframe;
         bool is_frame_changed = (old_frame != new_frame);
 
-#ifdef BSTONE_AOG
-        if (!is_animated &&
+        if (::is_aog() &&
+            !is_animated &&
             is_frame_changed &&
             obj->obclass == rotating_cubeobj)
         {
-            switch (obj->temp1) {
-            case SPR_VITAL_DIE_2:
+            if (obj->temp1 == SPR_VITAL_DIE_2) {
                 ::display_remaining_generators();
-
-            case SPR_VITAL_DIE_4:
+            } else if (obj->temp1 == SPR_VITAL_DIE_4) {
+                ::display_remaining_generators();
                 ::ExplodeRadius(obj, 35 + (::US_RndT() & 15), true);
-                break;
-
-            case SPR_VITAL_DEAD_1:
+            } else if (obj->temp1 == SPR_VITAL_DEAD_1) {
                 if (obj->ammo > 0) {
                     obj->ammo -= 1;
 
@@ -1942,13 +1932,8 @@ void T_SmartThought(
                         playstate = ex_victorious;
                     }
                 }
-                break;
-
-            default:
-                break;
             }
         }
-#endif
 
         if (ANIM_INFO(obj)->curframe == 3) {
             switch (obj->obclass) {

@@ -4447,7 +4447,6 @@ extern char MusicOff[];
 extern char SoundOn[];
 extern char SoundOff[];
 
-#ifdef BSTONE_PS
 extern char pd_dropped[];
 extern char pd_nomore[];
 extern char pd_switching[];
@@ -4457,7 +4456,6 @@ extern char pd_floorunlocked[];
 extern char pd_donthaveany[];
 extern char pd_no_computer[];
 extern char pd_floornotlocked[];
-#endif
 
 
 /*

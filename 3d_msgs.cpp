@@ -181,7 +181,6 @@ char NoFoodTokens[] = "\r\r  YOU DON'T HAVE ANY\r"
 
 
 
-#ifdef BSTONE_PS
 // ---------------------------------------------------------------------------
 //
 // FISSION DETONATOR(S) MESSAGES
@@ -229,7 +228,6 @@ char pd_floornotlocked[] = "^SH035^FCA6\r TRANSPORTER\r"
                            " SECURITY\r"
                            " ALREADY\r"
                            " DISABLED.";
-#endif
 
 // ---------------------------------------------------------------------------
 //
