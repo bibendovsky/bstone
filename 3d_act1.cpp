@@ -362,24 +362,17 @@ void SpawnStatic(
 #endif
 
 
-    switch (spot->shapenum) {
-#if GAME_VERSION != SHAREWARE_VERSION
-    case SPR_STAT_3: // floor lamp
-#endif
-    case SPR_STAT_14: // ceiling light
-#if GAME_VERSION != SHAREWARE_VERSION
-    case SPR_STAT_20: //
-#endif
-    case SPR_STAT_47:
-    case SPR_STAT_51:
-    case SPR_STAT_55:
-    case SPR_STAT_56:
+    if ((!::is_aog_sw() && spot->shapenum == SPR_STAT_3) || // // floor lamp
+        spot->shapenum == SPR_STAT_14 || // ceiling light
+        (!::is_aog_sw() && spot->shapenum == SPR_STAT_20) ||
+        spot->shapenum == SPR_STAT_47 ||
+        spot->shapenum == SPR_STAT_51 ||
+        spot->shapenum == SPR_STAT_55 ||
+        spot->shapenum == SPR_STAT_56)
+    {
         spot->lighting = LAMP_ON_SHADING;
-        break;
-
-    default:
+    } else {
         spot->lighting = 0;
-        break;
     }
 
 
