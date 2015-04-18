@@ -67,6 +67,8 @@ void CAL_OptimizeNodes(
 void OpenAudioFile();
 void ReadConfig();
 
+void initialize_sprite_ids();
+
 
 #define SKIP_CHECKSUMS (1)
 #define SHOW_CHECKSUM (0)
@@ -1365,6 +1367,9 @@ void freed_main()
 // Which version is this? (SHAREWARE? 1-3? 1-6?)
 //
     CheckForEpisodes();
+
+    // BBi
+    ::initialize_sprite_ids();
 
     std::string arg;
 
