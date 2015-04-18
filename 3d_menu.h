@@ -167,14 +167,10 @@ enum sw_labels {
     // BBi
     SW_NO_WALL_HIT_SOUND,
     SW_MODERN_CONTROLS,
-    SW_ALWAYS_RUN
-
-#ifdef BSTONE_AOG
-    ,
+    SW_ALWAYS_RUN,
     SW_HEART_BEAT_SOUND,
-    SW_ROTATED_AUTOMAP
-#endif // BSTONE_AOG
-}; // enum sw_labels
+    SW_ROTATED_AUTOMAP,
+}; // sw_labels
 
 
 

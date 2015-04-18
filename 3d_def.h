@@ -45,9 +45,7 @@ Free Software Foundation, Inc.,
 #define SKIP_TITLE_AND_CREDITS (0)
 #endif // _DEBUG
 
-#ifdef BSTONE_PS
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
-#endif
 
 #define VERSION_TEXT_COLOR (0x82)
 #define VERSION_TEXT_BKCOLOR (0x80)
@@ -210,7 +208,7 @@ case gen_scientistobj
 /*
 =============================================================================
 
-                                                 GLOBAL CONSTANTS
+ GLOBAL CONSTANTS
 
 =============================================================================
 */
@@ -267,10 +265,8 @@ case gen_scientistobj
 #define NUMAREAS 45
 #define DOORTRIGGERTILE 158
 
-#ifdef BSTONE_PS
 #define SMART_OFF_TRIGGER 159
 #define SMART_ON_TRIGGER 160
-#endif
 
 #define ELEVATORTILE2 27 // Space Will Switch
 #define TRANSPORTERTILE 21
@@ -280,7 +276,6 @@ case gen_scientistobj
 #define FOODTILE 18
 #define AMBUSHTILE 106
 
-#ifdef BSTONE_PS
 #define RKEY_TILE 72
 #define YKEY_TILE 73
 #define BKEY_TILE 74
@@ -290,7 +285,6 @@ case gen_scientistobj
 #define CLOAK_TILE 78
 #define LINC_TILE 79
 #define CLOAK_AMBUSH_TILE 80
-#endif
 
 #define EATILE 24
 #define ON_SWITCH 45 // ON Wall Switch -
@@ -391,10 +385,8 @@ case gen_scientistobj
 #define MAX_AMMO 100 // Max ammount of ammo for any weapon
 #define AUTOCHARGE_WAIT 50 // Tics wait time for a full charge
 
-#ifdef BSTONE_PS
 #define MAX_PLASMA_DETONATORS 100 // Max number of Plasma Detonators
 #define PLASMA_DETONATORS_DELAY 60 * 4 // Number of tics before plasma detonator explodes
-#endif
 
 
 
@@ -465,10 +457,8 @@ case gen_scientistobj
 
 // object flags2 values
 
-#ifdef BSTONE_PS
 #define FL2_BFGSHOT_SOLID 0x0001
 #define FL2_BFG_SHOOTABLE 0x0002
-#endif
 
 #define FL2_NOTGUNSHOOTABLE 0x0004
 #define FL2_SCARED 0x0008
@@ -476,14 +466,12 @@ case gen_scientistobj
 #define FL2_DROP_YKEY 0x0020
 #define FL2_DROP_BKEY 0x0040
 
-#ifdef BSTONE_PS
 #define FL2_DROP_BFG 0x0080
 #define FL2_DROP_ION 0x0100
 #define FL2_DROP_DETONATOR 0x0200
 #define FL2_CLOAKED 0x0400
 #define FL2_LINC 0x0800
 #define FL2_DAMAGE_CLOAK 0x1000
-#endif
 
 
 // Run Reason Flags -- Why am I running..Duh..
@@ -2188,11 +2176,8 @@ enum barrier_state_type {
     bt_ON,
     bt_DISABLING,
     bt_DISABLED,
-
-#ifdef BSTONE_PS
     bt_OPENING,                         // For physical barriers
-    bt_CLOSING                          //            " " "
-#endif
+    bt_CLOSING,                          //            " " "
 }; // enum barrier_state_type
 
 
@@ -2274,11 +2259,9 @@ enum keytype {
     kt_red,
     kt_yellow,
     kt_blue,
-#ifdef BSTONE_AOG
     kt_green,
     kt_gold,
-#endif
-    NUMKEYS
+    NUMKEYS,
 }; // enum keytype
 
 enum activetype {
@@ -2851,9 +2834,7 @@ struct tilecoord_t {
 // -----------------------------------
 
 struct barrier_type {
-#ifdef BSTONE_AOG
     Uint8 level;
-#endif
     tilecoord_t coord;
     Uint8 on;
 
@@ -3816,9 +3797,7 @@ extern Uint8 NumAreaMsgs, LastInfArea;
 extern Sint16 FirstGenInfMsg, TotalGenInfMsgs;
 extern classtype LastInfoAttacker;
 
-#ifdef BSTONE_PS
 extern Sint16 LastInfoAttacker_Cloaked;
-#endif
 
 extern char term_com_name[];
 extern char term_msg_name[];
@@ -3921,12 +3900,10 @@ void TakeKey(
 void GiveToken(
     Sint16 tokens);
 
-#ifdef BSTONE_PS
 void TakePlasmaDetonator(
     Sint16 count);
 void GivePlasmaDetonator(
     Sint16 count);
-#endif
 
 void CacheDrawPic(
     int x,
@@ -4052,9 +4029,7 @@ boolean ReuseMsg(
     Sint16 count,
     Sint16 struct_size);
 
-#ifdef BSTONE_PS
 void DropPlasmaDetonator();
-#endif
 
 void BlockDoorOpen(
     Sint16 door);
@@ -4107,15 +4082,11 @@ void MakeFakeStatic(
 void UnmakeFakeStatic(
     objtype* ob);
 
-#ifdef BSTONE_PS
 extern char detonators_spawned;
-#endif
 
 extern Sint16 starthitpoints[][NUMHITENEMIES];
 
-#ifdef BSTONE_PS
 extern Uint16 MorphClass[];
-#endif
 
 extern statetype s_ofs_bounce;
 
@@ -4415,9 +4386,7 @@ extern char food_msg1[];
 
 extern char bonus_msg7[];
 
-#ifdef BSTONE_PS
 extern char bonus_msg26[];
-#endif
 
 extern char* BonusMsg[];
 extern const char* ActorInfoMsg[];
