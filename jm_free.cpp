@@ -68,6 +68,7 @@ void OpenAudioFile();
 void ReadConfig();
 
 void initialize_sprite_ids();
+void initialize_shape_in_states();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1370,6 +1371,7 @@ void freed_main()
 
     // BBi
     ::initialize_sprite_ids();
+    ::initialize_shape_in_states();
 
     std::string arg;
 
