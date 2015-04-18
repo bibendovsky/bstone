@@ -1306,7 +1306,7 @@ int SPR_BFG_EXP7 = 0;
 int SPR_BFG_EXP8 = 0;
 
 
-void initialize_sprite_ids()
+void initialize_sprites()
 {
     if (!::is_aog_sw()) {
         SPR_STAT_0 = 1;
@@ -4519,7 +4519,7 @@ static int get_state_index(
     return -1;
 }
 
-void initialize_shape_in_states()
+void initialize_states()
 {
     s_ofs_stand.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
     s_ofs_chase1.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;

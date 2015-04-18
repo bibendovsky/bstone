@@ -67,8 +67,8 @@ void CAL_OptimizeNodes(
 void OpenAudioFile();
 void ReadConfig();
 
-void initialize_sprite_ids();
-void initialize_shape_in_states();
+void initialize_sprites();
+void initialize_states();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1370,8 +1370,8 @@ void freed_main()
     CheckForEpisodes();
 
     // BBi
-    ::initialize_sprite_ids();
-    ::initialize_shape_in_states();
+    ::initialize_sprites();
+    ::initialize_states();
 
     std::string arg;
 
