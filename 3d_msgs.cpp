@@ -58,9 +58,11 @@ const char bevs_msg1[] =
     "  A COLD BEVERAGE."
 ;
 #else
-char bevs_msg1[] = "\r FOOD UNIT DISPENSES\r"
-                   "  A COLD BEVERAGE.\r"
-                   "\r     TOKENS: XX";
+const char bevs_msg1[] =
+    "\r FOOD UNIT DISPENSES\r"
+    "  A COLD BEVERAGE.\r"
+    "\r     TOKENS: XX"
+;
 #endif
 
 // ---------------------------------------------------------------------------

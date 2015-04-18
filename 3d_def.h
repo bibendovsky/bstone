@@ -2178,7 +2178,7 @@ enum barrier_state_type {
     bt_DISABLED,
     bt_OPENING,                         // For physical barriers
     bt_CLOSING,                          //            " " "
-}; // enum barrier_state_type
+}; // barrier_state_type
 
 
 
@@ -2214,13 +2214,13 @@ struct PinballBonusInfo {
     Sint32 Points; // Score for this bonus
     boolean Recurring; // Appear multiple times in a single level?
     void (* func)(); // Code to execute when you get this bonus.
-}; // struct PinballBonusInfo
+}; // PinballBonusInfo
 
 struct atkinf_t {
     char tics;
     char attack;
-    char frame;                 // attack is 1 for gun, 2 for knife
-}; // struct atkinf_t
+    char frame; // attack is 1 for gun, 2 for knife
+}; // atkinf_t
 
 
 // NOTE - This enum list is ORDERED!
@@ -2229,7 +2229,7 @@ enum movie_t {
     mv_final,
     mv_final2, // AOG Episode 3/5
     mv_final3, // AOG Episode 6
-    mv_NUM_MOVIES
+    mv_NUM_MOVIES,
 }; // enum movie_t
 
 enum controldir_t {
@@ -2237,7 +2237,7 @@ enum controldir_t {
     di_east,
     di_south,
     di_west
-}; // enum controldir_t
+}; // controldir_t
 
 // NOTE - This enum list is ORDERED!
 enum door_t {
@@ -2252,7 +2252,7 @@ enum door_t {
     dr_oneway_right,
     dr_oneway_down,
     dr_space
-}; // enum door_t
+}; // door_t
 
 enum keytype {
     kt_none = -1,
@@ -2262,14 +2262,14 @@ enum keytype {
     kt_green,
     kt_gold,
     NUMKEYS,
-}; // enum keytype
+}; // keytype
 
 enum activetype {
     ac_badobject = -1,
     ac_no,
     ac_yes,
     ac_allways
-}; // enum activetype
+}; // activetype
 
 enum classtype {
     nothing,
@@ -2380,14 +2380,14 @@ enum classtype {
     gr_explosionobj,
     gold_morphingobj
 
-}; // enum classtype
+}; // classtype
 
 // BBi
 inline classtype operator++(
     classtype& a,
     int)
 {
-    classtype result = a;
+    auto result = a;
     a = static_cast<classtype>(a + 1);
     return result;
 }
@@ -2453,12 +2453,12 @@ enum stat_t {
 
     bo_green_key,
     bo_gold_key
-}; // enum stat_t
+}; // stat_t
 
 struct stattype {
     Sint16 picnum;
     stat_t type;
-}; // struct stattype
+}; // stattype
 
 enum dirtype {
     east,
@@ -2470,7 +2470,7 @@ enum dirtype {
     south,
     southeast,
     nodir
-}; // enum dirtype
+}; // dirtype
 
 // BBi
 inline dirtype operator+=(
@@ -2501,7 +2501,7 @@ inline dirtype operator--(
     dirtype& a,
     int)
 {
-    dirtype result = a;
+    auto result = a;
     a -= 1;
     return result;
 }
@@ -2510,7 +2510,7 @@ inline dirtype operator++(
     dirtype& a,
     int)
 {
-    dirtype result = a;
+    auto result = a;
     a += 1;
     return result;
 }
@@ -2602,8 +2602,8 @@ enum enemy_t {
     en_diagsphere,
     en_bloodvent,
     en_watervent,
-    NUMENEMIES
-}; // enum enemy_t
+    NUMENEMIES,
+}; // enemy_t
 
 
 #define SF_ROTATE 0x01
@@ -2664,7 +2664,7 @@ enum DoorAction {
     dr_opening,
     dr_closing,
     dr_jammed
-}; // enum DoorAction
+}; // DoorAction
 
 struct doorobj_t {
     Uint8 tilex;
@@ -2684,7 +2684,7 @@ struct doorobj_t {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct doorobj_t
+}; // doorobj_t
 
 
 // --------------------
@@ -2754,7 +2754,7 @@ struct objtype {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct objtype
+}; // objtype
 
 
 
@@ -2775,8 +2775,8 @@ enum ButtonState {
 
     bt_SPACER,
 
-    NUMBUTTONS
-}; // enum ButtonState
+    NUMBUTTONS,
+}; // ButtonState
 
 
 enum weapontype {
@@ -2789,8 +2789,8 @@ enum weapontype {
 //      wp_plasma_detonators,
 
     wp_SPACER,
-    NUMWEAPONS
-}; // enum weapontype
+    NUMWEAPONS,
+}; // weapontype
 
 
 
@@ -2798,15 +2798,15 @@ enum Difficulty {
     gd_baby,
     gd_easy,
     gd_medium,
-    gd_hard
-}; // enum Difficulty
+    gd_hard,
+}; // Difficulty
 
 
 
 enum backgroundtype {
     ELEVATOR_BACK,
     TRANSPORTER_BACK
-}; // enum backgroundtype
+}; // backgroundtype
 
 
 
@@ -2825,7 +2825,7 @@ struct tilecoord_t {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct tilecoord_t
+}; // tilecoord_t
 
 // -----------------------------------
 //
@@ -2845,7 +2845,7 @@ struct barrier_type {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct barrier_type;
+}; // barrier_type;
 
 
 // ---------------
@@ -2888,7 +2888,7 @@ struct levelinfo {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct levelinfo
+}; // levelinfo
 
 
 struct fargametype {
@@ -2902,7 +2902,7 @@ struct fargametype {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct fargametype
+}; // fargametype
 
 struct gametype {
     Sint16 turn_around;
@@ -2971,7 +2971,7 @@ struct gametype {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct gametype
+}; // gametype
 
 enum exit_t {
     ex_stillplaying,
@@ -2986,7 +2986,7 @@ enum exit_t {
     ex_demodone,
     ex_secretlevel,
     ex_title
-}; // enum exit_t
+}; // exit_t
 
 
 struct CycleInfo {
@@ -3003,20 +3003,20 @@ struct visobj_t {
            shapenum;
     char lighting;
     char cloaked;
-}; // struct visobj_t
+}; // visobj_t
 
 
 enum animtype_t {
     at_NONE = 0,
     at_CYCLE,
     at_REBOUND,
-    at_ONCE
-}; // enum animtype_t
+    at_ONCE,
+}; // animtype_t
 
 enum animdir_t {
     ad_FWD = 0,
-    ad_REV
-}; // enum animdir_t
+    ad_REV,
+}; // animdir_t
 
 
 struct ofs_anim_t {
@@ -3025,7 +3025,7 @@ struct ofs_anim_t {
     Uint16 maxframe : 5;
     Uint16 animdir : 1; // animdir_t
     Uint16 extra : 3;
-}; // struct ofs_anim_t
+}; // ofs_anim_t
 
 
 //
@@ -3065,8 +3065,8 @@ enum msg_priorities {
     MP_FLOOR_UNLOCKED = 0x3000,
 
     MP_POWERUP = 0x7000, // Power-Up/Game-Start Value
-    MP_max_val = 0x7FFF // DO NOT USE/EXCEED - MAX Val
-}; // enum msg_priorities
+    MP_max_val = 0x7FFF, // DO NOT USE/EXCEED - MAX Val
+}; // msg_priorities
 
 enum infomsg_type {
     MT_NOTHING,
@@ -3076,8 +3076,8 @@ enum infomsg_type {
     MT_OUT_OF_AMMO,
     MT_MALFUNCTION,
     MT_NO_MO_FOOD_TOKENS,
-    MT_BONUS
-}; // enum infomsg_type
+    MT_BONUS,
+}; // infomsg_type
 
 
 //
@@ -3094,8 +3094,8 @@ enum inst_type {
     IT_CONTROLS,
     IT_CONTROLS_ASSIGNING_KEY,
 
-    MAX_INSTRUCTIONS
-}; // enum inst_type
+    MAX_INSTRUCTIONS,
+}; // inst_type
 
 
 
@@ -3118,14 +3118,14 @@ struct mCacheInfo {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct mCacheInfo
+}; // mCacheInfo
 
 // Basic 'message list' structure
 //
 struct mCacheList {
     Sint16 NumMsgs; // number of messages
     mCacheInfo mInfo[MAX_CACHE_MSGS]; // table of message 'info'
-}; // struct mCacheList
+}; // mCacheList
 
 // ----------------------- CONCESSION STRUCTURES --------------------------
 
@@ -3143,7 +3143,7 @@ struct con_mCacheInfo {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct con_mCacheInfo
+}; // con_mCacheInfo
 
 // Concession 'message list' structure
 //
@@ -3158,7 +3158,7 @@ struct concession_t {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct concession_t
+}; // concession_t
 
 // ------------------------ INFORMANT STRUCTURES --------------------------
 
@@ -3167,14 +3167,14 @@ struct concession_t {
 struct sci_mCacheInfo {
     mCacheInfo mInfo;
     Uint8 areanumber; // 'where' msg can be used
-}; // struct sci_mCacheInfo
+}; // sci_mCacheInfo
 
 // Informant 'message list' structure
 //
 struct scientist_t {
     Sint16 NumMsgs;
     sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
-}; // struct scientist_t
+}; // scientist_t
 
 // ------------------------------------------------------------------------
 
@@ -3194,7 +3194,7 @@ struct eaWallInfo {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct eaWallInfo
+}; // eaWallInfo
 
 
 
@@ -3217,13 +3217,13 @@ struct GoldsternInfo_t {
     void deserialize(
         bstone::BinaryReader& reader,
         Uint32& checksum);
-}; // struct GoldsternInfo_t
+}; // GoldsternInfo_t
 
 
 struct star_t {
     Sint32 x, y, z;
     Uint8 color;
-}; // struct star_t
+}; // star_t
 
 #define MAX_SPACE_THRUST ((Sint32)0x4fff)
 
@@ -3747,7 +3747,7 @@ struct t_compshape {
     Uint16 leftpix, rightpix;
     Uint16 dataofs[64];
 // table data after dataofs[rightpix-leftpix+1]
-}; // struct t_compshape
+}; // t_compshape
 
 extern int maxscale;
 extern int maxscaleshl2;
@@ -4376,13 +4376,8 @@ extern void EndText();
 
 extern char noeat_msg1[];
 
-#ifdef BSTONE_AOG
 extern const char bevs_msg1[];
 extern const char food_msg1[];
-#else
-extern char bevs_msg1[];
-extern char food_msg1[];
-#endif
 
 extern char bonus_msg7[];
 

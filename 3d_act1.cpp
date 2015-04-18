@@ -2198,13 +2198,8 @@ boolean ReuseMsg(
 // OperateConcession()
 // --------------------------------------------------------------------------
 
-#ifdef BSTONE_AOG
 extern const char food_msg1[];
 extern const char bevs_msg1[];
-#else
-extern char food_msg1[];
-extern char bevs_msg1[];
-#endif
 
 extern void writeTokenStr(
     char* str);
