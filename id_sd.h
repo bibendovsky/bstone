@@ -246,7 +246,7 @@ SD_Default(boolean gotit, SDMode sd, SMMode sm),
 
 SD_PositionSound(Sint16 leftvol, Sint16 rightvol);
 extern boolean SD_PlaySound(
-    soundnames sound);
+    int sound);
 extern void SD_SetPosition(
     Sint16 leftvol,
     Sint16 rightvol),

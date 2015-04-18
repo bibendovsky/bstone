@@ -4503,7 +4503,7 @@ Sint16 Confirm(
     IN_ClearKeysDown();
 
     ::sd_play_player_sound(
-        static_cast<soundnames>(whichsnd[xit]),
+        whichsnd[xit],
         bstone::AC_ITEM);
 
     FREEFONT(STARTFONT + fontnumber);
@@ -4723,12 +4723,12 @@ boolean CheckForSpecialCode(
 void StartCPMusic(
     Sint16 song)
 {
-    musicnames chunk;
+    int chunk;
 
     lastmenumusic = song;
 
     SD_MusicOff();
-    chunk = static_cast<musicnames>(song);
+    chunk = song;
     CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + chunk));
     ::SD_StartMusic(chunk);
 }

@@ -69,6 +69,7 @@ void ReadConfig();
 
 void initialize_sprites();
 void initialize_states();
+void initialize_audio_constants();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1372,6 +1373,7 @@ void freed_main()
     // BBi
     ::initialize_sprites();
     ::initialize_states();
+    ::initialize_audio_constants();
 
     std::string arg;
 

@@ -4803,6 +4803,111 @@ void initialize_states()
     //s_attack.shapenum = ;
 }
 
+
+int NUMSNDCHUNKS = 0;
+
+int S2100A_MUS = 0;
+int GOLDA_MUS = 0;
+int DRKHALLA_MUS = 0;
+int FREEDOMA_MUS = 0;
+int GENEFUNK_MUS = 0;
+int TIMEA_MUS = 0;
+int HIDINGA_MUS = 0;
+int INCNRATN_MUS = 0;
+int JUNGLEA_MUS = 0;
+int LEVELA_MUS = 0;
+int MEETINGA_MUS = 0;
+int STRUTA_MUS = 0;
+int RACSHUFL_MUS = 0;
+int RUMBAA_MUS = 0;
+int SEARCHNA_MUS = 0;
+int THEWAYA_MUS = 0;
+int INTRIGEA_MUS = 0;
+
+int CATACOMB_MUS = 0;
+int STICKS_MUS = 0;
+int PLOT_MUS = 0;
+int CIRCLES_MUS = 0;
+int LASTLAFF_MUS = 0;
+int TOHELL_MUS = 0;
+int FORTRESS_MUS = 0;
+int GIVING_MUS = 0;
+int HARTBEAT_MUS = 0;
+int LURKING_MUS = 0;
+int MAJMIN_MUS = 0;
+int VACCINAP_MUS = 0;
+int DARKNESS_MUS = 0;
+int MONASTRY_MUS = 0;
+int TOMBP_MUS = 0;
+int TIME_MUS = 0;
+int MOURNING_MUS = 0;
+int SERPENT_MUS = 0;
+int HISCORE_MUS = 0;
+
+int APOGFNFM_MUS = 0;
+int THEME_MUS = 0;
+int LASTMUSIC = 0;
+
+
+void initialize_audio_constants()
+{
+    if (::is_ps()) {
+        NUMSNDCHUNKS = 319;
+
+        THEME_MUS = 16;
+        LASTMUSIC = 19;
+    } else {
+        NUMSNDCHUNKS = 321;
+
+        THEME_MUS = 20;
+        LASTMUSIC = 21;
+    }
+
+    APOGFNFM_MUS = 2;
+
+    S2100A_MUS = 0;
+    GOLDA_MUS = 1;
+    APOGFNFM_MUS = 2;
+    DRKHALLA_MUS = 3;
+    FREEDOMA_MUS = 4;
+    GENEFUNK_MUS = 5;
+    TIMEA_MUS = 6;
+    HIDINGA_MUS = 7;
+    INCNRATN_MUS = 8;
+    JUNGLEA_MUS = 9;
+    LEVELA_MUS = 10;
+    MEETINGA_MUS = 11;
+    STRUTA_MUS = 12;
+    RACSHUFL_MUS = 13;
+    RUMBAA_MUS = 14;
+    SEARCHNA_MUS = 15;
+    THEWAYA_MUS = 17;
+    INTRIGEA_MUS = 18;
+
+    CATACOMB_MUS = 0;
+    STICKS_MUS = 1;
+    PLOT_MUS = 3;
+    CIRCLES_MUS = 4;
+    LASTLAFF_MUS = 5;
+    TOHELL_MUS = 6;
+    FORTRESS_MUS = 7;
+    GIVING_MUS = 8;
+    HARTBEAT_MUS = 9;
+    LURKING_MUS = 10;
+    MAJMIN_MUS = 11;
+    VACCINAP_MUS = 12;
+    DARKNESS_MUS = 13;
+    MONASTRY_MUS = 14;
+    TOMBP_MUS = 15;
+    TIME_MUS = 16;
+    MOURNING_MUS = 17;
+    SERPENT_MUS = 18;
+    HISCORE_MUS = 19;
+
+    audiosegs.resize(NUMSNDCHUNKS);
+}
+
+
 // ========================================================================
 // ArchiveException
 

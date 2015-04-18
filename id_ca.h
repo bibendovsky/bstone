@@ -81,6 +81,9 @@ struct mapfiletype {
 
 // ===========================================================================
 
+using AudioSegments = std::vector<uint8_t*>;
+
+
 extern std::string audioname;
 
 extern Uint16 rlew_tag;
@@ -89,7 +92,7 @@ extern Sint16 mapon;
 
 extern Uint16* mapsegs[MAPPLANES];
 extern maptype* mapheaderseg[NUMMAPS];
-extern Uint8* audiosegs[NUMSNDCHUNKS];
+extern AudioSegments audiosegs;
 extern void* grsegs[NUMCHUNKS];
 
 extern Uint8 grneeded[NUMCHUNKS];

@@ -407,7 +407,7 @@ void MOVIE_HandlePage(
         sound_chunk = *(Uint16*)frame;
 
         ::sd_play_player_sound(
-            static_cast<soundnames>(sound_chunk),
+            sound_chunk,
             bstone::AC_ITEM);
 
         BufferPtr += blk.recsize;

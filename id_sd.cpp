@@ -119,7 +119,8 @@ static const char* ParmStrings[] = {
     "ss3",
     NULL
 };
-soundnames SoundNumber, DigiNumber;
+int SoundNumber;
+int DigiNumber;
 Uint16 SoundPriority, DigiPriority;
 Sint16 LeftPosition, RightPosition;
 Sint32 LocalTime;

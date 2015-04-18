@@ -1538,22 +1538,22 @@ void StopMusic()
 void StartMusic(
     boolean preload)
 {
-    musicnames musicchunk;
+    int musicchunk;
 
     SD_MusicOff();
 
 #ifdef BSTONE_AOG
-    musicchunk = static_cast<musicnames>(songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS]);
+    musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
 #else
 #if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
     if (gamestate.flags & GS_MUSIC_TEST) {
-        musicchunk = static_cast<musicnames>(music_num);
+        musicchunk = music_num;
     } else
 #endif
     if (playstate == ex_victorious) {
         musicchunk = FORTRESS_MUS;
     } else {
-        musicchunk = static_cast<musicnames>(songs[gamestate.mapon + gamestate.episode * MAPS_PER_EPISODE]);
+        musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_PER_EPISODE];
     }
 #endif
 

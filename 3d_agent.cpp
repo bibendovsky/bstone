@@ -2515,8 +2515,7 @@ void GetBonus(
             return;
         }
 
-        ::sd_play_player_sound(static_cast<soundnames>(
-                                   static_health[check->itemnumber - bo_fullheal][1]),
+        ::sd_play_player_sound(static_health[check->itemnumber - bo_fullheal][1],
                                bstone::AC_ITEM);
 
         HealSelf(static_health[check->itemnumber - bo_fullheal][0]);

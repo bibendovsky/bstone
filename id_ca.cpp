@@ -66,7 +66,7 @@ Sint16 mapon;
 
 Uint16* mapsegs[MAPPLANES];
 maptype* mapheaderseg[NUMMAPS];
-Uint8* audiosegs[NUMSNDCHUNKS];
+AudioSegments audiosegs;
 void* grsegs[NUMCHUNKS];
 
 Uint8 grneeded[NUMCHUNKS];
