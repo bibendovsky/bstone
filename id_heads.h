@@ -109,16 +109,6 @@ extern char signonv1;
 #include "audio.h"
 #include "gfxv.h"
 
-#ifdef BSTONE_AOG
-#if GAME_VERSION != SHAREWARE_VERSION
-#include "mapsbs6.h"
-#else
-#include "mapsbs1.h"
-#endif
-#else
-#include "mapsvsi.h"
-#endif // BSTONE_AOG
-
 #else
 
 #include "GFXV_SOD.H"
