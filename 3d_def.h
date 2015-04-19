@@ -2789,8 +2789,9 @@ enum weapontype {
 //      wp_plasma_detonators,
 
     wp_SPACER,
-    NUMWEAPONS,
 }; // weapontype
+
+extern int NUMWEAPONS;
 
 
 

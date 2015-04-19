@@ -113,6 +113,8 @@ GoldsternInfo_t GoldsternInfo;
 
 extern Uint16 scan_value;
 
+int NUMWEAPONS = 0;
+
 
 //
 // ELEVATOR BACK MAPS - REMEMBER (-1)!!

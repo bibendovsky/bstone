@@ -1345,17 +1345,29 @@ void DrawScaleds()
 ==============
 */
 
-Sint16 weaponscale[NUMWEAPONS] = {
-    SPR_KNIFEREADY,
-    SPR_PISTOLREADY,
-    SPR_MACHINEGUNREADY,
-    SPR_CHAINREADY,
-    SPR_GRENADEREADY,
-#ifdef BSTONE_PS
-    SPR_BFG_WEAPON1,
-#endif
-    0
-};
+using WeaponScale = std::vector<int>;
+
+WeaponScale weaponscale;
+
+void initialize_weapon_constants()
+{
+    if (!::is_ps()) {
+        NUMWEAPONS = 6;
+    } else {
+        NUMWEAPONS = 7;
+    }
+
+    weaponscale = {
+        SPR_KNIFEREADY,
+        SPR_PISTOLREADY,
+        SPR_MACHINEGUNREADY,
+        SPR_CHAINREADY,
+        SPR_GRENADEREADY,
+        SPR_BFG_WEAPON1,
+        0,
+    };
+}
+
 
 boolean useBounceOffset = false;
 
