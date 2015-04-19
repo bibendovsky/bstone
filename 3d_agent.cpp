@@ -2398,16 +2398,23 @@ Uint16 static_points[] = { 100, // money bag
                            5000 // bonus
 };
 
-Uint16 static_health[][3] = {
-    { 100, HEALTH2SND, static_cast<Uint16>(-1) }, // Full Heal
-    { 30, HEALTH1SND, static_cast<Uint16>(-1) }, // First Aid
-    { 20, HEALTH1SND, SPR_STAT_45 }, // Steak
-    { 15, HEALTH1SND, SPR_STAT_43 }, // Chicken Leg
-    { 10, HEALTH1SND, SPR_SANDWICH_WRAPER }, // Sandwich
-    { 8, HEALTH1SND, SPR_CANDY_WRAPER }, // Candy Bar
-    { 5, HEALTH1SND, SPR_STAT_41 }, // Water bowl
-    { 5, HEALTH1SND, static_cast<Uint8>(-1) }, // Water puddle
-};
+using StaticHealthTable = std::vector<std::array<uint16_t, 3>>;
+
+StaticHealthTable static_health;
+
+void initialize_static_health_table()
+{
+    static_health = {
+        { 100, HEALTH2SND, static_cast<Uint16>(-1), }, // Full Heal
+        { 30, HEALTH1SND, static_cast<Uint16>(-1), }, // First Aid
+        { 20, HEALTH1SND, SPR_STAT_45, }, // Steak
+        { 15, HEALTH1SND, SPR_STAT_43, }, // Chicken Leg
+        { 10, HEALTH1SND, SPR_SANDWICH_WRAPER, }, // Sandwich
+        { 8, HEALTH1SND, SPR_CANDY_WRAPER, }, // Candy Bar
+        { 5, HEALTH1SND, SPR_STAT_41, }, // Water bowl
+        { 5, HEALTH1SND, static_cast<Uint8>(-1), }, // Water puddle
+    };
+}
 
 extern char bonus_msg24[];
 extern char bonus_msg25[];
