@@ -74,6 +74,7 @@ void initialize_gfxv_contants();
 void initialize_shape_table();
 void initialize_static_info_constants();
 void initialize_weapon_constants();
+void initialize_grenade_shape_constants();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1382,6 +1383,7 @@ void freed_main()
     ::initialize_audio_constants();
     ::initialize_static_info_constants();
     ::initialize_weapon_constants();
+    ::initialize_grenade_shape_constants();
 
     std::string arg;
 

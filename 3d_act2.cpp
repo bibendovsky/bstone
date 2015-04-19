@@ -999,9 +999,25 @@ void SpawnOffsetObj(
 // NOTE: This think is used for NON-SmartAnim objects
 // ---------------------------------------------------------------------------
 
-Sint16 grenade_shapes[] = { SPR_GRENADE_FLY3, SPR_GRENADE_FLY3, SPR_GRENADE_FLY2,
-                            SPR_GRENADE_FLY1, SPR_GRENADE_FLY2, SPR_GRENADE_FLY2,
-                            SPR_GRENADE_FLY3, SPR_GRENADE_FLY4, 0 };
+using GrenadeShapes = std::vector<int>;
+
+
+GrenadeShapes grenade_shapes;
+
+void initialize_grenade_shape_constants()
+{
+    grenade_shapes = {
+        SPR_GRENADE_FLY3,
+        SPR_GRENADE_FLY3,
+        SPR_GRENADE_FLY2,
+        SPR_GRENADE_FLY1,
+        SPR_GRENADE_FLY2,
+        SPR_GRENADE_FLY2,
+        SPR_GRENADE_FLY3,
+        SPR_GRENADE_FLY4,
+        0,
+    };
+}
 
 void T_OfsThink(
     objtype* obj)
