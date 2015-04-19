@@ -2150,7 +2150,6 @@ Sint16 DrawShape(
         width = 37;
         break;
 
-#if NUMPICS
     case pis_latchpic:
         x = (x + 7) & 0xFFF8;
 // old_ofs = bufferofs;
@@ -2176,7 +2175,6 @@ Sint16 DrawShape(
 // bufferofs = old_ofs;
         UNCACHEGRCHUNK(shapenum);
         break;
-#endif
 
 #if NUMSPRITES && 0
     case pis_sprite:

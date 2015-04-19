@@ -71,6 +71,7 @@ void initialize_sprites();
 void initialize_states();
 void initialize_audio_constants();
 void initialize_gfxv_contants();
+void initialize_shape_table();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1373,9 +1374,10 @@ void freed_main()
 
     // BBi
     ::initialize_sprites();
-    ::initialize_states();
-    ::initialize_audio_constants();
     ::initialize_gfxv_contants();
+    ::initialize_states();
+    ::initialize_shape_table();
+    ::initialize_audio_constants();
 
     std::string arg;
 

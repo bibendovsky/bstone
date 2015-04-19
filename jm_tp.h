@@ -168,7 +168,9 @@ struct piAnimInfo {
 // -------------------------------------------------------------------------
 // variable externs
 // -------------------------------------------------------------------------
-extern piShapeInfo piShapeTable[];
+using PiShapeInfos = std::vector<piShapeInfo>;
+
+extern PiShapeInfos piShapeTable;
 extern piAnimInfo piAnimTable[];
 extern piAnimInfo piAnimList[TP_MAX_ANIMS];
 extern char* piStringTable[PI_MAX_NUM_DISP_STRS];
