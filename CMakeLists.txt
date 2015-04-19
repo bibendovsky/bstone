@@ -123,6 +123,7 @@ set(
     "${CMAKE_SOURCE_DIR}/gfxe_bs6.h"
     "${CMAKE_SOURCE_DIR}/gfxe_fir.h"
     "${CMAKE_SOURCE_DIR}/gfxe_vsi.h"
+    "${CMAKE_SOURCE_DIR}/gfxv.h"
     "${CMAKE_SOURCE_DIR}/gfxv_bs1.h"
     "${CMAKE_SOURCE_DIR}/gfxv_bs6.h"
     "${CMAKE_SOURCE_DIR}/gfxv_fir.h"

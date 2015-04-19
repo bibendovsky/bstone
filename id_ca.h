@@ -82,6 +82,8 @@ struct mapfiletype {
 // ===========================================================================
 
 using AudioSegments = std::vector<uint8_t*>;
+using GrSegments = std::vector<void*>;
+using GrNeeded = std::vector<uint8_t>;
 
 
 extern std::string audioname;
@@ -93,9 +95,9 @@ extern Sint16 mapon;
 extern Uint16* mapsegs[MAPPLANES];
 extern maptype* mapheaderseg[NUMMAPS];
 extern AudioSegments audiosegs;
-extern void* grsegs[NUMCHUNKS];
+extern GrSegments grsegs;
 
-extern Uint8 grneeded[NUMCHUNKS];
+extern GrNeeded grneeded;
 extern Uint8 ca_levelbit, ca_levelnum;
 
 extern char* titleptr[8];

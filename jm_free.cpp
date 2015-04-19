@@ -70,6 +70,7 @@ void ReadConfig();
 void initialize_sprites();
 void initialize_states();
 void initialize_audio_constants();
+void initialize_gfxv_contants();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1374,6 +1375,7 @@ void freed_main()
     ::initialize_sprites();
     ::initialize_states();
     ::initialize_audio_constants();
+    ::initialize_gfxv_contants();
 
     std::string arg;
 

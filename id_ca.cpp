@@ -67,9 +67,9 @@ Sint16 mapon;
 Uint16* mapsegs[MAPPLANES];
 maptype* mapheaderseg[NUMMAPS];
 AudioSegments audiosegs;
-void* grsegs[NUMCHUNKS];
+GrSegments grsegs;
 
-Uint8 grneeded[NUMCHUNKS];
+GrNeeded grneeded;
 Uint8 ca_levelbit, ca_levelnum;
 
 Sint16 profilehandle, debughandle;
