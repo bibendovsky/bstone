@@ -67,189 +67,167 @@ concession_t ConHintList = { 0 };
 */
 statobj_t statobjlist[MAXSTATS], * laststatobj;
 
-stattype statinfo[] = {
-    { SPR_STAT_0, bo_water_puddle }, // Water Puddle SPR1V
-    { SPR_STAT_1, block }, // Containment Canister
-    { SPR_STAT_2, block }, // Lunch Table
-    { SPR_STAT_3, block }, // Floor Lamp
-    { SPR_STAT_4, block }, // Lab Table
-    { SPR_STAT_5, block }, // Pillar
-    { SPR_STAT_6 }, // Blood Puddle
-    { SPR_STAT_7 }, // Piss Puddle
-
-    { SPR_STAT_8, block }, // Ficus Tree SPR2V
-    { SPR_STAT_9 }, // Half-Eaten Corpse
-    { SPR_STAT_10, block }, // Water Fountain
-    { SPR_STAT_11, block }, // Plant 1
-    { SPR_STAT_12, block }, // Vase
-    { SPR_STAT_13, block }, // General Table
-    { SPR_STAT_14 }, // Ceiling Light
-    { SPR_STAT_15, block }, // General Chair
-
-    { SPR_STAT_16, block }, // Kitchen Trash SPR3V
-    { SPR_STAT_17 }, // Office Trash
-    { SPR_STAT_18, block }, // Plant 2
-    { SPR_STAT_19, block }, // Gurney No-Blood
-    { SPR_STAT_20 }, // Indirect Half-Sphere
-    { SPR_STAT_21 }, // Exit Sign
-    { SPR_STAT_22 }, // Transporter
-    { SPR_STAT_23, block }, // Body Can
-
-    { SPR_STAT_24, bo_pistol }, // PISTOL SPR4V
-    { SPR_STAT_25, block }, // Statue
-
-    { SPR_STAT_31, bo_clip }, // Charge Unit
-
-    { SPR_STAT_27, bo_burst_rifle }, // Auto-Burst Rifle
-    { SPR_STAT_28, bo_ion_cannon }, // Particle Charged ION
-    { SPR_STAT_29, bo_firstaid }, // First Aid
-#ifdef BSTONE_AOG
-    { 0, bo_nothing },
-#else
-    { SPR_VSPIKE8, block }, // Static VSPIKE
-#endif
-
-    { SPR_STAT_26, bo_clip2 }, // Big Charge pack/clip
-
-    { SPR_STAT_32, bo_red_key }, // Red Key SPR5V
-    { SPR_STAT_33, bo_yellow_key }, // Yellow Key
-#ifdef BSTONE_AOG
-    { SPR_STAT_34, bo_green_key }, // Green Key
-#else
-    { SPR_STAT_34, bo_bfg_cannon }, // BFG Cannon
-#endif
-    { SPR_STAT_35, bo_blue_key }, // Blue Key
-#ifdef BSTONE_AOG
-    { SPR_STAT_36, bo_gold_key }, // Gold Key
-#else
-    { SPR_STAT_36 }, // OPEN
-#endif
-    { SPR_STAT_37, block }, // Office Desk
-    { SPR_STAT_38, block }, // Office Chair
-    { SPR_STAT_39, block }, // Security Desk
-
-    { SPR_STAT_40, bo_water }, // Full Water Bowl SPR7V
-    { SPR_STAT_41 }, // Empty Water Bowl
-    { SPR_STAT_42, bo_chicken }, // Chicken Leg
-    { SPR_STAT_43 }, // Chicken Bone
-    { SPR_STAT_44, bo_ham }, // Ham
-    { SPR_STAT_45 }, // Ham Bone
-    { SPR_STAT_46, bo_grenade }, // Grande Launcher
-    { SPR_STAT_47 }, // Video Game Machine
-
-#ifdef BSTONE_AOG
-    { 0, bo_nothing },
-#else
-    { SPR_VPOST8, block }, // Static VPOST
-#endif
-
-// -- VARIOUS --
-
-    { SPR_GURNEY_MUT_READY, block }, // 49 Gurney Mutant
-    { SPR_LCAN_ALIEN_READY, block }, // 50 Large     Alien Canister
-    { SPR_SCAN_ALIEN_READY, block }, // 51 Small Alien Canister
-
-    { SPR_GURNEY_MUT_EMPTY, block }, // 52 Gurney Mutant
-    { SPR_LCAN_ALIEN_EMPTY, block }, // 53 Large     Alien Canister
-    { SPR_SCAN_ALIEN_EMPTY, block }, // 54 Small Alien Canister
-
-    { SPR_OFC_DEAD }, // 55 Dead Gen Sci.
-
-    { 0 }, // 56 Spacer
-
-    { SPR_AIR_VENT, bo_plainvent }, // 57 Plain air vent
-    { SPR_AIR_VENT, bo_bloodvent }, // 58 Blood air vent
-    { SPR_AIR_VENT, bo_watervent }, // 59 Water air vent
-    { SPR_GRATE }, // 60 Floor Grate
-    { SPR_STEAM_PIPE }, // 61 Steam Pipe
-
-    { SPR_STAT_48, bo_money_bag }, // 62 money bag
-    { SPR_STAT_49, bo_loot }, // 63 loot
-    { SPR_STAT_50, bo_gold }, // 64 gold
-    { SPR_STAT_51, bo_bonus }, // 65 bonus
-
-    { SPR_STAT_52, block }, // 66 Greek Post
-    { SPR_STAT_53, block }, // 67 Red/Blue post
-    { SPR_STAT_54, block }, // 68 Red HiTech Post
-    { SPR_STAT_55 }, // 69 Ceiling Lamp #2
-    { SPR_STAT_56 }, // 70 Ceiling Lamp #3
-    { SPR_STAT_57 }, // 71 Body Parts
-    { SPR_STAT_58 }, // 72 OR Lamp
-    { SPR_STAT_59, block }, // 73 Office Sink
-    { SPR_STAT_57, dressing }, // EMPTY - Copy of 71 - Body Parts...
-    { SPR_CANDY_BAR, bo_candybar }, // 75 candy bar
-    { SPR_SANDWICH, bo_sandwich }, // 76 sandwich
-    { SPR_CRATE_1, block }, // 77 Crate #1
-    { SPR_CRATE_2, block }, // 78 Crate #2
-    { SPR_CRATE_3, block }, // 79 Crate #3
-    { SPR_STAT_61, block }, //      80 Table
-    { SPR_STAT_62, block }, //      81 Chair
-    { SPR_STAT_63, block }, //      82 Stool
-    { SPR_STAT_64 }, //      83 Gore
-
-    { SPR_STAT_65, bo_gold3 }, // Gold 3
-    { SPR_STAT_66, bo_gold2 }, // Gold 2
-    { SPR_STAT_67, bo_gold1 }, // Gold 1
-
-    { SPR_STAT_68, block }, //
-    { SPR_STAT_69, block }, //
-    { SPR_STAT_70, block }, //
-    { SPR_STAT_71, block }, //
-    { SPR_STAT_72, block }, //
-    { SPR_STAT_73 }, //
-    { SPR_STAT_74 }, //
-    { SPR_STAT_75 }, //
-    { SPR_STAT_76 }, //
-
-    { SPR_RENT_DEAD }, //
-    { SPR_PRO_DEAD }, //
-    { SPR_SWAT_DEAD }, //
-    { SPR_GSCOUT_DEAD }, //
-    { SPR_FSCOUT_DEAD }, //
-    { SPR_MUTHUM1_DEAD },
-#ifdef BSTONE_AOG
-    { 0, bo_nothing },
-#else
-    { SPR_MUTHUM2_DEAD },
-#endif
-    { SPR_LCAN_ALIEN_DEAD },
-    { SPR_SCAN_ALIEN_DEAD },
-    { SPR_GURNEY_MUT_DEAD },
-    { SPR_TERROT_DEAD },
-    { SPR_POD_DIE3 },
-    { SPR_STAT_77, bo_coin }, // Concession Machine Money
-    { SPR_STAT_78, bo_coin5 }, // Concession Machine Money
-    { SPR_STAT_79 }, // Auto-Charge Pistol
-
-#ifdef BSTONE_AOG
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-    { 0, bo_nothing },
-#else
-    { SPR_DOORBOMB, bo_plasma_detonator }, // Plasma Detonator
-    { SPR_RUBBLE }, // Door Rubble
-    { SPR_AUTOMAPPER, bo_automapper1 }, // Auto Mapper Bonus #1
-    { SPR_BONZI_TREE, block }, // BonziTree
-    { SPR_POT_PLANT, block }, // Yellow Potted Plant
-    { SPR_TUBE_PLANT, block }, // Tube Plant
-    { SPR_HITECH_CHAIR, block }, // Hi Tech table and chair
-    { SPR_DEAD_RENT }, // Dead AOG: Rent A Cop
-    { SPR_DEAD_PRO }, // Dead AOG: Pro Guard
-    { SPR_DEAD_SWAT }, // Dead AOG: Swat Guad
-#endif
+StatInfos statinfo;
 
 
-    { -1 } // terminator
+void initialize_static_info_constants()
+{
+    statinfo = {
+        { SPR_STAT_0, bo_water_puddle, }, // Water Puddle SPR1V
+        { SPR_STAT_1, block, }, // Containment Canister
+        { SPR_STAT_2, block, }, // Lunch Table
+        { SPR_STAT_3, block, }, // Floor Lamp
+        { SPR_STAT_4, block, }, // Lab Table
+        { SPR_STAT_5, block, }, // Pillar
+        { SPR_STAT_6, dressing, }, // Blood Puddle
+        { SPR_STAT_7, dressing, }, // Piss Puddle
 
-};
+        { SPR_STAT_8, block, }, // Ficus Tree SPR2V
+        { SPR_STAT_9, dressing, }, // Half-Eaten Corpse
+        { SPR_STAT_10, block, }, // Water Fountain
+        { SPR_STAT_11, block, }, // Plant 1
+        { SPR_STAT_12, block, }, // Vase
+        { SPR_STAT_13, block, }, // General Table
+        { SPR_STAT_14, dressing, }, // Ceiling Light
+        { SPR_STAT_15, block, }, // General Chair
 
+        { SPR_STAT_16, block, }, // Kitchen Trash SPR3V
+        { SPR_STAT_17, dressing, }, // Office Trash
+        { SPR_STAT_18, block, }, // Plant 2
+        { SPR_STAT_19, block, }, // Gurney No-Blood
+        { SPR_STAT_20, dressing, }, // Indirect Half-Sphere
+        { SPR_STAT_21, dressing, }, // Exit Sign
+        { SPR_STAT_22, dressing, }, // Transporter
+        { SPR_STAT_23, block, }, // Body Can
+
+        { SPR_STAT_24, bo_pistol, }, // PISTOL SPR4V
+        { SPR_STAT_25, block, }, // Statue
+
+        { SPR_STAT_31, bo_clip, }, // Charge Unit
+
+        { SPR_STAT_27, bo_burst_rifle, }, // Auto-Burst Rifle
+        { SPR_STAT_28, bo_ion_cannon, }, // Particle Charged ION
+        { SPR_STAT_29, bo_firstaid, }, // First Aid
+        { SPR_VSPIKE8, block, }, // Static VSPIKE
+
+        { SPR_STAT_26, bo_clip2, }, // Big Charge pack/clip
+
+        { SPR_STAT_32, bo_red_key, }, // Red Key SPR5V
+        { SPR_STAT_33, bo_yellow_key, }, // Yellow Key
+        { SPR_STAT_34, dressing, }, // BFG Cannon
+        { SPR_STAT_35, bo_blue_key, }, // Blue Key
+        { SPR_STAT_36, dressing, }, // OPEN
+        { SPR_STAT_37, block, }, // Office Desk
+        { SPR_STAT_38, block, }, // Office Chair
+        { SPR_STAT_39, block, }, // Security Desk
+
+        { SPR_STAT_40, bo_water, }, // Full Water Bowl SPR7V
+        { SPR_STAT_41, dressing, }, // Empty Water Bowl
+        { SPR_STAT_42, bo_chicken, }, // Chicken Leg
+        { SPR_STAT_43, dressing, }, // Chicken Bone
+        { SPR_STAT_44, bo_ham, }, // Ham
+        { SPR_STAT_45, dressing, }, // Ham Bone
+        { SPR_STAT_46, bo_grenade, }, // Grande Launcher
+        { SPR_STAT_47, dressing, }, // Video Game Machine
+
+        { SPR_VPOST8, block, }, // Static VPOST
+
+        // -- VARIOUS --
+
+        { SPR_GURNEY_MUT_READY, block, }, // 49 Gurney Mutant
+        { SPR_LCAN_ALIEN_READY, block, }, // 50 Large Alien Canister
+        { SPR_SCAN_ALIEN_READY, block, }, // 51 Small Alien Canister
+
+        { SPR_GURNEY_MUT_EMPTY, block, }, // 52 Gurney Mutant
+        { SPR_LCAN_ALIEN_EMPTY, block, }, // 53 Large Alien Canister
+        { SPR_SCAN_ALIEN_EMPTY, block, }, // 54 Small Alien Canister
+
+        { SPR_OFC_DEAD, dressing, }, // 55 Dead Gen Sci.
+
+        { SPR_DEMO, dressing, }, // 56 Spacer
+
+        { SPR_AIR_VENT, bo_plainvent, }, // 57 Plain air vent
+        { SPR_AIR_VENT, bo_bloodvent, }, // 58 Blood air vent
+        { SPR_AIR_VENT, bo_watervent, }, // 59 Water air vent
+        { SPR_GRATE, dressing, }, // 60 Floor Grate
+        { SPR_STEAM_PIPE, dressing, }, // 61 Steam Pipe
+
+        { SPR_STAT_48, bo_money_bag, }, // 62 money bag
+        { SPR_STAT_49, bo_loot, }, // 63 loot
+        { SPR_STAT_50, bo_gold, }, // 64 gold
+        { SPR_STAT_51, bo_bonus, }, // 65 bonus
+
+        { SPR_STAT_52, block, }, // 66 Greek Post
+        { SPR_STAT_53, block, }, // 67 Red/Blue post
+        { SPR_STAT_54, block, }, // 68 Red HiTech Post
+        { SPR_STAT_55, dressing, }, // 69 Ceiling Lamp #2
+        { SPR_STAT_56, dressing, }, // 70 Ceiling Lamp #3
+        { SPR_STAT_57, dressing, }, // 71 Body Parts
+        { SPR_STAT_58, dressing, }, // 72 OR Lamp
+        { SPR_STAT_59, block, }, // 73 Office Sink
+        { SPR_STAT_57, dressing, }, // EMPTY - Copy of 71 - Body Parts...
+        { SPR_CANDY_BAR, bo_candybar, }, // 75 candy bar
+        { SPR_SANDWICH, bo_sandwich, }, // 76 sandwich
+        { SPR_CRATE_1, block, }, // 77 Crate #1
+        { SPR_CRATE_2, block, }, // 78 Crate #2
+        { SPR_CRATE_3, block, }, // 79 Crate #3
+        { SPR_STAT_61, block, }, // 80 Table
+        { SPR_STAT_62, block, }, // 81 Chair
+        { SPR_STAT_63, block, }, // 82 Stool
+        { SPR_STAT_64, dressing, }, // 83 Gore
+
+        { SPR_STAT_65, bo_gold3, }, // Gold 3
+        { SPR_STAT_66, bo_gold2, }, // Gold 2
+        { SPR_STAT_67, bo_gold1, }, // Gold 1
+
+        { SPR_STAT_68, block, }, //
+        { SPR_STAT_69, block, }, //
+        { SPR_STAT_70, block, }, //
+        { SPR_STAT_71, block, }, //
+        { SPR_STAT_72, block, }, //
+        { SPR_STAT_73, dressing, }, //
+        { SPR_STAT_74, dressing, }, //
+        { SPR_STAT_75, dressing, }, //
+        { SPR_STAT_76, dressing, }, //
+
+        { SPR_RENT_DEAD, dressing, }, //
+        { SPR_PRO_DEAD, dressing, }, //
+        { SPR_SWAT_DEAD, dressing, }, //
+        { SPR_GSCOUT_DEAD, dressing, }, //
+        { SPR_FSCOUT_DEAD, dressing, }, //
+        { SPR_MUTHUM1_DEAD, dressing, },
+        { SPR_MUTHUM2_DEAD, dressing, },
+        { SPR_LCAN_ALIEN_DEAD, dressing, },
+        { SPR_SCAN_ALIEN_DEAD, dressing, },
+        { SPR_GURNEY_MUT_DEAD, dressing, },
+        { SPR_TERROT_DEAD, dressing, },
+        { SPR_POD_DIE3, dressing, },
+        { SPR_STAT_77, bo_coin, }, // Concession Machine Money
+        { SPR_STAT_78, bo_coin5, }, // Concession Machine Money
+        { SPR_STAT_79, dressing, }, // Auto-Charge Pistol
+
+        { SPR_DOORBOMB, bo_plasma_detonator, }, // Plasma Detonator
+        { SPR_RUBBLE, dressing, }, // Door Rubble
+        { SPR_AUTOMAPPER, bo_automapper1, }, // Auto Mapper Bonus #1
+        { SPR_BONZI_TREE, block, }, // BonziTree
+        { SPR_POT_PLANT, block, }, // Yellow Potted Plant
+        { SPR_TUBE_PLANT, block, }, // Tube Plant
+        { SPR_HITECH_CHAIR, block, }, // Hi Tech table and chair
+        { SPR_DEAD_RENT, dressing, }, // Dead AOG: Rent A Cop
+        { SPR_DEAD_PRO, dressing, }, // Dead AOG: Pro Guard
+        { SPR_DEAD_SWAT, dressing, }, // Dead AOG: Swat Guad
+
+        { -1, dressing, }, // terminator
+    };
+
+    if (!::is_ps()) {
+        statinfo[34].type = bo_green_key;
+        statinfo[36].type = bo_gold_key;
+    } else {
+        statinfo[34].type = bo_bfg_cannon;
+        statinfo[36].type = dressing;
+    }
+}
 
 /*
 ===============

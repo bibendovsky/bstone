@@ -3951,8 +3951,11 @@ boolean OperateSmartSwitch(
 
 =============================================================================
 */
+using StatInfos = std::vector<stattype>;
+
+
 extern char xy_offset[8][2];
-extern stattype statinfo[];
+extern StatInfos statinfo;
 extern concession_t ConHintList;
 
 extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;

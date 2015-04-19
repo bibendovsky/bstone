@@ -72,6 +72,7 @@ void initialize_states();
 void initialize_audio_constants();
 void initialize_gfxv_contants();
 void initialize_shape_table();
+void initialize_static_info_constants();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1378,6 +1379,7 @@ void freed_main()
     ::initialize_states();
     ::initialize_shape_table();
     ::initialize_audio_constants();
+    ::initialize_static_info_constants();
 
     std::string arg;
 
