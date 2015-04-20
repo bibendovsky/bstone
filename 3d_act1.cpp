@@ -114,9 +114,9 @@ void initialize_static_info_constants()
 
         { SPR_STAT_32, bo_red_key, }, // Red Key SPR5V
         { SPR_STAT_33, bo_yellow_key, }, // Yellow Key
-        { SPR_STAT_34, dressing, }, // BFG Cannon
+        { SPR_STAT_34, ::is_ps() ? bo_bfg_cannon : bo_green_key, }, // BFG Cannon
         { SPR_STAT_35, bo_blue_key, }, // Blue Key
-        { SPR_STAT_36, dressing, }, // OPEN
+        { SPR_STAT_36, ::is_ps() ? dressing : bo_gold_key, }, // OPEN
         { SPR_STAT_37, block, }, // Office Desk
         { SPR_STAT_38, block, }, // Office Chair
         { SPR_STAT_39, block, }, // Security Desk
@@ -219,14 +219,6 @@ void initialize_static_info_constants()
 
         { -1, dressing, }, // terminator
     };
-
-    if (!::is_ps()) {
-        statinfo[34].type = bo_green_key;
-        statinfo[36].type = bo_gold_key;
-    } else {
-        statinfo[34].type = bo_bfg_cannon;
-        statinfo[36].type = dressing;
-    }
 }
 
 /*
