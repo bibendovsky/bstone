@@ -127,255 +127,252 @@ Sint16 starthitpoints[4][NUMHITENEMIES] =
     // BABY MODE
     //
 {
-    { 4, // Rent-A-Cop
-      4, // Hang Terrot
-      4, // general scientist
-      22, // pod alien
-      13, // Electro-Alien
-      1, // Electro-Sphere
-      33, // ProGuard
-      20, // Genetic Guard
-      24, // Mutant Human Type 1
-      24, // Mutant Human Type 2
-      1, // Large Canister Alien - CONTAINER HP
-      34, // Large Can-Alien - ALIEN HP
-      1, // Small Canister Alien - CONTAINER HP
-      25, // Small Can-Alien - ALIEN HP
-      1, // Gurney Mutant - Waiting HP
-      27, // Gurney Mutant - Spawned HP
-      30, // Liquid Alien -
-      78, // Swat Guards
-      90, // Goldstern
-      4000, // Morphed Goldstern
-      17, // Volatile Material Transport
-      15, // Floating Bomb
-      175, // Vital Defence Obj  - DON'T CHANGE
-      60, // spider_mutant
-      65, // breather_beast
-      70, // cyborg_warror
-      65, // reptilian_warrior
-      60, // acid_dragon
-      65, // mech_guardian
-      1600, // final_boss 1
-      1700, // final_boss 2
-      1800, // final_boss 3
-      1900, // final_boss 4
-      1, // Crate 1
-      1, // Crate 2
-      1, // Crate 3
-      1, // Pod egg
-      1, // morphing_spider_mutant
-      1, // morphing_reptilian_warrior
-      1, // morphing_Mutant Human Type 2
+    {
+        4, // Rent-A-Cop
+        4, // Hang Terrot
+        4, // general scientist
+        22, // pod alien
+        13, // Electro-Alien
+        1, // Electro-Sphere
+        33, // ProGuard
+        20, // Genetic Guard
+        24, // Mutant Human Type 1
+        24, // Mutant Human Type 2
+        1, // Large Canister Alien - CONTAINER HP
+        34, // Large Can-Alien - ALIEN HP
+        1, // Small Canister Alien - CONTAINER HP
+        25, // Small Can-Alien - ALIEN HP
+        1, // Gurney Mutant - Waiting HP
+        27, // Gurney Mutant - Spawned HP
+        30, // Liquid Alien -
+        78, // Swat Guards
+        90, // Goldstern
+        4000, // Morphed Goldstern
+        17, // Volatile Material Transport
+        15, // Floating Bomb
+        175, // Vital Defence Obj  - DON'T CHANGE
+        60, // spider_mutant
+        65, // breather_beast
+        70, // cyborg_warror
+        65, // reptilian_warrior
+        60, // acid_dragon
+        65, // mech_guardian
+        1600, // final_boss 1
+        1700, // final_boss 2
+        1800, // final_boss 3
+        1900, // final_boss 4
+        1, // Crate 1
+        1, // Crate 2
+        1, // Crate 3
+        1, // Pod egg
+        1, // morphing_spider_mutant
+        1, // morphing_reptilian_warrior
+        1, // morphing_Mutant Human Type 2
     },
 
     //
     // DON'T HURT ME MODE
     //
 
-    { 9, // Rent-A-Cop
-      9, // Hang Terrot
-      9, // general scientist
-      60, // pod alien
-      37, // Electro-Alien
-      1, // Electro-Sphere
-      63, // ProGuard
-      60, // Genetic Guard
-      50, // Mutant Human Type 1
-      50, // Mutant Human Type 2
-      1, // Large Canister Alien - CONTAINER HP
-      75, // Large Can-Alien - ALIEN HP
-      1, // Small Canister Alien - CONTAINER HP
-      60, // Small Can-Alien - ALIEN HP
-      1, // Gurney Mutant - Waiting HP
-      37, // Gurney Mutant - Spawned HP
-      66, // Liquid Alien -
-      112, // SWAT Guards
-      100, // Goldstern
-      4500, // Morphed Goldstern
-      25, // Volatile Material Transport
-      40, // Floating Bomb
-      175, // Vital Defence Obj  - DON'T CHANGE
-      100, // spider_mutant
-      115, // breather_beast
-      100, // cyborg_warror
-      115, // reptilian_warrior
-      100, // acid_dragon
-      115, // mech_guardian
-      1700, // final_boss 1
-      1800, // final_boss 2
-      1900, // final_boss 3
-      2000, // final_boss 4
-      1, // Crate 1
-      1, // Crate 2
-      1, // Crate 3
-      1, // Pod egg
-      1, // morphing_spider_mutant
-      1, // morphing_reptilian_warrior
-      1, // morphing_Mutant Human Type 2
+    {
+        9, // Rent-A-Cop
+        9, // Hang Terrot
+        9, // general scientist
+        60, // pod alien
+        37, // Electro-Alien
+        1, // Electro-Sphere
+        63, // ProGuard
+        60, // Genetic Guard
+        50, // Mutant Human Type 1
+        50, // Mutant Human Type 2
+        1, // Large Canister Alien - CONTAINER HP
+        75, // Large Can-Alien - ALIEN HP
+        1, // Small Canister Alien - CONTAINER HP
+        60, // Small Can-Alien - ALIEN HP
+        1, // Gurney Mutant - Waiting HP
+        37, // Gurney Mutant - Spawned HP
+        66, // Liquid Alien -
+        112, // SWAT Guards
+        100, // Goldstern
+        4500, // Morphed Goldstern
+        25, // Volatile Material Transport
+        40, // Floating Bomb
+        175, // Vital Defence Obj  - DON'T CHANGE
+        100, // spider_mutant
+        115, // breather_beast
+        100, // cyborg_warror
+        115, // reptilian_warrior
+        100, // acid_dragon
+        115, // mech_guardian
+        1700, // final_boss 1
+        1800, // final_boss 2
+        1900, // final_boss 3
+        2000, // final_boss 4
+        1, // Crate 1
+        1, // Crate 2
+        1, // Crate 3
+        1, // Pod egg
+        1, // morphing_spider_mutant
+        1, // morphing_reptilian_warrior
+        1, // morphing_Mutant Human Type 2
     },
 
     //
     // BRING 'EM ON MODE
     //
 
-    { 25, // Rent-A-Cop
-      23, // Hang Terrot
-      23, // general scientist
-      160, // pod alien
-      112, // Electro-Alien
-      1, // Electro-Sphere
-      150, // ProGuard
-      180, // Genetic Guard
-      155, // Mutant Human Type 1
-      155, // Mutant Human Type 2
-      1, // Large Canister Alien - CONTAINER HP
-      225, // Large Can-Alien - ALIEN HP
-      1, // Small Canister Alien - CONTAINER HP
-      180, // Small Can-Alien - ALIEN HP
-      1, // Gurney Mutant - Waiting HP
-      150, // Gurney Mutant - Spawned HP
-      163, // Liquid Alien -
-      325, // SWAT Guards
-      150, // Goldstern
-      4800, // Morphed Goldstern
-      63, // Volatile Material Transport
-      60, // Floating Bomb
-      175, // Vital Defence Obj  - DON'T CHANGE
-      150, // spider_mutant
-      165, // breather_beast
-      150, // cyborg_warror
-      165, // reptilian_warrior
-      150, // acid_dragon
-      165, // mech_guardian
-      1800, // final_boss 1
-      1900, // final_boss 2
-      2000, // final_boss 3
-      2100, // final_boss 4
-      1, // Crate 1
-      1, // Crate 2
-      1, // Crate 3
-      1, // Pod egg
-      1, // morphing_spider_mutant
-      1, // morphing_reptilian_warrior
-      1, // morphing_Mutant Human Type 2
+    {
+        25, // Rent-A-Cop
+        23, // Hang Terrot
+        23, // general scientist
+        160, // pod alien
+        112, // Electro-Alien
+        1, // Electro-Sphere
+        150, // ProGuard
+        180, // Genetic Guard
+        155, // Mutant Human Type 1
+        155, // Mutant Human Type 2
+        1, // Large Canister Alien - CONTAINER HP
+        225, // Large Can-Alien - ALIEN HP
+        1, // Small Canister Alien - CONTAINER HP
+        180, // Small Can-Alien - ALIEN HP
+        1, // Gurney Mutant - Waiting HP
+        150, // Gurney Mutant - Spawned HP
+        163, // Liquid Alien -
+        325, // SWAT Guards
+        150, // Goldstern
+        4800, // Morphed Goldstern
+        63, // Volatile Material Transport
+        60, // Floating Bomb
+        175, // Vital Defence Obj  - DON'T CHANGE
+        150, // spider_mutant
+        165, // breather_beast
+        150, // cyborg_warror
+        165, // reptilian_warrior
+        150, // acid_dragon
+        165, // mech_guardian
+        1800, // final_boss 1
+        1900, // final_boss 2
+        2000, // final_boss 3
+        2100, // final_boss 4
+        1, // Crate 1
+        1, // Crate 2
+        1, // Crate 3
+        1, // Pod egg
+        1, // morphing_spider_mutant
+        1, // morphing_reptilian_warrior
+        1, // morphing_Mutant Human Type 2
     },
 
     //
     // DEATH INCARNATE MODE
     //
 
-    { 38, // Rent-A-Cop
-      28, // Hang Terrot
-      28, // general scientist
-      210, // pod alien
-      150, // Electro-Alien
-      1, // Electro-Sphere
-      175, // ProGuard
-      240, // Genetic Guard
-      210, // Mutant Human Type 1
-      210, // Mutant Human Type 2
-      1, // Large Canister Alien - CONTAINER HP
-      300, // Large Can-Alien - ALIEN HP
-      1, // Small Canister Alien - CONTAINER HP
-      240, // Small Can-Alien - ALIEN HP
-      1, // Gurney Mutant - Waiting HP
-      200, // Gurney Mutant - Spawned HP
-      210, // Liquid Alien -
-      425, // SWAT Gaurds
-      250, // Goldstern
-      5400, // Morphed Goldstern
-      75, // Volatile Material Transport
-      85, // Floating Bomb
-      175, // Vital Defence Obj - DON'T CHANGE
-      200, // spider_mutant
-      225, // breather_beast
-      200, // cyborg_warror
-      225, // reptilian_warrior
-      200, // acid_dragon
-      225, // mech_guardian
-      1900, // final_boss 1
-      2000, // final_boss 2
-      2100, // final_boss 3
-      2200, // final_boss 4
-      1, // Crate 1
-      1, // Crate 2
-      1, // Crate 3
-      1, // Pod egg
-      1, // morphing_spider_mutant
-      1, // morphing_reptilian_warrior
-      1, // morphing_Mutant Human Type 2
+    {
+        38, // Rent-A-Cop
+        28, // Hang Terrot
+        28, // general scientist
+        210, // pod alien
+        150, // Electro-Alien
+        1, // Electro-Sphere
+        175, // ProGuard
+        240, // Genetic Guard
+        210, // Mutant Human Type 1
+        210, // Mutant Human Type 2
+        1, // Large Canister Alien - CONTAINER HP
+        300, // Large Can-Alien - ALIEN HP
+        1, // Small Canister Alien - CONTAINER HP
+        240, // Small Can-Alien - ALIEN HP
+        1, // Gurney Mutant - Waiting HP
+        200, // Gurney Mutant - Spawned HP
+        210, // Liquid Alien -
+        425, // SWAT Gaurds
+        250, // Goldstern
+        5400, // Morphed Goldstern
+        75, // Volatile Material Transport
+        85, // Floating Bomb
+        175, // Vital Defence Obj - DON'T CHANGE
+        200, // spider_mutant
+        225, // breather_beast
+        200, // cyborg_warror
+        225, // reptilian_warrior
+        200, // acid_dragon
+        225, // mech_guardian
+        1900, // final_boss 1
+        2000, // final_boss 2
+        2100, // final_boss 3
+        2200, // final_boss 4
+        1, // Crate 1
+        1, // Crate 2
+        1, // Crate 3
+        1, // Pod egg
+        1, // morphing_spider_mutant
+        1, // morphing_reptilian_warrior
+        1, // morphing_Mutant Human Type 2
     }
 };
 
-Uint16 BossShotShapes[] = {
-    SPR_BOSS1_PROJ1,
-    0,
-    0,
-    0,
-    SPR_BOSS5_PROJ1,
-    0,
-    0,
-#ifdef BSTONE_AOG
-    0
-#else
-    SPR_BOSS10_SPIT1
-#endif
+
+using BossIds = std::vector<int>;
+
+BossIds BossShotShapes;
+BossIds BossShapes;
+BossIds MorphShapes;
+BossIds MorphEndShapes;
+BossIds MorphSounds;
+
+Uint16 MorphClass[] = {
+    spider_mutantobj,
+    reptilian_warriorobj,
+    mutant_human2obj,
 };
 
-Uint16 BossShapes[] = {
-    SPR_BOSS1_W1,
+void initialize_boss_constants()
+{
+    BossShotShapes = {
+        SPR_BOSS1_PROJ1,
+        0,
+        0,
+        0,
+        SPR_BOSS5_PROJ1,
+        0,
+        0,
+        ::is_ps() ? SPR_BOSS10_SPIT1 : 0,
+    };
 
-#if GAME_VERSION != SHAREWARE_VERSION
-    SPR_BOSS2_W1,
-    SPR_BOSS3_W1,
-    SPR_BOSS4_W1,
-    SPR_BOSS5_W1,
-    SPR_BOSS6_W1,
-#else
-    0,
-    0,
-    0,
-    0,
-    0,
-#endif
 
-#ifdef BSTONE_AOG
-    0,
-    0,
-    0,
-    0
-#else
-    SPR_BOSS7_W1,
-    SPR_BOSS8_W1,
-    SPR_BOSS9_W1,
-    SPR_BOSS10_W1
-#endif
-};
+    BossShapes = {
+        SPR_BOSS1_W1,
+        ::is_aog_sw() ? 0 : SPR_BOSS2_W1,
+        ::is_aog_sw() ? 0 : SPR_BOSS3_W1,
+        ::is_aog_sw() ? 0 : SPR_BOSS4_W1,
+        ::is_aog_sw() ? 0 : SPR_BOSS5_W1,
+        ::is_aog_sw() ? 0 : SPR_BOSS6_W1,
+        ::is_ps() ? SPR_BOSS7_W1 : 0,
+        ::is_ps() ? SPR_BOSS8_W1 : 0,
+        ::is_ps() ? SPR_BOSS9_W1 : 0,
+        ::is_ps() ? SPR_BOSS10_W1 : 0,
+    };
 
-#ifdef BSTONE_PS
-Uint16 MorphShapes[] = {
-    SPR_BOSS1_MORPH1,
-    SPR_BOSS4_MORPH1,
-    SPR_MUTHUM2_MORPH1,
-};
+    MorphShapes = {
+        SPR_BOSS1_MORPH1,
+        SPR_BOSS4_MORPH1,
+        SPR_MUTHUM2_MORPH1,
+    };
 
-Uint16 MorphClass[] = { spider_mutantobj, reptilian_warriorobj, mutant_human2obj };
+    MorphEndShapes = {
+        SPR_BOSS1_W1,
+        ::is_aog_sw() ? 0 : SPR_BOSS4_W1,
+        SPR_MUTHUM2_W1,
+    };
 
-Uint16 MorphEndShapes[] = {
-    SPR_BOSS1_W1,
+    MorphSounds = {
+        SCANHALTSND,
+        GGUARDHALTSND,
+        DOGBOYHALTSND,
+    };
+}
 
-#if GAME_VERSION != SHAREWARE_VERSION
-    SPR_BOSS4_W1,
-#else
-    0,
-#endif
-
-    SPR_MUTHUM2_W1
-};
-
-char MorphSounds[] = { SCANHALTSND, GGUARDHALTSND, DOGBOYHALTSND };
-#endif
 
 Uint16 bars_connected = 0;
 
