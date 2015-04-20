@@ -6213,11 +6213,7 @@ void NewGame(
         gamestate.episode = starting_episode;
     } else
 #endif
-#ifdef BSTONE_AOG
-    gamestate.mapon = 1;
-#else
-    gamestate.mapon = 0;
-#endif
+    gamestate.mapon = (::is_ps() ? 0 : 1);
 
     gamestate.key_floor = static_cast<char>(gamestate.mapon + 1);
     startgame = true;
@@ -6475,10 +6471,8 @@ bool LoadLevel(
             switch (actor->obclass) {
             case arc_barrierobj:
             case post_barrierobj:
-#ifdef BSTONE_PS
             case vspike_barrierobj:
             case vpost_barrierobj:
-#endif
                 actor->temp2 = ::ScanBarrierTable(
                     actor->tilex, actor->tiley);
                 break;
@@ -7379,13 +7373,13 @@ void DemoLoop()
             if (!sqActive) {
                 // Load and start music
                 //
-#ifdef BSTONE_AOG
-                CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-                ::SD_StartMusic(MEETINGA_MUS);
-#else
-                CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-                ::SD_StartMusic(TITLE_LOOP_MUSIC);
-#endif // BSTONE_AOG
+                if (!::is_ps()) {
+                    CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+                    ::SD_StartMusic(MEETINGA_MUS);
+                } else {
+                    CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+                    ::SD_StartMusic(TITLE_LOOP_MUSIC);
+                }
             }
 
 //
@@ -7394,11 +7388,11 @@ void DemoLoop()
 #if !SKIP_TITLE_AND_CREDITS
             breakit = false;
 
-#ifdef BSTONE_AOG
-            CA_CacheScreen(TITLEPIC);
-#else
-            CA_CacheScreen(TITLE1PIC);
-#endif // BSTONE_AOG
+            if (!::is_ps()) {
+                ::CA_CacheScreen(TITLEPIC);
+            } else {
+                ::CA_CacheScreen(TITLE1PIC);
+            }
 
             CA_CacheGrChunk(TITLEPALETTE);
             old_bufferofs = static_cast<Uint16>(bufferofs);
@@ -7408,50 +7402,50 @@ void DemoLoop()
             VL_SetPalette(0, 256, reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]));
             VL_SetPaletteIntensity(0, 255, reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]), 0);
 
-#ifdef BSTONE_PS
-            fontnumber = 2;
-            PrintX = WindowX = 270;
-            PrintY = WindowY = 179;
-            WindowW = 29;
-            WindowH = 8;
-            VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
-            SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-            US_Print(__BLAKE_VERSION__);
-#endif // BSTONE_PS
+            if (::is_ps()) {
+                fontnumber = 2;
+                PrintX = WindowX = 270;
+                PrintY = WindowY = 179;
+                WindowW = 29;
+                WindowH = 8;
+                VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
+                SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+                US_Print(__BLAKE_VERSION__);
+            }
 
             VW_UpdateScreen();
             VL_FadeIn(0, 255, reinterpret_cast<Uint8*>(grsegs[TITLEPALETTE]), 30);
             UNCACHEGRCHUNK(TITLEPALETTE);
 
-#ifdef BSTONE_PS
-            if (IN_UserInput(TickBase * 6)) {
-                breakit = true;
-            }
+            if (::is_ps()) {
+                if (IN_UserInput(TickBase * 6)) {
+                    breakit = true;
+                }
 
-            // Cache screen 2 with Warnings and Copyrights
+                // Cache screen 2 with Warnings and Copyrights
 
-            CA_CacheScreen(TITLE2PIC);
-            fontnumber = 2;
-            PrintX = WindowX = 270;
-            PrintY = WindowY = 179;
-            WindowW = 29;
-            WindowH = 8;
-            VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
-            SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-            US_Print(__BLAKE_VERSION__);
+                CA_CacheScreen(TITLE2PIC);
+                fontnumber = 2;
+                PrintX = WindowX = 270;
+                PrintY = WindowY = 179;
+                WindowW = 29;
+                WindowH = 8;
+                VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
+                SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+                US_Print(__BLAKE_VERSION__);
 
-            // Fizzle whole screen incase of any last minute changes needed
-            // on title intro.
+                // Fizzle whole screen incase of any last minute changes needed
+                // on title intro.
 
 // BBi Made abortable.
 #if 0
-            FizzleFade(bufferofs, displayofs, 320, 200, 70, false);
+                FizzleFade(bufferofs, displayofs, 320, 200, 70, false);
 #endif
-            FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
+                FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
 // BBi
 
-            IN_UserInput(TickBase * 2);
-#endif // BSTONE_PS
+                IN_UserInput(TickBase * 2);
+            }
 
             if (breakit || IN_UserInput(TickBase * 6)) {
                 break;
@@ -7516,13 +7510,13 @@ void DemoLoop()
         if (!sqActive) {
             // Load and start music
             //
-#ifdef BSTONE_AOG
-            CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-            ::SD_StartMusic(MEETINGA_MUS);
-#else
-            CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-            ::SD_StartMusic(TITLE_LOOP_MUSIC);
-#endif // BSTONE_AOG
+            if (!::is_ps()) {
+                CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+                ::SD_StartMusic(MEETINGA_MUS);
+            } else {
+                CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+                ::SD_StartMusic(TITLE_LOOP_MUSIC);
+            }
         }
 #endif // SKIP_TITLE_AND_CREDITS
 
@@ -8030,9 +8024,7 @@ void barrier_type::serialize(
     bstone::BinaryWriter& writer,
     Uint32& checksum) const
 {
-#ifdef BSTONE_AOG
     ::serialize_field(level, writer, checksum);
-#endif
     coord.serialize(writer, checksum);
     ::serialize_field(on, writer, checksum);
 }
@@ -8041,9 +8033,7 @@ void barrier_type::deserialize(
     bstone::BinaryReader& reader,
     Uint32& checksum)
 {
-#ifdef BSTONE_AOG
     ::deserialize_field(level, reader, checksum);
-#endif
     coord.deserialize(reader, checksum);
     ::deserialize_field(on, reader, checksum);
 }
