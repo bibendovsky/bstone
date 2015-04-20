@@ -4550,24 +4550,9 @@ void initialize_states()
     s_ofs_pod_spit1.shapenum = SPR_POD_SPIT1 - SPR_POD_WALK1;
     s_ofs_pod_spit2.shapenum = SPR_POD_SPIT2 - SPR_POD_WALK1;
     s_ofs_pod_spit3.shapenum = SPR_POD_SPIT3 - SPR_POD_WALK1;
-    //s_ofs_pod_death1.shapenum = ;
-    //s_ofs_pod_death2.shapenum = ;
-    //s_ofs_pod_death3.shapenum = ;
     s_ofs_pod_ouch.shapenum = SPR_POD_OUCH - SPR_POD_WALK1;
-    //s_ofs_bounce.shapenum = ;
-    //s_ofs_ouch.shapenum = ;
-    //s_ofs_esphere_death1.shapenum = ;
-    //s_ofs_esphere_death2.shapenum = ;
-    //s_ofs_esphere_death3.shapenum = ;
-    //s_ofs_random.shapenum = ;
-    //s_ofs_static.shapenum = ;
-    //s_hold.shapenum = ;
-    //s_ofs_smart_anim.shapenum = ;
-    //s_ofs_smart_anim2.shapenum = ;
-    //s_barrier_transition.shapenum = ;
     s_vpost_barrier.shapenum = SPR_VPOST1;
     s_spike_barrier.shapenum = SPR_VSPIKE1;
-    //s_barrier_shutdown.shapenum = ;
     s_rent_stand.shapenum = SPR_RENT_S_1;
     s_rent_path1.shapenum = SPR_RENT_W1_1;
     s_rent_path1s.shapenum = SPR_RENT_W2_1;
@@ -4685,8 +4670,6 @@ void initialize_states()
     s_electro_shoot3.shapenum = SPR_ELEC_SHOOT3;
     s_electro_shot1.shapenum = SPR_ELEC_SHOT1;
     s_electro_shot2.shapenum = SPR_ELEC_SHOT2;
-    //s_ofs_shot1.shapenum = ;
-    //s_ofs_shot2.shapenum = ;
     s_electro_die1.shapenum = SPR_ELEC_DIE1;
     s_electro_die2.shapenum = SPR_ELEC_DIE2;
     s_electro_die3.shapenum = SPR_ELEC_DIE3;
@@ -4708,7 +4691,6 @@ void initialize_states()
     s_liquid_die3.shapenum = SPR_LIQUID_DIE_3;
     s_liquid_die4.shapenum = SPR_LIQUID_DIE_4;
     s_liquid_dead.shapenum = SPR_LIQUID_DEAD;
-    //s_liquid_shot.shapenum = ;
     s_blake1.shapenum = SPR_BLAKE_W1;
     s_blake2.shapenum = SPR_BLAKE_W2;
     s_blake3.shapenum = SPR_BLAKE_W3;
@@ -4779,13 +4761,6 @@ void initialize_states()
     s_scout_run3.shapenum = SPR_GSCOUT_W3_1;
     s_scout_run4.shapenum = SPR_GSCOUT_W4_1;
     s_scout_dead.shapenum = SPR_GSCOUT_W1_1;
-    //s_steamgrate.shapenum = ;
-    //s_steamrelease1.shapenum = ;
-    //s_steamrelease2.shapenum = ;
-    //s_steamrelease3.shapenum = ;
-    //s_steamrelease4.shapenum = ;
-    //s_steamrelease5.shapenum = ;
-    //s_steamrelease6.shapenum = ;
     s_terrot_wait.shapenum = SPR_TERROT_1;
     s_terrot_found.shapenum = SPR_TERROT_1;
     s_terrot_shoot1.shapenum = SPR_TERROT_FIRE_1;
@@ -4799,8 +4774,6 @@ void initialize_states()
     s_terrot_die3.shapenum = SPR_TERROT_DIE_3;
     s_terrot_die4.shapenum = SPR_TERROT_DIE_4;
     s_terrot_die5.shapenum = SPR_TERROT_DEAD;
-    //s_player.shapenum = ;
-    //s_attack.shapenum = ;
 }
 
 
