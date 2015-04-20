@@ -50,9 +50,7 @@ void PushWall(
 void OperateDoor(
     Sint16 door);
 
-#ifdef BSTONE_PS
 void TryDropPlasmaDetonator();
-#endif
 
 void ClearMemory();
 void VH_UpdateScreen();
@@ -66,9 +64,7 @@ void DrawTopInfo(
 void DoActor(
     objtype* ob);
 
-#ifdef BSTONE_AOG
 void RunBlakeRun();
-#endif
 
 #define VW_UpdateScreen() VH_UpdateScreen()
 
@@ -118,9 +114,7 @@ void RunBlakeRun();
 #define INFOAREA_TSHAD_COLOR 0x04 // Text Shadow Color
 
 #define GRENADE_ENERGY_USE 4
-#ifdef BSTONE_PS
 #define BFG_ENERGY_USE (GRENADE_ENERGY_USE << 1)
-#endif
 
 
 #define NUM_AMMO_SEGS 21
@@ -139,9 +133,7 @@ void RunBlakeRun();
 extern boolean noShots;
 extern Sint16 bounceOk;
 
-#ifdef BSTONE_PS
 Sint16 tryDetonatorDelay = 0;
-#endif
 
 //
 // player state info
@@ -263,18 +255,12 @@ Uint16 LastMsgPri = 0;
 Sint16 MsgTicsRemain = 0;
 classtype LastInfoAttacker = nothing;
 
-#ifdef BSTONE_PS
 Sint16 LastInfoAttacker_Cloaked = 0;
-#endif
+
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
 
-#ifdef BSTONE_AOG
 char DrawRadarGuage_COUNT = 3;
-#else
-char DrawRadarGuage_COUNT = 0;
-#endif
-
 char DrawAmmoNum_COUNT = 3;
 char DrawAmmoPic_COUNT = 3;
 // char DrawPDAmmoPic_COUNT = 3;
@@ -371,13 +357,7 @@ void T_Stand(
 void CheckWeaponChange()
 {
     Sint16 i;
-    const Sint16 n =
-#ifdef BSTONE_AOG
-        wp_grenade
-#else
-        wp_bfg_cannon
-#endif
-    ;
+    const Sint16 n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
 
     for (i = wp_autocharge; i <= n; i++) {
         if (buttonstate[bt_ready_autocharge + i - wp_autocharge]) {
@@ -643,7 +623,6 @@ void LatchNumber(
 // ===========================================================================
 
 
-#ifdef BSTONE_AOG
 namespace {
 
 int ecg_scroll_tics = 0;
@@ -791,7 +770,6 @@ void DrawHealthMonitor()
         200 - STATUSLINES + 32,
         heart_picture_index);
 }
-#endif
 
 // --------------------------------------------------------------------------
 // DrawHealth()
@@ -801,14 +779,14 @@ void DrawHealthMonitor()
 // --------------------------------------------------------------------------
 void DrawHealth()
 {
-#ifdef BSTONE_PS
-    char* ptr = gamestate.health_str;
+    if (::is_ps()) {
+        char* ptr = gamestate.health_str;
 
-    bstone::C::xitoa(gamestate.health, gamestate.health_str, 10);
-    while (*ptr) {
-        *ptr++ -= '0';
+        bstone::C::xitoa(gamestate.health, gamestate.health_str, 10);
+        while (*ptr) {
+            *ptr++ -= '0';
+        }
     }
-#endif
 
     DrawHealthNum_COUNT = 3;
 }
@@ -818,60 +796,60 @@ void DrawHealth()
 // --------------------------------------------------------------------------
 void DrawHealthNum()
 {
-#ifdef BSTONE_AOG
-    ::CA_CacheGrChunk(ECG_GRID_PIECE);
+    if (!::is_ps()) {
+        ::CA_CacheGrChunk(ECG_GRID_PIECE);
 
-    for (int i = 0; i < 3; ++i) {
-        ::VWB_DrawPic(
-            144 + (i * 8),
-            200 - STATUSLINES + 32,
-            ECG_GRID_PIECE);
-    }
+        for (int i = 0; i < 3; ++i) {
+            ::VWB_DrawPic(
+                144 + (i * 8),
+                200 - STATUSLINES + 32,
+                ECG_GRID_PIECE);
+        }
 
-    std::string health_string(4, ' ');
+        std::string health_string(4, ' ');
 
-    bstone::StringHelper::lexical_cast(
-        gamestate.health,
-        health_string);
+        bstone::StringHelper::lexical_cast(
+            gamestate.health,
+            health_string);
 
-    if (gamestate.health < 100) {
-        health_string.insert(0, 1, ' ');
-
-        if (gamestate.health < 10) {
+        if (gamestate.health < 100) {
             health_string.insert(0, 1, ' ');
+
+            if (gamestate.health < 10) {
+                health_string.insert(0, 1, ' ');
+            }
+        }
+
+        health_string += '%';
+
+        fontnumber = 2;
+
+        // FIXME Should be slightly blue
+        fontcolor = 0x9D;
+
+        PrintX = 149;
+        PrintY = 200 - STATUSLINES + 34;
+
+        px = PrintX;
+        py = PrintY;
+
+        VW_DrawPropString(health_string.c_str());
+
+        DrawHealthNum_COUNT -= 1;
+    } else {
+        char loop, num;
+        Sint16 check = 100;
+
+        DrawHealthNum_COUNT--;
+
+        for (loop = num = 0; loop < 3; loop++, check /= 10) {
+            if (gamestate.health < check) {
+                LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
+            } else {
+                LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
+            }
         }
     }
-
-    health_string += '%';
-
-    fontnumber = 2;
-
-    // FIXME Should be slightly blue
-    fontcolor = 0x9D;
-
-    PrintX = 149;
-    PrintY = 200 - STATUSLINES + 34;
-
-    px = PrintX;
-    py = PrintY;
-
-    VW_DrawPropString(health_string.c_str());
-
-    DrawHealthNum_COUNT -= 1;
-#else
-    char loop, num;
-    Sint16 check = 100;
-
-    DrawHealthNum_COUNT--;
-
-    for (loop = num = 0; loop < 3; loop++, check /= 10) {
-        if (gamestate.health < check) {
-            LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
-        } else {
-            LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
-        }
-    }
-#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -890,9 +868,10 @@ void TakeDamage(
             } else {
                 if (DISPLAY_TIMED_MSG(ActorInfoMsg[attacker->obclass - rentacopobj], MP_TAKE_DAMAGE, MT_ATTACK)) {
                     LastInfoAttacker = attacker->obclass;
-#ifdef BSTONE_PS
-                    LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
-#endif
+
+                    if (::is_ps()) {
+                        LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
+                    }
                 }
             }
         }
@@ -1083,45 +1062,45 @@ void DrawKeyPics()
 
     DrawKeyPics_COUNT--;
 
-#ifdef BSTONE_AOG
-    static const int indices[NUMKEYS] = {
-        0, 1, 3, 2, 4
-    }; // indices
+    if (!::is_ps()) {
+        static const int indices[NUMKEYS] = {
+            0, 1, 3, 2, 4
+        }; // indices
 
-    static const Uint8 off_colors[NUMKEYS] = {
-        0x11, 0x31, 0x91, 0x51, 0x21
-    }; // off_colors
+        static const Uint8 off_colors[NUMKEYS] = {
+            0x11, 0x31, 0x91, 0x51, 0x21
+        }; // off_colors
 
-    static const Uint8 on_colors[NUMKEYS] = {
-        0xC9, 0xB9, 0x9C, 0x5B, 0x2B
-    }; // on_colors
+        static const Uint8 on_colors[NUMKEYS] = {
+            0xC9, 0xB9, 0x9C, 0x5B, 0x2B
+        }; // on_colors
 
-    for (int i = 0; i < NUMKEYS; ++i) {
-        int index = indices[i];
-        Uint8 color = 0;
+        for (int i = 0; i < NUMKEYS; ++i) {
+            int index = indices[i];
+            Uint8 color = 0;
 
-        if (gamestate.numkeys[index] > 0) {
-            color = on_colors[index];
-        } else {
-            color = off_colors[index];
+            if (gamestate.numkeys[index] > 0) {
+                color = on_colors[index];
+            } else {
+                color = off_colors[index];
+            }
+
+            ::VWB_Bar(
+                257 + (i * 8),
+                200 - STATUSLINES + 25,
+                7,
+                7,
+                color);
         }
-
-        ::VWB_Bar(
-            257 + (i * 8),
-            200 - STATUSLINES + 25,
-            7,
-            7,
-            color);
-    }
-#else
-    for (loop = 0; loop < NUMKEYS; loop++) {
-        if (gamestate.numkeys[static_cast<int>(loop)]) {
-            LatchDrawPic(15 + 2 * loop, 179, RED_KEYPIC + loop);
-        } else {
-            LatchDrawPic(15 + 2 * loop, 179, NO_KEYPIC);
+    } else {
+        for (loop = 0; loop < NUMKEYS; loop++) {
+            if (gamestate.numkeys[static_cast<int>(loop)]) {
+                LatchDrawPic(15 + 2 * loop, 179, RED_KEYPIC + loop);
+            } else {
+                LatchDrawPic(15 + 2 * loop, 179, NO_KEYPIC);
+            }
         }
     }
-#endif // BSTONE_AOG
 }
 
 // ---------------------------------------------------------------------------
@@ -1175,11 +1154,10 @@ void DrawWeaponPic()
         return;
     }
 
-#if BSTONE_AOG
-    LatchDrawPic(22, 152, WEAPON1PIC + gamestate.weapon);
-#else
-    LatchDrawPic(31, 176, WEAPON1PIC + gamestate.weapon);
-#endif
+    ::LatchDrawPic(
+        ::is_ps() ? 31 : 22,
+        ::is_ps() ? 176 : 152,
+        WEAPON1PIC + gamestate.weapon);
 
     DrawWeaponPic_COUNT--;
 }
@@ -1281,27 +1259,12 @@ void DrawAmmoNum()
     fontnumber = 2;
     fontcolor = 0x9D;
 
-#ifdef BSTONE_AOG
-    PrintX = 211;
-#else
-    PrintX = 252;
-#endif
+    PrintX = (::is_ps() ? 252 : 211);
     PrintY = 200 - STATUSLINES + 38;
 
-#ifdef BSTONE_AOG
-    switch (gamestate.weapon) {
-    case wp_autocharge:
-        break;
-
-    default:
-        DrawGAmmoNum();
-        break;
+    if (::is_ps() || (!::is_ps() && gamestate.weapon != wp_autocharge)) {
+        ::DrawGAmmoNum();
     }
-#else
-
-    DrawGAmmoNum();
-
-#endif
 
     DrawAmmoNum_COUNT--;
 }
@@ -1322,9 +1285,9 @@ void DrawGAmmoNum()
         }
     }
 
-#ifdef BSTONE_PS
-    LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
-#endif
+    if (::is_ps()) {
+        ::LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
+    }
 
     px = PrintX;
     py = PrintY;
@@ -1359,13 +1322,7 @@ void DrawAmmoPic()
 // ---------------------------------------------------------------------------
 void DrawAmmoMsg()
 {
-    int x =
-#ifdef BSTONE_AOG
-        29
-#else
-        30
-#endif
-    ;
+    int x = (::is_ps() ? 30 : 29);
 
     if (gamestate.weapon_wait) {
         LatchDrawPic(x, (200 - STATUSLINES), WAITPIC);
@@ -1374,7 +1331,6 @@ void DrawAmmoMsg()
     }
 }
 
-#ifdef BSTONE_PS
 // ---------------------------------------------------------------------------
 // DrawPDAmmoMsg() -
 // ---------------------------------------------------------------------------
@@ -1386,7 +1342,6 @@ void DrawPDAmmoMsg()
         LatchDrawPic(30, (200 - STATUSLINES), WAITPIC);
     }
 }
-#endif
 
 // ---------------------------------------------------------------------------
 // UpdateAmmoMsg() -
@@ -1406,11 +1361,7 @@ void UpdateAmmoMsg()
 // ---------------------------------------------------------------------------
 void DrawAmmoGuage()
 {
-#ifdef BSTONE_AOG
-    DrawLedStrip(234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
-#else
-    DrawLedStrip(243, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
-#endif
+    DrawLedStrip(::is_ps() ? 243 : 234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
 }
 
 // ---------------------------------------------------------------------------
@@ -1418,7 +1369,6 @@ void DrawAmmoGuage()
 // ---------------------------------------------------------------------------
 void UpdateRadarGuage()
 {
-#ifdef BSTONE_PS
     Sint16 temp;
 
     if (gamestate.rpower) {
@@ -1442,7 +1392,6 @@ void UpdateRadarGuage()
     }
 
     DrawRadarGuage_COUNT = 3;
-#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -1450,7 +1399,10 @@ void UpdateRadarGuage()
 // ---------------------------------------------------------------------------
 void DrawRadarGuage()
 {
-#ifdef BSTONE_PS
+    if (!::is_ps()) {
+        return;
+    }
+
     char zoom;
 
     DrawLedStrip(235, 155, gamestate.radar_leds, NUM_AMMO_SEGS);
@@ -1462,7 +1414,6 @@ void DrawRadarGuage()
     }
 
     LatchDrawPic(22, 152, ONEXZOOMPIC + zoom);
-#endif // BSTONE_AOG
 }
 
 // ---------------------------------------------------------------------------
@@ -1486,13 +1437,7 @@ void DrawLedStrip(
         amount = max;
     }
 
-    int width =
-#ifdef BSTONE_AOG
-        11
-#else
-        5
-#endif
-    ;
+    int width = (::is_ps() ? 5 : 11);
 
 // Draw dim LEDs.
 //
@@ -1531,16 +1476,16 @@ void GiveAmmo(
 
     DrawAmmo(false);
 
-#ifdef BSTONE_AOG
-    DrawWeapon();
-#else
-    if (gamestate.weapon != gamestate.chosenweapon) {
-        if (gamestate.useable_weapons & (1 << gamestate.chosenweapon)) {
-            gamestate.weapon = gamestate.chosenweapon;
-            DrawWeapon();
+    if (::is_ps()) {
+        if (gamestate.weapon != gamestate.chosenweapon) {
+            if (gamestate.useable_weapons & (1 << gamestate.chosenweapon)) {
+                gamestate.weapon = gamestate.chosenweapon;
+                DrawWeapon();
+            }
         }
+    } else {
+        DrawWeapon();
     }
-#endif
 
     ::sd_play_player_sound(GETAMMOSND, bstone::AC_ITEM);
 
@@ -1590,17 +1535,14 @@ void ComputeAvailWeapons()
     //
 
     if (gamestate.ammo) {
-#ifdef BSTONE_PS
-        if (gamestate.ammo >= BFG_ENERGY_USE) {
+        if (::is_ps() && gamestate.ammo >= BFG_ENERGY_USE) {
             gamestate.useable_weapons = (1 << wp_bfg_cannon)
                                         | (1 << wp_grenade)
                                         | (1 << wp_ion_cannon)
                                         | (1 << wp_burst_rifle)
                                         | (1 << wp_pistol)
                                         | (1 << wp_autocharge);
-        } else
-#endif
-        if (gamestate.ammo >= GRENADE_ENERGY_USE) {
+        } else if (gamestate.ammo >= GRENADE_ENERGY_USE) {
             gamestate.useable_weapons = (1 << wp_grenade)
                                         | (1 << wp_ion_cannon)
                                         | (1 << wp_burst_rifle)
@@ -1727,11 +1669,9 @@ boolean DisplayInfoMsg(
 
         LastMsgType = static_cast<infomsg_type>(MsgType);
 
-#ifdef BSTONE_PS
-        if (LastMsgType != MT_ATTACK) {
+        if (::is_ps() && LastMsgType != MT_ATTACK) {
             LastInfoAttacker_Cloaked = 0;
         }
-#endif
 
         return true;
     } else {
@@ -1834,13 +1774,11 @@ char default_msg[] = { "\r    NO MESSAGES."
                        "^FCA8\r    FOOD TOKENS:      "
                        "                                 " };
 
-#ifdef BSTONE_PS
 char needDetonator_msg[] = "\r\r^FC39 FIND THE DETONATOR!";
 
 char haveDetonator_msg[] = "\r\r^FC39DESTROY SECURITY CUBE!";
 
 char destroyGoldfire_msg[] = "\r\r^FC39  DESTROY GOLDFIRE!";
-#endif
 
 void DisplayNoMoMsgs()
 {
@@ -1857,9 +1795,9 @@ void DisplayNoMoMsgs()
     if (gamestuff.level[gamestate.mapon + 1].locked) {
         switch (gamestate.mapon) {
         case 19:
-#ifdef BSTONE_PS
-            strcat(default_msg, destroyGoldfire_msg);
-#endif
+            if (::is_ps()) {
+                strcat(default_msg, destroyGoldfire_msg);
+            }
             break;
 
         case 20:
@@ -1869,13 +1807,13 @@ void DisplayNoMoMsgs()
             break;
 
         default:
-#ifdef BSTONE_PS
-            if (gamestate.plasma_detonators) {
-                strcat(default_msg, haveDetonator_msg);
-            } else {
-                strcat(default_msg, needDetonator_msg);
+            if (::is_ps()) {
+                if (gamestate.plasma_detonators) {
+                    strcat(default_msg, haveDetonator_msg);
+                } else {
+                    strcat(default_msg, needDetonator_msg);
+                }
             }
-#endif
             break;
         }
     }
@@ -2127,12 +2065,10 @@ Sint16 DrawShape(
     //
     // If Image is Cloaked... Shade the image
     //
-#ifdef BSTONE_PS
     if (LastInfoAttacker_Cloaked) {
         shade = 35; // 63 == BLACK | 0 == NO SHADING
     } else
-#endif
-    shade = 0;
+        shade = 0;
 
     switch (shapetype) {
     case pis_scaled:
@@ -2340,9 +2276,9 @@ void UpdateStatusBar()
         DrawScore();
     }
 
-#ifdef BSTONE_AOG
-    DrawHealthMonitor();
-#endif
+    if (!::is_ps()) {
+        ::DrawHealthMonitor();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -2427,38 +2363,36 @@ void GetBonus(
     case bo_red_key:
     case bo_yellow_key:
     case bo_blue_key:
-#ifdef BSTONE_AOG
     case bo_green_key:
     case bo_gold_key:
-#endif
         {
-#ifdef BSTONE_AOG
             Uint16 keynum = 0;
 
-            switch (check->itemnumber) {
-            case bo_red_key:
-                keynum = 0;
-                break;
+            if (!::is_ps()) {
+                switch (check->itemnumber) {
+                case bo_red_key:
+                    keynum = 0;
+                    break;
 
-            case bo_yellow_key:
-                keynum = 1;
-                break;
+                case bo_yellow_key:
+                    keynum = 1;
+                    break;
 
-            case bo_blue_key:
-                keynum = 2;
-                break;
+                case bo_blue_key:
+                    keynum = 2;
+                    break;
 
-            case bo_green_key:
-                keynum = 3;
-                break;
+                case bo_green_key:
+                    keynum = 3;
+                    break;
 
-            case bo_gold_key:
-                keynum = 4;
-                break;
+                case bo_gold_key:
+                    keynum = 4;
+                    break;
+                }
+            } else {
+                keynum = check->itemnumber - bo_red_key;
             }
-#else
-            Uint16 keynum = check->itemnumber - bo_red_key;
-#endif
 
             if (gamestate.numkeys[keynum] >= MAXKEYS) {
                 return;
@@ -2547,13 +2481,11 @@ void GetBonus(
     }
     break;
 
-#ifdef BSTONE_PS
     case bo_plasma_detonator:
         TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
         GivePlasmaDetonator(1);
         ::sd_play_player_sound(GETDETONATORSND, bstone::AC_ITEM);
         break;
-#endif // BSTONE_PS
 
     case bo_pistol:
         ::sd_play_player_sound(GETPISTOLSND, bstone::AC_ITEM);
@@ -2575,12 +2507,10 @@ void GetBonus(
         GiveWeapon(wp_grenade);
         break;
 
-#ifdef BSTONE_PS
     case bo_bfg_cannon:
         ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
         GiveWeapon(wp_bfg_cannon);
         break;
-#endif
 
     case bo_coin:
         if (gamestate.tokens == MAX_TOKENS) {
@@ -2600,7 +2530,6 @@ void GetBonus(
         writeTokenStr(bonus_msg25);
         break;
 
-#ifdef BSTONE_PS
     case bo_automapper1:
         if (gamestate.rpower > MAX_RADAR_ENERGY - (RADAR_PAK_VALUE / 8)) {
             return;
@@ -2611,7 +2540,6 @@ void GetBonus(
 
         UpdateRadarGuage();
         break;
-#endif // BSTONE_PS
     }
 
     if (givepoints) {
@@ -2858,7 +2786,6 @@ void Thrust(
         ignore_map1 = true;
         break;
 
-#ifdef BSTONE_PS
     case SMART_OFF_TRIGGER:
     case SMART_ON_TRIGGER:
         dx = *map[1] >> 8;
@@ -2866,7 +2793,6 @@ void Thrust(
         OperateSmartSwitch(dx, dy, static_cast<char>((*map[0]) - SMART_OFF_TRIGGER), false);
         ignore_map1 = true;
         break;
-#endif
 
     case WINTIGGERTILE:
         playstate = ex_victorious;
@@ -2875,9 +2801,9 @@ void Thrust(
         dumb.flags = 0;
         dangle = CalcAngle(player, &dumb);
         RotateView(dangle, 2);
-#ifdef BSTONE_AOG
-        RunBlakeRun();
-#endif
+        if (!::is_ps()) {
+            RunBlakeRun();
+        }
         ignore_map1 = true;
         break;
 
@@ -3009,15 +2935,11 @@ Uint8 ValidAreaTile(
     case HIDDENAREATILE:
     case DOORTRIGGERTILE:
     case WINTIGGERTILE:
-#ifdef BSTONE_PS
     case SMART_ON_TRIGGER:
     case SMART_OFF_TRIGGER:
-#endif
     case AMBUSHTILE:
-#ifdef BSTONE_PS
     case LINC_TILE:
     case CLOAK_AMBUSH_TILE:
-#endif
         break;
 
     default:
@@ -3078,9 +3000,7 @@ void Cmd_Use()
     Uint16 iconnum;
     Uint8 static interrogate_delay = 0;
 
-#ifdef BSTONE_PS
     boolean tryDetonator = false;
-#endif
 
 // Find which cardinal direction the player is facing
 //
@@ -3129,19 +3049,16 @@ void Cmd_Use()
 
                     gamestuff.level[gamestate.mapon].ptilex = player->tilex;
                     gamestuff.level[gamestate.mapon].ptiley = player->tiley;
-#ifdef BSTONE_PS
-                    angle = player->angle - 180;
-                    if (angle < 0) {
-                        angle += ANGLES;
-                    }
-#endif
-                    gamestuff.level[gamestate.mapon].pangle = angle;
 
-#ifdef BSTONE_AOG
-                    playstate = ex_warped;
-#else
-                    playstate = ex_transported;
-#endif
+                    if (::is_ps()) {
+                        angle = player->angle - 180;
+                        if (angle < 0) {
+                            angle += ANGLES;
+                        }
+                    }
+
+                    gamestuff.level[gamestate.mapon].pangle = angle;
+                    playstate = ::is_ps() ? ex_transported : ex_warped;
 
                     gamestate.lastmapon = gamestate.mapon;
                     gamestate.mapon = new_floor - 1;
@@ -3158,20 +3075,20 @@ void Cmd_Use()
                     gamestate.lastmapon = gamestate.mapon;
                     gamestate.mapon = (iconnum & 0xff) - 1;
 
-#ifdef BSTONE_AOG
-                    gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
-                    gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
+                    if (!::is_ps()) {
+                        gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
+                        gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
 
-                    {
-                        int angle = player->angle - 180;
+                        {
+                            int angle = player->angle - 180;
 
-                        if (angle < 0) {
-                            angle += ANGLES;
+                            if (angle < 0) {
+                                angle += ANGLES;
+                            }
+
+                            gamestuff.level[gamestate.mapon + 1].pangle = angle;
                         }
-
-                        gamestuff.level[gamestate.mapon + 1].pangle = angle;
                     }
-#endif
                     break;
 
                 default:
@@ -3209,9 +3126,9 @@ void Cmd_Use()
                 break;
 
             default:
-#ifdef BSTONE_SP
-                tryDetonator = true;
-#endif
+                if (::is_ps()) {
+                    tryDetonator = true;
+                }
                 break;
             }
         }
@@ -3270,12 +3187,9 @@ void Cmd_Use()
             } else {
                 interrogate_delay = 120; // Non-informants have 2 sec delay
             }
-        }
-#ifdef BSTONE_PS
-        else {
+        } else if (::is_ps()) {
             tryDetonator = true;
         }
-#endif
     } else {
         if (tics < interrogate_delay) {
             interrogate_delay -= static_cast<Uint8>(tics);
@@ -3283,21 +3197,21 @@ void Cmd_Use()
             interrogate_delay = 0;
         }
 
-#ifdef BSTONE_PS
-        tryDetonator = true;
-#endif
+        if (::is_ps()) {
+            tryDetonator = true;
+        }
     }
 
-#ifdef BSTONE_PS
-    if (tryDetonator) {
-        if ((!tryDetonatorDelay) && gamestate.plasma_detonators) {
-            TryDropPlasmaDetonator();
+    if (::is_ps()) {
+        if (tryDetonator) {
+            if ((!tryDetonatorDelay) && gamestate.plasma_detonators) {
+                TryDropPlasmaDetonator();
+                tryDetonatorDelay = 60;
+            }
+        } else {
             tryDetonatorDelay = 60;
         }
-    } else {
-        tryDetonatorDelay = 60;
     }
-#endif
 
     if (!buttonheld[bt_use]) {
         interrogate_delay = 0;
@@ -3460,453 +3374,453 @@ boolean ov_noImage = false;
 // --------------------------------------------------------------------------
 Sint16 InputFloor()
 {
-#ifdef BSTONE_AOG
-    const std::string messages[4] = {
-        // "Current floor:\nSelect a floor."
-        ::ca_load_script(ELEVMSG0_TEXT),
-        // "RED access card used to unlock floor!"
-        ::ca_load_script(ELEVMSG1_TEXT),
-        // "Floor is locked. Try another floor."
-        ::ca_load_script(ELEVMSG4_TEXT),
-        // "You must first get the red access keycard!"
-        ::ca_load_script(ELEVMSG5_TEXT)
-    }; // messages
+    if (!::is_ps()) {
+        const std::string messages[4] = {
+            // "Current floor:\nSelect a floor."
+            ::ca_load_script(ELEVMSG0_TEXT),
+            // "RED access card used to unlock floor!"
+            ::ca_load_script(ELEVMSG1_TEXT),
+            // "Floor is locked. Try another floor."
+            ::ca_load_script(ELEVMSG4_TEXT),
+            // "You must first get the red access keycard!"
+            ::ca_load_script(ELEVMSG5_TEXT)
+        }; // messages
 
-    const char* const floor_number_strings[10] = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
-    };
+        const char* const floor_number_strings[10] = {
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+        };
 
-    ::CA_CacheGrChunk(TELEPORT_TEXT_BG);
+        ::CA_CacheGrChunk(TELEPORT_TEXT_BG);
 
-    for (int i = 0; i < 20; ++i) {
-        ::CA_CacheGrChunk(TELEPORT1OFFPIC + i);
-    }
-
-    ::CA_CacheGrChunk(STARTFONT + 3);
-
-    ::VW_FadeOut();
-
-    ::DrawTopInfo(sp_normal);
-
-    int border_width = 7;
-    int border_height = 5;
-    int outer_height = 200 - STATUSLINES - TOP_STRIP_HEIGHT;
-
-    ::BevelBox(
-        0,
-        TOP_STRIP_HEIGHT,
-        320,
-        outer_height,
-        BORDER_HI_COLOR,
-        BORDER_MED_COLOR,
-        BORDER_LO_COLOR);
-
-    ::BevelBox(
-        border_width,
-        TOP_STRIP_HEIGHT + border_height,
-        320 - (2 * border_width),
-        outer_height - (2 * border_height),
-        BORDER_LO_COLOR,
-        BORDER_MED_COLOR,
-        BORDER_HI_COLOR);
-
-    ::CacheDrawPic(8, TOP_STRIP_HEIGHT + 6, TELEPORTBACKPIC);
-
-    ::fontnumber = 1;
-    ::CA_CacheGrChunk(STARTFONT + 1);
-    ::CacheBMAmsg(FLOORMSG_TEXT);
-    ::UNCACHEGRCHUNK(STARTFONT + 1);
-
-    ::ShowOverhead(
-        14,
-        TOP_STRIP_HEIGHT + 55,
-        32,
-        0,
-        OV_KEYS | OV_PUSHWALLS | OV_ACTORS | OV_WHOLE_MAP);
-
-    ::IN_ClearKeysDown();
-
-    int result = -2;
-    bool draw_stats = true;
-    bool draw_message = true;
-    bool draw_current_floor = true;
-    bool draw_locked_floor = false;
-    bool use_delay = false;
-    bool draw_button = false;
-    int button_index = 0;
-    int is_button_pressed = false;
-    const std::string* message = &messages[0];
-
-    PresenterInfo pi;
-    ::memset(&pi, 0, sizeof(pi));
-    pi.xl = 24;
-    pi.yl = TOP_STRIP_HEIGHT + 8;
-    pi.xh = pi.xl + 210;
-    pi.yh = pi.yl + 34;
-    pi.fontnumber = 3;
-    pi.custom_line_height = 17;
-
-    ::fontcolor = 0x38;
-
-    while (result == -2) {
-        ::CalcTics();
-        ::in_handle_events();
-
-        if (::Keyboard[sc_escape]) {
-            result = -1;
+        for (int i = 0; i < 20; ++i) {
+            ::CA_CacheGrChunk(TELEPORT1OFFPIC + i);
         }
 
-        int target_level = 0;
+        ::CA_CacheGrChunk(STARTFONT + 3);
 
-        for (int i = sc_1; i <= sc_0; ++i) {
-            if (::Keyboard[i]) {
-                target_level = i - sc_1 + 1;
-                break;
+        ::VW_FadeOut();
+
+        ::DrawTopInfo(sp_normal);
+
+        int border_width = 7;
+        int border_height = 5;
+        int outer_height = 200 - STATUSLINES - TOP_STRIP_HEIGHT;
+
+        ::BevelBox(
+            0,
+            TOP_STRIP_HEIGHT,
+            320,
+            outer_height,
+            BORDER_HI_COLOR,
+            BORDER_MED_COLOR,
+            BORDER_LO_COLOR);
+
+        ::BevelBox(
+            border_width,
+            TOP_STRIP_HEIGHT + border_height,
+            320 - (2 * border_width),
+            outer_height - (2 * border_height),
+            BORDER_LO_COLOR,
+            BORDER_MED_COLOR,
+            BORDER_HI_COLOR);
+
+        ::CacheDrawPic(8, TOP_STRIP_HEIGHT + 6, TELEPORTBACKPIC);
+
+        ::fontnumber = 1;
+        ::CA_CacheGrChunk(STARTFONT + 1);
+        ::CacheBMAmsg(FLOORMSG_TEXT);
+        ::UNCACHEGRCHUNK(STARTFONT + 1);
+
+        ::ShowOverhead(
+            14,
+            TOP_STRIP_HEIGHT + 55,
+            32,
+            0,
+            OV_KEYS | OV_PUSHWALLS | OV_ACTORS | OV_WHOLE_MAP);
+
+        ::IN_ClearKeysDown();
+
+        int result = -2;
+        bool draw_stats = true;
+        bool draw_message = true;
+        bool draw_current_floor = true;
+        bool draw_locked_floor = false;
+        bool use_delay = false;
+        bool draw_button = false;
+        int button_index = 0;
+        int is_button_pressed = false;
+        const std::string* message = &messages[0];
+
+        PresenterInfo pi;
+        ::memset(&pi, 0, sizeof(pi));
+        pi.xl = 24;
+        pi.yl = TOP_STRIP_HEIGHT + 8;
+        pi.xh = pi.xl + 210;
+        pi.yh = pi.yl + 34;
+        pi.fontnumber = 3;
+        pi.custom_line_height = 17;
+
+        ::fontcolor = 0x38;
+
+        while (result == -2) {
+            ::CalcTics();
+            ::in_handle_events();
+
+            if (::Keyboard[sc_escape]) {
+                result = -1;
             }
-        }
 
-        if (target_level > 0 && target_level != ::gamestate.mapon) {
-            draw_button = true;
-            is_button_pressed = true;
-            button_index = target_level - 1;
+            int target_level = 0;
 
-            if (!::gamestuff.level[target_level].locked) {
-                result = target_level;
-            } else if (::gamestate.numkeys[kt_red] > 0) {
-                result = target_level;
+            for (int i = sc_1; i <= sc_0; ++i) {
+                if (::Keyboard[i]) {
+                    target_level = i - sc_1 + 1;
+                    break;
+                }
+            }
 
-                use_delay = true;
-                draw_message = true;
-                draw_current_floor = false;
-                message = &messages[1];
-            } else {
-                use_delay = true;
-                draw_message = true;
-                draw_current_floor = false;
+            if (target_level > 0 && target_level != ::gamestate.mapon) {
+                draw_button = true;
+                is_button_pressed = true;
+                button_index = target_level - 1;
 
-                if (::gamestate.mapon == 1 && target_level == 2) {
-                    draw_locked_floor = false;
-                    message = &messages[3];
+                if (!::gamestuff.level[target_level].locked) {
+                    result = target_level;
+                } else if (::gamestate.numkeys[kt_red] > 0) {
+                    result = target_level;
+
+                    use_delay = true;
+                    draw_message = true;
+                    draw_current_floor = false;
+                    message = &messages[1];
                 } else {
-                    draw_locked_floor = true;
-                    message = &messages[2];
+                    use_delay = true;
+                    draw_message = true;
+                    draw_current_floor = false;
+
+                    if (::gamestate.mapon == 1 && target_level == 2) {
+                        draw_locked_floor = false;
+                        message = &messages[3];
+                    } else {
+                        draw_locked_floor = true;
+                        message = &messages[2];
+                    }
                 }
             }
-        }
 
-        if (draw_message) {
-            draw_message = false;
+            if (draw_message) {
+                draw_message = false;
 
-            ::VWB_DrawPic(24, TOP_STRIP_HEIGHT + 10, TELEPORT_TEXT_BG);
+                ::VWB_DrawPic(24, TOP_STRIP_HEIGHT + 10, TELEPORT_TEXT_BG);
 
-            ::fontcolor = 0x97;
-            pi.script[0] = message->c_str();
-            pi.flags = TPF_CACHE_NO_GFX | TPF_USE_CURRENT;
-            pi.cur_x = 0xFFFF;
-            pi.cur_y = 0xFFFF;
-            ::TP_InitScript(&pi);
-            ::TP_Presenter(&pi);
+                ::fontcolor = 0x97;
+                pi.script[0] = message->c_str();
+                pi.flags = TPF_CACHE_NO_GFX | TPF_USE_CURRENT;
+                pi.cur_x = 0xFFFF;
+                pi.cur_y = 0xFFFF;
+                ::TP_InitScript(&pi);
+                ::TP_Presenter(&pi);
 
-            if (draw_current_floor) {
-                ::fontnumber = 3;
-                ::fontcolor = 0x38;
+                if (draw_current_floor) {
+                    ::fontnumber = 3;
+                    ::fontcolor = 0x38;
 
-                ::px = 167;
-                ::py = TOP_STRIP_HEIGHT + 10;
+                    ::px = 167;
+                    ::py = TOP_STRIP_HEIGHT + 10;
 
-                ::USL_DrawString(
-                    floor_number_strings[::gamestate.mapon - 1]);
-            }
-
-            if (draw_locked_floor) {
-                ::fontnumber = 3;
-                ::fontcolor = 0x38;
-
-                ::px = 82;
-                ::py = TOP_STRIP_HEIGHT + 10;
-
-                ::USL_DrawString(
-                    floor_number_strings[target_level - 1]);
-            }
-
-            if (draw_button) {
-                draw_button = false;
-
-                int base_x = 264;
-                int base_y = TOP_STRIP_HEIGHT + 98;
-                int step_x = 24;
-                int step_y = 20;
-
-                int x = base_x + (step_x * (button_index % 2));
-                int y = base_y - (step_y * (button_index / 2));
-
-                int base_pic =
-                    is_button_pressed ?
-                    TELEPORT1ONPIC :
-                    TELEPORT1OFFPIC;
-
-                ::VWB_DrawPic(
-                    x,
-                    y,
-                    base_pic + button_index);
-            }
-        }
-
-        ::CycleColors();
-        ::VW_UpdateScreen();
-
-        if (::screenfaded) {
-            ::VW_FadeIn();
-        }
-
-        if (draw_stats) {
-            draw_stats = false;
-
-            static_cast<void>(::ShowStats(
-                                  167,
-                                  TOP_STRIP_HEIGHT + 76,
-                                  ss_normal,
-                                  &::gamestuff.level[::gamestate.mapon].stats));
-        }
-
-        if (use_delay) {
-            use_delay = false;
-            draw_message = true;
-            draw_current_floor = true;
-            draw_locked_floor = false;
-            draw_button = true;
-            is_button_pressed = false;
-            message = &messages[0];
-
-            ::IN_UserInput(210);
-            ::IN_ClearKeysDown();
-        }
-    }
-
-    ::IN_ClearKeysDown();
-
-    return static_cast<Sint16>(result);
-#else
-#define RADAR_FLAGS OV_KEYS
-#define MAX_TELEPORTS 20
-#define MAX_MOVE_DELAY 10
-
-    Sint16 buttonPic, buttonY;
-    Sint16 rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
-    Sint16 teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
-    Sint16 teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
-    char moveActive = 0;
-    objtype old_player;
-    boolean locked = false, buttonsDrawn = false;
-
-    ClearMemory();
-    VW_FadeOut();
-
-    CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
-    CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
-    DisplayTeleportName(static_cast<char>(tpNum), locked);
-    CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
-    VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
-
-    memcpy(&old_player, player, sizeof(objtype));
-    player->angle = 90;
-    player->x = player->y = ((Sint32)32 << TILESHIFT) + (TILEGLOBAL / 2);
-
-    ov_buffer = new Uint8[4096];
-    ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
-    memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
-    ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
-    SaveOverheadChunk(tpNum);
-
-    px = 115;
-    py = 188;
-    fontcolor = 0xaf;
-    fontnumber = 2;
-    ShPrint(if_help, 0, false);
-
-    controlx = controly = 0;
-    IN_ClearKeysDown();
-    while (rt_code == -2) {
-        // Handle ABORT and ACCEPT
-        //
-//              if (!screenfaded)
-//                      PollControls();
-
-        CalcTics();
-
-        // BBi
-        ::in_handle_events();
-
-        if (Keyboard[sc_left_arrow]) {
-            controlx = -1;
-        } else if (Keyboard[sc_right_arrow]) {
-            controlx = 1;
-        } else {
-            controlx = 0;
-        }
-
-        if (Keyboard[sc_up_arrow]) {
-            controly = -1;
-        } else if (Keyboard[sc_down_arrow]) {
-            controly = 1;
-        } else {
-            controly = 0;
-        }
-
-        if (Keyboard[sc_escape] || buttonstate[bt_strafe]) {
-            rt_code = -1; // ABORT
-
-            LoadLocationText(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
-            break;
-        } else if (Keyboard[sc_return] || buttonstate[bt_attack]) {
-            if (locked) {
-                if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY)) {
-                    ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+                    ::USL_DrawString(
+                        floor_number_strings[::gamestate.mapon - 1]);
                 }
+
+                if (draw_locked_floor) {
+                    ::fontnumber = 3;
+                    ::fontcolor = 0x38;
+
+                    ::px = 82;
+                    ::py = TOP_STRIP_HEIGHT + 10;
+
+                    ::USL_DrawString(
+                        floor_number_strings[target_level - 1]);
+                }
+
+                if (draw_button) {
+                    draw_button = false;
+
+                    int base_x = 264;
+                    int base_y = TOP_STRIP_HEIGHT + 98;
+                    int step_x = 24;
+                    int step_y = 20;
+
+                    int x = base_x + (step_x * (button_index % 2));
+                    int y = base_y - (step_y * (button_index / 2));
+
+                    int base_pic =
+                        is_button_pressed ?
+                        TELEPORT1ONPIC :
+                        TELEPORT1OFFPIC;
+
+                    ::VWB_DrawPic(
+                        x,
+                        y,
+                        base_pic + button_index);
+                }
+            }
+
+            ::CycleColors();
+            ::VW_UpdateScreen();
+
+            if (::screenfaded) {
+                ::VW_FadeIn();
+            }
+
+            if (draw_stats) {
+                draw_stats = false;
+
+                static_cast<void>(::ShowStats(
+                                      167,
+                                      TOP_STRIP_HEIGHT + 76,
+                                      ss_normal,
+                                      &::gamestuff.level[::gamestate.mapon].stats));
+            }
+
+            if (use_delay) {
+                use_delay = false;
+                draw_message = true;
+                draw_current_floor = true;
+                draw_locked_floor = false;
+                draw_button = true;
+                is_button_pressed = false;
+                message = &messages[0];
+
+                ::IN_UserInput(210);
+                ::IN_ClearKeysDown();
+            }
+        }
+
+        ::IN_ClearKeysDown();
+
+        return static_cast<Sint16>(result);
+    } else {
+    #define RADAR_FLAGS OV_KEYS
+    #define MAX_TELEPORTS 20
+    #define MAX_MOVE_DELAY 10
+
+        Sint16 buttonPic, buttonY;
+        Sint16 rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
+        Sint16 teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
+        Sint16 teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
+        char moveActive = 0;
+        objtype old_player;
+        boolean locked = false, buttonsDrawn = false;
+
+        ClearMemory();
+        VW_FadeOut();
+
+        CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
+        CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
+        DisplayTeleportName(static_cast<char>(tpNum), locked);
+        CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+        VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
+
+        memcpy(&old_player, player, sizeof(objtype));
+        player->angle = 90;
+        player->x = player->y = ((Sint32)32 << TILESHIFT) + (TILEGLOBAL / 2);
+
+        ov_buffer = new Uint8[4096];
+        ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
+        memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
+        ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
+        SaveOverheadChunk(tpNum);
+
+        px = 115;
+        py = 188;
+        fontcolor = 0xaf;
+        fontnumber = 2;
+        ShPrint(if_help, 0, false);
+
+        controlx = controly = 0;
+        IN_ClearKeysDown();
+        while (rt_code == -2) {
+            // Handle ABORT and ACCEPT
+            //
+    //              if (!screenfaded)
+    //                      PollControls();
+
+            CalcTics();
+
+            // BBi
+            ::in_handle_events();
+
+            if (Keyboard[sc_left_arrow]) {
+                controlx = -1;
+            } else if (Keyboard[sc_right_arrow]) {
+                controlx = 1;
             } else {
-                char loop;
+                controlx = 0;
+            }
 
-                rt_code = tpNum; // ACCEPT
+            if (Keyboard[sc_up_arrow]) {
+                controly = -1;
+            } else if (Keyboard[sc_down_arrow]) {
+                controly = 1;
+            } else {
+                controly = 0;
+            }
 
-                // Flash selection
-                //
-                for (loop = 0; loop < 10; loop++) {
-                    VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1OFFPIC + tpNum);
-                    VW_UpdateScreen();
-                    VW_WaitVBL(4);
+            if (Keyboard[sc_escape] || buttonstate[bt_strafe]) {
+                rt_code = -1; // ABORT
 
-                    VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
-                    VW_UpdateScreen();
-                    VW_WaitVBL(4);
+                LoadLocationText(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
+                break;
+            } else if (Keyboard[sc_return] || buttonstate[bt_attack]) {
+                if (locked) {
+                    if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY)) {
+                        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+                    }
+                } else {
+                    char loop;
+
+                    rt_code = tpNum; // ACCEPT
+
+                    // Flash selection
+                    //
+                    for (loop = 0; loop < 10; loop++) {
+                        VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1OFFPIC + tpNum);
+                        VW_UpdateScreen();
+                        VW_WaitVBL(4);
+
+                        VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
+                        VW_UpdateScreen();
+                        VW_WaitVBL(4);
+                    }
+
+                    break;
+                }
+            }
+
+            CheckMusicToggle();
+
+            // Handle delay
+            //
+            if (moveActive) {
+                moveActive -= static_cast<char>(tics);
+                if (moveActive < 0) {
+                    moveActive = 0;
+                }
+            }
+
+            // Move to NEXT / PREV teleport?
+            //
+            buttonY = 0;
+            if (controlx > 0 || controly > 0) {
+                if (!moveActive && tpNum < MAX_TELEPORTS - 1) {
+                    tpNum++; // MOVE NEXT
+                    moveActive = MAX_MOVE_DELAY;
                 }
 
-                break;
-            }
-        }
+                buttonPic = TELEDNONPIC;
+                buttonY = 104;
+            } else if (controlx < 0 || controly < 0) {
+                if (!moveActive && tpNum) {
+                    tpNum--; // MOVE PREV
+                    moveActive = MAX_MOVE_DELAY;
+                }
 
-        CheckMusicToggle();
-
-        // Handle delay
-        //
-        if (moveActive) {
-            moveActive -= static_cast<char>(tics);
-            if (moveActive < 0) {
-                moveActive = 0;
-            }
-        }
-
-        // Move to NEXT / PREV teleport?
-        //
-        buttonY = 0;
-        if (controlx > 0 || controly > 0) {
-            if (!moveActive && tpNum < MAX_TELEPORTS - 1) {
-                tpNum++; // MOVE NEXT
-                moveActive = MAX_MOVE_DELAY;
+                buttonPic = TELEUPONPIC;
+                buttonY = 91;
             }
 
-            buttonPic = TELEDNONPIC;
-            buttonY = 104;
-        } else if (controlx < 0 || controly < 0) {
-            if (!moveActive && tpNum) {
-                tpNum--; // MOVE PREV
-                moveActive = MAX_MOVE_DELAY;
+            // Light buttons?
+            //
+            if (buttonY) {
+                VWB_DrawMPic(34, 91, TELEUPOFFPIC);
+                VWB_DrawMPic(270, 91, TELEUPOFFPIC);
+                VWB_DrawMPic(34, 104, TELEDNOFFPIC);
+                VWB_DrawMPic(270, 104, TELEDNOFFPIC);
+
+                VWB_DrawMPic(34, buttonY, buttonPic);
+                VWB_DrawMPic(270, buttonY, buttonPic);
+                buttonsDrawn = true;
+            } else
+            // Unlight buttons?
+            //
+            if (buttonsDrawn) {
+                VWB_DrawMPic(34, 91, TELEUPOFFPIC);
+                VWB_DrawMPic(270, 91, TELEUPOFFPIC);
+                VWB_DrawMPic(34, 104, TELEDNOFFPIC);
+                VWB_DrawMPic(270, 104, TELEDNOFFPIC);
+                buttonsDrawn = false;
             }
 
-            buttonPic = TELEUPONPIC;
-            buttonY = 91;
-        }
+            // Change visual information
+            //
+            if (tpNum != lastTpNum) {
+                locked = gamestuff.level[tpNum].locked;
+                DisplayTeleportName(static_cast<char>(tpNum), locked);
 
-        // Light buttons?
-        //
-        if (buttonY) {
-            VWB_DrawMPic(34, 91, TELEUPOFFPIC);
-            VWB_DrawMPic(270, 91, TELEUPOFFPIC);
-            VWB_DrawMPic(34, 104, TELEDNOFFPIC);
-            VWB_DrawMPic(270, 104, TELEDNOFFPIC);
+                VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
+                VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
-            VWB_DrawMPic(34, buttonY, buttonPic);
-            VWB_DrawMPic(270, buttonY, buttonPic);
-            buttonsDrawn = true;
-        } else
-        // Unlight buttons?
-        //
-        if (buttonsDrawn) {
-            VWB_DrawMPic(34, 91, TELEUPOFFPIC);
-            VWB_DrawMPic(270, 91, TELEUPOFFPIC);
-            VWB_DrawMPic(34, 104, TELEDNOFFPIC);
-            VWB_DrawMPic(270, 104, TELEDNOFFPIC);
-            buttonsDrawn = false;
-        }
-
-        // Change visual information
-        //
-        if (tpNum != lastTpNum) {
-            locked = gamestuff.level[tpNum].locked;
-            DisplayTeleportName(static_cast<char>(tpNum), locked);
-
-            VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
-            VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
-
-            LoadOverheadChunk(tpNum);
-            ShowOverheadChunk();
-            if (ov_noImage) {
-                fontcolor = 0x57;
-                WindowX = WindowW = TOV_X;
-                WindowY = WindowH = TOV_Y;
-                WindowW += 63;
-                WindowH += 63;
-                PrintX = TOV_X + 5;
-                PrintY = TOV_Y + 13;
-                US_Print(if_noImage);
+                LoadOverheadChunk(tpNum);
+                ShowOverheadChunk();
+                if (ov_noImage) {
+                    fontcolor = 0x57;
+                    WindowX = WindowW = TOV_X;
+                    WindowY = WindowH = TOV_Y;
+                    WindowW += 63;
+                    WindowH += 63;
+                    PrintX = TOV_X + 5;
+                    PrintY = TOV_Y + 13;
+                    US_Print(if_noImage);
+                }
+                lastTpNum = tpNum;
             }
-            lastTpNum = tpNum;
-        }
 
-        if (locked) {
-            ShowOverhead(TOV_X, TOV_Y, 32, -1, RADAR_FLAGS);
-        }
+            if (locked) {
+                ShowOverhead(TOV_X, TOV_Y, 32, -1, RADAR_FLAGS);
+            }
 
-        CycleColors();
-        VW_UpdateScreen();
-        if (screenfaded) {
-            VW_FadeIn();
-            ShowStats(235, 138, ss_normal, &ov_stats);
-            IN_ClearKeysDown();
-            controlx = controly = 0;
+            CycleColors();
+            VW_UpdateScreen();
+            if (screenfaded) {
+                VW_FadeIn();
+                ShowStats(235, 138, ss_normal, &ov_stats);
+                IN_ClearKeysDown();
+                controlx = controly = 0;
+            }
         }
-    }
 
 #if 0
-    for (buttonY = 63; buttonY >= 0; buttonY -= 2) {
-        char shps[] = { TELEPORT1ONPIC, TELEPORT1OFFPIC };
+        for (buttonY = 63; buttonY >= 0; buttonY -= 2) {
+            char shps[] = { TELEPORT1ONPIC, TELEPORT1OFFPIC };
 
-        if (rt_code != -1) {
-            VWB_DrawMPic(teleX[tpNum], teleY[tpNum], shps[(buttonY & 4) >> 2] + tpNum);
+            if (rt_code != -1) {
+                VWB_DrawMPic(teleX[tpNum], teleY[tpNum], shps[(buttonY & 4) >> 2] + tpNum);
+            }
+
+            if (locked) {
+                ShowOverhead(TOV_X, TOV_Y, 32, -locked, RADAR_FLAGS);
+            }
+
+            CycleColors();
+            VL_SetPaletteIntensity(0, 255, &vgapal, buttonY);
+            VW_UpdateScreen();
         }
-
-        if (locked) {
-            ShowOverhead(TOV_X, TOV_Y, 32, -locked, RADAR_FLAGS);
-        }
-
-        CycleColors();
-        VL_SetPaletteIntensity(0, 255, &vgapal, buttonY);
-        VW_UpdateScreen();
-    }
 #else
-    VW_FadeOut();
+        VW_FadeOut();
 #endif
 
-    delete [] ov_buffer;
-    ov_buffer = NULL;
+        delete [] ov_buffer;
+        ov_buffer = NULL;
 
-    memcpy(player, &old_player, sizeof(objtype));
-    UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+        memcpy(player, &old_player, sizeof(objtype));
+        UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
-    DrawPlayScreen(false);
-    IN_ClearKeysDown();
+        DrawPlayScreen(false);
+        IN_ClearKeysDown();
 
-    return rt_code;
-#endif // BSTONE_AOG
+        return rt_code;
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -4119,11 +4033,7 @@ Sint16 ShowStats(
 
 // Show OVERALL FLOOR ratio.
 //
-#ifdef BSTONE_AOG
-    by += 12;
-#else
-    by += 13;
-#endif
+    by += (::is_ps() ? 13 : 12);
     floor = p1 + p2 + p3;
     ShowRatio(bx, by, bx + 52, by, maxPerFloor, floor, type);
 
@@ -5419,13 +5329,7 @@ void T_Attack(
             if (!gamestate.plasma_detonators) {
                 // Check to see what weapons are possible.
                 //
-                const Sint16 n_x =
-#ifdef BSTONE_AOG
-                    wp_grenade
-#else
-                    wp_bfg_cannon
-#endif
-                ;
+                const Sint16 n_x = (::is_ps() ? wp_bfg_cannon : wp_grenade);
 
                 for (x = n_x; x >= wp_autocharge; x--) {
                     if (gamestate.useable_weapons & (1 << x)) {
@@ -5466,11 +5370,11 @@ void T_Attack(
             if (!godmode) {
                 gamestate.ammo--;
             }
-#ifdef BSTONE_AOG
-            DrawWeapon();
-#else
-            DrawAmmo(false);
-#endif
+            if (!::is_ps()) {
+                DrawWeapon();
+            } else {
+                DrawAmmo(false);
+            }
             break;
 
         case 2:
@@ -5479,11 +5383,11 @@ void T_Attack(
             }
             GunAttack(ob);
             gamestate.weapon_wait = AUTOCHARGE_WAIT;
-#ifdef BSTONE_AOG
-            DrawWeapon();
-#else
-            DrawAmmo(false);
-#endif
+            if (!::is_ps()) {
+                DrawWeapon();
+            } else {
+                DrawAmmo(false);
+            }
             break;
 
         case 3:
@@ -5514,11 +5418,11 @@ void T_Attack(
                 if (!godmode) {
                     if (gamestate.ammo >= GRENADE_ENERGY_USE) {
                         gamestate.ammo -= GRENADE_ENERGY_USE;
-#ifdef BSTONE_AOG
-                        DrawWeapon();
-#else
-                        DrawAmmo(false);
-#endif
+                        if (!::is_ps()) {
+                            DrawWeapon();
+                        } else {
+                            DrawAmmo(false);
+                        }
                     } else {
                         gamestate.attackframe++;
                     }
@@ -5531,7 +5435,6 @@ void T_Attack(
             }
             break;
 
-#ifdef BSTONE_PS
         case 7:
             TryDropPlasmaDetonator();
             DrawAmmo(false);
@@ -5577,7 +5480,6 @@ void T_Attack(
                 DISPLAY_TIMED_MSG(WeaponMalfunction, MP_WEAPON_MALFUNCTION, MT_MALFUNCTION);
             }
             break;
-#endif
         }
 
         gamestate.attackcount += cur->tics;
@@ -5607,13 +5509,13 @@ void T_Player(
         UpdateAmmoMsg();
     }
 
-#ifdef BSTONE_PS
-    if (tryDetonatorDelay > tics) {
-        tryDetonatorDelay -= tics;
-    } else {
-        tryDetonatorDelay = 0;
+    if (::is_ps()) {
+        if (tryDetonatorDelay > tics) {
+            tryDetonatorDelay -= tics;
+        } else {
+            tryDetonatorDelay = 0;
+        }
     }
-#endif
 
     if (buttonstate[bt_use]) {
         Cmd_Use();
@@ -5634,7 +5536,6 @@ void T_Player(
     player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
 }
 
-#if BSTONE_AOG
 // -------------------------------------------------------------------------
 // RunBlakeRun()
 // -------------------------------------------------------------------------
@@ -5642,7 +5543,7 @@ void RunBlakeRun()
 {
 #define BLAKE_SPEED (MOVESCALE * 50)
 
-    Sint32 xmove, ymove, speed;
+    Sint32 xmove, ymove;
     objtype* blake;
     Sint16 startx, starty, dx, dy;
 
@@ -5711,7 +5612,6 @@ void RunBlakeRun()
     } while ((dx < 6) && (dy < 6));
 }
 
-#endif
 
 // -------------------------------------------------------------------------
 // SW_HandleActor() - Handle all actors connected to a smart switch.
@@ -5734,11 +5634,9 @@ void SW_HandleActor(
         }
         break;
 
-#ifdef BSTONE_PS
     case morphing_spider_mutantobj:
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
-#endif
     case crate1obj:
     case crate2obj:
     case crate3obj:
@@ -5811,12 +5709,11 @@ void SW_HandleStatic(
     switch (stat->itemnumber) {
     case bo_clip:
     case bo_clip2:
-// FIXME
-#ifdef BSTONE_PS
-        SpawnCusExplosion((((fixed)tilex) << TILESHIFT) + 0x7FFF,
-                          (((fixed)tiley) << TILESHIFT) + 0x7FFF,
-                          SPR_CLIP_EXP1, 7, 30 + (US_RndT() & 0x27), explosionobj);
-#endif
+        if (::is_ps()) {
+            SpawnCusExplosion((((fixed)tilex) << TILESHIFT) + 0x7FFF,
+                              (((fixed)tiley) << TILESHIFT) + 0x7FFF,
+                              SPR_CLIP_EXP1, 7, 30 + (US_RndT() & 0x27), explosionobj);
+        }
         stat->shapenum = -1;
         stat->itemnumber = bo_nothing;
         break;
