@@ -705,23 +705,23 @@ void SpawnOffsetObj(
         break;
 
     case en_green_ooze:
-        InitSmartSpeedAnim(new_actor, SPR_GREEN_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+        ::InitSmartSpeedAnim(new_actor, SPR_GREEN_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
     case en_black_ooze:
-        InitSmartSpeedAnim(new_actor, SPR_BLACK_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+        ::InitSmartSpeedAnim(new_actor, SPR_BLACK_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
 #ifdef BSTONE_PS
     case en_green2_ooze:
-        InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+        ::InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
     case en_black2_ooze:
-        InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+        ::InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 #endif
@@ -738,9 +738,9 @@ void SpawnOffsetObj(
 
     case en_rotating_cube:
 #ifdef BSTONE_AOG
-        InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+        ::InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
 #else
-        InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
+        ::InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
         new_actor->flags2 = FL2_BFGSHOT_SOLID;
 #endif
         new_actor->lighting = LAMP_ON_SHADING;
@@ -1035,7 +1035,7 @@ void T_OfsThink(
             obj->flags &= ~FL_SHOOTABLE;
             obj->obclass = pd_explosionobj;
             A_DeathScream(obj);
-            InitSmartSpeedAnim(obj, SPR_DETONATOR_EXP1, 0, 7, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(obj, SPR_DETONATOR_EXP1, 0, 7, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
             return;
         } else {
             obj->temp3 -= tics;
@@ -1074,7 +1074,7 @@ void T_OfsThink(
 
             if ((obj->temp1 = grenade_shapes[static_cast<int>(dist)]) == 0) {
                 obj->obclass = gr_explosionobj;
-                InitSmartSpeedAnim(obj, SPR_GRENADE_EXPLODE1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+                ::InitSmartSpeedAnim(obj, SPR_GRENADE_EXPLODE1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
             }
         }
 
@@ -1195,7 +1195,7 @@ void T_OfsThink(
 
         ::sd_play_actor_sound(PODHATCHSND, obj, bstone::AC_VOICE);
 
-        InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+        ::InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
         break;
 
 #ifdef BSTONE_PS
@@ -1226,7 +1226,7 @@ void T_OfsThink(
             break;
         }
         obj->flags &= ~FL_SHOOTABLE;
-        InitSmartSpeedAnim(obj, obj->temp1, 0, 8, at_ONCE, ad_FWD, 2);
+        ::InitSmartSpeedAnim(obj, obj->temp1, 0, 8, at_ONCE, ad_FWD, 2);
         break;
 #endif
 
@@ -1687,7 +1687,7 @@ objtype* MoveHiddenOfs(
 
 
 // ---------------------------------------------------------------------------
-// InitSmartAnim() - Sets up an object for a SmartAnimation
+// ::InitSmartAnim() - Sets up an object for a SmartAnimation
 //
 // PARAMETERS:  Obj  - Ptr to object structure
 //              ShapeNum - First shape number in anim
@@ -1877,9 +1877,9 @@ void T_SmartThought(
             case rotating_cubeobj:
                 if (::is_aog()) {
                     if (obj->temp1 == SPR_VITAL_OUCH) {
-                        InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+                        ::InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
                     } else if (obj->temp1 == SPR_VITAL_DIE_8) {
-                        InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
+                        ::InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
 
                         if (::get_remaining_generators() == 0) {
                             obj->ammo = 1;
@@ -2638,9 +2638,9 @@ void SpawnBarrier(
 #endif
         if (OnOff) {
 #ifdef BSTONE_AOG
-            InitSmartSpeedAnim(new_actor, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
 #else
-            InitSmartSpeedAnim(new_actor, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
 #endif
             new_actor->lighting = LAMP_ON_SHADING;
 //              new_actor->flags |= FL_SHOOTABLE;
@@ -2659,9 +2659,9 @@ void SpawnBarrier(
     case en_post_barrier:
         if (OnOff) {
 #ifdef BSTONE_AOG
-            InitSmartSpeedAnim(new_actor, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
 #else
-            InitSmartSpeedAnim(new_actor, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
 #endif
             new_actor->lighting = LAMP_ON_SHADING;
         } else {
@@ -2777,18 +2777,18 @@ void ToggleBarrier(
         switch (obj->obclass) {
         case post_barrierobj:
 #ifdef BSTONE_AOG
-            InitSmartSpeedAnim(obj, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(obj, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
 #else
-            InitSmartSpeedAnim(obj, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(obj, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
 #endif
             TurnPostOn(obj);
             break;
 
         case arc_barrierobj:
 #ifdef BSTONE_AOG
-            InitSmartSpeedAnim(obj, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(obj, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
 #else
-            InitSmartSpeedAnim(obj, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(obj, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
 #endif
             TurnPostOn(obj);
             break;
@@ -6089,49 +6089,49 @@ void T_Projectile(
     if (!ProjectileTryMove(ob, deltax, deltay)) {
         switch (ob->obclass) {
         case spider_mutantshotobj:
-            InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
+            ::InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
             return;
             break;
 
         case acid_dragonshotobj:
-            InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
+            ::InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
             return;
             break;
 
         case mut_hum1shotobj:
         case electroshotobj: // Explode on walls
-            InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
 
 #ifdef BSTONE_PS
         case final_boss2shotobj:
         case goldmorphshotobj:
-            InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
 
         case final_boss4shotobj:
-            InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
 #endif
 
         case lcanshotobj: // Explode on walls
         case podshotobj:
-            InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+            ::InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
 
         case scanshotobj: // Explode on walls
         case dogshotobj:
-            InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
             return;
             break;
 
 
         case liquidshotobj: // Explode on walls
-            InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
             return;
             break;
 
@@ -6148,7 +6148,7 @@ void T_Projectile(
             //
 
             ob->obclass = gr_explosionobj;
-            InitSmartSpeedAnim(ob, SPR_EXPLOSION_1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+            ::InitSmartSpeedAnim(ob, SPR_EXPLOSION_1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
             A_DeathScream(ob);
             return;
             break;
@@ -6240,47 +6240,47 @@ BlowIt:
             case mut_hum1shotobj:
             case electroshotobj:
                 damage = (US_RndT() >> 5);
-                InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
                 break;
 
 #ifdef BSTONE_PS
             case final_boss4shotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+                ::InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
                 break;
 
             case goldmorphshotobj:
             case final_boss2shotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
 #endif
 
             case lcanshotobj:
             case podshotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
 
             case scanshotobj:
             case dogshotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
 
             case liquidshotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
 
             case spider_mutantshotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
 
             case acid_dragonshotobj:
                 damage = (US_RndT() >> 4);
-                InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+                ::InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
 
             default:
@@ -6430,7 +6430,7 @@ void ExplodeFill(
                     if (ff_obj->obclass == pd_explosionobj) {
                         proj_check->lighting = EXPLOSION_SHADING;
                         proj_check->flags &= ~(FL_SOLID | FL_SHOOTABLE);
-                        InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
+                        ::InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
 
                         ::sd_play_actor_sound(
                             EXPLODE1SND, proj_check, bstone::AC_VOICE);

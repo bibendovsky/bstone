@@ -970,7 +970,7 @@ void KillActor(
     case podeggobj:
         ::sd_play_actor_sound(PODHATCHSND, ob, bstone::AC_VOICE);
 
-        InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+        ::InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
         KeepSolid = true;
         deadguy = givepoints = false;
         break;
@@ -980,7 +980,7 @@ void KillActor(
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
         ob->flags &= ~FL_SHOOTABLE;
-        InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
+        ::InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
         KeepSolid = true;
         deadguy = givepoints = false;
         break;
@@ -1000,7 +1000,7 @@ void KillActor(
         SpawnStatic(tilex, tiley, ob->temp2);
         ob->obclass = deadobj;
         ob->lighting = NO_SHADING; // No Shading
-        InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+        ::InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
         A_DeathScream(ob);
         MakeAlertNoise(ob);
         break;
@@ -1009,9 +1009,9 @@ void KillActor(
         ob->lighting = EXPLOSION_SHADING;
         A_DeathScream(ob);
 #ifdef BSTONE_AOG
-        InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, 17);
+        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, 17);
 #else
-        InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, 5);
+        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, 5);
 #endif
         break;
 
@@ -1019,9 +1019,9 @@ void KillActor(
         ob->lighting = EXPLOSION_SHADING;
         A_DeathScream(ob);
 #ifdef BSTONE_AOG
-        InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, 17);
+        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, 17);
 #else
-        InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, 5);
+        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, 5);
 #endif
         break;
 
@@ -1188,19 +1188,19 @@ void KillActor(
         break;
 
     case gurney_waitobj: // mutant asleep on gurney
-        InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
+        ::InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
         KeepSolid = true;
         givepoints = false;
         break;
 
     case scan_wait_alienobj: // Actual Canister - Destroyed
-        InitSmartAnim(ob, SPR_SCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
+        ::InitSmartAnim(ob, SPR_SCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
         KeepSolid = true;
         givepoints = false;
         break;
 
     case lcan_wait_alienobj: // Actual Canister - Destroyed
-        InitSmartAnim(ob, SPR_LCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
+        ::InitSmartAnim(ob, SPR_LCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
         KeepSolid = true;
         givepoints = false;
         break;
@@ -1215,7 +1215,7 @@ void KillActor(
         ::A_DeathScream(ob);
         ob->ammo = 0;
         ob->lighting = EXPLOSION_SHADING;
-        InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
+        ::InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
         break;
 #endif
 
@@ -1565,7 +1565,7 @@ void DamageActor(
             if ((ob->hitpoints + damage) ==
                 starthitpoints[gamestate.difficulty][en_rotating_cube])
             {
-                InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
+                ::InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
             }
             break;
 #endif
@@ -2114,7 +2114,7 @@ void FirstSighting(
 
             if (ob->temp2 != 0) {
                 ob->flags &= ~(FL_SHOOTABLE);
-                InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
+                ::InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
             } else {
                 return;
             }

@@ -5759,6 +5759,45 @@ void initialize_gfxv_contants()
     grneeded.resize(NUMCHUNKS);
 }
 
+
+void InitSmartSpeedAnim(
+    objtype* obj,
+    Uint16 ShapeNum,
+    Uint8 StartOfs,
+    Uint8 MaxOfs,
+    animtype_t AnimType,
+    animdir_t AnimDir,
+    Uint16 Delay)
+{
+    ::InitAnim(
+        obj,
+        ShapeNum,
+        StartOfs,
+        MaxOfs,
+        AnimType,
+        AnimDir,
+        Delay,
+        Delay);
+}
+
+void InitSmartAnim(
+    objtype* obj,
+    Uint16 ShapeNum,
+    Uint8 StartOfs,
+    Uint8 MaxOfs,
+    animtype_t AnimType,
+    animdir_t AnimDir)
+{
+    ::InitSmartSpeedAnim(
+        obj,
+        ShapeNum,
+        StartOfs,
+        MaxOfs,
+        AnimType,
+        AnimDir,
+        ::is_ps() ? 7 : 21);
+}
+
 // ========================================================================
 // ArchiveException
 

@@ -203,7 +203,7 @@ case gen_scientistobj
 
 #define SpawnExplosion(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, explosionobj)
 #define SpawnFlash(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, deadobj)
-#define InitSmartSpeedAnim(a, b, c, d, e, f, g) InitAnim((a), (b), (c), (d), (e), (f), (g), (g))
+
 
 /*
 =============================================================================
@@ -4072,15 +4072,6 @@ void ExplodeStatics(
 
 #define BARRIER_STATE(obj) ((obj)->ammo)
 
-#ifdef BSTONE_AOG
-#define InitSmartAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir) \
-    InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 21)
-#else
-#define InitSmartAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir) \
-    InitSmartSpeedAnim(obj, ShapeNum, StartOfs, MaxOfs, AnimType, AnimDir, 7)
-#endif
-
-
 void MakeFakeStatic(
     objtype* ob);
 void UnmakeFakeStatic(
@@ -4628,4 +4619,22 @@ bool is_aog();
 bool is_aog_sw();
 
 bool is_ps();
+
+
+void InitSmartSpeedAnim(
+    objtype* obj,
+    Uint16 ShapeNum,
+    Uint8 StartOfs,
+    Uint8 MaxOfs,
+    animtype_t AnimType,
+    animdir_t AnimDir,
+    Uint16 Delay);
+
+void InitSmartAnim(
+    objtype* obj,
+    Uint16 ShapeNum,
+    Uint8 StartOfs,
+    Uint8 MaxOfs,
+    animtype_t AnimType,
+    animdir_t AnimDir);
 // BBi
