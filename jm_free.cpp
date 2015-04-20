@@ -143,6 +143,7 @@ char show_text5[] = "---- Extra Devices ----\n\n";
 
 static const char* ParmStrings[] = { "HIDDENCARD", "" };
 
+// BBi FIXME
 static Uint8 wolfdigimap[] = {
     // These first sounds are in the upload version
 
