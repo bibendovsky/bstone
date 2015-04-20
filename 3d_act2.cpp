@@ -85,19 +85,15 @@ boolean ClipMove(
 
 #define GR_DAMAGE (40 + (US_RndT() & 0x7f)) // 20 & 3f
 
-#ifdef BSTONE_PS
 #define BFG_DAMAGE (GR_DAMAGE << 1) // Hit Point damage cause by BFG
 #define PLASMA_DETONATOR_DAMAGE (500)
 #define DETONATOR_FLASH_RATE (20)
-#endif
 
 #define EXPLODE_DAMAGE (20) // 5
 #define OOZE_ANIMATE_SPEED (20)
 
-#ifdef BSTONE_PS
 #define VPOST_BARRIER_SPEED (7) // Tics per anim step
 #define VPOST_WAIT_DELAY (90) // Tics delay in cycling
-#endif
 
 #define DR_MIN_STATICS (50) // Min number of statics avail
 // before 50/50 chance of door rubble on exp. doors.
@@ -109,9 +105,7 @@ boolean ClipMove(
 =============================================================================
 */
 
-#ifdef BSTONE_PS
 char detonators_spawned = 0;
-#endif
 
 /*
 =============================================================================
@@ -376,10 +370,14 @@ void initialize_boss_constants()
 
 Uint16 bars_connected = 0;
 
-#ifdef BSTONE_PS
-Uint16 SpecialSpawnFlags[] = { FL2_DROP_RKEY, FL2_DROP_YKEY, FL2_DROP_BKEY,
-                               FL2_DROP_BFG, FL2_DROP_ION, FL2_DROP_DETONATOR };
-#endif
+Uint16 SpecialSpawnFlags[] = {
+    FL2_DROP_RKEY,
+    FL2_DROP_YKEY,
+    FL2_DROP_BKEY,
+    FL2_DROP_BFG,
+    FL2_DROP_ION,
+    FL2_DROP_DETONATOR,
+};
 
 void T_Path(
     objtype* ob);
@@ -678,30 +676,24 @@ void SpawnOffsetObj(
     new_actor->obclass = static_cast<classtype>(rentacopobj + which);
 
     switch (which) {
-#ifdef BSTONE_PS
     case en_final_boss2:
         new_actor->lighting = NO_SHADING;
-#endif
+    case en_final_boss1:
+    case en_final_boss3:
+    case en_final_boss4:
     case en_spider_mutant:
     case en_breather_beast:
     case en_cyborg_warrior:
     case en_reptilian_warrior:
     case en_acid_dragon:
     case en_mech_guardian:
-#ifdef BSTONE_PS
-    case en_final_boss1:
-    case en_final_boss3:
-    case en_final_boss4:
-#endif
         new_actor->temp1 = BossShapes[which - en_spider_mutant];
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE | FL2_BFGSHOT_SOLID;
-#endif
+
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFG_SHOOTABLE | FL2_BFGSHOT_SOLID : 0);
         break;
 
     case en_green_ooze:
@@ -714,7 +706,6 @@ void SpawnOffsetObj(
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
-#ifdef BSTONE_PS
     case en_green2_ooze:
         ::InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
@@ -724,7 +715,6 @@ void SpawnOffsetObj(
         ::InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
-#endif
 
     case en_crate1:
     case en_crate2:
@@ -737,12 +727,12 @@ void SpawnOffsetObj(
         break;
 
     case en_rotating_cube:
-#ifdef BSTONE_AOG
-        ::InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
-#else
-        ::InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
-        new_actor->flags2 = FL2_BFGSHOT_SOLID;
-#endif
+        if (!::is_ps()) {
+            ::InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+        } else  {
+            ::InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
+            new_actor->flags2 = FL2_BFGSHOT_SOLID;
+        }
         new_actor->lighting = LAMP_ON_SHADING;
         break;
 
@@ -758,7 +748,6 @@ void SpawnOffsetObj(
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
-#ifdef BSTONE_PS
     case en_plasma_detonator:
     case en_plasma_detonator_reserve:
         NewState(new_actor, &s_ofs_random);
@@ -769,7 +758,6 @@ void SpawnOffsetObj(
             ACT2_ERROR(TOO_MANY_DETONATORS);
         }
         break;
-#endif
 
     case en_flickerlight:
         new_actor->temp1 = SPR_DECO_ARC_1;
@@ -808,11 +796,9 @@ void SpawnOffsetObj(
             new_actor->flags &= ~FL_SHOOTABLE;
         }
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_FAKE_STATIC;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_pod:
@@ -820,11 +806,7 @@ void SpawnOffsetObj(
         new_actor->speed = SPDPATROL;
         new_actor->ammo = static_cast<Uint8>(-1);
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_genetic_guard:
@@ -832,11 +814,7 @@ void SpawnOffsetObj(
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_mutant_human1:
@@ -844,11 +822,9 @@ void SpawnOffsetObj(
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_mutant_human2:
@@ -856,35 +832,27 @@ void SpawnOffsetObj(
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_scan_wait_alien:
         new_actor->temp1 = SPR_SCAN_ALIEN_READY;
         new_actor->flags |= FL_STATIONARY | FL_NO_SLIDE | FL_FAKE_STATIC;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_lcan_wait_alien:
         new_actor->temp1 = SPR_LCAN_ALIEN_READY;
         new_actor->flags |= FL_STATIONARY | FL_NO_SLIDE | FL_FAKE_STATIC;
 
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
-#ifdef BSTONE_PS
     case en_morphing_spider_mutant:
     case en_morphing_reptilian_warrior:
     case en_morphing_mutanthuman2:
@@ -902,14 +870,9 @@ void SpawnOffsetObj(
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->temp1 = MorphShapes[which - en_morphing_spider_mutant];
         new_actor->flags |= FL_FAKE_STATIC;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
         new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
         NewState(new_actor, &s_ofs_random);
         break;
-#endif
 
     case en_gurney_wait:
         if (scan_value == 0xffff) {
@@ -919,11 +882,9 @@ void SpawnOffsetObj(
         }
         new_actor->temp1 = SPR_GURNEY_MUT_READY;
         new_actor->flags |= FL_STATIONARY | FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_FAKE_STATIC;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+
+        new_actor->flags2 =
+            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_lcan_alien: // Large Canister Alien - Out of can.
@@ -931,11 +892,7 @@ void SpawnOffsetObj(
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_scan_alien: // Small Canister Alien - Out of can.
@@ -943,11 +900,7 @@ void SpawnOffsetObj(
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_gurney: // Gurney Mutant - Off of gurney.
@@ -955,11 +908,7 @@ void SpawnOffsetObj(
         new_actor->speed = ALIENSPEED;
         new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
         new_actor->ammo = ALIENAMMOINIT;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         break;
 
     default:
@@ -972,18 +921,18 @@ void SpawnOffsetObj(
         new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
     }
 
-#ifdef BSTONE_AOG
-    switch (which) {
-    case en_spider_mutant:
-    case en_breather_beast:
-    case en_cyborg_warrior:
-    case en_reptilian_warrior:
-    case en_acid_dragon:
-    case en_mech_guardian:
-        ::new_actor->hitpoints *= 15;
-        break;
+    if (!::is_ps()) {
+        switch (which) {
+        case en_spider_mutant:
+        case en_breather_beast:
+        case en_cyborg_warrior:
+        case en_reptilian_warrior:
+        case en_acid_dragon:
+        case en_mech_guardian:
+            ::new_actor->hitpoints *= 15;
+            break;
+        }
     }
-#endif
 }
 
 
@@ -1023,7 +972,6 @@ void T_OfsThink(
     char oldofs, ofs = 0;
 
     switch (obj->obclass) {
-#ifdef BSTONE_PS
     case plasma_detonator_reserveobj:
         break;
 
@@ -1031,7 +979,7 @@ void T_OfsThink(
         if (obj->temp3 < tics) {
             BlastNearDoors(obj->tilex, obj->tiley);
 
-            obj->lighting = NO_SHADING;                 // no shading
+            obj->lighting = NO_SHADING; // no shading
             obj->flags &= ~FL_SHOOTABLE;
             obj->obclass = pd_explosionobj;
             A_DeathScream(obj);
@@ -1052,7 +1000,6 @@ void T_OfsThink(
             }
         }
         break;
-#endif
 
     case grenadeobj: {
         T_Projectile(obj);
@@ -1085,7 +1032,6 @@ void T_OfsThink(
     }
     break;
 
-#ifdef BSTONE_PS
     case bfg_shotobj: {
         T_Projectile(obj);
 
@@ -1109,7 +1055,6 @@ void T_OfsThink(
         }
     }
     break;
-#endif
 
     case ventdripobj:
         // Decrement timer...
@@ -1198,7 +1143,6 @@ void T_OfsThink(
         ::InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
         break;
 
-#ifdef BSTONE_PS
     case morphing_spider_mutantobj:
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
@@ -1228,7 +1172,6 @@ void T_OfsThink(
         obj->flags &= ~FL_SHOOTABLE;
         ::InitSmartSpeedAnim(obj, obj->temp1, 0, 8, at_ONCE, ad_FWD, 2);
         break;
-#endif
 
     case crate1obj:
     case crate2obj:
@@ -1848,7 +1791,6 @@ void T_SmartThought(
 
         if (is_animated) {
             switch (obj->obclass) {
-#ifdef BSTONE_PS
             case morphing_spider_mutantobj:
             case morphing_reptilian_warriorobj:
             case morphing_mutanthuman2obj:
@@ -1864,7 +1806,6 @@ void T_SmartThought(
                 obj->flags |= FL_PROJ_TRANSPARENT | FL_SHOOTABLE;
                 NewState(obj, &s_ofs_chase1);
                 break;
-#endif
 
             case podeggobj:
                 obj->flags |= FL_SHOOTABLE;
@@ -1899,7 +1840,6 @@ void T_SmartThought(
             case gurney_waitobj:
                 break;
 
-#ifdef BSTONE_PS
             case gold_morphobj:
                 //
                 // Game completed!
@@ -1907,7 +1847,6 @@ void T_SmartThought(
                 playstate = ex_victorious;
                 obj->state = NULL;  // Mark to be removed.
                 break;
-#endif
 
 
             case volatiletransportobj:
@@ -1976,7 +1915,6 @@ void T_SmartThought(
                 }
                 break;
 
-#ifdef BSTONE_PS
             case pd_explosionobj:
                 if (!obj->temp2) {
                     ExplodeRadius(obj, PLASMA_DETONATOR_DAMAGE, true);
@@ -1991,7 +1929,6 @@ void T_SmartThought(
                     obj->temp2 = 1;
                 }
                 break;
-#endif
 
             case gurney_waitobj:
 #ifdef OBJ_RESERV
@@ -2300,11 +2237,9 @@ void ActivateWallSwitch(
         barrier->on ^= 1;
         newwall = states[barrier->on];
 
-#ifdef BSTONE_AOG
-        if (barrier->level == gamestate.mapon) {
-#else
+        if (::is_ps() ||
+            (!::is_ps() && barrier->level == gamestate.mapon))
         {
-#endif
             tilemap[x][y] = static_cast<Uint8>(states[barrier->on]);
         }
 
@@ -2361,12 +2296,12 @@ void DisplaySwitchOperateMsg(
         message = "\r\r DEACTIVATING BARRIER";
     }
 
-#ifdef BSTONE_AOG
-    message +=
-        "\r      ON FLOOR " +
-        bstone::StringHelper::lexical_cast<std::string>(
-            static_cast<int>(barrier->level));
-#endif
+    if (!::is_ps()) {
+        message +=
+            "\r      ON FLOOR " +
+            bstone::StringHelper::lexical_cast<std::string>(
+                static_cast<int>(barrier->level));
+    }
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
 }
@@ -2384,10 +2319,6 @@ Uint16 UpdateBarrierTable(
     Uint8 y,
     boolean OnOff)
 {
-#ifdef BSTONE_PS
-    static_cast<void>(level);
-#endif
-
     //
     // Scan Table...
     //
@@ -2395,21 +2326,18 @@ Uint16 UpdateBarrierTable(
     barrier_type* Barrier = gamestate.barrier_table;
 
     for (Uint16 num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
-#ifdef BSTONE_AOG
-        if (Barrier->level == level &&
+        if ((::is_ps() || (!::is_ps() && Barrier->level == level)) &&
             Barrier->coord.tilex == x &&
             Barrier->coord.tiley == y)
         {
-#else
-        if (Barrier->coord.tilex == x && Barrier->coord.tiley == y) {
-#endif
             return num;
         } else {
             if (Barrier->on == 0xFF) { // Empty?
                 // We have hit end of list - Add
-#ifdef BSTONE_AOG
-                Barrier->level = level;
-#endif
+                if (!::is_ps()) {
+                    Barrier->level = level;
+                }
+
                 Barrier->coord.tilex = x;
                 Barrier->coord.tiley = y;
                 Barrier->on = static_cast<Uint8>(OnOff);
@@ -2442,13 +2370,9 @@ Uint16 ScanBarrierTable(
     Barrier = gamestate.barrier_table;
 
     for (num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
-#ifdef BSTONE_AOG
-        if (Barrier->level == gamestate.mapon &&
+        if ((::is_ps() || (!::is_ps() && Barrier->level == gamestate.mapon)) &&
             Barrier->coord.tilex == x &&
             Barrier->coord.tiley == y)
-#else
-        if (Barrier->coord.tilex == x && Barrier->coord.tiley == y)
-#endif
         {
             // Found switch...
 
@@ -2498,10 +2422,8 @@ Sint16 CheckAndConnect(
         switch (ob->obclass) {
         case arc_barrierobj:
         case post_barrierobj:
-#ifdef BSTONE_PS
         case vpost_barrierobj:
         case vspike_barrierobj:
-#endif
             {
                 for (loop = 0; loop < 4; loop++) {
                     if ((ob->tilex == x + offsets[loop]) && (ob->tiley == y + offsets[3 - loop])) {
@@ -2537,21 +2459,21 @@ void ConnectBarriers()
     Barrier = gamestate.barrier_table;
 
     for (num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
-#ifdef BSTONE_AOG
-        if (Barrier->level == gamestate.mapon && Barrier->on != 0xff)
-#else
-        if (Barrier->on != 0xff)
-#endif
+        if ((::is_ps() || (!::is_ps() && Barrier->level == gamestate.mapon)) &&
+            Barrier->on != 0xff)
         {
             bars_connected = 0;
 
-#ifdef BSTONE_AOG
             if (::CheckAndConnect(
                     Barrier->coord.tilex,
                     Barrier->coord.tiley,
                     num) == 0)
             {
-                objtype* actor =
+                if (::is_ps()) {
+                    AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+                }
+
+                auto actor =
                     actorat[Barrier->coord.tilex][Barrier->coord.tiley];
 
                 if (!actor) {
@@ -2570,11 +2492,6 @@ void ConnectBarriers()
 
                 static_cast<void>(::CheckActor(actor, num));
             }
-#else
-            if (CheckAndConnect(Barrier->coord.tilex, Barrier->coord.tiley, num) == 0) {
-                AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
-            }
-#endif
         }
     }
 }
@@ -2624,24 +2541,22 @@ void SpawnBarrier(
     new_actor->obclass = static_cast<classtype>(rentacopobj + which);
     new_actor->ammo = static_cast<Uint8>(OnOff);
     new_actor->temp2 = ScanBarrierTable(static_cast<Uint8>(tilex), static_cast<Uint8>(tiley));
-
-#ifdef BSTONE_AOG
-    new_actor->flags2 = 0;
-#else
-    new_actor->flags2 = FL2_BFGSHOT_SOLID;
-#endif
+    new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID : 0);
 
     switch (which) {
     case en_arc_barrier:
-#ifdef BSTONE_PS
-        new_actor->flags2 |= FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 |= (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
+
         if (OnOff) {
-#ifdef BSTONE_AOG
-            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
-#else
-            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
-#endif
+            ::InitSmartSpeedAnim(
+                new_actor,
+                SPR_ELEC_ARC1,
+                US_RndT() % 3,
+                2,
+                at_CYCLE,
+                ad_FWD,
+                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+
             new_actor->lighting = LAMP_ON_SHADING;
 //              new_actor->flags |= FL_SHOOTABLE;
         } else {
@@ -2658,11 +2573,15 @@ void SpawnBarrier(
 
     case en_post_barrier:
         if (OnOff) {
-#ifdef BSTONE_AOG
-            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
-#else
-            ::InitSmartSpeedAnim(new_actor, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
-#endif
+            ::InitSmartSpeedAnim(
+                new_actor,
+                SPR_ELEC_POST1,
+                US_RndT() % 3,
+                2,
+                at_CYCLE,
+                ad_FWD,
+                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+
             new_actor->lighting = LAMP_ON_SHADING;
         } else {
             NewState(new_actor, &s_barrier_transition);
@@ -2675,7 +2594,6 @@ void SpawnBarrier(
         }
         break;
 
-#ifdef BSTONE_PS
     case en_vpost_barrier:
         NewState(new_actor, &s_vpost_barrier);
         if (OnOff) {
@@ -2690,7 +2608,6 @@ void SpawnBarrier(
             new_actor->temp1 = SPR_VSPIKE8 - SPR_VSPIKE1;
         }
         break;
-#endif
 
     default:
         break;
@@ -2735,9 +2652,7 @@ void ToggleBarrier(
 {
     switch (BARRIER_STATE(obj)) {
     case bt_ON: // Same as closed
-#ifdef BSTONE_PS
     case bt_CLOSING:
-#endif
         //
         // Turn OFF/Open
         //
@@ -2753,12 +2668,10 @@ void ToggleBarrier(
             TurnPostOff(obj);
             break;
 
-#ifdef BSTONE_PS
         case vpost_barrierobj:
         case vspike_barrierobj:
             BARRIER_STATE(obj) = bt_OPENING;
             break;
-#endif
 
         default:
             break;
@@ -2767,38 +2680,42 @@ void ToggleBarrier(
         break;
 
     case bt_OFF: // Same as open
-#ifdef BSTONE_PS
     case bt_OPENING:
-#endif
         //
         // Turn ON/Closed
         //
 
         switch (obj->obclass) {
         case post_barrierobj:
-#ifdef BSTONE_AOG
-            ::InitSmartSpeedAnim(obj, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
-#else
-            ::InitSmartSpeedAnim(obj, SPR_ELEC_POST1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
-#endif
+            ::InitSmartSpeedAnim(
+                obj,
+                SPR_ELEC_POST1,
+                US_RndT() % 3,
+                2,
+                at_CYCLE,
+                ad_FWD,
+                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+
             TurnPostOn(obj);
             break;
 
         case arc_barrierobj:
-#ifdef BSTONE_AOG
-            ::InitSmartSpeedAnim(obj, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 20 + (US_RndT() & 7));
-#else
-            ::InitSmartSpeedAnim(obj, SPR_ELEC_ARC1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 3 + (US_RndT() & 3));
-#endif
+            ::InitSmartSpeedAnim(
+                obj,
+                SPR_ELEC_ARC1,
+                US_RndT() % 3,
+                2,
+                at_CYCLE,
+                ad_FWD,
+                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+
             TurnPostOn(obj);
             break;
 
-#ifdef BSTONE_PS
         case vpost_barrierobj:
         case vspike_barrierobj:
             BARRIER_STATE(obj) = bt_CLOSING;
             break;
-#endif
 
         default:
             break;
@@ -2917,7 +2834,6 @@ void T_BarrierTransition(
         }
         break;
 
-#ifdef BSTONE_PS
     //
     // CLOSING/TURNING ON
     //
@@ -3027,7 +2943,6 @@ void T_BarrierTransition(
             }
         }
         break;
-#endif
     }
 }
 
@@ -3620,11 +3535,7 @@ void SpawnStand(
     case en_goldstern:
         SpawnNewObj(tilex, tiley, &s_goldwarp_in1);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         new_actor->speed = SPDPATROL;
         if (gamestate.mapon == 9) {
             new_actor->hitpoints = starthitpoints[gamestate.difficulty][which] * 15;
@@ -3642,33 +3553,22 @@ void SpawnStand(
     case en_liquid:
         SpawnNewObj(tilex, tiley, &s_liquid_wait);
         new_actor->flags = FL_OFFSET_STATES | FL_PROJ_TRANSPARENT;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         new_actor->speed = SPDPATROL * 3;
         break;
 
     case en_rentacop:
         SpawnNewObj(tilex, tiley, &s_rent_stand);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         new_actor->speed = SPDPATROL;
         break;
 
     case en_gen_scientist:
         SpawnNewObj(tilex, tiley, &s_ofcstand);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_FRIENDLY | FL_RANDOM_TURN;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
+
         if (US_RndT() & 1) {
             new_actor->flags |= FL_INFORMANT;
         }
@@ -3678,11 +3578,7 @@ void SpawnStand(
     case en_swat:
         SpawnNewObj(tilex, tiley, &s_swatstand);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         new_actor->speed = SPDPATROL;
         ammo = 30;
         if (scan_value == 0xffff) {
@@ -3695,11 +3591,7 @@ void SpawnStand(
     case en_proguard:
         SpawnNewObj(tilex, tiley, &s_prostand);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         new_actor->speed = SPDPATROL;
         ammo = 25;
         break;
@@ -3714,11 +3606,7 @@ void SpawnStand(
         SpawnNewObj(tilex, tiley, &s_scout_stand);
         new_actor->speed = SPDPATROL;
         new_actor->temp1 = SPR_FSCOUT_W1_1;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_FAKE_STATIC;
         break;
 
@@ -3727,11 +3615,7 @@ void SpawnStand(
         new_actor->speed = SPDPATROL;
         new_actor->temp1 = SPR_GSCOUT_W1_1;
         new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_STATIONARY | FL_FAKE_STATIC;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_steamgrate:
@@ -3801,18 +3685,23 @@ void CheckForSpecialTile(
     map = mapsegs[0] + farmapylookup[tiley] + tilex;
 
     switch (*map) {
-#ifdef BSTONE_PS
     case CLOAK_AMBUSH_TILE:
+        if (!::is_ps()) {
+            break;
+        }
+
         obj->flags2 |= FL2_CLOAKED;
-#endif
 
     case AMBUSHTILE:
         obj->flags |= FL_AMBUSH | FL_SHOOTABLE | FL_SOLID;
         getarea = true;
         break;
 
-#ifdef BSTONE_PS
     case DETONATOR_TILE:
+        if (!::is_ps()) {
+            break;
+        }
+
         old_new = new_actor;
         SpawnHiddenOfs(en_plasma_detonator_reserve, tilex, tiley);
         new_actor = old_new;
@@ -3822,17 +3711,29 @@ void CheckForSpecialTile(
     case BKEY_TILE:
     case BFG_TILE:
     case ION_TILE:
+        if (!::is_ps()) {
+            break;
+        }
+
         ReserveStatic();
         obj->flags2 |= SpecialSpawnFlags[(*map) - RKEY_TILE];
         getarea = true;
         break;
 
     case CLOAK_TILE:
+        if (!::is_ps()) {
+            break;
+        }
+
         obj->flags2 |= FL2_CLOAKED;
         getarea = true;
         break;
 
     case LINC_TILE:
+        if (!::is_ps()) {
+            break;
+        }
+
         obj->flags2 |= FL2_LINC;
         obj->flags &= ~FL_INFORMANT; // Make sure informants dont have links
         getarea = true;
@@ -3840,7 +3741,6 @@ void CheckForSpecialTile(
         obj->linc = *map1;
         *map1 = 0;
         break;
-#endif
     }
 
     //
@@ -3887,22 +3787,15 @@ void SpawnPatrol(
 
     case en_rentacop:
         SpawnNewObj(tilex, tiley, &s_rent_path1);
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         new_actor->speed = SPDPATROL;
         break;
 
     case en_gen_scientist:
         SpawnNewObj(tilex, tiley, &s_ofcpath1);
         new_actor->flags = FL_FRIENDLY | FL_RANDOM_TURN;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
+
         if (US_RndT() & 1) {
             new_actor->flags |= FL_INFORMANT;
         }
@@ -3912,11 +3805,7 @@ void SpawnPatrol(
     case en_proguard:
         SpawnNewObj(tilex, tiley, &s_propath1);
         new_actor->speed = SPDPATROL;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         ammo = 25;
         break;
 
@@ -3929,11 +3818,7 @@ void SpawnPatrol(
         } else {
             new_actor->temp1 = scan_value;
         }
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_floatingbomb:
@@ -3941,11 +3826,7 @@ void SpawnPatrol(
         new_actor->speed = SPDPATROL;
         new_actor->temp1 = SPR_FSCOUT_W1_1;
         new_actor->flags = FL_OFFSET_STATES;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     case en_volatiletransport:
@@ -3953,11 +3834,7 @@ void SpawnPatrol(
         new_actor->speed = SPDPATROL;
         new_actor->temp1 = SPR_GSCOUT_W1_1;
         new_actor->flags = FL_OFFSET_STATES;
-#ifdef BSTONE_AOG
-        new_actor->flags2 = 0;
-#else
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-#endif
+        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
         break;
 
     default:
@@ -4223,11 +4100,14 @@ void A_DeathScream(
 void DropCargo(
     objtype* obj)
 {
+    if (!::is_ps()) {
+        return;
+    }
+
     //
     // Keep seperate... May later have MULTI "cargo's"
     //
 
-#ifdef BSTONE_PS
     if (obj->flags2 & FL2_DROP_RKEY) {
         PlaceReservedItemNearTile(bo_red_key, obj->tilex, obj->tiley);
     }
@@ -4255,7 +4135,6 @@ void DropCargo(
     if ((obj->flags2 & FL2_LINC) && obj->linc) {
         OperateSmartSwitch(obj->linc >> 8, obj->linc & 255, ST_TURN_OFF, true);
     }
-#endif
 }
 
 
@@ -4354,14 +4233,11 @@ void T_Chase(
             case reptilian_warriorobj:
             case acid_dragonobj:
             case mech_guardianobj:
-
-#ifdef BSTONE_PS
             case gold_morphobj:
             case final_boss1obj:
             case final_boss2obj:
             case final_boss3obj:
             case final_boss4obj:
-#endif
                 // Check for mode change
                 //
                 if (ob->ammo > tics) {
@@ -4404,14 +4280,11 @@ void T_Chase(
                 case reptilian_warriorobj:
                 case acid_dragonobj:
                 case mech_guardianobj:
-#ifdef BSTONE_PS
                 case gold_morphobj:
                 case final_boss1obj:
                 case final_boss2obj:
                 case final_boss3obj:
                 case final_boss4obj:
-#endif
-
                     // Always shoot when in SHOOTMODE -- Never shoot when not!
                     //
                     if (ob->flags & FL_SHOOTMODE) {
@@ -4535,11 +4408,9 @@ void ChangeShootMode(
         ob->flags |= FL_SHOOTMODE;
         ob->ammo = 1 + (US_RndT() % 2);
 
-#ifdef BSTONE_PS
-        if (ob->obclass == gold_morphobj) {
+        if (::is_ps() && ob->obclass == gold_morphobj) {
             ob->ammo += 3 + (US_RndT() % 5);
         }
-#endif
     }
 }
 
@@ -4572,11 +4443,9 @@ void DoAttack(
         NewState(ob, &s_goldshoot1);
         break;
 
-#ifdef BSTONE_PS
     case gold_morphobj:
         NewState(ob, &s_mgold_shoot1);
         break;
-#endif
 
     case rentacopobj:
         NewState(ob, &s_rent_shoot1);
@@ -4838,9 +4707,7 @@ void T_Path(
 =============================================================================
 */
 
-#ifdef BSTONE_PS
 Sint16 morph_angle_adj = 0;
-#endif
 
 void T_Shoot(
     objtype* ob)
@@ -4865,11 +4732,7 @@ void T_Shoot(
         break;
 
     case mutant_human2obj:
-#ifdef BSTONE_AOG
-        SpawnProjectile(ob, scanshotobj);
-#else
-        SpawnProjectile(ob, electroshotobj);
-#endif
+        SpawnProjectile(ob, ::is_ps() ? electroshotobj : scanshotobj);
         break;
 
     case liquidobj:
@@ -4888,7 +4751,6 @@ void T_Shoot(
         SpawnProjectile(ob, scanshotobj);
         break;
 
-#ifdef BSTONE_PS
     case gold_morphobj:
         SpawnProjectile(ob, goldmorphshotobj);
 
@@ -4914,7 +4776,6 @@ void T_Shoot(
             morph_angle_adj = 0;
         }
         break;
-#endif
 
     case spider_mutantobj:
     case acid_dragonobj:
@@ -4922,7 +4783,6 @@ void T_Shoot(
 // SpawnProjectile(ob,spider_mutantshotobj+(ob->obclass-spider_mutantobj));
         break;
 
-#ifdef BSTONE_PS
     case final_boss2obj:
         SpawnProjectile(ob, final_boss2shotobj);
         break;
@@ -4930,7 +4790,6 @@ void T_Shoot(
     case final_boss4obj:
         SpawnProjectile(ob, final_boss4shotobj);
         break;
-#endif
 
     default:
         hitchance = 128;
@@ -5118,10 +4977,8 @@ void A_WarpIn(
 void A_WarpOut(
     objtype* obj);
 
-#ifdef BSTONE_PS
 void T_GoldMorph(
     objtype* obj);
-#endif
 
 
 extern statetype s_goldstand;
@@ -5172,10 +5029,9 @@ extern statetype s_goldwarp_in5;
 extern statetype s_goldmorphwait1;
 extern statetype s_goldmorphwait2;
 
-#ifdef BSTONE_PS
 extern void T_GoldMorphWait(
     objtype* obj);
-#endif
+
 
 statetype s_goldstand = { true, SPR_DEMO, 20, T_Stand, NULL, &s_goldpath1 };
 
@@ -5222,30 +5078,6 @@ statetype s_goldwarp_in3 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_in4 };
 statetype s_goldwarp_in4 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_in5 };
 statetype s_goldwarp_in5 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldpath1 };
 
-#ifdef BSTONE_AOG
-statetype s_goldmorphwait1;
-
-statetype s_goldmorph1;
-statetype s_goldmorph2;
-statetype s_goldmorph3;
-statetype s_goldmorph4;
-statetype s_goldmorph5;
-statetype s_goldmorph6;
-statetype s_goldmorph7;
-statetype s_goldmorph8;
-
-statetype s_mgold_chase1;
-statetype s_mgold_chase2;
-statetype s_mgold_chase3;
-statetype s_mgold_chase4;
-
-statetype s_mgold_shoot1;
-statetype s_mgold_shoot2;
-statetype s_mgold_shoot3;
-statetype s_mgold_shoot4;
-
-statetype s_mgold_pain;
-#else
 statetype s_goldmorphwait1 = { false, SPR_DEMO, 10, NULL, T_GoldMorphWait, &s_goldmorphwait1 };
 
 statetype s_goldmorph1 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph2 };
@@ -5268,12 +5100,10 @@ statetype s_mgold_shoot3 = { false, SPR_DEMO, 14, T_Shoot, NULL, &s_mgold_shoot4
 statetype s_mgold_shoot4 = { false, SPR_DEMO, 12, T_Shade, NULL, &s_mgold_chase1 };
 
 statetype s_mgold_pain = { false, SPR_DEMO, 25, NULL, NULL, &s_mgold_chase1 };
-#endif
 
 
 boolean noShots = false;
 
-#ifdef BSTONE_PS
 Sint16 morphWaitTime;
 
 // --------------------------------------------------------------------------
@@ -5303,7 +5133,6 @@ void T_GoldMorph(
 
     noShots = false;
 }
-#endif
 
 // --------------------------------------------------------------------------
 // A_Laugh() - Plays a Goldstern Laugh Sound
@@ -5824,13 +5653,9 @@ void SpawnProjectile(
         break;
 
     case mut_hum1shotobj:
-#ifdef BSTONE_PS
     case goldmorphshotobj:
-#endif
     case electroshotobj:
-#ifdef BSTONE_PS
     case final_boss2shotobj:
-#endif
         SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_shot1);
 
         ::sd_play_actor_sound(
@@ -5843,11 +5668,9 @@ void SpawnProjectile(
         new_actor->temp3 = actor_to_ui16(shooter);
 
         switch (class_type) {
-#ifdef BSTONE_PS
         case final_boss2shotobj:
         case goldmorphshotobj:
             new_actor->temp1 = SPR_MGOLD_SHOT1;
-#endif
 
         case electroshotobj:
             new_actor->lighting = NO_SHADING;
@@ -5899,7 +5722,6 @@ void SpawnProjectile(
         new_actor->s_tiley = static_cast<Uint8>(y >> TILESHIFT);
         break;
 
-#ifdef BSTONE_PS
     case bfg_shotobj:
         SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_random);
         new_actor->speed = SPDPROJ + Random(SPDPROJ);
@@ -5913,7 +5735,6 @@ void SpawnProjectile(
         new_actor->s_tilex = static_cast<Uint8>(x >> TILESHIFT);
         new_actor->s_tiley = static_cast<Uint8>(y >> TILESHIFT);
         break;
-#endif
 
     default:
         break;
@@ -5934,11 +5755,9 @@ void SpawnProjectile(
         new_actor->angle = CalcAngle(new_actor, player) + angle_adj;
     }
 
-#ifdef BSTONE_PS
     if (shooter->obclass == gold_morphobj) {
         new_actor->angle += morph_angle_adj;
     }
-#endif
 
     if (new_actor->angle <= 0) {
         new_actor->angle += 359;
@@ -6104,7 +5923,6 @@ void T_Projectile(
             return;
             break;
 
-#ifdef BSTONE_PS
         case final_boss2shotobj:
         case goldmorphshotobj:
             ::InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
@@ -6115,7 +5933,6 @@ void T_Projectile(
             ::InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
             return;
             break;
-#endif
 
         case lcanshotobj: // Explode on walls
         case podshotobj:
@@ -6153,7 +5970,6 @@ void T_Projectile(
             return;
             break;
 
-#ifdef BSTONE_PS
         case bfg_shotobj:
 
 #if BFG_SHOT_STOPS
@@ -6206,7 +6022,6 @@ BlowIt:
             A_DeathScream(ob);
             return;
             break;
-#endif
 
         default:
             break;
@@ -6243,7 +6058,6 @@ BlowIt:
                 ::InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
                 break;
 
-#ifdef BSTONE_PS
             case final_boss4shotobj:
                 damage = (US_RndT() >> 4);
                 ::InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
@@ -6254,7 +6068,6 @@ BlowIt:
                 damage = (US_RndT() >> 4);
                 ::InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
                 break;
-#endif
 
             case lcanshotobj:
             case podshotobj:
@@ -6416,17 +6229,18 @@ void ExplodeFill(
                 case hang_terrotobj:
                 case arc_barrierobj:
                 case post_barrierobj:
-#ifdef BSTONE_PS
                 case vpost_barrierobj:
                 case vspike_barrierobj:
-#endif
                     break;
 
-#ifdef BSTONE_PS
                 //
                 // Test for Level completion object
                 //
                 case rotating_cubeobj:
+                    if (!::is_ps()) {
+                        break;
+                    }
+
                     if (ff_obj->obclass == pd_explosionobj) {
                         proj_check->lighting = EXPLOSION_SHADING;
                         proj_check->flags &= ~(FL_SOLID | FL_SHOOTABLE);
@@ -6454,16 +6268,14 @@ void ExplodeFill(
                         DamageActor(proj_check, 20, ff_obj); // An explosion has started a chain reaction
                     }
                     break;
-#endif
+
 
                 // Everyone else gets the shit kicked
                 // out of them...
                 //
                 default:
-#ifdef BSTONE_PS
-                    if (!(proj_check->flags2 & FL2_CLOAKED))
-#endif
-                    SpawnFlash(proj_check->x, proj_check->y);
+                    if (!::is_ps() || (::is_ps() && !(proj_check->flags2 & FL2_CLOAKED)))
+                        SpawnFlash(proj_check->x, proj_check->y);
                     DamageActor(proj_check, ff_damage, ff_obj);
                     break;
                 }
