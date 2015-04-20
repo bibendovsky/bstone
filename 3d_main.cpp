@@ -4878,6 +4878,16 @@ void initialize_audio_constants()
     HISCORE_MUS = 19;
 
     audiosegs.resize(NUMSNDCHUNKS);
+
+    if (::is_ps()) {
+        MENUSONG = LASTLAFF_MUS;
+        ROSTER_MUS = HISCORE_MUS;
+        TEXTSONG = TOHELL_MUS;
+    } else {
+        MENUSONG = MEETINGA_MUS;
+        ROSTER_MUS = LEVELA_MUS;
+        TEXTSONG = RUMBAA_MUS;
+    }
 }
 
 

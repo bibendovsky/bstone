@@ -73,9 +73,9 @@ void MenuFadeOut();
 
 #define MenuFadeIn() VL_FadeIn(0, 255, vgapal, 10)
 
-#define MENUSONG LASTLAFF_MUS
-#define ROSTER_MUS HISCORE_MUS
-#define TEXTSONG TOHELL_MUS
+extern int MENUSONG;
+extern int ROSTER_MUS;
+extern int TEXTSONG;
 
 #define QUITSUR "Are you sure you want\n" \
     "to quit this great game? (Y/N)"

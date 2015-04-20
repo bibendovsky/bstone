@@ -79,6 +79,11 @@ boolean EscPressed = false;
 
 Sint16 lastmenumusic;
 
+int MENUSONG = 0;
+int ROSTER_MUS = 0;
+int TEXTSONG = 0;
+
+
 
 // ===========================================================================
 //
@@ -123,21 +128,15 @@ extern boolean refresh_screen;
 //
 // ===========================================================================
 
-CP_iteminfo
-    MainItems = { MENU_X, MENU_Y, 12, MM_READ_THIS, 0, 9, { 77, 1, 154, 9, 1 } },
-    GopItems = { MENU_X, MENU_Y + 30, 4, 0, 0, 9, { 77, 1, 154, 9, 1 } },
-    SndItems = { SM_X, SM_Y, 6, 0, 0, 7, { 87, -1, 144, 7, 1 } },
-    LSItems = { LSM_X, LSM_Y, 10, 0, 0, 8, { 86, -1, 144, 8, 1 } },
-    CtlItems = { CTL_X, CTL_Y, 7, -1, 0, 9, { 87, 1, 174, 9, 1 } },
-    CusItems = { CST_X, CST_Y + 7, 6, -1, 0, 15, { 54, -1, 203, 7, 1 } },
-    NewEitems = { NE_X, NE_Y, 6, 0, 0, 16, { 43, -2, 119, 16, 1 } },
-    NewItems = { NM_X, NM_Y, 4, 1, 0, 16, { 60, -2, 105, 16, 1 } },
-#ifdef BSTONE_AOG
-    SwitchItems = { MENU_X, MENU_Y + 7, 9, 0, 0, 9, { 87, -1, 132, 7, 1 } };
-#else
-SwitchItems = { MENU_X, MENU_Y + 15, 7, 0, 0, 9, { 87, -1, 132, 7, 1 } };
-#endif // BSTONE_AOG
-
+CP_iteminfo MainItems = { MENU_X, MENU_Y, 12, MM_READ_THIS, 0, 9, { 77, 1, 154, 9, 1 } };
+CP_iteminfo GopItems = { MENU_X, MENU_Y + 30, 4, 0, 0, 9, { 77, 1, 154, 9, 1 } };
+CP_iteminfo SndItems = { SM_X, SM_Y, 6, 0, 0, 7, { 87, -1, 144, 7, 1 } };
+CP_iteminfo LSItems = { LSM_X, LSM_Y, 10, 0, 0, 8, { 86, -1, 144, 8, 1 } };
+CP_iteminfo CtlItems = { CTL_X, CTL_Y, 7, -1, 0, 9, { 87, 1, 174, 9, 1 } };
+CP_iteminfo CusItems = { CST_X, CST_Y + 7, 6, -1, 0, 15, { 54, -1, 203, 7, 1 } };
+CP_iteminfo NewEitems = { NE_X, NE_Y, 6, 0, 0, 16, { 43, -2, 119, 16, 1 } };
+CP_iteminfo NewItems = { NM_X, NM_Y, 4, 1, 0, 16, { 60, -2, 105, 16, 1 } };
+CP_iteminfo SwitchItems = { MENU_X, 0, 0, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 
 
 CP_itemtype MainMenu[] = {
@@ -193,13 +192,9 @@ CP_itemtype MainMenu[] = {
     // BBi
     { AT_ENABLED, "NO WALL HIT SOUND", 0 },
     { AT_ENABLED, "MODERN CONTROLS", 0 },
-    { AT_ENABLED, "ALWAYS RUN", 0 }
-
-#ifdef BSTONE_AOG
-    ,
+    { AT_ENABLED, "ALWAYS RUN", 0 },
     { AT_ENABLED, "HEART BEAT SOUND", 0 },
-    { AT_ENABLED, "ROTATED AUTOMAP", 0 }
-#endif // BSTONE_AOG
+    { AT_ENABLED, "ROTATED AUTOMAP", 0 },
 },
 
 
@@ -274,20 +269,11 @@ Sint16 color_norml[] = {
 
 Sint16 EpisodeSelect[6] = {
     1,
-
-#if defined(BSTONE_AOG) && GAME_VERSION != SHAREWARE_VERSION
-    1,
-    1,
-    1,
-    1,
-    1
-#else
     0,
     0,
     0,
     0,
-    0
-#endif
+    0,
 };
 
 Sint16 SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
@@ -450,8 +436,11 @@ static Uint8 special_keys[] = {
 namespace {
 
 
+const std::string ps_only_entry = "?PS?";
+const std::string aog_only_entry = "?AOG?";
+
+
 typedef std::map<ScanCode, const char*> BindsNames;
-typedef BindsNames::const_iterator BindsNamesCIt;
 
 
 enum BindsFindDirection {
@@ -467,12 +456,24 @@ enum BindsFindFrom {
 
 class BindsItem {
 public:
-const char* name;
-int name_width;
-Binding* binding;
+    std::string name;
+    int name_width;
+    Binding* binding;
+
+    BindsItem(
+        std::string name = std::string(),
+        int name_width = 0,
+        Binding* binding = nullptr) :
+            name(name),
+            name_width(name_width),
+            binding(binding)
+    {
+    }
 }; // class BindsItem
 
-static BindsItem binds[] = {
+using BindsItems = std::vector<BindsItem>;
+
+static BindsItems binds = {
     { "MOVEMENT", 0, NULL },
     { "FORWARD", 0, &in_bindings[e_bi_forward] },
     { "BACKWARD", 0, &in_bindings[e_bi_backward] },
@@ -494,10 +495,8 @@ static BindsItem binds[] = {
     { "RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3] },
     { "DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4] },
     { "PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5] },
-#ifdef BSTONE_PS
-    { "ANTI-PLASMA CANNON", 0, &in_bindings[e_bi_weapon_6] },
-    { "FISSION DETONATOR", 0, &in_bindings[e_bi_weapon_7] },
-#endif // BSTONE_PS
+    { ps_only_entry + "ANTI-PLASMA CANNON", 0, &in_bindings[e_bi_weapon_6] }, // PS
+    { ps_only_entry + "FISSION DETONATOR", 0, &in_bindings[e_bi_weapon_7] }, // PS
     { "", 0, NULL },
 
     { "INTERACTION", 0, NULL },
@@ -506,10 +505,8 @@ static BindsItem binds[] = {
 
     { "HUD", 0, NULL },
     { "STATS", 0, &in_bindings[e_bi_stats] },
-#ifdef BSTONE_PS
-    { "MAGNIFY RADAR", 0, &in_bindings[e_bi_radar_magnify] },
-    { "MINIFY RADAR", 0, &in_bindings[e_bi_radar_minify] },
-#endif // BSTONE_PS
+    { ps_only_entry + "MAGNIFY RADAR", 0, &in_bindings[e_bi_radar_magnify] }, // PS
+    { ps_only_entry + "MINIFY RADAR", 0, &in_bindings[e_bi_radar_minify] }, // PS
     { "", 0, NULL },
 
     { "MENU", 0, NULL },
@@ -531,14 +528,11 @@ static BindsItem binds[] = {
     { "MUSIC", 0, &in_bindings[e_bi_music] },
     { "CEILING", 0, &in_bindings[e_bi_ceiling] },
     { "FLOORING", 0, &in_bindings[e_bi_flooring] },
-#ifdef BSTONE_AOG
-    { "HEART BEAT", 0, &in_bindings[e_bi_heart_beat] },
-#endif // BSTONE_AOG
+    { aog_only_entry + "HEART BEAT", 0, &in_bindings[e_bi_heart_beat] }, // AOG
     { "", 0, NULL },
 
     { "MISC", 0, NULL },
     { "PAUSE", 0, &in_bindings[e_bi_pause] },
-    { NULL, 0, NULL }
 }; // binds
 
 
@@ -589,15 +583,56 @@ void binds_initialize_menu()
 
     fontnumber = 2;
 
-    for (BindsItem* i = binds; i->name; ++i) {
+    // Remove game specific entries
+    for (auto quit = false; !quit; ) {
+        auto found_aog = false;
+
+        auto it = std::find_if(
+            binds.begin(),
+            binds.end(),
+            [&] (const BindsItem& item)
+            {
+                if (item.name.find(aog_only_entry) != std::string::npos) {
+                    found_aog = true;
+                    return true;
+                } else if (item.name.find(ps_only_entry) != std::string::npos) {
+                    found_aog = false;
+                    return true;
+                }
+
+                return false;
+            }
+        );
+
+        if (it != binds.cend()) {
+            auto expunge = false;
+            const auto& string_id = (found_aog ? aog_only_entry : ps_only_entry);
+
+            if ((found_aog && ::is_ps()) ||
+                (!found_aog && !::is_ps()))
+            {
+                expunge = true;
+            }
+
+            if (expunge) {
+                binds.erase(it);
+            } else {
+                it->name.erase(0, string_id.length());
+            }
+        } else {
+            quit = true;
+        }
+    }
+
+    for (auto& bind : binds) {
         ++binds_count;
 
-        if (i->name != NULL && i->name[0] != '\0') {
+        if (!bind.name.empty()) {
             int width = 0;
             int height = 0;
-            VW_MeasurePropString(i->name, &width, &height);
+            VW_MeasurePropString(bind.name.c_str(), &width, &height);
 
-            i->name_width = width;
+            bind.name_width = width;
 
             if (width > binds_max_text_width) {
                 binds_max_text_width = width;
@@ -610,6 +645,7 @@ void binds_initialize_menu()
             has_bindings = true;
         }
     }
+
 
     if (!has_bindings) {
         ::Quit("No bindings.");
@@ -710,13 +746,10 @@ void binds_initialize_menu()
     binds_names[sc_mouse_x1] = "MOUSE 4";
     binds_names[sc_mouse_x2] = "MOUSE 5";
 
-    for (BindsNamesCIt i = binds_names.begin();
-         i != binds_names.end();
-         ++i)
-    {
+    for (const auto& binds_name : binds_names) {
         int width = 0;
         int height = 0;
-        VW_MeasurePropString(i->second, &width, &height);
+        VW_MeasurePropString(binds_name.second, &width, &height);
 
         if (width > binds_key_width) {
             binds_key_width = width;
@@ -806,8 +839,7 @@ bool binds_assign_new_key(
     ScanCode key,
     Binding& binding)
 {
-    BindsNamesCIt it =
-        binds_names.find(LastScan);
+    auto it = binds_names.find(LastScan);
 
     if (it == binds_names.end()) {
         return false;
@@ -828,14 +860,14 @@ bool binds_assign_new_key(
 
 void binds_remove_binding()
 {
-    BindsItem& item = binds[binds_window + binds_window_offset];
+    auto& item = binds[binds_window + binds_window_offset];
     (*item.binding)[binds_key_index] = sc_none;
 }
 
 void binds_draw_item_text(
     int item_index)
 {
-    BindsItem& item = binds[binds_window + item_index];
+    auto& item = binds[binds_window + item_index];
 
     if (item.name[0] == '\0') {
         return;
@@ -869,18 +901,17 @@ void binds_draw_item_text(
 
     if (item.binding) {
         fontcolor = k_binds_text_color;
-        US_Print(item.name);
+        US_Print(item.name.c_str());
     } else {
         fontcolor = k_binds_category_color;
-        US_PrintCentered(item.name);
+        US_PrintCentered(item.name.c_str());
     }
 }
 
 void binds_draw_keys(
     int item_index)
 {
-    const BindsItem& item =
-        binds[binds_window + item_index];
+    const auto& item = binds[binds_window + item_index];
 
     if (!item.binding) {
         return;
@@ -929,7 +960,7 @@ void binds_draw_keys(
             if (key != sc_none) {
                 key_name = "???";
 
-                BindsNamesCIt name_it = binds_names.find(key);
+                auto name_it = binds_names.find(key);
 
                 if (name_it != binds_names.end()) {
                     key_name = name_it->second;
@@ -960,7 +991,7 @@ void binds_draw()
 
     fontnumber = 2;
 
-    BindsItem* items = &binds[binds_window];
+    auto items = &binds[binds_window];
 
     for (int i = 0; i < k_binds_max_per_window; ++i) {
         int item_index = binds_window + i;
@@ -1027,8 +1058,7 @@ void binds_draw_menu()
                     quit = true;
                     sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
                 } else if (LastScan != sc_none) {
-                    BindsItem& item =
-                        binds[binds_window + binds_window_offset];
+                    auto& item = binds[binds_window + binds_window_offset];
 
                     if (binds_assign_new_key(LastScan, *item.binding)) {
                         ShootSnd();
@@ -1263,11 +1293,7 @@ void HelpPresenter(
     }
 
     if (startmusic) {
-#ifdef BSTONE_AOG
-        // FIXME
-#else
-        StartCPMusic(TEXTSONG);
-#endif // BSTONE_AOG
+        ::StartCPMusic(TEXTSONG);
     }
 
 // Load, present, and free help text.
@@ -1285,11 +1311,7 @@ void HelpPresenter(
     }
 
     if (startmusic && TPscan == sc_escape) {
-#ifdef BSTONE_AOG
-        // FIXME
-#else
-        StartCPMusic(MENUSONG);
-#endif // BSTONE_AOG
+        ::StartCPMusic(MENUSONG);
     }
 
     IN_ClearKeysDown();
@@ -1332,11 +1354,7 @@ void US_ControlPanel(
 
     SetupControlPanel();
 
-#ifdef BSTONE_AOG
-    // FIXME
-#else
-    StartCPMusic(MENUSONG);
-#endif // BSTONE_AOG
+    ::StartCPMusic(MENUSONG);
 
     //
     // F-KEYS FROM WITHIN GAME
@@ -1575,11 +1593,7 @@ Sint16 CP_CheckQuick(
 
             VW_FadeOut();
 
-#ifdef BSTONE_AOG
-            // FIXME
-#else
-            StartCPMusic(MENUSONG);
-#endif // BSTONE_AOG
+            ::StartCPMusic(MENUSONG);
 
             pickquick = CP_SaveGame(0);
 
@@ -1614,11 +1628,7 @@ Sint16 CP_CheckQuick(
 
             VW_FadeOut();
 
-#ifdef BSTONE_AOG
-            // FIXME
-#else
-            StartCPMusic(MENUSONG);
-#endif // BSTONE_AOG
+            ::StartCPMusic(MENUSONG);
 
             pickquick = CP_LoadGame(0);
 
@@ -1685,11 +1695,7 @@ void CP_ViewScores(
 {
     fontnumber = 4;
 
-#ifdef BSTONE_AOG
-    // FIXME
-#else
-    StartCPMusic(ROSTER_MUS);
-#endif // BSTONE_AOG
+    ::StartCPMusic(ROSTER_MUS);
 
     DrawHighScores();
     VW_UpdateScreen();
@@ -1698,11 +1704,7 @@ void CP_ViewScores(
 
     IN_Ack();
 
-#ifdef BSTONE_AOG
-    // FIXME
-#else
-    StartCPMusic(MENUSONG);
-#endif // BSTONE_AOG
+    ::StartCPMusic(MENUSONG);
 
     ::MenuFadeOut();
 }
@@ -1719,52 +1721,49 @@ void CP_NewGame(
     DrawInstructions(IT_STANDARD);
 
 
-#ifdef BSTONE_AOG
-
 firstpart:
 
-    DrawNewEpisode();
-    do {
-        which = HandleMenu(&NewEitems, &NewEmenu[0], DrawEpisodePic);
-        switch (which) {
-        case -1:
-            ::MenuFadeOut();
-            return;
+    if (!::is_ps()) {
+        DrawNewEpisode();
+        do {
+            which = HandleMenu(&NewEitems, &NewEmenu[0], DrawEpisodePic);
+            switch (which) {
+            case -1:
+                ::MenuFadeOut();
+                return;
 
-        default:
-            if (!EpisodeSelect[which]) {
-                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
-                CacheMessage(READTHIS_TEXT);
-                IN_ClearKeysDown();
-                IN_Ack();
-                VL_Bar(35, 69, 250, 62, TERM_BACK_COLOR);
-                DrawNewEpisode();
-                which = 0;
-            } else {
-                episode = which;
-                which = 1;
+            default:
+                if (!EpisodeSelect[which]) {
+                    ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                    CacheMessage(READTHIS_TEXT);
+                    IN_ClearKeysDown();
+                    IN_Ack();
+                    VL_Bar(35, 69, 250, 62, TERM_BACK_COLOR);
+                    DrawNewEpisode();
+                    which = 0;
+                } else {
+                    episode = which;
+                    which = 1;
+                }
+                break;
             }
-            break;
-        }
 
-    } while (!which);
+        } while (!which);
 
-    ShootSnd();
-#else
-    episode = 0;
-#endif
+        ShootSnd();
+    } else {
+        episode = 0;
+    }
 
-#ifdef BSTONE_AOG
     //
     // ALREADY IN A GAME?
     //
-    if (ingame) {
+    if (!::is_ps() && ingame) {
         if (!Confirm(CURGAME)) {
             ::MenuFadeOut();
             return;
         }
     }
-#endif
 
 secondpart:
 
@@ -1777,11 +1776,12 @@ secondpart:
 
     if (which < 0) {
         ::MenuFadeOut();
-#ifdef BSTONE_AOG
-        goto firstpart;
-#else
-        return;
-#endif
+
+        if (!::is_ps()) {
+            goto firstpart;
+        } else {
+            return;
+        }
     }
 
     ShootSnd();
@@ -1801,7 +1801,6 @@ secondpart:
     // CHANGE "READ THIS!" TO NORMAL COLOR
     //
     MainMenu[MM_READ_THIS].active = AT_ENABLED;
-
 }
 
 // ---------------------------------------------------------------------------
@@ -1874,7 +1873,6 @@ void DrawInstructions(
     US_PrintCentered(instr[Type]);
 }
 
-#ifdef BSTONE_AOG
 
 // --------------------------------------------------------------------------
 // DrawNewEpisode() - DRAW NEW EPISODE MENU
@@ -1899,8 +1897,6 @@ void DrawNewEpisode()
     WaitKeyUp();
 
 }
-
-#endif
 
 // --------------------------------------------------------------------------
 // DrawNewGame() - DRAW NEW GAME MENU
@@ -2071,7 +2067,6 @@ void CP_Switches(
             DrawSwitchMenu();
             break;
 
-#ifdef BSTONE_AOG
         case SW_HEART_BEAT_SOUND:
             g_heart_beat_sound = !g_heart_beat_sound;
             ShootSnd();
@@ -2083,9 +2078,7 @@ void CP_Switches(
             ShootSnd();
             DrawSwitchMenu();
             break;
-#endif // BSTONE_AOG
         }
-
     } while (which >= 0);
 
     ::MenuFadeOut();
@@ -2177,7 +2170,6 @@ void DrawAllSwitchLights(
                 }
                 break;
 
-#ifdef BSTONE_AOG
             case SW_HEART_BEAT_SOUND:
                 if (g_heart_beat_sound) {
                     ++Shape;
@@ -2189,7 +2181,6 @@ void DrawAllSwitchLights(
                     ++Shape;
                 }
                 break;
-#endif // BSTONE_AOG
             }
 
             VWB_DrawPic(SwitchItems.x - 16, SwitchItems.y + i * SwitchItems.y_spacing - 1, Shape);
@@ -2205,12 +2196,6 @@ void DrawAllSwitchLights(
 //  DrawSwitchDescription()
 // --------------------------------------------------------------------------
 
-#ifdef BSTONE_AOG
-#define DESCRIPTIONS_Y_POS (144)
-#else
-#define DESCRIPTIONS_Y_POS (134)
-#endif // BSTONE_AOG
-
 void DrawSwitchDescription(
     Sint16 which)
 {
@@ -2223,19 +2208,15 @@ void DrawSwitchDescription(
         // BBi
         "TOGGLES WALL HIT SOUND",
         "TOGGLES BETWEEN CLASSIC AND MODERN CONTROLS",
-        "TOGGLES ALWAYS RUN MODE"
-
-#ifdef BSTONE_AOG
-        ,
+        "TOGGLES ALWAYS RUN MODE",
         "TOGGLES HEART BEAT SOUND WITH EKG",
-        "TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS"
-#endif // BSTONE_AOG
+        "TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS",
     };
 
     fontnumber = 2;
 
     WindowX = 48;
-    WindowY = DESCRIPTIONS_Y_POS;
+    WindowY = (::is_ps() ? 134 : 144);
     WindowW = 236;
     WindowH = 8;
 
@@ -2310,12 +2291,7 @@ void CP_Sound(
                 SD_SetMusicMode(smm_AdLib);
                 DrawSoundMenu();
                 ShootSnd();
-
-#ifdef BSTONE_AOG
-                // FIXME
-#else
-                StartCPMusic(MENUSONG);
-#endif // BSTONE_AOG
+                ::StartCPMusic(MENUSONG);
             }
             break;
         }
@@ -3817,6 +3793,10 @@ void DrawOutline(
 // ---------------------------------------------------------------------------
 void SetupControlPanel()
 {
+    // BBi
+    SwitchItems.amount = (::is_ps() ? 7 : 9);
+    SwitchItems.y = MENU_Y + (::is_ps() ? 15 : 7);
+    // BBi
 
     //
     // CACHE GRAPHICS & SOUNDS
@@ -4159,17 +4139,15 @@ Sint16 HandleMenu(
                 }
             }
 
-#ifdef BSTONE_PS
             //
             // ALREADY IN A GAME?
             //
-            if (ingame && ((items + which)->routine == CP_NewGame)) {
+            if (::is_ps() && ingame && ((items + which)->routine == CP_NewGame)) {
                 if (!Confirm(CURGAME)) {
                     ::MenuFadeOut();
                     return 0;
                 }
             }
-#endif
 
             ShootSnd();
             ::MenuFadeOut();
@@ -4631,44 +4609,44 @@ Uint32 CacheCompData(
     CA_CacheGrChunk(item_number);
     chunk = (char*)grsegs[item_number];
 
-#ifdef BSTONE_AOG
-    data_length = ::ca_gr_last_expanded_size;
-#else
-    memcpy(CompHeader.NameId, &chunk[0], 4);
-    CompHeader.OriginalLen = ((Uint32*)&chunk[4])[0];
-    CompHeader.CompType = (ct_TYPES)((Sint16*)&chunk[8])[0];
-    CompHeader.CompressLen = ((Uint32*)&chunk[10])[0];
+    if (!::is_ps()) {
+        data_length = ::ca_gr_last_expanded_size;
+    } else {
+        memcpy(CompHeader.NameId, &chunk[0], 4);
+        CompHeader.OriginalLen = ((Uint32*)&chunk[4])[0];
+        CompHeader.CompType = (ct_TYPES)((Sint16*)&chunk[8])[0];
+        CompHeader.CompressLen = ((Uint32*)&chunk[10])[0];
 
-    data_length = CompHeader.OriginalLen;
+        data_length = CompHeader.OriginalLen;
 
-    chunk += 14;
-#endif // BSTONE_AOG
+        chunk += 14;
+    }
 
     // Allocate Dest Memory
 
     dst = new char[data_length];
     *dst_ptr = dst;
 
-#ifdef BSTONE_AOG
-    std::copy(
-        chunk,
-        &chunk[data_length],
-        dst);
-#else
-    // Decompress and terminate string
+    if (!::is_ps()) {
+        std::copy(
+            chunk,
+            &chunk[data_length],
+            dst);
+    } else {
+        // Decompress and terminate string
 
-    if (!LZH_Startup()) {
-        Quit("out of memory");
+        if (!LZH_Startup()) {
+            Quit("out of memory");
+        }
+
+        ::LZH_Decompress(
+            chunk,
+            dst,
+            data_length,
+            CompHeader.CompressLen);
+
+        LZH_Shutdown();
     }
-
-    ::LZH_Decompress(
-        chunk,
-        dst,
-        data_length,
-        CompHeader.CompressLen);
-
-    LZH_Shutdown();
-#endif // BSTONE_AOG
 
     // Free compressed data
     UNCACHEGRCHUNK(item_number);
