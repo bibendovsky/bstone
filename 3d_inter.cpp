@@ -352,11 +352,7 @@ void CheckHighScore(
         }
     }
 
-#ifdef BSTONE_AOG
-    // FIXME
-#else
-    StartCPMusic(ROSTER_MUS);
-#endif // BSTONE_AOG
+    ::StartCPMusic(ROSTER_MUS);
 
     DrawHighScores();
 
