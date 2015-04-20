@@ -1351,11 +1351,7 @@ WeaponScale weaponscale;
 
 void initialize_weapon_constants()
 {
-    if (!::is_ps()) {
-        NUMWEAPONS = 6;
-    } else {
-        NUMWEAPONS = 7;
-    }
+    NUMWEAPONS = ::is_ps() ? 7 : 6;
 
     weaponscale = {
         SPR_KNIFEREADY,
