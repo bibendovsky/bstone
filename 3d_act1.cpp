@@ -352,16 +352,20 @@ void SpawnStatic(
         actorat[tilex][tiley] = (objtype*)1;
         break;
 
+    case bo_plasma_detonator:
+        if (!::is_ps()) {
+            break;
+        }
+
+    case bo_green_key:
+    case bo_gold_key:
+        if (::is_ps()) {
+            break;
+        }
+
     case bo_red_key:
     case bo_yellow_key:
     case bo_blue_key:
-#ifdef BSTONE_AOG
-    case bo_green_key:
-    case bo_gold_key:
-#endif
-#ifdef BSTONE_PS
-    case bo_plasma_detonator:
-#endif
         TravelTable[tilex][tiley] |= TT_KEYS;
 
     case bo_gold1:
@@ -496,13 +500,15 @@ statobj_t* UseReservedStatic(
     //
 
     switch (type) {
+    case bo_green_key:
+    case bo_gold_key:
+        if (::is_ps()) {
+            break;
+        }
+
     case bo_red_key:
     case bo_yellow_key:
     case bo_blue_key:
-#ifdef BSTONE_AOG
-    case bo_green_key:
-    case bo_gold_key:
-#endif
         TravelTable[tilex][tiley] |= TT_KEYS;
         break;
     }
@@ -662,11 +668,10 @@ void ExplodeStatics(
     Sint16 tilex,
     Sint16 tiley)
 {
-// FIXME PS only?
-#ifdef BSTONE_AOG
-    static_cast<void>(tilex);
-    static_cast<void>(tiley);
-#else
+    if (!::is_ps()) {
+        return;
+    }
+
     statobj_t* spot;
     Sint16 y_diff, x_diff;
     boolean remove;
@@ -711,7 +716,6 @@ void ExplodeStatics(
             }
         }
     }
-#endif
 }
 
 
@@ -975,24 +979,24 @@ void OpenDoor(
 
 }
 
-// FIXME Use for PS too?
-#ifdef BSTONE_AOG
 objtype* get_actor_near_door(
     int tile_x,
     int tile_y)
 {
-    for (int i = 0; i < doornum; ++i) {
-        const doorobj_t& door = doorobjlist[i];
+    // FIXME Use for PS too?
+    if (!::is_ps()) {
+        for (int i = 0; i < doornum; ++i) {
+            const doorobj_t& door = doorobjlist[i];
 
-        if (door.tilex == tile_x && door.tiley == tile_y) {
-            // It's a closing door, not an actor.
-            return NULL;
+            if (door.tilex == tile_x && door.tiley == tile_y) {
+                // It's a closing door, not an actor.
+                return NULL;
+            }
         }
     }
 
     return actorat[tile_x][tile_y];
 }
-#endif
 
 /*
 =====================
@@ -1035,19 +1039,11 @@ void CloseDoor(
                 return;
             }
         }
-#ifdef BSTONE_AOG
         check = ::get_actor_near_door(tilex - 1, tiley);
-#else
-        check = actorat[tilex - 1][tiley];
-#endif
         if (check && ((check->x + MINDIST) >> TILESHIFT) == tilex) {
             return;
         }
-#ifdef BSTONE_AOG
         check = ::get_actor_near_door(tilex + 1, tiley);
-#else
-        check = actorat[tilex + 1][tiley];
-#endif
         if (check && ((check->x - MINDIST) >> TILESHIFT) == tilex) {
             return;
         }
@@ -1060,19 +1056,11 @@ void CloseDoor(
                 return;
             }
         }
-#ifdef BSTONE_AOG
         check = ::get_actor_near_door(tilex, tiley - 1);
-#else
-        check = actorat[tilex][tiley - 1];
-#endif
         if (check && ((check->y + MINDIST) >> TILESHIFT) == tiley) {
             return;
         }
-#ifdef BSTONE_AOG
         check = ::get_actor_near_door(tilex, tiley + 1);
-#else
-        check = actorat[tilex][tiley + 1];
-#endif
         if (check && ((check->y - MINDIST) >> TILESHIFT) == tiley) {
             return;
         }
@@ -1125,7 +1113,7 @@ char od_locked[] = "\r\r   DOOR PERMANENTLY\r        LOCKED.\r^XX";
 char od_reddenied[] = "\r\r      RED LEVEL\r    ACCESS DENIED!\r^XX";
 char od_yellowdenied[] = "\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r^XX";
 char od_bluedenied[] = "\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
-#ifdef BSTONE_AOG
+
 char od_green_denied[] =
     "\r"
     "\r"
@@ -1141,7 +1129,7 @@ char od_gold_denied[] =
     "    ACCESS DENIED!\r"
     "^XX"
 ;
-#endif
+
 char od_granted[] = "\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
 char od_operating[] = "\r\r    OPERATING DOOR.\r^XX";
 
@@ -1216,7 +1204,6 @@ void OperateDoor(
                 DISPLAY_TIMED_MSG(od_bluedenied, MP_DOOR_OPERATE, MT_GENERAL);
                 break;
 
-#ifdef BSTONE_AOG
             case kt_green:
                 DISPLAY_TIMED_MSG(od_green_denied, MP_DOOR_OPERATE, MT_GENERAL);
                 break;
@@ -1224,7 +1211,6 @@ void OperateDoor(
             case kt_gold:
                 DISPLAY_TIMED_MSG(od_gold_denied, MP_DOOR_OPERATE, MT_GENERAL);
                 break;
-#endif
 
             default:
                 DISPLAY_TIMED_MSG(od_locked, MP_DOOR_OPERATE, MT_GENERAL);
@@ -1331,7 +1317,6 @@ void BlastNearDoors(
 }
 
 
-#ifdef BSTONE_PS
 // --------------------------------------------------------------------------
 // DropPlasmaDetonator()  - Will move a Chaff from reserve to the player location.
 // --------------------------------------------------------------------------
@@ -1401,7 +1386,6 @@ void TryDropPlasmaDetonator()
         DropPlasmaDetonator();
     }
 }
-#endif
 
 // ===========================================================================
 
