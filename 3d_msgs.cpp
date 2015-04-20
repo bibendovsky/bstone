@@ -156,10 +156,8 @@ char WeaponNotAvailMsg[] = "\r\r  SELECTED WEAPON NOT\r"
 char WeaponAvailMsg[] = "\r\r   SELECTED WEAPON\r"
                         " ACTIVATED AND READY.";
 
-#ifdef BSTONE_PS
 char RadarEnergyGoneMsg[] = "\r\r  RADAR MAGNIFICATION\r"
                             "    ENERGY DEPLETED.";
-#endif
 
 char EnergyPackDepleted[] = "^FC19\r       WARNING:\r"
                             "^FC17ENERGY PACK DEPLETED\r"

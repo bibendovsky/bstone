@@ -51,9 +51,7 @@ Free Software Foundation, Inc.,
 
 #define ACTORSIZE 0x4000
 
-#ifdef BSTONE_PS
 void DrawRadar();
-#endif
 
 void DrawLSPost();
 void DrawPost();
@@ -1254,22 +1252,20 @@ void DrawScaleds()
                 continue; // too close or far away
 
             }
-#ifdef BSTONE_PS
-            if ((obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == (FL2_CLOAKED)) {
+
+            if (::is_ps() &&
+                (obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED)
+            {
                 visptr->cloaked = 1;
                 visptr->lighting = 0;
-            } else
-#endif
-            {
+            } else {
                 visptr->cloaked = 0;
                 visptr->lighting = obj->lighting;
             }
 
-#ifdef BSTONE_PS
-            if (!(obj->flags & FL_DEADGUY)) {
+            if (::is_ps() && (obj->flags & FL_DEADGUY) == 0) {
                 obj->flags2 &= ~FL2_DAMAGE_CLOAK;
             }
-#endif
 
             visptr->viewx = obj->viewx;
             visptr->viewheight = obj->viewheight;
@@ -1727,9 +1723,9 @@ void ThreeDRefresh()
 
     bufferofs -= screenofs;
 
-#ifdef BSTONE_PS
-    DrawRadar();
-#endif
+    if (::is_ps()) {
+        ::DrawRadar();
+    }
 
 //      VW_WaitVBL(1); // mike check this out
 
@@ -1773,7 +1769,6 @@ void UpdateTravelTable()
 
 extern Sint16 an_offset[];
 
-#ifdef BSTONE_PS
 // --------------------------------------------------------------------------
 // DrawRadar()
 // --------------------------------------------------------------------------
@@ -1800,7 +1795,6 @@ void DrawRadar()
 
     ShowOverhead(192, 156, 16, zoom, flags);
 }
-#endif
 
 Uint16 tc_time;
 
@@ -1812,11 +1806,7 @@ void ShowOverhead(
     int flags)
 {
     const Uint8 PLAYER_COLOR = 0xF1;
-#ifdef BSTONE_AOG
-    const Uint8 UNMAPPED_COLOR = 0x06;
-#else
-    const Uint8 UNMAPPED_COLOR = 0x52;
-#endif
+    const Uint8 UNMAPPED_COLOR = (::is_ps() ? 0x52 : 0x06);
     const Uint8 MAPPED_COLOR = 0x55;
 
     bool snow = false;
@@ -1933,12 +1923,9 @@ void ShowOverhead(
                         // SHOW DOORS
                         //
                         if ((tile & 0x80) != 0) {
-#ifdef BSTONE_AOG
-                            if (doorobjlist[door].type == dr_elevator) {
+                            if (!::is_ps() && doorobjlist[door].type == dr_elevator) {
                                 color = 0xFD;
-                            } else
-#endif
-                            if (doorobjlist[door].lock != kt_none) {
+                            } else if (doorobjlist[door].lock != kt_none) {
                                 color = 0x18; // locked!
                             } else {
                                 if (doorobjlist[door].action == dr_closed) {
@@ -1950,8 +1937,8 @@ void ShowOverhead(
                         }
                     } else {
                         color = MAPPED_COLOR; // floor!
-
                     }
+
                     // SHOW KEYS
                     //
                     if ((flags & OV_KEYS) != 0 &&
