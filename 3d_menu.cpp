@@ -1184,7 +1184,7 @@ void binds_draw_menu()
         }
     }
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 
@@ -1276,7 +1276,7 @@ void HelpPresenter(
     TP_Presenter(&pi);
     TP_FreeScript(&pi, id_cache);
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 
 // Reset view size
 //
@@ -1704,7 +1704,7 @@ void CP_ViewScores(
     StartCPMusic(MENUSONG);
 #endif // BSTONE_AOG
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -1728,7 +1728,7 @@ firstpart:
         which = HandleMenu(&NewEitems, &NewEmenu[0], DrawEpisodePic);
         switch (which) {
         case -1:
-            MenuFadeOut();
+            ::MenuFadeOut();
             return;
 
         default:
@@ -1760,7 +1760,7 @@ firstpart:
     //
     if (ingame) {
         if (!Confirm(CURGAME)) {
-            MenuFadeOut();
+            ::MenuFadeOut();
             return;
         }
     }
@@ -1768,7 +1768,7 @@ firstpart:
 
 secondpart:
 
-    MenuFadeOut();
+    ::MenuFadeOut();
     if (ingame) {
         CA_CacheScreen(BACKGROUND_SCREENPIC);
     }
@@ -1776,7 +1776,7 @@ secondpart:
     which = HandleMenu(&NewItems, &NewMenu[0], DrawNewGameDiff);
 
     if (which < 0) {
-        MenuFadeOut();
+        ::MenuFadeOut();
 #ifdef BSTONE_AOG
         goto firstpart;
 #else
@@ -1785,7 +1785,7 @@ secondpart:
     }
 
     ShootSnd();
-    MenuFadeOut();
+    ::MenuFadeOut();
     ControlPanelFree();
 
     if (Breifing(BT_INTRO, episode)) {
@@ -1972,7 +1972,7 @@ void CP_GameOptions(
 
     } while (which >= 0);
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -2088,7 +2088,7 @@ void CP_Switches(
 
     } while (which >= 0);
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -2321,7 +2321,7 @@ void CP_Sound(
         }
     } while (which >= 0);
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -2514,7 +2514,7 @@ restart:
     } while (which >= 0);
 
     if (which == -1) {
-        MenuFadeOut();
+        ::MenuFadeOut();
     }
 
     if (loadedgame) {
@@ -2692,7 +2692,7 @@ Sint16 CP_SaveGame(
 
     } while (which >= 0);
 
-    MenuFadeOut();
+    ::MenuFadeOut();
     use_custom_cursor = false;
     allcaps = temp_caps;
     return exit;
@@ -2772,7 +2772,7 @@ void CP_Control(
         }
     } while (which >= 0);
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -2917,7 +2917,7 @@ void MouseSensitivity(
     }
 
     WaitKeyUp();
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -3057,7 +3057,7 @@ void CustomControls(
 
 
 
-    MenuFadeOut();
+    ::MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -4165,14 +4165,14 @@ Sint16 HandleMenu(
             //
             if (ingame && ((items + which)->routine == CP_NewGame)) {
                 if (!Confirm(CURGAME)) {
-                    MenuFadeOut();
+                    ::MenuFadeOut();
                     return 0;
                 }
             }
 #endif
 
             ShootSnd();
-            MenuFadeOut();
+            ::MenuFadeOut();
             (items + which)->routine(0);
         }
         return which;
@@ -4849,7 +4849,7 @@ void ShowPromo()
 
 // Show promo screen 1
 //
-    MenuFadeOut();
+    ::MenuFadeOut();
     CA_CacheScreen(PROMO1PIC);
     VW_UpdateScreen();
     MenuFadeIn();
@@ -4857,7 +4857,7 @@ void ShowPromo()
 
 // Show promo screen 2
 //
-    MenuFadeOut();
+    ::MenuFadeOut();
     CA_CacheScreen(PROMO2PIC);
     VW_UpdateScreen();
     MenuFadeIn();
@@ -5045,5 +5045,14 @@ void cp_sound_volume(
 
     WaitKeyUp();
     MenuFadeIn();
+}
+
+void MenuFadeOut()
+{
+    if (::is_ps()) {
+        ::VL_FadeOut(0, 255, 44, 0, 0, 10);
+    } else {
+        ::VL_FadeOut(0, 255, 40, 44, 44, 10);
+    }
 }
 // BBi

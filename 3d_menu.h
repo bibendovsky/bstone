@@ -63,12 +63,7 @@ Free Software Foundation, Inc.,
 #define BKGDCOLOR (0x76)
 #define STRIPE 0x2c
 
-#ifdef BSTONE_AOG
-#define MenuFadeOut() VL_FadeOut(0, 255, 44, 0, 0, 10)
-#else
-#define MenuFadeOut() VL_FadeOut(0, 255, 40, 44, 44, 10)
-#endif
-
+void MenuFadeOut();
 
 #define READCOLOR 0x4a
 #define READHCOLOR 0x47
