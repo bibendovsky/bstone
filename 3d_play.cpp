@@ -207,113 +207,121 @@ objtype dummyobj;
 // LIST OF SONGS FOR EACH LEVEL
 //
 
-Sint16 songs[] = {
-#ifdef BSTONE_AOG
-    // Episode 1
-    INCNRATN_MUS,
-    DRKHALLA_MUS,
-    JUNGLEA_MUS,
-    RACSHUFL_MUS,
-    DRKHALLA_MUS,
-    HIDINGA_MUS,
-    JUNGLEA_MUS,
-    RACSHUFL_MUS,
-    HIDINGA_MUS,
-    DRKHALLA_MUS,
-    INCNRATN_MUS,
+using Songs = std::vector<int>;
 
-    // Episode 2
-    FREEDOMA_MUS,
-    DRKHALLA_MUS,
-    STRUTA_MUS,
-    INTRIGEA_MUS,
-    MEETINGA_MUS,
-    DRKHALLA_MUS,
-    INCNRATN_MUS,
-    RACSHUFL_MUS,
-    JUNGLEA_MUS,
-    GENEFUNK_MUS,
-    THEME_MUS,
+Songs songs;
 
-    // Episode 3
-    LEVELA_MUS,
-    HIDINGA_MUS,
-    STRUTA_MUS,
-    THEME_MUS,
-    RACSHUFL_MUS,
-    INCNRATN_MUS,
-    GOLDA_MUS,
-    JUNGLEA_MUS,
-    DRKHALLA_MUS,
-    THEWAYA_MUS,
-    FREEDOMA_MUS,
+void initialize_songs()
+{
+    if (!::is_ps()) {
+        songs = {
+            // Episode 1
+            INCNRATN_MUS,
+            DRKHALLA_MUS,
+            JUNGLEA_MUS,
+            RACSHUFL_MUS,
+            DRKHALLA_MUS,
+            HIDINGA_MUS,
+            JUNGLEA_MUS,
+            RACSHUFL_MUS,
+            HIDINGA_MUS,
+            DRKHALLA_MUS,
+            INCNRATN_MUS,
 
-    // Episode 4
-    HIDINGA_MUS,
-    DRKHALLA_MUS,
-    GENEFUNK_MUS,
-    JUNGLEA_MUS,
-    INCNRATN_MUS,
-    GOLDA_MUS,
-    HIDINGA_MUS,
-    JUNGLEA_MUS,
-    DRKHALLA_MUS,
-    THEWAYA_MUS,
-    RUMBAA_MUS,
+            // Episode 2
+            FREEDOMA_MUS,
+            DRKHALLA_MUS,
+            STRUTA_MUS,
+            INTRIGEA_MUS,
+            MEETINGA_MUS,
+            DRKHALLA_MUS,
+            INCNRATN_MUS,
+            RACSHUFL_MUS,
+            JUNGLEA_MUS,
+            GENEFUNK_MUS,
+            THEME_MUS,
 
-    // Episode 5
-    RACSHUFL_MUS,
-    SEARCHNA_MUS,
-    JUNGLEA_MUS,
-    HIDINGA_MUS,
-    GENEFUNK_MUS,
-    MEETINGA_MUS,
-    S2100A_MUS,
-    THEME_MUS,
-    INCNRATN_MUS,
-    DRKHALLA_MUS,
-    THEWAYA_MUS,
+            // Episode 3
+            LEVELA_MUS,
+            HIDINGA_MUS,
+            STRUTA_MUS,
+            THEME_MUS,
+            RACSHUFL_MUS,
+            INCNRATN_MUS,
+            GOLDA_MUS,
+            JUNGLEA_MUS,
+            DRKHALLA_MUS,
+            THEWAYA_MUS,
+            FREEDOMA_MUS,
 
-    // Episode 6
-    TIMEA_MUS,
-    RACSHUFL_MUS,
-    GENEFUNK_MUS,
-    HIDINGA_MUS,
-    S2100A_MUS,
-    THEME_MUS,
-    THEWAYA_MUS,
-    JUNGLEA_MUS,
-    MEETINGA_MUS,
-    DRKHALLA_MUS,
-    INCNRATN_MUS
-#else
-    MAJMIN_MUS,                  // 0
-    STICKS_MUS,                  // 1
-    MOURNING_MUS,                // 2
-    LURKING_MUS,                 // 3
-    CIRCLES_MUS,                 // 4
-    TIME_MUS,                    // 5
-    TOHELL_MUS,                  // 6
-    FORTRESS_MUS,                // 7
-    GIVING_MUS,                  // 8
-    HARTBEAT_MUS,                // 9
-    MOURNING_MUS,                // 10
-    MAJMIN_MUS,                  // 11
-    VACCINAP_MUS,                // 12
-    LURKING_MUS,                 // 13
-    MONASTRY_MUS,                // 14
-    TOMBP_MUS,                   // 15
-    DARKNESS_MUS,                // 16
-    MOURNING_MUS,                // 17
-    SERPENT_MUS,                 // 18
-    TIME_MUS,                    // 19
-    CATACOMB_MUS,                // 20
-    PLOT_MUS,                    // 21
-    GIVING_MUS,                  // 22
-    VACCINAP_MUS,                // 23
-#endif
-};
+            // Episode 4
+            HIDINGA_MUS,
+            DRKHALLA_MUS,
+            GENEFUNK_MUS,
+            JUNGLEA_MUS,
+            INCNRATN_MUS,
+            GOLDA_MUS,
+            HIDINGA_MUS,
+            JUNGLEA_MUS,
+            DRKHALLA_MUS,
+            THEWAYA_MUS,
+            RUMBAA_MUS,
 
+            // Episode 5
+            RACSHUFL_MUS,
+            SEARCHNA_MUS,
+            JUNGLEA_MUS,
+            HIDINGA_MUS,
+            GENEFUNK_MUS,
+            MEETINGA_MUS,
+            S2100A_MUS,
+            THEME_MUS,
+            INCNRATN_MUS,
+            DRKHALLA_MUS,
+            THEWAYA_MUS,
+
+            // Episode 6
+            TIMEA_MUS,
+            RACSHUFL_MUS,
+            GENEFUNK_MUS,
+            HIDINGA_MUS,
+            S2100A_MUS,
+            THEME_MUS,
+            THEWAYA_MUS,
+            JUNGLEA_MUS,
+            MEETINGA_MUS,
+            DRKHALLA_MUS,
+            INCNRATN_MUS,
+        };
+    } else {
+        songs = {
+            MAJMIN_MUS,
+            STICKS_MUS,
+            MOURNING_MUS,
+            LURKING_MUS,
+            CIRCLES_MUS,
+            TIME_MUS,
+            TOHELL_MUS,
+            FORTRESS_MUS,
+            GIVING_MUS,
+            HARTBEAT_MUS,
+            MOURNING_MUS,
+            MAJMIN_MUS,
+            VACCINAP_MUS,
+            LURKING_MUS,
+            MONASTRY_MUS,
+            TOMBP_MUS,
+            DARKNESS_MUS,
+            MOURNING_MUS,
+            SERPENT_MUS,
+            TIME_MUS,
+            CATACOMB_MUS,
+            PLOT_MUS,
+            GIVING_MUS,
+            VACCINAP_MUS,
+        };
+    }
+}
 
 /*
 =============================================================================
