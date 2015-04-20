@@ -357,9 +357,7 @@ void ScanInfoPlane()
     db_count = 0;
 #endif
 
-#ifdef BSTONE_PS
     detonators_spawned = 0;
-#endif
 
 #ifdef TRACK_ENEMY_COUNT
     memset(numEnemy, 0, sizeof(numEnemy));
@@ -379,11 +377,12 @@ void ScanInfoPlane()
             // Check for tiles/icons to ignore...
             //
             switch ((Uint16) * (mapsegs[0] + farmapylookup[y] + x)) {
-            case DOORTRIGGERTILE:
-#ifdef BSTONE_PS
             case SMART_OFF_TRIGGER:
             case SMART_ON_TRIGGER:
-#endif
+                if (!::is_ps()) {
+                    break;
+                }
+            case DOORTRIGGERTILE:
                 // Ignore all values/icons on top of these tiles...
                 continue;
             }
@@ -610,6 +609,17 @@ void ScanInfoPlane()
 #endif
 #endif
 
+            case 30: // Yellow Puddle
+                if (::is_aog_sw()) {
+                    break;
+                }
+
+            case 53:
+            case 71: // BFG Weapon
+                if (!::is_ps()) {
+                    break;
+                }
+
             case 23:
             case 24:
             case 25:
@@ -617,11 +627,6 @@ void ScanInfoPlane()
             case 27:
             case 28:
             case 29:
-
-
-#if GAME_VERSION != SHAREWARE_VERSION
-            case 30: // Yellow Puddle
-#endif
 
             case 31:
             case 32:
@@ -647,9 +652,6 @@ void ScanInfoPlane()
             case 50:
             case 51:
             case 52:
-#ifdef BSTONE_PS
-            case 53:
-#endif
             case 54:
 
             case 55:
@@ -669,9 +671,7 @@ void ScanInfoPlane()
             case 68:
             case 69:
             case 70:
-#ifdef BSTONE_PS
-            case 71: // BFG Weapon
-#endif
+
             case 72: // Gurney Mutant
             case 73: // Large Canister
             case 74: // Small Canister
@@ -739,12 +739,14 @@ void ScanInfoPlane()
                 SpawnStatic(x, y, tile - 315);
                 break;
 
-#ifdef BSTONE_PS
             case 486: // Plasma Detonator
+                if (!::is_ps()) {
+                    break;
+                }
+
                 SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
                 SpawnStatic(x, y, 486 - 375);
                 break;
-#endif
 
             case 487: // Door rubble
             case 488: // AutoMapper Bonus #1
@@ -819,11 +821,14 @@ void ScanInfoPlane()
                 break;
 
 
-                // Plasma Post Barrier
-                //
-#ifdef BSTONE_PS
             case 174:
-#endif
+                if (::is_ps()) {
+                    ::SpawnBarrier(en_post_barrier, x, y, false);
+                } else {
+                    ::SpawnBarrier(en_arc_barrier, x, y, true);
+                }
+                break;
+
             case 175:
                 //
                 // 174=off,175=on
@@ -831,23 +836,18 @@ void ScanInfoPlane()
                 SpawnBarrier(en_post_barrier, x, y, tile - 174);
                 break;
 
-                // Arc Barrier
-                //
-#ifdef BSTONE_AOG
-            case 174:
-                SpawnBarrier(en_arc_barrier, x, y, true);
-                break;
-#else
             case 138:
             case 139:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 //
                 // 138=off,139=on
                 //
                 SpawnBarrier(en_arc_barrier, x, y, tile - 138);
                 break;
-#endif
 
-#ifdef BSTONE_PS
             //
             // VPOST Barrier
             //
@@ -857,6 +857,10 @@ void ScanInfoPlane()
             //
             case 563: // On
             case 562: // Off
+                if (!::is_ps()) {
+                    break;
+                }
+
                 SpawnBarrier(en_vpost_barrier, x, y, tile - 562);
                 break;
 
@@ -873,6 +877,10 @@ void ScanInfoPlane()
                     break;
                 }
             case 565:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 SpawnBarrier(en_vpost_barrier, x, y, 0);
                 break;
 
@@ -885,6 +893,10 @@ void ScanInfoPlane()
             //
             case 426: // On
             case 425: // Off
+                if (!::is_ps()) {
+                    break;
+                }
+
                 SpawnBarrier(en_vspike_barrier, x, y, tile - 425);
                 break;
 
@@ -901,9 +913,11 @@ void ScanInfoPlane()
                     break;
                 }
             case 428:
+                if (!::is_ps()) {
+                    break;
+                }
                 SpawnBarrier(en_vspike_barrier, x, y, 0);
                 break;
-#endif
 
             //
             // STEAM GRATE
@@ -940,25 +954,22 @@ void ScanInfoPlane()
                     GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<Uint8>(y);
                     GoldsternInfo.SpawnCnt++;
 
-#ifdef BSTONE_PS
-                    if (gamestate.mapon == GOLD_MORPH_LEVEL) {
+                    if (::is_ps() && gamestate.mapon == GOLD_MORPH_LEVEL) {
                         AddTotalPoints(actor_points[goldsternobj - rentacopobj]);
                         AddTotalEnemy(1);
 #ifdef TRACK_ENEMY_COUNT
                         numEnemy[goldsternobj]++;
 #endif
                     }
-#endif
                 }
                 break;
 
-#ifdef BSTONE_PS
             //
             // GOLDFIRE SPAWN - IMMEDEATLY
             //
 
             case 141:
-                if (!loadedgame) {
+                if (::is_ps() && !loadedgame) {
                     if (GoldsternInfo.GoldSpawned) {
                         GAME_ERROR(TOO_MANY_FAST_GOLD_SPAWNS);
                     }
@@ -978,7 +989,6 @@ void ScanInfoPlane()
                     new_actor = NULL;
                 }
                 break;
-#endif
 
 //
 // P wall
@@ -1321,21 +1331,32 @@ void ScanInfoPlane()
 #endif
 
 
-#ifdef BSTONE_PS
             //
             // Black Ooze
             //
             case 313:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
                 tile -= 18;
             case 295:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
                 tile -= 18;
             case 277:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 SpawnOffsetObj(en_black2_ooze, x, y);
                 break;
 
@@ -1345,29 +1366,43 @@ void ScanInfoPlane()
             // Green Ooze
             //
             case 322:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
                 tile -= 18;
             case 304:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
                 tile -= 18;
             case 286:
+                if (!::is_ps()) {
+                    break;
+                }
+
                 SpawnOffsetObj(en_green2_ooze, x, y);
                 break;
-#endif
 
 
                 //
                 // VOLATILE MAT. TRANSPORT - Moving
                 //
-#if GAME_VERSION != SHAREWARE_VERSION
             case 354:
             case 355:
             case 356:
             case 357:
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
@@ -1376,6 +1411,10 @@ void ScanInfoPlane()
             case 337:
             case 338:
             case 339:
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
@@ -1384,26 +1423,12 @@ void ScanInfoPlane()
             case 319:
             case 320:
             case 321:
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 SpawnPatrol(en_volatiletransport, x, y, tile - 318);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 354:
-            case 355:
-            case 356:
-            case 357:
-            case 336:
-            case 337:
-            case 338:
-            case 339:
-            case 318:
-            case 319:
-            case 320:
-            case 321:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
 
             //
             // Genetic Guard
@@ -1425,16 +1450,22 @@ void ScanInfoPlane()
                 //
                 // Cyborg Warrior
                 //
-#ifdef BSTONE_PS
             case 603:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 585:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
-#endif
             case 250:
                 SpawnOffsetObj(en_cyborg_warrior, x, y);
                 break;
@@ -1443,16 +1474,22 @@ void ScanInfoPlane()
                 //
                 // Spider Mutant
                 //
-#ifdef BSTONE_PS
             case 601:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 583:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
-#endif
             case 232:
                 SpawnOffsetObj(en_spider_mutant, x, y);
                 break;
@@ -1460,16 +1497,23 @@ void ScanInfoPlane()
                 //
                 // Acid Dragon
                 //
-#ifdef BSTONE_PS
             case 605:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 587:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
-#endif
+
             case 268:
                 SpawnOffsetObj(en_acid_dragon, x, y);
                 break;
@@ -1477,16 +1521,23 @@ void ScanInfoPlane()
                 //
                 // Breather beast
                 //
-#ifdef BSTONE_PS
             case 602:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 584:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
-#endif
+
             case 233:
                 SpawnOffsetObj(en_breather_beast, x, y);
                 break;
@@ -1494,33 +1545,48 @@ void ScanInfoPlane()
                 //
                 // Mech Guardian
 //
-#ifdef BSTONE_PS
+
             case 606:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 588:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
-#endif
+
             case 269:
                 SpawnOffsetObj(en_mech_guardian, x, y);
                 break;
 
                 //
-                // Reptilian Warrior,
+                // Reptilian Warrior
                 //
-#ifdef BSTONE_PS
             case 604:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 586:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
-#endif
+
             case 251:
                 SpawnOffsetObj(en_reptilian_warrior, x, y);
                 break;
@@ -1763,20 +1829,31 @@ void ScanInfoPlane()
                 scan_value = 0xffff;
                 break;
 
-#ifdef BSTONE_PS
             // Morphing Brown/LBlue Post -> Spider Mutant
             //
             case 610:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     scan_value = 0xff;
                 }
 
             case 609:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     scan_value = 0xff;
                 }
 
             case 608:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (scan_value == 0xff) {
                     SpawnStatic(x, y, 402 - 315);
                 } else {
@@ -1794,16 +1871,28 @@ void ScanInfoPlane()
             // Morphing Gray/Green Post -> Reptilian Warrior
             //
             case 592:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     scan_value = 0xff;
                 }
 
             case 591:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     scan_value = 0xff;
                 }
 
             case 590:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (scan_value == 0xff) {
                     SpawnStatic(x, y, 403 - 315);
                 } else {
@@ -1822,16 +1911,28 @@ void ScanInfoPlane()
             // Morphing Statue -> Blue Boy
             //
             case 628:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_hard) {
                     scan_value = 0xff;
                 }
 
             case 627:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (gamestate.difficulty < gd_medium) {
                     scan_value = 0xff;
                 }
 
             case 626:
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 if (scan_value == 0xff) {
                     SpawnStatic(x, y, 48 - 23);
                 } else {
@@ -1844,7 +1945,6 @@ void ScanInfoPlane()
                 }
                 scan_value = 0xffff;
                 break;
-#endif
 
 
             // P.O.D. Alien
@@ -2170,7 +2270,6 @@ void ScanInfoPlane()
                 new_actor->flags &= ~FL_RANDOM_TURN;
                 break;
 
-#ifdef BSTONE_PS
 // -----------------------
 // BOSS ACTORS
 // -----------------------
@@ -2179,9 +2278,12 @@ void ScanInfoPlane()
             case 631: // FINAL BOSS 2
             case 632: // FINAL BOSS 3
             case 633: // FINAL BOSS 4
+                if (!::is_ps()) {
+                    INVALID_ACTOR_ERR;
+                }
+
                 SpawnOffsetObj(static_cast<enemy_t>(en_final_boss1 + tile - 630), x, y);
                 break;
-#endif
             }
 
             // If "new_actor" is an object that gives points, add those points to level total...
@@ -2341,8 +2443,6 @@ void SetupGameLevel()
 //      (unsigned)actorat[x][y] = tile;
 
                 switch (tile) {
-                case AMBUSHTILE:
-#ifdef BSTONE_PS
                 case RKEY_TILE:
                 case YKEY_TILE:
                 case BKEY_TILE:
@@ -2352,14 +2452,16 @@ void SetupGameLevel()
                 case CLOAK_TILE:
                 case LINC_TILE:
                 case CLOAK_AMBUSH_TILE:
-#endif
+                    if (!::is_ps()) {
+                        INVALID_ACTOR_ERR;
+                    }
+                case AMBUSHTILE:
                     break;
 
                 default:
                     actorat[x][y] = reinterpret_cast<objtype*>(tile);
                     break;
                 }
-
             }
 
             if (tile < 64 || icon == PUSHABLETILE) {
@@ -2415,17 +2517,25 @@ void SetupGameLevel()
                     *map1 = 0;
                     break;
 
-#ifdef BSTONE_AOG
                 case 57:
+                    if (::is_ps()) {
+                        lock = kt_none;
+                        break;
+                    }
+
                     lock = kt_green;
                     *map1 = 0;
                     break;
 
                 case 59:
+                    if (::is_ps()) {
+                        lock = kt_none;
+                        break;
+                    }
+
                     lock = kt_gold;
                     *map1 = 0;
                     break;
-#endif
 
                 default:
                     lock = kt_none;
@@ -2516,27 +2626,27 @@ void SetupGameLevel()
                 case ON_SWITCH:
                     switchon = true;
                 case OFF_SWITCH: {
-#ifdef BSTONE_AOG
-                    Uint8 level = 0xFF;
+                    if (!::is_ps()) {
+                        Uint8 level = 0xFF;
 
-                    if (map1[0] == 0xF8FF) {
-                        level = gamestate.mapon;
+                        if (map1[0] == 0xF8FF) {
+                            level = gamestate.mapon;
+                        } else {
+                            level = static_cast<Uint8>(map1[0] & 0xFF);
+                        }
+
+                        Uint8 switch_x = static_cast<Uint8>((map1[1] / 256) & 0xFF);
+                        Uint8 switch_y = static_cast<Uint8>(map1[1] & 0xFF);
+
+                        map1[1] = 0;
+
+                        map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
                     } else {
-                        level = static_cast<Uint8>(map1[0] & 0xFF);
+                        Uint8 switch_x = static_cast<Uint8>((map1[0] / 256) & 0xFF);
+                        Uint8 switch_y = static_cast<Uint8>(map1[0] & 0xFF);
+
+                        map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
                     }
-
-                    Uint8 switch_x = static_cast<Uint8>((map1[1] / 256) & 0xFF);
-                    Uint8 switch_y = static_cast<Uint8>(map1[1] & 0xFF);
-
-                    map1[1] = 0;
-
-                    map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
-#else
-                    Uint8 switch_x = static_cast<Uint8>((map1[0] / 256) & 0xFF);
-                    Uint8 switch_y = static_cast<Uint8>(map1[0] & 0xFF);
-
-                    map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
-#endif
 
                     // Init for next time.
 
@@ -2578,8 +2688,6 @@ void SetupGameLevel()
         for (x = 0; x < mapwidth; x++) {
             tile = *map++;
             switch (tile) {
-            case AMBUSHTILE:
-#ifdef BSTONE_PS
             case RKEY_TILE:
             case YKEY_TILE:
             case BKEY_TILE:
@@ -2589,7 +2697,10 @@ void SetupGameLevel()
             case CLOAK_TILE:
             case LINC_TILE:
             case CLOAK_AMBUSH_TILE:
-#endif
+                if (!::is_ps()) {
+                    break;
+                }
+            case AMBUSHTILE:
                 tilemap[x][y] = 0;
                 if (actorat[x][y] == (objtype*)AMBUSHTILE) {
                     actorat[x][y] = NULL;
@@ -2606,17 +2717,17 @@ void SetupGameLevel()
 //
     CA_LoadAllSounds();
 
-#ifdef BSTONE_AOG
-    // FIXME Check for red keys?
-#else
-//
-// Check and make sure a detonator is in a 'locked' level.
-//
+    if (!::is_ps()) {
+        // FIXME Check for red key?
+    } else {
+        //
+        // Check and make sure a detonator is in a 'locked' level.
+        //
 
-    if (gamestate.mapon < 20 && (!detonators_spawned) && gamestuff.level[gamestate.mapon + 1].locked) {
-        GAME_ERROR(NO_DETONATORS_IN_LEVEL);
+        if (gamestate.mapon < 20 && (!detonators_spawned) && gamestuff.level[gamestate.mapon + 1].locked) {
+            GAME_ERROR(NO_DETONATORS_IN_LEVEL);
+        }
     }
-#endif
 }
 
 
@@ -2798,26 +2909,24 @@ void ShadowPrintLocationText(
         // Print LEVEL info...
         //
         px = 13;
-#ifdef BSTONE_AOG
-        if ((gamestate.mapon % 10) == 0)
-#else
-        if (gamestate.mapon > 19)
-#endif
-        { ShPrint(" SECRET ", 0, false);
+
+        if ((!::is_ps() && (gamestate.mapon % 10) == 0) ||
+            (::is_ps() && gamestate.mapon > 19))
+        {
+            ::ShPrint(" SECRET ", 0, false);
         } else {
-#ifdef BSTONE_AOG
-            ShPrint("FLOOR: ", 0, false);
-#else
-            ShPrint(" AREA: ", 0, false);
-#endif
-            if (!type)
-#ifdef BSTONE_AOG
-            { ShPrint(bstone::C::xitoa(gamestate.mapon, str, 10), 0, false);
+            if (!::is_ps()) {
+                ShPrint("FLOOR: ", 0, false);
+            } else {
+                ShPrint(" AREA: ", 0, false);
             }
-#else
-            { ShPrint(bstone::C::xitoa(gamestate.mapon + 1, str, 10), 0, false);
+            if (!type) {
+                if (!::is_ps()) {
+                    ::ShPrint(bstone::C::xitoa(gamestate.mapon, str, 10), 0, false);
+                } else {
+                    ::ShPrint(bstone::C::xitoa(gamestate.mapon + 1, str, 10), 0, false);
+                }
             }
-#endif
         }
 
         // Print LIVES info...
@@ -3209,9 +3318,8 @@ void RecordDemo()
 void PlayDemo(
     Sint16 demonumber)
 {
-#ifdef BSTONE_AOG
-    // FIXME
-#else
+// FIXME
+#if 0
 //   static int numloops=0;
     Sint16 length;
 
@@ -3285,7 +3393,7 @@ void PlayDemo(
     ClearMemory();
 
     playstate = ex_title;
-#endif // BSTONE_AOG
+#endif
 }
 
 // ==========================================================================
@@ -3738,35 +3846,35 @@ restartgame:
             piStringTable[0] = Score;
 
             if (playstate == ex_victorious) {
-#ifdef BSTONE_AOG
-                movie_t movie = mv_intro;
+                if (!::is_ps()) {
+                    movie_t movie = mv_intro;
 
-                switch (gamestate.episode) {
-                case 0:
-                case 1:
-                case 3:
-                    movie = mv_final2;
-                    break;
+                    switch (gamestate.episode) {
+                    case 0:
+                    case 1:
+                    case 3:
+                        movie = mv_final2;
+                        break;
 
-                case 2:
-                case 4:
-                    movie = mv_final3;
-                    break;
+                    case 2:
+                    case 4:
+                        movie = mv_final3;
+                        break;
 
-                case 5:
-                    movie = mv_final;
-                    break;
+                    case 5:
+                        movie = mv_final;
+                        break;
+                    }
+
+                    ::DoMovie(movie, NULL);
+                } else {
+                    CA_CacheGrChunk(ENDINGPALETTE);
+                    // VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
+
+                    DoMovie(mv_final, grsegs[ENDINGPALETTE]);
+
+                    UNCACHEGRCHUNK(ENDINGPALETTE);
                 }
-
-                ::DoMovie(movie, NULL);
-#else
-                CA_CacheGrChunk(ENDINGPALETTE);
-// VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
-
-                DoMovie(mv_final, grsegs[ENDINGPALETTE]);
-
-                UNCACHEGRCHUNK(ENDINGPALETTE);
-#endif // BSTONE_AOG
 
                 NewViewSize(); // Recreates & Allocs the ScaleDirectory
                 Breifing(BT_WIN, gamestate.episode);
@@ -3782,5 +3890,4 @@ restartgame:
         }
 
     } while (true);
-
 }
