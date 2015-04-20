@@ -712,13 +712,7 @@ Sint16 DebugKeys()
         HealSelf(99);
         GiveToken(5);
 
-        const Sint16 n =
-#ifdef BSTONE_AOG
-            wp_grenade
-#else
-            wp_bfg_cannon
-#endif
-        ;
+        const Sint16 n = (::is_ps() ? wp_bfg_cannon : wp_grenade);
 
         for (i = wp_autocharge; i <= n; i++) {
             if (!(gamestate.weapons & (1 << i))) {
