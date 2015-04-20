@@ -289,7 +289,7 @@ void initialize_shape_table()
         { SPR_FSCOUT_W3_8, pis_scaled }, // 120 - Floating Bomb - moving
         { SPR_FSCOUT_W4_8, pis_scaled }, // 121 - Floating Bomb - moving
 
-        { 0, pis_scaled }, // 122 - ** OPEN **
+        { ::is_ps() ? SPR_CUBE1 : SPR_VITAL_STAND, pis_scaled }, // 122 - ** OPEN **
 
         { SPR_ELEC_SHOT1, pis_scaled }, // 123 - Electro Aln Shot - floating
         { SPR_ELEC_SHOT2, pis_scaled }, // 124 - Electro Aln Shot - floating
@@ -478,12 +478,6 @@ void initialize_shape_table()
         { SPR_BOSS10_W3, pis_scaled }, // 282 - Final Boss 4 Walking
         { SPR_BOSS10_W4, pis_scaled }, // 283 - Final Boss 4 Walking
     };
-
-    if (!::is_ps()) {
-        piShapeTable[122].shapenum = SPR_VITAL_STAND;
-    } else {
-        piShapeTable[122].shapenum = SPR_CUBE1;
-    }
 }
 
 // anim table holds info about each different animation.
