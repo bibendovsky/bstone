@@ -25,24 +25,17 @@ Free Software Foundation, Inc.,
 
 
 
+static std::string empty_msg;
+
+
 // ---------------------------------------------------------------------------
 //
 // FOOD MACHINE MESSAGES
 //
 // ---------------------------------------------------------------------------
 
-#ifdef BSTONE_AOG
-const char food_msg1[] =
-    "\r"
-    " FOOD UNIT DISPENSES\r"
-    " SOMETHING RESEMBLING\r"
-    "        FOOD."
-;
-#else
-char food_msg1[] = "\r FOOD UNIT DISPENSES\r"
-                   "  SOMETHING EDIBLE.\r"
-                   "\r     TOKENS: XX";
-#endif
+std::string food_msg1;
+
 
 // ---------------------------------------------------------------------------
 //
@@ -50,20 +43,8 @@ char food_msg1[] = "\r FOOD UNIT DISPENSES\r"
 //
 // ---------------------------------------------------------------------------
 
-#ifdef BSTONE_AOG
-const char bevs_msg1[] =
-    "\r"
-    "\r"
-    " FOOD UNIT DISPENSES\r"
-    "  A COLD BEVERAGE."
-;
-#else
-const char bevs_msg1[] =
-    "\r FOOD UNIT DISPENSES\r"
-    "  A COLD BEVERAGE.\r"
-    "\r     TOKENS: XX"
-;
-#endif
+std::string bevs_msg1;
+
 
 // ---------------------------------------------------------------------------
 //
@@ -72,7 +53,6 @@ const char bevs_msg1[] =
 // ---------------------------------------------------------------------------
 
 #ifdef CON_HINTS
-
 char genhint_msg1[] = "\r\rTERMINALS ACCESS\rALL INFORMATION.";
 char genhint_msg2[] = "\r\rALL FLOORS ARE ON-LINE.";
 char genhint_msg3[] = "\r\rSOME SCIENTIST\rARE INFORMANTS.";
@@ -91,16 +71,12 @@ char genhint_msg15[] = "\r\rSOME SCIENTISTS\rARE INFORMANTS.";
 char genhint_msg16[] = "\r\rLEVEL BLUEPRINTS\rARE INFORMATION.";
 char genhint_msg17[] = "\r\rUSE TRANSPORTERS WHEN\rAVAILABLE.";
 
-
-
-
 char* ConcessionGenHints[NUM_GEN_HINTS] = {
     genhint_msg1, genhint_msg2, genhint_msg3, genhint_msg4, genhint_msg5,
     genhint_msg6, genhint_msg7, genhint_msg8, genhint_msg9, genhint_msg10,
     genhint_msg11, genhint_msg12, genhint_msg13, genhint_msg14, genhint_msg15,
     genhint_msg16, genhint_msg17,
 };
-
 #endif
 
 
@@ -110,10 +86,10 @@ char* ConcessionGenHints[NUM_GEN_HINTS] = {
 //
 // ---------------------------------------------------------------------------
 
-
-char noeat_msg1[] = "\r\r    CAN'T EAT NOW,"
-                    "\r     NOT HUNGRY.";
-
+std::string noeat_msg1 =
+    "\r\r    CAN'T EAT NOW,"
+    "\r     NOT HUNGRY."
+;
 
 
 // ---------------------------------------------------------------------------
@@ -122,63 +98,88 @@ char noeat_msg1[] = "\r\r    CAN'T EAT NOW,"
 //
 // ---------------------------------------------------------------------------
 
+std::string NoAdLibCard =
+    "^FC57\r       MUSIC:\r"
+    "^FCA6  YOU DON'T HAVE AN\r"
+    "  ADLIB COMPATABLE\r"
+    "     SOUND CARD."
+;
 
-char NoAdLibCard[] = "^FC57\r       MUSIC:\r"
-                     "^FCA6  YOU DON'T HAVE AN\r"
-                     "  ADLIB COMPATABLE\r"
-                     "     SOUND CARD.";
+std::string MusicOn =
+    "^FC57\r\r        MUSIC:\r"
+    "^FCA6   BACKGROUND MUSIC\r"
+    "        IS XXXX"
+;
 
+std::string SoundOn =
+    "^FC57\r\r       SOUNDS:\r"
+    "^FCA6   SOUND EFFECTS\r"
+    "       ARE XXXX"
+;
 
+std::string ekg_heartbeat_enabled =
+    "\r\r     EKG HEART BEAT\r"
+    "     SOUND ENABLED."
+;
 
-char MusicOn[] = "^FC57\r\r        MUSIC:\r"
-                 "^FCA6   BACKGROUND MUSIC\r"
-                 "        IS XXXX";
+std::string ekg_heartbeat_disabled =
+    "\r\r     EKG HEART BEAT\r"
+    "     SOUND DISABLED."
+;
 
-char SoundOn[] = "^FC57\r\r       SOUNDS:\r"
-                 "^FCA6   SOUND EFFECTS\r"
-                 "       ARE XXXX";
+std::string attacker_info_enabled =
+    "\r\rDETAILED ATTACKER INFO\r"
+    "   DISPLAY ENABLED."
+;
 
-#ifdef BSTONE_AOG
-char ekg_heartbeat_enabled[] = "\r\r     EKG HEART BEAT\r"
-                               "     SOUND ENABLED.";
-char ekg_heartbeat_disabled[] = "\r\r     EKG HEART BEAT\r"
-                                "     SOUND DISABLED.";
-#endif
+std::string attacker_info_disabled =
+    "\r\rDETAILED ATTACKER INFO\r"
+    "   DISPLAY DISABLED."
+;
 
-char attacker_info_enabled[] = "\r\rDETAILED ATTACKER INFO\r"
-                               "   DISPLAY ENABLED.";
-char attacker_info_disabled[] = "\r\rDETAILED ATTACKER INFO\r"
-                                "   DISPLAY DISABLED.";
+std::string WeaponNotAvailMsg =
+    "\r\r  SELECTED WEAPON NOT\r"
+    "  CURRENTLY AVAILABLE."
+;
 
-char WeaponNotAvailMsg[] = "\r\r  SELECTED WEAPON NOT\r"
-                           "  CURRENTLY AVAILABLE.";
+std::string WeaponAvailMsg =
+    "\r\r   SELECTED WEAPON\r"
+    " ACTIVATED AND READY."
+;
 
-char WeaponAvailMsg[] = "\r\r   SELECTED WEAPON\r"
-                        " ACTIVATED AND READY.";
+std::string RadarEnergyGoneMsg =
+    "\r\r  RADAR MAGNIFICATION\r"
+    "    ENERGY DEPLETED."
+;
 
-char RadarEnergyGoneMsg[] = "\r\r  RADAR MAGNIFICATION\r"
-                            "    ENERGY DEPLETED.";
+std::string EnergyPackDepleted =
+    "^FC19\r       WARNING:\r"
+    "^FC17ENERGY PACK DEPLETED\r"
+    "^FCA6     SWITCHING TO\r"
+    "  AUTOCHARGE PISTOL."
+;
 
-char EnergyPackDepleted[] = "^FC19\r       WARNING:\r"
-                            "^FC17ENERGY PACK DEPLETED\r"
-                            "^FCA6     SWITCHING TO\r"
-                            "  AUTOCHARGE PISTOL.";
+std::string WeaponMalfunction =
+    "^FC19\r       WARNING:\r\r"
+    "^FC17 WEAPON MALFUNCTION!\r"
+;
 
-char WeaponMalfunction[] = "^FC19\r       WARNING:\r\r"
-                           "^FC17 WEAPON MALFUNCTION!\r";
+std::string NotEnoughEnergyForWeapon =
+    "^FC17\r  NOT ENOUGH ENERGY\r"
+    " FOR SELECTED WEAPON\r"
+    "^FCA6    SWITCHING TO\r"
+    "  AUTOCHARGE PISTOL."
+;
 
-char NotEnoughEnergyForWeapon[] = "^FC17\r  NOT ENOUGH ENERGY\r"
-                                  " FOR SELECTED WEAPON\r"
-                                  "^FCA6    SWITCHING TO\r"
-                                  "  AUTOCHARGE PISTOL.";
+std::string SwitchNotActivateMsg =
+    "\r\r   WALL SWITCH NOT\r"
+    "    OPERATIONAL!!"
+;
 
-
-char SwitchNotActivateMsg[] = "\r\r   WALL SWITCH NOT\r"
-                              "    OPERATIONAL!!";
-
-char NoFoodTokens[] = "\r\r  YOU DON'T HAVE ANY\r"
-                      "     FOOD TOKENS!";
-
+std::string NoFoodTokens =
+    "\r\r  YOU DON'T HAVE ANY\r"
+    "     FOOD TOKENS!"
+;
 
 
 // ---------------------------------------------------------------------------
@@ -187,47 +188,56 @@ char NoFoodTokens[] = "\r\r  YOU DON'T HAVE ANY\r"
 //
 // ---------------------------------------------------------------------------
 
+std::string pd_dropped =
+    "^FC19\r       WARNING:\r"
+    "^FCA6   FISSION DETONATOR\r"
+    "       DROPPED!"
+;
 
-char pd_dropped[] = "^FC19\r       WARNING:\r"
-                    "^FCA6   FISSION DETONATOR\r"
-                    "       DROPPED!";
+std::string pd_nomore =
+    "^FCA6\r\r      NO FISSION\r"
+    "   DETONATORS AVAIL."
+;
 
+std::string pd_notnear =
+    "^SH035^FCA6\r  YOU MUST\r"
+    "  FIND THE\r"
+    "  SECURITY\r"
+    "    CUBE."
+;
 
-char pd_nomore[] = "^FCA6\r\r      NO FISSION\r"
-                   "   DETONATORS AVAIL.";
+std::string pd_getcloser =
+    "^SH035^FCA6\r TRANSPORTER\r"
+    " SECURITY OUT\r"
+    " OF RANGE"
+;
 
+std::string pd_floorunlocked =
+    "^SH035^FCA6\r TRANSPORTER\r"
+    "  SECURITY\r"
+    "  DISABLED."
+;
 
-char pd_notnear[] = "^SH035^FCA6\r  YOU MUST\r"
-                    "  FIND THE\r"
-                    "  SECURITY\r"
-                    "    CUBE.";
+std::string pd_donthaveany =
+    "^SH0E6^FCA6\r NO FISSION\r"
+    " DETONATOR\r"
+    " AVAILABLE."
+;
 
+std::string pd_no_computer =
+    "^SH035^FCA6\r A SECURITY \r"
+    " CUBE IS NOT\r"
+    " LOCATED IN\r"
+    " THIS SECTOR."
+;
 
-char pd_getcloser[] = "^SH035^FCA6\r TRANSPORTER\r"
-                      " SECURITY OUT\r"
-                      " OF RANGE";
+std::string pd_floornotlocked =
+    "^SH035^FCA6\r TRANSPORTER\r"
+    " SECURITY\r"
+    " ALREADY\r"
+    " DISABLED."
+;
 
-
-char pd_floorunlocked[] = "^SH035^FCA6\r TRANSPORTER\r"
-                          "  SECURITY\r"
-                          "  DISABLED.";
-
-
-char pd_donthaveany[] = "^SH0E6^FCA6\r NO FISSION\r"
-                        " DETONATOR\r"
-                        " AVAILABLE.";
-
-
-char pd_no_computer[] = "^SH035^FCA6\r A SECURITY \r"
-                        " CUBE IS NOT\r"
-                        " LOCATED IN\r"
-                        " THIS SECTOR.";
-
-
-char pd_floornotlocked[] = "^SH035^FCA6\r TRANSPORTER\r"
-                           " SECURITY\r"
-                           " ALREADY\r"
-                           " DISABLED.";
 
 // ---------------------------------------------------------------------------
 //
@@ -235,153 +245,198 @@ char pd_floornotlocked[] = "^SH035^FCA6\r TRANSPORTER\r"
 //
 // ---------------------------------------------------------------------------
 
+std::string bonus_msg1 =
+    "^SH001^FC57\r\r ACCESS CARD:\r"
+    "^FCA6  RED LEVEL"
+;
 
-char bonus_msg1[] = "^SH001^FC57\r\r ACCESS CARD:\r"
-                    "^FCA6  RED LEVEL";
+std::string bonus_msg2 =
+    "^SH002^FC57\r\r ACCESS CARD:\r"
+    "^FCA6 YELLOW LEVEL"
+;
 
-char bonus_msg2[] = "^SH002^FC57\r\r ACCESS CARD:\r"
-                    "^FCA6 YELLOW LEVEL";
+std::string bonus_msg4 =
+    "^SH004^FC57\r\r ACCESS CARD:\r"
+    "^FCA6  BLUE LEVEL"
+;
 
-char bonus_msg4[] = "^SH004^FC57\r\r ACCESS CARD:\r"
-                    "^FCA6  BLUE LEVEL";
-
-#ifdef BSTONE_AOG
-char bonus_msg4a[] =
+std::string bonus_msg4a =
     "^SH003^FC57\r"
     "\r"
     " ACCESS CARD:\r"
     "^FCA6 GREEN LEVEL"
 ;
 
-char bonus_msg4b[] =
+std::string bonus_msg4b =
     "^SH005^FC57\r"
     "\r"
     " ACCESS CARD:\r"
     "^FCA6  GOLD LEVEL"
 ;
-#endif
 
-char bonus_msg7[] = "^SH006^FC57\r   WEAPON:\r"
-                    "^FCA6 ENERGY PACK\r"
-                    "   (  UNITS)";
+std::string bonus_msg7 =
+    "^SH006^FC57\r   WEAPON:\r"
+    "^FCA6 ENERGY PACK\r"
+    "   (  UNITS)"
+;
 
-char bonus_msg8[] = "^SH007^FC57\r\r   WEAPON:\r"
-                    "^FCA6  SLOW FIRE\r"
-                    "  PROTECTOR\r";
+std::string bonus_msg8 =
+    "^SH007^FC57\r\r   WEAPON:\r"
+    "^FCA6  SLOW FIRE\r"
+    "  PROTECTOR\r"
+;
 
-char bonus_msg9[] = "^SH008^FC57\r\r   WEAPON:\r"
-                    "^FCA6 RAPID ASSAULT\r"
-                    "   WEAPON";
+std::string bonus_msg9 =
+    "^SH008^FC57\r\r   WEAPON:\r"
+    "^FCA6 RAPID ASSAULT\r"
+    "   WEAPON"
+;
 
-char bonus_msg10[] = "^SH009^FC57\r\r   WEAPON:\r"
-                     "^FCA6 DUAL NEUTRON\r"
-                     "   DISRUPTER";
+std::string bonus_msg10 =
+    "^SH009^FC57\r\r   WEAPON:\r"
+    "^FCA6 DUAL NEUTRON\r"
+    "   DISRUPTER"
+;
+
+std::string bonus_msg13 =
+    "^SH00C^FC57\r\r    BONUS:\r"
+    "^FCA6  MONEY BAG"
+;
+
+std::string bonus_msg14 =
+    "^SH00D^FC57\r\r    BONUS:\r"
+    "^FCA6    LOOT"
+;
+
+std::string bonus_msg15 =
+    "^SH00E^FC57\r\r    BONUS:\r"
+    "^FCA6  GOLD BARS"
+;
+
+std::string bonus_msg16 =
+    "^SH00F^FC57\r\r    BONUS:\r"
+    "^FCA6  XYLAN ORB"
+;
+
+std::string bonus_msg21 =
+    "^SH08A^FC57\r   WEAPON:\r"
+    "^FCA6   PLASMA\r"
+    " DISCHARGE\r"
+    "    UNIT"
+;
+
+std::string bonus_msg21a =
+    "^SH0E4^FC57\r\r   WEAPON:\r"
+    "^FCA6 ANTI-PLASMA\r"
+    "   CANNON"
+;
+
+std::string bonus_msg24 =
+    "^SH020^FC57\r  FOOD TOKEN:\r"
+    "^FCA6   1 CREDIT\r"
+    "\r  TOKENS: XX"
+;
+
+std::string bonus_msg25 =
+    "^SH021^FC57\r  FOOD TOKEN:\r"
+    "^FCA6   5 CREDITS"
+    "\r  TOKENS: XX"
+;
+
+std::string bonus_msg12 =
+    "^SH00B^FC57\r\r   HEALTH:\r"
+    "^FCA6 PLASMA BAG"
+;
+
+std::string bonus_msg11 =
+    "^SH00A^FC57\r\r   HEALTH:\r"
+    "^FCA6  FIRST AID\r"
+    "     KIT"
+;
+
+std::string bonus_msg17 =
+    "^SH010^FC57\r\r    FOOD:\r"
+    "^FCA6  RAW MEAT"
+;
+
+std::string bonus_msg18 =
+    "^SH011^FC57\r\r    FOOD:\r"
+    "^FCA6  RAW MEAT"
+;
+
+std::string bonus_msg23 =
+    "^SH089^FC57\r\r    FOOD:\r"
+    "^FCA6  SANDWICH"
+;
+
+std::string bonus_msg22 =
+    "^SH088^FC57\r\r    FOOD:\r"
+    "^FCA6  CANDY BAR"
+;
+
+std::string bonus_msg19 =
+    "^SH012^FC57\r\r    FOOD:\r"
+    "^FCA6 FRESH WATER"
+;
+
+std::string bonus_msg20 =
+    "^SH013^FC57\r\r    FOOD:\r"
+    "^FCA6 WATER PUDDLE"
+;
+
+std::string bonus_msg26 =
+    "^SH0D8^FC57   FISSION\r"
+    "  DETONATOR\r\r"
+    "^FCA6PRESS TILDE OR\r"
+    "SPACE TO DROP"
+;
+
+std::string bonus_msg27 =
+    "^SH0D9^FC57\r   RADAR:  \r"
+    "^FCA6MAGNIFICATION\r"
+    "   ENERGY"
+;
 
 
-char bonus_msg13[] = "^SH00C^FC57\r\r    BONUS:\r"
-                     "^FCA6  MONEY BAG";
-
-char bonus_msg14[] = "^SH00D^FC57\r\r    BONUS:\r"
-                     "^FCA6    LOOT";
-
-char bonus_msg15[] = "^SH00E^FC57\r\r    BONUS:\r"
-                     "^FCA6  GOLD BARS";
-
-char bonus_msg16[] = "^SH00F^FC57\r\r    BONUS:\r"
-                     "^FCA6  XYLAN ORB";
-
-
-char bonus_msg21[] = "^SH08A^FC57\r   WEAPON:\r"
-                     "^FCA6   PLASMA\r"
-                     " DISCHARGE\r"
-                     "    UNIT";
-
-#ifdef BSTONE_PS
-char bonus_msg21a[] = "^SH0E4^FC57\r\r   WEAPON:\r"
-                      "^FCA6 ANTI-PLASMA\r"
-                      "   CANNON";
-#endif
-
-char bonus_msg24[] = "^SH020^FC57\r  FOOD TOKEN:\r"
-                     "^FCA6   1 CREDIT\r"
-                     "\r  TOKENS: XX";
-
-char bonus_msg25[] = "^SH021^FC57\r  FOOD TOKEN:\r"
-                     "^FCA6   5 CREDITS"
-                     "\r  TOKENS: XX";
-
-char bonus_msg12[] = "^SH00B^FC57\r\r   HEALTH:\r"
-                     "^FCA6 PLASMA BAG";
-
-char bonus_msg11[] = "^SH00A^FC57\r\r   HEALTH:\r"
-                     "^FCA6  FIRST AID\r"
-                     "     KIT";
-
-char bonus_msg17[] = "^SH010^FC57\r\r    FOOD:\r"
-                     "^FCA6  RAW MEAT";
-
-char bonus_msg18[] = "^SH011^FC57\r\r    FOOD:\r"
-                     "^FCA6  RAW MEAT";
-
-char bonus_msg23[] = "^SH089^FC57\r\r    FOOD:\r"
-                     "^FCA6  SANDWICH";
-
-char bonus_msg22[] = "^SH088^FC57\r\r    FOOD:\r"
-                     "^FCA6  CANDY BAR";
-
-char bonus_msg19[] = "^SH012^FC57\r\r    FOOD:\r"
-                     "^FCA6 FRESH WATER";
-
-char bonus_msg20[] = "^SH013^FC57\r\r    FOOD:\r"
-                     "^FCA6 WATER PUDDLE";
-
-#ifdef BSTONE_PS
-char bonus_msg26[] = "^SH0D8^FC57   FISSION\r"
-                     "  DETONATOR\r\r"
-                     "^FCA6PRESS TILDE OR\r"
-                     "SPACE TO DROP";
-
-char bonus_msg27[] = "^SH0D9^FC57\r   RADAR:  \r"
-                     "^FCA6MAGNIFICATION\r"
-                     "   ENERGY";
-#endif
-
-
-char* BonusMsg[] = {
-    bonus_msg1, bonus_msg2, bonus_msg4,
-    bonus_msg7, bonus_msg7, bonus_msg8, bonus_msg9, bonus_msg10, bonus_msg21,
-
-#ifdef BSTONE_AOG
-    0,
-#else
+BonusMessages BonusMsg = {
+    bonus_msg1,
+    bonus_msg2,
+    bonus_msg4,
+    bonus_msg7,
+    bonus_msg7,
+    bonus_msg8,
+    bonus_msg9,
+    bonus_msg10,
+    bonus_msg21,
     bonus_msg21a,
-#endif
-
-    bonus_msg12, bonus_msg11,
-    bonus_msg18, bonus_msg17, bonus_msg23, bonus_msg22, bonus_msg19,
-
+    bonus_msg12,
+    bonus_msg11,
+    bonus_msg18,
+    bonus_msg17,
+    bonus_msg23,
+    bonus_msg22,
+    bonus_msg19,
     bonus_msg20,
-    bonus_msg13, bonus_msg14, bonus_msg15,
-    bonus_msg15, bonus_msg15, bonus_msg15,
+    bonus_msg13,
+    bonus_msg14,
+    bonus_msg15,
+    bonus_msg15,
+    bonus_msg15,
+    bonus_msg15,
     bonus_msg16,
-
-    0, 0, 0,
-    bonus_msg24, bonus_msg25,
-#ifdef BSTONE_AOG
-    0,
-    0,
-#else
+    empty_msg,
+    empty_msg,
+    empty_msg,
+    bonus_msg24,
+    bonus_msg25,
     bonus_msg26,
     bonus_msg27,
-#endif
-
-#ifdef BSTONE_AOG
-    0,
-    0,
+    empty_msg,
+    empty_msg,
     bonus_msg4a,
-    bonus_msg4b
-#endif
+    bonus_msg4b,
 };
+
 
 // ---------------------------------------------------------------------------
 //
@@ -389,239 +444,264 @@ char* BonusMsg[] = {
 //
 // ---------------------------------------------------------------------------
 
-//      Sector Patrol (AOG) / Sector Guard (PS)
-#ifdef BSTONE_AOG
-const char actor_info4[] =
-    "^AN04^FC17\r"
-    "\r"
-    "  ATTACKING:\r"
-    "^FCA6SECTOR PATROL"
+// Sector Patrol (AOG) / Sector Guard (PS)
+std::string actor_info4;
+
+// hang_terrotobj
+std::string actor_info5 =
+    "^AN05^FC17\r  ATTACKING:\r"
+    "^FCA6  AUTOMATED\r"
+    "HEAVY ARMORED\r"
+    " ROBOT TURRET"
 ;
-#else
-const char actor_info4[] = "^AN04^FC17\r\r  ATTACKING:\r"
-                           "^FCA6 SECTOR GUARD";
-#endif
 
-//      hang_terrotobj,
-char actor_info5[] = "^AN05^FC17\r  ATTACKING:\r"
-                     "^FCA6  AUTOMATED\r"
-                     "HEAVY ARMORED\r"
-                     " ROBOT TURRET";
-//      Bio-Tech
-char actor_info9[] = "^AN09^FC17\r\r  ATTACKING:\r"
-                     "^FCA6   BIO-TECH";
+// Bio-Tech
+std::string actor_info9 =
+    "^AN09^FC17\r\r  ATTACKING:\r"
+    "^FCA6   BIO-TECH"
+;
 
-//      podobj,
-char actor_info10[] = "^AN0A^FC17\r\r  ATTACKING:\r"
-                      "^FCA6  POD ALIEN";
-//      electroobj,
-char actor_info11[] = "^AN0B^FC17\r  ATTACKING:\r"
-                      "^FCA6 HIGH ENERGY\r"
-                      " PLASMA ALIEN";
-//      electrosphereobj,
-char actor_info12[] = "^AN0C^FC17\r\r  ATTACKING:\r"
-                      "^FCA6PLASMA SPHERE";
+// podobj
+std::string actor_info10 =
+    "^AN0A^FC17\r\r  ATTACKING:\r"
+    "^FCA6  POD ALIEN"
+;
+
+// electroobj
+std::string actor_info11 =
+    "^AN0B^FC17\r  ATTACKING:\r"
+    "^FCA6 HIGH ENERGY\r"
+    " PLASMA ALIEN"
+;
+
+// electrosphereobj
+std::string actor_info12 =
+    "^AN0C^FC17\r\r  ATTACKING:\r"
+    "^FCA6PLASMA SPHERE"
+;
 
 // STAR Sentinel (AOG) / Tech Warrior (PS)
-#ifdef BSTONE_AOG
-const char actor_info13[] =
-    "^AN0D^FC17\r"
-    "\r"
-    "  ATTACKING:\r"
-    "^FCA6STAR SENTINEL"
+std::string actor_info13;
+
+// genetic_guardobj
+std::string actor_info14 =
+    "^AN0E^FC17\r  ATTACKING:\r"
+    "^FCA6 HIGH-SECURITY\r"
+    " GENETIC GUARD"
 ;
 
-#else
-const char actor_info13[] = "^AN0D^FC17\r\r  ATTACKING:\r"
-                            "^FCA6 TECH WARRIOR";
-#endif
+// mutant_human1obj
+std::string actor_info15 =
+    "^AN0F^FC17\r  ATTACKING:\r"
+    "^FCA6 EXPERIMENTAL\r"
+    " MECH-SENTINEL"
+;
 
-//      genetic_guardobj,
-char actor_info14[] = "^AN0E^FC17\r  ATTACKING:\r"
-                      "^FCA6 HIGH-SECURITY\r"
-                      " GENETIC GUARD";
-//      mutant_human1obj,
-char actor_info15[] = "^AN0F^FC17\r  ATTACKING:\r"
-                      "^FCA6 EXPERIMENTAL\r"
-                      " MECH-SENTINEL";
+// mutant_human2obj
+std::string actor_info16 =
+    "^AN10^FC17\r  ATTACKING:\r"
+    "^FCA6 EXPERIMENTAL\r"
+    " MUTANT HUMAN"
+;
 
-//      mutant_human2obj,
-char actor_info16[] = "^AN10^FC17\r  ATTACKING:\r"
-                      "^FCA6 EXPERIMENTAL\r"
-                      " MUTANT HUMAN";
+// lcan_alienobj
+std::string actor_info18 =
+    "^AN12^FC17\r  ATTACKING:\r"
+    "^FCA6 EXPERIMENTAL\r"
+    " GENETIC ALIEN"
+;
 
-//      lcan_alienobj,
-char actor_info18[] = "^AN12^FC17\r  ATTACKING:\r"
-                      "^FCA6 EXPERIMENTAL\r"
-                      " GENETIC ALIEN";
-//      scan_alienobj,
-char actor_info20[] = "^AN14^FC17\r  ATTACKING:\r"
-                      "^FCA6 EXPERIMENTAL\r"
-                      " GENETIC ALIEN";
+// scan_alienobj
+std::string actor_info20 =
+    "^AN14^FC17\r  ATTACKING:\r"
+    "^FCA6 EXPERIMENTAL\r"
+    " GENETIC ALIEN"
+;
 
-//      gurneyobj,
-char actor_info22[] = "^AN16^FC17\r  ATTACKING:\r"
-                      "^FCA6   MUTATED\r"
-                      "    GUARD";
+// gurneyobj
+std::string actor_info22 =
+    "^AN16^FC17\r  ATTACKING:\r"
+    "^FCA6   MUTATED\r"
+    "    GUARD"
+;
 
 // STAR Trooper (AOG) / Alien Protector (PS)
-#ifdef BSTONE_AOG
-const char actor_info24[] =
-    "^AN18^FC17\r"
-    "\r"
-    "  ATTACKING:\r"
-    "^FCA6 STAR TROOPER"
+std::string actor_info24;
+
+// goldsternobj
+std::string actor_info25 =
+    "^AN19^FC17\r\r  ATTACKING:\r"
+    "^FCA6 DR GOLDFIRE"
 ;
-#else
-const char actor_info24[] = "^AN18^FC17\r  ATTACKING:\r"
-                            "^FCA6    ALIEN\r"
-                            "  PROTECTOR";
-#endif
 
-//      goldsternobj,
-char actor_info25[] = "^AN19^FC17\r\r  ATTACKING:\r"
-                      "^FCA6 DR GOLDFIRE";
+// gold_morphobj
+std::string actor_info25m =
+    "^AN28^FC17\r\r  ATTACKING:\r"
+    "^FCA6   MORPHED\r"
+    " DR GOLDFIRE"
+;
 
-#ifdef BSTONE_PS
-//      gold_morphobj,
-char actor_info25m[] = "^AN28^FC17\r\r  ATTACKING:\r"
-                       "^FCA6   MORPHED\r"
-                       " DR GOLDFIRE";
-#endif
+// volatiletransportobj
+std::string actor_info27 =
+    "^SH072^FC17\r  ATTACKING:\r"
+    "^FCA6 VOLATILE MAT.\r"
+    "  TRANSPORT\r"
+    "  EXPLOSION"
+;
 
-//      volatiletransportobj,
-char actor_info27[] = "^SH072^FC17\r  ATTACKING:\r"
-                      "^FCA6 VOLATILE MAT.\r"
-                      "  TRANSPORT\r"
-                      "  EXPLOSION";
-//      floatingbombobj,
-char actor_info28[] = "^SH076^FC17\r  ATTACKING:\r"
-                      "^FCA6PERSCAN DRONE\r"
-                      "  EXPLOSION";
-//      electroshotobj,
-char actor_info31[] = "^AN0B^FC17\r  ATTACKING:\r"
-                      "^FCA6 HIGH ENERGY\r"
-                      " PLASMA ALIEN";
-//      explosionobj,
-char actor_info33[] = "^SH08B^FC17\r  ATTACKING:\r"
-                      "^FCA6  EXPLOSION\r"
-                      "    BLAST";
-//      liquidshotobj,
-char actor_info36[] = "^AN17^FC17\r\r  ATTACKING:\r"
-                      "^FCA6 FLUID ALIEN";
+// floatingbombobj
+std::string actor_info28 =
+    "^SH076^FC17\r  ATTACKING:\r"
+    "^FCA6PERSCAN DRONE\r"
+    "  EXPLOSION"
+;
 
+// electroshotobj
+std::string actor_info31 =
+    "^AN0B^FC17\r  ATTACKING:\r"
+    "^FCA6 HIGH ENERGY\r"
+    " PLASMA ALIEN"
+;
 
-char actor_info41[] = "^SH000^FC17\r  ATTACKING:\r"
-                      "^FCA6 STANDING IN\r"
-                      "  BIO TOXIC\r"
-                      "    WASTE.";
+// explosionobj
+std::string actor_info33 =
+    "^SH08B^FC17\r  ATTACKING:\r"
+    "^FCA6  EXPLOSION\r"
+    "    BLAST"
+;
 
-char actor_info42[] = "^SH08C^FC17\r  ATTACKING:\r"
-                      "^FCA6 STANDING IN\r"
-                      " TOXIC SLUDGE.";
+// liquidshotobj
+std::string actor_info36 =
+    "^AN17^FC17\r\r  ATTACKING:\r"
+    "^FCA6 FLUID ALIEN"
+;
 
-#ifdef BSTONE_PS
-char actor_info41a[] = "^SH0E2^FC17\r  ATTACKING:\r"
-                       "^FCA6 STANDING IN\r"
-                       " TOXIC SLUDGE.";
+std::string actor_info41 =
+    "^SH000^FC17\r  ATTACKING:\r"
+    "^FCA6 STANDING IN\r"
+    "  BIO TOXIC\r"
+    "    WASTE."
+;
 
+std::string actor_info42 =
+    "^SH08C^FC17\r  ATTACKING:\r"
+    "^FCA6 STANDING IN\r"
+    " TOXIC SLUDGE."
+;
 
-char actor_info42a[] = "^SH0E3^FC17\r  ATTACKING:\r"
-                       "^FCA6 STANDING IN\r"
-                       "  BIO TOXIC\r"
-                       "    WASTE.";
-#endif
+std::string actor_info41a =
+    "^SH0E2^FC17\r  ATTACKING:\r"
+    "^FCA6 STANDING IN\r"
+    " TOXIC SLUDGE."
+;
 
-char actor_info43[] = "^AN1D^FC17\r  ATTACKING:\r"
-                      "^FCA6 ELECTRIC ARC\r"
-                      "   BARRIER.";
+std::string actor_info42a =
+    "^SH0E3^FC17\r  ATTACKING:\r"
+    "^FCA6 STANDING IN\r"
+    "  BIO TOXIC\r"
+    "    WASTE."
+;
 
-#ifdef BSTONE_PS
-char actor_info43a[] = "^SH0F4^FC17\r  ATTACKING:\r"
-                       "^FCA6    POST\r"
-                       "   BARRIER.";
+std::string actor_info43 =
+    "^AN1D^FC17\r  ATTACKING:\r"
+    "^FCA6 ELECTRIC ARC\r"
+    "   BARRIER."
+;
 
-char actor_info43b[] = "^SH0FC^FC17\r  ATTACKING:\r"
-                       "^FCA6    SPIKE\r"
-                       "   BARRIER.";
-#endif
+std::string actor_info43a =
+    "^SH0F4^FC17\r  ATTACKING:\r"
+    "^FCA6    POST\r"
+    "   BARRIER."
+;
 
-char actor_info44[] = "^AN1e^FC17\r  ATTACKING:\r"
-                      "^FCA6   SPIDER\r"
-                      "   MUTANT";
+std::string actor_info43b =
+    "^SH0FC^FC17\r  ATTACKING:\r"
+    "^FCA6    SPIKE\r"
+    "   BARRIER."
+;
 
-char actor_info45[] = "^AN1f^FC17\r  ATTACKING:\r"
-                      "^FCA6   BREATHER\r"
-                      "    BEAST";
+std::string actor_info44 =
+    "^AN1e^FC17\r  ATTACKING:\r"
+    "^FCA6   SPIDER\r"
+    "   MUTANT"
+;
 
-char actor_info46[] = "^AN20^FC17\r  ATTACKING:\r"
-                      "^FCA6   CYBORG\r"
-                      "   WARRIOR";
+std::string actor_info45 =
+    "^AN1f^FC17\r  ATTACKING:\r"
+    "^FCA6   BREATHER\r"
+    "    BEAST"
+;
 
-char actor_info47[] = "^AN21^FC17\r  ATTACKING:\r"
-                      "^FCA6  REPTILIAN\r"
-                      "   WARRIOR";
+std::string actor_info46 =
+    "^AN20^FC17\r  ATTACKING:\r"
+    "^FCA6   CYBORG\r"
+    "   WARRIOR"
+;
 
-char actor_info48[] = "^AN22^FC17\r\r  ATTACKING:\r"
-                      "^FCA6 ACID DRAGON";
+std::string actor_info47 =
+    "^AN21^FC17\r  ATTACKING:\r"
+    "^FCA6  REPTILIAN\r"
+    "   WARRIOR"
+;
 
-char actor_info49[] = "^AN23^FC17\r  ATTACKING:\r"
-                      "^FCA6   BIO-MECH\r"
-                      "   GUARDIAN";
+std::string actor_info48 =
+    "^AN22^FC17\r\r  ATTACKING:\r"
+    "^FCA6 ACID DRAGON"
+;
 
-#ifdef BSTONE_AOG
-char actor_info50[] =
-    "^SH07A^FC17\r"
-    "  ATTACKING:\r"
-    "^FCA6  PROJECTION\r"
-    "  GENERATOR\r"
+std::string actor_info49 =
+    "^AN23^FC17\r  ATTACKING:\r"
+    "^FCA6   BIO-MECH\r"
+    "   GUARDIAN"
+;
+
+std::string actor_info50;
+
+// explosionobj
+std::string actor_info51 =
+    "^SH08B^FC17\r  ATTACKING:\r"
+    "^FCA6 ANTI-PLASMA\r"
     "  EXPLOSION\r"
+    "    BLAST"
 ;
-#else
-char actor_info50[] = "^SH07A^FC17\r  ATTACKING:\r"
-                      "^FCA6   SECURITY\r"
-                      "    CUBE\r"
-                      "  EXPLOSION";
-#endif
 
-#ifdef BSTONE_PS
-//      explosionobj,
-char actor_info51[] = "^SH08B^FC17\r  ATTACKING:\r"
-                      "^FCA6 ANTI-PLASMA\r"
-                      "  EXPLOSION\r"
-                      "    BLAST";
-//      pd_explosionobj,
-char actor_info52[] = "^SH0E6^FC17\r  ATTACKING:\r"
-                      "^FCA6  DETONATOR\r"
-                      "  EXPLOSION";
-#endif
+// pd_explosionobj
+std::string actor_info52 =
+    "^SH0E6^FC17\r  ATTACKING:\r"
+    "^FCA6  DETONATOR\r"
+    "  EXPLOSION"
+;
 
 // Final Boss #1
-char actor_info53[] = "^AN29^FC17\r  ATTACKING:\r"
-                      "^FCA6  THE GIANT\r"
-                      "   STALKER";
+std::string actor_info53 =
+    "^AN29^FC17\r  ATTACKING:\r"
+    "^FCA6  THE GIANT\r"
+    "   STALKER"
+;
 
 // Final Boss #2
-char actor_info54[] = "^AN2A^FC17\r  ATTACKING:\r"
-                      "^FCA6 THE SPECTOR\r"
-                      "   DEMON";
+std::string actor_info54 =
+    "^AN2A^FC17\r  ATTACKING:\r"
+    "^FCA6 THE SPECTOR\r"
+    "   DEMON"
+;
 
 // Final Boss #3
-char actor_info55[] = "^AN2b^FC17\r  ATTACKING:\r"
-                      "^FCA6 THE ARMORED\r"
-                      "   STALKER";
+std::string actor_info55 =
+    "^AN2b^FC17\r  ATTACKING:\r"
+    "^FCA6 THE ARMORED\r"
+    "   STALKER"
+;
 
 // Final Boss #4
-char actor_info56[] = "^AN2c^FC17\r  ATTACKING:\r"
-                      "^FCA6 THE CRAWLER\r"
-                      "    BEAST";
+std::string actor_info56 =
+    "^AN2c^FC17\r  ATTACKING:\r"
+    "^FCA6 THE CRAWLER\r"
+    "    BEAST"
+;
 
 
-
-const char* ActorInfoMsg[] = {
-//                      0,0, // nothing,player
-//                      0,0,0, // inert,fixup,dead
-
+ActorMessages ActorInfoMsg = {
     actor_info4, // Sector Patrol
     actor_info5, // Turret
     actor_info9, // Bio-Tech
@@ -632,20 +712,16 @@ const char* ActorInfoMsg[] = {
     actor_info14, // Genetic Guard
     actor_info15, // Mutant Human 1
     actor_info16, // Mutant Human 2
-    0, // lg canister wait
+    empty_msg, // lg canister wait
     actor_info18, // Lg Canister Alien
-    0, // sm canister wait
+    empty_msg, // sm canister wait
     actor_info20, // Sm canister Alien
-    0, // gurney wait
+    empty_msg, // gurney wait
     actor_info22, // Gurney Mutant
     actor_info36, // Liquid Alien
     actor_info24, // Alien Protector (old STAR Trooper)
     actor_info25, // Goldstern
-#ifdef BSTONE_AOG
-    0,
-#else
     actor_info25m, // Goldstern Morphed
-#endif
     actor_info27, // Volatile Transport
     actor_info28, // Floating Bomb
     actor_info50, // vital defence
@@ -663,45 +739,35 @@ const char* ActorInfoMsg[] = {
     actor_info55, // Final Boss 3
     actor_info56, // Final Boss 4
 
-    0, 0, 0, 0, // blake,crate 1, crate 2, crate 3,
+    empty_msg, // blake
+    empty_msg, // crate 1
+    empty_msg, // crate 2
+    empty_msg, // crate 3,
 
     actor_info41, // Green Ooze
     actor_info42, // Black Ooze
-#ifdef BSTONE_AOG
-    0,
-    0,
-#else
     actor_info41a, // Green2 Ooze
     actor_info42a, // Black2 Ooze
-#endif
-    0, // Pod Egg
+    empty_msg, // Pod Egg
 
     actor_info44, // morphing_spider mutant
     actor_info47, // morphing_reptilian warrior
     actor_info16, // morphing_Mutant Human 2
 
-    0, // SPACER
+    empty_msg, // SPACER
 
     actor_info31, // Electro-Alien SHOT
-    0, // Post Barrier
+    empty_msg, // Post Barrier
     actor_info43, // Arc Barrier
-#ifdef BSTONE_AOG
-    0,
-    0,
-#else
     actor_info43a, // VPost Barrier
     actor_info43b, // VSpike Barrier
-#endif
 
-#ifdef BSTONE_AOG
-    0,
-#else
     actor_info25m, // Gold Morph Shot obj
-#endif
 
-    0, // Security Light
+    empty_msg, // Security Light
     actor_info33, // Explosion
-    0, 0, // Steam Grate, Steam Pipe
+    empty_msg, // Steam Grate
+    empty_msg, // Steam Pipe
     actor_info36, // Liquid SHOT
 
     actor_info18, // Lg Canister Alien SHOT
@@ -710,20 +776,16 @@ const char* ActorInfoMsg[] = {
     actor_info16, // Mutant Human 2 SHOT
     actor_info15, // Mutant Human 1 SHOT
 
-    0, 0, // vent drip, player sp shot,
-    0, // flicker light,
-    0, 0, // Door Bomb, Door Bomb reserve
-    0, // grenade,
+    empty_msg, // player sp shot,
+    empty_msg, // vent drip
+    empty_msg, // flicker light,
+    empty_msg, // Door Bomb
+    empty_msg, // Door Bomb reserve
+    empty_msg, // grenade,
+    empty_msg, // BFG Shot
 
-    0, // BFG Shot
-
-#ifdef BSTONE_AOG
-    0,
-    0,
-#else
     actor_info51, // BFG Explosion
     actor_info52, // BFG Explosion
-#endif
 
     actor_info44, // Boss 1 SHOT
     actor_info45, // Boss 2 SHOT
@@ -734,11 +796,91 @@ const char* ActorInfoMsg[] = {
     actor_info54, // Boss 8 SHOT
     actor_info56, // Boss 10 SHOT
 
-    0, // Doorexplosion
+    empty_msg, // Doorexplosion
 
-#ifdef BSTONE_AOG
-    0,
-#else
     actor_info52, // gr_explosion
-#endif
-};
+}; // ActorInfoMsg
+
+
+void initialize_messages()
+{
+    if (::is_ps()) {
+        bevs_msg1 =
+            "\r FOOD UNIT DISPENSES\r"
+            "  A COLD BEVERAGE.\r"
+            "\r     TOKENS: XX"
+        ;
+
+        food_msg1 =
+            "\r FOOD UNIT DISPENSES\r"
+            "  SOMETHING EDIBLE.\r"
+            "\r     TOKENS: XX"
+        ;
+
+        actor_info4 =
+            "^AN04^FC17\r\r  ATTACKING:\r"
+            "^FCA6 SECTOR GUARD"
+        ;
+
+        actor_info13 =
+            "^AN0D^FC17\r\r  ATTACKING:\r"
+            "^FCA6 TECH WARRIOR"
+        ;
+
+        actor_info24 =
+            "^AN18^FC17\r  ATTACKING:\r"
+            "^FCA6    ALIEN\r"
+            "  PROTECTOR"
+        ;
+
+        actor_info50 =
+            "^SH07A^FC17\r  ATTACKING:\r"
+            "^FCA6   SECURITY\r"
+            "    CUBE\r"
+            "  EXPLOSION"
+        ;
+    } else {
+        bevs_msg1 =
+            "\r"
+            "\r"
+            " FOOD UNIT DISPENSES\r"
+            "  A COLD BEVERAGE."
+        ;
+
+        food_msg1 =
+            "\r"
+            " FOOD UNIT DISPENSES\r"
+            " SOMETHING RESEMBLING\r"
+            "        FOOD."
+        ;
+
+        actor_info4 =
+            "^AN04^FC17\r"
+            "\r"
+            "  ATTACKING:\r"
+            "^FCA6SECTOR PATROL"
+        ;
+
+        actor_info13 =
+            "^AN0D^FC17\r"
+            "\r"
+            "  ATTACKING:\r"
+            "^FCA6STAR SENTINEL"
+        ;
+
+        actor_info24 =
+            "^AN18^FC17\r"
+            "\r"
+            "  ATTACKING:\r"
+            "^FCA6 STAR TROOPER"
+        ;
+
+        actor_info50 =
+            "^SH07A^FC17\r"
+            "  ATTACKING:\r"
+            "^FCA6  PROJECTION\r"
+            "  GENERATOR\r"
+            "  EXPLOSION\r"
+        ;
+    }
+}

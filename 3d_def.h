@@ -3861,6 +3861,13 @@ boolean DisplayInfoMsg(
     msg_priorities Priority,
     Sint16 DisplayTime,
     Sint16 MessageType);
+
+boolean DisplayInfoMsg(
+    const std::string& Msg,
+    msg_priorities Priority,
+    Sint16 DisplayTime,
+    Sint16 MessageType);
+
 void UpdateInfoAreaClock();
 void UpdateInfoArea();
 void DrawHealthMonitor();
@@ -4369,52 +4376,56 @@ extern void EndText();
 */
 
 
-extern char noeat_msg1[];
+using BonusMessages = std::vector<std::reference_wrapper<std::string>>;
+using ActorMessages = std::vector<std::reference_wrapper<std::string>>;
 
-extern const char bevs_msg1[];
-extern const char food_msg1[];
 
-extern char bonus_msg7[];
+extern std::string noeat_msg1;
 
-extern char bonus_msg26[];
+extern std::string bevs_msg1;
+extern std::string food_msg1;
 
-extern char* BonusMsg[];
-extern const char* ActorInfoMsg[];
-extern char ekg_heartbeat_enabled[];
-extern char ekg_heartbeat_disabled[];
-extern char attacker_info_enabled[];
-extern char attacker_info_disabled[];
-extern char WeaponNotAvailMsg[];
-extern char WeaponAvailMsg[];
-extern char RadarAvailMsg[];
-extern char RadarEnergyGoneMsg[];
-extern char WeaponAutoSelectMsg[];
-extern char EnergyPackDepleted[];
-extern char NotEnoughEnergyForWeapon[];
+extern std::string bonus_msg7;
 
-extern char WeaponMalfunction[];
+extern std::string bonus_msg26;
 
-extern char SwitchNotActivateMsg[];
-extern char NoFoodTokens[];
-extern char ExtraMan[];
-extern char OneMillion[];
-extern char TenMillion[];
+extern BonusMessages BonusMsg;
+extern ActorMessages ActorInfoMsg;
+extern std::string ekg_heartbeat_enabled;
+extern std::string ekg_heartbeat_disabled;
+extern std::string attacker_info_enabled;
+extern std::string attacker_info_disabled;
+extern std::string WeaponNotAvailMsg;
+extern std::string WeaponAvailMsg;
+extern std::string RadarAvailMsg;
+extern std::string RadarEnergyGoneMsg;
+extern std::string WeaponAutoSelectMsg;
+extern std::string EnergyPackDepleted;
+extern std::string NotEnoughEnergyForWeapon;
 
-extern char NoAdLibCard[];
-extern char MusicOn[];
-extern char MusicOff[];
-extern char SoundOn[];
-extern char SoundOff[];
+extern std::string WeaponMalfunction;
 
-extern char pd_dropped[];
-extern char pd_nomore[];
-extern char pd_switching[];
-extern char pd_notnear[];
-extern char pd_getcloser[];
-extern char pd_floorunlocked[];
-extern char pd_donthaveany[];
-extern char pd_no_computer[];
-extern char pd_floornotlocked[];
+extern std::string SwitchNotActivateMsg;
+extern std::string NoFoodTokens;
+extern std::string ExtraMan;
+extern std::string OneMillion;
+extern std::string TenMillion;
+
+extern std::string NoAdLibCard;
+extern std::string MusicOn;
+extern std::string MusicOff;
+extern std::string SoundOn;
+extern std::string SoundOff;
+
+extern std::string pd_dropped;
+extern std::string pd_nomore;
+extern std::string pd_switching;
+extern std::string pd_notnear;
+extern std::string pd_getcloser;
+extern std::string pd_floorunlocked;
+extern std::string pd_donthaveany;
+extern std::string pd_no_computer;
+extern std::string pd_floornotlocked;
 
 
 /*

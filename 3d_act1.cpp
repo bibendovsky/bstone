@@ -2152,11 +2152,11 @@ boolean ReuseMsg(
 // OperateConcession()
 // --------------------------------------------------------------------------
 
-extern const char food_msg1[];
-extern const char bevs_msg1[];
+extern std::string food_msg1;
+extern std::string bevs_msg1;
 
 extern void writeTokenStr(
-    char* str);
+    std::string& str);
 
 char OutOrder[] = { "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX" };
 

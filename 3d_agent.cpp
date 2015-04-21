@@ -170,7 +170,7 @@ extern bstone::MemoryStream g_playtemp;
 */
 
 void writeTokenStr(
-    char* str);
+    std::string& str);
 
 void ShowOverheadChunk();
 
@@ -1647,6 +1647,23 @@ void GiveToken(
 //     DISPLAY_MSG(msg,pri,type)                 - For E-Z NON-Timed Msgs.
 // --------------------------------------------------------------------------
 boolean DisplayInfoMsg(
+    const std::string& Msg,
+    msg_priorities Priority,
+    Sint16 DisplayTime,
+    Sint16 MsgType)
+{
+    if (Msg.empty()) {
+        return false;
+    }
+
+    return ::DisplayInfoMsg(
+        Msg.c_str(),
+        Priority,
+        DisplayTime,
+        MsgType);
+}
+
+boolean DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
     Sint16 DisplayTime,
@@ -2350,8 +2367,8 @@ void initialize_static_health_table()
     };
 }
 
-extern char bonus_msg24[];
-extern char bonus_msg25[];
+extern std::string bonus_msg24;
+extern std::string bonus_msg25;
 
 void GetBonus(
     statobj_t* check)
@@ -2558,19 +2575,16 @@ void GetBonus(
 }
 
 void writeTokenStr(
-    char* str)
+    std::string& str)
 {
-    char buffer[3], len;
+    auto token_string = std::to_string(gamestate.tokens);
 
-    len = static_cast<char>(strlen(str));
-    if (gamestate.tokens > 9) {
-        bstone::C::xitoa(gamestate.tokens, buffer, 10);
-    } else {
-        buffer[0] = '0';
-        bstone::C::xitoa(gamestate.tokens, buffer + 1, 10);
+    if (token_string.length() == 1) {
+        token_string = '0' + token_string;
     }
 
-    strcpy(str + len - 2, buffer);
+    str.erase(str.length() - 2, 2);
+    str += token_string;
 }
 
 
