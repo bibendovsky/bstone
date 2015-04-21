@@ -247,7 +247,7 @@ char JM_FREE_DATA_END[1] = { 0 };
 
 #endif
 
-extern const Uint8 colormap[16896];
+extern const uint8_t colormap[16896];
 const Uint8* lightsource;
 
 // =========================================================================
