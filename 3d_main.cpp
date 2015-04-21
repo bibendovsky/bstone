@@ -5234,7 +5234,7 @@ int DECOY4 = 0;
 
 void initialize_gfxv_contants()
 {
-    if (!::is_ps()) {
+    if (::is_aog()) {
         TELEPORT_LUMP_START = 7;
         TELEPORT_LUMP_END = 50;
 
@@ -7386,7 +7386,6 @@ void DemoLoop()
             if (!sqActive) {
                 // Load and start music
                 //
-                if (!::is_ps()) {
                     CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
                     ::SD_StartMusic(MEETINGA_MUS);
                 } else {
@@ -7523,9 +7522,9 @@ void DemoLoop()
         if (!sqActive) {
             // Load and start music
             //
-            if (!::is_ps()) {
-                CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-                ::SD_StartMusic(MEETINGA_MUS);
+            if (!::is_aog()) {
+                CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
+                ::SD_StartMusic(MENUSONG);
             } else {
                 CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
                 ::SD_StartMusic(TITLE_LOOP_MUSIC);
