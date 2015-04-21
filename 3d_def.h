@@ -3353,9 +3353,10 @@ bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description);
 
-Sint32 ChecksumFile(
+int32_t ChecksumFile(
     const std::string& file,
-    Sint32 checksum);
+    int32_t checksum);
+
 void BadChecksum();
 void InvalidLevels();
 void CheckValidity(

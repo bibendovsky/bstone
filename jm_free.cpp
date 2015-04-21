@@ -1530,47 +1530,35 @@ char* cfc_buffer;
 // -------------------------------------------------------------------------
 // ChecksumFile()
 // -------------------------------------------------------------------------
-Sint32 ChecksumFile(
+int32_t ChecksumFile(
     const std::string& file,
-    Sint32 checksum)
+    int32_t checksum)
 {
-#define JUMPSIZE 8
+    const auto JUMPSIZE = 8;
 
-    bstone::FileStream handle;
-    Sint32 size, readlen, i;
-    char* p;
+    bstone::FileStream stream(file);
 
-    cfc_buffer = new char[CFC_BUFFERSIZE];
-    p = cfc_buffer;
-
-    handle.open(file);
-
-    if (!handle.is_open()) {
-        checksum = 0;
-        goto exit_func;
+    if (!stream.is_open()) {
+        return 0;
     }
 
-    size = static_cast<Sint32>(handle.get_size());
-    while (size) {
-        if (size >= CFC_BUFFERSIZE) {
-            readlen = CFC_BUFFERSIZE;
-        } else {
-            readlen = size;
-        }
+    std::unique_ptr<char> cfc_buffer(new char[CFC_BUFFERSIZE]);
 
-        handle.read(cfc_buffer, readlen);
+    auto p = cfc_buffer.get();
 
-        for (i = 0; i < readlen - JUMPSIZE; i += JUMPSIZE) {
+    auto size = static_cast<int>(stream.get_size());
+
+    while (size != 0) {
+        auto readlen = (size >= CFC_BUFFERSIZE) ? CFC_BUFFERSIZE : size;
+
+        stream.read(cfc_buffer.get(), readlen);
+
+        for (auto i = 0; i < (readlen - JUMPSIZE); i += JUMPSIZE) {
             checksum += p[i] ^ p[i + 1];
         }
 
         size -= readlen;
     }
-
-exit_func:;
-
-    delete [] cfc_buffer;
-    cfc_buffer = NULL;
 
     return checksum;
 }
