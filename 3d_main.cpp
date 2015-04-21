@@ -8267,7 +8267,7 @@ void gametype::deserialize(
     TimeCount = time_count;
 }
 
-bool is_aog()
+bool is_aog_full()
 {
     return ::g_game_type == GameType::aog;
 }
@@ -8275,6 +8275,11 @@ bool is_aog()
 bool is_aog_sw()
 {
     return ::g_game_type == GameType::aog_sw;
+}
+
+bool is_aog()
+{
+    return ::is_aog() || ::is_aog_sw();
 }
 
 bool is_ps()

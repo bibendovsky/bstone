@@ -4625,9 +4625,11 @@ enum class GameType {
 
 extern GameType g_game_type;
 
-bool is_aog();
+bool is_aog_full();
 
 bool is_aog_sw();
+
+bool is_aog();
 
 bool is_ps();
 
