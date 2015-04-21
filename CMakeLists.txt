@@ -1,8 +1,43 @@
 project(bstone CXX)
 cmake_minimum_required(VERSION 2.8)
 
-INCLUDE(FindPkgConfig)
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+if (MSVC)
+    set(BSTONE_MESSAGE "")
+
+
+    set(SDL2_INCLUDE_DIRS "SDL2_INCLUDE_DIRS-NOTFOUND"
+        CACHE STRING
+        "Path to SDL2 headers.")
+
+    if (NOT SDL2_INCLUDE_DIRS)
+        set(BSTONE_MESSAGE
+            ${BSTONE_MESSAGE}
+            "\nSpecifiy SDL2 include directory."
+        )
+    endif ()
+
+
+    set(SDL2_LIBRARIES "SDL2_LIBRARIES-NOTFOUND"
+        CACHE STRING
+        "SDL2 libraries.")
+
+    if (NOT SDL2_LIBRARIES)
+        set(BSTONE_MESSAGE
+            ${BSTONE_MESSAGE}
+            "\nSpecifiy SDL2 libraries via semicolon."
+        )
+    endif ()
+
+
+    if (BSTONE_MESSAGE)
+        message(FATAL_ERROR ${BSTONE_MESSAGE})
+    endif ()
+
+    unset(BSTONE_MESSAGE)
+else ()
+    INCLUDE(FindPkgConfig)
+    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+endif ()
 
 option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically")
 option(BSTONE_PANDORA "Build for Pandora")
