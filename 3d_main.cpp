@@ -8291,7 +8291,7 @@ bool is_aog_sw()
 
 bool is_aog()
 {
-    return ::is_aog() || ::is_aog_sw();
+    return ::is_aog_full() || ::is_aog_sw();
 }
 
 bool is_ps()
