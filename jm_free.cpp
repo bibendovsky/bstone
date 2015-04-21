@@ -82,32 +82,27 @@ void initialize_messages();
 void initialize_ca_constants();
 
 
+// BBi Is it necessary?
+#if 0
 #define SKIP_CHECKSUMS (1)
 #define SHOW_CHECKSUM (0)
 
 #if GAME_VERSION == SHAREWARE_VERSION
-
 #define AUDIOT_CHECKSUM 0xFFF87142
 #define MAPTEMP_CHECKSUM 0x000370C9
 #define VGAGRAPH_CHECKSUM 0xFFFFDE44
 #define DIZFILE_CHECKSUM 0x00000879l
-
 #elif GAME_VERSION == MISSIONS_1_THR_3
-
 #define AUDIOT_CHECKSUM 0xFFF87142
 #define MAPTEMP_CHECKSUM 0x00084F1F
 #define VGAGRAPH_CHECKSUM 0xFFFFDE44
 #define DIZFILE_CHECKSUM 0x00000879l
-
 #else
-
-
 #define AUDIOT_CHECKSUM 0xfff912C9
 #define MAPTEMP_CHECKSUM 0x00107739
 #define VGAGRAPH_CHECKSUM 0xffff6C9A
 #define DIZFILE_CHECKSUM 0x00000879l
-
-
+#endif
 #endif
 
 extern SDL_TimerID sys_timer_id;
@@ -1010,7 +1005,8 @@ void PreDemo()
 #endif
 
 
-
+// BBi Is it necessary?
+#if 0
 #if GAME_VERSION == SHAREWARE_VERSION
 #if IN_DEVELOPMENT || GEORGE_CHEAT
     if (!MS_CheckParm("nochex"))
@@ -1026,6 +1022,7 @@ void PreDemo()
     if (ChecksumFile("FILE_ID.DIZ", 0) != DIZFILE_CHECKSUM) {
         gamestate.flags |= GS_BAD_DIZ_FILE;
     }
+#endif
 #endif
 #endif
 
@@ -1191,6 +1188,9 @@ void InitGame()
 // long mmsize;
 
     MM_Startup(); // so the signon screen can be freed
+
+// BBi Is it necessary?
+#if 0
 #if IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM
     if (MS_CheckParm("checksum")) {
         ShowChecksums();
@@ -1198,6 +1198,8 @@ void InitGame()
         exit(0);
     }
 #endif
+#endif
+
     CA_Startup();
 
 // Any problems with this version of the game?
@@ -1206,6 +1208,8 @@ void InitGame()
     if (!MS_CheckParm("nochex"))
 #endif
 
+// BBi Is it necessary?
+#if 0
 #if !SKIP_CHECKSUMS
     CheckValidity("MAPTEMP.", MAPTEMP_CHECKSUM);
 
@@ -1213,6 +1217,7 @@ void InitGame()
     if (ChecksumFile("FILE_ID.DIZ", 0) != DIZFILE_CHECKSUM) {
         gamestate.flags |= GS_BAD_DIZ_FILE;
     }
+#endif
 #endif
 #endif
 
@@ -1385,6 +1390,8 @@ void freed_main()
     ::initialize_messages();
     ::initialize_ca_constants();
     ::gamestuff.initialize();
+
+    auto cs = ChecksumFile("AUDIOT.VSI", 0);
 
     std::string arg;
 
@@ -1563,9 +1570,8 @@ int32_t ChecksumFile(
     return checksum;
 }
 
-#if IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM
-
-
+// BBi Is it necessary?
+#if 0 && (IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM)
 // -------------------------------------------------------------------------
 // ShowChecksums()
 // -------------------------------------------------------------------------
@@ -1593,8 +1599,6 @@ void ShowChecksums()
     printf("%s: %lx\n", dizname, ChecksumFile(dizname, 0));
     printf("\n");
 }
-
-
 #endif
 
 // -------------------------------------------------------------------------
