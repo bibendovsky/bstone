@@ -3922,35 +3922,30 @@ void A_DeathScream(
     switch (ob->obclass) {
 
     case swatobj: {
-#if (GAME_VERSION != SHAREWARE_VERSION)
-        Sint16 sounds[2] = {
+        const int sounds[] = {
             SWATDIESND,
-            SWATDEATH2SND
-        };
+            SWATDEATH2SND,
+        }; // sounds
 
-        ::sd_play_actor_sound(sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
-#else
-        ::sd_play_actor_sound(SWATDIESND, ob, bstone::AC_VOICE);
-#endif
+        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+
+        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+
+        break;
     }
-    break;
-
-
 
     case rentacopobj: {
-#if (GAME_VERSION != SHAREWARE_VERSION)
-        Sint16 sounds[2] = {
+        const int sounds[] = {
             RENTDEATH1SND,
             RENTDEATH2SND,
-        };
+        }; // sounds
 
-        ::sd_play_actor_sound(
-            sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
-#else
-        ::sd_play_actor_sound(RENTDEATH1SND, ob, bstone::AC_VOICE);
-#endif
+        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+
+        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+
+        break;
     }
-    break;
 
     case mutant_human1obj:
     case hang_terrotobj:
@@ -3961,60 +3956,37 @@ void A_DeathScream(
     case bfg_explosionobj:
     case pd_explosionobj:
     case doorexplodeobj: {
+        const int sounds[] = {
+            EXPLODE1SND,
+            EXPLODE2SND,
+        }; // sounds
 
-#if GAME_VERSION != SHAREWARE_VERSION
-        Sint16 sounds[] = { EXPLODE1SND,
-                            EXPLODE2SND };
+        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-        ::sd_play_actor_sound(
-            sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
-#else
-        ::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
-#endif
+        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+
+        break;
     }
-    break;
 
     case rotating_cubeobj:
         ::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
         ::sd_play_player_sound(VITAL_GONESND, bstone::AC_ITEM);
         break;
 
-#if (GAME_VERSION != SHAREWARE_VERSION)
+    case gen_scientistobj: {
+        auto is_informant = ((ob->flags & FL_INFORMANT) != 0);
 
-    case gen_scientistobj:
-        if (ob->flags & FL_INFORMANT) {
-            Sint16 sounds[3] = {
-                INFORMANTDEATHSND,
-                INFORMDEATH2SND,
-                INFORMDEATH3SND
-            };
+        const int sounds[] = {
+            is_informant ? INFORMANTDEATHSND : SCIENTISTDEATHSND,
+            is_informant ? INFORMDEATH2SND : SCIDEATH2SND,
+            is_informant ? INFORMDEATH3SND : SCIDEATH3SND,
+        }; // sounds
 
-            ::sd_play_actor_sound(
-                sounds[US_RndT() % 3], ob, bstone::AC_VOICE);
-        } else {
-            Sint16 sounds[3] = {
-                SCIENTISTDEATHSND,
-                SCIDEATH2SND,
-                SCIDEATH3SND
-            };
+        auto sound_index = ::is_aog_sw() ? 0 : (::US_RndT() % 3);
 
-            ::sd_play_actor_sound(
-                sounds[US_RndT() % 3], ob, bstone::AC_VOICE);
-        }
+        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
         break;
-
-#else
-
-    case gen_scientistobj:
-        if (ob->flags & FL_INFORMANT) {
-            ::sd_play_actor_sound(INFORMANTDEATHSND, ob, bstone::AC_VOICE);
-        } else {
-            ::sd_play_actor_sound(SCIENTISTDEATHSND, ob, bstone::AC_VOICE);
-        }
-        break;
-
-#endif
-
+    }
 
     case breather_beastobj:
     case cyborg_warriorobj:
@@ -4029,20 +4001,17 @@ void A_DeathScream(
         break;
 
     case proguardobj: {
-#if (GAME_VERSION != SHAREWARE_VERSION)
-        Sint16 sounds[3] = {
+        const int sounds[3] = {
             PROGUARDDEATHSND,
             PRODEATH2SND,
-        };
+        }; // sounds
 
-        ::sd_play_actor_sound(
-            sounds[US_RndT() & 1], ob, bstone::AC_VOICE);
-#else
-        ::sd_play_actor_sound(PROGUARDDEATHSND, ob, bstone::AC_VOICE);
-#endif
+        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+
+        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+
+        break;
     }
-    break;
-
 
     case final_boss1obj:
     case spider_mutantobj:
@@ -5306,13 +5275,16 @@ void T_ExplodeDamage(
     ExplodeRadius(obj, EXPLODE_DAMAGE, true);
 }
 
-#if GAME_VERSION != SHAREWARE_VERSION
 // ---------------------------------------------------------------------------
 // T_PainThink()
 // ---------------------------------------------------------------------------
 void T_PainThink(
     objtype* obj)
 {
+    if (::is_aog_sw()) {
+        return;
+    }
+
     Sint16 full_hp = starthitpoints[gamestate.difficulty][obj->obclass - rentacopobj];
 
     if (obj->hitpoints > (full_hp >> 1) + (full_hp >> 2)) {
@@ -5381,7 +5353,6 @@ void T_PainThink(
         }
     }
 }
-#endif
 
 // ==========================================================================
 //

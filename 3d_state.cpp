@@ -1468,12 +1468,10 @@ void DamageActor(
         }
 
         switch (ob->obclass) {
-#if GAME_VERSION != SHAREWARE_VERSION
         case volatiletransportobj:
         case floatingbombobj:
-            T_PainThink(ob);
+            ::T_PainThink(ob);
             break;
-#endif
 
         case goldsternobj:
             NewState(ob, &s_goldpain);

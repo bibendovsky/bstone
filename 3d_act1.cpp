@@ -324,11 +324,9 @@ void SpawnStatic(
     spot->flags = 0;
 
 #if IN_DEVELOPMENT
-#if GAME_VERSION == SHAREWARE_VERSION
-    if (!spot->shapenum) {
+    if (::is_aof_sw() && !spot->shapenum) {
         Quit("Invalid static: %d %d", tilex, tiley);
     }
-#endif
 #endif
 
 

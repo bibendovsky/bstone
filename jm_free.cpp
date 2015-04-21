@@ -1609,8 +1609,6 @@ void ShowChecksums()
 
 #endif
 
-#if GAME_VERSION != SHAREWARE_VERSION
-
 // -------------------------------------------------------------------------
 // InvalidLevels()
 // -------------------------------------------------------------------------
@@ -1626,8 +1624,6 @@ void InvalidLevels()
 
     UNCACHEGRCHUNK(BADLEVELSTEXT);
 }
-
-#endif
 
 #if GAME_VERSION == SHAREWARE_VERSION
 

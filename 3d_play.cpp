@@ -787,10 +787,9 @@ extern boolean PP_step, sqActive;
 extern Sint16 pickquick;
 
 boolean refresh_screen;
-#if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
+
 Uint8 jam_buff_cmp[] = { sc_j, sc_a, sc_m };
 Uint8 jam_buff[sizeof(jam_buff_cmp)];
-#endif
 
 char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
@@ -828,16 +827,16 @@ void CheckKeys()
     // SECRET CHEAT CODE: 'JAM'
     //
 
-#if GAME_VERSION != SHAREWARE_VERSION
-    if (Keyboard[sc_j] || Keyboard[sc_a] || Keyboard[sc_m]) {
-        if (jam_buff[sizeof(jam_buff_cmp) - 1] != LastScan) {
-            for (unsigned int i = 1; i < sizeof(jam_buff_cmp); i++) {
-                jam_buff[i - 1] = jam_buff[i];
+    if (!::is_aog_sw()) {
+        if (Keyboard[sc_j] || Keyboard[sc_a] || Keyboard[sc_m]) {
+            if (jam_buff[sizeof(jam_buff_cmp) - 1] != LastScan) {
+                for (unsigned int i = 1; i < sizeof(jam_buff_cmp); i++) {
+                    jam_buff[i - 1] = jam_buff[i];
+                }
+                jam_buff[sizeof(jam_buff_cmp) - 1] = LastScan;
             }
-            jam_buff[sizeof(jam_buff_cmp) - 1] = LastScan;
         }
     }
-#endif
 
     CheckMusicToggle();
 
@@ -904,8 +903,7 @@ void CheckKeys()
         S_KeyReleased = true;
     }
 
-    if (Keyboard[sc_return]) {
-#if (GAME_VERSION != SHAREWARE_VERSION) || GEORGE_CHEAT
+    if (!::is_aog_sw() && Keyboard[sc_return]) {
         char loop;
 
         if ((!memcmp(jam_buff, jam_buff_cmp, sizeof(jam_buff_cmp)))) {
@@ -949,9 +947,9 @@ void CheckKeys()
             IN_Ack();
 
             CleanDrawPlayBorder();
-        } else if (!in_use_modern_bindings)
-#endif
-        one_eighty = true;
+        } else if (!in_use_modern_bindings) {
+            one_eighty = true;
+        }
     }
 
 // Handle quick turning!
@@ -1207,11 +1205,8 @@ void CheckMusicToggle()
     static boolean M_KeyReleased;
 
     if (in_is_binding_pressed(e_bi_music)) {
-        if (M_KeyReleased
-#if GAME_VERSION != SHAREWARE_VERSION
-            && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))
-#endif
-            )
+        if (M_KeyReleased && (
+            !::is_aog_sw() && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))))
         {
             if (!AdLibPresent) {
                 DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
@@ -1322,7 +1317,7 @@ void PopupAutoMap(
         }
     }
 
-#if GAME_VERSION != SHAREWARE_VERSION && IN_DEVELOPMENT
+#if IN_DEVELOPMENT
 //      if (DebugOk && PP_step)
 //              PicturePause();
 #endif
@@ -1556,8 +1551,8 @@ void StartMusic(
     if (!::is_ps()) {
         musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
     } else {
-#if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
-        if (gamestate.flags & GS_MUSIC_TEST) {
+#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+        if (!::is_aog_sw() && (gamestate.flags & GS_MUSIC_TEST) != 0) {
             musicchunk = music_num;
         } else
 #endif

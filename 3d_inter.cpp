@@ -167,17 +167,15 @@ char prep_msg[] = "^ST1^CEGet Ready, Blake!\r^XX";
 void DisplayPrepingMsg(
     const char* text)
 {
-#if GAME_VERSION != SHAREWARE_VERSION
-
 // Bomb out if FILE_ID.DIZ is bad!!
 //
-    if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
-        (gamestate.flags & GS_BAD_DIZ_FILE))
-    {
-        Quit("");
+    if (!::is_aog_sw()) {
+        if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
+            (gamestate.flags & GS_BAD_DIZ_FILE))
+        {
+            Quit("");
+        }
     }
-
-#endif
 
 // Cache-in font
 //

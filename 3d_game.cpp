@@ -532,8 +532,7 @@ void ScanInfoPlane()
             //
 
             if (tile >= 432 && tile <= 485) {
-#if GAME_VERSION != SHAREWARE_VERSION
-                if (tile >= 468) {
+                if (!::is_aog_sw() && tile >= 468) {
                     SpawnOffsetObj(en_crate3, x, y);
                     new_actor->temp2 = ExpCrateShapes[tile - 468];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
@@ -543,7 +542,7 @@ void ScanInfoPlane()
                     } else {
                         tile = 0;
                     }
-                } else if (tile >= 450) {
+                } else if (!::is_aog_sw() && tile >= 450) {
                     SpawnOffsetObj(en_crate2, x, y);
                     new_actor->temp2 = ExpCrateShapes[tile - 450];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
@@ -554,13 +553,10 @@ void ScanInfoPlane()
                         tile = 0;
                     }
                 } else
-#endif
-#if GAME_VERSION == SHAREWARE_VERSION
 #if IN_DEVELOPMENT
-                if (tile >= 450) {
+                if (::is_aog_sw() && tile >= 450) {
                     INVALID_ACTOR_ERR;
                 } else
-#endif
 #endif
                 if (tile >= 432) {
                     SpawnOffsetObj(en_crate1, x, y);
@@ -763,10 +759,10 @@ void ScanInfoPlane()
 
             case 393: // crate 2
             case 394: // crate 3
-#if GAME_VERSION == SHAREWARE_VERSION
 #if IN_DEVELOPMENT
-                INVALID_ACTOR_ERR;
-#endif
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
 #endif
             case 392: // crate 1
                 SpawnStatic(x, y, tile - 315);
@@ -1288,11 +1284,16 @@ void ScanInfoPlane()
                 //
                 // VOLATILE MAT. TRANSPORT - Stationary
                 //
-#if GAME_VERSION != SHAREWARE_VERSION
             case 350:
             case 351:
             case 352:
             case 353:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
+
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
@@ -1301,6 +1302,12 @@ void ScanInfoPlane()
             case 333:
             case 334:
             case 335:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
+
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
@@ -1309,26 +1316,14 @@ void ScanInfoPlane()
             case 315:
             case 316:
             case 317:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
+
                 SpawnStand(en_volatiletransport, x, y, tile - 314);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 350:
-            case 351:
-            case 352:
-            case 353:
-            case 332:
-            case 333:
-            case 334:
-            case 335:
-            case 314:
-            case 315:
-            case 316:
-            case 317:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
 
 
             //
@@ -1612,7 +1607,6 @@ void ScanInfoPlane()
                 //
                 // Mutant Human type 2
                 //
-#if GAME_VERSION != SHAREWARE_VERSION
             case 125:
                 if (gamestate.difficulty < gd_hard) {
                     break;
@@ -1622,18 +1616,13 @@ void ScanInfoPlane()
                     break;
                 }
             case 106:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 SpawnOffsetObj(en_mutant_human2, x, y);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 125:
-            case 107:
-            case 106:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
-
 
 
             //
@@ -1659,58 +1648,71 @@ void ScanInfoPlane()
                 //
                 // Large Canister Alien - CONTAINED
                 //
-#if GAME_VERSION != SHAREWARE_VERSION
             case 172:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
+
                 if (gamestate.difficulty < gd_hard) {
                     SpawnStatic(x, y, 73 - 23);
                     break;
                 }
             case 171:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
+
                 if (gamestate.difficulty < gd_medium) {
                     SpawnStatic(x, y, 73 - 23);
                     break;
                 }
             case 170:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
+
                 SpawnOffsetObj(en_lcan_wait_alien, x, y);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 172:
-            case 171:
-            case 170:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
 
 
                 //
                 // Gurney Mutant - ASLEEP
                 //
 
-#if GAME_VERSION != SHAREWARE_VERSION
             case 161:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_hard) {
                     SpawnStatic(x, y, 72 - 23);
                     break;
                 }
             case 173:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_medium) {
                     SpawnStatic(x, y, 72 - 23);
                     break;
                 }
             case 137:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 SpawnOffsetObj(en_gurney_wait, x, y);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 161:
-            case 173:
-            case 137:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
 
             //
             // Small Canister Alien - ACTIVE/WALKING
@@ -1732,75 +1734,91 @@ void ScanInfoPlane()
                 //
                 // Large Canister Alien - ACTIVE/WALKING
                 //
-#if GAME_VERSION != SHAREWARE_VERSION
             case 270:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 271:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
             case 272:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 SpawnOffsetObj(en_lcan_alien, x, y);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 270:
-            case 271:
-            case 272:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
+
 
                 //
                 // Gurney Mutant - AWAKE
                 //
-#if GAME_VERSION != SHAREWARE_VERSION
             case 275:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 274:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
             case 273:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 SpawnOffsetObj(en_gurney, x, y);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 275:
-            case 274:
-            case 273:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
 
 
-#if GAME_VERSION != SHAREWARE_VERSION
             case 293:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_hard) {
                     break;
                 }
             case 292:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 if (gamestate.difficulty < gd_medium) {
                     break;
                 }
             case 291:
+#if IN_DEVELOPMENT
+                if (::is_aog_sw()) {
+                    INVALID_ACTOR_ERR;
+                }
+#endif
                 SpawnStand(en_liquid, x, y, 0);
                 break;
-#else
-#if IN_DEVELOPMENT
-            case 293:
-            case 292:
-            case 291:
-                INVALID_ACTOR_ERR;
-                break;
-#endif
-#endif
 
 
             // P.O.D. Alien Egg
