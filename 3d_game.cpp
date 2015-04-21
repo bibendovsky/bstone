@@ -3668,7 +3668,7 @@ restartgame:
             gamestate.ammo = gamestate.old_ammo;
             gamestate.plasma_detonators = gamestate.old_plasma_detonators;
             gamestate.boss_key_dropped = gamestate.old_boss_key_dropped;
-            memcpy(&gamestuff.level[0], gamestuff.old_levelinfo, sizeof(gamestuff.old_levelinfo));
+            gamestuff.level = gamestuff.old_levelinfo;
             DrawKeys();
             DrawScore();
         }
@@ -3779,7 +3779,7 @@ restartgame:
             gamestate.old_weapons[2] = gamestate.chosenweapon;
             gamestate.old_ammo = gamestate.ammo;
             gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
-            memcpy(gamestuff.old_levelinfo, &gamestuff.level[0], sizeof(gamestuff.old_levelinfo));
+            gamestuff.old_levelinfo = gamestuff.level;
 
 #if 0
             if (gamestate.mapon == 9) {

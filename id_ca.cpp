@@ -65,7 +65,7 @@ Uint16 rlew_tag;
 Sint16 mapon;
 
 Uint16* mapsegs[MAPPLANES];
-maptype* mapheaderseg[NUMMAPS];
+MapHeaderSegments mapheaderseg;
 AudioSegments audiosegs;
 GrSegments grsegs;
 
@@ -73,6 +73,17 @@ GrNeeded grneeded;
 Uint8 ca_levelbit, ca_levelnum;
 
 Sint16 profilehandle, debughandle;
+
+int NUM_EPISODES = 0;
+int MAPS_PER_EPISODE = 0;
+int MAPS_WITH_STATS = 0;
+
+int NUMMAPS = 0;
+
+bool is_aog_full();
+bool is_aog_sw();
+bool is_ps();
+
 
 std::string audioname = "AUDIO.";
 
@@ -1560,4 +1571,25 @@ std::string ca_load_script(
     }
 
     return std::string(script, length);
+}
+
+void initialize_ca_constants()
+{
+    if (::is_aog_full()) {
+        NUM_EPISODES = 6;
+        MAPS_PER_EPISODE = 15;
+        MAPS_WITH_STATS = 11;
+    } else if (::is_aog_sw()) {
+        NUM_EPISODES = 1;
+        MAPS_PER_EPISODE = 15;
+        MAPS_WITH_STATS = 11;
+    } else if (::is_ps()) {
+        NUM_EPISODES = 6;
+        MAPS_PER_EPISODE = 25;
+        MAPS_WITH_STATS = 20;
+    }
+
+    NUMMAPS = NUM_EPISODES * MAPS_PER_EPISODE;
+
+    mapheaderseg.resize(NUMMAPS);
 }

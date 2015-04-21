@@ -79,6 +79,7 @@ void initialize_grenade_shape_constants();
 void initialize_static_health_table();
 void initialize_boss_constants();
 void initialize_messages();
+void initialize_ca_constants();
 
 
 #define SKIP_CHECKSUMS (1)
@@ -1382,6 +1383,8 @@ void freed_main()
     ::initialize_static_health_table();
     ::initialize_boss_constants();
     ::initialize_messages();
+    ::initialize_ca_constants();
+    ::gamestuff.initialize();
 
     std::string arg;
 

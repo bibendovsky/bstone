@@ -7386,6 +7386,7 @@ void DemoLoop()
             if (!sqActive) {
                 // Load and start music
                 //
+                if (::is_aog()) {
                     CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
                     ::SD_StartMusic(MEETINGA_MUS);
                 } else {
@@ -8100,6 +8101,18 @@ void levelinfo::deserialize(
     ::deserialize_field(ptilex, reader, checksum);
     ::deserialize_field(ptiley, reader, checksum);
     ::deserialize_field(pangle, reader, checksum);
+}
+
+fargametype::fargametype() :
+    old_levelinfo(),
+    level()
+{
+}
+
+void fargametype::initialize()
+{
+    old_levelinfo.resize(MAPS_PER_EPISODE);
+    level.resize(MAPS_PER_EPISODE);
 }
 
 void fargametype::serialize(

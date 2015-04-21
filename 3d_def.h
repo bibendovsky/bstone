@@ -2893,8 +2893,20 @@ struct levelinfo {
 
 
 struct fargametype {
-    levelinfo old_levelinfo[MAPS_PER_EPISODE];
-    levelinfo level[MAPS_PER_EPISODE];
+    using LevelInfos = std::vector<levelinfo>;
+
+    LevelInfos old_levelinfo;
+    LevelInfos level;
+
+    fargametype();
+
+    fargametype(
+        const fargametype& that) = delete;
+
+    fargametype& operator=(
+        const fargametype& that) = delete;
+
+    void initialize();
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -3254,7 +3266,6 @@ extern char tempPath[];
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
-extern levelinfo default_level[MAPS_PER_EPISODE];
 extern Sint16 view_xl, view_xh, view_yl, view_yh;
 extern Sint16 starting_level, debug_value, starting_episode, starting_difficulty;
 

@@ -32,22 +32,14 @@ Free Software Foundation, Inc.,
 #include "SDL.h"
 
 
-#ifdef BSTONE_AOG
-#if GAME_VERSION != SHAREWARE_VERSION
-#define NUM_EPISODES (6)
-#else
-#define NUM_EPISODES (1)
-#endif
-#define MAPS_PER_EPISODE (15)
-#define MAPS_WITH_STATS (11)
-#else
-#define NUM_EPISODES (1)
-#define MAPS_PER_EPISODE (25)
-#define MAPS_WITH_STATS (20)
-#endif
+extern int NUM_EPISODES;
+extern int MAPS_PER_EPISODE;
+extern int MAPS_WITH_STATS;
 
-#define NUMMAPS NUM_EPISODES * MAPS_PER_EPISODE
-#define MAPPLANES 2
+extern int NUMMAPS;
+
+const int MAPPLANES = 2;
+
 
 void UNCACHEGRCHUNK(
     Uint16 chunk);
@@ -84,6 +76,7 @@ struct mapfiletype {
 using AudioSegments = std::vector<uint8_t*>;
 using GrSegments = std::vector<void*>;
 using GrNeeded = std::vector<uint8_t>;
+using MapHeaderSegments = std::vector<maptype*>;
 
 
 extern std::string audioname;
@@ -93,7 +86,7 @@ extern Uint16 rlew_tag;
 extern Sint16 mapon;
 
 extern Uint16* mapsegs[MAPPLANES];
-extern maptype* mapheaderseg[NUMMAPS];
+extern MapHeaderSegments mapheaderseg;
 extern AudioSegments audiosegs;
 extern GrSegments grsegs;
 
