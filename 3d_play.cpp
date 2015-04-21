@@ -47,9 +47,7 @@ void ClearSplitVWB();
 void RedrawStatusAreas();
 void PreloadGraphics();
 
-#ifdef BSTONE_PS
 void TryDropPlasmaDetonator();
-#endif
 
 void IN_StartAck();
 boolean IN_CheckAck();
@@ -139,12 +137,21 @@ Uint8 update[UPDATESIZE];
 boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
 Sint16 joystickport;
 Sint16 dirscan[4] = { sc_up_arrow, sc_right_arrow, sc_down_arrow, sc_left_arrow };
-Sint16 buttonscan[NUMBUTTONS] =
-{ sc_control, sc_alt, sc_right_shift, sc_space, sc_1, sc_2, sc_3, sc_4, sc_5, sc_6
-#ifdef BSTONE_PS
-  , sc_7
-#endif
+
+Sint16 buttonscan[NUMBUTTONS] = {
+    sc_control,
+    sc_alt,
+    sc_right_shift,
+    sc_space,
+    sc_1,
+    sc_2,
+    sc_3,
+    sc_4,
+    sc_5,
+    sc_6,
+    sc_7,
 };
+
 Sint16 buttonmouse[4] = { bt_attack, bt_strafe, bt_use, bt_nobutton };
 Sint16 buttonjoy[4] = { bt_attack, bt_strafe, bt_use, bt_run };
 
@@ -379,15 +386,15 @@ void PollKeyboardButtons()
             buttonstate[bt_ready_grenade] = true;
         }
 
-#ifdef BSTONE_PS
-        if (in_is_binding_pressed(e_bi_weapon_6)) {
-            buttonstate[bt_ready_bfg_cannon] = true;
-        }
+        if (::is_ps()) {
+            if (in_is_binding_pressed(e_bi_weapon_6)) {
+                buttonstate[bt_ready_bfg_cannon] = true;
+            }
 
-        if (in_is_binding_pressed(e_bi_weapon_7)) {
-            buttonstate[bt_ready_plasma_detonators] = true;
+            if (in_is_binding_pressed(e_bi_weapon_7)) {
+                buttonstate[bt_ready_plasma_detonators] = true;
+            }
         }
-#endif
     } else {
         for (int i = 0; i < NUMBUTTONS; ++i) {
             if (Keyboard[buttonscan[i]]) {
@@ -1104,9 +1111,9 @@ void CheckKeys()
     if (Keyboard[sc_back_quote]) {
         Keyboard[sc_back_quote] = 0;
 
-#ifdef BSTONE_PS
-        TryDropPlasmaDetonator();
-#endif
+        if (::is_ps()) {
+            ::TryDropPlasmaDetonator();
+        }
     }
 
 
@@ -1273,12 +1280,8 @@ void ChangeSwapFiles(
 void PopupAutoMap(
     bool is_shift_pressed)
 {
-#ifdef BSTONE_AOG
-#define BASE_X (40)
-#else
-#define BASE_X 64
-#endif
-#define BASE_Y 44
+    const auto BASE_X = (::is_ps() ? 64 : 40);
+    const auto BASE_Y = 44;
 
     ThreeDRefresh();
     ThreeDRefresh();
@@ -1287,36 +1290,36 @@ void PopupAutoMap(
     ClearMemory();
     CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
-#ifdef BSTONE_AOG
-    bool show_whole_map = true;
-    int overlay_flags = OV_KEYS | OV_PUSHWALLS | OV_ACTORS;
+    if (!::is_ps()) {
+        bool show_whole_map = true;
+        int overlay_flags = OV_KEYS | OV_PUSHWALLS | OV_ACTORS;
 
-    if (is_shift_pressed) {
-        show_whole_map = !show_whole_map;
+        if (is_shift_pressed) {
+            show_whole_map = !show_whole_map;
+        }
+
+        if (g_rotated_automap) {
+            show_whole_map = !show_whole_map;
+        }
+
+        if (show_whole_map) {
+            overlay_flags |= OV_WHOLE_MAP;
+        }
+
+        ::ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
+
+        ShowStats(BASE_X + 157, BASE_Y + 25, ss_quick, &gamestuff.level[gamestate.mapon].stats);
+    } else {
+        ShowStats(BASE_X + 101, BASE_Y + 22, ss_quick, &gamestuff.level[gamestate.mapon].stats);
     }
-
-    if (g_rotated_automap) {
-        show_whole_map = !show_whole_map;
-    }
-
-    if (show_whole_map) {
-        overlay_flags |= OV_WHOLE_MAP;
-    }
-
-    ::ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
-
-    ShowStats(BASE_X + 157, BASE_Y + 25, ss_quick, &gamestuff.level[gamestate.mapon].stats);
-#else
-    ShowStats(BASE_X + 101, BASE_Y + 22, ss_quick, &gamestuff.level[gamestate.mapon].stats);
-#endif
 
     while (Keyboard[sc_back_quote]) {
         CalcTics();
 
-#ifdef BSTONE_AOG
-        ::CycleColors();
-        ::in_handle_events();
-#endif
+        if (!::is_ps()) {
+            ::CycleColors();
+            ::in_handle_events();
+        }
     }
 
 #if GAME_VERSION != SHAREWARE_VERSION && IN_DEVELOPMENT
@@ -1328,10 +1331,10 @@ void PopupAutoMap(
     while (!IN_CheckAck()) {
         CalcTics();
 
-#ifdef BSTONE_AOG
-        ::CycleColors();
-        ::in_handle_events();
-#endif
+        if (!::is_ps()) {
+            ::CycleColors();
+            ::in_handle_events();
+        }
     }
 
     CleanDrawPlayBorder();
@@ -1550,20 +1553,20 @@ void StartMusic(
 
     SD_MusicOff();
 
-#ifdef BSTONE_AOG
-    musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
-#else
-#if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
-    if (gamestate.flags & GS_MUSIC_TEST) {
-        musicchunk = music_num;
-    } else
-#endif
-    if (playstate == ex_victorious) {
-        musicchunk = FORTRESS_MUS;
+    if (!::is_ps()) {
+        musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
     } else {
-        musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_PER_EPISODE];
-    }
+#if IN_DEVELOPMENT || GAME_VERSION != SHAREWARE_VERSION || TECH_SUPPORT_VERSION
+        if (gamestate.flags & GS_MUSIC_TEST) {
+            musicchunk = music_num;
+        } else
 #endif
+        if (playstate == ex_victorious) {
+            musicchunk = FORTRESS_MUS;
+        } else {
+            musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_PER_EPISODE];
+        }
+    }
 
     if (!audiosegs[STARTMUSIC + musicchunk]) {
         CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + musicchunk));
