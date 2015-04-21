@@ -6184,7 +6184,7 @@ void NewGame(
     playstate = ex_stillplaying;
 
     ShowQuickMsg = true;
-    memset(&gamestuff, 0, sizeof(gamestuff));
+    ::gamestuff.clear();
     memset(&gamestate, 0, sizeof(gamestate));
 
     memset(&gamestate.barrier_table, 0xff, sizeof(gamestate.barrier_table));
@@ -8113,6 +8113,14 @@ void fargametype::initialize()
 {
     old_levelinfo.resize(MAPS_PER_EPISODE);
     level.resize(MAPS_PER_EPISODE);
+}
+
+void fargametype::clear()
+{
+    old_levelinfo.clear();
+    level.clear();
+
+    initialize();
 }
 
 void fargametype::serialize(

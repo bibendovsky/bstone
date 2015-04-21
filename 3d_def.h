@@ -2908,6 +2908,8 @@ struct fargametype {
 
     void initialize();
 
+    void clear();
+
     void serialize(
         bstone::BinaryWriter& writer,
         Uint32& checksum) const;
