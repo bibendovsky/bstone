@@ -975,7 +975,6 @@ void KillActor(
         deadguy = givepoints = false;
         break;
 
-#ifdef BSTONE_PS
     case morphing_spider_mutantobj:
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
@@ -984,7 +983,6 @@ void KillActor(
         KeepSolid = true;
         deadguy = givepoints = false;
         break;
-#endif
 
     case crate1obj:
     case crate2obj:
@@ -1008,21 +1006,13 @@ void KillActor(
     case floatingbombobj:
         ob->lighting = EXPLOSION_SHADING;
         A_DeathScream(ob);
-#ifdef BSTONE_AOG
-        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, 17);
-#else
-        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, 5);
-#endif
+        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, ::is_ps() ? 5 : 17);
         break;
 
     case volatiletransportobj:
         ob->lighting = EXPLOSION_SHADING;
         A_DeathScream(ob);
-#ifdef BSTONE_AOG
-        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, 17);
-#else
-        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, 5);
-#endif
+        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, ::is_ps() ? 5 : 17);
         break;
 
     case goldsternobj:
@@ -1041,7 +1031,6 @@ void KillActor(
         }
         break;
 
-#ifdef BSTONE_PS
     case gold_morphobj:
         GoldsternInfo.flags = GS_NO_MORE;
 
@@ -1050,7 +1039,6 @@ void KillActor(
         ob->flags |= FL_OFFSET_STATES;
         InitAnim(ob, SPR_GOLD_DEATH1, 0, 4, at_ONCE, ad_FWD, 25, 9);
         break;
-#endif
 
     case gen_scientistobj:
         if (ob->flags & FL_INFORMANT) {
@@ -1132,49 +1120,39 @@ void KillActor(
         actorat[ob->tilex][ob->tiley] = NULL;
         break;
 
-#ifdef BSTONE_PS
-    case cyborg_warriorobj:
-    case mech_guardianobj:
-    case reptilian_warriorobj:
-#endif
     case mutant_human1obj:
         PlaceItemNearTile(bo_clip2, tilex, tiley);
-#ifdef BSTONE_PS
-    case spider_mutantobj:
-    case breather_beastobj:
-    case acid_dragonobj:
     case final_boss3obj:
     case final_boss4obj:
-#endif
     case mutant_human2obj:
     case scan_alienobj:
     case lcan_alienobj:
         NewState(ob, &s_ofs_die1);
         break;
 
-#ifdef BSTONE_AOG
     case cyborg_warriorobj:
     case mech_guardianobj:
     case reptilian_warriorobj:
+        if (::is_ps()) {
+            ::PlaceItemNearTile(bo_clip2, tilex, tiley);
+        }
     case spider_mutantobj:
     case breather_beastobj:
     case acid_dragonobj:
         ::NewState(ob, &s_ofs_die1);
 
-        static_cast<void>(::ReserveStatic());
-        ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
-
-        ActivatePinballBonus(B_GALIEN_DESTROYED);
+        if (!::is_ps()) {
+            static_cast<void>(::ReserveStatic());
+            ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+            ActivatePinballBonus(B_GALIEN_DESTROYED);
+        }
         break;
-#endif
 
-#ifdef BSTONE_PS
     case final_boss2obj:
         ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
 
         InitAnim(ob, SPR_BOSS8_DIE1, 0, 4, at_ONCE, ad_FWD, 25, 9);
         break;
-#endif
 
     case genetic_guardobj:
     case final_boss1obj:
@@ -1210,14 +1188,16 @@ void KillActor(
         ob->lighting = EXPLOSION_SHADING;
         break;
 
-#ifdef BSTONE_AOG
     case rotating_cubeobj:
+        if (::is_ps()) {
+            break;
+        }
+
         ::A_DeathScream(ob);
         ob->ammo = 0;
         ob->lighting = EXPLOSION_SHADING;
         ::InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
         break;
-#endif
 
     default:
         break;
@@ -1233,9 +1213,11 @@ void KillActor(
 
     if (KeepSolid) {
         ob->flags &= ~(FL_SHOOTABLE);
-#ifdef BSTONE_PS
-        ob->flags2 &= ~FL2_BFG_SHOOTABLE;
-#endif
+
+        if (::is_ps()) {
+            ob->flags2 &= ~FL2_BFG_SHOOTABLE;
+        }
+
         if (deadguy) {
             ob->flags |= FL_DEADGUY;
         }
@@ -1260,9 +1242,10 @@ void KillActor(
         }
 
         ob->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
-#ifdef BSTONE_PS
-        ob->flags2 &= ~FL2_BFGSHOT_SOLID;
-#endif
+
+        if (::is_ps()) {
+            ob->flags2 &= ~FL2_BFGSHOT_SOLID;
+        }
 
         if ((actorat[ob->tilex][ob->tiley]) == ob) {
             // Clear actor from WHERE IT WAS GOING in actorat[].
@@ -1367,13 +1350,14 @@ void DamageActor(
         }
         return;
 
-    case post_barrierobj:
-#ifdef BSTONE_PS
     case rotating_cubeobj:
-#endif
+        if (::is_ps()) {
+            return;
+        }
+
+    case post_barrierobj:
         return;
 
-#ifdef BSTONE_PS
     case plasma_detonatorobj:
         //
         // Detonate 'Em!
@@ -1384,7 +1368,6 @@ void DamageActor(
             ob->temp3 = damage;
         }
         return;
-#endif
 
     default:
         break;
@@ -1398,9 +1381,7 @@ void DamageActor(
     }
 
     ob->hitpoints -= damage;
-#ifdef BSTONE_PS
-    ob->flags2 |= FL2_DAMAGE_CLOAK;
-#endif
+    ob->flags2 |= (::is_ps() ? FL2_DAMAGE_CLOAK : 0);
 
     if (ob->hitpoints <= 0) {
         switch (ob->obclass) {
@@ -1417,7 +1398,6 @@ void DamageActor(
             break;
 #endif
 
-#ifdef BSTONE_PS
         case goldsternobj:
             if (gamestate.mapon == GOLD_MORPH_LEVEL) {
                 extern Sint16 morphWaitTime;
@@ -1431,7 +1411,6 @@ void DamageActor(
                 return;
             }
             break;
-#endif
 
         default:
             break;
@@ -1500,11 +1479,9 @@ void DamageActor(
             NewState(ob, &s_goldpain);
             break;
 
-#ifdef BSTONE_PS
         case gold_morphobj:
             NewState(ob, &s_mgold_pain);
             break;
-#endif
 
         case liquidobj:
             NewState(ob, &s_liquid_ouch);
@@ -1559,8 +1536,11 @@ void DamageActor(
             NewState(ob, &s_propain);
             break;
 
-#ifdef BSTONE_AOG
         case rotating_cubeobj:
+            if (::is_ps()) {
+                break;
+            }
+
             // Show 'pain' animation only once
             if ((ob->hitpoints + damage) ==
                 starthitpoints[gamestate.difficulty][en_rotating_cube])
@@ -1568,7 +1548,6 @@ void DamageActor(
                 ::InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
             }
             break;
-#endif
 
         default:
             break;
