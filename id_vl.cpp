@@ -64,6 +64,11 @@ boolean screenfaded;
 Uint8 palette1[256][3], palette2[256][3];
 
 
+bool is_aog();
+bool is_aog_sw();
+bool is_ps();
+
+
 // BBi
 namespace {
 
@@ -1819,12 +1824,18 @@ bool x_initialize_video()
             }
         }
 
-        sdl_window = SDL_CreateWindow(
-#ifdef BSTONE_AOG
-            "Blake Stone: Aliens of Gold",
-#else
-            "Blake Stone: Planet Strike",
-#endif // BSTONE_AOG
+        auto title = "Blake Stone: ???";
+
+        if (::is_aog()) {
+            title = "Blake Stone: Aliens of Gold (full)";
+        } else if (::is_aog_sw()) {
+            title = "Blake Stone: Aliens of Gold (shareware)";
+        } else if (::is_ps()) {
+            title = "Blake Stone: Planet Strike";
+        }
+
+        sdl_window = ::SDL_CreateWindow(
+            title,
             sdl_window_x,
             sdl_window_y,
             window_width,
