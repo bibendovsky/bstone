@@ -4820,6 +4820,7 @@ int HISCORE_MUS = 0;
 int APOGFNFM_MUS = 0;
 int THEME_MUS = 0;
 int LASTMUSIC = 0;
+int TITLE_LOOP_MUSIC = 0;
 
 
 void initialize_audio_constants()
@@ -4883,10 +4884,12 @@ void initialize_audio_constants()
         MENUSONG = LASTLAFF_MUS;
         ROSTER_MUS = HISCORE_MUS;
         TEXTSONG = TOHELL_MUS;
+        TITLE_LOOP_MUSIC = PLOT_MUS;
     } else {
         MENUSONG = MEETINGA_MUS;
         ROSTER_MUS = LEVELA_MUS;
         TEXTSONG = RUMBAA_MUS;
+        TITLE_LOOP_MUSIC = GOLDA_MUS;
     }
 }
 

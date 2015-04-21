@@ -3243,7 +3243,7 @@ struct star_t {
 =============================================================================
 */
 
-#define TITLE_LOOP_MUSIC PLOT_MUS
+extern int TITLE_LOOP_MUSIC;
 
 #define CANT_PLAY_TXT "\n" \
     "ERROR: Insufficient disk space.\n" \
