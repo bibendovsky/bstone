@@ -5,7 +5,8 @@ if (MSVC)
     set(BSTONE_MESSAGE "")
 
 
-    set(SDL2_INCLUDE_DIRS "SDL2_INCLUDE_DIRS-NOTFOUND"
+    set(SDL2_INCLUDE_DIRS
+        "SDL2_INCLUDE_DIRS-NOTFOUND"
         CACHE STRING
         "Path to SDL2 headers.")
 
@@ -17,9 +18,10 @@ if (MSVC)
     endif ()
 
 
-    set(SDL2_LIBRARIES "SDL2_LIBRARIES-NOTFOUND"
+    set(SDL2_LIBRARIES
+        "SDL2_LIBRARIES-NOTFOUND"
         CACHE STRING
-        "SDL2 libraries.")
+        "SDL2 libraries (use semicolon as separator).")
 
     if (NOT SDL2_LIBRARIES)
         set(BSTONE_MESSAGE
@@ -39,10 +41,9 @@ else ()
     PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 endif ()
 
-option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically")
-option(BSTONE_PANDORA "Build for Pandora")
-option(BSTONE_AOG "Build Aliens of Gold")
-option(BSTONE_USE_PCH "Use precompiled headers")
+option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically.")
+option(BSTONE_PANDORA "Build for Pandora.")
+option(BSTONE_USE_PCH "Use precompiled headers.")
 
 set(BSTONE_TARGET "bstone")
 set(BSTONE_PCH_BASE_NAME "bstone_precompiled")
@@ -101,12 +102,6 @@ if (BSTONE_PANDORA)
     include_directories(
         $ENV{PNDSDK}
     )
-endif ()
-
-if (BSTONE_AOG)
-    add_definitions(-DBSTONE_AOG)
-else ()
-    add_definitions(-DBSTONE_PS)
 endif ()
 
 include_directories(
