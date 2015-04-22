@@ -25,10 +25,6 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 #include "jm_lzh.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
-
 
 void CA_CacheScreen(
     int16_t chunk);

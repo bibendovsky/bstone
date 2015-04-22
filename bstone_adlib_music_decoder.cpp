@@ -31,10 +31,6 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 
 
-namespace {
-} // namespace
-
-
 namespace bstone {
 
 

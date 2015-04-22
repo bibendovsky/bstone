@@ -40,11 +40,9 @@ Free Software Foundation, Inc.,
 //      DEBUG - there are more globals
 //
 
+
 #include "3d_def.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 #define KeyInt 9 // The keyboard ISR number
 

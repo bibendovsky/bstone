@@ -22,7 +22,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_string_helper.h"
-
 #include <algorithm>
 #include <locale>
 

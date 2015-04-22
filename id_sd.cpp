@@ -51,9 +51,6 @@ Free Software Foundation, Inc.,
 //                      NeedsMusic - load music?
 //
 
-#ifdef MSVC
-#pragma hdrstop // Wierdo thing with MUSE
-#endif
 
 #ifdef  _MUSE_ // Will be defined in ID_Types.h
 #include "id_sd.h"
@@ -61,16 +58,13 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #endif
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 // BBi
 #include "3d_def.h"
-
 #include "bstone_audio_mixer.h"
 #include "bstone_memory_binary_reader.h"
 // BBi
+
 
 #define SDL_SoundFinished() { SoundNumber = HITWALLSND; SoundPriority = 0; }
 

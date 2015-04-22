@@ -30,11 +30,8 @@ Free Software Foundation, Inc.,
 // manager after program initialization.
 //
 
-#include "id_heads.h"
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
+#include "id_heads.h"
 #include "3d_def.h"
 
 

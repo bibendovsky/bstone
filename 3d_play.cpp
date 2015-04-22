@@ -23,11 +23,8 @@ Free Software Foundation, Inc.,
 
 // 3D_PLAY.C
 
-#include "3d_def.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
+#include "3d_def.h"
 
 
 void INL_GetJoyDelta(

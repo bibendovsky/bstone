@@ -23,11 +23,9 @@ Free Software Foundation, Inc.,
 
 // 3D_DRAW.C
 
+
 #include "3d_def.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 // #define DEBUGWALLS
 // #define DEBUGTICS

@@ -99,12 +99,8 @@ Free Software Foundation, Inc.,
 //
 // --------------------------------------------------------------------------
 
+
 #include "3d_def.h"
-
-#ifdef MSVC
-#pragma hdrstop
-#endif
-
 
 
 void VWL_MeasureString(

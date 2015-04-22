@@ -26,11 +26,9 @@ Free Software Foundation, Inc.,
 //      ID_SDD.c - Sound Manager dummy file
 //
 
+
 #include "id_heads.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 uint16_t sdStartPCSounds = STARTPCSOUNDS;
 uint16_t sdStartALSounds = STARTADLIBSOUNDS;

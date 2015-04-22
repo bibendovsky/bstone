@@ -23,15 +23,12 @@ Free Software Foundation, Inc.,
 
 // 3D_MAIN.C
 
+
 #include "3d_def.h"
-#ifdef MSVC
-#pragma hdrstop
-#endif
-
 #include "jm_lzh.h"
-
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
+
 
 void VL_LatchToScreen(
     int source,

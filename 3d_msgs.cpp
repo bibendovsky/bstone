@@ -24,7 +24,6 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 
 
-
 static std::string empty_msg;
 
 

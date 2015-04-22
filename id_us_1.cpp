@@ -49,13 +49,8 @@ Free Software Foundation, Inc.,
 //                      window
 //
 
+
 #include "id_heads.h"
-
-#ifdef MSVC
-#pragma hdrstop
-#endif
-
-
 
 
 // BBi

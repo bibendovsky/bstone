@@ -23,17 +23,11 @@ Free Software Foundation, Inc.,
 
 // ID_VL.C
 
+
 #include <stdexcept>
 #include <vector>
-
 #include "id_heads.h"
-
 #include "bstone_ogl_api.h"
-
-
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 #if defined(BSTONE_PANDORA) // Pandora VSync Support
 #include <unistd.h>

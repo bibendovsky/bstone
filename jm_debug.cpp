@@ -22,13 +22,9 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
-
 #include "jm_error.h"
 #include "jm_debug.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 #ifdef __MPRINTF__
 

@@ -23,11 +23,9 @@ Free Software Foundation, Inc.,
 
 // 3D_DEBUG.C
 
+
 #include "3d_def.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
 
 void VH_UpdateScreen();
 void TakeDamage(

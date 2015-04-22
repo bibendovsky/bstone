@@ -27,7 +27,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_c.h"
-
 #include <algorithm>
 #include <locale>
 

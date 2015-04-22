@@ -22,7 +22,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_ogl_version.h"
-
 #include <sstream>
 
 

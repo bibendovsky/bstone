@@ -27,7 +27,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_ogl_api.h"
-
 #include <list>
 
 

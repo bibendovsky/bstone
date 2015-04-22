@@ -22,14 +22,10 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_audio_mixer.h"
-
 #include <cassert>
-
 #include <algorithm>
 #include <functional>
-
 #include "3d_def.h"
-
 #include "bstone_adlib_music_decoder.h"
 #include "bstone_adlib_sfx_decoder.h"
 #include "bstone_pcm_decoder.h"

@@ -23,7 +23,9 @@ Free Software Foundation, Inc.,
 
 // WOLFHACK.C
 
+
 #include "3d_def.h"
+
 
 #define MAXVIEWHEIGHT 200
 #define  GAMESTATE_TEST (1)

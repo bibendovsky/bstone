@@ -37,11 +37,8 @@ loaded into the data segment
 =============================================================================
 */
 
-#include "id_heads.h"
 
-#ifdef MSVC
-#pragma hdrstop
-#endif
+#include "id_heads.h"
 
 
 /*
