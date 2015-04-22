@@ -91,13 +91,13 @@ bstone::FileStream Movie_FHandle;
 // Fade Variables
 
 FADES fade_flags, fi_type, fo_type;
-Uint8 fi_rate, fo_rate;
+uint8_t fi_rate, fo_rate;
 
 // MOVIE_GetFrame & MOVIE_LoadBuffer variables
 
 char* MovieBuffer; // Ptr to Allocated Memory for Buffer
-Uint32 BufferLen; // Len of MovieBuffer (Ammount of RAM allocated)
-Uint32 PageLen; // Len of data loaded into MovieBuffer
+uint32_t BufferLen; // Len of MovieBuffer (Ammount of RAM allocated)
+uint32_t PageLen; // Len of data loaded into MovieBuffer
 char* BufferPtr; // Ptr to next frame in MovieBuffer
 char* NextPtr; // Ptr Ofs to next frame after BufferOfs
 
@@ -108,7 +108,7 @@ boolean MorePagesAvail; // More Pages avail on disk?
 MOVIE_FLAGS movie_flag;
 boolean ExitMovie;
 boolean EverFaded;
-Sint32 seek_pos;
+int32_t seek_pos;
 char movie_reps;
 ControlInfo ci;
 const void* movie_palette;
@@ -138,7 +138,7 @@ MovieStuff_t Movies[] = {
 
 void JM_MemToScreen();
 void JM_ClearVGAScreen(
-    Uint8 fill);
+    uint8_t fill);
 void FlipPages();
 boolean CheckFading();
 boolean CheckPostFade();
@@ -227,7 +227,7 @@ void JM_DrawBlock(
     int y = byte_offset / k_ref_width;
 
     for (int i = 0; i < length; ++i) {
-        VL_Plot(x, y, static_cast<Uint8>(source[i]));
+        VL_Plot(x, y, static_cast<uint8_t>(source[i]));
 
         ++x;
 
@@ -283,7 +283,7 @@ boolean MOVIE_LoadBuffer()
     anim_frame blk;
     long chunkstart;
     char* frame;
-    Uint32 free_space;
+    uint32_t free_space;
 
     NextPtr = BufferPtr = frame = MovieBuffer;
     free_space = BufferLen;
@@ -349,7 +349,7 @@ boolean MOVIE_LoadBuffer()
 // RETURNS:  0 - Ok
 //          1 - End Of File
 // ---------------------------------------------------------------------------
-Sint16 MOVIE_GetFrame()
+int16_t MOVIE_GetFrame()
 {
     anim_frame blk;
 
@@ -386,7 +386,7 @@ void MOVIE_HandlePage(
 {
     anim_frame blk;
     char* frame;
-    Uint16 wait_time;
+    uint16_t wait_time;
 
     memcpy(&blk, BufferPtr, sizeof(anim_frame));
     BufferPtr += sizeof(anim_frame);
@@ -403,8 +403,8 @@ void MOVIE_HandlePage(
 
     case AN_SOUND: // Sound Chunk
     {
-        Uint16 sound_chunk;
-        sound_chunk = *(Uint16*)frame;
+        uint16_t sound_chunk;
+        sound_chunk = *(uint16_t*)frame;
 
         ::sd_play_player_sound(
             sound_chunk,
@@ -452,7 +452,7 @@ void MOVIE_HandlePage(
     // -------------------------------------------
 
     case AN_FADE_IN_FRAME: // Fade In Page
-        VL_FadeIn(0, 255, (const Uint8*)movie_palette, 30);
+        VL_FadeIn(0, 255, (const uint8_t*)movie_palette, 30);
         fade_flags = FADE_NONE;
         EverFaded = true;
         screenfaded = false;
@@ -479,8 +479,8 @@ void MOVIE_HandlePage(
 
     case AN_PAUSE: // Pause
     {
-        Uint16 vbls;
-        vbls = *(Uint16*)frame;
+        uint16_t vbls;
+        vbls = *(uint16_t*)frame;
         IN_UserInput(vbls);
         BufferPtr += blk.recsize;
 
@@ -523,8 +523,8 @@ void MOVIE_HandlePage(
 #endif
         FlipPages();
 
-        if (TimeCount < static_cast<Uint32>(MovieStuff->ticdelay)) {
-            wait_time = static_cast<Uint16>(MovieStuff->ticdelay - TimeCount);
+        if (TimeCount < static_cast<uint32_t>(MovieStuff->ticdelay)) {
+            wait_time = static_cast<uint16_t>(MovieStuff->ticdelay - TimeCount);
             ::SDL_Delay(wait_time);
         } else {
             ::SDL_Delay(10);

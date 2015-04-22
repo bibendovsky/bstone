@@ -31,19 +31,19 @@ Free Software Foundation, Inc.,
 
 
 void CA_CacheScreen(
-    Sint16 chunk);
+    int16_t chunk);
 void VH_UpdateScreen();
 void DrawHighScores();
 void ClearMemory();
 void DrawTopInfo(
     sp_type type);
 void PreloadUpdate(
-    Uint16 current,
-    Uint16 total);
+    uint16_t current,
+    uint16_t total);
 void INL_GetJoyDelta(
-    Uint16 joy,
-    Sint16* dx,
-    Sint16* dy);
+    uint16_t joy,
+    int16_t* dx,
+    int16_t* dy);
 boolean LoadTheGame(
     int handle);
 boolean IN_CheckAck();
@@ -77,7 +77,7 @@ char QuitToDosStr[] = { "      Quit to DOS?\n"
 
 boolean EscPressed = false;
 
-Sint16 lastmenumusic;
+int16_t lastmenumusic;
 
 int MENUSONG = 0;
 int ROSTER_MUS = 0;
@@ -92,31 +92,31 @@ int TEXTSONG = 0;
 // ===========================================================================
 
 void CP_ReadThis(
-    Sint16 temp1);
+    int16_t temp1);
 void CP_OrderingInfo(
-    Sint16 temp1);
+    int16_t temp1);
 void DrawEpisodePic(
-    Sint16 w);
+    int16_t w);
 void DrawAllSoundLights(
-    Sint16 which);
+    int16_t which);
 void ReadGameNames();
 void FreeMusic();
 void CP_GameOptions(
-    Sint16 temp1);
+    int16_t temp1);
 void DrawGopMenu();
 void CalibrateJoystick();
 void ExitGame();
 void CP_Switches(
-    Sint16 temp1);
+    int16_t temp1);
 void DrawSwitchMenu();
 void DrawAllSwitchLights(
-    Sint16 which);
+    int16_t which);
 void DrawSwitchDescription(
-    Sint16 which);
+    int16_t which);
 
 // BBi
 void cp_sound_volume(
-    Sint16);
+    int16_t);
 
 
 extern boolean refresh_screen;
@@ -147,8 +147,8 @@ CP_itemtype MainMenu[] = {
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "GAME OPTIONS", CP_GameOptions },
     { AT_ENABLED, "HIGH SCORES", CP_ViewScores },
-    { AT_ENABLED, "LOAD MISSION", reinterpret_cast<void (*)(Sint16)>(CP_LoadGame) },
-    { AT_DISABLED, "SAVE MISSION", reinterpret_cast<void (*)(Sint16)>(CP_SaveGame) },
+    { AT_ENABLED, "LOAD MISSION", reinterpret_cast<void (*)(int16_t)>(CP_LoadGame) },
+    { AT_DISABLED, "SAVE MISSION", reinterpret_cast<void (*)(int16_t)>(CP_SaveGame) },
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "BACK TO DEMO", CP_ExitOptions },
     { AT_ENABLED, "LOGOFF", 0 }
@@ -253,21 +253,21 @@ NewMenu[] = {
 ;
 
 
-Sint16 color_hlite[] = {
+int16_t color_hlite[] = {
     HIGHLIGHT_DISABLED_COLOR,
     HIGHLIGHT_TEXT_COLOR,
     READHCOLOR,
     HIGHLIGHT_DEACTIAVED_COLOR,
 };
 
-Sint16 color_norml[] = {
+int16_t color_norml[] = {
     DISABLED_TEXT_COLOR,
     ENABLED_TEXT_COLOR,
     READCOLOR,
     DEACTIAVED_TEXT_COLOR,
 };
 
-Sint16 EpisodeSelect[6] = {
+int16_t EpisodeSelect[6] = {
     1,
     0,
     0,
@@ -276,7 +276,7 @@ Sint16 EpisodeSelect[6] = {
     0,
 };
 
-Sint16 SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
+int16_t SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
@@ -292,71 +292,71 @@ static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
 #define type_cast(x, y) (reinterpret_cast<x>(const_cast<char*>(y)))
 
-static Uint8* ScanNames[] = { // Scan code names with single chars
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "1"), type_cast(Uint8*, "2"),
-    type_cast(Uint8*, "3"), type_cast(Uint8*, "4"),
-    type_cast(Uint8*, "5"), type_cast(Uint8*, "6"),
-    type_cast(Uint8*, "7"), type_cast(Uint8*, "8"),
-    type_cast(Uint8*, "9"), type_cast(Uint8*, "0"),
-    type_cast(Uint8*, "-"), type_cast(Uint8*, "+"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "Q"), type_cast(Uint8*, "W"),
-    type_cast(Uint8*, "E"), type_cast(Uint8*, "R"),
-    type_cast(Uint8*, "T"), type_cast(Uint8*, "Y"),
-    type_cast(Uint8*, "U"), type_cast(Uint8*, "I"),
-    type_cast(Uint8*, "O"), type_cast(Uint8*, "P"),
-    type_cast(Uint8*, "["), type_cast(Uint8*, "]"),
-    type_cast(Uint8*, "|"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "A"), type_cast(Uint8*, "S"),
-    type_cast(Uint8*, "D"), type_cast(Uint8*, "F"),
-    type_cast(Uint8*, "G"), type_cast(Uint8*, "H"),
-    type_cast(Uint8*, "J"), type_cast(Uint8*, "K"),
-    type_cast(Uint8*, "L"), type_cast(Uint8*, ";"),
-    type_cast(Uint8*, "\""), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "Z"), type_cast(Uint8*, "X"),
-    type_cast(Uint8*, "C"), type_cast(Uint8*, "V"),
-    type_cast(Uint8*, "B"), type_cast(Uint8*, "N"),
-    type_cast(Uint8*, "M"), type_cast(Uint8*, ","),
-    type_cast(Uint8*, "."), type_cast(Uint8*, "/"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "\xF"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "-"), type_cast(Uint8*, "\x15"),
-    type_cast(Uint8*, "5"), type_cast(Uint8*, "\x11"),
-    type_cast(Uint8*, "+"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "\x13"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?"),
-    type_cast(Uint8*, "?"), type_cast(Uint8*, "?")
+static uint8_t* ScanNames[] = { // Scan code names with single chars
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "1"), type_cast(uint8_t*, "2"),
+    type_cast(uint8_t*, "3"), type_cast(uint8_t*, "4"),
+    type_cast(uint8_t*, "5"), type_cast(uint8_t*, "6"),
+    type_cast(uint8_t*, "7"), type_cast(uint8_t*, "8"),
+    type_cast(uint8_t*, "9"), type_cast(uint8_t*, "0"),
+    type_cast(uint8_t*, "-"), type_cast(uint8_t*, "+"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "Q"), type_cast(uint8_t*, "W"),
+    type_cast(uint8_t*, "E"), type_cast(uint8_t*, "R"),
+    type_cast(uint8_t*, "T"), type_cast(uint8_t*, "Y"),
+    type_cast(uint8_t*, "U"), type_cast(uint8_t*, "I"),
+    type_cast(uint8_t*, "O"), type_cast(uint8_t*, "P"),
+    type_cast(uint8_t*, "["), type_cast(uint8_t*, "]"),
+    type_cast(uint8_t*, "|"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "A"), type_cast(uint8_t*, "S"),
+    type_cast(uint8_t*, "D"), type_cast(uint8_t*, "F"),
+    type_cast(uint8_t*, "G"), type_cast(uint8_t*, "H"),
+    type_cast(uint8_t*, "J"), type_cast(uint8_t*, "K"),
+    type_cast(uint8_t*, "L"), type_cast(uint8_t*, ";"),
+    type_cast(uint8_t*, "\""), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "Z"), type_cast(uint8_t*, "X"),
+    type_cast(uint8_t*, "C"), type_cast(uint8_t*, "V"),
+    type_cast(uint8_t*, "B"), type_cast(uint8_t*, "N"),
+    type_cast(uint8_t*, "M"), type_cast(uint8_t*, ","),
+    type_cast(uint8_t*, "."), type_cast(uint8_t*, "/"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "\xF"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "-"), type_cast(uint8_t*, "\x15"),
+    type_cast(uint8_t*, "5"), type_cast(uint8_t*, "\x11"),
+    type_cast(uint8_t*, "+"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "\x13"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
+    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?")
 }; // DEBUG - consolidate these
 
 // Scan codes with >1 char names
@@ -399,35 +399,35 @@ static ScanCode ExtScanCodes[] = {
     sc_none
 }; // ExtScanCodes
 
-static Uint8* ExtScanNames[] = { // Names corresponding to ExtScanCodes
-    type_cast(Uint8*, "ESC"), type_cast(Uint8*, "BKSP"),
-    type_cast(Uint8*, "TAB"), type_cast(Uint8*, "CTRL"),
-    type_cast(Uint8*, "LSHFT"), type_cast(Uint8*, "SPACE"),
-    type_cast(Uint8*, "CAPSLK"), type_cast(Uint8*, "F1"),
-    type_cast(Uint8*, "F2"), type_cast(Uint8*, "F3"),
-    type_cast(Uint8*, "F4"), type_cast(Uint8*, "F5"),
-    type_cast(Uint8*, "F6"), type_cast(Uint8*, "F7"),
-    type_cast(Uint8*, "F8"), type_cast(Uint8*, "F9"),
-    type_cast(Uint8*, "F10"), type_cast(Uint8*, "F11"),
-    type_cast(Uint8*, "F12"), type_cast(Uint8*, "SCRLK"),
-    type_cast(Uint8*, "ENTER"), type_cast(Uint8*, "RSHFT"),
-    type_cast(Uint8*, "PRTSC"), type_cast(Uint8*, "ALT"),
-    type_cast(Uint8*, "HOME"), type_cast(Uint8*, "PGUP"),
-    type_cast(Uint8*, "END"), type_cast(Uint8*, "PGDN"),
-    type_cast(Uint8*, "INS"), type_cast(Uint8*, "DEL"),
-    type_cast(Uint8*, "NUMLK"), type_cast(Uint8*, "UP"),
-    type_cast(Uint8*, "DOWN"), type_cast(Uint8*, "LEFT"),
-    type_cast(Uint8*, "RIGHT"), type_cast(Uint8*, "")
+static uint8_t* ExtScanNames[] = { // Names corresponding to ExtScanCodes
+    type_cast(uint8_t*, "ESC"), type_cast(uint8_t*, "BKSP"),
+    type_cast(uint8_t*, "TAB"), type_cast(uint8_t*, "CTRL"),
+    type_cast(uint8_t*, "LSHFT"), type_cast(uint8_t*, "SPACE"),
+    type_cast(uint8_t*, "CAPSLK"), type_cast(uint8_t*, "F1"),
+    type_cast(uint8_t*, "F2"), type_cast(uint8_t*, "F3"),
+    type_cast(uint8_t*, "F4"), type_cast(uint8_t*, "F5"),
+    type_cast(uint8_t*, "F6"), type_cast(uint8_t*, "F7"),
+    type_cast(uint8_t*, "F8"), type_cast(uint8_t*, "F9"),
+    type_cast(uint8_t*, "F10"), type_cast(uint8_t*, "F11"),
+    type_cast(uint8_t*, "F12"), type_cast(uint8_t*, "SCRLK"),
+    type_cast(uint8_t*, "ENTER"), type_cast(uint8_t*, "RSHFT"),
+    type_cast(uint8_t*, "PRTSC"), type_cast(uint8_t*, "ALT"),
+    type_cast(uint8_t*, "HOME"), type_cast(uint8_t*, "PGUP"),
+    type_cast(uint8_t*, "END"), type_cast(uint8_t*, "PGDN"),
+    type_cast(uint8_t*, "INS"), type_cast(uint8_t*, "DEL"),
+    type_cast(uint8_t*, "NUMLK"), type_cast(uint8_t*, "UP"),
+    type_cast(uint8_t*, "DOWN"), type_cast(uint8_t*, "LEFT"),
+    type_cast(uint8_t*, "RIGHT"), type_cast(uint8_t*, "")
 };
 
 #else
 
-Uint8* ScanNames, * ExtScanNames;
+uint8_t* ScanNames, * ExtScanNames;
 ScanCode* ExtScanCodes;
 
 #endif
 
-static Uint8 special_keys[] = {
+static uint8_t special_keys[] = {
     sc_back_quote, sc_equals, sc_minus, sc_l, sc_p, sc_m, sc_s, sc_i, sc_q, sc_w, sc_e, sc_return, sc_1, sc_2, sc_3, sc_4, sc_5, sc_tab
 };
 
@@ -541,12 +541,12 @@ const int k_binds_text_keys_gap = 3;
 const int k_binds_line_spacing = 1;
 const int k_binds_top = 28;
 
-const Uint8 k_binds_category_color = 0x4A;
-const Uint8 k_binds_text_color = 0x56;
-const Uint8 k_binds_key_text_color = 0x7F;
-const Uint8 k_binds_key_bar_default_color = 0x03;
-const Uint8 k_binds_key_bar_active_color = 0x31;
-const Uint8 k_binds_key_bar_assign_color = 0x14;
+const uint8_t k_binds_category_color = 0x4A;
+const uint8_t k_binds_text_color = 0x56;
+const uint8_t k_binds_key_text_color = 0x7F;
+const uint8_t k_binds_key_bar_default_color = 0x03;
+const uint8_t k_binds_key_bar_active_color = 0x31;
+const uint8_t k_binds_key_bar_assign_color = 0x14;
 
 int binds_count;
 int binds_window;
@@ -923,7 +923,7 @@ void binds_draw_keys(
     bool is_current = (item_index == binds_window_offset);
 
     for (int k = 0; k < k_max_binding_keys; ++k) {
-        Uint8 color;
+        uint8_t color;
         ScanCode key;
         const char* key_name;
 
@@ -1241,13 +1241,13 @@ void HelpScreens()
 void HelpPresenter(
     const char* fname,
     boolean continue_keys,
-    Uint16 id_cache,
+    uint16_t id_cache,
     boolean startmusic)
 {
 #define FULL_VIEW_WIDTH 19
 
     PresenterInfo pi;
-    Sint16 oldwidth;
+    int16_t oldwidth;
 
     memset(&pi, 0, sizeof(pi));
 
@@ -1321,9 +1321,9 @@ void HelpPresenter(
 // US_ControlPanel() - Control Panel!  Ta Da!
 // --------------------------------------------------------------------------
 void US_ControlPanel(
-    Uint8 scancode)
+    uint8_t scancode)
 {
-    Sint16 which;
+    int16_t which;
 
 #ifdef CACHE_KEY_DATA
     CA_CacheGrChunk(SCANNAMES_DATA);
@@ -1500,7 +1500,7 @@ void DrawMainMenu()
 // READ THIS!
 // --------------------------------------------------------------------------
 void CP_ReadThis(
-    Sint16)
+    int16_t)
 {
     ControlPanelFree();
     HelpScreens();
@@ -1512,7 +1512,7 @@ void CP_ReadThis(
 // CP_OrderingInfo()
 // --------------------------------------------------------------------------
 void CP_OrderingInfo(
-    Sint16)
+    int16_t)
 {
     ControlPanelFree();
 #ifndef ID_CACHE_HELP
@@ -1528,7 +1528,7 @@ void CP_OrderingInfo(
 // CP_BlakeStoneSaga()
 // -------------------------------------------------------------------------
 void CP_BlakeStoneSaga(
-    Sint16)
+    int16_t)
 {
     ControlPanelFree();
 #ifndef ID_CACHE_HELP
@@ -1542,14 +1542,14 @@ void CP_BlakeStoneSaga(
 // --------------------------------------------------------------------------
 // CP_CheckQuick() - CHECK QUICK-KEYS & QUIT (WHILE IN A GAME)
 // --------------------------------------------------------------------------
-Sint16 CP_CheckQuick(
-    Uint16 scancode)
+int16_t CP_CheckQuick(
+    uint16_t scancode)
 {
     switch (scancode) {
     // END GAME
     //
     case sc_f7:
-        VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
+        VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
         CA_CacheGrChunk(STARTFONT + 1);
 
         WindowH = 160;
@@ -1572,7 +1572,7 @@ Sint16 CP_CheckQuick(
 
             strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
             strcat(string, "\"?");
-            VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
+            VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
 
 #if IN_DEVELOPMENT
             if (TestQuickSave || Confirm(string)) {
@@ -1613,7 +1613,7 @@ Sint16 CP_CheckQuick(
 
             strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
             strcat(string, "\"?");
-            VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
+            VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
 
             if (Confirm(string)) {
                 CP_LoadGame(1);
@@ -1645,7 +1645,7 @@ Sint16 CP_CheckQuick(
     //
     case sc_f10:
         CA_CacheGrChunk(STARTFONT + 1);
-        VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
+        VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
 
         WindowX = WindowY = 0;
         WindowW = 320;
@@ -1667,7 +1667,7 @@ Sint16 CP_CheckQuick(
 // --------------------------------------------------------------------------
 // END THE CURRENT GAME
 // --------------------------------------------------------------------------
-Sint16 CP_EndGame()
+int16_t CP_EndGame()
 {
     if (!Confirm(ENDGAMESTR)) {
         return 0;
@@ -1691,7 +1691,7 @@ Sint16 CP_EndGame()
 // CP_ViewScores() - VIEW THE HIGH SCORES
 // --------------------------------------------------------------------------
 void CP_ViewScores(
-    Sint16)
+    int16_t)
 {
     fontnumber = 4;
 
@@ -1713,9 +1713,9 @@ void CP_ViewScores(
 // CP_NewGame() - START A NEW GAME
 // --------------------------------------------------------------------------
 void CP_NewGame(
-    Sint16)
+    int16_t)
 {
-    Sint16 which, episode;
+    int16_t which, episode;
 
     DrawMenuTitle("Difficulty Level");
     DrawInstructions(IT_STANDARD);
@@ -1931,7 +1931,7 @@ void DrawNewGame()
 // DRAW NEW GAME GRAPHIC
 // --------------------------------------------------------------------------
 void DrawNewGameDiff(
-    Sint16 w)
+    int16_t w)
 {
     VWB_DrawPic(192, 77, w + C_BABYMODEPIC);
 }
@@ -1940,7 +1940,7 @@ void DrawNewGameDiff(
 // DRAW NEW GAME GRAPHIC
 // --------------------------------------------------------------------------
 void DrawEpisodePic(
-    Sint16 w)
+    int16_t w)
 {
     VWB_DrawPic(176, 72, w + C_EPISODE1PIC);
 }
@@ -1949,9 +1949,9 @@ void DrawEpisodePic(
 // CP_GameOptions() - DRAW THE GAME OPTIONS MENU
 // --------------------------------------------------------------------------
 void CP_GameOptions(
-    Sint16)
+    int16_t)
 {
-    Sint16 which;
+    int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     DrawGopMenu();
@@ -2011,9 +2011,9 @@ void ChangeSwaps()
 // GAME SWITCHES MENU
 // --------------------------------------------------------------------------
 void CP_Switches(
-    Sint16)
+    int16_t)
 {
-    Sint16 which;
+    int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     DrawSwitchMenu();
@@ -2107,10 +2107,10 @@ void DrawSwitchMenu()
 // DrawAllSwitchLights()
 // --------------------------------------------------------------------------
 void DrawAllSwitchLights(
-    Sint16 which)
+    int16_t which)
 {
-    Sint16 i;
-    Uint16 Shape;
+    int16_t i;
+    uint16_t Shape;
 
     for (i = 0; i < SwitchItems.amount; i++) {
         if (SwitchMenu[i].string[0]) {
@@ -2197,7 +2197,7 @@ void DrawAllSwitchLights(
 // --------------------------------------------------------------------------
 
 void DrawSwitchDescription(
-    Sint16 which)
+    int16_t which)
 {
     const char* instr[] = {
         "TOGGLES LIGHT SOURCING IN HALLWAYS",
@@ -2237,9 +2237,9 @@ void DrawSwitchDescription(
 // HANDLE SOUND MENU
 // --------------------------------------------------------------------------
 void CP_Sound(
-    Sint16)
+    int16_t)
 {
-    Sint16 which;
+    int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     DrawSoundMenu();
@@ -2341,10 +2341,10 @@ void DrawSoundMenu()
 // DrawAllSoundLights()
 // --------------------------------------------------------------------------
 void DrawAllSoundLights(
-    Sint16 which)
+    int16_t which)
 {
-    Sint16 i;
-    Uint16 Shape;
+    int16_t i;
+    uint16_t Shape;
 
     for (i = 0; i < SndItems.amount; i++) {
         if (SndMenu[i].string[0]) {
@@ -2400,7 +2400,7 @@ extern char LS_current, LS_total;
 // DrawLSAction() - DRAW LOAD/SAVE IN PROGRESS
 // --------------------------------------------------------------------------
 void DrawLSAction(
-    Sint16 which)
+    int16_t which)
 {
     char total[] = { 19, 19 };
 
@@ -2422,11 +2422,11 @@ void DrawLSAction(
 // --------------------------------------------------------------------------
 // CP_LoadGame() - LOAD SAVED GAMES
 // --------------------------------------------------------------------------
-Sint16 CP_LoadGame(
-    Sint16 quick)
+int16_t CP_LoadGame(
+    int16_t quick)
 {
-    Sint16 which;
-    Sint16 exit = 0;
+    int16_t which;
+    int16_t exit = 0;
 
     //
     // QUICKLOAD?
@@ -2505,9 +2505,9 @@ restart:
 // HIGHLIGHT CURRENT SELECTED ENTRY
 //
 void TrackWhichGame(
-    Sint16 w)
+    int16_t w)
 {
-    static Sint16 lastgameon = 0;
+    static int16_t lastgameon = 0;
 
     PrintLSEntry(lastgameon, ENABLED_TEXT_COLOR);
     PrintLSEntry(w, HIGHLIGHT_TEXT_COLOR);
@@ -2519,12 +2519,12 @@ void TrackWhichGame(
 // DRAW THE LOAD/SAVE SCREEN
 // --------------------------------------------------------------------------
 void DrawLoadSaveScreen(
-    Sint16 loadsave)
+    int16_t loadsave)
 {
 #define DISKX 100
 #define DISKY 0
 
-    Sint16 i;
+    int16_t i;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     ClearMScreen();
@@ -2555,8 +2555,8 @@ void DrawLoadSaveScreen(
 // PRINT LOAD/SAVE GAME ENTRY W/BOX OUTLINE
 // --------------------------------------------------------------------------
 void PrintLSEntry(
-    Sint16 w,
-    Sint16 color)
+    int16_t w,
+    int16_t color)
 {
     SETFONTCOLOR(color, BKGDCOLOR);
     DrawOutline(LSM_X + LSItems.indent, LSM_Y + w * LSItems.y_spacing - 2, LSM_W - LSItems.indent, 8, color, color);
@@ -2578,10 +2578,10 @@ void PrintLSEntry(
 // --------------------------------------------------------------------------
 // SAVE CURRENT GAME
 // --------------------------------------------------------------------------
-Sint16 CP_SaveGame(
-    Sint16 quick)
+int16_t CP_SaveGame(
+    int16_t quick)
 {
-    Sint16 which, exit = 0;
+    int16_t which, exit = 0;
     char input[GAME_DESCRIPTION_LEN + 1];
     bool temp_caps = allcaps;
     US_CursorStruct TermCursor = { '@', 0, HIGHLIGHT_TEXT_COLOR, 2 };
@@ -2678,7 +2678,7 @@ Sint16 CP_SaveGame(
 // EXIT OPTIONS
 // --------------------------------------------------------------------------
 void CP_ExitOptions(
-    Sint16)
+    int16_t)
 {
     StartGame = 1;
 }
@@ -2687,12 +2687,12 @@ void CP_ExitOptions(
 // DEFINE CONTROLS
 // --------------------------------------------------------------------------
 void CP_Control(
-    Sint16)
+    int16_t)
 {
 
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, CALIBRATEJOY, MOUSESENS, CUSTOMIZE};
 
-    Sint16 which;
+    int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
 
@@ -2787,7 +2787,7 @@ void DrawMouseSens()
 // --------------------------------------------------------------------------
 void CalibrateJoystick()
 {
-    Uint16 minx, maxx, miny, maxy;
+    uint16_t minx, maxx, miny, maxy;
 
     CacheMessage(CALJOY1_TEXT);
     VW_UpdateScreen();
@@ -2831,10 +2831,10 @@ void CalibrateJoystick()
 // ADJUST MOUSE SENSITIVITY
 // --------------------------------------------------------------------------
 void MouseSensitivity(
-    Sint16)
+    int16_t)
 {
     ControlInfo ci;
-    Sint16 exit = 0, oldMA;
+    int16_t exit = 0, oldMA;
 
     oldMA = mouseadjustment;
     DrawMouseSens();
@@ -2903,7 +2903,7 @@ void DrawCtlScreen()
 {
 #define Y_CTL_PIC_OFS (3)
 
-    Sint16 i, x, y;
+    int16_t i, x, y;
 
     ClearMScreen();
     DrawMenuTitle("CONTROL");
@@ -2995,14 +2995,14 @@ char mbarray[4][3] = { "B0", "B1", "B2", "B3" },
 // CustomControls() CUSTOMIZE CONTROLS
 // --------------------------------------------------------------------------
 void CustomControls(
-    Sint16)
+    int16_t)
 {
     if (in_use_modern_bindings) {
         binds_draw_menu();
         return;
     }
 
-    Sint16 which;
+    int16_t which;
 
     DrawCustomScreen();
 
@@ -3108,16 +3108,16 @@ enum ControlButton2 {
     LEFT
 }; // enum ControlButton2
 
-Sint16 moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
+int16_t moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
 
 void EnterCtrlData(
-    Sint16 index,
+    int16_t index,
     CustomCtrls* cust,
-    void (* DrawRtn)(Sint16),
-    void (* PrintRtn)(Sint16),
-    Sint16 type)
+    void (* DrawRtn)(int16_t),
+    void (* PrintRtn)(int16_t),
+    int16_t type)
 {
-    Sint16 j, exit, tick, redraw, which = 0, x = 0, picked;
+    int16_t j, exit, tick, redraw, which = 0, x = 0, picked;
     ControlInfo ci;
     bool clean_display = true;
 
@@ -3176,7 +3176,7 @@ void EnterCtrlData(
             SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, HIGHLIGHT_BOX_COLOR);
 
             do {
-                Sint16 button, result = 0;
+                int16_t button, result = 0;
 
                 if (type == KEYBOARDBTNS || type == KEYBOARDMOVE) {
                     IN_ClearKeysDown();
@@ -3226,7 +3226,7 @@ void EnterCtrlData(
                     }
 
                     if (result) {
-                        Sint16 z;
+                        int16_t z;
 
                         for (z = 0; z < 4; z++) {
                             if (order[which] == buttonmouse[z]) {
@@ -3257,7 +3257,7 @@ void EnterCtrlData(
                     }
 
                     if (result) {
-                        Sint16 z;
+                        int16_t z;
 
                         for (z = 0; z < 4; z++) {
                             if (order[which] == buttonjoy[z]) {
@@ -3417,9 +3417,9 @@ void EnterCtrlData(
 // FixupCustom() - FIXUP GUN CURSOR OVERDRAW SHIT
 // --------------------------------------------------------------------------
 void FixupCustom(
-    Sint16 w)
+    int16_t w)
 {
-    static Sint16 lastwhich = -1;
+    static int16_t lastwhich = -1;
 
     switch (w) {
     case 0: DrawCustMouse(1);
@@ -3455,7 +3455,7 @@ void FixupCustom(
 // ---------------------------------------------------------------------------
 void DrawCustomScreen()
 {
-    Sint16 i;
+    int16_t i;
 
     ClearMScreen();
     DrawMenuTitle("CUSTOMIZE");
@@ -3523,9 +3523,9 @@ void DrawCustomScreen()
 // PrintCustMouse
 // ---------------------------------------------------------------------------
 void PrintCustMouse(
-    Sint16 i)
+    int16_t i)
 {
-    Sint16 j;
+    int16_t j;
 
     for (j = 0; j < 4; j++) {
         if (order[i] == buttonmouse[j]) {
@@ -3542,9 +3542,9 @@ void PrintCustMouse(
 // DrawCustMouse
 // ---------------------------------------------------------------------------
 void DrawCustMouse(
-    Sint16 hilight)
+    int16_t hilight)
 {
-    Sint16 i, color;
+    int16_t i, color;
 
     color = ENABLED_TEXT_COLOR;
 
@@ -3573,9 +3573,9 @@ void DrawCustMouse(
 // PrintCustJoy
 // ---------------------------------------------------------------------------
 void PrintCustJoy(
-    Sint16 i)
+    int16_t i)
 {
-    Sint16 j;
+    int16_t j;
 
     for (j = 0; j < 4; j++) {
         if (order[i] == buttonjoy[j]) {
@@ -3591,9 +3591,9 @@ void PrintCustJoy(
 // DrawCustJoy
 // ---------------------------------------------------------------------------
 void DrawCustJoy(
-    Sint16 hilight)
+    int16_t hilight)
 {
-    Sint16 i, color;
+    int16_t i, color;
 
 
     color = ENABLED_TEXT_COLOR;
@@ -3622,7 +3622,7 @@ void DrawCustJoy(
 // PrintCustKeybd
 // ---------------------------------------------------------------------------
 void PrintCustKeybd(
-    Sint16 i)
+    int16_t i)
 {
     PrintX = CST_START + CST_SPC * i;
     US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[static_cast<int>(order[i])]))));
@@ -3635,9 +3635,9 @@ void PrintCustKeybd(
 // DrawCustKeybd
 // ---------------------------------------------------------------------------
 void DrawCustKeybd(
-    Sint16 hilight)
+    int16_t hilight)
 {
-    Sint16 i, color;
+    int16_t i, color;
 
     if (hilight) {
         color = HIGHLIGHT_TEXT_COLOR;
@@ -3661,7 +3661,7 @@ void DrawCustKeybd(
 // PrintCustKeys()
 // ---------------------------------------------------------------------------
 void PrintCustKeys(
-    Sint16 i)
+    int16_t i)
 {
     PrintX = CST_START + CST_SPC * i;
     US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(dirscan[moveorder[i]]))));
@@ -3674,9 +3674,9 @@ void PrintCustKeys(
 // DrawCustKeys()
 // ---------------------------------------------------------------------------
 void DrawCustKeys(
-    Sint16 hilight)
+    int16_t hilight)
 {
-    Sint16 i, color;
+    int16_t i, color;
 
     color = ENABLED_TEXT_COLOR;
 
@@ -3727,10 +3727,10 @@ void ClearMScreen()
 // Un/Cache a LUMP of graphics
 // ---------------------------------------------------------------------------
 void CacheLump(
-    Sint16 lumpstart,
-    Sint16 lumpend)
+    int16_t lumpstart,
+    int16_t lumpend)
 {
-    Sint16 i;
+    int16_t i;
 
     for (i = lumpstart; i <= lumpend; i++) {
         CA_CacheGrChunk(i);
@@ -3743,10 +3743,10 @@ void CacheLump(
 // UnCacheLump
 // ---------------------------------------------------------------------------
 void UnCacheLump(
-    Sint16 lumpstart,
-    Sint16 lumpend)
+    int16_t lumpstart,
+    int16_t lumpend)
 {
-    Sint16 i;
+    int16_t i;
 
     for (i = lumpstart; i <= lumpend; i++) {
         FREEFONT(i);
@@ -3758,11 +3758,11 @@ void UnCacheLump(
 // Draw a window for a menu
 // ---------------------------------------------------------------------------
 void DrawWindow(
-    Sint16 x,
-    Sint16 y,
-    Sint16 w,
-    Sint16 h,
-    Sint16 wcolor)
+    int16_t x,
+    int16_t y,
+    int16_t w,
+    int16_t h,
+    int16_t wcolor)
 {
     VWB_Bar(x, y, w, h, wcolor);
     DrawOutline(x, y, w, h, BORD2COLOR, DEACTIVE);
@@ -3774,12 +3774,12 @@ void DrawWindow(
 // DrawOutline
 // ---------------------------------------------------------------------------
 void DrawOutline(
-    Sint16 x,
-    Sint16 y,
-    Sint16 w,
-    Sint16 h,
-    Sint16 color1,
-    Sint16 color2)
+    int16_t x,
+    int16_t y,
+    int16_t w,
+    int16_t h,
+    int16_t color1,
+    int16_t color2)
 {
     VWB_Hlin(x, x + w, y, color2);
     VWB_Vlin(y, y + h, x, color2);
@@ -3890,10 +3890,10 @@ void ControlPanelAlloc()
 // ---------------------------------------------------------------------------
 void ShadowPrint(
     const char* strng,
-    Sint16 x,
-    Sint16 y)
+    int16_t x,
+    int16_t y)
 {
-    Sint16 old_bc, old_fc;
+    int16_t old_bc, old_fc;
 
     old_fc = fontcolor;
     old_bc = backcolor;
@@ -3913,16 +3913,16 @@ void ShadowPrint(
 // ---------------------------------------------------------------------------
 // HandleMenu() - Handle moving gun around a menu
 // ---------------------------------------------------------------------------
-Sint16 HandleMenu(
+int16_t HandleMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    void (* routine)(Sint16 w))
+    void (* routine)(int16_t w))
 {
 #define box_on item_i->cursor.on
     char key;
-    static Sint16 redrawitem = 1;
+    static int16_t redrawitem = 1;
 
-    Sint16 i, x, y, basey, exit, which, flash_tics;
+    int16_t i, x, y, basey, exit, which, flash_tics;
     ControlInfo ci;
 
     which = item_i->curpos;
@@ -3990,7 +3990,7 @@ Sint16 HandleMenu(
 
         key = LastASCII;
         if (key) {
-            Sint16 ok = 0;
+            int16_t ok = 0;
 
             if (key >= 'a') {
                 key -= 'a' - 'A';
@@ -4170,9 +4170,9 @@ Sint16 HandleMenu(
 void EraseGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    Sint16 x,
-    Sint16 y,
-    Sint16 which)
+    int16_t x,
+    int16_t y,
+    int16_t which)
 {
     VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, TERM_BACK_COLOR);
     SetTextColor(items + which, 0);
@@ -4191,11 +4191,11 @@ void EraseGun(
 void DrawGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    Sint16 x,
-    Sint16* y,
-    Sint16 which,
-    Sint16 basey,
-    void (* routine)(Sint16 w))
+    int16_t x,
+    int16_t* y,
+    int16_t which,
+    int16_t basey,
+    void (* routine)(int16_t w))
 {
     *y = basey + which * item_i->y_spacing;
 
@@ -4222,7 +4222,7 @@ void DrawGun(
 // TicDelay() - DELAY FOR AN AMOUNT OF TICS OR UNTIL CONTROLS ARE INACTIVE
 // ---------------------------------------------------------------------------
 void TicDelay(
-    Sint16 count)
+    int16_t count)
 {
     ControlInfo ci;
 
@@ -4230,7 +4230,7 @@ void TicDelay(
 
     do {
         ReadAnyControl(&ci);
-    } while (TimeCount < static_cast<Uint32>(count) && ci.dir != dir_None);
+    } while (TimeCount < static_cast<uint32_t>(count) && ci.dir != dir_None);
 }
 
 // ---------------------------------------------------------------------------
@@ -4243,7 +4243,7 @@ void DrawMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items)
 {
-    Sint16 i, which = item_i->curpos;
+    int16_t i, which = item_i->curpos;
 
     WindowX = PrintX = item_i->x + item_i->indent;
     WindowY = PrintY = item_i->y;
@@ -4262,7 +4262,7 @@ void DrawMenu(
 // ---------------------------------------------------------------------------
 void SetTextColor(
     CP_itemtype* items,
-    Sint16 hlight)
+    int16_t hlight)
 {
     if (hlight) {
         SETFONTCOLOR(color_hlite[items->active], TERM_BACK_COLOR);
@@ -4378,9 +4378,9 @@ void ReadAnyControl(
     }
 
     if (joystickenabled && !mouseactive) {
-        Sint16 jx;
-        Sint16 jy;
-        Sint16 jb;
+        int16_t jx;
+        int16_t jy;
+        int16_t jb;
 
         ::INL_GetJoyDelta(joystickport, &jx, &jy);
 
@@ -4418,10 +4418,10 @@ void ReadAnyControl(
 // DRAW DIALOG AND CONFIRM YES OR NO TO QUESTION
 //
 ////////////////////////////////////////////////////////////////////
-Sint16 Confirm(
+int16_t Confirm(
     const char* string)
 {
-    Sint16 xit = 0, x, y, tick = 0, whichsnd[2] = { ESCPRESSEDSND, SHOOTSND };
+    int16_t xit = 0, x, y, tick = 0, whichsnd[2] = { ESCPRESSEDSND, SHOOTSND };
 
 
     Message(string);
@@ -4495,10 +4495,10 @@ Sint16 Confirm(
 void Message(
     const char* string)
 {
-    Sint16 h = 0, w = 0, mw = 0;
+    int16_t h = 0, w = 0, mw = 0;
     size_t i;
     fontstruct* font;
-    Uint16 OldPrintX, OldPrintY;
+    uint16_t OldPrintX, OldPrintY;
 
     fontnumber = 1;
     CA_CacheGrChunk(STARTFONT + 1);
@@ -4570,7 +4570,7 @@ void TerminateStr(
 // CacheMessage() - Caches and prints a message in a window.
 // ---------------------------------------------------------------------------
 void CacheMessage(
-    Uint16 MessageNum)
+    uint16_t MessageNum)
 {
     char* string;
 
@@ -4596,14 +4596,14 @@ void CacheMessage(
 //
 // ---------------------------------------------------------------------------
 
-Uint32 CacheCompData(
-    Uint16 item_number,
+uint32_t CacheCompData(
+    uint16_t item_number,
     void** dst_ptr)
 {
     char* chunk;
     char* dst;
     CompHeader_t CompHeader;
-    Uint32 data_length;
+    uint32_t data_length;
 
     // Load compressed data
     CA_CacheGrChunk(item_number);
@@ -4613,9 +4613,9 @@ Uint32 CacheCompData(
         data_length = ::ca_gr_last_expanded_size;
     } else {
         memcpy(CompHeader.NameId, &chunk[0], 4);
-        CompHeader.OriginalLen = ((Uint32*)&chunk[4])[0];
-        CompHeader.CompType = (ct_TYPES)((Sint16*)&chunk[8])[0];
-        CompHeader.CompressLen = ((Uint32*)&chunk[10])[0];
+        CompHeader.OriginalLen = ((uint32_t*)&chunk[4])[0];
+        CompHeader.CompType = (ct_TYPES)((int16_t*)&chunk[8])[0];
+        CompHeader.CompressLen = ((uint32_t*)&chunk[10])[0];
 
         data_length = CompHeader.OriginalLen;
 
@@ -4664,7 +4664,7 @@ Uint32 CacheCompData(
 //
 // -------------------------------------------------------------------------
 boolean CheckForSpecialCode(
-    Uint16 ItemNum)
+    uint16_t ItemNum)
 {
     void* code;
     boolean return_val = false;
@@ -4699,7 +4699,7 @@ boolean CheckForSpecialCode(
 // StartCPMusic()
 // ---------------------------------------------------------------------------
 void StartCPMusic(
-    Sint16 song)
+    int16_t song)
 {
     int chunk;
 
@@ -4707,7 +4707,7 @@ void StartCPMusic(
 
     SD_MusicOff();
     chunk = song;
-    CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + chunk));
+    CA_CacheAudioChunk(static_cast<int16_t>(STARTMUSIC + chunk));
     ::SD_StartMusic(chunk);
 }
 
@@ -4726,19 +4726,19 @@ void FreeMusic()
 // IN_GetScanName() - Returns a string containing the name of the
 //      specified scan code
 // ---------------------------------------------------------------------------
-Uint8 far* IN_GetScanName(
+uint8_t far* IN_GetScanName(
     ScanCode scan)
 {
-    Uint8* p;
+    uint8_t* p;
     ScanCode* s;
 
     for (s = ExtScanCodes, p = ExtScanNames; *s; p += 7, s++) {
         if (*s == scan) {
-            return (Uint8*)p;
+            return (uint8_t*)p;
         }
     }
 
-    return (Uint8*)(ScanNames + (scan << 1));
+    return (uint8_t*)(ScanNames + (scan << 1));
 }
 
 #else
@@ -4747,10 +4747,10 @@ Uint8 far* IN_GetScanName(
 // IN_GetScanName() - Returns a string containing the name of the
 //      specified scan code
 // ---------------------------------------------------------------------------
-Uint8* IN_GetScanName(
+uint8_t* IN_GetScanName(
     ScanCode scan)
 {
-    Uint8** p;
+    uint8_t** p;
     ScanCode* s;
 
     for (s = ExtScanCodes, p = ExtScanNames; *s; p++, s++) {
@@ -4794,7 +4794,7 @@ void CheckPause()
 void DrawMenuGun(
     CP_iteminfo* iteminfo)
 {
-    Sint16 x, y;
+    int16_t x, y;
 
     x = iteminfo->cursor.x;
     y = iteminfo->y + iteminfo->curpos * iteminfo->y_spacing + iteminfo->cursor.y_ofs;
@@ -4895,7 +4895,7 @@ void draw_volume_controls()
 }
 
 void cp_sound_volume(
-    Sint16)
+    int16_t)
 {
     ClearMScreen();
     DrawMenuTitle("SOUND VOLUME");

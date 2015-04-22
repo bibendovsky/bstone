@@ -32,8 +32,8 @@ Free Software Foundation, Inc.,
 #pragma hdrstop
 #endif
 
-Uint16 sdStartPCSounds = STARTPCSOUNDS;
-Uint16 sdStartALSounds = STARTADLIBSOUNDS;
+uint16_t sdStartPCSounds = STARTPCSOUNDS;
+uint16_t sdStartALSounds = STARTADLIBSOUNDS;
 
-Sint16 sdLastSound = LASTSOUND;
-Sint16 DigiMap[LASTSOUND];
+int16_t sdLastSound = LASTSOUND;
+int16_t DigiMap[LASTSOUND];

@@ -48,7 +48,7 @@ Free Software Foundation, Inc.,
 
 #define false (0)
 #define true (1)
-typedef Sint16 boolean;
+typedef int16_t boolean;
 
 typedef struct  {
     int x, y;

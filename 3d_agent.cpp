@@ -40,15 +40,15 @@ void VL_LatchToScreen(
 void StartDamageFlash(
     int damage);
 void StartBonusFlash();
-Sint16 CalcAngle(
+int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
 void PushWall(
-    Sint16 checkx,
-    Sint16 checky,
-    Sint16 dir);
+    int16_t checkx,
+    int16_t checky,
+    int16_t dir);
 void OperateDoor(
-    Sint16 door);
+    int16_t door);
 
 void TryDropPlasmaDetonator();
 
@@ -58,7 +58,7 @@ void InitAreas();
 void FirstSighting(
     objtype* ob);
 void OpenDoor(
-    Sint16 door);
+    int16_t door);
 void DrawTopInfo(
     sp_type type);
 void DoActor(
@@ -104,7 +104,7 @@ void RunBlakeRun();
 
 // Text "InfoArea" defines
 #define INFOAREA_X 3
-#define INFOAREA_Y ((Uint16)200 - STATUSLINES + 3)
+#define INFOAREA_Y ((uint16_t)200 - STATUSLINES + 3)
 #define INFOAREA_W 109
 #define INFOAREA_H 37
 
@@ -131,18 +131,18 @@ void RunBlakeRun();
 */
 
 extern boolean noShots;
-extern Sint16 bounceOk;
+extern int16_t bounceOk;
 
-Sint16 tryDetonatorDelay = 0;
+int16_t tryDetonatorDelay = 0;
 
 //
 // player state info
 //
-Sint32 thrustspeed;
+int32_t thrustspeed;
 
 // unsigned plux,pluy; // player coordinates scaled to unsigned
 
-Sint16 anglefrac;
+int16_t anglefrac;
 
 objtype* LastAttacker;
 
@@ -155,8 +155,8 @@ char term_com_name[13] = { "TERM_CMD." };
 char term_msg_name[13] = { "TERM_MSG." };
 #endif
 
-Uint16 player_oldtilex;
-Uint16 player_oldtiley;
+uint16_t player_oldtilex;
+uint16_t player_oldtiley;
 
 // BBi
 extern bstone::MemoryStream g_playtemp;
@@ -187,14 +187,14 @@ void ForceUpdateStatusBar();
 
 void UpdateRadarGuage();
 void DrawLedStrip(
-    Sint16 x,
-    Sint16 y,
-    Sint16 frac,
-    Sint16 max);
+    int16_t x,
+    int16_t y,
+    int16_t frac,
+    int16_t max);
 void DisplayPinballBonus();
 void CheckPinballBonus(
-    Sint32 points);
-Uint8 LevelCompleted();
+    int32_t points);
+uint8_t LevelCompleted();
 void T_Player(
     objtype* ob);
 void T_Attack(
@@ -203,7 +203,7 @@ void T_Attack(
 statetype s_player = { 0, 0, 0, &T_Player, NULL, NULL };
 statetype s_attack = { 0, 0, 0, &T_Attack, NULL, NULL };
 
-Sint32 playerxmove, playerymove;
+int32_t playerxmove, playerymove;
 
 atkinf_t attackinfo[7][14] = {
     { { 6, 0, 1 }, { 6, 2, 2 }, { 6, 0, 3 }, { 6, -1, 4 } }, // Auto charge
@@ -242,20 +242,20 @@ char LitAmmo[2][22] = { { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0,
 
 #define IA_MAX_LINE 30
 typedef struct InfoArea_Struct {
-    Sint16 x, y;
-    Sint16 text_color;
-    Sint16 backgr_color;
-    Sint16 left_margin;
+    int16_t x, y;
+    int16_t text_color;
+    int16_t backgr_color;
+    int16_t left_margin;
     char delay;
     char numanims;
     char framecount;
 } InfoArea_Struct;
 
-Uint16 LastMsgPri = 0;
-Sint16 MsgTicsRemain = 0;
+uint16_t LastMsgPri = 0;
+int16_t MsgTicsRemain = 0;
 classtype LastInfoAttacker = nothing;
 
-Sint16 LastInfoAttacker_Cloaked = 0;
+int16_t LastInfoAttacker_Cloaked = 0;
 
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
@@ -275,9 +275,9 @@ char ClearInfoArea_COUNT = 3;
 
 void DrawWeapon();
 void GiveWeapon(
-    Sint16 weapon);
+    int16_t weapon);
 void GiveAmmo(
-    Sint16 ammo);
+    int16_t ammo);
 void DrawGAmmoNum();
 void DrawMAmmoNum();
 void DrawPDAmmoMsg();
@@ -286,20 +286,20 @@ void SW_HandleActor(
     objtype* obj);
 void SW_HandleStatic(
     statobj_t* stat,
-    Uint16 tilex,
-    Uint16 tiley);
+    uint16_t tilex,
+    uint16_t tiley);
 
 // ===========================================================================
 
 // ----------
 
-Uint8 ShowRatio(
-    Sint16 bx,
-    Sint16 by,
-    Sint16 px,
-    Sint16 py,
-    Sint32 total,
-    Sint32 perc,
+uint8_t ShowRatio(
+    int16_t bx,
+    int16_t by,
+    int16_t px,
+    int16_t py,
+    int32_t total,
+    int32_t perc,
     ss_type type);
 void Attack();
 void Use();
@@ -311,12 +311,12 @@ void SelectItem();
 // ----------
 
 void SpawnPlayer(
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 dir);
+    int16_t tilex,
+    int16_t tiley,
+    int16_t dir);
 void Thrust(
-    Sint16 angle,
-    Sint32 speed);
+    int16_t angle,
+    int32_t speed);
 boolean TryMove(
     objtype* ob);
 void T_Player(
@@ -324,8 +324,8 @@ void T_Player(
 
 boolean ClipMove(
     objtype* ob,
-    Sint32 xmove,
-    Sint32 ymove);
+    int32_t xmove,
+    int32_t ymove);
 
 void SocketToggle(
     boolean TurnOn);
@@ -356,8 +356,8 @@ void T_Stand(
 
 void CheckWeaponChange()
 {
-    Sint16 i;
-    const Sint16 n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
+    int16_t i;
+    const int16_t n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
 
     for (i = wp_autocharge; i <= n; i++) {
         if (buttonstate[bt_ready_autocharge + i - wp_autocharge]) {
@@ -539,15 +539,15 @@ void ControlMovement(
 ==================
 */
 void StatusAllDrawPic(
-    Uint16 x,
-    Uint16 y,
-    Uint16 picnum)
+    uint16_t x,
+    uint16_t y,
+    uint16_t picnum)
 {
-    Uint16 temp;
+    uint16_t temp;
 
 #ifdef PAGEFLIP
 
-    temp = static_cast<Uint16>(bufferofs);
+    temp = static_cast<uint16_t>(bufferofs);
     bufferofs = PAGE1START + (200 - STATUSLINES) * SCREENWIDTH;
     LatchDrawPic(x, y, picnum);
     bufferofs = PAGE2START + (200 - STATUSLINES) * SCREENWIDTH;
@@ -582,17 +582,17 @@ void StatusAllDrawPic(
 ===============
 */
 void LatchNumber(
-    Sint16 x,
-    Sint16 y,
-    Sint16 width,
-    Sint32 number)
+    int16_t x,
+    int16_t y,
+    int16_t width,
+    int32_t number)
 {
-    Uint16 length, wide = 0, c;
+    uint16_t length, wide = 0, c;
     char str[20];
 
     bstone::C::xitoa(number, str, 10);
 
-    length = static_cast<Uint16>(strlen(str));
+    length = static_cast<uint16_t>(strlen(str));
 
     while ((length < width) && (wide < width)) {
         STATUSDRAWPIC(x, y, N_BLANKPIC);
@@ -724,7 +724,7 @@ void DrawHealthMonitor()
 
     for (int i = 0; i < 6; ++i) {
         ::CA_CacheGrChunk(
-            static_cast<Sint16>(ECG_HEARTBEAT_00 + ecg_segments[i]));
+            static_cast<int16_t>(ECG_HEARTBEAT_00 + ecg_segments[i]));
 
         ::VWB_DrawPic(
             120 + (i * 8),
@@ -763,7 +763,7 @@ void DrawHealthMonitor()
     }
 
     ::CA_CacheGrChunk(
-        static_cast<Sint16>(heart_picture_index));
+        static_cast<int16_t>(heart_picture_index));
 
     ::VWB_DrawPic(
         120,
@@ -838,7 +838,7 @@ void DrawHealthNum()
         DrawHealthNum_COUNT -= 1;
     } else {
         char loop, num;
-        Sint16 check = 100;
+        int16_t check = 100;
 
         DrawHealthNum_COUNT--;
 
@@ -856,7 +856,7 @@ void DrawHealthNum()
 // TakeDamage()
 // ---------------------------------------------------------------------------
 void TakeDamage(
-    Sint16 points,
+    int16_t points,
     objtype* attacker)
 {
     LastAttacker = attacker;
@@ -904,7 +904,7 @@ void TakeDamage(
 // HealSelf()
 // ---------------------------------------------------------------------------
 void HealSelf(
-    Sint16 points)
+    int16_t points)
 {
     gamestate.health += points;
     if (gamestate.health > 100) {
@@ -936,7 +936,7 @@ void DrawScore()
     DrawScoreNum_COUNT = 3;
 }
 
-extern Uint8 music_num;
+extern uint8_t music_num;
 
 // --------------------------------------------------------------------------
 // DrawScoreNum()
@@ -977,7 +977,7 @@ void DrawScoreNum()
 // --------------------------------------------------------------------------
 void UpdateScore()
 {
-    Sint32 score_diff, temp_tics;
+    int32_t score_diff, temp_tics;
 
     score_diff = gamestate.score - gamestate.tic_score;
 
@@ -1014,7 +1014,7 @@ void UpdateScore()
 //
 // --------------------------------------------------------------------------
 void GivePoints(
-    Sint32 points,
+    int32_t points,
     boolean add_to_stats)
 {
 // Add score to statistics.
@@ -1067,17 +1067,17 @@ void DrawKeyPics()
             0, 1, 3, 2, 4
         }; // indices
 
-        static const Uint8 off_colors[NUMKEYS] = {
+        static const uint8_t off_colors[NUMKEYS] = {
             0x11, 0x31, 0x91, 0x51, 0x21
         }; // off_colors
 
-        static const Uint8 on_colors[NUMKEYS] = {
+        static const uint8_t on_colors[NUMKEYS] = {
             0xC9, 0xB9, 0x9C, 0x5B, 0x2B
         }; // on_colors
 
         for (int i = 0; i < NUMKEYS; ++i) {
             int index = indices[i];
-            Uint8 color = 0;
+            uint8_t color = 0;
 
             if (gamestate.numkeys[index] > 0) {
                 color = on_colors[index];
@@ -1107,7 +1107,7 @@ void DrawKeyPics()
 // GiveKey
 // ---------------------------------------------------------------------------
 void GiveKey(
-    Sint16 key)
+    int16_t key)
 {
     gamestate.numkeys[key]++;
     DrawKeys();
@@ -1117,7 +1117,7 @@ void GiveKey(
 // TakeKey
 // ---------------------------------------------------------------------------
 void TakeKey(
-    Sint16 key)
+    int16_t key)
 {
     gamestate.numkeys[key]--;
     DrawKeys();
@@ -1166,7 +1166,7 @@ void DrawWeaponPic()
 // GiveWeapon()
 // ---------------------------------------------------------------------------
 void GiveWeapon(
-    Sint16 weapon)
+    int16_t weapon)
 {
     GiveAmmo(6);
 
@@ -1200,8 +1200,8 @@ void GiveWeapon(
 void DrawAmmo(
     boolean ForceRefresh)
 {
-    Sint16 temp;
-    Uint16 ammo, max_ammo;
+    int16_t temp;
+    uint16_t ammo, max_ammo;
 
     ComputeAvailWeapons();
 
@@ -1369,10 +1369,10 @@ void DrawAmmoGuage()
 // ---------------------------------------------------------------------------
 void UpdateRadarGuage()
 {
-    Sint16 temp;
+    int16_t temp;
 
     if (gamestate.rpower) {
-        temp = ((Sint32)gamestate.rpower * NUM_AMMO_SEGS) / MAX_RADAR_ENERGY;
+        temp = ((int32_t)gamestate.rpower * NUM_AMMO_SEGS) / MAX_RADAR_ENERGY;
 
         if (temp > NUM_AMMO_SEGS) {
             temp = NUM_AMMO_SEGS;
@@ -1420,13 +1420,13 @@ void DrawRadarGuage()
 // DrawLedStrip()
 // ---------------------------------------------------------------------------
 void DrawLedStrip(
-    Sint16 x,
-    Sint16 y,
-    Sint16 frac,
-    Sint16 max)
+    int16_t x,
+    int16_t y,
+    int16_t frac,
+    int16_t max)
 {
-    Sint16 ypos;
-    Uint16 amount;
+    int16_t ypos;
+    uint16_t amount;
     char leds;
 
     leds = static_cast<char>(frac);
@@ -1459,7 +1459,7 @@ void DrawLedStrip(
 // GiveAmmo()
 // ---------------------------------------------------------------------------
 void GiveAmmo(
-    Sint16 ammo)
+    int16_t ammo)
 {
 
 #if MP_NO_MORE_AMMO > MP_BONUS
@@ -1579,7 +1579,7 @@ void ComputeAvailWeapons()
 // TakePlasmaDetonator()
 // ---------------------------------------------------------------------------
 void TakePlasmaDetonator(
-    Sint16 count)
+    int16_t count)
 {
     if (gamestate.plasma_detonators < count) {
         gamestate.plasma_detonators = 0;
@@ -1592,7 +1592,7 @@ void TakePlasmaDetonator(
 // GivePlasmaDetonator()
 // ---------------------------------------------------------------------------
 void GivePlasmaDetonator(
-    Sint16 count)
+    int16_t count)
 {
     gamestate.plasma_detonators += count;
 
@@ -1613,7 +1613,7 @@ void GivePlasmaDetonator(
 // GiveToken()
 // ---------------------------------------------------------------------------
 void GiveToken(
-    Sint16 tokens)
+    int16_t tokens)
 {
 #if MP_NO_MORE_TOKENS > MP_BONUS
     if (LastMsgType == MT_NO_MO_FOOD_TOKENS) {
@@ -1649,8 +1649,8 @@ void GiveToken(
 boolean DisplayInfoMsg(
     const std::string& Msg,
     msg_priorities Priority,
-    Sint16 DisplayTime,
-    Sint16 MsgType)
+    int16_t DisplayTime,
+    int16_t MsgType)
 {
     if (Msg.empty()) {
         return false;
@@ -1666,14 +1666,14 @@ boolean DisplayInfoMsg(
 boolean DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
-    Sint16 DisplayTime,
-    Sint16 MsgType)
+    int16_t DisplayTime,
+    int16_t MsgType)
 {
     if (Priority >= LastMsgPri) {
         if (Priority == MP_max_val) { // "System" msgs
             LastMsgPri = MP_min_val;
         } else {
-            LastMsgPri = static_cast<Uint16>(Priority);
+            LastMsgPri = static_cast<uint16_t>(Priority);
         }
 
         if ((MsgTicsRemain = DisplayTime) != 0) {
@@ -1879,7 +1879,7 @@ void DrawInfoArea()
 {
 #define IA_FONT_HEIGHT 6
 
-//      Sint16 length,i;
+//      int16_t length,i;
     char* first_ch;
     char* scan_ch, temp;
 
@@ -1906,7 +1906,7 @@ void DrawInfoArea()
     first_ch = &buffer[0];
 
     fontnumber = 2;
-    fontcolor = static_cast<Uint8>(InfoAreaSetup.text_color);
+    fontcolor = static_cast<uint8_t>(InfoAreaSetup.text_color);
 
     while (first_ch && *first_ch) {
 
@@ -1973,7 +1973,7 @@ char* HandleControlCodes(
 //      piShapeInfo *shape_info;
     piShapeInfo* shape;
     piAnimInfo* anim;
-    Uint16 shapenum;
+    uint16_t shapenum;
 
     first_ch++;
 
@@ -1982,7 +1982,7 @@ char* HandleControlCodes(
     *(first_ch + 1) = toupper(*(first_ch + 1));
 #endif
 
-    Uint16 code = *reinterpret_cast<const Uint16*>(first_ch);
+    uint16_t code = *reinterpret_cast<const uint16_t*>(first_ch);
     first_ch += 2;
 
     switch (code) {
@@ -2022,7 +2022,7 @@ char* HandleControlCodes(
     //
     case TP_CNVT_CODE('F', 'C'):
         InfoAreaSetup.text_color = TP_VALUE(first_ch, 2);
-        fontcolor = static_cast<Uint8>(TP_VALUE(first_ch, 2));
+        fontcolor = static_cast<uint8_t>(TP_VALUE(first_ch, 2));
         first_ch += 2;
         break;
 
@@ -2068,14 +2068,14 @@ char* HandleControlCodes(
 // --------------------------------------------------------------------------
 // DrawShape()
 // --------------------------------------------------------------------------
-Sint16 DrawShape(
-    Sint16 x,
-    Sint16 y,
-    Sint16 shapenum,
+int16_t DrawShape(
+    int16_t x,
+    int16_t y,
+    int16_t shapenum,
     pisType shapetype)
 {
-    Sint16 width = 0;
-    Uint16 shade;
+    int16_t width = 0;
+    uint16_t shade;
 
 // width=TP_BoxAroundShape(x,y,shapenum,shapetype);
 
@@ -2198,7 +2198,7 @@ void AnimatePage()
 // AnimatePage()
 // --------------------------------------------------------------------------
 void AnimatePage(
-    Sint16 numanims)
+    int16_t numanims)
 {
     piAnimInfo* anim = piAnimList;
     piShapeInfo* shape;
@@ -2303,9 +2303,9 @@ void UpdateStatusBar()
 // ---------------------------------------------------------------------------
 void ForceUpdateStatusBar()
 {
-    Uint16 old_ofs, i;
+    uint16_t old_ofs, i;
 
-    old_ofs = static_cast<Uint16>(bufferofs);
+    old_ofs = static_cast<uint16_t>(bufferofs);
 
     DrawScore();
     DrawWeapon();
@@ -2340,7 +2340,7 @@ void ForceUpdateStatusBar()
 ===================
 */
 
-Uint16 static_points[] = { 100, // money bag
+uint16_t static_points[] = { 100, // money bag
                            500, // loot
                            250, // gold1
                            500, // gold2
@@ -2356,14 +2356,14 @@ StaticHealthTable static_health;
 void initialize_static_health_table()
 {
     static_health = {
-        { 100, HEALTH2SND, static_cast<Uint16>(-1), }, // Full Heal
-        { 30, HEALTH1SND, static_cast<Uint16>(-1), }, // First Aid
+        { 100, HEALTH2SND, static_cast<uint16_t>(-1), }, // Full Heal
+        { 30, HEALTH1SND, static_cast<uint16_t>(-1), }, // First Aid
         { 20, HEALTH1SND, SPR_STAT_45, }, // Steak
         { 15, HEALTH1SND, SPR_STAT_43, }, // Chicken Leg
         { 10, HEALTH1SND, SPR_SANDWICH_WRAPER, }, // Sandwich
         { 8, HEALTH1SND, SPR_CANDY_WRAPER, }, // Candy Bar
         { 5, HEALTH1SND, SPR_STAT_41, }, // Water bowl
-        { 5, HEALTH1SND, static_cast<Uint8>(-1), }, // Water puddle
+        { 5, HEALTH1SND, static_cast<uint8_t>(-1), }, // Water puddle
     };
 }
 
@@ -2374,7 +2374,7 @@ void GetBonus(
     statobj_t* check)
 {
     boolean givepoints = false;
-    Sint16 shapenum = -1;
+    int16_t shapenum = -1;
 
     switch (check->itemnumber) {
     case bo_red_key:
@@ -2383,7 +2383,7 @@ void GetBonus(
     case bo_green_key:
     case bo_gold_key:
         {
-            Uint16 keynum = 0;
+            uint16_t keynum = 0;
 
             if (!::is_ps()) {
                 switch (check->itemnumber) {
@@ -2486,7 +2486,7 @@ void GetBonus(
         break;
 
     case bo_clip2: {
-        Uint8 ammo;
+        uint8_t ammo;
 
         if (gamestate.ammo == MAX_AMMO) {
             return;
@@ -2602,9 +2602,9 @@ void writeTokenStr(
 boolean TryMove(
     objtype* ob)
 {
-    Sint16 xl, yl, xh, yh, x, y, xx, yy;
+    int16_t xl, yl, xh, yh, x, y, xx, yy;
     objtype* check;
-    Sint32 deltax, deltay;
+    int32_t deltax, deltay;
 
     if (ob == player) {
         xl = (ob->x - PLAYERSIZE) >> TILESHIFT;
@@ -2692,10 +2692,10 @@ boolean TryMove(
 
 boolean ClipMove(
     objtype* ob,
-    Sint32 xmove,
-    Sint32 ymove)
+    int32_t xmove,
+    int32_t ymove)
 {
-    Sint32 basex, basey;
+    int32_t basex, basey;
 
     basex = ob->x;
     basey = ob->y;
@@ -2751,15 +2751,15 @@ boolean ClipMove(
 */
 
 void Thrust(
-    Sint16 angle,
-    Sint32 speed)
+    int16_t angle,
+    int32_t speed)
 {
-    extern Uint8 TravelTable[MAPSIZE][MAPSIZE];
+    extern uint8_t TravelTable[MAPSIZE][MAPSIZE];
     objtype dumb;
-    Sint32 xmove, ymove;
-    Uint16 offset, * map[2];
-    Sint16 dx, dy;
-    Sint16 dangle;
+    int32_t xmove, ymove;
+    uint16_t offset, * map[2];
+    int16_t dx, dy;
+    int16_t dangle;
     boolean ignore_map1;
 
     thrustspeed += speed;
@@ -2777,8 +2777,8 @@ void Thrust(
 
     player_oldtilex = player->tilex;
     player_oldtiley = player->tiley;
-    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT); // scale to tile values
-    player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
+    player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
+    player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
 
     player->areanumber = GetAreaNumber(player->tilex, player->tiley);
     areabyplayer[player->areanumber] = true;
@@ -2810,8 +2810,8 @@ void Thrust(
 
     case WINTIGGERTILE:
         playstate = ex_victorious;
-        dumb.x = ((Sint32)gamestate.wintilex << TILESHIFT) + TILEGLOBAL / 2;
-        dumb.y = ((Sint32)gamestate.wintiley << TILESHIFT) + TILEGLOBAL / 2;
+        dumb.x = ((int32_t)gamestate.wintilex << TILESHIFT) + TILEGLOBAL / 2;
+        dumb.y = ((int32_t)gamestate.wintiley << TILESHIFT) + TILEGLOBAL / 2;
         dumb.flags = 0;
         dangle = CalcAngle(player, &dumb);
         RotateView(dangle, 2);
@@ -2865,7 +2865,7 @@ void Thrust(
 
 }
 
-extern Sint16 an_offset[];
+extern int16_t an_offset[];
 
 boolean GAN_HiddenArea;
 
@@ -2876,8 +2876,8 @@ char GetAreaNumber(
     char tilex,
     char tiley)
 {
-    Uint16 offset, * ptr[2], loop;
-    Uint8 areanumber;
+    uint16_t offset, * ptr[2], loop;
+    uint8_t areanumber;
 
     GAN_HiddenArea = false;
 
@@ -2941,8 +2941,8 @@ char GetAreaNumber(
 // ------------------------------------------------------------------------
 // ValidAreaTile()
 // ------------------------------------------------------------------------
-Uint8 ValidAreaTile(
-    Uint16* ptr)
+uint8_t ValidAreaTile(
+    uint16_t* ptr)
 {
     switch (*ptr) {
     case AREATILE:
@@ -2958,7 +2958,7 @@ Uint8 ValidAreaTile(
 
     default:
         if (*ptr > AREATILE) {
-            return static_cast<Uint8>(*ptr);
+            return static_cast<uint8_t>(*ptr);
         }
         break;
     }
@@ -3010,9 +3010,9 @@ void Cmd_Fire()
 
 void Cmd_Use()
 {
-    Sint16 checkx, checky, doornum, dir;
-    Uint16 iconnum;
-    Uint8 static interrogate_delay = 0;
+    int16_t checkx, checky, doornum, dir;
+    uint16_t iconnum;
+    uint8_t static interrogate_delay = 0;
 
     boolean tryDetonator = false;
 
@@ -3056,10 +3056,10 @@ void Cmd_Use()
             // Test for 'display elevator buttons'
             //
             case TRANSPORTERTILE: {
-                Sint16 new_floor;
+                int16_t new_floor;
 
                 if ((new_floor = InputFloor()) != -1 && new_floor != gamestate.mapon) {
-                    Sint16 angle = player->angle;
+                    int16_t angle = player->angle;
 
                     gamestuff.level[gamestate.mapon].ptilex = player->tilex;
                     gamestuff.level[gamestate.mapon].ptiley = player->tiley;
@@ -3114,8 +3114,8 @@ void Cmd_Use()
 
                     player->tilex = (iconnum >> 8);
                     player->tiley = iconnum & 0xff;
-                    player->x = ((Sint32)player->tilex << TILESHIFT) + TILEGLOBAL / 2;
-                    player->y = ((Sint32)player->tiley << TILESHIFT) + TILEGLOBAL / 2;
+                    player->x = ((int32_t)player->tilex << TILESHIFT) + TILEGLOBAL / 2;
+                    player->y = ((int32_t)player->tiley << TILESHIFT) + TILEGLOBAL / 2;
 
                     DrawWarpIn();
                     break;
@@ -3136,7 +3136,7 @@ void Cmd_Use()
 
             case FOODTILE:
             case SODATILE:
-                OperateConcession(static_cast<Uint16>(reinterpret_cast<size_t>(actorat[checkx][checky])));
+                OperateConcession(static_cast<uint16_t>(reinterpret_cast<size_t>(actorat[checkx][checky])));
                 break;
 
             default:
@@ -3153,7 +3153,7 @@ void Cmd_Use()
 
         char x, y;
         objtype* intg_ob = NULL, * ob;
-        Sint32 dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
+        int32_t dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
 
         for (y = -MDIST; y < MDIST + 1; y++) {
             for (x = -MDIST; x < MDIST + 1; x++) {
@@ -3181,7 +3181,7 @@ void Cmd_Use()
                     if ((ob->flags & FL_ATTACKMODE) != 0) {
                         ob->flags &= ~(FL_FRIENDLY | FL_INFORMANT);
                     } else {
-                        Sint16 angle = CalcAngle(player, ob);
+                        int16_t angle = CalcAngle(player, ob);
 
                         angle = ABS(player->angle - angle);
                         if (angle > INTG_ANGLE / 2) {
@@ -3206,7 +3206,7 @@ void Cmd_Use()
         }
     } else {
         if (tics < interrogate_delay) {
-            interrogate_delay -= static_cast<Uint8>(tics);
+            interrogate_delay -= static_cast<uint8_t>(tics);
         } else {
             interrogate_delay = 0;
         }
@@ -3243,8 +3243,8 @@ void Cmd_Use()
 char msg[MSG_BUFFER_LEN + 1];
 
 char* InfAreaMsgs[MAX_INF_AREA_MSGS];
-Uint8 NumAreaMsgs, LastInfArea;
-Sint16 FirstGenInfMsg, TotalGenInfMsgs;
+uint8_t NumAreaMsgs, LastInfArea;
+int16_t FirstGenInfMsg, TotalGenInfMsgs;
 
 scientist_t InfHintList; // Informant messages
 scientist_t NiceSciList; // Non-informant, non-pissed messages
@@ -3309,12 +3309,12 @@ boolean Interrogate(
                 }
                 ob->ammo = ob->areanumber;
                 if (ob->s_tilex == 0xff) {
-                    ob->s_tilex = static_cast<Uint8>(Random(NumAreaMsgs));
+                    ob->s_tilex = static_cast<uint8_t>(Random(NumAreaMsgs));
                 }
                 msgptr = InfAreaMsgs[ob->s_tilex];
             } else {
                 if (ob->s_tiley == 0xff) {
-                    ob->s_tiley = static_cast<Uint8>(FirstGenInfMsg + Random(TotalGenInfMsgs));
+                    ob->s_tiley = static_cast<uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
                 }
                 msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
             }
@@ -3377,7 +3377,7 @@ char if_noImage[] = "   AREA\n"
                     " TO TELEPORT";
 
 statsInfoType ov_stats;
-static Uint8* ov_buffer;
+static uint8_t* ov_buffer;
 boolean ov_noImage = false;
 
 #define TOV_X 16
@@ -3386,7 +3386,7 @@ boolean ov_noImage = false;
 // --------------------------------------------------------------------------
 // InputFloor
 // --------------------------------------------------------------------------
-Sint16 InputFloor()
+int16_t InputFloor()
 {
     if (!::is_ps()) {
         const std::string messages[4] = {
@@ -3613,16 +3613,16 @@ Sint16 InputFloor()
 
         ::IN_ClearKeysDown();
 
-        return static_cast<Sint16>(result);
+        return static_cast<int16_t>(result);
     } else {
     #define RADAR_FLAGS OV_KEYS
     #define MAX_TELEPORTS 20
     #define MAX_MOVE_DELAY 10
 
-        Sint16 buttonPic, buttonY;
-        Sint16 rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
-        Sint16 teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
-        Sint16 teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
+        int16_t buttonPic, buttonY;
+        int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
+        int16_t teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
+        int16_t teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
         char moveActive = 0;
         objtype old_player;
         boolean locked = false, buttonsDrawn = false;
@@ -3638,9 +3638,9 @@ Sint16 InputFloor()
 
         memcpy(&old_player, player, sizeof(objtype));
         player->angle = 90;
-        player->x = player->y = ((Sint32)32 << TILESHIFT) + (TILEGLOBAL / 2);
+        player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
-        ov_buffer = new Uint8[4096];
+        ov_buffer = new uint8_t[4096];
         ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
         memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
         ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
@@ -3842,7 +3842,7 @@ Sint16 InputFloor()
 // --------------------------------------------------------------------------
 void ShowOverheadChunk()
 {
-    VL_MemToScreen(static_cast<const Uint8*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
+    VL_MemToScreen(static_cast<const uint8_t*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
     ShowStats(235, 138, ss_quick, &ov_stats);
 }
 
@@ -3861,13 +3861,13 @@ void LoadOverheadChunk(
         std::hex << std::uppercase << tpNum).to_string();
 
     bool is_succeed = true;
-    Uint32 checksum = 0;
+    uint32_t checksum = 0;
     bstone::BinaryReader reader(&g_playtemp);
 
     if (::FindChunk(&g_playtemp, chunk_name) > 0) {
         try {
             ::deserialize_field(
-                reinterpret_cast<Uint8(&)[4096]>(ov_buffer[0]),
+                reinterpret_cast<uint8_t(&)[4096]>(ov_buffer[0]),
                 reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
@@ -3875,7 +3875,7 @@ void LoadOverheadChunk(
 
         ov_stats.deserialize(reader, checksum);
 
-        Uint32 saved_checksum = 0;
+        uint32_t saved_checksum = 0;
         is_succeed &= reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
         is_succeed &= (saved_checksum == checksum);
@@ -3890,7 +3890,7 @@ void LoadOverheadChunk(
             0x52);
 
         std::uninitialized_fill_n(
-            reinterpret_cast<Uint8*>(&ov_stats),
+            reinterpret_cast<uint8_t*>(&ov_stats),
             sizeof(statsInfoType),
             0);
     }
@@ -3916,7 +3916,7 @@ void SaveOverheadChunk(
     //
     ::VL_ScreenToMem(ov_buffer, 64, 64, TOV_X, TOV_Y);
 
-    Uint32 checksum = 0;
+    uint32_t checksum = 0;
     bstone::BinaryWriter writer(&g_playtemp);
 
     // Write chunk ID, SIZE, and IMAGE
@@ -3925,16 +3925,16 @@ void SaveOverheadChunk(
     g_playtemp.write(chunk_name.c_str(), 4);
     g_playtemp.skip(4);
 
-    Sint64 beg_offset = g_playtemp.get_position();
+    int64_t beg_offset = g_playtemp.get_position();
 
     ::serialize_field(
-        reinterpret_cast<const Uint8(&)[4096]>(ov_buffer[0]),
+        reinterpret_cast<const uint8_t(&)[4096]>(ov_buffer[0]),
         writer, checksum);
     ov_stats.serialize(writer, checksum);
     writer.write(bstone::Endian::le(checksum));
 
-    Sint64 end_offset = g_playtemp.get_position();
-    Sint32 chunk_size = static_cast<Sint32>(end_offset - beg_offset);
+    int64_t end_offset = g_playtemp.get_position();
+    int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
     g_playtemp.seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
     writer.write(bstone::Endian::le(chunk_size));
 }
@@ -3973,9 +3973,9 @@ void CacheDrawPic(
     int y,
     int pic)
 {
-    CA_CacheGrChunk(static_cast<Sint16>(pic));
+    CA_CacheGrChunk(static_cast<int16_t>(pic));
     VWB_DrawPic(x, y, pic);
-    UNCACHEGRCHUNK(static_cast<Uint16>(pic));
+    UNCACHEGRCHUNK(static_cast<uint16_t>(pic));
 }
 
 // ===========================================================================
@@ -3999,13 +3999,13 @@ boolean show_stats_quick;
 // --------------------------------------------------------------------------
 // ShowStats()
 // --------------------------------------------------------------------------
-Sint16 ShowStats(
-    Sint16 bx,
-    Sint16 by,
+int16_t ShowStats(
+    int16_t bx,
+    int16_t by,
     ss_type type,
     statsInfoType* stats)
 {
-    Sint16 floor, total = 0, mission = 0, p1, p2, p3, loop, maxPerFloor;
+    int16_t floor, total = 0, mission = 0, p1, p2, p3, loop, maxPerFloor;
 
 // Define max points per floor...
 //
@@ -4071,13 +4071,13 @@ Sint16 ShowStats(
 // --------------------------------------------------------------------------
 // ShowRatio()
 // --------------------------------------------------------------------------
-Uint8 ShowRatio(
-    Sint16 bx,
-    Sint16 by,
-    Sint16 nx,
-    Sint16 ny,
-    Sint32 total,
-    Sint32 perc,
+uint8_t ShowRatio(
+    int16_t bx,
+    int16_t by,
+    int16_t nx,
+    int16_t ny,
+    int32_t total,
+    int32_t perc,
     ss_type type)
 {
     char numbars;
@@ -4157,8 +4157,8 @@ Uint8 ShowRatio(
 // PrintStatPercent()
 // --------------------------------------------------------------------------
 void PrintStatPercent(
-    Sint16 nx,
-    Sint16 ny,
+    int16_t nx,
+    int16_t ny,
     char percentage)
 {
     if (percentage < 10) {
@@ -4212,13 +4212,13 @@ void B_GAliFunc()
 // --------------------------------------------------------------------------
 void B_EManFunc()
 {
-    Uint16 temp, i;
+    uint16_t temp, i;
 
     ::sd_play_player_sound(EXTRA_MANSND, bstone::AC_ITEM);
 
     fontnumber = 2;
 
-    temp = static_cast<Uint16>(bufferofs);
+    temp = static_cast<uint16_t>(bufferofs);
 
     for (i = 0; i < 3; i++) {
         bufferofs = screenloc[i];
@@ -4339,9 +4339,9 @@ void DisplayPinballBonus()
 // CheckPinballBonus()
 // --------------------------------------------------------------------------
 void CheckPinballBonus(
-    Sint32 points)
+    int32_t points)
 {
-    Sint32 score_before = gamestate.score,
+    int32_t score_before = gamestate.score,
            score_after = gamestate.score + points;
 
 // Check SCORE ROLLED bonus
@@ -4420,7 +4420,7 @@ void CheckPinballBonus(
 #define TERM_SCREEN_XOFS (TERM_BACK_XOFS + 19)
 #define TERM_SCREEN_YOFS (TERM_BACK_YOFS + 14)
 
-static Uint16 tcursor_x = TERM_SCREEN_XOFS,
+static uint16_t tcursor_x = TERM_SCREEN_XOFS,
               tcursor_y = TERM_SCREEN_YOFS;
 
 
@@ -4453,7 +4453,7 @@ memptr TermCommands = NULL;
 void LoadTerminalCommands()
 {
     char* Message;
-    Uint8 pos;
+    uint8_t pos;
 
 //      IO_LoadFile("TERM_CMD.TXT",&TermCommands);
     IO_LoadFile(term_com_name, &TermCommands);
@@ -4532,7 +4532,7 @@ void TerminalPrint(
             //  Handle Control Codes
             //
 
-            switch (*((Uint16*)msg)++) {
+            switch (*((uint16_t*)msg)++) {
             // FONT COLOR
             //
             case TP_CNVT_CODE('F', 'C'):
@@ -4655,7 +4655,7 @@ void TerminalPrint(
 // already be loaded into memory.
 // ---------------------------------------------------------------------------
 void CacheTerminalPrint(
-    Sint16 MsgNum,
+    int16_t MsgNum,
     boolean FastPrint)
 {
     char* Message;
@@ -4696,9 +4696,9 @@ void ActivateTerminal(
 #define MAX_INPUT 30
     char buffer[MAX_INPUT];
     bool temp_caps = allcaps, ExitMoFo;
-    Uint16 oldwidth;
+    uint16_t oldwidth;
     US_CursorStruct TermCursor = { '@', 0, 0x58, 2 }; // Holds Font#, etc.
-    Sint16 msgnum;
+    int16_t msgnum;
 
 
 // Setup for text presenter
@@ -4953,12 +4953,12 @@ void ActivateTerminal(
 // FloorCheat()
 // ---------------------------------------------------------------------------
 void FloorCheat(
-    Uint16 RadarFlags)
+    uint16_t RadarFlags)
 {
 #define FC_EMBED_COLOR(ColorCodes) { _fstrncpy(&pbuffer[pos], ColorCodes, 5); pos += 5; }
 #define FC_NORM_COLOR() FC_EMBED_COLOR("^FC57")
 
-    Uint16 x, y, pos;
+    uint16_t x, y, pos;
     objtype* actor;
     char* pbuffer;
     memptr buffer;
@@ -5002,7 +5002,7 @@ void FloorCheat(
 
             if (!TravelTable[x][y]) { // Map only shows where you've seen!
                 pbuffer[pos++] = '!';
-            } else if (((Uint16)actor && (Uint16)actor < 108) || // 108 == LAST WALL TILE
+            } else if (((uint16_t)actor && (uint16_t)actor < 108) || // 108 == LAST WALL TILE
 
 #if IN_DEVELOPMENT
 
@@ -5010,7 +5010,7 @@ void FloorCheat(
 
 #endif
 
-                       (((Uint16)actor & 0x80) && actor < objlist && (!DebugOk))) // Treat doors as walls in NoDebug
+                       (((uint16_t)actor & 0x80) && actor < objlist && (!DebugOk))) // Treat doors as walls in NoDebug
             {
                 // Mark Wall piece
                 //
@@ -5127,9 +5127,9 @@ void FloorCheat(
 
 
 void SpawnPlayer(
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 dir)
+    int16_t tilex,
+    int16_t tiley,
+    int16_t dir)
 {
     if (gamestuff.level[gamestate.mapon].ptilex &&
         gamestuff.level[gamestate.mapon].ptiley)
@@ -5141,13 +5141,13 @@ void SpawnPlayer(
 
     player->obclass = playerobj;
     player->active = ac_yes;
-    player->tilex = static_cast<Uint8>(tilex);
-    player->tiley = static_cast<Uint8>(tiley);
+    player->tilex = static_cast<uint8_t>(tilex);
+    player->tiley = static_cast<uint8_t>(tiley);
 
     player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 
-    player->x = ((Sint32)tilex << TILESHIFT) + TILEGLOBAL / 2;
-    player->y = ((Sint32)tiley << TILESHIFT) + TILEGLOBAL / 2;
+    player->x = ((int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
+    player->y = ((int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
     player->state = &s_player;
     player->angle = (1 - dir) * 90;
     if (player->angle < 0) {
@@ -5171,9 +5171,9 @@ void GunAttack(
     objtype* ob)
 {
     objtype* check, * closest, * oldclosest;
-    Sint16 damage;
-    Sint16 dx, dy, dist;
-    Sint32 viewdist;
+    int16_t damage;
+    int16_t dx, dy, dist;
+    int32_t viewdist;
     boolean skip = false;
 
     if (gamestate.weapon != wp_autocharge) {
@@ -5247,8 +5247,8 @@ void GunAttack(
     // hit something
     //
 
-    dx = static_cast<Sint16>(abs(closest->tilex - player->tilex));
-    dy = static_cast<Sint16>(abs(closest->tiley - player->tiley));
+    dx = static_cast<int16_t>(abs(closest->tilex - player->tilex));
+    dy = static_cast<int16_t>(abs(closest->tiley - player->tiley));
     dist = dx > dy ? dx : dy;
 
     if (dist < 2) {
@@ -5287,7 +5287,7 @@ void T_Attack(
     objtype* ob)
 {
     atkinf_t* cur;
-    Sint16 x;
+    int16_t x;
 
     if (noShots) {
         ob->state = &s_player;
@@ -5309,8 +5309,8 @@ void T_Attack(
 
     ControlMovement(ob);
 
-    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT); // scale to tile values
-    player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
+    player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
+    player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
 
 //
 // change frame and fire
@@ -5343,7 +5343,7 @@ void T_Attack(
             if (!gamestate.plasma_detonators) {
                 // Check to see what weapons are possible.
                 //
-                const Sint16 n_x = (::is_ps() ? wp_bfg_cannon : wp_grenade);
+                const int16_t n_x = (::is_ps() ? wp_bfg_cannon : wp_grenade);
 
                 for (x = n_x; x >= wp_autocharge; x--) {
                     if (gamestate.useable_weapons & (1 << x)) {
@@ -5546,8 +5546,8 @@ void T_Player(
 
 //      plux = player->x >> UNSIGNEDSHIFT; // scale to fit in unsigned
 //      pluy = player->y >> UNSIGNEDSHIFT;
-    player->tilex = static_cast<Uint8>(player->x >> TILESHIFT); // scale to tile values
-    player->tiley = static_cast<Uint8>(player->y >> TILESHIFT);
+    player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
+    player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
 }
 
 // -------------------------------------------------------------------------
@@ -5557,9 +5557,9 @@ void RunBlakeRun()
 {
 #define BLAKE_SPEED (MOVESCALE * 50)
 
-    Sint32 xmove, ymove;
+    int32_t xmove, ymove;
     objtype* blake;
-    Sint16 startx, starty, dx, dy;
+    int16_t startx, starty, dx, dy;
 
 // Spawn Blake and set pointer.
 //
@@ -5588,8 +5588,8 @@ void RunBlakeRun()
 
 // Align Blake on the middle of the tile.
 //
-    blake->x = ((Sint32)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
-    blake->y = ((Sint32)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
+    blake->x = ((int32_t)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
+    blake->y = ((int32_t)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
     startx = blake->tilex = blake->x >> TILESHIFT;
     starty = blake->tiley = blake->y >> TILESHIFT;
 
@@ -5717,8 +5717,8 @@ void SW_HandleActor(
 // -------------------------------------------------------------------------
 void SW_HandleStatic(
     statobj_t* stat,
-    Uint16 tilex,
-    Uint16 tiley)
+    uint16_t tilex,
+    uint16_t tiley)
 {
     switch (stat->itemnumber) {
     case bo_clip:
@@ -5750,8 +5750,8 @@ void SW_HandleStatic(
 //
 // -------------------------------------------------------------------------
 boolean OperateSmartSwitch(
-    Uint16 tilex,
-    Uint16 tiley,
+    uint16_t tilex,
+    uint16_t tiley,
     char Operation,
     boolean Force)
 {
@@ -5766,8 +5766,8 @@ boolean OperateSmartSwitch(
     what_is_it WhatItIs;
     objtype* obj;
     statobj_t* stat = NULL;
-    Uint8 tile, DoorNum = 0;
-    Uint16 iconnum;
+    uint8_t tile, DoorNum = 0;
+    uint16_t iconnum;
 
     //
     // Get some information about what
@@ -5907,18 +5907,18 @@ boolean OperateSmartSwitch(
 //
 // ==========================================================================
 
-#define wb_MaxPoint ((Sint32)10 << TILESHIFT)
-#define wb_MidPoint ((Sint32)6 << TILESHIFT)
-#define wb_MinPoint ((Sint32)2 << TILESHIFT)
+#define wb_MaxPoint ((int32_t)10 << TILESHIFT)
+#define wb_MidPoint ((int32_t)6 << TILESHIFT)
+#define wb_MinPoint ((int32_t)2 << TILESHIFT)
 #define wb_MaxGoalDist (wb_MaxPoint - wb_MidPoint)
 
-#define wb_MaxOffset (wb_MaxPoint + ((Sint32)2 << TILESHIFT))
-#define wb_MinOffset (wb_MinPoint - ((Sint32)2 << TILESHIFT))
+#define wb_MaxOffset (wb_MaxPoint + ((int32_t)2 << TILESHIFT))
+#define wb_MinOffset (wb_MinPoint - ((int32_t)2 << TILESHIFT))
 
 extern fixed bounceOffset;
 
 fixed bounceVel, bounceDest;
-Sint16 bounceOk;
+int16_t bounceOk;
 
 // --------------------------------------------------------------------------
 // InitWeaponBounce()
@@ -5935,7 +5935,7 @@ void InitWeaponBounce()
 // --------------------------------------------------------------------------
 void HandleWeaponBounce()
 {
-    Sint16 bounceSpeed;
+    int16_t bounceSpeed;
 
     bounceSpeed = 90 - ((20 - viewsize) * 6);
 
@@ -5958,12 +5958,12 @@ void HandleWeaponBounce()
         }
     } else {
         if (bounceOffset > wb_MidPoint) {
-            bounceOffset -= ((Sint32)2 << TILESHIFT);
+            bounceOffset -= ((int32_t)2 << TILESHIFT);
             if (bounceOffset < wb_MidPoint) {
                 bounceOffset = wb_MidPoint;
             }
         } else if (bounceOffset < wb_MidPoint) {
-            bounceOffset += ((Sint32)2 << TILESHIFT);
+            bounceOffset += ((int32_t)2 << TILESHIFT);
             if (bounceOffset > wb_MidPoint) {
                 bounceOffset = wb_MidPoint;
             }

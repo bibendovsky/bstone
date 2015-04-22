@@ -42,7 +42,7 @@ const int MAPPLANES = 2;
 
 
 void UNCACHEGRCHUNK(
-    Uint16 chunk);
+    uint16_t chunk);
 
 #define THREEBYTEGRSTARTS
 
@@ -55,20 +55,20 @@ void UNCACHEGRCHUNK(
 // ===========================================================================
 
 struct maptype {
-    Sint32 planestart[3];
-    Uint16 planelength[3];
-    Uint16 width, height;
+    int32_t planestart[3];
+    uint16_t planelength[3];
+    uint16_t width, height;
     char name[16];
 }; // struct maptype
 
 struct huffnode {
-    Uint16 bit0, bit1; // 0-255 is a character, > is a pointer to a node
+    uint16_t bit0, bit1; // 0-255 is a character, > is a pointer to a node
 }; // struct huffnode
 
 struct mapfiletype {
-    Uint16 RLEWtag;
-    Sint32 headeroffsets[100];
-//      Uint8           tileinfo[];
+    uint16_t RLEWtag;
+    int32_t headeroffsets[100];
+//      uint8_t           tileinfo[];
 }; // struct mapfiletype
 
 // ===========================================================================
@@ -81,21 +81,21 @@ using MapHeaderSegments = std::vector<maptype*>;
 
 extern std::string audioname;
 
-extern Uint16 rlew_tag;
+extern uint16_t rlew_tag;
 
-extern Sint16 mapon;
+extern int16_t mapon;
 
-extern Uint16* mapsegs[MAPPLANES];
+extern uint16_t* mapsegs[MAPPLANES];
 extern MapHeaderSegments mapheaderseg;
 extern AudioSegments audiosegs;
 extern GrSegments grsegs;
 
 extern GrNeeded grneeded;
-extern Uint8 ca_levelbit, ca_levelnum;
+extern uint8_t ca_levelbit, ca_levelnum;
 
 extern char* titleptr[8];
 
-extern Sint16 profilehandle, debughandle;
+extern int16_t profilehandle, debughandle;
 
 extern std::string extension;
 extern std::string gheadname;
@@ -106,14 +106,14 @@ extern std::string mfilename;
 extern std::string aheadname;
 extern std::string afilename;
 
-extern Sint32* grstarts; // array of offsets in egagraph, -1 for sparse
-extern Sint32* audiostarts; // array of offsets in audio / audiot
+extern int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
+extern int32_t* audiostarts; // array of offsets in audio / audiot
 //
 // hooks for custom cache dialogs
 //
 extern void (* drawcachebox)(
     char* title,
-    Uint16 numcache);
+    uint16_t numcache);
 extern void (* updatecachebox)();
 extern void (* finishcachebox)();
 
@@ -121,7 +121,7 @@ extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
 extern bstone::FileStream audiohandle;
 
-extern Sint32 chunkcomplen, chunkexplen;
+extern int32_t chunkcomplen, chunkexplen;
 
 #ifdef GRHEADERLINKED
 extern huffnode* grhuffman;
@@ -134,12 +134,12 @@ extern huffnode grhuffman[255];
 // just for the score box reshifting
 
 void CAL_ShiftSprite(
-    Uint16 segment,
-    Uint16 source,
-    Uint16 dest,
-    Uint16 width,
-    Uint16 height,
-    Uint16 pixshift);
+    uint16_t segment,
+    uint16_t source,
+    uint16_t dest,
+    uint16_t width,
+    uint16_t height,
+    uint16_t pixshift);
 
 // ===========================================================================
 
@@ -155,26 +155,26 @@ boolean CA_LoadFile(
 boolean CA_WriteFile(
     char* filename,
     void* ptr,
-    Sint32 length);
+    int32_t length);
 
-Sint32 CA_RLEWCompress(
-    Uint16* source,
-    Sint32 length,
-    Uint16* dest,
-    Uint16 rlewtag);
+int32_t CA_RLEWCompress(
+    uint16_t* source,
+    int32_t length,
+    uint16_t* dest,
+    uint16_t rlewtag);
 
 void CA_RLEWexpand(
-    Uint16* source,
-    Uint16* dest,
-    Sint32 length,
-    Uint16 rlewtag);
+    uint16_t* source,
+    uint16_t* dest,
+    int32_t length,
+    uint16_t rlewtag);
 
 void CA_Startup();
 void CA_Shutdown();
 
 void CA_SetGrPurge();
 void CA_CacheAudioChunk(
-    Sint16 chunk);
+    int16_t chunk);
 void CA_LoadAllSounds();
 
 void CA_UpLevel();
@@ -188,9 +188,9 @@ void CA_ClearAllMarks();
 #define CA_MarkGrChunk(chunk) grneeded[chunk] |= ca_levelbit
 
 void CA_CacheGrChunk(
-    Sint16 chunk);
+    int16_t chunk);
 void CA_CacheMap(
-    Sint16 mapnum);
+    int16_t mapnum);
 
 void CA_CacheMarks();
 
@@ -199,13 +199,13 @@ void CAL_SetupGrFile();
 void CAL_SetupMapFile();
 
 void CAL_HuffExpand(
-    Uint8* source,
-    Uint8* dest,
-    Sint32 length,
+    uint8_t* source,
+    uint8_t* dest,
+    int32_t length,
     huffnode* hufftable);
 
 void ca_huff_expand_on_screen(
-    Uint8* source,
+    uint8_t* source,
     huffnode* hufftable);
 
 void CloseGrFile();

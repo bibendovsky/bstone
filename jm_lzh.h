@@ -28,10 +28,10 @@ Free Software Foundation, Inc.,
 #include "SDL.h"
 
 
-extern void (* LZH_CompressDisplayVector)(Uint32, Uint32);
+extern void (* LZH_CompressDisplayVector)(uint32_t, uint32_t);
 extern void (* LZH_DecompressDisplayVector)(
-    Uint32,
-    Uint32);
+    uint32_t,
+    uint32_t);
 
 
 
@@ -48,12 +48,12 @@ void LZH_Shutdown();
 int LZH_Compress(
     const void* infile,
     void* outfile,
-    Uint32 DataLength);
+    uint32_t DataLength);
 
 int LZH_Decompress(
     const void* infile,
     void* outfile,
-    Uint32 OrginalLength,
-    Uint32 CompressLength);
+    uint32_t OrginalLength,
+    uint32_t CompressLength);
 
 #endif

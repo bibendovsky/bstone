@@ -49,9 +49,9 @@ void MML_ClearBlock();
 void CA_CannotOpen(
     const std::string& string);
 void CAL_GetGrChunkLength(
-    Sint16 chunk);
+    int16_t chunk);
 void CA_CacheScreen(
-    Sint16 chunk);
+    int16_t chunk);
 void VH_UpdateScreen();
 void IN_StartAck();
 boolean IN_CheckAck();
@@ -59,7 +59,7 @@ void OpenMapFile();
 void CloseMapFile();
 void ClearMemory();
 void PM_SetMainMemPurge(
-    Sint16 level);
+    int16_t level);
 void ShutdownId();
 void InitRedShifts();
 void CAL_OptimizeNodes(
@@ -109,7 +109,7 @@ void initialize_demos();
 extern SDL_TimerID sys_timer_id;
 
 void SDL_SBSetDMA(
-    Uint8 channel);
+    uint8_t channel);
 void SDL_SetupDigi();
 
 // =========================================================================
@@ -142,7 +142,7 @@ char show_text5[] = "---- Extra Devices ----\n\n";
 static const char* ParmStrings[] = { "HIDDENCARD", "" };
 
 // BBi FIXME
-static Uint8 wolfdigimap[] = {
+static uint8_t wolfdigimap[] = {
     // These first sounds are in the upload version
 
     ATKIONCANNONSND, 0,
@@ -245,7 +245,7 @@ char JM_FREE_DATA_END[1] = { 0 };
 #endif
 
 extern const uint8_t colormap[16896];
-const Uint8* lightsource;
+const uint8_t* lightsource;
 
 // =========================================================================
 //
@@ -279,8 +279,8 @@ extern const char* US_ParmStrings[];
 extern const char* US_ParmStrings2[];
 
 // BBi
-Uint32 sys_timer_callback(
-    Uint32 interval,
+uint32_t sys_timer_callback(
+    uint32_t interval,
     void*)
 {
     ++TimeCount;
@@ -290,7 +290,7 @@ Uint32 sys_timer_callback(
 
 void US_Startup()
 {
-    Sint16 n;
+    int16_t n;
 
     // BBi
     int sdl_result;
@@ -365,7 +365,7 @@ const float radtoint = static_cast<float>(FINEANGLES / 2 / PI);
 
 void BuildTables()
 {
-    Sint16 i;
+    int16_t i;
     float angle, anglestep;
     double tang;
     fixed value;
@@ -377,8 +377,8 @@ void BuildTables()
 
     for (i = 0; i < FINEANGLES / 8; i++) {
         tang = tan((i + 0.5) / radtoint);
-        finetangent[i] = static_cast<Sint32>(tang * TILEGLOBAL);
-        finetangent[FINEANGLES / 4 - 1 - i] = static_cast<Sint32>(1 / tang * TILEGLOBAL);
+        finetangent[i] = static_cast<int32_t>(tang * TILEGLOBAL);
+        finetangent[FINEANGLES / 4 - 1 - i] = static_cast<int32_t>(1 / tang * TILEGLOBAL);
     }
 
 //
@@ -416,7 +416,7 @@ void BuildTables()
 
 void SetupWalls()
 {
-    Sint16 i;
+    int16_t i;
 
     //
     // Hey! Yea You! This is where you can VERY easly setup to use a
@@ -509,7 +509,7 @@ void CAL_SetupAudioFile()
 #else
     audiohuffman = (huffnode*)&audiodict;
     CAL_OptimizeNodes(audiohuffman);
-    audiostarts = (Sint32*)FP_SEG(&audiohead);
+    audiostarts = (int32_t*)FP_SEG(&audiohead);
 #endif
 
 //
@@ -532,7 +532,7 @@ void CAL_SetupGrFile()
 {
     std::string fname;
     bstone::FileStream handle;
-    Uint8* compseg;
+    uint8_t* compseg;
 
     //
     // load ???dict.ext (huffman dictionary for graphics files)
@@ -575,7 +575,7 @@ void CAL_SetupGrFile()
     //
     ::pictable = new pictabletype[NUMPICS];
     ::CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-    compseg = new Uint8[::chunkcomplen];
+    compseg = new uint8_t[::chunkcomplen];
     ::grhandle.read(compseg, ::chunkcomplen);
 
     ::CAL_HuffExpand(
@@ -599,9 +599,9 @@ void CAL_SetupGrFile()
 
 void CAL_SetupMapFile()
 {
-    Sint16 i;
+    int16_t i;
     bstone::FileStream handle;
-    Sint32 pos;
+    int32_t pos;
     std::string fname;
     mapfiletype header;
     maptype* map_header;
@@ -668,7 +668,7 @@ void CAL_SetupMapFile()
     // allocate space for 3 64*64 planes
     //
     for (i = 0; i < MAPPLANES; ++i) {
-        mapsegs[i] = new Uint16[64 * 64];
+        mapsegs[i] = new uint16_t[64 * 64];
     }
 
 #if FORCE_FILE_CLOSE
@@ -683,7 +683,7 @@ void CAL_SetupMapFile()
 #define CHECK_FOR_EPISODES
 
 extern CP_itemtype NewEmenu[];
-extern Sint16 EpisodeSelect[];
+extern int16_t EpisodeSelect[];
 
 
 static bool are_files_exist(
@@ -869,7 +869,7 @@ void CheckForEpisodes()
 void CheckForEpisodes()
 {
     struct ffblk f;
-    Sint16 i;
+    int16_t i;
 
 #if (GAME_VERSION != SHAREWARE_VERSION)
 #ifdef CHECK_FOR_EPISODES
@@ -1042,12 +1042,12 @@ void PreDemo()
             // Cache and set palette.  AND  Fade it in!
             //
             CA_CacheGrChunk(PIRACYPALETTE);
-            VL_SetPalette(0, 256, static_cast<const Uint8*>(grsegs[PIRACYPALETTE]));
-            VL_SetPaletteIntensity(0, 255, static_cast<const Uint8*>(grsegs[PIRACYPALETTE]), 0);
+            VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]));
+            VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), 0);
             VW_UpdateScreen();
 
             VL_FadeOut(0, 255, 0, 0, 25, 20);
-            VL_FadeIn(0, 255, static_cast<const Uint8*>(grsegs[PIRACYPALETTE]), 30);
+            VL_FadeIn(0, 255, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), 30);
 
             // Wait a little
             //
@@ -1062,7 +1062,7 @@ void PreDemo()
 
             // Cleanup screen for upcoming SetPalette call
             //
-            Uint16 old_bufferofs = bufferofs;
+            uint16_t old_bufferofs = bufferofs;
 
             bufferofs = displayofs;
             VL_Bar(0, 0, 320, 200, 0);
@@ -1085,15 +1085,15 @@ void PreDemo()
         // Cache and set palette.  AND  Fade it in!
         //
         CA_CacheGrChunk(APOGEEPALETTE);
-        VL_SetPalette(0, 256, static_cast<const Uint8*>(grsegs[APOGEEPALETTE]));
-        VL_SetPaletteIntensity(0, 255, static_cast<const Uint8*>(grsegs[APOGEEPALETTE]), 0);
+        VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]));
+        VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 0);
         VW_UpdateScreen();
         if (!::is_ps) {
             VL_FadeOut(0, 255, 0, 0, 0, 20);
         } else {
             VL_FadeOut(0, 255, 25, 29, 53, 20);
         }
-        VL_FadeIn(0, 255, static_cast<const Uint8*>(grsegs[APOGEEPALETTE]), 30);
+        VL_FadeIn(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 30);
 
         // Wait for end of fanfare
         //
@@ -1136,7 +1136,7 @@ void PreDemo()
         }
 
         if (PowerBall) {
-            Sint16 i;
+            int16_t i;
 
             for (i = 0; i < 60 && (!DebugOk); i++) {
                 VL_WaitVBL(1);
@@ -1184,8 +1184,8 @@ void PreDemo()
 // ------------------------------------------------------------------------
 void InitGame()
 {
-    Sint16 i, x, y;
-    Uint16* blockstart;
+    int16_t i, x, y;
+    uint16_t* blockstart;
 // long mmsize;
 
     MM_Startup(); // so the signon screen can be freed
@@ -1345,18 +1345,18 @@ void ShowSystem()
 // -------------------------------------------------------------------------
 // scan_atoi()
 // -------------------------------------------------------------------------
-Uint16 scan_atoi(
+uint16_t scan_atoi(
     const char* s)
 {
     while (*s && (!isdigit(*s))) { // First scans for a digit...
         s++;
     }
 
-    return static_cast<Uint16>(atoi(s)); // Then converts to integer...
+    return static_cast<uint16_t>(atoi(s)); // Then converts to integer...
 }
 
 extern const char* MainStrs[];
-extern Sint16 starting_episode, starting_level, starting_difficulty;
+extern int16_t starting_episode, starting_level, starting_difficulty;
 
 
 // -------------------------------------------------------------------------
@@ -1507,10 +1507,10 @@ void freed_main()
 // -------------------------------------------------------------------------
 void CheckValidity(
     char* file,
-    Sint32 valid_checksum)
+    int32_t valid_checksum)
 {
     std::string filename;
-    Sint32 checksum;
+    int32_t checksum;
 
     if (::strlen(file) > 9) {
         MAIN_ERROR(CHECK_FILENAME_TOO_LONG);

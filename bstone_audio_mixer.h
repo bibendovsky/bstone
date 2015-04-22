@@ -248,7 +248,7 @@ private:
     volatile float music_volume_;
 
     void callback(
-        Uint8* dst_data,
+        uint8_t* dst_data,
         int dst_length);
 
     void mix();
@@ -296,7 +296,7 @@ private:
 
     static void callback_proxy(
         void* user_data,
-        Uint8* dst_data,
+        uint8_t* dst_data,
         int dst_length);
 
     static int mix_proxy(

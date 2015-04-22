@@ -84,10 +84,10 @@ Free Software Foundation, Inc.,
 #undef  STARTMUSIC
 #endif // 0
 
-extern Uint16 sdStartPCSounds;
-extern Uint16 sdStartALSounds;
-extern Sint16 sdLastSound;
-extern Sint16 DigiMap[];
+extern uint16_t sdStartPCSounds;
+extern uint16_t sdStartALSounds;
+extern int16_t sdLastSound;
+extern int16_t DigiMap[];
 
 
 //      Global variables
@@ -99,15 +99,15 @@ boolean SoundSourcePresent,
 SDMode SoundMode;
 SMMode MusicMode;
 SDSMode DigiMode;
-volatile Uint32 TimeCount;
-Uint16 HackCount;
+volatile uint32_t TimeCount;
+uint16_t HackCount;
 
-Uint8** SoundTable;
+uint8_t** SoundTable;
 
 //      Internal variables
 static boolean SD_Started;
 boolean nextsoundpos;
-Uint32 TimerDivisor, TimerCount;
+uint32_t TimerDivisor, TimerCount;
 static const char* ParmStrings[] = {
     "noal",
     "nosb",
@@ -121,12 +121,12 @@ static const char* ParmStrings[] = {
 };
 int SoundNumber;
 int DigiNumber;
-Uint16 SoundPriority, DigiPriority;
-Sint16 LeftPosition, RightPosition;
-Sint32 LocalTime;
-Uint16 TimerRate;
+uint16_t SoundPriority, DigiPriority;
+int16_t LeftPosition, RightPosition;
+int32_t LocalTime;
+uint16_t TimerRate;
 
-Uint16* DigiList;
+uint16_t* DigiList;
 
 //      SoundBlaster variables
 static boolean sbNoCheck, sbNoProCheck;
@@ -139,8 +139,8 @@ boolean ssNoCheck;
 //      AdLib variables
 boolean alNoCheck;
 boolean sqActive;
-Uint16* sqHack;
-Uint16 sqHackLen;
+uint16_t* sqHack;
+uint16_t sqHackLen;
 boolean sqPlayedOnce;
 
 //      Internal routines
@@ -176,11 +176,11 @@ void SD_SetDigiDevice(
 
 void SDL_SetupDigi()
 {
-    const Uint16* p;
+    const uint16_t* p;
     int pg;
     int i;
 
-    p = static_cast<const Uint16*>(PM_GetPage(ChunksInFile - 1));
+    p = static_cast<const uint16_t*>(PM_GetPage(ChunksInFile - 1));
     pg = PMSoundStart;
     for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i) {
         if (pg >= ChunksInFile - 1) {
@@ -189,9 +189,9 @@ void SDL_SetupDigi()
         pg += (bstone::Endian::le(p[1]) + (PMPageSize - 1)) / PMPageSize;
         p += 2;
     }
-    DigiList = new Uint16[i * 2];
+    DigiList = new uint16_t[i * 2];
 
-    const Uint16* src_list = static_cast<const Uint16*>(
+    const uint16_t* src_list = static_cast<const uint16_t*>(
         ::PM_GetPage(ChunksInFile - 1));
 
     bstone::Endian::le(src_list, i * 2, DigiList);
@@ -251,7 +251,7 @@ boolean SD_SetSoundMode(
     SDMode mode)
 {
     boolean result = false;
-    Uint16 tableoffset = 0;
+    uint16_t tableoffset = 0;
 
     SD_StopSound();
 
@@ -542,13 +542,13 @@ void SD_StartMusic(
     if (MusicMode == smm_AdLib) {
         music_index = index;
 
-        Uint16* music_data = reinterpret_cast<Uint16*>(
+        uint16_t* music_data = reinterpret_cast<uint16_t*>(
             audiosegs[STARTMUSIC + index]);
 
         int length = bstone::Endian::le(music_data[0]) + 2;
 
         sqHack = music_data;
-        sqHackLen = static_cast<Uint16>(length);
+        sqHackLen = static_cast<uint16_t>(length);
 
         SD_MusicOn();
     } else {

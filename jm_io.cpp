@@ -36,10 +36,10 @@ Free Software Foundation, Inc.,
 boolean IO_WriteFile(
     char* filename,
     void* ptr,
-    Sint32 length)
+    int32_t length)
 {
-    Sint16 handle;
-    Sint32 size;
+    int16_t handle;
+    int32_t size;
 
     handle = open(filename, O_CREAT | O_BINARY | O_WRONLY,
                   S_IREAD | S_IWRITE | S_IFREG);
@@ -67,7 +67,7 @@ int IO_LoadFile(
 {
     char buffer[5] = { 0, 0, 0, 0, 0 };
     bstone::FileStream handle;
-    Sint32 size = 0;
+    int32_t size = 0;
 
     handle.open(filename);
 
@@ -89,7 +89,7 @@ int IO_LoadFile(
             *dst = new char[head.OriginalLen];
 
             {
-                std::auto_ptr<Uint8> buffer(new Uint8[head.CompressLen]);
+                std::auto_ptr<uint8_t> buffer(new uint8_t[head.CompressLen]);
 
                 ::LZH_Decompress(buffer.get(), *dst,
                                  size, head.CompressLen);
@@ -108,7 +108,7 @@ int IO_LoadFile(
         }
     } else {
         handle.set_position(0);
-        size = static_cast<Sint32>(handle.get_size());
+        size = static_cast<int32_t>(handle.get_size());
         *dst = new char[size];
         if (handle.read(*dst, size) != size) {
             return size;
@@ -127,8 +127,8 @@ void IO_CopyFile(
     char* sFilename,
     char* dFilename)
 {
-    Sint16 sHandle, dHandle;
-    Uint16 length;
+    int16_t sHandle, dHandle;
+    uint16_t length;
 
 // Allocate memory for buffer.
 //

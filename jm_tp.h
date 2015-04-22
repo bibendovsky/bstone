@@ -92,27 +92,27 @@ Free Software Foundation, Inc.,
 //  typedefs
 // -------------------------------------------------------------------------
 struct PresenterInfo {
-    Uint16 flags;
-    Uint16 gflags;
+    uint16_t flags;
+    uint16_t gflags;
     const char* script[TP_MAX_PAGES];
     void* scriptstart;
     char numpages;
     char pagenum;
-    Uint16 xl;
-    Uint16 yl;
-    Uint16 xh;
-    Uint16 yh;
+    uint16_t xl;
+    uint16_t yl;
+    uint16_t xh;
+    uint16_t yh;
     char fontnumber;
     char bgcolor;
     char ltcolor;
     char dkcolor;
     char shcolor;
-    Uint16 cur_x;
-    Uint16 cur_y;
+    uint16_t cur_x;
+    uint16_t cur_y;
     char print_delay;
-    Uint8 highlight_color;
-    Uint8 fontcolor;
-    Sint16 id_cache;
+    uint8_t highlight_color;
+    uint8_t fontcolor;
+    int16_t id_cache;
     char* infoline;
     int custom_line_height;
 }; // struct PresenterInfo;
@@ -139,7 +139,7 @@ enum pisType {
 }; // enum pisType;
 
 struct piShapeInfo {
-    Uint16 shapenum;
+    uint16_t shapenum;
     pisType shapetype;
 }; // struct piShapeInfo
 
@@ -154,14 +154,14 @@ enum pidType {
 }; // enum pidType
 
 struct piAnimInfo {
-    Sint16 baseshape;
+    int16_t baseshape;
     char frame;
     char maxframes;
-    Sint16 delay;
-    Sint16 maxdelay;
+    int16_t delay;
+    int16_t maxdelay;
     piaType animtype;
     pidType dirtype;
-    Sint16 x, y;
+    int16_t x, y;
     char diradd;
 }; // struct piAnimInfo
 
@@ -174,7 +174,7 @@ extern PiShapeInfos piShapeTable;
 extern piAnimInfo piAnimTable[];
 extern piAnimInfo piAnimList[TP_MAX_ANIMS];
 extern char* piStringTable[PI_MAX_NUM_DISP_STRS];
-extern Uint8 TPscan;
+extern uint8_t TPscan;
 
 // -------------------------------------------------------------------------
 // Function prototypes
@@ -183,29 +183,29 @@ void TP_Presenter(
     PresenterInfo* pi);
 void TP_WrapText();
 void TP_HandleCodes();
-Sint16 TP_DrawShape(
-    Sint16 x,
-    Sint16 y,
-    Sint16 shapenum,
+int16_t TP_DrawShape(
+    int16_t x,
+    int16_t y,
+    int16_t shapenum,
     pisType type);
-Uint16 TP_VALUE(
+uint16_t TP_VALUE(
     const char* ptr,
     char num_nybbles);
-Sint32 TP_LoadScript(
+int32_t TP_LoadScript(
     const char* filename,
     PresenterInfo* pi,
-    Uint16 id_cache);
+    uint16_t id_cache);
 void TP_FreeScript(
     PresenterInfo* pi,
-    Uint16 id_cache);
+    uint16_t id_cache);
 void TP_InitScript(
     PresenterInfo* pi);
 void TP_AnimatePage(
-    Sint16 numanims);
-Sint16 TP_BoxAroundShape(
-    Sint16 x1,
-    Sint16 y1,
-    Uint16 shapenum,
+    int16_t numanims);
+int16_t TP_BoxAroundShape(
+    int16_t x1,
+    int16_t y1,
+    uint16_t shapenum,
     pisType shapetype);
 void TP_JumpCursor();
 void TP_Print(
@@ -219,9 +219,9 @@ void TP_CachePage(
     const char* script);
 void TP_CacheIn(
     tpCacheType type,
-    Sint16 chunk);
+    int16_t chunk);
 void TP_ResetPagePointers();
-Sint16 TP_LineCommented(
+int16_t TP_LineCommented(
     const char* s);
 void TP_PrintPageNumber();
 

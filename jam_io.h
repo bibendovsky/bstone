@@ -60,12 +60,12 @@ typedef enum ct_TYPES {
 //
 
 struct COMPStruct {
-    Uint32 DecompLen;
+    uint32_t DecompLen;
 };
 
 
 struct JAMPHeader {
-    Uint32 OrginalLen; // Orginal FileLength of compressed Data.
+    uint32_t OrginalLen; // Orginal FileLength of compressed Data.
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    Uint32 CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+    uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };

@@ -69,8 +69,8 @@ void VH_UpdateScreen();
 //      Global variables
 char* abortprogram;
 //              boolean         NoWait;
-Uint16 PrintX, PrintY;
-Uint16 WindowX, WindowY, WindowW, WindowH;
+uint16_t PrintX, PrintY;
+uint16_t WindowX, WindowY, WindowW, WindowH;
 
 US_CursorStruct US_CustomCursor; // JAM
 boolean use_custom_cursor = false; // JAM
@@ -84,7 +84,7 @@ boolean US_Started;
 
 boolean Button0, Button1,
         CursorBad;
-Sint16 CursorX, CursorY;
+int16_t CursorX, CursorY;
 
 void (* USL_MeasureString)(
     const char*,
@@ -137,13 +137,13 @@ void US_Shutdown()
 //              index of the string that matched, or -1 if no matches were found
 //
 ///////////////////////////////////////////////////////////////////////////
-Sint16 US_CheckParm(
+int16_t US_CheckParm(
     const char* parm,
     const char** strings)
 {
     char cp, cs;
     const char* p, * s;
-    Sint16 i;
+    int16_t i;
 
     while (!isalpha(*parm)) {   // Skip non-alphas
         parm++;
@@ -180,7 +180,7 @@ Sint16 US_CheckParm(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_SetPrintRoutines(
-    void (* measure)(char*, Uint16*, Uint16*),
+    void (* measure)(char*, uint16_t*, uint16_t*),
     void (* print)(char*))
 {
     USL_MeasureString = measure;
@@ -237,7 +237,7 @@ void US_Print(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_PrintUnsigned(
-    Uint32 n)
+    uint32_t n)
 {
     char buffer[32];
 
@@ -252,7 +252,7 @@ void US_PrintUnsigned(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_PrintSigned(
-    Sint32 n)
+    int32_t n)
 {
     char buffer[32];
 
@@ -376,12 +376,12 @@ void US_ClearWindow()
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_DrawWindow(
-    Uint16 x,
-    Uint16 y,
-    Uint16 w,
-    Uint16 h)
+    uint16_t x,
+    uint16_t y,
+    uint16_t w,
+    uint16_t h)
 {
-    Uint16 i,
+    uint16_t i,
            sx, sy, sw, sh;
 
     WindowX = x * 8;
@@ -417,8 +417,8 @@ void US_DrawWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_CenterWindow(
-    Uint16 w,
-    Uint16 h)
+    uint16_t w,
+    uint16_t h)
 {
     US_DrawWindow(((MaxX / 8) - w) / 2, ((MaxY / 8) - h) / 2, w, h);
 }
@@ -467,10 +467,10 @@ void US_RestoreWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void USL_XORICursor(
-    Sint16 x,
-    Sint16 y,
+    int16_t x,
+    int16_t y,
     char* s,
-    Uint16 cursor)
+    uint16_t cursor)
 {
     static boolean status; // VGA doesn't XOR...
     char buf[MaxString];
@@ -492,7 +492,7 @@ static void USL_XORICursor(
         temp = fontcolor;
         fontcolor = backcolor;
         USL_DrawString("\x80");
-        fontcolor = static_cast<Uint8>(temp);
+        fontcolor = static_cast<uint8_t>(temp);
     }
 
 }
@@ -506,10 +506,10 @@ static void USL_XORICursor(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void USL_CustomCursor(
-    Sint16 x,
-    Sint16 y,
+    int16_t x,
+    int16_t y,
     char* s,
-    Uint16 cursor)
+    uint16_t cursor)
 {
     static boolean status; // VGA doesn't XOR...
     char buf[MaxString];
@@ -529,7 +529,7 @@ static void USL_CustomCursor(
     fontnumber = US_CustomCursor.font_number;
 
     if (status ^= 1) {
-        fontcolor = static_cast<Uint8>(US_CustomCursor.cursor_color);
+        fontcolor = static_cast<uint8_t>(US_CustomCursor.cursor_color);
     } else {
         fontcolor = backcolor;
     }
@@ -537,7 +537,7 @@ static void USL_CustomCursor(
     VL_WaitVBL(1);
 
     USL_DrawString(&US_CustomCursor.cursor_char);
-    fontcolor = static_cast<Uint8>(temp);
+    fontcolor = static_cast<uint8_t>(temp);
     fontnumber = temp_font;
 
 }
@@ -554,13 +554,13 @@ static void USL_CustomCursor(
 //
 ///////////////////////////////////////////////////////////////////////////
 boolean US_LineInput(
-    Sint16 x,
-    Sint16 y,
+    int16_t x,
+    int16_t y,
     char* buf,
     char* def,
     boolean escok,
-    Sint16 maxchars,
-    Sint16 maxwidth)
+    int16_t maxchars,
+    int16_t maxwidth)
 {
     bool redraw,
          cursorvis, cursormoved,
@@ -572,7 +572,7 @@ boolean US_LineInput(
         cursor,
         w, h,
         len, temp;
-    Uint32 lasttime;
+    uint32_t lasttime;
 
     if (def) {
         strcpy(s, def);
@@ -580,7 +580,7 @@ boolean US_LineInput(
         *s = '\0';
     }
     *olds = '\0';
-    cursor = static_cast<Uint16>(strlen(s));
+    cursor = static_cast<uint16_t>(strlen(s));
     cursormoved = redraw = true;
 
     cursorvis = done = false;
@@ -683,7 +683,7 @@ boolean US_LineInput(
         }
 
         if (c) {
-            len = static_cast<Uint16>(strlen(s));
+            len = static_cast<uint16_t>(strlen(s));
             USL_MeasureString(s, &w, &h);
 
             if (isprint(c) && (len < MaxString - 1)
@@ -704,7 +704,7 @@ boolean US_LineInput(
             temp = fontcolor;
             fontcolor = backcolor;
             USL_DrawString(olds);
-            fontcolor = static_cast<Uint8>(temp);
+            fontcolor = static_cast<uint8_t>(temp);
             strcpy(olds, s);
 
             px = x;

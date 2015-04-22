@@ -46,7 +46,7 @@ extern char prep_msg[];
 extern char LS_current, LS_total;
 void Died();
 void PM_SetMainMemPurge(
-    Sint16 level);
+    int16_t level);
 void InitGoldsternInfo();
 void InitDoorList();
 void InitStaticList();
@@ -61,29 +61,29 @@ void UpdateStatusBar();
 bool LoadLevel(
     int levelnum);
 void SetPlaneViewSize();
-Sint16 CalcAngle(
+int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
 void FinishPaletteShifts();
 void CA_CacheScreen(
-    Sint16 chunk);
+    int16_t chunk);
 void VH_UpdateScreen();
 void DoActor(
     objtype* ob);
 bool LevelInPlaytemp(
     int level_index);
 void PreloadUpdate(
-    Uint16 current,
-    Uint16 total);
+    uint16_t current,
+    uint16_t total);
 void PreloadGraphics();
 
 bool SaveLevel(
     int level_index);
 
-Sint16 NextBuffer();
+int16_t NextBuffer();
 void CheckHighScore(
-    Sint32 score,
-    Uint16 other);
+    int32_t score,
+    uint16_t other);
 
 
 /*
@@ -95,7 +95,7 @@ void CheckHighScore(
 */
 
 #if IN_DEVELOPMENT
-Sint16 db_count = 0;
+int16_t db_count = 0;
 #ifdef DEBUG_STATICS
 classtype debug_bonus[2][800];
 #endif
@@ -111,7 +111,7 @@ char NumEAWalls;
 tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 GoldsternInfo_t GoldsternInfo;
 
-extern Uint16 scan_value;
+extern uint16_t scan_value;
 
 int NUMWEAPONS = 0;
 
@@ -186,9 +186,9 @@ char ExpCrateShapes[] = {
 */
 
 fixed globalsoundx, globalsoundy;
-Sint16 leftchannel, rightchannel;
+int16_t leftchannel, rightchannel;
 #define ATABLEMAX 15
-Uint8 righttable[ATABLEMAX][ATABLEMAX * 2] = {
+uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8 },
@@ -205,7 +205,7 @@ Uint8 righttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 }
 };
-Uint8 lefttable[ATABLEMAX][ATABLEMAX * 2] = {
+uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
@@ -228,7 +228,7 @@ void SetSoundLoc(
     fixed gy)
 {
     fixed xt, yt;
-    Sint16 x, y;
+    int16_t x, y;
 
 //
 // translate point to view centered coordinates
@@ -327,7 +327,7 @@ void FreeAllMemory()
 #endif
 
 #ifdef TRACK_ENEMY_COUNT
-Sint16 numEnemy[gold_morphingobj];
+int16_t numEnemy[gold_morphingobj];
 #endif
 
 /*
@@ -344,9 +344,9 @@ Sint16 numEnemy[gold_morphingobj];
 
 void ScanInfoPlane()
 {
-    Uint16 x, y;
-    Sint16 tile;
-    Uint16* start;
+    uint16_t x, y;
+    int16_t tile;
+    uint16_t* start;
     boolean gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
@@ -369,14 +369,14 @@ void ScanInfoPlane()
         for (x = 0; x < mapwidth; x++) {
             sci_mCacheInfo* ci;
             scientist_t* st = NULL;
-            Uint8 tilehi, tilelo, block = 0;
+            uint8_t tilehi, tilelo, block = 0;
 
 
             tile = *start++;
             //
             // Check for tiles/icons to ignore...
             //
-            switch ((Uint16) * (mapsegs[0] + farmapylookup[y] + x)) {
+            switch ((uint16_t) * (mapsegs[0] + farmapylookup[y] + x)) {
             case SMART_OFF_TRIGGER:
             case SMART_ON_TRIGGER:
                 if (!::is_ps()) {
@@ -505,7 +505,7 @@ void ScanInfoPlane()
                 ci->mInfo.global_val = tilelo;
                 if (!ReuseMsg((mCacheInfo*)ci, st->NumMsgs, sizeof(sci_mCacheInfo))) {
                     CacheMsg((mCacheInfo*)ci, block, ci->mInfo.global_val);
-                    ci->mInfo.local_val = static_cast<Uint8>(InfHintList.NumMsgs);
+                    ci->mInfo.local_val = static_cast<uint8_t>(InfHintList.NumMsgs);
                 }
 
                 if (++st->NumMsgs > MAX_CACHE_MSGS) {
@@ -946,8 +946,8 @@ void ScanInfoPlane()
                     } else {
                         GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT - MIN_GOLDIE_FIRST_WAIT);
                     }
-                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<Uint8>(x);
-                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<Uint8>(y);
+                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<uint8_t>(x);
+                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<uint8_t>(y);
                     GoldsternInfo.SpawnCnt++;
 
                     if (::is_ps() && gamestate.mapon == GOLD_MORPH_LEVEL) {
@@ -974,8 +974,8 @@ void ScanInfoPlane()
                         GAME_ERROR(SETUPGAME_MAX_GOLDIE_SPAWNS);
                     }
 
-                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<Uint8>(x);
-                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<Uint8>(y);
+                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<uint8_t>(x);
+                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<uint8_t>(y);
 
                     GoldsternInfo.LastIndex = GoldsternInfo.SpawnCnt++;
                     GoldsternInfo.flags = GS_COORDFOUND;
@@ -2352,7 +2352,7 @@ void ScanInfoPlane()
 // AddTotalPoints()
 // --------------------------------------------------------------------------
 void AddTotalPoints(
-    Uint16 points)
+    uint16_t points)
 {
     if (loadedgame) {
         return;
@@ -2378,14 +2378,14 @@ void AddTotalInformants(
 // AddTotalEnemy()
 // --------------------------------------------------------------------------
 void AddTotalEnemy(
-    Uint16 enemies)
+    uint16_t enemies)
 {
     if (loadedgame) {
         return;
     }
 
     gamestuff.level[gamestate.mapon].stats.total_enemy +=
-        static_cast<Uint8>(enemies);
+        static_cast<uint8_t>(enemies);
 }
 
 // ==========================================================================
@@ -2398,17 +2398,17 @@ void AddTotalEnemy(
 ==================
 */
 
-Sint16 an_offset[8] = { 1, -1, 64, -64, -65, -63, 63, 65 };
+int16_t an_offset[8] = { 1, -1, 64, -64, -65, -63, 63, 65 };
 
 void SetupGameLevel()
 {
     boolean switchon = false;
     sci_mCacheInfo* ci = InfHintList.smInfo;
-    Sint16 x, y;
-    Uint16* map, tile, icon;
+    int16_t x, y;
+    uint16_t* map, tile, icon;
     keytype lock;
-    Uint16* map1, * map2;
-    Sint16 count;
+    uint16_t* map1, * map2;
+    int16_t count;
 
     if (!loadedgame) {
         gamestate.flags |= GS_CLIP_WALLS;
@@ -2455,7 +2455,7 @@ void SetupGameLevel()
 
             if (tile < AREATILE) {
                 // solid wall
-                tilemap[x][y] = static_cast<Uint8>(tile);
+                tilemap[x][y] = static_cast<uint8_t>(tile);
 
 // if (tile != AMBUSHTILE)
 //      (unsigned)actorat[x][y] = tile;
@@ -2613,7 +2613,7 @@ void SetupGameLevel()
                 switch (tile) {
                 case SODATILE:
                     if (!loadedgame) {
-                        SpawnConcession(x, y, static_cast<Uint16>(lock), CT_BEVS);
+                        SpawnConcession(x, y, static_cast<uint16_t>(lock), CT_BEVS);
                         *map1 = 0;
                     }
                     break;
@@ -2622,7 +2622,7 @@ void SetupGameLevel()
 
                 case FOODTILE:
                     if (!loadedgame) {
-                        SpawnConcession(x, y, static_cast<Uint16>(lock), CT_FOOD);
+                        SpawnConcession(x, y, static_cast<uint16_t>(lock), CT_FOOD);
                         *map1 = 0;
                     }
                     break;
@@ -2645,23 +2645,23 @@ void SetupGameLevel()
                     switchon = true;
                 case OFF_SWITCH: {
                     if (!::is_ps()) {
-                        Uint8 level = 0xFF;
+                        uint8_t level = 0xFF;
 
                         if (map1[0] == 0xF8FF) {
                             level = gamestate.mapon;
                         } else {
-                            level = static_cast<Uint8>(map1[0] & 0xFF);
+                            level = static_cast<uint8_t>(map1[0] & 0xFF);
                         }
 
-                        Uint8 switch_x = static_cast<Uint8>((map1[1] / 256) & 0xFF);
-                        Uint8 switch_y = static_cast<Uint8>(map1[1] & 0xFF);
+                        uint8_t switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
+                        uint8_t switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
 
                         map1[1] = 0;
 
                         map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
                     } else {
-                        Uint8 switch_x = static_cast<Uint8>((map1[0] / 256) & 0xFF);
-                        Uint8 switch_y = static_cast<Uint8>(map1[0] & 0xFF);
+                        uint8_t switch_x = static_cast<uint8_t>((map1[0] / 256) & 0xFF);
+                        uint8_t switch_y = static_cast<uint8_t>(map1[0] & 0xFF);
 
                         map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
                     }
@@ -2753,7 +2753,7 @@ void SetupGameLevel()
 // LoadLocationText()
 // ------------------------------------------------------------------------
 void LoadLocationText(
-    Sint16 textNum)
+    int16_t textNum)
 {
     char* temp;
 
@@ -2779,7 +2779,7 @@ void LoadLocationText(
 */
 void DrawPlayBorder()
 {
-    Sint16 xl, yl;
+    int16_t xl, yl;
 
     if (viewwidth == 320) {
         VWB_Bar(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, 0);     // JTR - Changed
@@ -2819,7 +2819,7 @@ void BMAmsg(
         fontstruct* font = (fontstruct*)grsegs[STARTFONT + fontnumber];
         char numlines = 1;
         const char* p = msg;
-        Sint16 cheight;
+        int16_t cheight;
 
         memset(&pi, 0, sizeof(pi));
         pi.flags = TPF_CACHE_NO_GFX;
@@ -2850,7 +2850,7 @@ void BMAmsg(
 //      BMAmsg()
 // ----------------------------------------------------------------------
 void CacheBMAmsg(
-    Uint16 MsgNum)
+    uint16_t MsgNum)
 {
     char* string, * pos;
 
@@ -2870,16 +2870,16 @@ void CacheBMAmsg(
 // BevelBox()
 // --------------------------------------------------------------------------
 void BevelBox(
-    Sint16 xl,
-    Sint16 yl,
-    Sint16 w,
-    Sint16 h,
-    Uint8 hi,
-    Uint8 med,
-    Uint8 lo)
+    int16_t xl,
+    int16_t yl,
+    int16_t w,
+    int16_t h,
+    uint8_t hi,
+    uint8_t med,
+    uint8_t lo)
 {
-    Sint16 xh = xl + w - 1, yh = yl + h - 1;
-    Uint8 hc;
+    int16_t xh = xl + w - 1, yh = yl + h - 1;
+    uint8_t hc;
 
     VWB_Bar(xl, yl, w, h, med); // inside
 
@@ -3011,8 +3011,8 @@ void DrawTopInfo(
 void DrawPlayScreen(
     boolean InitInfoMsg)
 {
-    Sint16 i;
-    Uint16 temp;
+    int16_t i;
+    uint16_t temp;
 
     if (loadedgame) {
         return;
@@ -3022,7 +3022,7 @@ void DrawPlayScreen(
         VW_FadeOut();
     }
 
-    temp = static_cast<Uint16>(bufferofs);
+    temp = static_cast<uint16_t>(bufferofs);
     WindowW = 253;
     WindowH = 8;
     fontnumber = 2;
@@ -3060,10 +3060,10 @@ void DrawPlayScreen(
 // ---------------------------------------------------------------------------
 void DrawWarpIn()
 {
-    Sint16 i;
-    Uint16 temp;
+    int16_t i;
+    uint16_t temp;
 
-    temp = static_cast<Uint16>(bufferofs);
+    temp = static_cast<uint16_t>(bufferofs);
     InitInfoArea();
     DisplayInfoMsg("\r\r    TRANSPORTING...", MP_POWERUP, 2 * 60, MT_GENERAL);
 
@@ -3099,7 +3099,7 @@ void DrawWarpIn()
 // ---------------------------------------------------------------------------
 void Warped()
 {
-    Sint16 iangle;
+    int16_t iangle;
 
     DisplayInfoMsg("\r\r\r   TRANSPORTING OUT", MP_POWERUP, 7 * 60, MT_GENERAL);
     gamestate.old_weapons[3] = gamestate.weapon;
@@ -3160,7 +3160,7 @@ void initialize_demos()
 #define MAXDEMOSIZE 16384
 
 void StartDemoRecord(
-    Sint16 levelnumber)
+    int16_t levelnumber)
 {
     MM_GetPtr(&demobuffer, MAXDEMOSIZE);
     MM_SetLock(&demobuffer, true);
@@ -3184,14 +3184,14 @@ void StartDemoRecord(
 void FinishDemoRecord()
 {
     char str[3];
-    Sint32 length, level;
+    int32_t length, level;
 
     demorecord = false;
 
     length = demoptr - (char*)demobuffer;
 
     demoptr = ((char*)demobuffer) + 1;
-    *(Uint16*)demoptr = length;
+    *(uint16_t*)demoptr = length;
 
     VW_FadeIn();
 
@@ -3268,7 +3268,7 @@ void RecordDemo()
 void RecordDemo()
 {
     char str[3];
-    Sint16 level, esc;
+    int16_t level, esc;
 
     CenterWindow(26, 3);
     PrintY += 6;
@@ -3339,19 +3339,19 @@ void RecordDemo()
 */
 
 void PlayDemo(
-    Sint16 demonumber)
+    int16_t demonumber)
 {
 // FIXME
 #if 0
 //   static int numloops=0;
-    Sint16 length;
+    int16_t length;
 
 #ifndef DEMOS_EXTERN
 // debug: load chunk
 #if GAME_VERSION == SHAREWARE_VERSION
-    Sint16 dems[4] = { T_DEMO0, T_DEMO1, T_DEMO2, T_DEMO3 };
+    int16_t dems[4] = { T_DEMO0, T_DEMO1, T_DEMO2, T_DEMO3 };
 #else
-    Sint16 dems[6] = { T_DEMO0, T_DEMO1, T_DEMO2, T_DEMO3, T_DEMO4, T_DEMO5 };
+    int16_t dems[6] = { T_DEMO0, T_DEMO1, T_DEMO2, T_DEMO3, T_DEMO4, T_DEMO5 };
 #endif
 
     CA_CacheGrChunk(dems[demonumber]);
@@ -3366,7 +3366,7 @@ void PlayDemo(
     NewGame(1, 0);
     gamestate.mapon = *demoptr++;
     gamestate.difficulty = gd_easy;
-    length = *((Uint16*)demoptr);
+    length = *((uint16_t*)demoptr);
     demoptr += 2;
     demoptr++;
     lastdemoptr = demoptr - 4 + length;
@@ -3433,7 +3433,7 @@ void PlayDemo(
 
 void Died()
 {
-    Sint16 iangle;
+    int16_t iangle;
 
     gamestate.weapon = -1; // take away weapon
 
@@ -3503,7 +3503,7 @@ void LoseScreen()
     pi.dkcolor = 1;
     pi.shcolor = 1;
     pi.fontnumber = 2;
-    pi.cur_x = static_cast<Uint16>(-1);
+    pi.cur_x = static_cast<uint16_t>(-1);
     pi.print_delay = 2;
 
     ClearMemory();
@@ -3545,10 +3545,10 @@ void LoseScreen()
 //      RotSpeed  - Rotation Speed
 // --------------------------------------------------------------------------
 void RotateView(
-    Sint16 DestAngle,
-    Uint8 RotSpeed)
+    int16_t DestAngle,
+    uint8_t RotSpeed)
 {
-    Sint16 curangle, clockwise, counter, change;
+    int16_t curangle, clockwise, counter, change;
     objtype* obj;
     boolean old_godmode = godmode;
 
@@ -3653,7 +3653,7 @@ restartgame:
 
     died = false;
     do {
-        extern Sint16 pickquick;
+        extern int16_t pickquick;
 
         ingame = true;
 
@@ -3850,7 +3850,7 @@ restartgame:
                 memset(update, 0, sizeof(update));
                 CacheBMAmsg(YOUWIN_TEXT);
                 for (loop = 0; loop < 2; loop++) {
-                    VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 320, 200);
+                    VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 320, 200);
                     NextBuffer();
                 }
                 UNCACHEGRCHUNK(STARTFONT + 1);

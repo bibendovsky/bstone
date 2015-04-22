@@ -60,19 +60,19 @@ loaded into the data segment
 =============================================================================
 */
 
-Uint16 rlew_tag;
+uint16_t rlew_tag;
 
-Sint16 mapon;
+int16_t mapon;
 
-Uint16* mapsegs[MAPPLANES];
+uint16_t* mapsegs[MAPPLANES];
 MapHeaderSegments mapheaderseg;
 AudioSegments audiosegs;
 GrSegments grsegs;
 
 GrNeeded grneeded;
-Uint8 ca_levelbit, ca_levelnum;
+uint8_t ca_levelbit, ca_levelnum;
 
-Sint16 profilehandle, debughandle;
+int16_t profilehandle, debughandle;
 
 int NUM_EPISODES = 0;
 int MAPS_PER_EPISODE = 0;
@@ -95,14 +95,14 @@ std::string audioname = "AUDIO.";
 =============================================================================
 */
 
-extern Sint32 CGAhead;
-extern Sint32 EGAhead;
-extern Uint8 CGAdict;
-extern Uint8 EGAdict;
-extern Uint8 maphead;
-extern Uint8 mapdict;
-extern Uint8 audiohead;
-extern Uint8 audiodict;
+extern int32_t CGAhead;
+extern int32_t EGAhead;
+extern uint8_t CGAdict;
+extern uint8_t EGAdict;
+extern uint8_t maphead;
+extern uint8_t mapdict;
+extern uint8_t audiohead;
+extern uint8_t audiodict;
 
 
 std::string extension; // Need a string, not constant to change cache files
@@ -117,8 +117,8 @@ std::string afilename = "AUDIOT.";
 void CA_CannotOpen(
     const std::string& string);
 
-Sint32* grstarts; // array of offsets in egagraph, -1 for sparse
-Sint32* audiostarts; // array of offsets in audio / audiot
+int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
+int32_t* audiostarts; // array of offsets in audio / audiot
 
 #ifdef GRHEADERLINKED
 huffnode* grhuffman;
@@ -136,7 +136,7 @@ bstone::FileStream grhandle; // handle to EGAGRAPH
 bstone::FileStream maphandle; // handle to MAPTEMP / GAMEMAPS
 bstone::FileStream audiohandle; // handle to AUDIOT / AUDIO
 
-Sint32 chunkcomplen, chunkexplen;
+int32_t chunkcomplen, chunkexplen;
 
 SDMode oldsoundmode;
 
@@ -145,22 +145,22 @@ int ca_gr_last_expanded_size;
 
 
 void CAL_CarmackExpand(
-    Uint16* source,
-    Uint16* dest,
-    Uint16 length);
+    uint16_t* source,
+    uint16_t* dest,
+    uint16_t length);
 
 
 #ifdef THREEBYTEGRSTARTS
-// #define      GRFILEPOS(c) (*(long *)(((Uint8 *)grstarts)+(c)*3)&0xffffff)
-Sint32 GRFILEPOS(
-    Sint16 c)
+// #define      GRFILEPOS(c) (*(long *)(((uint8_t *)grstarts)+(c)*3)&0xffffff)
+int32_t GRFILEPOS(
+    int16_t c)
 {
-    Sint32 value;
-    Sint16 offset;
+    int32_t value;
+    int16_t offset;
 
     offset = c * 3;
 
-    value = *(Sint32*)(((Uint8*)grstarts) + offset);
+    value = *(int32_t*)(((uint8_t*)grstarts) + offset);
 
     value &= 0x00ffffffl;
 
@@ -321,7 +321,7 @@ void CloseAudioFile()
 */
 
 void CAL_GetGrChunkLength(
-    Sint16 chunk)
+    int16_t chunk)
 {
     grhandle.set_position(GRFILEPOS(chunk));
     grhandle.read(&chunkexplen, sizeof(chunkexplen));
@@ -346,8 +346,8 @@ void CAL_GetGrChunkLength(
 
 boolean CA_FarRead(
     int handle,
-    Uint8* dest,
-    Sint32 length)
+    uint8_t* dest,
+    int32_t length)
 {
     unsigned readlen;
 
@@ -397,8 +397,8 @@ done:
 
 boolean CA_FarWrite(
     int handle,
-    Uint8* source,
-    Sint32 length)
+    uint8_t* source,
+    int32_t length)
 {
     unsigned writelen;
 
@@ -451,7 +451,7 @@ boolean CA_ReadFile(
     memptr* ptr)
 {
     int handle;
-    Sint32 size;
+    int32_t size;
 
     if ((handle = open(filename, O_RDONLY | O_BINARY, S_IREAD)) == -1) {
         return false;
@@ -480,10 +480,10 @@ boolean CA_ReadFile(
 boolean CA_WriteFile(
     char* filename,
     void* ptr,
-    Sint32 length)
+    int32_t length)
 {
     int handle;
-    Sint32 size;
+    int32_t size;
 
     handle = open(filename, O_CREAT | O_BINARY | O_WRONLY,
                   S_IREAD | S_IWRITE | S_IFREG);
@@ -517,7 +517,7 @@ boolean CA_LoadFile(
     memptr* ptr)
 {
     int handle;
-    Sint32 size;
+    int32_t size;
 
     if ((handle = open(filename, O_RDONLY | O_BINARY, S_IREAD)) == -1) {
         return false;
@@ -557,19 +557,19 @@ boolean CA_LoadFile(
 */
 
 void CAL_HuffExpand(
-    Uint8* source,
-    Uint8* destination,
-    Sint32 length,
+    uint8_t* source,
+    uint8_t* destination,
+    int32_t length,
     huffnode* hufftable)
 {
-    Uint8 val = *source++;
-    Uint8 mask = 1;
-    Uint16 nodeval;
+    uint8_t val = *source++;
+    uint8_t mask = 1;
+    uint16_t nodeval;
 
     huffnode* headptr = &hufftable[254]; // head node is always node 254
 
-    Uint8* dst = destination;
-    Uint8* end = dst + length;
+    uint8_t* dst = destination;
+    uint8_t* end = dst + length;
 
     huffnode* huffptr = headptr;
 
@@ -588,7 +588,7 @@ void CAL_HuffExpand(
         }
 
         if (nodeval < 256) {
-            dst[0] = static_cast<Uint8>(nodeval);
+            dst[0] = static_cast<uint8_t>(nodeval);
             ++dst;
             huffptr = headptr;
         } else {
@@ -598,12 +598,12 @@ void CAL_HuffExpand(
 }
 
 void ca_huff_expand_on_screen(
-    Uint8* source,
+    uint8_t* source,
     huffnode* hufftable)
 {
-    Uint8 val = *source++;
-    Uint8 mask = 1;
-    Uint16 nodeval;
+    uint8_t val = *source++;
+    uint8_t mask = 1;
+    uint16_t nodeval;
 
     huffnode* headptr = &hufftable[254]; // head node is always node 254
     huffnode* huffptr = headptr;
@@ -627,7 +627,7 @@ void ca_huff_expand_on_screen(
             }
 
             if (nodeval < 256) {
-                VL_Plot(x, y, static_cast<Uint8>(nodeval));
+                VL_Plot(x, y, static_cast<uint8_t>(nodeval));
                 huffptr = headptr;
 
                 x += 4;
@@ -660,12 +660,12 @@ void ca_huff_expand_on_screen(
 #ifdef CARMACIZED
 
 void CAL_CarmackExpand(
-    Uint16* source,
-    Uint16* dest,
-    Uint16 length)
+    uint16_t* source,
+    uint16_t* dest,
+    uint16_t length)
 {
-    Uint16 ch, chhigh, count, offset;
-    Uint16* copyptr, * inptr, * outptr;
+    uint16_t ch, chhigh, count, offset;
+    uint16_t* copyptr, * inptr, * outptr;
 
     length /= 2;
 
@@ -678,11 +678,11 @@ void CAL_CarmackExpand(
         if (chhigh == NEARTAG) {
             count = ch & 0xff;
             if (!count) { // have to insert a word containing the tag byte
-                ch |= *((Uint8*)inptr)++;
+                ch |= *((uint8_t*)inptr)++;
                 *outptr++ = ch;
                 length--;
             } else {
-                offset = *((Uint8*)inptr)++;
+                offset = *((uint8_t*)inptr)++;
                 copyptr = outptr - offset;
                 length -= count;
                 while (count--) {
@@ -692,7 +692,7 @@ void CAL_CarmackExpand(
         } else if (chhigh == FARTAG) {
             count = ch & 0xff;
             if (!count) { // have to insert a word containing the tag byte
-                ch |= *((Uint8*)inptr)++;
+                ch |= *((uint8_t*)inptr)++;
                 *outptr++ = ch;
                 length--;
             } else {
@@ -722,15 +722,15 @@ void CAL_CarmackExpand(
 =
 ======================
 */
-Sint32 CA_RLEWCompress(
-    Uint16* source,
-    Sint32 length,
-    Uint16* dest,
-    Uint16 rlewtag)
+int32_t CA_RLEWCompress(
+    uint16_t* source,
+    int32_t length,
+    uint16_t* dest,
+    uint16_t rlewtag)
 {
-    Sint32 complength;
-    Uint16 value, count, i;
-    Uint16* start, * end;
+    int32_t complength;
+    uint16_t value, count, i;
+    uint16_t* start, * end;
 
     start = dest;
 
@@ -781,15 +781,15 @@ Sint32 CA_RLEWCompress(
 */
 
 void CA_RLEWexpand(
-    Uint16* source,
-    Uint16* dest,
-    Sint32 length,
-    Uint16 rlewtag)
+    uint16_t* source,
+    uint16_t* dest,
+    int32_t length,
+    uint16_t rlewtag)
 {
-    Uint16 i;
-    Uint16 value;
-    Uint16 count;
-    const Uint16* end = &dest[length / 2];
+    uint16_t i;
+    uint16_t value;
+    uint16_t count;
+    const uint16_t* end = &dest[length / 2];
 
     do {
         value = *source++;
@@ -878,13 +878,13 @@ void CA_Startup()
 */
 
 void CA_CacheAudioChunk(
-    Sint16 chunk)
+    int16_t chunk)
 {
-    Sint32 pos, compressed;
+    int32_t pos, compressed;
 #ifdef AUDIOHEADERLINKED
-    Sint32 expanded;
+    int32_t expanded;
     memptr bigbufferseg;
-    Uint8* source;
+    uint8_t* source;
 #endif
 
 
@@ -908,7 +908,7 @@ void CA_CacheAudioChunk(
 
 #ifndef AUDIOHEADERLINKED
 
-    audiosegs[chunk] = new Uint8[compressed];
+    audiosegs[chunk] = new uint8_t[compressed];
     audiohandle.read(audiosegs[chunk], compressed);
 
 #else
@@ -929,7 +929,7 @@ void CA_CacheAudioChunk(
         source = bigbufferseg;
     }
 
-    expanded = *(Sint32*)source;
+    expanded = *(int32_t*)source;
     source += 4; // skip over length
     MM_GetPtr(&(memptr)audiosegs[chunk], expanded);
     if (mmerror) {
@@ -962,7 +962,7 @@ done:
 
 void CA_LoadAllSounds()
 {
-    Uint16 start = 0, i;
+    uint16_t start = 0, i;
 
     switch (oldsoundmode) {
     case sdm_Off:
@@ -1005,10 +1005,10 @@ cachein:
 */
 
 void CAL_ExpandGrChunk(
-    Sint16 chunk,
-    Uint8* source)
+    int16_t chunk,
+    uint8_t* source)
 {
-    Sint32 expanded;
+    int32_t expanded;
 
 
     if (chunk >= STARTTILE8 && chunk < STARTEXTERNS) {
@@ -1036,7 +1036,7 @@ void CAL_ExpandGrChunk(
         //
         // everything else has an explicit size longword
         //
-        expanded = bstone::Endian::le(*reinterpret_cast<Sint32*>(source));
+        expanded = bstone::Endian::le(*reinterpret_cast<int32_t*>(source));
         source += 4; // skip over length
     }
 
@@ -1046,7 +1046,7 @@ void CAL_ExpandGrChunk(
 //
     grsegs[chunk] = new char[expanded];
 
-    CAL_HuffExpand(source, static_cast<Uint8*>(grsegs[chunk]), expanded, grhuffman);
+    CAL_HuffExpand(source, static_cast<uint8_t*>(grsegs[chunk]), expanded, grhuffman);
 
     ca_gr_last_expanded_size = expanded;
 }
@@ -1063,12 +1063,12 @@ void CAL_ExpandGrChunk(
 */
 
 void CA_CacheGrChunk(
-    Sint16 chunk)
+    int16_t chunk)
 {
-    Sint32 pos, compressed;
-    Uint8* bigbufferseg = NULL;
-    Uint8* source;
-    Sint16 next;
+    int32_t pos, compressed;
+    uint8_t* bigbufferseg = NULL;
+    uint8_t* source;
+    int16_t next;
 
     grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
     if (grsegs[chunk]) {
@@ -1096,9 +1096,9 @@ void CA_CacheGrChunk(
 
     if (compressed <= BUFFERSIZE) {
         grhandle.read(bufferseg, compressed);
-        source = static_cast<Uint8*>(bufferseg);
+        source = static_cast<uint8_t*>(bufferseg);
     } else {
-        bigbufferseg = new Uint8[compressed];
+        bigbufferseg = new uint8_t[compressed];
         grhandle.read(bigbufferseg, compressed);
         source = bigbufferseg;
     }
@@ -1128,12 +1128,12 @@ void CA_CacheGrChunk(
 */
 
 void CA_CacheScreen(
-    Sint16 chunk)
+    int16_t chunk)
 {
-    Sint32 pos, compressed, expanded;
-    Uint8* bigbufferseg;
-    Uint8* source;
-    Sint16 next;
+    int32_t pos, compressed, expanded;
+    uint8_t* bigbufferseg;
+    uint8_t* source;
+    int16_t next;
 
 
 //
@@ -1148,11 +1148,11 @@ void CA_CacheScreen(
 
     grhandle.set_position(pos);
 
-    bigbufferseg = new Uint8[compressed];
+    bigbufferseg = new uint8_t[compressed];
     grhandle.read(bigbufferseg, compressed);
     source = bigbufferseg;
 
-    expanded = *(Sint32*)source;
+    expanded = *(int32_t*)source;
     source += 4; // skip over length
 
 //
@@ -1178,17 +1178,17 @@ void CA_CacheScreen(
 */
 
 void CA_CacheMap(
-    Sint16 mapnum)
+    int16_t mapnum)
 {
-    Sint32 pos, compressed;
-    Sint16 plane;
-    Uint16** dest;
-    Uint16* bigbufferseg = NULL;
-    Uint16 size;
-    Uint16* source;
+    int32_t pos, compressed;
+    int16_t plane;
+    uint16_t** dest;
+    uint16_t* bigbufferseg = NULL;
+    uint16_t size;
+    uint16_t* source;
 #ifdef CARMACIZED
     memptr buffer2seg;
-    Sint32 expanded;
+    int32_t expanded;
 #endif
 
     mapon = mapnum;
@@ -1210,9 +1210,9 @@ void CA_CacheMap(
 
         maphandle.set_position(pos);
         if (compressed <= BUFFERSIZE) {
-            source = static_cast<Uint16*>(bufferseg);
+            source = static_cast<uint16_t*>(bufferseg);
         } else {
-            bigbufferseg = new Uint16[compressed / 2];
+            bigbufferseg = new uint16_t[compressed / 2];
             source = bigbufferseg;
         }
 
@@ -1228,8 +1228,8 @@ void CA_CacheMap(
         expanded = *source;
         source++;
         MM_GetPtr(&buffer2seg, expanded);
-        CAL_CarmackExpand(source, (Uint16*)buffer2seg, expanded);
-        CA_RLEWexpand(((Uint16*)buffer2seg) + 1, *dest, size,
+        CAL_CarmackExpand(source, (uint16_t*)buffer2seg, expanded);
+        CA_RLEWexpand(((uint16_t*)buffer2seg) + 1, *dest, size,
                       ((mapfiletype*)tinf)->RLEWtag);
         MM_FreePtr(&buffer2seg);
 
@@ -1317,7 +1317,7 @@ void CA_DownLevel()
 
 void CA_ClearMarks()
 {
-    Sint16 i;
+    int16_t i;
 
     for (i = 0; i < NUMCHUNKS; i++) {
         grneeded[i] &= ~ca_levelbit;
@@ -1365,7 +1365,7 @@ void CA_ClearAllMarks()
 */
 void CA_SetGrPurge()
 {
-    Sint16 i;
+    int16_t i;
 
 //
 // free graphics
@@ -1395,7 +1395,7 @@ void CA_SetGrPurge()
 
 void CA_SetAllPurge()
 {
-    Sint16 i;
+    int16_t i;
 
 
 //
@@ -1429,11 +1429,11 @@ void CA_SetAllPurge()
 
 void CA_CacheMarks()
 {
-    Sint16 i, next, numcache;
-    Sint32 pos, endpos, nextpos, nextendpos, compressed;
-    Sint32 bufferstart, bufferend; // file position of general buffer
-    Uint8* source;
-    Uint8* bigbufferseg = NULL;
+    int16_t i, next, numcache;
+    int32_t pos, endpos, nextpos, nextendpos, compressed;
+    int32_t bufferstart, bufferend; // file position of general buffer
+    uint8_t* source;
+    uint8_t* bigbufferseg = NULL;
 
     numcache = 0;
 //
@@ -1478,7 +1478,7 @@ void CA_CacheMarks()
                     && bufferend >= endpos)
                 {
                     // data is allready in buffer
-                    source = (Uint8*)bufferseg + (pos - bufferstart);
+                    source = (uint8_t*)bufferseg + (pos - bufferstart);
                 } else {
                     // load buffer with a new block from disk
                     // try to get as many of the needed blocks in as possible
@@ -1509,11 +1509,11 @@ void CA_CacheMarks()
                     grhandle.read(bufferseg, endpos - pos);
                     bufferstart = pos;
                     bufferend = endpos;
-                    source = static_cast<Uint8*>(bufferseg);
+                    source = static_cast<uint8_t*>(bufferseg);
                 }
             } else {
                 // big chunk, allocate temporary buffer
-                bigbufferseg = new Uint8[compressed];
+                bigbufferseg = new uint8_t[compressed];
                 grhandle.set_position(pos);
                 grhandle.read(bigbufferseg, compressed);
                 source = bigbufferseg;
@@ -1538,7 +1538,7 @@ void CA_CannotOpen(
 }
 
 void UNCACHEGRCHUNK(
-    Uint16 chunk)
+    uint16_t chunk)
 {
     delete [] static_cast<char*>(grsegs[chunk]);
     grsegs[chunk] = NULL;
@@ -1550,7 +1550,7 @@ std::string ca_load_script(
     int chunk_id,
     bool strip_xx)
 {
-    ::CA_CacheGrChunk(static_cast<Sint16>(chunk_id));
+    ::CA_CacheGrChunk(static_cast<int16_t>(chunk_id));
 
     const char* script = static_cast<const char*>(grsegs[chunk_id]);
 

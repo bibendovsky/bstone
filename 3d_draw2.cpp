@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 void MapLSRow();
 
 
-Uint16 CeilingTile = 126, FloorTile = 126;
+uint16_t CeilingTile = 126, FloorTile = 126;
 
 void (* MapRowPtr)();
 
@@ -42,9 +42,9 @@ int* basedist = NULL;
 int* planeylookup = NULL;
 int* mirrorofs = NULL;
 
-extern Uint8 planepics[8192]; // 4k of ceiling, 4k of floor
-extern const Uint8* lightsource;
-extern const Uint8* shadingtable;
+extern uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
+extern const uint8_t* lightsource;
+extern const uint8_t* shadingtable;
 
 int halfheight = 0;
 
@@ -128,8 +128,8 @@ void DrawSpans(
 
 void SetPlaneViewSize()
 {
-    const Uint8* src;
-    Uint8* dest;
+    const uint8_t* src;
+    uint8_t* dest;
 
     halfheight = (viewheight * vga_scale) / 2;
 
@@ -143,7 +143,7 @@ void SetPlaneViewSize()
         }
     }
 
-    src = static_cast<const Uint8*>(PM_GetPage(CeilingTile));
+    src = static_cast<const uint8_t*>(PM_GetPage(CeilingTile));
     dest = planepics;
 
     for (int x = 0; x < 4096; ++x) {
@@ -151,7 +151,7 @@ void SetPlaneViewSize()
         dest += 2;
     }
 
-    src = static_cast<const Uint8*>(PM_GetPage(FloorTile));
+    src = static_cast<const uint8_t*>(PM_GetPage(FloorTile));
     dest = planepics + 1;
 
     for (int x = 0; x < 4096; ++x) {

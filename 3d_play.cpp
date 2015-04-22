@@ -31,13 +31,13 @@ Free Software Foundation, Inc.,
 
 
 void INL_GetJoyDelta(
-    Uint16 joy,
-    Sint16* dx,
-    Sint16* dy);
+    uint16_t joy,
+    int16_t* dx,
+    int16_t* dy);
 void UpdateRadarGuage();
 void ClearMemory();
 void GiveWeapon(
-    Sint16 weapon);
+    int16_t weapon);
 void DrawWeapon();
 void DrawHealth();
 void DrawKeys();
@@ -76,15 +76,15 @@ void UpdateSoundLoc();
 */
 
 
-Uint8 music_num = 0;
+uint8_t music_num = 0;
 
 #if LOOK_FOR_DEAD_GUYS
 objtype* DeadGuys[MAXACTORS];
-Uint8 NumDeadGuys;
+uint8_t NumDeadGuys;
 #endif
 
 boolean madenoise; // true when shooting or screaming
-Uint8 alerted = 0, alerted_areanum;
+uint8_t alerted = 0, alerted_areanum;
 
 
 exit_t playstate;
@@ -92,53 +92,53 @@ exit_t playstate;
 boolean PowerBall = false;
 
 #if TECH_SUPPORT_VERSION
-Sint16 bordertime, DebugOk = true, InstantWin = 0, InstantQuit = 0;
+int16_t bordertime, DebugOk = true, InstantWin = 0, InstantQuit = 0;
 #else
-Sint16 bordertime, DebugOk = false, InstantWin = 0, InstantQuit = 0;
+int16_t bordertime, DebugOk = false, InstantWin = 0, InstantQuit = 0;
 #endif
 
-Uint16 ExtraRadarFlags = 0;
+uint16_t ExtraRadarFlags = 0;
 
 
 
 #if IN_DEVELOPMENT
 
-Sint16 TestQuickSave = 0, TestAutoMapper = 0;
+int16_t TestQuickSave = 0, TestAutoMapper = 0;
 
 #endif
 
 objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
         * objfreelist, * killerobj;
 
-Uint16 farmapylookup[MAPSIZE];
-Uint8* nearmapylookup[MAPSIZE];
+uint16_t farmapylookup[MAPSIZE];
+uint8_t* nearmapylookup[MAPSIZE];
 
 boolean singlestep = false, godmode; // ,noclip;
-Sint16 extravbls = 0;
+int16_t extravbls = 0;
 
-Uint8 tilemap[MAPSIZE][MAPSIZE]; // wall values only
-Uint8 spotvis[MAPSIZE][MAPSIZE];
+uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
+uint8_t spotvis[MAPSIZE][MAPSIZE];
 objtype* actorat[MAPSIZE][MAPSIZE];
 
 //
 // replacing refresh manager
 //
-Uint16 mapwidth, mapheight, tics, realtics;
+uint16_t mapwidth, mapheight, tics, realtics;
 boolean compatability, usedummy = false, nevermark = false;
-Uint8* updateptr;
-Uint16 mapwidthtable[64];
-Uint16 uwidthtable[UPDATEHIGH];
-Uint16 blockstarts[UPDATEWIDE * UPDATEHIGH];
-Uint8 update[UPDATESIZE];
+uint8_t* updateptr;
+uint16_t mapwidthtable[64];
+uint16_t uwidthtable[UPDATEHIGH];
+uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
+uint8_t update[UPDATESIZE];
 
 //
 // control info
 //
 boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
-Sint16 joystickport;
-Sint16 dirscan[4] = { sc_up_arrow, sc_right_arrow, sc_down_arrow, sc_left_arrow };
+int16_t joystickport;
+int16_t dirscan[4] = { sc_up_arrow, sc_right_arrow, sc_down_arrow, sc_left_arrow };
 
-Sint16 buttonscan[NUMBUTTONS] = {
+int16_t buttonscan[NUMBUTTONS] = {
     sc_control,
     sc_alt,
     sc_right_shift,
@@ -152,8 +152,8 @@ Sint16 buttonscan[NUMBUTTONS] = {
     sc_7,
 };
 
-Sint16 buttonmouse[4] = { bt_attack, bt_strafe, bt_use, bt_nobutton };
-Sint16 buttonjoy[4] = { bt_attack, bt_strafe, bt_use, bt_run };
+int16_t buttonmouse[4] = { bt_attack, bt_strafe, bt_use, bt_nobutton };
+int16_t buttonjoy[4] = { bt_attack, bt_strafe, bt_use, bt_run };
 
 const int viewsize = 20;
 
@@ -165,7 +165,7 @@ void* demobuffer;
 
 // Light sourcing flag
 
-Uint8 lightson;
+uint8_t lightson;
 
 //
 // curent user input
@@ -180,8 +180,8 @@ int strafe_value = 0;
 
 
 void CenterWindow(
-    Uint16 w,
-    Uint16 h);
+    uint16_t w,
+    uint16_t h);
 void InitObjList();
 void RemoveObj(
     objtype* gone);
@@ -419,7 +419,7 @@ void PollMouseButtons()
         return;
     }
 
-    Uint8 buttons = IN_MouseButtons();
+    uint8_t buttons = IN_MouseButtons();
 
     if ((buttons & 1) != 0) {
         buttonstate[buttonmouse[0]] = true;
@@ -446,7 +446,7 @@ void PollMouseButtons()
 
 void PollJoystickButtons()
 {
-    Sint16 buttons;
+    int16_t buttons;
 
     buttons = IN_JoyButtons();
 
@@ -555,7 +555,7 @@ void PollMouseMove()
 
 void PollJoystickMove()
 {
-    Sint16 joyx, joyy;
+    int16_t joyx, joyy;
 
     INL_GetJoyDelta(joystickport, &joyx, &joyy);
 
@@ -613,8 +613,8 @@ void PollJoystickMove()
 
 void PollControls()
 {
-    Sint16 max, min, i;
-    Uint8 buttonbits;
+    int16_t max, min, i;
+    uint8_t buttonbits;
 
     controlx = 0;
     controly = 0;
@@ -719,8 +719,8 @@ void PollControls()
         //
         // save info out to demo buffer
         //
-        controlx /= (Sint16)tics;
-        controly /= (Sint16)tics;
+        controlx /= (int16_t)tics;
+        controly /= (int16_t)tics;
 
         buttonbits = 0;
 
@@ -740,8 +740,8 @@ void PollControls()
             PLAY_ERROR(POLLCONTROLS_DEMO_OV);
         }
 
-        controlx *= (Sint16)tics;
-        controly *= (Sint16)tics;
+        controlx *= (int16_t)tics;
+        controly *= (int16_t)tics;
     }
 
 #endif
@@ -765,8 +765,8 @@ void PollControls()
 #define MAXY 160
 
 void CenterWindow(
-    Uint16 w,
-    Uint16 h)
+    uint16_t w,
+    uint16_t h)
 {
     FixOfs();
     US_DrawWindow(((MAXX / 8) - w) / 2, ((MAXY / 8) - h) / 2, w, h);
@@ -784,19 +784,19 @@ void CenterWindow(
 */
 
 extern boolean PP_step, sqActive;
-extern Sint16 pickquick;
+extern int16_t pickquick;
 
 boolean refresh_screen;
 
-Uint8 jam_buff_cmp[] = { sc_j, sc_a, sc_m };
-Uint8 jam_buff[sizeof(jam_buff_cmp)];
+uint8_t jam_buff_cmp[] = { sc_j, sc_a, sc_m };
+uint8_t jam_buff[sizeof(jam_buff_cmp)];
 
 char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
 void CheckKeys()
 {
     boolean one_eighty = false;
-    Uint8 scan;
+    uint8_t scan;
     static boolean Plus_KeyReleased;
     static boolean Minus_KeyReleased;
     static boolean I_KeyReleased;
@@ -939,7 +939,7 @@ void CheckKeys()
 
             ClearMemory();
             ClearSplitVWB();
-            VW_ScreenToScreen(static_cast<Uint16>(displayofs), static_cast<Uint16>(bufferofs), 80, 160);
+            VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
 
             Message("\n NOW you're jammin'!! \n");
 
@@ -1116,7 +1116,7 @@ void CheckKeys()
 
 
     if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_backspace])) {
-        Uint8 old_num = music_num;
+        uint8_t old_num = music_num;
 
         if (gamestate.flags & GS_MUSIC_TEST) {
             if (Keyboard[sc_left_arrow]) {
@@ -1376,7 +1376,7 @@ int objcount;
 
 void InitActorList()
 {
-    Sint16 i;
+    int16_t i;
 
 //
 // init the actor lists
@@ -1564,7 +1564,7 @@ void StartMusic(
     }
 
     if (!audiosegs[STARTMUSIC + musicchunk]) {
-        CA_CacheAudioChunk(static_cast<Sint16>(STARTMUSIC + musicchunk));
+        CA_CacheAudioChunk(static_cast<int16_t>(STARTMUSIC + musicchunk));
     }
 
     {
@@ -1590,8 +1590,8 @@ const int WHITESTEPS = 20;
 const int WHITETICS = 6;
 
 
-Uint8 redshifts[NUMREDSHIFTS][768];
-Uint8 whiteshifts[NUMREDSHIFTS][768];
+uint8_t redshifts[NUMREDSHIFTS][768];
+uint8_t whiteshifts[NUMREDSHIFTS][768];
 
 int damagecount;
 int bonuscount;
@@ -1604,23 +1604,23 @@ void InitRedShifts()
     // fade through intermediate frames
     //
     for (int i = 1; i <= NUMREDSHIFTS; i++) {
-        Uint8* workptr = &redshifts[i - 1][0];
-        const Uint8* baseptr = vgapal;
+        uint8_t* workptr = &redshifts[i - 1][0];
+        const uint8_t* baseptr = vgapal;
 
         for (int j = 0; j <= 255; ++j) {
             int delta = 64 - baseptr[0];
 
-            workptr[0] = static_cast<Uint8>(
+            workptr[0] = static_cast<uint8_t>(
                 baseptr[0] + ((delta * i) / REDSTEPS));
 
             delta = -baseptr[1];
 
-            workptr[1] = static_cast<Uint8>(
+            workptr[1] = static_cast<uint8_t>(
                 baseptr[1] + ((delta * i) / REDSTEPS));
 
             delta = -baseptr[2];
 
-            workptr[2] = static_cast<Uint8>(
+            workptr[2] = static_cast<uint8_t>(
                 baseptr[2] + ((delta * i) / REDSTEPS));
 
             baseptr += 3;
@@ -1629,23 +1629,23 @@ void InitRedShifts()
     }
 
     for (int i = 1; i <= NUMWHITESHIFTS; i++) {
-        Uint8* workptr = &whiteshifts[i - 1][0];
-        const Uint8* baseptr = vgapal;
+        uint8_t* workptr = &whiteshifts[i - 1][0];
+        const uint8_t* baseptr = vgapal;
 
         for (int j = 0; j <= 255; ++j) {
             int delta = 64 - baseptr[0];
 
-            workptr[0] = static_cast<Uint8>(
+            workptr[0] = static_cast<uint8_t>(
                 baseptr[0] + ((delta * i) / WHITESTEPS));
 
             delta = 62 - baseptr[1];
 
-            workptr[1] = static_cast<Uint8>(
+            workptr[1] = static_cast<uint8_t>(
                 baseptr[1] + ((delta * i) / WHITESTEPS));
 
             delta = 0 - baseptr[2];
 
-            workptr[2] = static_cast<Uint8>(
+            workptr[2] = static_cast<uint8_t>(
                 baseptr[2] + ((delta * i) / WHITESTEPS));
 
             baseptr += 3;
@@ -1767,7 +1767,7 @@ void DoActor(
         actor = actorat[ob->tilex][ob->tiley];
         if (BARRIER_STATE(ob) == bt_ON) {
             if (actor) {
-                Sint16 damage = 0;
+                int16_t damage = 0;
 
                 actor->flags |= FL_BARRIER_DAMAGE;
                 if ((US_RndT() < 0x7f) && (actor->flags & FL_SHOOTABLE)) {

@@ -38,8 +38,8 @@ Free Software Foundation, Inc.,
 const int ATABLEMAX = 15;
 
 extern boolean sqPlayedOnce;
-extern Uint8 lefttable[ATABLEMAX][ATABLEMAX * 2];
-extern Uint8 righttable[ATABLEMAX][ATABLEMAX * 2];
+extern uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2];
+extern uint8_t righttable[ATABLEMAX][ATABLEMAX * 2];
 
 namespace bstone {
 
@@ -149,8 +149,8 @@ bool AudioMixer::initialize(
     SDL_AudioSpec src_spec;
     src_spec.freq = dst_rate_;
     src_spec.format = AUDIO_S16SYS;
-    src_spec.channels = static_cast<Uint8>(get_max_channels());
-    src_spec.samples = static_cast<Uint16>(mix_samples_count_);
+    src_spec.channels = static_cast<uint8_t>(get_max_channels());
+    src_spec.samples = static_cast<uint16_t>(mix_samples_count_);
     src_spec.callback = callback_proxy;
     src_spec.userdata = this;
 
@@ -453,13 +453,13 @@ int AudioMixer::get_max_channels()
 }
 
 void AudioMixer::callback(
-    Uint8* dst_data,
+    uint8_t* dst_data,
     int dst_length)
 {
     if (!mute_ && is_data_available_) {
         std::uninitialized_copy(
-            reinterpret_cast<const Uint8*>(&buffer_[0]),
-            reinterpret_cast<const Uint8*>(&buffer_[0]) + dst_length,
+            reinterpret_cast<const uint8_t*>(&buffer_[0]),
+            reinterpret_cast<const uint8_t*>(&buffer_[0]) + dst_length,
             dst_data);
 
         is_data_available_ = false;
@@ -968,7 +968,7 @@ bool AudioMixer::play_sound(
 // (static)
 void AudioMixer::callback_proxy(
     void* user_data,
-    Uint8* dst_data,
+    uint8_t* dst_data,
     int dst_length)
 {
     assert(user_data != NULL);

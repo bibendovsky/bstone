@@ -544,13 +544,13 @@ piAnimInfo piAnimTable[] = {
 // one place...
 //
 piAnimInfo piAnimList[TP_MAX_ANIMS];
-Uint8 TPscan;
+uint8_t TPscan;
 
 // Bunch of general globals!
 //
 // static char pb[MAX_PB];
 static char old_fontnumber;
-static Sint16 length;
+static int16_t length;
 
 enum JustifyMode {
     jm_left,
@@ -560,26 +560,26 @@ enum JustifyMode {
 
 static char justify_mode = jm_left;
 
-static Uint16 flags;
+static uint16_t flags;
 
-static Sint16 bgcolor, ltcolor, dkcolor, shcolor, anim_bgcolor = -1;
-static Uint16 xl, yl, xh, yh;
-static Uint16 cur_x, cur_y, last_cur_x, last_cur_y;
+static int16_t bgcolor, ltcolor, dkcolor, shcolor, anim_bgcolor = -1;
+static uint16_t xl, yl, xh, yh;
+static uint16_t cur_x, cur_y, last_cur_x, last_cur_y;
 static const char* first_ch;
 
 static const char* scan_ch;
 static char temp;
-static Sint16 scan_x, numanims, stemp;
+static int16_t scan_x, numanims, stemp;
 
 static fontstruct* font;
 
 static PresenterInfo* pi;
 
-static Sint16 disp_str_num = -1;
-static Sint16 music_num;
-static Sint16 save_cx[TP_CURSOR_SAVES + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-static Sint16 save_cy[TP_CURSOR_SAVES + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-static Sint16 pagex[2], pagey[2];
+static int16_t disp_str_num = -1;
+static int16_t music_num;
+static int16_t save_cx[TP_CURSOR_SAVES + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static int16_t save_cy[TP_CURSOR_SAVES + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static int16_t pagex[2], pagey[2];
 
 // --------------------------------------------------------------------------
 // TP_Presenter()
@@ -735,7 +735,7 @@ void TP_WrapText()
 //
     scan_x = cur_x;
     scan_ch = first_ch;
-    while (((Uint16)(scan_x) + (Uint16)(ch_width(*scan_ch)) <= xh) && (*scan_ch) &&
+    while (((uint16_t)(scan_x) + (uint16_t)(ch_width(*scan_ch)) <= xh) && (*scan_ch) &&
            (*scan_ch != TP_RETURN_CHAR) && (*scan_ch != TP_CONTROL_CHAR))
     {
         scan_x += ch_width(*scan_ch++);
@@ -744,8 +744,8 @@ void TP_WrapText()
 // If 'text extends beyond right margin', scan backwards for
 // a SPACE
 //
-    if ((Uint16)scan_x + (Uint16)(ch_width(*scan_ch)) > xh) {
-        Sint16 last_x = scan_x;
+    if ((uint16_t)scan_x + (uint16_t)(ch_width(*scan_ch)) > xh) {
+        int16_t last_x = scan_x;
         const char* last_ch = scan_ch;
 
         while ((scan_ch != first_ch) && (*scan_ch != ' ') && (*scan_ch != TP_RETURN_CHAR)) {
@@ -781,7 +781,7 @@ void TP_WrapText()
     px = cur_x;
     py = cur_y;
 
-    length = static_cast<Sint16>(scan_ch - first_ch + 1); // USL_DrawString only works with
+    length = static_cast<int16_t>(scan_ch - first_ch + 1); // USL_DrawString only works with
 //      if (length > MAX_PB) //
 //              TP_ERROR(TP_PRESENTER_LONG_TEXT); //
 //      _fmemcpy(pb,first_ch,length); // near pointers...
@@ -825,7 +825,7 @@ tp_newline:;
         // Remove cursor.
         //
         if (pi->flags & TPF_SHOW_CURSOR) {
-            fontcolor = static_cast<Uint8>(bgcolor);
+            fontcolor = static_cast<uint8_t>(bgcolor);
             px = last_cur_x;
             py = last_cur_y;
             TP_Print("@", true);
@@ -837,8 +837,8 @@ tp_newline:;
         // If next line will be printed out of defined region, scroll up!
         //
         if ((pi->flags & TPF_SCROLL_REGION) && (cur_y + (font_height * 2) > yh)) {
-            VL_ScreenToScreen(static_cast<Uint16>(bufferofs + ((((yl + font_height + is_shadowed) * 320) + xl) / 4)),
-                              static_cast<Uint16>(bufferofs + (((yl * 320) + xl) / 4)),
+            VL_ScreenToScreen(static_cast<uint16_t>(bufferofs + ((((yl + font_height + is_shadowed) * 320) + xl) / 4)),
+                              static_cast<uint16_t>(bufferofs + (((yl * 320) + xl) / 4)),
                               (xh - xl + 1) / 4,
                               (yh - yl + 1) - font_height + is_shadowed);
 
@@ -873,10 +873,10 @@ void TP_HandleCodes()
     ControlInfo ci;
     piAnimInfo* anim;
     piShapeInfo* shape;
-    Uint16 shapenum;
-    Sint16 length;
+    uint16_t shapenum;
+    int16_t length;
     const char* s;
-    Sint16 old_bgcolor = 0;
+    int16_t old_bgcolor = 0;
     signed char c;
 
     if ((first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n')) {
@@ -893,8 +893,8 @@ void TP_HandleCodes()
         *first_ch = toupper(*first_ch);
         *(first_ch + 1) = toupper(*(first_ch + 1));
 #endif
-        Uint16 subcode;
-        Uint16 code = *reinterpret_cast<const Uint16*>(first_ch);
+        uint16_t subcode;
+        uint16_t code = *reinterpret_cast<const uint16_t*>(first_ch);
         first_ch += 2;
 
         switch (code) {
@@ -907,7 +907,7 @@ void TP_HandleCodes()
                 switch (*s) {
                 case TP_CONTROL_CHAR:
                     s++;
-                    subcode = *reinterpret_cast<const Uint16*>(s);
+                    subcode = *reinterpret_cast<const uint16_t*>(s);
                     s += 2;
                     switch (subcode) {
                     case TP_CNVT_CODE('S', 'X'):
@@ -989,7 +989,7 @@ void TP_HandleCodes()
                     break;
                 }
             }
-            cur_x += (Uint16)((xh - cur_x + 1) - length) / 2;
+            cur_x += (uint16_t)((xh - cur_x + 1) - length) / 2;
             flags |= fl_center;
 
             if (pi->flags & TPF_SHOW_CURSOR) {
@@ -1019,7 +1019,7 @@ void TP_HandleCodes()
         // HIGHLIGHT COLOR ---------------------------------------------------
         //
         case TP_CNVT_CODE('H', 'C'):
-            pi->highlight_color = static_cast<Uint8>(TP_VALUE(first_ch, 2));
+            pi->highlight_color = static_cast<uint8_t>(TP_VALUE(first_ch, 2));
             first_ch += 2;
             break;
 
@@ -1085,7 +1085,7 @@ void TP_HandleCodes()
         // FONT COLOR -------------------------------------------------------
         //
         case TP_CNVT_CODE('F', 'C'):
-            fontcolor = static_cast<Uint8>(TP_VALUE(first_ch, 2));
+            fontcolor = static_cast<uint8_t>(TP_VALUE(first_ch, 2));
             first_ch += 2;
             break;
 
@@ -1555,13 +1555,13 @@ void TP_PrintPageNumber()
 // --------------------------------------------------------------------------
 // TP_DrawShape()
 // --------------------------------------------------------------------------
-Sint16 TP_DrawShape(
-    Sint16 x,
-    Sint16 y,
-    Sint16 shapenum,
+int16_t TP_DrawShape(
+    int16_t x,
+    int16_t y,
+    int16_t shapenum,
     pisType shapetype)
 {
-    Sint16 width;
+    int16_t width;
     void* addr;
 
 // Mask 'x coordinate' when displaying certain shapes
@@ -1587,7 +1587,7 @@ Sint16 TP_DrawShape(
         addr = PM_GetPage(shapenum);
         bufferofs += (y - 30) * SCREENWIDTH;
         postx = x * vga_scale;
-        postsource = static_cast<const Uint8*>(addr);
+        postsource = static_cast<const uint8_t*>(addr);
 
         for (x = 0; x < 64; ++x) {
             for (int s = 0; s < vga_scale; ++s) {
@@ -1655,7 +1655,7 @@ void TP_ResetAnims()
 // TP_AnimatePage()
 // --------------------------------------------------------------------------
 void TP_AnimatePage(
-    Sint16 numanims)
+    int16_t numanims)
 {
     piAnimInfo* anim = piAnimList;
     piShapeInfo* shape;
@@ -1697,16 +1697,16 @@ void TP_AnimatePage(
 // --------------------------------------------------------------------------
 // TP_BoxAroundShape()
 // --------------------------------------------------------------------------
-Sint16 TP_BoxAroundShape(
-    Sint16 x1,
-    Sint16 y1,
-    Uint16 shapenum,
+int16_t TP_BoxAroundShape(
+    int16_t x1,
+    int16_t y1,
+    uint16_t shapenum,
     pisType shapetype)
 {
-    Sint16 x2 = 0, y2 = 0;
+    int16_t x2 = 0, y2 = 0;
 
     switch (shapetype) {
-        Uint16 width;
+        uint16_t width;
 
     case pis_scwall:
     case pis_scaled:
@@ -1780,7 +1780,7 @@ Sint16 TP_BoxAroundShape(
 // --------------------------------------------------------------------------
 void TP_PurgeAllGfx()
 {
-    Sint16 loop;
+    int16_t loop;
 
     if (pi->flags & TPF_CACHE_NO_GFX) {
         return;
@@ -1808,16 +1808,16 @@ void TP_CachePage(
     const char* script)
 {
     piAnimInfo* anim;
-    Sint16 loop;
-    Uint16 shapenum;
+    int16_t loop;
+    uint16_t shapenum;
     boolean end_of_page = false;
-    Sint16 numanims = 0;
+    int16_t numanims = 0;
 
     if (pi->flags & TPF_CACHE_NO_GFX) {
         return;
     }
 
-    Uint16 code;
+    uint16_t code;
 
     while (!end_of_page) {
         while ((stemp = TP_LineCommented(script)) != 0) {
@@ -1830,7 +1830,7 @@ void TP_CachePage(
             *script = toupper(*script);
             *(script + 1) = toupper(*(script + 1));
 #endif
-            code = *reinterpret_cast<const Uint16*>(script);
+            code = *reinterpret_cast<const uint16_t*>(script);
             script += 2;
             switch (code) {
             case TP_CNVT_CODE('S', 'H'):
@@ -1885,12 +1885,12 @@ void TP_CachePage(
 // --------------------------------------------------------------------------
 // TP_VALUE()
 // --------------------------------------------------------------------------
-Uint16 TP_VALUE(
+uint16_t TP_VALUE(
     const char* ptr,
     char num_nybbles)
 {
     char ch, nybble, shift;
-    Uint16 value = 0;
+    uint16_t value = 0;
 
     for (nybble = 0; nybble < num_nybbles; nybble++) {
         shift = 4 * (num_nybbles - nybble - 1);
@@ -1915,7 +1915,7 @@ void TP_JumpCursor()
 {
     char old_color = fontcolor;
 
-    fontcolor = static_cast<Uint8>(bgcolor);
+    fontcolor = static_cast<uint8_t>(bgcolor);
     px = last_cur_x;
     py = last_cur_y;
     TP_Print("@", true);
@@ -1976,15 +1976,15 @@ boolean TP_SlowPrint(
     char delay)
 {
     char old_color = fontcolor;
-    Sint16 old_x, old_y;
-    Sint32 tc;
+    int16_t old_x, old_y;
+    int32_t tc;
     boolean aborted = false;
 
     while (*str) {
         if (pi->flags & TPF_SHOW_CURSOR) {
             // Remove the cursor.
             //
-            fontcolor = static_cast<Uint8>(bgcolor);
+            fontcolor = static_cast<uint8_t>(bgcolor);
             px = old_x = last_cur_x;
             py = old_y = last_cur_y;
             TP_Print("@", true);
@@ -2029,7 +2029,7 @@ boolean TP_SlowPrint(
         if (!aborted) {
             LastScan = sc_none;
             tc = TimeCount;
-            while (static_cast<Sint32>(TimeCount) - tc < delay) {
+            while (static_cast<int32_t>(TimeCount) - tc < delay) {
                 VW_WaitVBL(1);
                 CycleColors();
                 if (pi->flags & TPF_ABORTABLE) {
@@ -2052,12 +2052,12 @@ boolean TP_SlowPrint(
 // --------------------------------------------------------------------------
 // TP_LoadScript()
 // --------------------------------------------------------------------------
-Sint32 TP_LoadScript(
+int32_t TP_LoadScript(
     const char* filename,
     PresenterInfo* pi,
-    Uint16 id_cache)
+    uint16_t id_cache)
 {
-    Sint32 size;
+    int32_t size;
 
     if (id_cache) {
         const char* p;
@@ -2068,7 +2068,7 @@ Sint32 TP_LoadScript(
         if ((p = strstr(static_cast<const char*>(grsegs[id_cache]), "^XX")) == NULL) {
             TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
         }
-        size = static_cast<Sint32>(p - static_cast<const char*>(pi->scriptstart) - 1);
+        size = static_cast<int32_t>(p - static_cast<const char*>(pi->scriptstart) - 1);
     } else {
         pi->id_cache = -1;
         if ((size = IO_LoadFile(filename, &pi->scriptstart)) == 0) {
@@ -2090,7 +2090,7 @@ Sint32 TP_LoadScript(
 // -------------------------------------------------------------------------
 void TP_FreeScript(
     PresenterInfo* pi,
-    Uint16 id_cache)
+    uint16_t id_cache)
 {
     TP_PurgeAllGfx();
 
@@ -2109,7 +2109,7 @@ void TP_InitScript(
     PresenterInfo* pi)
 {
     const char* script = pi->script[0];
-    Uint16 code;
+    uint16_t code;
 
     pi->numpages = 1; // Assume at least 1 page
     while (*script) {
@@ -2126,7 +2126,7 @@ void TP_InitScript(
             *script = toupper(*script);
             *(script + 1) = toupper(*(script + 1));
 #endif
-            code = *reinterpret_cast<const Uint16*>(script);
+            code = *reinterpret_cast<const uint16_t*>(script);
             script += 2;
             switch (code) {
             case TP_CNVT_CODE('E', 'P'):
@@ -2160,10 +2160,10 @@ end_func:;
 // -------------------------------------------------------------------------
 void TP_CacheIn(
     tpCacheType type,
-    Sint16 chunk)
+    int16_t chunk)
 {
-    Sint16 first_ch_offset = static_cast<Sint16>(first_ch - pi->script[0]);
-    Sint16 loop, offset[TP_MAX_PAGES];
+    int16_t first_ch_offset = static_cast<int16_t>(first_ch - pi->script[0]);
+    int16_t loop, offset[TP_MAX_PAGES];
 
 // Cache graphics and re-assign pointers
 //
@@ -2213,7 +2213,7 @@ void TP_CacheIn(
         // Calc offset of each page pointer
         //
         for (loop = 1; loop < pi->numpages; loop++) {
-            offset[loop] = static_cast<Sint16>(pi->script[loop] - pi->script[loop - 1]);
+            offset[loop] = static_cast<int16_t>(pi->script[loop] - pi->script[loop - 1]);
         }
 
         // Re-assign all page pointers
@@ -2235,7 +2235,7 @@ void TP_CacheIn(
 // -------------------------------------------------------------------------
 // TP_LineCommented()
 // -------------------------------------------------------------------------
-Sint16 TP_LineCommented(
+int16_t TP_LineCommented(
     const char* s)
 {
     const char* o = s;
@@ -2261,7 +2261,7 @@ int MDS_COMPUTERS_SUCK_SHIT()
 {
         char far *fptr;
         void _seg *sptr;
-        Sint16 offset;
+        int16_t offset;
 
         sptr = 0xa000;
         offset = 1000;

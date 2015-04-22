@@ -84,7 +84,7 @@ Free Software Foundation, Inc.,
 // ==========================================================================
 
 typedef struct {
-    Sint32 nearheap, farheap, EMSmem, XMSmem, mainmem;
+    int32_t nearheap, farheap, EMSmem, XMSmem, mainmem;
 } mminfotype;
 
 // ==========================================================================
@@ -94,8 +94,8 @@ extern mminfotype mminfo;
 extern void* bufferseg;
 extern boolean mmerror;
 // unsigned __SEGS_AVAILABLE__;
-Uint32 __PUR_MEM_AVAIL__;
-Uint32 __FREE_MEM_AVAIL__;
+uint32_t __PUR_MEM_AVAIL__;
+uint32_t __FREE_MEM_AVAIL__;
 
 extern void (* beforesort)();
 extern void (* aftersort)();
@@ -110,7 +110,7 @@ void MM_MapEMS();
 
 void MM_GetPtr(
     void** baseptr,
-    Uint32 size);
+    uint32_t size);
 void MM_FreePtr(
     void** baseptr);
 
@@ -124,9 +124,9 @@ void MM_SortMem();
 
 void MM_ShowMemory();
 
-Sint32 MM_UnusedMemory();
-Sint32 MM_TotalFree();
-Sint32 MM_LargestAvail();
+int32_t MM_UnusedMemory();
+int32_t MM_TotalFree();
+int32_t MM_LargestAvail();
 
 void MM_BombOnError(
     boolean bomb);

@@ -61,7 +61,7 @@ boolean screenfaded;
 
 // boolean fastpalette; // if true, use outsb to set
 
-Uint8 palette1[256][3], palette2[256][3];
+uint8_t palette1[256][3], palette2[256][3];
 
 
 bool is_aog();
@@ -83,7 +83,7 @@ int window_width = 0;
 int window_height = 0;
 
 
-Uint8* vga_palette = NULL;
+uint8_t* vga_palette = NULL;
 
 bool (* vid_pre_subsystem_creation)() = NULL;
 bool (* vid_pre_window_creation)() = NULL;
@@ -391,9 +391,9 @@ enum RendererType {
 }; // enum RendererType
 
 
-extern const Uint8 vgapal[768];
+extern const uint8_t vgapal[768];
 
-Uint8* vga_memory = NULL;
+uint8_t* vga_memory = NULL;
 
 int vga_scale = 0;
 int vga_width = 0;
@@ -416,7 +416,7 @@ RendererType g_renderer_type;
 // asm
 
 void VL_WaitVBL(
-    Uint32 vbls);
+    uint32_t vbls);
 
 // ===========================================================================
 
@@ -449,11 +449,11 @@ void VL_SetVGAPlaneMode()
     const int k_vga_size = vga_scale * vga_scale * k_vga_ref_size;
 
     delete [] vga_memory;
-    vga_memory = new Uint8[k_vga_size];
+    vga_memory = new uint8_t[k_vga_size];
     std::uninitialized_fill_n(vga_memory, k_vga_size, 0);
 
     delete [] vga_palette;
-    vga_palette = new Uint8[k_vga_palette_size];
+    vga_palette = new uint8_t[k_vga_palette_size];
     std::uninitialized_fill_n(vga_palette, k_vga_palette_size, 0);
 }
 
@@ -495,9 +495,9 @@ void VL_SetLineWidth(
 */
 
 void VL_FillPalette(
-    Uint8 red,
-    Uint8 green,
-    Uint8 blue)
+    uint8_t red,
+    uint8_t green,
+    uint8_t blue)
 {
     for (int i = 0; i < 256; ++i) {
         vga_palette[(3 * i) + 0] = red;
@@ -511,7 +511,7 @@ void VL_FillPalette(
 void VL_SetPalette(
     int first,
     int count,
-    const Uint8* palette,
+    const uint8_t* palette,
     bool refresh_screen)
 {
     int offset = 3 * first;
@@ -557,7 +557,7 @@ void VL_SetPalette(
 void VL_GetPalette(
     int first,
     int count,
-    Uint8* palette)
+    uint8_t* palette)
 {
     int offset = 3 * first;
     int size = 3 * count;
@@ -600,19 +600,19 @@ void VL_FadeOut(
     // fade through intermediate frames
     //
     for (int i = 0; i < steps; ++i) {
-        const Uint8* origptr = &palette1[start][0];
-        Uint8* newptr = &palette2[start][0];
+        const uint8_t* origptr = &palette1[start][0];
+        uint8_t* newptr = &palette2[start][0];
 
         for (int j = start; j <= end; ++j) {
             orig = *origptr++;
             delta = red - orig;
-            *newptr++ = static_cast<Uint8>(orig + ((delta * i) / steps));
+            *newptr++ = static_cast<uint8_t>(orig + ((delta * i) / steps));
             orig = *origptr++;
             delta = green - orig;
-            *newptr++ = static_cast<Uint8>(orig + ((delta * i) / steps));
+            *newptr++ = static_cast<uint8_t>(orig + ((delta * i) / steps));
             orig = *origptr++;
             delta = blue - orig;
-            *newptr++ = static_cast<Uint8>(orig + ((delta * i) / steps));
+            *newptr++ = static_cast<uint8_t>(orig + ((delta * i) / steps));
         }
 
         VL_SetPalette(0, 256, &palette2[0][0]);
@@ -622,9 +622,9 @@ void VL_FadeOut(
     // final color
     //
     VL_FillPalette(
-        static_cast<Uint8>(red),
-        static_cast<Uint8>(green),
-        static_cast<Uint8>(blue));
+        static_cast<uint8_t>(red),
+        static_cast<uint8_t>(green),
+        static_cast<uint8_t>(blue));
 
     screenfaded = true;
 }
@@ -632,7 +632,7 @@ void VL_FadeOut(
 void VL_FadeIn(
     int start,
     int end,
-    const Uint8* palette,
+    const uint8_t* palette,
     int steps)
 {
     VL_GetPalette(0, 256, &palette1[0][0]);
@@ -653,7 +653,7 @@ void VL_FadeIn(
             int delta = palette[j] - palette1[0][j];
 
             palette2[0][j] =
-                static_cast<Uint8>(palette1[0][j] + ((delta * i) / steps));
+                static_cast<uint8_t>(palette1[0][j] + ((delta * i) / steps));
         }
 
         VL_SetPalette(0, 256, &palette2[0][0]);
@@ -670,10 +670,10 @@ void VL_FadeIn(
 void VL_SetPaletteIntensity(
     int start,
     int end,
-    const Uint8* palette,
+    const uint8_t* palette,
     int intensity)
 {
-    Uint8* cmap = &palette1[0][0] + (start * 3);
+    uint8_t* cmap = &palette1[0][0] + (start * 3);
 
     intensity = 63 - intensity;
 
@@ -684,7 +684,7 @@ void VL_SetPaletteIntensity(
             red = 0;
         }
 
-        *cmap++ = static_cast<Uint8>(red);
+        *cmap++ = static_cast<uint8_t>(red);
 
         int green = *palette++ - intensity;
 
@@ -692,7 +692,7 @@ void VL_SetPaletteIntensity(
             green = 0;
         }
 
-        *cmap++ = static_cast<Uint8>(green);
+        *cmap++ = static_cast<uint8_t>(green);
 
         int blue = *palette++ - intensity;
 
@@ -700,7 +700,7 @@ void VL_SetPaletteIntensity(
             blue = 0;
         }
 
-        *cmap++ = static_cast<Uint8>(blue);
+        *cmap++ = static_cast<uint8_t>(blue);
     }
 
     VL_SetPalette(start, end - start + 1, &palette1[0][0]);
@@ -717,7 +717,7 @@ void VL_SetPaletteIntensity(
 void VL_Plot(
     int x,
     int y,
-    Uint8 color)
+    uint8_t color)
 {
     int offset = vl_get_offset(bufferofs, x, y);
 
@@ -733,7 +733,7 @@ void VL_Hlin(
     int x,
     int y,
     int width,
-    Uint8 color)
+    uint8_t color)
 {
     VL_Bar(x, y, width, 1, color);
 }
@@ -742,7 +742,7 @@ void VL_Vlin(
     int x,
     int y,
     int height,
-    Uint8 color)
+    uint8_t color)
 {
     VL_Bar(x, y, 1, height, color);
 }
@@ -752,7 +752,7 @@ void VL_Bar(
     int y,
     int width,
     int height,
-    Uint8 color)
+    uint8_t color)
 {
     width *= vga_scale;
     height *= vga_scale;
@@ -779,7 +779,7 @@ void VL_Bar(
 */
 
 void VL_MemToLatch(
-    const Uint8* source,
+    const uint8_t* source,
     int width,
     int height,
     int dest)
@@ -790,7 +790,7 @@ void VL_MemToLatch(
     for (int p = 0; p < 4; ++p) {
         for (int h = 0; h < height; ++h) {
             for (int w = p; w < width; w += 4) {
-                Uint8 pixel = *source++;
+                uint8_t pixel = *source++;
 
                 int offset = base_offset +
                              vga_scale * ((vga_scale * h * width) + w);
@@ -807,7 +807,7 @@ void VL_MemToLatch(
 }
 
 void VL_MemToScreen(
-    const Uint8* source,
+    const uint8_t* source,
     int width,
     int height,
     int x,
@@ -823,17 +823,17 @@ void VL_MemToScreen(
 }
 
 void VL_MaskMemToScreen(
-    const Uint8* source,
+    const uint8_t* source,
     int width,
     int height,
     int x,
     int y,
-    Uint8 mask)
+    uint8_t mask)
 {
     for (int p = 0; p < 4; ++p) {
         for (int h = 0; h < height; ++h) {
             for (int w = p; w < width; w += 4) {
-                Uint8 color = *source++;
+                uint8_t color = *source++;
 
                 if (color != mask) {
                     VL_Plot(x + w, y + h, color);
@@ -844,7 +844,7 @@ void VL_MaskMemToScreen(
 }
 
 void VL_ScreenToMem(
-    Uint8* dest,
+    uint8_t* dest,
     int width,
     int height,
     int x,
@@ -894,8 +894,8 @@ void VL_ScreenToScreen(
     width *= 4 * vga_scale;
     height *= vga_scale;
 
-    const Uint8* src_pixels = &vga_memory[source];
-    Uint8* dst_pixels = &vga_memory[dest];
+    const uint8_t* src_pixels = &vga_memory[source];
+    uint8_t* dst_pixels = &vga_memory[dest];
 
     for (int h = 0; h < height; ++h) {
         std::uninitialized_copy(
@@ -2112,7 +2112,7 @@ void uninitialize_video()
 void JM_VGALinearFill(
     int start,
     int length,
-    Uint8 fill)
+    uint8_t fill)
 {
     std::uninitialized_fill_n(
         &vga_memory[vl_get_offset(start)],
@@ -2144,7 +2144,7 @@ int vl_get_offset(
     return vga_scale * (vga_scale * (4 * base_offset) + (y * vga_width) + x);
 }
 
-Uint8 vl_get_pixel(
+uint8_t vl_get_pixel(
     int base_offset,
     int x,
     int y)

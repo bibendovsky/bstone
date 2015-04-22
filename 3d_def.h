@@ -140,8 +140,8 @@ void jsprintf(
 #define MAPSPOT(x, y, plane) (*(mapsegs[plane] + farmapylookup[y] + x))
 
 #define SIGN(x) ((x) > 0 ? 1 : -1)
-#define ABS(x) ((Sint16)(x) > 0 ? (x) : -(x))
-#define LABS(x) ((Sint32)(x) > 0 ? (x) : -(x))
+#define ABS(x) ((int16_t)(x) > 0 ? (x) : -(x))
+#define LABS(x) ((int32_t)(x) > 0 ? (x) : -(x))
 
 // #define STATUSDRAWPIC(x, y, picnum) LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
 
@@ -192,8 +192,8 @@ case gen_scientistobj
 //
 // LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
 //
-#define RATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) ((Uint16)(M_BASE1 * ((F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
-#define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((Sint32)M_BASE1 * (((Sint32)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
+#define RATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) ((uint16_t)(M_BASE1 * ((F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
+#define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((int32_t)M_BASE1 * (((int32_t)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
 
 
 #define MAX_INF_AREA_MSGS 6
@@ -2190,7 +2190,7 @@ enum barrier_state_type {
 =============================================================================
 */
 
-typedef Sint32 fixed;
+typedef int32_t fixed;
 
 // Display priority is determined by the order of these bits!
 // And, this order must match the PinballBonus table in AGENT.C!
@@ -2211,7 +2211,7 @@ typedef Sint32 fixed;
 
 struct PinballBonusInfo {
     char* BonusText; // REBA text pointer
-    Sint32 Points; // Score for this bonus
+    int32_t Points; // Score for this bonus
     boolean Recurring; // Appear multiple times in a single level?
     void (* func)(); // Code to execute when you get this bonus.
 }; // PinballBonusInfo
@@ -2456,7 +2456,7 @@ enum stat_t {
 }; // stat_t
 
 struct stattype {
-    Sint16 picnum;
+    int16_t picnum;
     stat_t type;
 }; // stattype
 
@@ -2614,9 +2614,9 @@ struct objtype;
 
 
 struct statetype {
-    Uint8 flags;
-    Sint16 shapenum; // a shapenum of -1 means get from ob->temp1
-    Sint16 tictime;
+    uint8_t flags;
+    int16_t shapenum; // a shapenum of -1 means get from ob->temp1
+    int16_t tictime;
     void (* think)(
         objtype* actor);
     void (* action)(
@@ -2632,23 +2632,23 @@ struct statetype {
 // ---------------------
 
 struct statobj_t {
-    Uint8 tilex;
-    Uint8 tiley;
-    Uint8 areanumber;
+    uint8_t tilex;
+    uint8_t tiley;
+    uint8_t areanumber;
 
-    Uint8* visspot;
-    Sint16 shapenum; // if shapenum == -1 the obj has been removed
-    Uint16 flags;
-    Uint8 itemnumber;
+    uint8_t* visspot;
+    int16_t shapenum; // if shapenum == -1 the obj has been removed
+    uint16_t flags;
+    uint8_t itemnumber;
     char lighting;
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // struct statobj_t
 
 // ---------------------
@@ -2667,23 +2667,23 @@ enum DoorAction {
 }; // DoorAction
 
 struct doorobj_t {
-    Uint8 tilex;
-    Uint8 tiley;
+    uint8_t tilex;
+    uint8_t tiley;
     boolean vertical;
     char flags;
     keytype lock;
     door_t type;
     DoorAction action;
-    Sint16 ticcount;
-    Uint8 areanumber[2];
+    int16_t ticcount;
+    uint8_t areanumber[2];
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // doorobj_t
 
 
@@ -2694,54 +2694,54 @@ struct doorobj_t {
 // --------------------
 
 struct objtype {
-    Uint8 tilex;
-    Uint8 tiley;
-    Uint8 areanumber;
+    uint8_t tilex;
+    uint8_t tiley;
+    uint8_t areanumber;
 
     activetype active;
-    Sint16 ticcount;
+    int16_t ticcount;
     classtype obclass;
     statetype* state;
 
-    Uint32 flags;
-    Uint16 flags2; // Aux flags
+    uint32_t flags;
+    uint16_t flags2; // Aux flags
 
-    Sint32 distance; // if negative, wait for that door to open
+    int32_t distance; // if negative, wait for that door to open
     dirtype dir;
     dirtype trydir; // "bit 7" == "direction to turn" flag
 
     fixed x;
     fixed y;
-    Uint8 s_tilex;
-    Uint8 s_tiley; // s_tilex==0, running for corner
+    uint8_t s_tilex;
+    uint8_t s_tiley; // s_tilex==0, running for corner
 
-    Sint16 viewx;
-    Uint16 viewheight;
+    int16_t viewx;
+    uint16_t viewheight;
     fixed transx;
     fixed transy; // in global coord
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
     // Since our code is at least 32-bit we are using an index of object.
-    Sint16 hitpoints;
+    int16_t hitpoints;
 
-    Uint8 ammo;
+    uint8_t ammo;
     char lighting;
-    Uint16 linc;
-    Sint16 angle;
-    Sint32 speed;
+    uint16_t linc;
+    int16_t angle;
+    int32_t speed;
 
-    Sint16 temp1;
-
-    // FIXME
-    // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object.
-    Sint16 temp2;
+    int16_t temp1;
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
     // Since our code is at least 32-bit we are using an index of object.
-    Uint16 temp3; // holds 'last door used' by 'smart' actors
+    int16_t temp2;
+
+    // FIXME
+    // In original code it also used to store a 16-bit pointer to object.
+    // Since our code is at least 32-bit we are using an index of object.
+    uint16_t temp3; // holds 'last door used' by 'smart' actors
 
     objtype* next;
     objtype* prev;
@@ -2749,11 +2749,11 @@ struct objtype {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // objtype
 
 
@@ -2816,16 +2816,16 @@ enum backgroundtype {
 // General Coord (tile) structure
 //
 struct tilecoord_t {
-    Uint8 tilex;
-    Uint8 tiley;
+    uint8_t tilex;
+    uint8_t tiley;
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // tilecoord_t
 
 // -----------------------------------
@@ -2835,17 +2835,17 @@ struct tilecoord_t {
 // -----------------------------------
 
 struct barrier_type {
-    Uint8 level;
+    uint8_t level;
     tilecoord_t coord;
-    Uint8 on;
+    uint8_t on;
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // barrier_type;
 
 
@@ -2856,39 +2856,39 @@ struct barrier_type {
 // ---------------
 
 struct statsInfoType {
-    Sint32 total_points;
-    Sint32 accum_points;
-    Uint8 total_enemy;
-    Uint8 accum_enemy;
-    Uint8 total_inf;
-    Uint8 accum_inf;
-    Sint16 overall_floor;
+    int32_t total_points;
+    int32_t accum_points;
+    uint8_t total_enemy;
+    uint8_t accum_enemy;
+    uint8_t total_inf;
+    uint8_t accum_inf;
+    int16_t overall_floor;
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // struct statsInfoType
 
 struct levelinfo {
-    Uint16 bonus_queue; // bonuses that need to be shown
-    Uint16 bonus_shown; // bonuses that have been shown
+    uint16_t bonus_queue; // bonuses that need to be shown
+    uint16_t bonus_shown; // bonuses that have been shown
     boolean locked;
     statsInfoType stats;
-    Uint8 ptilex;
-    Uint8 ptiley;
-    Sint16 pangle;
+    uint8_t ptilex;
+    uint8_t ptiley;
+    int16_t pangle;
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // levelinfo
 
 
@@ -2912,44 +2912,44 @@ struct fargametype {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // fargametype
 
 struct gametype {
-    Sint16 turn_around;
-    Sint16 turn_angle;
-    Uint16 flags;
-    Sint16 lastmapon;
-    Sint16 difficulty;
-    Sint16 mapon;
-    Sint16 status_refresh;
-    Sint32 oldscore;
-    Sint32 tic_score;
-    Sint32 score;
-    Sint32 nextextra;
-    Sint16 score_roll_wait;
-    Sint16 lives;
-    Sint16 health;
-    Sint16 health_delay;
+    int16_t turn_around;
+    int16_t turn_angle;
+    uint16_t flags;
+    int16_t lastmapon;
+    int16_t difficulty;
+    int16_t mapon;
+    int16_t status_refresh;
+    int32_t oldscore;
+    int32_t tic_score;
+    int32_t score;
+    int32_t nextextra;
+    int16_t score_roll_wait;
+    int16_t lives;
+    int16_t health;
+    int16_t health_delay;
     char health_str[4];
 
-    Sint16 rpower;
-    Sint16 old_rpower;
+    int16_t rpower;
+    int16_t old_rpower;
     char rzoom;
     char radar_leds;
     char lastradar_leds;
 
     char lastammo_leds;
     char ammo_leds;
-    Sint16 ammo;
-    Sint16 old_ammo;
+    int16_t ammo;
+    int16_t old_ammo;
 
-    Sint16 plasma_detonators;
-    Sint16 old_plasma_detonators;
+    int16_t plasma_detonators;
+    int16_t old_plasma_detonators;
 
     char useable_weapons;
     char weapons;
@@ -2959,33 +2959,33 @@ struct gametype {
     char key_floor;
 
     char weapon_wait;
-    Sint16 attackframe;
-    Sint16 attackcount;
-    Sint16 weaponframe;
-    Sint16 episode;
-    volatile Uint32 TimeCount;
-    Sint32 killx;
-    Sint32 killy;
+    int16_t attackframe;
+    int16_t attackcount;
+    int16_t weaponframe;
+    int16_t episode;
+    volatile uint32_t TimeCount;
+    int32_t killx;
+    int32_t killy;
     const char* msg; // InfoArea msg...
     char numkeys[NUMKEYS];
     char old_numkeys[NUMKEYS];
     barrier_type barrier_table[MAX_BARRIER_SWITCHES];
     barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
-    Uint16 tokens;
-    Uint16 old_tokens;
+    uint16_t tokens;
+    uint16_t old_tokens;
     boolean boss_key_dropped;
     boolean old_boss_key_dropped;
-    Sint16 wintilex;
-    Sint16 wintiley;
+    int16_t wintilex;
+    int16_t wintiley;
 
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // gametype
 
 enum exit_t {
@@ -3005,15 +3005,15 @@ enum exit_t {
 
 
 struct CycleInfo {
-    Uint8 init_delay;
-    Uint8 delay_count;
-    Uint8 firstreg;
-    Uint8 lastreg;
+    uint8_t init_delay;
+    uint8_t delay_count;
+    uint8_t firstreg;
+    uint8_t lastreg;
 }; // struct CycleInfo
 
 
 struct visobj_t {
-    Sint16 viewx,
+    int16_t viewx,
            viewheight,
            shapenum;
     char lighting;
@@ -3035,11 +3035,11 @@ enum animdir_t {
 
 
 struct ofs_anim_t {
-    Uint16 animtype: 2; // animtype_t
-    Uint16 curframe : 5;
-    Uint16 maxframe : 5;
-    Uint16 animdir : 1; // animdir_t
-    Uint16 extra : 3;
+    uint16_t animtype: 2; // animtype_t
+    uint16_t curframe : 5;
+    uint16_t maxframe : 5;
+    uint16_t animdir : 1; // animdir_t
+    uint16_t extra : 3;
 }; // ofs_anim_t
 
 
@@ -3122,23 +3122,23 @@ enum inst_type {
 // Basic 'message info' structure
 //
 struct mCacheInfo {
-    Uint8 local_val; // where msg is in 'local' list
-    Uint8 global_val; // where msg was in 'global' list
+    uint8_t local_val; // where msg is in 'local' list
+    uint8_t global_val; // where msg was in 'global' list
     char* mSeg; // pointer to message
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // mCacheInfo
 
 // Basic 'message list' structure
 //
 struct mCacheList {
-    Sint16 NumMsgs; // number of messages
+    int16_t NumMsgs; // number of messages
     mCacheInfo mInfo[MAX_CACHE_MSGS]; // table of message 'info'
 }; // mCacheList
 
@@ -3148,31 +3148,31 @@ struct mCacheList {
 //
 struct con_mCacheInfo {
     mCacheInfo mInfo;
-    Uint8 type; // type of concession
-    Uint8 operate_cnt; // # of times req'd to operate
+    uint8_t type; // type of concession
+    uint8_t operate_cnt; // # of times req'd to operate
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // con_mCacheInfo
 
 // Concession 'message list' structure
 //
 struct concession_t {
-    Sint16 NumMsgs; // also, num concessions
+    int16_t NumMsgs; // also, num concessions
     con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // concession_t
 
 // ------------------------ INFORMANT STRUCTURES --------------------------
@@ -3181,13 +3181,13 @@ struct concession_t {
 //
 struct sci_mCacheInfo {
     mCacheInfo mInfo;
-    Uint8 areanumber; // 'where' msg can be used
+    uint8_t areanumber; // 'where' msg can be used
 }; // sci_mCacheInfo
 
 // Informant 'message list' structure
 //
 struct scientist_t {
-    Sint16 NumMsgs;
+    int16_t NumMsgs;
     sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
 }; // scientist_t
 
@@ -3200,15 +3200,15 @@ struct eaWallInfo {
     char tilex;
     char tiley; // where this controller is in the map.
     char aliens_out; // aliens spawned by this controller.
-    Sint16 delay; // delay before spawning another alien.
+    int16_t delay; // delay before spawning another alien.
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // eaWallInfo
 
 
@@ -3219,28 +3219,28 @@ struct eaWallInfo {
 //
 
 struct GoldsternInfo_t {
-    Uint8 LastIndex; // Last Spawn Coord Index
-    Uint8 SpawnCnt; // Num of Spawnpoints for Goldstern
-    Uint16 flags; // What type of command/operation is needed...
-    Uint16 WaitTime; // Wait time for Goldstern Spawn (current & Next)
+    uint8_t LastIndex; // Last Spawn Coord Index
+    uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
+    uint16_t flags; // What type of command/operation is needed...
+    uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
     boolean GoldSpawned; // Has Goldstern been spawned?
 
     void serialize(
         bstone::BinaryWriter& writer,
-        Uint32& checksum) const;
+        uint32_t& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        Uint32& checksum);
+        uint32_t& checksum);
 }; // GoldsternInfo_t
 
 
 struct star_t {
-    Sint32 x, y, z;
-    Uint8 color;
+    int32_t x, y, z;
+    uint8_t color;
 }; // star_t
 
-#define MAX_SPACE_THRUST ((Sint32)0x4fff)
+#define MAX_SPACE_THRUST ((int32_t)0x4fff)
 
 #define MAX_STARS 128
 #define MAX_SPACE_STATS (((MAXSTATS * sizeof(statobj_t)) - ((MAX_STARS + 1) * sizeof(star_t))) / sizeof(statobj_t))
@@ -3268,14 +3268,14 @@ extern char tempPath[];
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
-extern Sint16 view_xl, view_xh, view_yl, view_yh;
-extern Sint16 starting_level, debug_value, starting_episode, starting_difficulty;
+extern int16_t view_xl, view_xh, view_yl, view_yh;
+extern int16_t starting_level, debug_value, starting_episode, starting_difficulty;
 
 extern bool MS_CheckParm(
     const std::string& value);
 
 extern signed char lastmap_tilex, lastmap_tiley;
-extern Uint16 TopColor, BottomColor;
+extern uint16_t TopColor, BottomColor;
 extern char str[80], str2[20];
 // extern  unsigned        tedlevelnum;
 // extern  boolean         tedlevel;
@@ -3290,10 +3290,10 @@ extern int viewheight;
 extern int centerx;
 extern int shootdelta;
 
-extern Sint16 dirangle[9];
+extern int16_t dirangle[9];
 
 extern boolean startgame, loadedgame;
-extern Sint16 mouseadjustment;
+extern int16_t mouseadjustment;
 //
 // math tables
 //
@@ -3328,26 +3328,26 @@ void HelpScreens();
 void OrderingInfo();
 void TEDDeath();
 void CalcProjection(
-    Sint32 focal);
+    int32_t focal);
 void SetViewSize(
     int width,
     int height);
 void NewGame(
-    Sint16 difficulty,
-    Sint16 episode);
+    int16_t difficulty,
+    int16_t episode);
 void NewViewSize();
-Uint16 scan_atoi(
+uint16_t scan_atoi(
     const char* s);
 void AlignPlayerOnTransporter();
 
-Uint16 UseFunc(
+uint16_t UseFunc(
     const char* first,
     const char* next);
 boolean DoMovie(
     movie_t movie,
     void* palette);
 boolean CheckDiskSpace(
-    Sint32 needed,
+    int32_t needed,
     const char* text,
     cds_io_type io_type);
 
@@ -3363,7 +3363,7 @@ void BadChecksum();
 void InvalidLevels();
 void CheckValidity(
     char* file,
-    Sint32 valid_checksum);
+    int32_t valid_checksum);
 void UnauthorizedLevels();
 void ShowChecksums();
 void fprint(
@@ -3394,20 +3394,20 @@ int NextChunk(
 =============================================================================
 */
 
-extern Sint16 db_count;
+extern int16_t db_count;
 extern classtype debug_bonus[2][800];
 extern fargametype gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
-extern Uint8 VitalsRemain, VitalsOnFloor;
+extern uint8_t VitalsRemain, VitalsOnFloor;
 
 extern eaWallInfo eaList[];
 extern char NumEAWalls, NumEASpawned;
 extern boolean ingame, fizzlein, screensplit;
 extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
-extern Sint16 doornum;
+extern int16_t doornum;
 
 extern std::string demoname;
 
@@ -3420,44 +3420,44 @@ void FizzleOut();
 void GameLoop();
 
 // JAB
-#define PlaySoundLocTile(s, tx, ty) PlaySoundLocGlobal(s, (((Sint32)(tx) << TILESHIFT) + (1L << (TILESHIFT - 1))), (((Sint32)ty << TILESHIFT) + (1L << (TILESHIFT - 1))))
+#define PlaySoundLocTile(s, tx, ty) PlaySoundLocGlobal(s, (((int32_t)(tx) << TILESHIFT) + (1L << (TILESHIFT - 1))), (((int32_t)ty << TILESHIFT) + (1L << (TILESHIFT - 1))))
 #define PlaySoundLocActor(s, ob) PlaySoundLocGlobal(s, (ob)->x, (ob)->y)
 void PlaySoundLocGlobal(
-    Uint16 s,
+    uint16_t s,
     fixed gx,
     fixed gy);
 
 
 void Warped();
 void RotateView(
-    Sint16 DestAngle,
-    Uint8 RotSpeed);
+    int16_t DestAngle,
+    uint8_t RotSpeed);
 void DrawWarpIn();
 void BMAmsg(
     const char* msg);
 void CacheBMAmsg(
-    Uint16 MsgNum);
+    uint16_t MsgNum);
 void BevelBox(
-    Sint16 xl,
-    Sint16 yl,
-    Sint16 w,
-    Sint16 h,
-    Uint8 hi,
-    Uint8 med,
-    Uint8 lo);
+    int16_t xl,
+    int16_t yl,
+    int16_t w,
+    int16_t h,
+    uint8_t hi,
+    uint8_t med,
+    uint8_t lo);
 
 void AddTotalPoints(
-    Uint16 points);
+    uint16_t points);
 void AddTotalInformants(
     char informants);
 void AddTotalEnemy(
-    Uint16 enemies);
+    uint16_t enemies);
 
 void ShadowPrintLocationText(
     sp_type type);
 void LoseScreen();
 void LoadLocationText(
-    Sint16 textNum);
+    int16_t textNum);
 
 /*
 =============================================================================
@@ -3470,47 +3470,47 @@ void LoadLocationText(
 extern int objcount;
 
 extern objtype* DeadGuys[], dummyobj;
-extern Uint8 NumDeadGuys;
+extern uint8_t NumDeadGuys;
 
 extern exit_t playstate;
 
-extern Sint16 bordertime;
+extern int16_t bordertime;
 
 extern boolean madenoise, usedummy, nevermark;
-extern Uint8 alerted, alerted_areanum;
+extern uint8_t alerted, alerted_areanum;
 
 extern objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
                * objfreelist, * killerobj;
 extern statobj_t statobjlist[MAXSTATS], * laststatobj;
 extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
 
-extern Uint16 farmapylookup[MAPSIZE];
-extern Uint8* nearmapylookup[MAPSIZE];
+extern uint16_t farmapylookup[MAPSIZE];
+extern uint8_t* nearmapylookup[MAPSIZE];
 
-extern Uint8 tilemap[MAPSIZE][MAPSIZE]; // wall values only
-extern Uint8 spotvis[MAPSIZE][MAPSIZE];
+extern uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
+extern uint8_t spotvis[MAPSIZE][MAPSIZE];
 extern objtype* actorat[MAPSIZE][MAPSIZE];
 
 #define UPDATESIZE (UPDATEWIDE * UPDATEHIGH)
-extern Uint8 update[UPDATESIZE];
+extern uint8_t update[UPDATESIZE];
 
 extern boolean singlestep, godmode, noclip;
-extern Sint16 extravbls;
-extern Sint16 DebugOk;
-extern Sint16 InstantWin, InstantQuit;
+extern int16_t extravbls;
+extern int16_t DebugOk;
+extern int16_t InstantWin, InstantQuit;
 extern boolean PowerBall;
-extern Sint16 TestQuickSave, TestAutoMapper;
-extern Uint16 ExtraRadarFlags;
+extern int16_t TestQuickSave, TestAutoMapper;
+extern uint16_t ExtraRadarFlags;
 
 //
 // control info
 //
 extern boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
-extern Sint16 joystickport;
-extern Sint16 dirscan[4];
-extern Sint16 buttonscan[NUMBUTTONS];
-extern Sint16 buttonmouse[4];
-extern Sint16 buttonjoy[4];
+extern int16_t joystickport;
+extern int16_t dirscan[4];
+extern int16_t buttonscan[NUMBUTTONS];
+extern int16_t buttonmouse[4];
+extern int16_t buttonjoy[4];
 
 extern bool buttonheld[NUMBUTTONS];
 
@@ -3532,8 +3532,8 @@ extern char Computing[];
 
 
 void CenterWindow(
-    Uint16 w,
-    Uint16 h);
+    uint16_t w,
+    uint16_t h);
 void InitActorList();
 void GetNewActor();
 void RemoveObj(
@@ -3557,7 +3557,7 @@ void CheckMusicToggle();
 =============================================================================
 */
 
-Sint16 DebugKeys();
+int16_t DebugKeys();
 void CalcMemFree();
 
 
@@ -3569,21 +3569,21 @@ void CalcMemFree();
 =============================================================================
 */
 
-extern Uint8 TravelTable[MAPSIZE][MAPSIZE];
+extern uint8_t TravelTable[MAPSIZE][MAPSIZE];
 
-extern Sint16 weaponchangetics, itemchangetics, bodychangetics;
-extern Sint16 plaqueon, plaquetime, plaquetimefrac, getpic;
+extern int16_t weaponchangetics, itemchangetics, bodychangetics;
+extern int16_t plaqueon, plaquetime, plaquetimefrac, getpic;
 
 extern statobj_t* firststarobj;
 
 extern int screenloc[3];
 extern int freelatch;
 
-extern Sint32 space_xmove, space_ymove;
+extern int32_t space_xmove, space_ymove;
 
-extern Sint32 lasttimecount;
-extern Sint32 framecount;
-extern Sint32 frameon;
+extern int32_t lasttimecount;
+extern int32_t framecount;
+extern int32_t frameon;
 extern boolean fizzlein;
 
 extern int* wallheight;
@@ -3600,13 +3600,13 @@ extern int viewangle;
 extern int viewsin;
 extern int viewcos;
 
-extern const Uint8* postsource;
+extern const uint8_t* postsource;
 extern int postx;
 
 
-extern Sint16 horizwall[], vertwall[];
+extern int16_t horizwall[], vertwall[];
 
-extern Uint16 pwallpos;
+extern uint16_t pwallpos;
 
 extern boolean cloaked_shape;
 
@@ -3617,7 +3617,7 @@ void TransformActor(
     objtype* ob);
 void BuildTables();
 void ClearScreen();
-Sint16 CalcRotate(
+int16_t CalcRotate(
     objtype* ob);
 void DrawScaleds();
 void CalcTics();
@@ -3629,10 +3629,10 @@ void DrawStars();
 
 
 boolean TransformTile(
-    Sint16 tx,
-    Sint16 ty,
-    Sint16* dispx,
-    Sint16* dispheight);
+    int16_t tx,
+    int16_t ty,
+    int16_t* dispx,
+    int16_t* dispheight);
 void WrapTransformActor(
     objtype* ob);
 void ComputeActorPosition(
@@ -3662,7 +3662,7 @@ void UpdateTravelTable();
 
 =============================================================================
 */
-extern Uint16 CeilingTile, FloorTile;
+extern uint16_t CeilingTile, FloorTile;
 extern void (* MapRowPtr)();
 
 void DrawPlanes();
@@ -3681,28 +3681,28 @@ void F_MapRow();
 =============================================================================
 */
 
-extern Uint16 actor_points[];
+extern uint16_t actor_points[];
 extern dirtype opposite[9];
 extern dirtype diagonal[9][9];
 
 
 void SeekPlayerOrStatic(
     objtype* ob,
-    Sint16* deltax,
-    Sint16* deltay);
-Uint16 CheckRunChase(
+    int16_t* deltax,
+    int16_t* deltay);
+uint16_t CheckRunChase(
     objtype* ob);
 void GetCornerSeek(
     objtype* ob);
 boolean LookForGoodies(
     objtype* ob,
-    Uint16 RunReason);
+    uint16_t RunReason);
 void InitHitRect(
     objtype* ob,
-    Uint16 radius);
+    uint16_t radius);
 void SpawnNewObj(
-    Uint16 tilex,
-    Uint16 tiley,
+    uint16_t tilex,
+    uint16_t tiley,
     statetype* state);
 void NewState(
     objtype* ob,
@@ -3717,13 +3717,13 @@ void SelectDodgeDir(
     objtype* ob);
 void MoveObj(
     objtype* ob,
-    Sint32 move);
+    int32_t move);
 
 void KillActor(
     objtype* ob);
 void DamageActor(
     objtype* ob,
-    Uint16 damage,
+    uint16_t damage,
     objtype* attacker);
 
 boolean CheckLine(
@@ -3738,7 +3738,7 @@ boolean PosVisable(
     fixed from_y,
     fixed to_x,
     fixed to_y,
-    Sint16 from_angle);
+    int16_t from_angle);
 boolean PlayerIsBlocking(
     objtype* ob);
 
@@ -3759,8 +3759,8 @@ objtype* CheckAndReserve();
 #define COMPSCALECODESTART (65 * 4) // offset to start of code in comp scaler
 
 struct t_compshape {
-    Uint16 leftpix, rightpix;
-    Uint16 dataofs[64];
+    uint16_t leftpix, rightpix;
+    uint16_t dataofs[64];
 // table data after dataofs[rightpix-leftpix+1]
 }; // t_compshape
 
@@ -3805,14 +3805,14 @@ extern scientist_t InfHintList;
 extern scientist_t NiceSciList;
 extern scientist_t MeanSciList;
 
-extern Uint16 static_points[];
+extern uint16_t static_points[];
 extern boolean GAN_HiddenArea;
 extern char* InfAreaMsgs[];
-extern Uint8 NumAreaMsgs, LastInfArea;
-extern Sint16 FirstGenInfMsg, TotalGenInfMsgs;
+extern uint8_t NumAreaMsgs, LastInfArea;
+extern int16_t FirstGenInfMsg, TotalGenInfMsgs;
 extern classtype LastInfoAttacker;
 
-extern Sint16 LastInfoAttacker_Cloaked;
+extern int16_t LastInfoAttacker_Cloaked;
 
 extern char term_com_name[];
 extern char term_msg_name[];
@@ -3823,18 +3823,18 @@ extern atkinf_t attackinfo[7][14];
 // player state info
 //
 extern boolean commandmode;
-extern Sint32 thrustspeed;
-extern Uint16 plux, pluy; // player coordinates scaled to unsigned
+extern int32_t thrustspeed;
+extern uint16_t plux, pluy; // player coordinates scaled to unsigned
 extern boolean PlayerInvisable;
 extern char DrawInfoArea_COUNT;
 extern char InitInfoArea_COUNT;
 
-extern Uint16 player_oldtilex;
-extern Uint16 player_oldtiley;
+extern uint16_t player_oldtilex;
+extern uint16_t player_oldtiley;
 
 // Terminal variables
 
-extern Uint16 RadarSw;
+extern uint16_t RadarSw;
 
 // Location Bar message string...
 
@@ -3844,25 +3844,25 @@ extern char LocationText[MAX_LOCATION_DESC_LEN];
 //
 // search / move info
 //
-extern Uint16 searchon; // held object number looking at
-extern Sint16 searchtics; // when it reaches SEARCHTICS, get an obj
+extern uint16_t searchon; // held object number looking at
+extern int16_t searchtics; // when it reaches SEARCHTICS, get an obj
 extern objtype* searchobj; // current object being searched
-extern Uint16 foundflag; // only show NOTHING if nothing was found
+extern uint16_t foundflag; // only show NOTHING if nothing was found
 extern objtype* moveobj; // current object being draged
 
-extern Sint16 anglefrac;
-extern Sint16 facecount;
+extern int16_t anglefrac;
+extern int16_t facecount;
 
-extern Uint16 LastMsgPri;
-extern Sint16 MsgTicsRemain;
+extern uint16_t LastMsgPri;
+extern int16_t MsgTicsRemain;
 
 void GivePoints(
-    Sint32 score,
+    int32_t score,
     boolean add_to_stats);
 void SpawnPlayer(
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 dir);
+    int16_t tilex,
+    int16_t tiley,
+    int16_t dir);
 void DrawCash();
 void UpdateHealth();
 
@@ -3873,14 +3873,14 @@ void DrawAmmo(
 boolean DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
-    Sint16 DisplayTime,
-    Sint16 MessageType);
+    int16_t DisplayTime,
+    int16_t MessageType);
 
 boolean DisplayInfoMsg(
     const std::string& Msg,
     msg_priorities Priority,
-    Sint16 DisplayTime,
-    Sint16 MessageType);
+    int16_t DisplayTime,
+    int16_t MessageType);
 
 void UpdateInfoAreaClock();
 void UpdateInfoArea();
@@ -3888,20 +3888,20 @@ void DrawHealthMonitor();
 void CalcHealthDisplay();
 void UpdateScore();
 
-Uint8 ValidAreaTile(
-    Uint16* ptr);
+uint8_t ValidAreaTile(
+    uint16_t* ptr);
 char GetAreaNumber(
     char tilex,
     char tiley);
-Sint16 InputFloor();
+int16_t InputFloor();
 
 void RestoreInfoArea();
 void DrawHeartPic();
 void DrawInfoArea();
-Sint16 DrawShape(
-    Sint16 x,
-    Sint16 y,
-    Sint16 shapenum,
+int16_t DrawShape(
+    int16_t x,
+    int16_t y,
+    int16_t shapenum,
     pisType shapetype);
 
 void AnimatePage();
@@ -3911,21 +3911,21 @@ void TerminalPrint(
     char* msg,
     boolean FastPrint);
 void FloorCheat(
-    Uint16 RadarFlags);
+    uint16_t RadarFlags);
 boolean Interrogate(
     objtype* ob);
 
 void GiveKey(
-    Sint16 key);
+    int16_t key);
 void TakeKey(
-    Sint16 key);
+    int16_t key);
 void GiveToken(
-    Sint16 tokens);
+    int16_t tokens);
 
 void TakePlasmaDetonator(
-    Sint16 count);
+    int16_t count);
 void GivePlasmaDetonator(
-    Sint16 count);
+    int16_t count);
 
 void CacheDrawPic(
     int x,
@@ -3934,35 +3934,35 @@ void CacheDrawPic(
 void LoadTerminalCommands();
 
 void ActivateWallSwitch(
-    Uint16 iconnum,
-    Sint16 x,
-    Sint16 y);
-Uint16 UpdateBarrierTable(
-    Uint8 level,
-    Uint8 x,
-    Uint8 y,
+    uint16_t iconnum,
+    int16_t x,
+    int16_t y);
+uint16_t UpdateBarrierTable(
+    uint8_t level,
+    uint8_t x,
+    uint8_t y,
     boolean OnOff);
-Uint16 ScanBarrierTable(
-    Uint8 x,
-    Uint8 y);
+uint16_t ScanBarrierTable(
+    uint8_t x,
+    uint8_t y);
 void DisplaySwitchOperateMsg(
-    Uint16 coords);
+    uint16_t coords);
 
 void DisplayNoMoMsgs();
 void PrintStatPercent(
-    Sint16 nx,
-    Sint16 ny,
+    int16_t nx,
+    int16_t ny,
     char percentage);
-Sint16 ShowStats(
-    Sint16 bx,
-    Sint16 by,
+int16_t ShowStats(
+    int16_t bx,
+    int16_t by,
     ss_type type,
     statsInfoType* stats);
 boolean PerfectStats();
 boolean CheckPerfectStats();
 boolean OperateSmartSwitch(
-    Uint16 tilex,
-    Uint16 tiley,
+    uint16_t tilex,
+    uint16_t tiley,
     char Operation,
     boolean Force);
 
@@ -3981,49 +3981,49 @@ extern StatInfos statinfo;
 extern concession_t ConHintList;
 
 extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
-extern Sint16 doornum;
+extern int16_t doornum;
 
-extern Uint16 doorposition[MAXDOORS], pwallstate;
+extern uint16_t doorposition[MAXDOORS], pwallstate;
 
-extern Uint8 areaconnect[NUMAREAS][NUMAREAS];
+extern uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
 extern bool areabyplayer[NUMAREAS];
 
-extern Uint16 pwallstate;
-extern Uint16 pwallpos; // amount a pushable wall has been moved (0-63)
-extern Uint16 pwallx, pwally;
-extern Sint16 pwalldir, pwalldist;
+extern uint16_t pwallstate;
+extern uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
+extern uint16_t pwallx, pwally;
+extern int16_t pwalldir, pwalldist;
 
 
 statobj_t* ReserveStatic();
 void SpawnStatic(
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 type);
+    int16_t tilex,
+    int16_t tiley,
+    int16_t type);
 void SpawnDoor(
-    Sint16 tilex,
-    Sint16 tiley,
+    int16_t tilex,
+    int16_t tiley,
     boolean vertical,
     keytype lock,
     door_t type);
 
 void OperateConcession(
-    Uint16 concession);
+    uint16_t concession);
 void SpawnConcession(
-    Sint16 tilex,
-    Sint16 tiley,
-    Uint16 credits,
-    Uint16 machinetype);
-Uint16 LoadConcessionHint(
-    Uint16 MsgNum);
+    int16_t tilex,
+    int16_t tiley,
+    uint16_t credits,
+    uint16_t machinetype);
+uint16_t LoadConcessionHint(
+    uint16_t MsgNum);
 void CacheInfoAreaMsg(
-    Uint16 block,
-    Uint16 MsgNum,
+    uint16_t block,
+    uint16_t MsgNum,
     char* hint_buffer,
-    Uint16 MaxBufferLen);
+    uint16_t MaxBufferLen);
 void CheckSpawnEA();
 
-Sint16 TransformAreas(
+int16_t TransformAreas(
     char tilex,
     char tiley,
     char xform);
@@ -4034,50 +4034,50 @@ void FindNewGoldieSpawnSite();
 
 void InitMsgCache(
     mCacheList* mList,
-    Uint16 listSize,
-    Uint16 infoSize);
+    uint16_t listSize,
+    uint16_t infoSize);
 void FreeMsgCache(
     mCacheList* mList,
-    Uint16 listSize);
+    uint16_t listSize);
 void CacheMsg(
     mCacheInfo* ci,
-    Uint16 SegNum,
-    Uint16 MsgNum);
-Sint16 LoadMsg(
+    uint16_t SegNum,
+    uint16_t MsgNum);
+int16_t LoadMsg(
     char* hint_buffer,
-    Uint16 SegNum,
-    Uint16 MsgNum,
-    Uint16 MaxMsgLen);
+    uint16_t SegNum,
+    uint16_t MsgNum,
+    uint16_t MaxMsgLen);
 void CacheConcessionMsg();
 boolean ReuseMsg(
     mCacheInfo* ci,
-    Sint16 count,
-    Sint16 struct_size);
+    int16_t count,
+    int16_t struct_size);
 
 void DropPlasmaDetonator();
 
 void BlockDoorOpen(
-    Sint16 door);
+    int16_t door);
 void BlastNearDoors(
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t tilex,
+    int16_t tiley);
 void TryBlastDoor(
     char door);
 
 statobj_t* FindStatic(
-    Uint16 tilex,
-    Uint16 tiley);
+    uint16_t tilex,
+    uint16_t tiley);
 statobj_t* UseReservedStatic(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley);
 void PlaceReservedItemNearTile(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley);
 void ExplodeStatics(
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t tilex,
+    int16_t tiley);
 
 
 /*
@@ -4100,9 +4100,9 @@ void UnmakeFakeStatic(
 
 extern char detonators_spawned;
 
-extern Sint16 starthitpoints[][NUMHITENEMIES];
+extern int16_t starthitpoints[][NUMHITENEMIES];
 
-extern Uint16 MorphClass[];
+extern uint16_t MorphClass[];
 
 extern statetype s_ofs_bounce;
 
@@ -4261,41 +4261,41 @@ void SpawnProjectile(
     classtype class_type);
 void SpawnStand(
     enemy_t which,
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 dir);
+    int16_t tilex,
+    int16_t tiley,
+    int16_t dir);
 void SpawnPatrol(
     enemy_t which,
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 dir);
+    int16_t tilex,
+    int16_t tiley,
+    int16_t dir);
 void KillActor(
     objtype* ob);
 
-void US_ControlPanel(Uint8);
+void US_ControlPanel(uint8_t);
 
-Sint16 IntSqrt(
-    Sint32 va);
-Uint16 CalcDistance(
-    Uint16 x1,
-    Uint16 y1,
-    Uint16 x2,
-    Uint16 y2);
+int16_t IntSqrt(
+    int32_t va);
+uint16_t CalcDistance(
+    uint16_t x1,
+    uint16_t y1,
+    uint16_t x2,
+    uint16_t y2);
 
 
 void T_Hit(
     objtype* ob);
 void SpawnOffsetObj(
     enemy_t which,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t tilex,
+    int16_t tiley);
 
 
 void InitSmartAnimStruct(
     objtype* obj,
-    Uint16 ShapeNum,
-    Uint8 StartOfs,
-    Uint8 MaxOfs,
+    uint16_t ShapeNum,
+    uint8_t StartOfs,
+    uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
 boolean AnimateOfsObj(
@@ -4308,10 +4308,10 @@ void AdvanceAnimFWD(
 void SpawnCusExplosion(
     fixed x,
     fixed y,
-    Uint16 StartFrame,
-    Uint16 NumFrames,
-    Uint16 Delay,
-    Uint16 Class);
+    uint16_t StartFrame,
+    uint16_t NumFrames,
+    uint16_t Delay,
+    uint16_t Class);
 void T_SpawnExplosion(
     objtype* obj);
 void T_ExplodeDamage(
@@ -4319,7 +4319,7 @@ void T_ExplodeDamage(
 
 void ExplodeRadius(
     objtype* obj,
-    Sint16 damage,
+    int16_t damage,
     boolean damageplayer);
 
 extern statetype s_barrier_transition;
@@ -4327,32 +4327,32 @@ extern statetype s_barrier_shutdown;
 
 void SpawnBarrier(
     enemy_t which,
-    Sint16 tilex,
-    Sint16 tiley,
+    int16_t tilex,
+    int16_t tiley,
     boolean OnOff);
 void ToggleBarrier(
     objtype* obj);
 
 void InitAnim(
     objtype* obj,
-    Uint16 ShapeNum,
-    Uint8 StartOfs,
-    Uint8 MaxOfs,
+    uint16_t ShapeNum,
+    uint8_t StartOfs,
+    uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir,
-    Uint16 Delay,
-    Uint16 WaitDelay);
+    uint16_t Delay,
+    uint16_t WaitDelay);
 
 objtype* FindObj(
     classtype which,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t tilex,
+    int16_t tiley);
 objtype* FindHiddenOfs(
     classtype which);
 void SpawnHiddenOfs(
     enemy_t which,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t tilex,
+    int16_t tiley);
 objtype* MoveHiddenOfs(
     classtype which_class,
     classtype new1,
@@ -4361,8 +4361,8 @@ objtype* MoveHiddenOfs(
 
 void CheckForSpecialTile(
     objtype* obj,
-    Uint16 tilex,
-    Uint16 tiley);
+    uint16_t tilex,
+    uint16_t tiley);
 void DropCargo(
     objtype* obj);
 
@@ -4457,13 +4457,13 @@ void DisplayPrepingMsg(
     const char* text);
 boolean Breifing(
     breifing_type BreifingType,
-    Uint16 episode);
+    uint16_t episode);
 void ShPrint(
     const char* text,
     char shadow_color,
     boolean single_char);
-Uint16 Random(
-    Uint16 Max);
+uint16_t Random(
+    uint16_t Max);
 
 
 // ===========================================================================
@@ -4477,14 +4477,14 @@ extern boolean EscPressed;
 void DrawInstructions(
     inst_type Type);
 void CacheMessage(
-    Uint16 MessageNum);
+    uint16_t MessageNum);
 void TerminateStr(
     char* pos);
-Uint32 CacheCompData(
-    Uint16 ItemNum,
+uint32_t CacheCompData(
+    uint16_t ItemNum,
     void** dest_loc);
 boolean CheckForSpecialCode(
-    Uint16 shortItemNum);
+    uint16_t shortItemNum);
 
 
 // ===========================================================================
@@ -4500,18 +4500,18 @@ extern char JM_FREE_DATA_START[];
 
 // BBi
 objtype* ui16_to_actor(
-    Uint16 value);
-Uint16 actor_to_ui16(
+    uint16_t value);
+uint16_t actor_to_ui16(
     const objtype* actor);
 
 statobj_t* ui16_to_static_object(
-    Uint16 value);
-Uint16 static_object_to_ui16(
+    uint16_t value);
+uint16_t static_object_to_ui16(
     const statobj_t* static_object);
 
 doorobj_t* ui16_to_door_object(
-    Uint16 value);
-Uint16 door_object_to_ui16(
+    uint16_t value);
+uint16_t door_object_to_ui16(
     const doorobj_t* door_object);
 
 extern bool g_no_wall_hit_sound;
@@ -4545,9 +4545,9 @@ const char* what_;
 template<class T>
 inline void DoChecksum(
     const T& value,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
-    const Uint8* src = reinterpret_cast<const Uint8*>(&value);
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(&value);
 
     for (size_t i = 0; i < sizeof(T); ++i) {
         checksum += src[i] + 1;
@@ -4559,7 +4559,7 @@ template<class T>
 inline void serialize_field(
     const T& value,
     bstone::BinaryWriter& writer,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::DoChecksum(value, checksum);
     if (!writer.write(bstone::Endian::le(value))) {
@@ -4571,7 +4571,7 @@ template<class T, size_t N>
 inline void serialize_field(
     const T(&value)[N],
     bstone::BinaryWriter& writer,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
         ::serialize_field<T>(value[i], writer, checksum);
@@ -4582,7 +4582,7 @@ template<class T, size_t M, size_t N>
 inline void serialize_field(
     const T(&value)[M][N],
     bstone::BinaryWriter& writer,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
@@ -4595,7 +4595,7 @@ template<class T>
 inline void deserialize_field(
     T& value,
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     if (!reader.read(value)) {
         throw ArchiveException("deserialize_field");
@@ -4609,7 +4609,7 @@ template<class T, size_t N>
 inline void deserialize_field(
     T(&value)[N],
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
         ::deserialize_field<T>(value[i], reader, checksum);
@@ -4620,7 +4620,7 @@ template<class T, size_t M, size_t N>
 inline void deserialize_field(
     T(&value)[M][N],
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
@@ -4650,18 +4650,18 @@ bool is_ps();
 
 void InitSmartSpeedAnim(
     objtype* obj,
-    Uint16 ShapeNum,
-    Uint8 StartOfs,
-    Uint8 MaxOfs,
+    uint16_t ShapeNum,
+    uint8_t StartOfs,
+    uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir,
-    Uint16 Delay);
+    uint16_t Delay);
 
 void InitSmartAnim(
     objtype* obj,
-    Uint16 ShapeNum,
-    Uint8 StartOfs,
-    Uint8 MaxOfs,
+    uint16_t ShapeNum,
+    uint8_t StartOfs,
+    uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
 // BBi

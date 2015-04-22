@@ -26,25 +26,25 @@ Free Software Foundation, Inc.,
 
 
 struct spritetabletype {
-    Sint16 width;
-    Sint16 height;
-    Sint16 orgx;
-    Sint16 orgy;
-    Sint16 xl;
-    Sint16 yl;
-    Sint16 xh;
-    Sint16 yh;
-    Sint16 shifts;
+    int16_t width;
+    int16_t height;
+    int16_t orgx;
+    int16_t orgy;
+    int16_t xl;
+    int16_t yl;
+    int16_t xh;
+    int16_t yh;
+    int16_t shifts;
 }; // struct spritetabletype
 
 struct pictabletype {
-    Sint16 width;
-    Sint16 height;
+    int16_t width;
+    int16_t height;
 }; // struct pictabletype
 
 struct fontstruct {
-    Sint16 height;
-    Sint16 location[256];
+    int16_t height;
+    int16_t location[256];
     char width[256];
 }; // struct fontstruct
 
@@ -53,7 +53,7 @@ extern pictabletype* pictable;
 extern pictabletype* picmtable;
 extern spritetabletype* spritetable;
 
-extern Uint8 fontcolor;
+extern uint8_t fontcolor;
 extern int fontnumber;
 extern int px;
 extern int py;
@@ -83,7 +83,7 @@ void VWB_Bar(
     int y,
     int width,
     int height,
-    Uint8 color);
+    uint8_t color);
 
 void VWB_DrawPropString(
     const char* string);
@@ -92,23 +92,23 @@ void VW_DrawPropString(
 void VWB_Plot(
     int x,
     int y,
-    Uint8 color);
+    uint8_t color);
 void VWB_Hlin(
     int x1,
     int x2,
     int y,
-    Uint8 color);
+    uint8_t color);
 void VWB_Vlin(
     int y1,
     int y2,
     int x,
-    Uint8 color);
+    uint8_t color);
 
 
 //
 // wolfenstein EGA compatability stuff
 //
-extern const Uint8 vgapal[768];
+extern const uint8_t vgapal[768];
 
 
 #define VW_Startup VL_Startup

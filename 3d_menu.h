@@ -183,20 +183,20 @@ enum activetypes {
 // TYPEDEFS
 //
 struct CP_cursortype {
-    Uint8 x;
+    uint8_t x;
     char y_ofs;
-    Uint8 width;
-    Uint8 height;
+    uint8_t width;
+    uint8_t height;
     char on;
 }; // struct CP_cursortype
 
 struct CP_iteminfo {
-    Uint8 x;
-    Uint8 y;
-    Uint8 amount;
+    uint8_t x;
+    uint8_t y;
+    uint8_t amount;
     char curpos;
-    Uint8 indent;
-    Uint8 y_spacing;
+    uint8_t indent;
+    uint8_t y_spacing;
 
     CP_cursortype cursor;
 }; // struct CP_iteminfo
@@ -206,14 +206,14 @@ struct CP_itemtype {
     activetypes active;
     char string[36];
     void (* routine)(
-        Sint16 temp1);
-    Uint8 fontnumber; // Font to print text in
-    Uint8 height; // Hight of text (Y_Offset from previous line)
+        int16_t temp1);
+    uint8_t fontnumber; // Font to print text in
+    uint8_t height; // Hight of text (Y_Offset from previous line)
 }; // struct CP_itemtype
 
 
 struct CustomCtrls {
-    Sint16 allowed[4];
+    int16_t allowed[4];
 }; // struct CustomCtrls
 
 extern CP_itemtype MainMenu[], NewEMenu[];
@@ -230,38 +230,38 @@ void ControlPanelAlloc();
 void DrawMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items);
-Sint16 HandleMenu(
+int16_t HandleMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    void (* routine)(Sint16 w));
+    void (* routine)(int16_t w));
 void ClearMScreen();
 void DrawWindow(
-    Sint16 x,
-    Sint16 y,
-    Sint16 w,
-    Sint16 h,
-    Sint16 wcolor);
+    int16_t x,
+    int16_t y,
+    int16_t w,
+    int16_t h,
+    int16_t wcolor);
 void DrawOutline(
-    Sint16 x,
-    Sint16 y,
-    Sint16 w,
-    Sint16 h,
-    Sint16 color1,
-    Sint16 color2);
+    int16_t x,
+    int16_t y,
+    int16_t w,
+    int16_t h,
+    int16_t color1,
+    int16_t color2);
 void WaitKeyUp();
 void ReadAnyControl(
     ControlInfo* ci);
 void TicDelay(
-    Sint16 count);
+    int16_t count);
 void CacheLump(
-    Sint16 lumpstart,
-    Sint16 lumpend);
+    int16_t lumpstart,
+    int16_t lumpend);
 void UnCacheLump(
-    Sint16 lumpstart,
-    Sint16 lumpend);
+    int16_t lumpstart,
+    int16_t lumpend);
 void StartCPMusic(
-    Sint16 song);
-Sint16 Confirm(
+    int16_t song);
+int16_t Confirm(
     const char* string);
 void Message(
     const char* string);
@@ -272,104 +272,104 @@ void CheckSecretMissions();
 void DrawGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    Sint16 x,
-    Sint16* y,
-    Sint16 which,
-    Sint16 basey,
-    void (* routine)(Sint16 w));
+    int16_t x,
+    int16_t* y,
+    int16_t which,
+    int16_t basey,
+    void (* routine)(int16_t w));
 void DrawHalfStep(
-    Sint16 x,
-    Sint16 y,
-    Sint16 y_spacing);
+    int16_t x,
+    int16_t y,
+    int16_t y_spacing);
 void EraseGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    Sint16 x,
-    Sint16 y,
-    Sint16 which);
+    int16_t x,
+    int16_t y,
+    int16_t which);
 void SetTextColor(
     CP_itemtype* items,
-    Sint16 hlight);
+    int16_t hlight);
 void DrawMenuGun(
     CP_iteminfo* iteminfo);
 void DrawStripes(
-    Sint16 y);
+    int16_t y);
 
 void DefineMouseBtns();
 void DefineJoyBtns();
 void DefineKeyBtns();
 void DefineKeyMove();
 void EnterCtrlData(
-    Sint16 index,
+    int16_t index,
     CustomCtrls* cust,
-    void (* DrawRtn)(Sint16),
-    void (* PrintRtn)(Sint16),
-    Sint16 type);
+    void (* DrawRtn)(int16_t),
+    void (* PrintRtn)(int16_t),
+    int16_t type);
 
 void DrawMainMenu();
 void DrawSoundMenu();
 void DrawLoadSaveScreen(
-    Sint16 loadsave);
+    int16_t loadsave);
 void DrawNewEpisode();
 void DrawNewGame();
 void DrawChangeView(
-    Sint16 view);
+    int16_t view);
 void DrawMouseSens();
 void DrawCtlScreen();
 void DrawCustomScreen();
 void DrawLSAction(
-    Sint16 which);
+    int16_t which);
 void DrawCustMouse(
-    Sint16 hilight);
+    int16_t hilight);
 void DrawCustJoy(
-    Sint16 hilight);
+    int16_t hilight);
 void DrawCustKeybd(
-    Sint16 hilight);
+    int16_t hilight);
 void DrawCustKeys(
-    Sint16 hilight);
+    int16_t hilight);
 void PrintCustMouse(
-    Sint16 i);
+    int16_t i);
 void PrintCustJoy(
-    Sint16 i);
+    int16_t i);
 void PrintCustKeybd(
-    Sint16 i);
+    int16_t i);
 void PrintCustKeys(
-    Sint16 i);
+    int16_t i);
 
 void PrintLSEntry(
-    Sint16 w,
-    Sint16 color);
+    int16_t w,
+    int16_t color);
 void TrackWhichGame(
-    Sint16 w);
+    int16_t w);
 void DrawNewGameDiff(
-    Sint16 w);
+    int16_t w);
 void FixupCustom(
-    Sint16 w);
+    int16_t w);
 
 void CP_BlakeStoneSaga(
-    Sint16 temp1);
+    int16_t temp1);
 void CP_NewGame(
-    Sint16 temp1);
+    int16_t temp1);
 void CP_Sound(
-    Sint16 temp1);
-Sint16 CP_LoadGame(
-    Sint16 quick);
-Sint16 CP_SaveGame(
-    Sint16 quick);
+    int16_t temp1);
+int16_t CP_LoadGame(
+    int16_t quick);
+int16_t CP_SaveGame(
+    int16_t quick);
 void CP_Control(
-    Sint16 temp1);
+    int16_t temp1);
 void CP_ExitOptions(
-    Sint16 temp1);
+    int16_t temp1);
 void CP_Quit();
 void CP_ViewScores(
-    Sint16 temp1);
-Sint16 CP_EndGame();
-Sint16 CP_CheckQuick(
-    Uint16 scancode);
+    int16_t temp1);
+int16_t CP_EndGame();
+int16_t CP_CheckQuick(
+    uint16_t scancode);
 void CustomControls(
-    Sint16 temp1);
+    int16_t temp1);
 void MouseSensitivity(
-    Sint16 temp1);
+    int16_t temp1);
 
 void DrawMenuTitle(
     const char* title);
@@ -377,17 +377,17 @@ void CheckForEpisodes();
 void HelpPresenter(
     const char* fname,
     boolean continuekeys,
-    Uint16 id_cache,
+    uint16_t id_cache,
     boolean startmusic);
 void ShadowPrint(
     const char* string,
-    Sint16 x,
-    Sint16 y);
+    int16_t x,
+    int16_t y);
 
 //
 // VARIABLES
 //
-extern Sint16 SaveGamesAvail[10], StartGame, SoundStatus;
+extern int16_t SaveGamesAvail[10], StartGame, SoundStatus;
 extern char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 
 // FOR INPUT TYPES
@@ -402,13 +402,13 @@ enum MenuInputType {
 // WL_INTER
 //
 struct LRstruct {
-    Sint16 kill, secret, treasure;
-    Sint32 time;
+    int16_t kill, secret, treasure;
+    int32_t time;
 }; // struct LRstruct
 
 extern LRstruct LevelRatios[];
 
 void Write(
-    Sint16 x,
-    Sint16 y,
+    int16_t x,
+    int16_t y,
     char* string);

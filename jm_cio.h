@@ -37,7 +37,7 @@ Free Software Foundation, Inc.,
 
 
 #ifndef _ID_HEADS_H_
-// typedef Sint16 boolean;
+// typedef int16_t boolean;
 #endif
 
 
@@ -93,14 +93,14 @@ typedef enum ct_TYPES {
 //
 
 struct COMPStruct {
-    Uint32 DecompLen;
+    uint32_t DecompLen;
 };
 
 
 struct JAMPHeader {
-    Uint32 OriginalLen; // Original FileLength of compressed Data.
+    uint32_t OriginalLen; // Original FileLength of compressed Data.
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    Uint32 CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+    uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };
 
 
@@ -111,9 +111,9 @@ struct JAMPHeader {
 
 struct CompHeader_t {
     char NameId[4];
-    Uint32 OriginalLen; // Original FileLength of compressed Data.
+    uint32_t OriginalLen; // Original FileLength of compressed Data.
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    Uint32 CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+    uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 }; // struct CompHeader_t
 
 
@@ -125,9 +125,9 @@ struct CompHeader_t {
 
 char CIO_WritePtr(
     void*& dst,
-    Uint8 value);
+    uint8_t value);
 
-Sint16 CIO_ReadPtr(
+int16_t CIO_ReadPtr(
     const void*& src);
 
 #endif

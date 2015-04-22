@@ -131,11 +131,11 @@ extern char signonv1;
 
 #define false (0)
 #define true (1)
-typedef Sint16 boolean;
+typedef int16_t boolean;
 
 struct Point {
-    Sint16 x;
-    Sint16 y;
+    int16_t x;
+    int16_t y;
 }; // struct Point
 
 struct Rect {
@@ -182,25 +182,25 @@ extern void CalcMemFree();
 
 #define UPDATETERMINATE 0x0301
 
-extern Uint16 mapwidth, mapheight, tics, realtics;
+extern uint16_t mapwidth, mapheight, tics, realtics;
 extern boolean compatability;
 
-extern Uint8* updateptr;
-extern Uint16 uwidthtable[UPDATEHIGH];
-extern Uint16 blockstarts[UPDATEWIDE * UPDATEHIGH];
+extern uint8_t* updateptr;
+extern uint16_t uwidthtable[UPDATEHIGH];
+extern uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
 
-extern Uint8 fontcolor, backcolor;
+extern uint8_t fontcolor, backcolor;
 
-#define SETFONTCOLOR(f, b) fontcolor = static_cast<Uint8>(f); backcolor = static_cast<Uint8>(b);
+#define SETFONTCOLOR(f, b) fontcolor = static_cast<uint8_t>(f); backcolor = static_cast<uint8_t>(b);
 
 #include "3d_menu.h"
 
 
-#define CA_FarRead(h, d, s) IO_FarRead((Sint16)h, (Uint8*)d, (Sint32)s)
+#define CA_FarRead(h, d, s) IO_FarRead((int16_t)h, (uint8_t*)d, (int32_t)s)
 
 
 // BBi
-extern Uint8* vga_memory;
+extern uint8_t* vga_memory;
 extern bstone::ClArgs g_args;
 // BBi
 

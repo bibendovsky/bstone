@@ -35,16 +35,16 @@ Free Software Foundation, Inc.,
 
 
 struct anim_frame {
-    Uint16 code;
-    Sint32 block_num;
-    Sint32 recsize;
+    uint16_t code;
+    int32_t block_num;
+    int32_t recsize;
 }; // struct anim_frame
 
 
 struct anim_chunk {
-    Uint16 opt;
-    Uint16 offset;
-    Uint16 length;
+    uint16_t opt;
+    uint16_t offset;
+    uint16_t length;
 }; // struct anim_chunk
 
 
@@ -64,10 +64,10 @@ struct MovieStuff_t {
     char rep;
     char ticdelay;
 
-    Uint32 MaxMemBuffer;
+    uint32_t MaxMemBuffer;
 
-    Sint16 start_line;
-    Sint16 end_line;
+    int16_t start_line;
+    int16_t end_line;
     const void* palette;
 }; // struct MovieStuff_t
 

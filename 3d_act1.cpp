@@ -37,15 +37,15 @@ Free Software Foundation, Inc.,
 // ===========================================================================
 
 void OpenDoor(
-    Sint16 door);
+    int16_t door);
 void CloseDoor(
-    Sint16 door);
+    int16_t door);
 void PlaceItemNearTile(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley);
 void HealSelf(
-    Sint16 points);
+    int16_t points);
 
 
 // ===========================================================================
@@ -244,8 +244,8 @@ void InitStaticList()
 //          NULL == No static found.
 // ---------------------------------------------------------------------------
 statobj_t* FindStatic(
-    Uint16 tilex,
-    Uint16 tiley)
+    uint16_t tilex,
+    uint16_t tiley)
 {
     statobj_t* spot;
 
@@ -298,9 +298,9 @@ statobj_t* FindEmptyStatic()
 */
 
 void SpawnStatic(
-    Sint16 tilex,
-    Sint16 tiley,
-    Sint16 type)
+    int16_t tilex,
+    int16_t tiley,
+    int16_t type)
 {
     statobj_t* spot;
 
@@ -318,8 +318,8 @@ void SpawnStatic(
     }
 
     spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<Uint8>(tilex);
-    spot->tiley = static_cast<Uint8>(tiley);
+    spot->tilex = static_cast<uint8_t>(tilex);
+    spot->tiley = static_cast<uint8_t>(tiley);
     spot->visspot = &spotvis[tilex][tiley];
     spot->flags = 0;
 
@@ -393,7 +393,7 @@ void SpawnStatic(
     case bo_coin5:
     case bo_automapper1:
         spot->flags = FL_BONUS;
-        spot->itemnumber = static_cast<Uint8>(statinfo[type].type);
+        spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
         break;
 
     default:
@@ -468,12 +468,12 @@ statobj_t* FindReservedStatic()
 // reserved a static to be used using ReserveStatic();
 // ---------------------------------------------------------------------------
 statobj_t* UseReservedStatic(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley)
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley)
 {
     statobj_t* spot;
-    Sint16 type;
+    int16_t type;
 
     if ((spot = FindReservedStatic()) == NULL) {
         ACT1_ERROR(CANT_FIND_RESERVE_STATIC);
@@ -512,11 +512,11 @@ statobj_t* UseReservedStatic(
     }
 
     spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<Uint8>(tilex);
-    spot->tiley = static_cast<Uint8>(tiley);
+    spot->tilex = static_cast<uint8_t>(tilex);
+    spot->tiley = static_cast<uint8_t>(tiley);
     spot->visspot = &spotvis[tilex][tiley];
     spot->flags = FL_BONUS;
-    spot->itemnumber = static_cast<Uint8>(statinfo[type].type);
+    spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
 
     spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
@@ -537,9 +537,9 @@ char pint_xy[8][2] = { { -1, -1 }, { -1, 0 }, { -1, 1 },
                        { 1, -1 }, { 1, 0 }, { 1, 1 } };
 
 void PlaceReservedItemNearTile(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley)
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley)
 {
     char loop;
 
@@ -574,11 +574,11 @@ void PlaceReservedItemNearTile(
 */
 
 void PlaceItemType(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley)
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley)
 {
-    Sint16 type;
+    int16_t type;
     statobj_t* spot;
 
 //
@@ -604,11 +604,11 @@ void PlaceItemType(
 // place it
 //
     spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<Uint8>(tilex);
-    spot->tiley = static_cast<Uint8>(tiley);
+    spot->tilex = static_cast<uint8_t>(tilex);
+    spot->tiley = static_cast<uint8_t>(tiley);
     spot->visspot = &spotvis[tilex][tiley];
     spot->flags = FL_BONUS;
-    spot->itemnumber = static_cast<Uint8>(statinfo[type].type);
+    spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
 
     spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
@@ -624,9 +624,9 @@ void PlaceItemType(
 // PlaceItemNearTile()
 // --------------------------------------------------------------------------
 void PlaceItemNearTile(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley)
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley)
 {
 // [0] is the y offset
 // [1] is the x offset
@@ -663,15 +663,15 @@ void PlaceItemNearTile(
 //
 // --------------------------------------------------------------------------
 void ExplodeStatics(
-    Sint16 tilex,
-    Sint16 tiley)
+    int16_t tilex,
+    int16_t tiley)
 {
     if (!::is_ps()) {
         return;
     }
 
     statobj_t* spot;
-    Sint16 y_diff, x_diff;
+    int16_t y_diff, x_diff;
     boolean remove;
 
     for (spot = &statobjlist[0]; spot != laststatobj; spot++) {
@@ -747,12 +747,12 @@ Every time a door opens or closes the areabyplayer matrix gets recalculated.
 #define OPENTICS 300
 
 doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
-Sint16 doornum;
+int16_t doornum;
 
-Uint16 doorposition[MAXDOORS]; // leading edge of door 0=closed
+uint16_t doorposition[MAXDOORS]; // leading edge of door 0=closed
 // 0xffff = fully open
 
-Uint8 areaconnect[NUMAREAS][NUMAREAS];
+uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
 bool areabyplayer[NUMAREAS];
 
@@ -768,9 +768,9 @@ bool areabyplayer[NUMAREAS];
 */
 
 void RecursiveConnect(
-    Sint16 areanumber)
+    int16_t areanumber)
 {
-    Sint16 i;
+    int16_t i;
 
     for (i = 0; i < NUMAREAS; i++) {
         if (areaconnect[areanumber][i] && !areabyplayer[i]) {
@@ -824,13 +824,13 @@ void InitDoorList()
 */
 
 void SpawnDoor(
-    Sint16 tilex,
-    Sint16 tiley,
+    int16_t tilex,
+    int16_t tiley,
     boolean vertical,
     keytype lock,
     door_t type)
 {
-    Uint16* map[2];
+    uint16_t* map[2];
 
     map[0] = mapsegs[0] + farmapylookup[tiley] + tilex;
     map[1] = mapsegs[1] + farmapylookup[tiley] + tilex;
@@ -840,8 +840,8 @@ void SpawnDoor(
     }
 
     doorposition[doornum] = 0; // doors start out fully closed
-    lastdoorobj->tilex = static_cast<Uint8>(tilex);
-    lastdoorobj->tiley = static_cast<Uint8>(tiley);
+    lastdoorobj->tilex = static_cast<uint8_t>(tilex);
+    lastdoorobj->tiley = static_cast<uint8_t>(tiley);
     lastdoorobj->vertical = vertical;
     lastdoorobj->lock = lock;
     lastdoorobj->type = type;
@@ -863,7 +863,7 @@ void SpawnDoor(
 // make the door tile a special tile, and mark the adjacent tiles
 // for door sides
 //
-    tilemap[tilex][tiley] = static_cast<Uint8>(doornum | 0x80);
+    tilemap[tilex][tiley] = static_cast<uint8_t>(doornum | 0x80);
 
     if (vertical) {
         if (*(map[0] - mapwidth - 1) == TRANSPORTERTILE) {
@@ -891,14 +891,14 @@ void SpawnDoor(
 // CheckLinkedDoors
 // --------------------------------------------------------------------------
 void CheckLinkedDoors(
-    Sint16 door,
-    Sint16 door_dir)
+    int16_t door,
+    int16_t door_dir)
 {
-    static Sint16 LinkCheck = 0;
-    static Sint16 base_tilex;
-    static Sint16 base_tiley;
+    static int16_t LinkCheck = 0;
+    static int16_t base_tilex;
+    static int16_t base_tiley;
 
-    Sint16 tilex = doorobjlist[door].tilex,
+    int16_t tilex = doorobjlist[door].tilex,
            tiley = doorobjlist[door].tiley,
            next_tilex = 0,
            next_tiley = 0;
@@ -908,7 +908,7 @@ void CheckLinkedDoors(
 //      if ((*(mapsegs[1]+(farmapylookup[tiley]+tilex+1)) & 0xff00) == 0xf900)
     if (*(mapsegs[1] + (farmapylookup[tiley] + tilex))) {
 //              unsigned value=*(mapsegs[1]+(farmapylookup[tiley]+tilex+2));
-        Uint16 value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
+        uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
 
         // Define the next door in the link.
         //
@@ -932,7 +932,7 @@ void CheckLinkedDoors(
         ((next_tilex != base_tilex) || (next_tiley != base_tiley))
         )
     {
-        Sint16 door = tilemap[next_tilex][next_tiley] & ~0x80;
+        int16_t door = tilemap[next_tilex][next_tiley] & ~0x80;
 
         switch (door_dir) {
         case dr_opening:
@@ -960,7 +960,7 @@ void CheckLinkedDoors(
 */
 
 void OpenDoor(
-    Sint16 door)
+    int16_t door)
 {
 
     if (doorobjlist[door].action == dr_jammed) {
@@ -1005,9 +1005,9 @@ objtype* get_actor_near_door(
 */
 
 void CloseDoor(
-    Sint16 door)
+    int16_t door)
 {
-    Sint16 tilex, tiley, area;
+    int16_t tilex, tiley, area;
     objtype* check;
 
     if (doorobjlist[door].action == dr_jammed) {
@@ -1132,9 +1132,9 @@ char od_granted[] = "\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
 char od_operating[] = "\r\r    OPERATING DOOR.\r^XX";
 
 void OperateDoor(
-    Sint16 door)
+    int16_t door)
 {
-    Sint16 lock;
+    int16_t lock;
     boolean oneway = false;
 
 
@@ -1184,7 +1184,7 @@ void OperateDoor(
     // Check for possibly being locked
     //
 
-    lock = static_cast<Sint16>(doorobjlist[door].lock);
+    lock = static_cast<int16_t>(doorobjlist[door].lock);
     if (lock != kt_none) {
         if (!(gamestate.numkeys[lock - kt_red])) {
             ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
@@ -1246,7 +1246,7 @@ void OperateDoor(
 // BlockDoorOpen()
 // --------------------------------------------------------------------------
 void BlockDoorOpen(
-    Sint16 door)
+    int16_t door)
 {
     doorobjlist[door].action = dr_jammed;
     doorobjlist[door].ticcount = 0;
@@ -1295,12 +1295,12 @@ void TryBlastDoor(
 //
 // --------------------------------------------------------------------------
 void BlastNearDoors(
-    Sint16 tilex,
-    Sint16 tiley)
+    int16_t tilex,
+    int16_t tiley)
 {
-    Uint8 door;
+    uint8_t door;
     char* doorptr;
-    Sint16 x, y;
+    int16_t x, y;
 
     doorptr = (char*)&tilemap[tilex][tiley];
 
@@ -1344,7 +1344,7 @@ void TryDropPlasmaDetonator()
 {
 #define MAX_RANGE_DIST 2
     objtype* obj;
-    Sint16 distx, disty, distance;
+    int16_t distx, disty, distance;
 
 
     if (!gamestuff.level[gamestate.mapon + 1].locked) {
@@ -1398,7 +1398,7 @@ void TryDropPlasmaDetonator()
 */
 
 void DoorOpen(
-    Sint16 door)
+    int16_t door)
 {
     if ((doorobjlist[door].ticcount += tics) >= OPENTICS) {
         CloseDoor(door);
@@ -1412,13 +1412,13 @@ void DoorOpen(
 // --------------------------------------------------------------------------
 // TransformAreas()
 // --------------------------------------------------------------------------
-Sint16 TransformAreas(
+int16_t TransformAreas(
     char tilex,
     char tiley,
     char xform)
 {
-    Sint16 xofs = 0, yofs = 0;
-    Uint8 area1, area2;
+    int16_t xofs = 0, yofs = 0;
+    uint8_t area1, area2;
 
 // Is this walkway:  Horizontal?   Vertical?   Error?
 //
@@ -1464,10 +1464,10 @@ Sint16 TransformAreas(
 */
 
 void DoorOpening(
-    Sint16 door)
+    int16_t door)
 {
-    Sint16 area1;
-    Sint32 position;
+    int16_t area1;
+    int32_t position;
 
     position = doorposition[door];
     if (!position) {
@@ -1505,7 +1505,7 @@ void DoorOpening(
         actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
     }
 
-    doorposition[door] = static_cast<Uint16>(position);
+    doorposition[door] = static_cast<uint16_t>(position);
 }
 
 /*
@@ -1516,10 +1516,10 @@ void DoorOpening(
 ===============
 */
 void DoorClosing(
-    Sint16 door)
+    int16_t door)
 {
-    Sint32 position;
-    Sint16 tilex, tiley;
+    int32_t position;
+    int16_t tilex, tiley;
 
     tilex = doorobjlist[door].tilex;
     tiley = doorobjlist[door].tiley;
@@ -1574,7 +1574,7 @@ void DoorClosing(
 #endif
     }
 
-    doorposition[door] = static_cast<Uint16>(position);
+    doorposition[door] = static_cast<uint16_t>(position);
 }
 
 /*
@@ -1588,7 +1588,7 @@ void DoorClosing(
 */
 void MoveDoors()
 {
-    Sint16 door;
+    int16_t door;
 
     for (door = 0; door < doornum; door++) {
         switch (doorobjlist[door].action) {
@@ -1618,10 +1618,10 @@ void MoveDoors()
 =============================================================================
 */
 
-Uint16 pwallstate;
-Uint16 pwallpos; // amount a pushable wall has been moved (0-63)
-Uint16 pwallx = 0, pwally = 0;
-Sint16 pwalldir, pwalldist;
+uint16_t pwallstate;
+uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
+uint16_t pwallx = 0, pwally = 0;
+int16_t pwalldir, pwalldist;
 
 /*
 ===============
@@ -1632,11 +1632,11 @@ Sint16 pwalldir, pwalldist;
 */
 
 void PushWall(
-    Sint16 checkx,
-    Sint16 checky,
-    Sint16 dir)
+    int16_t checkx,
+    int16_t checky,
+    int16_t dir)
 {
-    Sint16 oldtile;
+    int16_t oldtile;
 
     if (pwallstate) {
         return;
@@ -1655,7 +1655,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx][checky - 1] = static_cast<Uint8>(oldtile);
+        tilemap[checkx][checky - 1] = static_cast<uint8_t>(oldtile);
         actorat[checkx][checky - 1] = reinterpret_cast<objtype*>(oldtile);
         break;
 
@@ -1664,7 +1664,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx + 1][checky] = static_cast<Uint8>(oldtile);
+        tilemap[checkx + 1][checky] = static_cast<uint8_t>(oldtile);
         actorat[checkx + 1][checky] = reinterpret_cast<objtype*>(oldtile);
         break;
 
@@ -1673,7 +1673,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx][checky + 1] = static_cast<Uint8>(oldtile);
+        tilemap[checkx][checky + 1] = static_cast<uint8_t>(oldtile);
         actorat[checkx][checky + 1] = reinterpret_cast<objtype*>(oldtile);
         break;
 
@@ -1682,7 +1682,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx - 1][checky] = static_cast<Uint8>(oldtile);
+        tilemap[checkx - 1][checky] = static_cast<uint8_t>(oldtile);
         actorat[checkx - 1][checky] = reinterpret_cast<objtype*>(oldtile);
         break;
     }
@@ -1709,7 +1709,7 @@ void PushWall(
 
 void MovePWalls()
 {
-    Sint16 oldblock, oldtile;
+    int16_t oldblock, oldtile;
 
     if (!pwallstate) {
         return;
@@ -1720,7 +1720,7 @@ void MovePWalls()
     pwallstate += tics * 4;
 
     if (pwallstate / 128 != oldblock) {
-        Uint16 areanumber;
+        uint16_t areanumber;
 
         pwalldist--;
 
@@ -1760,7 +1760,7 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx][pwally - 1] = static_cast<Uint8>(oldtile);
+                tilemap[pwallx][pwally - 1] = static_cast<uint8_t>(oldtile);
                 actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
                 break;
 
@@ -1771,7 +1771,7 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx + 1][pwally] = static_cast<Uint8>(oldtile);
+                tilemap[pwallx + 1][pwally] = static_cast<uint8_t>(oldtile);
                 actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
                 break;
 
@@ -1782,7 +1782,7 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx][pwally + 1] = static_cast<Uint8>(oldtile);
+                tilemap[pwallx][pwally + 1] = static_cast<uint8_t>(oldtile);
                 actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
                 break;
 
@@ -1793,12 +1793,12 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx - 1][pwally] = static_cast<Uint8>(oldtile);
+                tilemap[pwallx - 1][pwally] = static_cast<uint8_t>(oldtile);
                 actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
                 break;
             }
 
-            tilemap[pwallx][pwally] = static_cast<Uint8>(oldtile | 0xc0);
+            tilemap[pwallx][pwally] = static_cast<uint8_t>(oldtile | 0xc0);
         }
     }
 
@@ -1830,8 +1830,8 @@ void MovePWalls()
 // --------------------------------------------------------------------------
 void InitMsgCache(
     mCacheList* mList,
-    Uint16 listSize,
-    Uint16 infoSize)
+    uint16_t listSize,
+    uint16_t infoSize)
 {
     FreeMsgCache(mList, infoSize);
     memset(mList, 0, listSize);
@@ -1842,7 +1842,7 @@ void InitMsgCache(
 // --------------------------------------------------------------------------
 void FreeMsgCache(
     mCacheList* mList,
-    Uint16 infoSize)
+    uint16_t infoSize)
 {
     mCacheInfo* ci = mList->mInfo;
     char* ch_ptr;
@@ -1867,11 +1867,11 @@ extern char int_xx[];
 // ---------------------------------------------------------------------------
 void CacheMsg(
     mCacheInfo* ci,
-    Uint16 SegNum,
-    Uint16 MsgNum)
+    uint16_t SegNum,
+    uint16_t MsgNum)
 {
 //      char *Message, *EndOfMsg, *hint_buffer;
-//      Uint8 pos=0;
+//      uint8_t pos=0;
 
 // Alloc memory for message and cache-in seg
 //
@@ -1897,14 +1897,14 @@ void CacheMsg(
 //
 // RETURNS : Returns the length of the loaded message
 // ---------------------------------------------------------------------------
-Sint16 LoadMsg(
+int16_t LoadMsg(
     char* hint_buffer,
-    Uint16 SegNum,
-    Uint16 MsgNum,
-    Uint16 MaxMsgLen)
+    uint16_t SegNum,
+    uint16_t MsgNum,
+    uint16_t MaxMsgLen)
 {
     char* Message, * EndOfMsg;
-    Sint16 pos = 0;
+    int16_t pos = 0;
 
     CA_CacheGrChunk(SegNum);
     Message = static_cast<char*>(grsegs[SegNum]);
@@ -1966,7 +1966,7 @@ void CacheMsg(
     unsigned MsgNum)
 {
     char* Message, * EndOfMsg, * hint_buffer;
-    Uint8 pos = 0;
+    uint8_t pos = 0;
 
 // Alloc memory for message and cache-in seg
 //
@@ -2036,10 +2036,10 @@ void CacheMsg(
 // actorat[][] - Holds concession machine number (1 - MAXCONCESSIONS+1)
 // --------------------------------------------------------------------------
 void SpawnConcession(
-    Sint16 tilex,
-    Sint16 tiley,
-    Uint16 credits,
-    Uint16 machinetype)
+    int16_t tilex,
+    int16_t tiley,
+    uint16_t credits,
+    uint16_t machinetype)
 {
     con_mCacheInfo* ci = &ConHintList.cmInfo[ConHintList.NumMsgs];
 
@@ -2065,7 +2065,7 @@ void SpawnConcession(
         case 0xFC00: // Food Id
             ci->mInfo.local_val = credits & 0xff;
             ci->operate_cnt = 0;
-            ci->type = static_cast<Uint8>(machinetype);
+            ci->type = static_cast<uint8_t>(machinetype);
             break;
         }
     }
@@ -2119,8 +2119,8 @@ void CacheConcessionMsg()
 // --------------------------------------------------------------------------
 boolean ReuseMsg(
     mCacheInfo* ci,
-    Sint16 count,
-    Sint16 struct_size)
+    int16_t count,
+    int16_t struct_size)
 {
     char* scan_ch = (char*)ci;
     mCacheInfo* scan = (mCacheInfo*)(scan_ch - struct_size);
@@ -2159,7 +2159,7 @@ extern void writeTokenStr(
 char OutOrder[] = { "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX" };
 
 void OperateConcession(
-    Uint16 concession)
+    uint16_t concession)
 {
     con_mCacheInfo* ci;
     boolean ok = false;
@@ -2266,7 +2266,7 @@ void CheckSpawnEA()
 
     for (loop = 0; loop < NumEAWalls; loop++) {
 //              unsigned *map=mapsegs[0]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
-        Uint16* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
+        uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
 
         // Limit the number of aliens spawned by each outlet.
         //
@@ -2385,7 +2385,7 @@ void CheckSpawnGoldstern()
         //
 
         if (GoldsternInfo.flags == GS_COORDFOUND) {
-            Uint16 tilex, tiley;
+            uint16_t tilex, tiley;
 
             // See if we can spawn Dr. Goldstern...
 

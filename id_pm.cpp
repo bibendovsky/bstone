@@ -38,8 +38,8 @@ namespace {
 
 
 bstone::FileStream PageFile;
-Uint8* raw_data = NULL;
-Uint32* chunks_offsets = NULL;
+uint8_t* raw_data = NULL;
+uint32_t* chunks_offsets = NULL;
 
 
 } // namespace
@@ -54,15 +54,15 @@ static void open_page_file(
         PM_ERROR(PML_OPENPAGEFILE_OPEN);
     }
 
-    Sint64 file_length = PageFile.get_size();
+    int64_t file_length = PageFile.get_size();
 
     if (file_length > 4 * 1024 * 1024) {
         ::Quit("Page file is too large.");
     }
 
-    Sint32 file_length_32 = static_cast<Sint32>(file_length);
+    int32_t file_length_32 = static_cast<int32_t>(file_length);
 
-    raw_data = new Uint8[file_length_32 + PMPageSize];
+    raw_data = new uint8_t[file_length_32 + PMPageSize];
     std::uninitialized_fill_n(&raw_data[file_length], PMPageSize, 0);
 
     if (PageFile.read(raw_data, file_length_32) != file_length_32) {
@@ -75,7 +75,7 @@ static void open_page_file(
     PMSpriteStart = bstone::Endian::le(reader.read_u16());
     PMSoundStart = bstone::Endian::le(reader.read_u16());
 
-    chunks_offsets = reinterpret_cast<Uint32*>(&raw_data[6]);
+    chunks_offsets = reinterpret_cast<uint32_t*>(&raw_data[6]);
     bstone::Endian::lei(chunks_offsets, ChunksInFile + 1);
 }
 
@@ -106,7 +106,7 @@ void* PM_GetPage(
         PM_ERROR(PM_GETPAGE_BAD_PAGE);
     }
 
-    Uint32 offset = chunks_offsets[page_number];
+    uint32_t offset = chunks_offsets[page_number];
 
     if (offset == 0) {
         PM_ERROR(PM_GETPAGE_SPARSE_PAGE);

@@ -36,8 +36,8 @@ enum ShapeDrawMode {
 }; // enum ShapeDrawMode
 
 
-extern const Uint8* shadingtable;
-extern const Uint8* lightsource;
+extern const uint8_t* shadingtable;
+extern const uint8_t* lightsource;
 
 void R_DrawSLSColumn();
 void R_DrawLSColumn();
@@ -62,9 +62,9 @@ int normalshade;
 int normalshade_div = 1;
 int shade_max = 1;
 
-Sint16 nsd_table[] = { 1, 6, 3, 4, 1, 2 };
-Sint16 sm_table[] = { 36, 51, 62, 63, 18, 52 };
-Uint16* linecmds;
+int16_t nsd_table[] = { 1, 6, 3, 4, 1, 2 };
+int16_t sm_table[] = { 36, 51, 62, 63, 18, 52 };
+uint16_t* linecmds;
 
 
 void SetupScaling(
@@ -84,7 +84,7 @@ void SetupScaling(
 int dc_iscale;
 int dc_frac;
 int dc_source;
-Uint8* dc_seg;
+uint8_t* dc_seg;
 int dc_length;
 int dc_dest;
 int dc_x;
@@ -112,7 +112,7 @@ void generic_scale_masked_post(
 
     bounce *= vga_scale;
 
-    const Uint16* srcpost = linecmds;
+    const uint16_t* srcpost = linecmds;
     dc_iscale = (64 * 65536) / height;
     int screenstep = height << 10;
 
@@ -182,12 +182,12 @@ void generic_scale_shape(
     t_compshape* shape =
         static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
 
-    dc_seg = reinterpret_cast<Uint8*>(shape);
+    dc_seg = reinterpret_cast<uint8_t*>(shape);
 
-    Sint64 xscale = static_cast<Sint64>(height) << 12;
+    int64_t xscale = static_cast<int64_t>(height) << 12;
 
-    Sint64 xcent = (static_cast<Sint64>(xcenter) << 20) -
-                   (static_cast<Sint64>(height) << 17) + 0x80000;
+    int64_t xcent = (static_cast<int64_t>(xcenter) << 20) -
+                   (static_cast<int64_t>(height) << 17) + 0x80000;
 
     //
     // calculate edges of the shape
@@ -251,7 +251,7 @@ void generic_scale_shape(
             texturecolumn = swidth;
         }
 
-        linecmds = reinterpret_cast<Uint16*>(
+        linecmds = reinterpret_cast<uint16_t*>(
             &dc_seg[shape->dataofs[texturecolumn]]);
 
         generic_scale_masked_post(height / 4, draw_mode);
@@ -373,12 +373,12 @@ void MegaSimpleScaleShape(
     t_compshape* shape =
         static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
 
-    dc_seg = reinterpret_cast<Uint8*>(shape);
+    dc_seg = reinterpret_cast<uint8_t*>(shape);
 
-    Sint64 xscale = static_cast<Sint64>(height) << 14;
+    int64_t xscale = static_cast<int64_t>(height) << 14;
 
-    Sint64 xcent = (static_cast<Sint64>(xcenter) << 20) -
-                   (static_cast<Sint64>(height) << 19) + 0x80000;
+    int64_t xcent = (static_cast<int64_t>(xcenter) << 20) -
+                   (static_cast<int64_t>(height) << 19) + 0x80000;
 
     //
     // calculate edges of the shape
@@ -429,7 +429,7 @@ void MegaSimpleScaleShape(
             texturecolumn = swidth;
         }
 
-        linecmds = reinterpret_cast<Uint16*>(
+        linecmds = reinterpret_cast<uint16_t*>(
             &dc_seg[shape->dataofs[texturecolumn]]);
 
         generic_scale_masked_post(height, e_sdm_shaded);

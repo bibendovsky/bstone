@@ -53,7 +53,7 @@ Free Software Foundation, Inc.,
 // --------------------------------------------------------------------------
 
 
-#define MV_CNVT_CODE(c1, c2) ((Uint16)((c1) | (c2 << 8)))
+#define MV_CNVT_CODE(c1, c2) ((uint16_t)((c1) | (c2 << 8)))
 
 #define AN_PAUSE MV_CNVT_CODE('P', 'A')
 #define AN_SOUND MV_CNVT_CODE('S', 'D')

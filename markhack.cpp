@@ -34,7 +34,7 @@ extern int viewheight;
 extern int bufferofs;
 extern int centery;
 extern int postheight;
-extern const Uint8* shadingtable;
+extern const uint8_t* shadingtable;
 
 
 enum DrawMode {
@@ -69,8 +69,8 @@ static void generic_draw_post(
     }
 
     for (int h = 0; h < n; ++h) {
-        Uint8 pixel;
-        Uint8 pixel_index;
+        uint8_t pixel;
+        uint8_t pixel_index;
 
         // top half
 

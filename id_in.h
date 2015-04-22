@@ -268,7 +268,7 @@ void in_set_default_bindings();
 
 struct CursorInfo {
     boolean button0, button1, button2, button3;
-    Sint16 x, y;
+    int16_t x, y;
     Motion xaxis, yaxis;
     Direction dir;
 }; // struct  CursorInfo
@@ -289,18 +289,18 @@ struct KeyboardDef {
 }; // struct KeyboardDef
 
 struct JoystickDef {
-    Uint16 joyMinX;
-    Uint16 joyMinY;
-    Uint16 threshMinX;
-    Uint16 threshMinY;
-    Uint16 threshMaxX;
-    Uint16 threshMaxY;
-    Uint16 joyMaxX;
-    Uint16 joyMaxY;
-    Uint16 joyMultXL;
-    Uint16 joyMultYL;
-    Uint16 joyMultXH;
-    Uint16 joyMultYH;
+    uint16_t joyMinX;
+    uint16_t joyMinY;
+    uint16_t threshMinX;
+    uint16_t threshMinY;
+    uint16_t threshMaxX;
+    uint16_t threshMaxY;
+    uint16_t joyMaxX;
+    uint16_t joyMaxY;
+    uint16_t joyMultXL;
+    uint16_t joyMultYL;
+    uint16_t joyMultXH;
+    uint16_t joyMultYH;
 }; // struct JoystickDef
 
 
@@ -320,8 +320,8 @@ extern KeyboardDef KbdDefs;
 extern JoystickDef JoyDefs[];
 extern ControlType Controls[MaxPlayers];
 
-extern Uint8* DemoBuffer;
-extern Uint16 DemoOffset, DemoSize;
+extern uint8_t* DemoBuffer;
+extern uint16_t DemoOffset, DemoSize;
 
 // Function prototypes
 #define IN_KeyDown(code) (Keyboard[(code)])
@@ -334,24 +334,24 @@ IN_Default(boolean gotit, ControlType in),
 IN_SetKeyHook(void (*)()),
 IN_ClearKeysDown(),
 IN_ReadCursor(CursorInfo*),
-IN_ReadControl(Sint16, ControlInfo*),
-IN_SetControlType(Sint16, ControlType),
-IN_GetJoyAbs(Uint16 joy, Uint16 * xp, Uint16 * yp),
-IN_SetupJoy(Uint16 joy, Uint16 minx, Uint16 maxx,
-            Uint16 miny, Uint16 maxy),
+IN_ReadControl(int16_t, ControlInfo*),
+IN_SetControlType(int16_t, ControlType),
+IN_GetJoyAbs(uint16_t joy, uint16_t * xp, uint16_t * yp),
+IN_SetupJoy(uint16_t joy, uint16_t minx, uint16_t maxx,
+            uint16_t miny, uint16_t maxy),
 IN_StopDemo(), IN_FreeDemoBuffer(),
 IN_Ack(), IN_AckBack();
 extern boolean IN_UserInput(
-    Uint32 delay);
+    uint32_t delay);
 extern char IN_WaitForASCII();
 extern ScanCode IN_WaitForKey();
-extern Uint16 IN_GetJoyButtonsDB(
-    Uint16 joy);
-extern Uint8* IN_GetScanName(ScanCode);
+extern uint16_t IN_GetJoyButtonsDB(
+    uint16_t joy);
+extern uint8_t* IN_GetScanName(ScanCode);
 
 
-Uint8 IN_MouseButtons();
-Uint8 IN_JoyButtons();
+uint8_t IN_MouseButtons();
+uint8_t IN_JoyButtons();
 
 
 // BBi

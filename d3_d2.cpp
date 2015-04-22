@@ -49,11 +49,11 @@ extern int mr_xfrac;
 extern int mr_yfrac;
 extern int mr_dest;
 
-extern const Uint8* shadingtable;
-extern Uint8* vga_memory;
+extern const uint8_t* shadingtable;
+extern uint8_t* vga_memory;
 
 
-Uint8 planepics[8192]; // 4k of ceiling, 4k of floor
+uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
 
 
 static void generic_map_row(
@@ -73,9 +73,9 @@ static void generic_map_row(
         if (draw_options == DO_CEILING ||
             draw_options == DO_CEILING_AND_FLOORING)
         {
-            Uint8 ceiling_index = planepics[pics_index + 0];
+            uint8_t ceiling_index = planepics[pics_index + 0];
 
-            Uint8 ceiling_pixel =
+            uint8_t ceiling_pixel =
                 (shading_options == SO_DEFAULT) ?
                 shadingtable[ceiling_index] :
                 ceiling_index;
@@ -86,9 +86,9 @@ static void generic_map_row(
         if (draw_options == DO_FLOORING ||
             draw_options == DO_CEILING_AND_FLOORING)
         {
-            Uint8 flooring_index = planepics[pics_index + 1];
+            uint8_t flooring_index = planepics[pics_index + 1];
 
-            Uint8 flooring_pixel =
+            uint8_t flooring_pixel =
                 (shading_options == SO_DEFAULT) ?
                 shadingtable[flooring_index] :
                 flooring_index;

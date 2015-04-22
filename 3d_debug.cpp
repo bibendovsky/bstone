@@ -31,13 +31,13 @@ Free Software Foundation, Inc.,
 
 void VH_UpdateScreen();
 void TakeDamage(
-    Sint16 points,
+    int16_t points,
     objtype* attacker);
 void SetPlaneViewSize();
 void HealSelf(
-    Sint16 points);
+    int16_t points);
 void GiveWeapon(
-    Sint16 weapon);
+    int16_t weapon);
 void DrawScore();
 void SetPlaneViewSize();
 
@@ -71,7 +71,7 @@ void SetPlaneViewSize();
 
 boolean ForceLoadDefault = false;
 
-Sint16 DebugKeys();
+int16_t DebugKeys();
 
 /*
 =============================================================================
@@ -92,10 +92,10 @@ boolean PP_step = false;
 */
 void PicturePause()
 {
-    Sint16 i;
-    Uint8 p;
-    Uint16 x;
-    Uint8* dest, * src;
+    int16_t i;
+    uint8_t p;
+    uint16_t x;
+    uint8_t* dest, * src;
     memptr buffer;
 
 #if RESTART_PICTURE_PAUSE
@@ -138,7 +138,7 @@ void PicturePause()
 
     for (p = 0; p < 4; p++) {
         src = MK_FP(0xa000, displayofs);
-        dest = (Uint8*)buffer + p;
+        dest = (uint8_t*)buffer + p;
         VGAREADMAP(p);
         for (x = 0; x < 16000; x++, dest += 4) {
             *dest = *src++;
@@ -185,8 +185,8 @@ void PicturePause()
 }
 
 #endif
-Sint16 maporgx;
-Sint16 maporgy;
+int16_t maporgx;
+int16_t maporgy;
 
 void ViewMap();
 
@@ -201,7 +201,7 @@ void ViewMap();
 */
 void DebugMemory()
 {
-    Sint16 i, temp;
+    int16_t i, temp;
 
     CenterWindow(22, 15);
 
@@ -253,7 +253,7 @@ void DebugMemory()
     VW_UpdateScreen();
     IN_Ack();
 
-    temp = static_cast<Sint16>(bufferofs);
+    temp = static_cast<int16_t>(bufferofs);
     WindowW = 253;
     WindowH = 8;
     fontnumber = 2;
@@ -279,14 +279,14 @@ void DebugMemory()
 
 void CountObjects()
 {
-    Sint16 i, total, count, active, inactive, doors;
+    int16_t i, total, count, active, inactive, doors;
     objtype* obj;
 
     CenterWindow(16, 7);
     active = inactive = count = doors = 0;
 
     US_Print("Total statics :");
-    total = static_cast<Sint16>(laststatobj - &statobjlist[0]);
+    total = static_cast<int16_t>(laststatobj - &statobjlist[0]);
     US_PrintUnsigned(total);
 
     US_Print("\nIn use statics:");
@@ -353,7 +353,7 @@ void ShowMap()
 
     memcpy(&old_player, player, sizeof(objtype));
     player->angle = 90;
-    player->x = player->y = ((Sint32)32 << TILESHIFT) + (TILEGLOBAL / 2);
+    player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
     CenterWindow(20, 11);
 
@@ -383,15 +383,15 @@ void ShowMap()
 #pragma warn -pia
 void ShapeTest()
 {
-    extern Uint16 NumDigi;
-    extern Uint16* DigiList;
+    extern uint16_t NumDigi;
+    extern uint16_t* DigiList;
     static char buf[10];
 
     boolean done;
     ScanCode scan;
-    Sint16 i, j, k, x;
-    Sint16 sound;
-    Uint32 l;
+    int16_t i, j, k, x;
+    int16_t sound;
+    uint32_t l;
     memptr addr;
     PageListStruct* page;
 
@@ -447,7 +447,7 @@ void ShapeTest()
                 bufferofs += 32 * SCREENWIDTH;
                 postx = 128;
                 postwidth = 1;
-                postsource = ((Sint32)((Uint16)addr)) << 16;
+                postsource = ((int32_t)((uint16_t)addr)) << 16;
                 for (x = 0; x < 64; x++, postx++, postsource += 64) {
                     wallheight[postx] = 256;
                     FarScalePost();
@@ -472,15 +472,15 @@ void ShapeTest()
                 US_Print("\n Total pages: ");
                 US_PrintUnsigned(k);
             } else {
-                Uint8* dp = (Uint8*)MK_FP(addr, 0);
+                uint8_t* dp = (uint8_t*)MK_FP(addr, 0);
 
                 sound = i - PMSoundStart;
                 US_Print("\n Sound #");
                 US_PrintUnsigned(sound);
 
                 for (j = 0; j < page->length; j += 32) {
-                    Uint8 v = dp[j];
-                    Sint16 v2 = (Uint16)v;
+                    uint8_t v = dp[j];
+                    int16_t v2 = (uint16_t)v;
                     v2 -= 128;
                     v2 /= 4;
                     if (v2 < 0) {
@@ -561,9 +561,9 @@ void ShapeTest()
 //
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
-Uint16 IncRange(
-    Uint16 Value,
-    Uint16 MaxValue)
+uint16_t IncRange(
+    uint16_t Value,
+    uint16_t MaxValue)
 {
     if (Value == MaxValue) {
         Value = 0;
@@ -579,9 +579,9 @@ Uint16 IncRange(
 //
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
-Uint16 DecRange(
-    Uint16 Value,
-    Uint16 MaxValue)
+uint16_t DecRange(
+    uint16_t Value,
+    uint16_t MaxValue)
 {
     if (Value == 0) {
         Value = MaxValue;
@@ -608,11 +608,11 @@ char TestQuickSaveMsg[] = { "QUICK SAVE TEST\n ENTER COUNT:" };
 #endif
 
 
-Sint16 DebugKeys()
+int16_t DebugKeys()
 {
     char str[3];
     boolean esc;
-    Sint16 level, i;
+    int16_t level, i;
 
     if (Keyboard[sc_a]) {       // A = Show Actors on AutoMap
         ExtraRadarFlags ^= OV_ACTORS;
@@ -632,7 +632,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
         if (!esc) {
-            level = static_cast<Sint16>(atoi(str));
+            level = static_cast<int16_t>(atoi(str));
             if (level >= 0 && level <= 15) {
                 VW_ColorBorder(level);
             }
@@ -712,7 +712,7 @@ Sint16 DebugKeys()
         HealSelf(99);
         GiveToken(5);
 
-        const Sint16 n = (::is_ps() ? wp_bfg_cannon : wp_grenade);
+        const int16_t n = (::is_ps() ? wp_bfg_cannon : wp_grenade);
 
         for (i = wp_autocharge; i <= n; i++) {
             if (!(gamestate.weapons & (1 << i))) {
@@ -774,7 +774,7 @@ Sint16 DebugKeys()
         IN_Ack();
         return 1;
     } else if (Keyboard[sc_u]) { // Unlock All Floors
-        Sint16 i;
+        int16_t i;
         CenterWindow(24, 3);
         US_PrintCentered("Unlock All Floors!");
         VW_UpdateScreen();
@@ -792,7 +792,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
         if (!esc) {
-            level = static_cast<Sint16>(atoi(str));
+            level = static_cast<int16_t>(atoi(str));
             if (level >= 0 && level <= 8) {
                 extravbls = level;
             }
@@ -823,7 +823,7 @@ Sint16 DebugKeys()
         VW_UpdateScreen();
         esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
         if (!esc && str[0] != '\0') {
-            level = static_cast<Sint16>(atoi(str));
+            level = static_cast<int16_t>(atoi(str));
             if (level > -1 && level <= MAX_WARP_LEVEL) {
                 gamestate.lastmapon = gamestate.mapon;
                 gamestate.mapon = level - 1;
@@ -839,7 +839,7 @@ Sint16 DebugKeys()
         if (gamestate.flags & GS_DRAW_CEILING)
 #endif
         {
-            CeilingTile = DecRange(CeilingTile, static_cast<Uint16>(NUM_TILES - 1));
+            CeilingTile = DecRange(CeilingTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
         }
@@ -854,7 +854,7 @@ Sint16 DebugKeys()
         if (gamestate.flags & GS_DRAW_CEILING)
 #endif
         {
-            CeilingTile = IncRange(CeilingTile, static_cast<Uint16>(NUM_TILES - 1));
+            CeilingTile = IncRange(CeilingTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
         }
@@ -869,7 +869,7 @@ Sint16 DebugKeys()
         if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
         {
-            FloorTile = DecRange(FloorTile, static_cast<Uint16>(NUM_TILES - 1));
+            FloorTile = DecRange(FloorTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
         }
@@ -884,7 +884,7 @@ Sint16 DebugKeys()
         if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
         {
-            FloorTile = IncRange(FloorTile, static_cast<Uint16>(NUM_TILES - 1));
+            FloorTile = IncRange(FloorTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
         }
@@ -934,8 +934,8 @@ Sint16 DebugKeys()
 
 void OverheadRefresh()
 {
-    Uint16 x, y, endx, endy, sx, sy;
-    Uint16 tile;
+    uint16_t x, y, endx, endy, sx, sy;
+    uint16_t tile;
 
 
     endx = maporgx + VIEWTILEX;

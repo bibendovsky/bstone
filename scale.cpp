@@ -32,13 +32,13 @@ Free Software Foundation, Inc.,
 extern int dc_iscale;
 extern int dc_frac;
 extern int dc_source;
-extern Uint8* dc_seg;
+extern uint8_t* dc_seg;
 extern int dc_length;
 extern int dc_x;
 extern int dc_y;
 extern int dc_dy;
 
-extern const Uint8* shadingtable;
+extern const uint8_t* shadingtable;
 
 
 enum DrawMode {
@@ -52,12 +52,12 @@ static void generic_draw_column(
 {
     int fraction = dc_frac;
 
-    Uint8* source = dc_seg + dc_source;
+    uint8_t* source = dc_seg + dc_source;
     int base_offset = vl_get_offset(bufferofs) + dc_x;
 
     for (int i = 0; i < dc_length; ++i) {
-        Uint8 pixel;
-        Uint8 pixel_index = source[fraction >> 16];
+        uint8_t pixel;
+        uint8_t pixel_index = source[fraction >> 16];
 
         if (draw_mode == DRAW_LIGHTED) {
             pixel = shadingtable[pixel_index];
@@ -83,8 +83,8 @@ void R_DrawSLSColumn()
 
     for (int i = 0; i < dc_length; ++i) {
         int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
-        Uint8 pixel_index = vga_memory[offset];
-        Uint8 pixel = shadingtable[0x1000 | pixel_index];
+        uint8_t pixel_index = vga_memory[offset];
+        uint8_t pixel = shadingtable[0x1000 | pixel_index];
         vga_memory[offset] = pixel;
     }
 }

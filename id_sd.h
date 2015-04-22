@@ -38,8 +38,8 @@ struct objtype;
 struct doorobj_t;
 
 void alOut(
-    Uint8 n,
-    Uint8 b);
+    uint8_t n,
+    uint8_t b);
 
 #ifdef  __DEBUG__
 #define __DEBUG_SoundMgr__
@@ -66,8 +66,8 @@ enum SDSMode {
 }; // enum SDSMode
 
 struct SoundCommon {
-    Uint32 length;
-    Uint16 priority;
+    uint32_t length;
+    uint16_t priority;
 }; // struct SoundCommon
 
 //      PC Sound stuff
@@ -79,7 +79,7 @@ struct SoundCommon {
 
 struct PCSound {
     SoundCommon common;
-    Uint8 data[1];
+    uint8_t data[1];
 }; // struct PCSound
 
 //      Registers for the Sound Blaster card - needs to be offset by n0 (0x10,0x20,0x30,0x40,0x50,0x60)
@@ -120,10 +120,10 @@ struct PCSound {
 
 struct SampledSound {
     SoundCommon common;
-    Uint16 hertz;
-    Uint8 bits;
-    Uint8 reference;
-    Uint8 data[1];
+    uint16_t hertz;
+    uint8_t bits;
+    uint8_t reference;
+    uint8_t data[1];
 }; // struct SampledSound
 
 //      Registers for the AdLib card
@@ -146,29 +146,29 @@ struct SampledSound {
 #define alEffects 0xbd
 
 struct Instrument {
-    Uint8 mChar;
-    Uint8 cChar;
-    Uint8 mScale;
-    Uint8 cScale;
-    Uint8 mAttack;
-    Uint8 cAttack;
-    Uint8 mSus;
-    Uint8 cSus;
-    Uint8 mWave;
-    Uint8 cWave;
-    Uint8 nConn;
+    uint8_t mChar;
+    uint8_t cChar;
+    uint8_t mScale;
+    uint8_t cScale;
+    uint8_t mAttack;
+    uint8_t cAttack;
+    uint8_t mSus;
+    uint8_t cSus;
+    uint8_t mWave;
+    uint8_t cWave;
+    uint8_t nConn;
 
     // These are only for Muse - these bytes are really unused
-    Uint8 voice;
-    Uint8 mode;
-    Uint8 unused[3];
+    uint8_t voice;
+    uint8_t mode;
+    uint8_t unused[3];
 }; // struct Instrument
 
 struct AdLibSound {
     SoundCommon common;
     Instrument inst;
-    Uint8 block;
-    Uint8 data[1];
+    uint8_t block;
+    uint8_t data[1];
 }; // struct AdLibSound
 
 //
@@ -193,12 +193,12 @@ struct AdLibSound {
 
 #if 1
 struct MusicGroup {
-    Uint16 length;
-    Uint16 values[1];
+    uint16_t length;
+    uint16_t values[1];
 }; // struct MusicGroup
 #else
 typedef struct  {
-    Uint16 flags,
+    uint16_t flags,
            count,
            offsets[1];
 } MusicGroup;
@@ -206,14 +206,14 @@ typedef struct  {
 
 struct ActiveTrack {
     // This part needs to be set up by the user
-    Uint16 mood;
-    Uint16* moods[sqMaxMoods];
+    uint16_t mood;
+    uint16_t* moods[sqMaxMoods];
 
     // The rest is set up by the code
     Instrument inst;
     boolean percussive;
-    Uint16* seq;
-    Uint32 nextevent;
+    uint16_t* seq;
+    uint32_t nextevent;
 }; // struct ActiveTrack
 
 #define sqmode_Normal 0
@@ -233,8 +233,8 @@ extern SDMode SoundMode;
 extern SDSMode DigiMode;
 extern SMMode MusicMode;
 extern boolean DigiPlaying;
-extern Sint16 DigiMap[];
-extern volatile Uint32 TimeCount; // Global time in ticks
+extern int16_t DigiMap[];
+extern volatile uint32_t TimeCount; // Global time in ticks
 
 extern boolean sqActive;
 extern boolean sqPlayedOnce;
@@ -244,12 +244,12 @@ extern void SD_Startup(),
 SD_Shutdown(),
 SD_Default(boolean gotit, SDMode sd, SMMode sm),
 
-SD_PositionSound(Sint16 leftvol, Sint16 rightvol);
+SD_PositionSound(int16_t leftvol, int16_t rightvol);
 extern boolean SD_PlaySound(
     int sound);
 extern void SD_SetPosition(
-    Sint16 leftvol,
-    Sint16 rightvol),
+    int16_t leftvol,
+    int16_t rightvol),
 SD_StopSound(),
 SD_WaitSoundDone(),
 SD_StartMusic(int index),
@@ -264,7 +264,7 @@ SD_SetMusicMode(SMMode mode);
 bool SD_SoundPlaying();
 
 extern void SD_SetDigiDevice(SDSMode),
-SD_PlayDigitized(Uint16 which, Sint16 leftpos, Sint16 rightpos),
+SD_PlayDigitized(uint16_t which, int16_t leftpos, int16_t rightpos),
 SD_StopDigitized(),
 SD_Poll();
 

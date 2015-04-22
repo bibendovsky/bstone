@@ -64,15 +64,15 @@ void ConnectBarriers();
 void FreeMusic();
 void ClearMemory();
 void CA_CacheScreen(
-    Sint16 chunk);
+    int16_t chunk);
 void VH_UpdateScreen();
 void PlayDemo(
-    Sint16 demonumber);
+    int16_t demonumber);
 void DrawHighScores();
 void freed_main();
 void PreloadUpdate(
-    Uint16 current,
-    Uint16 total);
+    uint16_t current,
+    uint16_t total);
 void OpenAudioFile();
 
 
@@ -96,7 +96,7 @@ bstone::ClArgs g_args;
 =============================================================================
 */
 
-extern Sint16 pickquick;
+extern int16_t pickquick;
 
 
 void DrawCreditsPage();
@@ -111,7 +111,7 @@ const char* MainStrs[] = {
     nil
 };
 
-Sint16 starting_episode, starting_level, starting_difficulty;
+int16_t starting_episode, starting_level, starting_difficulty;
 
 char destPath[MAX_DEST_PATH_LEN + 1];
 char tempPath[MAX_DEST_PATH_LEN + 15];
@@ -126,12 +126,12 @@ void InitPlaytemp();
 char QuitMsg[] = { "Unit: $%02x Error: $%02x" };
 
 #ifdef CEILING_FLOOR_COLORS
-Uint16 TopColor, BottomColor;
+uint16_t TopColor, BottomColor;
 #endif
 
 boolean nospr;
 
-Sint16 dirangle[9] = { 0, ANGLES / 8, 2 * ANGLES / 8, 3 * ANGLES / 8, 4 * ANGLES / 8, 5 * ANGLES / 8, 6 * ANGLES / 8, 7 * ANGLES / 8, ANGLES };
+int16_t dirangle[9] = { 0, ANGLES / 8, 2 * ANGLES / 8, 3 * ANGLES / 8, 4 * ANGLES / 8, 5 * ANGLES / 8, 6 * ANGLES / 8, 7 * ANGLES / 8, ANGLES };
 
 //
 // proejection variables
@@ -149,14 +149,14 @@ int minheightdiv;
 
 
 boolean startgame, loadedgame;
-Sint16 mouseadjustment;
+int16_t mouseadjustment;
 
 const std::string g_config_file_name = "bstone_config";
 
-Sint16 view_xl, view_xh, view_yl, view_yh;
+int16_t view_xl, view_xh, view_yl, view_yh;
 
 #if IN_DEVELOPMENT
-Uint16 democount = 0, jim = 0;
+uint16_t democount = 0, jim = 0;
 #endif
 
 static const bool k_no_wall_hit_sound_default = false;
@@ -3924,7 +3924,7 @@ unsigned mspeed;
 
 void CalcSpeedRating()
 {
-    Sint16 loop;
+    int16_t loop;
 
     for (loop = 0; loop < 10; loop++) {
         ThreeDRefresh();
@@ -5775,12 +5775,12 @@ void initialize_gfxv_contants()
 
 void InitSmartSpeedAnim(
     objtype* obj,
-    Uint16 ShapeNum,
-    Uint8 StartOfs,
-    Uint8 MaxOfs,
+    uint16_t ShapeNum,
+    uint8_t StartOfs,
+    uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir,
-    Uint16 Delay)
+    uint16_t Delay)
 {
     ::InitAnim(
         obj,
@@ -5795,9 +5795,9 @@ void InitSmartSpeedAnim(
 
 void InitSmartAnim(
     objtype* obj,
-    Uint16 ShapeNum,
-    Uint8 StartOfs,
-    Uint8 MaxOfs,
+    uint16_t ShapeNum,
+    uint8_t StartOfs,
+    uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir)
 {
@@ -5894,13 +5894,13 @@ void ReadConfig()
     SDSMode sds = sds_Off;
 
     bool is_succeed = true;
-    Uint16 flags = gamestate.flags;
+    uint16_t flags = gamestate.flags;
     MakeDestPath(g_config_file_name.c_str());
 
     bstone::FileStream stream(tempPath);
 
     if (stream.is_open()) {
-        Uint32 checksum = 0;
+        uint32_t checksum = 0;
         bstone::BinaryReader reader(&stream);
 
         try {
@@ -5931,7 +5931,7 @@ void ReadConfig()
 
             deserialize_field(in_bindings, reader, checksum);
 
-            Sint16 dummy_viewsize;
+            int16_t dummy_viewsize;
             deserialize_field(dummy_viewsize, reader, checksum);
 
             deserialize_field(mouseadjustment, reader, checksum);
@@ -5954,7 +5954,7 @@ void ReadConfig()
         }
 
         if (is_succeed) {
-            Uint32 saved_checksum = 0;
+            uint32_t saved_checksum = 0;
             reader.read(saved_checksum);
             bstone::Endian::lei(saved_checksum);
 
@@ -6111,7 +6111,7 @@ void WriteConfig()
         return;
     }
 
-    Uint32 checksum = 0;
+    uint32_t checksum = 0;
     bstone::BinaryWriter writer(&stream);
 
     for (int i = 0; i < MaxScores; ++i) {
@@ -6141,7 +6141,7 @@ void WriteConfig()
 
     serialize_field(in_bindings, writer, checksum);
 
-    Sint16 dummy_viewsize = viewsize;
+    int16_t dummy_viewsize = viewsize;
     serialize_field(dummy_viewsize, writer, checksum);
 
     serialize_field(mouseadjustment, writer, checksum);
@@ -6175,10 +6175,10 @@ void WriteConfig()
 
 boolean ShowQuickMsg;
 void NewGame(
-    Sint16 difficulty,
-    Sint16 episode)
+    int16_t difficulty,
+    int16_t episode)
 {
-    Uint16 oldf = gamestate.flags, loop;
+    uint16_t oldf = gamestate.flags, loop;
 
     InitPlaytemp();
     playstate = ex_stillplaying;
@@ -6278,10 +6278,10 @@ void InitPlaytemp()
 // --------------------------------------------------------------------------
 // DoChecksum()
 // --------------------------------------------------------------------------
-Sint32 DoChecksum(
-    const Uint8* source,
+int32_t DoChecksum(
+    const uint8_t* source,
     int size,
-    Sint32 checksum)
+    int32_t checksum)
 {
     for (int i = 0; i < size - 1; ++i) {
         checksum += source[i] ^ source[i + 1];
@@ -6306,7 +6306,7 @@ int FindChunk(
             break;
         }
 
-        Sint32 chunk_size = 0;
+        int32_t chunk_size = 0;
 
         if (stream->read(&chunk_size, 4) != 4) {
             break;
@@ -6340,7 +6340,7 @@ int NextChunk(
         is_succeed = (stream->read(name_buffer, 4) == 4);
     }
 
-    Sint32 chunk_size = 0;
+    int32_t chunk_size = 0;
 
     if (is_succeed) {
         is_succeed = (stream->read(&chunk_size, 4) == 4);
@@ -6366,8 +6366,8 @@ bool LoadLevel(
 
     boolean oldloaded = loadedgame;
 
-    extern Sint16 nsd_table[];
-    extern Sint16 sm_table[];
+    extern int16_t nsd_table[];
+    extern int16_t sm_table[];
 
     WindowY = 181;
 
@@ -6403,7 +6403,7 @@ bool LoadLevel(
     //
 
     bool is_succeed = true;
-    Uint32 checksum = 0;
+    uint32_t checksum = 0;
 
     loadedgame = true;
     ::SetupGameLevel();
@@ -6416,7 +6416,7 @@ bool LoadLevel(
 
         for (int i = 0; i < MAPSIZE; ++i) {
             for (int j = 0; j < MAPSIZE; ++j) {
-                Sint32 value = 0;
+                int32_t value = 0;
                 ::deserialize_field(value, reader, checksum);
 
                 if (value < 0) {
@@ -6433,7 +6433,7 @@ bool LoadLevel(
         // Restore 'save game' actors
         //
 
-        Sint32 actor_count = 0;
+        int32_t actor_count = 0;
         ::deserialize_field(actor_count, reader, checksum);
 
         if (actor_count < 1 || actor_count >= MAXACTORS) {
@@ -6462,7 +6462,7 @@ bool LoadLevel(
         }
 #endif
 
-        for (Sint32 i = 1; i < actor_count; ++i) {
+        for (int32_t i = 1; i < actor_count; ++i) {
             ::GetNewActor();
             new_actor->deserialize(reader, checksum);
             actorat[new_actor->tilex][new_actor->tiley] = new_actor;
@@ -6500,7 +6500,7 @@ bool LoadLevel(
         // Read all sorts of stuff...
         //
 
-        Sint32 laststatobj_index = 0;
+        int32_t laststatobj_index = 0;
         ::deserialize_field(laststatobj_index, reader, checksum);
 
         if (laststatobj_index < 0) {
@@ -6550,7 +6550,7 @@ bool LoadLevel(
     // Read and evaluate checksum
     //
     if (is_succeed) {
-        Uint32 saved_checksum = 0;
+        uint32_t saved_checksum = 0;
         reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
 
@@ -6558,12 +6558,12 @@ bool LoadLevel(
     }
 
     if (!is_succeed) {
-        Sint16 old_wx = WindowX;
-        Sint16 old_wy = WindowY;
-        Sint16 old_ww = WindowW;
-        Sint16 old_wh = WindowH;
-        Sint16 old_px = px;
-        Sint16 old_py = py;
+        int16_t old_wx = WindowX;
+        int16_t old_wy = WindowY;
+        int16_t old_ww = WindowW;
+        int16_t old_wh = WindowH;
+        int16_t old_px = px;
+        int16_t old_py = py;
 
         WindowX = 0;
         WindowY = 16;
@@ -6614,7 +6614,7 @@ bool SaveLevel(
 
     // Make sure floor stats are saved!
     //
-    Sint16 oldmapon = gamestate.mapon;
+    int16_t oldmapon = gamestate.mapon;
     gamestate.mapon = gamestate.lastmapon;
     ::ShowStats(0, 0, ss_justcalc,
                 &gamestuff.level[gamestate.mapon].stats);
@@ -6641,8 +6641,8 @@ bool SaveLevel(
     // leave four bytes for chunk size
     g_playtemp.skip(4);
 
-    Uint32 checksum = 0;
-    Sint64 beg_offset = g_playtemp.get_position();
+    uint32_t checksum = 0;
+    int64_t beg_offset = g_playtemp.get_position();
 
     bstone::BinaryWriter writer(&g_playtemp);
 
@@ -6654,13 +6654,13 @@ bool SaveLevel(
 
     for (int i = 0; i < MAPSIZE; ++i) {
         for (int j = 0; j < MAPSIZE; ++j) {
-            Sint32 s_value;
+            int32_t s_value;
 
             if (actorat[i][j] >= objlist) {
-                s_value = -static_cast<Sint32>(
+                s_value = -static_cast<int32_t>(
                     actorat[i][j] - objlist);
             } else {
-                s_value = static_cast<Sint32>(
+                s_value = static_cast<int32_t>(
                     reinterpret_cast<size_t>(actorat[i][j]));
             }
 
@@ -6675,7 +6675,7 @@ bool SaveLevel(
     // objlist
     //
 
-    Sint32 actor_count = 0;
+    int32_t actor_count = 0;
     const objtype* actor = NULL;
 
     for (actor = player; actor != NULL; actor = actor->next) {
@@ -6692,8 +6692,8 @@ bool SaveLevel(
     // laststatobj
     //
 
-    Sint32 laststatobj_index =
-        static_cast<Sint32>(laststatobj - statobjlist);
+    int32_t laststatobj_index =
+        static_cast<int32_t>(laststatobj - statobjlist);
 
     ::serialize_field(laststatobj_index, writer, checksum);
 
@@ -6742,8 +6742,8 @@ bool SaveLevel(
     //
     writer.write(bstone::Endian::le(checksum));
 
-    Sint64 end_offset = g_playtemp.get_position();
-    Sint32 chunk_size = static_cast<Sint32>(end_offset - beg_offset);
+    int64_t end_offset = g_playtemp.get_position();
+    int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
 
     // Write chunk size, set file size, and close file
     //
@@ -6768,7 +6768,7 @@ int DeleteChunk(
     int chunk_size = ::FindChunk(&stream, chunk_name);
 
     if (chunk_size > 0) {
-        Sint64 offset = stream.get_position() - 8;
+        int64_t offset = stream.get_position() - 8;
         int count = chunk_size + 8;
 
         stream.remove_block(offset, count);
@@ -6818,7 +6818,7 @@ bool LoadTheGame(
         is_succeed = (::FindChunk(stream, "HEAD") != 0);
     }
 
-    Uint32 checksum = 0;
+    uint32_t checksum = 0;
     bstone::BinaryReader reader(stream);
 
     if (is_succeed) {
@@ -6831,7 +6831,7 @@ bool LoadTheGame(
     }
 
     if (is_succeed) {
-        Uint32 saved_checksum = 0;
+        uint32_t saved_checksum = 0;
         reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
         is_succeed = (saved_checksum == checksum);
@@ -6872,12 +6872,12 @@ bool LoadTheGame(
         g_playtemp.set_position(0);
 
         if (show_error_message) {
-            Sint16 old_wx = WindowX;
-            Sint16 old_wy = WindowY;
-            Sint16 old_ww = WindowW;
-            Sint16 old_wh = WindowH;
-            Sint16 old_px = px;
-            Sint16 old_py = py;
+            int16_t old_wx = WindowX;
+            int16_t old_wy = WindowY;
+            int16_t old_ww = WindowW;
+            int16_t old_wh = WindowH;
+            int16_t old_px = px;
+            int16_t old_py = py;
 
             WindowX = 0;
             WindowY = 16;
@@ -6916,7 +6916,7 @@ bool SaveTheGame(
 {
     bool is_succeed = true;
 
-    Sint32 cksize;
+    int32_t cksize;
 
     // Save current level -- saves it into PLAYTEMP.
     //
@@ -6924,7 +6924,7 @@ bool SaveTheGame(
 
     // Write VERSion chunk
     //
-    cksize = static_cast<Sint32>(SavegameInfoText.size());
+    cksize = static_cast<int32_t>(SavegameInfoText.size());
     is_succeed &= stream->write("VERS", 4);
     is_succeed &= stream->write(&cksize, 4);
     is_succeed &= stream->write(SavegameInfoText.c_str(), cksize);
@@ -6933,7 +6933,7 @@ bool SaveTheGame(
     //
     std::vector<char> desc_buffer(description.begin(), description.end());
     desc_buffer.resize(GAME_DESCRIPTION_LEN + 1);
-    cksize = static_cast<Sint32>(desc_buffer.size());
+    cksize = static_cast<int32_t>(desc_buffer.size());
     is_succeed &= stream->write("DESC", 4);
     is_succeed &= stream->write(&cksize, 4);
     is_succeed &= stream->write(&desc_buffer[0], cksize);
@@ -6946,10 +6946,10 @@ bool SaveTheGame(
     // leave four bytes for chunk size
     is_succeed &= (stream->skip(4) >= 0);
 
-    Uint32 checksum = 0;
+    uint32_t checksum = 0;
     bstone::BinaryWriter writer(stream);
 
-    Sint64 beg_position = stream->get_position();
+    int64_t beg_position = stream->get_position();
 
     is_succeed &= (beg_position >= 0);
 
@@ -6964,11 +6964,11 @@ bool SaveTheGame(
 
     is_succeed &= writer.write(bstone::Endian::le(checksum));
 
-    Sint64 end_position = stream->get_position();
+    int64_t end_position = stream->get_position();
     is_succeed &= (end_position >= 0);
 
     if (is_succeed) {
-        cksize = static_cast<Sint32>(end_position - beg_position);
+        cksize = static_cast<int32_t>(end_position - beg_position);
 
         stream->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
         stream->write(&cksize, 4);
@@ -6998,7 +6998,7 @@ bool LevelInPlaytemp(
 // CheckDiskSpace()
 // --------------------------------------------------------------------------
 boolean CheckDiskSpace(
-    Sint32 needed,
+    int32_t needed,
     const char* text,
     cds_io_type io_type)
 {
@@ -7015,8 +7015,8 @@ void CleanUpDoors_N_Actors()
     int x;
     int y;
     objtype* actor;
-    Uint8 tile;
-    Uint16 door;
+    uint8_t tile;
+    uint16_t door;
 
     for (y = 0; y < mapheight; ++y) {
         for (x = 0; x < mapwidth; ++x) {
@@ -7026,7 +7026,7 @@ void CleanUpDoors_N_Actors()
                 // Found a door
 
                 actor = actorat[y][x];
-                Uint16 actor_u16 = static_cast<Uint16>(
+                uint16_t actor_u16 = static_cast<uint16_t>(
                     reinterpret_cast<size_t>(actor));
 
                 if (ui16_to_actor(actor_u16) != NULL) {
@@ -7103,17 +7103,17 @@ void CycleColors()
                                           { 10, 0, 0xf6, 0xf9 },
                                           { 12, 0, 0xfa, 0xfe }, };
 
-    Uint8 loop, cbuffer[CRNG_SIZE][3];
+    uint8_t loop, cbuffer[CRNG_SIZE][3];
     boolean changes = false;
 
     for (loop = 0; loop < NUM_RANGES; loop++) {
         CycleInfo* c = &crng[loop];
 
         if (tics >= c->delay_count) {
-            Uint8 temp[3], first, last, numregs;
+            uint8_t temp[3], first, last, numregs;
 
             if (!changes) {
-                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (Uint8*)cbuffer);
+                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
                 changes = true;
             }
 
@@ -7127,12 +7127,12 @@ void CycleColors()
 
             c->delay_count = c->init_delay;
         } else {
-            c->delay_count -= static_cast<Uint8>(tics);
+            c->delay_count -= static_cast<uint8_t>(tics);
         }
     }
 
     if (changes) {
-        VL_SetPalette(CRNG_LOW, CRNG_SIZE, (Uint8*)cbuffer);
+        VL_SetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
     } else {
         VW_WaitVBL(1);
     }
@@ -7177,7 +7177,7 @@ void ShutdownId()
 */
 
 void CalcProjection(
-    Sint32 focal)
+    int32_t focal)
 {
     focallength = focal;
     double facedist = focal + MINDIST;
@@ -7194,7 +7194,7 @@ void CalcProjection(
     // the heightbuffer.  The pixel height is height>>2
     //
     heightnumerator = (TILEGLOBAL * scale) >> 6;
-    minheightdiv = static_cast<Sint16>((heightnumerator / 0x7FFF) + 1);
+    minheightdiv = static_cast<int16_t>((heightnumerator / 0x7FFF) + 1);
 
     //
     // calculate the angle offset from view angle of each pixel's ray
@@ -7364,11 +7364,11 @@ void Quit(
 void DemoLoop()
 {
 #if DEMOS_ENABLED
-    Sint16 LastDemo = 0;
+    int16_t LastDemo = 0;
 #endif // DEMOS_ENABLED
 
     boolean breakit;
-    Uint16 old_bufferofs;
+    uint16_t old_bufferofs;
 
     while (true) {
         playstate = ex_title;
@@ -7408,12 +7408,12 @@ void DemoLoop()
             }
 
             CA_CacheGrChunk(TITLEPALETTE);
-            old_bufferofs = static_cast<Uint16>(bufferofs);
+            old_bufferofs = static_cast<uint16_t>(bufferofs);
             bufferofs = displayofs;
             VW_Bar(0, 0, 320, 200, 0);
             bufferofs = old_bufferofs;
-            VL_SetPalette(0, 256, reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]));
-            VL_SetPaletteIntensity(0, 255, reinterpret_cast<const Uint8*>(grsegs[TITLEPALETTE]), 0);
+            VL_SetPalette(0, 256, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]));
+            VL_SetPaletteIntensity(0, 255, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]), 0);
 
             if (::is_ps()) {
                 fontnumber = 2;
@@ -7427,7 +7427,7 @@ void DemoLoop()
             }
 
             VW_UpdateScreen();
-            VL_FadeIn(0, 255, reinterpret_cast<Uint8*>(grsegs[TITLEPALETTE]), 30);
+            VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(grsegs[TITLEPALETTE]), 30);
             UNCACHEGRCHUNK(TITLEPALETTE);
 
             if (::is_ps()) {
@@ -7607,9 +7607,9 @@ extern void JM_FREE_END();
 
 // char    *nosprtxt[] = {"nospr",nil};
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-Sint16 starting_episode = 0, starting_level = 0, starting_difficulty = 2;
+int16_t starting_episode = 0, starting_level = 0, starting_difficulty = 2;
 #endif
-Sint16 debug_value = 0;
+int16_t debug_value = 0;
 
 int main(
     int argc,
@@ -7700,7 +7700,7 @@ void InitDestPath()
         size_t len;
         struct _finddata_t fd;
         intptr_t fd_handle;
-        Sint16 fd_result;
+        int16_t fd_result;
         boolean fd_found = false;
 
         len = strlen(env_value);
@@ -7760,7 +7760,7 @@ void MakeDestPath(
 // -------------------------------------------------------------------------
 void ShowMemory()
 {
-    Sint32 psize, size;
+    int32_t psize, size;
 
     size = MM_TotalFree();
     psize = MM_LargestAvail();
@@ -7773,7 +7773,7 @@ void ShowMemory()
 // BBi
 void objtype::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -7782,7 +7782,7 @@ void objtype::serialize(
     ::serialize_field(ticcount, writer, checksum);
     ::serialize_field(obclass, writer, checksum);
 
-    Sint32 state_index = static_cast<Sint32>(::get_state_index(state));
+    int32_t state_index = static_cast<int32_t>(::get_state_index(state));
     ::serialize_field(state_index, writer, checksum);
 
     ::serialize_field(flags, writer, checksum);
@@ -7811,7 +7811,7 @@ void objtype::serialize(
 
 void objtype::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -7820,7 +7820,7 @@ void objtype::deserialize(
     ::deserialize_field(ticcount, reader, checksum);
     ::deserialize_field(obclass, reader, checksum);
 
-    Sint32 state_index = 0;
+    int32_t state_index = 0;
     ::deserialize_field(state_index, reader, checksum);
     state = states_list[state_index];
 
@@ -7850,13 +7850,13 @@ void objtype::deserialize(
 
 void statobj_t::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
     ::serialize_field(areanumber, writer, checksum);
 
-    Sint32 vis_index = static_cast<Sint32>(visspot - &spotvis[0][0]);
+    int32_t vis_index = static_cast<int32_t>(visspot - &spotvis[0][0]);
     ::serialize_field(vis_index, writer, checksum);
 
     ::serialize_field(shapenum, writer, checksum);
@@ -7867,13 +7867,13 @@ void statobj_t::serialize(
 
 void statobj_t::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
     ::deserialize_field(areanumber, reader, checksum);
 
-    Sint32 vis_index = 0;
+    int32_t vis_index = 0;
     ::deserialize_field(vis_index, reader, checksum);
 
     if (vis_index < 0) {
@@ -7890,7 +7890,7 @@ void statobj_t::deserialize(
 
 void doorobj_t::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -7905,7 +7905,7 @@ void doorobj_t::serialize(
 
 void doorobj_t::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -7920,7 +7920,7 @@ void doorobj_t::deserialize(
 
 void mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(local_val, writer, checksum);
     ::serialize_field(global_val, writer, checksum);
@@ -7928,7 +7928,7 @@ void mCacheInfo::serialize(
 
 void mCacheInfo::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(local_val, reader, checksum);
     ::deserialize_field(global_val, reader, checksum);
@@ -7937,7 +7937,7 @@ void mCacheInfo::deserialize(
 
 void con_mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     mInfo.serialize(writer, checksum);
     ::serialize_field(type, writer, checksum);
@@ -7946,7 +7946,7 @@ void con_mCacheInfo::serialize(
 
 void con_mCacheInfo::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     mInfo.deserialize(reader, checksum);
     ::deserialize_field(type, reader, checksum);
@@ -7955,7 +7955,7 @@ void con_mCacheInfo::deserialize(
 
 void concession_t::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(NumMsgs, writer, checksum);
 
@@ -7966,7 +7966,7 @@ void concession_t::serialize(
 
 void concession_t::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(NumMsgs, reader, checksum);
 
@@ -7977,7 +7977,7 @@ void concession_t::deserialize(
 
 void eaWallInfo::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -7987,7 +7987,7 @@ void eaWallInfo::serialize(
 
 void eaWallInfo::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -7997,7 +7997,7 @@ void eaWallInfo::deserialize(
 
 void GoldsternInfo_t::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(LastIndex, writer, checksum);
     ::serialize_field(SpawnCnt, writer, checksum);
@@ -8008,7 +8008,7 @@ void GoldsternInfo_t::serialize(
 
 void GoldsternInfo_t::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(LastIndex, reader, checksum);
     ::deserialize_field(SpawnCnt, reader, checksum);
@@ -8019,7 +8019,7 @@ void GoldsternInfo_t::deserialize(
 
 void tilecoord_t::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -8027,7 +8027,7 @@ void tilecoord_t::serialize(
 
 void tilecoord_t::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -8035,7 +8035,7 @@ void tilecoord_t::deserialize(
 
 void barrier_type::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(level, writer, checksum);
     coord.serialize(writer, checksum);
@@ -8044,7 +8044,7 @@ void barrier_type::serialize(
 
 void barrier_type::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(level, reader, checksum);
     coord.deserialize(reader, checksum);
@@ -8053,7 +8053,7 @@ void barrier_type::deserialize(
 
 void statsInfoType::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(total_points, writer, checksum);
     ::serialize_field(accum_points, writer, checksum);
@@ -8066,7 +8066,7 @@ void statsInfoType::serialize(
 
 void statsInfoType::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(total_points, reader, checksum);
     ::deserialize_field(accum_points, reader, checksum);
@@ -8079,7 +8079,7 @@ void statsInfoType::deserialize(
 
 void levelinfo::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(bonus_queue, writer, checksum);
     ::serialize_field(bonus_shown, writer, checksum);
@@ -8092,7 +8092,7 @@ void levelinfo::serialize(
 
 void levelinfo::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(bonus_queue, reader, checksum);
     ::deserialize_field(bonus_shown, reader, checksum);
@@ -8125,7 +8125,7 @@ void fargametype::clear()
 
 void fargametype::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         old_levelinfo[i].serialize(writer, checksum);
@@ -8138,7 +8138,7 @@ void fargametype::serialize(
 
 void fargametype::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         old_levelinfo[i].deserialize(reader, checksum);
@@ -8151,7 +8151,7 @@ void fargametype::deserialize(
 
 void gametype::serialize(
     bstone::BinaryWriter& writer,
-    Uint32& checksum) const
+    uint32_t& checksum) const
 {
     ::serialize_field(turn_around, writer, checksum);
     ::serialize_field(turn_angle, writer, checksum);
@@ -8192,7 +8192,7 @@ void gametype::serialize(
     ::serialize_field(weaponframe, writer, checksum);
     ::serialize_field(episode, writer, checksum);
 
-    Uint32 time_count = TimeCount;
+    uint32_t time_count = TimeCount;
     ::serialize_field(time_count, writer, checksum);
 
     ::serialize_field(killx, writer, checksum);
@@ -8219,7 +8219,7 @@ void gametype::serialize(
 
 void gametype::deserialize(
     bstone::BinaryReader& reader,
-    Uint32& checksum)
+    uint32_t& checksum)
 {
     ::deserialize_field(turn_around, reader, checksum);
     ::deserialize_field(turn_angle, reader, checksum);
@@ -8260,7 +8260,7 @@ void gametype::deserialize(
     ::deserialize_field(weaponframe, reader, checksum);
     ::deserialize_field(episode, reader, checksum);
 
-    Uint32 time_count = 0;
+    uint32_t time_count = 0;
     ::deserialize_field(time_count, reader, checksum);
 
     ::deserialize_field(killx, reader, checksum);

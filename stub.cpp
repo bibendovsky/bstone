@@ -37,7 +37,7 @@ void ogl_update_screen();
 
 
 void VL_WaitVBL(
-    Uint32 vbls)
+    uint32_t vbls)
 {
 #if 0
     SDL_Delay(8 * vbls);
@@ -45,7 +45,7 @@ void VL_WaitVBL(
 }
 
 objtype* ui16_to_actor(
-    Uint16 value)
+    uint16_t value)
 {
     int index = value - OBJLIST_OFFSET;
 
@@ -60,7 +60,7 @@ objtype* ui16_to_actor(
     return &objlist[index];
 }
 
-Uint16 actor_to_ui16(
+uint16_t actor_to_ui16(
     const objtype* actor)
 {
     ptrdiff_t index = actor - objlist;
@@ -73,11 +73,11 @@ Uint16 actor_to_ui16(
         return 0;
     }
 
-    return static_cast<Uint16>(index + OBJLIST_OFFSET);
+    return static_cast<uint16_t>(index + OBJLIST_OFFSET);
 }
 
 statobj_t* ui16_to_static_object(
-    Uint16 value)
+    uint16_t value)
 {
     int index = value - STATOBJLIST_OFFSET;
 
@@ -92,7 +92,7 @@ statobj_t* ui16_to_static_object(
     return &statobjlist[index];
 }
 
-Uint16 static_object_to_ui16(
+uint16_t static_object_to_ui16(
     const statobj_t* static_object)
 {
     ptrdiff_t index = static_object - statobjlist;
@@ -105,11 +105,11 @@ Uint16 static_object_to_ui16(
         return 0;
     }
 
-    return static_cast<Uint16>(index + STATOBJLIST_OFFSET);
+    return static_cast<uint16_t>(index + STATOBJLIST_OFFSET);
 }
 
 doorobj_t* ui16_to_door_object(
-    Uint16 value)
+    uint16_t value)
 {
     int index = value - DOOROBJLIST_OFFSET;
 
@@ -124,7 +124,7 @@ doorobj_t* ui16_to_door_object(
     return &doorobjlist[index];
 }
 
-Uint16 door_object_to_ui16(
+uint16_t door_object_to_ui16(
     const doorobj_t* door_object)
 {
     ptrdiff_t index = door_object - doorobjlist;
@@ -137,5 +137,5 @@ Uint16 door_object_to_ui16(
         return 0;
     }
 
-    return static_cast<Uint16>(index + DOOROBJLIST_OFFSET);
+    return static_cast<uint16_t>(index + DOOROBJLIST_OFFSET);
 }

@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 
 void VH_UpdateScreen();
 void CA_CacheScreen(
-    Sint16 chunk);
+    int16_t chunk);
 
 
 // ==========================================================================
@@ -87,7 +87,7 @@ void ClearSplitVWB()
 
 boolean Breifing(
     breifing_type BreifingType,
-    Uint16 episode)
+    uint16_t episode)
 {
 #ifndef ID_CACHE_BRIEFS
     char chars[3] = { 'L', 'W', 'I' };
@@ -97,7 +97,7 @@ boolean Breifing(
 
     HelpPresenter(BreifingText, true, 0, false);
 #else
-    HelpPresenter(NULL, true, static_cast<Uint16>(BRIEF_W1 + (episode * 2) + BreifingType - 1), false);
+    HelpPresenter(NULL, true, static_cast<uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1), false);
 #endif
 
     return EscPressed;
@@ -122,7 +122,7 @@ void ShPrint(
     char shadow_color,
     boolean single_char)
 {
-    Uint16 old_color = fontcolor, old_x = px, old_y = py;
+    uint16_t old_color = fontcolor, old_x = px, old_y = py;
     const char* str;
     char buf[2] = { 0, 0 };
 
@@ -138,23 +138,23 @@ void ShPrint(
     px++;
     USL_DrawString(str); // JTR - This marks blocks!
 
-    fontcolor = static_cast<Uint8>(old_color);
+    fontcolor = static_cast<uint8_t>(old_color);
     py = old_y;
     px = old_x;
     USL_DrawString(str); // JTR - This marks blocks!
 }
 
 void PreloadUpdate(
-    Uint16 current,
-    Uint16 total)
+    uint16_t current,
+    uint16_t total)
 {
-    Uint16 w = WindowW - 10;
+    uint16_t w = WindowW - 10;
 
     if (current > total) {
         current = total;
     }
 
-    w = ((Sint32)w * current) / total;
+    w = ((int32_t)w * current) / total;
     if (w) {
         VWB_Bar(WindowX, WindowY, w - 1, 1, BORDER_TEXT_COLOR);
     }
@@ -314,11 +314,11 @@ void DrawHighScores()
 */
 
 void CheckHighScore(
-    Sint32 score,
-    Uint16 other)
+    int32_t score,
+    uint16_t other)
 {
-    Uint16 i, j;
-    Sint16 n;
+    uint16_t i, j;
+    int16_t n;
     HighScore myscore;
     US_CursorStruct TermCursor = { '@', 0, HIGHLIGHT_TEXT_COLOR, 2 };
 
@@ -383,10 +383,10 @@ void CheckHighScore(
 // --------------------------------------------------------------------------
 // Random()
 // --------------------------------------------------------------------------
-Uint16 Random(
-    Uint16 Max)
+uint16_t Random(
+    uint16_t Max)
 {
-    Uint16 returnval;
+    uint16_t returnval;
 
     if (Max) {
         if (Max > 255) {

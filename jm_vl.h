@@ -43,7 +43,7 @@ Free Software Foundation, Inc.,
 void JM_VGALinearFill(
     int start,
     int length,
-    Uint8 fill);
+    uint8_t fill);
 
 
 

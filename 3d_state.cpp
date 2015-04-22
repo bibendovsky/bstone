@@ -31,17 +31,17 @@ Free Software Foundation, Inc.,
 
 
 void OpenDoor(
-    Sint16 door);
+    int16_t door);
 void A_DeathScream(
     objtype* ob);
 void PlaceItemType(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley);
 void PlaceItemNearTile(
-    Sint16 itemtype,
-    Sint16 tilex,
-    Sint16 tiley);
+    int16_t itemtype,
+    int16_t tilex,
+    int16_t tiley);
 void ChangeShootMode(
     objtype* ob);
 
@@ -82,8 +82,8 @@ dirtype diagonal[9][9] = {
 
 
 void SpawnNewObj(
-    Uint16 tilex,
-    Uint16 tiley,
+    uint16_t tilex,
+    uint16_t tiley,
     statetype* state);
 void NewState(
     objtype* ob,
@@ -94,7 +94,7 @@ boolean TryWalk(
     boolean moveit);
 void MoveObj(
     objtype* ob,
-    Sint32 move);
+    int32_t move);
 
 void KillActor(
     objtype* ob);
@@ -138,18 +138,18 @@ boolean ElevatorFloor(
 */
 
 void SpawnNewObj(
-    Uint16 tilex,
-    Uint16 tiley,
+    uint16_t tilex,
+    uint16_t tiley,
     statetype* state)
 {
     GetNewActor();
     new_actor->state = state;
     new_actor->ticcount = Random(state->tictime) + 1;
 
-    new_actor->tilex = static_cast<Uint8>(tilex);
-    new_actor->tiley = static_cast<Uint8>(tiley);
-    new_actor->x = ((Sint32)tilex << TILESHIFT) + TILEGLOBAL / 2;
-    new_actor->y = ((Sint32)tiley << TILESHIFT) + TILEGLOBAL / 2;
+    new_actor->tilex = static_cast<uint8_t>(tilex);
+    new_actor->tiley = static_cast<uint8_t>(tiley);
+    new_actor->x = ((int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
+    new_actor->y = ((int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
     new_actor->dir = new_actor->trydir = nodir;
 
     if (!nevermark) {
@@ -258,8 +258,8 @@ boolean TryWalk(
     objtype* ob,
     boolean moveit)
 {
-    Sint16 doornum;
-    Uint8 old_tilex = ob->tilex, old_tiley = ob->tiley;
+    int16_t doornum;
+    uint8_t old_tilex = ob->tilex, old_tiley = ob->tiley;
 
     if (ElevatorFloor(ob->tilex, ob->tiley)) {
         return false;
@@ -475,7 +475,7 @@ boolean ElevatorFloor(
     char x,
     char y)
 {
-    Uint8 tile = static_cast<Uint8>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
+    uint8_t tile = static_cast<uint8_t>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
 
     if (tile >= HIDDENAREATILE) {
         tile -= HIDDENAREATILE;
@@ -513,8 +513,8 @@ boolean ElevatorFloor(
 void SelectDodgeDir(
     objtype* ob)
 {
-    Sint16 deltax = 0, deltay = 0, i;
-    Uint16 absdx, absdy;
+    int16_t deltax = 0, deltay = 0, i;
+    uint16_t absdx, absdy;
     dirtype dirtry[5];
     dirtype turnaround, tdir;
 
@@ -556,8 +556,8 @@ void SelectDodgeDir(
 //
 // randomize a bit for dodging
 //
-    absdx = static_cast<Uint16>(abs(deltax));
-    absdy = static_cast<Uint16>(abs(deltay));
+    absdx = static_cast<uint16_t>(abs(deltax));
+    absdy = static_cast<uint16_t>(abs(deltay));
 
     if (absdx > absdy) {
         tdir = dirtry[1];
@@ -625,7 +625,7 @@ void SelectDodgeDir(
 void SelectChaseDir(
     objtype* ob)
 {
-    Sint16 deltax = 0, deltay = 0;
+    int16_t deltax = 0, deltay = 0;
     dirtype d[3];
     dirtype tdir, olddir, turnaround;
 
@@ -729,9 +729,9 @@ void SelectChaseDir(
 void GetCornerSeek(
     objtype* ob)
 {
-    Uint8 SeekPointX[] = { 32, 63, 32, 1 }; // s_tilex can't seek to 0!
-    Uint8 SeekPointY[] = { 1, 63, 32, 1 };
-    Uint8 seek_tile = US_RndT() & 3;
+    uint8_t SeekPointX[] = { 32, 63, 32, 1 }; // s_tilex can't seek to 0!
+    uint8_t SeekPointY[] = { 1, 63, 32, 1 };
+    uint8_t seek_tile = US_RndT() & 3;
 
     ob->flags &= ~FL_RUNTOSTATIC;
     ob->s_tilex = SeekPointX[seek_tile];
@@ -755,13 +755,13 @@ void GetCornerSeek(
 =================
 */
 
-extern Sint32 last_objy;
+extern int32_t last_objy;
 
 void MoveObj(
     objtype* ob,
-    Sint32 move)
+    int32_t move)
 {
-    Sint32 deltax, deltay;
+    int32_t deltax, deltay;
 
 //      if (DebugOk && Keyboard[sc_z])
 //              return;
@@ -888,7 +888,7 @@ char dki_msg[] =
     "^FC19	    DO NOT SHOOT\r"
     "	    INFORMANTS!!\r";
 
-Uint16 actor_points[] = { 1025, // rent-a-cop
+uint16_t actor_points[] = { 1025, // rent-a-cop
                           1050, // turret
                           500, // general scientist
                           5075, // pod alien
@@ -950,13 +950,13 @@ objtype* CheckAndReserve()
 }
 
 #ifdef TRACK_ENEMY_COUNT
-extern Sint16 numEnemy[];
+extern int16_t numEnemy[];
 #endif
 
 void KillActor(
     objtype* ob)
 {
-    Sint16 tilex, tiley;
+    int16_t tilex, tiley;
     boolean KeepSolid = false, givepoints = true, deadguy = true;
     classtype clas;
 
@@ -1267,8 +1267,8 @@ void KillActor(
 
     DropCargo(ob);
 
-    ob->tilex = static_cast<Uint8>(tilex);
-    ob->tiley = static_cast<Uint8>(tiley);
+    ob->tilex = static_cast<uint8_t>(tilex);
+    ob->tiley = static_cast<uint8_t>(tiley);
 
     if ((LastMsgPri == MP_TAKE_DAMAGE) && (LastInfoAttacker == clas)) {
         MsgTicsRemain = 1;
@@ -1308,10 +1308,10 @@ extern boolean barrier_damage;
 
 void DamageActor(
     objtype* ob,
-    Uint16 damage,
+    uint16_t damage,
     objtype* attacker)
 {
-    Sint16 old_hp = ob->hitpoints, wound_mod, mod_before = 0, mod_after = 1;
+    int16_t old_hp = ob->hitpoints, wound_mod, mod_before = 0, mod_after = 1;
 
     if (!(ob->flags & FL_SHOOTABLE)) {
         return;
@@ -1400,7 +1400,7 @@ void DamageActor(
 
         case goldsternobj:
             if (gamestate.mapon == GOLD_MORPH_LEVEL) {
-                extern Sint16 morphWaitTime;
+                extern int16_t morphWaitTime;
                 extern boolean noShots;
 
                 morphWaitTime = 60;
@@ -1589,14 +1589,14 @@ void DamageActor(
 boolean CheckLine(
     objtype* ob)
 {
-    Sint16 x1, y1, xt1, yt1, x2, y2, xt2, yt2;
-    Sint16 x, y, xl, xh, yl, yh;
-    Sint16 xdist, ydist, xstep, ystep;
-    Sint16 temp;
-    Sint16 partial, delta;
-    Sint32 ltemp;
-    Uint16 xfrac, yfrac, deltafrac;
-    Uint16 value, intercept;
+    int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
+    int16_t x, y, xl, xh, yl, yh;
+    int16_t xdist, ydist, xstep, ystep;
+    int16_t temp;
+    int16_t partial, delta;
+    int32_t ltemp;
+    uint16_t xfrac, yfrac, deltafrac;
+    uint16_t value, intercept;
 
 
 
@@ -1632,7 +1632,7 @@ boolean CheckLine(
         }
 
         delta = yh - yl;
-        ltemp = ((Sint32)delta << 8) / deltafrac;
+        ltemp = ((int32_t)delta << 8) / deltafrac;
         if (ltemp > 0x7fffl) {
             ystep = 0x7fff;
         } else if (ltemp < -0x7fffl) {
@@ -1640,13 +1640,13 @@ boolean CheckLine(
         } else {
             ystep = ltemp;
         }
-        yfrac = yl + (((Sint32)ystep * partial) >> 8);
+        yfrac = yl + (((int32_t)ystep * partial) >> 8);
 
         for (x = xl + 1; x <= xh; x++) {
             y = yfrac >> 8;
             yfrac += ystep;
 
-            if (!(value = (Uint16)tilemap[x][y])) {
+            if (!(value = (uint16_t)tilemap[x][y])) {
                 continue;
             }
 
@@ -1685,7 +1685,7 @@ boolean CheckLine(
         }
 
         delta = xh - xl;
-        ltemp = ((Sint32)delta << 8) / deltafrac;
+        ltemp = ((int32_t)delta << 8) / deltafrac;
         if (ltemp > 0x7fffl) {
             xstep = 0x7fff;
         } else if (ltemp < -0x7fffl) {
@@ -1693,13 +1693,13 @@ boolean CheckLine(
         } else {
             xstep = ltemp;
         }
-        xfrac = xl + (((Sint32)xstep * partial) >> 8);
+        xfrac = xl + (((int32_t)xstep * partial) >> 8);
 
         for (y = yl + 1; y <= yh; y++) {
             x = xfrac >> 8;
             xfrac += xstep;
 
-            if (!(value = (Uint16)tilemap[x][y])) {
+            if (!(value = (uint16_t)tilemap[x][y])) {
                 continue;
             }
 
@@ -1729,31 +1729,31 @@ boolean CheckLine(
     objtype* from_obj,
     objtype* to_obj)
 {
-    Sint16 x1, y1, xt1, yt1, x2, y2, xt2, yt2;
-    Sint16 x, y;
-    Sint16 xdist, ydist, xstep, ystep;
-    Sint16 partial, delta;
-    Sint32 ltemp;
-    Sint16 xfrac, yfrac, deltafrac;
-    Uint16 value, intercept;
+    int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
+    int16_t x, y;
+    int16_t xdist, ydist, xstep, ystep;
+    int16_t partial, delta;
+    int32_t ltemp;
+    int16_t xfrac, yfrac, deltafrac;
+    uint16_t value, intercept;
 
 
 
-    x1 = static_cast<Sint16>(from_obj->x >> UNSIGNEDSHIFT); // 1/256 tile precision
-    y1 = static_cast<Sint16>(from_obj->y >> UNSIGNEDSHIFT);
+    x1 = static_cast<int16_t>(from_obj->x >> UNSIGNEDSHIFT); // 1/256 tile precision
+    y1 = static_cast<int16_t>(from_obj->y >> UNSIGNEDSHIFT);
     xt1 = x1 >> 8;
     yt1 = y1 >> 8;
 
 //      x2 = plux;
 //      y2 = pluy;
 
-    x2 = static_cast<Sint16>(to_obj->x >> UNSIGNEDSHIFT);
-    y2 = static_cast<Sint16>(to_obj->y >> UNSIGNEDSHIFT);
+    x2 = static_cast<int16_t>(to_obj->x >> UNSIGNEDSHIFT);
+    y2 = static_cast<int16_t>(to_obj->y >> UNSIGNEDSHIFT);
     xt2 = to_obj->tilex;
     yt2 = to_obj->tiley;
 
 
-    xdist = static_cast<Sint16>(abs(xt2 - xt1));
+    xdist = static_cast<int16_t>(abs(xt2 - xt1));
 
     if (xdist > 0) {
         if (xt2 > xt1) {
@@ -1764,20 +1764,20 @@ boolean CheckLine(
             xstep = -1;
         }
 
-        deltafrac = static_cast<Sint16>(abs(x2 - x1));
+        deltafrac = static_cast<int16_t>(abs(x2 - x1));
         if (!deltafrac) {
             deltafrac = 1;
         }
         delta = y2 - y1;
-        ltemp = ((Sint32)delta << 8) / deltafrac;
+        ltemp = ((int32_t)delta << 8) / deltafrac;
         if (ltemp > 0x7fffl) {
             ystep = 0x7fff;
         } else if (ltemp < -0x7fffl) {
             ystep = -0x7fff;
         } else {
-            ystep = static_cast<Sint16>(ltemp);
+            ystep = static_cast<int16_t>(ltemp);
         }
-        yfrac = y1 + ((static_cast<Sint32>(ystep) * partial) >> 8);
+        yfrac = y1 + ((static_cast<int32_t>(ystep) * partial) >> 8);
 
         x = xt1 + xstep;
         xt2 += xstep;
@@ -1785,7 +1785,7 @@ boolean CheckLine(
             y = yfrac >> 8;
             yfrac += ystep;
 
-            value = (Uint16)tilemap[x][y];
+            value = (uint16_t)tilemap[x][y];
             x += xstep;
 
             if (!value) {
@@ -1809,7 +1809,7 @@ boolean CheckLine(
         } while (x != xt2);
     }
 
-    ydist = static_cast<Sint16>(abs(yt2 - yt1));
+    ydist = static_cast<int16_t>(abs(yt2 - yt1));
 
     if (ydist > 0) {
         if (yt2 > yt1) {
@@ -1820,20 +1820,20 @@ boolean CheckLine(
             ystep = -1;
         }
 
-        deltafrac = static_cast<Sint16>(abs(y2 - y1));
+        deltafrac = static_cast<int16_t>(abs(y2 - y1));
         if (!deltafrac) {
             deltafrac = 1;
         }
         delta = x2 - x1;
-        ltemp = ((Sint32)delta << 8) / deltafrac;
+        ltemp = ((int32_t)delta << 8) / deltafrac;
         if (ltemp > 0x7fffl) {
             xstep = 0x7fff;
         } else if (ltemp < -0x7fffl) {
             xstep = -0x7fff;
         } else {
-            xstep = static_cast<Sint16>(ltemp);
+            xstep = static_cast<int16_t>(ltemp);
         }
-        xfrac = x1 + (((Sint32)xstep * partial) >> 8);
+        xfrac = x1 + (((int32_t)xstep * partial) >> 8);
 
         y = yt1 + ystep;
         yt2 += ystep;
@@ -1841,7 +1841,7 @@ boolean CheckLine(
             x = xfrac >> 8;
             xfrac += xstep;
 
-            value = (Uint16)tilemap[x][y];
+            value = (uint16_t)tilemap[x][y];
             y += ystep;
 
             if (!value) {
@@ -1888,7 +1888,7 @@ boolean CheckSight(
     objtype* from_obj,
     objtype* to_obj)
 {
-    Sint32 deltax, deltay;
+    int32_t deltax, deltay;
 
 //
 // don't bother tracing a line if the area isn't connected to the player's
@@ -2291,10 +2291,10 @@ boolean PosVisable(
     fixed from_y,
     fixed to_x,
     fixed to_y,
-    Sint16 from_angle)
+    int16_t from_angle)
 {
-    Sint32 deltax, deltay;
-    Sint16 angle, dif;
+    int32_t deltax, deltay;
+    int16_t angle, dif;
     float fangle;
 
     deltax = from_x - to_x;
@@ -2328,7 +2328,7 @@ boolean PosVisable(
 //      If the sight is ok, check angle to see if they notice
 //      returns true if the player has been spoted
 // --------------------------------------------------------------------------
-Sint16 AdjAngleTable[2][8] = { { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upper Bound
+int16_t AdjAngleTable[2][8] = { { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upper Bound
                                { 180, 225, 270, 315, 0, 45, 90, 135 } }; // Lower Bound
 
 
@@ -2336,8 +2336,8 @@ boolean CheckView(
     objtype* from_obj,
     objtype* to_obj)
 {
-    Sint32 deltax, deltay;
-    Sint16 angle;
+    int32_t deltax, deltay;
+    int16_t angle;
     float fangle;
 
     //
@@ -2357,7 +2357,7 @@ boolean CheckView(
         fangle = static_cast<float>(bstone::C::m_pi() * 2 + fangle);
     }
 
-    angle = static_cast<Sint16>(fangle / (bstone::C::m_pi() * 2) * ANGLES + 23);
+    angle = static_cast<int16_t>(fangle / (bstone::C::m_pi() * 2) * ANGLES + 23);
 
     if (angle > 360) {
         angle = 360;
@@ -2381,7 +2381,7 @@ boolean CheckView(
 boolean LookForDeadGuys(
     objtype* obj)
 {
-    Uint8 loop;
+    uint8_t loop;
     boolean DeadGuyFound = false;
 
     if ((obj->obclass == gen_scientistobj) && (obj->flags & FL_INFORMANT)) {
@@ -2405,7 +2405,7 @@ boolean LookForDeadGuys(
 // --------------------------------------------------------------------------
 boolean LookForGoodies(
     objtype* ob,
-    Uint16 RunReason)
+    uint16_t RunReason)
 {
 //      #define ONE_TRACK_MIND
 
@@ -2451,7 +2451,7 @@ boolean LookForGoodies(
                     // If actor is 'on top' of this object, get it!
                     //
                     if ((statptr->tilex == ob->tilex) && (statptr->tiley == ob->tiley)) {
-                        Sint16 shapenum = -1;
+                        int16_t shapenum = -1;
 
                         switch (statptr->itemnumber) {
                         case bo_clip:
@@ -2620,12 +2620,12 @@ boolean LookForGoodies(
 // --------------------------------------------------------------------------
 // CheckRunChase()
 // --------------------------------------------------------------------------
-Uint16 CheckRunChase(
+uint16_t CheckRunChase(
     objtype* ob)
 {
 #define RUNAWAY_SPEED 1000
 
-    Uint16 RunReason = 0;
+    uint16_t RunReason = 0;
 
 // Mark the reason for running.
 //
@@ -2668,10 +2668,10 @@ Uint16 CheckRunChase(
 // --------------------------------------------------------------------------
 void SeekPlayerOrStatic(
     objtype* ob,
-    Sint16* deltax,
-    Sint16* deltay)
+    int16_t* deltax,
+    int16_t* deltay)
 {
-    Uint16 whyrun = 0;
+    uint16_t whyrun = 0;
     boolean smart = false;
 
 // Is this a "smart" actor?
