@@ -80,6 +80,7 @@ void initialize_static_health_table();
 void initialize_boss_constants();
 void initialize_messages();
 void initialize_ca_constants();
+void initialize_demos();
 
 
 // BBi Is it necessary?
@@ -1390,8 +1391,7 @@ void freed_main()
     ::initialize_messages();
     ::initialize_ca_constants();
     ::gamestuff.initialize();
-
-    auto cs = ChecksumFile("AUDIOT.VSI", 0);
+    ::initialize_demos();
 
     std::string arg;
 
@@ -1500,7 +1500,8 @@ void freed_main()
     PreDemo();
 }
 
-
+// BBi Is it necessary?
+#if 0
 // -------------------------------------------------------------------------
 // CheckValidity()
 // -------------------------------------------------------------------------
@@ -1569,6 +1570,7 @@ int32_t ChecksumFile(
 
     return checksum;
 }
+#endif
 
 // BBi Is it necessary?
 #if 0 && (IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM)
@@ -1617,7 +1619,8 @@ void InvalidLevels()
     UNCACHEGRCHUNK(BADLEVELSTEXT);
 }
 
-#if GAME_VERSION == SHAREWARE_VERSION
+// BBi Is it necessary?
+#if 0 && GAME_VERSION == SHAREWARE_VERSION
 
 // -------------------------------------------------------------------------
 // BadChecksum()
@@ -1637,7 +1640,6 @@ void BadChecksum()
 
     exit(0);
 }
-
 #endif
 
 

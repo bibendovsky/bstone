@@ -3136,11 +3136,16 @@ void Warped()
 
 // ==========================================================================
 
-#if GAME_VERSION == SHAREWARE_VERSION
-std::string demoname = "DEMO?S.";
-#else
-std::string demoname = "DEMO?.";
-#endif
+std::string demoname;
+
+void initialize_demos()
+{
+    if (::is_aog_sw()) {
+        demoname = "DEMO?S.";
+    } else {
+        demoname = "DEMO?.";
+    }
+}
 
 #ifdef DEMOS_EXTERN
 
