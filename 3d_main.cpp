@@ -4216,7 +4216,7 @@ extern statetype s_attack;
 
 
 statetype* states_list[] = {
-    NULL,
+    nullptr,
     &s_ofs_stand,
     &s_ofs_chase1,
     &s_ofs_chase1s,
@@ -4497,17 +4497,17 @@ statetype* states_list[] = {
     &s_terrot_die5,
     &s_player,
     &s_attack,
-    NULL,
+    nullptr,
 };
 
 static int get_state_index(
     statetype* state)
 {
-    if (state == NULL) {
+    if (!state) {
         return 0;
     }
 
-    for (int i = 1; states_list[i] != NULL; ++i) {
+    for (int i = 1; states_list[i]; ++i) {
         if (states_list[i] == state) {
             return i;
         }
@@ -5865,7 +5865,7 @@ static void sdl_log_initialize()
 {
     g_sdl_log.open(k_sdl_log_file_name, std::ios_base::out);
 
-    SDL_LogSetOutputFunction(sdl_log_output_callback, NULL);
+    SDL_LogSetOutputFunction(sdl_log_output_callback, nullptr);
     SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 
     SDL_LogInfo(
@@ -6475,9 +6475,7 @@ bool LoadLevel(
         //  Re-Establish links to barrier switches
         //
 
-        for (objtype* actor = objlist; actor != NULL;
-             actor = actor->next)
-        {
+        for (objtype* actor = objlist; actor; actor = actor->next) {
             switch (actor->obclass) {
             case arc_barrierobj:
             case post_barrierobj:
@@ -6501,7 +6499,7 @@ bool LoadLevel(
         ::deserialize_field(laststatobj_index, reader, checksum);
 
         if (laststatobj_index < 0) {
-            laststatobj = NULL;
+            laststatobj = nullptr;
         } else {
             laststatobj = &statobjlist[laststatobj_index];
         }
@@ -6673,15 +6671,15 @@ bool SaveLevel(
     //
 
     int32_t actor_count = 0;
-    const objtype* actor = NULL;
+    const objtype* actor = nullptr;
 
-    for (actor = player; actor != NULL; actor = actor->next) {
+    for (actor = player; actor; actor = actor->next) {
         ++actor_count;
     }
 
     ::serialize_field(actor_count, writer, checksum);
 
-    for (actor = player; actor != NULL; actor = actor->next) {
+    for (actor = player; actor; actor = actor->next) {
         actor->serialize(writer, checksum);
     }
 
@@ -6785,7 +6783,7 @@ static const std::string SavegameInfoText =
 bool LoadTheGame(
     bstone::IStream* stream)
 {
-    assert(stream != NULL);
+    assert(stream);
 
     bool is_succeed = true;
 
@@ -7026,7 +7024,7 @@ void CleanUpDoors_N_Actors()
                 uint16_t actor_u16 = static_cast<uint16_t>(
                     reinterpret_cast<size_t>(actor));
 
-                if (ui16_to_actor(actor_u16) != NULL) {
+                if (ui16_to_actor(actor_u16)) {
                     // Found an actor
 
                     door = tile & 0x3F;
@@ -7334,7 +7332,7 @@ void Quit(
 
     ShutdownId();
 
-    if (error != NULL && *error != '\0') {
+    if (error && *error != '\0') {
         char dummy;
 
         SDL_LogMessageV(
@@ -7578,7 +7576,7 @@ void DrawCreditsPage()
     pi.fontnumber = static_cast<char>(fontnumber);
 
 #ifdef ID_CACHE_CREDITS
-    TP_LoadScript(NULL, &pi, CREDITSTEXT);
+    TP_LoadScript(nullptr, &pi, CREDITSTEXT);
 #else
     TP_LoadScript("CREDITS.TXT", &pi, 0);
 #endif
@@ -7693,7 +7691,7 @@ void InitDestPath()
 
     env_value = getenv("APOGEECD");
 
-    if (env_value != NULL) {
+    if (env_value) {
         size_t len;
         struct _finddata_t fd;
         intptr_t fd_handle;
@@ -7874,7 +7872,7 @@ void statobj_t::deserialize(
     ::deserialize_field(vis_index, reader, checksum);
 
     if (vis_index < 0) {
-        visspot = NULL;
+        visspot = nullptr;
     } else {
         visspot = &(&spotvis[0][0])[vis_index];
     }
@@ -7929,7 +7927,7 @@ void mCacheInfo::deserialize(
 {
     ::deserialize_field(local_val, reader, checksum);
     ::deserialize_field(global_val, reader, checksum);
-    mSeg = NULL;
+    mSeg = nullptr;
 }
 
 void con_mCacheInfo::serialize(
@@ -8262,7 +8260,7 @@ void gametype::deserialize(
 
     ::deserialize_field(killx, reader, checksum);
     ::deserialize_field(killy, reader, checksum);
-    msg = NULL;
+    msg = nullptr;
     ::deserialize_field(numkeys, reader, checksum);
     ::deserialize_field(old_numkeys, reader, checksum);
 

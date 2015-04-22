@@ -307,7 +307,7 @@ void US_Startup()
         Quit("%s", SDL_GetError());
     }
 
-    sys_timer_id = SDL_AddTimer(1000 / 70, sys_timer_callback, NULL);
+    sys_timer_id = SDL_AddTimer(1000 / 70, sys_timer_callback, nullptr);
 
     if (sys_timer_id == 0) {
         Quit("%s", SDL_GetError());
@@ -1109,7 +1109,7 @@ void PreDemo()
         UNCACHEGRCHUNK(APOGEEPALETTE);
 
         delete [] audiosegs[STARTMUSIC + APOGFNFM_MUS];
-        audiosegs[STARTMUSIC + APOGFNFM_MUS] = NULL;
+        audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
 
         if (::is_ps()) {
             // Do A Blue Flash!

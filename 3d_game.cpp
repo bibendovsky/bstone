@@ -361,12 +361,12 @@ void ScanInfoPlane()
     memset(numEnemy, 0, sizeof(numEnemy));
 #endif
 
-    new_actor = NULL;
+    new_actor = nullptr;
     start = mapsegs[1];
     for (y = 0; y < mapheight; y++) {
         for (x = 0; x < mapwidth; x++) {
             sci_mCacheInfo* ci;
-            scientist_t* st = NULL;
+            scientist_t* st = nullptr;
             uint8_t tilehi, tilelo, block = 0;
 
 
@@ -980,7 +980,7 @@ void ScanInfoPlane()
 
                     SpawnStand(en_goldstern, x, y, 0);
                     GoldsternInfo.GoldSpawned = true;
-                    new_actor = NULL;
+                    new_actor = nullptr;
                 }
                 break;
 
@@ -1008,7 +1008,7 @@ void ScanInfoPlane()
 
             case 177:
                 SpawnOffsetObj(en_rotating_cube, x, y);
-                new_actor = NULL;
+                new_actor = nullptr;
                 break;
 
             //
@@ -1093,7 +1093,7 @@ void ScanInfoPlane()
                 SpawnStand(en_gen_scientist, x, y, tile - 116);
                 if (new_actor->flags & FL_INFORMANT) {
                     AddTotalInformants(1);
-                    new_actor = NULL;
+                    new_actor = nullptr;
                 }
                 break;
 
@@ -1121,7 +1121,7 @@ void ScanInfoPlane()
                 SpawnPatrol(en_gen_scientist, x, y, tile - 120);
                 if (new_actor->flags & FL_INFORMANT) {
                     AddTotalInformants(1);
-                    new_actor = NULL;
+                    new_actor = nullptr;
                 }
                 break;
 
@@ -1190,7 +1190,7 @@ void ScanInfoPlane()
 
             case 310:
                 SpawnStand(en_electro_alien, x, y, 0);
-                new_actor = NULL;
+                new_actor = nullptr;
                 break;
 
 
@@ -2325,7 +2325,7 @@ void ScanInfoPlane()
 #ifdef TRACK_ENEMY_COUNT
                 numEnemy[new_actor->obclass]++;
 #endif
-                new_actor = NULL;
+                new_actor = nullptr;
             }
 
             // Skip past FA code...
@@ -2719,7 +2719,7 @@ void SetupGameLevel()
             case AMBUSHTILE:
                 tilemap[x][y] = 0;
                 if (actorat[x][y] == (objtype*)AMBUSHTILE) {
-                    actorat[x][y] = NULL;
+                    actorat[x][y] = nullptr;
                 }
                 *(map - 1) = GetAreaNumber(static_cast<char>(x), static_cast<char>(y));
                 break;
@@ -2909,7 +2909,7 @@ void ShadowPrintLocationText(
 {
     const char* DemoMsg = "-- DEMO --";
     const char* DebugText = "-- DEBUG MODE ENABLED --";
-    const char* s = NULL, * ls_text[3] = { "-- LOADING --", "-- SAVING --", "-- CHANGE VIEW SIZE --" };
+    const char* s = nullptr, * ls_text[3] = { "-- LOADING --", "-- SAVING --", "-- CHANGE VIEW SIZE --" };
     char str[8];
     int w, h;
 
@@ -3199,7 +3199,7 @@ void FinishDemoRecord()
     US_Print(" Demo number (0-9):");
     VW_UpdateScreen();
 
-    if (US_LineInput(px, py, str, NULL, true, 2, 0)) {
+    if (US_LineInput(px, py, str, nullptr, true, 2, 0)) {
         level = atoi(str);
         if (level >= 0 && level <= 9) {
             demoname[4] = '0' + level;
@@ -3274,7 +3274,7 @@ void RecordDemo()
     US_Print("  Demo which level(0-23):");
     VW_UpdateScreen();
     VW_FadeIn();
-    esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
+    esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
     if (esc) {
         return;
     }
@@ -3511,7 +3511,7 @@ void LoseScreen()
     VW_UpdateScreen();
 
 #ifdef ID_CACHE_LOSE
-    TP_LoadScript(NULL, &pi, LOSETEXT);
+    TP_LoadScript(nullptr, &pi, LOSETEXT);
 #else
     TP_LoadScript("LOSE.TXT", &pi, 0);
 #endif
@@ -3887,7 +3887,7 @@ restartgame:
                         break;
                     }
 
-                    ::DoMovie(movie, NULL);
+                    ::DoMovie(movie, nullptr);
                 } else {
                     CA_CacheGrChunk(ENDINGPALETTE);
                     // VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);

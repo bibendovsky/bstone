@@ -470,7 +470,7 @@ public:
 using BindsItems = std::vector<BindsItem>;
 
 static BindsItems binds = {
-    { "MOVEMENT", 0, NULL },
+    { "MOVEMENT", 0, nullptr },
     { "FORWARD", 0, &in_bindings[e_bi_forward] },
     { "BACKWARD", 0, &in_bindings[e_bi_backward] },
     { "LEFT", 0, &in_bindings[e_bi_left] },
@@ -482,9 +482,9 @@ static BindsItems binds = {
     { "QUICK RIGHT", 0, &in_bindings[e_bi_quick_right] },
     { "TURN AROUND", 0, &in_bindings[e_bi_turn_around] },
     { "RUN", 0, &in_bindings[e_bi_run] },
-    { "", 0, NULL },
+    { "", 0, nullptr },
 
-    { "WEAPONS", 0, NULL },
+    { "WEAPONS", 0, nullptr },
     { "ATTACK", 0, &in_bindings[e_bi_attack] },
     { "AUTO CHARGE PISTOL", 0, &in_bindings[e_bi_weapon_1] },
     { "SLOW FIRE PROTECTOR", 0, &in_bindings[e_bi_weapon_2] },
@@ -493,19 +493,19 @@ static BindsItems binds = {
     { "PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5] },
     { ps_only_entry + "ANTI-PLASMA CANNON", 0, &in_bindings[e_bi_weapon_6] }, // PS
     { ps_only_entry + "FISSION DETONATOR", 0, &in_bindings[e_bi_weapon_7] }, // PS
-    { "", 0, NULL },
+    { "", 0, nullptr },
 
-    { "INTERACTION", 0, NULL },
+    { "INTERACTION", 0, nullptr },
     { "USE", 0, &in_bindings[e_bi_use] },
-    { "", 0, NULL },
+    { "", 0, nullptr },
 
-    { "HUD", 0, NULL },
+    { "HUD", 0, nullptr },
     { "STATS", 0, &in_bindings[e_bi_stats] },
     { ps_only_entry + "MAGNIFY RADAR", 0, &in_bindings[e_bi_radar_magnify] }, // PS
     { ps_only_entry + "MINIFY RADAR", 0, &in_bindings[e_bi_radar_minify] }, // PS
-    { "", 0, NULL },
+    { "", 0, nullptr },
 
-    { "MENU", 0, NULL },
+    { "MENU", 0, nullptr },
     { "HELP", 0, &in_bindings[e_bi_help] },
     { "SAVE", 0, &in_bindings[e_bi_save] },
     { "LOAD", 0, &in_bindings[e_bi_load] },
@@ -515,9 +515,9 @@ static BindsItems binds = {
     { "QUICK SAVE", 0, &in_bindings[e_bi_quick_save] },
     { "QUICK LOAD", 0, &in_bindings[e_bi_quick_load] },
     { "QUICK EXIT", 0, &in_bindings[e_bi_quick_exit] },
-    { "", 0, NULL },
+    { "", 0, nullptr },
 
-    { "OPTIONS", 0, NULL },
+    { "OPTIONS", 0, nullptr },
     { "ATTACK INFO", 0, &in_bindings[e_bi_attack_info] },
     { "LIGHTNING", 0, &in_bindings[e_bi_lightning] },
     { "SOUND", 0, &in_bindings[e_bi_sfx] },
@@ -525,9 +525,9 @@ static BindsItems binds = {
     { "CEILING", 0, &in_bindings[e_bi_ceiling] },
     { "FLOORING", 0, &in_bindings[e_bi_flooring] },
     { aog_only_entry + "HEART BEAT", 0, &in_bindings[e_bi_heart_beat] }, // AOG
-    { "", 0, NULL },
+    { "", 0, nullptr },
 
-    { "MISC", 0, NULL },
+    { "MISC", 0, nullptr },
     { "PAUSE", 0, &in_bindings[e_bi_pause] },
 }; // binds
 
@@ -1226,7 +1226,7 @@ void HelpScreens()
 #ifndef ID_CACHE_HELP
     HelpPresenter("HELP.TXT", false, 0, true);
 #else
-    HelpPresenter(NULL, false, HELPTEXT, true);
+    HelpPresenter(nullptr, false, HELPTEXT, true);
 #endif
 }
 
@@ -1399,11 +1399,11 @@ finishup:
     // MAIN MENU LOOP
     //
     do {
-        which = HandleMenu(&MainItems, &MainMenu[0], NULL);
+        which = HandleMenu(&MainItems, &MainMenu[0], nullptr);
 
         switch (which) {
         case MM_VIEW_SCORES:
-            if (MainMenu[MM_VIEW_SCORES].routine == NULL) {
+            if (!MainMenu[MM_VIEW_SCORES].routine) {
                 if (CP_EndGame()) {
                     StartGame = 1;
                 }
@@ -1443,7 +1443,7 @@ finishup:
     // CHANGE MAINMENU ITEM
     //
     if (startgame || loadedgame) {
-        MainMenu[MM_VIEW_SCORES].routine = NULL;
+        MainMenu[MM_VIEW_SCORES].routine = nullptr;
         strcpy(MainMenu[MM_VIEW_SCORES].string, "END GAME");
     }
 
@@ -1955,7 +1955,7 @@ void CP_GameOptions(
     WaitKeyUp();
 
     do {
-        which = HandleMenu(&GopItems, &GopMenu[0], NULL);
+        which = HandleMenu(&GopItems, &GopMenu[0], nullptr);
 
         if (which != -1) {
             DrawGopMenu();
@@ -2697,7 +2697,7 @@ void CP_Control(
     WaitKeyUp();
 
     do {
-        which = HandleMenu(&CtlItems, &CtlMenu[0], NULL);
+        which = HandleMenu(&CtlItems, &CtlMenu[0], nullptr);
         switch (which) {
         case MOUSEENABLE:
             mouseenabled ^= 1;
@@ -4126,7 +4126,7 @@ int16_t HandleMenu(
         //
         // CALL THE ROUTINE
         //
-        if ((items + which)->routine != NULL) {
+        if ((items + which)->routine) {
             // Make sure there's room to save when CP_SaveGame() is called.
             //
             if (reinterpret_cast<size_t>(items[which].routine) == reinterpret_cast<size_t>(CP_SaveGame)) {

@@ -37,8 +37,8 @@ namespace {
 
 
 bstone::FileStream PageFile;
-uint8_t* raw_data = NULL;
-uint32_t* chunks_offsets = NULL;
+uint8_t* raw_data = nullptr;
+uint32_t* chunks_offsets = nullptr;
 
 
 } // namespace
@@ -93,9 +93,9 @@ void PM_Shutdown()
     PMSoundStart = 0;
 
     delete [] raw_data;
-    raw_data = NULL;
+    raw_data = nullptr;
 
-    chunks_offsets = NULL;
+    chunks_offsets = nullptr;
 }
 
 void* PM_GetPage(

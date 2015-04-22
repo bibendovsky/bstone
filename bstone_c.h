@@ -45,8 +45,9 @@ public:
         char* str,
         int radix)
     {
-        if (str == NULL)
-            return NULL;
+        if (!str) {
+            return nullptr;
+        }
 
         str[0] = '\0';
 

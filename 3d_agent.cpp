@@ -198,8 +198,8 @@ void T_Player(
 void T_Attack(
     objtype* ob);
 
-statetype s_player = { 0, 0, 0, &T_Player, NULL, NULL };
-statetype s_attack = { 0, 0, 0, &T_Attack, NULL, NULL };
+statetype s_player = { 0, 0, 0, &T_Player, nullptr, nullptr };
+statetype s_attack = { 0, 0, 0, &T_Attack, nullptr, nullptr };
 
 int32_t playerxmove, playerymove;
 
@@ -2634,7 +2634,7 @@ boolean TryMove(
 
     for (y = yl; y <= yh; y++) {
         for (x = xl; x <= xh; x++) {
-            if ((check = actorat[x][y]) != NULL) {
+            if (check = actorat[x][y]) {
                 if ((check < objlist) || (check->flags & FL_FAKE_STATIC)) {
                     return false;
                 }
@@ -3154,7 +3154,7 @@ void Cmd_Use()
 #define INTG_ANGLE 45
 
         char x, y;
-        objtype* intg_ob = NULL, * ob;
+        objtype* intg_ob = nullptr, * ob;
         int32_t dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
 
         for (y = -MDIST; y < MDIST + 1; y++) {
@@ -3266,7 +3266,7 @@ boolean Interrogate(
     objtype* ob)
 {
     boolean rt_value = true;
-    char* msgptr = NULL;
+    char* msgptr = nullptr;
 
     strcpy(msg, int_interrogate);
 
@@ -3827,7 +3827,7 @@ int16_t InputFloor()
 #endif
 
         delete [] ov_buffer;
-        ov_buffer = NULL;
+        ov_buffer = nullptr;
 
         memcpy(player, &old_player, sizeof(objtype));
         UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
@@ -4297,9 +4297,9 @@ PinballBonusInfo PinballBonus[] = {
     { B_ScoreRolled, 1000000l, true, B_RollFunc },
     { B_OneMillion, 1000000l, false, B_MillFunc },
     { B_ExtraMan, 0, true, B_EManFunc },
-    { B_EnemyDestroyed, 50000l, false, NULL },
-    { B_TotalPoints, 50000l, false, NULL },
-    { B_InformantsAlive, 50000l, false, NULL },
+    { B_EnemyDestroyed, 50000l, false, nullptr },
+    { B_TotalPoints, 50000l, false, nullptr },
+    { B_InformantsAlive, 50000l, false, nullptr },
 
 };
 
@@ -4431,8 +4431,8 @@ char TERM_sound_on = 1;
 
 char* Commands[TC_LAST];
 
-memptr TermMessages = NULL;
-memptr TermCommands = NULL;
+memptr TermMessages = nullptr;
+memptr TermCommands = nullptr;
 
 #define FreeTerminalCommands() MM_FreePtr(&TermCommands)
 #define FreeTerminalMessages() MM_FreePtr(&TermMessages)
@@ -4572,7 +4572,7 @@ void TerminalPrint(
             //
 
             case TP_CNVT_CODE('X', 'X'):
-                msg = NULL;
+                msg = nullptr;
                 break;
 
             }
@@ -5210,7 +5210,7 @@ void GunAttack(
     //
 
     viewdist = 0x7fffffffl;
-    closest = NULL;
+    closest = nullptr;
 
     while (true) {
         oldclosest = closest;
@@ -5767,7 +5767,7 @@ boolean OperateSmartSwitch(
 
     what_is_it WhatItIs;
     objtype* obj;
-    statobj_t* stat = NULL;
+    statobj_t* stat = nullptr;
     uint8_t tile, DoorNum = 0;
     uint16_t iconnum;
 
@@ -5808,7 +5808,7 @@ boolean OperateSmartSwitch(
                     WhatItIs = wit_WALL;
                 }
             } else {
-                if ((stat = FindStatic(tilex, tiley)) != NULL) {
+                if (stat = FindStatic(tilex, tiley)) {
                     WhatItIs = wit_STATIC;
                 }
             }

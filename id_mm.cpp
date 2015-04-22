@@ -25,7 +25,7 @@ Free Software Foundation, Inc.,
 #include <cstdlib>
 
 
-void* bufferseg = NULL;
+void* bufferseg = nullptr;
 
 
 void MM_Startup()
@@ -38,5 +38,5 @@ void MM_Startup()
 void MM_Shutdown()
 {
     delete [] static_cast<char*>(bufferseg);
-    bufferseg = NULL;
+    bufferseg = nullptr;
 }

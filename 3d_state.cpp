@@ -930,7 +930,7 @@ uint16_t actor_points[] = { 1025, // rent-a-cop
 
 // ---------------------------------------------------------------------------
 //  CheckAndReserve() - Checks for room in the obj_list and returns a ptr
-//      to the new object or a NULL.
+//      to the new object or a nullptr.
 //
 // ---------------------------------------------------------------------------
 objtype* CheckAndReserve()
@@ -940,7 +940,7 @@ objtype* CheckAndReserve()
     usedummy = nevermark = false;
 
     if (new_actor == &dummyobj) {
-        return NULL;
+        return nullptr;
     } else {
         return new_actor;
     }
@@ -986,7 +986,7 @@ void KillActor(
     case crate3obj:
 #if IN_DEVELOPMENT
         if (!ob->temp3) {
-            Quit("exp crate->temp3 is NULL!");
+            Quit("exp crate->temp3 is nullptr!");
         }
 #endif
 
@@ -1095,13 +1095,13 @@ void KillActor(
         NewState(ob, &s_electro_die1);
         eaList[ob->temp2].aliens_out--;
         ob->obclass = nothing;
-        actorat[ob->tilex][ob->tiley] = NULL;
+        actorat[ob->tilex][ob->tiley] = nullptr;
         break;
 
     case liquidobj:
         NewState(ob, &s_liquid_die1);
         ob->obclass = nothing;
-        actorat[ob->tilex][ob->tiley] = NULL;
+        actorat[ob->tilex][ob->tiley] = nullptr;
         break;
 
     case podobj:
@@ -1114,7 +1114,7 @@ void KillActor(
         ob->obclass = nothing;
         ob->temp1 = SPR_ELECTRO_SPHERE_DIE1;
         NewState(ob, &s_ofs_esphere_death1);
-        actorat[ob->tilex][ob->tiley] = NULL;
+        actorat[ob->tilex][ob->tiley] = nullptr;
         break;
 
     case mutant_human1obj:
@@ -1248,7 +1248,7 @@ void KillActor(
             // Clear actor from WHERE IT WAS GOING in actorat[].
             //
             if (!(tilemap[ob->tilex][ob->tiley] & 0x80)) {
-                actorat[ob->tilex][ob->tiley] = NULL;
+                actorat[ob->tilex][ob->tiley] = nullptr;
             }
 
             // Set actor WHERE IT DIED in actorat[], IF there's a door!

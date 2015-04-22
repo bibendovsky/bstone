@@ -35,7 +35,7 @@ namespace bstone {
 
 AudioDecoder::AudioDecoder() :
     is_initialized_(false),
-    raw_data_(NULL),
+    raw_data_(nullptr),
     raw_size_(0),
     dst_rate_(0),
     dst_length_in_samples_(0)
@@ -55,7 +55,7 @@ bool AudioDecoder::initialize(
 {
     uninitialize();
 
-    if (raw_data == NULL)
+    if (!raw_data)
         return false;
 
     if (raw_size < 0)
@@ -75,7 +75,7 @@ bool AudioDecoder::initialize(
 void AudioDecoder::uninitialize()
 {
     dst_length_in_samples_ = 0;
-    raw_data_ = NULL;
+    raw_data_ = nullptr;
     raw_size_ = 0;
     dst_rate_ = 0;
     set_is_initialized(false);

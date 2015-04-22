@@ -99,7 +99,7 @@ int32_t lasttimecount;
 int32_t frameon;
 int32_t framecount;
 
-int* wallheight = NULL;
+int* wallheight = nullptr;
 
 fixed mindist = MINDIST;
 
@@ -107,7 +107,7 @@ fixed mindist = MINDIST;
 //
 // math tables
 //
-int* pixelangle = NULL;
+int* pixelangle = nullptr;
 int finetangent[FINEANGLES / 4];
 int sintable[ANGLES + (ANGLES / 4) + 1];
 int* costable = &sintable[ANGLES / 4];
@@ -211,7 +211,7 @@ void NoWallAsmRefresh(); // in 3D_DR_A.ASM
 
 // BBi
 static int last_texture_offset = -1;
-static const uint8_t* last_texture_data = NULL;
+static const uint8_t* last_texture_data = nullptr;
 
 
 /*

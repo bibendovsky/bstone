@@ -38,11 +38,11 @@ uint16_t CeilingTile = 126, FloorTile = 126;
 
 void (* MapRowPtr)();
 
-int* spanstart = NULL;
-int* stepscale = NULL;
-int* basedist = NULL;
-int* planeylookup = NULL;
-int* mirrorofs = NULL;
+int* spanstart = nullptr;
+int* stepscale = nullptr;
+int* basedist = nullptr;
+int* planeylookup = nullptr;
+int* mirrorofs = nullptr;
 
 extern uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
 extern const uint8_t* lightsource;

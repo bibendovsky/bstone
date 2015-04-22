@@ -252,7 +252,7 @@ statobj_t* FindStatic(
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -271,7 +271,7 @@ statobj_t* FindEmptyStatic()
     for (spot = &statobjlist[0];; spot++) {
         if (spot == laststatobj) {
             if (spot == &statobjlist[MAXSTATS]) {
-                return NULL;
+                return nullptr;
             }
             laststatobj++; // space at end
             break;
@@ -310,7 +310,7 @@ void SpawnStatic(
 #endif
 #endif
 
-    if ((spot = FindEmptyStatic()) == NULL) {
+    if (!(spot = FindEmptyStatic())) {
         return;
     }
 
@@ -418,7 +418,7 @@ statobj_t* ReserveStatic()
 {
     statobj_t* spot;
 
-    if ((spot = FindEmptyStatic()) == NULL) {
+    if (!(spot = FindEmptyStatic())) {
         ACT1_ERROR(SPAWNSTATIC_TOO_MANY);
     }
 
@@ -449,7 +449,7 @@ statobj_t* FindReservedStatic()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -472,7 +472,7 @@ statobj_t* UseReservedStatic(
     statobj_t* spot;
     int16_t type;
 
-    if ((spot = FindReservedStatic()) == NULL) {
+    if (!(spot = FindReservedStatic())) {
         ACT1_ERROR(CANT_FIND_RESERVE_STATIC);
     }
 
@@ -593,7 +593,7 @@ void PlaceItemType(
 //
 // find a spot in statobjlist to put it in
 //
-    if ((spot = FindEmptyStatic()) == NULL) {
+    if (!(spot = FindEmptyStatic())) {
         return;
     }
 
@@ -985,7 +985,7 @@ objtype* get_actor_near_door(
 
             if (door.tilex == tile_x && door.tiley == tile_y) {
                 // It's a closing door, not an actor.
-                return NULL;
+                return nullptr;
             }
         }
     }
@@ -1319,7 +1319,7 @@ void DropPlasmaDetonator()
 {
     objtype* obj;
 
-    if ((obj = MoveHiddenOfs(plasma_detonator_reserveobj, plasma_detonatorobj, player->x, player->y)) != NULL) {
+    if (obj = MoveHiddenOfs(plasma_detonator_reserveobj, plasma_detonatorobj, player->x, player->y)) {
         obj->flags |= FL_SHOOTABLE;
 
         DISPLAY_TIMED_MSG(pd_dropped, MP_DOOR_OPERATE, MT_GENERAL);
@@ -1359,7 +1359,7 @@ void TryDropPlasmaDetonator()
         return;
     }
 
-    if ((obj = FindObj(rotating_cubeobj, -1, -1)) == NULL) {
+    if (!(obj = FindObj(rotating_cubeobj, -1, -1))) {
         ACT1_ERROR(CANT_FIND_LEVELCOMPUTER);
     }
 
@@ -1729,7 +1729,7 @@ void MovePWalls()
         //
         tilemap[pwallx][pwally] = 0;
 
-        actorat[pwallx][pwally] = NULL;
+        actorat[pwallx][pwally] = nullptr;
 
         areanumber = GetAreaNumber(player->tilex, player->tiley);
         if (GAN_HiddenArea) {
@@ -1846,7 +1846,7 @@ void FreeMsgCache(
 
     while (mList->NumMsgs--) {
         delete [] ci->mSeg;
-        ci->mSeg = NULL;
+        ci->mSeg = nullptr;
 
         ch_ptr = (char*)ci;
         ch_ptr += infoSize;
@@ -1909,7 +1909,7 @@ int16_t LoadMsg(
 // Search for end of MsgNum-1 (Start of our message)
 //
     while (--MsgNum) {
-        if ((Message = strstr(Message, int_xx)) == NULL) {
+        if (!(Message = strstr(Message, int_xx))) {
             ACT1_ERROR(INVALID_CACHE_MSG_NUM);
         }
 
@@ -1924,7 +1924,7 @@ int16_t LoadMsg(
 
 // Find the end of the message
 //
-    if ((EndOfMsg = strstr(Message, int_xx)) == NULL) {
+    if ((EndOfMsg = strstr(Message, int_xx)) == nullptr) {
         ACT1_ERROR(INVALID_CACHE_MSG_NUM);
     }
     EndOfMsg += 3;

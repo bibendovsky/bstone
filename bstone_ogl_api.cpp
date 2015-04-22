@@ -58,40 +58,40 @@ namespace {
 
 void (APIENTRY* glBindTexture_)(
     GLenum target,
-    GLuint texture) = NULL;
+    GLuint texture) = nullptr;
 
 void (APIENTRY* glClear_)(
-    GLbitfield mask) = NULL;
+    GLbitfield mask) = nullptr;
 
 void (APIENTRY* glClearColor_)(
     GLclampf red,
     GLclampf green,
     GLclampf blue,
-    GLclampf alpha) = NULL;
+    GLclampf alpha) = nullptr;
 
 void (APIENTRY* glDeleteTextures_)(
     GLsizei n,
-    const GLuint* textures) = NULL;
+    const GLuint* textures) = nullptr;
 
 void (APIENTRY* glDisable_)(
-    GLenum cap) = NULL;
+    GLenum cap) = nullptr;
 
 void (APIENTRY* glDrawArrays_)(
     GLenum mode,
     GLint first,
-    GLsizei count) = NULL;
+    GLsizei count) = nullptr;
 
 void (APIENTRY* glEnable_)(
-    GLenum cap) = NULL;
+    GLenum cap) = nullptr;
 
 void (APIENTRY* glGenTextures_)(
     GLsizei n,
-    GLuint* textures) = NULL;
+    GLuint* textures) = nullptr;
 
-GLenum (APIENTRY* glGetError_)() = NULL;
+GLenum (APIENTRY* glGetError_)() = nullptr;
 
 const GLubyte* (APIENTRY* glGetString_)(
-    GLenum name) = NULL;
+    GLenum name) = nullptr;
 
 void (APIENTRY* glTexImage1D_)(
     GLenum target,
@@ -101,7 +101,7 @@ void (APIENTRY* glTexImage1D_)(
     GLint border,
     GLenum format,
     GLenum type,
-    const GLvoid* pixels) = NULL;
+    const GLvoid* pixels) = nullptr;
 
 void (APIENTRY* glTexImage2D_)(
     GLenum target,
@@ -112,12 +112,12 @@ void (APIENTRY* glTexImage2D_)(
     GLint border,
     GLenum format,
     GLenum type,
-    const GLvoid* pixels) = NULL;
+    const GLvoid* pixels) = nullptr;
 
 void (APIENTRY* glTexParameteri_)(
     GLenum target,
     GLenum pname,
-    GLint param) = NULL;
+    GLint param) = nullptr;
 
 void (APIENTRY* glTexSubImage1D_)(
     GLenum target,
@@ -126,7 +126,7 @@ void (APIENTRY* glTexSubImage1D_)(
     GLsizei width,
     GLenum format,
     GLenum type,
-    const GLvoid* pixels) = NULL;
+    const GLvoid* pixels) = nullptr;
 
 void (APIENTRY* glTexSubImage2D_)(
     GLenum target,
@@ -137,13 +137,13 @@ void (APIENTRY* glTexSubImage2D_)(
     GLsizei height,
     GLenum format,
     GLenum type,
-    const GLvoid* pixels) = NULL;
+    const GLvoid* pixels) = nullptr;
 
 void (APIENTRY* glViewport_)(
     GLint x,
     GLint y,
     GLsizei width,
-    GLsizei height) = NULL;
+    GLsizei height) = nullptr;
 
 
 } // namespace
@@ -297,34 +297,34 @@ void APIENTRY glViewport(
 namespace {
 
 
-PFNGLACTIVETEXTUREPROC glActiveTexture_ = NULL;
-PFNGLATTACHSHADERPROC glAttachShader_ = NULL;
-PFNGLBINDBUFFERPROC glBindBuffer_ = NULL;
-PFNGLBUFFERDATAPROC glBufferData_ = NULL;
-PFNGLCOMPILESHADERPROC glCompileShader_ = NULL;
-PFNGLCREATEPROGRAMPROC glCreateProgram_ = NULL;
-PFNGLCREATESHADERPROC glCreateShader_ = NULL;
-PFNGLDELETEBUFFERSPROC glDeleteBuffers_ = NULL;
-PFNGLDELETEPROGRAMPROC glDeleteProgram_ = NULL;
-PFNGLDELETESHADERPROC glDeleteShader_ = NULL;
-PFNGLDETACHSHADERPROC glDetachShader_ = NULL;
-PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ = NULL;
-PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ = NULL;
-PFNGLGENBUFFERSPROC glGenBuffers_ = NULL;
-PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation_ = NULL;
-PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ = NULL;
-PFNGLGETPROGRAMIVPROC glGetProgramiv_ = NULL;
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ = NULL;
-PFNGLGETSHADERIVPROC glGetShaderiv_ = NULL;
-PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ = NULL;
-PFNGLISPROGRAMPROC glIsProgram_ = NULL;
-PFNGLISSHADERPROC glIsShader_ = NULL;
-PFNGLLINKPROGRAMPROC glLinkProgram_ = NULL;
-PFNGLSHADERSOURCEPROC glShaderSource_ = NULL;
-PFNGLUNIFORM1IPROC glUniform1i_ = NULL;
-PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ = NULL;
-PFNGLUSEPROGRAMPROC glUseProgram_ = NULL;
-PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ = NULL;
+PFNGLACTIVETEXTUREPROC glActiveTexture_ = nullptr;
+PFNGLATTACHSHADERPROC glAttachShader_ = nullptr;
+PFNGLBINDBUFFERPROC glBindBuffer_ = nullptr;
+PFNGLBUFFERDATAPROC glBufferData_ = nullptr;
+PFNGLCOMPILESHADERPROC glCompileShader_ = nullptr;
+PFNGLCREATEPROGRAMPROC glCreateProgram_ = nullptr;
+PFNGLCREATESHADERPROC glCreateShader_ = nullptr;
+PFNGLDELETEBUFFERSPROC glDeleteBuffers_ = nullptr;
+PFNGLDELETEPROGRAMPROC glDeleteProgram_ = nullptr;
+PFNGLDELETESHADERPROC glDeleteShader_ = nullptr;
+PFNGLDETACHSHADERPROC glDetachShader_ = nullptr;
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ = nullptr;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ = nullptr;
+PFNGLGENBUFFERSPROC glGenBuffers_ = nullptr;
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation_ = nullptr;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ = nullptr;
+PFNGLGETPROGRAMIVPROC glGetProgramiv_ = nullptr;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ = nullptr;
+PFNGLGETSHADERIVPROC glGetShaderiv_ = nullptr;
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ = nullptr;
+PFNGLISPROGRAMPROC glIsProgram_ = nullptr;
+PFNGLISSHADERPROC glIsShader_ = nullptr;
+PFNGLLINKPROGRAMPROC glLinkProgram_ = nullptr;
+PFNGLSHADERSOURCEPROC glShaderSource_ = nullptr;
+PFNGLUNIFORM1IPROC glUniform1i_ = nullptr;
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ = nullptr;
+PFNGLUSEPROGRAMPROC glUseProgram_ = nullptr;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ = nullptr;
 
 
 } // namespace
@@ -572,7 +572,7 @@ void ogl_api_get_base_symbol(
 {
     symbol = Cast<T>(::SDL_GL_GetProcAddress(symbol_name));
 
-    if (symbol == NULL)
+    if (!symbol)
         missing_symbols.push_back(symbol_name);
 }
 
@@ -597,7 +597,7 @@ bool OglApi::initialize()
     uninitialize();
 
 #if !defined(BSTONE_OGL_DIRECT_LINK)
-    if (::SDL_GL_GetCurrentContext() == NULL) {
+    if (!::SDL_GL_GetCurrentContext()) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
             "OGLAPI: %s.", "No current context");
 
@@ -770,7 +770,7 @@ bool OglApi::initialize()
 
     const GLubyte* vendor = ::glGetString(GL_VENDOR);
 
-    if (vendor == NULL) {
+    if (!vendor) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
             "OGLAPI: %s", "Failed to get a vendor.");
 
@@ -783,7 +783,7 @@ bool OglApi::initialize()
 
     const GLubyte* renderer = ::glGetString(GL_RENDERER);
 
-    if (renderer == NULL) {
+    if (!renderer) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
             "OGLAPI: %s", "Failed to get a renderer.");
 
@@ -796,7 +796,7 @@ bool OglApi::initialize()
 
     const GLubyte* version_string = ::glGetString(GL_VERSION);
 
-    if (version_string == NULL) {
+    if (!version_string) {
         ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
             "OGLAPI: %s", "Failed to get a version.");
 
@@ -828,51 +828,51 @@ bool OglApi::initialize()
 void OglApi::uninitialize()
 {
 #if !defined(BSTONE_OGL_DIRECT_LINK)
-    glBindTexture_ = NULL;
-    glClear_ = NULL;
-    glClearColor_ = NULL;
-    glDeleteTextures_ = NULL;
-    glDisable_ = NULL;
-    glDrawArrays_ = NULL;
-    glEnable_ = NULL;
-    glGenTextures_ = NULL;
-    glGetError_ = NULL;
-    glGetString_ = NULL;
-    glTexImage1D_ = NULL;
-    glTexImage2D_ = NULL;
-    glTexParameteri_ = NULL;
-    glTexSubImage1D_ = NULL;
-    glTexSubImage2D_ = NULL;
-    glViewport_ = NULL;
+    glBindTexture_ = nullptr;
+    glClear_ = nullptr;
+    glClearColor_ = nullptr;
+    glDeleteTextures_ = nullptr;
+    glDisable_ = nullptr;
+    glDrawArrays_ = nullptr;
+    glEnable_ = nullptr;
+    glGenTextures_ = nullptr;
+    glGetError_ = nullptr;
+    glGetString_ = nullptr;
+    glTexImage1D_ = nullptr;
+    glTexImage2D_ = nullptr;
+    glTexParameteri_ = nullptr;
+    glTexSubImage1D_ = nullptr;
+    glTexSubImage2D_ = nullptr;
+    glViewport_ = nullptr;
 
-    glIsShader_ = NULL;
-    glActiveTexture_ = NULL;
-    glAttachShader_ = NULL;
-    glBindBuffer_ = NULL;
-    glBufferData_ = NULL;
-    glCompileShader_ = NULL;
-    glCreateProgram_ = NULL;
-    glCreateShader_ = NULL;
-    glDeleteBuffers_ = NULL;
-    glDeleteProgram_ = NULL;
-    glDeleteShader_ = NULL;
-    glDetachShader_ = NULL;
-    glDisableVertexAttribArray_ = NULL;
-    glEnableVertexAttribArray_ = NULL;
-    glGenBuffers_ = NULL;
-    glGetAttribLocation_ = NULL;
-    glGetProgramInfoLog_ = NULL;
-    glGetProgramiv_ = NULL;
-    glGetShaderInfoLog_ = NULL;
-    glGetShaderiv_ = NULL;
-    glGetUniformLocation_ = NULL;
-    glIsProgram_ = NULL;
-    glLinkProgram_ = NULL;
-    glShaderSource_ = NULL;
-    glUniform1i_ = NULL;
-    glUniformMatrix4fv_ = NULL;
-    glUseProgram_ = NULL;
-    glVertexAttribPointer_ = NULL;
+    glIsShader_ = nullptr;
+    glActiveTexture_ = nullptr;
+    glAttachShader_ = nullptr;
+    glBindBuffer_ = nullptr;
+    glBufferData_ = nullptr;
+    glCompileShader_ = nullptr;
+    glCreateProgram_ = nullptr;
+    glCreateShader_ = nullptr;
+    glDeleteBuffers_ = nullptr;
+    glDeleteProgram_ = nullptr;
+    glDeleteShader_ = nullptr;
+    glDetachShader_ = nullptr;
+    glDisableVertexAttribArray_ = nullptr;
+    glEnableVertexAttribArray_ = nullptr;
+    glGenBuffers_ = nullptr;
+    glGetAttribLocation_ = nullptr;
+    glGetProgramInfoLog_ = nullptr;
+    glGetProgramiv_ = nullptr;
+    glGetShaderInfoLog_ = nullptr;
+    glGetShaderiv_ = nullptr;
+    glGetUniformLocation_ = nullptr;
+    glIsProgram_ = nullptr;
+    glLinkProgram_ = nullptr;
+    glShaderSource_ = nullptr;
+    glUniform1i_ = nullptr;
+    glUniformMatrix4fv_ = nullptr;
+    glUseProgram_ = nullptr;
+    glVertexAttribPointer_ = nullptr;
 #endif // BSTONE_OGL_DIRECT_LINK
 
     is_initialized_ = false;

@@ -49,7 +49,7 @@ int fbdev = -1;
 int bufferofs;
 int displayofs;
 
-int* ylookup = NULL;
+int* ylookup = nullptr;
 
 boolean screenfaded;
 
@@ -77,15 +77,15 @@ int window_width = 0;
 int window_height = 0;
 
 
-uint8_t* vga_palette = NULL;
+uint8_t* vga_palette = nullptr;
 
-bool (* vid_pre_subsystem_creation)() = NULL;
-bool (* vid_pre_window_creation)() = NULL;
-uint32_t (* vid_get_window_flags)() = NULL;
-bool (* vid_initialize_renderer)() = NULL;
-void (* vid_refresh_screen)() = NULL;
-void (* vid_update_screen)() = NULL;
-void (* vid_uninitialize_video)() = NULL;
+bool (* vid_pre_subsystem_creation)() = nullptr;
+bool (* vid_pre_window_creation)() = nullptr;
+uint32_t (* vid_get_window_flags)() = nullptr;
+bool (* vid_initialize_renderer)() = nullptr;
+void (* vid_refresh_screen)() = nullptr;
+void (* vid_update_screen)() = nullptr;
+void (* vid_uninitialize_video)() = nullptr;
 
 bool sdl_use_custom_window_position = false;
 int sdl_window_x = 0;
@@ -194,7 +194,7 @@ GLint u_screen_tu = -1;
 GLint u_palette_tu = -1;
 
 
-SDL_GLContext sdl_ogl_context = NULL;
+SDL_GLContext sdl_ogl_context = nullptr;
 
 
 //
@@ -361,8 +361,8 @@ static int get_color_shift(
 }; // class SdlPalette
 
 
-SDL_Renderer* sdl_soft_renderer = NULL;
-SDL_Texture* sdl_soft_screen_tex = NULL;
+SDL_Renderer* sdl_soft_renderer = nullptr;
+SDL_Texture* sdl_soft_screen_tex = nullptr;
 SdlPalette sdl_palette;
 
 
@@ -387,7 +387,7 @@ enum RendererType {
 
 extern const uint8_t vgapal[768];
 
-uint8_t* vga_memory = NULL;
+uint8_t* vga_memory = nullptr;
 
 int vga_scale = 0;
 int vga_width = 0;
@@ -401,7 +401,7 @@ int screen_width = 0;
 int screen_height = 0;
 
 bool sdl_is_windowed = false;
-SDL_Window* sdl_window = NULL;
+SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
 // BBi
 
@@ -915,7 +915,7 @@ void ogl_ortho(
 {
     assert(width > 0);
     assert(height > 0);
-    assert(matrix != NULL);
+    assert(matrix);
 
     matrix[0] = 2.0F / width;
     matrix[1] = 0.0F;
@@ -1155,7 +1155,7 @@ bool ogl_initialize_textures()
             0,
             format,
             GL_UNSIGNED_BYTE,
-            NULL);
+            nullptr);
     }
 
     if (is_succeed) {
@@ -1186,7 +1186,7 @@ bool ogl_initialize_textures()
             0,
             GL_RGB,
             GL_UNSIGNED_BYTE,
-            NULL);
+            nullptr);
     }
 
     if (is_succeed) {
@@ -1371,7 +1371,7 @@ bool ogl_initialize_programs()
 
 void ogl_uninitialize_video()
 {
-    if (sdl_ogl_context != NULL) {
+    if (sdl_ogl_context) {
         if (screen_po != GL_NONE) {
             glDisableVertexAttribArray(a_pos_vec4);
             glDisableVertexAttribArray(a_tc0_vec2);
@@ -1408,9 +1408,9 @@ void ogl_uninitialize_video()
             palette_tex = GL_NONE;
         }
 
-        SDL_GL_MakeCurrent(sdl_window, NULL);
+        SDL_GL_MakeCurrent(sdl_window, nullptr);
         SDL_GL_DeleteContext(sdl_ogl_context);
-        sdl_ogl_context = NULL;
+        sdl_ogl_context = nullptr;
 
         bstone::OglApi::uninitialize();
     }
@@ -1486,7 +1486,7 @@ bool ogl_initialize_renderer()
 
         sdl_ogl_context = SDL_GL_CreateContext(sdl_window);
 
-        if (sdl_ogl_context == NULL) {
+        if (!sdl_ogl_context) {
             is_succeed = false;
             SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
         }
@@ -1613,7 +1613,7 @@ void soft_refresh_screen()
 
     int sdl_result = 0;
     int pitch = 0;
-    void* data = NULL;
+    void* data = nullptr;
 
     sdl_result = SDL_LockTexture(
         sdl_soft_screen_tex, &screen_rect, &data, &pitch);
@@ -1667,7 +1667,7 @@ bool soft_initialize_textures()
         vga_width,
         vga_height);
 
-    if (sdl_soft_screen_tex != NULL) {
+    if (sdl_soft_screen_tex) {
         return true;
     }
 
@@ -1679,9 +1679,9 @@ bool soft_initialize_textures()
 
 void soft_uninitialize_textures()
 {
-    if (sdl_soft_screen_tex != NULL) {
+    if (sdl_soft_screen_tex) {
         SDL_DestroyTexture(sdl_soft_screen_tex);
-        sdl_soft_screen_tex = NULL;
+        sdl_soft_screen_tex = nullptr;
     }
 }
 
@@ -1689,9 +1689,9 @@ void soft_uninitialize_video()
 {
     soft_uninitialize_textures();
 
-    if (sdl_soft_renderer != NULL) {
+    if (sdl_soft_renderer) {
         SDL_DestroyRenderer(sdl_soft_renderer);
-        sdl_soft_renderer = NULL;
+        sdl_soft_renderer = nullptr;
     }
 }
 
@@ -1721,7 +1721,7 @@ bool soft_initialize_renderer()
         sdl_soft_renderer = SDL_CreateRenderer(
             sdl_window, -1, SDL_RENDERER_SOFTWARE);
 
-        if (sdl_soft_renderer == NULL) {
+        if (!sdl_soft_renderer) {
             is_succeed = false;
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                          "%s", SDL_GetError());
@@ -1836,7 +1836,7 @@ bool x_initialize_video()
             window_height,
             flags);
 
-        if (sdl_window == NULL) {
+        if (!sdl_window) {
             is_succeed = false;
             SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
         }
@@ -2087,13 +2087,13 @@ void initialize_video()
 
 void uninitialize_video()
 {
-    if (vid_uninitialize_video != NULL) {
+    if (vid_uninitialize_video) {
         vid_uninitialize_video();
     }
 
-    if (sdl_window != NULL) {
+    if (sdl_window) {
         SDL_DestroyWindow(sdl_window);
-        sdl_window = NULL;
+        sdl_window = nullptr;
     }
 
     SDL_QuitSubSystem(SDL_INIT_VIDEO);

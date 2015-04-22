@@ -578,66 +578,66 @@ void T_OfsBounce(
 //
 // Local Offset Anim Structures
 //
-statetype s_ofs_stand = { false, SPR_DEMO, 0, T_OfsThink, NULL, &s_ofs_stand };
+statetype s_ofs_stand = { false, SPR_DEMO, 0, T_OfsThink, nullptr, &s_ofs_stand };
 
-statetype s_ofs_chase1 = { false, SPR_DEMO, 10, T_Chase, NULL, &s_ofs_chase1s };
-statetype s_ofs_chase1s = { false, SPR_DEMO, 5, NULL, NULL, &s_ofs_chase2 };
-statetype s_ofs_chase2 = { false, SPR_DEMO, 8, T_Chase, NULL, &s_ofs_chase3 };
-statetype s_ofs_chase3 = { false, SPR_DEMO, 10, T_Chase, NULL, &s_ofs_chase3s };
-statetype s_ofs_chase3s = { false, SPR_DEMO, 5, NULL, NULL, &s_ofs_chase4 };
-statetype s_ofs_chase4 = { false, SPR_DEMO, 8, T_Chase, NULL, &s_ofs_chase1 };
+statetype s_ofs_chase1 = { false, SPR_DEMO, 10, T_Chase, nullptr, &s_ofs_chase1s };
+statetype s_ofs_chase1s = { false, SPR_DEMO, 5, nullptr, nullptr, &s_ofs_chase2 };
+statetype s_ofs_chase2 = { false, SPR_DEMO, 8, T_Chase, nullptr, &s_ofs_chase3 };
+statetype s_ofs_chase3 = { false, SPR_DEMO, 10, T_Chase, nullptr, &s_ofs_chase3s };
+statetype s_ofs_chase3s = { false, SPR_DEMO, 5, nullptr, nullptr, &s_ofs_chase4 };
+statetype s_ofs_chase4 = { false, SPR_DEMO, 8, T_Chase, nullptr, &s_ofs_chase1 };
 
-statetype s_ofs_pain = { false, SPR_DEMO, 15, NULL, NULL, &s_ofs_chase1 };
+statetype s_ofs_pain = { false, SPR_DEMO, 15, nullptr, nullptr, &s_ofs_chase1 };
 
 statetype s_ofs_die1 = { false, SPR_DEMO, 18, T_BlowBack, A_DeathScream, &s_ofs_die1s };
-statetype s_ofs_die1s = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_ofs_die2 };
-statetype s_ofs_die2 = { false, SPR_DEMO, 22, T_BlowBack, NULL, &s_ofs_die3 };
-statetype s_ofs_die3 = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_ofs_die4 };
-statetype s_ofs_die4 = { false, SPR_DEMO, 18, T_BlowBack, NULL, &s_ofs_die5 };
-statetype s_ofs_die5 = { false, SPR_DEMO, 0, NULL, NULL, &s_ofs_die5 };
+statetype s_ofs_die1s = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_ofs_die2 };
+statetype s_ofs_die2 = { false, SPR_DEMO, 22, T_BlowBack, nullptr, &s_ofs_die3 };
+statetype s_ofs_die3 = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_ofs_die4 };
+statetype s_ofs_die4 = { false, SPR_DEMO, 18, T_BlowBack, nullptr, &s_ofs_die5 };
+statetype s_ofs_die5 = { false, SPR_DEMO, 0, nullptr, nullptr, &s_ofs_die5 };
 
-statetype s_ofs_attack1 = { false, SPR_DEMO, 20, NULL, NULL, &s_ofs_attack2 };
-statetype s_ofs_attack2 = { false, SPR_DEMO, 20, NULL, T_Hit, &s_ofs_attack3 };
-statetype s_ofs_attack3 = { false, SPR_DEMO, 30, NULL, NULL, &s_ofs_chase1 };
+statetype s_ofs_attack1 = { false, SPR_DEMO, 20, nullptr, nullptr, &s_ofs_attack2 };
+statetype s_ofs_attack2 = { false, SPR_DEMO, 20, nullptr, T_Hit, &s_ofs_attack3 };
+statetype s_ofs_attack3 = { false, SPR_DEMO, 30, nullptr, nullptr, &s_ofs_chase1 };
 
-statetype s_ofs_spit1 = { false, SPR_DEMO, 20, NULL, NULL, &s_ofs_spit2 };
-statetype s_ofs_spit2 = { false, SPR_DEMO, 20, NULL, T_Shoot, &s_ofs_spit3 };
-statetype s_ofs_spit3 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_ofs_chase1 };
+statetype s_ofs_spit1 = { false, SPR_DEMO, 20, nullptr, nullptr, &s_ofs_spit2 };
+statetype s_ofs_spit2 = { false, SPR_DEMO, 20, nullptr, T_Shoot, &s_ofs_spit3 };
+statetype s_ofs_spit3 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_ofs_chase1 };
 
-statetype s_ofs_shoot1 = { false, SPR_DEMO, 10, NULL, NULL, &s_ofs_shoot2 };
-statetype s_ofs_shoot2 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_ofs_shoot3 };
-statetype s_ofs_shoot3 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_ofs_chase1 };
+statetype s_ofs_shoot1 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_ofs_shoot2 };
+statetype s_ofs_shoot2 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_ofs_shoot3 };
+statetype s_ofs_shoot3 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_ofs_chase1 };
 
 // General 'offset-object' states...
 //
 
-statetype s_ofs_pod_attack1 = { 0, SPR_DEMO, 8, NULL, NULL, &s_ofs_pod_attack1a };
-statetype s_ofs_pod_attack1a = { 0, SPR_DEMO, 8, NULL, NULL, &s_ofs_attack2 };
-statetype s_ofs_pod_attack2 = { 0, SPR_DEMO, 8, NULL, T_Hit, &s_ofs_chase1 };
+statetype s_ofs_pod_attack1 = { 0, SPR_DEMO, 8, nullptr, nullptr, &s_ofs_pod_attack1a };
+statetype s_ofs_pod_attack1a = { 0, SPR_DEMO, 8, nullptr, nullptr, &s_ofs_attack2 };
+statetype s_ofs_pod_attack2 = { 0, SPR_DEMO, 8, nullptr, T_Hit, &s_ofs_chase1 };
 
-statetype s_ofs_pod_spit1 = { 0, SPR_DEMO, 8, NULL, NULL, &s_ofs_pod_spit2 };
-statetype s_ofs_pod_spit2 = { 0, SPR_DEMO, 8, NULL, NULL, &s_ofs_pod_spit3 };
-statetype s_ofs_pod_spit3 = { 0, SPR_DEMO, 8, NULL, T_Shoot, &s_ofs_chase1 };
+statetype s_ofs_pod_spit1 = { 0, SPR_DEMO, 8, nullptr, nullptr, &s_ofs_pod_spit2 };
+statetype s_ofs_pod_spit2 = { 0, SPR_DEMO, 8, nullptr, nullptr, &s_ofs_pod_spit3 };
+statetype s_ofs_pod_spit3 = { 0, SPR_DEMO, 8, nullptr, T_Shoot, &s_ofs_chase1 };
 
-statetype s_ofs_pod_death1 = { 0, 0, 60, NULL, NULL, &s_ofs_pod_death2 };
-statetype s_ofs_pod_death2 = { 0, 1, 30, NULL, NULL, &s_ofs_pod_death3 };
-statetype s_ofs_pod_death3 = { 0, 2, 0, NULL, NULL, &s_ofs_pod_death3 };
+statetype s_ofs_pod_death1 = { 0, 0, 60, nullptr, nullptr, &s_ofs_pod_death2 };
+statetype s_ofs_pod_death2 = { 0, 1, 30, nullptr, nullptr, &s_ofs_pod_death3 };
+statetype s_ofs_pod_death3 = { 0, 2, 0, nullptr, nullptr, &s_ofs_pod_death3 };
 
-statetype s_ofs_pod_ouch = { 0, SPR_DEMO, 11, NULL, NULL, &s_ofs_chase1 };
+statetype s_ofs_pod_ouch = { 0, SPR_DEMO, 11, nullptr, nullptr, &s_ofs_chase1 };
 
 statetype s_ofs_bounce = { 0, 0, 10, T_OfsBounce, T_OfsThink, &s_ofs_bounce };
 
-statetype s_ofs_ouch = { 0, 0, 15, T_OfsBounce, NULL, &s_ofs_bounce };
+statetype s_ofs_ouch = { 0, 0, 15, T_OfsBounce, nullptr, &s_ofs_bounce };
 
-statetype s_ofs_esphere_death1 = { 0, 0, 15, NULL, A_DeathScream, &s_ofs_esphere_death2 };
-statetype s_ofs_esphere_death2 = { 0, 1, 15, NULL, NULL, &s_ofs_esphere_death3 };
-statetype s_ofs_esphere_death3 = { 0, 2, 15, NULL, NULL, NULL };
+statetype s_ofs_esphere_death1 = { 0, 0, 15, nullptr, A_DeathScream, &s_ofs_esphere_death2 };
+statetype s_ofs_esphere_death2 = { 0, 1, 15, nullptr, nullptr, &s_ofs_esphere_death3 };
+statetype s_ofs_esphere_death3 = { 0, 2, 15, nullptr, nullptr, nullptr };
 
-statetype s_ofs_random = { 0, 0, 1, T_OfsThink, NULL, &s_ofs_random };
+statetype s_ofs_random = { 0, 0, 1, T_OfsThink, nullptr, &s_ofs_random };
 
-statetype s_ofs_static = { 0, 0, 1, NULL, NULL, &s_ofs_static };
+statetype s_ofs_static = { 0, 0, 1, nullptr, nullptr, &s_ofs_static };
 
-statetype s_hold = { 0, 0, 1, NULL, NULL, &s_hold };
+statetype s_hold = { 0, 0, 1, nullptr, nullptr, &s_hold };
 
 uint16_t scan_value;
 
@@ -1232,7 +1232,7 @@ void SphereStartDir(
 {
     char loop;
 
-    actorat[ob->tilex][ob->tiley] = NULL;
+    actorat[ob->tilex][ob->tiley] = nullptr;
     for (loop = 0; loop < 3; loop++) {
         ob->dir = static_cast<dirtype>(RandomSphereDir(
             static_cast<enemy_t>(en_vertsphere + ((ob->trydir - en_vertsphere + loop) % 3))));
@@ -1524,7 +1524,7 @@ objtype* FindObj(
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -1570,7 +1570,7 @@ objtype* FindHiddenOfs(
 {
     objtype* obj;
 
-    if ((obj = FindObj(which, -1, -1)) == NULL) {
+    if (!(obj = FindObj(which, -1, -1))) {
         ACT2_ERROR(CANT_FIND_HIDDEN_OBJ);
     }
 
@@ -1584,7 +1584,7 @@ objtype* FindHiddenOfs(
 //                  to a new passed coords and change the actors class.
 //
 // RETURNS: Success = Ptr to the object that was moved.
-//          Failure = NULL.
+//          Failure = nullptr.
 //
 // NOTE: This function updates the actors 'areanumber' to the newly changed
 //       coords.
@@ -1597,7 +1597,7 @@ objtype* MoveHiddenOfs(
 {
     objtype* obj;
 
-    if ((obj = FindHiddenOfs(which_class)) != NULL) {
+    if ((obj = FindHiddenOfs(which_class))) {
         obj->obclass = new_class;
         obj->x = x;
         obj->y = y;
@@ -1608,7 +1608,7 @@ objtype* MoveHiddenOfs(
         return obj;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -1705,11 +1705,11 @@ void InitAnim(
 //
 //
 
-// statetype s_ofs_smart_anim   = {false,0, 1, NULL,T_SmartThought,&s_ofs_smart_anim};
-// statetype s_ofs_smart_anim2  = {false,0, 5, NULL,T_SmartThought,&s_ofs_smart_anim2};
+// statetype s_ofs_smart_anim   = {false,0, 1, nullptr,T_SmartThought,&s_ofs_smart_anim};
+// statetype s_ofs_smart_anim2  = {false,0, 5, nullptr,T_SmartThought,&s_ofs_smart_anim2};
 
-statetype s_ofs_smart_anim = { false, 0, 1, T_SmartThought, NULL, &s_ofs_smart_anim };
-statetype s_ofs_smart_anim2 = { false, 0, 1, T_SmartThought, NULL, &s_ofs_smart_anim2 };
+statetype s_ofs_smart_anim = { false, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_anim };
+statetype s_ofs_smart_anim2 = { false, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_anim2 };
 
 //
 // Functions
@@ -1842,7 +1842,7 @@ void T_SmartThought(
                 // Game completed!
                 //
                 playstate = ex_victorious;
-                obj->state = NULL;  // Mark to be removed.
+                obj->state = nullptr;  // Mark to be removed.
                 break;
 
 
@@ -1853,7 +1853,7 @@ void T_SmartThought(
                 return;
 
             default:
-                obj->state = NULL;  // Mark to be removed.
+                obj->state = nullptr;  // Mark to be removed.
                 break;
             }
         }
@@ -2437,7 +2437,7 @@ int16_t CheckAndConnect(
         default:
             break;
         }
-    } while ((ob = ob->next) != NULL);
+    } while (ob = ob->next);
 
     return bars_connected;
 }
@@ -2510,10 +2510,10 @@ void T_BarrierTransition(
 void T_BarrierShutdown(
     objtype* obj);
 
-statetype s_barrier_transition = { 0, 0, 15, T_BarrierTransition, NULL, &s_barrier_transition };
-statetype s_vpost_barrier = { 0, SPR_DEMO, 15, T_BarrierTransition, NULL, &s_vpost_barrier };
-statetype s_spike_barrier = { 0, SPR_DEMO, 15, T_BarrierTransition, NULL, &s_spike_barrier };
-statetype s_barrier_shutdown = { 0, 0, 15, T_BarrierShutdown, NULL, &s_barrier_shutdown };
+statetype s_barrier_transition = { 0, 0, 15, T_BarrierTransition, nullptr, &s_barrier_transition };
+statetype s_vpost_barrier = { 0, SPR_DEMO, 15, T_BarrierTransition, nullptr, &s_vpost_barrier };
+statetype s_spike_barrier = { 0, SPR_DEMO, 15, T_BarrierTransition, nullptr, &s_spike_barrier };
+statetype s_barrier_shutdown = { 0, 0, 15, T_BarrierShutdown, nullptr, &s_barrier_shutdown };
 
 
 // ---------------------------------------------------------------------------
@@ -2991,33 +2991,33 @@ extern statetype s_rent_die3;
 extern statetype s_rent_die3s;
 extern statetype s_rent_die4;
 
-statetype s_rent_stand = { true, SPR_DEMO, 0, T_Stand, NULL, &s_rent_stand };
+statetype s_rent_stand = { true, SPR_DEMO, 0, T_Stand, nullptr, &s_rent_stand };
 
-statetype s_rent_path1 = { true, SPR_DEMO, 20, T_Path, NULL, &s_rent_path1s };
-statetype s_rent_path1s = { true, SPR_DEMO, 5, NULL, NULL, &s_rent_path2 };
-statetype s_rent_path2 = { true, SPR_DEMO, 15, T_Path, NULL, &s_rent_path3 };
-statetype s_rent_path3 = { true, SPR_DEMO, 20, T_Path, NULL, &s_rent_path3s };
-statetype s_rent_path3s = { true, SPR_DEMO, 5, NULL, NULL, &s_rent_path4 };
-statetype s_rent_path4 = { true, SPR_DEMO, 15, T_Path, NULL, &s_rent_path1 };
+statetype s_rent_path1 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_rent_path1s };
+statetype s_rent_path1s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_rent_path2 };
+statetype s_rent_path2 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_rent_path3 };
+statetype s_rent_path3 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_rent_path3s };
+statetype s_rent_path3s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_rent_path4 };
+statetype s_rent_path4 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_rent_path1 };
 
-statetype s_rent_pain = { 2, SPR_DEMO, 15, NULL, NULL, &s_rent_chase1 };
+statetype s_rent_pain = { 2, SPR_DEMO, 15, nullptr, nullptr, &s_rent_chase1 };
 
-statetype s_rent_shoot1 = { false, SPR_DEMO, 20, NULL, NULL, &s_rent_shoot2 };
-statetype s_rent_shoot2 = { false, SPR_DEMO, 20, NULL, T_Shoot, &s_rent_shoot3 };
-statetype s_rent_shoot3 = { false, SPR_DEMO, 20, NULL, T_Shade, &s_rent_chase1 };
+statetype s_rent_shoot1 = { false, SPR_DEMO, 20, nullptr, nullptr, &s_rent_shoot2 };
+statetype s_rent_shoot2 = { false, SPR_DEMO, 20, nullptr, T_Shoot, &s_rent_shoot3 };
+statetype s_rent_shoot3 = { false, SPR_DEMO, 20, nullptr, T_Shade, &s_rent_chase1 };
 
-statetype s_rent_chase1 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_rent_chase1s };
-statetype s_rent_chase1s = { true, SPR_DEMO, 3, NULL, NULL, &s_rent_chase2 };
-statetype s_rent_chase2 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_rent_chase3 };
-statetype s_rent_chase3 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_rent_chase3s };
-statetype s_rent_chase3s = { true, SPR_DEMO, 3, NULL, NULL, &s_rent_chase4 };
-statetype s_rent_chase4 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_rent_chase1 };
+statetype s_rent_chase1 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_rent_chase1s };
+statetype s_rent_chase1s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_rent_chase2 };
+statetype s_rent_chase2 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_rent_chase3 };
+statetype s_rent_chase3 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_rent_chase3s };
+statetype s_rent_chase3s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_rent_chase4 };
+statetype s_rent_chase4 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_rent_chase1 };
 
 statetype s_rent_die1 = { false, SPR_DEMO, 17, T_BlowBack, A_DeathScream, &s_rent_die2 };
-statetype s_rent_die2 = { false, SPR_DEMO, 21, T_BlowBack, NULL, &s_rent_die3 };
-statetype s_rent_die3 = { false, SPR_DEMO, 16, T_BlowBack, NULL, &s_rent_die3s };
-statetype s_rent_die3s = { false, SPR_DEMO, 13, T_BlowBack, NULL, &s_rent_die4 };
-statetype s_rent_die4 = { false, SPR_DEMO, 0, NULL, NULL, &s_rent_die4 };
+statetype s_rent_die2 = { false, SPR_DEMO, 21, T_BlowBack, nullptr, &s_rent_die3 };
+statetype s_rent_die3 = { false, SPR_DEMO, 16, T_BlowBack, nullptr, &s_rent_die3s };
+statetype s_rent_die3s = { false, SPR_DEMO, 13, T_BlowBack, nullptr, &s_rent_die4 };
+statetype s_rent_die4 = { false, SPR_DEMO, 0, nullptr, nullptr, &s_rent_die4 };
 
 //
 // officers
@@ -3054,33 +3054,33 @@ extern statetype s_ofcdie3;
 extern statetype s_ofcdie4;
 extern statetype s_ofcdie5;
 
-statetype s_ofcstand = { true, SPR_DEMO, 0, T_Stand, NULL, &s_ofcstand };
+statetype s_ofcstand = { true, SPR_DEMO, 0, T_Stand, nullptr, &s_ofcstand };
 
-statetype s_ofcpath1 = { true, SPR_DEMO, 20, T_Path, NULL, &s_ofcpath1s };
-statetype s_ofcpath1s = { true, SPR_DEMO, 5, NULL, NULL, &s_ofcpath2 };
-statetype s_ofcpath2 = { true, SPR_DEMO, 15, T_Path, NULL, &s_ofcpath3 };
-statetype s_ofcpath3 = { true, SPR_DEMO, 20, T_Path, NULL, &s_ofcpath3s };
-statetype s_ofcpath3s = { true, SPR_DEMO, 5, NULL, NULL, &s_ofcpath4 };
-statetype s_ofcpath4 = { true, SPR_DEMO, 15, T_Path, NULL, &s_ofcpath1 };
+statetype s_ofcpath1 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_ofcpath1s };
+statetype s_ofcpath1s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_ofcpath2 };
+statetype s_ofcpath2 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_ofcpath3 };
+statetype s_ofcpath3 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_ofcpath3s };
+statetype s_ofcpath3s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_ofcpath4 };
+statetype s_ofcpath4 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_ofcpath1 };
 
-statetype s_ofcpain = { 2, SPR_DEMO, 15, NULL, NULL, &s_ofcchase1 };
+statetype s_ofcpain = { 2, SPR_DEMO, 15, nullptr, nullptr, &s_ofcchase1 };
 
-statetype s_ofcshoot1 = { false, SPR_DEMO, 6, NULL, NULL, &s_ofcshoot2 };
-statetype s_ofcshoot2 = { false, SPR_DEMO, 20, NULL, T_Shoot, &s_ofcshoot3 };
-statetype s_ofcshoot3 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_ofcchase1 };
+statetype s_ofcshoot1 = { false, SPR_DEMO, 6, nullptr, nullptr, &s_ofcshoot2 };
+statetype s_ofcshoot2 = { false, SPR_DEMO, 20, nullptr, T_Shoot, &s_ofcshoot3 };
+statetype s_ofcshoot3 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_ofcchase1 };
 
-statetype s_ofcchase1 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_ofcchase1s };
-statetype s_ofcchase1s = { true, SPR_DEMO, 3, NULL, NULL, &s_ofcchase2 };
-statetype s_ofcchase2 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_ofcchase3 };
-statetype s_ofcchase3 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_ofcchase3s };
-statetype s_ofcchase3s = { true, SPR_DEMO, 3, NULL, NULL, &s_ofcchase4 };
-statetype s_ofcchase4 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_ofcchase1 };
+statetype s_ofcchase1 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_ofcchase1s };
+statetype s_ofcchase1s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_ofcchase2 };
+statetype s_ofcchase2 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_ofcchase3 };
+statetype s_ofcchase3 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_ofcchase3s };
+statetype s_ofcchase3s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_ofcchase4 };
+statetype s_ofcchase4 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_ofcchase1 };
 
 statetype s_ofcdie1 = { false, SPR_DEMO, 15, T_BlowBack, A_DeathScream, &s_ofcdie2 };
-statetype s_ofcdie2 = { false, SPR_DEMO, 15, T_BlowBack, NULL, &s_ofcdie3 };
-statetype s_ofcdie3 = { false, SPR_DEMO, 15, T_BlowBack, NULL, &s_ofcdie4 };
-statetype s_ofcdie4 = { false, SPR_DEMO, 15, T_BlowBack, NULL, &s_ofcdie5 };
-statetype s_ofcdie5 = { false, SPR_DEMO, 0, NULL, NULL, &s_ofcdie5 };
+statetype s_ofcdie2 = { false, SPR_DEMO, 15, T_BlowBack, nullptr, &s_ofcdie3 };
+statetype s_ofcdie3 = { false, SPR_DEMO, 15, T_BlowBack, nullptr, &s_ofcdie4 };
+statetype s_ofcdie4 = { false, SPR_DEMO, 15, T_BlowBack, nullptr, &s_ofcdie5 };
+statetype s_ofcdie5 = { false, SPR_DEMO, 0, nullptr, nullptr, &s_ofcdie5 };
 
 
 //
@@ -3132,47 +3132,47 @@ extern statetype s_swatdie4;
 extern statetype s_swatdie5;
 
 
-statetype s_swatstand = { true, SPR_DEMO, 0, T_Stand, NULL, &s_swatstand };
+statetype s_swatstand = { true, SPR_DEMO, 0, T_Stand, nullptr, &s_swatstand };
 
-statetype s_swatpath1 = { true, SPR_DEMO, 20, T_Path, NULL, &s_swatpath1s };
-statetype s_swatpath1s = { true, SPR_DEMO, 5, NULL, NULL, &s_swatpath2 };
-statetype s_swatpath2 = { true, SPR_DEMO, 15, T_Path, NULL, &s_swatpath3 };
-statetype s_swatpath3 = { true, SPR_DEMO, 20, T_Path, NULL, &s_swatpath3s };
-statetype s_swatpath3s = { true, SPR_DEMO, 5, NULL, NULL, &s_swatpath4 };
-statetype s_swatpath4 = { true, SPR_DEMO, 15, T_Path, NULL, &s_swatpath1 };
+statetype s_swatpath1 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_swatpath1s };
+statetype s_swatpath1s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_swatpath2 };
+statetype s_swatpath2 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_swatpath3 };
+statetype s_swatpath3 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_swatpath3s };
+statetype s_swatpath3s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_swatpath4 };
+statetype s_swatpath4 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_swatpath1 };
 
-statetype s_swatpain = { 2, SPR_DEMO, 15, NULL, NULL, &s_swatshoot1 };
+statetype s_swatpain = { 2, SPR_DEMO, 15, nullptr, nullptr, &s_swatshoot1 };
 
-statetype s_swatshoot1 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatshoot2 };
-statetype s_swatshoot2 = { false, SPR_DEMO, 20, NULL, T_Shoot, &s_swatshoot3 };
-statetype s_swatshoot3 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_swatshoot4 };
-statetype s_swatshoot4 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_swatshoot5 };
-statetype s_swatshoot5 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_swatshoot6 };
-statetype s_swatshoot6 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_swatshoot7 };
-statetype s_swatshoot7 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_swatchase1 };
+statetype s_swatshoot1 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatshoot2 };
+statetype s_swatshoot2 = { false, SPR_DEMO, 20, nullptr, T_Shoot, &s_swatshoot3 };
+statetype s_swatshoot3 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_swatshoot4 };
+statetype s_swatshoot4 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_swatshoot5 };
+statetype s_swatshoot5 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_swatshoot6 };
+statetype s_swatshoot6 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_swatshoot7 };
+statetype s_swatshoot7 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_swatchase1 };
 
-statetype s_swatchase1 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_swatchase1s };
-statetype s_swatchase1s = { true, SPR_DEMO, 3, NULL, NULL, &s_swatchase2 };
-statetype s_swatchase2 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_swatchase3 };
-statetype s_swatchase3 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_swatchase3s };
-statetype s_swatchase3s = { true, SPR_DEMO, 3, NULL, NULL, &s_swatchase4 };
-statetype s_swatchase4 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_swatchase1 };
+statetype s_swatchase1 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_swatchase1s };
+statetype s_swatchase1s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_swatchase2 };
+statetype s_swatchase2 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_swatchase3 };
+statetype s_swatchase3 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_swatchase3s };
+statetype s_swatchase3s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_swatchase4 };
+statetype s_swatchase4 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_swatchase1 };
 
-statetype s_swatwounded1 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatwounded2 };
-statetype s_swatwounded2 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatwounded3 };
-statetype s_swatwounded3 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatwounded4 };
-statetype s_swatwounded4 = { false, SPR_DEMO, 10, T_SwatWound, NULL, &s_swatwounded4 };
+statetype s_swatwounded1 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatwounded2 };
+statetype s_swatwounded2 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatwounded3 };
+statetype s_swatwounded3 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatwounded4 };
+statetype s_swatwounded4 = { false, SPR_DEMO, 10, T_SwatWound, nullptr, &s_swatwounded4 };
 
-statetype s_swatunwounded1 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatunwounded2 };
-statetype s_swatunwounded2 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatunwounded3 };
-statetype s_swatunwounded3 = { false, SPR_DEMO, 10, NULL, NULL, &s_swatunwounded4 };
-statetype s_swatunwounded4 = { false, SPR_DEMO, 10, NULL, T_SwatWound, &s_swatchase1 };
+statetype s_swatunwounded1 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatunwounded2 };
+statetype s_swatunwounded2 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatunwounded3 };
+statetype s_swatunwounded3 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_swatunwounded4 };
+statetype s_swatunwounded4 = { false, SPR_DEMO, 10, nullptr, T_SwatWound, &s_swatchase1 };
 
 statetype s_swatdie1 = { false, SPR_DEMO, 20, T_BlowBack, A_DeathScream, &s_swatdie2 };
-statetype s_swatdie2 = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_swatdie3 };
-statetype s_swatdie3 = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_swatdie4 };
-statetype s_swatdie4 = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_swatdie5 };
-statetype s_swatdie5 = { false, SPR_DEMO, 0, NULL, NULL, &s_swatdie5 };
+statetype s_swatdie2 = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_swatdie3 };
+statetype s_swatdie3 = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_swatdie4 };
+statetype s_swatdie4 = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_swatdie5 };
+statetype s_swatdie5 = { false, SPR_DEMO, 0, nullptr, nullptr, &s_swatdie5 };
 
 
 //
@@ -3214,41 +3214,41 @@ extern statetype s_prodie3;
 extern statetype s_prodie3a;
 extern statetype s_prodie4;
 
-statetype s_prostand = { true, SPR_DEMO, 0, T_Stand, NULL, &s_prostand };
+statetype s_prostand = { true, SPR_DEMO, 0, T_Stand, nullptr, &s_prostand };
 
-statetype s_propath1 = { true, SPR_DEMO, 20, T_Path, NULL, &s_propath1s };
-statetype s_propath1s = { true, SPR_DEMO, 5, NULL, NULL, &s_propath2 };
-statetype s_propath2 = { true, SPR_DEMO, 15, T_Path, NULL, &s_propath3 };
-statetype s_propath3 = { true, SPR_DEMO, 20, T_Path, NULL, &s_propath3s };
-statetype s_propath3s = { true, SPR_DEMO, 5, NULL, NULL, &s_propath4 };
-statetype s_propath4 = { true, SPR_DEMO, 15, T_Path, NULL, &s_propath1 };
+statetype s_propath1 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_propath1s };
+statetype s_propath1s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_propath2 };
+statetype s_propath2 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_propath3 };
+statetype s_propath3 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_propath3s };
+statetype s_propath3s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_propath4 };
+statetype s_propath4 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_propath1 };
 
-statetype s_propain = { 2, SPR_DEMO, 15, NULL, NULL, &s_prochase1 };
+statetype s_propain = { 2, SPR_DEMO, 15, nullptr, nullptr, &s_prochase1 };
 
-statetype s_proshoot1 = { false, SPR_DEMO, 20, NULL, NULL, &s_proshoot2 };
-statetype s_proshoot2 = { false, SPR_DEMO, 20, NULL, T_Shoot, &s_proshoot3 };
-statetype s_proshoot3 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_proshoot4 };
-statetype s_proshoot4 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_proshoot5 };
-statetype s_proshoot5 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_proshoot6 };
-statetype s_proshoot6 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_proshoot6a };
-statetype s_proshoot6a = { false, SPR_DEMO, 10, NULL, T_Shade, &s_prochase1 };
+statetype s_proshoot1 = { false, SPR_DEMO, 20, nullptr, nullptr, &s_proshoot2 };
+statetype s_proshoot2 = { false, SPR_DEMO, 20, nullptr, T_Shoot, &s_proshoot3 };
+statetype s_proshoot3 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_proshoot4 };
+statetype s_proshoot4 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_proshoot5 };
+statetype s_proshoot5 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_proshoot6 };
+statetype s_proshoot6 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_proshoot6a };
+statetype s_proshoot6a = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_prochase1 };
 
-// statetype s_proshoot7        = {false,SPR_PRO_SHOOT3,10,NULL,NULL,&s_proshoot8};
-// statetype s_proshoot8        = {false,SPR_PRO_SHOOT2,10,NULL,T_Shoot,&s_proshoot9};
-// statetype s_proshoot9        = {false,SPR_PRO_SHOOT3,10,NULL,T_Shade,&s_prochase1};
+// statetype s_proshoot7        = {false,SPR_PRO_SHOOT3,10,nullptr,nullptr,&s_proshoot8};
+// statetype s_proshoot8        = {false,SPR_PRO_SHOOT2,10,nullptr,T_Shoot,&s_proshoot9};
+// statetype s_proshoot9        = {false,SPR_PRO_SHOOT3,10,nullptr,T_Shade,&s_prochase1};
 
-statetype s_prochase1 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_prochase1s };
-statetype s_prochase1s = { true, SPR_DEMO, 3, NULL, NULL, &s_prochase2 };
-statetype s_prochase2 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_prochase3 };
-statetype s_prochase3 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_prochase3s };
-statetype s_prochase3s = { true, SPR_DEMO, 3, NULL, NULL, &s_prochase4 };
-statetype s_prochase4 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_prochase1 };
+statetype s_prochase1 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_prochase1s };
+statetype s_prochase1s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_prochase2 };
+statetype s_prochase2 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_prochase3 };
+statetype s_prochase3 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_prochase3s };
+statetype s_prochase3s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_prochase4 };
+statetype s_prochase4 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_prochase1 };
 
 statetype s_prodie1 = { false, SPR_DEMO, 20, T_BlowBack, A_DeathScream, &s_prodie2 };
-statetype s_prodie2 = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_prodie3 };
-statetype s_prodie3 = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_prodie3a };
-statetype s_prodie3a = { false, SPR_DEMO, 20, T_BlowBack, NULL, &s_prodie4 };
-statetype s_prodie4 = { false, SPR_DEMO, 0, NULL, NULL, &s_prodie4 };
+statetype s_prodie2 = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_prodie3 };
+statetype s_prodie3 = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_prodie3a };
+statetype s_prodie3a = { false, SPR_DEMO, 20, T_BlowBack, nullptr, &s_prodie4 };
+statetype s_prodie4 = { false, SPR_DEMO, 0, nullptr, nullptr, &s_prodie4 };
 
 extern statetype s_electro_appear1;
 extern statetype s_electro_appear2;
@@ -3281,31 +3281,31 @@ extern statetype s_electro_die1;
 extern statetype s_electro_die2;
 extern statetype s_electro_die3;
 
-statetype s_electro_appear1 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_appear2 };
-statetype s_electro_appear2 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_appear3 };
-statetype s_electro_appear3 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_chase1 };
+statetype s_electro_appear1 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_appear2 };
+statetype s_electro_appear2 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_appear3 };
+statetype s_electro_appear3 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_chase1 };
 
-statetype s_electro_chase1 = { 0, SPR_DEMO, 14, T_Chase, NULL, &s_electro_chase2 };
-statetype s_electro_chase2 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_chase3 };
-statetype s_electro_chase3 = { 0, SPR_DEMO, 14, T_Chase, NULL, &s_electro_chase4 };
-statetype s_electro_chase4 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_chase1 };
+statetype s_electro_chase1 = { 0, SPR_DEMO, 14, T_Chase, nullptr, &s_electro_chase2 };
+statetype s_electro_chase2 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_chase3 };
+statetype s_electro_chase3 = { 0, SPR_DEMO, 14, T_Chase, nullptr, &s_electro_chase4 };
+statetype s_electro_chase4 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_chase1 };
 
-statetype s_electro_ouch = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_chase1 };
+statetype s_electro_ouch = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_chase1 };
 
-statetype s_electro_shoot1 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_shoot2 };
-statetype s_electro_shoot2 = { 0, SPR_DEMO, 14, T_Shoot, NULL, &s_electro_shoot3 };
-statetype s_electro_shoot3 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_chase1 };
+statetype s_electro_shoot1 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_shoot2 };
+statetype s_electro_shoot2 = { 0, SPR_DEMO, 14, T_Shoot, nullptr, &s_electro_shoot3 };
+statetype s_electro_shoot3 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_chase1 };
 
-statetype s_electro_shot1 = { 0, SPR_DEMO, 1, T_Projectile, NULL, &s_electro_shot2 };
-statetype s_electro_shot2 = { 0, SPR_DEMO, 1, T_Projectile, NULL, &s_electro_shot1 };
+statetype s_electro_shot1 = { 0, SPR_DEMO, 1, T_Projectile, nullptr, &s_electro_shot2 };
+statetype s_electro_shot2 = { 0, SPR_DEMO, 1, T_Projectile, nullptr, &s_electro_shot1 };
 
-statetype s_ofs_shot1 = { 0, 0, 1, T_Projectile, NULL, &s_ofs_shot2 };
-statetype s_ofs_shot2 = { 0, 1, 1, T_Projectile, NULL, &s_ofs_shot1 };
+statetype s_ofs_shot1 = { 0, 0, 1, T_Projectile, nullptr, &s_ofs_shot2 };
+statetype s_ofs_shot2 = { 0, 1, 1, T_Projectile, nullptr, &s_ofs_shot1 };
 
 
-statetype s_electro_die1 = { 0, SPR_DEMO, 14, NULL, A_DeathScream, &s_electro_die2 };
-statetype s_electro_die2 = { 0, SPR_DEMO, 14, NULL, NULL, &s_electro_die3 };
-statetype s_electro_die3 = { 0, SPR_DEMO, 14, NULL, NULL, NULL };
+statetype s_electro_die1 = { 0, SPR_DEMO, 14, nullptr, A_DeathScream, &s_electro_die2 };
+statetype s_electro_die2 = { 0, SPR_DEMO, 14, nullptr, nullptr, &s_electro_die3 };
+statetype s_electro_die3 = { 0, SPR_DEMO, 14, nullptr, nullptr, nullptr };
 
 
 extern statetype s_liquid_wait;
@@ -3350,39 +3350,39 @@ void T_Solid(
     objtype* obj);
 
 
-statetype s_liquid_wait = { 0, SPR_DEMO, 14, T_Stand, NULL, &s_liquid_wait };
+statetype s_liquid_wait = { 0, SPR_DEMO, 14, T_Stand, nullptr, &s_liquid_wait };
 
 statetype s_liquid_move = { 0, SPR_DEMO, 14, T_LiquidMove, T_ChangeShape, &s_liquid_move };
 
-statetype s_liquid_rise1 = { 0, SPR_DEMO, 12, NULL, NULL, &s_liquid_rise2 };
-statetype s_liquid_rise2 = { 0, SPR_DEMO, 12, NULL, NULL, &s_liquid_rise3 };
-statetype s_liquid_rise3 = { 0, SPR_DEMO, 12, NULL, T_Solid, &s_liquid_shoot1 };
-// statetype s_liquid_rise4 = {0,SPR_LIQUID_R4,12,NULL,NULL,&s_liquid_stand};
+statetype s_liquid_rise1 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_liquid_rise2 };
+statetype s_liquid_rise2 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_liquid_rise3 };
+statetype s_liquid_rise3 = { 0, SPR_DEMO, 12, nullptr, T_Solid, &s_liquid_shoot1 };
+// statetype s_liquid_rise4 = {0,SPR_LIQUID_R4,12,nullptr,nullptr,&s_liquid_stand};
 
-statetype s_liquid_stand = { 0, SPR_DEMO, 40, T_LiquidStand, NULL, &s_liquid_stand };
+statetype s_liquid_stand = { 0, SPR_DEMO, 40, T_LiquidStand, nullptr, &s_liquid_stand };
 
-statetype s_liquid_fall1 = { 0, SPR_DEMO, 15, NULL, NULL, &s_liquid_fall2 };
-statetype s_liquid_fall2 = { 0, SPR_DEMO, 15, NULL, NULL, &s_liquid_fall3 };
-statetype s_liquid_fall3 = { 0, SPR_DEMO, 15, NULL, NULL, &s_liquid_move };
+statetype s_liquid_fall1 = { 0, SPR_DEMO, 15, nullptr, nullptr, &s_liquid_fall2 };
+statetype s_liquid_fall2 = { 0, SPR_DEMO, 15, nullptr, nullptr, &s_liquid_fall3 };
+statetype s_liquid_fall3 = { 0, SPR_DEMO, 15, nullptr, nullptr, &s_liquid_move };
 
-statetype s_liquid_shoot1 = { 0, SPR_DEMO, 12, NULL, NULL, &s_liquid_shoot2 };
-statetype s_liquid_shoot2 = { 0, SPR_DEMO, 12, NULL, NULL, &s_liquid_shoot3 };
-statetype s_liquid_shoot3 = { 0, SPR_DEMO, 12, NULL, T_Shoot, &s_liquid_stand };
+statetype s_liquid_shoot1 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_liquid_shoot2 };
+statetype s_liquid_shoot2 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_liquid_shoot3 };
+statetype s_liquid_shoot3 = { 0, SPR_DEMO, 12, nullptr, T_Shoot, &s_liquid_stand };
 
-statetype s_liquid_ouch = { 0, SPR_DEMO, 7, NULL, NULL, &s_liquid_shoot1 };
+statetype s_liquid_ouch = { 0, SPR_DEMO, 7, nullptr, nullptr, &s_liquid_shoot1 };
 
-statetype s_liquid_die1 = { 0, SPR_DEMO, 20, NULL, A_DeathScream, &s_liquid_die2 };
-statetype s_liquid_die2 = { 0, SPR_DEMO, 20, NULL, NULL, &s_liquid_die3 };
-statetype s_liquid_die3 = { 0, SPR_DEMO, 20, NULL, NULL, &s_liquid_die4 };
-statetype s_liquid_die4 = { 0, SPR_DEMO, 20, NULL, NULL, &s_liquid_dead };
-statetype s_liquid_dead = { 0, SPR_DEMO, 20, NULL, NULL, NULL };
+statetype s_liquid_die1 = { 0, SPR_DEMO, 20, nullptr, A_DeathScream, &s_liquid_die2 };
+statetype s_liquid_die2 = { 0, SPR_DEMO, 20, nullptr, nullptr, &s_liquid_die3 };
+statetype s_liquid_die3 = { 0, SPR_DEMO, 20, nullptr, nullptr, &s_liquid_die4 };
+statetype s_liquid_die4 = { 0, SPR_DEMO, 20, nullptr, nullptr, &s_liquid_dead };
+statetype s_liquid_dead = { 0, SPR_DEMO, 20, nullptr, nullptr, nullptr };
 
 statetype s_liquid_shot = { 0, 0, 10, T_Projectile, T_ChangeShape, &s_liquid_shot };
 
-statetype s_blake1 = { 0, SPR_DEMO, 12, NULL, NULL, &s_blake2 };
-statetype s_blake2 = { 0, SPR_DEMO, 12, NULL, NULL, &s_blake3 };
-statetype s_blake3 = { 0, SPR_DEMO, 12, NULL, NULL, &s_blake4 };
-statetype s_blake4 = { 0, SPR_DEMO, 12, NULL, NULL, &s_blake1 };
+statetype s_blake1 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake2 };
+statetype s_blake2 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake3 };
+statetype s_blake3 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake4 };
+statetype s_blake4 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake1 };
 
 // ---------------------------------------------------------------------------
 // T_ChangeShape()
@@ -3856,7 +3856,7 @@ void SpawnPatrol(
 
     CheckForSpecialTile(new_actor, tilex, tiley);
 
-    actorat[new_actor->tilex][new_actor->tiley] = NULL; // don't use original spot
+    actorat[new_actor->tilex][new_actor->tiley] = nullptr; // don't use original spot
 
 #if IN_DEVELOPMENT
     oldx = new_actor->tilex;
@@ -4999,73 +4999,73 @@ extern void T_GoldMorphWait(
     objtype* obj);
 
 
-statetype s_goldstand = { true, SPR_DEMO, 20, T_Stand, NULL, &s_goldpath1 };
+statetype s_goldstand = { true, SPR_DEMO, 20, T_Stand, nullptr, &s_goldpath1 };
 
-statetype s_goldpath1 = { true, SPR_DEMO, 20, T_Path, NULL, &s_goldpath1s };
-statetype s_goldpath1s = { true, SPR_DEMO, 5, NULL, NULL, &s_goldpath2 };
-statetype s_goldpath2 = { true, SPR_DEMO, 15, T_Path, NULL, &s_goldpath3 };
-statetype s_goldpath3 = { true, SPR_DEMO, 20, T_Path, NULL, &s_goldpath3s };
-statetype s_goldpath3s = { true, SPR_DEMO, 5, NULL, NULL, &s_goldpath4 };
-statetype s_goldpath4 = { true, SPR_DEMO, 15, T_Path, NULL, &s_goldpath1 };
+statetype s_goldpath1 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_goldpath1s };
+statetype s_goldpath1s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_goldpath2 };
+statetype s_goldpath2 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_goldpath3 };
+statetype s_goldpath3 = { true, SPR_DEMO, 20, T_Path, nullptr, &s_goldpath3s };
+statetype s_goldpath3s = { true, SPR_DEMO, 5, nullptr, nullptr, &s_goldpath4 };
+statetype s_goldpath4 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_goldpath1 };
 
-statetype s_goldpain = { 0, SPR_DEMO, 15, NULL, NULL, &s_goldchase1 };
+statetype s_goldpain = { 0, SPR_DEMO, 15, nullptr, nullptr, &s_goldchase1 };
 
-statetype s_goldshoot1 = { false, SPR_DEMO, 20, NULL, NULL, &s_goldshoot2 };
-statetype s_goldshoot2 = { false, SPR_DEMO, 20, NULL, T_Shoot, &s_goldshoot3 };
-statetype s_goldshoot3 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_goldshoot4 };
-statetype s_goldshoot4 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_goldshoot5 };
-statetype s_goldshoot5 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_goldshoot6 };
-statetype s_goldshoot6 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_goldshoot7 };
-statetype s_goldshoot7 = { false, SPR_DEMO, 10, NULL, T_Shade, &s_goldchase1 };
+statetype s_goldshoot1 = { false, SPR_DEMO, 20, nullptr, nullptr, &s_goldshoot2 };
+statetype s_goldshoot2 = { false, SPR_DEMO, 20, nullptr, T_Shoot, &s_goldshoot3 };
+statetype s_goldshoot3 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_goldshoot4 };
+statetype s_goldshoot4 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_goldshoot5 };
+statetype s_goldshoot5 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_goldshoot6 };
+statetype s_goldshoot6 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_goldshoot7 };
+statetype s_goldshoot7 = { false, SPR_DEMO, 10, nullptr, T_Shade, &s_goldchase1 };
 
-statetype s_goldchase1 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_goldchase1s };
-statetype s_goldchase1s = { true, SPR_DEMO, 3, NULL, NULL, &s_goldchase2 };
-statetype s_goldchase2 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_goldchase3 };
-statetype s_goldchase3 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_goldchase3s };
-statetype s_goldchase3s = { true, SPR_DEMO, 3, NULL, NULL, &s_goldchase4 };
-statetype s_goldchase4 = { true, SPR_DEMO, 8, T_Chase, NULL, &s_goldchase1 };
+statetype s_goldchase1 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_goldchase1s };
+statetype s_goldchase1s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_goldchase2 };
+statetype s_goldchase2 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_goldchase3 };
+statetype s_goldchase3 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_goldchase3s };
+statetype s_goldchase3s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_goldchase4 };
+statetype s_goldchase4 = { true, SPR_DEMO, 8, T_Chase, nullptr, &s_goldchase1 };
 
-statetype s_goldwarp_it = { false, SPR_DEMO, 45, NULL, A_Laugh, &s_goldwarp_it1 };
-statetype s_goldwarp_it1 = { false, SPR_DEMO, 25, NULL, NULL, &s_goldwarp_it2 };
-statetype s_goldwarp_it2 = { false, SPR_DEMO, 25, NULL, A_Beep, &s_goldwarp_it3 };
-statetype s_goldwarp_it3 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_it4 };
-statetype s_goldwarp_it4 = { false, SPR_DEMO, 25, NULL, A_Beep, &s_goldwarp_it5 };
-statetype s_goldwarp_it5 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_out1 };
+statetype s_goldwarp_it = { false, SPR_DEMO, 45, nullptr, A_Laugh, &s_goldwarp_it1 };
+statetype s_goldwarp_it1 = { false, SPR_DEMO, 25, nullptr, nullptr, &s_goldwarp_it2 };
+statetype s_goldwarp_it2 = { false, SPR_DEMO, 25, nullptr, A_Beep, &s_goldwarp_it3 };
+statetype s_goldwarp_it3 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_goldwarp_it4 };
+statetype s_goldwarp_it4 = { false, SPR_DEMO, 25, nullptr, A_Beep, &s_goldwarp_it5 };
+statetype s_goldwarp_it5 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_goldwarp_out1 };
 
-statetype s_goldwarp_out1 = { false, SPR_DEMO, 30, NULL, A_WarpOut, &s_goldwarp_out2 };
-statetype s_goldwarp_out2 = { false, SPR_DEMO, 30, NULL, NULL, &s_goldwarp_out3 };
-statetype s_goldwarp_out3 = { false, SPR_DEMO, 30, NULL, NULL, &s_goldwarp_out4 };
-statetype s_goldwarp_out4 = { false, SPR_DEMO, 30, NULL, NULL, &s_goldwarp_out5 };
-statetype s_goldwarp_out5 = { false, SPR_DEMO, 40, NULL, NULL, NULL };
+statetype s_goldwarp_out1 = { false, SPR_DEMO, 30, nullptr, A_WarpOut, &s_goldwarp_out2 };
+statetype s_goldwarp_out2 = { false, SPR_DEMO, 30, nullptr, nullptr, &s_goldwarp_out3 };
+statetype s_goldwarp_out3 = { false, SPR_DEMO, 30, nullptr, nullptr, &s_goldwarp_out4 };
+statetype s_goldwarp_out4 = { false, SPR_DEMO, 30, nullptr, nullptr, &s_goldwarp_out5 };
+statetype s_goldwarp_out5 = { false, SPR_DEMO, 40, nullptr, nullptr, nullptr };
 
-statetype s_goldwarp_in1 = { false, SPR_DEMO, 15, NULL, A_WarpIn, &s_goldwarp_in2 };
-statetype s_goldwarp_in2 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_in3 };
-statetype s_goldwarp_in3 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_in4 };
-statetype s_goldwarp_in4 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldwarp_in5 };
-statetype s_goldwarp_in5 = { false, SPR_DEMO, 15, NULL, NULL, &s_goldpath1 };
+statetype s_goldwarp_in1 = { false, SPR_DEMO, 15, nullptr, A_WarpIn, &s_goldwarp_in2 };
+statetype s_goldwarp_in2 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_goldwarp_in3 };
+statetype s_goldwarp_in3 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_goldwarp_in4 };
+statetype s_goldwarp_in4 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_goldwarp_in5 };
+statetype s_goldwarp_in5 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_goldpath1 };
 
-statetype s_goldmorphwait1 = { false, SPR_DEMO, 10, NULL, T_GoldMorphWait, &s_goldmorphwait1 };
+statetype s_goldmorphwait1 = { false, SPR_DEMO, 10, nullptr, T_GoldMorphWait, &s_goldmorphwait1 };
 
-statetype s_goldmorph1 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph2 };
-statetype s_goldmorph2 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph3 };
-statetype s_goldmorph3 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph4 };
-statetype s_goldmorph4 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph5 };
-statetype s_goldmorph5 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph6 };
-statetype s_goldmorph6 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph7 };
-statetype s_goldmorph7 = { false, SPR_DEMO, 10, NULL, NULL, &s_goldmorph8 };
-statetype s_goldmorph8 = { false, SPR_DEMO, 10, NULL, T_GoldMorph, &s_mgold_chase1 };
+statetype s_goldmorph1 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph2 };
+statetype s_goldmorph2 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph3 };
+statetype s_goldmorph3 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph4 };
+statetype s_goldmorph4 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph5 };
+statetype s_goldmorph5 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph6 };
+statetype s_goldmorph6 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph7 };
+statetype s_goldmorph7 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_goldmorph8 };
+statetype s_goldmorph8 = { false, SPR_DEMO, 10, nullptr, T_GoldMorph, &s_mgold_chase1 };
 
-statetype s_mgold_chase1 = { false, SPR_DEMO, 10, T_Chase, NULL, &s_mgold_chase2 };
-statetype s_mgold_chase2 = { false, SPR_DEMO, 8, NULL, NULL, &s_mgold_chase3 };
-statetype s_mgold_chase3 = { false, SPR_DEMO, 10, T_Chase, NULL, &s_mgold_chase4 };
-statetype s_mgold_chase4 = { false, SPR_DEMO, 8, NULL, NULL, &s_mgold_chase1 };
+statetype s_mgold_chase1 = { false, SPR_DEMO, 10, T_Chase, nullptr, &s_mgold_chase2 };
+statetype s_mgold_chase2 = { false, SPR_DEMO, 8, nullptr, nullptr, &s_mgold_chase3 };
+statetype s_mgold_chase3 = { false, SPR_DEMO, 10, T_Chase, nullptr, &s_mgold_chase4 };
+statetype s_mgold_chase4 = { false, SPR_DEMO, 8, nullptr, nullptr, &s_mgold_chase1 };
 
-statetype s_mgold_shoot1 = { false, SPR_DEMO, 10, NULL, NULL, &s_mgold_shoot2 };
-statetype s_mgold_shoot2 = { false, SPR_DEMO, 20, NULL, NULL, &s_mgold_shoot3 };
-statetype s_mgold_shoot3 = { false, SPR_DEMO, 14, T_Shoot, NULL, &s_mgold_shoot4 };
-statetype s_mgold_shoot4 = { false, SPR_DEMO, 12, T_Shade, NULL, &s_mgold_chase1 };
+statetype s_mgold_shoot1 = { false, SPR_DEMO, 10, nullptr, nullptr, &s_mgold_shoot2 };
+statetype s_mgold_shoot2 = { false, SPR_DEMO, 20, nullptr, nullptr, &s_mgold_shoot3 };
+statetype s_mgold_shoot3 = { false, SPR_DEMO, 14, T_Shoot, nullptr, &s_mgold_shoot4 };
+statetype s_mgold_shoot4 = { false, SPR_DEMO, 12, T_Shade, nullptr, &s_mgold_chase1 };
 
-statetype s_mgold_pain = { false, SPR_DEMO, 25, NULL, NULL, &s_mgold_chase1 };
+statetype s_mgold_pain = { false, SPR_DEMO, 25, nullptr, nullptr, &s_mgold_chase1 };
 
 
 boolean noShots = false;
@@ -5224,19 +5224,19 @@ extern statetype s_scout_run4;
 
 extern statetype s_scout_dead;
 
-statetype s_scout_stand = { true, SPR_DEMO, 20, T_Stand, NULL, &s_scout_stand };
+statetype s_scout_stand = { true, SPR_DEMO, 20, T_Stand, nullptr, &s_scout_stand };
 
-statetype s_scout_path1 = { true, SPR_DEMO, 15, T_Path, NULL, &s_scout_path1 };
-statetype s_scout_path2 = { true, SPR_DEMO, 15, T_Path, NULL, &s_scout_path2 };
-statetype s_scout_path3 = { true, SPR_DEMO, 15, T_Path, NULL, &s_scout_path3 };
-statetype s_scout_path4 = { true, SPR_DEMO, 15, T_Path, NULL, &s_scout_path4 };
+statetype s_scout_path1 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_scout_path1 };
+statetype s_scout_path2 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_scout_path2 };
+statetype s_scout_path3 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_scout_path3 };
+statetype s_scout_path4 = { true, SPR_DEMO, 15, T_Path, nullptr, &s_scout_path4 };
 
-statetype s_scout_run = { true, SPR_DEMO, 10, T_Chase, NULL, &s_scout_run };
-statetype s_scout_run2 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_scout_run2 };
-statetype s_scout_run3 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_scout_run3 };
-statetype s_scout_run4 = { true, SPR_DEMO, 10, T_Chase, NULL, &s_scout_run4 };
+statetype s_scout_run = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_scout_run };
+statetype s_scout_run2 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_scout_run2 };
+statetype s_scout_run3 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_scout_run3 };
+statetype s_scout_run4 = { true, SPR_DEMO, 10, T_Chase, nullptr, &s_scout_run4 };
 
-statetype s_scout_dead = { false, SPR_DEMO, 20, NULL, NULL, &s_scout_dead };
+statetype s_scout_dead = { false, SPR_DEMO, 20, nullptr, nullptr, &s_scout_dead };
 
 
 // ---------------------------------------------------------------------------
@@ -5408,14 +5408,14 @@ extern statetype s_steamrelease4;
 extern statetype s_steamrelease5;
 extern statetype s_steamrelease6;
 
-statetype s_steamgrate = { false, 0, 1, T_SteamObj, NULL, &s_steamgrate };
+statetype s_steamgrate = { false, 0, 1, T_SteamObj, nullptr, &s_steamgrate };
 
-statetype s_steamrelease1 = { false, 1, 1, NULL, A_DeathScream, &s_steamrelease2 };
-statetype s_steamrelease2 = { false, 2, 14, NULL, NULL, &s_steamrelease3 };
-statetype s_steamrelease3 = { false, 3, 14, NULL, NULL, &s_steamrelease4 };
-statetype s_steamrelease4 = { false, 2, 14, NULL, NULL, &s_steamrelease5 };
-statetype s_steamrelease5 = { false, 3, 14, NULL, NULL, &s_steamrelease6 };
-statetype s_steamrelease6 = { false, 4, 16, NULL, NULL, &s_steamgrate };
+statetype s_steamrelease1 = { false, 1, 1, nullptr, A_DeathScream, &s_steamrelease2 };
+statetype s_steamrelease2 = { false, 2, 14, nullptr, nullptr, &s_steamrelease3 };
+statetype s_steamrelease3 = { false, 3, 14, nullptr, nullptr, &s_steamrelease4 };
+statetype s_steamrelease4 = { false, 2, 14, nullptr, nullptr, &s_steamrelease5 };
+statetype s_steamrelease5 = { false, 3, 14, nullptr, nullptr, &s_steamrelease6 };
+statetype s_steamrelease6 = { false, 4, 16, nullptr, nullptr, &s_steamgrate };
 
 // -------------------------------------------------------------------------
 // T_SteamObj()
@@ -5503,24 +5503,24 @@ extern statetype s_terrot_die5;
 
 
 
-statetype s_terrot_wait = { true, SPR_DEMO, 1, T_Seek, NULL, &s_terrot_wait };
-statetype s_terrot_found = { false, SPR_DEMO, 0, T_Seek, NULL, &s_terrot_found };
+statetype s_terrot_wait = { true, SPR_DEMO, 1, T_Seek, nullptr, &s_terrot_wait };
+statetype s_terrot_found = { false, SPR_DEMO, 0, T_Seek, nullptr, &s_terrot_found };
 
-statetype s_terrot_shoot1 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_terrot_shoot2 };
-statetype s_terrot_shoot2 = { false, SPR_DEMO, 20, NULL, T_Shade, &s_terrot_shoot3 };
-statetype s_terrot_shoot3 = { false, SPR_DEMO, 10, NULL, T_Shoot, &s_terrot_shoot4 };
-statetype s_terrot_shoot4 = { false, SPR_DEMO, 20, NULL, T_Shade, &s_terrot_seek1 };
+statetype s_terrot_shoot1 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_terrot_shoot2 };
+statetype s_terrot_shoot2 = { false, SPR_DEMO, 20, nullptr, T_Shade, &s_terrot_shoot3 };
+statetype s_terrot_shoot3 = { false, SPR_DEMO, 10, nullptr, T_Shoot, &s_terrot_shoot4 };
+statetype s_terrot_shoot4 = { false, SPR_DEMO, 20, nullptr, T_Shade, &s_terrot_seek1 };
 
-statetype s_terrot_seek1 = { true, SPR_DEMO, 10, T_Seek, NULL, &s_terrot_seek1s };
-statetype s_terrot_seek1s = { true, SPR_DEMO, 3, NULL, NULL, &s_terrot_seek1 };
+statetype s_terrot_seek1 = { true, SPR_DEMO, 10, T_Seek, nullptr, &s_terrot_seek1s };
+statetype s_terrot_seek1s = { true, SPR_DEMO, 3, nullptr, nullptr, &s_terrot_seek1 };
 
-statetype s_terrot_die1 = { false, SPR_DEMO, 15, NULL, A_DeathScream, &s_terrot_die2 };
-statetype s_terrot_die2 = { false, SPR_DEMO, 15, NULL, NULL, &s_terrot_die3 };
-statetype s_terrot_die3 = { false, SPR_DEMO, 15, NULL, NULL, &s_terrot_die4 };
-statetype s_terrot_die4 = { false, SPR_DEMO, 15, NULL, T_Shade, &s_terrot_die5 };
+statetype s_terrot_die1 = { false, SPR_DEMO, 15, nullptr, A_DeathScream, &s_terrot_die2 };
+statetype s_terrot_die2 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_terrot_die3 };
+statetype s_terrot_die3 = { false, SPR_DEMO, 15, nullptr, nullptr, &s_terrot_die4 };
+statetype s_terrot_die4 = { false, SPR_DEMO, 15, nullptr, T_Shade, &s_terrot_die5 };
 
 
-statetype s_terrot_die5 = { false, SPR_DEMO, 0, NULL, NULL, &s_terrot_die5 };
+statetype s_terrot_die5 = { false, SPR_DEMO, 0, nullptr, nullptr, &s_terrot_die5 };
 
 
 // ============================================================================
@@ -5749,7 +5749,7 @@ void SpawnProjectile(
     }
 
 //   if (actorat[new->tilex][new->tiley]==new);
-//              actorat[new->tilex][new->tiley]=NULL;
+//              actorat[new->tilex][new->tiley]=nullptr;
 }
 
 objtype* proj_check;
@@ -5797,7 +5797,7 @@ boolean ProjectileTryMove(
 
         for (y = yl; y <= yh; y++) {
             for (x = xl; x <= xh; x++) {
-                if ((proj_check = actorat[x][y]) != NULL) {
+                if ((proj_check = actorat[x][y]) != nullptr) {
                     if (proj_check < objlist) {
                         if (proj_check == (objtype*)1 && tilemap[x][y] == 0) {
                             // We have a static!

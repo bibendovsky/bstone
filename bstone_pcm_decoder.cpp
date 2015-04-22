@@ -122,7 +122,7 @@ int PcmDecoder::decode(
     if (dst_count <= 0)
         return 0;
 
-    if (dst_data == NULL)
+    if (!dst_data)
         return 0;
 
     if (offset_ >= dst_count_)

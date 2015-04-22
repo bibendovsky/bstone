@@ -1063,7 +1063,7 @@ void CA_CacheGrChunk(
     int16_t chunk)
 {
     int32_t pos, compressed;
-    uint8_t* bigbufferseg = NULL;
+    uint8_t* bigbufferseg = nullptr;
     uint8_t* source;
     int16_t next;
 
@@ -1104,7 +1104,7 @@ void CA_CacheGrChunk(
 
     if (compressed > BUFFERSIZE) {
         delete [] bigbufferseg;
-        bigbufferseg = NULL;
+        bigbufferseg = nullptr;
     }
 
 
@@ -1159,7 +1159,7 @@ void CA_CacheScreen(
     ca_huff_expand_on_screen(source, grhuffman);
 
     delete [] bigbufferseg;
-    bigbufferseg = NULL;
+    bigbufferseg = nullptr;
 }
 
 // ==========================================================================
@@ -1180,7 +1180,7 @@ void CA_CacheMap(
     int32_t pos, compressed;
     int16_t plane;
     uint16_t** dest;
-    uint16_t* bigbufferseg = NULL;
+    uint16_t* bigbufferseg = nullptr;
     uint16_t size;
     uint16_t* source;
 #ifdef CARMACIZED
@@ -1240,7 +1240,7 @@ void CA_CacheMap(
 
         if (compressed > BUFFERSIZE) {
             delete [] bigbufferseg;
-            bigbufferseg = NULL;
+            bigbufferseg = nullptr;
         }
     }
 
@@ -1430,7 +1430,7 @@ void CA_CacheMarks()
     int32_t pos, endpos, nextpos, nextendpos, compressed;
     int32_t bufferstart, bufferend; // file position of general buffer
     uint8_t* source;
-    uint8_t* bigbufferseg = NULL;
+    uint8_t* bigbufferseg = nullptr;
 
     numcache = 0;
 //
@@ -1520,7 +1520,7 @@ void CA_CacheMarks()
 
             if (compressed > BUFFERSIZE) {
                 delete [] bigbufferseg;
-                bigbufferseg = NULL;
+                bigbufferseg = nullptr;
             }
 
         }
@@ -1538,7 +1538,7 @@ void UNCACHEGRCHUNK(
     uint16_t chunk)
 {
     delete [] static_cast<char*>(grsegs[chunk]);
-    grsegs[chunk] = NULL;
+    grsegs[chunk] = nullptr;
 
     grneeded[chunk] &= ~ca_levelbit;
 }

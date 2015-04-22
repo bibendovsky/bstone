@@ -176,11 +176,11 @@ static int16_t DecodePosition(
 //
 
 #if INCLUDE_LZH_COMP
-void (* LZH_CompressDisplayVector)(uint32_t, uint32_t) = NULL;
+void (* LZH_CompressDisplayVector)(uint32_t, uint32_t) = nullptr;
 #endif
 
 #if INCLUDE_LZH_DECOMP
-void (* LZH_DecompressDisplayVector)(uint32_t, uint32_t) = NULL;
+void (* LZH_DecompressDisplayVector)(uint32_t, uint32_t) = nullptr;
 #endif
 
 
@@ -198,7 +198,7 @@ uint32_t textsize = 0, codesize = 0, printcount = 0, datasize;
 
 #ifdef LZH_DYNAMIC_ALLOCATION
 
-int16_t* son = NULL;
+int16_t* son = nullptr;
 
 //
 // pointing parent nodes.
@@ -453,16 +453,16 @@ void LZH_Shutdown()
 #ifdef LZH_DYNAMIC_ALLOCATION
 #ifdef LZH_ID_MEMORY_ALLOCATION
     delete [] id_son;
-    id_son = NULL;
+    id_son = nullptr;
 
     delete [] id_prnt;
-    id_prnt = NULL;
+    id_prnt = nullptr;
 
     delete [] id_freq;
-    id_freq = NULL;
+    id_freq = nullptr;
 
     delete [] id_text_buf;
-    id_text_buf = NULL;
+    id_text_buf = nullptr;
 #else
     if (son) {
         farfree(son);
@@ -484,13 +484,13 @@ void LZH_Shutdown()
 #if INCLUDE_LZH_COMP
 #ifdef LZH_ID_MEMORY_ALLOCATION
     delete [] id_lson;
-    id_lson = NULL;
+    id_lson = nullptr;
 
     delete [] id_rson;
-    id_rson = NULL;
+    id_rson = nullptr;
 
     delete [] id_dad;
-    id_dad = NULL;
+    id_dad = nullptr;
 #else
     if (lson) {
         farfree(lson);
@@ -506,7 +506,7 @@ void LZH_Shutdown()
 #endif
 #endif
 
-    son = NULL; // Must be zeroed on shutdown!
+    son = nullptr; // Must be zeroed on shutdown!
 #endif
 }
 

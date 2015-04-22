@@ -628,7 +628,7 @@ int16_t DebugKeys()
         PrintY += 6;
         US_Print(" Border color (0-15):");
         VW_UpdateScreen();
-        esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
+        esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
         if (!esc) {
             level = static_cast<int16_t>(atoi(str));
             if (level >= 0 && level <= 15) {
@@ -702,7 +702,7 @@ int16_t DebugKeys()
 
     if (Keyboard[sc_h]) { // H = hurt self
         IN_ClearKeysDown();
-        TakeDamage(1, NULL);
+        TakeDamage(1, nullptr);
     } else if (Keyboard[sc_i]) { // I = item cheat
         CenterWindow(12, 3);
         US_PrintCentered("Free items!");
@@ -788,7 +788,7 @@ int16_t DebugKeys()
         PrintY += 6;
         US_Print("  Add how many extra VBLs(0-8):");
         VW_UpdateScreen();
-        esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
+        esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
         if (!esc) {
             level = static_cast<int16_t>(atoi(str));
             if (level >= 0 && level <= 8) {
@@ -819,7 +819,7 @@ int16_t DebugKeys()
         US_PrintUnsigned(gamestate.mapon);
         US_Print("\n  Enter map number: ");
         VW_UpdateScreen();
-        esc = !US_LineInput(px, py, str, NULL, true, 2, 0);
+        esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
         if (!esc && str[0] != '\0') {
             level = static_cast<int16_t>(atoi(str));
             if (level > -1 && level <= MAX_WARP_LEVEL) {

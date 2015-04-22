@@ -73,8 +73,8 @@ boolean use_custom_cursor = false; // JAM
 //      Internal variables
 #define ConfigVersion 1
 
-const char* US_ParmStrings[] = { "TEDLEVEL", "NOWAIT", NULL },
-          * US_ParmStrings2[] = { "COMP", "NOCOMP", NULL };
+const char* US_ParmStrings[] = { "TEDLEVEL", "NOWAIT", nullptr },
+          * US_ParmStrings2[] = { "COMP", "NOCOMP", nullptr };
 boolean US_Started;
 
 boolean Button0, Button1,

@@ -94,7 +94,7 @@ boolean Breifing(
 
     HelpPresenter(BreifingText, true, 0, false);
 #else
-    HelpPresenter(NULL, true, static_cast<uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1), false);
+    HelpPresenter(nullptr, true, static_cast<uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1), false);
 #endif
 
     return EscPressed;

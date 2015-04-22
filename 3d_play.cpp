@@ -1132,7 +1132,7 @@ void CheckKeys()
                 ClearMemory();
 
                 delete [] audiosegs[STARTMUSIC + old_num];
-                audiosegs[STARTMUSIC + old_num] = NULL;
+                audiosegs[STARTMUSIC + old_num] = nullptr;
 
                 StartMusic(false);
                 DrawScore();
@@ -1386,13 +1386,13 @@ void InitActorList()
     memset(statobjlist, 0, sizeof(statobjlist));
     for (i = 0; i < MAXACTORS; i++) {
         objlist[i].prev = &objlist[i + 1];
-        objlist[i].next = NULL;
+        objlist[i].next = nullptr;
     }
 
-    objlist[MAXACTORS - 1].prev = NULL;
+    objlist[MAXACTORS - 1].prev = nullptr;
 
     objfreelist = &objlist[0];
-    lastobj = NULL;
+    lastobj = nullptr;
 
     objcount = 0;
 
@@ -1427,7 +1427,7 @@ void GetNewActor()
         while (obj) {
             if ((obj->flags & (FL_DEADGUY | FL_VISABLE)) == FL_DEADGUY) {
                 RemoveObj(obj);
-                obj = NULL;
+                obj = nullptr;
             } else {
                 obj = obj->next;
             }
@@ -1451,7 +1451,7 @@ void GetNewActor()
             lastobj->next = new_actor;
         }
 
-        new_actor->prev = lastobj; // new_actor->next is allready NULL from memset
+        new_actor->prev = lastobj; // new_actor->next is allready nullptr from memset
 
 // new_actor->active = false;
         lastobj = new_actor;
@@ -1485,7 +1485,7 @@ void RemoveObj(
         PLAY_ERROR(REMOVEOBJ_REMOVED_PLAYER);
     }
 
-    gone->state = NULL;
+    gone->state = nullptr;
 
 //
 // fix the next object's back link
@@ -1793,7 +1793,7 @@ void DoActor(
     }
 
     if (!(ob->flags & (FL_NONMARK | FL_NEVERMARK))) {
-        actorat[ob->tilex][ob->tiley] = NULL;
+        actorat[ob->tilex][ob->tiley] = nullptr;
     }
 
 //

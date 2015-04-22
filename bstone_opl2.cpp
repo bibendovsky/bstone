@@ -90,7 +90,7 @@ bool Opl2::generate(
     if (count < 1)
         return false;
 
-    if (buffer == NULL)
+    if (!buffer)
         return false;
 
     while (count > 0) {

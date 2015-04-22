@@ -198,7 +198,7 @@ void SetupMovie(
 void ShutdownMovie()
 {
     delete [] MovieBuffer;
-    MovieBuffer = NULL;
+    MovieBuffer = nullptr;
 
     Movie_FHandle.close();
 }
@@ -250,7 +250,7 @@ void MOVIE_ShowFrame(
 {
     anim_chunk* ah;
 
-    if (inpic == NULL) {
+    if (!inpic) {
         return;
     }
 

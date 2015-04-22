@@ -111,7 +111,7 @@ static const char* ParmStrings[] = {
     "ss1",
     "ss2",
     "ss3",
-    NULL
+    nullptr
 };
 int SoundNumber;
 int DigiNumber;
@@ -561,13 +561,13 @@ void sd_play_sound(
         return;
     }
 
-    if (SoundTable == NULL) {
+    if (!SoundTable) {
         return;
     }
 
     int actor_index = -1;
 
-    if (actor != NULL) {
+    if (actor) {
         switch (actor_type) {
         case bstone::AT_ACTOR:
             actor_index = static_cast<int>(
@@ -587,11 +587,11 @@ void sd_play_sound(
     const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
         SoundTable[sound_index]);
 
-    if (sound == NULL) {
+    if (!sound) {
         return;
     }
 
-    if (SoundMode != sdm_Off && sound == NULL) {
+    if (SoundMode != sdm_Off && !sound) {
         SD_ERROR(SD_PLAYSOUND_UNCACHED);
     }
 
@@ -668,7 +668,7 @@ void sd_play_wall_sound(
 {
     sd_play_sound(
         sound_index,
-        NULL,
+        nullptr,
         bstone::AT_WALL,
         bstone::AC_VOICE);
 }

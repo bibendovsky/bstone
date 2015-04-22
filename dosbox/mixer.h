@@ -42,7 +42,7 @@ class MixerChannel {
 public:
     MixerChannel()
     {
-        set_buffer(NULL);
+        set_buffer(nullptr);
         set_scale(get_default_scale());
     }
 
@@ -51,12 +51,12 @@ public:
         if (count < 1)
             return;
 
-        if (buffer == NULL)
+        if (!buffer)
             return;
 
-        assert(buffer_ != NULL);
+        assert(buffer_);
 
-        if (buffer_ == NULL)
+        if (!buffer_)
             return;
 
         for (uintptr_t i = 0; i < count; ++i) {

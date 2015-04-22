@@ -137,7 +137,7 @@ int AdlibMusicDecoder::decode(
     if (dst_count < 1)
         return 0;
 
-    if (dst_data == NULL)
+    if (!dst_data)
         return 0;
 
     if (command_index_ == commands_count_ && remains_count_ == 0)

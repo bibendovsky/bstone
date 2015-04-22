@@ -46,7 +46,7 @@ AudioMixer::CacheItem::CacheItem() :
     sound_type(ST_NONE),
     samples_count(0),
     decoded_count(0),
-    decoder(NULL)
+    decoder(nullptr)
 {
 }
 
@@ -59,10 +59,10 @@ AudioMixer::CacheItem::CacheItem(
         decoded_count(that.decoded_count),
         samples(that.samples)
 {
-    if (that.decoder != NULL)
+    if (that.decoder)
         decoder = that.decoder->clone();
     else
-        decoder = NULL;
+        decoder = nullptr;
 }
 
 AudioMixer::CacheItem::~CacheItem()
@@ -83,10 +83,10 @@ AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
 
         delete decoder;
 
-        if (that.decoder != NULL)
+        if (that.decoder)
             decoder = that.decoder->clone();
         else
-            decoder = NULL;
+            decoder = nullptr;
     }
 
     return *this;
@@ -153,7 +153,7 @@ bool AudioMixer::initialize(
     SDL_AudioSpec dst_spec;
 
     device_id_ = ::SDL_OpenAudioDevice(
-        NULL,
+        nullptr,
         0,
         &src_spec,
         &dst_spec,
@@ -166,14 +166,14 @@ bool AudioMixer::initialize(
 
     if (is_succeed) {
         mutex_ = ::SDL_CreateMutex();
-        is_succeed = (mutex_ != NULL);
+        is_succeed = (mutex_ != nullptr);
     }
 
     if (is_succeed) {
         thread_ = ::SDL_CreateThread(
             mix_proxy, "bstone_mixer_thread", this);
 
-        is_succeed = (thread_ != NULL);
+        is_succeed = (thread_ != nullptr);
     }
 
     if (is_succeed) {
@@ -208,15 +208,15 @@ void AudioMixer::uninitialize()
 
     quit_thread_ = true;
 
-    if (thread_ != NULL) {
+    if (thread_) {
         int status;
         ::SDL_WaitThread(thread_, &status);
-        thread_ = NULL;
+        thread_ = nullptr;
     }
 
-    if (mutex_ != NULL) {
+    if (mutex_) {
         ::SDL_DestroyMutex(mutex_);
-        mutex_ = NULL;
+        mutex_ = nullptr;
     }
 
     dst_rate_ = 0;
@@ -668,7 +668,7 @@ void AudioMixer::handle_play_command(
 {
     CacheItem* cache_item = command.sound.cache;
 
-    if (cache_item == NULL)
+    if (!cache_item)
         return;
 
     if (!initialize_cache_item(command, *cache_item))
@@ -756,11 +756,11 @@ bool AudioMixer::initialize_cache_item(
     cache_item = CacheItem();
 
     bool is_succeed = true;
-    AudioDecoder* decoder = NULL;
+    AudioDecoder* decoder = nullptr;
 
     if (is_succeed) {
         decoder = create_decoder_by_sound_type(command.sound.type);
-        is_succeed = (decoder != NULL);
+        is_succeed = (decoder != nullptr);
     }
 
     if (is_succeed) {
@@ -795,7 +795,7 @@ bool AudioMixer::decode_sound(
 {
     CacheItem* cache_item = sound.cache;
 
-    if (cache_item == NULL)
+    if (!cache_item)
         return false;
 
     if (!cache_item->is_active)
@@ -838,7 +838,7 @@ void AudioMixer::spatialize_sound(
     if (sound.actor_index <= 0)
         return;
 
-    Position* position = NULL;
+    Position* position = nullptr;
 
     switch (sound.actor_type) {
     case AT_ACTOR:
@@ -922,7 +922,7 @@ bool AudioMixer::play_sound(
     if (priority < 0)
         return false;
 
-    if (data == NULL)
+    if (!data)
         return false;
 
     if (data_size <= 0)
@@ -967,7 +967,7 @@ void AudioMixer::callback_proxy(
     uint8_t* dst_data,
     int dst_length)
 {
-    assert(user_data != NULL);
+    assert(user_data);
 
     AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
     mixer->callback(dst_data, dst_length);
@@ -977,7 +977,7 @@ void AudioMixer::callback_proxy(
 int AudioMixer::mix_proxy(
     void* user_data)
 {
-    assert(user_data != NULL);
+    assert(user_data);
 
     AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
     mixer->mix();
@@ -1002,7 +1002,7 @@ AudioMixer::CacheItem* AudioMixer::get_cache_item(
     int sound_index)
 {
     if (!is_sound_index_valid(sound_index, sound_type))
-        return NULL;
+        return nullptr;
 
     switch (sound_type) {
     case ST_ADLIB_MUSIC:
@@ -1015,7 +1015,7 @@ AudioMixer::CacheItem* AudioMixer::get_cache_item(
         return &pcm_cache_[sound_index];
 
     default:
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1055,7 +1055,7 @@ AudioDecoder* AudioMixer::create_decoder_by_sound_type(
         return new PcmDecoder();
 
     default:
-        return NULL;
+        return nullptr;
     }
 }
 

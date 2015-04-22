@@ -50,11 +50,11 @@ objtype* ui16_to_actor(
     int index = value - OBJLIST_OFFSET;
 
     if (index < 0) {
-        return NULL;
+        return nullptr;
     }
 
     if (index >= MAXACTORS) {
-        return NULL;
+        return nullptr;
     }
 
     return &objlist[index];
@@ -82,11 +82,11 @@ statobj_t* ui16_to_static_object(
     int index = value - STATOBJLIST_OFFSET;
 
     if (index < 0) {
-        return NULL;
+        return nullptr;
     }
 
     if (index >= MAXSTATS) {
-        return NULL;
+        return nullptr;
     }
 
     return &statobjlist[index];
@@ -114,11 +114,11 @@ doorobj_t* ui16_to_door_object(
     int index = value - DOOROBJLIST_OFFSET;
 
     if (index < 0) {
-        return NULL;
+        return nullptr;
     }
 
     if (index >= MAXDOORS) {
-        return NULL;
+        return nullptr;
     }
 
     return &doorobjlist[index];
