@@ -5847,32 +5847,8 @@ const char* ArchiveException::what() const throw ()
 bstone::MemoryStream g_playtemp;
 
 static bool is_config_loaded = false;
-
-static const char* k_sdl_log_file_name = "bstone_log.txt";
-static std::ofstream g_sdl_log;
-
-static void sdl_log_output_callback(
-    void* userdata,
-    int category,
-    SDL_LogPriority priority,
-    const char* message)
-{
-    g_sdl_log << message << std::endl;
-    g_sdl_log.flush();
-}
-
-static void sdl_log_initialize()
-{
-    g_sdl_log.open(k_sdl_log_file_name, std::ios_base::out);
-
-    SDL_LogSetOutputFunction(sdl_log_output_callback, nullptr);
-    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
-
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "bstone log\n==========\n");
-}
 // BBi
+
 
 /*
 ====================
@@ -7628,8 +7604,6 @@ int main(
     char* argv[])
 {
     int sdl_result = 0;
-
-    ::sdl_log_initialize();
 
     sdl_result = ::SDL_Init(0);
 
