@@ -6076,9 +6076,8 @@ void WriteConfig()
     bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
 
     if (!stream.is_open()) {
-        ::SDL_LogError(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "Failed to open a config file for writing: %s.",
+        bstone::Log::write_error(
+            "Failed to open a config file for writing: {}.",
             tempPath);
 
         return;
@@ -7283,45 +7282,6 @@ void NewViewSize()
 
 
 // ===========================================================================
-
-#if 0
-/*
-==========================
-=
-= Quit
-=
-==========================
-*/
-
-void Quit(
-    const char* error,
-    ...)
-{
-    va_list ap;
-
-    va_start(ap, error);
-
-    ClearMemory();
-
-    if (is_config_loaded) {
-        ::WriteConfig();
-    }
-
-    ShutdownId();
-
-    if (error && *error != '\0') {
-        char dummy;
-
-        SDL_LogMessageV(
-            SDL_LOG_CATEGORY_APPLICATION,
-            SDL_LOG_PRIORITY_CRITICAL,
-            error, ap);
-    }
-
-    va_end(ap);
-    exit(1);
-}
-#endif
 
 void pre_quit()
 {

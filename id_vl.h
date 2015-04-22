@@ -31,13 +31,6 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 
 
-#if 0
-// wolf compatability
-void Quit(
-    const char* error,
-    ...);
-#endif
-
 // ===========================================================================
 
 #define NOFADE_CODE

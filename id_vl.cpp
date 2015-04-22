@@ -231,9 +231,8 @@ bool initialize(
 {
     uninitialize();
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Initializing SDL palette...");
+    bstone::Log::write(
+        "SDL: Initializing SDL palette...");
 
     typedef std::vector<uint32_t> Masks;
 
@@ -247,13 +246,13 @@ bool initialize(
         &masks[0], &masks[1], &masks[2], &masks[3]);
 
     if (sdl_result == SDL_FALSE) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "SDL: %s", SDL_GetError());
+        bstone::Log::write_error("SDL: {}", SDL_GetError());
         return false;
     }
 
     if (bpp != 32) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_ERROR,
-                    "SDL: %s", "Pixel format should have 32 bits per pixel");
+        bstone::Log::write_error(
+            "SDL: Pixel format should have 32 bits per pixel.");
         return false;
     }
 
@@ -1092,8 +1091,7 @@ bool ogl_load_shader(
 
     if (compile_status != GL_FALSE) {
         if (!shader_log.empty()) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
-                        "%s", shader_log.c_str());
+            bstone::Log::write_warning(shader_log);
         }
 
         return true;
@@ -1103,16 +1101,14 @@ bool ogl_load_shader(
         shader_log = "Generic compile error.";
     }
 
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                 "%s", shader_log.c_str());
+    bstone::Log::write_error(shader_log);
 
     return false;
 }
 
 bool ogl_initialize_textures()
 {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "OGL: %s", "Initializing textures...");
+    bstone::Log::write("OGL: Initializing textures...");
 
     bool is_succeed = true;
 
@@ -1122,8 +1118,7 @@ bool ogl_initialize_textures()
 
         if (screen_tex == GL_NONE) {
             is_succeed = false;
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", "Screen texture failed.");
+            bstone::Log::write_error("Screen texture failed.");
         }
     }
 
@@ -1164,8 +1159,7 @@ bool ogl_initialize_textures()
 
         if (palette_tex == GL_NONE) {
             is_succeed = false;
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", "Palette texture failed.");
+            bstone::Log::write_error("Palette texture failed.");
         }
     }
 
@@ -1210,15 +1204,14 @@ bool ogl_initialize_vertex_buffers()
 {
     ScreenVertex* vertex;
 
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "OGL: %s", "Setting up a screen buffer object...");
+    bstone::Log::write(
+        "OGL: Setting up a screen buffer object...");
 
     screen_vbo = GL_NONE;
     glGenBuffers(1, &screen_vbo);
 
     if (screen_vbo == GL_NONE) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_ERROR,
-                    "%s", "Failed to create an object.");
+        bstone::Log::write_error("Failed to create an object.");
         return false;
     }
 
@@ -1266,14 +1259,12 @@ bool ogl_initialize_shaders()
 
         if (screen_fso == GL_NONE) {
             is_succeed = false;
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", "Failed to create an object.");
+            bstone::Log::write_error("Failed to create an object.");
         }
     }
 
     if (is_succeed) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "OGL: %s", "Loading a screen fragment shader...");
+        bstone::Log::write("OGL: Loading a screen fragment shader...");
 
         is_succeed = ogl_load_shader(screen_fso, screen_fs_text);
     }
@@ -1283,14 +1274,12 @@ bool ogl_initialize_shaders()
 
         if (screen_vso == GL_NONE) {
             is_succeed = false;
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", "Failed to create an object.");
+            bstone::Log::write_error("Failed to create an object.");
         }
     }
 
     if (is_succeed) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "OGL: %s", "Loading a screen vertex shader...");
+        bstone::Log::write("OGL: Loading a screen vertex shader...");
 
         is_succeed = ogl_load_shader(screen_vso, screen_vs_text);
     }
@@ -1300,9 +1289,7 @@ bool ogl_initialize_shaders()
 
 bool ogl_initialize_programs()
 {
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "OGL: %s", "Setting up a screen program object...");
+    bstone::Log::write("OGL: Setting up a screen program object...");
 
     bool is_succeed = true;
 
@@ -1312,8 +1299,7 @@ bool ogl_initialize_programs()
         if (screen_po == GL_NONE) {
             is_succeed = false;
 
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", "Failed to create an object.");
+            bstone::Log::write_error("Failed to create an object.");
         }
     }
 
@@ -1329,8 +1315,7 @@ bool ogl_initialize_programs()
 
         if (link_status != GL_FALSE) {
             if (!program_log.empty()) {
-                SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
-                            "%s", program_log.c_str());
+                bstone::Log::write_warning(program_log);
             }
         } else {
             is_succeed = false;
@@ -1339,8 +1324,7 @@ bool ogl_initialize_programs()
                 program_log = "Generic link error.";
             }
 
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", program_log.c_str());
+            bstone::Log::write_error(program_log);
         }
     }
 
@@ -1361,9 +1345,7 @@ bool ogl_initialize_programs()
         u_palette_tu = glGetUniformLocation(screen_po, "palette_tu");
         glUniform1i(u_palette_tu, 1);
 
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "OGL: %s", "Screen program object complete...");
+        bstone::Log::write("OGL: Screen program object completed...");
     }
 
     return is_succeed;
@@ -1431,8 +1413,8 @@ bool ogl_pre_subsystem_creation()
 #if defined(BSTONE_PANDORA) // Pandora VSync
     fbdev = open("/dev/fb0", O_RDONLY /* O_RDWR */);
     if (fbdev < 0) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "SDL: %s", "Couldn't open /dev/fb0 for Pandora Vsync...");
+        bstone::Log::write_warning(
+            "SDL: Couldn't open /dev/fb0 for Pandora VSync...");
     }
 #endif
 
@@ -1480,15 +1462,13 @@ bool ogl_initialize_renderer()
     bool is_succeed = true;
 
     if (is_succeed) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "SDL: %s", "Creating an OpenGL context...");
+        bstone::Log::write("SDL: Creating an OpenGL context...");
 
         sdl_ogl_context = SDL_GL_CreateContext(sdl_window);
 
         if (!sdl_ogl_context) {
             is_succeed = false;
-            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+            bstone::Log::write_error(SDL_GetError());
         }
     }
 
@@ -1497,29 +1477,25 @@ bool ogl_initialize_renderer()
     }
 
     if (is_succeed) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s: %s",
+        bstone::Log::write(
+            "OGLAPI: {}: {}",
             "Vendor",
-            bstone::OglApi::get_vendor().c_str());
+            bstone::OglApi::get_vendor());
 
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s: %s",
+        bstone::Log::write(
+            "OGLAPI: {}: {}",
             "Renderer",
-            bstone::OglApi::get_renderer().c_str());
+            bstone::OglApi::get_renderer());
 
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s: %s",
+        bstone::Log::write(
+            "OGLAPI: {}: {}",
             "Original version",
-            bstone::OglApi::get_version().get_original().c_str());
+            bstone::OglApi::get_version().get_original());
 
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s: %s",
+        bstone::Log::write(
+            "OGLAPI: {}: {}",
             "Parsed version",
-            bstone::OglApi::get_version().to_string().c_str());
+            bstone::OglApi::get_version().to_string());
     }
 
     if (is_succeed) {
@@ -1657,8 +1633,7 @@ void soft_update_screen()
 
 bool soft_initialize_textures()
 {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "SDL: %s", "Creating a screen texture...");
+    bstone::Log::write("SDL: Creating a screen texture...");
 
     sdl_soft_screen_tex = SDL_CreateTexture(
         sdl_soft_renderer,
@@ -1671,8 +1646,7 @@ bool soft_initialize_textures()
         return true;
     }
 
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                 "%s", SDL_GetError());
+    bstone::Log::write_error(SDL_GetError());
 
     return false;
 }
@@ -1715,16 +1689,14 @@ bool soft_initialize_renderer()
     bool is_succeed = true;
 
     if (is_succeed) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "SDL: %s", "Creating a software renderer...");
+        bstone::Log::write("SDL: Creating a software renderer...");
 
         sdl_soft_renderer = SDL_CreateRenderer(
             sdl_window, -1, SDL_RENDERER_SOFTWARE);
 
         if (!sdl_soft_renderer) {
             is_succeed = false;
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", SDL_GetError());
+            bstone::Log::write_error(SDL_GetError());
         }
     }
 
@@ -1735,8 +1707,7 @@ bool soft_initialize_renderer()
     }
 
     if (is_succeed) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "SDL: %s", "Initializing a view port...");
+        bstone::Log::write("SDL: Initializing a view port...");
 
         SDL_Rect view_port;
         view_port.x = screen_x;
@@ -1750,14 +1721,12 @@ bool soft_initialize_renderer()
         if (sdl_result != 0) {
             is_succeed = false;
 
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", SDL_GetError());
+            bstone::Log::write_error(SDL_GetError());
         }
     }
 
     if (is_succeed) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "SDL: %s", "Initializing default draw color...");
+        bstone::Log::write("SDL: Initializing default draw color...");
 
         sdl_result = SDL_SetRenderDrawColor(
             sdl_soft_renderer, 0, 0, 0, 255);
@@ -1765,8 +1734,7 @@ bool soft_initialize_renderer()
         if (sdl_result != 0) {
             is_succeed = false;
 
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                         "%s", SDL_GetError());
+            bstone::Log::write_error(SDL_GetError());
         }
     }
 
@@ -1787,8 +1755,7 @@ bool x_initialize_video()
     }
 
     if (is_succeed) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "SDL: %s", "Creating a window...");
+        bstone::Log::write("SDL: Creating a window...");
 
         if (!sdl_use_custom_window_position) {
             sdl_window_x = (display_mode.w - window_width) / 2;
@@ -1838,7 +1805,7 @@ bool x_initialize_video()
 
         if (!sdl_window) {
             is_succeed = false;
-            SDL_LogInfo(SDL_LOG_CATEGORY_ERROR, "%s", SDL_GetError());
+            bstone::Log::write_error(SDL_GetError());
         }
     }
 
@@ -1948,9 +1915,9 @@ void initialize_video()
         } else if (ren_string == "ogl") {
             g_renderer_type = RT_OPEN_GL;
         } else {
-            SDL_LogInfo(
-                SDL_LOG_CATEGORY_APPLICATION,
-                "CL: %s: %s", "Unknown renderer type", ren_string.c_str());
+            bstone::Log::write_warning(
+                "CL: Unknown renderer type: {}",
+                ren_string);
         }
     }
 
@@ -1995,9 +1962,7 @@ void initialize_video()
         Quit("Failed to pre-initialize video subsystem.");
     }
 
-    SDL_LogInfo(
-        SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: Setting up a video subsystem...");
+    bstone::Log::write("SDL: Setting up a video subsystem...");
 
     sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
 
@@ -2062,9 +2027,7 @@ void initialize_video()
     initialize_result = x_initialize_video();
 
     if (!initialize_result && g_renderer_type == RT_AUTO_DETECT) {
-        SDL_LogInfo(
-            SDL_LOG_CATEGORY_APPLICATION,
-            "SDL: %s", "Falling back to software renderer...");
+        bstone::Log::write("SDL: Falling back to software renderer...");
 
         g_renderer_type = RT_SOFTWARE;
         vid_pre_subsystem_creation = soft_pre_subsystem_creation;
@@ -2079,7 +2042,7 @@ void initialize_video()
     }
 
     if (!initialize_result) {
-        Quit("SDL: %s", "Failed to initialize a renderer.");
+        Quit("SDL: Failed to initialize a renderer.");
     }
 
     SDL_ShowWindow(sdl_window);

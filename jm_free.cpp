@@ -298,8 +298,7 @@ void US_Startup()
     }
 
     // BBi
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "SDL: %s", "Initializing timer...");
+    bstone::Log::write("SDL: Initializing timer...");
 
     sdl_result = SDL_InitSubSystem(SDL_INIT_TIMER);
 
@@ -745,18 +744,15 @@ void CheckForEpisodes()
     if (::g_args.has_option("aog")) {
         ::g_game_type = GameType::aog;
 
-        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-            "%s\n", "Forcing Aliens Of Gold (full).");
+        bstone::Log::write("Forcing Aliens Of Gold (full).\n");
     } else if (::g_args.has_option("aog_sw")) {
         ::g_game_type = GameType::aog_sw;
 
-        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-            "%s\n", "Forcing Aliens Of Gold (shareware).");
+        bstone::Log::write("Forcing Aliens Of Gold (shareware).\n");
     } else if (::g_args.has_option("ps")) {
         ::g_game_type = GameType::ps;
 
-        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-            "%s\n", "Forcing Planet Strike.");
+        bstone::Log::write("Forcing Planet Strike.\n");
     }
 
 
@@ -783,24 +779,20 @@ void CheckForEpisodes()
         break;
 
     default:
-        ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-            "%s\n", "Determining the game type.");
+        bstone::Log::write("Determining the game type.");
 
         if (::are_files_exist(aog_file_names)) {
             ::g_game_type = GameType::aog;
 
-            ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "%s\n", "Found Aliens Of Gold (full).");
+            bstone::Log::write("Found Aliens Of Gold (full).\n");
         } else if (::are_files_exist(ps_file_names)) {
             ::g_game_type = GameType::ps;
 
-            ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "%s\n", "Found Planet Strike.");
+            bstone::Log::write("Found Planet Strike.\n");
         } else if (::are_files_exist(aog_sw_file_names)) {
             ::g_game_type = GameType::aog_sw;
 
-            ::SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                "%s\n", "Found Aliens Of Gold (shareware).");
+            bstone::Log::write("Found Aliens Of Gold (shareware).\n");
         } else {
             is_succeed = false;
             error_message = "Unable to find all expected files of any game.";

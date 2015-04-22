@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_ogl_api.h"
 #include <list>
+#include "bstone_log.h"
 
 
 namespace {
@@ -598,8 +599,8 @@ bool OglApi::initialize()
 
 #if !defined(BSTONE_OGL_DIRECT_LINK)
     if (!::SDL_GL_GetCurrentContext()) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s.", "No current context");
+        bstone::Log::write_error(
+            "OGLAPI: No current context.");
 
         return false;
     }
@@ -756,8 +757,8 @@ bool OglApi::initialize()
         for(StringsCIt i = missing_symbols.begin();
             i != missing_symbols.end(); ++i)
         {
-            ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                "OGLAPI: Missing symbol: %s", i->c_str());
+            bstone::Log::write_error(
+                "OGLAPI: Missing symbol: {}.", *i);
         }
 
         uninitialize();
@@ -771,8 +772,8 @@ bool OglApi::initialize()
     const GLubyte* vendor = ::glGetString(GL_VENDOR);
 
     if (!vendor) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s", "Failed to get a vendor.");
+        bstone::Log::write_error(
+            "OGLAPI: Failed to get a vendor.");
 
         uninitialize();
         return false;
@@ -784,8 +785,8 @@ bool OglApi::initialize()
     const GLubyte* renderer = ::glGetString(GL_RENDERER);
 
     if (!renderer) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s", "Failed to get a renderer.");
+        bstone::Log::write_error(
+            "OGLAPI: Failed to get a renderer.");
 
         uninitialize();
         return false;
@@ -797,8 +798,8 @@ bool OglApi::initialize()
     const GLubyte* version_string = ::glGetString(GL_VERSION);
 
     if (!version_string) {
-        ::SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-            "OGLAPI: %s", "Failed to get a version.");
+        bstone::Log::write_error(
+            "OGLAPI: Failed to get a version.");
 
         uninitialize();
         return false;

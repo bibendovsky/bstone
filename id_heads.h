@@ -162,12 +162,6 @@ struct Rect {
 
 #include "movie.h"
 
-#if 0
-void Quit(
-    const char* error,
-    ...); // defined in user program
-#endif
-
 
 extern void CalcMemFree();
 
