@@ -826,9 +826,10 @@ void CheckForEpisodes()
         ::strcat(::Movies[i].FName, ::extension.c_str());
     }
 
-    if (::is_aog()) {
+    if (::is_aog_full()) {
         for (auto i = 1; i < 6; ++i) {
             ::NewEmenu[i].active = AT_ENABLED;
+            ::EpisodeSelect[i] = 1;
         }
     }
 
