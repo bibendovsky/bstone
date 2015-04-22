@@ -24,7 +24,10 @@ Free Software Foundation, Inc.,
 //
 // WL_MENU.H
 //
+
+
 #include "id_heads.h"
+
 
 #define GAME_DESCRIPTION_LEN 31
 

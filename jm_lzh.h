@@ -25,7 +25,7 @@ Free Software Foundation, Inc.,
 #define _JM_LZH_H_
 
 
-#include "SDL.h"
+#include <cstdint>
 
 
 extern void (* LZH_CompressDisplayVector)(uint32_t, uint32_t);

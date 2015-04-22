@@ -27,9 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_adlib_sfx_decoder.h"
-
-#include "SDL.h"
-
+#include <cstdint>
 #include "bstone_endian.h"
 
 

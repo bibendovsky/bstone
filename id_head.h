@@ -29,9 +29,9 @@ Free Software Foundation, Inc.,
 
 
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <memory>
-#include "SDL.h"
 
 
 #define WOLF

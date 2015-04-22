@@ -31,8 +31,11 @@ Free Software Foundation, Inc.,
 #ifndef __ID_SD__
 #define __ID_SD__
 
+
 // BBi
+#include <cstdint>
 #include "bstone_audio_mixer.h"
+
 
 struct objtype;
 struct doorobj_t;

@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "SDL.h"
+#include <cstdint>
 
 
 #ifndef _ID_HEADS_H_

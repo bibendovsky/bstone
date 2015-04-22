@@ -28,7 +28,7 @@ Free Software Foundation, Inc.,
 #define ID_VL_H
 
 
-#include "SDL.h"
+#include <cstdint>
 
 
 // wolf compatability

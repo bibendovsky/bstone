@@ -31,6 +31,10 @@ Free Software Foundation, Inc.,
 #ifndef __ID_US__
 #define __ID_US__
 
+
+#include <cstdint>
+
+
 #ifdef  __DEBUG__
 #define __DEBUG_UserMgr__
 #endif

@@ -35,6 +35,7 @@ Free Software Foundation, Inc.,
 #define __DEBUG_InputMgr__
 #endif
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 

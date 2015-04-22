@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "SDL.h"
+#include <cstdint>
 
 
 // =========================================================================

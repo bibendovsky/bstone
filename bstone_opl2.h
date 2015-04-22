@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
-
 #include "dbopl.h"
 
 

@@ -21,6 +21,9 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
+#include <cstdint>
+
+
 #define WHITE (15) // graphics mode independant colors
 #define BLACK (0)
 

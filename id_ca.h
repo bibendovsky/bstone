@@ -29,7 +29,7 @@ Free Software Foundation, Inc.,
 #define ID_CA_H
 
 
-#include "SDL.h"
+#include <cstdint>
 
 
 extern int NUM_EPISODES;
