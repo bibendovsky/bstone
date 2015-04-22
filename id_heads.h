@@ -49,6 +49,7 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 #include "bstone_file_stream.h"
 #include "bstone_format_string.h"
+#include "bstone_log.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_memory_stream.h"
 #include "bstone_string_helper.h"
@@ -161,9 +162,12 @@ struct Rect {
 
 #include "movie.h"
 
+#if 0
 void Quit(
     const char* error,
     ...); // defined in user program
+#endif
+
 
 extern void CalcMemFree();
 
@@ -202,6 +206,26 @@ extern uint8_t fontcolor, backcolor;
 // BBi
 extern uint8_t* vga_memory;
 extern bstone::ClArgs g_args;
+
+
+void pre_quit();
+
+void Quit();
+
+template<typename... TArgs>
+void Quit(
+    const std::string& format,
+    TArgs... args)
+{
+    ::pre_quit();
+
+    if (!format.empty()) {
+        bstone::Log::write_critical(format, args...);
+    }
+
+    ::exit(1);
+}
 // BBi
+
 
 #endif

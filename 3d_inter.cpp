@@ -170,7 +170,7 @@ void DisplayPrepingMsg(
         if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
             (gamestate.flags & GS_BAD_DIZ_FILE))
         {
-            Quit("");
+            Quit();
         }
     }
 

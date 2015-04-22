@@ -1531,7 +1531,7 @@ void CA_CannotOpen(
     const std::string& string)
 {
     auto str = "Can't open " + string + "!\n";
-    ::Quit(str.c_str());
+    ::Quit(str);
 }
 
 void UNCACHEGRCHUNK(

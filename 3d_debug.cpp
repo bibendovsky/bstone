@@ -752,7 +752,7 @@ int16_t DebugKeys()
     }
 #endif
     else if (Keyboard[sc_q]) { // Q = fast quit
-        Quit("");
+        Quit();
     }
 #if IN_DEVELOPMENT
     else if (Keyboard[sc_t]) { // T = shape test

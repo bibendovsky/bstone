@@ -4856,7 +4856,7 @@ void ExitGame()
 
     SD_MusicOff();
     SD_StopSound();
-    Quit("");
+    Quit();
 }
 
 // BBi

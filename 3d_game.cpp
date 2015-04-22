@@ -338,7 +338,7 @@ int16_t numEnemy[gold_morphingobj];
 ==========================
 */
 
-#define INVALID_ACTOR_ERR Quit("Invalid actor: %d %d", x, y)
+#define INVALID_ACTOR_ERR Quit("Invalid actor: {} {}", x, y)
 
 void ScanInfoPlane()
 {

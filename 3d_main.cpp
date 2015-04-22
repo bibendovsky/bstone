@@ -7308,6 +7308,7 @@ void NewViewSize()
 
 // ===========================================================================
 
+#if 0
 /*
 ==========================
 =
@@ -7344,7 +7345,23 @@ void Quit(
     va_end(ap);
     exit(1);
 }
+#endif
 
+void pre_quit()
+{
+    if (::is_config_loaded) {
+        ::WriteConfig();
+    }
+
+    ::ShutdownId();
+}
+
+void Quit()
+{
+    ::pre_quit();
+
+    ::exit(1);
+}
 
 // ===========================================================================
 
@@ -7617,7 +7634,7 @@ int main(
     sdl_result = ::SDL_Init(0);
 
     if (sdl_result != 0) {
-        ::Quit("%s", ::SDL_GetError());
+        ::Quit(::SDL_GetError());
     }
 
     ::g_args.initialize(argc, argv);
@@ -7636,7 +7653,7 @@ int main(
 
     DemoLoop();
 
-    Quit("");
+    Quit();
 
     return 0;
 }

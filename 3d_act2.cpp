@@ -3750,7 +3750,7 @@ void CheckForSpecialTile(
 
 #if IN_DEVELOPMENT
         if (obj->areanumber >= NUMAREAS) {
-            Quit("Actor Spawned on wall at %d %d", tilex, tiley);
+            Quit("Actor Spawned on wall at {} {}", tilex, tiley);
         }
 #endif
     }
@@ -3888,11 +3888,11 @@ void SpawnPatrol(
 #if IN_DEVELOPMENT
     if (new_actor->obclass != blakeobj) {
         if ((size_t)actorat[new_actor->tilex][new_actor->tiley] == 1) {
-            Quit("Actor spawned toward a solid static at %d %d", oldx, oldy);
+            Quit("Actor spawned toward a solid static at {} {}", oldx, oldy);
         }
 
         if (GetAreaNumber(new_actor->tilex, new_actor->tiley) >= NUMAREAS) {
-            Quit("Actor spawned toward wall at %d %d", oldx, oldy);
+            Quit("Actor spawned toward wall at {} {}", oldx, oldy);
         }
     }
 #endif

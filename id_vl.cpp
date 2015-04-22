@@ -1992,23 +1992,23 @@ void initialize_video()
     int sdl_result = 0;
 
     if (!vid_pre_subsystem_creation()) {
-        Quit("%s", "Failed to pre-initialize video subsystem.");
+        Quit("Failed to pre-initialize video subsystem.");
     }
 
     SDL_LogInfo(
         SDL_LOG_CATEGORY_APPLICATION,
-        "SDL: %s", "Setting up a video subsystem...");
+        "SDL: Setting up a video subsystem...");
 
     sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
 
     if (sdl_result != 0) {
-        Quit("%s", SDL_GetError());
+        Quit(SDL_GetError());
     }
 
     sdl_result = SDL_GetDesktopDisplayMode(0, &display_mode);
 
     if (sdl_result != 0) {
-        Quit("SDL: %s", "Failed to get a display mode.");
+        Quit("SDL: Failed to get a display mode.");
     }
 
     if (!sdl_is_windowed) {

@@ -322,7 +322,7 @@ void SpawnStatic(
 
 #if IN_DEVELOPMENT
     if (::is_aof_sw() && !spot->shapenum) {
-        Quit("Invalid static: %d %d", tilex, tiley);
+        Quit("Invalid static: {} {}", tilex, tiley);
     }
 #endif
 
@@ -519,7 +519,7 @@ statobj_t* UseReservedStatic(
 
 #if IN_DEVELOPMENT
     if (spot->areanumber >= NUMAREAS) {
-        Quit("Static Spawned on a wall at %d %d", spot->tilex, spot->tiley);
+        Quit("Static Spawned on a wall at {} {}", spot->tilex, spot->tiley);
     }
 #endif
 
@@ -611,7 +611,7 @@ void PlaceItemType(
 
 #if IN_DEVELOPMENT
     if (spot->areanumber >= NUMAREAS) {
-        Quit("Item Spawned on a wall at %d %d", spot->tilex, spot->tiley);
+        Quit("Item Spawned on a wall at {} {}", spot->tilex, spot->tiley);
     }
 #endif
 

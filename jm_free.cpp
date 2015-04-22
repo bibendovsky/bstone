@@ -304,13 +304,13 @@ void US_Startup()
     sdl_result = SDL_InitSubSystem(SDL_INIT_TIMER);
 
     if (sdl_result != 0) {
-        Quit("%s", SDL_GetError());
+        Quit(SDL_GetError());
     }
 
     sys_timer_id = SDL_AddTimer(1000 / 70, sys_timer_callback, nullptr);
 
     if (sys_timer_id == 0) {
-        Quit("%s", SDL_GetError());
+        Quit(SDL_GetError());
     }
     // BBi
 
@@ -809,7 +809,7 @@ void CheckForEpisodes()
     }
 
     if (!is_succeed) {
-        ::Quit("%s\n", error_message.c_str());
+        ::Quit(error_message);
     }
 
 

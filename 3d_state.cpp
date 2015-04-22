@@ -159,7 +159,7 @@ void SpawnNewObj(
 
 #if IN_DEVELOPMENT
     if (new_actor->areanumber >= NUMAREAS && (!nevermark)) {
-        Quit("Actor Spawned on wall at %d %d", new_actor->tilex, new_actor->tiley);
+        Quit("Actor Spawned on wall at {} {}", new_actor->tilex, new_actor->tiley);
     }
 #endif
 
@@ -457,7 +457,7 @@ boolean TryWalk(
 
 #if IN_DEVELOPMENT
     if (ob->areanumber >= NUMAREAS) {
-        Quit("Actor walked on wall at %d %d", ob->tilex, ob->tiley);
+        Quit("Actor walked on wall at {} {}", ob->tilex, ob->tiley);
     }
 #endif
 
@@ -986,7 +986,7 @@ void KillActor(
     case crate3obj:
 #if IN_DEVELOPMENT
         if (!ob->temp3) {
-            Quit("exp crate->temp3 is nullptr!");
+            Quit("exp crate->temp3 is null!");
         }
 #endif
 
