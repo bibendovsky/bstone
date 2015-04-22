@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 #include "SDL.h"
 
+
 // Avoid __declspec(dllimport).
 #ifdef __WIN32__
 #ifndef _GDI32_

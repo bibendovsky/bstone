@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_DECODER_H
 
 
-#include <stdint.h>
+#include <cstdint>
 
 
 namespace bstone {

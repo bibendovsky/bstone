@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_OPL2_H
 
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "dbopl.h"
 

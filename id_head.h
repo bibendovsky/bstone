@@ -30,9 +30,7 @@ Free Software Foundation, Inc.,
 
 #include <cassert>
 #include <cstdlib>
-
 #include <memory>
-
 #include "SDL.h"
 
 

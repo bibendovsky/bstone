@@ -30,10 +30,8 @@ Free Software Foundation, Inc.,
 #define BSTONE_ADLIB_MUSIC_DECODER_H
 
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <vector>
-
 #include "bstone_adlib_decoder.h"
 #include "bstone_memory_binary_reader.h"
 
