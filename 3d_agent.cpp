@@ -751,6 +751,10 @@ void DrawHealthMonitor()
         } else {
             heart_picture_index = ECG_GRID_PIECE;
         }
+
+        if (::g_heart_beat_sound) {
+            ::sd_play_player_sound(H_BEATSND, bstone::AC_ITEM);
+        }
     }
 
     if (reset_heart_tics) {
