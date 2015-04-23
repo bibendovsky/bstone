@@ -585,27 +585,24 @@ void LatchNumber(
     int16_t width,
     int32_t number)
 {
-    uint16_t length, wide = 0, c;
-    char str[20];
+    auto wide = 0;
+    auto str = std::to_string(number);
+    auto length = static_cast<int>(str.length());
 
-    bstone::C::xitoa(number, str, 10);
-
-    length = static_cast<uint16_t>(strlen(str));
-
-    while ((length < width) && (wide < width)) {
+    while (length < width && wide < width) {
         STATUSDRAWPIC(x, y, N_BLANKPIC);
-        x++;
-        wide++;
-        length++;
+        ++x;
+        ++wide;
+        ++length;
     }
 
-    c = 0;
+    auto c = 0;
 
     while (wide < width) {
         STATUSDRAWPIC(x, y, str[c] - '0' + N_0PIC);
-        x++;
-        c++;
-        wide++;
+        ++x;
+        ++c;
+        ++wide;
     }
 }
 
