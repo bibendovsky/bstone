@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_C_H
-#define BSTONE_C_H
+#ifndef BSTONE_C_INCLUDED
+#define BSTONE_C_INCLUDED
 
 
 #include <sstream>
@@ -86,21 +86,12 @@ public:
         return str;
     }
 
-    static int memicmp(
-        const void* buf1,
-        const void* buf2,
-        size_t cnt);
-
-    static int stricmp(
-        const char* str1,
-        const char* str2);
-
     static double m_pi();
-}; // class C
+}; // C
 
 
 } // namespace bstone
 
 
-#endif // BSTONE_C_H
+#endif // BSTONE_C_INCLUDED
 
