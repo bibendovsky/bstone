@@ -4272,16 +4272,19 @@ void SetTextColor(
 // ---------------------------------------------------------------------------
 void WaitKeyUp()
 {
-    ControlInfo ci;
+    for (auto quit = false; !quit; ) {
+        ControlInfo ci;
 
-    while (ReadAnyControl(&ci), ci.button0 |
-           ci.button1 |
-           ci.button2 |
-           ci.button3 |
-           Keyboard[sc_space] |
-           Keyboard[sc_return] |
-           Keyboard[sc_escape])
-    {
+        ::ReadAnyControl(&ci);
+
+        quit =
+            ci.button0 != 0 |
+            ci.button1 != 0 |
+            ci.button2 != 0 |
+            ci.button3 != 0 |
+            Keyboard[sc_space] |
+            Keyboard[sc_return] |
+            Keyboard[sc_escape];
     }
 }
 
