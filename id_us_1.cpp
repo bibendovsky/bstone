@@ -234,9 +234,8 @@ void US_Print(
 void US_PrintUnsigned(
     uint32_t n)
 {
-    char buffer[32];
-
-    US_Print(bstone::C::xitoa(n, buffer, 10));
+    auto buffer = std::to_string(n);
+    ::US_Print(buffer.c_str());
 }
 
 

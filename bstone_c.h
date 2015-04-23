@@ -39,53 +39,6 @@ namespace bstone {
 // A wrapper for C platform-dependent functions.
 class C {
 public:
-    template<class T>
-    static char* xitoa(
-        T value,
-        char* str,
-        int radix)
-    {
-        if (!str) {
-            return nullptr;
-        }
-
-        str[0] = '\0';
-
-        std::ios::fmtflags flags;
-
-        switch (radix) {
-        case 8:
-            flags = std::ios::oct;
-            break;
-
-        case 10:
-            flags = std::ios::dec;
-            break;
-
-        case 16:
-            flags = std::ios::hex;
-            break;
-
-        default:
-            return str;
-        }
-
-        std::ostringstream iss;
-        iss.setf(flags, std::ios::oct | std::ios::dec | std::ios::hex);
-        iss << value;
-
-        if (iss) {
-            std::string value_str = iss.str();
-            std::string::traits_type::copy(
-                str,
-                value_str.c_str(),
-                value_str.size());
-            str[value_str.size()] = '\0';
-        }
-
-        return str;
-    }
-
     static double m_pi();
 }; // C
 

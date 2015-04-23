@@ -2937,11 +2937,10 @@ void ShadowPrintLocationText(
                 ShPrint(" AREA: ", 0, false);
             }
             if (!type) {
-                if (!::is_ps()) {
-                    ::ShPrint(bstone::C::xitoa(gamestate.mapon, str, 10), 0, false);
-                } else {
-                    ::ShPrint(bstone::C::xitoa(gamestate.mapon + 1, str, 10), 0, false);
-                }
+                auto map_string = std::to_string(
+                    ::is_aog() ? gamestate.mapon : gamestate.mapon + 1);
+
+                ::ShPrint(map_string.c_str(), 0, false);
             }
         }
 
@@ -2950,7 +2949,8 @@ void ShadowPrintLocationText(
         px = 267;
         ShPrint("LIVES: ", 0, false);
         if (!type) {
-            ShPrint(bstone::C::xitoa(gamestate.lives, str, 10), 0, false);
+            auto lives_string = std::to_string(gamestate.lives);
+            ::ShPrint(lives_string.c_str(), 0, false);
         }
 
         // Print location text

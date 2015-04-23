@@ -1282,8 +1282,6 @@ void DrawAmmoNum()
 // ---------------------------------------------------------------------------
 void DrawGAmmoNum()
 {
-    char buffer[32];
-
     if (gamestate.ammo < 100) {
         PrintX += AMMO_SMALL_FONT_NUM_WIDTH;
         if (gamestate.ammo < 10) {
@@ -1297,7 +1295,9 @@ void DrawGAmmoNum()
 
     px = PrintX;
     py = PrintY;
-    VW_DrawPropString(bstone::C::xitoa(gamestate.ammo, buffer, 10));
+
+    auto ammo_string = std::to_string(gamestate.ammo);
+    VW_DrawPropString(ammo_string.c_str());
     VW_DrawPropString("%");
 }
 

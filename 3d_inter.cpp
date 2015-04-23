@@ -236,7 +236,6 @@ void PreloadGraphics()
 
 void DrawHighScores()
 {
-    char buffer[16];
     int i,
         w, h;
     HighScore* s;
@@ -280,20 +279,22 @@ void DrawHighScores()
         // score
         //
 
+        std::string buffer;
+
         if (s->score > 9999999) {
             SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR + 1, TERM_BACK_COLOR);
         }
 
-        bstone::C::xitoa(s->score, buffer, 10);
-        USL_MeasureString(buffer, &w, &h);
-        ShadowPrint(buffer, 205 - w, 68 + (SCORE_Y_SPACING * i)); // 235
+        buffer = std::to_string(s->score);
+        ::USL_MeasureString(buffer.c_str(), &w, &h);
+        ::ShadowPrint(buffer.c_str(), 205 - w, 68 + (SCORE_Y_SPACING * i)); // 235
 
         //
         // mission ratio
         //
-        bstone::C::xitoa(s->ratio, buffer, 10);
-        USL_MeasureString(buffer, &w, &h);
-        ShadowPrint(buffer, 272 - w, 68 + (SCORE_Y_SPACING * i));
+        buffer = std::to_string(s->ratio);
+        USL_MeasureString(buffer.c_str(), &w, &h);
+        ShadowPrint(buffer.c_str(), 272 - w, 68 + (SCORE_Y_SPACING * i));
     }
 
     VW_UpdateScreen();
