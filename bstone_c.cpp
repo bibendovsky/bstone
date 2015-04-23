@@ -27,22 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_c.h"
-#include <algorithm>
-#include <locale>
-
-
-// FIXME
-// Non-"C" locales in MinGW are not supported.
 
 
 namespace bstone {
-
-
-// (static)
-double C::m_pi()
-{
-    return 3.14159265358979323846;
-}
-
-
-} // namespace bstone
+} // bstone

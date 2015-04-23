@@ -39,11 +39,10 @@ namespace bstone {
 // A wrapper for C platform-dependent functions.
 class C {
 public:
-    static double m_pi();
 }; // C
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_C_INCLUDED

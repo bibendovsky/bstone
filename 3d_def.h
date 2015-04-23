@@ -4664,4 +4664,10 @@ void InitSmartAnim(
     uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
+
+
+inline double m_pi()
+{
+    return 3.14159265358979323846;
+}
 // BBi

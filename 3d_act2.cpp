@@ -6354,7 +6354,7 @@ int16_t CalcAngle(
     angle = static_cast<float>(atan2(static_cast<double>(deltay), static_cast<double>(deltax)));
 
     if (angle < 0) {
-        angle = static_cast<float>(bstone::C::m_pi() * 2 + angle);
+        angle = static_cast<float>(::m_pi() * 2 + angle);
     }
 //      else
 //              if (!angle)
@@ -6362,7 +6362,7 @@ int16_t CalcAngle(
 
     // Convert rads to degs
 
-    iangle = static_cast<int16_t>(angle / (bstone::C::m_pi() * 2) * ANGLES);
+    iangle = static_cast<int16_t>(angle / (::m_pi() * 2) * ANGLES);
 
     return iangle;
 }
