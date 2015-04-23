@@ -238,7 +238,6 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_un_value.h"
     "${CMAKE_SOURCE_DIR}/gfxv.h"
     "${CMAKE_SOURCE_DIR}/id_ca.h"
-    "${CMAKE_SOURCE_DIR}/id_head.h"
     "${CMAKE_SOURCE_DIR}/id_heads.h"
     "${CMAKE_SOURCE_DIR}/id_in.h"
     "${CMAKE_SOURCE_DIR}/id_mm.h"
