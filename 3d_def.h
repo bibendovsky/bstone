@@ -2640,7 +2640,7 @@ struct statobj_t {
     int16_t shapenum; // if shapenum == -1 the obj has been removed
     uint16_t flags;
     uint8_t itemnumber;
-    char lighting;
+    signed char lighting;
 
     void serialize(
         bstone::BinaryWriter& writer,
