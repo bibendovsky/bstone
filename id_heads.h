@@ -55,7 +55,7 @@ Free Software Foundation, Inc.,
 #include "bstone_cl_args.h"
 
 // FIXME
-// BBi Enable only if neccesary!
+// BBi Enable only if necessary!
 #if 0
 #pragma GCC diagnostic ignored "-fpermissive"
 #endif // 0

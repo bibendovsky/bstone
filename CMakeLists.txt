@@ -1,19 +1,12 @@
 project(bstone CXX)
 cmake_minimum_required(VERSION 2.8)
 
-if (MSVC)
-    set(BSTONE_MESSAGE "")
 
-
-    set(SDL2_INCLUDE_DIRS
-        "SDL2_INCLUDE_DIRS-NOTFOUND"
-        CACHE STRING
-        "Path to SDL2 headers.")
-
+function (check_sdl_version TARGET_VERSION)
     if (NOT SDL2_INCLUDE_DIRS)
         set(BSTONE_MESSAGE
             ${BSTONE_MESSAGE}
-            "\nSpecifiy SDL2 include directory."
+            "\nSDL2 include directory not specified."
         )
     endif ()
 
@@ -26,7 +19,7 @@ if (MSVC)
     if (NOT SDL2_LIBRARIES)
         set(BSTONE_MESSAGE
             ${BSTONE_MESSAGE}
-            "\nSpecifiy SDL2 libraries via semicolon."
+            "\nSDL2 libraries not specified."
         )
     endif ()
 
@@ -36,6 +29,105 @@ if (MSVC)
     endif ()
 
     unset(BSTONE_MESSAGE)
+
+
+    file(
+        STRINGS
+        "${SDL2_INCLUDE_DIRS}/SDL_version.h"
+        BSTONE_SDL2_VERSION_STRINGS
+        REGEX "#define +SDL_(M(AJ|IN)OR_VERSION|PATCHLEVEL) +[0-9]+"
+    )
+
+    set(BSTONE_SDL2_MAJOR_VERSION "0")
+    set(BSTONE_SDL2_MINOR_VERSION "0")
+    set(BSTONE_SDL2_PATCH_VERSION "0")
+
+    foreach (PIECE IN LISTS BSTONE_SDL2_VERSION_STRINGS)
+        # Major
+
+        set(PIECE_MATCH "")
+
+        string(
+            REGEX MATCH
+            "MAJOR"
+            PIECE_MATCH
+            ${PIECE}
+        )
+
+        if (PIECE_MATCH)
+            string(
+                REGEX MATCH
+                "[0-9]+"
+                BSTONE_SDL2_MAJOR_VERSION
+                ${PIECE}
+            )
+        endif ()
+
+
+        # Minor
+
+        set(PIECE_MATCH "")
+
+        string(
+            REGEX MATCH
+            "MINOR"
+            PIECE_MATCH
+            ${PIECE}
+        )
+
+        if (PIECE_MATCH)
+            string(
+                REGEX MATCH
+                "[0-9]+"
+                BSTONE_SDL2_MINOR_VERSION
+                ${PIECE}
+            )
+        endif ()
+
+
+        # Patch
+
+        set(PIECE_MATCH "")
+
+        string(
+            REGEX MATCH
+            "PATCHLEVEL"
+            PIECE_MATCH
+            ${PIECE}
+        )
+
+        if (PIECE_MATCH)
+            string(
+                REGEX MATCH
+                "[0-9]+"
+                BSTONE_SDL2_PATCHLEVEL_VERSION
+                ${PIECE}
+            )
+        endif ()
+    endforeach (PIECE)
+
+    set(BSTONE_SDL2_VERSION
+        "${BSTONE_SDL2_MAJOR_VERSION}.${BSTONE_SDL2_MINOR_VERSION}.${BSTONE_SDL2_PATCHLEVEL_VERSION}"
+    )
+
+    message(STATUS "Found SDL ${BSTONE_SDL2_VERSION}.")
+
+    if (BSTONE_SDL2_VERSION VERSION_LESS TARGET_VERSION)
+        message(FATAL_ERROR "Expected SDL ${TARGET_VERSION}+")
+    endif ()
+endfunction (check_sdl_version)
+
+
+if (MSVC)
+    set(BSTONE_MESSAGE "")
+
+
+    set(SDL2_INCLUDE_DIRS
+        "SDL2_INCLUDE_DIRS-NOTFOUND"
+        CACHE STRING
+        "Path to SDL2 headers.")
+
+    check_sdl_version("2.0.0")
 else ()
     INCLUDE(FindPkgConfig)
     PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
