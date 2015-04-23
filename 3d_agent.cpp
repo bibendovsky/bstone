@@ -779,11 +779,18 @@ void DrawHealthMonitor()
 void DrawHealth()
 {
     if (::is_ps()) {
-        char* ptr = gamestate.health_str;
+        auto str = std::to_string(gamestate.health);
 
-        bstone::C::xitoa(gamestate.health, gamestate.health_str, 10);
-        while (*ptr) {
-            *ptr++ -= '0';
+        std::uninitialized_fill_n(
+            gamestate.health_str,
+            gamestate.health_str + 4,
+            '\0');
+
+        auto index = 0;
+
+        for (auto& ch : str) {
+            gamestate.health_str[index] = ch - '0';
+            index += 1;
         }
     }
 
