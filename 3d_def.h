@@ -50,7 +50,7 @@ Free Software Foundation, Inc.,
 #define VERSION_TEXT_COLOR (0x82)
 #define VERSION_TEXT_BKCOLOR (0x80)
 
-#define NO_SHADING (0x80)
+#define NO_SHADING (-128)
 #define LAMP_ON_SHADING (-12)
 #define EXPLOSION_SHADING (-52)
 
@@ -2726,7 +2726,7 @@ struct objtype {
     int16_t hitpoints;
 
     uint8_t ammo;
-    char lighting;
+    signed char lighting;
     uint16_t linc;
     int16_t angle;
     int32_t speed;
