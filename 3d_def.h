@@ -2190,7 +2190,7 @@ enum barrier_state_type {
 =============================================================================
 */
 
-typedef int32_t fixed;
+using fixed = int32_t;
 
 // Display priority is determined by the order of these bits!
 // And, this order must match the PinballBonus table in AGENT.C!

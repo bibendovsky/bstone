@@ -541,8 +541,8 @@ GLAPI void APIENTRY glVertexAttribPointer(
 namespace {
 
 
-typedef std::list<std::string> Strings;
-typedef Strings::const_iterator StringsCIt;
+using Strings = std::list<std::string>;
+using StringsCIt = Strings::const_iterator;
 
 // Pointer-to-object to pointer-to-function cast
 template<class T>

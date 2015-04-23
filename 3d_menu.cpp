@@ -436,7 +436,7 @@ const std::string ps_only_entry = "?PS?";
 const std::string aog_only_entry = "?AOG?";
 
 
-typedef std::map<ScanCode, const char*> BindsNames;
+using BindsNames = std::map<ScanCode, const char*>;
 
 
 enum BindsFindDirection {

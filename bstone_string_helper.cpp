@@ -31,7 +31,7 @@ namespace {
 
 class Internals {
 public:
-    typedef std::ctype<char> CType;
+    using CType = std::ctype<char>;
 
 
     Internals() = delete;

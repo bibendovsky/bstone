@@ -129,7 +129,7 @@ extern char signonv1;
 //      v1.0d1
 //
 
-typedef int16_t boolean;
+using boolean = int16_t;
 
 struct Point {
     int16_t x;

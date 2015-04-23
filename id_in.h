@@ -258,8 +258,8 @@ enum BindingId {
 const int k_max_binding_keys = 2;
 const int k_max_bindings = e_bi_last_entry;
 
-typedef ScanCode Binding[k_max_binding_keys];
-typedef Binding Bindings[k_max_bindings];
+using Binding = ScanCode[k_max_binding_keys];
+using Bindings = Binding[k_max_bindings];
 
 const bool k_in_use_modern_bindings_default = false;
 extern bool in_use_modern_bindings;
@@ -274,7 +274,7 @@ struct CursorInfo {
     Direction dir;
 }; // struct  CursorInfo
 
-typedef CursorInfo ControlInfo;
+using ControlInfo = CursorInfo;
 
 struct KeyboardDef {
     ScanCode button0;

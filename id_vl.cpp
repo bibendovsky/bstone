@@ -206,158 +206,159 @@ const uint32_t sdl_pixel_format = SDL_PIXELFORMAT_RGBA8888;
 
 class SdlPalette {
 public:
-SdlPalette() :
-    palette_(),
-    color_shifts_()
-{
-}
-
-~SdlPalette()
-{
-}
-
-uint32_t operator[](
-    int index) const
-{
-    if (!is_initialized()) {
-        throw std::runtime_error("Not initialized.");
+    SdlPalette() :
+        palette_(),
+        color_shifts_()
+    {
     }
 
-    return palette_[index];
-}
-
-bool initialize(
-    uint32_t pixel_format)
-{
-    uninitialize();
-
-    bstone::Log::write(
-        "SDL: Initializing SDL palette...");
-
-    typedef std::vector<uint32_t> Masks;
-
-    int bpp = 0;
-    Masks masks(4);
-
-    SDL_bool sdl_result = SDL_FALSE;
-
-    sdl_result = SDL_PixelFormatEnumToMasks(
-        pixel_format, &bpp,
-        &masks[0], &masks[1], &masks[2], &masks[3]);
-
-    if (sdl_result == SDL_FALSE) {
-        bstone::Log::write_error("SDL: {}", SDL_GetError());
-        return false;
+    ~SdlPalette()
+    {
     }
 
-    if (bpp != 32) {
-        bstone::Log::write_error(
-            "SDL: Pixel format should have 32 bits per pixel.");
-        return false;
-    }
-
-    Palette palette(256);
-
-    ColorShifts color_shifts(4);
-
-    for (int i = 0; i < 4; ++i) {
-        color_shifts[i] = get_color_shift(masks[i]);
-    }
-
-    palette_.swap(palette);
-    color_shifts_.swap(color_shifts);
-
-    return true;
-}
-
-void uninitialize()
-{
-    Palette().swap(palette_);
-    ColorShifts().swap(color_shifts_);
-}
-
-void update(
-    const uint8_t* palette,
-    int offset,
-    int count)
-{
-    if (!is_initialized()) {
-        throw std::runtime_error("Not initialized.");
-    }
-
-    if (offset < 0 || offset > 256) {
-        throw std::out_of_range("offset");
-    }
-
-    if (count < 0 || count > 256) {
-        throw std::out_of_range("count");
-    }
-
-    if ((offset + count) > 256) {
-        throw std::out_of_range("offset + count");
-    }
-
-    int index_to = offset + count;
-
-    for (int i = offset; i < index_to; ++i) {
-        const uint8_t* palette_color = &palette[3 * i];
-
-        uint32_t color = 0;
-
-        for (int j = 0; j < 3; ++j) {
-            uint32_t vga_color =
-                static_cast<uint32_t>(palette_color[j]);
-
-            uint32_t pc_color = (255 * vga_color) / 63;
-
-            color |= pc_color << color_shifts_[j];
+    uint32_t operator[](
+        int index) const
+    {
+        if (!is_initialized()) {
+            throw std::runtime_error("Not initialized.");
         }
 
-        color |= 0x000000FF << color_shifts_[3];
-
-        palette_[i] = color;
+        return palette_[index];
     }
-}
 
-bool is_initialized() const
-{
-    return !palette_.empty();
-}
+    bool initialize(
+        uint32_t pixel_format)
+    {
+        uninitialize();
+
+        bstone::Log::write(
+            "SDL: Initializing SDL palette...");
+
+        using Masks = std::vector<uint32_t>;
+
+        int bpp = 0;
+        Masks masks(4);
+
+        SDL_bool sdl_result = SDL_FALSE;
+
+        sdl_result = SDL_PixelFormatEnumToMasks(
+            pixel_format, &bpp,
+            &masks[0], &masks[1], &masks[2], &masks[3]);
+
+        if (sdl_result == SDL_FALSE) {
+            bstone::Log::write_error("SDL: {}", SDL_GetError());
+            return false;
+        }
+
+        if (bpp != 32) {
+            bstone::Log::write_error(
+                "SDL: Pixel format should have 32 bits per pixel.");
+            return false;
+        }
+
+        Palette palette(256);
+
+        ColorShifts color_shifts(4);
+
+        for (int i = 0; i < 4; ++i) {
+            color_shifts[i] = get_color_shift(masks[i]);
+        }
+
+        palette_.swap(palette);
+        color_shifts_.swap(color_shifts);
+
+        return true;
+    }
+
+    void uninitialize()
+    {
+        Palette().swap(palette_);
+        ColorShifts().swap(color_shifts_);
+    }
+
+    void update(
+        const uint8_t* palette,
+        int offset,
+        int count)
+    {
+        if (!is_initialized()) {
+            throw std::runtime_error("Not initialized.");
+        }
+
+        if (offset < 0 || offset > 256) {
+            throw std::out_of_range("offset");
+        }
+
+        if (count < 0 || count > 256) {
+            throw std::out_of_range("count");
+        }
+
+        if ((offset + count) > 256) {
+            throw std::out_of_range("offset + count");
+        }
+
+        int index_to = offset + count;
+
+        for (int i = offset; i < index_to; ++i) {
+            const uint8_t* palette_color = &palette[3 * i];
+
+            uint32_t color = 0;
+
+            for (int j = 0; j < 3; ++j) {
+                uint32_t vga_color =
+                    static_cast<uint32_t>(palette_color[j]);
+
+                uint32_t pc_color = (255 * vga_color) / 63;
+
+                color |= pc_color << color_shifts_[j];
+            }
+
+            color |= 0x000000FF << color_shifts_[3];
+
+            palette_[i] = color;
+        }
+    }
+
+    bool is_initialized() const
+    {
+        return !palette_.empty();
+    }
+
 
 private:
-typedef std::vector<uint32_t> Palette;
-typedef std::vector<int> ColorShifts;
+    using Palette = std::vector<uint32_t>;
+    using ColorShifts = std::vector<int>;
 
-Palette palette_;
-ColorShifts color_shifts_;
+    Palette palette_;
+    ColorShifts color_shifts_;
 
-SdlPalette(
-    const SdlPalette& that);
+    SdlPalette(
+        const SdlPalette& that);
 
-SdlPalette& operator=(
-    const SdlPalette& that);
+    SdlPalette& operator=(
+        const SdlPalette& that);
 
-static int get_color_shift(
-    uint32_t mask)
-{
-    switch (mask) {
-    case 0x000000FF:
-        return 0;
+    static int get_color_shift(
+        uint32_t mask)
+    {
+        switch (mask) {
+        case 0x000000FF:
+            return 0;
 
-    case 0x0000FF00:
-        return 8;
+        case 0x0000FF00:
+            return 8;
 
-    case 0x00FF0000:
-        return 16;
+        case 0x00FF0000:
+            return 16;
 
-    case 0xFF000000:
-        return 24;
+        case 0xFF000000:
+            return 24;
 
-    default:
-        return -1;
+        default:
+            return -1;
+        }
     }
-}
-}; // class SdlPalette
+}; // SdlPalette
 
 
 SDL_Renderer* sdl_soft_renderer = nullptr;

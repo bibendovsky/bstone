@@ -125,11 +125,11 @@ public:
     static int get_max_channels();
 
 private:
-    typedef int16_t Sample;
-    typedef std::vector<Sample> Samples;
+    using Sample = int16_t;
+    using Samples = std::vector<Sample>;
 
-    typedef float MixSample;
-    typedef std::vector<MixSample> MixSamples;
+    using MixSample = float;
+    using MixSamples = std::vector<MixSample>;
 
     class CacheItem {
     public:
@@ -154,8 +154,8 @@ private:
         bool is_decoded() const;
     }; // class CacheItem
 
-    typedef std::vector<CacheItem> Cache;
-    typedef Cache::iterator CacheIt;
+    using Cache = std::vector<CacheItem>;
+    using CacheIt = Cache::iterator;
 
     class Position {
     public:
@@ -163,9 +163,9 @@ private:
         int y;
     }; // class Position
 
-    typedef std::vector<Position> Positions;
-    typedef Positions::iterator PositionsIt;
-    typedef Positions::const_iterator PositionsCIt;
+    using Positions = std::vector<Position>;
+    using PositionsIt = Positions::iterator;
+    using PositionsCIt = Positions::const_iterator;
 
     class PlayerPosition {
     public:
@@ -183,7 +183,7 @@ private:
         Position wall;
     }; // class PositionsState
 
-    typedef std::deque<PositionsState> PositionsStateQueue;
+    using PositionsStateQueue = std::deque<PositionsState>;
 
     class Sound {
     public:
@@ -200,9 +200,9 @@ private:
         bool is_audible() const;
     }; // class Sound
 
-    typedef std::list<Sound> Sounds;
-    typedef Sounds::iterator SoundsIt;
-    typedef Sounds::const_iterator SoundsCIt;
+    using Sounds = std::list<Sound>;
+    using SoundsIt = Sounds::iterator;
+    using SoundsCIt = Sounds::const_iterator;
 
     enum CommandType {
         CMD_PLAY,
@@ -218,9 +218,9 @@ private:
         int data_size;
     }; // class Command
 
-    typedef std::deque<Command> PlayCommands;
-    typedef PlayCommands::iterator PlayCommandsIt;
-    typedef PlayCommands::const_iterator PlayCommandsCIt;
+    using PlayCommands = std::deque<Command>;
+    using PlayCommandsIt = PlayCommands::iterator;
+    using PlayCommandsCIt = PlayCommands::const_iterator;
 
     bool is_initialized_;
     int dst_rate_;
