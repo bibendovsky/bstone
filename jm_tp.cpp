@@ -396,10 +396,18 @@ void initialize_shape_table()
         { FAXPIC, pis_pic }, // 213 - Fax Machine
         { H_LPIC, pis_pic }, // 214 - L key
         { H_SHIFTPIC, pis_pic }, // 215 - Shift key
-
-        { SPR_DOORBOMB, pis_scaled }, // 216 - DoorBomb
-        { SPR_AUTOMAPPER, pis_scaled }, // 217 - Radar Powerup.
-        { STARPORTPIC, pis_pic }, // 218 - Star Port
+        {
+            ::is_aog_sw() ? PSPROMO1PIC : SPR_DOORBOMB,
+            ::is_aog_sw() ? pis_pic : pis_scaled,
+        }, // 216 - DoorBomb
+        {
+            ::is_aog_sw() ? PSPROMO2PIC : SPR_AUTOMAPPER,
+            ::is_aog_sw() ? pis_pic : pis_scaled,
+        }, // 217 - Radar Powerup.
+        {
+            ::is_aog_sw() ? PSPROMO3PIC : STARPORTPIC,
+            pis_pic,
+        }, // 218 - Star Port
         { BOSSPIC, pis_pic }, // 219 - AOG Boss
         { THREEPLANETSPIC, pis_pic }, // 220 - Three Planets
         { SOLARSYSTEMPIC, pis_pic }, // 221 - Solar System
