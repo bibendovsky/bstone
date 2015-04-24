@@ -239,7 +239,7 @@ char LitAmmo[2][22] = { { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0,
 
 
 #define IA_MAX_LINE 30
-typedef struct InfoArea_Struct {
+struct InfoArea_Struct {
     int16_t x, y;
     int16_t text_color;
     int16_t backgr_color;
@@ -247,7 +247,7 @@ typedef struct InfoArea_Struct {
     char delay;
     char numanims;
     char framecount;
-} InfoArea_Struct;
+}; // InfoArea_Struct
 
 uint16_t LastMsgPri = 0;
 int16_t MsgTicsRemain = 0;
@@ -5761,13 +5761,13 @@ boolean OperateSmartSwitch(
     char Operation,
     boolean Force)
 {
-    typedef enum {
+    enum what_is_it {
         wit_NOTHING,
         wit_DOOR,
         wit_WALL,
         wit_STATIC,
         wit_ACTOR
-    } what_is_it;
+    }; // what_is_it
 
     what_is_it WhatItIs;
     objtype* obj;

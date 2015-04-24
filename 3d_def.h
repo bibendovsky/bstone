@@ -531,13 +531,13 @@ enum ss_type {
     ss_normal,
     ss_quick,
     ss_justcalc
-}; // enum ss_type
+}; // ss_type
 
 enum cds_io_type {
     cds_dos_print,
     cds_id_print,
     cds_menu_print
-}; // enum cds_io_type
+}; // cds_io_type
 
 
 enum sp_type {
@@ -546,7 +546,7 @@ enum sp_type {
     sp_saving,
     sp_changeview,
     sp_teleporting
-}; // enum sp_type
+}; // sp_type
 
 //
 // sprite constants
@@ -1953,7 +1953,7 @@ enum dummy_sprite_t {
     SPR_BOSS6_SHOOT1, SPR_BOSS6_SHOOT2, SPR_BOSS6_SHOOT3,
     SPR_BOSS6_PROJ1, SPR_BOSS6_PROJ2, SPR_BOSS6_PROJ3,
     SPR_BOSS6_EXP1, SPR_BOSS6_EXP2, SPR_BOSS6_EXP3,
-}; // enum dummy_sprite_t
+}; // dummy_sprite_t
 #endif
 
 //
@@ -2039,7 +2039,7 @@ enum doortype {
     NUMDOORTYPES
 
 
-}; // enum doortype
+}; // doortype
 
 
 //
@@ -2051,7 +2051,7 @@ enum breifing_type {
     BT_WIN,
     BT_INTRO
 
-}; // enum breifing_type
+}; // breifing_type
 
 // Terminal Messages - These correspond to the order in which they are
 // grabbed in VGAGRAPH.BS?.  See BSTONEV.I
@@ -2122,7 +2122,7 @@ enum term_msg_type {
     TM_ALREADY_ACTIVATED,
     TM_ALREADY_DEACTIVATED,
     TM_LAST
-}; // enum term_msg_type
+}; // term_msg_type
 
 // Terminal Commands - The first set of commands TC_HINT - TC_end_of_1to1
 // are directly mapped 1 to 1 to the terminal msgs.
@@ -2165,7 +2165,7 @@ enum term_cmd_type {
     TC_ACTIVATE_SOCKETS,
 
     TC_LAST
-}; // enum term_cmd_type
+}; // term_cmd_type
 
 //
 // Barrier State Transistions
@@ -2230,7 +2230,7 @@ enum movie_t {
     mv_final2, // AOG Episode 3/5
     mv_final3, // AOG Episode 6
     mv_NUM_MOVIES,
-}; // enum movie_t
+}; // movie_t
 
 enum controldir_t {
     di_north,
@@ -2622,7 +2622,7 @@ struct statetype {
     void (* action)(
         objtype* actor);
     statetype* next;
-}; // struct statetype
+}; // statetype
 
 
 // ---------------------
@@ -2649,7 +2649,7 @@ struct statobj_t {
     void deserialize(
         bstone::BinaryReader& reader,
         uint32_t& checksum);
-}; // struct statobj_t
+}; // statobj_t
 
 // ---------------------
 //
@@ -2871,7 +2871,7 @@ struct statsInfoType {
     void deserialize(
         bstone::BinaryReader& reader,
         uint32_t& checksum);
-}; // struct statsInfoType
+}; // statsInfoType
 
 struct levelinfo {
     uint16_t bonus_queue; // bonuses that need to be shown
@@ -3009,7 +3009,7 @@ struct CycleInfo {
     uint8_t delay_count;
     uint8_t firstreg;
     uint8_t lastreg;
-}; // struct CycleInfo
+}; // CycleInfo
 
 
 struct visobj_t {
@@ -4539,7 +4539,7 @@ virtual const char* what() const throw ();
 
 private:
 const char* what_;
-}; // class ArchiveException
+}; // ArchiveException
 
 
 template<class T>

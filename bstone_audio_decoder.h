@@ -92,7 +92,7 @@ private:
     int raw_size_;
     int dst_rate_;
     int dst_length_in_samples_;
-}; // class AudioDecoder
+}; // AudioDecoder
 
 
 } // namespace bstone

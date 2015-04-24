@@ -133,7 +133,7 @@ public:
 
 private:
     IStream* stream_;
-}; // class BinaryWriter
+}; // BinaryWriter
 
 
 } // bstone

@@ -109,7 +109,7 @@ public:
 private:
     int16_t* buffer_;
     int scale_;
-}; // class MixerChannel
+}; // MixerChannel
 
 
 class MixerObject {
@@ -118,7 +118,7 @@ public:
         MIXER_Handler handler,
         Bitu freq,
         const char* name);
-}; // class MixerObject
+}; // MixerObject
 
 
 #endif // BSTONE_DOSBOX_MIXER_H

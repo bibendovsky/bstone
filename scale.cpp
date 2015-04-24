@@ -44,7 +44,7 @@ extern const uint8_t* shadingtable;
 enum DrawMode {
     DRAW_DEFAULT,
     DRAW_LIGHTED
-}; // enum DrawMode
+}; // DrawMode
 
 
 static void generic_draw_column(

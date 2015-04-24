@@ -82,7 +82,7 @@ private:
     // Returns a maximum number of output samples generated at once.
     // (Emulator dependant value)
     static int get_max_samples_count();
-}; // class Opl2
+}; // Opl2
 
 
 } // namespace bstone

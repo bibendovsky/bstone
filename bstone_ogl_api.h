@@ -98,7 +98,7 @@ private:
 
     OglApi& operator=(
         const OglApi& that);
-}; // class OglApi
+}; // OglApi
 
 
 } // namespace bstone

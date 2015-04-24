@@ -560,7 +560,7 @@ enum JustifyMode {
     jm_left,
     jm_right,
     jm_flush
-}; // enum JustifyMode
+}; // JustifyMode
 
 static char justify_mode = jm_left;
 

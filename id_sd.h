@@ -54,24 +54,24 @@ enum SDMode {
     sdm_Off,
     sdm_PC,
     sdm_AdLib
-}; // enum SDMode
+}; // SDMode
 
 enum SMMode {
     smm_Off,
     smm_AdLib
-}; // enum SMMode
+}; // SMMode
 
 enum SDSMode {
     sds_Off,
     sds_PC,
     sds_SoundSource,
     sds_SoundBlaster
-}; // enum SDSMode
+}; // SDSMode
 
 struct SoundCommon {
     uint32_t length;
     uint16_t priority;
-}; // struct SoundCommon
+}; // SoundCommon
 
 //      PC Sound stuff
 #define pcTimer 0x42
@@ -83,7 +83,7 @@ struct SoundCommon {
 struct PCSound {
     SoundCommon common;
     uint8_t data[1];
-}; // struct PCSound
+}; // PCSound
 
 //      Registers for the Sound Blaster card - needs to be offset by n0 (0x10,0x20,0x30,0x40,0x50,0x60)
 #define sbReset 0x206 // W
@@ -127,7 +127,7 @@ struct SampledSound {
     uint8_t bits;
     uint8_t reference;
     uint8_t data[1];
-}; // struct SampledSound
+}; // SampledSound
 
 //      Registers for the AdLib card
 #define alFMStatus 0x388 // R
@@ -165,14 +165,14 @@ struct Instrument {
     uint8_t voice;
     uint8_t mode;
     uint8_t unused[3];
-}; // struct Instrument
+}; // Instrument
 
 struct AdLibSound {
     SoundCommon common;
     Instrument inst;
     uint8_t block;
     uint8_t data[1];
-}; // struct AdLibSound
+}; // AdLibSound
 
 //
 //      Sequencing stuff
@@ -198,7 +198,7 @@ struct AdLibSound {
 struct MusicGroup {
     uint16_t length;
     uint16_t values[1];
-}; // struct MusicGroup
+}; // MusicGroup
 #else
 typedef struct  {
     uint16_t flags,
@@ -217,7 +217,7 @@ struct ActiveTrack {
     boolean percussive;
     uint16_t* seq;
     uint32_t nextevent;
-}; // struct ActiveTrack
+}; // ActiveTrack
 
 #define sqmode_Normal 0
 #define sqmode_FadeIn 1

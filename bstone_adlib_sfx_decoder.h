@@ -89,7 +89,7 @@ private:
         int c_wave;
 
         void reset();
-    }; // class Instrument
+    }; // Instrument
 
     MemoryBinaryReader reader_;
     Instrument instrument_;
@@ -103,7 +103,7 @@ private:
 
     // Returns an original size of an AdLibSound structure.
     static int get_header_size();
-}; // class AdlibDecoder
+}; // AdlibDecoder
 
 
 } // namespace bstone

@@ -741,7 +741,7 @@ void AudioMixer::handle_stop_all_sfx_command()
         {
             return sound.type != ST_ADLIB_MUSIC;
         }
-    }; // class Predicate
+    }; // Predicate
 
     sounds_.remove_if(Predicate::test);
 }

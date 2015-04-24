@@ -141,7 +141,7 @@ enum ScanCode {
     sc_mouse_right = 0x66,
     sc_mouse_x1 = 0x67,
     sc_mouse_x2 = 0x68
-}; // enum ScanCode
+}; // ScanCode
 
 #define key_None 0
 #define key_Return 0x0d
@@ -170,7 +170,7 @@ enum Demo {
     demo_Record,
     demo_Playback,
     demo_PlayDone
-}; // enum Demo
+}; // Demo
 
 enum ControlType {
     ctrl_None, // JAM - added
@@ -181,7 +181,7 @@ enum ControlType {
     ctrl_Joystick1 = ctrl_Joystick,
     ctrl_Joystick2,
     ctrl_Mouse
-}; // enum ControlType
+}; // ControlType
 
 enum Motion {
     motion_Left = -1,
@@ -189,7 +189,7 @@ enum Motion {
     motion_None = 0,
     motion_Right = 1,
     motion_Down = 1
-}; // enum Motion
+}; // Motion
 
 enum Direction {
     dir_North,
@@ -201,7 +201,7 @@ enum Direction {
     dir_West,
     dir_NorthWest,
     dir_None
-}; // enum Direction
+}; // Direction
 
 // BBi
 enum BindingId {
@@ -253,7 +253,7 @@ enum BindingId {
     e_bi_pause,
 
     e_bi_last_entry
-}; // enum BindingId
+}; // BindingId
 
 const int k_max_binding_keys = 2;
 const int k_max_bindings = e_bi_last_entry;
@@ -272,7 +272,7 @@ struct CursorInfo {
     int16_t x, y;
     Motion xaxis, yaxis;
     Direction dir;
-}; // struct  CursorInfo
+}; //  CursorInfo
 
 using ControlInfo = CursorInfo;
 
@@ -287,7 +287,7 @@ struct KeyboardDef {
     ScanCode downleft;
     ScanCode down;
     ScanCode downright;
-}; // struct KeyboardDef
+}; // KeyboardDef
 
 struct JoystickDef {
     uint16_t joyMinX;
@@ -302,7 +302,7 @@ struct JoystickDef {
     uint16_t joyMultYL;
     uint16_t joyMultXH;
     uint16_t joyMultYH;
-}; // struct JoystickDef
+}; // JoystickDef
 
 
 // Global variables

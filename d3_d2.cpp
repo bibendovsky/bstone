@@ -33,12 +33,12 @@ enum DrawOptions {
     DO_CEILING,
     DO_FLOORING,
     DO_CEILING_AND_FLOORING
-}; // enum DrawOptions
+}; // DrawOptions
 
 enum ShadingOptions {
     SO_NONE,
     SO_DEFAULT
-}; // enum ShadingOptions
+}; // ShadingOptions
 
 
 extern int mr_rowofs;

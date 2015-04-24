@@ -36,7 +36,7 @@ enum OPL_Mode {
     OPL_opl2,
     OPL_dualopl2,
     OPL_opl3
-}; // enum OPL_Mode
+}; // OPL_Mode
 
 
 #endif // BSTONE_DOSBOX_HARDWARE_H

@@ -442,12 +442,12 @@ using BindsNames = std::map<ScanCode, const char*>;
 enum BindsFindDirection {
     e_bfd_forward,
     e_bfd_backward
-}; // enum BindsFindDirection
+}; // BindsFindDirection
 
 enum BindsFindFrom {
     e_bff_current,
     e_bff_not_current
-}; // enum BindingFindFrom
+}; // BindingFindFrom
 
 
 class BindsItem {
@@ -465,7 +465,7 @@ public:
             binding(binding)
     {
     }
-}; // class BindsItem
+}; // BindsItem
 
 using BindsItems = std::vector<BindsItem>;
 
@@ -1711,7 +1711,7 @@ void CP_ViewScores(
 void CP_NewGame(
     int16_t)
 {
-    int16_t which, episode;
+    int16_t which, episode = 0;
 
     DrawMenuTitle("Difficulty Level");
     DrawInstructions(IT_STANDARD);
@@ -2982,7 +2982,7 @@ enum ControlButton1 {
     STRAFE,
     RUN,
     OPEN
-}; // enum ControlButton1
+}; // ControlButton1
 
 char mbarray[4][3] = { "B0", "B1", "B2", "B3" },
      order[4] = { RUN, OPEN, FIRE, STRAFE };
@@ -3102,7 +3102,7 @@ enum ControlButton2 {
     RIGHT,
     BKWD,
     LEFT
-}; // enum ControlButton2
+}; // ControlButton2
 
 int16_t moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
 

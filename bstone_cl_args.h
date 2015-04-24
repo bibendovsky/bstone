@@ -85,7 +85,7 @@ public:
 private:
     StringList args_;
     StringList lc_args_;
-}; // class ClArgs
+}; // ClArgs
 
 
 } // namespace bstone

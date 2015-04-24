@@ -55,7 +55,7 @@ struct HighScore {
     uint16_t completed;
     uint16_t episode;
     uint16_t ratio;
-}; // struct HighScore
+}; // HighScore
 
 #define MaxGameName 32
 #define MaxSaveGames 6
@@ -65,7 +65,7 @@ struct SaveGame {
     uint16_t* oldtest;
     boolean present;
     char name[MaxGameName + 1];
-}; // struct SaveGame
+}; // SaveGame
 
 #define MaxString 128 // Maximum input string size
 
@@ -77,14 +77,14 @@ struct WindowRec {
     int16_t h;
     int16_t px;
     int16_t py;
-}; // struct WindowRec;
+}; // WindowRec;
 
 enum GameDiff {
     gd_Continue,
     gd_Easy,
     gd_Normal,
     gd_Hard
-}; // enum GameDiff
+}; // GameDiff
 
 // Custom Cursor struct type for US_LineInput()
 
@@ -94,7 +94,7 @@ struct US_CursorStruct {
     char do_not_use; // Space holder for ASCZ string
     uint16_t cursor_color;
     uint16_t font_number;
-}; // struct US_CursorStruct
+}; // US_CursorStruct
 
 //      Hack import for TED launch support
 // extern       boolean         tedlevel;

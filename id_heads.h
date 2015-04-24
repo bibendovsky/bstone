@@ -134,12 +134,12 @@ using boolean = int16_t;
 struct Point {
     int16_t x;
     int16_t y;
-}; // struct Point
+}; // Point
 
 struct Rect {
     Point ul;
     Point lr;
-}; // struct Rect
+}; // Rect
 
 #define nil (0l)
 

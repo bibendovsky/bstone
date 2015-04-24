@@ -103,7 +103,7 @@ enum OglObjectType {
     OGL_OT_NONE,
     OGL_OT_SHADER,
     OGL_OT_PROGRAM
-}; // enum OglObjectType
+}; // OglObjectType
 
 
 struct ScreenVertex {
@@ -112,7 +112,7 @@ struct ScreenVertex {
 
     float s;
     float t;
-}; // struct ScreenVertex
+}; // ScreenVertex
 
 
 void ogl_draw_screen();
@@ -382,7 +382,7 @@ enum RendererType {
     RT_AUTO_DETECT,
     RT_SOFTWARE,
     RT_OPEN_GL
-}; // enum RendererType
+}; // RendererType
 
 
 extern const uint8_t vgapal[768];

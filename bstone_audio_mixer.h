@@ -42,7 +42,7 @@ enum ActorType {
     AT_ACTOR,
     AT_DOOR,
     AT_WALL
-}; // enum ActorType
+}; // ActorType
 
 enum ActorChannel {
     AC_VOICE,
@@ -50,14 +50,14 @@ enum ActorChannel {
     AC_ITEM,
     AC_HIT_WALL,
     AC_NO_WAY
-}; // enum ActorChannel
+}; // ActorChannel
 
 enum SoundType {
     ST_NONE,
     ST_ADLIB_MUSIC,
     ST_ADLIB_SFX,
     ST_PCM
-}; // enum SoundType
+}; // SoundType
 
 
 class AudioMixer {
@@ -152,7 +152,7 @@ private:
             const CacheItem& that);
 
         bool is_decoded() const;
-    }; // class CacheItem
+    }; // CacheItem
 
     using Cache = std::vector<CacheItem>;
     using CacheIt = Cache::iterator;
@@ -161,7 +161,7 @@ private:
     public:
         int x;
         int y;
-    }; // class Position
+    }; // Position
 
     using Positions = std::vector<Position>;
     using PositionsIt = Positions::iterator;
@@ -173,7 +173,7 @@ private:
         int view_y;
         int view_cos;
         int view_sin;
-    }; // class PlayerPosition
+    }; // PlayerPosition
 
     class PositionsState {
     public:
@@ -181,7 +181,7 @@ private:
         Positions actors;
         Positions doors;
         Position wall;
-    }; // class PositionsState
+    }; // PositionsState
 
     using PositionsStateQueue = std::deque<PositionsState>;
 
@@ -198,7 +198,7 @@ private:
         float right_volume;
 
         bool is_audible() const;
-    }; // class Sound
+    }; // Sound
 
     using Sounds = std::list<Sound>;
     using SoundsIt = Sounds::iterator;
@@ -208,7 +208,7 @@ private:
         CMD_PLAY,
         CMD_STOP_MUSIC,
         CMD_STOP_ALL_SFX
-    }; // enum CommandType
+    }; // CommandType
 
     class Command {
     public:
@@ -216,7 +216,7 @@ private:
         Sound sound;
         const void* data;
         int data_size;
-    }; // class Command
+    }; // Command
 
     using PlayCommands = std::deque<Command>;
     using PlayCommandsIt = PlayCommands::iterator;
@@ -320,7 +320,7 @@ private:
 
     AudioMixer& operator=(
         const AudioMixer& that);
-}; // class AudioMixer
+}; // AudioMixer
 
 
 } // namespace bstone

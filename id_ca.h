@@ -59,17 +59,17 @@ struct maptype {
     uint16_t planelength[3];
     uint16_t width, height;
     char name[16];
-}; // struct maptype
+}; // maptype
 
 struct huffnode {
     uint16_t bit0, bit1; // 0-255 is a character, > is a pointer to a node
-}; // struct huffnode
+}; // huffnode
 
 struct mapfiletype {
     uint16_t RLEWtag;
     int32_t headeroffsets[100];
 //      uint8_t           tileinfo[];
-}; // struct mapfiletype
+}; // mapfiletype
 
 // ===========================================================================
 

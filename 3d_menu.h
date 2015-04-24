@@ -138,7 +138,7 @@ extern int TEXTSONG;
 #define LSA_W 130
 #define LSA_H 42
 
-typedef enum mm_labels {
+enum mm_labels {
     MM_NEW_MISSION,
     MM_ORDERING_INFO,
     MM_READ_THIS,
@@ -151,7 +151,7 @@ typedef enum mm_labels {
     MM_BLANK2,
     MM_BACK_TO_DEMO,
     MM_LOGOFF
-} mm_labels;
+}; // mm_labels
 
 // CP_Switch() menu labels
 //
@@ -180,7 +180,7 @@ enum activetypes {
     AT_ENABLED,
     AT_READIT,
     AT_NON_SELECTABLE // Menu Bar/Separator - Not a selectable item.
-}; // enum activetypes
+}; // activetypes
 
 //
 // TYPEDEFS
@@ -191,7 +191,7 @@ struct CP_cursortype {
     uint8_t width;
     uint8_t height;
     char on;
-}; // struct CP_cursortype
+}; // CP_cursortype
 
 struct CP_iteminfo {
     uint8_t x;
@@ -202,7 +202,7 @@ struct CP_iteminfo {
     uint8_t y_spacing;
 
     CP_cursortype cursor;
-}; // struct CP_iteminfo
+}; // CP_iteminfo
 
 
 struct CP_itemtype {
@@ -212,12 +212,12 @@ struct CP_itemtype {
         int16_t temp1);
     uint8_t fontnumber; // Font to print text in
     uint8_t height; // Hight of text (Y_Offset from previous line)
-}; // struct CP_itemtype
+}; // CP_itemtype
 
 
 struct CustomCtrls {
     int16_t allowed[4];
-}; // struct CustomCtrls
+}; // CustomCtrls
 
 extern CP_itemtype MainMenu[], NewEMenu[];
 extern CP_iteminfo MainItems;
@@ -399,7 +399,7 @@ enum MenuInputType {
     JOYSTICK,
     KEYBOARDBTNS,
     KEYBOARDMOVE
-}; // enum MenuInputType
+}; // MenuInputType
 
 //
 // WL_INTER
@@ -407,7 +407,7 @@ enum MenuInputType {
 struct LRstruct {
     int16_t kill, secret, treasure;
     int32_t time;
-}; // struct LRstruct
+}; // LRstruct
 
 extern LRstruct LevelRatios[];
 

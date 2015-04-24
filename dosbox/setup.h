@@ -31,11 +31,11 @@ Free Software Foundation, Inc.,
 
 
 class Section {
-}; // class Section
+}; // Section
 
 
 class Module_base {
-}; // class Module_base
+}; // Module_base
 
 
 #endif // BSTONE_DOSBOX_SETUP_H

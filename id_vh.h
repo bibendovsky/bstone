@@ -38,18 +38,18 @@ struct spritetabletype {
     int16_t xh;
     int16_t yh;
     int16_t shifts;
-}; // struct spritetabletype
+}; // spritetabletype
 
 struct pictabletype {
     int16_t width;
     int16_t height;
-}; // struct pictabletype
+}; // pictabletype
 
 struct fontstruct {
     int16_t height;
     int16_t location[256];
     char width[256];
-}; // struct fontstruct
+}; // fontstruct
 
 
 extern pictabletype* pictable;

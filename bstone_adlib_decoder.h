@@ -57,7 +57,7 @@ protected:
     Opl2 emulator_;
 
     void set_emulator_default_state();
-}; // class AdlibDecoder
+}; // AdlibDecoder
 
 
 } // namespace bstone

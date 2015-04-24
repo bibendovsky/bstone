@@ -38,14 +38,14 @@ struct anim_frame {
     uint16_t code;
     int32_t block_num;
     int32_t recsize;
-}; // struct anim_frame
+}; // anim_frame
 
 
 struct anim_chunk {
     uint16_t opt;
     uint16_t offset;
     uint16_t length;
-}; // struct anim_chunk
+}; // anim_chunk
 
 
 // -------------------------------------------------------------------------
@@ -69,7 +69,7 @@ struct MovieStuff_t {
     int16_t start_line;
     int16_t end_line;
     const void* palette;
-}; // struct MovieStuff_t
+}; // MovieStuff_t
 
 
 

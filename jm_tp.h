@@ -119,14 +119,14 @@ struct PresenterInfo {
     int16_t id_cache;
     char* infoline;
     int custom_line_height;
-}; // struct PresenterInfo;
+}; // PresenterInfo;
 
 enum tpCacheType {
     ct_scaled,
     ct_chunk,
     ct_marks,
     ct_music
-}; // enum tpCacheType
+}; // tpCacheType
 
 enum pisType {
     pis_pic,
@@ -140,22 +140,22 @@ enum pisType {
     pis_pic2x,
     pis_sprite2x
 #endif
-}; // enum pisType;
+}; // pisType;
 
 struct piShapeInfo {
     uint16_t shapenum;
     pisType shapetype;
-}; // struct piShapeInfo
+}; // piShapeInfo
 
 enum piaType {
     pia_grabscript,
     pia_shapetable
-}; // enum piaType;
+}; // piaType;
 
 enum pidType {
     pid_cycle,
     pid_rebound
-}; // enum pidType
+}; // pidType
 
 struct piAnimInfo {
     int16_t baseshape;
@@ -167,7 +167,7 @@ struct piAnimInfo {
     pidType dirtype;
     int16_t x, y;
     char diradd;
-}; // struct piAnimInfo
+}; // piAnimInfo
 
 // -------------------------------------------------------------------------
 // variable externs

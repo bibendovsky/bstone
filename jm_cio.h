@@ -81,12 +81,12 @@ Free Software Foundation, Inc.,
 //
 //      COMPRESSION TYPES
 //
-typedef enum ct_TYPES {
+enum ct_TYPES {
     ct_NONE = 0, // No compression - Just data..Rarely used!
     ct_LZW, // LZW data compression
     ct_LZH
 
-} ct_TYPES;
+}; // ct_TYPES
 
 //
 //      FILE CHUNK HEADER FORMATS
@@ -114,7 +114,7 @@ struct CompHeader_t {
     uint32_t OriginalLen; // Original FileLength of compressed Data.
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
     uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
-}; // struct CompHeader_t
+}; // CompHeader_t
 
 
 // ---------------------------------------------------------------------------

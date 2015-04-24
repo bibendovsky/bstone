@@ -48,12 +48,12 @@ Free Software Foundation, Inc.,
 //
 //      COMPRESSION TYPES
 //
-typedef enum ct_TYPES {
+enum ct_TYPES {
     ct_NONE = 0, // No compression - Just data..Rarely used!
     ct_LZW, // LZW data compression
     ct_LZH,
 
-} ct_TYPES;
+}; // ct_TYPES
 
 //
 //      FILE CHUNK HEADER FORMATS

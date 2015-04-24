@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 enum ShapeDrawMode {
     e_sdm_simple,
     e_sdm_shaded
-}; // enum ShapeDrawMode
+}; // ShapeDrawMode
 
 
 extern const uint8_t* shadingtable;

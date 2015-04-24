@@ -92,7 +92,7 @@ private:
     bool is_es_;
 
     const std::string& get_es_prefix() const;
-}; // class OglVersion
+}; // OglVersion
 
 
 } // namespace bstone

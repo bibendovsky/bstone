@@ -71,7 +71,7 @@ private:
     int command_index_;
     int samples_per_tick_;
     int remains_count_;
-}; // class AdlibDecoder
+}; // AdlibDecoder
 
 
 } // namespace bstone

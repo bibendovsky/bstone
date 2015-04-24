@@ -66,7 +66,7 @@ enum FADES {
     FADE_OUT,
     FADE_IN_FRAME,
     FADE_OUT_FRAME
-}; // enum FADES
+}; // FADES
 
 
 enum MOVIE_FLAGS {
@@ -74,7 +74,7 @@ enum MOVIE_FLAGS {
     MV_FILL,
     MV_SKIP,
     MV_READ
-}; // enum MOVIE_FLAGS
+}; // MOVIE_FLAGS
 
 
 // ===========================================================================

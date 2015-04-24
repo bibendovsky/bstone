@@ -74,7 +74,7 @@ private:
 
     static int16_t pcm8_to_pcm16(
         uint8_t sample);
-}; // class PcmDecoder
+}; // PcmDecoder
 
 
 } // namespace bstone

@@ -62,7 +62,7 @@ private:
 
     FormatString& operator=(
         const FormatString& that);
-}; // class FormatString
+}; // FormatString
 
 
 } //namespace bstone
