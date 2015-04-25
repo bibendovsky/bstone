@@ -131,20 +131,245 @@ PiShapeInfos piShapeTable;
 
 void initialize_shape_table()
 {
-    piShapeTable = {
-        { SPR_GREEN_OOZE1, pis_scaled }, // 0 - Green Ooze
+    if (::is_aog_sw()) {
+        piShapeTable = {
+            { SPR_PRO_W3_7, pis_scaled, },
+            { SPR_STAT_32, pis_scaled, },
+            { SPR_STAT_33, pis_scaled, },
+            { SPR_STAT_34, pis_scaled, },
+            { SPR_STAT_35, pis_scaled, },
+            { SPR_STAT_36, pis_scaled, },
+            { SPR_STAT_26, pis_scaled, },
+            { SPR_STAT_24, pis_scaled, },
+            { SPR_STAT_27, pis_scaled, },
+            { SPR_STAT_28, pis_scaled, },
+            { SPR_STAT_29, pis_scaled, },
+            { SPR_DEMO, pis_scaled, },
+            { SPR_STAT_48, pis_scaled, },
+            { SPR_STAT_49, pis_scaled, },
+            { SPR_STAT_50, pis_scaled, },
+            { SPR_STAT_51, pis_scaled, },
+            { SPR_STAT_42, pis_scaled, },
+            { SPR_STAT_44, pis_scaled, },
+            { SPR_STAT_40, pis_scaled, },
+            { SPR_STAT_0, pis_scaled, },
+            { SPR_RENT_W1_8, pis_scaled, },
+            { SPR_RENT_W2_8, pis_scaled, },
+            { SPR_RENT_W3_8, pis_scaled, },
+            { SPR_RENT_W4_8, pis_scaled, },
+            { SPR_TERROT_1, pis_scaled, },
+            { SPR_TERROT_2, pis_scaled, },
+            { SPR_TERROT_3, pis_scaled, },
+            { SPR_TERROT_4, pis_scaled, },
+            { SPR_TERROT_5, pis_scaled, },
+            { SPR_TERROT_6, pis_scaled, },
+            { SPR_TERROT_7, pis_scaled, },
+            { SPR_TERROT_8, pis_scaled, },
+            { SPR_STAT_77, pis_scaled, },
+            { SPR_STAT_78, pis_scaled, },
+            { SPR_STAT_79, pis_scaled, },
+            { 14 * 2, pis_scwall, },
+            { 16 * 2, pis_scwall, },
+            { 20 * 2 + 1, pis_scwall, },
+            { 44 * 2, pis_scwall, },
+            { 31 * 2, pis_scwall, },
+            { BIGGOLDSTERNPIC, pis_pic, },
+            { STARLOGOPIC, pis_pic, },
+            { BLAKEWITHGUNPIC, pis_pic, },
+            { STARINSTITUTEPIC, pis_pic, },
+            { MEDALOFHONORPIC, pis_pic, },
+            { SMALLGOLDSTERNPIC, pis_pic, },
+            { BLAKEWINPIC, pis_pic, },
+            { AUTOMAPPIC, pis_pic, },
+            { SPR_ELEC_POST1, pis_scaled, },
+            { SPR_ELEC_POST2, pis_scaled, },
+            { SPR_ELEC_POST3, pis_scaled, },
+            { SHUTTLEEXPPIC, pis_pic, },
+            { PLANETSPIC, pis_pic, },
+            { SPR_DECO_ARC_3, pis_scaled, },
+            { H_PPIC, pis_pic, },
+            { MOUSEPIC, pis_pic, },
+            { SPR_OFC_W1_8, pis_scaled, },
+            { SPR_OFC_W2_8, pis_scaled, },
+            { SPR_OFC_W3_8, pis_scaled, },
+            { SPR_OFC_W4_8, pis_scaled, },
+            { SPR_POD_WALK1, pis_scaled, },
+            { SPR_POD_WALK2, pis_scaled, },
+            { SPR_POD_WALK3, pis_scaled, },
+            { SPR_POD_WALK4, pis_scaled, },
+            { SPR_ELEC_WALK1, pis_scaled, },
+            { SPR_ELEC_WALK2, pis_scaled, },
+            { SPR_ELEC_WALK3, pis_scaled, },
+            { SPR_ELEC_WALK4, pis_scaled, },
+            { SPR_ELECTRO_SPHERE_ROAM1, pis_scaled, },
+            { SPR_ELECTRO_SPHERE_ROAM2, pis_scaled, },
+            { SPR_ELECTRO_SPHERE_ROAM3, pis_scaled, },
+            { SPR_PRO_W1_8, pis_scaled, },
+            { SPR_PRO_W2_8, pis_scaled, },
+            { SPR_PRO_W3_8, pis_scaled, },
+            { SPR_PRO_W4_8, pis_scaled, },
+            { SPR_GENETIC_W1, pis_scaled, },
+            { SPR_GENETIC_W2, pis_scaled, },
+            { SPR_GENETIC_W3, pis_scaled, },
+            { SPR_GENETIC_W4, pis_scaled, },
+            { SPR_MUTHUM1_W1, pis_scaled, },
+            { SPR_MUTHUM1_W2, pis_scaled, },
+            { SPR_MUTHUM1_W3, pis_scaled, },
+            { SPR_MUTHUM1_W4, pis_scaled, },
+            { SPR_RENT_S_3, pis_scaled, },
+            { SPR_RENT_S_4, pis_scaled, },
+            { SPR_RENT_S_5, pis_scaled, },
+            { SPR_RENT_S_6, pis_scaled, },
+            { SPR_RENT_W2_3, pis_scaled, },
+            { SPR_RENT_W2_8, pis_scaled, },
+            { SPR_RENT_W3_1, pis_scaled, },
+            { SPR_RENT_W3_2, pis_scaled, },
+            { SPR_RENT_W3_3, pis_scaled, },
+            { SPR_LCAN_ALIEN_READY, pis_scaled, },
+            { SPR_LCAN_ALIEN_W1, pis_scaled, },
+            { SPR_LCAN_ALIEN_W2, pis_scaled, },
+            { SPR_LCAN_ALIEN_W3, pis_scaled, },
+            { SPR_LCAN_ALIEN_W4, pis_scaled, },
+            { SPR_RENT_W4_8, pis_scaled, },
+            { SPR_RENT_PAIN_1, pis_scaled, },
+            { SPR_RENT_DEAD, pis_scaled, },
+            { SPR_RENT_SHOOT1, pis_scaled, },
+            { SPR_RENT_SHOOT2, pis_scaled, },
+            { SPR_PRO_W1_8, pis_scaled, },
+            { SPR_PRO_W2_1, pis_scaled, },
+            { SPR_PRO_W2_2, pis_scaled, },
+            { SPR_SWAT_W1_8, pis_scaled, },
+            { SPR_SWAT_W2_8, pis_scaled, },
+            { SPR_SWAT_W3_8, pis_scaled, },
+            { SPR_SWAT_W4_8, pis_scaled, },
+            { SPR_GOLD_W1_8, pis_scaled, },
+            { SPR_GOLD_W2_8, pis_scaled, },
+            { SPR_GOLD_W3_8, pis_scaled, },
+            { SPR_GOLD_W4_8, pis_scaled, },
+            { JOYSTICKPIC, pis_pic, },
+            { SPR_STAT_13, pis_scaled, },
+            { SPR_STAT_29, pis_scaled, },
+            { SPR_STAT_40, pis_scaled, },
+            { SPR_STAT_48, pis_scaled, },
+            { SPR_FSCOUT_W1_8, pis_scaled, },
+            { SPR_STAT_67, pis_scaled, },
+            { SPR_BLOOD_DRIP2, pis_scaled, },
+            { SPR_DECO_ARC_2, pis_scaled, },
+            { SPR_DECO_ARC_3, pis_scaled, },
+            { SPR_ELEC_SHOT1, pis_scaled, },
+            { SPR_ELEC_SHOT2, pis_scaled, },
+            { SPR_SECURITY_NORMAL, pis_scaled, },
+            { SPR_SECURITY_ALERT, pis_scaled, },
+            { SPR_PRO_W3_1, pis_scaled, },
+            { SPR_PRO_W3_2, pis_scaled, },
+            { SPR_PRO_W3_3, pis_scaled, },
+            { SPR_POD_EGG, pis_scaled, },
+            { SPR_DECO_ARC_1, pis_scaled, },
+            { SPR_DECO_ARC_2, pis_scaled, },
+            { SPR_DECO_ARC_3, pis_scaled, },
+            { GRAVISPADPIC, pis_pic, },
+            { H_MPIC, pis_pic, },
+            { SPR_CANDY_BAR, pis_scaled, },
+            { SPR_SANDWICH, pis_scaled, },
+            { SPR_STAT_46, pis_scaled, },
+            { SPR_EXPLOSION_3, pis_scaled, },
+            { SPR_PRO_W4_2, pis_scaled, },
+            { SPR_ELEC_ARC1, pis_scaled, },
+            { SPR_ELEC_ARC2, pis_scaled, },
+            { SPR_ELEC_ARC3, pis_scaled, },
+            { C_EPISODE1PIC, pis_pic, },
+            { C_EPISODE2PIC, pis_pic, },
+            { C_EPISODE3PIC, pis_pic, },
+            { C_EPISODE4PIC, pis_pic, },
+            { C_EPISODE5PIC, pis_pic, },
+            { C_EPISODE6PIC, pis_pic, },
+            { SPR_BOSS1_W1, pis_scaled, },
+            { SPR_BOSS1_W2, pis_scaled, },
+            { SPR_BOSS1_W3, pis_scaled, },
+            { SPR_BOSS1_W4, pis_scaled, },
+            { SPR_PRO_W4_5, pis_scaled, },
+            { SPR_PRO_W4_6, pis_scaled, },
+            { SPR_PRO_W4_7, pis_scaled, },
+            { SPR_PRO_W4_8, pis_scaled, },
+            { SPR_SWAT_W1_1, pis_scaled, },
+            { SPR_SWAT_W1_2, pis_scaled, },
+            { SPR_SWAT_W1_3, pis_scaled, },
+            { SPR_SWAT_W1_4, pis_scaled, },
+            { SPR_SWAT_W3_7, pis_scaled, },
+            { SPR_SWAT_W3_8, pis_scaled, },
+            { SPR_SWAT_W4_1, pis_scaled, },
+            { SPR_SWAT_W4_2, pis_scaled, },
+            { SPR_SWAT_WOUNDED3, pis_scaled, },
+            { SPR_SWAT_WOUNDED4, pis_scaled, },
+            { SPR_OFC_S_1, pis_scaled, },
+            { SPR_OFC_S_2, pis_scaled, },
+            { SPR_OFC_W2_5, pis_scaled, },
+            { SPR_OFC_W2_6, pis_scaled, },
+            { SPR_OFC_W2_7, pis_scaled, },
+            { SPR_OFC_W2_8, pis_scaled, },
+            { H_ALTPIC, pis_pic, },
+            { H_CTRLPIC, pis_pic, },
+            { H_SPACEPIC, pis_pic, },
+            { H_PAUSEPIC, pis_pic, },
+            { H_ESCPIC, pis_pic, },
+            { H_LTARROWPIC, pis_pic, },
+            { H_UPARROWPIC, pis_pic, },
+            { H_DNARROWPIC, pis_pic, },
+            { H_RTARROWPIC, pis_pic, },
+            { H_QPIC, pis_pic, },
+            { H_WPIC, pis_pic, },
+            { H_EPIC, pis_pic, },
+            { H_IPIC, pis_pic, },
+            { H_HPIC, pis_pic, },
+            { H_1PIC, pis_pic, },
+            { H_2PIC, pis_pic, },
+            { H_3PIC, pis_pic, },
+            { H_4PIC, pis_pic, },
+            { H_5PIC, pis_pic, },
+            { H_F1PIC, pis_pic, },
+            { H_F2PIC, pis_pic, },
+            { H_F3PIC, pis_pic, },
+            { H_F4PIC, pis_pic, },
+            { H_F5PIC, pis_pic, },
+            { H_F6PIC, pis_pic, },
+            { H_F7PIC, pis_pic, },
+            { H_F8PIC, pis_pic, },
+            { H_F9PIC, pis_pic, },
+            { H_F10PIC, pis_pic, },
+            { H_ENTERPIC, pis_pic, },
+            { H_TABPIC, pis_pic, },
+            { H_CPIC, pis_pic, },
+            { H_FPIC, pis_pic, },
+            { SPR_CRATE_1, pis_scaled, },
+            { SPR_STAT_0, pis_scaled, },
+            { SPR_FSCOUT_W1_1, pis_scaled, },
+            { APOGEE_LOGOPIC, pis_pic, },
+            { VISAPIC, pis_pic, },
+            { MCPIC, pis_pic, },
+            { FAXPIC, pis_pic, },
+            { H_LPIC, pis_pic, },
+            { H_SHIFTPIC, pis_pic, },
+            { PSPROMO1PIC, pis_pic, },
+            { PSPROMO2PIC, pis_pic, },
+            { PSPROMO3PIC, pis_pic, },
+        }; // piShapeTable
+    }
 
+// FIXME
+#if 0
+    piShapeTable = {
+        { SPR_GREEN_OOZE1, pis_scaled, }, // 0 - Star Sentinel (AOG) / Green Ooze
         { SPR_STAT_32, pis_scaled }, // 1 - Red Key
         { SPR_STAT_33, pis_scaled }, // 2 - Yellow Key
-        { SPR_STAT_34, pis_scaled }, // 3 - Green Key
+        { SPR_STAT_34, pis_scaled, }, // 3 - Green Key (AOG)
         { SPR_STAT_35, pis_scaled }, // 4 - Blue Key
-        { SPR_STAT_36, pis_scaled }, // 5 - Gold Key
+        { SPR_STAT_36, pis_scaled, }, // 5 - Gold Key (AOG)
         { SPR_STAT_26, pis_scaled }, // 6 - Charge Unit
         { SPR_STAT_24, pis_scaled }, // 7 - PISTOL
         { SPR_STAT_27, pis_scaled }, // 8 - Auto-Burst Rifle
         { SPR_STAT_28, pis_scaled }, // 9 - Particle Charged ION
         { SPR_STAT_29, pis_scaled }, // 10 - First Aid
-        { SPR_STAT_30, pis_scaled }, // 11 - Full Heal
+        { SPR_STAT_30, pis_scaled, }, // 11 - Full Heal
         { SPR_STAT_48, pis_scaled }, // 12 - money bag
         { SPR_STAT_49, pis_scaled }, // 13 - loot
         { SPR_STAT_50, pis_scaled }, // 14 - gold
@@ -195,8 +420,11 @@ void initialize_shape_table()
 
         { SHUTTLEEXPPIC, pis_pic }, // 51 - Shuttle Explode
         { PLANETSPIC, pis_pic }, // 52 - Planets Pic
-        { SPR_CUBE1, pis_scaled }, // 53 - Rotating Cube
-        { H_PPIC, pis_pic }, // 54 - M key
+        {
+            ::is_aog() ? SPR_DECO_ARC_3 : SPR_CUBE1,
+            pis_scaled,
+        }, // 53 - Ceiling Lightning (AOG) / Rotating Cube
+        { H_PPIC, pis_pic, }, // 54 - P key
         { MOUSEPIC, pis_pic }, // 55 - Mouse Pad
 
         { SPR_OFC_W1_8, pis_scaled }, // 56 - gen_scientist, walking
@@ -396,18 +624,9 @@ void initialize_shape_table()
         { FAXPIC, pis_pic }, // 213 - Fax Machine
         { H_LPIC, pis_pic }, // 214 - L key
         { H_SHIFTPIC, pis_pic }, // 215 - Shift key
-        {
-            ::is_aog_sw() ? PSPROMO1PIC : SPR_DOORBOMB,
-            ::is_aog_sw() ? pis_pic : pis_scaled,
-        }, // 216 - DoorBomb
-        {
-            ::is_aog_sw() ? PSPROMO2PIC : SPR_AUTOMAPPER,
-            ::is_aog_sw() ? pis_pic : pis_scaled,
-        }, // 217 - Radar Powerup.
-        {
-            ::is_aog_sw() ? PSPROMO3PIC : STARPORTPIC,
-            pis_pic,
-        }, // 218 - Star Port
+        { SPR_DOORBOMB, pis_scaled, }, // 216 - DoorBomb
+        { SPR_AUTOMAPPER, pis_scaled, }, // 217 - Radar Powerup.
+        { STARPORTPIC, pis_pic, }, // 218 - Star Port
         { BOSSPIC, pis_pic }, // 219 - AOG Boss
         { THREEPLANETSPIC, pis_pic }, // 220 - Three Planets
         { SOLARSYSTEMPIC, pis_pic }, // 221 - Solar System
@@ -482,6 +701,7 @@ void initialize_shape_table()
         { SPR_BOSS10_W3, pis_scaled }, // 282 - Final Boss 4 Walking
         { SPR_BOSS10_W4, pis_scaled }, // 283 - Final Boss 4 Walking
     };
+#endif
 }
 
 // anim table holds info about each different animation.
