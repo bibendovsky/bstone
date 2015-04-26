@@ -69,7 +69,7 @@ void initialize_states();
 void initialize_audio_constants();
 void initialize_songs();
 void initialize_gfxv_contants();
-void initialize_shape_table();
+void initialize_tp_shape_table();
 void initialize_static_info_constants();
 void initialize_weapon_constants();
 void initialize_grenade_shape_constants();
@@ -1370,7 +1370,7 @@ void freed_main()
     ::initialize_sprites();
     ::initialize_gfxv_contants();
     ::initialize_states();
-    ::initialize_shape_table();
+    ::initialize_tp_shape_table();
     ::initialize_audio_constants();
     ::initialize_songs();
     ::initialize_static_info_constants();

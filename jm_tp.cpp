@@ -129,7 +129,7 @@ char* piStringTable[PI_MAX_NUM_DISP_STRS];
 
 PiShapeInfos piShapeTable;
 
-void initialize_shape_table()
+void initialize_tp_shape_table()
 {
     if (::is_aog_sw()) {
         piShapeTable = {
@@ -858,7 +858,7 @@ void initialize_shape_table()
             { SPR_BOSS10_W2, pis_scaled, }, // 281 - Final Boss 4 Walking
             { SPR_BOSS10_W3, pis_scaled, }, // 282 - Final Boss 4 Walking
             { SPR_BOSS10_W4, pis_scaled, }, // 283 - Final Boss 4 Walking
-        };
+        }; // piShapeTable
     }
 }
 
