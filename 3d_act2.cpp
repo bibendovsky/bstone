@@ -1813,7 +1813,7 @@ void T_SmartThought(
                 break;
 
             case rotating_cubeobj:
-                if (::is_aog()) {
+                if (::is_aog_full()) {
                     if (obj->temp1 == SPR_VITAL_OUCH) {
                         ::InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
                     } else if (obj->temp1 == SPR_VITAL_DIE_8) {
@@ -1861,7 +1861,7 @@ void T_SmartThought(
         int new_frame = ANIM_INFO(obj)->curframe;
         bool is_frame_changed = (old_frame != new_frame);
 
-        if (::is_aog() &&
+        if (::is_aog_full() &&
             !is_animated &&
             is_frame_changed &&
             obj->obclass == rotating_cubeobj)
