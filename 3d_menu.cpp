@@ -4277,14 +4277,14 @@ void WaitKeyUp()
 
         ::ReadAnyControl(&ci);
 
-        quit =
+        quit = !(
             ci.button0 != 0 ||
             ci.button1 != 0 ||
             ci.button2 != 0 ||
             ci.button3 != 0 ||
             Keyboard[sc_space] ||
             Keyboard[sc_return] ||
-            Keyboard[sc_escape];
+            Keyboard[sc_escape]);
     }
 }
 
