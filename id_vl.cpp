@@ -58,7 +58,7 @@ boolean screenfaded;
 uint8_t palette1[256][3], palette2[256][3];
 
 
-bool is_aog();
+bool is_aog_full();
 bool is_aog_sw();
 bool is_ps();
 
@@ -1788,7 +1788,7 @@ bool x_initialize_video()
 
         auto title = "Blake Stone: ???";
 
-        if (::is_aog()) {
+        if (::is_aog_full()) {
             title = "Blake Stone: Aliens of Gold (full)";
         } else if (::is_aog_sw()) {
             title = "Blake Stone: Aliens of Gold (shareware)";
