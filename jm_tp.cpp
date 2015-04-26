@@ -864,62 +864,146 @@ void initialize_tp_shape_table()
 
 // anim table holds info about each different animation.
 //
-piAnimInfo piAnimTable[] = {
-    { 136, 0, 2, 0, 20, pia_shapetable, pid_cycle }, // 0 -  OPEN
-    { 127, 0, 3, 0, 20, pia_shapetable, pid_cycle }, // 1 -  podeggobj,
-    { 123, 0, 2, 0, 20, pia_shapetable, pid_cycle }, // 2 -  electroshotobj,
-    { 126, 0, 1, 0, 20, pia_shapetable, pid_cycle }, // 3 -  security_lightobj - Alerted
+PiAnimationInfos piAnimTable;
 
-    { 20, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 4 -  rentacopobj,
-    { 24, 0, 8, 0, 20, pia_shapetable, pid_cycle }, // 5 -  hang_terrotobj,
-    { 242, 0, 8, 0, 20, pia_shapetable, pid_rebound }, // 6 -   VPost
-    { 250, 0, 8, 0, 20, pia_shapetable, pid_rebound }, // 7 -  VSpike
-    { 258, 0, 10, 0, 10, pia_shapetable, pid_cycle }, // 8 -   Security Cube
-    { 56, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 9 -  gen_scientistobj,
-    { 60, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 10 - podobj,
-    { 64, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 11 - electroobj,
-    { 68, 0, 3, 0, 20, pia_shapetable, pid_cycle }, // 12 - electrosphereobj,
-    { 71, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 13 -         proguardobj,
-    { 75, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 14 - genetic_guardobj,
-    { 79, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 15 - mutant_human1obj,
-    { 83, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 16 - mutant_human2obj,
-    { 87, 0, 1, 0, 20, pia_shapetable, pid_cycle }, // 17 - lcan_wait_alienobj,
-    { 88, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 18 - lcan_alienobj,
-    { 92, 0, 1, 0, 20, pia_shapetable, pid_cycle }, // 19 - scan_wait_alienobj,
-    { 93, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 20 - scan_alienobj,
-    { 97, 0, 1, 0, 20, pia_shapetable, pid_cycle }, // 21 -         gurney_waitobj,
-    { 98, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 22 - gurneyobj,
-    { 102, 0, 3, 0, 20, pia_shapetable, pid_cycle }, // 23 - liquidobj,
-    { 105, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 24 - swatobj,
-    { 109, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 25 - goldsternobj,
-    { 113, 0, 1, 0, 20, pia_shapetable, pid_cycle }, // 26 - OPEN
-
-    { 131, 0, 3, 0, 20, pia_shapetable, pid_cycle }, // 27 - flickerlightobj,
-    { 134, 0, 2, 0, 20, pia_shapetable, pid_cycle }, // 28 - playerspshotobj,
-
-    { 141, 0, 3, 0, 20, pia_shapetable, pid_cycle }, // 29 -  Electric Arc barrier
-
-    { 150, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 30 -  Boss 1
-    { 154, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 31 -  Boss 2
-    { 158, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 32 -  Boss 3
-    { 162, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 33 -  Boss 4
-    { 166, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 34 -  Boss 5
-    { 170, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 35 -  Boss 6
-
-    { 48, 0, 3, 0, 10, pia_shapetable, pid_cycle }, // 36 -  Barrier Post
-    { 141, 0, 3, 0, 10, pia_shapetable, pid_cycle }, // 37 -  Barrier Arc
-
-    { 208, 0, 8, 0, 10, pia_grabscript, pid_cycle }, // 38 -  VMT
-    { 209, 0, 8, 0, 8, pia_grabscript, pid_cycle }, // 39 -  PerScan
-
-    { 232, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 40 - Dr. Goldstern Morph Walking
-
-    { 268, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 41 - Final Boss #1 - Walking
-    { 272, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 42 - Final Boss #2 - Walking
-    { 276, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 43 - Final Boss #3 - Walking
-    { 280, 0, 4, 0, 20, pia_shapetable, pid_cycle }, // 44 - Final Boss #4 - Walking
-
-};
+void initialize_tp_animation_table()
+{
+    if (::is_aog_sw()) {
+        piAnimTable = {
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 123, 0, 2, 0, 20, pia_shapetable, pid_cycle, },
+            { 126, 0, 1, 0, 20, pia_shapetable, pid_cycle, },
+            { 20, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 24, 0, 8, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 56, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 60, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 64, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 68, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 71, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 75, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 79, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 92, 0, 1, 0, 20, pia_shapetable, pid_cycle, },
+            { 93, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 105, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 109, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 131, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 141, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 150, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 48, 0, 3, 0, 10, pia_shapetable, pid_cycle, },
+            { 141, 0, 3, 0, 10, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 209, 0, 8, 0, 8, pia_grabscript, pid_cycle, },
+        }; // piAnimTable
+    } else if (::is_aog_full()) {
+        piAnimTable = {
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 123, 0, 2, 0, 20, pia_shapetable, pid_cycle, },
+            { 126, 0, 1, 0, 20, pia_shapetable, pid_cycle, },
+            { 20, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 24, 0, 8, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 56, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 60, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 64, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 68, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 71, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 75, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 79, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 83, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 87, 0, 1, 0, 20, pia_shapetable, pid_cycle, },
+            { 88, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 92, 0, 1, 0, 20, pia_shapetable, pid_cycle, },
+            { 93, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 97, 0, 1, 0, 20, pia_shapetable, pid_cycle, },
+            { 98, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 102, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 105, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 109, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 131, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
+            { 141, 0, 3, 0, 20, pia_shapetable, pid_cycle, },
+            { 150, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 154, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 158, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 162, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 166, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 170, 0, 4, 0, 20, pia_shapetable, pid_cycle, },
+            { 48, 0, 3, 0, 10, pia_shapetable, pid_cycle, },
+            { 141, 0, 3, 0, 10, pia_shapetable, pid_cycle, },
+            { 208, 0, 8, 0, 10, pia_grabscript, pid_cycle, },
+            { 209, 0, 8, 0, 8, pia_grabscript, pid_cycle, },
+        }; // piAnimTable
+    } else if (::is_ps()) {
+        piAnimTable = {
+            { 136, 0, 2, 0, 20, pia_shapetable, pid_cycle, }, // 0 -  OPEN
+            { 127, 0, 3, 0, 20, pia_shapetable, pid_cycle, }, // 1 -  podeggobj,
+            { 123, 0, 2, 0, 20, pia_shapetable, pid_cycle, }, // 2 -  electroshotobj,
+            { 126, 0, 1, 0, 20, pia_shapetable, pid_cycle, }, // 3 -  security_lightobj - Alerted
+            { 20, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 4 -  rentacopobj,
+            { 24, 0, 8, 0, 20, pia_shapetable, pid_cycle, }, // 5 -  hang_terrotobj,
+            { 242, 0, 8, 0, 20, pia_shapetable, pid_rebound, }, // 6 -   VPost
+            { 250, 0, 8, 0, 20, pia_shapetable, pid_rebound, }, // 7 -  VSpike
+            { 258, 0, 10, 0, 10, pia_shapetable, pid_cycle, }, // 8 -   Security Cube
+            { 56, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 9 -  gen_scientistobj,
+            { 60, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 10 - podobj,
+            { 64, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 11 - electroobj,
+            { 68, 0, 3, 0, 20, pia_shapetable, pid_cycle, }, // 12 - electrosphereobj,
+            { 71, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 13 -         proguardobj,
+            { 75, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 14 - genetic_guardobj,
+            { 79, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 15 - mutant_human1obj,
+            { 83, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 16 - mutant_human2obj,
+            { 87, 0, 1, 0, 20, pia_shapetable, pid_cycle, }, // 17 - lcan_wait_alienobj,
+            { 88, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 18 - lcan_alienobj,
+            { 92, 0, 1, 0, 20, pia_shapetable, pid_cycle, }, // 19 - scan_wait_alienobj,
+            { 93, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 20 - scan_alienobj,
+            { 97, 0, 1, 0, 20, pia_shapetable, pid_cycle, }, // 21 -         gurney_waitobj,
+            { 98, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 22 - gurneyobj,
+            { 102, 0, 3, 0, 20, pia_shapetable, pid_cycle, }, // 23 - liquidobj,
+            { 105, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 24 - swatobj,
+            { 109, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 25 - goldsternobj,
+            { 113, 0, 1, 0, 20, pia_shapetable, pid_cycle, }, // 26 - OPEN
+            { 131, 0, 3, 0, 20, pia_shapetable, pid_cycle, }, // 27 - flickerlightobj,
+            { 134, 0, 2, 0, 20, pia_shapetable, pid_cycle, }, // 28 - playerspshotobj,
+            { 141, 0, 3, 0, 20, pia_shapetable, pid_cycle, }, // 29 -  Electric Arc barrier
+            { 150, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 30 -  Boss 1
+            { 154, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 31 -  Boss 2
+            { 158, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 32 -  Boss 3
+            { 162, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 33 -  Boss 4
+            { 166, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 34 -  Boss 5
+            { 170, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 35 -  Boss 6
+            { 48, 0, 3, 0, 10, pia_shapetable, pid_cycle, }, // 36 -  Barrier Post
+            { 141, 0, 3, 0, 10, pia_shapetable, pid_cycle, }, // 37 -  Barrier Arc
+            { 208, 0, 8, 0, 10, pia_grabscript, pid_cycle, }, // 38 -  VMT
+            { 209, 0, 8, 0, 8, pia_grabscript, pid_cycle, }, // 39 -  PerScan
+            { 232, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 40 - Dr. Goldstern Morph Walking
+            { 268, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 41 - Final Boss #1 - Walking
+            { 272, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 42 - Final Boss #2 - Walking
+            { 276, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 43 - Final Boss #3 - Walking
+            { 280, 0, 4, 0, 20, pia_shapetable, pid_cycle, }, // 44 - Final Boss #4 - Walking
+        }; // piAnimTable
+    }
+}
 
 // anim list is created on the fly from the anim table...
 // this allows a single animation to be displayed in more than
