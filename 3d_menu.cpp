@@ -4809,43 +4809,38 @@ void ShootSnd()
     ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 }
 
-#if GAME_VERSION == SHAREWARE_VERSION
-
-
 // -------------------------------------------------------------------------
 // ShowPromo()
 // -------------------------------------------------------------------------
 void ShowPromo()
 {
-#define PROMO_MUSIC HIDINGA_MUS
+    const auto PROMO_MUSIC = HIDINGA_MUS;
 
 // Load and start music
 //
-    CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
-    SD_StartMusic((MusicGroup*)audiosegs[STARTMUSIC + PROMO_MUSIC]);
+    ::CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
+    ::SD_StartMusic(PROMO_MUSIC);
 
 // Show promo screen 1
 //
     ::MenuFadeOut();
-    CA_CacheScreen(PROMO1PIC);
+    ::CA_CacheScreen(PROMO1PIC);
     VW_UpdateScreen();
     MenuFadeIn();
-    IN_UserInput(TickBase * 20);
+    ::IN_UserInput(TickBase * 20);
 
 // Show promo screen 2
 //
     ::MenuFadeOut();
-    CA_CacheScreen(PROMO2PIC);
+    ::CA_CacheScreen(PROMO2PIC);
     VW_UpdateScreen();
     MenuFadeIn();
-    IN_UserInput(TickBase * 20);
+    ::IN_UserInput(TickBase * 20);
 
 // Music off and freed!
 //
-    StopMusic();
+    ::StopMusic();
 }
-
-#endif
 
 // -------------------------------------------------------------------------
 // ExitGame()
@@ -4853,9 +4848,10 @@ void ShowPromo()
 void ExitGame()
 {
     VW_FadeOut();
-#if GAME_VERSION == SHAREWARE_VERSION
-    ShowPromo();
-#endif
+
+    if (::is_aog_sw()) {
+        ::ShowPromo();
+    }
 
     SD_MusicOff();
     SD_StopSound();
