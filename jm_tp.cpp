@@ -572,355 +572,294 @@ void initialize_shape_table()
             { H_LPIC, pis_pic, },
             { H_SHIFTPIC, pis_pic, },
         }; // piShapeTable
+    } else if (::is_ps()) {
+        piShapeTable = {
+            { SPR_GREEN_OOZE1, pis_scaled, }, // 0 - Green Ooze
+            { SPR_STAT_32, pis_scaled, }, // 1 - Red Key
+            { SPR_STAT_33, pis_scaled, }, // 2 - Yellow Key
+            { SPR_STAT_34, pis_scaled, }, // 3 - Green Key
+            { SPR_STAT_35, pis_scaled, }, // 4 - Blue Key
+            { SPR_STAT_36, pis_scaled, }, // 5 - Gold Key
+            { SPR_STAT_26, pis_scaled, }, // 6 - Charge Unit
+            { SPR_STAT_24, pis_scaled, }, // 7 - PISTOL
+            { SPR_STAT_27, pis_scaled, }, // 8 - Auto-Burst Rifle
+            { SPR_STAT_28, pis_scaled, }, // 9 - Particle Charged ION
+            { SPR_STAT_29, pis_scaled, }, // 10 - First Aid
+            { SPR_STAT_30, pis_scaled, }, // 11 - Full Heal
+            { SPR_STAT_48, pis_scaled, }, // 12 - money bag
+            { SPR_STAT_49, pis_scaled, }, // 13 - loot
+            { SPR_STAT_50, pis_scaled, }, // 14 - gold
+            { SPR_STAT_51, pis_scaled, }, // 15 - bonus
+            { SPR_STAT_42, pis_scaled, }, // 16 - Chicken Leg
+            { SPR_STAT_44, pis_scaled, }, // 17 - Ham
+            { SPR_STAT_40, pis_scaled, }, // 18 - Full Water Bowl
+            { SPR_STAT_0, pis_scaled, }, // 19 - Water Puddle
+            { SPR_RENT_W1_8, pis_scaled, }, // 20 - rentacopobj, Walking
+            { SPR_RENT_W2_8, pis_scaled, }, // 21 - rentacopobj, Walking
+            { SPR_RENT_W3_8, pis_scaled, }, // 22 - rentacopobj, Walking
+            { SPR_RENT_W4_8, pis_scaled, }, // 23 - rentacopobj, Walking
+            { SPR_TERROT_1, pis_scaled, }, // 24 - hang_terrotobj, Rotating
+            { SPR_TERROT_2, pis_scaled, }, // 25 - hang_terrotobj, Rotating
+            { SPR_TERROT_3, pis_scaled, }, // 26 - hang_terrotobj, Rotating
+            { SPR_TERROT_4, pis_scaled, }, // 27 - hang_terrotobj, Rotating
+            { SPR_TERROT_5, pis_scaled, }, // 28 - hang_terrotobj, Rotating
+            { SPR_TERROT_6, pis_scaled, }, // 29 - hang_terrotobj, Rotating
+            { SPR_TERROT_7, pis_scaled, }, // 30 - hang_terrotobj, Rotating
+            { SPR_TERROT_8, pis_scaled, }, // 31 - hang_terrotobj, Rotating
+            { SPR_STAT_77, pis_scaled, }, // 32 - 1 Credit Food Unit Token
+            { SPR_STAT_78, pis_scaled, }, // 33 - 5 Credit Food Unit Token
+            { SPR_STAT_79, pis_scaled, }, // 34 - Auto-Charge Pistol
+            { 14 * 2, pis_scwall, }, // 35 - Food Unit Wall
+            { 16 * 2, pis_scwall, }, // 36 - Terminal Wall
+            { 20 * 2 + 1, pis_scwall, }, // 37 - Teleport w/Pannel on it
+            { 44 * 2, pis_scwall, }, // 38 - Barrier Switch Wall
+            { 31 * 2, pis_scwall, }, // 39 - Warp Tile
+            { BIGGOLDSTERNPIC, pis_pic, }, // 40 - Big Goldstern
+            { STARLOGOPIC, pis_pic, }, // 41 - Star Logo
+            { BLAKEWITHGUNPIC, pis_pic, }, // 42 - Blake With Gun
+            { STARINSTITUTEPIC, pis_pic, }, // 43 - Star Institute
+            { MEDALOFHONORPIC, pis_pic, }, // 44 - Medal Of Honor
+            { SMALLGOLDSTERNPIC, pis_pic, }, // 45 - Small Goldstern
+            { BLAKEWINPIC, pis_pic, }, // 46 - Blake Win
+            { AUTOMAPPIC, pis_pic, }, // 47 - AutoMap Pic
+            { SPR_ELEC_POST1, pis_scaled, }, // 48 - Barrier Post 1
+            { SPR_ELEC_POST2, pis_scaled, }, // 49 - Barrier Post 2
+            { SPR_ELEC_POST3, pis_scaled, }, // 50 - Barrier Post 3
+            { SHUTTLEEXPPIC, pis_pic, }, // 51 - Shuttle Explode
+            { PLANETSPIC, pis_pic, }, // 52 - Planets Pic
+            { SPR_CUBE1, pis_scaled, }, // 53 - Rotating Cube
+            { H_PPIC, pis_pic, }, // 54 - P key
+            { MOUSEPIC, pis_pic, }, // 55 - Mouse Pad
+            { SPR_OFC_W1_8, pis_scaled, }, // 56 - gen_scientist, walking
+            { SPR_OFC_W2_8, pis_scaled, }, // 57 - gen_scientist, walking
+            { SPR_OFC_W3_8, pis_scaled, }, // 58 - gen_scientist, walking
+            { SPR_OFC_W4_8, pis_scaled, }, // 59 - gen_scientist, walking
+            { SPR_POD_WALK1, pis_scaled, }, // 60 - podalien - walking
+            { SPR_POD_WALK2, pis_scaled, }, // 61 - podalien - walking
+            { SPR_POD_WALK3, pis_scaled, }, // 62 - podalien - walking
+            { SPR_POD_WALK4, pis_scaled, }, // 63 - podalien - walking
+            { SPR_ELEC_WALK1, pis_scaled, }, // 64 - electro alien - walking
+            { SPR_ELEC_WALK2, pis_scaled, }, // 65 - electro alien - walking
+            { SPR_ELEC_WALK3, pis_scaled, }, // 66 - electro alien - walking
+            { SPR_ELEC_WALK4, pis_scaled, }, // 67 - electro alien - walking
+            { SPR_ELECTRO_SPHERE_ROAM1, pis_scaled, }, // 68 - electrosphere - Roaming
+            { SPR_ELECTRO_SPHERE_ROAM2, pis_scaled, }, // 69 - electrosphere - Roaming
+            { SPR_ELECTRO_SPHERE_ROAM3, pis_scaled, }, // 70 - electrosphere - Roaming
+            { SPR_PRO_W1_8, pis_scaled, }, // 71 - proguard - Walking
+            { SPR_PRO_W2_8, pis_scaled, }, // 72 - proguard - Walking
+            { SPR_PRO_W3_8, pis_scaled, }, // 73 - proguard - Walking
+            { SPR_PRO_W4_8, pis_scaled, }, // 74 - proguard - Walking
+            { SPR_GENETIC_W1, pis_scaled, }, // 75 - genetic_guard - Walking
+            { SPR_GENETIC_W2, pis_scaled, }, // 76 - genetic_guard - Walking
+            { SPR_GENETIC_W3, pis_scaled, }, // 77 - genetic_guard - Walking
+            { SPR_GENETIC_W4, pis_scaled, }, // 78 - genetic_guard - Walking
+            { SPR_MUTHUM1_W1, pis_scaled, }, // 79 - mutant_human1 - walking
+            { SPR_MUTHUM1_W2, pis_scaled, }, // 80 - mutant_human1 - walking
+            { SPR_MUTHUM1_W3, pis_scaled, }, // 81 - mutant_human1 - walking
+            { SPR_MUTHUM1_W4, pis_scaled, }, // 82 - mutant_human1 - walking
+            { SPR_MUTHUM2_W1, pis_scaled, }, // 83 - mutant_human2 - walking
+            { SPR_MUTHUM2_W2, pis_scaled, }, // 84 - mutant_human2 - walking
+            { SPR_MUTHUM2_W3, pis_scaled, }, // 85 - mutant_human2 - walking
+            { SPR_MUTHUM2_W4, pis_scaled, }, // 86 - mutant_human2 - walking
+            { SPR_LCAN_ALIEN_READY, pis_scaled, }, // 87 - Large canister for lg_Aln
+            { SPR_LCAN_ALIEN_W1, pis_scaled, }, // 88 - Large Canister Alien
+            { SPR_LCAN_ALIEN_W2, pis_scaled, }, // 89 - Large Canister Alien
+            { SPR_LCAN_ALIEN_W3, pis_scaled, }, // 90 - Large Canister Alien
+            { SPR_LCAN_ALIEN_W4, pis_scaled, }, // 91 - Large Canister Alien
+            { SPR_SCAN_ALIEN_READY, pis_scaled, }, // 92 - Small Cansiter
+            { SPR_SCAN_ALIEN_W1, pis_scaled, }, // 93 - Sm Can Alien - Walking
+            { SPR_SCAN_ALIEN_W2, pis_scaled, }, // 94 - Sm Can Alien - Walking
+            { SPR_SCAN_ALIEN_W3, pis_scaled, }, // 95 - Sm Can Alien - Walking
+            { SPR_SCAN_ALIEN_W4, pis_scaled, }, // 96 - Sm Can Alien - Walking
+            { SPR_GURNEY_MUT_READY, pis_scaled, }, // 97 - Gurney Mutant on gurney
+            { SPR_GURNEY_MUT_W1, pis_scaled, }, // 98  - Gurney Mutant - Walking
+            { SPR_GURNEY_MUT_W2, pis_scaled, }, // 99  - Gurney Mutant - Walking
+            { SPR_GURNEY_MUT_W3, pis_scaled, }, // 100 - Gurney Mutant - Walking
+            { SPR_GURNEY_MUT_W4, pis_scaled, }, // 101 - Gurney Mutant - Walking
+            { SPR_LIQUID_S1, pis_scaled, }, // 102 - liquid Alien - Shooting
+            { SPR_LIQUID_S2, pis_scaled, }, // 103 - liquid Alien - Shooting
+            { SPR_LIQUID_S3, pis_scaled, }, // 104 - liquid Alien - Shooting
+            { SPR_SWAT_W1_8, pis_scaled, }, // 105 - SWAT guard - Walking
+            { SPR_SWAT_W2_8, pis_scaled, }, // 106 - SWAT guard - Walking
+            { SPR_SWAT_W3_8, pis_scaled, }, // 107 - SWAT guard - Walking
+            { SPR_SWAT_W4_8, pis_scaled, }, // 108 - SWAT guard - Walking
+            { SPR_GOLD_W1_8, pis_scaled, }, // 109 - Dr Goldstern - Walking
+            { SPR_GOLD_W2_8, pis_scaled, }, // 110 - Dr Goldstern - Walking
+            { SPR_GOLD_W3_8, pis_scaled, }, // 111 - Dr Goldstern - Walking
+            { SPR_GOLD_W4_8, pis_scaled, }, // 112 - Dr Goldstern - Walking
+            { JOYSTICKPIC, pis_pic, }, // 113 - Joystick
+            { SPR_GSCOUT_W1_8, pis_scaled, }, // 114 - Volatile Transport - moving
+            { SPR_GSCOUT_W2_8, pis_scaled, }, // 115 - Volatile Transport - moving
+            { SPR_GSCOUT_W3_8, pis_scaled, }, // 116 - Volatile Transport - moving
+            { SPR_GSCOUT_W4_8, pis_scaled, }, // 117 - Volatile Transport - moving
+            { SPR_FSCOUT_W1_8, pis_scaled, }, // 118 - Floating Bomb - moving
+            { SPR_FSCOUT_W2_8, pis_scaled, }, // 119 - Floating Bomb - moving
+            { SPR_FSCOUT_W3_8, pis_scaled, }, // 120 - Floating Bomb - moving
+            { SPR_FSCOUT_W4_8, pis_scaled, }, // 121 - Floating Bomb - moving
+            { SPR_CUBE1, pis_scaled, }, // 122 - ** OPEN **
+            { SPR_ELEC_SHOT1, pis_scaled, }, // 123 - Electro Aln Shot - floating
+            { SPR_ELEC_SHOT2, pis_scaled, }, // 124 - Electro Aln Shot - floating
+            { SPR_SECURITY_NORMAL, pis_scaled, }, // 125 - Security_light - normal
+            { SPR_SECURITY_ALERT, pis_scaled, }, // 126 - Security_light - Alerted
+            { SPR_LIQUID_SHOT_FLY_1, pis_scaled, }, // 127 - Liquid Aln Sht - float'n
+            { SPR_LIQUID_SHOT_FLY_2, pis_scaled, }, // 128 - Liquid Aln Sht - float'n
+            { SPR_LIQUID_SHOT_FLY_3, pis_scaled, }, // 129 - Liquid Aln Sht - float'n
+            { SPR_POD_EGG, pis_scaled, }, // 130 - POD Alien Egg
+            { SPR_DECO_ARC_1, pis_scaled, }, // 131 - DecoArc
+            { SPR_DECO_ARC_2, pis_scaled, }, // 132 - DecoArc
+            { SPR_DECO_ARC_3, pis_scaled, }, // 133 - DecoArc
+            { GRAVISPADPIC, pis_pic, }, // 134 - Gravis Pad
+            { H_MPIC, pis_pic, }, // 135 - M key
+            { SPR_CANDY_BAR, pis_scaled, }, // 136 - Candy bar
+            { SPR_SANDWICH, pis_scaled, }, // 137 - Sandwich
+            { SPR_STAT_46, pis_scaled, }, // 138 - Grenade Launcher
+            { SPR_EXPLOSION_3, pis_scaled, }, // 139 - General Explosion
+            { SPR_BLACK_OOZE1, pis_scaled, }, // 140 - Black Ooze
+            { SPR_ELEC_ARC1, pis_scaled, }, // 141 - Electric Arc Barrier 1
+            { SPR_ELEC_ARC2, pis_scaled, }, // 142 - Electric Arc Barrier 2
+            { SPR_ELEC_ARC3, pis_scaled, }, // 143 - Electric Arc Barrier 3
+            { C_EPISODE1PIC, pis_pic, }, // 144 - STAR Institute
+            { C_EPISODE2PIC, pis_pic, }, // 145 - Floating Fortress
+            { C_EPISODE3PIC, pis_pic, }, // 146 - Underground Network
+            { C_EPISODE4PIC, pis_pic, }, // 147 - STAR Port
+            { C_EPISODE5PIC, pis_pic, }, // 148 - Habitat II
+            { C_EPISODE6PIC, pis_pic, }, // 149 - Defense Center
+            { SPR_BOSS1_W1, pis_scaled, }, // 150 - Boss 1 - walking
+            { SPR_BOSS1_W2, pis_scaled, }, // 151 - Boss 1 - walking
+            { SPR_BOSS1_W3, pis_scaled, }, // 152 - Boss 1 - walking
+            { SPR_BOSS1_W4, pis_scaled, }, // 153 - Boss 1 - walking
+            { SPR_BOSS2_W1, pis_scaled, }, // 154 - Boss 2 - walking
+            { SPR_BOSS2_W2, pis_scaled, }, // 155 - Boss 2 - walking
+            { SPR_BOSS2_W3, pis_scaled, }, // 156 - Boss 2 - walking
+            { SPR_BOSS2_W4, pis_scaled, }, // 157 - Boss 2 - walking
+            { SPR_BOSS3_W1, pis_scaled, }, // 158 - Boss 3 - walking
+            { SPR_BOSS3_W2, pis_scaled, }, // 159 - Boss 3 - walking
+            { SPR_BOSS3_W3, pis_scaled, }, // 160 - Boss 3 - walking
+            { SPR_BOSS3_W4, pis_scaled, }, // 161 - Boss 3 - walking
+            { SPR_BOSS4_W1, pis_scaled, }, // 162 - Boss 4 - walking
+            { SPR_BOSS4_W2, pis_scaled, }, // 163 - Boss 4 - walking
+            { SPR_BOSS4_W3, pis_scaled, }, // 164 - Boss 4 - walking
+            { SPR_BOSS4_W4, pis_scaled, }, // 165 - Boss 4 - walking
+            { SPR_BOSS5_W1, pis_scaled, }, // 166 - Boss 5 - walking
+            { SPR_BOSS5_W2, pis_scaled, }, // 167 - Boss 5 - walking
+            { SPR_BOSS5_W3, pis_scaled, }, // 168 - Boss 5 - walking
+            { SPR_BOSS5_W4, pis_scaled, }, // 169 - Boss 5 - walking
+            { SPR_BOSS6_W1, pis_scaled, }, // 170 - Boss 6 - walking
+            { SPR_BOSS6_W2, pis_scaled, }, // 171 - Boss 6 - walking
+            { SPR_BOSS6_W3, pis_scaled, }, // 172 - Boss 6 - walking
+            { SPR_BOSS6_W4, pis_scaled, }, // 173 - Boss 6 - walking
+            { H_ALTPIC, pis_pic, }, // 174 - ALT key
+            { H_CTRLPIC, pis_pic, }, // 175 - CTRL key
+            { H_SPACEPIC, pis_pic, }, // 176 - SPACE key
+            { H_PAUSEPIC, pis_pic, }, // 177 - PAUSE key
+            { H_ESCPIC, pis_pic, }, // 178 - ESC key
+            { H_LTARROWPIC, pis_pic, }, // 179 - LEFT ARROW key
+            { H_UPARROWPIC, pis_pic, }, // 180 - UP ARROW key
+            { H_DNARROWPIC, pis_pic, }, // 181 - DOWN ARROW key
+            { H_RTARROWPIC, pis_pic, }, // 182 - RIGHT ARROW key
+            { H_QPIC, pis_pic, }, // 183 - Q key
+            { H_WPIC, pis_pic, }, // 184 - W key
+            { H_EPIC, pis_pic, }, // 185 - E key
+            { H_IPIC, pis_pic, }, // 186 - I key
+            { H_HPIC, pis_pic, }, // 187 - H key
+            { H_1PIC, pis_pic, }, // 188 - 1 key
+            { H_2PIC, pis_pic, }, // 189 - 2 key
+            { H_3PIC, pis_pic, }, // 190 - 3 key
+            { H_4PIC, pis_pic, }, // 191 - 4 key
+            { H_5PIC, pis_pic, }, // 192 - 5 key
+            { H_F1PIC, pis_pic, }, // 193 - F1 key
+            { H_F2PIC, pis_pic, }, // 194 - F2 key
+            { H_F3PIC, pis_pic, }, // 195 - F3 key
+            { H_F4PIC, pis_pic, }, // 196 - F4 key
+            { H_F5PIC, pis_pic, }, // 197 - F5 key
+            { H_F6PIC, pis_pic, }, // 198 - F6 key
+            { H_F7PIC, pis_pic, }, // 199 - F7 key
+            { H_F8PIC, pis_pic, }, // 200 - F8 key
+            { H_F9PIC, pis_pic, }, // 201 - F9 key
+            { H_F10PIC, pis_pic, }, // 202 - F10 key
+            { H_ENTERPIC, pis_pic, }, // 203 - ENTER key
+            { H_TABPIC, pis_pic, }, // 204 - TAB key
+            { H_CPIC, pis_pic, }, // 205 - C key
+            { H_FPIC, pis_pic, }, // 206 - F key
+            { SPR_CRATE_1, pis_scaled, }, // 207 - Crate
+            { SPR_GSCOUT_W1_1, pis_scaled, }, // 208 - VMT
+            { SPR_FSCOUT_W1_1, pis_scaled, }, // 209 - PerScan
+            { APOGEE_LOGOPIC, pis_pic, }, // 210 - Apogee Logo
+            { VISAPIC, pis_pic, }, // 211 - Visa Card
+            { MCPIC, pis_pic, }, // 212 - Master Card
+            { FAXPIC, pis_pic, }, // 213 - Fax Machine
+            { H_LPIC, pis_pic, }, // 214 - L key
+            { H_SHIFTPIC, pis_pic, }, // 215 - Shift key
+            { SPR_DOORBOMB, pis_scaled, }, // 216 - DoorBomb
+            { SPR_AUTOMAPPER, pis_scaled, }, // 217 - Radar Powerup.
+            { STARPORTPIC, pis_pic, }, // 218 - Star Port
+            { BOSSPIC, pis_pic, }, // 219 - AOG Boss
+            { THREEPLANETSPIC, pis_pic, }, // 220 - Three Planets
+            { SOLARSYSTEMPIC, pis_pic, }, // 221 - Solar System
+            { AOGENDINGPIC, pis_pic, }, // 222 - AOG Ending
+            { GFLOGOSPIC, pis_pic, }, // 223 - Goldfire 'n Logos
+            { BLAKEHEADPIC, pis_pic, }, // 224 - Blake's Big Head
+            { PROJECTFOLDERPIC, pis_pic, }, // 225 - Project Folder
+            { SPR_GREEN2_OOZE1, pis_scaled, }, // 226 - Green2 Ooze
+            { SPR_BLACK2_OOZE1, pis_scaled, }, // 227 - Black2 Ooze
+            { SPR_STAT_34, pis_scaled, }, // 228 - BFG Cannon AKA Anti-Plasma Cannon
+            { H_PLUSPIC, pis_pic, }, // 229 - PLUS key
+            { SPR_DOORBOMB, pis_scaled, }, // 230 - Plasma Detonator
+            { SPR_DETONATOR_EXP3, pis_scaled, }, // 231 - Plasma Detonator Explosion
+            { SPR_MGOLD_WALK1, pis_scaled, }, // 232 - Morphed Dr Goldstern - Walking
+            { SPR_MGOLD_WALK2, pis_scaled, }, // 233 - Morphed Dr Goldstern - Walking
+            { SPR_MGOLD_WALK3, pis_scaled, }, // 234 - Morphed Dr Goldstern - Walking
+            { SPR_MGOLD_WALK4, pis_scaled, }, // 235 - Morphed Dr Goldstern - Walking
+            { H_MINUSPIC, pis_pic, }, // 236 - MINUS key
+            { H_6PIC, pis_pic, }, // 237 - 6 KEY
+            { H_TILDEPIC, pis_pic, }, // 238 - TILDE KEY
+            { AUTOMAP_MAG1PIC, pis_pic, }, // 239 - AutoMap pic MAG1 (normal)
+            { AUTOMAP_MAG2PIC, pis_pic, }, // 240 - AutoMap pic MAG2
+            { AUTOMAP_MAG4PIC, pis_pic, }, // 241 - AutoMap pic MAG4
+            { SPR_VPOST1, pis_scaled, }, // 242 - VPost Barrier
+            { SPR_VPOST2, pis_scaled, }, // 243 - VPost Barrier
+            { SPR_VPOST3, pis_scaled, }, // 244 - VPost Barrier
+            { SPR_VPOST4, pis_scaled, }, // 245 - VPost Barrier
+            { SPR_VPOST5, pis_scaled, }, // 246 - VPost Barrier
+            { SPR_VPOST6, pis_scaled, }, // 247 - VPost Barrier
+            { SPR_VPOST7, pis_scaled, }, // 248 - VPost Barrier
+            { SPR_VPOST8, pis_scaled, }, // 249 - VPost Barrier
+            { SPR_VSPIKE1, pis_scaled, }, // 250 - VSpike Barrier
+            { SPR_VSPIKE2, pis_scaled, }, // 251 - VSpike Barrier
+            { SPR_VSPIKE3, pis_scaled, }, // 252 - VSpike Barrier
+            { SPR_VSPIKE4, pis_scaled, }, // 253 - VSpike Barrier
+            { SPR_VSPIKE5, pis_scaled, }, // 254 - VSpike Barrier
+            { SPR_VSPIKE6, pis_scaled, }, // 255 - VSpike Barrier
+            { SPR_VSPIKE7, pis_scaled, }, // 256 - VSpike Barrier
+            { SPR_VSPIKE8, pis_scaled, }, // 257 - VSpike Barrier
+            { SPR_CUBE1, pis_scaled, }, // 258 - Security Cube - Rotating
+            { SPR_CUBE2, pis_scaled, }, // 259 - Security Cube - Rotating
+            { SPR_CUBE3, pis_scaled, }, // 260 - Security Cube - Rotating
+            { SPR_CUBE4, pis_scaled, }, // 261 - Security Cube - Rotating
+            { SPR_CUBE5, pis_scaled, }, // 262 - Security Cube - Rotating
+            { SPR_CUBE6, pis_scaled, }, // 263 - Security Cube - Rotating
+            { SPR_CUBE7, pis_scaled, }, // 264 - Security Cube - Rotating
+            { SPR_CUBE8, pis_scaled, }, // 265 - Security Cube - Rotating
+            { SPR_CUBE9, pis_scaled, }, // 266 - Security Cube - Rotating
+            { SPR_CUBE10, pis_scaled, }, // 267 - Security Cube - Rotating
+            { SPR_BOSS7_W1, pis_scaled, }, // 268 - Final Boss 1 Walking
+            { SPR_BOSS7_W2, pis_scaled, }, // 269 - Final Boss 1 Walking
+            { SPR_BOSS7_W3, pis_scaled, }, // 270 - Final Boss 1 Walking
+            { SPR_BOSS7_W4, pis_scaled, }, // 271 - Final Boss 1 Walking
+            { SPR_BOSS8_W1, pis_scaled, }, // 272 - Final Boss 2 Walking
+            { SPR_BOSS8_W2, pis_scaled, }, // 273 - Final Boss 2 Walking
+            { SPR_BOSS8_W3, pis_scaled, }, // 274 - Final Boss 2 Walking
+            { SPR_BOSS8_W4, pis_scaled, }, // 275 - Final Boss 2 Walking
+            { SPR_BOSS9_W1, pis_scaled, }, // 276 - Final Boss 3 Walking
+            { SPR_BOSS9_W2, pis_scaled, }, // 277 - Final Boss 3 Walking
+            { SPR_BOSS9_W3, pis_scaled, }, // 278 - Final Boss 3 Walking
+            { SPR_BOSS9_W4, pis_scaled, }, // 279 - Final Boss 3 Walking
+            { SPR_BOSS10_W1, pis_scaled, }, // 280 - Final Boss 4 Walking
+            { SPR_BOSS10_W2, pis_scaled, }, // 281 - Final Boss 4 Walking
+            { SPR_BOSS10_W3, pis_scaled, }, // 282 - Final Boss 4 Walking
+            { SPR_BOSS10_W4, pis_scaled, }, // 283 - Final Boss 4 Walking
+        };
     }
-
-// FIXME
-#if 0
-    piShapeTable = {
-        { SPR_GREEN_OOZE1, pis_scaled, }, // 0 - Star Sentinel (AOG) / Green Ooze
-        { SPR_STAT_32, pis_scaled }, // 1 - Red Key
-        { SPR_STAT_33, pis_scaled }, // 2 - Yellow Key
-        { SPR_STAT_34, pis_scaled, }, // 3 - Green Key (AOG)
-        { SPR_STAT_35, pis_scaled }, // 4 - Blue Key
-        { SPR_STAT_36, pis_scaled, }, // 5 - Gold Key (AOG)
-        { SPR_STAT_26, pis_scaled }, // 6 - Charge Unit
-        { SPR_STAT_24, pis_scaled }, // 7 - PISTOL
-        { SPR_STAT_27, pis_scaled }, // 8 - Auto-Burst Rifle
-        { SPR_STAT_28, pis_scaled }, // 9 - Particle Charged ION
-        { SPR_STAT_29, pis_scaled }, // 10 - First Aid
-        { SPR_STAT_30, pis_scaled, }, // 11 - Full Heal
-        { SPR_STAT_48, pis_scaled }, // 12 - money bag
-        { SPR_STAT_49, pis_scaled }, // 13 - loot
-        { SPR_STAT_50, pis_scaled }, // 14 - gold
-        { SPR_STAT_51, pis_scaled }, // 15 - bonus
-        { SPR_STAT_42, pis_scaled }, // 16 - Chicken Leg
-        { SPR_STAT_44, pis_scaled }, // 17 - Ham
-        { SPR_STAT_40, pis_scaled }, // 18 - Full Water Bowl
-        { SPR_STAT_0, pis_scaled }, // 19 - Water Puddle
-
-        // ATTACKING ACTORS
-
-        { SPR_RENT_W1_8, pis_scaled }, // 20 - rentacopobj, Walking
-        { SPR_RENT_W2_8, pis_scaled }, // 21 - rentacopobj, Walking
-        { SPR_RENT_W3_8, pis_scaled }, // 22 - rentacopobj, Walking
-        { SPR_RENT_W4_8, pis_scaled }, // 23 - rentacopobj, Walking
-
-        { SPR_TERROT_1, pis_scaled }, // 24 - hang_terrotobj, Rotating
-        { SPR_TERROT_2, pis_scaled }, // 25 - hang_terrotobj, Rotating
-        { SPR_TERROT_3, pis_scaled }, // 26 - hang_terrotobj, Rotating
-        { SPR_TERROT_4, pis_scaled }, // 27 - hang_terrotobj, Rotating
-        { SPR_TERROT_5, pis_scaled }, // 28 - hang_terrotobj, Rotating
-        { SPR_TERROT_6, pis_scaled }, // 29 - hang_terrotobj, Rotating
-        { SPR_TERROT_7, pis_scaled }, // 30 - hang_terrotobj, Rotating
-        { SPR_TERROT_8, pis_scaled }, // 31 - hang_terrotobj, Rotating
-
-        { SPR_STAT_77, pis_scaled }, // 32 - 1 Credit Food Unit Token
-        { SPR_STAT_78, pis_scaled }, // 33 - 5 Credit Food Unit Token
-        { SPR_STAT_79, pis_scaled }, // 34 - Auto-Charge Pistol
-
-        { 14 * 2, pis_scwall }, // 35 - Food Unit Wall
-        { 16 * 2, pis_scwall }, // 36 - Terminal Wall
-        { 20 * 2 + 1, pis_scwall }, // 37 - Teleport w/Pannel on it
-        { 44 * 2, pis_scwall }, // 38 - Barrier Switch Wall
-        { 31 * 2, pis_scwall }, // 39 - Warp Tile
-
-        { BIGGOLDSTERNPIC, pis_pic }, // 40 - Big Goldstern
-        { STARLOGOPIC, pis_pic }, // 41 - Star Logo
-        { BLAKEWITHGUNPIC, pis_pic }, // 42 - Blake With Gun
-        { STARINSTITUTEPIC, pis_pic }, // 43 - Star Institute
-        { MEDALOFHONORPIC, pis_pic }, // 44 - Medal Of Honor
-        { SMALLGOLDSTERNPIC, pis_pic }, // 45 - Small Goldstern
-        { BLAKEWINPIC, pis_pic }, // 46 - Blake Win
-        { AUTOMAPPIC, pis_pic }, // 47 - AutoMap Pic
-
-        { SPR_ELEC_POST1, pis_scaled }, // 48 - Barrier Post 1
-        { SPR_ELEC_POST2, pis_scaled }, // 49 - Barrier Post 2
-        { SPR_ELEC_POST3, pis_scaled }, // 50 - Barrier Post 3
-
-        { SHUTTLEEXPPIC, pis_pic }, // 51 - Shuttle Explode
-        { PLANETSPIC, pis_pic }, // 52 - Planets Pic
-        {
-            ::is_aog() ? SPR_DECO_ARC_3 : SPR_CUBE1,
-            pis_scaled,
-        }, // 53 - Ceiling Lightning (AOG) / Rotating Cube
-        { H_PPIC, pis_pic, }, // 54 - P key
-        { MOUSEPIC, pis_pic }, // 55 - Mouse Pad
-
-        { SPR_OFC_W1_8, pis_scaled }, // 56 - gen_scientist, walking
-        { SPR_OFC_W2_8, pis_scaled }, // 57 - gen_scientist, walking
-        { SPR_OFC_W3_8, pis_scaled }, // 58 - gen_scientist, walking
-        { SPR_OFC_W4_8, pis_scaled }, // 59 - gen_scientist, walking
-
-        { SPR_POD_WALK1, pis_scaled }, // 60 - podalien - walking
-        { SPR_POD_WALK2, pis_scaled }, // 61 - podalien - walking
-        { SPR_POD_WALK3, pis_scaled }, // 62 - podalien - walking
-        { SPR_POD_WALK4, pis_scaled }, // 63 - podalien - walking
-
-        { SPR_ELEC_WALK1, pis_scaled }, // 64 - electro alien - walking
-        { SPR_ELEC_WALK2, pis_scaled }, // 65 - electro alien - walking
-        { SPR_ELEC_WALK3, pis_scaled }, // 66 - electro alien - walking
-        { SPR_ELEC_WALK4, pis_scaled }, // 67 - electro alien - walking
-
-        { SPR_ELECTRO_SPHERE_ROAM1, pis_scaled }, // 68 - electrosphere - Roaming
-        { SPR_ELECTRO_SPHERE_ROAM2, pis_scaled }, // 69 - electrosphere - Roaming
-        { SPR_ELECTRO_SPHERE_ROAM3, pis_scaled }, // 70 - electrosphere - Roaming
-
-        { SPR_PRO_W1_8, pis_scaled }, // 71 - proguard - Walking
-        { SPR_PRO_W2_8, pis_scaled }, // 72 - proguard - Walking
-        { SPR_PRO_W3_8, pis_scaled }, // 73 - proguard - Walking
-        { SPR_PRO_W4_8, pis_scaled }, // 74 - proguard - Walking
-
-        { SPR_GENETIC_W1, pis_scaled }, // 75 - genetic_guard - Walking
-        { SPR_GENETIC_W2, pis_scaled }, // 76 - genetic_guard - Walking
-        { SPR_GENETIC_W3, pis_scaled }, // 77 - genetic_guard - Walking
-        { SPR_GENETIC_W4, pis_scaled }, // 78 - genetic_guard - Walking
-
-        { SPR_MUTHUM1_W1, pis_scaled }, // 79 - mutant_human1 - walking
-        { SPR_MUTHUM1_W2, pis_scaled }, // 80 - mutant_human1 - walking
-        { SPR_MUTHUM1_W3, pis_scaled }, // 81 - mutant_human1 - walking
-        { SPR_MUTHUM1_W4, pis_scaled }, // 82 - mutant_human1 - walking
-
-        { SPR_MUTHUM2_W1, pis_scaled }, // 83 - mutant_human2 - walking
-        { SPR_MUTHUM2_W2, pis_scaled }, // 84 - mutant_human2 - walking
-        { SPR_MUTHUM2_W3, pis_scaled }, // 85 - mutant_human2 - walking
-        { SPR_MUTHUM2_W4, pis_scaled }, // 86 - mutant_human2 - walking
-
-        { SPR_LCAN_ALIEN_READY, pis_scaled }, // 87 - Large canister for lg_Aln
-
-        { SPR_LCAN_ALIEN_W1, pis_scaled }, // 88 - Large Canister Alien
-        { SPR_LCAN_ALIEN_W2, pis_scaled }, // 89 - Large Canister Alien
-        { SPR_LCAN_ALIEN_W3, pis_scaled }, // 90 - Large Canister Alien
-        { SPR_LCAN_ALIEN_W4, pis_scaled }, // 91 - Large Canister Alien
-
-        { SPR_SCAN_ALIEN_READY, pis_scaled }, // 92 - Small Cansiter
-
-        { SPR_SCAN_ALIEN_W1, pis_scaled }, // 93 - Sm Can Alien - Walking
-        { SPR_SCAN_ALIEN_W2, pis_scaled }, // 94 - Sm Can Alien - Walking
-        { SPR_SCAN_ALIEN_W3, pis_scaled }, // 95 - Sm Can Alien - Walking
-        { SPR_SCAN_ALIEN_W4, pis_scaled }, // 96 - Sm Can Alien - Walking
-
-        { SPR_GURNEY_MUT_READY, pis_scaled }, // 97 - Gurney Mutant on gurney
-
-        { SPR_GURNEY_MUT_W1, pis_scaled }, // 98  - Gurney Mutant - Walking
-        { SPR_GURNEY_MUT_W2, pis_scaled }, // 99  - Gurney Mutant - Walking
-        { SPR_GURNEY_MUT_W3, pis_scaled }, // 100 - Gurney Mutant - Walking
-        { SPR_GURNEY_MUT_W4, pis_scaled }, // 101 - Gurney Mutant - Walking
-
-        { SPR_LIQUID_S1, pis_scaled }, // 102 - liquid Alien - Shooting
-        { SPR_LIQUID_S2, pis_scaled }, // 103 - liquid Alien - Shooting
-        { SPR_LIQUID_S3, pis_scaled }, // 104 - liquid Alien - Shooting
-
-        { SPR_SWAT_W1_8, pis_scaled }, // 105 - SWAT guard - Walking
-        { SPR_SWAT_W2_8, pis_scaled }, // 106 - SWAT guard - Walking
-        { SPR_SWAT_W3_8, pis_scaled }, // 107 - SWAT guard - Walking
-        { SPR_SWAT_W4_8, pis_scaled }, // 108 - SWAT guard - Walking
-
-        { SPR_GOLD_W1_8, pis_scaled }, // 109 - Dr Goldstern - Walking
-        { SPR_GOLD_W2_8, pis_scaled }, // 110 - Dr Goldstern - Walking
-        { SPR_GOLD_W3_8, pis_scaled }, // 111 - Dr Goldstern - Walking
-        { SPR_GOLD_W4_8, pis_scaled }, // 112 - Dr Goldstern - Walking
-
-        { JOYSTICKPIC, pis_pic }, // 113 - Joystick
-
-        { SPR_GSCOUT_W1_8, pis_scaled }, // 114 - Volatile Transport - moving
-        { SPR_GSCOUT_W2_8, pis_scaled }, // 115 - Volatile Transport - moving
-        { SPR_GSCOUT_W3_8, pis_scaled }, // 116 - Volatile Transport - moving
-        { SPR_GSCOUT_W4_8, pis_scaled }, // 117 - Volatile Transport - moving
-
-        { SPR_FSCOUT_W1_8, pis_scaled }, // 118 - Floating Bomb - moving
-        { SPR_FSCOUT_W2_8, pis_scaled }, // 119 - Floating Bomb - moving
-        { SPR_FSCOUT_W3_8, pis_scaled }, // 120 - Floating Bomb - moving
-        { SPR_FSCOUT_W4_8, pis_scaled }, // 121 - Floating Bomb - moving
-
-        { ::is_ps() ? SPR_CUBE1 : SPR_VITAL_STAND, pis_scaled }, // 122 - ** OPEN **
-
-        { SPR_ELEC_SHOT1, pis_scaled }, // 123 - Electro Aln Shot - floating
-        { SPR_ELEC_SHOT2, pis_scaled }, // 124 - Electro Aln Shot - floating
-
-        { SPR_SECURITY_NORMAL, pis_scaled }, // 125 - Security_light - normal
-        { SPR_SECURITY_ALERT, pis_scaled }, // 126 - Security_light - Alerted
-
-        { SPR_LIQUID_SHOT_FLY_1, pis_scaled }, // 127 - Liquid Aln Sht - float'n
-        { SPR_LIQUID_SHOT_FLY_2, pis_scaled }, // 128 - Liquid Aln Sht - float'n
-        { SPR_LIQUID_SHOT_FLY_3, pis_scaled }, // 129 - Liquid Aln Sht - float'n
-
-        { SPR_POD_EGG, pis_scaled }, // 130 - POD Alien Egg
-
-        { SPR_DECO_ARC_1, pis_scaled }, // 131 - DecoArc
-        { SPR_DECO_ARC_2, pis_scaled }, // 132 - DecoArc
-        { SPR_DECO_ARC_3, pis_scaled }, // 133 - DecoArc
-
-        { GRAVISPADPIC, pis_pic }, // 134 - Gravis Pad
-        { H_MPIC, pis_pic }, // 135 - M key
-
-        { SPR_CANDY_BAR, pis_scaled }, // 136 - Candy bar
-        { SPR_SANDWICH, pis_scaled }, // 137 - Sandwich
-
-        { SPR_STAT_46, pis_scaled }, // 138 - Grenade Launcher
-        { SPR_EXPLOSION_3, pis_scaled }, // 139 - General Explosion
-        { SPR_BLACK_OOZE1, pis_scaled }, // 140 - Black Ooze
-
-        { SPR_ELEC_ARC1, pis_scaled }, // 141 - Electric Arc Barrier 1
-        { SPR_ELEC_ARC2, pis_scaled }, // 142 - Electric Arc Barrier 2
-        { SPR_ELEC_ARC3, pis_scaled }, // 143 - Electric Arc Barrier 3
-
-        { C_EPISODE1PIC, pis_pic }, // 144 - STAR Institute
-        { C_EPISODE2PIC, pis_pic }, // 145 - Floating Fortress
-        { C_EPISODE3PIC, pis_pic }, // 146 - Underground Network
-        { C_EPISODE4PIC, pis_pic }, // 147 - STAR Port
-        { C_EPISODE5PIC, pis_pic }, // 148 - Habitat II
-        { C_EPISODE6PIC, pis_pic }, // 149 - Defense Center
-
-        { SPR_BOSS1_W1, pis_scaled }, // 150 - Boss 1 - walking
-        { SPR_BOSS1_W2, pis_scaled }, // 151 - Boss 1 - walking
-        { SPR_BOSS1_W3, pis_scaled }, // 152 - Boss 1 - walking
-        { SPR_BOSS1_W4, pis_scaled }, // 153 - Boss 1 - walking
-
-        { SPR_BOSS2_W1, pis_scaled }, // 154 - Boss 2 - walking
-        { SPR_BOSS2_W2, pis_scaled }, // 155 - Boss 2 - walking
-        { SPR_BOSS2_W3, pis_scaled }, // 156 - Boss 2 - walking
-        { SPR_BOSS2_W4, pis_scaled }, // 157 - Boss 2 - walking
-
-        { SPR_BOSS3_W1, pis_scaled }, // 158 - Boss 3 - walking
-        { SPR_BOSS3_W2, pis_scaled }, // 159 - Boss 3 - walking
-        { SPR_BOSS3_W3, pis_scaled }, // 160 - Boss 3 - walking
-        { SPR_BOSS3_W4, pis_scaled }, // 161 - Boss 3 - walking
-
-        { SPR_BOSS4_W1, pis_scaled }, // 162 - Boss 4 - walking
-        { SPR_BOSS4_W2, pis_scaled }, // 163 - Boss 4 - walking
-        { SPR_BOSS4_W3, pis_scaled }, // 164 - Boss 4 - walking
-        { SPR_BOSS4_W4, pis_scaled }, // 165 - Boss 4 - walking
-
-        { SPR_BOSS5_W1, pis_scaled }, // 166 - Boss 5 - walking
-        { SPR_BOSS5_W2, pis_scaled }, // 167 - Boss 5 - walking
-        { SPR_BOSS5_W3, pis_scaled }, // 168 - Boss 5 - walking
-        { SPR_BOSS5_W4, pis_scaled }, // 169 - Boss 5 - walking
-
-        { SPR_BOSS6_W1, pis_scaled }, // 170 - Boss 6 - walking
-        { SPR_BOSS6_W2, pis_scaled }, // 171 - Boss 6 - walking
-        { SPR_BOSS6_W3, pis_scaled }, // 172 - Boss 6 - walking
-        { SPR_BOSS6_W4, pis_scaled }, // 173 - Boss 6 - walking
-
-        { H_ALTPIC, pis_pic }, // 174 - ALT key
-        { H_CTRLPIC, pis_pic }, // 175 - CTRL key
-        { H_SPACEPIC, pis_pic }, // 176 - SPACE key
-        { H_PAUSEPIC, pis_pic }, // 177 - PAUSE key
-        { H_ESCPIC, pis_pic }, // 178 - ESC key
-        { H_LTARROWPIC, pis_pic }, // 179 - LEFT ARROW key
-        { H_UPARROWPIC, pis_pic }, // 180 - UP ARROW key
-        { H_DNARROWPIC, pis_pic }, // 181 - DOWN ARROW key
-        { H_RTARROWPIC, pis_pic }, // 182 - RIGHT ARROW key
-        { H_QPIC, pis_pic }, // 183 - Q key
-        { H_WPIC, pis_pic }, // 184 - W key
-        { H_EPIC, pis_pic }, // 185 - E key
-        { H_IPIC, pis_pic }, // 186 - I key
-        { H_HPIC, pis_pic }, // 187 - H key
-        { H_1PIC, pis_pic }, // 188 - 1 key
-        { H_2PIC, pis_pic }, // 189 - 2 key
-        { H_3PIC, pis_pic }, // 190 - 3 key
-        { H_4PIC, pis_pic }, // 191 - 4 key
-        { H_5PIC, pis_pic }, // 192 - 5 key
-        { H_F1PIC, pis_pic }, // 193 - F1 key
-        { H_F2PIC, pis_pic }, // 194 - F2 key
-        { H_F3PIC, pis_pic }, // 195 - F3 key
-        { H_F4PIC, pis_pic }, // 196 - F4 key
-        { H_F5PIC, pis_pic }, // 197 - F5 key
-        { H_F6PIC, pis_pic }, // 198 - F6 key
-        { H_F7PIC, pis_pic }, // 199 - F7 key
-        { H_F8PIC, pis_pic }, // 200 - F8 key
-        { H_F9PIC, pis_pic }, // 201 - F9 key
-        { H_F10PIC, pis_pic }, // 202 - F10 key
-        { H_ENTERPIC, pis_pic }, // 203 - ENTER key
-        { H_TABPIC, pis_pic }, // 204 - TAB key
-        { H_CPIC, pis_pic }, // 205 - C key
-        { H_FPIC, pis_pic }, // 206 - F key
-        { SPR_CRATE_1, pis_scaled }, // 207 - Crate
-        { SPR_GSCOUT_W1_1, pis_scaled }, // 208 - VMT
-        { SPR_FSCOUT_W1_1, pis_scaled }, // 209 - PerScan
-        { APOGEE_LOGOPIC, pis_pic }, // 210 - Apogee Logo
-        { VISAPIC, pis_pic }, // 211 - Visa Card
-        { MCPIC, pis_pic }, // 212 - Master Card
-        { FAXPIC, pis_pic }, // 213 - Fax Machine
-        { H_LPIC, pis_pic }, // 214 - L key
-        { H_SHIFTPIC, pis_pic }, // 215 - Shift key
-        { SPR_DOORBOMB, pis_scaled, }, // 216 - DoorBomb
-        { SPR_AUTOMAPPER, pis_scaled, }, // 217 - Radar Powerup.
-        { STARPORTPIC, pis_pic, }, // 218 - Star Port
-        { BOSSPIC, pis_pic }, // 219 - AOG Boss
-        { THREEPLANETSPIC, pis_pic }, // 220 - Three Planets
-        { SOLARSYSTEMPIC, pis_pic }, // 221 - Solar System
-        { AOGENDINGPIC, pis_pic }, // 222 - AOG Ending
-        { GFLOGOSPIC, pis_pic }, // 223 - Goldfire 'n Logos
-        { BLAKEHEADPIC, pis_pic }, // 224 - Blake's Big Head
-        { PROJECTFOLDERPIC, pis_pic }, // 225 - Project Folder
-        { SPR_GREEN2_OOZE1, pis_scaled }, // 226 - Green2 Ooze
-        { SPR_BLACK2_OOZE1, pis_scaled }, // 227 - Black2 Ooze
-
-        { SPR_STAT_34, pis_scaled }, // 228 - BFG Cannon AKA Anti-Plasma Cannon
-
-        { H_PLUSPIC, pis_pic }, // 229 - PLUS key
-        { SPR_DOORBOMB, pis_scaled }, // 230 - Plasma Detonator
-        { SPR_DETONATOR_EXP3, pis_scaled }, // 231 - Plasma Detonator Explosion
-        { SPR_MGOLD_WALK1, pis_scaled }, // 232 - Morphed Dr Goldstern - Walking
-        { SPR_MGOLD_WALK2, pis_scaled }, // 233 - Morphed Dr Goldstern - Walking
-        { SPR_MGOLD_WALK3, pis_scaled }, // 234 - Morphed Dr Goldstern - Walking
-        { SPR_MGOLD_WALK4, pis_scaled }, // 235 - Morphed Dr Goldstern - Walking
-
-        { H_MINUSPIC, pis_pic }, // 236 - MINUS key
-        { H_6PIC, pis_pic }, // 237 - 6 KEY
-        { H_TILDEPIC, pis_pic }, // 238 - TILDE KEY
-        { AUTOMAP_MAG1PIC, pis_pic }, // 239 - AutoMap pic MAG1 (normal)
-        { AUTOMAP_MAG2PIC, pis_pic }, // 240 - AutoMap pic MAG2
-        { AUTOMAP_MAG4PIC, pis_pic }, // 241 - AutoMap pic MAG4
-
-        { SPR_VPOST1, pis_scaled }, // 242 - VPost Barrier
-        { SPR_VPOST2, pis_scaled }, // 243 - VPost Barrier
-        { SPR_VPOST3, pis_scaled }, // 244 - VPost Barrier
-        { SPR_VPOST4, pis_scaled }, // 245 - VPost Barrier
-        { SPR_VPOST5, pis_scaled }, // 246 - VPost Barrier
-        { SPR_VPOST6, pis_scaled }, // 247 - VPost Barrier
-        { SPR_VPOST7, pis_scaled }, // 248 - VPost Barrier
-        { SPR_VPOST8, pis_scaled }, // 249 - VPost Barrier
-        { SPR_VSPIKE1, pis_scaled }, // 250 - VSpike Barrier
-        { SPR_VSPIKE2, pis_scaled }, // 251 - VSpike Barrier
-        { SPR_VSPIKE3, pis_scaled }, // 252 - VSpike Barrier
-        { SPR_VSPIKE4, pis_scaled }, // 253 - VSpike Barrier
-        { SPR_VSPIKE5, pis_scaled }, // 254 - VSpike Barrier
-        { SPR_VSPIKE6, pis_scaled }, // 255 - VSpike Barrier
-        { SPR_VSPIKE7, pis_scaled }, // 256 - VSpike Barrier
-        { SPR_VSPIKE8, pis_scaled }, // 257 - VSpike Barrier
-        { SPR_CUBE1, pis_scaled }, // 258 - Security Cube - Rotating
-        { SPR_CUBE2, pis_scaled }, // 259 - Security Cube - Rotating
-        { SPR_CUBE3, pis_scaled }, // 260 - Security Cube - Rotating
-        { SPR_CUBE4, pis_scaled }, // 261 - Security Cube - Rotating
-        { SPR_CUBE5, pis_scaled }, // 262 - Security Cube - Rotating
-        { SPR_CUBE6, pis_scaled }, // 263 - Security Cube - Rotating
-        { SPR_CUBE7, pis_scaled }, // 264 - Security Cube - Rotating
-        { SPR_CUBE8, pis_scaled }, // 265 - Security Cube - Rotating
-        { SPR_CUBE9, pis_scaled }, // 266 - Security Cube - Rotating
-        { SPR_CUBE10, pis_scaled }, // 267 - Security Cube - Rotating
-
-        { SPR_BOSS7_W1, pis_scaled }, // 268 - Final Boss 1 Walking
-        { SPR_BOSS7_W2, pis_scaled }, // 269 - Final Boss 1 Walking
-        { SPR_BOSS7_W3, pis_scaled }, // 270 - Final Boss 1 Walking
-        { SPR_BOSS7_W4, pis_scaled }, // 271 - Final Boss 1 Walking
-
-        { SPR_BOSS8_W1, pis_scaled }, // 272 - Final Boss 2 Walking
-        { SPR_BOSS8_W2, pis_scaled }, // 273 - Final Boss 2 Walking
-        { SPR_BOSS8_W3, pis_scaled }, // 274 - Final Boss 2 Walking
-        { SPR_BOSS8_W4, pis_scaled }, // 275 - Final Boss 2 Walking
-
-        { SPR_BOSS9_W1, pis_scaled }, // 276 - Final Boss 3 Walking
-        { SPR_BOSS9_W2, pis_scaled }, // 277 - Final Boss 3 Walking
-        { SPR_BOSS9_W3, pis_scaled }, // 278 - Final Boss 3 Walking
-        { SPR_BOSS9_W4, pis_scaled }, // 279 - Final Boss 3 Walking
-
-        { SPR_BOSS10_W1, pis_scaled }, // 280 - Final Boss 4 Walking
-        { SPR_BOSS10_W2, pis_scaled }, // 281 - Final Boss 4 Walking
-        { SPR_BOSS10_W3, pis_scaled }, // 282 - Final Boss 4 Walking
-        { SPR_BOSS10_W4, pis_scaled }, // 283 - Final Boss 4 Walking
-    };
-#endif
 }
 
 // anim table holds info about each different animation.
