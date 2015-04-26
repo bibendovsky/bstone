@@ -4632,8 +4632,8 @@ inline void deserialize_field(
 
 enum class GameType {
     none,
-    aog, // Aliens Of Gold (full)
     aog_sw, // Aliens Of Gold (shareware)
+    aog_full, // Aliens Of Gold (full)
     ps, // Planet Strike
 }; // GameType
 

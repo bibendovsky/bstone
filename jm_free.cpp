@@ -742,8 +742,8 @@ void CheckForEpisodes()
     }; // ps_file_names
 
 
-    if (::g_args.has_option("aog")) {
-        ::g_game_type = GameType::aog;
+    if (::g_args.has_option("aog_full")) {
+        ::g_game_type = GameType::aog_full;
 
         bstone::Log::write("Forcing Aliens Of Gold (full).\n");
     } else if (::g_args.has_option("aog_sw")) {
@@ -761,14 +761,14 @@ void CheckForEpisodes()
     std::string error_message = "All expected files not found.";
 
     switch (::g_game_type) {
-    case GameType::aog:
-        if (!::are_files_exist(aog_file_names)) {
+    case GameType::aog_sw:
+        if (!::are_files_exist(aog_sw_file_names)) {
             is_succeed = false;
         }
         break;
 
-    case GameType::aog_sw:
-        if (!::are_files_exist(aog_sw_file_names)) {
+    case GameType::aog_full:
+        if (!::are_files_exist(aog_file_names)) {
             is_succeed = false;
         }
         break;
@@ -783,7 +783,7 @@ void CheckForEpisodes()
         bstone::Log::write("Determining the game type.");
 
         if (::are_files_exist(aog_file_names)) {
-            ::g_game_type = GameType::aog;
+            ::g_game_type = GameType::aog_full;
 
             bstone::Log::write("Found Aliens Of Gold (full).\n");
         } else if (::are_files_exist(ps_file_names)) {
@@ -807,12 +807,12 @@ void CheckForEpisodes()
 
 
     switch (::g_game_type) {
-    case GameType::aog:
-        ::extension = "BS6";
-        break;
-
     case GameType::aog_sw:
         ::extension = "BS1";
+        break;
+
+    case GameType::aog_full:
+        ::extension = "BS6";
         break;
 
     case GameType::ps:

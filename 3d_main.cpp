@@ -8401,7 +8401,7 @@ void gametype::deserialize(
 
 bool is_aog_full()
 {
-    return ::g_game_type == GameType::aog;
+    return ::g_game_type == GameType::aog_full;
 }
 
 bool is_aog_sw()
