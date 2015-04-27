@@ -1477,8 +1477,14 @@ void CalcTics()
 //
         do {
             newtime = TimeCount;
-            tics = static_cast<uint16_t>(newtime - lasttimecount);
-        } while (!tics); // make sure at least one tic passes
+            auto diff = newtime - lasttimecount;
+            if (diff == 0) {
+                tics = 0;
+                ::SDL_Delay(10);
+            } else {
+                tics = static_cast<uint16_t>(diff);
+            }
+        } while (tics == 0); // make sure at least one tic passes
 
         lasttimecount = newtime;
         framecount++;
