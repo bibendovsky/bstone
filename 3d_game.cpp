@@ -592,6 +592,16 @@ void ScanInfoPlane()
                 SpawnPlayer(x, y, NORTH + tile - 19);
                 break;
 
+            case 30: // Yellow Puddle
+                if (::is_aog_sw()) {
+                    break;
+                }
+
+            case 71: // BFG Weapon
+                if (!::is_ps()) {
+                    break;
+                }
+
             case 85: // Money bag
             case 86: // Loot
             case 87: // Gold
@@ -603,16 +613,7 @@ void ScanInfoPlane()
 #endif
 #endif
 
-            case 30: // Yellow Puddle
-                if (::is_aog_sw()) {
-                    break;
-                }
-
             case 53:
-            case 71: // BFG Weapon
-                if (!::is_ps()) {
-                    break;
-                }
 
             case 23:
             case 24:
