@@ -3394,7 +3394,7 @@ boolean ov_noImage = false;
 // --------------------------------------------------------------------------
 int16_t InputFloor()
 {
-    if (!::is_ps()) {
+    if (::is_aog()) {
         const std::string messages[4] = {
             // "Current floor:\nSelect a floor."
             ::ca_load_script(ELEVMSG0_TEXT),
@@ -3460,16 +3460,16 @@ int16_t InputFloor()
 
         ::IN_ClearKeysDown();
 
-        int result = -2;
-        bool draw_stats = true;
-        bool draw_message = true;
-        bool draw_current_floor = true;
-        bool draw_locked_floor = false;
-        bool use_delay = false;
-        bool draw_button = false;
-        int button_index = 0;
-        int is_button_pressed = false;
-        const std::string* message = &messages[0];
+        auto result = -2;
+        auto draw_stats = true;
+        auto draw_message = true;
+        auto draw_current_floor = true;
+        auto draw_locked_floor = false;
+        auto use_delay = false;
+        auto draw_button = false;
+        auto button_index = 0;
+        auto is_button_pressed = false;
+        auto message = &messages[0];
 
         PresenterInfo pi;
         ::memset(&pi, 0, sizeof(pi));
@@ -3490,7 +3490,7 @@ int16_t InputFloor()
                 result = -1;
             }
 
-            int target_level = 0;
+            auto target_level = 0;
 
             for (int i = sc_1; i <= sc_0; ++i) {
                 if (::Keyboard[i]) {
@@ -3513,6 +3513,8 @@ int16_t InputFloor()
                     draw_message = true;
                     draw_current_floor = false;
                     message = &messages[1];
+
+                    ::gamestate.numkeys[kt_red] = 0;
                 } else {
                     use_delay = true;
                     draw_message = true;
@@ -3566,15 +3568,15 @@ int16_t InputFloor()
                 if (draw_button) {
                     draw_button = false;
 
-                    int base_x = 264;
-                    int base_y = TOP_STRIP_HEIGHT + 98;
-                    int step_x = 24;
-                    int step_y = 20;
+                    auto base_x = 264;
+                    auto base_y = TOP_STRIP_HEIGHT + 98;
+                    auto step_x = 24;
+                    auto step_y = 20;
 
-                    int x = base_x + (step_x * (button_index % 2));
-                    int y = base_y - (step_y * (button_index / 2));
+                    auto x = base_x + (step_x * (button_index % 2));
+                    auto y = base_y - (step_y * (button_index / 2));
 
-                    int base_pic =
+                    auto base_pic =
                         is_button_pressed ?
                         TELEPORT1ONPIC :
                         TELEPORT1OFFPIC;
@@ -3597,10 +3599,10 @@ int16_t InputFloor()
                 draw_stats = false;
 
                 static_cast<void>(::ShowStats(
-                                      167,
-                                      TOP_STRIP_HEIGHT + 76,
-                                      ss_normal,
-                                      &::gamestuff.level[::gamestate.mapon].stats));
+                    167,
+                    TOP_STRIP_HEIGHT + 76,
+                    ss_normal,
+                    &::gamestuff.level[::gamestate.mapon].stats));
             }
 
             if (use_delay) {
