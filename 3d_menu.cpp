@@ -276,6 +276,7 @@ int16_t SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
+static uint8_t menu_background_color = 0x00;
 
 
 ////////////////////////////////////////////////////////////////////
@@ -1319,6 +1320,10 @@ void HelpPresenter(
 void US_ControlPanel(
     uint8_t scancode)
 {
+    // BBi
+    menu_background_color = (::is_aog_sw() ? 0x04 : TERM_BACK_COLOR);
+
+
     int16_t which;
 
 #ifdef CACHE_KEY_DATA
@@ -1734,7 +1739,7 @@ firstpart:
                     CacheMessage(READTHIS_TEXT);
                     IN_ClearKeysDown();
                     IN_Ack();
-                    VL_Bar(35, 69, 250, 62, TERM_BACK_COLOR);
+                    VL_Bar(35, 69, 250, 62, ::menu_background_color);
                     DrawNewEpisode();
                     which = 0;
                 } else {
@@ -1857,7 +1862,7 @@ void DrawInstructions(
     WindowW = 236;
     WindowH = 8;
 
-    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, TERM_BACK_COLOR);
+    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, ::menu_background_color);
 
     SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
     US_PrintCentered(instr[Type]);
@@ -2216,7 +2221,7 @@ void DrawSwitchDescription(
     WindowW = 236;
     WindowH = 8;
 
-    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, TERM_BACK_COLOR);
+    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, ::menu_background_color);
 
     SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
     US_PrintCentered(instr[which]);
@@ -2651,7 +2656,13 @@ int16_t CP_SaveGame(
                 ShootSnd();
                 exit = 1;
             } else {
-                VWB_Bar(LSM_X + LSItems.indent + 1, LSM_Y + which * LSItems.y_spacing - 1, LSM_W - LSItems.indent - 1, 7, TERM_BACK_COLOR);
+                VWB_Bar(
+                    LSM_X + LSItems.indent + 1,
+                    LSM_Y + which * LSItems.y_spacing - 1,
+                    LSM_W - LSItems.indent - 1,
+                    7,
+                    ::menu_background_color);
+
                 PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
                 VW_UpdateScreen();
                 ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
@@ -3349,7 +3360,7 @@ void EnterCtrlData(
         switch (ci.dir) {
 
         case dir_West:
-            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, TERM_BACK_COLOR);
+            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, ::menu_background_color);
             SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
             PrintRtn(which);
             do {
@@ -3371,7 +3382,7 @@ void EnterCtrlData(
 
 
         case dir_East:
-            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, TERM_BACK_COLOR);
+            VWB_Bar(x - 1, PrintY - 1, CST_SPC, 7, ::menu_background_color);
             SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, TERM_BACK_COLOR);
             PrintRtn(which);
             do {
@@ -3714,7 +3725,7 @@ void CP_Quit()
 // ---------------------------------------------------------------------------
 void ClearMScreen()
 {
-    VWB_Bar(SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, TERM_BACK_COLOR);
+    VWB_Bar(SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, ::menu_background_color);
 }
 
 
@@ -4170,7 +4181,7 @@ void EraseGun(
     int16_t y,
     int16_t which)
 {
-    VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, TERM_BACK_COLOR);
+    VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, ::menu_background_color);
     SetTextColor(items + which, 0);
 
     ShadowPrint((items + which)->string, item_i->x + item_i->indent, y);
