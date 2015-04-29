@@ -25,12 +25,13 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_MIXER_INCLUDED
 
 
+#include <atomic>
 #include <deque>
 #include <list>
+#include <mutex>
+#include <thread>
 #include <vector>
-
 #include "SDL.h"
-
 #include "bstone_audio_decoder.h"
 
 
@@ -221,17 +222,19 @@ private:
     using PlayCommands = std::deque<Command>;
     using PlayCommandsIt = PlayCommands::iterator;
     using PlayCommandsCIt = PlayCommands::const_iterator;
+    using Mutex = std::mutex;
+    using MutexGuard = std::lock_guard<Mutex>;
 
     bool is_initialized_;
     int dst_rate_;
     SDL_AudioDeviceID device_id_;
-    SDL_mutex* mutex_;
-    SDL_Thread* thread_;
+    Mutex mutex_;
+    std::thread thread_;
     int mix_samples_count_;
     Samples buffer_;
     MixSamples mix_buffer_;
-    volatile bool is_data_available_;
-    volatile bool quit_thread_;
+    std::atomic_bool is_data_available_;
+    std::atomic_bool quit_thread_;
     Sounds sounds_;
     PlayCommands commands_;
     PlayCommands commands_queue_;
@@ -241,11 +244,11 @@ private:
     Cache pcm_cache_;
     PositionsState positions_state_;
     PositionsStateQueue positions_state_queue_;
-    volatile int player_channels_state_;
-    volatile bool is_music_playing_;
-    volatile bool is_any_sfx_playing_;
-    volatile float sfx_volume_;
-    volatile float music_volume_;
+    std::atomic_int player_channels_state_;
+    std::atomic_bool is_music_playing_;
+    std::atomic_bool is_any_sfx_playing_;
+    std::atomic<float> sfx_volume_;
+    std::atomic<float> music_volume_;
 
     void callback(
         uint8_t* dst_data,
