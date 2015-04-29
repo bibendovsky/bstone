@@ -21,6 +21,10 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
+#ifndef BSTONE_ID_VH_INCLUDED
+#define BSTONE_ID_VH_INCLUDED
+
+
 #include <cstdint>
 
 
@@ -152,3 +156,6 @@ extern int latchpics[];
 extern int freelatch;
 
 extern int LatchMemFree;
+
+
+#endif // BSTONE_ID_VH_INCLUDED

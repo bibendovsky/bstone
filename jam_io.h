@@ -30,6 +30,10 @@ Free Software Foundation, Inc.,
 //
 
 
+#ifndef BSTONE_JAM_IO_INCLUDED
+#define BSTONE_JAM_IO_INCLUDED
+
+
 #include <cstdint>
 
 
@@ -69,3 +73,6 @@ struct JAMPHeader {
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
     uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };
+
+
+#endif // BSTONE_JAM_IO_INCLUDED

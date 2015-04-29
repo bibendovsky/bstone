@@ -26,6 +26,10 @@ Free Software Foundation, Inc.,
 //
 
 
+#ifndef BSTONE_3D_MENU_H
+#define BSTONE_3D_MENU_H
+
+
 #include "id_heads.h"
 
 
@@ -415,3 +419,6 @@ void Write(
     int16_t x,
     int16_t y,
     char* string);
+
+
+#endif // BSTONE_3D_MENU_H
