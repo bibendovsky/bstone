@@ -1179,8 +1179,6 @@ void InitGame()
     uint16_t* blockstart;
 // long mmsize;
 
-    MM_Startup(); // so the signon screen can be freed
-
 // BBi Is it necessary?
 #if 0
 #if IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM
@@ -1307,7 +1305,6 @@ void ShowSystem()
 {
     char avail[2][8] = { "None", "Present" };
 
-    MM_Startup();
     CA_Startup();
     IN_Startup();
     PM_Startup();
@@ -1330,7 +1327,6 @@ void ShowSystem()
     PM_Shutdown();
     IN_Shutdown();
     CA_Shutdown();
-    MM_Shutdown();
 }
 
 // -------------------------------------------------------------------------

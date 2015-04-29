@@ -7294,7 +7294,6 @@ void ShutdownId()
     IN_Shutdown();
     VW_Shutdown();
     CA_Shutdown();
-    MM_Shutdown();
 }
 
 

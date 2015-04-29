@@ -137,6 +137,11 @@ int32_t chunkcomplen, chunkexplen;
 
 SDMode oldsoundmode;
 
+static Buffer ca_buffer;
+
+static const int BUFFERSIZE = 0x10000;
+
+
 // BBi
 int ca_gr_last_expanded_size;
 
@@ -862,6 +867,8 @@ void CA_Startup()
     mapon = -1;
     ca_levelbit = 1;
     ca_levelnum = 0;
+
+    ::ca_buffer.reserve(BUFFERSIZE);
 }
 
 // ===========================================================================
@@ -970,8 +977,6 @@ void CA_LoadAllSounds()
         break;
     }
 
-cachein:
-
     switch (SoundMode) {
     case sdm_Off:
         return;
@@ -1063,7 +1068,6 @@ void CA_CacheGrChunk(
     int16_t chunk)
 {
     int32_t pos, compressed;
-    uint8_t* bigbufferseg = nullptr;
     uint8_t* source;
     int16_t next;
 
@@ -1089,25 +1093,13 @@ void CA_CacheGrChunk(
     compressed = GRFILEPOS(next) - pos;
 
 
-    grhandle.set_position(pos);
+    ::grhandle.set_position(pos);
 
-    if (compressed <= BUFFERSIZE) {
-        grhandle.read(bufferseg, compressed);
-        source = static_cast<uint8_t*>(bufferseg);
-    } else {
-        bigbufferseg = new uint8_t[compressed];
-        grhandle.read(bigbufferseg, compressed);
-        source = bigbufferseg;
-    }
+    ::ca_buffer.resize(compressed);
+    ::grhandle.read(::ca_buffer.data(), compressed);
+    source = ::ca_buffer.data();
 
-    CAL_ExpandGrChunk(chunk, source);
-
-    if (compressed > BUFFERSIZE) {
-        delete [] bigbufferseg;
-        bigbufferseg = nullptr;
-    }
-
-
+    ::CAL_ExpandGrChunk(chunk, source);
 }
 
 
@@ -1128,7 +1120,6 @@ void CA_CacheScreen(
     int16_t chunk)
 {
     int32_t pos, compressed, expanded;
-    uint8_t* bigbufferseg;
     uint8_t* source;
     int16_t next;
 
@@ -1145,9 +1136,9 @@ void CA_CacheScreen(
 
     grhandle.set_position(pos);
 
-    bigbufferseg = new uint8_t[compressed];
-    grhandle.read(bigbufferseg, compressed);
-    source = bigbufferseg;
+    ::ca_buffer.resize(compressed);
+    grhandle.read(::ca_buffer.data(), compressed);
+    source = ::ca_buffer.data();
 
     expanded = *(int32_t*)source;
     source += 4; // skip over length
@@ -1157,9 +1148,6 @@ void CA_CacheScreen(
 // Sprites need to have shifts made and various other junk
 //
     ca_huff_expand_on_screen(source, grhuffman);
-
-    delete [] bigbufferseg;
-    bigbufferseg = nullptr;
 }
 
 // ==========================================================================
@@ -1180,7 +1168,6 @@ void CA_CacheMap(
     int32_t pos, compressed;
     int16_t plane;
     uint16_t** dest;
-    uint16_t* bigbufferseg = nullptr;
     uint16_t size;
     uint16_t* source;
 #ifdef CARMACIZED
@@ -1206,12 +1193,8 @@ void CA_CacheMap(
         dest = &mapsegs[plane];
 
         maphandle.set_position(pos);
-        if (compressed <= BUFFERSIZE) {
-            source = static_cast<uint16_t*>(bufferseg);
-        } else {
-            bigbufferseg = new uint16_t[compressed / 2];
-            source = bigbufferseg;
-        }
+        ::ca_buffer.resize(compressed);
+        source = reinterpret_cast<uint16_t*>(::ca_buffer.data());
 
         maphandle.read(source, compressed);
 
@@ -1237,11 +1220,6 @@ void CA_CacheMap(
         CA_RLEWexpand(source + 1, *dest, size,
                       rlew_tag);
 #endif
-
-        if (compressed > BUFFERSIZE) {
-            delete [] bigbufferseg;
-            bigbufferseg = nullptr;
-        }
     }
 
 #if FORCE_FILE_CLOSE
@@ -1430,7 +1408,6 @@ void CA_CacheMarks()
     int32_t pos, endpos, nextpos, nextendpos, compressed;
     int32_t bufferstart, bufferend; // file position of general buffer
     uint8_t* source;
-    uint8_t* bigbufferseg = nullptr;
 
     numcache = 0;
 //
@@ -1470,59 +1447,49 @@ void CA_CacheMarks()
             compressed = GRFILEPOS(next) - pos;
             endpos = pos + compressed;
 
-            if (compressed <= BUFFERSIZE) {
-                if (bufferstart <= pos
-                    && bufferend >= endpos)
-                {
-                    // data is allready in buffer
-                    source = (uint8_t*)bufferseg + (pos - bufferstart);
-                } else {
-                    // load buffer with a new block from disk
-                    // try to get as many of the needed blocks in as possible
-                    while (next < NUMCHUNKS) {
-                        while (next < NUMCHUNKS &&
-                               !(grneeded[next] & ca_levelbit && !grsegs[next]))
-                        {
-                            next++;
-                        }
-                        if (next == NUMCHUNKS) {
-                            continue;
-                        }
-
-                        nextpos = GRFILEPOS(next);
-                        while (GRFILEPOS(++next) == -1) { // skip past any sparse tiles
-                        }
-                        nextendpos = GRFILEPOS(next);
-                        if (nextpos - endpos <= MAXEMPTYREAD
-                            && nextendpos - pos <= BUFFERSIZE)
-                        {
-                            endpos = nextendpos;
-                        } else {
-                            next = NUMCHUNKS; // read pos to posend
-                        }
+            if (bufferstart <= pos && bufferend >= endpos) {
+                // data is allready in buffer
+                source = ::ca_buffer.data() + (pos - bufferstart);
+            } else {
+                // load buffer with a new block from disk
+                // try to get as many of the needed blocks in as possible
+                while (next < NUMCHUNKS) {
+                    while (next < NUMCHUNKS &&
+                            !(grneeded[next] & ca_levelbit && !grsegs[next]))
+                    {
+                        ++next;
                     }
 
-                    grhandle.set_position(pos);
-                    grhandle.read(bufferseg, endpos - pos);
-                    bufferstart = pos;
-                    bufferend = endpos;
-                    source = static_cast<uint8_t*>(bufferseg);
+                    if (next == NUMCHUNKS) {
+                        continue;
+                    }
+
+                    nextpos = GRFILEPOS(next);
+
+                    while (GRFILEPOS(++next) == -1) {
+                        // skip past any sparse tiles
+                    }
+
+                    nextendpos = GRFILEPOS(next);
+
+                    if ((nextpos - endpos) <= MAXEMPTYREAD
+                        && (nextendpos - pos) <= BUFFERSIZE)
+                    {
+                        endpos = nextendpos;
+                    } else {
+                        next = NUMCHUNKS; // read pos to posend
+                    }
                 }
-            } else {
-                // big chunk, allocate temporary buffer
-                bigbufferseg = new uint8_t[compressed];
+
                 grhandle.set_position(pos);
-                grhandle.read(bigbufferseg, compressed);
-                source = bigbufferseg;
+                ::ca_buffer.resize(endpos - pos);
+                grhandle.read(::ca_buffer.data(), endpos - pos);
+                bufferstart = pos;
+                bufferend = endpos;
+                source = ::ca_buffer.data();
             }
 
             CAL_ExpandGrChunk(i, source);
-
-            if (compressed > BUFFERSIZE) {
-                delete [] bigbufferseg;
-                bigbufferseg = nullptr;
-            }
-
         }
     }
 }
