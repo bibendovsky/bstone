@@ -21,9 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_ERROR_H_
-#define _JM_ERROR_H_
-
+#ifndef BSTONE_JM_ERROR_INCLUDED
+#define BSTONE_JM_ERROR_INCLUDED
 
 
 enum ERROR_Units {
@@ -303,4 +302,5 @@ extern char QuitMsg[];
 #define DRAW2_ERROR(Error) ERROR(DRAW2_ERROR, Error)
 #define MENU_ERROR(Error) ERROR(MENU_ERROR, Error)
 
-#endif
+
+#endif // BSTONE_JM_ERROR_INCLUDED

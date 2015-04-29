@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DOSBOX_SETUP_H
-#define BSTONE_DOSBOX_SETUP_H
+#ifndef BSTONE_DOSBOX_SETUP_INCLUDED
+#define BSTONE_DOSBOX_SETUP_INCLUDED
 
 
 class Section {
@@ -38,4 +38,4 @@ class Module_base {
 }; // Module_base
 
 
-#endif // BSTONE_DOSBOX_SETUP_H
+#endif // BSTONE_DOSBOX_SETUP_INCLUDED

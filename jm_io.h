@@ -21,8 +21,9 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_IO_H_
-#define _JM_IO_H_
+#ifndef BSTONE_JM_IO_INCLUDED
+#define BSTONE_JM_IO_INCLUDED
+
 
 // -------------------------------------------------------------------------
 // Function Prototypes
@@ -53,4 +54,5 @@ void IO_CopyHandle(
     int dHandle,
     int num_bytes);
 
-#endif
+
+#endif // BSTONE_JM_IO_INCLUDED

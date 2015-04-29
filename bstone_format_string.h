@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_FORMAT_STRING_H
-#define BSTONE_FORMAT_STRING_H
+#ifndef BSTONE_FORMAT_STRING_INCLUDED
+#define BSTONE_FORMAT_STRING_INCLUDED
 
 
 #include <iomanip>
@@ -68,4 +68,4 @@ private:
 } //namespace bstone
 
 
-#endif // BSTONE_FORMAT_STRING_H
+#endif // BSTONE_FORMAT_STRING_INCLUDED

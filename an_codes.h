@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _AN_CODES_H_
-#define _AN_CODES_H_
+#ifndef BSTONE_AN_CODES_INCLUDED
+#define BSTONE_AN_CODES_INCLUDED
 
 // --------------------------------------------------------------------------
 //
@@ -70,4 +70,5 @@ Free Software Foundation, Inc.,
 
 #define AN_END_OF_ANIM MV_CNVT_CODE('X', 'X')
 
-#endif
+
+#endif // BSTONE_AN_CODES_INCLUDED

@@ -21,8 +21,10 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_VL_H_
-#define _JM_VL_H_
+#ifndef BSTONE_JM_VL_INCLUDED
+#define BSTONE_JM_VL_INCLUDED
+
+
 // ==========================================================================
 //
 //  JM_VL.h     - Headerfile for JM_VL.ASM
@@ -49,4 +51,4 @@ void JM_VGALinearFill(
 
 
 
-#endif
+#endif // BSTONE_JM_VL_INCLUDED

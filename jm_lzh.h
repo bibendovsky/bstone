@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_LZH_H_
-#define _JM_LZH_H_
+#ifndef BSTONE_JM_LZH_INCLUDED
+#define BSTONE_JM_LZH_INCLUDED
 
 
 #include <cstdint>
@@ -56,4 +56,5 @@ int LZH_Decompress(
     uint32_t OrginalLength,
     uint32_t CompressLength);
 
-#endif
+
+#endif // BSTONE_JM_LZH_INCLUDED

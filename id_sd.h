@@ -28,8 +28,9 @@ Free Software Foundation, Inc.,
 //      By Jason Blochowiak
 //
 
-#ifndef __ID_SD__
-#define __ID_SD__
+
+#ifndef BSTONE_ID_SD_INCLUDED
+#define BSTONE_ID_SD_INCLUDED
 
 
 // BBi
@@ -321,4 +322,4 @@ void sd_set_music_volume(
 // BBi
 
 
-#endif
+#endif // BSTONE_ID_SD_INCLUDED

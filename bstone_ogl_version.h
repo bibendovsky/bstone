@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_OGL_VERSION_H
-#define BSTONE_OGL_VERSION_H
+#ifndef BSTONE_OGL_VERSION_INCLUDED
+#define BSTONE_OGL_VERSION_INCLUDED
 
 
 #include <string>
@@ -123,4 +123,4 @@ bool operator!=(
     const bstone::OglVersion& b);
 
 
-#endif // BSTONE_OGL_VERSION_H
+#endif // BSTONE_OGL_VERSION_INCLUDED

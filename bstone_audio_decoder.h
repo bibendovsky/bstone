@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_AUDIO_DECODER_H
-#define BSTONE_AUDIO_DECODER_H
+#ifndef BSTONE_AUDIO_DECODER_INCLUDED
+#define BSTONE_AUDIO_DECODER_INCLUDED
 
 
 #include <cstdint>
@@ -98,4 +98,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_AUDIO_DECODER_H
+#endif // BSTONE_AUDIO_DECODER_INCLUDED

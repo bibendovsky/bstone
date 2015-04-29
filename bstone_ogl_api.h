@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_OGL_API_H
-#define BSTONE_OGL_API_H
+#ifndef BSTONE_OGL_API_INCLUDED
+#define BSTONE_OGL_API_INCLUDED
 
 
 #include "SDL.h"
@@ -104,4 +104,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_OGL_API_H
+#endif // BSTONE_OGL_API_INCLUDED

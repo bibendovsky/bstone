@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_CIO_H_
-#define _JM_CIO_H_
+#ifndef BSTONE_JM_CIO_INCLUDED
+#define BSTONE_JM_CIO_INCLUDED
 
 //
 // UNIT : JM_CIO.h
@@ -130,4 +130,5 @@ char CIO_WritePtr(
 int16_t CIO_ReadPtr(
     const void*& src);
 
-#endif
+
+#endif // BSTONE_JM_CIO_INCLUDED

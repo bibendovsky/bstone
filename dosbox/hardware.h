@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DOSBOX_HARDWARE_H
-#define BSTONE_DOSBOX_HARDWARE_H
+#ifndef BSTONE_DOSBOX_HARDWARE_INCLUDED
+#define BSTONE_DOSBOX_HARDWARE_INCLUDED
 
 
 enum OPL_Mode {
@@ -39,4 +39,4 @@ enum OPL_Mode {
 }; // OPL_Mode
 
 
-#endif // BSTONE_DOSBOX_HARDWARE_H
+#endif // BSTONE_DOSBOX_HARDWARE_INCLUDED

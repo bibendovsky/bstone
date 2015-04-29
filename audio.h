@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef AUDIO_INCLUDED
-#define AUDIO_INCLUDED
+#ifndef BSTONE_AUDIO_INCLUDED
+#define BSTONE_AUDIO_INCLUDED
 
 
 //
@@ -198,4 +198,4 @@ extern int THEME_MUS;
 extern int LASTMUSIC;
 
 
-#endif // AUDIO_INCLUDED
+#endif // BSTONE_AUDIO_INCLUDED

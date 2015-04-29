@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _MOVIE_H_
-#define _MOVIE_H_
+#ifndef BSTONE_MOVIE_INCLUDED
+#define BSTONE_MOVIE_INCLUDED
 
 
 #include "jm_vl.h"
@@ -96,4 +96,4 @@ void SetupMovie(
     MovieStuff_t* MovieStuff);
 void ShutdownMovie();
 
-#endif
+#endif // BSTONE_MOVIE_INCLUDED

@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_FILE_STREAM_H
-#define BSTONE_FILE_STREAM_H
+#ifndef BSTONE_FILE_STREAM_INCLUDED
+#define BSTONE_FILE_STREAM_INCLUDED
 
 
 #include <fstream>
@@ -108,4 +108,4 @@ private:
 } // bstone
 
 
-#endif // BSTONE_FILE_STREAM_H
+#endif // BSTONE_FILE_STREAM_INCLUDED

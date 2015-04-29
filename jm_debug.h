@@ -21,8 +21,9 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_DEBUG_H_
-#define _JM_DEBUG_H_
+#ifndef BSTONE_JM_DEBUG_INCLUDED
+#define BSTONE_JM_DEBUG_INCLUDED
+
 
 // -------------------------------------------------------------------------
 // defines
@@ -47,4 +48,5 @@ void mprintf(
 void fmprint(
     char* text);
 
-#endif
+
+#endif // BSTONE_JM_DEBUG_INCLUDED

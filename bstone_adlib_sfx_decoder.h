@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_ADLIB_SFX_DECODER_H
-#define BSTONE_ADLIB_SFX_DECODER_H
+#ifndef BSTONE_ADLIB_SFX_DECODER_INCLUDED
+#define BSTONE_ADLIB_SFX_DECODER_INCLUDED
 
 
 #include <cstdint>
@@ -109,4 +109,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_ADLIB_SFX_DECODER_H
+#endif // BSTONE_ADLIB_SFX_DECODER_INCLUDED

@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef ID_MM_H
-#define ID_MM_H
+#ifndef BSTONE_ID_MM_INCLUDED
+#define BSTONE_ID_MM_INCLUDED
 
 
 #if 0
@@ -166,4 +166,4 @@ void MM_Startup();
 void MM_Shutdown();
 
 
-#endif // ID_MM_H
+#endif // BSTONE_ID_MM_INCLUDED

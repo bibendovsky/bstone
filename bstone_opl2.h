@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_OPL2_H
-#define BSTONE_OPL2_H
+#ifndef BSTONE_OPL2_INCLUDED
+#define BSTONE_OPL2_INCLUDED
 
 
 #include <cstdint>
@@ -88,4 +88,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_OPL2_H
+#endif // BSTONE_OPL2_INCLUDED

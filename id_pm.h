@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef ID_PM_H
-#define ID_PM_H
+#ifndef BSTONE_ID_PM_INCLUDED
+#define BSTONE_ID_PM_INCLUDED
 
 
 #include <string>
@@ -48,4 +48,4 @@ void* PM_GetSpritePage(
     int page_number);
 
 
-#endif // ID_PM_H
+#endif // BSTONE_ID_PM_INCLUDED

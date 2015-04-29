@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _JM_TP_H_
-#define _JM_TP_H_
+#ifndef BSTONE_JM_TP_INCLUDED
+#define BSTONE_JM_TP_INCLUDED
 
 
 #include <cstdint>
@@ -230,4 +230,5 @@ int16_t TP_LineCommented(
     const char* s);
 void TP_PrintPageNumber();
 
-#endif
+
+#endif // BSTONE_JM_TP_INCLUDED

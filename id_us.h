@@ -28,8 +28,8 @@ Free Software Foundation, Inc.,
 //      By Jason Blochowiak
 //
 
-#ifndef __ID_US__
-#define __ID_US__
+#ifndef BSTONE_ID_US_INCLUDED
+#define BSTONE_ID_US_INCLUDED
 
 
 #include <cstdint>
@@ -170,4 +170,6 @@ void USL_PrintInCenter(
     Rect r);
 char* USL_GiveSaveName(
     uint16_t game);
-#endif
+
+
+#endif // BSTONE_ID_US_INCLUDED

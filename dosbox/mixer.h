@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DOSBOX_MIXER_H
-#define BSTONE_DOSBOX_MIXER_H
+#ifndef BSTONE_DOSBOX_MIXER_INCLUDED
+#define BSTONE_DOSBOX_MIXER_INCLUDED
 
 
 #include <algorithm>
@@ -121,4 +121,4 @@ public:
 }; // MixerObject
 
 
-#endif // BSTONE_DOSBOX_MIXER_H
+#endif // BSTONE_DOSBOX_MIXER_INCLUDED

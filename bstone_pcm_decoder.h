@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_PCM_DECODER_H
-#define BSTONE_PCM_DECODER_H
+#ifndef BSTONE_PCM_DECODER_INCLUDED
+#define BSTONE_PCM_DECODER_INCLUDED
 
 
 #include "bstone_audio_decoder.h"
@@ -80,4 +80,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_PCM_DECODER_H
+#endif // BSTONE_PCM_DECODER_INCLUDED

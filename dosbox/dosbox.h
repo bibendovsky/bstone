@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DOSBOX_H
-#define BSTONE_DOSBOX_H
+#ifndef BSTONE_DOSBOX_INCLUDED
+#define BSTONE_DOSBOX_INCLUDED
 
 
 #include <cassert>
@@ -51,4 +51,4 @@ typedef uintptr_t Bitu;
 typedef intptr_t Bits;
 
 
-#endif // BSTONE_DOSBOX_H
+#endif // BSTONE_DOSBOX_INCLUDED

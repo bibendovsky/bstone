@@ -26,8 +26,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DOSBOX_INOUT_H
-#define BSTONE_DOSBOX_INOUT_H
+#ifndef BSTONE_DOSBOX_INOUT_INCLUDED
+#define BSTONE_DOSBOX_INOUT_INCLUDED
 
 
 #include "dosbox.h"
@@ -51,4 +51,4 @@ public:
 };
 
 
-#endif // BSTONE_DOSBOX_INOUT_H
+#endif // BSTONE_DOSBOX_INOUT_INCLUDED

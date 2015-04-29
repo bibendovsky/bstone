@@ -28,8 +28,10 @@ Free Software Foundation, Inc.,
 //      By Jason Blochowiak
 //
 
-#ifndef __ID_IN__
-#define __ID_IN__
+
+#ifndef BSTONE_ID_IN_INCLUDED
+#define BSTONE_ID_IN_INCLUDED
+
 
 #ifdef  __DEBUG__
 #define __DEBUG_InputMgr__
@@ -372,4 +374,4 @@ void in_reset_binding_state(
 // BBi
 
 
-#endif
+#endif // BSTONE_ID_IN_INCLUDED

@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef _ID_HEADS_H_
-#define _ID_HEADS_H_
+#ifndef BSTONE_ID_HEADS_INCLUDED
+#define BSTONE_ID_HEADS_INCLUDED
 
 
 // ID_GLOB.H
@@ -225,4 +225,4 @@ void Quit(
 // BBi
 
 
-#endif
+#endif // BSTONE_ID_HEADS_INCLUDED

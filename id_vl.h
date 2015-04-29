@@ -24,8 +24,8 @@ Free Software Foundation, Inc.,
 // ID_VL.H
 
 
-#ifndef ID_VL_H
-#define ID_VL_H
+#ifndef BSTONE_ID_VL_INCLUDED
+#define BSTONE_ID_VL_INCLUDED
 
 
 #include <cstdint>
@@ -243,4 +243,4 @@ uint8_t vl_get_pixel(
     int y);
 
 
-#endif // ID_VL_H
+#endif // BSTONE_ID_VL_INCLUDED

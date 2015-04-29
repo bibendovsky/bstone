@@ -25,8 +25,8 @@ Free Software Foundation, Inc.,
 // ===========================================================================
 
 
-#ifndef ID_CA_H
-#define ID_CA_H
+#ifndef BSTONE_ID_CA_INCLUDED
+#define BSTONE_ID_CA_INCLUDED
 
 
 #include <cstdint>
@@ -220,4 +220,4 @@ std::string ca_load_script(
     bool strip_xx = false);
 
 
-#endif // ID_CA_H
+#endif // BSTONE_ID_CA_INCLUDED

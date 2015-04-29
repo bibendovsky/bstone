@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef GFXV_INCLUDED
-#define GFXV_INCLUDED
+#ifndef BSTONE_GFXV_INCLUDED
+#define BSTONE_GFXV_INCLUDED
 
 
 extern int TELEPORT_LUMP_START;
@@ -444,4 +444,4 @@ extern int DECOY3;
 extern int DECOY4;
 
 
-#endif // GFXV_INCLUDED
+#endif // BSTONE_GFXV_INCLUDED

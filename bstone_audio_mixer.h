@@ -21,8 +21,8 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-#ifndef BSTONE_AUDIO_MIXER_H
-#define BSTONE_AUDIO_MIXER_H
+#ifndef BSTONE_AUDIO_MIXER_INCLUDED
+#define BSTONE_AUDIO_MIXER_INCLUDED
 
 
 #include <deque>
@@ -326,4 +326,4 @@ private:
 } // namespace bstone
 
 
-#endif // BSTONE_AUDIO_MIXER_H
+#endif // BSTONE_AUDIO_MIXER_INCLUDED
