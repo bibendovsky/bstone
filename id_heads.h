@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include <cstring>
 
 #include <algorithm>
+#include <atomic>
 #include <exception>
 #include <functional>
 #include <memory>

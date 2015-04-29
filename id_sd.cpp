@@ -93,7 +93,7 @@ boolean SoundSourcePresent,
 SDMode SoundMode;
 SMMode MusicMode;
 SDSMode DigiMode;
-volatile uint32_t TimeCount;
+std::atomic_uint32_t TimeCount;
 uint16_t HackCount;
 
 uint8_t** SoundTable;

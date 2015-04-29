@@ -2970,7 +2970,7 @@ struct gametype {
     int16_t attackcount;
     int16_t weaponframe;
     int16_t episode;
-    volatile uint32_t TimeCount;
+    uint32_t TimeCount;
     int32_t killx;
     int32_t killy;
     const char* msg; // InfoArea msg...
