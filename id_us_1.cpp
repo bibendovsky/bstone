@@ -50,12 +50,9 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <thread>
 #include "id_heads.h"
 
-
-// BBi
-SDL_TimerID sys_timer_id = 0;
-// BBi
 
 #define VW_UpdateScreen() VH_UpdateScreen()
 void VH_UpdateScreen();
@@ -89,6 +86,29 @@ void (* USL_MeasureString)(
 
 SaveGame Games[MaxSaveGames];
 
+
+// BBi
+namespace {
+
+
+std::thread sys_timer_thread;
+std::atomic_bool sys_timer_quit;
+
+
+void sys_timer_callback()
+{
+    const std::chrono::milliseconds delay(1000 / 70);
+
+    while (!sys_timer_quit) {
+        ++TimeCount;
+        std::this_thread::sleep_for(delay);
+    }
+}
+
+
+} // namespace
+
+
 HighScore Scores[MaxScores] = {
     { "JAM PRODUCTIONS INC.", 10000, 1, 0 },
     { "", 10000, 1, 0 },
@@ -113,16 +133,19 @@ HighScore Scores[MaxScores] = {
 ///////////////////////////////////////////////////////////////////////////
 void US_Shutdown()
 {
-    if (!US_Started) {
+    if (!::US_Started) {
         return;
     }
 
     // BBi
-    SDL_RemoveTimer(sys_timer_id);
-    SDL_QuitSubSystem(SDL_INIT_TIMER);
+    sys_timer_quit = true;
+
+    if (sys_timer_thread.joinable()) {
+        sys_timer_thread.join();
+    }
     // BBi
 
-    US_Started = false;
+    ::US_Started = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -751,7 +774,7 @@ boolean US_LineInput(
     return result;
 }
 
-// BBi
+#if 0
 uint32_t sys_timer_callback(
     uint32_t interval,
     void*)
@@ -759,62 +782,45 @@ uint32_t sys_timer_callback(
     ++TimeCount;
     return interval;
 }
-// BBi
+#endif
 
 void US_Startup()
 {
-    int16_t n;
-
-    // BBi
-    int sdl_result;
-    // BBi
-
-    if (US_Started) {
+    if (::US_Started) {
         return;
     }
 
     // BBi
-    bstone::Log::write("SDL: Initializing timer...");
-
-    sdl_result = SDL_InitSubSystem(SDL_INIT_TIMER);
-
-    if (sdl_result != 0) {
-        Quit(SDL_GetError());
-    }
-
-    sys_timer_id = SDL_AddTimer(1000 / 70, sys_timer_callback, nullptr);
-
-    if (sys_timer_id == 0) {
-        Quit(SDL_GetError());
-    }
+    sys_timer_quit = false;
+    sys_timer_thread = std::thread(sys_timer_callback);
     // BBi
 
-    US_InitRndT(true); // Initialize the random number generator
+    ::US_InitRndT(true); // Initialize the random number generator
 
     switch (::g_args.check_argument(US_ParmStrings2)) {
     case 0:
-        compatability = true;
+        ::compatability = true;
         break;
+
     case 1:
-        compatability = false;
+        ::compatability = false;
         break;
     }
 
     // Check for TED launching here
-    n = static_cast<int16_t>(g_args.check_argument(US_ParmStrings));
-    switch (n) {
+    switch (::g_args.check_argument(::US_ParmStrings)) {
     case 0:
 #if 0
         tedlevelnum = atoi(g_argv[i + 1]);
-//                 if (tedlevelnum >= 0)
+//        if (tedlevelnum >= 0)
         tedlevel = true;
 #endif
         break;
 
-//               case 1:
-//                      NoWait = true;
-//                      break;
+//    case 1:
+//        NoWait = true;
+//        break;
     }
 
-    US_Started = true;
+    ::US_Started = true;
 }

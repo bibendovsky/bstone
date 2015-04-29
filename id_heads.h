@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <exception>
 #include <functional>
 #include <memory>

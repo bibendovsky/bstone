@@ -104,7 +104,6 @@ void initialize_demos();
 #endif
 #endif
 
-extern SDL_TimerID sys_timer_id;
 
 void SDL_SBSetDMA(
     uint8_t channel);
