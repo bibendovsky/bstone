@@ -21,6 +21,10 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
+#ifndef BSTONE_3D_DEF_INCLUDED
+#define BSTONE_3D_DEF_INCLUDED
+
+
 #include <cstdarg>
 #include <cmath>
 
@@ -3491,9 +3495,6 @@ extern uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
 extern uint8_t spotvis[MAPSIZE][MAPSIZE];
 extern objtype* actorat[MAPSIZE][MAPSIZE];
 
-#define UPDATESIZE (UPDATEWIDE * UPDATEHIGH)
-extern uint8_t update[UPDATESIZE];
-
 extern boolean singlestep, godmode, noclip;
 extern int16_t extravbls;
 extern int16_t DebugOk;
@@ -3898,11 +3899,6 @@ int16_t InputFloor();
 void RestoreInfoArea();
 void DrawHeartPic();
 void DrawInfoArea();
-int16_t DrawShape(
-    int16_t x,
-    int16_t y,
-    int16_t shapenum,
-    pisType shapetype);
 
 void AnimatePage();
 
@@ -4499,6 +4495,9 @@ extern char JM_FREE_DATA_START[];
 
 
 // BBi
+using Buffer = std::vector<unsigned char>;
+
+
 objtype* ui16_to_actor(
     uint16_t value);
 uint16_t actor_to_ui16(
@@ -4671,3 +4670,6 @@ inline double m_pi()
     return 3.14159265358979323846;
 }
 // BBi
+
+
+#endif // BSTONE_3D_DEF_INCLUDED

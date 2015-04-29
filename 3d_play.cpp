@@ -117,6 +117,7 @@ uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
 uint8_t spotvis[MAPSIZE][MAPSIZE];
 objtype* actorat[MAPSIZE][MAPSIZE];
 
+
 //
 // replacing refresh manager
 //

@@ -195,8 +195,14 @@ extern uint8_t fontcolor, backcolor;
 
 
 // BBi
+const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
+
+extern uint8_t update[UPDATESIZE];
+
+
 extern uint8_t* vga_memory;
 extern bstone::ClArgs g_args;
+extern uint8_t update[UPDATESIZE];
 
 
 void pre_quit();

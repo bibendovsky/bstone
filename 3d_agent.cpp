@@ -66,6 +66,12 @@ void RunBlakeRun();
 
 #define VW_UpdateScreen() VH_UpdateScreen()
 
+int16_t DrawShape(
+    int16_t x,
+    int16_t y,
+    int16_t shapenum,
+    pisType shapetype);
+
 
 /*
 =============================================================================

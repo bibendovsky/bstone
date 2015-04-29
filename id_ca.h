@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include "3d_def.h"
 
 
 extern int NUM_EPISODES;
