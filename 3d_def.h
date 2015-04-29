@@ -2618,13 +2618,16 @@ struct objtype;
 
 
 struct statetype {
-    uint8_t flags;
-    int16_t shapenum; // a shapenum of -1 means get from ob->temp1
-    int16_t tictime;
+    int flags;
+    int shapenum; // a shapenum of -1 means get from ob->temp1
+    int tictime;
+
     void (* think)(
         objtype* actor);
+
     void (* action)(
         objtype* actor);
+
     statetype* next;
 }; // statetype
 
