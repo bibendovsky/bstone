@@ -212,8 +212,8 @@ static uint8_t wolfdigimap[] = {
 
 // RENTDEATH3SND, 38, // Rent-A-Cop Death #3
     INFORMDEATH3SND, 40, // Informant Death #3
-// PRODEATH3SND, 43, // PRO Death #3
-// SWATDEATH3SND, 52, // Swat Guard #3
+    PRODEATH3SND, 43, // PRO Death #3
+    SWATDEATH3SND, 52, // Swat Guard #3
     SCIDEATH3SND, 54, // Gen. Sci Death #3
 
     LCANBREAKSND, 44,
