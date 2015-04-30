@@ -41,7 +41,7 @@ Free Software Foundation, Inc.,
 #define __BLAKE_VERSION__ "V1.01"
 
 // BBi
-#define BS_SAVE_VERSION "2"
+const int BS_SAVE_VERSION = 3;
 
 #ifdef _DEBUG
 #define SKIP_TITLE_AND_CREDITS (1)

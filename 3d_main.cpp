@@ -6912,10 +6912,42 @@ int DeleteChunk(
     return chunk_size;
 }
 
+static const std::string& get_saved_game_version_string()
+{
+    static auto version_string = std::string();
+    static auto is_initialized = false;
 
-static const std::string SavegameInfoText =
-    "bstone (planet strike) save (v" BS_SAVE_VERSION ")";
+    if (!is_initialized) {
+        is_initialized = true;
 
+        version_string = "bstone: ";
+
+        switch (::g_game_type) {
+        case GameType::aog_sw:
+            version_string += "aliens of gold (shareware)";
+            break;
+
+        case GameType::aog_full:
+            version_string += "aliens of gold (full)";
+            break;
+
+        case GameType::ps:
+            version_string += "planet strike";
+            break;
+
+        default:
+            throw std::runtime_error("Invalid game type.");
+        }
+
+        version_string +=
+            " saved game (v" +
+            std::to_string(BS_SAVE_VERSION) +
+            ")"
+        ;
+    }
+
+    return version_string;
+}
 
 // --------------------------------------------------------------------------
 // LoadTheGame()
@@ -6939,12 +6971,14 @@ bool LoadTheGame(
     }
 
     if (is_succeed) {
-        int version_size = static_cast<int>(SavegameInfoText.size());
+        const auto& version_string = ::get_saved_game_version_string();
+
+        auto version_size = static_cast<int>(version_string.length());
         std::vector<char> version_buffer;
         version_buffer.resize(version_size);
         stream->read(&version_buffer[0], version_size);
         std::string version(&version_buffer[0], version_size);
-        is_succeed = (SavegameInfoText.compare(version) == 0);
+        is_succeed = (version_string.compare(version) == 0);
     }
 
     // Read in HEAD chunk
@@ -7059,10 +7093,11 @@ bool SaveTheGame(
 
     // Write VERSion chunk
     //
-    cksize = static_cast<int32_t>(SavegameInfoText.size());
+    const auto& version_string = ::get_saved_game_version_string();
+    cksize = static_cast<int32_t>(version_string.length());
     is_succeed &= stream->write("VERS", 4);
     is_succeed &= stream->write(&cksize, 4);
-    is_succeed &= stream->write(SavegameInfoText.c_str(), cksize);
+    is_succeed &= stream->write(version_string.c_str(), cksize);
 
     // Write DESC chunk
     //

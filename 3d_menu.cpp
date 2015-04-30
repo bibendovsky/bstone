@@ -274,10 +274,42 @@ int16_t EpisodeSelect[6] = {
 
 int16_t SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
-static const std::string SAVE_BASE_NAME = "bstone_ps_save_";
 
 static uint8_t menu_background_color = 0x00;
 
+
+static const std::string& get_saved_game_base_name()
+{
+    static auto base_name = std::string();
+    static auto is_initialized = false;
+
+    if (!is_initialized) {
+        is_initialized = true;
+
+        base_name = "bstone_";
+
+        switch (::g_game_type) {
+        case GameType::aog_sw:
+            base_name += "aog_sw";
+            break;
+
+        case GameType::aog_full:
+            base_name += "aog_full";
+            break;
+
+        case GameType::ps:
+            base_name += "ps";
+            break;
+
+        default:
+            throw std::runtime_error("Invalid game type.");
+        }
+
+        base_name += "_saved_game_";
+    }
+
+    return base_name;
+}
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -2436,7 +2468,7 @@ int16_t CP_LoadGame(
         which = LSItems.curpos;
 
         if (SaveGamesAvail[which]) {
-            std::string name = SAVE_BASE_NAME;
+            auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
             MakeDestPath(name.c_str());
             bstone::FileStream handle(tempPath);
@@ -2459,7 +2491,7 @@ restart:
         if (which >= 0 && SaveGamesAvail[which]) {
             ShootSnd();
 
-            std::string name = SAVE_BASE_NAME;
+            auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
 
             MakeDestPath(name.c_str());
@@ -2599,7 +2631,7 @@ int16_t CP_SaveGame(
 
         if (SaveGamesAvail[which]) {
             DrawLSAction(1); // Testing...
-            std::string name = SAVE_BASE_NAME;
+            auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
             MakeDestPath(name.c_str());
 
@@ -2634,7 +2666,7 @@ int16_t CP_SaveGame(
 
             strcpy(input, &SaveGameNames[which][0]);
 
-            std::string name = SAVE_BASE_NAME;
+            auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
 
             fontnumber = 2;
@@ -3833,7 +3865,7 @@ void SetupControlPanel()
 void ReadGameNames()
 {
     for (int i = 0; i < 10; ++i) {
-        std::string name = SAVE_BASE_NAME;
+        auto name = ::get_saved_game_base_name();
         name += static_cast<char>('0' + i);
 
         ::MakeDestPath(name.c_str());
