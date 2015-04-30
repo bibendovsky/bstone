@@ -123,9 +123,9 @@ const void* movie_palette;
 
 MovieStuff_t Movies[] = {
     { { "IANIM." }, 1, 3, 0, 0, 200 }, // mv_intro
-    { { "EANIM." }, 1, 30, 0, 0, 200 }, // mv_final
-    { { "SANIM." }, 1, 30, 0, 0, 200 }, // mv_final2
-    { { "GANIM." }, 1, 60, 0, 0, 200 }, // mv_final3
+    { { "EANIM." }, 1, 3, 0, 0, 200 }, // mv_final
+    { { "SANIM." }, 1, 3, 0, 0, 200 }, // mv_final2
+    { { "GANIM." }, 1, 3, 0, 0, 200 }, // mv_final3
 };
 
 
@@ -386,7 +386,6 @@ void MOVIE_HandlePage(
 {
     anim_frame blk;
     char* frame;
-    uint16_t wait_time;
 
     memcpy(&blk, BufferPtr, sizeof(anim_frame));
     BufferPtr += sizeof(anim_frame);
@@ -524,8 +523,23 @@ void MOVIE_HandlePage(
         FlipPages();
 
         if (TimeCount < static_cast<uint32_t>(MovieStuff->ticdelay)) {
-            wait_time = static_cast<uint16_t>(MovieStuff->ticdelay - TimeCount);
-            ::sys_sleep_for(wait_time);
+            const auto min_wait_time = 0;
+
+            auto wait_time =
+                MovieStuff->ticdelay - static_cast<int>(TimeCount);
+
+            if (wait_time < min_wait_time) {
+                wait_time = min_wait_time;
+            }
+
+            if (wait_time > max_wait_time) {
+                wait_time = max_wait_time;
+            }
+
+            if (wait_time > 0) {
+                wait_time *= 1000;
+                ::sys_sleep_for(wait_time);
+            }
         } else {
             ::sys_default_sleep_for();
         }
