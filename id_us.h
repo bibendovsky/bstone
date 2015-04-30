@@ -132,7 +132,7 @@ extern boolean use_custom_cursor; // JAM
 extern void US_Startup(),
 US_Setup(),
 US_Shutdown(),
-US_InitRndT(boolean randomize),
+US_InitRndT(bool randomize),
 US_SetLoadSaveHooks(boolean (* load)(int16_t),
                     boolean (* save)(int16_t),
                     void (* reset)()),

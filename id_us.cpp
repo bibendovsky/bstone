@@ -63,12 +63,14 @@ static int rndindex;
 
 
 void US_InitRndT(
-    boolean randomize)
+    bool randomize)
 {
     if (!randomize) {
         rndindex = 0;
     } else {
-        rndindex = (int)(SDL_GetTicks() % 256);
+        using Clock = std::chrono::system_clock;
+        auto ticks = (Clock::now() - Clock::time_point()).count();
+        rndindex = static_cast<int>(ticks % 256);
     }
 }
 
