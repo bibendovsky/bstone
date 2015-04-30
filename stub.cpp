@@ -40,7 +40,7 @@ void VL_WaitVBL(
     uint32_t vbls)
 {
 #if 0
-    SDL_Delay(8 * vbls);
+    ::sys_sleep_for(8 * vbls);
 #endif // 0
 }
 

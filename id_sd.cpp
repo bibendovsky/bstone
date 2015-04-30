@@ -491,7 +491,7 @@ void SD_StopSound()
 void SD_WaitSoundDone()
 {
     while (::SD_SoundPlaying()) {
-        ::SDL_Delay(1);
+        ::sys_default_sleep_for();
     }
 }
 

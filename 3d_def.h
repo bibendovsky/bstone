@@ -4672,6 +4672,12 @@ inline double m_pi()
 {
     return 3.14159265358979323846;
 }
+
+
+void sys_sleep_for(
+    int milliseconds);
+
+void sys_default_sleep_for();
 // BBi
 
 

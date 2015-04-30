@@ -8416,4 +8416,16 @@ bool is_ps()
 {
     return ::g_game_type == GameType::ps;
 }
+
+void sys_sleep_for(
+    int milliseconds)
+{
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(milliseconds));
+}
+
+void sys_default_sleep_for()
+{
+    ::sys_sleep_for(10);
+}
 // BBi

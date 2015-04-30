@@ -474,7 +474,7 @@ void AudioMixer::mix()
             is_data_available_ = true;
         }
 
-        ::SDL_Delay(1);
+        ::sys_default_sleep_for();
     }
 }
 

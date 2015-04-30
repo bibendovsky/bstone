@@ -1480,7 +1480,7 @@ void CalcTics()
             auto diff = newtime - lasttimecount;
             if (diff == 0) {
                 tics = 0;
-                ::SDL_Delay(10);
+                ::sys_default_sleep_for();
             } else {
                 tics = static_cast<uint16_t>(diff);
             }

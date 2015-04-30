@@ -525,9 +525,9 @@ void MOVIE_HandlePage(
 
         if (TimeCount < static_cast<uint32_t>(MovieStuff->ticdelay)) {
             wait_time = static_cast<uint16_t>(MovieStuff->ticdelay - TimeCount);
-            ::SDL_Delay(wait_time);
+            ::sys_sleep_for(wait_time);
         } else {
-            ::SDL_Delay(10);
+            ::sys_default_sleep_for();
         }
 
         TimeCount = 0;
