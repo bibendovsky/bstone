@@ -149,14 +149,17 @@ namespace bstone {
             write_internal(format, args...);
         }
 
+        static void clean_up();
+
         template<typename... TArgs>
         static void write_internal(
             MessageType message_type,
             const std::string& format,
             TArgs... args)
         {
-            auto& local = get_local();
+            clean_up();
 
+            auto& local = get_local();
             local.message_type_ = message_type;
             local.write_internal(format, args...);
         }

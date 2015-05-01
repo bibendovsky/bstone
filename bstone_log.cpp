@@ -64,6 +64,8 @@ void Log::write()
 // (static)
 void Log::write_version()
 {
+    clean_up();
+
     write_internal(
         MessageType::version,
         "BStone version: {}",
@@ -191,6 +193,13 @@ void Log::write_internal(
             message_.c_str(),
             nullptr));
     }
+}
+
+// (static)
+void Log::clean_up()
+{
+    auto&& local = get_local();
+    local.args_.clear();
 }
 
 
