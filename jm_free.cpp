@@ -882,7 +882,10 @@ extern char bc_buffer[];
 // ------------------------------------------------------------------------
 void PreDemo()
 {
-#if !SKIP_TITLE_AND_CREDITS
+    if (::no_screens) {
+        return;
+    }
+
 #if TECH_SUPPORT_VERSION
 
     fontnumber = 4;
@@ -948,7 +951,7 @@ void PreDemo()
     VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
     if (!(gamestate.flags & GS_NOWAIT)) {
-        if (::is_aog_sw()) {
+        if (::is_aog_full()) {
             // ---------------------
             // Anti-piracy screen
             // ---------------------
@@ -1006,7 +1009,7 @@ void PreDemo()
         VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]));
         VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 0);
         VW_UpdateScreen();
-        if (!::is_ps) {
+        if (::is_aog()) {
             VL_FadeOut(0, 255, 0, 0, 0, 20);
         } else {
             VL_FadeOut(0, 255, 25, 29, 53, 20);
@@ -1094,7 +1097,6 @@ void PreDemo()
         VL_FadeOut(0, 255, 39, 0, 0, 20);
         VW_FadeOut();
     }
-#endif // SKIP_TITLE_AND_CREDITS
 }
 
 // ------------------------------------------------------------------------
@@ -1311,6 +1313,10 @@ void freed_main()
     if (::g_args.has_option("version")) {
         bstone::Log::write_version();
         ::Quit();
+    }
+
+    if (::g_args.has_option("noscreens")) {
+        ::no_screens = true;
     }
 
     std::string arg;

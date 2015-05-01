@@ -47,6 +47,8 @@ const int BS_SAVE_VERSION = 3;
 #define SKIP_TITLE_AND_CREDITS (0)
 #endif // _DEBUG
 
+extern bool no_screens;
+
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
 #define VERSION_TEXT_COLOR (0x82)

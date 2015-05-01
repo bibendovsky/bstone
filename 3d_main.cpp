@@ -172,6 +172,9 @@ bool g_rotated_automap = default_rotated_automap;
 GameType g_game_type;
 
 
+bool no_screens = false;
+
+
 // ==========================================================================
 // Sprites
 
@@ -5317,9 +5320,8 @@ void initialize_gfxv_contants()
         INFOAREAPIC = 166;
         TOP_STATUSBARPIC = 167;
         STATUSBARPIC = 168;
-        //PIRACYPALETTE = 167;
-        //APOGEEPALETTE = 168;
-        //TITLEPALETTE = 169;
+        APOGEEPALETTE = 171;
+        TITLEPALETTE = 175;
         ORDERSCREEN = 176;
         ERRORSCREEN = 177;
         INFORMANT_HINTS = 181;
@@ -7524,123 +7526,151 @@ void DemoLoop()
         }
         VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
-#if !SKIP_TITLE_AND_CREDITS
-        while (!(gamestate.flags & GS_NOWAIT)) {
-            extern boolean sqActive;
+        if (!::no_screens) {
+            while (!(gamestate.flags & GS_NOWAIT)) {
+                extern boolean sqActive;
 
-            // Start music when coming from menu...
-            //
-            if (!sqActive) {
-                // Load and start music
-                //
-                if (::is_aog()) {
-                    CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-                    ::SD_StartMusic(MEETINGA_MUS);
-                } else {
-                    CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-                    ::SD_StartMusic(TITLE_LOOP_MUSIC);
-                }
-            }
-
-//
-// title page
-//
-#if !SKIP_TITLE_AND_CREDITS
-            breakit = false;
-
-            if (!::is_ps()) {
-                ::CA_CacheScreen(TITLEPIC);
-            } else {
-                ::CA_CacheScreen(TITLE1PIC);
-            }
-
-            CA_CacheGrChunk(TITLEPALETTE);
-            old_bufferofs = static_cast<uint16_t>(bufferofs);
-            bufferofs = displayofs;
-            VW_Bar(0, 0, 320, 200, 0);
-            bufferofs = old_bufferofs;
-            VL_SetPalette(0, 256, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]));
-            VL_SetPaletteIntensity(0, 255, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]), 0);
-
-            if (::is_ps()) {
-                fontnumber = 2;
-                PrintX = WindowX = 270;
-                PrintY = WindowY = 179;
-                WindowW = 29;
-                WindowH = 8;
-                VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
-                SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-                US_Print(::get_version_string().c_str());
-            }
-
-            VW_UpdateScreen();
-            VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(grsegs[TITLEPALETTE]), 30);
-            UNCACHEGRCHUNK(TITLEPALETTE);
-
-            if (::is_ps()) {
-                if (IN_UserInput(TickBase * 6)) {
-                    breakit = true;
-                }
-
-                // Cache screen 2 with Warnings and Copyrights
-
-                CA_CacheScreen(TITLE2PIC);
-                fontnumber = 2;
-                PrintX = WindowX = 270;
-                PrintY = WindowY = 179;
-                WindowW = 29;
-                WindowH = 8;
-                VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
-                SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-                US_Print(::get_version_string().c_str());
-
-                // Fizzle whole screen incase of any last minute changes needed
-                // on title intro.
-
-// BBi Made abortable.
-#if 0
-                FizzleFade(bufferofs, displayofs, 320, 200, 70, false);
-#endif
-                FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
-// BBi
-
-                IN_UserInput(TickBase * 2);
-            }
-
-            if (breakit || IN_UserInput(TickBase * 6)) {
-                break;
-            }
-            VW_FadeOut();
-
-//
-// credits page
-//
-            DrawCreditsPage();
-            VW_UpdateScreen();
-            VW_FadeIn();
-            if (IN_UserInput(TickBase * 6)) {
-                break;
-            }
-            VW_FadeOut();
-
-#endif
-
-//
-// demo
-//
-
-#if DEMOS_ENABLED
-#if IN_DEVELOPMENT
-            if (!MS_CheckParm("recdemo"))
-#endif
-            PlayDemo(LastDemo++ % 6);
-
-            if (playstate == ex_abort) {
-                break;
-            } else {
                 // Start music when coming from menu...
                 //
                 if (!sqActive) {
+                    // Load and start music
+                    //
+                    if (::is_aog()) {
+                        CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
+                        ::SD_StartMusic(MEETINGA_MUS);
+                    } else {
+                        CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+                        ::SD_StartMusic(TITLE_LOOP_MUSIC);
+                    }
+                }
+
+
+                //
+                // title page
+                //
+                breakit = false;
+
+                if (::is_aog()) {
+                    ::CA_CacheScreen(TITLEPIC);
+                } else {
+                    ::CA_CacheScreen(TITLE1PIC);
+                }
+
+                CA_CacheGrChunk(TITLEPALETTE);
+                old_bufferofs = static_cast<uint16_t>(bufferofs);
+                bufferofs = displayofs;
+                VW_Bar(0, 0, 320, 200, 0);
+                bufferofs = old_bufferofs;
+                VL_SetPalette(0, 256, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]));
+                VL_SetPaletteIntensity(0, 255, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]), 0);
+
+                auto version_text_width = 0;
+                auto version_text_height = 0;
+                const auto version_padding = 1;
+                const auto version_margin = 4;
+                auto&& version_string = ::get_version_string();
+
+                ::fontnumber = 2;
+
+                ::USL_MeasureString(
+                    version_string.c_str(),
+                    &version_text_width,
+                    &version_text_height);
+
+                const auto version_bar_width =
+                    version_text_width + (2 * version_padding);
+
+                const auto version_bar_height =
+                    version_text_height + (2 * version_padding);
+
+                const auto version_bar_x =
+                    ::k_ref_width - (version_margin + version_bar_width);
+
+                const auto version_bar_y = (
+                    ::is_aog() ?
+                        version_margin :
+                        ::k_ref_height - version_margin);
+
+                ::WindowX = version_bar_x;
+                ::WindowY = version_bar_y;
+                ::PrintX = ::WindowX + version_padding;
+                ::PrintY = ::WindowY + version_padding;
+                ::WindowW = version_bar_width;
+                ::WindowH = version_bar_height;
+
+                ::VWB_Bar(
+                    ::WindowX,
+                    ::WindowY,
+                    ::WindowW,
+                    ::WindowH,
+                    VERSION_TEXT_BKCOLOR);
+
+                SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+                ::US_Print(::get_version_string().c_str());
+
+                VW_UpdateScreen();
+                VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(grsegs[TITLEPALETTE]), 30);
+                UNCACHEGRCHUNK(TITLEPALETTE);
+
+                if (::is_ps()) {
+                    if (IN_UserInput(TickBase * 6)) {
+                        breakit = true;
+                    }
+
+                    // Cache screen 2 with Warnings and Copyrights
+
+                    CA_CacheScreen(TITLE2PIC);
+                    fontnumber = 2;
+                    PrintX = WindowX = 270;
+                    PrintY = WindowY = 179;
+                    WindowW = 29;
+                    WindowH = 8;
+                    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
+                    SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+                    US_Print(::get_version_string().c_str());
+
+                    // Fizzle whole screen incase of any last minute changes needed
+                    // on title intro.
+
+                    // BBi Made abortable.
+                    FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
+
+                    IN_UserInput(TickBase * 2);
+                }
+
+                if (breakit || IN_UserInput(TickBase * 6)) {
+                    break;
+                }
+                VW_FadeOut();
+
+                //
+                // credits page
+                //
+                DrawCreditsPage();
+                VW_UpdateScreen();
+                VW_FadeIn();
+                if (IN_UserInput(TickBase * 6)) {
+                    break;
+                }
+                VW_FadeOut();
+
+
+                //
+                // demo
+                //
+
+#if DEMOS_ENABLED
+#if IN_DEVELOPMENT
+                if (!MS_CheckParm("recdemo"))
+#endif
+                PlayDemo(LastDemo++ % 6);
+
+                if (playstate == ex_abort) {
+                    break;
+                } else {
+                    // Start music when coming from menu...
+                    //
+                    if (!sqActive) {
 //                              if (!SD_MusicPlaying())
                     // Load and start music
                     //
@@ -7653,7 +7683,6 @@ void DemoLoop()
 //
 // high scores
 //
-#if !SKIP_TITLE_AND_CREDITS
             CA_CacheScreen(BACKGROUND_SCREENPIC);
             DrawHighScores();
             VW_UpdateScreen();
@@ -7663,9 +7692,8 @@ void DemoLoop()
                 break;
             }
             VW_FadeOut();
-#endif
         }
-#else
+    } else {
         // Start music when coming from menu...
         if (!sqActive) {
             // Load and start music
@@ -7678,7 +7706,7 @@ void DemoLoop()
                 ::SD_StartMusic(TITLE_LOOP_MUSIC);
             }
         }
-#endif // SKIP_TITLE_AND_CREDITS
+    }
 
         if (!screenfaded) {
             VW_FadeOut();
