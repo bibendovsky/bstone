@@ -7516,7 +7516,7 @@ void DemoLoop()
     int16_t LastDemo = 0;
 #endif // DEMOS_ENABLED
 
-    boolean breakit;
+    bool breakit;
     uint16_t old_bufferofs;
 
     while (true) {
@@ -7556,18 +7556,28 @@ void DemoLoop()
                     ::CA_CacheScreen(TITLE1PIC);
                 }
 
-                CA_CacheGrChunk(TITLEPALETTE);
-                old_bufferofs = static_cast<uint16_t>(bufferofs);
-                bufferofs = displayofs;
-                VW_Bar(0, 0, 320, 200, 0);
-                bufferofs = old_bufferofs;
-                VL_SetPalette(0, 256, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]));
-                VL_SetPaletteIntensity(0, 255, reinterpret_cast<const uint8_t*>(grsegs[TITLEPALETTE]), 0);
+                ::CA_CacheGrChunk(TITLEPALETTE);
+                old_bufferofs = static_cast<uint16_t>(::bufferofs);
+                ::bufferofs = displayofs;
+                VW_Bar(0, 0, ::k_ref_width, ::k_ref_height, 0);
+                ::bufferofs = old_bufferofs;
+
+                ::VL_SetPalette(
+                    0,
+                    256,
+                    reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]));
+
+                ::VL_SetPaletteIntensity(
+                    0,
+                    255,
+                    reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]),
+                    0);
 
                 auto version_text_width = 0;
                 auto version_text_height = 0;
                 const auto version_padding = 1;
                 const auto version_margin = 4;
+                const auto ps_fizzle_height = 15;
                 auto&& version_string = ::get_version_string();
 
                 ::fontnumber = 2;
@@ -7589,7 +7599,8 @@ void DemoLoop()
                 const auto version_bar_y = (
                     ::is_aog() ?
                         version_margin :
-                        ::k_ref_height - version_margin);
+                        ::k_ref_height -
+                            (version_bar_height + ps_fizzle_height));
 
                 ::WindowX = version_bar_x;
                 ::WindowY = version_bar_y;
@@ -7609,38 +7620,44 @@ void DemoLoop()
                 ::US_Print(::get_version_string().c_str());
 
                 VW_UpdateScreen();
-                VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(grsegs[TITLEPALETTE]), 30);
-                UNCACHEGRCHUNK(TITLEPALETTE);
+                ::VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(::grsegs[TITLEPALETTE]), 30);
+                ::UNCACHEGRCHUNK(TITLEPALETTE);
 
                 if (::is_ps()) {
-                    if (IN_UserInput(TickBase * 6)) {
-                        breakit = true;
-                    }
-
                     // Cache screen 2 with Warnings and Copyrights
 
-                    CA_CacheScreen(TITLE2PIC);
-                    fontnumber = 2;
-                    PrintX = WindowX = 270;
-                    PrintY = WindowY = 179;
-                    WindowW = 29;
-                    WindowH = 8;
-                    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
+                    ::CA_CacheScreen(TITLE2PIC);
+                    ::fontnumber = 2;
+                    ::PrintX = ::WindowX + version_padding;
+                    ::PrintY = ::WindowY + version_padding;
+
+                    ::VWB_Bar(
+                        ::WindowX,
+                        ::WindowY,
+                        ::WindowW,
+                        ::WindowH,
+                        VERSION_TEXT_BKCOLOR);
+
                     SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-                    US_Print(::get_version_string().c_str());
+                    ::US_Print(::get_version_string().c_str());
 
                     // Fizzle whole screen incase of any last minute changes needed
                     // on title intro.
 
                     // BBi Made abortable.
-                    FizzleFade(bufferofs, displayofs, 320, 200, 70, true);
-
-                    IN_UserInput(TickBase * 2);
+                    breakit |= ::FizzleFade(
+                        ::bufferofs,
+                        ::displayofs,
+                        ::k_ref_width,
+                        ::k_ref_height,
+                        70,
+                        true);
                 }
 
-                if (breakit || IN_UserInput(TickBase * 6)) {
+                if (breakit || ::IN_UserInput(TickBase * 6)) {
                     break;
                 }
+
                 VW_FadeOut();
 
                 //
