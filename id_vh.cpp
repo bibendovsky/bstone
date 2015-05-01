@@ -271,35 +271,38 @@ bool FizzleFade(
     int frames,
     bool abortable)
 {
-    int rndval = 1;
-    int pixperframe = 64000 / frames;
-    int remain_pixels = 64000 - (frames * pixperframe);
-    int src_offset = vl_get_offset(source);
-    int dst_offset = vl_get_offset(dest);
+    auto rndval = 1;
+    auto pixperframe = 64000 / frames;
+    auto remain_pixels = 64000 - (frames * pixperframe);
+    auto src_offset = ::vl_get_offset(source);
+    auto dst_offset = ::vl_get_offset(dest);
+    auto frame = 0;
 
-    IN_StartAck();
+    ::IN_StartAck();
 
-    TimeCount = 0;
-    int frame = 0;
-    LastScan = sc_none;
+    ::TimeCount = 0;
+    ::LastScan = sc_none;
 
-    bool finished = false;
-    bool do_full_copy = false;
+    auto finished = false;
+    auto is_aborted = false;
+    auto do_full_copy = false;
 
     while (!finished) {
-        if (abortable && IN_CheckAck()) {
-            return true;
+        if (abortable && ::IN_CheckAck()) {
+            is_aborted = true;
+            do_full_copy = true;
         }
 
         if (!do_full_copy) {
-            int pixel_count = pixperframe + remain_pixels;
+            auto pixel_count = pixperframe + remain_pixels;
+
             remain_pixels = 0;
 
-            for (int p = 0; p < pixel_count; ++p) {
-                int x = (rndval >> 8) & 0xFFFF;
-                int y = ((rndval & 0xFF) - 1) & 0xFF;
+            for (auto p = 0; p < pixel_count; ++p) {
+                auto x = (rndval >> 8) & 0xFFFF;
+                auto y = ((rndval & 0xFF) - 1) & 0xFF;
 
-                bool carry = ((rndval & 1) != 0);
+                auto carry = ((rndval & 1) != 0);
 
                 rndval >>= 1;
 
@@ -311,14 +314,14 @@ bool FizzleFade(
                     continue;
                 }
 
-                int pixel_offset = vga_scale * ((y * vga_width) + x);
+                auto pixel_offset = vga_scale * ((y * vga_width) + x);
 
-                for (int dy = 0; dy < vga_scale; ++dy) {
-                    for (int dx = 0; dx < vga_scale; ++dx) {
-                        int offset = pixel_offset + dx;
+                for (auto dy = 0; dy < vga_scale; ++dy) {
+                    for (auto dx = 0; dx < vga_scale; ++dx) {
+                        auto offset = pixel_offset + dx;
 
-                        vga_memory[dst_offset + offset] =
-                            vga_memory[src_offset + offset];
+                        ::vga_memory[dst_offset + offset] =
+                            ::vga_memory[src_offset + offset];
                     }
 
                     pixel_offset += vga_width;
@@ -331,18 +334,18 @@ bool FizzleFade(
         } else {
             finished = true;
 
-            std::uninitialized_copy(
+            std::uninitialized_copy_n(
                 &vga_memory[src_offset],
-                &vga_memory[src_offset + (width * height)],
+                (::vga_scale * width) * (::vga_scale * height),
                 &vga_memory[dst_offset]);
         }
 
-        VL_RefreshScreen();
+        ::VL_RefreshScreen();
 
         ++frame;
 
-        CalcTics();
+        ::CalcTics();
     }
 
-    return !finished;
+    return is_aborted;
 }
