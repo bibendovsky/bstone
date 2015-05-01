@@ -743,7 +743,7 @@ void CheckForEpisodes()
         break;
 
     case GameType::ps:
-        ::extension = "PS";
+        ::extension = "VSI";
         break;
 
     default:
