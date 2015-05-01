@@ -789,7 +789,7 @@ void DrawHealth()
 
         std::uninitialized_fill_n(
             gamestate.health_str,
-            gamestate.health_str + 4,
+            4,
             '\0');
 
         auto index = 0;
