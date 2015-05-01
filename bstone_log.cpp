@@ -31,6 +31,9 @@ Free Software Foundation, Inc.,
 #include "SDL.h"
 
 
+const std::string& get_version_string();
+
+
 namespace bstone {
 
 
@@ -59,6 +62,15 @@ void Log::write()
 }
 
 // (static)
+void Log::write_version()
+{
+    write_internal(
+        MessageType::version,
+        "BStone version: {}",
+        ::get_version_string());
+}
+
+// (static)
 Log& Log::get_local()
 {
     static Log log;
@@ -67,8 +79,10 @@ Log& Log::get_local()
     if (!is_initialized) {
         is_initialized = true;
 
-        write("bstone");
-        write("======");
+        write("BStone Log");
+        write("==========");
+        write();
+        write("Version: {}", ::get_version_string());
         write();
     }
 
@@ -79,8 +93,14 @@ void Log::write_internal(
     const std::string& format)
 {
     auto is_critical = false;
+    auto is_version = false;
 
     switch (message_type_) {
+    case MessageType::version:
+        is_version = true;
+        message_.clear();
+        break;
+
     case MessageType::information:
         message_.clear();
         break;
@@ -159,12 +179,15 @@ void Log::write_internal(
     }
 
     std::cout << message_ << std::endl;
-    fstream_ << message_ << std::endl;
 
-    if (is_critical) {
+    if (!is_version) {
+        fstream_ << message_ << std::endl;
+    }
+
+    if (is_critical || is_version) {
         static_cast<void>(::SDL_ShowSimpleMessageBox(
-            SDL_MESSAGEBOX_ERROR,
-            "bstone",
+            is_version ? SDL_MESSAGEBOX_INFORMATION : SDL_MESSAGEBOX_ERROR,
+            "BStone",
             message_.c_str(),
             nullptr));
     }

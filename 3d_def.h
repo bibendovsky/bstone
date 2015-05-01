@@ -38,8 +38,6 @@ Free Software Foundation, Inc.,
 // #define TRACK_ENEMY_COUNT
 #define OBJ_RESERV
 
-#define __BLAKE_VERSION__ "V1.01"
-
 // BBi
 const int BS_SAVE_VERSION = 3;
 
@@ -4678,6 +4676,8 @@ void sys_sleep_for(
     int milliseconds);
 
 void sys_default_sleep_for();
+
+const std::string& get_version_string();
 // BBi
 
 

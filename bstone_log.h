@@ -62,6 +62,9 @@ namespace bstone {
     public:
         static void write();
 
+        // Writes the game's version to standart output and shows a message box.
+        static void write_version();
+
         // Writes an informational message to the log.
         template<typename... TArgs>
         static void write(
@@ -105,6 +108,7 @@ namespace bstone {
 
         enum class MessageType {
             none,
+            version,
             information,
             warning,
             error,

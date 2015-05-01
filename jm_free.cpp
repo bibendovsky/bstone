@@ -1308,6 +1308,11 @@ void freed_main()
     ::gamestuff.initialize();
     ::initialize_demos();
 
+    if (::g_args.has_option("version")) {
+        bstone::Log::write_version();
+        ::Quit();
+    }
+
     std::string arg;
 
     switch (::g_args.check_argument(MainStrs, arg)) {
@@ -1328,16 +1333,6 @@ void freed_main()
     case 3:
         gamestate.flags |= GS_STARTLEVEL;
         starting_episode = scan_atoi(arg.c_str()) - 1;
-        break;
-
-    case 4:
-        fprint(cinfo_text);
-
-        printf("\n"
-               "     Version: %s\n"
-               "COMPILE DATE: %s\n\n",
-               __BLAKE_VERSION__, __DATE__);
-        exit(0);
         break;
 
     case 5:

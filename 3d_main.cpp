@@ -7570,7 +7570,7 @@ void DemoLoop()
                 WindowH = 8;
                 VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
                 SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-                US_Print(__BLAKE_VERSION__);
+                US_Print(::get_version_string().c_str());
             }
 
             VW_UpdateScreen();
@@ -7592,7 +7592,7 @@ void DemoLoop()
                 WindowH = 8;
                 VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
                 SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-                US_Print(__BLAKE_VERSION__);
+                US_Print(::get_version_string().c_str());
 
                 // Fizzle whole screen incase of any last minute changes needed
                 // on title intro.
@@ -8462,5 +8462,11 @@ void sys_sleep_for(
 void sys_default_sleep_for()
 {
     ::sys_sleep_for(10);
+}
+
+const std::string& get_version_string()
+{
+    static const std::string version = "1.0.0";
+    return version;
 }
 // BBi
