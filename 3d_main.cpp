@@ -148,7 +148,7 @@ int minheightdiv;
 boolean startgame, loadedgame;
 int16_t mouseadjustment;
 
-const std::string g_config_file_name = "bstone_config";
+const std::string config_file_name = "bstone_config";
 
 int16_t view_xl, view_xh, view_yl, view_yh;
 
@@ -6035,7 +6035,7 @@ void ReadConfig()
 
     bool is_succeed = true;
     uint16_t flags = gamestate.flags;
-    MakeDestPath(g_config_file_name.c_str());
+    MakeDestPath(::config_file_name.c_str());
 
     bstone::FileStream stream(tempPath);
 
@@ -6238,7 +6238,7 @@ void ReadConfig()
 
 void WriteConfig()
 {
-    MakeDestPath(g_config_file_name.c_str());
+    MakeDestPath(::config_file_name.c_str());
 
     bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
 
@@ -8513,5 +8513,43 @@ const std::string& get_version_string()
 {
     static const std::string version = "1.0.0";
     return version;
+}
+
+const std::string& get_profile_dir()
+{
+    static std::string profile_dir;
+    static auto is_initialized = false;
+
+    if (!is_initialized) {
+        is_initialized = true;
+
+        auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
+
+        if (sdl_dir) {
+            profile_dir = sdl_dir;
+            ::SDL_free(sdl_dir);
+        }
+    }
+
+    return profile_dir;
+}
+
+const std::string& get_default_data_dir()
+{
+    static std::string data_dir;
+    static auto is_initialized = false;
+
+    if (!is_initialized) {
+        is_initialized = true;
+
+        auto sdl_dir = ::SDL_GetBasePath();
+
+        if (sdl_dir) {
+            data_dir = sdl_dir;
+            ::SDL_free(sdl_dir);
+        }
+    }
+
+    return data_dir;
 }
 // BBi
