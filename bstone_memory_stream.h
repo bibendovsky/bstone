@@ -45,13 +45,13 @@ class MemoryStream :
 public:
     MemoryStream(
         int initial_capacity = 0,
-        StreamOpenMode open_mode = STREAM_OPEN_READ_WRITE);
+        StreamOpenMode open_mode = StreamOpenMode::read_write);
 
     MemoryStream(
         int buffer_size,
         int buffer_offset,
         const uint8_t* buffer,
-        StreamOpenMode open_mode = STREAM_OPEN_READ);
+        StreamOpenMode open_mode = StreamOpenMode::read);
 
     MemoryStream(
         const MemoryStream& that) = delete;
@@ -64,13 +64,13 @@ public:
 
     bool open(
         int initial_capacity = 0,
-        StreamOpenMode open_mode = STREAM_OPEN_READ_WRITE);
+        StreamOpenMode open_mode = StreamOpenMode::read_write);
 
     bool open(
         int buffer_size,
         int buffer_offset,
         const uint8_t* buffer,
-        StreamOpenMode open_mode = STREAM_OPEN_READ);
+        StreamOpenMode open_mode = StreamOpenMode::read);
 
     virtual void close();
 
@@ -85,7 +85,7 @@ public:
 
     virtual int64_t seek(
         int64_t offset,
-        StreamSeekOrigin origin = STREAM_SEEK_BEGIN);
+        StreamSeekOrigin origin);
 
     virtual int64_t get_position();
 

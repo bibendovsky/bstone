@@ -72,13 +72,28 @@ bool MemoryStream::open(
 {
     close();
 
-    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0) {
+
+    auto can_read = false;
+    auto can_write = false;
+
+    switch (open_mode) {
+    case StreamOpenMode::read:
+        can_read = true;
+        break;
+
+    case StreamOpenMode::write:
+        can_write = true;
+        break;
+
+    case StreamOpenMode::read_write:
+        can_read = true;
+        can_write = true;
+        break;
+
+    default:
         return false;
     }
 
-    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0) {
-        return false;
-    }
 
     if (initial_capacity < 0) {
         initial_capacity = 0;
@@ -87,8 +102,8 @@ bool MemoryStream::open(
     int_buffer_.reserve(initial_capacity);
 
     is_open_ = true;
-    can_read_ = ((open_mode & STREAM_OPEN_READ) != 0);
-    can_write_ = ((open_mode & STREAM_OPEN_WRITE) != 0);
+    can_read_ = can_read;
+    can_write_ = can_write;
 
     return true;
 }
@@ -102,24 +117,39 @@ bool MemoryStream::open(
     close();
 
     if (buffer_size < 0) {
-        buffer_size = 0;
+        return false;
     }
 
     if (!buffer) {
         return false;
     }
 
-    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0) {
+
+    auto can_read = false;
+    auto can_write = false;
+
+    switch (open_mode) {
+    case StreamOpenMode::read:
+        can_read = true;
+        break;
+
+    case StreamOpenMode::write:
+        can_write = true;
+        break;
+
+    case StreamOpenMode::read_write:
+        can_read = true;
+        can_write = true;
+        break;
+
+    default:
         return false;
     }
 
-    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0) {
-        return false;
-    }
 
     is_open_ = true;
-    can_read_ = ((open_mode & STREAM_OPEN_READ) != 0);
-    can_write_ = ((open_mode & STREAM_OPEN_WRITE) != 0);
+    can_read_ = can_read;
+    can_write_ = can_write;
     size_ = buffer_size;
     ext_size_ = buffer_size;
     buffer_ = const_cast<uint8_t*>(&buffer[buffer_offset]);
@@ -206,15 +236,15 @@ int64_t MemoryStream::seek(
     }
 
     switch (origin) {
-    case STREAM_SEEK_BEGIN:
+    case StreamSeekOrigin::begin:
         position_ = offset;
         break;
 
-    case STREAM_SEEK_CURRENT:
+    case StreamSeekOrigin::current:
         position_ += offset;
         break;
 
-    case STREAM_SEEK_END:
+    case StreamSeekOrigin::end:
         position_ = size_ + offset;
         break;
 

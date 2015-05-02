@@ -30,7 +30,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_FILE_STREAM_INCLUDED
 
 
-#include <fstream>
 #include "bstone_istream.h"
 
 
@@ -46,7 +45,7 @@ public:
 
     FileStream(
         const std::string& file_name,
-        StreamOpenMode open_mode = STREAM_OPEN_READ);
+        StreamOpenMode open_mode = StreamOpenMode::read);
 
     FileStream(
         const FileStream& that) = delete;
@@ -58,7 +57,7 @@ public:
 
     bool open(
         const std::string& file_name,
-        StreamOpenMode open_mode = STREAM_OPEN_READ);
+        StreamOpenMode open_mode = StreamOpenMode::read);
 
     virtual void close();
 
@@ -69,11 +68,9 @@ public:
     virtual bool set_size(
         int64_t size);
 
-    virtual bool flush();
-
     virtual int64_t seek(
         int64_t offset,
-        StreamSeekOrigin origin = STREAM_SEEK_BEGIN);
+        StreamSeekOrigin origin);
 
     virtual int read(
         void* buffer,
@@ -94,14 +91,10 @@ public:
 
 
 private:
-    std::fstream stream_;
-    int64_t size_;
-    int64_t position_;
+    void* context_;
     bool can_read_;
     bool can_seek_;
     bool can_write_;
-    bool need_sync_read_position_;
-    bool need_sync_write_position_;
 }; // FileStream
 
 

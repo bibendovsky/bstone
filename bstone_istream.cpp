@@ -47,26 +47,26 @@ void IStream::close()
 int64_t IStream::skip(
     int count)
 {
-    return seek(count, STREAM_SEEK_CURRENT);
+    return seek(count, StreamSeekOrigin::current);
 }
 
 // (virtual)
 int64_t IStream::get_position()
 {
-    return seek(0, STREAM_SEEK_CURRENT);
+    return seek(0, StreamSeekOrigin::current);
 }
 
 // (virtual)
 bool IStream::set_position(
     int64_t position)
 {
-    return seek(position) >= 0;
+    return seek(position, StreamSeekOrigin::begin) >= 0;
 }
 
 // (virtual)
 int IStream::read_octet()
 {
-    uint8_t value = 0;
+    auto value = uint8_t(0);
 
     if (read(&value, 1) > 0) {
         return value;

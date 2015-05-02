@@ -27,32 +27,40 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_file_stream.h"
+#include "SDL.h"
 
 
 namespace bstone {
 
 
+namespace {
+
+
+SDL_RWops* get_sdl_context(
+    void* context)
+{
+    return static_cast<SDL_RWops*>(context);
+}
+
+
+} // namespace
+
+
 FileStream::FileStream() :
-        size_(),
-        position_(),
+        context_(),
         can_read_(),
         can_seek_(),
-        can_write_(),
-        need_sync_read_position_(),
-        need_sync_write_position_()
+        can_write_()
 {
 }
 
 FileStream::FileStream(
     const std::string& file_name,
     StreamOpenMode open_mode) :
-        size_(),
-        position_(),
+        context_(),
         can_read_(),
         can_seek_(),
-        can_write_(),
-        need_sync_read_position_(),
-        need_sync_write_position_()
+        can_write_()
 {
     open(file_name, open_mode);
 }
@@ -60,6 +68,7 @@ FileStream::FileStream(
 // (virtual)
 FileStream::~FileStream()
 {
+    close();
 }
 
 bool FileStream::open(
@@ -68,83 +77,42 @@ bool FileStream::open(
 {
     close();
 
-    if ((open_mode & STREAM_OPEN_READ_WRITE) == 0) {
-        return false;
-    }
 
+    auto mode = "";
     auto can_read = false;
-    auto can_seek = false;
     auto can_write = false;
 
-    auto mode = std::ios::binary | std::ios::ate;
-
-    if ((open_mode & STREAM_OPEN_READ) != 0) {
+    switch (open_mode) {
+    case StreamOpenMode::read:
+        mode = "rb";
         can_read = true;
-        mode |= std::ios::in;
-    }
+        break;
 
-    if ((open_mode & STREAM_OPEN_WRITE) != 0) {
+    case StreamOpenMode::write:
+        mode = "wb";
         can_write = true;
-        mode |= std::ios::out;
-    }
+        break;
 
-    if ((open_mode & STREAM_OPEN_TRUNCATE) != 0) {
-        if (!can_write) {
-            return false;
-        }
+    case StreamOpenMode::read_write:
+        mode = "r+b";
+        can_read = true;
+        can_write = true;
+        break;
 
-        mode |= std::ios::trunc;
-    }
-
-    stream_.open(file_name.c_str(), mode);
-
-    if (!stream_.is_open()) {
+    default:
         return false;
     }
 
-    auto is_succeed = true;
 
-    std::ios::pos_type end_pos = -1;
+    auto sdl_context = ::SDL_RWFromFile(file_name.c_str(), mode);
 
-    if (is_succeed) {
-        if (can_read) {
-            end_pos = stream_.tellg();
-        } else {
-            end_pos = stream_.tellp();
-        }
-
-        stream_.clear();
+    if (!sdl_context) {
+        return false;
     }
 
-    if (is_succeed) {
-        if (can_read) {
-            stream_.seekg(0);
-            std::ios::pos_type pos = stream_.tellg();
-            is_succeed = (pos == std::ios::pos_type(0));
-        }
-    }
-
-    if (is_succeed) {
-        if (can_write) {
-            stream_.seekp(0);
-            std::ios::pos_type pos = stream_.tellp();
-            is_succeed = (pos == std::ios::pos_type(0));
-        }
-    }
-
-    auto size = 0LL;
-
-    if (is_succeed) {
-        if (end_pos != std::ios::pos_type(-1)) {
-            can_seek = true;
-            size = static_cast<int64_t>(end_pos - std::ios::pos_type(0));
-        }
-    }
-
-    stream_.clear();
-    size_ = size;
+    context_ = sdl_context;
     can_read_ = can_read;
-    can_seek_ = can_seek;
+    can_seek_ = true;
     can_write_ = can_write;
 
     return true;
@@ -153,61 +121,38 @@ bool FileStream::open(
 // (virtual)
 void FileStream::close()
 {
-    stream_.close();
-    stream_.clear();
+    if (context_) {
+        auto sdl_context = get_sdl_context(context_);
+        static_cast<void>(SDL_RWclose(sdl_context));
+        context_ = nullptr;
+    }
 
-    size_ = 0;
-    position_ = 0;
     can_read_ = false;
     can_seek_ = false;
     can_write_ = false;
-    need_sync_read_position_ = false;
-    need_sync_write_position_ = false;
 }
 
 // (virtual)
 bool FileStream::is_open() const
 {
-    return stream_.is_open();
+    return context_ != nullptr;
 }
 
 // (virtual)
 int64_t FileStream::get_size()
 {
     if (!is_open()) {
-        return -1;
+        return 0;
     }
 
-    return size_;
+    return SDL_RWsize(get_sdl_context(context_));
 }
 
 // (virtual)
 bool FileStream::set_size(
     int64_t size)
 {
-    if (!is_open()) {
-        return false;
-    }
-
-    if (size < 0) {
-        return false;
-    }
-
     return false;
-}
-
-// (virtual)
-bool FileStream::flush()
-{
-    if (!is_open()) {
-        return false;
-    }
-
-    stream_.flush();
-    auto result = !stream_.bad();
-    stream_.clear();
-
-    return result;
 }
 
 // (virtual)
@@ -223,37 +168,32 @@ int64_t FileStream::seek(
         return -1;
     }
 
-    auto new_position = 0LL;
+
+    int whence = 0;
 
     switch (origin) {
-    case STREAM_SEEK_BEGIN:
-        new_position = offset;
+    case StreamSeekOrigin::begin:
+        whence = RW_SEEK_SET;
         break;
 
-    case STREAM_SEEK_CURRENT:
-        new_position = position_ + offset;
+    case StreamSeekOrigin::current:
+        whence = RW_SEEK_CUR;
         break;
 
-    case STREAM_SEEK_END:
-        new_position = size_ + offset;
+    case StreamSeekOrigin::end:
+        whence = RW_SEEK_END;
         break;
 
     default:
         return -1;
     }
 
-    if (new_position < 0) {
-        new_position = 0;
-    }
+    auto position = SDL_RWseek(
+        get_sdl_context(context_),
+        offset,
+        whence);
 
-    if (new_position != position_) {
-        need_sync_read_position_ = true;
-        need_sync_write_position_ = true;
-    }
-
-    position_ = new_position;
-
-    return position_;
+    return position;
 }
 
 // (virtual)
@@ -277,24 +217,11 @@ int FileStream::read(
         return 0;
     }
 
-    if (can_seek() && need_sync_read_position_) {
-        need_sync_read_position_ = false;
-
-        stream_.seekg(position_);
-        stream_.clear();
-    }
-
-    stream_.read(static_cast<char*>(buffer), count);
-    stream_.clear();
-
-    auto actual_count = static_cast<int>(stream_.gcount());
-
-    if (can_seek() && actual_count > 0) {
-        position_ += actual_count;
-        need_sync_write_position_ = true;
-    }
-
-    return actual_count;
+    return static_cast<int>(SDL_RWread(
+        get_sdl_context(context_),
+        buffer,
+        1,
+        count));
 }
 
 // (virtual)
@@ -322,39 +249,13 @@ bool FileStream::write(
         return false;
     }
 
-    if (can_seek() && need_sync_write_position_) {
-        need_sync_write_position_ = false;
+    auto written_count = static_cast<int>(SDL_RWwrite(
+        get_sdl_context(context_),
+        buffer,
+        1,
+        count));
 
-        stream_.seekp(position_);
-        stream_.clear();
-    }
-
-    stream_.write(static_cast<const char*>(buffer), count);
-
-    auto result = false;
-
-    if (can_seek()) {
-        if (stream_) {
-            result = true;
-            position_ += count;
-        } else {
-            result = false;
-            auto cur_pos = stream_.tellp();
-            position_ = static_cast<int64_t>(cur_pos - std::ios::pos_type(0));
-        }
-
-        if (position_ > size_) {
-            size_ = position_;
-        }
-
-        need_sync_read_position_ = true;
-    } else {
-        result = !stream_;
-    }
-
-    stream_.clear();
-
-    return result;
+    return written_count == count;
 }
 
 // (virtual)
@@ -379,12 +280,8 @@ bool FileStream::can_write() const
 bool FileStream::is_exists(
     const std::string& file_name)
 {
-    std::ifstream stream(
-        file_name.c_str(),
-        std::ios_base::in | std::ios_base::binary | std::ios_base::ate);
-
-    return stream.is_open();
+    return FileStream(file_name).is_open();
 }
 
 
-} // namespace bstone
+} // bstone

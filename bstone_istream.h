@@ -36,17 +36,16 @@ Free Software Foundation, Inc.,
 namespace bstone {
 
 
-enum StreamSeekOrigin {
-    STREAM_SEEK_BEGIN,
-    STREAM_SEEK_CURRENT,
-    STREAM_SEEK_END
+enum class StreamSeekOrigin {
+    begin,
+    current,
+    end,
 }; // StreamSeekOrigin
 
-enum StreamOpenMode {
-    STREAM_OPEN_READ = 1,
-    STREAM_OPEN_WRITE = 2,
-    STREAM_OPEN_READ_WRITE = STREAM_OPEN_READ | STREAM_OPEN_WRITE,
-    STREAM_OPEN_TRUNCATE = 4
+enum class StreamOpenMode {
+    read,
+    write,
+    read_write,
 }; // StreamOpenMode
 
 
@@ -69,12 +68,10 @@ public:
     virtual bool set_size(
         int64_t size) = 0;
 
-    virtual bool flush() = 0;
-
     // Returns a new position or a negative value on error.
     virtual int64_t seek(
         int64_t offset,
-        StreamSeekOrigin origin = STREAM_SEEK_BEGIN) = 0;
+        StreamSeekOrigin origin) = 0;
 
     // Skips a number of octets forward if count is positive or
     // backward otherwise.
@@ -116,6 +113,7 @@ public:
     bool copy_to(
         IStream* dst_stream,
         int buffer_size = 0);
+
 
     static int get_default_copy_buffer_size();
 }; // IStream

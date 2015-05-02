@@ -2635,7 +2635,7 @@ int16_t CP_SaveGame(
             name += static_cast<char>('0' + which);
             MakeDestPath(name.c_str());
 
-            bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
+            bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
 
             SaveTheGame(&stream, &SaveGameNames[which][0]);
 
@@ -2680,7 +2680,7 @@ int16_t CP_SaveGame(
                 strcpy(&SaveGameNames[which][0], input);
 
                 MakeDestPath(name.c_str());
-                bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
+                bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
 
                 DrawLSAction(1);
                 SaveTheGame(&stream, input);

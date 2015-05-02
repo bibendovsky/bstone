@@ -6240,7 +6240,7 @@ void WriteConfig()
 {
     MakeDestPath(g_config_file_name.c_str());
 
-    bstone::FileStream stream(tempPath, bstone::STREAM_OPEN_WRITE);
+    bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
 
     if (!stream.is_open()) {
         bstone::Log::write_error(
@@ -6462,7 +6462,7 @@ int FindChunk(
         stream->skip(chunk_size);
     }
 
-    stream->seek(0, bstone::STREAM_SEEK_END);
+    stream->seek(0, bstone::StreamSeekOrigin::end);
     return 0;
 }
 
@@ -6489,7 +6489,7 @@ int NextChunk(
         return chunk_size;
     }
 
-    stream->seek(0, bstone::STREAM_SEEK_END);
+    stream->seek(0, bstone::StreamSeekOrigin::end);
     return 0;
 }
 
@@ -6769,7 +6769,7 @@ bool SaveLevel(
 
     ::DeleteChunk(g_playtemp, chunk_name);
 
-    g_playtemp.seek(0, bstone::STREAM_SEEK_END);
+    g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
 
     // Write level chunk id
     //
@@ -6884,7 +6884,7 @@ bool SaveLevel(
 
     // Write chunk size, set file size, and close file
     //
-    g_playtemp.seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
+    g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
     writer.write(bstone::Endian::le(chunk_size));
     g_playtemp.set_size(end_offset);
 
@@ -7142,9 +7142,9 @@ bool SaveTheGame(
     if (is_succeed) {
         cksize = static_cast<int32_t>(end_position - beg_position);
 
-        stream->seek(-(cksize + 4), bstone::STREAM_SEEK_CURRENT);
+        stream->seek(-(cksize + 4), bstone::StreamSeekOrigin::current);
         stream->write(&cksize, 4);
-        stream->seek(cksize, bstone::STREAM_SEEK_CURRENT);
+        stream->seek(cksize, bstone::StreamSeekOrigin::current);
 
         g_playtemp.set_position(0);
         is_succeed = g_playtemp.copy_to(stream);

@@ -331,7 +331,7 @@ boolean MOVIE_LoadBuffer()
             frame += blk.recsize;
             PageLen += blk.recsize;
         } else {
-            Movie_FHandle.seek(chunkstart);
+            Movie_FHandle.set_position(chunkstart);
             free_space = 0;
         }
     }

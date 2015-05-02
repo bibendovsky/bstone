@@ -3935,7 +3935,7 @@ void SaveOverheadChunk(
 
     // Write chunk ID, SIZE, and IMAGE
     //
-    g_playtemp.seek(0, bstone::STREAM_SEEK_END);
+    g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
     g_playtemp.write(chunk_name.c_str(), 4);
     g_playtemp.skip(4);
 
@@ -3949,7 +3949,7 @@ void SaveOverheadChunk(
 
     int64_t end_offset = g_playtemp.get_position();
     int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
-    g_playtemp.seek(-(chunk_size + 4), bstone::STREAM_SEEK_CURRENT);
+    g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
     writer.write(bstone::Endian::le(chunk_size));
 }
 
