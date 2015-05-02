@@ -30,10 +30,10 @@ Free Software Foundation, Inc.,
 #define BSTONE_LOG_INCLUDED
 
 
-#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
+#include "bstone_file_stream.h"
 
 
 namespace bstone {
@@ -165,7 +165,7 @@ namespace bstone {
         }
 
 
-        std::ofstream fstream_;
+        FileStream fstream_;
         Arguments args_;
         std::ostringstream sstream_;
         std::string message_;

@@ -81,7 +81,7 @@ static void open_page_file(
 void PM_Startup()
 {
     ::PM_Shutdown();
-    ::open_page_file(PageFileName);
+    ::open_page_file(::data_dir + PageFileName);
 }
 
 void PM_Shutdown()

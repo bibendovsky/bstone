@@ -82,6 +82,15 @@ bool IStream::write_octet(
     return write(&value, 1);
 }
 
+// (virtual)
+bool IStream::write_string(
+    const std::string& string)
+{
+    return write(
+        string.c_str(),
+        static_cast<int>(string.length()));
+}
+
 bool IStream::copy_to(
     IStream* dst_stream,
     int buffer_size)

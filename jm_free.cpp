@@ -419,7 +419,7 @@ void CAL_SetupAudioFile()
 // load maphead.ext (offsets and tileinfo for map file)
 //
 #ifndef AUDIOHEADERLINKED
-    fname = ::aheadname + ::extension;
+    fname = ::data_dir + ::aheadname + ::extension;
 
     handle.open(fname);
     if (!handle.is_open()) {
@@ -462,7 +462,7 @@ void CAL_SetupGrFile()
     // load ???dict.ext (huffman dictionary for graphics files)
     //
 
-    fname = ::gdictname + ::extension;
+    fname = ::data_dir + ::gdictname + ::extension;
 
     handle.open(fname);
 
@@ -479,7 +479,7 @@ void CAL_SetupGrFile()
 
     ::grstarts = new int32_t[(grstarts_size + 3) / 4];
 
-    fname = ::gheadname + ::extension;
+    fname = ::data_dir + ::gheadname + ::extension;
 
     handle.open(fname);
 
@@ -534,7 +534,7 @@ void CAL_SetupMapFile()
     // load maphead.ext (offsets and tileinfo for map file)
     //
 
-    fname = mheadname + extension;
+    fname = ::data_dir + ::mheadname + ::extension;
 
     handle.open(fname);
 
@@ -614,7 +614,9 @@ static bool are_files_exist(
     const bstone::StringList& file_names)
 {
     for (const auto& file_name : file_names) {
-        if (!bstone::FileStream::is_exists(file_name)) {
+        auto file_path = ::data_dir + file_name;
+
+        if (!bstone::FileStream::is_exists(file_path)) {
             return false;
         }
     }

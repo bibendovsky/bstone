@@ -102,6 +102,10 @@ public:
     virtual bool write_octet(
         uint8_t value);
 
+    // Writes a string without a terminator
+    virtual bool write_string(
+        const std::string& string);
+
     virtual bool can_read() const = 0;
 
     virtual bool can_seek() const = 0;

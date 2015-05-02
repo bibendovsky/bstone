@@ -608,7 +608,7 @@ boolean MOVIE_Play(
     // Start the anim process
     //
 
-    Movie_FHandle.open(MovieStuff->FName);
+    Movie_FHandle.open(::data_dir + MovieStuff->FName);
     if (!Movie_FHandle.is_open()) {
         return false;
     }

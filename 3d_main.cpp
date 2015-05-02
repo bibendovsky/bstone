@@ -110,8 +110,7 @@ const char* MainStrs[] = {
 
 int16_t starting_episode, starting_level, starting_difficulty;
 
-char destPath[MAX_DEST_PATH_LEN + 1];
-char tempPath[MAX_DEST_PATH_LEN + 15];
+std::string data_dir;
 
 #if BETA_TEST
 char bc_buffer[] = BETA_CODE;
@@ -6035,9 +6034,10 @@ void ReadConfig()
 
     bool is_succeed = true;
     uint16_t flags = gamestate.flags;
-    MakeDestPath(::config_file_name.c_str());
 
-    bstone::FileStream stream(tempPath);
+    auto config_path = ::get_profile_dir() + ::config_file_name;
+
+    bstone::FileStream stream(config_path);
 
     if (stream.is_open()) {
         uint32_t checksum = 0;
@@ -6238,14 +6238,14 @@ void ReadConfig()
 
 void WriteConfig()
 {
-    MakeDestPath(::config_file_name.c_str());
+    auto config_path = ::get_profile_dir() + ::config_file_name;
 
-    bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
+    bstone::FileStream stream(config_path, bstone::StreamOpenMode::write);
 
     if (!stream.is_open()) {
         bstone::Log::write_error(
             "Failed to open a config file for writing: {}.",
-            tempPath);
+            config_path);
 
         return;
     }
@@ -7930,17 +7930,26 @@ void InitDestPath()
 
 void InitDestPath()
 {
-    destPath[0] = '\0';
-}
+    auto default_data_dir = ::get_default_data_dir();
+    auto requested_data_dir = ::g_args.get_option_value("datadir");
 
-// -------------------------------------------------------------------------
-// MakeDestPath()
-// -------------------------------------------------------------------------
-void MakeDestPath(
-    const char* file)
-{
-    strcpy(tempPath, destPath);
-    strcat(tempPath, file);
+    if (requested_data_dir.empty()) {
+        data_dir = ::get_default_data_dir();
+    } else {
+        const auto separator =
+#ifdef _WIN32
+            '\\'
+#else
+            '/'
+#endif
+        ;
+
+        data_dir = requested_data_dir;
+
+        if (data_dir.back() != separator) {
+            data_dir += separator;
+        }
+    }
 }
 
 #if IN_DEVELOPMENT

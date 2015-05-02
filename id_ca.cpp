@@ -216,7 +216,7 @@ void CA_CloseDebug()
 // ------------------------------------------------------------------------
 void OpenGrFile()
 {
-    auto fname = ::gfilename + ::extension;
+    auto fname = ::data_dir + ::gfilename + ::extension;
 
     ::grhandle.open(fname);
 
@@ -253,7 +253,7 @@ void OpenMapFile()
         CA_CannotOpen(fname);
     }
 #else
-    fname = ::mfilename + ::extension;
+    fname = ::data_dir + ::mfilename + ::extension;
 
     ::maphandle.open(fname);
 
@@ -282,7 +282,7 @@ void OpenAudioFile()
     std::string fname;
 
 #ifndef AUDIOHEADERLINKED
-    fname = ::afilename + ::extension;
+    fname = ::data_dir + ::afilename + ::extension;
 
     ::audiohandle.open(fname);
 

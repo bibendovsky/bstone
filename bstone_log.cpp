@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 const std::string& get_version_string();
+const std::string& get_profile_dir();
 
 
 namespace bstone {
@@ -44,8 +45,8 @@ Log::Log() :
         message_(),
         message_type_()
 {
-    fstream_.open("bstone_log.txt");
-    fstream_ << std::unitbuf;
+    auto log_path = ::get_profile_dir() + "bstone_log.txt";
+    fstream_.open(log_path, StreamOpenMode::write);
 
     args_.reserve(16);
     message_.reserve(1024);
@@ -183,7 +184,8 @@ void Log::write_internal(
     std::cout << message_ << std::endl;
 
     if (!is_version) {
-        fstream_ << message_ << std::endl;
+        fstream_.write_string(message_);
+        fstream_.write_octet('\n');
     }
 
     if (is_critical || is_version) {

@@ -3271,7 +3271,7 @@ extern int TITLE_LOOP_MUSIC;
     "Try deleting some files from your hard disk.\n\n"
 
 
-extern char tempPath[];
+extern std::string data_dir;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
@@ -3382,8 +3382,6 @@ void InitDigiMap();
 void CleanUpDoors_N_Actors();
 
 
-void MakeDestPath(
-    const char* file);
 void InitDestPath();
 
 int FindChunk(

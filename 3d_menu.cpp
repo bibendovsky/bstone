@@ -2470,8 +2470,10 @@ int16_t CP_LoadGame(
         if (SaveGamesAvail[which]) {
             auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
-            MakeDestPath(name.c_str());
-            bstone::FileStream handle(tempPath);
+
+            auto name_path = ::get_profile_dir() + name;
+
+            bstone::FileStream handle(name_path);
             DrawLSAction(0); // Testing...
             if ((loadedgame = ::LoadTheGame(&handle)) == 0) {
                 LS_current = -1; // clean up
@@ -2494,9 +2496,9 @@ restart:
             auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
 
-            MakeDestPath(name.c_str());
+            auto name_path = ::get_profile_dir() + name;
 
-            bstone::FileStream handle(tempPath);
+            bstone::FileStream handle(name_path);
 
             DrawLSAction(0);
 
@@ -2633,9 +2635,10 @@ int16_t CP_SaveGame(
             DrawLSAction(1); // Testing...
             auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
-            MakeDestPath(name.c_str());
 
-            bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
+            auto name_path = ::get_profile_dir() + name;
+
+            bstone::FileStream stream(name_path, bstone::StreamOpenMode::write);
 
             SaveTheGame(&stream, &SaveGameNames[which][0]);
 
@@ -2679,8 +2682,9 @@ int16_t CP_SaveGame(
                 SaveGamesAvail[which] = 1;
                 strcpy(&SaveGameNames[which][0], input);
 
-                MakeDestPath(name.c_str());
-                bstone::FileStream stream(tempPath, bstone::StreamOpenMode::write);
+                auto name_path = ::get_profile_dir() + name;
+
+                bstone::FileStream stream(name_path, bstone::StreamOpenMode::write);
 
                 DrawLSAction(1);
                 SaveTheGame(&stream, input);
@@ -3868,11 +3872,9 @@ void ReadGameNames()
         auto name = ::get_saved_game_base_name();
         name += static_cast<char>('0' + i);
 
-        ::MakeDestPath(name.c_str());
+        auto name_path = ::get_profile_dir() + name;
 
-        char temp[GAME_DESCRIPTION_LEN + 1];
-
-        bstone::FileStream stream(tempPath);
+        bstone::FileStream stream(name_path);
 
         if (!stream.is_open()) {
             continue;
@@ -3883,7 +3885,17 @@ void ReadGameNames()
         int chunk_size = ::FindChunk(&stream, "DESC");
 
         if (chunk_size > 0) {
-            stream.read(temp, chunk_size);
+            char temp[GAME_DESCRIPTION_LEN + 1];
+
+            std::uninitialized_fill_n(
+                temp,
+                GAME_DESCRIPTION_LEN,
+                '\0');
+
+            auto temp_size = std::min(GAME_DESCRIPTION_LEN, chunk_size);
+
+            stream.read(temp, temp_size);
+
             ::strcpy(&SaveGameNames[i][0], temp);
         } else {
             ::strcpy(&SaveGameNames[i][0], "DESCRIPTION LOST");
