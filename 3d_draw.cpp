@@ -1867,16 +1867,6 @@ void ShowOverhead(
     zoom = 1 << zoom;
     radius /= zoom;
 
-    auto show_actors = (
-        zoom > 1 ||
-        (flags & OV_ACTORS) != 0 ||
-        (ExtraRadarFlags & OV_ACTORS) != 0);
-
-    auto show_pwalls = (
-        zoom == 4 ||
-        (flags & OV_PUSHWALLS) != 0 ||
-        (ExtraRadarFlags & OV_PUSHWALLS) != 0);
-
     int player_angle = player->angle;
     int player_x = player->x;
     int player_y = player->y;
@@ -1998,7 +1988,9 @@ void ShowOverhead(
                         (TravelTable[mx][my] & TT_KEYS) != 0)
                     {
                         color = 0xF3;
-                    } else if (show_actors) {
+                    } else if ((zoom > 1 || (ExtraRadarFlags & OV_ACTORS) != 0) &&
+                        (::is_aog() || (::is_ps() && (flags & OV_ACTORS) != 0)))
+                    {
                         objtype* ob = actorat[mx][my];
 
                         // SHOW ACTORS
@@ -2010,7 +2002,9 @@ void ShowOverhead(
                         {
                             color = static_cast<uint8_t>(0x10 + ob->obclass);
                         }
-                    } else if (show_pwalls) {
+                    } else if ((zoom == 4 || (ExtraRadarFlags & OV_PUSHWALLS) != 0) &&
+                        (::is_aog() || (::is_ps() && (flags & OV_PUSHWALLS) != 0)))
+                    {
                         int iconnum = *(mapsegs[1] + farmapylookup[my] + mx);
 
                         // SHOW PUSHWALLS
