@@ -512,7 +512,7 @@ void ScanInfoPlane()
 
                 ci->areanumber = GetAreaNumber(static_cast<char>(x), static_cast<char>(y));
 
-                if (ci->areanumber >= NUMAREAS) {
+                if (ci->areanumber == 0 || ci->areanumber >= NUMAREAS) {
                     ci->areanumber = 0xff;
                 }
                 continue;
