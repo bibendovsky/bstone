@@ -4296,7 +4296,7 @@ void InitSmartAnimStruct(
     uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
-boolean AnimateOfsObj(
+bool AnimateOfsObj(
     objtype* obj);
 void AdvanceAnimREV(
     objtype* obj);

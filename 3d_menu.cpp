@@ -837,8 +837,6 @@ bool binds_advance_to_item(
     default:
         return false;
     }
-
-    return false;
 }
 
 bool binds_find_item(

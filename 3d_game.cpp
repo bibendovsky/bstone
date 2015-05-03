@@ -2911,7 +2911,6 @@ void ShadowPrintLocationText(
     const char* DemoMsg = "-- DEMO --";
     const char* DebugText = "-- DEBUG MODE ENABLED --";
     const char* s = nullptr, * ls_text[3] = { "-- LOADING --", "-- SAVING --", "-- CHANGE VIEW SIZE --" };
-    char str[8];
     int w, h;
 
 // Used for all fields...

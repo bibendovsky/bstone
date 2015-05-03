@@ -854,7 +854,7 @@ void SpawnOffsetObj(
     case en_morphing_reptilian_warrior:
     case en_morphing_mutanthuman2:
         if (scan_value == 0xffff) {
-            new_actor->temp2 = 0xffff; // set to max! // 60*5+(60*(US_RndT()%20));
+            new_actor->temp2 = static_cast<int16_t>(0xFFFF); // set to max! // 60*5+(60*(US_RndT()%20));
         } else {
             new_actor->temp2 = scan_value * 60;
         }
@@ -1568,9 +1568,9 @@ void SpawnHiddenOfs(
 objtype* FindHiddenOfs(
     classtype which)
 {
-    objtype* obj;
+    auto obj = FindObj(which, -1, -1);
 
-    if (!(obj = FindObj(which, -1, -1))) {
+    if (!obj) {
         ACT2_ERROR(CANT_FIND_HIDDEN_OBJ);
     }
 
@@ -1595,9 +1595,9 @@ objtype* MoveHiddenOfs(
     fixed x,
     fixed y)
 {
-    objtype* obj;
+    auto obj = FindHiddenOfs(which_class);
 
-    if ((obj = FindHiddenOfs(which_class))) {
+    if (obj) {
         obj->obclass = new_class;
         obj->x = x;
         obj->y = y;
@@ -2056,10 +2056,10 @@ void T_SmartThought(
 //      a "smart" think!
 //
 // ------------------------------------------------------------------
-boolean AnimateOfsObj(
+bool AnimateOfsObj(
     objtype* obj)
 {
-    boolean Done = false;
+    bool Done = false;
 
 #if 0 // Anim existance test moved to the calling function.
 
@@ -2437,7 +2437,9 @@ int16_t CheckAndConnect(
         default:
             break;
         }
-    } while (ob = ob->next);
+
+        ob = ob->next;
+    } while (ob);
 
     return bars_connected;
 }

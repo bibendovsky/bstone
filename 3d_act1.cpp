@@ -310,7 +310,9 @@ void SpawnStatic(
 #endif
 #endif
 
-    if (!(spot = FindEmptyStatic())) {
+    spot = FindEmptyStatic();
+
+    if (!spot) {
         return;
     }
 
@@ -416,9 +418,9 @@ void SpawnStatic(
 // ---------------------------------------------------------------------------
 statobj_t* ReserveStatic()
 {
-    statobj_t* spot;
+    auto spot = FindEmptyStatic();
 
-    if (!(spot = FindEmptyStatic())) {
+    if (!spot) {
         ACT1_ERROR(SPAWNSTATIC_TOO_MANY);
     }
 
@@ -469,10 +471,10 @@ statobj_t* UseReservedStatic(
     int16_t tilex,
     int16_t tiley)
 {
-    statobj_t* spot;
+    auto spot = FindReservedStatic();
     int16_t type;
 
-    if (!(spot = FindReservedStatic())) {
+    if (!spot) {
         ACT1_ERROR(CANT_FIND_RESERVE_STATIC);
     }
 
@@ -593,7 +595,9 @@ void PlaceItemType(
 //
 // find a spot in statobjlist to put it in
 //
-    if (!(spot = FindEmptyStatic())) {
+    spot = FindEmptyStatic();
+
+    if (!spot) {
         return;
     }
 
@@ -1317,9 +1321,13 @@ void BlastNearDoors(
 // --------------------------------------------------------------------------
 void DropPlasmaDetonator()
 {
-    objtype* obj;
+    auto obj = ::MoveHiddenOfs(
+        plasma_detonator_reserveobj,
+        plasma_detonatorobj,
+        player->x,
+        player->y);
 
-    if (obj = MoveHiddenOfs(plasma_detonator_reserveobj, plasma_detonatorobj, player->x, player->y)) {
+    if (obj) {
         obj->flags |= FL_SHOOTABLE;
 
         DISPLAY_TIMED_MSG(pd_dropped, MP_DOOR_OPERATE, MT_GENERAL);
@@ -1359,7 +1367,9 @@ void TryDropPlasmaDetonator()
         return;
     }
 
-    if (!(obj = FindObj(rotating_cubeobj, -1, -1))) {
+    obj = FindObj(rotating_cubeobj, -1, -1);
+
+    if (!obj) {
         ACT1_ERROR(CANT_FIND_LEVELCOMPUTER);
     }
 
@@ -1909,7 +1919,9 @@ int16_t LoadMsg(
 // Search for end of MsgNum-1 (Start of our message)
 //
     while (--MsgNum) {
-        if (!(Message = strstr(Message, int_xx))) {
+        Message = strstr(Message, int_xx);
+
+        if (!Message) {
             ACT1_ERROR(INVALID_CACHE_MSG_NUM);
         }
 

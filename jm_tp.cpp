@@ -1840,7 +1840,9 @@ void TP_HandleCodes()
 
             old_first_ch = first_ch + 2;
 
-            if (first_ch = const_cast<const char*>(piStringTable[disp_str_num])) {
+            first_ch = const_cast<const char*>(piStringTable[disp_str_num]);
+
+            if (first_ch) {
                 while (flags & fl_presenting && *first_ch) {
                     if (*first_ch == TP_CONTROL_CHAR) {
                         TP_HandleCodes();
@@ -2531,7 +2533,9 @@ int32_t TP_LoadScript(
         pi->id_cache = id_cache;
         CA_CacheGrChunk(id_cache);
         pi->scriptstart = grsegs[id_cache];
-        if (!(p = strstr(static_cast<const char*>(grsegs[id_cache]), "^XX"))) {
+        p = strstr(static_cast<const char*>(grsegs[id_cache]), "^XX");
+
+        if (!p) {
             TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
         }
         size = static_cast<int32_t>(p - static_cast<const char*>(pi->scriptstart) - 1);

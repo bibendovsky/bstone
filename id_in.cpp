@@ -2061,8 +2061,6 @@ bool in_is_binding_pressed(
             return false;
         }
     }
-
-    return false;
 }
 
 void in_reset_binding_state(

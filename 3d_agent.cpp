@@ -2642,7 +2642,9 @@ boolean TryMove(
 
     for (y = yl; y <= yh; y++) {
         for (x = xl; x <= xh; x++) {
-            if (check = actorat[x][y]) {
+            check = actorat[x][y];
+
+            if (check) {
                 if ((check < objlist) || (check->flags & FL_FAKE_STATIC)) {
                     return false;
                 }
@@ -5822,7 +5824,9 @@ boolean OperateSmartSwitch(
                     WhatItIs = wit_WALL;
                 }
             } else {
-                if (stat = FindStatic(tilex, tiley)) {
+                stat = FindStatic(tilex, tiley);
+
+                if (stat) {
                     WhatItIs = wit_STATIC;
                 }
             }

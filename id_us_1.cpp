@@ -689,7 +689,6 @@ boolean US_LineInput(
             break;
 #endif
 
-        case 0x4c: // Keypad 5
         case sc_up_arrow:
         case sc_down_arrow:
         case sc_page_up:
