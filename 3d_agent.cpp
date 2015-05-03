@@ -2888,45 +2888,43 @@ char GetAreaNumber(
     char tilex,
     char tiley)
 {
-    uint16_t offset, * ptr[2], loop;
-    uint8_t areanumber;
+    ::GAN_HiddenArea = false;
 
-    GAN_HiddenArea = false;
-
-// Are we on a wall?
-//
-    if (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] && (!(tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] & 0xc0))) {
+    // Are we on a wall?
+    //
+    if (::tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] != 0 &&
+        (::tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] & 0xC0) == 0)
+    {
         return 127;
     }
 
-// Get initial areanumber from map
-//
-    offset = farmapylookup[static_cast<int>(tiley)] + tilex;
-    ptr[0] = mapsegs[0] + offset;
-    ptr[1] = mapsegs[1] + offset;
+    // Get initial areanumber from map
+    //
+    auto offset = ::farmapylookup[static_cast<int>(tiley)] + tilex;
 
-// Special tile areas must use a valid areanumber tile around it.
-//
-    int this_offset = 0;
-    if ((areanumber = ValidAreaTile(ptr[0])) == 0) {
-        for (loop = 0; loop < 8; loop++) {
-            this_offset = an_offset[static_cast<int>(loop)];
+    const uint16_t* ptr[2] = {
+        mapsegs[0] + offset,
+        mapsegs[1] + offset,
+    }; // ptr
 
-            // Skip border cases:
-            if (tiley == 63 && this_offset > 1) {
-                continue;
-            }
-            if (tiley == 0 && this_offset < -1) {
-                continue;
-            }
-            if (tilex == 0 && (this_offset == -1 || this_offset == -65 || this_offset == 63)) {
-                continue;
-            }
-            if (tilex == 63 && (this_offset == 1 || this_offset == 65 || this_offset == -63)) {
+    // Special tile areas must use a valid areanumber tile around it.
+    //
+    auto areanumber = ::ValidAreaTile(ptr[0]);
+
+    if (areanumber == 0) {
+        auto loop = 0;
+
+        for (loop = 0; loop < 8; ++loop) {
+            auto offset_delta = ::an_offset[loop];
+            auto new_offset = offset + offset_delta;
+
+            if (new_offset < 0 || new_offset >= (MAPSIZE * MAPSIZE)) {
                 continue;
             }
 
-            if ((areanumber = ValidAreaTile(ptr[0] + this_offset)) != 0) {
+            areanumber = ::ValidAreaTile(ptr[0] + offset_delta);
+
+            if (areanumber != 0) {
                 break;
             }
         }
@@ -2940,7 +2938,7 @@ char GetAreaNumber(
 // values down to an indexable range.
 //
     if (areanumber >= HIDDENAREATILE) {
-        GAN_HiddenArea = true;
+        ::GAN_HiddenArea = true;
         areanumber -= HIDDENAREATILE;
     } else {
         areanumber -= AREATILE;
@@ -2954,7 +2952,7 @@ char GetAreaNumber(
 // ValidAreaTile()
 // ------------------------------------------------------------------------
 uint8_t ValidAreaTile(
-    uint16_t* ptr)
+    const uint16_t* ptr)
 {
     switch (*ptr) {
     case AREATILE:

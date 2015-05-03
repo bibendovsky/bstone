@@ -3891,7 +3891,8 @@ void CalcHealthDisplay();
 void UpdateScore();
 
 uint8_t ValidAreaTile(
-    uint16_t* ptr);
+    const uint16_t* ptr);
+
 char GetAreaNumber(
     char tilex,
     char tiley);
