@@ -2397,7 +2397,7 @@ void GetBonus(
         {
             uint16_t keynum = 0;
 
-            if (!::is_ps()) {
+            if (::is_aog()) {
                 switch (check->itemnumber) {
                 case bo_red_key:
                     keynum = 0;
@@ -3416,26 +3416,21 @@ int16_t InputFloor()
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
         };
 
-        ::CA_CacheGrChunk(TELEPORT_TEXT_BG);
-
-        for (int i = 0; i < 20; ++i) {
-            ::CA_CacheGrChunk(TELEPORT1OFFPIC + i);
-        }
-
         ::CA_CacheGrChunk(STARTFONT + 3);
+        ::CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
         ::VW_FadeOut();
 
         ::DrawTopInfo(sp_normal);
 
-        int border_width = 7;
-        int border_height = 5;
-        int outer_height = 200 - STATUSLINES - TOP_STRIP_HEIGHT;
+        auto border_width = 7;
+        auto border_height = 5;
+        auto outer_height = 200 - STATUSLINES - TOP_STRIP_HEIGHT;
 
         ::BevelBox(
             0,
             TOP_STRIP_HEIGHT,
-            320,
+            ::k_ref_width,
             outer_height,
             BORDER_HI_COLOR,
             BORDER_MED_COLOR,
@@ -3444,7 +3439,7 @@ int16_t InputFloor()
         ::BevelBox(
             border_width,
             TOP_STRIP_HEIGHT + border_height,
-            320 - (2 * border_width),
+            ::k_ref_width - (2 * border_width),
             outer_height - (2 * border_height),
             BORDER_LO_COLOR,
             BORDER_MED_COLOR,
@@ -3462,7 +3457,7 @@ int16_t InputFloor()
             TOP_STRIP_HEIGHT + 55,
             32,
             0,
-            OV_KEYS | OV_PUSHWALLS | OV_ACTORS | OV_WHOLE_MAP);
+            OV_KEYS | OV_WHOLE_MAP);
 
         ::IN_ClearKeysDown();
 
@@ -3477,8 +3472,7 @@ int16_t InputFloor()
         auto is_button_pressed = false;
         auto message = &messages[0];
 
-        PresenterInfo pi;
-        ::memset(&pi, 0, sizeof(pi));
+        PresenterInfo pi {};
         pi.xl = 24;
         pi.yl = TOP_STRIP_HEIGHT + 8;
         pi.xh = pi.xl + 210;
@@ -3512,7 +3506,9 @@ int16_t InputFloor()
 
                 if (!::gamestuff.level[target_level].locked) {
                     result = target_level;
-                } else if (::gamestate.numkeys[kt_red] > 0) {
+                } else if (::gamestate.numkeys[kt_red] > 0 &&
+                    target_level == ::gamestate.key_floor)
+                {
                     result = target_level;
 
                     use_delay = true;
@@ -3521,12 +3517,13 @@ int16_t InputFloor()
                     message = &messages[1];
 
                     ::gamestate.numkeys[kt_red] = 0;
+                    ::gamestate.key_floor += 1;
                 } else {
                     use_delay = true;
                     draw_message = true;
                     draw_current_floor = false;
 
-                    if (::gamestate.mapon == 1 && target_level == 2) {
+                    if (target_level == ::gamestate.key_floor) {
                         draw_locked_floor = false;
                         message = &messages[3];
                     } else {
@@ -3609,6 +3606,8 @@ int16_t InputFloor()
                     TOP_STRIP_HEIGHT + 76,
                     ss_normal,
                     &::gamestuff.level[::gamestate.mapon].stats));
+
+                ::IN_ClearKeysDown();
             }
 
             if (use_delay) {
@@ -3629,9 +3628,9 @@ int16_t InputFloor()
 
         return static_cast<int16_t>(result);
     } else {
-    #define RADAR_FLAGS OV_KEYS
-    #define MAX_TELEPORTS 20
-    #define MAX_MOVE_DELAY 10
+        const auto RADAR_FLAGS = OV_KEYS;
+        const auto MAX_TELEPORTS = 20;
+        const char MAX_MOVE_DELAY = 10;
 
         int16_t buttonPic, buttonY;
         int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
