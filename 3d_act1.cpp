@@ -347,14 +347,14 @@ void SpawnStatic(
         actorat[tilex][tiley] = (objtype*)1;
         break;
 
-    case bo_plasma_detonator:
-        if (!::is_ps()) {
-            break;
-        }
-
     case bo_green_key:
     case bo_gold_key:
         if (::is_ps()) {
+            break;
+        }
+
+    case bo_plasma_detonator:
+        if (!::is_ps()) {
             break;
         }
 

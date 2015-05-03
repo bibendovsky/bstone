@@ -2012,6 +2012,7 @@ void ShowQuickInstructions()
     ::ShowQuickMsg = false;
 
     if (::demoplayback ||
+        (::is_ps() && (::gamestate.mapon > 0)) ||
         (::gamestate.flags & GS_QUICKRUN) != 0)
     {
         return;
