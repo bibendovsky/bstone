@@ -2009,25 +2009,30 @@ void PlayLoop()
 // --------------------------------------------------------------------------
 void ShowQuickInstructions()
 {
-    ShowQuickMsg = false;
+    ::ShowQuickMsg = false;
 
-    if ((demoplayback) || (gamestate.mapon) || (gamestate.flags & GS_QUICKRUN)) {
+    if (::demoplayback ||
+        (::gamestate.flags & GS_QUICKRUN) != 0)
+    {
         return;
     }
 
-    ThreeDRefresh();
-    ThreeDRefresh();
-    ClearMemory();
-    WindowX = 0;
-    WindowY = 16;
-    WindowW = 320;
-    WindowH = 168;
-    CacheMessage(QUICK_INFO1_TEXT);
-    VW_WaitVBL(120);
-    CacheMessage(QUICK_INFO2_TEXT);
-    IN_Ack();
-    IN_ClearKeysDown();
-    CleanDrawPlayBorder();
+    ::ThreeDRefresh();
+    ::ThreeDRefresh();
+    ::ClearMemory();
+    ::WindowX = 0;
+    ::WindowY = 16;
+    ::WindowW = 320;
+    ::WindowH = 168;
+    ::CacheMessage(QUICK_INFO1_TEXT);
+
+    if (!::IN_UserInput(120)) {
+        ::CacheMessage(QUICK_INFO2_TEXT);
+        ::IN_Ack();
+    }
+
+    ::IN_ClearKeysDown();
+    ::CleanDrawPlayBorder();
 }
 
 // --------------------------------------------------------------------------
