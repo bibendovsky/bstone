@@ -1070,24 +1070,22 @@ void DrawKeys()
 // ---------------------------------------------------------------------------
 void DrawKeyPics()
 {
-    char loop;
+    ::DrawKeyPics_COUNT -= 1;
 
-    DrawKeyPics_COUNT--;
-
-    if (!::is_ps()) {
+    if (::is_aog()) {
         static const int indices[NUMKEYS] = {
-            0, 1, 3, 2, 4
+            0, 1, 3, 2, 4,
         }; // indices
 
         static const uint8_t off_colors[NUMKEYS] = {
-            0x11, 0x31, 0x91, 0x51, 0x21
+            0x11, 0x31, 0x91, 0x51, 0x21,
         }; // off_colors
 
         static const uint8_t on_colors[NUMKEYS] = {
-            0xC9, 0xB9, 0x9C, 0x5B, 0x2B
+            0xC9, 0xB9, 0x9C, 0x5B, 0x2B,
         }; // on_colors
 
-        for (int i = 0; i < NUMKEYS; ++i) {
+        for (auto i = 0; i < NUMKEYS; ++i) {
             int index = indices[i];
             uint8_t color = 0;
 
@@ -1105,11 +1103,11 @@ void DrawKeyPics()
                 color);
         }
     } else {
-        for (loop = 0; loop < NUMKEYS; loop++) {
-            if (gamestate.numkeys[static_cast<int>(loop)]) {
-                LatchDrawPic(15 + 2 * loop, 179, RED_KEYPIC + loop);
+        for (auto loop = 0; loop < 3; loop++) {
+            if (::gamestate.numkeys[loop]) {
+                ::LatchDrawPic(15 + 2 * loop, 179, ::RED_KEYPIC + loop);
             } else {
-                LatchDrawPic(15 + 2 * loop, 179, NO_KEYPIC);
+                ::LatchDrawPic(15 + 2 * loop, 179, ::NO_KEYPIC);
             }
         }
     }
