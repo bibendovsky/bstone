@@ -3500,6 +3500,8 @@ int16_t InputFloor()
             }
 
             if (target_level > 0 && target_level != ::gamestate.mapon) {
+                ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
+
                 draw_button = true;
                 is_button_pressed = true;
                 button_index = target_level - 1;
