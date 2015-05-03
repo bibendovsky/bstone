@@ -2235,17 +2235,19 @@ void OperateConcession(
 
             switch (ci->type) {
             case CT_FOOD:
-#ifdef BSTONE_PS
-                writeTokenStr(food_msg1);
-#endif
+                if (::is_ps) {
+                    ::writeTokenStr(food_msg1);
+                }
+
                 DISPLAY_TIMED_MSG(food_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
                 HealSelf(10);
                 break;
 
             case CT_BEVS:
-#ifdef BSTONE_PS
-                writeTokenStr(bevs_msg1);
-#endif
+                if (::is_ps()) {
+                    ::writeTokenStr(bevs_msg1);
+                }
+
                 DISPLAY_TIMED_MSG(bevs_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
                 HealSelf(7);
                 break;
