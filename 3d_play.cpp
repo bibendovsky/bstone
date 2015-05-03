@@ -1283,9 +1283,9 @@ void PopupAutoMap(
     ClearMemory();
     CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
-    if (!::is_ps()) {
+    if (::is_aog()) {
         bool show_whole_map = true;
-        int overlay_flags = OV_KEYS | OV_PUSHWALLS | OV_ACTORS;
+        int overlay_flags = OV_KEYS;
 
         if (is_shift_pressed) {
             show_whole_map = !show_whole_map;

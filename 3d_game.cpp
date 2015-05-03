@@ -2481,7 +2481,7 @@ void SetupGameLevel()
                 }
             }
 
-            if (tile < 64 || icon == PUSHABLETILE) {
+            if ((::is_ps() && tile < 64) || icon == PUSHABLETILE) {
                 TravelTable[x][y] |= TT_TRAVELED;
             }
         }

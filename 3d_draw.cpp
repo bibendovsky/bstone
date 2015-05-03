@@ -1802,6 +1802,44 @@ void DrawRadar()
 
 uint16_t tc_time;
 
+static bool show_pwalls_on_automap(
+    int x,
+    int y)
+{
+    if (::is_ps()) {
+        return true;
+    }
+
+    static const int x_spots[8] = {
+        -1, 0, 1, 1, 1, 0, -1, -1,
+    }; // x_spots
+
+    static const int y_spots[8] = {
+        1, 1, 1, 0, -1, -1, -1, 0,
+    }; // y_spots
+
+    for (auto i = 0; i < 8; ++i) {
+        auto new_x = x + x_spots[i];
+        auto new_y = y + y_spots[i];
+
+        if (new_x < 0 || new_x >= 64 || new_y < 0 || new_y >= 64) {
+            continue;
+        }
+
+        auto iconnum = *(mapsegs[1] + farmapylookup[new_y] + new_x);
+
+        if (iconnum == PUSHABLETILE) {
+            continue;
+        }
+
+        if ((TravelTable[new_x][new_y] & TT_TRAVELED) != 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void ShowOverhead(
     int bx,
     int by,
@@ -1809,7 +1847,8 @@ void ShowOverhead(
     int zoom,
     int flags)
 {
-    const uint8_t PLAYER_COLOR = 0xF1;
+    const uint8_t PWALL_COLOR = 0xF6;
+    const uint8_t PLAYER_COLOR = 0xF0;
     const uint8_t UNMAPPED_COLOR = (::is_ps() ? 0x52 : 0x06);
     const uint8_t MAPPED_COLOR = 0x55;
 
@@ -1827,6 +1866,16 @@ void ShowOverhead(
 
     zoom = 1 << zoom;
     radius /= zoom;
+
+    auto show_actors = (
+        zoom > 1 ||
+        (flags & OV_ACTORS) != 0 ||
+        (ExtraRadarFlags & OV_ACTORS) != 0);
+
+    auto show_pwalls = (
+        zoom == 4 ||
+        (flags & OV_PUSHWALLS) != 0 ||
+        (ExtraRadarFlags & OV_PUSHWALLS) != 0);
 
     int player_angle = player->angle;
     int player_x = player->x;
@@ -1927,7 +1976,7 @@ void ShowOverhead(
                         // SHOW DOORS
                         //
                         if ((tile & 0x80) != 0) {
-                            if (!::is_ps() && doorobjlist[door].type == dr_elevator) {
+                            if (::is_aog() && doorobjlist[door].type == dr_elevator) {
                                 color = 0xFD;
                             } else if (doorobjlist[door].lock != kt_none) {
                                 color = 0x18; // locked!
@@ -1949,33 +1998,26 @@ void ShowOverhead(
                         (TravelTable[mx][my] & TT_KEYS) != 0)
                     {
                         color = 0xF3;
-                    }
-
-                    if (zoom > 1 || (ExtraRadarFlags & OV_ACTORS) != 0) {
+                    } else if (show_actors) {
                         objtype* ob = actorat[mx][my];
 
                         // SHOW ACTORS
                         //
-                        if ((flags & OV_ACTORS) != 0 &&
-                            (ob >= objlist) &&
+                        if (ob >= objlist &&
                             (ob->flags & FL_DEADGUY) == 0 &&
-                            (ob->obclass > deadobj) &&
-                            (ob->obclass < SPACER1_OBJ))
+                            ob->obclass > deadobj &&
+                            ob->obclass < SPACER1_OBJ)
                         {
                             color = static_cast<uint8_t>(0x10 + ob->obclass);
                         }
+                    } else if (show_pwalls) {
+                        int iconnum = *(mapsegs[1] + farmapylookup[my] + mx);
 
-                        if ((zoom == 4) ||
-                            (ExtraRadarFlags & OV_PUSHWALLS) != 0)
-                        {
-                            int iconnum = *(mapsegs[1] + farmapylookup[my] + mx);
-
-                            // SHOW PUSHWALLS
-                            //
-                            if ((flags & OV_PUSHWALLS) != 0 &&
-                                (iconnum == PUSHABLETILE))
-                            {
-                                color = 0x79;
+                        // SHOW PUSHWALLS
+                        //
+                        if (iconnum == PUSHABLETILE) {
+                            if (::show_pwalls_on_automap(mx, my)) {
+                                color = (::is_aog() ? PWALL_COLOR : 0x79);
                             }
                         }
                     }
