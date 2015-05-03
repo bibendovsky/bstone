@@ -4741,7 +4741,7 @@ int TITLE_LOOP_MUSIC = 0;
 
 void initialize_audio_constants()
 {
-    if (::is_ps()) {
+    if (::is_aog()) {
         NUMSNDCHUNKS = 319;
 
         THEME_MUS = 16;
