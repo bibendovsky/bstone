@@ -3297,13 +3297,18 @@ boolean Interrogate(
             // If new areanumber OR no 'area msgs' have been compiled, compile
             // a list of all special messages for this areanumber.
             //
-            if ((LastInfArea == 0xff) || (LastInfArea != ob->areanumber)) {
-                sci_mCacheInfo* ci = InfHintList.smInfo;
-
+            if ((LastInfArea == 0xFF) || (LastInfArea != ob->areanumber)) {
                 NumAreaMsgs = 0;
-                for (; ci->areanumber != 0xff; ci++) {
-                    if (ci->areanumber == ob->areanumber) {
-                        InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci->mInfo.local_val].mInfo.mSeg;
+
+                for (auto i = 0; i < InfHintList.NumMsgs; ++i) {
+                    const auto& ci = InfHintList.smInfo[i];
+
+                    if (ci.areanumber == 0xFF) {
+                        break;
+                    }
+
+                    if (ci.areanumber == ob->areanumber) {
+                        InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
                     }
                 }
 
@@ -3315,10 +3320,10 @@ boolean Interrogate(
             //
             if (NumAreaMsgs) {
                 if (ob->ammo != ob->areanumber) {
-                    ob->s_tilex = 0xff;
+                    ob->s_tilex = 0xFF;
                 }
                 ob->ammo = ob->areanumber;
-                if (ob->s_tilex == 0xff) {
+                if (ob->s_tilex == 0xFF) {
                     ob->s_tilex = static_cast<uint8_t>(Random(NumAreaMsgs));
                 }
                 msgptr = InfAreaMsgs[ob->s_tilex];
