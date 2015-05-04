@@ -73,6 +73,9 @@ namespace {
 
 SDL_DisplayMode display_mode;
 
+const auto default_window_width = 640;
+const auto default_window_height = 480;
+
 int window_width = 0;
 int window_height = 0;
 
@@ -403,6 +406,7 @@ int screen_height = 0;
 bool sdl_is_windowed = false;
 SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
+bool ren_fix_ar = true;
 // BBi
 
 // ===========================================================================
@@ -1868,17 +1872,17 @@ void initialize_video()
     g_args.get_option_values("res", width_str, height_str);
 
     static_cast<void>(bstone::StringHelper::lexical_cast(
-                          width_str, window_width));
+        width_str, window_width));
 
     static_cast<void>(bstone::StringHelper::lexical_cast(
-                          height_str, window_height));
+        height_str, window_height));
 
     if (window_width < k_ref_width) {
-        window_width = k_ref_width;
+        window_width = default_window_width;
     }
 
     if (window_height < k_ref_height) {
-        window_height = k_ref_height;
+        window_height = default_window_height;
     }
 
 
@@ -1886,7 +1890,7 @@ void initialize_video()
     // Option "scale"
     //
 
-    std::string scale_str = g_args.get_option_value("scale");
+    auto&& scale_str = g_args.get_option_value("scale");
 
     if (!scale_str.empty()) {
         int scale = 0;
@@ -1899,6 +1903,15 @@ void initialize_video()
             vga_scale = scale;
             is_custom_scale = true;
         }
+    }
+
+
+    //
+    // Option "nofixar"
+    //
+
+    if (::g_args.has_option("nofixar")) {
+        ::ren_fix_ar = false;
     }
 
 
@@ -1985,13 +1998,21 @@ void initialize_video()
     vga_width = 0;
     vga_height = 0;
 
+    auto ar_correction = 1.0;
+
+    if (ren_fix_ar) {
+        ar_correction = 1.2;
+    }
+
     if (is_custom_scale) {
         vga_width = vga_scale * k_ref_width;
         vga_height = vga_scale * k_ref_height;
     } else {
         vga_scale = 0;
 
-        while (vga_width < window_width || vga_height < window_height) {
+        while (vga_width < window_width ||
+            (vga_height * ar_correction) < window_height)
+        {
             ++vga_scale;
             vga_width += k_ref_width;
             vga_height += k_ref_height;
@@ -2000,13 +2021,10 @@ void initialize_video()
 
     vga_area = vga_width * vga_height;
 
-    double h_scale = static_cast<double>(window_width) /
-                     vga_width;
+    auto h_scale = static_cast<double>(window_width) / vga_width;
+    auto v_scale = window_height / (ar_correction * vga_height);
 
-    double v_scale = static_cast<double>(window_height) /
-                     vga_height;
-
-    double scale;
+    auto scale = 1.0;
 
     if (h_scale <= v_scale) {
         scale = h_scale;
@@ -2018,7 +2036,7 @@ void initialize_video()
         (vga_width * scale) + 0.5);
 
     screen_height = static_cast<int>(
-        (vga_height * scale) + 0.5);
+        (vga_height * scale * ar_correction) + 0.5);
 
     screen_x = (window_width - screen_width) / 2;
     screen_y = (window_height - screen_height) / 2;
