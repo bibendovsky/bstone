@@ -354,11 +354,19 @@ void SpawnStatic(
         if (::is_ps()) {
             break;
         }
+        TravelTable[tilex][tiley] |= TT_KEYS;
+        spot->flags = FL_BONUS;
+        spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+        break;
 
     case bo_plasma_detonator:
         if (!::is_ps()) {
             break;
         }
+        TravelTable[tilex][tiley] |= TT_KEYS;
+        spot->flags = FL_BONUS;
+        spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+        break;
 
     case bo_red_key:
     case bo_yellow_key:
