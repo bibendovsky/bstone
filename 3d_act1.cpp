@@ -352,7 +352,7 @@ void SpawnStatic(
     case bo_green_key:
     case bo_gold_key:
         if (::is_ps()) {
-            break;
+            ::Quit("Green/Gold key (AOG) at ({}, {}).", tilex, tiley);
         }
         TravelTable[tilex][tiley] |= TT_KEYS;
         spot->flags = FL_BONUS;
@@ -361,7 +361,7 @@ void SpawnStatic(
 
     case bo_plasma_detonator:
         if (!::is_ps()) {
-            break;
+            ::Quit("Plasma detonator (PS) at ({}, {}).", tilex, tiley);
         }
         TravelTable[tilex][tiley] |= TT_KEYS;
         spot->flags = FL_BONUS;
@@ -508,7 +508,9 @@ statobj_t* UseReservedStatic(
     case bo_green_key:
     case bo_gold_key:
         if (::is_ps()) {
-            break;
+            ::Quit("Tried to reserve green/gold key (AOG) at ({}, {}).",
+                tilex,
+                tiley);
         }
 
     case bo_red_key:

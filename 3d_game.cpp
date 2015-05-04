@@ -380,8 +380,10 @@ void ScanInfoPlane()
             case SMART_OFF_TRIGGER:
             case SMART_ON_TRIGGER:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Smart trigger (PS) at ({}, {}).", x, y);
                 }
+                continue;
+
             case DOORTRIGGERTILE:
                 // Ignore all values/icons on top of these tiles...
                 continue;
@@ -596,13 +598,17 @@ void ScanInfoPlane()
 
             case 30: // Yellow Puddle
                 if (::is_aog_sw()) {
-                    break;
+                    ::Quit("Yellow puddle (AOG full/PS) at ({}, {}).", x, y);
                 }
+                SpawnStatic(x, y, tile - 23);
+                break;
 
             case 71: // BFG Weapon
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("BFG (PS) at ({}, {}).", x, y);
                 }
+                SpawnStatic(x, y, tile - 23);
+                break;
 
             case 85: // Money bag
             case 86: // Loot
@@ -738,7 +744,7 @@ void ScanInfoPlane()
 
             case 486: // Plasma Detonator
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Plasma detonator (PS) at ({}, {}).", x, y);
                 }
 
                 SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
@@ -836,7 +842,7 @@ void ScanInfoPlane()
             case 138:
             case 139:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Switchable arc barrier (PS) at ({}, {}).", x, y);
                 }
 
                 //
@@ -855,7 +861,7 @@ void ScanInfoPlane()
             case 563: // On
             case 562: // Off
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Switchable post barrier (PS) at ({}, {}).", x, y);
                 }
 
                 SpawnBarrier(en_vpost_barrier, x, y, tile - 562);
@@ -875,7 +881,7 @@ void ScanInfoPlane()
                 }
             case 565:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Cyclic post barrier (PS) at ({}, {}).", x, y);
                 }
 
                 SpawnBarrier(en_vpost_barrier, x, y, 0);
@@ -891,7 +897,7 @@ void ScanInfoPlane()
             case 426: // On
             case 425: // Off
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Spike barrier (PS) at ({}, {}).", x, y);
                 }
 
                 SpawnBarrier(en_vspike_barrier, x, y, tile - 425);
@@ -911,7 +917,7 @@ void ScanInfoPlane()
                 }
             case 428:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Cyclic spike barrier (PS) at ({}, {}).", x, y);
                 }
                 SpawnBarrier(en_vspike_barrier, x, y, 0);
                 break;
@@ -966,7 +972,11 @@ void ScanInfoPlane()
             //
 
             case 141:
-                if (::is_ps() && !loadedgame) {
+                if (!::is_ps()) {
+                    ::Quit("Goldstern spawn (PS) at ({}, {}).", x, y);
+                }
+
+                if (!loadedgame) {
                     if (GoldsternInfo.GoldSpawned) {
                         GAME_ERROR(TOO_MANY_FAST_GOLD_SPAWNS);
                     }
@@ -1332,7 +1342,7 @@ void ScanInfoPlane()
             //
             case 313:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Black ooze (PS) at ({}, {}).", x, y);
                 }
 
                 if (gamestate.difficulty < gd_hard) {
@@ -1341,7 +1351,7 @@ void ScanInfoPlane()
                 tile -= 18;
             case 295:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Black ooze (PS) at ({}, {}).", x, y);
                 }
 
                 if (gamestate.difficulty < gd_medium) {
@@ -1350,7 +1360,7 @@ void ScanInfoPlane()
                 tile -= 18;
             case 277:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Black ooze (PS) at ({}, {}).", x, y);
                 }
 
                 SpawnOffsetObj(en_black2_ooze, x, y);
@@ -1363,7 +1373,7 @@ void ScanInfoPlane()
             //
             case 322:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Green ooze (PS) at ({}, {}).", x, y);
                 }
 
                 if (gamestate.difficulty < gd_hard) {
@@ -1372,7 +1382,7 @@ void ScanInfoPlane()
                 tile -= 18;
             case 304:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Green ooze (PS) at ({}, {}).", x, y);
                 }
 
                 if (gamestate.difficulty < gd_medium) {
@@ -1381,7 +1391,7 @@ void ScanInfoPlane()
                 tile -= 18;
             case 286:
                 if (!::is_ps()) {
-                    break;
+                    ::Quit("Green ooze (PS) at ({}, {}).", x, y);
                 }
 
                 SpawnOffsetObj(en_green2_ooze, x, y);
