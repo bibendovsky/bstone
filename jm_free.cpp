@@ -51,7 +51,7 @@ void CA_CacheScreen(
     int16_t chunk);
 void VH_UpdateScreen();
 void IN_StartAck();
-boolean IN_CheckAck();
+bool IN_CheckAck();
 void OpenMapFile();
 void CloseMapFile();
 void ClearMemory();
@@ -903,7 +903,7 @@ void PreDemo()
 
 #elif BETA_TEST
 
-    boolean param = false;
+    bool param = false;
 
     for (i = 1; i < g_argc; i++) {
         switch (US_CheckParm(g_argv[i], MainStrs)) {
@@ -1365,7 +1365,7 @@ void freed_main()
         break;
 
     case 9:
-        PowerBall = 1;
+        PowerBall = true;
         break;
 
     case 11:

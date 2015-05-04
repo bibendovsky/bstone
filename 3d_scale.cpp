@@ -91,7 +91,7 @@ int dc_dy;
 
 #define SFRACUNIT (0x10000)
 
-extern boolean useBounceOffset;
+extern bool useBounceOffset;
 
 int bounceOffset = 0;
 

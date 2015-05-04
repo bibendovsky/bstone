@@ -82,7 +82,7 @@ void ClearSplitVWB()
 ==================
 */
 
-boolean Breifing(
+bool Breifing(
     breifing_type BreifingType,
     uint16_t episode)
 {
@@ -117,7 +117,7 @@ boolean Breifing(
 void ShPrint(
     const char* text,
     char shadow_color,
-    boolean single_char)
+    bool single_char)
 {
     uint16_t old_color = fontcolor, old_x = px, old_y = py;
     const char* str;

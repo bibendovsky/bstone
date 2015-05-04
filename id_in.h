@@ -270,9 +270,14 @@ extern Bindings in_bindings;
 void in_set_default_bindings();
 
 struct CursorInfo {
-    boolean button0, button1, button2, button3;
-    int16_t x, y;
-    Motion xaxis, yaxis;
+    int16_t button0;
+    int16_t button1;
+    int16_t button2;
+    int16_t button3;
+    int16_t x;
+    int16_t y;
+    Motion xaxis;
+    Motion yaxis;
     Direction dir;
 }; //  CursorInfo
 
@@ -309,13 +314,13 @@ struct JoystickDef {
 
 // Global variables
 
-extern boolean NGinstalled; // JAM
+extern bool NGinstalled; // JAM
 
-extern boolean JoystickCalibrated; // JAM - added
+extern bool JoystickCalibrated; // JAM - added
 extern ControlType ControlTypeUsed; // JAM - added
 extern bool Keyboard[];
-extern boolean MousePresent;
-extern boolean JoysPresent[];
+extern bool MousePresent;
+extern bool JoysPresent[];
 extern bool Paused;
 extern char LastASCII;
 extern ScanCode LastScan;
@@ -332,19 +337,33 @@ extern uint16_t DemoOffset, DemoSize;
                             if (code == LastScan) { LastScan = sc_none; } }
 
 // DEBUG - put names in prototypes
-extern void IN_Startup(), IN_Shutdown(),
-IN_Default(boolean gotit, ControlType in),
-IN_SetKeyHook(void (*)()),
-IN_ClearKeysDown(),
-IN_ReadCursor(CursorInfo*),
-IN_ReadControl(int16_t, ControlInfo*),
-IN_SetControlType(int16_t, ControlType),
-IN_GetJoyAbs(uint16_t joy, uint16_t * xp, uint16_t * yp),
-IN_SetupJoy(uint16_t joy, uint16_t minx, uint16_t maxx,
-            uint16_t miny, uint16_t maxy),
-IN_StopDemo(), IN_FreeDemoBuffer(),
-IN_Ack(), IN_AckBack();
-extern boolean IN_UserInput(
+void IN_Startup();
+void IN_Shutdown();
+
+void IN_Default(
+    bool gotit,
+    ControlType in);
+
+void IN_SetKeyHook(void (*)());
+void IN_ClearKeysDown();
+void IN_ReadCursor(CursorInfo*);
+void IN_ReadControl(int16_t, ControlInfo*);
+void IN_SetControlType(int16_t, ControlType);
+void IN_GetJoyAbs(uint16_t joy, uint16_t * xp, uint16_t * yp);
+
+void IN_SetupJoy(
+    uint16_t joy,
+    uint16_t minx,
+    uint16_t maxx,
+    uint16_t miny,
+    uint16_t maxy);
+
+void IN_StopDemo();
+void IN_FreeDemoBuffer();
+void IN_Ack();
+void IN_AckBack();
+
+extern bool IN_UserInput(
     uint32_t delay);
 extern char IN_WaitForASCII();
 extern ScanCode IN_WaitForKey();

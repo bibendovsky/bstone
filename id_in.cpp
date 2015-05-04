@@ -74,14 +74,14 @@ Free Software Foundation, Inc.,
 //
 // configuration variables
 //
-boolean MousePresent;
-boolean JoysPresent[MaxJoys];
-boolean JoyPadPresent;
-boolean NGinstalled = false;
+bool MousePresent;
+bool JoysPresent[MaxJoys];
+bool JoyPadPresent;
+bool NGinstalled = false;
 
 
 //      Global variables
-boolean JoystickCalibrated; // JAM - added
+bool JoystickCalibrated; // JAM - added
 ControlType ControlTypeUsed; // JAM - added
 bool Keyboard[NumCodes];
 bool Paused;
@@ -122,7 +122,7 @@ Bindings in_bindings;
 =============================================================================
 */
 
-boolean IN_Started;
+bool IN_Started;
 
 static Direction DirTable[] = // Quick lookup for total direction
 {
@@ -1086,7 +1086,7 @@ static void INL_ShutKbd()
 //      INL_StartMouse() - Detects and sets up the mouse
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean INL_StartMouse()
+bool INL_StartMouse()
 {
     return true;
 }
@@ -1169,7 +1169,7 @@ static void INL_ShutJoy(
 //                                      The auto-config assumes the joystick is centered
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean INL_StartJoy(
+bool INL_StartJoy(
     uint16_t joy)
 {
     uint16_t x, y;
@@ -1196,7 +1196,9 @@ boolean INL_StartJoy(
 ///////////////////////////////////////////////////////////////////////////
 void IN_Startup()
 {
-    boolean checkjoys, checkmouse, checkNG;
+    bool checkjoys;
+    bool checkmouse;
+    bool checkNG;
     uint16_t i;
 
     if (IN_Started) {
@@ -1253,7 +1255,7 @@ void IN_Startup()
 //
 ///////////////////////////////////////////////////////////////////////////
 void IN_Default(
-    boolean gotit,
+    bool gotit,
     ControlType in)
 {
     if
@@ -1407,7 +1409,7 @@ void IN_ReadControl(
     int16_t player,
     ControlInfo* info)
 {
-    boolean realdelta = false;
+    bool realdelta = false;
     uint16_t buttons;
     int16_t dx, dy;
     Motion mx, my;
@@ -1673,7 +1675,7 @@ char IN_WaitForASCII()
 //
 ///////////////////////////////////////////////////////////////////////////
 
-boolean btnstate[8];
+bool btnstate[8];
 
 void IN_StartAck()
 {
@@ -1698,7 +1700,7 @@ void IN_StartAck()
 }
 
 
-boolean IN_CheckAck()
+bool IN_CheckAck()
 {
     uint16_t i, buttons;
 
@@ -1746,7 +1748,7 @@ void IN_Ack()
 //              button up.
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean IN_UserInput(
+bool IN_UserInput(
     uint32_t delay)
 {
     uint32_t lasttime;
@@ -1800,7 +1802,7 @@ uint8_t IN_JoyButtons()
     return 0;
 }
 
-boolean INL_StartJoy(
+bool INL_StartJoy(
     uint16_t joy)
 {
     uint16_t x;
@@ -1821,8 +1823,8 @@ boolean INL_StartJoy(
 void IN_Startup()
 {
     int i;
-    boolean checkjoys;
-    boolean checkmouse;
+    bool checkjoys;
+    bool checkmouse;
 
     if (IN_Started) {
         return;

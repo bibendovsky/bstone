@@ -36,11 +36,6 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 
 
-#ifndef _ID_HEADS_H_
-// typedef int16_t boolean;
-#endif
-
-
 // ==========================================================================
 //
 // PARAMETER PASSING TYPES

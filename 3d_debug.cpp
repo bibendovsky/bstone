@@ -67,7 +67,7 @@ void SetPlaneViewSize();
 =============================================================================
 */
 
-boolean ForceLoadDefault = false;
+bool ForceLoadDefault = false;
 
 int16_t DebugKeys();
 
@@ -79,7 +79,7 @@ int16_t DebugKeys();
 =============================================================================
 */
 
-boolean PP_step = false;
+bool PP_step = false;
 #if IN_DEVELOPMENT
 /*
 ================
@@ -385,7 +385,7 @@ void ShapeTest()
     extern uint16_t* DigiList;
     static char buf[10];
 
-    boolean done;
+    bool done;
     ScanCode scan;
     int16_t i, j, k, x;
     int16_t sound;
@@ -609,7 +609,7 @@ char TestQuickSaveMsg[] = { "QUICK SAVE TEST\n ENTER COUNT:" };
 int16_t DebugKeys()
 {
     char str[3];
-    boolean esc;
+    bool esc;
     int16_t level, i;
 
     if (Keyboard[sc_a]) {       // A = Show Actors on AutoMap
@@ -649,7 +649,7 @@ int16_t DebugKeys()
         return 1;
     } else if (Keyboard[sc_d]) { // D = Dumb/Blind Objects (Player Invisable)
         CenterWindow(19, 3);
-        PlayerInvisable ^= 1;
+        ::PlayerInvisable = !::PlayerInvisable;
         if (PlayerInvisable) {
             US_PrintCentered("Player Invisible!");
         } else {
@@ -695,7 +695,7 @@ int16_t DebugKeys()
         }
         VW_UpdateScreen();
         IN_Ack();
-        godmode ^= 1;
+        ::godmode = !::godmode;
         return 1;
     }
 
@@ -797,7 +797,7 @@ int16_t DebugKeys()
         }
         return 1;
     } else if (Keyboard[sc_s]) { // S = slow motion
-        singlestep ^= 1;
+        ::singlestep = !::singlestep;
         CenterWindow(18, 3);
         if (singlestep) {
             US_PrintCentered("Slow motion ON");
@@ -987,7 +987,7 @@ void OverheadRefresh()
 
 void ViewMap()
 {
-    boolean button0held;
+    bool button0held;
 
     viewtype = actoratview;
 //      button0held = false;

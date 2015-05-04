@@ -673,7 +673,7 @@ void ExplodeStatics(
 
     statobj_t* spot;
     int16_t y_diff, x_diff;
-    boolean remove;
+    bool remove;
 
     for (spot = &statobjlist[0]; spot != laststatobj; spot++) {
         if (spot->shapenum != -1) {
@@ -827,7 +827,7 @@ void InitDoorList()
 void SpawnDoor(
     int16_t tilex,
     int16_t tiley,
-    boolean vertical,
+    bool vertical,
     keytype lock,
     door_t type)
 {
@@ -1136,7 +1136,7 @@ void OperateDoor(
     int16_t door)
 {
     int16_t lock;
-    boolean oneway = false;
+    bool oneway = false;
 
 
     //
@@ -2126,7 +2126,7 @@ void CacheConcessionMsg()
 // --------------------------------------------------------------------------
 // ReuseMsg()
 // --------------------------------------------------------------------------
-boolean ReuseMsg(
+bool ReuseMsg(
     mCacheInfo* ci,
     int16_t count,
     int16_t struct_size)
@@ -2171,7 +2171,7 @@ void OperateConcession(
     uint16_t concession)
 {
     con_mCacheInfo* ci;
-    boolean ok = false;
+    bool ok = false;
 
     ci = &ConHintList.cmInfo[concession - 1];
 

@@ -131,8 +131,6 @@ extern char signonv1;
 //      v1.0d1
 //
 
-using boolean = int16_t;
-
 struct Point {
     int16_t x;
     int16_t y;
@@ -179,7 +177,7 @@ extern void CalcMemFree();
 #define UPDATETERMINATE 0x0301
 
 extern uint16_t mapwidth, mapheight, tics, realtics;
-extern boolean compatability;
+extern bool compatability;
 
 extern uint8_t* updateptr;
 extern uint16_t uwidthtable[UPDATEHIGH];

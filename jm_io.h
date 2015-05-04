@@ -28,18 +28,18 @@ Free Software Foundation, Inc.,
 // -------------------------------------------------------------------------
 // Function Prototypes
 // -------------------------------------------------------------------------
-boolean IO_FarRead(
+bool IO_FarRead(
     int handle,
     void* dest,
     int length);
-boolean IO_FarWrite(
+bool IO_FarWrite(
     int handle,
     const void* source,
     int length);
-boolean IO_ReadFile(
+bool IO_ReadFile(
     const char* filename,
     void** ptr);
-boolean IO_WriteFile(
+bool IO_WriteFile(
     const char* filename,
     const void* ptr,
     int length);

@@ -51,9 +51,9 @@ int displayofs;
 
 int* ylookup = nullptr;
 
-boolean screenfaded;
+bool screenfaded;
 
-// boolean fastpalette; // if true, use outsb to set
+// bool fastpalette; // if true, use outsb to set
 
 uint8_t palette1[256][3], palette2[256][3];
 

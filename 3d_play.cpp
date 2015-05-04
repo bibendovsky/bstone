@@ -47,7 +47,7 @@ void PreloadGraphics();
 void TryDropPlasmaDetonator();
 
 void IN_StartAck();
-boolean IN_CheckAck();
+bool IN_CheckAck();
 void MoveDoors();
 void MovePWalls();
 void ConnectAreas();
@@ -80,13 +80,13 @@ objtype* DeadGuys[MAXACTORS];
 uint8_t NumDeadGuys;
 #endif
 
-boolean madenoise; // true when shooting or screaming
+bool madenoise; // true when shooting or screaming
 uint8_t alerted = 0, alerted_areanum;
 
 
 exit_t playstate;
 
-boolean PowerBall = false;
+bool PowerBall = false;
 
 #if TECH_SUPPORT_VERSION
 int16_t bordertime, DebugOk = true, InstantWin = 0, InstantQuit = 0;
@@ -110,7 +110,8 @@ objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
 uint16_t farmapylookup[MAPSIZE];
 uint8_t* nearmapylookup[MAPSIZE];
 
-boolean singlestep = false, godmode; // ,noclip;
+bool singlestep = false;
+bool godmode; // ,noclip;
 int16_t extravbls = 0;
 
 uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
@@ -122,7 +123,9 @@ objtype* actorat[MAPSIZE][MAPSIZE];
 // replacing refresh manager
 //
 uint16_t mapwidth, mapheight, tics, realtics;
-boolean compatability, usedummy = false, nevermark = false;
+bool compatability;
+bool usedummy = false;
+bool nevermark = false;
 uint8_t* updateptr;
 uint16_t mapwidthtable[64];
 uint16_t uwidthtable[UPDATEHIGH];
@@ -132,7 +135,10 @@ uint8_t update[UPDATESIZE];
 //
 // control info
 //
-boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
+bool mouseenabled;
+bool joystickenabled;
+bool joypadenabled;
+bool joystickprogressive;
 int16_t joystickport;
 int16_t dirscan[4] = { sc_up_arrow, sc_right_arrow, sc_down_arrow, sc_left_arrow };
 
@@ -157,7 +163,8 @@ const int viewsize = 20;
 
 bool buttonheld[NUMBUTTONS];
 
-boolean demorecord, demoplayback;
+bool demorecord;
+bool demoplayback;
 char* demoptr, * lastdemoptr;
 void* demobuffer;
 
@@ -186,10 +193,10 @@ void RemoveObj(
 void PollControls();
 void StopMusic();
 void StartMusic(
-    boolean preload);
+    bool preload);
 void PlayLoop();
 void SpaceEntryExit(
-    boolean entry);
+    bool entry);
 void FinishPaletteShifts();
 void ShowQuickInstructions();
 void CleanDrawPlayBorder();
@@ -781,10 +788,11 @@ void CenterWindow(
 =====================
 */
 
-extern boolean PP_step, sqActive;
+extern bool PP_step;
+extern bool sqActive;
 extern int16_t pickquick;
 
-boolean refresh_screen;
+bool refresh_screen;
 
 uint8_t jam_buff_cmp[] = { sc_j, sc_a, sc_m };
 uint8_t jam_buff[sizeof(jam_buff_cmp)];
@@ -793,12 +801,12 @@ char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
 void CheckKeys()
 {
-    boolean one_eighty = false;
+    bool one_eighty = false;
     uint8_t scan;
-    static boolean Plus_KeyReleased;
-    static boolean Minus_KeyReleased;
-    static boolean I_KeyReleased;
-    static boolean S_KeyReleased;
+    static bool Plus_KeyReleased;
+    static bool Minus_KeyReleased;
+    static bool I_KeyReleased;
+    static bool S_KeyReleased;
 
 #if IN_DEVELOPMENT || BETA_TEST
 //      if (DebugOk && (Keyboard[sc_p] || PP_step))
@@ -1074,7 +1082,7 @@ void CheckKeys()
         ClearSplitVWB();
         US_ControlPanel(scan);
         if (refresh_screen) {
-            boolean old = loadedgame;
+            bool old = loadedgame;
 
             loadedgame = false;
             DrawPlayScreen(false);
@@ -1200,7 +1208,7 @@ void CheckKeys()
 // -------------------------------------------------------------------------
 void CheckMusicToggle()
 {
-    static boolean M_KeyReleased;
+    static bool M_KeyReleased;
 
     if (in_is_binding_pressed(e_bi_music)) {
         if (M_KeyReleased && (
@@ -1242,7 +1250,7 @@ char Computing[] = { "Computing..." };
 // --------------------------------------------------------------------------
 
 void ChangeSwapFiles(
-    boolean display)
+    bool display)
 {
     ClearMemory();
 
@@ -1540,7 +1548,7 @@ void StopMusic()
 //              o preload = true, music is cached but not started
 // -------------------------------------------------------------------------
 void StartMusic(
-    boolean preload)
+    bool preload)
 {
     int musicchunk;
 
@@ -1886,12 +1894,12 @@ think:
 ===================
 */
 
-extern boolean ShowQuickMsg;
+extern bool ShowQuickMsg;
 
 
 void PlayLoop()
 {
-    boolean reset_areas = false;
+    bool reset_areas = false;
     objtype* obj;
 
     lasttimecount = 0;

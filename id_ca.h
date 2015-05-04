@@ -147,13 +147,13 @@ void CAL_ShiftSprite(
 void CA_OpenDebug();
 void CA_CloseDebug();
 
-boolean CA_ReadFile(
+bool CA_ReadFile(
     char* filename,
     void** ptr);
-boolean CA_LoadFile(
+bool CA_LoadFile(
     char* filename,
     void** ptr);
-boolean CA_WriteFile(
+bool CA_WriteFile(
     char* filename,
     void* ptr,
     int32_t length);

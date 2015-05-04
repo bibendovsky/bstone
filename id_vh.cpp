@@ -31,7 +31,7 @@ void VL_LatchToScreen(
     int x,
     int y);
 void IN_StartAck();
-boolean IN_CheckAck();
+bool IN_CheckAck();
 void CalcTics();
 void ForceUpdateStatusBar();
 

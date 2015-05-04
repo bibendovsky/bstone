@@ -2278,7 +2278,7 @@ void TP_CachePage(
     piAnimInfo* anim;
     int16_t loop;
     uint16_t shapenum;
-    boolean end_of_page = false;
+    bool end_of_page = false;
     int16_t numanims = 0;
 
     if (pi->flags & TPF_CACHE_NO_GFX) {
@@ -2398,7 +2398,7 @@ void TP_JumpCursor()
 // --------------------------------------------------------------------------
 void TP_Print(
     const char* str,
-    boolean single_char)
+    bool single_char)
 {
 
 //
@@ -2439,14 +2439,14 @@ void TP_Print(
 // --------------------------------------------------------------------------
 // TP_SlowPrint()
 // --------------------------------------------------------------------------
-boolean TP_SlowPrint(
+bool TP_SlowPrint(
     const char* str,
     char delay)
 {
     char old_color = fontcolor;
     int16_t old_x, old_y;
     int32_t tc;
-    boolean aborted = false;
+    bool aborted = false;
 
     while (*str) {
         if (pi->flags & TPF_SHOW_CURSOR) {

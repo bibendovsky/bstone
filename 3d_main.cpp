@@ -125,7 +125,7 @@ char QuitMsg[] = { "Unit: $%02x Error: $%02x" };
 uint16_t TopColor, BottomColor;
 #endif
 
-boolean nospr;
+bool nospr;
 
 int16_t dirangle[9] = { 0, ANGLES / 8, 2 * ANGLES / 8, 3 * ANGLES / 8, 4 * ANGLES / 8, 5 * ANGLES / 8, 6 * ANGLES / 8, 7 * ANGLES / 8, ANGLES };
 
@@ -144,7 +144,8 @@ int heightnumerator;
 int minheightdiv;
 
 
-boolean startgame, loadedgame;
+bool startgame;
+bool loadedgame;
 int16_t mouseadjustment;
 
 const std::string config_file_name = "bstone_config";
@@ -6312,7 +6313,7 @@ void WriteConfig()
 =====================
 */
 
-boolean ShowQuickMsg;
+bool ShowQuickMsg;
 void NewGame(
     int16_t difficulty,
     int16_t episode)
@@ -6501,9 +6502,9 @@ char LS_current = -1, LS_total = -1;
 bool LoadLevel(
     int level_index)
 {
-    extern boolean ForceLoadDefault;
+    extern bool ForceLoadDefault;
 
-    boolean oldloaded = loadedgame;
+    bool oldloaded = loadedgame;
 
     extern int16_t nsd_table[];
     extern int16_t sm_table[];
@@ -7169,7 +7170,7 @@ bool LevelInPlaytemp(
 // --------------------------------------------------------------------------
 // CheckDiskSpace()
 // --------------------------------------------------------------------------
-boolean CheckDiskSpace(
+bool CheckDiskSpace(
     int32_t needed,
     const char* text,
     cds_io_type io_type)
@@ -7276,7 +7277,7 @@ void CycleColors()
                                           { 12, 0, 0xfa, 0xfe }, };
 
     uint8_t loop, cbuffer[CRNG_SIZE][3];
-    boolean changes = false;
+    bool changes = false;
 
     for (loop = 0; loop < NUM_RANGES; loop++) {
         CycleInfo* c = &crng[loop];
@@ -7398,11 +7399,11 @@ void CalcProjection(
 // --------------------------------------------------------------------------
 // DoMovie()
 // --------------------------------------------------------------------------
-boolean DoMovie(
+bool DoMovie(
     movie_t movie,
     void* palette)
 {
-    boolean ReturnVal;
+    bool ReturnVal;
 //      StopMusic();
     SD_StopSound();
 
@@ -7528,7 +7529,7 @@ void DemoLoop()
 
         if (!::no_screens) {
             while (!(gamestate.flags & GS_NOWAIT)) {
-                extern boolean sqActive;
+                extern bool sqActive;
 
                 // Start music when coming from menu...
                 //
@@ -7891,7 +7892,7 @@ void InitDestPath()
         struct _finddata_t fd;
         intptr_t fd_handle;
         int16_t fd_result;
-        boolean fd_found = false;
+        bool fd_found = false;
 
         len = strlen(env_value);
 

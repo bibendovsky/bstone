@@ -134,7 +134,7 @@ int16_t DrawShape(
 =============================================================================
 */
 
-extern boolean noShots;
+extern bool noShots;
 extern int16_t bounceOk;
 
 int16_t tryDetonatorDelay = 0;
@@ -150,7 +150,7 @@ int16_t anglefrac;
 
 objtype* LastAttacker;
 
-boolean PlayerInvisable = false;
+bool PlayerInvisable = false;
 
 char LocationText[MAX_LOCATION_DESC_LEN];
 
@@ -185,7 +185,7 @@ void SaveOverheadChunk(
 
 void DisplayTeleportName(
     char tpNum,
-    boolean locked);
+    bool locked);
 
 void ForceUpdateStatusBar();
 
@@ -321,18 +321,18 @@ void SpawnPlayer(
 void Thrust(
     int16_t angle,
     int32_t speed);
-boolean TryMove(
+bool TryMove(
     objtype* ob);
 void T_Player(
     objtype* ob);
 
-boolean ClipMove(
+bool ClipMove(
     objtype* ob,
     int32_t xmove,
     int32_t ymove);
 
 void SocketToggle(
-    boolean TurnOn);
+    bool TurnOn);
 void CheckStatsBonus();
 
 void T_Stand(
@@ -472,7 +472,7 @@ void ControlMovement(
         }
 
         if (gamestate.turn_around) {
-            boolean done = false;
+            bool done = false;
 
             if (gamestate.turn_around > 0) {
                 gamestate.turn_around -= angleunits;
@@ -1027,7 +1027,7 @@ void UpdateScore()
 // --------------------------------------------------------------------------
 void GivePoints(
     int32_t points,
-    boolean add_to_stats)
+    bool add_to_stats)
 {
 // Add score to statistics.
 //
@@ -1208,7 +1208,7 @@ void GiveWeapon(
 // NOTE : This re-computes the number of LEDs to be lit.
 // ---------------------------------------------------------------------------
 void DrawAmmo(
-    boolean ForceRefresh)
+    bool ForceRefresh)
 {
     int16_t temp;
     uint16_t ammo, max_ammo;
@@ -1656,7 +1656,7 @@ void GiveToken(
 //      DISPLAY_TIMED_MSG(msg,pri,type) - For E-Z Timed Msgs (std. display time)
 //     DISPLAY_MSG(msg,pri,type)                 - For E-Z NON-Timed Msgs.
 // --------------------------------------------------------------------------
-boolean DisplayInfoMsg(
+bool DisplayInfoMsg(
     const std::string& Msg,
     msg_priorities Priority,
     int16_t DisplayTime,
@@ -1673,7 +1673,7 @@ boolean DisplayInfoMsg(
         MsgType);
 }
 
-boolean DisplayInfoMsg(
+bool DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
     int16_t DisplayTime,
@@ -2383,7 +2383,7 @@ extern std::string bonus_msg25;
 void GetBonus(
     statobj_t* check)
 {
-    boolean givepoints = false;
+    bool givepoints = false;
     int16_t shapenum = -1;
 
     switch (check->itemnumber) {
@@ -2609,7 +2609,7 @@ void writeTokenStr(
 */
 
 
-boolean TryMove(
+bool TryMove(
     objtype* ob)
 {
     int16_t xl, yl, xh, yh, x, y, xx, yy;
@@ -2702,7 +2702,7 @@ boolean TryMove(
 ===================
 */
 
-boolean ClipMove(
+bool ClipMove(
     objtype* ob,
     int32_t xmove,
     int32_t ymove)
@@ -2772,7 +2772,7 @@ void Thrust(
     uint16_t offset, * map[2];
     int16_t dx, dy;
     int16_t dangle;
-    boolean ignore_map1;
+    bool ignore_map1;
 
     thrustspeed += speed;
 //
@@ -2879,7 +2879,7 @@ void Thrust(
 
 extern int16_t an_offset[];
 
-boolean GAN_HiddenArea;
+bool GAN_HiddenArea;
 
 // ------------------------------------------------------------------------
 // GetAreaNumber()
@@ -3024,7 +3024,7 @@ void Cmd_Use()
     uint16_t iconnum;
     uint8_t static interrogate_delay = 0;
 
-    boolean tryDetonator = false;
+    bool tryDetonator = false;
 
 // Find which cardinal direction the player is facing
 //
@@ -3270,10 +3270,10 @@ char int_interrogate[] = "INTERROGATE:",
 // --------------------------------------------------------------------------
 // Interrogate()
 // --------------------------------------------------------------------------
-boolean Interrogate(
+bool Interrogate(
     objtype* ob)
 {
-    boolean rt_value = true;
+    bool rt_value = true;
     char* msgptr = nullptr;
 
     strcpy(msg, int_interrogate);
@@ -3393,7 +3393,7 @@ char if_noImage[] = "   AREA\n"
 
 statsInfoType ov_stats;
 static uint8_t* ov_buffer;
-boolean ov_noImage = false;
+bool ov_noImage = false;
 
 #define TOV_X 16
 #define TOV_Y 132
@@ -3643,7 +3643,8 @@ int16_t InputFloor()
         int16_t teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
         char moveActive = 0;
         objtype old_player;
-        boolean locked = false, buttonsDrawn = false;
+        bool locked = false;
+        bool buttonsDrawn = false;
 
         ClearMemory();
         VW_FadeOut();
@@ -3962,7 +3963,7 @@ void SaveOverheadChunk(
 // --------------------------------------------------------------------------
 void DisplayTeleportName(
     char tpNum,
-    boolean locked)
+    bool locked)
 {
     const char* s;
     int w;
@@ -4012,7 +4013,7 @@ void CacheDrawPic(
 #define PERC_W 13
 #define PERC_H 5
 
-boolean show_stats_quick;
+bool show_stats_quick;
 
 // --------------------------------------------------------------------------
 // ShowStats()
@@ -4195,7 +4196,7 @@ void PrintStatPercent(
 // --------------------------------------------------------------------------
 // PerfectStats()
 // --------------------------------------------------------------------------
-boolean PerfectStats()
+bool PerfectStats()
 {
     if ((gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points) &&
         (gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&
@@ -4500,8 +4501,8 @@ void LoadTerminalCommands()
 
 
 
-boolean term_cursor_vis = true;
-boolean shadow_text = true;
+bool term_cursor_vis = true;
+bool shadow_text = true;
 
 #if 1
 
@@ -4512,7 +4513,7 @@ PresenterInfo Terminal_PI;
 // ---------------------------------------------------------------------------
 void TerminalPrint(
     char* msg,
-    boolean FastPrint)
+    bool FastPrint)
 {
     Terminal_PI.print_delay = !FastPrint;
     Terminal_PI.script[0] = msg;
@@ -4531,7 +4532,7 @@ void TerminalPrint(
 
 void TerminalPrint(
     char* msg,
-    boolean FastPrint)
+    bool FastPrint)
 {
 #define TERM_PRINT_DELAY 1
     fontstruct* font;
@@ -4674,7 +4675,7 @@ void TerminalPrint(
 // ---------------------------------------------------------------------------
 void CacheTerminalPrint(
     int16_t MsgNum,
-    boolean FastPrint)
+    bool FastPrint)
 {
     char* Message;
 
@@ -4709,7 +4710,7 @@ char TERM_MSG[] = "^ST1^CEEnter commands and press ENTER.\r^CEPress ESC to exit 
 // ActivateTerminal()
 // ---------------------------------------------------------------------------
 void ActivateTerminal(
-    boolean skiplink)
+    bool skiplink)
 {
 #define MAX_INPUT 30
     char buffer[MAX_INPUT];
@@ -5192,7 +5193,7 @@ void GunAttack(
     int16_t damage;
     int16_t dx, dy, dist;
     int32_t viewdist;
-    boolean skip = false;
+    bool skip = false;
 
     if (gamestate.weapon != wp_autocharge) {
         MakeAlertNoise(ob);
@@ -5767,11 +5768,11 @@ void SW_HandleStatic(
 //      FALSE - Keep switch in map
 //
 // -------------------------------------------------------------------------
-boolean OperateSmartSwitch(
+bool OperateSmartSwitch(
     uint16_t tilex,
     uint16_t tiley,
     char Operation,
-    boolean Force)
+    bool Force)
 {
     enum what_is_it {
         wit_NOTHING,

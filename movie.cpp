@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #include "an_codes.h"
 
 
-boolean IN_CheckAck();
+bool IN_CheckAck();
 void VH_UpdateScreen();
 
 
@@ -101,13 +101,13 @@ uint32_t PageLen; // Len of data loaded into MovieBuffer
 char* BufferPtr; // Ptr to next frame in MovieBuffer
 char* NextPtr; // Ptr Ofs to next frame after BufferOfs
 
-boolean MorePagesAvail; // More Pages avail on disk?
+bool MorePagesAvail; // More Pages avail on disk?
 
 //
 
 MOVIE_FLAGS movie_flag;
-boolean ExitMovie;
-boolean EverFaded;
+bool ExitMovie;
+bool EverFaded;
 int32_t seek_pos;
 char movie_reps;
 ControlInfo ci;
@@ -140,8 +140,8 @@ void JM_MemToScreen();
 void JM_ClearVGAScreen(
     uint8_t fill);
 void FlipPages();
-boolean CheckFading();
-boolean CheckPostFade();
+bool CheckFading();
+bool CheckPostFade();
 
 
 // ===========================================================================
@@ -278,7 +278,7 @@ void MOVIE_ShowFrame(
 // PageLen = Length of data loaded into buffer
 //
 // ---------------------------------------------------------------------------
-boolean MOVIE_LoadBuffer()
+bool MOVIE_LoadBuffer()
 {
     anim_frame blk;
     long chunkstart;
@@ -597,7 +597,7 @@ void MOVIE_HandlePage(
 // RETURNS: true  - Movie File was found and "played"
 //      false - Movie file was NOT found!
 // ---------------------------------------------------------------------------
-boolean MOVIE_Play(
+bool MOVIE_Play(
     MovieStuff_t* MovieStuff)
 {
     // Init our Movie Stuff...

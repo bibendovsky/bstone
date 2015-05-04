@@ -215,7 +215,7 @@ struct ActiveTrack {
 
     // The rest is set up by the code
     Instrument inst;
-    boolean percussive;
+    bool percussive;
     uint16_t* seq;
     uint32_t nextevent;
 }; // ActiveTrack
@@ -228,41 +228,40 @@ struct ActiveTrack {
 
 
 // Global variables
-extern boolean AdLibPresent,
-               SoundSourcePresent,
-               SoundBlasterPresent,
-               NeedsMusic, // For Caching Mgr
-               SoundPositioned;
+extern bool AdLibPresent;
+extern bool SoundSourcePresent;
+extern bool SoundBlasterPresent;
+extern bool NeedsMusic; // For Caching Mgr
+extern bool SoundPositioned;
 extern SDMode SoundMode;
 extern SDSMode DigiMode;
 extern SMMode MusicMode;
-extern boolean DigiPlaying;
+extern bool DigiPlaying;
 extern int16_t DigiMap[];
 extern std::atomic_uint32_t TimeCount; // Global time in ticks
 
-extern boolean sqActive;
-extern boolean sqPlayedOnce;
+extern bool sqActive;
+extern bool sqPlayedOnce;
 
 // Function prototypes
-extern void SD_Startup(),
-SD_Shutdown(),
-SD_Default(boolean gotit, SDMode sd, SMMode sm),
-
-SD_PositionSound(int16_t leftvol, int16_t rightvol);
-extern boolean SD_PlaySound(
+void SD_Startup();
+void SD_Shutdown();
+void SD_Default(bool gotit, SDMode sd, SMMode sm);
+void SD_PositionSound(int16_t leftvol, int16_t rightvol);
+bool SD_PlaySound(
     int sound);
-extern void SD_SetPosition(
+void SD_SetPosition(
     int16_t leftvol,
-    int16_t rightvol),
-SD_StopSound(),
-SD_WaitSoundDone(),
-SD_StartMusic(int index),
-SD_MusicOn(),
-SD_MusicOff(),
-SD_FadeOutMusic(),
+    int16_t rightvol);
+void SD_StopSound();
+void SD_WaitSoundDone();
+void SD_StartMusic(int index);
+void SD_MusicOn();
+void SD_MusicOff();
+void SD_FadeOutMusic();
 
-SD_SetUserHook(void (* hook)());
-extern boolean SD_MusicPlaying(),
+void SD_SetUserHook(void (* hook)());
+bool SD_MusicPlaying(),
 SD_SetSoundMode(SDMode mode),
 SD_SetMusicMode(SMMode mode);
 bool SD_SoundPlaying();

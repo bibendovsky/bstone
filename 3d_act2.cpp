@@ -29,20 +29,20 @@ Free Software Foundation, Inc.,
 
 void FirstSighting(
     objtype* ob);
-boolean SightPlayer(
+bool SightPlayer(
     objtype* ob);
 void TakeDamage(
     int16_t points,
     objtype* attacker);
 void OpenDoor(
     int16_t door);
-boolean CheckView(
+bool CheckView(
     objtype* from_obj,
     objtype* to_obj);
 int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
-boolean ClipMove(
+bool ClipMove(
     objtype* ob,
     int32_t xmove,
     int32_t ymove);
@@ -413,9 +413,9 @@ void T_BlowBack(
 void DoAttack(
     objtype* ob);
 
-boolean MoveTrappedDiag(
+bool MoveTrappedDiag(
     objtype* ob);
-boolean CheckTrappedDiag(
+bool CheckTrappedDiag(
     objtype* ob);
 
 void ChangeShootMode(
@@ -561,7 +561,7 @@ void T_SmartThought(
     objtype* obj);
 void T_Action(
     objtype* obj);
-boolean ProjectileTryMove(
+bool ProjectileTryMove(
     objtype* ob,
     fixed deltax,
     fixed deltay);
@@ -1330,7 +1330,7 @@ void T_OfsBounce(
         oldtx = ob->tilex;
         oldty = ob->tiley;
         if (!TryWalk(ob, true)) {
-            boolean check_opposite = false;
+            bool check_opposite = false;
 
             // Restore tilex/tiley
             //
@@ -1425,7 +1425,7 @@ void T_OfsBounce(
 // ---------------------------------------------------------------------------
 // MoveTrappedDiag()
 // ---------------------------------------------------------------------------
-boolean MoveTrappedDiag(
+bool MoveTrappedDiag(
     objtype* ob)
 {
 // Don't mess with HORZs, VERTs, or normal DIAGs.
@@ -1466,7 +1466,7 @@ boolean MoveTrappedDiag(
 // ---------------------------------------------------------------------------
 // CheckTrappedDiag()
 // ---------------------------------------------------------------------------
-boolean CheckTrappedDiag(
+bool CheckTrappedDiag(
     objtype* ob)
 {
     dirtype orgdir = ob->dir;
@@ -2314,7 +2314,7 @@ uint16_t UpdateBarrierTable(
     uint8_t level,
     uint8_t x,
     uint8_t y,
-    boolean OnOff)
+    bool OnOff)
 {
     //
     // Scan Table...
@@ -2384,7 +2384,7 @@ uint16_t ScanBarrierTable(
 // --------------------------------------------------------------------------
 // Checks to see if the Barrier obj is free
 // --------------------------------------------------------------------------
-boolean CheckActor(
+bool CheckActor(
     objtype* actor,
     uint16_t code)
 {
@@ -2525,7 +2525,7 @@ void SpawnBarrier(
     enemy_t which,
     int16_t tilex,
     int16_t tiley,
-    boolean OnOff)
+    bool OnOff)
 {
     nevermark = !OnOff;
     SpawnNewObj(tilex, tiley, &s_ofs_stand);
@@ -3664,7 +3664,7 @@ void CheckForSpecialTile(
 {
     uint16_t* map, * map1;
     objtype* old_new;
-    boolean getarea = false;
+    bool getarea = false;
 
     //
     // Only shootables can use special tiles...
@@ -4156,9 +4156,9 @@ void T_Chase(
     int32_t move;
     int16_t dx, dy, dist, chance;
 #ifdef DODGE_N_CHASE
-    boolean dodge;
+    bool dodge;
 #endif
-    boolean nearattack = false;
+    bool nearattack = false;
 
     ob->flags &= ~FL_LOCKED_STATE;
 
@@ -4504,7 +4504,8 @@ void DoAttack(
 dirtype SelectPathDir(
     objtype* ob)
 {
-    boolean CantWalk = false, RandomTurn = false;
+    bool CantWalk = false;
+    bool RandomTurn = false;
     uint16_t spot;
 
 // Look for directional arrows!
@@ -5070,7 +5071,7 @@ statetype s_mgold_shoot4 = { 0, SPR_DEMO, 12, T_Shade, nullptr, &s_mgold_chase1 
 statetype s_mgold_pain = { 0, SPR_DEMO, 25, nullptr, nullptr, &s_mgold_chase1 };
 
 
-boolean noShots = false;
+bool noShots = false;
 
 int16_t morphWaitTime;
 
@@ -5449,7 +5450,7 @@ void T_SteamObj(
 ===============
 */
 
-boolean CheckPosition(
+bool CheckPosition(
     objtype* ob)
 {
     int16_t x, y, xl, yl, xh, yh;
@@ -5545,7 +5546,7 @@ void T_Seek(
 #define MAX_VIS_DIST 15
 
     int16_t dx, dy, dist, chance;
-    boolean target_found;
+    bool target_found;
 
     target_found = false;
 
@@ -5765,7 +5766,7 @@ uint8_t proj_wall;
 //       distance - vectoral distance of travel
 //
 // ---------------------------------------------------------------------------
-boolean ProjectileTryMove(
+bool ProjectileTryMove(
     objtype* ob,
     fixed deltax,
     fixed deltay)
@@ -6099,7 +6100,7 @@ void ExplodeFill(
 void ExplodeRadius(
     objtype* obj,
     int16_t damage,
-    boolean damageplayer)
+    bool damageplayer)
 {
 //
 // Did this object start out in a wall?

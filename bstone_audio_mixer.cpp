@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 const int ATABLEMAX = 15;
 
-extern boolean sqPlayedOnce;
+extern bool sqPlayedOnce;
 extern uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2];
 extern uint8_t righttable[ATABLEMAX][ATABLEMAX * 2];
 

@@ -85,11 +85,13 @@ extern int16_t DigiMap[];
 
 
 //      Global variables
-boolean SoundSourcePresent,
-        AdLibPresent,
-        SoundBlasterPresent, SBProPresent,
-        NeedsDigitized, NeedsMusic,
-        SoundPositioned;
+bool SoundSourcePresent;
+bool AdLibPresent;
+bool SoundBlasterPresent;
+bool SBProPresent;
+bool NeedsDigitized;
+bool NeedsMusic;
+bool SoundPositioned;
 SDMode SoundMode;
 SMMode MusicMode;
 SDSMode DigiMode;
@@ -99,8 +101,8 @@ uint16_t HackCount;
 uint8_t** SoundTable;
 
 //      Internal variables
-static boolean SD_Started;
-boolean nextsoundpos;
+static bool SD_Started;
+bool nextsoundpos;
 uint32_t TimerDivisor, TimerCount;
 static const char* ParmStrings[] = {
     "noal",
@@ -123,19 +125,20 @@ uint16_t TimerRate;
 uint16_t* DigiList;
 
 //      SoundBlaster variables
-static boolean sbNoCheck, sbNoProCheck;
+static bool sbNoCheck;
+static bool sbNoProCheck;
 
 //      SoundSource variables
-boolean ssNoCheck;
+bool ssNoCheck;
 
 //      PC Sound variables
 
 //      AdLib variables
-boolean alNoCheck;
-boolean sqActive;
+bool alNoCheck;
+bool sqActive;
 uint16_t* sqHack;
 uint16_t sqHackLen;
-boolean sqPlayedOnce;
+bool sqPlayedOnce;
 
 //      Internal routines
 void SDL_DigitizedDone();
@@ -204,7 +207,7 @@ void SDL_SetupDigi()
 //
 ///////////////////////////////////////////////////////////////////////////
 
-static boolean SDL_DetectAdLib()
+static bool SDL_DetectAdLib()
 {
     int sdl_result = 0;
 
@@ -241,10 +244,10 @@ static void SDL_StartDevice()
 //      SD_SetSoundMode() - Sets which sound hardware to use for sound effects
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean SD_SetSoundMode(
+bool SD_SetSoundMode(
     SDMode mode)
 {
-    boolean result = false;
+    bool result = false;
     uint16_t tableoffset = 0;
 
     SD_StopSound();
@@ -290,10 +293,10 @@ boolean SD_SetSoundMode(
 //      SD_SetMusicMode() - sets the device to use for background music
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean SD_SetMusicMode(
+bool SD_SetMusicMode(
     SMMode mode)
 {
-    boolean result = false;
+    bool result = false;
 
     SD_MusicOff();
 
@@ -382,11 +385,12 @@ void SD_Startup()
 //
 ///////////////////////////////////////////////////////////////////////////
 void SD_Default(
-    boolean gotit,
+    bool gotit,
     SDMode sd,
     SMMode sm)
 {
-    boolean gotsd, gotsm;
+    bool gotsd;
+    bool gotsm;
 
     gotsd = gotsm = gotit;
 

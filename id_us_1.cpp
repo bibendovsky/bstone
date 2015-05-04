@@ -60,22 +60,23 @@ void VH_UpdateScreen();
 
 //      Global variables
 char* abortprogram;
-//              boolean         NoWait;
+//              bool         NoWait;
 uint16_t PrintX, PrintY;
 uint16_t WindowX, WindowY, WindowW, WindowH;
 
 US_CursorStruct US_CustomCursor; // JAM
-boolean use_custom_cursor = false; // JAM
+bool use_custom_cursor = false; // JAM
 
 //      Internal variables
 #define ConfigVersion 1
 
 const char* US_ParmStrings[] = { "TEDLEVEL", "NOWAIT", nullptr },
           * US_ParmStrings2[] = { "COMP", "NOCOMP", nullptr };
-boolean US_Started;
+bool US_Started;
 
-boolean Button0, Button1,
-        CursorBad;
+bool Button0;
+bool Button1;
+bool CursorBad;
 int16_t CursorX, CursorY;
 
 void (* USL_MeasureString)(
@@ -489,7 +490,7 @@ static void USL_XORICursor(
     char* s,
     uint16_t cursor)
 {
-    static boolean status; // VGA doesn't XOR...
+    static bool status; // VGA doesn't XOR...
     char buf[MaxString];
     int temp;
     int w, h;
@@ -503,7 +504,7 @@ static void USL_XORICursor(
 
     VL_WaitVBL(1);
 
-    if (status ^= 1) {
+    if (status = !status) {
         USL_DrawString("\x80");
     } else {
         temp = fontcolor;
@@ -528,7 +529,7 @@ static void USL_CustomCursor(
     char* s,
     uint16_t cursor)
 {
-    static boolean status; // VGA doesn't XOR...
+    static bool status; // VGA doesn't XOR...
     char buf[MaxString];
     int temp, temp_font;
     int w, h;
@@ -545,7 +546,7 @@ static void USL_CustomCursor(
 
     fontnumber = US_CustomCursor.font_number;
 
-    if (status ^= 1) {
+    if (status = !status) {
         fontcolor = static_cast<uint8_t>(US_CustomCursor.cursor_color);
     } else {
         fontcolor = backcolor;
@@ -570,12 +571,12 @@ static void USL_CustomCursor(
 //              returned
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean US_LineInput(
+bool US_LineInput(
     int16_t x,
     int16_t y,
     char* buf,
     char* def,
-    boolean escok,
+    bool escok,
     int16_t maxchars,
     int16_t maxwidth)
 {

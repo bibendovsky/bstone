@@ -63,7 +63,7 @@ struct HighScore {
 struct SaveGame {
     char signature[4];
     uint16_t* oldtest;
-    boolean present;
+    bool present;
     char name[MaxGameName + 1];
 }; // SaveGame
 
@@ -97,67 +97,70 @@ struct US_CursorStruct {
 }; // US_CursorStruct
 
 //      Hack import for TED launch support
-// extern       boolean         tedlevel;
+// extern       bool         tedlevel;
 // extern       uint16_t          tedlevelnum;
 extern void TEDDeath();
 
-extern boolean ingame, // Set by game code if a game is in progress
-               abortgame, // Set if a game load failed
-               loadedgame, // Set if the current game was loaded
-               NoWait,
-               HighScoresDirty;
+extern bool ingame; // Set by game code if a game is in progress
+extern bool abortgame; // Set if a game load failed
+extern bool loadedgame; // Set if the current game was loaded
+extern bool NoWait;
+extern bool HighScoresDirty;
 extern char* abortprogram; // Set to error msg if program is dying
 extern GameDiff restartgame; // Normally gd_Continue, else starts game
 extern uint16_t PrintX, PrintY; // Current printing location in the window
 extern uint16_t WindowX, WindowY, // Current location of window
               WindowW, WindowH; // Current size of window
 
-extern boolean Button0, Button1,
-               CursorBad;
+extern bool Button0;
+extern bool Button1;
+extern bool CursorBad;
 extern int16_t CursorX, CursorY;
 
 extern void (* USL_MeasureString)(const char*, int*, int*),
 (*USL_DrawString)(const char*);
 
-extern boolean (* USL_SaveGame)(int16_t), (*USL_LoadGame)(int16_t);
+extern bool (* USL_SaveGame)(int16_t);
+extern bool (* USL_LoadGame)(int16_t);
 extern void (* USL_ResetGame)();
 extern SaveGame Games[MaxSaveGames];
 extern HighScore Scores[];
 
 extern US_CursorStruct US_CustomCursor; // JAM
-extern boolean use_custom_cursor; // JAM
+extern bool use_custom_cursor; // JAM
 
 #define US_HomeWindow() { PrintX = WindowX; PrintY = WindowY; }
 
-extern void US_Startup(),
-US_Setup(),
-US_Shutdown(),
-US_InitRndT(bool randomize),
-US_SetLoadSaveHooks(boolean (* load)(int16_t),
-                    boolean (* save)(int16_t),
-                    void (* reset)()),
-US_TextScreen(),
-US_UpdateTextScreen(),
-US_FinishTextScreen(),
-US_DrawWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h),
-US_CenterWindow(uint16_t, uint16_t),
-US_SaveWindow(WindowRec * win),
-US_RestoreWindow(WindowRec * win),
-US_ClearWindow(),
-US_SetPrintRoutines(void (* measure)(char*, uint16_t*, uint16_t*),
-                    void (* print)(char*)),
-US_PrintCentered(const char* s),
-US_CPrint(const char* s),
-US_CPrintLine(const char* s),
-US_Print(const char* s),
-US_PrintUnsigned(uint32_t n),
-US_PrintSigned(int32_t n),
-US_StartCursor(),
-US_ShutCursor(),
-US_CheckHighScore(int32_t score, uint16_t other),
-US_DisplayHighScores(int16_t which);
-extern boolean US_UpdateCursor(),
-US_LineInput(int16_t x, int16_t y, char* buf, char* def, boolean escok,
+void US_Startup();
+void US_Setup();
+void US_Shutdown();
+void US_InitRndT(bool randomize);
+void US_SetLoadSaveHooks(bool (* load)(int16_t),
+                    bool (* save)(int16_t),
+                    void (* reset)());
+void US_TextScreen();
+void US_UpdateTextScreen();
+void US_FinishTextScreen();
+void US_DrawWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+void US_CenterWindow(uint16_t, uint16_t);
+void US_SaveWindow(WindowRec * win);
+void US_RestoreWindow(WindowRec * win);
+void US_ClearWindow();
+void US_SetPrintRoutines(void (* measure)(char*, uint16_t*, uint16_t*),
+                    void (* print)(char*));
+void US_PrintCentered(const char* s);
+void US_CPrint(const char* s);
+void US_CPrintLine(const char* s);
+void US_Print(const char* s);
+void US_PrintUnsigned(uint32_t n);
+void US_PrintSigned(int32_t n);
+void US_StartCursor();
+void US_ShutCursor();
+void US_CheckHighScore(int32_t score, uint16_t other);
+void US_DisplayHighScores(int16_t which);
+
+bool US_UpdateCursor();
+bool US_LineInput(int16_t x, int16_t y, char* buf, char* def, bool escok,
              int16_t maxchars, int16_t maxwidth);
 extern int16_t US_CheckParm(
     const char* parm,

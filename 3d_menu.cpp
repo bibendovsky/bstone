@@ -40,9 +40,9 @@ void INL_GetJoyDelta(
     uint16_t joy,
     int16_t* dx,
     int16_t* dy);
-boolean LoadTheGame(
+bool LoadTheGame(
     int handle);
-boolean IN_CheckAck();
+bool IN_CheckAck();
 
 // BBi
 bool LoadTheGame(
@@ -71,7 +71,7 @@ char QuitToDosStr[] = { "      Quit to DOS?\n"
 #define FREEFONT(fontnum) { if (fontnum != STARTFONT + 2 && grsegs[fontnum]) { UNCACHEGRCHUNK(fontnum); } }
 
 
-boolean EscPressed = false;
+bool EscPressed = false;
 
 int16_t lastmenumusic;
 
@@ -115,7 +115,7 @@ void cp_sound_volume(
     int16_t);
 
 
-extern boolean refresh_screen;
+extern bool refresh_screen;
 
 
 // ===========================================================================
@@ -1267,9 +1267,9 @@ void HelpScreens()
 // -------------------------------------------------------------------------
 void HelpPresenter(
     const char* fname,
-    boolean continue_keys,
+    bool continue_keys,
     uint16_t id_cache,
-    boolean startmusic)
+    bool startmusic)
 {
 #define FULL_VIEW_WIDTH 19
 
@@ -2745,7 +2745,7 @@ void CP_Control(
         which = HandleMenu(&CtlItems, &CtlMenu[0], nullptr);
         switch (which) {
         case MOUSEENABLE:
-            mouseenabled ^= 1;
+            ::mouseenabled = !::mouseenabled;
 
             DrawCtlScreen();
             CusItems.curpos = -1;
@@ -2753,7 +2753,7 @@ void CP_Control(
             break;
 
         case JOYENABLE:
-            joystickenabled ^= 1;
+            ::joystickenabled = !::joystickenabled;
             if (joystickenabled) {
                 CalibrateJoystick();
             }
@@ -2769,7 +2769,7 @@ void CP_Control(
             break;
 
         case PADENABLE:
-            joypadenabled ^= 1;
+            ::joypadenabled = !::joypadenabled;
             DrawCtlScreen();
             ShootSnd();
             break;
@@ -4715,11 +4715,11 @@ uint32_t CacheCompData(
 //       - The chunk being checked MUST be JAMPAKd - (this may change)
 //
 // -------------------------------------------------------------------------
-boolean CheckForSpecialCode(
+bool CheckForSpecialCode(
     uint16_t ItemNum)
 {
     void* code;
-    boolean return_val = false;
+    bool return_val = false;
     char* code_ptr;
 
     // Allocate, Cache & Decomp into ram

@@ -2216,7 +2216,7 @@ using fixed = int32_t;
 struct PinballBonusInfo {
     char* BonusText; // REBA text pointer
     int32_t Points; // Score for this bonus
-    boolean Recurring; // Appear multiple times in a single level?
+    bool Recurring; // Appear multiple times in a single level?
     void (* func)(); // Code to execute when you get this bonus.
 }; // PinballBonusInfo
 
@@ -2676,7 +2676,7 @@ enum DoorAction {
 struct doorobj_t {
     uint8_t tilex;
     uint8_t tiley;
-    boolean vertical;
+    bool vertical;
     char flags;
     keytype lock;
     door_t type;
@@ -2883,7 +2883,7 @@ struct statsInfoType {
 struct levelinfo {
     uint16_t bonus_queue; // bonuses that need to be shown
     uint16_t bonus_shown; // bonuses that have been shown
-    boolean locked;
+    bool locked;
     statsInfoType stats;
     uint8_t ptilex;
     uint8_t ptiley;
@@ -2980,8 +2980,8 @@ struct gametype {
     barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
     uint16_t tokens;
     uint16_t old_tokens;
-    boolean boss_key_dropped;
-    boolean old_boss_key_dropped;
+    bool boss_key_dropped;
+    bool old_boss_key_dropped;
     int16_t wintilex;
     int16_t wintiley;
 
@@ -3230,7 +3230,7 @@ struct GoldsternInfo_t {
     uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
     uint16_t flags; // What type of command/operation is needed...
     uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
-    boolean GoldSpawned; // Has Goldstern been spawned?
+    bool GoldSpawned; // Has Goldstern been spawned?
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -3285,9 +3285,9 @@ extern signed char lastmap_tilex, lastmap_tiley;
 extern uint16_t TopColor, BottomColor;
 extern char str[80], str2[20];
 // extern  unsigned        tedlevelnum;
-// extern  boolean         tedlevel;
-extern boolean nospr;
-extern boolean IsA386;
+// extern  bool         tedlevel;
+extern bool nospr;
+extern bool IsA386;
 
 extern int focallength;
 extern int viewangles;
@@ -3299,7 +3299,7 @@ extern int shootdelta;
 
 extern int16_t dirangle[9];
 
-extern boolean startgame, loadedgame;
+extern bool startgame, loadedgame;
 extern int16_t mouseadjustment;
 //
 // math tables
@@ -3320,7 +3320,7 @@ extern int mindist;
 
 extern char configname[13];
 
-extern boolean ShowQuickMsg;
+extern bool ShowQuickMsg;
 
 int DeleteChunk(
     bstone::MemoryStream& stream,
@@ -3350,10 +3350,10 @@ void AlignPlayerOnTransporter();
 uint16_t UseFunc(
     const char* first,
     const char* next);
-boolean DoMovie(
+bool DoMovie(
     movie_t movie,
     void* palette);
-boolean CheckDiskSpace(
+bool CheckDiskSpace(
     int32_t needed,
     const char* text,
     cds_io_type io_type);
@@ -3408,8 +3408,10 @@ extern GoldsternInfo_t GoldsternInfo;
 extern uint8_t VitalsRemain, VitalsOnFloor;
 
 extern eaWallInfo eaList[];
-extern char NumEAWalls, NumEASpawned;
-extern boolean ingame, fizzlein, screensplit;
+extern char NumEAWalls;
+extern char NumEASpawned;
+extern bool ingame;
+extern bool fizzlein;
 extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
 extern int16_t doornum;
@@ -3420,7 +3422,7 @@ void DrawPlayBorder();
 void ScanInfoPlane();
 void SetupGameLevel();
 void NormalScreen();
-void DrawPlayScreen(boolean);
+void DrawPlayScreen(bool);
 void FizzleOut();
 void GameLoop();
 
@@ -3481,7 +3483,9 @@ extern exit_t playstate;
 
 extern int16_t bordertime;
 
-extern boolean madenoise, usedummy, nevermark;
+extern bool madenoise;
+extern bool usedummy;
+extern bool nevermark;
 extern uint8_t alerted, alerted_areanum;
 
 extern objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
@@ -3496,18 +3500,23 @@ extern uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
 extern uint8_t spotvis[MAPSIZE][MAPSIZE];
 extern objtype* actorat[MAPSIZE][MAPSIZE];
 
-extern boolean singlestep, godmode, noclip;
+extern bool singlestep;
+extern bool godmode;
+extern bool noclip;
 extern int16_t extravbls;
 extern int16_t DebugOk;
 extern int16_t InstantWin, InstantQuit;
-extern boolean PowerBall;
+extern bool PowerBall;
 extern int16_t TestQuickSave, TestAutoMapper;
 extern uint16_t ExtraRadarFlags;
 
 //
 // control info
 //
-extern boolean mouseenabled, joystickenabled, joypadenabled, joystickprogressive;
+extern bool mouseenabled;
+extern bool joystickenabled;
+extern bool joypadenabled;
+extern bool joystickprogressive;
 extern int16_t joystickport;
 extern int16_t dirscan[4];
 extern int16_t buttonscan[NUMBUTTONS];
@@ -3526,7 +3535,8 @@ extern int controly; // range from -100 to 100
 extern bool buttonstate[NUMBUTTONS];
 extern int strafe_value;
 
-extern boolean demorecord, demoplayback;
+extern bool demorecord;
+extern bool demoplayback;
 extern char* demoptr, * lastdemoptr;
 extern void* demobuffer;
 
@@ -3543,11 +3553,11 @@ void RemoveObj(
 void PollControls();
 void StopMusic();
 void StartMusic(
-    boolean startit);
+    bool startit);
 void PlayLoop();
 
 void ChangeSwapFiles(
-    boolean display);
+    bool display);
 void OpenPageFile();
 void CheckMusicToggle();
 
@@ -3586,7 +3596,7 @@ extern int32_t space_xmove, space_ymove;
 extern int32_t lasttimecount;
 extern int32_t framecount;
 extern int32_t frameon;
-extern boolean fizzlein;
+extern bool fizzlein;
 
 extern int* wallheight;
 
@@ -3610,7 +3620,7 @@ extern int16_t horizwall[], vertwall[];
 
 extern uint16_t pwallpos;
 
-extern boolean cloaked_shape;
+extern bool cloaked_shape;
 
 fixed FixedByFrac(
     fixed a,
@@ -3630,7 +3640,7 @@ void DrawStars();
 
 
 
-boolean TransformTile(
+bool TransformTile(
     int16_t tx,
     int16_t ty,
     int16_t* dispx,
@@ -3642,7 +3652,7 @@ void ComputeActorPosition(
     char adjust_x,
     char adjust_y);
 void WrapDrawScaleds();
-boolean WrapActorPosition(
+bool WrapActorPosition(
     objtype* obj);
 void WrapStaticPosition(
     statobj_t* statptr,
@@ -3696,7 +3706,7 @@ uint16_t CheckRunChase(
     objtype* ob);
 void GetCornerSeek(
     objtype* ob);
-boolean LookForGoodies(
+bool LookForGoodies(
     objtype* ob,
     uint16_t RunReason);
 void InitHitRect(
@@ -3710,9 +3720,9 @@ void NewState(
     objtype* ob,
     statetype* state);
 
-boolean TryWalk(
+bool TryWalk(
     objtype* ob,
-    boolean moveit);
+    bool moveit);
 void SelectChaseDir(
     objtype* ob);
 void SelectDodgeDir(
@@ -3728,20 +3738,20 @@ void DamageActor(
     uint16_t damage,
     objtype* attacker);
 
-boolean CheckLine(
+bool CheckLine(
     objtype* from_obj,
     objtype* to_obj);
-boolean CheckSight(
+bool CheckSight(
     objtype* from_obj,
     objtype* to_obj);
 
-boolean PosVisable(
+bool PosVisable(
     fixed from_x,
     fixed from_y,
     fixed to_x,
     fixed to_y,
     int16_t from_angle);
-boolean PlayerIsBlocking(
+bool PlayerIsBlocking(
     objtype* ob);
 
 void MakeAlertNoise(
@@ -3768,7 +3778,7 @@ struct t_compshape {
 
 extern int maxscale;
 extern int maxscaleshl2;
-extern boolean scaledir_avail;
+extern bool scaledir_avail;
 
 extern int normalshade;
 extern int normalshade_div;
@@ -3808,7 +3818,7 @@ extern scientist_t NiceSciList;
 extern scientist_t MeanSciList;
 
 extern uint16_t static_points[];
-extern boolean GAN_HiddenArea;
+extern bool GAN_HiddenArea;
 extern char* InfAreaMsgs[];
 extern uint8_t NumAreaMsgs, LastInfArea;
 extern int16_t FirstGenInfMsg, TotalGenInfMsgs;
@@ -3824,10 +3834,10 @@ extern atkinf_t attackinfo[7][14];
 //
 // player state info
 //
-extern boolean commandmode;
+extern bool commandmode;
 extern int32_t thrustspeed;
 extern uint16_t plux, pluy; // player coordinates scaled to unsigned
-extern boolean PlayerInvisable;
+extern bool PlayerInvisable;
 extern char DrawInfoArea_COUNT;
 extern char InitInfoArea_COUNT;
 
@@ -3860,7 +3870,7 @@ extern int16_t MsgTicsRemain;
 
 void GivePoints(
     int32_t score,
-    boolean add_to_stats);
+    bool add_to_stats);
 void SpawnPlayer(
     int16_t tilex,
     int16_t tiley,
@@ -3871,14 +3881,14 @@ void UpdateHealth();
 void DrawAmmoGuage();
 void DrawAmmoMsg();
 void DrawAmmo(
-    boolean ForceRefresh);
-boolean DisplayInfoMsg(
+    bool ForceRefresh);
+bool DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
     int16_t DisplayTime,
     int16_t MessageType);
 
-boolean DisplayInfoMsg(
+bool DisplayInfoMsg(
     const std::string& Msg,
     msg_priorities Priority,
     int16_t DisplayTime,
@@ -3904,13 +3914,13 @@ void DrawInfoArea();
 
 void AnimatePage();
 
-void ActivateTerminal(boolean);
+void ActivateTerminal(bool);
 void TerminalPrint(
     char* msg,
-    boolean FastPrint);
+    bool FastPrint);
 void FloorCheat(
     uint16_t RadarFlags);
-boolean Interrogate(
+bool Interrogate(
     objtype* ob);
 
 void GiveKey(
@@ -3939,7 +3949,7 @@ uint16_t UpdateBarrierTable(
     uint8_t level,
     uint8_t x,
     uint8_t y,
-    boolean OnOff);
+    bool OnOff);
 uint16_t ScanBarrierTable(
     uint8_t x,
     uint8_t y);
@@ -3956,13 +3966,13 @@ int16_t ShowStats(
     int16_t by,
     ss_type type,
     statsInfoType* stats);
-boolean PerfectStats();
-boolean CheckPerfectStats();
-boolean OperateSmartSwitch(
+bool PerfectStats();
+bool CheckPerfectStats();
+bool OperateSmartSwitch(
     uint16_t tilex,
     uint16_t tiley,
     char Operation,
-    boolean Force);
+    bool Force);
 
 /*
 =============================================================================
@@ -4001,7 +4011,7 @@ void SpawnStatic(
 void SpawnDoor(
     int16_t tilex,
     int16_t tiley,
-    boolean vertical,
+    bool vertical,
     keytype lock,
     door_t type);
 
@@ -4047,7 +4057,7 @@ int16_t LoadMsg(
     uint16_t MsgNum,
     uint16_t MaxMsgLen);
 void CacheConcessionMsg();
-boolean ReuseMsg(
+bool ReuseMsg(
     mCacheInfo* ci,
     int16_t count,
     int16_t struct_size);
@@ -4318,7 +4328,7 @@ void T_ExplodeDamage(
 void ExplodeRadius(
     objtype* obj,
     int16_t damage,
-    boolean damageplayer);
+    bool damageplayer);
 
 extern statetype s_barrier_transition;
 extern statetype s_barrier_shutdown;
@@ -4327,7 +4337,7 @@ void SpawnBarrier(
     enemy_t which,
     int16_t tilex,
     int16_t tiley,
-    boolean OnOff);
+    bool OnOff);
 void ToggleBarrier(
     objtype* obj);
 
@@ -4453,13 +4463,13 @@ extern char BreifingText[];
 void UpdateScreenPic();
 void DisplayPrepingMsg(
     const char* text);
-boolean Breifing(
+bool Breifing(
     breifing_type BreifingType,
     uint16_t episode);
 void ShPrint(
     const char* text,
     char shadow_color,
-    boolean single_char);
+    bool single_char);
 uint16_t Random(
     uint16_t Max);
 
@@ -4470,7 +4480,7 @@ uint16_t Random(
 //
 // ===========================================================================
 
-extern boolean EscPressed;
+extern bool EscPressed;
 
 void DrawInstructions(
     inst_type Type);
@@ -4481,7 +4491,7 @@ void TerminateStr(
 uint32_t CacheCompData(
     uint16_t ItemNum,
     void** dest_loc);
-boolean CheckForSpecialCode(
+bool CheckForSpecialCode(
     uint16_t shortItemNum);
 
 

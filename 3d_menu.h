@@ -383,9 +383,9 @@ void DrawMenuTitle(
 void CheckForEpisodes();
 void HelpPresenter(
     const char* fname,
-    boolean continuekeys,
+    bool continuekeys,
     uint16_t id_cache,
-    boolean startmusic);
+    bool startmusic);
 void ShadowPrint(
     const char* string,
     int16_t x,

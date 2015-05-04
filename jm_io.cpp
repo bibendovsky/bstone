@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 // --------------------------------------------------------------------------
 // IO_WriteFile()
 // --------------------------------------------------------------------------
-boolean IO_WriteFile(
+bool IO_WriteFile(
     char* filename,
     void* ptr,
     int32_t length)

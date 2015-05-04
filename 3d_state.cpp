@@ -86,9 +86,9 @@ void NewState(
     objtype* ob,
     statetype* state);
 
-boolean TryWalk(
+bool TryWalk(
     objtype* ob,
-    boolean moveit);
+    bool moveit);
 void MoveObj(
     objtype* ob,
     int32_t move);
@@ -96,15 +96,15 @@ void MoveObj(
 void KillActor(
     objtype* ob);
 
-boolean CheckLine(
+bool CheckLine(
     objtype* from_obj,
     objtype* to_obj);
 void FirstSighting(
     objtype* ob);
-boolean CheckSight(
+bool CheckSight(
     objtype* from_obj,
     objtype* to_obj);
-boolean ElevatorFloor(
+bool ElevatorFloor(
     char x,
     char y);
 
@@ -251,9 +251,9 @@ void NewState(
     }
 
 
-boolean TryWalk(
+bool TryWalk(
     objtype* ob,
-    boolean moveit)
+    bool moveit)
 {
     int16_t doornum;
     uint8_t old_tilex = ob->tilex, old_tiley = ob->tiley;
@@ -468,7 +468,7 @@ boolean TryWalk(
 // --------------------------------------------------------------------------
 // ElevatorFloor()
 // --------------------------------------------------------------------------
-boolean ElevatorFloor(
+bool ElevatorFloor(
     char x,
     char y)
 {
@@ -954,7 +954,9 @@ void KillActor(
     objtype* ob)
 {
     int16_t tilex, tiley;
-    boolean KeepSolid = false, givepoints = true, deadguy = true;
+    bool KeepSolid = false;
+    bool givepoints = true;
+    bool deadguy = true;
     classtype clas;
 
     tilex = ob->x >> TILESHIFT; // drop item on center
@@ -1301,7 +1303,7 @@ void DoAttack(
     objtype* ob);
 extern statetype s_proshoot2;
 extern statetype s_goldmorphwait1;
-extern boolean barrier_damage;
+extern bool barrier_damage;
 
 void DamageActor(
     objtype* ob,
@@ -1398,7 +1400,7 @@ void DamageActor(
         case goldsternobj:
             if (gamestate.mapon == GOLD_MORPH_LEVEL) {
                 extern int16_t morphWaitTime;
-                extern boolean noShots;
+                extern bool noShots;
 
                 morphWaitTime = 60;
                 noShots = true;
@@ -1583,7 +1585,7 @@ void DamageActor(
 
 #if 0
 
-boolean CheckLine(
+bool CheckLine(
     objtype* ob)
 {
     int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
@@ -1722,7 +1724,7 @@ boolean CheckLine(
 #endif
 
 
-boolean CheckLine(
+bool CheckLine(
     objtype* from_obj,
     objtype* to_obj)
 {
@@ -1881,7 +1883,7 @@ boolean CheckLine(
 */
 #define MINSIGHT 0x18000l
 
-boolean CheckSight(
+bool CheckSight(
     objtype* from_obj,
     objtype* to_obj)
 {
@@ -2133,7 +2135,7 @@ void FirstSighting(
 ===============
 */
 
-boolean SightPlayer(
+bool SightPlayer(
     objtype* ob)
 {
 
@@ -2172,7 +2174,7 @@ boolean SightPlayer(
             }
             ob->flags &= ~FL_AMBUSH;
         } else {
-            boolean sighted = false;
+            bool sighted = false;
 
             if (madenoise || CheckSight(ob, player)) {
                 sighted = true;
@@ -2283,7 +2285,7 @@ boolean SightPlayer(
 // SEE ALSO: MACRO "ObjVisable(from_obj,to_obj)" -- 3D_DEF.h
 //
 // --------------------------------------------------------------------------
-boolean PosVisable(
+bool PosVisable(
     fixed from_x,
     fixed from_y,
     fixed to_x,
@@ -2329,7 +2331,7 @@ int16_t AdjAngleTable[2][8] = { { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upp
                                { 180, 225, 270, 315, 0, 45, 90, 135 } }; // Lower Bound
 
 
-boolean CheckView(
+bool CheckView(
     objtype* from_obj,
     objtype* to_obj)
 {
@@ -2375,11 +2377,11 @@ boolean CheckView(
 // --------------------------------------------------------------------------
 // LookForDeadGuys()
 // --------------------------------------------------------------------------
-boolean LookForDeadGuys(
+bool LookForDeadGuys(
     objtype* obj)
 {
     uint8_t loop;
-    boolean DeadGuyFound = false;
+    bool DeadGuyFound = false;
 
     if ((obj->obclass == gen_scientistobj) && (obj->flags & FL_INFORMANT)) {
         return false;
@@ -2400,14 +2402,14 @@ boolean LookForDeadGuys(
 // --------------------------------------------------------------------------
 // LookForGoodies()
 // --------------------------------------------------------------------------
-boolean LookForGoodies(
+bool LookForGoodies(
     objtype* ob,
     uint16_t RunReason)
 {
 //      #define ONE_TRACK_MIND
 
     statobj_t* statptr;
-    boolean just_find_door = false;
+    bool just_find_door = false;
 
 // Don't look for goodies if this actor is simply a non-informant that
 // was interrogated. (These actors back away, then attack!)
@@ -2669,7 +2671,7 @@ void SeekPlayerOrStatic(
     int16_t* deltay)
 {
     uint16_t whyrun = 0;
-    boolean smart = false;
+    bool smart = false;
 
 // Is this a "smart" actor?
 //
@@ -2730,7 +2732,7 @@ void SeekPlayerOrStatic(
 // --------------------------------------------------------------------------
 // PlayerIsBlocking()
 // --------------------------------------------------------------------------
-boolean PlayerIsBlocking(
+bool PlayerIsBlocking(
     objtype* ob)
 {
     char opp_off[9][2] = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { 0, 0 } };

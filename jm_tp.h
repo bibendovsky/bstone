@@ -215,8 +215,8 @@ int16_t TP_BoxAroundShape(
 void TP_JumpCursor();
 void TP_Print(
     const char* str,
-    boolean single_char);
-boolean TP_SlowPrint(
+    bool single_char);
+bool TP_SlowPrint(
     const char* str,
     char delay);
 void TP_PurgeAllGfx();

@@ -101,7 +101,8 @@ classtype debug_bonus[2][800];
 
 fargametype gamestuff;
 gametype gamestate;
-boolean ingame, fizzlein;
+bool ingame;
+bool fizzlein;
 int latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
 char NumEAWalls;
@@ -122,7 +123,7 @@ int NUMWEAPONS = 0;
 void ScanInfoPlane();
 void SetupGameLevel();
 void DrawPlayScreen(
-    boolean InitInfoMsg);
+    bool InitInfoMsg);
 void LoadLatchMem();
 void GameLoop();
 
@@ -345,10 +346,10 @@ void ScanInfoPlane()
     uint16_t x, y;
     int16_t tile;
     uint16_t* start;
-    boolean gottextures = false;
+    bool gottextures = false;
 
 #ifdef CEILING_FLOOR_COLORS
-    boolean gotcolors = false;
+    bool gotcolors = false;
 #endif
 
 #if IN_DEVELOPMENT
@@ -2401,7 +2402,7 @@ int16_t an_offset[8] = { 1, -1, 64, -64, -65, -63, 63, 65 };
 
 void SetupGameLevel()
 {
-    boolean switchon = false;
+    bool switchon = false;
     sci_mCacheInfo* ci = InfHintList.smInfo;
     int16_t x, y;
     uint16_t* map, tile, icon;
@@ -3007,7 +3008,7 @@ void DrawTopInfo(
 ===================
 */
 void DrawPlayScreen(
-    boolean InitInfoMsg)
+    bool InitInfoMsg)
 {
     int16_t i;
     uint16_t temp;
@@ -3548,7 +3549,7 @@ void RotateView(
 {
     int16_t curangle, clockwise, counter, change;
     objtype* obj;
-    boolean old_godmode = godmode;
+    bool old_godmode = godmode;
 
     if (player->angle > DestAngle) {
         counter = player->angle - DestAngle;
@@ -3635,10 +3636,10 @@ void RotateView(
 
 void GameLoop()
 {
-    extern boolean sqActive;
+    extern bool sqActive;
 
     char Score[13];
-    boolean died;
+    bool died;
 #ifdef MYPROFILE
     clock_t start, end;
 #endif

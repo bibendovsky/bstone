@@ -346,7 +346,7 @@ void CAL_GetGrChunkLength(
 ==========================
 */
 
-boolean CA_FarRead(
+bool CA_FarRead(
     int handle,
     uint8_t* dest,
     int32_t length)
@@ -397,7 +397,7 @@ done:
 ==========================
 */
 
-boolean CA_FarWrite(
+bool CA_FarWrite(
     int handle,
     uint8_t* source,
     int32_t length)
@@ -448,7 +448,7 @@ done:
 ==========================
 */
 
-boolean CA_ReadFile(
+bool CA_ReadFile(
     char* filename,
     memptr* ptr)
 {
@@ -479,7 +479,7 @@ boolean CA_ReadFile(
 ==========================
 */
 
-boolean CA_WriteFile(
+bool CA_WriteFile(
     char* filename,
     void* ptr,
     int32_t length)
@@ -514,7 +514,7 @@ boolean CA_WriteFile(
 ==========================
 */
 
-boolean CA_LoadFile(
+bool CA_LoadFile(
     char* filename,
     memptr* ptr)
 {

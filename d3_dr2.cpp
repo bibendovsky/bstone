@@ -263,7 +263,7 @@ vertentry:
                     // draw the door
                     //
 
-                    boolean skip_draw = false;
+                    bool skip_draw = false;
 
 #ifndef W3D
                     if (intercept_l < 0x8000) {
@@ -405,7 +405,7 @@ horizentry:
                     // draw the door
                     //
 
-                    boolean skip_draw = false;
+                    bool skip_draw = false;
 
 #ifndef W3D
                     if (intercept_l < 0x8000) {

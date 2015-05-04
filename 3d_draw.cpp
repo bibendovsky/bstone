@@ -192,7 +192,7 @@ extern const uint8_t rndtable[256];
 
 // Global Cloaked Shape flag..
 
-boolean cloaked_shape = false;
+bool cloaked_shape = false;
 
 
 
@@ -360,7 +360,7 @@ void TransformActor(
 =
 ========================
 */
-boolean TransformTile(
+bool TransformTile(
     int16_t tx,
     int16_t ty,
     int16_t* dispx,
@@ -682,7 +682,7 @@ void HitHorizWall()
 void HitHorizDoor()
 {
     uint16_t texture, doorpage = static_cast<uint16_t>(-1), doornum, xint;
-    boolean lockable = true;
+    bool lockable = true;
 
     doornum = tilehit & 0x7f;
 
@@ -811,7 +811,7 @@ void HitHorizDoor()
 void HitVertDoor()
 {
     uint16_t texture, doorpage = static_cast<uint16_t>(DOORWALL), doornum, yint;
-    boolean lockable = true;
+    bool lockable = true;
 
     doornum = tilehit & 0x7f;
 
@@ -1359,7 +1359,7 @@ void initialize_weapon_constants()
 }
 
 
-boolean useBounceOffset = false;
+bool useBounceOffset = false;
 
 void DrawPlayerWeapon()
 {
