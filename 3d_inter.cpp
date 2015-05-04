@@ -116,7 +116,7 @@ bool Breifing(
 
 void ShPrint(
     const char* text,
-    char shadow_color,
+    int8_t shadow_color,
     bool single_char)
 {
     uint16_t old_color = fontcolor, old_x = px, old_y = py;

@@ -100,22 +100,22 @@ struct PresenterInfo {
     uint16_t gflags;
     const char* script[TP_MAX_PAGES];
     void* scriptstart;
-    char numpages;
-    char pagenum;
+    int8_t numpages;
+    int8_t pagenum;
     uint16_t xl;
     uint16_t yl;
     uint16_t xh;
     uint16_t yh;
-    char fontnumber;
-    unsigned char bgcolor;
-    unsigned char ltcolor;
-    unsigned char dkcolor;
-    unsigned char shcolor;
+    int8_t fontnumber;
+    uint8_t bgcolor;
+    uint8_t ltcolor;
+    uint8_t dkcolor;
+    uint8_t shcolor;
     uint16_t cur_x;
     uint16_t cur_y;
-    char print_delay;
-    unsigned char highlight_color;
-    unsigned char fontcolor;
+    int8_t print_delay;
+    uint8_t highlight_color;
+    uint8_t fontcolor;
     int16_t id_cache;
     char* infoline;
     int custom_line_height;
@@ -159,14 +159,14 @@ enum pidType {
 
 struct piAnimInfo {
     int16_t baseshape;
-    char frame;
-    char maxframes;
+    int8_t frame;
+    int8_t maxframes;
     int16_t delay;
     int16_t maxdelay;
     piaType animtype;
     pidType dirtype;
     int16_t x, y;
-    char diradd;
+    int8_t diradd;
 }; // piAnimInfo
 
 // -------------------------------------------------------------------------
@@ -195,7 +195,7 @@ int16_t TP_DrawShape(
     pisType type);
 uint16_t TP_VALUE(
     const char* ptr,
-    char num_nybbles);
+    int8_t num_nybbles);
 int32_t TP_LoadScript(
     const char* filename,
     PresenterInfo* pi,
@@ -218,7 +218,7 @@ void TP_Print(
     bool single_char);
 bool TP_SlowPrint(
     const char* str,
-    char delay);
+    int8_t delay);
 void TP_PurgeAllGfx();
 void TP_CachePage(
     const char* script);

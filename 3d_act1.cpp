@@ -531,7 +531,7 @@ statobj_t* UseReservedStatic(
 // --------------------------------------------------------------------------
 // PlaceReservedItemNearTile()
 // --------------------------------------------------------------------------
-char pint_xy[8][2] = { { -1, -1 }, { -1, 0 }, { -1, 1 },
+int8_t pint_xy[8][2] = { { -1, -1 }, { -1, 0 }, { -1, 1 },
                        { 0, -1 }, { 0, 1 },
                        { 1, -1 }, { 1, 0 }, { 1, 1 } };
 
@@ -540,10 +540,10 @@ void PlaceReservedItemNearTile(
     int16_t tilex,
     int16_t tiley)
 {
-    char loop;
+    int8_t loop;
 
     for (loop = 0; loop < 8; loop++) {
-        char x = static_cast<char>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<char>(tiley + pint_xy[static_cast<int>(loop)][0]);
+        int8_t x = static_cast<int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
         if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
             if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
@@ -632,10 +632,10 @@ void PlaceItemNearTile(
 // [0] is the y offset
 // [1] is the x offset
 //
-    char loop;
+    int8_t loop;
 
     for (loop = 0; loop < 8; loop++) {
-        char x = static_cast<char>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<char>(tiley + pint_xy[static_cast<int>(loop)][0]);
+        int8_t x = static_cast<int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
         if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
             if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
@@ -850,11 +850,11 @@ void SpawnDoor(
     lastdoorobj->flags = DR_BLASTABLE; // JIM - Do something with this! jdebug
 
     if (vertical) {
-        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<char>(tilex + 1), static_cast<char>(tiley));
-        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<char>(tilex - 1), static_cast<char>(tiley));
+        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<int8_t>(tilex + 1), static_cast<int8_t>(tiley));
+        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<int8_t>(tilex - 1), static_cast<int8_t>(tiley));
     } else {
-        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<char>(tilex), static_cast<char>(tiley - 1));
-        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<char>(tilex), static_cast<char>(tiley + 1));
+        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley - 1));
+        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley + 1));
     }
 
     // consider it a solid wall
@@ -868,14 +868,14 @@ void SpawnDoor(
 
     if (vertical) {
         if (*(map[0] - mapwidth - 1) == TRANSPORTERTILE) {
-            *map[0] = GetAreaNumber(static_cast<char>(tilex + 1), static_cast<char>(tiley));
+            *map[0] = GetAreaNumber(static_cast<int8_t>(tilex + 1), static_cast<int8_t>(tiley));
         } else {
-            *map[0] = GetAreaNumber(static_cast<char>(tilex - 1), static_cast<char>(tiley));
+            *map[0] = GetAreaNumber(static_cast<int8_t>(tilex - 1), static_cast<int8_t>(tiley));
         }
         tilemap[tilex][tiley - 1] |= 0x40;
         tilemap[tilex][tiley + 1] |= 0x40;
     } else {
-        *map[0] = GetAreaNumber(static_cast<char>(tilex), static_cast<char>(tiley - 1));
+        *map[0] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley - 1));
         tilemap[tilex - 1][tiley] |= 0x40;
         tilemap[tilex + 1][tiley] |= 0x40;
     }
@@ -1267,7 +1267,7 @@ void BlockDoorOpen(
 //
 // --------------------------------------------------------------------------
 void TryBlastDoor(
-    char door)
+    int8_t door)
 {
     switch (doorobjlist[static_cast<int>(door)].type) {
     case dr_oneway_left:
@@ -1420,9 +1420,9 @@ void DoorOpen(
 // TransformAreas()
 // --------------------------------------------------------------------------
 int16_t TransformAreas(
-    char tilex,
-    char tiley,
-    char xform)
+    int8_t tilex,
+    int8_t tiley,
+    int8_t xform)
 {
     int16_t xofs = 0, yofs = 0;
     uint8_t area1, area2;
@@ -1441,12 +1441,12 @@ int16_t TransformAreas(
 
 // Define the two areas...
 //
-    area1 = GetAreaNumber(static_cast<char>(tilex + xofs), static_cast<char>(tiley + yofs));
+    area1 = GetAreaNumber(static_cast<int8_t>(tilex + xofs), static_cast<int8_t>(tiley + yofs));
     if (area1 >= NUMAREAS) {
         ACT1_ERROR(TRANSFORM_AREA1_OUT_OF_RANGE);
     }
 
-    area2 = GetAreaNumber(static_cast<char>(tilex - xofs), static_cast<char>(tiley - yofs));
+    area2 = GetAreaNumber(static_cast<int8_t>(tilex - xofs), static_cast<int8_t>(tiley - yofs));
     if (area2 >= NUMAREAS) {
         ACT1_ERROR(TRANSFORM_AREA2_OUT_OF_RANGE);
     }
@@ -1649,7 +1649,7 @@ void PushWall(
         return;
     }
 
-    TransformAreas(static_cast<char>(checkx), static_cast<char>(checky), 1);
+    TransformAreas(static_cast<int8_t>(checkx), static_cast<int8_t>(checky), 1);
 
     oldtile = tilemap[checkx][checky];
     if (!oldtile) {
@@ -2260,7 +2260,7 @@ void OperateConcession(
     }
 }
 
-char xy_offset[8][2] = { { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
+int8_t xy_offset[8][2] = { { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
                          { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 } }; // diagnals
 
 // --------------------------------------------------------------------------
@@ -2269,7 +2269,7 @@ char xy_offset[8][2] = { { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / h
 void CheckSpawnEA()
 {
     objtype temp, * ob;
-    char loop, ofs, x_diff, y_diff;
+    int8_t loop, ofs, x_diff, y_diff;
 
     if (objcount > MAXACTORS - 8) {
         return;
@@ -2301,9 +2301,9 @@ void CheckSpawnEA()
         // Does this wall touch the 'area' that the player is in?
         //
         for (ofs = 0; ofs < 4; ofs++) {
-            char nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
-            char ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
-            char areanumber = GetAreaNumber(nx, ny);
+            int8_t nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
+            int8_t ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
+            int8_t areanumber = GetAreaNumber(nx, ny);
 
             if ((nx < 0) || (nx > 63) || (ny < 0) || (ny > 63)) {
                 continue;
@@ -2421,7 +2421,7 @@ void CheckSpawnGoldstern()
 void FindNewGoldieSpawnSite()
 {
     objtype temp;
-    char loop;
+    int8_t loop;
 
     GoldsternInfo.WaitTime = 0;
 

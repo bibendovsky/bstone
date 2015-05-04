@@ -109,7 +109,7 @@ MOVIE_FLAGS movie_flag;
 bool ExitMovie;
 bool EverFaded;
 int32_t seek_pos;
-char movie_reps;
+int8_t movie_reps;
 ControlInfo ci;
 const void* movie_palette;
 

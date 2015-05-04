@@ -104,7 +104,7 @@ Free Software Foundation, Inc.,
 #define ERROR_LOG "ERROR.LOG" // Text filename for critical memory errors
 #define DUAL_SWAP_FILES (0) // (GAME_VERSION != SHAREWARE_VERSION) // Support for Shadowed and NonShadowed page files
 
-extern char signonv1;
+extern int8_t signonv1;
 #define introscn signonv1
 
 #ifndef SPEAR

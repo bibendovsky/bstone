@@ -167,7 +167,7 @@ void generic_scale_shape(
     int xcenter,
     int shapenum,
     int height,
-    char lighting,
+    int8_t lighting,
     ShapeDrawMode draw_mode)
 {
     if ((height / 2) > (maxscaleshl2 * vga_scale) || ((height / 2) == 0)) {
@@ -280,7 +280,7 @@ void ScaleLSShape(
     int xcenter,
     int shapenum,
     int height,
-    char lighting)
+    int8_t lighting)
 {
     generic_scale_shape(xcenter, shapenum, height, lighting, e_sdm_shaded);
 }

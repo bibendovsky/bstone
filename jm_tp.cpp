@@ -1015,7 +1015,7 @@ uint8_t TPscan;
 // Bunch of general globals!
 //
 // static char pb[MAX_PB];
-static char old_fontnumber;
+static int8_t old_fontnumber;
 static int16_t length;
 
 enum JustifyMode {
@@ -1024,7 +1024,7 @@ enum JustifyMode {
     jm_flush
 }; // JustifyMode
 
-static char justify_mode = jm_left;
+static int8_t justify_mode = jm_left;
 
 static uint16_t flags;
 
@@ -1082,7 +1082,7 @@ void TP_Presenter(
     numanims = 0;
     disp_str_num = -1;
 
-    old_fontnumber = static_cast<char>(fontnumber);
+    old_fontnumber = static_cast<int8_t>(fontnumber);
     fontnumber = pi->fontnumber;
     TP_PurgeAllGfx();
     TP_CachePage(first_ch);
@@ -1095,22 +1095,23 @@ void TP_Presenter(
 // Display info UNDER defined region.
 //
     if (pi->infoline) {
-        char oldf = static_cast<char>(fontnumber), oldc = fontcolor;
+        auto oldf = static_cast<int8_t>(fontnumber);
+        auto oldc = fontcolor;
 
         px = xl;
         py = yh + TP_MARGIN + 1;
         fontnumber = 2;
         fontcolor = 0x39;
         VWB_Bar(xl - TP_MARGIN, py, xh - xl + 1 + (TP_MARGIN * 2), 8, bgcolor);
-        ShPrint(pi->infoline, static_cast<char>(shcolor), false);
+        ShPrint(pi->infoline, static_cast<int8_t>(shcolor), false);
 
         if (pi->flags & TPF_SHOW_PAGES) {
             px = 246;
             py = 190;
-            ShPrint("PAGE ", static_cast<char>(shcolor), false);
+            ShPrint("PAGE ", static_cast<int8_t>(shcolor), false);
             pagex[0] = px;
             pagey[0] = py;
-            ShPrint("   OF ", static_cast<char>(shcolor), false);
+            ShPrint("   OF ", static_cast<int8_t>(shcolor), false);
             pagex[1] = px;
             pagey[1] = py;
 
@@ -1286,7 +1287,7 @@ tp_newline:;
 // TP_CONTROL_CHARs don't advance to next character line
 //
     if ((*scan_ch != TP_CONTROL_CHAR) && *scan_ch) {
-        char old_color = fontcolor;
+        auto old_color = fontcolor;
 
         // Remove cursor.
         //
@@ -1343,7 +1344,7 @@ void TP_HandleCodes()
     int16_t length;
     const char* s;
     int16_t old_bgcolor = 0;
-    signed char c;
+    int8_t c;
 
     if ((first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n')) {
         flags |= fl_startofline;
@@ -1505,7 +1506,7 @@ void TP_HandleCodes()
         // ALTER X ----------------------------------------------------------
         //
         case TP_CNVT_CODE('A', 'X'):
-            c = static_cast<signed char>(TP_VALUE(first_ch, 2));
+            c = static_cast<int8_t>(TP_VALUE(first_ch, 2));
             first_ch += 2;
             cur_x += c;
             break;
@@ -1513,7 +1514,7 @@ void TP_HandleCodes()
         // ALTER Y ----------------------------------------------------------
         //
         case TP_CNVT_CODE('A', 'Y'):
-            c = static_cast<signed char>(TP_VALUE(first_ch, 2));
+            c = static_cast<int8_t>(TP_VALUE(first_ch, 2));
             first_ch += 2;
             cur_y += c;
             break;
@@ -1790,7 +1791,7 @@ void TP_HandleCodes()
         // PAUSE -----------------------------------------------------------
         //
         case TP_CNVT_CODE('P', 'A'): {
-            char i;
+            int8_t i;
 
             for (i = 0; i < 30; i++) {
                 VW_WaitVBL(1);
@@ -1990,7 +1991,8 @@ void TP_HandleCodes()
 void TP_PrintPageNumber()
 {
     char buffer[5];
-    char oldf = static_cast<char>(fontnumber), oldc = fontcolor;
+    auto oldf = static_cast<int8_t>(fontnumber);
+    auto oldc = fontcolor;
 
     if (!(pi->flags & TPF_SHOW_PAGES)) {
         return;
@@ -2005,14 +2007,14 @@ void TP_PrintPageNumber()
     py = pagey[0];
     VW_Bar(px, py, 12, 7, 0xe3);
     sprintf(buffer, "%02d", pi->pagenum + 1);
-    ShPrint(buffer, static_cast<char>(shcolor), false);
+    ShPrint(buffer, static_cast<int8_t>(shcolor), false);
 
 // Print current page number.
 //
     if ((px = pagex[1]) > -1) {
         py = pagey[1];
         sprintf(buffer, "%02d", pi->numpages);
-        ShPrint(buffer, static_cast<char>(shcolor), false);
+        ShPrint(buffer, static_cast<int8_t>(shcolor), false);
         pagex[1] = -1;
     }
 
@@ -2355,9 +2357,11 @@ void TP_CachePage(
 // --------------------------------------------------------------------------
 uint16_t TP_VALUE(
     const char* ptr,
-    char num_nybbles)
+    int8_t num_nybbles)
 {
-    char ch, nybble, shift;
+    char ch;
+    int8_t nybble;
+    int8_t shift;
     uint16_t value = 0;
 
     for (nybble = 0; nybble < num_nybbles; nybble++) {
@@ -2381,7 +2385,7 @@ uint16_t TP_VALUE(
 // --------------------------------------------------------------------------
 void TP_JumpCursor()
 {
-    char old_color = fontcolor;
+    auto old_color = fontcolor;
 
     fontcolor = static_cast<uint8_t>(bgcolor);
     px = last_cur_x;
@@ -2415,9 +2419,9 @@ void TP_Print(
 
     if ((flags & fl_shadowtext) && (*str != '@')) {
         if (fontcolor == bgcolor) {
-            ShPrint(str, static_cast<char>(bgcolor), single_char);
+            ShPrint(str, static_cast<int8_t>(bgcolor), single_char);
         } else {
-            ShPrint(str, static_cast<char>(shcolor), single_char);
+            ShPrint(str, static_cast<int8_t>(shcolor), single_char);
         }
     } else if (single_char) {
         char buf[2] = { 0, 0 };
@@ -2441,9 +2445,9 @@ void TP_Print(
 // --------------------------------------------------------------------------
 bool TP_SlowPrint(
     const char* str,
-    char delay)
+    int8_t delay)
 {
-    char old_color = fontcolor;
+    auto old_color = fontcolor;
     int16_t old_x, old_y;
     int32_t tc;
     bool aborted = false;
@@ -2720,7 +2724,7 @@ int16_t TP_LineCommented(
         s += 2;
     }
 
-    return (char)(s - o);
+    return static_cast<int8_t>(s - o);
 }
 
 /* Code very similar to this crashed the system during COMPILE.

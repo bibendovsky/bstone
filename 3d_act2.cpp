@@ -102,7 +102,7 @@ bool ClipMove(
 =============================================================================
 */
 
-char detonators_spawned = 0;
+int8_t detonators_spawned = 0;
 
 /*
 =============================================================================
@@ -965,8 +965,8 @@ void initialize_grenade_shape_constants()
 void T_OfsThink(
     objtype* obj)
 {
-    char dx, dy, dist;
-    char oldofs, ofs = 0;
+    int8_t dx, dy, dist;
+    int8_t oldofs, ofs = 0;
 
     switch (obj->obclass) {
     case plasma_detonator_reserveobj:
@@ -1079,7 +1079,7 @@ void T_OfsThink(
         if ((obj->temp1 == SPR_DECO_ARC_1) || (US_RndT() & 15)) {
             // Becomes darker....
 
-            char t = (US_RndT() & 1);
+            auto t = static_cast<int8_t>((US_RndT() & 1));
 
             obj->lighting = LAMP_ON_SHADING + ((t + 3) << 2);
             obj->temp1 = SPR_DECO_ARC_2 + t;
@@ -1092,7 +1092,7 @@ void T_OfsThink(
         break;
 
     case electrosphereobj:
-        oldofs = static_cast<char>(obj->temp1 - SPR_ELECTRO_SPHERE_ROAM1);
+        oldofs = static_cast<int8_t>(obj->temp1 - SPR_ELECTRO_SPHERE_ROAM1);
         ofs = US_RndT() & 3;
         if (ofs == oldofs) {
             ofs = (ofs + 1) & 3;
@@ -1230,7 +1230,7 @@ int16_t RandomSphereDir(
 void SphereStartDir(
     objtype* ob)
 {
-    char loop;
+    int8_t loop;
 
     actorat[ob->tilex][ob->tiley] = nullptr;
     for (loop = 0; loop < 3; loop++) {
@@ -1410,7 +1410,7 @@ void T_OfsBounce(
                 ob->dir = nodir;
             }
         } else {
-            char orgx = ob->tilex, orgy = ob->tiley;
+            int8_t orgx = ob->tilex, orgy = ob->tiley;
 
             ob->tilex = static_cast<uint8_t>(oldtx);
             ob->tiley = static_cast<uint8_t>(oldty);
@@ -1771,7 +1771,7 @@ void T_SmartThought(
         if (obj->lighting) {
             // Slowly inc back to
 
-            obj->lighting += static_cast<char>(ANIM_INFO(obj)->curframe);
+            obj->lighting += static_cast<int8_t>(ANIM_INFO(obj)->curframe);
             if (obj->lighting > 0) {
                 obj->lighting = 0;
             }
@@ -2405,12 +2405,12 @@ bool CheckActor(
 // CheckAndConnect() -
 // --------------------------------------------------------------------------
 int16_t CheckAndConnect(
-    char x,
-    char y,
+    int8_t x,
+    int8_t y,
     uint16_t code)
 {
     objtype* ob;
-    char offsets[] = { -1, 0, 1, 0 };
+    int8_t offsets[] = { -1, 0, 1, 0 };
     int16_t loop;
 
     ob = objlist;
@@ -3748,7 +3748,7 @@ void CheckForSpecialTile(
 
     if (getarea) {
         tilemap[tilex][tiley] = 0;
-        *map = obj->areanumber = GetAreaNumber(static_cast<char>(tilex), static_cast<char>(tiley));
+        *map = obj->areanumber = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley));
 
 #if IN_DEVELOPMENT
         if (obj->areanumber >= NUMAREAS) {
@@ -6086,13 +6086,13 @@ BlowIt:
 
 #define EX_RADIUS 2 // Tiles out from center
 
-char ff_buffer[EX_RADIUS * 2 + 1][EX_RADIUS * 2 + 1];
+int8_t ff_buffer[EX_RADIUS * 2 + 1][EX_RADIUS * 2 + 1];
 int16_t ff_damageplayer, ff_damage;
 objtype* ff_obj;
 
 void ExplodeFill(
-    char tx,
-    char ty);
+    int8_t tx,
+    int8_t ty);
 
 // ---------------------------------------------------------------------------
 // ExplodeRadius()
@@ -6170,10 +6170,10 @@ void ExplodeRadius(
 // ExplodeFill()
 // ---------------------------------------------------------------------------
 void ExplodeFill(
-    char tx,
-    char ty)
+    int8_t tx,
+    int8_t ty)
 {
-    char bx = tx - ff_obj->tilex + EX_RADIUS,
+    int8_t bx = tx - ff_obj->tilex + EX_RADIUS,
          by = ty - ff_obj->tiley + EX_RADIUS,
          door, no_wall;
 
@@ -6223,7 +6223,7 @@ void ExplodeFill(
                         // Unlock Next floor
 
                         gamestuff.level[gamestate.mapon + 1].locked = false;
-                        gamestate.key_floor = static_cast<char>(gamestate.mapon + 1);
+                        gamestate.key_floor = static_cast<int8_t>(gamestate.mapon + 1);
                     }
                     break;
 

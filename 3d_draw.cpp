@@ -59,7 +59,7 @@ void ScaleLSShape(
     int xcenter,
     int shapenum,
     int height,
-    char lighting);
+    int8_t lighting);
 void DrawAmmoPic();
 void DrawScoreNum();
 void DrawWeaponPic();
@@ -552,7 +552,7 @@ void HitVertWall()
 {
     int16_t wallpic;
     uint16_t texture;
-    unsigned char doornum;
+    uint8_t doornum;
 
     texture = (yintercept >> 4) & 0xfc0;
     if (xtilestep == -1) {
@@ -1372,8 +1372,8 @@ void DrawPlayerWeapon()
     if (gamestate.weapon != -1) {
         shapenum = weaponscale[static_cast<int>(gamestate.weapon)] + gamestate.weaponframe;
         if (shapenum) {
-            char v_table[15] = { 87, 81, 77, 63, 61, 60, 56, 53, 50, 47, 43, 41, 39, 35, 31 };
-            char c_table[15] = { 88, 85, 81, 80, 75, 70, 64, 59, 55, 50, 44, 39, 34, 28, 24 };
+            int8_t v_table[15] = { 87, 81, 77, 63, 61, 60, 56, 53, 50, 47, 43, 41, 39, 35, 31 };
+            int8_t c_table[15] = { 88, 85, 81, 80, 75, 70, 64, 59, 55, 50, 44, 39, 34, 28, 24 };
 
             int16_t oldviewheight = viewheight;
             int16_t centery;
@@ -1581,7 +1581,7 @@ extern uint16_t LastMsgPri;
 // -------------------------------------------------------------------------
 void RedrawStatusAreas()
 {
-    char loop;
+    int8_t loop;
 
     DrawInfoArea_COUNT = InitInfoArea_COUNT = 3;
 
@@ -1778,7 +1778,7 @@ extern int16_t an_offset[];
 // --------------------------------------------------------------------------
 void DrawRadar()
 {
-    char zoom = gamestate.rzoom;
+    int8_t zoom = gamestate.rzoom;
     uint8_t flags = OV_KEYS | OV_PUSHWALLS | OV_ACTORS;
 
     if (gamestate.rpower) {

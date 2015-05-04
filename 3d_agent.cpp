@@ -184,7 +184,7 @@ void SaveOverheadChunk(
     int tpNum);
 
 void DisplayTeleportName(
-    char tpNum,
+    int8_t tpNum,
     bool locked);
 
 void ForceUpdateStatusBar();
@@ -229,7 +229,7 @@ atkinf_t attackinfo[7][14] = {
 #define YD1 0x33
 #define RD1 0x13
 
-char DimAmmo[2][22] = { { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0, YD0, YD0, YD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0 },
+int8_t DimAmmo[2][22] = { { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0, YD0, YD0, YD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0 },
                         { GD1, GD1, GD1, GD1, GD1, GD1, GD1, YD1, YD1, YD1, YD1, YD1, YD1, YD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1 } };
 
 #define GL0 0x58
@@ -240,7 +240,7 @@ char DimAmmo[2][22] = { { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0,
 #define YL1 0x36
 #define RL1 0x16
 
-char LitAmmo[2][22] = { { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0, YL0, YL0, YL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0 },
+int8_t LitAmmo[2][22] = { { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0, YL0, YL0, YL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0 },
                         { GL1, GL1, GL1, GL1, GL1, GL1, GL1, YL1, YL1, YL1, YL1, YL1, YL1, YL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1 } };
 
 
@@ -250,9 +250,9 @@ struct InfoArea_Struct {
     int16_t text_color;
     int16_t backgr_color;
     int16_t left_margin;
-    char delay;
-    char numanims;
-    char framecount;
+    int8_t delay;
+    int8_t numanims;
+    int8_t framecount;
 }; // InfoArea_Struct
 
 uint16_t LastMsgPri = 0;
@@ -264,18 +264,18 @@ int16_t LastInfoAttacker_Cloaked = 0;
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
 
-char DrawRadarGuage_COUNT = 3;
-char DrawAmmoNum_COUNT = 3;
-char DrawAmmoPic_COUNT = 3;
-// char DrawPDAmmoPic_COUNT = 3;
-char DrawScoreNum_COUNT = 3;
-char DrawWeaponPic_COUNT = 3;
-char DrawKeyPics_COUNT = 3;
-char DrawHealthNum_COUNT = 3;
+int8_t DrawRadarGuage_COUNT = 3;
+int8_t DrawAmmoNum_COUNT = 3;
+int8_t DrawAmmoPic_COUNT = 3;
+// int8_t DrawPDAmmoPic_COUNT = 3;
+int8_t DrawScoreNum_COUNT = 3;
+int8_t DrawWeaponPic_COUNT = 3;
+int8_t DrawKeyPics_COUNT = 3;
+int8_t DrawHealthNum_COUNT = 3;
 
-char DrawInfoArea_COUNT = 3;
-char InitInfoArea_COUNT = 3;
-char ClearInfoArea_COUNT = 3;
+int8_t DrawInfoArea_COUNT = 3;
+int8_t InitInfoArea_COUNT = 3;
+int8_t ClearInfoArea_COUNT = 3;
 
 void DrawWeapon();
 void GiveWeapon(
@@ -366,8 +366,8 @@ void CheckWeaponChange()
     for (i = wp_autocharge; i <= n; i++) {
         if (buttonstate[bt_ready_autocharge + i - wp_autocharge]) {
             if (gamestate.useable_weapons & (1 << i)) {
-                gamestate.weapon = static_cast<char>(i);
-                gamestate.chosenweapon = static_cast<char>(i);
+                gamestate.weapon = static_cast<int8_t>(i);
+                gamestate.chosenweapon = static_cast<int8_t>(i);
 
                 DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
                 DrawWeapon();
@@ -849,7 +849,7 @@ void DrawHealthNum()
 
         DrawHealthNum_COUNT -= 1;
     } else {
-        char loop, num;
+        int8_t loop, num;
         int16_t check = 100;
 
         DrawHealthNum_COUNT--;
@@ -1184,8 +1184,8 @@ void GiveWeapon(
         gamestate.weapons |= (1 << weapon);
 
         if (gamestate.weapon < weapon) {
-            gamestate.weapon = static_cast<char>(weapon);
-            gamestate.chosenweapon = static_cast<char>(weapon);
+            gamestate.weapon = static_cast<int8_t>(weapon);
+            gamestate.chosenweapon = static_cast<int8_t>(weapon);
             DrawWeapon();
         }
     }
@@ -1245,10 +1245,10 @@ void DrawAmmo(
         temp = 0;
     }
 
-    gamestate.ammo_leds = static_cast<char>(temp);
+    gamestate.ammo_leds = static_cast<int8_t>(temp);
 
     if ((temp != gamestate.lastammo_leds) || ForceRefresh) {
-        gamestate.lastammo_leds = static_cast<char>(temp);
+        gamestate.lastammo_leds = static_cast<int8_t>(temp);
         DrawAmmoPic_COUNT = 3;
     }
 
@@ -1359,7 +1359,7 @@ void DrawPDAmmoMsg()
 void UpdateAmmoMsg()
 {
     if (gamestate.weapon_wait) {
-        if ((gamestate.weapon_wait -= static_cast<char>(tics)) <= 0) {
+        if ((gamestate.weapon_wait -= static_cast<int8_t>(tics)) <= 0) {
             gamestate.weapon_wait = 0;
             DrawAmmoPic_COUNT = 3;
         }
@@ -1395,10 +1395,10 @@ void UpdateRadarGuage()
         temp = 0;
     }
 
-    gamestate.radar_leds = static_cast<char>(temp);
+    gamestate.radar_leds = static_cast<int8_t>(temp);
 
     if (temp != gamestate.lastradar_leds) {
-        gamestate.lastradar_leds = static_cast<char>(temp);
+        gamestate.lastradar_leds = static_cast<int8_t>(temp);
     }
 
     DrawRadarGuage_COUNT = 3;
@@ -1413,7 +1413,7 @@ void DrawRadarGuage()
         return;
     }
 
-    char zoom;
+    int8_t zoom;
 
     DrawLedStrip(235, 155, gamestate.radar_leds, NUM_AMMO_SEGS);
 
@@ -1437,9 +1437,9 @@ void DrawLedStrip(
 {
     int16_t ypos;
     uint16_t amount;
-    char leds;
+    int8_t leds;
 
-    leds = static_cast<char>(frac);
+    leds = static_cast<int8_t>(frac);
 
     if (leds) {
         amount = max - leds;
@@ -1934,7 +1934,7 @@ void DrawInfoArea()
             *scan_ch = 0;
 
             if (*first_ch != TP_RETURN_CHAR) {
-                char temp_color;
+                int8_t temp_color;
 
                 temp_color = fontcolor;
                 fontcolor = INFOAREA_TSHAD_COLOR;
@@ -2816,7 +2816,7 @@ void Thrust(
     case SMART_ON_TRIGGER:
         dx = *map[1] >> 8;
         dy = *map[1] & 255;
-        OperateSmartSwitch(dx, dy, static_cast<char>((*map[0]) - SMART_OFF_TRIGGER), false);
+        OperateSmartSwitch(dx, dy, static_cast<int8_t>((*map[0]) - SMART_OFF_TRIGGER), false);
         ignore_map1 = true;
         break;
 
@@ -2884,9 +2884,9 @@ bool GAN_HiddenArea;
 // ------------------------------------------------------------------------
 // GetAreaNumber()
 // ------------------------------------------------------------------------
-char GetAreaNumber(
-    char tilex,
-    char tiley)
+int8_t GetAreaNumber(
+    int8_t tilex,
+    int8_t tiley)
 {
     ::GAN_HiddenArea = false;
 
@@ -3161,7 +3161,7 @@ void Cmd_Use()
 #define MDIST 2
 #define INTG_ANGLE 45
 
-        char x, y;
+        int8_t x, y;
         objtype* intg_ob = nullptr, * ob;
         int32_t dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
 
@@ -3635,13 +3635,13 @@ int16_t InputFloor()
     } else {
         const auto RADAR_FLAGS = OV_KEYS;
         const auto MAX_TELEPORTS = 20;
-        const char MAX_MOVE_DELAY = 10;
+        const int8_t MAX_MOVE_DELAY = 10;
 
         int16_t buttonPic, buttonY;
         int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
         int16_t teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
         int16_t teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
-        char moveActive = 0;
+        int8_t moveActive = 0;
         objtype old_player;
         bool locked = false;
         bool buttonsDrawn = false;
@@ -3651,7 +3651,7 @@ int16_t InputFloor()
 
         CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
         CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
-        DisplayTeleportName(static_cast<char>(tpNum), locked);
+        DisplayTeleportName(static_cast<int8_t>(tpNum), locked);
         CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
         VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
@@ -3711,7 +3711,7 @@ int16_t InputFloor()
                         ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
                     }
                 } else {
-                    char loop;
+                    int8_t loop;
 
                     rt_code = tpNum; // ACCEPT
 
@@ -3736,7 +3736,7 @@ int16_t InputFloor()
             // Handle delay
             //
             if (moveActive) {
-                moveActive -= static_cast<char>(tics);
+                moveActive -= static_cast<int8_t>(tics);
                 if (moveActive < 0) {
                     moveActive = 0;
                 }
@@ -3789,7 +3789,7 @@ int16_t InputFloor()
             //
             if (tpNum != lastTpNum) {
                 locked = gamestuff.level[tpNum].locked;
-                DisplayTeleportName(static_cast<char>(tpNum), locked);
+                DisplayTeleportName(static_cast<int8_t>(tpNum), locked);
 
                 VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
                 VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
@@ -3825,7 +3825,7 @@ int16_t InputFloor()
 
 #if 0
         for (buttonY = 63; buttonY >= 0; buttonY -= 2) {
-            char shps[] = { TELEPORT1ONPIC, TELEPORT1OFFPIC };
+            int shps[] = { TELEPORT1ONPIC, TELEPORT1OFFPIC };
 
             if (rt_code != -1) {
                 VWB_DrawMPic(teleX[tpNum], teleY[tpNum], shps[(buttonY & 4) >> 2] + tpNum);
@@ -3962,7 +3962,7 @@ void SaveOverheadChunk(
 // DisplayTeleportName()
 // --------------------------------------------------------------------------
 void DisplayTeleportName(
-    char tpNum,
+    int8_t tpNum,
     bool locked)
 {
     const char* s;
@@ -4099,9 +4099,9 @@ uint8_t ShowRatio(
     int32_t perc,
     ss_type type)
 {
-    char numbars;
-    char maxperc;
-    char percentage = 1, loop;
+    int8_t numbars;
+    int8_t maxperc;
+    int8_t percentage = 1, loop;
 
 //      if (perc > total)
 //              perc = total;
@@ -4109,7 +4109,7 @@ uint8_t ShowRatio(
 // Catch those nasty divide-by-zeros!
 //
     if (total) {
-        maxperc = static_cast<char>(LRATIO(100, total, perc, 10));
+        maxperc = static_cast<int8_t>(LRATIO(100, total, perc, 10));
         numbars = LRATIO(48, 100, maxperc, 10);
     } else {
         if (type != ss_justcalc) {
@@ -4178,7 +4178,7 @@ uint8_t ShowRatio(
 void PrintStatPercent(
     int16_t nx,
     int16_t ny,
-    char percentage)
+    int8_t percentage)
 {
     if (percentage < 10) {
         PrintX = nx + 9;
@@ -4325,11 +4325,11 @@ PinballBonusInfo PinballBonus[] = {
 // --------------------------------------------------------------------------
 void DisplayPinballBonus()
 {
-    char loop;
+    int8_t loop;
 
 // Check queue for bonuses
 //
-    for (loop = 0; loop < static_cast<char>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++) {
+    for (loop = 0; loop < static_cast<int8_t>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++) {
         if ((BONUS_QUEUE & (1 << loop)) && (LastMsgPri < MP_PINBALL_BONUS)) {
             // Start this bonus!
             //
@@ -4443,7 +4443,7 @@ static uint16_t tcursor_x = TERM_SCREEN_XOFS,
               tcursor_y = TERM_SCREEN_YOFS;
 
 
-char TERM_sound_on = 1;
+int8_t TERM_sound_on = 1;
 
 
 char* Commands[TC_LAST];
@@ -4536,9 +4536,9 @@ void TerminalPrint(
 {
 #define TERM_PRINT_DELAY 1
     fontstruct* font;
-    char buf[2] = { 0, 0 };
-    char old_color, old_color2;
-    char fontheight;
+    int8_t buf[2] = { 0, 0 };
+    int8_t old_color, old_color2;
+    int8_t fontheight;
 
     font = (fontstruct*)grsegs[STARTFONT + fontnumber];
     fontheight = font->height;
@@ -5366,7 +5366,7 @@ void T_Attack(
 
                 for (x = n_x; x >= wp_autocharge; x--) {
                     if (gamestate.useable_weapons & (1 << x)) {
-                        gamestate.weapon = static_cast<char>(x);
+                        gamestate.weapon = static_cast<int8_t>(x);
                         break;
                     }
                 }
@@ -5771,7 +5771,7 @@ void SW_HandleStatic(
 bool OperateSmartSwitch(
     uint16_t tilex,
     uint16_t tiley,
-    char Operation,
+    int8_t Operation,
     bool Force)
 {
     enum what_is_it {

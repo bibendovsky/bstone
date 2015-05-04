@@ -910,7 +910,7 @@ void CheckKeys()
     }
 
     if (!::is_aog_sw() && Keyboard[sc_return]) {
-        char loop;
+        int8_t loop;
 
         if ((!memcmp(jam_buff, jam_buff_cmp, sizeof(jam_buff_cmp)))) {
             jam_buff[0] = 0;

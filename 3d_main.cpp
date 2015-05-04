@@ -6368,7 +6368,7 @@ void NewGame(
 #endif
     gamestate.mapon = (::is_ps() ? 0 : 1);
 
-    gamestate.key_floor = static_cast<char>(gamestate.mapon + 1);
+    gamestate.key_floor = static_cast<int8_t>(gamestate.mapon + 1);
     startgame = true;
 
     for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
@@ -6494,7 +6494,7 @@ int NextChunk(
     return 0;
 }
 
-char LS_current = -1, LS_total = -1;
+int8_t LS_current = -1, LS_total = -1;
 
 // --------------------------------------------------------------------------
 // LoadLevel()
@@ -7233,7 +7233,12 @@ void CleanUpDoors_N_Actors()
 // --------------------------------------------------------------------------
 void ClearNClose()
 {
-    char x, y, tx = 0, ty = 0, px = static_cast<char>(player->x >> TILESHIFT), py = static_cast<char>(player->y >> TILESHIFT);
+    int8_t x;
+    int8_t y;
+    int8_t tx = 0;
+    int8_t ty = 0;
+    auto px = static_cast<int8_t>(player->x >> TILESHIFT);
+    auto py = static_cast<int8_t>(player->y >> TILESHIFT);
 
     // Locate the door.
     //
@@ -7250,7 +7255,7 @@ void ClearNClose()
     // Close the door!
     //
     if (tx) {
-        char doornum = tilemap[static_cast<int>(tx)][static_cast<int>(ty)] & 63;
+        auto doornum = static_cast<int8_t>(tilemap[static_cast<int>(tx)][static_cast<int>(ty)] & 63);
 
         doorobjlist[static_cast<int>(doornum)].action = dr_closed; // this door is closed!
         doorposition[static_cast<int>(doornum)] = 0; // draw it closed!
@@ -7771,7 +7776,7 @@ void DrawCreditsPage()
     pi.ltcolor = BORDER_HI_COLOR;
     fontcolor = BORDER_TEXT_COLOR;
     pi.shcolor = pi.dkcolor = 0;
-    pi.fontnumber = static_cast<char>(fontnumber);
+    pi.fontnumber = static_cast<int8_t>(fontnumber);
 
 #ifdef ID_CACHE_CREDITS
     TP_LoadScript(nullptr, &pi, CREDITSTEXT);

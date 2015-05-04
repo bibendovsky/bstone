@@ -321,6 +321,7 @@ static const std::string& get_saved_game_base_name()
 
 #define type_cast(x, y) (reinterpret_cast<x>(const_cast<char*>(y)))
 
+// FIXME Make const
 static uint8_t* ScanNames[] = { // Scan code names with single chars
     type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
     type_cast(uint8_t*, "1"), type_cast(uint8_t*, "2"),
@@ -2425,7 +2426,7 @@ void DrawAllSoundLights(
 char LOADSAVE_GAME_MSG[2][25] = { "^ST1^CELoading Game\r^XX",
                                   "^ST1^CESaving Game\r^XX" };
 
-extern char LS_current, LS_total;
+extern int8_t LS_current, LS_total;
 
 // --------------------------------------------------------------------------
 // DrawLSAction() - DRAW LOAD/SAVE IN PROGRESS
@@ -2433,7 +2434,7 @@ extern char LS_current, LS_total;
 void DrawLSAction(
     int16_t which)
 {
-    char total[] = { 19, 19 };
+    int8_t total[] = { 19, 19 };
 
     VW_FadeOut();
     screenfaded = true;
@@ -3012,7 +3013,7 @@ void DrawCtlScreen()
         // for (i=0;i<6;i++)
         for (i = 0; i < CtlItems.amount; ++i) {
             if (CtlMenu[i].active) {
-                CtlItems.curpos = static_cast<char>(i);
+                CtlItems.curpos = static_cast<int8_t>(i);
                 break;
             }
         }
@@ -3549,7 +3550,7 @@ void DrawCustomScreen()
     if (CusItems.curpos < 0) {
         for (i = 0; i < CusItems.amount; i++) {
             if (CusMenu[i].active) {
-                CusItems.curpos = static_cast<char>(i);
+                CusItems.curpos = static_cast<int8_t>(i);
                 break;
             }
         }
@@ -3968,7 +3969,7 @@ int16_t HandleMenu(
     void (* routine)(int16_t w))
 {
 #define box_on item_i->cursor.on
-    char key;
+    int8_t key;
     static int16_t redrawitem = 1;
 
     int16_t i, x, y, basey, exit, which, flash_tics;
@@ -4049,7 +4050,7 @@ int16_t HandleMenu(
                 if ((items + i)->active && (items + i)->string[0] == key) {
                     EraseGun(item_i, items, x, y, which);
                     which = i;
-                    item_i->curpos = static_cast<char>(which); // jtr -testing
+                    item_i->curpos = static_cast<int8_t>(which); // jtr -testing
                     box_on = 1;
                     DrawGun(item_i, items, x, &y, which, basey, routine);
                     VW_UpdateScreen();
@@ -4069,7 +4070,7 @@ int16_t HandleMenu(
                     if ((items + i)->active && (items + i)->string[0] == key) {
                         EraseGun(item_i, items, x, y, which);
                         which = i;
-                        item_i->curpos = static_cast<char>(which); // jtr -testing
+                        item_i->curpos = static_cast<int8_t>(which); // jtr -testing
                         box_on = 1;
                         DrawGun(item_i, items, x, &y, which, basey, routine);
                         VW_UpdateScreen();
@@ -4103,7 +4104,7 @@ int16_t HandleMenu(
 
             } while (!(items + which)->active);
 
-            item_i->curpos = static_cast<char>(which); // jtr -testing
+            item_i->curpos = static_cast<int8_t>(which); // jtr -testing
 
             box_on = 1;
             DrawGun(item_i, items, x, &y, which, basey, routine);
@@ -4127,7 +4128,7 @@ int16_t HandleMenu(
                 }
             } while (!(items + which)->active);
 
-            item_i->curpos = static_cast<char>(which); // jtr -testing
+            item_i->curpos = static_cast<int8_t>(which); // jtr -testing
 
             box_on = 1;
             DrawGun(item_i, items, x, &y, which, basey, routine);
@@ -4172,7 +4173,7 @@ int16_t HandleMenu(
 
     VW_UpdateScreen();
 
-    item_i->curpos = static_cast<char>(which);
+    item_i->curpos = static_cast<int8_t>(which);
 
     switch (exit) {
     case 1:

@@ -28,8 +28,8 @@ Free Software Foundation, Inc.,
 
 #ifdef __MPRINTF__
 
-static char x = 0;
-static char y = 0;
+static int8_t x = 0;
+static int8_t y = 0;
 static char* video = MK_FP(0xb000, 0x0000);
 
 // -------------------------------------------------------------------------

@@ -191,17 +191,17 @@ enum activetypes {
 //
 struct CP_cursortype {
     uint8_t x;
-    char y_ofs;
+    int8_t y_ofs;
     uint8_t width;
     uint8_t height;
-    char on;
+    int8_t on;
 }; // CP_cursortype
 
 struct CP_iteminfo {
     uint8_t x;
     uint8_t y;
     uint8_t amount;
-    char curpos;
+    int8_t curpos;
     uint8_t indent;
     uint8_t y_spacing;
 

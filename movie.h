@@ -61,8 +61,8 @@ struct anim_chunk {
 //
 struct MovieStuff_t {
     char FName[13];
-    char rep;
-    char ticdelay;
+    int8_t rep;
+    int8_t ticdelay;
 
     uint32_t MaxMemBuffer;
 

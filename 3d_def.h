@@ -2221,9 +2221,9 @@ struct PinballBonusInfo {
 }; // PinballBonusInfo
 
 struct atkinf_t {
-    char tics;
-    char attack;
-    char frame; // attack is 1 for gun, 2 for knife
+    int8_t tics;
+    int8_t attack;
+    int8_t frame; // attack is 1 for gun, 2 for knife
 }; // atkinf_t
 
 
@@ -2647,7 +2647,7 @@ struct statobj_t {
     int16_t shapenum; // if shapenum == -1 the obj has been removed
     uint16_t flags;
     uint8_t itemnumber;
-    signed char lighting;
+    int8_t lighting;
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2677,7 +2677,7 @@ struct doorobj_t {
     uint8_t tilex;
     uint8_t tiley;
     bool vertical;
-    char flags;
+    int8_t flags;
     keytype lock;
     door_t type;
     DoorAction action;
@@ -2733,7 +2733,7 @@ struct objtype {
     int16_t hitpoints;
 
     uint8_t ammo;
-    signed char lighting;
+    int8_t lighting;
     uint16_t linc;
     int16_t angle;
     int32_t speed;
@@ -2946,26 +2946,26 @@ struct gametype {
 
     int16_t rpower;
     int16_t old_rpower;
-    char rzoom;
-    char radar_leds;
-    char lastradar_leds;
+    int8_t rzoom;
+    int8_t radar_leds;
+    int8_t lastradar_leds;
 
-    char lastammo_leds;
-    char ammo_leds;
+    int8_t lastammo_leds;
+    int8_t ammo_leds;
     int16_t ammo;
     int16_t old_ammo;
 
     int16_t plasma_detonators;
     int16_t old_plasma_detonators;
 
-    char useable_weapons;
-    char weapons;
-    char weapon;
-    char chosenweapon;
-    char old_weapons[4];
-    char key_floor;
+    int8_t useable_weapons;
+    int8_t weapons;
+    int8_t weapon;
+    int8_t chosenweapon;
+    int8_t old_weapons[4];
+    int8_t key_floor;
 
-    char weapon_wait;
+    int8_t weapon_wait;
     int16_t attackframe;
     int16_t attackcount;
     int16_t weaponframe;
@@ -2974,8 +2974,8 @@ struct gametype {
     int32_t killx;
     int32_t killy;
     const char* msg; // InfoArea msg...
-    char numkeys[NUMKEYS];
-    char old_numkeys[NUMKEYS];
+    int8_t numkeys[NUMKEYS];
+    int8_t old_numkeys[NUMKEYS];
     barrier_type barrier_table[MAX_BARRIER_SWITCHES];
     barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
     uint16_t tokens;
@@ -3020,11 +3020,11 @@ struct CycleInfo {
 
 
 struct visobj_t {
-    int16_t viewx,
-           viewheight,
-           shapenum;
-    char lighting;
-    char cloaked;
+    int16_t viewx;
+    int16_t viewheight;
+    int16_t shapenum;
+    int8_t lighting;
+    int8_t cloaked;
 }; // visobj_t
 
 
@@ -3204,9 +3204,9 @@ struct scientist_t {
 // Electro-Alien controller structer
 //
 struct eaWallInfo {
-    char tilex;
-    char tiley; // where this controller is in the map.
-    char aliens_out; // aliens spawned by this controller.
+    int8_t tilex;
+    int8_t tiley; // where this controller is in the map.
+    int8_t aliens_out; // aliens spawned by this controller.
     int16_t delay; // delay before spawning another alien.
 
     void serialize(
@@ -3281,9 +3281,11 @@ extern int16_t starting_level, debug_value, starting_episode, starting_difficult
 extern bool MS_CheckParm(
     const std::string& value);
 
-extern signed char lastmap_tilex, lastmap_tiley;
+extern int8_t lastmap_tilex;
+extern int8_t lastmap_tiley;
 extern uint16_t TopColor, BottomColor;
-extern char str[80], str2[20];
+extern char str[80];
+extern char str2[20];
 // extern  unsigned        tedlevelnum;
 // extern  bool         tedlevel;
 extern bool nospr;
@@ -3408,8 +3410,8 @@ extern GoldsternInfo_t GoldsternInfo;
 extern uint8_t VitalsRemain, VitalsOnFloor;
 
 extern eaWallInfo eaList[];
-extern char NumEAWalls;
-extern char NumEASpawned;
+extern int8_t NumEAWalls;
+extern int8_t NumEASpawned;
 extern bool ingame;
 extern bool fizzlein;
 extern int latchpics[NUMLATCHPICS];
@@ -3456,7 +3458,7 @@ void BevelBox(
 void AddTotalPoints(
     uint16_t points);
 void AddTotalInformants(
-    char informants);
+    int8_t informants);
 void AddTotalEnemy(
     uint16_t enemies);
 
@@ -3649,8 +3651,8 @@ void WrapTransformActor(
     objtype* ob);
 void ComputeActorPosition(
     objtype* ob,
-    char adjust_x,
-    char adjust_y);
+    int8_t adjust_x,
+    int8_t adjust_y);
 void WrapDrawScaleds();
 bool WrapActorPosition(
     objtype* obj);
@@ -3838,8 +3840,8 @@ extern bool commandmode;
 extern int32_t thrustspeed;
 extern uint16_t plux, pluy; // player coordinates scaled to unsigned
 extern bool PlayerInvisable;
-extern char DrawInfoArea_COUNT;
-extern char InitInfoArea_COUNT;
+extern int8_t DrawInfoArea_COUNT;
+extern int8_t InitInfoArea_COUNT;
 
 extern uint16_t player_oldtilex;
 extern uint16_t player_oldtiley;
@@ -3903,9 +3905,9 @@ void UpdateScore();
 uint8_t ValidAreaTile(
     const uint16_t* ptr);
 
-char GetAreaNumber(
-    char tilex,
-    char tiley);
+int8_t GetAreaNumber(
+    int8_t tilex,
+    int8_t tiley);
 int16_t InputFloor();
 
 void RestoreInfoArea();
@@ -3960,7 +3962,7 @@ void DisplayNoMoMsgs();
 void PrintStatPercent(
     int16_t nx,
     int16_t ny,
-    char percentage);
+    int8_t percentage);
 int16_t ShowStats(
     int16_t bx,
     int16_t by,
@@ -3971,7 +3973,7 @@ bool CheckPerfectStats();
 bool OperateSmartSwitch(
     uint16_t tilex,
     uint16_t tiley,
-    char Operation,
+    int8_t Operation,
     bool Force);
 
 /*
@@ -3984,7 +3986,7 @@ bool OperateSmartSwitch(
 using StatInfos = std::vector<stattype>;
 
 
-extern char xy_offset[8][2];
+extern int8_t xy_offset[8][2];
 extern StatInfos statinfo;
 extern concession_t ConHintList;
 
@@ -4032,9 +4034,9 @@ void CacheInfoAreaMsg(
 void CheckSpawnEA();
 
 int16_t TransformAreas(
-    char tilex,
-    char tiley,
-    char xform);
+    int8_t tilex,
+    int8_t tiley,
+    int8_t xform);
 
 
 void CheckSpawnGoldstern();
@@ -4070,7 +4072,7 @@ void BlastNearDoors(
     int16_t tilex,
     int16_t tiley);
 void TryBlastDoor(
-    char door);
+    int8_t door);
 
 statobj_t* FindStatic(
     uint16_t tilex,
@@ -4106,7 +4108,7 @@ void MakeFakeStatic(
 void UnmakeFakeStatic(
     objtype* ob);
 
-extern char detonators_spawned;
+extern int8_t detonators_spawned;
 
 extern int16_t starthitpoints[][NUMHITENEMIES];
 
@@ -4383,7 +4385,8 @@ void DropCargo(
 =============================================================================
 */
 
-extern char helpfilename[], endfilename[];
+extern char helpfilename[];
+extern char endfilename[];
 
 extern void HelpScreens();
 extern void EndText();
@@ -4468,7 +4471,7 @@ bool Breifing(
     uint16_t episode);
 void ShPrint(
     const char* text,
-    char shadow_color,
+    int8_t shadow_color,
     bool single_char);
 uint16_t Random(
     uint16_t Max);

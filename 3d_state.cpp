@@ -105,8 +105,8 @@ bool CheckSight(
     objtype* from_obj,
     objtype* to_obj);
 bool ElevatorFloor(
-    char x,
-    char y);
+    int8_t x,
+    int8_t y);
 
 /*
 =============================================================================
@@ -469,8 +469,8 @@ bool TryWalk(
 // ElevatorFloor()
 // --------------------------------------------------------------------------
 bool ElevatorFloor(
-    char x,
-    char y)
+    int8_t x,
+    int8_t y)
 {
     uint8_t tile = static_cast<uint8_t>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
 
@@ -2542,7 +2542,7 @@ bool LookForGoodies(
 #define DOOR_CHOICES 8
 
         doorobj_t* door, * doorlist[DOOR_CHOICES];
-        char doorsfound = 0;
+        int8_t doorsfound = 0;
 
         // If actor is running for a 'goody' or a door -- leave it alone!
         //
@@ -2577,12 +2577,12 @@ bool LookForGoodies(
         // Randomly choose a door if any were found.
         //
         if (doorsfound) {
-            char doornum;
+            int8_t doornum;
 
             // Randomly choose a door from the list.
             // (Only choose the last door used if it's the only door in this area!)
             //
-            doornum = static_cast<char>(Random(doorsfound));
+            doornum = static_cast<int8_t>(Random(doorsfound));
             door = doorlist[static_cast<int>(doornum)];
 
             if (door == ui16_to_door_object(ob->temp3) && doorsfound > 1) {
@@ -2735,7 +2735,7 @@ void SeekPlayerOrStatic(
 bool PlayerIsBlocking(
     objtype* ob)
 {
-    char opp_off[9][2] = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { 0, 0 } };
+    int8_t opp_off[9][2] = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { 0, 0 } };
 
 //      if ((ob->tilex == player->tilex) && (ob->tiley == player->tiley))
     {

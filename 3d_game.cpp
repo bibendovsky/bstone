@@ -41,7 +41,8 @@ Free Software Foundation, Inc.,
 
 #define LOCATION_TEXT_COLOR 0xAF
 extern char prep_msg[];
-extern char LS_current, LS_total;
+extern int8_t LS_current;
+extern int8_t LS_total;
 void Died();
 void PM_SetMainMemPurge(
     int16_t level);
@@ -105,7 +106,7 @@ bool ingame;
 bool fizzlein;
 int latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
-char NumEAWalls;
+int8_t NumEAWalls;
 
 tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 GoldsternInfo_t GoldsternInfo;
@@ -142,7 +143,7 @@ void GameLoop();
 //                 upon tile number/values.
 //
 
-char ExpCrateShapes[] = {
+int8_t ExpCrateShapes[] = {
     42, // Chicken Leg
     44, // Ham/Steak
     26, // Clip
@@ -511,7 +512,7 @@ void ScanInfoPlane()
                     GAME_ERROR(SCANINFO_CACHE_MSG_OVERFLOW);
                 }
 
-                ci->areanumber = GetAreaNumber(static_cast<char>(x), static_cast<char>(y));
+                ci->areanumber = GetAreaNumber(static_cast<int8_t>(x), static_cast<int8_t>(y));
 
                 if (ci->areanumber == 0 || ci->areanumber >= NUMAREAS) {
                     ci->areanumber = 0xff;
@@ -2365,7 +2366,7 @@ void AddTotalPoints(
 // AddTotalInformants()
 // --------------------------------------------------------------------------
 void AddTotalInformants(
-    char informants)
+    int8_t informants)
 {
     if (loadedgame) {
         return;
@@ -2628,8 +2629,8 @@ void SetupGameLevel()
                     break;
 
                 case EATILE:
-                    eaList[static_cast<int>(NumEAWalls)].tilex = static_cast<char>(x);
-                    eaList[static_cast<int>(NumEAWalls)].tiley = static_cast<char>(y);
+                    eaList[static_cast<int>(NumEAWalls)].tilex = static_cast<int8_t>(x);
+                    eaList[static_cast<int>(NumEAWalls)].tiley = static_cast<int8_t>(y);
                     eaList[static_cast<int>(NumEAWalls)].aliens_out = 0;
                     if ((lock & 0xff00) == 0xfa00) {
                         eaList[static_cast<int>(NumEAWalls)].delay = 60 * (lock & 0xff);
@@ -2723,7 +2724,7 @@ void SetupGameLevel()
                 if (actorat[x][y] == (objtype*)AMBUSHTILE) {
                     actorat[x][y] = nullptr;
                 }
-                *(map - 1) = GetAreaNumber(static_cast<char>(x), static_cast<char>(y));
+                *(map - 1) = GetAreaNumber(static_cast<int8_t>(x), static_cast<int8_t>(y));
                 break;
             }
         }
@@ -2817,7 +2818,7 @@ void BMAmsg(
     if (msg) {
         PresenterInfo pi;
         fontstruct* font = (fontstruct*)grsegs[STARTFONT + fontnumber];
-        char numlines = 1;
+        int8_t numlines = 1;
         const char* p = msg;
         int16_t cheight;
 
@@ -2839,7 +2840,7 @@ void BMAmsg(
         pi.ltcolor = BORDER_HI_COLOR;
         fontcolor = BORDER_TEXT_COLOR;
         pi.shcolor = pi.dkcolor = BORDER_LO_COLOR;
-        pi.fontnumber = static_cast<char>(fontnumber);
+        pi.fontnumber = static_cast<int8_t>(fontnumber);
         TP_InitScript(&pi);
         TP_Presenter(&pi);
     }
@@ -2992,7 +2993,7 @@ void ShadowPrintLocationText(
 void DrawTopInfo(
     sp_type type)
 {
-    char old = static_cast<char>(fontnumber);
+    auto old = static_cast<int8_t>(fontnumber);
 
     LatchDrawPic(0, 0, TOP_STATUSBARPIC);
     fontnumber = 2;
@@ -3842,7 +3843,7 @@ restartgame:
             ClearMemory();
 
             if (playstate == ex_victorious) {
-                char loop;
+                int8_t loop;
 
                 fontnumber = 1;
                 CA_CacheGrChunk(STARTFONT + 1);
