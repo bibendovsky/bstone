@@ -1039,10 +1039,10 @@ void PreDemo()
 
         if (::is_ps()) {
             // Do A Blue Flash!
-            VL_FadeOut(0, 255, 25, 29, 53, 20);
+            ::VL_FadeOut(0, 255, 25, 29, 53, 20);
+        } else {
+            ::VL_FadeOut(0, 255, 0, 0, 0, 30);
         }
-
-        VL_FadeOut(0, 255, 0, 0, 0, 30);
 
 // ---------------------
 // JAM logo intro
@@ -1096,7 +1096,12 @@ void PreDemo()
 
         // Do A Red Flash!
 
-        VL_FadeOut(0, 255, 39, 0, 0, 20);
+        if (::is_aog()) {
+            ::VL_FadeOut(0, 255, 39, 0, 0, 20);
+        } else {
+            ::VL_FadeOut(0, 255, 0, 0, 0, 20);
+        }
+
         VW_FadeOut();
     }
 }

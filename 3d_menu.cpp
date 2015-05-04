@@ -5075,7 +5075,7 @@ void cp_sound_volume(
 
 void MenuFadeOut()
 {
-    if (::is_ps()) {
+    if (::is_aog()) {
         ::VL_FadeOut(0, 255, 44, 0, 0, 10);
     } else {
         ::VL_FadeOut(0, 255, 40, 44, 44, 10);
