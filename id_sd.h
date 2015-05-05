@@ -106,11 +106,13 @@ bool SD_SoundPlaying();
 
 
 // BBi
-const int MIN_VOLUME = 0;
-const int MAX_VOLUME = 9;
+const int sd_min_volume = 0;
+const int sd_max_volume = 20;
+const int sd_default_sfx_volume = 10;
+const int sd_default_music_volume = 5;
 
-extern int g_sfx_volume;
-extern int g_music_volume;
+extern int sd_sfx_volume;
+extern int sd_music_volume;
 
 void sd_play_sound(
     int sound_index,

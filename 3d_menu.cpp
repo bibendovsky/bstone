@@ -4919,7 +4919,7 @@ void ExitGame()
 
 // BBi
 int volume_index = 0;
-int* const volumes[2] = { &g_sfx_volume, &g_music_volume };
+int* const volumes[2] = { &sd_sfx_volume, &sd_music_volume };
 
 void draw_volume_control(
     int index,
@@ -4937,7 +4937,7 @@ void draw_volume_control(
     VWB_Bar(74, static_cast<int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
     DrawOutline(73, static_cast<int16_t>(y - 1), 161, 9,
                 outline_color, outline_color);
-    VWB_Bar(static_cast<int16_t>(74 + ((160 * volume) / (MAX_VOLUME + 1))),
+    VWB_Bar(static_cast<int16_t>(74 + ((160 * volume) / (::sd_max_volume + 1))),
             static_cast<int16_t>(y), 16, 8, slider_color);
 }
 
@@ -5022,7 +5022,7 @@ void cp_sound_volume(
             break;
 
         case dir_West:
-            if (*volumes[volume_index] > MIN_VOLUME) {
+            if (*volumes[volume_index] > ::sd_min_volume) {
                 redraw_controls = true;
                 update_volumes = true;
                 --(*volumes[volume_index]);
@@ -5036,7 +5036,7 @@ void cp_sound_volume(
             break;
 
         case dir_East:
-            if (*volumes[volume_index] < MAX_VOLUME) {
+            if (*volumes[volume_index] < ::sd_max_volume) {
                 redraw_controls = true;
                 update_volumes = true;
                 ++(*volumes[volume_index]);
@@ -5055,12 +5055,12 @@ void cp_sound_volume(
             update_volumes = false;
 
             if (old_volumes[0] != *volumes[0]) {
-                sd_set_sfx_volume(g_sfx_volume);
+                sd_set_sfx_volume(sd_sfx_volume);
                 sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
             }
 
             if (old_volumes[1] != *volumes[1]) {
-                sd_set_music_volume(g_music_volume);
+                sd_set_music_volume(sd_music_volume);
             }
         }
 

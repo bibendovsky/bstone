@@ -111,8 +111,8 @@ bool sqPlayedOnce;
 static int music_index = -1;
 static bstone::AudioMixer mixer;
 
-int g_sfx_volume = MAX_VOLUME;
-int g_music_volume = MAX_VOLUME;
+int sd_sfx_volume = ::sd_default_sfx_volume;
+int sd_music_volume = ::sd_default_music_volume;
 
 //
 // Stuff for digitized sounds
@@ -500,28 +500,28 @@ bool sd_is_player_channel_playing(
 void sd_set_sfx_volume(
     int volume)
 {
-    if (volume < MIN_VOLUME) {
-        volume = MIN_VOLUME;
+    if (volume < ::sd_min_volume) {
+        volume = ::sd_min_volume;
     }
 
-    if (volume > MAX_VOLUME) {
-        volume = MAX_VOLUME;
+    if (volume > ::sd_max_volume) {
+        volume = ::sd_max_volume;
     }
 
-    mixer.set_sfx_volume(static_cast<float>(volume) / MAX_VOLUME);
+    mixer.set_sfx_volume(static_cast<float>(volume) / ::sd_max_volume);
 }
 
 void sd_set_music_volume(
     int volume)
 {
-    if (volume < MIN_VOLUME) {
-        volume = MIN_VOLUME;
+    if (volume < ::sd_min_volume) {
+        volume = ::sd_min_volume;
     }
 
-    if (volume > MAX_VOLUME) {
-        volume = MAX_VOLUME;
+    if (volume > ::sd_max_volume) {
+        volume = ::sd_max_volume;
     }
 
-    mixer.set_music_volume(static_cast<float>(volume) / MAX_VOLUME);
+    mixer.set_music_volume(static_cast<float>(volume) / ::sd_max_volume);
 }
 // BBi

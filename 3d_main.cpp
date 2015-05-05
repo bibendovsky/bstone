@@ -6081,10 +6081,10 @@ void ReadConfig()
             uint8_t temp_u8;
 
             ::deserialize_field(temp_u8, reader, checksum);
-            ::g_sfx_volume = temp_u8;
+            ::sd_sfx_volume = temp_u8;
 
             ::deserialize_field(temp_u8, reader, checksum);
-            ::g_music_volume = temp_u8;
+            ::sd_music_volume = temp_u8;
 
             ::deserialize_field(g_no_wall_hit_sound, reader, checksum);
             ::deserialize_field(in_use_modern_bindings, reader, checksum);
@@ -6137,20 +6137,20 @@ void ReadConfig()
         MainMenu[6].active = AT_ENABLED;
         MainItems.curpos = 0;
 
-        if (g_sfx_volume < MIN_VOLUME) {
-            g_sfx_volume = MIN_VOLUME;
+        if (sd_sfx_volume < ::sd_min_volume) {
+            sd_sfx_volume = ::sd_min_volume;
         }
 
-        if (g_sfx_volume > MAX_VOLUME) {
-            g_sfx_volume = MAX_VOLUME;
+        if (sd_sfx_volume > ::sd_max_volume) {
+            sd_sfx_volume = ::sd_max_volume;
         }
 
-        if (g_music_volume < MIN_VOLUME) {
-            g_music_volume = MIN_VOLUME;
+        if (sd_music_volume < ::sd_min_volume) {
+            sd_music_volume = ::sd_min_volume;
         }
 
-        if (g_music_volume > MAX_VOLUME) {
-            g_music_volume = MAX_VOLUME;
+        if (sd_music_volume > ::sd_max_volume) {
+            sd_music_volume = ::sd_max_volume;
         }
     }
 
@@ -6192,8 +6192,8 @@ void ReadConfig()
         gamestate.flags |= GS_LIGHTING;
 #endif
 
-        g_sfx_volume = MAX_VOLUME;
-        g_music_volume = MAX_VOLUME;
+        sd_sfx_volume = ::sd_default_sfx_volume;
+        sd_music_volume = ::sd_default_music_volume;
 
         g_no_wall_hit_sound = k_no_wall_hit_sound_default;
         in_use_modern_bindings = k_in_use_modern_bindings_default;
@@ -6206,8 +6206,8 @@ void ReadConfig()
     ::SD_EnableSound(is_sound_enabled);
     ::SD_EnableMusic(is_music_enabled);
 
-    sd_set_sfx_volume(g_sfx_volume);
-    sd_set_music_volume(g_music_volume);
+    sd_set_sfx_volume(sd_sfx_volume);
+    sd_set_music_volume(sd_music_volume);
 }
 
 /*
@@ -6269,10 +6269,10 @@ void WriteConfig()
 
     uint8_t temp_u8;
 
-    temp_u8 = static_cast<uint8_t>(::g_sfx_volume);
+    temp_u8 = static_cast<uint8_t>(::sd_sfx_volume);
     ::serialize_field(temp_u8, writer, checksum);
 
-    temp_u8 = static_cast<uint8_t>(::g_music_volume);
+    temp_u8 = static_cast<uint8_t>(::sd_music_volume);
     ::serialize_field(temp_u8, writer, checksum);
 
     ::serialize_field(g_no_wall_hit_sound, writer, checksum);
