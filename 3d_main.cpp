@@ -6029,9 +6029,8 @@ void ReadConfig()
 {
     is_config_loaded = true;
 
-    SDMode sd = sdm_Off;
-    SMMode sm = smm_Off;
-    SDSMode sds = sds_Off;
+    auto is_sound_enabled = false;
+    auto is_music_enabled = false;
 
     bool is_succeed = true;
     uint16_t flags = gamestate.flags;
@@ -6055,9 +6054,8 @@ void ReadConfig()
                 ::deserialize_field(score->ratio, reader, checksum);
             }
 
-            ::deserialize_field(sd, reader, checksum);
-            ::deserialize_field(sm, reader, checksum);
-            ::deserialize_field(sds, reader, checksum);
+            ::deserialize_field(is_sound_enabled, reader, checksum);
+            ::deserialize_field(is_music_enabled, reader, checksum);
 
             ::deserialize_field(mouseenabled, reader, checksum);
             ::deserialize_field(joystickenabled, reader, checksum);
@@ -6080,14 +6078,19 @@ void ReadConfig()
             // Use temp so we don't destroy pre-sets.
             ::deserialize_field(flags, reader, checksum);
 
-            ::deserialize_field(g_sfx_volume, reader, checksum);
-            ::deserialize_field(g_music_volume, reader, checksum);
+            uint8_t temp_u8;
+
+            ::deserialize_field(temp_u8, reader, checksum);
+            ::g_sfx_volume = temp_u8;
+
+            ::deserialize_field(temp_u8, reader, checksum);
+            ::g_music_volume = temp_u8;
 
             ::deserialize_field(g_no_wall_hit_sound, reader, checksum);
             ::deserialize_field(in_use_modern_bindings, reader, checksum);
             ::deserialize_field(g_always_run, reader, checksum);
 
-            // BBi AOG options
+            // AOG options
             ::deserialize_field(g_heart_beat_sound, reader, checksum);
             ::deserialize_field(g_rotated_automap, reader, checksum);
         } catch (const ArchiveException&) {
@@ -6115,28 +6118,12 @@ void ReadConfig()
 
         gamestate.flags |= flags; // Must "OR", some flags are already set.
 
-        if (sd != sdm_Off) {
-            if (AdLibPresent || SoundBlasterPresent) {
-                sd = sdm_AdLib;
-            } else {
-                sd = sdm_Off;
-            }
+        if (is_sound_enabled && !::sd_has_audio) {
+            is_sound_enabled = false;
         }
 
-        if (sm != smm_Off) {
-            if (AdLibPresent || SoundBlasterPresent) {
-                sm = smm_AdLib;
-            } else {
-                sm = smm_Off;
-            }
-        }
-
-        if (sds != sds_Off) {
-            if (AdLibPresent || SoundBlasterPresent) {
-                sds = sds_SoundBlaster;
-            } else {
-                sds = sds_Off;
-            }
+        if (is_music_enabled && !::sd_has_audio) {
+            is_music_enabled = false;
         }
 
         if (!MousePresent) {
@@ -6171,18 +6158,13 @@ void ReadConfig()
         //
         // no config file, so select by hardware
         //
-        if (SoundBlasterPresent || AdLibPresent) {
-            sd = sdm_AdLib;
-            sm = smm_AdLib;
-        } else {
-            sd = sdm_Off;
-            sm = smm_Off;
-        }
 
-        if (SoundBlasterPresent) {
-            sds = sds_SoundBlaster;
+        if (::sd_has_audio) {
+            is_sound_enabled = true;
+            is_music_enabled = true;
         } else {
-            sds = sds_Off;
+            is_sound_enabled = false;
+            is_music_enabled = false;
         }
 
         if (MousePresent) {
@@ -6221,9 +6203,8 @@ void ReadConfig()
         g_rotated_automap = false;
     }
 
-    ::SD_SetMusicMode(sm);
-    ::SD_SetSoundMode(sd);
-    ::SD_SetDigiDevice(sds);
+    ::SD_EnableSound(is_sound_enabled);
+    ::SD_EnableMusic(is_music_enabled);
 
     sd_set_sfx_volume(g_sfx_volume);
     sd_set_music_volume(g_music_volume);
@@ -6255,7 +6236,7 @@ void WriteConfig()
     bstone::BinaryWriter writer(&stream);
 
     for (int i = 0; i < MaxScores; ++i) {
-        HighScore* score = &Scores[i];
+        const auto score = &Scores[i];
 
         ::serialize_field(score->name, writer, checksum);
         ::serialize_field(score->score, writer, checksum);
@@ -6264,9 +6245,8 @@ void WriteConfig()
         ::serialize_field(score->ratio, writer, checksum);
     }
 
-    ::serialize_field(SoundMode, writer, checksum);
-    ::serialize_field(MusicMode, writer, checksum);
-    ::serialize_field(DigiMode, writer, checksum);
+    ::serialize_field(::sd_is_sound_enabled, writer, checksum);
+    ::serialize_field(::sd_is_music_enabled, writer, checksum);
 
     ::serialize_field(mouseenabled, writer, checksum);
     ::serialize_field(joystickenabled, writer, checksum);
@@ -6287,14 +6267,19 @@ void WriteConfig()
     ::serialize_field(mouseadjustment, writer, checksum);
     ::serialize_field(gamestate.flags, writer, checksum);
 
-    ::serialize_field(g_sfx_volume, writer, checksum);
-    ::serialize_field(g_music_volume, writer, checksum);
+    uint8_t temp_u8;
+
+    temp_u8 = static_cast<uint8_t>(::g_sfx_volume);
+    ::serialize_field(temp_u8, writer, checksum);
+
+    temp_u8 = static_cast<uint8_t>(::g_music_volume);
+    ::serialize_field(temp_u8, writer, checksum);
 
     ::serialize_field(g_no_wall_hit_sound, writer, checksum);
     ::serialize_field(in_use_modern_bindings, writer, checksum);
     ::serialize_field(g_always_run, writer, checksum);
 
-    // BBi AOG options
+    // AOG options
     ::serialize_field(g_heart_beat_sound, writer, checksum);
     ::serialize_field(g_rotated_automap, writer, checksum);
 

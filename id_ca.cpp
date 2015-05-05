@@ -135,7 +135,7 @@ bstone::FileStream audiohandle; // handle to AUDIOT / AUDIO
 
 int32_t chunkcomplen, chunkexplen;
 
-SDMode oldsoundmode;
+bool old_is_sound_enabled;
 
 static Buffer ca_buffer;
 
@@ -966,31 +966,23 @@ done:
 
 void CA_LoadAllSounds()
 {
-    uint16_t start = 0, i;
+    auto start = 0;
 
-    switch (oldsoundmode) {
-    case sdm_Off:
-        break;
-
-    case sdm_AdLib:
+    if (::old_is_sound_enabled) {
         start = STARTADLIBSOUNDS;
-        break;
     }
 
-    switch (SoundMode) {
-    case sdm_Off:
+    if (::sd_is_sound_enabled) {
+        start = STARTADLIBSOUNDS;
+    } else {
         return;
-
-    case sdm_AdLib:
-        start = STARTADLIBSOUNDS;
-        break;
     }
 
-    for (i = 0; i < NUMSOUNDS; i++, start++) {
-        CA_CacheAudioChunk(start);
+    for (auto i = 0; i < NUMSOUNDS; ++i, ++start) {
+        ::CA_CacheAudioChunk(start);
     }
 
-    oldsoundmode = SoundMode;
+    ::old_is_sound_enabled = ::sd_is_sound_enabled;
 }
 
 // ===========================================================================

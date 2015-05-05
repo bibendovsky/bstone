@@ -2288,22 +2288,20 @@ void CP_Sound(
         // SOUND EFFECTS / DIGITIZED SOUND
         //
         case 0:
-            if (SoundMode != sdm_Off) {
-                SD_WaitSoundDone();
-                SD_SetSoundMode(sdm_Off);
-                SD_SetDigiDevice(sds_Off);
-                DrawSoundMenu();
+            if (::sd_is_sound_enabled) {
+                ::SD_WaitSoundDone();
+                ::SD_EnableSound(false);
+                ::DrawSoundMenu();
             }
             break;
 
         case 1:
-            if (SoundMode != sdm_AdLib) {
-                SD_WaitSoundDone();
-                SD_SetSoundMode(sdm_AdLib);
-                SD_SetDigiDevice(sds_SoundBlaster);
-                CA_LoadAllSounds();
-                DrawSoundMenu();
-                ShootSnd();
+            if (!::sd_is_sound_enabled) {
+                ::SD_WaitSoundDone();
+                ::SD_EnableSound(true);
+                ::CA_LoadAllSounds();
+                ::DrawSoundMenu();
+                ::ShootSnd();
             }
             break;
 
@@ -2311,18 +2309,18 @@ void CP_Sound(
         // MUSIC
         //
         case 4:
-            if (MusicMode != smm_Off) {
-                SD_SetMusicMode(smm_Off);
-                DrawSoundMenu();
-                ShootSnd();
+            if (::sd_is_music_enabled) {
+                ::SD_EnableMusic(false);
+                ::DrawSoundMenu();
+                ::ShootSnd();
             }
             break;
 
         case 5:
-            if (MusicMode != smm_AdLib) {
-                SD_SetMusicMode(smm_AdLib);
-                DrawSoundMenu();
-                ShootSnd();
+            if (!::sd_is_music_enabled) {
+                ::SD_EnableMusic(true);
+                ::DrawSoundMenu();
+                ::ShootSnd();
                 ::StartCPMusic(MENUSONG);
             }
             break;
@@ -2349,8 +2347,9 @@ void DrawSoundMenu()
     // IF NO ADLIB, NON-CHOOSENESS!
     //
 
-    if (!AdLibPresent && !SoundBlasterPresent) {
-        SndMenu[1].active = SndMenu[5].active = AT_DISABLED;
+    if (!::sd_has_audio) {
+        ::SndMenu[1].active = AT_DISABLED;
+        ::SndMenu[5].active = AT_DISABLED;
     }
 
     fontnumber = 4;
@@ -2396,25 +2395,31 @@ void DrawAllSoundLights(
             //
             // SOUND EFFECTS / DIGITIZED SOUND
             //
-            case 0: if (SoundMode == sdm_Off) {
-                    Shape++;
-            }
+            case 0:
+                if (!::sd_is_sound_enabled) {
+                    ++Shape;
+                }
                 break;
-            case 1: if (SoundMode == sdm_AdLib) {
-                    Shape++;
-            }
+
+            case 1:
+                if (::sd_is_sound_enabled) {
+                    ++Shape;
+                }
                 break;
 
             //
             // MUSIC
             //
-            case 4: if (MusicMode == smm_Off) {
-                    Shape++;
-            }
+            case 4:
+                if (!::sd_is_music_enabled) {
+                    ++Shape;
+                }
                 break;
-            case 5: if (MusicMode == smm_AdLib) {
-                    Shape++;
-            }
+
+            case 5:
+                if (::sd_is_music_enabled) {
+                    ++Shape;
+                }
                 break;
             }
 

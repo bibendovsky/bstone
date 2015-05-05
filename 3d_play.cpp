@@ -870,31 +870,18 @@ void CheckKeys()
 
     if (in_is_binding_pressed(e_bi_sfx)) {
         if (S_KeyReleased) {
-            if ((SoundMode != sdm_Off) || (DigiMode != sds_Off)) {
-                if (SoundMode != sdm_Off) {
-                    SD_WaitSoundDone();
-                    SD_SetSoundMode(sdm_Off);
-                }
-
-                if (DigiMode != sds_Off) {
-                    SD_SetDigiDevice(sds_Off);
-                }
+            if (::sd_is_sound_enabled) {
+                ::SD_WaitSoundDone();
+                ::SD_EnableSound(false);
 
                 memcpy((char*)&SoundOn[55], "OFF.", 4);
             } else {
                 ClearMemory();
-                if (SoundBlasterPresent || AdLibPresent) {
-                    SD_SetSoundMode(sdm_AdLib);
-                } else {
-                    SD_SetSoundMode(sdm_Off);
-                }
 
-                if (SoundBlasterPresent) {
-                    SD_SetDigiDevice(sds_SoundBlaster);
-                } else if (SoundSourcePresent) {
-                    SD_SetDigiDevice(sds_SoundSource);
+                if (::sd_has_audio) {
+                    ::SD_EnableSound(true);
                 } else {
-                    SD_SetDigiDevice(sds_Off);
+                    ::SD_EnableSound(false);
                 }
 
                 CA_LoadAllSounds();
@@ -1214,16 +1201,16 @@ void CheckMusicToggle()
         if (M_KeyReleased && (
             !::is_aog_sw() && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))))
         {
-            if (!AdLibPresent) {
+            if (!::sd_has_audio) {
                 DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
                 ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
                 return;
-            } else if (MusicMode != smm_Off) {
-                SD_SetMusicMode(smm_Off);
+            } else if (::sd_is_music_enabled) {
+                ::SD_EnableMusic(false);
                 memcpy((char*)&MusicOn[58], "OFF.", 4);
             } else {
-                SD_SetMusicMode(smm_AdLib);
+                ::SD_EnableMusic(true);
                 StartMusic(false);
                 memcpy((char*)&MusicOn[58], "ON. ", 4);
             }

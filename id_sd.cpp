@@ -52,31 +52,10 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifdef  _MUSE_ // Will be defined in ID_Types.h
 #include "id_sd.h"
-#else
-#include "id_heads.h"
-#endif
-
-
-// BBi
 #include "3d_def.h"
 #include "bstone_audio_mixer.h"
 #include "bstone_memory_binary_reader.h"
-// BBi
-
-
-#define SDL_SoundFinished() { SoundNumber = HITWALLSND; SoundPriority = 0; }
-
-#if 0
-//      Imports from ID_SDD.C
-#undef  NUMSOUNDS
-#undef  NUMSNDCHUNKS
-#undef  STARTPCSOUNDS
-#undef  STARTADLIBSOUNDS
-#undef  STARTDIGISOUNDS
-#undef  STARTMUSIC
-#endif // 0
 
 extern uint16_t sdStartPCSounds;
 extern uint16_t sdStartALSounds;
@@ -84,26 +63,18 @@ extern int16_t sdLastSound;
 extern int16_t DigiMap[];
 
 
-//      Global variables
-bool SoundSourcePresent;
-bool AdLibPresent;
-bool SoundBlasterPresent;
-bool SBProPresent;
-bool NeedsDigitized;
-bool NeedsMusic;
-bool SoundPositioned;
-SDMode SoundMode;
-SMMode MusicMode;
-SDSMode DigiMode;
+// Global variables
+bool sd_has_audio = false;
+bool sd_is_sound_enabled = false;
+bool sd_is_music_enabled = false;
 std::atomic_uint32_t TimeCount;
-uint16_t HackCount;
 
 uint8_t** SoundTable;
 
-//      Internal variables
+// Internal variables
 static bool SD_Started;
 bool nextsoundpos;
-uint32_t TimerDivisor, TimerCount;
+
 static const char* ParmStrings[] = {
     "noal",
     "nosb",
@@ -115,33 +86,26 @@ static const char* ParmStrings[] = {
     "ss3",
     nullptr
 };
-int SoundNumber;
-int DigiNumber;
-uint16_t SoundPriority, DigiPriority;
-int16_t LeftPosition, RightPosition;
-int32_t LocalTime;
-uint16_t TimerRate;
 
 uint16_t* DigiList;
 
-//      SoundBlaster variables
+// SoundBlaster variables
 static bool sbNoCheck;
 static bool sbNoProCheck;
 
-//      SoundSource variables
+// SoundSource variables
 bool ssNoCheck;
 
-//      PC Sound variables
+// PC Sound variables
 
-//      AdLib variables
+// AdLib variables
 bool alNoCheck;
 bool sqActive;
 uint16_t* sqHack;
 uint16_t sqHackLen;
 bool sqPlayedOnce;
 
-//      Internal routines
-void SDL_DigitizedDone();
+// Internal routines
 
 // BBi
 static int music_index = -1;
@@ -151,25 +115,8 @@ int g_sfx_volume = MAX_VOLUME;
 int g_music_volume = MAX_VOLUME;
 
 //
-//      Stuff for digitized sounds
+// Stuff for digitized sounds
 //
-
-void SD_SetDigiDevice(
-    SDSMode mode)
-{
-    if (mode == DigiMode) {
-        return;
-    }
-
-    switch (mode) {
-    case sds_SoundBlaster:
-        DigiMode = sds_SoundBlaster;
-        break;
-
-    default:
-        DigiMode = mode;
-    }
-}
 
 void SDL_SetupDigi()
 {
@@ -198,7 +145,7 @@ void SDL_SetupDigi()
     }
 }
 
-//      AdLib Code
+// AdLib Code
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -224,7 +171,7 @@ static bool SDL_DetectAdLib()
 
 static void SDL_ShutDevice()
 {
-    SoundMode = sdm_Off;
+    sd_is_sound_enabled = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -237,90 +184,39 @@ static void SDL_StartDevice()
 {
 }
 
-//      Public routines
+// Public routines
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_SetSoundMode() - Sets which sound hardware to use for sound effects
-//
-///////////////////////////////////////////////////////////////////////////
-bool SD_SetSoundMode(
-    SDMode mode)
+bool SD_EnableSound(
+    bool enable)
 {
-    bool result = false;
-    uint16_t tableoffset = 0;
+    ::SD_StopSound();
 
-    SD_StopSound();
-
-#ifndef _MUSE_
-    if ((mode == sdm_AdLib) && !AdLibPresent) {
-        mode = sdm_Off;
+    if (enable && !::sd_has_audio) {
+        enable = false;
     }
 
-    switch (mode) {
-    case sdm_Off:
-        tableoffset = sdStartPCSounds;
-        NeedsDigitized = false;
-        result = true;
-        break;
+    auto table_offset = (enable ? ::sdStartALSounds : sdStartPCSounds);
 
-    case sdm_AdLib:
-        if (AdLibPresent) {
-            tableoffset = sdStartALSounds;
-            NeedsDigitized = false;
-            result = true;
-        }
-        break;
-    }
-#else
-    result = true;
-#endif
-
-    if (result && (mode != SoundMode)) {
-        SDL_ShutDevice();
-        SoundMode = mode;
-#ifndef _MUSE_
-        SoundTable = &audiosegs[tableoffset];
-#endif
-        SDL_StartDevice();
+    if (::sd_is_sound_enabled != enable) {
+        ::SDL_ShutDevice();
+        ::sd_is_sound_enabled = enable;
+        ::SoundTable = &::audiosegs[table_offset];
+        ::SDL_StartDevice();
     }
 
-    return result;
+    return enable;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_SetMusicMode() - sets the device to use for background music
-//
-///////////////////////////////////////////////////////////////////////////
-bool SD_SetMusicMode(
-    SMMode mode)
+bool SD_EnableMusic(
+    bool enable)
 {
-    bool result = false;
+    ::SD_MusicOff();
 
-    SD_MusicOff();
+    ::sd_is_music_enabled = enable;
 
-    switch (mode) {
-    case smm_Off:
-        result = true;
-
-    case smm_AdLib:
-        result = AdLibPresent;
-    }
-
-    if (result) {
-        MusicMode = mode;
-    }
-
-    return result;
+    return enable;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_Startup() - starts up the Sound Mgr
-//              Detects all additional sound hardware and installs my ISR
-//
-///////////////////////////////////////////////////////////////////////////
 void SD_Startup()
 {
     if (SD_Started) {
@@ -332,7 +228,6 @@ void SD_Startup()
     sbNoCheck = false;
     sbNoProCheck = false;
 
-#ifndef _MUSE_
     switch (::g_args.check_argument(ParmStrings)) {
     case 0: // No AdLib detection
         alNoCheck = true;
@@ -346,100 +241,24 @@ void SD_Startup()
         sbNoProCheck = true;
         break;
     }
-#endif
 
-    LocalTime = 0;
     TimeCount = 0;
 
-    SD_SetSoundMode(sdm_Off);
-    SD_SetMusicMode(smm_Off);
+    ::SD_EnableSound(false);
+    ::SD_EnableMusic(false);
 
-    SoundSourcePresent = false;
+    ::sd_has_audio = ::SDL_DetectAdLib();
 
-    AdLibPresent = false;
-    SoundBlasterPresent = false;
-
-    if (!alNoCheck) {
-        AdLibPresent = SDL_DetectAdLib();
-
-        if (AdLibPresent && !sbNoCheck) {
-            SoundBlasterPresent = true;
-        }
-    }
-
-    if (AdLibPresent) {
+    if (::sd_has_audio) {
         mixer.initialize(44100);
     } else {
         mixer.uninitialize();
     }
 
-    SDL_SetupDigi();
+    ::SDL_SetupDigi();
 
-    SD_Started = true;
+    ::SD_Started = true;
 }
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_Default() - Sets up the default behaviour for the Sound Mgr whether
-//              the config file was present or not.
-//
-///////////////////////////////////////////////////////////////////////////
-void SD_Default(
-    bool gotit,
-    SDMode sd,
-    SMMode sm)
-{
-    bool gotsd;
-    bool gotsm;
-
-    gotsd = gotsm = gotit;
-
-    if (gotsd) { // Make sure requested sound hardware is available
-        switch (sd) {
-        case sdm_AdLib:
-            gotsd = AdLibPresent;
-            break;
-        default:
-            break;
-        }
-    }
-    if (!gotsd) {
-        if (AdLibPresent) {
-            sd = sdm_AdLib;
-        } else {
-            sd = sdm_Off;
-        }
-    }
-    if (sd != SoundMode) {
-        SD_SetSoundMode(sd);
-    }
-
-
-    if (gotsm) { // Make sure requested music hardware is available
-        switch (static_cast<SDMode>(sm)) {
-        case sdm_AdLib:
-            gotsm = AdLibPresent;
-            break;
-        default:
-            break;
-        }
-    }
-    if (!gotsm) {
-        if (AdLibPresent) {
-            sm = smm_AdLib;
-        }
-    }
-    if (sm != MusicMode) {
-        SD_SetMusicMode(sm);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_Shutdown() - shuts down the Sound Mgr
-//              Removes sound ISR and turns off whatever sound hardware was active
-//
-///////////////////////////////////////////////////////////////////////////
 
 void SD_Shutdown()
 {
@@ -466,11 +285,9 @@ void SD_Shutdown()
 
 bool SD_SoundPlaying()
 {
-    switch (SoundMode) {
-    case sdm_AdLib:
-        return mixer.is_any_sfx_playing();
-
-    default:
+    if (::sd_is_sound_enabled) {
+        return ::mixer.is_any_sfx_playing();
+    } else {
         return false;
     }
 }
@@ -483,7 +300,7 @@ bool SD_SoundPlaying()
 
 void SD_StopSound()
 {
-    mixer.stop_all_sfx();
+    ::mixer.stop_all_sfx();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -509,7 +326,7 @@ void SD_WaitSoundDone()
 void SD_MusicOn()
 {
     ::sqActive = true;
-    mixer.play_adlib_music(music_index, sqHack, sqHackLen);
+    ::mixer.play_adlib_music(music_index, sqHack, sqHackLen);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -521,7 +338,7 @@ void SD_MusicOn()
 void SD_MusicOff()
 {
     ::sqActive = false;
-    mixer.stop_music();
+    ::mixer.stop_music();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -533,24 +350,24 @@ void SD_MusicOff()
 void SD_StartMusic(
     int index)
 {
-    SD_MusicOff();
+    ::SD_MusicOff();
 
-    sqPlayedOnce = false;
+    ::sqPlayedOnce = false;
 
-    if (MusicMode == smm_AdLib) {
-        music_index = index;
+    if (::sd_is_music_enabled) {
+        ::music_index = index;
 
-        uint16_t* music_data = reinterpret_cast<uint16_t*>(
-            audiosegs[STARTMUSIC + index]);
+        auto music_data = reinterpret_cast<uint16_t*>(
+            ::audiosegs[STARTMUSIC + index]);
 
-        int length = bstone::Endian::le(music_data[0]) + 2;
+        auto length = bstone::Endian::le(music_data[0]) + 2;
 
-        sqHack = music_data;
-        sqHackLen = static_cast<uint16_t>(length);
+        ::sqHack = music_data;
+        ::sqHackLen = static_cast<uint16_t>(length);
 
-        SD_MusicOn();
+        ::SD_MusicOn();
     } else {
-        sqPlayedOnce = true;
+        ::sqPlayedOnce = true;
     }
 }
 
@@ -595,7 +412,7 @@ void sd_play_sound(
         return;
     }
 
-    if (SoundMode != sdm_Off && !sound) {
+    if (::sd_is_sound_enabled && !sound) {
         SD_ERROR(SD_PLAYSOUND_UNCACHED);
     }
 
@@ -603,7 +420,7 @@ void sd_play_sound(
 
     int digi_index = DigiMap[sound_index];
 
-    if (DigiMode != sds_Off && digi_index != -1) {
+    if (digi_index != -1) {
         int digi_page = DigiList[(2 * digi_index) + 0];
         int digi_length = DigiList[(2 * digi_index) + 1];
         const void* digi_data = ::PM_GetSoundPage(digi_page);
@@ -614,15 +431,7 @@ void sd_play_sound(
         return;
     }
 
-    if (SoundMode == sdm_Off) {
-        return;
-    }
-
-    switch (SoundMode) {
-    case sdm_AdLib:
-        break;
-
-    default:
+    if (!::sd_is_sound_enabled) {
         return;
     }
 

@@ -1020,7 +1020,7 @@ void PreDemo()
 
         // Wait for end of fanfare
         //
-        if (MusicMode == smm_AdLib) {
+        if (::sd_is_music_enabled) {
             IN_StartAck();
             while ((!sqPlayedOnce) && (!IN_CheckAck())) {
             }
@@ -1235,37 +1235,6 @@ void InitGame()
 }
 
 // -------------------------------------------------------------------------
-// ShowSystem()
-// -------------------------------------------------------------------------
-void ShowSystem()
-{
-    char avail[2][8] = { "None", "Present" };
-
-    CA_Startup();
-    IN_Startup();
-    PM_Startup();
-    SD_Startup();
-
-    fprint(show_text1);
-    fprint(show_text2);
-    fprint(show_text3);
-
-    fprint(show_text5);
-
-    printf("        Mouse: %s\n", avail[MousePresent]);
-    printf("     Joystick: %s\n", avail[JoysPresent[0] || JoysPresent[1]]);
-    printf("        AdLib: %s\n", avail[AdLibPresent && !SoundBlasterPresent]);
-    printf("Sound Blaster: %s\n", avail[SoundBlasterPresent]);
-    printf(" Sound Source: %s\n\n", avail[SoundSourcePresent]);
-    fprint(show_text2);
-
-    SD_Shutdown();
-    PM_Shutdown();
-    IN_Shutdown();
-    CA_Shutdown();
-}
-
-// -------------------------------------------------------------------------
 // scan_atoi()
 // -------------------------------------------------------------------------
 uint16_t scan_atoi(
@@ -1346,11 +1315,6 @@ void freed_main()
     case 3:
         gamestate.flags |= GS_STARTLEVEL;
         starting_episode = scan_atoi(arg.c_str()) - 1;
-        break;
-
-    case 5:
-        ShowSystem();
-        exit(0);
         break;
 
 #if IN_DEVELOPMENT
