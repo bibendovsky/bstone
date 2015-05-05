@@ -2900,36 +2900,38 @@ int8_t GetAreaNumber(
 
     // Get initial areanumber from map
     //
-    auto offset = ::farmapylookup[static_cast<int>(tiley)] + tilex;
-
-    const uint16_t* ptr[2] = {
-        mapsegs[0] + offset,
-        mapsegs[1] + offset,
-    }; // ptr
+    auto offset = ::farmapylookup[static_cast<int>(tiley)] + static_cast<int>(tilex);
+    auto areanumber = ::ValidAreaTile(::mapsegs[0] + offset);
 
     // Special tile areas must use a valid areanumber tile around it.
     //
-    auto areanumber = ::ValidAreaTile(ptr[0]);
-
     if (areanumber == 0) {
-        auto loop = 0;
+        auto found = false;
 
-        for (loop = 0; loop < 8; ++loop) {
-            auto offset_delta = ::an_offset[loop];
-            auto new_offset = offset + offset_delta;
+        for (auto i = 0; i < 8; ++i) {
+            auto new_x = tilex + ::xy_offset[i][0];
 
-            if (new_offset < 0 || new_offset >= (MAPSIZE * MAPSIZE)) {
+            if (new_x < 0 || new_x >= MAPSIZE) {
                 continue;
             }
 
-            areanumber = ::ValidAreaTile(ptr[0] + offset_delta);
+
+            auto new_y = tiley + xy_offset[i][1];
+
+            if (new_y < 0 || new_y >= MAPSIZE) {
+                continue;
+            }
+
+            offset = ::farmapylookup[new_y] + new_x;
+            areanumber = ::ValidAreaTile(::mapsegs[0] + offset);
 
             if (areanumber != 0) {
+                found = true;
                 break;
             }
         }
 
-        if (loop == 8) {
+        if (!found) {
             areanumber = AREATILE;
         }
     }
