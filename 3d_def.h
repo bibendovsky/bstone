@@ -4510,6 +4510,9 @@ extern char JM_FREE_DATA_START[];
 
 
 // BBi
+enum ScanCode;
+
+
 using Buffer = std::vector<unsigned char>;
 
 
@@ -4556,12 +4559,12 @@ const char* what_;
 }; // ArchiveException
 
 
-template<class T>
+template<typename T>
 inline void DoChecksum(
     const T& value,
     uint32_t& checksum)
 {
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&value);
+    auto src = reinterpret_cast<const uint8_t*>(&value);
 
     for (size_t i = 0; i < sizeof(T); ++i) {
         checksum += src[i] + 1;
@@ -4569,19 +4572,78 @@ inline void DoChecksum(
     }
 }
 
-template<class T>
-inline void serialize_field(
+
+class ArchiveRemapNoneTag {
+public:
+}; // ArchiveRemapNoneTag
+
+class ArchiveRemapU8Tag {
+public:
+}; // ArchiveRemapU8Tag
+
+template<typename T>
+class ArchiveRemapTag
+{
+public:
+    using Type = typename std::conditional<
+        std::is_same<T,char>::value ||
+            std::is_same<T,bool>::value ||
+            std::is_same<T,keytype>::value ||
+            std::is_same<T,door_t>::value ||
+            std::is_same<T,DoorAction>::value ||
+            std::is_same<T,activetype>::value ||
+            std::is_same<T,classtype>::value ||
+            std::is_same<T,dirtype>::value ||
+            std::is_same<T,ScanCode>::value,
+        ArchiveRemapU8Tag,
+        ArchiveRemapNoneTag>::type;
+}; // RemapTag
+
+
+template<typename T>
+inline void serialize_field_internal(
     const T& value,
     bstone::BinaryWriter& writer,
-    uint32_t& checksum)
+    uint32_t& checksum,
+    ArchiveRemapNoneTag)
 {
     ::DoChecksum(value, checksum);
+
     if (!writer.write(bstone::Endian::le(value))) {
         throw ArchiveException("serialize_field");
     }
 }
 
-template<class T, size_t N>
+template<typename T>
+inline void serialize_field_internal(
+    const T& value,
+    bstone::BinaryWriter& writer,
+    uint32_t& checksum,
+    ArchiveRemapU8Tag)
+{
+    auto target_value = static_cast<uint8_t>(value);
+
+    ::DoChecksum(target_value, checksum);
+
+    if (!writer.write(target_value)) {
+        throw ArchiveException("serialize_field");
+    }
+}
+
+template<typename T>
+inline void serialize_field(
+    const T& value,
+    bstone::BinaryWriter& writer,
+    uint32_t& checksum)
+{
+    ::serialize_field_internal(
+        value,
+        writer,
+        checksum,
+        ArchiveRemapTag<T>::Type());
+}
+
+template<typename T, size_t N>
 inline void serialize_field(
     const T(&value)[N],
     bstone::BinaryWriter& writer,
@@ -4592,7 +4654,7 @@ inline void serialize_field(
     }
 }
 
-template<class T, size_t M, size_t N>
+template<typename T, size_t M, size_t N>
 inline void serialize_field(
     const T(&value)[M][N],
     bstone::BinaryWriter& writer,
@@ -4605,21 +4667,72 @@ inline void serialize_field(
     }
 }
 
-template<class T>
-inline void deserialize_field(
+template<typename T>
+inline void deserialize_field_internal(
     T& value,
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    uint32_t& checksum,
+    ArchiveRemapNoneTag)
 {
     if (!reader.read(value)) {
         throw ArchiveException("deserialize_field");
     }
 
     bstone::Endian::lei(value);
+
     ::DoChecksum(value, checksum);
 }
 
-template<class T, size_t N>
+template<typename T>
+inline void deserialize_field_internal(
+    T& value,
+    bstone::BinaryReader& reader,
+    uint32_t& checksum,
+    ArchiveRemapU8Tag)
+{
+    uint8_t source_value = 0;
+
+    if (!reader.read(source_value)) {
+        throw ArchiveException("deserialize_field");
+    }
+
+    ::DoChecksum(source_value, checksum);
+
+    value = static_cast<T>(source_value);
+}
+
+template<>
+inline void deserialize_field_internal<bool>(
+    bool& value,
+    bstone::BinaryReader& reader,
+    uint32_t& checksum,
+    ArchiveRemapU8Tag)
+{
+    uint8_t source_value = 0;
+
+    if (!reader.read(source_value)) {
+        throw ArchiveException("deserialize_field");
+    }
+
+    ::DoChecksum(source_value, checksum);
+
+    value = (source_value != 0 ? true : false);
+}
+
+template<typename T>
+inline void deserialize_field(
+    T& value,
+    bstone::BinaryReader& reader,
+    uint32_t& checksum)
+{
+    ::deserialize_field_internal(
+        value,
+        reader,
+        checksum,
+        ArchiveRemapTag<T>::Type());
+}
+
+template<typename T, size_t N>
 inline void deserialize_field(
     T(&value)[N],
     bstone::BinaryReader& reader,
@@ -4630,7 +4743,7 @@ inline void deserialize_field(
     }
 }
 
-template<class T, size_t M, size_t N>
+template<typename T, size_t M, size_t N>
 inline void deserialize_field(
     T(&value)[M][N],
     bstone::BinaryReader& reader,
