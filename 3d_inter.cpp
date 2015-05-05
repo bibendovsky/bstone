@@ -257,7 +257,7 @@ void DrawHighScores()
     ShadowPrint("MISSION", 247, 53);
     ShadowPrint("RATIO", 254, 60);
 
-    for (i = 0, s = Scores; i < MaxScores; i++, s++) {
+    for (i = 0, s = Scores.data(); i < MaxScores; i++, s++) {
         SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR - 1, TERM_BACK_COLOR);
         //
         // name

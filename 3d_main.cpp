@@ -122,12 +122,23 @@ void InitPlaytemp();
 char QuitMsg[] = { "Unit: $%02x Error: $%02x" };
 
 #ifdef CEILING_FLOOR_COLORS
-uint16_t TopColor, BottomColor;
+uint16_t TopColor;
+uint16_t BottomColor;
 #endif
 
 bool nospr;
 
-int16_t dirangle[9] = { 0, ANGLES / 8, 2 * ANGLES / 8, 3 * ANGLES / 8, 4 * ANGLES / 8, 5 * ANGLES / 8, 6 * ANGLES / 8, 7 * ANGLES / 8, ANGLES };
+int16_t dirangle[9] = {
+    0 * ANGLES / 8,
+    1 * ANGLES / 8,
+    2 * ANGLES / 8,
+    3 * ANGLES / 8,
+    4 * ANGLES / 8,
+    5 * ANGLES / 8,
+    6 * ANGLES / 8,
+    7 * ANGLES / 8,
+    8 * ANGLES / 8,
+}; // dirangle
 
 //
 // proejection variables
@@ -150,7 +161,10 @@ int16_t mouseadjustment;
 
 const std::string config_file_name = "bstone_config";
 
-int16_t view_xl, view_xh, view_yl, view_yh;
+int16_t view_xl;
+int16_t view_xh;
+int16_t view_yl;
+int16_t view_yh;
 
 #if IN_DEVELOPMENT
 uint16_t democount = 0, jim = 0;
@@ -6014,6 +6028,126 @@ const char* ArchiveException::what() const throw ()
 bstone::MemoryStream g_playtemp;
 
 static bool is_config_loaded = false;
+
+static const std::string& get_score_file_name()
+{
+    static std::string file_name;
+    static bool is_initialized = false;
+
+    if (!is_initialized) {
+        is_initialized = true;
+
+        std::string game_type_string;
+
+        switch (::g_game_type) {
+        case GameType::aog_sw:
+            game_type_string = "aog_sw";
+            break;
+
+        case GameType::aog_full:
+            game_type_string = "aog_full";
+            break;
+
+        case GameType::ps:
+            game_type_string = "ps";
+            break;
+
+        default:
+            throw std::runtime_error("Invalid game type.");
+        }
+
+        file_name = "bstone_" + game_type_string + "_high_scores";
+    }
+
+    return file_name;
+}
+
+static void set_default_high_scores()
+{
+    Scores = {
+        { "JAM PRODUCTIONS INC.", 10000, 1, 0, },
+        { "", 10000, 1, 0, },
+        { "JERRY JONES", 10000, 1, 0, },
+        { "MICHAEL MAYNARD", 10000, 1, 0, },
+        { "JAMES T. ROW", 10000, 1, 0, },
+        { "", 10000, 1, 0, },
+        { "", 10000, 1, 0, },
+        { "TO REGISTER CALL", 10000, 1, 0, },
+        { " 1-800-GAME123", 10000, 1, 0, },
+        { "", 10000, 1, 0, },
+    }; // Scores
+}
+
+void read_high_scores()
+{
+    auto is_succeed = true;
+
+    auto scores_path = ::get_profile_dir() + ::get_score_file_name();
+
+    HighScores scores(MaxScores);
+    bstone::FileStream stream(scores_path);
+
+    if (stream.is_open()) {
+        uint32_t check_sum = 0;
+        bstone::BinaryReader reader(&stream);
+
+        try {
+            for (auto& score : scores) {
+                ::deserialize_field(score.name, reader, check_sum);
+                ::deserialize_field(score.score, reader, check_sum);
+                ::deserialize_field(score.completed, reader, check_sum);
+                ::deserialize_field(score.episode, reader, check_sum);
+                ::deserialize_field(score.ratio, reader, check_sum);
+            }
+        } catch (const ArchiveException&) {
+            is_succeed = false;
+        }
+
+        if (is_succeed) {
+            uint32_t saved_checksum = 0;
+            reader.read(saved_checksum);
+            bstone::Endian::lei(saved_checksum);
+
+            is_succeed = (saved_checksum == check_sum);
+        }
+    } else {
+        is_succeed = false;
+    }
+
+    if (is_succeed) {
+        ::Scores = scores;
+    } else {
+        ::set_default_high_scores();
+    }
+}
+
+static void write_high_scores()
+{
+    auto scores_path = ::get_profile_dir() + ::get_score_file_name();
+
+    bstone::FileStream stream(scores_path, bstone::StreamOpenMode::write);
+
+    if (!stream.is_open()) {
+        bstone::Log::write_error(
+            "Failed to open a high scores file for writing: {}.",
+            scores_path);
+
+        return;
+    }
+
+    uint32_t checksum = 0;
+    bstone::BinaryWriter writer(&stream);
+
+    for (const auto& score : Scores) {
+        ::serialize_field(score.name, writer, checksum);
+        ::serialize_field(score.score, writer, checksum);
+        ::serialize_field(score.completed, writer, checksum);
+        ::serialize_field(score.episode, writer, checksum);
+        ::serialize_field(score.ratio, writer, checksum);
+    }
+
+    writer.write(bstone::Endian::le(checksum));
+}
 // BBi
 
 
@@ -6044,16 +6178,6 @@ void ReadConfig()
         bstone::BinaryReader reader(&stream);
 
         try {
-            for (int i = 0; i < MaxScores; ++i) {
-                HighScore* score = &Scores[i];
-
-                ::deserialize_field(score->name, reader, checksum);
-                ::deserialize_field(score->score, reader, checksum);
-                ::deserialize_field(score->completed, reader, checksum);
-                ::deserialize_field(score->episode, reader, checksum);
-                ::deserialize_field(score->ratio, reader, checksum);
-            }
-
             ::deserialize_field(is_sound_enabled, reader, checksum);
             ::deserialize_field(is_music_enabled, reader, checksum);
 
@@ -6234,16 +6358,6 @@ void WriteConfig()
 
     uint32_t checksum = 0;
     bstone::BinaryWriter writer(&stream);
-
-    for (int i = 0; i < MaxScores; ++i) {
-        const auto score = &Scores[i];
-
-        ::serialize_field(score->name, writer, checksum);
-        ::serialize_field(score->score, writer, checksum);
-        ::serialize_field(score->completed, writer, checksum);
-        ::serialize_field(score->episode, writer, checksum);
-        ::serialize_field(score->ratio, writer, checksum);
-    }
 
     ::serialize_field(::sd_is_sound_enabled, writer, checksum);
     ::serialize_field(::sd_is_music_enabled, writer, checksum);
@@ -7477,9 +7591,8 @@ void NewViewSize()
 
 void pre_quit()
 {
-    if (::is_config_loaded) {
-        ::WriteConfig();
-    }
+    ::WriteConfig();
+    ::write_high_scores();
 
     ::ShutdownId();
 }

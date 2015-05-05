@@ -124,7 +124,10 @@ extern bool (* USL_SaveGame)(int16_t);
 extern bool (* USL_LoadGame)(int16_t);
 extern void (* USL_ResetGame)();
 extern SaveGame Games[MaxSaveGames];
-extern HighScore Scores[];
+
+using HighScores = std::vector<HighScore>;
+
+extern HighScores Scores;
 
 extern US_CursorStruct US_CustomCursor; // JAM
 extern bool use_custom_cursor; // JAM

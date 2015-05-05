@@ -63,6 +63,7 @@ void CAL_OptimizeNodes(
     huffnode* table);
 void OpenAudioFile();
 void ReadConfig();
+void read_high_scores();
 
 void initialize_sprites();
 void initialize_states();
@@ -1210,6 +1211,7 @@ void InitGame()
     bufferofs = 0;
     displayofs = 0;
     ReadConfig();
+    ::read_high_scores();
 
 //
 // draw intro screen stuff

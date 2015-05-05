@@ -110,18 +110,7 @@ void sys_timer_callback()
 } // namespace
 
 
-HighScore Scores[MaxScores] = {
-    { "JAM PRODUCTIONS INC.", 10000, 1, 0 },
-    { "", 10000, 1, 0 },
-    { "JERRY JONES", 10000, 1, 0 },
-    { "MICHAEL MAYNARD", 10000, 1, 0 },
-    { "JAMES T. ROW", 10000, 1, 0 },
-    { "", 10000, 1, 0 },
-    { "", 10000, 1, 0 },
-    { "TO REGISTER CALL", 10000, 1, 0 },
-    { " 1-800-GAME123", 10000, 1, 0 },
-    { "", 10000, 1, 0 },
-};
+HighScores Scores;
 
 //      Internal routines
 
