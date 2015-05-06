@@ -328,21 +328,21 @@ void initialize_boss_constants()
         SPR_BOSS5_PROJ1,
         0,
         0,
-        ::is_ps() ? SPR_BOSS10_SPIT1 : 0,
+        ::is_ps() ? SPR_BOSS10_SPIT1 : static_cast<int16_t>(0),
     };
 
 
     BossShapes = {
         SPR_BOSS1_W1,
-        ::is_aog_sw() ? 0 : SPR_BOSS2_W1,
-        ::is_aog_sw() ? 0 : SPR_BOSS3_W1,
-        ::is_aog_sw() ? 0 : SPR_BOSS4_W1,
-        ::is_aog_sw() ? 0 : SPR_BOSS5_W1,
-        ::is_aog_sw() ? 0 : SPR_BOSS6_W1,
-        ::is_ps() ? SPR_BOSS7_W1 : 0,
-        ::is_ps() ? SPR_BOSS8_W1 : 0,
-        ::is_ps() ? SPR_BOSS9_W1 : 0,
-        ::is_ps() ? SPR_BOSS10_W1 : 0,
+        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS2_W1,
+        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS3_W1,
+        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS4_W1,
+        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS5_W1,
+        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS6_W1,
+        ::is_ps() ? SPR_BOSS7_W1 : static_cast<int16_t>(0),
+        ::is_ps() ? SPR_BOSS8_W1 : static_cast<int16_t>(0),
+        ::is_ps() ? SPR_BOSS9_W1 : static_cast<int16_t>(0),
+        ::is_ps() ? SPR_BOSS10_W1 : static_cast<int16_t>(0),
     };
 
     MorphShapes = {
@@ -353,7 +353,7 @@ void initialize_boss_constants()
 
     MorphEndShapes = {
         SPR_BOSS1_W1,
-        ::is_aog_sw() ? 0 : SPR_BOSS4_W1,
+        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS4_W1,
         SPR_MUTHUM2_W1,
     };
 
@@ -5815,7 +5815,7 @@ bool ProjectileTryMove(
                             xdist = ABS(xdist);
 
                             if ((uint16_t)xdist < PROJCHECKSIZE && (uint16_t)ydist < PROJCHECKSIZE) {
-                                proj_check = false;
+                                proj_check = nullptr;
                                 proj_wall = 0;
                                 ob->tilex = static_cast<uint8_t>(ob->x >> TILESHIFT);
                                 ob->tiley = static_cast<uint8_t>(ob->y >> TILESHIFT);
@@ -5828,7 +5828,7 @@ bool ProjectileTryMove(
                             proj_wall = static_cast<uint8_t>(
                                 reinterpret_cast<size_t>(proj_check));
 
-                            proj_check = false;
+                            proj_check = nullptr;
                             ob->tilex = static_cast<uint8_t>(ob->x >> TILESHIFT);
                             ob->tiley = static_cast<uint8_t>(ob->y >> TILESHIFT);
                             return false;
@@ -5874,7 +5874,7 @@ void T_Projectile(
 // Did movement hit anything solid.
 //
 
-    proj_check = false;
+    proj_check = nullptr;
 
     if (!ProjectileTryMove(ob, deltax, deltay)) {
         switch (ob->obclass) {

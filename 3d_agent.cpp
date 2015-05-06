@@ -2362,21 +2362,21 @@ uint16_t static_points[] = { 100, // money bag
                            5000 // bonus
 };
 
-using StaticHealthTable = std::vector<std::array<uint16_t, 3>>;
+using StaticHealthTable = std::vector<std::array<int16_t, 3>>;
 
 StaticHealthTable static_health;
 
 void initialize_static_health_table()
 {
     static_health = {
-        { 100, HEALTH2SND, static_cast<uint16_t>(-1), }, // Full Heal
-        { 30, HEALTH1SND, static_cast<uint16_t>(-1), }, // First Aid
+        { 100, HEALTH2SND, -1, }, // Full Heal
+        { 30, HEALTH1SND, -1, }, // First Aid
         { 20, HEALTH1SND, SPR_STAT_45, }, // Steak
         { 15, HEALTH1SND, SPR_STAT_43, }, // Chicken Leg
         { 10, HEALTH1SND, SPR_SANDWICH_WRAPER, }, // Sandwich
         { 8, HEALTH1SND, SPR_CANDY_WRAPER, }, // Candy Bar
         { 5, HEALTH1SND, SPR_STAT_41, }, // Water bowl
-        { 5, HEALTH1SND, static_cast<uint8_t>(-1), }, // Water puddle
+        { 5, HEALTH1SND, -1, }, // Water puddle
     };
 }
 

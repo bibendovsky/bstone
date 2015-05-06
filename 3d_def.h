@@ -4640,7 +4640,7 @@ inline void serialize_field(
         value,
         writer,
         checksum,
-        ArchiveRemapTag<T>::Type());
+        typename ArchiveRemapTag<T>::Type());
 }
 
 template<typename T, size_t N>
@@ -4729,7 +4729,7 @@ inline void deserialize_field(
         value,
         reader,
         checksum,
-        ArchiveRemapTag<T>::Type());
+        typename ArchiveRemapTag<T>::Type());
 }
 
 template<typename T, size_t N>

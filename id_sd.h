@@ -77,7 +77,7 @@ extern bool sd_has_audio;
 extern bool sd_is_sound_enabled;
 extern bool sd_is_music_enabled;
 extern int16_t DigiMap[];
-extern std::atomic_uint32_t TimeCount; // Global time in ticks
+extern std::atomic<uint32_t> TimeCount; // Global time in ticks
 
 extern bool sqActive;
 extern bool sqPlayedOnce;

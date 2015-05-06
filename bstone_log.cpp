@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_log.h"
 #include <iostream>
+#include <stdexcept>
 #include "SDL.h"
 
 

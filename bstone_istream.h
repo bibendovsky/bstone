@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include <string>
 
 
 namespace bstone {
