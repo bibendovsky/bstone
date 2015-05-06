@@ -41,6 +41,8 @@ void VL_WaitVBL(
 {
 #if 0
     ::sys_sleep_for(8 * vbls);
+#else
+    static_cast<void>(vbls);
 #endif // 0
 }
 

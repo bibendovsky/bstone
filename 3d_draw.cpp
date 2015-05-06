@@ -1124,10 +1124,10 @@ int16_t CalcRotate(
     }
 
     if ((ob->state->flags & SF_PAINFRAME) != 0) { // 2 rotation pain frame
-        return 4 * (angle / (ANGLES / 2)); // seperated by 3 (art layout...)
+        return static_cast<int16_t>(4 * (angle / (ANGLES / 2))); // seperated by 3 (art layout...)
 
     }
-    return angle / (ANGLES / 8);
+    return static_cast<int16_t>(angle / (ANGLES / 8));
 }
 
 
@@ -1211,12 +1211,18 @@ void DrawScaleds()
 
 
         if (obj->flags & FL_OFFSET_STATES) {
-            if ((visptr->shapenum = obj->temp1 + obj->state->shapenum) == 0) {
+            visptr->shapenum = static_cast<int16_t>(
+                obj->temp1 + obj->state->shapenum);
+
+            if (visptr->shapenum == 0) {
                 continue; // no shape
             }
-        } else if ((visptr->shapenum = obj->state->shapenum) == 0) {
-            continue; // no shape
+        } else {
+            visptr->shapenum = static_cast<int16_t>(obj->state->shapenum);
 
+            if (visptr->shapenum == 0) {
+                continue; // no shape
+            }
         }
         spotloc = (obj->tilex << 6) + obj->tiley; // optimize: keep in struct?
 
@@ -1254,10 +1260,10 @@ void DrawScaleds()
             if (::is_ps() &&
                 (obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED)
             {
-                visptr->cloaked = 1;
+                visptr->cloaked = true;
                 visptr->lighting = 0;
             } else {
-                visptr->cloaked = 0;
+                visptr->cloaked = false;
                 visptr->lighting = obj->lighting;
             }
 
@@ -1339,7 +1345,7 @@ void DrawScaleds()
 ==============
 */
 
-using WeaponScale = std::vector<int>;
+using WeaponScale = std::vector<int16_t>;
 
 WeaponScale weaponscale;
 
@@ -1375,7 +1381,7 @@ void DrawPlayerWeapon()
             int8_t v_table[15] = { 87, 81, 77, 63, 61, 60, 56, 53, 50, 47, 43, 41, 39, 35, 31 };
             int8_t c_table[15] = { 88, 85, 81, 80, 75, 70, 64, 59, 55, 50, 44, 39, 34, 28, 24 };
 
-            int16_t oldviewheight = viewheight;
+            auto oldviewheight = viewheight;
             int16_t centery;
 
             useBounceOffset = true;
@@ -1916,7 +1922,7 @@ void ShowOverhead(
         int lmy = baselmy;
 
         for (int y = 0; y < diameter; ++y) {
-            uint8_t color;
+            uint8_t color = 0x00;
             bool go_to_draw = false;
 
             if (snow) {
@@ -1927,8 +1933,8 @@ void ShowOverhead(
 
             // Don't evaluate if point is outside of map.
             //
-            int mx;
-            int my;
+            int mx = 0;
+            int my = 0;
 
             if (!go_to_draw) {
                 color = UNMAPPED_COLOR;

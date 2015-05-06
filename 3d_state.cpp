@@ -141,7 +141,8 @@ void SpawnNewObj(
 {
     GetNewActor();
     new_actor->state = state;
-    new_actor->ticcount = Random(state->tictime) + 1;
+    new_actor->ticcount = static_cast<int16_t>(Random(static_cast<uint16_t>(
+        state->tictime)) + 1);
 
     new_actor->tilex = static_cast<uint8_t>(tilex);
     new_actor->tiley = static_cast<uint8_t>(tiley);
@@ -182,7 +183,7 @@ void NewState(
     statetype* state)
 {
     ob->state = state;
-    ob->ticcount = state->tictime;
+    ob->ticcount = static_cast<int16_t>(state->tictime);
 }
 
 

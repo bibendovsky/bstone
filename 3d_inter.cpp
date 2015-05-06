@@ -263,7 +263,7 @@ void DrawHighScores()
         // name
         //
         if (*s->name) {
-            ShadowPrint(s->name, 45, 68 + (SCORE_Y_SPACING * i));
+            ShadowPrint(s->name, 45, static_cast<int16_t>(68 + (SCORE_Y_SPACING * i)));
         }
 
 #if 0
@@ -287,14 +287,14 @@ void DrawHighScores()
 
         buffer = std::to_string(s->score);
         ::USL_MeasureString(buffer.c_str(), &w, &h);
-        ::ShadowPrint(buffer.c_str(), 205 - w, 68 + (SCORE_Y_SPACING * i)); // 235
+        ::ShadowPrint(buffer.c_str(), static_cast<int16_t>(205 - w), static_cast<int16_t>(68 + (SCORE_Y_SPACING * i))); // 235
 
         //
         // mission ratio
         //
         buffer = std::to_string(s->ratio);
         USL_MeasureString(buffer.c_str(), &w, &h);
-        ShadowPrint(buffer.c_str(), 272 - w, 68 + (SCORE_Y_SPACING * i));
+        ShadowPrint(buffer.c_str(), static_cast<int16_t>(272 - w), static_cast<int16_t>(68 + (SCORE_Y_SPACING * i)));
     }
 
     VW_UpdateScreen();
@@ -348,7 +348,7 @@ void CheckHighScore(
         }
     }
 
-    ::StartCPMusic(ROSTER_MUS);
+    ::StartCPMusic(static_cast<int16_t>(ROSTER_MUS));
 
     DrawHighScores();
 

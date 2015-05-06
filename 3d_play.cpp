@@ -802,7 +802,7 @@ char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 void CheckKeys()
 {
     bool one_eighty = false;
-    uint8_t scan;
+    ScanCode scan;
     static bool Plus_KeyReleased;
     static bool Minus_KeyReleased;
     static bool I_KeyReleased;
@@ -839,7 +839,7 @@ void CheckKeys()
                 for (unsigned int i = 1; i < sizeof(jam_buff_cmp); i++) {
                     jam_buff[i - 1] = jam_buff[i];
                 }
-                jam_buff[sizeof(jam_buff_cmp) - 1] = LastScan;
+                jam_buff[sizeof(jam_buff_cmp) - 1] = static_cast<uint8_t>(LastScan);
             }
         }
     }
@@ -1038,7 +1038,7 @@ void CheckKeys()
     case sc_f10: // QUIT TO DOS
         FinishPaletteShifts();
         ClearMemory();
-        US_ControlPanel(scan);
+        US_ControlPanel(static_cast<uint8_t>(scan));
         CleanDrawPlayBorder();
         return;
 
@@ -1067,7 +1067,7 @@ void CheckKeys()
         StopMusic();
         ClearMemory();
         ClearSplitVWB();
-        US_ControlPanel(scan);
+        US_ControlPanel(static_cast<uint8_t>(scan));
         if (refresh_screen) {
             bool old = loadedgame;
 
@@ -1268,8 +1268,8 @@ void ChangeSwapFiles(
 void PopupAutoMap(
     bool is_shift_pressed)
 {
-    const auto BASE_X = (::is_ps() ? 64 : 40);
-    const auto BASE_Y = 44;
+    const int16_t BASE_X = (::is_ps() ? 64 : 40);
+    const int16_t BASE_Y = 44;
 
     ThreeDRefresh();
     ThreeDRefresh();
@@ -1843,7 +1843,7 @@ void DoActor(
             goto think;
         }
 
-        ob->ticcount += ob->state->tictime;
+        ob->ticcount = static_cast<int16_t>(ob->ticcount + ob->state->tictime);
     }
 
 think:

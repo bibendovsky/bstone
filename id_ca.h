@@ -43,7 +43,7 @@ const int MAPPLANES = 2;
 
 
 void UNCACHEGRCHUNK(
-    uint16_t chunk);
+    int chunk);
 
 #define THREEBYTEGRSTARTS
 

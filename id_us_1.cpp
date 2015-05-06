@@ -61,8 +61,12 @@ void VH_UpdateScreen();
 //      Global variables
 char* abortprogram;
 //              bool         NoWait;
-uint16_t PrintX, PrintY;
-uint16_t WindowX, WindowY, WindowW, WindowH;
+int16_t PrintX;
+int16_t PrintY;
+int16_t WindowX;
+int16_t WindowY;
+int16_t WindowW;
+int16_t WindowH;
 
 US_CursorStruct US_CustomCursor; // JAM
 bool use_custom_cursor = false; // JAM
@@ -70,20 +74,22 @@ bool use_custom_cursor = false; // JAM
 //      Internal variables
 #define ConfigVersion 1
 
-const char* US_ParmStrings[] = { "TEDLEVEL", "NOWAIT", nullptr },
-          * US_ParmStrings2[] = { "COMP", "NOCOMP", nullptr };
+const char* US_ParmStrings[] = { "TEDLEVEL", "NOWAIT", nullptr };
+const char* US_ParmStrings2[] = { "COMP", "NOCOMP", nullptr };
 bool US_Started;
 
 bool Button0;
 bool Button1;
 bool CursorBad;
-int16_t CursorX, CursorY;
+int16_t CursorX;
+int16_t CursorY;
 
 void (* USL_MeasureString)(
     const char*,
     int*,
-    int*) = VW_MeasurePropString,
-(*USL_DrawString)(const char*) = VWB_DrawPropString;
+    int*) = VW_MeasurePropString;
+
+void (*USL_DrawString)(const char*) = VWB_DrawPropString;
 
 SaveGame Games[MaxSaveGames];
 
@@ -232,9 +238,9 @@ void US_Print(
             s++;
 
             PrintX = WindowX;
-            PrintY += h;
+            PrintY = static_cast<uint16_t>(PrintY + h);
         } else {
-            PrintX += w;
+            PrintX = static_cast<uint16_t>(PrintX + w);
         }
     }
 }
@@ -277,15 +283,17 @@ void USL_PrintInCenter(
     const char* s,
     Rect r)
 {
-    int w, h,
-        rw, rh;
+    int w;
+    int h;
+    int rw;
+    int rh;
 
     USL_MeasureString(s, &w, &h);
     rw = r.lr.x - r.ul.x;
     rh = r.lr.y - r.ul.y;
 
-    px = r.ul.x + ((rw - w) / 2);
-    py = r.ul.y + ((rh - h) / 2);
+    px = static_cast<int16_t>(r.ul.x + ((rw - w) / 2));
+    py = static_cast<int16_t>(r.ul.y + ((rh - h) / 2));
     USL_DrawString(s);
 }
 
@@ -316,17 +324,18 @@ void US_PrintCentered(
 void US_CPrintLine(
     const char* s)
 {
-    int w, h;
+    int w;
+    int h;
 
     USL_MeasureString(s, &w, &h);
 
     if (w > WindowW) {
         US1_ERROR(US_CPRINTLINE_WIDTH);
     }
-    px = WindowX + ((WindowW - w) / 2);
+    px = static_cast<int16_t>(WindowX + ((WindowW - w) / 2));
     py = PrintY;
     USL_DrawString(s);
-    PrintY += h;
+    PrintY = static_cast<uint16_t>(PrintY + h);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -477,7 +486,7 @@ static void USL_XORICursor(
     int16_t x,
     int16_t y,
     char* s,
-    uint16_t cursor)
+    int cursor)
 {
     static bool status; // VGA doesn't XOR...
     char buf[MaxString];
@@ -488,12 +497,14 @@ static void USL_XORICursor(
     buf[cursor] = '\0';
     USL_MeasureString(buf, &w, &h);
 
-    px = x + w - 1;
+    px = static_cast<int16_t>(x + w - 1);
     py = y;
 
     VL_WaitVBL(1);
 
-    if (status = !status) {
+    status = !status;
+
+    if (status) {
         USL_DrawString("\x80");
     } else {
         temp = fontcolor;
@@ -516,26 +527,28 @@ static void USL_CustomCursor(
     int16_t x,
     int16_t y,
     char* s,
-    uint16_t cursor)
+    int cursor)
 {
     static bool status; // VGA doesn't XOR...
     char buf[MaxString];
-    int temp, temp_font;
+    int temp;
     int w, h;
 
     strcpy(buf, s);
     buf[cursor] = '\0';
     USL_MeasureString(buf, &w, &h);
 
-    px = x + w - 1;
+    px = static_cast<int16_t>(x + w - 1);
     py = y;
 
     temp = fontcolor;
-    temp_font = fontnumber;
+    auto temp_font = fontnumber;
 
     fontnumber = US_CustomCursor.font_number;
 
-    if (status = !status) {
+    status = !status;
+
+    if (status) {
         fontcolor = static_cast<uint8_t>(US_CustomCursor.cursor_color);
     } else {
         fontcolor = backcolor;

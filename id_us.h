@@ -108,17 +108,21 @@ extern bool NoWait;
 extern bool HighScoresDirty;
 extern char* abortprogram; // Set to error msg if program is dying
 extern GameDiff restartgame; // Normally gd_Continue, else starts game
-extern uint16_t PrintX, PrintY; // Current printing location in the window
-extern uint16_t WindowX, WindowY, // Current location of window
-              WindowW, WindowH; // Current size of window
+extern int16_t PrintX;
+extern int16_t PrintY; // Current printing location in the window
+extern int16_t WindowX;
+extern int16_t WindowY; // Current location of window
+extern int16_t WindowW;
+extern int16_t WindowH; // Current size of window
 
 extern bool Button0;
 extern bool Button1;
 extern bool CursorBad;
-extern int16_t CursorX, CursorY;
+extern int16_t CursorX;
+extern int16_t CursorY;
 
-extern void (* USL_MeasureString)(const char*, int*, int*),
-(*USL_DrawString)(const char*);
+extern void (* USL_MeasureString)(const char*, int*, int*);
+extern void (*USL_DrawString)(const char*);
 
 extern bool (* USL_SaveGame)(int16_t);
 extern bool (* USL_LoadGame)(int16_t);

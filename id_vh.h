@@ -61,9 +61,9 @@ extern pictabletype* picmtable;
 extern spritetabletype* spritetable;
 
 extern uint8_t fontcolor;
-extern int fontnumber;
-extern int px;
-extern int py;
+extern int16_t fontnumber;
+extern int16_t px;
+extern int16_t py;
 extern bool allcaps;
 
 

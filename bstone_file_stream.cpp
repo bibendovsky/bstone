@@ -152,6 +152,7 @@ int64_t FileStream::get_size()
 bool FileStream::set_size(
     int64_t size)
 {
+    static_cast<void>(size);
     return false;
 }
 

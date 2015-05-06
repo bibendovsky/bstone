@@ -710,7 +710,7 @@ int16_t DebugKeys()
         HealSelf(99);
         GiveToken(5);
 
-        const int16_t n = (::is_ps() ? wp_bfg_cannon : wp_grenade);
+        const auto n = static_cast<int16_t>(::is_ps() ? wp_bfg_cannon : wp_grenade);
 
         for (i = wp_autocharge; i <= n; i++) {
             if (!(gamestate.weapons & (1 << i))) {

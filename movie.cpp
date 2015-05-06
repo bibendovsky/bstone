@@ -223,6 +223,8 @@ void JM_DrawBlock(
     const char* source,
     int length)
 {
+    static_cast<void>(dest_offset);
+
     int x = byte_offset % k_ref_width;
     int y = byte_offset / k_ref_width;
 

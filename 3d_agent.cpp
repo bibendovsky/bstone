@@ -360,10 +360,9 @@ void T_Stand(
 
 void CheckWeaponChange()
 {
-    int16_t i;
-    const int16_t n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
+    const int n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
 
-    for (i = wp_autocharge; i <= n; i++) {
+    for (int i = wp_autocharge; i <= n; i++) {
         if (buttonstate[bt_ready_autocharge + i - wp_autocharge]) {
             if (gamestate.useable_weapons & (1 << i)) {
                 gamestate.weapon = static_cast<int8_t>(i);
@@ -422,13 +421,13 @@ void ControlMovement(
                 if (angle < 0) {
                     angle += ANGLES;
                 }
-                Thrust(angle, controlx * MOVESCALE); // move to left
+                Thrust(static_cast<int16_t>(angle), controlx * MOVESCALE); // move to left
             } else if (controlx < 0) {
                 int angle = ob->angle + ANGLES / 4;
                 if (angle >= ANGLES) {
                     angle -= ANGLES;
                 }
-                Thrust(angle, -controlx * MOVESCALE); // move to right
+                Thrust(static_cast<int16_t>(angle), -controlx * MOVESCALE); // move to right
             }
         }
     } else if (!gamestate.turn_around) {
@@ -445,7 +444,7 @@ void ControlMovement(
             angle -= ANGLES;
         }
 
-        Thrust(angle, -abs(strafe_value) * MOVESCALE);
+        Thrust(static_cast<int16_t>(angle), -abs(strafe_value) * MOVESCALE);
     }
 
     if (!use_classic_strafe) {
@@ -459,10 +458,10 @@ void ControlMovement(
         //
         // not strafing
         //
-        anglefrac += controlx;
+        anglefrac = static_cast<int16_t>(anglefrac + controlx);
         int angleunits = anglefrac / ANGLESCALE;
-        anglefrac -= angleunits * ANGLESCALE;
-        ob->angle -= angleunits;
+        anglefrac = static_cast<int16_t>(anglefrac - (angleunits * ANGLESCALE));
+        ob->angle = static_cast<int16_t>(ob->angle - angleunits);
 
         if (ob->angle >= ANGLES) {
             ob->angle -= ANGLES;
@@ -475,12 +474,16 @@ void ControlMovement(
             bool done = false;
 
             if (gamestate.turn_around > 0) {
-                gamestate.turn_around -= angleunits;
+                gamestate.turn_around = static_cast<int16_t>(
+                    gamestate.turn_around - angleunits);
+
                 if (gamestate.turn_around <= 0) {
                     done = true;
                 }
             } else {
-                gamestate.turn_around -= angleunits;
+                gamestate.turn_around = static_cast<int16_t>(
+                    gamestate.turn_around - angleunits);
+
                 if (gamestate.turn_around >= 0) {
                     done = true;
                 }
@@ -504,7 +507,7 @@ void ControlMovement(
         if (angle >= ANGLES) {
             angle -= ANGLES;
         }
-        Thrust(angle, controly * BACKMOVESCALE); // move backwards
+        Thrust(static_cast<int16_t>(angle), controly * BACKMOVESCALE); // move backwards
     } else if (bounceOk) {
         bounceOk--;
     }
@@ -2104,7 +2107,7 @@ int16_t DrawShape(
 // {
 //      bufferofs = screenloc[i];
 //      VWB_Bar(x,y,37,37,InfoAreaSetup.backgr_color);
-        VW_Bar(x, y, 37, 37, InfoAreaSetup.backgr_color); // JTR changed
+        VW_Bar(x, y, 37, 37, static_cast<uint8_t>(InfoAreaSetup.backgr_color)); // JTR changed
         MegaSimpleScaleShape(x + 19, y + 20, shapenum, 37, shade);
 // }
 // bufferofs = old_ofs;
@@ -3112,7 +3115,8 @@ void Cmd_Use()
                                 angle += ANGLES;
                             }
 
-                            gamestuff.level[gamestate.mapon + 1].pangle = angle;
+                            gamestuff.level[gamestate.mapon + 1].pangle =
+                                static_cast<int16_t>(angle);
                         }
                     }
                     break;
@@ -3435,17 +3439,17 @@ int16_t InputFloor()
         ::BevelBox(
             0,
             TOP_STRIP_HEIGHT,
-            ::k_ref_width,
-            outer_height,
+            static_cast<int16_t>(::k_ref_width),
+            static_cast<int16_t>(outer_height),
             BORDER_HI_COLOR,
             BORDER_MED_COLOR,
             BORDER_LO_COLOR);
 
         ::BevelBox(
-            border_width,
-            TOP_STRIP_HEIGHT + border_height,
-            ::k_ref_width - (2 * border_width),
-            outer_height - (2 * border_height),
+            static_cast<int16_t>(border_width),
+            static_cast<int16_t>(TOP_STRIP_HEIGHT + border_height),
+            static_cast<int16_t>(::k_ref_width - (2 * border_width)),
+            static_cast<int16_t>(outer_height - (2 * border_height)),
             BORDER_LO_COLOR,
             BORDER_MED_COLOR,
             BORDER_HI_COLOR);
@@ -3705,7 +3709,8 @@ int16_t InputFloor()
             if (Keyboard[sc_escape] || buttonstate[bt_strafe]) {
                 rt_code = -1; // ABORT
 
-                LoadLocationText(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
+                LoadLocationText(static_cast<int16_t>(
+                    gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
                 break;
             } else if (Keyboard[sc_return] || buttonstate[bt_attack]) {
                 if (locked) {
@@ -3981,7 +3986,7 @@ void DisplayTeleportName(
     }
     VW_MeasurePropString(s, &w, &h);
     py = 103;
-    px = 160 - w / 2;
+    px = static_cast<int16_t>(160 - w / 2);
     VW_Bar(54, 101, 212, 9, 0x52);
     ShPrint(s, 0, false);
 }
@@ -5364,7 +5369,7 @@ void T_Attack(
             if (!gamestate.plasma_detonators) {
                 // Check to see what weapons are possible.
                 //
-                const int16_t n_x = (::is_ps() ? wp_bfg_cannon : wp_grenade);
+                const auto n_x = static_cast<int16_t>(::is_ps() ? wp_bfg_cannon : wp_grenade);
 
                 for (x = n_x; x >= wp_autocharge; x--) {
                     if (gamestate.useable_weapons & (1 << x)) {
@@ -5584,7 +5589,7 @@ void RunBlakeRun()
 
 // Spawn Blake and set pointer.
 //
-    SpawnPatrol(en_blake, player->tilex, player->tiley, player->dir >> 1);
+    SpawnPatrol(en_blake, player->tilex, player->tiley, static_cast<int16_t>(player->dir >> 1));
     blake = new_actor;
 
 // Blake object starts one tile behind player object.
@@ -5611,8 +5616,10 @@ void RunBlakeRun()
 //
     blake->x = ((int32_t)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
     blake->y = ((int32_t)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
-    startx = blake->tilex = blake->x >> TILESHIFT;
-    starty = blake->tiley = blake->y >> TILESHIFT;
+    blake->tilex = static_cast<uint8_t>(blake->x >> TILESHIFT);
+    startx = blake->tilex;
+    blake->tiley = static_cast<uint8_t>(blake->y >> TILESHIFT);
+    starty = blake->tiley;
 
 // Run, Blake, Run!
 //
@@ -5632,8 +5639,8 @@ void RunBlakeRun()
 
         // Calc new tile X/Y.
         //
-        blake->tilex = blake->x >> TILESHIFT;
-        blake->tiley = blake->y >> TILESHIFT;
+        blake->tilex = static_cast<uint8_t>(blake->x >> TILESHIFT);
+        blake->tiley = static_cast<uint8_t>(blake->y >> TILESHIFT);
 
         // Evaluate distance from start.
         //
@@ -5958,7 +5965,7 @@ void InitWeaponBounce()
 // --------------------------------------------------------------------------
 void HandleWeaponBounce()
 {
-    int16_t bounceSpeed;
+    int bounceSpeed;
 
     bounceSpeed = 90 - ((20 - viewsize) * 6);
 

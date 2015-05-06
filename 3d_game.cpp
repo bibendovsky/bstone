@@ -487,17 +487,17 @@ void ScanInfoPlane()
             case 0xf3: // "Mean" scientist messages
                 switch (tilehi) {
                 case 0xf1:
-                    block = INFORMANT_HINTS;
+                    block = static_cast<uint8_t>(INFORMANT_HINTS);
                     st = &InfHintList;
                     break;
 
                 case 0xf2:
-                    block = NICE_SCIE_HINTS;
+                    block = static_cast<uint8_t>(NICE_SCIE_HINTS);
                     st = &NiceSciList;
                     break;
 
                 case 0xf3:
-                    block = MEAN_SCIE_HINTS;
+                    block = static_cast<uint8_t>(MEAN_SCIE_HINTS);
                     st = &MeanSciList;
                     break;
                 }
@@ -836,7 +836,7 @@ void ScanInfoPlane()
                 //
                 // 174=off,175=on
                 //
-                SpawnBarrier(en_post_barrier, x, y, tile - 174);
+                SpawnBarrier(en_post_barrier, x, y, (tile - 174) != 0);
                 break;
 
             case 138:
@@ -848,7 +848,7 @@ void ScanInfoPlane()
                 //
                 // 138=off,139=on
                 //
-                SpawnBarrier(en_arc_barrier, x, y, tile - 138);
+                SpawnBarrier(en_arc_barrier, x, y, (tile - 138) != 0);
                 break;
 
             //
@@ -864,7 +864,7 @@ void ScanInfoPlane()
                     ::Quit("Switchable post barrier (PS) at ({}, {}).", x, y);
                 }
 
-                SpawnBarrier(en_vpost_barrier, x, y, tile - 562);
+                SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
                 break;
 
 
@@ -900,7 +900,7 @@ void ScanInfoPlane()
                     ::Quit("Spike barrier (PS) at ({}, {}).", x, y);
                 }
 
-                SpawnBarrier(en_vspike_barrier, x, y, tile - 425);
+                SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
                 break;
 
 
@@ -2435,8 +2435,9 @@ void SetupGameLevel()
 //
 // load the level
 //
-    CA_CacheMap(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
-    mapon -= gamestate.episode * MAPS_PER_EPISODE;
+    CA_CacheMap(static_cast<int16_t>(
+        gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
+    mapon = static_cast<int16_t>(mapon - (gamestate.episode * MAPS_PER_EPISODE));
 
     mapwidth = mapheaderseg[mapon]->width;
     mapheight = mapheaderseg[mapon]->height;
@@ -2445,7 +2446,8 @@ void SetupGameLevel()
         GAME_ERROR(SETUPGAME_BAD_MAP_SIZE);
     }
 
-    LoadLocationText(gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode);
+    LoadLocationText(static_cast<int16_t>(
+        gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
 
 //
 // copy the wall data to a data segment array
@@ -2659,7 +2661,7 @@ void SetupGameLevel()
                         uint8_t level = 0xFF;
 
                         if (map1[0] == 0xF8FF) {
-                            level = gamestate.mapon;
+                            level = static_cast<uint8_t>(gamestate.mapon);
                         } else {
                             level = static_cast<uint8_t>(map1[0] & 0xFF);
                         }
@@ -2790,7 +2792,8 @@ void LoadLocationText(
 */
 void DrawPlayBorder()
 {
-    int16_t xl, yl;
+    int16_t xl;
+    int16_t yl;
 
     if (viewwidth == 320) {
         VWB_Bar(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, 0);     // JTR - Changed
@@ -2798,11 +2801,11 @@ void DrawPlayBorder()
         return;
     }
 
-    xl = 160 - viewwidth / 2;
-    yl = (200 - STATUSLINES + TOP_STRIP_HEIGHT - viewheight) / 2;
+    xl = static_cast<int16_t>(160 - viewwidth / 2);
+    yl = static_cast<int16_t>((200 - STATUSLINES + TOP_STRIP_HEIGHT - viewheight) / 2);
 
     BevelBox(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, BORDER_HI_COLOR, BORDER_MED_COLOR, BORDER_LO_COLOR);
-    BevelBox(xl - 1, yl - 1, viewwidth + 2, viewheight + 2, BORDER_LO_COLOR, 0, BORDER_HI_COLOR);
+    BevelBox(xl - 1, yl - 1, static_cast<int16_t>(viewwidth + 2), static_cast<int16_t>(viewheight + 2), BORDER_LO_COLOR, 0, BORDER_HI_COLOR);
 }
 
 
@@ -2993,7 +2996,7 @@ void ShadowPrintLocationText(
     }
 
     VW_MeasurePropString(s, &w, &h);
-    px = 160 - w / 2;
+    px = static_cast<int16_t>(160 - w / 2);
     ShPrint(s, 0, false);
 }
 
@@ -3426,6 +3429,8 @@ void PlayDemo(
     ClearMemory();
 
     playstate = ex_title;
+#else
+    static_cast<void>(demonumber);
 #endif
 }
 

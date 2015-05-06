@@ -38,11 +38,11 @@ void ForceUpdateStatusBar();
 pictabletype* pictable;
 pictabletype* picmtable;
 
-int px;
-int py;
+int16_t px;
+int16_t py;
 uint8_t fontcolor;
 uint8_t backcolor;
-int fontnumber;
+int16_t fontnumber;
 
 bool allcaps = false;
 
@@ -74,7 +74,7 @@ void VW_DrawPropString(
             ++source;
         }
 
-        px += width;
+        px = static_cast<int16_t>(px + width);
     }
 }
 
@@ -246,7 +246,7 @@ void LoadLatchMem()
     //
     ++picnum;
 
-    for (int i = LATCHPICS_LUMP_START; i <= LATCHPICS_LUMP_END; ++i) {
+    for (int16_t i = LATCHPICS_LUMP_START; i <= LATCHPICS_LUMP_END; ++i) {
         latchpics[picnum++] = destoff;
         CA_CacheGrChunk(i);
         int width = pictable[i - STARTPICS].width;

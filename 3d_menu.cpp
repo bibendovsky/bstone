@@ -75,9 +75,9 @@ bool EscPressed = false;
 
 int16_t lastmenumusic;
 
-int MENUSONG = 0;
-int ROSTER_MUS = 0;
-int TEXTSONG = 0;
+int16_t MENUSONG = 0;
+int16_t ROSTER_MUS = 0;
+int16_t TEXTSONG = 0;
 
 
 
@@ -136,7 +136,7 @@ CP_iteminfo SwitchItems = { MENU_X, 0, 0, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 
 
 CP_itemtype MainMenu[] = {
-    { AT_ENABLED, "NEW MISSION", CP_NewGame, COAL_FONT },
+    { AT_ENABLED, "NEW MISSION", CP_NewGame, static_cast<uint8_t>(COAL_FONT) },
     { AT_READIT, "ORDERING INFO", CP_OrderingInfo },
     { AT_READIT, "INSTRUCTIONS", CP_ReadThis },
     { AT_ENABLED, "STORY", CP_BlakeStoneSaga },
@@ -920,12 +920,12 @@ void binds_draw_item_text(
         text_width = SCREEN_W;
     }
 
-    PrintX = x + text_left_offset;
-    PrintY = y;
+    PrintX = static_cast<int16_t>(x + text_left_offset);
+    PrintY = static_cast<int16_t>(y);
     WindowX = PrintX;
     WindowY = PrintY;
-    WindowW = text_width;
-    WindowH = binds_text_height;
+    WindowW = static_cast<int16_t>(text_width);
+    WindowH = static_cast<int16_t>(binds_text_height);
 
     if (item.binding) {
         fontcolor = k_binds_text_color;
@@ -975,12 +975,12 @@ void binds_draw_keys(
             binds_text_height,
             color);
 
-        PrintX = x;
-        PrintY = y;
+        PrintX = static_cast<int16_t>(x);
+        PrintY = static_cast<int16_t>(y);
         WindowX = PrintX;
         WindowY = PrintY;
-        WindowW = binds_key_width;
-        WindowH = binds_text_height;
+        WindowW = static_cast<int16_t>(binds_key_width);
+        WindowH = static_cast<int16_t>(binds_text_height);
 
         if (!(is_active && binds_is_assigning)) {
             key = (*item.binding)[k];
@@ -1018,8 +1018,6 @@ void binds_draw()
         binds_is_assigning ? IT_CONTROLS_ASSIGNING_KEY : IT_CONTROLS);
 
     fontnumber = 2;
-
-    auto items = &binds[binds_window];
 
     for (int i = 0; i < k_binds_max_per_window; ++i) {
         int item_index = binds_window + i;
@@ -1275,7 +1273,7 @@ void HelpPresenter(
 #define FULL_VIEW_WIDTH 19
 
     PresenterInfo pi;
-    int16_t oldwidth;
+    int oldwidth;
 
     memset(&pi, 0, sizeof(pi));
 
@@ -1321,7 +1319,7 @@ void HelpPresenter(
     }
 
     if (startmusic) {
-        ::StartCPMusic(TEXTSONG);
+        ::StartCPMusic(static_cast<int16_t>(TEXTSONG));
     }
 
 // Load, present, and free help text.
@@ -1727,7 +1725,7 @@ void CP_ViewScores(
 {
     fontnumber = 4;
 
-    ::StartCPMusic(ROSTER_MUS);
+    ::StartCPMusic(static_cast<int16_t>(ROSTER_MUS));
 
     DrawHighScores();
     VW_UpdateScreen();
@@ -3164,7 +3162,13 @@ void EnterCtrlData(
     void (* PrintRtn)(int16_t),
     int16_t type)
 {
-    int16_t j, exit, tick, redraw, which = 0, x = 0, picked;
+    int16_t j;
+    int16_t exit;
+    int16_t tick;
+    int16_t redraw;
+    int16_t which = 0;
+    int16_t x = 0;
+    int16_t picked;
     ControlInfo ci;
     bool clean_display = true;
 
@@ -3337,7 +3341,9 @@ void EnterCtrlData(
                                 ShootSnd();
                             }
 
-                            buttonscan[static_cast<int>(order[which])] = LastScan;
+                            buttonscan[static_cast<int>(order[which])] =
+                                static_cast<int16_t>(LastScan);
+
                             picked = 1;
                         }
                         IN_ClearKeysDown();
@@ -3360,7 +3366,7 @@ void EnterCtrlData(
                                 ShootSnd();
                             }
 
-                            dirscan[moveorder[which]] = LastScan;
+                            dirscan[moveorder[which]] = static_cast<int16_t>(LastScan);
                             picked = 1;
                         }
                         IN_ClearKeysDown();
@@ -3811,7 +3817,7 @@ void DrawWindow(
     int16_t h,
     int16_t wcolor)
 {
-    VWB_Bar(x, y, w, h, wcolor);
+    VWB_Bar(x, y, w, h, static_cast<uint8_t>(wcolor));
     DrawOutline(x, y, w, h, BORD2COLOR, DEACTIVE);
 }
 
@@ -3828,10 +3834,10 @@ void DrawOutline(
     int16_t color1,
     int16_t color2)
 {
-    VWB_Hlin(x, x + w, y, color2);
-    VWB_Vlin(y, y + h, x, color2);
-    VWB_Hlin(x, x + w, y + h, color1);
-    VWB_Vlin(y, y + h, x + w, color1);
+    VWB_Hlin(x, x + w, y, static_cast<uint8_t>(color2));
+    VWB_Vlin(y, y + h, x, static_cast<uint8_t>(color2));
+    VWB_Hlin(x, x + w, y + h, static_cast<uint8_t>(color1));
+    VWB_Vlin(y, y + h, x + w, static_cast<uint8_t>(color1));
 }
 
 
@@ -4660,7 +4666,7 @@ uint32_t CacheCompData(
 {
     char* chunk;
     char* dst;
-    CompHeader_t CompHeader;
+    CompHeader_t CompHeader {};
     uint32_t data_length;
 
     // Load compressed data
@@ -4938,7 +4944,7 @@ void draw_volume_control(
     DrawOutline(73, static_cast<int16_t>(y - 1), 161, 9,
                 outline_color, outline_color);
     VWB_Bar(static_cast<int16_t>(74 + ((160 * volume) / (::sd_max_volume + 1))),
-            static_cast<int16_t>(y), 16, 8, slider_color);
+            static_cast<int16_t>(y), 16, 8, static_cast<uint8_t>(slider_color));
 }
 
 void draw_volume_controls()

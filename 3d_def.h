@@ -556,1259 +556,1259 @@ enum sp_type {
 // sprite constants
 //
 
-extern int SPR_DEMO;
+extern int16_t SPR_DEMO;
 
 //
 // Static sprites
 //
-extern int SPR_STAT_0;
-extern int SPR_STAT_1;
-extern int SPR_STAT_2;
-extern int SPR_STAT_3;
-extern int SPR_STAT_4;
-extern int SPR_STAT_5;
-extern int SPR_STAT_6;
-extern int SPR_STAT_7;
-extern int SPR_STAT_8;
-extern int SPR_STAT_9;
-extern int SPR_STAT_10;
-extern int SPR_STAT_11;
-extern int SPR_STAT_12;
-extern int SPR_STAT_13;
-extern int SPR_STAT_14;
-extern int SPR_STAT_15;
-extern int SPR_STAT_16;
-extern int SPR_STAT_17;
-extern int SPR_STAT_18;
-extern int SPR_STAT_19;
-extern int SPR_STAT_20;
-extern int SPR_STAT_21;
-extern int SPR_STAT_22;
-extern int SPR_STAT_23;
-extern int SPR_STAT_24;
-extern int SPR_STAT_25;
-extern int SPR_STAT_26;
-extern int SPR_STAT_27;
-extern int SPR_STAT_28;
-extern int SPR_STAT_29;
-extern int SPR_STAT_30;
-extern int SPR_STAT_31;
-extern int SPR_STAT_32;
-extern int SPR_STAT_33;
-extern int SPR_STAT_34; // Green Key (AOG) / Anti-Plasma Cannon (PS)
-extern int SPR_STAT_35;
-extern int SPR_STAT_36; // Gold Key (AOG) / Yellow Package? (PS)
-extern int SPR_STAT_37;
-extern int SPR_STAT_38;
-extern int SPR_STAT_39;
-extern int SPR_STAT_40;
-extern int SPR_STAT_41;
-extern int SPR_STAT_42;
-extern int SPR_STAT_43;
-extern int SPR_STAT_44;
-extern int SPR_STAT_45;
-extern int SPR_STAT_46;
-extern int SPR_STAT_47;
-extern int SPR_STAT_48;
-extern int SPR_STAT_49;
-extern int SPR_STAT_50;
-extern int SPR_STAT_51;
-extern int SPR_STAT_52;
-extern int SPR_STAT_53;
-extern int SPR_STAT_54;
-extern int SPR_STAT_55;
-extern int SPR_STAT_56;
+extern int16_t SPR_STAT_0;
+extern int16_t SPR_STAT_1;
+extern int16_t SPR_STAT_2;
+extern int16_t SPR_STAT_3;
+extern int16_t SPR_STAT_4;
+extern int16_t SPR_STAT_5;
+extern int16_t SPR_STAT_6;
+extern int16_t SPR_STAT_7;
+extern int16_t SPR_STAT_8;
+extern int16_t SPR_STAT_9;
+extern int16_t SPR_STAT_10;
+extern int16_t SPR_STAT_11;
+extern int16_t SPR_STAT_12;
+extern int16_t SPR_STAT_13;
+extern int16_t SPR_STAT_14;
+extern int16_t SPR_STAT_15;
+extern int16_t SPR_STAT_16;
+extern int16_t SPR_STAT_17;
+extern int16_t SPR_STAT_18;
+extern int16_t SPR_STAT_19;
+extern int16_t SPR_STAT_20;
+extern int16_t SPR_STAT_21;
+extern int16_t SPR_STAT_22;
+extern int16_t SPR_STAT_23;
+extern int16_t SPR_STAT_24;
+extern int16_t SPR_STAT_25;
+extern int16_t SPR_STAT_26;
+extern int16_t SPR_STAT_27;
+extern int16_t SPR_STAT_28;
+extern int16_t SPR_STAT_29;
+extern int16_t SPR_STAT_30;
+extern int16_t SPR_STAT_31;
+extern int16_t SPR_STAT_32;
+extern int16_t SPR_STAT_33;
+extern int16_t SPR_STAT_34; // Green Key (AOG) / Anti-Plasma Cannon (PS)
+extern int16_t SPR_STAT_35;
+extern int16_t SPR_STAT_36; // Gold Key (AOG) / Yellow Package? (PS)
+extern int16_t SPR_STAT_37;
+extern int16_t SPR_STAT_38;
+extern int16_t SPR_STAT_39;
+extern int16_t SPR_STAT_40;
+extern int16_t SPR_STAT_41;
+extern int16_t SPR_STAT_42;
+extern int16_t SPR_STAT_43;
+extern int16_t SPR_STAT_44;
+extern int16_t SPR_STAT_45;
+extern int16_t SPR_STAT_46;
+extern int16_t SPR_STAT_47;
+extern int16_t SPR_STAT_48;
+extern int16_t SPR_STAT_49;
+extern int16_t SPR_STAT_50;
+extern int16_t SPR_STAT_51;
+extern int16_t SPR_STAT_52;
+extern int16_t SPR_STAT_53;
+extern int16_t SPR_STAT_54;
+extern int16_t SPR_STAT_55;
+extern int16_t SPR_STAT_56;
 
-extern int SPR_CRATE_1;
-extern int SPR_CRATE_2;
-extern int SPR_CRATE_3;
+extern int16_t SPR_CRATE_1;
+extern int16_t SPR_CRATE_2;
+extern int16_t SPR_CRATE_3;
 
-extern int SPR_STAT_57;
-extern int SPR_STAT_58;
-extern int SPR_STAT_59;
-extern int SPR_STAT_60;
-extern int SPR_STAT_61;
-extern int SPR_STAT_62;
-extern int SPR_STAT_63;
-extern int SPR_STAT_64;
-extern int SPR_STAT_65;
-extern int SPR_STAT_66;
-extern int SPR_STAT_67;
-extern int SPR_STAT_68;
-extern int SPR_STAT_69;
-extern int SPR_STAT_70;
-extern int SPR_STAT_71;
-extern int SPR_STAT_72;
-extern int SPR_STAT_73;
-extern int SPR_STAT_74;
-extern int SPR_STAT_75;
-extern int SPR_STAT_76;
-extern int SPR_STAT_77;
-extern int SPR_STAT_78;
-extern int SPR_STAT_79;
+extern int16_t SPR_STAT_57;
+extern int16_t SPR_STAT_58;
+extern int16_t SPR_STAT_59;
+extern int16_t SPR_STAT_60;
+extern int16_t SPR_STAT_61;
+extern int16_t SPR_STAT_62;
+extern int16_t SPR_STAT_63;
+extern int16_t SPR_STAT_64;
+extern int16_t SPR_STAT_65;
+extern int16_t SPR_STAT_66;
+extern int16_t SPR_STAT_67;
+extern int16_t SPR_STAT_68;
+extern int16_t SPR_STAT_69;
+extern int16_t SPR_STAT_70;
+extern int16_t SPR_STAT_71;
+extern int16_t SPR_STAT_72;
+extern int16_t SPR_STAT_73;
+extern int16_t SPR_STAT_74;
+extern int16_t SPR_STAT_75;
+extern int16_t SPR_STAT_76;
+extern int16_t SPR_STAT_77;
+extern int16_t SPR_STAT_78;
+extern int16_t SPR_STAT_79;
 
-extern int SPR_DOORBOMB;
-extern int SPR_ALT_DOORBOMB;
-extern int SPR_RUBBLE;
-extern int SPR_BONZI_TREE;
-extern int SPR_AUTOMAPPER;
-extern int SPR_POT_PLANT;
-extern int SPR_TUBE_PLANT;
-extern int SPR_HITECH_CHAIR;
+extern int16_t SPR_DOORBOMB;
+extern int16_t SPR_ALT_DOORBOMB;
+extern int16_t SPR_RUBBLE;
+extern int16_t SPR_BONZI_TREE;
+extern int16_t SPR_AUTOMAPPER;
+extern int16_t SPR_POT_PLANT;
+extern int16_t SPR_TUBE_PLANT;
+extern int16_t SPR_HITECH_CHAIR;
 
 //
 // Aesthetics
 //
-extern int SPR_AIR_VENT;
-extern int SPR_BLOOD_DRIP1;
-extern int SPR_BLOOD_DRIP2;
-extern int SPR_BLOOD_DRIP3;
-extern int SPR_BLOOD_DRIP4;
-extern int SPR_WATER_DRIP1;
-extern int SPR_WATER_DRIP2;
-extern int SPR_WATER_DRIP3;
-extern int SPR_WATER_DRIP4;
+extern int16_t SPR_AIR_VENT;
+extern int16_t SPR_BLOOD_DRIP1;
+extern int16_t SPR_BLOOD_DRIP2;
+extern int16_t SPR_BLOOD_DRIP3;
+extern int16_t SPR_BLOOD_DRIP4;
+extern int16_t SPR_WATER_DRIP1;
+extern int16_t SPR_WATER_DRIP2;
+extern int16_t SPR_WATER_DRIP3;
+extern int16_t SPR_WATER_DRIP4;
 
-extern int SPR_DECO_ARC_1;
-extern int SPR_DECO_ARC_2;
-extern int SPR_DECO_ARC_3;
+extern int16_t SPR_DECO_ARC_1;
+extern int16_t SPR_DECO_ARC_2;
+extern int16_t SPR_DECO_ARC_3;
 
-extern int SPR_GRATE;
-extern int SPR_STEAM_1;
-extern int SPR_STEAM_2;
-extern int SPR_STEAM_3;
-extern int SPR_STEAM_4;
+extern int16_t SPR_GRATE;
+extern int16_t SPR_STEAM_1;
+extern int16_t SPR_STEAM_2;
+extern int16_t SPR_STEAM_3;
+extern int16_t SPR_STEAM_4;
 
-extern int SPR_STEAM_PIPE;
-extern int SPR_PIPE_STEAM_1;
-extern int SPR_PIPE_STEAM_2;
-extern int SPR_PIPE_STEAM_3;
-extern int SPR_PIPE_STEAM_4;
+extern int16_t SPR_STEAM_PIPE;
+extern int16_t SPR_PIPE_STEAM_1;
+extern int16_t SPR_PIPE_STEAM_2;
+extern int16_t SPR_PIPE_STEAM_3;
+extern int16_t SPR_PIPE_STEAM_4;
 
 //
 // Dead Actors (from Blake Stone: AOG)
 //
-extern int SPR_DEAD_RENT;
-extern int SPR_DEAD_PRO;
-extern int SPR_DEAD_SWAT;
+extern int16_t SPR_DEAD_RENT;
+extern int16_t SPR_DEAD_PRO;
+extern int16_t SPR_DEAD_SWAT;
 
 //
 // Sector Patrol (AOG) / Rent-A-Cop (PS)
 //
-extern int SPR_RENT_S_1;
-extern int SPR_RENT_S_2;
-extern int SPR_RENT_S_3;
-extern int SPR_RENT_S_4;
-extern int SPR_RENT_S_5;
-extern int SPR_RENT_S_6;
-extern int SPR_RENT_S_7;
-extern int SPR_RENT_S_8;
+extern int16_t SPR_RENT_S_1;
+extern int16_t SPR_RENT_S_2;
+extern int16_t SPR_RENT_S_3;
+extern int16_t SPR_RENT_S_4;
+extern int16_t SPR_RENT_S_5;
+extern int16_t SPR_RENT_S_6;
+extern int16_t SPR_RENT_S_7;
+extern int16_t SPR_RENT_S_8;
 
-extern int SPR_RENT_W1_1;
-extern int SPR_RENT_W1_2;
-extern int SPR_RENT_W1_3;
-extern int SPR_RENT_W1_4;
-extern int SPR_RENT_W1_5;
-extern int SPR_RENT_W1_6;
-extern int SPR_RENT_W1_7;
-extern int SPR_RENT_W1_8;
+extern int16_t SPR_RENT_W1_1;
+extern int16_t SPR_RENT_W1_2;
+extern int16_t SPR_RENT_W1_3;
+extern int16_t SPR_RENT_W1_4;
+extern int16_t SPR_RENT_W1_5;
+extern int16_t SPR_RENT_W1_6;
+extern int16_t SPR_RENT_W1_7;
+extern int16_t SPR_RENT_W1_8;
 
-extern int SPR_RENT_W2_1;
-extern int SPR_RENT_W2_2;
-extern int SPR_RENT_W2_3;
-extern int SPR_RENT_W2_4;
-extern int SPR_RENT_W2_5;
-extern int SPR_RENT_W2_6;
-extern int SPR_RENT_W2_7;
-extern int SPR_RENT_W2_8;
+extern int16_t SPR_RENT_W2_1;
+extern int16_t SPR_RENT_W2_2;
+extern int16_t SPR_RENT_W2_3;
+extern int16_t SPR_RENT_W2_4;
+extern int16_t SPR_RENT_W2_5;
+extern int16_t SPR_RENT_W2_6;
+extern int16_t SPR_RENT_W2_7;
+extern int16_t SPR_RENT_W2_8;
 
-extern int SPR_RENT_W3_1;
-extern int SPR_RENT_W3_2;
-extern int SPR_RENT_W3_3;
-extern int SPR_RENT_W3_4;
-extern int SPR_RENT_W3_5;
-extern int SPR_RENT_W3_6;
-extern int SPR_RENT_W3_7;
-extern int SPR_RENT_W3_8;
+extern int16_t SPR_RENT_W3_1;
+extern int16_t SPR_RENT_W3_2;
+extern int16_t SPR_RENT_W3_3;
+extern int16_t SPR_RENT_W3_4;
+extern int16_t SPR_RENT_W3_5;
+extern int16_t SPR_RENT_W3_6;
+extern int16_t SPR_RENT_W3_7;
+extern int16_t SPR_RENT_W3_8;
 
-extern int SPR_RENT_W4_1;
-extern int SPR_RENT_W4_2;
-extern int SPR_RENT_W4_3;
-extern int SPR_RENT_W4_4;
-extern int SPR_RENT_W4_5;
-extern int SPR_RENT_W4_6;
-extern int SPR_RENT_W4_7;
-extern int SPR_RENT_W4_8;
+extern int16_t SPR_RENT_W4_1;
+extern int16_t SPR_RENT_W4_2;
+extern int16_t SPR_RENT_W4_3;
+extern int16_t SPR_RENT_W4_4;
+extern int16_t SPR_RENT_W4_5;
+extern int16_t SPR_RENT_W4_6;
+extern int16_t SPR_RENT_W4_7;
+extern int16_t SPR_RENT_W4_8;
 
-extern int SPR_RENT_DIE_1;
-extern int SPR_RENT_DIE_2;
-extern int SPR_RENT_DIE_3;
-extern int SPR_RENT_DIE_4;
-extern int SPR_RENT_PAIN_1;
-extern int SPR_RENT_DEAD;
+extern int16_t SPR_RENT_DIE_1;
+extern int16_t SPR_RENT_DIE_2;
+extern int16_t SPR_RENT_DIE_3;
+extern int16_t SPR_RENT_DIE_4;
+extern int16_t SPR_RENT_PAIN_1;
+extern int16_t SPR_RENT_DEAD;
 
-extern int SPR_RENT_SHOOT1;
-extern int SPR_RENT_SHOOT2;
-extern int SPR_RENT_SHOOT3;
+extern int16_t SPR_RENT_SHOOT1;
+extern int16_t SPR_RENT_SHOOT2;
+extern int16_t SPR_RENT_SHOOT3;
 
 //
 // Star Sentinel (AOG) / Pro-Guard (PS)
 //
-extern int SPR_PRO_S_1;
-extern int SPR_PRO_S_2;
-extern int SPR_PRO_S_3;
-extern int SPR_PRO_S_4;
-extern int SPR_PRO_S_5;
-extern int SPR_PRO_S_6;
-extern int SPR_PRO_S_7;
-extern int SPR_PRO_S_8;
+extern int16_t SPR_PRO_S_1;
+extern int16_t SPR_PRO_S_2;
+extern int16_t SPR_PRO_S_3;
+extern int16_t SPR_PRO_S_4;
+extern int16_t SPR_PRO_S_5;
+extern int16_t SPR_PRO_S_6;
+extern int16_t SPR_PRO_S_7;
+extern int16_t SPR_PRO_S_8;
 
-extern int SPR_PRO_W1_1;
-extern int SPR_PRO_W1_2;
-extern int SPR_PRO_W1_3;
-extern int SPR_PRO_W1_4;
-extern int SPR_PRO_W1_5;
-extern int SPR_PRO_W1_6;
-extern int SPR_PRO_W1_7;
-extern int SPR_PRO_W1_8;
+extern int16_t SPR_PRO_W1_1;
+extern int16_t SPR_PRO_W1_2;
+extern int16_t SPR_PRO_W1_3;
+extern int16_t SPR_PRO_W1_4;
+extern int16_t SPR_PRO_W1_5;
+extern int16_t SPR_PRO_W1_6;
+extern int16_t SPR_PRO_W1_7;
+extern int16_t SPR_PRO_W1_8;
 
-extern int SPR_PRO_W2_1;
-extern int SPR_PRO_W2_2;
-extern int SPR_PRO_W2_3;
-extern int SPR_PRO_W2_4;
-extern int SPR_PRO_W2_5;
-extern int SPR_PRO_W2_6;
-extern int SPR_PRO_W2_7;
-extern int SPR_PRO_W2_8;
+extern int16_t SPR_PRO_W2_1;
+extern int16_t SPR_PRO_W2_2;
+extern int16_t SPR_PRO_W2_3;
+extern int16_t SPR_PRO_W2_4;
+extern int16_t SPR_PRO_W2_5;
+extern int16_t SPR_PRO_W2_6;
+extern int16_t SPR_PRO_W2_7;
+extern int16_t SPR_PRO_W2_8;
 
-extern int SPR_PRO_W3_1;
-extern int SPR_PRO_W3_2;
-extern int SPR_PRO_W3_3;
-extern int SPR_PRO_W3_4;
-extern int SPR_PRO_W3_5;
-extern int SPR_PRO_W3_6;
-extern int SPR_PRO_W3_7;
-extern int SPR_PRO_W3_8;
+extern int16_t SPR_PRO_W3_1;
+extern int16_t SPR_PRO_W3_2;
+extern int16_t SPR_PRO_W3_3;
+extern int16_t SPR_PRO_W3_4;
+extern int16_t SPR_PRO_W3_5;
+extern int16_t SPR_PRO_W3_6;
+extern int16_t SPR_PRO_W3_7;
+extern int16_t SPR_PRO_W3_8;
 
-extern int SPR_PRO_W4_1;
-extern int SPR_PRO_W4_2;
-extern int SPR_PRO_W4_3;
-extern int SPR_PRO_W4_4;
-extern int SPR_PRO_W4_5;
-extern int SPR_PRO_W4_6;
-extern int SPR_PRO_W4_7;
-extern int SPR_PRO_W4_8;
+extern int16_t SPR_PRO_W4_1;
+extern int16_t SPR_PRO_W4_2;
+extern int16_t SPR_PRO_W4_3;
+extern int16_t SPR_PRO_W4_4;
+extern int16_t SPR_PRO_W4_5;
+extern int16_t SPR_PRO_W4_6;
+extern int16_t SPR_PRO_W4_7;
+extern int16_t SPR_PRO_W4_8;
 
-extern int SPR_PRO_PAIN_1;
-extern int SPR_PRO_DIE_1;
-extern int SPR_PRO_DIE_2;
-extern int SPR_PRO_DIE_3;
-extern int SPR_PRO_PAIN_2;
-extern int SPR_PRO_DIE_4;
-extern int SPR_PRO_DEAD;
+extern int16_t SPR_PRO_PAIN_1;
+extern int16_t SPR_PRO_DIE_1;
+extern int16_t SPR_PRO_DIE_2;
+extern int16_t SPR_PRO_DIE_3;
+extern int16_t SPR_PRO_PAIN_2;
+extern int16_t SPR_PRO_DIE_4;
+extern int16_t SPR_PRO_DEAD;
 
-extern int SPR_PRO_SHOOT1;
-extern int SPR_PRO_SHOOT2;
-extern int SPR_PRO_SHOOT3;
+extern int16_t SPR_PRO_SHOOT1;
+extern int16_t SPR_PRO_SHOOT2;
+extern int16_t SPR_PRO_SHOOT3;
 
 //
 // Star Trooper (AOG) / SWAT (PS)
 //
-extern int SPR_SWAT_S_1;
-extern int SPR_SWAT_S_2;
-extern int SPR_SWAT_S_3;
-extern int SPR_SWAT_S_4;
-extern int SPR_SWAT_S_5;
-extern int SPR_SWAT_S_6;
-extern int SPR_SWAT_S_7;
-extern int SPR_SWAT_S_8;
+extern int16_t SPR_SWAT_S_1;
+extern int16_t SPR_SWAT_S_2;
+extern int16_t SPR_SWAT_S_3;
+extern int16_t SPR_SWAT_S_4;
+extern int16_t SPR_SWAT_S_5;
+extern int16_t SPR_SWAT_S_6;
+extern int16_t SPR_SWAT_S_7;
+extern int16_t SPR_SWAT_S_8;
 
-extern int SPR_SWAT_W1_1;
-extern int SPR_SWAT_W1_2;
-extern int SPR_SWAT_W1_3;
-extern int SPR_SWAT_W1_4;
-extern int SPR_SWAT_W1_5;
-extern int SPR_SWAT_W1_6;
-extern int SPR_SWAT_W1_7;
-extern int SPR_SWAT_W1_8;
+extern int16_t SPR_SWAT_W1_1;
+extern int16_t SPR_SWAT_W1_2;
+extern int16_t SPR_SWAT_W1_3;
+extern int16_t SPR_SWAT_W1_4;
+extern int16_t SPR_SWAT_W1_5;
+extern int16_t SPR_SWAT_W1_6;
+extern int16_t SPR_SWAT_W1_7;
+extern int16_t SPR_SWAT_W1_8;
 
-extern int SPR_SWAT_W2_1;
-extern int SPR_SWAT_W2_2;
-extern int SPR_SWAT_W2_3;
-extern int SPR_SWAT_W2_4;
-extern int SPR_SWAT_W2_5;
-extern int SPR_SWAT_W2_6;
-extern int SPR_SWAT_W2_7;
-extern int SPR_SWAT_W2_8;
+extern int16_t SPR_SWAT_W2_1;
+extern int16_t SPR_SWAT_W2_2;
+extern int16_t SPR_SWAT_W2_3;
+extern int16_t SPR_SWAT_W2_4;
+extern int16_t SPR_SWAT_W2_5;
+extern int16_t SPR_SWAT_W2_6;
+extern int16_t SPR_SWAT_W2_7;
+extern int16_t SPR_SWAT_W2_8;
 
-extern int SPR_SWAT_W3_1;
-extern int SPR_SWAT_W3_2;
-extern int SPR_SWAT_W3_3;
-extern int SPR_SWAT_W3_4;
-extern int SPR_SWAT_W3_5;
-extern int SPR_SWAT_W3_6;
-extern int SPR_SWAT_W3_7;
-extern int SPR_SWAT_W3_8;
+extern int16_t SPR_SWAT_W3_1;
+extern int16_t SPR_SWAT_W3_2;
+extern int16_t SPR_SWAT_W3_3;
+extern int16_t SPR_SWAT_W3_4;
+extern int16_t SPR_SWAT_W3_5;
+extern int16_t SPR_SWAT_W3_6;
+extern int16_t SPR_SWAT_W3_7;
+extern int16_t SPR_SWAT_W3_8;
 
-extern int SPR_SWAT_W4_1;
-extern int SPR_SWAT_W4_2;
-extern int SPR_SWAT_W4_3;
-extern int SPR_SWAT_W4_4;
-extern int SPR_SWAT_W4_5;
-extern int SPR_SWAT_W4_6;
-extern int SPR_SWAT_W4_7;
-extern int SPR_SWAT_W4_8;
+extern int16_t SPR_SWAT_W4_1;
+extern int16_t SPR_SWAT_W4_2;
+extern int16_t SPR_SWAT_W4_3;
+extern int16_t SPR_SWAT_W4_4;
+extern int16_t SPR_SWAT_W4_5;
+extern int16_t SPR_SWAT_W4_6;
+extern int16_t SPR_SWAT_W4_7;
+extern int16_t SPR_SWAT_W4_8;
 
-extern int SPR_SWAT_PAIN_1;
-extern int SPR_SWAT_DIE_1;
-extern int SPR_SWAT_DIE_2;
-extern int SPR_SWAT_DIE_3;
-extern int SPR_SWAT_PAIN_2;
-extern int SPR_SWAT_DIE_4;
-extern int SPR_SWAT_DEAD;
+extern int16_t SPR_SWAT_PAIN_1;
+extern int16_t SPR_SWAT_DIE_1;
+extern int16_t SPR_SWAT_DIE_2;
+extern int16_t SPR_SWAT_DIE_3;
+extern int16_t SPR_SWAT_PAIN_2;
+extern int16_t SPR_SWAT_DIE_4;
+extern int16_t SPR_SWAT_DEAD;
 
-extern int SPR_SWAT_SHOOT1;
-extern int SPR_SWAT_SHOOT2;
-extern int SPR_SWAT_SHOOT3;
+extern int16_t SPR_SWAT_SHOOT1;
+extern int16_t SPR_SWAT_SHOOT2;
+extern int16_t SPR_SWAT_SHOOT3;
 
-extern int SPR_SWAT_WOUNDED1;
-extern int SPR_SWAT_WOUNDED2;
-extern int SPR_SWAT_WOUNDED3;
-extern int SPR_SWAT_WOUNDED4;
+extern int16_t SPR_SWAT_WOUNDED1;
+extern int16_t SPR_SWAT_WOUNDED2;
+extern int16_t SPR_SWAT_WOUNDED3;
+extern int16_t SPR_SWAT_WOUNDED4;
 
 //
 // General Scientist
 //
-extern int SPR_OFC_S_1;
-extern int SPR_OFC_S_2;
-extern int SPR_OFC_S_3;
-extern int SPR_OFC_S_4;
-extern int SPR_OFC_S_5;
-extern int SPR_OFC_S_6;
-extern int SPR_OFC_S_7;
-extern int SPR_OFC_S_8;
+extern int16_t SPR_OFC_S_1;
+extern int16_t SPR_OFC_S_2;
+extern int16_t SPR_OFC_S_3;
+extern int16_t SPR_OFC_S_4;
+extern int16_t SPR_OFC_S_5;
+extern int16_t SPR_OFC_S_6;
+extern int16_t SPR_OFC_S_7;
+extern int16_t SPR_OFC_S_8;
 
-extern int SPR_OFC_W1_1;
-extern int SPR_OFC_W1_2;
-extern int SPR_OFC_W1_3;
-extern int SPR_OFC_W1_4;
-extern int SPR_OFC_W1_5;
-extern int SPR_OFC_W1_6;
-extern int SPR_OFC_W1_7;
-extern int SPR_OFC_W1_8;
+extern int16_t SPR_OFC_W1_1;
+extern int16_t SPR_OFC_W1_2;
+extern int16_t SPR_OFC_W1_3;
+extern int16_t SPR_OFC_W1_4;
+extern int16_t SPR_OFC_W1_5;
+extern int16_t SPR_OFC_W1_6;
+extern int16_t SPR_OFC_W1_7;
+extern int16_t SPR_OFC_W1_8;
 
-extern int SPR_OFC_W2_1;
-extern int SPR_OFC_W2_2;
-extern int SPR_OFC_W2_3;
-extern int SPR_OFC_W2_4;
-extern int SPR_OFC_W2_5;
-extern int SPR_OFC_W2_6;
-extern int SPR_OFC_W2_7;
-extern int SPR_OFC_W2_8;
+extern int16_t SPR_OFC_W2_1;
+extern int16_t SPR_OFC_W2_2;
+extern int16_t SPR_OFC_W2_3;
+extern int16_t SPR_OFC_W2_4;
+extern int16_t SPR_OFC_W2_5;
+extern int16_t SPR_OFC_W2_6;
+extern int16_t SPR_OFC_W2_7;
+extern int16_t SPR_OFC_W2_8;
 
-extern int SPR_OFC_W3_1;
-extern int SPR_OFC_W3_2;
-extern int SPR_OFC_W3_3;
-extern int SPR_OFC_W3_4;
-extern int SPR_OFC_W3_5;
-extern int SPR_OFC_W3_6;
-extern int SPR_OFC_W3_7;
-extern int SPR_OFC_W3_8;
+extern int16_t SPR_OFC_W3_1;
+extern int16_t SPR_OFC_W3_2;
+extern int16_t SPR_OFC_W3_3;
+extern int16_t SPR_OFC_W3_4;
+extern int16_t SPR_OFC_W3_5;
+extern int16_t SPR_OFC_W3_6;
+extern int16_t SPR_OFC_W3_7;
+extern int16_t SPR_OFC_W3_8;
 
-extern int SPR_OFC_W4_1;
-extern int SPR_OFC_W4_2;
-extern int SPR_OFC_W4_3;
-extern int SPR_OFC_W4_4;
-extern int SPR_OFC_W4_5;
-extern int SPR_OFC_W4_6;
-extern int SPR_OFC_W4_7;
-extern int SPR_OFC_W4_8;
+extern int16_t SPR_OFC_W4_1;
+extern int16_t SPR_OFC_W4_2;
+extern int16_t SPR_OFC_W4_3;
+extern int16_t SPR_OFC_W4_4;
+extern int16_t SPR_OFC_W4_5;
+extern int16_t SPR_OFC_W4_6;
+extern int16_t SPR_OFC_W4_7;
+extern int16_t SPR_OFC_W4_8;
 
-extern int SPR_OFC_PAIN_1;
-extern int SPR_OFC_DIE_1;
-extern int SPR_OFC_DIE_2;
-extern int SPR_OFC_DIE_3;
-extern int SPR_OFC_PAIN_2;
-extern int SPR_OFC_DIE_4;
-extern int SPR_OFC_DEAD;
+extern int16_t SPR_OFC_PAIN_1;
+extern int16_t SPR_OFC_DIE_1;
+extern int16_t SPR_OFC_DIE_2;
+extern int16_t SPR_OFC_DIE_3;
+extern int16_t SPR_OFC_PAIN_2;
+extern int16_t SPR_OFC_DIE_4;
+extern int16_t SPR_OFC_DEAD;
 
-extern int SPR_OFC_SHOOT1;
-extern int SPR_OFC_SHOOT2;
-extern int SPR_OFC_SHOOT3;
+extern int16_t SPR_OFC_SHOOT1;
+extern int16_t SPR_OFC_SHOOT2;
+extern int16_t SPR_OFC_SHOOT3;
 
 //
 // Bad Boy Dr. Goldstern
 //
-extern int SPR_GOLD_S_1;
-extern int SPR_GOLD_S_2;
-extern int SPR_GOLD_S_3;
-extern int SPR_GOLD_S_4;
-extern int SPR_GOLD_S_5;
-extern int SPR_GOLD_S_6;
-extern int SPR_GOLD_S_7;
-extern int SPR_GOLD_S_8;
+extern int16_t SPR_GOLD_S_1;
+extern int16_t SPR_GOLD_S_2;
+extern int16_t SPR_GOLD_S_3;
+extern int16_t SPR_GOLD_S_4;
+extern int16_t SPR_GOLD_S_5;
+extern int16_t SPR_GOLD_S_6;
+extern int16_t SPR_GOLD_S_7;
+extern int16_t SPR_GOLD_S_8;
 
-extern int SPR_GOLD_W1_1;
-extern int SPR_GOLD_W1_2;
-extern int SPR_GOLD_W1_3;
-extern int SPR_GOLD_W1_4;
-extern int SPR_GOLD_W1_5;
-extern int SPR_GOLD_W1_6;
-extern int SPR_GOLD_W1_7;
-extern int SPR_GOLD_W1_8;
+extern int16_t SPR_GOLD_W1_1;
+extern int16_t SPR_GOLD_W1_2;
+extern int16_t SPR_GOLD_W1_3;
+extern int16_t SPR_GOLD_W1_4;
+extern int16_t SPR_GOLD_W1_5;
+extern int16_t SPR_GOLD_W1_6;
+extern int16_t SPR_GOLD_W1_7;
+extern int16_t SPR_GOLD_W1_8;
 
-extern int SPR_GOLD_W2_1;
-extern int SPR_GOLD_W2_2;
-extern int SPR_GOLD_W2_3;
-extern int SPR_GOLD_W2_4;
-extern int SPR_GOLD_W2_5;
-extern int SPR_GOLD_W2_6;
-extern int SPR_GOLD_W2_7;
-extern int SPR_GOLD_W2_8;
+extern int16_t SPR_GOLD_W2_1;
+extern int16_t SPR_GOLD_W2_2;
+extern int16_t SPR_GOLD_W2_3;
+extern int16_t SPR_GOLD_W2_4;
+extern int16_t SPR_GOLD_W2_5;
+extern int16_t SPR_GOLD_W2_6;
+extern int16_t SPR_GOLD_W2_7;
+extern int16_t SPR_GOLD_W2_8;
 
-extern int SPR_GOLD_W3_1;
-extern int SPR_GOLD_W3_2;
-extern int SPR_GOLD_W3_3;
-extern int SPR_GOLD_W3_4;
-extern int SPR_GOLD_W3_5;
-extern int SPR_GOLD_W3_6;
-extern int SPR_GOLD_W3_7;
-extern int SPR_GOLD_W3_8;
+extern int16_t SPR_GOLD_W3_1;
+extern int16_t SPR_GOLD_W3_2;
+extern int16_t SPR_GOLD_W3_3;
+extern int16_t SPR_GOLD_W3_4;
+extern int16_t SPR_GOLD_W3_5;
+extern int16_t SPR_GOLD_W3_6;
+extern int16_t SPR_GOLD_W3_7;
+extern int16_t SPR_GOLD_W3_8;
 
-extern int SPR_GOLD_W4_1;
-extern int SPR_GOLD_W4_2;
-extern int SPR_GOLD_W4_3;
-extern int SPR_GOLD_W4_4;
-extern int SPR_GOLD_W4_5;
-extern int SPR_GOLD_W4_6;
-extern int SPR_GOLD_W4_7;
-extern int SPR_GOLD_W4_8;
+extern int16_t SPR_GOLD_W4_1;
+extern int16_t SPR_GOLD_W4_2;
+extern int16_t SPR_GOLD_W4_3;
+extern int16_t SPR_GOLD_W4_4;
+extern int16_t SPR_GOLD_W4_5;
+extern int16_t SPR_GOLD_W4_6;
+extern int16_t SPR_GOLD_W4_7;
+extern int16_t SPR_GOLD_W4_8;
 
-extern int SPR_GOLD_PAIN_1;
+extern int16_t SPR_GOLD_PAIN_1;
 
-extern int SPR_GOLD_WRIST_1;
-extern int SPR_GOLD_WRIST_2;
+extern int16_t SPR_GOLD_WRIST_1;
+extern int16_t SPR_GOLD_WRIST_2;
 
-extern int SPR_GOLD_SHOOT1;
-extern int SPR_GOLD_SHOOT2;
-extern int SPR_GOLD_SHOOT3;
+extern int16_t SPR_GOLD_SHOOT1;
+extern int16_t SPR_GOLD_SHOOT2;
+extern int16_t SPR_GOLD_SHOOT3;
 
-extern int SPR_GOLD_WARP1;
-extern int SPR_GOLD_WARP2;
-extern int SPR_GOLD_WARP3;
-extern int SPR_GOLD_WARP4;
-extern int SPR_GOLD_WARP5;
+extern int16_t SPR_GOLD_WARP1;
+extern int16_t SPR_GOLD_WARP2;
+extern int16_t SPR_GOLD_WARP3;
+extern int16_t SPR_GOLD_WARP4;
+extern int16_t SPR_GOLD_WARP5;
 
-extern int SPR_GOLD_DEATH1;
-extern int SPR_GOLD_DEATH2;
-extern int SPR_GOLD_DEATH3;
-extern int SPR_GOLD_DEATH4;
-extern int SPR_GOLD_DEATH5;
-extern int SPR_MGOLD_OUCH;
+extern int16_t SPR_GOLD_DEATH1;
+extern int16_t SPR_GOLD_DEATH2;
+extern int16_t SPR_GOLD_DEATH3;
+extern int16_t SPR_GOLD_DEATH4;
+extern int16_t SPR_GOLD_DEATH5;
+extern int16_t SPR_MGOLD_OUCH;
 
-extern int SPR_GOLD_MORPH1;
-extern int SPR_GOLD_MORPH2;
-extern int SPR_GOLD_MORPH3;
-extern int SPR_GOLD_MORPH4;
-extern int SPR_GOLD_MORPH5;
-extern int SPR_GOLD_MORPH6;
-extern int SPR_GOLD_MORPH7;
-extern int SPR_GOLD_MORPH8;
+extern int16_t SPR_GOLD_MORPH1;
+extern int16_t SPR_GOLD_MORPH2;
+extern int16_t SPR_GOLD_MORPH3;
+extern int16_t SPR_GOLD_MORPH4;
+extern int16_t SPR_GOLD_MORPH5;
+extern int16_t SPR_GOLD_MORPH6;
+extern int16_t SPR_GOLD_MORPH7;
+extern int16_t SPR_GOLD_MORPH8;
 
-extern int SPR_MGOLD_WALK1;
-extern int SPR_MGOLD_WALK2;
-extern int SPR_MGOLD_WALK3;
-extern int SPR_MGOLD_WALK4;
-extern int SPR_MGOLD_ATTACK1;
-extern int SPR_MGOLD_ATTACK2;
-extern int SPR_MGOLD_ATTACK3;
-extern int SPR_MGOLD_ATTACK4;
+extern int16_t SPR_MGOLD_WALK1;
+extern int16_t SPR_MGOLD_WALK2;
+extern int16_t SPR_MGOLD_WALK3;
+extern int16_t SPR_MGOLD_WALK4;
+extern int16_t SPR_MGOLD_ATTACK1;
+extern int16_t SPR_MGOLD_ATTACK2;
+extern int16_t SPR_MGOLD_ATTACK3;
+extern int16_t SPR_MGOLD_ATTACK4;
 
-extern int SPR_MGOLD_SHOT1;
-extern int SPR_MGOLD_SHOT2;
-extern int SPR_MGOLD_SHOT3;
-extern int SPR_MGOLD_SHOT_EXP1;
-extern int SPR_MGOLD_SHOT_EXP2;
-extern int SPR_MGOLD_SHOT_EXP3;
+extern int16_t SPR_MGOLD_SHOT1;
+extern int16_t SPR_MGOLD_SHOT2;
+extern int16_t SPR_MGOLD_SHOT3;
+extern int16_t SPR_MGOLD_SHOT_EXP1;
+extern int16_t SPR_MGOLD_SHOT_EXP2;
+extern int16_t SPR_MGOLD_SHOT_EXP3;
 
 //
 // Volatile Material Transporter
 //
-extern int SPR_GSCOUT_W1_1;
-extern int SPR_GSCOUT_W1_2;
-extern int SPR_GSCOUT_W1_3;
-extern int SPR_GSCOUT_W1_4;
-extern int SPR_GSCOUT_W1_5;
-extern int SPR_GSCOUT_W1_6;
-extern int SPR_GSCOUT_W1_7;
-extern int SPR_GSCOUT_W1_8;
+extern int16_t SPR_GSCOUT_W1_1;
+extern int16_t SPR_GSCOUT_W1_2;
+extern int16_t SPR_GSCOUT_W1_3;
+extern int16_t SPR_GSCOUT_W1_4;
+extern int16_t SPR_GSCOUT_W1_5;
+extern int16_t SPR_GSCOUT_W1_6;
+extern int16_t SPR_GSCOUT_W1_7;
+extern int16_t SPR_GSCOUT_W1_8;
 
-extern int SPR_GSCOUT_W2_1;
-extern int SPR_GSCOUT_W2_2;
-extern int SPR_GSCOUT_W2_3;
-extern int SPR_GSCOUT_W2_4;
-extern int SPR_GSCOUT_W2_5;
-extern int SPR_GSCOUT_W2_6;
-extern int SPR_GSCOUT_W2_7;
-extern int SPR_GSCOUT_W2_8;
+extern int16_t SPR_GSCOUT_W2_1;
+extern int16_t SPR_GSCOUT_W2_2;
+extern int16_t SPR_GSCOUT_W2_3;
+extern int16_t SPR_GSCOUT_W2_4;
+extern int16_t SPR_GSCOUT_W2_5;
+extern int16_t SPR_GSCOUT_W2_6;
+extern int16_t SPR_GSCOUT_W2_7;
+extern int16_t SPR_GSCOUT_W2_8;
 
-extern int SPR_GSCOUT_W3_1;
-extern int SPR_GSCOUT_W3_2;
-extern int SPR_GSCOUT_W3_3;
-extern int SPR_GSCOUT_W3_4;
-extern int SPR_GSCOUT_W3_5;
-extern int SPR_GSCOUT_W3_6;
-extern int SPR_GSCOUT_W3_7;
-extern int SPR_GSCOUT_W3_8;
+extern int16_t SPR_GSCOUT_W3_1;
+extern int16_t SPR_GSCOUT_W3_2;
+extern int16_t SPR_GSCOUT_W3_3;
+extern int16_t SPR_GSCOUT_W3_4;
+extern int16_t SPR_GSCOUT_W3_5;
+extern int16_t SPR_GSCOUT_W3_6;
+extern int16_t SPR_GSCOUT_W3_7;
+extern int16_t SPR_GSCOUT_W3_8;
 
-extern int SPR_GSCOUT_W4_1;
-extern int SPR_GSCOUT_W4_2;
-extern int SPR_GSCOUT_W4_3;
-extern int SPR_GSCOUT_W4_4;
-extern int SPR_GSCOUT_W4_5;
-extern int SPR_GSCOUT_W4_6;
-extern int SPR_GSCOUT_W4_7;
-extern int SPR_GSCOUT_W4_8;
+extern int16_t SPR_GSCOUT_W4_1;
+extern int16_t SPR_GSCOUT_W4_2;
+extern int16_t SPR_GSCOUT_W4_3;
+extern int16_t SPR_GSCOUT_W4_4;
+extern int16_t SPR_GSCOUT_W4_5;
+extern int16_t SPR_GSCOUT_W4_6;
+extern int16_t SPR_GSCOUT_W4_7;
+extern int16_t SPR_GSCOUT_W4_8;
 
-extern int SPR_GSCOUT_DIE1;
-extern int SPR_GSCOUT_DIE2;
-extern int SPR_GSCOUT_DIE3;
-extern int SPR_GSCOUT_DIE4;
-extern int SPR_GSCOUT_DIE5;
-extern int SPR_GSCOUT_DIE6;
-extern int SPR_GSCOUT_DIE7;
-extern int SPR_GSCOUT_DIE8;
+extern int16_t SPR_GSCOUT_DIE1;
+extern int16_t SPR_GSCOUT_DIE2;
+extern int16_t SPR_GSCOUT_DIE3;
+extern int16_t SPR_GSCOUT_DIE4;
+extern int16_t SPR_GSCOUT_DIE5;
+extern int16_t SPR_GSCOUT_DIE6;
+extern int16_t SPR_GSCOUT_DIE7;
+extern int16_t SPR_GSCOUT_DIE8;
 
-extern int SPR_GSCOUT_DEAD;
+extern int16_t SPR_GSCOUT_DEAD;
 
 //
 // Perscan Drone
 //
-extern int SPR_FSCOUT_W1_1;
-extern int SPR_FSCOUT_W1_2;
-extern int SPR_FSCOUT_W1_3;
-extern int SPR_FSCOUT_W1_4;
-extern int SPR_FSCOUT_W1_5;
-extern int SPR_FSCOUT_W1_6;
-extern int SPR_FSCOUT_W1_7;
-extern int SPR_FSCOUT_W1_8;
+extern int16_t SPR_FSCOUT_W1_1;
+extern int16_t SPR_FSCOUT_W1_2;
+extern int16_t SPR_FSCOUT_W1_3;
+extern int16_t SPR_FSCOUT_W1_4;
+extern int16_t SPR_FSCOUT_W1_5;
+extern int16_t SPR_FSCOUT_W1_6;
+extern int16_t SPR_FSCOUT_W1_7;
+extern int16_t SPR_FSCOUT_W1_8;
 
-extern int SPR_FSCOUT_W2_1;
-extern int SPR_FSCOUT_W2_2;
-extern int SPR_FSCOUT_W2_3;
-extern int SPR_FSCOUT_W2_4;
-extern int SPR_FSCOUT_W2_5;
-extern int SPR_FSCOUT_W2_6;
-extern int SPR_FSCOUT_W2_7;
-extern int SPR_FSCOUT_W2_8;
+extern int16_t SPR_FSCOUT_W2_1;
+extern int16_t SPR_FSCOUT_W2_2;
+extern int16_t SPR_FSCOUT_W2_3;
+extern int16_t SPR_FSCOUT_W2_4;
+extern int16_t SPR_FSCOUT_W2_5;
+extern int16_t SPR_FSCOUT_W2_6;
+extern int16_t SPR_FSCOUT_W2_7;
+extern int16_t SPR_FSCOUT_W2_8;
 
-extern int SPR_FSCOUT_W3_1;
-extern int SPR_FSCOUT_W3_2;
-extern int SPR_FSCOUT_W3_3;
-extern int SPR_FSCOUT_W3_4;
-extern int SPR_FSCOUT_W3_5;
-extern int SPR_FSCOUT_W3_6;
-extern int SPR_FSCOUT_W3_7;
-extern int SPR_FSCOUT_W3_8;
+extern int16_t SPR_FSCOUT_W3_1;
+extern int16_t SPR_FSCOUT_W3_2;
+extern int16_t SPR_FSCOUT_W3_3;
+extern int16_t SPR_FSCOUT_W3_4;
+extern int16_t SPR_FSCOUT_W3_5;
+extern int16_t SPR_FSCOUT_W3_6;
+extern int16_t SPR_FSCOUT_W3_7;
+extern int16_t SPR_FSCOUT_W3_8;
 
-extern int SPR_FSCOUT_W4_1;
-extern int SPR_FSCOUT_W4_2;
-extern int SPR_FSCOUT_W4_3;
-extern int SPR_FSCOUT_W4_4;
-extern int SPR_FSCOUT_W4_5;
-extern int SPR_FSCOUT_W4_6;
-extern int SPR_FSCOUT_W4_7;
-extern int SPR_FSCOUT_W4_8;
+extern int16_t SPR_FSCOUT_W4_1;
+extern int16_t SPR_FSCOUT_W4_2;
+extern int16_t SPR_FSCOUT_W4_3;
+extern int16_t SPR_FSCOUT_W4_4;
+extern int16_t SPR_FSCOUT_W4_5;
+extern int16_t SPR_FSCOUT_W4_6;
+extern int16_t SPR_FSCOUT_W4_7;
+extern int16_t SPR_FSCOUT_W4_8;
 
-extern int SPR_FSCOUT_DIE1;
-extern int SPR_FSCOUT_DIE2;
-extern int SPR_FSCOUT_DIE3;
-extern int SPR_FSCOUT_DIE4;
-extern int SPR_FSCOUT_DIE5;
-extern int SPR_FSCOUT_DIE6;
-extern int SPR_FSCOUT_DIE7;
-extern int SPR_FSCOUT_DEAD;
+extern int16_t SPR_FSCOUT_DIE1;
+extern int16_t SPR_FSCOUT_DIE2;
+extern int16_t SPR_FSCOUT_DIE3;
+extern int16_t SPR_FSCOUT_DIE4;
+extern int16_t SPR_FSCOUT_DIE5;
+extern int16_t SPR_FSCOUT_DIE6;
+extern int16_t SPR_FSCOUT_DIE7;
+extern int16_t SPR_FSCOUT_DEAD;
 
 //
 // General Explosion Anim
 //
-extern int SPR_EXPLOSION_1;
-extern int SPR_EXPLOSION_2;
-extern int SPR_EXPLOSION_3;
-extern int SPR_EXPLOSION_4;
-extern int SPR_EXPLOSION_5;
+extern int16_t SPR_EXPLOSION_1;
+extern int16_t SPR_EXPLOSION_2;
+extern int16_t SPR_EXPLOSION_3;
+extern int16_t SPR_EXPLOSION_4;
+extern int16_t SPR_EXPLOSION_5;
 
 //
 // Projection Generator
 //
-extern int SPR_VITAL_STAND;
-extern int SPR_VITAL_DIE_1;
-extern int SPR_VITAL_DIE_2;
-extern int SPR_VITAL_DIE_3;
-extern int SPR_VITAL_DIE_4;
-extern int SPR_VITAL_DIE_5;
-extern int SPR_VITAL_DIE_6;
-extern int SPR_VITAL_DIE_7;
-extern int SPR_VITAL_DIE_8;
-extern int SPR_VITAL_DEAD_1;
-extern int SPR_VITAL_DEAD_2;
-extern int SPR_VITAL_DEAD_3;
-extern int SPR_VITAL_OUCH;
+extern int16_t SPR_VITAL_STAND;
+extern int16_t SPR_VITAL_DIE_1;
+extern int16_t SPR_VITAL_DIE_2;
+extern int16_t SPR_VITAL_DIE_3;
+extern int16_t SPR_VITAL_DIE_4;
+extern int16_t SPR_VITAL_DIE_5;
+extern int16_t SPR_VITAL_DIE_6;
+extern int16_t SPR_VITAL_DIE_7;
+extern int16_t SPR_VITAL_DIE_8;
+extern int16_t SPR_VITAL_DEAD_1;
+extern int16_t SPR_VITAL_DEAD_2;
+extern int16_t SPR_VITAL_DEAD_3;
+extern int16_t SPR_VITAL_OUCH;
 
 //
 // Security Cube
 //
-extern int SPR_CUBE1;
-extern int SPR_CUBE2;
-extern int SPR_CUBE3;
-extern int SPR_CUBE4;
-extern int SPR_CUBE5;
-extern int SPR_CUBE6;
-extern int SPR_CUBE7;
-extern int SPR_CUBE8;
-extern int SPR_CUBE9;
-extern int SPR_CUBE10;
-extern int SPR_CUBE_EXP1;
-extern int SPR_CUBE_EXP2;
-extern int SPR_CUBE_EXP3;
-extern int SPR_CUBE_EXP4;
-extern int SPR_CUBE_EXP5;
-extern int SPR_CUBE_EXP6;
-extern int SPR_CUBE_EXP7;
-extern int SPR_CUBE_EXP8;
-extern int SPR_DEAD_CUBE;
+extern int16_t SPR_CUBE1;
+extern int16_t SPR_CUBE2;
+extern int16_t SPR_CUBE3;
+extern int16_t SPR_CUBE4;
+extern int16_t SPR_CUBE5;
+extern int16_t SPR_CUBE6;
+extern int16_t SPR_CUBE7;
+extern int16_t SPR_CUBE8;
+extern int16_t SPR_CUBE9;
+extern int16_t SPR_CUBE10;
+extern int16_t SPR_CUBE_EXP1;
+extern int16_t SPR_CUBE_EXP2;
+extern int16_t SPR_CUBE_EXP3;
+extern int16_t SPR_CUBE_EXP4;
+extern int16_t SPR_CUBE_EXP5;
+extern int16_t SPR_CUBE_EXP6;
+extern int16_t SPR_CUBE_EXP7;
+extern int16_t SPR_CUBE_EXP8;
+extern int16_t SPR_DEAD_CUBE;
 
 //
 // Red Security Lights
 //
-extern int SPR_SECURITY_NORMAL;
-extern int SPR_SECURITY_ALERT;
+extern int16_t SPR_SECURITY_NORMAL;
+extern int16_t SPR_SECURITY_ALERT;
 
 //
 // P.O.D. Alien
 //
-extern int SPR_POD_EGG;
-extern int SPR_POD_HATCH1;
-extern int SPR_POD_HATCH2;
-extern int SPR_POD_HATCH3;
-extern int SPR_POD_WALK1;
-extern int SPR_POD_WALK2;
-extern int SPR_POD_WALK3;
-extern int SPR_POD_WALK4;
-extern int SPR_POD_ATTACK1;
-extern int SPR_POD_ATTACK2;
-extern int SPR_POD_ATTACK3;
-extern int SPR_POD_OUCH;
-extern int SPR_POD_DIE1;
-extern int SPR_POD_DIE2;
-extern int SPR_POD_DIE3;
-extern int SPR_POD_SPIT1;
-extern int SPR_POD_SPIT2;
-extern int SPR_POD_SPIT3;
+extern int16_t SPR_POD_EGG;
+extern int16_t SPR_POD_HATCH1;
+extern int16_t SPR_POD_HATCH2;
+extern int16_t SPR_POD_HATCH3;
+extern int16_t SPR_POD_WALK1;
+extern int16_t SPR_POD_WALK2;
+extern int16_t SPR_POD_WALK3;
+extern int16_t SPR_POD_WALK4;
+extern int16_t SPR_POD_ATTACK1;
+extern int16_t SPR_POD_ATTACK2;
+extern int16_t SPR_POD_ATTACK3;
+extern int16_t SPR_POD_OUCH;
+extern int16_t SPR_POD_DIE1;
+extern int16_t SPR_POD_DIE2;
+extern int16_t SPR_POD_DIE3;
+extern int16_t SPR_POD_SPIT1;
+extern int16_t SPR_POD_SPIT2;
+extern int16_t SPR_POD_SPIT3;
 
 //
 // Electro-Alien
 //
-extern int SPR_ELEC_APPEAR1;
-extern int SPR_ELEC_APPEAR2;
-extern int SPR_ELEC_APPEAR3;
-extern int SPR_ELEC_WALK1;
-extern int SPR_ELEC_WALK2;
-extern int SPR_ELEC_WALK3;
-extern int SPR_ELEC_WALK4;
-extern int SPR_ELEC_OUCH;
-extern int SPR_ELEC_SHOOT1;
-extern int SPR_ELEC_SHOOT2;
-extern int SPR_ELEC_SHOOT3;
-extern int SPR_ELEC_DIE1;
-extern int SPR_ELEC_DIE2;
-extern int SPR_ELEC_DIE3;
-extern int SPR_ELEC_SHOT1;
-extern int SPR_ELEC_SHOT2;
-extern int SPR_ELEC_SHOT_EXP1;
-extern int SPR_ELEC_SHOT_EXP2;
+extern int16_t SPR_ELEC_APPEAR1;
+extern int16_t SPR_ELEC_APPEAR2;
+extern int16_t SPR_ELEC_APPEAR3;
+extern int16_t SPR_ELEC_WALK1;
+extern int16_t SPR_ELEC_WALK2;
+extern int16_t SPR_ELEC_WALK3;
+extern int16_t SPR_ELEC_WALK4;
+extern int16_t SPR_ELEC_OUCH;
+extern int16_t SPR_ELEC_SHOOT1;
+extern int16_t SPR_ELEC_SHOOT2;
+extern int16_t SPR_ELEC_SHOOT3;
+extern int16_t SPR_ELEC_DIE1;
+extern int16_t SPR_ELEC_DIE2;
+extern int16_t SPR_ELEC_DIE3;
+extern int16_t SPR_ELEC_SHOT1;
+extern int16_t SPR_ELEC_SHOT2;
+extern int16_t SPR_ELEC_SHOT_EXP1;
+extern int16_t SPR_ELEC_SHOT_EXP2;
 
 //
 // ElectroSphere
 //
-extern int SPR_ELECTRO_SPHERE_ROAM1;
-extern int SPR_ELECTRO_SPHERE_ROAM2;
-extern int SPR_ELECTRO_SPHERE_ROAM3;
-extern int SPR_ELECTRO_SPHERE_OUCH;
-extern int SPR_ELECTRO_SPHERE_DIE1;
-extern int SPR_ELECTRO_SPHERE_DIE2;
-extern int SPR_ELECTRO_SPHERE_DIE3;
-extern int SPR_ELECTRO_SPHERE_DIE4;
+extern int16_t SPR_ELECTRO_SPHERE_ROAM1;
+extern int16_t SPR_ELECTRO_SPHERE_ROAM2;
+extern int16_t SPR_ELECTRO_SPHERE_ROAM3;
+extern int16_t SPR_ELECTRO_SPHERE_OUCH;
+extern int16_t SPR_ELECTRO_SPHERE_DIE1;
+extern int16_t SPR_ELECTRO_SPHERE_DIE2;
+extern int16_t SPR_ELECTRO_SPHERE_DIE3;
+extern int16_t SPR_ELECTRO_SPHERE_DIE4;
 
 //
 // Genetic Guard
 //
-extern int SPR_GENETIC_W1;
-extern int SPR_GENETIC_W2;
-extern int SPR_GENETIC_W3;
-extern int SPR_GENETIC_W4;
-extern int SPR_GENETIC_SWING1;
-extern int SPR_GENETIC_SWING2;
-extern int SPR_GENETIC_SWING3;
-extern int SPR_GENETIC_DEAD;
-extern int SPR_GENETIC_DIE1;
-extern int SPR_GENETIC_DIE2;
-extern int SPR_GENETIC_DIE3;
-extern int SPR_GENETIC_DIE4;
-extern int SPR_GENETIC_OUCH;
-extern int SPR_GENETIC_SHOOT1;
-extern int SPR_GENETIC_SHOOT2;
-extern int SPR_GENETIC_SHOOT3;
+extern int16_t SPR_GENETIC_W1;
+extern int16_t SPR_GENETIC_W2;
+extern int16_t SPR_GENETIC_W3;
+extern int16_t SPR_GENETIC_W4;
+extern int16_t SPR_GENETIC_SWING1;
+extern int16_t SPR_GENETIC_SWING2;
+extern int16_t SPR_GENETIC_SWING3;
+extern int16_t SPR_GENETIC_DEAD;
+extern int16_t SPR_GENETIC_DIE1;
+extern int16_t SPR_GENETIC_DIE2;
+extern int16_t SPR_GENETIC_DIE3;
+extern int16_t SPR_GENETIC_DIE4;
+extern int16_t SPR_GENETIC_OUCH;
+extern int16_t SPR_GENETIC_SHOOT1;
+extern int16_t SPR_GENETIC_SHOOT2;
+extern int16_t SPR_GENETIC_SHOOT3;
 
 //
 // Experimental Mech-Sentinel
 //
-extern int SPR_MUTHUM1_W1;
-extern int SPR_MUTHUM1_W2;
-extern int SPR_MUTHUM1_W3;
-extern int SPR_MUTHUM1_W4;
-extern int SPR_MUTHUM1_SWING1;
-extern int SPR_MUTHUM1_SWING2;
-extern int SPR_MUTHUM1_SWING3;
-extern int SPR_MUTHUM1_DEAD;
-extern int SPR_MUTHUM1_DIE1;
-extern int SPR_MUTHUM1_DIE2;
-extern int SPR_MUTHUM1_DIE3;
-extern int SPR_MUTHUM1_DIE4;
-extern int SPR_MUTHUM1_OUCH;
-extern int SPR_MUTHUM1_SPIT1;
-extern int SPR_MUTHUM1_SPIT2;
-extern int SPR_MUTHUM1_SPIT3;
+extern int16_t SPR_MUTHUM1_W1;
+extern int16_t SPR_MUTHUM1_W2;
+extern int16_t SPR_MUTHUM1_W3;
+extern int16_t SPR_MUTHUM1_W4;
+extern int16_t SPR_MUTHUM1_SWING1;
+extern int16_t SPR_MUTHUM1_SWING2;
+extern int16_t SPR_MUTHUM1_SWING3;
+extern int16_t SPR_MUTHUM1_DEAD;
+extern int16_t SPR_MUTHUM1_DIE1;
+extern int16_t SPR_MUTHUM1_DIE2;
+extern int16_t SPR_MUTHUM1_DIE3;
+extern int16_t SPR_MUTHUM1_DIE4;
+extern int16_t SPR_MUTHUM1_OUCH;
+extern int16_t SPR_MUTHUM1_SPIT1;
+extern int16_t SPR_MUTHUM1_SPIT2;
+extern int16_t SPR_MUTHUM1_SPIT3;
 
 //
 // Muntant human type 2
 //
-extern int SPR_MUTHUM2_W1;
-extern int SPR_MUTHUM2_W2;
-extern int SPR_MUTHUM2_W3;
-extern int SPR_MUTHUM2_W4;
-extern int SPR_MUTHUM2_SWING1;
-extern int SPR_MUTHUM2_SWING2;
-extern int SPR_MUTHUM2_SWING3;
-extern int SPR_MUTHUM2_DEAD;
-extern int SPR_MUTHUM2_DIE1;
-extern int SPR_MUTHUM2_DIE2;
-extern int SPR_MUTHUM2_DIE3;
-extern int SPR_MUTHUM2_DIE4;
-extern int SPR_MUTHUM2_OUCH;
-extern int SPR_MUTHUM2_SPIT1;
-extern int SPR_MUTHUM2_SPIT2;
-extern int SPR_MUTHUM2_SPIT3;
+extern int16_t SPR_MUTHUM2_W1;
+extern int16_t SPR_MUTHUM2_W2;
+extern int16_t SPR_MUTHUM2_W3;
+extern int16_t SPR_MUTHUM2_W4;
+extern int16_t SPR_MUTHUM2_SWING1;
+extern int16_t SPR_MUTHUM2_SWING2;
+extern int16_t SPR_MUTHUM2_SWING3;
+extern int16_t SPR_MUTHUM2_DEAD;
+extern int16_t SPR_MUTHUM2_DIE1;
+extern int16_t SPR_MUTHUM2_DIE2;
+extern int16_t SPR_MUTHUM2_DIE3;
+extern int16_t SPR_MUTHUM2_DIE4;
+extern int16_t SPR_MUTHUM2_OUCH;
+extern int16_t SPR_MUTHUM2_SPIT1;
+extern int16_t SPR_MUTHUM2_SPIT2;
+extern int16_t SPR_MUTHUM2_SPIT3;
 
-extern int SPR_MUTHUM2_MORPH1;
-extern int SPR_MUTHUM2_MORPH2;
-extern int SPR_MUTHUM2_MORPH3;
-extern int SPR_MUTHUM2_MORPH4;
-extern int SPR_MUTHUM2_MORPH5;
-extern int SPR_MUTHUM2_MORPH6;
-extern int SPR_MUTHUM2_MORPH7;
-extern int SPR_MUTHUM2_MORPH8;
-extern int SPR_MUTHUM2_MORPH9;
+extern int16_t SPR_MUTHUM2_MORPH1;
+extern int16_t SPR_MUTHUM2_MORPH2;
+extern int16_t SPR_MUTHUM2_MORPH3;
+extern int16_t SPR_MUTHUM2_MORPH4;
+extern int16_t SPR_MUTHUM2_MORPH5;
+extern int16_t SPR_MUTHUM2_MORPH6;
+extern int16_t SPR_MUTHUM2_MORPH7;
+extern int16_t SPR_MUTHUM2_MORPH8;
+extern int16_t SPR_MUTHUM2_MORPH9;
 
 //
 // Large Cantained Alien
 //
-extern int SPR_LCAN_ALIEN_READY;
-extern int SPR_LCAN_ALIEN_B1;
-extern int SPR_LCAN_ALIEN_B2;
-extern int SPR_LCAN_ALIEN_B3;
-extern int SPR_LCAN_ALIEN_EMPTY;
+extern int16_t SPR_LCAN_ALIEN_READY;
+extern int16_t SPR_LCAN_ALIEN_B1;
+extern int16_t SPR_LCAN_ALIEN_B2;
+extern int16_t SPR_LCAN_ALIEN_B3;
+extern int16_t SPR_LCAN_ALIEN_EMPTY;
 
-extern int SPR_LCAN_ALIEN_W1;
-extern int SPR_LCAN_ALIEN_W2;
-extern int SPR_LCAN_ALIEN_W3;
-extern int SPR_LCAN_ALIEN_W4;
-extern int SPR_LCAN_ALIEN_SWING1;
-extern int SPR_LCAN_ALIEN_SWING2;
-extern int SPR_LCAN_ALIEN_SWING3;
-extern int SPR_LCAN_ALIEN_DEAD;
-extern int SPR_LCAN_ALIEN_DIE1;
-extern int SPR_LCAN_ALIEN_DIE2;
-extern int SPR_LCAN_ALIEN_DIE3;
-extern int SPR_LCAN_ALIEN_DIE4;
-extern int SPR_LCAN_ALIEN_OUCH;
-extern int SPR_LCAN_ALIEN_SPIT1;
-extern int SPR_LCAN_ALIEN_SPIT2;
-extern int SPR_LCAN_ALIEN_SPIT3;
+extern int16_t SPR_LCAN_ALIEN_W1;
+extern int16_t SPR_LCAN_ALIEN_W2;
+extern int16_t SPR_LCAN_ALIEN_W3;
+extern int16_t SPR_LCAN_ALIEN_W4;
+extern int16_t SPR_LCAN_ALIEN_SWING1;
+extern int16_t SPR_LCAN_ALIEN_SWING2;
+extern int16_t SPR_LCAN_ALIEN_SWING3;
+extern int16_t SPR_LCAN_ALIEN_DEAD;
+extern int16_t SPR_LCAN_ALIEN_DIE1;
+extern int16_t SPR_LCAN_ALIEN_DIE2;
+extern int16_t SPR_LCAN_ALIEN_DIE3;
+extern int16_t SPR_LCAN_ALIEN_DIE4;
+extern int16_t SPR_LCAN_ALIEN_OUCH;
+extern int16_t SPR_LCAN_ALIEN_SPIT1;
+extern int16_t SPR_LCAN_ALIEN_SPIT2;
+extern int16_t SPR_LCAN_ALIEN_SPIT3;
 
 //
 // Small Canister Alien
 //
-extern int SPR_SCAN_ALIEN_READY;
-extern int SPR_SCAN_ALIEN_B1;
-extern int SPR_SCAN_ALIEN_B2;
-extern int SPR_SCAN_ALIEN_B3;
-extern int SPR_SCAN_ALIEN_EMPTY;
+extern int16_t SPR_SCAN_ALIEN_READY;
+extern int16_t SPR_SCAN_ALIEN_B1;
+extern int16_t SPR_SCAN_ALIEN_B2;
+extern int16_t SPR_SCAN_ALIEN_B3;
+extern int16_t SPR_SCAN_ALIEN_EMPTY;
 
-extern int SPR_SCAN_ALIEN_W1;
-extern int SPR_SCAN_ALIEN_W2;
-extern int SPR_SCAN_ALIEN_W3;
-extern int SPR_SCAN_ALIEN_W4;
-extern int SPR_SCAN_ALIEN_SWING1;
-extern int SPR_SCAN_ALIEN_SWING2;
-extern int SPR_SCAN_ALIEN_SWING3;
-extern int SPR_SCAN_ALIEN_DEAD;
-extern int SPR_SCAN_ALIEN_DIE1;
-extern int SPR_SCAN_ALIEN_DIE2;
-extern int SPR_SCAN_ALIEN_DIE3;
-extern int SPR_SCAN_ALIEN_DIE4;
-extern int SPR_SCAN_ALIEN_OUCH;
+extern int16_t SPR_SCAN_ALIEN_W1;
+extern int16_t SPR_SCAN_ALIEN_W2;
+extern int16_t SPR_SCAN_ALIEN_W3;
+extern int16_t SPR_SCAN_ALIEN_W4;
+extern int16_t SPR_SCAN_ALIEN_SWING1;
+extern int16_t SPR_SCAN_ALIEN_SWING2;
+extern int16_t SPR_SCAN_ALIEN_SWING3;
+extern int16_t SPR_SCAN_ALIEN_DEAD;
+extern int16_t SPR_SCAN_ALIEN_DIE1;
+extern int16_t SPR_SCAN_ALIEN_DIE2;
+extern int16_t SPR_SCAN_ALIEN_DIE3;
+extern int16_t SPR_SCAN_ALIEN_DIE4;
+extern int16_t SPR_SCAN_ALIEN_OUCH;
 
-extern int SPR_SCAN_ALIEN_SPIT1;
-extern int SPR_SCAN_ALIEN_SPIT2;
-extern int SPR_SCAN_ALIEN_SPIT3;
+extern int16_t SPR_SCAN_ALIEN_SPIT1;
+extern int16_t SPR_SCAN_ALIEN_SPIT2;
+extern int16_t SPR_SCAN_ALIEN_SPIT3;
 
 //
 // Gurney Mutant
 //
-extern int SPR_GURNEY_MUT_READY;
-extern int SPR_GURNEY_MUT_B1;
-extern int SPR_GURNEY_MUT_B2;
-extern int SPR_GURNEY_MUT_B3;
-extern int SPR_GURNEY_MUT_EMPTY;
+extern int16_t SPR_GURNEY_MUT_READY;
+extern int16_t SPR_GURNEY_MUT_B1;
+extern int16_t SPR_GURNEY_MUT_B2;
+extern int16_t SPR_GURNEY_MUT_B3;
+extern int16_t SPR_GURNEY_MUT_EMPTY;
 
-extern int SPR_GURNEY_MUT_W1;
-extern int SPR_GURNEY_MUT_W2;
-extern int SPR_GURNEY_MUT_W3;
-extern int SPR_GURNEY_MUT_W4;
-extern int SPR_GURNEY_MUT_SWING1;
-extern int SPR_GURNEY_MUT_SWING2;
-extern int SPR_GURNEY_MUT_SWING3;
-extern int SPR_GURNEY_MUT_DEAD;
-extern int SPR_GURNEY_MUT_DIE1;
-extern int SPR_GURNEY_MUT_DIE2;
-extern int SPR_GURNEY_MUT_DIE3;
-extern int SPR_GURNEY_MUT_DIE4;
-extern int SPR_GURNEY_MUT_OUCH;
+extern int16_t SPR_GURNEY_MUT_W1;
+extern int16_t SPR_GURNEY_MUT_W2;
+extern int16_t SPR_GURNEY_MUT_W3;
+extern int16_t SPR_GURNEY_MUT_W4;
+extern int16_t SPR_GURNEY_MUT_SWING1;
+extern int16_t SPR_GURNEY_MUT_SWING2;
+extern int16_t SPR_GURNEY_MUT_SWING3;
+extern int16_t SPR_GURNEY_MUT_DEAD;
+extern int16_t SPR_GURNEY_MUT_DIE1;
+extern int16_t SPR_GURNEY_MUT_DIE2;
+extern int16_t SPR_GURNEY_MUT_DIE3;
+extern int16_t SPR_GURNEY_MUT_DIE4;
+extern int16_t SPR_GURNEY_MUT_OUCH;
 
 //
 // Liquid Alien
 //
-extern int SPR_LIQUID_M1;
-extern int SPR_LIQUID_M2;
-extern int SPR_LIQUID_M3;
-extern int SPR_LIQUID_R1;
-extern int SPR_LIQUID_R2;
-extern int SPR_LIQUID_R3;
-extern int SPR_LIQUID_R4;
-extern int SPR_LIQUID_S1;
-extern int SPR_LIQUID_S2;
-extern int SPR_LIQUID_S3;
-extern int SPR_LIQUID_OUCH;
-extern int SPR_LIQUID_DIE_1;
-extern int SPR_LIQUID_DIE_2;
-extern int SPR_LIQUID_DIE_3;
-extern int SPR_LIQUID_DIE_4;
-extern int SPR_LIQUID_DEAD;
-extern int SPR_LIQUID_SHOT_FLY_1;
-extern int SPR_LIQUID_SHOT_FLY_2;
-extern int SPR_LIQUID_SHOT_FLY_3;
-extern int SPR_LIQUID_SHOT_BURST_1;
-extern int SPR_LIQUID_SHOT_BURST_2;
-extern int SPR_LIQUID_SHOT_BURST_3;
+extern int16_t SPR_LIQUID_M1;
+extern int16_t SPR_LIQUID_M2;
+extern int16_t SPR_LIQUID_M3;
+extern int16_t SPR_LIQUID_R1;
+extern int16_t SPR_LIQUID_R2;
+extern int16_t SPR_LIQUID_R3;
+extern int16_t SPR_LIQUID_R4;
+extern int16_t SPR_LIQUID_S1;
+extern int16_t SPR_LIQUID_S2;
+extern int16_t SPR_LIQUID_S3;
+extern int16_t SPR_LIQUID_OUCH;
+extern int16_t SPR_LIQUID_DIE_1;
+extern int16_t SPR_LIQUID_DIE_2;
+extern int16_t SPR_LIQUID_DIE_3;
+extern int16_t SPR_LIQUID_DIE_4;
+extern int16_t SPR_LIQUID_DEAD;
+extern int16_t SPR_LIQUID_SHOT_FLY_1;
+extern int16_t SPR_LIQUID_SHOT_FLY_2;
+extern int16_t SPR_LIQUID_SHOT_FLY_3;
+extern int16_t SPR_LIQUID_SHOT_BURST_1;
+extern int16_t SPR_LIQUID_SHOT_BURST_2;
+extern int16_t SPR_LIQUID_SHOT_BURST_3;
 
 //
 // Spit Shots
 //
-extern int SPR_SPIT1_1;
-extern int SPR_SPIT1_2;
-extern int SPR_SPIT1_3;
-extern int SPR_SPIT_EXP1_1;
-extern int SPR_SPIT_EXP1_2;
-extern int SPR_SPIT_EXP1_3;
+extern int16_t SPR_SPIT1_1;
+extern int16_t SPR_SPIT1_2;
+extern int16_t SPR_SPIT1_3;
+extern int16_t SPR_SPIT_EXP1_1;
+extern int16_t SPR_SPIT_EXP1_2;
+extern int16_t SPR_SPIT_EXP1_3;
 
-extern int SPR_SPIT2_1;
-extern int SPR_SPIT2_2;
-extern int SPR_SPIT2_3;
-extern int SPR_SPIT_EXP2_1;
-extern int SPR_SPIT_EXP2_2;
-extern int SPR_SPIT_EXP2_3;
+extern int16_t SPR_SPIT2_1;
+extern int16_t SPR_SPIT2_2;
+extern int16_t SPR_SPIT2_3;
+extern int16_t SPR_SPIT_EXP2_1;
+extern int16_t SPR_SPIT_EXP2_2;
+extern int16_t SPR_SPIT_EXP2_3;
 
-extern int SPR_SPIT3_1;
-extern int SPR_SPIT3_2;
-extern int SPR_SPIT3_3;
-extern int SPR_SPIT_EXP3_1;
-extern int SPR_SPIT_EXP3_2;
-extern int SPR_SPIT_EXP3_3;
+extern int16_t SPR_SPIT3_1;
+extern int16_t SPR_SPIT3_2;
+extern int16_t SPR_SPIT3_3;
+extern int16_t SPR_SPIT_EXP3_1;
+extern int16_t SPR_SPIT_EXP3_2;
+extern int16_t SPR_SPIT_EXP3_3;
 
 //
 // Hanging Turret
 //
-extern int SPR_TERROT_1;
-extern int SPR_TERROT_2;
-extern int SPR_TERROT_3;
-extern int SPR_TERROT_4;
-extern int SPR_TERROT_5;
-extern int SPR_TERROT_6;
-extern int SPR_TERROT_7;
-extern int SPR_TERROT_8;
+extern int16_t SPR_TERROT_1;
+extern int16_t SPR_TERROT_2;
+extern int16_t SPR_TERROT_3;
+extern int16_t SPR_TERROT_4;
+extern int16_t SPR_TERROT_5;
+extern int16_t SPR_TERROT_6;
+extern int16_t SPR_TERROT_7;
+extern int16_t SPR_TERROT_8;
 
-extern int SPR_TERROT_FIRE_1;
-extern int SPR_TERROT_FIRE_2;
-extern int SPR_TERROT_DIE_1;
-extern int SPR_TERROT_DIE_2;
-extern int SPR_TERROT_DIE_3;
-extern int SPR_TERROT_DIE_4;
-extern int SPR_TERROT_DEAD;
+extern int16_t SPR_TERROT_FIRE_1;
+extern int16_t SPR_TERROT_FIRE_2;
+extern int16_t SPR_TERROT_DIE_1;
+extern int16_t SPR_TERROT_DIE_2;
+extern int16_t SPR_TERROT_DIE_3;
+extern int16_t SPR_TERROT_DIE_4;
+extern int16_t SPR_TERROT_DEAD;
 
 //
 // Player attack frames
 //
-extern int SPR_KNIFEREADY;
-extern int SPR_KNIFEATK1;
-extern int SPR_KNIFEATK2;
-extern int SPR_KNIFEATK3;
-extern int SPR_KNIFEATK4;
+extern int16_t SPR_KNIFEREADY;
+extern int16_t SPR_KNIFEATK1;
+extern int16_t SPR_KNIFEATK2;
+extern int16_t SPR_KNIFEATK3;
+extern int16_t SPR_KNIFEATK4;
 
-extern int SPR_PISTOLREADY;
-extern int SPR_PISTOLATK1;
-extern int SPR_PISTOLATK2;
-extern int SPR_PISTOLATK3;
-extern int SPR_PISTOLATK4;
+extern int16_t SPR_PISTOLREADY;
+extern int16_t SPR_PISTOLATK1;
+extern int16_t SPR_PISTOLATK2;
+extern int16_t SPR_PISTOLATK3;
+extern int16_t SPR_PISTOLATK4;
 
-extern int SPR_MACHINEGUNREADY;
-extern int SPR_MACHINEGUNATK1;
-extern int SPR_MACHINEGUNATK2;
-extern int SPR_MACHINEGUNATK3;
-extern int SPR_MACHINEGUNATK4;
+extern int16_t SPR_MACHINEGUNREADY;
+extern int16_t SPR_MACHINEGUNATK1;
+extern int16_t SPR_MACHINEGUNATK2;
+extern int16_t SPR_MACHINEGUNATK3;
+extern int16_t SPR_MACHINEGUNATK4;
 
-extern int SPR_CHAINREADY;
-extern int SPR_CHAINATK1;
-extern int SPR_CHAINATK2;
-extern int SPR_CHAINATK3;
-extern int SPR_CHAINATK4;
+extern int16_t SPR_CHAINREADY;
+extern int16_t SPR_CHAINATK1;
+extern int16_t SPR_CHAINATK2;
+extern int16_t SPR_CHAINATK3;
+extern int16_t SPR_CHAINATK4;
 
-extern int SPR_GRENADEREADY;
-extern int SPR_GRENADEATK1;
-extern int SPR_GRENADEATK2;
-extern int SPR_GRENADEATK3;
-extern int SPR_GRENADEATK4;
+extern int16_t SPR_GRENADEREADY;
+extern int16_t SPR_GRENADEATK1;
+extern int16_t SPR_GRENADEATK2;
+extern int16_t SPR_GRENADEATK3;
+extern int16_t SPR_GRENADEATK4;
 
-extern int SPR_GRENADE_FLY1;
-extern int SPR_GRENADE_FLY2;
-extern int SPR_GRENADE_FLY3;
-extern int SPR_GRENADE_FLY4;
-extern int SPR_GRENADE_EXPLODE1;
-extern int SPR_GRENADE_EXPLODE2;
-extern int SPR_GRENADE_EXPLODE3;
-extern int SPR_GRENADE_EXPLODE4;
-extern int SPR_GRENADE_EXPLODE5;
+extern int16_t SPR_GRENADE_FLY1;
+extern int16_t SPR_GRENADE_FLY2;
+extern int16_t SPR_GRENADE_FLY3;
+extern int16_t SPR_GRENADE_FLY4;
+extern int16_t SPR_GRENADE_EXPLODE1;
+extern int16_t SPR_GRENADE_EXPLODE2;
+extern int16_t SPR_GRENADE_EXPLODE3;
+extern int16_t SPR_GRENADE_EXPLODE4;
+extern int16_t SPR_GRENADE_EXPLODE5;
 
-extern int SPR_ELEC_ARC1;
-extern int SPR_ELEC_ARC2;
-extern int SPR_ELEC_ARC3;
-extern int SPR_ELEC_ARC4;
-extern int SPR_ELEC_POST1;
-extern int SPR_ELEC_POST2;
-extern int SPR_ELEC_POST3;
-extern int SPR_ELEC_POST4;
+extern int16_t SPR_ELEC_ARC1;
+extern int16_t SPR_ELEC_ARC2;
+extern int16_t SPR_ELEC_ARC3;
+extern int16_t SPR_ELEC_ARC4;
+extern int16_t SPR_ELEC_POST1;
+extern int16_t SPR_ELEC_POST2;
+extern int16_t SPR_ELEC_POST3;
+extern int16_t SPR_ELEC_POST4;
 
-extern int SPR_VPOST1;
-extern int SPR_VPOST2;
-extern int SPR_VPOST3;
-extern int SPR_VPOST4;
-extern int SPR_VPOST5;
-extern int SPR_VPOST6;
-extern int SPR_VPOST7;
-extern int SPR_VPOST8;
+extern int16_t SPR_VPOST1;
+extern int16_t SPR_VPOST2;
+extern int16_t SPR_VPOST3;
+extern int16_t SPR_VPOST4;
+extern int16_t SPR_VPOST5;
+extern int16_t SPR_VPOST6;
+extern int16_t SPR_VPOST7;
+extern int16_t SPR_VPOST8;
 
-extern int SPR_VSPIKE1;
-extern int SPR_VSPIKE2;
-extern int SPR_VSPIKE3;
-extern int SPR_VSPIKE4;
-extern int SPR_VSPIKE5;
-extern int SPR_VSPIKE6;
-extern int SPR_VSPIKE7;
-extern int SPR_VSPIKE8;
+extern int16_t SPR_VSPIKE1;
+extern int16_t SPR_VSPIKE2;
+extern int16_t SPR_VSPIKE3;
+extern int16_t SPR_VSPIKE4;
+extern int16_t SPR_VSPIKE5;
+extern int16_t SPR_VSPIKE6;
+extern int16_t SPR_VSPIKE7;
+extern int16_t SPR_VSPIKE8;
 
-extern int SPR_GREEN_OOZE1;
-extern int SPR_GREEN_OOZE2;
-extern int SPR_GREEN_OOZE3;
-extern int SPR_BLACK_OOZE1;
-extern int SPR_BLACK_OOZE2;
-extern int SPR_BLACK_OOZE3;
+extern int16_t SPR_GREEN_OOZE1;
+extern int16_t SPR_GREEN_OOZE2;
+extern int16_t SPR_GREEN_OOZE3;
+extern int16_t SPR_BLACK_OOZE1;
+extern int16_t SPR_BLACK_OOZE2;
+extern int16_t SPR_BLACK_OOZE3;
 
-extern int SPR_GREEN2_OOZE1;
-extern int SPR_GREEN2_OOZE2;
-extern int SPR_GREEN2_OOZE3;
-extern int SPR_BLACK2_OOZE1;
-extern int SPR_BLACK2_OOZE2;
-extern int SPR_BLACK2_OOZE3;
+extern int16_t SPR_GREEN2_OOZE1;
+extern int16_t SPR_GREEN2_OOZE2;
+extern int16_t SPR_GREEN2_OOZE3;
+extern int16_t SPR_BLACK2_OOZE1;
+extern int16_t SPR_BLACK2_OOZE2;
+extern int16_t SPR_BLACK2_OOZE3;
 
-extern int SPR_CANDY_BAR;
-extern int SPR_CANDY_WRAPER;
-extern int SPR_SANDWICH;
-extern int SPR_SANDWICH_WRAPER;
+extern int16_t SPR_CANDY_BAR;
+extern int16_t SPR_CANDY_WRAPER;
+extern int16_t SPR_SANDWICH;
+extern int16_t SPR_SANDWICH_WRAPER;
 
-extern int SPR_BLAKE_W1;
-extern int SPR_BLAKE_W2;
-extern int SPR_BLAKE_W3;
-extern int SPR_BLAKE_W4;
+extern int16_t SPR_BLAKE_W1;
+extern int16_t SPR_BLAKE_W2;
+extern int16_t SPR_BLAKE_W3;
+extern int16_t SPR_BLAKE_W4;
 
 //
 // Boss 1 (Spider Mutant)
 //
-extern int SPR_BOSS1_W1;
-extern int SPR_BOSS1_W2;
-extern int SPR_BOSS1_W3;
-extern int SPR_BOSS1_W4;
-extern int SPR_BOSS1_SWING1;
-extern int SPR_BOSS1_SWING2;
-extern int SPR_BOSS1_SWING3;
-extern int SPR_BOSS1_DEAD;
-extern int SPR_BOSS1_DIE1;
-extern int SPR_BOSS1_DIE2;
-extern int SPR_BOSS1_DIE3;
-extern int SPR_BOSS1_DIE4;
-extern int SPR_BOSS1_OUCH;
-extern int SPR_BOSS1_PROJ1;
-extern int SPR_BOSS1_PROJ2;
-extern int SPR_BOSS1_PROJ3;
-extern int SPR_BOSS1_EXP1;
-extern int SPR_BOSS1_EXP2;
-extern int SPR_BOSS1_EXP3;
-extern int SPR_BOSS1_MORPH1;
-extern int SPR_BOSS1_MORPH2;
-extern int SPR_BOSS1_MORPH3;
-extern int SPR_BOSS1_MORPH4;
-extern int SPR_BOSS1_MORPH5;
-extern int SPR_BOSS1_MORPH6;
-extern int SPR_BOSS1_MORPH7;
-extern int SPR_BOSS1_MORPH8;
-extern int SPR_BOSS1_MORPH9;
+extern int16_t SPR_BOSS1_W1;
+extern int16_t SPR_BOSS1_W2;
+extern int16_t SPR_BOSS1_W3;
+extern int16_t SPR_BOSS1_W4;
+extern int16_t SPR_BOSS1_SWING1;
+extern int16_t SPR_BOSS1_SWING2;
+extern int16_t SPR_BOSS1_SWING3;
+extern int16_t SPR_BOSS1_DEAD;
+extern int16_t SPR_BOSS1_DIE1;
+extern int16_t SPR_BOSS1_DIE2;
+extern int16_t SPR_BOSS1_DIE3;
+extern int16_t SPR_BOSS1_DIE4;
+extern int16_t SPR_BOSS1_OUCH;
+extern int16_t SPR_BOSS1_PROJ1;
+extern int16_t SPR_BOSS1_PROJ2;
+extern int16_t SPR_BOSS1_PROJ3;
+extern int16_t SPR_BOSS1_EXP1;
+extern int16_t SPR_BOSS1_EXP2;
+extern int16_t SPR_BOSS1_EXP3;
+extern int16_t SPR_BOSS1_MORPH1;
+extern int16_t SPR_BOSS1_MORPH2;
+extern int16_t SPR_BOSS1_MORPH3;
+extern int16_t SPR_BOSS1_MORPH4;
+extern int16_t SPR_BOSS1_MORPH5;
+extern int16_t SPR_BOSS1_MORPH6;
+extern int16_t SPR_BOSS1_MORPH7;
+extern int16_t SPR_BOSS1_MORPH8;
+extern int16_t SPR_BOSS1_MORPH9;
 
 //
 // Boss 2 (Breather Beast)
 //
-extern int SPR_BOSS2_W1;
-extern int SPR_BOSS2_W2;
-extern int SPR_BOSS2_W3;
-extern int SPR_BOSS2_W4;
-extern int SPR_BOSS2_SWING1;
-extern int SPR_BOSS2_SWING2;
-extern int SPR_BOSS2_SWING3;
-extern int SPR_BOSS2_DEAD;
-extern int SPR_BOSS2_DIE1;
-extern int SPR_BOSS2_DIE2;
-extern int SPR_BOSS2_DIE3;
-extern int SPR_BOSS2_DIE4;
-extern int SPR_BOSS2_OUCH;
+extern int16_t SPR_BOSS2_W1;
+extern int16_t SPR_BOSS2_W2;
+extern int16_t SPR_BOSS2_W3;
+extern int16_t SPR_BOSS2_W4;
+extern int16_t SPR_BOSS2_SWING1;
+extern int16_t SPR_BOSS2_SWING2;
+extern int16_t SPR_BOSS2_SWING3;
+extern int16_t SPR_BOSS2_DEAD;
+extern int16_t SPR_BOSS2_DIE1;
+extern int16_t SPR_BOSS2_DIE2;
+extern int16_t SPR_BOSS2_DIE3;
+extern int16_t SPR_BOSS2_DIE4;
+extern int16_t SPR_BOSS2_OUCH;
 
 //
 // Boss 3 (Cyborg Warrior)
 //
-extern int SPR_BOSS3_W1;
-extern int SPR_BOSS3_W2;
-extern int SPR_BOSS3_W3;
-extern int SPR_BOSS3_W4;
-extern int SPR_BOSS3_SWING1;
-extern int SPR_BOSS3_SWING2;
-extern int SPR_BOSS3_SWING3;
-extern int SPR_BOSS3_DEAD;
-extern int SPR_BOSS3_DIE1;
-extern int SPR_BOSS3_DIE2;
-extern int SPR_BOSS3_DIE3;
-extern int SPR_BOSS3_DIE4;
-extern int SPR_BOSS3_OUCH;
+extern int16_t SPR_BOSS3_W1;
+extern int16_t SPR_BOSS3_W2;
+extern int16_t SPR_BOSS3_W3;
+extern int16_t SPR_BOSS3_W4;
+extern int16_t SPR_BOSS3_SWING1;
+extern int16_t SPR_BOSS3_SWING2;
+extern int16_t SPR_BOSS3_SWING3;
+extern int16_t SPR_BOSS3_DEAD;
+extern int16_t SPR_BOSS3_DIE1;
+extern int16_t SPR_BOSS3_DIE2;
+extern int16_t SPR_BOSS3_DIE3;
+extern int16_t SPR_BOSS3_DIE4;
+extern int16_t SPR_BOSS3_OUCH;
 
 //
 // Boss 4 (Reptilian Warrior)
 //
-extern int SPR_BOSS4_W1;
-extern int SPR_BOSS4_W2;
-extern int SPR_BOSS4_W3;
-extern int SPR_BOSS4_W4;
-extern int SPR_BOSS4_SWING1;
-extern int SPR_BOSS4_SWING2;
-extern int SPR_BOSS4_SWING3;
-extern int SPR_BOSS4_DEAD;
-extern int SPR_BOSS4_DIE1;
-extern int SPR_BOSS4_DIE2;
-extern int SPR_BOSS4_DIE3;
-extern int SPR_BOSS4_DIE4;
-extern int SPR_BOSS4_OUCH;
-extern int SPR_BOSS4_MORPH1;
-extern int SPR_BOSS4_MORPH2;
-extern int SPR_BOSS4_MORPH3;
-extern int SPR_BOSS4_MORPH4;
-extern int SPR_BOSS4_MORPH5;
-extern int SPR_BOSS4_MORPH6;
-extern int SPR_BOSS4_MORPH7;
-extern int SPR_BOSS4_MORPH8;
-extern int SPR_BOSS4_MORPH9;
+extern int16_t SPR_BOSS4_W1;
+extern int16_t SPR_BOSS4_W2;
+extern int16_t SPR_BOSS4_W3;
+extern int16_t SPR_BOSS4_W4;
+extern int16_t SPR_BOSS4_SWING1;
+extern int16_t SPR_BOSS4_SWING2;
+extern int16_t SPR_BOSS4_SWING3;
+extern int16_t SPR_BOSS4_DEAD;
+extern int16_t SPR_BOSS4_DIE1;
+extern int16_t SPR_BOSS4_DIE2;
+extern int16_t SPR_BOSS4_DIE3;
+extern int16_t SPR_BOSS4_DIE4;
+extern int16_t SPR_BOSS4_OUCH;
+extern int16_t SPR_BOSS4_MORPH1;
+extern int16_t SPR_BOSS4_MORPH2;
+extern int16_t SPR_BOSS4_MORPH3;
+extern int16_t SPR_BOSS4_MORPH4;
+extern int16_t SPR_BOSS4_MORPH5;
+extern int16_t SPR_BOSS4_MORPH6;
+extern int16_t SPR_BOSS4_MORPH7;
+extern int16_t SPR_BOSS4_MORPH8;
+extern int16_t SPR_BOSS4_MORPH9;
 
 //
 // Boss 5 (Acid Dragon)
 //
-extern int SPR_BOSS5_W1;
-extern int SPR_BOSS5_W2;
-extern int SPR_BOSS5_W3;
-extern int SPR_BOSS5_W4;
-extern int SPR_BOSS5_SWING1;
-extern int SPR_BOSS5_SWING2;
-extern int SPR_BOSS5_SWING3;
-extern int SPR_BOSS5_DEAD;
-extern int SPR_BOSS5_DIE1;
-extern int SPR_BOSS5_DIE2;
-extern int SPR_BOSS5_DIE3;
-extern int SPR_BOSS5_DIE4;
-extern int SPR_BOSS5_OUCH;
-extern int SPR_BOSS5_PROJ1;
-extern int SPR_BOSS5_PROJ2;
-extern int SPR_BOSS5_PROJ3;
-extern int SPR_BOSS5_EXP1;
-extern int SPR_BOSS5_EXP2;
-extern int SPR_BOSS5_EXP3;
+extern int16_t SPR_BOSS5_W1;
+extern int16_t SPR_BOSS5_W2;
+extern int16_t SPR_BOSS5_W3;
+extern int16_t SPR_BOSS5_W4;
+extern int16_t SPR_BOSS5_SWING1;
+extern int16_t SPR_BOSS5_SWING2;
+extern int16_t SPR_BOSS5_SWING3;
+extern int16_t SPR_BOSS5_DEAD;
+extern int16_t SPR_BOSS5_DIE1;
+extern int16_t SPR_BOSS5_DIE2;
+extern int16_t SPR_BOSS5_DIE3;
+extern int16_t SPR_BOSS5_DIE4;
+extern int16_t SPR_BOSS5_OUCH;
+extern int16_t SPR_BOSS5_PROJ1;
+extern int16_t SPR_BOSS5_PROJ2;
+extern int16_t SPR_BOSS5_PROJ3;
+extern int16_t SPR_BOSS5_EXP1;
+extern int16_t SPR_BOSS5_EXP2;
+extern int16_t SPR_BOSS5_EXP3;
 
 //
 // Boss 6 (Bio-Mech Guardian)
 //
-extern int SPR_BOSS6_W1;
-extern int SPR_BOSS6_W2;
-extern int SPR_BOSS6_W3;
-extern int SPR_BOSS6_W4;
-extern int SPR_BOSS6_SWING1;
-extern int SPR_BOSS6_SWING2;
-extern int SPR_BOSS6_SWING3;
-extern int SPR_BOSS6_DEAD;
-extern int SPR_BOSS6_DIE1;
-extern int SPR_BOSS6_DIE2;
-extern int SPR_BOSS6_DIE3;
-extern int SPR_BOSS6_DIE4;
-extern int SPR_BOSS6_OUCH;
+extern int16_t SPR_BOSS6_W1;
+extern int16_t SPR_BOSS6_W2;
+extern int16_t SPR_BOSS6_W3;
+extern int16_t SPR_BOSS6_W4;
+extern int16_t SPR_BOSS6_SWING1;
+extern int16_t SPR_BOSS6_SWING2;
+extern int16_t SPR_BOSS6_SWING3;
+extern int16_t SPR_BOSS6_DEAD;
+extern int16_t SPR_BOSS6_DIE1;
+extern int16_t SPR_BOSS6_DIE2;
+extern int16_t SPR_BOSS6_DIE3;
+extern int16_t SPR_BOSS6_DIE4;
+extern int16_t SPR_BOSS6_OUCH;
 
 
 //
 // Boss 7
 //
-extern int SPR_BOSS7_W1;
-extern int SPR_BOSS7_W2;
-extern int SPR_BOSS7_W3;
-extern int SPR_BOSS7_W4;
-extern int SPR_BOSS7_SHOOT1;
-extern int SPR_BOSS7_SHOOT2;
-extern int SPR_BOSS7_SHOOT3;
-extern int SPR_BOSS7_DEAD;
-extern int SPR_BOSS7_DIE1;
-extern int SPR_BOSS7_DIE2;
-extern int SPR_BOSS7_DIE3;
-extern int SPR_BOSS7_DIE4;
-extern int SPR_BOSS7_OUCH;
+extern int16_t SPR_BOSS7_W1;
+extern int16_t SPR_BOSS7_W2;
+extern int16_t SPR_BOSS7_W3;
+extern int16_t SPR_BOSS7_W4;
+extern int16_t SPR_BOSS7_SHOOT1;
+extern int16_t SPR_BOSS7_SHOOT2;
+extern int16_t SPR_BOSS7_SHOOT3;
+extern int16_t SPR_BOSS7_DEAD;
+extern int16_t SPR_BOSS7_DIE1;
+extern int16_t SPR_BOSS7_DIE2;
+extern int16_t SPR_BOSS7_DIE3;
+extern int16_t SPR_BOSS7_DIE4;
+extern int16_t SPR_BOSS7_OUCH;
 
 //
 // Boss 8
 //
-extern int SPR_BOSS8_W1;
-extern int SPR_BOSS8_W2;
-extern int SPR_BOSS8_W3;
-extern int SPR_BOSS8_W4;
-extern int SPR_BOSS8_SHOOT1;
-extern int SPR_BOSS8_SHOOT2;
-extern int SPR_BOSS8_SHOOT3;
-extern int SPR_BOSS8_DIE1;
-extern int SPR_BOSS8_DIE2;
-extern int SPR_BOSS8_DIE3;
-extern int SPR_BOSS8_DIE4;
-extern int SPR_BOSS8_DEAD;
-extern int SPR_BOSS8_OUCH;
+extern int16_t SPR_BOSS8_W1;
+extern int16_t SPR_BOSS8_W2;
+extern int16_t SPR_BOSS8_W3;
+extern int16_t SPR_BOSS8_W4;
+extern int16_t SPR_BOSS8_SHOOT1;
+extern int16_t SPR_BOSS8_SHOOT2;
+extern int16_t SPR_BOSS8_SHOOT3;
+extern int16_t SPR_BOSS8_DIE1;
+extern int16_t SPR_BOSS8_DIE2;
+extern int16_t SPR_BOSS8_DIE3;
+extern int16_t SPR_BOSS8_DIE4;
+extern int16_t SPR_BOSS8_DEAD;
+extern int16_t SPR_BOSS8_OUCH;
 
 //
 // Boss 9
 //
-extern int SPR_BOSS9_W1;
-extern int SPR_BOSS9_W2;
-extern int SPR_BOSS9_W3;
-extern int SPR_BOSS9_W4;
-extern int SPR_BOSS9_SHOOT1;
-extern int SPR_BOSS9_SHOOT2;
-extern int SPR_BOSS9_SHOOT3;
-extern int SPR_BOSS9_DIE1;
-extern int SPR_BOSS9_DIE2;
-extern int SPR_BOSS9_DIE3;
-extern int SPR_BOSS9_DIE4;
-extern int SPR_BOSS9_DEAD;
-extern int SPR_BOSS9_OUCH;
+extern int16_t SPR_BOSS9_W1;
+extern int16_t SPR_BOSS9_W2;
+extern int16_t SPR_BOSS9_W3;
+extern int16_t SPR_BOSS9_W4;
+extern int16_t SPR_BOSS9_SHOOT1;
+extern int16_t SPR_BOSS9_SHOOT2;
+extern int16_t SPR_BOSS9_SHOOT3;
+extern int16_t SPR_BOSS9_DIE1;
+extern int16_t SPR_BOSS9_DIE2;
+extern int16_t SPR_BOSS9_DIE3;
+extern int16_t SPR_BOSS9_DIE4;
+extern int16_t SPR_BOSS9_DEAD;
+extern int16_t SPR_BOSS9_OUCH;
 
 //
 // Boss 10
 //
-extern int SPR_BOSS10_W1;
-extern int SPR_BOSS10_W2;
-extern int SPR_BOSS10_W3;
-extern int SPR_BOSS10_W4;
-extern int SPR_BOSS10_SHOOT1;
-extern int SPR_BOSS10_SHOOT2;
-extern int SPR_BOSS10_SHOOT3;
-extern int SPR_BOSS10_DEAD;
-extern int SPR_BOSS10_DIE1;
-extern int SPR_BOSS10_DIE2;
-extern int SPR_BOSS10_DIE3;
-extern int SPR_BOSS10_DIE4;
-extern int SPR_BOSS10_OUCH;
+extern int16_t SPR_BOSS10_W1;
+extern int16_t SPR_BOSS10_W2;
+extern int16_t SPR_BOSS10_W3;
+extern int16_t SPR_BOSS10_W4;
+extern int16_t SPR_BOSS10_SHOOT1;
+extern int16_t SPR_BOSS10_SHOOT2;
+extern int16_t SPR_BOSS10_SHOOT3;
+extern int16_t SPR_BOSS10_DEAD;
+extern int16_t SPR_BOSS10_DIE1;
+extern int16_t SPR_BOSS10_DIE2;
+extern int16_t SPR_BOSS10_DIE3;
+extern int16_t SPR_BOSS10_DIE4;
+extern int16_t SPR_BOSS10_OUCH;
 
-extern int SPR_BOSS10_SPIT1;
-extern int SPR_BOSS10_SPIT2;
-extern int SPR_BOSS10_SPIT3;
-extern int SPR_BOSS10_SPIT_EXP1;
-extern int SPR_BOSS10_SPIT_EXP2;
-extern int SPR_BOSS10_SPIT_EXP3;
+extern int16_t SPR_BOSS10_SPIT1;
+extern int16_t SPR_BOSS10_SPIT2;
+extern int16_t SPR_BOSS10_SPIT3;
+extern int16_t SPR_BOSS10_SPIT_EXP1;
+extern int16_t SPR_BOSS10_SPIT_EXP2;
+extern int16_t SPR_BOSS10_SPIT_EXP3;
 
 //
 // Plasma detonator explosion
 //
-extern int SPR_DETONATOR_EXP1;
-extern int SPR_DETONATOR_EXP2;
-extern int SPR_DETONATOR_EXP3;
-extern int SPR_DETONATOR_EXP4;
-extern int SPR_DETONATOR_EXP5;
-extern int SPR_DETONATOR_EXP6;
-extern int SPR_DETONATOR_EXP7;
-extern int SPR_DETONATOR_EXP8;
+extern int16_t SPR_DETONATOR_EXP1;
+extern int16_t SPR_DETONATOR_EXP2;
+extern int16_t SPR_DETONATOR_EXP3;
+extern int16_t SPR_DETONATOR_EXP4;
+extern int16_t SPR_DETONATOR_EXP5;
+extern int16_t SPR_DETONATOR_EXP6;
+extern int16_t SPR_DETONATOR_EXP7;
+extern int16_t SPR_DETONATOR_EXP8;
 
 //
 // Clip Explosion
 //
-extern int SPR_CLIP_EXP1;
-extern int SPR_CLIP_EXP2;
-extern int SPR_CLIP_EXP3;
-extern int SPR_CLIP_EXP4;
-extern int SPR_CLIP_EXP5;
-extern int SPR_CLIP_EXP6;
-extern int SPR_CLIP_EXP7;
-extern int SPR_CLIP_EXP8;
+extern int16_t SPR_CLIP_EXP1;
+extern int16_t SPR_CLIP_EXP2;
+extern int16_t SPR_CLIP_EXP3;
+extern int16_t SPR_CLIP_EXP4;
+extern int16_t SPR_CLIP_EXP5;
+extern int16_t SPR_CLIP_EXP6;
+extern int16_t SPR_CLIP_EXP7;
+extern int16_t SPR_CLIP_EXP8;
 
 //
 // BFG Cannon Weapon
 //
-extern int SPR_BFG_WEAPON1;
-extern int SPR_BFG_WEAPON2;
-extern int SPR_BFG_WEAPON3;
-extern int SPR_BFG_WEAPON4;
-extern int SPR_BFG_WEAPON5;
+extern int16_t SPR_BFG_WEAPON1;
+extern int16_t SPR_BFG_WEAPON2;
+extern int16_t SPR_BFG_WEAPON3;
+extern int16_t SPR_BFG_WEAPON4;
+extern int16_t SPR_BFG_WEAPON5;
 
 //
 // BFG Cannon Weapon shots
 //
-extern int SPR_BFG_WEAPON_SHOT1;
-extern int SPR_BFG_WEAPON_SHOT2;
-extern int SPR_BFG_WEAPON_SHOT3;
+extern int16_t SPR_BFG_WEAPON_SHOT1;
+extern int16_t SPR_BFG_WEAPON_SHOT2;
+extern int16_t SPR_BFG_WEAPON_SHOT3;
 
 //
 // BFG Shot explosion
 //
-extern int SPR_BFG_EXP1;
-extern int SPR_BFG_EXP2;
-extern int SPR_BFG_EXP3;
-extern int SPR_BFG_EXP4;
-extern int SPR_BFG_EXP5;
-extern int SPR_BFG_EXP6;
-extern int SPR_BFG_EXP7;
-extern int SPR_BFG_EXP8;
+extern int16_t SPR_BFG_EXP1;
+extern int16_t SPR_BFG_EXP2;
+extern int16_t SPR_BFG_EXP3;
+extern int16_t SPR_BFG_EXP4;
+extern int16_t SPR_BFG_EXP5;
+extern int16_t SPR_BFG_EXP6;
+extern int16_t SPR_BFG_EXP7;
+extern int16_t SPR_BFG_EXP8;
 
 
 #if GAME_VERSION == SHAREWARE_VERSION
@@ -3024,7 +3024,7 @@ struct visobj_t {
     int16_t viewheight;
     int16_t shapenum;
     int8_t lighting;
-    int8_t cloaked;
+    bool cloaked;
 }; // visobj_t
 
 
@@ -3264,7 +3264,7 @@ struct star_t {
 =============================================================================
 */
 
-extern int TITLE_LOOP_MUSIC;
+extern int16_t TITLE_LOOP_MUSIC;
 
 #define CANT_PLAY_TXT "\n" \
     "ERROR: Insufficient disk space.\n" \

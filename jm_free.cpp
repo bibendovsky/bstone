@@ -986,7 +986,7 @@ void PreDemo()
 
             // Cleanup screen for upcoming SetPalette call
             //
-            uint16_t old_bufferofs = bufferofs;
+            auto old_bufferofs = bufferofs;
 
             bufferofs = displayofs;
             VL_Bar(0, 0, 320, 200, 0);

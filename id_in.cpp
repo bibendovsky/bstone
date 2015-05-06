@@ -140,6 +140,8 @@ static ScanCode in_keyboard_map_to_bstone(
     SDL_Keycode key_code,
     SDL_Keymod key_mod)
 {
+    static_cast<void>(key_mod);
+
     // FIXME There is no reliable way to check for numlock state in SDL2.
     bool is_numlock_active = true;
 
@@ -920,6 +922,8 @@ done:
     *yp = y;
 #endif // 0
 
+    static_cast<void>(joy);
+
     *xp = 0;
     *yp = 0;
 }
@@ -1037,6 +1041,7 @@ static uint16_t INL_GetJoyButtons(
     return result;
 #endif // 0
 
+    static_cast<void>(joy);
     return 0;
 }
 

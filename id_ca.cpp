@@ -966,7 +966,7 @@ done:
 
 void CA_LoadAllSounds()
 {
-    auto start = 0;
+    int16_t start = 0;
 
     if (::old_is_sound_enabled) {
         start = STARTADLIBSOUNDS;
@@ -1494,7 +1494,7 @@ void CA_CannotOpen(
 }
 
 void UNCACHEGRCHUNK(
-    uint16_t chunk)
+    int chunk)
 {
     delete [] static_cast<char*>(grsegs[chunk]);
     grsegs[chunk] = nullptr;

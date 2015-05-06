@@ -2245,7 +2245,7 @@ void OperateConcession(
 
             switch (ci->type) {
             case CT_FOOD:
-                if (::is_ps) {
+                if (::is_ps()) {
                     ::writeTokenStr(food_msg1);
                 }
 

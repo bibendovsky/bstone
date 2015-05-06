@@ -473,6 +473,8 @@ void VL_SetVGAPlaneMode()
 void VL_SetLineWidth(
     int width)
 {
+    static_cast<void>(width);
+
     delete [] ylookup;
     ylookup = new int[vga_height];
 

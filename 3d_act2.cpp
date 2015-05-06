@@ -304,7 +304,7 @@ int16_t starthitpoints[4][NUMHITENEMIES] =
 };
 
 
-using BossIds = std::vector<int>;
+using BossIds = std::vector<int16_t>;
 
 BossIds BossShotShapes;
 BossIds BossShapes;
@@ -684,7 +684,7 @@ void SpawnOffsetObj(
     case en_reptilian_warrior:
     case en_acid_dragon:
     case en_mech_guardian:
-        new_actor->temp1 = BossShapes[which - en_spider_mutant];
+        new_actor->temp1 = static_cast<int16_t>(BossShapes[which - en_spider_mutant]);
         new_actor->speed = ALIENSPEED;
         new_actor->ammo = ALIENAMMOINIT;
         new_actor->flags |= FL_PROJ_TRANSPARENT;
@@ -854,7 +854,7 @@ void SpawnOffsetObj(
     case en_morphing_reptilian_warrior:
     case en_morphing_mutanthuman2:
         if (scan_value == 0xffff) {
-            new_actor->temp2 = static_cast<int16_t>(0xFFFF); // set to max! // 60*5+(60*(US_RndT()%20));
+            new_actor->temp2 = 0xFFFF; // set to max! // 60*5+(60*(US_RndT()%20));
         } else {
             new_actor->temp2 = scan_value * 60;
         }
@@ -942,7 +942,7 @@ void SpawnOffsetObj(
 // NOTE: This think is used for NON-SmartAnim objects
 // ---------------------------------------------------------------------------
 
-using GrenadeShapes = std::vector<int>;
+using GrenadeShapes = std::vector<int16_t>;
 
 
 GrenadeShapes grenade_shapes;

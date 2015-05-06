@@ -1029,13 +1029,21 @@ static int8_t justify_mode = jm_left;
 static uint16_t flags;
 
 static int16_t bgcolor, ltcolor, dkcolor, shcolor, anim_bgcolor = -1;
-static uint16_t xl, yl, xh, yh;
-static uint16_t cur_x, cur_y, last_cur_x, last_cur_y;
+static int16_t xl;
+static int16_t yl;
+static int16_t xh;
+static int16_t yh;
+static int16_t cur_x;
+static int16_t cur_y;
+static int16_t last_cur_x;
+static int16_t last_cur_y;
 static const char* first_ch;
 
 static const char* scan_ch;
 static char temp;
-static int16_t scan_x, numanims, stemp;
+static int16_t scan_x;
+static int16_t numanims;
+static int16_t stemp;
 
 static fontstruct* font;
 
@@ -1102,7 +1110,7 @@ void TP_Presenter(
         py = yh + TP_MARGIN + 1;
         fontnumber = 2;
         fontcolor = 0x39;
-        VWB_Bar(xl - TP_MARGIN, py, xh - xl + 1 + (TP_MARGIN * 2), 8, bgcolor);
+        VWB_Bar(xl - TP_MARGIN, py, xh - xl + 1 + (TP_MARGIN * 2), 8, static_cast<uint8_t>(bgcolor));
         ShPrint(pi->infoline, static_cast<int8_t>(shcolor), false);
 
         if (pi->flags & TPF_SHOW_PAGES) {
@@ -1124,7 +1132,7 @@ void TP_Presenter(
 
     font = (fontstruct*)grsegs[STARTFONT + fontnumber];
     if (!(pi->flags & TPF_USE_CURRENT)) {
-        VWB_Bar(xl - TP_MARGIN, yl - TP_MARGIN, xh - xl + 1 + (TP_MARGIN * 2), yh - yl + 1 + (TP_MARGIN * 2), bgcolor);
+        VWB_Bar(xl - TP_MARGIN, yl - TP_MARGIN, xh - xl + 1 + (TP_MARGIN * 2), yh - yl + 1 + (TP_MARGIN * 2), static_cast<uint8_t>(bgcolor));
     }
 
     if (pi->flags & TPF_SHOW_CURSOR) {
@@ -1239,7 +1247,7 @@ void TP_WrapText()
         int width, height;
 
         VWL_MeasureString(first_ch, &width, &height, font);
-        cur_x = xh - width + 1;
+        cur_x = static_cast<int16_t>(xh - width + 1);
         if (cur_x < xl) {
             cur_x = xl;
         }
@@ -1309,14 +1317,14 @@ tp_newline:;
                               (xh - xl + 1) / 4,
                               (yh - yl + 1) - font_height + is_shadowed);
 
-            VWB_Bar(cur_x, cur_y, xh - xl + 1 + (TP_MARGIN * 2), yh - cur_y + 1, bgcolor);
+            VWB_Bar(cur_x, cur_y, xh - xl + 1 + (TP_MARGIN * 2), yh - cur_y + 1, static_cast<uint8_t>(bgcolor));
 
             if (cur_y + font_height > yh) {
                 cur_y = yh - font_height + 1 - is_shadowed;
             }
         } else {
             if (pi->custom_line_height > 0) {
-                cur_y += pi->custom_line_height + is_shadowed;
+                cur_y = static_cast<uint16_t>(cur_y + pi->custom_line_height + is_shadowed);
             } else {
                 cur_y += font_height + is_shadowed;
             }
@@ -1818,7 +1826,7 @@ void TP_HandleCodes()
                      (!LastScan));
 
             cur_x = xl;
-            VWB_Bar(cur_x, cur_y, xh - xl + 1 + (TP_MARGIN * 2), font_height + is_shadowed, bgcolor);
+            VWB_Bar(cur_x, cur_y, xh - xl + 1 + (TP_MARGIN * 2), font_height + is_shadowed, static_cast<uint8_t>(bgcolor));
             if (pi->flags & TPF_SHOW_CURSOR) {
                 TP_JumpCursor();
             }
@@ -1826,7 +1834,7 @@ void TP_HandleCodes()
             if (LastScan == sc_escape) {
                 flags &= ~fl_presenting;
             }
-            TPscan = LastScan;
+            TPscan = static_cast<uint8_t>(LastScan);
             break;
 
         // DISPLAY STRING --------------------------------------------------
@@ -1966,7 +1974,7 @@ void TP_HandleCodes()
                 TP_HandleCodes();
                 flags &= ~fl_startofline;
             }
-            VWB_Bar(xl, yl, xh - xl + 1, yh - yl + 1, bgcolor);
+            VWB_Bar(xl, yl, xh - xl + 1, yh - yl + 1, static_cast<uint8_t>(bgcolor));
             TP_PrintPageNumber();
 //                              VWB_Bar(xl-TP_MARGIN,yl-TP_MARGIN,xh-xl+1+(TP_MARGIN*2),yh-yl+1+(TP_MARGIN*2),bgcolor);
             break;
@@ -2075,7 +2083,7 @@ int16_t TP_DrawShape(
     case pis_scaled:
         TP_CacheIn(ct_scaled, 0);
         if (flags & fl_clearscback) {
-            VWB_Bar(x, y, 64, 64, bgcolor);
+            VWB_Bar(x, y, 64, 64, static_cast<uint8_t>(bgcolor));
         }
         MegaSimpleScaleShape(x + 32, y + 32, shapenum, 64, 0);
         break;
@@ -2221,10 +2229,10 @@ int16_t TP_BoxAroundShape(
         y2++;
 
         if (x1 >= 0 && y1 >= 0) {
-            VWB_Hlin(x1, x2, y1, ltcolor);
-            VWB_Hlin(x1, x2, y2, dkcolor);
-            VWB_Vlin(y1, y2, x1, ltcolor);
-            VWB_Vlin(y1, y2, x2, dkcolor);
+            VWB_Hlin(x1, x2, y1, static_cast<uint8_t>(ltcolor));
+            VWB_Hlin(x1, x2, y2, static_cast<uint8_t>(dkcolor));
+            VWB_Vlin(y1, y2, x1, static_cast<uint8_t>(ltcolor));
+            VWB_Vlin(y1, y2, x2, static_cast<uint8_t>(dkcolor));
 
 #if TP_640x200
             VWB_Vlin(y1, y2, x1 + 1, ltcolor);
@@ -2237,8 +2245,8 @@ int16_t TP_BoxAroundShape(
         x2 += 1 + TP_640x200;
         y2++;
         if (x1 >= 0 && y1 >= 0) {
-            VWB_Hlin(x1 + 1 + TP_640x200, x2, y2, shcolor);
-            VWB_Vlin(y1 + 1, y2, x2, shcolor);
+            VWB_Hlin(x1 + 1 + TP_640x200, x2, y2, static_cast<uint8_t>(shcolor));
+            VWB_Vlin(y1 + 1, y2, x2, static_cast<uint8_t>(shcolor));
         }
     }
 
