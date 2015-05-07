@@ -4577,13 +4577,36 @@ inline void DoChecksum(
 }
 
 
-class ArchiveRemapNoneTag {
+template<typename T>
+class ArchiveIsContainter
+{
+public:
+    static const bool value = false;
+}; // ArchiveIsContainter
+
+template<typename T, typename... TArgs>
+class ArchiveIsContainter<std::vector<T,TArgs...>>
+{
+public:
+    static const bool value = true;
+}; // ArchiveIsContainter
+
+
+class ArchiveRemapU8Tag
+{
+public:
+}; // ArchiveRemapU8Tag
+
+class ArchiveRemapContainerTag
+{
+public:
+}; // ArchiveRemapContainerTag
+
+class ArchiveRemapNoneTag
+{
 public:
 }; // ArchiveRemapNoneTag
 
-class ArchiveRemapU8Tag {
-public:
-}; // ArchiveRemapU8Tag
 
 template<typename T>
 class ArchiveRemapTag
@@ -4600,7 +4623,11 @@ public:
             std::is_same<T,dirtype>::value ||
             std::is_same<T,ScanCode>::value,
         ArchiveRemapU8Tag,
-        ArchiveRemapNoneTag>::type;
+        typename std::conditional<
+            ArchiveIsContainter<T>::value,
+            ArchiveRemapContainerTag,
+            ArchiveRemapNoneTag>::type
+    >::type;
 }; // RemapTag
 
 
@@ -4635,6 +4662,18 @@ inline void serialize_field_internal(
 }
 
 template<typename T>
+inline void serialize_field_internal(
+    const T& container,
+    bstone::BinaryWriter& writer,
+    uint32_t& checksum,
+    ArchiveRemapContainerTag)
+{
+    for (auto& item : container) {
+        ::serialize_field(item, writer, checksum);
+    }
+}
+
+template<typename T>
 inline void serialize_field(
     const T& value,
     bstone::BinaryWriter& writer,
@@ -4654,7 +4693,7 @@ inline void serialize_field(
     uint32_t& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
-        ::serialize_field<T>(value[i], writer, checksum);
+        ::serialize_field(value[i], writer, checksum);
     }
 }
 
@@ -4666,7 +4705,7 @@ inline void serialize_field(
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
-            ::serialize_field<T>(value[i][j], writer, checksum);
+            ::serialize_field(value[i][j], writer, checksum);
         }
     }
 }
@@ -4724,6 +4763,18 @@ inline void deserialize_field_internal<bool>(
 }
 
 template<typename T>
+inline void deserialize_field_internal(
+    T& container,
+    bstone::BinaryReader& reader,
+    uint32_t& checksum,
+    ArchiveRemapContainerTag)
+{
+    for (auto& item : container) {
+        ::deserialize_field(item, reader, checksum);
+    }
+}
+
+template<typename T>
 inline void deserialize_field(
     T& value,
     bstone::BinaryReader& reader,
@@ -4743,7 +4794,7 @@ inline void deserialize_field(
     uint32_t& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
-        ::deserialize_field<T>(value[i], reader, checksum);
+        ::deserialize_field(value[i], reader, checksum);
     }
 }
 
@@ -4755,10 +4806,22 @@ inline void deserialize_field(
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
-            ::deserialize_field<T>(value[i][j], reader, checksum);
+            ::deserialize_field(value[i][j], reader, checksum);
         }
     }
 }
+
+template<typename T, typename TAlloc>
+inline void deserialize_field(
+    const std::vector<T,TAlloc>& vector,
+    bstone::BinaryReader& reader,
+    uint32_t& checksum)
+{
+    for (const auto& value : vector) {
+        ::deserialize_field(value, reader, checksum);
+    }
+}
+
 
 
 enum class GameType {
