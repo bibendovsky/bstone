@@ -41,6 +41,7 @@ Free Software Foundation, Inc.,
 #include <exception>
 #include <functional>
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 #include "SDL.h"

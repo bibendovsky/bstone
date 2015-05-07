@@ -42,6 +42,7 @@ Free Software Foundation, Inc.,
 
 #include <array>
 #include <algorithm>
+#include <bitset>
 #include <deque>
 #include <chrono>
 #include <exception>
@@ -57,6 +58,7 @@ Free Software Foundation, Inc.,
 #include <sstream>
 #include <string>
 #include <thread>
+#include <type_traits>
 #include <vector>
 
 #include "SDL.h"

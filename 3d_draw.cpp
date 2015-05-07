@@ -1175,7 +1175,7 @@ void DrawScaleds()
             continue; // object has been deleted
 
         }
-        if ((Keyboard[sc_6] && (Keyboard[sc_7] || Keyboard[sc_8]) && DebugOk) && (statptr->flags & FL_BONUS)) {
+        if ((Keyboard[ScanCode::sc_6] && (Keyboard[ScanCode::sc_7] || Keyboard[ScanCode::sc_8]) && DebugOk) && (statptr->flags & FL_BONUS)) {
             GetBonus(statptr);
             continue;
         }
@@ -1387,21 +1387,21 @@ void DrawPlayerWeapon()
             useBounceOffset = true;
 #if 1
 #if 0
-            if (Keyboard[sc_page_up]) {
+            if (Keyboard[ScanCode::sc_page_up]) {
                 vh++;
-                Keyboard[sc_page_up] = 0;
+                Keyboard[ScanCode::sc_page_up] = 0;
             }
 
-            if (Keyboard[sc_page_down]) {
+            if (Keyboard[ScanCode::sc_page_down]) {
                 if (vh) {
                     vh--;
                 }
-                Keyboard[sc_page_down] = 0;
+                Keyboard[ScanCode::sc_page_down] = 0;
             }
 
-            if (Keyboard[sc_end]) {
+            if (Keyboard[ScanCode::sc_end]) {
                 ce++;
-                Keyboard[sc_end] = 0;
+                Keyboard[ScanCode::sc_end] = 0;
             }
 
             if (Keyboard[sc_Home]) {

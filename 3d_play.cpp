@@ -140,21 +140,27 @@ bool joystickenabled;
 bool joypadenabled;
 bool joystickprogressive;
 int16_t joystickport;
-int16_t dirscan[4] = { sc_up_arrow, sc_right_arrow, sc_down_arrow, sc_left_arrow };
 
-int16_t buttonscan[NUMBUTTONS] = {
-    sc_control,
-    sc_alt,
-    sc_right_shift,
-    sc_space,
-    sc_1,
-    sc_2,
-    sc_3,
-    sc_4,
-    sc_5,
-    sc_6,
-    sc_7,
-};
+DirScans dirscan = {
+    ScanCode::sc_up_arrow,
+    ScanCode::sc_right_arrow,
+    ScanCode::sc_down_arrow,
+    ScanCode::sc_left_arrow,
+}; // dirscan
+
+ButtonScans buttonscan = {
+    ScanCode::sc_control,
+    ScanCode::sc_alt,
+    ScanCode::sc_right_shift,
+    ScanCode::sc_space,
+    ScanCode::sc_1,
+    ScanCode::sc_2,
+    ScanCode::sc_3,
+    ScanCode::sc_4,
+    ScanCode::sc_5,
+    ScanCode::sc_6,
+    ScanCode::sc_7,
+}; // buttonscan
 
 int16_t buttonmouse[4] = { bt_attack, bt_strafe, bt_use, bt_nobutton };
 int16_t buttonjoy[4] = { bt_attack, bt_strafe, bt_use, bt_run };
@@ -794,8 +800,19 @@ extern int16_t pickquick;
 
 bool refresh_screen;
 
-uint8_t jam_buff_cmp[] = { sc_j, sc_a, sc_m };
-uint8_t jam_buff[sizeof(jam_buff_cmp)];
+using JamBuffCmp = std::vector<ScanCode>;
+
+JamBuffCmp jam_buff_cmp = {
+    ScanCode::sc_j,
+    ScanCode::sc_a,
+    ScanCode::sc_m,
+}; // jam_buff_cmp
+
+JamBuffCmp jam_buff = {
+    ScanCode::sc_none,
+    ScanCode::sc_none,
+    ScanCode::sc_none,
+}; // jam_buff
 
 char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
@@ -809,7 +826,7 @@ void CheckKeys()
     static bool S_KeyReleased;
 
 #if IN_DEVELOPMENT || BETA_TEST
-//      if (DebugOk && (Keyboard[sc_p] || PP_step))
+//      if (DebugOk && (Keyboard[ScanCode::sc_p] || PP_step))
 //              PicturePause ();
 #endif
 
@@ -823,7 +840,7 @@ void CheckKeys()
 
 #if IN_DEVELOPMENT
 #ifdef ACTIVATE_TERMINAL
-    if (Keyboard[sc_9] && Keyboard[sc_0]) {
+    if (Keyboard[ScanCode::sc_9] && Keyboard[ScanCode::sc_0]) {
         ActivateTerminal(true);
     }
 #endif
@@ -834,12 +851,13 @@ void CheckKeys()
     //
 
     if (!::is_aog_sw()) {
-        if (Keyboard[sc_j] || Keyboard[sc_a] || Keyboard[sc_m]) {
-            if (jam_buff[sizeof(jam_buff_cmp) - 1] != LastScan) {
-                for (unsigned int i = 1; i < sizeof(jam_buff_cmp); i++) {
+        if (Keyboard[ScanCode::sc_j] || Keyboard[ScanCode::sc_a] || Keyboard[ScanCode::sc_m]) {
+            if (jam_buff.back() != LastScan) {
+                for (auto i = 1; i < 3; ++i) {
                     jam_buff[i - 1] = jam_buff[i];
                 }
-                jam_buff[sizeof(jam_buff_cmp) - 1] = static_cast<uint8_t>(LastScan);
+
+                jam_buff.back() = LastScan;
             }
         }
     }
@@ -896,11 +914,11 @@ void CheckKeys()
         S_KeyReleased = true;
     }
 
-    if (!::is_aog_sw() && Keyboard[sc_return]) {
+    if (!::is_aog_sw() && Keyboard[ScanCode::sc_return]) {
         int8_t loop;
 
-        if ((!memcmp(jam_buff, jam_buff_cmp, sizeof(jam_buff_cmp)))) {
-            jam_buff[0] = 0;
+        if (jam_buff == jam_buff_cmp) {
+            jam_buff[0] = ScanCode::sc_none;
 
             for (loop = 0; loop < NUMKEYS; loop++) {
                 if (gamestate.numkeys[static_cast<int>(loop)] < MAXKEYS) {
@@ -999,7 +1017,7 @@ void CheckKeys()
 #if IN_DEVELOPMENT
     if (TestQuickSave) {
 //      TestQuickSave--;
-        scan = sc_f8;
+        scan = ScanCode::sc_f8;
     }
 
     if (TestAutoMapper) {
@@ -1008,42 +1026,42 @@ void CheckKeys()
 
 #endif
 
-    scan = sc_none;
+    scan = ScanCode::sc_none;
 
-    if (Keyboard[sc_escape]) {
-        scan = sc_escape;
+    if (Keyboard[ScanCode::sc_escape]) {
+        scan = ScanCode::sc_escape;
     } else if (in_is_binding_pressed(e_bi_help)) {
-        scan = sc_f1;
+        scan = ScanCode::sc_f1;
     }
     if (in_is_binding_pressed(e_bi_save)) {
-        scan = sc_f2;
+        scan = ScanCode::sc_f2;
     } else if (in_is_binding_pressed(e_bi_load)) {
-        scan = sc_f3;
+        scan = ScanCode::sc_f3;
     } else if (in_is_binding_pressed(e_bi_sound)) {
-        scan = sc_f4;
+        scan = ScanCode::sc_f4;
     } else if (in_is_binding_pressed(e_bi_controls)) {
-        scan = sc_f6;
+        scan = ScanCode::sc_f6;
     } else if (in_is_binding_pressed(e_bi_end_game)) {
-        scan = sc_f7;
+        scan = ScanCode::sc_f7;
     } else if (in_is_binding_pressed(e_bi_quick_save)) {
-        scan = sc_f8;
+        scan = ScanCode::sc_f8;
     } else if (in_is_binding_pressed(e_bi_quick_load)) {
-        scan = sc_f9;
+        scan = ScanCode::sc_f9;
     } else if (in_is_binding_pressed(e_bi_quick_exit)) {
-        scan = sc_f10;
+        scan = ScanCode::sc_f10;
     }
 
     switch (scan) {
-    case sc_f7: // END GAME
-    case sc_f10: // QUIT TO DOS
+    case ScanCode::sc_f7: // END GAME
+    case ScanCode::sc_f10: // QUIT TO DOS
         FinishPaletteShifts();
         ClearMemory();
-        US_ControlPanel(static_cast<uint8_t>(scan));
+        US_ControlPanel(scan);
         CleanDrawPlayBorder();
         return;
 
-    case sc_f2: // SAVE MISSION
-    case sc_f8: // QUICK SAVE
+    case ScanCode::sc_f2: // SAVE MISSION
+    case ScanCode::sc_f8: // QUICK SAVE
         // Make sure there's room to save...
         //
         ClearMemory();
@@ -1053,21 +1071,21 @@ void CheckKeys()
             break;
         }
 
-    case sc_f1: // HELP
-    case sc_f3: // LOAD MISSION
-    case sc_f4: // SOUND MENU
-    case sc_f5: //      RESIZE VIEW
-    case sc_f6: // CONTROLS MENU
-    case sc_f9: // QUICK LOAD
-    case sc_escape: // MAIN MENU
+    case ScanCode::sc_f1: // HELP
+    case ScanCode::sc_f3: // LOAD MISSION
+    case ScanCode::sc_f4: // SOUND MENU
+    case ScanCode::sc_f5: //      RESIZE VIEW
+    case ScanCode::sc_f6: // CONTROLS MENU
+    case ScanCode::sc_f9: // QUICK LOAD
+    case ScanCode::sc_escape: // MAIN MENU
         refresh_screen = true;
-        if (scan < sc_f8) {
+        if (scan < ScanCode::sc_f8) {
             VW_FadeOut();
         }
         StopMusic();
         ClearMemory();
         ClearSplitVWB();
-        US_ControlPanel(static_cast<uint8_t>(scan));
+        US_ControlPanel(scan);
         if (refresh_screen) {
             bool old = loadedgame;
 
@@ -1091,16 +1109,19 @@ void CheckKeys()
             StartMusic(false);
         }
         return;
+
+    default:
+        break;
     }
 
-    scan = sc_none;
+    scan = ScanCode::sc_none;
 
     if (in_is_binding_pressed(e_bi_stats)) {
-        PopupAutoMap(Keyboard[sc_left_shift] || Keyboard[sc_right_shift]);
+        PopupAutoMap(Keyboard[ScanCode::sc_left_shift] || Keyboard[ScanCode::sc_right_shift]);
     }
 
-    if (Keyboard[sc_back_quote]) {
-        Keyboard[sc_back_quote] = 0;
+    if (Keyboard[ScanCode::sc_back_quote]) {
+        Keyboard[ScanCode::sc_back_quote] = 0;
 
         if (::is_ps()) {
             ::TryDropPlasmaDetonator();
@@ -1108,20 +1129,20 @@ void CheckKeys()
     }
 
 
-    if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[sc_backspace])) {
+    if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[ScanCode::sc_backspace])) {
         uint8_t old_num = music_num;
 
         if (gamestate.flags & GS_MUSIC_TEST) {
-            if (Keyboard[sc_left_arrow]) {
+            if (Keyboard[ScanCode::sc_left_arrow]) {
                 if (music_num) {
                     music_num--;
                 }
-                Keyboard[sc_left_arrow] = false;
-            } else if (Keyboard[sc_right_arrow]) {
+                Keyboard[ScanCode::sc_left_arrow] = false;
+            } else if (Keyboard[ScanCode::sc_right_arrow]) {
                 if (music_num < LASTMUSIC - 1) {
                     music_num++;
                 }
-                Keyboard[sc_right_arrow] = false;
+                Keyboard[ScanCode::sc_right_arrow] = false;
             }
 
             if (old_num != music_num) {
@@ -1199,7 +1220,7 @@ void CheckMusicToggle()
 
     if (in_is_binding_pressed(e_bi_music)) {
         if (M_KeyReleased && (
-            !::is_aog_sw() && ((jam_buff[0] != sc_j) || (jam_buff[1] != sc_a))))
+            !::is_aog_sw() && ((jam_buff[0] != ScanCode::sc_j) || (jam_buff[1] != ScanCode::sc_a))))
         {
             if (!::sd_has_audio) {
                 DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
@@ -1301,7 +1322,7 @@ void PopupAutoMap(
         ShowStats(BASE_X + 101, BASE_Y + 22, ss_quick, &gamestuff.level[gamestate.mapon].stats);
     }
 
-    while (Keyboard[sc_back_quote]) {
+    while (Keyboard[ScanCode::sc_back_quote]) {
         CalcTics();
 
         if (!::is_ps()) {
@@ -1922,7 +1943,7 @@ void PlayLoop()
         MovePWalls();
 
         for (obj = player; obj; obj = obj->next) {
-            if ((obj != player) && (Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk) {
+            if ((obj != player) && (Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
                 if (!reset_areas) {
                     memset(areabyplayer, 1, sizeof(areabyplayer));
                 }

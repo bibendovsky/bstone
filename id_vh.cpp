@@ -281,7 +281,7 @@ bool FizzleFade(
     ::IN_StartAck();
 
     ::TimeCount = 0;
-    ::LastScan = sc_none;
+    ::LastScan = ScanCode::sc_none;
 
     auto finished = false;
     auto is_aborted = false;

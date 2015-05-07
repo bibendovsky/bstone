@@ -761,7 +761,7 @@ void MoveObj(
 {
     int32_t deltax, deltay;
 
-//      if (DebugOk && Keyboard[sc_z])
+//      if (DebugOk && Keyboard[ScanCode::sc_z])
 //              return;
 
     switch (ob->dir) {

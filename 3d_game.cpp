@@ -3683,7 +3683,7 @@ restartgame:
                 playstate = ex_stillplaying;
                 DrawPlayBorder();
                 VW_UpdateScreen();
-                US_ControlPanel(sc_f9);
+                US_ControlPanel(ScanCode::sc_f9);
             }
 
             DrawPlayBorder();

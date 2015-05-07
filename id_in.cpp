@@ -83,22 +83,22 @@ bool NGinstalled = false;
 //      Global variables
 bool JoystickCalibrated; // JAM - added
 ControlType ControlTypeUsed; // JAM - added
-bool Keyboard[NumCodes];
+KeyboardState Keyboard;
 bool Paused;
 char LastASCII;
 ScanCode LastScan;
 
 KeyboardDef KbdDefs = {
-    sc_control,
-    sc_alt,
-    sc_home,
-    sc_up_arrow,
-    sc_page_up,
-    sc_left_arrow,
-    sc_right_arrow,
-    sc_end,
-    sc_down_arrow,
-    sc_page_down
+    ScanCode::sc_control,
+    ScanCode::sc_alt,
+    ScanCode::sc_home,
+    ScanCode::sc_up_arrow,
+    ScanCode::sc_page_up,
+    ScanCode::sc_left_arrow,
+    ScanCode::sc_right_arrow,
+    ScanCode::sc_end,
+    ScanCode::sc_down_arrow,
+    ScanCode::sc_page_down
 }; // KeyboardDef KbdDefs
 
 JoystickDef JoyDefs[MaxJoys];
@@ -148,343 +148,343 @@ static ScanCode in_keyboard_map_to_bstone(
     switch (key_code) {
     case SDLK_RETURN:
     case SDLK_KP_ENTER:
-        return sc_return;
+        return ScanCode::sc_return;
 
     case SDLK_ESCAPE:
-        return sc_escape;
+        return ScanCode::sc_escape;
 
     case SDLK_SPACE:
     case SDLK_KP_SPACE:
-        return sc_space;
+        return ScanCode::sc_space;
 
     case SDLK_MINUS:
-        return sc_minus;
+        return ScanCode::sc_minus;
 
     case SDLK_EQUALS:
-        return sc_equals;
+        return ScanCode::sc_equals;
 
     case SDLK_BACKSPACE:
     case SDLK_KP_BACKSPACE:
-        return sc_backspace;
+        return ScanCode::sc_backspace;
 
     case SDLK_TAB:
     case SDLK_KP_TAB:
-        return sc_tab;
+        return ScanCode::sc_tab;
 
     case SDLK_LALT:
     case SDLK_RALT:
-        return sc_alt;
+        return ScanCode::sc_alt;
 
     case SDLK_LEFTBRACKET:
     case SDLK_KP_LEFTBRACE:
-        return sc_left_bracket;
+        return ScanCode::sc_left_bracket;
 
     case SDLK_RIGHTBRACKET:
     case SDLK_KP_RIGHTBRACE:
-        return sc_right_bracket;
+        return ScanCode::sc_right_bracket;
 
     case SDLK_LCTRL:
     case SDLK_RCTRL:
-        return sc_control;
+        return ScanCode::sc_control;
 
     case SDLK_CAPSLOCK:
-        return sc_caps_lock;
+        return ScanCode::sc_caps_lock;
 
     case SDLK_NUMLOCKCLEAR:
-        return sc_num_lock;
+        return ScanCode::sc_num_lock;
 
     case SDLK_SCROLLLOCK:
-        return sc_scroll_lock;
+        return ScanCode::sc_scroll_lock;
 
     case SDLK_LSHIFT:
-        return sc_left_shift;
+        return ScanCode::sc_left_shift;
 
     case SDLK_RSHIFT:
-        return sc_right_shift;
+        return ScanCode::sc_right_shift;
 
     case SDLK_UP:
-        return sc_up_arrow;
+        return ScanCode::sc_up_arrow;
 
     case SDLK_KP_8:
         if (is_numlock_active) {
-            return sc_up_arrow;
+            return ScanCode::sc_up_arrow;
         } else {
-            return sc_8;
+            return ScanCode::sc_8;
         }
 
     case SDLK_DOWN:
-        return sc_down_arrow;
+        return ScanCode::sc_down_arrow;
 
     case SDLK_KP_2:
         if (is_numlock_active) {
-            return sc_down_arrow;
+            return ScanCode::sc_down_arrow;
         } else {
-            return sc_2;
+            return ScanCode::sc_2;
         }
 
     case SDLK_LEFT:
-        return sc_left_arrow;
+        return ScanCode::sc_left_arrow;
 
     case SDLK_KP_4:
         if (is_numlock_active) {
-            return sc_left_arrow;
+            return ScanCode::sc_left_arrow;
         } else {
-            return sc_4;
+            return ScanCode::sc_4;
         }
 
     case SDLK_RIGHT:
-        return sc_right_arrow;
+        return ScanCode::sc_right_arrow;
 
     case SDLK_KP_6:
         if (is_numlock_active) {
-            return sc_right_arrow;
+            return ScanCode::sc_right_arrow;
         } else {
-            return sc_6;
+            return ScanCode::sc_6;
         }
 
     case SDLK_INSERT:
-        return sc_insert;
+        return ScanCode::sc_insert;
 
     case SDLK_KP_0:
         if (is_numlock_active) {
-            return sc_insert;
+            return ScanCode::sc_insert;
         } else {
-            return sc_0;
+            return ScanCode::sc_0;
         }
 
     case SDLK_DELETE:
-        return sc_delete;
+        return ScanCode::sc_delete;
 
     case SDLK_KP_COMMA:
         if (is_numlock_active) {
-            return sc_delete;
+            return ScanCode::sc_delete;
         } else {
-            return sc_comma;
+            return ScanCode::sc_comma;
         }
 
     case SDLK_HOME:
-        return sc_home;
+        return ScanCode::sc_home;
 
     case SDLK_KP_7:
         if (is_numlock_active) {
-            return sc_home;
+            return ScanCode::sc_home;
         } else {
-            return sc_7;
+            return ScanCode::sc_7;
         }
 
     case SDLK_END:
-        return sc_end;
+        return ScanCode::sc_end;
 
     case SDLK_KP_1:
         if (is_numlock_active) {
-            return sc_end;
+            return ScanCode::sc_end;
         } else {
-            return sc_1;
+            return ScanCode::sc_1;
         }
 
     case SDLK_PAGEUP:
-        return sc_page_up;
+        return ScanCode::sc_page_up;
 
     case SDLK_KP_9:
         if (is_numlock_active) {
-            return sc_page_up;
+            return ScanCode::sc_page_up;
         } else {
-            return sc_9;
+            return ScanCode::sc_9;
         }
 
     case SDLK_PAGEDOWN:
-        return sc_page_down;
+        return ScanCode::sc_page_down;
 
     case SDLK_KP_3:
         if (is_numlock_active) {
-            return sc_page_down;
+            return ScanCode::sc_page_down;
         } else {
-            return sc_3;
+            return ScanCode::sc_3;
         }
 
     case SDLK_SLASH:
     case SDLK_KP_DIVIDE:
-        return sc_slash;
+        return ScanCode::sc_slash;
 
     case SDLK_BACKSLASH:
-        return sc_backslash;
+        return ScanCode::sc_backslash;
 
     case SDLK_SEMICOLON:
-        return sc_semicolon;
+        return ScanCode::sc_semicolon;
 
     case SDLK_QUOTE:
-        return sc_quote;
+        return ScanCode::sc_quote;
 
     case SDLK_PERIOD:
-        return sc_period;
+        return ScanCode::sc_period;
 
     case SDLK_F1:
-        return sc_f1;
+        return ScanCode::sc_f1;
 
     case SDLK_F2:
-        return sc_f2;
+        return ScanCode::sc_f2;
 
     case SDLK_F3:
-        return sc_f3;
+        return ScanCode::sc_f3;
 
     case SDLK_F4:
-        return sc_f4;
+        return ScanCode::sc_f4;
 
     case SDLK_F5:
-        return sc_f5;
+        return ScanCode::sc_f5;
 
     case SDLK_F6:
-        return sc_f6;
+        return ScanCode::sc_f6;
 
     case SDLK_F7:
-        return sc_f7;
+        return ScanCode::sc_f7;
 
     case SDLK_F8:
-        return sc_f8;
+        return ScanCode::sc_f8;
 
     case SDLK_F9:
-        return sc_f9;
+        return ScanCode::sc_f9;
 
     case SDLK_F10:
-        return sc_f10;
+        return ScanCode::sc_f10;
 
     case SDLK_F11:
-        return sc_f11;
+        return ScanCode::sc_f11;
 
     case SDLK_F12:
-        return sc_f12;
+        return ScanCode::sc_f12;
 
     case SDLK_PRINTSCREEN:
-        return sc_print_screen;
+        return ScanCode::sc_print_screen;
 
     case SDLK_PAUSE:
-        return sc_pause;
+        return ScanCode::sc_pause;
 
     case SDLK_BACKQUOTE:
-        return sc_back_quote;
+        return ScanCode::sc_back_quote;
 
     case SDLK_1:
-        return sc_1;
+        return ScanCode::sc_1;
 
     case SDLK_2:
-        return sc_2;
+        return ScanCode::sc_2;
 
     case SDLK_3:
-        return sc_3;
+        return ScanCode::sc_3;
 
     case SDLK_4:
-        return sc_4;
+        return ScanCode::sc_4;
 
     case SDLK_5:
-        return sc_5;
+        return ScanCode::sc_5;
 
     case SDLK_6:
-        return sc_6;
+        return ScanCode::sc_6;
 
     case SDLK_7:
-        return sc_7;
+        return ScanCode::sc_7;
 
     case SDLK_8:
-        return sc_8;
+        return ScanCode::sc_8;
 
     case SDLK_9:
-        return sc_9;
+        return ScanCode::sc_9;
 
     case SDLK_0:
-        return sc_0;
+        return ScanCode::sc_0;
 
     case SDLK_a:
     case SDLK_KP_A:
-        return sc_a;
+        return ScanCode::sc_a;
 
     case SDLK_b:
     case SDLK_KP_B:
-        return sc_b;
+        return ScanCode::sc_b;
 
     case SDLK_c:
     case SDLK_KP_C:
-        return sc_c;
+        return ScanCode::sc_c;
 
     case SDLK_d:
     case SDLK_KP_D:
-        return sc_d;
+        return ScanCode::sc_d;
 
     case SDLK_e:
     case SDLK_KP_E:
-        return sc_e;
+        return ScanCode::sc_e;
 
     case SDLK_f:
     case SDLK_KP_F:
-        return sc_f;
+        return ScanCode::sc_f;
 
     case SDLK_g:
-        return sc_g;
+        return ScanCode::sc_g;
 
     case SDLK_h:
-        return sc_h;
+        return ScanCode::sc_h;
 
     case SDLK_i:
-        return sc_i;
+        return ScanCode::sc_i;
 
     case SDLK_j:
-        return sc_j;
+        return ScanCode::sc_j;
 
     case SDLK_k:
-        return sc_k;
+        return ScanCode::sc_k;
 
     case SDLK_l:
-        return sc_l;
+        return ScanCode::sc_l;
 
     case SDLK_m:
-        return sc_m;
+        return ScanCode::sc_m;
 
     case SDLK_n:
-        return sc_n;
+        return ScanCode::sc_n;
 
     case SDLK_o:
-        return sc_o;
+        return ScanCode::sc_o;
 
     case SDLK_p:
-        return sc_p;
+        return ScanCode::sc_p;
 
     case SDLK_q:
-        return sc_q;
+        return ScanCode::sc_q;
 
     case SDLK_r:
-        return sc_r;
+        return ScanCode::sc_r;
 
     case SDLK_s:
-        return sc_s;
+        return ScanCode::sc_s;
 
     case SDLK_t:
-        return sc_t;
+        return ScanCode::sc_t;
 
     case SDLK_u:
-        return sc_u;
+        return ScanCode::sc_u;
 
     case SDLK_v:
-        return sc_v;
+        return ScanCode::sc_v;
 
     case SDLK_w:
-        return sc_w;
+        return ScanCode::sc_w;
 
     case SDLK_x:
-        return sc_x;
+        return ScanCode::sc_x;
 
     case SDLK_y:
-        return sc_y;
+        return ScanCode::sc_y;
 
     case SDLK_z:
-        return sc_z;
+        return ScanCode::sc_z;
 
     case SDLK_KP_MINUS:
-        return sc_kp_minus;
+        return ScanCode::sc_kp_minus;
 
     case SDLK_KP_PLUS:
-        return sc_kp_plus;
+        return ScanCode::sc_kp_plus;
 
     default:
-        return sc_none;
+        return ScanCode::sc_none;
     }
 }
 
@@ -505,7 +505,7 @@ static char in_keyboard_map_to_char(
              KMOD_RGUI |
              KMOD_MODE)) != 0)
     {
-        return sc_none;
+        return '\0';
     }
 
     switch (key_code) {
@@ -665,7 +665,7 @@ static char in_keyboard_map_to_char(
                static_cast<char>(key_code);
     }
 
-    return sc_none;
+    return '\0';
 }
 
 static void in_handle_keyboard(
@@ -675,18 +675,18 @@ static void in_handle_keyboard(
     SDL_Keymod key_mod = ::SDL_GetModState();
     ScanCode key = ::in_keyboard_map_to_bstone(key_code, key_mod);
 
-    if (key == sc_none) {
+    if (key == ScanCode::sc_none) {
         return;
     }
 
     bool is_pressed;
 
     switch (key) {
-    case sc_alt:
+    case ScanCode::sc_alt:
         is_pressed = ((key_mod & KMOD_ALT) != 0);
         break;
 
-    case sc_control:
+    case ScanCode::sc_control:
         is_pressed = ((key_mod & KMOD_CTRL) != 0);
         break;
 
@@ -711,32 +711,32 @@ static void in_handle_keyboard(
 static void in_handle_mouse_buttons(
     const SDL_MouseButtonEvent& e)
 {
-    ScanCode key = sc_none;
+    ScanCode key = ScanCode::sc_none;
     bool is_pressed = (e.state == SDL_PRESSED);
 
     switch (e.button) {
     case SDL_BUTTON_LEFT:
-        key = sc_mouse_left;
+        key = ScanCode::sc_mouse_left;
         break;
 
     case SDL_BUTTON_MIDDLE:
-        key = sc_mouse_middle;
+        key = ScanCode::sc_mouse_middle;
         break;
 
     case SDL_BUTTON_RIGHT:
-        key = sc_mouse_right;
+        key = ScanCode::sc_mouse_right;
         break;
 
     case SDL_BUTTON_X1:
-        key = sc_mouse_x1;
+        key = ScanCode::sc_mouse_x1;
         break;
 
     case SDL_BUTTON_X2:
-        key = sc_mouse_x2;
+        key = ScanCode::sc_mouse_x2;
         break;
     }
 
-    if (key != sc_none) {
+    if (key != ScanCode::sc_none) {
         Keyboard[key] = is_pressed;
 
         if (is_pressed) {
@@ -797,23 +797,23 @@ static int INL_GetMouseButtons()
 
     int result = 0;
 
-    if (Keyboard[sc_mouse_left]) {
+    if (Keyboard[ScanCode::sc_mouse_left]) {
         result |= 1;
     }
 
-    if (Keyboard[sc_mouse_middle]) {
+    if (Keyboard[ScanCode::sc_mouse_middle]) {
         result |= 4;
     }
 
-    if (Keyboard[sc_mouse_right]) {
+    if (Keyboard[ScanCode::sc_mouse_right]) {
         result |= 2;
     }
 
-    if (Keyboard[sc_mouse_x1]) {
+    if (Keyboard[ScanCode::sc_mouse_x1]) {
         result |= 8;
     }
 
-    if (Keyboard[sc_mouse_x2]) {
+    if (Keyboard[ScanCode::sc_mouse_x2]) {
         result |= 16;
     }
 
@@ -1326,9 +1326,9 @@ void IN_SetKeyHook(
 ///////////////////////////////////////////////////////////////////////////
 void IN_ClearKeysDown()
 {
-    LastScan = sc_none;
+    LastScan = ScanCode::sc_none;
     LastASCII = key_None;
-    memset(Keyboard, 0, sizeof(Keyboard));
+    Keyboard.reset();
 }
 
 // BBi
@@ -1353,11 +1353,11 @@ static void in_handle_window(
     if (clear_state) {
         ::in_clear_mouse_deltas();
 
-        Keyboard[sc_mouse_left] = false;
-        Keyboard[sc_mouse_middle] = false;
-        Keyboard[sc_mouse_right] = false;
-        Keyboard[sc_mouse_x1] = false;
-        Keyboard[sc_mouse_x2] = false;
+        Keyboard[ScanCode::sc_mouse_left] = false;
+        Keyboard[ScanCode::sc_mouse_middle] = false;
+        Keyboard[ScanCode::sc_mouse_right] = false;
+        Keyboard[ScanCode::sc_mouse_x1] = false;
+        Keyboard[ScanCode::sc_mouse_x2] = false;
     }
 }
 
@@ -1713,7 +1713,7 @@ bool IN_CheckAck()
 //
 // see if something has been pressed
 //
-    if (LastScan) {
+    if (LastScan != ScanCode::sc_none) {
         return true;
     }
 
@@ -1888,59 +1888,59 @@ void in_set_default_bindings()
 {
     for (int b = 0; b < k_max_bindings; ++b) {
         for (int k = 0; k < k_max_binding_keys; ++k) {
-            in_bindings[b][k] = sc_none;
+            in_bindings[b][k] = ScanCode::sc_none;
         }
     }
 
-    in_bindings[e_bi_forward][0] = sc_w;
-    in_bindings[e_bi_backward][0] = sc_s;
-    in_bindings[e_bi_left][0] = sc_left_arrow;
-    in_bindings[e_bi_right][0] = sc_right_arrow;
-    in_bindings[e_bi_strafe][0] = sc_alt;
-    in_bindings[e_bi_strafe_left][0] = sc_a;
-    in_bindings[e_bi_strafe_right][0] = sc_d;
-    in_bindings[e_bi_quick_left][0] = sc_q;
-    in_bindings[e_bi_quick_right][0] = sc_e;
-    in_bindings[e_bi_turn_around][0] = sc_r;
-    in_bindings[e_bi_run][0] = sc_left_shift;
+    in_bindings[e_bi_forward][0] = ScanCode::sc_w;
+    in_bindings[e_bi_backward][0] = ScanCode::sc_s;
+    in_bindings[e_bi_left][0] = ScanCode::sc_left_arrow;
+    in_bindings[e_bi_right][0] = ScanCode::sc_right_arrow;
+    in_bindings[e_bi_strafe][0] = ScanCode::sc_alt;
+    in_bindings[e_bi_strafe_left][0] = ScanCode::sc_a;
+    in_bindings[e_bi_strafe_right][0] = ScanCode::sc_d;
+    in_bindings[e_bi_quick_left][0] = ScanCode::sc_q;
+    in_bindings[e_bi_quick_right][0] = ScanCode::sc_e;
+    in_bindings[e_bi_turn_around][0] = ScanCode::sc_r;
+    in_bindings[e_bi_run][0] = ScanCode::sc_left_shift;
 
-    in_bindings[e_bi_attack][0] = sc_control;
-    in_bindings[e_bi_attack][1] = sc_mouse_left;
-    in_bindings[e_bi_weapon_1][0] = sc_1;
-    in_bindings[e_bi_weapon_2][0] = sc_2;
-    in_bindings[e_bi_weapon_3][0] = sc_3;
-    in_bindings[e_bi_weapon_4][0] = sc_4;
-    in_bindings[e_bi_weapon_5][0] = sc_5;
-    in_bindings[e_bi_weapon_6][0] = sc_6;
-    in_bindings[e_bi_weapon_7][0] = sc_back_quote;
+    in_bindings[e_bi_attack][0] = ScanCode::sc_control;
+    in_bindings[e_bi_attack][1] = ScanCode::sc_mouse_left;
+    in_bindings[e_bi_weapon_1][0] = ScanCode::sc_1;
+    in_bindings[e_bi_weapon_2][0] = ScanCode::sc_2;
+    in_bindings[e_bi_weapon_3][0] = ScanCode::sc_3;
+    in_bindings[e_bi_weapon_4][0] = ScanCode::sc_4;
+    in_bindings[e_bi_weapon_5][0] = ScanCode::sc_5;
+    in_bindings[e_bi_weapon_6][0] = ScanCode::sc_6;
+    in_bindings[e_bi_weapon_7][0] = ScanCode::sc_back_quote;
 
-    in_bindings[e_bi_use][0] = sc_space;
-    in_bindings[e_bi_use][1] = sc_mouse_right;
+    in_bindings[e_bi_use][0] = ScanCode::sc_space;
+    in_bindings[e_bi_use][1] = ScanCode::sc_mouse_right;
 
-    in_bindings[e_bi_stats][0] = sc_tab;
-    in_bindings[e_bi_radar_magnify][0] = sc_equals;
-    in_bindings[e_bi_radar_minify][0] = sc_minus;
+    in_bindings[e_bi_stats][0] = ScanCode::sc_tab;
+    in_bindings[e_bi_radar_magnify][0] = ScanCode::sc_equals;
+    in_bindings[e_bi_radar_minify][0] = ScanCode::sc_minus;
 
-    in_bindings[e_bi_help][0] = sc_f1;
-    in_bindings[e_bi_save][0] = sc_f2;
-    in_bindings[e_bi_load][0] = sc_f3;
-    in_bindings[e_bi_sound][0] = sc_f4;
-    in_bindings[e_bi_controls][0] = sc_f6;
-    in_bindings[e_bi_end_game][0] = sc_f7;
-    in_bindings[e_bi_quick_save][0] = sc_f8;
-    in_bindings[e_bi_quick_load][0] = sc_f9;
-    in_bindings[e_bi_quick_exit][0] = sc_f10;
+    in_bindings[e_bi_help][0] = ScanCode::sc_f1;
+    in_bindings[e_bi_save][0] = ScanCode::sc_f2;
+    in_bindings[e_bi_load][0] = ScanCode::sc_f3;
+    in_bindings[e_bi_sound][0] = ScanCode::sc_f4;
+    in_bindings[e_bi_controls][0] = ScanCode::sc_f6;
+    in_bindings[e_bi_end_game][0] = ScanCode::sc_f7;
+    in_bindings[e_bi_quick_save][0] = ScanCode::sc_f8;
+    in_bindings[e_bi_quick_load][0] = ScanCode::sc_f9;
+    in_bindings[e_bi_quick_exit][0] = ScanCode::sc_f10;
 
-    in_bindings[e_bi_attack_info][0] = sc_i;
-    in_bindings[e_bi_lightning][0] = sc_l;
-    in_bindings[e_bi_sfx][0] = sc_x;
-    in_bindings[e_bi_music][0] = sc_m;
-    in_bindings[e_bi_ceiling][0] = sc_c;
-    in_bindings[e_bi_flooring][0] = sc_f;
-    in_bindings[e_bi_heart_beat][0] = sc_h;
+    in_bindings[e_bi_attack_info][0] = ScanCode::sc_i;
+    in_bindings[e_bi_lightning][0] = ScanCode::sc_l;
+    in_bindings[e_bi_sfx][0] = ScanCode::sc_x;
+    in_bindings[e_bi_music][0] = ScanCode::sc_m;
+    in_bindings[e_bi_ceiling][0] = ScanCode::sc_c;
+    in_bindings[e_bi_flooring][0] = ScanCode::sc_f;
+    in_bindings[e_bi_heart_beat][0] = ScanCode::sc_h;
 
-    in_bindings[e_bi_pause][0] = sc_p;
-    in_bindings[e_bi_pause][1] = sc_pause;
+    in_bindings[e_bi_pause][0] = ScanCode::sc_p;
+    in_bindings[e_bi_pause][1] = ScanCode::sc_pause;
 }
 
 bool in_is_binding_pressed(
@@ -1949,8 +1949,8 @@ bool in_is_binding_pressed(
     if (in_use_modern_bindings) {
         const Binding& binding = in_bindings[binding_id];
 
-        return (binding[0] != sc_none && Keyboard[binding[0]]) ||
-               (binding[1] != sc_none && Keyboard[binding[1]]);
+        return (binding[0] != ScanCode::sc_none && Keyboard[binding[0]]) ||
+               (binding[1] != ScanCode::sc_none && Keyboard[binding[1]]);
     } else {
         switch (binding_id) {
         case e_bi_forward:
@@ -1969,13 +1969,13 @@ bool in_is_binding_pressed(
             return Keyboard[buttonscan[bt_strafe]];
 
         case e_bi_quick_left:
-            return Keyboard[sc_q];
+            return Keyboard[ScanCode::sc_q];
 
         case e_bi_quick_right:
-            return Keyboard[sc_e];
+            return Keyboard[ScanCode::sc_e];
 
         case e_bi_turn_around:
-            return Keyboard[sc_w] || Keyboard[sc_return];
+            return Keyboard[ScanCode::sc_w] || Keyboard[ScanCode::sc_return];
 
         case e_bi_run:
             return Keyboard[buttonscan[bt_run]];
@@ -1984,85 +1984,85 @@ bool in_is_binding_pressed(
             return Keyboard[buttonscan[bt_attack]];
 
         case e_bi_weapon_1:
-            return Keyboard[sc_1];
+            return Keyboard[ScanCode::sc_1];
 
         case e_bi_weapon_2:
-            return Keyboard[sc_2];
+            return Keyboard[ScanCode::sc_2];
 
         case e_bi_weapon_3:
-            return Keyboard[sc_3];
+            return Keyboard[ScanCode::sc_3];
 
         case e_bi_weapon_4:
-            return Keyboard[sc_4];
+            return Keyboard[ScanCode::sc_4];
 
         case e_bi_weapon_5:
-            return Keyboard[sc_5];
+            return Keyboard[ScanCode::sc_5];
 
         case e_bi_weapon_6:
-            return Keyboard[sc_6];
+            return Keyboard[ScanCode::sc_6];
 
         case e_bi_weapon_7:
-            return Keyboard[sc_back_quote];
+            return Keyboard[ScanCode::sc_back_quote];
 
         case e_bi_use:
-            return Keyboard[sc_space];
+            return Keyboard[ScanCode::sc_space];
 
         case e_bi_stats:
-            return Keyboard[sc_tab];
+            return Keyboard[ScanCode::sc_tab];
 
         case e_bi_radar_magnify:
-            return Keyboard[sc_equals];
+            return Keyboard[ScanCode::sc_equals];
 
         case e_bi_radar_minify:
-            return Keyboard[sc_minus];
+            return Keyboard[ScanCode::sc_minus];
 
         case e_bi_help:
-            return Keyboard[sc_f1];
+            return Keyboard[ScanCode::sc_f1];
 
         case e_bi_save:
-            return Keyboard[sc_f2];
+            return Keyboard[ScanCode::sc_f2];
 
         case e_bi_load:
-            return Keyboard[sc_f3];
+            return Keyboard[ScanCode::sc_f3];
 
         case e_bi_sound:
-            return Keyboard[sc_f4];
+            return Keyboard[ScanCode::sc_f4];
 
         case e_bi_controls:
-            return Keyboard[sc_f6];
+            return Keyboard[ScanCode::sc_f6];
 
         case e_bi_end_game:
-            return Keyboard[sc_f7];
+            return Keyboard[ScanCode::sc_f7];
 
         case e_bi_quick_save:
-            return Keyboard[sc_f8];
+            return Keyboard[ScanCode::sc_f8];
 
         case e_bi_quick_load:
-            return Keyboard[sc_f9];
+            return Keyboard[ScanCode::sc_f9];
 
         case e_bi_quick_exit:
-            return Keyboard[sc_f10];
+            return Keyboard[ScanCode::sc_f10];
 
         case e_bi_attack_info:
-            return Keyboard[sc_i];
+            return Keyboard[ScanCode::sc_i];
 
         case e_bi_lightning:
-            return Keyboard[sc_l];
+            return Keyboard[ScanCode::sc_l];
 
         case e_bi_sfx:
-            return Keyboard[sc_s];
+            return Keyboard[ScanCode::sc_s];
 
         case e_bi_music:
-            return Keyboard[sc_m];
+            return Keyboard[ScanCode::sc_m];
 
         case e_bi_ceiling:
-            return Keyboard[sc_c];
+            return Keyboard[ScanCode::sc_c];
 
         case e_bi_flooring:
-            return Keyboard[sc_f];
+            return Keyboard[ScanCode::sc_f];
 
         case e_bi_pause:
-            return Keyboard[sc_p] || Keyboard[sc_pause];
+            return Keyboard[ScanCode::sc_p] || Keyboard[ScanCode::sc_pause];
 
         default:
             return false;
@@ -2076,163 +2076,170 @@ void in_reset_binding_state(
     if (in_use_modern_bindings) {
         const Binding& binding = in_bindings[binding_id];
 
-        if (binding[0] != sc_none) {
-            Keyboard[binding[0]] = sc_none;
+        if (binding[0] != ScanCode::sc_none) {
+            Keyboard[binding[0]] = false;
         }
 
-        if (binding[1] != sc_none) {
-            Keyboard[binding[1]] = sc_none;
+        if (binding[1] != ScanCode::sc_none) {
+            Keyboard[binding[1]] = false;
         }
     } else {
         switch (binding_id) {
         case e_bi_forward:
-            Keyboard[dirscan[di_north]] = sc_none;
+            Keyboard[dirscan[di_north]] = false;
             break;
 
         case e_bi_backward:
-            Keyboard[dirscan[di_south]] = sc_none;
+            Keyboard[dirscan[di_south]] = false;
             break;
 
         case e_bi_left:
-            Keyboard[dirscan[di_west]] = sc_none;
+            Keyboard[dirscan[di_west]] = false;
             break;
 
         case e_bi_right:
-            Keyboard[dirscan[di_east]] = sc_none;
+            Keyboard[dirscan[di_east]] = false;
             break;
 
         case e_bi_strafe:
-            Keyboard[buttonscan[bt_strafe]] = sc_none;
+            Keyboard[buttonscan[bt_strafe]] = false;
             break;
 
         case e_bi_quick_left:
-            Keyboard[sc_q] = sc_none;
+            Keyboard[ScanCode::sc_q] = false;
             break;
 
         case e_bi_quick_right:
-            Keyboard[sc_e] = sc_none;
+            Keyboard[ScanCode::sc_e] = false;
             break;
 
         case e_bi_turn_around:
-            Keyboard[sc_w] = sc_none;
-            Keyboard[sc_return] = sc_none;
+            Keyboard[ScanCode::sc_w] = false;
+            Keyboard[ScanCode::sc_return] = false;
             break;
 
         case e_bi_run:
-            Keyboard[buttonscan[bt_run]] = sc_none;
+            Keyboard[buttonscan[bt_run]] = false;
             break;
 
         case e_bi_attack:
-            Keyboard[buttonscan[bt_attack]] = sc_none;
+            Keyboard[buttonscan[bt_attack]] = false;
             break;
 
         case e_bi_weapon_1:
-            Keyboard[sc_1] = sc_none;
+            Keyboard[ScanCode::sc_1] = false;
             break;
 
         case e_bi_weapon_2:
-            Keyboard[sc_2] = sc_none;
+            Keyboard[ScanCode::sc_2] = false;
             break;
 
         case e_bi_weapon_3:
-            Keyboard[sc_3] = sc_none;
+            Keyboard[ScanCode::sc_3] = false;
             break;
 
         case e_bi_weapon_4:
-            Keyboard[sc_4] = sc_none;
+            Keyboard[ScanCode::sc_4] = false;
             break;
 
         case e_bi_weapon_5:
-            Keyboard[sc_5] = sc_none;
+            Keyboard[ScanCode::sc_5] = false;
             break;
 
         case e_bi_weapon_6:
-            Keyboard[sc_6] = sc_none;
+            Keyboard[ScanCode::sc_6] = false;
             break;
 
         case e_bi_weapon_7:
-            Keyboard[sc_back_quote] = sc_none;
+            Keyboard[ScanCode::sc_back_quote] = false;
             break;
 
         case e_bi_use:
-            Keyboard[sc_space] = sc_none;
+            Keyboard[ScanCode::sc_space] = false;
             break;
 
         case e_bi_stats:
-            Keyboard[sc_tab] = sc_none;
+            Keyboard[ScanCode::sc_tab] = false;
             break;
 
         case e_bi_radar_magnify:
-            Keyboard[sc_equals] = sc_none;
+            Keyboard[ScanCode::sc_equals] = false;
             break;
 
         case e_bi_radar_minify:
-            Keyboard[sc_minus] = sc_none;
+            Keyboard[ScanCode::sc_minus] = false;
             break;
 
         case e_bi_help:
-            Keyboard[sc_f1] = sc_none;
+            Keyboard[ScanCode::sc_f1] = false;
             break;
 
         case e_bi_save:
-            Keyboard[sc_f2] = sc_none;
+            Keyboard[ScanCode::sc_f2] = false;
             break;
 
         case e_bi_load:
-            Keyboard[sc_f3] = sc_none;
+            Keyboard[ScanCode::sc_f3] = false;
             break;
 
         case e_bi_sound:
-            Keyboard[sc_f4] = sc_none;
+            Keyboard[ScanCode::sc_f4] = false;
             break;
 
         case e_bi_controls:
-            Keyboard[sc_f6] = sc_none;
+            Keyboard[ScanCode::sc_f6] = false;
             break;
 
         case e_bi_end_game:
-            Keyboard[sc_f7] = sc_none;
+            Keyboard[ScanCode::sc_f7] = false;
             break;
 
         case e_bi_quick_save:
-            Keyboard[sc_f8] = sc_none;
+            Keyboard[ScanCode::sc_f8] = false;
             break;
 
         case e_bi_quick_load:
-            Keyboard[sc_f9] = sc_none;
+            Keyboard[ScanCode::sc_f9] = false;
             break;
 
         case e_bi_quick_exit:
-            Keyboard[sc_f10] = sc_none;
+            Keyboard[ScanCode::sc_f10] = false;
             break;
 
         case e_bi_attack_info:
-            Keyboard[sc_i] = sc_none;
+            Keyboard[ScanCode::sc_i] = false;
             break;
 
         case e_bi_lightning:
-            Keyboard[sc_l] = sc_none;
+            Keyboard[ScanCode::sc_l] = false;
             break;
 
         case e_bi_sfx:
-            Keyboard[sc_s] = sc_none;
+            Keyboard[ScanCode::sc_s] = false;
             break;
 
         case e_bi_music:
-            Keyboard[sc_m] = sc_none;
+            Keyboard[ScanCode::sc_m] = false;
             break;
 
         case e_bi_ceiling:
-            Keyboard[sc_c] = sc_none;
+            Keyboard[ScanCode::sc_c] = false;
             break;
 
         case e_bi_flooring:
-            Keyboard[sc_f] = sc_none;
+            Keyboard[ScanCode::sc_f] = false;
             break;
 
         case e_bi_pause:
-            Keyboard[sc_p] = sc_none;
-            Keyboard[sc_pause] = sc_none;
+            Keyboard[ScanCode::sc_p] = false;
+            Keyboard[ScanCode::sc_pause] = false;
+            break;
+
+        case e_bi_heart_beat:
+            Keyboard[ScanCode::sc_h] = false;
+            break;
+
+        default:
             break;
         }
     }

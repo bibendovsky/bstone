@@ -137,8 +137,6 @@ char show_text3[] = "-- Memory avail after game is loaded --\n\n";
 char show_text4[] = "            ** Insufficient memory to run the game **";
 char show_text5[] = "---- Extra Devices ----\n\n";
 
-static const char* ParmStrings[] = { "HIDDENCARD", "" };
-
 // BBi FIXME
 static uint8_t wolfdigimap[] = {
     // These first sounds are in the upload version
@@ -1068,7 +1066,7 @@ void PreDemo()
                 // BBi
                 ::in_handle_events();
 
-                if (Keyboard[sc_left_shift] && Keyboard[sc_right_shift]) {
+                if (Keyboard[ScanCode::sc_left_shift] && Keyboard[ScanCode::sc_right_shift]) {
                     CA_LoadAllSounds();
 
                     SD_MusicOff();

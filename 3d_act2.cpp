@@ -928,6 +928,9 @@ void SpawnOffsetObj(
         case en_mech_guardian:
             ::new_actor->hitpoints *= 15;
             break;
+
+        default:
+            break;
         }
     }
 }
@@ -1108,7 +1111,7 @@ void T_OfsThink(
 
     case podeggobj:
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-        if (!((Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk)) {
+        if (!((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk)) {
             if (!(obj->flags & FL_VISABLE)) {
                 break;
             }
@@ -1125,7 +1128,7 @@ void T_OfsThink(
         }
 
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-        if ((Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk) {
+        if ((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
             obj->temp2 = 0;
         }
 #endif
@@ -1144,7 +1147,7 @@ void T_OfsThink(
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-        if (!((Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk)) {
+        if (!((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk)) {
             if (!(obj->flags & FL_VISABLE)) {
                 break;
             }
@@ -1157,7 +1160,7 @@ void T_OfsThink(
 #endif
 
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-        if ((Keyboard[sc_6] || Keyboard[sc_7]) && Keyboard[sc_8] && DebugOk) {
+        if ((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
             obj->temp2 = 0;
         }
 #endif

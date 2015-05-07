@@ -111,7 +111,7 @@ void PicturePause()
 
     if (LastScan != sc_Enter) {
         switch (LastScan) {
-        case sc_o:
+        case ScanCode::sc_o:
         case sc_Space:
         case sc_Control:
         case sc_Alt:
@@ -512,29 +512,29 @@ void ShapeTest()
                 i--;
             }
             break;
-        case sc_w: // Walls
+        case ScanCode::sc_w: // Walls
             i = 0;
             break;
-        case sc_s: // Sprites
+        case ScanCode::sc_s: // Sprites
             i = PMSpriteStart;
             break;
-        case sc_d: // Digitized
+        case ScanCode::sc_d: // Digitized
             i = PMSoundStart;
             break;
-        case sc_i: // Digitized info
+        case ScanCode::sc_i: // Digitized info
             i = ChunksInFile - 1;
             break;
-        case sc_l: // Load all pages
+        case ScanCode::sc_l: // Load all pages
             for (j = 0; j < ChunksInFile; j++) {
                 PM_GetPage(j);
             }
             break;
-        case sc_p:
+        case ScanCode::sc_p:
             if (sound != -1) {
                 SD_PlaySound(sound);
             }
             break;
-        case sc_escape:
+        case ScanCode::sc_escape:
             done = true;
             break;
         case sc_Enter:
@@ -612,7 +612,7 @@ int16_t DebugKeys()
     bool esc;
     int16_t level, i;
 
-    if (Keyboard[sc_a]) {       // A = Show Actors on AutoMap
+    if (Keyboard[ScanCode::sc_a]) {       // A = Show Actors on AutoMap
         ExtraRadarFlags ^= OV_ACTORS;
         CenterWindow(24, 3);
         if (ExtraRadarFlags & OV_ACTORS) {
@@ -623,7 +623,7 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_b]) { // B = border color
+    } else if (Keyboard[ScanCode::sc_b]) { // B = border color
         CenterWindow(24, 3);
         PrintY += 6;
         US_Print(" Border color (0-15):");
@@ -638,16 +638,16 @@ int16_t DebugKeys()
         return 1;
     }
 
-    if (Keyboard[sc_k]) { // K = Map Content totals
+    if (Keyboard[ScanCode::sc_k]) { // K = Map Content totals
         CountTotals();
         return 1;
-    } else if (Keyboard[sc_c]) { // C = count objects
+    } else if (Keyboard[ScanCode::sc_c]) { // C = count objects
         CountObjects();
         return 1;
-    } else if (Keyboard[sc_r]) { // C = count objects
+    } else if (Keyboard[ScanCode::sc_r]) { // C = count objects
         ShowMap();
         return 1;
-    } else if (Keyboard[sc_d]) { // D = Dumb/Blind Objects (Player Invisable)
+    } else if (Keyboard[ScanCode::sc_d]) { // D = Dumb/Blind Objects (Player Invisable)
         CenterWindow(19, 3);
         ::PlayerInvisable = !::PlayerInvisable;
         if (PlayerInvisable) {
@@ -659,7 +659,7 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_e]) { // E = Win Mission
+    } else if (Keyboard[ScanCode::sc_e]) { // E = Win Mission
         CenterWindow(19, 3);
         US_PrintCentered("Instant Wiener!");
         InstantWin = 1;
@@ -667,7 +667,7 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_f]) { // F = facing spot
+    } else if (Keyboard[ScanCode::sc_f]) { // F = facing spot
         CenterWindow(18, 5);
         US_Print("X:");
         US_PrintUnsigned(player->x);
@@ -686,7 +686,7 @@ int16_t DebugKeys()
         return 1;
     }
 
-    if (Keyboard[sc_g]) { // G = god mode
+    if (Keyboard[ScanCode::sc_g]) { // G = god mode
         CenterWindow(12, 2);
         if (godmode) {
             US_PrintCentered("God mode OFF");
@@ -700,10 +700,10 @@ int16_t DebugKeys()
     }
 
 
-    if (Keyboard[sc_h]) { // H = hurt self
+    if (Keyboard[ScanCode::sc_h]) { // H = hurt self
         IN_ClearKeysDown();
         TakeDamage(1, nullptr);
-    } else if (Keyboard[sc_i]) { // I = item cheat
+    } else if (Keyboard[ScanCode::sc_i]) { // I = item cheat
         CenterWindow(12, 3);
         US_PrintCentered("Free items!");
         VW_UpdateScreen();
@@ -727,13 +727,13 @@ int16_t DebugKeys()
         DrawScore();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_m]) { // M = memory info
+    } else if (Keyboard[ScanCode::sc_m]) { // M = memory info
         DebugMemory();
         return 1;
     }
 #if IN_DEVELOPMENT
 #if (!BETA_TEST)
-    else if (Keyboard[sc_n]) { // N = no clip
+    else if (Keyboard[ScanCode::sc_n]) { // N = no clip
         gamestate.flags ^= GS_CLIP_WALLS;
         CenterWindow(18, 3);
         if (gamestate.flags & GS_CLIP_WALLS) {
@@ -746,21 +746,21 @@ int16_t DebugKeys()
         return 1;
     }
 #endif
-    else if (Keyboard[sc_p]) { // P = pause with no screen disruptioon
+    else if (Keyboard[ScanCode::sc_p]) { // P = pause with no screen disruptioon
         PicturePause();
         return 1;
     }
 #endif
-    else if (Keyboard[sc_q]) { // Q = fast quit
+    else if (Keyboard[ScanCode::sc_q]) { // Q = fast quit
         Quit();
     }
 #if IN_DEVELOPMENT
-    else if (Keyboard[sc_t]) { // T = shape test
+    else if (Keyboard[ScanCode::sc_t]) { // T = shape test
         ShapeTest();
         return 1;
     }
 #endif
-    else if (Keyboard[sc_o]) { // O = Show Push Walls
+    else if (Keyboard[ScanCode::sc_o]) { // O = Show Push Walls
         ExtraRadarFlags ^= OV_PUSHWALLS;
         CenterWindow(24, 3);
         if (ExtraRadarFlags & OV_PUSHWALLS) {
@@ -771,7 +771,7 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_u]) { // Unlock All Floors
+    } else if (Keyboard[ScanCode::sc_u]) { // Unlock All Floors
         int16_t i;
         CenterWindow(24, 3);
         US_PrintCentered("Unlock All Floors!");
@@ -783,7 +783,7 @@ int16_t DebugKeys()
         }
 
         return 1;
-    } else if (Keyboard[sc_v]) { // V = extra VBLs
+    } else if (Keyboard[ScanCode::sc_v]) { // V = extra VBLs
         CenterWindow(30, 3);
         PrintY += 6;
         US_Print("  Add how many extra VBLs(0-8):");
@@ -796,7 +796,7 @@ int16_t DebugKeys()
             }
         }
         return 1;
-    } else if (Keyboard[sc_s]) { // S = slow motion
+    } else if (Keyboard[ScanCode::sc_s]) { // S = slow motion
         ::singlestep = !::singlestep;
         CenterWindow(18, 3);
         if (singlestep) {
@@ -807,8 +807,8 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[sc_w]) { // W = warp to level
-        ForceLoadDefault = Keyboard[sc_left_shift] | Keyboard[sc_right_shift] | Keyboard[sc_caps_lock];
+    } else if (Keyboard[ScanCode::sc_w]) { // W = warp to level
+        ForceLoadDefault = Keyboard[ScanCode::sc_left_shift] | Keyboard[ScanCode::sc_right_shift] | Keyboard[ScanCode::sc_caps_lock];
 
         CenterWindow(26, 5);
         PrintY += 6;
@@ -832,7 +832,7 @@ int16_t DebugKeys()
             }
         }
         return 1;
-    } else if (Keyboard[sc_home]) { // Dec top color
+    } else if (Keyboard[ScanCode::sc_home]) { // Dec top color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_CEILING)
 #endif
@@ -847,7 +847,7 @@ int16_t DebugKeys()
             TopColor |= (TopColor << 8);
         }
 #endif
-    } else if (Keyboard[sc_page_up]) { // Inc top color
+    } else if (Keyboard[ScanCode::sc_page_up]) { // Inc top color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_CEILING)
 #endif
@@ -862,7 +862,7 @@ int16_t DebugKeys()
             TopColor |= (TopColor << 8);
         }
 #endif
-    } else if (Keyboard[sc_end]) { // Dec bottom color
+    } else if (Keyboard[ScanCode::sc_end]) { // Dec bottom color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
@@ -877,7 +877,7 @@ int16_t DebugKeys()
             BottomColor |= (BottomColor << 8);
         }
 #endif
-    } else if (Keyboard[sc_page_down]) { // Inc bottom color
+    } else if (Keyboard[ScanCode::sc_page_down]) { // Inc bottom color
 #ifdef CEILING_FLOOR_COLORS
         if (gamestate.flags & GS_DRAW_FLOOR)
 #endif
@@ -896,24 +896,24 @@ int16_t DebugKeys()
 
 #if (IN_DEVELOPMENT)
 #if !BETA_TEST
-    else if (Keyboard[sc_y]) {
+    else if (Keyboard[ScanCode::sc_y]) {
         GivePoints(100000L, false);
     }
 #endif
 #endif
 
     if (gamestate.flags & GS_LIGHTING) { // Shading adjustments
-        if (Keyboard[sc_equals] && normalshade_div < 12) {
+        if (Keyboard[ScanCode::sc_equals] && normalshade_div < 12) {
             normalshade_div++;
-        } else if (Keyboard[sc_minus] && normalshade_div > 1) {
+        } else if (Keyboard[ScanCode::sc_minus] && normalshade_div > 1) {
             normalshade_div--;
         }
 
         normalshade = (3 * (maxscale >> 2)) / normalshade_div;
 
-        if (Keyboard[sc_right_bracket] && shade_max < 63) {
+        if (Keyboard[ScanCode::sc_right_bracket] && shade_max < 63) {
             shade_max++;
-        } else if (Keyboard[sc_left_bracket] && shade_max > 5) {
+        } else if (Keyboard[ScanCode::sc_left_bracket] && shade_max > 5) {
             shade_max--;
         }
     }

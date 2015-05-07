@@ -3495,15 +3495,18 @@ int16_t InputFloor()
             ::CalcTics();
             ::in_handle_events();
 
-            if (::Keyboard[sc_escape]) {
+            if (::Keyboard[ScanCode::sc_escape]) {
                 result = -1;
             }
 
             auto target_level = 0;
 
-            for (int i = sc_1; i <= sc_0; ++i) {
+            for (auto i = static_cast<int>(ScanCode::sc_1);
+                i <= static_cast<int>(ScanCode::sc_0);
+                ++i)
+            {
                 if (::Keyboard[i]) {
-                    target_level = i - sc_1 + 1;
+                    target_level = i - static_cast<int>(ScanCode::sc_1) + 1;
                     break;
                 }
             }
@@ -3690,29 +3693,29 @@ int16_t InputFloor()
             // BBi
             ::in_handle_events();
 
-            if (Keyboard[sc_left_arrow]) {
+            if (Keyboard[ScanCode::sc_left_arrow]) {
                 controlx = -1;
-            } else if (Keyboard[sc_right_arrow]) {
+            } else if (Keyboard[ScanCode::sc_right_arrow]) {
                 controlx = 1;
             } else {
                 controlx = 0;
             }
 
-            if (Keyboard[sc_up_arrow]) {
+            if (Keyboard[ScanCode::sc_up_arrow]) {
                 controly = -1;
-            } else if (Keyboard[sc_down_arrow]) {
+            } else if (Keyboard[ScanCode::sc_down_arrow]) {
                 controly = 1;
             } else {
                 controly = 0;
             }
 
-            if (Keyboard[sc_escape] || buttonstate[bt_strafe]) {
+            if (Keyboard[ScanCode::sc_escape] || buttonstate[bt_strafe]) {
                 rt_code = -1; // ABORT
 
                 LoadLocationText(static_cast<int16_t>(
                     gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
                 break;
-            } else if (Keyboard[sc_return] || buttonstate[bt_attack]) {
+            } else if (Keyboard[ScanCode::sc_return] || buttonstate[bt_attack]) {
                 if (locked) {
                     if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY)) {
                         ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
@@ -4043,7 +4046,7 @@ int16_t ShowStats(
 
 // Setup to test for bypassing stats.
 //
-    LastScan = sc_none;
+    LastScan = ScanCode::sc_none;
 
     if (type == ss_quick) {
         show_stats_quick = true;
@@ -4141,7 +4144,7 @@ uint8_t ShowRatio(
     VW_Bar(bx, by, BAR_W, BAR_H, 0x07);
     PrintStatPercent(nx, ny, 0);
     for (loop = 0; loop < numbars; loop++) {
-        if (LastScan) {
+        if (LastScan != ScanCode::sc_none) {
             show_stats_quick = true;
         }
 
@@ -4171,7 +4174,7 @@ uint8_t ShowRatio(
     if (!show_stats_quick && numbars) {
         ::sd_play_player_sound(STATS2SND, bstone::AC_ITEM);
 
-        while (::SD_SoundPlaying() && !LastScan) {
+        while (::SD_SoundPlaying() && LastScan == ScanCode::sc_none) {
             ::in_handle_events();
         }
     }
@@ -4800,7 +4803,7 @@ void ActivateTerminal(
     if (!skiplink) {
         CacheTerminalPrint(TM_LINK, false);
 
-        if (Keyboard[sc_h] & Keyboard[sc_o] & Keyboard[sc_t]) {
+        if (Keyboard[ScanCode::sc_h] & Keyboard[ScanCode::sc_o] & Keyboard[ScanCode::sc_t]) {
             CacheTerminalPrint(TM_CHEATER, false);
         } else {
             VW_WaitVBL(1 * 60 + (US_RndT() % 60 * 2));
@@ -5609,6 +5612,9 @@ void RunBlakeRun()
 
     case west:
         blake->tilex += 2;
+        break;
+
+    default:
         break;
     }
 

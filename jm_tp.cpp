@@ -1010,7 +1010,7 @@ void initialize_tp_animation_table()
 // one place...
 //
 piAnimInfo piAnimList[TP_MAX_ANIMS];
-uint8_t TPscan;
+ScanCode TPscan;
 
 // Bunch of general globals!
 //
@@ -1818,12 +1818,12 @@ void TP_HandleCodes()
                 TP_Print(TP_MORE_TEXT, false);
             }
 
-            LastScan = sc_none;
+            LastScan = ScanCode::sc_none;
             do {
                 IN_ReadControl(0, &ci);
             } while (!ci.button0 && !ci.button1 && !ci.button2 &&
                      !ci.button3 && (ci.dir == dir_None) &&
-                     (!LastScan));
+                     (LastScan == ScanCode::sc_none));
 
             cur_x = xl;
             VWB_Bar(cur_x, cur_y, xh - xl + 1 + (TP_MARGIN * 2), font_height + is_shadowed, static_cast<uint8_t>(bgcolor));
@@ -1831,10 +1831,10 @@ void TP_HandleCodes()
                 TP_JumpCursor();
             }
 
-            if (LastScan == sc_escape) {
+            if (LastScan == ScanCode::sc_escape) {
                 flags &= ~fl_presenting;
             }
-            TPscan = static_cast<uint8_t>(LastScan);
+            TPscan = LastScan;
             break;
 
         // DISPLAY STRING --------------------------------------------------
@@ -1915,22 +1915,22 @@ void TP_HandleCodes()
 #endif
                 ReadAnyControl(&ci);
 
-                if (Keyboard[sc_page_up]) {
+                if (Keyboard[ScanCode::sc_page_up]) {
                     ci.dir = dir_North;
-                } else if (Keyboard[sc_page_down]) {
+                } else if (Keyboard[ScanCode::sc_page_down]) {
                     ci.dir = dir_South;
                 }
 
-                if (pi->flags & TPF_CONTINUE && (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return])) {
+                if (pi->flags & TPF_CONTINUE && (ci.button0 || Keyboard[ScanCode::sc_space] || Keyboard[ScanCode::sc_return])) {
                     EscPressed = false;
                     flags &= ~fl_presenting;
                     break;
                 }
 
-                if (ci.button1 || Keyboard[sc_escape]) {
+                if (ci.button1 || Keyboard[ScanCode::sc_escape]) {
                     EscPressed = true;
                     flags &= ~fl_presenting;
-                    TPscan = sc_escape;
+                    TPscan = ScanCode::sc_escape;
                     break;
                 } else {
                     if (((ci.dir == dir_North) || (ci.dir == dir_West)) && (pi->pagenum)) {
@@ -2108,10 +2108,10 @@ int16_t TP_DrawShape(
 #endif
 // VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
         break;
+#endif
 
     default:
         break;
-#endif
     }
 
 // Advance current x position past shape and tell calling function where
@@ -2216,10 +2216,10 @@ int16_t TP_BoxAroundShape(
         x2 = x1 + width - 1;
         y2 = y1 + (spritetable[shapenum - STARTSPRITES].height) - 1;
         break;
+#endif
 
     default:
         break;
-#endif
     }
 
     if (flags & fl_boxshape) {
@@ -2420,7 +2420,7 @@ void TP_Print(
 //
 // This should eventually be changed...
 //
-    LastScan = sc_none;
+    LastScan = ScanCode::sc_none;
 
     last_cur_x = cur_x;
     last_cur_y = cur_y;
@@ -2443,7 +2443,7 @@ void TP_Print(
     cur_x = px;
     cur_y = py;
 
-    if ((pi->flags & TPF_ABORTABLE) && LastScan) {
+    if ((pi->flags & TPF_ABORTABLE) && LastScan != ScanCode::sc_none) {
         flags &= ~fl_presenting;
     }
 }
@@ -2507,13 +2507,13 @@ bool TP_SlowPrint(
         // Delay and check for abort (if needed).
         //
         if (!aborted) {
-            LastScan = sc_none;
+            LastScan = ScanCode::sc_none;
             tc = TimeCount;
             while (static_cast<int32_t>(TimeCount) - tc < delay) {
                 VW_WaitVBL(1);
                 CycleColors();
                 if (pi->flags & TPF_ABORTABLE) {
-                    if ((pi->flags & TPF_ABORTABLE) && LastScan) {
+                    if ((pi->flags & TPF_ABORTABLE) && LastScan != ScanCode::sc_none) {
                         aborted = true;
                         break;
                     }

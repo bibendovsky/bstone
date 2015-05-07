@@ -166,7 +166,7 @@ void SetupMovie(
 
     movie_reps = MovieStuff->rep;
     movie_flag = MV_FILL;
-    LastScan = sc_none;
+    LastScan = ScanCode::sc_none;
     PageLen = 0;
     MorePagesAvail = true;
     ExitMovie = false;
@@ -177,7 +177,7 @@ void SetupMovie(
     JM_VGALinearFill(screenloc[0], 3 * 80 * 208, 0);
 
     VL_FillPalette(0, 0, 0);
-    LastScan = sc_none;
+    LastScan = ScanCode::sc_none;
 
     // Find out how much memory we have to work with..
 
@@ -487,7 +487,7 @@ void MOVIE_HandlePage(
 
         // BBi
         // FIXME Clear entire input state.
-        LastScan = sc_none;
+        LastScan = ScanCode::sc_none;
         ci.button0 = 0;
         ci.button1 = 0;
         // BBi
@@ -550,7 +550,7 @@ void MOVIE_HandlePage(
 
         TimeCount = 0;
 
-        if ((!screenfaded) && (ci.button0 || ci.button1 || LastScan)) {
+        if ((!screenfaded) && (ci.button0 || ci.button1 || LastScan != ScanCode::sc_none)) {
             ExitMovie = true;
             if (EverFaded) { // This needs to be a passed flag...
                 VW_FadeOut();

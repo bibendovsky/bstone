@@ -606,7 +606,7 @@ bool US_LineInput(
     cursorvis = done = false;
     lasttime = TimeCount;
     LastASCII = key_None;
-    LastScan = sc_none;
+    LastScan = ScanCode::sc_none;
 
     while (!done) {
         if (cursorvis) {
@@ -620,7 +620,7 @@ bool US_LineInput(
         ::in_handle_events();
 
         sc = LastScan;
-        LastScan = sc_none;
+        LastScan = ScanCode::sc_none;
         c = LastASCII;
         LastASCII = key_None;
 
@@ -649,7 +649,7 @@ bool US_LineInput(
             cursormoved = true;
             redraw = use_custom_cursor; // JAM -
             break;
-        case sc_end:
+        case ScanCode::sc_end:
             cursor = strlen(s);
             c = key_None;
             cursormoved = true;
@@ -657,13 +657,13 @@ bool US_LineInput(
 
 #endif
 
-        case sc_return:
+        case ScanCode::sc_return:
             strcpy(buf, s);
             done = true;
             result = true;
             c = key_None;
             break;
-        case sc_escape:
+        case ScanCode::sc_escape:
             if (escok) {
                 done = true;
                 result = false;
@@ -671,7 +671,7 @@ bool US_LineInput(
             c = key_None;
             break;
 
-        case sc_backspace:
+        case ScanCode::sc_backspace:
             if (cursor) {
                 strcpy(s + cursor - 1, s + cursor);
                 cursor--;
@@ -692,12 +692,15 @@ bool US_LineInput(
             break;
 #endif
 
-        case sc_up_arrow:
-        case sc_down_arrow:
-        case sc_page_up:
-        case sc_page_down:
-        case sc_insert:
+        case ScanCode::sc_up_arrow:
+        case ScanCode::sc_down_arrow:
+        case ScanCode::sc_page_up:
+        case ScanCode::sc_page_down:
+        case ScanCode::sc_insert:
             c = key_None;
+            break;
+
+        default:
             break;
         }
 

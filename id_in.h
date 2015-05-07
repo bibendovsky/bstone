@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #endif
 
 #include <cstdint>
+#include <bitset>
 #include <memory>
 #include <vector>
 
@@ -46,7 +47,7 @@ Free Software Foundation, Inc.,
 #define MaxJoys 2
 #define NumCodes 128
 
-enum ScanCode {
+enum class ScanCode {
     sc_none = 0,
 
     sc_return = 0x1C,
@@ -314,11 +315,53 @@ struct JoystickDef {
 
 // Global variables
 
+class KeyboardState {
+private:
+    using State = std::bitset<NumCodes>;
+
+
+public:
+    KeyboardState() :
+            state_()
+    {
+    }
+
+    KeyboardState(
+        const KeyboardState& that) = delete;
+
+    KeyboardState& operator=(
+        const KeyboardState& that) = delete;
+
+    ~KeyboardState()
+    {
+    }
+
+    State::reference operator[](
+        int index)
+    {
+        return state_[index];
+    }
+
+    State::reference operator[](
+        ScanCode scan_code)
+    {
+        return state_[static_cast<size_t>(scan_code)];
+    }
+
+    void reset()
+    {
+        state_.reset();
+    }
+
+private:
+    State state_;
+}; // KeyboardState
+
 extern bool NGinstalled; // JAM
 
 extern bool JoystickCalibrated; // JAM - added
 extern ControlType ControlTypeUsed; // JAM - added
-extern bool Keyboard[];
+extern KeyboardState Keyboard;
 extern bool MousePresent;
 extern bool JoysPresent[];
 extern bool Paused;
@@ -334,7 +377,7 @@ extern uint16_t DemoOffset, DemoSize;
 // Function prototypes
 #define IN_KeyDown(code) (Keyboard[(code)])
 #define IN_ClearKey(code) { Keyboard[code] = false; \
-                            if (code == LastScan) { LastScan = sc_none; } }
+                            if (code == LastScan) { LastScan = ScanCode::sc_none; } }
 
 // DEBUG - put names in prototypes
 void IN_Startup();
@@ -369,7 +412,7 @@ extern char IN_WaitForASCII();
 extern ScanCode IN_WaitForKey();
 extern uint16_t IN_GetJoyButtonsDB(
     uint16_t joy);
-extern uint8_t* IN_GetScanName(ScanCode);
+extern const std::string& IN_GetScanName(ScanCode);
 
 
 uint8_t IN_MouseButtons();

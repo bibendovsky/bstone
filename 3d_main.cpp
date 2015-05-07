@@ -7850,7 +7850,7 @@ void DemoLoop()
                 startgame = true;
             } else
 #endif
-            US_ControlPanel(0);
+            US_ControlPanel(ScanCode::sc_none);
         }
         if (startgame || loadedgame) {
             GameLoop();

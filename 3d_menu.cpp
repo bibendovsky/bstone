@@ -319,136 +319,68 @@ static const std::string& get_saved_game_base_name()
 
 #ifndef CACHE_KEY_DATA
 
-#define type_cast(x, y) (reinterpret_cast<x>(const_cast<char*>(y)))
+using ScanCodes = std::vector<ScanCode>;
+using ScanNames = std::vector<std::string>;
 
-// FIXME Make const
-static uint8_t* ScanNames[] = { // Scan code names with single chars
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "1"), type_cast(uint8_t*, "2"),
-    type_cast(uint8_t*, "3"), type_cast(uint8_t*, "4"),
-    type_cast(uint8_t*, "5"), type_cast(uint8_t*, "6"),
-    type_cast(uint8_t*, "7"), type_cast(uint8_t*, "8"),
-    type_cast(uint8_t*, "9"), type_cast(uint8_t*, "0"),
-    type_cast(uint8_t*, "-"), type_cast(uint8_t*, "+"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "Q"), type_cast(uint8_t*, "W"),
-    type_cast(uint8_t*, "E"), type_cast(uint8_t*, "R"),
-    type_cast(uint8_t*, "T"), type_cast(uint8_t*, "Y"),
-    type_cast(uint8_t*, "U"), type_cast(uint8_t*, "I"),
-    type_cast(uint8_t*, "O"), type_cast(uint8_t*, "P"),
-    type_cast(uint8_t*, "["), type_cast(uint8_t*, "]"),
-    type_cast(uint8_t*, "|"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "A"), type_cast(uint8_t*, "S"),
-    type_cast(uint8_t*, "D"), type_cast(uint8_t*, "F"),
-    type_cast(uint8_t*, "G"), type_cast(uint8_t*, "H"),
-    type_cast(uint8_t*, "J"), type_cast(uint8_t*, "K"),
-    type_cast(uint8_t*, "L"), type_cast(uint8_t*, ";"),
-    type_cast(uint8_t*, "\""), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "Z"), type_cast(uint8_t*, "X"),
-    type_cast(uint8_t*, "C"), type_cast(uint8_t*, "V"),
-    type_cast(uint8_t*, "B"), type_cast(uint8_t*, "N"),
-    type_cast(uint8_t*, "M"), type_cast(uint8_t*, ","),
-    type_cast(uint8_t*, "."), type_cast(uint8_t*, "/"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "\xF"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "-"), type_cast(uint8_t*, "\x15"),
-    type_cast(uint8_t*, "5"), type_cast(uint8_t*, "\x11"),
-    type_cast(uint8_t*, "+"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "\x13"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?"),
-    type_cast(uint8_t*, "?"), type_cast(uint8_t*, "?")
-}; // DEBUG - consolidate these
+// Scan code names with single chars
+static ScanNames scan_names = {
+    "?", "?", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "+", "?", "?",
+    "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "|", "?", "A", "S",
+    "D", "F", "G", "H", "J", "K", "L", ";", "\"", "?", "?", "?", "Z", "X", "C", "V",
+    "B", "N", "M", ",", ".", "/", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?",
+    "?", "?", "?", "?", "?", "?", "?", "?", "\xF", "?", "-", "\x15", "5", "\x11", "+", "?",
+    "\x13", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?",
+    "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?",
+    "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?",
+}; // scan_names
 
 // Scan codes with >1 char names
-static ScanCode ExtScanCodes[] = {
-    sc_escape,
-    sc_backspace,
-    sc_tab,
-    sc_control,
-    sc_left_shift,
-    sc_space,
-    sc_caps_lock,
-    sc_f1,
-    sc_f2,
-    sc_f3,
-    sc_f4,
-    sc_f5,
-    sc_f6,
-    sc_f7,
-    sc_f8,
-    sc_f9,
-    sc_f10,
-    sc_f11,
-    sc_f12,
-    sc_scroll_lock,
-    sc_return,
-    sc_right_shift,
-    sc_print_screen,
-    sc_alt,
-    sc_home,
-    sc_page_up,
-    sc_end,
-    sc_page_down,
-    sc_insert,
-    sc_delete,
-    sc_num_lock,
-    sc_up_arrow,
-    sc_down_arrow,
-    sc_left_arrow,
-    sc_right_arrow,
-    sc_none
+static ScanCodes ext_scan_codes = {
+    ScanCode::sc_escape,
+    ScanCode::sc_backspace,
+    ScanCode::sc_tab,
+    ScanCode::sc_control,
+    ScanCode::sc_left_shift,
+    ScanCode::sc_space,
+    ScanCode::sc_caps_lock,
+    ScanCode::sc_f1,
+    ScanCode::sc_f2,
+    ScanCode::sc_f3,
+    ScanCode::sc_f4,
+    ScanCode::sc_f5,
+    ScanCode::sc_f6,
+    ScanCode::sc_f7,
+    ScanCode::sc_f8,
+    ScanCode::sc_f9,
+    ScanCode::sc_f10,
+    ScanCode::sc_f11,
+    ScanCode::sc_f12,
+    ScanCode::sc_scroll_lock,
+    ScanCode::sc_return,
+    ScanCode::sc_right_shift,
+    ScanCode::sc_print_screen,
+    ScanCode::sc_alt,
+    ScanCode::sc_home,
+    ScanCode::sc_page_up,
+    ScanCode::sc_end,
+    ScanCode::sc_page_down,
+    ScanCode::sc_insert,
+    ScanCode::sc_delete,
+    ScanCode::sc_num_lock,
+    ScanCode::sc_up_arrow,
+    ScanCode::sc_down_arrow,
+    ScanCode::sc_left_arrow,
+    ScanCode::sc_right_arrow,
+    ScanCode::sc_none,
 }; // ExtScanCodes
 
-static uint8_t* ExtScanNames[] = { // Names corresponding to ExtScanCodes
-    type_cast(uint8_t*, "ESC"), type_cast(uint8_t*, "BKSP"),
-    type_cast(uint8_t*, "TAB"), type_cast(uint8_t*, "CTRL"),
-    type_cast(uint8_t*, "LSHFT"), type_cast(uint8_t*, "SPACE"),
-    type_cast(uint8_t*, "CAPSLK"), type_cast(uint8_t*, "F1"),
-    type_cast(uint8_t*, "F2"), type_cast(uint8_t*, "F3"),
-    type_cast(uint8_t*, "F4"), type_cast(uint8_t*, "F5"),
-    type_cast(uint8_t*, "F6"), type_cast(uint8_t*, "F7"),
-    type_cast(uint8_t*, "F8"), type_cast(uint8_t*, "F9"),
-    type_cast(uint8_t*, "F10"), type_cast(uint8_t*, "F11"),
-    type_cast(uint8_t*, "F12"), type_cast(uint8_t*, "SCRLK"),
-    type_cast(uint8_t*, "ENTER"), type_cast(uint8_t*, "RSHFT"),
-    type_cast(uint8_t*, "PRTSC"), type_cast(uint8_t*, "ALT"),
-    type_cast(uint8_t*, "HOME"), type_cast(uint8_t*, "PGUP"),
-    type_cast(uint8_t*, "END"), type_cast(uint8_t*, "PGDN"),
-    type_cast(uint8_t*, "INS"), type_cast(uint8_t*, "DEL"),
-    type_cast(uint8_t*, "NUMLK"), type_cast(uint8_t*, "UP"),
-    type_cast(uint8_t*, "DOWN"), type_cast(uint8_t*, "LEFT"),
-    type_cast(uint8_t*, "RIGHT"), type_cast(uint8_t*, "")
-};
+static ScanNames ext_scan_names = {
+    "ESC", "BKSP", "TAB", "CTRL", "LSHFT", "SPACE", "CAPSLK", "F1",
+    "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+    "F10", "F11", "F12", "SCRLK", "ENTER", "RSHFT", "PRTSC", "ALT",
+    "HOME", "PGUP", "END", "PGDN", "INS", "DEL", "NUMLK", "UP",
+    "DOWN", "LEFT", "RIGHT", "",
+}; // ext_scan_names
 
 #else
 
@@ -457,9 +389,28 @@ ScanCode* ExtScanCodes;
 
 #endif
 
-static uint8_t special_keys[] = {
-    sc_back_quote, sc_equals, sc_minus, sc_l, sc_p, sc_m, sc_s, sc_i, sc_q, sc_w, sc_e, sc_return, sc_1, sc_2, sc_3, sc_4, sc_5, sc_tab
-};
+using SpecialKeys = std::vector<ScanCode>;
+
+static SpecialKeys special_keys = {
+    ScanCode::sc_back_quote,
+    ScanCode::sc_equals,
+    ScanCode::sc_minus,
+    ScanCode::sc_l,
+    ScanCode::sc_p,
+    ScanCode::sc_m,
+    ScanCode::sc_s,
+    ScanCode::sc_i,
+    ScanCode::sc_q,
+    ScanCode::sc_w,
+    ScanCode::sc_e,
+    ScanCode::sc_return,
+    ScanCode::sc_1,
+    ScanCode::sc_2,
+    ScanCode::sc_3,
+    ScanCode::sc_4,
+    ScanCode::sc_5,
+    ScanCode::sc_tab,
+}; // special_keys
 
 
 // BBi
@@ -682,99 +633,99 @@ void binds_initialize_menu()
     }
 
     binds_names.clear();
-    binds_names[sc_return] = "ENTER";
-    binds_names[sc_space] = "SPACE";
-    binds_names[sc_minus] = "-";
-    binds_names[sc_equals] = "=";
-    binds_names[sc_backspace] = "BACKSPACE";
-    binds_names[sc_tab] = "TAB";
-    binds_names[sc_alt] = "ALT";
-    binds_names[sc_left_bracket] = "[";
-    binds_names[sc_right_bracket] = "]";
-    binds_names[sc_control] = "CTRL";
-    binds_names[sc_caps_lock] = "CAPS LOCK";
-    binds_names[sc_num_lock] = "NUM LOCK";
-    binds_names[sc_scroll_lock] = "SCROLL LOCK";
-    binds_names[sc_left_shift] = "L-SHIFT";
-    binds_names[sc_right_shift] = "R-SHIFT";
-    binds_names[sc_up_arrow] = "UP";
-    binds_names[sc_down_arrow] = "DOWN";
-    binds_names[sc_left_arrow] = "LEFT";
-    binds_names[sc_right_arrow] = "RIGHT";
-    binds_names[sc_insert] = "INS";
-    binds_names[sc_delete] = "DEL";
-    binds_names[sc_home] = "HOME";
-    binds_names[sc_end] = "END";
-    binds_names[sc_page_up] = "PGUP";
-    binds_names[sc_page_down] = "PGDN";
-    binds_names[sc_slash] = "/";
-    binds_names[sc_f1] = "F1";
-    binds_names[sc_f2] = "F2";
-    binds_names[sc_f3] = "F3";
-    binds_names[sc_f4] = "F4";
-    binds_names[sc_f5] = "F5";
-    binds_names[sc_f6] = "F6";
-    binds_names[sc_f7] = "F7";
-    binds_names[sc_f8] = "F8";
-    binds_names[sc_f9] = "F9";
-    binds_names[sc_f10] = "F10";
-    binds_names[sc_f11] = "F11";
-    binds_names[sc_f12] = "F12";
-    binds_names[sc_print_screen] = "PRT SCR";
-    binds_names[sc_pause] = "PAUSE";
-    binds_names[sc_back_quote] = "`";
-    binds_names[sc_semicolon] = ";";
-    binds_names[sc_quote] = "'";
-    binds_names[sc_backslash] = "\\";
-    binds_names[sc_comma] = ",";
-    binds_names[sc_period] = ".";
+    binds_names[ScanCode::sc_return] = "ENTER";
+    binds_names[ScanCode::sc_space] = "SPACE";
+    binds_names[ScanCode::sc_minus] = "-";
+    binds_names[ScanCode::sc_equals] = "=";
+    binds_names[ScanCode::sc_backspace] = "BACKSPACE";
+    binds_names[ScanCode::sc_tab] = "TAB";
+    binds_names[ScanCode::sc_alt] = "ALT";
+    binds_names[ScanCode::sc_left_bracket] = "[";
+    binds_names[ScanCode::sc_right_bracket] = "]";
+    binds_names[ScanCode::sc_control] = "CTRL";
+    binds_names[ScanCode::sc_caps_lock] = "CAPS LOCK";
+    binds_names[ScanCode::sc_num_lock] = "NUM LOCK";
+    binds_names[ScanCode::sc_scroll_lock] = "SCROLL LOCK";
+    binds_names[ScanCode::sc_left_shift] = "L-SHIFT";
+    binds_names[ScanCode::sc_right_shift] = "R-SHIFT";
+    binds_names[ScanCode::sc_up_arrow] = "UP";
+    binds_names[ScanCode::sc_down_arrow] = "DOWN";
+    binds_names[ScanCode::sc_left_arrow] = "LEFT";
+    binds_names[ScanCode::sc_right_arrow] = "RIGHT";
+    binds_names[ScanCode::sc_insert] = "INS";
+    binds_names[ScanCode::sc_delete] = "DEL";
+    binds_names[ScanCode::sc_home] = "HOME";
+    binds_names[ScanCode::sc_end] = "END";
+    binds_names[ScanCode::sc_page_up] = "PGUP";
+    binds_names[ScanCode::sc_page_down] = "PGDN";
+    binds_names[ScanCode::sc_slash] = "/";
+    binds_names[ScanCode::sc_f1] = "F1";
+    binds_names[ScanCode::sc_f2] = "F2";
+    binds_names[ScanCode::sc_f3] = "F3";
+    binds_names[ScanCode::sc_f4] = "F4";
+    binds_names[ScanCode::sc_f5] = "F5";
+    binds_names[ScanCode::sc_f6] = "F6";
+    binds_names[ScanCode::sc_f7] = "F7";
+    binds_names[ScanCode::sc_f8] = "F8";
+    binds_names[ScanCode::sc_f9] = "F9";
+    binds_names[ScanCode::sc_f10] = "F10";
+    binds_names[ScanCode::sc_f11] = "F11";
+    binds_names[ScanCode::sc_f12] = "F12";
+    binds_names[ScanCode::sc_print_screen] = "PRT SCR";
+    binds_names[ScanCode::sc_pause] = "PAUSE";
+    binds_names[ScanCode::sc_back_quote] = "`";
+    binds_names[ScanCode::sc_semicolon] = ";";
+    binds_names[ScanCode::sc_quote] = "'";
+    binds_names[ScanCode::sc_backslash] = "\\";
+    binds_names[ScanCode::sc_comma] = ",";
+    binds_names[ScanCode::sc_period] = ".";
 
-    binds_names[sc_1] = "1";
-    binds_names[sc_2] = "2";
-    binds_names[sc_3] = "3";
-    binds_names[sc_4] = "4";
-    binds_names[sc_5] = "5";
-    binds_names[sc_6] = "6";
-    binds_names[sc_7] = "7";
-    binds_names[sc_8] = "8";
-    binds_names[sc_9] = "9";
-    binds_names[sc_0] = "0";
+    binds_names[ScanCode::sc_1] = "1";
+    binds_names[ScanCode::sc_2] = "2";
+    binds_names[ScanCode::sc_3] = "3";
+    binds_names[ScanCode::sc_4] = "4";
+    binds_names[ScanCode::sc_5] = "5";
+    binds_names[ScanCode::sc_6] = "6";
+    binds_names[ScanCode::sc_7] = "7";
+    binds_names[ScanCode::sc_8] = "8";
+    binds_names[ScanCode::sc_9] = "9";
+    binds_names[ScanCode::sc_0] = "0";
 
-    binds_names[sc_a] = "A";
-    binds_names[sc_b] = "B";
-    binds_names[sc_c] = "C";
-    binds_names[sc_d] = "D";
-    binds_names[sc_e] = "E";
-    binds_names[sc_f] = "F";
-    binds_names[sc_g] = "G";
-    binds_names[sc_h] = "H";
-    binds_names[sc_i] = "I";
-    binds_names[sc_j] = "J";
-    binds_names[sc_k] = "K";
-    binds_names[sc_l] = "L";
-    binds_names[sc_m] = "M";
-    binds_names[sc_n] = "N";
-    binds_names[sc_o] = "O";
-    binds_names[sc_p] = "P";
-    binds_names[sc_q] = "Q";
-    binds_names[sc_r] = "R";
-    binds_names[sc_s] = "S";
-    binds_names[sc_t] = "T";
-    binds_names[sc_u] = "U";
-    binds_names[sc_v] = "V";
-    binds_names[sc_w] = "W";
-    binds_names[sc_x] = "X";
-    binds_names[sc_y] = "Y";
-    binds_names[sc_z] = "Z";
+    binds_names[ScanCode::sc_a] = "A";
+    binds_names[ScanCode::sc_b] = "B";
+    binds_names[ScanCode::sc_c] = "C";
+    binds_names[ScanCode::sc_d] = "D";
+    binds_names[ScanCode::sc_e] = "E";
+    binds_names[ScanCode::sc_f] = "F";
+    binds_names[ScanCode::sc_g] = "G";
+    binds_names[ScanCode::sc_h] = "H";
+    binds_names[ScanCode::sc_i] = "I";
+    binds_names[ScanCode::sc_j] = "J";
+    binds_names[ScanCode::sc_k] = "K";
+    binds_names[ScanCode::sc_l] = "L";
+    binds_names[ScanCode::sc_m] = "M";
+    binds_names[ScanCode::sc_n] = "N";
+    binds_names[ScanCode::sc_o] = "O";
+    binds_names[ScanCode::sc_p] = "P";
+    binds_names[ScanCode::sc_q] = "Q";
+    binds_names[ScanCode::sc_r] = "R";
+    binds_names[ScanCode::sc_s] = "S";
+    binds_names[ScanCode::sc_t] = "T";
+    binds_names[ScanCode::sc_u] = "U";
+    binds_names[ScanCode::sc_v] = "V";
+    binds_names[ScanCode::sc_w] = "W";
+    binds_names[ScanCode::sc_x] = "X";
+    binds_names[ScanCode::sc_y] = "Y";
+    binds_names[ScanCode::sc_z] = "Z";
 
-    binds_names[sc_kp_minus] = "KP MINUS";
-    binds_names[sc_kp_plus] = "KP PLUS";
+    binds_names[ScanCode::sc_kp_minus] = "KP MINUS";
+    binds_names[ScanCode::sc_kp_plus] = "KP PLUS";
 
-    binds_names[sc_mouse_left] = "MOUSE 1";
-    binds_names[sc_mouse_middle] = "MOUSE 2";
-    binds_names[sc_mouse_right] = "MOUSE 3";
-    binds_names[sc_mouse_x1] = "MOUSE 4";
-    binds_names[sc_mouse_x2] = "MOUSE 5";
+    binds_names[ScanCode::sc_mouse_left] = "MOUSE 1";
+    binds_names[ScanCode::sc_mouse_middle] = "MOUSE 2";
+    binds_names[ScanCode::sc_mouse_right] = "MOUSE 3";
+    binds_names[ScanCode::sc_mouse_x1] = "MOUSE 4";
+    binds_names[ScanCode::sc_mouse_x2] = "MOUSE 5";
 
     for (const auto& binds_name : binds_names) {
         int width = 0;
@@ -876,7 +827,7 @@ bool binds_assign_new_key(
     for (int b = 0; b < k_max_bindings; ++b) {
         for (int k = 0; k < k_max_binding_keys; ++k) {
             if (in_bindings[b][k] == key) {
-                in_bindings[b][k] = sc_none;
+                in_bindings[b][k] = ScanCode::sc_none;
             }
         }
     }
@@ -889,7 +840,7 @@ bool binds_assign_new_key(
 void binds_remove_binding()
 {
     auto& item = binds[binds_window + binds_window_offset];
-    (*item.binding)[binds_key_index] = sc_none;
+    (*item.binding)[binds_key_index] = ScanCode::sc_none;
 }
 
 void binds_draw_item_text(
@@ -985,7 +936,7 @@ void binds_draw_keys(
         if (!(is_active && binds_is_assigning)) {
             key = (*item.binding)[k];
 
-            if (key != sc_none) {
+            if (key != ScanCode::sc_none) {
                 key_name = "???";
 
                 auto name_it = binds_names.find(key);
@@ -1073,17 +1024,17 @@ void binds_draw_menu()
         in_handle_events();
 
         if (binds_is_assigning) {
-            LastScan = sc_none;
+            LastScan = ScanCode::sc_none;
             bool quit = false;
 
             while (!quit) {
-                LastScan = sc_none;
+                LastScan = ScanCode::sc_none;
                 in_handle_events();
 
-                if (Keyboard[sc_escape]) {
+                if (Keyboard[ScanCode::sc_escape]) {
                     quit = true;
                     sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
-                } else if (LastScan != sc_none) {
+                } else if (LastScan != ScanCode::sc_none) {
                     auto& item = binds[binds_window + binds_window_offset];
 
                     if (binds_assign_new_key(LastScan, *item.binding)) {
@@ -1098,7 +1049,7 @@ void binds_draw_menu()
             is_escape_pressed = true;
             binds_is_assigning = false;
         } else {
-            if (Keyboard[sc_up_arrow]) {
+            if (Keyboard[ScanCode::sc_up_arrow]) {
                 if (!is_up_pressed) {
                     handle_up = true;
                     is_up_pressed = true;
@@ -1107,7 +1058,7 @@ void binds_draw_menu()
                 is_up_pressed = false;
             }
 
-            if (Keyboard[sc_down_arrow]) {
+            if (Keyboard[ScanCode::sc_down_arrow]) {
                 if (!is_down_pressed) {
                     handle_down = true;
                     is_down_pressed = true;
@@ -1116,7 +1067,7 @@ void binds_draw_menu()
                 is_down_pressed = false;
             }
 
-            if (Keyboard[sc_left_arrow]) {
+            if (Keyboard[ScanCode::sc_left_arrow]) {
                 if (!is_left_pressed) {
                     handle_left = true;
                     is_left_pressed = true;
@@ -1125,7 +1076,7 @@ void binds_draw_menu()
                 is_left_pressed = false;
             }
 
-            if (Keyboard[sc_right_arrow]) {
+            if (Keyboard[ScanCode::sc_right_arrow]) {
                 if (!is_right_pressed) {
                     handle_right = true;
                     is_right_pressed = true;
@@ -1134,7 +1085,7 @@ void binds_draw_menu()
                 is_right_pressed = false;
             }
 
-            if (Keyboard[sc_page_down]) {
+            if (Keyboard[ScanCode::sc_page_down]) {
                 if (!is_pgdn_pressed) {
                     handle_pgdn = true;
                     is_pgdn_pressed = true;
@@ -1143,7 +1094,7 @@ void binds_draw_menu()
                 is_pgdn_pressed = false;
             }
 
-            if (Keyboard[sc_page_up]) {
+            if (Keyboard[ScanCode::sc_page_up]) {
                 if (!is_pgup_pressed) {
                     handle_pgup = true;
                     is_pgup_pressed = true;
@@ -1152,7 +1103,7 @@ void binds_draw_menu()
                 is_pgup_pressed = false;
             }
 
-            if (Keyboard[sc_return]) {
+            if (Keyboard[ScanCode::sc_return]) {
                 if (!is_enter_pressed) {
                     handle_enter = true;
                     is_enter_pressed = true;
@@ -1161,7 +1112,7 @@ void binds_draw_menu()
                 is_enter_pressed = false;
             }
 
-            if (Keyboard[sc_delete]) {
+            if (Keyboard[ScanCode::sc_delete]) {
                 if (!is_delete_pressed) {
                     handle_delete = true;
                     is_delete_pressed = true;
@@ -1170,7 +1121,7 @@ void binds_draw_menu()
                 is_delete_pressed = false;
             }
 
-            if (Keyboard[sc_escape]) {
+            if (Keyboard[ScanCode::sc_escape]) {
                 if (!is_escape_pressed) {
                     handle_escape = true;
                     is_escape_pressed = true;
@@ -1336,7 +1287,7 @@ void HelpPresenter(
         NewViewSize();
     }
 
-    if (startmusic && TPscan == sc_escape) {
+    if (startmusic && TPscan == ScanCode::sc_escape) {
         ::StartCPMusic(MENUSONG);
     }
 
@@ -1347,7 +1298,7 @@ void HelpPresenter(
 // US_ControlPanel() - Control Panel!  Ta Da!
 // --------------------------------------------------------------------------
 void US_ControlPanel(
-    uint8_t scancode)
+    ScanCode scancode)
 {
     // BBi
     menu_background_color = (::is_aog_sw() ? 0x04 : TERM_BACK_COLOR);
@@ -1389,41 +1340,49 @@ void US_ControlPanel(
     //
     // F-KEYS FROM WITHIN GAME
     //
+    auto finish = false;
+
     switch (scancode) {
-    case sc_f1:
-        CleanupControlPanel();
-        HelpScreens();
+    case ScanCode::sc_f1:
+        ::CleanupControlPanel();
+        ::HelpScreens();
         return;
 
-    case sc_f2:
-        CP_SaveGame(0);
-        goto finishup;
+    case ScanCode::sc_f2:
+        ::CP_SaveGame(0);
+        finish = true;
+        break;
 
-    case sc_f3:
-        CP_LoadGame(0);
-//       refresh_screen=false;
-        goto finishup;
+    case ScanCode::sc_f3:
+        ::CP_LoadGame(0);
+        finish = true;
+        break;
 
-    case sc_f4:
-        CP_Sound(0);
-        goto finishup;
+    case ScanCode::sc_f4:
+        ::CP_Sound(0);
+        finish = true;
+        break;
 
 // BBi
 #if 0
-    case sc_f5:
+    case ScanCode::sc_f5:
         CP_ChangeView(0);
         goto finishup;
 #endif // 0
 
-    case sc_f6:
+    case ScanCode::sc_f6:
         CP_Control(0);
-        goto finishup;
+        finish = true;
+        break;
 
-finishup:
-        CleanupControlPanel();
-        return;
+    default:
+        break;
     }
 
+    if (finish) {
+        ::CleanupControlPanel();
+        return;
+    }
 
     DrawMainMenu();
     MenuFadeIn();
@@ -1572,13 +1531,13 @@ void CP_BlakeStoneSaga(
 // --------------------------------------------------------------------------
 // CP_CheckQuick() - CHECK QUICK-KEYS & QUIT (WHILE IN A GAME)
 // --------------------------------------------------------------------------
-int16_t CP_CheckQuick(
-    uint16_t scancode)
+bool CP_CheckQuick(
+    ScanCode scancode)
 {
     switch (scancode) {
     // END GAME
     //
-    case sc_f7:
+    case ScanCode::sc_f7:
         VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
         CA_CacheGrChunk(STARTFONT + 1);
 
@@ -1590,11 +1549,11 @@ int16_t CP_CheckQuick(
 
         WindowH = 200;
         fontnumber = 4;
-        return 1;
+        return true;
 
     // QUICKSAVE
     //
-    case sc_f8:
+    case ScanCode::sc_f8:
         if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick) {
             char string[100] = "Quick Save will overwrite:\n\"";
 
@@ -1631,11 +1590,11 @@ int16_t CP_CheckQuick(
             ::in_clear_mouse_deltas();
         }
 
-        return 1;
+        return true;
 
     // QUICKLOAD
     //
-    case sc_f9:
+    case ScanCode::sc_f9:
         if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick) {
             char string[100] = "Quick Load:\n\"";
 
@@ -1649,7 +1608,7 @@ int16_t CP_CheckQuick(
                 CP_LoadGame(1);
             } else {
                 refresh_screen = false;
-                return 1;
+                return true;
             }
 
             fontnumber = 4;
@@ -1669,11 +1628,11 @@ int16_t CP_CheckQuick(
         if (pickquick) {
             refresh_screen = false;
         }
-        return 1;
+        return true;
 
     // QUIT
     //
-    case sc_f10:
+    case ScanCode::sc_f10:
         CA_CacheGrChunk(STARTFONT + 1);
         VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
 
@@ -1688,10 +1647,11 @@ int16_t CP_CheckQuick(
         WindowH = 200;
         fontnumber = 4;
 
-        return 1;
-    }
+        return true;
 
-    return 0;
+    default:
+        return false;
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -2839,9 +2799,9 @@ void CalibrateJoystick()
 
     while (IN_GetJoyButtonsDB(joystickport)) {
     }
-    while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport)) {
+    while ((LastScan != ScanCode::sc_escape) && !IN_GetJoyButtonsDB(joystickport)) {
     }
-    if (LastScan == sc_escape) {
+    if (LastScan == ScanCode::sc_escape) {
         return;
     }
 
@@ -2852,9 +2812,9 @@ void CalibrateJoystick()
     CacheMessage(CALJOY2_TEXT);
     VW_UpdateScreen();
 
-    while ((LastScan != sc_escape) && !IN_GetJoyButtonsDB(joystickport)) {
+    while ((LastScan != ScanCode::sc_escape) && !IN_GetJoyButtonsDB(joystickport)) {
     }
-    if (LastScan == sc_escape) {
+    if (LastScan == ScanCode::sc_escape) {
         return;
     }
 
@@ -2894,7 +2854,7 @@ void MouseSensitivity(
                 VW_UpdateScreen();
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
-                while (Keyboard[sc_left_arrow]) {
+                while (Keyboard[ScanCode::sc_left_arrow]) {
                     ::in_handle_events();
                 }
 
@@ -2910,7 +2870,7 @@ void MouseSensitivity(
                 VW_UpdateScreen();
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
 
-                while (Keyboard[sc_right_arrow]) {
+                while (Keyboard[ScanCode::sc_right_arrow]) {
                     ::in_handle_events();
                 }
 
@@ -2922,9 +2882,9 @@ void MouseSensitivity(
             break;
         }
 
-        if (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return]) {
+        if (ci.button0 || Keyboard[ScanCode::sc_space] || Keyboard[ScanCode::sc_return]) {
             exit = 1;
-        } else if (ci.button1 || Keyboard[sc_escape]) {
+        } else if (ci.button1 || Keyboard[ScanCode::sc_escape]) {
             exit = 2;
         }
 
@@ -3033,8 +2993,8 @@ enum ControlButton1 {
     OPEN
 }; // ControlButton1
 
-char mbarray[4][3] = { "B0", "B1", "B2", "B3" },
-     order[4] = { RUN, OPEN, FIRE, STRAFE };
+char mbarray[4][3] = { "B0", "B1", "B2", "B3" };
+int order[4] = { RUN, OPEN, FIRE, STRAFE, };
 
 // --------------------------------------------------------------------------
 // CustomControls() CUSTOMIZE CONTROLS
@@ -3123,22 +3083,23 @@ void DefineKeyMove()
 bool TestForValidKey(
     ScanCode Scan)
 {
-    char* pos;
+    auto found = false;
 
-    pos = static_cast<char*>(memchr(buttonscan, Scan, sizeof(buttonscan)));
+    auto it = std::find(buttonscan.begin(), buttonscan.end(), Scan);
 
-    if (!pos) {
-        pos = static_cast<char*>(memchr(dirscan, Scan, sizeof(dirscan)));
+    if (it == buttonscan.end()) {
+        it = std::find(dirscan.begin(), dirscan.end(), Scan);
+
+        found = (it != dirscan.end());
     }
 
-    if (pos) {
-        *pos = sc_none;
+    if (found) {
+        *it = ScanCode::sc_none;
         ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
-
-        DrawCustomScreen();
+        ::DrawCustomScreen();
     }
 
-    return !((pos > 0) ? true : false);
+    return !found;
 }
 
 
@@ -3208,7 +3169,7 @@ void EnterCtrlData(
         ReadAnyControl(&ci);
 
         if (type == MOUSE || type == JOYSTICK) {
-            if (IN_KeyDown(sc_return) || IN_KeyDown(sc_control) || IN_KeyDown(sc_alt)) {
+            if (IN_KeyDown(ScanCode::sc_return) || IN_KeyDown(ScanCode::sc_control) || IN_KeyDown(ScanCode::sc_alt)) {
                 IN_ClearKeysDown();
                 ci.button0 = ci.button1 = false;
             }
@@ -3219,7 +3180,7 @@ void EnterCtrlData(
         //
 
         if ((ci.button0 | ci.button1 | ci.button2 | ci.button3) ||
-            ((type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_return))
+            ((type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == ScanCode::sc_return))
         {
             tick = 0;
             TimeCount = 0;
@@ -3286,7 +3247,7 @@ void EnterCtrlData(
                             }
                         }
 
-                        buttonmouse[result - 1] = order[which];
+                        buttonmouse[result - 1] = static_cast<int16_t>(order[which]);
                         picked = 1;
 
                         ::sd_play_player_sound(
@@ -3317,7 +3278,7 @@ void EnterCtrlData(
                             }
                         }
 
-                        buttonjoy[result - 1] = order[which];
+                        buttonjoy[result - 1] = static_cast<int16_t>(order[which]);
                         picked = 1;
 
                         ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
@@ -3327,12 +3288,17 @@ void EnterCtrlData(
                     break;
 
                 case KEYBOARDBTNS:
-                    if (LastScan) {
-                        if (LastScan == sc_escape) {
+                    if (LastScan != ScanCode::sc_none) {
+                        if (LastScan == ScanCode::sc_escape) {
                             break;
                         }
 
-                        if (memchr(special_keys, LastScan, sizeof(special_keys))) {
+                        auto it = std::find(
+                            special_keys.cbegin(),
+                            special_keys.cend(),
+                            LastScan);
+
+                        if (it != special_keys.cend()) {
                             ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
                         } else {
                             clean_display = TestForValidKey(LastScan);
@@ -3341,8 +3307,7 @@ void EnterCtrlData(
                                 ShootSnd();
                             }
 
-                            buttonscan[static_cast<int>(order[which])] =
-                                static_cast<int16_t>(LastScan);
+                            buttonscan[order[which]] = LastScan;
 
                             picked = 1;
                         }
@@ -3352,12 +3317,17 @@ void EnterCtrlData(
 
 
                 case KEYBOARDMOVE:
-                    if (LastScan) {
-                        if (LastScan == sc_escape) {
+                    if (LastScan != ScanCode::sc_none) {
+                        if (LastScan == ScanCode::sc_escape) {
                             break;
                         }
 
-                        if (memchr(special_keys, LastScan, sizeof(special_keys))) {
+                        auto it = std::find(
+                            special_keys.cbegin(),
+                            special_keys.cend(),
+                            LastScan);
+
+                        if (it != special_keys.cend()) {
                             ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
                         } else {
                             clean_display = TestForValidKey(LastScan);
@@ -3366,7 +3336,7 @@ void EnterCtrlData(
                                 ShootSnd();
                             }
 
-                            dirscan[moveorder[which]] = static_cast<int16_t>(LastScan);
+                            dirscan[moveorder[which]] = LastScan;
                             picked = 1;
                         }
                         IN_ClearKeysDown();
@@ -3379,7 +3349,7 @@ void EnterCtrlData(
                 // EXIT INPUT?
                 //
 
-                if (IN_KeyDown(sc_escape)) {
+                if (IN_KeyDown(ScanCode::sc_escape)) {
                     picked = 1;
                     continue;
                 }
@@ -3396,7 +3366,7 @@ void EnterCtrlData(
             continue;
         }
 
-        if (ci.button1 || IN_KeyDown(sc_escape)) {
+        if (ci.button1 || IN_KeyDown(ScanCode::sc_escape)) {
             exit = 1;
         }
 
@@ -3678,7 +3648,7 @@ void PrintCustKeybd(
     int16_t i)
 {
     PrintX = CST_START + CST_SPC * i;
-    US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(buttonscan[static_cast<int>(order[i])]))));
+    US_Print(IN_GetScanName(buttonscan[order[i]]).c_str());
 }
 
 
@@ -3717,7 +3687,7 @@ void PrintCustKeys(
     int16_t i)
 {
     PrintX = CST_START + CST_SPC * i;
-    US_Print(reinterpret_cast<char*>(IN_GetScanName(static_cast<ScanCode>(dirscan[moveorder[i]]))));
+    US_Print(IN_GetScanName(dirscan[moveorder[i]]).c_str());
 }
 
 
@@ -4153,11 +4123,11 @@ int16_t HandleMenu(
             break;
         }
 
-        if (ci.button0 || Keyboard[sc_space] || Keyboard[sc_return]) {
+        if (ci.button0 || Keyboard[ScanCode::sc_space] || Keyboard[ScanCode::sc_return]) {
             exit = 1;
         }
 
-        if (ci.button1 || Keyboard[sc_escape]) {
+        if (ci.button1 || Keyboard[ScanCode::sc_escape]) {
             exit = 2;
         }
 
@@ -4347,9 +4317,9 @@ void WaitKeyUp()
             ci.button1 != 0 ||
             ci.button2 != 0 ||
             ci.button3 != 0 ||
-            Keyboard[sc_space] ||
-            Keyboard[sc_return] ||
-            Keyboard[sc_escape]);
+            Keyboard[ScanCode::sc_space] ||
+            Keyboard[ScanCode::sc_return] ||
+            Keyboard[ScanCode::sc_escape]);
     }
 }
 
@@ -4523,21 +4493,21 @@ int16_t Confirm(
 
         // BBi
         IN_CheckAck();
-    } while (!Keyboard[sc_y] && !Keyboard[sc_n] && !Keyboard[sc_escape]);
+    } while (!Keyboard[ScanCode::sc_y] && !Keyboard[ScanCode::sc_n] && !Keyboard[ScanCode::sc_escape]);
 
 
-    if (Keyboard[sc_y]) {
+    if (Keyboard[ScanCode::sc_y]) {
         xit = 1;
         ShootSnd();
     }
 
 // BBi
 #if 0
-    while (Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_Escape]) {
+    while (Keyboard[ScanCode::sc_y] || Keyboard[ScanCode::sc_n] || Keyboard[sc_Escape]) {
     }
 #endif
 
-    while (Keyboard[sc_y] || Keyboard[sc_n] || Keyboard[sc_escape]) {
+    while (Keyboard[ScanCode::sc_y] || Keyboard[ScanCode::sc_n] || Keyboard[ScanCode::sc_escape]) {
         IN_CheckAck();
     }
 // BBi
@@ -4811,19 +4781,16 @@ uint8_t far* IN_GetScanName(
 // IN_GetScanName() - Returns a string containing the name of the
 //      specified scan code
 // ---------------------------------------------------------------------------
-uint8_t* IN_GetScanName(
+const std::string& IN_GetScanName(
     ScanCode scan)
 {
-    uint8_t** p;
-    ScanCode* s;
-
-    for (s = ExtScanCodes, p = ExtScanNames; *s; p++, s++) {
-        if (*s == scan) {
-            return *p;
+    for (auto i = 0; ext_scan_codes[i] != ScanCode::sc_none; ++i) {
+        if (ext_scan_codes[i] == scan) {
+            return ext_scan_names[i];
         }
     }
 
-    return ScanNames[scan];
+    return scan_names[static_cast<int>(scan)];
 }
 
 #endif
@@ -5009,7 +4976,7 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_up_arrow]) {
+            while (Keyboard[ScanCode::sc_up_arrow]) {
                 ::in_handle_events();
             }
             break;
@@ -5022,7 +4989,7 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_down_arrow]) {
+            while (Keyboard[ScanCode::sc_down_arrow]) {
                 ::in_handle_events();
             }
             break;
@@ -5036,7 +5003,7 @@ void cp_sound_volume(
                 VW_UpdateScreen();
             }
 
-            while (Keyboard[sc_left_arrow]) {
+            while (Keyboard[ScanCode::sc_left_arrow]) {
                 ::in_handle_events();
             }
             break;
@@ -5048,7 +5015,7 @@ void cp_sound_volume(
                 ++(*volumes[volume_index]);
             }
 
-            while (Keyboard[sc_right_arrow]) {
+            while (Keyboard[ScanCode::sc_right_arrow]) {
                 ::in_handle_events();
             }
             break;
@@ -5076,7 +5043,7 @@ void cp_sound_volume(
             VW_UpdateScreen();
         }
 
-        quit = (ci.button1 || Keyboard[sc_escape]);
+        quit = (ci.button1 || Keyboard[ScanCode::sc_escape]);
     }
 
     sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);

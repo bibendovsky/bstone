@@ -33,12 +33,14 @@ Free Software Foundation, Inc.,
 #include "jm_cio.h"
 
 
+enum class ScanCode;
+
+
 // #define DEMOS_EXTERN
 // #define MYPROFILE
 // #define TRACK_ENEMY_COUNT
 #define OBJ_RESERV
 
-// BBi
 const int BS_SAVE_VERSION = 3;
 
 #ifdef _DEBUG
@@ -3515,13 +3517,17 @@ extern uint16_t ExtraRadarFlags;
 //
 // control info
 //
+using DirScans = std::vector<ScanCode>;
+using ButtonScans = std::vector<ScanCode>;
+
+
 extern bool mouseenabled;
 extern bool joystickenabled;
 extern bool joypadenabled;
 extern bool joystickprogressive;
 extern int16_t joystickport;
-extern int16_t dirscan[4];
-extern int16_t buttonscan[NUMBUTTONS];
+extern DirScans dirscan;
+extern ButtonScans buttonscan;
 extern int16_t buttonmouse[4];
 extern int16_t buttonjoy[4];
 
@@ -4282,7 +4288,8 @@ void SpawnPatrol(
 void KillActor(
     objtype* ob);
 
-void US_ControlPanel(uint8_t);
+void US_ControlPanel(
+    ScanCode scan_code);
 
 int16_t IntSqrt(
     int32_t va);
@@ -4510,9 +4517,6 @@ extern char JM_FREE_DATA_START[];
 
 
 // BBi
-enum ScanCode;
-
-
 using Buffer = std::vector<unsigned char>;
 
 
