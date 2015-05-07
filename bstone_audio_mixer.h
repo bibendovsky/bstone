@@ -156,7 +156,6 @@ private:
     }; // CacheItem
 
     using Cache = std::vector<CacheItem>;
-    using CacheIt = Cache::iterator;
 
     class Position {
     public:
@@ -165,8 +164,6 @@ private:
     }; // Position
 
     using Positions = std::vector<Position>;
-    using PositionsIt = Positions::iterator;
-    using PositionsCIt = Positions::const_iterator;
 
     class PlayerPosition {
     public:
@@ -202,8 +199,6 @@ private:
     }; // Sound
 
     using Sounds = std::list<Sound>;
-    using SoundsIt = Sounds::iterator;
-    using SoundsCIt = Sounds::const_iterator;
 
     enum CommandType {
         CMD_PLAY,
@@ -220,8 +215,6 @@ private:
     }; // Command
 
     using PlayCommands = std::deque<Command>;
-    using PlayCommandsIt = PlayCommands::iterator;
-    using PlayCommandsCIt = PlayCommands::const_iterator;
     using Mutex = std::mutex;
     using MutexGuard = std::lock_guard<Mutex>;
 
@@ -249,6 +242,7 @@ private:
     std::atomic_bool is_any_sfx_playing_;
     std::atomic<float> sfx_volume_;
     std::atomic<float> music_volume_;
+    int mix_size_ms;
 
     void callback(
         uint8_t* dst_data,
@@ -306,7 +300,8 @@ private:
         void* user_data);
 
     static int calculate_mix_samples_count(
-        int dst_rate);
+        int dst_rate,
+        int mix_size_ms);
 
     static AudioDecoder* create_decoder_by_sound_type(
         SoundType sound_type);
