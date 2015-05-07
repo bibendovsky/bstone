@@ -143,7 +143,7 @@ enum pisType {
 }; // pisType;
 
 struct piShapeInfo {
-    uint16_t shapenum;
+    int16_t shapenum;
     pisType shapetype;
 }; // piShapeInfo
 
@@ -179,7 +179,7 @@ extern PiShapeInfos piShapeTable;
 extern PiAnimationInfos piAnimTable;
 extern piAnimInfo piAnimList[TP_MAX_ANIMS];
 extern char* piStringTable[PI_MAX_NUM_DISP_STRS];
-extern uint8_t TPscan;
+extern ScanCode TPscan;
 
 // -------------------------------------------------------------------------
 // Function prototypes

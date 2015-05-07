@@ -1111,7 +1111,7 @@ void CA_CacheGrChunk(
 void CA_CacheScreen(
     int16_t chunk)
 {
-    int32_t pos, compressed, expanded;
+    int32_t pos, compressed;
     uint8_t* source;
     int16_t next;
 
@@ -1132,7 +1132,6 @@ void CA_CacheScreen(
     grhandle.read(::ca_buffer.data(), compressed);
     source = ::ca_buffer.data();
 
-    expanded = *(int32_t*)source;
     source += 4; // skip over length
 
 //

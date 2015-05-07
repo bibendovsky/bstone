@@ -122,7 +122,6 @@ void ogl_draw_screen();
 void ogl_refresh_screen();
 void ogl_update_screen();
 
-bool ogl_initialize_video();
 void ogl_uninitialize_video();
 
 
@@ -373,7 +372,6 @@ void soft_draw_screen();
 void soft_refresh_screen();
 void soft_update_screen();
 
-bool soft_initialize_video();
 void soft_uninitialize_video();
 
 
@@ -944,6 +942,8 @@ void ogl_ortho(
     matrix[15] = 1.0F;
 }
 
+// BBi For debug puprposes
+#if 0
 // Clears error flags and returns true if any error flag was set,
 // otherwise returns false.
 bool ogl_check_for_and_clear_errors()
@@ -956,6 +956,7 @@ bool ogl_check_for_and_clear_errors()
 
     return result;
 }
+#endif
 
 // Just draws a screen texture.
 void ogl_draw_screen()
@@ -1746,11 +1747,6 @@ bool soft_initialize_renderer()
     }
 
     return is_succeed;
-}
-
-bool soft_initialize_video()
-{
-    return false;
 }
 
 bool x_initialize_video()

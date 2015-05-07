@@ -67,7 +67,7 @@ extern int16_t DigiMap[];
 bool sd_has_audio = false;
 bool sd_is_sound_enabled = false;
 bool sd_is_music_enabled = false;
-std::atomic_uint32_t TimeCount;
+std::atomic<uint32_t> TimeCount;
 
 uint8_t** SoundTable;
 

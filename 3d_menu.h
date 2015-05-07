@@ -371,8 +371,8 @@ void CP_Quit();
 void CP_ViewScores(
     int16_t temp1);
 int16_t CP_EndGame();
-int16_t CP_CheckQuick(
-    uint16_t scancode);
+bool CP_CheckQuick(
+    ScanCode scancode);
 void CustomControls(
     int16_t temp1);
 void MouseSensitivity(
