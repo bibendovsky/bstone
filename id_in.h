@@ -255,7 +255,7 @@ enum BindingId {
 
     e_bi_pause,
 
-    e_bi_last_entry
+    e_bi_last_entry,
 }; // BindingId
 
 const int k_max_binding_keys = 2;

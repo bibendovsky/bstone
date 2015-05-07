@@ -3517,8 +3517,8 @@ extern uint16_t ExtraRadarFlags;
 //
 // control info
 //
-using DirScans = std::vector<ScanCode>;
-using ButtonScans = std::vector<ScanCode>;
+using ScanCodes = std::vector<ScanCode>;
+using Buttons = std::vector<int16_t>;
 
 
 extern bool mouseenabled;
@@ -3526,10 +3526,10 @@ extern bool joystickenabled;
 extern bool joypadenabled;
 extern bool joystickprogressive;
 extern int16_t joystickport;
-extern DirScans dirscan;
-extern ButtonScans buttonscan;
-extern int16_t buttonmouse[4];
-extern int16_t buttonjoy[4];
+extern ScanCodes dirscan;
+extern ScanCodes buttonscan;
+extern Buttons buttonmouse;
+extern Buttons buttonjoy;
 
 extern bool buttonheld[NUMBUTTONS];
 

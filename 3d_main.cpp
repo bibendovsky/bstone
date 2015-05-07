@@ -6148,6 +6148,47 @@ static void write_high_scores()
 
     writer.write(bstone::Endian::le(checksum));
 }
+
+static void set_vanilla_controls()
+{
+    dirscan = {
+        ScanCode::sc_up_arrow,
+        ScanCode::sc_right_arrow,
+        ScanCode::sc_down_arrow,
+        ScanCode::sc_left_arrow,
+    }; // dirscan
+
+    buttonscan = {
+        ScanCode::sc_control,
+        ScanCode::sc_alt,
+        ScanCode::sc_right_shift,
+        ScanCode::sc_space,
+        ScanCode::sc_1,
+        ScanCode::sc_2,
+        ScanCode::sc_3,
+        ScanCode::sc_4,
+        ScanCode::sc_5,
+        ScanCode::sc_6,
+        ScanCode::sc_7,
+        ScanCode::sc_none,
+    }; // buttonscan
+
+    buttonmouse = {
+        bt_attack,
+        bt_strafe,
+        bt_use,
+        bt_nobutton,
+    }; // buttonmouse
+
+    buttonjoy = {
+        bt_attack,
+        bt_strafe,
+        bt_use,
+        bt_run,
+    }; // buttonjoy
+
+    ::in_set_default_bindings();
+}
 // BBi
 
 
@@ -6172,6 +6213,8 @@ void ReadConfig()
     auto config_path = ::get_profile_dir() + ::config_file_name;
 
     bstone::FileStream stream(config_path);
+
+    ::set_vanilla_controls();
 
     if (stream.is_open()) {
         uint32_t checksum = 0;
@@ -6300,7 +6343,7 @@ void ReadConfig()
         joystickport = 0;
         joystickprogressive = false;
 
-        in_set_default_bindings();
+        ::set_vanilla_controls();
 
 // BBi
 #if 0

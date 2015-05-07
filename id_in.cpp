@@ -1859,7 +1859,7 @@ void IN_Startup()
         JoysPresent[i] = checkjoys ? INL_StartJoy(static_cast<uint16_t>(i)) : false;
     }
 
-    in_set_default_bindings();
+    ::in_set_default_bindings();
 
     IN_Started = true;
 }
@@ -2002,6 +2002,10 @@ bool in_is_binding_pressed(
             return Keyboard[ScanCode::sc_6];
 
         case e_bi_weapon_7:
+            if (!::is_ps()) {
+                return false;
+            }
+
             return Keyboard[ScanCode::sc_back_quote];
 
         case e_bi_use:
@@ -2011,9 +2015,17 @@ bool in_is_binding_pressed(
             return Keyboard[ScanCode::sc_tab];
 
         case e_bi_radar_magnify:
+            if (!::is_ps()) {
+                return false;
+            }
+
             return Keyboard[ScanCode::sc_equals];
 
         case e_bi_radar_minify:
+            if (!::is_ps()) {
+                return false;
+            }
+
             return Keyboard[ScanCode::sc_minus];
 
         case e_bi_help:
@@ -2061,6 +2073,13 @@ bool in_is_binding_pressed(
         case e_bi_flooring:
             return Keyboard[ScanCode::sc_f];
 
+        case e_bi_heart_beat:
+            if (!::is_aog()) {
+                return false;
+            }
+
+            return Keyboard[ScanCode::sc_h];
+
         case e_bi_pause:
             return Keyboard[ScanCode::sc_p] || Keyboard[ScanCode::sc_pause];
 
@@ -2074,7 +2093,7 @@ void in_reset_binding_state(
     BindingId binding_id)
 {
     if (in_use_modern_bindings) {
-        const Binding& binding = in_bindings[binding_id];
+        const auto& binding = in_bindings[binding_id];
 
         if (binding[0] != ScanCode::sc_none) {
             Keyboard[binding[0]] = false;
@@ -2151,7 +2170,9 @@ void in_reset_binding_state(
             break;
 
         case e_bi_weapon_7:
-            Keyboard[ScanCode::sc_back_quote] = false;
+            if (::is_ps()) {
+                Keyboard[ScanCode::sc_back_quote] = false;
+            }
             break;
 
         case e_bi_use:
@@ -2163,11 +2184,15 @@ void in_reset_binding_state(
             break;
 
         case e_bi_radar_magnify:
-            Keyboard[ScanCode::sc_equals] = false;
+            if (::is_ps()) {
+                Keyboard[ScanCode::sc_equals] = false;
+            }
             break;
 
         case e_bi_radar_minify:
-            Keyboard[ScanCode::sc_minus] = false;
+            if (::is_ps()) {
+                Keyboard[ScanCode::sc_minus] = false;
+            }
             break;
 
         case e_bi_help:
@@ -2236,7 +2261,9 @@ void in_reset_binding_state(
             break;
 
         case e_bi_heart_beat:
-            Keyboard[ScanCode::sc_h] = false;
+            if (::is_aog()) {
+                Keyboard[ScanCode::sc_h] = false;
+            }
             break;
 
         default:

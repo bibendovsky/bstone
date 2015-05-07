@@ -141,29 +141,10 @@ bool joypadenabled;
 bool joystickprogressive;
 int16_t joystickport;
 
-DirScans dirscan = {
-    ScanCode::sc_up_arrow,
-    ScanCode::sc_right_arrow,
-    ScanCode::sc_down_arrow,
-    ScanCode::sc_left_arrow,
-}; // dirscan
-
-ButtonScans buttonscan = {
-    ScanCode::sc_control,
-    ScanCode::sc_alt,
-    ScanCode::sc_right_shift,
-    ScanCode::sc_space,
-    ScanCode::sc_1,
-    ScanCode::sc_2,
-    ScanCode::sc_3,
-    ScanCode::sc_4,
-    ScanCode::sc_5,
-    ScanCode::sc_6,
-    ScanCode::sc_7,
-}; // buttonscan
-
-int16_t buttonmouse[4] = { bt_attack, bt_strafe, bt_use, bt_nobutton };
-int16_t buttonjoy[4] = { bt_attack, bt_strafe, bt_use, bt_run };
+ScanCodes dirscan;
+ScanCodes buttonscan;
+Buttons buttonmouse;
+Buttons buttonjoy;
 
 const int viewsize = 20;
 
