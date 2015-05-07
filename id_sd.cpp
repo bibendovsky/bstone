@@ -250,7 +250,23 @@ void SD_Startup()
     ::sd_has_audio = ::SDL_DetectAdLib();
 
     if (::sd_has_audio) {
-        mixer.initialize(44100);
+        auto&& srate_string = ::g_args.get_option_value("srate");
+
+        auto srate = 0;
+
+        if (!bstone::StringHelper::lexical_cast(srate_string, srate)) {
+            srate = 0;
+        }
+
+        auto&& mixms_string = ::g_args.get_option_value("mixms");
+
+        auto mixms = 0;
+
+        if (!bstone::StringHelper::lexical_cast(mixms_string, mixms)) {
+            mixms = 0;
+        }
+
+        mixer.initialize(srate, mixms);
     } else {
         mixer.uninitialize();
     }

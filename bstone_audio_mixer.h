@@ -67,8 +67,10 @@ public:
 
     ~AudioMixer();
 
+    // Note: Mix size in milliseconds.
     bool initialize(
-        int dst_rate);
+        int dst_rate,
+        int mix_size_ms);
 
     void uninitialize();
 
@@ -122,6 +124,12 @@ public:
         ActorChannel channel) const;
 
     static int get_min_rate();
+
+    static int get_default_rate();
+
+    static int get_min_mix_size_ms();
+
+    static int get_default_mix_size_ms();
 
     static int get_max_channels();
 
@@ -242,7 +250,7 @@ private:
     std::atomic_bool is_any_sfx_playing_;
     std::atomic<float> sfx_volume_;
     std::atomic<float> music_volume_;
-    int mix_size_ms;
+    int mix_size_ms_;
 
     void callback(
         uint8_t* dst_data,

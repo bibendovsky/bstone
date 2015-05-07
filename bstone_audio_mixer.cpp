@@ -129,7 +129,7 @@ AudioMixer::AudioMixer() :
         is_any_sfx_playing_(),
         sfx_volume_(1.0F),
         music_volume_(1.0F),
-        mix_size_ms()
+        mix_size_ms_()
 {
 }
 
@@ -139,11 +139,9 @@ AudioMixer::~AudioMixer()
 }
 
 bool AudioMixer::initialize(
-    int dst_rate)
+    int dst_rate,
+    int mix_size_ms)
 {
-    const auto min_mix_size_ms = 20;
-    const auto default_mix_size_ms = 40;
-
     uninitialize();
 
     if (::SDL_WasInit(SDL_INIT_AUDIO) == 0) {
@@ -156,11 +154,21 @@ bool AudioMixer::initialize(
         }
     }
 
-    dst_rate_ = std::max(dst_rate, get_min_rate());
+    if (dst_rate == 0) {
+        dst_rate_ = get_default_rate();
+    } else {
+        dst_rate_ = std::max(dst_rate, get_min_rate());
+    }
+
+    if (mix_size_ms == 0) {
+        mix_size_ms_ = get_default_mix_size_ms();
+    } else {
+        mix_size_ms_ = std::max(mix_size_ms, get_min_mix_size_ms());
+    }
 
     mix_samples_count_ = calculate_mix_samples_count(
         dst_rate_,
-        default_mix_size_ms);
+        mix_size_ms_);
 
     SDL_AudioSpec src_spec;
     src_spec.freq = dst_rate_;
@@ -246,6 +254,7 @@ void AudioMixer::uninitialize()
     player_channels_state_ = 0;
     is_music_playing_ = false;
     is_any_sfx_playing_ = false;
+    mix_size_ms_ = 0;
 }
 
 bool AudioMixer::is_initialized() const
@@ -467,6 +476,24 @@ bool AudioMixer::is_player_channel_playing(
 int AudioMixer::get_min_rate()
 {
     return 11025;
+}
+
+// (static)
+int AudioMixer::get_default_rate()
+{
+    return 22050;
+}
+
+// (static)
+int AudioMixer::get_min_mix_size_ms()
+{
+    return 20;
+}
+
+// (static)
+int AudioMixer::get_default_mix_size_ms()
+{
+    return 40;
 }
 
 // (static)
