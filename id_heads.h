@@ -48,6 +48,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
+#include "bstone_crc32.h"
 #include "bstone_endian.h"
 #include "bstone_file_stream.h"
 #include "bstone_format_string.h"
