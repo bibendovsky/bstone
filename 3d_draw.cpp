@@ -1058,7 +1058,7 @@ void vga_clear_screen(
 
     int pixel_offset = vl_get_offset(bufferofs, 0, y_offset);
 
-    if (viewwidth == k_ref_width) {
+    if (viewwidth == ::vga_ref_width) {
         std::uninitialized_fill_n(
             &vga_memory[pixel_offset],
             height * vga_width,

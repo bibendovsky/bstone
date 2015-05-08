@@ -7709,7 +7709,7 @@ void DemoLoop()
                 ::CA_CacheGrChunk(TITLEPALETTE);
                 old_bufferofs = static_cast<uint16_t>(::bufferofs);
                 ::bufferofs = displayofs;
-                VW_Bar(0, 0, ::k_ref_width, ::k_ref_height, 0);
+                VW_Bar(0, 0, ::vga_ref_width, ::vga_ref_height, 0);
                 ::bufferofs = old_bufferofs;
 
                 ::VL_SetPalette(
@@ -7744,12 +7744,12 @@ void DemoLoop()
                     version_text_height + (2 * version_padding);
 
                 const auto version_bar_x =
-                    ::k_ref_width - (version_margin + version_bar_width);
+                    ::vga_ref_width - (version_margin + version_bar_width);
 
                 const auto version_bar_y = (
                     ::is_aog() ?
                         version_margin :
-                        ::k_ref_height -
+                        ::vga_ref_height -
                             (version_bar_height + ps_fizzle_height));
 
                 ::WindowX = static_cast<uint16_t>(version_bar_x);
@@ -7798,8 +7798,8 @@ void DemoLoop()
                     breakit |= ::FizzleFade(
                         ::bufferofs,
                         ::displayofs,
-                        ::k_ref_width,
-                        ::k_ref_height,
+                        ::vga_ref_width,
+                        ::vga_ref_height,
                         70,
                         true);
                 }

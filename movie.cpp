@@ -225,15 +225,15 @@ void JM_DrawBlock(
 {
     static_cast<void>(dest_offset);
 
-    int x = byte_offset % k_ref_width;
-    int y = byte_offset / k_ref_width;
+    int x = byte_offset % ::vga_ref_width;
+    int y = byte_offset / ::vga_ref_width;
 
     for (int i = 0; i < length; ++i) {
         VL_Plot(x, y, static_cast<uint8_t>(source[i]));
 
         ++x;
 
-        if (x == k_ref_width) {
+        if (x == ::vga_ref_width) {
             x = 0;
             ++y;
         }

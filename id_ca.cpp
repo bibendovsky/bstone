@@ -614,7 +614,7 @@ void ca_huff_expand_on_screen(
         int x = p;
         int y = 0;
 
-        while (y < k_ref_height) {
+        while (y < ::vga_ref_height) {
             if ((val & mask) == 0) {
                 nodeval = huffptr->bit0;
             } else {
@@ -634,7 +634,7 @@ void ca_huff_expand_on_screen(
 
                 x += 4;
 
-                if (x >= k_ref_width) {
+                if (x >= ::vga_ref_width) {
                     x = p;
                     ++y;
                 }

@@ -3439,7 +3439,7 @@ int16_t InputFloor()
         ::BevelBox(
             0,
             TOP_STRIP_HEIGHT,
-            static_cast<int16_t>(::k_ref_width),
+            static_cast<int16_t>(::vga_ref_width),
             static_cast<int16_t>(outer_height),
             BORDER_HI_COLOR,
             BORDER_MED_COLOR,
@@ -3448,7 +3448,7 @@ int16_t InputFloor()
         ::BevelBox(
             static_cast<int16_t>(border_width),
             static_cast<int16_t>(TOP_STRIP_HEIGHT + border_height),
-            static_cast<int16_t>(::k_ref_width - (2 * border_width)),
+            static_cast<int16_t>(::vga_ref_width - (2 * border_width)),
             static_cast<int16_t>(outer_height - (2 * border_height)),
             BORDER_LO_COLOR,
             BORDER_MED_COLOR,
