@@ -3890,7 +3890,7 @@ void LoadOverheadChunk(
         std::hex << std::uppercase << tpNum).to_string();
 
     bool is_succeed = true;
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     bstone::BinaryReader reader(&g_playtemp);
 
     if (::FindChunk(&g_playtemp, chunk_name) > 0) {
@@ -3907,7 +3907,7 @@ void LoadOverheadChunk(
         uint32_t saved_checksum = 0;
         is_succeed &= reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
-        is_succeed &= (saved_checksum == checksum);
+        is_succeed &= (saved_checksum == checksum.get_value());
     } else {
         is_succeed = false;
     }
@@ -3945,7 +3945,7 @@ void SaveOverheadChunk(
     //
     ::VL_ScreenToMem(ov_buffer, 64, 64, TOV_X, TOV_Y);
 
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     bstone::BinaryWriter writer(&g_playtemp);
 
     // Write chunk ID, SIZE, and IMAGE
@@ -3960,7 +3960,7 @@ void SaveOverheadChunk(
         reinterpret_cast<const uint8_t(&)[4096]>(ov_buffer[0]),
         writer, checksum);
     ov_stats.serialize(writer, checksum);
-    writer.write(bstone::Endian::le(checksum));
+    writer.write(bstone::Endian::le(checksum.get_value()));
 
     int64_t end_offset = g_playtemp.get_position();
     int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);

@@ -2568,11 +2568,11 @@ struct statobj_t {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // statobj_t
 
 // ---------------------
@@ -2603,11 +2603,11 @@ struct doorobj_t {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // doorobj_t
 
 
@@ -2673,11 +2673,11 @@ struct objtype {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // objtype
 
 
@@ -2745,11 +2745,11 @@ struct tilecoord_t {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // tilecoord_t
 
 // -----------------------------------
@@ -2765,11 +2765,11 @@ struct barrier_type {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // barrier_type;
 
 
@@ -2790,11 +2790,11 @@ struct statsInfoType {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // statsInfoType
 
 struct levelinfo {
@@ -2808,11 +2808,11 @@ struct levelinfo {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // levelinfo
 
 
@@ -2836,11 +2836,11 @@ struct fargametype {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // fargametype
 
 struct gametype {
@@ -2905,11 +2905,11 @@ struct gametype {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // gametype
 
 enum exit_t {
@@ -3052,11 +3052,11 @@ struct mCacheInfo {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // mCacheInfo
 
 // Basic 'message list' structure
@@ -3077,11 +3077,11 @@ struct con_mCacheInfo {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // con_mCacheInfo
 
 // Concession 'message list' structure
@@ -3092,11 +3092,11 @@ struct concession_t {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // concession_t
 
 // ------------------------ INFORMANT STRUCTURES --------------------------
@@ -3128,11 +3128,11 @@ struct eaWallInfo {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // eaWallInfo
 
 
@@ -3151,11 +3151,11 @@ struct GoldsternInfo_t {
 
     void serialize(
         bstone::BinaryWriter& writer,
-        uint32_t& checksum) const;
+        bstone::Crc32& checksum) const;
 
     void deserialize(
         bstone::BinaryReader& reader,
-        uint32_t& checksum);
+        bstone::Crc32& checksum);
 }; // GoldsternInfo_t
 
 
@@ -4461,20 +4461,6 @@ const char* what_;
 
 
 template<typename T>
-inline void DoChecksum(
-    const T& value,
-    uint32_t& checksum)
-{
-    auto src = reinterpret_cast<const uint8_t*>(&value);
-
-    for (size_t i = 0; i < sizeof(T); ++i) {
-        checksum += src[i] + 1;
-        checksum *= 31;
-    }
-}
-
-
-template<typename T>
 class ArchiveIsContainter
 {
 public:
@@ -4532,10 +4518,10 @@ template<typename T>
 inline void serialize_field_internal(
     const T& value,
     bstone::BinaryWriter& writer,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapNoneTag)
 {
-    ::DoChecksum(value, checksum);
+    checksum.update(value);
 
     if (!writer.write(bstone::Endian::le(value))) {
         throw ArchiveException("serialize_field");
@@ -4546,12 +4532,12 @@ template<typename T>
 inline void serialize_field_internal(
     const T& value,
     bstone::BinaryWriter& writer,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapU8Tag)
 {
     auto target_value = static_cast<uint8_t>(value);
 
-    ::DoChecksum(target_value, checksum);
+    checksum.update(target_value);
 
     if (!writer.write(target_value)) {
         throw ArchiveException("serialize_field");
@@ -4562,7 +4548,7 @@ template<typename T>
 inline void serialize_field_internal(
     const T& container,
     bstone::BinaryWriter& writer,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapContainerTag)
 {
     for (auto& item : container) {
@@ -4574,7 +4560,7 @@ template<typename T>
 inline void serialize_field(
     const T& value,
     bstone::BinaryWriter& writer,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::serialize_field_internal(
         value,
@@ -4587,7 +4573,7 @@ template<typename T, size_t N>
 inline void serialize_field(
     const T(&value)[N],
     bstone::BinaryWriter& writer,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
         ::serialize_field(value[i], writer, checksum);
@@ -4598,7 +4584,7 @@ template<typename T, size_t M, size_t N>
 inline void serialize_field(
     const T(&value)[M][N],
     bstone::BinaryWriter& writer,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
@@ -4611,7 +4597,7 @@ template<typename T>
 inline void deserialize_field_internal(
     T& value,
     bstone::BinaryReader& reader,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapNoneTag)
 {
     if (!reader.read(value)) {
@@ -4620,14 +4606,14 @@ inline void deserialize_field_internal(
 
     bstone::Endian::lei(value);
 
-    ::DoChecksum(value, checksum);
+    checksum.update(value);
 }
 
 template<typename T>
 inline void deserialize_field_internal(
     T& value,
     bstone::BinaryReader& reader,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapU8Tag)
 {
     uint8_t source_value = 0;
@@ -4636,7 +4622,7 @@ inline void deserialize_field_internal(
         throw ArchiveException("deserialize_field");
     }
 
-    ::DoChecksum(source_value, checksum);
+    checksum.update(source_value);
 
     value = static_cast<T>(source_value);
 }
@@ -4645,7 +4631,7 @@ template<>
 inline void deserialize_field_internal<bool>(
     bool& value,
     bstone::BinaryReader& reader,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapU8Tag)
 {
     uint8_t source_value = 0;
@@ -4654,7 +4640,7 @@ inline void deserialize_field_internal<bool>(
         throw ArchiveException("deserialize_field");
     }
 
-    ::DoChecksum(source_value, checksum);
+    checksum.update(source_value);
 
     value = (source_value != 0 ? true : false);
 }
@@ -4663,7 +4649,7 @@ template<typename T>
 inline void deserialize_field_internal(
     T& container,
     bstone::BinaryReader& reader,
-    uint32_t& checksum,
+    bstone::Crc32& checksum,
     ArchiveRemapContainerTag)
 {
     for (auto& item : container) {
@@ -4675,7 +4661,7 @@ template<typename T>
 inline void deserialize_field(
     T& value,
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field_internal(
         value,
@@ -4688,7 +4674,7 @@ template<typename T, size_t N>
 inline void deserialize_field(
     T(&value)[N],
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     for (size_t i = 0; i < N; ++i) {
         ::deserialize_field(value[i], reader, checksum);
@@ -4699,7 +4685,7 @@ template<typename T, size_t M, size_t N>
 inline void deserialize_field(
     T(&value)[M][N],
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     for (size_t i = 0; i < M; ++i) {
         for (size_t j = 0; j < N; ++j) {
@@ -4707,18 +4693,6 @@ inline void deserialize_field(
         }
     }
 }
-
-template<typename T, typename TAlloc>
-inline void deserialize_field(
-    const std::vector<T,TAlloc>& vector,
-    bstone::BinaryReader& reader,
-    uint32_t& checksum)
-{
-    for (const auto& value : vector) {
-        ::deserialize_field(value, reader, checksum);
-    }
-}
-
 
 
 enum class GameType {

@@ -6082,7 +6082,7 @@ void read_high_scores()
     bstone::FileStream stream(scores_path);
 
     if (stream.is_open()) {
-        uint32_t check_sum = 0;
+        bstone::Crc32 check_sum;
         bstone::BinaryReader reader(&stream);
 
         try {
@@ -6102,7 +6102,7 @@ void read_high_scores()
             reader.read(saved_checksum);
             bstone::Endian::lei(saved_checksum);
 
-            is_succeed = (saved_checksum == check_sum);
+            is_succeed = (saved_checksum == check_sum.get_value());
         }
     } else {
         is_succeed = false;
@@ -6129,7 +6129,7 @@ static void write_high_scores()
         return;
     }
 
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     bstone::BinaryWriter writer(&stream);
 
     for (const auto& score : Scores) {
@@ -6140,7 +6140,7 @@ static void write_high_scores()
         ::serialize_field(score.ratio, writer, checksum);
     }
 
-    writer.write(bstone::Endian::le(checksum));
+    writer.write(bstone::Endian::le(checksum.get_value()));
 }
 
 static void set_vanilla_controls()
@@ -6211,7 +6211,7 @@ void ReadConfig()
     ::set_vanilla_controls();
 
     if (stream.is_open()) {
-        uint32_t checksum = 0;
+        bstone::Crc32 checksum;
         bstone::BinaryReader reader(&stream);
 
         try {
@@ -6263,7 +6263,7 @@ void ReadConfig()
             reader.read(saved_checksum);
             bstone::Endian::lei(saved_checksum);
 
-            is_succeed = (saved_checksum == checksum);
+            is_succeed = (saved_checksum == checksum.get_value());
         }
     } else {
         is_succeed = false;
@@ -6393,7 +6393,7 @@ void WriteConfig()
         return;
     }
 
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     bstone::BinaryWriter writer(&stream);
 
     ::serialize_field(::sd_is_sound_enabled, writer, checksum);
@@ -6434,7 +6434,7 @@ void WriteConfig()
     ::serialize_field(g_heart_beat_sound, writer, checksum);
     ::serialize_field(g_rotated_automap, writer, checksum);
 
-    writer.write(bstone::Endian::le(checksum));
+    writer.write(bstone::Endian::le(checksum.get_value()));
 }
 
 // ===========================================================================
@@ -6679,7 +6679,7 @@ bool LoadLevel(
     //
 
     bool is_succeed = true;
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
 
     loadedgame = true;
     ::SetupGameLevel();
@@ -6828,7 +6828,7 @@ bool LoadLevel(
         reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
 
-        is_succeed = (saved_checksum == checksum);
+        is_succeed = (saved_checksum == checksum.get_value());
     }
 
     if (!is_succeed) {
@@ -6915,7 +6915,7 @@ bool SaveLevel(
     // leave four bytes for chunk size
     g_playtemp.skip(4);
 
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     int64_t beg_offset = g_playtemp.get_position();
 
     bstone::BinaryWriter writer(&g_playtemp);
@@ -7014,7 +7014,7 @@ bool SaveLevel(
 
     // Write checksum and determine size of file
     //
-    writer.write(bstone::Endian::le(checksum));
+    writer.write(bstone::Endian::le(checksum.get_value()));
 
     int64_t end_offset = g_playtemp.get_position();
     int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
@@ -7126,7 +7126,7 @@ bool LoadTheGame(
         is_succeed = (::FindChunk(stream, "HEAD") != 0);
     }
 
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     bstone::BinaryReader reader(stream);
 
     if (is_succeed) {
@@ -7142,7 +7142,7 @@ bool LoadTheGame(
         uint32_t saved_checksum = 0;
         reader.read(saved_checksum);
         bstone::Endian::lei(saved_checksum);
-        is_succeed = (saved_checksum == checksum);
+        is_succeed = (saved_checksum == checksum.get_value());
     }
 
     if (is_succeed) {
@@ -7255,7 +7255,7 @@ bool SaveTheGame(
     // leave four bytes for chunk size
     is_succeed &= (stream->skip(4) >= 0);
 
-    uint32_t checksum = 0;
+    bstone::Crc32 checksum;
     bstone::BinaryWriter writer(stream);
 
     int64_t beg_position = stream->get_position();
@@ -7271,7 +7271,7 @@ bool SaveTheGame(
         }
     }
 
-    is_succeed &= writer.write(bstone::Endian::le(checksum));
+    is_succeed &= writer.write(bstone::Endian::le(checksum.get_value()));
 
     int64_t end_position = stream->get_position();
     is_succeed &= (end_position >= 0);
@@ -8116,7 +8116,7 @@ void ShowMemory()
 // BBi
 void objtype::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -8154,7 +8154,7 @@ void objtype::serialize(
 
 void objtype::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -8193,7 +8193,7 @@ void objtype::deserialize(
 
 void statobj_t::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -8210,7 +8210,7 @@ void statobj_t::serialize(
 
 void statobj_t::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -8233,7 +8233,7 @@ void statobj_t::deserialize(
 
 void doorobj_t::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -8248,7 +8248,7 @@ void doorobj_t::serialize(
 
 void doorobj_t::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -8263,7 +8263,7 @@ void doorobj_t::deserialize(
 
 void mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(local_val, writer, checksum);
     ::serialize_field(global_val, writer, checksum);
@@ -8271,7 +8271,7 @@ void mCacheInfo::serialize(
 
 void mCacheInfo::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(local_val, reader, checksum);
     ::deserialize_field(global_val, reader, checksum);
@@ -8280,7 +8280,7 @@ void mCacheInfo::deserialize(
 
 void con_mCacheInfo::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     mInfo.serialize(writer, checksum);
     ::serialize_field(type, writer, checksum);
@@ -8289,7 +8289,7 @@ void con_mCacheInfo::serialize(
 
 void con_mCacheInfo::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     mInfo.deserialize(reader, checksum);
     ::deserialize_field(type, reader, checksum);
@@ -8298,7 +8298,7 @@ void con_mCacheInfo::deserialize(
 
 void concession_t::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(NumMsgs, writer, checksum);
 
@@ -8309,7 +8309,7 @@ void concession_t::serialize(
 
 void concession_t::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(NumMsgs, reader, checksum);
 
@@ -8320,7 +8320,7 @@ void concession_t::deserialize(
 
 void eaWallInfo::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -8330,7 +8330,7 @@ void eaWallInfo::serialize(
 
 void eaWallInfo::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -8340,7 +8340,7 @@ void eaWallInfo::deserialize(
 
 void GoldsternInfo_t::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(LastIndex, writer, checksum);
     ::serialize_field(SpawnCnt, writer, checksum);
@@ -8351,7 +8351,7 @@ void GoldsternInfo_t::serialize(
 
 void GoldsternInfo_t::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(LastIndex, reader, checksum);
     ::deserialize_field(SpawnCnt, reader, checksum);
@@ -8362,7 +8362,7 @@ void GoldsternInfo_t::deserialize(
 
 void tilecoord_t::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(tilex, writer, checksum);
     ::serialize_field(tiley, writer, checksum);
@@ -8370,7 +8370,7 @@ void tilecoord_t::serialize(
 
 void tilecoord_t::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(tilex, reader, checksum);
     ::deserialize_field(tiley, reader, checksum);
@@ -8378,7 +8378,7 @@ void tilecoord_t::deserialize(
 
 void barrier_type::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(level, writer, checksum);
     coord.serialize(writer, checksum);
@@ -8387,7 +8387,7 @@ void barrier_type::serialize(
 
 void barrier_type::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(level, reader, checksum);
     coord.deserialize(reader, checksum);
@@ -8396,7 +8396,7 @@ void barrier_type::deserialize(
 
 void statsInfoType::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(total_points, writer, checksum);
     ::serialize_field(accum_points, writer, checksum);
@@ -8409,7 +8409,7 @@ void statsInfoType::serialize(
 
 void statsInfoType::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(total_points, reader, checksum);
     ::deserialize_field(accum_points, reader, checksum);
@@ -8422,7 +8422,7 @@ void statsInfoType::deserialize(
 
 void levelinfo::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(bonus_queue, writer, checksum);
     ::serialize_field(bonus_shown, writer, checksum);
@@ -8435,7 +8435,7 @@ void levelinfo::serialize(
 
 void levelinfo::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(bonus_queue, reader, checksum);
     ::deserialize_field(bonus_shown, reader, checksum);
@@ -8468,7 +8468,7 @@ void fargametype::clear()
 
 void fargametype::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         old_levelinfo[i].serialize(writer, checksum);
@@ -8481,7 +8481,7 @@ void fargametype::serialize(
 
 void fargametype::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
         old_levelinfo[i].deserialize(reader, checksum);
@@ -8494,7 +8494,7 @@ void fargametype::deserialize(
 
 void gametype::serialize(
     bstone::BinaryWriter& writer,
-    uint32_t& checksum) const
+    bstone::Crc32& checksum) const
 {
     ::serialize_field(turn_around, writer, checksum);
     ::serialize_field(turn_angle, writer, checksum);
@@ -8562,7 +8562,7 @@ void gametype::serialize(
 
 void gametype::deserialize(
     bstone::BinaryReader& reader,
-    uint32_t& checksum)
+    bstone::Crc32& checksum)
 {
     ::deserialize_field(turn_around, reader, checksum);
     ::deserialize_field(turn_angle, reader, checksum);
