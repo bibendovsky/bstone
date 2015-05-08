@@ -46,7 +46,7 @@ public:
 
     void reset();
 
-    uint32_t get() const;
+    uint32_t get_value() const;
 
     void update(
         const void* data,

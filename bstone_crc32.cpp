@@ -142,5 +142,10 @@ void Crc32::update(
     value_ ^= 0xFFFFFFFF;
 }
 
+uint32_t Crc32::get_value() const
+{
+    return value_;
+}
+
 
 } // bstone
