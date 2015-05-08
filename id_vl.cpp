@@ -414,11 +414,21 @@ bool has_vsync = false;
 
 void check_vsync()
 {
+    const int draw_count = 10;
+
+    const int duration_tolerance_pct = 25;
+
+    const int expected_duration_ms =
+        (1000 * draw_count) / ::display_mode.refresh_rate;
+
+    const int min_expected_duration_ms =
+        ((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
+
     using Clock = std::chrono::system_clock;
 
     auto before_timestamp = Clock::now();
 
-    for (int i = 0; i < ::display_mode.refresh_rate; ++i) {
+    for (int i = 0; i < draw_count; ++i) {
         ::vid_draw_screen();
     }
 
@@ -429,9 +439,7 @@ void check_vsync()
     auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
         duration).count();
 
-    const int min_duration_ms = 750;
-
-    ::has_vsync = (duration_ms > min_duration_ms);
+    ::has_vsync = (duration_ms >= min_expected_duration_ms);
 }
 // BBi
 
@@ -488,6 +496,11 @@ void VL_SetVGAPlaneMode()
     delete [] ::vga_palette;
     ::vga_palette = new uint8_t[::vga_palette_size];
     std::uninitialized_fill_n(::vga_palette, ::vga_palette_size, 0);
+
+    ::vid_refresh_screen();
+    ::in_handle_events();
+
+    ::check_vsync();
 }
 
 #endif
@@ -2125,11 +2138,6 @@ void initialize_video()
     }
 
     ::SDL_ShowWindow(::sdl_window);
-
-    ::vid_refresh_screen();
-    ::in_handle_events();
-
-    ::check_vsync();
 }
 
 void uninitialize_video()
