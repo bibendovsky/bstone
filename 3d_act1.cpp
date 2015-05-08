@@ -412,7 +412,7 @@ void SpawnStatic(
     spot++;
 
     if (spot == &statobjlist[MAXSTATS]) {
-        ACT1_ERROR(SPAWNSTATIC_TOO_MANY);
+        ::Quit("Too many static objects.");
     }
 }
 
@@ -429,7 +429,7 @@ statobj_t* ReserveStatic()
     auto spot = FindEmptyStatic();
 
     if (!spot) {
-        ACT1_ERROR(SPAWNSTATIC_TOO_MANY);
+        ::Quit("Too many static objects.");
     }
 
     // Mark as Used.
@@ -483,7 +483,7 @@ statobj_t* UseReservedStatic(
     int16_t type;
 
     if (!spot) {
-        ACT1_ERROR(CANT_FIND_RESERVE_STATIC);
+        ::Quit("Count not find a reserved static at location (0, 0) with shape #1.");
     }
 
     //
@@ -492,7 +492,7 @@ statobj_t* UseReservedStatic(
 
     for (type = 0;; type++) {
         if (statinfo[type].picnum == -1) { // End of Static List...
-            ACT1_ERROR(PLACEITEMTYPE_NO_TYPE);
+            ::Quit("Couldn't find type.");
         }
 
         if (statinfo[type].type == itemtype) { // Bingo, Found it!
@@ -595,7 +595,7 @@ void PlaceItemType(
 //
     for (type = 0;; type++) {
         if (statinfo[type].picnum == -1) { // end of list
-            ACT1_ERROR(PLACEITEMTYPE_NO_TYPE);
+            ::Quit("Couldn't find type.");
         }
         if (statinfo[type].type == itemtype) {
             break;
@@ -847,7 +847,7 @@ void SpawnDoor(
     map[1] = mapsegs[1] + farmapylookup[tiley] + tilex;
 
     if (doornum == 64) {
-        ACT1_ERROR(SPAWNDOOR_TOO_MANY);
+        ::Quit("Too many doors in level.");
     }
 
     doorposition[doornum] = 0; // doors start out fully closed
@@ -1347,7 +1347,7 @@ void DropPlasmaDetonator()
         return;
     }
 
-    ACT1_ERROR(NO_DOORBOMB_SPARES);
+    ::Quit("Could not find Fision/Plasma Detonator reserve object.");
 }
 
 
@@ -1380,7 +1380,7 @@ void TryDropPlasmaDetonator()
     obj = FindObj(rotating_cubeobj, -1, -1);
 
     if (!obj) {
-        ACT1_ERROR(CANT_FIND_LEVELCOMPUTER);
+        ::Quit("Cound not find security cube - Need to have one pal!");
     }
 
     if (obj->areanumber != player->areanumber) {
@@ -1446,19 +1446,19 @@ int16_t TransformAreas(
         xofs = 0;
         yofs = 1;
     } else {
-        ACT1_ERROR(LINKAREA_BAD_LINK);
+        ::Quit("Invalid linkable area.");
     }
 
 // Define the two areas...
 //
     area1 = GetAreaNumber(static_cast<int8_t>(tilex + xofs), static_cast<int8_t>(tiley + yofs));
     if (area1 >= NUMAREAS) {
-        ACT1_ERROR(TRANSFORM_AREA1_OUT_OF_RANGE);
+        ::Quit("Area1 out of table range.");
     }
 
     area2 = GetAreaNumber(static_cast<int8_t>(tilex - xofs), static_cast<int8_t>(tiley - yofs));
     if (area2 >= NUMAREAS) {
-        ACT1_ERROR(TRANSFORM_AREA2_OUT_OF_RANGE);
+        ::Quit("Area2 out of table range.");
     }
 
 // Connect these two areas.
@@ -1932,7 +1932,7 @@ int16_t LoadMsg(
         Message = strstr(Message, int_xx);
 
         if (!Message) {
-            ACT1_ERROR(INVALID_CACHE_MSG_NUM);
+            ::Quit("Invalid 'Cached Message' number");
         }
 
         Message += 3;           // Bump to start of next Message
@@ -1947,7 +1947,7 @@ int16_t LoadMsg(
 // Find the end of the message
 //
     if ((EndOfMsg = strstr(Message, int_xx)) == nullptr) {
-        ACT1_ERROR(INVALID_CACHE_MSG_NUM);
+        ::Quit("Invalid 'Cached Message' number");
     }
     EndOfMsg += 3;
 
@@ -1959,7 +1959,7 @@ int16_t LoadMsg(
         }
 
         if (pos >= MaxMsgLen) {
-            ACT1_ERROR(HINT_BUFFER_OVERFLOW);
+            ::Quit("Cached Hint Message is to Long for allocated space.");
         }
 
         Message++;
@@ -2063,7 +2063,7 @@ void SpawnConcession(
     con_mCacheInfo* ci = &ConHintList.cmInfo[ConHintList.NumMsgs];
 
     if (ConHintList.NumMsgs >= MAXCONCESSIONS) {
-        ACT1_ERROR(SPAWNCONCESSION_TOO_MANY);
+        ::Quit("Too many concession machines in level.");
     }
 
     if (credits != PUSHABLETILE) {
@@ -2092,7 +2092,7 @@ void SpawnConcession(
 // Consider it a solid wall (val != 0)
 //
     if (++ConHintList.NumMsgs > MAX_CACHE_MSGS) {
-        ACT1_ERROR(SPAWNCON_CACHE_MSG_OVERFLOW);
+        ::Quit("(CONCESSIONS) Too many 'cached msgs' loaded.");
     }
 
     actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);

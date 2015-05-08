@@ -798,7 +798,8 @@ void MoveObj(
         return;
 
     default:
-        STATE_ERROR(MOVEOBJ_BAD_DIR);
+        ::Quit("Illegal direction passed.");
+        break;
     }
 
 //

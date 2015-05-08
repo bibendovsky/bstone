@@ -1844,7 +1844,7 @@ void TP_HandleCodes()
 
             disp_str_num = TP_VALUE(first_ch, 2);
             if (disp_str_num >= PI_MAX_NUM_DISP_STRS) {
-                TP_ERROR(TP_DISPLAY_STR_NUM_BAD);
+                ::Quit("String number exceeds max array size.");
             }
 
             old_first_ch = first_ch + 2;
@@ -2324,7 +2324,7 @@ void TP_CachePage(
                 script += 2;
 
                 if (numanims++ == TP_MAX_ANIMS) {
-                    TP_ERROR(TP_CACHEPAGE_ANIM_OF);
+                    ::Quit("Too many anims on one page.");
                 }
 
                 anim = &piAnimTable[shapenum];
@@ -2548,7 +2548,7 @@ int32_t TP_LoadScript(
         p = strstr(static_cast<const char*>(grsegs[id_cache]), "^XX");
 
         if (!p) {
-            TP_ERROR(TP_CANT_FIND_XX_TERMINATOR);
+            ::Quit("Can't find the ^XX doc terminator string.");
         }
         size = static_cast<int32_t>(p - static_cast<const char*>(pi->scriptstart) - 1);
     } else {
@@ -2615,7 +2615,7 @@ void TP_InitScript(
                 if (pi->numpages < TP_MAX_PAGES) {
                     pi->script[static_cast<int>(pi->numpages++)] = script;
                 } else {
-                    TP_ERROR(TP_INITSCRIPT_PAGES_OF);
+                    ::Quit("Too many pages in presenter.");
                 }
                 break;
             }

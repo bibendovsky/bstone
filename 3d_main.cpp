@@ -119,8 +119,6 @@ char bc_buffer[] = BETA_CODE;
 void InitPlaytemp();
 
 
-char QuitMsg[] = { "Unit: $%02x Error: $%02x" };
-
 #ifdef CEILING_FLOOR_COLORS
 uint16_t TopColor;
 uint16_t BottomColor;

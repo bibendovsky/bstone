@@ -3370,7 +3370,7 @@ bool Interrogate(
         strcat(msg, msgptr);
         strcat(msg, int_xx);
         if (strlen(msg) > MSG_BUFFER_LEN) {
-            AGENT_ERROR(INTERROGATE_LONG_MSG);
+            ::Quit("Interrogation message too long.");
         }
         DisplayInfoMsg(msg, MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
 

@@ -248,7 +248,6 @@ set(
     "${CMAKE_SOURCE_DIR}/jam_io.h"
     "${CMAKE_SOURCE_DIR}/jm_cio.h"
     "${CMAKE_SOURCE_DIR}/jm_debug.h"
-    "${CMAKE_SOURCE_DIR}/jm_error.h"
     "${CMAKE_SOURCE_DIR}/jm_io.h"
     "${CMAKE_SOURCE_DIR}/jm_lzh.h"
     "${CMAKE_SOURCE_DIR}/jm_tp.h"

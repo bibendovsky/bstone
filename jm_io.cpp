@@ -98,11 +98,11 @@ int IO_LoadFile(
             break;
 
         case ct_LZW:
-            IO_ERROR(IO_LOADFILE_NO_LZW);
+            ::Quit("No code for LZW compression.");
             break;
 
         default:
-            IO_ERROR(IO_LOADFILE_UNKNOWN);
+            ::Quit("Unknown compression type.");
             break;
         }
     } else {

@@ -330,7 +330,7 @@ void US_CPrintLine(
     USL_MeasureString(s, &w, &h);
 
     if (w > WindowW) {
-        US1_ERROR(US_CPRINTLINE_WIDTH);
+        ::Quit("String exceeds width.");
     }
     px = static_cast<int16_t>(WindowX + ((WindowW - w) / 2));
     py = PrintY;

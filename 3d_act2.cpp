@@ -752,7 +752,7 @@ void SpawnOffsetObj(
         new_actor->temp3 = PLASMA_DETONATORS_DELAY;
         new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
         if (detonators_spawned++) {
-            ACT2_ERROR(TOO_MANY_DETONATORS);
+            ::Quit("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
         }
         break;
 
@@ -1574,7 +1574,7 @@ objtype* FindHiddenOfs(
     auto obj = FindObj(which, -1, -1);
 
     if (!obj) {
-        ACT2_ERROR(CANT_FIND_HIDDEN_OBJ);
+        ::Quit("Unable to find a \"Hidden Actor\" at location (0, 0).");
     }
 
     return obj;
@@ -2346,7 +2346,8 @@ uint16_t UpdateBarrierTable(
         }
     }
 
-    AGENT_ERROR(SWITCH_TABLE_OVERFLOW);
+    ::Quit("Too many different (coords) barriers hooked up to switches");
+
     return 0;
 }
 
@@ -2472,14 +2473,14 @@ void ConnectBarriers()
                     num) == 0)
             {
                 if (::is_ps()) {
-                    AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+                    ::Quit("A barrier switch was not connect to any barriers.");
                 }
 
                 auto actor =
                     actorat[Barrier->coord.tilex][Barrier->coord.tiley];
 
                 if (!actor) {
-                    AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+                    ::Quit("A barrier switch was not connect to any barriers.");
                 }
 
                 switch (actor->obclass) {
@@ -2488,7 +2489,7 @@ void ConnectBarriers()
                     break;
 
                 default:
-                    AGENT_ERROR(BARRIER_SWITCH_NOT_CONNECTED);
+                    ::Quit("A barrier switch was not connect to any barriers.");
                     break;
                 }
 
@@ -4657,7 +4658,7 @@ void T_Path(
         }
 
         if (ob->tilex > MAPSIZE || ob->tiley > MAPSIZE) {
-            ACT2_ERROR(T_PATH_HIT_WALL);
+            ::Quit("Actor walked out of map.");
         }
 // Quit("T_Path hit a wall at %u,%u, dir %u",ob->tilex,ob->tiley,ob->dir);
 

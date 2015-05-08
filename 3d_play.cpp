@@ -1437,7 +1437,7 @@ void GetNewActor()
             new_actor = &dummyobj;
             memset(new_actor, 0, sizeof(*new_actor));
         } else {
-            PLAY_ERROR(GETNEWACTOR_NO_FREE_SPOTS);
+            ::Quit("No free spots in objlist.");
         }
     } else {
         new_actor = objfreelist;
@@ -1480,7 +1480,7 @@ void RemoveObj(
     }
 
     if (gone == player) {
-        PLAY_ERROR(REMOVEOBJ_REMOVED_PLAYER);
+        ::Quit("Tried to remove the player.");
     }
 
     gone->state = nullptr;

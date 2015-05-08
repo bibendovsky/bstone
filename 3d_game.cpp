@@ -437,12 +437,12 @@ void ScanInfoPlane()
 
                 CeilingTile = START_TEXTURES + ((tile & 0xff00) >> 8);
                 if (CeilingTile > NUM_TILES - 1) {
-                    GAME_ERROR(CEILING_TILE_OUT_OF_RANGE);
+                    ::Quit("Ceiling tile/texture is out of range.");
                 }
 
                 FloorTile = START_TEXTURES + (tile & 0xff);
                 if (FloorTile > NUM_TILES - 1) {
-                    GAME_ERROR(FLOOR_TILE_OUT_OF_RANGE);
+                    ::Quit("Floor tile/texture is out of range.");
                 }
 
                 gottextures = true;
@@ -511,7 +511,7 @@ void ScanInfoPlane()
                 }
 
                 if (++st->NumMsgs > MAX_CACHE_MSGS) {
-                    GAME_ERROR(SCANINFO_CACHE_MSG_OVERFLOW);
+                    ::Quit("(INFORMANTS) Too many 'cached msgs' loaded.");
                 }
 
                 ci->areanumber = GetAreaNumber(static_cast<int8_t>(x), static_cast<int8_t>(y));
@@ -945,7 +945,7 @@ void ScanInfoPlane()
             case 124:
                 if (!loadedgame) {
                     if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS) {
-                        GAME_ERROR(SETUPGAME_MAX_GOLDIE_SPAWNS);
+                        ::Quit("Too many Dr. Goldfire Spawn sites in level.");
                     }
                     GoldsternInfo.flags = GS_FIRSTTIME;
                     if (gamestate.mapon == 9) {
@@ -978,11 +978,11 @@ void ScanInfoPlane()
 
                 if (!loadedgame) {
                     if (GoldsternInfo.GoldSpawned) {
-                        GAME_ERROR(TOO_MANY_FAST_GOLD_SPAWNS);
+                        ::Quit("Too many FAST Goldfire spawn sites in map.");
                     }
 
                     if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS) {
-                        GAME_ERROR(SETUPGAME_MAX_GOLDIE_SPAWNS);
+                        ::Quit("Too many Dr. Goldfire Spawn sites in level.");
                     }
 
                     GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<uint8_t>(x);
@@ -2443,7 +2443,7 @@ void SetupGameLevel()
     mapheight = mapheaderseg[mapon]->height;
 
     if (mapwidth != 64 || mapheight != 64) {
-        GAME_ERROR(SETUPGAME_BAD_MAP_SIZE);
+        ::Quit("Map not 64 x 64.");
     }
 
     LoadLocationText(static_cast<int16_t>(
@@ -2650,7 +2650,7 @@ void SetupGameLevel()
                         eaList[static_cast<int>(NumEAWalls)].delay = 60 * 8 + Random(60 * 22);
                     }
                     if (NumEAWalls++ == MAXEAWALLS) {
-                        GAME_ERROR(SETUPGAME_MAX_EA_WALLS);
+                        ::Quit("Too many Electro-Alien walls in level.");
                     }
                     break;
 
@@ -2756,7 +2756,7 @@ void SetupGameLevel()
         //
 
         if (gamestate.mapon < 20 && (!detonators_spawned) && gamestuff.level[gamestate.mapon + 1].locked) {
-            GAME_ERROR(NO_DETONATORS_IN_LEVEL);
+            ::Quit("No Fision/Plasma Detonator in level!");
         }
     }
 }

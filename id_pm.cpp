@@ -50,7 +50,7 @@ static void open_page_file(
     PageFile.open(file_name);
 
     if (!PageFile.is_open()) {
-        PM_ERROR(PML_OPENPAGEFILE_OPEN);
+        ::Quit("Failed to open page file \"{}\".", file_name);
     }
 
     int64_t file_length = PageFile.get_size();
@@ -65,7 +65,7 @@ static void open_page_file(
     std::uninitialized_fill_n(&raw_data[file_length], PMPageSize, 0);
 
     if (PageFile.read(raw_data, file_length_32) != file_length_32) {
-        PM_ERROR(PML_READFROMFILE_READ);
+        ::Quit("Page file read error.");
     }
 
     bstone::MemoryBinaryReader reader(raw_data, file_length);
@@ -102,13 +102,13 @@ void* PM_GetPage(
     int page_number)
 {
     if (page_number >= ChunksInFile) {
-        PM_ERROR(PM_GETPAGE_BAD_PAGE);
+        ::Quit("Invalid page request.");
     }
 
     uint32_t offset = chunks_offsets[page_number];
 
     if (offset == 0) {
-        PM_ERROR(PM_GETPAGE_SPARSE_PAGE);
+        ::Quit("Tried to load a sparse page.");
     }
 
     return &raw_data[offset];

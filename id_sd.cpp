@@ -429,7 +429,7 @@ void sd_play_sound(
     }
 
     if (::sd_is_sound_enabled && !sound) {
-        SD_ERROR(SD_PLAYSOUND_UNCACHED);
+        ::Quit("Uncached sound.");
     }
 
     int priority = bstone::Endian::le(sound->priority);

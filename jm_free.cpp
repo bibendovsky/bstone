@@ -1054,7 +1054,7 @@ void PreDemo()
         // Show JAM logo
         //
         if (!DoMovie(mv_intro, 0)) {
-            MAIN_ERROR(PREDEMO_NOJAM);
+            ::Quit("JAM animation (IANIM.xxx) does not exist.");
         }
 
         if (PowerBall) {

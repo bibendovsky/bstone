@@ -1236,7 +1236,7 @@ void CA_CacheMap(
 void CA_UpLevel()
 {
     if (ca_levelnum == 7) {
-        CA_ERROR(CA_UPLEVEL_PAST_MAX);
+        ::Quit("Up past level 7.");
     }
 
     ca_levelbit <<= 1;
@@ -1259,8 +1259,9 @@ void CA_UpLevel()
 void CA_DownLevel()
 {
     if (!ca_levelnum) {
-        CA_ERROR(CA_DOWNLEVEL_PAST_MIN);
+        ::Quit("Down past level 0.");
     }
+
     ca_levelbit >>= 1;
     ca_levelnum--;
     CA_CacheMarks();

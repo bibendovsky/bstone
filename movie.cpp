@@ -297,21 +297,21 @@ bool MOVIE_LoadBuffer()
                 &blk.code,
                 sizeof(blk.code)) != sizeof(blk.code))
         {
-            AN_ERROR(AN_BAD_ANIM_FILE);
+            ::Quit("Animation file is corrupt or truncated.");
         }
 
         if (Movie_FHandle.read(
                 &blk.block_num,
                 sizeof(blk.block_num)) != sizeof(blk.block_num))
         {
-            AN_ERROR(AN_BAD_ANIM_FILE);
+            ::Quit("Animation file is corrupt or truncated.");
         }
 
         if (Movie_FHandle.read(
                 &blk.recsize,
                 sizeof(blk.recsize)) != sizeof(blk.recsize))
         {
-            AN_ERROR(AN_BAD_ANIM_FILE);
+            ::Quit("Animation file is corrupt or truncated.");
         }
 
         if (blk.code == AN_END_OF_ANIM) {
@@ -326,7 +326,7 @@ bool MOVIE_LoadBuffer()
             PageLen += sizeof(anim_frame);
 
             if (Movie_FHandle.read(frame, blk.recsize) != blk.recsize) {
-                AN_ERROR(AN_BAD_ANIM_FILE);
+                ::Quit("Animation file is corrupt or truncated.");
             }
 
             free_space -= blk.recsize;
@@ -587,7 +587,7 @@ void MOVIE_HandlePage(
     // -------------------------------------------
 
     default:
-        AN_ERROR(HANDLEPAGE_BAD_CODE);
+        ::Quit("Unrecognized anim code.");
         break;
     }
 }
