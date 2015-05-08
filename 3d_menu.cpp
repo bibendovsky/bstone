@@ -628,7 +628,7 @@ void binds_initialize_menu()
     binds_names[ScanCode::sc_f12] = "F12";
     binds_names[ScanCode::sc_print_screen] = "PRT SCR";
     binds_names[ScanCode::sc_pause] = "PAUSE";
-    binds_names[ScanCode::sc_back_quote] = "`";
+    binds_names[ScanCode::sc_back_quote] = "BACK QUOTE";
     binds_names[ScanCode::sc_semicolon] = ";";
     binds_names[ScanCode::sc_quote] = "'";
     binds_names[ScanCode::sc_backslash] = "\\";
