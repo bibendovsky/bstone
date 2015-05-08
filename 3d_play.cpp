@@ -1200,8 +1200,11 @@ void CheckMusicToggle()
     static bool M_KeyReleased;
 
     if (in_is_binding_pressed(e_bi_music)) {
-        if (M_KeyReleased && (
-            !::is_aog_sw() && ((jam_buff[0] != ScanCode::sc_j) || (jam_buff[1] != ScanCode::sc_a))))
+        if (M_KeyReleased &&
+            (::is_aog() ||
+                (!::is_aog_sw() &&
+                    (jam_buff[0] != ScanCode::sc_j ||
+                    jam_buff[1] != ScanCode::sc_a))))
         {
             if (!::sd_has_audio) {
                 DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
