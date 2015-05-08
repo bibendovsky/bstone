@@ -36,16 +36,6 @@ const int DOOROBJLIST_OFFSET = 0xFFFF - MAXDOORS;
 void ogl_update_screen();
 
 
-void VL_WaitVBL(
-    uint32_t vbls)
-{
-#if 0
-    ::sys_sleep_for(8 * vbls);
-#else
-    static_cast<void>(vbls);
-#endif // 0
-}
-
 objtype* ui16_to_actor(
     uint16_t value)
 {
@@ -65,7 +55,7 @@ objtype* ui16_to_actor(
 uint16_t actor_to_ui16(
     const objtype* actor)
 {
-    ptrdiff_t index = actor - objlist;
+    auto index = actor - objlist;
 
     if (index < 0) {
         return 0;
@@ -97,7 +87,7 @@ statobj_t* ui16_to_static_object(
 uint16_t static_object_to_ui16(
     const statobj_t* static_object)
 {
-    ptrdiff_t index = static_object - statobjlist;
+    auto index = static_object - statobjlist;
 
     if (index < 0) {
         return 0;
@@ -129,7 +119,7 @@ doorobj_t* ui16_to_door_object(
 uint16_t door_object_to_ui16(
     const doorobj_t* door_object)
 {
-    ptrdiff_t index = door_object - doorobjlist;
+    auto index = door_object - doorobjlist;
 
     if (index < 0) {
         return 0;

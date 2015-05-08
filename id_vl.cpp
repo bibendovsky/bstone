@@ -86,6 +86,7 @@ bool (* vid_pre_subsystem_creation)() = nullptr;
 bool (* vid_pre_window_creation)() = nullptr;
 uint32_t (* vid_get_window_flags)() = nullptr;
 bool (* vid_initialize_renderer)() = nullptr;
+void (* vid_draw_screen)() = nullptr;
 void (* vid_refresh_screen)() = nullptr;
 void (* vid_update_screen)() = nullptr;
 void (* vid_uninitialize_video)() = nullptr;
@@ -408,14 +409,47 @@ bool sdl_is_windowed = false;
 SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
 bool ren_fix_ar = true;
+bool has_vsync = false;
+
+
+void check_vsync()
+{
+    using Clock = std::chrono::system_clock;
+
+    auto before_timestamp = Clock::now();
+
+    for (int i = 0; i < ::display_mode.refresh_rate; ++i) {
+        ::vid_draw_screen();
+    }
+
+    auto after_timestamp = Clock::now();
+
+    auto duration = after_timestamp - before_timestamp;
+
+    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        duration).count();
+
+    const int min_duration_ms = 750;
+
+    ::has_vsync = (duration_ms > min_duration_ms);
+}
 // BBi
+
 
 // ===========================================================================
 
 // asm
 
 void VL_WaitVBL(
-    uint32_t vbls);
+    uint32_t vbls)
+{
+    if (::has_vsync) {
+        return;
+    }
+
+    const std::chrono::milliseconds delay(1000 * vbls / 70);
+    std::this_thread::sleep_for(delay);
+}
 
 // ===========================================================================
 
@@ -618,6 +652,7 @@ void VL_FadeOut(
         }
 
         ::VL_SetPalette(0, 256, &::palette2[0][0]);
+        ::VL_WaitVBL(1);
     }
 
     //
@@ -627,6 +662,8 @@ void VL_FadeOut(
         static_cast<uint8_t>(red),
         static_cast<uint8_t>(green),
         static_cast<uint8_t>(blue));
+
+    ::VL_WaitVBL(1);
 
     screenfaded = true;
 }
@@ -659,12 +696,14 @@ void VL_FadeIn(
         }
 
         ::VL_SetPalette(0, 256, &::palette2[0][0]);
+        ::VL_WaitVBL(1);
     }
 
     //
     // final color
     //
     ::VL_SetPalette(0, 256, palette);
+    ::VL_WaitVBL(1);
 
     screenfaded = false;
 }
@@ -1968,6 +2007,7 @@ void initialize_video()
         ::vid_pre_window_creation = ::ogl_pre_window_creation;
         ::vid_get_window_flags = ::ogl_get_window_flags;
         ::vid_initialize_renderer = ::ogl_initialize_renderer;
+        ::vid_draw_screen = ::ogl_draw_screen;
         ::vid_refresh_screen = ::ogl_refresh_screen;
         ::vid_update_screen = ::ogl_update_screen;
         ::vid_uninitialize_video = ::ogl_uninitialize_video;
@@ -1978,6 +2018,7 @@ void initialize_video()
         ::vid_pre_window_creation = ::soft_pre_window_creation;
         ::vid_get_window_flags = ::soft_get_window_flags;
         ::vid_initialize_renderer = ::soft_initialize_renderer;
+        ::vid_draw_screen = ::soft_draw_screen;
         ::vid_refresh_screen = ::soft_refresh_screen;
         ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
@@ -2071,6 +2112,7 @@ void initialize_video()
         ::vid_pre_window_creation = ::soft_pre_window_creation;
         ::vid_get_window_flags = ::soft_get_window_flags;
         ::vid_initialize_renderer = ::soft_initialize_renderer;
+        ::vid_draw_screen = ::soft_draw_screen;
         ::vid_refresh_screen = ::soft_refresh_screen;
         ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
@@ -2083,6 +2125,11 @@ void initialize_video()
     }
 
     ::SDL_ShowWindow(::sdl_window);
+
+    ::vid_refresh_screen();
+    ::in_handle_events();
+
+    ::check_vsync();
 }
 
 void uninitialize_video()
