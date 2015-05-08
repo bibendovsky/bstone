@@ -417,10 +417,6 @@ static SpecialKeys special_keys = {
 namespace {
 
 
-const std::string ps_only_entry = "?PS?";
-const std::string aog_only_entry = "?AOG?";
-
-
 using BindsNames = std::map<ScanCode, const char*>;
 
 
@@ -455,65 +451,65 @@ public:
 using BindsItems = std::vector<BindsItem>;
 
 static BindsItems binds = {
-    { "MOVEMENT", 0, nullptr },
-    { "FORWARD", 0, &in_bindings[e_bi_forward] },
-    { "BACKWARD", 0, &in_bindings[e_bi_backward] },
-    { "LEFT", 0, &in_bindings[e_bi_left] },
-    { "RIGHT", 0, &in_bindings[e_bi_right] },
-    { "STRAFE", 0, &in_bindings[e_bi_strafe] },
-    { "STRAFE LEFT", 0, &in_bindings[e_bi_strafe_left] },
-    { "STRAFE RIGHT", 0, &in_bindings[e_bi_strafe_right] },
-    { "QUICK LEFT", 0, &in_bindings[e_bi_quick_left] },
-    { "QUICK RIGHT", 0, &in_bindings[e_bi_quick_right] },
-    { "TURN AROUND", 0, &in_bindings[e_bi_turn_around] },
-    { "RUN", 0, &in_bindings[e_bi_run] },
-    { "", 0, nullptr },
+    { "MOVEMENT", 0, nullptr, },
+    { "FORWARD", 0, &in_bindings[e_bi_forward], },
+    { "BACKWARD", 0, &in_bindings[e_bi_backward], },
+    { "LEFT", 0, &in_bindings[e_bi_left], },
+    { "RIGHT", 0, &in_bindings[e_bi_right], },
+    { "STRAFE", 0, &in_bindings[e_bi_strafe], },
+    { "STRAFE LEFT", 0, &in_bindings[e_bi_strafe_left], },
+    { "STRAFE RIGHT", 0, &in_bindings[e_bi_strafe_right], },
+    { "QUICK LEFT", 0, &in_bindings[e_bi_quick_left], },
+    { "QUICK RIGHT", 0, &in_bindings[e_bi_quick_right], },
+    { "TURN AROUND", 0, &in_bindings[e_bi_turn_around], },
+    { "RUN", 0, &in_bindings[e_bi_run], },
+    { "", 0, nullptr, },
 
-    { "WEAPONS", 0, nullptr },
-    { "ATTACK", 0, &in_bindings[e_bi_attack] },
-    { "AUTO CHARGE PISTOL", 0, &in_bindings[e_bi_weapon_1] },
-    { "SLOW FIRE PROTECTOR", 0, &in_bindings[e_bi_weapon_2] },
-    { "RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3] },
-    { "DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4] },
-    { "PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5] },
-    { ps_only_entry + "ANTI-PLASMA CANNON", 0, &in_bindings[e_bi_weapon_6] }, // PS
-    { ps_only_entry + "FISSION DETONATOR", 0, &in_bindings[e_bi_weapon_7] }, // PS
-    { "", 0, nullptr },
+    { "WEAPONS", 0, nullptr, },
+    { "ATTACK", 0, &in_bindings[e_bi_attack], },
+    { "AUTO CHARGE PISTOL", 0, &in_bindings[e_bi_weapon_1], },
+    { "SLOW FIRE PROTECTOR", 0, &in_bindings[e_bi_weapon_2], },
+    { "RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3], },
+    { "DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4], },
+    { "PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5], },
+    { "ANTI-PLASMA CANNON (PS)", 0, &in_bindings[e_bi_weapon_6], },
+    { "FISSION DETONATOR (PS)", 0, &in_bindings[e_bi_weapon_7], },
+    { "", 0, nullptr, },
 
-    { "INTERACTION", 0, nullptr },
-    { "USE", 0, &in_bindings[e_bi_use] },
-    { "", 0, nullptr },
+    { "INTERACTION", 0, nullptr, },
+    { "USE", 0, &in_bindings[e_bi_use], },
+    { "", 0, nullptr, },
 
-    { "HUD", 0, nullptr },
-    { "STATS", 0, &in_bindings[e_bi_stats] },
-    { ps_only_entry + "MAGNIFY RADAR", 0, &in_bindings[e_bi_radar_magnify] }, // PS
-    { ps_only_entry + "MINIFY RADAR", 0, &in_bindings[e_bi_radar_minify] }, // PS
-    { "", 0, nullptr },
+    { "HUD", 0, nullptr, },
+    { "STATS", 0, &in_bindings[e_bi_stats], },
+    { "MAGNIFY RADAR (PS)", 0, &in_bindings[e_bi_radar_magnify], },
+    { "MINIFY RADAR (PS)", 0, &in_bindings[e_bi_radar_minify], },
+    { "", 0, nullptr, },
 
-    { "MENU", 0, nullptr },
-    { "HELP", 0, &in_bindings[e_bi_help] },
-    { "SAVE", 0, &in_bindings[e_bi_save] },
-    { "LOAD", 0, &in_bindings[e_bi_load] },
-    { "SOUND OPTIONS", 0, &in_bindings[e_bi_sound] },
-    { "CONTROLS", 0, &in_bindings[e_bi_controls] },
-    { "END GAME", 0, &in_bindings[e_bi_end_game] },
-    { "QUICK SAVE", 0, &in_bindings[e_bi_quick_save] },
-    { "QUICK LOAD", 0, &in_bindings[e_bi_quick_load] },
-    { "QUICK EXIT", 0, &in_bindings[e_bi_quick_exit] },
-    { "", 0, nullptr },
+    { "MENU", 0, nullptr, },
+    { "HELP", 0, &in_bindings[e_bi_help], },
+    { "SAVE", 0, &in_bindings[e_bi_save], },
+    { "LOAD", 0, &in_bindings[e_bi_load], },
+    { "SOUND OPTIONS", 0, &in_bindings[e_bi_sound], },
+    { "CONTROLS", 0, &in_bindings[e_bi_controls], },
+    { "END GAME", 0, &in_bindings[e_bi_end_game], },
+    { "QUICK SAVE", 0, &in_bindings[e_bi_quick_save], },
+    { "QUICK LOAD", 0, &in_bindings[e_bi_quick_load], },
+    { "QUICK EXIT", 0, &in_bindings[e_bi_quick_exit], },
+    { "", 0, nullptr, },
 
-    { "OPTIONS", 0, nullptr },
-    { "ATTACK INFO", 0, &in_bindings[e_bi_attack_info] },
-    { "LIGHTNING", 0, &in_bindings[e_bi_lightning] },
-    { "SOUND", 0, &in_bindings[e_bi_sfx] },
-    { "MUSIC", 0, &in_bindings[e_bi_music] },
-    { "CEILING", 0, &in_bindings[e_bi_ceiling] },
-    { "FLOORING", 0, &in_bindings[e_bi_flooring] },
-    { aog_only_entry + "HEART BEAT", 0, &in_bindings[e_bi_heart_beat] }, // AOG
-    { "", 0, nullptr },
+    { "OPTIONS", 0, nullptr, },
+    { "ATTACK INFO", 0, &in_bindings[e_bi_attack_info], },
+    { "LIGHTNING", 0, &in_bindings[e_bi_lightning], },
+    { "SOUND", 0, &in_bindings[e_bi_sfx], },
+    { "MUSIC", 0, &in_bindings[e_bi_music], },
+    { "CEILING", 0, &in_bindings[e_bi_ceiling], },
+    { "FLOORING", 0, &in_bindings[e_bi_flooring], },
+    { "HEART BEAT (AOG)", 0, &in_bindings[e_bi_heart_beat], },
+    { "", 0, nullptr, },
 
-    { "MISC", 0, nullptr },
-    { "PAUSE", 0, &in_bindings[e_bi_pause] },
+    { "MISC", 0, nullptr, },
+    { "PAUSE", 0, &in_bindings[e_bi_pause], },
 }; // binds
 
 
@@ -563,47 +559,6 @@ void binds_initialize_menu()
     bool has_bindings = false;
 
     fontnumber = 2;
-
-    // Remove game specific entries
-    for (auto quit = false; !quit; ) {
-        auto found_aog = false;
-
-        auto it = std::find_if(
-            binds.begin(),
-            binds.end(),
-            [&] (const BindsItem& item)
-            {
-                if (item.name.find(aog_only_entry) != std::string::npos) {
-                    found_aog = true;
-                    return true;
-                } else if (item.name.find(ps_only_entry) != std::string::npos) {
-                    found_aog = false;
-                    return true;
-                }
-
-                return false;
-            }
-        );
-
-        if (it != binds.cend()) {
-            auto expunge = false;
-            const auto& string_id = (found_aog ? aog_only_entry : ps_only_entry);
-
-            if ((found_aog && ::is_ps()) ||
-                (!found_aog && !::is_ps()))
-            {
-                expunge = true;
-            }
-
-            if (expunge) {
-                binds.erase(it);
-            } else {
-                it->name.erase(0, string_id.length());
-            }
-        } else {
-            quit = true;
-        }
-    }
 
     for (auto& bind : binds) {
         ++binds_count;
@@ -848,7 +803,7 @@ void binds_draw_item_text(
 {
     auto& item = binds[binds_window + item_index];
 
-    if (item.name[0] == '\0') {
+    if (item.name.empty()) {
         return;
     }
 
@@ -897,7 +852,7 @@ void binds_draw_keys(
     }
 
     int y = SCREEN_Y + k_binds_top +
-            (item_index * (binds_text_height + k_binds_line_spacing));
+        (item_index * (binds_text_height + k_binds_line_spacing));
 
     bool is_current = (item_index == binds_window_offset);
 
