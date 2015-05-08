@@ -58,7 +58,6 @@ extern bool no_screens;
 
 #define LOOK_FOR_DEAD_GUYS (0)
 
-#define MIN_MEM_NEEDED (231568l) // 560K
 #define LIMITED_AMMO
 
 #define SHADE_MAX 51
@@ -74,12 +73,7 @@ extern bool no_screens;
 
 // FONT DEFINES
 //
-#define  ID_FONT (STARTFONT)
-#define  BIG_FONT (STARTFONT + 1)
-#define SIXPOINT_FONT (STARTFONT + 2)
-#define         TALL_FONT (STARTFONT + 3)
-#define         COAL_FONT (STARTFONT + 4)
-#define  RADAR_FONT (STARTFONT + 5)
+#define COAL_FONT (STARTFONT + 4)
 
 // #define LOCKED_FLOORS
 
@@ -92,16 +86,6 @@ extern bool no_screens;
 // #define DEBUG_STATICS
 // #define DEBUG_ACTORS
 
-// ==========================================================================
-//
-// GAME VERSION DEPENDANT DEFINATIONS
-//
-// ==========================================================================
-
-void jsprintf(
-    char* msg,
-    ...);
-
 /*
 =============================================================================
 
@@ -111,36 +95,15 @@ void jsprintf(
 */
 
 
-#define BASE_GRAY 0x8
-#define HIGH_GRAY 0xb
-#define LOW_GRAY 0x5
-#define BASE_GRN 0x76
-#define HIGH_GRN 0x78
-#define LOW_GRN 0x74
-
-
-#define MAX_GUN_DELAY 12
-
 #define MAX_RADAR_ENERGY 14400
 #define RADAR_PAK_VALUE 60 * 15
 
 #define MAXKEYS 1
 
-#define COLORBORDER(color) asm { mov dx, STATUS_REGISTER_1; in al, dx; \
-                                 mov dx, ATR_INDEX; mov al, ATR_OVERSCAN; out dx, al; mov al, color; out dx, al; \
-                                 mov al, 32; out dx, al };
-
 #define MAPSPOT(x, y, plane) (*(mapsegs[plane] + farmapylookup[y] + x))
 
-#define SIGN(x) ((x) > 0 ? 1 : -1)
 #define ABS(x) ((int16_t)(x) > 0 ? (x) : -(x))
 #define LABS(x) ((int32_t)(x) > 0 ? (x) : -(x))
-
-// #define STATUSDRAWPIC(x, y, picnum) LatchDrawPic((x),(y+(200-STATUSLINES)),(picnum))
-
-#define FMAPWIDTH ((fixed)mapwidth << TILESHIFT)
-#define FMAPHEIGHT ((fixed)mapheight << TILESHIFT)
-#define ObjVisable(from_obj, to_obj) PosVisable(from_obj->x, from_obj->y, to_obj->x, to_obj->y, from_obj->angle)
 
 // SmartAnim macro
 #define ANIM_INFO(o) (reinterpret_cast<ofs_anim_t*>(&(o)->temp3))
@@ -158,8 +121,6 @@ void jsprintf(
 case rentacopobj : \
 case gen_scientistobj
 
-
-#define SECURITY_LAMPS_ALERTED (madenoise)
 
 // Barrier Code Stuff
 
@@ -185,7 +146,6 @@ case gen_scientistobj
 //
 // LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
 //
-#define RATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) ((uint16_t)(M_BASE1 * ((F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
 #define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((int32_t)M_BASE1 * (((int32_t)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
 
 
@@ -261,11 +221,9 @@ case gen_scientistobj
 #define SMART_OFF_TRIGGER 159
 #define SMART_ON_TRIGGER 160
 
-#define ELEVATORTILE2 27 // Space Will Switch
 #define TRANSPORTERTILE 21
 #define DIRECTTRANSPORTTILE 32 // Wall to use on direct level transporters
 #define SODATILE 15
-#define TERMINALTILE 17
 #define FOODTILE 18
 #define AMBUSHTILE 106
 
@@ -295,20 +253,12 @@ case gen_scientistobj
 
 #define MAX_EXTRA_LIVES 4
 
-#define PLAYERSPEED 3000
 #define RUNSPEED 6000
-
-#define SCREENSEG 0xa000
 
 #define SCREENBWIDE 80
 
 #define HEIGHTRATIO 0.41
 #define TOP_STRIP_HEIGHT 16 // Pix height of top strip.
-
-// #define BORDERCOLOR     116
-#define FLASHCOLOR 5
-#define FLASHTICS 4
-
 
 #define PLAYERSIZE MINDIST // player radius
 #define MINACTORDIST 0x10000l // minimum dist from player center
@@ -321,7 +271,6 @@ case gen_scientistobj
 
 #define GLOBAL1 (1l << 16)
 #define TILEGLOBAL GLOBAL1
-#define PIXGLOBAL (GLOBAL1 / 64)
 #define TILESHIFT 16l
 #define UNSIGNEDSHIFT 8
 
@@ -332,26 +281,14 @@ case gen_scientistobj
 #define ANG180 (ANG90 * 2)
 #define ANG270 (ANG90 * 3)
 #define ANG360 (ANG90 * 4)
-#define VANG90 (ANGLES / 4)
-#define VANG180 (VANG90 * 2)
-#define VANG270 (VANG90 * 3)
-#define VANG360 (VANG90 * 4)
 
 #define MINDIST (0x5800l)
-
-#define MAX_WVIEW_DIST (44) // Max wrap_view dist in TILES
-
-
-
-#define MAXSCALEHEIGHT 256 // largest scale on largest view
-#define MAXVIEWWIDTH 320
 
 #define MAPSIZE 64 // maps are 64*64 max
 #define NORTH 0
 #define EAST 1
 #define SOUTH 2
 #define WEST 3
-
 
 #define STATUSLINES 48
 
@@ -360,9 +297,6 @@ case gen_scientistobj
 #define PAGE2START (SCREENSIZE)
 #define PAGE3START (SCREENSIZE * 2u)
 #define FREESTART (SCREENSIZE * 3u)
-
-
-#define PIXRADIUS 512
 
 #define STARTAMMO 8
 
@@ -475,10 +409,6 @@ case gen_scientistobj
 #define RR_CASUAL_PICKUP 0x0008
 #define RR_SCARED 0x0010
 
-// 0xFFxx Special Tile Flags (Flags in MASKED plane of Ted Maps)
-
-#define TF_STARFIELD 0x01
-#define TF_WRAP_VIEW 0x02
 
 //
 // Concession Machine Types
@@ -513,8 +443,6 @@ case gen_scientistobj
 //
 
 #define LT_GUN_DELAY gamestate.lastammo_leds
-#define RT_GUN_DELAY gamestate.ammo_leds
-#define GUN_TOGGLE gamestate.ammo
 
 
 #define CANT_SAVE_GAME_TXT " Can't save this game! \n" \
@@ -3236,19 +3164,11 @@ struct star_t {
     uint8_t color;
 }; // star_t
 
-#define MAX_SPACE_THRUST ((int32_t)0x4fff)
-
-#define MAX_STARS 128
-#define MAX_SPACE_STATS (((MAXSTATS * sizeof(statobj_t)) - ((MAX_STARS + 1) * sizeof(star_t))) / sizeof(statobj_t))
-
-
-
-
 
 /*
 =============================================================================
 
-                                                 3D_MAIN DEFINITIONS
+3D_MAIN DEFINITIONS
 
 =============================================================================
 */
@@ -3275,8 +3195,6 @@ extern int8_t lastmap_tiley;
 extern uint16_t TopColor, BottomColor;
 extern char str[80];
 extern char str2[20];
-// extern  unsigned        tedlevelnum;
-// extern  bool         tedlevel;
 extern bool nospr;
 extern bool IsA386;
 
@@ -3416,14 +3334,6 @@ void NormalScreen();
 void DrawPlayScreen(bool);
 void FizzleOut();
 void GameLoop();
-
-// JAB
-#define PlaySoundLocTile(s, tx, ty) PlaySoundLocGlobal(s, (((int32_t)(tx) << TILESHIFT) + (1L << (TILESHIFT - 1))), (((int32_t)ty << TILESHIFT) + (1L << (TILESHIFT - 1))))
-#define PlaySoundLocActor(s, ob) PlaySoundLocGlobal(s, (ob)->x, (ob)->y)
-void PlaySoundLocGlobal(
-    uint16_t s,
-    fixed gx,
-    fixed gy);
 
 
 void Warped();
