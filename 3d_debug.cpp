@@ -732,7 +732,6 @@ int16_t DebugKeys()
         return 1;
     }
 #if IN_DEVELOPMENT
-#if (!BETA_TEST)
     else if (Keyboard[ScanCode::sc_n]) { // N = no clip
         gamestate.flags ^= GS_CLIP_WALLS;
         CenterWindow(18, 3);
@@ -744,9 +743,8 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    }
-#endif
-    else if (Keyboard[ScanCode::sc_p]) { // P = pause with no screen disruptioon
+    } else if (Keyboard[ScanCode::sc_p]) {
+        // P = pause with no screen disruptioon
         PicturePause();
         return 1;
     }
@@ -895,11 +893,9 @@ int16_t DebugKeys()
     }
 
 #if (IN_DEVELOPMENT)
-#if !BETA_TEST
     else if (Keyboard[ScanCode::sc_y]) {
         GivePoints(100000L, false);
     }
-#endif
 #endif
 
     if (gamestate.flags & GS_LIGHTING) { // Shading adjustments

@@ -104,17 +104,13 @@ const char* MainStrs[] = {
     "q", "nowait", "l", "e",
     "version", "system",
     "dval", "tics", "mem", "powerball", "music", "d",
-    "radar", BETA_CODE,
+    "radar",
     nil
 };
 
 int16_t starting_episode, starting_level, starting_difficulty;
 
 std::string data_dir;
-
-#if BETA_TEST
-char bc_buffer[] = BETA_CODE;
-#endif
 
 void InitPlaytemp();
 

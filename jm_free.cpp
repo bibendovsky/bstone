@@ -124,8 +124,6 @@ char JM_FREE_DATA_START[1] = { 0 };
 
 #if TECH_SUPPORT_VERSION
 char EnterBetaCode[] = "\n  TECH SUPPORT VERSION!\n\n  NO DISTRIBUTING!";
-#elif BETA_TEST
-char EnterBetaCode[] = "      !BETA VERSION!\n    DO NOT DISTRIBUTE\n UNDER PENALTY OF DEATH\n\n   ENTER BETA CODE";
 #endif
 
 
@@ -229,15 +227,9 @@ char cinfo_text[] = "\n"
                     "Copyright (c) 1993 - JAM Productions, Inc.\n"
                     "All rights reserved.\n";
 
-#if BETA_TEST
-char dver_text[] = "Download the latest version pal!";
-#endif
-
 
 #if FREE_DATA
-
 char JM_FREE_DATA_END[1] = { 0 };
-
 #endif
 
 extern const uint8_t colormap[16896];
@@ -837,21 +829,6 @@ void CheckForEpisodes()
         exit(0);
     }
 
-#if BETA_TEST
-// This enables specific missions for beta testers.
-//
-    NewEmenu[1].active =
-        EpisodeSelect[1] =
-            NewEmenu[2].active =
-                EpisodeSelect[2] =
-                    NewEmenu[3].active =
-                        EpisodeSelect[3] =
-                            NewEmenu[4].active =
-                                EpisodeSelect[4] =
-                                    NewEmenu[5].active =
-                                        EpisodeSelect[5] = AT_ENABLED;
-#endif
-
     for (i = 0; i < mv_NUM_MOVIES; i++) {
         strcat(Movies[i].FName, extension);
     }
@@ -899,32 +876,6 @@ void PreDemo()
     SD_PlaySound(INFORMDEATH2SND); // Nooooo!
     IN_UserInput(TickBase * 20);
     ClearMemory();
-
-#elif BETA_TEST
-
-    bool param = false;
-
-    for (i = 1; i < g_argc; i++) {
-        switch (US_CheckParm(g_argv[i], MainStrs)) {
-        case 13:
-            param = true;
-            break;
-        }
-    }
-
-    if (!param) {
-        char buffer[15] = { 0 };
-
-        fontnumber = 4;
-        CenterWindow(26, 7);
-        US_Print(EnterBetaCode);
-        VW_UpdateScreen();
-        SETFONTCOLOR(0, 15 * 3);
-        US_LineInput(24 * 8, 92, buffer, buffer, true, 14, 100);
-        if (_fstricmp(buffer, bc_buffer)) {
-            Quit("Bad beta code!");
-        }
-    }
 #endif
 
 
@@ -1350,30 +1301,6 @@ void freed_main()
         gamestate.flags |= GS_SHOW_OVERHEAD;
         break;
     }
-
-
-#if BETA_TEST
-    //
-    // THIS IS FOR BETA ONLY!
-    //
-
-    _dos_getdate(&d);
-    if ((d.year > BETA_YEAR) ||
-        ((d.year == BETA_YEAR) && (d.month > BETA_MONTH)) ||
-        ((d.year == BETA_YEAR) && (d.month == BETA_MONTH) && (d.day >= BETA_DAY)))
-    {
-        FILE* out;
-        char name[20] = "VSWAP.";
-
-        strcat(name, extension);
-        out = fopen(name, "w");
-        fprintf(out, "\n\n SELF DESTRUCTED \n");
-        fclose(out);
-        remove("vswap.bs1");
-        fprint(dver_text);
-        exit(0);
-    }
-#endif
 
     // BBi
     if (::g_args.find_option("cheats") >= 0) {

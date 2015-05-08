@@ -806,7 +806,7 @@ void CheckKeys()
     static bool I_KeyReleased;
     static bool S_KeyReleased;
 
-#if IN_DEVELOPMENT || BETA_TEST
+#if IN_DEVELOPMENT
 //      if (DebugOk && (Keyboard[ScanCode::sc_p] || PP_step))
 //              PicturePause ();
 #endif

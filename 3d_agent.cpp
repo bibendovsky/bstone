@@ -2722,7 +2722,7 @@ bool ClipMove(
         return false;
     }
 
-#if (!BETA_TEST) && IN_DEVELOPMENT
+#if IN_DEVELOPMENT
     if ((!(gamestate.flags & GS_CLIP_WALLS)) && (ob == player)) {
         return true;
     }

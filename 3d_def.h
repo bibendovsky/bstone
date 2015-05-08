@@ -43,12 +43,6 @@ enum class ScanCode;
 
 const int BS_SAVE_VERSION = 3;
 
-#ifdef _DEBUG
-#define SKIP_TITLE_AND_CREDITS (1)
-#else
-#define SKIP_TITLE_AND_CREDITS (0)
-#endif // _DEBUG
-
 extern bool no_screens;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
@@ -62,20 +56,13 @@ extern bool no_screens;
 
 #define PAGEFLIP
 
-#define BETA_TEST (0)
 #define LOOK_FOR_DEAD_GUYS (0)
-
-#define BETA_CODE "NEWGAME"
 
 #define MIN_MEM_NEEDED (231568l) // 560K
 #define LIMITED_AMMO
 
 #define SHADE_MAX 51
 #define SHADE_DIV 6
-
-#define BETA_MONTH 8
-#define BETA_DAY 1
-#define BETA_YEAR 1994
 
 #define DISK_SPACE_NEEDED (1024l * 1024l)
 
