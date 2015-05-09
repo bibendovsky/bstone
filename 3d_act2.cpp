@@ -21,27 +21,30 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_ACT2.C
-
-
 #include "3d_def.h"
 
 
 void FirstSighting(
     objtype* ob);
+
 bool SightPlayer(
     objtype* ob);
+
 void TakeDamage(
     int16_t points,
     objtype* attacker);
+
 void OpenDoor(
     int16_t door);
+
 bool CheckView(
     objtype* from_obj,
     objtype* to_obj);
+
 int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
+
 bool ClipMove(
     objtype* ob,
     int32_t xmove,
@@ -57,43 +60,37 @@ bool ClipMove(
 */
 
 
-#define EXPODE_STATIC_SCAN (1)
 #define BFG_SHOT_STOPS (1)
 
+#define SPDPATROL (512)
+#define SPDPROJ (7168)
+#define PROJCHECKSIZE (0x8000L) // scan for actor range
+#define PROJWALLSIZE (0x2000L) // collision with wall range
 
-#define TURNTICS 10
-#define SPDPATROL 512
-#define SPDPROJ 7168
-#define PROJSIZE 0x8000l // collision with actor range
-#define PROJCHECKSIZE 0x8000l // scan for actor range
-#define PROJWALLSIZE 0x2000l // collision with wall range
+#define PROJECTILESIZE (0xC000L)
 
-#define PROJECTILESIZE 0xc000l
+#define SEEK_TURN_DELAY (30) // tics
 
-#define BJRUNSPEED 2048
-#define BJJUMPSPEED 680
-
-#define SEEK_TURN_DELAY 30 // tics
-
-#define CLOSE_RANGE 1 // Tiles
+#define CLOSE_RANGE (1) // Tiles
 
 #define ALIENSPEED (SPDPATROL)
-#define ALIENAMMOINIT (30 + (US_RndT() % 60))
+#define ALIENAMMOINIT (30 + (::US_RndT() % 60))
 
-#define GR_DAMAGE (40 + (US_RndT() & 0x7f)) // 20 & 3f
-
+#define GR_DAMAGE (40 + (::US_RndT() & 0x7F)) // 20 & ... 0x3F
 #define BFG_DAMAGE (GR_DAMAGE << 1) // Hit Point damage cause by BFG
 #define PLASMA_DETONATOR_DAMAGE (500)
 #define DETONATOR_FLASH_RATE (20)
 
 #define EXPLODE_DAMAGE (20) // 5
-#define OOZE_ANIMATE_SPEED (20)
 
 #define VPOST_BARRIER_SPEED (7) // Tics per anim step
 #define VPOST_WAIT_DELAY (90) // Tics delay in cycling
 
-#define DR_MIN_STATICS (50) // Min number of statics avail
+// Min number of statics avail
 // before 50/50 chance of door rubble on exp. doors.
+#define DR_MIN_STATICS (50)
+
+
 /*
 =============================================================================
 
@@ -104,6 +101,7 @@ bool ClipMove(
 
 int8_t detonators_spawned = 0;
 
+
 /*
 =============================================================================
 
@@ -112,12 +110,10 @@ int8_t detonators_spawned = 0;
 =============================================================================
 */
 
-
-int16_t starthitpoints[4][NUMHITENEMIES] =
+int16_t starthitpoints[4][NUMHITENEMIES] = {
     //
     // BABY MODE
     //
-{
     {
         4, // Rent-A-Cop
         4, // Hang Terrot
@@ -300,7 +296,7 @@ int16_t starthitpoints[4][NUMHITENEMIES] =
         1, // morphing_spider_mutant
         1, // morphing_reptilian_warrior
         1, // morphing_Mutant Human Type 2
-    }
+    },
 };
 
 
@@ -318,6 +314,7 @@ uint16_t MorphClass[] = {
     mutant_human2obj,
 };
 
+
 void initialize_boss_constants()
 {
     BossShotShapes = {
@@ -330,7 +327,6 @@ void initialize_boss_constants()
         0,
         ::is_ps() ? SPR_BOSS10_SPIT1 : static_cast<int16_t>(0),
     };
-
 
     BossShapes = {
         SPR_BOSS1_W1,
@@ -378,20 +374,26 @@ uint16_t SpecialSpawnFlags[] = {
 
 void T_Path(
     objtype* ob);
+
 void T_Shoot(
     objtype* ob);
+
 void T_Shade(
     objtype* obj);
+
 void T_Chase(
     objtype* ob);
+
 void T_Projectile(
     objtype* ob);
+
 void T_Stand(
     objtype* ob);
 
 
 void T_OfsThink(
     objtype* obj);
+
 void T_OfsChase(
     objtype* obj);
 
@@ -400,21 +402,25 @@ void A_DeathScream(
 
 int16_t RandomSphereDir(
     enemy_t dir);
+
 void CheckForcedMove(
     objtype* ob);
 
 void T_SwatWound(
     objtype* ob);
+
 void T_SpaceShip(
     objtype* ob);
 
 void T_BlowBack(
     objtype* obj);
+
 void DoAttack(
     objtype* ob);
 
 bool MoveTrappedDiag(
     objtype* ob);
+
 bool CheckTrappedDiag(
     objtype* ob);
 
@@ -536,9 +542,6 @@ extern statetype s_ofs_pod_attack1;
 extern statetype s_ofs_pod_attack1a;
 extern statetype s_ofs_pod_attack2;
 
-// extern statetype s_ofs_pod_attack1_2;
-// extern statetype s_ofs_pod_attack2_2;
-
 extern statetype s_ofs_pod_death1;
 extern statetype s_ofs_pod_death2;
 extern statetype s_ofs_pod_death3;
@@ -557,21 +560,28 @@ extern statetype s_ofs_esphere_death3;
 
 void T_SmartThink(
     objtype* obj);
+
 void T_SmartThought(
     objtype* obj);
+
 void T_Action(
     objtype* obj);
+
 bool ProjectileTryMove(
     objtype* ob,
     fixed deltax,
     fixed deltay);
+
 void T_Projectile(
     objtype* ob);
+
 void T_OfsShoot(
     enemy_t which,
     objtype* ob);
+
 void SphereStartDir(
     objtype* ob);
+
 void T_OfsBounce(
     objtype* obj);
 
@@ -641,9 +651,7 @@ statetype s_hold = { 0, 0, 1, nullptr, nullptr, &s_hold };
 
 uint16_t scan_value;
 
-// ---------------------------------------------------------------------------
-// SpawnOffsetObj ()
-// ---------------------------------------------------------------------------
+
 void SpawnOffsetObj(
     enemy_t which,
     int16_t tilex,
@@ -936,9 +944,6 @@ void SpawnOffsetObj(
 }
 
 
-
-
-
 // ---------------------------------------------------------------------------
 // T_OfsThink() - Think for general Offset Objects
 //
@@ -946,7 +951,6 @@ void SpawnOffsetObj(
 // ---------------------------------------------------------------------------
 
 using GrenadeShapes = std::vector<int16_t>;
-
 
 GrenadeShapes grenade_shapes;
 
@@ -1199,9 +1203,6 @@ void T_OfsThink(
     }
 }
 
-// ---------------------------------------------------------------------------
-// RandomSphereDir()
-// ---------------------------------------------------------------------------
 int16_t RandomSphereDir(
     enemy_t enemy)
 {
@@ -1227,9 +1228,6 @@ int16_t RandomSphereDir(
     return dir;
 }
 
-// ---------------------------------------------------------------------------
-// SphereStartDir()
-// ---------------------------------------------------------------------------
 void SphereStartDir(
     objtype* ob)
 {
@@ -1254,9 +1252,6 @@ void SphereStartDir(
     actorat[ob->tilex][ob->tiley] = ob;
 }
 
-// ---------------------------------------------------------------------------
-// CheckForcedMove()
-// ---------------------------------------------------------------------------
 void CheckForcedMove(
     objtype* ob)
 {
@@ -1272,9 +1267,6 @@ void CheckForcedMove(
     }
 }
 
-// ---------------------------------------------------------------------------
-// T_OfsBounce()
-// ---------------------------------------------------------------------------
 void T_OfsBounce(
     objtype* ob)
 {
@@ -1425,9 +1417,6 @@ void T_OfsBounce(
     }
 }
 
-// ---------------------------------------------------------------------------
-// MoveTrappedDiag()
-// ---------------------------------------------------------------------------
 bool MoveTrappedDiag(
     objtype* ob)
 {
@@ -1466,9 +1455,6 @@ bool MoveTrappedDiag(
     return TryWalk(ob, true);
 }
 
-// ---------------------------------------------------------------------------
-// CheckTrappedDiag()
-// ---------------------------------------------------------------------------
 bool CheckTrappedDiag(
     objtype* ob)
 {
@@ -1488,9 +1474,6 @@ bool CheckTrappedDiag(
         return false;
     }
 }
-
-
-
 
 // ---------------------------------------------------------------------------
 // FindObj() - This function will search the objlist for an object
@@ -1530,8 +1513,6 @@ objtype* FindObj(
     return nullptr;
 }
 
-
-
 // ---------------------------------------------------------------------------
 // SpawnHiddenOfs() - This function will spawn a given offset actor at a passed
 //                  x & y coords and then move the actor to (0,0) for hidding
@@ -1558,7 +1539,6 @@ void SpawnHiddenOfs(
     new_actor->y = TILEGLOBAL / 2;
 }
 
-
 // ---------------------------------------------------------------------------
 // FindHiddenOfs() - This function will find a hidden ofs actor which was
 //                  hidden using SpawnHiddenOfs() and will return a pointer
@@ -1579,7 +1559,6 @@ objtype* FindHiddenOfs(
 
     return obj;
 }
-
 
 // ---------------------------------------------------------------------------
 // MoveHiddenOfs() - This function will find a hidden ofs actor which was
@@ -1615,7 +1594,6 @@ objtype* MoveHiddenOfs(
 }
 
 
-
 // ===========================================================================
 //
 //  SMART_ANIM ANIMATION ROUTINES
@@ -1627,7 +1605,6 @@ objtype* MoveHiddenOfs(
 //                              object structure!
 //
 // ===========================================================================
-
 
 // ---------------------------------------------------------------------------
 // ::InitSmartAnim() - Sets up an object for a SmartAnimation
@@ -1707,9 +1684,6 @@ void InitAnim(
 //          like cycle, once, rebound, etc. using flags in the object struct.
 //
 //
-
-// statetype s_ofs_smart_anim   = {false,0, 1, nullptr,T_SmartThought,&s_ofs_smart_anim};
-// statetype s_ofs_smart_anim2  = {false,0, 5, nullptr,T_SmartThought,&s_ofs_smart_anim2};
 
 statetype s_ofs_smart_anim = { 0, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_anim };
 statetype s_ofs_smart_anim2 = { 0, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_anim2 };
@@ -2064,15 +2038,6 @@ bool AnimateOfsObj(
 {
     bool Done = false;
 
-#if 0 // Anim existance test moved to the calling function.
-
-    if (ANIM_INFO(obj)->animtype == at_NONE) {  // Animation finished?
-        return true;    // YEP!
-
-    }
-#endif
-
-
     if (obj->s_tilex) { // Check animation delay.
         if (obj->s_tilex < tics) {
             obj->s_tilex = 0;
@@ -2106,72 +2071,13 @@ bool AnimateOfsObj(
                 Done = true;
             }
             break;
-
-#if 0
-
-        case ad_REV:
-            if (ANIM_INFO(obj)->curframe > 0) {
-                AdvanceAnimREV(obj);
-            } else if (ANIM_INFO(obj)->animtype == at_CYCLE) {
-                // Pull shape number up to start...
-
-                obj->temp1 += ANIM_INFO(obj)->maxframe;
-
-                // Reset REV cycle animation
-
-                ANIM_INFO(obj)->curframe = ANIM_INFO(obj)->maxframe;
-                ANIM_INFO(obj)->animdelay = obj->s_tiley;
-            } else {
-                // Stop this puppy!
-
-                ANIM_INFO(obj)->animtype = at_NONE;
-                Done = true;
-            }
-            break; // REV
-
-#endif
-
         }
         break;
-
-
-#if 0
-
-    case at_REBOUND:
-        switch (ANIM_INFO(obj)->animdir) {
-        case ad_FWD:
-            if (ANIM_INFO(obj)->curframe < ANIM_INFO(obj)->maxframe) {
-                AdvanceAnimFWD(obj);
-            } else {
-                ANIM_INFO(obj)->animdir = ad_REV;
-// ANIM_INFO(obj)->animdelay = 1;
-            }
-            break;
-
-        case ad_REV:
-            if (ANIM_INFO(obj)->curframe > 0) {
-                AdvanceAnimREV(obj);
-            } else {
-                ANIM_INFO(obj)->animdir = ad_FWD;
-// ANIM_INFO(obj)->animdelay = 1;
-                Done = true;
-            }
-            break;
-        }
-        break; /* REBOUND */
-
-#endif
-
-
     }
 
     return Done;
 }
 
-
-// --------------------------------
-// AdvanceAnimFWD()
-// --------------------------------
 void AdvanceAnimFWD(
     objtype* obj)
 {
@@ -2180,24 +2086,6 @@ void AdvanceAnimFWD(
     obj->temp1++;
     obj->s_tilex = obj->s_tiley;
 }
-
-
-#if 0
-
-// --------------------------------
-// AdvanceAnimREV()
-// --------------------------------
-void AdvanceAnimREV(
-    objtype* obj)
-{
-    ANIM_INFO(obj)->curframe--; // Dec frames
-    obj->temp1--;
-
-// ANIM_INFO(obj)->animdelay = ANIM_INFO(obj)->maxdelay;
-}
-
-#endif
-
 
 
 // ==========================================================================
@@ -2214,8 +2102,6 @@ void ActivateWallSwitch(
     int16_t x,
     int16_t y)
 {
-#define UPDATE_OTHER_SWITCHES 1
-
     uint16_t states[] = { OFF_SWITCH, ON_SWITCH };
     uint16_t mapx, mapy, newwall;
     uint16_t icon, num;
@@ -2246,8 +2132,6 @@ void ActivateWallSwitch(
         DisplaySwitchOperateMsg(num);
         ::sd_play_player_sound(SWITCHSND, bstone::AC_ITEM);
 
-#if UPDATE_OTHER_SWITCHES
-
         tile = (uint8_t*)tilemap;
         actor = (size_t*)actorat;
 
@@ -2266,8 +2150,6 @@ void ActivateWallSwitch(
                 actor++;
             }
         }
-#endif
-
     } else {
         DISPLAY_TIMED_MSG(SwitchNotActivateMsg, MP_WALLSWITCH_OPERATE, MT_GENERAL);
         ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
@@ -2278,9 +2160,9 @@ void ActivateWallSwitch(
 // DisplaySwitchOperateMsg() - Displays the Operating Barrier Switch message
 //      for a particular level across the InfoArea.
 // --------------------------------------------------------------------------
-char OnSwitchMessage[] = "\r\r  ACTIVATING BARRIER";
+const char* const OnSwitchMessage = "\r\r  ACTIVATING BARRIER";
 
-char OffSwitchMessage[] = "\r\r DEACTIVATING BARRIER";
+const char* const OffSwitchMessage = "\r\r DEACTIVATING BARRIER";
 
 
 void DisplaySwitchOperateMsg(
@@ -2305,7 +2187,6 @@ void DisplaySwitchOperateMsg(
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
 }
-
 
 // --------------------------------------------------------------------------
 // UpdateBarrierTable(x,y,level) - Finds/Inserts arc entry in arc list
@@ -2351,8 +2232,6 @@ uint16_t UpdateBarrierTable(
     return 0;
 }
 
-
-
 // --------------------------------------------------------------------------
 // ScanBarrierTable(x,y) - Scans a switch table for a arc in this level
 //
@@ -2384,7 +2263,6 @@ uint16_t ScanBarrierTable(
     return 0xffff; // Mark as EMPTY
 }
 
-
 // --------------------------------------------------------------------------
 // Checks to see if the Barrier obj is free
 // --------------------------------------------------------------------------
@@ -2404,10 +2282,6 @@ bool CheckActor(
     return false;
 }
 
-
-// --------------------------------------------------------------------------
-// CheckAndConnect() -
-// --------------------------------------------------------------------------
 int16_t CheckAndConnect(
     int8_t x,
     int8_t y,
@@ -2500,7 +2374,6 @@ void ConnectBarriers()
 }
 
 
-
 /*
 =============================================================================
 
@@ -2508,7 +2381,6 @@ void ConnectBarriers()
 
 =============================================================================
 */
-
 
 extern statetype s_barrier_transition;
 void T_BarrierTransition(
@@ -2522,9 +2394,6 @@ statetype s_spike_barrier = { 0, SPR_DEMO, 15, T_BarrierTransition, nullptr, &s_
 statetype s_barrier_shutdown = { 0, 0, 15, T_BarrierShutdown, nullptr, &s_barrier_shutdown };
 
 
-// ---------------------------------------------------------------------------
-// SpawnBarrier()
-// ---------------------------------------------------------------------------
 void SpawnBarrier(
     enemy_t which,
     int16_t tilex,
@@ -2561,7 +2430,6 @@ void SpawnBarrier(
                 (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
 
             new_actor->lighting = LAMP_ON_SHADING;
-//              new_actor->flags |= FL_SHOOTABLE;
         } else {
             NewState(new_actor, &s_barrier_transition);
             new_actor->temp3 = 0;
@@ -2572,7 +2440,6 @@ void SpawnBarrier(
             new_actor->temp1 = SPR_ELEC_ARC4;
         }
         break;
-
 
     case en_post_barrier:
         if (OnOff) {
@@ -2618,6 +2485,7 @@ void SpawnBarrier(
 
 }
 
+
 // ---------------------------------------------------------------------------
 // ToggleBarrier()
 //
@@ -2639,7 +2507,6 @@ void TurnPostOff(
 
 }
 
-
 void TurnPostOn(
     objtype* obj)
 {
@@ -2648,7 +2515,6 @@ void TurnPostOn(
     obj->lighting = LAMP_ON_SHADING;
     BARRIER_STATE(obj) = bt_ON;
 }
-
 
 void ToggleBarrier(
     objtype* obj)
@@ -2730,9 +2596,6 @@ void ToggleBarrier(
     }
 }
 
-
-
-
 // ---------------------------------------------------------------------------
 // T_BarrierShutdown() - This is used ONLY for electric arc barriers
 //      which "flicker" out when disabled/destroyed.
@@ -2775,7 +2638,6 @@ void T_BarrierShutdown(
 
     case bt_DISABLED:
         obj->flags |= (FL_NEVERMARK | FL_NONMARK);
-//                      obj->flags &= ~(FL_SOLID); //|FL_FAKE_STATIC);
         obj->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
         obj->lighting = 0;
         if (obj->obclass == post_barrierobj) {
@@ -2790,10 +2652,6 @@ void T_BarrierShutdown(
     }
 }
 
-// ---------------------------------------------------------------------------
-// T_BarrierTransition() -
-//
-// ---------------------------------------------------------------------------
 void T_BarrierTransition(
     objtype* obj)
 {
@@ -2950,7 +2808,6 @@ void T_BarrierTransition(
 }
 
 
-
 /*
 =============================================================================
 
@@ -2958,8 +2815,6 @@ void T_BarrierTransition(
 
 =============================================================================
 */
-
-
 
 //
 // Rent-A-Cop
@@ -3024,6 +2879,7 @@ statetype s_rent_die2 = { 0, SPR_DEMO, 21, T_BlowBack, nullptr, &s_rent_die3 };
 statetype s_rent_die3 = { 0, SPR_DEMO, 16, T_BlowBack, nullptr, &s_rent_die3s };
 statetype s_rent_die3s = { 0, SPR_DEMO, 13, T_BlowBack, nullptr, &s_rent_die4 };
 statetype s_rent_die4 = { 0, SPR_DEMO, 0, nullptr, nullptr, &s_rent_die4 };
+
 
 //
 // officers
@@ -3203,9 +3059,6 @@ extern statetype s_proshoot4;
 extern statetype s_proshoot5;
 extern statetype s_proshoot6;
 extern statetype s_proshoot6a;
-// extern       statetype s_proshoot7;
-// extern       statetype s_proshoot8;
-// extern       statetype s_proshoot9;
 
 extern statetype s_prochase1;
 extern statetype s_prochase1s;
@@ -3238,10 +3091,6 @@ statetype s_proshoot4 = { 0, SPR_DEMO, 10, nullptr, T_Shoot, &s_proshoot5 };
 statetype s_proshoot5 = { 0, SPR_DEMO, 10, nullptr, T_Shade, &s_proshoot6 };
 statetype s_proshoot6 = { 0, SPR_DEMO, 10, nullptr, T_Shoot, &s_proshoot6a };
 statetype s_proshoot6a = { 0, SPR_DEMO, 10, nullptr, T_Shade, &s_prochase1 };
-
-// statetype s_proshoot7        = {0,SPR_PRO_SHOOT3,10,nullptr,nullptr,&s_proshoot8};
-// statetype s_proshoot8        = {0,SPR_PRO_SHOOT2,10,nullptr,T_Shoot,&s_proshoot9};
-// statetype s_proshoot9        = {0,SPR_PRO_SHOOT3,10,nullptr,T_Shade,&s_prochase1};
 
 statetype s_prochase1 = { 1, SPR_DEMO, 10, T_Chase, nullptr, &s_prochase1s };
 statetype s_prochase1s = { 1, SPR_DEMO, 3, nullptr, nullptr, &s_prochase2 };
@@ -3350,8 +3199,10 @@ extern statetype s_liquid_shot;
 
 void T_LiquidStand_Check(
     objtype* obj);
+
 void T_LiquidMove(
     objtype* obj);
+
 void T_Solid(
     objtype* obj);
 
@@ -3363,7 +3214,6 @@ statetype s_liquid_move = { 0, SPR_DEMO, 14, T_LiquidMove, T_ChangeShape, &s_liq
 statetype s_liquid_rise1 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_liquid_rise2 };
 statetype s_liquid_rise2 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_liquid_rise3 };
 statetype s_liquid_rise3 = { 0, SPR_DEMO, 12, nullptr, T_Solid, &s_liquid_shoot1 };
-// statetype s_liquid_rise4 = {0,SPR_LIQUID_R4,12,nullptr,nullptr,&s_liquid_stand};
 
 statetype s_liquid_stand = { 0, SPR_DEMO, 40, T_LiquidStand, nullptr, &s_liquid_stand };
 
@@ -3390,19 +3240,13 @@ statetype s_blake2 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake3 };
 statetype s_blake3 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake4 };
 statetype s_blake4 = { 0, SPR_DEMO, 12, nullptr, nullptr, &s_blake1 };
 
-// ---------------------------------------------------------------------------
-// T_ChangeShape()
-// ---------------------------------------------------------------------------
+
 void T_ChangeShape(
     objtype* obj)
 {
-//      obj->temp1 = obj->temp2 + random(3);
     obj->temp1 = obj->temp2 + (US_RndT() % 3);
 }
 
-// --------------------------------------------------------------------------
-// T_MakeOffset()
-// --------------------------------------------------------------------------
 void T_MakeOffset(
     objtype* obj)
 {
@@ -3410,18 +3254,12 @@ void T_MakeOffset(
     obj->flags &= ~(FL_SOLID | FL_SHOOTABLE);
 }
 
-// --------------------------------------------------------------------------
-// T_Solid()
-// --------------------------------------------------------------------------
 void T_Solid(
     objtype* obj)
 {
     obj->flags |= (FL_SOLID | FL_SHOOTABLE);
 }
 
-// ---------------------------------------------------------------------------
-// T_LiquidMove()
-// ---------------------------------------------------------------------------
 void T_LiquidMove(
     objtype* obj)
 {
@@ -3446,12 +3284,6 @@ void T_LiquidMove(
     }
 }
 
-
-
-
-// ---------------------------------------------------------------------------
-// T_LiquidStand()
-// ---------------------------------------------------------------------------
 void T_LiquidStand(
     objtype* obj)
 {
@@ -3479,11 +3311,6 @@ void T_LiquidStand(
     }
 }
 
-
-
-// ---------------------------------------------------------------------------
-// T_SwatWound()
-// ---------------------------------------------------------------------------
 void T_SwatWound(
     objtype* ob)
 {
@@ -3510,22 +3337,9 @@ void T_SwatWound(
             ob->flags |= FL_SOLID | FL_SHOOTABLE;
             NewState(ob, &s_swatunwounded1);
         }
-
-
-// if ((ob->tilex != player->tilex) && (ob->tiley != player->tiley))
-//      NewState(ob,&s_swatunwounded1);
     }
 }
 
-
-
-/*
-===============
-=
-= SpawnStand
-=
-===============
-*/
 void SpawnStand(
     enemy_t which,
     int16_t tilex,
@@ -3656,7 +3470,6 @@ void SpawnStand(
     }
 }
 
-
 // ---------------------------------------------------------------------------
 // CheckForSpecialTile() - Adds special attributes to actor if standing on
 //      special tiles.
@@ -3762,14 +3575,6 @@ void CheckForSpecialTile(
     }
 }
 
-/*
-===============
-=
-= SpawnPatrol
-=
-===============
-*/
-
 void SpawnPatrol(
     enemy_t which,
     int16_t tilex,
@@ -3869,27 +3674,7 @@ void SpawnPatrol(
     oldy = new_actor->tiley;
 #endif
 
-#if 1
     TryWalk(new_actor, true);
-#else
-    switch (dir) {
-    case 0:
-        new_actor->tilex++;
-        break;
-
-    case 1:
-        new_actor->tiley--;
-        break;
-
-    case 2:
-        new_actor->tilex--;
-        break;
-
-    case 3:
-        new_actor->tiley++;
-        break;
-    }
-#endif
 
 #if IN_DEVELOPMENT
     if (new_actor->obclass != blakeobj) {
@@ -3905,19 +3690,6 @@ void SpawnPatrol(
 
     actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 }
-
-
-
-
-/*
-==================
-=
-= A_DeathScream
-=
-==================
-*/
-
-// 3D_ACT2.C
 
 void A_DeathScream(
     objtype* ob)
@@ -4056,19 +3828,12 @@ void A_DeathScream(
 }
 
 
-
-
 // ============================================================================
 //
 // DROP
 //
 // ============================================================================
 
-
-
-// ---------------------------------------------------------------------------
-// DropCargo()
-// ---------------------------------------------------------------------------
 void DropCargo(
     objtype* obj)
 {
@@ -4110,22 +3875,12 @@ void DropCargo(
 }
 
 
-
 /*
 ============================================================================
 
  STAND
 
 ============================================================================
-*/
-
-
-/*
-===============
-=
-= T_Stand
-=
-===============
 */
 
 void T_Stand(
@@ -4143,25 +3898,11 @@ void T_Stand(
 ============================================================================
 */
 
-
-/*
-=================
-=
-= T_Chase
-=
-=================
-*/
-
-//      #define DODGE_N_CHASE
-
 void T_Chase(
     objtype* ob)
 {
     int32_t move;
     int16_t dx, dy, dist, chance;
-#ifdef DODGE_N_CHASE
-    bool dodge;
-#endif
     bool nearattack = false;
 
     ob->flags &= ~FL_LOCKED_STATE;
@@ -4170,13 +3911,7 @@ void T_Chase(
         return;
     }
 
-//      if ((ob->flags & (FL_SOLID|FL_SHOOTABLE)) != (FL_SOLID|FL_SHOOTABLE))
-//              ob->flags |= FL_SOLID|FL_SHOOTABLE;
-
     if (ob->ammo) {
-#ifdef DODGE_N_CHASE
-        dodge = false;
-#endif
         if (CheckLine(ob, player) && (!PlayerInvisable)) { // got a shot at player?
             dx = static_cast<int16_t>(abs(ob->tilex - player->tilex));
             dy = static_cast<int16_t>(abs(ob->tiley - player->tiley));
@@ -4276,24 +4011,12 @@ void T_Chase(
                 DoAttack(ob);
                 return;
             }
-
-#ifdef DODGE_N_CHASE
-            dodge = true;
-#endif
         } else {
             ChangeShootMode(ob);
         }
     }
 
     if (ob->dir == nodir) {
-#ifdef DODGE_N_CHASE
-        if (dodge) {
-            SelectDodgeDir(ob);
-        } else {
-            SelectChaseDir(ob);
-        }
-#else
-
         switch (ob->obclass) {
         case floatingbombobj:
             SelectChaseDir(ob);
@@ -4303,7 +4026,6 @@ void T_Chase(
             SelectDodgeDir(ob);
             break;
         }
-#endif
 
         if (ob->dir == nodir) {
             return; // object is blocked in
@@ -4341,14 +4063,6 @@ void T_Chase(
 
         move -= ob->distance;
 
-#ifdef DODGE_N_CHASE
-        if (dodge) {
-            SelectDodgeDir(ob);
-        } else {
-            SelectChaseDir(ob);
-        }
-#else
-
         switch (ob->obclass) {
         case floatingbombobj:
             SelectChaseDir(ob);
@@ -4359,17 +4073,12 @@ void T_Chase(
             break;
         }
 
-#endif
-
         if (ob->dir == nodir) {
             return; // object is blocked in
         }
     }
 }
 
-// --------------------------------------------------------------------------
-// ChangeShootMode()
-// --------------------------------------------------------------------------
 void ChangeShootMode(
     objtype* ob)
 {
@@ -4386,9 +4095,6 @@ void ChangeShootMode(
     }
 }
 
-// --------------------------------------------------------------------------
-// DoAttack()
-// --------------------------------------------------------------------------
 void DoAttack(
     objtype* ob)
 {
@@ -4487,6 +4193,7 @@ void DoAttack(
     }
 }
 
+
 /*
 ============================================================================
 
@@ -4494,16 +4201,6 @@ void DoAttack(
 
 ============================================================================
 */
-
-
-/*
-===============
-=
-= SelectPathDir
-=
-===============
-*/
-
 
 dirtype SelectPathDir(
     objtype* ob)
@@ -4577,15 +4274,6 @@ exit_func:;
     return ob->dir;
 }
 
-/*
-===============
-=
-= T_Path
-=
-===============
-*/
-
-
 void T_Path(
     objtype* ob)
 {
@@ -4598,26 +4286,6 @@ void T_Path(
     switch (ob->obclass) {
     case volatiletransportobj:
         break;
-
-#if 0
-    case gen_scientistobj:
-        if (ob->flags & FL_INFORMANT) { // Only informants can get scared.
-            if (ob->flags2 & FL2_SCARED) {
-                //
-                // Count down our timer of "Running Scared"
-                //
-                if (ob->temp3 > tics) {
-                    ob->temp3 -= tics;
-                } else {
-                    ob->flags2 &= ~FL2_SCARED;
-                }
-            } else if (madenoise && areabyplayer[ob->areanumber]) {
-                ob->flags2 |= FL2_SCARED;
-                ob->temp3 = 60 * 2;
-            }
-        }
-        break;
-#endif
 
     default:
         if ((!(ob->flags & FL_FRIENDLY)) || madenoise) {
@@ -4660,7 +4328,6 @@ void T_Path(
         if (ob->tilex > MAPSIZE || ob->tiley > MAPSIZE) {
             ::Quit("Actor walked out of map.");
         }
-// Quit("T_Path hit a wall at %u,%u, dir %u",ob->tilex,ob->tiley,ob->dir);
 
         ob->x = ((int32_t)ob->tilex << TILESHIFT) + TILEGLOBAL / 2;
         ob->y = ((int32_t)ob->tiley << TILESHIFT) + TILEGLOBAL / 2;
@@ -4671,6 +4338,7 @@ void T_Path(
         }
     }
 }
+
 
 /*
 =============================================================================
@@ -4753,7 +4421,6 @@ void T_Shoot(
     case spider_mutantobj:
     case acid_dragonobj:
         SpawnProjectile(ob, static_cast<classtype>(spider_mutantshotobj + (ob->obclass - spider_mutantobj)));
-// SpawnProjectile(ob,spider_mutantshotobj+(ob->obclass-spider_mutantobj));
         break;
 
     case final_boss2obj:
@@ -4856,10 +4523,6 @@ void T_Shoot(
     }
 }
 
-
-// ----------------------------------------------------------------------
-// T_Shade()
-// ----------------------------------------------------------------------
 void T_Shade(
     objtype* obj)
 {
@@ -4874,9 +4537,6 @@ void T_Shade(
     }
 }
 
-// ----------------------------------------------------------------------
-// T_Hit
-// ----------------------------------------------------------------------
 void T_Hit(
     objtype* ob)
 {
@@ -4932,7 +4592,6 @@ void T_Hit(
 }
 
 
-
 /*
 ============================================================================
 
@@ -4943,10 +4602,13 @@ void T_Hit(
 
 void A_Beep(
     objtype* obj);
+
 void A_Laugh(
     objtype* obj);
+
 void A_WarpIn(
     objtype* obj);
+
 void A_WarpOut(
     objtype* obj);
 
@@ -5001,6 +4663,7 @@ extern statetype s_goldwarp_in5;
 
 extern statetype s_goldmorphwait1;
 extern statetype s_goldmorphwait2;
+
 
 extern void T_GoldMorphWait(
     objtype* obj);
@@ -5079,9 +4742,7 @@ bool noShots = false;
 
 int16_t morphWaitTime;
 
-// --------------------------------------------------------------------------
-// T_GoldMorphWait
-// --------------------------------------------------------------------------
+
 void T_GoldMorphWait(
     objtype* obj)
 {
@@ -5091,9 +4752,6 @@ void T_GoldMorphWait(
     }
 }
 
-// --------------------------------------------------------------------------
-// T_GoldMorph
-// --------------------------------------------------------------------------
 void T_GoldMorph(
     objtype* obj)
 {
@@ -5107,52 +4765,35 @@ void T_GoldMorph(
     noShots = false;
 }
 
-// --------------------------------------------------------------------------
-// A_Laugh() - Plays a Goldstern Laugh Sound
-// --------------------------------------------------------------------------
 void A_Laugh(
     objtype* obj)
 {
     ::sd_play_actor_sound(GOLDSTERNLAUGHSND, obj, bstone::AC_VOICE);
 }
 
-// --------------------------------------------------------------------------
-// A_WarpIn() - Plays a warp Sound
-// --------------------------------------------------------------------------
 void A_WarpIn(
     objtype*)
 {
     ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 }
-// --------------------------------------------------------------------------
-// A_WarpOut() - Plays a warp Sound
-// --------------------------------------------------------------------------
+
 void A_WarpOut(
     objtype*)
 {
     ::sd_play_player_sound(WARPOUTSND, bstone::AC_ITEM);
 }
 
-// --------------------------------------------------------------------------
-// A_Beep() - Plays a Beep Sound
-// --------------------------------------------------------------------------
 void A_Beep(
     objtype*)
 {
     ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
 }
 
-
-// --------------------------------------------------------------------------
-// InitGoldsternInfo()
-// --------------------------------------------------------------------------
 void InitGoldsternInfo()
 {
     memset(&GoldsternInfo, 0, sizeof(GoldsternInfo));
     GoldsternInfo.LastIndex = GOLDIE_MAX_SPAWNS;
 }
-
-
 
 
 // ===========================================================================
@@ -5162,8 +4803,6 @@ void InitGoldsternInfo()
 //
 //
 // ===========================================================================
-
-
 
 void T_FlipShape(
     objtype* obj)
@@ -5177,12 +4816,9 @@ void T_FlipShape(
     }
 }
 
+
 statetype s_security_light = { 0, SPR_DEMO, 20, T_Security, T_FlipShape, &s_security_light };
 
-
-// ---------------------------------------------------------------------------
-// T_Security()
-// ---------------------------------------------------------------------------
 void T_Security(
     objtype* obj)
 {
@@ -5195,10 +4831,6 @@ void T_Security(
 }
 
 
-
-
-
-
 // ==========================================================================
 //
 //
@@ -5209,6 +4841,7 @@ void T_Security(
 
 void A_Scout_Alert(
     objtype* obj);
+
 void T_PainThink(
     objtype* obj);
 
@@ -5246,9 +4879,6 @@ statetype s_scout_run4 = { 1, SPR_DEMO, 10, T_Chase, nullptr, &s_scout_run4 };
 statetype s_scout_dead = { 0, SPR_DEMO, 20, nullptr, nullptr, &s_scout_dead };
 
 
-// ---------------------------------------------------------------------------
-// T_Scout_Alert()
-// ---------------------------------------------------------------------------
 void A_Scout_Alert(
     objtype* obj)
 {
@@ -5258,9 +4888,6 @@ void A_Scout_Alert(
 }
 
 
-// ---------------------------------------------------------------------------
-// T_ExplodeScout()
-// ---------------------------------------------------------------------------
 void T_ExplodeScout(
     objtype* obj)
 {
@@ -5270,18 +4897,12 @@ void T_ExplodeScout(
     SpawnExplosion(obj->x + 0x4000 + (US_RndT() << 5), obj->y - 0x4000 - (US_RndT() << 5));
 }
 
-// ---------------------------------------------------------------------------
-// T_ExplodeDamage()
-// ---------------------------------------------------------------------------
 void T_ExplodeDamage(
     objtype* obj)
 {
     ExplodeRadius(obj, EXPLODE_DAMAGE, true);
 }
 
-// ---------------------------------------------------------------------------
-// T_PainThink()
-// ---------------------------------------------------------------------------
 void T_PainThink(
     objtype* obj)
 {
@@ -5358,6 +4979,7 @@ void T_PainThink(
     }
 }
 
+
 // ==========================================================================
 //
 // EXPLOSION STUFF
@@ -5390,21 +5012,19 @@ void SpawnCusExplosion(
     MakeAlertNoise(new_actor);
 }
 
-
-// ---------------------------------------------------------------------------
-// T_SpawnExplosion()
-// ---------------------------------------------------------------------------
 void T_SpawnExplosion(
     objtype* obj)
 {
     SpawnCusExplosion(obj->x, obj->y, SPR_EXPLOSION_1, 4, 4, explosionobj);
 }
 
+
 // ==========================================================================
 //
 // STEAM OBJECT STUFF
 //
 // ==========================================================================
+
 void T_SteamObj(
     objtype* obj);
 
@@ -5424,9 +5044,7 @@ statetype s_steamrelease4 = { 0, 2, 14, nullptr, nullptr, &s_steamrelease5 };
 statetype s_steamrelease5 = { 0, 3, 14, nullptr, nullptr, &s_steamrelease6 };
 statetype s_steamrelease6 = { 0, 4, 16, nullptr, nullptr, &s_steamgrate };
 
-// -------------------------------------------------------------------------
-// T_SteamObj()
-// -------------------------------------------------------------------------
+
 void T_SteamObj(
     objtype* obj)
 {
@@ -5439,20 +5057,6 @@ void T_SteamObj(
         }
     }
 }
-
-
-
-
-
-// ===========================================================================
-
-/*
-===============
-=
-= CheckPosition
-=
-===============
-*/
 
 bool CheckPosition(
     objtype* ob)
@@ -5482,7 +5086,6 @@ bool CheckPosition(
 }
 
 
-
 // ===========================================================================
 //
 //
@@ -5490,7 +5093,6 @@ bool CheckPosition(
 //
 //
 // ===========================================================================
-
 
 extern statetype s_terrot_wait;
 
@@ -5536,8 +5138,6 @@ statetype s_terrot_die5 = { 0, SPR_DEMO, 0, nullptr, nullptr, &s_terrot_die5 };
 //
 // ============================================================================
 
-
-
 // ---------------------------------------------------------------------------
 // T_Seek() - Will rotate an object (not moving) until seeing it is able
 //      to see the player in the facing direction.
@@ -5547,7 +5147,7 @@ statetype s_terrot_die5 = { 0, SPR_DEMO, 0, nullptr, nullptr, &s_terrot_die5 };
 void T_Seek(
     objtype* ob)
 {
-#define MAX_VIS_DIST 15
+    const int16_t MAX_VIS_DIST = 15;
 
     int16_t dx, dy, dist, chance;
     bool target_found;
@@ -5595,9 +5195,6 @@ void T_Seek(
     }
 }
 
-// ---------------------------------------------------------------------------
-// SpawnProjectile()
-// ---------------------------------------------------------------------------
 void SpawnProjectile(
     objtype* shooter,
     classtype class_type)
@@ -5720,8 +5317,6 @@ void SpawnProjectile(
         return;
     }
 
-
-//      new_actor->flags2 = shooter->flags2 & FL2_CLOAKED;
     new_actor->x = x;
     new_actor->y = y;
     new_actor->active = ac_yes;
@@ -5754,9 +5349,6 @@ void SpawnProjectile(
         new_actor->x += deltax;
         new_actor->y += deltay;
     }
-
-//   if (actorat[new->tilex][new->tiley]==new);
-//              actorat[new->tilex][new->tiley]=nullptr;
 }
 
 objtype* proj_check;
@@ -5854,9 +5446,6 @@ bool ProjectileTryMove(
     return true;
 }
 
-// --------------------------------------------------------------------------
-// T_Projectile()
-// --------------------------------------------------------------------------
 void T_Projectile(
     objtype* ob)
 {
@@ -5872,8 +5461,6 @@ void T_Projectile(
     deltax = FixedByFrac(speed, costable[ob->angle]);
     deltay = -FixedByFrac(speed, sintable[ob->angle]);
 
-//      ob->x += deltax;
-//      ob->y += deltay;
 
 // Did movement hit anything solid.
 //
@@ -6098,9 +5685,6 @@ void ExplodeFill(
     int8_t tx,
     int8_t ty);
 
-// ---------------------------------------------------------------------------
-// ExplodeRadius()
-// ---------------------------------------------------------------------------
 void ExplodeRadius(
     objtype* obj,
     int16_t damage,
@@ -6127,52 +5711,12 @@ void ExplodeRadius(
         ff_damageplayer = false;
     }
 
-
-#if 0
-
-// Back actor out of wall...
-//
-// This "back actor out" code was my first thought on how to pull it out...
-// Might be better to remove "while" loop and just do some tile alignment
-// calculations... At any rate, this code is hardly ever executed -- when
-// it is, it only runs through the "while" 2-3 times.
-//
-    obj->angle -= ANGLES / 2;
-    if (obj->angle < 0) {
-        obj->angle += ANGLES;
-    }
-
-    if (tilemap[obj->tilex][obj->tiley] & 63) {
-        int32_t deltax, deltay;
-
-        deltax = FixedByFrac(obj->speed / 2, costable[obj->angle]);
-        deltay = -FixedByFrac(obj->speed / 2, sintable[obj->angle]);
-
-        while (tilemap[obj->tilex][obj->tiley] & 63) {
-            obj->x += deltax;
-            obj->y += deltay;
-
-            obj->x &= 0x3fffff;
-            obj->y &= 0x3fffff;
-
-            obj->tilex = obj->x >> TILESHIFT;
-            obj->tiley = obj->y >> TILESHIFT;
-        }
-    }
-
-// Start flood-fill explosion!
-//
-#endif
-
     ff_obj = obj;
     memset(ff_buffer, 0, sizeof(ff_buffer));
     ExplodeFill(obj->tilex, obj->tiley);
     ExplodeStatics(obj->tilex, obj->tiley);
 }
 
-// ---------------------------------------------------------------------------
-// ExplodeFill()
-// ---------------------------------------------------------------------------
 void ExplodeFill(
     int8_t tx,
     int8_t ty)
@@ -6363,9 +5907,6 @@ int16_t CalcAngle(
     if (angle < 0) {
         angle = static_cast<float>(::m_pi() * 2 + angle);
     }
-//      else
-//              if (!angle)
-//              angle = 1;
 
     // Convert rads to degs
 
@@ -6374,82 +5915,6 @@ int16_t CalcAngle(
     return iangle;
 }
 
-#if 0
-
-// --------------------------------------------------------------------------
-// CalcDistance() - Calculates the distance from coords #1 to coords #2
-// --------------------------------------------------------------------------
-unsigned CalcDistance(
-    unsigned x1,
-    unsigned y1,
-    unsigned x2,
-    unsigned y2)
-{
-    int norm_dx, norm_dy;
-
-    norm_dx = x2 - x1;
-    norm_dy = y1 - y2;
-
-    return IntSqrt((norm_dx * norm_dx) + (norm_dy * norm_dy));
-}
-
-
-#pragma warn -rvl
-// --------------------------------------------------------------------------
-// IntSqrt()
-// --------------------------------------------------------------------------
-int IntSqrt(
-    int32_t va)
-{
-    asm     mov AX, word ptr va
-    asm     mov DX, word ptr va + 2
-    asm     mov bx, dx          // {bx = integer square root of dx:ax}
-    asm     or bx, ax           // {if dx:ax=0 then return}
-    asm     jz isq01
-
-    asm     mov bx, dx
-    asm     shl bx, 1
-    asm     or bl, ah
-    asm     or bl, al
-    asm     dec bx
-    asm     add bx, dx          // { initial guess}
-    asm     jg isq10
-    asm     inc bx              // { don't return zero}
-    asm     jg isq10
-    asm     mov bx, 7fffh
-isq01:;
-    goto    exitrout;
-
-isq10:;
-    asm     push ax
-    asm     push dx
-
-    asm     div bx
-    asm     sub ax, bx
-    asm     cmp ax, 1
-    asm     jbe isq90
-    asm     cmp ax, -1
-    asm     jae isq90
-    asm     sar ax, 1
-    asm     add bx, ax
-    asm     pop dx
-    asm     pop ax
-    asm     jmp isq10
-isq90:;
-
-    asm     pop dx
-    asm     pop ax
-exitrout:;
-    asm     mov ax, bx
-}
-#pragma warn +rvl
-
-
-#endif
-
-// --------------------------------------------------------------------------
-// T_BlowBack()
-// --------------------------------------------------------------------------
 void T_BlowBack(
     objtype* obj)
 {
