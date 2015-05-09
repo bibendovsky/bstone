@@ -74,8 +74,6 @@ bool use_custom_cursor = false; // JAM
 //      Internal variables
 #define ConfigVersion 1
 
-const char* US_ParmStrings[] = { "TEDLEVEL", "NOWAIT", nullptr };
-const char* US_ParmStrings2[] = { "COMP", "NOCOMP", nullptr };
 bool US_Started;
 
 bool Button0;
@@ -801,31 +799,5 @@ void US_Startup()
     // BBi
 
     ::US_InitRndT(true); // Initialize the random number generator
-
-    switch (::g_args.check_argument(US_ParmStrings2)) {
-    case 0:
-        ::compatability = true;
-        break;
-
-    case 1:
-        ::compatability = false;
-        break;
-    }
-
-    // Check for TED launching here
-    switch (::g_args.check_argument(::US_ParmStrings)) {
-    case 0:
-#if 0
-        tedlevelnum = atoi(g_argv[i + 1]);
-//        if (tedlevelnum >= 0)
-        tedlevel = true;
-#endif
-        break;
-
-//    case 1:
-//        NoWait = true;
-//        break;
-    }
-
     ::US_Started = true;
 }
