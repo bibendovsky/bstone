@@ -21,9 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_ACT1.C
-
-
 #include "3d_def.h"
 
 
@@ -35,12 +32,15 @@ Free Software Foundation, Inc.,
 
 void OpenDoor(
     int16_t door);
+
 void CloseDoor(
     int16_t door);
+
 void PlaceItemNearTile(
     int16_t itemtype,
     int16_t tilex,
     int16_t tiley);
+
 void HealSelf(
     int16_t points);
 
@@ -62,8 +62,9 @@ concession_t ConHintList = { 0 };
 
 =============================================================================
 */
-statobj_t statobjlist[MAXSTATS], * laststatobj;
 
+statobj_t statobjlist[MAXSTATS];
+statobj_t* laststatobj;
 StatInfos statinfo;
 
 
@@ -218,14 +219,6 @@ void initialize_static_info_constants()
     };
 }
 
-/*
-===============
-=
-= InitStaticList
-=
-===============
-*/
-
 void InitStaticList()
 {
     laststatobj = &statobjlist[0];
@@ -285,30 +278,12 @@ statobj_t* FindEmptyStatic()
     return spot;
 }
 
-
-/*
-===============
-=
-= SpawnStatic
-=
-===============
-*/
-
 void SpawnStatic(
     int16_t tilex,
     int16_t tiley,
     int16_t type)
 {
     statobj_t* spot;
-
-#if 0
-#if IN_DEVELOPMENT
-    if (tilemap[tilex][tiley]) {
-        Quit("Static spawned on wall.  %d,%d", tilex, tiley);
-    }
-//              ACT1_ERROR(SPAWNSTATIC_ON_WALL);
-#endif
-#endif
 
     spot = FindEmptyStatic();
 
@@ -327,7 +302,6 @@ void SpawnStatic(
         Quit("Invalid static: {} {}", tilex, tiley);
     }
 #endif
-
 
     if ((!::is_aog_sw() && spot->shapenum == SPR_STAT_3) || // // floor lamp
         spot->shapenum == SPR_STAT_14 || // ceiling light
@@ -416,8 +390,6 @@ void SpawnStatic(
     }
 }
 
-
-
 // ---------------------------------------------------------------------------
 // ReserveStatic()
 //
@@ -442,7 +414,6 @@ statobj_t* ReserveStatic()
     return spot;
 }
 
-
 // ---------------------------------------------------------------------------
 // FindReservedStatic()
 //
@@ -461,8 +432,6 @@ statobj_t* FindReservedStatic()
 
     return nullptr;
 }
-
-
 
 // ---------------------------------------------------------------------------
 // UseReservedStatic()
@@ -538,12 +507,10 @@ statobj_t* UseReservedStatic(
     return spot;
 }
 
-// --------------------------------------------------------------------------
-// PlaceReservedItemNearTile()
-// --------------------------------------------------------------------------
-int8_t pint_xy[8][2] = { { -1, -1 }, { -1, 0 }, { -1, 1 },
-                       { 0, -1 }, { 0, 1 },
-                       { 1, -1 }, { 1, 0 }, { 1, 1 } };
+int8_t pint_xy[8][2] = {
+    { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 },
+    { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 },
+};
 
 void PlaceReservedItemNearTile(
     int16_t itemtype,
@@ -568,8 +535,6 @@ void PlaceReservedItemNearTile(
     UseReservedStatic(itemtype, tilex, tiley);
 }
 
-
-
 /*
 ===============
 =
@@ -581,7 +546,6 @@ void PlaceReservedItemNearTile(
 =
 ===============
 */
-
 void PlaceItemType(
     int16_t itemtype,
     int16_t tilex,
@@ -628,12 +592,8 @@ void PlaceItemType(
         Quit("Item Spawned on a wall at {} {}", spot->tilex, spot->tiley);
     }
 #endif
-
 }
 
-// --------------------------------------------------------------------------
-// PlaceItemNearTile()
-// --------------------------------------------------------------------------
 void PlaceItemNearTile(
     int16_t itemtype,
     int16_t tilex,
@@ -659,13 +619,6 @@ void PlaceItemNearTile(
 
     PlaceItemType(itemtype, tilex, tiley);
 }
-
-
-
-
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------
 // ExplodeStatics()
@@ -727,8 +680,6 @@ void ExplodeStatics(
     }
 }
 
-
-
 /*
 =============================================================================
 
@@ -754,14 +705,14 @@ Every time a door opens or closes the areabyplayer matrix gets recalculated.
 =============================================================================
 */
 
-#define DOORWIDTH 0x7800
-#define OPENTICS 300
+static const int16_t OPENTICS = 300;
 
-doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
+doorobj_t doorobjlist[MAXDOORS];
+doorobj_t* lastdoorobj;
 int16_t doornum;
 
-uint16_t doorposition[MAXDOORS]; // leading edge of door 0=closed
-// 0xffff = fully open
+// leading edge of door 0=closed, 0xffff = fully open
+uint16_t doorposition[MAXDOORS];
 
 uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
@@ -777,7 +728,6 @@ bool areabyplayer[NUMAREAS];
 =
 ==============
 */
-
 void RecursiveConnect(
     int16_t areanumber)
 {
@@ -791,7 +741,6 @@ void RecursiveConnect(
     }
 }
 
-
 void ConnectAreas()
 {
     memset(areabyplayer, 0, sizeof(areabyplayer));
@@ -799,22 +748,11 @@ void ConnectAreas()
     RecursiveConnect(player->areanumber);
 }
 
-
 void InitAreas()
 {
     memset(areabyplayer, 0, sizeof(areabyplayer));
     areabyplayer[player->areanumber] = true;
 }
-
-
-
-/*
-===============
-=
-= InitDoorList
-=
-===============
-*/
 
 void InitDoorList()
 {
@@ -824,15 +762,6 @@ void InitDoorList()
     lastdoorobj = &doorobjlist[0];
     doornum = 0;
 }
-
-
-/*
-===============
-=
-= SpawnDoor
-=
-===============
-*/
 
 void SpawnDoor(
     int16_t tilex,
@@ -894,13 +823,6 @@ void SpawnDoor(
     lastdoorobj++;
 }
 
-// ===========================================================================
-
-
-
-// --------------------------------------------------------------------------
-// CheckLinkedDoors
-// --------------------------------------------------------------------------
 void CheckLinkedDoors(
     int16_t door,
     int16_t door_dir)
@@ -916,9 +838,7 @@ void CheckLinkedDoors(
 
 // Find next door in link.
 //
-//      if ((*(mapsegs[1]+(farmapylookup[tiley]+tilex+1)) & 0xff00) == 0xf900)
     if (*(mapsegs[1] + (farmapylookup[tiley] + tilex))) {
-//              unsigned value=*(mapsegs[1]+(farmapylookup[tiley]+tilex+2));
         uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
 
         // Define the next door in the link.
@@ -961,15 +881,6 @@ void CheckLinkedDoors(
     LinkCheck--;
 }
 
-
-/*
-=====================
-=
-= OpenDoor
-=
-=====================
-*/
-
 void OpenDoor(
     int16_t door)
 {
@@ -985,7 +896,6 @@ void OpenDoor(
 
     }
     CheckLinkedDoors(door, dr_opening);
-
 }
 
 objtype* get_actor_near_door(
@@ -1006,14 +916,6 @@ objtype* get_actor_near_door(
 
     return actorat[tile_x][tile_y];
 }
-
-/*
-=====================
-=
-= CloseDoor
-=
-=====================
-*/
 
 void CloseDoor(
     int16_t door)
@@ -1117,13 +1019,13 @@ void CloseDoor(
 =====================
 */
 
-char od_oneway[] = "\r\r   DOOR LOCKED FROM\r      THIS SIDE.\r^XX";
-char od_locked[] = "\r\r   DOOR PERMANENTLY\r        LOCKED.\r^XX";
-char od_reddenied[] = "\r\r      RED LEVEL\r    ACCESS DENIED!\r^XX";
-char od_yellowdenied[] = "\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r^XX";
-char od_bluedenied[] = "\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
+const char* const od_oneway = "\r\r   DOOR LOCKED FROM\r      THIS SIDE.\r^XX";
+const char* const od_locked = "\r\r   DOOR PERMANENTLY\r        LOCKED.\r^XX";
+const char* const od_reddenied = "\r\r      RED LEVEL\r    ACCESS DENIED!\r^XX";
+const char* const od_yellowdenied = "\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r^XX";
+const char* const od_bluedenied = "\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
 
-char od_green_denied[] =
+const char* const od_green_denied =
     "\r"
     "\r"
     "     GREEN LEVEL\r"
@@ -1131,7 +1033,7 @@ char od_green_denied[] =
     "^XX"
 ;
 
-char od_gold_denied[] =
+const char* const od_gold_denied =
     "\r"
     "\r"
     "      GOLD LEVEL\r"
@@ -1139,8 +1041,8 @@ char od_gold_denied[] =
     "^XX"
 ;
 
-char od_granted[] = "\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
-char od_operating[] = "\r\r    OPERATING DOOR.\r^XX";
+const char* const od_granted = "\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
+const char* const od_operating = "\r\r    OPERATING DOOR.\r^XX";
 
 void OperateDoor(
     int16_t door)
@@ -1251,11 +1153,6 @@ void OperateDoor(
     }
 }
 
-
-
-// --------------------------------------------------------------------------
-// BlockDoorOpen()
-// --------------------------------------------------------------------------
 void BlockDoorOpen(
     int16_t door)
 {
@@ -1266,16 +1163,10 @@ void BlockDoorOpen(
     doorobjlist[door].flags &= ~DR_BLASTABLE;
 
     actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
-//      tilemap[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 
     TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
-//   SpawnStatic(doorobjlist[door].tilex, doorobjlist[door].tiley, DOOR_RUBBLE);
 }
 
-// --------------------------------------------------------------------------
-// TryBlastDoor()
-//
-// --------------------------------------------------------------------------
 void TryBlastDoor(
     int8_t door)
 {
@@ -1300,11 +1191,6 @@ void TryBlastDoor(
     }
 }
 
-
-// --------------------------------------------------------------------------
-// BlastNearDoors()
-//
-// --------------------------------------------------------------------------
 void BlastNearDoors(
     int16_t tilex,
     int16_t tiley)
@@ -1325,10 +1211,6 @@ void BlastNearDoors(
     }
 }
 
-
-// --------------------------------------------------------------------------
-// DropPlasmaDetonator()  - Will move a Chaff from reserve to the player location.
-// --------------------------------------------------------------------------
 void DropPlasmaDetonator()
 {
     auto obj = ::MoveHiddenOfs(
@@ -1350,14 +1232,14 @@ void DropPlasmaDetonator()
     ::Quit("Could not find Fision/Plasma Detonator reserve object.");
 }
 
-
 // --------------------------------------------------------------------------
 // TryDropPlasmaDetonator()  - Will check to see if player is close enough to
-//                                                                               drop a detonator.
+//                             drop a detonator.
 // --------------------------------------------------------------------------
 void TryDropPlasmaDetonator()
 {
-#define MAX_RANGE_DIST 2
+    const int16_t MAX_RANGE_DIST = 2;
+
     objtype* obj;
     int16_t distx, disty, distance;
 
@@ -1402,8 +1284,6 @@ void TryDropPlasmaDetonator()
     }
 }
 
-// ===========================================================================
-
 /*
 ===============
 =
@@ -1413,7 +1293,6 @@ void TryDropPlasmaDetonator()
 =
 ===============
 */
-
 void DoorOpen(
     int16_t door)
 {
@@ -1422,13 +1301,6 @@ void DoorOpen(
     }
 }
 
-#define USE_TRANSFORMAREAS
-
-#ifdef USE_TRANSFORMAREAS
-
-// --------------------------------------------------------------------------
-// TransformAreas()
-// --------------------------------------------------------------------------
 int16_t TransformAreas(
     int8_t tilex,
     int8_t tiley,
@@ -1470,16 +1342,6 @@ int16_t TransformAreas(
     return area1;
 }
 
-#endif
-
-/*
-===============
-=
-= DoorOpening
-=
-===============
-*/
-
 void DoorOpening(
     int16_t door)
 {
@@ -1491,7 +1353,6 @@ void DoorOpening(
         area1 = TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
 
         if (areabyplayer[area1]) {
-//                      PlaySoundLocTile(OPENDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);  // JAB
             switch (doorobjlist[door].type) {
             case dr_bio:
             case dr_office:
@@ -1525,13 +1386,6 @@ void DoorOpening(
     doorposition[door] = static_cast<uint16_t>(position);
 }
 
-/*
-===============
-=
-= DoorClosing
-=
-===============
-*/
 void DoorClosing(
     int16_t door)
 {
@@ -1543,7 +1397,8 @@ void DoorClosing(
 
     if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(door | 0x80)) ||
         (player->tilex == tilex && player->tiley == tiley))
-    {                           // something got inside the door
+    {
+        // something got inside the door
         OpenDoor(door);
         return;
     }
@@ -1555,40 +1410,9 @@ void DoorClosing(
 //
     position -= tics << 10;
     if (position <= 0) {
-#ifdef USE_TRANSFORMAREAS
         position = 0;
         doorobjlist[door].action = dr_closed;
         TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, -1);
-#else
-        //
-        // door is closed all the way, so disconnect the areas
-        //
-        position = 0;
-
-        doorobjlist[door].action = dr_closed;
-
-        map = mapsegs[0] + farmapylookup[doorobjlist[door].tiley]
-              + doorobjlist[door].tilex;
-
-        if (doorobjlist[door].vertical) {
-            area1 = *(map + 1);
-            area2 = *(map - 1);
-        } else {
-            area1 = *(map - mapwidth);
-            area2 = *(map + mapwidth);
-        }
-        area1 -= AREATILE;
-        if (area1 >= HIDDENAREATILE - AREATILE) {
-            area1 -= HIDDENAREATILE - AREATILE;
-        }
-        area2 -= AREATILE;
-        if (area2 >= HIDDENAREATILE - AREATILE) {
-            area2 -= HIDDENAREATILE - AREATILE;
-        }
-        areaconnect[area1][area2]--;
-        areaconnect[area2][area1]--;
-        ConnectAreas();
-#endif
     }
 
     doorposition[door] = static_cast<uint16_t>(position);
@@ -1627,6 +1451,7 @@ void MoveDoors()
     }
 }
 
+
 /*
 =============================================================================
 
@@ -1640,13 +1465,6 @@ uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
 uint16_t pwallx = 0, pwally = 0;
 int16_t pwalldir, pwalldist;
 
-/*
-===============
-=
-= PushWall
-=
-===============
-*/
 
 void PushWall(
     int16_t checkx,
@@ -1715,14 +1533,6 @@ void PushWall(
 
     ::sd_play_wall_sound(PUSHWALLSND);
 }
-
-/*
-=================
-=
-= MovePWalls
-=
-=================
-*/
 
 void MovePWalls()
 {
@@ -1842,9 +1652,6 @@ void MovePWalls()
 //
 // ==========================================================================
 
-// --------------------------------------------------------------------------
-// InitMsgCache()
-// --------------------------------------------------------------------------
 void InitMsgCache(
     mCacheList* mList,
     uint16_t listSize,
@@ -1854,9 +1661,6 @@ void InitMsgCache(
     memset(mList, 0, listSize);
 }
 
-// --------------------------------------------------------------------------
-// FreeMsgCache()
-// --------------------------------------------------------------------------
 void FreeMsgCache(
     mCacheList* mList,
     uint16_t infoSize)
@@ -1887,16 +1691,7 @@ void CacheMsg(
     uint16_t SegNum,
     uint16_t MsgNum)
 {
-//      char *Message, *EndOfMsg, *hint_buffer;
-//      uint8_t pos=0;
-
-// Alloc memory for message and cache-in seg
-//
     ci->mSeg = new char[MAX_CACHE_MSG_LEN];
-//      hint_buffer = ci->mSeg;
-
-// Load message into CachInfo Message Seg.
-//
     LoadMsg(ci->mSeg, SegNum, MsgNum, MAX_CACHE_MSG_LEN);
 }
 
@@ -1972,75 +1767,6 @@ int16_t LoadMsg(
 }
 
 
-#if 0
-// ---------------------------------------------------------------------------
-// CacheMsg()
-//
-// Caches the specific message in FROM a given 'grsegs' block TO the
-// next available message segment pointer.
-// ---------------------------------------------------------------------------
-void CacheMsg(
-    mCacheInfo* ci,
-    unsigned SegNum,
-    unsigned MsgNum)
-{
-    char* Message, * EndOfMsg, * hint_buffer;
-    uint8_t pos = 0;
-
-// Alloc memory for message and cache-in seg
-//
-    MM_GetPtr(&ci->mSeg, MAX_CACHE_MSG_LEN);
-    hint_buffer = ci->mSeg;
-
-    CA_CacheGrChunk(SegNum);
-    Message = grsegs[SegNum];
-
-// Search for end of MsgNum-1 (Start of our message)
-//
-#pragma warn -pia
-    while (--MsgNum) {
-        if (!(Message = _fstrstr(Message, int_xx))) {
-            ACT1_ERROR(INVALID_CACHE_MSG_NUM);
-        }
-
-        Message += 3;           // Bump to start of next Message
-    }
-#pragma warn +pia
-
-// Move past LFs and CRs that follow "^XX"
-//
-    while ((*Message == '\n') || (*Message == '\r')) {
-        Message++;
-    }
-
-// Find the end of the message
-//
-    if (!(EndOfMsg = _fstrstr(Message, int_xx))) {
-        ACT1_ERROR(INVALID_CACHE_MSG_NUM);
-    }
-    EndOfMsg += 3;
-
-// Copy to a temp buffer
-//
-    while (Message != EndOfMsg) {
-        if (*Message != '\n') {
-            hint_buffer[pos++] = *Message;
-        }
-
-        if (pos >= MAX_CACHE_MSG_LEN) {
-            ACT1_ERROR(HINT_BUFFER_OVERFLOW);
-        }
-
-        Message++;
-    }
-
-    hint_buffer[pos] = 0;               // Null Terminate
-    UNCACHEGRCHUNK(SegNum);
-}
-#endif
-//
-
-
 /*
 =============================================================================
 
@@ -2069,18 +1795,6 @@ void SpawnConcession(
     if (credits != PUSHABLETILE) {
         switch (credits & 0xff00) {
         case 0:
-#ifdef CON_HINTS
-        case 0xFD00: // Hint Id
-            ci->mInfo.global_val = credits & 0xff;
-            ci->mInfo.local_val = 0xff;
-            ci->operate_cnt = 3 + (US_RndT() & 0x03);
-            if ((credits != 0xFDFF) && (credits)) {
-                CacheConcessionMsg();
-            }
-            ci->type = CT_HINT; // Force to Hint Type
-            break;
-#endif
-
         case 0xFC00: // Food Id
             ci->mInfo.local_val = credits & 0xff;
             ci->operate_cnt = 0;
@@ -2096,46 +1810,8 @@ void SpawnConcession(
     }
 
     actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
-
-//
-// BORLAND SCREWS UP WHEN COMPILING THE LINE BELOW, EVEN THOUGH
-// IT SHOULD BE JUST THE SAME AS THE TWO LINES ABOVE...
-//
-//      (unsigned)actorat[tilex][tiley] = ++ConHintList.NumMsgs;
-//
 }
 
-#ifdef CON_HINTS
-
-// --------------------------------------------------------------------------
-// CacheConcessionMsg()
-// --------------------------------------------------------------------------
-void CacheConcessionMsg()
-{
-    mCacheInfo* ci = (mCacheInfo*)&ConHintList.cmInfo[ConHintList.NumMsgs];
-
-// Make sure we don't overflow list.
-//
-    if (ConHintList.NumMsgs >= MAX_CACHE_MSGS) {
-        ACT1_ERROR(CACHEMSG_TOO_MANY);
-    }
-
-// Either re-use a message, or cache-in a new one.
-//
-    if (!ReuseMsg(ci, ConHintList.NumMsgs, sizeof(con_mCacheInfo))) {
-        // Cache-in new message
-        //
-
-        CacheMsg(ci, CONCESSION_HINTS, ci->global_val);
-        ci->local_val = ConHintList.NumMsgs;
-    }
-}
-
-#endif
-
-// --------------------------------------------------------------------------
-// ReuseMsg()
-// --------------------------------------------------------------------------
 bool ReuseMsg(
     mCacheInfo* ci,
     int16_t count,
@@ -2165,9 +1841,6 @@ bool ReuseMsg(
     return false;
 }
 
-// --------------------------------------------------------------------------
-// OperateConcession()
-// --------------------------------------------------------------------------
 
 extern std::string food_msg1;
 extern std::string bevs_msg1;
@@ -2175,7 +1848,7 @@ extern std::string bevs_msg1;
 extern void writeTokenStr(
     std::string& str);
 
-char OutOrder[] = { "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX" };
+const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX";
 
 void OperateConcession(
     uint16_t concession)
@@ -2186,16 +1859,6 @@ void OperateConcession(
     ci = &ConHintList.cmInfo[concession - 1];
 
     switch (ci->type) {
-#ifdef CON_HINTS
-    case CT_HINT:
-        if (ci->operate_cnt != 0xff) {
-            if (!ci->operate_cnt--) {
-                ok = true;
-            }
-        }
-        break;
-#endif
-
     case CT_FOOD:
     case CT_BEVS:
         if (ci->mInfo.local_val) {
@@ -2215,18 +1878,6 @@ void OperateConcession(
         // Whada' ya' want?
 
         switch (ci->type) {
-#ifdef CON_HINTS
-        case CT_HINT:
-            SD_PlaySound(CON_HINTSND);
-            if (ci->mInfo.local_val == 0xFF) {
-                DISPLAY_TIMED_MSG(ConcessionGenHints[US_RndT() % NUM_GEN_HINTS], MP_CONCESSION_OPERATE, MT_GENERAL);
-            } else {
-                msgptr = ConHintList.cmInfo[ci->mInfo.local_val].mInfo.mSeg;
-                DISPLAY_TIMED_MSG(msgptr, MP_CONCESSION_HINT, MT_GENERAL);
-            }
-            ci->mInfo.local_val = 0; // Mark as Out Of Order
-            break;
-#endif
         case CT_FOOD:
         case CT_BEVS:
             // One token please... Thank you.
@@ -2270,12 +1921,11 @@ void OperateConcession(
     }
 }
 
-int8_t xy_offset[8][2] = { { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
-                         { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 } }; // diagnals
+int8_t xy_offset[8][2] = {
+    { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
+    { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 }, // diagnals
+};
 
-// --------------------------------------------------------------------------
-// CheckSpawnEA()
-// --------------------------------------------------------------------------
 void CheckSpawnEA()
 {
     objtype temp, * ob;
@@ -2286,7 +1936,6 @@ void CheckSpawnEA()
     }
 
     for (loop = 0; loop < NumEAWalls; loop++) {
-//              unsigned *map=mapsegs[0]+farmapylookup[eaList[loop].tiley]+eaList[loop].tilex;
         uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
 
         // Limit the number of aliens spawned by each outlet.
@@ -2389,9 +2038,6 @@ void CheckSpawnEA()
     }
 }
 
-// --------------------------------------------------------------------------
-// CheckSpawnGoldstern()
-// --------------------------------------------------------------------------
 void CheckSpawnGoldstern()
 {
     if (GoldsternInfo.WaitTime > tics) {
@@ -2425,9 +2071,6 @@ void CheckSpawnGoldstern()
     }
 }
 
-// ---------------------------------------------------------------------------
-// FindNewGoldieSpawnSite()
-// ---------------------------------------------------------------------------
 void FindNewGoldieSpawnSite()
 {
     objtype temp;
