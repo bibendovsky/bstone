@@ -64,7 +64,6 @@ Free Software Foundation, Inc.,
 // --------------------------------------------------------------------------
 
 // #define CARMACIZED
-#define FORCE_FILE_CLOSE (1) // true - forces all files closed once they are used
 
 //
 // GAME VERSION TYPES

@@ -452,9 +452,7 @@ void CAL_SetupMapFile()
         mapsegs[i] = new uint16_t[64 * 64];
     }
 
-#if FORCE_FILE_CLOSE
     CloseMapFile();
-#endif
 }
 
 

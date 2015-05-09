@@ -904,9 +904,7 @@ void CA_CacheAudioChunk(
     pos = audiostarts[chunk];
     compressed = audiostarts[chunk + 1] - pos;
 
-#if FORCE_FILE_CLOSE
     OpenAudioFile();
-#endif
 
     audiohandle.set_position(pos);
 
@@ -923,9 +921,7 @@ void CA_CacheAudioChunk(
     } else {
         MM_GetPtr(&bigbufferseg, compressed);
         if (mmerror) {
-#if FORCE_FILE_CLOSE
             CloseAudioFile();
-#endif
             return;
         }
         MM_SetLock(&bigbufferseg, true);
@@ -947,9 +943,7 @@ done:
     }
 #endif
 
-#if FORCE_FILE_CLOSE
     CloseAudioFile();
-#endif
 }
 
 // ===========================================================================
@@ -1168,9 +1162,7 @@ void CA_CacheMap(
 
     mapon = mapnum;
 
-#if FORCE_FILE_CLOSE
     OpenMapFile();
-#endif
 
 //
 // load the planes into the allready allocated buffers
@@ -1213,11 +1205,7 @@ void CA_CacheMap(
 #endif
     }
 
-#if FORCE_FILE_CLOSE
     CloseMapFile();
-#endif
-
-
 }
 
 // ===========================================================================
