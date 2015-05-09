@@ -93,13 +93,6 @@ extern int16_t TEXTSONG;
     "\n" \
     " Start a NEW game? (Y/N)"
 
-#if 0
-#define CURGAME "You are currently in\n" \
-    "a game. Continuing will\n" \
-    "erase the old game.\n" \
-    "Start a NEW game? (Y/N)"
-#endif
-
 #define GAMESVD "There's already a game\n" \
     "saved at this position.\n" \
     "\n" \
