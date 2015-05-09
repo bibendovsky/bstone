@@ -320,17 +320,9 @@ case gen_scientistobj
 // gamestate.flags flag values
 
 #define GS_HEARTB_SOUND 0x0001
-
-#ifdef CEILING_FLOOR_COLORS
 #define GS_DRAW_CEILING 0x0002
-#endif
-
 #define GS_CLIP_WALLS 0x0004
-
-#ifdef CEILING_FLOOR_COLORS
 #define GS_DRAW_FLOOR 0x0008
-#endif
-
 #define GS_VIRGIN_LEVEL 0x0010
 #define GS_CHECK_STATS_BONUS 0x0020
 #define GS_ATTACK_INFOAREA 0x0040

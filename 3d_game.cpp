@@ -348,10 +348,7 @@ void ScanInfoPlane()
     int16_t tile;
     uint16_t* start;
     bool gottextures = false;
-
-#ifdef CEILING_FLOOR_COLORS
     bool gotcolors = false;
-#endif
 
 #if IN_DEVELOPMENT
     db_count = 0;
@@ -404,7 +401,6 @@ void ScanInfoPlane()
 //      continue;
 // break;
 
-#ifdef CEILING_FLOOR_COLORS
             case 0xfe: // Top/Bottom colors
                 if (gotcolors) {
                     break;
@@ -418,15 +414,6 @@ void ScanInfoPlane()
                 gotcolors = true;
                 continue;
                 break;
-#else
-            case 0xfe: // Top/Bottom colors
-                x++;
-                tile = *start++;
-                // Give error
-                continue;
-                break;
-#endif
-
 
             case 0xFB: // Global Ceiling/Floor textures
                 if (gottextures) {

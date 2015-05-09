@@ -105,10 +105,8 @@ std::string data_dir;
 void InitPlaytemp();
 
 
-#ifdef CEILING_FLOOR_COLORS
 uint16_t TopColor;
 uint16_t BottomColor;
-#endif
 
 bool nospr;
 
@@ -6336,12 +6334,7 @@ void ReadConfig()
 
         mouseadjustment = 5;
         gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
-
-#ifdef CEILING_FLOOR_COLORS
         gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
-#else
-        gamestate.flags |= GS_LIGHTING;
-#endif
 
         sd_sfx_volume = ::sd_default_sfx_volume;
         sd_music_volume = ::sd_default_music_volume;

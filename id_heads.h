@@ -63,9 +63,6 @@ Free Software Foundation, Inc.,
 
 // --------------------------------------------------------------------------
 
-#define CEILING_FLOOR_COLORS
-
-
 // #define CARMACIZED
 #define FREE_FUNCTIONS (0)
 #define FREE_DATA (0)

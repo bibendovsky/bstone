@@ -2847,20 +2847,12 @@ void Thrust(
 
         offset = *(map[1] + 1); // 'offset' used as temp...
         switch (*map[1]) {
-#ifdef CEILING_FLOOR_COLORS
         case 0xfe00:
             TopColor = offset & 0xff00;
             TopColor |= TopColor >> 8;
             BottomColor = offset & 0xff;
             BottomColor |= BottomColor << 8;
             break;
-#else
-#if IN_DEVELOPMENT
-        case 0xfe00:
-            // Give error
-            break;
-#endif
-#endif
 
 #if 0
         case 0xF600: // Lighting effects

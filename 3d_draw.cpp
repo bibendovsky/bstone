@@ -1031,8 +1031,6 @@ void HitVertPWall()
 
 // ==========================================================================
 
-
-#ifdef CEILING_FLOOR_COLORS
 /*
 =====================
 =
@@ -1095,7 +1093,6 @@ void VGAClearScreen()
             viewheight - half_height, half_height, BottomColor);
     }
 }
-#endif
 
 int16_t CalcRotate(
     objtype* ob)
@@ -1641,7 +1638,6 @@ void ThreeDRefresh()
 // follow the walls from there to the right, drawwing as we go
 //
 
-#ifdef CEILING_FLOOR_COLORS
     if (gamestate.flags & GS_LIGHTING) {
         switch (gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING)) {
         case GS_DRAW_FLOOR | GS_DRAW_CEILING:
@@ -1697,18 +1693,6 @@ void ThreeDRefresh()
             break;
         }
     }
-#else
-
-    if (gamestate.flags & GS_LIGHTING) {
-        MapRowPtr = MapLSRow;
-    } else {
-        MapRowPtr = MapRow;
-    }
-
-    WallRefresh();
-    DrawPlanes();
-
-#endif
 
     UpdateTravelTable();
 

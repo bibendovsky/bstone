@@ -220,25 +220,19 @@ void DebugMemory()
     US_Print("\nReal Tics :");
     US_PrintUnsigned(realtics);
 
-#ifdef CEILING_FLOOR_COLORS
-    if (gamestate.flags & GS_DRAW_CEILING)
-#endif
-    {
+    if (gamestate.flags & GS_DRAW_CEILING) {
         US_Print("\n\nCeiling TEX: ");
         US_PrintUnsigned(CeilingTile - START_TEXTURES);
 
         US_Print(" Floor TEX: ");
         US_PrintUnsigned(FloorTile - START_TEXTURES);
-    }
-#ifdef CEILING_FLOOR_COLORS
-    else {
+    } else {
         US_Print("\n\nTop COL: ");
         US_PrintUnsigned(TopColor & 0xff);
 
         US_Print(" Bottom COL: ");
         US_PrintUnsigned(BottomColor & 0xff);
     }
-#endif
 
     if (gamestate.flags & GS_LIGHTING) {
         US_Print("\nShade div :");
@@ -831,65 +825,41 @@ int16_t DebugKeys()
         }
         return 1;
     } else if (Keyboard[ScanCode::sc_home]) { // Dec top color
-#ifdef CEILING_FLOOR_COLORS
-        if (gamestate.flags & GS_DRAW_CEILING)
-#endif
-        {
+        if (gamestate.flags & GS_DRAW_CEILING) {
             CeilingTile = DecRange(CeilingTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
-        }
-#ifdef CEILING_FLOOR_COLORS
-        else {
+        } else {
             TopColor = DecRange((TopColor & 0xff), 0xff);
             TopColor |= (TopColor << 8);
         }
-#endif
     } else if (Keyboard[ScanCode::sc_page_up]) { // Inc top color
-#ifdef CEILING_FLOOR_COLORS
-        if (gamestate.flags & GS_DRAW_CEILING)
-#endif
-        {
+        if (gamestate.flags & GS_DRAW_CEILING) {
             CeilingTile = IncRange(CeilingTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
-        }
-#ifdef CEILING_FLOOR_COLORS
-        else {
+        } else {
             TopColor = IncRange((TopColor & 0xff), 0xff);
             TopColor |= (TopColor << 8);
         }
-#endif
     } else if (Keyboard[ScanCode::sc_end]) { // Dec bottom color
-#ifdef CEILING_FLOOR_COLORS
-        if (gamestate.flags & GS_DRAW_FLOOR)
-#endif
-        {
+        if (gamestate.flags & GS_DRAW_FLOOR) {
             FloorTile = DecRange(FloorTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
-        }
-#ifdef CEILING_FLOOR_COLORS
-        else {
+        } else {
             BottomColor = DecRange((BottomColor & 0xff), 0xff);
             BottomColor |= (BottomColor << 8);
         }
-#endif
     } else if (Keyboard[ScanCode::sc_page_down]) { // Inc bottom color
-#ifdef CEILING_FLOOR_COLORS
-        if (gamestate.flags & GS_DRAW_FLOOR)
-#endif
-        {
+        if (gamestate.flags & GS_DRAW_FLOOR) {
             FloorTile = IncRange(FloorTile, static_cast<uint16_t>(NUM_TILES - 1));
             SetPlaneViewSize(); // Init new textures
             return 1;
-        }
-#ifdef CEILING_FLOOR_COLORS
-        else {
+        } else {
             BottomColor = IncRange((BottomColor & 0xff), 0xff);
             BottomColor |= (BottomColor << 8);
         }
-#endif
     }
 
 #if (IN_DEVELOPMENT)

@@ -1163,8 +1163,6 @@ void CheckKeys()
         I_KeyReleased = true;
     }
 
-
-#ifdef CEILING_FLOOR_COLORS
     if (in_is_binding_pressed(e_bi_ceiling)) {
         gamestate.flags ^= GS_DRAW_CEILING;
         in_reset_binding_state(e_bi_ceiling);
@@ -1181,7 +1179,6 @@ void CheckKeys()
         ChangeSwapFiles(true);
 #endif
     }
-#endif
 
     if (in_is_binding_pressed(e_bi_lightning)) {
         in_reset_binding_state(e_bi_lightning);
