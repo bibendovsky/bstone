@@ -64,8 +64,6 @@ Free Software Foundation, Inc.,
 // --------------------------------------------------------------------------
 
 // #define CARMACIZED
-#define RESTART_PICTURE_PAUSE (0)
-
 #define FORCE_FILE_CLOSE (1) // true - forces all files closed once they are used
 
 //

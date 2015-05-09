@@ -473,16 +473,6 @@ void VL_Shutdown()
     uninitialize_video();
 }
 
-#if !RESTART_PICTURE_PAUSE
-
-/*
-=======================
-=
-= VL_SetVGAPlaneMode
-=
-=======================
-*/
-
 void VL_SetVGAPlaneMode()
 {
     initialize_video();
@@ -502,9 +492,6 @@ void VL_SetVGAPlaneMode()
 
     ::check_vsync();
 }
-
-#endif
-
 
 // ===========================================================================
 

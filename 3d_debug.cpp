@@ -96,10 +96,6 @@ void PicturePause()
     uint8_t* dest, * src;
     memptr buffer;
 
-#if RESTART_PICTURE_PAUSE
-    PP_step = false;
-#endif
-
     VW_ColorBorder(15);
     FinishPaletteShifts();
 
@@ -107,79 +103,8 @@ void PicturePause()
     while (!LastScan) {
     }
 
-#if RESTART_PICTURE_PAUSE
-
-    if (LastScan != sc_Enter) {
-        switch (LastScan) {
-        case ScanCode::sc_o:
-        case sc_Space:
-        case sc_Control:
-        case sc_Alt:
-            break;
-
-        default:
-            PP_step = true;
-            break;
-        }
-
-        VW_ColorBorder(0);
-        return;
-    }
-
-    VW_ColorBorder(1);
-    VW_SetScreen(0, 0);
-
-// Save screen to buffer.
-//
-    ClearMemory();
-    MM_GetPtr(&buffer, 64000);
-
-    for (p = 0; p < 4; p++) {
-        src = MK_FP(0xa000, displayofs);
-        dest = (uint8_t*)buffer + p;
-        VGAREADMAP(p);
-        for (x = 0; x < 16000; x++, dest += 4) {
-            *dest = *src++;
-        }
-    }
-
-// Switch to mode 13h VGA.
-//
-    asm     mov ax, 0x13
-    asm     int 0x10
-
-// Restore buffer to screen.
-//
-    VL_SetPalette(0, 256, vgapal);
-    dest = MK_FP(0xa000, 0);
-    _fmemcpy(dest, buffer, 64000);
-    MM_FreePtr(&buffer);
-
-// Enable keyboard and wait for grab.
-//
-    while (Keyboard[sc_Enter]) {
-    }
-    IN_Shutdown();
-    bioskey(0);
-
-// Restart play
-//
-    IN_Startup();
-    VL_SetVGAPlaneMode();
-    VL_SetPalette(0, 256, vgapal);
-    LoadLatchMem();
-    playstate = ex_transported;
-    DrawPlayScreen(false);
-    DrawInfoArea_COUNT = InitInfoArea_COUNT = 3;
-    playstate = ex_stillplaying;
-    PM_CheckMainMem();
-    PP_step = true;
-    return;
-
-#else
     VW_ColorBorder(0);
     return;
-#endif
 }
 
 #endif
