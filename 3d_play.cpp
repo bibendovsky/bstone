@@ -86,8 +86,6 @@ uint8_t alerted = 0, alerted_areanum;
 
 exit_t playstate;
 
-bool PowerBall = false;
-
 #if TECH_SUPPORT_VERSION
 int16_t bordertime, DebugOk = true, InstantWin = 0, InstantQuit = 0;
 #else

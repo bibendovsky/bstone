@@ -131,7 +131,6 @@ static Direction DirTable[] = // Quick lookup for total direction
     dir_SouthWest, dir_South, dir_SouthEast
 };
 
-const char* IN_ParmStrings[] = { "nojoys", "nomouse", "enablegp", nil };
 
 //      Internal routines
 
@@ -1827,36 +1826,15 @@ bool INL_StartJoy(
 
 void IN_Startup()
 {
-    int i;
-    bool checkjoys;
-    bool checkmouse;
-
     if (IN_Started) {
         return;
     }
 
-    checkjoys = true;
-    checkmouse = true;
-
-    switch (::g_args.check_argument(IN_ParmStrings)) {
-    case 0:
-        checkjoys = false;
-        break;
-
-    case 1:
-        checkmouse = false;
-        break;
-
-    case 2:
-        // FIXME Print a warning?
-        break;
-    }
-
     INL_StartKbd();
-    MousePresent = checkmouse ? INL_StartMouse() : false;
+    MousePresent = INL_StartMouse();
 
-    for (i = 0; i < MaxJoys; ++i) {
-        JoysPresent[i] = checkjoys ? INL_StartJoy(static_cast<uint16_t>(i)) : false;
+    for (int i = 0; i < MaxJoys; ++i) {
+        JoysPresent[i] = INL_StartJoy(static_cast<uint16_t>(i));
     }
 
     ::in_set_default_bindings();

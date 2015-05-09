@@ -3407,7 +3407,6 @@ extern bool noclip;
 extern int16_t extravbls;
 extern int16_t DebugOk;
 extern int16_t InstantWin, InstantQuit;
-extern bool PowerBall;
 extern int16_t TestQuickSave, TestAutoMapper;
 extern uint16_t ExtraRadarFlags;
 
@@ -4398,8 +4397,6 @@ void TerminateStr(
 uint32_t CacheCompData(
     uint16_t ItemNum,
     void** dest_loc);
-bool CheckForSpecialCode(
-    uint16_t shortItemNum);
 
 
 // ===========================================================================

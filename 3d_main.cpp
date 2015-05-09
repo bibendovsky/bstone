@@ -100,14 +100,6 @@ void DrawCreditsPage();
 void unfreed_main();
 void ShowPromo();
 
-const char* MainStrs[] = {
-    "q", "nowait", "l", "e",
-    "version", "system",
-    "dval", "tics", "mem", "powerball", "music", "d",
-    "radar",
-    nil
-};
-
 int16_t starting_episode, starting_level, starting_difficulty;
 
 std::string data_dir;

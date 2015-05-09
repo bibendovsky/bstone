@@ -4645,45 +4645,6 @@ uint32_t CacheCompData(
     return data_length;
 }
 
-// -------------------------------------------------------------------------
-// CheckForSpecialCode() - Scans the Command Line parameters for
-//      special code word and returns true if found.
-//
-// NOTE: - Requires that the MEMORY and CACHE manager be started up.
-//       - The chunk being checked MUST be JAMPAKd - (this may change)
-//
-// -------------------------------------------------------------------------
-bool CheckForSpecialCode(
-    uint16_t ItemNum)
-{
-    void* code;
-    bool return_val = false;
-    char* code_ptr;
-
-    // Allocate, Cache & Decomp into ram
-
-    CacheCompData(ItemNum, &code);
-    code_ptr = (char*)code;
-    TerminateStr(code_ptr);
-
-    // Check for code
-    if (::g_args.find_argument(code_ptr) >= 0) {
-        return_val = true;
-    }
-
-    // free allocated memory
-
-    delete [] static_cast<char*>(code);
-
-    return return_val;
-}
-
-
-////////////////////////////////////////////////////////////////////
-//
-// THIS MAY BE FIXED A LITTLE LATER...
-//
-////////////////////////////////////////////////////////////////////
 
 // ---------------------------------------------------------------------------
 // StartCPMusic()

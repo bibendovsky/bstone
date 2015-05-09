@@ -127,8 +127,6 @@ char EnterBetaCode[] = "\n  TECH SUPPORT VERSION!\n\n  NO DISTRIBUTING!";
 #endif
 
 
-const char* JHParmStrings[] = { "no386", "is386", nil };
-
 char show_text1[] = "\n     SYSTEM INFO\n";
 char show_text2[] = "=======================\n\n";
 char show_text3[] = "-- Memory avail after game is loaded --\n\n";
@@ -1008,33 +1006,6 @@ void PreDemo()
             ::Quit("JAM animation (IANIM.xxx) does not exist.");
         }
 
-        if (PowerBall) {
-            int16_t i;
-
-            for (i = 0; i < 60 && (!DebugOk); i++) {
-                VL_WaitVBL(1);
-
-                // BBi
-                ::in_handle_events();
-
-                if (Keyboard[ScanCode::sc_left_shift] && Keyboard[ScanCode::sc_right_shift]) {
-                    CA_LoadAllSounds();
-
-                    SD_MusicOff();
-
-                    ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
-
-                    SD_WaitSoundDone();
-
-                    ClearMemory();
-                    DebugOk = 1;
-
-                    CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-                    ::SD_StartMusic(TITLE_LOOP_MUSIC);
-                }
-            }
-        }
-
 // ---------------------
 // PC-13
 // ---------------------
@@ -1105,27 +1076,6 @@ void InitGame()
     PM_Startup();
     SD_Startup();
     US_Startup();
-
-    if (CheckForSpecialCode(POWERBALLTEXT))
-#if IN_DEVELOPMENT
-    { DebugOk = true;
-    }
-#else
-    { PowerBall = true;
-    }
-#endif
-
-    if (CheckForSpecialCode(TICSTEXT)) {
-        gamestate.flags |= GS_TICS_FOR_SCORE;
-    }
-
-    if (CheckForSpecialCode(MUSICTEXT)) {
-        gamestate.flags |= GS_MUSIC_TEST;
-    }
-
-    if (CheckForSpecialCode(RADARTEXT)) {
-        gamestate.flags |= GS_SHOW_OVERHEAD;
-    }
 
 #if IN_DEVELOPMENT
     //
@@ -1246,64 +1196,7 @@ void freed_main()
         ::no_screens = true;
     }
 
-    std::string arg;
-
-    switch (::g_args.check_argument(MainStrs, arg)) {
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-    case 0: // quick run
-        gamestate.flags |= GS_QUICKRUN;
-
-    case 1: // no wait
-        gamestate.flags |= GS_NOWAIT;
-        break;
-#endif
-
-    case 2: // starting level
-        gamestate.flags |= GS_STARTLEVEL;
-        starting_level = scan_atoi(arg.c_str());
-        break;
-
-    case 3:
-        gamestate.flags |= GS_STARTLEVEL;
-        starting_episode = scan_atoi(arg.c_str()) - 1;
-        break;
-
-#if IN_DEVELOPMENT
-#ifdef DEBUG_VALUE
-    case 6:
-        debug_value = scan_atoi(g_argv[i]);
-        break;
-#endif
-#endif
-
-    case 7:
-        gamestate.flags |= GS_TICS_FOR_SCORE;
-        break;
-
-    case 8:
-// gamestate.flags |= GS_MEM_FOR_SCORE;
-        break;
-
-    case 9:
-        PowerBall = true;
-        break;
-
-    case 11:
-        gamestate.flags |= GS_STARTLEVEL;
-        starting_difficulty = scan_atoi(arg.c_str()) - 1;
-        break;
-
-    case 10:
-        gamestate.flags |= GS_MUSIC_TEST;
-        break;
-
-    case 12:
-        gamestate.flags |= GS_SHOW_OVERHEAD;
-        break;
-    }
-
-    // BBi
-    if (::g_args.find_option("cheats") >= 0) {
+    if (::g_args.has_option("cheats")) {
         DebugOk = true;
     }
 

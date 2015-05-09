@@ -75,31 +75,9 @@ uint8_t** SoundTable;
 static bool SD_Started;
 bool nextsoundpos;
 
-static const char* ParmStrings[] = {
-    "noal",
-    "nosb",
-    "nopro",
-    "noss",
-    "sst",
-    "ss1",
-    "ss2",
-    "ss3",
-    nullptr
-};
-
 uint16_t* DigiList;
 
-// SoundBlaster variables
-static bool sbNoCheck;
-static bool sbNoProCheck;
-
-// SoundSource variables
-bool ssNoCheck;
-
-// PC Sound variables
-
 // AdLib variables
-bool alNoCheck;
 bool sqActive;
 uint16_t* sqHack;
 uint16_t sqHackLen;
@@ -221,25 +199,6 @@ void SD_Startup()
 {
     if (SD_Started) {
         return;
-    }
-
-    ssNoCheck = false;
-    alNoCheck = false;
-    sbNoCheck = false;
-    sbNoProCheck = false;
-
-    switch (::g_args.check_argument(ParmStrings)) {
-    case 0: // No AdLib detection
-        alNoCheck = true;
-        break;
-
-    case 1: // No SoundBlaster detection
-        sbNoCheck = true;
-        break;
-
-    case 2: // No SoundBlaster Pro detection
-        sbNoProCheck = true;
-        break;
     }
 
     TimeCount = 0;
