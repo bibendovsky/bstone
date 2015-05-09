@@ -63,8 +63,6 @@ void ClearMemory();
 void CA_CacheScreen(
     int16_t chunk);
 void VH_UpdateScreen();
-void PlayDemo(
-    int16_t demonumber);
 void DrawHighScores();
 void freed_main();
 void PreloadUpdate(
@@ -7648,10 +7646,6 @@ void Quit()
 
 void DemoLoop()
 {
-#if DEMOS_ENABLED
-    int16_t LastDemo = 0;
-#endif // DEMOS_ENABLED
-
     bool breakit;
     uint16_t old_bufferofs;
 
@@ -7808,34 +7802,9 @@ void DemoLoop()
                 VW_FadeOut();
 
 
-                //
-                // demo
-                //
-
-#if DEMOS_ENABLED
-#if IN_DEVELOPMENT
-                if (!MS_CheckParm("recdemo"))
-#endif
-                PlayDemo(LastDemo++ % 6);
-
-                if (playstate == ex_abort) {
-                    break;
-                } else {
-                    // Start music when coming from menu...
-                    //
-                    if (!sqActive) {
-//                              if (!SD_MusicPlaying())
-                    // Load and start music
-                    //
-                    CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-                    SD_StartMusic((MusicGroup*)audiosegs[STARTMUSIC + TITLE_LOOP_MUSIC]);
-                }
-            }
-#endif
-
-//
-// high scores
-//
+            //
+            // high scores
+            //
             CA_CacheScreen(BACKGROUND_SCREENPIC);
             DrawHighScores();
             VW_UpdateScreen();
@@ -7864,12 +7833,6 @@ void DemoLoop()
         if (!screenfaded) {
             VW_FadeOut();
         }
-
-#ifdef DEMOS_EXTERN
-        if (MS_CheckParm("recdemo")) {
-            RecordDemo();
-        } else
-#endif
 
         while (true) {
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION

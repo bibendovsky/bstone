@@ -2426,11 +2426,7 @@ void SetupGameLevel()
         InitGoldsternInfo();
     }
 
-    if (demoplayback || demorecord) {
-        US_InitRndT(false);
-    } else {
-        US_InitRndT(true);
-    }
+    US_InitRndT(true);
 
 //
 // load the level
@@ -2923,7 +2919,6 @@ void BevelBox(
 void ShadowPrintLocationText(
     sp_type type)
 {
-    const char* DemoMsg = "-- DEMO --";
     const char* DebugText = "-- DEBUG MODE ENABLED --";
     const char* s = nullptr, * ls_text[3] = { "-- LOADING --", "-- SAVING --", "-- CHANGE VIEW SIZE --" };
     int w, h;
@@ -2971,9 +2966,6 @@ void ShadowPrintLocationText(
         // Print location text
         //
 
-        if (demoplayback || demorecord) {
-            s = DemoMsg;
-        } else
 #if IN_DEVELOPMENT
         if (DebugOk)
 #else
@@ -3149,293 +3141,6 @@ void Warped()
 
 // ==========================================================================
 
-std::string demoname;
-
-void initialize_demos()
-{
-    if (::is_aog_sw()) {
-        demoname = "DEMO?S.";
-    } else {
-        demoname = "DEMO?.";
-    }
-}
-
-#ifdef DEMOS_EXTERN
-
-/*
-==================
-=
-= StartDemoRecord
-=
-==================
-*/
-
-#define MAXDEMOSIZE 16384
-
-void StartDemoRecord(
-    int16_t levelnumber)
-{
-    MM_GetPtr(&demobuffer, MAXDEMOSIZE);
-    MM_SetLock(&demobuffer, true);
-    demoptr = (char*)demobuffer;
-    lastdemoptr = demoptr + MAXDEMOSIZE;
-
-    *demoptr = levelnumber;
-    demoptr += 4; // leave space for length
-    demorecord = true;
-}
-
-
-/*
-==================
-=
-= FinishDemoRecord
-=
-==================
-*/
-
-void FinishDemoRecord()
-{
-    char str[3];
-    int32_t length, level;
-
-    demorecord = false;
-
-    length = demoptr - (char*)demobuffer;
-
-    demoptr = ((char*)demobuffer) + 1;
-    *(uint16_t*)demoptr = length;
-
-    VW_FadeIn();
-
-    CenterWindow(24, 3);
-    PrintY += 6;
-    fontnumber = 4;
-    US_Print(" Demo number (0-9):");
-    VW_UpdateScreen();
-
-    if (US_LineInput(px, py, str, nullptr, true, 2, 0)) {
-        level = atoi(str);
-        if (level >= 0 && level <= 9) {
-            demoname[4] = '0' + level;
-            IO_WriteFile(demoname, (void*)demobuffer, length);
-        }
-    }
-
-    VW_FadeOut();
-
-    MM_FreePtr(&demobuffer);
-}
-
-// ==========================================================================
-
-/*
-==================
-=
-= RecordDemo
-=
-= Fades the screen out, then starts a demo.  Exits with the screen faded
-=
-==================
-*/
-
-
-#if 0 // JAM's Modified Version - HELP! - Comment out
-
-void RecordDemo()
-{
-    CenterWindow(26, 3);
-    PrintY += 6;
-    fontnumber = 4;
-
-    SETFONTCOLOR(0, 15);
-    VW_FadeOut();
-
-    NewGame(gd_hard, gamestate.episode);
-    StartDemoRecord(gamestate.mapon);
-
-    DrawPlayScreen(true);
-    VW_FadeIn();
-
-    startgame = false;
-    demorecord = true;
-
-    LoadLevel(gamestate.mapon);
-    StartMusic(false);
-    PM_CheckMainMem();
-    fizzlein = true;
-
-    PlayLoop();
-
-    demoplayback = false;
-
-    StopMusic();
-    VW_FadeOut();
-    ClearMemory();
-
-    FinishDemoRecord();
-}
-
-#endif
-
-void RecordDemo()
-{
-    char str[3];
-    int16_t level, esc;
-
-    CenterWindow(26, 3);
-    PrintY += 6;
-    fontnumber = 4;
-    US_Print("  Demo which level(0-23):");
-    VW_UpdateScreen();
-    VW_FadeIn();
-    esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
-    if (esc) {
-        return;
-    }
-
-    level = atoi(str);
-//      level--;
-    if (level > 23) {
-        return;
-    }
-
-    SETFONTCOLOR(0, 15);
-    VW_FadeOut();
-
-    NewGame(gd_easy, level / MAPS_PER_EPISODE);
-    gamestate.mapon = level % MAPS_PER_EPISODE;
-    StartDemoRecord(level);
-
-    DrawPlayScreen(true);
-    DrawTopInfo(sp_loading);
-    DisplayPrepingMsg(prep_msg);
-    LS_current = 1;
-    LS_total = 20;
-
-    VW_FadeIn();
-
-    startgame = false;
-    demorecord = true;
-
-    LoadLevel(gamestate.mapon);
-
-    VW_FadeOut();
-    DrawPlayScreen(true);
-    StartMusic(false);
-    PM_CheckMainMem();
-    fizzlein = true;
-
-    PlayLoop();
-
-    demoplayback = false;
-
-    StopMusic();
-    VW_FadeOut();
-    ClearMemory();
-
-    FinishDemoRecord();
-}
-
-#endif
-
-// ==========================================================================
-
-/*
-==================
-=
-= PlayDemo
-=
-= Fades the screen out, then starts a demo.  Exits with the screen faded
-=
-==================
-*/
-
-void PlayDemo(
-    int16_t demonumber)
-{
-// FIXME
-#if 0
-//   static int numloops=0;
-    int16_t length;
-
-#ifndef DEMOS_EXTERN
-// debug: load chunk
-#if GAME_VERSION == SHAREWARE_VERSION
-    int16_t dems[4] = { T_DEMO0, T_DEMO1, T_DEMO2, T_DEMO3 };
-#else
-    int16_t dems[6] = { T_DEMO0, T_DEMO1, T_DEMO2, T_DEMO3, T_DEMO4, T_DEMO5 };
-#endif
-
-    CA_CacheGrChunk(dems[demonumber]);
-    demoptr = static_cast<char*>(grsegs[dems[demonumber]]);
-#else
-    demoname[4] = '0' + demonumber;
-    IO_LoadFile(demoname, &demobuffer);
-    MM_SetLock(&demobuffer, true);
-    demoptr = (char*)demobuffer;
-#endif
-
-    NewGame(1, 0);
-    gamestate.mapon = *demoptr++;
-    gamestate.difficulty = gd_easy;
-    length = *((uint16_t*)demoptr);
-    demoptr += 2;
-    demoptr++;
-    lastdemoptr = demoptr - 4 + length;
-
-    VW_FadeOut();
-
-    SETFONTCOLOR(0, 15);
-    DrawPlayScreen(true);
-    DrawTopInfo(sp_loading);
-    DisplayPrepingMsg(prep_msg);
-    LS_current = 1;
-    LS_total = 20;
-    VW_FadeIn();
-
-    startgame = false;
-    demoplayback = true;
-
-    StartMusic(false);
-    LoadLevel(gamestate.mapon);
-
-    VW_FadeOut();
-    DrawPlayScreen(true);
-    SetPlaneViewSize();
-    fizzlein = true;
-
-#ifndef DEMOS_EXTERN
-    demoptr = static_cast<char*>(grsegs[dems[demonumber]]);
-#endif
-
-    PlayLoop();
-
-    if (gamestate.health <= 0) {
-        Died();
-    }
-
-#ifndef DEMOS_EXTERN
-    UNCACHEGRCHUNK(dems[demonumber]);
-#else
-    MM_FreePtr(&demobuffer);
-#endif
-
-    demoplayback = false;
-    LS_current = LS_total = -1;
-
-    StopMusic();
-    VW_FadeOut();
-    ClearMemory();
-
-    playstate = ex_title;
-#else
-    static_cast<void>(demonumber);
-#endif
-}
-
-// ==========================================================================
-
 /*
 ==================
 =
@@ -3468,9 +3173,7 @@ void Died()
     IN_ClearKeysDown();
     FizzleFade(bufferofs, displayofs + screenofs, viewwidth, viewheight, 70, false);
     bufferofs -= screenofs;
-    if (demoplayback) {
-        return;
-    }
+
     IN_UserInput(100);
 
     SD_WaitSoundDone();

@@ -80,7 +80,6 @@ void initialize_static_health_table();
 void initialize_boss_constants();
 void initialize_messages();
 void initialize_ca_constants();
-void initialize_demos();
 
 void SDL_SetupDigi();
 
@@ -617,7 +616,6 @@ void CheckForEpisodes()
 
     ::PageFileName += ::extension;
     ::audioname += ::extension;
-    ::demoname += ::extension;
 }
 
 
@@ -872,7 +870,6 @@ void freed_main()
     ::initialize_messages();
     ::initialize_ca_constants();
     ::gamestuff.initialize();
-    ::initialize_demos();
 
     if (::g_args.has_option("version")) {
         bstone::Log::write_version();

@@ -25,9 +25,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_HEADS_INCLUDED
 
 
-// ID_GLOB.H
-
-
 #include <cassert>
 #include <cctype>
 #include <cstdint>
@@ -64,21 +61,15 @@ Free Software Foundation, Inc.,
 #pragma GCC diagnostic ignored "-fpermissive"
 #endif // 0
 
-#define __ID_GLOB__
-
 // --------------------------------------------------------------------------
 
-#define DEBUG_VALUE
 #define CEILING_FLOOR_COLORS
 
 
 // #define CARMACIZED
-#define WOLF
 #define FREE_FUNCTIONS (0)
 #define FREE_DATA (0)
-#define DEMOS_ENABLED (0)
 #define RESTART_PICTURE_PAUSE (0)
-#define GEORGE_CHEAT (0)
 
 #define FORCE_FILE_CLOSE (1) // true - forces all files closed once they are used
 

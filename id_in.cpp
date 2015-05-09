@@ -106,11 +106,6 @@ ControlType Controls[MaxPlayers];
 
 uint32_t MouseDownCount;
 
-#if DEMOS_ENABLED
-uint8_t* DemoBuffer;
-uint16_t DemoOffset, DemoSize;
-#endif
-
 bool in_use_modern_bindings = k_in_use_modern_bindings_default;
 Bindings in_bindings;
 
