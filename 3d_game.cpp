@@ -3652,6 +3652,8 @@ void RotateView(
 
 void GameLoop()
 {
+    bool quit = false;
+
     extern bool sqActive;
 
     char Score[13];
@@ -3922,10 +3924,13 @@ restartgame:
 
             return;
 
+        case ex_abort:
+            quit = true;
+            break;
+
         default:
             ClearMemory();
             break;
         }
-
-    } while (true);
+    } while (!quit);
 }

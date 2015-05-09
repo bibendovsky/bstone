@@ -2424,6 +2424,7 @@ restart:
                 StartGame = 0;
                 loadedgame = 0;
                 LS_current = -1; // Clean up
+                ::playstate = ex_abort;
                 goto restart;
             }
 

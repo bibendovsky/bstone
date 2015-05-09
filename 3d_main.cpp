@@ -7878,7 +7878,8 @@ void DemoLoop()
             RecordDemo();
         } else
 #endif
-        {
+
+        while (true) {
 #if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
             if (gamestate.flags & GS_QUICKRUN) {
                 ReadGameNames();
@@ -7888,9 +7889,10 @@ void DemoLoop()
             } else
 #endif
             US_ControlPanel(ScanCode::sc_none);
-        }
-        if (startgame || loadedgame) {
-            GameLoop();
+
+            if (startgame || loadedgame) {
+                GameLoop();
+            }
         }
     }
 }
