@@ -7918,47 +7918,12 @@ int main(
 
     freed_main();
 
-#if FREE_FUNCTIONS
-    UseFunc((char*)JM_FREE_START, (char*)JM_FREE_END);
-    UseFunc((char*)JM_FREE_DATA_START, (char*)JM_FREE_DATA_END);
-#endif
-
     DemoLoop();
 
     Quit();
 
     return 0;
 }
-
-#if FREE_FUNCTIONS
-
-// -------------------------------------------------------------------------
-// UseFunc()
-// -------------------------------------------------------------------------
-unsigned UseFunc(
-    char* first,
-    char* next)
-{
-    unsigned start, end;
-    unsigned pars;
-
-    first += 15;
-    next++;
-    next--;
-
-    start = FP_SEG(first);
-    end = FP_SEG(next);
-    if (!FP_OFF(next)) {
-        end--;
-    }
-    pars = end - start - 1;
-    _fmemset(MK_FP(start, 0), 0, pars * 16);
-    MML_UseSpace(start, pars);
-
-    return pars;
-}
-
-#endif
 
 
 // -------------------------------------------------------------------------

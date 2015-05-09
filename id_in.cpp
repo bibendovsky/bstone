@@ -1160,7 +1160,7 @@ static void INL_ShutJoy(
 }
 
 #if 0
-#if !FREE_FUNCTIONS || IN_DEVELOPMENT
+#if IN_DEVELOPMENT
 
 ///////////////////////////////////////////////////////////////////////////
 //
