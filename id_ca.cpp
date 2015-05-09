@@ -103,9 +103,9 @@ extern uint8_t audiodict;
 
 
 std::string extension; // Need a string, not constant to change cache files
-std::string gheadname = GREXT "HEAD.";
-std::string gfilename = GREXT "GRAPH.";
-std::string gdictname = GREXT "DICT.";
+std::string gheadname = "VGAHEAD.";
+std::string gfilename = "VGAGRAPH.";
+std::string gdictname = "VGADICT.";
 std::string mheadname = "MAPHEAD.";
 std::string mfilename = "MAPTEMP.";
 std::string aheadname = "AUDIOHED.";

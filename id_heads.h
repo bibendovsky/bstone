@@ -25,6 +25,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_HEADS_INCLUDED
 
 
+#define IN_DEVELOPMENT (0)
+
+
 #include <cassert>
 #include <cctype>
 #include <cstdint>
@@ -54,67 +57,9 @@ Free Software Foundation, Inc.,
 #include "bstone_memory_stream.h"
 #include "bstone_string_helper.h"
 #include "bstone_cl_args.h"
-
-// FIXME
-// BBi Enable only if necessary!
-#if 0
-#pragma GCC diagnostic ignored "-fpermissive"
-#endif // 0
-
-// --------------------------------------------------------------------------
-
-// #define CARMACIZED
-
-//
-// GAME VERSION TYPES
-//
-
-#define SHAREWARE_VERSION 0x0001
-#define MISSIONS_1_THR_3 0x0003
-#define MISSIONS_4_THR_6 0x0004
-#define MISSIONS_1_THR_6 0x0007
-
-//
-// CURRENT GAME VERSION DEFINE - Change this define according to the
-// game release versions 1,1-3,4-6, or 1-6.
-
-#define GAME_VERSION (MISSIONS_1_THR_6)
-// #define GAME_VERSION (MISSIONS_1_THR_3)
-// #define GAME_VERSION (SHAREWARE_VERSION)
-
-
-#define TECH_SUPPORT_VERSION (0)
-#define IN_DEVELOPMENT (0)
-
-#define ERROR_LOG "ERROR.LOG" // Text filename for critical memory errors
-#define DUAL_SWAP_FILES (0) // (GAME_VERSION != SHAREWARE_VERSION) // Support for Shadowed and NonShadowed page files
-
-extern int8_t signonv1;
-#define introscn signonv1
-
-#ifndef SPEAR
-
 #include "audio.h"
 #include "gfxv.h"
 
-#else
-
-#include "GFXV_SOD.H"
-#include "AUDIOSOD.H"
-#include "MAPSSOD.H"
-
-#endif
-
-// -----------------
-
-
-#define GREXT "VGA"
-
-//
-//      ID Engine
-//      Types.h - Generic types, #defines, etc.
-//      v1.0d1
-//
 
 struct Point {
     int16_t x;
@@ -125,8 +70,6 @@ struct Rect {
     Point ul;
     Point lr;
 }; // Rect
-
-#define nil (0l)
 
 
 #include "id_pm.h"
@@ -143,38 +86,40 @@ struct Rect {
 #include "movie.h"
 
 
-extern void CalcMemFree();
-
 //
 // replacing refresh manager with custom routines
 //
 
-#define PORTTILESWIDE 20 // all drawing takes place inside a
-#define PORTTILESHIGH 13 // non displayed port of this size
+#define PORTTILESWIDE (20) // all drawing takes place inside a
+#define PORTTILESHIGH (13) // non displayed port of this size
 
-#define UPDATEWIDE PORTTILESWIDE
-#define UPDATEHIGH PORTTILESHIGH
+#define UPDATEWIDE (PORTTILESWIDE)
+#define UPDATEHIGH (PORTTILESHIGH)
 
-#define MAXTICS 10
-#define DEMOTICS 4
+#define MAXTICS (10)
 
-#define UPDATETERMINATE 0x0301
-
-extern uint16_t mapwidth, mapheight, tics, realtics;
-extern bool compatability;
+extern uint16_t mapwidth;
+extern uint16_t mapheight;
+extern uint16_t tics;
+extern uint16_t realtics;
 
 extern uint8_t* updateptr;
 extern uint16_t uwidthtable[UPDATEHIGH];
 extern uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
 
-extern uint8_t fontcolor, backcolor;
+extern uint8_t fontcolor;
+extern uint8_t backcolor;
 
-#define SETFONTCOLOR(f, b) fontcolor = static_cast<uint8_t>(f); backcolor = static_cast<uint8_t>(b);
+inline void SETFONTCOLOR(
+    int foreground_color,
+    int background_color)
+{
+    ::fontcolor = static_cast<uint8_t>(foreground_color);
+    ::backcolor = static_cast<uint8_t>(background_color);
+}
+
 
 #include "3d_menu.h"
-
-
-#define CA_FarRead(h, d, s) IO_FarRead((int16_t)h, (uint8_t*)d, (int32_t)s)
 
 
 // BBi

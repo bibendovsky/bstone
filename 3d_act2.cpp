@@ -1110,7 +1110,7 @@ void T_OfsThink(
         break;
 
     case podeggobj:
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
         if (!((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk)) {
             if (!(obj->flags & FL_VISABLE)) {
                 break;
@@ -1127,7 +1127,7 @@ void T_OfsThink(
             break;
         }
 
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
         if ((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
             obj->temp2 = 0;
         }
@@ -1146,7 +1146,7 @@ void T_OfsThink(
     case morphing_spider_mutantobj:
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
         if (!((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk)) {
             if (!(obj->flags & FL_VISABLE)) {
                 break;
@@ -1159,7 +1159,7 @@ void T_OfsThink(
         }
 #endif
 
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
         if ((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
             obj->temp2 = 0;
         }

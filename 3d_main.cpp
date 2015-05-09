@@ -6478,7 +6478,7 @@ void NewGame(
     gamestate.episode = episode;
     gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
     if (gamestate.flags & GS_STARTLEVEL) {
         gamestate.mapon = starting_level;
         gamestate.difficulty = starting_difficulty;
@@ -7137,14 +7137,6 @@ bool LoadTheGame(
     bool show_error_message = true;
 
     if (is_succeed) {
-#if DUAL_SWAP_FILES
-        // Reinitialize page manager
-        //
-        PM_Shutdown();
-        PM_Startup();
-        PM_UnlockMainMem();
-#endif
-
         // Start music for the starting level in this loaded game.
         //
         ::FreeMusic();
@@ -7828,7 +7820,7 @@ void DemoLoop()
         }
 
         while (true) {
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
             if (gamestate.flags & GS_QUICKRUN) {
                 ReadGameNames();
                 CA_LoadAllSounds();
@@ -7892,7 +7884,7 @@ extern void JM_FREE_END();
 */
 
 // char    *nosprtxt[] = {"nospr",nil};
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
 int16_t starting_episode = 0, starting_level = 0, starting_difficulty = 2;
 #endif
 int16_t debug_value = 0;

@@ -366,7 +366,7 @@ void CheckHighScore(
         use_custom_cursor = true;
         allcaps = true;
         US_CustomCursor = TermCursor;
-        US_LineInput(PrintX, PrintY, Scores[n].name, nil, true, MaxHighName, 100);
+        US_LineInput(PrintX, PrintY, Scores[n].name, nullptr, true, MaxHighName, 100);
     } else {
         IN_ClearKeysDown();
         IN_UserInput(500);

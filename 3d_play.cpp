@@ -86,11 +86,7 @@ uint8_t alerted = 0, alerted_areanum;
 
 exit_t playstate;
 
-#if TECH_SUPPORT_VERSION
-int16_t bordertime, DebugOk = true, InstantWin = 0, InstantQuit = 0;
-#else
 int16_t bordertime, DebugOk = false, InstantWin = 0, InstantQuit = 0;
-#endif
 
 uint16_t ExtraRadarFlags = 0;
 
@@ -1175,9 +1171,6 @@ void CheckKeys()
         gamestate.flags ^= GS_DRAW_FLOOR;
 
         in_reset_binding_state(e_bi_flooring);
-#if DUAL_SWAP_FILES
-        ChangeSwapFiles(true);
-#endif
     }
 
     if (in_is_binding_pressed(e_bi_lightning)) {
@@ -1225,41 +1218,6 @@ void CheckMusicToggle()
 
 
 char Computing[] = { "Computing..." };
-
-#if DUAL_SWAP_FILES
-// --------------------------------------------------------------------------
-// ChangeSwapFiles()
-//
-// PURPOSE: To chance out swap files durring game play -
-//
-// ASSUMES: PageManager is installed.
-//
-// --------------------------------------------------------------------------
-
-void ChangeSwapFiles(
-    bool display)
-{
-    ClearMemory();
-
-    if (display) {
-        WindowX = WindowY = 0;
-        WindowW = 320;
-        WindowH = 200;
-        Message(Computing);
-    }
-
-    PM_Shutdown();
-    PM_Startup();
-
-    PM_CheckMainMem();
-
-    if (display) {
-        IN_UserInput(50);
-        CleanDrawPlayBorder();
-        IN_ClearKeysDown();
-    }
-}
-#endif
 
 
 // --------------------------------------------------------------------------
@@ -1544,7 +1502,7 @@ void StartMusic(
     if (!::is_ps()) {
         musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
     } else {
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
+#if IN_DEVELOPMENT
         if (!::is_aog_sw() && (gamestate.flags & GS_MUSIC_TEST) != 0) {
             musicchunk = music_num;
         } else
