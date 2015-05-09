@@ -71,6 +71,20 @@ char QuitToDosStr[] = { "      Quit to DOS?\n"
 #define FREEFONT(fontnum) { if (fontnum != STARTFONT + 2 && grsegs[fontnum]) { UNCACHEGRCHUNK(fontnum); } }
 
 
+static const char* const CURGAME =
+    "   Continuing past this\n"
+    "  point will end the game\n"
+    " you're currently playing.\n"
+    "\n"
+    " Start a NEW game? (Y/N)";
+
+static const char* const GAMESVD =
+    "There's already a game\n"
+    "saved at this position.\n"
+    "\n"
+    "    Overwrite? (Y/N)";
+
+
 bool EscPressed = false;
 
 int16_t lastmenumusic;

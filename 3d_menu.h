@@ -21,11 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-//
-// WL_MENU.H
-//
-
-
 #ifndef BSTONE_3D_MENU_INCLUDED
 #define BSTONE_3D_MENU_INCLUDED
 
@@ -33,107 +28,94 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 
 
-#define GAME_DESCRIPTION_LEN 31
+#define GAME_DESCRIPTION_LEN (31)
 
 
 //
 // Menu Color Defines
 //
 
-#define HIGHLIGHT_BOX_COLOR 0x52 // Box behind text for cursor
-#define HIGHLIGHT_TEXT_COLOR 0x59 // Text color for text on cursor
-#define HIGHLIGHT_DISABLED_COLOR 0x56 // Text color for text on cursor for a turned off item
-#define HIGHLIGHT_DEACTIAVED_COLOR 0x55
+// Box behind text for cursor
+#define HIGHLIGHT_BOX_COLOR (0x52)
+
+// Text color for text on cursor
+#define HIGHLIGHT_TEXT_COLOR (0x59)
+
+// Text color for text on cursor for a turned off item
+#define HIGHLIGHT_DISABLED_COLOR (0x56)
+
+#define HIGHLIGHT_DEACTIAVED_COLOR (0x55)
 
 
-#define ENABLED_TEXT_COLOR 0x56
-#define DISABLED_TEXT_COLOR 0x53
-#define DEACTIAVED_TEXT_COLOR 0x52
+#define ENABLED_TEXT_COLOR (0x56)
+#define DISABLED_TEXT_COLOR (0x53)
+#define DEACTIAVED_TEXT_COLOR (0x52)
 
-#define INSTRUCTIONS_TEXT_COLOR 0x53
+#define INSTRUCTIONS_TEXT_COLOR (0x53)
 
-#define TERM_BACK_COLOR 0x02
-#define TERM_SHADOW_COLOR 0x01
+#define TERM_BACK_COLOR (0x02)
+#define TERM_SHADOW_COLOR (0x01)
 
 //
 // Clearable Menu Terminal Area
 //
-#define SCREEN_X 32
-#define SCREEN_Y 28
-#define SCREEN_W 244
-#define SCREEN_H 132
+#define SCREEN_X (32)
+#define SCREEN_Y (28)
+#define SCREEN_W (244)
+#define SCREEN_H (132)
 
-
-#define BORDCOLOR (0x78)
 #define BORD2COLOR (0x74)
 #define DEACTIVE (0x72)
 #define BKGDCOLOR (0x76)
-#define STRIPE 0x2c
 
 void MenuFadeOut();
 
-#define READCOLOR 0x4a
-#define READHCOLOR 0x47
-#define VIEWCOLOR 0x7f
-#define TEXTCOLOR WHITE
-#define HIGHLIGHT 0x13
+#define READCOLOR (0x4A)
+#define READHCOLOR (0x47)
+#define VIEWCOLOR (0x7F)
+#define TEXTCOLOR (WHITE)
+#define HIGHLIGHT (0x13)
 
-#define MenuFadeIn() VL_FadeIn(0, 255, vgapal, 10)
+
+inline void MenuFadeIn()
+{
+    ::VL_FadeIn(0, 255, ::vgapal, 10);
+}
+
 
 extern int16_t MENUSONG;
 extern int16_t ROSTER_MUS;
 extern int16_t TEXTSONG;
 
-#define QUITSUR "Are you sure you want\n" \
-    "to quit this great game? (Y/N)"
 
-#define CURGAME "   Continuing past this\n" \
-    "  point will end the game\n" \
-    " you're currently playing.\n" \
-    "\n" \
-    " Start a NEW game? (Y/N)"
+#define SENSITIVE (60)
+#define CENTER (SENSITIVE * 2)
 
-#define GAMESVD "There's already a game\n" \
-    "saved at this position.\n" \
-    "\n" \
-    "    Overwrite? (Y/N)"
+#define MENU_X (111)
+#define MENU_Y (50)
 
+#define SM_X (121)
+#define SM_Y (84)
 
+#define CTL_X (100)
+#define CTL_Y (70)
 
-#define SENSITIVE 60
-#define CENTER SENSITIVE * 2
+#define LSM_X (85)
+#define LSM_Y (55)
+#define LSM_W (144)
 
-#define MENU_X 111
-#define MENU_Y 50
+#define NM_X (71)
+#define NM_Y (66)
 
-#define SM_X 121
-#define SM_Y 84
-#define SM_W 54
+#define NE_X (58)
+#define NE_Y (54)
 
-#define CTL_X 100
-#define CTL_Y 70
+#define CST_X (77)
+#define CST_Y (60)
 
-#define LSM_X 85
-#define LSM_Y 55
-#define LSM_W 144
-#define LSM_H 10 * 13 + 10
+#define CST_START (77)
+#define CST_SPC (41)
 
-#define NM_X 71
-#define NM_Y 66
-
-#define NE_X 58
-#define NE_Y 54
-
-#define CST_X 77
-#define CST_Y 60
-
-#define CST_START 77
-#define CST_SPC 41
-
-#define LSA_X 96
-#define LSA_Y 80
-#define LSA_W 130
-#define LSA_H 42
 
 enum mm_labels {
     MM_NEW_MISSION,
@@ -147,12 +129,10 @@ enum mm_labels {
     MM_SAVE_MISSION,
     MM_BLANK2,
     MM_BACK_TO_DEMO,
-    MM_LOGOFF
+    MM_LOGOFF,
 }; // mm_labels
 
 // CP_Switch() menu labels
-//
-
 enum sw_labels {
     SW_LIGHTING,
     SW_REBA_ATTACK_INFO,
@@ -167,21 +147,15 @@ enum sw_labels {
     SW_ROTATED_AUTOMAP,
 }; // sw_labels
 
-
-
-//
 //  ActiveType flags for menu options (SEE CP_itemtype.active)
-//
 enum activetypes {
     AT_DISABLED = 0,
     AT_ENABLED,
     AT_READIT,
-    AT_NON_SELECTABLE // Menu Bar/Separator - Not a selectable item.
+    AT_NON_SELECTABLE, // Menu Bar/Separator - Not a selectable item.
 }; // activetypes
 
-//
-// TYPEDEFS
-//
+
 struct CP_cursortype {
     uint8_t x;
     int8_t y_ofs;
@@ -201,27 +175,26 @@ struct CP_iteminfo {
     CP_cursortype cursor;
 }; // CP_iteminfo
 
-
 struct CP_itemtype {
     activetypes active;
     char string[36];
+
     void (* routine)(
         int16_t temp1);
+
     uint8_t fontnumber; // Font to print text in
     uint8_t height; // Hight of text (Y_Offset from previous line)
 }; // CP_itemtype
-
 
 struct CustomCtrls {
     int16_t allowed[4];
 }; // CustomCtrls
 
-extern CP_itemtype MainMenu[], NewEMenu[];
+extern CP_itemtype MainMenu[];
+extern CP_itemtype NewEMenu[];
 extern CP_iteminfo MainItems;
 
-//
-// FUNCTION PROTOTYPES
-//
+
 void SetupControlPanel();
 void CleanupControlPanel();
 void ControlPanelFree();
@@ -230,17 +203,21 @@ void ControlPanelAlloc();
 void DrawMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items);
+
 int16_t HandleMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items,
     void (* routine)(int16_t w));
+
 void ClearMScreen();
+
 void DrawWindow(
     int16_t x,
     int16_t y,
     int16_t w,
     int16_t h,
     int16_t wcolor);
+
 void DrawOutline(
     int16_t x,
     int16_t y,
@@ -248,23 +225,32 @@ void DrawOutline(
     int16_t h,
     int16_t color1,
     int16_t color2);
+
 void WaitKeyUp();
+
 void ReadAnyControl(
     ControlInfo* ci);
+
 void TicDelay(
     int16_t count);
+
 void CacheLump(
     int16_t lumpstart,
     int16_t lumpend);
+
 void UnCacheLump(
     int16_t lumpstart,
     int16_t lumpend);
+
 void StartCPMusic(
     int16_t song);
+
 int16_t Confirm(
     const char* string);
+
 void Message(
     const char* string);
+
 void CheckPause();
 void ShootSnd();
 void CheckSecretMissions();
@@ -277,21 +263,26 @@ void DrawGun(
     int16_t which,
     int16_t basey,
     void (* routine)(int16_t w));
+
 void DrawHalfStep(
     int16_t x,
     int16_t y,
     int16_t y_spacing);
+
 void EraseGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
     int16_t x,
     int16_t y,
     int16_t which);
+
 void SetTextColor(
     CP_itemtype* items,
     int16_t hlight);
+
 void DrawMenuGun(
     CP_iteminfo* iteminfo);
+
 void DrawStripes(
     int16_t y);
 
@@ -299,6 +290,7 @@ void DefineMouseBtns();
 void DefineJoyBtns();
 void DefineKeyBtns();
 void DefineKeyMove();
+
 void EnterCtrlData(
     int16_t index,
     CustomCtrls* cust,
@@ -308,77 +300,108 @@ void EnterCtrlData(
 
 void DrawMainMenu();
 void DrawSoundMenu();
+
 void DrawLoadSaveScreen(
     int16_t loadsave);
+
 void DrawNewEpisode();
 void DrawNewGame();
+
 void DrawChangeView(
     int16_t view);
+
 void DrawMouseSens();
 void DrawCtlScreen();
 void DrawCustomScreen();
+
 void DrawLSAction(
     int16_t which);
+
 void DrawCustMouse(
     int16_t hilight);
+
 void DrawCustJoy(
     int16_t hilight);
+
 void DrawCustKeybd(
     int16_t hilight);
+
 void DrawCustKeys(
     int16_t hilight);
+
 void PrintCustMouse(
     int16_t i);
+
 void PrintCustJoy(
     int16_t i);
+
 void PrintCustKeybd(
     int16_t i);
+
 void PrintCustKeys(
     int16_t i);
 
 void PrintLSEntry(
     int16_t w,
     int16_t color);
+
 void TrackWhichGame(
     int16_t w);
+
 void DrawNewGameDiff(
     int16_t w);
+
 void FixupCustom(
     int16_t w);
 
 void CP_BlakeStoneSaga(
     int16_t temp1);
+
 void CP_NewGame(
     int16_t temp1);
+
 void CP_Sound(
     int16_t temp1);
+
 int16_t CP_LoadGame(
     int16_t quick);
+
 int16_t CP_SaveGame(
     int16_t quick);
+
 void CP_Control(
     int16_t temp1);
+
 void CP_ExitOptions(
     int16_t temp1);
+
 void CP_Quit();
+
 void CP_ViewScores(
     int16_t temp1);
+
 int16_t CP_EndGame();
+
 bool CP_CheckQuick(
     ScanCode scancode);
+
 void CustomControls(
     int16_t temp1);
+
 void MouseSensitivity(
     int16_t temp1);
 
 void DrawMenuTitle(
     const char* title);
+
 void CheckForEpisodes();
+
 void HelpPresenter(
     const char* fname,
     bool continuekeys,
     uint16_t id_cache,
     bool startmusic);
+
 void ShadowPrint(
     const char* string,
     int16_t x,
@@ -387,7 +410,9 @@ void ShadowPrint(
 //
 // VARIABLES
 //
-extern int16_t SaveGamesAvail[10], StartGame, SoundStatus;
+extern int16_t SaveGamesAvail[10];
+extern int16_t StartGame;
+extern int16_t SoundStatus;
 extern char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 
 // FOR INPUT TYPES
