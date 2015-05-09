@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "id_heads.h"
 #include "3d_def.h"
 
 
@@ -42,25 +41,27 @@ extern int* planeylookup;
 extern int* mirrorofs;
 
 
-void MML_ClearBlock();
 void CA_CannotOpen(
     const std::string& string);
+
 void CAL_GetGrChunkLength(
     int16_t chunk);
+
 void CA_CacheScreen(
     int16_t chunk);
+
 void VH_UpdateScreen();
 void IN_StartAck();
 bool IN_CheckAck();
 void OpenMapFile();
 void CloseMapFile();
 void ClearMemory();
-void PM_SetMainMemPurge(
-    int16_t level);
 void ShutdownId();
 void InitRedShifts();
+
 void CAL_OptimizeNodes(
     huffnode* table);
+
 void OpenAudioFile();
 void ReadConfig();
 void read_high_scores();
@@ -81,57 +82,8 @@ void initialize_messages();
 void initialize_ca_constants();
 void initialize_demos();
 
-
-// BBi Is it necessary?
-#if 0
-#define SKIP_CHECKSUMS (1)
-#define SHOW_CHECKSUM (0)
-
-#if GAME_VERSION == SHAREWARE_VERSION
-#define AUDIOT_CHECKSUM 0xFFF87142
-#define MAPTEMP_CHECKSUM 0x000370C9
-#define VGAGRAPH_CHECKSUM 0xFFFFDE44
-#define DIZFILE_CHECKSUM 0x00000879l
-#elif GAME_VERSION == MISSIONS_1_THR_3
-#define AUDIOT_CHECKSUM 0xFFF87142
-#define MAPTEMP_CHECKSUM 0x00084F1F
-#define VGAGRAPH_CHECKSUM 0xFFFFDE44
-#define DIZFILE_CHECKSUM 0x00000879l
-#else
-#define AUDIOT_CHECKSUM 0xfff912C9
-#define MAPTEMP_CHECKSUM 0x00107739
-#define VGAGRAPH_CHECKSUM 0xffff6C9A
-#define DIZFILE_CHECKSUM 0x00000879l
-#endif
-#endif
-
-
-void SDL_SBSetDMA(
-    uint8_t channel);
 void SDL_SetupDigi();
 
-// =========================================================================
-//
-// FAR FREE DATA
-//
-// =========================================================================
-
-#if FREE_DATA
-
-char JM_FREE_DATA_START[1] = { 0 };
-
-#endif
-
-#if TECH_SUPPORT_VERSION
-char EnterBetaCode[] = "\n  TECH SUPPORT VERSION!\n\n  NO DISTRIBUTING!";
-#endif
-
-
-char show_text1[] = "\n     SYSTEM INFO\n";
-char show_text2[] = "=======================\n\n";
-char show_text3[] = "-- Memory avail after game is loaded --\n\n";
-char show_text4[] = "            ** Insufficient memory to run the game **";
-char show_text5[] = "---- Extra Devices ----\n\n";
 
 // BBi FIXME
 static uint8_t wolfdigimap[] = {
@@ -205,7 +157,7 @@ static uint8_t wolfdigimap[] = {
     LCANHALTSND, 36,
     LCANDEATHSND, 37,
 
-// RENTDEATH3SND, 38, // Rent-A-Cop Death #3
+    // RENTDEATH3SND, 38, // Rent-A-Cop Death #3
     INFORMDEATH3SND, 40, // Informant Death #3
     PRODEATH3SND, 43, // PRO Death #3
     SWATDEATH3SND, 52, // Swat Guard #3
@@ -217,48 +169,15 @@ static uint8_t wolfdigimap[] = {
     SPITATTACKSND, 55,
     PUNCHATTACKSND, 57,
 
-    LASTSOUND
+    LASTSOUND,
 };
 
-char cinfo_text[] = "\n"
-                    "Planet Strike\n"
-                    "Copyright (c) 1993 - JAM Productions, Inc.\n"
-                    "All rights reserved.\n";
-
-
-#if FREE_DATA
-char JM_FREE_DATA_END[1] = { 0 };
-#endif
 
 extern const uint8_t colormap[16896];
 const uint8_t* lightsource;
 
-// =========================================================================
-//
-// FREE FUNCTIONS
-//
-// =========================================================================
-
-
-
-#if FREE_FUNCTIONS
-
-// This function is used as a label for the start of the
-// functions used by the memory manager.
-//
-void JM_FREE_START()
-{
-}
-
-#endif
 
 // ------------------ ID Software 'startup' functions ---------------------
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_Startup() - Starts the User Mgr
-//
-///////////////////////////////////////////////////////////////////////////
 
 
 /*
@@ -275,6 +194,7 @@ void JM_FREE_START()
 */
 
 const float radtoint = static_cast<float>(FINEANGLES / 2 / PI);
+
 
 void BuildTables()
 {
@@ -317,16 +237,7 @@ void BuildTables()
     lightsource = colormap;
 }
 
-/*
-===================
-=
-= SetupWalls
-=
-= Map tile values to scaled pics
-=
-===================
-*/
-
+// Map tile values to scaled pics
 void SetupWalls()
 {
     int16_t i;
@@ -367,18 +278,6 @@ void SetupWalls()
     std::uninitialized_fill_n(mirrorofs, k_half_height, 0);
 }
 
-
-
-
-/*
-=====================
-=
-= InitDigiMap
-=
-=====================
-*/
-// 3D_GAME.C
-
 void InitDigiMap()
 {
     char* map;
@@ -387,16 +286,6 @@ void InitDigiMap()
         DigiMap[static_cast<int>(map[0])] = map[1];
     }
 }
-
-
-
-/*
-======================
-=
-= CAL_SetupAudioFile
-=
-======================
-*/
 
 void CAL_SetupAudioFile()
 {
@@ -430,16 +319,6 @@ void CAL_SetupAudioFile()
 //
     ::OpenAudioFile();
 }
-
-
-
-/*
-======================
-=
-= CAL_SetupGrFile
-=
-======================
-*/
 
 void CAL_SetupGrFile()
 {
@@ -499,16 +378,6 @@ void CAL_SetupGrFile()
 
     delete [] compseg;
 }
-
-
-
-/*
-======================
-=
-= CAL_SetupMapFile
-=
-======================
-*/
 
 void CAL_SetupMapFile()
 {
@@ -587,13 +456,10 @@ void CAL_SetupMapFile()
 #if FORCE_FILE_CLOSE
     CloseMapFile();
 #endif
-
 }
 
 
 // --------------------- Other general functions ------------------------
-
-#define CHECK_FOR_EPISODES
 
 extern CP_itemtype NewEmenu[];
 extern int16_t EpisodeSelect[];
@@ -613,11 +479,21 @@ static bool are_files_exist(
     return true;
 }
 
-// -------------------------------------------------------------------------
-// CheckForEpisodes() - CHECK FOR VERSION/EXTESION
-// -------------------------------------------------------------------------
 void CheckForEpisodes()
 {
+    const bstone::StringList aog_sw_file_names = {
+        "AUDIOHED.BS1",
+        "AUDIOT.BS1",
+        "IANIM.BS1",
+        "MAPHEAD.BS1",
+        "MAPTEMP.BS1",
+        "SANIM.BS1",
+        "VGADICT.BS1",
+        "VGAGRAPH.BS1",
+        "VGAHEAD.BS1",
+        "VSWAP.BS1",
+    }; // aog_sw_file_names
+
     const bstone::StringList aog_file_names = {
         "AUDIOHED.BS6",
         "AUDIOT.BS6",
@@ -632,19 +508,6 @@ void CheckForEpisodes()
         "VGAHEAD.BS6",
         "VSWAP.BS6",
     }; // aog_file_names
-
-    const bstone::StringList aog_sw_file_names = {
-        "AUDIOHED.BS1",
-        "AUDIOT.BS1",
-        "IANIM.BS1",
-        "MAPHEAD.BS1",
-        "MAPTEMP.BS1",
-        "SANIM.BS1",
-        "VGADICT.BS1",
-        "VGAGRAPH.BS1",
-        "VGAHEAD.BS1",
-        "VSWAP.BS1",
-    }; // aog_sw_file_names
 
     const bstone::StringList ps_file_names = {
         "AUDIOHED.VSI",
@@ -752,151 +615,21 @@ void CheckForEpisodes()
         }
     }
 
-#ifdef ACTIVATE_TERMINAL
-    strcat(term_com_name, extension);
-    strcat(term_msg_name, extension);
-#endif
-
     ::PageFileName += ::extension;
     ::audioname += ::extension;
     ::demoname += ::extension;
-
-#if DUAL_SWAP_FILES
-    strcat(AltPageFileName, extension);
-    ShadowsAvail = (!findfirst(AltPageFileName, &f, FA_ARCH));
-#endif
 }
-
-
-#if 0
-//
-// ORGINAL used in Aliens of Gold
-//
-// -------------------------------------------------------------------------
-// CheckForEpisodes() - CHECK FOR EPISODES
-// -------------------------------------------------------------------------
-void CheckForEpisodes()
-{
-    struct ffblk f;
-    int16_t i;
-
-#if (GAME_VERSION != SHAREWARE_VERSION)
-#ifdef CHECK_FOR_EPISODES
-    if (!findfirst("*.BS6", &f, FA_ARCH))
-#else
-    if (!findfirst("*.BS1", &f, FA_ARCH))
-#endif
-    {
-#ifdef CHECK_FOR_EPISODES
-        strcpy(extension, "BS6");
-#else
-        strcpy(extension, "BS1");
-#endif
-        NewEmenu[1].active =
-            NewEmenu[2].active =
-                NewEmenu[3].active =
-                    NewEmenu[4].active =
-                        NewEmenu[5].active =
-                            EpisodeSelect[1] =
-                                EpisodeSelect[2] =
-                                    EpisodeSelect[3] =
-                                        EpisodeSelect[4] =
-                                            EpisodeSelect[5] = AT_ENABLED;
-    } else
-#ifdef CHECK_FOR_EPISODES
-    if (!findfirst("*.BS3", &f, FA_ARCH))
-#else
-    if (!findfirst("*.BS1", &f, FA_ARCH))
-#endif
-    {
-#ifdef CHECK_FOR_EPISODES
-        strcpy(extension, "BS3");
-#else
-        strcpy(extension, "BS1");
-#endif
-        NewEmenu[1].active =
-            NewEmenu[2].active =
-                EpisodeSelect[1] =
-                    EpisodeSelect[2] = AT_ENABLED;
-    } else
-#endif
-    if (!findfirst("*.BS1", &f, FA_ARCH)) {
-        strcpy(extension, "BS1");
-    } else {
-        printf("No Blake Stone data files found!");
-        exit(0);
-    }
-
-    for (i = 0; i < mv_NUM_MOVIES; i++) {
-        strcat(Movies[i].FName, extension);
-    }
-
-#ifdef ACTIVATE_TERMINAL
-    strcat(term_com_name, extension);
-    strcat(term_msg_name, extension);
-#endif
-
-    strcat(configname, extension);
-    _fstrcat(SaveName, extension);
-    strcat(PageFileName, extension);
-    strcat(audioname, extension);
-    strcat(demoname, extension);
-
-#if DUAL_SWAP_FILES
-    strcat(AltPageFileName, extension);
-    ShadowsAvail = (!findfirst(AltPageFileName, &f, FA_ARCH));
-#endif
-}
-#endif
 
 
 extern const char* MainStrs[];
 extern char bc_buffer[];
 
-// ------------------------------------------------------------------------
-// PreDemo()
-// ------------------------------------------------------------------------
+
 void PreDemo()
 {
     if (::no_screens) {
         return;
     }
-
-#if TECH_SUPPORT_VERSION
-
-    fontnumber = 4;
-    SETFONTCOLOR(0, 15 * 3);
-    CenterWindow(26, 7);
-    US_Print(EnterBetaCode);
-    VW_UpdateScreen();
-    CA_LoadAllSounds();
-    PM_CheckMainMem();
-    SD_PlaySound(INFORMDEATH2SND); // Nooooo!
-    IN_UserInput(TickBase * 20);
-    ClearMemory();
-#endif
-
-
-// BBi Is it necessary?
-#if 0
-#if GAME_VERSION == SHAREWARE_VERSION
-#if IN_DEVELOPMENT || GEORGE_CHEAT
-    if (!MS_CheckParm("nochex"))
-#endif
-    {
-#if  (!SKIP_CHECKSUMS)
-//      CheckValidity("MAPTEMP.",MAPTEMP_CHECKSUM,"LEVELS");
-        CheckValidity("MAPTEMP.", MAPTEMP_CHECKSUM);
-#endif
-    }
-#else
-#if  (!SKIP_CHECKSUMS)
-    if (ChecksumFile("FILE_ID.DIZ", 0) != DIZFILE_CHECKSUM) {
-        gamestate.flags |= GS_BAD_DIZ_FILE;
-    }
-#endif
-#endif
-#endif
 
     VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
@@ -940,9 +673,10 @@ void PreDemo()
             bufferofs = old_bufferofs;
         }
 
-// ---------------------
-// Apogee presents
-// ---------------------
+        // ---------------------
+        // Apogee presents
+        // ---------------------
+
         // Cache pic
         //
         CA_CacheScreen(APOGEEPIC);
@@ -992,9 +726,10 @@ void PreDemo()
             ::VL_FadeOut(0, 255, 0, 0, 0, 30);
         }
 
-// ---------------------
-// JAM logo intro
-// ---------------------
+        // ---------------------
+        // JAM logo intro
+        // ---------------------
+
         // Load and start music
         //
         CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
@@ -1006,9 +741,9 @@ void PreDemo()
             ::Quit("JAM animation (IANIM.xxx) does not exist.");
         }
 
-// ---------------------
-// PC-13
-// ---------------------
+        // ---------------------
+        // PC-13
+        // ---------------------
         VL_Bar(0, 0, 320, 200, 0x14);
         CacheDrawPic(0, 64, PC13PIC);
         VW_UpdateScreen();
@@ -1027,46 +762,12 @@ void PreDemo()
     }
 }
 
-// ------------------------------------------------------------------------
-// InitGame()
-// ------------------------------------------------------------------------
 void InitGame()
 {
     int16_t i, x, y;
     uint16_t* blockstart;
-// long mmsize;
-
-// BBi Is it necessary?
-#if 0
-#if IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM
-    if (MS_CheckParm("checksum")) {
-        ShowChecksums();
-        MM_Shutdown();
-        exit(0);
-    }
-#endif
-#endif
 
     CA_Startup();
-
-// Any problems with this version of the game?
-//
-#if IN_DEVELOPMENT || TECH_SUPPORT_VERSION
-    if (!MS_CheckParm("nochex"))
-#endif
-
-// BBi Is it necessary?
-#if 0
-#if !SKIP_CHECKSUMS
-    CheckValidity("MAPTEMP.", MAPTEMP_CHECKSUM);
-
-#if GAME_VERSION != SHAREWARE_VERSION
-    if (ChecksumFile("FILE_ID.DIZ", 0) != DIZFILE_CHECKSUM) {
-        gamestate.flags |= GS_BAD_DIZ_FILE;
-    }
-#endif
-#endif
-#endif
 
     VL_SetVGAPlaneMode();
     VL_SetPalette(0, 256, vgapal);
@@ -1077,16 +778,11 @@ void InitGame()
     SD_Startup();
     US_Startup();
 
-#if IN_DEVELOPMENT
-    //
-    // Clear Monocrome
-    //
-    _fmemset(MK_FP(0xb000, 0x0000), 0, 4000);
-#endif
 
-//
-// build some tables
-//
+    //
+    // build some tables
+    //
+
     InitDigiMap();
 
     for (i = 0; i < MAPSIZE; i++) {
@@ -1112,15 +808,10 @@ void InitGame()
     ReadConfig();
     ::read_high_scores();
 
-//
-// draw intro screen stuff
-//
-//      if (!(gamestate.flags & GS_QUICKRUN))
-//              IntroScreen ();
 
-//
-// load in and lock down some basic chunks
-//
+    //
+    // load in and lock down some basic chunks
+    //
 
     LoadFonts();
 
@@ -1129,15 +820,13 @@ void InitGame()
     SetupWalls();
     NewViewSize();
 
-//
-// initialize variables
-//
+    //
+    // initialize variables
+    //
+
     InitRedShifts();
 }
 
-// -------------------------------------------------------------------------
-// scan_atoi()
-// -------------------------------------------------------------------------
 uint16_t scan_atoi(
     const char* s)
 {
@@ -1148,25 +837,23 @@ uint16_t scan_atoi(
     return static_cast<uint16_t>(atoi(s)); // Then converts to integer...
 }
 
+
 extern const char* MainStrs[];
 extern int16_t starting_episode, starting_level, starting_difficulty;
 
 
-// -------------------------------------------------------------------------
-// freed_main()
-// -------------------------------------------------------------------------
 void freed_main()
 {
-// Setup for APOGEECD thingie.
-//
+    // Setup for APOGEECD thingie.
+    //
     InitDestPath();
 
-// Make sure there's room to play the game
-//
+    // Make sure there's room to play the game
+    //
     CheckDiskSpace(DISK_SPACE_NEEDED, CANT_PLAY_TXT, cds_dos_print);
 
-// Which version is this? (SHAREWARE? 1-3? 1-6?)
-//
+    // Which version is this? (SHAREWARE? 1-3? 1-6?)
+    //
     CheckForEpisodes();
 
     // BBi
@@ -1207,112 +894,6 @@ void freed_main()
     PreDemo();
 }
 
-// BBi Is it necessary?
-#if 0
-// -------------------------------------------------------------------------
-// CheckValidity()
-// -------------------------------------------------------------------------
-void CheckValidity(
-    char* file,
-    int32_t valid_checksum)
-{
-    std::string filename;
-    int32_t checksum;
-
-    if (::strlen(file) > 9) {
-        MAIN_ERROR(CHECK_FILENAME_TOO_LONG);
-    }
-
-    filename = file + ::extension;
-
-    checksum = ::ChecksumFile(filename, 0);
-    if (checksum != valid_checksum)
-#if GAME_VERSION != SHAREWARE_VERSION
-    { if (::strstr(file, "MAP")) {
-          InvalidLevels();
-      }
-    }
-#else
-    { BadChecksum();
-    }
-#endif
-}
-
-#define CFC_BUFFERSIZE 65535
-
-char* cfc_buffer;
-
-// -------------------------------------------------------------------------
-// ChecksumFile()
-// -------------------------------------------------------------------------
-int32_t ChecksumFile(
-    const std::string& file,
-    int32_t checksum)
-{
-    const auto JUMPSIZE = 8;
-
-    bstone::FileStream stream(file);
-
-    if (!stream.is_open()) {
-        return 0;
-    }
-
-    std::unique_ptr<char> cfc_buffer(new char[CFC_BUFFERSIZE]);
-
-    auto p = cfc_buffer.get();
-
-    auto size = static_cast<int>(stream.get_size());
-
-    while (size != 0) {
-        auto readlen = (size >= CFC_BUFFERSIZE) ? CFC_BUFFERSIZE : size;
-
-        stream.read(cfc_buffer.get(), readlen);
-
-        for (auto i = 0; i < (readlen - JUMPSIZE); i += JUMPSIZE) {
-            checksum += p[i] ^ p[i + 1];
-        }
-
-        size -= readlen;
-    }
-
-    return checksum;
-}
-#endif
-
-// BBi Is it necessary?
-#if 0 && (IN_DEVELOPMENT || GEORGE_CHEAT || SHOW_CHECKSUM)
-// -------------------------------------------------------------------------
-// ShowChecksums()
-// -------------------------------------------------------------------------
-void ShowChecksums()
-{
-#if GAME_VERSION == SHAREWARE_VERSION
-    char mapname[23] = "SWMAPS\\MAPTEMP.";
-#elif GAME_VERSION == MISSIONS_1_THR_3
-    char mapname[23] = "1_3MAPS\\MAPTEMP.";
-#else
-    char mapname[13] = "MAPTEMP.";
-#endif
-    char gfxname[13] = "VGAGRAPH.";
-    char audioname[13] = "AUDIOT.";
-    char dizname[] = "FILE_ID.DIZ";
-
-    strcat(gfxname, extension);
-    strcat(mapname, extension);
-    strcat(audioname, extension);
-
-    printf("\n");
-    printf("%s: %lx\n", audioname, ChecksumFile(audioname, 0));
-    printf("%s: %lx\n", mapname, ChecksumFile(mapname, 0));
-    printf("%s: %lx\n", gfxname, ChecksumFile(gfxname, 0));
-    printf("%s: %lx\n", dizname, ChecksumFile(dizname, 0));
-    printf("\n");
-}
-#endif
-
-// -------------------------------------------------------------------------
-// InvalidLevels()
-// -------------------------------------------------------------------------
 void InvalidLevels()
 {
     char* chunkptr;
@@ -1325,38 +906,3 @@ void InvalidLevels()
 
     UNCACHEGRCHUNK(BADLEVELSTEXT);
 }
-
-// BBi Is it necessary?
-#if 0 && GAME_VERSION == SHAREWARE_VERSION
-
-// -------------------------------------------------------------------------
-// BadChecksum()
-// -------------------------------------------------------------------------
-void BadChecksum()
-{
-    char* chunkptr;
-
-    CA_CacheGrChunk(BADCHECKSUMTEXT);
-    chunkptr = grsegs[BADCHECKSUMTEXT];
-    *(_fstrstr(chunkptr, "^XX")) = 0;
-
-    CA_Shutdown();
-    MM_Shutdown();
-
-    fprint(chunkptr);
-
-    exit(0);
-}
-#endif
-
-
-#if FREE_FUNCTIONS
-
-// This function is used as a label for the end of the
-// functions used by the memory manager.
-//
-void JM_FREE_END()
-{
-}
-
-#endif
