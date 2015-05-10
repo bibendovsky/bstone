@@ -167,13 +167,17 @@ void US_CheckHighScore(int32_t score, uint16_t other);
 void US_DisplayHighScores(int16_t which);
 
 bool US_UpdateCursor();
-bool US_LineInput(int16_t x, int16_t y, char* buf, char* def, bool escok,
-             int16_t maxchars, int16_t maxwidth);
-extern int16_t US_CheckParm(
-    const char* parm,
-    const char** strings),
 
-US_RndT();
+bool US_LineInput(
+    int16_t x,
+    int16_t y,
+    char* buf,
+    char* def,
+    bool escok,
+    int16_t maxchars,
+    int16_t maxwidth);
+
+extern int16_t US_RndT();
 
 void USL_PrintInCenter(
     const char* s,

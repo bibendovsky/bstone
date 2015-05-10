@@ -58,9 +58,8 @@ Free Software Foundation, Inc.,
 void VH_UpdateScreen();
 
 
-//      Global variables
+// Global variables
 char* abortprogram;
-//              bool         NoWait;
 int16_t PrintX;
 int16_t PrintY;
 int16_t WindowX;
@@ -71,7 +70,7 @@ int16_t WindowH;
 US_CursorStruct US_CustomCursor; // JAM
 bool use_custom_cursor = false; // JAM
 
-//      Internal variables
+// Internal variables
 #define ConfigVersion 1
 
 bool US_Started;
@@ -116,10 +115,6 @@ void sys_timer_callback()
 
 HighScores Scores;
 
-//      Internal routines
-
-//      Public routines
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      US_Shutdown() - Shuts down the User Mgr
@@ -141,65 +136,6 @@ void US_Shutdown()
 
     ::US_Started = false;
 }
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_CheckParm() - checks to see if a string matches one of a set of
-//              strings. The check is case insensitive. The routine returns the
-//              index of the string that matched, or -1 if no matches were found
-//
-///////////////////////////////////////////////////////////////////////////
-int16_t US_CheckParm(
-    const char* parm,
-    const char** strings)
-{
-    char cp, cs;
-    const char* p, * s;
-    int16_t i;
-
-    while (!isalpha(*parm)) {   // Skip non-alphas
-        parm++;
-    }
-
-    for (i = 0; *strings && **strings; i++) {
-        for (s = *strings++, p = parm, cs = cp = 0; cs == cp; ) {
-            cs = *s++;
-            if (!cs) {
-                return i;
-            }
-            cp = *p++;
-
-            if (isupper(cs)) {
-                cs = static_cast<char>(tolower(cs));
-            }
-            if (isupper(cp)) {
-                cp = static_cast<char>(tolower(cp));
-            }
-        }
-    }
-    return -1;
-}
-
-//      Window/Printing routines
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_SetPrintRoutines() - Sets the routines used to measure and print
-//              from within the User Mgr. Primarily provided to allow switching
-//              between masked and non-masked fonts
-//
-///////////////////////////////////////////////////////////////////////////
-void US_SetPrintRoutines(
-    void (* measure)(char*, uint16_t*, uint16_t*),
-    void (* print)(char*))
-{
-    USL_MeasureString = measure;
-    USL_DrawString = print;
-}
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -254,23 +190,6 @@ void US_PrintUnsigned(
     auto buffer = std::to_string(n);
     ::US_Print(buffer.c_str());
 }
-
-
-#if 0
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_PrintSigned() - Prints a signed long
-//
-///////////////////////////////////////////////////////////////////////////
-void US_PrintSigned(
-    int32_t n)
-{
-    char buffer[32];
-
-    US_Print(ltoa(n, buffer, 10));
-}
-#endif
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -473,8 +392,6 @@ void US_RestoreWindow(
     PrintY = win->py;
 }
 
-//      Input routines
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      USL_XORICursor() - XORs the I-bar text cursor. Used by US_LineInput()
@@ -512,7 +429,6 @@ static void USL_XORICursor(
     }
 
 }
-
 
 // JAM BEGIN - New Function
 ///////////////////////////////////////////////////////////////////////////
@@ -623,38 +539,6 @@ bool US_LineInput(
         LastASCII = key_None;
 
         switch (sc) {
-#if 0
-
-        case sc_LeftArrow:
-            if (cursor) {
-                cursor--;
-            }
-            c = key_None;
-            cursormoved = true;
-            redraw = use_custom_cursor; // JAM -
-            break;
-        case sc_RightArrow:
-            if (s[cursor]) {
-                cursor++;
-            }
-            c = key_None;
-            cursormoved = true;
-            redraw = use_custom_cursor; // JAM -
-            break;
-        case sc_Home:
-            cursor = 0;
-            c = key_None;
-            cursormoved = true;
-            redraw = use_custom_cursor; // JAM -
-            break;
-        case ScanCode::sc_end:
-            cursor = strlen(s);
-            c = key_None;
-            cursormoved = true;
-            break;
-
-#endif
-
         case ScanCode::sc_return:
             strcpy(buf, s);
             done = true;
@@ -678,17 +562,6 @@ bool US_LineInput(
             c = key_None;
             cursormoved = true;
             break;
-
-#if 0
-        case sc_Delete:
-            if (s[cursor]) {
-                strcpy(s + cursor, s + cursor + 1);
-                redraw = true;
-            }
-            c = key_None;
-            cursormoved = true;
-            break;
-#endif
 
         case ScanCode::sc_up_arrow:
         case ScanCode::sc_down_arrow:
@@ -776,16 +649,6 @@ bool US_LineInput(
     IN_ClearKeysDown();
     return result;
 }
-
-#if 0
-uint32_t sys_timer_callback(
-    uint32_t interval,
-    void*)
-{
-    ++TimeCount;
-    return interval;
-}
-#endif
 
 void US_Startup()
 {

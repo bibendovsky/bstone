@@ -123,15 +123,12 @@ void SDL_SetupDigi()
     }
 }
 
-// AdLib Code
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      SDL_DetectAdLib() - Determines if there's an AdLib (or SoundBlaster
 //              emulating an AdLib) present
 //
 ///////////////////////////////////////////////////////////////////////////
-
 static bool SDL_DetectAdLib()
 {
     int sdl_result = 0;
@@ -146,7 +143,6 @@ static bool SDL_DetectAdLib()
 //      SDL_ShutDevice() - turns off whatever device was being used for sound fx
 //
 ////////////////////////////////////////////////////////////////////////////
-
 static void SDL_ShutDevice()
 {
     sd_is_sound_enabled = false;
@@ -157,12 +153,9 @@ static void SDL_ShutDevice()
 //      SDL_StartDevice() - turns on whatever device is to be used for sound fx
 //
 ///////////////////////////////////////////////////////////////////////////
-
 static void SDL_StartDevice()
 {
 }
-
-// Public routines
 
 bool SD_EnableSound(
     bool enable)
@@ -257,7 +250,6 @@ void SD_Shutdown()
 //              no sound is playing
 //
 ///////////////////////////////////////////////////////////////////////////
-
 bool SD_SoundPlaying()
 {
     if (::sd_is_sound_enabled) {
@@ -272,7 +264,6 @@ bool SD_SoundPlaying()
 //      SD_StopSound() - if a sound is playing, stops it
 //
 ///////////////////////////////////////////////////////////////////////////
-
 void SD_StopSound()
 {
     ::mixer.stop_all_sfx();
@@ -283,7 +274,6 @@ void SD_StopSound()
 //      SD_WaitSoundDone() - waits until the current sound is done playing
 //
 ///////////////////////////////////////////////////////////////////////////
-
 void SD_WaitSoundDone()
 {
     while (::SD_SoundPlaying()) {
@@ -291,13 +281,11 @@ void SD_WaitSoundDone()
     }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      SD_MusicOn() - turns on the sequencer
 //
 ///////////////////////////////////////////////////////////////////////////
-
 void SD_MusicOn()
 {
     ::sqActive = true;
@@ -309,7 +297,6 @@ void SD_MusicOn()
 //      SD_MusicOff() - turns off the sequencer and any playing notes
 //
 ///////////////////////////////////////////////////////////////////////////
-
 void SD_MusicOff()
 {
     ::sqActive = false;
@@ -321,7 +308,6 @@ void SD_MusicOff()
 //      SD_StartMusic() - starts playing the music pointed to
 //
 ///////////////////////////////////////////////////////////////////////////
-
 void SD_StartMusic(
     int index)
 {
