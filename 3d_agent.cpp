@@ -21,30 +21,33 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_AGENT.C
-
-
 #include "3d_def.h"
 
 
 void InitWeaponBounce();
 void HandleWeaponBounce();
+
 void VL_LatchToScreen(
     int source,
     int width,
     int height,
     int x,
     int y);
+
 void StartDamageFlash(
     int damage);
+
 void StartBonusFlash();
+
 int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
+
 void PushWall(
     int16_t checkx,
     int16_t checky,
     int16_t dir);
+
 void OperateDoor(
     int16_t door);
 
@@ -53,12 +56,16 @@ void TryDropPlasmaDetonator();
 void ClearMemory();
 void VH_UpdateScreen();
 void InitAreas();
+
 void FirstSighting(
     objtype* ob);
+
 void OpenDoor(
     int16_t door);
+
 void DrawTopInfo(
     sp_type type);
+
 void DoActor(
     objtype* ob);
 
@@ -81,50 +88,43 @@ int16_t DrawShape(
 =============================================================================
 */
 
-// #define ACTIVATE_TERMINAL
 
-#define MAXMOUSETURN 10
+#define MAXMOUSETURN (10)
 
-#define MOVESCALE 150l
-#define BACKMOVESCALE 100l
-#define ANGLESCALE 20
-#define MAX_DA 100
+#define MOVESCALE (150L)
+#define BACKMOVESCALE (100L)
+#define ANGLESCALE (20)
+#define MAX_DA (100)
 
-#define MAX_TERM_COMMAND_LEN 31
+#define MAX_TERM_COMMAND_LEN (31)
 
 // Max Score displayable
 
 #define MAX_DISPLAY_SCORE (9999999L)
 #define SCORE_ROLL_WAIT (60 * 10) // Tics
 
-// IFDEF switches
-
-// #define NO_STATUS_BAR
-
 // ECG scroll rate (delay).
-
-#define HEALTH_SCROLL_RATE 7
-#define HEALTH_PULSE 70
+#define HEALTH_SCROLL_RATE (7)
+#define HEALTH_PULSE (70)
 
 // Text "InfoArea" defines
-#define INFOAREA_X 3
-#define INFOAREA_Y ((uint16_t)200 - STATUSLINES + 3)
-#define INFOAREA_W 109
-#define INFOAREA_H 37
+#define INFOAREA_X (3)
+#define INFOAREA_Y (static_cast<uint16_t>(200) - STATUSLINES + 3)
+#define INFOAREA_W (109)
+#define INFOAREA_H (37)
 
-#define INFOAREA_BCOLOR 0x01
-#define INFOAREA_CCOLOR 0x1A
-#define INFOAREA_TCOLOR 0xA6
-#define INFOAREA_TSHAD_COLOR 0x04 // Text Shadow Color
+#define INFOAREA_BCOLOR (0x01)
+#define INFOAREA_CCOLOR (0x1A)
+#define INFOAREA_TCOLOR (0xA6)
+#define INFOAREA_TSHAD_COLOR (0x04) // Text Shadow Color
 
-#define GRENADE_ENERGY_USE 4
+#define GRENADE_ENERGY_USE (4)
 #define BFG_ENERGY_USE (GRENADE_ENERGY_USE << 1)
 
+#define NUM_AMMO_SEGS (21)
 
-#define NUM_AMMO_SEGS 21
+#define AMMO_SMALL_FONT_NUM_WIDTH (5)
 
-
-#define AMMO_SMALL_FONT_NUM_WIDTH 5
 
 /*
 =============================================================================
@@ -154,16 +154,12 @@ bool PlayerInvisable = false;
 
 char LocationText[MAX_LOCATION_DESC_LEN];
 
-#ifdef ACTIVATE_TERMINAL
-char term_com_name[13] = { "TERM_CMD." };
-char term_msg_name[13] = { "TERM_MSG." };
-#endif
-
 uint16_t player_oldtilex;
 uint16_t player_oldtiley;
 
 // BBi
 extern bstone::MemoryStream g_playtemp;
+
 
 /*
 =============================================================================
@@ -180,6 +176,7 @@ void ShowOverheadChunk();
 
 void LoadOverheadChunk(
     int tpNum);
+
 void SaveOverheadChunk(
     int tpNum);
 
@@ -188,19 +185,24 @@ void DisplayTeleportName(
     bool locked);
 
 void ForceUpdateStatusBar();
-
 void UpdateRadarGuage();
+
 void DrawLedStrip(
     int16_t x,
     int16_t y,
     int16_t frac,
     int16_t max);
+
 void DisplayPinballBonus();
+
 void CheckPinballBonus(
     int32_t points);
+
 uint8_t LevelCompleted();
+
 void T_Player(
     objtype* ob);
+
 void T_Attack(
     objtype* ob);
 
@@ -219,32 +221,35 @@ atkinf_t attackinfo[7][14] = {
     { { 5, 7, 0 }, { 5, 8, 0 }, { 2, -2, 0 }, { 0, 0, 0 } },
 };
 
-// int  strafeangle[9] = {0,90,180,270,45,135,225,315,0};
 
-#define GD0 0x55
-#define YD0 0x35
-#define RD0 0x15
+#define GD0 (0x55)
+#define YD0 (0x35)
+#define RD0 (0x15)
 
-#define GD1 0x53
-#define YD1 0x33
-#define RD1 0x13
+#define GD1 (0x53)
+#define YD1 (0x33)
+#define RD1 (0x13)
 
-int8_t DimAmmo[2][22] = { { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0, YD0, YD0, YD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0 },
-                        { GD1, GD1, GD1, GD1, GD1, GD1, GD1, YD1, YD1, YD1, YD1, YD1, YD1, YD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1 } };
+int8_t DimAmmo[2][22] = {
+    { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0, YD0, YD0, YD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0 },
+    { GD1, GD1, GD1, GD1, GD1, GD1, GD1, YD1, YD1, YD1, YD1, YD1, YD1, YD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1 },
+};
 
-#define GL0 0x58
-#define YL0 0x38
-#define RL0 0x18
+#define GL0 (0x58)
+#define YL0 (0x38)
+#define RL0 (0x18)
 
-#define GL1 0x56
-#define YL1 0x36
-#define RL1 0x16
+#define GL1 (0x56)
+#define YL1 (0x36)
+#define RL1 (0x16)
 
-int8_t LitAmmo[2][22] = { { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0, YL0, YL0, YL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0 },
-                        { GL1, GL1, GL1, GL1, GL1, GL1, GL1, YL1, YL1, YL1, YL1, YL1, YL1, YL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1 } };
+int8_t LitAmmo[2][22] = {
+    { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0, YL0, YL0, YL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0 },
+    { GL1, GL1, GL1, GL1, GL1, GL1, GL1, YL1, YL1, YL1, YL1, YL1, YL1, YL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1 },
+};
 
+#define IA_MAX_LINE (30)
 
-#define IA_MAX_LINE 30
 struct InfoArea_Struct {
     int16_t x, y;
     int16_t text_color;
@@ -267,7 +272,6 @@ InfoArea_Struct InfoAreaSetup;
 int8_t DrawRadarGuage_COUNT = 3;
 int8_t DrawAmmoNum_COUNT = 3;
 int8_t DrawAmmoPic_COUNT = 3;
-// int8_t DrawPDAmmoPic_COUNT = 3;
 int8_t DrawScoreNum_COUNT = 3;
 int8_t DrawWeaponPic_COUNT = 3;
 int8_t DrawKeyPics_COUNT = 3;
@@ -278,24 +282,27 @@ int8_t InitInfoArea_COUNT = 3;
 int8_t ClearInfoArea_COUNT = 3;
 
 void DrawWeapon();
+
 void GiveWeapon(
     int16_t weapon);
+
 void GiveAmmo(
     int16_t ammo);
+
 void DrawGAmmoNum();
 void DrawMAmmoNum();
 void DrawPDAmmoMsg();
 void ComputeAvailWeapons();
+
 void SW_HandleActor(
     objtype* obj);
+
 void SW_HandleStatic(
     statobj_t* stat,
     uint16_t tilex,
     uint16_t tiley);
 
 // ===========================================================================
-
-// ----------
 
 uint8_t ShowRatio(
     int16_t bx,
@@ -305,24 +312,28 @@ uint8_t ShowRatio(
     int32_t total,
     int32_t perc,
     ss_type type);
+
 void Attack();
 void Use();
+
 void Search(
     objtype* ob);
+
 void SelectWeapon();
 void SelectItem();
-
-// ----------
 
 void SpawnPlayer(
     int16_t tilex,
     int16_t tiley,
     int16_t dir);
+
 void Thrust(
     int16_t angle,
     int32_t speed);
+
 bool TryMove(
     objtype* ob);
+
 void T_Player(
     objtype* ob);
 
@@ -333,10 +344,12 @@ bool ClipMove(
 
 void SocketToggle(
     bool TurnOn);
+
 void CheckStatsBonus();
 
 void T_Stand(
     objtype* ob);
+
 
 /*
 =============================================================================
@@ -356,8 +369,6 @@ void T_Stand(
 =
 ======================
 */
-
-
 void CheckWeaponChange()
 {
     const int n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
@@ -378,7 +389,6 @@ void CheckWeaponChange()
     }
 }
 
-
 /*
 =======================
 =
@@ -393,7 +403,6 @@ void CheckWeaponChange()
 =
 =======================
 */
-
 void ControlMovement(
     objtype* ob)
 {
@@ -527,6 +536,7 @@ void ControlMovement(
     playerymove = player->y - oldy;
 }
 
+
 /*
 =============================================================================
 
@@ -535,16 +545,14 @@ void ControlMovement(
 =============================================================================
 */
 
-#define STATUSDRAWPIC(x, y, picnum) LatchDrawPic((x), (y + (200 - STATUSLINES)), (picnum))
+static void STATUSDRAWPIC(
+    int x,
+    int y,
+    int picnum)
+{
+    LatchDrawPic(x, y + (200 - STATUSLINES), picnum);
+}
 
-
-/*
-==================
-=
-= StatusDrawPic
-=
-==================
-*/
 void StatusAllDrawPic(
     uint16_t x,
     uint16_t y,
@@ -553,7 +561,6 @@ void StatusAllDrawPic(
     uint16_t temp;
 
 #ifdef PAGEFLIP
-
     temp = static_cast<uint16_t>(bufferofs);
     bufferofs = PAGE1START + (200 - STATUSLINES) * SCREENWIDTH;
     LatchDrawPic(x, y, picnum);
@@ -562,9 +569,7 @@ void StatusAllDrawPic(
     bufferofs = PAGE3START + (200 - STATUSLINES) * SCREENWIDTH;
     LatchDrawPic(x, y, picnum);
     bufferofs = temp;
-
 #else
-
     temp = bufferofs;
     bufferofs = screenloc[0] + (200 - STATUSLINES) * SCREENWIDTH;
     LatchDrawPic(x, y, picnum);
@@ -573,11 +578,8 @@ void StatusAllDrawPic(
     bufferofs = screenloc[2] + (200 - STATUSLINES) * SCREENWIDTH;
     LatchDrawPic(x, y, picnum);
     bufferofs = temp;
-
 #endif
-
 }
-
 
 /*
 ===============
@@ -616,8 +618,6 @@ void LatchNumber(
 }
 
 
-
-
 // ===========================================================================
 //
 //
@@ -625,7 +625,6 @@ void LatchNumber(
 //
 //
 // ===========================================================================
-
 
 namespace {
 
@@ -639,6 +638,7 @@ int heart_sign_tics = 0;
 int heart_sign_next_tics = 0;
 
 } // namespace
+
 
 // Draws electrocardiogram (ECG) and the heart sign
 void DrawHealthMonitor()
@@ -783,7 +783,7 @@ void DrawHealthMonitor()
 // DrawHealth()
 //
 // PURPOSE : Marks the Health_NUM to be refreshed durring the next
-//                               StatusBarRefresh.
+//           StatusBarRefresh.
 // --------------------------------------------------------------------------
 void DrawHealth()
 {
@@ -806,9 +806,6 @@ void DrawHealth()
     DrawHealthNum_COUNT = 3;
 }
 
-// --------------------------------------------------------------------------
-// DrawHealthNum()
-// --------------------------------------------------------------------------
 void DrawHealthNum()
 {
     if (!::is_ps()) {
@@ -867,9 +864,6 @@ void DrawHealthNum()
     }
 }
 
-// ---------------------------------------------------------------------------
-// TakeDamage()
-// ---------------------------------------------------------------------------
 void TakeDamage(
     int16_t points,
     objtype* attacker)
@@ -915,9 +909,6 @@ void TakeDamage(
     DrawHealth();
 }
 
-// ---------------------------------------------------------------------------
-// HealSelf()
-// ---------------------------------------------------------------------------
 void HealSelf(
     int16_t points)
 {
@@ -928,8 +919,6 @@ void HealSelf(
 
     DrawHealth();
 }
-
-
 
 
 // ===========================================================================
@@ -953,6 +942,7 @@ void DrawScore()
 
 extern uint8_t music_num;
 
+
 // --------------------------------------------------------------------------
 // DrawScoreNum()
 //
@@ -961,8 +951,8 @@ extern uint8_t music_num;
 // --------------------------------------------------------------------------
 void DrawScoreNum()
 {
-#define Y 3
-#define X 32
+    const int Y = 3;
+    const int X = 32;
 
     if (gamestate.tic_score > MAX_DISPLAY_SCORE) {
         if (gamestate.score_roll_wait) {
@@ -987,9 +977,6 @@ void DrawScoreNum()
     }
 }
 
-// --------------------------------------------------------------------------
-// UpdateScore()
-// --------------------------------------------------------------------------
 void UpdateScore()
 {
     int32_t score_diff, temp_tics;
@@ -1047,6 +1034,7 @@ void GivePoints(
     gamestate.score += points;
 }
 
+
 // ===========================================================================
 //
 //
@@ -1054,8 +1042,6 @@ void GivePoints(
 //
 //
 // ===========================================================================
-
-
 
 // ---------------------------------------------------------------------------
 // DrawKeys()
@@ -1068,9 +1054,6 @@ void DrawKeys()
     DrawKeyPics_COUNT = 3;
 }
 
-// ---------------------------------------------------------------------------
-// DrawKeyPics()
-// ---------------------------------------------------------------------------
 void DrawKeyPics()
 {
     ::DrawKeyPics_COUNT -= 1;
@@ -1116,9 +1099,6 @@ void DrawKeyPics()
     }
 }
 
-// ---------------------------------------------------------------------------
-// GiveKey
-// ---------------------------------------------------------------------------
 void GiveKey(
     int16_t key)
 {
@@ -1126,9 +1106,6 @@ void GiveKey(
     DrawKeys();
 }
 
-// ---------------------------------------------------------------------------
-// TakeKey
-// ---------------------------------------------------------------------------
 void TakeKey(
     int16_t key)
 {
@@ -1145,7 +1122,6 @@ void TakeKey(
 //
 // ===========================================================================
 
-
 // ---------------------------------------------------------------------------
 // DrawWeapon()
 //
@@ -1158,9 +1134,6 @@ void DrawWeapon()
     DrawAmmo(true);
 }
 
-// ---------------------------------------------------------------------------
-// DrawWeaponPic()
-// ---------------------------------------------------------------------------
 void DrawWeaponPic()
 {
     if (gamestate.weapon == -1) {
@@ -1175,9 +1148,6 @@ void DrawWeaponPic()
     DrawWeaponPic_COUNT--;
 }
 
-// ---------------------------------------------------------------------------
-// GiveWeapon()
-// ---------------------------------------------------------------------------
 void GiveWeapon(
     int16_t weapon)
 {
@@ -1193,6 +1163,7 @@ void GiveWeapon(
         }
     }
 }
+
 
 // ===========================================================================
 //
@@ -1223,11 +1194,6 @@ void DrawAmmo(
     //
 
     switch (gamestate.weapon) {
-//      case wp_plasma_detonators:
-//                      DrawAmmoPic_COUNT = 3;
-//                      DrawAmmoNum_COUNT = 0;
-//              return;
-
     case wp_autocharge:
         DrawAmmoPic_COUNT = 3;
         DrawAmmoNum_COUNT = 0;
@@ -1258,11 +1224,6 @@ void DrawAmmo(
     DrawAmmoNum_COUNT = 3;
 }
 
-
-
-// ---------------------------------------------------------------------------
-// DrawAmmoNum()
-// ---------------------------------------------------------------------------
 void DrawAmmoNum()
 {
     if (gamestate.weapon == -1) {
@@ -1282,11 +1243,6 @@ void DrawAmmoNum()
     DrawAmmoNum_COUNT--;
 }
 
-
-
-// ---------------------------------------------------------------------------
-// DrawGAmmoNum()
-// ---------------------------------------------------------------------------
 void DrawGAmmoNum()
 {
     if (gamestate.ammo < 100) {
@@ -1308,19 +1264,12 @@ void DrawGAmmoNum()
     VW_DrawPropString("%");
 }
 
-// ---------------------------------------------------------------------------
-// DrawAmmoPic()
-// ---------------------------------------------------------------------------
 void DrawAmmoPic()
 {
     switch (gamestate.weapon) {
     case wp_autocharge:
         DrawAmmoMsg();
         break;
-
-//              case wp_plasma_detonators:
-//                      DrawPDAmmoMsg();
-//     break;
 
     default:
         DrawAmmoGuage();
@@ -1330,9 +1279,6 @@ void DrawAmmoPic()
     DrawAmmoPic_COUNT--;
 }
 
-// ---------------------------------------------------------------------------
-// DrawAmmoMsg() -
-// ---------------------------------------------------------------------------
 void DrawAmmoMsg()
 {
     int x = (::is_ps() ? 30 : 29);
@@ -1344,9 +1290,6 @@ void DrawAmmoMsg()
     }
 }
 
-// ---------------------------------------------------------------------------
-// DrawPDAmmoMsg() -
-// ---------------------------------------------------------------------------
 void DrawPDAmmoMsg()
 {
     if (gamestate.plasma_detonators) {
@@ -1356,9 +1299,6 @@ void DrawPDAmmoMsg()
     }
 }
 
-// ---------------------------------------------------------------------------
-// UpdateAmmoMsg() -
-// ---------------------------------------------------------------------------
 void UpdateAmmoMsg()
 {
     if (gamestate.weapon_wait) {
@@ -1369,17 +1309,11 @@ void UpdateAmmoMsg()
     }
 }
 
-// ---------------------------------------------------------------------------
-// DrawAmmoGuage()
-// ---------------------------------------------------------------------------
 void DrawAmmoGuage()
 {
     DrawLedStrip(::is_ps() ? 243 : 234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
 }
 
-// ---------------------------------------------------------------------------
-// UpdateRadarGuage()
-// ---------------------------------------------------------------------------
 void UpdateRadarGuage()
 {
     int16_t temp;
@@ -1407,9 +1341,6 @@ void UpdateRadarGuage()
     DrawRadarGuage_COUNT = 3;
 }
 
-// ---------------------------------------------------------------------------
-// DrawRadarGuage()
-// ---------------------------------------------------------------------------
 void DrawRadarGuage()
 {
     if (!::is_ps()) {
@@ -1429,9 +1360,6 @@ void DrawRadarGuage()
     LatchDrawPic(22, 152, ONEXZOOMPIC + zoom);
 }
 
-// ---------------------------------------------------------------------------
-// DrawLedStrip()
-// ---------------------------------------------------------------------------
 void DrawLedStrip(
     int16_t x,
     int16_t y,
@@ -1467,10 +1395,6 @@ void DrawLedStrip(
     }
 }
 
-
-// ---------------------------------------------------------------------------
-// GiveAmmo()
-// ---------------------------------------------------------------------------
 void GiveAmmo(
     int16_t ammo)
 {
@@ -1501,35 +1425,6 @@ void GiveAmmo(
     }
 
     ::sd_play_player_sound(GETAMMOSND, bstone::AC_ITEM);
-
-
-#if 0
-#if MP_NO_MORE_AMMO > MP_BONUS
-    if (LastMsgType == MT_OUT_OF_AMMO) {
-        MsgTicsRemain = 1;
-        LastMsgType = MT_CLEAR;
-    }
-#endif
-
-    gamestate.ammo += ammo;
-    if (gamestate.ammo > MAX_AMMO) {
-        gamestate.ammo = MAX_AMMO;
-    }
-
-    // JIM - This needs to be optomized.
-
-    if (gamestate.weapon != gamestate.chosenweapon) {
-        if (!((gamestate.chosenweapon == wp_grenade) && (gamestate.ammo < GRENADE_ENERGY_USE)) ||
-            !((gamestate.chosenweapon == wp_bfg_cannon) && (gamestate.ammo < BFG_ENERGY_USE)))
-        {
-            gamestate.weapon = gamestate.chosenweapon;
-            DrawWeapon();
-        }
-    }
-
-    DrawAmmo(false);
-    SD_PlaySound(GETAMMOSND);
-#endif
 }
 
 
@@ -1542,7 +1437,6 @@ void GiveAmmo(
 // ---------------------------------------------------------------------------
 void ComputeAvailWeapons()
 {
-
     //
     // Determine what ammo ammounts we have avail
     //
@@ -1572,25 +1466,12 @@ void ComputeAvailWeapons()
     }
 
     //
-    // Do special weapons.
-    //
-
-//   if (gamestate.plasma_detonators)
-//              gamestate.useable_weapons |= (1<<wp_plasma_detonators);
-
-    //
     // mask off with the weapons being carried.
     //
 
     gamestate.useable_weapons &= gamestate.weapons;
-
 }
 
-
-
-// ---------------------------------------------------------------------------
-// TakePlasmaDetonator()
-// ---------------------------------------------------------------------------
 void TakePlasmaDetonator(
     int16_t count)
 {
@@ -1601,9 +1482,6 @@ void TakePlasmaDetonator(
     }
 }
 
-// ---------------------------------------------------------------------------
-// GivePlasmaDetonator()
-// ---------------------------------------------------------------------------
 void GivePlasmaDetonator(
     int16_t count)
 {
@@ -1613,18 +1491,9 @@ void GivePlasmaDetonator(
         gamestate.plasma_detonators = MAX_PLASMA_DETONATORS;
     }
 
-//   if (gamestate.chosenweapon == wp_plasma_detonators)
-//      {
-//              gamestate.weapon = gamestate.chosenweapon;
-//              DrawWeapon ();
-//      }
-
     ComputeAvailWeapons();
 }
 
-// ---------------------------------------------------------------------------
-// GiveToken()
-// ---------------------------------------------------------------------------
 void GiveToken(
     int16_t tokens)
 {
@@ -1642,6 +1511,7 @@ void GiveToken(
 
     ::sd_play_player_sound(GOTTOKENSND, bstone::AC_ITEM);
 }
+
 
 // ===========================================================================
 //
@@ -1709,10 +1579,6 @@ bool DisplayInfoMsg(
     }
 }
 
-
-// --------------------------------------------------------------------------
-// ClearInfoArea()
-// --------------------------------------------------------------------------
 void ClearInfoArea()
 {
 #if IN_DEVELOPMENT
@@ -1732,10 +1598,6 @@ void ClearInfoArea()
     LatchDrawPic(0, 200 - STATUSLINES, INFOAREAPIC);
 }
 
-
-// --------------------------------------------------------------------------
-// InitInfoArea()
-// --------------------------------------------------------------------------
 void InitInfoArea()
 {
     InfoAreaSetup.left_margin = INFOAREA_X;
@@ -1746,10 +1608,6 @@ void InitInfoArea()
     ClearInfoArea();
 }
 
-
-// --------------------------------------------------------------------------
-// UpdateInfoArea()
-// --------------------------------------------------------------------------
 void UpdateInfoArea()
 {
 
@@ -1797,9 +1655,6 @@ void UpdateInfoAreaClock()
 
 }
 
-// ---------------------------------------------------------------------------
-// DisplayTokens()
-// ---------------------------------------------------------------------------
 char default_msg[] = { "\r    NO MESSAGES."
                        "^FCA8\r    FOOD TOKENS:      "
                        "                                 " };
@@ -1890,9 +1745,8 @@ char* HandleControlCodes(
 
 void DrawInfoArea()
 {
-#define IA_FONT_HEIGHT 6
+    const int16_t IA_FONT_HEIGHT = 6;
 
-//      int16_t length,i;
     char* first_ch;
     char* scan_ch, temp;
 
@@ -1977,13 +1831,9 @@ void DrawInfoArea()
     }
 }
 
-// ---------------------------------------------------------------------------
-// HandleControlCodes()
-// ---------------------------------------------------------------------------
 char* HandleControlCodes(
     char* first_ch)
 {
-//      piShapeInfo *shape_info;
     piShapeInfo* shape;
     piAnimInfo* anim;
     uint16_t shapenum;
@@ -2008,7 +1858,6 @@ char* HandleControlCodes(
         memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)], &piAnimTable[shapenum], sizeof(piAnimInfo));
         anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
         shape = &piShapeTable[anim->baseshape + anim->frame]; // BUG!! (assumes "pia_shapetable")
-// spr = &spritetable[shape->shapenum-STARTSPRITES];
 
         anim->y = InfoAreaSetup.y;
         anim->x = DrawShape(InfoAreaSetup.x, InfoAreaSetup.y, shape->shapenum, shape->shapetype);
@@ -2025,7 +1874,6 @@ char* HandleControlCodes(
         shapenum = TP_VALUE(first_ch, 3);
         first_ch += 3;
         shape = &piShapeTable[shapenum];
-// spr = &spritetable[shape->shapenum-STARTSPRITES];
 
         DrawShape(InfoAreaSetup.x, InfoAreaSetup.y, shape->shapenum, shape->shapetype);
         InfoAreaSetup.left_margin = InfoAreaSetup.x;
@@ -2063,24 +1911,12 @@ char* HandleControlCodes(
             InfoAreaSetup.left_margin = shapenum;
         }
         break;
-
-#ifdef UNLOCK_FLOORS
-    // UNLOCK FLOOR ----------------------------------------------------
-    //
-    case TP_CNVT_CODE('U', 'F'):
-        shapenum = TP_VALUE(first_ch++, 1);
-        gamestuff.level[shapenum].locked = false;
-        break;
-#endif
     }
 
     return first_ch;
 
 }
 
-// --------------------------------------------------------------------------
-// DrawShape()
-// --------------------------------------------------------------------------
 int16_t DrawShape(
     int16_t x,
     int16_t y,
@@ -2089,8 +1925,6 @@ int16_t DrawShape(
 {
     int16_t width = 0;
     uint16_t shade;
-
-// width=TP_BoxAroundShape(x,y,shapenum,shapetype);
 
     //
     // If Image is Cloaked... Shade the image
@@ -2102,27 +1936,14 @@ int16_t DrawShape(
 
     switch (shapetype) {
     case pis_scaled:
-// old_ofs = bufferofs;
-// for (i=0;i<3;i++)
-// {
-//      bufferofs = screenloc[i];
-//      VWB_Bar(x,y,37,37,InfoAreaSetup.backgr_color);
         VW_Bar(x, y, 37, 37, static_cast<uint8_t>(InfoAreaSetup.backgr_color)); // JTR changed
         MegaSimpleScaleShape(x + 19, y + 20, shapenum, 37, shade);
-// }
-// bufferofs = old_ofs;
         width = 37;
         break;
 
     case pis_latchpic:
         x = (x + 7) & 0xFFF8;
-// old_ofs = bufferofs;
-// for (i=0;i<3;i++)
-// {
-//      bufferofs = screenloc[i];
         LatchDrawPic(x >> 3, y, shapenum);
-// }
-// bufferofs = old_ofs;
         break;
 
     case pis_pic:
@@ -2130,21 +1951,9 @@ int16_t DrawShape(
         width = pictable[shapenum - STARTPICS].width;
         CA_MarkGrChunk(shapenum);
         CA_CacheMarks();
-// old_ofs = bufferofs;
-// for (i=0;i<3;i++)
-// {
-//      bufferofs = screenloc[i];
         VWB_DrawPic(x, y, shapenum);
-// }
-// bufferofs = old_ofs;
         UNCACHEGRCHUNK(shapenum);
         break;
-
-#if NUMSPRITES && 0
-    case pis_sprite:
-// VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
-        break;
-#endif
 
     default:
         break;
@@ -2154,9 +1963,6 @@ int16_t DrawShape(
     return x;
 }
 
-// --------------------------------------------------------------------------
-// AnimatePage()
-// --------------------------------------------------------------------------
 void AnimatePage()
 {
     piAnimInfo* anim = piAnimList;
@@ -2202,45 +2008,8 @@ void AnimatePage()
             }
         }
     }
-
 }
 
-#if 0
-
-// --------------------------------------------------------------------------
-// AnimatePage()
-// --------------------------------------------------------------------------
-void AnimatePage(
-    int16_t numanims)
-{
-    piAnimInfo* anim = piAnimList;
-    piShapeInfo* shape;
-
-    anim->delay += tics;
-
-    if (anim->delay >= anim->maxdelay) {
-        anim->delay = 0;
-        anim->frame++;
-
-        if (anim->frame == anim->maxframes) {
-            anim->frame = 0;
-        }
-
-        switch (anim->animtype) {
-        case pia_shapetable:
-            shape = &piShapeTable[anim->baseshape + anim->frame];
-            DrawShape(anim->x, anim->y, shape->shapenum, shape->shapetype);
-            break;
-
-        case pia_grabscript:
-            shape = &piShapeTable[anim->baseshape];
-            DrawShape(anim->x, anim->y, shape->shapenum + anim->frame, shape->shapetype);
-            break;
-        }
-    }
-}
-
-#endif
 
 // ===========================================================================
 //
@@ -2250,19 +2019,11 @@ void AnimatePage(
 //
 // ===========================================================================
 
-
-// ---------------------------------------------------------------------------
-// UpdateStatusBar()
-// ---------------------------------------------------------------------------
 void UpdateStatusBar()
 {
     if (playstate == ex_title || playstate == ex_victorious) {
         return;
     }
-
-#ifdef NO_STATUS_BAR
-    return;
-#endif
 
 
     //
@@ -2280,7 +2041,6 @@ void UpdateStatusBar()
         DrawAmmoPic();
     }
 
-//      if (DrawScoreNum_COUNT)
     DrawScoreNum();
 
     if (DrawWeaponPic_COUNT) {
@@ -2291,7 +2051,6 @@ void UpdateStatusBar()
         DrawRadarGuage();
     }
 
-//      if (DrawAmmoNum_COUNT)
     DrawAmmoNum();
 
     if (DrawKeyPics_COUNT) {
@@ -2333,16 +2092,6 @@ void ForceUpdateStatusBar()
 
     bufferofs = old_ofs;
 }
-
-
-/*
-=============================================================================
-
- MOVEMENT
-
-=============================================================================
-*/
-
 
 
 /*
@@ -2458,12 +2207,7 @@ void GetBonus(
 
 
     case bo_bonus:
-#if 0
-        SD_PlaySound(BONUS4SND);
-#endif // 0
-
         ::sd_play_player_sound(BONUS4SND, bstone::AC_ITEM);
-
         givepoints = true;
         break;
 
@@ -2610,8 +2354,6 @@ void writeTokenStr(
 = debug: use pointers to optimize
 ===================
 */
-
-
 bool TryMove(
     objtype* ob)
 {
@@ -2638,11 +2380,9 @@ bool TryMove(
         }
     }
 
-
 //
 // check for solid walls
 //
-
     for (y = yl; y <= yh; y++) {
         for (x = xl; x <= xh; x++) {
             check = actorat[x][y];
@@ -2658,7 +2398,6 @@ bool TryMove(
 //
 // check for actors....
 //
-
     yl -= 2;
     yh += 2;
     xl -= 2;
@@ -2704,7 +2443,6 @@ bool TryMove(
 =
 ===================
 */
-
 bool ClipMove(
     objtype* ob,
     int32_t xmove,
@@ -2755,7 +2493,6 @@ bool ClipMove(
     return true;
 }
 
-// ==========================================================================
 
 /*
 ===================
@@ -2764,7 +2501,6 @@ bool ClipMove(
 =
 ===================
 */
-
 void Thrust(
     int16_t angle,
     int32_t speed)
@@ -2847,26 +2583,12 @@ void Thrust(
 
         offset = *(map[1] + 1); // 'offset' used as temp...
         switch (*map[1]) {
-        case 0xfe00:
-            TopColor = offset & 0xff00;
+        case 0xFE00:
+            TopColor = offset & 0xFF00;
             TopColor |= TopColor >> 8;
-            BottomColor = offset & 0xff;
+            BottomColor = offset & 0xFF;
             BottomColor |= BottomColor << 8;
             break;
-
-#if 0
-        case 0xF600: // Lighting effects
-            normalshade_div = (offset & 0xff00) >> 8;
-            if (normalshade_div > 12) {
-                AGENT_ERROR(NORMAL_SHADE_TOO_BIG);
-            }
-            shade_max = offset & 0xff;
-            if (shade_max > 63 || shade_max < 5) {
-                AGENT_ERROR(SHADEMAX_VALUE_BAD);
-            }
-            normalshade = (3 * (maxscale >> 2)) / normalshade_div;
-            break;
-#endif
         }
     }
 
@@ -2876,9 +2598,6 @@ extern int16_t an_offset[];
 
 bool GAN_HiddenArea;
 
-// ------------------------------------------------------------------------
-// GetAreaNumber()
-// ------------------------------------------------------------------------
 int8_t GetAreaNumber(
     int8_t tilex,
     int8_t tiley)
@@ -2944,10 +2663,6 @@ int8_t GetAreaNumber(
     return areanumber;
 }
 
-
-// ------------------------------------------------------------------------
-// ValidAreaTile()
-// ------------------------------------------------------------------------
 uint8_t ValidAreaTile(
     const uint16_t* ptr)
 {
@@ -2982,15 +2697,6 @@ uint8_t ValidAreaTile(
 =============================================================================
 */
 
-
-/*
-===============
-=
-= Cmd_Fire
-=
-===============
-*/
-
 void Cmd_Fire()
 {
     if (noShots) {
@@ -3011,9 +2717,6 @@ void Cmd_Fire()
     gamestate.attackcount = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].tics;
     gamestate.weaponframe = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 }
-
-// ===========================================================================
-
 
 void Cmd_Use()
 {
@@ -3155,9 +2858,9 @@ void Cmd_Use()
             }
         }
     } else if (!interrogate_delay) {
-#define INTERROGATEDIST (MINACTORDIST)
-#define MDIST 2
-#define INTG_ANGLE 45
+        const int INTERROGATEDIST = MINACTORDIST;
+        const int8_t MDIST = 2;
+        const int16_t INTG_ANGLE = 45;
 
         int8_t x, y;
         objtype* intg_ob = nullptr, * ob;
@@ -3240,13 +2943,14 @@ void Cmd_Use()
     }
 }
 
+
 // ==========================================================================
 //
 //                           INTERROGATE CODE
 //
 // ==========================================================================
 
-#define MSG_BUFFER_LEN 150
+const int MSG_BUFFER_LEN = 150;
 
 char msg[MSG_BUFFER_LEN + 1];
 
@@ -3265,9 +2969,7 @@ char int_interrogate[] = "INTERROGATE:",
      int_haveammo[] = " HEY BLAKE,\r TAKE MY CHARGE PACK!",
      int_havetoken[] = " HEY BLAKE,\r TAKE MY FOOD TOKENS!";
 
-// --------------------------------------------------------------------------
-// Interrogate()
-// --------------------------------------------------------------------------
+
 bool Interrogate(
     objtype* ob)
 {
@@ -3374,12 +3076,12 @@ bool Interrogate(
     return rt_value;
 }
 
+
 // ==========================================================================
 //
 //                            ELEVATOR CODE
 //
 // ==========================================================================
-
 
 char if_help[] = "UP/DN MOVES SELECTOR - ENTER ACTIVATES";
 char if_noImage[] = "   AREA\n"
@@ -3393,12 +3095,10 @@ statsInfoType ov_stats;
 static uint8_t* ov_buffer;
 bool ov_noImage = false;
 
-#define TOV_X 16
-#define TOV_Y 132
+const int TOV_X = 16;
+const int TOV_Y = 132;
 
-// --------------------------------------------------------------------------
-// InputFloor
-// --------------------------------------------------------------------------
+
 int16_t InputFloor()
 {
     if (::is_aog()) {
@@ -3675,11 +3375,6 @@ int16_t InputFloor()
         controlx = controly = 0;
         IN_ClearKeysDown();
         while (rt_code == -2) {
-            // Handle ABORT and ACCEPT
-            //
-    //              if (!screenfaded)
-    //                      PollControls();
-
             CalcTics();
 
             // BBi
@@ -3825,25 +3520,7 @@ int16_t InputFloor()
             }
         }
 
-#if 0
-        for (buttonY = 63; buttonY >= 0; buttonY -= 2) {
-            int shps[] = { TELEPORT1ONPIC, TELEPORT1OFFPIC };
-
-            if (rt_code != -1) {
-                VWB_DrawMPic(teleX[tpNum], teleY[tpNum], shps[(buttonY & 4) >> 2] + tpNum);
-            }
-
-            if (locked) {
-                ShowOverhead(TOV_X, TOV_Y, 32, -locked, RADAR_FLAGS);
-            }
-
-            CycleColors();
-            VL_SetPaletteIntensity(0, 255, &vgapal, buttonY);
-            VW_UpdateScreen();
-        }
-#else
         VW_FadeOut();
-#endif
 
         delete [] ov_buffer;
         ov_buffer = nullptr;
@@ -3858,18 +3535,12 @@ int16_t InputFloor()
     }
 }
 
-// --------------------------------------------------------------------------
-// ShowOverheadChunk()
-// --------------------------------------------------------------------------
 void ShowOverheadChunk()
 {
     VL_MemToScreen(static_cast<const uint8_t*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
     ShowStats(235, 138, ss_quick, &ov_stats);
 }
 
-// --------------------------------------------------------------------------
-// LoadOverheadChunk()
-// --------------------------------------------------------------------------
 void LoadOverheadChunk(
     int tpNum)
 {
@@ -3919,9 +3590,6 @@ void LoadOverheadChunk(
     ov_noImage = !is_succeed;
 }
 
-// --------------------------------------------------------------------------
-// SaveOverheadChunk()
-// --------------------------------------------------------------------------
 void SaveOverheadChunk(
     int tpNum)
 {
@@ -3960,9 +3628,6 @@ void SaveOverheadChunk(
     writer.write(bstone::Endian::le(chunk_size));
 }
 
-// --------------------------------------------------------------------------
-// DisplayTeleportName()
-// --------------------------------------------------------------------------
 void DisplayTeleportName(
     int8_t tpNum,
     bool locked)
@@ -3986,9 +3651,6 @@ void DisplayTeleportName(
     ShPrint(s, 0, false);
 }
 
-// --------------------------------------------------------------------------
-// CacheDrawPic()
-// --------------------------------------------------------------------------
 void CacheDrawPic(
     int x,
     int y,
@@ -3999,27 +3661,22 @@ void CacheDrawPic(
     UNCACHEGRCHUNK(static_cast<uint16_t>(pic));
 }
 
+
 // ===========================================================================
 //
 // MISSION STATISTICS CODE
 //
 // ===========================================================================
 
-#define BAR_W 48
-#define BAR_H 5
+const int BAR_W = 48;
+const int BAR_H = 5;
 
-#define BAR1_COLOR 0xe0
-#define BAR2_COLOR 0x30
-#define BAR3_COLOR 0x10
-
-#define PERC_W 13
-#define PERC_H 5
+const int PERC_W = 13;
+const int PERC_H = 5;
 
 bool show_stats_quick;
 
-// --------------------------------------------------------------------------
-// ShowStats()
-// --------------------------------------------------------------------------
+
 int16_t ShowStats(
     int16_t bx,
     int16_t by,
@@ -4089,9 +3746,6 @@ int16_t ShowStats(
     return mission;
 }
 
-// --------------------------------------------------------------------------
-// ShowRatio()
-// --------------------------------------------------------------------------
 uint8_t ShowRatio(
     int16_t bx,
     int16_t by,
@@ -4104,9 +3758,6 @@ uint8_t ShowRatio(
     int8_t numbars;
     int8_t maxperc;
     int8_t percentage = 1, loop;
-
-//      if (perc > total)
-//              perc = total;
 
 // Catch those nasty divide-by-zeros!
 //
@@ -4174,9 +3825,6 @@ uint8_t ShowRatio(
     return maxperc;
 }
 
-// --------------------------------------------------------------------------
-// PrintStatPercent()
-// --------------------------------------------------------------------------
 void PrintStatPercent(
     int16_t nx,
     int16_t ny,
@@ -4195,14 +3843,14 @@ void PrintStatPercent(
     US_Print("%");
 }
 
-// --------------------------------------------------------------------------
-// PerfectStats()
-// --------------------------------------------------------------------------
 bool PerfectStats()
 {
-    if ((gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points) &&
-        (gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) &&
-        (gamestuff.level[gamestate.mapon].stats.total_enemy == gamestuff.level[gamestate.mapon].stats.accum_enemy))
+    if ((gamestuff.level[gamestate.mapon].stats.total_points ==
+            gamestuff.level[gamestate.mapon].stats.accum_points) &&
+        (gamestuff.level[gamestate.mapon].stats.total_inf ==
+            gamestuff.level[gamestate.mapon].stats.accum_inf) &&
+        (gamestuff.level[gamestate.mapon].stats.total_enemy ==
+            gamestuff.level[gamestate.mapon].stats.accum_enemy))
     {
         return true;
     }
@@ -4210,15 +3858,13 @@ bool PerfectStats()
     return false;
 }
 
+
 // ===========================================================================
 //
 // PINBALL BONUS DISPLAY CODE
 //
 // ===========================================================================
 
-// --------------------------------------------------------------------------
-// B_GAliFunc()
-// --------------------------------------------------------------------------
 void B_GAliFunc()
 {
     extern char B_GAlienDead2[];
@@ -4228,9 +3874,6 @@ void B_GAliFunc()
     }
 }
 
-// --------------------------------------------------------------------------
-// B_EManFunc()
-// --------------------------------------------------------------------------
 void B_EManFunc()
 {
     uint16_t temp, i;
@@ -4250,27 +3893,18 @@ void B_EManFunc()
     bufferofs = temp;
 }
 
-// --------------------------------------------------------------------------
-// B_MillFunc()
-// --------------------------------------------------------------------------
 void B_MillFunc()
 {
     GiveAmmo(99);
     HealSelf(99);
 }
 
-// --------------------------------------------------------------------------
-// B_RollFunc()
-// --------------------------------------------------------------------------
 void B_RollFunc()
 {
     B_MillFunc();
     gamestate.score_roll_wait = SCORE_ROLL_WAIT;
 }
 
-// --------------------------------------------------------------------------
-// Pinball Bonus Text
-// --------------------------------------------------------------------------
 
 char B_GAlienDead2[] = "^FC57    GUARDIAN ALIEN\r"
                        "      DESTROYED!\r\r"
@@ -4304,12 +3938,9 @@ char B_TotalPoints[] = "^FC57\r\r ALL POINTS COLLECTED!\r"
 char B_InformantsAlive[] = "^FC57\r\r ALL INFORMANTS ALIVE!\r"
                            "^FCA6  50,000 POINT BONUS!\r";
 
-// --------------------------------------------------------------------------
-// Pinball Bonus Table
-// --------------------------------------------------------------------------
-PinballBonusInfo PinballBonus[] = {
 
-//                                        Special
+PinballBonusInfo PinballBonus[] = {
+//                                       Special
 //  BonusText           Points   Recur? Function
 // -----------------------------------------------------
     { B_GAlienDead, 0, false, B_GAliFunc },
@@ -4319,12 +3950,8 @@ PinballBonusInfo PinballBonus[] = {
     { B_EnemyDestroyed, 50000l, false, nullptr },
     { B_TotalPoints, 50000l, false, nullptr },
     { B_InformantsAlive, 50000l, false, nullptr },
-
 };
 
-// --------------------------------------------------------------------------
-// DisplayPinballBonus()
-// --------------------------------------------------------------------------
 void DisplayPinballBonus()
 {
     int8_t loop;
@@ -4356,9 +3983,6 @@ void DisplayPinballBonus()
     }
 }
 
-// --------------------------------------------------------------------------
-// CheckPinballBonus()
-// --------------------------------------------------------------------------
 void CheckPinballBonus(
     int32_t points)
 {
@@ -4389,21 +4013,27 @@ void CheckPinballBonus(
 
 // Check TOTAL ENEMY bonus
 //
-    if (gamestuff.level[gamestate.mapon].stats.total_enemy == gamestuff.level[gamestate.mapon].stats.accum_enemy) {
+    if (gamestuff.level[gamestate.mapon].stats.total_enemy ==
+        gamestuff.level[gamestate.mapon].stats.accum_enemy)
+    {
         ActivatePinballBonus(B_ENEMY_DESTROYED);
     }
 
 // Check TOTAL POINTS bonus
 //
-    if (gamestuff.level[gamestate.mapon].stats.total_points == gamestuff.level[gamestate.mapon].stats.accum_points) {
+    if (gamestuff.level[gamestate.mapon].stats.total_points ==
+        gamestuff.level[gamestate.mapon].stats.accum_points)
+    {
         ActivatePinballBonus(B_TOTAL_POINTS);
     }
 
 // Check INFORMANTS ALIVE bonus
 //
-    if ((gamestuff.level[gamestate.mapon].stats.total_inf == gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
+    if ((gamestuff.level[gamestate.mapon].stats.total_inf ==
+            gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
         (gamestuff.level[gamestate.mapon].stats.total_inf) && // Any informants in level?
-        ((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) == (B_TOTAL_POINTS | B_ENEMY_DESTROYED))) // Got ENEMY and POINTS bonuses?
+        ((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) ==
+            (B_TOTAL_POINTS | B_ENEMY_DESTROYED))) // Got ENEMY and POINTS bonuses?
     {
         ActivatePinballBonus(B_INFORMANTS_ALIVE);
     }
@@ -4415,726 +4045,6 @@ void CheckPinballBonus(
     }
 }
 
-// ===========================================================================
-//
-//
-// COMPUTER TERMINAL ROUTINES
-//
-//
-// ===========================================================================
-
-#ifdef ACTIVATE_TERMINAL
-
-#define TERM_BUFFERED_DISPLAY
-#define TERM_VIEW_WIDTH 246
-#define TERM_VIEW_HEIGHT 95
-// #define TERM_BACK_COLOR 2 // Defined in 3d)menu.h
-#define TERM_BACK_XOFS 8
-#define TERM_BACK_YOFS 22
-#define TERM_BACK_WIDTH 304
-#define TERM_BACK_HEIGHT 124
-
-#define TERM_BCOLOR 3 // Dark Grey
-#define TERM_TCOLOR 88 // Green MONO text color 87=LOW intensity
-#define TERM_TSHAD_COLOR 0 // "Shadow" color
-
-#define TERM_SCREEN_XOFS (TERM_BACK_XOFS + 19)
-#define TERM_SCREEN_YOFS (TERM_BACK_YOFS + 14)
-
-static uint16_t tcursor_x = TERM_SCREEN_XOFS,
-              tcursor_y = TERM_SCREEN_YOFS;
-
-
-int8_t TERM_sound_on = 1;
-
-
-char* Commands[TC_LAST];
-
-memptr TermMessages = nullptr;
-memptr TermCommands = nullptr;
-
-#define FreeTerminalCommands() MM_FreePtr(&TermCommands)
-#define FreeTerminalMessages() MM_FreePtr(&TermMessages)
-#define LoadTerminalText() IO_LoadFile(term_msg_name, &TermMessages)
-// #define LoadTerminalText() IO_LoadFile("TERM_MSG.TXT",&TermMessages)
-
-// ---------------------------------------------------------------------------
-//
-// LoadTerminalCommands()
-//
-// Caches in the commands in TERM_COMMANDS grsegs and sparces the file for
-// commands - Assigning Commands[] to the beginning of each command and
-// null terminating the command.  Each command is seperated with ^XX.  Leading
-// returns&linefeeds are skipped.
-//
-// NOTE: This expects that TC_LAST in the enum list of commands is concurrent
-//       with the grseg TERM_COMMANDS.
-//
-// ---------------------------------------------------------------------------
-void LoadTerminalCommands()
-{
-    char* Message;
-    uint8_t pos;
-
-//      IO_LoadFile("TERM_CMD.TXT",&TermCommands);
-    IO_LoadFile(term_com_name, &TermCommands);
-    Message = TermCommands;
-
-    for (pos = 0; pos < TC_LAST; pos++) {
-        // Bump past any leading returns/linefeeds
-
-        while (*Message == '\n' || *Message == '\r') {
-            Message++;
-        }
-
-        // Assign ptrs
-
-        Commands[pos] = Message;
-
-        if (!(Message = _fstrstr(Message, int_xx))) {
-            ACT1_ERROR(INVALID_CACHE_MSG_NUM);
-        }
-
-        *Message = 0;   // Null Terminate String
-        Message += 3; // Bump to start of next Message
-    }
-}
-
-
-
-
-bool term_cursor_vis = true;
-bool shadow_text = true;
-
-#if 1
-
-PresenterInfo Terminal_PI;
-
-// ---------------------------------------------------------------------------
-// TerminalPrint()
-// ---------------------------------------------------------------------------
-void TerminalPrint(
-    char* msg,
-    bool FastPrint)
-{
-    Terminal_PI.print_delay = !FastPrint;
-    Terminal_PI.script[0] = msg;
-    TP_Presenter(&Terminal_PI);
-}
-
-#else
-
-// ---------------------------------------------------------------------------
-// TerminalPrint()
-//
-// NOTE : Terminal Control Chars
-//
-//          @ - Square Box (IE. Cursor)
-// ---------------------------------------------------------------------------
-
-void TerminalPrint(
-    char* msg,
-    bool FastPrint)
-{
-#define TERM_PRINT_DELAY 1
-    fontstruct* font;
-    int8_t buf[2] = { 0, 0 };
-    int8_t old_color, old_color2;
-    int8_t fontheight;
-
-    font = (fontstruct*)grsegs[STARTFONT + fontnumber];
-    fontheight = font->height;
-
-    while (msg && *msg) {
-        buf[0] = *msg++;
-
-        if (buf[0] == '^') {
-            //
-            //  Handle Control Codes
-            //
-
-            switch (*((uint16_t*)msg)++) {
-            // FONT COLOR
-            //
-            case TP_CNVT_CODE('F', 'C'):
-                fontcolor = TP_VALUE(msg, 2);
-                msg += 2;
-                break;
-
-            // BELL
-            //
-            case TP_CNVT_CODE('B', 'E'):
-                SD_PlaySound(TERM_BEEPSND);
-                SD_WaitSoundDone();
-                break;
-
-            // HIDE CURSOR
-            //
-            case TP_CNVT_CODE('H', 'I'):
-                px = tcursor_x;
-                py = tcursor_y;
-                old_color = fontcolor;
-                fontcolor = TERM_BCOLOR;
-                VW_DrawPropString("@");
-                fontcolor = old_color;
-                break;
-
-
-            // PAUSE
-            //
-            case TP_CNVT_CODE('P', 'A'):
-                VW_WaitVBL(30);
-                break;
-
-
-            // END OF MSG
-            //
-
-            case TP_CNVT_CODE('X', 'X'):
-                msg = nullptr;
-                break;
-
-            }
-        } else {
-            //
-            // Process Text Char (Like print it!)
-            //
-
-            bufferofs = displayofs;
-
-            if (term_cursor_vis) {
-                px = tcursor_x;
-                py = tcursor_y;
-
-                old_color = fontcolor; // Store Cursor Color
-                fontcolor = TERM_BCOLOR;
-
-                VW_DrawPropString("@");
-
-                fontcolor = old_color;
-            }
-
-            if (buf[0] != '\n') {
-                // Blast "Shadow" on screen
-
-                if (shadow_text) {
-                    px = tcursor_x + 1;
-                    py = tcursor_y + 1;
-                    old_color2 = fontcolor; // STORE Old Colr
-                    fontcolor = TERM_TSHAD_COLOR;
-                    VW_DrawPropString(buf);
-                    fontcolor = old_color2; // RESTORE Old Colr
-                }
-
-                // Blast normal Text color to screen
-
-                px = tcursor_x;
-                py = tcursor_y;
-                VW_DrawPropString(buf);
-
-                if (sound_on) {
-                    if (buf[0] != ' ') {
-                        SD_PlaySound(TERM_TYPESND);
-                    }
-                }
-
-                tcursor_x = px;
-
-                if (term_cursor_vis) {
-                    VW_DrawPropString("@");
-                }
-            } else {
-                if (tcursor_y > 90 + TERM_SCREEN_XOFS) {
-                    VL_ScreenToScreen(displayofs + ((TERM_SCREEN_YOFS + fontheight) * SCREENWIDTH) + (TERM_SCREEN_XOFS / 4),
-                                      displayofs + TERM_SCREEN_YOFS * SCREENWIDTH + TERM_SCREEN_XOFS / 4,
-                                      (248 / 4), 93);
-                } else {
-                    tcursor_y += fontheight;
-                }
-
-                tcursor_x = TERM_SCREEN_XOFS;
-            }
-
-            if (!FastPrint) {
-                VL_WaitVBL(TERM_PRINT_DELAY);
-            }
-
-            VW_UpdateScreen();
-        }
-    }
-}
-
-#endif
-
-
-
-
-// ---------------------------------------------------------------------------
-// CacheTerminalPrint()
-//
-// This prints a message in the TERM_MESSAGES grsegs which MUST
-// already be loaded into memory.
-// ---------------------------------------------------------------------------
-void CacheTerminalPrint(
-    int16_t MsgNum,
-    bool FastPrint)
-{
-    char* Message;
-
-    Message = TermMessages;
-
-// Search for end of MsgNum-1 (Start of our message)
-//
-#pragma warn -pia
-    while (MsgNum--) {
-        if (!(Message = _fstrstr(Message, int_xx))) {
-            AGENT_ERROR(BAD_TERMINAL_MSG_NUM);
-        }
-        Message += 3;           // Bump to start of next Message
-    }
-#pragma warn +pia
-
-// Move past LFs and CRs that follow "^XX"
-//
-//      while ((*Message=='\n') || (*Message=='\r'))
-//              Message++;
-
-    Message += 2; // Move past LF and CR that follows "^XX"
-
-    TerminalPrint(Message, FastPrint);
-}
-
-
-
-char TERM_MSG[] = "^ST1^CEEnter commands and press ENTER.\r^CEPress ESC to exit terminal.^XX";
-
-// ---------------------------------------------------------------------------
-// ActivateTerminal()
-// ---------------------------------------------------------------------------
-void ActivateTerminal(
-    bool skiplink)
-{
-#define MAX_INPUT 30
-    char buffer[MAX_INPUT];
-    bool temp_caps = allcaps, ExitMoFo;
-    uint16_t oldwidth;
-    US_CursorStruct TermCursor = { '@', 0, 0x58, 2 }; // Holds Font#, etc.
-    int16_t msgnum;
-
-
-// Setup for text presenter
-//
-    memset(&Terminal_PI, 0, sizeof(Terminal_PI));
-    Terminal_PI.flags = TPF_USE_CURRENT | TPF_SHOW_CURSOR | TPF_SCROLL_REGION;
-    Terminal_PI.xl = 21;
-    Terminal_PI.yl = 32;
-    Terminal_PI.xh = 277;
-    Terminal_PI.yh = 134;
-    Terminal_PI.ltcolor = 255;
-    Terminal_PI.bgcolor = TERM_BCOLOR;
-    Terminal_PI.dkcolor = 255;
-    Terminal_PI.shcolor = TERM_TSHAD_COLOR;
-    Terminal_PI.fontnumber = 2;
-    Terminal_PI.cur_x = -1;
-    Terminal_PI.print_delay = 1;
-
-
-#ifndef TERM_BUFFERED_DISPLAY
-    bufferofs = displayofs;
-#endif
-
-    ClearMemory();
-
-    oldwidth = viewwidth / 16;
-    if (oldwidth != FULL_VIEW_WIDTH) {
-        NewViewSize(FULL_VIEW_WIDTH);
-    }
-
-
-    DrawPlayScreen(false);
-
-    StopMusic();
-
-    fontnumber = 1;
-    CA_CacheGrChunk(STARTFONT + FONT2);                                                 // Medium font
-
-    BMAmsg(TERM_MSG);
-
-    CacheDrawPic(TERM_BACK_XOFS, TERM_BACK_YOFS, TERMINAL_SCREENPIC);
-
-    LoadTerminalText();
-    LoadTerminalCommands();
-
-#ifdef TERM_BUFFERED_DISPLAY
-    VW_UpdateScreen();
-#endif
-
-
-    fontnumber = 2;
-    allcaps = true;
-    fontcolor = TERM_TCOLOR;
-    tcursor_x = TERM_SCREEN_XOFS;
-    tcursor_y = TERM_SCREEN_YOFS;
-
-    //
-    // Set up custom cursor
-    //
-
-    use_custom_cursor = true;
-    US_CustomCursor = TermCursor;
-
-    //
-    // Start term stuff..
-    //
-
-    VW_FadeIn();
-
-    ExitMoFo = false;
-
-    TerminalPrint("^ST1^XX", false);
-    if (!skiplink) {
-        CacheTerminalPrint(TM_LINK, false);
-
-        if (Keyboard[ScanCode::sc_h] & Keyboard[ScanCode::sc_o] & Keyboard[ScanCode::sc_t]) {
-            CacheTerminalPrint(TM_CHEATER, false);
-        } else {
-            VW_WaitVBL(1 * 60 + (US_RndT() % 60 * 2));
-
-            if (gamestate.TimeCount & 0x1000) {
-                CacheTerminalPrint(TM_LINK_BAD, false);
-                IN_Ack();
-                ExitMoFo = true;
-            } else {
-                CacheTerminalPrint(TM_LINK_OK, false);
-            }
-        }
-    }
-
-
-    IN_ClearKeysDown();
-
-    while (!ExitMoFo) {
-        backcolor = TERM_BCOLOR;
-        CacheTerminalPrint(TM_READY, false);
-
-        if (US_LineInput(px + 1, py, buffer, nil, true, MAX_INPUT, 240 + TERM_SCREEN_XOFS - px)) {
-            CacheTerminalPrint(TM_RETURN, false);
-            if (*buffer) {
-                switch (msgnum = US_CheckParm(buffer, Commands)) {
-                case TC_HINT:
-//              case TC_GOLDSTERN:
-                case TC_JAM:
-                case TC_HELP:
-                case TC_APOGEE:
-                case TC_THANKS:
-                case TC_GOOBERS:
-//          case TC_BSTONE:
-                case TC_JERRY:
-                case TC_MIKE:
-                case TC_JIM:
-                    CacheTerminalPrint(msgnum, false);
-                    break;
-
-
-                case TC_EXIT:
-                case TC_QUIT:
-                case TC_OFF:
-                case TC_BYE:
-                    ExitMoFo = true;
-                    break;
-
-                case TC_STAR:
-                    CacheTerminalPrint(TM_STAR, false);
-                    break;
-
-                case TC_JOSHUA:
-                    CacheTerminalPrint(TM_JOSHUA, false);
-//              PowerBall = 1;
-                    break;
-
-                case TC_BLUEPRINT:
-                    FloorCheat(255);
-                    break;
-
-                case TC_SOUND:
-                    TERM_sound_on ^= 1;
-                    CacheTerminalPrint(TM_SOUND_OFF + TERM_sound_on, false);
-                    break;
-
-                case TC_ARRIVAL_GOLDSTERN: {
-                    if (GoldsternInfo.GoldSpawned) {
-                        CacheTerminalPrint(TM_GOLDSTERN_ARRIVED, false);
-                    } else if (GoldsternInfo.flags == GS_COORDFOUND) {
-                        CacheTerminalPrint(TM_GOLDSTERN_WILL_AR, false);
-                        sprintf(buffer, " %d^XX", GoldsternInfo.WaitTime / 60);
-                        TerminalPrint(buffer, false);
-                        CacheTerminalPrint(TM_SECONDS, false);
-                    } else {
-                        if (GoldsternInfo.WaitTime) {
-                            CacheTerminalPrint(TM_GOLDSTERN_NO_PICK, false);
-                            sprintf(buffer, " %d^XX", GoldsternInfo.WaitTime / 60);
-                            TerminalPrint(buffer, false);
-                            CacheTerminalPrint(TM_SECONDS, false);
-                        } else {
-                            CacheTerminalPrint(TM_GOLDSTERN_NO_INFO, false);
-                        }
-                    }
-                }
-                break;
-
-                case TC_DEACTIVATE_SECURITY: {
-                    objtype* obj;
-
-                    CacheTerminalPrint(TM_RESET_SECURITY, false);
-                    for (obj = player; obj; obj = obj->next) {
-                        if (obj->obclass == security_lightobj) {
-                            obj->temp1 = 0;
-                            obj->flags &= ~FL_ALERTED;
-                        }
-                    }
-                }
-                break;
-
-                case TC_SATALITE_STATUS: {
-                    CacheTerminalPrint(TM_VITALS1, false);
-                    TerminalPrint(buffer, false);
-
-                    CacheTerminalPrint(TM_VITALS2, false);
-                    sprintf(buffer, " %d\r\n^XX", gamestate.VitalsRemain);
-                    TerminalPrint(buffer, false);
-                }
-                break;
-
-                case TC_PROFILE:
-                    CacheTerminalPrint(TM_PROFILE_WHO, false);
-                    if (US_LineInput(px + 1, py, buffer, nil, true, MAX_INPUT, 246 + TERM_SCREEN_XOFS - px)) {
-                        CacheTerminalPrint(TM_RETURN, false);
-                        if (*buffer) {
-                            switch (US_CheckParm(buffer, Commands)) {
-                            case TC_GOLDSTERN:
-                                CacheTerminalPrint(TM_PROFILE_GOLDSTERN, false);
-                                break;
-
-                            case TC_BSTONE:
-                                CacheTerminalPrint(TM_PROFILE_BLAKE, false);
-                                break;
-
-                            case TC_SSTONE:
-                                CacheTerminalPrint(TM_PROFILE_SARA, false);
-                                break;
-
-                            default:
-                                CacheTerminalPrint(TM_PROFILE_UNKNOWN, false);
-                                break;
-                            }
-                        }
-                    }
-                    break;
-
-                default:
-                    CacheTerminalPrint(TM_UNRECOGNIZED_COMMAND, false);
-                    break;
-                }
-            }
-        } else {
-            // User pressed escape....
-
-            ExitMoFo = true;
-        }
-
-#ifdef TERM_BUFFERED_DISPLAY
-        VW_UpdateScreen();
-#endif
-    }
-
-    //
-    // Free everything cached in...Exit terminal
-    //
-
-    FreeTerminalCommands();
-    FreeTerminalMessages();
-
-    UNCACHEGRCHUNK(STARTFONT + 1);
-    NewViewSize(oldwidth);
-
-
-    StartMusic(false);
-    PM_CheckMainMem();
-
-    DrawPlayScreen(false);
-
-    IN_ClearKeysDown();
-    allcaps = temp_caps;
-    use_custom_cursor = false;
-
-}
-
-
-// ---------------------------------------------------------------------------
-// FloorCheat()
-// ---------------------------------------------------------------------------
-void FloorCheat(
-    uint16_t RadarFlags)
-{
-#define FC_EMBED_COLOR(ColorCodes) { _fstrncpy(&pbuffer[pos], ColorCodes, 5); pos += 5; }
-#define FC_NORM_COLOR() FC_EMBED_COLOR("^FC57")
-
-    uint16_t x, y, pos;
-    objtype* actor;
-    char* pbuffer;
-    memptr buffer;
-
-    MM_GetPtr(&buffer, 512);
-
-    pbuffer = buffer;
-
-    CacheTerminalPrint(TM_BLUEPRINTS, false);
-
-    shadow_text = term_cursor_vis = false;
-    Terminal_PI.flags &= ~TPF_SHOW_CURSOR;
-
-    //
-    // Cache in the "Radar Font"
-    //
-
-    CA_CacheGrChunk(STARTFONT + 5);
-//      fontnumber = 5;
-    Terminal_PI.fontnumber = 5;
-
-    //
-    // Display the radar/floor-plans
-
-//      TerminalPrint("\r\n^XX",true);
-    for (y = 0; y < 64; y++) {
-        pos = 0;
-        for (x = 0; x < 64; x++) {
-            //
-            // Get wall/actor && Check for force placement of player on radar..
-            //
-
-            if (DebugOk && x == player->tilex && y == player->tiley) {
-                actor = player;
-            } else {
-                actor = actorat[x][y];
-            }
-
-            //
-            //  Check for walls
-
-            if (!TravelTable[x][y]) { // Map only shows where you've seen!
-                pbuffer[pos++] = '!';
-            } else if (((uint16_t)actor && (uint16_t)actor < 108) || // 108 == LAST WALL TILE
-
-#if IN_DEVELOPMENT
-
-                       (*(mapsegs[0] + farmapylookup[y] + x) >= HIDDENAREATILE && (!DebugOk)) ||
-
-#endif
-
-                       (((uint16_t)actor & 0x80) && actor < objlist && (!DebugOk))) // Treat doors as walls in NoDebug
-            {
-                // Mark Wall piece
-                //
-                pbuffer[pos++] = '!';
-            } else {
-                // Not a wall Piece
-                //
-                if (((RadarFlags & RS_PERSONNEL_TRACKER) && actor >= objlist) && (!(actor->flags & FL_DEADGUY))) {
-                    switch (actor->obclass) {
-                    case playerobj:
-                        if (RadarFlags & RS_PERSONNEL_TRACKER) {
-                            //
-                            // Mark map piece as the "player"
-                            //
-                            FC_EMBED_COLOR("^FC0F"); //  WHITE
-                            pbuffer[pos++] = '!';
-                            FC_NORM_COLOR();
-                        } else {
-                            pbuffer[pos++] = ' ';
-                        }
-                        break;
-
-                    case security_lightobj:
-                        if (RadarFlags & RS_SECURITY_STATUS) {
-                            //
-                            // Mark map piece as "Alerted Security Lamp"
-                            //
-                            if (actor->temp1) {
-                                FC_EMBED_COLOR("^FC1C"); // Red
-                            } else {
-                                FC_EMBED_COLOR("^FC5C"); // Green
-                            }
-
-                            pbuffer[pos++] = '!';
-                            FC_NORM_COLOR();
-                            break;
-                        } else {
-                            pbuffer[pos++] = ' ';
-                        }
-                        break;
-
-                    case lcan_wait_alienobj:
-                    case scan_wait_alienobj:
-                    case hang_terrotobj:
-                    case gurney_waitobj:
-                        pbuffer[pos++] = ' ';
-                        break;
-
-                    case goldsternobj:
-                        if (RadarFlags & RS_GOLDSTERN_TRACKER) {
-                            //
-                            // Mark map piece as "goldstern"
-                            //
-                            FC_EMBED_COLOR("^FC38"); //  Yellow ...or.. err, like gold!
-                            pbuffer[pos++] = '!';
-                            FC_NORM_COLOR();
-                            break;
-                        } else {
-                            pbuffer[pos++] = ' ';
-                        }
-                        break;
-
-                    default:
-                        if (RadarFlags & RS_PERSONNEL_TRACKER) {
-                            //
-                            // Mark map piece as a "general object"
-                            //
-                            FC_EMBED_COLOR("^FC18"); // Red
-                            pbuffer[pos++] = '!';
-                            FC_NORM_COLOR();
-                        } else {
-                            pbuffer[pos++] = ' ';
-                        }
-                        break;
-                    }
-                } else {
-                    pbuffer[pos++] = ' ';
-                }
-
-            }
-
-        }
-
-//              pbuffer[pos++] = '\n';
-        _fstrcpy(pbuffer + pos, "\r\n^XX");
-        pbuffer[pos + 5] = 0;
-
-        TerminalPrint(pbuffer, true);
-    }
-
-
-    TerminalPrint("\r\n\r\n\r\n\r\n^XX", true);
-    MM_FreePtr(&buffer);
-
-    UNCACHEGRCHUNK(STARTFONT + 5);
-    Terminal_PI.fontnumber = 2;
-    TerminalPrint("\r\n^XX", true);
-    Terminal_PI.flags |= TPF_SHOW_CURSOR;
-
-}
-
-#endif
-
 
 /*
 =============================================================================
@@ -5143,9 +4053,6 @@ void FloorCheat(
 
 =============================================================================
 */
-
-
-
 
 void SpawnPlayer(
     int16_t tilex,
@@ -5182,12 +4089,6 @@ void SpawnPlayer(
     InitWeaponBounce();
 }
 
-
-// ===========================================================================
-
-// ------------------------------------------------------------------------
-// GunAttack()
-// ------------------------------------------------------------------------
 void GunAttack(
     objtype* ob)
 {
@@ -5286,24 +4187,6 @@ void GunAttack(
     DamageActor(closest, damage, player);
 }
 
-
-// ===========================================================================
-
-
-
-
-// ===========================================================================
-
-
-/*
-===============
-=
-= T_Attack
-=
-===============
-*/
-
-
 void T_Attack(
     objtype* ob)
 {
@@ -5374,7 +4257,6 @@ void T_Attack(
                 }
 
                 DrawWeapon();
-// DisplayInfoMsg(pd_switching,MP_NO_MORE_AMMO,DISPLAY_MSG_STD_TIME<<1,MT_OUT_OF_AMMO);
             }
             gamestate.attackframe = gamestate.weaponframe = 0;
             return;
@@ -5524,17 +4406,6 @@ void T_Attack(
     }
 }
 
-
-// ===========================================================================
-
-/*
-===============
-=
-= T_Player
-=
-===============
-*/
-
 void T_Player(
     objtype* ob)
 {
@@ -5564,19 +4435,13 @@ void T_Player(
     ControlMovement(ob);
     HandleWeaponBounce();
 
-
-//      plux = player->x >> UNSIGNEDSHIFT; // scale to fit in unsigned
-//      pluy = player->y >> UNSIGNEDSHIFT;
     player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
     player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
 }
 
-// -------------------------------------------------------------------------
-// RunBlakeRun()
-// -------------------------------------------------------------------------
 void RunBlakeRun()
 {
-#define BLAKE_SPEED (MOVESCALE * 50)
+    const fixed BLAKE_SPEED = MOVESCALE * 50;
 
     int32_t xmove, ymove;
     objtype* blake;
@@ -5652,10 +4517,6 @@ void RunBlakeRun()
     } while ((dx < 6) && (dy < 6));
 }
 
-
-// -------------------------------------------------------------------------
-// SW_HandleActor() - Handle all actors connected to a smart switch.
-// -------------------------------------------------------------------------
 void SW_HandleActor(
     objtype* obj)
 {
@@ -5689,9 +4550,6 @@ void SW_HandleActor(
     case lcan_wait_alienobj:
         break;
 
-// case electrosphereobj:
-//    break;
-
     case floatingbombobj:
     case volatiletransportobj:
         if (obj->flags & FL_STATIONARY) {
@@ -5724,10 +4582,6 @@ void SW_HandleActor(
         }
         break;
 
-// case electroobj:
-// case liquidobj:
-//    break;
-
     case post_barrierobj:
     case arc_barrierobj:
         break;
@@ -5736,7 +4590,6 @@ void SW_HandleActor(
         break;
     }
 }
-
 
 // -------------------------------------------------------------------------
 // SW_HandleStatic() - Handle all statics connected to a smart switch.
@@ -5759,7 +4612,6 @@ void SW_HandleStatic(
         break;
     }
 }
-
 
 // -------------------------------------------------------------------------
 // OperateSmartSwitch() - Operates a Smart Switch
@@ -5929,6 +4781,7 @@ bool OperateSmartSwitch(
     return false;
 }
 
+
 // ==========================================================================
 //
 //                         WEAPON BOUNCE CODE
@@ -5948,9 +4801,6 @@ extern fixed bounceOffset;
 fixed bounceVel, bounceDest;
 int16_t bounceOk;
 
-// --------------------------------------------------------------------------
-// InitWeaponBounce()
-// --------------------------------------------------------------------------
 void InitWeaponBounce()
 {
     bounceOffset = wb_MidPoint;
@@ -5958,9 +4808,6 @@ void InitWeaponBounce()
     bounceVel = bounceOk = 0;
 }
 
-// --------------------------------------------------------------------------
-// HandleWeaponBounce()
-// --------------------------------------------------------------------------
 void HandleWeaponBounce()
 {
     int bounceSpeed;
