@@ -108,25 +108,22 @@ void VWL_MeasureString(
     int* width,
     int* height,
     fontstruct* font);
+
 void VH_UpdateScreen();
 void ClearMemory();
 
-
-// #define DRAW_TO_FRONT
 
 // string array table is a quick, easy and expandable way to print
 // any number of strings in a text file using the ^DS codes...
 //
 // See Macro TP_INIT_DISPLAY_STR(num,str_ptr) - JM_TP.h
 // To init strings and handle range checking....
-
 char* piStringTable[PI_MAX_NUM_DISP_STRS];
 
 
 // shape table provides a way for the presenter to access and
 // display any shape.
 //
-
 PiShapeInfos piShapeTable;
 
 void initialize_tp_shape_table()
@@ -863,7 +860,6 @@ void initialize_tp_shape_table()
 }
 
 // anim table holds info about each different animation.
-//
 PiAnimationInfos piAnimTable;
 
 void initialize_tp_animation_table()
@@ -1014,7 +1010,6 @@ ScanCode TPscan;
 
 // Bunch of general globals!
 //
-// static char pb[MAX_PB];
 static int8_t old_fontnumber;
 static int16_t length;
 
@@ -1055,9 +1050,6 @@ static int16_t save_cx[TP_CURSOR_SAVES + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static int16_t save_cy[TP_CURSOR_SAVES + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static int16_t pagex[2], pagey[2];
 
-// --------------------------------------------------------------------------
-// TP_Presenter()
-// --------------------------------------------------------------------------
 void TP_Presenter(
     PresenterInfo* pinfo)
 {
@@ -1141,19 +1133,6 @@ void TP_Presenter(
         TP_Print("@", true);
     }
 
-// Debug stuff -- draws box AROUND text presenter's printable region.
-//
-//      VL_Hlin(xl-TP_MARGIN,yl-TP_MARGIN,xh-xl+1+(TP_MARGIN*2),255);
-//      VL_Vlin(xh+TP_MARGIN,yl-TP_MARGIN,yh-yl+1+(TP_MARGIN*2),255);
-//      VL_Hlin(xl-TP_MARGIN,yh+TP_MARGIN,xh-xl+1+(TP_MARGIN*2),255);
-//      VL_Vlin(xl-TP_MARGIN,yl-TP_MARGIN,yh-yl+1+(TP_MARGIN*2),255);
-//
-//
-
-#ifdef DRAW_TO_FRONT
-    VW_UpdateScreen();
-    bufferofs = displayofs;
-#endif
     while (flags & fl_presenting) {
         if (*first_ch == TP_CONTROL_CHAR) {
             TP_HandleCodes();
@@ -1179,19 +1158,8 @@ void TP_Presenter(
 
     pi->cur_x = cur_x;
     pi->cur_y = cur_y;
-
-#ifdef DRAW_TO_FRONT
-    displayofs = bufferofs;
-    bufferofs += SCREENSIZE;
-    if (bufferofs > PAGE3START) {
-        bufferofs = PAGE1START;
-    }
-#endif
 }
 
-// --------------------------------------------------------------------------
-// TP_WrapText()
-// --------------------------------------------------------------------------
 void TP_WrapText()
 {
     flags &= ~fl_startofline;
@@ -1257,9 +1225,6 @@ void TP_WrapText()
     py = cur_y;
 
     length = static_cast<int16_t>(scan_ch - first_ch + 1); // USL_DrawString only works with
-//      if (length > MAX_PB) //
-//              TP_ERROR(TP_PRESENTER_LONG_TEXT); //
-//      _fmemcpy(pb,first_ch,length); // near pointers...
 
     if (*first_ch != TP_RETURN_CHAR) {
         if (pi->print_delay) {
@@ -1340,9 +1305,6 @@ tp_newline:;
     }
 }
 
-// --------------------------------------------------------------------------
-// TP_HandleCodes()
-// --------------------------------------------------------------------------
 void TP_HandleCodes()
 {
     ControlInfo ci;
@@ -1359,7 +1321,7 @@ void TP_HandleCodes()
     }
 
     while (*first_ch == TP_CONTROL_CHAR) {
-#define TP_MORE_TEXT "<MORE>"
+        const char* const TP_MORE_TEXT = "<MORE>";
 
         char temp;
 
@@ -1549,8 +1511,6 @@ void TP_HandleCodes()
             }
 
             anim->diradd = 1;
-
-// spr = &spritetable[shape->shapenum-STARTSPRITES];
 
             if (anim_bgcolor == -1) {
                 anim_bgcolor = bgcolor;
@@ -1786,14 +1746,6 @@ void TP_HandleCodes()
         // HIDE CURSOR ------------------------------------------------------
         //
         case TP_CNVT_CODE('H', 'I'):
-#if 0
-            px = cur_x;
-            py = cur_y;
-            old_color = fontcolor;
-            fontcolor = TERM_BCOLOR;
-            USL_DrawString("@");
-            fontcolor = old_color;
-#endif
             break;
 
         // PAUSE -----------------------------------------------------------
@@ -1880,7 +1832,7 @@ void TP_HandleCodes()
         //
         case TP_CNVT_CODE('P', 'S'):
             temp = static_cast<char>(TP_VALUE(first_ch, 2));
-            if ((temp < LASTSOUND)) {                   // && (temp != music_num))
+            if ((temp < LASTSOUND)) {
                 TP_CacheIn(ct_scaled, 0);
                 ::sd_play_player_sound(temp, bstone::AC_ITEM);
             }
@@ -1892,9 +1844,7 @@ void TP_HandleCodes()
         //
         case TP_CNVT_CODE('E', 'P'):
             VW_UpdateScreen();
-#ifdef DRAW_TO_FRONT
-            bufferofs = displayofs;
-#endif
+
             if (screenfaded) {
                 VW_FadeIn();
             }
@@ -1910,9 +1860,6 @@ void TP_HandleCodes()
 
                 TP_AnimatePage(numanims);
                 VW_UpdateScreen();
-#ifdef DRAW_TO_FRONT
-                bufferofs = displayofs;
-#endif
                 ReadAnyControl(&ci);
 
                 if (Keyboard[ScanCode::sc_page_up]) {
@@ -1976,7 +1923,6 @@ void TP_HandleCodes()
             }
             VWB_Bar(xl, yl, xh - xl + 1, yh - yl + 1, static_cast<uint8_t>(bgcolor));
             TP_PrintPageNumber();
-//                              VWB_Bar(xl-TP_MARGIN,yl-TP_MARGIN,xh-xl+1+(TP_MARGIN*2),yh-yl+1+(TP_MARGIN*2),bgcolor);
             break;
 
         // EXIT PRESENTER ---------------------------------------------------
@@ -1993,9 +1939,6 @@ void TP_HandleCodes()
     }
 }
 
-// --------------------------------------------------------------------------
-// TP_PrintPageNumber()
-// --------------------------------------------------------------------------
 void TP_PrintPageNumber()
 {
     char buffer[5];
@@ -2030,9 +1973,6 @@ void TP_PrintPageNumber()
     fontcolor = oldc;
 }
 
-// --------------------------------------------------------------------------
-// TP_DrawShape()
-// --------------------------------------------------------------------------
 int16_t TP_DrawShape(
     int16_t x,
     int16_t y,
@@ -2097,18 +2037,7 @@ int16_t TP_DrawShape(
     case pis_pic2x:
 #endif
         VWB_DrawPic(x, y, shapenum);
-// VW_geDrawPic(x>>3,y,shapenum,shapetype == pis_pic2x);
         break;
-
-// BBi Not used
-#if 0
-    case pis_sprite:
-#if TP_640x200
-    case pis_sprite2x:
-#endif
-// VW_geDrawSprite(x,y-(spr->orgy>>G_P_SHIFT),shapenum,shapetype == pis_sprite2x);
-        break;
-#endif
 
     default:
         break;
@@ -2121,17 +2050,11 @@ int16_t TP_DrawShape(
     return x;
 }
 
-// --------------------------------------------------------------------------
-// TP_ResetAnims()
-// --------------------------------------------------------------------------
 void TP_ResetAnims()
 {
     piAnimList[0].baseshape = -1;
 }
 
-// --------------------------------------------------------------------------
-// TP_AnimatePage()
-// --------------------------------------------------------------------------
 void TP_AnimatePage(
     int16_t numanims)
 {
@@ -2172,9 +2095,6 @@ void TP_AnimatePage(
     }
 }
 
-// --------------------------------------------------------------------------
-// TP_BoxAroundShape()
-// --------------------------------------------------------------------------
 int16_t TP_BoxAroundShape(
     int16_t x1,
     int16_t y1,
@@ -2203,20 +2123,6 @@ int16_t TP_BoxAroundShape(
         x2 = x1 + width - 1;
         y2 = y1 + (pictable[shapenum - STARTPICS].height) - 1;
         break;
-
-// BBi Not used
-#if 0
-    case pis_sprite:
-#if TP_640x200
-    case pis_sprite2x:
-        width = spritetable[shapenum - STARTSPRITES].width << (3 + (shapetype == pis_sprite2x));
-#else
-        width = spritetable[shapenum - STARTSPRITES].width << 3;
-#endif
-        x2 = x1 + width - 1;
-        y2 = y1 + (spritetable[shapenum - STARTSPRITES].height) - 1;
-        break;
-#endif
 
     default:
         break;
@@ -2253,9 +2159,6 @@ int16_t TP_BoxAroundShape(
     return x2 - x1 + 1;
 }
 
-// --------------------------------------------------------------------------
-// TP_PurgeAllGfx()
-// --------------------------------------------------------------------------
 void TP_PurgeAllGfx()
 {
     int16_t loop;
@@ -2279,9 +2182,6 @@ void TP_PurgeAllGfx()
     }
 }
 
-// --------------------------------------------------------------------------
-// TP_CachePage()
-// --------------------------------------------------------------------------
 void TP_CachePage(
     const char* script)
 {
@@ -2360,9 +2260,6 @@ void TP_CachePage(
     TP_CacheIn(ct_marks, 0);
 }
 
-// --------------------------------------------------------------------------
-// TP_VALUE()
-// --------------------------------------------------------------------------
 uint16_t TP_VALUE(
     const char* ptr,
     int8_t num_nybbles)
@@ -2388,9 +2285,6 @@ uint16_t TP_VALUE(
     return value;
 }
 
-// --------------------------------------------------------------------------
-// TP_JumpCursor()
-// --------------------------------------------------------------------------
 void TP_JumpCursor()
 {
     auto old_color = fontcolor;
@@ -2405,9 +2299,6 @@ void TP_JumpCursor()
     TP_Print("@", true);
 }
 
-// --------------------------------------------------------------------------
-// TP_Print()
-// --------------------------------------------------------------------------
 void TP_Print(
     const char* str,
     bool single_char)
@@ -2448,9 +2339,6 @@ void TP_Print(
     }
 }
 
-// --------------------------------------------------------------------------
-// TP_SlowPrint()
-// --------------------------------------------------------------------------
 bool TP_SlowPrint(
     const char* str,
     int8_t delay)
@@ -2529,9 +2417,6 @@ bool TP_SlowPrint(
     return aborted;
 }
 
-// --------------------------------------------------------------------------
-// TP_LoadScript()
-// --------------------------------------------------------------------------
 int32_t TP_LoadScript(
     const char* filename,
     PresenterInfo* pi,
@@ -2567,9 +2452,6 @@ int32_t TP_LoadScript(
     return size;
 }
 
-// -------------------------------------------------------------------------
-// TP_FreeScript()
-// -------------------------------------------------------------------------
 void TP_FreeScript(
     PresenterInfo* pi,
     uint16_t id_cache)
@@ -2584,9 +2466,6 @@ void TP_FreeScript(
     }
 }
 
-// -------------------------------------------------------------------------
-// TP_InitScript()
-// -------------------------------------------------------------------------
 void TP_InitScript(
     PresenterInfo* pi)
 {
@@ -2620,16 +2499,6 @@ void TP_InitScript(
                 break;
             }
             break;
-
-#if 0
-        case '\r':
-            if (*script == '\n') {
-                *(script - 1) = TP_RETURN_CHAR;
-                *script = '*'; // This byte should always be skipped!
-                script++;
-            }
-            break;
-#endif
         }
     }
 
@@ -2637,9 +2506,6 @@ end_func:;
     pi->numpages--;     // Last page defined is not a real page.
 }
 
-// -------------------------------------------------------------------------
-// TP_CacheIn()
-// -------------------------------------------------------------------------
 void TP_CacheIn(
     tpCacheType type,
     int16_t chunk)
@@ -2714,9 +2580,6 @@ void TP_CacheIn(
     }
 }
 
-// -------------------------------------------------------------------------
-// TP_LineCommented()
-// -------------------------------------------------------------------------
 int16_t TP_LineCommented(
     const char* s)
 {
@@ -2734,23 +2597,3 @@ int16_t TP_LineCommented(
 
     return static_cast<int8_t>(s - o);
 }
-
-/* Code very similar to this crashed the system during COMPILE.
-** The compiler found the error "fptr = sptr + offset" (sptr size unknown),
-** but this shitty MDS computer crashed with an exception error after that!!
-
-int MDS_COMPUTERS_SUCK_SHIT()
-{
-        char far *fptr;
-        void _seg *sptr;
-        int16_t offset;
-
-        sptr = 0xa000;
-        offset = 1000;
-        fptr = sptr + offset;
-        offset += 1000;
-}
-
-**
-**
-*/
