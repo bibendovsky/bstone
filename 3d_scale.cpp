@@ -21,9 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_SCALE.C
-
-
 #include "3d_def.h"
 
 

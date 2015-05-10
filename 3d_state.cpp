@@ -21,35 +21,27 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_STATE.C
-
-
 #include "3d_def.h"
 
 
 void OpenDoor(
     int16_t door);
+
 void A_DeathScream(
     objtype* ob);
+
 void PlaceItemType(
     int16_t itemtype,
     int16_t tilex,
     int16_t tiley);
+
 void PlaceItemNearTile(
     int16_t itemtype,
     int16_t tilex,
     int16_t tiley);
+
 void ChangeShootMode(
     objtype* ob);
-
-
-/*
-=============================================================================
-
- LOCAL CONSTANTS
-
-=============================================================================
-*/
 
 
 /*
@@ -77,11 +69,11 @@ dirtype diagonal[9][9] = {
 };
 
 
-
 void SpawnNewObj(
     uint16_t tilex,
     uint16_t tiley,
     statetype* state);
+
 void NewState(
     objtype* ob,
     statetype* state);
@@ -89,6 +81,7 @@ void NewState(
 bool TryWalk(
     objtype* ob,
     bool moveit);
+
 void MoveObj(
     objtype* ob,
     int32_t move);
@@ -99,27 +92,17 @@ void KillActor(
 bool CheckLine(
     objtype* from_obj,
     objtype* to_obj);
+
 void FirstSighting(
     objtype* ob);
+
 bool CheckSight(
     objtype* from_obj,
     objtype* to_obj);
+
 bool ElevatorFloor(
     int8_t x,
     int8_t y);
-
-/*
-=============================================================================
-
- LOCAL VARIABLES
-
-=============================================================================
-*/
-
-
-
-// ===========================================================================
-
 
 /*
 ===================
@@ -133,7 +116,6 @@ bool ElevatorFloor(
 =
 ===================
 */
-
 void SpawnNewObj(
     uint16_t tilex,
     uint16_t tiley,
@@ -163,10 +145,7 @@ void SpawnNewObj(
         Quit("Actor Spawned on wall at {} {}", new_actor->tilex, new_actor->tiley);
     }
 #endif
-
 }
-
-
 
 /*
 ===================
@@ -177,7 +156,6 @@ void SpawnNewObj(
 =
 ===================
 */
-
 void NewState(
     objtype* ob,
     statetype* state)
@@ -185,7 +163,6 @@ void NewState(
     ob->state = state;
     ob->ticcount = static_cast<int16_t>(state->tictime);
 }
-
 
 
 /*
@@ -196,6 +173,56 @@ void NewState(
 =============================================================================
 */
 
+
+static bool CHECKDIAG(
+    int x,
+    int y)
+{
+    auto actor = ::actorat[x][y];
+    auto temp = reinterpret_cast<size_t>(actorat);
+
+    if (temp != 0) {
+        if (temp < 256) {
+            return false;
+        }
+
+        if ((actor->flags & FL_SOLID) != 0) {
+            return false;
+        }
+    }
+
+    if (::ElevatorFloor(static_cast<int8_t>(x), static_cast<int8_t>(y))) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool CHECKSIDE(
+    int x,
+    int y)
+{
+    auto actor = ::actorat[x][y];
+    auto temp = reinterpret_cast<size_t>(actor);
+
+    if (temp != 0) {
+        if (temp < 128) {
+            return false;
+        }
+
+        if (temp < 256) {
+            ::doornum = temp & 63;
+
+            if (::doorobjlist[::doornum].lock != kt_none) {
+                return false;
+            }
+        } else if ((actor->flags & FL_SOLID) != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /*
 ==================================
@@ -220,38 +247,6 @@ void NewState(
 =
 ==================================
 */
-
-#define CHECKDIAG(x, y) \
-    { \
-        size_t temp; \
-        temp = (size_t)actorat[x][y]; \
-        if (temp != 0) { \
-            if (temp < 256) { \
-                return false; } \
-            if ((((objtype*)temp)->flags & FL_SOLID) != 0) { \
-                return false; } \
-        } \
-        if (ElevatorFloor(x, y)) { \
-            return false; } \
-    }
-
-#define CHECKSIDE(x, y) \
-    { \
-        size_t temp; \
-        temp = (size_t)actorat[x][y]; \
-        if (temp != 0) { \
-            if (temp < 128) { \
-                return false; } \
-            if (temp < 256) { \
-                doornum = temp & 63; \
-                if (doorobjlist[doornum].lock != kt_none) { \
-                    return false; } \
-            } else if ((((objtype*)temp)->flags & FL_SOLID) != 0) { \
-                return false; } \
-        } \
-    }
-
-
 bool TryWalk(
     objtype* ob,
     bool moveit)
@@ -267,14 +262,9 @@ bool TryWalk(
 
     switch (ob->dir) {
     case north:
-// if (ob->obclass == dogobj || ob->obclass == fakeobj)
-// {
-//      CHECKDIAG(ob->tilex,ob->tiley-1);
-// }
-// else
-    {
-        CHECKSIDE(ob->tilex, ob->tiley - 1);
-    }
+        if (!::CHECKSIDE(ob->tilex, ob->tiley - 1)) {
+            return false;
+        }
 
         if (ElevatorFloor(ob->tilex, ob->tiley - 1)) {
             return false;
@@ -288,12 +278,15 @@ bool TryWalk(
         break;
 
     case northeast:
-        CHECKDIAG(ob->tilex + 1, ob->tiley - 1);
-        CHECKDIAG(ob->tilex + 1, ob->tiley);
-        CHECKDIAG(ob->tilex, ob->tiley - 1);
-
-// if (ElevatorFloor(ob->tilex+1,ob->tiley-1))
-//      return(false);
+        if (!::CHECKDIAG(ob->tilex + 1, ob->tiley - 1)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex + 1, ob->tiley)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex, ob->tiley - 1)) {
+            return false;
+        }
 
         if (!moveit) {
             return true;
@@ -304,14 +297,9 @@ bool TryWalk(
         break;
 
     case east:
-// if (ob->obclass == dogobj || ob->obclass == fakeobj)
-// {
-//      CHECKDIAG(ob->tilex+1,ob->tiley);
-// }
-// else
-    {
-        CHECKSIDE(ob->tilex + 1, ob->tiley);
-    }
+        if (!::CHECKSIDE(ob->tilex + 1, ob->tiley)) {
+            return false;
+        }
 
         if (ElevatorFloor(ob->tilex + 1, ob->tiley)) {
             if ((doornum != -1) && (ob->obclass != electrosphereobj)) {
@@ -329,12 +317,15 @@ bool TryWalk(
         break;
 
     case southeast:
-        CHECKDIAG(ob->tilex + 1, ob->tiley + 1);
-        CHECKDIAG(ob->tilex + 1, ob->tiley);
-        CHECKDIAG(ob->tilex, ob->tiley + 1);
-
-// if (ElevatorFloor(ob->tilex+1,ob->tiley+1))
-//      return(false);
+        if (!::CHECKDIAG(ob->tilex + 1, ob->tiley + 1)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex + 1, ob->tiley)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex, ob->tiley + 1)) {
+            return false;
+        }
 
         if (!moveit) {
             return true;
@@ -345,14 +336,9 @@ bool TryWalk(
         break;
 
     case south:
-// if (ob->obclass == dogobj || ob->obclass == fakeobj)
-// {
-//      CHECKDIAG(ob->tilex,ob->tiley+1);
-// }
-// else
-    {
-        CHECKSIDE(ob->tilex, ob->tiley + 1);
-    }
+        if (!::CHECKSIDE(ob->tilex, ob->tiley + 1)) {
+            return false;
+        }
 
         if (ElevatorFloor(ob->tilex, ob->tiley + 1)) {
             return false;
@@ -366,12 +352,15 @@ bool TryWalk(
         break;
 
     case southwest:
-        CHECKDIAG(ob->tilex - 1, ob->tiley + 1);
-        CHECKDIAG(ob->tilex - 1, ob->tiley);
-        CHECKDIAG(ob->tilex, ob->tiley + 1);
-
-// if (ElevatorFloor(ob->tilex-1,ob->tiley+1))
-//      return(false);
+        if (!::CHECKDIAG(ob->tilex - 1, ob->tiley + 1)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex - 1, ob->tiley)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex, ob->tiley + 1)) {
+            return false;
+        }
 
         if (!moveit) {
             return true;
@@ -382,14 +371,9 @@ bool TryWalk(
         break;
 
     case west:
-// if (ob->obclass == dogobj || ob->obclass == fakeobj)
-// {
-//      CHECKDIAG(ob->tilex-1,ob->tiley);
-// }
-// else
-    {
-        CHECKSIDE(ob->tilex - 1, ob->tiley);
-    }
+        if (!::CHECKSIDE(ob->tilex - 1, ob->tiley)) {
+            return false;
+        }
 
         if (ElevatorFloor(ob->tilex - 1, ob->tiley)) {
             if ((doornum != -1) && (ob->obclass != electrosphereobj)) {
@@ -407,12 +391,15 @@ bool TryWalk(
         break;
 
     case northwest:
-        CHECKDIAG(ob->tilex - 1, ob->tiley - 1);
-        CHECKDIAG(ob->tilex - 1, ob->tiley);
-        CHECKDIAG(ob->tilex, ob->tiley - 1);
-
-// if (ElevatorFloor(ob->tilex-1,ob->tiley-1))
-//      return(false);
+        if (!::CHECKDIAG(ob->tilex - 1, ob->tiley - 1)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex - 1, ob->tiley)) {
+            return false;
+        }
+        if (!::CHECKDIAG(ob->tilex, ob->tiley - 1)) {
+            return false;
+        }
 
         if (!moveit) {
             return true;
@@ -426,9 +413,7 @@ bool TryWalk(
         return false;
 
     default:
-// STATE_ERROR(TRYWALK_BAD_DIR); // jam/jdebug
         return false; // jam/jdebug
-
     }
 
 // Should actor open this door?
@@ -466,9 +451,6 @@ bool TryWalk(
     return true;
 }
 
-// --------------------------------------------------------------------------
-// ElevatorFloor()
-// --------------------------------------------------------------------------
 bool ElevatorFloor(
     int8_t x,
     int8_t y)
@@ -506,8 +488,6 @@ bool ElevatorFloor(
 =
 ==================================
 */
-
-
 void SelectDodgeDir(
     objtype* ob)
 {
@@ -609,7 +589,6 @@ void SelectDodgeDir(
     }
 }
 
-
 /*
 ============================
 =
@@ -619,7 +598,6 @@ void SelectDodgeDir(
 =
 ============================
 */
-
 void SelectChaseDir(
     objtype* ob)
 {
@@ -719,11 +697,6 @@ void SelectChaseDir(
     }
 }
 
-
-
-// --------------------------------------------------------------------------
-// GetCornerSeek()
-// --------------------------------------------------------------------------
 void GetCornerSeek(
     objtype* ob)
 {
@@ -737,6 +710,7 @@ void GetCornerSeek(
 }
 
 
+extern int32_t last_objy;
 
 /*
 =================
@@ -752,17 +726,11 @@ void GetCornerSeek(
 =
 =================
 */
-
-extern int32_t last_objy;
-
 void MoveObj(
     objtype* ob,
     int32_t move)
 {
     int32_t deltax, deltay;
-
-//      if (DebugOk && Keyboard[ScanCode::sc_z])
-//              return;
 
     switch (ob->dir) {
     case north:
@@ -861,21 +829,6 @@ moveok:
     ob->distance -= move;
 }
 
-/*
-=============================================================================
-
- STUFF
-
-=============================================================================
-*/
-
-/*
-===============
-=
-= KillActor
-=
-===============
-*/
 
 extern statetype s_terrot_die1;
 
@@ -887,47 +840,48 @@ char dki_msg[] =
     "^FC19	    DO NOT SHOOT\r"
     "	    INFORMANTS!!\r";
 
-uint16_t actor_points[] = { 1025, // rent-a-cop
-                          1050, // turret
-                          500, // general scientist
-                          5075, // pod alien
-                          5150, // electric alien
-                          2055, // electro-sphere
-                          5000, // pro guard
-                          10000, // genetic guard
-                          5055, // mutant human1
-                          6055, // mutant human2
-                          0, // large canister wait
-                          6050, // large canister alien
-                          0, // small canister wait
-                          3750, // small canister alien
-                          0, // gurney wait
-                          3750, // gurney
-                          12000, // liquid
-                          7025, // swat
-                          5000, // goldtern
-                          5000, // goldstern Morphed
-                          2025, // volatile transport
-                          2025, // floating bomb
-                          0, // rotating cube
+uint16_t actor_points[] = {
+    1025, // rent-a-cop
+    1050, // turret
+    500, // general scientist
+    5075, // pod alien
+    5150, // electric alien
+    2055, // electro-sphere
+    5000, // pro guard
+    10000, // genetic guard
+    5055, // mutant human1
+    6055, // mutant human2
+    0, // large canister wait
+    6050, // large canister alien
+    0, // small canister wait
+    3750, // small canister alien
+    0, // gurney wait
+    3750, // gurney
+    12000, // liquid
+    7025, // swat
+    5000, // goldtern
+    5000, // goldstern Morphed
+    2025, // volatile transport
+    2025, // floating bomb
+    0, // rotating cube
 
-                          5000, // spider_mutant
-                          6000, // breather_beast
-                          7000, // cyborg_warror
-                          8000, // reptilian_warrior
-                          9000, // acid_dragon
-                          9000, // mech_guardian
-                          30000, // final boss #1
-                          40000, // final_boss #2
-                          50000, // final_boss #3
-                          60000, // final_boss #4
+    5000, // spider_mutant
+    6000, // breather_beast
+    7000, // cyborg_warror
+    8000, // reptilian_warrior
+    9000, // acid_dragon
+    9000, // mech_guardian
+    30000, // final boss #1
+    40000, // final_boss #2
+    50000, // final_boss #3
+    60000, // final_boss #4
 
-                          0, 0, 0, 0, 0, // blake,crate1/2/3, oozes
-                          0, // pod egg
+    0, 0, 0, 0, 0, // blake,crate1/2/3, oozes
+    0, // pod egg
 
-                          5000, // morphing_spider_mutant
-                          8000, // morphing_reptilian_warrior
-                          6055, // morphing_mutant human2
+    5000, // morphing_spider_mutant
+    8000, // morphing_reptilian_warrior
+    6055, // morphing_mutant human2
 };
 
 // ---------------------------------------------------------------------------
@@ -1288,6 +1242,13 @@ void KillActor(
     }
 }
 
+void DoAttack(
+    objtype* ob);
+
+extern statetype s_proshoot2;
+extern statetype s_goldmorphwait1;
+extern bool barrier_damage;
+
 /*
 ===================
 =
@@ -1300,13 +1261,6 @@ void KillActor(
 =
 ===================
 */
-
-void DoAttack(
-    objtype* ob);
-extern statetype s_proshoot2;
-extern statetype s_goldmorphwait1;
-extern bool barrier_damage;
-
 void DamageActor(
     objtype* ob,
     uint16_t damage,
@@ -1566,6 +1520,7 @@ void DamageActor(
     ob->flags |= FL_LOCKED_STATE;
 }
 
+
 /*
 =============================================================================
 
@@ -1573,7 +1528,6 @@ void DamageActor(
 
 =============================================================================
 */
-
 
 /*
 =====================
@@ -1584,148 +1538,6 @@ void DamageActor(
 =
 =====================
 */
-
-#if 0
-
-bool CheckLine(
-    objtype* ob)
-{
-    int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
-    int16_t x, y, xl, xh, yl, yh;
-    int16_t xdist, ydist, xstep, ystep;
-    int16_t temp;
-    int16_t partial, delta;
-    int32_t ltemp;
-    uint16_t xfrac, yfrac, deltafrac;
-    uint16_t value, intercept;
-
-
-
-    x1 = ob->x >> UNSIGNEDSHIFT; // 1/256 tile precision
-    y1 = ob->y >> UNSIGNEDSHIFT;
-    xt1 = x1 >> 8;
-    yt1 = y1 >> 8;
-
-    x2 = plux;
-    y2 = pluy;
-    xt2 = player->tilex;
-    yt2 = player->tiley;
-
-
-    xdist = abs(xt2 - xt1);
-    ydist = abs(yt2 - yt1);
-
-    if (xdist > 0) {
-        if (xt2 > xt1) {
-            partial = 256 - (x1 & 0xff);
-            xl = xt1;
-            xh = xt2;
-            yl = y1;
-            yh = y2;
-            deltafrac = x2 - x1;
-        } else {
-            partial = 256 - (x2 & 0xff);
-            xl = xt2;
-            xh = xt1;
-            yl = y2;
-            yh = y1;
-            deltafrac = x1 - x2;
-        }
-
-        delta = yh - yl;
-        ltemp = ((int32_t)delta << 8) / deltafrac;
-        if (ltemp > 0x7fffl) {
-            ystep = 0x7fff;
-        } else if (ltemp < -0x7fffl) {
-            ystep = -0x7fff;
-        } else {
-            ystep = ltemp;
-        }
-        yfrac = yl + (((int32_t)ystep * partial) >> 8);
-
-        for (x = xl + 1; x <= xh; x++) {
-            y = yfrac >> 8;
-            yfrac += ystep;
-
-            if (!(value = (uint16_t)tilemap[x][y])) {
-                continue;
-            }
-
-            if (value < 128 || value > 256) {
-                return false;
-            }
-
-            //
-            // see if the door is open enough
-            //
-            value &= ~0x80;
-            intercept = yfrac - ystep / 2;
-
-            if (intercept > doorposition[value]) {
-                return false;
-            }
-        }
-    }
-
-
-    if (ydist > 0) {
-        if (yt2 > yt1) {
-            partial = 256 - (y1 & 0xff);
-            xl = x1;
-            xh = x2;
-            yl = yt1;
-            yh = yt2;
-            deltafrac = y2 - y1;
-        } else {
-            partial = 256 - (y2 & 0xff);
-            xl = x2;
-            xh = x1;
-            yl = yt2;
-            yh = yt1;
-            deltafrac = y1 - y2;
-        }
-
-        delta = xh - xl;
-        ltemp = ((int32_t)delta << 8) / deltafrac;
-        if (ltemp > 0x7fffl) {
-            xstep = 0x7fff;
-        } else if (ltemp < -0x7fffl) {
-            xstep = -0x7fff;
-        } else {
-            xstep = ltemp;
-        }
-        xfrac = xl + (((int32_t)xstep * partial) >> 8);
-
-        for (y = yl + 1; y <= yh; y++) {
-            x = xfrac >> 8;
-            xfrac += xstep;
-
-            if (!(value = (uint16_t)tilemap[x][y])) {
-                continue;
-            }
-
-            if (value < 128 || value > 256) {
-                return false;
-            }
-
-            //
-            // see if the door is open enough
-            //
-            value &= ~0x80;
-            intercept = xfrac - xstep / 2;
-
-            if (intercept > doorposition[value]) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-#endif
-
-
 bool CheckLine(
     objtype* from_obj,
     objtype* to_obj)
@@ -1868,8 +1680,6 @@ bool CheckLine(
     return true;
 }
 
-
-
 /*
 ================
 =
@@ -1883,12 +1693,12 @@ bool CheckLine(
 =
 ================
 */
-#define MINSIGHT 0x18000l
-
 bool CheckSight(
     objtype* from_obj,
     objtype* to_obj)
 {
+    const int MINSIGHT = 0x18000L;
+
     int32_t deltax, deltay;
 
 //
@@ -1897,16 +1707,6 @@ bool CheckSight(
     if (!areabyplayer[from_obj->areanumber]) {
         return false;
     }
-
-#if 0
-//
-// If object doesn't have rotated shapes, then don't bother with
-// checking to see it object is facing the right direction.
-//
-    if (!from_obj->state->flags) {
-        return CheckLine(from_obj, to_obj);
-    }
-#endif
 
 //
 // if the player is real close, sight is automatic
@@ -1955,7 +1755,6 @@ bool CheckSight(
 // trace a line to check for blocking tiles (corners)
 //
     return CheckLine(from_obj, to_obj);
-
 }
 
 
@@ -1970,7 +1769,6 @@ bool CheckSight(
 =
 ===============
 */
-
 void FirstSighting(
     objtype* ob)
 {
@@ -2117,9 +1915,6 @@ void FirstSighting(
 
     }
 
-// if (ob->distance < 0)
-//      ob->distance = 0; // ignore the door opening command
-
     ob->flags |= FL_ATTACKMODE | FL_FIRSTATTACK;
 }
 
@@ -2136,11 +1931,9 @@ void FirstSighting(
 =
 ===============
 */
-
 bool SightPlayer(
     objtype* ob)
 {
-
     if (ob->obclass == gen_scientistobj) {
         if (ob->flags & FL_INFORMANT) {
             return false;
@@ -2154,7 +1947,6 @@ bool SightPlayer(
     if (ob->flags & FL_ATTACKMODE) {
         return true;
     }
-// STATE_ERROR(SIGHTPLAYER_IN_ATKMODE);
 
     if (ob->temp2) {
         //
@@ -2278,61 +2070,16 @@ bool SightPlayer(
 }
 
 
-#if 0
-// --------------------------------------------------------------------------
-// PosVisable()  Checks a straight line from two map coords and then checks
-//      to see if the passed from_angle is pointing in that direction
-//      (if the position is seeable by the player).
-//
-// SEE ALSO: MACRO "ObjVisable(from_obj,to_obj)" -- 3D_DEF.h
-//
-// --------------------------------------------------------------------------
-bool PosVisable(
-    fixed from_x,
-    fixed from_y,
-    fixed to_x,
-    fixed to_y,
-    int16_t from_angle)
-{
-    int32_t deltax, deltay;
-    int16_t angle, dif;
-    float fangle;
-
-    deltax = from_x - to_x;
-    deltay = to_y - from_y;
-
-    fangle = atan2(deltay, deltax); // returns -pi to pi
-
-    if (fangle < 0) {
-        fangle += M_PI * 2;
-    }
-
-    angle = fangle / (M_PI * 2) * ANGLES;
-    angle = (angle + 180) % 360;
-
-    dif = angle - from_angle;
-
-    if (abs(dif) < 45 || abs(dif) > 315) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-
-
-#endif
-
+int16_t AdjAngleTable[2][8] = {
+    { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upper Bound
+    { 180, 225, 270, 315, 0, 45, 90, 135 }, // Lower Bound
+};
 
 // --------------------------------------------------------------------------
 // CheckView()  Checks a straight line between player and current object
 //      If the sight is ok, check angle to see if they notice
 //      returns true if the player has been spoted
 // --------------------------------------------------------------------------
-int16_t AdjAngleTable[2][8] = { { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upper Bound
-                               { 180, 225, 270, 315, 0, 45, 90, 135 } }; // Lower Bound
-
-
 bool CheckView(
     objtype* from_obj,
     objtype* to_obj)
@@ -2401,15 +2148,10 @@ bool LookForDeadGuys(
 }
 #endif
 
-// --------------------------------------------------------------------------
-// LookForGoodies()
-// --------------------------------------------------------------------------
 bool LookForGoodies(
     objtype* ob,
     uint16_t RunReason)
 {
-//      #define ONE_TRACK_MIND
-
     statobj_t* statptr;
     bool just_find_door = false;
 
@@ -2497,18 +2239,6 @@ bool LookForGoodies(
                         return true;
                     }
 
-// Stops searching when (s_tilex,s_tiley) object is found; even though actor
-// may be standing on another 'needed' object.
-// (Depends on where objects appear in the static object list!)
-//
-#ifdef ONE_TRACK_MIND
-                    // Is actor looking for current object?
-                    //
-                    if ((statptr->tilex == ob->s_tilex) && (statptr->tiley == ob->s_tiley)) {
-                        return false;
-                    }
-#endif
-
                     // Give actor a chance to run towards this object.
                     //
                     if ((!(ob->flags & FL_RUNTOSTATIC))) { // &&(US_RndT()<25))
@@ -2539,11 +2269,11 @@ bool LookForGoodies(
 
 // Should actor run for a door? (quick escape!)
 //
-//      if (ob->areanumber == player->areanumber)
     if (areabyplayer[ob->areanumber]) {
-#define DOOR_CHOICES 8
+        const int DOOR_CHOICES = 8;
 
-        doorobj_t* door, * doorlist[DOOR_CHOICES];
+        doorobj_t* door;
+        doorobj_t* doorlist[DOOR_CHOICES];
         int8_t doorsfound = 0;
 
         // If actor is running for a 'goody' or a door -- leave it alone!
@@ -2615,16 +2345,10 @@ bool LookForGoodies(
     return false;
 }
 
-
-
-
-// --------------------------------------------------------------------------
-// CheckRunChase()
-// --------------------------------------------------------------------------
 uint16_t CheckRunChase(
     objtype* ob)
 {
-#define RUNAWAY_SPEED 1000
+    const int RUNAWAY_SPEED = 1000;
 
     uint16_t RunReason = 0;
 
@@ -2642,9 +2366,6 @@ uint16_t CheckRunChase(
         RunReason |= RR_INTERROGATED; // Non-informant was interrogated!
 
     }
-//      if (ob->flags2 & FL2_SCARED)
-//      RunReason |= RR_SCARED; // GenSci is scared.
-
 
 // Time to RUN or CHASE?
 //
@@ -2664,9 +2385,6 @@ uint16_t CheckRunChase(
     return RunReason;
 }
 
-// --------------------------------------------------------------------------
-// SeekPlayerOrStatic()
-// --------------------------------------------------------------------------
 void SeekPlayerOrStatic(
     objtype* ob,
     int16_t* deltax,
@@ -2731,31 +2449,21 @@ void SeekPlayerOrStatic(
     }
 }
 
-// --------------------------------------------------------------------------
-// PlayerIsBlocking()
-// --------------------------------------------------------------------------
 bool PlayerIsBlocking(
     objtype* ob)
 {
-    int8_t opp_off[9][2] = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { 0, 0 } };
+    int8_t opp_off[9][2] = {
+        { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 },
+        { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { 0, 0 }
+    };
 
-//      if ((ob->tilex == player->tilex) && (ob->tiley == player->tiley))
-    {
-        ob->tilex += opp_off[ob->dir][0];
-        ob->tiley += opp_off[ob->dir][1];
-        ob->dir = opposite[ob->dir];
-        ob->distance = TILEGLOBAL - ob->distance;
-        return true;
-    }
-
-//      return(false);
+    ob->tilex += opp_off[ob->dir][0];
+    ob->tiley += opp_off[ob->dir][1];
+    ob->dir = opposite[ob->dir];
+    ob->distance = TILEGLOBAL - ob->distance;
+    return true;
 }
 
-
-
-// --------------------------------------------------------------------------
-// MakeAlertNoise() -
-// --------------------------------------------------------------------------
 void MakeAlertNoise(
     objtype* obj)
 {
