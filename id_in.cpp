@@ -60,7 +60,6 @@ Free Software Foundation, Inc.,
 //
 #define JoyScaleMax 32768
 #define JoyScaleShift 8
-// #define MaxJoyValue 5000
 
 
 /*
@@ -1159,119 +1158,6 @@ static void INL_ShutJoy(
     JoysPresent[joy] = false;
 }
 
-#if 0
-#if IN_DEVELOPMENT
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_StartJoy() - Detects & auto-configures the specified joystick
-//                                      The auto-config assumes the joystick is centered
-//
-///////////////////////////////////////////////////////////////////////////
-bool INL_StartJoy(
-    uint16_t joy)
-{
-    uint16_t x, y;
-
-    IN_GetJoyAbs(joy, &x, &y);
-
-    if
-    (
-        ((x == 0) || (x > MaxJoyValue - 10))
-        || ((y == 0) || (y > MaxJoyValue - 10))
-    )
-    {
-        return false;
-    } else {
-        IN_SetupJoy(joy, 0, x * 2, 0, y * 2);
-        return true;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_Startup() - Starts up the Input Mgr
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_Startup()
-{
-    bool checkjoys;
-    bool checkmouse;
-    bool checkNG;
-    uint16_t i;
-
-    if (IN_Started) {
-        return;
-    }
-
-    checkjoys = true;
-    checkmouse = true;
-    checkNG = false;
-
-    for (i = 1; i < g_argc; i++) {
-        switch (US_CheckParm(g_argv[i], IN_ParmStrings)) {
-        case 0:
-            checkjoys = false;
-            break;
-
-        case 1:
-            checkmouse = false;
-            break;
-
-        case 2:
-            checkNG = true;
-            break;
-        }
-    }
-
-    if (checkNG) {
-#define WORD_CODE(c1, c2) ((c2) | (c1 << 8))
-
-        NGjoy(0xf0);
-        if ((_AX == WORD_CODE('S', 'G')) && _BX) {
-            NGinstalled = true;
-        }
-    }
-
-    INL_StartKbd();
-    MousePresent = checkmouse ? INL_StartMouse() : false;
-
-    for (i = 0; i < MaxJoys; i++) {
-        JoysPresent[i] = checkjoys ? INL_StartJoy(i) : false;
-    }
-
-    IN_Started = true;
-}
-
-#endif
-#endif
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_Default() - Sets up default conditions for the Input Mgr
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_Default(
-    bool gotit,
-    ControlType in)
-{
-    if
-    (
-        (!gotit)
-        || ((in == ctrl_Joystick1) && !JoysPresent[0])
-        || ((in == ctrl_Joystick2) && !JoysPresent[1])
-        || ((in == ctrl_Mouse) && !MousePresent)
-    )
-    {
-        in = ctrl_Keyboard1;
-    }
-    IN_SetControlType(0, in);
-}
-
-#endif
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      IN_Shutdown() - Shuts down the Input Mgr
@@ -1295,23 +1181,6 @@ void IN_Shutdown()
 
     IN_Started = false;
 }
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_SetKeyHook() - Sets the routine that gets called by INL_KeyService()
-//                      everytime a real make/break code gets hit
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_SetKeyHook(
-    void (* hook)())
-{
-    INL_KeyHook = hook;
-}
-
-#endif
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1423,25 +1292,6 @@ void IN_ReadControl(
     mx = my = motion_None;
     buttons = 0;
 
-#if 0
-    if (DemoMode == demo_Playback) {
-        dbyte = DemoBuffer[DemoOffset + 1];
-        my = (dbyte & 3) - 1;
-        mx = ((dbyte >> 2) & 3) - 1;
-        buttons = (dbyte >> 4) & 3;
-
-        if (!(--DemoBuffer[DemoOffset])) {
-            DemoOffset += 2;
-            if (DemoOffset >= DemoSize) {
-                DemoMode = demo_PlayDone;
-            }
-        }
-
-        realdelta = false;
-    } else if (DemoMode == demo_PlayDone) {
-        IN_ERROR(IN_READCONTROL_PLAY_EXC);
-    } else
-#endif
     {
 
 // JAM begin
@@ -1509,60 +1359,6 @@ void IN_ReadControl(
         }
 
 // JAM end
-
-
-#if 0
-        switch (type = Controls[player]) {
-
-        case ctrl_Keyboard:
-            def = &KbdDefs;
-
-            if (Keyboard[def->upleft]) {
-                mx = motion_Left, my = motion_Up;
-            } else if (Keyboard[def->upright]) {
-                mx = motion_Right, my = motion_Up;
-            } else if (Keyboard[def->downleft]) {
-                mx = motion_Left, my = motion_Down;
-            } else if (Keyboard[def->downright]) {
-                mx = motion_Right, my = motion_Down;
-            }
-
-            if (Keyboard[def->up]) {
-                my = motion_Up;
-            } else if (Keyboard[def->down]) {
-                my = motion_Down;
-            }
-
-            if (Keyboard[def->left]) {
-                mx = motion_Left;
-            } else if (Keyboard[def->right]) {
-                mx = motion_Right;
-            }
-
-            if (Keyboard[def->button0]) {
-                buttons += 1 << 0;
-            }
-            if (Keyboard[def->button1]) {
-                buttons += 1 << 1;
-            }
-            realdelta = false;
-            break;
-
-        case ctrl_Joystick1:
-        case ctrl_Joystick2:
-            INL_GetJoyDelta(type - ctrl_Joystick, &dx, &dy);
-            buttons = INL_GetJoyButtons(type - ctrl_Joystick);
-            realdelta = true;
-            break;
-
-        case ctrl_Mouse:
-            INL_GetMouseDelta(&dx, &dy);
-            buttons = INL_GetMouseButtons();
-            realdelta = true;
-            break;
-
-        }
-#endif
     }
 
     if (realdelta) {
@@ -1582,73 +1378,7 @@ void IN_ReadControl(
     info->button2 = buttons & (1 << 2);
     info->button3 = buttons & (1 << 3);
     info->dir = DirTable[((my + 1) * 3) + (mx + 1)];
-
-#if 0
-    if (DemoMode == demo_Record) {
-        // Pack the control info into a byte
-        dbyte = (buttons << 4) | ((mx + 1) << 2) | (my + 1);
-
-        if
-        (
-            (DemoBuffer[DemoOffset + 1] == dbyte)
-            && (DemoBuffer[DemoOffset] < 255)
-        )
-        {
-            (DemoBuffer[DemoOffset])++;
-        } else {
-            if (DemoOffset || DemoBuffer[DemoOffset]) {
-                DemoOffset += 2;
-            }
-
-            if (DemoOffset >= DemoSize) {
-                IN_ERROR(IN_READCONTROL_BUF_OV);
-            }
-
-            DemoBuffer[DemoOffset] = 1;
-            DemoBuffer[DemoOffset + 1] = dbyte;
-        }
-    }
-#endif
 }
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_SetControlType() - Sets the control type to be used by the specified
-//              player
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_SetControlType(
-    int16_t player,
-    ControlType type)
-{
-    // DEBUG - check that requested type is present?
-    Controls[player] = type;
-}
-
-#endif
-
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_WaitForKey() - Waits for a scan code, then clears LastScan and
-//              returns the scan code
-//
-///////////////////////////////////////////////////////////////////////////
-ScanCode IN_WaitForKey()
-{
-    ScanCode result;
-
-    while (!(result = LastScan)) {
-    }
-    LastScan = 0;
-    return result;
-}
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1698,7 +1428,6 @@ void IN_StartAck()
     }
 }
 
-
 bool IN_CheckAck()
 {
     uint16_t i, buttons;
@@ -1729,7 +1458,6 @@ bool IN_CheckAck()
     return false;
 }
 
-
 void IN_Ack()
 {
     IN_StartAck();
@@ -1737,7 +1465,6 @@ void IN_Ack()
     while (!IN_CheckAck()) {
     }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1762,28 +1489,11 @@ bool IN_UserInput(
     } while (TimeCount - lasttime < delay);
     return false;
 }
-// ===========================================================================
-
-/*
-===================
-=
-= IN_MouseButtons
-=
-===================
-*/
 
 uint8_t IN_MouseButtons()
 {
     return static_cast<uint8_t>(::INL_GetMouseButtons());
 }
-
-/*
-===================
-=
-= IN_JoyButtons
-=
-===================
-*/
 
 uint8_t IN_JoyButtons()
 {
@@ -1796,9 +1506,9 @@ uint8_t IN_JoyButtons()
     joybits ^= 15; // return with 1=pressed
 
     return joybits;
-#endif // 0
-
+#else
     return 0;
+#endif // 0
 }
 
 bool INL_StartJoy(
