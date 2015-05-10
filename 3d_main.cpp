@@ -6172,8 +6172,6 @@ static void set_vanilla_controls()
 
 void ReadConfig()
 {
-    is_config_loaded = true;
-
     auto is_sound_enabled = false;
     auto is_music_enabled = false;
 
@@ -6335,6 +6333,8 @@ void ReadConfig()
 
     sd_set_sfx_volume(sd_sfx_volume);
     sd_set_music_volume(sd_music_volume);
+
+    ::is_config_loaded |= is_succeed;
 }
 
 void WriteConfig()
@@ -7458,7 +7458,10 @@ void NewViewSize()
 
 void pre_quit()
 {
-    ::WriteConfig();
+    if (::is_config_loaded) {
+        ::WriteConfig();
+    }
+
     ::write_high_scores();
 
     ::ShutdownId();
