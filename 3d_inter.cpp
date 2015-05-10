@@ -21,22 +21,13 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_INTER.C
-
-
 #include "3d_def.h"
 
 
 void VH_UpdateScreen();
+
 void CA_CacheScreen(
     int16_t chunk);
-
-
-// ==========================================================================
-//
-// LOCAL CONSTANTS
-//
-// ==========================================================================
 
 
 // ==========================================================================
@@ -49,15 +40,6 @@ void CA_CacheScreen(
 char BreifingText[13] = { "BRIEF_Wx.TXT" };
 #endif
 
-// ==========================================================================
-
-/*
-==================
-=
-= CLearSplitVWB
-=
-==================
-*/
 
 void ClearSplitVWB()
 {
@@ -67,20 +49,6 @@ void ClearSplitVWB()
     WindowW = 320;
     WindowH = 152;
 }
-
-
-// ==========================================================================
-
-
-
-
-/*
-==================
-=
-= Breifing
-=
-==================
-*/
 
 bool Breifing(
     breifing_type BreifingType,
@@ -99,20 +67,6 @@ bool Breifing(
 
     return EscPressed;
 }
-
-
-// ==========================================================================
-
-
-/*
-=================
-=
-= PreloadGraphics
-=
-= Fill the cache up
-=
-=================
-*/
 
 void ShPrint(
     const char* text,
@@ -160,6 +114,7 @@ void PreloadUpdate(
 }
 
 char prep_msg[] = "^ST1^CEGet Ready, Blake!\r^XX";
+
 
 void DisplayPrepingMsg(
     const char* text)
@@ -222,22 +177,14 @@ void PreloadGraphics()
     VW_UpdateScreen();
 }
 
-// ==========================================================================
 
-/*
-==================
-=
-= DrawHighScores
-=
-==================
-*/
-
-#define SCORE_Y_SPACING 7 //
+static const int16_t SCORE_Y_SPACING = 7;
 
 void DrawHighScores()
 {
-    int i,
-        w, h;
+    int i;
+    int w;
+    int h;
     HighScore* s;
 
     ClearMScreen();
@@ -252,7 +199,6 @@ void DrawHighScores()
     SETFONTCOLOR(ENABLED_TEXT_COLOR, TERM_BACK_COLOR);
 
     ShadowPrint("NAME", 86, 60);
-//      ShadowPrint("MISSION",150,60);
     ShadowPrint("SCORE", 175, 60);
     ShadowPrint("MISSION", 247, 53);
     ShadowPrint("RATIO", 254, 60);
@@ -265,15 +211,6 @@ void DrawHighScores()
         if (*s->name) {
             ShadowPrint(s->name, 45, static_cast<int16_t>(68 + (SCORE_Y_SPACING * i)));
         }
-
-#if 0
-        //
-        // mission
-        //
-
-        ltoa(s->episode + 1, buffer, 10);
-        ShadowPrint(buffer, 165, 68 + (SCORE_Y_SPACING * i));
-#endif
 
         //
         // score
@@ -299,17 +236,6 @@ void DrawHighScores()
 
     VW_UpdateScreen();
 }
-
-// ===========================================================================
-
-
-/*
-=======================
-=
-= CheckHighScore
-=
-=======================
-*/
 
 void CheckHighScore(
     int32_t score,
@@ -376,11 +302,6 @@ void CheckHighScore(
     use_custom_cursor = false;
 }
 
-// ===========================================================================
-
-// --------------------------------------------------------------------------
-// Random()
-// --------------------------------------------------------------------------
 uint16_t Random(
     uint16_t Max)
 {
