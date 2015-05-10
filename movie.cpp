@@ -21,29 +21,12 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// ===========================================================================
-//
-//
-//
-//
-// ===========================================================================
-
-
 #include "3d_def.h"
 #include "an_codes.h"
 
 
 bool IN_CheckAck();
 void VH_UpdateScreen();
-
-
-// ===========================================================================
-//
-//
-//
-//
-// ===========================================================================
-
 
 void VL_LatchToScreen(
     int source,
@@ -52,8 +35,6 @@ void VL_LatchToScreen(
     int x,
     int y);
 
-
-// #define  DRAW_TO_FRONT
 
 //
 // Various types for various purposes...
@@ -85,16 +66,13 @@ enum MOVIE_FLAGS {
 
 
 // Movie File variables
-
 bstone::FileStream Movie_FHandle;
 
 // Fade Variables
-
 FADES fade_flags, fi_type, fo_type;
 uint8_t fi_rate, fo_rate;
 
 // MOVIE_GetFrame & MOVIE_LoadBuffer variables
-
 char* MovieBuffer; // Ptr to Allocated Memory for Buffer
 uint32_t BufferLen; // Len of MovieBuffer (Ammount of RAM allocated)
 uint32_t PageLen; // Len of data loaded into MovieBuffer
@@ -102,8 +80,6 @@ char* BufferPtr; // Ptr to next frame in MovieBuffer
 char* NextPtr; // Ptr Ofs to next frame after BufferOfs
 
 bool MorePagesAvail; // More Pages avail on disk?
-
-//
 
 MOVIE_FLAGS movie_flag;
 bool ExitMovie;
@@ -120,14 +96,12 @@ const void* movie_palette;
 // NOTE: This list is ordered according to mv_???? enum list.
 //
 
-
 MovieStuff_t Movies[] = {
     { { "IANIM." }, 1, 3, 0, 0, 200 }, // mv_intro
     { { "EANIM." }, 1, 3, 0, 0, 200 }, // mv_final
     { { "SANIM." }, 1, 3, 0, 0, 200 }, // mv_final2
     { { "GANIM." }, 1, 3, 0, 0, 200 }, // mv_final3
 };
-
 
 
 // ===========================================================================
@@ -137,8 +111,10 @@ MovieStuff_t Movies[] = {
 // ===========================================================================
 
 void JM_MemToScreen();
+
 void JM_ClearVGAScreen(
     uint8_t fill);
+
 void FlipPages();
 bool CheckFading();
 bool CheckPostFade();
@@ -151,19 +127,10 @@ bool CheckPostFade();
 // ===========================================================================
 
 
-// ---------------------------------------------------------------------------
-// SetupMovie() - Inits all the internal routines for the Movie Presenter
-//
-//
-//
-// ---------------------------------------------------------------------------
+// Inits all the internal routines for the Movie Presenter
 void SetupMovie(
     MovieStuff_t* MovieStuff)
 {
-#ifdef DRAW_TO_FRONT
-    bufferofs = displayofs;
-#endif
-
     movie_reps = MovieStuff->rep;
     movie_flag = MV_FILL;
     LastScan = ScanCode::sc_none;
@@ -191,10 +158,6 @@ void SetupMovie(
     MovieBuffer = new char[BufferLen];
 }
 
-
-// ---------------------------------------------------------------------------
-// void ShutdownMovie()
-// ---------------------------------------------------------------------------
 void ShutdownMovie()
 {
     delete [] MovieBuffer;
@@ -240,8 +203,6 @@ void JM_DrawBlock(
     }
 }
 
-
-
 // ---------------------------------------------------------------------------
 // MOVIE_ShowFrame() - Shows an animation frame
 //
@@ -256,7 +217,7 @@ void MOVIE_ShowFrame(
         return;
     }
 
-    for (;; ) {
+    for ( ; ; ) {
         ah = (anim_chunk*)inpic;
 
         if (ah->opt == 0) {
@@ -268,8 +229,6 @@ void MOVIE_ShowFrame(
         inpic += ah->length;
     }
 }
-
-
 
 // ---------------------------------------------------------------------------
 // MOVIE_LoadBuffer() - Loads the RAM Buffer full of graphics...
@@ -341,7 +300,6 @@ bool MOVIE_LoadBuffer()
     return true;
 }
 
-
 // ---------------------------------------------------------------------------
 // MOVIE_GetFrame() - Returns pointer to next Block/Screen of animation
 //
@@ -371,8 +329,6 @@ int16_t MOVIE_GetFrame()
     return 0;
 }
 
-
-
 // ---------------------------------------------------------------------------
 // MOVIE_HandlePage() - This handles the current page of data from the
 //      ram buffer...
@@ -397,11 +353,6 @@ void MOVIE_HandlePage(
 
     switch (blk.code) {
 
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
-
     case AN_SOUND: // Sound Chunk
     {
         uint16_t sound_chunk;
@@ -415,43 +366,6 @@ void MOVIE_HandlePage(
     }
     break;
 
-
-        // -------------------------------------------
-        //
-        //
-        // -------------------------------------------
-
-#if 0
-    case MV_CNVT_CODE('P', 'M'): // Play Music
-    {
-        unsigned song_chunk;
-        song_chunk = *(unsigned*)frame;
-        SD_MusicOff();
-
-        if (!audiosegs[STARTMUSIC + musicchunk]) {
-// MM_BombOnError(false);
-            CA_CacheAudioChunk(STARTMUSIC + musicchunk);
-// MM_BombOnError(true);
-        }
-
-        if (mmerror) {
-            mmerror = false;
-        } else {
-            MM_SetLock(&((memptr)audiosegs[STARTMUSIC + musicchunk]), true);
-            SD_StartMusic((MusicGroup*)audiosegs[STARTMUSIC + musicchunk]);
-        }
-
-        BufferPtr += blk.recsize;
-    }
-    break;
-#endif
-
-
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
-
     case AN_FADE_IN_FRAME: // Fade In Page
         VL_FadeIn(0, 255, (const uint8_t*)movie_palette, 30);
         fade_flags = FADE_NONE;
@@ -459,24 +373,11 @@ void MOVIE_HandlePage(
         screenfaded = false;
         break;
 
-
-
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
-
     case AN_FADE_OUT_FRAME: // Fade Out Page
         VW_FadeOut();
         screenfaded = true;
         fade_flags = FADE_NONE;
         break;
-
-
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
 
     case AN_PAUSE: // Pause
     {
@@ -502,26 +403,23 @@ void MOVIE_HandlePage(
     // -------------------------------------------
 
     case AN_PAGE: // Graphics Chunk
-#if 1
         if (movie_flag == MV_FILL) {
             // First page comming in.. Fill screen with fill color...
             //
-//            movie_flag = MV_READ;     // Set READ flag to skip the first frame on an anim repeat
             movie_flag = MV_NONE; // Set READ flag to skip the first frame on an anim repeat
             JM_VGALinearFill(screenloc[0], 3 * 80 * 208, *frame);
             frame++;
-        } else
-#endif
-        VL_LatchToScreen(displayofs + ylookup[MovieStuff->start_line], 320 >> 2, MovieStuff->end_line - MovieStuff->start_line, 0, MovieStuff->start_line);
+        } else {
+            VL_LatchToScreen(
+                displayofs + ylookup[MovieStuff->start_line],
+                320 >> 2,
+                MovieStuff->end_line - MovieStuff->start_line,
+                0,
+                MovieStuff->start_line);
+        }
 
         MOVIE_ShowFrame(frame);
 
-#if 0
-        if (movie_flag == MV_READ) {
-            seek_pos = tell(Movie_FHandle);
-            movie_flag = MV_NONE;
-        }
-#endif
         FlipPages();
 
         if (TimeCount < static_cast<uint32_t>(MovieStuff->ticdelay)) {
@@ -559,39 +457,15 @@ void MOVIE_HandlePage(
         }
         break;
 
-
-#if 0
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
-
-    case AN_PRELOAD_BEGIN: // These are NOT handled YET!
-    case AN_PRELOAD_END:
-        break;
-
-#endif
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
-
     case AN_END_OF_ANIM:
         ExitMovie = true;
         break;
-
-
-    // -------------------------------------------
-    //
-    //
-    // -------------------------------------------
 
     default:
         ::Quit("Unrecognized anim code.");
         break;
     }
 }
-
 
 // ---------------------------------------------------------------------------
 // MOVIE_Play() - Playes an Animation
@@ -616,13 +490,6 @@ bool MOVIE_Play(
     }
 
     while (movie_reps && (!ExitMovie)) {
-#if 0
-        if (movie_flag == MV_SKIP) {
-            if (lseek(Movie_FHandle, seek_pos, SEEK_SET) == -1) {
-                return false;
-            }
-        }
-#endif
         for (; !ExitMovie; ) {
             if (MOVIE_GetFrame()) {
                 break;
@@ -640,12 +507,6 @@ bool MOVIE_Play(
     return true;
 }
 
-
-
-
-// --------------------------------------------------------------------------
-// FlipPages()
-// ---------------------------------------------------------------------------
 void FlipPages()
 {
     displayofs = bufferofs;
