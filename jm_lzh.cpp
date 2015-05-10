@@ -78,22 +78,22 @@ Free Software Foundation, Inc.,
 // ===========================================================================
 
 
-#define EXIT_OK 0
-#define EXIT_FAILED -1
+#define EXIT_OK (0)
+#define EXIT_FAILED (-1)
 
 /* LZSS Parameters */
 
-#define N 4096 /* Size of string buffer */
-#define F 30 /* Size of look-ahead buffer */
-#define THRESHOLD 2
-#define NIL N /* End of tree's node  */
+#define N (4096) /* Size of string buffer */
+#define F (30) /* Size of look-ahead buffer */
+#define THRESHOLD (2)
+#define NIL (N) /* End of tree's node  */
 
 /* Huffman coding parameters */
 
 #define N_CHAR (256 - THRESHOLD + F) /* character code (= 0..N_CHAR-1) */
-#define T (N_CHAR * 2 - 1) /* Size of table */
+#define T ((N_CHAR * 2) - 1) /* Size of table */
 #define R (T - 1) /* root position */
-#define MAX_FREQ 0x8000 /* update when cumulative frequency */
+#define MAX_FREQ (0x8000) /* update when cumulative frequency */
 /* reaches to this value */
 
 
@@ -106,14 +106,17 @@ Free Software Foundation, Inc.,
 
 static void StartHuff();
 static void reconst();
+
 static void update(
     int16_t c);
 
 
 static void DeleteNode(
     int16_t p); /* Deleting node from the tree */
+
 static void InsertNode(
     int16_t r); /* Inserting node to the tree */
+
 static void InitTree(); /* Initializing tree */
 
 static void Putcode(
@@ -155,9 +158,6 @@ static int16_t DecodePosition(
 //
 // ==========================================================================
 
-
-
-
 // ---------------------------------------------------------------------------
 //
 // LZHUFF DISPLAY VECTORS
@@ -182,8 +182,6 @@ void (* LZH_CompressDisplayVector)(uint32_t, uint32_t) = nullptr;
 #if INCLUDE_LZH_DECOMP
 void (* LZH_DecompressDisplayVector)(uint32_t, uint32_t) = nullptr;
 #endif
-
-
 
 
 // ===========================================================================
@@ -380,17 +378,12 @@ uint16_t getlen = 0;
 #endif
 
 
-
 // ===========================================================================
 //
 // COMPRESSION & DECOMPRESSION ROUTINES
 //
 // ===========================================================================
 
-
-// ---------------------------------------------------------------------------
-// LZH_Startup
-// ---------------------------------------------------------------------------
 bool LZH_Startup()
 {
     if (son) {
@@ -445,9 +438,6 @@ bool LZH_Startup()
     return true;
 }
 
-// ---------------------------------------------------------------------------
-// LZH_Shutdown
-// ---------------------------------------------------------------------------
 void LZH_Shutdown()
 {
 #ifdef LZH_DYNAMIC_ALLOCATION
@@ -510,9 +500,7 @@ void LZH_Shutdown()
 #endif
 }
 
-// ---------------------------------------------------------------------------
-//  StartHuff    /* initialize freq tree */
-// ---------------------------------------------------------------------------
+/* initialize freq tree */
 static void StartHuff()
 {
     int16_t i, j;
@@ -556,14 +544,7 @@ static void StartHuff()
     putbuf = putlen = match_position = match_length = 0;
 }
 
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//   reconst        /* reconstruct freq tree */
-// ---------------------------------------------------------------------------
+/* reconstruct freq tree */
 static void reconst()
 {
     int16_t i, j, k;
@@ -611,14 +592,7 @@ static void reconst()
     }
 }
 
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//  update()     update freq tree
-// ---------------------------------------------------------------------------
+// update freq tree
 static void update(
     int16_t c)
 {
@@ -667,8 +641,6 @@ static void update(
 }
 
 
-
-
 // ===========================================================================
 //
 // COMPRESSION ROUTINES
@@ -676,16 +648,7 @@ static void update(
 // ===========================================================================
 
 
-
-
-
-
 #if INCLUDE_LZH_COMP
-
-
-// ---------------------------------------------------------------------------
-// DeleteNode
-// ---------------------------------------------------------------------------
 static void DeleteNode(
     int16_t p) /* Deleting node from the tree */
 {
@@ -727,16 +690,9 @@ static void DeleteNode(
     dad[p] = NIL;
 }
 
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//  InsertNode
-// ---------------------------------------------------------------------------
+/* Inserting node to the tree */
 static void InsertNode(
-    int16_t r) /* Inserting node to the tree */
+    int16_t r)
 {
     int16_t i, p, cmp;
     uint8_t* key;
@@ -804,14 +760,8 @@ static void InsertNode(
     dad[p] = NIL; /* remove p */
 }
 
-
-
-
-
-// ---------------------------------------------------------------------------
-// InitTree
-// ---------------------------------------------------------------------------
-static void InitTree() /* Initializing tree */
+/* Initializing tree */
+static void InitTree()
 {
     int16_t i;
 
@@ -824,14 +774,6 @@ static void InitTree() /* Initializing tree */
     }
 }
 
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//  Putcode
-// ---------------------------------------------------------------------------
 // output c bits
 static void Putcode(
     void*& outfile_ptr,
@@ -859,10 +801,6 @@ static void Putcode(
     }
 }
 
-
-// ---------------------------------------------------------------------------
-//  EncodeChar
-// ---------------------------------------------------------------------------
 static void EncodeChar(
     void*& outfile_ptr,
     uint16_t c)
@@ -898,10 +836,6 @@ static void EncodeChar(
     ::update(c);
 }
 
-
-// ---------------------------------------------------------------------------
-// EncodePosition
-// ---------------------------------------------------------------------------
 static void EncodePosition(
     void*& outfile_ptr,
     uint16_t c)
@@ -922,10 +856,6 @@ static void EncodePosition(
     ::Putcode(outfile_ptr, 6, (c & 0x3F) << 10);
 }
 
-
-// ---------------------------------------------------------------------------
-// EncodeEnd
-// ---------------------------------------------------------------------------
 static void EncodeEnd(
     void*& outfile_ptr)
 {
@@ -934,11 +864,7 @@ static void EncodeEnd(
         ++codesize;
     }
 }
-
 #endif
-
-
-
 
 
 // ===========================================================================
@@ -948,9 +874,7 @@ static void EncodeEnd(
 // ===========================================================================
 
 
-
 #if INCLUDE_LZH_DECOMP
-
 // ---------------------------------------------------------------------------
 // GetByte
 // ---------------------------------------------------------------------------
@@ -978,14 +902,6 @@ static int16_t GetByte(
     return i >> 8;
 }
 
-
-
-
-
-
-// ---------------------------------------------------------------------------
-// GetBit
-// ---------------------------------------------------------------------------
 static int16_t GetBit(
     const void*& infile_ptr,
     uint32_t* CompressLength)
@@ -1010,11 +926,6 @@ static int16_t GetBit(
     return i < 0;
 }
 
-
-
-// ---------------------------------------------------------------------------
-// DecodeChar
-// ---------------------------------------------------------------------------
 static int16_t DecodeChar(
     const void*& infile_ptr,
     uint32_t* CompressLength)
@@ -1039,12 +950,6 @@ static int16_t DecodeChar(
     return c;
 }
 
-
-
-
-// ---------------------------------------------------------------------------
-// DecodePosition
-// ---------------------------------------------------------------------------
 static int16_t DecodePosition(
     const void*& infile_ptr,
     uint32_t* CompressLength)
@@ -1072,11 +977,7 @@ static int16_t DecodePosition(
 
     return c | (i & 0x3F);
 }
-
 #endif
-
-
-
 
 
 // ===========================================================================
@@ -1087,14 +988,7 @@ static int16_t DecodePosition(
 //
 // ===========================================================================
 
-
-
-
 #if INCLUDE_LZH_DECOMP
-
-// ---------------------------------------------------------------------------
-// LZH_Decompress()
-// ---------------------------------------------------------------------------
 int32_t LZH_Decompress(
     const void* infile,
     void* outfile,
@@ -1160,18 +1054,9 @@ int32_t LZH_Decompress(
 
     return count;
 }
-
 #endif
 
-
-
-
-
 #if INCLUDE_LZH_COMP
-
-// ---------------------------------------------------------------------------
-// LZH_Compress()
-// ---------------------------------------------------------------------------
 int LZH_Compress(
     const void* infile,
     void* outfile,
@@ -1272,6 +1157,4 @@ int LZH_Compress(
 
     return codesize;
 }
-
-
 #endif
