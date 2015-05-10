@@ -81,7 +81,6 @@ struct Rect {
 #include "id_us.h"
 
 #include "jm_tp.h"
-#include "jm_debug.h"
 
 #include "movie.h"
 

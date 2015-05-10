@@ -31,8 +31,6 @@ Free Software Foundation, Inc.,
 //
 // ----------------------------------------------------------------------------
 
-
-
 // ---------------------------------------------------------------------------
 // CIO_WritePtr()  -- Outputs data to a particular ptr type
 //
@@ -41,7 +39,6 @@ Free Software Foundation, Inc.,
 // NOTE : For PtrTypes DEST_MEM a ZERO (0) is always returned.
 //
 // ---------------------------------------------------------------------------
-
 char CIO_WritePtr(
     void*& buffer,
     uint8_t value)
@@ -62,7 +59,6 @@ char CIO_WritePtr(
 //
 //
 // ---------------------------------------------------------------------------
-
 int16_t CIO_ReadPtr(
     const void*& buffer)
 {
