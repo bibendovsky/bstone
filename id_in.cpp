@@ -105,7 +105,7 @@ ControlType Controls[MaxPlayers];
 
 uint32_t MouseDownCount;
 
-bool in_use_modern_bindings = k_in_use_modern_bindings_default;
+bool in_use_modern_bindings = default_in_use_modern_bindings;
 Bindings in_bindings;
 
 /*

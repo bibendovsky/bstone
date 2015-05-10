@@ -264,7 +264,7 @@ const int k_max_bindings = e_bi_last_entry;
 using Binding = ScanCode[k_max_binding_keys];
 using Bindings = Binding[k_max_bindings];
 
-const bool k_in_use_modern_bindings_default = false;
+const bool default_in_use_modern_bindings = true;
 extern bool in_use_modern_bindings;
 extern Bindings in_bindings;
 

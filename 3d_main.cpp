@@ -149,11 +149,11 @@ int16_t view_yh;
 uint16_t democount = 0, jim = 0;
 #endif
 
-static const bool k_no_wall_hit_sound_default = false;
-bool g_no_wall_hit_sound = k_no_wall_hit_sound_default;
+static const bool default_no_wall_hit_sound = true;
+bool g_no_wall_hit_sound = default_no_wall_hit_sound;
 
-static const bool k_always_run_default = false;
-bool g_always_run = k_always_run_default;
+static const bool default_always_run = true;
+bool g_always_run = default_always_run;
 
 // BBi AOG only options
 static const bool default_heart_beat_sound = false;
@@ -6165,8 +6165,6 @@ static void set_vanilla_controls()
         bt_use,
         bt_run,
     }; // buttonjoy
-
-    ::in_set_default_bindings();
 }
 // BBi
 
@@ -6183,6 +6181,7 @@ void ReadConfig()
     bstone::FileStream stream(config_path);
 
     ::set_vanilla_controls();
+    ::in_set_default_bindings();
 
     if (stream.is_open()) {
         bstone::Crc32 checksum;
@@ -6312,6 +6311,7 @@ void ReadConfig()
         joystickprogressive = false;
 
         ::set_vanilla_controls();
+        ::in_set_default_bindings();
 
         mouseadjustment = 5;
         gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
@@ -6320,9 +6320,9 @@ void ReadConfig()
         sd_sfx_volume = ::sd_default_sfx_volume;
         sd_music_volume = ::sd_default_music_volume;
 
-        g_no_wall_hit_sound = k_no_wall_hit_sound_default;
-        in_use_modern_bindings = k_in_use_modern_bindings_default;
-        g_always_run = k_always_run_default;
+        g_no_wall_hit_sound = default_no_wall_hit_sound;
+        in_use_modern_bindings = default_in_use_modern_bindings;
+        g_always_run = default_always_run;
 
         g_heart_beat_sound = false;
         g_rotated_automap = false;
