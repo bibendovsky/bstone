@@ -179,7 +179,7 @@ static bool CHECKDIAG(
     int y)
 {
     auto actor = ::actorat[x][y];
-    auto temp = reinterpret_cast<size_t>(actorat);
+    auto temp = reinterpret_cast<size_t>(actor);
 
     if (temp != 0) {
         if (temp < 256) {
