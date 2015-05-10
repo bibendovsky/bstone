@@ -7756,7 +7756,7 @@ void fprint(
 void InitDestPath()
 {
     auto default_data_dir = ::get_default_data_dir();
-    auto requested_data_dir = ::g_args.get_option_value("datadir");
+    auto requested_data_dir = ::g_args.get_option_value("data_dir");
 
     if (requested_data_dir.empty()) {
         data_dir = ::get_default_data_dir();

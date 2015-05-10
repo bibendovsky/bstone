@@ -400,7 +400,7 @@ int screen_height = 0;
 bool sdl_is_windowed = false;
 SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
-bool ren_fix_ar = true;
+bool vid_fix_height = true;
 bool has_vsync = false;
 
 
@@ -1884,44 +1884,44 @@ void initialize_video()
     bool is_custom_scale = false;
 
     //
-    // Option "windowed"
+    // Option "vid_windowed"
     //
 
-    ::sdl_is_windowed = (g_args.find_option("windowed") >= 0);
+    ::sdl_is_windowed = ::g_args.has_option("vid_windowed");
 
     ::sdl_use_custom_window_position = false;
 
 
     //
-    // Option "winx"
+    // Option "vid_window_x"
     //
 
-    auto&& winx_str = g_args.get_option_value("winx");
+    auto&& vid_window_x_str = g_args.get_option_value("vid_window_x");
 
-    if (bstone::StringHelper::lexical_cast(winx_str, ::sdl_window_x)) {
+    if (bstone::StringHelper::lexical_cast(vid_window_x_str, ::sdl_window_x)) {
         ::sdl_use_custom_window_position = true;
     }
 
 
     //
-    // Option "winy"
+    // Option "vid_window_y"
     //
 
-    auto&& winy_str = g_args.get_option_value("winy");
+    auto&& vid_window_y_str = g_args.get_option_value("vid_window_y");
 
-    if (bstone::StringHelper::lexical_cast(winy_str, ::sdl_window_y)) {
+    if (bstone::StringHelper::lexical_cast(vid_window_y_str, ::sdl_window_y)) {
         ::sdl_use_custom_window_position = true;
     }
 
 
     //
-    // Option "res"
+    // Option "vid_mode"
     //
 
     std::string width_str;
     std::string height_str;
 
-    g_args.get_option_values("res", width_str, height_str);
+    g_args.get_option_values("vid_mode", width_str, height_str);
 
     static_cast<void>(bstone::StringHelper::lexical_cast(
         width_str, ::window_width));
@@ -1939,15 +1939,15 @@ void initialize_video()
 
 
     //
-    // Option "scale"
+    // Option "vid_scale"
     //
 
-    auto&& scale_str = g_args.get_option_value("scale");
+    auto&& vid_scale_str = g_args.get_option_value("vid_scale");
 
-    if (!scale_str.empty()) {
+    if (!vid_scale_str.empty()) {
         int scale = 0;
 
-        if (bstone::StringHelper::lexical_cast(scale_str, scale)) {
+        if (bstone::StringHelper::lexical_cast(vid_scale_str, scale)) {
             if (scale < 1) {
                 scale = 1;
             }
@@ -1959,11 +1959,11 @@ void initialize_video()
 
 
     //
-    // Option "nofixar"
+    // Option "vid_no_fix_height"
     //
 
-    if (::g_args.has_option("nofixar")) {
-        ::ren_fix_ar = false;
+    if (::g_args.has_option("vid_no_fix_height")) {
+        ::vid_fix_height = false;
     }
 
 
@@ -1973,7 +1973,7 @@ void initialize_video()
 
     ::g_renderer_type = RT_NONE;
 
-    auto&& ren_string = g_args.get_option_value("ren");
+    auto&& ren_string = g_args.get_option_value("vid_renderer");
 
     if (!ren_string.empty()) {
         if (ren_string == "soft") {
@@ -2054,7 +2054,7 @@ void initialize_video()
 
     double ar_correction = 1.0;
 
-    if (ren_fix_ar) {
+    if (::vid_fix_height) {
         ar_correction = 1.2;
     }
 

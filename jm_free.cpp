@@ -872,12 +872,12 @@ void freed_main()
         ::Quit();
     }
 
-    if (::g_args.has_option("noscreens")) {
+    if (::g_args.has_option("no_screens")) {
         ::no_screens = true;
     }
 
     if (::g_args.has_option("cheats")) {
-        DebugOk = true;
+        ::DebugOk = true;
     }
 
     InitGame();
