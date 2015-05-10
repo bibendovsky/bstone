@@ -4378,6 +4378,12 @@ inline void serialize_field_internal(
 }
 
 template<typename T>
+inline void serialize_field(
+    const T& value,
+    bstone::BinaryWriter& writer,
+    bstone::Crc32& checksum);
+
+template<typename T>
 inline void serialize_field_internal(
     const T& container,
     bstone::BinaryWriter& writer,
@@ -4425,6 +4431,12 @@ inline void serialize_field(
         }
     }
 }
+
+template<typename T>
+inline void deserialize_field(
+    T& value,
+    bstone::BinaryReader& reader,
+    bstone::Crc32& checksum);
 
 template<typename T>
 inline void deserialize_field_internal(

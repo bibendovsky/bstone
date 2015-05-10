@@ -1626,6 +1626,8 @@ void soft_draw_screen()
         &src_rect,
         &dst_rect);
 
+    static_cast<void>(sdl_result);
+
     ::SDL_RenderPresent(::sdl_soft_renderer);
 }
 
@@ -1648,6 +1650,8 @@ void soft_refresh_screen()
         &screen_rect,
         &data,
         &pitch);
+
+    static_cast<void>(sdl_result);
 
     auto octets = static_cast<uint8_t*>(data);
     int vga_offset = ::vl_get_offset(::displayofs);
