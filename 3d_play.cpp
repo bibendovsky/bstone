@@ -21,9 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_PLAY.C
-
-
 #include "3d_def.h"
 
 
@@ -31,10 +28,13 @@ void INL_GetJoyDelta(
     uint16_t joy,
     int16_t* dx,
     int16_t* dy);
+
 void UpdateRadarGuage();
 void ClearMemory();
+
 void GiveWeapon(
     int16_t weapon);
+
 void DrawWeapon();
 void DrawHealth();
 void DrawKeys();
@@ -43,9 +43,7 @@ void ForceUpdateStatusBar();
 void ClearSplitVWB();
 void RedrawStatusAreas();
 void PreloadGraphics();
-
 void TryDropPlasmaDetonator();
-
 void IN_StartAck();
 bool IN_CheckAck();
 void MoveDoors();
@@ -53,16 +51,6 @@ void MovePWalls();
 void ConnectAreas();
 void UpdateSoundLoc();
 
-
-/*
-=============================================================================
-
- LOCAL CONSTANTS
-
-=============================================================================
-*/
-
-#define sc_Question 0x35
 
 /*
 =============================================================================
@@ -81,25 +69,30 @@ uint8_t NumDeadGuys;
 #endif
 
 bool madenoise; // true when shooting or screaming
-uint8_t alerted = 0, alerted_areanum;
+uint8_t alerted = 0;
+uint8_t alerted_areanum;
 
 
 exit_t playstate;
 
-int16_t bordertime, DebugOk = false, InstantWin = 0, InstantQuit = 0;
+int16_t bordertime;
+bool DebugOk = false;
+int16_t InstantWin = 0;
+int16_t InstantQuit = 0;
 
 uint16_t ExtraRadarFlags = 0;
 
 
-
 #if IN_DEVELOPMENT
-
 int16_t TestQuickSave = 0, TestAutoMapper = 0;
-
 #endif
 
-objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
-        * objfreelist, * killerobj;
+objtype objlist[MAXACTORS];
+objtype* new_actor;
+objtype* player;
+objtype* lastobj;
+objtype* objfreelist;
+objtype* killerobj;
 
 uint16_t farmapylookup[MAPSIZE];
 uint8_t* nearmapylookup[MAPSIZE];
@@ -146,7 +139,8 @@ bool buttonheld[NUMBUTTONS];
 
 bool demorecord;
 bool demoplayback;
-char* demoptr, * lastdemoptr;
+char* demoptr;
+char* lastdemoptr;
 void* demobuffer;
 
 // Light sourcing flag
@@ -162,25 +156,30 @@ bool buttonstate[NUMBUTTONS];
 int strafe_value = 0;
 
 
-// ===========================================================================
-
-
 void CenterWindow(
     uint16_t w,
     uint16_t h);
+
 void InitObjList();
+
 void RemoveObj(
     objtype* gone);
+
 void PollControls();
 void StopMusic();
+
 void StartMusic(
     bool preload);
+
 void PlayLoop();
+
 void SpaceEntryExit(
     bool entry);
+
 void FinishPaletteShifts();
 void ShowQuickInstructions();
 void CleanDrawPlayBorder();
+
 void PopupAutoMap(
     bool is_shift_pressed);
 
@@ -316,6 +315,7 @@ void initialize_songs()
     }
 }
 
+
 /*
 =============================================================================
 
@@ -323,7 +323,6 @@ void initialize_songs()
 
 =============================================================================
 */
-
 
 const int BASEMOVE = 35;
 const int RUNMOVE = 70;
@@ -390,15 +389,6 @@ void PollKeyboardButtons()
     }
 }
 
-
-/*
-===================
-=
-= PollMouseButtons
-=
-===================
-*/
-
 void PollMouseButtons()
 {
     if (in_use_modern_bindings) {
@@ -419,16 +409,6 @@ void PollMouseButtons()
         buttonstate[buttonmouse[2]] = true;
     }
 }
-
-
-
-/*
-===================
-=
-= PollJoystickButtons
-=
-===================
-*/
 
 void PollJoystickButtons()
 {
@@ -530,15 +510,6 @@ void PollMouseMove()
     }
 }
 
-
-/*
-===================
-=
-= PollJoystickMove
-=
-===================
-*/
-
 void PollJoystickMove()
 {
     int16_t joyx, joyy;
@@ -581,7 +552,6 @@ void PollJoystickMove()
     }
 }
 
-
 /*
 ===================
 =
@@ -596,7 +566,6 @@ void PollJoystickMove()
 =
 ===================
 */
-
 void PollControls()
 {
     int16_t max, min, i;
@@ -661,14 +630,6 @@ void PollControls()
         PollJoystickButtons();
     }
 
-#if 0
-    if (buttonstate[bt_run]) {
-        VL_ColorBorder(1);
-    } else {
-        VL_ColorBorder(0);
-    }
-#endif
-
 //
 // get movements
 //
@@ -698,47 +659,7 @@ void PollControls()
     } else if (controly < min) {
         controly = min;
     }
-
-#ifdef DEMOS_EXTERN
-
-    if (demorecord) {
-        //
-        // save info out to demo buffer
-        //
-        controlx /= (int16_t)tics;
-        controly /= (int16_t)tics;
-
-        buttonbits = 0;
-
-        for (i = NUMBUTTONS - 1; i >= 0; i--) {
-            buttonbits <<= 1;
-            if (buttonstate[i]) {
-                buttonbits |= 1;
-            }
-        }
-
-        *demoptr++ = buttonbits;
-        *demoptr++ = controlx;
-        *demoptr++ = controly;
-        *demoptr++ = tics;
-
-        if (demoptr >= lastdemoptr) {
-            PLAY_ERROR(POLLCONTROLS_DEMO_OV);
-        }
-
-        controlx *= (int16_t)tics;
-        controly *= (int16_t)tics;
-    }
-
-#endif
-
 }
-
-
-
-// ==========================================================================
-
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -747,27 +668,17 @@ void PollControls()
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#define MAXX 320
-#define MAXY 160
-
 void CenterWindow(
     uint16_t w,
     uint16_t h)
 {
+    const int MAXX = 320;
+    const int MAXY = 160;
+
     FixOfs();
     US_DrawWindow(((MAXX / 8) - w) / 2, ((MAXY / 8) - h) / 2, w, h);
 }
 
-// ===========================================================================
-
-
-/*
-=====================
-=
-= CheckKeys
-=
-=====================
-*/
 
 extern bool PP_step;
 extern bool sqActive;
@@ -791,6 +702,7 @@ JamBuffCmp jam_buff = {
 
 char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
+
 void CheckKeys()
 {
     bool one_eighty = false;
@@ -800,26 +712,11 @@ void CheckKeys()
     static bool I_KeyReleased;
     static bool S_KeyReleased;
 
-#if IN_DEVELOPMENT
-//      if (DebugOk && (Keyboard[ScanCode::sc_p] || PP_step))
-//              PicturePause ();
-#endif
-
-
     if (screenfaded || demoplayback) {          // don't do anything with a faded screen
         return;
     }
 
     scan = LastScan;
-
-
-#if IN_DEVELOPMENT
-#ifdef ACTIVATE_TERMINAL
-    if (Keyboard[ScanCode::sc_9] && Keyboard[ScanCode::sc_0]) {
-        ActivateTerminal(true);
-    }
-#endif
-#endif
 
     //
     // SECRET CHEAT CODE: 'JAM'
@@ -991,14 +888,12 @@ void CheckKeys()
 
 #if IN_DEVELOPMENT
     if (TestQuickSave) {
-//      TestQuickSave--;
         scan = ScanCode::sc_f8;
     }
 
     if (TestAutoMapper) {
         PopupAutoMap();
     }
-
 #endif
 
     scan = ScanCode::sc_none;
@@ -1220,9 +1115,6 @@ void CheckMusicToggle()
 char Computing[] = { "Computing..." };
 
 
-// --------------------------------------------------------------------------
-// PopupAutoMap()
-// --------------------------------------------------------------------------
 void PopupAutoMap(
     bool is_shift_pressed)
 {
@@ -1268,11 +1160,6 @@ void PopupAutoMap(
         }
     }
 
-#if IN_DEVELOPMENT
-//      if (DebugOk && PP_step)
-//              PicturePause();
-#endif
-
     IN_StartAck();
     while (!IN_CheckAck()) {
         CalcTics();
@@ -1287,8 +1174,6 @@ void PopupAutoMap(
     IN_ClearKeysDown();
 }
 
-
-// ===========================================================================
 
 /*
 #############################################################################
@@ -1312,6 +1197,8 @@ next element.
 */
 
 
+int objcount;
+
 /*
 =========================
 =
@@ -1322,9 +1209,6 @@ next element.
 =
 =========================
 */
-
-int objcount;
-
 void InitActorList()
 {
     int16_t i;
@@ -1357,8 +1241,6 @@ void InitActorList()
     player = new_actor;
 }
 
-// ===========================================================================
-
 /*
 =========================
 =
@@ -1372,7 +1254,6 @@ void InitActorList()
 =
 =========================
 */
-
 void GetNewActor()
 {
     if (objcount >= MAXACTORS - 1) {
@@ -1407,15 +1288,11 @@ void GetNewActor()
 
         new_actor->prev = lastobj; // new_actor->next is allready nullptr from memset
 
-// new_actor->active = false;
         lastobj = new_actor;
 
         objcount++;
     }
 }
-
-
-// ===========================================================================
 
 /*
 =========================
@@ -1427,7 +1304,6 @@ void GetNewActor()
 =
 =========================
 */
-
 void RemoveObj(
     objtype* gone)
 {
@@ -1464,29 +1340,10 @@ void RemoveObj(
     objcount--;
 }
 
-/*
-=============================================================================
-
- MUSIC STUFF
-
-=============================================================================
-*/
-
-
-/*
-=================
-=
-= StopMusic
-=
-=================
-*/
-
 void StopMusic()
 {
     SD_MusicOff();
 }
-
-// ==========================================================================
 
 // -------------------------------------------------------------------------
 // StartMusic()
@@ -1525,13 +1382,6 @@ void StartMusic(
     }
 }
 
-/*
-=============================================================================
-
-                                        PALETTE SHIFTING STUFF
-
-=============================================================================
-*/
 
 const int NUMREDSHIFTS = 6;
 const int REDSTEPS = 8;
@@ -1684,29 +1534,12 @@ void FinishPaletteShifts()
     }
 }
 
-
-/*
-=============================================================================
-
- CORE PLAYLOOP
-
-=============================================================================
-*/
-
-
-/*
-=====================
-=
-= DoActor
-=
-=====================
-*/
-
 void DoActor(
     objtype* ob)
 {
     void (* think)(
         objtype*);
+
     objtype* actor;
 
 
@@ -1828,16 +1661,6 @@ think:
     return;
 }
 
-// ==========================================================================
-
-
-/*
-===================
-=
-= PlayLoop
-=
-===================
-*/
 
 extern bool ShowQuickMsg;
 
@@ -1957,9 +1780,6 @@ void PlayLoop()
     gamestate.flags &= ~GS_VIRGIN_LEVEL;
 }
 
-// --------------------------------------------------------------------------
-// ShowQuickInstructions()
-// --------------------------------------------------------------------------
 void ShowQuickInstructions()
 {
     ::ShowQuickMsg = false;
@@ -1989,9 +1809,6 @@ void ShowQuickInstructions()
     ::CleanDrawPlayBorder();
 }
 
-// --------------------------------------------------------------------------
-// CleanDrawPlayBorder()
-// --------------------------------------------------------------------------
 void CleanDrawPlayBorder()
 {
     DrawPlayBorder();

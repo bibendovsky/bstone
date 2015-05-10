@@ -3246,7 +3246,7 @@ extern bool singlestep;
 extern bool godmode;
 extern bool noclip;
 extern int16_t extravbls;
-extern int16_t DebugOk;
+extern bool DebugOk;
 extern int16_t InstantWin, InstantQuit;
 extern int16_t TestQuickSave, TestAutoMapper;
 extern uint16_t ExtraRadarFlags;
