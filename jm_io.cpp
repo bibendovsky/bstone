@@ -23,43 +23,9 @@ Free Software Foundation, Inc.,
 
 #include "id_heads.h"
 #include "jm_io.h"
-#include "jm_cio.h"
 #include "jm_lzh.h"
 
 
-#if DEMOS_EXTERN
-
-// --------------------------------------------------------------------------
-// IO_WriteFile()
-// --------------------------------------------------------------------------
-bool IO_WriteFile(
-    char* filename,
-    void* ptr,
-    int32_t length)
-{
-    int16_t handle;
-    int32_t size;
-
-    handle = open(filename, O_CREAT | O_BINARY | O_WRONLY,
-                  S_IREAD | S_IWRITE | S_IFREG);
-
-    if (handle == -1) {
-        return false;
-    }
-
-    if (!IO_FarWrite(handle, ptr, length)) {
-        close(handle);
-        return false;
-    }
-    close(handle);
-    return true;
-}
-
-#endif
-
-// --------------------------------------------------------------------------
-// IO_LoadFile()
-// --------------------------------------------------------------------------
 int IO_LoadFile(
     const char* filename,
     void** dst)
@@ -116,37 +82,3 @@ int IO_LoadFile(
 
     return size;
 }
-
-#if 0
-
-// --------------------------------------------------------------------------
-// IO_CopyFile()
-// --------------------------------------------------------------------------
-void IO_CopyFile(
-    char* sFilename,
-    char* dFilename)
-{
-    int16_t sHandle, dHandle;
-    uint16_t length;
-
-// Allocate memory for buffer.
-//
-    if ((sHandle = open(sFilename, O_RDONLY | O_BINARY, S_IREAD)) == -1) {
-        IO_ERROR(IO_COPYFILE_OPEN_SRC);
-    }
-
-    if ((dHandle = open(dFilename, O_CREAT | O_RDWR | O_BINARY, S_IREAD | S_IWRITE)) == -1) {
-        IO_ERROR(IO_COPYFILE_OPEN_DEST);
-    }
-
-// Copy that file!
-//
-    IO_CopyHandle(sHandle, dHandle, -1);
-
-// Close files.
-//
-    close(sHandle);
-    close(dHandle);
-}
-
-#endif
