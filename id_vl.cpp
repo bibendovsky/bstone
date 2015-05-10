@@ -21,9 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// ID_VL.C
-
-
 #include <stdexcept>
 #include <vector>
 #include "id_heads.h"
@@ -38,13 +35,9 @@ Free Software Foundation, Inc.,
 #ifndef FBIO_WAITFORVSYNC
 #define FBIO_WAITFORVSYNC _IOW('F', 0x20, __u32)
 #endif
-int fbdev = -1;
+static int fbdev = -1;
 #endif // BSTONE_PANDORA
 
-
-//
-// SC_INDEX is expected to stay at SC_MAPMASK for proper operation
-//
 
 int bufferofs;
 int displayofs;
@@ -53,9 +46,8 @@ int* ylookup = nullptr;
 
 bool screenfaded;
 
-// bool fastpalette; // if true, use outsb to set
-
-uint8_t palette1[256][3], palette2[256][3];
+uint8_t palette1[256][3];
+uint8_t palette2[256][3];
 
 
 bool is_aog_full();
@@ -958,7 +950,7 @@ void VL_ScreenToScreen(
 namespace {
 
 
-// Builds an orthographic projection matrix with upside-downed origin.
+// Builds an orthographic projection matrix with upside-down origin.
 void ogl_ortho(
     int width,
     int height,
@@ -989,7 +981,7 @@ void ogl_ortho(
     matrix[15] = 1.0F;
 }
 
-// BBi For debugging puprposes
+// BBi For debugging puprpose
 #if 0
 // Clears error flags and returns true if any error flag was set,
 // otherwise returns false.

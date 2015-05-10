@@ -30,6 +30,7 @@ void VL_LatchToScreen(
     int height,
     int x,
     int y);
+
 void IN_StartAck();
 bool IN_CheckAck();
 void CalcTics();
