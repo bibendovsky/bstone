@@ -1541,8 +1541,6 @@ void UpdateTravelTable()
     }
 }
 
-extern int16_t an_offset[];
-
 void DrawRadar()
 {
     int8_t zoom = gamestate.rzoom;

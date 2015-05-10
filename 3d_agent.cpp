@@ -2594,8 +2594,6 @@ void Thrust(
 
 }
 
-extern int16_t an_offset[];
-
 bool GAN_HiddenArea;
 
 int8_t GetAreaNumber(

@@ -21,9 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_GAME.C
-
-
 #include "3d_def.h"
 
 #ifdef MYPROFILE
@@ -39,13 +36,18 @@ Free Software Foundation, Inc.,
 =============================================================================
 */
 
-#define LOCATION_TEXT_COLOR 0xAF
+#define LOCATION_TEXT_COLOR (0xAF)
+
 extern char prep_msg[];
 extern int8_t LS_current;
 extern int8_t LS_total;
+
+
 void Died();
+
 void PM_SetMainMemPurge(
     int16_t level);
+
 void InitGoldsternInfo();
 void InitDoorList();
 void InitStaticList();
@@ -57,29 +59,40 @@ void DrawScore();
 void InitInfoArea();
 void ForceUpdateStatusBar();
 void UpdateStatusBar();
+
 bool LoadLevel(
     int levelnum);
+
 void SetPlaneViewSize();
+
 int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
+
 void FinishPaletteShifts();
+
 void CA_CacheScreen(
     int16_t chunk);
+
 void VH_UpdateScreen();
+
 void DoActor(
     objtype* ob);
+
 bool LevelInPlaytemp(
     int level_index);
+
 void PreloadUpdate(
     uint16_t current,
     uint16_t total);
+
 void PreloadGraphics();
 
 bool SaveLevel(
     int level_index);
 
 int16_t NextBuffer();
+
 void CheckHighScore(
     int32_t score,
     uint16_t other);
@@ -116,17 +129,15 @@ extern uint16_t scan_value;
 int NUMWEAPONS = 0;
 
 
-//
-// ELEVATOR BACK MAPS - REMEMBER (-1)!!
-//
-// int ElevatorBackTo[]={1,1,7,3,5,3};
-
 void ScanInfoPlane();
 void SetupGameLevel();
+
 void DrawPlayScreen(
     bool InitInfoMsg);
+
 void LoadLatchMem();
 void GameLoop();
+
 
 /*
 =============================================================================
@@ -135,8 +146,6 @@ void GameLoop();
 
 =============================================================================
 */
-
-
 
 //
 // NOTE: This array indexs the "statinfo" array in ACT1.C and is indexed
@@ -165,13 +174,6 @@ int8_t ExpCrateShapes[] = {
 };
 
 
-
-
-
-// ===========================================================================
-// ===========================================================================
-
-
 /*
 ==========================
 =
@@ -185,9 +187,13 @@ int8_t ExpCrateShapes[] = {
 ==========================
 */
 
-fixed globalsoundx, globalsoundy;
-int16_t leftchannel, rightchannel;
-#define ATABLEMAX 15
+fixed globalsoundx;
+fixed globalsoundy;
+int16_t leftchannel;
+int16_t rightchannel;
+
+#define ATABLEMAX (15)
+
 uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8 },
@@ -205,6 +211,7 @@ uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 }
 };
+
 uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
@@ -263,14 +270,6 @@ void SetSoundLoc(
     }
     leftchannel = lefttable[x][y + ATABLEMAX];
     rightchannel = righttable[x][y + ATABLEMAX];
-
-#if 0
-    CenterWindow(8, 1);
-    US_PrintSigned(leftchannel);
-    US_Print(",");
-    US_PrintSigned(rightchannel);
-    VW_UpdateScreen();
-#endif
 }
 
 /*
@@ -307,24 +306,6 @@ void UpdateSoundLoc()
 void ClearMemory()
 {
 }
-
-#if 0
-
-// -------------------------------------------------------------------------
-// FreeAllMemory() - This is an attempt to FREE All possible memory
-//      for memory hungry routines (ie. MOVIE_Play())
-//
-// NOTE: If any sounds, music, etc are currently playing, they will
-//                      adbruply cut off.
-// -------------------------------------------------------------------------
-void FreeAllMemory()
-{
-    StopMusic();
-    SD_StopSound();
-    ClearMemory();
-}
-
-#endif
 
 #ifdef TRACK_ENEMY_COUNT
 int16_t numEnemy[gold_morphingobj];
@@ -395,12 +376,6 @@ void ScanInfoPlane()
             }
 
             switch (tilehi) {
-
-
-// case 0xff: // Special background
-//      continue;
-// break;
-
             case 0xfe: // Top/Bottom colors
                 if (gotcolors) {
                     break;
@@ -442,29 +417,6 @@ void ScanInfoPlane()
                 *start = 0;
                 continue;
                 break;
-
-#if 0
-            case 0xF6: // Lighting effects
-                if (gotlight) {
-                    break;
-                }
-                x++;
-                tile = *start++;
-                normalshade_div = (tile & 0xff00) >> 8;
-                if (normalshade_div > 12) {
-                    AGENT_ERROR(NORMAL_SHADE_TOO_BIG);
-                }
-
-                shade_max = tile & 0xff;
-                if (shade_max > 63 || shade_max < 5) {
-                    AGENT_ERROR(SHADEMAX_VALUE_BAD);
-                }
-
-                normalshade = (3 * (maxscale >> 2)) / normalshade_div;
-                gotlight = true;
-                continue;
-                break;
-#endif
 
             case 0xfa:
                 continue;
@@ -694,7 +646,6 @@ void ScanInfoPlane()
             case 386:
             case 387:
             case 388:
-// case 389:
             case 390: // candy bar
             case 391: // sandwich
 
@@ -984,15 +935,6 @@ void ScanInfoPlane()
                 }
                 break;
 
-//
-// P wall
-//
-// case 98:
-//      if (!loadedgame)
-//          gamestate.secrettotal++;
-//      break;
-
-
 
             //
             // SECURITY LIGHT
@@ -1060,11 +1002,6 @@ void ScanInfoPlane()
             case 115:
                 SpawnPatrol(en_rentacop, x, y, tile - 112);
                 break;
-
-
-// case 124:
-//      SpawnDeadGuard (x,y);
-//      break;
 
 
             //
@@ -1535,10 +1472,9 @@ void ScanInfoPlane()
                 SpawnOffsetObj(en_breather_beast, x, y);
                 break;
 
-                //
-                // Mech Guardian
-//
-
+            //
+            // Mech Guardian
+            //
             case 606:
                 if (!::is_ps()) {
                     INVALID_ACTOR_ERR;
@@ -1560,9 +1496,9 @@ void ScanInfoPlane()
                 SpawnOffsetObj(en_mech_guardian, x, y);
                 break;
 
-                //
-                // Reptilian Warrior
-                //
+            //
+            // Reptilian Warrior
+            //
             case 604:
                 if (!::is_ps()) {
                     INVALID_ACTOR_ERR;
@@ -2346,9 +2282,6 @@ void ScanInfoPlane()
 #endif
 }
 
-// --------------------------------------------------------------------------
-// AddTotalPoints()
-// --------------------------------------------------------------------------
 void AddTotalPoints(
     uint16_t points)
 {
@@ -2359,9 +2292,6 @@ void AddTotalPoints(
     gamestuff.level[gamestate.mapon].stats.total_points += points;
 }
 
-// --------------------------------------------------------------------------
-// AddTotalInformants()
-// --------------------------------------------------------------------------
 void AddTotalInformants(
     int8_t informants)
 {
@@ -2372,9 +2302,6 @@ void AddTotalInformants(
     gamestuff.level[gamestate.mapon].stats.total_inf += informants;
 }
 
-// --------------------------------------------------------------------------
-// AddTotalEnemy()
-// --------------------------------------------------------------------------
 void AddTotalEnemy(
     uint16_t enemies)
 {
@@ -2385,18 +2312,6 @@ void AddTotalEnemy(
     gamestuff.level[gamestate.mapon].stats.total_enemy +=
         static_cast<uint8_t>(enemies);
 }
-
-// ==========================================================================
-
-/*
-==================
-=
-= SetupGameLevel
-=
-==================
-*/
-
-int16_t an_offset[8] = { 1, -1, 64, -64, -65, -63, 63, 65 };
 
 void SetupGameLevel()
 {
@@ -2452,9 +2367,6 @@ void SetupGameLevel()
             if (tile < AREATILE) {
                 // solid wall
                 tilemap[x][y] = static_cast<uint8_t>(tile);
-
-// if (tile != AMBUSHTILE)
-//      (unsigned)actorat[x][y] = tile;
 
                 switch (tile) {
                 case RKEY_TILE:
@@ -2760,27 +2672,13 @@ void LoadLocationText(
     }
 }
 
-
-// ==========================================================================
-
-
-
-
-/*
-===================
-=
-= DrawPlayBorder
-=
-===================
-*/
 void DrawPlayBorder()
 {
     int16_t xl;
     int16_t yl;
 
     if (viewwidth == 320) {
-        VWB_Bar(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, 0);     // JTR - Changed
-//              VW_Bar (0,TOP_STRIP_HEIGHT,320,200-STATUSLINES-TOP_STRIP_HEIGHT,0);
+        VWB_Bar(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, 0); // JTR - Changed
         return;
     }
 
@@ -2791,22 +2689,21 @@ void DrawPlayBorder()
     BevelBox(xl - 1, yl - 1, static_cast<int16_t>(viewwidth + 2), static_cast<int16_t>(viewheight + 2), BORDER_LO_COLOR, 0, BORDER_HI_COLOR);
 }
 
-
 // --------------------------------------------------------------------------
 // BMAmsg() - These messages are displayed by the Text Presenter!
 // --------------------------------------------------------------------------
 void BMAmsg(
     const char* msg)
 {
-#define         BMAx1 0 // outer bevel
-#define BMAy1 152
-#define BMAw1 320
-#define BMAh1 48
+    const int16_t BMAx1 = 0; // outer bevel
+    const int16_t BMAy1 = 152;
+    const int16_t BMAw1 = 320;
+    const int16_t BMAh1 = 48;
 
-#define         BMAx2 (BMAx1 + 7) // inner bevel
-#define BMAy2 (BMAy1 + 4)
-#define BMAw2 (BMAw1 - 14)
-#define BMAh2 (BMAh1 - 8)
+    const int16_t BMAx2 = BMAx1 + 7; // inner bevel
+    const int16_t BMAy2 = BMAy1 + 4;
+    const int16_t BMAw2 = BMAw1 - 14;
+    const int16_t BMAh2 = BMAh1 - 8;
 
     BevelBox(BMAx1, BMAy1, BMAw1, BMAh1, BORDER_HI_COLOR, BORDER_MED_COLOR, BORDER_LO_COLOR);
     BevelBox(BMAx2, BMAy2, BMAw2, BMAh2, BORDER_LO_COLOR, BORDER_MED_COLOR, BORDER_HI_COLOR);
@@ -2860,12 +2757,8 @@ void CacheBMAmsg(
     BMAmsg(string);
 
     UNCACHEGRCHUNK(MsgNum);
-
 }
 
-// --------------------------------------------------------------------------
-// BevelBox()
-// --------------------------------------------------------------------------
 void BevelBox(
     int16_t xl,
     int16_t yl,
@@ -2880,17 +2773,7 @@ void BevelBox(
 
     VWB_Bar(xl, yl, w, h, med); // inside
 
-#if 0
-    hc = (hi - lo + 1) / 2;
-    hc = ABS(hc);
-    if (hi > lo) {
-        hc = hi - hc;
-    } else {
-        hc = hi + hc;
-    }
-#else
     hc = med + 1;
-#endif
 
     VWB_Hlin(xl, xh, yl, hi); // top
     VWB_Hlin(xl, xh, yh, lo); // bottom
@@ -2900,9 +2783,6 @@ void BevelBox(
     VWB_Plot(xh, yl, hc); // upper-right
 }
 
-// --------------------------------------------------------------------------
-// ShadowPrintLocationText()
-// --------------------------------------------------------------------------
 void ShadowPrintLocationText(
     sp_type type)
 {
@@ -2979,9 +2859,6 @@ void ShadowPrintLocationText(
     ShPrint(s, 0, false);
 }
 
-// --------------------------------------------------------------------------
-// DrawTopInfo()
-// --------------------------------------------------------------------------
 void DrawTopInfo(
     sp_type type)
 {
@@ -2993,13 +2870,6 @@ void DrawTopInfo(
     fontnumber = old;
 }
 
-/*
-===================
-=
-= DrawPlayScreen
-=
-===================
-*/
 void DrawPlayScreen(
     bool InitInfoMsg)
 {
@@ -3047,9 +2917,6 @@ void DrawPlayScreen(
     ForceUpdateStatusBar();
 }
 
-// ---------------------------------------------------------------------------
-// void DrawWarpIn()
-// ---------------------------------------------------------------------------
 void DrawWarpIn()
 {
     int16_t i;
@@ -3083,12 +2950,8 @@ void DrawWarpIn()
     fizzlein = true;
 
     ThreeDRefresh();
-
 }
 
-// ---------------------------------------------------------------------------
-// Warped
-// ---------------------------------------------------------------------------
 void Warped()
 {
     int16_t iangle;
@@ -3126,20 +2989,11 @@ void Warped()
     SD_WaitSoundDone();
 }
 
-// ==========================================================================
-
-/*
-==================
-=
-= Died
-=
-==================
-*/
-
-#define DEATHROTATE 2
 
 void Died()
 {
+    const uint8_t DEATHROTATE = 2;
+
     int16_t iangle;
 
     gamestate.weapon = -1; // take away weapon
@@ -3329,17 +3183,6 @@ void RotateView(
 
 }
 
-// ==========================================================================
-
-
-/*
-===================
-=
-= GameLoop
-=
-===================
-*/
-
 void GameLoop()
 {
     bool quit = false;
@@ -3412,15 +3255,12 @@ restartgame:
 
         startgame = false;
         if (!loadedgame) {
-// ClearMemory();
             if (LS_current == -1) {
-// ClearMemory();
                 DrawTopInfo(sp_loading);
                 DisplayPrepingMsg(prep_msg);
                 LS_current = 1;
                 LS_total = 20;
             }
-// ClearMemory();
             LoadLevel(gamestate.mapon);
         }
 
@@ -3464,12 +3304,6 @@ restartgame:
         Quit(str); // defined in 3d_main.c
 #endif
 
-#ifdef DEMOS_EXTERN
-        if (demorecord && playstate != ex_warped) {
-            FinishDemoRecord();
-        }
-#endif
-
         if (startgame || loadedgame) {
             goto restartgame;
         }
@@ -3482,12 +3316,6 @@ restartgame:
         case ex_completed:
         case ex_secretlevel:
         case ex_warped:
-#if 0
-            gamestate.keys = 0;
-            DrawKeys();
-            VW_FadeOut();
-#endif
-// StopMusic(); // JTR
             ClearMemory();
             gamestate.mapon++;
             ClearNClose();
@@ -3510,14 +3338,6 @@ restartgame:
             gamestate.old_ammo = gamestate.ammo;
             gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
             gamestuff.old_levelinfo = gamestuff.level;
-
-#if 0
-            if (gamestate.mapon == 9) {
-                gamestate.mapon = ElevatorBackTo[gamestate.episode]; // back from secret
-            } else if (playstate == ex_secretlevel) {
-                gamestate.mapon = 9;
-            } else
-#endif
             break;
 
         case ex_died:
@@ -3570,7 +3390,6 @@ restartgame:
             }
 
             VW_FadeOut();
-//       StopMusic();                    // JTR
 
             sprintf(Score, "%d", gamestate.score);
             piStringTable[0] = Score;
@@ -3599,7 +3418,6 @@ restartgame:
                     ::DoMovie(movie, nullptr);
                 } else {
                     CA_CacheGrChunk(ENDINGPALETTE);
-                    // VL_SetPalette (0,256,grsegs[ENDINGPALETTE]);
 
                     DoMovie(mv_final, grsegs[ENDINGPALETTE]);
 
