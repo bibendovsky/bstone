@@ -28,30 +28,31 @@ Free Software Foundation, Inc.,
 
 void CA_CacheScreen(
     int16_t chunk);
+
 void VH_UpdateScreen();
 void DrawHighScores();
 void ClearMemory();
+
 void DrawTopInfo(
     sp_type type);
+
 void PreloadUpdate(
     uint16_t current,
     uint16_t total);
+
 void INL_GetJoyDelta(
     uint16_t joy,
     int16_t* dx,
     int16_t* dy);
+
 bool LoadTheGame(
     int handle);
+
 bool IN_CheckAck();
 
 // BBi
 bool LoadTheGame(
     bstone::IStream* stream);
-
-// As is, this switch will not work ... the data associated with this
-// is not saved out correctly.
-//
-// #define CACHE_KEY_DATA
 
 
 //
@@ -67,7 +68,6 @@ char EndGameStr[] = { "    End current game?\n"
 char QuitToDosStr[] = { "      Quit to DOS?\n"
                         " Are you sure (Y or N)?" };
 
-// #define FREEFONT(fontnum)    {MM_SetPurge (&(memptr)grsegs[fontnum],3);}
 #define FREEFONT(fontnum) { if (fontnum != STARTFONT + 2 && grsegs[fontnum]) { UNCACHEGRCHUNK(fontnum); } }
 
 
@@ -94,7 +94,6 @@ int16_t ROSTER_MUS = 0;
 int16_t TEXTSONG = 0;
 
 
-
 // ===========================================================================
 //
 // PRIVATE PROTOTYPES
@@ -103,24 +102,34 @@ int16_t TEXTSONG = 0;
 
 void CP_ReadThis(
     int16_t temp1);
+
 void CP_OrderingInfo(
     int16_t temp1);
+
 void DrawEpisodePic(
     int16_t w);
+
 void DrawAllSoundLights(
     int16_t which);
+
 void ReadGameNames();
 void FreeMusic();
+
 void CP_GameOptions(
     int16_t temp1);
+
 void DrawGopMenu();
 void CalibrateJoystick();
 void ExitGame();
+
 void CP_Switches(
     int16_t temp1);
+
 void DrawSwitchMenu();
+
 void DrawAllSwitchLights(
     int16_t which);
+
 void DrawSwitchDescription(
     int16_t which);
 
@@ -162,9 +171,9 @@ CP_itemtype MainMenu[] = {
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "BACK TO DEMO", CP_ExitOptions },
     { AT_ENABLED, "LOGOFF", 0 }
-},
+};
 
-            GopMenu[] = {
+CP_itemtype GopMenu[] = {
     { AT_ENABLED, "SOUND", CP_Sound },
 
     // BBi
@@ -172,18 +181,18 @@ CP_itemtype MainMenu[] = {
 
     { AT_ENABLED, "CONTROLS", CP_Control },
     { AT_ENABLED, "SWITCHES", CP_Switches }
-},
+};
 
-            SndMenu[] = {
+CP_itemtype SndMenu[] = {
     { AT_ENABLED, "NONE", 0 },
     { AT_ENABLED, "ADLIB/SOUND BLASTER", 0 },
     { AT_DISABLED, "", 0 },
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "NONE", 0 },
     { AT_ENABLED, "ADLIB/SOUND BLASTER", 0 }
-},
+};
 
-            CtlMenu[] = {
+CP_itemtype CtlMenu[] = {
     { AT_DISABLED, "MOUSE ENABLED", 0 },
     { AT_DISABLED, "JOYSTICK ENABLED", 0 },
     { AT_DISABLED, "USE JOYSTICK PORT 2", 0 },
@@ -191,9 +200,9 @@ CP_itemtype MainMenu[] = {
     { AT_DISABLED, "CALIBRATE JOYSTICK", 0 },
     { AT_DISABLED, "MOUSE SENSITIVITY", MouseSensitivity },
     { AT_ENABLED, "CUSTOMIZE CONTROLS", CustomControls }
-},
+};
 
-            SwitchMenu[] = {
+CP_itemtype SwitchMenu[] = {
     { AT_ENABLED, "LIGHTING", 0 },
     { AT_ENABLED, "REBA ATTACK INFO", 0 },
     { AT_ENABLED, "SHOW CEILINGS", 0 },
@@ -205,10 +214,10 @@ CP_itemtype MainMenu[] = {
     { AT_ENABLED, "ALWAYS RUN", 0 },
     { AT_ENABLED, "HEART BEAT SOUND", 0 },
     { AT_ENABLED, "ROTATED AUTOMAP", 0 },
-},
+};
 
 
-            NewEmenu[] = {
+CP_itemtype NewEmenu[] = {
     { AT_ENABLED, "MISSION 1:\n"
       "STAR INSTITUTE", 0 },
 
@@ -226,9 +235,9 @@ CP_itemtype MainMenu[] = {
 
     { AT_NON_SELECTABLE, "MISSION 6:\n"
       "SATELLITE DEFENSE", 0 },
-},
+};
 
-NewMenu[] = {
+CP_itemtype NewMenu[] = {
     { AT_ENABLED, "LEVEL 1:\n"
       "NOVICE AGENT", 0 },
     { AT_ENABLED, "LEVEL 2:\n"
@@ -237,9 +246,9 @@ NewMenu[] = {
       "EXPERT AGENT", 0 },
     { AT_ENABLED, "LEVEL 4:\n"
       "VETERAN AGENT", 0 }
-},
+};
 
-            LSMenu[] = {
+CP_itemtype LSMenu[] = {
     { AT_ENABLED, "", 0 },
     { AT_ENABLED, "", 0 },
     { AT_ENABLED, "", 0 },
@@ -250,17 +259,16 @@ NewMenu[] = {
     { AT_ENABLED, "", 0 },
     { AT_ENABLED, "", 0 },
     { AT_ENABLED, "", 0 }
-},
+};
 
-            CusMenu[] = {
+CP_itemtype CusMenu[] = {
     { AT_ENABLED, "", 0 },
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "", 0 },
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "", 0 },
     { AT_ENABLED, "", 0 }
-}
-;
+};
 
 
 int16_t color_hlite[] = {
@@ -286,7 +294,10 @@ int16_t EpisodeSelect[6] = {
     0,
 };
 
-int16_t SaveGamesAvail[10], StartGame, SoundStatus = 1, pickquick;
+int16_t SaveGamesAvail[10];
+int16_t StartGame;
+int16_t SoundStatus = 1;
+int16_t pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 
 static uint8_t menu_background_color = 0x00;
@@ -1167,10 +1178,6 @@ void binds_draw_menu()
 } // namespace
 // BBi
 
-
-// -------------------------------------------------------------------------
-// HelpScreens()
-// -------------------------------------------------------------------------
 void HelpScreens()
 {
 #ifndef ID_CACHE_HELP
@@ -1180,17 +1187,13 @@ void HelpScreens()
 #endif
 }
 
-
-// -------------------------------------------------------------------------
-// HelpPresenter()
-// -------------------------------------------------------------------------
 void HelpPresenter(
     const char* fname,
     bool continue_keys,
     uint16_t id_cache,
     bool startmusic)
 {
-#define FULL_VIEW_WIDTH 19
+    const int FULL_VIEW_WIDTH = 19;
 
     PresenterInfo pi;
     int oldwidth;
@@ -1263,9 +1266,6 @@ void HelpPresenter(
     IN_ClearKeysDown();
 }
 
-// --------------------------------------------------------------------------
-// US_ControlPanel() - Control Panel!  Ta Da!
-// --------------------------------------------------------------------------
 void US_ControlPanel(
     ScanCode scancode)
 {
@@ -1274,27 +1274,6 @@ void US_ControlPanel(
 
 
     int16_t which;
-
-#ifdef CACHE_KEY_DATA
-    CA_CacheGrChunk(SCANNAMES_DATA);
-    CA_CacheGrChunk(EXTSCANNAMES_DATA);
-    CA_CacheGrChunk(EXTSCANCODES_DATA);
-
-    ScanNames = grsegs[SCANNAMES_DATA];
-    ExtScanNames = grsegs[EXTSCANNAMES_DATA];
-    ExtScanCodes = grsegs[EXTSCANCODES_DATA];
-#else
-
-//
-// This code doesn't correctly save the table data -- it saves garbage
-// for SCANNAMES and EXTSCANCODES...
-//
-
-//      IO_WriteFile("SCANNAME.BIN",ScanNames,sizeof(ScanNames));
-//      IO_WriteFile("EXTSCNAM.BIN",ExtScanNames,sizeof(ExtScanNames));
-//      IO_WriteFile("EXTSCCOD.BIN",ExtScanCodes,sizeof(ExtScanCodes));
-
-#endif
 
     if (ingame) {
         if (CP_CheckQuick(scancode)) {
@@ -1331,13 +1310,6 @@ void US_ControlPanel(
         ::CP_Sound(0);
         finish = true;
         break;
-
-// BBi
-#if 0
-    case ScanCode::sc_f5:
-        CP_ChangeView(0);
-        goto finishup;
-#endif // 0
 
     case ScanCode::sc_f6:
         CP_Control(0);
@@ -1419,13 +1391,8 @@ void US_ControlPanel(
     FREEFONT(EXTSCANNAMES_DATA);
     FREEFONT(EXTSCANCODES_DATA);
 #endif
-
-    // RETURN/START GAME EXECUTION
 }
 
-// --------------------------------------------------------------------------
-// DrawMainMenu()
-// --------------------------------------------------------------------------
 void DrawMainMenu()
 {
     ControlPanelFree();
@@ -1447,16 +1414,13 @@ void DrawMainMenu()
         MainMenu[MM_BACK_TO_DEMO].active = AT_ENABLED;
     }
 
-    fontnumber = 4;                             // COAL
+    fontnumber = 4; // COAL
 
     DrawMenu(&MainItems, &MainMenu[0]);
 
     VW_UpdateScreen();
 }
 
-// --------------------------------------------------------------------------
-// READ THIS!
-// --------------------------------------------------------------------------
 void CP_ReadThis(
     int16_t)
 {
@@ -1465,10 +1429,6 @@ void CP_ReadThis(
     ControlPanelAlloc();
 }
 
-
-// --------------------------------------------------------------------------
-// CP_OrderingInfo()
-// --------------------------------------------------------------------------
 void CP_OrderingInfo(
     int16_t)
 {
@@ -1481,10 +1441,6 @@ void CP_OrderingInfo(
     ControlPanelAlloc();
 }
 
-
-// -------------------------------------------------------------------------
-// CP_BlakeStoneSaga()
-// -------------------------------------------------------------------------
 void CP_BlakeStoneSaga(
     int16_t)
 {
@@ -1623,9 +1579,6 @@ bool CP_CheckQuick(
     }
 }
 
-// --------------------------------------------------------------------------
-// END THE CURRENT GAME
-// --------------------------------------------------------------------------
 int16_t CP_EndGame()
 {
     if (!Confirm(ENDGAMESTR)) {
@@ -1636,19 +1589,9 @@ int16_t CP_EndGame()
     playstate = ex_died;
     InstantQuit = 1;
 
-#if 0
-#pragma warn -sus
-    MainMenu[MM_VIEW_SCORES].routine = &CP_ViewScores;
-    _fstrcpy(MainMenu[MM_VIEW_SCORES].string, "HIGH SCORES");
-#pragma warn +sus
-#endif
-
     return 1;
 }
 
-// --------------------------------------------------------------------------
-// CP_ViewScores() - VIEW THE HIGH SCORES
-// --------------------------------------------------------------------------
 void CP_ViewScores(
     int16_t)
 {
@@ -1668,9 +1611,6 @@ void CP_ViewScores(
     ::MenuFadeOut();
 }
 
-// --------------------------------------------------------------------------
-// CP_NewGame() - START A NEW GAME
-// --------------------------------------------------------------------------
 void CP_NewGame(
     int16_t)
 {
@@ -1762,9 +1702,6 @@ secondpart:
     MainMenu[MM_READ_THIS].active = AT_ENABLED;
 }
 
-// ---------------------------------------------------------------------------
-// DrawMenuTitle() - Draws the menu title
-// ---------------------------------------------------------------------------
 void DrawMenuTitle(
     const char* title)
 {
@@ -1790,6 +1727,8 @@ void DrawMenuTitle(
 
 }
 
+const int16_t INSTRUCTIONS_Y_POS = 154 + 10;
+
 // ---------------------------------------------------------------------------
 // DrawInstructions() - Draws instructions centered at the bottom of
 //      the view screen.
@@ -1799,8 +1738,6 @@ void DrawMenuTitle(
 void DrawInstructions(
     inst_type Type)
 {
-#define INSTRUCTIONS_Y_POS 154 + 10
-
     const char* instr[MAX_INSTRUCTIONS] = {
         "UP/DN SELECTS - ENTER CHOOSES - ESC EXITS",
         "PRESS ANY KEY TO CONTINUE",
@@ -1832,10 +1769,6 @@ void DrawInstructions(
     US_PrintCentered(instr[Type]);
 }
 
-
-// --------------------------------------------------------------------------
-// DrawNewEpisode() - DRAW NEW EPISODE MENU
-// --------------------------------------------------------------------------
 void DrawNewEpisode()
 {
     ClearMScreen();
@@ -1857,9 +1790,6 @@ void DrawNewEpisode()
 
 }
 
-// --------------------------------------------------------------------------
-// DrawNewGame() - DRAW NEW GAME MENU
-// --------------------------------------------------------------------------
 void DrawNewGame()
 {
     ClearMScreen();
@@ -1886,27 +1816,18 @@ void DrawNewGame()
     WaitKeyUp();
 }
 
-// --------------------------------------------------------------------------
-// DRAW NEW GAME GRAPHIC
-// --------------------------------------------------------------------------
 void DrawNewGameDiff(
     int16_t w)
 {
     VWB_DrawPic(192, 77, w + C_BABYMODEPIC);
 }
 
-// --------------------------------------------------------------------------
-// DRAW NEW GAME GRAPHIC
-// --------------------------------------------------------------------------
 void DrawEpisodePic(
     int16_t w)
 {
     VWB_DrawPic(176, 72, w + C_EPISODE1PIC);
 }
 
-// --------------------------------------------------------------------------
-// CP_GameOptions() - DRAW THE GAME OPTIONS MENU
-// --------------------------------------------------------------------------
 void CP_GameOptions(
     int16_t)
 {
@@ -1930,9 +1851,6 @@ void CP_GameOptions(
     ::MenuFadeOut();
 }
 
-// --------------------------------------------------------------------------
-// DrawGopMenu()
-// --------------------------------------------------------------------------
 void DrawGopMenu()
 {
     CA_CacheScreen(BACKGROUND_SCREENPIC);
@@ -1947,7 +1865,6 @@ void DrawGopMenu()
 
     VW_UpdateScreen();
 }
-
 
 void ChangeSwaps()
 {
@@ -1966,9 +1883,6 @@ void ChangeSwaps()
 
 }
 
-// --------------------------------------------------------------------------
-// GAME SWITCHES MENU
-// --------------------------------------------------------------------------
 void CP_Switches(
     int16_t)
 {
@@ -2043,9 +1957,6 @@ void CP_Switches(
     ::MenuFadeOut();
 }
 
-// --------------------------------------------------------------------------
-// DrawSwitchMenu()
-// --------------------------------------------------------------------------
 void DrawSwitchMenu()
 {
     CA_CacheScreen(BACKGROUND_SCREENPIC);
@@ -2062,9 +1973,6 @@ void DrawSwitchMenu()
     VW_UpdateScreen();
 }
 
-// --------------------------------------------------------------------------
-// DrawAllSwitchLights()
-// --------------------------------------------------------------------------
 void DrawAllSwitchLights(
     int16_t which)
 {
@@ -2150,11 +2058,6 @@ void DrawAllSwitchLights(
 
 }
 
-
-// --------------------------------------------------------------------------
-//  DrawSwitchDescription()
-// --------------------------------------------------------------------------
-
 void DrawSwitchDescription(
     int16_t which)
 {
@@ -2191,10 +2094,6 @@ void DrawSwitchDescription(
     US_PrintCentered(instr[which]);
 }
 
-
-// --------------------------------------------------------------------------
-// HANDLE SOUND MENU
-// --------------------------------------------------------------------------
 void CP_Sound(
     int16_t)
 {
@@ -2257,9 +2156,6 @@ void CP_Sound(
     ::MenuFadeOut();
 }
 
-// --------------------------------------------------------------------------
-// DrawSoundMenu() - DRAW THE SOUND MENU
-// --------------------------------------------------------------------------
 void DrawSoundMenu()
 {
     //
@@ -2292,12 +2188,8 @@ void DrawSoundMenu()
     DrawAllSoundLights(SndItems.curpos);
 
     VW_UpdateScreen();
-
 }
 
-// --------------------------------------------------------------------------
-// DrawAllSoundLights()
-// --------------------------------------------------------------------------
 void DrawAllSoundLights(
     int16_t which)
 {
@@ -2383,9 +2275,6 @@ void DrawLSAction(
     WindowY = 181;
 }
 
-// --------------------------------------------------------------------------
-// CP_LoadGame() - LOAD SAVED GAMES
-// --------------------------------------------------------------------------
 int16_t CP_LoadGame(
     int16_t quick)
 {
@@ -2467,6 +2356,7 @@ restart:
     return exit;
 }
 
+
 ///////////////////////////////////
 //
 // HIGHLIGHT CURRENT SELECTED ENTRY
@@ -2482,15 +2372,9 @@ void TrackWhichGame(
     lastgameon = w;
 }
 
-// --------------------------------------------------------------------------
-// DRAW THE LOAD/SAVE SCREEN
-// --------------------------------------------------------------------------
 void DrawLoadSaveScreen(
     int16_t loadsave)
 {
-#define DISKX 100
-#define DISKY 0
-
     int16_t i;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
@@ -2542,9 +2426,6 @@ void PrintLSEntry(
     fontnumber = 1;
 }
 
-// --------------------------------------------------------------------------
-// SAVE CURRENT GAME
-// --------------------------------------------------------------------------
 int16_t CP_SaveGame(
     int16_t quick)
 {
@@ -2649,22 +2530,15 @@ int16_t CP_SaveGame(
     return exit;
 }
 
-// --------------------------------------------------------------------------
-// EXIT OPTIONS
-// --------------------------------------------------------------------------
 void CP_ExitOptions(
     int16_t)
 {
     StartGame = 1;
 }
 
-// --------------------------------------------------------------------------
-// DEFINE CONTROLS
-// --------------------------------------------------------------------------
 void CP_Control(
     int16_t)
 {
-
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, CALIBRATEJOY, MOUSESENS, CUSTOMIZE};
 
     int16_t which;
@@ -2726,9 +2600,6 @@ void CP_Control(
     ::MenuFadeOut();
 }
 
-// --------------------------------------------------------------------------
-// DRAW MOUSE SENSITIVITY SCREEN
-// --------------------------------------------------------------------------
 void DrawMousePos()
 {
     VWB_Bar(74, 92, 160, 8, HIGHLIGHT_BOX_COLOR);
@@ -2757,9 +2628,6 @@ void DrawMouseSens()
     MenuFadeIn();
 }
 
-// --------------------------------------------------------------------------
-// CalibrateJoystick()
-// --------------------------------------------------------------------------
 void CalibrateJoystick()
 {
     uint16_t minx, maxx, miny, maxy;
@@ -2801,10 +2669,6 @@ void CalibrateJoystick()
     JoystickCalibrated = true;
 }
 
-
-// --------------------------------------------------------------------------
-// ADJUST MOUSE SENSITIVITY
-// --------------------------------------------------------------------------
 void MouseSensitivity(
     int16_t)
 {
@@ -2876,9 +2740,11 @@ void MouseSensitivity(
 // --------------------------------------------------------------------------
 void DrawCtlScreen()
 {
-#define Y_CTL_PIC_OFS (3)
+    const int16_t Y_CTL_PIC_OFS = 3;
 
-    int16_t i, x, y;
+    int16_t i;
+    int16_t x;
+    int16_t y;
 
     ClearMScreen();
     DrawMenuTitle("CONTROL");
@@ -2889,17 +2755,17 @@ void DrawCtlScreen()
     SETFONTCOLOR(TEXTCOLOR, BKGDCOLOR);
 
     if (JoysPresent[0]) {
-        CtlMenu[1].active =
-            CtlMenu[2].active =
-                CtlMenu[3].active =
-                    CtlMenu[4].active = AT_ENABLED;
+        CtlMenu[1].active = AT_ENABLED;
+        CtlMenu[2].active = AT_ENABLED;
+        CtlMenu[3].active = AT_ENABLED;
+        CtlMenu[4].active = AT_ENABLED;
     }
 
     CtlMenu[2].active = CtlMenu[3].active = CtlMenu[4].active = static_cast<activetypes>(joystickenabled);
 
     if (MousePresent) {
-        CtlMenu[5].active =
-            CtlMenu[0].active = AT_ENABLED;
+        CtlMenu[0].active = AT_ENABLED;
+        CtlMenu[5].active = AT_ENABLED;
     }
 
     CtlMenu[5].active = static_cast<activetypes>(mouseenabled);
@@ -2941,9 +2807,6 @@ void DrawCtlScreen()
     //
 
     if (CtlItems.curpos < 0 || !CtlMenu[static_cast<int>(CtlItems.curpos)].active) {
-
-        // BBi
-        // for (i=0;i<6;i++)
         for (i = 0; i < CtlItems.amount; ++i) {
             if (CtlMenu[i].active) {
                 CtlItems.curpos = static_cast<int8_t>(i);
@@ -2966,9 +2829,6 @@ enum ControlButton1 {
 char mbarray[4][3] = { "B0", "B1", "B2", "B3" };
 int order[4] = { RUN, OPEN, FIRE, STRAFE, };
 
-// --------------------------------------------------------------------------
-// CustomControls() CUSTOMIZE CONTROLS
-// --------------------------------------------------------------------------
 void CustomControls(
     int16_t)
 {
@@ -3011,45 +2871,30 @@ void CustomControls(
     ::MenuFadeOut();
 }
 
-// --------------------------------------------------------------------------
-// DEFINE THE MOUSE BUTTONS
-// --------------------------------------------------------------------------
 void DefineMouseBtns()
 {
     CustomCtrls mouseallowed = { 1, 1, 1, 1 };
     EnterCtrlData(2, &mouseallowed, DrawCustMouse, PrintCustMouse, MOUSE);
 }
 
-// --------------------------------------------------------------------------
-// DEFINE THE JOYSTICK BUTTONS
-// --------------------------------------------------------------------------
 void DefineJoyBtns()
 {
     CustomCtrls joyallowed = { 1, 1, 1, 1 };
     EnterCtrlData(5, &joyallowed, DrawCustJoy, PrintCustJoy, JOYSTICK);
 }
 
-// --------------------------------------------------------------------------
-// DEFINE THE KEYBOARD BUTTONS
-// --------------------------------------------------------------------------
 void DefineKeyBtns()
 {
     CustomCtrls keyallowed = { 1, 1, 1, 1 };
     EnterCtrlData(8, &keyallowed, DrawCustKeybd, PrintCustKeybd, KEYBOARDBTNS);
 }
 
-// --------------------------------------------------------------------------
-// DEFINE THE KEYBOARD BUTTONS
-// --------------------------------------------------------------------------
 void DefineKeyMove()
 {
     CustomCtrls keyallowed = { 1, 1, 1, 1 };
     EnterCtrlData(10, &keyallowed, DrawCustKeys, PrintCustKeys, KEYBOARDMOVE);
 }
 
-// --------------------------------------------------------------------------
-// TestForValidKey
-// --------------------------------------------------------------------------
 bool TestForValidKey(
     ScanCode Scan)
 {
@@ -3073,10 +2918,6 @@ bool TestForValidKey(
 }
 
 
-// --------------------------------------------------------------------------
-// EnterCtrlData() - ENTER CONTROL DATA FOR ANY TYPE OF CONTROL
-// --------------------------------------------------------------------------
-
 enum ControlButton2 {
     FWRD,
     RIGHT,
@@ -3086,6 +2927,9 @@ enum ControlButton2 {
 
 int16_t moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
 
+// --------------------------------------------------------------------------
+// EnterCtrlData() - ENTER CONTROL DATA FOR ANY TYPE OF CONTROL
+// --------------------------------------------------------------------------
 void EnterCtrlData(
     int16_t index,
     CustomCtrls* cust,
@@ -3405,9 +3249,8 @@ void EnterCtrlData(
     WaitKeyUp();
 }
 
-
 // --------------------------------------------------------------------------
-// FixupCustom() - FIXUP GUN CURSOR OVERDRAW SHIT
+// FIXUP GUN CURSOR OVERDRAW SHIT
 // --------------------------------------------------------------------------
 void FixupCustom(
     int16_t w)
@@ -3442,10 +3285,6 @@ void FixupCustom(
     lastwhich = w;
 }
 
-
-// ---------------------------------------------------------------------------
-// DrawCustomScreen() - DRAW CUSTOMIZE SCREEN
-// ---------------------------------------------------------------------------
 void DrawCustomScreen()
 {
     int16_t i;
@@ -3511,10 +3350,6 @@ void DrawCustomScreen()
     MenuFadeIn();
 }
 
-
-// ---------------------------------------------------------------------------
-// PrintCustMouse
-// ---------------------------------------------------------------------------
 void PrintCustMouse(
     int16_t i)
 {
@@ -3529,11 +3364,6 @@ void PrintCustMouse(
     }
 }
 
-
-
-// ---------------------------------------------------------------------------
-// DrawCustMouse
-// ---------------------------------------------------------------------------
 void DrawCustMouse(
     int16_t hilight)
 {
@@ -3560,11 +3390,6 @@ void DrawCustMouse(
     }
 }
 
-
-
-// ---------------------------------------------------------------------------
-// PrintCustJoy
-// ---------------------------------------------------------------------------
 void PrintCustJoy(
     int16_t i)
 {
@@ -3579,10 +3404,6 @@ void PrintCustJoy(
     }
 }
 
-
-// ---------------------------------------------------------------------------
-// DrawCustJoy
-// ---------------------------------------------------------------------------
 void DrawCustJoy(
     int16_t hilight)
 {
@@ -3609,11 +3430,6 @@ void DrawCustJoy(
     }
 }
 
-
-
-// ---------------------------------------------------------------------------
-// PrintCustKeybd
-// ---------------------------------------------------------------------------
 void PrintCustKeybd(
     int16_t i)
 {
@@ -3621,12 +3437,6 @@ void PrintCustKeybd(
     US_Print(IN_GetScanName(buttonscan[order[i]]).c_str());
 }
 
-
-
-
-// ---------------------------------------------------------------------------
-// DrawCustKeybd
-// ---------------------------------------------------------------------------
 void DrawCustKeybd(
     int16_t hilight)
 {
@@ -3647,12 +3457,6 @@ void DrawCustKeybd(
     }
 }
 
-
-
-
-// ---------------------------------------------------------------------------
-// PrintCustKeys()
-// ---------------------------------------------------------------------------
 void PrintCustKeys(
     int16_t i)
 {
@@ -3660,12 +3464,6 @@ void PrintCustKeys(
     US_Print(IN_GetScanName(dirscan[moveorder[i]]).c_str());
 }
 
-
-
-
-// ---------------------------------------------------------------------------
-// DrawCustKeys()
-// ---------------------------------------------------------------------------
 void DrawCustKeys(
     int16_t hilight)
 {
@@ -3685,9 +3483,6 @@ void DrawCustKeys(
     }
 }
 
-// ---------------------------------------------------------------------------
-// CP_Quit() - QUIT THIS INFERNAL GAME!
-// ---------------------------------------------------------------------------
 void CP_Quit()
 {
     if (Confirm(QuitToDosStr)) {
@@ -3697,15 +3492,6 @@ void CP_Quit()
     DrawMainMenu();
 }
 
-
-////////////////////////////////////////////////////////////////////
-//
-// SUPPORT ROUTINES
-//
-////////////////////////////////////////////////////////////////////
-
-
-
 // ---------------------------------------------------------------------------
 // Clear Menu screens to dark red
 // ---------------------------------------------------------------------------
@@ -3713,8 +3499,6 @@ void ClearMScreen()
 {
     VWB_Bar(SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, ::menu_background_color);
 }
-
-
 
 // ---------------------------------------------------------------------------
 // Un/Cache a LUMP of graphics
@@ -3730,11 +3514,6 @@ void CacheLump(
     }
 }
 
-
-
-// ---------------------------------------------------------------------------
-// UnCacheLump
-// ---------------------------------------------------------------------------
 void UnCacheLump(
     int16_t lumpstart,
     int16_t lumpend)
@@ -3746,10 +3525,6 @@ void UnCacheLump(
     }
 }
 
-
-// ---------------------------------------------------------------------------
-// Draw a window for a menu
-// ---------------------------------------------------------------------------
 void DrawWindow(
     int16_t x,
     int16_t y,
@@ -3761,11 +3536,6 @@ void DrawWindow(
     DrawOutline(x, y, w, h, BORD2COLOR, DEACTIVE);
 }
 
-
-
-// ---------------------------------------------------------------------------
-// DrawOutline
-// ---------------------------------------------------------------------------
 void DrawOutline(
     int16_t x,
     int16_t y,
@@ -3780,10 +3550,6 @@ void DrawOutline(
     VWB_Vlin(y, y + h, x + w, static_cast<uint8_t>(color1));
 }
 
-
-// ---------------------------------------------------------------------------
-// SetupControlPanel() - Setup Control Panel stuff - graphics, etc.
-// ---------------------------------------------------------------------------
 void SetupControlPanel()
 {
     // BBi
@@ -3791,14 +3557,8 @@ void SetupControlPanel()
     SwitchItems.y = MENU_Y + (::is_ps() ? 15 : 7);
     // BBi
 
-    //
-    // CACHE GRAPHICS & SOUNDS
-    //
-//      CA_CacheScreen (BACKGROUND_SCREENPIC);
-
     ControlPanelAlloc();
 
-//      SETFONTCOLOR(TEXTCOLOR,BKGDCOLOR);
     fontnumber = 2;
 
     WindowH = 200;
@@ -3812,10 +3572,6 @@ void SetupControlPanel()
     ReadGameNames();
 }
 
-
-// ---------------------------------------------------------------------------
-// ReadGameNames()
-// ---------------------------------------------------------------------------
 void ReadGameNames()
 {
     for (int i = 0; i < 10; ++i) {
@@ -3853,9 +3609,6 @@ void ReadGameNames()
     }
 }
 
-// ---------------------------------------------------------------------------
-// CleanupControlPanel() - Clean up all the Control Panel stuff
-// ---------------------------------------------------------------------------
 void CleanupControlPanel()
 {
     if (!loadedgame) {
@@ -4109,14 +3862,9 @@ int16_t HandleMenu(
     // ERASE EVERYTHING
     //
 
-//      if (lastitem!=which)
-//      {
     box_on = 0;
     redrawitem = 1;
     EraseGun(item_i, items, x, y, which);
-//      }
-//      else
-//              redrawitem=0;
 
     if (routine) {
         routine(which);
@@ -4166,7 +3914,7 @@ int16_t HandleMenu(
 }
 
 // ---------------------------------------------------------------------------
-// EraseGun() - ERASE GUN & DE-HIGHLIGHT STRING
+// ERASE GUN & DE-HIGHLIGHT STRING
 // ---------------------------------------------------------------------------
 void EraseGun(
     CP_iteminfo* item_i,
@@ -4175,16 +3923,13 @@ void EraseGun(
     int16_t y,
     int16_t which)
 {
+    static_cast<void>(x);
+
     VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, ::menu_background_color);
     SetTextColor(items + which, 0);
 
     ShadowPrint((items + which)->string, item_i->x + item_i->indent, y);
-
-//      VW_UpdateScreen();
-
-    x++;                                // Shut up compiler
 }
-
 
 // ---------------------------------------------------------------------------
 // DrawGun() - DRAW GUN AT NEW POSITION
@@ -4198,6 +3943,8 @@ void DrawGun(
     int16_t basey,
     void (* routine)(int16_t w))
 {
+    static_cast<void>(x);
+
     *y = basey + which * item_i->y_spacing;
 
     VWB_Bar(item_i->cursor.x, *y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, HIGHLIGHT_BOX_COLOR);
@@ -4212,11 +3959,6 @@ void DrawGun(
     if (routine) {
         routine(which);
     }
-
-//      VW_UpdateScreen();
-//      SD_PlaySound(MOVEGUN2SND);
-
-    x++; // Shutup compiler
 }
 
 // ---------------------------------------------------------------------------
@@ -4259,7 +4001,7 @@ void DrawMenu(
 }
 
 // ---------------------------------------------------------------------------
-// SetTextColor() - SET TEXT COLOR (HIGHLIGHT OR NO)
+// SET TEXT COLOR (HIGHLIGHT OR NO)
 // ---------------------------------------------------------------------------
 void SetTextColor(
     CP_itemtype* items,
@@ -4273,7 +4015,7 @@ void SetTextColor(
 }
 
 // ---------------------------------------------------------------------------
-// WaitKeyUp() - WAIT FOR CTRLKEY-UP OR BUTTON-UP
+// WAIT FOR CTRLKEY-UP OR BUTTON-UP
 // ---------------------------------------------------------------------------
 void WaitKeyUp()
 {
@@ -4294,7 +4036,7 @@ void WaitKeyUp()
 }
 
 // ---------------------------------------------------------------------------
-// ReadAnyControl() - READ KEYBOARD, JOYSTICK AND MOUSE FOR INPUT
+// READ KEYBOARD, JOYSTICK AND MOUSE FOR INPUT
 // ---------------------------------------------------------------------------
 void ReadAnyControl(
     ControlInfo* ci)
@@ -4329,28 +4071,6 @@ void ReadAnyControl(
 
         ::in_get_mouse_deltas(mousex, mousey);
         ::in_clear_mouse_deltas();
-
-#if 0
-        if (mousey < (CENTER - SENSITIVE)) {
-            mouseactive = true;
-            ci->dir = dir_North;
-        } else if (mousey > (CENTER + SENSITIVE)) {
-            mouseactive = true;
-            ci->dir = dir_South;
-        }
-
-        if (mousex < (CENTER - SENSITIVE)) {
-            mouseactive = true;
-            ci->dir = dir_West;
-        } else if (mousex > (CENTER + SENSITIVE)) {
-            mouseactive = true;
-            ci->dir = dir_East;
-        }
-
-        if (mouseactive) {
-            ::in_set_mouse_cursor_position(CENTER, CENTER);
-        }
-#endif
 
         const int DELTA_THRESHOLD = 10;
 
@@ -4471,16 +4191,9 @@ int16_t Confirm(
         ShootSnd();
     }
 
-// BBi
-#if 0
-    while (Keyboard[ScanCode::sc_y] || Keyboard[ScanCode::sc_n] || Keyboard[sc_Escape]) {
-    }
-#endif
-
     while (Keyboard[ScanCode::sc_y] || Keyboard[ScanCode::sc_n] || Keyboard[ScanCode::sc_escape]) {
         IN_CheckAck();
     }
-// BBi
 
     IN_ClearKeysDown();
 
@@ -4494,7 +4207,7 @@ int16_t Confirm(
 }
 
 // ---------------------------------------------------------------------------
-// Message() - PRINT A MESSAGE IN A WINDOW
+// PRINT A MESSAGE IN A WINDOW
 // ---------------------------------------------------------------------------
 void Message(
     const char* string)
@@ -4551,10 +4264,8 @@ void Message(
     VW_UpdateScreen();
 }
 
-
-
 // --------------------------------------------------------------------------
-// TerminateStr - Searches for an "^XX" and replaces with a 0 (NULL)
+// Searches for an "^XX" and replaces with a 0 (NULL)
 // --------------------------------------------------------------------------
 void TerminateStr(
     char* pos)
@@ -4571,7 +4282,7 @@ void TerminateStr(
 }
 
 // ---------------------------------------------------------------------------
-// CacheMessage() - Caches and prints a message in a window.
+// Caches and prints a message in a window.
 // ---------------------------------------------------------------------------
 void CacheMessage(
     uint16_t MessageNum)
@@ -4588,7 +4299,6 @@ void CacheMessage(
     FREEFONT(MessageNum);
 }
 
-
 // ---------------------------------------------------------------------------
 // CacheCompData() - Caches and Decompresses data from the VGAGRAPH
 //
@@ -4599,7 +4309,6 @@ void CacheMessage(
 // RETURNS: Lenght of loaded (decompressed) data
 //
 // ---------------------------------------------------------------------------
-
 uint32_t CacheCompData(
     uint16_t item_number,
     void** dst_ptr)
@@ -4659,10 +4368,6 @@ uint32_t CacheCompData(
     return data_length;
 }
 
-
-// ---------------------------------------------------------------------------
-// StartCPMusic()
-// ---------------------------------------------------------------------------
 void StartCPMusic(
     int16_t song)
 {
@@ -4676,9 +4381,6 @@ void StartCPMusic(
     ::SD_StartMusic(chunk);
 }
 
-// ---------------------------------------------------------------------------
-// FreeMusic ()
-// ---------------------------------------------------------------------------
 void FreeMusic()
 {
     SD_MusicOff();
@@ -4686,7 +4388,6 @@ void FreeMusic()
 
 
 #ifdef CACHE_KEY_DATA
-
 // ---------------------------------------------------------------------------
 // IN_GetScanName() - Returns a string containing the name of the
 //      specified scan code
@@ -4705,9 +4406,7 @@ uint8_t far* IN_GetScanName(
 
     return (uint8_t*)(ScanNames + (scan << 1));
 }
-
 #else
-
 // ---------------------------------------------------------------------------
 // IN_GetScanName() - Returns a string containing the name of the
 //      specified scan code
@@ -4723,12 +4422,10 @@ const std::string& IN_GetScanName(
 
     return scan_names[static_cast<int>(scan)];
 }
-
 #endif
 
-
 // ---------------------------------------------------------------------------
-// CheckPause() - CHECK FOR PAUSE KEY (FOR MUSIC ONLY)
+// CHECK FOR PAUSE KEY (FOR MUSIC ONLY)
 // ---------------------------------------------------------------------------
 void CheckPause()
 {
@@ -4751,7 +4448,7 @@ void CheckPause()
 }
 
 // -------------------------------------------------------------------------
-// DrawMenuGun() - DRAW GUN CURSOR AT CORRECT POSITION IN MENU
+// DRAW GUN CURSOR AT CORRECT POSITION IN MENU
 // -------------------------------------------------------------------------
 void DrawMenuGun(
     CP_iteminfo* iteminfo)
@@ -4764,17 +4461,11 @@ void DrawMenuGun(
     VWB_Bar(x, y, iteminfo->cursor.width, iteminfo->cursor.height, HIGHLIGHT_BOX_COLOR);
 }
 
-// -------------------------------------------------------------------------
-// ShootSnd()
-// -------------------------------------------------------------------------
 void ShootSnd()
 {
     ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
 }
 
-// -------------------------------------------------------------------------
-// ShowPromo()
-// -------------------------------------------------------------------------
 void ShowPromo()
 {
     const auto PROMO_MUSIC = HIDINGA_MUS;
@@ -4805,9 +4496,6 @@ void ShowPromo()
     ::StopMusic();
 }
 
-// -------------------------------------------------------------------------
-// ExitGame()
-// -------------------------------------------------------------------------
 void ExitGame()
 {
     VW_FadeOut();
