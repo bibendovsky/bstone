@@ -21,10 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// ID_CA.C
-
-// this has been customized for BLAKE STONE
-
 /*
 =============================================================================
 
@@ -40,14 +36,6 @@ loaded into the data segment
 
 #include "id_heads.h"
 
-
-/*
-=============================================================================
-
- LOCAL CONSTANTS
-
-=============================================================================
-*/
 
 /*
 =============================================================================
@@ -153,7 +141,6 @@ void CAL_CarmackExpand(
 
 
 #ifdef THREEBYTEGRSTARTS
-// #define      GRFILEPOS(c) (*(long *)(((uint8_t *)grstarts)+(c)*3)&0xffffff)
 int32_t GRFILEPOS(
     int16_t c)
 {
@@ -176,44 +163,6 @@ int32_t GRFILEPOS(
 #define GRFILEPOS(c) (grstarts[c])
 #endif
 
-/*
-=============================================================================
-
-                                           LOW LEVEL ROUTINES
-
-=============================================================================
-*/
-
-#if 0
-
-/*
-============================
-=
-= CA_OpenDebug / CA_CloseDebug
-=
-= Opens a binary file with the handle "debughandle"
-=
-============================
-*/
-
-void CA_OpenDebug()
-{
-    unlink("DEBUG.TXT");
-    debughandle = open("DEBUG.TXT", O_CREAT | O_WRONLY | O_TEXT);
-}
-
-void CA_CloseDebug()
-{
-    close(debughandle);
-}
-
-#endif
-
-
-
-// -----------------------------------------------------------------------
-// OpenGrFile()
-// ------------------------------------------------------------------------
 void OpenGrFile()
 {
     auto fname = ::data_dir + ::gfilename + ::extension;
@@ -225,20 +174,11 @@ void OpenGrFile()
     }
 }
 
-
-
-// -----------------------------------------------------------------------
-// CloseGrFile()
-// ------------------------------------------------------------------------
 void CloseGrFile()
 {
     ::grhandle.close();
 }
 
-
-// -----------------------------------------------------------------------
-// OpenMapFile()
-// ------------------------------------------------------------------------
 void OpenMapFile()
 {
     std::string fname;
@@ -263,20 +203,11 @@ void OpenMapFile()
 #endif
 }
 
-
-// -----------------------------------------------------------------------
-// CloseMapFile()
-// ------------------------------------------------------------------------
 void CloseMapFile()
 {
     ::maphandle.close();
 }
 
-
-
-// -----------------------------------------------------------------------
-// OpenAudioFile()
-// ------------------------------------------------------------------------
 void OpenAudioFile()
 {
     std::string fname;
@@ -298,18 +229,10 @@ void OpenAudioFile()
 #endif
 }
 
-
-// -----------------------------------------------------------------------
-// CloseAudioFile()
-// ------------------------------------------------------------------------
 void CloseAudioFile()
 {
     ::audiohandle.close();
 }
-
-
-
-
 
 /*
 ============================
@@ -321,7 +244,6 @@ void CloseAudioFile()
 =
 ============================
 */
-
 void CAL_GetGrChunkLength(
     int16_t chunk)
 {
@@ -332,211 +254,6 @@ void CAL_GetGrChunkLength(
 }
 
 
-// MDM - functions removed...
-
-#if 0
-
-/*
-==========================
-=
-= CA_FarRead
-=
-= Read from a file to a far pointer
-=
-==========================
-*/
-
-bool CA_FarRead(
-    int handle,
-    uint8_t* dest,
-    int32_t length)
-{
-    unsigned readlen;
-
-//      if (length>0xffffl)
-//              Quit ("CA_FarRead doesn't support 64K reads yet!");
-
-    while (length) {
-        if (length > 0xffff) {
-            readlen = 0xffff;
-        } else {
-            readlen = length;
-        }
-
-        asm             push ds
-        asm             mov bx, [handle]
-        asm             mov cx, [readlen]
-        asm             mov dx, [WORD PTR dest]
-        asm             mov ds, [WORD PTR dest + 2]
-        asm             mov ah, 0x3f // READ w/handle
-        asm             int 21h
-        asm             pop ds
-        asm             jnc good
-        errno = _AX;
-        return false;
-good:
-        asm             cmp ax, [WORD PTR length]
-        asm             je done
-        errno = EINVFMT; // user manager knows this is bad read
-        return false;
-done:
-        length -= readlen;
-    }
-
-    return true;
-}
-
-
-/*
-==========================
-=
-= CA_FarWrite
-=
-= Write from a file to a far pointer
-=
-==========================
-*/
-
-bool CA_FarWrite(
-    int handle,
-    uint8_t* source,
-    int32_t length)
-{
-    unsigned writelen;
-
-//      if (length>0xffffl)
-//              Quit ("CA_FarWrite doesn't support 64K reads yet!");
-
-    while (length) {
-        if (length > 0xffff) {
-            writelen = 0xffff;
-        } else {
-            writelen = length;
-        }
-
-        asm             push ds
-        asm             mov bx, [handle]
-        asm             mov cx, [writelen]
-        asm             mov dx, [WORD PTR source]
-        asm             mov ds, [WORD PTR source + 2]
-        asm             mov ah, 0x40 // WRITE w/handle
-        asm             int 21h
-        asm             pop ds
-        asm             jnc good
-        errno = _AX;
-        return false;
-good:
-        asm             cmp ax, [WORD PTR length]
-        asm             je done
-        errno = ENOMEM; // user manager knows this is bad write
-        return false;
-
-done:
-        length -= writelen;
-    }
-
-    return true;
-}
-
-/*
-==========================
-=
-= CA_ReadFile
-=
-= Reads a file into an allready allocated buffer
-=
-==========================
-*/
-
-bool CA_ReadFile(
-    char* filename,
-    memptr* ptr)
-{
-    int handle;
-    int32_t size;
-
-    if ((handle = open(filename, O_RDONLY | O_BINARY, S_IREAD)) == -1) {
-        return false;
-    }
-
-    size = filelength(handle);
-    if (!CA_FarRead(handle, *ptr, size)) {
-        close(handle);
-        return false;
-    }
-    close(handle);
-    return true;
-}
-
-
-/*
-==========================
-=
-= CA_WriteFile
-=
-= Writes a file from a memory buffer
-=
-==========================
-*/
-
-bool CA_WriteFile(
-    char* filename,
-    void* ptr,
-    int32_t length)
-{
-    int handle;
-    int32_t size;
-
-    handle = open(filename, O_CREAT | O_BINARY | O_WRONLY,
-                  S_IREAD | S_IWRITE | S_IFREG);
-
-    if (handle == -1) {
-        return false;
-    }
-
-    if (!CA_FarWrite(handle, ptr, length)) {
-        close(handle);
-        return false;
-    }
-    close(handle);
-    return true;
-}
-
-
-
-/*
-==========================
-=
-= CA_LoadFile
-=
-= Allocate space for and load a file
-=
-==========================
-*/
-
-bool CA_LoadFile(
-    char* filename,
-    memptr* ptr)
-{
-    int handle;
-    int32_t size;
-
-    if ((handle = open(filename, O_RDONLY | O_BINARY, S_IREAD)) == -1) {
-        return false;
-    }
-
-    size = filelength(handle);
-    MM_GetPtr(ptr, size);
-    if (!CA_FarRead(handle, *ptr, size)) {
-        close(handle);
-        return false;
-    }
-    close(handle);
-    return true;
-}
-
-#endif // MDM END
-
 /*
 ============================================================================
 
@@ -544,7 +261,6 @@ bool CA_LoadFile(
 
 ============================================================================
 */
-
 
 /*
 ======================
@@ -557,7 +273,6 @@ bool CA_LoadFile(
 =
 ======================
 */
-
 void CAL_HuffExpand(
     uint8_t* source,
     uint8_t* destination,
@@ -645,6 +360,7 @@ void ca_huff_expand_on_screen(
     }
 }
 
+#ifdef CARMACIZED
 /*
 ======================
 =
@@ -654,18 +370,14 @@ void ca_huff_expand_on_screen(
 =
 ======================
 */
-
-#define NEARTAG 0xa7
-#define FARTAG 0xa8
-
-
-#ifdef CARMACIZED
-
 void CAL_CarmackExpand(
     uint16_t* source,
     uint16_t* dest,
     uint16_t length)
 {
+#define NEARTAG 0xa7
+#define FARTAG 0xa8
+
     uint16_t ch, chhigh, count, offset;
     uint16_t* copyptr, * inptr, * outptr;
 
@@ -714,65 +426,6 @@ void CAL_CarmackExpand(
 
 #endif
 
-
-#if 0
-
-/*
-======================
-=
-= CA_RLEWcompress
-=
-======================
-*/
-int32_t CA_RLEWCompress(
-    uint16_t* source,
-    int32_t length,
-    uint16_t* dest,
-    uint16_t rlewtag)
-{
-    int32_t complength;
-    uint16_t value, count, i;
-    uint16_t* start, * end;
-
-    start = dest;
-
-    end = source + (length + 1) / 2;
-
-//
-// compress it
-//
-    do {
-        count = 1;
-        value = *source++;
-        while (*source == value && source < end) {
-            count++;
-            source++;
-        }
-        if (count > 3 || value == rlewtag) {
-            //
-            // send a tag / count / value string
-            //
-            *dest++ = rlewtag;
-            *dest++ = count;
-            *dest++ = value;
-        } else {
-            //
-            // send word without compressing
-            //
-            for (i = 1; i <= count; i++) {
-                *dest++ = value;
-            }
-        }
-
-    } while (source < end);
-
-    complength = 2 * (dest - start);
-    return complength;
-}
-
-#endif
-
-
 /*
 ======================
 =
@@ -781,7 +434,6 @@ int32_t CA_RLEWCompress(
 =
 ======================
 */
-
 void CA_RLEWexpand(
     uint16_t* source,
     uint16_t* dest,
@@ -809,8 +461,6 @@ void CA_RLEWexpand(
     } while (dest < end);
 }
 
-
-
 /*
 =============================================================================
 
@@ -829,7 +479,6 @@ void CA_RLEWexpand(
 =
 ======================
 */
-
 void CA_Shutdown()
 {
 #ifdef PROFILE
@@ -871,8 +520,6 @@ void CA_Startup()
     ::ca_buffer.reserve(BUFFERSIZE);
 }
 
-// ===========================================================================
-
 /*
 ======================
 =
@@ -880,18 +527,16 @@ void CA_Startup()
 =
 ======================
 */
-
 void CA_CacheAudioChunk(
     int16_t chunk)
 {
-    int32_t pos, compressed;
+    int32_t pos;
+    int32_t compressed;
 #ifdef AUDIOHEADERLINKED
     int32_t expanded;
     memptr bigbufferseg;
     uint8_t* source;
 #endif
-
-
 
     if (audiosegs[chunk]) {
         return; // allready in memory
@@ -946,8 +591,6 @@ done:
     CloseAudioFile();
 }
 
-// ===========================================================================
-
 /*
 ======================
 =
@@ -957,7 +600,6 @@ done:
 =
 ======================
 */
-
 void CA_LoadAllSounds()
 {
     int16_t start = 0;
@@ -998,14 +640,13 @@ void CAL_ExpandGrChunk(
 {
     int32_t expanded;
 
-
     if (chunk >= STARTTILE8 && chunk < STARTEXTERNS) {
         //
         // expanded sizes of tile8/16/32 are implicit
         //
 
-#define BLOCK 64
-#define MASKBLOCK 128
+        const int BLOCK = 64;
+        const int MASKBLOCK = 128;
 
         if (chunk < STARTTILE8M) { // tile 8s are all in one chunk!
             expanded = BLOCK * NUMTILE8;
@@ -1039,7 +680,6 @@ void CAL_ExpandGrChunk(
     ca_gr_last_expanded_size = expanded;
 }
 
-
 /*
 ======================
 =
@@ -1049,7 +689,6 @@ void CAL_ExpandGrChunk(
 =
 ======================
 */
-
 void CA_CacheGrChunk(
     int16_t chunk)
 {
@@ -1089,9 +728,6 @@ void CA_CacheGrChunk(
 }
 
 
-
-// ==========================================================================
-
 /*
 ======================
 =
@@ -1101,7 +737,6 @@ void CA_CacheGrChunk(
 =
 ======================
 */
-
 void CA_CacheScreen(
     int16_t chunk)
 {
@@ -1135,8 +770,6 @@ void CA_CacheScreen(
     ca_huff_expand_on_screen(source, grhuffman);
 }
 
-// ==========================================================================
-
 /*
 ======================
 =
@@ -1146,7 +779,6 @@ void CA_CacheScreen(
 =
 ======================
 */
-
 void CA_CacheMap(
     int16_t mapnum)
 {
@@ -1208,8 +840,6 @@ void CA_CacheMap(
     CloseMapFile();
 }
 
-// ===========================================================================
-
 /*
 ======================
 =
@@ -1220,7 +850,6 @@ void CA_CacheMap(
 =
 ======================
 */
-
 void CA_UpLevel()
 {
     if (ca_levelnum == 7) {
@@ -1230,8 +859,6 @@ void CA_UpLevel()
     ca_levelbit <<= 1;
     ca_levelnum++;
 }
-
-// ===========================================================================
 
 /*
 ======================
@@ -1243,7 +870,6 @@ void CA_UpLevel()
 =
 ======================
 */
-
 void CA_DownLevel()
 {
     if (!ca_levelnum) {
@@ -1255,138 +881,20 @@ void CA_DownLevel()
     CA_CacheMarks();
 }
 
-// ===========================================================================
-
-
-#if 0
-
-/*
-======================
-=
-= CA_ClearMarks
-=
-= Clears out all the marks at the current level
-=
-======================
-*/
-
-void CA_ClearMarks()
-{
-    int16_t i;
-
-    for (i = 0; i < NUMCHUNKS; i++) {
-        grneeded[i] &= ~ca_levelbit;
-    }
-}
-
-#endif
-
-
-// ===========================================================================
-
-#if 0
-
-/*
-======================
-=
-= CA_ClearAllMarks
-=
-= Clears out all the marks on all the levels
-=
-======================
-*/
-
-void CA_ClearAllMarks()
-{
-    _fmemset(grneeded, 0, sizeof(grneeded));
-    ca_levelbit = 1;
-    ca_levelnum = 0;
-}
-
-#endif
-
-
-// ===========================================================================
-
-
-
-#if 0
-/*
-======================
-=
-= CA_FreeGraphics
-=
-======================
-*/
-void CA_SetGrPurge()
-{
-    int16_t i;
-
-//
-// free graphics
-//
-    CA_ClearMarks();
-
-    for (i = 0; i < NUMCHUNKS; i++) {
-        if (grsegs[i]) {
-            MM_SetPurge(&(memptr)grsegs[i], 3);
-        }
-    }
-}
-#endif
-
-
-#if 0
-
-/*
-======================
-=
-= CA_SetAllPurge
-=
-= Make everything possible purgable
-=
-======================
-*/
-
-void CA_SetAllPurge()
-{
-    int16_t i;
-
-
-//
-// free sounds
-//
-    for (i = 0; i < NUMSNDCHUNKS; i++) {
-        if (audiosegs[i]) {
-            MM_SetPurge(&(memptr)audiosegs[i], 3);
-        }
-    }
-
-//
-// free graphics
-//
-    CA_SetGrPurge();
-}
-
-#endif
-
-
-// ===========================================================================
-
-/*
-======================
-=
-= CA_CacheMarks
-=
-======================
-*/
-#define MAXEMPTYREAD 1024
-
 void CA_CacheMarks()
 {
-    int16_t i, next, numcache;
-    int32_t pos, endpos, nextpos, nextendpos, compressed;
-    int32_t bufferstart, bufferend; // file position of general buffer
+    const int MAXEMPTYREAD = 1024;
+
+    int16_t i;
+    int16_t next;
+    int16_t numcache;
+    int32_t pos;
+    int32_t endpos;
+    int32_t nextpos;
+    int32_t nextendpos;
+    int32_t compressed;
+    int32_t bufferstart;
+    int32_t bufferend; // file position of general buffer
     uint8_t* source;
 
     numcache = 0;
