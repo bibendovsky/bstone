@@ -21,9 +21,6 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_MAIN.C
-
-
 #include "3d_def.h"
 #include "jm_lzh.h"
 #include "bstone_binary_reader.h"
@@ -36,6 +33,7 @@ void VL_LatchToScreen(
     int height,
     int x,
     int y);
+
 /*
 =============================================================================
 
@@ -48,40 +46,37 @@ void VL_LatchToScreen(
 =============================================================================
 */
 
-/*
-=============================================================================
-
- LOCAL CONSTANTS
-
-=============================================================================
-*/
-
 
 void ConnectBarriers();
 void FreeMusic();
 void ClearMemory();
+
 void CA_CacheScreen(
     int16_t chunk);
+
 void VH_UpdateScreen();
 void DrawHighScores();
 void freed_main();
+
 void PreloadUpdate(
     uint16_t current,
     uint16_t total);
+
 void OpenAudioFile();
 
 
 bstone::ClArgs g_args;
 
 
-#define FOCALLENGTH (0x5700l) // in global coordinates
+#define FOCALLENGTH (0x5700L) // in global coordinates
 #define VIEWGLOBAL 0x10000 // globals visable flush to wall
 
-#define VIEWWIDTH 256 // size of view window
-#define VIEWHEIGHT 144
+#define VIEWWIDTH (256) // size of view window
+#define VIEWHEIGHT (144)
 
 
-#define MAX_DEST_PATH_LEN 30
+#define MAX_DEST_PATH_LEN (30)
+
 
 /*
 =============================================================================
@@ -98,7 +93,9 @@ void DrawCreditsPage();
 void unfreed_main();
 void ShowPromo();
 
-int16_t starting_episode, starting_level, starting_difficulty;
+int16_t starting_episode;
+int16_t starting_level;
+int16_t starting_difficulty;
 
 std::string data_dir;
 
@@ -6173,15 +6170,6 @@ static void set_vanilla_controls()
 }
 // BBi
 
-
-/*
-====================
-=
-= ReadConfig
-=
-====================
-*/
-
 void ReadConfig()
 {
     is_config_loaded = true;
@@ -6327,11 +6315,6 @@ void ReadConfig()
 
         ::set_vanilla_controls();
 
-// BBi
-#if 0
-        viewsize = 20;
-#endif // 0
-
         mouseadjustment = 5;
         gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
         gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
@@ -6353,14 +6336,6 @@ void ReadConfig()
     sd_set_sfx_volume(sd_sfx_volume);
     sd_set_music_volume(sd_music_volume);
 }
-
-/*
-====================
-=
-= WriteConfig
-=
-====================
-*/
 
 void WriteConfig()
 {
@@ -6420,7 +6395,8 @@ void WriteConfig()
     writer.write(bstone::Endian::le(checksum.get_value()));
 }
 
-// ===========================================================================
+
+bool ShowQuickMsg;
 
 /*
 =====================
@@ -6431,8 +6407,6 @@ void WriteConfig()
 =
 =====================
 */
-
-bool ShowQuickMsg;
 void NewGame(
     int16_t difficulty,
     int16_t episode)
@@ -6449,19 +6423,8 @@ void NewGame(
     memset(&gamestate.barrier_table, 0xff, sizeof(gamestate.barrier_table));
     memset(&gamestate.old_barrier_table, 0xff, sizeof(gamestate.old_barrier_table));
     gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
-//      LoadAccessCodes();
 
     gamestate.difficulty = difficulty;
-
-
-//
-// The following are set to 0 by the memset() to gamestate - Good catch! :JR
-//
-//      gamestate.rzoom
-//      gamestate.rpower
-//      gamestate.old_door_bombs
-// gamestate.plasma_detonators
-//
 
     gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
     gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
@@ -6471,8 +6434,6 @@ void NewGame(
 
     gamestate.health = 100;
     gamestate.old_ammo = gamestate.ammo = STARTAMMO;
-//      gamestate.dollars = START_DOLLARS;
-//      gamestate.cents   = START_CENTS;
     gamestate.lives = 3;
     gamestate.nextextra = EXTRAPOINTS;
     gamestate.episode = episode;
@@ -6497,8 +6458,6 @@ void NewGame(
         }
     }
 
-//      normalshade_div = SHADE_DIV;
-//      shade_max = SHADE_MAX;
     ExtraRadarFlags = InstantWin = InstantQuit = 0;
 
     pickquick = 0;
@@ -6511,22 +6470,14 @@ void NewGame(
 
 // ===========================================================================
 
-// ==========================================================================
-//
-//             'LOAD/SAVE game' and 'LOAD/SAVE level' code
-//
-// ==========================================================================
 
 bool LevelInPlaytemp(
     int level_index);
 
-#define LZH_WORK_BUFFER_SIZE 8192
+#define LZH_WORK_BUFFER_SIZE (8192)
 
 void* lzh_work_buffer;
 
-// --------------------------------------------------------------------------
-// InitPlaytemp()
-// --------------------------------------------------------------------------
 void InitPlaytemp()
 {
     g_playtemp.open(1 * 1024 * 1024);
@@ -6534,24 +6485,6 @@ void InitPlaytemp()
     g_playtemp.set_position(0);
 }
 
-// --------------------------------------------------------------------------
-// DoChecksum()
-// --------------------------------------------------------------------------
-int32_t DoChecksum(
-    const uint8_t* source,
-    int size,
-    int32_t checksum)
-{
-    for (int i = 0; i < size - 1; ++i) {
-        checksum += source[i] ^ source[i + 1];
-    }
-
-    return checksum;
-}
-
-// --------------------------------------------------------------------------
-// FindChunk()
-// --------------------------------------------------------------------------
 int FindChunk(
     bstone::IStream* stream,
     const std::string& chunk_name)
@@ -6586,9 +6519,6 @@ int FindChunk(
     return 0;
 }
 
-// --------------------------------------------------------------------------
-// NextChunk()
-// --------------------------------------------------------------------------
 int NextChunk(
     bstone::IStream* stream)
 {
@@ -6613,11 +6543,9 @@ int NextChunk(
     return 0;
 }
 
-int8_t LS_current = -1, LS_total = -1;
+int8_t LS_current = -1;
+int8_t LS_total = -1;
 
-// --------------------------------------------------------------------------
-// LoadLevel()
-// --------------------------------------------------------------------------
 bool LoadLevel(
     int level_index)
 {
@@ -6703,23 +6631,6 @@ bool LoadLevel(
 
         // First actor is always player
         new_actor->deserialize(reader, checksum);
-
-#if 0
-        if (playstate == ex_transported) {
-            int tx = gamestate.transported_tile_x;
-            int ty = gamestate.transported_tile_y;
-
-            new_actor->tilex = tx;
-            new_actor->tiley = ty;
-
-
-            int x = (tx << TILESHIFT) + (TILEGLOBAL / 2);
-            int y = (tx << TILESHIFT) + (TILEGLOBAL / 2);
-
-            new_actor->x = x;
-            new_actor->y = y;
-        }
-#endif
 
         for (int32_t i = 1; i < actor_count; ++i) {
             ::GetNewActor();
@@ -6861,9 +6772,6 @@ bool LoadLevel(
     return is_succeed;
 }
 
-// --------------------------------------------------------------------------
-// SaveLevel()
-// --------------------------------------------------------------------------
 bool SaveLevel(
     int level_index)
 {
@@ -7013,9 +6921,6 @@ bool SaveLevel(
     return true;
 }
 
-// --------------------------------------------------------------------------
-// DeleteChunk()
-// --------------------------------------------------------------------------
 int DeleteChunk(
     bstone::MemoryStream& stream,
     const std::string& chunk_name)
@@ -7071,9 +6976,6 @@ static const std::string& get_saved_game_version_string()
     return version_string;
 }
 
-// --------------------------------------------------------------------------
-// LoadTheGame()
-// --------------------------------------------------------------------------
 bool LoadTheGame(
     bstone::IStream* stream)
 {
@@ -7190,9 +7092,6 @@ bool LoadTheGame(
     return is_succeed;
 }
 
-// --------------------------------------------------------------------------
-// SaveTheGame()
-// --------------------------------------------------------------------------
 bool SaveTheGame(
     bstone::IStream* stream,
     const std::string& description)
@@ -7267,9 +7166,6 @@ bool SaveTheGame(
     return is_succeed;
 }
 
-// --------------------------------------------------------------------------
-// LevelInPlaytemp()
-// --------------------------------------------------------------------------
 bool LevelInPlaytemp(
     int level_index)
 {
@@ -7278,9 +7174,6 @@ bool LevelInPlaytemp(
     return ::FindChunk(&g_playtemp, chunk) != 0;
 }
 
-// --------------------------------------------------------------------------
-// CheckDiskSpace()
-// --------------------------------------------------------------------------
 bool CheckDiskSpace(
     int32_t needed,
     const char* text,
@@ -7292,11 +7185,6 @@ bool CheckDiskSpace(
     return true;
 }
 
-
-
-// --------------------------------------------------------------------------
-// CleanUpDoors_N_Actors()
-// --------------------------------------------------------------------------
 void CleanUpDoors_N_Actors()
 {
     int x;
@@ -7335,7 +7223,6 @@ void CleanUpDoors_N_Actors()
         }
     }
 }
-
 
 // --------------------------------------------------------------------------
 // ClearNClose() - Use when changing levels via standard elevator.
@@ -7379,23 +7266,23 @@ void ClearNClose()
     }
 }
 
-// --------------------------------------------------------------------------
-// CycleColors()
-// --------------------------------------------------------------------------
 void CycleColors()
 {
-#define NUM_RANGES 5
-#define CRNG_LOW 0xf0
-#define CRNG_HIGH 0xfe
-#define CRNG_SIZE (CRNG_HIGH - CRNG_LOW + 1)
+    const int NUM_RANGES = 5;
+    const uint8_t CRNG_LOW = 0xF0;
+    const uint8_t CRNG_HIGH = 0xFE;
+    const int CRNG_SIZE = CRNG_HIGH - CRNG_LOW + 1;
 
-    static CycleInfo crng[NUM_RANGES] = { { 7, 0, 0xf0, 0xf1 },
-                                          { 15, 0, 0xf2, 0xf3 },
-                                          { 30, 0, 0xf4, 0xf5 },
-                                          { 10, 0, 0xf6, 0xf9 },
-                                          { 12, 0, 0xfa, 0xfe }, };
+    static CycleInfo crng[NUM_RANGES] = {
+        { 7, 0, 0xF0, 0xF1 },
+        { 15, 0, 0xF2, 0xF3 },
+        { 30, 0, 0xF4, 0xF5 },
+        { 10, 0, 0xF6, 0xF9 },
+        { 12, 0, 0xFA, 0xFE },
+    };
 
-    uint8_t loop, cbuffer[CRNG_SIZE][3];
+    uint8_t loop;
+    uint8_t cbuffer[CRNG_SIZE][3];
     bool changes = false;
 
     for (loop = 0; loop < NUM_RANGES; loop++) {
@@ -7430,9 +7317,6 @@ void CycleColors()
     }
 }
 
-
-// ===========================================================================
-
 /*
 ==========================
 =
@@ -7442,7 +7326,6 @@ void CycleColors()
 =
 ==========================
 */
-
 void ShutdownId()
 {
     US_Shutdown();
@@ -7453,10 +7336,6 @@ void ShutdownId()
     CA_Shutdown();
 }
 
-
-// ===========================================================================
-
-
 /*
 ====================
 =
@@ -7466,7 +7345,6 @@ void ShutdownId()
 =
 ====================
 */
-
 void CalcProjection(
     int32_t focal)
 {
@@ -7511,19 +7389,11 @@ void CalcProjection(
     maxslope >>= 8;
 }
 
-
-
-// ===========================================================================
-
-// --------------------------------------------------------------------------
-// DoMovie()
-// --------------------------------------------------------------------------
 bool DoMovie(
     movie_t movie,
     void* palette)
 {
     bool ReturnVal;
-//      StopMusic();
     SD_StopSound();
 
     ClearMemory();
@@ -7545,26 +7415,11 @@ bool DoMovie(
     return ReturnVal;
 }
 
-// ===========================================================================
-
-// --------------------------------------------------------------------------
-// LoadFonts()
-// --------------------------------------------------------------------------
 void LoadFonts()
 {
     CA_CacheGrChunk(STARTFONT + 4);
     CA_CacheGrChunk(STARTFONT + 2);
 }
-
-// ===========================================================================
-
-/*
-==========================
-=
-= SetViewSize
-=
-==========================
-*/
 
 void SetViewSize(
     int width,
@@ -7601,9 +7456,6 @@ void NewViewSize()
     CA_DownLevel();
 }
 
-
-// ===========================================================================
-
 void pre_quit()
 {
     ::WriteConfig();
@@ -7618,16 +7470,6 @@ void Quit()
 
     ::exit(1);
 }
-
-// ===========================================================================
-
-/*
-=====================
-=
-= DemoLoop
-=
-=====================
-*/
 
 void DemoLoop()
 {
@@ -7837,9 +7679,6 @@ void DemoLoop()
     }
 }
 
-// -------------------------------------------------------------------------
-// DrawCreditsPage()
-// -------------------------------------------------------------------------
 void DrawCreditsPage()
 {
     PresenterInfo pi;
@@ -7868,24 +7707,10 @@ void DrawCreditsPage()
 }
 
 
-// ===========================================================================
-
-
-extern void JM_FREE_START();
-extern void JM_FREE_END();
-
-
-/*
-==========================
-=
-= main
-=
-==========================
-*/
-
-// char    *nosprtxt[] = {"nospr",nil};
 #if IN_DEVELOPMENT
-int16_t starting_episode = 0, starting_level = 0, starting_difficulty = 2;
+int16_t starting_episode = 0;
+int16_t starting_level = 0;
+int16_t starting_difficulty = 2;
 #endif
 int16_t debug_value = 0;
 
@@ -7917,10 +7742,6 @@ int main(
     return 0;
 }
 
-
-// -------------------------------------------------------------------------
-// fprint()
-// -------------------------------------------------------------------------
 void fprint(
     char* text)
 {
@@ -7928,56 +7749,6 @@ void fprint(
         printf("%c", *text++);
     }
 }
-
-// FIXME Make cross-platform
-#if 0
-void InitDestPath()
-{
-    char* env_value;
-
-    env_value = getenv("APOGEECD");
-
-    if (env_value) {
-        size_t len;
-        struct _finddata_t fd;
-        intptr_t fd_handle;
-        int16_t fd_result;
-        bool fd_found = false;
-
-        len = strlen(env_value);
-
-        if (len > MAX_DEST_PATH_LEN) {
-            printf("\nAPOGEECD path too long.\n");
-            exit(0);
-        }
-
-        strcpy(destPath, env_value);
-
-        if (destPath[len - 1] == '\\') {
-            destPath[len - 1] = '\0';
-        }
-
-        fd_handle = _findfirst(destPath, &fd);
-        fd_result = (fd_handle != -1) ? 0 : -1;
-
-        while ((fd_result == 0) && (!fd_found)) {
-            fd_found = ((fd.attrib & _A_SUBDIR) != 0);
-            fd_result = _findnext(fd_handle, &fd);
-        }
-
-        _findclose(fd_handle);
-
-        if (!fd_found) {
-            printf("\nAPOGEECD directory not found.\n");
-            exit(0);
-        }
-
-        strcat(destPath, "\\");
-    } else {
-        strcpy(destPath, "");
-    }
-}
-#endif // 0
 
 void InitDestPath()
 {
@@ -8004,7 +7775,6 @@ void InitDestPath()
 }
 
 #if IN_DEVELOPMENT
-
 // -------------------------------------------------------------------------
 // ShowMemory()
 // -------------------------------------------------------------------------
@@ -8016,9 +7786,7 @@ void ShowMemory()
     psize = MM_LargestAvail();
     mprintf("Mem free: %ld   %ld\n", size, psize);
 }
-
 #endif
-
 
 // BBi
 void objtype::serialize(
