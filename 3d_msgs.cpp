@@ -27,75 +27,17 @@ Free Software Foundation, Inc.,
 static std::string empty_msg;
 
 
-// ---------------------------------------------------------------------------
-//
 // FOOD MACHINE MESSAGES
-//
-// ---------------------------------------------------------------------------
-
 std::string food_msg1;
 
-
-// ---------------------------------------------------------------------------
-//
 // BEVERAGE MACHINE MESSAGES
-//
-// ---------------------------------------------------------------------------
-
 std::string bevs_msg1;
 
-
-// ---------------------------------------------------------------------------
-//
-// GENERAL HINT MESSAGES
-//
-// ---------------------------------------------------------------------------
-
-#ifdef CON_HINTS
-char genhint_msg1[] = "\r\rTERMINALS ACCESS\rALL INFORMATION.";
-char genhint_msg2[] = "\r\rALL FLOORS ARE ON-LINE.";
-char genhint_msg3[] = "\r\rSOME SCIENTIST\rARE INFORMANTS.";
-char genhint_msg4[] = "\r\rELEVATOR CODES ARE\rINFORMATION.";
-char genhint_msg5[] = "\r\rTOO MUCH CANDY IS\rBAD FOR YOUR TEETH.";
-char genhint_msg6[] = "\r\rINFORMANTS ARE\rEVERYWHERE!";
-char genhint_msg7[] = "\r\rINFORMANTS ARE\rINTERACTIVE.";
-char genhint_msg8[] = "\r\rBEWARE OF EXPERIMENTS!";
-char genhint_msg9[] = "\r\rBEWARE OF GOLDFIRE!";
-char genhint_msg10[] = "\r\rTHERE ARE HIDDEN\rROOMS BEHIND PANELS.";
-char genhint_msg11[] = "\r\rSOME WALLS ARE PANELS.";
-char genhint_msg12[] = "\r\rORDER ALL 6 MISSIONS\rOF BLAKE STONE TODAY!";
-char genhint_msg13[] = "\r\rCALL APOGEE AND REGISTER!";
-char genhint_msg14[] = "\r\rTALK TO SCIENTISTS.\r";
-char genhint_msg15[] = "\r\rSOME SCIENTISTS\rARE INFORMANTS.";
-char genhint_msg16[] = "\r\rLEVEL BLUEPRINTS\rARE INFORMATION.";
-char genhint_msg17[] = "\r\rUSE TRANSPORTERS WHEN\rAVAILABLE.";
-
-char* ConcessionGenHints[NUM_GEN_HINTS] = {
-    genhint_msg1, genhint_msg2, genhint_msg3, genhint_msg4, genhint_msg5,
-    genhint_msg6, genhint_msg7, genhint_msg8, genhint_msg9, genhint_msg10,
-    genhint_msg11, genhint_msg12, genhint_msg13, genhint_msg14, genhint_msg15,
-    genhint_msg16, genhint_msg17,
-};
-#endif
-
-
-// ---------------------------------------------------------------------------
-//
 // NO EAT MESSAGES
-//
-// ---------------------------------------------------------------------------
-
 std::string noeat_msg1 =
     "\r\r    CAN'T EAT NOW,"
     "\r     NOT HUNGRY."
 ;
-
-
-// ---------------------------------------------------------------------------
-//
-// GENERAL MESSAGES
-//
-// ---------------------------------------------------------------------------
 
 std::string NoAdLibCard =
     "^FC57\r       MUSIC:\r"
@@ -799,7 +741,6 @@ ActorMessages ActorInfoMsg = {
 
     actor_info52, // gr_explosion
 }; // ActorInfoMsg
-
 
 void initialize_messages()
 {
