@@ -21,19 +21,12 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_DRAW.C
-
-
 #include "3d_def.h"
 
 
-// #define DEBUGWALLS
-// #define DEBUGTICS
-
-// #define WOLFDOORS
-
 #define MASKABLE_DOORS (0)
 #define MASKABLE_POSTS (MASKABLE_DOORS)
+
 
 /*
 =============================================================================
@@ -44,22 +37,24 @@ Free Software Foundation, Inc.,
 */
 
 // the door is the last picture before the sprites
-
 #define DOORWALL (PMSpriteStart - (NUMDOORTYPES))
 
-#define ACTORSIZE 0x4000
+#define ACTORSIZE (0x4000)
+
 
 void DrawRadar();
-
 void DrawLSPost();
 void DrawPost();
+
 void GetBonus(
     statobj_t* check);
+
 void ScaleLSShape(
     int xcenter,
     int shapenum,
     int height,
     int8_t lighting);
+
 void DrawAmmoPic();
 void DrawScoreNum();
 void DrawWeaponPic();
@@ -82,17 +77,18 @@ void UpdateRadarGuage();
 //
 // player interface stuff
 //
-int16_t weaponchangetics, itemchangetics, bodychangetics;
-int16_t plaqueon, plaquetime, getpic;
+int16_t weaponchangetics;
+int16_t itemchangetics;
+int16_t bodychangetics;
+int16_t plaqueon;
+int16_t plaquetime
+;int16_t getpic;
 
-star_t* firststar, * laststar;
+star_t* firststar;
+star_t* laststar;
 
 
-#ifdef DEBUGWALLS
-int screenloc[3] = { PAGE1START, PAGE1START, PAGE1START };
-#else
 int screenloc[3] = { PAGE1START, PAGE2START, PAGE3START };
-#endif
 int freelatch = FREESTART;
 
 int32_t lasttimecount;
@@ -121,26 +117,27 @@ int viewangle;
 int viewsin;
 int viewcos;
 
-#ifndef WOLFDOORS
 char thetile[64];
 uint8_t* mytile;
-#endif
 
 
 fixed FixedByFrac(
     fixed a,
     fixed b);
+
 void TransformActor(
     objtype* ob);
+
 void BuildTables();
 void ClearScreen();
+
 int16_t CalcRotate(
     objtype* ob);
+
 void DrawScaleds();
 void CalcTics();
 void FixOfs();
 void ThreeDRefresh();
-
 
 
 //
@@ -149,7 +146,6 @@ void ThreeDRefresh();
 int lastside; // true for vertical
 int lastintercept;
 int lasttilehit;
-
 
 //
 // ray tracing variables
@@ -182,18 +178,16 @@ int yintercept;
 int xstep;
 int ystep;
 
-int16_t horizwall[MAXWALLTILES], vertwall[MAXWALLTILES];
-
+int16_t horizwall[MAXWALLTILES];
+int16_t vertwall[MAXWALLTILES];
 
 
 uint16_t viewflags;
 extern uint8_t lightson;
 extern const uint8_t rndtable[256];
 
-// Global Cloaked Shape flag..
-
+// Global Cloaked Shape flag.
 bool cloaked_shape = false;
-
 
 
 /*
@@ -204,26 +198,13 @@ bool cloaked_shape = false;
 =============================================================================
 */
 
-
-void AsmRefresh(); // in 3D_DR_A.ASM
-void NoWallAsmRefresh(); // in 3D_DR_A.ASM
+void AsmRefresh();
+void NoWallAsmRefresh();
 
 
 // BBi
 static int last_texture_offset = -1;
 static const uint8_t* last_texture_data = nullptr;
-
-
-/*
-============================================================================
-
-                           3 - D  DEFINITIONS
-
-============================================================================
-*/
-
-
-// ==========================================================================
 
 
 /*
@@ -236,7 +217,6 @@ static const uint8_t* last_texture_data = nullptr;
 =
 ========================
 */
-
 fixed FixedByFrac(
     fixed a,
     fixed b)
@@ -263,8 +243,6 @@ fixed FixedByFrac(
     return result;
 }
 
-// ==========================================================================
-
 /*
 ========================
 =
@@ -283,11 +261,6 @@ fixed FixedByFrac(
 =
 ========================
 */
-
-
-//
-// transform actor
-//
 void TransformActor(
     objtype* ob)
 {
@@ -337,8 +310,6 @@ void TransformActor(
 
     ob->viewheight = static_cast<uint16_t>(temp);
 }
-
-// ==========================================================================
 
 /*
 ========================
@@ -418,11 +389,6 @@ bool TransformTile(
     }
 }
 
-
-
-
-// ==========================================================================
-
 /*
 ====================
 =
@@ -432,7 +398,6 @@ bool TransformTile(
 =
 ====================
 */
-
 int CalcHeight()
 {
     int gx = xintercept - viewx;
@@ -460,18 +425,6 @@ int CalcHeight()
     return result;
 }
 
-
-// ==========================================================================
-
-
-
-/*
-===================
-=
-= ScalePost
-=
-===================
-*/
 
 const uint8_t* postsource;
 int postx;
@@ -507,17 +460,6 @@ void FarScalePost() // just so other files can call
 }
 
 
-/*
-====================
-=
-= HitVertWall
-=
-= tilehit bit 7 is 0, because it's not a door tile
-= if bit 6 is 1 and the adjacent tile is a door tile, use door side pic
-=
-====================
-*/
-
 uint16_t DoorJamsShade[] = {
     BIO_JAM_SHADE, // dr_bio
     SPACE_JAM_2_SHADE, // dr_normal
@@ -546,8 +488,16 @@ uint16_t DoorJams[] = {
     SPACE_JAM, // dr_space
 };
 
-
-
+/*
+====================
+=
+= HitVertWall
+=
+= tilehit bit 7 is 0, because it's not a door tile
+= if bit 6 is 1 and the adjacent tile is a door tile, use door side pic
+=
+====================
+*/
 void HitVertWall()
 {
     int16_t wallpic;
@@ -602,7 +552,6 @@ void HitVertWall()
         postsource = &last_texture_data[last_texture_offset];
     }
 }
-
 
 /*
 ====================
@@ -668,17 +617,6 @@ void HitHorizWall()
 
 }
 
-
-// ==========================================================================
-
-/*
-====================
-=
-= HitHorizDoor
-=
-====================
-*/
-
 void HitHorizDoor()
 {
     uint16_t texture, doorpage = static_cast<uint16_t>(-1), doornum, xint;
@@ -690,9 +628,6 @@ void HitHorizDoor()
         return;
     }
 
-#ifdef WOLFDOORS
-    texture = ((xintercept - doorposition[doornum]) >> 4) & 0xfc0;
-#else
     xint = xintercept & 0xffff;
 
     if (xint > 0x7fff) {
@@ -700,7 +635,6 @@ void HitHorizDoor()
     } else {
         texture = ((xint + (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
     }
-#endif
 
     wallheight[pixx] = CalcHeight();
 
@@ -796,18 +730,6 @@ void HitHorizDoor()
     }
 }
 
-// ==========================================================================
-
-
-
-/*
-====================
-=
-= HitVertDoor
-=
-====================
-*/
-
 void HitVertDoor()
 {
     uint16_t texture, doorpage = static_cast<uint16_t>(DOORWALL), doornum, yint;
@@ -819,16 +741,12 @@ void HitVertDoor()
         return;
     }
 
-#ifdef WOLFDOORS
-    texture = ((yintercept - doorposition[doornum]) >> 4) & 0xfc0;
-#else
     yint = yintercept & 0xffff;
     if (yint > 0x7fff) {
         texture = ((yint - (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
     } else {
         texture = ((yint + (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
     }
-#endif
 
     wallheight[pixx] = CalcHeight();
 
@@ -925,8 +843,6 @@ void HitVertDoor()
     }
 }
 
-// ==========================================================================
-
 /*
 ====================
 =
@@ -936,7 +852,6 @@ void HitVertDoor()
 =
 ====================
 */
-
 void HitHorizPWall()
 {
     int16_t wallpic;
@@ -977,7 +892,6 @@ void HitHorizPWall()
     }
 }
 
-
 /*
 ====================
 =
@@ -987,7 +901,6 @@ void HitHorizPWall()
 =
 ====================
 */
-
 void HitVertPWall()
 {
     int16_t wallpic;
@@ -1028,8 +941,6 @@ void HitVertPWall()
     }
 
 }
-
-// ==========================================================================
 
 /*
 =====================
@@ -1128,6 +1039,11 @@ int16_t CalcRotate(
 }
 
 
+
+const int MAXVISABLE = 50;
+visobj_t vislist[MAXVISABLE], * visptr, * visstep, * farthest;
+
+
 /*
 =====================
 =
@@ -1137,22 +1053,6 @@ int16_t CalcRotate(
 =
 =====================
 */
-
-#define MAXVISABLE 50
-
-
-#if 0
-typedef struct {
-    int viewx,
-        viewheight,
-        shapenum;
-} visobj_t;
-#endif
-
-
-visobj_t vislist[MAXVISABLE], * visptr, * visstep, * farthest;
-
-
 void DrawScaleds()
 {
     int16_t i, least, numvisable, height;
@@ -1330,18 +1230,6 @@ void DrawScaleds()
 }
 
 
-// ==========================================================================
-
-/*
-==============
-=
-= DrawPlayerWeapon
-=
-= Draw the player's hands
-=
-==============
-*/
-
 using WeaponScale = std::vector<int16_t>;
 
 WeaponScale weaponscale;
@@ -1382,65 +1270,15 @@ void DrawPlayerWeapon()
             int16_t centery;
 
             useBounceOffset = true;
-#if 1
-#if 0
-            if (Keyboard[ScanCode::sc_page_up]) {
-                vh++;
-                Keyboard[ScanCode::sc_page_up] = 0;
-            }
-
-            if (Keyboard[ScanCode::sc_page_down]) {
-                if (vh) {
-                    vh--;
-                }
-                Keyboard[ScanCode::sc_page_down] = 0;
-            }
-
-            if (Keyboard[ScanCode::sc_end]) {
-                ce++;
-                Keyboard[ScanCode::sc_end] = 0;
-            }
-
-            if (Keyboard[sc_Home]) {
-                if (ce) {
-                    ce--;
-                }
-                Keyboard[sc_Home] = 0;
-            }
-
-            viewheight = vh;
-            centery = ce;
-#endif
-
             viewheight = v_table[20 - viewsize];
             centery = c_table[20 - viewsize];
             MegaSimpleScaleShape(centerx, centery, shapenum, viewheight + 1, 0);
-
-#if 0
-            mclear();
-            mprintf("viewheight: %d   \n", viewheight);
-            mprintf("   centery: %d   \n", centery);
-#endif
-#else
-            SimpleScaleShape(viewwidth / 2, shapenum, viewheight + 1);
-#endif
             useBounceOffset = false;
 
             viewheight = oldviewheight;
         }
     }
 }
-
-// ==========================================================================
-
-
-/*
-=====================
-=
-= CalcTics
-=
-=====================
-*/
 
 void CalcTics()
 {
@@ -1459,21 +1297,7 @@ void CalcTics()
 
 
     }
-#if 0
 
-    if (DemoMode) { // demo recording and playback needs
-        // to be constant
-//
-// take DEMOTICS or more tics, and modify Timecount to reflect time taken
-//
-        oldtimecount = lasttimecount;
-        while (TimeCount < oldtimecount + DEMOTICS * 2) {
-        }
-        lasttimecount = oldtimecount + DEMOTICS;
-        TimeCount = lasttimecount + DEMOTICS;
-        tics = DEMOTICS;
-    } else
-#endif
     {
 //
 // non demo, so report actual time
@@ -1512,35 +1336,14 @@ void CalcTics()
     }
 }
 
-
-// ==========================================================================
-
-
-/*
-========================
-=
-= FixOfs
-=
-========================
-*/
-
 void FixOfs()
 {
-    VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), viewwidth / 8, viewheight);
+    VW_ScreenToScreen(
+        static_cast<uint16_t>(displayofs),
+        static_cast<uint16_t>(bufferofs),
+        viewwidth / 8,
+        viewheight);
 }
-
-
-// ==========================================================================
-
-
-
-/*
-====================
-=
-= WallRefresh
-=
-====================
-*/
 
 void WallRefresh()
 {
@@ -1573,15 +1376,9 @@ void WallRefresh()
 }
 
 
-
-// ==========================================================================
-
 extern int16_t MsgTicsRemain;
 extern uint16_t LastMsgPri;
 
-// -------------------------------------------------------------------------
-// RedrawStatusAreas()
-// -------------------------------------------------------------------------
 void RedrawStatusAreas()
 {
     int8_t loop;
@@ -1611,15 +1408,6 @@ void RedrawStatusAreas()
 void F_MapLSRow();
 void C_MapLSRow();
 void MapLSRow();
-
-
-/*
-========================
-=
-= ThreeDRefresh
-=
-========================
-*/
 
 void ThreeDRefresh()
 {
@@ -1721,8 +1509,6 @@ void ThreeDRefresh()
         ::DrawRadar();
     }
 
-//      VW_WaitVBL(1); // mike check this out
-
 #ifdef PAGEFLIP
     NextBuffer();
 #endif
@@ -1733,9 +1519,6 @@ void ThreeDRefresh()
     frameon++;
 }
 
-// --------------------------------------------------------------------------
-// NextBuffer()
-// --------------------------------------------------------------------------
 int16_t NextBuffer()
 {
     displayofs = bufferofs;
@@ -1749,9 +1532,6 @@ int16_t NextBuffer()
 
 uint8_t TravelTable[MAPSIZE][MAPSIZE];
 
-// --------------------------------------------------------------------------
-// UpdateTravelTable()
-// --------------------------------------------------------------------------
 void UpdateTravelTable()
 {
     for (int i = 0; i < MAPSIZE; ++i) {
@@ -1763,9 +1543,6 @@ void UpdateTravelTable()
 
 extern int16_t an_offset[];
 
-// --------------------------------------------------------------------------
-// DrawRadar()
-// --------------------------------------------------------------------------
 void DrawRadar()
 {
     int8_t zoom = gamestate.rzoom;
