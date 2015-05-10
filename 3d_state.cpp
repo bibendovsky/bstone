@@ -173,7 +173,6 @@ void NewState(
 =============================================================================
 */
 
-
 static bool CHECKDIAG(
     int x,
     int y)
@@ -211,9 +210,9 @@ static bool CHECKSIDE(
         }
 
         if (temp < 256) {
-            ::doornum = temp & 63;
+            auto doornum = temp & 63;
 
-            if (::doorobjlist[::doornum].lock != kt_none) {
+            if (::doorobjlist[doornum].lock != kt_none) {
                 return false;
             }
         } else if ((actor->flags & FL_SOLID) != 0) {
