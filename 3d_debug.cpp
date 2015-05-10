@@ -21,21 +21,23 @@ Free Software Foundation, Inc.,
 ============================================================== */
 
 
-// 3D_DEBUG.C
-
-
 #include "3d_def.h"
 
 
 void VH_UpdateScreen();
+
 void TakeDamage(
     int16_t points,
     objtype* attacker);
+
 void SetPlaneViewSize();
+
 void HealSelf(
     int16_t points);
+
 void GiveWeapon(
     int16_t weapon);
+
 void DrawScore();
 void SetPlaneViewSize();
 
@@ -48,16 +50,9 @@ void SetPlaneViewSize();
 =============================================================================
 */
 
-
-
 #define VIEWTILEX (viewwidth / 16)
 #define VIEWTILEY (viewheight / 16)
 
-#ifdef BSTONE_AOG
-#define MAX_WARP_LEVEL (10)
-#else
-#define MAX_WARP_LEVEL 23
-#endif
 
 /*
 =============================================================================
@@ -71,6 +66,7 @@ bool ForceLoadDefault = false;
 
 int16_t DebugKeys();
 
+
 /*
 =============================================================================
 
@@ -80,6 +76,7 @@ int16_t DebugKeys();
 */
 
 bool PP_step = false;
+
 #if IN_DEVELOPMENT
 /*
 ================
@@ -106,22 +103,14 @@ void PicturePause()
     VW_ColorBorder(0);
     return;
 }
-
 #endif
+
 int16_t maporgx;
 int16_t maporgy;
 
 void ViewMap();
 
-// ===========================================================================
 
-/*
-==================
-=
-= DebugMemory
-=
-==================
-*/
 void DebugMemory()
 {
     int16_t i, temp;
@@ -184,16 +173,6 @@ void DebugMemory()
     bufferofs = temp;
 }
 
-// ===========================================================================
-
-/*
-==================
-=
-= CountObjects
-=
-==================
-*/
-
 void CountObjects()
 {
     int16_t i, total, count, active, inactive, doors;
@@ -237,10 +216,6 @@ void CountObjects()
     IN_Ack();
 }
 
-
-// ------------------------------------------------------------------------
-// CountTotals
-// ------------------------------------------------------------------------
 void CountTotals()
 {
     CenterWindow(20, 11);
@@ -260,10 +235,6 @@ void CountTotals()
     IN_Ack();
 }
 
-
-// ------------------------------------------------------------------------
-// ShowMap()
-// ------------------------------------------------------------------------
 void ShowMap()
 {
     objtype old_player;
@@ -283,11 +254,7 @@ void ShowMap()
     IN_Ack();
 }
 
-
-// ===========================================================================
-
-// ===========================================================================
-
+// FIXME Remove or revise
 #if IN_DEVELOPMENT
 /*
 ================
@@ -466,12 +433,7 @@ void ShapeTest()
     RedrawStatusAreas();
 }
 #pragma warn +pia
-
 #endif
-
-
-// ===========================================================================
-
 
 // ---------------------------------------------------------------------------
 // IncRange - Incs a value to a MAX value (including max value)
@@ -509,15 +471,6 @@ uint16_t DecRange(
     return Value;
 }
 
-
-
-/*
-================
-=
-= DebugKeys
-=
-================
-*/
 
 #if IN_DEVELOPMENT
 char TestAutoMapperMsg[] = { "AUTOMAPPER TEST\n ENTER COUNT:" };
@@ -738,6 +691,7 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
         if (!esc && str[0] != '\0') {
+            const int MAX_WARP_LEVEL = (::is_aog() ? 10 : 23);
             level = static_cast<int16_t>(atoi(str));
             if (level > -1 && level <= MAX_WARP_LEVEL) {
                 gamestate.lastmapon = gamestate.mapon;
@@ -811,142 +765,3 @@ int16_t DebugKeys()
 
     return 0;
 }
-
-#if 0
-/*
-===================
-=
-= OverheadRefresh
-=
-===================
-*/
-
-void OverheadRefresh()
-{
-    uint16_t x, y, endx, endy, sx, sy;
-    uint16_t tile;
-
-
-    endx = maporgx + VIEWTILEX;
-    endy = maporgy + VIEWTILEY;
-
-    for (y = maporgy; y < endy; y++) {
-        for (x = maporgx; x < endx; x++) {
-            sx = (x - maporgx) * 16;
-            sy = (y - maporgy) * 16;
-
-            switch (viewtype) {
-#if 0
-            case mapview:
-                tile = *(mapsegs[0] + farmapylookup[y] + x);
-                break;
-
-            case tilemapview:
-                tile = tilemap[x][y];
-                break;
-
-            case visview:
-                tile = spotvis[x][y];
-                break;
-#endif
-            case actoratview:
-                tile = (size_t)actorat[x][y];
-                break;
-            }
-
-            if (tile < MAXWALLTILES) {
-                LatchDrawTile(sx, sy, tile);
-            } else {
-                LatchDrawChar(sx, sy, NUMBERCHARS + ((tile & 0xf000) >> 12));
-                LatchDrawChar(sx + 8, sy, NUMBERCHARS + ((tile & 0x0f00) >> 8));
-                LatchDrawChar(sx, sy + 8, NUMBERCHARS + ((tile & 0x00f0) >> 4));
-                LatchDrawChar(sx + 8, sy + 8, NUMBERCHARS + (tile & 0x000f));
-            }
-        }
-    }
-
-}
-
-
-/*
-===================
-=
-= ViewMap
-=
-===================
-*/
-
-void ViewMap()
-{
-    bool button0held;
-
-    viewtype = actoratview;
-//      button0held = false;
-
-
-    maporgx = player->tilex - VIEWTILEX / 2;
-    if (maporgx < 0) {
-        maporgx = 0;
-    }
-    if (maporgx > MAPSIZE - VIEWTILEX) {
-        maporgx = MAPSIZE - VIEWTILEX;
-    }
-    maporgy = player->tiley - VIEWTILEY / 2;
-    if (maporgy < 0) {
-        maporgy = 0;
-    }
-    if (maporgy > MAPSIZE - VIEWTILEY) {
-        maporgy = MAPSIZE - VIEWTILEY;
-    }
-
-    do {
-//
-// let user pan around
-//
-        PollControls();
-        if (controlx < 0 && maporgx > 0) {
-            maporgx--;
-        }
-        if (controlx > 0 && maporgx < mapwidth - VIEWTILEX) {
-            maporgx++;
-        }
-        if (controly < 0 && maporgy > 0) {
-            maporgy--;
-        }
-        if (controly > 0 && maporgy < mapheight - VIEWTILEY) {
-            maporgy++;
-        }
-
-#if 0
-        if (c.button0 && !button0held) {
-            button0held = true;
-            viewtype++;
-            if (viewtype > visview) {
-                viewtype = mapview;
-            }
-        }
-        if (!c.button0) {
-            button0held = false;
-        }
-#endif
-
-        OverheadRefresh();
-
-    } while (!Keyboard[sc_Escape]);
-
-    IN_ClearKeysDown();
-}
-#endif
-
-
-
-#if IN_DEVELOPMENT
-// -------------------------------------------------------------------------
-// CalcMemFree()
-// -------------------------------------------------------------------------
-void CalcMemFree()
-{
-    __PUR_MEM_AVAIL__ = MM_TotalFree();
-    __FREE_MEM_AVAIL__ = MM_UnusedMemory();
-}
-#endif
