@@ -4347,6 +4347,71 @@ public:
 }; // RemapTag
 
 
+// Contains an id for enumeration or integral type.
+template<typename T>
+class ArchiveIEId {
+public:
+    static const int value = (
+        std::is_integral<T>::value ?
+            1 : (std::is_enum<T>::value ? 2 : 0));
+};
+
+// Remaps enumeration or integral type to integral type.
+template<typename T, int>
+class ArchiveIETag;
+
+template<typename T>
+class ArchiveIETag<T,1>
+{
+public:
+    using Type = T;
+};
+
+template<typename T>
+class ArchiveIETag<T,2>
+{
+public:
+    using Type = typename std::underlying_type<T>::type;
+};
+
+template<typename T>
+using ArchiveIEType =
+    typename ArchiveIETag<T, ArchiveIEId<T>::value>::Type;
+
+
+// Contains an id of signed or unsigned integral type.
+template<typename T>
+class ArchiveSignX8Id {
+public:
+    static const int value = (
+        std::is_integral<T>::value ?
+            (std::is_signed<T>::value ? 1 : 2) :
+            0);
+};
+
+// Remaps integral type to appropriate 8-bit signed/unsigned type.
+template<typename T, int>
+class ArchiveSignX8Tag;
+
+template<typename T>
+class ArchiveSignX8Tag<T,1>
+{
+public:
+    using Type = int8_t;
+};
+
+template<typename T>
+class ArchiveSignX8Tag<T,2>
+{
+public:
+    using Type = uint8_t;
+};
+
+template<typename T>
+using ArchiveX8Type =
+    typename ArchiveSignX8Tag<T, ArchiveSignX8Id<T>::value>::Type;
+
+
 template<typename T>
 inline void serialize_field_internal(
     const T& value,
@@ -4461,7 +4526,11 @@ inline void deserialize_field_internal(
     bstone::Crc32& checksum,
     ArchiveRemapU8Tag)
 {
-    uint8_t source_value = 0;
+    // Get proper signed/unsigned 8-bit type based on value's one.
+    using ValueType = ArchiveIEType<T>;
+    using ValueX8Type = ArchiveX8Type<ValueType>;
+
+    ValueX8Type source_value = 0;
 
     if (!reader.read(source_value)) {
         throw ArchiveException("deserialize_field");
