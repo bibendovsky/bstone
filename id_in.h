@@ -254,6 +254,7 @@ enum BindingId {
     e_bi_heart_beat,
 
     e_bi_pause,
+    e_bi_grab_mouse,
 
     e_bi_last_entry,
 }; // BindingId
@@ -420,6 +421,9 @@ uint8_t IN_JoyButtons();
 
 
 // BBi
+extern bool in_is_mouse_grabbed;
+
+
 void in_handle_events();
 
 void in_get_mouse_deltas(

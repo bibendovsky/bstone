@@ -535,6 +535,7 @@ static BindsItems binds = {
 
     { "MISC", 0, nullptr, },
     { "PAUSE", 0, &in_bindings[e_bi_pause], },
+    { "(UN)GRAB MOUSE", 0, &in_bindings[e_bi_grab_mouse], },
 }; // binds
 
 

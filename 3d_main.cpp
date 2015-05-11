@@ -7458,10 +7458,7 @@ void NewViewSize()
 
 void pre_quit()
 {
-    if (::is_config_loaded) {
-        ::WriteConfig();
-    }
-
+    ::WriteConfig();
     ::write_high_scores();
 
     ::ShutdownId();

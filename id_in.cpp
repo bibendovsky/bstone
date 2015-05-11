@@ -107,6 +107,8 @@ uint32_t MouseDownCount;
 
 bool in_use_modern_bindings = default_in_use_modern_bindings;
 Bindings in_bindings;
+bool in_is_mouse_grabbed = false;
+static bool in_last_is_mouse_grabbed = false;
 
 /*
 =============================================================================
@@ -129,6 +131,25 @@ static Direction DirTable[] = // Quick lookup for total direction
 //      Internal routines
 
 // BBi
+static bool in_grab_mouse(
+    bool grab)
+{
+    if (grab == ::in_is_mouse_grabbed) {
+        return grab;
+    }
+
+    auto sdl_result = ::SDL_SetRelativeMouseMode(
+        grab ? SDL_TRUE : SDL_FALSE);
+
+    if (sdl_result == 0) {
+        ::in_is_mouse_grabbed = grab;
+    } else {
+        ::in_is_mouse_grabbed = false;
+    }
+
+    return ::in_is_mouse_grabbed;
+}
+
 static ScanCode in_keyboard_map_to_bstone(
     SDL_Keycode key_code,
     SDL_Keymod key_mod)
@@ -672,6 +693,16 @@ static void in_handle_keyboard(
         return;
     }
 
+    // Check for special keys
+    if (e.state == SDL_PRESSED) {
+        const auto& grab_mouse_binding = ::in_bindings[e_bi_grab_mouse];
+
+        if (grab_mouse_binding[0] == key || grab_mouse_binding[1] == key) {
+            ::in_grab_mouse(!::in_is_mouse_grabbed);
+        }
+    }
+
+
     bool is_pressed;
 
     switch (key) {
@@ -730,10 +761,20 @@ static void in_handle_mouse_buttons(
     }
 
     if (key != ScanCode::sc_none) {
-        Keyboard[key] = is_pressed;
+        bool apply_key = true;
 
-        if (is_pressed) {
-            LastScan = key;
+        if (!::in_is_mouse_grabbed) {
+            if (::in_grab_mouse(true)) {
+                apply_key = false;
+            }
+        }
+
+        if (apply_key) {
+            Keyboard[key] = is_pressed;
+
+            if (is_pressed) {
+                LastScan = key;
+            }
         }
     }
 }
@@ -744,8 +785,13 @@ static int in_mouse_dy;
 static void in_handle_mouse_motion(
     const SDL_MouseMotionEvent& e)
 {
-    in_mouse_dx += e.xrel;
-    in_mouse_dy += e.yrel;
+    if (::in_is_mouse_grabbed) {
+        in_mouse_dx += e.xrel;
+        in_mouse_dy += e.yrel;
+    } else {
+        in_mouse_dx = 0;
+        in_mouse_dy = 0;
+    }
 }
 
 static void in_handle_mouse(
@@ -1203,13 +1249,16 @@ static void in_handle_window(
     switch (e.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
         clear_state = true;
-        ::SDL_SetRelativeMouseMode(SDL_TRUE);
 
+        if (::in_last_is_mouse_grabbed) {
+            ::in_last_is_mouse_grabbed = ::in_grab_mouse(true);
+        }
         break;
 
     case SDL_WINDOWEVENT_FOCUS_LOST:
         clear_state = true;
-        ::SDL_SetRelativeMouseMode(SDL_FALSE);
+        ::in_last_is_mouse_grabbed = ::in_is_mouse_grabbed;
+        static_cast<void>(::in_grab_mouse(false));
         break;
     }
 
@@ -1624,6 +1673,8 @@ void in_set_default_bindings()
 
     in_bindings[e_bi_pause][0] = ScanCode::sc_p;
     in_bindings[e_bi_pause][1] = ScanCode::sc_pause;
+
+    in_bindings[e_bi_grab_mouse][0] = ScanCode::sc_u;
 }
 
 bool in_is_binding_pressed(
