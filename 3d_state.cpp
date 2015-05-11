@@ -200,7 +200,8 @@ static bool CHECKDIAG(
 
 static bool CHECKSIDE(
     int x,
-    int y)
+    int y,
+    int16_t& doornum)
 {
     auto actor = ::actorat[x][y];
     auto temp = reinterpret_cast<size_t>(actor);
@@ -211,7 +212,7 @@ static bool CHECKSIDE(
         }
 
         if (temp < 256) {
-            auto doornum = temp & 63;
+            doornum = temp & 63;
 
             if (::doorobjlist[doornum].lock != kt_none) {
                 return false;
@@ -251,18 +252,17 @@ bool TryWalk(
     objtype* ob,
     bool moveit)
 {
-    int16_t doornum;
     uint8_t old_tilex = ob->tilex, old_tiley = ob->tiley;
 
     if (ElevatorFloor(ob->tilex, ob->tiley)) {
         return false;
     }
 
-    doornum = -1;
+    int16_t doornum = -1;
 
     switch (ob->dir) {
     case north:
-        if (!::CHECKSIDE(ob->tilex, ob->tiley - 1)) {
+        if (!::CHECKSIDE(ob->tilex, ob->tiley - 1, doornum)) {
             return false;
         }
 
@@ -297,7 +297,7 @@ bool TryWalk(
         break;
 
     case east:
-        if (!::CHECKSIDE(ob->tilex + 1, ob->tiley)) {
+        if (!::CHECKSIDE(ob->tilex + 1, ob->tiley, doornum)) {
             return false;
         }
 
@@ -336,7 +336,7 @@ bool TryWalk(
         break;
 
     case south:
-        if (!::CHECKSIDE(ob->tilex, ob->tiley + 1)) {
+        if (!::CHECKSIDE(ob->tilex, ob->tiley + 1, doornum)) {
             return false;
         }
 
@@ -371,7 +371,7 @@ bool TryWalk(
         break;
 
     case west:
-        if (!::CHECKSIDE(ob->tilex - 1, ob->tiley)) {
+        if (!::CHECKSIDE(ob->tilex - 1, ob->tiley, doornum)) {
             return false;
         }
 
@@ -427,7 +427,6 @@ bool TryWalk(
             ob->tilex = old_tilex;
             ob->tiley = old_tiley;
             return false;
-            break;
 
         // All other actors open doors.
         //
@@ -435,7 +434,6 @@ bool TryWalk(
             OpenDoor(doornum);
             ob->distance = -doornum - 1;
             return true;
-            break;
         }
     }
 
