@@ -82,7 +82,6 @@ void initialize_ca_constants();
 void SDL_SetupDigi();
 
 
-// BBi FIXME
 static uint8_t wolfdigimap[] = {
     // These first sounds are in the upload version
 

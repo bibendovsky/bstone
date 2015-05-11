@@ -902,8 +902,7 @@ objtype* get_actor_near_door(
     int tile_x,
     int tile_y)
 {
-    // FIXME Use for PS too?
-    if (!::is_ps()) {
+    if (::is_aog()) {
         for (int i = 0; i < doornum; ++i) {
             const doorobj_t& door = doorobjlist[i];
 

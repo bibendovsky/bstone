@@ -50,7 +50,8 @@ enum ActorChannel {
     AC_WEAPON,
     AC_ITEM,
     AC_HIT_WALL,
-    AC_NO_WAY
+    AC_NO_WAY,
+    AC_INTERROGATION,
 }; // ActorChannel
 
 enum SoundType {

@@ -387,10 +387,8 @@ void MOVIE_HandlePage(
         BufferPtr += blk.recsize;
 
         // BBi
-        // FIXME Clear entire input state.
-        LastScan = ScanCode::sc_none;
-        ci.button0 = 0;
-        ci.button1 = 0;
+        ::IN_ClearKeysDown();
+        ci = {};
         // BBi
     }
     break;

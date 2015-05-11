@@ -835,8 +835,6 @@ void DrawHealthNum()
         health_string += '%';
 
         fontnumber = 2;
-
-        // FIXME Should be slightly blue
         fontcolor = 0x9D;
 
         PrintX = 149;
@@ -3066,9 +3064,7 @@ bool Interrogate(
         }
         DisplayInfoMsg(msg, MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
 
-        // BBi
-        // FIXME Create a new actor channel type for interrogation?
-        ::sd_play_player_sound(INTERROGATESND, bstone::AC_ITEM);
+        ::sd_play_player_sound(INTERROGATESND, bstone::AC_INTERROGATION);
     }
 
     return rt_value;

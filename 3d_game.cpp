@@ -2416,6 +2416,11 @@ void SetupGameLevel()
     alerted = 0;
     LastInfoAttacker = nothing;
 
+    // BBi
+    bool is_red_key_present = false;
+    bool is_projection_generator_present = false;
+    // BBi
+
     for (y = 0; y < mapheight; y++) {
         for (x = 0; x < mapwidth; x++) {
             tile = *map++;
@@ -2582,6 +2587,16 @@ void SetupGameLevel()
                 }
             }
 
+            // BBi
+            if (map1[0] == 55) {
+                is_red_key_present = true;
+            }
+
+            if (map1[0] == 177) {
+                is_projection_generator_present = true;
+            }
+            // BBi
+
             map1++;
         }
     }
@@ -2643,14 +2658,31 @@ void SetupGameLevel()
 //
     CA_LoadAllSounds();
 
-    if (!::is_ps()) {
-        // FIXME Check for red key?
+    if (::is_aog()) {
+        if (!is_red_key_present &&
+            gamestate.mapon > 0 &&
+            gamestate.mapon < 10 &&
+            gamestuff.level[gamestate.mapon + 1].locked)
+        {
+            ::Quit("No red key on floor {}.", gamestate.mapon + 1);
+        }
+
+        if (::is_aog_full() &&
+            gamestate.episode == 5 &&
+            gamestate.mapon == 9 &&
+            !is_projection_generator_present)
+        {
+            ::Quit("No projection generator(s) on floor 10 episode 6.");
+        }
     } else {
         //
         // Check and make sure a detonator is in a 'locked' level.
         //
 
-        if (gamestate.mapon < 20 && (!detonators_spawned) && gamestuff.level[gamestate.mapon + 1].locked) {
+        if (gamestate.mapon < 20 &&
+            !detonators_spawned &&
+            gamestuff.level[gamestate.mapon + 1].locked)
+        {
             ::Quit("No Fision/Plasma Detonator in level!");
         }
     }
