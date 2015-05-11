@@ -132,7 +132,7 @@ static Direction DirTable[] = // Quick lookup for total direction
 //      Internal routines
 
 // BBi
-static bool in_grab_mouse(
+bool in_grab_mouse(
     bool grab)
 {
     if (grab == ::in_is_mouse_grabbed) {

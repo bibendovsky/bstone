@@ -424,6 +424,9 @@ uint8_t IN_JoyButtons();
 // BBi
 extern bool in_is_mouse_grabbed;
 
+bool in_grab_mouse(
+    bool grab);
+
 
 void in_handle_events();
 

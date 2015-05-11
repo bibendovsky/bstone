@@ -2122,6 +2122,10 @@ void initialize_video()
     }
 
     ::SDL_ShowWindow(::sdl_window);
+
+    if (!::sdl_is_windowed) {
+        ::in_grab_mouse(true);
+    }
 }
 
 void uninitialize_video()
