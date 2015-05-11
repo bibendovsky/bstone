@@ -37,11 +37,6 @@ void CA_CacheScreen(
 //
 // ==========================================================================
 
-#ifndef ID_CACHE_BRIEFS
-char BreifingText[13] = { "BRIEF_Wx.TXT" };
-#endif
-
-
 void ClearSplitVWB()
 {
     memset(update, 0, sizeof(update));
@@ -55,16 +50,11 @@ bool Breifing(
     breifing_type BreifingType,
     uint16_t episode)
 {
-#ifndef ID_CACHE_BRIEFS
-    char chars[3] = { 'L', 'W', 'I' };
-
-    BreifingText[6] = chars[BreifingType];
-    BreifingText[7] = '1' + episode;
-
-    HelpPresenter(BreifingText, true, 0, false);
-#else
-    HelpPresenter(nullptr, true, static_cast<uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1), false);
-#endif
+    ::HelpPresenter(
+        nullptr,
+        true,
+        static_cast<uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1),
+        false);
 
     return EscPressed;
 }

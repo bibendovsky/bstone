@@ -2317,11 +2317,6 @@ void GetBonus(
 
     if (givepoints) {
         GivePoints(static_points[check->itemnumber - bo_money_bag], true);
-#if IN_DEVELOPMENT
-#ifdef DEBUG_STATICS
-        debug_bonus[1][db_count++] = static_points[check->itemnumber - bo_money_bag];
-#endif
-#endif
     }
 
     DISPLAY_TIMED_MSG(BonusMsg[check->itemnumber - 1], MP_BONUS, MT_BONUS);

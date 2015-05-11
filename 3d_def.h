@@ -34,13 +34,15 @@ Free Software Foundation, Inc.,
 #include "jm_cio.h"
 
 
+#define PAGEFLIP
+
+#define LOOK_FOR_DEAD_GUYS (0)
+
+#define LIMITED_AMMO
+
+
 enum class ScanCode;
 
-
-// #define DEMOS_EXTERN
-// #define MYPROFILE
-// #define TRACK_ENEMY_COUNT
-#define OBJ_RESERV
 
 const int BS_SAVE_VERSION = 3;
 
@@ -55,37 +57,18 @@ extern bool no_screens;
 #define LAMP_ON_SHADING (-12)
 #define EXPLOSION_SHADING (-52)
 
-#define PAGEFLIP
+#define DISK_SPACE_NEEDED (1024L * 1024L)
 
-#define LOOK_FOR_DEAD_GUYS (0)
-
-#define LIMITED_AMMO
-
-#define SHADE_MAX 51
-#define SHADE_DIV 6
-
-#define DISK_SPACE_NEEDED (1024l * 1024l)
-
-#define BORDER_HI_COLOR 0x85
-#define BORDER_MED_COLOR 0x82
-#define BORDER_LO_COLOR 0x80
-#define BORDER_TEXT_COLOR 0xaf
+#define BORDER_HI_COLOR (0x85)
+#define BORDER_MED_COLOR (0x82)
+#define BORDER_LO_COLOR (0x80)
+#define BORDER_TEXT_COLOR (0xAF)
 
 
 // FONT DEFINES
 //
 #define COAL_FONT (STARTFONT + 4)
 
-// #define LOCKED_FLOORS
-
-#define ID_CACHE_BRIEFS
-#define ID_CACHE_HELP
-#define ID_CACHE_LOSE
-#define ID_CACHE_CREDITS
-
-
-// #define DEBUG_STATICS
-// #define DEBUG_ACTORS
 
 /*
 =============================================================================
@@ -96,15 +79,15 @@ extern bool no_screens;
 */
 
 
-#define MAX_RADAR_ENERGY 14400
-#define RADAR_PAK_VALUE 60 * 15
+#define MAX_RADAR_ENERGY (14400)
+#define RADAR_PAK_VALUE (60 * 15)
 
-#define MAXKEYS 1
+#define MAXKEYS (1)
 
 #define MAPSPOT(x, y, plane) (*(mapsegs[plane] + farmapylookup[y] + x))
 
-#define ABS(x) ((int16_t)(x) > 0 ? (x) : -(x))
-#define LABS(x) ((int32_t)(x) > 0 ? (x) : -(x))
+#define ABS(x) (static_cast<int16_t>(x) > 0 ? (x) : -(x))
+#define LABS(x) (static_cast<int32_t>(x) > 0 ? (x) : -(x))
 
 // SmartAnim macro
 #define ANIM_INFO(o) (reinterpret_cast<ofs_anim_t*>(&(o)->temp3))
@@ -125,7 +108,7 @@ case gen_scientistobj
 
 // Barrier Code Stuff
 
-#define MAX_BARRIER_SWITCHES 40 // max number level wall switches
+#define MAX_BARRIER_SWITCHES (40) // max number level wall switches
 
 
 #define SLIDE_TEMP(obj) (ui16_to_actor(obj->hitpoints))
@@ -150,10 +133,10 @@ case gen_scientistobj
 #define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((int32_t)M_BASE1 * (((int32_t)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
 
 
-#define MAX_INF_AREA_MSGS 6
-#define MAX_LOCATION_DESC_LEN 45
+#define MAX_INF_AREA_MSGS (6)
+#define MAX_LOCATION_DESC_LEN (45)
 
-#define DOOR_RUBBLE_STATNUM 112 // Door Rubble sprite
+#define DOOR_RUBBLE_STATNUM (112) // Door Rubble sprite
 
 #define SpawnExplosion(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, explosionobj)
 #define SpawnFlash(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, deadobj)
@@ -167,38 +150,33 @@ case gen_scientistobj
 =============================================================================
 */
 
-#define OV_ACTORS 0x0001
-#define OV_SHOWALL 0x0002
-#define OV_KEYS 0x0004
-#define OV_PUSHWALLS 0x0008
+#define OV_ACTORS (0x0001)
+#define OV_SHOWALL (0x0002)
+#define OV_KEYS (0x0004)
+#define OV_PUSHWALLS (0x0008)
 
 // BBi
 #define OV_WHOLE_MAP (0x0010)
 
 
-#define TT_TRAVELED 0x01
-#define TT_KEYS 0x02
-
-// Max number of concession reply messages
-
-// #define CON_HINTS // Un/Comment to support concession hints
-
-#define MAXACTORS 150 // max number of nazis, etc / map
-#define MAXSTATS 400 // max number of lamps, bonus, etc
-#define MAXDOORS 64 // max number of sliding doors
-#define MAXCONCESSIONS 15 // max number of concession machines
-#define MAXWALLTILES 64 // max number of wall tiles
-#define MAXEAWALLS 12 // max electro-alien wall sockets
+#define TT_TRAVELED (0x01)
+#define TT_KEYS (0x02)
 
 
+#define MAXACTORS (150) // max number of nazis, etc / map
+#define MAXSTATS (400) // max number of lamps, bonus, etc
+#define MAXDOORS (64) // max number of sliding doors
+#define MAXCONCESSIONS (15) // max number of concession machines
+#define MAXWALLTILES (64) // max number of wall tiles
+#define MAXEAWALLS (12) // max electro-alien wall sockets
 
 
-#define GS_NEEDCOORD 0
-#define GS_FIRSTTIME 1
-#define GS_COORDFOUND 2
-#define GS_NO_MORE 3
+#define GS_NEEDCOORD (0)
+#define GS_FIRSTTIME (1)
+#define GS_COORDFOUND (2)
+#define GS_NO_MORE (3)
 
-#define GOLDIE_MAX_SPAWNS 10 // Max Number of spawn points for Goldstern
+#define GOLDIE_MAX_SPAWNS (10) // Max Number of spawn points for Goldstern
 #define MIN_GOLDIE_FIRST_WAIT (5 * 60) // Min wait time for FIRST goldstern (5 Secs)
 #define MAX_GOLDIE_FIRST_WAIT (15 * 60) // Max wait time for FIRST goldstern (15 Secs)
 #define MIN_GOLDIE_WAIT (30 * 60) // Min wait time for next goldstern (30 Secs)
@@ -211,232 +189,213 @@ case gen_scientistobj
 // tile constants
 //
 
-#define ICONARROWS 90
-#define PUSHABLETILE 98
-#define EXITTILE 99 // at end of castle
-#define AREATILE 108 // first of NUMAREAS floor tiles
-#define HIDDENAREATILE 162 // first of hidden floor tiles
-#define NUMAREAS 45
-#define DOORTRIGGERTILE 158
+#define ICONARROWS (90)
+#define PUSHABLETILE (98)
+#define EXITTILE (99) // at end of castle
+#define AREATILE (108) // first of NUMAREAS floor tiles
+#define HIDDENAREATILE (162) // first of hidden floor tiles
+#define NUMAREAS (45)
+#define DOORTRIGGERTILE (158)
 
-#define SMART_OFF_TRIGGER 159
-#define SMART_ON_TRIGGER 160
+#define SMART_OFF_TRIGGER (159)
+#define SMART_ON_TRIGGER (160)
 
-#define TRANSPORTERTILE 21
-#define DIRECTTRANSPORTTILE 32 // Wall to use on direct level transporters
-#define SODATILE 15
-#define FOODTILE 18
-#define AMBUSHTILE 106
+#define TRANSPORTERTILE (21)
+#define DIRECTTRANSPORTTILE (32) // Wall to use on direct level transporters
+#define SODATILE (15)
+#define FOODTILE (18)
+#define AMBUSHTILE (106)
 
-#define RKEY_TILE 72
-#define YKEY_TILE 73
-#define BKEY_TILE 74
-#define BFG_TILE 75
-#define ION_TILE 76
-#define DETONATOR_TILE 77
-#define CLOAK_TILE 78
-#define LINC_TILE 79
-#define CLOAK_AMBUSH_TILE 80
+#define RKEY_TILE (72)
+#define YKEY_TILE (73)
+#define BKEY_TILE (74)
+#define BFG_TILE (75)
+#define ION_TILE (76)
+#define DETONATOR_TILE (77)
+#define CLOAK_TILE (78)
+#define LINC_TILE (79)
+#define CLOAK_AMBUSH_TILE (80)
 
-#define EATILE 24
-#define ON_SWITCH 45 // ON Wall Switch -
-#define OFF_SWITCH 57 // OFF Wall Switch -
-#define WINTIGGERTILE 157 // Win Tile
-#define NUMBERCHARS 9
+#define EATILE (24)
+#define ON_SWITCH (45) // ON Wall Switch -
+#define OFF_SWITCH (57) // OFF Wall Switch -
+#define WINTIGGERTILE (157) // Win Tile
 
-#define START_TEXTURES 125 // Start of Textures - (Also LAST_WALL_TILE NUM)
+#define START_TEXTURES (125) // Start of Textures - (Also LAST_WALL_TILE NUM)
 #define NUM_TILES (PMSpriteStart)
 
 
 // ----------------
 
-#define EXTRAPOINTS 400000
+#define EXTRAPOINTS (400000)
 
-#define MAX_EXTRA_LIVES 4
+#define MAX_EXTRA_LIVES (4)
 
-#define RUNSPEED 6000
+#define RUNSPEED (6000)
 
-#define SCREENBWIDE 80
+#define SCREENBWIDE (80)
 
-#define HEIGHTRATIO 0.41
-#define TOP_STRIP_HEIGHT 16 // Pix height of top strip.
+#define HEIGHTRATIO (0.41)
+#define TOP_STRIP_HEIGHT (16) // Pix height of top strip.
 
-#define PLAYERSIZE MINDIST // player radius
-#define MINACTORDIST 0x10000l // minimum dist from player center
+#define PLAYERSIZE (MINDIST) // player radius
+#define MINACTORDIST (0x10000L) // minimum dist from player center
 // to any actor center
 
-#define NUMLATCHPICS 100
+#define NUMLATCHPICS (100)
 
 
-#define PI 3.141592657
+#define PI (3.141592657)
 
-#define GLOBAL1 (1l << 16)
-#define TILEGLOBAL GLOBAL1
-#define TILESHIFT 16l
-#define UNSIGNEDSHIFT 8
+#define GLOBAL1 (1L << 16)
+#define TILEGLOBAL (GLOBAL1)
+#define TILESHIFT (16L)
+#define UNSIGNEDSHIFT (8)
 
-#define ANGLES 360 // must be divisable by 4
+#define ANGLES (360) // must be divisable by 4
 #define ANGLEQUAD (ANGLES / 4)
-#define FINEANGLES 3600
-#define ANG90 (FINEANGLES / 4)
-#define ANG180 (ANG90 * 2)
-#define ANG270 (ANG90 * 3)
-#define ANG360 (ANG90 * 4)
+#define FINEANGLES (3600)
 
-#define MINDIST (0x5800l)
+#define MINDIST (0x5800L)
 
-#define MAPSIZE 64 // maps are 64*64 max
-#define NORTH 0
-#define EAST 1
-#define SOUTH 2
-#define WEST 3
+#define MAPSIZE (64) // maps are 64*64 max
+#define NORTH (0)
+#define EAST (1)
+#define SOUTH (2)
+#define WEST (3)
 
-#define STATUSLINES 48
+#define STATUSLINES (48)
 
 #define SCREENSIZE (SCREENBWIDE * 208)
-#define PAGE1START 0
+#define PAGE1START (0)
 #define PAGE2START (SCREENSIZE)
-#define PAGE3START (SCREENSIZE * 2u)
-#define FREESTART (SCREENSIZE * 3u)
+#define PAGE3START (SCREENSIZE * 2U)
+#define FREESTART (SCREENSIZE * 3U)
 
-#define STARTAMMO 8
+#define STARTAMMO (8)
 
 // Token Definations
 
-#define MAX_TOKENS 25
+#define MAX_TOKENS (25)
 
 
 
 // Ammo/Weapon Definations
 
-// #define NUM_AMMO_SEGS 42 // 42 Color segments (OR 21 2-Color segs)
-#define MAX_AMMO 100 // Max ammount of ammo for any weapon
-#define AUTOCHARGE_WAIT 50 // Tics wait time for a full charge
+#define MAX_AMMO (100) // Max ammount of ammo for any weapon
+#define AUTOCHARGE_WAIT (50) // Tics wait time for a full charge
 
-#define MAX_PLASMA_DETONATORS 100 // Max number of Plasma Detonators
-#define PLASMA_DETONATORS_DELAY 60 * 4 // Number of tics before plasma detonator explodes
+#define MAX_PLASMA_DETONATORS (100) // Max number of Plasma Detonators
+#define PLASMA_DETONATORS_DELAY (60 * 4) // Number of tics before plasma detonator explodes
 
 
 
 // gamestate.flags flag values
 
-#define GS_HEARTB_SOUND 0x0001
-#define GS_DRAW_CEILING 0x0002
-#define GS_CLIP_WALLS 0x0004
-#define GS_DRAW_FLOOR 0x0008
-#define GS_VIRGIN_LEVEL 0x0010
-#define GS_CHECK_STATS_BONUS 0x0020
-#define GS_ATTACK_INFOAREA 0x0040
-#define GS_KILL_INF_WARN 0x0080
-#define GS_SHOW_OVERHEAD 0x0100
-#define GS_BAD_DIZ_FILE 0x0200
-#define GS_MUSIC_TEST 0x0400
-#define GS_LIGHTING 0x0800
-#define GS_TICS_FOR_SCORE 0x1000
-#define GS_NOWAIT 0x2000
-#define GS_STARTLEVEL 0x4000
-#define GS_QUICKRUN 0x8000
+#define GS_HEARTB_SOUND (0x0001)
+#define GS_DRAW_CEILING (0x0002)
+#define GS_CLIP_WALLS (0x0004)
+#define GS_DRAW_FLOOR (0x0008)
+#define GS_VIRGIN_LEVEL (0x0010)
+#define GS_CHECK_STATS_BONUS (0x0020)
+#define GS_ATTACK_INFOAREA (0x0040)
+#define GS_KILL_INF_WARN (0x0080)
+#define GS_SHOW_OVERHEAD (0x0100)
+#define GS_BAD_DIZ_FILE (0x0200)
+#define GS_MUSIC_TEST (0x0400)
+#define GS_LIGHTING (0x0800)
+#define GS_TICS_FOR_SCORE (0x1000)
+#define GS_NOWAIT (0x2000)
+#define GS_STARTLEVEL (0x4000)
+#define GS_QUICKRUN (0x8000)
 
 // object flag values - Oh Shit Longs!
 
-#define FL_SHOOTABLE 0x00000001
-#define FL_BONUS 0x00000002
-#define FL_NEVERMARK 0x00000004
-#define FL_VISABLE 0x00000008
-#define FL_ATTACKMODE 0x00000010
-#define FL_FIRSTATTACK 0x00000020
-#define FL_AMBUSH 0x00000040
-#define FL_NONMARK 0x00000080
-#define FL_SOLID 0x00000100
-#define FL_STATIONARY 0x00000200
-#define FL_FRIENDLY 0x00000400
-#define FL_DEADGUY 0x00000800
-#define FL_RUNAWAY 0x00001000
-#define FL_RUNTOSTATIC 0x00002000
-#define FL_OFFSET_STATES 0x00004000
-#define FL_INFORMANT 0x00008000
-#define FL_INTERROGATED 0x00010000
-#define FL_RANDOM_TURN 0x00020000
-#define FL_NO_SLIDE 0x00040000
-#define FL_MUST_ATTACK 0x00080000
-#define FL_ALERTED 0x00100000
-#define FL_FREEZE 0x00200000
-#define FL_HAS_AMMO 0x00400000
-#define FL_PROJ_TRANSPARENT 0x00800000
-#define FL_PROJ_CHECK_TRANSPARENT 0x01000000
-#define FL_HAS_TOKENS 0x02000000
-#define FL_LOCKED_STATE 0x04000000
-#define FL_BARRIER 0x08000000
-#define FL_SHOOTMODE 0x10000000
-#define FL_SLIDE_INIT 0x20000000
-#define FL_STORED_OBJPTR 0x40000000
-#define FL_FAKE_STATIC 0x80000000
+#define FL_SHOOTABLE (0x00000001)
+#define FL_BONUS (0x00000002)
+#define FL_NEVERMARK (0x00000004)
+#define FL_VISABLE (0x00000008)
+#define FL_ATTACKMODE (0x00000010)
+#define FL_FIRSTATTACK (0x00000020)
+#define FL_AMBUSH (0x00000040)
+#define FL_NONMARK (0x00000080)
+#define FL_SOLID (0x00000100)
+#define FL_STATIONARY (0x00000200)
+#define FL_FRIENDLY (0x00000400)
+#define FL_DEADGUY (0x00000800)
+#define FL_RUNAWAY (0x00001000)
+#define FL_RUNTOSTATIC (0x00002000)
+#define FL_OFFSET_STATES (0x00004000)
+#define FL_INFORMANT (0x00008000)
+#define FL_INTERROGATED (0x00010000)
+#define FL_RANDOM_TURN (0x00020000)
+#define FL_NO_SLIDE (0x00040000)
+#define FL_MUST_ATTACK (0x00080000)
+#define FL_ALERTED (0x00100000)
+#define FL_FREEZE (0x00200000)
+#define FL_HAS_AMMO (0x00400000)
+#define FL_PROJ_TRANSPARENT (0x00800000)
+#define FL_PROJ_CHECK_TRANSPARENT (0x01000000)
+#define FL_HAS_TOKENS (0x02000000)
+#define FL_LOCKED_STATE (0x04000000)
+#define FL_BARRIER (0x08000000)
+#define FL_SHOOTMODE (0x10000000)
+#define FL_SLIDE_INIT (0x20000000)
+#define FL_STORED_OBJPTR (0x40000000)
+#define FL_FAKE_STATIC (0x80000000)
 
-#define FL_BARRIER_DAMAGE FL_HAS_TOKENS
+#define FL_BARRIER_DAMAGE (FL_HAS_TOKENS)
 
 
 // object flags2 values
 
-#define FL2_BFGSHOT_SOLID 0x0001
-#define FL2_BFG_SHOOTABLE 0x0002
+#define FL2_BFGSHOT_SOLID (0x0001)
+#define FL2_BFG_SHOOTABLE (0x0002)
 
-#define FL2_NOTGUNSHOOTABLE 0x0004
-#define FL2_SCARED 0x0008
-#define FL2_DROP_RKEY 0x0010
-#define FL2_DROP_YKEY 0x0020
-#define FL2_DROP_BKEY 0x0040
+#define FL2_NOTGUNSHOOTABLE (0x0004)
+#define FL2_SCARED (0x0008)
+#define FL2_DROP_RKEY (0x0010)
+#define FL2_DROP_YKEY (0x0020)
+#define FL2_DROP_BKEY (0x0040)
 
-#define FL2_DROP_BFG 0x0080
-#define FL2_DROP_ION 0x0100
-#define FL2_DROP_DETONATOR 0x0200
-#define FL2_CLOAKED 0x0400
-#define FL2_LINC 0x0800
-#define FL2_DAMAGE_CLOAK 0x1000
+#define FL2_DROP_BFG (0x0080)
+#define FL2_DROP_ION (0x0100)
+#define FL2_DROP_DETONATOR (0x0200)
+#define FL2_CLOAKED (0x0400)
+#define FL2_LINC (0x0800)
+#define FL2_DAMAGE_CLOAK (0x1000)
 
 
 // Run Reason Flags -- Why am I running..Duh..
 
-#define RR_AMMO 0x0001
-#define RR_HEALTH 0x0002
-#define RR_INTERROGATED 0x0004
-#define RR_CASUAL_PICKUP 0x0008
-#define RR_SCARED 0x0010
+#define RR_AMMO (0x0001)
+#define RR_HEALTH (0x0002)
+#define RR_INTERROGATED (0x0004)
+#define RR_CASUAL_PICKUP (0x0008)
+#define RR_SCARED (0x0010)
 
 
 //
 // Concession Machine Types
-
-#define CT_HINT 0x0
 #define CT_FOOD 0x1
 #define CT_BEVS 0x2
-
-
-//
-// Radar switches for terminal Floor Cheat
-
-#define RS_GOLDSTERN_TRACKER 0x0001
-#define RS_PERSONNEL_TRACKER 0x0002
-#define RS_SECURITY_STATUS 0x0004
 
 //
 // Door Flags
 //
-#define DR_BLASTABLE 0x01
+#define DR_BLASTABLE (0x01)
 
 //
 // Smart Trigger Possiblities
 //
-#define ST_TURN_OFF 0x00
-#define ST_TURN_ON 0x01
-#define ST_TOGGLE 0x02
+#define ST_TURN_OFF (0x00)
+#define ST_TURN_ON (0x01)
+#define ST_TOGGLE (0x02)
 
 
 //
 //
 //
-
-#define LT_GUN_DELAY gamestate.lastammo_leds
-
 
 #define CANT_SAVE_GAME_TXT " Can't save this game! \n" \
     "    Hard Disk FULL!"
@@ -1724,7 +1683,6 @@ extern int16_t SPR_BFG_EXP8;
 //
 // Door Objects
 //
-
 enum doortype {
     // LOCKED DOORS
 
@@ -1752,8 +1710,8 @@ enum doortype {
     L_HIGH_TECH,
     L_HIGH_TECH_SHADE,
 
-    // UNLOCKED DOORS
 
+    // UNLOCKED DOORS
 
     UL_METAL,
     UL_METAL_SHADE,
@@ -1779,6 +1737,7 @@ enum doortype {
     UL_HIGH_TECH,
     UL_HIGH_TECH_SHADE,
 
+
     // MISC DOORS
 
     NOEXIT,
@@ -1799,152 +1758,33 @@ enum doortype {
     SPACE_JAM_2,
     SPACE_JAM_2_SHADE,
 
+
     // END OF DOOR LIST
-
-    NUMDOORTYPES
-
-
+    NUMDOORTYPES,
 }; // doortype
 
 
 //
 // Breifing types - Note these are ordered to an char array in Breifing().
 //
-
 enum breifing_type {
     BT_LOSE,
     BT_WIN,
     BT_INTRO
-
 }; // breifing_type
 
-// Terminal Messages - These correspond to the order in which they are
-// grabbed in VGAGRAPH.BS?.  See BSTONEV.I
-//
-
-enum term_msg_type {
-    TM_HINT,
-    TM_JAM,
-    TM_HELP,
-    TM_APOGEE,
-    TM_ID,
-    TM_GOOBERS,
-    TM_MIKE,
-    TM_JIM,
-    TM_JERRY,
-
-    TM_JOSHUA,
-
-    TM_STAR,
-
-    TM_VITALS1,
-    TM_VITALS2,
-
-    TM_DEACTIVATE_TURRET,
-    TM_TURRETS_ACTIVATED,
-    TM_TURRETS_DEACTIVATED,
-
-    TM_LINK,
-    TM_LINK_OK,
-    TM_LINK_BAD,
-
-    TM_RADAR_OFF,
-    TM_RADAR_ON,
-
-    TM_SOUND_OFF,
-    TM_SOUND_ON,
-
-    TM_GOLDSTERN_TRACK_OFF,
-    TM_GOLDSTERN_TRACK_ON,
-    TM_GOLDSTERN_ARRIVED,
-    TM_GOLDSTERN_WILL_AR,
-    TM_GOLDSTERN_NO_PICK,
-    TM_GOLDSTERN_NO_INFO,
-
-    TM_RESET_SECURITY,
-    TM_SECURITY_STATUS_OFF,
-    TM_SECURITY_STATUS_ON,
-
-    TM_TURRET_DEACTIVATE_BAD,
-    TM_TURRET_DEACTIVATE_GOOD,
-
-    TM_UNRECOGNIZED_COMMAND,
-    TM_READY,
-    TM_RETURN,
-    TM_SECONDS,
-    TM_CHEATER,
-    TM_BLUEPRINTS,
-
-    TM_PROFILE_WHO,
-    TM_PROFILE_SARA,
-    TM_PROFILE_BLAKE,
-    TM_PROFILE_GOLDSTERN,
-    TM_PROFILE_UNKNOWN,
-    TM_DEACTIVATE_SOCKETS,
-    TM_ACTIVATE_SOCKETS,
-    TM_UNABLE_TO_PERFORM,
-    TM_NO_SOCKETS,
-    TM_ALREADY_ACTIVATED,
-    TM_ALREADY_DEACTIVATED,
-    TM_LAST
-}; // term_msg_type
-
-// Terminal Commands - The first set of commands TC_HINT - TC_end_of_1to1
-// are directly mapped 1 to 1 to the terminal msgs.
-//
-
-enum term_cmd_type {
-    TC_HINT,
-    TC_JAM,
-    TC_HELP,
-    TC_APOGEE,
-    TC_THANKS,
-    TC_GOOBERS,
-    TC_MIKE,
-    TC_JIM,
-    TC_JERRY,
-
-    // END OF ONE TO ONE LIST
-
-    TC_JOSHUA,
-    TC_STAR,
-    TC_BLUEPRINT,
-    TC_EXIT,
-    TC_QUIT,
-    TC_OFF,
-    TC_BYE,
-    TC_DISPLAY_PERSONNEL,
-    TC_SOUND,
-    TC_DISPLAY_GOLDSTERN,
-    TC_ARRIVAL_GOLDSTERN,
-    TC_DEACTIVATE_SECURITY,
-    TC_DISPLAY_SECURITY,
-    TC_SATALITE_STATUS,
-    TC_DEACTIVATE_TURRETS,
-    TC_TURRET_STATUS,
-    TC_PROFILE,
-    TC_SSTONE,
-    TC_BSTONE,
-    TC_GOLDSTERN,
-    TC_DEACTIVATE_SOCKETS,
-    TC_ACTIVATE_SOCKETS,
-
-    TC_LAST
-}; // term_cmd_type
 
 //
 // Barrier State Transistions
 //
-
 enum barrier_state_type {
     bt_OFF,
     bt_ON,
     bt_DISABLING,
     bt_DISABLED,
-    bt_OPENING,                         // For physical barriers
-    bt_CLOSING,                          //            " " "
+    bt_OPENING, // For physical barriers
+    bt_CLOSING, //            " " "
 }; // barrier_state_type
-
 
 
 /*
@@ -2217,7 +2057,7 @@ enum stat_t {
     block,
 
     bo_green_key,
-    bo_gold_key
+    bo_gold_key,
 }; // stat_t
 
 struct stattype {
@@ -2371,8 +2211,8 @@ enum enemy_t {
 }; // enemy_t
 
 
-#define SF_ROTATE 0x01
-#define SF_PAINFRAME 0x02
+#define SF_ROTATE (0x01)
+#define SF_PAINFRAME (0x02)
 
 
 struct objtype;
@@ -2419,6 +2259,7 @@ struct statobj_t {
         bstone::Crc32& checksum);
 }; // statobj_t
 
+
 // ---------------------
 //
 // door actor structure
@@ -2431,7 +2272,7 @@ enum DoorAction {
     dr_closed,
     dr_opening,
     dr_closing,
-    dr_jammed
+    dr_jammed,
 }; // DoorAction
 
 struct doorobj_t {
@@ -2525,8 +2366,6 @@ struct objtype {
 }; // objtype
 
 
-
-
 enum ButtonState {
     bt_nobutton = -1,
     bt_attack = 0,
@@ -2554,13 +2393,11 @@ enum weapontype {
     wp_ion_cannon,
     wp_grenade,
     wp_bfg_cannon,
-//      wp_plasma_detonators,
 
     wp_SPACER,
 }; // weapontype
 
 extern int NUMWEAPONS;
-
 
 
 enum Difficulty {
@@ -2571,13 +2408,10 @@ enum Difficulty {
 }; // Difficulty
 
 
-
 enum backgroundtype {
     ELEVATOR_BACK,
     TRANSPORTER_BACK
 }; // backgroundtype
-
-
 
 
 //
@@ -2596,12 +2430,12 @@ struct tilecoord_t {
         bstone::Crc32& checksum);
 }; // tilecoord_t
 
+
 // -----------------------------------
 //
 // barrier coord/table structure
 //
 // -----------------------------------
-
 struct barrier_type {
     uint8_t level;
     tilecoord_t coord;
@@ -2615,13 +2449,6 @@ struct barrier_type {
         bstone::BinaryReader& reader,
         bstone::Crc32& checksum);
 }; // barrier_type;
-
-
-// ---------------
-//
-// gamestate structure
-//
-// ---------------
 
 struct statsInfoType {
     int32_t total_points;
@@ -2882,8 +2709,8 @@ enum inst_type {
 
 
 
-#define MAX_CACHE_MSGS 30
-#define MAX_CACHE_MSG_LEN 190
+#define MAX_CACHE_MSGS (30)
+#define MAX_CACHE_MSG_LEN (190)
 
 // ------------------------- BASIC STRUCTURES -----------------------------
 
@@ -2961,7 +2788,6 @@ struct scientist_t {
 
 // ------------------------------------------------------------------------
 
-
 // Electro-Alien controller structer
 //
 struct eaWallInfo {
@@ -2978,9 +2804,6 @@ struct eaWallInfo {
         bstone::BinaryReader& reader,
         bstone::Crc32& checksum);
 }; // eaWallInfo
-
-
-
 
 
 // General Structure to hold goldstern specific stuff...
@@ -3004,7 +2827,9 @@ struct GoldsternInfo_t {
 
 
 struct star_t {
-    int32_t x, y, z;
+    int32_t x;
+    int32_t y;
+    int32_t z;
     uint8_t color;
 }; // star_t
 
@@ -3028,15 +2853,22 @@ extern std::string data_dir;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
-extern int16_t view_xl, view_xh, view_yl, view_yh;
-extern int16_t starting_level, debug_value, starting_episode, starting_difficulty;
+extern int16_t view_xl;
+extern int16_t view_xh;
+extern int16_t view_yl;
+extern int16_t view_yh;
+extern int16_t starting_level;
+extern int16_t debug_value;
+extern int16_t starting_episode;
+extern int16_t starting_difficulty;
 
 extern bool MS_CheckParm(
     const std::string& value);
 
 extern int8_t lastmap_tilex;
 extern int8_t lastmap_tiley;
-extern uint16_t TopColor, BottomColor;
+extern uint16_t TopColor;
+extern uint16_t BottomColor;
 extern char str[80];
 extern char str2[20];
 extern bool nospr;
@@ -3052,7 +2884,8 @@ extern int shootdelta;
 
 extern int16_t dirangle[9];
 
-extern bool startgame, loadedgame;
+extern bool startgame;
+extern bool loadedgame;
 extern int16_t mouseadjustment;
 //
 // math tables
@@ -3087,25 +2920,33 @@ void AlignPlayerInElevator();
 void HelpScreens();
 void OrderingInfo();
 void TEDDeath();
+
 void CalcProjection(
     int32_t focal);
+
 void SetViewSize(
     int width,
     int height);
+
 void NewGame(
     int16_t difficulty,
     int16_t episode);
+
 void NewViewSize();
+
 uint16_t scan_atoi(
     const char* s);
+
 void AlignPlayerOnTransporter();
 
 uint16_t UseFunc(
     const char* first,
     const char* next);
+
 bool DoMovie(
     movie_t movie,
     void* palette);
+
 bool CheckDiskSpace(
     int32_t needed,
     const char* text,
@@ -3121,11 +2962,14 @@ int32_t ChecksumFile(
 
 void BadChecksum();
 void InvalidLevels();
+
 void CheckValidity(
     char* file,
     int32_t valid_checksum);
+
 void UnauthorizedLevels();
 void ShowChecksums();
+
 void fprint(
     char* text);
 
@@ -3158,7 +3002,8 @@ extern fargametype gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
-extern uint8_t VitalsRemain, VitalsOnFloor;
+extern uint8_t VitalsRemain;
+extern uint8_t VitalsOnFloor;
 
 extern eaWallInfo eaList[];
 extern int8_t NumEAWalls;
@@ -3179,14 +3024,19 @@ void GameLoop();
 
 
 void Warped();
+
 void RotateView(
     int16_t DestAngle,
     uint8_t RotSpeed);
+
 void DrawWarpIn();
+
 void BMAmsg(
     const char* msg);
+
 void CacheBMAmsg(
     uint16_t MsgNum);
+
 void BevelBox(
     int16_t xl,
     int16_t yl,
@@ -3198,14 +3048,18 @@ void BevelBox(
 
 void AddTotalPoints(
     uint16_t points);
+
 void AddTotalInformants(
     int8_t informants);
+
 void AddTotalEnemy(
     uint16_t enemies);
 
 void ShadowPrintLocationText(
     sp_type type);
+
 void LoseScreen();
+
 void LoadLocationText(
     int16_t textNum);
 
@@ -3219,7 +3073,8 @@ void LoadLocationText(
 
 extern int objcount;
 
-extern objtype* DeadGuys[], dummyobj;
+extern objtype* DeadGuys[];
+extern objtype dummyobj;
 extern uint8_t NumDeadGuys;
 
 extern exit_t playstate;
@@ -3229,12 +3084,19 @@ extern int16_t bordertime;
 extern bool madenoise;
 extern bool usedummy;
 extern bool nevermark;
-extern uint8_t alerted, alerted_areanum;
+extern uint8_t alerted;
+extern uint8_t alerted_areanum;
 
-extern objtype objlist[MAXACTORS], * new_actor, * player, * lastobj,
-               * objfreelist, * killerobj;
-extern statobj_t statobjlist[MAXSTATS], * laststatobj;
-extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
+extern objtype objlist[MAXACTORS];
+extern objtype* new_actor;
+extern objtype* player;
+extern objtype* lastobj;
+extern objtype* objfreelist;
+extern objtype* killerobj;
+extern statobj_t statobjlist[MAXSTATS];
+extern statobj_t* laststatobj;
+extern doorobj_t doorobjlist[MAXDOORS];
+extern doorobj_t* lastdoorobj;
 
 extern uint16_t farmapylookup[MAPSIZE];
 extern uint8_t* nearmapylookup[MAPSIZE];
@@ -3248,8 +3110,10 @@ extern bool godmode;
 extern bool noclip;
 extern int16_t extravbls;
 extern bool DebugOk;
-extern int16_t InstantWin, InstantQuit;
-extern int16_t TestQuickSave, TestAutoMapper;
+extern int16_t InstantWin;
+extern int16_t InstantQuit;
+extern int16_t TestQuickSave;
+extern int16_t TestAutoMapper;
 extern uint16_t ExtraRadarFlags;
 
 //
@@ -3287,18 +3151,24 @@ extern char Computing[];
 void CenterWindow(
     uint16_t w,
     uint16_t h);
+
 void InitActorList();
 void GetNewActor();
+
 void RemoveObj(
     objtype* gone);
+
 void PollControls();
 void StopMusic();
+
 void StartMusic(
     bool startit);
+
 void PlayLoop();
 
 void ChangeSwapFiles(
     bool display);
+
 void OpenPageFile();
 void CheckMusicToggle();
 
@@ -3324,15 +3194,21 @@ void CalcMemFree();
 
 extern uint8_t TravelTable[MAPSIZE][MAPSIZE];
 
-extern int16_t weaponchangetics, itemchangetics, bodychangetics;
-extern int16_t plaqueon, plaquetime, plaquetimefrac, getpic;
+extern int16_t weaponchangetics;
+extern int16_t itemchangetics;
+extern int16_t bodychangetics;
+extern int16_t plaqueon;
+extern int16_t plaquetime;
+extern int16_t plaquetimefrac;
+extern int16_t getpic;
 
 extern statobj_t* firststarobj;
 
 extern int screenloc[3];
 extern int freelatch;
 
-extern int32_t space_xmove, space_ymove;
+extern int32_t space_xmove;
+extern int32_t space_ymove;
 
 extern int32_t lasttimecount;
 extern int32_t framecount;
@@ -3357,7 +3233,8 @@ extern const uint8_t* postsource;
 extern int postx;
 
 
-extern int16_t horizwall[], vertwall[];
+extern int16_t horizwall[];
+extern int16_t vertwall[];
 
 extern uint16_t pwallpos;
 
@@ -3366,12 +3243,17 @@ extern bool cloaked_shape;
 fixed FixedByFrac(
     fixed a,
     fixed b);
+
 void TransformActor(
     objtype* ob);
+
 void BuildTables();
+
 void ClearScreen();
+
 int16_t CalcRotate(
     objtype* ob);
+
 void DrawScaleds();
 void CalcTics();
 void FixOfs();
@@ -3379,33 +3261,37 @@ void ThreeDRefresh();
 void FarScalePost();
 void DrawStars();
 
-
-
 bool TransformTile(
     int16_t tx,
     int16_t ty,
     int16_t* dispx,
     int16_t* dispheight);
+
 void WrapTransformActor(
     objtype* ob);
+
 void ComputeActorPosition(
     objtype* ob,
     int8_t adjust_x,
     int8_t adjust_y);
+
 void WrapDrawScaleds();
+
 bool WrapActorPosition(
     objtype* obj);
+
 void WrapStaticPosition(
     statobj_t* statptr,
     visobj_t* visptr);
+
 void ShowOverhead(
     int bx,
     int by,
     int radius,
     int zoom,
     int flags);
-void UpdateTravelTable();
 
+void UpdateTravelTable();
 
 
 /*
@@ -3415,7 +3301,8 @@ void UpdateTravelTable();
 
 =============================================================================
 */
-extern uint16_t CeilingTile, FloorTile;
+extern uint16_t CeilingTile;
+extern uint16_t FloorTile;
 extern void (* MapRowPtr)();
 
 void DrawPlanes();
@@ -3443,20 +3330,26 @@ void SeekPlayerOrStatic(
     objtype* ob,
     int16_t* deltax,
     int16_t* deltay);
+
 uint16_t CheckRunChase(
     objtype* ob);
+
 void GetCornerSeek(
     objtype* ob);
+
 bool LookForGoodies(
     objtype* ob,
     uint16_t RunReason);
+
 void InitHitRect(
     objtype* ob,
     uint16_t radius);
+
 void SpawnNewObj(
     uint16_t tilex,
     uint16_t tiley,
     statetype* state);
+
 void NewState(
     objtype* ob,
     statetype* state);
@@ -3464,16 +3357,20 @@ void NewState(
 bool TryWalk(
     objtype* ob,
     bool moveit);
+
 void SelectChaseDir(
     objtype* ob);
+
 void SelectDodgeDir(
     objtype* ob);
+
 void MoveObj(
     objtype* ob,
     int32_t move);
 
 void KillActor(
     objtype* ob);
+
 void DamageActor(
     objtype* ob,
     uint16_t damage,
@@ -3482,6 +3379,7 @@ void DamageActor(
 bool CheckLine(
     objtype* from_obj,
     objtype* to_obj);
+
 bool CheckSight(
     objtype* from_obj,
     objtype* to_obj);
@@ -3492,11 +3390,13 @@ bool PosVisable(
     fixed to_x,
     fixed to_y,
     int16_t from_angle);
+
 bool PlayerIsBlocking(
     objtype* ob);
 
 void MakeAlertNoise(
     objtype* obj);
+
 objtype* CheckAndReserve();
 
 
@@ -3514,7 +3414,8 @@ objtype* CheckAndReserve();
 struct t_compshape {
     uint16_t leftpix, rightpix;
     uint16_t dataofs[64];
-// table data after dataofs[rightpix-leftpix+1]
+
+    // table data after dataofs[rightpix-leftpix+1]
 }; // t_compshape
 
 extern int maxscale;
@@ -3527,12 +3428,15 @@ extern int shade_max;
 
 
 void FreeScaleDirectory();
+
 void SetupScaling(
     int maxscaleheight);
+
 void ScaleShape(
     int xcenter,
     int shapenum,
     int height);
+
 void SimpleScaleShape(
     int xcenter,
     int shapenum,
@@ -3561,8 +3465,10 @@ extern scientist_t MeanSciList;
 extern uint16_t static_points[];
 extern bool GAN_HiddenArea;
 extern char* InfAreaMsgs[];
-extern uint8_t NumAreaMsgs, LastInfArea;
-extern int16_t FirstGenInfMsg, TotalGenInfMsgs;
+extern uint8_t NumAreaMsgs;
+extern uint8_t LastInfArea;
+extern int16_t FirstGenInfMsg;
+extern int16_t TotalGenInfMsgs;
 extern classtype LastInfoAttacker;
 
 extern int16_t LastInfoAttacker_Cloaked;
@@ -3577,7 +3483,8 @@ extern atkinf_t attackinfo[7][14];
 //
 extern bool commandmode;
 extern int32_t thrustspeed;
-extern uint16_t plux, pluy; // player coordinates scaled to unsigned
+extern uint16_t plux;
+extern uint16_t pluy; // player coordinates scaled to unsigned
 extern bool PlayerInvisable;
 extern int8_t DrawInfoArea_COUNT;
 extern int8_t InitInfoArea_COUNT;
@@ -3612,17 +3519,21 @@ extern int16_t MsgTicsRemain;
 void GivePoints(
     int32_t score,
     bool add_to_stats);
+
 void SpawnPlayer(
     int16_t tilex,
     int16_t tiley,
     int16_t dir);
+
 void DrawCash();
 void UpdateHealth();
 
 void DrawAmmoGuage();
 void DrawAmmoMsg();
+
 void DrawAmmo(
     bool ForceRefresh);
+
 bool DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
@@ -3647,32 +3558,37 @@ uint8_t ValidAreaTile(
 int8_t GetAreaNumber(
     int8_t tilex,
     int8_t tiley);
-int16_t InputFloor();
 
+int16_t InputFloor();
 void RestoreInfoArea();
 void DrawHeartPic();
 void DrawInfoArea();
-
 void AnimatePage();
 
 void ActivateTerminal(bool);
+
 void TerminalPrint(
     char* msg,
     bool FastPrint);
+
 void FloorCheat(
     uint16_t RadarFlags);
+
 bool Interrogate(
     objtype* ob);
 
 void GiveKey(
     int16_t key);
+
 void TakeKey(
     int16_t key);
+
 void GiveToken(
     int16_t tokens);
 
 void TakePlasmaDetonator(
     int16_t count);
+
 void GivePlasmaDetonator(
     int16_t count);
 
@@ -3680,35 +3596,43 @@ void CacheDrawPic(
     int x,
     int y,
     int pic);
+
 void LoadTerminalCommands();
 
 void ActivateWallSwitch(
     uint16_t iconnum,
     int16_t x,
     int16_t y);
+
 uint16_t UpdateBarrierTable(
     uint8_t level,
     uint8_t x,
     uint8_t y,
     bool OnOff);
+
 uint16_t ScanBarrierTable(
     uint8_t x,
     uint8_t y);
+
 void DisplaySwitchOperateMsg(
     uint16_t coords);
 
 void DisplayNoMoMsgs();
+
 void PrintStatPercent(
     int16_t nx,
     int16_t ny,
     int8_t percentage);
+
 int16_t ShowStats(
     int16_t bx,
     int16_t by,
     ss_type type,
     statsInfoType* stats);
+
 bool PerfectStats();
 bool CheckPerfectStats();
+
 bool OperateSmartSwitch(
     uint16_t tilex,
     uint16_t tiley,
@@ -3729,10 +3653,12 @@ extern int8_t xy_offset[8][2];
 extern StatInfos statinfo;
 extern concession_t ConHintList;
 
-extern doorobj_t doorobjlist[MAXDOORS], * lastdoorobj;
+extern doorobj_t doorobjlist[MAXDOORS];
+extern doorobj_t* lastdoorobj;
 extern int16_t doornum;
 
-extern uint16_t doorposition[MAXDOORS], pwallstate;
+extern uint16_t doorposition[MAXDOORS];
+extern uint16_t pwallstate;
 
 extern uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
@@ -3740,15 +3666,19 @@ extern bool areabyplayer[NUMAREAS];
 
 extern uint16_t pwallstate;
 extern uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
-extern uint16_t pwallx, pwally;
-extern int16_t pwalldir, pwalldist;
+extern uint16_t pwallx;
+extern uint16_t pwally;
+extern int16_t pwalldir;
+extern int16_t pwalldist;
 
 
 statobj_t* ReserveStatic();
+
 void SpawnStatic(
     int16_t tilex,
     int16_t tiley,
     int16_t type);
+
 void SpawnDoor(
     int16_t tilex,
     int16_t tiley,
@@ -3758,18 +3688,22 @@ void SpawnDoor(
 
 void OperateConcession(
     uint16_t concession);
+
 void SpawnConcession(
     int16_t tilex,
     int16_t tiley,
     uint16_t credits,
     uint16_t machinetype);
+
 uint16_t LoadConcessionHint(
     uint16_t MsgNum);
+
 void CacheInfoAreaMsg(
     uint16_t block,
     uint16_t MsgNum,
     char* hint_buffer,
     uint16_t MaxBufferLen);
+
 void CheckSpawnEA();
 
 int16_t TransformAreas(
@@ -3785,19 +3719,24 @@ void InitMsgCache(
     mCacheList* mList,
     uint16_t listSize,
     uint16_t infoSize);
+
 void FreeMsgCache(
     mCacheList* mList,
     uint16_t listSize);
+
 void CacheMsg(
     mCacheInfo* ci,
     uint16_t SegNum,
     uint16_t MsgNum);
+
 int16_t LoadMsg(
     char* hint_buffer,
     uint16_t SegNum,
     uint16_t MsgNum,
     uint16_t MaxMsgLen);
+
 void CacheConcessionMsg();
+
 bool ReuseMsg(
     mCacheInfo* ci,
     int16_t count,
@@ -3807,23 +3746,28 @@ void DropPlasmaDetonator();
 
 void BlockDoorOpen(
     int16_t door);
+
 void BlastNearDoors(
     int16_t tilex,
     int16_t tiley);
+
 void TryBlastDoor(
     int8_t door);
 
 statobj_t* FindStatic(
     uint16_t tilex,
     uint16_t tiley);
+
 statobj_t* UseReservedStatic(
     int16_t itemtype,
     int16_t tilex,
     int16_t tiley);
+
 void PlaceReservedItemNearTile(
     int16_t itemtype,
     int16_t tilex,
     int16_t tiley);
+
 void ExplodeStatics(
     int16_t tilex,
     int16_t tiley);
@@ -3844,6 +3788,7 @@ void ExplodeStatics(
 
 void MakeFakeStatic(
     objtype* ob);
+
 void UnmakeFakeStatic(
     objtype* ob);
 
@@ -3984,18 +3929,19 @@ extern statetype s_spike_barrier;
 
 void T_PainThink(
     objtype* obj);
+
 void T_ExplodeScout(
     objtype* obj);
-
-
 
 void T_Security(
     objtype* obj);
 
 void T_ChangeShape(
     objtype* obj);
+
 void T_MakeOffset(
     objtype* obj);
+
 void T_LiquidStand(
     objtype* obj);
 
@@ -4008,16 +3954,19 @@ void T_Seek(
 void SpawnProjectile(
     objtype* shooter,
     classtype class_type);
+
 void SpawnStand(
     enemy_t which,
     int16_t tilex,
     int16_t tiley,
     int16_t dir);
+
 void SpawnPatrol(
     enemy_t which,
     int16_t tilex,
     int16_t tiley,
     int16_t dir);
+
 void KillActor(
     objtype* ob);
 
@@ -4026,15 +3975,16 @@ void US_ControlPanel(
 
 int16_t IntSqrt(
     int32_t va);
+
 uint16_t CalcDistance(
     uint16_t x1,
     uint16_t y1,
     uint16_t x2,
     uint16_t y2);
 
-
 void T_Hit(
     objtype* ob);
+
 void SpawnOffsetObj(
     enemy_t which,
     int16_t tilex,
@@ -4048,10 +3998,13 @@ void InitSmartAnimStruct(
     uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
+
 bool AnimateOfsObj(
     objtype* obj);
+
 void AdvanceAnimREV(
     objtype* obj);
+
 void AdvanceAnimFWD(
     objtype* obj);
 
@@ -4062,8 +4015,10 @@ void SpawnCusExplosion(
     uint16_t NumFrames,
     uint16_t Delay,
     uint16_t Class);
+
 void T_SpawnExplosion(
     objtype* obj);
+
 void T_ExplodeDamage(
     objtype* obj);
 
@@ -4080,6 +4035,7 @@ void SpawnBarrier(
     int16_t tilex,
     int16_t tiley,
     bool OnOff);
+
 void ToggleBarrier(
     objtype* obj);
 
@@ -4097,12 +4053,15 @@ objtype* FindObj(
     classtype which,
     int16_t tilex,
     int16_t tiley);
+
 objtype* FindHiddenOfs(
     classtype which);
+
 void SpawnHiddenOfs(
     enemy_t which,
     int16_t tilex,
     int16_t tiley);
+
 objtype* MoveHiddenOfs(
     classtype which_class,
     classtype new1,
@@ -4113,6 +4072,7 @@ void CheckForSpecialTile(
     objtype* obj,
     uint16_t tilex,
     uint16_t tiley);
+
 void DropCargo(
     objtype* obj);
 
@@ -4204,15 +4164,19 @@ extern std::string pd_floornotlocked;
 extern char BreifingText[];
 
 void UpdateScreenPic();
+
 void DisplayPrepingMsg(
     const char* text);
+
 bool Breifing(
     breifing_type BreifingType,
     uint16_t episode);
+
 void ShPrint(
     const char* text,
     int8_t shadow_color,
     bool single_char);
+
 uint16_t Random(
     uint16_t Max);
 
@@ -4227,10 +4191,13 @@ extern bool EscPressed;
 
 void DrawInstructions(
     inst_type Type);
+
 void CacheMessage(
     uint16_t MessageNum);
+
 void TerminateStr(
     char* pos);
+
 uint32_t CacheCompData(
     uint16_t ItemNum,
     void** dest_loc);
@@ -4253,16 +4220,19 @@ using Buffer = std::vector<unsigned char>;
 
 objtype* ui16_to_actor(
     uint16_t value);
+
 uint16_t actor_to_ui16(
     const objtype* actor);
 
 statobj_t* ui16_to_static_object(
     uint16_t value);
+
 uint16_t static_object_to_ui16(
     const statobj_t* static_object);
 
 doorobj_t* ui16_to_door_object(
     uint16_t value);
+
 uint16_t door_object_to_ui16(
     const doorobj_t* door_object);
 

@@ -902,10 +902,6 @@ objtype* CheckAndReserve()
     }
 }
 
-#ifdef TRACK_ENEMY_COUNT
-extern int16_t numEnemy[];
-#endif
-
 void KillActor(
     objtype* ob)
 {
@@ -1183,9 +1179,6 @@ void KillActor(
 
         if ((clas >= rentacopobj) && (clas < crate1obj) && (clas != electroobj) && (clas != goldsternobj)) {
             gamestuff.level[gamestate.mapon].stats.accum_enemy++;
-#ifdef TRACK_ENEMY_COUNT
-            numEnemy[clas]--;
-#endif
         }
 
         if (givepoints) {
@@ -1340,7 +1333,6 @@ void DamageActor(
 
     if (ob->hitpoints <= 0) {
         switch (ob->obclass) {
-#ifdef OBJ_RESERV
         case scan_wait_alienobj: // These actors do not have an ouch!
         case lcan_wait_alienobj: // So... RETURN!
         case gurney_waitobj:
@@ -1351,7 +1343,6 @@ void DamageActor(
                 return;
             }
             break;
-#endif
 
         case goldsternobj:
             if (gamestate.mapon == GOLD_MORPH_LEVEL) {

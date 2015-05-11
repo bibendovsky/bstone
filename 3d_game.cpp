@@ -24,10 +24,6 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 
-#ifdef MYPROFILE
-#include <ctime>
-#endif
-
 
 /*
 =============================================================================
@@ -109,9 +105,6 @@ void CheckHighScore(
 
 #if IN_DEVELOPMENT
 int16_t db_count = 0;
-#ifdef DEBUG_STATICS
-classtype debug_bonus[2][800];
-#endif
 #endif
 
 fargametype gamestuff;
@@ -296,21 +289,13 @@ void UpdateSoundLoc()
 */
 
 
-/*
-==========================
-=
-= ClearMemory
-=
-==========================
-*/
-
 void ClearMemory()
 {
 }
 
-#ifdef TRACK_ENEMY_COUNT
-int16_t numEnemy[gold_morphingobj];
-#endif
+
+#define INVALID_ACTOR_ERR Quit("Invalid actor: {} {}", x, y)
+
 
 /*
 ==========================
@@ -321,9 +306,6 @@ int16_t numEnemy[gold_morphingobj];
 =
 ==========================
 */
-
-#define INVALID_ACTOR_ERR Quit("Invalid actor: {} {}", x, y)
-
 void ScanInfoPlane()
 {
     uint16_t x, y;
@@ -337,10 +319,6 @@ void ScanInfoPlane()
 #endif
 
     detonators_spawned = 0;
-
-#ifdef TRACK_ENEMY_COUNT
-    memset(numEnemy, 0, sizeof(numEnemy));
-#endif
 
     new_actor = nullptr;
     start = mapsegs[1];
@@ -518,11 +496,6 @@ void ScanInfoPlane()
                     }
                     tile -= bo_money_bag;
                     AddTotalPoints(static_points[tile]);
-#if IN_DEVELOPMENT
-#ifdef DEBUG_STATICS
-                    debug_bonus[0][db_count++] = static_points[tile];
-#endif
-#endif
                 }
 
                 continue;
@@ -555,11 +528,6 @@ void ScanInfoPlane()
             case 87: // Gold
             case 88: // Bonus
                 AddTotalPoints(static_points[statinfo[tile - 23].type - bo_money_bag]);
-#if IN_DEVELOPMENT
-#ifdef DEBUG_STATICS
-                debug_bonus[0][db_count++] = static_points[statinfo[tile - 23].type - bo_money_bag];
-#endif
-#endif
 
             case 53:
 
@@ -633,11 +601,6 @@ void ScanInfoPlane()
             case 400: // gold 2
             case 401: // gold 3
                 AddTotalPoints(static_points[statinfo[tile - 315].type - bo_money_bag]);
-#if IN_DEVELOPMENT
-#ifdef DEBUG_STATICS
-                debug_bonus[0][db_count++] = static_points[statinfo[tile - 315].type - bo_money_bag];
-#endif
-#endif
 
             case 381:
             case 382:
@@ -899,9 +862,6 @@ void ScanInfoPlane()
                     if (::is_ps() && gamestate.mapon == GOLD_MORPH_LEVEL) {
                         AddTotalPoints(actor_points[goldsternobj - rentacopobj]);
                         AddTotalEnemy(1);
-#ifdef TRACK_ENEMY_COUNT
-                        numEnemy[goldsternobj]++;
-#endif
                     }
                 }
                 break;
@@ -1775,9 +1735,6 @@ void ScanInfoPlane()
                 } else {
                     AddTotalPoints(actor_points[podobj - rentacopobj]);
                     AddTotalEnemy(1);
-#ifdef TRACK_ENEMY_COUNT
-                    numEnemy[podobj]++;
-#endif
                 }
                 scan_value = 0xffff;
                 break;
@@ -1813,9 +1770,6 @@ void ScanInfoPlane()
                     AddTotalPoints(actor_points[en_spider_mutant]);
                     AddTotalEnemy(1);
                     SpawnOffsetObj(en_morphing_spider_mutant, x, y);
-#ifdef TRACK_ENEMY_COUNT
-                    numEnemy[new_actor->obclass]++;
-#endif
                 }
                 scan_value = 0xffff;
                 break;
@@ -1852,9 +1806,6 @@ void ScanInfoPlane()
                     AddTotalPoints(actor_points[en_reptilian_warrior]);
                     AddTotalEnemy(1);
                     SpawnOffsetObj(en_morphing_reptilian_warrior, x, y);
-#ifdef TRACK_ENEMY_COUNT
-                    numEnemy[new_actor->obclass]++;
-#endif
                 }
                 scan_value = 0xffff;
                 break;
@@ -1892,9 +1843,6 @@ void ScanInfoPlane()
                     AddTotalPoints(actor_points[en_mutant_human2]);
                     AddTotalEnemy(1);
                     SpawnOffsetObj(en_morphing_mutanthuman2, x, y);
-#ifdef TRACK_ENEMY_COUNT
-                    numEnemy[new_actor->obclass]++;
-#endif
                 }
                 scan_value = 0xffff;
                 break;
@@ -2259,9 +2207,6 @@ void ScanInfoPlane()
 
                 AddTotalPoints(actor_points[obclass - rentacopobj]);
                 AddTotalEnemy(1);
-#ifdef TRACK_ENEMY_COUNT
-                numEnemy[new_actor->obclass]++;
-#endif
                 new_actor = nullptr;
             }
 
@@ -3104,11 +3049,7 @@ void LoseScreen()
     CA_CacheScreen(LOSEPIC);
     VW_UpdateScreen();
 
-#ifdef ID_CACHE_LOSE
     TP_LoadScript(nullptr, &pi, LOSETEXT);
-#else
-    TP_LoadScript("LOSE.TXT", &pi, 0);
-#endif
 
     // Now Presenting... The Loser Prize.. I nice message directly from Dr.
     // ==============    Goldstern himself!  Oooo Ohhhhh <clap> <clap> ...
@@ -3118,11 +3059,7 @@ void LoseScreen()
     TP_Presenter(&pi);
     VW_FadeOut();
 
-#ifdef ID_CACHE_LOSE
     TP_FreeScript(&pi, LOSETEXT);
-#else
-    TP_FreeScript(&pi, 0);
-#endif
 
     screenfaded = true;
 
@@ -3224,9 +3161,6 @@ void GameLoop()
 
     char Score[13];
     bool died;
-#ifdef MYPROFILE
-    clock_t start, end;
-#endif
 
 restartgame:
 
@@ -3279,13 +3213,6 @@ restartgame:
             DrawScore();
         }
 
-#ifdef MYPROFILE
-        start = clock();
-        while (start == clock()) {
-        }
-        start++;
-#endif
-
         startgame = false;
         if (!loadedgame) {
             if (LS_current == -1) {
@@ -3328,14 +3255,6 @@ restartgame:
 
         StopMusic();
         ingame = false;
-
-#ifdef MYPROFILE
-        end = clock();
-        strcpy(str, "300 frames in 1/18ths:"); // defined in 3d_main.c
-        itoa(end - start, str2, 10); // defined in 3d_main.c
-        strcat(str, str2); // defined in 3d_main.c
-        Quit(str); // defined in 3d_main.c
-#endif
 
         if (startgame || loadedgame) {
             goto restartgame;

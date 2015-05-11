@@ -1182,11 +1182,7 @@ void binds_draw_menu()
 
 void HelpScreens()
 {
-#ifndef ID_CACHE_HELP
-    HelpPresenter("HELP.TXT", false, 0, true);
-#else
     HelpPresenter(nullptr, false, HELPTEXT, true);
-#endif
 }
 
 void HelpPresenter(
@@ -1435,11 +1431,7 @@ void CP_OrderingInfo(
     int16_t)
 {
     ControlPanelFree();
-#ifndef ID_CACHE_HELP
-    HelpPresenter("ORDER.TXT", false, 0, true);
-#else
     HelpPresenter("", false, ORDERTEXT, true);
-#endif
     ControlPanelAlloc();
 }
 
@@ -1447,11 +1439,7 @@ void CP_BlakeStoneSaga(
     int16_t)
 {
     ControlPanelFree();
-#ifndef ID_CACHE_HELP
-    HelpPresenter("SAGA.TXT", false, 0, true);
-#else
     HelpPresenter("", false, SAGATEXT, true);
-#endif
     ControlPanelAlloc();
 }
 

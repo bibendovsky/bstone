@@ -1906,7 +1906,6 @@ void T_SmartThought(
                 break;
 
             case gurney_waitobj:
-#ifdef OBJ_RESERV
 #if IN_DEVELOPMENT
                 if (((uint16_t)obj->temp2 < (uint16_t)objlist) || ((uint16_t)obj->temp2 > (uint16_t) & objlist[MAXACTORS])) {
                     Quit("Gurney->temp2 out of range!");
@@ -1915,14 +1914,13 @@ void T_SmartThought(
                 if (obj->temp2) {
                     RemoveObj(ui16_to_actor(obj->temp2));
                 }
-#endif
+
                 SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
                 NewState(obj, &s_ofs_static);
 // obj->obclass = fixup_inertobj;
                 break;
 
             case scan_wait_alienobj:
-#ifdef OBJ_RESERV
 #if IN_DEVELOPMENT
                 if (((uint16_t)obj->temp2 < (uint16_t)objlist) || ((uint16_t)obj->temp2 >= (uint16_t) & objlist[MAXACTORS])) {
                     Quit("Scan->temp2 out of range!");
@@ -1931,7 +1929,6 @@ void T_SmartThought(
                 if (obj->temp2) {
                     RemoveObj(ui16_to_actor(obj->temp2));
                 }
-#endif
 
                 SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
                 NewState(obj, &s_ofs_static);
@@ -1939,7 +1936,6 @@ void T_SmartThought(
                 break;
 
             case lcan_wait_alienobj:
-#ifdef OBJ_RESERV
 #if IN_DEVELOPMENT
                 if (((uint16_t)obj->temp2 < (uint16_t)objlist) || ((uint16_t)obj->temp2 >= (uint16_t) & objlist[MAXACTORS])) {
                     Quit("Scan->temp2 out of range!");
@@ -1949,7 +1945,6 @@ void T_SmartThought(
                     RemoveObj(ui16_to_actor(obj->temp2));
                 }
 
-#endif
                 SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
                 NewState(obj, &s_ofs_static);
 // obj->obclass = fixup_inertobj;

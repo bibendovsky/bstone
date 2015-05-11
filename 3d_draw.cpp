@@ -1285,11 +1285,6 @@ void CalcTics()
 {
     int32_t newtime;
 
-#ifdef MYPROFILE
-    tics = 3;
-    return;
-#endif
-
 //
 // calculate tics since last refresh for adaptive timing
 //

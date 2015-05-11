@@ -577,11 +577,6 @@ void PollControls()
     memcpy(buttonheld, buttonstate, sizeof(buttonstate));
     memset(buttonstate, 0, sizeof(buttonstate));
 
-#ifdef MYPROFILE
-    controlx = 100; // just spin in place
-    return;
-#endif
-
     if (demoplayback) {
         //
         // read commands from demo buffer

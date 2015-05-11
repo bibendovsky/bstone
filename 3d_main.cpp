@@ -7698,12 +7698,7 @@ void DrawCreditsPage()
     pi.shcolor = pi.dkcolor = 0;
     pi.fontnumber = static_cast<int8_t>(fontnumber);
 
-#ifdef ID_CACHE_CREDITS
     TP_LoadScript(nullptr, &pi, CREDITSTEXT);
-#else
-    TP_LoadScript("CREDITS.TXT", &pi, 0);
-#endif
-
     TP_Presenter(&pi);
 }
 
