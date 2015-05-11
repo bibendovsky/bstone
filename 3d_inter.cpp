@@ -99,6 +99,8 @@ void PreloadUpdate(
     uint16_t current,
     uint16_t total)
 {
+// BBi No progress bars
+#if 0
     uint16_t w = WindowW - 10;
 
     if (current > total) {
@@ -111,6 +113,10 @@ void PreloadUpdate(
     }
 
     VW_UpdateScreen();
+#else
+    static_cast<void>(current);
+    static_cast<void>(total);
+#endif
 }
 
 char prep_msg[] = "^ST1^CEGet Ready, Blake!\r^XX";
@@ -136,6 +142,8 @@ void DisplayPrepingMsg(
     BMAmsg(text);
     UNCACHEGRCHUNK(STARTFONT + 1);
 
+// BBi No progress bars
+#if 0
 // Set thermometer boundaries
 //
     WindowX = 36;
@@ -143,13 +151,13 @@ void DisplayPrepingMsg(
     WindowW = 260;
     WindowH = 32;
 
-
 // Init MAP and GFX thermometer areas
 //
     VWB_Bar(WindowX, WindowY - 7, WindowW - 10, 2, BORDER_LO_COLOR);
     VWB_Bar(WindowX, WindowY - 7, WindowW - 11, 1, BORDER_TEXT_COLOR - 15);
     VWB_Bar(WindowX, WindowY, WindowW - 10, 2, BORDER_LO_COLOR);
     VWB_Bar(WindowX, WindowY, WindowW - 11, 1, BORDER_TEXT_COLOR - 15);
+#endif
 
 // Update screen and fade in
 //
@@ -167,7 +175,10 @@ void PreloadGraphics()
         VW_FadeIn();
     }
 
+// BBi No delay
+#if 0
     IN_UserInput(70);
+#endif
 
     if (playstate != ex_transported) {
         VW_FadeOut();
