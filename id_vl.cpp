@@ -401,7 +401,7 @@ int screen_height = 0;
 bool sdl_is_windowed = false;
 SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
-bool vid_fix_height = true;
+bool vid_fix_par = true;
 bool has_vsync = false;
 
 
@@ -1963,8 +1963,8 @@ void initialize_video()
     // Option "vid_no_fix_height"
     //
 
-    if (::g_args.has_option("vid_no_fix_height")) {
-        ::vid_fix_height = false;
+    if (::g_args.has_option("vid_no_fix_par")) {
+        ::vid_fix_par = false;
     }
 
 
@@ -2055,7 +2055,7 @@ void initialize_video()
 
     double ar_correction = 1.0;
 
-    if (::vid_fix_height) {
+    if (::vid_fix_par) {
         ar_correction = 1.2;
     }
 
