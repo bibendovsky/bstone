@@ -1,7 +1,7 @@
-bstone
+BStone
 ======
 
-A source port of Blake Stone: Planet Strike.
+A source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike.
 
 
 Contents
@@ -19,7 +19,7 @@ Contents
 ==============
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC  
-Copyright (c) 2013 Boris Bendovsky (<bibendovsky@hotmail.com>)
+Copyright (c) 2013-2015 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
 
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License  
@@ -46,31 +46,65 @@ For an original source code license see file "Blake Stone source code license.do
 
 The build system is based on CMake (<http://cmake.org/>).
 
-Required libraries:
+Required libraries:  
+* SDL v2 or higher.  
+  (<http://www.libsdl.org/>)
 
-* SDL v2 or higher.
+
+Required additional software:  
+* pkg-config (only for non Visual C++ compiler)  
+  (<http://pkg-config.freedesktop.org/>)
 
 
 3 - Command-line options
 ========================
 
-* --ren [soft|ogl]  
+* --version  
+  Outputs the port's version to standard output and  
+  into message box.
+
+* --aog_sw  
+  Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
+  If appropriate data files will not be found the port will fail.  
+  Default switch strategy: AoG (full) -> AoG (sw) -> PS
+
+* --aog_full  
+  Switches the port to Blake Stone: Aliens of Gold (full) mode.  
+  If appropriate data files will not be found the port will fail.  
+  Default switch strategy: AoG (full) -> AoG (sw) -> PS
+
+* --ps  
+  Switches the port to Blake Stone: Planet Strike mode.  
+  If appropriate data files will not be found the port will fail.  
+  Default switch strategy: AoG (full) -> AoG (sw) -> PS
+
+* --no_screens  
+  Skips startup screens and promo pages (AoG SW only).
+
+* --cheats  
+  Enables so called "debug mode" without much fuss.
+
+* --data_dir path_to_data  
+  Specifies location to the game's data files.  
+  Default: current working directory.
+
+* --vid_renderer [soft|ogl]  
   Forces to use a specified renderer.  
   "soft" selects a software renderer.  
   "ogl" selects an OpenGL 2.x compatible renderer.  
   Default order without this option: ogl, soft.
 
-* --windowed  
+* --vid_windowed  
   Runs the game in windowed mode.  
-  Default resolution mode: 320x200
+  Default video mode: 640x480
 
-* --res width height  
+* --vid_mode width height  
   Selects the specified resolution for windowed mode.  
   Without this option the game will use desktop's resolution.  
-  Minimum width: 320  
-  Minimum height: 200
+  Minimum width: 640  
+  Minimum height: 480
 
-* --scale factor  
+* --vid_scale factor  
   Refinement factor. The higher a value the greater internal resolution  
   mode will be used to render a scene. The dimensions of the resolution mode  
   are proportional to the original one (320x200) by 'factor' value.  
@@ -79,13 +113,28 @@ Required libraries:
   Minimum factor: 1 (identical to the original game)  
   Default factor: depends on the game's resolution mode.
 
-* --winx offset  
+* --vid_window_x offset  
   Sets a horizontal offset from the left side of the desktop screen.  
-  Applicable only for windowed mode.
+  Applicable for windowed mode only.
 
-* --winy offset  
+* --vid_window_y offset  
   Sets a vertical offset from the top side of the desktop screen.  
-  Applicable only for windowed mode.
+  Applicable for windowed mode only.
+
+* --vid_no_fix_par  
+  Disables correction of pixel aspect ratio.  
+  By default the port stretches a height of rendererd screen by 20% to  
+  comply with original VGA's pixel aspect ratio.
+
+* --snd_rate sampling_rate  
+  Specifies sampling rate of mixer in hertz.  
+  Default: 22050 Hz  
+  Minimum: 11025 Hz
+
+* --snd_mix_size duration  
+  Specifies mix data size in milliseconds.  
+  Default: 40 ms  
+  Minimum: 20 ms
 
 
 4 - Third party use
@@ -115,7 +164,7 @@ Required libraries:
   Publishing the game and releasing a source code.  
   Web-site: <http://www.apogeesoftware.com/>
 
-* Boris Bendovsky  
+* Boris I. Bendovsky  
   Author of the source code.  
   Email: <bibendovsky@hotmail.com>
 
