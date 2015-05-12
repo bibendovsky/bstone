@@ -6103,6 +6103,10 @@ void read_high_scores()
 
 static void write_high_scores()
 {
+    if (::g_game_type == GameType::none) {
+        return;
+    }
+
     auto scores_path = ::get_profile_dir() + ::get_score_file_name();
 
     bstone::FileStream stream(scores_path, bstone::StreamOpenMode::write);

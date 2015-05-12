@@ -518,6 +518,8 @@ void CheckForEpisodes()
     }; // ps_file_names
 
 
+    ::g_game_type = GameType::none;
+
     if (::g_args.has_option("aog_full")) {
         ::g_game_type = GameType::aog_full;
 
@@ -556,7 +558,7 @@ void CheckForEpisodes()
         break;
 
     default:
-        bstone::Log::write("Determining the game type.");
+        bstone::Log::write("Searching for data files...");
 
         if (::are_files_exist(aog_file_names)) {
             ::g_game_type = GameType::aog_full;
@@ -572,7 +574,7 @@ void CheckForEpisodes()
             bstone::Log::write("Found Aliens Of Gold (shareware).\n");
         } else {
             is_succeed = false;
-            error_message = "Unable to find all expected files of any game.";
+            error_message = "Data files not found.";
         }
         break;
     }
