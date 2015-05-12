@@ -7406,12 +7406,12 @@ bool DoMovie(
     CA_LoadAllSounds();
 
     if (palette) {
-        Movies[movie].palette = palette;
+        movies[movie].palette = palette;
     } else {
-        Movies[movie].palette = vgapal;
+        movies[movie].palette = vgapal;
     }
 
-    ReturnVal = MOVIE_Play(&Movies[movie]);
+    ReturnVal = MOVIE_Play(&movies[movie]);
 
     SD_StopSound();
     ClearMemory();

@@ -26,13 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_MOVIE_INCLUDED
 
 
+#include <string>
+#include <vector>
 #include "jm_vl.h"
-
-// ==========================================================================
-//
-//  UNIT:  MOVIE.H
-//
-// ==========================================================================
 
 
 struct anim_frame {
@@ -61,11 +57,11 @@ struct anim_chunk {
 //  end_line -- Ending line  "   "   "   "   "   "   "   "
 //
 struct MovieStuff_t {
-    char FName[13];
+    std::string file_name;
     int8_t rep;
     int8_t ticdelay;
 
-    uint32_t MaxMemBuffer;
+    uint32_t max_mem_buffer;
 
     int16_t start_line;
     int16_t end_line;
@@ -80,8 +76,10 @@ struct MovieStuff_t {
 //
 // =========================================================================
 
+using Movies = std::vector<MovieStuff_t>;
+
 extern void* displaybuffer;
-extern MovieStuff_t Movies[];
+extern Movies movies;
 
 // ===========================================================================
 //

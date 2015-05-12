@@ -602,7 +602,7 @@ void CheckForEpisodes()
     }
 
     for (auto i = 0; i < mv_NUM_MOVIES; ++i) {
-        ::strcat(::Movies[i].FName, ::extension.c_str());
+        ::movies[i].file_name += ::extension;
     }
 
     if (::is_aog_full()) {

@@ -97,11 +97,11 @@ const void* movie_palette;
 // NOTE: This list is ordered according to mv_???? enum list.
 //
 
-MovieStuff_t Movies[] = {
-    { { "IANIM." }, 1, 3, 0, 0, 200 }, // mv_intro
-    { { "EANIM." }, 1, 3, 0, 0, 200 }, // mv_final
-    { { "SANIM." }, 1, 3, 0, 0, 200 }, // mv_final2
-    { { "GANIM." }, 1, 3, 0, 0, 200 }, // mv_final3
+Movies movies = {
+    { "IANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_intro
+    { "EANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_final
+    { "SANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_final2
+    { "GANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_final3
 };
 
 
@@ -483,7 +483,7 @@ bool MOVIE_Play(
     // Start the anim process
     //
 
-    Movie_FHandle.open(::data_dir + MovieStuff->FName);
+    Movie_FHandle.open(::data_dir + MovieStuff->file_name);
     if (!Movie_FHandle.is_open()) {
         return false;
     }
