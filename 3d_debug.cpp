@@ -236,8 +236,13 @@ void ShowMap()
 
     US_CPrint("CURRENT MAP\n\n ");
 
+    auto old_flags = ::ExtraRadarFlags;
+    ::ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
+
     ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
     VW_UpdateScreen();
+
+    ::ExtraRadarFlags = old_flags;
 
     memcpy(player, &old_player, sizeof(objtype));
     IN_Ack();
