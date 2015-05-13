@@ -8,11 +8,12 @@ Contents
 ========
 
 1. Disclaimer
-2. Compiling
-3. Command-line options
-4. Third party use
-5. Credits
-6. Links
+2. Profile
+3. Compiling
+4. Command-line options
+5. Third party use
+6. Credits
+7. Links
 
 
 1 - Disclaimer
@@ -41,7 +42,33 @@ For a copy of the GNU General Public License see file LICENSE.
 For an original source code license see file "Blake Stone source code license.doc".
 
 
-2 - Compiling
+2 - Profile
+===========
+
+The port stores configuration file, saved game files, etc. in user's profile.  
+The path to those files depends on platform.
+
+On Windows, the path might look like:  
+"C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"
+
+On Linux, the path might look like:  
+"/home/john/.local/share/bstone/"
+
+On Mac OS X, the path might look like:  
+"/Users/john/Library/Application Support/bstone/"
+
+Configuration file name: bstone_config  
+Log file name: bstone_log.txt  
+High scores file name: bstone_game_high_scores  
+Saved game file name: bstone_game_saved_game
+
+Where "game" is:  
+* aog_sw - Aliens of Gold (shareware)  
+* aog_full - Aliens of Gold (full)  
+* ps - Planet Strike
+
+
+3 - Compiling
 =============
 
 The build system is based on CMake (<http://cmake.org/>).
@@ -56,7 +83,7 @@ Required additional software:
   (<http://pkg-config.freedesktop.org/>)
 
 
-3 - Command-line options
+4 - Command-line options
 ========================
 
 * --version  
@@ -137,7 +164,7 @@ Required additional software:
   Minimum: 20 ms
 
 
-4 - Third party use
+5 - Third party use
 ===================
 
 * Simple DirectMedia Library (v2)  
@@ -150,7 +177,7 @@ Required additional software:
   Note: The source port uses only an OPL emulation code.
 
 
-5 - Credits
+6 - Credits
 ===========
 
 * id Software  
@@ -172,7 +199,7 @@ Required additional software:
   Adaptation to Pandora console, various fixes.
 
 
-6 - Links
+7 - Links
 =========
 
 * The port's source code and binary releases:  
