@@ -634,19 +634,6 @@ int16_t DebugKeys()
         }
 
         return 1;
-    } else if (Keyboard[ScanCode::sc_v]) { // V = extra VBLs
-        CenterWindow(30, 3);
-        PrintY += 6;
-        US_Print("  Add how many extra VBLs(0-8):");
-        VW_UpdateScreen();
-        esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
-        if (!esc) {
-            level = static_cast<int16_t>(atoi(str));
-            if (level >= 0 && level <= 8) {
-                extravbls = level;
-            }
-        }
-        return 1;
     } else if (Keyboard[ScanCode::sc_s]) { // S = slow motion
         ::singlestep = !::singlestep;
         CenterWindow(18, 3);

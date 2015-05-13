@@ -3108,7 +3108,6 @@ extern objtype* actorat[MAPSIZE][MAPSIZE];
 extern bool singlestep;
 extern bool godmode;
 extern bool noclip;
-extern int16_t extravbls;
 extern bool DebugOk;
 extern int16_t InstantWin;
 extern int16_t InstantQuit;

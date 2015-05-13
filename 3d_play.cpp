@@ -100,7 +100,6 @@ uint8_t* nearmapylookup[MAPSIZE];
 
 bool singlestep = false;
 bool godmode; // ,noclip;
-int16_t extravbls = 0;
 
 uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
 uint8_t spotvis[MAPSIZE][MAPSIZE];
@@ -1756,9 +1755,6 @@ void PlayLoop()
         if (singlestep) {
             VW_WaitVBL(14);
             lasttimecount = TimeCount;
-        }
-        if (extravbls) {
-            VW_WaitVBL(extravbls);
         }
 
         if ((demoplayback) && (IN_CheckAck())) {
