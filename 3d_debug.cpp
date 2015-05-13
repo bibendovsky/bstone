@@ -623,13 +623,12 @@ int16_t DebugKeys()
         IN_Ack();
         return 1;
     } else if (Keyboard[ScanCode::sc_u]) { // Unlock All Floors
-        int16_t i;
         CenterWindow(24, 3);
         US_PrintCentered("Unlock All Floors!");
         VW_UpdateScreen();
         IN_Ack();
 
-        for (i = 0; i < 11; i++) {
+        for (int i = 0; i < ::MAPS_WITH_STATS; ++i) {
             gamestuff.level[i].locked = false;
         }
 
