@@ -35,11 +35,11 @@ namespace bstone {
 
 
 AudioDecoder::AudioDecoder() :
-    is_initialized_(false),
-    raw_data_(nullptr),
-    raw_size_(0),
-    dst_rate_(0),
-    dst_length_in_samples_(0)
+        is_initialized_(),
+        raw_data_(),
+        raw_size_(),
+        dst_rate_(),
+        dst_length_in_samples_()
 {
 }
 
@@ -56,14 +56,17 @@ bool AudioDecoder::initialize(
 {
     uninitialize();
 
-    if (!raw_data)
+    if (!raw_data) {
         return false;
+    }
 
-    if (raw_size < 0)
+    if (raw_size < 0) {
         return false;
+    }
 
-    if (dst_rate < 1)
+    if (dst_rate < 1) {
         return false;
+    }
 
     raw_data_ = raw_data;
     raw_size_ = raw_size;
@@ -120,4 +123,4 @@ void AudioDecoder::set_dst_length_in_samples(
 }
 
 
-} // namespace bstone
+} // bstone

@@ -48,4 +48,4 @@ std::string FormatString::to_string() const
 }
 
 
-} //namespace bstone
+} // bstone

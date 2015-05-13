@@ -35,12 +35,12 @@ namespace bstone {
 
 
 PcmDecoder::PcmDecoder() :
-    offset_(0),
-    last_sample_(0),
-    dst_count_(0),
-    dst_ratio_(0),
-    alpha_(0.0),
-    one_minus_alpha_(0.0)
+        offset_(),
+        last_sample_(),
+        dst_count_(),
+        dst_ratio_(),
+        alpha_(),
+        one_minus_alpha_()
 {
 }
 
@@ -64,8 +64,9 @@ bool PcmDecoder::initialize(
         return false;
     }
 
-    if (dst_rate < get_min_dst_rate())
+    if (dst_rate < get_min_dst_rate()) {
         return false;
+    }
 
     int64_t i_size = src_raw_size;
     int64_t o_rate = dst_rate;
@@ -120,17 +121,20 @@ int PcmDecoder::decode(
     int dst_count,
     int16_t* dst_data)
 {
-    if (dst_count <= 0)
+    if (dst_count <= 0) {
         return 0;
+    }
 
-    if (!dst_data)
+    if (!dst_data) {
         return 0;
+    }
 
-    if (offset_ >= dst_count_)
+    if (offset_ >= dst_count_) {
         return 0;
+    }
 
     int actual_count = 0;
-    const uint8_t* src_samples = static_cast<const uint8_t*>(get_raw_data());
+    auto src_samples = static_cast<const uint8_t*>(get_raw_data());
 
     int64_t offset = offset_;
 
@@ -138,7 +142,7 @@ int PcmDecoder::decode(
     int16_t cached_sample = 0;
 
     for (int i = 0; i < dst_count && offset < dst_count_; ++i) {
-        int src_index = static_cast<int>((offset * dst_ratio_) >> 16);
+        auto src_index = static_cast<int>((offset * dst_ratio_) >> 16);
 
         if (src_index != cached_index) {
             cached_index = src_index;
@@ -157,10 +161,11 @@ int PcmDecoder::decode(
         if (!(i == 0 && offset == 0)) {
             int16_t prev_sample;
 
-            if (i > 0)
+            if (i > 0) {
                 prev_sample = dst_data[i - 1];
-            else
+            } else {
                 prev_sample = last_sample_;
+            }
 
             dst_data[i] = static_cast<int16_t>(
                 (alpha_ * dst_data[i]) +
@@ -179,8 +184,9 @@ int PcmDecoder::decode(
 // (virtual)
 bool PcmDecoder::reset()
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return false;
+    }
 
     offset_ = 0;
 
@@ -213,4 +219,4 @@ int16_t PcmDecoder::pcm8_to_pcm16(uint8_t sample)
 }
 
 
-} // namespace bstone
+} // bstone

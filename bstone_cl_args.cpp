@@ -71,7 +71,7 @@ void ClArgs::initialize(
     args_.resize(argc);
     lc_args_.resize(argc);
 
-    for (auto i = 0; i < argc; ++i) {
+    for (int i = 0; i < argc; ++i) {
         args_[i] = argv[i];
         lc_args_[i] = StringHelper::to_lower(args_[i]);
     }
@@ -98,7 +98,7 @@ int ClArgs::find_option(
 
     auto lc_name = StringHelper::to_lower(option_name);
 
-    for (auto i = 1; i < get_count(); ++i) {
+    for (int i = 1; i < get_count(); ++i) {
         const auto& arg = args_[i];
 
         if (arg.size() != (2 + lc_name.size())) {
@@ -126,7 +126,7 @@ int ClArgs::find_argument(
 
     auto lc_name = StringHelper::to_lower(name);
 
-    for (auto i = 1; i < get_count(); ++i) {
+    for (int i = 1; i < get_count(); ++i) {
         if (lc_name == args_[i]) {
             return i;
         }
@@ -138,7 +138,7 @@ int ClArgs::find_argument(
 int ClArgs::check_argument(
     const char* const list[])
 {
-    if (args_.size () <= 1) {
+    if (args_.size() <= 1) {
         return -1;
     }
 
@@ -202,7 +202,7 @@ int ClArgs::check_argument(
             continue;
         }
 
-        for (auto i = 0; list[i]; ++i) {
+        for (int i = 0; list[i]; ++i) {
             auto list_item = list[i];
 
             if (item == list_item) {
@@ -261,4 +261,4 @@ void ClArgs::get_option_values(
 }
 
 
-} // namespace bstone
+} // bstone

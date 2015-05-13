@@ -79,7 +79,7 @@ void Log::write_version()
 Log& Log::get_local()
 {
     static Log log;
-    static auto is_initialized = false;
+    static bool is_initialized = false;
 
     if (!is_initialized) {
         is_initialized = true;
@@ -97,8 +97,8 @@ Log& Log::get_local()
 void Log::write_internal(
     const std::string& format)
 {
-    auto is_critical = false;
-    auto is_version = false;
+    bool is_critical = false;
+    bool is_version = false;
 
     switch (message_type_) {
     case MessageType::version:
@@ -130,13 +130,13 @@ void Log::write_internal(
     if (args_.empty()) {
         message_ += format;
     } else if (!format.empty()) {
-        auto i = 0;
-        auto prev_char = '\0';
+        int i = 0;
+        char prev_char = '\0';
         auto c_format = format.c_str();
-        auto arg_index = 0;
+        int arg_index = 0;
         while (c_format[i] != '\0') {
             auto ch = c_format[i];
-            auto just_advance = false;
+            bool just_advance = false;
 
             if (prev_char != '{' && ch == '{') {
                 int next_char = c_format[i + 1];
@@ -151,7 +151,7 @@ void Log::write_internal(
                         just_advance = true;
                     }
                 } else {
-                    auto digit = next_char - '0';
+                    int digit = next_char - '0';
 
                     if (digit >= 0 && digit <= 9) {
                         next_char = c_format[i + 2];
@@ -202,7 +202,7 @@ void Log::write_internal(
 // (static)
 void Log::clean_up()
 {
-    auto&& local = get_local();
+    auto& local = get_local();
     local.args_.clear();
 }
 

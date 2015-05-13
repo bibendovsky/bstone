@@ -80,8 +80,8 @@ bool FileStream::open(
 
 
     auto mode = "";
-    auto can_read = false;
-    auto can_write = false;
+    bool can_read = false;
+    bool can_write = false;
 
     switch (open_mode) {
     case StreamOpenMode::read:

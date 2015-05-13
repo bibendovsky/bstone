@@ -170,4 +170,4 @@ bool MemoryBinaryReader::set_position(
 }
 
 
-} // namespace bstone
+} // bstone

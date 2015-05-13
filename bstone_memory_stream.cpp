@@ -74,8 +74,8 @@ bool MemoryStream::open(
     close();
 
 
-    auto can_read = false;
-    auto can_write = false;
+    bool can_read = false;
+    bool can_write = false;
 
     switch (open_mode) {
     case StreamOpenMode::read:
@@ -126,8 +126,8 @@ bool MemoryStream::open(
     }
 
 
-    auto can_read = false;
-    auto can_write = false;
+    bool can_read = false;
+    bool can_write = false;
 
     switch (open_mode) {
     case StreamOpenMode::read:

@@ -78,7 +78,7 @@ private:
 }; // PcmDecoder
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_PCM_DECODER_INCLUDED

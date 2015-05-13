@@ -82,11 +82,13 @@ bool AdlibSfxDecoder::initialize(
 
     int sfx_length = bstone::Endian::le(reader_.read_s32());
 
-    if (sfx_length <= 0)
+    if (sfx_length <= 0) {
         return false;
+    }
 
-    if ((sfx_length + get_header_size()) >= raw_size)
+    if ((sfx_length + get_header_size()) >= raw_size) {
         return false;
+    }
 
     // Skip priority.
     reader_.skip(2);
@@ -105,8 +107,9 @@ bool AdlibSfxDecoder::initialize(
     // Skip nConn, voice, mode and 3 unused octets
     reader_.skip(6);
 
-    if (instrument_.m_sus == 0 && instrument_.c_sus == 0)
+    if (instrument_.m_sus == 0 && instrument_.c_sus == 0) {
         return false;
+    }
 
     hf_ = reader_.read_u8();
     hf_ = ((hf_ & 7) << 2) | 0x20;
@@ -141,8 +144,9 @@ void AdlibSfxDecoder::uninitialize()
 // (virtual)
 bool AdlibSfxDecoder::reset()
 {
-    if (!AdlibDecoder::reset())
+    if (!AdlibDecoder::reset()) {
         return false;
+    }
 
     initialize_instrument();
 
@@ -165,17 +169,21 @@ int AdlibSfxDecoder::decode(
     int dst_count,
     int16_t* dst_data)
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return 0;
+    }
 
-    if (dst_count < 1)
+    if (dst_count < 1) {
         return 0;
+    }
 
-    if (!dst_data)
+    if (!dst_data) {
         return 0;
+    }
 
-    if (command_index_ == commands_count_ && remains_count_ == 0)
+    if (command_index_ == commands_count_ && remains_count_ == 0) {
         return 0;
+    }
 
     int decoded_samples_count = 0;
 
@@ -249,4 +257,4 @@ int AdlibSfxDecoder::get_header_size()
 }
 
 
-} // namespace bstone
+} // bstone

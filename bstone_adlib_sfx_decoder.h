@@ -107,7 +107,7 @@ private:
 }; // AdlibDecoder
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_ADLIB_SFX_DECODER_INCLUDED

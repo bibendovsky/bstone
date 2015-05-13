@@ -89,7 +89,7 @@ private:
 }; // ClArgs
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_CL_ARGS_INCLUDED

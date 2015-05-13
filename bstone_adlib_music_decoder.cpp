@@ -36,10 +36,10 @@ namespace bstone {
 
 
 AdlibMusicDecoder::AdlibMusicDecoder() :
-    commands_count_(0),
-    command_index_(0),
-    samples_per_tick_(0),
-    remains_count_(0)
+        commands_count_(),
+        command_index_(),
+        samples_per_tick_(),
+        remains_count_()
 {
 }
 
@@ -67,11 +67,13 @@ bool AdlibMusicDecoder::initialize(
 
     int commands_size = bstone::Endian::le(reader_.read_u16());
 
-    if ((commands_size % 4) != 0)
+    if ((commands_size % 4) != 0) {
         return false;
+    }
 
-    if ((commands_size + 2) > raw_size)
+    if ((commands_size + 2) > raw_size) {
         return false;
+    }
 
     command_index_ = 0;
     commands_count_ = commands_size / 4;
@@ -110,8 +112,9 @@ void AdlibMusicDecoder::uninitialize()
 // (virtual)
 bool AdlibMusicDecoder::reset()
 {
-    if (!AdlibDecoder::reset())
+    if (!AdlibDecoder::reset()) {
         return false;
+    }
 
     reader_.set_position(2);
 
@@ -132,22 +135,25 @@ int AdlibMusicDecoder::decode(
     int dst_count,
     int16_t* dst_data)
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return 0;
+    }
 
-    if (dst_count < 1)
+    if (dst_count < 1) {
         return 0;
+    }
 
-    if (!dst_data)
+    if (!dst_data) {
         return 0;
+    }
 
-    if (command_index_ == commands_count_ && remains_count_ == 0)
+    if (command_index_ == commands_count_ && remains_count_ == 0) {
         return 0;
+    }
 
     int decoded_samples_count = 0;
 
-    for (bool quit = false; !quit; )
-    {
+    for (bool quit = false; !quit; ) {
         if (remains_count_ > 0) {
             int count = std::min(dst_count, remains_count_);
 
@@ -169,8 +175,9 @@ int AdlibMusicDecoder::decode(
                 ++command_index_;
             }
 
-            if (delay > 0)
+            if (delay > 0) {
                 remains_count_ = delay * samples_per_tick_;
+            }
         }
 
         quit =
@@ -188,4 +195,4 @@ int AdlibMusicDecoder::get_tick_rate()
 }
 
 
-} // namespace bstone
+} // bstone

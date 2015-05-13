@@ -77,8 +77,9 @@ void AdlibDecoder::uninitialize()
 // (virtual)
 bool AdlibDecoder::reset()
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return false;
+    }
 
     emulator_.initialize(get_dst_rate());
     set_emulator_default_state();
@@ -88,12 +89,13 @@ bool AdlibDecoder::reset()
 
 void AdlibDecoder::set_emulator_default_state()
 {
-    for (int i = 1; i <= 0xF5; ++i)
+    for (int i = 1; i <= 0xF5; ++i) {
         emulator_.write(i, 0x00);
+    }
 
     emulator_.write(0x01, 0x20);
     emulator_.write(0x08, 0x00);
 }
 
 
-} // namespace bstone
+} // bstone

@@ -96,7 +96,7 @@ private:
 }; // OglVersion
 
 
-} // namespace bstone
+} // bstone
 
 
 bool operator<(

@@ -331,7 +331,7 @@ private:
 }; // AudioMixer
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_AUDIO_MIXER_INCLUDED

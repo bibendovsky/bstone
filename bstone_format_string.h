@@ -66,7 +66,7 @@ private:
 }; // FormatString
 
 
-} //namespace bstone
+} // bstone
 
 
 #endif // BSTONE_FORMAT_STRING_INCLUDED

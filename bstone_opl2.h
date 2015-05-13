@@ -86,7 +86,7 @@ private:
 }; // Opl2
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_OPL2_INCLUDED

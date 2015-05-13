@@ -75,7 +75,7 @@ private:
 }; // AdlibDecoder
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_ADLIB_MUSIC_DECODER_INCLUDED

@@ -102,7 +102,7 @@ private:
 }; // OglApi
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_OGL_API_INCLUDED

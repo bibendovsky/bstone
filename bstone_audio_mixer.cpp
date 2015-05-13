@@ -192,7 +192,7 @@ bool AudioMixer::initialize(
         return false;
     }
 
-    auto is_succeed = true;
+    bool is_succeed = true;
 
 
     std::thread thread;
@@ -268,7 +268,12 @@ bool AudioMixer::play_adlib_music(
     const void* data,
     int data_size)
 {
-    return play_sound(ST_ADLIB_MUSIC, 0, music_index, data, data_size);
+    return play_sound(
+        ST_ADLIB_MUSIC,
+        0,
+        music_index,
+        data,
+        data_size);
 }
 
 bool AudioMixer::play_adlib_sound(
@@ -280,8 +285,15 @@ bool AudioMixer::play_adlib_sound(
     ActorType actor_type,
     ActorChannel actor_channel)
 {
-    return play_sound(ST_ADLIB_SFX, priority, sound_index,
-        data, data_size, actor_index, actor_type, actor_channel);
+    return play_sound(
+        ST_ADLIB_SFX,
+        priority,
+        sound_index,
+        data,
+        data_size,
+        actor_index,
+        actor_type,
+        actor_channel);
 }
 
 bool AudioMixer::play_pcm_sound(
@@ -293,8 +305,15 @@ bool AudioMixer::play_pcm_sound(
     ActorType actor_type,
     ActorChannel actor_channel)
 {
-    return play_sound(ST_PCM, priority, sound_index,
-        data, data_size, actor_index, actor_type, actor_channel);
+    return play_sound(
+        ST_PCM,
+        priority,
+        sound_index,
+        data,
+        data_size,
+        actor_index,
+        actor_type,
+        actor_channel);
 }
 
 bool AudioMixer::update_positions()
@@ -313,7 +332,7 @@ bool AudioMixer::update_positions()
 
     state.actors.resize(MAXACTORS);
 
-    for (auto i = 0; i < MAXACTORS; ++i) {
+    for (int i = 0; i < MAXACTORS; ++i) {
         auto& actor = state.actors[i];
 
         actor.x = objlist[i].x;
@@ -322,7 +341,7 @@ bool AudioMixer::update_positions()
 
     state.doors.resize(MAXDOORS);
 
-    for (auto i = 0; i < MAXDOORS; ++i) {
+    for (int i = 0; i < MAXDOORS; ++i) {
         auto& door = state.doors[i];
 
         door.x = (doorobjlist[i].tilex << TILESHIFT) +
@@ -508,9 +527,9 @@ void AudioMixer::callback(
     int dst_length)
 {
     if (!mute_ && is_data_available_) {
-        std::uninitialized_copy(
-            reinterpret_cast<const uint8_t*>(&buffer_[0]),
-            reinterpret_cast<const uint8_t*>(&buffer_[0]) + dst_length,
+        std::uninitialized_copy_n(
+            reinterpret_cast<const uint8_t*>(buffer_.data()),
+            dst_length,
             dst_data);
 
         is_data_available_ = false;
@@ -546,7 +565,7 @@ void AudioMixer::mix_samples()
     float min_right_sample = 32767;
     float max_right_sample = -32768;
 
-    for (auto i = 0; i < mix_samples_count_; ++i) {
+    for (int i = 0; i < mix_samples_count_; ++i) {
         float left_sample = 0.0F;
         float right_sample = 0.0F;
 
@@ -619,8 +638,8 @@ void AudioMixer::mix_samples()
     // Calculate normalizations factors.
     //
 
-    auto normalize_left = false;
-    auto normalize_left_scale = 1.0F;
+    bool normalize_left = false;
+    float normalize_left_scale = 1.0F;
 
     if (min_left_sample < -32768 && -min_left_sample > max_left_sample) {
         normalize_left = true;
@@ -630,8 +649,8 @@ void AudioMixer::mix_samples()
         normalize_left_scale = 32767.0F / max_left_sample;
     }
 
-    auto normalize_right = false;
-    auto normalize_right_scale = 1.0F;
+    bool normalize_right = false;
+    float normalize_right_scale = 1.0F;
 
     if (min_right_sample < -32768 && -min_right_sample > max_right_sample) {
         normalize_right = true;
@@ -646,7 +665,7 @@ void AudioMixer::mix_samples()
     // Normalize and output.
     //
 
-    for (auto i = 0; i < mix_samples_count_; ++i) {
+    for (int i = 0; i < mix_samples_count_; ++i) {
         float left_sample = mix_buffer_[(2 * i) + 0];
         float right_sample = mix_buffer_[(2 * i) + 1];
 
@@ -668,7 +687,7 @@ void AudioMixer::mix_samples()
         buffer_[(2 * i) + 1] = static_cast<int16_t>(right_sample);
     }
 
-    auto music_count = is_music_playing() ? 1 : 0;
+    int music_count = is_music_playing() ? 1 : 0;
     is_any_sfx_playing_ = ((sounds_.size() - music_count) > 0);
 }
 
@@ -804,7 +823,7 @@ bool AudioMixer::initialize_cache_item(
 
     cache_item = CacheItem();
 
-    auto is_succeed = true;
+    bool is_succeed = true;
     AudioDecoder* decoder = nullptr;
 
     if (is_succeed) {
@@ -819,7 +838,7 @@ bool AudioMixer::initialize_cache_item(
             dst_rate_);
     }
 
-    auto samples_count = 0;
+    int samples_count = 0;
 
     if (is_succeed) {
         samples_count = decoder->get_dst_length_in_samples();
@@ -862,18 +881,18 @@ bool AudioMixer::decode_sound(
         return true;
     }
 
-    auto ahead_count = std::min(
+    int ahead_count = std::min(
         sound.decode_offset + mix_samples_count_,
         cache_item->samples_count);
 
     if (ahead_count <= cache_item->decoded_count)
         return true;
 
-    auto planned_count = std::min(
+    int planned_count = std::min(
         cache_item->samples_count - cache_item->decoded_count,
         mix_samples_count_);
 
-    auto actual_count = cache_item->decoder->decode(
+    int actual_count = cache_item->decoder->decode(
         planned_count,
         &cache_item->samples[cache_item->decoded_count]);
 
@@ -915,8 +934,8 @@ void AudioMixer::spatialize_sound(
         return;
     }
 
-    auto gx = position->x;
-    auto gy = position->y;
+    int gx = position->x;
+    int gy = position->y;
 
     //
     // translate point to view centered coordinates
@@ -927,16 +946,16 @@ void AudioMixer::spatialize_sound(
     //
     // calculate newx
     //
-    auto xt = ::FixedByFrac(gx, positions_state_.player.view_cos);
-    auto yt = ::FixedByFrac(gy, positions_state_.player.view_sin);
-    auto x = (xt - yt) >> TILESHIFT;
+    int xt = ::FixedByFrac(gx, positions_state_.player.view_cos);
+    int yt = ::FixedByFrac(gy, positions_state_.player.view_sin);
+    int x = (xt - yt) >> TILESHIFT;
 
     //
     // calculate newy
     //
     xt = ::FixedByFrac(gx, positions_state_.player.view_sin);
     yt = ::FixedByFrac(gy, positions_state_.player.view_cos);
-    auto y = (yt + xt) >> TILESHIFT;
+    int y = (yt + xt) >> TILESHIFT;
 
     if (y >= ATABLEMAX) {
         y = ATABLEMAX - 1;
@@ -950,8 +969,8 @@ void AudioMixer::spatialize_sound(
         x = ATABLEMAX - 1;
     }
 
-    auto left = 9 - lefttable[x][y + ATABLEMAX];
-    auto right = 9 - righttable[x][y + ATABLEMAX];
+    int left = 9 - lefttable[x][y + ATABLEMAX];
+    int right = 9 - righttable[x][y + ATABLEMAX];
 
     sound.left_volume = left / 9.0F;
     sound.right_volume = right / 9.0F;
@@ -1057,8 +1076,8 @@ int AudioMixer::calculate_mix_samples_count(
     int dst_rate,
     int mix_size_ms)
 {
-    auto exact_count = (dst_rate * mix_size_ms) / 1000;
-    auto actual_count = 1;
+    int exact_count = (dst_rate * mix_size_ms) / 1000;
+    int actual_count = 1;
 
     while (actual_count < exact_count) {
         actual_count *= 2;
@@ -1167,4 +1186,4 @@ bool AudioMixer::is_sound_index_valid(
 }
 
 
-} // namespace bstone
+} // bstone

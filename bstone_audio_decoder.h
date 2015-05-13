@@ -96,7 +96,7 @@ private:
 }; // AudioDecoder
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_AUDIO_DECODER_INCLUDED

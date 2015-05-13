@@ -40,8 +40,8 @@ std::string vendor_;
 std::string renderer_;
 bstone::OglVersion version_;
 
-// True if detected GL_EXT_texture_rg (ES).
-// True if major version equal or greater than 3.
+// True if detected GL_EXT_texture_rg (ES) or 
+// if major version equal or greater than 3.
 bool has_ext_texture_rg_ = false;
 
 
@@ -546,7 +546,7 @@ using Strings = std::list<std::string>;
 using StringsCIt = Strings::const_iterator;
 
 // Pointer-to-object to pointer-to-function cast
-template<class T>
+template<typename T>
 union Cast {
 public:
     explicit Cast(
@@ -566,7 +566,7 @@ private:
 }; // union Cast
 
 
-template<class T>
+template<typename T>
 void ogl_api_get_base_symbol(
     const char* symbol_name,
     T& symbol,
@@ -578,7 +578,7 @@ void ogl_api_get_base_symbol(
         missing_symbols.push_back(symbol_name);
 }
 
-template<class T>
+template<typename T>
 void ogl_api_get_ext_symbol(
     const char* symbol_name,
     T& symbol)
@@ -660,14 +660,12 @@ bool OglApi::initialize()
 
     ogl_api_get_base_symbol(
         "glViewport", glViewport_, missing_symbols);
-#endif // BSTONE_OGL_DIRECT_LINK
 
 
     //
     // Required extensions
     //
 
-#if !defined(BSTONE_OGL_DIRECT_LINK)
     ogl_api_get_base_symbol(
         "glActiveTexture", glActiveTexture_, missing_symbols);
 
@@ -753,13 +751,12 @@ bool OglApi::initialize()
         "glVertexAttribPointer", glVertexAttribPointer_, missing_symbols);
 #endif // BSTONE_OGL_DIRECT_LINK
 
+
 #if !defined(BSTONE_OGL_DIRECT_LINK)
     if (!missing_symbols.empty()) {
-        for(StringsCIt i = missing_symbols.begin();
-            i != missing_symbols.end(); ++i)
-        {
+        for(const auto& missing_symbol : missing_symbols) {
             bstone::Log::write_error(
-                "OGLAPI: Missing symbol: {}.", *i);
+                "OGLAPI: Missing symbol: {}.", missing_symbol);
         }
 
         uninitialize();
@@ -770,7 +767,7 @@ bool OglApi::initialize()
 
     // Vendor
 
-    const GLubyte* vendor = ::glGetString(GL_VENDOR);
+    auto vendor = ::glGetString(GL_VENDOR);
 
     if (!vendor) {
         bstone::Log::write_error(
@@ -783,7 +780,7 @@ bool OglApi::initialize()
 
     // Renderer
 
-    const GLubyte* renderer = ::glGetString(GL_RENDERER);
+    auto renderer = ::glGetString(GL_RENDERER);
 
     if (!renderer) {
         bstone::Log::write_error(
@@ -796,7 +793,7 @@ bool OglApi::initialize()
 
     // Version
 
-    const GLubyte* version_string = ::glGetString(GL_VERSION);
+    auto version_string = ::glGetString(GL_VERSION);
 
     if (!version_string) {
         bstone::Log::write_error(
@@ -816,8 +813,9 @@ bool OglApi::initialize()
     if (version_.is_es()) {
         has_ext_texture_rg_ = (::SDL_GL_ExtensionSupported(
             "GL_EXT_texture_rg") != SDL_FALSE);
-    } else
+    } else {
         has_ext_texture_rg_ = (version_.get_major() >= 3);
+    }
 
     is_initialized_ = true;
     vendor_ = reinterpret_cast<const char*>(vendor);
@@ -928,4 +926,4 @@ GLenum OglApi::get_gl_red()
 }
 
 
-} // namespace bstone
+} // bstone

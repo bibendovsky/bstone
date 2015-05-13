@@ -78,7 +78,7 @@ void OglVersion::set(
 {
     reset();
 
-    const int eof = std::istringstream::traits_type::eof();
+    const auto eof = std::istringstream::traits_type::eof();
 
     int next_char;
     std::istringstream iss(version_string);
@@ -95,21 +95,24 @@ void OglVersion::set(
     // Major.
     int major = 0;
 
-    if (!(iss >> major))
+    if (!(iss >> major)) {
         return;
+    }
 
     next_char = iss.peek();
 
-    if (next_char != '.')
+    if (next_char != '.') {
         return;
+    }
 
     // Minor.
     int minor = 0;
 
     iss.ignore(1);
 
-    if (!(iss >> minor))
+    if (!(iss >> minor)) {
         return;
+    }
 
     // Release (optional).
     int release = 0;
@@ -119,8 +122,9 @@ void OglVersion::set(
     if (next_char != eof && next_char == '.') {
         iss.ignore(1);
 
-        if (!(iss >> release))
+        if (!(iss >> release)) {
             return;
+        }
 
         next_char = iss.peek();
     }
@@ -132,12 +136,14 @@ void OglVersion::set(
         iss.ignore(1);
         std::getline(iss, vendor);
 
-        if (!iss)
+        if (!iss) {
             return;
+        }
     }
 
-    if (!iss.eof())
+    if (!iss.eof()) {
         return;
+    }
 
     major_ = major;
     minor_ = minor;
@@ -191,16 +197,19 @@ std::string OglVersion::to_string() const
 {
     std::ostringstream oss;
 
-    if (is_es())
+    if (is_es()) {
         oss << get_es_prefix();
+    }
 
     oss << get_major() << '.' << get_minor();
 
-    if (get_release() != 0)
+    if (get_release() != 0) {
         oss << '.' << get_release();
+    }
 
-    if (!get_vendor().empty())
+    if (!get_vendor().empty()) {
         oss << ' ' << get_vendor();
+    }
 
     return oss.str();
 }
@@ -212,7 +221,7 @@ const std::string& OglVersion::get_es_prefix() const
 }
 
 
-} // namespace bstone
+} // bstone
 
 
 bool operator<(

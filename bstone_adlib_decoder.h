@@ -61,7 +61,7 @@ protected:
 }; // AdlibDecoder
 
 
-} // namespace bstone
+} // bstone
 
 
 #endif // BSTONE_ADLIB_DECODER_INCLUDED

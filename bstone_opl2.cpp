@@ -34,8 +34,8 @@ namespace bstone {
 
 
 Opl2::Opl2() :
-    is_initialized_(false),
-    sample_rate_(0)
+        is_initialized_(),
+        sample_rate_()
 {
 }
 
@@ -73,8 +73,9 @@ void Opl2::write(
     int fm_port,
     int fm_value)
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return;
+    }
 
     emulator_.WriteReg(
         static_cast<Bit32u>(fm_port),
@@ -85,14 +86,17 @@ bool Opl2::generate(
     int count,
     int16_t* buffer)
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return false;
+    }
 
-    if (count < 1)
+    if (count < 1) {
         return false;
+    }
 
-    if (!buffer)
+    if (!buffer) {
         return false;
+    }
 
     while (count > 0) {
         int generate_count = std::min(count, get_max_samples_count());
@@ -112,8 +116,9 @@ bool Opl2::generate(
 
 bool Opl2::reset()
 {
-    if (!is_initialized())
+    if (!is_initialized()) {
         return false;
+    }
 
     emulator_.Init(get_sample_rate());
 
@@ -133,4 +138,4 @@ int Opl2::get_max_samples_count()
 }
 
 
-} // namespace bstone
+} // bstone

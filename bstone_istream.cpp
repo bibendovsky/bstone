@@ -67,7 +67,7 @@ bool IStream::set_position(
 // (virtual)
 int IStream::read_octet()
 {
-    auto value = uint8_t(0);
+    uint8_t value = 0;
 
     if (read(&value, 1) > 0) {
         return value;
@@ -110,7 +110,7 @@ bool IStream::copy_to(
 
     std::vector<UnValue<char>> buffer(buffer_size);
 
-    for (auto count = -1; count != 0; ) {
+    for (int count = -1; count != 0; ) {
         count = read(&buffer[0], buffer_size);
 
         if (!dst_stream->write(&buffer[0], count)) {
@@ -128,4 +128,4 @@ int IStream::get_default_copy_buffer_size()
 }
 
 
-} // namespace bstone
+} // bstone

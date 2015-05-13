@@ -154,4 +154,4 @@ bool BinaryReader::set_position(
 }
 
 
-} // namespace bstone
+} // bstone
