@@ -489,19 +489,6 @@ int16_t DebugKeys()
         VW_UpdateScreen();
         IN_Ack();
         return 1;
-    } else if (Keyboard[ScanCode::sc_b]) { // B = border color
-        CenterWindow(24, 3);
-        PrintY += 6;
-        US_Print(" Border color (0-15):");
-        VW_UpdateScreen();
-        esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
-        if (!esc) {
-            level = static_cast<int16_t>(atoi(str));
-            if (level >= 0 && level <= 15) {
-                VW_ColorBorder(level);
-            }
-        }
-        return 1;
     }
 
     if (Keyboard[ScanCode::sc_k]) { // K = Map Content totals
@@ -510,7 +497,7 @@ int16_t DebugKeys()
     } else if (Keyboard[ScanCode::sc_c]) { // C = count objects
         CountObjects();
         return 1;
-    } else if (Keyboard[ScanCode::sc_r]) { // C = count objects
+    } else if (Keyboard[ScanCode::sc_r]) { // R = show full map
         ShowMap();
         return 1;
     } else if (Keyboard[ScanCode::sc_d]) { // D = Dumb/Blind Objects (Player Invisable)

@@ -125,7 +125,6 @@ extern const uint8_t vgapal[768];
 #define VW_Plot VL_Plot
 #define VW_Hlin(x, z, y, c) VL_Hlin((x), (y), (z) - (x) + 1, (c))
 #define VW_Vlin(y, z, x, c) VL_Vlin((x), (y), (z) - (y) + 1, (c))
-#define VW_ColorBorder
 #define VW_WaitVBL VL_WaitVBL
 #define VW_FadeIn() VL_FadeIn(0, 255, vgapal, 30);
 #define VW_FadeOut() VL_FadeOut(0, 255, 0, 0, 0, 30);
