@@ -6498,6 +6498,8 @@ int FindChunk(
     name_buffer[4] = '\0';
     std::string name;
 
+    stream->set_position(0);
+
     while (true) {
         if (stream->read(name_buffer, 4) != 4) {
             break;

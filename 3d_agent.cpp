@@ -2791,20 +2791,24 @@ void Cmd_Use()
                     gamestate.lastmapon = gamestate.mapon;
                     gamestate.mapon = (iconnum & 0xff) - 1;
 
-                    if (!::is_ps()) {
+                    if (::is_aog()) {
                         gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
                         gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
 
+#if 0
                         {
                             int angle = player->angle - 180;
 
-                            if (angle < 0) {
+                            while (angle < 0) {
                                 angle += ANGLES;
                             }
 
                             gamestuff.level[gamestate.mapon + 1].pangle =
                                 static_cast<int16_t>(angle);
                         }
+#else
+                        gamestuff.level[gamestate.mapon + 1].pangle = 0;
+#endif
                     }
                     break;
 
@@ -4055,6 +4059,10 @@ void SpawnPlayer(
         tilex = gamestuff.level[gamestate.mapon].ptilex;
         tiley = gamestuff.level[gamestate.mapon].ptiley;
         dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
+
+        if (::is_aog()) {
+            dir -= 1;
+        }
     }
 
     player->obclass = playerobj;
