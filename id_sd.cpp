@@ -493,4 +493,10 @@ void sd_set_music_volume(
 
     mixer.set_music_volume(static_cast<float>(volume) / ::sd_max_volume);
 }
+
+void sd_mute(
+    bool mute)
+{
+    ::mixer.set_mute(mute);
+}
 // BBi

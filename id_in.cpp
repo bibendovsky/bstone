@@ -1254,12 +1254,14 @@ static void in_handle_window(
         if (::in_last_is_mouse_grabbed) {
             ::in_last_is_mouse_grabbed = ::in_grab_mouse(true);
         }
+        ::sd_mute(false);
         break;
 
     case SDL_WINDOWEVENT_FOCUS_LOST:
         clear_state = true;
         ::in_last_is_mouse_grabbed = ::in_is_mouse_grabbed;
         static_cast<void>(::in_grab_mouse(false));
+        ::sd_mute(true);
         break;
     }
 

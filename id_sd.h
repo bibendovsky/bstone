@@ -147,6 +147,9 @@ void sd_set_sfx_volume(
 
 void sd_set_music_volume(
     int volume);
+
+void sd_mute(
+    bool mute);
 // BBi
 
 
