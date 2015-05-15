@@ -71,15 +71,48 @@ Where "game" is:
 3 - Compiling
 =============
 
-Minimum requirements:  
+Minimum requirements:
 * C++11 compatible compiler.  
-  Tested with Visual C++ 12 and GCC 4.9.2.  
+  Tested with Visual C++ 12 and GCC 4.9.2.
+
 * CMake 2.8  
-  (<http://cmake.org/>).  
+  (<http://cmake.org/>).
+
 * pkg-config (only for non Visual C++ compiler)  
-  (<http://pkg-config.freedesktop.org/>)  
+  (<http://pkg-config.freedesktop.org/>)
+
 * SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
   (<http://www.libsdl.org/>)
+
+CMake variables:
+* CMAKE_BUILD_TYPE  
+  Selects wich build(s) to compile.  
+  Use semicolon to separate entries. 
+  Usually it's Debug or Release.  
+  For other values see CMake documentation.
+
+* BSTONE_PANDORA  
+  If enabled prepares build for Open Pandora.
+
+* BSTONE_USE_PCH  
+  If enabled utilizes precompiled headers to speed up compilation.  
+  Note: Visual C++ only
+
+* BSTONE_USE_STATIC_LINKING  
+  If enabled links modules statically to avoid dependancy on  
+  system and custom libraries at run-time.
+
+* SDL2_INCLUDE_DIRS  
+  Defines directory with SDL2 headers.  
+  Note: Visual C++ only
+
+* SDL2_LIBRARIES  
+  Defines list of SDL2 libraries.  
+  Use semicolon to separate entries.  
+  Note: Visual C++ only
+
+Notes:
+* Use ON value to enable option and value OFF to disable option.
 
 
 4 - Command-line options
