@@ -975,8 +975,12 @@ void KillActor(
         clas = goldsternobj;
 
         if (::gamestate.mapon == 9) {
-            static_cast<void>(::ReserveStatic());
-            ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+            if (!::gamestate.boss_key_dropped) {
+                ::gamestate.boss_key_dropped = true;
+
+                static_cast<void>(::ReserveStatic());
+                ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+            }
         }
         break;
 
