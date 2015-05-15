@@ -71,16 +71,15 @@ Where "game" is:
 3 - Compiling
 =============
 
-The build system is based on CMake (<http://cmake.org/>).
-
-Required libraries:  
-* SDL v2 or higher.  
-  (<http://www.libsdl.org/>)
-
-
-Required additional software:  
+Minimum requirements:  
+* C++11 compatible compiler.  
+  Tested with Visual C++ 12 and GCC 4.9.2.  
+* CMake 2.8  
+  (<http://cmake.org/>).  
 * pkg-config (only for non Visual C++ compiler)  
-  (<http://pkg-config.freedesktop.org/>)
+  (<http://pkg-config.freedesktop.org/>)  
+* SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
+  (<http://www.libsdl.org/>)
 
 
 4 - Command-line options
