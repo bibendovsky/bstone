@@ -121,19 +121,18 @@ endfunction (check_sdl_version)
 if (MSVC)
     set(BSTONE_MESSAGE "")
 
-
     set(SDL2_INCLUDE_DIRS
         "SDL2_INCLUDE_DIRS-NOTFOUND"
         CACHE STRING
         "Path to SDL2 headers.")
 
-    check_sdl_version("2.0.0")
+    check_sdl_version("2.0.3")
 else ()
     INCLUDE(FindPkgConfig)
-    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.1)
 endif ()
 
-option(BSTONE_USE_STATIC_CRT "Link CRT libraries statically.")
+option(BSTONE_USE_STATIC_LINKING "Link build statically.")
 option(BSTONE_PANDORA "Build for Pandora.")
 option(BSTONE_USE_PCH "Use precompiled headers.")
 
