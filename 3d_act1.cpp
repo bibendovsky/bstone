@@ -477,12 +477,6 @@ statobj_t* UseReservedStatic(
     switch (type) {
     case bo_green_key:
     case bo_gold_key:
-        if (::is_ps()) {
-            ::Quit("Tried to reserve green/gold key (AOG) at ({}, {}).",
-                tilex,
-                tiley);
-        }
-
     case bo_red_key:
     case bo_yellow_key:
     case bo_blue_key:
