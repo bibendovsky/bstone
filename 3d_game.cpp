@@ -457,7 +457,7 @@ void ScanInfoPlane()
                     new_actor->temp2 = ExpCrateShapes[tile - 468];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
 
-                    if ((tile >= 475) && (tile <= 478)) {
+                    if (tile >= 475 && tile <= 478) {
                         tile = (tile - 475) + bo_money_bag;
                     } else {
                         tile = 0;
@@ -467,7 +467,7 @@ void ScanInfoPlane()
                     new_actor->temp2 = ExpCrateShapes[tile - 450];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
 
-                    if ((tile >= 457) && (tile <= 460)) {
+                    if (tile >= 457 && tile <= 460) {
                         tile = (tile - 457) + bo_money_bag;
                     } else {
                         tile = 0;
@@ -483,7 +483,7 @@ void ScanInfoPlane()
                     new_actor->temp2 = ExpCrateShapes[tile - 432];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
 
-                    if ((tile >= 439) && (tile <= 442)) {
+                    if (tile >= 439 && tile <= 442) {
                         tile = (tile - 439) + bo_money_bag;
                     } else {
                         tile = 0;
@@ -2541,6 +2541,17 @@ void SetupGameLevel()
             if (map1[0] == 177) {
                 is_projection_generator_present = true;
             }
+
+            switch (map1[0]) {
+            case 445:
+            case 463:
+            case 481:
+                is_red_key_present = true;
+                break;
+
+            default:
+                break;
+            }
             // BBi
 
             map1++;
@@ -2610,7 +2621,7 @@ void SetupGameLevel()
             gamestate.mapon < 10 &&
             gamestuff.level[gamestate.mapon + 1].locked)
         {
-            ::Quit("No red key on floor {}.", gamestate.mapon + 1);
+            ::Quit("No red key on floor {}.", gamestate.mapon);
         }
 
         if (::is_aog_full() &&
