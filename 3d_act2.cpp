@@ -703,12 +703,28 @@ void SpawnOffsetObj(
         break;
 
     case en_green_ooze:
-        ::InitSmartSpeedAnim(new_actor, SPR_GREEN_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+        ::InitSmartSpeedAnim(
+            ::new_actor,
+            ::SPR_GREEN_OOZE1,
+            ::US_RndT() % 3,
+            2,
+            at_CYCLE,
+            ad_FWD,
+            (::is_ps() ? 5 + (::US_RndT() & 2) : 30));
+
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
     case en_black_ooze:
-        ::InitSmartSpeedAnim(new_actor, SPR_BLACK_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+        ::InitSmartSpeedAnim(
+            ::new_actor,
+            ::SPR_BLACK_OOZE1,
+            ::US_RndT() % 3,
+            2,
+            at_CYCLE,
+            ad_FWD,
+            (::is_ps() ? 5 + (::US_RndT() & 2) : 30));
+
         new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
         break;
 
