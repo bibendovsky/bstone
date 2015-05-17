@@ -83,7 +83,9 @@ public:
     double read_r64();
 
     // Reads a string prepended with signed 32-bit (little-endian) length.
-    std::string read_string();
+    // Returns empty string on error or when max length reached.
+    std::string read_string(
+        int max_length = -1);
 
     bool read(
         void* buffer,
