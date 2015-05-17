@@ -7051,18 +7051,18 @@ static bool LoadCompressedChunk(
 bool LoadTheGame(
     const std::string& file_name)
 {
+    bool is_succeed = true;
+
     bstone::FileStream file_stream(file_name);
 
     if (!file_stream.is_open()) {
+        is_succeed = false;
+
         bstone::Log::write_error(
             "LOAD: Failed to open file \"{}\".",
             file_name);
-
-        return false;
     }
 
-
-    bool is_succeed = true;
     bstone::BinaryReader file_reader(&file_stream);
     const auto file_size = static_cast<int32_t>(file_stream.get_size());
 
@@ -7106,16 +7106,20 @@ bool LoadTheGame(
     //
     Buffer head_buffer;
 
-    if (!::LoadCompressedChunk("HEAD", &file_stream, head_buffer)) {
-        return false;
+    if (is_succeed) {
+        if (!::LoadCompressedChunk("HEAD", &file_stream, head_buffer)) {
+            is_succeed = false;
+        }
     }
 
     // Read in LVXX chunk
     //
     Buffer lvxx_buffer;
 
-    if (!::LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer)) {
-        return false;
+    if (is_succeed) {
+        if (!::LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer)) {
+            is_succeed = false;
+        }
     }
 
 
