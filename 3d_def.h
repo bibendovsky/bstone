@@ -2953,7 +2953,7 @@ bool CheckDiskSpace(
     cds_io_type io_type);
 
 bool SaveTheGame(
-    bstone::IStream* stream,
+    const std::string& file_name,
     const std::string& description);
 
 int32_t ChecksumFile(
@@ -2981,9 +2981,10 @@ void CleanUpDoors_N_Actors();
 
 void InitDestPath();
 
+// On success current stream position is at chunk's data.
 int FindChunk(
     bstone::IStream* stream,
-    const std::string& chunk_name);
+    const std::string& dst_chunk_name);
 
 int NextChunk(
     bstone::IStream* stream);

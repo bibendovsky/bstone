@@ -47,13 +47,9 @@ void INL_GetJoyDelta(
     int16_t* dy);
 
 bool LoadTheGame(
-    int handle);
+    const std::string& file_name);
 
 bool IN_CheckAck();
-
-// BBi
-bool LoadTheGame(
-    bstone::IStream* stream);
 
 
 //
@@ -2281,13 +2277,12 @@ int16_t CP_LoadGame(
             auto name = ::get_saved_game_base_name();
             name += static_cast<char>('0' + which);
 
+            DrawLSAction(0); // Testing...
+
             auto name_path = ::get_profile_dir() + name;
 
-            bstone::FileStream handle(name_path);
-            DrawLSAction(0); // Testing...
-            if ((loadedgame = ::LoadTheGame(&handle)) == 0) {
+            if ((loadedgame = ::LoadTheGame(name_path)) == 0) {
                 LS_current = -1; // clean up
-
             }
             return loadedgame;
         }
@@ -2308,11 +2303,9 @@ restart:
 
             auto name_path = ::get_profile_dir() + name;
 
-            bstone::FileStream handle(name_path);
-
             DrawLSAction(0);
 
-            if (!::LoadTheGame(&handle)) {
+            if (!::LoadTheGame(name_path)) {
                 exit = 0;
                 StartGame = 0;
                 loadedgame = 0;
@@ -2441,9 +2434,7 @@ int16_t CP_SaveGame(
 
             auto name_path = ::get_profile_dir() + name;
 
-            bstone::FileStream stream(name_path, bstone::StreamOpenMode::write);
-
-            SaveTheGame(&stream, &SaveGameNames[which][0]);
+            ::SaveTheGame(name_path, &SaveGameNames[which][0]);
 
             return 1;
         }
@@ -2485,12 +2476,10 @@ int16_t CP_SaveGame(
                 SaveGamesAvail[which] = 1;
                 strcpy(&SaveGameNames[which][0], input);
 
-                auto name_path = ::get_profile_dir() + name;
-
-                bstone::FileStream stream(name_path, bstone::StreamOpenMode::write);
-
                 DrawLSAction(1);
-                SaveTheGame(&stream, input);
+
+                auto name_path = ::get_profile_dir() + name;
+                ::SaveTheGame(name_path, input);
 
                 ShootSnd();
                 exit = 1;

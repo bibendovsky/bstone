@@ -6492,37 +6492,37 @@ void InitPlaytemp()
 
 int FindChunk(
     bstone::IStream* stream,
-    const std::string& chunk_name)
+    const std::string& dst_chunk_name)
 {
-    char name_buffer[5];
-    name_buffer[4] = '\0';
-    std::string name;
+    std::string src_chunk_name;
+    char src_chunk_name_buffer[4];
 
     stream->set_position(0);
 
-    while (true) {
-        if (stream->read(name_buffer, 4) != 4) {
-            break;
+    for (bool quit = false; !quit; ) {
+        if (stream->read(src_chunk_name_buffer, 4) == 4) {
+            int32_t chunk_size = 0;
+
+            if (stream->read(&chunk_size, 4) == 4) {
+                bstone::Endian::lei(chunk_size);
+
+                src_chunk_name.assign(src_chunk_name_buffer, 4);
+
+                if (src_chunk_name == dst_chunk_name) {
+                    return chunk_size;
+                }
+
+                stream->skip(chunk_size);
+            } else {
+                quit = true;
+            }
+        } else {
+            quit = true;
         }
-
-        int32_t chunk_size = 0;
-
-        if (stream->read(&chunk_size, 4) != 4) {
-            break;
-        }
-
-        chunk_size = SDL_SwapLE32(chunk_size);
-
-        name = name_buffer;
-
-        if (name.find(chunk_name) != std::string::npos) {
-            return chunk_size;
-        }
-
-        stream->skip(chunk_size);
     }
 
     stream->seek(0, bstone::StreamSeekOrigin::end);
+
     return 0;
 }
 
@@ -6983,64 +6983,189 @@ static const std::string& get_saved_game_version_string()
     return version_string;
 }
 
-bool LoadTheGame(
-    bstone::IStream* stream)
+static bool LoadCompressedChunk(
+    const std::string& chunk_name,
+    bstone::IStream* stream,
+    Buffer& buffer)
 {
-    assert(stream);
+    auto stream_size = stream->get_size();
+
+    bstone::BinaryReader reader(stream);
+
+
+    if (::FindChunk(stream, chunk_name) == 0) {
+        bstone::Log::write_error(
+            "LOAD: Failed to locate {} chunk.",
+            chunk_name);
+
+        return false;
+    }
+
+    reader.skip(-4);
+
+    auto total_size = bstone::Endian::le(reader.read_s32());
+
+    if (total_size <= 0 || total_size > stream_size) {
+        bstone::Log::write_error(
+            "LOAD: Invalid {} size.",
+            chunk_name);
+
+        return false;
+    }
+
+    auto size = total_size - 4;
+    auto src_size = bstone::Endian::le(reader.read_s32());
+
+    Buffer src_buffer(size);
+
+    if (!reader.read(src_buffer.data(), size)) {
+        bstone::Log::write_error(
+            "LOAD: Unexpected end of {} data.",
+            chunk_name);
+    }
+
+
+    buffer.resize(src_size);
+
+    static_cast<void>(::LZH_Startup());
+
+    auto decoded_size = ::LZH_Decompress(
+        src_buffer.data(),
+        buffer.data(),
+        src_size,
+        size);
+
+    ::LZH_Shutdown();
+
+    if (decoded_size != src_size) {
+        bstone::Log::write_error(
+            "LOAD: Failed to decompress {} data.",
+            chunk_name);
+
+        return false;
+    }
+
+    return true;
+}
+
+bool LoadTheGame(
+    const std::string& file_name)
+{
+    bstone::FileStream file_stream(file_name);
+
+    if (!file_stream.is_open()) {
+        bstone::Log::write_error(
+            "LOAD: Failed to open file \"{}\".",
+            file_name);
+
+        return false;
+    }
+
 
     bool is_succeed = true;
+    bstone::BinaryReader file_reader(&file_stream);
+    const auto file_size = static_cast<int32_t>(file_stream.get_size());
 
     if (is_succeed) {
         is_succeed &= g_playtemp.set_size(0);
         is_succeed &= g_playtemp.set_position(0);
     }
 
-    // Read in VERSion chunk
+
+    // Read in VERS chunk
     //
     if (is_succeed) {
-        is_succeed = (::FindChunk(stream, "VERS") != 0);
-    }
-
-    if (is_succeed) {
-        const auto& version_string = ::get_saved_game_version_string();
-
-        auto version_size = static_cast<int>(version_string.length());
-        std::vector<char> version_buffer;
-        version_buffer.resize(version_size);
-        stream->read(&version_buffer[0], version_size);
-        std::string version(&version_buffer[0], version_size);
-        is_succeed = (version_string.compare(version) == 0);
-    }
-
-    // Read in HEAD chunk
-    //
-    if (is_succeed) {
-        is_succeed = (::FindChunk(stream, "HEAD") != 0);
-    }
-
-    bstone::Crc32 checksum;
-    bstone::BinaryReader reader(stream);
-
-    if (is_succeed) {
-        try {
-            gamestate.deserialize(reader, checksum);
-            gamestuff.deserialize(reader, checksum);
-        } catch (const ArchiveException&) {
+        if (::FindChunk(&file_stream, "VERS") == 0) {
             is_succeed = false;
+
+            bstone::Log::write_error(
+                "LOAD: Failed to locate VERS chunk.");
         }
     }
 
     if (is_succeed) {
-        uint32_t saved_checksum = 0;
-        reader.read(saved_checksum);
-        bstone::Endian::lei(saved_checksum);
-        is_succeed = (saved_checksum == checksum.get_value());
+        const int max_length = 128;
+
+        const auto& version_string = ::get_saved_game_version_string();
+
+        file_reader.skip(-4);
+
+        const auto saved_version_string = file_reader.read_string(
+            max_length);
+
+        if (saved_version_string != saved_version_string) {
+            is_succeed = false;
+
+            bstone::Log::write_error(
+                "LOAD: Invalid version.");
+        }
     }
 
+
+    // Read in HEAD chunk
+    //
+    Buffer head_buffer;
+
+    if (!::LoadCompressedChunk("HEAD", &file_stream, head_buffer)) {
+        return false;
+    }
+
+    // Read in LVXX chunk
+    //
+    Buffer lvxx_buffer;
+
+    if (!::LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer)) {
+        return false;
+    }
+
+
+    bstone::Crc32 checksum;
+
+    // Deserialize HEAD chunk
+    //
     if (is_succeed) {
-        is_succeed = stream->copy_to(&g_playtemp);
+        try {
+            bstone::MemoryStream head_stream(
+                static_cast<int>(head_buffer.size()),
+                0,
+                head_buffer.data());
+
+            bstone::BinaryReader head_reader(&head_stream);
+
+            gamestate.deserialize(head_reader, checksum);
+            gamestuff.deserialize(head_reader, checksum);
+        } catch (const ArchiveException&) {
+            is_succeed = false;
+
+            bstone::Log::write_error(
+                "LOAD: Failed to deserialize HEAD data.");
+        }
     }
 
+    // Deserialize LVXX chunk
+    //
+    if (is_succeed) {
+        is_succeed &= ::g_playtemp.set_position(0);
+        is_succeed &= ::g_playtemp.set_size(0);
+
+        if (is_succeed) {
+            bstone::MemoryStream lvxx_stream(
+                static_cast<int>(lvxx_buffer.size()),
+                0,
+                lvxx_buffer.data());
+
+            if (!lvxx_stream.copy_to(&::g_playtemp)) {
+                is_succeed = false;
+
+                bstone::Log::write_error(
+                    "LOAD: Failed to deserialize LVXX data.");
+            }
+        }
+    }
+
+
+    // Finish loading
+    //
     ::NewViewSize();
 
     bool show_error_message = true;
@@ -7058,41 +7183,41 @@ bool LoadTheGame(
     }
 
     if (is_succeed) {
-        ShowQuickMsg = false;
+        ::ShowQuickMsg = false;
     } else {
-        g_playtemp.set_size(0);
-        g_playtemp.set_position(0);
+        static_cast<void>(::g_playtemp.set_position(0));
+        static_cast<void>(::g_playtemp.set_size(0));
 
         if (show_error_message) {
-            int16_t old_wx = WindowX;
-            int16_t old_wy = WindowY;
-            int16_t old_ww = WindowW;
-            int16_t old_wh = WindowH;
-            int16_t old_px = px;
-            int16_t old_py = py;
+            auto old_wx = ::WindowX;
+            auto old_wy = ::WindowY;
+            auto old_ww = ::WindowW;
+            auto old_wh = ::WindowH;
+            auto old_px = ::px;
+            auto old_py = ::py;
 
-            WindowX = 0;
-            WindowY = 16;
-            WindowW = 320;
-            WindowH = 168;
+            ::WindowX = 0;
+            ::WindowY = 16;
+            ::WindowW = 320;
+            ::WindowH = 168;
 
-            ::CacheMessage(BADSAVEGAME_TEXT);
+            ::CacheMessage(::BADSAVEGAME_TEXT);
 
-            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+            ::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
 
-            WindowX = old_wx;
-            WindowY = old_wy;
-            WindowW = old_ww;
-            WindowH = old_wh;
+            ::WindowX = old_wx;
+            ::WindowY = old_wy;
+            ::WindowW = old_ww;
+            ::WindowH = old_wh;
 
-            px = old_px;
-            py = old_py;
+            ::px = old_px;
+            ::py = old_py;
 
             ::IN_ClearKeysDown();
             ::IN_Ack();
 
             ::VW_FadeOut();
-            screenfaded = true;
+            ::screenfaded = true;
         }
     }
 
@@ -7100,74 +7225,127 @@ bool LoadTheGame(
 }
 
 bool SaveTheGame(
-    bstone::IStream* stream,
+    const std::string& file_name,
     const std::string& description)
 {
+    bstone::FileStream file_stream(
+        file_name,
+        bstone::StreamOpenMode::write);
+
+    if (!file_stream.is_open()) {
+        bstone::Log::write_error(
+            "SAVE: Failed to open file \"{}\".",
+            file_name);
+
+        return false;
+    }
+
+
+    // Store current level
+    //
+    static_cast<void>(::SaveLevel(0xFF));
+
+
+    // Compose HEAD data
+    //
+    bstone::Crc32 head_checksum;
+    bstone::MemoryStream head_stream;
+    bstone::BinaryWriter head_writer(&head_stream);
+
+    try {
+        gamestate.serialize(head_writer, head_checksum);
+        gamestuff.serialize(head_writer, head_checksum);
+        head_writer.set_position(0);
+    } catch (const ArchiveException&) {
+        bstone::Log::write_error(
+            "SAVE: Failed to serialize HEAD chunk.");
+
+        return false;
+    }
+
+
+    auto head_src_size = static_cast<int32_t>(head_stream.get_size());
+    const int32_t head_desire_dst_size = 2 * head_src_size;
+
+    Buffer head_buffer(head_desire_dst_size);
+
+    static_cast<void>(::LZH_Startup());
+
+    int32_t head_dst_size = ::LZH_Compress(
+        head_stream.get_data(),
+        head_buffer.data(),
+        head_src_size);
+
+    ::LZH_Shutdown();
+
+    if (head_dst_size > head_desire_dst_size) {
+        bstone::Log::write_error(
+            "SAVE: Failed to compress HEAD data.");
+
+        return false;
+    }
+
+
+    // Compose LVXX data
+    //
+    ::g_playtemp.set_position(0);
+
+    auto lvxx_src_size = static_cast<int32_t>(::g_playtemp.get_size());
+
+    const int32_t lvxx_desire_dst_size = (2 * lvxx_src_size);
+
+    Buffer lvxx_buffer(lvxx_desire_dst_size);
+
+    static_cast<void>(::LZH_Startup());
+
+    int32_t lvxx_dst_size = ::LZH_Compress(
+        ::g_playtemp.get_data(),
+        lvxx_buffer.data(),
+        lvxx_src_size);
+
+    ::LZH_Shutdown();
+
+    if (lvxx_dst_size > lvxx_desire_dst_size) {
+        bstone::Log::write_error(
+            "SAVE: Failed to compress LVXX data.");
+
+        return false;
+    }
+
+
+    // Write to file
+    //
     bool is_succeed = true;
 
-    int32_t cksize;
+    bstone::BinaryWriter file_writer(&file_stream);
 
-    // Save current level -- saves it into PLAYTEMP.
+    // Write VERS chunk
     //
-    ::SaveLevel(0xFF);
-
-    // Write VERSion chunk
-    //
-    const auto& version_string = ::get_saved_game_version_string();
-    cksize = static_cast<int32_t>(version_string.length());
-    is_succeed &= stream->write("VERS", 4);
-    is_succeed &= stream->write(&cksize, 4);
-    is_succeed &= stream->write(version_string.c_str(), cksize);
+    is_succeed &= file_writer.write("VERS", 4);
+    is_succeed &= file_writer.write(::get_saved_game_version_string());
 
     // Write DESC chunk
     //
-    std::vector<char> desc_buffer(description.begin(), description.end());
-    desc_buffer.resize(GAME_DESCRIPTION_LEN + 1);
-    cksize = static_cast<int32_t>(desc_buffer.size());
-    is_succeed &= stream->write("DESC", 4);
-    is_succeed &= stream->write(&cksize, 4);
-    is_succeed &= stream->write(&desc_buffer[0], cksize);
+    is_succeed &= file_writer.write("DESC", 4);
+    is_succeed &= file_writer.write(description);
 
     // Write HEAD chunk
     //
-    cksize = 0;
-    is_succeed &= stream->write("HEAD", 4);
+    is_succeed &= file_writer.write("HEAD", 4);
+    is_succeed &= file_writer.write(bstone::Endian::le(head_dst_size + 4));
+    is_succeed &= file_writer.write(bstone::Endian::le(head_src_size));
+    is_succeed &= file_stream.write(head_buffer.data(), head_dst_size);
 
-    // leave four bytes for chunk size
-    is_succeed &= (stream->skip(4) >= 0);
+    // Write LVXX chunk
+    //
+    is_succeed &= file_writer.write("LVXX", 4);
+    is_succeed &= file_writer.write(
+        bstone::Endian::le(lvxx_dst_size + 4));
+    is_succeed &= file_writer.write(
+        bstone::Endian::le(lvxx_src_size));
+    is_succeed &= file_stream.write(lvxx_buffer.data(), lvxx_dst_size);
 
-    bstone::Crc32 checksum;
-    bstone::BinaryWriter writer(stream);
-
-    int64_t beg_position = stream->get_position();
-
-    is_succeed &= (beg_position >= 0);
-
-    if (is_succeed) {
-        try {
-            gamestate.serialize(writer, checksum);
-            gamestuff.serialize(writer, checksum);
-        } catch (const ArchiveException&) {
-            is_succeed = false;
-        }
-    }
-
-    is_succeed &= writer.write(bstone::Endian::le(checksum.get_value()));
-
-    int64_t end_position = stream->get_position();
-    is_succeed &= (end_position >= 0);
-
-    if (is_succeed) {
-        cksize = static_cast<int32_t>(end_position - beg_position);
-
-        stream->seek(-(cksize + 4), bstone::StreamSeekOrigin::current);
-        stream->write(&cksize, 4);
-        stream->seek(cksize, bstone::StreamSeekOrigin::current);
-
-        g_playtemp.set_position(0);
-        is_succeed = g_playtemp.copy_to(stream);
-    }
-
+    //
     ::NewViewSize();
 
     return is_succeed;
