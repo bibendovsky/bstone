@@ -7358,9 +7358,11 @@ bool SaveTheGame(
 bool LevelInPlaytemp(
     int level_index)
 {
-    char chunk[] = "LVxx";
-    ::sprintf(&chunk[2], "%02x", level_index);
-    return ::FindChunk(&g_playtemp, chunk) != 0;
+    bstone::FormatString format;
+    format << "LV" << std::uppercase << std::hex <<
+        std::setfill('0') << std::setw(2) << level_index;
+
+    return ::FindChunk(&g_playtemp, format.to_string()) != 0;
 }
 
 bool CheckDiskSpace(
