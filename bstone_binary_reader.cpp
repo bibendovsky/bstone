@@ -23,6 +23,8 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_binary_reader.h"
+#include <vector>
+#include "bstone_endian.h"
 
 
 namespace bstone {
@@ -111,6 +113,21 @@ float BinaryReader::read_r32()
 double BinaryReader::read_r64()
 {
     return read<double>();
+}
+
+std::string BinaryReader::read_string()
+{
+    auto length = bstone::Endian::le(read_s32());
+
+    std::string string(length, '\0');
+
+    if (length > 0) {
+        if (!read(&string[0], length)) {
+            string.clear();
+        }
+    }
+
+    return string;
 }
 
 bool BinaryReader::read(

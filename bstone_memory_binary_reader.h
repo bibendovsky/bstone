@@ -89,6 +89,13 @@ public:
     // Reads a 64-bit float-point value.
     double read_r64();
 
+    // Reads a string prepended with signed 32-bit (little-endian) length.
+    std::string read_string();
+
+    bool read(
+        void* buffer,
+        int count);
+
     // Skips a specified number of octets forward if count positive
     // or backward otherwise.
     bool skip(
@@ -101,37 +108,32 @@ public:
     bool set_position(
         int64_t position);
 
-    // Returns a pointer to data for a current position.
+    // Returns a pointer to data for a specified offset at beginning.
     template<typename T>
-    const T* get_data() const
+    const T* get_data(
+        int64_t offset = data_offset_) const
     {
-        return reinterpret_cast<const T*>(&data_[data_offset_]);
+        return reinterpret_cast<const T*>(&data_[offset]);
     }
 
-private:
-    const uint8_t* data_;
-    int64_t data_size_;
-    int64_t data_offset_;
 
+private:
     template<typename T>
     T read()
     {
-        if (!is_initialized()) {
-            return 0;
+        T result;
+
+        if (!read(&result, static_cast<int64_t>(sizeof(T)))) {
+            return {};
         }
 
-        if (data_offset_ < 0) {
-            return 0;
-        }
-
-        if ((data_offset_ + static_cast<int64_t>(sizeof(T))) >= data_size_) {
-            return 0;
-        }
-
-        T result = *reinterpret_cast<const T*>(&data_[data_offset_]);
-        data_offset_ += sizeof(T);
         return result;
     }
+
+
+    const uint8_t* data_;
+    int64_t data_size_;
+    int64_t data_offset_;
 }; // MemoryBinaryReader
 
 

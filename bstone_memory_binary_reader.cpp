@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_memory_binary_reader.h"
+#include "bstone_endian.h"
 
 
 namespace bstone {
@@ -128,6 +129,55 @@ float MemoryBinaryReader::read_r32()
 double MemoryBinaryReader::read_r64()
 {
     return read<double>();
+}
+
+std::string MemoryBinaryReader::read_string()
+{
+    auto length = bstone::Endian::le(read_s32());
+
+    std::string string(length, '\0');
+
+    if (length > 0) {
+        if (!read(&string[0], length)) {
+            string.clear();
+        }
+    }
+
+    return string;
+}
+
+bool MemoryBinaryReader::read(
+    void* buffer,
+    int count)
+{
+    if (!buffer) {
+        return false;
+    }
+
+    if (count <= 0) {
+        return true;
+    }
+
+    if (!is_initialized()) {
+        return false;
+    }
+
+    if (data_offset_ < 0) {
+        return false;
+    }
+
+    if ((data_offset_ + count) >= data_size_) {
+        return false;
+    }
+
+    std::uninitialized_copy_n(
+        &data_[data_offset_],
+        count,
+        static_cast<uint8_t*>(buffer));
+
+    data_offset_ += count;
+
+    return true;
 }
 
 bool MemoryBinaryReader::skip(

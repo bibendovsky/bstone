@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_binary_writer.h"
+#include "bstone_endian.h"
 
 
 namespace bstone {
@@ -132,6 +133,19 @@ bool BinaryWriter::write(
     }
 
     return stream_->write(buffer, count);
+}
+
+bool BinaryWriter::write(
+    const std::string& string)
+{
+    auto length = static_cast<int>(string.length());
+
+    bool is_succeed = true;
+
+    is_succeed &= write_s32(bstone::Endian::le(length));
+    is_succeed &= write(string.c_str(), length);
+
+    return is_succeed;
 }
 
 bool BinaryWriter::skip(

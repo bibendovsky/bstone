@@ -96,6 +96,10 @@ public:
         const void* buffer,
         int count);
 
+    // Writes a string prepended with signed 32-bit (little-endian) length.
+    bool write(
+        const std::string& string);
+
     // Skips a number of octets forward if count is positive or
     // backward otherwise.
     // Returns false on error.

@@ -82,9 +82,13 @@ public:
     // Reads a 64-bit float-point value.
     double read_r64();
 
+    // Reads a string prepended with signed 32-bit (little-endian) length.
+    std::string read_string();
+
     bool read(
         void* buffer,
         int count);
+
 
     template<typename T>
     bool read(
