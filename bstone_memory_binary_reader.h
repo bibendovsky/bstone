@@ -108,14 +108,6 @@ public:
     bool set_position(
         int64_t position);
 
-    // Returns a pointer to data for a specified offset at beginning.
-    template<typename T>
-    const T* get_data(
-        int64_t offset = data_offset_) const
-    {
-        return reinterpret_cast<const T*>(&data_[offset]);
-    }
-
 
 private:
     template<typename T>
