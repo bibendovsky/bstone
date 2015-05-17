@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_memory_stream.h"
+#include <cstddef>
 #include <algorithm>
 
 
