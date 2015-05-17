@@ -11,9 +11,11 @@ Contents
 2. Profile
 3. Compiling
 4. Command-line options
-5. Third party use
-6. Credits
-7. Links
+5. Cheat key
+6. Debug keys
+7. Third party use
+8. Credits
+9. Links
 
 
 1 - Disclaimer
@@ -138,7 +140,7 @@ Notes:
   Default switch strategy: AoG (full) -> AoG (sw) -> PS
 
 * --no_screens  
-  Skips startup screens and promo pages (AoG SW only).
+  Skips startup screens and promo pages (AoG sw only).
 
 * --cheats  
   Enables so called "debug mode" without much fuss.
@@ -196,7 +198,100 @@ Notes:
   Minimum: 20 ms
 
 
-5 - Third party use
+5 - Cheat key
+=============
+
+[J] [A] [M] [Enter]  
+Press specified keys sequentially.  
+Shows message "NOW you're jammin'!!", and gives to you all keys,  
+all weapons and restores health to 100% but zeroes score points.  
+Not available in shareware version.
+
+
+6 - Debug keys
+==============
+
+Add option "--cheats" to enable these keys.
+
+* [Backspace]+[A]  
+  Toggles visibility of actors on auto-map.
+
+* [Backspace]+[C]  
+  Shows counts of total static objects, in use static objects,  
+  doors, total actors, active actors.
+
+* [Backspace]+[D]  
+  Toggles player's invisibility.
+
+* [Backspace]+[E]  
+  Win mission instantly.
+
+* [Backspace]+[F]  
+  Shows player's coordinates and direction.
+
+* [Backspace]+[G]  
+  Toggles god mode.
+
+* [Backspace]+[H]  
+  Hurt yourself by 1%.
+
+* [Backspace]+[I]  
+  Each usege adds 99% health, 5 tokens, 50 ammo, one new weapon.
+
+* [Backspace]+[K]  
+  Shows total counts of enemies, points and informants on the map.
+
+* [Backspace]+[M]  
+  Memory information.
+
+* [Backspace]+[O]  
+  Shows push walls on auto-map.
+
+* [Backspace]+[Q]  
+  Instant quit.
+
+* [Backspace]+[R]  
+  Shows full map.
+
+* [Backspace]+[S]  
+  Slow motion.
+
+* [Backspace]+[U]  
+  Unlocks all maps.
+
+* [Backspace]+[W]  
+  Warps to specified map.
+
+* [Backspace]+[Shift/Caps Lock]+[W]  
+  Warps to specified map but loads it from scratch  
+  rather from a saved game file/memory.
+
+* [Backspace]+[Home]  
+  Selects previous ceiling texture.
+
+* [Backspace]+[Page Up]  
+  Selects next ceiling texture.
+
+* [Backspace]+[End]  
+  Selects previous flooring texture.
+
+* [Backspace]+[Page Down]  
+  Selects next flooring texture.
+
+* [Backspace]+[-]  
+  Decreases shading depth.
+
+* [Backspace]+[=]  
+  Increases shading depth.
+
+* [Backspace]+['[']  
+  Decreases shading drop off.
+
+* [Backspace]+[']']  
+  Increases shading drop off.
+
+
+7 - Third party use
 ===================
 
 * Simple DirectMedia Library (v2)  
@@ -209,7 +304,7 @@ Notes:
   Note: The source port uses only an OPL emulation code.
 
 
-6 - Credits
+8 - Credits
 ===========
 
 * id Software  
@@ -231,7 +326,7 @@ Notes:
   Adaptation to Pandora console, various fixes.
 
 
-7 - Links
+8 - Links
 =========
 
 * The port's source code and binary releases:  
