@@ -2187,4 +2187,14 @@ uint8_t vl_get_pixel(
 {
     return ::vga_memory[::vl_get_offset(base_offset, x, y)];
 }
+
+void vl_minimize_fullscreen_window(
+    bool value)
+{
+    if (value) {
+        ::SDL_MinimizeWindow(::sdl_window);
+    } else {
+        ::SDL_RestoreWindow(::sdl_window);
+    }
+}
 // BBi

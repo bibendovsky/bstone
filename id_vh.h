@@ -157,5 +157,9 @@ extern int freelatch;
 
 extern int LatchMemFree;
 
+// BBi
+void vl_minimize_fullscreen_window(
+    bool value);
+
 
 #endif // BSTONE_ID_VH_INCLUDED

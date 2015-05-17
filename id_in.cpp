@@ -1251,6 +1251,8 @@ static void in_handle_window(
     case SDL_WINDOWEVENT_FOCUS_GAINED:
         clear_state = true;
 
+        ::vl_minimize_fullscreen_window(false);
+
         if (::in_last_is_mouse_grabbed) {
             ::in_last_is_mouse_grabbed = ::in_grab_mouse(true);
         }
@@ -1262,6 +1264,7 @@ static void in_handle_window(
         ::in_last_is_mouse_grabbed = ::in_is_mouse_grabbed;
         static_cast<void>(::in_grab_mouse(false));
         ::sd_mute(true);
+        ::vl_minimize_fullscreen_window(true);
         break;
     }
 
