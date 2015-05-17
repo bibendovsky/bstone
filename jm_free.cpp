@@ -801,7 +801,8 @@ void InitGame()
 
     bufferofs = 0;
     displayofs = 0;
-    ReadConfig();
+
+    ::ReadConfig();
     ::read_high_scores();
 
 
