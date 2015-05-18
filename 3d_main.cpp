@@ -6024,7 +6024,8 @@ static const std::string& get_score_file_name()
             game_type_string = "aog_sw";
             break;
 
-        case GameType::aog_full:
+        case GameType::aog_full_v2_1:
+        case GameType::aog_full_v3_0:
             game_type_string = "aog_full";
             break;
 
@@ -6961,7 +6962,8 @@ static const std::string& get_saved_game_version_string()
             version_string += "aliens of gold (shareware)";
             break;
 
-        case GameType::aog_full:
+        case GameType::aog_full_v2_1:
+        case GameType::aog_full_v3_0:
             version_string += "aliens of gold (full)";
             break;
 
@@ -8493,9 +8495,19 @@ void gametype::deserialize(
     TimeCount = time_count;
 }
 
+bool is_aog_full_v2_1()
+{
+    return ::g_game_type == GameType::aog_full_v2_1;
+}
+
+bool is_aog_full_v3_0()
+{
+    return ::g_game_type == GameType::aog_full_v3_0;
+}
+
 bool is_aog_full()
 {
-    return ::g_game_type == GameType::aog_full;
+    return ::is_aog_full_v2_1() || ::is_aog_full_v3_0();
 }
 
 bool is_aog_sw()

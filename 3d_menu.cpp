@@ -310,20 +310,13 @@ static const std::string& get_saved_game_base_name()
 
         base_name = "bstone_";
 
-        switch (::g_game_type) {
-        case GameType::aog_sw:
+        if (::is_aog_sw()) {
             base_name += "aog_sw";
-            break;
-
-        case GameType::aog_full:
+        } else if (::is_aog_full()) {
             base_name += "aog_full";
-            break;
-
-        case GameType::ps:
+        } else if (::is_ps()) {
             base_name += "ps";
-            break;
-
-        default:
+        } else {
             throw std::runtime_error("Invalid game type.");
         }
 

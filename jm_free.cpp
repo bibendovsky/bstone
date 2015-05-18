@@ -474,6 +474,24 @@ static bool are_files_exist(
     return true;
 }
 
+static int get_vgahead_offset_count(
+    const std::string& file_name)
+{
+    bstone::FileStream stream(::data_dir + file_name);
+
+    if (!stream.is_open()) {
+        return 0;
+    }
+
+    auto file_size = stream.get_size();
+
+    if ((file_size % FILEPOSSIZE) != 0) {
+        return 0;
+    }
+
+    return static_cast<int>(file_size / FILEPOSSIZE);
+}
+
 void CheckForEpisodes()
 {
     const bstone::StringList aog_sw_file_names = {
@@ -520,14 +538,18 @@ void CheckForEpisodes()
 
     ::g_game_type = GameType::none;
 
-    if (::g_args.has_option("aog_full")) {
-        ::g_game_type = GameType::aog_full;
+    if (::g_args.has_option("aog_full_21")) {
+        ::g_game_type = GameType::aog_full_v2_1;
 
-        bstone::Log::write("Forcing Aliens Of Gold (full).\n");
+        bstone::Log::write("Forcing Aliens Of Gold (full, v2.1).\n");
+    } else if (::g_args.has_option("aog_full_30")) {
+        ::g_game_type = GameType::aog_full_v3_0;
+
+        bstone::Log::write("Forcing Aliens Of Gold (full, v3.0).\n");
     } else if (::g_args.has_option("aog_sw")) {
         ::g_game_type = GameType::aog_sw;
 
-        bstone::Log::write("Forcing Aliens Of Gold (shareware).\n");
+        bstone::Log::write("Forcing Aliens Of Gold (shareware, v3.0).\n");
     } else if (::g_args.has_option("ps")) {
         ::g_game_type = GameType::ps;
 
@@ -535,8 +557,9 @@ void CheckForEpisodes()
     }
 
 
+    auto is_found = false;
     auto is_succeed = true;
-    std::string error_message = "All expected files not found.";
+    std::string error_message = "Data files not found.";
 
     switch (::g_game_type) {
     case GameType::aog_sw:
@@ -545,7 +568,8 @@ void CheckForEpisodes()
         }
         break;
 
-    case GameType::aog_full:
+    case GameType::aog_full_v2_1:
+    case GameType::aog_full_v3_0:
         if (!::are_files_exist(aog_file_names)) {
             is_succeed = false;
         }
@@ -560,21 +584,44 @@ void CheckForEpisodes()
     default:
         bstone::Log::write("Searching for data files...");
 
-        if (::are_files_exist(aog_file_names)) {
-            ::g_game_type = GameType::aog_full;
+        if (!is_found && ::are_files_exist(aog_file_names)) {
+            const int offset_count_v2_1 = 224;
+            const int offset_count_v3_0 = 226;
 
-            bstone::Log::write("Found Aliens Of Gold (full).\n");
-        } else if (::are_files_exist(ps_file_names)) {
+            const int offset_count =
+                ::get_vgahead_offset_count("VGAHEAD.BS6");
+
+            switch (offset_count) {
+            case offset_count_v2_1:
+                is_found = true;
+                ::g_game_type = GameType::aog_full_v2_1;
+                bstone::Log::write("Found Aliens Of Gold (full, v2.1).\n");
+                break;
+
+            case offset_count_v3_0:
+                is_found = true;
+                ::g_game_type = GameType::aog_full_v3_0;
+                bstone::Log::write("Found Aliens Of Gold (full, v3.0).\n");
+                break;
+            }
+        }
+
+        if (!is_found && ::are_files_exist(ps_file_names)) {
+            is_found = true;
             ::g_game_type = GameType::ps;
 
-            bstone::Log::write("Found Planet Strike.\n");
-        } else if (::are_files_exist(aog_sw_file_names)) {
+            bstone::Log::write("Found Planet Strike (v1.1).\n");
+        }
+
+        if (!is_found && ::are_files_exist(aog_sw_file_names)) {
+            is_found = true;
             ::g_game_type = GameType::aog_sw;
 
-            bstone::Log::write("Found Aliens Of Gold (shareware).\n");
-        } else {
+            bstone::Log::write("Found Aliens Of Gold (shareware, v3.0).\n");
+        }
+
+        if (!is_found) {
             is_succeed = false;
-            error_message = "Data files not found.";
         }
         break;
     }
@@ -589,7 +636,8 @@ void CheckForEpisodes()
         ::extension = "BS1";
         break;
 
-    case GameType::aog_full:
+    case GameType::aog_full_v2_1:
+    case GameType::aog_full_v3_0:
         ::extension = "BS6";
         break;
 
