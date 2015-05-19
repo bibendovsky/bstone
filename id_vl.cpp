@@ -402,7 +402,7 @@ bool sdl_is_windowed = false;
 SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
 bool vid_fix_par = true;
-bool has_vsync = false;
+bool vid_has_vsync = false;
 
 
 void check_vsync()
@@ -432,7 +432,9 @@ void check_vsync()
     auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
         duration).count();
 
-    ::has_vsync = (duration_ms >= min_expected_duration_ms);
+    ::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
+
+    ::sys_enable_timer_timestamp(!::vid_has_vsync);
 }
 // BBi
 
@@ -444,12 +446,38 @@ void check_vsync()
 void VL_WaitVBL(
     uint32_t vbls)
 {
-    if (::has_vsync) {
+    if (vbls == 0) {
         return;
     }
 
-    const std::chrono::milliseconds delay(1000 * vbls / 70);
-    std::this_thread::sleep_for(delay);
+    if (vbls > 1) {
+        const std::chrono::milliseconds tick_delay(1000 * vbls / TickBase);
+        std::this_thread::sleep_for(tick_delay);
+        return;
+    }
+
+    if (::vid_has_vsync) {
+        return;
+    }
+
+
+    static const std::chrono::milliseconds one_tick_delay(1000 / TickBase);
+    static const auto one_tick_delay_ms = one_tick_delay.count();
+
+    auto timer_timestamp = ::sys_get_timer_timestamp();
+    auto system_timestamp = Clock::now();
+    auto diff = system_timestamp - timer_timestamp;
+    auto diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(diff).count();
+
+    if (diff_ms < 0) {
+        diff_ms = 0;
+    }
+
+    auto remain_ms = one_tick_delay_ms - diff_ms;
+
+    if (remain_ms > 10) {
+        ::sys_sleep_for(static_cast<int>(remain_ms));
+    }
 }
 
 // ===========================================================================

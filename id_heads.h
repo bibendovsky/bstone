@@ -96,6 +96,7 @@ struct Rect {
 #define UPDATEWIDE (PORTTILESWIDE)
 #define UPDATEHIGH (PORTTILESHIGH)
 
+#define TickBase (70) // 70Hz per tick - used as a base for timer 0
 #define MAXTICS (10)
 
 extern uint16_t mapwidth;
@@ -123,6 +124,10 @@ inline void SETFONTCOLOR(
 
 
 // BBi
+using Clock = std::chrono::system_clock;
+using TimePoint = Clock::time_point;
+
+
 const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
 
 extern uint8_t update[UPDATESIZE];
@@ -150,6 +155,11 @@ void Quit(
 
     ::exit(1);
 }
+
+TimePoint sys_get_timer_timestamp();
+
+void sys_enable_timer_timestamp(
+    bool value);
 // BBi
 
 

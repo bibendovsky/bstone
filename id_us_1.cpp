@@ -96,22 +96,42 @@ SaveGame Games[MaxSaveGames];
 namespace {
 
 
+std::atomic_bool sys_is_timer_timestamp_enabled;
+std::atomic<Clock::time_point> sys_timer_timestamp;
 std::thread sys_timer_thread;
 std::atomic_bool sys_timer_quit;
 
 
 void sys_timer_callback()
 {
-    const std::chrono::milliseconds delay(1000 / 70);
+    const std::chrono::milliseconds delay(1000 / TickBase);
 
     while (!sys_timer_quit) {
-        ++TimeCount;
+        ++::TimeCount;
+
+        if (sys_is_timer_timestamp_enabled) {
+            sys_timer_timestamp = Clock::now();
+        }
+
         std::this_thread::sleep_for(delay);
     }
 }
 
 
 } // namespace
+
+
+TimePoint sys_get_timer_timestamp()
+{
+    return ::sys_timer_timestamp;
+}
+
+void sys_enable_timer_timestamp(
+    bool value)
+{
+    ::sys_is_timer_timestamp_enabled = value;
+}
+// BBi
 
 
 HighScores Scores;
@@ -658,8 +678,9 @@ void US_Startup()
     }
 
     // BBi
-    sys_timer_quit = false;
-    sys_timer_thread = std::thread(sys_timer_callback);
+    ::sys_is_timer_timestamp_enabled = false;
+    ::sys_timer_quit = false;
+    ::sys_timer_thread = std::thread(::sys_timer_callback);
     // BBi
 
     ::US_InitRndT(true); // Initialize the random number generator

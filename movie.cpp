@@ -423,7 +423,7 @@ void MOVIE_HandlePage(
 
         if (TimeCount < static_cast<uint32_t>(MovieStuff->ticdelay)) {
             const auto min_wait_time = 0;
-            const auto max_wait_time = 2 * 70; // 2 seconds
+            const auto max_wait_time = 2 * TickBase; // 2 seconds
 
             auto wait_time =
                 MovieStuff->ticdelay - static_cast<int>(TimeCount);
@@ -438,11 +438,11 @@ void MOVIE_HandlePage(
 
             if (wait_time > 0) {
                 wait_time *= 1000;
-                wait_time /= 70;
+                wait_time /= TickBase;
                 ::sys_sleep_for(wait_time);
             }
         } else {
-            ::sys_sleep_for(1000 / 70);
+            ::sys_sleep_for(1000 / TickBase);
         }
 
         TimeCount = 0;

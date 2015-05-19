@@ -41,7 +41,6 @@ Free Software Foundation, Inc.,
 struct objtype;
 struct doorobj_t;
 
-#define TickBase (70) // 70Hz per tick - used as a base for timer 0
 
 struct SoundCommon {
     uint32_t length;

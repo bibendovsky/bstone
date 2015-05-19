@@ -69,7 +69,6 @@ void US_InitRndT(
     if (!randomize) {
         rndindex = 0;
     } else {
-        using Clock = std::chrono::system_clock;
         auto ticks = (Clock::now() - Clock::time_point()).count();
         rndindex = static_cast<int>(ticks % 256);
     }
