@@ -297,9 +297,7 @@ public:
             throw std::out_of_range("Invalid offset or count.");
         }
 
-        int index_to = offset + count;
-
-        for (int i = offset; i < index_to; ++i) {
+        for (int i = 0; i < count; ++i) {
             const auto palette_color = &palette[3 * i];
 
             uint32_t color = 0;
@@ -314,7 +312,7 @@ public:
 
             color |= 0x000000FF << color_shifts_[3];
 
-            palette_[i] = color;
+            palette_[offset + i] = color;
         }
     }
 
