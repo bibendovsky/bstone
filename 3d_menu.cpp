@@ -1257,7 +1257,10 @@ void US_ControlPanel(
     ScanCode scancode)
 {
     // BBi
-    menu_background_color = (::is_aog_sw() ? 0x04 : TERM_BACK_COLOR);
+    menu_background_color = (
+        (::is_aog_sw() | ::is_aog_full_v3_0()) ?
+        0x04 :
+        TERM_BACK_COLOR);
 
 
     int16_t which;
