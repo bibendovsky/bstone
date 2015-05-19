@@ -8,14 +8,15 @@ Contents
 ========
 
 1. Disclaimer
-2. Profile
-3. Compiling
-4. Command-line options
-5. Cheat key
-6. Debug keys
-7. Third party use
-8. Credits
-9. Links
+2. Overview
+3. Profile
+4. Compiling
+5. Command-line options
+6. Cheat key
+7. Debug keys
+8. Third party use
+9. Credits
+10. Links
 
 
 1 - Disclaimer
@@ -44,7 +45,25 @@ For a copy of the GNU General Public License see file LICENSE.
 For an original source code license see file "Blake Stone source code license.doc".
 
 
-2 - Profile
+2 - Overview
+============
+
+BStone is a source port of Blake Stone game series: Aliens of Gold and Planet Strike.
+
+Features:
+* High resolution rendering of world (extended vanilla engine)
+* Modern and vanilla controls
+* Allows to customize control bindings
+* Separate volume control of sound effects and music
+
+Supported games:
+* Aliens of Gold v2.1 (full)
+* Aliens of Gold v3.0 (full)
+* Aliens of Gold v3.0 (shareware)
+* Planet Strike v1.1
+
+
+3 - Profile
 ===========
 
 The port stores configuration file, saved game files, etc. in user's profile.  
@@ -70,7 +89,7 @@ Where "game" is:
 * ps - Planet Strike
 
 
-3 - Compiling
+4 - Compiling
 =============
 
 Minimum requirements:
@@ -117,7 +136,7 @@ Notes:
 * Use ON value to enable option and value OFF to disable option.
 
 
-4 - Command-line options
+5 - Command-line options
 ========================
 
 * --version  
@@ -127,20 +146,25 @@ Notes:
 * --aog_sw  
   Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (sw) -> PS
+  Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
-* --aog_full  
-  Switches the port to Blake Stone: Aliens of Gold (full) mode.  
+* --aog_full_v2_1  
+  Switches the port to Blake Stone: Aliens of Gold v2.1 (full) mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (sw) -> PS
+  Default switch strategy: AoG (full) -> AoG (SW) -> PS
+
+* --aog_full_v3_0  
+  Switches the port to Blake Stone: Aliens of Gold v3.0 (full) mode.  
+  If appropriate data files will not be found the port will fail.  
+  Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
 * --ps  
   Switches the port to Blake Stone: Planet Strike mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (sw) -> PS
+  Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
 * --no_screens  
-  Skips startup screens and promo pages (AoG sw only).
+  Skips startup screens and promo pages (AoG SW only).
 
 * --cheats  
   Enables so called "debug mode" without much fuss.
@@ -184,12 +208,12 @@ Notes:
 
 * --vid_no_fix_par  
   Disables correction of pixel aspect ratio.  
-  By default the port stretches a height of rendererd screen by 20% to  
+  By default the port stretches a height of rendered screen by 20% to  
   comply with original VGA's pixel aspect ratio.
 
 * --snd_rate sampling_rate  
   Specifies sampling rate of mixer in hertz.  
-  Default: 22050 Hz  
+  Default: 44100 Hz  
   Minimum: 11025 Hz
 
 * --snd_mix_size duration  
@@ -198,7 +222,7 @@ Notes:
   Minimum: 20 ms
 
 
-5 - Cheat key
+6 - Cheat key
 =============
 
 [J] [A] [M] [Enter]  
@@ -208,7 +232,7 @@ all weapons and restores health to 100% but zeroes score points.
 Not available in shareware version.
 
 
-6 - Debug keys
+7 - Debug keys
 ==============
 
 Add option "--cheats" to enable these keys.
@@ -291,7 +315,7 @@ Add option "--cheats" to enable these keys.
   Increases shading drop off.
 
 
-7 - Third party use
+8 - Third party use
 ===================
 
 * Simple DirectMedia Library (v2)  
@@ -304,7 +328,7 @@ Add option "--cheats" to enable these keys.
   Note: The source port uses only an OPL emulation code.
 
 
-8 - Credits
+9 - Credits
 ===========
 
 * id Software  
@@ -326,8 +350,8 @@ Add option "--cheats" to enable these keys.
   Adaptation to Pandora console, various fixes.
 
 
-8 - Links
-=========
+10 - Links
+==========
 
 * The port's source code and binary releases:  
   <https://github.com/bibendovsky/bstone/>
