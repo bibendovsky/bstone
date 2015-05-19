@@ -51,6 +51,7 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <mutex>
 #include <thread>
 #include "id_heads.h"
 
@@ -96,8 +97,9 @@ SaveGame Games[MaxSaveGames];
 namespace {
 
 
+std::mutex sys_timer_mutex;
 std::atomic_bool sys_is_timer_timestamp_enabled;
-std::atomic<Clock::time_point> sys_timer_timestamp;
+Clock::time_point sys_timer_timestamp;
 std::thread sys_timer_thread;
 std::atomic_bool sys_timer_quit;
 
@@ -110,6 +112,7 @@ void sys_timer_callback()
         ++::TimeCount;
 
         if (sys_is_timer_timestamp_enabled) {
+            std::lock_guard<std::mutex> guard_this(sys_timer_mutex);
             sys_timer_timestamp = Clock::now();
         }
 
@@ -123,6 +126,7 @@ void sys_timer_callback()
 
 TimePoint sys_get_timer_timestamp()
 {
+    std::lock_guard<std::mutex> guard_this(sys_timer_mutex);
     return ::sys_timer_timestamp;
 }
 
