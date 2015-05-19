@@ -501,7 +501,7 @@ int AudioMixer::get_min_rate()
 // (static)
 int AudioMixer::get_default_rate()
 {
-    return 22050;
+    return 44100;
 }
 
 // (static)
