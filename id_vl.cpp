@@ -468,7 +468,7 @@ void VL_Shutdown()
 
 void VL_SetVGAPlaneMode()
 {
-    initialize_video();
+    ::initialize_video();
 
     const int vga_size = ::vga_scale * ::vga_scale * ::vga_ref_size;
 
@@ -2098,9 +2098,12 @@ void initialize_video()
 
     ::VL_SetLineWidth(40);
 
-    initialize_result = ::x_initialize_video();
 
-    if (!initialize_result && ::g_renderer_type == RT_AUTO_DETECT) {
+    bool is_succeed = true;
+
+    is_succeed = ::x_initialize_video();
+
+    if (!is_succeed && ::g_renderer_type == RT_AUTO_DETECT) {
         bstone::Log::write("SDL: Falling back to software renderer...");
 
         ::g_renderer_type = RT_SOFTWARE;
@@ -2114,11 +2117,20 @@ void initialize_video()
         ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
 
-        initialize_result = ::x_initialize_video();
+        is_succeed = ::x_initialize_video();
     }
 
-    if (!initialize_result) {
+    if (!is_succeed) {
         ::Quit("SDL: Failed to initialize a renderer.");
+    }
+
+
+    if (::g_renderer_type == RT_OPEN_GL) {
+        sdl_result = ::SDL_GL_SetSwapInterval(1);
+
+        if (sdl_result != 0) {
+            bstone::Log::write_warning("OGL: Failed to enable VSync.");
+        }
     }
 
     ::SDL_ShowWindow(::sdl_window);
