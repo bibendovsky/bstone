@@ -157,7 +157,7 @@ if (MSVC)
         add_compile_options("-FI${BSTONE_PCH_BASE_NAME}.h")
     endif ()
 
-    if (BSTONE_USE_STATIC_CRT)
+    if (BSTONE_USE_STATIC_LINKING)
         add_compile_options("$<$<CONFIG:DEBUG>:-MTd>")
         add_compile_options("$<$<NOT:$<CONFIG:DEBUG>>:-MT>")
     endif ()
@@ -356,7 +356,6 @@ endif ()
 
 target_link_libraries(
     "${BSTONE_TARGET}"
-    "${SDLMAIN_LIBRARY}"
     "${SDL2_LIBRARIES}"
 )
 
@@ -377,7 +376,7 @@ if (WIN32)
     )
 endif ()
 
-if (BSTONE_USE_STATIC_CRT)
+if (BSTONE_USE_STATIC_LINKING)
     if (BSTONE_IS_GNU)
         set_target_properties(
             "${BSTONE_TARGET}"
