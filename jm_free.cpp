@@ -538,10 +538,10 @@ void CheckForEpisodes()
 
     ::g_game_type = GameType::none;
 
-    if (::g_args.has_option("aog_full_21")) {
-        ::g_game_type = GameType::aog_full_v2_1;
+    if (::g_args.has_option("aog_full_2x")) {
+        ::g_game_type = GameType::aog_full_v2_x;
 
-        bstone::Log::write("Forcing Aliens Of Gold (full, v2.1).\n");
+        bstone::Log::write("Forcing Aliens Of Gold (full, v2.x).\n");
     } else if (::g_args.has_option("aog_full_30")) {
         ::g_game_type = GameType::aog_full_v3_0;
 
@@ -568,7 +568,7 @@ void CheckForEpisodes()
         }
         break;
 
-    case GameType::aog_full_v2_1:
+    case GameType::aog_full_v2_x:
     case GameType::aog_full_v3_0:
         if (!::are_files_exist(aog_file_names)) {
             is_succeed = false;
@@ -585,17 +585,17 @@ void CheckForEpisodes()
         bstone::Log::write("Searching for data files...");
 
         if (!is_found && ::are_files_exist(aog_file_names)) {
-            const int offset_count_v2_1 = 224;
+            const int offset_count_v2_x = 224;
             const int offset_count_v3_0 = 226;
 
             const int offset_count =
                 ::get_vgahead_offset_count("VGAHEAD.BS6");
 
             switch (offset_count) {
-            case offset_count_v2_1:
+            case offset_count_v2_x:
                 is_found = true;
-                ::g_game_type = GameType::aog_full_v2_1;
-                bstone::Log::write("Found Aliens Of Gold (full, v2.1).\n");
+                ::g_game_type = GameType::aog_full_v2_x;
+                bstone::Log::write("Found Aliens Of Gold (full, v2.x).\n");
                 break;
 
             case offset_count_v3_0:
@@ -636,7 +636,7 @@ void CheckForEpisodes()
         ::extension = "BS1";
         break;
 
-    case GameType::aog_full_v2_1:
+    case GameType::aog_full_v2_x:
     case GameType::aog_full_v3_0:
         ::extension = "BS6";
         break;

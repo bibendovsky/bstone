@@ -148,8 +148,8 @@ Notes:
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
-* --aog_full_v2_1  
-  Switches the port to Blake Stone: Aliens of Gold v2.1 (full) mode.  
+* --aog_full_v2_x  
+  Switches the port to Blake Stone: Aliens of Gold v2.0/v2.1 (full) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 

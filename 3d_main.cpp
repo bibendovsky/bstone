@@ -5391,7 +5391,7 @@ void initialize_gfxv_contants()
         NUMTILE32 = 0;
         NUMTILE32M = 0;
         NUMEXTERNS = NUMCHUNKS - (STATUSBARPIC + 2);
-    } else if (::is_aog_full_v2_1()) {
+    } else if (::is_aog_full_v2_x()) {
         TELEPORTBACKPIC = 6;
         TELEPORT1OFFPIC = 7;
         TELEPORT2OFFPIC = 8;
@@ -6276,7 +6276,7 @@ static const std::string& get_score_file_name()
             game_type_string = "aog_sw";
             break;
 
-        case GameType::aog_full_v2_1:
+        case GameType::aog_full_v2_x:
         case GameType::aog_full_v3_0:
             game_type_string = "aog_full";
             break;
@@ -7214,7 +7214,7 @@ static const std::string& get_saved_game_version_string()
             version_string += "aliens of gold (shareware)";
             break;
 
-        case GameType::aog_full_v2_1:
+        case GameType::aog_full_v2_x:
         case GameType::aog_full_v3_0:
             version_string += "aliens of gold (full)";
             break;
@@ -8747,9 +8747,9 @@ void gametype::deserialize(
     TimeCount = time_count;
 }
 
-bool is_aog_full_v2_1()
+bool is_aog_full_v2_x()
 {
-    return ::g_game_type == GameType::aog_full_v2_1;
+    return ::g_game_type == GameType::aog_full_v2_x;
 }
 
 bool is_aog_full_v3_0()
@@ -8759,7 +8759,7 @@ bool is_aog_full_v3_0()
 
 bool is_aog_full()
 {
-    return ::is_aog_full_v2_1() || ::is_aog_full_v3_0();
+    return ::is_aog_full_v2_x() || ::is_aog_full_v3_0();
 }
 
 bool is_aog_sw()

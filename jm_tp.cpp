@@ -351,7 +351,7 @@ void initialize_tp_shape_table()
             { PSPROMO2PIC, pis_pic, },
             { PSPROMO3PIC, pis_pic, },
         }; // piShapeTable
-    } else if (::is_aog_full_v2_1()) {
+    } else if (::is_aog_full_v2_x()) {
         piShapeTable = {
             { SPR_GREEN_OOZE1, pis_scaled, },
             { SPR_STAT_32, pis_scaled, },
