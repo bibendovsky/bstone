@@ -5391,6 +5391,247 @@ void initialize_gfxv_contants()
         NUMTILE32 = 0;
         NUMTILE32M = 0;
         NUMEXTERNS = NUMCHUNKS - (STATUSBARPIC + 2);
+    } else if (::is_aog_full_v1_0()) {
+        TELEPORTBACKPIC = 6;
+        TELEPORT1OFFPIC = 7;
+        TELEPORT2OFFPIC = 8;
+        TELEPORT3OFFPIC = 9;
+        TELEPORT4OFFPIC = 10;
+        TELEPORT5OFFPIC = 11;
+        TELEPORT6OFFPIC = 12;
+        TELEPORT7OFFPIC = 13;
+        TELEPORT8OFFPIC = 14;
+        TELEPORT9OFFPIC = 15;
+        TELEPORT10OFFPIC = 16;
+        TELEPORT1ONPIC = 17;
+        TELEPORT2ONPIC = 18;
+        TELEPORT3ONPIC = 19;
+        TELEPORT4ONPIC = 20;
+        TELEPORT5ONPIC = 21;
+        TELEPORT6ONPIC = 22;
+        TELEPORT7ONPIC = 23;
+        TELEPORT8ONPIC = 24;
+        TELEPORT9ONPIC = 25;
+        TELEPORT10ONPIC = 26;
+        TELEPORT_TEXT_BG = 27;
+        BACKGROUND_SCREENPIC = 28;
+        APOGEEPIC = 29;
+        PIRACYPIC = 30;
+        PC13PIC = 31;
+        LOSEPIC = 32;
+        AUTOMAPPIC = 33;
+        H_ALTPIC = 34;
+        H_CTRLPIC = 35;
+        H_SPACEPIC = 36;
+        H_PAUSEPIC = 37;
+        H_ESCPIC = 38;
+        H_LTARROWPIC = 39;
+        H_UPARROWPIC = 40;
+        H_DNARROWPIC = 41;
+        H_RTARROWPIC = 42;
+        H_ENTERPIC = 43;
+        H_QPIC = 44;
+        H_WPIC = 45;
+        H_EPIC = 46;
+        H_IPIC = 47;
+        H_HPIC = 48;
+        H_1PIC = 49;
+        H_2PIC = 50;
+        H_3PIC = 51;
+        H_4PIC = 52;
+        H_5PIC = 53;
+        H_F1PIC = 54;
+        H_F2PIC = 55;
+        H_F3PIC = 56;
+        H_F4PIC = 57;
+        H_F5PIC = 58;
+        H_F6PIC = 59;
+        H_F7PIC = 60;
+        H_F8PIC = 61;
+        H_F9PIC = 62;
+        H_F10PIC = 63;
+        H_TABPIC = 64;
+        H_CPIC = 65;
+        H_FPIC = 66;
+        H_PPIC = 67;
+        H_MPIC = 68;
+        APOGEE_LOGOPIC = 69;
+        VISAPIC = 70;
+        MCPIC = 71;
+        FAXPIC = 72;
+        H_TOPWINDOWPIC = 73;
+        H_LEFTWINDOWPIC = 74;
+        H_RIGHTWINDOWPIC = 75;
+        H_BOTTOMINFOPIC = 76;
+        C_NOTSELECTEDPIC = 77;
+        C_SELECTEDPIC = 78;
+        C_NOTSELECTED_HIPIC = 79;
+        C_SELECTED_HIPIC = 80;
+        C_BABYMODEPIC = 81;
+        C_EASYPIC = 82;
+        C_NORMALPIC = 83;
+        C_HARDPIC = 84;
+        C_EPISODE1PIC = 85;
+        C_EPISODE2PIC = 86;
+        C_EPISODE3PIC = 87;
+        C_EPISODE4PIC = 88;
+        C_EPISODE5PIC = 89;
+        C_EPISODE6PIC = 90;
+        BIGGOLDSTERNPIC = 91;
+        STARLOGOPIC = 92;
+        BLAKEWITHGUNPIC = 93;
+        STARINSTITUTEPIC = 94;
+        MEDALOFHONORPIC = 95;
+        SMALLGOLDSTERNPIC = 96;
+        BLAKEWINPIC = 97;
+        SHUTTLEEXPPIC = 98;
+        PLANETSPIC = 99;
+        MOUSEPIC = 100;
+        JOYSTICKPIC = 101;
+        GRAVISPADPIC = 102;
+        TITLEPIC = 103;
+        WEAPON1PIC = 104;
+        WEAPON2PIC = 105;
+        WEAPON3PIC = 106;
+        WEAPON4PIC = 107;
+        WEAPON5PIC = 108;
+        WAITPIC = 109;
+        READYPIC = 110;
+        N_BLANKPIC = 111;
+        N_0PIC = 112;
+        N_1PIC = 113;
+        N_2PIC = 114;
+        N_3PIC = 115;
+        N_4PIC = 116;
+        N_5PIC = 117;
+        N_6PIC = 118;
+        N_7PIC = 119;
+        N_8PIC = 120;
+        N_9PIC = 121;
+        N_RPIC = 122;
+        N_OPIC = 123;
+        N_LPIC = 124;
+        N_DASHPIC = 125;
+        DIM_LIGHTPIC = 126;
+        BRI_LIGHTPIC = 127;
+        ECG_HEART_GOOD = 128;
+        ECG_HEART_BAD = 129;
+        ECG_GRID_PIECE = 130;
+        ECG_HEARTBEAT_00 = 132;
+        ECG_HEARTBEAT_01 = 133;
+        ECG_HEARTBEAT_02 = 134;
+        ECG_HEARTBEAT_03 = 135;
+        ECG_HEARTBEAT_04 = 136;
+        ECG_HEARTBEAT_05 = 137;
+        ECG_HEARTBEAT_06 = 138;
+        ECG_HEARTBEAT_07 = 139;
+        ECG_HEARTBEAT_08 = 140;
+        ECG_HEARTBEAT_09 = 141;
+        ECG_HEARTBEAT_10 = 142;
+        ECG_HEARTBEAT_11 = 143;
+        ECG_HEARTBEAT_12 = 144;
+        ECG_HEARTBEAT_13 = 145;
+        ECG_HEARTBEAT_14 = 146;
+        ECG_HEARTBEAT_15 = 147;
+        ECG_HEARTBEAT_16 = 148;
+        ECG_HEARTBEAT_17 = 149;
+        ECG_HEARTBEAT_18 = 150;
+        ECG_HEARTBEAT_19 = 151;
+        ECG_HEARTBEAT_20 = 152;
+        ECG_HEARTBEAT_21 = 153;
+        ECG_HEARTBEAT_22 = 154;
+        ECG_HEARTBEAT_23 = 155;
+        ECG_HEARTBEAT_24 = 156;
+        ECG_HEARTBEAT_25 = 157;
+        ECG_HEARTBEAT_26 = 158;
+        ECG_HEARTBEAT_27 = 159;
+        INFOAREAPIC = 160;
+        TOP_STATUSBARPIC = 161;
+        STATUSBARPIC = 162;
+        PIRACYPALETTE = 164;
+        APOGEEPALETTE = 165;
+        TITLEPALETTE = 166;
+        ORDERSCREEN = 167;
+        ERRORSCREEN = 168;
+        INFORMANT_HINTS = 175;
+        NICE_SCIE_HINTS = 176;
+        MEAN_SCIE_HINTS = 177;
+        BRIEF_W1 = 178;
+        BRIEF_I1 = 179;
+        BRIEF_W2 = 180;
+        BRIEF_I2 = 181;
+        BRIEF_W3 = 182;
+        BRIEF_I3 = 183;
+        BRIEF_W4 = 184;
+        BRIEF_I4 = 185;
+        BRIEF_W5 = 186;
+        BRIEF_I5 = 187;
+        BRIEF_W6 = 188;
+        BRIEF_I6 = 189;
+        LEVEL_DESCS = 190;
+        HELPTEXT = 191;
+        SAGATEXT = 192;
+        LOSETEXT = 193;
+        ORDERTEXT = 194;
+        CREDITSTEXT = 195;
+        MUSTBE386TEXT = 196;
+        QUICK_INFO1_TEXT = 197;
+        QUICK_INFO2_TEXT = 198;
+        BADINFO_TEXT = 199;
+        CALJOY1_TEXT = 200;
+        CALJOY2_TEXT = 201;
+        READTHIS_TEXT = 202;
+        ELEVMSG0_TEXT = 203;
+        ELEVMSG1_TEXT = 204;
+        ELEVMSG4_TEXT = 205;
+        ELEVMSG5_TEXT = 206;
+        FLOORMSG_TEXT = 207;
+        YOUWIN_TEXT = 208;
+        CHANGEVIEW_TEXT = 209;
+        DIZ_ERR_TEXT = 210;
+        BADLEVELSTEXT = 211;
+
+
+        STRUCTPIC = 0;
+
+        STARTFONT = 1;
+        STARTFONTM = 6;
+        STARTPICS = 6;
+        STARTPICM = STATUSBARPIC + 1;
+        STARTSPRITES = STATUSBARPIC + 1;
+        STARTTILE8 = STATUSBARPIC + 1;
+        STARTTILE8M = STATUSBARPIC + 2;
+        STARTTILE16 = STATUSBARPIC + 2;
+        STARTTILE16M = STATUSBARPIC + 2;
+        STARTTILE32 = STATUSBARPIC + 2;
+        STARTTILE32M = STATUSBARPIC + 2;
+        STARTEXTERNS = STATUSBARPIC + 2;
+
+        TELEPORT_LUMP_START = TELEPORTBACKPIC;
+        TELEPORT_LUMP_END = TELEPORT_TEXT_BG;
+
+        README_LUMP_START = H_ALTPIC;
+        README_LUMP_END = H_BOTTOMINFOPIC;
+
+        CONTROLS_LUMP_START = C_NOTSELECTEDPIC;
+        CONTROLS_LUMP_END = C_EPISODE6PIC;
+
+        LATCHPICS_LUMP_START = WEAPON1PIC;
+        LATCHPICS_LUMP_END = STATUSBARPIC;
+
+        NUMCHUNKS = 212;
+        NUMFONT = 5;
+        NUMFONTM = 0;
+        NUMPICS = 157;
+        NUMPICM = 0;
+        NUMSPRITES = 0;
+        NUMTILE8 = 72;
+        NUMTILE8M = 0;
+        NUMTILE16 = 0;
+        NUMTILE16M = 0;
+        NUMTILE32 = 0;
+        NUMTILE32M = 0;
+        NUMEXTERNS = NUMCHUNKS - (STARTEXTERNS + 2);
     } else if (::is_aog_full_v2_x()) {
         TELEPORTBACKPIC = 6;
         TELEPORT1OFFPIC = 7;
@@ -6276,6 +6517,7 @@ static const std::string& get_score_file_name()
             game_type_string = "aog_sw";
             break;
 
+        case GameType::aog_full_v1_0:
         case GameType::aog_full_v2_x:
         case GameType::aog_full_v3_0:
             game_type_string = "aog_full";
@@ -8747,6 +8989,11 @@ void gametype::deserialize(
     TimeCount = time_count;
 }
 
+bool is_aog_full_v1_0()
+{
+    return ::g_game_type == GameType::aog_full_v1_0;
+}
+
 bool is_aog_full_v2_x()
 {
     return ::g_game_type == GameType::aog_full_v2_x;
@@ -8759,7 +9006,10 @@ bool is_aog_full_v3_0()
 
 bool is_aog_full()
 {
-    return ::is_aog_full_v2_x() || ::is_aog_full_v3_0();
+    return
+        ::is_aog_full_v1_0() ||
+        ::is_aog_full_v2_x() ||
+        ::is_aog_full_v3_0();
 }
 
 bool is_aog_sw()

@@ -1869,18 +1869,34 @@ bool x_initialize_video()
             }
         }
 
-        auto title = "Blake Stone: ???";
+        std::string title = "Blake Stone: ???";
 
         if (::is_aog_full()) {
-            title = "Blake Stone: Aliens of Gold (full)";
+            std::string version_string;
+
+            if (::is_aog_full_v1_0()) {
+                version_string = "v1.0";
+            } else if (::is_aog_full_v2_x()) {
+                version_string = "v2.x";
+            } else if (::is_aog_full_v3_0()) {
+                version_string = "v3.0";
+            }
+
+            title = "Blake Stone: Aliens of Gold (full";
+
+            if (!version_string.empty()) {
+                title += ", " + version_string;
+            }
+
+            title += ')';
         } else if (::is_aog_sw()) {
-            title = "Blake Stone: Aliens of Gold (shareware)";
+            title = "Blake Stone: Aliens of Gold (shareware, v3.0)";
         } else if (::is_ps()) {
-            title = "Blake Stone: Planet Strike";
+            title = "Blake Stone: Planet Strike (full, v1.x)";
         }
 
         ::sdl_window = ::SDL_CreateWindow(
-            title,
+            title.c_str(),
             ::sdl_window_x,
             ::sdl_window_y,
             ::window_width,
