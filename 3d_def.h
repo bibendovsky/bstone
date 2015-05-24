@@ -2564,6 +2564,11 @@ struct gametype {
     const char* msg; // InfoArea msg...
     int8_t numkeys[NUMKEYS];
     int8_t old_numkeys[NUMKEYS];
+
+    // BBi
+    barrier_type cross_barriers[MAX_BARRIER_SWITCHES];
+    // BBi
+
     barrier_type barrier_table[MAX_BARRIER_SWITCHES];
     barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
     uint16_t tokens;
@@ -2581,6 +2586,11 @@ struct gametype {
     void deserialize(
         bstone::BinaryReader& reader,
         bstone::Crc32& checksum);
+
+    void initialize_cross_barriers();
+    void initialize_local_barriers();
+    void store_local_barriers();
+    void restore_local_barriers();
 }; // gametype
 
 enum exit_t {
@@ -3598,6 +3608,16 @@ void CacheDrawPic(
     int pic);
 
 void LoadTerminalCommands();
+
+// BBi
+void store_cross_barrier(
+    uint8_t level,
+    uint8_t x,
+    uint8_t y,
+    bool state);
+
+void apply_cross_barriers();
+// BBi
 
 void ActivateWallSwitch(
     uint16_t iconnum,

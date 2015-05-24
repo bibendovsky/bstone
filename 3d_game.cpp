@@ -2297,8 +2297,7 @@ void SetupGameLevel()
 // copy the wall data to a data segment array
 //
     memset(TravelTable, 0, sizeof(TravelTable));
-    memset(gamestate.barrier_table, 0xff, sizeof(gamestate.barrier_table));
-    memset(gamestate.old_barrier_table, 0xff, sizeof(gamestate.old_barrier_table));
+    ::gamestate.initialize_local_barriers();
     memset(tilemap, 0, sizeof(tilemap));
     memset(actorat, 0, sizeof(actorat));
     std::uninitialized_fill_n(wallheight, vga_width, 0);
@@ -2506,21 +2505,22 @@ void SetupGameLevel()
                     if (!::is_ps()) {
                         uint8_t level = 0xFF;
 
-                        if (map1[0] == 0xF8FF) {
-                            level = static_cast<uint8_t>(gamestate.mapon);
-                        } else {
+                        if (map1[0] != 0xF8FF) {
                             level = static_cast<uint8_t>(map1[0] & 0xFF);
                         }
 
-                        uint8_t switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
-                        uint8_t switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
+                        auto switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
+                        auto switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
 
                         map1[1] = 0;
-
                         map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
+
+                        if (level != 0xFF) {
+                            ::store_cross_barrier(level, switch_x, switch_y, switchon);
+                        }
                     } else {
-                        uint8_t switch_x = static_cast<uint8_t>((map1[0] / 256) & 0xFF);
-                        uint8_t switch_y = static_cast<uint8_t>(map1[0] & 0xFF);
+                        auto switch_x = static_cast<uint8_t>((map1[0] / 256) & 0xFF);
+                        auto switch_y = static_cast<uint8_t>(map1[0] & 0xFF);
 
                         map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
                     }
@@ -2558,6 +2558,10 @@ void SetupGameLevel()
         }
     }
 
+
+    // BBi
+    ::apply_cross_barriers();
+    // BBi
 
 //
 // spawn actors
@@ -3208,20 +3212,21 @@ restartgame:
         }
 
         if (!(loadedgame || LevelInPlaytemp(gamestate.mapon))) {
-            gamestate.tic_score = gamestate.score = gamestate.oldscore;
-            memcpy(gamestate.numkeys, gamestate.old_numkeys, sizeof(gamestate.numkeys));
-            memcpy(gamestate.barrier_table, gamestate.old_barrier_table, sizeof(gamestate.barrier_table));
-            gamestate.rpower = gamestate.old_rpower;
-            gamestate.tokens = gamestate.old_tokens;
-            gamestate.weapons = gamestate.old_weapons[0];
-            gamestate.weapon = gamestate.old_weapons[1];
-            gamestate.chosenweapon = gamestate.old_weapons[2];
-            gamestate.ammo = gamestate.old_ammo;
-            gamestate.plasma_detonators = gamestate.old_plasma_detonators;
-            gamestate.boss_key_dropped = gamestate.old_boss_key_dropped;
-            gamestuff.level = gamestuff.old_levelinfo;
-            DrawKeys();
-            DrawScore();
+            ::gamestate.score = ::gamestate.oldscore;
+            ::gamestate.tic_score = ::gamestate.oldscore;
+            ::memcpy(::gamestate.numkeys, ::gamestate.old_numkeys, sizeof(::gamestate.numkeys));
+            ::gamestate.restore_local_barriers();
+            ::gamestate.rpower = ::gamestate.old_rpower;
+            ::gamestate.tokens = ::gamestate.old_tokens;
+            ::gamestate.weapons = ::gamestate.old_weapons[0];
+            ::gamestate.weapon = ::gamestate.old_weapons[1];
+            ::gamestate.chosenweapon = ::gamestate.old_weapons[2];
+            ::gamestate.ammo = ::gamestate.old_ammo;
+            ::gamestate.plasma_detonators = ::gamestate.old_plasma_detonators;
+            ::gamestate.boss_key_dropped = ::gamestate.old_boss_key_dropped;
+            ::gamestuff.level = ::gamestuff.old_levelinfo;
+            ::DrawKeys();
+            ::DrawScore();
         }
 
         startgame = false;
@@ -3294,7 +3299,7 @@ restartgame:
             gamestate.oldscore = gamestate.score;
             memcpy(gamestate.old_numkeys, gamestate.numkeys, sizeof(gamestate.old_numkeys));
             gamestate.old_tokens = gamestate.tokens;
-            memcpy(gamestate.old_barrier_table, gamestate.barrier_table, sizeof(gamestate.old_barrier_table));
+            ::gamestate.store_local_barriers();
             gamestate.old_weapons[0] = gamestate.weapons;
             gamestate.old_weapons[1] = gamestate.weapon;
             gamestate.old_weapons[2] = gamestate.chosenweapon;

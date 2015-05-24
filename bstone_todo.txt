@@ -1,3 +1,5 @@
 Grab/Ungrab mouse input
 Joystick???
 Resolve FIXME tasks
+Disable carrying keys between floors
+Clear input state on focus gain

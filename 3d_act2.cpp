@@ -2106,6 +2106,156 @@ void AdvanceAnimFWD(
 //
 // ==========================================================================
 
+// BBi
+namespace {
+
+
+// Returns cross barrier's index by local one or
+// -1 if not found.
+int get_cross_barrier_index(
+    int local_barrier_index)
+{
+    const auto& local_barrier =
+        ::gamestate.barrier_table[local_barrier_index];
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        const auto& cross_barrier = ::gamestate.cross_barriers[i];
+
+        if (cross_barrier.on == 0xFF) {
+            return -1;
+        }
+
+        if (cross_barrier.level == local_barrier.level &&
+            cross_barrier.coord.tilex == local_barrier.coord.tilex &&
+            cross_barrier.coord.tiley == local_barrier.coord.tiley)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// Updates cross barrier's state
+void set_cross_barrier_state(
+    int local_barrier_index)
+{
+    if (::is_ps()) {
+        return;
+    }
+
+    auto cross_barrier_index = get_cross_barrier_index(
+        local_barrier_index);
+
+    if (cross_barrier_index < 0) {
+        return;
+    }
+
+    const auto& local_barrier =
+        ::gamestate.barrier_table[local_barrier_index];
+
+    ::gamestate.cross_barriers[cross_barrier_index].on = local_barrier.on;
+}
+
+
+} // namespace
+
+// Inserts (if not exists) a new cross barrier record
+void store_cross_barrier(
+    uint8_t level,
+    uint8_t x,
+    uint8_t y,
+    bool state)
+{
+    int i;
+    bool found = false;
+
+    for (i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        auto& barrier = ::gamestate.cross_barriers[i];
+
+        if (barrier.on != 0xFF &&
+            barrier.coord.tilex == x &&
+            barrier.coord.tiley == y)
+        {
+            if (barrier.level != level) {
+                ::Quit("Mismatch cross-barrier at ({}, {})", x, y);
+            }
+
+            return;
+        }
+
+        if (barrier.on == 0xFF) {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        ::Quit("Too many cross-barriers.");
+    }
+
+    auto& barrier = ::gamestate.cross_barriers[i];
+
+    barrier.level = level;
+    barrier.coord.tilex = x;
+    barrier.coord.tiley = y;
+    barrier.on = state;
+}
+
+// Inserts or updates local barrier record
+void apply_cross_barriers()
+{
+    if (::is_ps()) {
+        return;
+    }
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        const auto& cross_barrier = ::gamestate.cross_barriers[i];
+
+        if (cross_barrier.on == 0xFF) {
+            return;
+        }
+
+        if (cross_barrier.level != ::gamestate.mapon) {
+            continue;
+        }
+
+        int j = 0;
+        bool found_local = false;
+        barrier_type* local_barrier = nullptr;
+
+        for (j = 0; j < MAX_BARRIER_SWITCHES; ++j) {
+            local_barrier = &::gamestate.barrier_table[j];
+
+            if (local_barrier->on == 0xFF) {
+                break;
+            }
+
+            if (local_barrier->level != 0xFF ||
+                local_barrier->coord.tilex != cross_barrier.coord.tilex ||
+                local_barrier->coord.tiley != cross_barrier.coord.tiley)
+            {
+                continue;
+            }
+
+            found_local = true;
+            break;
+        }
+
+        if (!found_local) {
+            if (j == MAX_BARRIER_SWITCHES) {
+                ::Quit("Failed to add local barrier.");
+            }
+        }
+
+        local_barrier->level = 0xFF;
+        local_barrier->coord.tilex = cross_barrier.coord.tilex;
+        local_barrier->coord.tiley = cross_barrier.coord.tiley;
+        local_barrier->on = cross_barrier.on;
+    }
+}
+// BBi
+
 // --------------------------------------------------------------------------
 // ActivateWallSwitch() - Updates the Map, Actors, and Tables for wall switchs
 // --------------------------------------------------------------------------
@@ -2114,43 +2264,32 @@ void ActivateWallSwitch(
     int16_t x,
     int16_t y)
 {
-    uint16_t states[] = { OFF_SWITCH, ON_SWITCH };
-    uint16_t mapx, mapy, newwall;
-    uint16_t icon, num;
-    uint8_t* tile;
-    size_t* actor;
-
-    barrier_type* barrier;
-
+    const uint16_t states[] = { OFF_SWITCH, ON_SWITCH };
 
     if ((iconnum & 0xFF00) == 0xF800) {
-
         //
         // Update tile map & Display switch'd message
         //
-        num = iconnum & 0xff;
-
-
-        barrier = &gamestate.barrier_table[num];
+        auto num = iconnum & 0xFF;
+        auto barrier = &::gamestate.barrier_table[num];
         barrier->on ^= 1;
-        newwall = states[barrier->on];
+        auto newwall = states[barrier->on];
+        ::tilemap[x][y] = static_cast<uint8_t>(states[barrier->on]);
 
-        if (::is_ps() ||
-            (!::is_ps() && barrier->level == gamestate.mapon))
-        {
-            tilemap[x][y] = static_cast<uint8_t>(states[barrier->on]);
-        }
+        // BBi
+        ::set_cross_barrier_state(num);
+        // BBi
 
-        DisplaySwitchOperateMsg(num);
-        ::sd_play_player_sound(SWITCHSND, bstone::AC_ITEM);
+        ::DisplaySwitchOperateMsg(num);
+        ::sd_play_player_sound(::SWITCHSND, bstone::AC_ITEM);
 
-        tile = (uint8_t*)tilemap;
-        actor = (size_t*)actorat;
+        auto tile = &::tilemap[0][0];
+        auto actor = reinterpret_cast<size_t*>(&::actorat[0][0]);
 
-        for (mapx = 0; mapx < MAPSIZE; mapx++) {
-            for (mapy = 0; mapy < MAPSIZE; mapy++) {
+        for (int mapx = 0; mapx < MAPSIZE; ++mapx) {
+            for (int mapy = 0; mapy < MAPSIZE; ++mapy) {
                 if (*tile == OFF_SWITCH || *tile == ON_SWITCH) {
-                    icon = *(mapsegs[1] + farmapylookup[mapy] + mapx);
+                    auto icon = *(::mapsegs[1] + ::farmapylookup[mapy] + mapx);
 
                     if (icon == iconnum) {
                         *tile = static_cast<uint8_t>(newwall);
@@ -2158,13 +2297,13 @@ void ActivateWallSwitch(
                     }
                 }
 
-                tile++;
-                actor++;
+                ++tile;
+                ++actor;
             }
         }
     } else {
-        DISPLAY_TIMED_MSG(SwitchNotActivateMsg, MP_WALLSWITCH_OPERATE, MT_GENERAL);
-        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+        DISPLAY_TIMED_MSG(::SwitchNotActivateMsg, MP_WALLSWITCH_OPERATE, MT_GENERAL);
+        ::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
     }
 }
 
@@ -2180,7 +2319,7 @@ const char* const OffSwitchMessage = "\r\r DEACTIVATING BARRIER";
 void DisplaySwitchOperateMsg(
     uint16_t coords)
 {
-    barrier_type* barrier = &gamestate.barrier_table[coords];
+    barrier_type* barrier = &::gamestate.barrier_table[coords];
 
     static std::string message;
 
@@ -2216,24 +2355,18 @@ uint16_t UpdateBarrierTable(
     // Scan Table...
     //
 
-    barrier_type* Barrier = gamestate.barrier_table;
+    auto barrier = ::gamestate.barrier_table;
 
-    for (uint16_t num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
-        if ((::is_ps() || (!::is_ps() && Barrier->level == level)) &&
-            Barrier->coord.tilex == x &&
-            Barrier->coord.tiley == y)
-        {
+    for (uint16_t num = 0; num < MAX_BARRIER_SWITCHES; ++num, ++barrier) {
+        if (barrier->coord.tilex == x && barrier->coord.tiley == y) {
             return num;
         } else {
-            if (Barrier->on == 0xFF) { // Empty?
+            if (barrier->on == 0xFF) { // Empty?
                 // We have hit end of list - Add
-                if (!::is_ps()) {
-                    Barrier->level = level;
-                }
-
-                Barrier->coord.tilex = x;
-                Barrier->coord.tiley = y;
-                Barrier->on = static_cast<uint8_t>(OnOff);
+                barrier->level = level;
+                barrier->coord.tilex = x;
+                barrier->coord.tiley = y;
+                barrier->on = static_cast<uint8_t>(OnOff);
                 return num;
             }
         }
@@ -2256,23 +2389,16 @@ uint16_t ScanBarrierTable(
     uint8_t x,
     uint8_t y)
 {
-    barrier_type* Barrier;
-    uint16_t num;
+    auto barrier = ::gamestate.barrier_table;
 
-    Barrier = gamestate.barrier_table;
-
-    for (num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
-        if ((::is_ps() || (!::is_ps() && Barrier->level == gamestate.mapon)) &&
-            Barrier->coord.tilex == x &&
-            Barrier->coord.tiley == y)
-        {
+    for (uint16_t num = 0; num < MAX_BARRIER_SWITCHES; ++num, ++barrier) {
+        if (barrier->coord.tilex == x && barrier->coord.tiley == y) {
             // Found switch...
-
             return num;
         }
     }
 
-    return 0xffff; // Mark as EMPTY
+    return 0xFFFF; // Mark as EMPTY
 }
 
 // --------------------------------------------------------------------------
@@ -2282,12 +2408,12 @@ bool CheckActor(
     objtype* actor,
     uint16_t code)
 {
-    if ((uint16_t)actor->temp2 == 0xffff) { // Is this actor free?
+    if (static_cast<uint16_t>(actor->temp2) == 0xFFFF) { // Is this actor free?
         //
         // Connect actor to barrier switch (code is index into barrier table)
         //
 
-        actor->temp2 = code; // This actor is NO longer a cycle actor.
+        actor->temp2 = static_cast<int16_t>(code); // This actor is NO longer a cycle actor.
         return true;
     }
 
@@ -2299,30 +2425,33 @@ int16_t CheckAndConnect(
     int8_t y,
     uint16_t code)
 {
-    objtype* ob;
-    int8_t offsets[] = { -1, 0, 1, 0 };
-    int16_t loop;
+    const int8_t offsets[] = { -1, 0, 1, 0 };
 
-    ob = objlist;
+    auto ob = objlist;
 
     do {
         switch (ob->obclass) {
         case arc_barrierobj:
         case post_barrierobj:
         case vpost_barrierobj:
-        case vspike_barrierobj:
-            {
-                for (loop = 0; loop < 4; loop++) {
-                    if ((ob->tilex == x + offsets[loop]) && (ob->tiley == y + offsets[3 - loop])) {
-                        bars_connected++;
+        case vspike_barrierobj: {
+            for (int loop = 0; loop < 4; loop++) {
+                if ((ob->tilex == x + offsets[loop]) &&
+                    (ob->tiley == y + offsets[3 - loop]))
+                {
+                    ++::bars_connected;
 
-                        if (CheckActor(ob, code)) {
-                            CheckAndConnect(x + offsets[loop], y + offsets[3 - loop], code);
-                        }
+                    if (::CheckActor(ob, code)) {
+                        ::CheckAndConnect(
+                            x + offsets[loop],
+                            y + offsets[3 - loop],
+                            code);
                     }
                 }
             }
+
             break;
+        }
 
         default:
             break;
@@ -2342,20 +2471,15 @@ int16_t CheckAndConnect(
 // --------------------------------------------------------------------------
 void ConnectBarriers()
 {
-    barrier_type* Barrier;
-    uint16_t num;
+    auto barrier = ::gamestate.barrier_table;
 
-    Barrier = gamestate.barrier_table;
-
-    for (num = 0; num < MAX_BARRIER_SWITCHES; num++, Barrier++) {
-        if ((::is_ps() || (!::is_ps() && Barrier->level == gamestate.mapon)) &&
-            Barrier->on != 0xff)
-        {
-            bars_connected = 0;
+    for (uint16_t num = 0; num < MAX_BARRIER_SWITCHES; ++num, ++barrier) {
+        if (barrier->on != 0xFF && barrier->level == 0xFF) {
+            ::bars_connected = 0;
 
             if (::CheckAndConnect(
-                    Barrier->coord.tilex,
-                    Barrier->coord.tiley,
+                    barrier->coord.tilex,
+                    barrier->coord.tiley,
                     num) == 0)
             {
                 if (::is_ps()) {
@@ -2363,7 +2487,7 @@ void ConnectBarriers()
                 }
 
                 auto actor =
-                    actorat[Barrier->coord.tilex][Barrier->coord.tiley];
+                    ::actorat[barrier->coord.tilex][barrier->coord.tiley];
 
                 if (!actor) {
                     ::Quit("A barrier switch was not connect to any barriers.");
@@ -2395,8 +2519,10 @@ void ConnectBarriers()
 */
 
 extern statetype s_barrier_transition;
+
 void T_BarrierTransition(
     objtype* obj);
+
 void T_BarrierShutdown(
     objtype* obj);
 
@@ -2683,7 +2809,7 @@ void T_BarrierTransition(
             } else {
                 obj->temp3 -= tics;
             }
-        } else if (!gamestate.barrier_table[obj->temp2].on) {
+        } else if (!::gamestate.barrier_table[obj->temp2].on) {
             ToggleBarrier(obj);
         }
         break;
@@ -2702,7 +2828,7 @@ void T_BarrierTransition(
             } else {
                 obj->temp3 -= tics;
             }
-        } else if (gamestate.barrier_table[obj->temp2].on) {
+        } else if (::gamestate.barrier_table[obj->temp2].on) {
             ToggleBarrier(obj);
         }
         break;
@@ -2762,7 +2888,7 @@ void T_BarrierTransition(
         // Check to see if to was toggled
 
         if ((uint16_t)obj->temp2 != 0xFFFF) {
-            if (!gamestate.barrier_table[obj->temp2].on) {
+            if (!::gamestate.barrier_table[obj->temp2].on) {
                 ToggleBarrier(obj);
             }
         }
@@ -2811,7 +2937,7 @@ void T_BarrierTransition(
         // Check to see if to was toggled
 
         if ((uint16_t)obj->temp2 != 0xFFFF) {
-            if (gamestate.barrier_table[obj->temp2].on) {
+            if (::gamestate.barrier_table[obj->temp2].on) {
                 ToggleBarrier(obj);
             }
         }

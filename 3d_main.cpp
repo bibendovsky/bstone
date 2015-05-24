@@ -6920,51 +6920,55 @@ void NewGame(
     ::gamestuff.clear();
     memset(&gamestate, 0, sizeof(gamestate));
 
-    memset(&gamestate.barrier_table, 0xff, sizeof(gamestate.barrier_table));
-    memset(&gamestate.old_barrier_table, 0xff, sizeof(gamestate.old_barrier_table));
-    gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
+    ::gamestate.initialize_cross_barriers();
+    ::gamestate.initialize_local_barriers();
+    ::gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
 
-    gamestate.difficulty = difficulty;
+    ::gamestate.difficulty = difficulty;
 
-    gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
-    gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
-    gamestate.old_weapons[0] = gamestate.weapons;
-    gamestate.old_weapons[1] = gamestate.weapon;
-    gamestate.old_weapons[2] = gamestate.chosenweapon;
+    ::gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
+    ::gamestate.weapon = wp_autocharge;
+    ::gamestate.chosenweapon = wp_autocharge;
+    ::gamestate.old_weapons[0] = ::gamestate.weapons;
+    ::gamestate.old_weapons[1] = ::gamestate.weapon;
+    ::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
 
-    gamestate.health = 100;
-    gamestate.old_ammo = gamestate.ammo = STARTAMMO;
-    gamestate.lives = 3;
-    gamestate.nextextra = EXTRAPOINTS;
-    gamestate.episode = episode;
-    gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
+    ::gamestate.health = 100;
+    ::gamestate.old_ammo = STARTAMMO;
+    ::gamestate.ammo = STARTAMMO;
+    ::gamestate.lives = 3;
+    ::gamestate.nextextra = EXTRAPOINTS;
+    ::gamestate.episode = episode;
+    ::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 
 #if IN_DEVELOPMENT
-    if (gamestate.flags & GS_STARTLEVEL) {
-        gamestate.mapon = starting_level;
-        gamestate.difficulty = starting_difficulty;
-        gamestate.episode = starting_episode;
+    if (::gamestate.flags & GS_STARTLEVEL) {
+        ::gamestate.mapon = starting_level;
+        ::gamestate.difficulty = starting_difficulty;
+        ::gamestate.episode = starting_episode;
     } else
 #endif
-    gamestate.mapon = (::is_ps() ? 0 : 1);
+    ::gamestate.mapon = (::is_ps() ? 0 : 1);
 
-    gamestate.key_floor = static_cast<int8_t>(gamestate.mapon + 1);
-    startgame = true;
+    ::gamestate.key_floor = static_cast<int8_t>(::gamestate.mapon + 1);
+    ::startgame = true;
 
     for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
-        gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
+        ::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
         if (loop) {
-            gamestuff.old_levelinfo[loop].locked = true;
+            ::gamestuff.old_levelinfo[loop].locked = true;
         }
     }
 
-    ExtraRadarFlags = InstantWin = InstantQuit = 0;
+    ::ExtraRadarFlags = 0;
+    ::InstantWin = 0;
+    ::InstantQuit = 0;
 
-    pickquick = 0;
+    ::pickquick = 0;
 
     // BBi
-    g_playtemp.set_size(0);
-    g_playtemp.set_position(0);
+    ::g_playtemp.set_position(0);
+    ::g_playtemp.set_size(0);
     // BBi
 }
 
@@ -7209,8 +7213,12 @@ bool LoadLevel(
         }
 
         for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-            gamestate.barrier_table[i].deserialize(reader, checksum);
+            ::gamestate.barrier_table[i].deserialize(reader, checksum);
         }
+
+        // BBi
+        ::apply_cross_barriers();
+        // BBi
 
         ::deserialize_field(gamestate.plasma_detonators, reader, checksum);
     } catch (const ArchiveException&) {
@@ -7400,10 +7408,10 @@ bool SaveLevel(
     }
 
     for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        gamestate.barrier_table[i].serialize(writer, checksum);
+        ::gamestate.barrier_table[i].serialize(writer, checksum);
     }
 
-    ::serialize_field(gamestate.plasma_detonators, writer, checksum);
+    ::serialize_field(::gamestate.plasma_detonators, writer, checksum);
 
     // Write checksum and determine size of file
     //
@@ -8904,6 +8912,10 @@ void gametype::serialize(
     ::serialize_field(old_numkeys, writer, checksum);
 
     for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        cross_barriers[i].serialize(writer, checksum);
+    }
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         barrier_table[i].serialize(writer, checksum);
     }
 
@@ -8972,6 +8984,10 @@ void gametype::deserialize(
     ::deserialize_field(old_numkeys, reader, checksum);
 
     for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        cross_barriers[i].deserialize(reader, checksum);
+    }
+
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
         barrier_table[i].deserialize(reader, checksum);
     }
 
@@ -8987,6 +9003,45 @@ void gametype::deserialize(
     ::deserialize_field(wintiley, reader, checksum);
 
     TimeCount = time_count;
+}
+
+void gametype::initialize_cross_barriers()
+{
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        cross_barriers[i].level = 0xFF;
+        cross_barriers[i].coord.tilex = 0xFF;
+        cross_barriers[i].coord.tiley = 0xFF;
+        cross_barriers[i].on = 0xFF;
+    }
+}
+
+void gametype::initialize_local_barriers()
+{
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        barrier_table[i].level = 0xFF;
+        barrier_table[i].coord.tilex = 0xFF;
+        barrier_table[i].coord.tiley = 0xFF;
+        barrier_table[i].on = 0xFF;
+
+        old_barrier_table[i].level = 0xFF;
+        old_barrier_table[i].coord.tilex = 0xFF;
+        old_barrier_table[i].coord.tiley = 0xFF;
+        old_barrier_table[i].on = 0xFF;
+    }
+}
+
+void gametype::store_local_barriers()
+{
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        old_barrier_table[i] = barrier_table[i];
+    }
+}
+
+void gametype::restore_local_barriers()
+{
+    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
+        barrier_table[i] = old_barrier_table[i];
+    }
 }
 
 bool is_aog_full_v1_0()
