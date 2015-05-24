@@ -7688,6 +7688,14 @@ bool LoadTheGame(
         static_cast<void>(::g_playtemp.set_size(0));
 
         if (show_error_message) {
+            const char* const message =
+                "The selected saved game is\n"
+                "from an unsupported version of\n"
+                "the game and can not be loaded.\n"
+                "\n"
+                "           Press a key."
+            ;
+
             auto old_wx = ::WindowX;
             auto old_wy = ::WindowY;
             auto old_ww = ::WindowW;
@@ -7700,7 +7708,7 @@ bool LoadTheGame(
             ::WindowW = 320;
             ::WindowH = 168;
 
-            ::CacheMessage(::BADSAVEGAME_TEXT);
+            ::Message(message);
 
             ::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
 
