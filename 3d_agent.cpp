@@ -4814,6 +4814,12 @@ void InitWeaponBounce()
 
 void HandleWeaponBounce()
 {
+    // BBi
+    if (::is_aog()) {
+        return;
+    }
+    // BBi
+
     int bounceSpeed;
 
     bounceSpeed = 90 - ((20 - viewsize) * 6);
