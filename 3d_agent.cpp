@@ -4133,9 +4133,16 @@ void GunAttack(
         oldclosest = closest;
 
         for (check = ob->next; check; check = check->next) {
+            int unscaled_delta = check->viewx;
+
+            if (::vga_scale > 1 && unscaled_delta != 0) {
+                unscaled_delta -= centerx;
+                unscaled_delta /= ::vga_scale;
+            }
+
             if ((check->flags & FL_SHOOTABLE) &&
                 (check->flags & FL_VISABLE) &&
-                (abs(check->viewx - centerx) < shootdelta))
+                (std::abs(unscaled_delta) < shootdelta))
             {
                 if (check->transx < viewdist) {
                     if ((skip && (check->obclass == hang_terrotobj))
