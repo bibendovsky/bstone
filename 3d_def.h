@@ -2521,7 +2521,6 @@ struct gametype {
     int16_t lastmapon;
     int16_t difficulty;
     int16_t mapon;
-    int16_t status_refresh;
     int32_t oldscore;
     int32_t tic_score;
     int32_t score;
@@ -2529,7 +2528,6 @@ struct gametype {
     int16_t score_roll_wait;
     int16_t lives;
     int16_t health;
-    int16_t health_delay;
     char health_str[4];
 
     int16_t rpower;
@@ -2551,7 +2549,6 @@ struct gametype {
     int8_t weapon;
     int8_t chosenweapon;
     int8_t old_weapons[4];
-    int8_t key_floor;
 
     int8_t weapon_wait;
     int16_t attackframe;
@@ -2559,8 +2556,6 @@ struct gametype {
     int16_t weaponframe;
     int16_t episode;
     uint32_t TimeCount;
-    int32_t killx;
-    int32_t killy;
     const char* msg; // InfoArea msg...
     int8_t numkeys[NUMKEYS];
     int8_t old_numkeys[NUMKEYS];

@@ -5909,7 +5909,6 @@ void ExplodeFill(
                         // Unlock Next floor
 
                         gamestuff.level[gamestate.mapon + 1].locked = false;
-                        gamestate.key_floor = static_cast<int8_t>(gamestate.mapon + 1);
                     }
                     break;
 

@@ -3207,7 +3207,7 @@ int16_t InputFloor()
                 if (!::gamestuff.level[target_level].locked) {
                     result = target_level;
                 } else if (::gamestate.numkeys[kt_red] > 0 &&
-                    target_level == ::gamestate.key_floor)
+                    target_level == (::gamestate.mapon + 1))
                 {
                     result = target_level;
 
@@ -3217,13 +3217,12 @@ int16_t InputFloor()
                     message = &messages[1];
 
                     ::gamestate.numkeys[kt_red] = 0;
-                    ::gamestate.key_floor += 1;
                 } else {
                     use_delay = true;
                     draw_message = true;
                     draw_current_floor = false;
 
-                    if (target_level == ::gamestate.key_floor) {
+                    if (target_level == (::gamestate.mapon + 1)) {
                         draw_locked_floor = false;
                         message = &messages[3];
                     } else {

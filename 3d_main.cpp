@@ -6950,7 +6950,6 @@ void NewGame(
 #endif
     ::gamestate.mapon = (::is_ps() ? 0 : 1);
 
-    ::gamestate.key_floor = static_cast<int8_t>(::gamestate.mapon + 1);
     ::startgame = true;
 
     for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
@@ -8869,7 +8868,6 @@ void gametype::serialize(
     ::serialize_field(lastmapon, writer, checksum);
     ::serialize_field(difficulty, writer, checksum);
     ::serialize_field(mapon, writer, checksum);
-    ::serialize_field(status_refresh, writer, checksum);
     ::serialize_field(oldscore, writer, checksum);
     ::serialize_field(tic_score, writer, checksum);
     ::serialize_field(score, writer, checksum);
@@ -8877,7 +8875,6 @@ void gametype::serialize(
     ::serialize_field(score_roll_wait, writer, checksum);
     ::serialize_field(lives, writer, checksum);
     ::serialize_field(health, writer, checksum);
-    ::serialize_field(health_delay, writer, checksum);
     ::serialize_field(health_str, writer, checksum);
     ::serialize_field(rpower, writer, checksum);
     ::serialize_field(old_rpower, writer, checksum);
@@ -8895,7 +8892,6 @@ void gametype::serialize(
     ::serialize_field(weapon, writer, checksum);
     ::serialize_field(chosenweapon, writer, checksum);
     ::serialize_field(old_weapons, writer, checksum);
-    ::serialize_field(key_floor, writer, checksum);
     ::serialize_field(weapon_wait, writer, checksum);
     ::serialize_field(attackframe, writer, checksum);
     ::serialize_field(attackcount, writer, checksum);
@@ -8905,8 +8901,6 @@ void gametype::serialize(
     auto time_count = TimeCount;
     ::serialize_field(time_count, writer, checksum);
 
-    ::serialize_field(killx, writer, checksum);
-    ::serialize_field(killy, writer, checksum);
     // Skip "msg"
     ::serialize_field(numkeys, writer, checksum);
     ::serialize_field(old_numkeys, writer, checksum);
@@ -8941,7 +8935,6 @@ void gametype::deserialize(
     ::deserialize_field(lastmapon, reader, checksum);
     ::deserialize_field(difficulty, reader, checksum);
     ::deserialize_field(mapon, reader, checksum);
-    ::deserialize_field(status_refresh, reader, checksum);
     ::deserialize_field(oldscore, reader, checksum);
     ::deserialize_field(tic_score, reader, checksum);
     ::deserialize_field(score, reader, checksum);
@@ -8949,7 +8942,6 @@ void gametype::deserialize(
     ::deserialize_field(score_roll_wait, reader, checksum);
     ::deserialize_field(lives, reader, checksum);
     ::deserialize_field(health, reader, checksum);
-    ::deserialize_field(health_delay, reader, checksum);
     ::deserialize_field(health_str, reader, checksum);
     ::deserialize_field(rpower, reader, checksum);
     ::deserialize_field(old_rpower, reader, checksum);
@@ -8967,7 +8959,6 @@ void gametype::deserialize(
     ::deserialize_field(weapon, reader, checksum);
     ::deserialize_field(chosenweapon, reader, checksum);
     ::deserialize_field(old_weapons, reader, checksum);
-    ::deserialize_field(key_floor, reader, checksum);
     ::deserialize_field(weapon_wait, reader, checksum);
     ::deserialize_field(attackframe, reader, checksum);
     ::deserialize_field(attackcount, reader, checksum);
@@ -8977,8 +8968,6 @@ void gametype::deserialize(
     uint32_t time_count = 0;
     ::deserialize_field(time_count, reader, checksum);
 
-    ::deserialize_field(killx, reader, checksum);
-    ::deserialize_field(killy, reader, checksum);
     msg = nullptr;
     ::deserialize_field(numkeys, reader, checksum);
     ::deserialize_field(old_numkeys, reader, checksum);
