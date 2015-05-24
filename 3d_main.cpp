@@ -7458,21 +7458,13 @@ static const std::string& get_saved_game_version_string()
 
         version_string = "bstone: ";
 
-        switch (::g_game_type) {
-        case GameType::aog_sw:
+        if (::is_aog_sw()) {
             version_string += "aliens of gold (shareware)";
-            break;
-
-        case GameType::aog_full_v2_x:
-        case GameType::aog_full_v3_0:
+        } else if (::is_aog_full()) {
             version_string += "aliens of gold (full)";
-            break;
-
-        case GameType::ps:
+        } else if (::is_ps()) {
             version_string += "planet strike";
-            break;
-
-        default:
+        } else {
             throw std::runtime_error("Invalid game type.");
         }
 
