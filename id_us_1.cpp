@@ -666,14 +666,6 @@ void US_Startup()
     }
 
     // BBi
-    int sdl_result = 0;
-
-    sdl_result = ::SDL_InitSubSystem(SDL_INIT_TIMER);
-
-    if (sdl_result != 0) {
-        ::Quit("Failed to initialize SDL timer.");
-    }
-
     sys_timer_id = ::SDL_AddTimer(
         1000 / TickBase,
         sys_timer_callback,

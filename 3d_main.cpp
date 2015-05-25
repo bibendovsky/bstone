@@ -8411,7 +8411,9 @@ int main(
 {
     int sdl_result = 0;
 
-    sdl_result = ::SDL_Init(0);
+    uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+
+    sdl_result = ::SDL_Init(init_flags);
 
     if (sdl_result != 0) {
         ::Quit(::SDL_GetError());

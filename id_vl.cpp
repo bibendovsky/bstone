@@ -2062,12 +2062,6 @@ void initialize_video()
 
     bstone::Log::write("SDL: Setting up a video subsystem...");
 
-    sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    if (sdl_result != 0) {
-        ::Quit(::SDL_GetError());
-    }
-
     sdl_result = ::SDL_GetDesktopDisplayMode(0, &::display_mode);
 
     if (sdl_result != 0) {
@@ -2177,8 +2171,6 @@ void uninitialize_video()
         ::SDL_DestroyWindow(::sdl_window);
         ::sdl_window = nullptr;
     }
-
-    ::SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 

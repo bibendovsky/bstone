@@ -149,16 +149,6 @@ bool AudioMixer::initialize(
 {
     uninitialize();
 
-    if (::SDL_WasInit(SDL_INIT_AUDIO) == 0) {
-        int sdl_result = 0;
-
-        sdl_result = ::SDL_InitSubSystem(SDL_INIT_AUDIO);
-
-        if (sdl_result != 0) {
-            return false;
-        }
-    }
-
     if (dst_rate == 0) {
         dst_rate_ = get_default_rate();
     } else {
