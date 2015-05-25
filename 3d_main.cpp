@@ -9066,8 +9066,7 @@ bool is_ps()
 void sys_sleep_for(
     int milliseconds)
 {
-    std::this_thread::sleep_for(
-        std::chrono::milliseconds(milliseconds));
+    ::SDL_Delay(milliseconds);
 }
 
 void sys_default_sleep_for()

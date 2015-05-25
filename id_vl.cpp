@@ -447,7 +447,7 @@ void VL_WaitVBL(
     }
 
     if (vbls > 1) {
-        ::SDL_Delay(1000 * vbls / TickBase);
+        ::sys_sleep_for(1000 * vbls / TickBase);
         return;
     }
 
@@ -466,7 +466,7 @@ void VL_WaitVBL(
 
         if ((diff + 10) <= one_tick_delay) {
             uint32_t remain = one_tick_delay - (diff + 10);
-            ::SDL_Delay(remain);
+            ::sys_sleep_for(remain);
         }
     }
 }
