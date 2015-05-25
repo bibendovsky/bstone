@@ -109,13 +109,17 @@ AudioMixer::AudioMixer() :
         is_initialized_(),
         dst_rate_(),
         device_id_(),
+#if BSTONE_AUDIO_MIXER_USE_THREAD
         mutex_(),
         thread_(),
+#endif
         mix_samples_count_(),
         buffer_(),
         mix_buffer_(),
         is_data_available_(),
+#if BSTONE_AUDIO_MIXER_USE_THREAD
         quit_thread_(),
+#endif
         sounds_(),
         commands_(),
         commands_queue_(),
@@ -195,11 +199,13 @@ bool AudioMixer::initialize(
     bool is_succeed = true;
 
 
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     std::thread thread;
 
     if (is_succeed) {
         thread = std::thread(mix_proxy, this);
     }
+#endif
 
     if (is_succeed) {
         is_initialized_ = true;
@@ -214,7 +220,9 @@ bool AudioMixer::initialize(
         adlib_sfx_cache_.resize(NUMSOUNDS);
         pcm_cache_.resize(NUMSOUNDS);
 
+#if BSTONE_AUDIO_MIXER_USE_THREAD
         thread_ = std::move(thread);
+#endif
 
         ::SDL_PauseAudioDevice(device_id_, 0);
     } else {
@@ -234,17 +242,21 @@ void AudioMixer::uninitialize()
         device_id_ = 0;
     }
 
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     if (thread_.joinable()) {
         quit_thread_ = true;
         thread_.join();
     }
+#endif
 
     dst_rate_ = 0;
     mix_samples_count_ = 0;
     Samples().swap(buffer_);
     MixSamples().swap(mix_buffer_);
     is_data_available_ = false;
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     quit_thread_ = false;
+#endif
     Sounds().swap(sounds_);
     PlayCommands().swap(commands_);
     PlayCommands().swap(commands_queue_);
@@ -377,9 +389,9 @@ bool AudioMixer::update_positions()
         break;
     }
 
-    mutex_.lock();
+    lock();
     positions_state_queue_.push_back(state);
-    mutex_.unlock();
+    unlock();
 
     return true;
 }
@@ -393,9 +405,9 @@ bool AudioMixer::stop_music()
     Command command;
     command.command = CMD_STOP_MUSIC;
 
-    mutex_.lock();
+    lock();
     commands_queue_.push_back(command);
-    mutex_.unlock();
+    unlock();
 
     return true;
 }
@@ -409,9 +421,9 @@ bool AudioMixer::stop_all_sfx()
     Command command;
     command.command = CMD_STOP_ALL_SFX;
 
-    mutex_.lock();
+    lock();
     commands_queue_.push_back(command);
-    mutex_.unlock();
+    unlock();
 
     return true;
 }
@@ -540,7 +552,9 @@ void AudioMixer::callback(
 
 void AudioMixer::mix()
 {
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     while (!quit_thread_) {
+#endif
         handle_commands();
 
         if (!mute_ && !is_data_available_ && !sounds_.empty()) {
@@ -549,7 +563,9 @@ void AudioMixer::mix()
         } else {
             ::sys_default_sleep_for();
         }
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     }
+#endif
 }
 
 void AudioMixer::mix_samples()
@@ -693,7 +709,9 @@ void AudioMixer::mix_samples()
 
 void AudioMixer::handle_commands()
 {
-    mutex_.lock();
+#if BSTONE_AUDIO_MIXER_USE_THREAD
+    lock();
+#endif
 
     if (!commands_queue_.empty()) {
         commands_.insert(
@@ -709,8 +727,9 @@ void AudioMixer::handle_commands()
         positions_state_queue_.clear();
     }
 
-    mutex_.unlock();
-
+#if BSTONE_AUDIO_MIXER_USE_THREAD
+    unlock();
+#endif
 
     for (auto& command : commands_) {
         switch (command.command) {
@@ -1040,11 +1059,29 @@ bool AudioMixer::play_sound(
     command.data = data;
     command.data_size = data_size;
 
-    mutex_.lock();
+    lock();
     commands_queue_.push_back(command);
-    mutex_.unlock();
+    unlock();
 
     return true;
+}
+
+void AudioMixer::lock()
+{
+#if BSTONE_AUDIO_MIXER_USE_THREAD
+    mutex_.lock();
+#else
+    ::SDL_LockAudioDevice(device_id_);
+#endif
+}
+
+void AudioMixer::unlock()
+{
+#if BSTONE_AUDIO_MIXER_USE_THREAD
+    mutex_.unlock();
+#else
+    ::SDL_UnlockAudioDevice(device_id_);
+#endif
 }
 
 // (static)
@@ -1056,6 +1093,9 @@ void AudioMixer::callback_proxy(
     assert(user_data);
 
     AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
+#if !BSTONE_AUDIO_MIXER_USE_THREAD
+    mixer->mix();
+#endif
     mixer->callback(dst_data, dst_length);
 }
 

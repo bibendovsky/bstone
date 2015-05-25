@@ -26,11 +26,16 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_MIXER_INCLUDED
 
 
+#define BSTONE_AUDIO_MIXER_USE_THREAD 0
+
+
 #include <atomic>
 #include <deque>
 #include <list>
+#if BSTONE_AUDIO_MIXER_USE_THREAD
 #include <mutex>
 #include <thread>
+#endif
 #include <vector>
 #include "SDL.h"
 #include "bstone_audio_decoder.h"
@@ -225,19 +230,26 @@ private:
     }; // Command
 
     using PlayCommands = std::deque<Command>;
+
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     using Mutex = std::mutex;
     using MutexGuard = std::lock_guard<Mutex>;
+#endif
 
     bool is_initialized_;
     int dst_rate_;
     SDL_AudioDeviceID device_id_;
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     Mutex mutex_;
     std::thread thread_;
+#endif
     int mix_samples_count_;
     Samples buffer_;
     MixSamples mix_buffer_;
     std::atomic_bool is_data_available_;
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     std::atomic_bool quit_thread_;
+#endif
     Sounds sounds_;
     PlayCommands commands_;
     PlayCommands commands_queue_;
@@ -300,6 +312,10 @@ private:
     void set_player_channel_state(
         const Sound& sound,
         bool state);
+
+    void lock();
+
+    void unlock();
 
     static void callback_proxy(
         void* user_data,
