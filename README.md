@@ -144,22 +144,27 @@ Notes:
   into message box.
 
 * --aog_sw  
-  Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
+  Switches the port to Blake Stone: Aliens of Gold (shareware, v3.0) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
-* --aog_full_v2_x  
-  Switches the port to Blake Stone: Aliens of Gold v2.0/v2.1 (full) mode.  
+* --aog_10  
+  Switches the port to Blake Stone: Aliens of Gold (full, v1.0) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
-* --aog_full_v3_0  
-  Switches the port to Blake Stone: Aliens of Gold v3.0 (full) mode.  
+* --aog_2x  
+  Switches the port to Blake Stone: Aliens of Gold (full, v2.0/v2.1) mode.  
+  If appropriate data files will not be found the port will fail.  
+  Default switch strategy: AoG (full) -> AoG (SW) -> PS
+
+* --aog_30  
+  Switches the port to Blake Stone: Aliens of Gold (full, v3.0) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
 * --ps  
-  Switches the port to Blake Stone: Planet Strike mode.  
+  Switches the port to Blake Stone: Planet Strike (full, v1.0/v1.1) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
