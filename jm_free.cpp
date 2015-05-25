@@ -1019,16 +1019,3 @@ void freed_main()
 
     PreDemo();
 }
-
-void InvalidLevels()
-{
-    char* chunkptr;
-
-    CA_CacheGrChunk(BADLEVELSTEXT);
-    chunkptr = static_cast<char*>(grsegs[BADLEVELSTEXT]);
-    *(strstr(chunkptr, "^XX")) = 0;
-
-    fprint(chunkptr);
-
-    UNCACHEGRCHUNK(BADLEVELSTEXT);
-}

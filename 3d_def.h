@@ -2966,7 +2966,6 @@ int32_t ChecksumFile(
     int32_t checksum);
 
 void BadChecksum();
-void InvalidLevels();
 
 void CheckValidity(
     char* file,
@@ -2974,9 +2973,6 @@ void CheckValidity(
 
 void UnauthorizedLevels();
 void ShowChecksums();
-
-void fprint(
-    char* text);
 
 void SetupWalls();
 void InitDigiMap();

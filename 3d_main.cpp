@@ -8433,14 +8433,6 @@ int main(
     return 0;
 }
 
-void fprint(
-    char* text)
-{
-    while (*text) {
-        printf("%c", *text++);
-    }
-}
-
 void InitDestPath()
 {
     auto default_data_dir = ::get_default_data_dir();
