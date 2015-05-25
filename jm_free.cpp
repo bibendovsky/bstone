@@ -648,19 +648,19 @@ void CheckForEpisodes()
         if (!::set_game_type(GameType::aog_sw)) {
             is_succeed = false;
         }
-    } else if (::g_args.has_option("aog_full_10")) {
+    } else if (::g_args.has_option("aog_10")) {
         bstone::Log::write("Forcing Aliens Of Gold (full, v1.0).\n");
 
         if (!::set_game_type(GameType::aog_full_v1_0)) {
             is_succeed = false;
         }
-    } else if (::g_args.has_option("aog_full_2x")) {
+    } else if (::g_args.has_option("aog_2x")) {
         bstone::Log::write("Forcing Aliens Of Gold (full, v2.x).\n");
 
         if (!::set_game_type(GameType::aog_full_v2_x)) {
             is_succeed = false;
         }
-    } else if (::g_args.has_option("aog_full_30")) {
+    } else if (::g_args.has_option("aog_30")) {
         bstone::Log::write("Forcing Aliens Of Gold (full, v3.0).\n");
 
         if (!::set_game_type(GameType::aog_full_v3_0)) {
