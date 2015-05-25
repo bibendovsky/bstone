@@ -44,7 +44,7 @@ Free Software Foundation, Inc.,
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 3;
+const int BS_SAVE_VERSION = 4;
 
 extern bool no_screens;
 
