@@ -1853,7 +1853,7 @@ bool x_initialize_video()
         flags |= ::vid_get_window_flags();
 
         if (!::sdl_is_windowed) {
-            flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            flags |= SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP;
         }
 
         std::string title = "Blake Stone: ???";
