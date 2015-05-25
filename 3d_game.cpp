@@ -162,9 +162,9 @@ int8_t ExpCrateShapes[] = {
     74, // Gore 2
     32, // red key
     33, // yel key
-    52 - 23, // grn key
+    34, // grn key
     35, // blu key
-    488 - 375, // gld key
+    36, // gld key
 };
 
 
