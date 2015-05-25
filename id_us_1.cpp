@@ -51,8 +51,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include <mutex>
-#include <thread>
 #include "id_heads.h"
 
 
@@ -97,43 +95,29 @@ SaveGame Games[MaxSaveGames];
 namespace {
 
 
-std::mutex sys_timer_mutex;
-std::atomic_bool sys_is_timer_timestamp_enabled;
-Clock::time_point sys_timer_timestamp;
-std::thread sys_timer_thread;
-std::atomic_bool sys_timer_quit;
+SDL_TimerID sys_timer_id;
+std::atomic<uint32_t> sys_timer_ticks;
 
 
-void sys_timer_callback()
+Uint32 sys_timer_callback(
+    Uint32 interval,
+    void* param)
 {
-    const std::chrono::milliseconds delay(1000 / TickBase);
+    static_cast<void>(param);
 
-    while (!sys_timer_quit) {
-        ++::TimeCount;
+    ++::TimeCount;
+    sys_timer_ticks = ::SDL_GetTicks();
 
-        if (sys_is_timer_timestamp_enabled) {
-            std::lock_guard<std::mutex> guard_this(sys_timer_mutex);
-            sys_timer_timestamp = Clock::now();
-        }
-
-        std::this_thread::sleep_for(delay);
-    }
+    return interval;
 }
 
 
 } // namespace
 
 
-TimePoint sys_get_timer_timestamp()
+uint32_t sys_get_timer_ticks()
 {
-    std::lock_guard<std::mutex> guard_this(sys_timer_mutex);
-    return ::sys_timer_timestamp;
-}
-
-void sys_enable_timer_timestamp(
-    bool value)
-{
-    ::sys_is_timer_timestamp_enabled = value;
+    return ::sys_timer_ticks;
 }
 // BBi
 
@@ -152,11 +136,11 @@ void US_Shutdown()
     }
 
     // BBi
-    sys_timer_quit = true;
-
-    if (sys_timer_thread.joinable()) {
-        sys_timer_thread.join();
+    if (::SDL_RemoveTimer(sys_timer_id) == SDL_FALSE) {
+        bstone::Log::write_warning("Failed to remove a timer.");
     }
+
+    sys_timer_id = 0;
     // BBi
 
     ::US_Started = false;
@@ -682,9 +666,22 @@ void US_Startup()
     }
 
     // BBi
-    ::sys_is_timer_timestamp_enabled = false;
-    ::sys_timer_quit = false;
-    ::sys_timer_thread = std::thread(::sys_timer_callback);
+    int sdl_result = 0;
+
+    sdl_result = ::SDL_InitSubSystem(SDL_INIT_TIMER);
+
+    if (sdl_result != 0) {
+        ::Quit("Failed to initialize SDL timer.");
+    }
+
+    sys_timer_id = ::SDL_AddTimer(
+        1000 / TickBase,
+        sys_timer_callback,
+        nullptr);
+
+    if (sys_timer_id == 0) {
+        ::Quit("Failed to add a timer.");
+    }
     // BBi
 
     ::US_InitRndT(true); // Initialize the random number generator

@@ -156,10 +156,7 @@ void Quit(
     ::exit(1);
 }
 
-TimePoint sys_get_timer_timestamp();
-
-void sys_enable_timer_timestamp(
-    bool value);
+uint32_t sys_get_timer_ticks();
 // BBi
 
 

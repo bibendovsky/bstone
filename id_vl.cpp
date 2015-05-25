@@ -431,8 +431,6 @@ void check_vsync()
         duration).count();
 
     ::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
-
-    ::sys_enable_timer_timestamp(!::vid_has_vsync);
 }
 // BBi
 
@@ -449,8 +447,7 @@ void VL_WaitVBL(
     }
 
     if (vbls > 1) {
-        const std::chrono::milliseconds tick_delay(1000 * vbls / TickBase);
-        std::this_thread::sleep_for(tick_delay);
+        ::SDL_Delay(1000 * vbls / TickBase);
         return;
     }
 
@@ -459,22 +456,18 @@ void VL_WaitVBL(
     }
 
 
-    static const std::chrono::milliseconds one_tick_delay(1000 / TickBase);
-    static const auto one_tick_delay_ms = one_tick_delay.count();
+    static const uint32_t one_tick_delay = 1000 / TickBase;
 
-    auto timer_timestamp = ::sys_get_timer_timestamp();
-    auto system_timestamp = Clock::now();
-    auto diff = system_timestamp - timer_timestamp;
-    auto diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(diff).count();
+    auto timer_ticks = ::sys_get_timer_ticks();
+    auto current_ticks = ::SDL_GetTicks();
 
-    if (diff_ms < 0) {
-        diff_ms = 0;
-    }
+    if (current_ticks > timer_ticks) {
+        uint32_t diff = current_ticks - timer_ticks;
 
-    auto remain_ms = one_tick_delay_ms - diff_ms;
-
-    if (remain_ms > 10) {
-        ::sys_sleep_for(static_cast<int>(remain_ms));
+        if ((diff + 10) <= one_tick_delay) {
+            uint32_t remain = one_tick_delay - (diff + 10);
+            ::SDL_Delay(remain);
+        }
     }
 }
 
