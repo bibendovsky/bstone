@@ -3901,9 +3901,14 @@ void A_DeathScream(
         break;
     }
 
+    case genetic_guardobj:
+        if (::is_aog()) {
+            ::sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::AC_VOICE);
+            break;
+        }
+
     case breather_beastobj:
     case cyborg_warriorobj:
-    case genetic_guardobj:
     case acid_dragonobj:
     case podobj:
         ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
