@@ -768,7 +768,7 @@ void AudioMixer::handle_play_command(
             }
         }
 
-        // Remove sounds which will be overritten.
+        // Remove sounds which will be overwritten.
 
         for (auto i = sounds_.begin(); i != sounds_.end(); ) {
             if (i->actor_index == command.sound.actor_index &&
@@ -1082,7 +1082,7 @@ void AudioMixer::callback_proxy(
 {
     assert(user_data);
 
-    AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
+    auto mixer = static_cast<AudioMixer*>(user_data);
 #if !BSTONE_AUDIO_MIXER_USE_THREAD
     mixer->mix();
 #endif
@@ -1095,7 +1095,7 @@ int AudioMixer::mix_proxy(
 {
     assert(user_data);
 
-    AudioMixer* mixer = static_cast<AudioMixer*>(user_data);
+    auto mixer = static_cast<AudioMixer*>(user_data);
     mixer->mix();
 
     return 0;

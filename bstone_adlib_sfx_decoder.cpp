@@ -50,11 +50,11 @@ void AdlibSfxDecoder::Instrument::reset()
 }
 
 AdlibSfxDecoder::AdlibSfxDecoder() :
-    commands_count_(0),
-    command_index_(0),
-    samples_per_tick_(0),
-    remains_count_(0),
-    hf_(0)
+    commands_count_(),
+    command_index_(),
+    samples_per_tick_(),
+    remains_count_(),
+    hf_()
 {
 }
 
