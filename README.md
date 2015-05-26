@@ -73,10 +73,10 @@ On Windows, the path might look like:
 "C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"
 
 On Linux, the path might look like:  
-"/home/john/.local/share/bstone/"
+"/home/john/.local/share/bibendovsky/bstone/"
 
 On Mac OS X, the path might look like:  
-"/Users/john/Library/Application Support/bstone/"
+"/Users/john/Library/Application Support/bibendovsky/bstone/"
 
 Configuration file name: bstone_config  
 Log file name: bstone_log.txt  
