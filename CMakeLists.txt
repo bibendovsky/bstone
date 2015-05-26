@@ -230,6 +230,7 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_log.h"
     "${CMAKE_SOURCE_DIR}/bstone_memory_binary_reader.h"
     "${CMAKE_SOURCE_DIR}/bstone_memory_stream.h"
+    "${CMAKE_SOURCE_DIR}/bstone_mt_queue_1r1w.h"
     "${CMAKE_SOURCE_DIR}/bstone_ogl_api.h"
     "${CMAKE_SOURCE_DIR}/bstone_ogl_version.h"
     "${CMAKE_SOURCE_DIR}/bstone_opl2.h"
