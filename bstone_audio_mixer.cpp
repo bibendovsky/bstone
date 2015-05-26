@@ -122,7 +122,6 @@ AudioMixer::AudioMixer() :
 #endif
         sounds_(),
         commands_(),
-        commands_queue_(),
         mute_(),
         adlib_music_cache_(),
         adlib_sfx_cache_(),
@@ -210,6 +209,8 @@ bool AudioMixer::initialize(
         adlib_sfx_cache_.resize(NUMSOUNDS);
         pcm_cache_.resize(NUMSOUNDS);
 
+        commands_.initialize(get_max_commands());
+
 #if BSTONE_AUDIO_MIXER_USE_THREAD
         thread_ = std::move(thread);
 #endif
@@ -248,8 +249,7 @@ void AudioMixer::uninitialize()
     quit_thread_ = false;
 #endif
     Sounds().swap(sounds_);
-    PlayCommands().swap(commands_);
-    PlayCommands().swap(commands_queue_);
+    commands_.uninitialize();
     mute_ = false;
     Cache().swap(adlib_music_cache_);
     Cache().swap(adlib_sfx_cache_);
@@ -392,12 +392,12 @@ bool AudioMixer::stop_music()
         return false;
     }
 
-    Command command;
-    command.command = CMD_STOP_MUSIC;
-
-    lock();
-    commands_queue_.push_back(command);
-    unlock();
+    commands_.push(
+        [] (Command& command)
+        {
+            command.command = CMD_STOP_MUSIC;
+        }
+    );
 
     return true;
 }
@@ -408,12 +408,12 @@ bool AudioMixer::stop_all_sfx()
         return false;
     }
 
-    Command command;
-    command.command = CMD_STOP_ALL_SFX;
-
-    lock();
-    commands_queue_.push_back(command);
-    unlock();
+    commands_.push(
+        [] (Command& command)
+        {
+            command.command = CMD_STOP_ALL_SFX;
+        }
+    );
 
     return true;
 }
@@ -522,6 +522,12 @@ int AudioMixer::get_default_mix_size_ms()
 int AudioMixer::get_max_channels()
 {
     return 2;
+}
+
+// (static)
+int AudioMixer::get_max_commands()
+{
+    return 128;
 }
 
 void AudioMixer::callback(
@@ -703,15 +709,6 @@ void AudioMixer::handle_commands()
     lock();
 #endif
 
-    if (!commands_queue_.empty()) {
-        commands_.insert(
-            commands_.end(),
-            commands_queue_.begin(),
-            commands_queue_.end());
-
-        commands_queue_.clear();
-    }
-
     if (!positions_state_queue_.empty()) {
         positions_state_ = positions_state_queue_.back();
         positions_state_queue_.clear();
@@ -721,7 +718,10 @@ void AudioMixer::handle_commands()
     unlock();
 #endif
 
-    for (auto& command : commands_) {
+
+    Command command;
+
+    while (commands_.pop(command)) {
         switch (command.command) {
         case CMD_PLAY:
             handle_play_command(command);
@@ -735,8 +735,6 @@ void AudioMixer::handle_commands()
             break;
         }
     }
-
-    commands_.clear();
 }
 
 void AudioMixer::handle_play_command(
@@ -1038,20 +1036,20 @@ bool AudioMixer::play_sound(
         return false;
     }
 
-    Command command;
-    command.command = CMD_PLAY;
-    command.sound.type = sound_type;
-    command.sound.priority = priority;
-    command.sound.cache = get_cache_item(sound_type, sound_index);
-    command.sound.actor_index = actor_index;
-    command.sound.actor_type = actor_type;
-    command.sound.actor_channel = actor_channel;
-    command.data = data;
-    command.data_size = data_size;
-
-    lock();
-    commands_queue_.push_back(command);
-    unlock();
+    commands_.push(
+        [&] (Command& command)
+        {
+            command.command = CMD_PLAY;
+            command.sound.type = sound_type;
+            command.sound.priority = priority;
+            command.sound.cache = get_cache_item(sound_type, sound_index);
+            command.sound.actor_index = actor_index;
+            command.sound.actor_type = actor_type;
+            command.sound.actor_channel = actor_channel;
+            command.data = data;
+            command.data_size = data_size;
+        }
+    );
 
     return true;
 }

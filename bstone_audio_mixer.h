@@ -39,6 +39,7 @@ Free Software Foundation, Inc.,
 #include <vector>
 #include "SDL.h"
 #include "bstone_audio_decoder.h"
+#include "bstone_mt_queue_1r1w.h"
 
 
 namespace bstone {
@@ -140,6 +141,8 @@ public:
 
     static int get_max_channels();
 
+    static int get_max_commands();
+
 private:
     using Sample = int16_t;
     using Samples = std::vector<Sample>;
@@ -229,7 +232,7 @@ private:
         int data_size;
     }; // Command
 
-    using PlayCommands = std::deque<Command>;
+    using Commands = bstone::MtQueue1R1W<Command>;
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
     using Mutex = std::mutex;
@@ -251,8 +254,7 @@ private:
     std::atomic_bool quit_thread_;
 #endif
     Sounds sounds_;
-    PlayCommands commands_;
-    PlayCommands commands_queue_;
+    Commands commands_;
     bool mute_;
     Cache adlib_music_cache_;
     Cache adlib_sfx_cache_;
