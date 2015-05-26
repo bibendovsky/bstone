@@ -1030,10 +1030,11 @@ bool AudioMixer::play_sound(
     case AC_ITEM:
     case AC_HIT_WALL:
     case AC_NO_WAY:
+    case AC_INTERROGATION:
         break;
 
     default:
-        return false;
+        throw std::invalid_argument("Invalid actor channel.");
     }
 
     commands_.push(
