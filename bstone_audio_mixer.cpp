@@ -131,10 +131,22 @@ AudioMixer::AudioMixer() :
         player_channels_state_(),
         is_music_playing_(),
         is_any_sfx_playing_(),
-        sfx_volume_(1.0F),
-        music_volume_(1.0F),
+        sfx_volume_(),
+        music_volume_(),
         mix_size_ms_()
 {
+    // Initialize atomic fields
+    //
+
+    is_data_available_ = false;
+#if BSTONE_AUDIO_MIXER_USE_THREAD
+    quit_thread_ = false;
+#endif
+    player_channels_state_ = 0;
+    is_music_playing_ = false;
+    is_any_sfx_playing_ = false;
+    sfx_volume_ = 1.0F;
+    music_volume_ = 1.0F;
 }
 
 AudioMixer::~AudioMixer()

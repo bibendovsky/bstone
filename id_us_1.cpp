@@ -666,6 +666,8 @@ void US_Startup()
     }
 
     // BBi
+    sys_timer_ticks = 0;
+
     sys_timer_id = ::SDL_AddTimer(
         1000 / TickBase,
         sys_timer_callback,
