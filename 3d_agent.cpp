@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <deque>
 #include "3d_def.h"
 
 
@@ -629,6 +630,7 @@ void LatchNumber(
 
 namespace {
 
+
 int ecg_scroll_tics = 0;
 int ecg_next_scroll_tics = 0;
 std::deque<int> ecg_legend(6);
@@ -637,6 +639,7 @@ std::deque<int> ecg_segments(6);
 int heart_picture_index = ECG_GRID_PIECE;
 int heart_sign_tics = 0;
 int heart_sign_next_tics = 0;
+
 
 } // namespace
 
