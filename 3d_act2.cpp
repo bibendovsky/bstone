@@ -2311,15 +2311,10 @@ void ActivateWallSwitch(
 // DisplaySwitchOperateMsg() - Displays the Operating Barrier Switch message
 //      for a particular level across the InfoArea.
 // --------------------------------------------------------------------------
-const char* const OnSwitchMessage = "\r\r  ACTIVATING BARRIER";
-
-const char* const OffSwitchMessage = "\r\r DEACTIVATING BARRIER";
-
-
 void DisplaySwitchOperateMsg(
     uint16_t coords)
 {
-    barrier_type* barrier = &::gamestate.barrier_table[coords];
+    const auto barrier = &::gamestate.barrier_table[coords];
 
     static std::string message;
 
@@ -2330,10 +2325,13 @@ void DisplaySwitchOperateMsg(
     }
 
     if (!::is_ps()) {
-        message +=
-            "\r      ON FLOOR " +
-            bstone::StringHelper::lexical_cast<std::string>(
-                static_cast<int>(barrier->level));
+        int level = barrier->level;
+
+        if (level == 0xFF) {
+            level = ::gamestate.mapon;
+        }
+
+        message += "\r      ON FLOOR " + std::to_string(level);
     }
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
