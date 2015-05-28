@@ -26,16 +26,13 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_MIXER_INCLUDED
 
 
-#define BSTONE_AUDIO_MIXER_USE_THREAD 0
+#define BSTONE_AUDIO_MIXER_USE_THREAD (0)
 
 
 #include <atomic>
-#include <deque>
 #include <list>
-#if BSTONE_AUDIO_MIXER_USE_THREAD
 #include <mutex>
 #include <thread>
-#endif
 #include <vector>
 #include "SDL.h"
 #include "bstone_audio_decoder.h"
@@ -175,31 +172,34 @@ private:
 
     using Cache = std::vector<CacheItem>;
 
-    class Position {
+    class Location {
     public:
         int x;
         int y;
-    }; // Position
+    }; // Location
 
-    using Positions = std::vector<Position>;
+    using Locations = std::vector<Location>;
 
-    class PlayerPosition {
+    class PlayerLocation {
     public:
         int view_x;
         int view_y;
         int view_cos;
         int view_sin;
-    }; // PlayerPosition
+    }; // PlayerLocation
 
-    class PositionsState {
+    class Positions {
     public:
-        PlayerPosition player;
-        Positions actors;
-        Positions doors;
-        Position wall;
-    }; // PositionsState
+        PlayerLocation player;
+        Locations actors;
+        Locations doors;
+        Location wall;
 
-    using PositionsStateQueue = std::deque<PositionsState>;
+        void initialize();
+
+        void fixed_copy_to(
+            Positions& positions);
+    }; // Positions
 
     class Sound {
     public:
@@ -234,10 +234,8 @@ private:
 
     using Commands = bstone::MtQueue1R1W<Command>;
 
-#if BSTONE_AUDIO_MIXER_USE_THREAD
     using Mutex = std::mutex;
     using MutexGuard = std::lock_guard<Mutex>;
-#endif
 
     bool is_initialized_;
     int dst_rate_;
@@ -259,8 +257,9 @@ private:
     Cache adlib_music_cache_;
     Cache adlib_sfx_cache_;
     Cache pcm_cache_;
-    PositionsState positions_state_;
-    PositionsStateQueue positions_state_queue_;
+    Mutex positions_mutex_;
+    Positions master_positions_;
+    Positions worker_positions_;
     std::atomic_int player_channels_state_;
     std::atomic_bool is_music_playing_;
     std::atomic_bool is_any_sfx_playing_;

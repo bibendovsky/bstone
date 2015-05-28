@@ -100,6 +100,30 @@ bool AudioMixer::CacheItem::is_decoded() const
     return decoded_count == samples_count;
 }
 
+void AudioMixer::Positions::initialize()
+{
+    player = {};
+
+    actors.clear();
+    actors.resize(MAXACTORS);
+
+    doors.clear();
+    doors.resize(MAXDOORS);
+
+    wall = {};
+}
+
+void AudioMixer::Positions::fixed_copy_to(
+    Positions& target)
+{
+    player = target.player;
+
+    std::copy(actors.cbegin(), actors.cend(), target.actors.begin());
+    std::copy(doors.cbegin(), doors.cend(), target.doors.begin());
+
+    wall = target.wall;
+}
+
 bool AudioMixer::Sound::is_audible() const
 {
     return left_volume > 0.0F && right_volume > 0.0F;
@@ -126,8 +150,9 @@ AudioMixer::AudioMixer() :
         adlib_music_cache_(),
         adlib_sfx_cache_(),
         pcm_cache_(),
-        positions_state_(),
-        positions_state_queue_(),
+        positions_mutex_(),
+        master_positions_(),
+        worker_positions_(),
         player_channels_state_(),
         is_music_playing_(),
         is_any_sfx_playing_(),
@@ -199,6 +224,11 @@ bool AudioMixer::initialize(
 
     bool is_succeed = true;
 
+
+    if (is_succeed) {
+        master_positions_.initialize();
+        worker_positions_.initialize();
+    }
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
     std::thread thread;
@@ -337,7 +367,9 @@ bool AudioMixer::update_positions()
     }
 
 
-    PositionsState state;
+    MutexGuard guard_this(positions_mutex_);
+
+    auto&& state = master_positions_;
 
     state.player.view_x = viewx;
     state.player.view_y = viewy;
@@ -390,10 +422,6 @@ bool AudioMixer::update_positions()
     default:
         break;
     }
-
-    lock();
-    positions_state_queue_.push_back(state);
-    unlock();
 
     return true;
 }
@@ -717,19 +745,10 @@ void AudioMixer::mix_samples()
 
 void AudioMixer::handle_commands()
 {
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-    lock();
-#endif
-
-    if (!positions_state_queue_.empty()) {
-        positions_state_ = positions_state_queue_.back();
-        positions_state_queue_.clear();
+    {
+        MutexGuard guard_positions(positions_mutex_);
+        master_positions_.fixed_copy_to(worker_positions_);
     }
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-    unlock();
-#endif
-
 
     Command command;
 
@@ -882,7 +901,7 @@ bool AudioMixer::initialize_cache_item(
 bool AudioMixer::decode_sound(
     const Sound& sound)
 {
-    CacheItem* cache_item = sound.cache;
+    auto cache_item = sound.cache;
 
     if (!cache_item) {
         return false;
@@ -934,46 +953,46 @@ void AudioMixer::spatialize_sound(
         return;
     }
 
-    Position* position = nullptr;
+    Location* location = nullptr;
 
     switch (sound.actor_type) {
     case AT_ACTOR:
-        position = &positions_state_.actors[sound.actor_index];
+        location = &worker_positions_.actors[sound.actor_index];
         break;
 
     case AT_DOOR:
-        position = &positions_state_.doors[sound.actor_index];
+        location = &worker_positions_.doors[sound.actor_index];
         break;
 
     case AT_WALL:
-        position = &positions_state_.wall;
+        location = &worker_positions_.wall;
         break;
 
     default:
         return;
     }
 
-    int gx = position->x;
-    int gy = position->y;
+    int gx = location->x;
+    int gy = location->y;
 
     //
     // translate point to view centered coordinates
     //
-    gx -= positions_state_.player.view_x;
-    gy -= positions_state_.player.view_y;
+    gx -= worker_positions_.player.view_x;
+    gy -= worker_positions_.player.view_y;
 
     //
     // calculate newx
     //
-    int xt = ::FixedByFrac(gx, positions_state_.player.view_cos);
-    int yt = ::FixedByFrac(gy, positions_state_.player.view_sin);
+    int xt = ::FixedByFrac(gx, worker_positions_.player.view_cos);
+    int yt = ::FixedByFrac(gy, worker_positions_.player.view_sin);
     int x = (xt - yt) >> TILESHIFT;
 
     //
     // calculate newy
     //
-    xt = ::FixedByFrac(gx, positions_state_.player.view_sin);
-    yt = ::FixedByFrac(gy, positions_state_.player.view_cos);
+    xt = ::FixedByFrac(gx, worker_positions_.player.view_sin);
+    yt = ::FixedByFrac(gy, worker_positions_.player.view_cos);
     int y = (yt + xt) >> TILESHIFT;
 
     if (y >= ATABLEMAX) {
