@@ -464,8 +464,8 @@ void VL_WaitVBL(
     if (current_ticks > timer_ticks) {
         uint32_t diff = current_ticks - timer_ticks;
 
-        if ((diff + 10) <= one_tick_delay) {
-            uint32_t remain = one_tick_delay - (diff + 10);
+        if (one_tick_delay >= diff) {
+            uint32_t remain = one_tick_delay - diff;
             ::sys_sleep_for(remain);
         }
     }
