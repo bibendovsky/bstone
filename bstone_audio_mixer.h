@@ -35,6 +35,7 @@ Free Software Foundation, Inc.,
 #include <thread>
 #include <vector>
 #include "SDL.h"
+#include "bstone_atomic.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_mt_queue_1r1w.h"
 
@@ -174,18 +175,18 @@ private:
 
     class Location {
     public:
-        int x;
-        int y;
+        Atomic<int> x;
+        Atomic<int> y;
     }; // Location
 
     using Locations = std::vector<Location>;
 
     class PlayerLocation {
     public:
-        int view_x;
-        int view_y;
-        int view_cos;
-        int view_sin;
+        Atomic<int> view_x;
+        Atomic<int> view_y;
+        Atomic<int> view_cos;
+        Atomic<int> view_sin;
     }; // PlayerLocation
 
     class Positions {
@@ -257,9 +258,7 @@ private:
     Cache adlib_music_cache_;
     Cache adlib_sfx_cache_;
     Cache pcm_cache_;
-    Mutex positions_mutex_;
-    Positions master_positions_;
-    Positions worker_positions_;
+    Positions positions_;
     std::atomic_int player_channels_state_;
     std::atomic_bool is_music_playing_;
     std::atomic_bool is_any_sfx_playing_;
