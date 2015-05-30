@@ -1624,29 +1624,17 @@ bool ogl_initialize_renderer()
 // Just draws a screen texture.
 void soft_draw_screen()
 {
-    SDL_Rect src_rect;
-    src_rect.x = 0;
-    src_rect.y = 0;
-    src_rect.w = ::vga_width;
-    src_rect.h = ::vga_height;
-
-    SDL_Rect dst_rect;
-    dst_rect.x = 0;
-    dst_rect.y = 0;
-    dst_rect.w = ::screen_width;
-    dst_rect.h = ::screen_height;
-
     int sdl_result = 0;
-
-    sdl_result = ::SDL_RenderClear(::sdl_soft_renderer);
 
     sdl_result = ::SDL_RenderCopy(
         ::sdl_soft_renderer,
         ::sdl_soft_screen_tex,
-        &src_rect,
-        &dst_rect);
+        nullptr,
+        nullptr);
 
-    static_cast<void>(sdl_result);
+    if (sdl_result != 0) {
+        bstone::Log::write_error("SOFT: Failed to copy data to renderer.");
+    }
 
     ::SDL_RenderPresent(::sdl_soft_renderer);
 }
@@ -1788,6 +1776,18 @@ bool soft_initialize_renderer()
     }
 
     if (is_succeed) {
+        bstone::Log::write("SDL: Clearing default renderer target...");
+
+        sdl_result = ::SDL_RenderClear(::sdl_soft_renderer);
+
+        if (sdl_result != 0) {
+            is_succeed = false;
+
+            bstone::Log::write_error(::SDL_GetError());
+        }
+    }
+
+    if (is_succeed) {
         bstone::Log::write("SDL: Initializing a view port...");
 
         SDL_Rect view_port;
@@ -1849,11 +1849,12 @@ bool x_initialize_video()
 
         uint32_t flags = 0;
 
-        flags |= SDL_WINDOW_HIDDEN;
         flags |= ::vid_get_window_flags();
 
         if (!::sdl_is_windowed) {
-            flags |= SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP;
+            flags |=
+                SDL_WINDOW_BORDERLESS |
+                SDL_WINDOW_FULLSCREEN_DESKTOP;
         }
 
         std::string title = "Blake Stone: ???";
@@ -2155,8 +2156,6 @@ void initialize_video()
             bstone::Log::write_warning("OGL: Failed to enable VSync.");
         }
     }
-
-    ::SDL_ShowWindow(::sdl_window);
 
     ::in_grab_mouse(true);
 }
