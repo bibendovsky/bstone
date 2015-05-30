@@ -219,6 +219,7 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_adlib_sfx_decoder.h"
     "${CMAKE_SOURCE_DIR}/bstone_audio_decoder.h"
     "${CMAKE_SOURCE_DIR}/bstone_audio_mixer.h"
+    "${CMAKE_SOURCE_DIR}/bstone_atomic.h"
     "${CMAKE_SOURCE_DIR}/bstone_binary_reader.h"
     "${CMAKE_SOURCE_DIR}/bstone_binary_writer.h"
     "${CMAKE_SOURCE_DIR}/bstone_cl_args.h"
