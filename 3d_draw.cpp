@@ -503,7 +503,6 @@ void HitVertWall()
 {
     int16_t wallpic;
     uint16_t texture;
-    uint8_t doornum;
 
     texture = (yintercept >> 4) & 0xfc0;
     if (xtilestep == -1) {
@@ -539,8 +538,12 @@ void HitVertWall()
 
             ytile = yintercept >> TILESHIFT;
 
-            if ((doornum = tilemap[xtile - xtilestep][ytile]) & 0x80) {
-                wallpic = static_cast<int16_t>(DOORWALL + DoorJamsShade[doorobjlist[doornum & 0x7f].type]);
+            auto door_index = ::tilemap[::xtile - ::xtilestep][::ytile];
+
+            if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0) {
+                auto door = ::doorobjlist[door_index & 0x3F];
+
+                wallpic = static_cast<int16_t>(DOORWALL + ::DoorJamsShade[door.type]);
             } else {
                 wallpic = vertwall[tilehit & ~0x40];
             }
@@ -568,7 +571,6 @@ void HitHorizWall()
 {
     int16_t wallpic;
     uint16_t texture;
-    uint8_t doornum;
 
     texture = (xintercept >> 4) & 0xfc0;
     if (ytilestep == -1) {
@@ -597,13 +599,16 @@ void HitHorizWall()
         lasttilehit = tilehit;
         postx = pixx;
 
-
-
         if (tilehit & 0x40) { // check for adjacent doors
 
             xtile = xintercept >> TILESHIFT;
-            if ((doornum = tilemap[xtile][ytile - ytilestep]) & 0x80) {
-                wallpic = static_cast<int16_t>(DOORWALL + DoorJams[doorobjlist[doornum & 0x7f].type]);
+
+            auto door_index = ::tilemap[::xtile][::ytile - ::ytilestep];
+
+            if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0) {
+                auto door = ::doorobjlist[door_index & 0x3F];
+
+                wallpic = static_cast<int16_t>(DOORWALL + ::DoorJams[door.type]);
             } else {
                 wallpic = horizwall[tilehit & ~0x40];
             }
