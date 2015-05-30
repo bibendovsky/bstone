@@ -361,6 +361,13 @@ target_link_libraries(
     "${SDL2_LIBRARIES}"
 )
 
+if (BSTONE_IS_GNU)
+    target_link_libraries(
+        "${BSTONE_TARGET}"
+        "pthread"
+    )
+endif ()
+
 if (MINGW)
     target_link_libraries(
         "${BSTONE_TARGET}"
