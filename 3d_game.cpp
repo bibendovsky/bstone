@@ -2502,21 +2502,23 @@ void SetupGameLevel()
                 case ON_SWITCH:
                     switchon = true;
                 case OFF_SWITCH: {
-                    if (!::is_ps()) {
-                        uint8_t level = 0xFF;
+                    if (::is_aog()) {
+                        if (map1[1] != 0) {
+                            uint8_t level = 0xFF;
 
-                        if (map1[0] != 0xF8FF) {
-                            level = static_cast<uint8_t>(map1[0] & 0xFF);
-                        }
+                            if (map1[0] != 0xF8FF) {
+                                level = static_cast<uint8_t>(map1[0] & 0xFF);
+                            }
 
-                        auto switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
-                        auto switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
+                            auto switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
+                            auto switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
 
-                        map1[1] = 0;
-                        map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
+                            map1[1] = 0;
+                            map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
 
-                        if (level != 0xFF) {
-                            ::store_cross_barrier(level, switch_x, switch_y, switchon);
+                            if (level != 0xFF) {
+                                ::store_cross_barrier(level, switch_x, switch_y, switchon);
+                            }
                         }
                     } else {
                         auto switch_x = static_cast<uint8_t>((map1[0] / 256) & 0xFF);
