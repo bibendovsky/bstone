@@ -57,9 +57,12 @@ Features:
 * Separate volume control of sound effects and music
 
 Supported games:
-* Aliens of Gold v2.1 (full)
-* Aliens of Gold v3.0 (full)
-* Aliens of Gold v3.0 (shareware)
+* Aliens of Gold v1.0 full
+* Aliens of Gold v2.0 full
+* Aliens of Gold v2.1 full
+* Aliens of Gold v3.0 full
+* Aliens of Gold v3.0 shareware
+* Planet Strike v1.0
 * Planet Strike v1.1
 
 
@@ -169,7 +172,7 @@ Notes:
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
 * --no_screens  
-  Skips startup screens and promo pages (AoG SW only).
+  Skips startup screens (AoG/PS) and ending promo pages (AoG SW only).
 
 * --cheats  
   Enables so called "debug mode" without much fuss.
