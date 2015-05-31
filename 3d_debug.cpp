@@ -662,11 +662,12 @@ int16_t DebugKeys()
             level = static_cast<int16_t>(atoi(str));
             if (level > -1 && level <= MAX_WARP_LEVEL) {
                 gamestate.lastmapon = gamestate.mapon;
-                gamestate.mapon = level - 1;
                 playstate = ex_warped;
                 if (ForceLoadDefault) {
-                    BONUS_QUEUE = BONUS_SHOWN = 0;
+                    BONUS_QUEUE = 0;
+                    BONUS_SHOWN = 0;
                 }
+                gamestate.mapon = level - 1;
             }
         }
         return 1;
