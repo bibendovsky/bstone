@@ -698,6 +698,39 @@ JamBuffCmp jam_buff = {
 char PAUSED_MSG[] = "^ST1^CEGame Paused\r^CEPress any key to resume.^XX";
 
 
+namespace {
+
+
+void check_heart_beat_key()
+{
+    if (!::is_aog()) {
+        return;
+    }
+
+
+    static bool is_key_released;
+
+    if (::in_is_binding_pressed(e_bi_heart_beat)) {
+        if (is_key_released) {
+            ::g_heart_beat_sound = !::g_heart_beat_sound;
+
+            const auto& message = (
+                ::g_heart_beat_sound ?
+                    ::ekg_heartbeat_enabled :
+                    ::ekg_heartbeat_disabled);
+
+            DISPLAY_TIMED_MSG(message.c_str(), MP_BONUS, MT_GENERAL);
+            is_key_released = false;
+        }
+    } else {
+        is_key_released = true;
+    }
+}
+
+
+} // namespace
+
+
 void CheckKeys()
 {
     bool one_eighty = false;
@@ -1067,6 +1100,8 @@ void CheckKeys()
         in_reset_binding_state(e_bi_lightning);
         gamestate.flags ^= GS_LIGHTING;
     }
+
+    check_heart_beat_key();
 }
 
 
