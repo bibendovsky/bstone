@@ -1245,11 +1245,11 @@ void IN_ClearKeysDown()
 static void in_handle_window(
     const SDL_WindowEvent& e)
 {
-    bool clear_state = false;
+    bool reset_state = false;
 
     switch (e.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
-        clear_state = true;
+        reset_state = true;
 
         ::vl_minimize_fullscreen_window(false);
 
@@ -1260,7 +1260,7 @@ static void in_handle_window(
         break;
 
     case SDL_WINDOWEVENT_FOCUS_LOST:
-        clear_state = true;
+        reset_state = true;
         ::in_last_is_mouse_grabbed = ::in_is_mouse_grabbed;
         static_cast<void>(::in_grab_mouse(false));
         ::sd_mute(true);
@@ -1268,14 +1268,8 @@ static void in_handle_window(
         break;
     }
 
-    if (clear_state) {
-        ::in_clear_mouse_deltas();
-
-        Keyboard[ScanCode::sc_mouse_left] = false;
-        Keyboard[ScanCode::sc_mouse_middle] = false;
-        Keyboard[ScanCode::sc_mouse_right] = false;
-        Keyboard[ScanCode::sc_mouse_x1] = false;
-        Keyboard[ScanCode::sc_mouse_x2] = false;
+    if (reset_state) {
+        ::in_reset_state();
     }
 }
 
@@ -2014,5 +2008,15 @@ void in_reset_binding_state(
             break;
         }
     }
+}
+
+void in_reset_state()
+{
+    ::LastASCII = '\0';
+    ::LastScan = ScanCode::sc_none;
+
+    ::Keyboard.reset();
+
+    ::in_clear_mouse_deltas();
 }
 // BBi

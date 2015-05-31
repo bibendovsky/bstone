@@ -441,6 +441,8 @@ bool in_is_binding_pressed(
 
 void in_reset_binding_state(
     BindingId binding_id);
+
+void in_reset_state();
 // BBi
 
 
