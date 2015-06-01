@@ -20,82 +20,60 @@
 
     <section class="main-content">
       <h1>
-<a id="bstone" class="anchor" href="#bstone" aria-hidden="true"><span class="octicon octicon-link"></span></a>BStone</h1>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h1>
 
-<p>A source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike.</p>
+<p>BStone is a source port of Blake Stone game series: Aliens of Gold and Planet Strike.</p>
 
-<h1>
-<a id="contents" class="anchor" href="#contents" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contents</h1>
+<p>Features:</p>
 
-<ol>
-<li>Disclaimer</li>
-<li>Profile</li>
-<li>Compiling</li>
-<li>Command-line options</li>
-<li>Cheat key</li>
-<li>Debug keys</li>
-<li>Third party use</li>
-<li>Credits</li>
-<li>Links</li>
-</ol>
+<ul>
+<li>High resolution rendering of world (extended vanilla engine)</li>
+<li>Modern and vanilla controls</li>
+<li>Allows to customize control bindings</li>
+<li>Separate volume control of sound effects and music</li>
+</ul>
 
-<h1>
-<a id="1---disclaimer" class="anchor" href="#1---disclaimer" aria-hidden="true"><span class="octicon octicon-link"></span></a>1 - Disclaimer</h1>
+<p>Supported games:</p>
 
-<p>Copyright (c) 1992-2013 Apogee Entertainment, LLC<br>
-Copyright (c) 2013-2015 Boris I. Bendovsky (<a href="mailto:bibendovsky@hotmail.com">bibendovsky@hotmail.com</a>)</p>
-
-<p>This program is free software; you can redistribute it and/or<br>
-modify it under the terms of the GNU General Public License<br>
-as published by the Free Software Foundation; either version 2<br>
-of the License, or (at your option) any later version.</p>
-
-<p>This program is distributed in the hope that it will be useful,<br>
-but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
-GNU General Public License for more details.</p>
-
-<p>You should have received a copy of the GNU General Public License<br>
-along with this program; if not, write to the Free Software<br>
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</p>
-
-<hr>
-
-<p>For a copy of the GNU General Public License see file LICENSE.<br>
-For an original source code license see file "Blake Stone source code license.doc".</p>
+<ul>
+<li>Aliens of Gold v1.0 full</li>
+<li>Aliens of Gold v2.0 full</li>
+<li>Aliens of Gold v2.1 full</li>
+<li>Aliens of Gold v3.0 full</li>
+<li>Aliens of Gold v3.0 shareware</li>
+<li>Planet Strike v1.0</li>
+<li>Planet Strike v1.1</li>
+</ul>
 
 <h1>
-<a id="2---profile" class="anchor" href="#2---profile" aria-hidden="true"><span class="octicon octicon-link"></span></a>2 - Profile</h1>
+<a id="profile" class="anchor" href="#profile" aria-hidden="true"><span class="octicon octicon-link"></span></a>Profile</h1>
 
-<p>The port stores configuration file, saved game files, etc. in user's profile.<br>
-The path to those files depends on platform.</p>
+<p>The port stores configuration file, saved game files, etc. in user's profile. The path to those files depends on platform.</p>
 
 <p>On Windows, the path might look like:<br>
 "C:\Users\john\AppData\Roaming\bibendovsky\bstone\"</p>
 
 <p>On Linux, the path might look like:<br>
-"/home/john/.local/share/bstone/"</p>
+"/home/john/.local/share/bibendovsky/bstone/"</p>
 
 <p>On Mac OS X, the path might look like:<br>
-"/Users/john/Library/Application Support/bstone/"</p>
+"/Users/john/Library/Application Support/bibendovsky/bstone/"</p>
 
 <p>Configuration file name: bstone_config<br>
 Log file name: bstone_log.txt<br>
 High scores file name: bstone_game_high_scores<br>
 Saved game file name: bstone_game_saved_game</p>
 
-<p>Where "game" is:  </p>
+<p>Where "game" is:</p>
 
 <ul>
-<li>aog_sw - Aliens of Gold (shareware)<br>
-</li>
-<li>aog_full - Aliens of Gold (full)<br>
-</li>
+<li>aog_sw - Aliens of Gold (shareware)</li>
+<li>aog_full - Aliens of Gold (full)</li>
 <li>ps - Planet Strike</li>
 </ul>
 
 <h1>
-<a id="3---compiling" class="anchor" href="#3---compiling" aria-hidden="true"><span class="octicon octicon-link"></span></a>3 - Compiling</h1>
+<a id="compiling" class="anchor" href="#compiling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Compiling</h1>
 
 <p>Minimum requirements:</p>
 
@@ -114,9 +92,7 @@ Tested with Visual C++ 12 and GCC 4.9.2.</p></li>
 
 <ul>
 <li><p>CMAKE_BUILD_TYPE<br>
-Selects wich build(s) to compile.<br>
-Use semicolon to separate entries. 
-Usually it's Debug or Release.<br>
+Selects wich build(s) to compile. Use semicolon to separate entries. Usually it's Debug or Release.<br>
 For other values see CMake documentation.</p></li>
 <li><p>BSTONE_PANDORA<br>
 If enabled prepares build for Open Pandora.</p></li>
@@ -124,14 +100,12 @@ If enabled prepares build for Open Pandora.</p></li>
 If enabled utilizes precompiled headers to speed up compilation.<br>
 Note: Visual C++ only</p></li>
 <li><p>BSTONE_USE_STATIC_LINKING<br>
-If enabled links modules statically to avoid dependancy on<br>
-system and custom libraries at run-time.</p></li>
+If enabled links modules statically to avoid dependancy on system and custom libraries at run-time.</p></li>
 <li><p>SDL2_INCLUDE_DIRS<br>
 Defines directory with SDL2 headers.<br>
 Note: Visual C++ only</p></li>
 <li><p>SDL2_LIBRARIES<br>
-Defines list of SDL2 libraries.<br>
-Use semicolon to separate entries.<br>
+Defines list of SDL2 libraries. Use semicolon to separate entries.<br>
 Note: Visual C++ only</p></li>
 </ul>
 
@@ -142,50 +116,45 @@ Note: Visual C++ only</p></li>
 </ul>
 
 <h1>
-<a id="4---command-line-options" class="anchor" href="#4---command-line-options" aria-hidden="true"><span class="octicon octicon-link"></span></a>4 - Command-line options</h1>
+<a id="command-line-options" class="anchor" href="#command-line-options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command-line options</h1>
 
 <ul>
 <li><p>--version<br>
-Outputs the port's version to standard output and<br>
-into message box.</p></li>
+Outputs the port's version to standard output and into message box.</p></li>
 <li><p>--aog_sw<br>
-Switches the port to Blake Stone: Aliens of Gold (shareware) mode.<br>
-If appropriate data files will not be found the port will fail.<br>
-Default switch strategy: AoG (full) -&gt; AoG (sw) -&gt; PS</p></li>
-<li><p>--aog_full<br>
-Switches the port to Blake Stone: Aliens of Gold (full) mode.<br>
-If appropriate data files will not be found the port will fail.<br>
-Default switch strategy: AoG (full) -&gt; AoG (sw) -&gt; PS</p></li>
+Switches the port to Blake Stone: Aliens of Gold (shareware, v3.0) mode. If appropriate data files will not be found the port will fail.<br>
+Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
+<li><p>--aog_10<br>
+Switches the port to Blake Stone: Aliens of Gold (full, v1.0) mode.  If appropriate data files will not be found the port will fail.<br>
+Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
+<li><p>--aog_2x<br>
+Switches the port to Blake Stone: Aliens of Gold (full, v2.0/v2.1) mode. If appropriate data files will not be found the port will fail.<br>
+Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
+<li><p>--aog_30<br>
+Switches the port to Blake Stone: Aliens of Gold (full, v3.0) mode. If appropriate data files will not be found the port will fail.<br>
+Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
 <li><p>--ps<br>
-Switches the port to Blake Stone: Planet Strike mode.<br>
-If appropriate data files will not be found the port will fail.<br>
-Default switch strategy: AoG (full) -&gt; AoG (sw) -&gt; PS</p></li>
+Switches the port to Blake Stone: Planet Strike (full, v1.0/v1.1) mode.  If appropriate data files will not be found the port will fail.<br>
+Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
 <li><p>--no_screens<br>
-Skips startup screens and promo pages (AoG sw only).</p></li>
+Skips startup screens (AoG/PS) and ending promo pages (AoG SW only).</p></li>
 <li><p>--cheats<br>
-Enables so called "debug mode" without much fuss.</p></li>
+Enables debug keys.</p></li>
 <li><p>--data_dir path_to_data<br>
 Specifies location to the game's data files.<br>
 Default: current working directory.</p></li>
 <li><p>--vid_renderer [soft|ogl]<br>
-Forces to use a specified renderer.<br>
-"soft" selects a software renderer.<br>
-"ogl" selects an OpenGL 2.x compatible renderer.<br>
+Forces to use a specified renderer. "soft" selects a software renderer. "ogl" selects an OpenGL 2.x compatible renderer.<br>
 Default order without this option: ogl, soft.</p></li>
 <li><p>--vid_windowed<br>
 Runs the game in windowed mode.<br>
 Default video mode: 640x480</p></li>
 <li><p>--vid_mode width height<br>
-Selects the specified resolution for windowed mode.<br>
-Without this option the game will use desktop's resolution.<br>
+Selects the specified resolution for windowed mode.  Without this option the game will use desktop's resolution.<br>
 Minimum width: 640<br>
 Minimum height: 480</p></li>
 <li><p>--vid_scale factor<br>
-Refinement factor. The higher a value the greater internal resolution<br>
-mode will be used to render a scene. The dimensions of the resolution mode<br>
-are proportional to the original one (320x200) by 'factor' value.<br>
-This option can greatly affect the performance of a renderer (especially a<br>
-software one).<br>
+Refinement factor. The higher a value the greater internal resolution mode will be used to render a scene. The dimensions of the resolution mode are proportional to the original one (320x200) by 'factor' value. This option can greatly affect the performance of a renderer (especially a software one).<br>
 Minimum factor: 1 (identical to the original game)<br>
 Default factor: depends on the game's resolution mode.</p></li>
 <li><p>--vid_window_x offset<br>
@@ -196,11 +165,10 @@ Sets a vertical offset from the top side of the desktop screen.<br>
 Applicable for windowed mode only.</p></li>
 <li><p>--vid_no_fix_par<br>
 Disables correction of pixel aspect ratio.<br>
-By default the port stretches a height of rendererd screen by 20% to<br>
-comply with original VGA's pixel aspect ratio.</p></li>
+By default the port stretches a height of rendered screen by 20% to comply with original VGA's pixel aspect ratio.</p></li>
 <li><p>--snd_rate sampling_rate<br>
 Specifies sampling rate of mixer in hertz.<br>
-Default: 22050 Hz<br>
+Default: 44100 Hz<br>
 Minimum: 11025 Hz</p></li>
 <li><p>--snd_mix_size duration<br>
 Specifies mix data size in milliseconds.<br>
@@ -209,16 +177,14 @@ Minimum: 20 ms</p></li>
 </ul>
 
 <h1>
-<a id="5---cheat-key" class="anchor" href="#5---cheat-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 - Cheat key</h1>
+<a id="cheat-key" class="anchor" href="#cheat-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cheat key</h1>
 
 <p>[J] [A] [M] [Enter]<br>
 Press specified keys sequentially.<br>
-Shows message "NOW you're jammin'!!", and gives to you all keys,<br>
-all weapons and restores health to 100% but zeroes score points.<br>
-Not available in shareware version.</p>
+Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.</p>
 
 <h1>
-<a id="6---debug-keys" class="anchor" href="#6---debug-keys" aria-hidden="true"><span class="octicon octicon-link"></span></a>6 - Debug keys</h1>
+<a id="debug-keys" class="anchor" href="#debug-keys" aria-hidden="true"><span class="octicon octicon-link"></span></a>Debug keys</h1>
 
 <p>Add option "--cheats" to enable these keys.</p>
 
@@ -226,8 +192,7 @@ Not available in shareware version.</p>
 <li><p>[Backspace]+[A]<br>
 Toggles visibility of actors on auto-map.</p></li>
 <li><p>[Backspace]+[C]<br>
-Shows counts of total static objects, in use static objects,<br>
-doors, total actors, active actors.</p></li>
+Shows counts of total static objects, in use static objects, doors, total actors, active actors.</p></li>
 <li><p>[Backspace]+[D]<br>
 Toggles player's invisibility.</p></li>
 <li><p>[Backspace]+[E]<br>
@@ -257,8 +222,7 @@ Unlocks all maps.</p></li>
 <li><p>[Backspace]+[W]<br>
 Warps to specified map.</p></li>
 <li><p>[Backspace]+[Shift/Caps Lock]+[W]<br>
-Warps to specified map but loads it from scratch<br>
-rather from a saved game file/memory.</p></li>
+Warps to specified map but loads it from scratch rather from a saved game file/memory.</p></li>
 <li><p>[Backspace]+[Home]<br>
 Selects previous ceiling texture.</p></li>
 <li><p>[Backspace]+[Page Up]<br>
@@ -278,7 +242,7 @@ Increases shading drop off.</p></li>
 </ul>
 
 <h1>
-<a id="7---third-party-use" class="anchor" href="#7---third-party-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>7 - Third party use</h1>
+<a id="third-party-use" class="anchor" href="#third-party-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>Third party use</h1>
 
 <ul>
 <li><p>Simple DirectMedia Library (v2)<br>
@@ -291,7 +255,7 @@ Note: The source port uses only an OPL emulation code.</p></li>
 </ul>
 
 <h1>
-<a id="8---credits" class="anchor" href="#8---credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>8 - Credits</h1>
+<a id="credits" class="anchor" href="#credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits</h1>
 
 <ul>
 <li><p>id Software<br>
@@ -302,22 +266,45 @@ Developing the game.</p></li>
 <li><p>Apogee Entertainment, LLC<br>
 Publishing the game and releasing a source code.<br>
 Web-site: <a href="http://www.apogeesoftware.com/">http://www.apogeesoftware.com/</a></p></li>
-<li><p>Boris I. Bendovsky<br>
-Author of the source code.<br>
-Email: <a href="mailto:bibendovsky@hotmail.com">bibendovsky@hotmail.com</a></p></li>
 <li><p>Scott Smith<br>
 Adaptation to Pandora console, various fixes.</p></li>
+<li><p>Filipe Tolhuizen
+Testing the port.</p></li>
 </ul>
 
 <h1>
-<a id="8---links" class="anchor" href="#8---links" aria-hidden="true"><span class="octicon octicon-link"></span></a>8 - Links</h1>
+<a id="links" class="anchor" href="#links" aria-hidden="true"><span class="octicon octicon-link"></span></a>Links</h1>
 
 <ul>
-<li><p>The port's source code and binary releases:<br>
-<a href="https://github.com/bibendovsky/bstone/">https://github.com/bibendovsky/bstone/</a></p></li>
-<li><p>Apogee's article about releasing of an original source code:<br>
-<a href="http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code">http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code</a></p></li>
+<li>Apogee's article about releasing of an original source code:<br>
+<a href="http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code">http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code</a>
+</li>
 </ul>
+
+<h1>
+<a id="disclaimer" class="anchor" href="#disclaimer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Disclaimer</h1>
+
+<p>Copyright (c) 1992-2013 Apogee Entertainment, LLC<br>
+Copyright (c) 2013-2015 Boris I. Bendovsky (<a href="mailto:bibendovsky@hotmail.com">bibendovsky@hotmail.com</a>)</p>
+
+<p>This program is free software; you can redistribute it and/or<br>
+modify it under the terms of the GNU General Public License<br>
+as published by the Free Software Foundation; either version 2<br>
+of the License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful,<br>
+but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
+GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License<br>
+along with this program; if not, write to the Free Software<br>
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</p>
+
+<hr>
+
+<p>For a copy of the GNU General Public License see file LICENSE.<br>
+For an original source code license see file "Blake Stone source code license.doc".</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/bibendovsky/bstone">BStone</a> is maintained by <a href="https://github.com/bibendovsky">bibendovsky</a>.</span>
