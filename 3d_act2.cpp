@@ -3838,7 +3838,7 @@ void A_DeathScream(
             SWATDEATH2SND,
         }; // sounds
 
-        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+        auto sound_index = (::is_aog() ? 0 : (::US_RndT() % 2));
 
         ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
 
