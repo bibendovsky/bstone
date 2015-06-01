@@ -76,59 +76,59 @@ Saved game file name: bstone_game_saved_game</p>
 <a id="command-line-options" class="anchor" href="#command-line-options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command-line options</h1>
 
 <ul>
-<li><p>--version
+<li><p>--version<br>
 Outputs the port's version to standard output and into message box.</p></li>
-<li><p>--aog_sw
+<li><p>--aog_sw<br>
 Switches the port to Blake Stone: Aliens of Gold (shareware, v3.0) mode.<br>
 If appropriate data files will not be found the port will fail.<br>
 Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
-<li><p>--aog_10
+<li><p>--aog_10<br>
 Switches the port to Blake Stone: Aliens of Gold (full, v1.0) mode.  If appropriate data files will not be found the port will fail.<br>
 Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
-<li><p>--aog_2x
+<li><p>--aog_2x<br>
 Switches the port to Blake Stone: Aliens of Gold (full, v2.0/v2.1) mode. If appropriate data files will not be found the port will fail.<br>
 Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
-<li><p>--aog_30
+<li><p>--aog_30<br>
 Switches the port to Blake Stone: Aliens of Gold (full, v3.0) mode. If appropriate data files will not be found the port will fail.<br>
 Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
-<li><p>--ps
+<li><p>--ps<br>
 Switches the port to Blake Stone: Planet Strike (full, v1.0/v1.1) mode.  If appropriate data files will not be found the port will fail.<br>
 Default switch strategy: AoG (full) -&gt; AoG (SW) -&gt; PS</p></li>
-<li><p>--no_screens
+<li><p>--no_screens<br>
 Skips startup screens (AoG/PS) and ending promo pages (AoG SW only).</p></li>
-<li><p>--cheats
+<li><p>--cheats<br>
 Enables debug keys.</p></li>
-<li><p>--data_dir path_to_data
+<li><p>--data_dir path_to_data<br>
 Specifies location to the game's data files.<br>
 Default: current working directory.</p></li>
-<li><p>--vid_renderer [soft|ogl]
+<li><p>--vid_renderer [soft|ogl]<br>
 Forces to use a specified renderer. "soft" selects a software renderer. "ogl" selects an OpenGL 2.x compatible renderer.<br>
 Default order without this option: ogl, soft.</p></li>
-<li><p>--vid_windowed
+<li><p>--vid_windowed<br>
 Runs the game in windowed mode.<br>
 Default video mode: 640x480</p></li>
-<li><p>--vid_mode width height
+<li><p>--vid_mode width height<br>
 Selects the specified resolution for windowed mode.  Without this option the game will use desktop's resolution.<br>
 Minimum width: 640<br>
 Minimum height: 480</p></li>
-<li><p>--vid_scale factor
+<li><p>--vid_scale factor<br>
 Refinement factor. The higher a value the greater internal resolution mode will be used to render a scene. The dimensions of the resolution mode are proportional to the original one (320x200) by 'factor' value. This option can greatly affect the performance of a renderer (especially a software one).<br>
 Minimum factor: 1 (identical to the original game)<br>
 Default factor: depends on the game's resolution mode.</p></li>
-<li><p>--vid_window_x offset
+<li><p>--vid_window_x offset<br>
 Sets a horizontal offset from the left side of the desktop screen.<br>
 Applicable for windowed mode only.</p></li>
-<li><p>--vid_window_y offset
+<li><p>--vid_window_y offset<br>
 Sets a vertical offset from the top side of the desktop screen.<br>
 Applicable for windowed mode only.</p></li>
-<li><p>--vid_no_fix_par
+<li><p>--vid_no_fix_par<br>
 Disables correction of pixel aspect ratio.<br>
 By default the port stretches a height of rendered screen by 20% to comply with original VGA's pixel aspect ratio.</p></li>
-<li><p>--snd_rate sampling_rate
+<li><p>--snd_rate sampling_rate<br>
 Specifies sampling rate of mixer in hertz.<br>
 Default: 44100 Hz<br>
 Minimum: 11025 Hz</p></li>
-<li><p>--snd_mix_size duration
+<li><p>--snd_mix_size duration<br>
 Specifies mix data size in milliseconds.<br>
 Default: 40 ms<br>
 Minimum: 20 ms</p></li>
@@ -138,8 +138,7 @@ Minimum: 20 ms</p></li>
 <a id="cheat-key" class="anchor" href="#cheat-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cheat key</h1>
 
 <p>[J] [A] [M] [Enter]<br>
-Press specified keys sequentially.<br>
-Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.</p>
+Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.</p>
 
 <h1>
 <a id="debug-keys" class="anchor" href="#debug-keys" aria-hidden="true"><span class="octicon octicon-link"></span></a>Debug keys</h1>
@@ -147,55 +146,55 @@ Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and
 <p>Add option "--cheats" to enable these keys.</p>
 
 <ul>
-<li><p>[Backspace]+[A]
+<li><p>[Backspace]+[A]<br>
 Toggles visibility of actors on auto-map.</p></li>
-<li><p>[Backspace]+[C]
+<li><p>[Backspace]+[C]<br>
 Shows counts of total static objects, in use static objects, doors, total actors, active actors.</p></li>
-<li><p>[Backspace]+[D]
+<li><p>[Backspace]+[D]<br>
 Toggles player's invisibility.</p></li>
-<li><p>[Backspace]+[E]
+<li><p>[Backspace]+[E]<br>
 Win mission instantly.</p></li>
-<li><p>[Backspace]+[F]
+<li><p>[Backspace]+[F]<br>
 Shows player's coordinates and direction.</p></li>
-<li><p>[Backspace]+[G]
+<li><p>[Backspace]+[G]<br>
 Toggles god mode.</p></li>
-<li><p>[Backspace]+[H]
+<li><p>[Backspace]+[H]<br>
 Hurt yourself by 1%.</p></li>
-<li><p>[Backspace]+[I]
+<li><p>[Backspace]+[I]<br>
 Each usage adds 99% health, 5 tokens, 50 ammo, one new weapon.</p></li>
-<li><p>[Backspace]+[K]
+<li><p>[Backspace]+[K]<br>
 Shows total counts of enemies, points and informants on the map.</p></li>
-<li><p>[Backspace]+[M]
+<li><p>[Backspace]+[M]<br>
 Memory information.</p></li>
-<li><p>[Backspace]+[O]
+<li><p>[Backspace]+[O]<br>
 Shows push walls on auto-map.</p></li>
-<li><p>[Backspace]+[Q]
+<li><p>[Backspace]+[Q]<br>
 Instant quit.</p></li>
-<li><p>[Backspace]+[R]
+<li><p>[Backspace]+[R]<br>
 Shows full map.</p></li>
-<li><p>[Backspace]+[S]
+<li><p>[Backspace]+[S]<br>
 Slow motion.</p></li>
-<li><p>[Backspace]+[U]
+<li><p>[Backspace]+[U]<br>
 Unlocks all maps.</p></li>
-<li><p>[Backspace]+[W]
+<li><p>[Backspace]+[W]<br>
 Warps to specified map.</p></li>
-<li><p>[Backspace]+[Shift/Caps Lock]+[W]
+<li><p>[Backspace]+[Shift/Caps Lock]+[W]<br>
 Warps to specified map but loads it from scratch rather from a saved game file/memory.</p></li>
-<li><p>[Backspace]+[Home]
+<li><p>[Backspace]+[Home]<br>
 Selects previous ceiling texture.</p></li>
-<li><p>[Backspace]+[Page Up]
+<li><p>[Backspace]+[Page Up]<br>
 Selects next ceiling texture.</p></li>
-<li><p>[Backspace]+[End]
+<li><p>[Backspace]+[End]<br>
 Selects previous flooring texture.</p></li>
-<li><p>[Backspace]+[Page Down]
+<li><p>[Backspace]+[Page Down]<br>
 Selects next flooring texture.</p></li>
-<li><p>[Backspace]+[-]
+<li><p>[Backspace]+[-]<br>
 Decreases shading depth.</p></li>
-<li><p>[Backspace]+[=]
+<li><p>[Backspace]+[=]<br>
 Increases shading depth.</p></li>
-<li><p>[Backspace]+['[']
+<li><p>[Backspace]+['[']<br>
 Decreases shading drop off.</p></li>
-<li><p>[Backspace]+[']']
+<li><p>[Backspace]+[']']<br>
 Increases shading drop off.</p></li>
 </ul>
 
@@ -205,7 +204,7 @@ Increases shading drop off.</p></li>
 <p>Minimum requirements:</p>
 
 <ul>
-<li>C++11 compatible compiler.
+<li>C++11 compatible compiler.<br>
 Tested with Visual C++ 12 and GCC 4.9.2.</li>
 <li>
 <a href="http://cmake.org/">CMake</a> 2.8</li>
@@ -218,20 +217,20 @@ Tested with Visual C++ 12 and GCC 4.9.2.</li>
 <p>CMake variables:</p>
 
 <ul>
-<li><p>CMAKE_BUILD_TYPE
+<li><p>CMAKE_BUILD_TYPE<br>
 Selects which build(s) to compile. Use semicolon to separate entries. Usually it's Debug or Release.<br>
 For other values see CMake documentation.</p></li>
-<li><p>BSTONE_PANDORA
+<li><p>BSTONE_PANDORA<br>
 If enabled prepares build for Open Pandora.</p></li>
-<li><p>BSTONE_USE_PCH
+<li><p>BSTONE_USE_PCH<br>
 If enabled utilizes precompiled headers to speed up compilation.<br>
 Note: Visual C++ only</p></li>
-<li><p>BSTONE_USE_STATIC_LINKING
+<li><p>BSTONE_USE_STATIC_LINKING<br>
 If enabled links modules statically to avoid dependency on system and custom libraries at run-time.</p></li>
-<li><p>SDL2_INCLUDE_DIRS
+<li><p>SDL2_INCLUDE_DIRS<br>
 Defines directory with SDL2 headers.<br>
 Note: Visual C++ only</p></li>
-<li><p>SDL2_LIBRARIES
+<li><p>SDL2_LIBRARIES<br>
 Defines list of SDL2 libraries. Use semicolon to separate entries.<br>
 Note: Visual C++ only</p></li>
 </ul>
@@ -246,9 +245,9 @@ Note: Visual C++ only</p></li>
 <a id="third-party-use" class="anchor" href="#third-party-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>Third party use</h1>
 
 <ul>
-<li><p><a href="http://libsdl.org/">Simple DirectMedia Library</a> (v2)
+<li><p><a href="http://libsdl.org/">Simple DirectMedia Library</a> (v2)<br>
 See file <a href="https://raw.githubusercontent.com/bibendovsky/bstone/master/COPYING-SDL2.txt">COPYING-SDL2.txt</a> for a license information.</p></li>
-<li><p><a href="http://www.dosbox.com/">DOSBox</a>
+<li><p><a href="http://www.dosbox.com/">DOSBox</a><br>
 See file <a href="https://raw.githubusercontent.com/bibendovsky/bstone/master/dosbox/COPYING">dosbox/COPYING</a> for a license information.<br>
 Note: The source port uses only an OPL emulation code.</p></li>
 </ul>
@@ -257,15 +256,15 @@ Note: The source port uses only an OPL emulation code.</p></li>
 <a id="credits" class="anchor" href="#credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits</h1>
 
 <ul>
-<li><p><a href="http://www.idsoftware.com/">id Software</a>
+<li><p><a href="http://www.idsoftware.com/">id Software</a><br>
 Developing Wolfenstein 3D engine.</p></li>
-<li><p>JAM Productions
+<li><p>JAM Productions<br>
 Developing the game.</p></li>
-<li><p><a href="http://www.apogeesoftware.com/">Apogee Entertainment, LLC</a>
+<li><p><a href="http://www.apogeesoftware.com/">Apogee Entertainment, LLC</a><br>
 Publishing the game and releasing a source code.</p></li>
-<li><p>Scott Smith
+<li><p>Scott Smith<br>
 Adaptation to Pandora console, various fixes.</p></li>
-<li><p>Filipe Tolhuizen
+<li><p>Filipe Tolhuizen<br>
 Testing the port.</p></li>
 </ul>
 
@@ -280,7 +279,7 @@ Testing the port.</p></li>
 <a id="disclaimer" class="anchor" href="#disclaimer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Disclaimer</h1>
 
 <p>Copyright (c) 1992-2013 Apogee Entertainment, LLC<br>
-Copyright (c) 2013-2015 <a href="bibendovsky@hotmail.com">Boris I. Bendovsky</a></p>
+Copyright (c) 2013-2015 Boris I. Bendovsky (<a href="mailto:bibendovsky@hotmail.com">bibendovsky@hotmail.com</a>)</p>
 
 <p>This program is free software; you can redistribute it and/or<br>
 modify it under the terms of the GNU General Public License<br>
