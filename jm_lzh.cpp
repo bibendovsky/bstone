@@ -1063,7 +1063,12 @@ int LZH_Compress(
     void* outfile,
     uint32_t DataLength)
 {
-    int16_t i, c, len, r, s, last_match_length;
+    int16_t i;
+    int16_t c;
+    int16_t length;
+    int16_t r;
+    int16_t s;
+    int16_t last_match_length;
 
     textsize = DataLength;
 
@@ -1086,14 +1091,14 @@ int LZH_Compress(
         text_buf[i] = ' ';
     }
 
-    for (len = 0; len < F && (DataLength > datasize); len++) {
+    for (length = 0; length < F && (DataLength > datasize); length++) {
         c = ::CIO_ReadPtr(infile);
 
         datasize++; // Dec num of bytes to compress
-        text_buf[r + len] = static_cast<uint8_t>(c);
+        text_buf[r + length] = static_cast<uint8_t>(c);
     }
 
-    textsize = len;
+    textsize = length;
 
     for (i = 1; i <= F; i++) {
         InsertNode(r - i);
@@ -1102,8 +1107,8 @@ int LZH_Compress(
     InsertNode(r);
 
     do {
-        if (match_length > len) {
-            match_length = len;
+        if (match_length > length) {
+            match_length = length;
         }
 
         if (match_length <= THRESHOLD) {
@@ -1143,12 +1148,12 @@ int LZH_Compress(
             DeleteNode(s);
             s = (s + 1) & (N - 1);
             r = (r + 1) & (N - 1);
-            if (--len) {
+            if (--length) {
                 InsertNode(r);
             }
         }
 
-    } while (len > 0);
+    } while (length > 0);
 
     ::EncodeEnd(outfile);
 

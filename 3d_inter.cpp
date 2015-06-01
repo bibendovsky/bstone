@@ -65,25 +65,25 @@ void ShPrint(
     bool single_char)
 {
     uint16_t old_color = fontcolor, old_x = px, old_y = py;
-    const char* str;
+    const char* string;
     char buf[2] = { 0, 0 };
 
     if (single_char) {
-        str = buf;
+        string = buf;
         buf[0] = *(char*)text;
     } else {
-        str = text;
+        string = text;
     }
 
     fontcolor = shadow_color;
     py++;
     px++;
-    USL_DrawString(str); // JTR - This marks blocks!
+    USL_DrawString(string); // JTR - This marks blocks!
 
     fontcolor = static_cast<uint8_t>(old_color);
     py = old_y;
     px = old_x;
-    USL_DrawString(str); // JTR - This marks blocks!
+    USL_DrawString(string); // JTR - This marks blocks!
 }
 
 void PreloadUpdate(

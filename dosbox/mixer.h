@@ -82,9 +82,9 @@ public:
     }
 
     // Sets a scale for output samples.
-    void set_scale(int scale)
+    void set_scale(int new_scale)
     {
-        scale_ = std::max(scale, get_min_scale());
+        scale_ = std::max(new_scale, get_min_scale());
     }
 
     static int get_min_scale()

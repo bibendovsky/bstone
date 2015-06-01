@@ -625,21 +625,23 @@ void HitHorizWall()
 
 void HitHorizDoor()
 {
-    uint16_t texture, doorpage = static_cast<uint16_t>(-1), doornum, xint;
+    uint16_t texture;
+    uint16_t doorpage = static_cast<uint16_t>(-1);
+    uint16_t xint;
     bool lockable = true;
 
-    doornum = tilehit & 0x7f;
+    int door_index = tilehit & 0x7F;
 
-    if (doorobjlist[doornum].action == dr_jammed) {
+    if (doorobjlist[door_index].action == dr_jammed) {
         return;
     }
 
-    xint = xintercept & 0xffff;
+    xint = xintercept & 0xFFFF;
 
-    if (xint > 0x7fff) {
-        texture = ((xint - (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
+    if (xint > 0x7FFF) {
+        texture = ((xint - (uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
     } else {
-        texture = ((xint + (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
+        texture = ((xint + (uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
     }
 
     wallheight[pixx] = CalcHeight();
@@ -671,7 +673,7 @@ void HitHorizDoor()
         lasttilehit = tilehit;
         postx = pixx;
 
-        switch (doorobjlist[doornum].type) {
+        switch (doorobjlist[door_index].type) {
         case dr_normal:
             doorpage = static_cast<int16_t>(DOORWALL + L_METAL);
             break;
@@ -698,7 +700,7 @@ void HitHorizDoor()
 
         case dr_oneway_up:
         case dr_oneway_left:
-            if (player->tiley > doorobjlist[doornum].tiley) {
+            if (player->tiley > doorobjlist[door_index].tiley) {
                 doorpage = static_cast<int16_t>(DOORWALL + L_ENTER_ONLY); // normal view
             } else {
                 doorpage = static_cast<int16_t>(DOORWALL + NOEXIT); // Reverse View
@@ -708,7 +710,7 @@ void HitHorizDoor()
 
         case dr_oneway_right:
         case dr_oneway_down:
-            if (player->tiley > doorobjlist[doornum].tiley) {
+            if (player->tiley > doorobjlist[door_index].tiley) {
                 doorpage = static_cast<int16_t>(DOORWALL + NOEXIT); // normal view
                 lockable = false;
             } else {
@@ -726,7 +728,7 @@ void HitHorizDoor()
         // If door is unlocked, Inc shape ptr to unlocked door shapes
         //
 
-        if (lockable && doorobjlist[doornum].lock == kt_none) {
+        if (lockable && doorobjlist[door_index].lock == kt_none) {
             doorpage += UL_METAL;
         }
 
@@ -738,20 +740,22 @@ void HitHorizDoor()
 
 void HitVertDoor()
 {
-    uint16_t texture, doorpage = static_cast<uint16_t>(DOORWALL), doornum, yint;
+    uint16_t texture;
+    uint16_t doorpage = static_cast<uint16_t>(DOORWALL);
+    uint16_t yint;
     bool lockable = true;
 
-    doornum = tilehit & 0x7f;
+    int door_index = tilehit & 0x7F;
 
-    if (doorobjlist[doornum].action == dr_jammed) {
+    if (doorobjlist[door_index].action == dr_jammed) {
         return;
     }
 
-    yint = yintercept & 0xffff;
-    if (yint > 0x7fff) {
-        texture = ((yint - (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
+    yint = yintercept & 0xFFFF;
+    if (yint > 0x7FFF) {
+        texture = ((yint - (uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
     } else {
-        texture = ((yint + (uint16_t)(doorposition[doornum] >> 1)) >> 4) & 0xfc0;
+        texture = ((yint + (uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
     }
 
     wallheight[pixx] = CalcHeight();
@@ -783,7 +787,7 @@ void HitVertDoor()
         lasttilehit = tilehit;
         postx = pixx;
 
-        switch (doorobjlist[doornum].type) {
+        switch (doorobjlist[door_index].type) {
         case dr_normal:
             doorpage = static_cast<int16_t>(DOORWALL + L_METAL_SHADE);
             break;
@@ -810,7 +814,7 @@ void HitVertDoor()
 
         case dr_oneway_left:
         case dr_oneway_up:
-            if (player->tilex > doorobjlist[doornum].tilex) {
+            if (player->tilex > doorobjlist[door_index].tilex) {
                 doorpage = static_cast<int16_t>(DOORWALL + L_ENTER_ONLY_SHADE); // Reverse View
             } else {
                 doorpage = static_cast<int16_t>(DOORWALL + NOEXIT_SHADE); // Normal view
@@ -820,7 +824,7 @@ void HitVertDoor()
 
         case dr_oneway_right:
         case dr_oneway_down:
-            if (player->tilex > doorobjlist[doornum].tilex) {
+            if (player->tilex > doorobjlist[door_index].tilex) {
                 doorpage = static_cast<int16_t>(DOORWALL + NOEXIT_SHADE); // Reverse View
                 lockable = false;
             } else {
@@ -839,7 +843,7 @@ void HitVertDoor()
         // If door is unlocked, Inc shape ptr to unlocked door shapes
         //
 
-        if (lockable && doorobjlist[doornum].lock == kt_none) {
+        if (lockable && doorobjlist[door_index].lock == kt_none) {
             doorpage += UL_METAL;
         }
 
@@ -1019,35 +1023,38 @@ int16_t CalcRotate(
     // this isn't exactly correct, as it should vary by a trig value,
     // but it is close enough with only eight rotations
 
-    int viewangle = player->angle + ((centerx - ob->viewx) / (8 * vga_scale));
+    int view_angle = player->angle + ((centerx - ob->viewx) / (8 * vga_scale));
 
     if (dir == nodir) {
         dir = static_cast<dirtype>(ob->trydir & 127);
     }
 
-    int angle = (viewangle - 180) - dirangle[dir];
+    int target_angle = (view_angle - 180) - dirangle[dir];
 
-    angle += ANGLES / 16;
+    target_angle += ANGLES / 16;
 
-    while (angle >= ANGLES) {
-        angle -= ANGLES;
+    while (target_angle >= ANGLES) {
+        target_angle -= ANGLES;
     }
 
-    while (angle < 0) {
-        angle += ANGLES;
+    while (target_angle < 0) {
+        target_angle += ANGLES;
     }
 
     if ((ob->state->flags & SF_PAINFRAME) != 0) { // 2 rotation pain frame
-        return static_cast<int16_t>(4 * (angle / (ANGLES / 2))); // seperated by 3 (art layout...)
+        return static_cast<int16_t>(4 * (target_angle / (ANGLES / 2))); // seperated by 3 (art layout...)
 
     }
-    return static_cast<int16_t>(angle / (ANGLES / 8));
+    return static_cast<int16_t>(target_angle / (ANGLES / 8));
 }
 
 
 
 const int MAXVISABLE = 50;
-visobj_t vislist[MAXVISABLE], * visptr, * visstep, * farthest;
+visobj_t vislist[MAXVISABLE];
+visobj_t* visptr;
+visobj_t* visstep;
+visobj_t* farthest;
 
 
 /*

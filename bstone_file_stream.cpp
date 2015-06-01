@@ -80,24 +80,24 @@ bool FileStream::open(
 
 
     auto mode = "";
-    bool can_read = false;
-    bool can_write = false;
+    bool is_readable = false;
+    bool is_writable = false;
 
     switch (open_mode) {
     case StreamOpenMode::read:
         mode = "rb";
-        can_read = true;
+        is_readable = true;
         break;
 
     case StreamOpenMode::write:
         mode = "wb";
-        can_write = true;
+        is_writable = true;
         break;
 
     case StreamOpenMode::read_write:
         mode = "r+b";
-        can_read = true;
-        can_write = true;
+        is_readable = true;
+        is_writable = true;
         break;
 
     default:
@@ -112,9 +112,9 @@ bool FileStream::open(
     }
 
     context_ = sdl_context;
-    can_read_ = can_read;
+    can_read_ = is_readable;
     can_seek_ = true;
-    can_write_ = can_write;
+    can_write_ = is_writable;
 
     return true;
 }

@@ -986,8 +986,7 @@ void CA_CacheMarks()
 void CA_CannotOpen(
     const std::string& string)
 {
-    auto str = "Can't open " + string + "!\n";
-    ::Quit(str);
+    ::Quit("Can't open " + string + "!\n");
 }
 
 void UNCACHEGRCHUNK(

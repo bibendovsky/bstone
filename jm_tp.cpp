@@ -1453,7 +1453,6 @@ ScanCode TPscan;
 // Bunch of general globals!
 //
 static int8_t old_fontnumber;
-static int16_t length;
 
 enum JustifyMode {
     jm_left,
@@ -1477,7 +1476,6 @@ static int16_t last_cur_y;
 static const char* first_ch;
 
 static const char* scan_ch;
-static char temp;
 static int16_t scan_x;
 static int16_t numanims;
 static int16_t stemp;
@@ -1604,6 +1602,8 @@ void TP_Presenter(
 
 void TP_WrapText()
 {
+    char temp;
+
     flags &= ~fl_startofline;
 
     if ((stemp = TP_LineCommented(first_ch)) != 0) {
@@ -1665,8 +1665,6 @@ void TP_WrapText()
 
     px = cur_x;
     py = cur_y;
-
-    length = static_cast<int16_t>(scan_ch - first_ch + 1); // USL_DrawString only works with
 
     if (*first_ch != TP_RETURN_CHAR) {
         if (pi->print_delay) {
@@ -2498,12 +2496,12 @@ void TP_ResetAnims()
 }
 
 void TP_AnimatePage(
-    int16_t numanims)
+    int16_t num_anims)
 {
     piAnimInfo* anim = piAnimList;
     piShapeInfo* shape;
 
-    while (numanims--) {
+    while (num_anims--) {
         anim->delay += tics;
         if (anim->delay >= anim->maxdelay) {
             anim->delay = 0;
@@ -2631,7 +2629,7 @@ void TP_CachePage(
     int16_t loop;
     uint16_t shapenum;
     bool end_of_page = false;
-    int16_t numanims = 0;
+    int16_t num_anims = 0;
 
     if (pi->flags & TPF_CACHE_NO_GFX) {
         return;
@@ -2665,7 +2663,7 @@ void TP_CachePage(
                 shapenum = TP_VALUE(script, 2);
                 script += 2;
 
-                if (numanims++ == TP_MAX_ANIMS) {
+                if (num_anims++ == TP_MAX_ANIMS) {
                     ::Quit("Too many anims on one page.");
                 }
 
@@ -2742,7 +2740,7 @@ void TP_JumpCursor()
 }
 
 void TP_Print(
-    const char* str,
+    const char* string,
     bool single_char)
 {
 
@@ -2758,19 +2756,19 @@ void TP_Print(
     last_cur_x = cur_x;
     last_cur_y = cur_y;
 
-    if ((flags & fl_shadowtext) && (*str != '@')) {
+    if ((flags & fl_shadowtext) && (*string != '@')) {
         if (fontcolor == bgcolor) {
-            ShPrint(str, static_cast<int8_t>(bgcolor), single_char);
+            ShPrint(string, static_cast<int8_t>(bgcolor), single_char);
         } else {
-            ShPrint(str, static_cast<int8_t>(shcolor), single_char);
+            ShPrint(string, static_cast<int8_t>(shcolor), single_char);
         }
     } else if (single_char) {
         char buf[2] = { 0, 0 };
 
-        buf[0] = *str;
+        buf[0] = *string;
         USL_DrawString(buf);
     } else {
-        USL_DrawString(str);
+        USL_DrawString(string);
     }
 
     cur_x = px;
@@ -2782,7 +2780,7 @@ void TP_Print(
 }
 
 bool TP_SlowPrint(
-    const char* str,
+    const char* string,
     int8_t delay)
 {
     auto old_color = fontcolor;
@@ -2790,7 +2788,7 @@ bool TP_SlowPrint(
     int32_t tc;
     bool aborted = false;
 
-    while (*str) {
+    while (*string) {
         if (pi->flags & TPF_SHOW_CURSOR) {
             // Remove the cursor.
             //
@@ -2807,9 +2805,9 @@ bool TP_SlowPrint(
         // Otherwise, just print a character ...
         //
         if (aborted) {
-            TP_Print(str, false);
+            TP_Print(string, false);
         } else {
-            TP_Print(str++, true);
+            TP_Print(string++, true);
         }
 
         // Print cursor
@@ -2829,7 +2827,7 @@ bool TP_SlowPrint(
         // Liven up the audio aspect!
         //
         if (pi->flags & TPF_TERM_SOUND) {
-            if (*str != ' ') {
+            if (*string != ' ') {
                 ::sd_play_player_sound(TERM_TYPESND, bstone::AC_ITEM);
             }
         }
@@ -2861,7 +2859,7 @@ bool TP_SlowPrint(
 
 int32_t TP_LoadScript(
     const char* filename,
-    PresenterInfo* pi,
+    PresenterInfo* p_i,
     uint16_t id_cache)
 {
     int32_t size;
@@ -2869,52 +2867,52 @@ int32_t TP_LoadScript(
     if (id_cache) {
         const char* p;
 
-        pi->id_cache = id_cache;
+        p_i->id_cache = id_cache;
         CA_CacheGrChunk(id_cache);
-        pi->scriptstart = grsegs[id_cache];
+        p_i->scriptstart = grsegs[id_cache];
         p = strstr(static_cast<const char*>(grsegs[id_cache]), "^XX");
 
         if (!p) {
             ::Quit("Can't find the ^XX doc terminator string.");
         }
-        size = static_cast<int32_t>(p - static_cast<const char*>(pi->scriptstart) - 1);
+        size = static_cast<int32_t>(p - static_cast<const char*>(p_i->scriptstart) - 1);
     } else {
-        pi->id_cache = -1;
-        if ((size = IO_LoadFile(filename, &pi->scriptstart)) == 0) {
+        p_i->id_cache = -1;
+        if ((size = IO_LoadFile(filename, &p_i->scriptstart)) == 0) {
             return 0;
         }
     }
 
-    pi->script[0] = (char*)pi->scriptstart;
-    const_cast<char*>(pi->script[0])[size + 4] = '\0'; // Last byte is trashed!
+    p_i->script[0] = (char*)p_i->scriptstart;
+    const_cast<char*>(p_i->script[0])[size + 4] = '\0'; // Last byte is trashed!
 
-    pi->flags |= TPF_CACHED_SCRIPT;
-    TP_InitScript(pi);
+    p_i->flags |= TPF_CACHED_SCRIPT;
+    TP_InitScript(p_i);
 
     return size;
 }
 
 void TP_FreeScript(
-    PresenterInfo* pi,
+    PresenterInfo* p_i,
     uint16_t id_cache)
 {
     TP_PurgeAllGfx();
 
     if (id_cache) {
         UNCACHEGRCHUNK(id_cache);
-    } else if ((pi->script) && (pi->flags & TPF_CACHED_SCRIPT)) {
-        delete [] static_cast<char*>(pi->scriptstart);
-        pi->scriptstart = nullptr;
+    } else if ((p_i->script) && (p_i->flags & TPF_CACHED_SCRIPT)) {
+        delete [] static_cast<char*>(p_i->scriptstart);
+        p_i->scriptstart = nullptr;
     }
 }
 
 void TP_InitScript(
-    PresenterInfo* pi)
+    PresenterInfo* p_i)
 {
-    const char* script = pi->script[0];
+    const char* script = p_i->script[0];
     uint16_t code;
 
-    pi->numpages = 1; // Assume at least 1 page
+    p_i->numpages = 1; // Assume at least 1 page
     while (*script) {
         while ((stemp = TP_LineCommented(script)) != 0) {
             script += stemp;
@@ -2933,8 +2931,8 @@ void TP_InitScript(
             script += 2;
             switch (code) {
             case TP_CNVT_CODE('E', 'P'):
-                if (pi->numpages < TP_MAX_PAGES) {
-                    pi->script[static_cast<int>(pi->numpages++)] = script;
+                if (p_i->numpages < TP_MAX_PAGES) {
+                    p_i->script[static_cast<int>(p_i->numpages++)] = script;
                 } else {
                     ::Quit("Too many pages in presenter.");
                 }
@@ -2945,7 +2943,7 @@ void TP_InitScript(
     }
 
 end_func:;
-    pi->numpages--;     // Last page defined is not a real page.
+    p_i->numpages--;     // Last page defined is not a real page.
 }
 
 void TP_CacheIn(

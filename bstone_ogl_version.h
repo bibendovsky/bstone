@@ -44,7 +44,7 @@ public:
         int major = 0,
         int minor = 0,
         int release = 0,
-        bool is_es = false);
+        bool is_gles = false);
 
     OglVersion(
         const std::string& version_string);

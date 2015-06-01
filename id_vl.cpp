@@ -415,8 +415,6 @@ void check_vsync()
     const int min_expected_duration_ms =
         ((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
 
-    using Clock = std::chrono::system_clock;
-
     auto before_timestamp = Clock::now();
 
     for (int i = 0; i < draw_count; ++i) {
@@ -2022,8 +2020,6 @@ void initialize_video()
         ::g_renderer_type = RT_AUTO_DETECT;
     }
 
-
-    bool initialize_result = false;
 
     switch (::g_renderer_type) {
     case RT_AUTO_DETECT:

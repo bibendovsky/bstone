@@ -474,9 +474,9 @@ char TestQuickSaveMsg[] = { "QUICK SAVE TEST\n ENTER COUNT:" };
 
 int16_t DebugKeys()
 {
-    char str[3];
+    char string[3];
     bool esc;
-    int16_t level, i;
+    int16_t level;
 
     if (Keyboard[ScanCode::sc_a]) {       // A = Show Actors on AutoMap
         ExtraRadarFlags ^= OV_ACTORS;
@@ -565,7 +565,7 @@ int16_t DebugKeys()
 
         const auto n = static_cast<int16_t>(::is_ps() ? wp_bfg_cannon : wp_grenade);
 
-        for (i = wp_autocharge; i <= n; i++) {
+        for (int i = wp_autocharge; i <= n; i++) {
             if (!(gamestate.weapons & (1 << i))) {
                 GiveWeapon(i);
                 break;
@@ -656,10 +656,10 @@ int16_t DebugKeys()
         US_PrintUnsigned(gamestate.mapon);
         US_Print("\n  Enter map number: ");
         VW_UpdateScreen();
-        esc = !US_LineInput(px, py, str, nullptr, true, 2, 0);
-        if (!esc && str[0] != '\0') {
+        esc = !US_LineInput(px, py, string, nullptr, true, 2, 0);
+        if (!esc && string[0] != '\0') {
             const int MAX_WARP_LEVEL = (::is_aog() ? 10 : 23);
-            level = static_cast<int16_t>(atoi(str));
+            level = static_cast<int16_t>(atoi(string));
             if (level > -1 && level <= MAX_WARP_LEVEL) {
                 gamestate.lastmapon = gamestate.mapon;
                 playstate = ex_warped;

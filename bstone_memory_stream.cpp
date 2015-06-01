@@ -75,21 +75,21 @@ bool MemoryStream::open(
     close();
 
 
-    bool can_read = false;
-    bool can_write = false;
+    bool is_readable = false;
+    bool is_writable = false;
 
     switch (open_mode) {
     case StreamOpenMode::read:
-        can_read = true;
+        is_readable = true;
         break;
 
     case StreamOpenMode::write:
-        can_write = true;
+        is_writable = true;
         break;
 
     case StreamOpenMode::read_write:
-        can_read = true;
-        can_write = true;
+        is_readable = true;
+        is_writable = true;
         break;
 
     default:
@@ -104,8 +104,8 @@ bool MemoryStream::open(
     int_buffer_.reserve(initial_capacity);
 
     is_open_ = true;
-    can_read_ = can_read;
-    can_write_ = can_write;
+    can_read_ = is_readable;
+    can_write_ = is_writable;
 
     return true;
 }
@@ -127,21 +127,21 @@ bool MemoryStream::open(
     }
 
 
-    bool can_read = false;
-    bool can_write = false;
+    bool is_readable = false;
+    bool is_writable = false;
 
     switch (open_mode) {
     case StreamOpenMode::read:
-        can_read = true;
+        is_readable = true;
         break;
 
     case StreamOpenMode::write:
-        can_write = true;
+        is_writable = true;
         break;
 
     case StreamOpenMode::read_write:
-        can_read = true;
-        can_write = true;
+        is_readable = true;
+        is_writable = true;
         break;
 
     default:
@@ -150,8 +150,8 @@ bool MemoryStream::open(
 
 
     is_open_ = true;
-    can_read_ = can_read;
-    can_write_ = can_write;
+    can_read_ = is_readable;
+    can_write_ = is_writable;
     size_ = buffer_size;
     ext_size_ = buffer_size;
     buffer_ = const_cast<uint8_t*>(&buffer[buffer_offset]);

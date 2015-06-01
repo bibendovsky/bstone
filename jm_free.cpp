@@ -718,6 +718,10 @@ void CheckForEpisodes()
             case GameType::ps:
                 bstone::Log::write("Found Planet Strike (v1.x).\n");
                 break;
+
+            default:
+                is_succeed = false;
+                break;
             }
         } else {
             is_succeed = false;

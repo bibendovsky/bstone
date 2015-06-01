@@ -172,7 +172,7 @@ extern bstone::MemoryStream g_playtemp;
 */
 
 void writeTokenStr(
-    std::string& str);
+    std::string& string);
 
 void ShowOverheadChunk();
 
@@ -599,8 +599,8 @@ void LatchNumber(
     int32_t number)
 {
     auto wide = 0;
-    auto str = std::to_string(number);
-    auto length = static_cast<int>(str.length());
+    auto number_string = std::to_string(number);
+    auto length = static_cast<int>(number_string.length());
 
     while (length < width && wide < width) {
         STATUSDRAWPIC(x, y, N_BLANKPIC);
@@ -612,7 +612,7 @@ void LatchNumber(
     auto c = 0;
 
     while (wide < width) {
-        STATUSDRAWPIC(x, y, str[c] - '0' + N_0PIC);
+        STATUSDRAWPIC(x, y, number_string[c] - '0' + N_0PIC);
         ++x;
         ++c;
         ++wide;
@@ -792,7 +792,7 @@ void DrawHealthMonitor()
 void DrawHealth()
 {
     if (::is_ps()) {
-        auto str = std::to_string(gamestate.health);
+        auto health_string = std::to_string(gamestate.health);
 
         std::uninitialized_fill_n(
             gamestate.health_str,
@@ -801,7 +801,7 @@ void DrawHealth()
 
         auto index = 0;
 
-        for (auto& ch : str) {
+        for (auto ch : health_string) {
             gamestate.health_str[index] = ch - '0';
             index += 1;
         }
@@ -2329,7 +2329,7 @@ void GetBonus(
 }
 
 void writeTokenStr(
-    std::string& str)
+    std::string& string)
 {
     auto token_string = std::to_string(gamestate.tokens);
 
@@ -2337,8 +2337,8 @@ void writeTokenStr(
         token_string = '0' + token_string;
     }
 
-    str.erase(str.length() - 2, 2);
-    str += token_string;
+    string.erase(string.length() - 2, 2);
+    string += token_string;
 }
 
 
@@ -2715,7 +2715,10 @@ void Cmd_Fire()
 
 void Cmd_Use()
 {
-    int16_t checkx, checky, doornum, dir;
+    int16_t checkx;
+    int16_t checky;
+    int16_t door_index;
+    int16_t dir;
     uint16_t iconnum;
     uint8_t static interrogate_delay = 0;
 
@@ -2741,7 +2744,7 @@ void Cmd_Use()
         dir = di_south;
     }
 
-    doornum = tilemap[checkx][checky];
+    door_index = tilemap[checkx][checky];
     iconnum = *(mapsegs[1] + farmapylookup[checky] + checkx);
 
 // Test for a pushable wall
@@ -2751,13 +2754,13 @@ void Cmd_Use()
     } else if (!buttonheld[bt_use]) {
         // Test for doors / elevator
         //
-        if ((doornum & 0x80) && ((pwallx != checkx) || (pwally != checky))) {
+        if ((door_index & 0x80) && ((pwallx != checkx) || (pwally != checky))) {
             buttonheld[bt_use] = true;
-            OperateDoor(doornum & ~0x80);
+            OperateDoor(door_index & ~0x80);
         } else {
             // Test for special tile types...
             //
-            switch (doornum & 63) {
+            switch (door_index & 63) {
             // Test for 'display elevator buttons'
             //
             case TRANSPORTERTILE: {

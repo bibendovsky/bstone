@@ -33,11 +33,11 @@ OglVersion::OglVersion(
     int major,
     int minor,
     int release,
-    bool is_es) :
+    bool is_gles) :
         major_(major),
         minor_(minor),
         release_(release),
-        is_es_(is_es)
+        is_es_(is_gles)
 {
 }
 
@@ -85,10 +85,10 @@ void OglVersion::set(
     iss.unsetf(std::ios::skipws);
 
     // Check for OpenGL ES.
-    bool is_es = false;
+    bool is_gles = false;
 
     if (version_string.find(get_es_prefix()) == 0) {
-        is_es = true;
+        is_gles = true;
         iss.ignore(get_es_prefix().size());
     }
 
@@ -150,7 +150,7 @@ void OglVersion::set(
     release_ = release;
     vendor_ = vendor;
     original_ = version_string;
-    is_es_ = is_es;
+    is_es_ = is_gles;
 }
 
 void OglVersion::reset()

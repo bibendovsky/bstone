@@ -201,7 +201,7 @@ static bool CHECKDIAG(
 static bool CHECKSIDE(
     int x,
     int y,
-    int16_t& doornum)
+    int16_t& door_index)
 {
     auto actor = ::actorat[x][y];
     auto temp = reinterpret_cast<size_t>(actor);
@@ -212,9 +212,9 @@ static bool CHECKSIDE(
         }
 
         if (temp < 256) {
-            doornum = temp & 63;
+            door_index = temp & 63;
 
-            if (::doorobjlist[doornum].lock != kt_none) {
+            if (::doorobjlist[door_index].lock != kt_none) {
                 return false;
             }
         } else if ((actor->flags & FL_SOLID) != 0) {
@@ -258,11 +258,11 @@ bool TryWalk(
         return false;
     }
 
-    int16_t doornum = -1;
+    int16_t door_index = -1;
 
     switch (ob->dir) {
     case north:
-        if (!::CHECKSIDE(ob->tilex, ob->tiley - 1, doornum)) {
+        if (!::CHECKSIDE(ob->tilex, ob->tiley - 1, door_index)) {
             return false;
         }
 
@@ -297,13 +297,13 @@ bool TryWalk(
         break;
 
     case east:
-        if (!::CHECKSIDE(ob->tilex + 1, ob->tiley, doornum)) {
+        if (!::CHECKSIDE(ob->tilex + 1, ob->tiley, door_index)) {
             return false;
         }
 
         if (ElevatorFloor(ob->tilex + 1, ob->tiley)) {
-            if ((doornum != -1) && (ob->obclass != electrosphereobj)) {
-                OpenDoor(doornum);
+            if ((door_index != -1) && (ob->obclass != electrosphereobj)) {
+                OpenDoor(door_index);
             }
 
             return false;
@@ -336,7 +336,7 @@ bool TryWalk(
         break;
 
     case south:
-        if (!::CHECKSIDE(ob->tilex, ob->tiley + 1, doornum)) {
+        if (!::CHECKSIDE(ob->tilex, ob->tiley + 1, door_index)) {
             return false;
         }
 
@@ -371,13 +371,13 @@ bool TryWalk(
         break;
 
     case west:
-        if (!::CHECKSIDE(ob->tilex - 1, ob->tiley, doornum)) {
+        if (!::CHECKSIDE(ob->tilex - 1, ob->tiley, door_index)) {
             return false;
         }
 
         if (ElevatorFloor(ob->tilex - 1, ob->tiley)) {
-            if ((doornum != -1) && (ob->obclass != electrosphereobj)) {
-                OpenDoor(doornum);
+            if ((door_index != -1) && (ob->obclass != electrosphereobj)) {
+                OpenDoor(door_index);
             }
 
             return false;
@@ -418,7 +418,7 @@ bool TryWalk(
 
 // Should actor open this door?
 //
-    if (doornum != -1) {
+    if (door_index != -1) {
         switch (ob->obclass) {
         // Actors that don't open doors.
         //
@@ -431,8 +431,8 @@ bool TryWalk(
         // All other actors open doors.
         //
         default:
-            OpenDoor(doornum);
-            ob->distance = -doornum - 1;
+            OpenDoor(door_index);
+            ob->distance = -door_index - 1;
             return true;
         }
     }
@@ -2302,20 +2302,18 @@ bool LookForGoodies(
         // Randomly choose a door if any were found.
         //
         if (doorsfound) {
-            int8_t doornum;
-
             // Randomly choose a door from the list.
             // (Only choose the last door used if it's the only door in this area!)
             //
-            doornum = static_cast<int8_t>(Random(doorsfound));
-            door = doorlist[static_cast<int>(doornum)];
+            int door_index = Random(doorsfound);
+            door = doorlist[door_index];
 
             if (door == ui16_to_door_object(ob->temp3) && doorsfound > 1) {
-                doornum++;
-                if (doornum >= doorsfound) {
-                    doornum = 0;
+                door_index++;
+                if (door_index >= doorsfound) {
+                    door_index = 0;
                 }
-                door = doorlist[static_cast<int>(doornum)];
+                door = doorlist[door_index];
             }
 
             ob->temp3 = door_object_to_ui16(door);

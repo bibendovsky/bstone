@@ -6466,14 +6466,14 @@ void InitSmartAnim(
 // ArchiveException
 
 ArchiveException::ArchiveException(
-    const char* what) throw () :
-    what_(what)
+    const char* message) throw () :
+        message_(message)
 {
 }
 
 ArchiveException::ArchiveException(
     const ArchiveException& that) throw () :
-    what_(that.what_)
+        message_(that.message_)
 {
 }
 
@@ -6485,14 +6485,17 @@ ArchiveException::~ArchiveException() throw ()
 ArchiveException& ArchiveException::operator=(
     const ArchiveException& that) throw ()
 {
-    what_ = that.what_;
+    if (&that != this) {
+        message_ = that.message_;
+    }
+
     return *this;
 }
 
 // (virtual)
 const char* ArchiveException::what() const throw ()
 {
-    return what_;
+    return message_;
 }
 
 // ArchiveException
@@ -6540,16 +6543,16 @@ static const std::string& get_score_file_name()
 static void set_default_high_scores()
 {
     Scores = {
-        HighScore { "JAM PRODUCTIONS INC.", 10000, 1, 0, },
-        HighScore { "", 10000, 1, 0, },
-        HighScore { "JERRY JONES", 10000, 1, 0, },
-        HighScore { "MICHAEL MAYNARD", 10000, 1, 0, },
-        HighScore { "JAMES T. ROW", 10000, 1, 0, },
-        HighScore { "", 10000, 1, 0, },
-        HighScore { "", 10000, 1, 0, },
-        HighScore { "TO REGISTER CALL", 10000, 1, 0, },
-        HighScore { " 1-800-GAME123", 10000, 1, 0, },
-        HighScore { "", 10000, 1, 0, },
+        HighScore { "JAM PRODUCTIONS INC.", 10000, 1, 0, 0, },
+        HighScore { "", 10000, 1, 0, 0, },
+        HighScore { "JERRY JONES", 10000, 1, 0, 0, },
+        HighScore { "MICHAEL MAYNARD", 10000, 1, 0, 0, },
+        HighScore { "JAMES T. ROW", 10000, 1, 0, 0, },
+        HighScore { "", 10000, 1, 0, 0, },
+        HighScore { "", 10000, 1, 0, 0, },
+        HighScore { "TO REGISTER CALL", 10000, 1, 0, 0, },
+        HighScore { " 1-800-GAME123", 10000, 1, 0, 0, },
+        HighScore { "", 10000, 1, 0, 0, },
     }; // Scores
 }
 
@@ -7559,7 +7562,6 @@ bool LoadTheGame(
     }
 
     bstone::BinaryReader file_reader(&file_stream);
-    const auto file_size = static_cast<int32_t>(file_stream.get_size());
 
     if (is_succeed) {
         is_succeed &= g_playtemp.set_size(0);
@@ -7928,20 +7930,18 @@ void CleanUpDoors_N_Actors()
 // --------------------------------------------------------------------------
 void ClearNClose()
 {
-    int8_t x;
-    int8_t y;
-    int8_t tx = 0;
-    int8_t ty = 0;
-    auto px = static_cast<int8_t>(player->x >> TILESHIFT);
-    auto py = static_cast<int8_t>(player->y >> TILESHIFT);
+    int tx = 0;
+    int ty = 0;
+    int p_x = (::player->x >> TILESHIFT) & 0xFF;
+    int p_y = (::player->y >> TILESHIFT) & 0xFF;
 
     // Locate the door.
     //
-    for (x = -1; x < 2 && !tx; x += 2) {
-        for (y = -1; y < 2; y += 2) {
-            if (tilemap[px + x][py + y] & 0x80) {
-                tx = px + x;
-                ty = py + y;
+    for (int x = -1; x < 2 && tx == 0; x += 2) {
+        for (int y = -1; y < 2; y += 2) {
+            if ((::tilemap[p_x + x][p_y + y] & 0x80) != 0) {
+                tx = p_x + x;
+                ty = p_y + y;
                 break;
             }
         }
@@ -7949,14 +7949,14 @@ void ClearNClose()
 
     // Close the door!
     //
-    if (tx) {
-        auto doornum = static_cast<int8_t>(tilemap[static_cast<int>(tx)][static_cast<int>(ty)] & 63);
+    if (tx != 0) {
+        int door_index = ::tilemap[tx][ty] & 63;
 
-        doorobjlist[static_cast<int>(doornum)].action = dr_closed; // this door is closed!
-        doorposition[static_cast<int>(doornum)] = 0; // draw it closed!
+        ::doorobjlist[door_index].action = dr_closed; // this door is closed!
+        ::doorposition[door_index] = 0; // draw it closed!
 
         // make it solid!
-        actorat[static_cast<int>(tx)][static_cast<int>(ty)] = reinterpret_cast<objtype*>(doornum | 0x80);
+        ::actorat[tx][ty] = reinterpret_cast<objtype*>(door_index | 0x80);
     }
 }
 
@@ -9103,7 +9103,7 @@ const std::string& get_profile_dir()
 
 const std::string& get_default_data_dir()
 {
-    static std::string data_dir;
+    static std::string result;
     static auto is_initialized = false;
 
     if (!is_initialized) {
@@ -9112,11 +9112,11 @@ const std::string& get_default_data_dir()
         auto sdl_dir = ::SDL_GetBasePath();
 
         if (sdl_dir) {
-            data_dir = sdl_dir;
+            result = sdl_dir;
             ::SDL_free(sdl_dir);
         }
     }
 
-    return data_dir;
+    return result;
 }
 // BBi

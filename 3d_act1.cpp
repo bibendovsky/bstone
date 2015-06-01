@@ -53,7 +53,7 @@ void HealSelf(
 // ===========================================================================
 
 
-concession_t ConHintList = { 0 };
+concession_t ConHintList = {};
 
 
 /*
@@ -826,10 +826,10 @@ void CheckLinkedDoors(
     static int16_t base_tilex;
     static int16_t base_tiley;
 
-    int16_t tilex = doorobjlist[door].tilex,
-           tiley = doorobjlist[door].tiley,
-           next_tilex = 0,
-           next_tiley = 0;
+    int16_t tilex = doorobjlist[door].tilex;
+    int16_t tiley = doorobjlist[door].tiley;
+    int16_t next_tilex = 0;
+    int16_t next_tiley = 0;
 
 // Find next door in link.
 //
@@ -858,17 +858,17 @@ void CheckLinkedDoors(
         ((next_tilex != base_tilex) || (next_tiley != base_tiley))
         )
     {
-        int16_t door = tilemap[next_tilex][next_tiley] & ~0x80;
+        int16_t door_index = tilemap[next_tilex][next_tiley] & ~0x80;
 
         switch (door_dir) {
         case dr_opening:
-            doorobjlist[door].lock = kt_none;
-            OpenDoor(door);
+            doorobjlist[door_index].lock = kt_none;
+            OpenDoor(door_index);
             break;
 
         case dr_closing:
-            doorobjlist[door].lock = kt_none;
-            CloseDoor(door);
+            doorobjlist[door_index].lock = kt_none;
+            CloseDoor(door_index);
             break;
         }
     }
@@ -1840,7 +1840,7 @@ extern std::string food_msg1;
 extern std::string bevs_msg1;
 
 extern void writeTokenStr(
-    std::string& str);
+    std::string& string);
 
 const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX";
 

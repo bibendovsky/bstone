@@ -4257,21 +4257,21 @@ extern bool g_rotated_automap;
 
 class ArchiveException : public std::exception {
 public:
-explicit ArchiveException(
-    const char* what) throw ();
+    explicit ArchiveException(
+        const char* message) throw ();
 
-ArchiveException(
-    const ArchiveException& that) throw ();
+    ArchiveException(
+        const ArchiveException& that) throw ();
 
-virtual ~ArchiveException() throw ();
+    virtual ~ArchiveException() throw ();
 
-ArchiveException& operator=(
-    const ArchiveException& that) throw ();
+    ArchiveException& operator=(
+        const ArchiveException& that) throw ();
 
-virtual const char* what() const throw ();
+    virtual const char* what() const throw ();
 
 private:
-const char* what_;
+    const char* message_;
 }; // ArchiveException
 
 

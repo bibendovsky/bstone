@@ -1327,9 +1327,11 @@ void in_handle_events()
 //
 ///////////////////////////////////////////////////////////////////////////
 void IN_ReadControl(
-    int16_t player,
-    ControlInfo* info)
+    int16_t player_index,
+    ControlInfo* control_info)
 {
+    static_cast<void>(player_index);
+
     bool realdelta = false;
     uint16_t buttons;
     int16_t dx, dy;
@@ -1338,8 +1340,6 @@ void IN_ReadControl(
 
     // BBi
     ::in_handle_events();
-
-    player = player; // shut up compiler!
 
     dx = dy = 0;
     mx = my = motion_None;
@@ -1422,15 +1422,15 @@ void IN_ReadControl(
         dy = static_cast<int16_t>(my * 127);
     }
 
-    info->x = dx;
-    info->xaxis = mx;
-    info->y = dy;
-    info->yaxis = my;
-    info->button0 = buttons & (1 << 0);
-    info->button1 = buttons & (1 << 1);
-    info->button2 = buttons & (1 << 2);
-    info->button3 = buttons & (1 << 3);
-    info->dir = DirTable[((my + 1) * 3) + (mx + 1)];
+    control_info->x = dx;
+    control_info->xaxis = mx;
+    control_info->y = dy;
+    control_info->yaxis = my;
+    control_info->button0 = buttons & (1 << 0);
+    control_info->button1 = buttons & (1 << 1);
+    control_info->button2 = buttons & (1 << 2);
+    control_info->button3 = buttons & (1 << 3);
+    control_info->dir = DirTable[((my + 1) * 3) + (mx + 1)];
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -453,12 +453,12 @@ public:
     Binding* binding;
 
     BindsItem(
-        std::string name = std::string(),
-        int name_width = 0,
-        Binding* binding = nullptr) :
-            name(name),
-            name_width(name_width),
-            binding(binding)
+        std::string new_name = std::string(),
+        int new_name_width = 0,
+        Binding* new_binding = nullptr) :
+            name(new_name),
+            name_width(new_name_width),
+            binding(new_binding)
     {
     }
 }; // BindsItem

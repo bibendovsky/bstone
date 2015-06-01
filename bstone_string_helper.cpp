@@ -98,11 +98,11 @@ bool StringHelper::is_iequal(
         a.cbegin(),
         a.cend(),
         b.cbegin(),
-        [] (char a, char b)
+        [] (char char_a, char char_b)
         {
             return
-                Internals::get_ctype_facet().tolower(a) ==
-                Internals::get_ctype_facet().tolower(b);
+                Internals::get_ctype_facet().tolower(char_a) ==
+                Internals::get_ctype_facet().tolower(char_b);
         }
     );
 

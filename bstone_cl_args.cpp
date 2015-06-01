@@ -161,11 +161,11 @@ int ClArgs::check_argument(
             continue;
         }
 
-        for (int i = 0; list[i]; ++i) {
-            auto list_item = list[i];
+        for (int j = 0; list[j]; ++j) {
+            auto list_item = list[j];
 
             if (item == list_item) {
-                return i;
+                return j;
             }
         }
     }
@@ -202,12 +202,12 @@ int ClArgs::check_argument(
             continue;
         }
 
-        for (int i = 0; list[i]; ++i) {
-            auto list_item = list[i];
+        for (int j = 0; list[j]; ++j) {
+            auto list_item = list[j];
 
             if (item == list_item) {
                 found_argument = item;
-                return i;
+                return j;
             }
         }
     }
