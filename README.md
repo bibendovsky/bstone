@@ -39,8 +39,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software  
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
----
-
 For a copy of the GNU General Public License see file LICENSE.  
 For an original source code license see file "Blake Stone source code license.doc".
 
@@ -123,7 +121,7 @@ CMake variables:
   Note: Visual C++ only
 
 * BSTONE_USE_STATIC_LINKING  
-  If enabled links modules statically to avoid dependancy on  
+  If enabled links modules statically to avoid dependency on  
   system and custom libraries at run-time.
 
 * SDL2_INCLUDE_DIRS  
@@ -172,7 +170,7 @@ Notes:
   Default switch strategy: AoG (full) -> AoG (SW) -> PS
 
 * --no_screens  
-  Skips startup screens (AoG/PS) and ending promo pages (AoG SW only).
+  Skips start-up screens (AoG/PS) and ending promo pages (AoG SW only).
 
 * --cheats  
   Enables so called "debug mode" without much fuss.
@@ -268,7 +266,7 @@ Add option "--cheats" to enable these keys.
   Hurt yourself by 1%.
 
 * [Backspace]+[I]  
-  Each usege adds 99% health, 5 tokens, 50 ammo, one new weapon.
+  Each usage adds 99% health, 5 tokens, 50 ammo, one new weapon.
 
 * [Backspace]+[K]  
   Shows total counts of enemies, points and informants on the map.
@@ -341,28 +339,31 @@ Add option "--cheats" to enable these keys.
 
 * id Software  
   Developing Wolfenstein 3D engine.  
-  Web-site: <http://www.idsoftware.com/>
+  <http://www.idsoftware.com/>
 
 * JAM Productions  
   Developing the game.
 
 * Apogee Entertainment, LLC  
   Publishing the game and releasing a source code.  
-  Web-site: <http://www.apogeesoftware.com/>
+  <http://www.apogeesoftware.com/>
 
 * Boris I. Bendovsky  
   Author of the source code.  
-  Email: <bibendovsky@hotmail.com>
+  <bibendovsky@hotmail.com>
 
 * Scott Smith  
   Adaptation to Pandora console, various fixes.
+
+* Filipe Tolhuizen  
+  Testing the port.
 
 
 10 - Links
 ==========
 
-* The port's source code and binary releases:  
-  <https://github.com/bibendovsky/bstone/>
+* Home page:  
+  <http://bibendovsky.github.io/bstone/>
 
 * Apogee's article about releasing of an original source code:  
   <http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code>
