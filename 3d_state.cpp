@@ -1304,6 +1304,7 @@ void DamageActor(
         if (::is_ps()) {
             return;
         }
+        break;
 
     case post_barrierobj:
         return;
