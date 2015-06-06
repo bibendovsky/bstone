@@ -1391,12 +1391,14 @@ void DamageActor(
             // a 'wound boundary'!
             //
             if (mod_before != mod_after) {
-                ::sd_play_actor_sound(
-                    SWATDEATH2SND, ob, bstone::AC_VOICE);
+                auto sound_index =
+                    (::is_aog() ? ::SWATDEATH3SND : ::SWATDEATH2SND);
 
-                NewState(ob, &s_swatwounded1);
+                ::sd_play_actor_sound(sound_index, ob, bstone::AC_VOICE);
+
+                ::NewState(ob, &::s_swatwounded1);
                 ob->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-                ob->temp2 = (5 * 60) + ((US_RndT() % 20) * 60);
+                ob->temp2 = (5 * 60) + ((::US_RndT() % 20) * 60);
                 return;
             }
             break;
