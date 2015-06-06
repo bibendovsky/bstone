@@ -582,7 +582,7 @@ void PollControls()
         //
         buttonbits = *demoptr++;
         for (i = 0; i < NUMBUTTONS; i++) {
-            buttonstate[i] = buttonbits & 1;
+            buttonstate[i] = ((buttonbits & 1) != 0);
             buttonbits >>= 1;
         }
 

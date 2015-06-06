@@ -2017,6 +2017,11 @@ void in_reset_state()
 
     ::Keyboard.reset();
 
+    for (int i = 0; i < NUMBUTTONS; ++i) {
+        ::buttonstate[i] = false;
+        ::buttonheld[i] = false;
+    }
+
     ::in_clear_mouse_deltas();
 }
 // BBi
