@@ -910,8 +910,12 @@ void ScanInfoPlane()
             //
 
             case 177:
-                SpawnOffsetObj(en_rotating_cube, x, y);
-                new_actor = nullptr;
+                ::SpawnOffsetObj(en_rotating_cube, x, y);
+
+                if (::is_ps()) {
+                    ::new_actor = nullptr;
+                }
+
                 break;
 
             //
