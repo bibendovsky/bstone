@@ -592,8 +592,10 @@ void AudioMixer::mix()
         if (!is_data_available_ && !sounds_.empty()) {
             mix_samples();
             is_data_available_ = true;
+#if BSTONE_AUDIO_MIXER_USE_THREAD
         } else {
             ::sys_default_sleep_for();
+#endif
         }
 #if BSTONE_AUDIO_MIXER_USE_THREAD
     }
