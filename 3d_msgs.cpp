@@ -50,7 +50,13 @@ std::string NoAdLibCard =
 std::string MusicOn =
     "^FC57\r\r        MUSIC:\r"
     "^FCA6   BACKGROUND MUSIC\r"
-    "        IS XXXX"
+    "        IS ON"
+;
+
+std::string MusicOff =
+    "^FC57\r\r        MUSIC:\r"
+    "^FCA6   BACKGROUND MUSIC\r"
+    "        IS OFF"
 ;
 
 std::string SoundOn =

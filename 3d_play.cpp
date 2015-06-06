@@ -1113,12 +1113,20 @@ void CheckMusicToggle()
     static bool M_KeyReleased;
 
     if (in_is_binding_pressed(e_bi_music)) {
-        if (M_KeyReleased &&
-            (::is_aog() ||
-                (!::is_aog_sw() &&
-                    (jam_buff[0] != ScanCode::sc_j ||
-                    jam_buff[1] != ScanCode::sc_a))))
-        {
+        bool toggle = M_KeyReleased;
+
+        if (!::is_aog_sw()) {
+            if (jam_buff[0] == ScanCode::sc_j &&
+                jam_buff[1] == ScanCode::sc_a &&
+                jam_buff[2] == ScanCode::sc_m)
+            {
+                toggle = false;
+            }
+        }
+
+        if (toggle) {
+            bool is_enabled = false;
+
             if (!::sd_has_audio) {
                 DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
@@ -1126,14 +1134,18 @@ void CheckMusicToggle()
                 return;
             } else if (::sd_is_music_enabled) {
                 ::SD_EnableMusic(false);
-                memcpy((char*)&MusicOn[58], "OFF.", 4);
+                is_enabled = false;
             } else {
                 ::SD_EnableMusic(true);
                 StartMusic(false);
-                memcpy((char*)&MusicOn[58], "ON. ", 4);
+                is_enabled = true;
             }
 
-            DISPLAY_TIMED_MSG(MusicOn, MP_BONUS, MT_GENERAL);
+            DISPLAY_TIMED_MSG(
+                is_enabled ? MusicOn : MusicOff,
+                MP_BONUS,
+                MT_GENERAL);
+
             M_KeyReleased = false;
         }
     } else {
