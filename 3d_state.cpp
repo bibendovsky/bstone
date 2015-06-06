@@ -728,36 +728,44 @@ void MoveObj(
     objtype* ob,
     int32_t move)
 {
-    int32_t deltax, deltay;
+    int32_t sign_x = 0;
+    int32_t sign_y = 0;
 
     switch (ob->dir) {
     case north:
-        ob->y -= move;
+        sign_y = -1;
         break;
+
     case northeast:
-        ob->x += move;
-        ob->y -= move;
+        sign_x = 1;
+        sign_y = -1;
         break;
+
     case east:
-        ob->x += move;
+        sign_x = 1;
         break;
+
     case southeast:
-        ob->x += move;
-        ob->y += move;
+        sign_x = 1;
+        sign_y = 1;
         break;
+
     case south:
-        ob->y += move;
+        sign_y = 1;
         break;
+
     case southwest:
-        ob->x -= move;
-        ob->y += move;
+        sign_x = -1;
+        sign_y = 1;
         break;
+
     case west:
-        ob->x -= move;
+        sign_x = -1;
         break;
+
     case northwest:
-        ob->x -= move;
-        ob->y -= move;
+        sign_x = -1;
+        sign_y = -1;
         break;
 
     case nodir:
@@ -765,65 +773,37 @@ void MoveObj(
 
     default:
         ::Quit("Illegal direction passed.");
-        break;
+        return;
     }
+
+    ob->x += sign_x * move;
+    ob->y += sign_y * move;
 
 //
 // check to make sure it's not on top of player
 //
-    if (ob->obclass != electrosphereobj) {
-        if (areabyplayer[ob->areanumber]) {
-            deltax = ob->x - player->x;
-            if (deltax < -MINACTORDIST || deltax > MINACTORDIST) {
-                goto moveok;
-            }
-            deltay = ob->y - player->y;
-            if (deltay < -MINACTORDIST || deltay > MINACTORDIST) {
-                goto moveok;
-            }
+    if (ob->obclass != electrosphereobj &&
+        ::areabyplayer[ob->areanumber])
+    {
+        auto dx = std::abs(ob->x - player->x);
+        auto dy = std::abs(ob->y - player->y);
 
+        if (!(dx > MINACTORDIST || dy > MINACTORDIST)) {
             //
             // back up
             //
-            switch (ob->dir) {
-            case north:
-                ob->y += move;
-                break;
-            case northeast:
-                ob->x -= move;
-                ob->y += move;
-                break;
-            case east:
-                ob->x -= move;
-                break;
-            case southeast:
-                ob->x -= move;
-                ob->y -= move;
-                break;
-            case south:
-                ob->y -= move;
-                break;
-            case southwest:
-                ob->x += move;
-                ob->y -= move;
-                break;
-            case west:
-                ob->x += move;
-                break;
-            case northwest:
-                ob->x += move;
-                ob->y += move;
-                break;
 
-            case nodir:
-                return;
-            }
+            sign_x = -sign_x;
+            sign_y = -sign_y;
 
-            PlayerIsBlocking(ob);
+            ob->x += sign_x * move;
+            ob->y += sign_y * move;
+
+            ::PlayerIsBlocking(ob);
             return;
         }
     }
-moveok:
+
     ob->distance -= move;
 }
 
