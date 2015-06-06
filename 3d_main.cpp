@@ -150,14 +150,14 @@ int16_t view_yh;
 uint16_t democount = 0, jim = 0;
 #endif
 
-static const bool default_no_wall_hit_sound = true;
+static const bool default_no_wall_hit_sound = false;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
 
-static const bool default_always_run = true;
+static const bool default_always_run = false;
 bool g_always_run = default_always_run;
 
 // BBi AOG only options
-static const bool default_heart_beat_sound = false;
+static const bool default_heart_beat_sound = true;
 bool g_heart_beat_sound = default_heart_beat_sound;
 
 static const bool default_rotated_automap = false;
