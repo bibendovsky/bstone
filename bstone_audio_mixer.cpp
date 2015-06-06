@@ -38,6 +38,7 @@ extern bool sqPlayedOnce;
 extern uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2];
 extern uint8_t righttable[ATABLEMAX][ATABLEMAX * 2];
 
+
 namespace bstone {
 
 
@@ -574,11 +575,11 @@ void AudioMixer::callback(
             reinterpret_cast<const uint8_t*>(buffer_.data()),
             dst_length,
             dst_data);
-
-        is_data_available_ = false;
     } else {
         std::uninitialized_fill_n(dst_data, dst_length, 0);
     }
+
+    is_data_available_ = false;
 }
 
 void AudioMixer::mix()
@@ -588,7 +589,7 @@ void AudioMixer::mix()
 #endif
         handle_commands();
 
-        if (!mute_ && !is_data_available_ && !sounds_.empty()) {
+        if (!is_data_available_ && !sounds_.empty()) {
             mix_samples();
             is_data_available_ = true;
         } else {
