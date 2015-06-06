@@ -788,13 +788,15 @@ void CheckKeys()
 
     if (in_is_binding_pressed(e_bi_sfx)) {
         if (S_KeyReleased) {
+            bool is_enabled = false;
+
             if (::sd_is_sound_enabled) {
                 ::SD_WaitSoundDone();
                 ::SD_EnableSound(false);
 
-                memcpy((char*)&SoundOn[55], "OFF.", 4);
+                is_enabled = false;
             } else {
-                ClearMemory();
+                ::ClearMemory();
 
                 if (::sd_has_audio) {
                     ::SD_EnableSound(true);
@@ -802,12 +804,16 @@ void CheckKeys()
                     ::SD_EnableSound(false);
                 }
 
-                CA_LoadAllSounds();
+                ::CA_LoadAllSounds();
 
-                memcpy((char*)&SoundOn[55], "ON. ", 4);
+                is_enabled = true;
             }
 
-            DISPLAY_TIMED_MSG(SoundOn, MP_BONUS, MT_GENERAL);
+            DISPLAY_TIMED_MSG(
+                is_enabled ? ::SoundOn : ::SoundOff,
+                MP_BONUS,
+                MT_GENERAL);
+
             S_KeyReleased = false;
         }
     } else {

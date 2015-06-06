@@ -50,19 +50,25 @@ std::string NoAdLibCard =
 std::string MusicOn =
     "^FC57\r\r        MUSIC:\r"
     "^FCA6   BACKGROUND MUSIC\r"
-    "        IS ON"
+    "        IS ON."
 ;
 
 std::string MusicOff =
     "^FC57\r\r        MUSIC:\r"
     "^FCA6   BACKGROUND MUSIC\r"
-    "        IS OFF"
+    "        IS OFF."
 ;
 
 std::string SoundOn =
     "^FC57\r\r       SOUNDS:\r"
     "^FCA6   SOUND EFFECTS\r"
-    "       ARE XXXX"
+    "       ARE ON."
+;
+
+std::string SoundOff =
+    "^FC57\r\r       SOUNDS:\r"
+    "^FCA6   SOUND EFFECTS\r"
+    "       ARE OFF."
 ;
 
 std::string ekg_heartbeat_enabled =
