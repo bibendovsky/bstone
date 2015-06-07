@@ -212,11 +212,6 @@ Notes:
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for windowed mode only.
 
-* --vid_no_fix_par  
-  Disables correction of pixel aspect ratio.  
-  By default the port stretches a height of rendered screen by 20% to  
-  comply with original VGA's pixel aspect ratio.
-
 * --snd_rate sampling_rate  
   Specifies sampling rate of mixer in hertz.  
   Default: 44100 Hz  

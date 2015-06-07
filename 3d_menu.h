@@ -148,6 +148,12 @@ enum sw_labels {
     SW_ROTATED_AUTOMAP,
 }; // sw_labels
 
+// BBi
+enum MenuVideoLables {
+    mvl_stretch_to_window,
+};
+// BBi
+
 //  ActiveType flags for menu options (SEE CP_itemtype.active)
 enum activetypes {
     AT_DISABLED = 0,

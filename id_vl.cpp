@@ -80,6 +80,7 @@ bool (* vid_pre_window_creation)() = nullptr;
 uint32_t (* vid_get_window_flags)() = nullptr;
 bool (* vid_initialize_renderer)() = nullptr;
 void (* vid_draw_screen)() = nullptr;
+bool (* vid_update_viewport)() = nullptr;
 void (* vid_refresh_screen)() = nullptr;
 void (* vid_update_screen)() = nullptr;
 void (* vid_uninitialize_video)() = nullptr;
@@ -399,8 +400,8 @@ int screen_height = 0;
 bool sdl_is_windowed = false;
 SDL_Window* sdl_window = nullptr;
 RendererType g_renderer_type;
-bool vid_fix_par = true;
 bool vid_has_vsync = false;
+bool vid_stretch = default_vid_stretch;
 
 
 void check_vsync()
@@ -1031,6 +1032,21 @@ void ogl_draw_screen()
     ::SDL_GL_SwapWindow(::sdl_window);
 }
 
+bool ogl_update_viewport()
+{
+    bstone::Log::write("OGL: Updating a view port...");
+
+    ::glClear(GL_COLOR_BUFFER_BIT);
+
+    if (::vid_stretch) {
+        ::glViewport(0, 0, ::window_width, ::window_height);
+    } else {
+        ::glViewport(::screen_x, ::screen_y, ::screen_width, ::screen_height);
+    }
+
+    return true;
+}
+
 // Updates screen texture with display data and
 // draws it.
 void ogl_refresh_screen()
@@ -1582,7 +1598,7 @@ bool ogl_initialize_renderer()
     }
 
     if (is_succeed) {
-        ::glViewport(::screen_x, ::screen_y, ::screen_width, ::screen_height);
+        static_cast<void>(::ogl_update_viewport());
 
         ::glEnable(GL_TEXTURE_2D);
 
@@ -1635,6 +1651,40 @@ void soft_draw_screen()
     }
 
     ::SDL_RenderPresent(::sdl_soft_renderer);
+}
+
+bool soft_update_viewport()
+{
+    bstone::Log::write("SOFT: Updating a view port...");
+
+    SDL_Rect view_port;
+    view_port.x = (::vid_stretch ? 0 : ::screen_x);
+    view_port.y = (::vid_stretch ? 0 : ::screen_y);
+    view_port.w = (::vid_stretch ? ::window_width : ::screen_width);
+    view_port.h = (::vid_stretch ? ::window_height : ::screen_height);
+
+    bool is_succeed = true;
+    int sdl_result = 0;
+
+    if (is_succeed) {
+        sdl_result = ::SDL_RenderClear(sdl_soft_renderer);
+
+        if (sdl_result != 0) {
+            bstone::Log::write_error(::SDL_GetError());
+        }
+    }
+
+    if (is_succeed) {
+        sdl_result = ::SDL_RenderSetViewport(
+            ::sdl_soft_renderer,
+            &view_port);
+
+        if (sdl_result != 0) {
+            bstone::Log::write_error(::SDL_GetError());
+        }
+    }
+
+    return is_succeed;
 }
 
 // Updates screen texture with display data and
@@ -1786,23 +1836,7 @@ bool soft_initialize_renderer()
     }
 
     if (is_succeed) {
-        bstone::Log::write("SDL: Initializing a view port...");
-
-        SDL_Rect view_port;
-        view_port.x = ::screen_x;
-        view_port.y = ::screen_y;
-        view_port.w = ::screen_width;
-        view_port.h = ::screen_height;
-
-        sdl_result = ::SDL_RenderSetViewport(
-            ::sdl_soft_renderer,
-            &view_port);
-
-        if (sdl_result != 0) {
-            is_succeed = false;
-
-            bstone::Log::write_error(::SDL_GetError());
-        }
+        is_succeed = ::soft_update_viewport();
     }
 
     if (is_succeed) {
@@ -1988,15 +2022,6 @@ void initialize_video()
 
 
     //
-    // Option "vid_no_fix_height"
-    //
-
-    if (::g_args.has_option("vid_no_fix_par")) {
-        ::vid_fix_par = false;
-    }
-
-
-    //
     // Renderer initialization
     //
 
@@ -2031,6 +2056,7 @@ void initialize_video()
         ::vid_get_window_flags = ::ogl_get_window_flags;
         ::vid_initialize_renderer = ::ogl_initialize_renderer;
         ::vid_draw_screen = ::ogl_draw_screen;
+        ::vid_update_viewport = ::ogl_update_viewport;
         ::vid_refresh_screen = ::ogl_refresh_screen;
         ::vid_update_screen = ::ogl_update_screen;
         ::vid_uninitialize_video = ::ogl_uninitialize_video;
@@ -2042,6 +2068,7 @@ void initialize_video()
         ::vid_get_window_flags = ::soft_get_window_flags;
         ::vid_initialize_renderer = ::soft_initialize_renderer;
         ::vid_draw_screen = ::soft_draw_screen;
+        ::vid_update_viewport = ::soft_update_viewport;
         ::vid_refresh_screen = ::soft_refresh_screen;
         ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
@@ -2073,11 +2100,8 @@ void initialize_video()
     ::vga_width = 0;
     ::vga_height = 0;
 
-    double ar_correction = 1.0;
-
-    if (::vid_fix_par) {
-        ar_correction = 1.2;
-    }
+    // Force 4:3 aspect ratio
+    double ar_correction = 1.2;
 
     if (is_custom_scale) {
         ::vga_width = ::vga_scale * ::vga_ref_width;
@@ -2133,6 +2157,7 @@ void initialize_video()
         ::vid_get_window_flags = ::soft_get_window_flags;
         ::vid_initialize_renderer = ::soft_initialize_renderer;
         ::vid_draw_screen = ::soft_draw_screen;
+        ::vid_update_viewport = ::soft_update_viewport;
         ::vid_refresh_screen = ::soft_refresh_screen;
         ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
@@ -2224,5 +2249,11 @@ void vl_minimize_fullscreen_window(
     } else {
         ::SDL_RestoreWindow(::sdl_window);
     }
+}
+
+void vl_update_vid_stretch()
+{
+    static_cast<void>(::vid_update_viewport());
+    ::vid_draw_screen();
 }
 // BBi

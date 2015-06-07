@@ -70,6 +70,10 @@ extern int vga_width;
 extern int vga_height;
 extern int vga_area;
 
+const bool default_vid_stretch = false;
+extern bool vid_stretch;
+// BBi
+
 // ===========================================================================
 
 void VL_Startup();
@@ -259,6 +263,8 @@ uint8_t vl_get_pixel(
     int base_offset,
     int x,
     int y);
+
+void vl_update_vid_stretch();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

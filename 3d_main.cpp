@@ -6732,6 +6732,8 @@ void ReadConfig()
             // AOG options
             ::deserialize_field(g_heart_beat_sound, reader, checksum);
             ::deserialize_field(g_rotated_automap, reader, checksum);
+
+            ::deserialize_field(::vid_stretch, reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
         }
@@ -6831,6 +6833,8 @@ void ReadConfig()
 
         g_heart_beat_sound = false;
         g_rotated_automap = false;
+
+        ::vid_stretch = ::default_vid_stretch;
     }
 
     ::SD_EnableSound(is_sound_enabled);
@@ -6838,6 +6842,8 @@ void ReadConfig()
 
     ::sd_set_sfx_volume(sd_sfx_volume);
     ::sd_set_music_volume(sd_music_volume);
+
+    ::vl_update_vid_stretch();
 }
 
 void WriteConfig()
@@ -6894,6 +6900,8 @@ void WriteConfig()
     // AOG options
     ::serialize_field(g_heart_beat_sound, writer, checksum);
     ::serialize_field(g_rotated_automap, writer, checksum);
+
+    ::serialize_field(::vid_stretch, writer, checksum);
 
     writer.write(bstone::Endian::le(checksum.get_value()));
 }

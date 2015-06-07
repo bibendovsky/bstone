@@ -134,6 +134,10 @@ void DrawSwitchDescription(
 void cp_sound_volume(
     int16_t);
 
+void cp_video(
+    int16_t);
+// BBi
+
 
 extern bool refresh_screen;
 
@@ -145,7 +149,7 @@ extern bool refresh_screen;
 // ===========================================================================
 
 CP_iteminfo MainItems = { MENU_X, MENU_Y, 12, MM_READ_THIS, 0, 9, { 77, 1, 154, 9, 1 } };
-CP_iteminfo GopItems = { MENU_X, MENU_Y + 30, 4, 0, 0, 9, { 77, 1, 154, 9, 1 } };
+CP_iteminfo GopItems = { MENU_X, MENU_Y + 30, 5, 0, 0, 9, { 77, 1, 154, 9, 1 } };
 CP_iteminfo SndItems = { SM_X, SM_Y, 6, 0, 0, 7, { 87, -1, 144, 7, 1 } };
 CP_iteminfo LSItems = { LSM_X, LSM_Y, 10, 0, 0, 8, { 86, -1, 144, 8, 1 } };
 CP_iteminfo CtlItems = { CTL_X, CTL_Y, 7, -1, 0, 9, { 87, 1, 174, 9, 1 } };
@@ -153,6 +157,10 @@ CP_iteminfo CusItems = { CST_X, CST_Y + 7, 6, -1, 0, 15, { 54, -1, 203, 7, 1 } }
 CP_iteminfo NewEitems = { NE_X, NE_Y, 6, 0, 0, 16, { 43, -2, 119, 16, 1 } };
 CP_iteminfo NewItems = { NM_X, NM_Y, 4, 1, 0, 16, { 60, -2, 105, 16, 1 } };
 CP_iteminfo SwitchItems = { MENU_X, 0, 0, 0, 0, 9, { 87, -1, 132, 7, 1 } };
+
+// BBi
+CP_iteminfo video_items = { MENU_X, MENU_Y + 30, 1, 0, 0, 9, { 77, -1, 154, 7, 1 } };
+// BBi
 
 
 CP_itemtype MainMenu[] = {
@@ -171,10 +179,15 @@ CP_itemtype MainMenu[] = {
 };
 
 CP_itemtype GopMenu[] = {
+    // BBi
+    { AT_ENABLED, "VIDEO", cp_video },
+    // BBi
+
     { AT_ENABLED, "SOUND", CP_Sound },
 
     // BBi
     { AT_ENABLED, "SOUND VOLUME", cp_sound_volume },
+    // BBi
 
     { AT_ENABLED, "CONTROLS", CP_Control },
     { AT_ENABLED, "SWITCHES", CP_Switches }
@@ -266,6 +279,12 @@ CP_itemtype CusMenu[] = {
     { AT_ENABLED, "", 0 },
     { AT_ENABLED, "", 0 }
 };
+
+// BBi
+CP_itemtype video_menu[] = {
+    { AT_ENABLED, "STRETCH TO WINDOW", nullptr },
+};
+// BBi
 
 
 int16_t color_hlite[] = {
@@ -4645,6 +4664,114 @@ void cp_sound_volume(
     WaitKeyUp();
     MenuFadeIn();
 }
+
+///
+void draw_video_descriptions(
+    int16_t which)
+{
+    const char* instructions[] = {
+        "STRETCHES RENDERED IMAGE TO THE WHOLE WINDOW",
+    };
+
+    ::fontnumber = 2;
+
+    ::WindowX = 48;
+    ::WindowY = 144;
+    ::WindowW = 236;
+    ::WindowH = 8;
+
+    ::VWB_Bar(
+        ::WindowX,
+        ::WindowY - 1,
+        ::WindowW,
+        ::WindowH,
+        ::menu_background_color);
+
+    ::SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+    ::US_PrintCentered(instructions[which]);
+
+    --::WindowX;
+    --::WindowY;
+
+    SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+    ::US_PrintCentered(instructions[which]);
+}
+
+void video_draw_menu()
+{
+    ::CA_CacheScreen(BACKGROUND_SCREENPIC);
+    ::ClearMScreen();
+    ::DrawMenuTitle("VIDEO SETTINGS");
+    ::DrawInstructions(IT_STANDARD);
+    ::DrawMenu(&video_items, video_menu);
+    VW_UpdateScreen();
+}
+
+void video_draw_switch(
+    int16_t which)
+{
+    uint16_t Shape;
+
+    for (int i = 0; i < video_items.amount; i++) {
+        if (video_menu[i].string[0]) {
+            Shape = ::C_NOTSELECTEDPIC;
+
+            if (video_items.cursor.on) {
+                if (i == which) {
+                    Shape += 2;
+                }
+            }
+
+            switch (i) {
+            case mvl_stretch_to_window:
+                if (::vid_stretch) {
+                    Shape++;
+                }
+                break;
+
+            default:
+                break;
+            }
+
+            ::VWB_DrawPic(
+                video_items.x - 16,
+                video_items.y + i * video_items.y_spacing - 1,
+                Shape);
+        }
+    }
+
+    draw_video_descriptions(which);
+}
+
+void cp_video(
+    int16_t)
+{
+    int16_t which;
+
+    ::CA_CacheScreen(BACKGROUND_SCREENPIC);
+    ::video_draw_menu();
+    ::MenuFadeIn();
+    ::WaitKeyUp();
+
+    do {
+        which = ::HandleMenu(&video_items, video_menu, video_draw_switch);
+
+        switch (which) {
+        case mvl_stretch_to_window:
+            ::vid_stretch = !::vid_stretch;
+            ::ShootSnd();
+            video_draw_switch(video_items.curpos);
+            ::vl_update_vid_stretch();
+            break;
+
+        default:
+            break;
+        }
+    } while (which >= 0);
+
+    ::MenuFadeOut();
+}
+///
 
 void MenuFadeOut()
 {
