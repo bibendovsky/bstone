@@ -2514,6 +2514,10 @@ void SetupGameLevel()
                                 level = static_cast<uint8_t>(map1[0] & 0xFF);
                             }
 
+                            if (level == ::gamestate.mapon) {
+                                level = 0xFF;
+                            }
+
                             auto switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
                             auto switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
 
