@@ -3834,8 +3834,8 @@ void A_DeathScream(
 
     case swatobj: {
         const int sounds[] = {
-            SWATDIESND,
-            SWATDEATH2SND,
+            ::SWATDIESND,
+            ::is_ps() ? ::SWATDEATH2SND : ::SWATDEATH3SND,
         }; // sounds
 
         auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
