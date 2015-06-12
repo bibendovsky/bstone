@@ -1267,28 +1267,32 @@ bool useBounceOffset = false;
 
 void DrawPlayerWeapon()
 {
-    int16_t shapenum;
-
-    if (playstate == ex_victorious) {
+    if (::playstate == ex_victorious) {
         return;
     }
 
     if (gamestate.weapon != -1) {
-        shapenum = weaponscale[static_cast<int>(gamestate.weapon)] + gamestate.weaponframe;
-        if (shapenum) {
-            int8_t v_table[15] = { 87, 81, 77, 63, 61, 60, 56, 53, 50, 47, 43, 41, 39, 35, 31 };
-            int8_t c_table[15] = { 88, 85, 81, 80, 75, 70, 64, 59, 55, 50, 44, 39, 34, 28, 24 };
+        auto shapenum =
+            ::weaponscale[static_cast<int>(::gamestate.weapon)] +
+            ::gamestate.weaponframe;
 
-            auto oldviewheight = viewheight;
-            int16_t centery;
+        if (shapenum != 0) {
+            auto oldviewheight = ::viewheight;
 
-            useBounceOffset = true;
-            viewheight = v_table[20 - viewsize];
-            centery = c_table[20 - viewsize];
-            MegaSimpleScaleShape(centerx, centery, shapenum, viewheight + 1, 0);
-            useBounceOffset = false;
+            ::useBounceOffset = ::is_ps();
+            ::viewheight = (::is_aog() ? 143 : 87);
+            int centery = (::is_aog() ? 60 : 88);
 
-            viewheight = oldviewheight;
+            ::MegaSimpleScaleShape(
+                ::centerx,
+                centery,
+                shapenum,
+                ::viewheight + 1,
+                0);
+
+            ::useBounceOffset = false;
+
+            ::viewheight = oldviewheight;
         }
     }
 }
