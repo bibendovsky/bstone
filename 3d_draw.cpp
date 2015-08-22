@@ -1277,22 +1277,36 @@ void DrawPlayerWeapon()
             ::gamestate.weaponframe;
 
         if (shapenum != 0) {
-            auto oldviewheight = ::viewheight;
+            if (::is_aog()) {
+                const auto scale = 2.0F;
+                auto height = static_cast<int>(64 * scale);
+                int centery = ::viewheight - (height / 2) + 2;
 
-            ::useBounceOffset = ::is_ps();
-            ::viewheight = (::is_aog() ? 143 : 87);
-            int centery = (::is_aog() ? 60 : 88);
+                ::MegaSimpleScaleShape(
+                    ::centerx,
+                    centery,
+                    shapenum,
+                    height,
+                    0);
+            } else {
+                auto oldviewheight = ::viewheight;
 
-            ::MegaSimpleScaleShape(
-                ::centerx,
-                centery,
-                shapenum,
-                ::viewheight + 1,
-                0);
+                ::useBounceOffset = true;
 
-            ::useBounceOffset = false;
+                ::viewheight = 87;
+                const int centery = 88;
 
-            ::viewheight = oldviewheight;
+                ::MegaSimpleScaleShape(
+                    ::centerx,
+                    centery,
+                    shapenum,
+                    ::viewheight + 1,
+                    0);
+
+                ::useBounceOffset = false;
+
+                ::viewheight = oldviewheight;
+            }
         }
     }
 }
