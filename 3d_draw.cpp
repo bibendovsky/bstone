@@ -1277,22 +1277,36 @@ void DrawPlayerWeapon()
             ::gamestate.weaponframe;
 
         if (shapenum != 0) {
-            auto oldviewheight = ::viewheight;
+            if (::is_aog()) {
+                const auto scale = 2.0F;
+                auto height = static_cast<int>(64 * scale);
+                int centery = ::viewheight - (height / 2) + 2;
 
-            ::useBounceOffset = ::is_ps();
-            ::viewheight = (::is_aog() ? 143 : 87);
-            int centery = (::is_aog() ? 60 : 88);
+                ::MegaSimpleScaleShape(
+                    ::centerx,
+                    centery,
+                    shapenum,
+                    height,
+                    0);
+            } else {
+                auto oldviewheight = ::viewheight;
 
-            ::MegaSimpleScaleShape(
-                ::centerx,
-                centery,
-                shapenum,
-                ::viewheight + 1,
-                0);
+                ::useBounceOffset = true;
 
-            ::useBounceOffset = false;
+                ::viewheight = 87;
+                const int centery = 88;
 
-            ::viewheight = oldviewheight;
+                ::MegaSimpleScaleShape(
+                    ::centerx,
+                    centery,
+                    shapenum,
+                    ::viewheight + 1,
+                    0);
+
+                ::useBounceOffset = false;
+
+                ::viewheight = oldviewheight;
+            }
         }
     }
 }
@@ -1627,6 +1641,7 @@ void ShowOverhead(
     const uint8_t PLAYER_COLOR = 0xF0;
     const uint8_t UNMAPPED_COLOR = (::is_ps() ? 0x52 : 0x06);
     const uint8_t MAPPED_COLOR = 0x55;
+    const uint8_t HIDDEN_COLOR = 0x52;
 
     bool snow = false;
     uint8_t rndindex = 0;
@@ -1736,6 +1751,8 @@ void ShowOverhead(
                     uint8_t tile = tilemap[mx][my];
                     uint8_t door = tile & 0x3F;
 
+                    bool check_for_hidden_area = false;
+
                     // Evaluate wall or floor?
                     //
                     if (tile != 0) {
@@ -1751,11 +1768,21 @@ void ShowOverhead(
                                     color = 0x58; // closed!
                                 } else {
                                     color = MAPPED_COLOR; // floor!
+                                    check_for_hidden_area = ::is_aog();
                                 }
                             }
                         }
                     } else {
                         color = MAPPED_COLOR; // floor!
+                        check_for_hidden_area = ::is_aog();
+                    }
+
+                    if (check_for_hidden_area) {
+                        static_cast<void>(::GetAreaNumber(mx, my));
+
+                        if (::GAN_HiddenArea) {
+                            color = HIDDEN_COLOR;
+                        }
                     }
 
                     // SHOW KEYS

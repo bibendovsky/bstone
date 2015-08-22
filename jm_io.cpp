@@ -55,7 +55,7 @@ int IO_LoadFile(
             *dst = new char[head.OriginalLen];
 
             {
-                std::auto_ptr<uint8_t> compressed_buffer(
+                std::unique_ptr<uint8_t> compressed_buffer(
                     new uint8_t[head.CompressLen]);
 
                 ::LZH_Decompress(compressed_buffer.get(), *dst,
