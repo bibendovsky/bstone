@@ -9098,11 +9098,25 @@ const std::string& get_profile_dir()
     if (!is_initialized) {
         is_initialized = true;
 
-        auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
+        profile_dir = ::g_args.get_option_value("profile_dir");
 
-        if (sdl_dir) {
-            profile_dir = sdl_dir;
-            ::SDL_free(sdl_dir);
+        if (!profile_dir.empty()) {
+            profile_dir +=
+#ifdef _WIN32
+                '\\'
+#else
+                '/'
+#endif
+            ;
+        }
+
+        if (profile_dir.empty()) {
+            auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
+
+            if (sdl_dir) {
+                profile_dir = sdl_dir;
+                ::SDL_free(sdl_dir);
+            }
         }
     }
 
