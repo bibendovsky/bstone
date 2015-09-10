@@ -7865,6 +7865,11 @@ bool SaveTheGame(
     //
     ::NewViewSize();
 
+    if (!is_succeed) {
+        bstone::Log::write_error(
+            "SAVE: Failed to write data.");
+    }
+
     return is_succeed;
 }
 
