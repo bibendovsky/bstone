@@ -52,7 +52,7 @@
 <h1>
 <a id="profile" class="anchor" href="#profile" aria-hidden="true"><span class="octicon octicon-link"></span></a>Profile</h1>
 
-<p>The port stores configuration file, saved game files, etc. in user's profile. The path to those files depends on platform.</p>
+<p>The port stores configuration file, saved game files, etc. in user's profile. The path to those files depends on platform. To override the path use --profile_dir option.</p>
 
 <p>On Windows, the path might look like:<br>
 "C:\Users\john\AppData\Roaming\bibendovsky\bstone\"</p>
@@ -105,6 +105,8 @@ Enables debug keys.</p></li>
 <li><p>--data_dir path_to_data<br>
 Specifies location to the game's data files.<br>
 Default: current working directory.</p></li>
+<li><p>--profile_dir path<br>
+Overrides default location of the game's profile files.</p></li>
 <li><p>--vid_renderer [soft|ogl]<br>
 Forces to use a specified renderer. "soft" selects a software renderer. "ogl" selects an OpenGL 2.x compatible renderer.<br>
 Default order without this option: ogl, soft.</p></li>
