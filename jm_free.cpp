@@ -975,6 +975,11 @@ extern int16_t starting_episode, starting_level, starting_difficulty;
 
 void freed_main()
 {
+    if (::g_args.has_option("version")) {
+        bstone::Log::write_version();
+        ::Quit();
+    }
+
     // Setup for APOGEECD thingie.
     //
     InitDestPath();
@@ -1003,11 +1008,6 @@ void freed_main()
     ::initialize_messages();
     ::initialize_ca_constants();
     ::gamestuff.initialize();
-
-    if (::g_args.has_option("version")) {
-        bstone::Log::write_version();
-        ::Quit();
-    }
 
     if (::g_args.has_option("no_screens")) {
         ::no_screens = true;
