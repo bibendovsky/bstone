@@ -495,19 +495,25 @@ void PollMouseMove()
         is_running = !is_running;
     }
 
+    const auto scale = 1.0F + (::mouseadjustment / 6.0F);
+
+    auto delta_x = static_cast<float>(mousexmove);
+    auto delta_y = static_cast<float>(mouseymove);
+
     if (is_running) {
-        if (!in_use_modern_bindings) {
-            controly += (mouseymove * 20 / (13 - mouseadjustment)) * 4;
-        }
-
-        controlx += (mousexmove * 10 / (13 - mouseadjustment)) / 2;
+        delta_x *= 1.5F;
+        delta_y *= 5.0F;
     }
 
-    controlx += mousexmove * 10 / (13 - mouseadjustment);
-
-    if (!in_use_modern_bindings) {
-        controly += mouseymove * 20 / (13 - mouseadjustment);
+    if (::in_use_modern_bindings) {
+        delta_y = 0.0F;
     }
+
+    delta_x *= scale;
+    delta_y *= scale;
+
+    ::controlx += static_cast<int>(delta_x);
+    ::controly += static_cast<int>(delta_y);
 }
 
 void PollJoystickMove()

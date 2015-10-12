@@ -2599,9 +2599,32 @@ void CP_Control(
 
 void DrawMousePos()
 {
-    VWB_Bar(74, 92, 160, 8, HIGHLIGHT_BOX_COLOR);
-    DrawOutline(73, 91, 161, 9, ENABLED_TEXT_COLOR, ENABLED_TEXT_COLOR);
-    VWB_Bar(74 + 160 / 10 * mouseadjustment, 92, 16, 8, HIGHLIGHT_TEXT_COLOR);
+    const int thumb_width = 16;
+    const int track_width = 160;
+    const int slide_width = track_width - thumb_width;
+    const int max_mouse_delta = ::max_mouse_sensitivity - ::min_mouse_sensitivity;
+
+    ::VWB_Bar(
+        74,
+        92,
+        track_width,
+        8,
+        HIGHLIGHT_BOX_COLOR);
+
+    ::DrawOutline(
+        73,
+        91,
+        track_width + 1,
+        9,
+        ENABLED_TEXT_COLOR,
+        ENABLED_TEXT_COLOR);
+
+    ::VWB_Bar(
+        74 + ((slide_width * ::mouseadjustment) / max_mouse_delta),
+        92,
+        thumb_width,
+        8,
+        HIGHLIGHT_TEXT_COLOR);
 }
 
 void DrawMouseSens()
@@ -2679,8 +2702,8 @@ void MouseSensitivity(
         switch (ci.dir) {
         case dir_North:
         case dir_West:
-            if (mouseadjustment) {
-                mouseadjustment--;
+            if (::mouseadjustment > 0) {
+                ::mouseadjustment -= 1;
                 DrawMousePos();
                 VW_UpdateScreen();
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
@@ -2695,8 +2718,8 @@ void MouseSensitivity(
 
         case dir_South:
         case dir_East:
-            if (mouseadjustment < 9) {
-                mouseadjustment++;
+            if (::mouseadjustment < ::max_mouse_sensitivity) {
+                ::mouseadjustment += 1;
                 DrawMousePos();
                 VW_UpdateScreen();
                 ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);

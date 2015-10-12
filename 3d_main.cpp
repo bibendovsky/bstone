@@ -6820,7 +6820,7 @@ void ReadConfig()
         ::set_vanilla_controls();
         ::in_set_default_bindings();
 
-        mouseadjustment = 5;
+        mouseadjustment = ::default_mouse_sensitivity;
         gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
         gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
 
@@ -6835,6 +6835,14 @@ void ReadConfig()
         g_rotated_automap = false;
 
         ::vid_stretch = ::default_vid_stretch;
+    }
+
+    if (::mouseadjustment < ::min_mouse_sensitivity) {
+        ::mouseadjustment = ::min_mouse_sensitivity;
+    }
+
+    if (::mouseadjustment > ::max_mouse_sensitivity) {
+        ::mouseadjustment = ::max_mouse_sensitivity;
     }
 
     ::SD_EnableSound(is_sound_enabled);
@@ -9091,7 +9099,7 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
-    static const std::string version = "1.1.4";
+    static const std::string version = "1.1.5";
     return version;
 }
 
