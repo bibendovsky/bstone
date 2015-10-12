@@ -2892,6 +2892,13 @@ extern int16_t dirangle[9];
 extern bool startgame;
 extern bool loadedgame;
 extern int16_t mouseadjustment;
+
+// BBi
+const int min_mouse_sensitivity = 0;
+const int max_mouse_sensitivity = 54;
+const int default_mouse_sensitivity = 5;
+// BBi
+
 //
 // math tables
 //
