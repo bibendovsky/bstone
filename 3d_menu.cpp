@@ -2296,9 +2296,12 @@ int16_t CP_LoadGame(
 
             auto name_path = ::get_profile_dir() + name;
 
-            if ((loadedgame = ::LoadTheGame(name_path)) == 0) {
+            loadedgame = ::LoadTheGame(name_path);
+
+            if (!loadedgame) {
                 LS_current = -1; // clean up
             }
+
             return loadedgame;
         }
     }

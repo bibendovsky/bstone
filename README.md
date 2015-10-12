@@ -68,7 +68,8 @@ Supported games:
 ===========
 
 The port stores configuration file, saved game files, etc. in user's profile.  
-The path to those files depends on platform.
+The path to those files depends on platform.  
+To override the path use --profile_dir option.
 
 On Windows, the path might look like:  
 "C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"
@@ -178,6 +179,9 @@ Notes:
 * --data_dir path_to_data  
   Specifies location to the game's data files.  
   Default: current working directory.
+
+* --profile_dir path  
+  Overrides default location of the game's profile files.  
 
 * --vid_renderer [soft|ogl]  
   Forces to use a specified renderer.  

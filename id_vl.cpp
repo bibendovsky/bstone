@@ -1532,6 +1532,11 @@ bool ogl_pre_window_creation()
     errors += SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     errors += SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
+    if (errors != 0) {
+        bstone::Log::write_error("SDL: Failed to set OpenGL attributes.");
+        bstone::Log::write_error("SDL: {}", ::SDL_GetError());
+    }
+
     return errors == 0;
 }
 
@@ -2147,8 +2152,8 @@ void initialize_video()
 
     is_succeed = ::x_initialize_video();
 
-    if (!is_succeed && ::g_renderer_type == RT_AUTO_DETECT) {
-        bstone::Log::write("SDL: Falling back to software renderer...");
+    if (!is_succeed && ::g_renderer_type != RT_SOFTWARE) {
+        bstone::Log::write_warning("SDL: Falling back to software renderer...");
 
         ::g_renderer_type = RT_SOFTWARE;
 
