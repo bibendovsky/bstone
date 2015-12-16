@@ -3193,6 +3193,14 @@ int16_t InputFloor()
 
         ::fontcolor = 0x38;
 
+        auto last_unlocked_map = 0;
+
+        for (int i = 1; i < MAPS_WITH_STATS; ++i) {
+            if (!::gamestuff.level[i].locked) {
+                last_unlocked_map = i;
+            }
+        }
+
         while (result == -2) {
             ::CalcTics();
             ::in_handle_events();
@@ -3213,7 +3221,7 @@ int16_t InputFloor()
                 }
             }
 
-            if (target_level > 0 && target_level != ::gamestate.mapon) {
+            if (target_level >= 1 && target_level != ::gamestate.mapon) {
                 ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
 
                 draw_button = true;
@@ -3223,7 +3231,7 @@ int16_t InputFloor()
                 if (!::gamestuff.level[target_level].locked) {
                     result = target_level;
                 } else if (::gamestate.numkeys[kt_red] > 0 &&
-                    target_level == (::gamestate.mapon + 1))
+                    target_level == (last_unlocked_map + 1))
                 {
                     result = target_level;
 
@@ -3238,7 +3246,7 @@ int16_t InputFloor()
                     draw_message = true;
                     draw_current_floor = false;
 
-                    if (target_level == (::gamestate.mapon + 1)) {
+                    if (target_level == (last_unlocked_map + 1)) {
                         draw_locked_floor = false;
                         message = &messages[3];
                     } else {
