@@ -2714,8 +2714,12 @@ void Cmd_Fire()
     gamestate.weaponframe = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 }
 
-void Cmd_Use()
+void Cmd_Use(
+    bool& play_hit_wall_sound)
 {
+    play_hit_wall_sound = false;
+
+
     int16_t checkx;
     int16_t checky;
     int16_t door_index;
@@ -2747,6 +2751,11 @@ void Cmd_Use()
 
     door_index = tilemap[checkx][checky];
     iconnum = *(mapsegs[1] + farmapylookup[checky] + checkx);
+
+    // BBi Play sound only for walls
+    if (door_index != 0 && (door_index & 0x80) == 0) {
+        play_hit_wall_sound = true;
+    }
 
 // Test for a pushable wall
 //
@@ -4436,8 +4445,13 @@ void T_Player(
     }
 
     if (buttonstate[bt_use]) {
-        Cmd_Use();
-        ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+        bool play_hit_wall_sound;
+
+        Cmd_Use(play_hit_wall_sound);
+
+        if (play_hit_wall_sound) {
+            ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+        }
     }
 
     if (buttonstate[bt_attack] && !buttonheld[bt_attack]) {
