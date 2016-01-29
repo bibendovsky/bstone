@@ -2880,15 +2880,18 @@ void Cmd_Use(
 
         for (y = -MDIST; y < MDIST + 1; y++) {
             for (x = -MDIST; x < MDIST + 1; x++) {
+                auto dst_x = ::player->tilex + x;
+                auto dst_y = ::player->tiley + y;
+
                 // Don't check outside of the map plane:
-                if (player->tilex + x > 63 || player->tiley + y > 63) {
+                if (dst_x < 0 || dst_y < 0 || dst_x > 63 || dst_y > 63) {
                     continue;
                 }
 
-                if ((!tilemap[player->tilex + x][player->tiley + y]) &&
-                    (actorat[player->tilex + x][player->tiley + y] >= objlist))
+                if ((!::tilemap[dst_x][dst_y]) &&
+                    (::actorat[dst_x][dst_y] >= ::objlist))
                 {
-                    ob = actorat[player->tilex + x][player->tiley + y];
+                    ob = ::actorat[dst_x][dst_y];
                 } else {
                     continue;
                 }
