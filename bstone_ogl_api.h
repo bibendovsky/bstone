@@ -34,7 +34,10 @@ Free Software Foundation, Inc.,
 #include "SDL.h"
 
 
-// Avoid __declspec(dllimport).
+// Avoid __declspec(dllimport) in MinGW.
+#undef _DLL
+
+// Avoid __declspec(dllimport) in Visual C++.
 #ifdef __WIN32__
 #ifndef _GDI32_
 #define _GDI32_
@@ -60,6 +63,17 @@ namespace bstone {
 // A dynamic loader for an OpenGL API.
 class OglApi {
 public:
+    OglApi() = delete;
+
+    OglApi(
+        const OglApi& that) = delete;
+
+    ~OglApi() = delete;
+
+    OglApi& operator=(
+        const OglApi& that) = delete;
+
+
     // Initializes the loader.
     static bool initialize();
 
@@ -88,17 +102,6 @@ public:
 
     // Returns API independent constant GL_RED.
     static GLenum get_gl_red();
-
-private:
-    OglApi();
-
-    OglApi(
-        const OglApi& that);
-
-    ~OglApi();
-
-    OglApi& operator=(
-        const OglApi& that);
 }; // OglApi
 
 
