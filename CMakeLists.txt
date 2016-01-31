@@ -126,10 +126,10 @@ if (MSVC)
         CACHE STRING
         "Path to SDL2 headers.")
 
-    check_sdl_version("2.0.3")
+    check_sdl_version("2.0.4")
 else ()
     INCLUDE(FindPkgConfig)
-    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.1)
+    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.4)
 endif ()
 
 option(BSTONE_USE_STATIC_LINKING "Link build statically.")
