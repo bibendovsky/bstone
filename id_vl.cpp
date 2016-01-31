@@ -1051,11 +1051,6 @@ bool ogl_update_viewport()
 // draws it.
 void ogl_refresh_screen()
 {
-    GLenum format =
-        bstone::OglApi::has_ext_texture_rg() ?
-        bstone::OglApi::get_gl_red() :
-        GL_LUMINANCE;
-
     ::glActiveTexture(GL_TEXTURE0);
 
     ::glTexSubImage2D(
@@ -1065,7 +1060,7 @@ void ogl_refresh_screen()
         0,
         ::vga_width,
         ::vga_height,
-        format,
+        GL_LUMINANCE,
         GL_UNSIGNED_BYTE,
         &::vga_memory[::vl_get_offset(::displayofs)]);
 
@@ -1207,14 +1202,6 @@ bool ogl_initialize_textures()
     GLenum internal_format = GL_NONE;
 
     if (is_succeed) {
-        if (bstone::OglApi::has_ext_texture_rg()) {
-            format = bstone::OglApi::get_gl_red();
-            internal_format = bstone::OglApi::get_gl_r8();
-        } else {
-            format = GL_LUMINANCE;
-            internal_format = GL_LUMINANCE;
-        }
-
         ::glActiveTexture(GL_TEXTURE0);
         ::glBindTexture(GL_TEXTURE_2D, ::screen_tex);
         ::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1225,11 +1212,11 @@ bool ogl_initialize_textures()
         ::glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            internal_format,
+            GL_LUMINANCE,
             ::vga_width,
             ::vga_height,
             0,
-            format,
+            GL_LUMINANCE,
             GL_UNSIGNED_BYTE,
             nullptr);
     }

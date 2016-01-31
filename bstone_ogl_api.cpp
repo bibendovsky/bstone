@@ -40,10 +40,6 @@ std::string vendor_;
 std::string renderer_;
 bstone::OglVersion version_;
 
-// True if detected GL_EXT_texture_rg (ES) or 
-// if major version equal or greater than 3.
-bool has_ext_texture_rg_ = false;
-
 
 } // namespace
 
@@ -949,17 +945,6 @@ bool OglApi::initialize()
         version_string));
 
 
-    //
-    // Check for features
-    //
-
-    if (version_.is_es()) {
-        has_ext_texture_rg_ = (::SDL_GL_ExtensionSupported(
-            "GL_EXT_texture_rg") != SDL_FALSE);
-    } else {
-        has_ext_texture_rg_ = (version_.get_major() >= 3);
-    }
-
     is_initialized_ = true;
     vendor_ = reinterpret_cast<const char*>(vendor);
     renderer_ = reinterpret_cast<const char*>(renderer);
@@ -1019,8 +1004,6 @@ void OglApi::uninitialize()
     vendor_.clear();
     renderer_.clear();
     version_.reset();
-
-    has_ext_texture_rg_ = false;
 }
 
 bool OglApi::is_initialized()
@@ -1041,21 +1024,6 @@ const std::string& OglApi::get_renderer()
 const OglVersion& OglApi::get_version()
 {
     return version_;
-}
-
-bool OglApi::has_ext_texture_rg()
-{
-    return has_ext_texture_rg_;
-}
-
-GLenum OglApi::get_gl_r8()
-{
-    return 0x8229;
-}
-
-GLenum OglApi::get_gl_red()
-{
-    return 0x1903;
 }
 
 

@@ -92,16 +92,6 @@ public:
 
     // Returns a version.
     static const OglVersion& get_version();
-
-    // Returns true if R/RG texture formats are supported or
-    // false otherwise.
-    static bool has_ext_texture_rg();
-
-    // Returns API independent constant GL_R8.
-    static GLenum get_gl_r8();
-
-    // Returns API independent constant GL_RED.
-    static GLenum get_gl_red();
 }; // OglApi
 
 
