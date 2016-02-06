@@ -368,7 +368,7 @@ if (BSTONE_IS_GNU)
     )
 endif ()
 
-if (MINGW)
+if (MINGW OR (MSVC AND BSTONE_USE_STATIC_LINKING))
     target_link_libraries(
         "${BSTONE_TARGET}"
         "imm32"
@@ -394,3 +394,31 @@ if (BSTONE_USE_STATIC_LINKING)
         )
     endif ()
 endif ()
+
+
+install(
+    TARGETS
+    "${BSTONE_TARGET}"
+    RUNTIME DESTINATION "."
+)
+
+install(
+    FILES
+    "${CMAKE_SOURCE_DIR}/README.md"
+    DESTINATION "."
+    RENAME "bstone_readme.txt"
+)
+
+install(
+    FILES
+    "${CMAKE_SOURCE_DIR}/LICENSE"
+    DESTINATION "."
+    RENAME "bstone_license.txt"
+)
+
+install(
+    FILES
+    "${CMAKE_SOURCE_DIR}/COPYING-SDL2.txt"
+    DESTINATION "."
+    RENAME "bstone_sdl2_license.txt"
+)

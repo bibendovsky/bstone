@@ -2714,8 +2714,12 @@ void Cmd_Fire()
     gamestate.weaponframe = attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 }
 
-void Cmd_Use()
+void Cmd_Use(
+    bool& play_hit_wall_sound)
 {
+    play_hit_wall_sound = false;
+
+
     int16_t checkx;
     int16_t checky;
     int16_t door_index;
@@ -2747,6 +2751,11 @@ void Cmd_Use()
 
     door_index = tilemap[checkx][checky];
     iconnum = *(mapsegs[1] + farmapylookup[checky] + checkx);
+
+    // BBi Play sound only for walls
+    if (door_index != 0 && (door_index & 0x80) == 0) {
+        play_hit_wall_sound = true;
+    }
 
 // Test for a pushable wall
 //
@@ -2871,15 +2880,18 @@ void Cmd_Use()
 
         for (y = -MDIST; y < MDIST + 1; y++) {
             for (x = -MDIST; x < MDIST + 1; x++) {
+                auto dst_x = ::player->tilex + x;
+                auto dst_y = ::player->tiley + y;
+
                 // Don't check outside of the map plane:
-                if (player->tilex + x > 63 || player->tiley + y > 63) {
+                if (dst_x < 0 || dst_y < 0 || dst_x > 63 || dst_y > 63) {
                     continue;
                 }
 
-                if ((!tilemap[player->tilex + x][player->tiley + y]) &&
-                    (actorat[player->tilex + x][player->tiley + y] >= objlist))
+                if ((!::tilemap[dst_x][dst_y]) &&
+                    (::actorat[dst_x][dst_y] >= ::objlist))
                 {
-                    ob = actorat[player->tilex + x][player->tiley + y];
+                    ob = ::actorat[dst_x][dst_y];
                 } else {
                     continue;
                 }
@@ -3184,6 +3196,14 @@ int16_t InputFloor()
 
         ::fontcolor = 0x38;
 
+        auto last_unlocked_map = 0;
+
+        for (int i = 1; i < MAPS_WITH_STATS; ++i) {
+            if (!::gamestuff.level[i].locked) {
+                last_unlocked_map = i;
+            }
+        }
+
         while (result == -2) {
             ::CalcTics();
             ::in_handle_events();
@@ -3204,7 +3224,7 @@ int16_t InputFloor()
                 }
             }
 
-            if (target_level > 0 && target_level != ::gamestate.mapon) {
+            if (target_level >= 1 && target_level != ::gamestate.mapon) {
                 ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
 
                 draw_button = true;
@@ -3214,7 +3234,7 @@ int16_t InputFloor()
                 if (!::gamestuff.level[target_level].locked) {
                     result = target_level;
                 } else if (::gamestate.numkeys[kt_red] > 0 &&
-                    target_level == (::gamestate.mapon + 1))
+                    target_level == (last_unlocked_map + 1))
                 {
                     result = target_level;
 
@@ -3229,7 +3249,7 @@ int16_t InputFloor()
                     draw_message = true;
                     draw_current_floor = false;
 
-                    if (target_level == (::gamestate.mapon + 1)) {
+                    if (target_level == (last_unlocked_map + 1)) {
                         draw_locked_floor = false;
                         message = &messages[3];
                     } else {
@@ -4436,8 +4456,13 @@ void T_Player(
     }
 
     if (buttonstate[bt_use]) {
-        Cmd_Use();
-        ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+        bool play_hit_wall_sound;
+
+        Cmd_Use(play_hit_wall_sound);
+
+        if (play_hit_wall_sound) {
+            ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+        }
     }
 
     if (buttonstate[bt_attack] && !buttonheld[bt_attack]) {

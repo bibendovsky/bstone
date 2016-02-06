@@ -227,6 +227,11 @@ void generic_scale_shape(
             i = 63;
         }
 
+        // BBi Don't shade cloaked shape
+        if (::cloaked_shape) {
+            i = 0;
+        }
+
         shadingtable = &lightsource[i * 256];
     }
 
