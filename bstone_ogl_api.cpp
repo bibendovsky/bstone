@@ -525,7 +525,11 @@ void APIENTRY glLinkProgram(
 void APIENTRY glShaderSource(
     GLuint shader,
     GLsizei count,
+#if SDL_VERSION_ATLEAST(2, 0, 4)
     const GLchar* const* string,
+#else
+    const GLchar** string,
+#endif
     const GLint* length)
 {
     ::glShaderSource_(
