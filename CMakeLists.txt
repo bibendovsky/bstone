@@ -368,7 +368,7 @@ if (BSTONE_IS_GNU)
     )
 endif ()
 
-if (MINGW)
+if (MINGW OR (MSVC AND BSTONE_USE_STATIC_LINKING))
     target_link_libraries(
         "${BSTONE_TARGET}"
         "imm32"
