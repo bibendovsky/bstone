@@ -1036,7 +1036,7 @@ void initialize_ca_constants()
         MAPS_PER_EPISODE = 15;
         MAPS_WITH_STATS = 11;
     } else if (::is_ps()) {
-        NUM_EPISODES = 6;
+        NUM_EPISODES = 1;
         MAPS_PER_EPISODE = 25;
         MAPS_WITH_STATS = 20;
     }
