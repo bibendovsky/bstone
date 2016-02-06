@@ -104,7 +104,7 @@ Minimum requirements:
 * pkg-config (only for non Visual C++ compiler)  
   (<http://pkg-config.freedesktop.org/>)
 
-* SDL v2.0.4  
+* SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
   (<http://www.libsdl.org/>)
 
 CMake variables:
