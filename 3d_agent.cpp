@@ -2764,7 +2764,11 @@ void Cmd_Use(
     } else if (!buttonheld[bt_use]) {
         // Test for doors / elevator
         //
-        if ((door_index & 0x80) && ((pwallx != checkx) || (pwally != checky))) {
+        // BBi Check "pwallstate" too.
+        if ((door_index & 0x80) != 0 && (
+            ::pwallstate == 0 ||
+            (::pwallstate != 0 && (::pwallx != checkx || ::pwally != checky))))
+        {
             buttonheld[bt_use] = true;
             OperateDoor(door_index & ~0x80);
         } else {
