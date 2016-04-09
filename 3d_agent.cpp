@@ -2764,7 +2764,7 @@ void Cmd_Use(
     } else if (!buttonheld[bt_use]) {
         // Test for doors / elevator
         //
-        if ((door_index & 0x80) && ((pwallx != checkx) || (pwally != checky))) {
+        if ((door_index & 0xC0) == 0x80) {
             buttonheld[bt_use] = true;
             OperateDoor(door_index & ~0x80);
         } else {
