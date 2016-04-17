@@ -879,7 +879,7 @@ void SpawnOffsetObj(
     case en_morphing_reptilian_warrior:
     case en_morphing_mutanthuman2:
         if (scan_value == 0xffff) {
-            new_actor->temp2 = 0xFFFF; // set to max! // 60*5+(60*(US_RndT()%20));
+            new_actor->temp2 = -1; // set to max! // 60*5+(60*(US_RndT()%20));
         } else {
             new_actor->temp2 = scan_value * 60;
         }
@@ -2312,7 +2312,7 @@ void ActivateWallSwitch(
 //      for a particular level across the InfoArea.
 // --------------------------------------------------------------------------
 void DisplaySwitchOperateMsg(
-    uint16_t coords)
+    int coords)
 {
     const auto barrier = &::gamestate.barrier_table[coords];
 

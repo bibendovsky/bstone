@@ -3633,7 +3633,7 @@ uint16_t ScanBarrierTable(
     uint8_t y);
 
 void DisplaySwitchOperateMsg(
-    uint16_t coords);
+    int coords);
 
 void DisplayNoMoMsgs();
 

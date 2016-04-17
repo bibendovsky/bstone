@@ -287,7 +287,7 @@ int8_t ClearInfoArea_COUNT = 3;
 void DrawWeapon();
 
 void GiveWeapon(
-    int16_t weapon);
+    int weapon);
 
 void GiveAmmo(
     int16_t ammo);
@@ -1152,7 +1152,7 @@ void DrawWeaponPic()
 }
 
 void GiveWeapon(
-    int16_t weapon)
+    int weapon)
 {
     GiveAmmo(6);
 

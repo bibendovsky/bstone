@@ -37,7 +37,7 @@ void HealSelf(
     int16_t points);
 
 void GiveWeapon(
-    int16_t weapon);
+    int weapon);
 
 void DrawScore();
 void SetPlaneViewSize();

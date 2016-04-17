@@ -34,7 +34,7 @@ void UpdateRadarGuage();
 void ClearMemory();
 
 void GiveWeapon(
-    int16_t weapon);
+    int weapon);
 
 void DrawWeapon();
 void DrawHealth();
