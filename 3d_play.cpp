@@ -495,7 +495,7 @@ void PollMouseMove()
         is_running = !is_running;
     }
 
-    const auto scale = 1.0F + (::mouseadjustment / 6.0F);
+    const auto move_scale = 1.0F + (::mouseadjustment / 6.0F);
 
     auto delta_x = static_cast<float>(mousexmove);
     auto delta_y = static_cast<float>(mouseymove);
@@ -509,8 +509,8 @@ void PollMouseMove()
         delta_y = 0.0F;
     }
 
-    delta_x *= scale;
-    delta_y *= scale;
+    delta_x *= move_scale;
+    delta_y *= move_scale;
 
     ::controlx += static_cast<int>(delta_x);
     ::controly += static_cast<int>(delta_y);

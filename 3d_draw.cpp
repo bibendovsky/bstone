@@ -1278,8 +1278,8 @@ void DrawPlayerWeapon()
 
         if (shapenum != 0) {
             if (::is_aog()) {
-                const auto scale = 2.0F;
-                auto height = static_cast<int>(64 * scale);
+                const auto weapon_scale = 2.0F;
+                auto height = static_cast<int>(64 * weapon_scale);
                 int centery = ::viewheight - (height / 2) + 2;
 
                 ::MegaSimpleScaleShape(

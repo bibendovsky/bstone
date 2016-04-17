@@ -633,24 +633,24 @@ void AudioMixer::mix_samples()
                 continue;
             }
 
-            float scale;
+            float volume_scale;
 
             switch (sound->type) {
             case ST_ADLIB_MUSIC:
-                scale = 8.0F * music_volume;
+                volume_scale = 8.0F * music_volume;
                 break;
 
             case ST_ADLIB_SFX:
-                scale = 8.0F * sfx_volume;
+                volume_scale = 8.0F * sfx_volume;
                 break;
 
             default:
-                scale = sfx_volume;
+                volume_scale = sfx_volume;
                 break;
             }
 
             if (sound->is_audible()) {
-                float sample = scale *
+                float sample = volume_scale *
                     cache_item->samples[sound->decode_offset];
 
                 left_sample += sound->left_volume * sample;

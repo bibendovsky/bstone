@@ -1198,9 +1198,6 @@ bool ogl_initialize_textures()
         }
     }
 
-    GLenum format = GL_NONE;
-    GLenum internal_format = GL_NONE;
-
     if (is_succeed) {
         ::glActiveTexture(GL_TEXTURE0);
         ::glBindTexture(GL_TEXTURE_2D, ::screen_tex);
@@ -1997,17 +1994,17 @@ void initialize_video()
     // Option "vid_scale"
     //
 
-    auto&& vid_scale_str = g_args.get_option_value("vid_scale");
+    const auto& vid_scale_str = g_args.get_option_value("vid_scale");
 
     if (!vid_scale_str.empty()) {
-        int scale = 0;
+        int scale_value = 0;
 
-        if (bstone::StringHelper::lexical_cast(vid_scale_str, scale)) {
-            if (scale < 1) {
-                scale = 1;
+        if (bstone::StringHelper::lexical_cast(vid_scale_str, scale_value)) {
+            if (scale_value < 1) {
+                scale_value = 1;
             }
 
-            ::vga_scale = scale;
+            ::vga_scale = scale_value;
             is_custom_scale = true;
         }
     }
@@ -2115,19 +2112,19 @@ void initialize_video()
     double h_scale = static_cast<double>(::window_width) / ::vga_width;
     double v_scale = ::window_height / (ar_correction * ::vga_height);
 
-    double scale;
+    double video_scale;
 
     if (h_scale <= v_scale) {
-        scale = h_scale;
+        video_scale = h_scale;
     } else {
-        scale = v_scale;
+        video_scale = v_scale;
     }
 
     ::screen_width = static_cast<int>(
-        (::vga_width * scale) + 0.5);
+        (::vga_width * video_scale) + 0.5);
 
     ::screen_height = static_cast<int>(
-        (::vga_height * scale * ar_correction) + 0.5);
+        (::vga_height * video_scale * ar_correction) + 0.5);
 
     ::screen_x = (::window_width - ::screen_width) / 2;
     ::screen_y = (::window_height - ::screen_height) / 2;
