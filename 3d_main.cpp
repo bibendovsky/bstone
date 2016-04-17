@@ -7606,7 +7606,7 @@ bool LoadTheGame(
         const auto saved_version_string = file_reader.read_string(
             max_length);
 
-        if (saved_version_string != saved_version_string) {
+        if (saved_version_string != version_string) {
             is_succeed = false;
 
             bstone::Log::write_error(
