@@ -1651,16 +1651,14 @@ void InitSmartAnimStruct(
     animtype_t AnimType,
     animdir_t AnimDir)
 {
-    ofs_anim_t AnimStruct;
+    obj->temp1 = ShapeNum + StartOfs;
 
-    AnimStruct.curframe = StartOfs;
-    AnimStruct.maxframe = MaxOfs;
-    AnimStruct.animtype = AnimType;
-    AnimStruct.animdir = AnimDir;
+    obj->temp3 = 0;
+    ofs_anim_t::set_curframe(StartOfs, obj);
+    ofs_anim_t::set_maxframe(MaxOfs, obj);
+    ofs_anim_t::set_animtype(static_cast<uint16_t>(AnimType), obj);
+    ofs_anim_t::set_animdir(static_cast<uint16_t>(AnimDir), obj);
 
-    obj->temp1 = ShapeNum + AnimStruct.curframe;
-
-    *reinterpret_cast<ofs_anim_t*>(&obj->temp3) = AnimStruct;
 }
 
 void InitAnim(
@@ -1724,7 +1722,11 @@ void T_SmartThought(
     case black_oozeobj:
     case green2_oozeobj:
     case black2_oozeobj: {
-        if (((US_RndT() & 7) == 7) && reinterpret_cast<const ofs_anim_t*>(&obj->temp3)->curframe == 2 && obj->tilex == player->tilex && obj->tiley == player->tiley) {
+        if (((::US_RndT() & 7) == 7) &&
+            ofs_anim_t::get_curframe(obj) == 2 &&
+            obj->tilex == player->tilex &&
+            obj->tiley == player->tiley)
+        {
             TakeDamage(4, obj);
         }
     }
@@ -1765,7 +1767,7 @@ void T_SmartThought(
         if (obj->lighting) {
             // Slowly inc back to
 
-            obj->lighting += static_cast<int8_t>(ANIM_INFO(obj)->curframe);
+            obj->lighting += static_cast<int8_t>(ofs_anim_t::get_curframe(obj));
             if (obj->lighting > 0) {
                 obj->lighting = 0;
             }
@@ -1776,8 +1778,8 @@ void T_SmartThought(
         break;
     }
 
-    if (ANIM_INFO(obj)->animtype) {
-        int old_frame = ANIM_INFO(obj)->curframe;
+    if (ofs_anim_t::get_animtype(obj) != 0) {
+        int old_frame = ofs_anim_t::get_curframe(obj);
         bool is_animated = ::AnimateOfsObj(obj);
 
         if (is_animated) {
@@ -1852,7 +1854,7 @@ void T_SmartThought(
             }
         }
 
-        int new_frame = ANIM_INFO(obj)->curframe;
+        int new_frame = ofs_anim_t::get_curframe(obj);
         bool is_frame_changed = (old_frame != new_frame);
 
         if (::is_aog_full() &&
@@ -1876,7 +1878,7 @@ void T_SmartThought(
             }
         }
 
-        if (ANIM_INFO(obj)->curframe == 3) {
+        if (ofs_anim_t::get_curframe(obj) == 3) {
             switch (obj->obclass) {
             case doorexplodeobj:
                 if (!obj->temp2) {
@@ -1971,7 +1973,7 @@ void T_SmartThought(
             }
         }
 
-        if (ANIM_INFO(obj)->curframe == 2) {
+        if (ofs_anim_t::get_curframe(obj) == 2) {
             switch (obj->obclass) {
             case volatiletransportobj:
                 if (!(obj->flags & FL_INTERROGATED)) {
@@ -2059,27 +2061,27 @@ bool AnimateOfsObj(
         return false;
     }
 
-    switch (ANIM_INFO(obj)->animtype) { // Animate this puppy!
+    switch (ofs_anim_t::get_animtype(obj)) { // Animate this puppy!
     case at_ONCE:
     case at_CYCLE:
-        switch (ANIM_INFO(obj)->animdir) {
+        switch (ofs_anim_t::get_animdir(obj)) {
         case ad_FWD:
-            if (ANIM_INFO(obj)->curframe < ANIM_INFO(obj)->maxframe) {
+            if (ofs_anim_t::get_curframe(obj) < ofs_anim_t::get_maxframe(obj)) {
                 AdvanceAnimFWD(obj);
-            } else if (ANIM_INFO(obj)->animtype == at_CYCLE) {
+            } else if (ofs_anim_t::get_animtype(obj) == at_CYCLE) {
                 // Pull shape number back to start...
 
-                obj->temp1 -= ANIM_INFO(obj)->curframe;
+                obj->temp1 -= ofs_anim_t::get_curframe(obj);
 
                 // Reset Cycle Animation
 
-                ANIM_INFO(obj)->curframe = 0;
+                ofs_anim_t::set_curframe(0, obj);
 
                 obj->s_tilex = obj->s_tiley;
             } else {
                 // Terminate ONCE Anim type
 
-                ANIM_INFO(obj)->animtype = at_NONE;
+                ofs_anim_t::set_animtype(at_NONE, obj);
                 Done = true;
             }
             break;
@@ -2093,7 +2095,8 @@ bool AnimateOfsObj(
 void AdvanceAnimFWD(
     objtype* obj)
 {
-    ANIM_INFO(obj)->curframe++; // INC frames
+    auto curframe = ofs_anim_t::get_curframe(obj);
+    ofs_anim_t::set_curframe(curframe + 1, obj);
 
     obj->temp1++;
     obj->s_tilex = obj->s_tiley;
