@@ -273,29 +273,30 @@ void US_CPrintLine(
 void US_CPrint(
     const char* s)
 {
-    std::vector<char> buffer(
-        s,
-        s + std::string::traits_type::length(s) + 1);
+    std::string string(s);
 
-    s = &buffer[0];
+    if (string.back() != '\n') {
+        string += '\n';
+    }
 
-    char c;
-    const char* se;
+    std::string::size_type line_begin = 0;
 
-    while (*s) {
-        se = s;
-        while ((c = *se) && (c != '\n')) {
-            se++;
+    while (true) {
+        auto line_end = string.find(
+            '\n',
+            line_begin);
+
+        if (line_end == std::string::npos) {
+            break;
         }
-        *(char*)se = '\0';
 
-        US_CPrintLine(s);
+        auto substring = string.substr(
+            line_begin,
+            line_end - line_begin);
 
-        s = se;
-        if (c) {
-            *(char*)se = c;
-            s++;
-        }
+        ::US_CPrintLine(substring.c_str());
+
+        line_begin = line_end + 1;
     }
 }
 
