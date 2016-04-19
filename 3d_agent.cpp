@@ -2595,22 +2595,22 @@ void Thrust(
 bool GAN_HiddenArea;
 
 int8_t GetAreaNumber(
-    int8_t tilex,
-    int8_t tiley)
+    int tilex,
+    int tiley)
 {
     ::GAN_HiddenArea = false;
 
     // Are we on a wall?
     //
-    if (::tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] != 0 &&
-        (::tilemap[static_cast<int>(tilex)][static_cast<int>(tiley)] & 0xC0) == 0)
+    if (::tilemap[tilex][tiley] != 0 &&
+        (::tilemap[tilex][tiley] & 0xC0) == 0)
     {
         return 127;
     }
 
     // Get initial areanumber from map
     //
-    auto offset = ::farmapylookup[static_cast<int>(tiley)] + static_cast<int>(tilex);
+    auto offset = ::farmapylookup[tiley] + tilex;
     auto areanumber = ::ValidAreaTile(::mapsegs[0] + offset);
 
     // Special tile areas must use a valid areanumber tile around it.
@@ -2626,7 +2626,7 @@ int8_t GetAreaNumber(
             }
 
 
-            auto new_y = tiley + xy_offset[i][1];
+            auto new_y = tiley + ::xy_offset[i][1];
 
             if (new_y < 0 || new_y >= MAPSIZE) {
                 continue;

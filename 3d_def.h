@@ -3638,8 +3638,8 @@ uint8_t ValidAreaTile(
     const uint16_t* ptr);
 
 int8_t GetAreaNumber(
-    int8_t tilex,
-    int8_t tiley);
+    int tilex,
+    int tiley);
 
 int16_t InputFloor();
 void RestoreInfoArea();
