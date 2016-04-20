@@ -2804,7 +2804,12 @@ void ShadowPrintLocationText(
     case sp_normal:
         // Print LEVEL info...
         //
-        px = 13;
+
+        if (::is_aog()) {
+            ::px = 17;
+        } else {
+            ::px = 13;
+        }
 
         if ((!::is_ps() && (gamestate.mapon % 10) == 0) ||
             (::is_ps() && gamestate.mapon > 19))
