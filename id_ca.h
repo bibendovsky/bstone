@@ -119,13 +119,16 @@ extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
 extern bstone::FileStream audiohandle;
 
-extern int32_t chunkcomplen, chunkexplen;
+extern int32_t chunkcomplen;
+extern int32_t chunkexplen;
 
 #ifdef GRHEADERLINKED
 extern huffnode* grhuffman;
 #else
 extern huffnode grhuffman[255];
 #endif
+
+extern bstone::Sha1 map_sha1;
 
 // ===========================================================================
 

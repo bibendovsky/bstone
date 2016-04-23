@@ -122,7 +122,8 @@ bstone::FileStream grhandle; // handle to EGAGRAPH
 bstone::FileStream maphandle; // handle to MAPTEMP / GAMEMAPS
 bstone::FileStream audiohandle; // handle to AUDIOT / AUDIO
 
-int32_t chunkcomplen, chunkexplen;
+int32_t chunkcomplen;
+int32_t chunkexplen;
 
 bool old_is_sound_enabled;
 
@@ -134,6 +135,7 @@ static const int BUFFERSIZE = 0x10000;
 // BBi
 int ca_gr_last_expanded_size;
 
+bstone::Sha1 map_sha1;
 
 void CAL_CarmackExpand(
     uint16_t* source,
@@ -797,6 +799,9 @@ void CA_CacheMap(
 
     OpenMapFile();
 
+    // BBi
+    ::map_sha1.reset();
+
 //
 // load the planes into the allready allocated buffers
 //
@@ -813,6 +818,9 @@ void CA_CacheMap(
         source = reinterpret_cast<uint16_t*>(::ca_buffer.data());
 
         maphandle.read(source, compressed);
+
+        // BBi
+        ::map_sha1.process(source, compressed);
 
 #ifdef CARMACIZED
         //
@@ -837,6 +845,13 @@ void CA_CacheMap(
                       rlew_tag);
 #endif
     }
+
+    // BBi
+    ::map_sha1.finish();
+
+#ifdef _DEBUG
+    auto map_sha1_string = ::map_sha1.get_digest_string();
+#endif
 
     CloseMapFile();
 }

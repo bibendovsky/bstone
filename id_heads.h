@@ -56,6 +56,7 @@ Free Software Foundation, Inc.,
 #include "bstone_log.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_memory_stream.h"
+#include "bstone_sha1.h"
 #include "bstone_string_helper.h"
 #include "bstone_cl_args.h"
 #include "audio.h"
