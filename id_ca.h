@@ -128,7 +128,8 @@ extern huffnode* grhuffman;
 extern huffnode grhuffman[255];
 #endif
 
-extern bstone::Sha1 map_sha1;
+extern int map_compressed_size;
+extern std::string map_sha1_string;
 
 // ===========================================================================
 

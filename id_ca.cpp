@@ -134,8 +134,8 @@ static const int BUFFERSIZE = 0x10000;
 
 // BBi
 int ca_gr_last_expanded_size;
-
-bstone::Sha1 map_sha1;
+int map_compressed_size = 0;
+std::string map_sha1_string;
 
 void CAL_CarmackExpand(
     uint16_t* source,
@@ -800,12 +800,13 @@ void CA_CacheMap(
     OpenMapFile();
 
     // BBi
-    ::map_sha1.reset();
+    bstone::Sha1 map_sha1;
+    map_compressed_size = 0;
 
 //
 // load the planes into the allready allocated buffers
 //
-    size = 64 * 64 * 2;
+    size = MAPSIZE * MAPSIZE * MAPPLANES;
 
     for (plane = 0; plane < MAPPLANES; plane++) {
         pos = mapheaderseg[mapnum]->planestart[plane];
@@ -820,7 +821,8 @@ void CA_CacheMap(
         maphandle.read(source, compressed);
 
         // BBi
-        ::map_sha1.process(source, compressed);
+        map_compressed_size += compressed;
+        map_sha1.process(source, compressed);
 
 #ifdef CARMACIZED
         //
@@ -846,14 +848,11 @@ void CA_CacheMap(
 #endif
     }
 
-    // BBi
-    ::map_sha1.finish();
-
-#ifdef _DEBUG
-    auto map_sha1_string = ::map_sha1.get_digest_string();
-#endif
-
     CloseMapFile();
+
+    // BBi
+    map_sha1.finish();
+    ::map_sha1_string = map_sha1.get_digest_string();
 }
 
 /*
