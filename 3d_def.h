@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 #include "jm_cio.h"
 
 
-#define PAGEFLIP
+//#define PAGEFLIP
 
 #define LOOK_FOR_DEAD_GUYS (0)
 
