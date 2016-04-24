@@ -179,7 +179,8 @@ void Sha1::finish()
     }
 
     for (int i = 0; i < hash_size; ++i) {
-        digest_[i] = digest32_[i >> 2] >> 8 * (3 - (i & 0x3));
+        digest_[i] = static_cast<uint8_t>(
+            digest32_[i >> 2] >> 8 * (3 - (i & 0x3)));
     }
 }
 
@@ -205,8 +206,8 @@ std::string Sha1::get_digest_string() const
 
     for (auto digest_octet : digest) {
         const char nibbles[2] = {
-            (digest_octet / 16) & 0xF,
-            digest_octet & 0xF
+            static_cast<char>((digest_octet / 16) & 0xF),
+            static_cast<char>(digest_octet & 0xF),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -275,14 +276,14 @@ void Sha1::pad_message()
 
     // Store the message length as the last 8 octets
     //
-    block_[56] = length_high_ >> 24;
-    block_[57] = length_high_ >> 16;
-    block_[58] = length_high_ >> 8;
-    block_[59] = length_high_;
-    block_[60] = length_low_ >> 24;
-    block_[61] = length_low_ >> 16;
-    block_[62] = length_low_ >> 8;
-    block_[63] = length_low_;
+    block_[56] = static_cast<uint8_t>(length_high_ >> 24);
+    block_[57] = static_cast<uint8_t>(length_high_ >> 16);
+    block_[58] = static_cast<uint8_t>(length_high_ >> 8);
+    block_[59] = static_cast<uint8_t>(length_high_);
+    block_[60] = static_cast<uint8_t>(length_low_ >> 24);
+    block_[61] = static_cast<uint8_t>(length_low_ >> 16);
+    block_[62] = static_cast<uint8_t>(length_low_ >> 8);
+    block_[63] = static_cast<uint8_t>(length_low_);
 
     process_block();
 }

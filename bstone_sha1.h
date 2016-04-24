@@ -21,7 +21,7 @@ namespace bstone {
 // Sha1Exception declaration
 
 class Sha1Exception :
-    std::runtime_error
+    public std::runtime_error
 {
 public:
     explicit Sha1Exception(

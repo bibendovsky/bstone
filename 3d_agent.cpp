@@ -561,7 +561,7 @@ void StatusAllDrawPic(
     uint16_t y,
     uint16_t picnum)
 {
-    uint16_t temp;
+    int temp;
 
 #ifdef PAGEFLIP
     temp = static_cast<uint16_t>(bufferofs);
