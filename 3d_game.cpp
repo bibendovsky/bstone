@@ -132,6 +132,9 @@ void DrawPlayScreen(
 void LoadLatchMem();
 void GameLoop();
 
+// BBi
+static void fix_level_inplace();
+
 
 /*
 =============================================================================
@@ -2294,6 +2297,9 @@ void SetupGameLevel()
         ::Quit("Map not 64 x 64.");
     }
 
+    // BBi
+    fix_level_inplace();
+
     LoadLocationText(static_cast<int16_t>(
         gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
 
@@ -3424,4 +3430,67 @@ restartgame:
             break;
         }
     } while (!quit);
+}
+
+// BBi
+static bool is_map_sha1_match(
+    const std::vector<std::string>& sha1s)
+{
+    return std::any_of(
+        sha1s.cbegin(),
+        sha1s.cend(),
+        [] (const std::string& sha1_string)
+        {
+            return ::map_sha1_string == sha1_string;
+        }
+    );
+}
+
+static bool is_map_compressed_size_match(
+    const std::vector<int>& sizes)
+{
+    return std::any_of(
+        sizes.cbegin(),
+        sizes.cend(),
+        [] (int size)
+        {
+            return ::map_compressed_size == size;
+        }
+    );
+}
+
+static void fix_level_inplace()
+{
+    static const std::vector<int> e2m6_sizes = {
+        // v1.0
+        6412,
+
+        // v2.0-v3.0
+        6414,
+    };
+
+    static const std::vector<std::string> e2m6_sha1s = {
+        // v1.0
+        "b0444bf3de386e4cac7654b996bf5341090cc1b5",
+
+        // v2.0-v3.0
+        "e60d5674dcfb5f450e3a936885e361fe61cb7725",
+    };
+
+
+    // Fix standing bio-tech near volatile containers
+    // (E2M6; x: 38; y: 26)
+    // (E2M6; x: 55; y: 33)
+    //
+    if (::is_aog_full() &&
+        !::loadedgame &&
+        ::gamestate.episode == 1 &&
+        ::gamestate.mapon == 6 &&
+        ::is_map_compressed_size_match(e2m6_sizes) &&
+        ::is_map_sha1_match(e2m6_sha1s))
+    {
+        // Replace standing bio-tech with a moving one.
+        ::mapsegs[1][(26 * MAPSIZE) + 38] = 157;
+        ::mapsegs[1][(33 * MAPSIZE) + 55] = 157;
+    }
 }

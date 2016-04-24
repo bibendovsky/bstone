@@ -801,7 +801,7 @@ void CA_CacheMap(
 
     // BBi
     bstone::Sha1 map_sha1;
-    map_compressed_size = 0;
+    ::map_compressed_size = 0;
 
 //
 // load the planes into the allready allocated buffers
@@ -821,7 +821,7 @@ void CA_CacheMap(
         maphandle.read(source, compressed);
 
         // BBi
-        map_compressed_size += compressed;
+        ::map_compressed_size += compressed;
         map_sha1.process(source, compressed);
 
 #ifdef CARMACIZED
