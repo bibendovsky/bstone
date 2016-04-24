@@ -97,6 +97,16 @@ struct US_CursorStruct {
     uint16_t font_number;
 }; // US_CursorStruct
 
+struct Point {
+    int16_t x;
+    int16_t y;
+}; // Point
+
+struct Rect {
+    Point ul;
+    Point lr;
+}; // Rect
+
 //      Hack import for TED launch support
 // extern       bool         tedlevel;
 // extern       uint16_t          tedlevelnum;

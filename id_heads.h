@@ -56,21 +56,9 @@ Free Software Foundation, Inc.,
 #include "bstone_sha1.h"
 #include "bstone_string_helper.h"
 #include "bstone_cl_args.h"
+
 #include "audio.h"
 #include "gfxv.h"
-
-
-struct Point {
-    int16_t x;
-    int16_t y;
-}; // Point
-
-struct Rect {
-    Point ul;
-    Point lr;
-}; // Rect
-
-
 #include "id_pm.h"
 #include "id_ca.h"
 #include "id_vl.h"
@@ -78,9 +66,7 @@ struct Rect {
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_us.h"
-
 #include "jm_tp.h"
-
 #include "movie.h"
 
 
