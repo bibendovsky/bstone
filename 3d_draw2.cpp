@@ -162,12 +162,6 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
-#if IN_DEVELOPMENT
-    if (!MapRowPtr) {
-        DRAW2_ERROR(NULL_FUNC_PTR_PASSED);
-    }
-#endif
-
     if (((viewheight / 2) * vga_scale) != halfheight) {
         SetPlaneViewSize(); // screen size has changed
 

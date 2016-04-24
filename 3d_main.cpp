@@ -146,9 +146,6 @@ int16_t view_xh;
 int16_t view_yl;
 int16_t view_yh;
 
-#if IN_DEVELOPMENT
-uint16_t democount = 0, jim = 0;
-#endif
 
 static const bool default_no_wall_hit_sound = false;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
@@ -6959,14 +6956,6 @@ void NewGame(
     ::gamestate.nextextra = EXTRAPOINTS;
     ::gamestate.episode = episode;
     ::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
-
-#if IN_DEVELOPMENT
-    if (::gamestate.flags & GS_STARTLEVEL) {
-        ::gamestate.mapon = starting_level;
-        ::gamestate.difficulty = starting_difficulty;
-        ::gamestate.episode = starting_episode;
-    } else
-#endif
     ::gamestate.mapon = (::is_ps() ? 0 : 1);
 
     ::startgame = true;
@@ -8379,14 +8368,6 @@ void DemoLoop()
         }
 
         while (true) {
-#if IN_DEVELOPMENT
-            if (gamestate.flags & GS_QUICKRUN) {
-                ReadGameNames();
-                CA_LoadAllSounds();
-                NewGame(2, gamestate.episode);
-                startgame = true;
-            } else
-#endif
             US_ControlPanel(ScanCode::sc_none);
 
             if (startgame || loadedgame) {
@@ -8419,11 +8400,6 @@ void DrawCreditsPage()
 }
 
 
-#if IN_DEVELOPMENT
-int16_t starting_episode = 0;
-int16_t starting_level = 0;
-int16_t starting_difficulty = 2;
-#endif
 int16_t debug_value = 0;
 
 int main(
@@ -8441,11 +8417,6 @@ int main(
     }
 
     ::g_args.initialize(argc, argv);
-
-#if IN_DEVELOPMENT
-    MakeDestPath(ERROR_LOG);
-    remove(tempPath);
-#endif
 
     freed_main();
 
@@ -8479,20 +8450,6 @@ void InitDestPath()
         }
     }
 }
-
-#if IN_DEVELOPMENT
-// -------------------------------------------------------------------------
-// ShowMemory()
-// -------------------------------------------------------------------------
-void ShowMemory()
-{
-    int32_t psize, size;
-
-    size = MM_TotalFree();
-    psize = MM_LargestAvail();
-    mprintf("Mem free: %ld   %ld\n", size, psize);
-}
-#endif
 
 // BBi
 void objtype::serialize(

@@ -1584,12 +1584,6 @@ bool DisplayInfoMsg(
 
 void ClearInfoArea()
 {
-#if IN_DEVELOPMENT
-    if (gamestate.flags & GS_SHOW_OVERHEAD) {
-        return;
-    }
-#endif
-
     if (ClearInfoArea_COUNT) {
         ClearInfoArea_COUNT--;
     }
@@ -1752,12 +1746,6 @@ void DrawInfoArea()
 
     char* first_ch;
     char* scan_ch, temp;
-
-#if IN_DEVELOPMENT
-    if (gamestate.flags & GS_SHOW_OVERHEAD) {
-        return;
-    }
-#endif
 
     DrawInfoArea_COUNT--;
 
@@ -2457,12 +2445,6 @@ bool ClipMove(
     if (TryMove(ob)) {
         return false;
     }
-
-#if IN_DEVELOPMENT
-    if ((!(gamestate.flags & GS_CLIP_WALLS)) && (ob == player)) {
-        return true;
-    }
-#endif
 
     if (!g_no_wall_hit_sound) {
         if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL)) {

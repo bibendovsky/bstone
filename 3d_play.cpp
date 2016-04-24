@@ -84,10 +84,6 @@ int16_t InstantQuit = 0;
 uint16_t ExtraRadarFlags = 0;
 
 
-#if IN_DEVELOPMENT
-int16_t TestQuickSave = 0, TestAutoMapper = 0;
-#endif
-
 objtype objlist[MAXACTORS];
 objtype* new_actor;
 objtype* player;
@@ -926,16 +922,6 @@ void CheckKeys()
         return;
     }
 
-#if IN_DEVELOPMENT
-    if (TestQuickSave) {
-        scan = ScanCode::sc_f8;
-    }
-
-    if (TestAutoMapper) {
-        PopupAutoMap();
-    }
-#endif
-
     scan = ScanCode::sc_none;
 
     if (Keyboard[ScanCode::sc_escape]) {
@@ -1413,11 +1399,6 @@ void StartMusic(
     if (!::is_ps()) {
         musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
     } else {
-#if IN_DEVELOPMENT
-        if (!::is_aog_sw() && (gamestate.flags & GS_MUSIC_TEST) != 0) {
-            musicchunk = music_num;
-        } else
-#endif
         if (playstate == ex_victorious) {
             musicchunk = FORTRESS_MUS;
         } else {

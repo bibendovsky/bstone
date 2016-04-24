@@ -78,34 +78,6 @@ int16_t DebugKeys();
 
 bool PP_step = false;
 
-#if IN_DEVELOPMENT
-/*
-================
-=
-= PicturePause
-=
-================
-*/
-void PicturePause()
-{
-    int16_t i;
-    uint8_t p;
-    uint16_t x;
-    uint8_t* dest, * src;
-    memptr buffer;
-
-    VW_ColorBorder(15);
-    FinishPaletteShifts();
-
-    LastScan = 0;
-    while (!LastScan) {
-    }
-
-    VW_ColorBorder(0);
-    return;
-}
-#endif
-
 int16_t maporgx;
 int16_t maporgy;
 
@@ -248,186 +220,6 @@ void ShowMap()
     IN_Ack();
 }
 
-// FIXME Remove or revise
-#if IN_DEVELOPMENT
-/*
-================
-=
-= ShapeTest
-=
-================
-*/
-
-#pragma warn -pia
-void ShapeTest()
-{
-    extern uint16_t NumDigi;
-    extern uint16_t* DigiList;
-    static char buf[10];
-
-    bool done;
-    ScanCode scan;
-    int16_t i, j, k, x;
-    int16_t sound;
-    uint32_t l;
-    memptr addr;
-    PageListStruct* page;
-
-    CenterWindow(20, 16);
-    VW_UpdateScreen();
-    for (i = 0, done = false; !done; ) {
-        US_ClearWindow();
-        sound = -1;
-
-        page = &PMPages[i];
-        US_Print(" Page #");
-        US_PrintUnsigned(i);
-        if (i < PMSpriteStart) {
-            US_Print(" (Wall)");
-        } else if (i < PMSoundStart) {
-            US_Print(" (Sprite)");
-        } else if (i == ChunksInFile - 1) {
-            US_Print(" (Sound Info)");
-        } else {
-            US_Print(" (Sound)");
-        }
-
-        US_Print("\n XMS: ");
-        if (page->xmsPage != -1) {
-            US_PrintUnsigned(page->xmsPage);
-        } else {
-            US_Print("No");
-        }
-
-        US_Print("\n Main: ");
-        if (page->mainPage != -1) {
-            US_PrintUnsigned(page->mainPage);
-        } else if (page->emsPage != -1) {
-            US_Print("EMS ");
-            US_PrintUnsigned(page->emsPage);
-        } else {
-            US_Print("No");
-        }
-
-        US_Print("\n Last hit: ");
-        US_PrintUnsigned(page->lastHit);
-
-        US_Print("\n Address: ");
-        addr = PM_GetPageAddress(i);
-        sprintf(buf, "0x%04x", Uint16addr);
-        US_Print(buf);
-
-        if (addr) {
-            if (i < PMSpriteStart) {
-                //
-                // draw the wall
-                //
-                bufferofs += 32 * SCREENWIDTH;
-                postx = 128;
-                postwidth = 1;
-                postsource = ((int32_t)((uint16_t)addr)) << 16;
-                for (x = 0; x < 64; x++, postx++, postsource += 64) {
-                    wallheight[postx] = 256;
-                    FarScalePost();
-                }
-                bufferofs -= 32 * SCREENWIDTH;
-            } else if (i < PMSoundStart) {
-                //
-                // draw the sprite
-                //
-                bufferofs += 32 * SCREENWIDTH;
-                SimpleScaleShape(160, i - PMSpriteStart, 64);
-                bufferofs -= 32 * SCREENWIDTH;
-            } else if (i == ChunksInFile - 1) {
-                US_Print("\n\n Number of sounds: ");
-                US_PrintUnsigned(NumDigi);
-                for (l = j = k = 0; j < NumDigi; j++) {
-                    l += DigiList[(j * 2) + 1];
-                    k += (DigiList[(j * 2) + 1] + (PMPageSize - 1)) / PMPageSize;
-                }
-                US_Print("\n Total bytes: ");
-                US_PrintUnsigned(l);
-                US_Print("\n Total pages: ");
-                US_PrintUnsigned(k);
-            } else {
-                uint8_t* dp = (uint8_t*)MK_FP(addr, 0);
-
-                sound = i - PMSoundStart;
-                US_Print("\n Sound #");
-                US_PrintUnsigned(sound);
-
-                for (j = 0; j < page->length; j += 32) {
-                    uint8_t v = dp[j];
-                    int16_t v2 = (uint16_t)v;
-                    v2 -= 128;
-                    v2 /= 4;
-                    if (v2 < 0) {
-                        VWB_Vlin(WindowY + WindowH - 32 + v2,
-                                 WindowY + WindowH - 32,
-                                 WindowX + 8 + (j / 32), BLACK);
-                    } else {
-                        VWB_Vlin(WindowY + WindowH - 32,
-                                 WindowY + WindowH - 32 + v2,
-                                 WindowX + 8 + (j / 32), BLACK);
-                    }
-                }
-            }
-        }
-
-        VW_UpdateScreen();
-
-        while (!(scan = LastScan)) {
-            SD_Poll();
-        }
-
-        IN_ClearKey(scan);
-        switch (scan) {
-        case sc_LeftArrow:
-            if (i) {
-                i--;
-            }
-            break;
-        case sc_RightArrow:
-            if (++i >= ChunksInFile) {
-                i--;
-            }
-            break;
-        case ScanCode::sc_w: // Walls
-            i = 0;
-            break;
-        case ScanCode::sc_s: // Sprites
-            i = PMSpriteStart;
-            break;
-        case ScanCode::sc_d: // Digitized
-            i = PMSoundStart;
-            break;
-        case ScanCode::sc_i: // Digitized info
-            i = ChunksInFile - 1;
-            break;
-        case ScanCode::sc_l: // Load all pages
-            for (j = 0; j < ChunksInFile; j++) {
-                PM_GetPage(j);
-            }
-            break;
-        case ScanCode::sc_p:
-            if (sound != -1) {
-                SD_PlaySound(sound);
-            }
-            break;
-        case ScanCode::sc_escape:
-            done = true;
-            break;
-        case sc_Enter:
-            PM_GetPage(i);
-            break;
-        }
-    }
-    SD_StopDigitized();
-
-    RedrawStatusAreas();
-}
-#pragma warn +pia
-#endif
 
 // ---------------------------------------------------------------------------
 // IncRange - Incs a value to a MAX value (including max value)
@@ -464,12 +256,6 @@ uint16_t DecRange(
 
     return Value;
 }
-
-
-#if IN_DEVELOPMENT
-char TestAutoMapperMsg[] = { "AUTOMAPPER TEST\n ENTER COUNT:" };
-char TestQuickSaveMsg[] = { "QUICK SAVE TEST\n ENTER COUNT:" };
-#endif
 
 
 int16_t DebugKeys()
@@ -584,33 +370,9 @@ int16_t DebugKeys()
         DebugMemory();
         return 1;
     }
-#if IN_DEVELOPMENT
-    else if (Keyboard[ScanCode::sc_n]) { // N = no clip
-        gamestate.flags ^= GS_CLIP_WALLS;
-        CenterWindow(18, 3);
-        if (gamestate.flags & GS_CLIP_WALLS) {
-            US_PrintCentered("NO clipping OFF");
-        } else {
-            US_PrintCentered("No clipping ON");
-        }
-        VW_UpdateScreen();
-        IN_Ack();
-        return 1;
-    } else if (Keyboard[ScanCode::sc_p]) {
-        // P = pause with no screen disruptioon
-        PicturePause();
-        return 1;
-    }
-#endif
     else if (Keyboard[ScanCode::sc_q]) { // Q = fast quit
         Quit();
     }
-#if IN_DEVELOPMENT
-    else if (Keyboard[ScanCode::sc_t]) { // T = shape test
-        ShapeTest();
-        return 1;
-    }
-#endif
     else if (Keyboard[ScanCode::sc_o]) { // O = Show Push Walls
         ExtraRadarFlags ^= OV_PUSHWALLS;
         CenterWindow(24, 3);
@@ -708,12 +470,6 @@ int16_t DebugKeys()
             BottomColor |= (BottomColor << 8);
         }
     }
-
-#if (IN_DEVELOPMENT)
-    else if (Keyboard[ScanCode::sc_y]) {
-        GivePoints(100000L, false);
-    }
-#endif
 
     if (gamestate.flags & GS_LIGHTING) { // Shading adjustments
         if (Keyboard[ScanCode::sc_equals] && normalshade_div < 12) {

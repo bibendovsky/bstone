@@ -298,12 +298,6 @@ void SpawnStatic(
     spot->visspot = &spotvis[tilex][tiley];
     spot->flags = 0;
 
-#if IN_DEVELOPMENT
-    if (::is_aof_sw() && !spot->shapenum) {
-        Quit("Invalid static: {} {}", tilex, tiley);
-    }
-#endif
-
     if ((!::is_aog_sw() && spot->shapenum == SPR_STAT_3) || // // floor lamp
         spot->shapenum == SPR_STAT_14 || // ceiling light
         (!::is_aog_sw() && spot->shapenum == SPR_STAT_20) ||
@@ -493,12 +487,6 @@ statobj_t* UseReservedStatic(
 
     spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
-#if IN_DEVELOPMENT
-    if (spot->areanumber >= NUMAREAS) {
-        Quit("Static Spawned on a wall at {} {}", spot->tilex, spot->tiley);
-    }
-#endif
-
     return spot;
 }
 
@@ -581,12 +569,6 @@ void PlaceItemType(
     spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
 
     spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
-
-#if IN_DEVELOPMENT
-    if (spot->areanumber >= NUMAREAS) {
-        Quit("Item Spawned on a wall at {} {}", spot->tilex, spot->tiley);
-    }
-#endif
 }
 
 void PlaceItemNearTile(

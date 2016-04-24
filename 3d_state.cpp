@@ -140,12 +140,6 @@ void SpawnNewObj(
     }
 
     new_actor->areanumber = GetAreaNumber(new_actor->tilex, new_actor->tiley);
-
-#if IN_DEVELOPMENT
-    if (new_actor->areanumber >= NUMAREAS && (!nevermark)) {
-        Quit("Actor Spawned on wall at {} {}", new_actor->tilex, new_actor->tiley);
-    }
-#endif
 }
 
 /*
@@ -438,13 +432,6 @@ bool TryWalk(
     }
 
     ob->areanumber = GetAreaNumber(ob->tilex, ob->tiley);
-
-#if IN_DEVELOPMENT
-    if (ob->areanumber >= NUMAREAS) {
-        Quit("Actor walked on wall at {} {}", ob->tilex, ob->tiley);
-    }
-#endif
-
     ob->distance = TILEGLOBAL;
     return true;
 }
@@ -916,12 +903,6 @@ void KillActor(
     case crate1obj:
     case crate2obj:
     case crate3obj:
-#if IN_DEVELOPMENT
-        if (!ob->temp3) {
-            Quit("exp crate->temp3 is null!");
-        }
-#endif
-
         ui16_to_static_object(ob->temp3)->shapenum = -1;
 
         SpawnStatic(tilex, tiley, ob->temp2);

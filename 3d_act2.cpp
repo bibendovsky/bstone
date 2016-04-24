@@ -1131,28 +1131,13 @@ void T_OfsThink(
         break;
 
     case podeggobj:
-#if IN_DEVELOPMENT
-        if (!((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk)) {
-            if (!(obj->flags & FL_VISABLE)) {
-                break;
-            }
-        }
-
-#else
         if (!(obj->flags & FL_VISABLE)) {
             break;
         }
-#endif
 
         if (obj->temp2 == 0xff * 60) {
             break;
         }
-
-#if IN_DEVELOPMENT
-        if ((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
-            obj->temp2 = 0;
-        }
-#endif
 
         if (obj->temp2 > tics) {
             obj->temp2 -= tics;
@@ -1167,29 +1152,15 @@ void T_OfsThink(
     case morphing_spider_mutantobj:
     case morphing_reptilian_warriorobj:
     case morphing_mutanthuman2obj:
-#if IN_DEVELOPMENT
-        if (!((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk)) {
-            if (!(obj->flags & FL_VISABLE)) {
-                break;
-            }
-        }
-
-#else
         if (!(obj->flags & FL_VISABLE)) {
             break;
         }
-#endif
-
-#if IN_DEVELOPMENT
-        if ((Keyboard[ScanCode::sc_6] || Keyboard[ScanCode::sc_7]) && Keyboard[ScanCode::sc_8] && DebugOk) {
-            obj->temp2 = 0;
-        }
-#endif
 
         if (obj->temp2 > tics) {
             obj->temp2 -= tics;
             break;
         }
+
         obj->flags &= ~FL_SHOOTABLE;
         ::InitSmartSpeedAnim(obj, obj->temp1, 0, 8, at_ONCE, ad_FWD, 2);
         break;
@@ -1924,11 +1895,6 @@ void T_SmartThought(
                 break;
 
             case gurney_waitobj:
-#if IN_DEVELOPMENT
-                if (((uint16_t)obj->temp2 < (uint16_t)objlist) || ((uint16_t)obj->temp2 > (uint16_t) & objlist[MAXACTORS])) {
-                    Quit("Gurney->temp2 out of range!");
-                }
-#endif
                 if (obj->temp2) {
                     RemoveObj(ui16_to_actor(obj->temp2));
                 }
@@ -1939,11 +1905,6 @@ void T_SmartThought(
                 break;
 
             case scan_wait_alienobj:
-#if IN_DEVELOPMENT
-                if (((uint16_t)obj->temp2 < (uint16_t)objlist) || ((uint16_t)obj->temp2 >= (uint16_t) & objlist[MAXACTORS])) {
-                    Quit("Scan->temp2 out of range!");
-                }
-#endif
                 if (obj->temp2) {
                     RemoveObj(ui16_to_actor(obj->temp2));
                 }
@@ -1954,11 +1915,6 @@ void T_SmartThought(
                 break;
 
             case lcan_wait_alienobj:
-#if IN_DEVELOPMENT
-                if (((uint16_t)obj->temp2 < (uint16_t)objlist) || ((uint16_t)obj->temp2 >= (uint16_t) & objlist[MAXACTORS])) {
-                    Quit("Scan->temp2 out of range!");
-                }
-#endif
                 if (obj->temp2) {
                     RemoveObj(ui16_to_actor(obj->temp2));
                 }
@@ -3705,12 +3661,6 @@ void CheckForSpecialTile(
     if (getarea) {
         tilemap[tilex][tiley] = 0;
         *map = obj->areanumber = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley));
-
-#if IN_DEVELOPMENT
-        if (obj->areanumber >= NUMAREAS) {
-            Quit("Actor Spawned on wall at {} {}", tilex, tiley);
-        }
-#endif
     }
 }
 
@@ -3721,10 +3671,6 @@ void SpawnPatrol(
     int16_t dir)
 {
     int16_t ammo = 8;
-
-#if IN_DEVELOPMENT
-    uint16_t oldx, oldy;
-#endif
 
     switch (which) {
     case en_blake:
@@ -3808,24 +3754,7 @@ void SpawnPatrol(
 
     actorat[new_actor->tilex][new_actor->tiley] = nullptr; // don't use original spot
 
-#if IN_DEVELOPMENT
-    oldx = new_actor->tilex;
-    oldy = new_actor->tiley;
-#endif
-
     TryWalk(new_actor, true);
-
-#if IN_DEVELOPMENT
-    if (new_actor->obclass != blakeobj) {
-        if ((size_t)actorat[new_actor->tilex][new_actor->tiley] == 1) {
-            Quit("Actor spawned toward a solid static at {} {}", oldx, oldy);
-        }
-
-        if (GetAreaNumber(new_actor->tilex, new_actor->tiley) >= NUMAREAS) {
-            Quit("Actor spawned toward wall at {} {}", oldx, oldy);
-        }
-    }
-#endif
 
     actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 }

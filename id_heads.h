@@ -26,9 +26,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_HEADS_INCLUDED
 
 
-#define IN_DEVELOPMENT (0)
-
-
 #include <cassert>
 #include <cctype>
 #include <cstdint>

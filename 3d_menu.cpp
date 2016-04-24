@@ -1489,14 +1489,7 @@ bool CP_CheckQuick(
             strcat(string, "\"?");
             VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 80, 160);
 
-#if IN_DEVELOPMENT
-            if (TestQuickSave || Confirm(string)) {
-                if (TestQuickSave) {
-                    TestQuickSave--;
-                }
-#else
             if (Confirm(string)) {
-#endif
                 CA_CacheGrChunk(STARTFONT + 1);
                 CP_SaveGame(1);
                 fontnumber = 4;
@@ -4291,13 +4284,6 @@ void TerminateStr(
     char* pos)
 {
     pos = strstr(pos, "^XX");
-
-#if IN_DEVELOPMENT
-    if (!pos) {
-        MENU_ERROR(CACHE_MESSAGE_NO_END_MARKER);
-    }
-#endif
-
     *pos = 0;
 }
 
