@@ -29,7 +29,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_memory_binary_reader.h"
 #include "bstone_endian.h"
-
+#include <memory>
 
 namespace bstone {
 
