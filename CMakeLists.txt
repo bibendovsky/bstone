@@ -321,6 +321,14 @@ set(
     "${CMAKE_SOURCE_DIR}/vgapal.cpp"
 )
 
+if (WIN32)
+    set(
+        BSTONE_SOURCES
+        ${BSTONE_SOURCES}
+        "${CMAKE_SOURCE_DIR}/sys/win32/bstone_win32.rc"
+    )
+endif ()
+
 if (MSVC AND BSTONE_USE_PCH)
     set_source_files_properties(
         ${BSTONE_PCH_BASE_NAME}.cpp
