@@ -4,6 +4,7 @@ bin/
 obj/
 ipch/
 x64/
+*.aps
 *.diff
 *.exe
 *.o
