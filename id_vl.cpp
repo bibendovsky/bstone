@@ -1620,7 +1620,7 @@ void soft_draw_screen()
         sdl_vga_surface_32,
         nullptr,
         sdl_window_surface,
-        nullptr);
+        &sdl_viewport);
 
     sdl_result = ::SDL_UpdateWindowSurface(
         sdl_window);
@@ -1663,12 +1663,20 @@ bool soft_update_viewport()
     sdl_viewport.w = (::vid_stretch ? ::window_width : ::screen_width);
     sdl_viewport.h = (::vid_stretch ? ::window_height : ::screen_height);
 
-    std::uninitialized_fill_n(
-        static_cast<uint8_t*>(sdl_window_surface->pixels),
-        sdl_window_surface->w * sdl_window_surface->h,
+    int sdl_result = 0;
+
+    const auto fill_color = ::SDL_MapRGB(
+        sdl_window_surface->format,
+        0,
+        0,
         0);
 
-    auto sdl_result = ::SDL_UpdateWindowSurface(
+    sdl_result = ::SDL_FillRect(
+        sdl_window_surface,
+        nullptr,
+        fill_color);
+
+    sdl_result = ::SDL_UpdateWindowSurface(
         sdl_window);
 
     return true;
