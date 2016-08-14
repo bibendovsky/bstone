@@ -57,7 +57,6 @@ const int vga_plane_height = vga_ref_height + 8;
 const int vga_plane_size = vga_plane_width * vga_plane_height;
 const int vga_page_size = vga_plane_count * vga_plane_size;
 const int vga_page_count = 3;
-const int vga_palette_size = 3 * 256;
 
 extern int screen_x;
 extern int screen_y;
