@@ -1364,7 +1364,7 @@ void CalcTics()
 void FixOfs()
 {
     VW_ScreenToScreen(
-        static_cast<uint16_t>(displayofs),
+        PAGE1START,
         static_cast<uint16_t>(bufferofs),
         viewwidth / 8,
         viewheight);
@@ -1406,28 +1406,19 @@ extern uint16_t LastMsgPri;
 
 void RedrawStatusAreas()
 {
-    int8_t loop;
+    ::DrawInfoArea_COUNT = 3;
+    ::InitInfoArea_COUNT = 3;
 
-    DrawInfoArea_COUNT = InitInfoArea_COUNT = 3;
+    ::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+    ::ShadowPrintLocationText(sp_normal);
 
-
-    for (loop = 0; loop < 3; loop++) {
-        LatchDrawPic(0, 0, TOP_STATUSBARPIC);
-        ShadowPrintLocationText(sp_normal);
-
-        LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
-        DrawAmmoPic();
-        DrawScoreNum();
-        DrawWeaponPic();
-        DrawAmmoNum();
-        DrawKeyPics();
-        DrawHealthNum();
-
-        bufferofs += SCREENSIZE;
-        if (bufferofs > static_cast<int>(PAGE3START)) {
-            bufferofs = PAGE1START;
-        }
-    }
+    ::LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
+    ::DrawAmmoPic();
+    ::DrawScoreNum();
+    ::DrawWeaponPic();
+    ::DrawAmmoNum();
+    ::DrawKeyPics();
+    ::DrawHealthNum();
 }
 
 void F_MapLSRow();
@@ -1436,123 +1427,118 @@ void MapLSRow();
 
 void ThreeDRefresh()
 {
-    memset(spotvis, 0, sizeof(spotvis));
+    ::memset(::spotvis, 0, sizeof(::spotvis));
 
-#ifndef PAGEFLIP
-    bufferofs = displayofs = screenloc[0];
-#endif
+    ::bufferofs = PAGE1START;
 
-    UpdateInfoAreaClock();
-    UpdateStatusBar();
+    ::UpdateInfoAreaClock();
+    ::UpdateStatusBar();
 
-    bufferofs += screenofs;
+    if (::fizzlein)
+    {
+        ::bufferofs = PAGE2START;
+    }
+
+    ::bufferofs += ::screenofs;
 
 //
 // follow the walls from there to the right, drawwing as we go
 //
 
-    if (gamestate.flags & GS_LIGHTING) {
-        switch (gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING)) {
+    if ((::gamestate.flags & GS_LIGHTING) != 0) {
+        switch (::gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING)) {
         case GS_DRAW_FLOOR | GS_DRAW_CEILING:
-            MapRowPtr = MapLSRow;
-            WallRefresh();
-            DrawPlanes();
+            ::MapRowPtr = ::MapLSRow;
+            ::WallRefresh();
+            ::DrawPlanes();
             break;
 
         case GS_DRAW_FLOOR:
-            MapRowPtr = F_MapLSRow;
-            VGAClearScreen();
-            WallRefresh();
-            DrawPlanes();
+            ::MapRowPtr = ::F_MapLSRow;
+            ::VGAClearScreen();
+            ::WallRefresh();
+            ::DrawPlanes();
             break;
 
         case GS_DRAW_CEILING:
-            MapRowPtr = C_MapLSRow;
-            VGAClearScreen();
-            WallRefresh();
-            DrawPlanes();
+            ::MapRowPtr = ::C_MapLSRow;
+            ::VGAClearScreen();
+            ::WallRefresh();
+            ::DrawPlanes();
             break;
 
         default:
-            VGAClearScreen();
-            WallRefresh();
+            ::VGAClearScreen();
+            ::WallRefresh();
             break;
         }
     } else {
-        switch (gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING)) {
+        switch (::gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING)) {
         case GS_DRAW_FLOOR | GS_DRAW_CEILING:
-            MapRowPtr = MapRow;
-            WallRefresh();
-            DrawPlanes();
+            ::MapRowPtr = ::MapRow;
+            ::WallRefresh();
+            ::DrawPlanes();
             break;
 
         case GS_DRAW_FLOOR:
-            MapRowPtr = F_MapRow;
-            VGAClearScreen();
-            WallRefresh();
-            DrawPlanes();
+            ::MapRowPtr = ::F_MapRow;
+            ::VGAClearScreen();
+            ::WallRefresh();
+            ::DrawPlanes();
             break;
 
         case GS_DRAW_CEILING:
-            MapRowPtr = C_MapRow;
-            VGAClearScreen();
-            WallRefresh();
-            DrawPlanes();
+            ::MapRowPtr = ::C_MapRow;
+            ::VGAClearScreen();
+            ::WallRefresh();
+            ::DrawPlanes();
             break;
 
         default:
-            VGAClearScreen();
-            WallRefresh();
+            ::VGAClearScreen();
+            ::WallRefresh();
             break;
         }
     }
 
-    UpdateTravelTable();
+    ::UpdateTravelTable();
 
 //
 // draw all the scaled images
 //
 
-    DrawScaleds(); // draw scaled stuf
+    ::DrawScaleds(); // draw scaled stuf
 
-    DrawPlayerWeapon(); // draw player's hands
+    ::DrawPlayerWeapon(); // draw player's hands
 
 
 //
 // show screen and time last cycle
 //
-    if (fizzlein) {
-        FizzleFade(bufferofs, displayofs + screenofs, viewwidth, viewheight, 70, false);
-        fizzlein = false;
+    if (::fizzlein) {
+        ::FizzleFade(
+            PAGE2START + ::screenofs,
+            PAGE1START + ::screenofs,
+            ::viewwidth,
+            ::viewheight,
+            70,
+            false);
 
-        lasttimecount = TimeCount; // don't make a big tic count
+        ::fizzlein = false;
+
+        ::lasttimecount = ::TimeCount; // don't make a big tic count
     }
 
-    bufferofs -= screenofs;
+    ::bufferofs = PAGE1START;
 
     if (::is_ps()) {
         ::DrawRadar();
     }
 
-#ifdef PAGEFLIP
-    NextBuffer();
-#endif
-
     // BBi
-    VL_RefreshScreen();
+    ::VL_RefreshScreen();
 
-    frameon++;
-}
-
-int16_t NextBuffer()
-{
-    displayofs = bufferofs;
-    bufferofs += SCREENSIZE;
-    if (bufferofs > static_cast<int>(PAGE3START)) {
-        bufferofs = PAGE1START;
-    }
-
-    return 0;
+    ::frameon++;
 }
 
 uint8_t TravelTable[MAPSIZE][MAPSIZE];

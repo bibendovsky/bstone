@@ -44,7 +44,6 @@ const int palette_color_count = 256;
 
 
 int bufferofs;
-int displayofs;
 
 int* ylookup = nullptr;
 
@@ -101,7 +100,6 @@ void(*vid_update_palette)(
 
 bool(*vid_update_viewport)() = nullptr;
 void(*vid_refresh_screen)() = nullptr;
-void(*vid_update_screen)() = nullptr;
 void(*vid_uninitialize_video)() = nullptr;
 
 bool sdl_use_custom_window_position = false;
@@ -143,7 +141,6 @@ struct ScreenVertex
 
 void ogl_draw_screen();
 void ogl_refresh_screen();
-void ogl_update_screen();
 
 void ogl_uninitialize_video();
 
@@ -243,7 +240,6 @@ SDL_Rect sdl_viewport;
 
 void soft_draw_screen();
 void soft_refresh_screen();
-void soft_update_screen();
 
 void soft_uninitialize_video();
 
@@ -609,7 +605,7 @@ void VL_SetPaletteIntensity(
         *cmap++ = static_cast<uint8_t>(blue);
     }
 
-    ::VL_SetPalette(start, end - start + 1, &::palette1[0][0]);
+    ::VL_SetPalette(start, end - start + 1, &::palette1[0][0], false);
 }
 
 /*
@@ -944,28 +940,9 @@ void ogl_refresh_screen()
         ::vga_height,
         GL_LUMINANCE,
         GL_UNSIGNED_BYTE,
-        &::vga_memory[::vl_get_offset(::displayofs)]);
+        ::vga_memory);
 
     ::ogl_draw_screen();
-}
-
-// Copies buffer page to a display one,
-// updates screen texture with display page data
-// and draws it.
-void ogl_update_screen()
-{
-    if (::displayofs != ::bufferofs)
-    {
-        int src_offset = ::vl_get_offset(::bufferofs);
-        int dst_offset = ::vl_get_offset(::displayofs);
-
-        std::uninitialized_copy_n(
-            &::vga_memory[src_offset],
-            ::vga_area,
-            &::vga_memory[dst_offset]);
-    }
-
-    ::ogl_refresh_screen();
 }
 
 // Returns an information log of a shader or a program.
@@ -1151,7 +1128,12 @@ bool ogl_initialize_textures()
 
     if (is_succeed)
     {
-        const auto surface_size = ::vga_scale * ::vga_scale * ::vga_ref_size;
+        const auto extra_lines = 8;
+        const auto page_count = 2;
+        const auto page_width = ::vga_ref_width;
+        const auto page_height = ::vga_ref_height + extra_lines;
+        const auto pages_size = page_count * page_width * page_height;
+        const auto surface_size = ::vga_scale * ::vga_scale * pages_size;
 
         ogl_vga_surface.resize(
             surface_size);
@@ -1600,11 +1582,9 @@ void ogl_update_palette(
 // Just draws a screen texture.
 void soft_draw_screen()
 {
-    const auto src_offset = vl_get_offset(::displayofs);
-
     SDL_Rect src_rect;
     src_rect.x = 0;
-    src_rect.y = src_offset / ::vga_width;
+    src_rect.y = 0;
     src_rect.w = ::vga_width;
     src_rect.h = ::vga_height;
 
@@ -1687,25 +1667,6 @@ bool soft_update_viewport()
 void soft_refresh_screen()
 {
     ::soft_draw_screen();
-}
-
-// Copies buffer page to a display one,
-// updates screen texture with display page data
-// and draws it.
-void soft_update_screen()
-{
-    if (::displayofs != ::bufferofs)
-    {
-        int src_offset = ::vl_get_offset(::bufferofs);
-        int dst_offset = ::vl_get_offset(::displayofs);
-
-        std::uninitialized_copy_n(
-            &::vga_memory[src_offset],
-            ::vga_area,
-            &::vga_memory[dst_offset]);
-    }
-
-    ::soft_refresh_screen();
 }
 
 bool soft_initialize_textures()
@@ -2108,7 +2069,6 @@ void initialize_video()
         ::vid_update_palette = ::ogl_update_palette;
         ::vid_update_viewport = ::ogl_update_viewport;
         ::vid_refresh_screen = ::ogl_refresh_screen;
-        ::vid_update_screen = ::ogl_update_screen;
         ::vid_uninitialize_video = ::ogl_uninitialize_video;
         break;
 
@@ -2121,7 +2081,6 @@ void initialize_video()
         ::vid_update_palette = ::soft_update_palette;
         ::vid_update_viewport = ::soft_update_viewport;
         ::vid_refresh_screen = ::soft_refresh_screen;
-        ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
         break;
 
@@ -2225,7 +2184,6 @@ void initialize_video()
         ::vid_update_palette = ::soft_update_palette;
         ::vid_update_viewport = ::soft_update_viewport;
         ::vid_refresh_screen = ::soft_refresh_screen;
-        ::vid_update_screen = ::soft_update_screen;
         ::vid_uninitialize_video = ::soft_uninitialize_video;
 
         is_succeed = ::x_initialize_video();
@@ -2365,7 +2323,7 @@ void VL_RefreshScreen()
 
 void VH_UpdateScreen()
 {
-    ::vid_update_screen();
+    ::vid_refresh_screen();
 }
 
 int vl_get_offset(

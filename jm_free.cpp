@@ -776,7 +776,7 @@ void PreDemo()
             // Cache and set palette.  AND  Fade it in!
             //
             CA_CacheGrChunk(PIRACYPALETTE);
-            VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]));
+            VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), false);
             VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), 0);
             VW_UpdateScreen();
 
@@ -796,11 +796,7 @@ void PreDemo()
 
             // Cleanup screen for upcoming SetPalette call
             //
-            auto old_bufferofs = bufferofs;
-
-            bufferofs = displayofs;
-            VL_Bar(0, 0, 320, 200, 0);
-            bufferofs = old_bufferofs;
+            ::VL_Bar(0, 0, 320, 200, 0);
         }
 
         // ---------------------
@@ -820,7 +816,7 @@ void PreDemo()
         // Cache and set palette.  AND  Fade it in!
         //
         CA_CacheGrChunk(APOGEEPALETTE);
-        VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]));
+        VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), false);
         VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 0);
         VW_UpdateScreen();
         if (::is_aog()) {
@@ -900,7 +896,7 @@ void InitGame()
     CA_Startup();
 
     VL_SetVGAPlaneMode();
-    VL_SetPalette(0, 256, vgapal);
+    VL_SetPalette(0, 256, vgapal, false);
 
     VW_Startup();
     IN_Startup();
@@ -934,7 +930,6 @@ void InitGame()
     updateptr = &update[0];
 
     bufferofs = 0;
-    displayofs = 0;
 
     ::ReadConfig();
     ::read_high_scores();
@@ -982,15 +977,15 @@ void freed_main()
 
     // Setup for APOGEECD thingie.
     //
-    InitDestPath();
+    ::InitDestPath();
 
     // Make sure there's room to play the game
     //
-    CheckDiskSpace(DISK_SPACE_NEEDED, CANT_PLAY_TXT, cds_dos_print);
+    ::CheckDiskSpace(DISK_SPACE_NEEDED, CANT_PLAY_TXT, cds_dos_print);
 
     // Which version is this? (SHAREWARE? 1-3? 1-6?)
     //
-    CheckForEpisodes();
+    ::CheckForEpisodes();
 
     // BBi
     ::initialize_sprites();
@@ -1017,9 +1012,7 @@ void freed_main()
         ::DebugOk = true;
     }
 
-    InitGame();
+    ::InitGame();
 
-    bufferofs = SCREENSIZE;
-
-    PreDemo();
+    ::PreDemo();
 }

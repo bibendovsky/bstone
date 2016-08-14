@@ -561,27 +561,7 @@ void StatusAllDrawPic(
     uint16_t y,
     uint16_t picnum)
 {
-    int temp;
-
-#ifdef PAGEFLIP
-    temp = static_cast<uint16_t>(bufferofs);
-    bufferofs = PAGE1START + (200 - STATUSLINES) * SCREENWIDTH;
-    LatchDrawPic(x, y, picnum);
-    bufferofs = PAGE2START + (200 - STATUSLINES) * SCREENWIDTH;
-    LatchDrawPic(x, y, picnum);
-    bufferofs = PAGE3START + (200 - STATUSLINES) * SCREENWIDTH;
-    LatchDrawPic(x, y, picnum);
-    bufferofs = temp;
-#else
-    temp = bufferofs;
-    bufferofs = screenloc[0] + (200 - STATUSLINES) * SCREENWIDTH;
-    LatchDrawPic(x, y, picnum);
-    bufferofs = screenloc[1] + (200 - STATUSLINES) * SCREENWIDTH;
-    LatchDrawPic(x, y, picnum);
-    bufferofs = screenloc[2] + (200 - STATUSLINES) * SCREENWIDTH;
-    LatchDrawPic(x, y, picnum);
-    bufferofs = temp;
-#endif
+    ::LatchDrawPic(x, y, picnum);
 }
 
 /*
@@ -2066,22 +2046,12 @@ void UpdateStatusBar()
 // ---------------------------------------------------------------------------
 void ForceUpdateStatusBar()
 {
-    uint16_t old_ofs, i;
-
-    old_ofs = static_cast<uint16_t>(bufferofs);
-
-    DrawScore();
-    DrawWeapon();
-    DrawKeys();
-    DrawHealth();
-    UpdateRadarGuage();
-
-    for (i = 0; i < 3; i++) {
-        bufferofs = screenloc[i];
-        UpdateStatusBar();
-    }
-
-    bufferofs = old_ofs;
+    ::DrawScore();
+    ::DrawWeapon();
+    ::DrawKeys();
+    ::DrawHealth();
+    ::UpdateRadarGuage();
+    ::UpdateStatusBar();
 }
 
 
@@ -3878,21 +3848,12 @@ void B_GAliFunc()
 
 void B_EManFunc()
 {
-    uint16_t temp, i;
-
     ::sd_play_player_sound(EXTRA_MANSND, bstone::AC_ITEM);
 
-    fontnumber = 2;
+    ::fontnumber = 2;
 
-    temp = static_cast<uint16_t>(bufferofs);
-
-    for (i = 0; i < 3; i++) {
-        bufferofs = screenloc[i];
-        LatchDrawPic(0, 0, TOP_STATUSBARPIC);
-        ShadowPrintLocationText(sp_normal);
-    }
-
-    bufferofs = temp;
+    ::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+    ::ShadowPrintLocationText(sp_normal);
 }
 
 void B_MillFunc()

@@ -8189,7 +8189,6 @@ void Quit()
 void DemoLoop()
 {
     bool breakit;
-    uint16_t old_bufferofs;
 
     while (true) {
         playstate = ex_title;
@@ -8229,15 +8228,12 @@ void DemoLoop()
                 }
 
                 ::CA_CacheGrChunk(TITLEPALETTE);
-                old_bufferofs = static_cast<uint16_t>(::bufferofs);
-                ::bufferofs = displayofs;
-                VW_Bar(0, 0, ::vga_ref_width, ::vga_ref_height, 0);
-                ::bufferofs = old_bufferofs;
 
                 ::VL_SetPalette(
                     0,
                     256,
-                    reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]));
+                    reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]),
+                    false);
 
                 ::VL_SetPaletteIntensity(
                     0,
@@ -8250,7 +8246,7 @@ void DemoLoop()
                 const auto version_padding = 1;
                 const auto version_margin = 4;
                 const auto ps_fizzle_height = 15;
-                auto&& version_string = ::get_version_string();
+                auto& version_string = ::get_version_string();
 
                 ::fontnumber = 2;
 
@@ -8296,6 +8292,10 @@ void DemoLoop()
                 ::UNCACHEGRCHUNK(TITLEPALETTE);
 
                 if (::is_ps()) {
+                    const auto old_bufferofs = ::bufferofs;
+
+                    ::bufferofs = PAGE2START;
+
                     // Cache screen 2 with Warnings and Copyrights
 
                     ::CA_CacheScreen(TITLE2PIC);
@@ -8313,13 +8313,15 @@ void DemoLoop()
                     SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
                     ::US_Print(::get_version_string().c_str());
 
+                    ::bufferofs = old_bufferofs;
+
                     // Fizzle whole screen incase of any last minute changes needed
                     // on title intro.
 
                     // BBi Made abortable.
                     breakit |= ::FizzleFade(
-                        ::bufferofs,
-                        ::displayofs,
+                        PAGE2START,
+                        PAGE1START,
                         ::vga_ref_width,
                         ::vga_ref_height,
                         70,
@@ -8344,33 +8346,33 @@ void DemoLoop()
                 VW_FadeOut();
 
 
-            //
-            // high scores
-            //
-            CA_CacheScreen(BACKGROUND_SCREENPIC);
-            DrawHighScores();
-            VW_UpdateScreen();
-            VW_FadeIn();
+                //
+                // high scores
+                //
+                CA_CacheScreen(BACKGROUND_SCREENPIC);
+                DrawHighScores();
+                VW_UpdateScreen();
+                VW_FadeIn();
 
-            if (IN_UserInput(TickBase * 9)) {
-                break;
+                if (IN_UserInput(TickBase * 9)) {
+                    break;
+                }
+                VW_FadeOut();
             }
-            VW_FadeOut();
-        }
-    } else {
-        // Start music when coming from menu...
-        if (!sqActive) {
-            // Load and start music
-            //
-            if (!::is_aog()) {
-                CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
-                ::SD_StartMusic(MENUSONG);
-            } else {
-                CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-                ::SD_StartMusic(TITLE_LOOP_MUSIC);
+        } else {
+            // Start music when coming from menu...
+            if (!sqActive) {
+                // Load and start music
+                //
+                if (!::is_aog()) {
+                    CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
+                    ::SD_StartMusic(MENUSONG);
+                } else {
+                    CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+                    ::SD_StartMusic(TITLE_LOOP_MUSIC);
+                }
             }
         }
-    }
 
         if (!screenfaded) {
             VW_FadeOut();

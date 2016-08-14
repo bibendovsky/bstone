@@ -40,7 +40,6 @@ Free Software Foundation, Inc.,
 // ===========================================================================
 
 extern int bufferofs; // all drawing is reletive to this
-extern int displayofs; // last setscreen coordinates
 
 extern int* ylookup;
 

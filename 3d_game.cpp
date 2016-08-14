@@ -88,8 +88,6 @@ void PreloadGraphics();
 bool SaveLevel(
     int level_index);
 
-int16_t NextBuffer();
-
 void CheckHighScore(
     int32_t score,
     uint16_t other);
@@ -2760,83 +2758,77 @@ void DrawTopInfo(
 void DrawPlayScreen(
     bool InitInfoMsg)
 {
-    int16_t i;
-    uint16_t temp;
-
-    if (loadedgame) {
+    if (::loadedgame) {
         return;
     }
 
-    if (playstate != ex_transported) {
+    if (::playstate != ex_transported) {
         VW_FadeOut();
     }
 
-    temp = static_cast<uint16_t>(bufferofs);
-    WindowW = 253;
-    WindowH = 8;
-    fontnumber = 2;
+    ::WindowW = 253;
+    ::WindowH = 8;
+    ::fontnumber = 2;
 
-    for (i = 0; i < 3; i++) {
-        bufferofs = screenloc[i];
-        DrawPlayBorder();
+    ::DrawPlayBorder();
 
-        LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
-        LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+    ::LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
+    ::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
 
-        ShadowPrintLocationText(sp_normal);
-    }
+    ::ShadowPrintLocationText(sp_normal);
 
-    bufferofs = temp;
+    ::DrawHealth();
+    ::DrawKeys();
+    ::DrawWeapon();
+    ::DrawScore();
 
-    DrawHealth();
-    DrawKeys();
-    DrawWeapon();
-    DrawScore();
-
-    InitInfoArea();
+    ::InitInfoArea();
 
     if (InitInfoMsg) {
         DISPLAY_MSG("R.E.B.A.\rAGENT: BLAKE STONE\rALL SYSTEMS READY.", MP_max_val, MT_NOTHING);
     } else {
-        DisplayNoMoMsgs();
+        ::DisplayNoMoMsgs();
     }
 
-    ForceUpdateStatusBar();
+    ::ForceUpdateStatusBar();
 }
 
 void DrawWarpIn()
 {
-    int16_t i;
-    uint16_t temp;
+    ::InitInfoArea();
 
-    temp = static_cast<uint16_t>(bufferofs);
-    InitInfoArea();
-    DisplayInfoMsg("\r\r    TRANSPORTING...", MP_POWERUP, 2 * 60, MT_GENERAL);
+    ::DisplayInfoMsg(
+        "\r\r    TRANSPORTING...",
+        MP_POWERUP,
+        2 * 60,
+        MT_GENERAL);
 
-    DrawHealth();
-    DrawKeys();
-    DrawWeapon();
-    DrawScore();
-    WindowW = 253;
-    WindowH = 8;
-    fontnumber = 2;
-    for (i = 0; i < 3; i++) {
-        bufferofs = screenloc[i];
-        VW_Bar((320 - viewwidth) / 2, (200 - STATUSLINES - viewheight + TOP_STRIP_HEIGHT) / 2, viewwidth, viewheight, BLACK);
-        LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
-        LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+    ::DrawHealth();
+    ::DrawKeys();
+    ::DrawWeapon();
+    ::DrawScore();
+    ::WindowW = 253;
+    ::WindowH = 8;
+    ::fontnumber = 2;
 
-        ShadowPrintLocationText(sp_normal);
-        UpdateStatusBar();
-    }
+    VW_Bar(
+        (320 - ::viewwidth) / 2,
+        (200 - STATUSLINES - ::viewheight + TOP_STRIP_HEIGHT) / 2,
+        ::viewwidth,
+        ::viewheight,
+        BLACK);
 
-    bufferofs = temp;
+    ::LatchDrawPic(0, 200 - STATUSLINES, ::STATUSBARPIC);
+    ::LatchDrawPic(0, 0, ::TOP_STATUSBARPIC);
 
-    ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
+    ::ShadowPrintLocationText(sp_normal);
+    ::UpdateStatusBar();
 
-    fizzlein = true;
+    ::sd_play_player_sound(::WARPINSND, bstone::AC_ITEM);
 
-    ThreeDRefresh();
+    ::fizzlein = true;
+
+    ::ThreeDRefresh();
 }
 
 void Warped()
@@ -2860,17 +2852,25 @@ void Warped()
     gamestate.weapon = gamestate.old_weapons[3];
     gamestate.attackframe = gamestate.attackcount = gamestate.weaponframe = 0;
 
-    bufferofs += screenofs;
+    const auto old_bufferofs = ::bufferofs;
+
+    ::bufferofs = PAGE2START + ::screenofs;
 
     VW_Bar(0, 0, viewwidth, viewheight, BLACK);
+
+    ::bufferofs = old_bufferofs;
 
     IN_ClearKeysDown();
 
     ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 
-    FizzleFade(bufferofs, displayofs + screenofs, viewwidth, viewheight, 70, false);
-
-    bufferofs -= screenofs;
+    ::FizzleFade(
+        PAGE2START + ::screenofs,
+        PAGE1START + ::screenofs,
+        ::viewwidth,
+        ::viewheight,
+        70,
+        false);
 
     IN_UserInput(100);
     SD_WaitSoundDone();
@@ -2896,11 +2896,25 @@ void Died()
 //
     FinishPaletteShifts();
 
-    bufferofs += screenofs;
+    const auto old_bufferofs = ::bufferofs;
+
+    //bufferofs += screenofs;
+    ::bufferofs = PAGE2START + ::screenofs;
     VW_Bar(0, 0, viewwidth, viewheight, 0x17);
+    ::bufferofs = old_bufferofs;
+
     IN_ClearKeysDown();
-    FizzleFade(bufferofs, displayofs + screenofs, viewwidth, viewheight, 70, false);
-    bufferofs -= screenofs;
+
+    //FizzleFade(bufferofs, screenofs, viewwidth, viewheight, 70, false);
+    ::FizzleFade(
+        PAGE2START + ::screenofs,
+        PAGE1START + ::screenofs,
+        ::viewwidth,
+        ::viewheight,
+        70,
+        false);
+
+    //bufferofs -= screenofs;
 
     IN_UserInput(100);
 
@@ -3232,16 +3246,11 @@ restartgame:
             ClearMemory();
 
             if (playstate == ex_victorious) {
-                int8_t loop;
-
                 fontnumber = 1;
                 CA_CacheGrChunk(STARTFONT + 1);
                 memset(update, 0, sizeof(update));
                 CacheBMAmsg(YOUWIN_TEXT);
-                for (loop = 0; loop < 2; loop++) {
-                    VW_ScreenToScreen(static_cast<uint16_t>(displayofs), static_cast<uint16_t>(bufferofs), 320, 200);
-                    NextBuffer();
-                }
+                VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 320, 200);
                 UNCACHEGRCHUNK(STARTFONT + 1);
 
                 ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);

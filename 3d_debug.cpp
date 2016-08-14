@@ -86,52 +86,44 @@ void ViewMap();
 
 void DebugMemory()
 {
-    int16_t i, temp;
+    ::CenterWindow(22, 15);
 
-    CenterWindow(22, 15);
+    ::US_Print("k\nTics      :");
+    ::US_PrintUnsigned(tics);
+    ::US_Print("\nReal Tics :");
+    ::US_PrintUnsigned(realtics);
 
-    US_Print("k\nTics      :");
-    US_PrintUnsigned(tics);
-    US_Print("\nReal Tics :");
-    US_PrintUnsigned(realtics);
+    if ((gamestate.flags & GS_DRAW_CEILING) != 0) {
+        ::US_Print("\n\nCeiling TEX: ");
+        ::US_PrintUnsigned(CeilingTile - START_TEXTURES);
 
-    if (gamestate.flags & GS_DRAW_CEILING) {
-        US_Print("\n\nCeiling TEX: ");
-        US_PrintUnsigned(CeilingTile - START_TEXTURES);
-
-        US_Print(" Floor TEX: ");
-        US_PrintUnsigned(FloorTile - START_TEXTURES);
+        ::US_Print(" Floor TEX: ");
+        ::US_PrintUnsigned(FloorTile - START_TEXTURES);
     } else {
-        US_Print("\n\nTop COL: ");
-        US_PrintUnsigned(TopColor & 0xff);
+        ::US_Print("\n\nTop COL: ");
+        ::US_PrintUnsigned(TopColor & 0xFF);
 
-        US_Print(" Bottom COL: ");
-        US_PrintUnsigned(BottomColor & 0xff);
+        ::US_Print(" Bottom COL: ");
+        ::US_PrintUnsigned(BottomColor & 0xFF);
     }
 
-    if (gamestate.flags & GS_LIGHTING) {
-        US_Print("\nShade div :");
-        US_PrintUnsigned(normalshade_div);
+    if ((gamestate.flags & GS_LIGHTING) != 0) {
+        ::US_Print("\nShade div :");
+        ::US_PrintUnsigned(normalshade_div);
 
-        US_Print("\nShade max :");
-        US_PrintUnsigned(shade_max);
+        ::US_Print("\nShade max :");
+        ::US_PrintUnsigned(shade_max);
     }
 
     VW_UpdateScreen();
-    IN_Ack();
+    ::IN_Ack();
 
-    temp = static_cast<int16_t>(bufferofs);
-    WindowW = 253;
-    WindowH = 8;
-    fontnumber = 2;
+    ::WindowW = 253;
+    ::WindowH = 8;
+    ::fontnumber = 2;
 
-    for (i = 0; i < 3; i++) {
-        bufferofs = screenloc[i];
-        LatchDrawPic(0, 0, TOP_STATUSBARPIC);
-        ShadowPrintLocationText(sp_normal);
-    }
-
-    bufferofs = temp;
+    ::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+    ::ShadowPrintLocationText(sp_normal);
 }
 
 void CountObjects()

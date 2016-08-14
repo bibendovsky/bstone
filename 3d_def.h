@@ -26,15 +26,12 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_DEF_INCLUDED
 
 
-#include <cstdarg>
 #include <cmath>
 
 #include "id_heads.h"
 #include "jm_io.h"
 #include "jm_cio.h"
 
-
-//#define PAGEFLIP
 
 #define LOOK_FOR_DEAD_GUYS (0)
 

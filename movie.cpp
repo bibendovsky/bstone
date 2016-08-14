@@ -410,7 +410,7 @@ void MOVIE_HandlePage(
             frame++;
         } else {
             VL_LatchToScreen(
-                displayofs + ylookup[MovieStuff->start_line],
+                PAGE1START + ylookup[MovieStuff->start_line],
                 320 >> 2,
                 MovieStuff->end_line - MovieStuff->start_line,
                 0,
@@ -508,13 +508,5 @@ bool MOVIE_Play(
 
 void FlipPages()
 {
-    displayofs = bufferofs;
-
-    VL_RefreshScreen();
-
-    bufferofs += SCREENSIZE;
-
-    if (bufferofs > static_cast<int>(PAGE3START)) {
-        bufferofs = PAGE1START;
-    }
+    ::VL_RefreshScreen();
 }
