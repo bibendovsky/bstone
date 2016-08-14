@@ -8014,9 +8014,18 @@ void CycleColors()
         }
     }
 
+    bool use_delay = false;
+
     if (changes) {
         VL_SetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
+
+        use_delay = !::vid_has_vsync;
     } else {
+        use_delay = true;
+    }
+
+    if (use_delay)
+    {
         VW_WaitVBL(1);
     }
 }

@@ -1546,15 +1546,24 @@ void UpdatePaletteShifts()
     }
 
     if (red > 0) {
+// BBi
+#if 0
         VW_WaitVBL(1);
+#endif
         VL_SetPalette(0, 256, redshifts[red - 1], false);
         palshifted = true;
     } else if (white > 0) {
+// BBi
+#if 0
         VW_WaitVBL(1);
+#endif
         VL_SetPalette(0, 256, whiteshifts[white - 1], false);
         palshifted = true;
     } else if (palshifted) {
+// BBi
+#if 0
         VW_WaitVBL(1);
+#endif
         VL_SetPalette(0, 256, vgapal, false); // back to normal
         palshifted = false;
     }
@@ -1564,7 +1573,10 @@ void FinishPaletteShifts()
 {
     if (palshifted) {
         palshifted = false;
+// BBi
+#if 0
         VW_WaitVBL(1);
+#endif
         VL_SetPalette(0, 256, vgapal);
     }
 }

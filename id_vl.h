@@ -71,6 +71,8 @@ extern int vga_area;
 
 const bool default_vid_stretch = false;
 extern bool vid_stretch;
+
+extern bool vid_has_vsync;
 // BBi
 
 // ===========================================================================

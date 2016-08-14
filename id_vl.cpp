@@ -325,33 +325,7 @@ void VL_WaitVBL(
         return;
     }
 
-    if (vbls > 1)
-    {
-        ::sys_sleep_for(1000 * vbls / TickBase);
-        return;
-    }
-
-    if (::vid_has_vsync)
-    {
-        return;
-    }
-
-
-    static const uint32_t one_tick_delay = 1000 / TickBase;
-
-    auto timer_ticks = ::sys_get_timer_ticks();
-    auto current_ticks = ::SDL_GetTicks();
-
-    if (current_ticks > timer_ticks)
-    {
-        uint32_t diff = current_ticks - timer_ticks;
-
-        if (one_tick_delay >= diff)
-        {
-            uint32_t remain = one_tick_delay - diff;
-            ::sys_sleep_for(remain);
-        }
-    }
+    ::sys_sleep_for(1000 * vbls / TickBase);
 }
 
 // ===========================================================================
@@ -522,7 +496,11 @@ void VL_FadeOut(
         }
 
         ::VL_SetPalette(0, 256, &::palette2[0][0]);
-        ::VL_WaitVBL(1);
+
+        if (!::vid_has_vsync)
+        {
+            ::VL_WaitVBL(1);
+        }
     }
 
     //
@@ -533,7 +511,10 @@ void VL_FadeOut(
         static_cast<uint8_t>(green),
         static_cast<uint8_t>(blue));
 
-    ::VL_WaitVBL(1);
+    if (!::vid_has_vsync)
+    {
+        ::VL_WaitVBL(1);
+    }
 
     screenfaded = true;
 }
@@ -568,14 +549,22 @@ void VL_FadeIn(
         }
 
         ::VL_SetPalette(0, 256, &::palette2[0][0]);
-        ::VL_WaitVBL(1);
+
+        if (!::vid_has_vsync)
+        {
+            ::VL_WaitVBL(1);
+        }
     }
 
     //
     // final color
     //
     ::VL_SetPalette(0, 256, palette);
-    ::VL_WaitVBL(1);
+
+    if (!::vid_has_vsync)
+    {
+        ::VL_WaitVBL(1);
+    }
 
     screenfaded = false;
 }
