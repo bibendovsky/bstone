@@ -142,7 +142,11 @@ void SetupMovie(
     IN_ClearKeysDown();
 
     movie_palette = MovieStuff->palette;
-    JM_VGALinearFill(screenloc[0], 3 * 80 * 208, 0);
+
+    ::JM_VGALinearFill(
+        PAGE1START,
+        (::vga_ref_width / 4) * ::vga_ref_height,
+        0);
 
     VL_FillPalette(0, 0, 0);
     LastScan = ScanCode::sc_none;
@@ -402,20 +406,31 @@ void MOVIE_HandlePage(
     // -------------------------------------------
 
     case AN_PAGE: // Graphics Chunk
-        if (movie_flag == MV_FILL) {
+        if (movie_flag == MV_FILL)
+        {
             // First page comming in.. Fill screen with fill color...
             //
             movie_flag = MV_NONE; // Set READ flag to skip the first frame on an anim repeat
-            JM_VGALinearFill(screenloc[0], 3 * 80 * 208, *frame);
+
+            ::JM_VGALinearFill(
+                PAGE1START,
+                (::vga_ref_width / 4) * ::vga_ref_height,
+                *frame);
+
             frame++;
-        } else {
+        }
+// BBi No need without page flipping
+#if 0
+        else
+        {
             VL_LatchToScreen(
                 PAGE1START + ylookup[MovieStuff->start_line],
-                320 >> 2,
+                ::vga_ref_width / 4,
                 MovieStuff->end_line - MovieStuff->start_line,
                 0,
                 MovieStuff->start_line);
         }
+#endif
 
         MOVIE_ShowFrame(frame);
 
