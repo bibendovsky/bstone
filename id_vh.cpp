@@ -48,6 +48,8 @@ int16_t fontnumber;
 
 bool allcaps = false;
 
+// BBi
+LatchesCache latches_cache;
 
 void VW_DrawPropString(
     const char* string)
@@ -221,44 +223,71 @@ void LatchDrawPic(
     VL_LatchToScreen(source, wide / 4, height, x * 8, y);
 }
 
-int destoff;
-
 void LoadLatchMem()
 {
+    // Calculate total size of latches cache.
+    //
+    const auto tile8_total_size =
+        ::STARTTILE8 * (::vga_scale * 8) * (::vga_scale * 8);
+
+    int pics_total_size = 0;
+
+    for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
+    {
+        const auto width = pictable[i - ::STARTPICS].width;
+        const auto height = pictable[i - ::STARTPICS].height;
+
+        pics_total_size +=
+            (::vga_scale * width) * (::vga_scale * height);
+    }
+
+    const auto latches_cache_size = tile8_total_size + pics_total_size;
+
+    ::latches_cache.resize(
+        latches_cache_size);
+
+
+    int destoff = 0;
     int picnum = 0;
 
     //
     // tile 8s
     //
-    latchpics[picnum++] = freelatch;
-    CA_CacheGrChunk(STARTTILE8);
-    const uint8_t* src = static_cast<const uint8_t*>(grsegs[STARTTILE8]);
-    destoff = freelatch;
+    ::latchpics[picnum++] = destoff;
+    ::CA_CacheGrChunk(::STARTTILE8);
+    auto src = static_cast<const uint8_t*>(::grsegs[::STARTTILE8]);
 
-    for (int i = 0; i < NUMTILE8; ++i) {
-        VL_MemToLatch(src, 8, 8, destoff);
+    for (int i = 0; i < ::NUMTILE8; ++i)
+    {
+        ::VL_MemToLatch(src, 8, 8, destoff);
         src += 64;
         destoff += 16;
     }
 
-    UNCACHEGRCHUNK(STARTTILE8);
+    ::UNCACHEGRCHUNK(::STARTTILE8);
 
     //
     // pics
     //
     ++picnum;
 
-    for (int16_t i = LATCHPICS_LUMP_START; i <= LATCHPICS_LUMP_END; ++i) {
-        latchpics[picnum++] = destoff;
-        CA_CacheGrChunk(i);
-        int width = pictable[i - STARTPICS].width;
-        int height = pictable[i - STARTPICS].height;
+    for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
+    {
+        const auto width = pictable[i - ::STARTPICS].width;
+        const auto height = pictable[i - ::STARTPICS].height;
 
-        VL_MemToLatch(static_cast<const uint8_t*>(grsegs[i]),
-                      width, height, destoff);
+        ::CA_CacheGrChunk(i);
 
+        ::VL_MemToLatch(
+            static_cast<const uint8_t*>(::grsegs[i]),
+            width,
+            height,
+            destoff);
+
+        ::UNCACHEGRCHUNK(i);
+
+        ::latchpics[picnum++] = destoff;
         destoff += (width / 4) * height;
-        UNCACHEGRCHUNK(i);
     }
 }
 

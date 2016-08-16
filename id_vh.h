@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include <vector>
 
 
 #define WHITE (15) // graphics mode independant colors
@@ -160,6 +161,9 @@ extern int LatchMemFree;
 // BBi
 void vl_minimize_fullscreen_window(
     bool value);
+
+using LatchesCache = std::vector<uint8_t>;
+extern LatchesCache latches_cache;
 
 
 #endif // BSTONE_ID_VH_INCLUDED

@@ -693,8 +693,8 @@ void VL_MemToLatch(
     int height,
     int dest)
 {
-    int dst_pitch = ::vga_scale * width;
-    int base_offset = ::vl_get_offset(dest);
+    const auto dst_pitch = ::vga_scale * width;
+    const auto base_offset = ::vl_get_offset(dest);
 
     for (int p = 0; p < 4; ++p)
     {
@@ -702,15 +702,15 @@ void VL_MemToLatch(
         {
             for (int w = p; w < width; w += 4)
             {
-                uint8_t pixel = *source++;
+                const auto pixel = *source++;
 
-                int offset = base_offset +
+                auto offset = base_offset +
                     ::vga_scale * ((::vga_scale * h * width) + w);
 
                 for (int s = 0; s < ::vga_scale; ++s)
                 {
                     std::uninitialized_fill_n(
-                        &::vga_memory[offset],
+                        &::latches_cache[offset],
                         ::vga_scale,
                         pixel);
 
@@ -800,7 +800,7 @@ void VL_LatchToScreen(
         for (int s = 0; s < ::vga_scale; ++s)
         {
             std::uninitialized_copy_n(
-                &::vga_memory[src_offset],
+                &::latches_cache[src_offset],
                 src_pitch,
                 &::vga_memory[dst_offset]);
 
