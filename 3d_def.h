@@ -226,7 +226,7 @@ case gen_scientistobj
 
 #define RUNSPEED (6000)
 
-#define SCREENBWIDE (80)
+#define SCREENBWIDE (::vga_ref_width)
 
 #define HEIGHTRATIO (0.41)
 #define TOP_STRIP_HEIGHT (16) // Pix height of top strip.
@@ -259,7 +259,7 @@ case gen_scientistobj
 
 #define STATUSLINES (48)
 
-#define SCREENSIZE (SCREENBWIDE * 208)
+#define SCREENSIZE (SCREENBWIDE * ::vga_ref_height)
 #define PAGE1START (0)
 #define PAGE2START (SCREENSIZE)
 #define PAGE3START (SCREENSIZE * 2U)

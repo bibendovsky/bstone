@@ -1365,8 +1365,8 @@ void FixOfs()
 {
     VW_ScreenToScreen(
         PAGE1START,
-        static_cast<uint16_t>(bufferofs),
-        viewwidth / 8,
+        bufferofs,
+        viewwidth / 2,
         viewheight);
 }
 

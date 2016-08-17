@@ -1717,9 +1717,9 @@ tp_newline:;
         // If next line will be printed out of defined region, scroll up!
         //
         if ((pi->flags & TPF_SCROLL_REGION) && (cur_y + (font_height * 2) > yh)) {
-            VL_ScreenToScreen(static_cast<uint16_t>(bufferofs + ((((yl + font_height + is_shadowed) * 320) + xl) / 4)),
-                              static_cast<uint16_t>(bufferofs + (((yl * 320) + xl) / 4)),
-                              (xh - xl + 1) / 4,
+            VL_ScreenToScreen(bufferofs + (((yl + font_height + is_shadowed) * 320) + xl),
+                              bufferofs + ((yl * 320) + xl),
+                              xh - xl + 1,
                               (yh - yl + 1) - font_height + is_shadowed);
 
             VWB_Bar(cur_x, cur_y, xh - xl + 1 + (TP_MARGIN * 2), yh - cur_y + 1, static_cast<uint8_t>(bgcolor));

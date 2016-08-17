@@ -1464,7 +1464,7 @@ bool CP_CheckQuick(
     // END GAME
     //
     case ScanCode::sc_f7:
-        VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 80, 160);
+        VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
         CA_CacheGrChunk(STARTFONT + 1);
 
         WindowH = 160;
@@ -1487,7 +1487,7 @@ bool CP_CheckQuick(
 
             strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
             strcat(string, "\"?");
-            VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 80, 160);
+            VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
 
             if (Confirm(string)) {
                 CA_CacheGrChunk(STARTFONT + 1);
@@ -1521,7 +1521,7 @@ bool CP_CheckQuick(
 
             strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
             strcat(string, "\"?");
-            VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 80, 160);
+            VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
 
             if (Confirm(string)) {
                 CP_LoadGame(1);
@@ -1553,7 +1553,7 @@ bool CP_CheckQuick(
     //
     case ScanCode::sc_f10:
         CA_CacheGrChunk(STARTFONT + 1);
-        VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 80, 160);
+        VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
 
         WindowX = WindowY = 0;
         WindowW = 320;

@@ -791,7 +791,7 @@ void VL_LatchToScreen(
     int x,
     int y)
 {
-    int src_pitch = ::vga_scale * 4 * width;
+    int src_pitch = ::vga_scale * width;
     int src_offset = ::vl_get_offset(source);
     int dst_offset = ::vl_get_offset(::bufferofs, x, y);
 
@@ -816,9 +816,9 @@ void VL_ScreenToScreen(
     int width,
     int height)
 {
-    source *= 4 * ::vga_scale * ::vga_scale;
-    dest *= 4 * ::vga_scale * ::vga_scale;
-    width *= 4 * ::vga_scale;
+    source *= ::vga_scale * ::vga_scale;
+    dest *= ::vga_scale * ::vga_scale;
+    width *= ::vga_scale;
     height *= ::vga_scale;
 
     auto src_pixels = &::vga_memory[source];
@@ -2312,7 +2312,7 @@ void JM_VGALinearFill(
 {
     std::uninitialized_fill_n(
         &::vga_memory[::vl_get_offset(start)],
-        ::vga_scale * ::vga_scale * 4 * length,
+        ::vga_scale * ::vga_scale * length,
         fill);
 }
 
@@ -2329,7 +2329,7 @@ void VH_UpdateScreen()
 int vl_get_offset(
     int base_offset)
 {
-    return ::vga_scale * ::vga_scale * 4 * base_offset;
+    return ::vga_scale * ::vga_scale * base_offset;
 }
 
 int vl_get_offset(
@@ -2338,7 +2338,7 @@ int vl_get_offset(
     int y)
 {
     return ::vga_scale *
-        (::vga_scale * (4 * base_offset) + (y * ::vga_width) + x);
+        ((::vga_scale * base_offset) + (y * ::vga_width) + x);
 }
 
 uint8_t vl_get_pixel(

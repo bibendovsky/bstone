@@ -145,7 +145,7 @@ void SetupMovie(
 
     ::JM_VGALinearFill(
         PAGE1START,
-        (::vga_ref_width / 4) * ::vga_ref_height,
+        ::vga_ref_width * ::vga_ref_height,
         0);
 
     VL_FillPalette(0, 0, 0);
@@ -414,7 +414,7 @@ void MOVIE_HandlePage(
 
             ::JM_VGALinearFill(
                 PAGE1START,
-                (::vga_ref_width / 4) * ::vga_ref_height,
+                ::vga_ref_width * ::vga_ref_height,
                 *frame);
 
             frame++;

@@ -3250,7 +3250,7 @@ restartgame:
                 CA_CacheGrChunk(STARTFONT + 1);
                 memset(update, 0, sizeof(update));
                 CacheBMAmsg(YOUWIN_TEXT);
-                VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 320, 200);
+                VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 200);
                 UNCACHEGRCHUNK(STARTFONT + 1);
 
                 ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);

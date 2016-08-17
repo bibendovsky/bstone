@@ -8144,7 +8144,7 @@ void SetViewSize(
     shootdelta = viewwidth / 10;
 
     screenofs = ((200 - STATUSLINES - viewheight + TOP_STRIP_HEIGHT) /
-                 2 * SCREENWIDTH) + ((320 - viewwidth) / 8);
+                 2 * ::vga_ref_width) + ((320 - viewwidth) / 2);
 
     //
     // calculate trace angles and projection constants

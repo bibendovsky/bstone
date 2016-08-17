@@ -858,7 +858,7 @@ void CheckKeys()
 
             ClearMemory();
             ClearSplitVWB();
-            VW_ScreenToScreen(PAGE1START, static_cast<uint16_t>(bufferofs), 80, 160);
+            VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
 
             Message("\n NOW you're jammin'!! \n");
 

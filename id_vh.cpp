@@ -220,7 +220,7 @@ void LatchDrawPic(
     int height = pictable[picnum - STARTPICS].height;
     int source = latchpics[2 + picnum - LATCHPICS_LUMP_START];
 
-    VL_LatchToScreen(source, wide / 4, height, x * 8, y);
+    VL_LatchToScreen(source, wide, height, x * 8, y);
 }
 
 void LoadLatchMem()
@@ -261,7 +261,7 @@ void LoadLatchMem()
     {
         ::VL_MemToLatch(src, 8, 8, destoff);
         src += 64;
-        destoff += 16;
+        destoff += 64;
     }
 
     ::UNCACHEGRCHUNK(::STARTTILE8);
@@ -287,7 +287,7 @@ void LoadLatchMem()
         ::UNCACHEGRCHUNK(i);
 
         ::latchpics[picnum++] = destoff;
-        destoff += (width / 4) * height;
+        destoff += width * height;
     }
 }
 

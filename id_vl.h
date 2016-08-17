@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #define NOFADE_CODE
 
-#define SCREENWIDTH (80) // default screen width in bytes
+#define SCREENWIDTH (320) // default screen width in bytes
 
 #define TILEWIDTH (4)
 
