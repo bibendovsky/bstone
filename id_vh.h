@@ -136,7 +136,7 @@ void VW_MeasurePropString(
     int* height);
 #define VW_UpdateScreen() VH_UpdateScreen()
 
-#define LatchDrawChar(x, y, p) VL_LatchToScreen(latchpics[0] + (p) * 16, 8, 8, x, y)
+#define LatchDrawChar(x, y, p) VL_LatchToScreen(latchpics[0] + (p) * 64, 8, 8, x, y)
 #define LatchDrawTile(x, y, p) VL_LatchToScreen(latchpics[1] + (p) * 64, 16, 16, x, y)
 
 void LatchDrawPic(
