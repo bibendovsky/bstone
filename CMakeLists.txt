@@ -170,16 +170,9 @@ if (MINGW)
     set(CMAKE_EXE_LINKER_FLAGS "${TMP}")
 endif ()
 
-if (APPLE)
-    add_definitions("-DBSTONE_OGL_DIRECT_LINK")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework OpenGL")
-endif ()
-
 if (BSTONE_PANDORA)
     # Definitions
     add_definitions("-DBSTONE_PANDORA")
-    add_definitions("-DBSTONE_USE_GLES")
-    add_definitions("-DBSTONE_OGL_DIRECT_LINK")
 
     # Common compiler flags
     add_compile_options("-fsigned-char")
@@ -232,8 +225,6 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_memory_binary_reader.h"
     "${CMAKE_SOURCE_DIR}/bstone_memory_stream.h"
     "${CMAKE_SOURCE_DIR}/bstone_mt_queue_1r1w.h"
-    "${CMAKE_SOURCE_DIR}/bstone_ogl_api.h"
-    "${CMAKE_SOURCE_DIR}/bstone_ogl_version.h"
     "${CMAKE_SOURCE_DIR}/bstone_opl2.h"
     "${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.h"
     "${CMAKE_SOURCE_DIR}/bstone_sha1.h"
@@ -290,8 +281,6 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_log.cpp"
     "${CMAKE_SOURCE_DIR}/bstone_memory_binary_reader.cpp"
     "${CMAKE_SOURCE_DIR}/bstone_memory_stream.cpp"
-    "${CMAKE_SOURCE_DIR}/bstone_ogl_api.cpp"
-    "${CMAKE_SOURCE_DIR}/bstone_ogl_version.cpp"
     "${CMAKE_SOURCE_DIR}/bstone_opl2.cpp"
     "${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.cpp"
     "${CMAKE_SOURCE_DIR}/bstone_sha1.cpp"
