@@ -118,8 +118,7 @@ void VL_GetColor(
 void VL_SetPalette(
     int first,
     int count,
-    const uint8_t* palette,
-    bool refresh_screen = true);
+    const uint8_t* palette);
 
 void VL_GetPalette(
     int first,

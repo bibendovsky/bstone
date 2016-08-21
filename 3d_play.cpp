@@ -1550,21 +1550,21 @@ void UpdatePaletteShifts()
 #if 0
         VW_WaitVBL(1);
 #endif
-        VL_SetPalette(0, 256, redshifts[red - 1], false);
+        VL_SetPalette(0, 256, redshifts[red - 1]);
         palshifted = true;
     } else if (white > 0) {
 // BBi
 #if 0
         VW_WaitVBL(1);
 #endif
-        VL_SetPalette(0, 256, whiteshifts[white - 1], false);
+        VL_SetPalette(0, 256, whiteshifts[white - 1]);
         palshifted = true;
     } else if (palshifted) {
 // BBi
 #if 0
         VW_WaitVBL(1);
 #endif
-        VL_SetPalette(0, 256, vgapal, false); // back to normal
+        VL_SetPalette(0, 256, vgapal); // back to normal
         palshifted = false;
     }
 }
@@ -1578,6 +1578,7 @@ void FinishPaletteShifts()
         VW_WaitVBL(1);
 #endif
         VL_SetPalette(0, 256, vgapal);
+        ::VL_RefreshScreen();
     }
 }
 

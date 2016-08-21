@@ -8017,7 +8017,8 @@ void CycleColors()
     bool use_delay = false;
 
     if (changes) {
-        VL_SetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
+        ::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
+        ::VL_RefreshScreen();
 
         use_delay = !::vid_has_vsync;
     } else {
@@ -8232,8 +8233,7 @@ void DemoLoop()
                 ::VL_SetPalette(
                     0,
                     256,
-                    reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]),
-                    false);
+                    reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]));
 
                 ::VL_SetPaletteIntensity(
                     0,

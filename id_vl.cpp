@@ -959,8 +959,7 @@ void VL_FillPalette(
 void VL_SetPalette(
     int first,
     int count,
-    const uint8_t* palette,
-    bool refresh_screen)
+    const uint8_t* palette)
 {
     for (int i = 0; i < count; ++i)
     {
@@ -974,11 +973,6 @@ void VL_SetPalette(
     ::sdl_update_palette(
         first,
         count);
-
-    if (refresh_screen)
-    {
-        ::sdl_refresh_screen();
-    }
 }
 
 void VL_GetPalette(
@@ -1055,6 +1049,8 @@ void VL_FadeOut(
             256,
             &::palette2[0][0]);
 
+        ::VL_RefreshScreen();
+
         if (!::vid_has_vsync)
         {
             ::VL_WaitVBL(1);
@@ -1113,6 +1109,8 @@ void VL_FadeIn(
             0,
             256,
             &::palette2[0][0]);
+
+        ::VL_RefreshScreen();
 
         if (!::vid_has_vsync)
         {
@@ -1176,8 +1174,7 @@ void VL_SetPaletteIntensity(
     ::VL_SetPalette(
         start,
         end - start + 1,
-        &::palette1[0][0],
-        false);
+        &::palette1[0][0]);
 }
 
 /*

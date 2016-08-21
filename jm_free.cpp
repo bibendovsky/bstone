@@ -776,7 +776,7 @@ void PreDemo()
             // Cache and set palette.  AND  Fade it in!
             //
             CA_CacheGrChunk(PIRACYPALETTE);
-            VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), false);
+            VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]));
             VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), 0);
             VW_UpdateScreen();
 
@@ -816,7 +816,7 @@ void PreDemo()
         // Cache and set palette.  AND  Fade it in!
         //
         CA_CacheGrChunk(APOGEEPALETTE);
-        VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), false);
+        VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]));
         VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 0);
         VW_UpdateScreen();
         if (::is_aog()) {
@@ -896,7 +896,7 @@ void InitGame()
     CA_Startup();
 
     VL_SetVGAPlaneMode();
-    VL_SetPalette(0, 256, vgapal, false);
+    VL_SetPalette(0, 256, vgapal);
 
     VW_Startup();
     IN_Startup();
