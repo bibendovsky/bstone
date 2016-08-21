@@ -29,7 +29,6 @@ static const int palette_color_count = 256;
 
 
 int bufferofs;
-int* ylookup = nullptr;
 
 bool screenfaded;
 
@@ -692,8 +691,6 @@ void sdl_initialize_video()
     ::screen_x = (::window_width - ::screen_width) / 2;
     ::screen_y = (::window_height - ::screen_height) / 2;
 
-    ::VL_SetLineWidth(40);
-
 
     bool is_succeed = true;
 
@@ -931,31 +928,6 @@ void VL_SetVGAPlaneMode()
 }
 
 // ===========================================================================
-
-/*
-====================
-=
-= VL_SetLineWidth
-=
-= Line witdh is in WORDS, 40 words is normal width for vgaplanegr
-=
-====================
-*/
-
-void VL_SetLineWidth(
-    int width)
-{
-    static_cast<void>(width);
-
-    delete[] ::ylookup;
-    ::ylookup = new int[::vga_height];
-
-    for (int i = 0; i < ::vga_height; ++i)
-    {
-        ::ylookup[i] = i * ::vga_width;
-    }
-}
-
 
 /*
 =============================================================================

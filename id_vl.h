@@ -41,8 +41,6 @@ Free Software Foundation, Inc.,
 
 extern int bufferofs; // all drawing is reletive to this
 
-extern int* ylookup;
-
 extern bool screenfaded;
 
 // BBi
@@ -90,9 +88,6 @@ void VL_SetVGAPlaneMode();
 
 void VL_ClearVideo(
     uint8_t color);
-
-void VL_SetLineWidth(
-    int width);
 
 void WaitVBL(
     int16_t vbls);
