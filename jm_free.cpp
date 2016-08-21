@@ -894,16 +894,13 @@ void InitGame()
     uint16_t* blockstart;
 
     CA_Startup();
-
-    VL_SetVGAPlaneMode();
-    VL_SetPalette(0, 256, vgapal);
-
     VW_Startup();
     IN_Startup();
     PM_Startup();
     SD_Startup();
     US_Startup();
 
+    VL_SetPalette(0, 256, vgapal);
 
     //
     // build some tables

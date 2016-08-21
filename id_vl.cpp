@@ -909,22 +909,18 @@ void VL_WaitVBL(
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
-}
-// BBi
-
-void VL_Shutdown()
-{
-    ::sdl_uninitialize_video();
-}
-
-void VL_SetVGAPlaneMode()
-{
     ::sdl_initialize_video();
     ::sdl_refresh_screen();
 
     ::in_handle_events();
 
     ::sdl_check_vsync();
+}
+// BBi
+
+void VL_Shutdown()
+{
+    ::sdl_uninitialize_video();
 }
 
 // ===========================================================================

@@ -84,8 +84,6 @@ void VL_SetTextMode();
 
 void VL_DePlaneVGA();
 
-void VL_SetVGAPlaneMode();
-
 void VL_ClearVideo(
     uint8_t color);
 
