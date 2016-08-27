@@ -54,20 +54,34 @@ static void generic_draw_column(
     int fraction = dc_frac;
 
     uint8_t* source = dc_seg + dc_source;
-    int base_offset = vl_get_offset(bufferofs) + dc_x;
+    const int base_offset = vl_get_offset(bufferofs) + dc_x;
 
-    for (int i = 0; i < dc_length; ++i) {
-        uint8_t pixel;
+    for (int i = 0; i < dc_length; ++i)
+    {
+        uint8_t pixel = 0;
         uint8_t pixel_index = source[fraction >> 16];
 
-        if (draw_mode == DRAW_LIGHTED) {
+        if (draw_mode == DRAW_LIGHTED)
+        {
             pixel = shadingtable[pixel_index];
-        } else {
+        }
+        else
+        {
             pixel = pixel_index;
         }
 
-        int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
-        vga_memory[offset] = pixel;
+        if (::vid_is_3d)
+        {
+            const int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);
+            vga_memory[offset] = pixel;
+        }
+        else
+        {
+            ::VL_Plot(
+                ::dc_x,
+                ::dc_y + ::dc_dy + i,
+                pixel);
+        }
 
         fraction += dc_iscale;
     }

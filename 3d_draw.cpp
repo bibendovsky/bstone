@@ -429,6 +429,10 @@ int CalcHeight()
 
 const uint8_t* postsource;
 int postx;
+
+// BBi
+int posty;
+
 int postheight;
 const uint8_t* shadingtable;
 extern const uint8_t* lightsource;
@@ -439,7 +443,9 @@ void ScalePost()
     postheight = height;
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
-        int i = shade_max - ((63 * height) / (normalshade * vga_scale));
+        const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+
+        int i = shade_max - ((63 * height) / (normalshade * scale));
 
         if (i < 0) {
             i = 0;
@@ -1427,6 +1433,10 @@ void MapLSRow();
 
 void ThreeDRefresh()
 {
+    // BBi
+    ::vid_is_3d = true;
+    ::vid_clear_ui_mask();
+
     ::memset(::spotvis, 0, sizeof(::spotvis));
 
     ::bufferofs = PAGE1START;
@@ -1539,6 +1549,9 @@ void ThreeDRefresh()
     ::VL_RefreshScreen();
 
     ::frameon++;
+
+    // BBi
+    ::vid_is_3d = false;
 }
 
 uint8_t TravelTable[MAPSIZE][MAPSIZE];

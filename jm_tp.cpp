@@ -2441,23 +2441,23 @@ int16_t TP_DrawShape(
 //
     switch (shapetype) {
     case pis_scwall:
-        TP_CacheIn(ct_scaled, 0);
-        addr = PM_GetPage(shapenum);
-        bufferofs += (y - 30) * SCREENWIDTH;
-        postx = x * vga_scale;
-        postsource = static_cast<const uint8_t*>(addr);
+        ::TP_CacheIn(ct_scaled, 0);
+        addr = ::PM_GetPage(shapenum);
 
-        for (x = 0; x < 64; ++x) {
-            for (int s = 0; s < vga_scale; ++s) {
-                wallheight[postx] = 256 * vga_scale;
-                FarScalePost();
-                ++postx;
-            }
+        ::postx = x;
+        ::posty = y - 30;
 
-            postsource += 64;
+        ::postsource = static_cast<const uint8_t*>(addr);
+
+        for (x = 0; x < 64; ++x)
+        {
+            ::wallheight[::postx] = 256;
+            ::FarScalePost();
+            ::postx += 1;
+
+            ::postsource += 64;
         }
 
-        bufferofs -= (y - 30) * SCREENWIDTH;
         break;
 
     case pis_scaled:

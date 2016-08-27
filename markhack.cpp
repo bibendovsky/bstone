@@ -51,17 +51,31 @@ static void generic_draw_post(
         return;
     }
 
+    int y = ::posty;
+    const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+
     int cur_step = (32L * 65536L) / postheight;
 
     int step = cur_step;
     cur_step /= 2;
 
-    int fraction = vga_width;
+    int fraction = (::vid_is_3d ? ::vga_width : 1);
 
-    const int max_height = (viewheight / 2) * vga_scale;
+    const int max_height = (::viewheight / 2) * scale;
 
-    int screen_column = vl_get_offset(bufferofs) +
-                        ((max_height - 1) * vga_width) + postx;
+    int screen_column = 0;
+
+    if (::vid_is_3d)
+    {
+        screen_column =
+            ::vl_get_offset(::bufferofs) +
+            ((max_height - 1) * ::vga_width) +
+            ::postx;
+    }
+    else
+    {
+        y += max_height - 1;
+    }
 
     int n = postheight;
 
@@ -83,7 +97,17 @@ static void generic_draw_post(
             pixel = pixel_index;
         }
 
-        vga_memory[screen_column] = pixel;
+        if (::vid_is_3d)
+        {
+            ::vga_memory[screen_column] = pixel;
+        }
+        else
+        {
+            ::VL_Plot(
+                ::postx,
+                y,
+                pixel);
+        }
 
 
         // bottom half
@@ -96,10 +120,24 @@ static void generic_draw_post(
             pixel = pixel_index;
         }
 
-        vga_memory[screen_column + fraction] = pixel;
+        if (::vid_is_3d)
+        {
+            ::vga_memory[screen_column + fraction] = pixel;
 
-        screen_column -= vga_width;
-        fraction += 2 * vga_width;
+            screen_column -= ::vga_width;
+            fraction += 2 * ::vga_width;
+        }
+        else
+        {
+            ::VL_Plot(
+                ::postx,
+                y + fraction,
+                pixel);
+
+            y -= 1;
+            fraction += 2;
+        }
+
         cur_step += step;
     }
 }

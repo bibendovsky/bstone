@@ -49,6 +49,7 @@ int screen_height = 0;
 
 bool vid_has_vsync = false;
 bool vid_stretch = default_vid_stretch;
+bool vid_is_3d = false;
 
 
 // BBi
@@ -71,10 +72,14 @@ public:
 using VgaPalette = std::array<VgaColor, palette_color_count>;
 using VgaBuffer = std::vector<uint8_t>;
 using SdlPalette = std::array<uint32_t, palette_color_count>;
+using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 
 int window_width = 0;
 int window_height = 0;
+
+VgaBuffer sdl_ui_buffer;
+UiMaskBuffer sdl_mask_buffer;
 
 
 std::string sdl_error_message;
@@ -92,6 +97,7 @@ SDL_Window* sdl_window = nullptr;
 SDL_Renderer* sdl_renderer = nullptr;
 SDL_PixelFormat* sdl_texture_pixel_format = nullptr;
 SDL_Texture* sdl_screen_texture = nullptr;
+SDL_Texture* sdl_ui_texture = nullptr;
 SdlPalette sdl_palette;
 
 
@@ -103,6 +109,14 @@ void sdl_initialize_vga_buffer()
         vga_area);
 
     ::vga_memory = ::sdl_vga_buffer.data();
+}
+
+void sdl_initialize_ui_buffer()
+{
+    const auto area = ::vga_ref_width * ::vga_ref_height;
+
+    ::sdl_ui_buffer.resize(
+        area);
 }
 
 bool sdl_initialize_window()
@@ -403,7 +417,8 @@ bool sdl_initialize_renderer()
 
             if (
                 SDL_PIXELTYPE(format) == SDL_PIXELTYPE_PACKED32 &&
-                SDL_PIXELLAYOUT(format) == SDL_PACKEDLAYOUT_8888)
+                SDL_PIXELLAYOUT(format) == SDL_PACKEDLAYOUT_8888 &&
+                SDL_ISPIXELFORMAT_ALPHA(format))
             {
                 pixel_format = format;
                 break;
@@ -415,7 +430,7 @@ bool sdl_initialize_renderer()
             bstone::Log::write_warning(
                 "Falling back to a predefined pixel format.");
 
-            pixel_format = SDL_PIXELFORMAT_RGBA8888;
+            pixel_format = SDL_PIXELFORMAT_ARGB8888;
         }
 
 
@@ -465,6 +480,30 @@ bool sdl_initialize_textures()
             is_succeed = false;
 
             ::sdl_error_message = "VID: Failed to create a screen texture: ";
+            ::sdl_error_message += ::SDL_GetError();
+
+            bstone::Log::write(
+                ::SDL_GetError());
+        }
+    }
+
+    if (is_succeed)
+    {
+        bstone::Log::write(
+            "VID: Creating an UI texture...");
+
+        ::sdl_ui_texture = ::SDL_CreateTexture(
+            ::sdl_renderer,
+            ::sdl_texture_pixel_format->format,
+            SDL_TEXTUREACCESS_STREAMING,
+            ::vga_ref_width,
+            ::vga_ref_height);
+
+        if (!::sdl_ui_texture)
+        {
+            is_succeed = false;
+
+            ::sdl_error_message = "VID: Failed to create an UI texture: ";
             ::sdl_error_message += ::SDL_GetError();
 
             bstone::Log::write(
@@ -717,6 +756,7 @@ void sdl_initialize_video()
     if (is_succeed)
     {
         ::sdl_initialize_vga_buffer();
+        ::sdl_initialize_ui_buffer();
     }
 
     if (is_succeed)
@@ -752,6 +792,14 @@ void sdl_uninitialize_video()
         ::sdl_screen_texture = nullptr;
     }
 
+    if (::sdl_ui_texture)
+    {
+        ::SDL_DestroyTexture(
+            ::sdl_ui_texture);
+
+        ::sdl_ui_texture = nullptr;
+    }
+
     if (::sdl_renderer)
     {
         ::SDL_DestroyRenderer(
@@ -778,43 +826,99 @@ void sdl_refresh_screen()
 {
     int sdl_result = 0;
 
-    const auto src_pixels = ::sdl_vga_buffer.data();
-    const auto src_pitch = ::vga_width;
-
-    void* dst_raw_pixels = nullptr;
-    int dst_pitch = 0;
-
-    sdl_result = ::SDL_LockTexture(
-        ::sdl_screen_texture,
-        nullptr,
-        &dst_raw_pixels,
-        &dst_pitch);
-
-    if (sdl_result != 0)
+    // 3D stuff
+    //
+    if (::vid_is_3d)
     {
-        ::Quit(
-            "VID: Failed to lock a screen texture: {}",
-            ::SDL_GetError());
-    }
+        const auto src_pixels = ::sdl_vga_buffer.data();
+        const auto src_pitch = ::vga_width;
 
-    auto dst_pixels = static_cast<uint32_t*>(
-        dst_raw_pixels);
+        void* dst_raw_pixels = nullptr;
+        int dst_pitch = 0;
 
-    for (int y = 0; y < ::vga_height; ++y)
-    {
-        const auto src_line = &src_pixels[y * src_pitch];
-        auto dst_line = &dst_pixels[y * (dst_pitch / 4)];
+        sdl_result = ::SDL_LockTexture(
+            ::sdl_screen_texture,
+            nullptr,
+            &dst_raw_pixels,
+            &dst_pitch);
 
-        for (int x = 0; x < ::vga_width; ++x)
+        if (sdl_result != 0)
         {
-            dst_line[x] = sdl_palette[src_line[x]];
+            ::Quit(
+                "VID: Failed to lock a screen texture: {}",
+                ::SDL_GetError());
         }
+
+        auto dst_pixels = static_cast<uint32_t*>(
+            dst_raw_pixels);
+
+        for (int y = 0; y < ::vga_height; ++y)
+        {
+            const auto src_line = &src_pixels[y * src_pitch];
+            auto dst_line = &dst_pixels[y * (dst_pitch / 4)];
+
+            for (int x = 0; x < ::vga_width; ++x)
+            {
+                dst_line[x] = sdl_palette[src_line[x]];
+            }
+        }
+
+        ::SDL_UnlockTexture(
+            ::sdl_screen_texture);
     }
 
-    ::SDL_UnlockTexture(
-        ::sdl_screen_texture);
+
+    // 2D stuff
+    //
+    {
+        void* dst_raw_pixels = nullptr;
+        int dst_pitch = 0;
+
+        sdl_result = ::SDL_LockTexture(
+            ::sdl_ui_texture,
+            nullptr,
+            &dst_raw_pixels,
+            &dst_pitch);
+
+        if (sdl_result != 0)
+        {
+            ::Quit(
+                "VID: Failed to lock an UI texture: {}",
+                ::SDL_GetError());
+        }
+
+        const auto alpha_0_mask = ~sdl_texture_pixel_format->Amask;
+
+        auto dst_pixels = static_cast<uint32_t*>(
+            dst_raw_pixels);
+
+        for (int y = 0; y < ::vga_ref_height; ++y)
+        {
+            auto dst_line = &dst_pixels[y * (dst_pitch / 4)];
+
+            for (int x = 0; x < ::vga_ref_width; ++x)
+            {
+                const auto src_offset = (y * ::vga_ref_width) + x;
+                auto dst_color = ::sdl_palette[::sdl_ui_buffer[src_offset]];
+
+                if (::vid_is_3d)
+                {
+                    if (!::sdl_mask_buffer[src_offset])
+                    {
+                        dst_color &= alpha_0_mask;
+                    }
+                }
+
+                dst_line[x] = dst_color;
+            }
+        }
+
+        ::SDL_UnlockTexture(
+            ::sdl_ui_texture);
+    }
 
 
+    // Clear all
     //
     sdl_result = ::SDL_RenderClear(
         sdl_renderer);
@@ -827,21 +931,71 @@ void sdl_refresh_screen()
     }
 
 
+    // Copy 3D stuff
     //
+    if (::vid_is_3d)
+    {
+        sdl_result = ::SDL_RenderCopy(
+            sdl_renderer,
+            sdl_screen_texture,
+            nullptr,
+            nullptr);
+
+        if (sdl_result != 0)
+        {
+            ::Quit(
+                "VID: Failed to copy a screen texture on a render target: {}",
+                ::SDL_GetError());
+        }
+    }
+
+
+    // Copy 2D stuff
+    //
+
+    if (::vid_is_3d)
+    {
+        sdl_result = ::SDL_SetTextureBlendMode(
+            ::sdl_ui_texture,
+            SDL_BLENDMODE_BLEND);
+
+        if (sdl_result != 0)
+        {
+            ::Quit(
+                "VID: Failed to set blend mode for an UI texture: {}",
+                ::SDL_GetError());
+        }
+    }
+
     sdl_result = ::SDL_RenderCopy(
-        sdl_renderer,
-        sdl_screen_texture,
+        ::sdl_renderer,
+        ::sdl_ui_texture,
         nullptr,
         nullptr);
 
     if (sdl_result != 0)
     {
         ::Quit(
-            "VID: Failed to copy a screen texture on a render target: {}",
+            "VID: Failed to copy an UI texture on a render target: {}",
             ::SDL_GetError());
     }
 
+    if (::vid_is_3d)
+    {
+        sdl_result = ::SDL_SetTextureBlendMode(
+            ::sdl_ui_texture,
+            SDL_BLENDMODE_NONE);
 
+        if (sdl_result != 0)
+        {
+            ::Quit(
+                "VID: Failed to set blend mode for an UI texture: {}",
+                ::SDL_GetError());
+        }
+    }
+
+
+    // Present
     //
     ::SDL_RenderPresent(
         sdl_renderer);
@@ -1186,6 +1340,7 @@ void VL_Plot(
     int y,
     uint8_t color)
 {
+#if 0
     int offset = ::vl_get_offset(::bufferofs, x, y);
 
     for (int i = 0; i < ::vga_scale; ++i)
@@ -1197,6 +1352,12 @@ void VL_Plot(
 
         offset += ::vga_width;
     }
+#else
+    const auto offset = (y * ::vga_ref_width) + x;
+
+    ::sdl_ui_buffer[offset] = color;
+    ::sdl_mask_buffer[offset] = true;
+#endif
 }
 
 void VL_Hlin(
@@ -1224,6 +1385,7 @@ void VL_Bar(
     int height,
     uint8_t color)
 {
+#if 0
     width *= ::vga_scale;
     height *= ::vga_scale;
 
@@ -1250,6 +1412,40 @@ void VL_Bar(
             offset += vga_width;
         }
     }
+#else
+    if (x == 0 && width == ::vga_ref_width)
+    {
+        const auto offset = y * ::vga_ref_width;
+        const auto count = height * ::vga_ref_width;
+
+        std::uninitialized_fill(
+            ::sdl_ui_buffer.begin() + offset,
+            ::sdl_ui_buffer.begin() + offset + count,
+            color);
+
+        std::uninitialized_fill(
+            ::sdl_mask_buffer.begin() + offset,
+            ::sdl_mask_buffer.begin() + offset + count,
+            true);
+    }
+    else
+    {
+        for (int i = 0; i < height; ++i)
+        {
+            const auto offset = ((y + i) * ::vga_ref_width) + x;
+
+            std::uninitialized_fill(
+                ::sdl_ui_buffer.begin() + offset,
+                ::sdl_ui_buffer.begin() + offset + width,
+                color);
+
+            std::uninitialized_fill(
+                ::sdl_mask_buffer.begin(),
+                ::sdl_mask_buffer.begin() + offset + width,
+                true);
+        }
+    }
+#endif
 }
 
 /*
@@ -1473,5 +1669,11 @@ void vl_update_vid_stretch()
 {
     ::sdl_update_viewport();
     ::sdl_refresh_screen();
+}
+
+void vid_clear_ui_mask()
+{
+    ::sdl_mask_buffer.fill(
+        false);
 }
 // BBi

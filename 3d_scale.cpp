@@ -97,26 +97,32 @@ void generic_scale_masked_post(
     int height,
     ShapeDrawMode draw_mode)
 {
+    const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+
     int bounce;
 
-    if (useBounceOffset) {
+    if (useBounceOffset)
+    {
         bounce = bounceOffset;
-    } else {
+    }
+    else
+    {
         bounce = 0;
     }
 
-    bounce *= vga_scale;
+    bounce *= scale;
 
     const uint16_t* srcpost = linecmds;
     dc_iscale = (64 * 65536) / height;
     int screenstep = height << 10;
 
-    int sprtopoffset = ((viewheight * vga_scale) << 15) -
-                       (height << 15) + (bounce >> 1);
+    int sprtopoffset = ((viewheight * scale) << 15) -
+        (height << 15) + (bounce >> 1);
 
     int end = (bstone::Endian::le(*srcpost++)) / 2;
 
-    while (end != 0) {
+    while (end != 0)
+    {
         dc_source = bstone::Endian::le(*srcpost++);
 
         int start = bstone::Endian::le(*srcpost++) / 2;
@@ -131,28 +137,38 @@ void generic_scale_masked_post(
         int dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
         int dc_yh = (bottomscreen - 1) >> 16;
 
-        if (dc_yh >= (viewheight * vga_scale)) {
-            dc_yh = (viewheight * vga_scale) - 1;
+        if (dc_yh >= (viewheight * scale))
+        {
+            dc_yh = (viewheight * scale) - 1;
         }
 
-        if (dc_yl < 0) {
+        if (dc_yl < 0)
+        {
             dc_frac = dc_iscale * (-dc_yl);
             dc_yl = 0;
-        } else {
+        }
+        else
+        {
             dc_frac = 0;
         }
 
-        if (dc_yl <= dc_yh) {
+        if (dc_yl <= dc_yh)
+        {
             dc_dy = dc_yl;
             dc_length = dc_yh - dc_yl + 1;
-            if (draw_mode == e_sdm_shaded) {
+            if (draw_mode == e_sdm_shaded)
+            {
 #if CLOAKED_SHAPES
-                if (cloaked_shape) {
+                if (cloaked_shape)
+                {
                     R_DrawSLSColumn();
-                } else
+                }
+                else
 #endif
-                R_DrawLSColumn();
-            } else {
+                    R_DrawLSColumn();
+            }
+            else
+            {
                 R_DrawColumn();
             }
         }
@@ -362,13 +378,15 @@ void MegaSimpleScaleShape(
     int height,
     int shade)
 {
+    const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+
     dc_y = 0;
     dc_y -= (viewheight - 64) / 2;
     dc_y += ycenter - 34;
-    dc_y *= vga_scale;
+    dc_y *= scale;
 
-    xcenter *= vga_scale;
-    height *= vga_scale;
+    xcenter *= scale;
+    height *= scale;
 
     t_compshape* shape =
         static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
@@ -378,20 +396,22 @@ void MegaSimpleScaleShape(
     int64_t xscale = static_cast<int64_t>(height) << 14;
 
     int64_t xcent = (static_cast<int64_t>(xcenter) << 20) -
-                   (static_cast<int64_t>(height) << 19) + 0x80000;
+        (static_cast<int64_t>(height) << 19) + 0x80000;
 
     //
     // calculate edges of the shape
     //
     int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
 
-    if (x1 >= (viewwidth * vga_scale)) {
+    if (x1 >= (viewwidth * scale))
+    {
         return; // off the right side
 
     }
     int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
 
-    if (x2 < 0) {
+    if (x2 < 0)
+    {
         return; // off the left side
 
     }
@@ -407,25 +427,31 @@ void MegaSimpleScaleShape(
     //
     int frac;
 
-    if (x1 < 0) {
+    if (x1 < 0)
+    {
         frac = screenscale * (-x1);
         x1 = 0;
-    } else {
+    }
+    else
+    {
         frac = screenscale / 2;
     }
 
-    if (x2 >= (viewwidth * vga_scale)) {
-        x2 = (viewwidth * vga_scale) - 1;
+    if (x2 >= (viewwidth * scale))
+    {
+        x2 = (viewwidth * scale) - 1;
     }
 
     int swidth = shape->rightpix - shape->leftpix;
 
-    for (; x1 <= x2; ++x1, frac += screenscale) {
+    for (; x1 <= x2; ++x1, frac += screenscale)
+    {
         dc_x = x1;
 
         int texturecolumn = frac >> 20;
 
-        if (texturecolumn > swidth) {
+        if (texturecolumn > swidth)
+        {
             texturecolumn = swidth;
         }
 

@@ -3311,6 +3311,9 @@ extern int viewcos;
 extern const uint8_t* postsource;
 extern int postx;
 
+// BBi
+extern int posty;
+
 
 extern int16_t horizwall[];
 extern int16_t vertwall[];
