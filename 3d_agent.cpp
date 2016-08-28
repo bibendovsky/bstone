@@ -553,7 +553,7 @@ static void STATUSDRAWPIC(
     int y,
     int picnum)
 {
-    LatchDrawPic(x, y + (200 - STATUSLINES), picnum);
+    ::LatchDrawPic(x, y + (200 - STATUSLINES), picnum);
 }
 
 void StatusAllDrawPic(
@@ -561,7 +561,7 @@ void StatusAllDrawPic(
     uint16_t y,
     uint16_t picnum)
 {
-    ::LatchDrawPic(x, y, picnum);
+    ::STATUSDRAWPIC(x, y, picnum);
 }
 
 /*
@@ -1587,7 +1587,6 @@ void InitInfoArea()
 
 void UpdateInfoArea()
 {
-
     if (InfoAreaSetup.numanims) {
         AnimatePage();
     }

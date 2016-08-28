@@ -2557,19 +2557,8 @@ void LoadLocationText(
 
 void DrawPlayBorder()
 {
-    int16_t xl;
-    int16_t yl;
-
-    if (viewwidth == 320) {
-        VWB_Bar(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, 0); // JTR - Changed
-        return;
-    }
-
-    xl = static_cast<int16_t>(160 - viewwidth / 2);
-    yl = static_cast<int16_t>((200 - STATUSLINES + TOP_STRIP_HEIGHT - viewheight) / 2);
-
-    BevelBox(0, TOP_STRIP_HEIGHT, 320, 200 - STATUSLINES - TOP_STRIP_HEIGHT, BORDER_HI_COLOR, BORDER_MED_COLOR, BORDER_LO_COLOR);
-    BevelBox(xl - 1, yl - 1, static_cast<int16_t>(viewwidth + 2), static_cast<int16_t>(viewheight + 2), BORDER_LO_COLOR, 0, BORDER_HI_COLOR);
+    ::vid_set_ui_mask_3d(
+        false);
 }
 
 // --------------------------------------------------------------------------
@@ -3078,6 +3067,11 @@ void RotateView(
 
 void GameLoop()
 {
+    // BBi
+    ::vid_is_hud = true;
+    ::vid_set_ui_mask_3d(false);
+    // BBi
+
     bool quit = false;
 
     extern bool sqActive;
@@ -3140,6 +3134,10 @@ restartgame:
         startgame = false;
         if (!loadedgame) {
             if (LS_current == -1) {
+                // BBi
+                ::vid_clear_3d();
+                // BBi
+
                 DrawTopInfo(sp_loading);
                 DisplayPrepingMsg(prep_msg);
                 LS_current = 1;
@@ -3250,7 +3248,12 @@ restartgame:
                 CA_CacheGrChunk(STARTFONT + 1);
                 memset(update, 0, sizeof(update));
                 CacheBMAmsg(YOUWIN_TEXT);
+
+// BBi
+#if 0
                 VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 200);
+#endif
+
                 UNCACHEGRCHUNK(STARTFONT + 1);
 
                 ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);
@@ -3312,6 +3315,11 @@ restartgame:
             break;
         }
     } while (!quit);
+
+
+    // BBi
+    ::vid_is_hud = false;
+    // BBi
 }
 
 // BBi

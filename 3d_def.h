@@ -3338,7 +3338,6 @@ int16_t CalcRotate(
 
 void DrawScaleds();
 void CalcTics();
-void FixOfs();
 void ThreeDRefresh();
 void FarScalePost();
 void DrawStars();

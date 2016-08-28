@@ -49,6 +49,7 @@ int screen_height = 0;
 
 bool vid_has_vsync = false;
 bool vid_stretch = default_vid_stretch;
+bool vid_is_hud = false;
 bool vid_is_3d = false;
 
 
@@ -826,9 +827,9 @@ void sdl_refresh_screen()
 {
     int sdl_result = 0;
 
-    // 3D stuff
+    // HUD+3D stuff
     //
-    if (::vid_is_3d)
+    if (::vid_is_hud)
     {
         const auto src_pixels = ::sdl_vga_buffer.data();
         const auto src_pitch = ::vga_width;
@@ -901,7 +902,7 @@ void sdl_refresh_screen()
                 const auto src_offset = (y * ::vga_ref_width) + x;
                 auto dst_color = ::sdl_palette[::sdl_ui_buffer[src_offset]];
 
-                if (::vid_is_3d)
+                if (::vid_is_hud)
                 {
                     if (!::sdl_mask_buffer[src_offset])
                     {
@@ -931,9 +932,9 @@ void sdl_refresh_screen()
     }
 
 
-    // Copy 3D stuff
+    // Copy HUD+3D stuff
     //
-    if (::vid_is_3d)
+    if (::vid_is_hud)
     {
         sdl_result = ::SDL_RenderCopy(
             sdl_renderer,
@@ -953,7 +954,7 @@ void sdl_refresh_screen()
     // Copy 2D stuff
     //
 
-    if (::vid_is_3d)
+    if (::vid_is_hud)
     {
         sdl_result = ::SDL_SetTextureBlendMode(
             ::sdl_ui_texture,
@@ -980,7 +981,7 @@ void sdl_refresh_screen()
             ::SDL_GetError());
     }
 
-    if (::vid_is_3d)
+    if (::vid_is_hud)
     {
         sdl_result = ::SDL_SetTextureBlendMode(
             ::sdl_ui_texture,
@@ -1340,24 +1341,10 @@ void VL_Plot(
     int y,
     uint8_t color)
 {
-#if 0
-    int offset = ::vl_get_offset(::bufferofs, x, y);
-
-    for (int i = 0; i < ::vga_scale; ++i)
-    {
-        std::uninitialized_fill_n(
-            &::vga_memory[offset],
-            ::vga_scale,
-            color);
-
-        offset += ::vga_width;
-    }
-#else
     const auto offset = (y * ::vga_ref_width) + x;
 
     ::sdl_ui_buffer[offset] = color;
     ::sdl_mask_buffer[offset] = true;
-#endif
 }
 
 void VL_Hlin(
@@ -1385,34 +1372,6 @@ void VL_Bar(
     int height,
     uint8_t color)
 {
-#if 0
-    width *= ::vga_scale;
-    height *= ::vga_scale;
-
-    int offset = ::vl_get_offset(::bufferofs, x, y);
-
-    if (x == 0 && width == ::vga_width)
-    {
-        int count = height * ::vga_width;
-
-        std::uninitialized_fill_n(
-            &::vga_memory[offset],
-            count,
-            color);
-    }
-    else
-    {
-        for (int i = 0; i < height; ++i)
-        {
-            std::uninitialized_fill_n(
-                &::vga_memory[offset],
-                width,
-                color);
-
-            offset += vga_width;
-        }
-    }
-#else
     if (x == 0 && width == ::vga_ref_width)
     {
         const auto offset = y * ::vga_ref_width;
@@ -1440,12 +1399,11 @@ void VL_Bar(
                 color);
 
             std::uninitialized_fill(
-                ::sdl_mask_buffer.begin(),
+                ::sdl_mask_buffer.begin() + offset,
                 ::sdl_mask_buffer.begin() + offset + width,
                 true);
         }
     }
-#endif
 }
 
 /*
@@ -1462,9 +1420,6 @@ void VL_MemToLatch(
     int height,
     int dest)
 {
-    const auto dst_pitch = ::vga_scale * width;
-    const auto base_offset = ::vl_get_offset(dest);
-
     for (int p = 0; p < 4; ++p)
     {
         for (int h = 0; h < height; ++h)
@@ -1472,19 +1427,9 @@ void VL_MemToLatch(
             for (int w = p; w < width; w += 4)
             {
                 const auto pixel = *source++;
+                const auto offset = dest + ((h * width) + w);
 
-                auto offset = base_offset +
-                    ::vga_scale * ((::vga_scale * h * width) + w);
-
-                for (int s = 0; s < ::vga_scale; ++s)
-                {
-                    std::uninitialized_fill_n(
-                        &::latches_cache[offset],
-                        ::vga_scale,
-                        pixel);
-
-                    offset += dst_pitch;
-                }
+                ::latches_cache[offset] = pixel;
             }
         }
     }
@@ -1560,22 +1505,20 @@ void VL_LatchToScreen(
     int x,
     int y)
 {
-    int src_pitch = ::vga_scale * width;
-    int src_offset = ::vl_get_offset(source);
-    int dst_offset = ::vl_get_offset(::bufferofs, x, y);
-
     for (int h = 0; h < height; ++h)
     {
-        for (int s = 0; s < ::vga_scale; ++s)
-        {
-            std::uninitialized_copy_n(
-                &::latches_cache[src_offset],
-                src_pitch,
-                &::vga_memory[dst_offset]);
+        const auto src_offset = source + (h * width);
+        const auto dst_offset = (::vga_ref_width * (y + h)) + x;
 
-            src_offset += src_pitch;
-            dst_offset += ::vga_width;
-        }
+        std::uninitialized_copy(
+            ::latches_cache.cbegin() + src_offset,
+            ::latches_cache.cbegin() + src_offset + width,
+            ::sdl_ui_buffer.begin() + dst_offset);
+
+        std::uninitialized_fill(
+            ::sdl_mask_buffer.begin() + dst_offset,
+            ::sdl_mask_buffer.begin() + dst_offset + width,
+            true);
     }
 }
 
@@ -1585,23 +1528,20 @@ void VL_ScreenToScreen(
     int width,
     int height)
 {
-    source *= ::vga_scale * ::vga_scale;
-    dest *= ::vga_scale * ::vga_scale;
-    width *= ::vga_scale;
-    height *= ::vga_scale;
-
-    auto src_pixels = &::vga_memory[source];
-    auto dst_pixels = &::vga_memory[dest];
-
     for (int h = 0; h < height; ++h)
     {
-        std::uninitialized_copy_n(
-            src_pixels,
-            width,
-            dst_pixels);
+        const auto src_offset = source + (h * ::vga_ref_width);
+        const auto dst_offset = dest + (h * ::vga_ref_width);
 
-        src_pixels += ::vga_width;
-        dst_pixels += ::vga_width;
+        std::uninitialized_copy(
+            ::sdl_ui_buffer.cbegin() + src_offset,
+            ::sdl_ui_buffer.cbegin() + src_offset + width,
+            ::sdl_ui_buffer.begin() + dst_offset);
+
+        std::uninitialized_fill(
+            ::sdl_mask_buffer.begin() + dst_offset,
+            ::sdl_mask_buffer.begin() + dst_offset + width,
+            true);
     }
 }
 
@@ -1611,10 +1551,15 @@ void JM_VGALinearFill(
     int length,
     uint8_t fill)
 {
-    std::uninitialized_fill_n(
-        &::vga_memory[::vl_get_offset(start)],
-        ::vga_scale * ::vga_scale * length,
+    std::uninitialized_fill(
+        ::sdl_ui_buffer.begin() + start,
+        ::sdl_ui_buffer.begin() + start + length,
         fill);
+
+    std::uninitialized_fill(
+        ::sdl_mask_buffer.begin() + start,
+        ::sdl_mask_buffer.begin() + start + length,
+        true);
 }
 
 void VL_RefreshScreen()
@@ -1671,9 +1616,47 @@ void vl_update_vid_stretch()
     ::sdl_refresh_screen();
 }
 
-void vid_clear_ui_mask()
+void vid_set_ui_mask(
+    bool value)
 {
     ::sdl_mask_buffer.fill(
-        false);
+        value);
+}
+
+void vid_set_ui_mask(
+    int x,
+    int y,
+    int width,
+    int height,
+    bool value)
+{
+    for (int h = 0; h < height; ++h)
+    {
+        const auto offset = ((y + h) * ::vga_ref_width) + x;
+
+        std::uninitialized_fill(
+            ::sdl_mask_buffer.begin() + offset,
+            ::sdl_mask_buffer.begin() + offset + width,
+            value);
+    }
+}
+
+void vid_set_ui_mask_3d(
+    bool value)
+{
+    ::vid_set_ui_mask(
+        0,
+        TOP_STRIP_HEIGHT,
+        ::vga_ref_width,
+        ::vga_ref_height - STATUSLINES - TOP_STRIP_HEIGHT,
+        value);
+}
+
+void vid_clear_3d()
+{
+    std::uninitialized_fill(
+        ::sdl_vga_buffer.begin(),
+        ::sdl_vga_buffer.end(),
+        0);
 }
 // BBi

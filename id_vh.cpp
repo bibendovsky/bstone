@@ -228,7 +228,7 @@ void LoadLatchMem()
     // Calculate total size of latches cache.
     //
     const auto tile8_total_size =
-        ::STARTTILE8 * (::vga_scale * 8) * (::vga_scale * 8);
+        ::STARTTILE8 * 8 * 8;
 
     int pics_total_size = 0;
 
@@ -237,8 +237,7 @@ void LoadLatchMem()
         const auto width = pictable[i - ::STARTPICS].width;
         const auto height = pictable[i - ::STARTPICS].height;
 
-        pics_total_size +=
-            (::vga_scale * width) * (::vga_scale * height);
+        pics_total_size += width * height;
     }
 
     const auto latches_cache_size = tile8_total_size + pics_total_size;

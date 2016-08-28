@@ -69,7 +69,13 @@ extern int vga_area;
 const bool default_vid_stretch = false;
 extern bool vid_stretch;
 
+// Is VSync enabled?
 extern bool vid_has_vsync;
+
+// Are we drawing HUD and a level?
+extern bool vid_is_hud;
+
+// Are we drawing a level?
 extern bool vid_is_3d;
 // BBi
 
@@ -259,7 +265,20 @@ uint8_t vl_get_pixel(
 
 void vl_update_vid_stretch();
 
-void vid_clear_ui_mask();
+void vid_set_ui_mask(
+    bool value);
+
+void vid_set_ui_mask(
+    int x,
+    int y,
+    int width,
+    int height,
+    bool value);
+
+void vid_set_ui_mask_3d(
+    bool value);
+
+void vid_clear_3d();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

@@ -669,11 +669,14 @@ void CenterWindow(
     uint16_t w,
     uint16_t h)
 {
-    const int MAXX = 320;
-    const int MAXY = 160;
+    const auto MAXX = ::vga_ref_width;
+    const auto MAXY = MAXX / 2;
 
-    FixOfs();
-    US_DrawWindow(((MAXX / 8) - w) / 2, ((MAXY / 8) - h) / 2, w, h);
+    ::US_DrawWindow(
+        ((MAXX / 8) - w) / 2,
+        ((MAXY / 8) - h) / 2,
+        w,
+        h);
 }
 
 
@@ -858,7 +861,11 @@ void CheckKeys()
 
             ClearMemory();
             ClearSplitVWB();
+
+// BBi
+#if 0
             VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
+#endif
 
             Message("\n NOW you're jammin'!! \n");
 

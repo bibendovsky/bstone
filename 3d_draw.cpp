@@ -137,7 +137,6 @@ int16_t CalcRotate(
 
 void DrawScaleds();
 void CalcTics();
-void FixOfs();
 void ThreeDRefresh();
 
 
@@ -1367,15 +1366,6 @@ void CalcTics()
     }
 }
 
-void FixOfs()
-{
-    VW_ScreenToScreen(
-        PAGE1START,
-        bufferofs,
-        viewwidth / 2,
-        viewheight);
-}
-
 void WallRefresh()
 {
 //
@@ -1433,10 +1423,6 @@ void MapLSRow();
 
 void ThreeDRefresh()
 {
-    // BBi
-    ::vid_is_3d = true;
-    ::vid_clear_ui_mask();
-
     ::memset(::spotvis, 0, sizeof(::spotvis));
 
     ::bufferofs = PAGE1START;
@@ -1448,6 +1434,9 @@ void ThreeDRefresh()
     {
         ::bufferofs = PAGE2START;
     }
+
+    // BBi
+    ::vid_is_3d = true;
 
     ::bufferofs += ::screenofs;
 
@@ -1521,6 +1510,8 @@ void ThreeDRefresh()
 
     ::DrawPlayerWeapon(); // draw player's hands
 
+    // BBi
+    ::vid_is_3d = false;
 
 //
 // show screen and time last cycle
@@ -1549,9 +1540,6 @@ void ThreeDRefresh()
     ::VL_RefreshScreen();
 
     ::frameon++;
-
-    // BBi
-    ::vid_is_3d = false;
 }
 
 uint8_t TravelTable[MAPSIZE][MAPSIZE];
