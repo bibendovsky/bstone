@@ -71,7 +71,6 @@ public:
 }; // VgaColor
 
 using VgaPalette = std::array<VgaColor, palette_color_count>;
-using VgaBuffer = std::vector<uint8_t>;
 using SdlPalette = std::array<uint32_t, palette_color_count>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
@@ -1339,12 +1338,13 @@ void VL_SetPaletteIntensity(
 void VL_Plot(
     int x,
     int y,
-    uint8_t color)
+    uint8_t color,
+    const bool is_transparent)
 {
     const auto offset = (y * ::vga_ref_width) + x;
 
     ::sdl_ui_buffer[offset] = color;
-    ::sdl_mask_buffer[offset] = true;
+    ::sdl_mask_buffer[offset] = !is_transparent;
 }
 
 void VL_Hlin(
@@ -1370,7 +1370,8 @@ void VL_Bar(
     int y,
     int width,
     int height,
-    uint8_t color)
+    uint8_t color,
+    const bool is_transparent)
 {
     if (x == 0 && width == ::vga_ref_width)
     {
@@ -1385,7 +1386,7 @@ void VL_Bar(
         std::uninitialized_fill(
             ::sdl_mask_buffer.begin() + offset,
             ::sdl_mask_buffer.begin() + offset + count,
-            true);
+            !is_transparent);
     }
     else
     {
@@ -1401,7 +1402,7 @@ void VL_Bar(
             std::uninitialized_fill(
                 ::sdl_mask_buffer.begin() + offset,
                 ::sdl_mask_buffer.begin() + offset + width,
-                true);
+                !is_transparent);
         }
     }
 }
@@ -1658,5 +1659,19 @@ void vid_clear_3d()
         ::sdl_vga_buffer.begin(),
         ::sdl_vga_buffer.end(),
         0);
+}
+
+void vid_copy_ui(
+    VgaBuffer& dst_buffer)
+{
+    dst_buffer = ::sdl_ui_buffer;
+}
+
+void vid_import_ui(
+    const VgaBuffer& src_buffer,
+    bool is_transparent)
+{
+    ::sdl_ui_buffer = src_buffer;
+    ::vid_set_ui_mask(!is_transparent);
 }
 // BBi

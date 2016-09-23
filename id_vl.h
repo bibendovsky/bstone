@@ -27,6 +27,10 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include <vector>
+
+
+using VgaBuffer = std::vector<uint8_t>;
 
 
 // ===========================================================================
@@ -156,7 +160,8 @@ void VL_ColorBorder(
 void VL_Plot(
     int x,
     int y,
-    uint8_t color);
+    uint8_t color,
+    const bool is_transparent = false);
 
 void VL_Hlin(
     int x,
@@ -175,7 +180,8 @@ void VL_Bar(
     int y,
     int width,
     int height,
-    uint8_t color);
+    uint8_t color,
+    const bool is_transparent = false);
 
 void VL_DrawPicBare(
     int16_t x,
@@ -279,6 +285,13 @@ void vid_set_ui_mask_3d(
     bool value);
 
 void vid_clear_3d();
+
+void vid_export_ui(
+    VgaBuffer& dst_buffer);
+
+void vid_import_ui(
+    const VgaBuffer& src_buffer,
+    bool is_transparent = false);
 
 
 #endif // BSTONE_ID_VL_INCLUDED
