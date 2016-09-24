@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "bstone_generic_fizzle_fx.h"
 
 
 /*
@@ -2841,25 +2842,17 @@ void Warped()
     gamestate.weapon = gamestate.old_weapons[3];
     gamestate.attackframe = gamestate.attackcount = gamestate.weaponframe = 0;
 
-    const auto old_bufferofs = ::bufferofs;
-
-    ::bufferofs = PAGE2START + ::screenofs;
-
-    VW_Bar(0, 0, viewwidth, viewheight, BLACK);
-
-    ::bufferofs = old_bufferofs;
-
     IN_ClearKeysDown();
 
     ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
 
-    ::FizzleFade(
-        PAGE2START + ::screenofs,
-        PAGE1START + ::screenofs,
-        ::viewwidth,
-        ::viewheight,
-        70,
-        false);
+    bstone::GenericFizzleFX fizzle(
+            BLACK,
+            true);
+
+    fizzle.initialize();
+
+    static_cast<void>(fizzle.present());
 
     IN_UserInput(100);
     SD_WaitSoundDone();
@@ -2885,25 +2878,13 @@ void Died()
 //
     FinishPaletteShifts();
 
-    const auto old_bufferofs = ::bufferofs;
+    bstone::GenericFizzleFX fizzle_fx(
+        0x17,
+        true);
 
-    //bufferofs += screenofs;
-    ::bufferofs = PAGE2START + ::screenofs;
-    VW_Bar(0, 0, viewwidth, viewheight, 0x17);
-    ::bufferofs = old_bufferofs;
+    fizzle_fx.initialize();
 
-    IN_ClearKeysDown();
-
-    //FizzleFade(bufferofs, screenofs, viewwidth, viewheight, 70, false);
-    ::FizzleFade(
-        PAGE2START + ::screenofs,
-        PAGE1START + ::screenofs,
-        ::viewwidth,
-        ::viewheight,
-        70,
-        false);
-
-    //bufferofs -= screenofs;
+    static_cast<void>(fizzle_fx.present());
 
     IN_UserInput(100);
 

@@ -1661,7 +1661,7 @@ void vid_clear_3d()
         0);
 }
 
-void vid_copy_ui(
+void vid_export_ui(
     VgaBuffer& dst_buffer)
 {
     dst_buffer = ::sdl_ui_buffer;

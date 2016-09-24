@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "bstone_generic_fizzle_fx.h"
 
 
 #define MASKABLE_DOORS (0)
@@ -1430,11 +1431,6 @@ void ThreeDRefresh()
     ::UpdateInfoAreaClock();
     ::UpdateStatusBar();
 
-    if (::fizzlein)
-    {
-        ::bufferofs = PAGE2START;
-    }
-
     // BBi
     ::vid_is_3d = true;
 
@@ -1517,13 +1513,13 @@ void ThreeDRefresh()
 // show screen and time last cycle
 //
     if (::fizzlein) {
-        ::FizzleFade(
-            PAGE2START + ::screenofs,
-            PAGE1START + ::screenofs,
-            ::viewwidth,
-            ::viewheight,
-            70,
+        bstone::GenericFizzleFX fizzle(
+            BLACK,
             false);
+
+        fizzle.initialize();
+
+        static_cast<void>(fizzle.present());
 
         ::fizzlein = false;
 

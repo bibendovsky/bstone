@@ -145,14 +145,6 @@ void LatchDrawPic(
     int picnum);
 void LoadLatchMem();
 
-bool FizzleFade(
-    int source,
-    int dest,
-    int width,
-    int height,
-    int frames,
-    bool abortable);
-
 extern int latchpics[];
 extern int freelatch;
 

@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
+#include "bstone_ps_fizzle_fx.h"
 
 
 void VL_LatchToScreen(
@@ -8292,40 +8293,11 @@ void DemoLoop()
                 ::UNCACHEGRCHUNK(TITLEPALETTE);
 
                 if (::is_ps()) {
-                    const auto old_bufferofs = ::bufferofs;
+                    bstone::PSFizzleFX fizzle;
 
-                    ::bufferofs = PAGE2START;
+                    fizzle.initialize();
 
-                    // Cache screen 2 with Warnings and Copyrights
-
-                    ::CA_CacheScreen(TITLE2PIC);
-                    ::fontnumber = 2;
-                    ::PrintX = ::WindowX + version_padding;
-                    ::PrintY = ::WindowY + version_padding;
-
-                    ::VWB_Bar(
-                        ::WindowX,
-                        ::WindowY,
-                        ::WindowW,
-                        ::WindowH,
-                        VERSION_TEXT_BKCOLOR);
-
-                    SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-                    ::US_Print(::get_version_string().c_str());
-
-                    ::bufferofs = old_bufferofs;
-
-                    // Fizzle whole screen incase of any last minute changes needed
-                    // on title intro.
-
-                    // BBi Made abortable.
-                    breakit |= ::FizzleFade(
-                        PAGE2START,
-                        PAGE1START,
-                        ::vga_ref_width,
-                        ::vga_ref_height,
-                        70,
-                        true);
+                    breakit |= fizzle.present();
                 }
 
                 if (breakit || ::IN_UserInput(TickBase * 6)) {
