@@ -260,10 +260,6 @@ case gen_scientistobj
 #define STATUSLINES (48)
 
 #define SCREENSIZE (SCREENBWIDE * ::vga_ref_height)
-#define PAGE1START (0)
-#define PAGE2START (SCREENSIZE)
-#define PAGE3START (SCREENSIZE * 2U)
-#define FREESTART (SCREENSIZE * 3U)
 
 #define STARTAMMO (8)
 
@@ -3282,9 +3278,6 @@ extern int16_t plaquetimefrac;
 extern int16_t getpic;
 
 extern statobj_t* firststarobj;
-
-extern int screenloc[3];
-extern int freelatch;
 
 extern int32_t space_xmove;
 extern int32_t space_ymove;

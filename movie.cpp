@@ -144,7 +144,7 @@ void SetupMovie(
     movie_palette = MovieStuff->palette;
 
     ::JM_VGALinearFill(
-        PAGE1START,
+        0,
         ::vga_ref_width * ::vga_ref_height,
         0);
 
@@ -413,7 +413,7 @@ void MOVIE_HandlePage(
             movie_flag = MV_NONE; // Set READ flag to skip the first frame on an anim repeat
 
             ::JM_VGALinearFill(
-                PAGE1START,
+                0,
                 ::vga_ref_width * ::vga_ref_height,
                 *frame);
 

@@ -146,7 +146,6 @@ void LatchDrawPic(
 void LoadLatchMem();
 
 extern int latchpics[];
-extern int freelatch;
 
 extern int LatchMemFree;
 

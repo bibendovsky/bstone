@@ -90,9 +90,6 @@ star_t* firststar;
 star_t* laststar;
 
 
-int screenloc[3] = { PAGE1START, PAGE2START, PAGE3START };
-int freelatch = FREESTART;
-
 int32_t lasttimecount;
 int32_t frameon;
 int32_t framecount;
@@ -1426,7 +1423,7 @@ void ThreeDRefresh()
 {
     ::memset(::spotvis, 0, sizeof(::spotvis));
 
-    ::bufferofs = PAGE1START;
+    ::bufferofs = 0;
 
     ::UpdateInfoAreaClock();
     ::UpdateStatusBar();
@@ -1526,7 +1523,7 @@ void ThreeDRefresh()
         ::lasttimecount = ::TimeCount; // don't make a big tic count
     }
 
-    ::bufferofs = PAGE1START;
+    ::bufferofs = 0;
 
     if (::is_ps()) {
         ::DrawRadar();
