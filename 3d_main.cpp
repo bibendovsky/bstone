@@ -142,11 +142,13 @@ int16_t mouseadjustment;
 
 const std::string config_file_name = "bstone_config";
 
+// FIXME Unused
+#if 0
 int16_t view_xl;
 int16_t view_xh;
 int16_t view_yl;
 int16_t view_yh;
-
+#endif // 0
 
 static const bool default_no_wall_hit_sound = false;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
@@ -8060,6 +8062,8 @@ void ShutdownId()
 =
 ====================
 */
+// BBi Widescreen
+#if 0
 void CalcProjection(
     int32_t focal)
 {
@@ -8103,6 +8107,52 @@ void CalcProjection(
     maxslope = finetangent[pixelangle[0]];
     maxslope >>= 8;
 }
+#else
+void CalcProjection(
+    int32_t focal)
+{
+    ::focallength = focal;
+    const double facedist = focal + MINDIST;
+    const auto halfview = ::viewwidth / 2; // half view in pixels
+
+    //
+    // calculate scale value for vertical height calculations
+    // and sprite x calculations
+    //
+    ::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
+
+    //
+    // divide heightnumerator by a posts distance to get the posts height for
+    // the heightbuffer.  The pixel height is height>>2
+    //
+    ::heightnumerator = (TILEGLOBAL * ::scale) / 64;
+    ::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
+
+    //
+    // calculate the angle offset from view angle of each pixel's ray
+    //
+
+    ::pixelangle.clear();
+    ::pixelangle.resize(::vga_width);
+
+    for (int i = 0; i < halfview; i++)
+    {
+        // start 1/2 pixel over, so viewangle bisects two middle pixels
+        const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
+        const auto angle = static_cast<float>(::atan(tang));
+        const auto intang = static_cast<int>(angle * radtoint);
+        ::pixelangle[halfview - 1 - i] = intang;
+        ::pixelangle[halfview + i] = -intang;
+    }
+
+    //
+    // if a point's abs(y/x) is greater than maxslope, the point is outside
+    // the view area
+    //
+    ::maxslope = ::finetangent[::pixelangle[0]];
+    ::maxslope /= 256;
+}
+#endif // 0
 
 bool DoMovie(
     movie_t movie,
@@ -8136,6 +8186,8 @@ void LoadFonts()
     CA_CacheGrChunk(STARTFONT + 2);
 }
 
+// BBi Widescreen
+#if 0
 void SetViewSize(
     int width,
     int height)
@@ -8163,11 +8215,37 @@ void SetViewSize(
     view_yl = 0;
     view_yh = static_cast<int16_t>(view_yl + viewheight - 1);
 }
+#else
+void SetViewSize()
+{
+    ::viewwidth = ::vga_width;
+    ::viewheight = (ref_3d_view_height * ::vga_height) / ::vga_ref_height;
+    ::centerx = (::viewwidth / 2) - 1;
+    ::shootdelta = ::viewwidth / 10;
+
+    const auto scaled_y_offset = (::ref_3d_view_top * ::vga_height) / ::vga_ref_height;
+
+    ::screenofs = scaled_y_offset * ::viewwidth;
+
+    // calculate trace angles and projection constants
+    ::CalcProjection(FOCALLENGTH);
+
+    // build all needed compiled scalers
+    ::SetupScaling((3 * ::viewwidth) / 2);
+}
+#endif // 0
 
 void NewViewSize()
 {
     CA_UpLevel();
+
+// BBi Widescreen
+#if 0
     SetViewSize(viewsize * 16, static_cast<int>(viewsize * 16 * HEIGHTRATIO));
+#else
+    ::SetViewSize();
+#endif // 0
+
     CA_DownLevel();
 }
 

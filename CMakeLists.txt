@@ -228,6 +228,7 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_memory_stream.h"
     "${CMAKE_SOURCE_DIR}/bstone_mt_queue_1r1w.h"
     "${CMAKE_SOURCE_DIR}/bstone_opl2.h"
+    "${CMAKE_SOURCE_DIR}/bstone_ref_values.h"
     "${CMAKE_SOURCE_DIR}/bstone_pcm_decoder.h"
     "${CMAKE_SOURCE_DIR}/bstone_ps_fizzle_fx.h"
     "${CMAKE_SOURCE_DIR}/bstone_sha1.h"

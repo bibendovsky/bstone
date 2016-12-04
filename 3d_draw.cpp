@@ -102,7 +102,7 @@ fixed mindist = MINDIST;
 //
 // math tables
 //
-int* pixelangle = nullptr;
+std::vector<int> pixelangle;
 int finetangent[FINEANGLES / 4];
 int sintable[ANGLES + (ANGLES / 4) + 1];
 int* costable = &sintable[ANGLES / 4];
@@ -440,7 +440,12 @@ void ScalePost()
     postheight = height;
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
+// BBi Widescreen
+#if 0
         const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+#else
+        const auto scale = 1;
+#endif
 
         int i = shade_max - ((63 * height) / (normalshade * scale));
 
@@ -971,6 +976,8 @@ void HitVertPWall()
 namespace {
 
 
+// BBi Widescreen
+#if 0
 void vga_clear_screen(
     int y_offset,
     int height,
@@ -996,6 +1003,31 @@ void vga_clear_screen(
         }
     }
 }
+#else
+void vga_clear_screen(
+    int y_offset,
+    int height,
+    int color)
+{
+    int pixel_offset = ::vl_get_offset(::bufferofs, 0, y_offset);
+
+    if (::viewwidth == ::vga_width) {
+        std::uninitialized_fill_n(
+            &::vga_memory[pixel_offset],
+            height * ::vga_width,
+            static_cast<uint8_t>(color));
+    } else {
+        for (int y = 0; y < height; ++y) {
+            std::uninitialized_fill_n(
+                &::vga_memory[pixel_offset],
+                ::viewwidth,
+                static_cast<uint8_t>(color));
+
+            pixel_offset += ::vga_width;
+        }
+    }
+}
+#endif // 0
 
 
 } // namespace
@@ -1026,7 +1058,12 @@ int16_t CalcRotate(
     // this isn't exactly correct, as it should vary by a trig value,
     // but it is close enough with only eight rotations
 
+// BBi Widescreen
+#if 0
     int view_angle = player->angle + ((centerx - ob->viewx) / (8 * vga_scale));
+#else
+    int view_angle = ::player->angle + ((::centerx - ob->viewx) / 8);
+#endif // 0
 
     if (dir == nodir) {
         dir = static_cast<dirtype>(ob->trydir & 127);
@@ -1268,9 +1305,13 @@ void initialize_weapon_constants()
 
 bool useBounceOffset = false;
 
+// BBi
+bool is_drawing_player_weapon = false;
+
 void DrawPlayerWeapon()
 {
     if (::playstate == ex_victorious) {
+        ::vid_set_ui_mask_3d(false);
         return;
     }
 
@@ -1280,36 +1321,68 @@ void DrawPlayerWeapon()
             ::gamestate.weaponframe;
 
         if (shapenum != 0) {
+            ::is_drawing_player_weapon = true;
+
+            ::vid_set_ui_mask_3d(false);
+
+            const auto oldviewwidth = ::viewwidth;
+            const auto oldviewheight = ::viewheight;
+
             if (::is_aog()) {
                 const auto weapon_scale = 2.0F;
-                auto height = static_cast<int>(64 * weapon_scale);
-                int centery = ::viewheight - (height / 2) + 2;
+                const auto height = static_cast<int>(64 * weapon_scale);
+// BBi Widescreen
+#if 0
+                const auto center_x = ::centerx;
+                const auto center_y = ::viewheight - (height / 2) + 2;
+#else
+                const auto center_x = ::ref_center_x;
+                const auto center_y = ::ref_3d_view_height - (height / 2) + 21;
+
+                ::viewwidth = ::vga_ref_width;
+                ::viewheight = ref_3d_view_height;
+#endif // 0
 
                 ::MegaSimpleScaleShape(
-                    ::centerx,
-                    centery,
+                    center_x,
+                    center_y,
                     shapenum,
                     height,
                     0);
             } else {
-                auto oldviewheight = ::viewheight;
-
                 ::useBounceOffset = true;
 
+                ::viewwidth = ::vga_ref_width;
+
+// BBi Widescreen
+#if 0
                 ::viewheight = 87;
-                const int centery = 88;
+
+                const auto center_x = ::centerx / ::vga_scale;
+                const auto view_height = ::viewheight;
+#else
+                const auto center_x = ::ref_center_x;
+                const auto view_height = 88;
+
+                ::viewheight = ref_3d_view_height;
+#endif // 0
+
+                const int center_y = 107;
 
                 ::MegaSimpleScaleShape(
-                    ::centerx,
-                    centery,
+                    center_x,
+                    center_y,
                     shapenum,
-                    ::viewheight + 1,
+                    view_height,
                     0);
 
                 ::useBounceOffset = false;
-
-                ::viewheight = oldviewheight;
             }
+
+            ::viewwidth = oldviewwidth;
+            ::viewheight = oldviewheight;
+
+            ::is_drawing_player_weapon = false;
         }
     }
 }
@@ -1501,10 +1574,10 @@ void ThreeDRefresh()
 
     ::DrawScaleds(); // draw scaled stuf
 
-    ::DrawPlayerWeapon(); // draw player's hands
-
     // BBi
     ::vid_is_3d = false;
+
+    ::DrawPlayerWeapon(); // draw player's hands
 
 //
 // show screen and time last cycle

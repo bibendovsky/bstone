@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #include <deque>
 #include <array>
 #include "3d_def.h"
+#include "bstone_ref_values.h"
 
 
 void InitWeaponBounce();
@@ -3056,7 +3057,7 @@ char if_noImage[] = "   AREA\n"
                     " TO TELEPORT";
 
 statsInfoType ov_stats;
-static uint8_t* ov_buffer;
+static VgaBuffer ov_buffer;
 bool ov_noImage = false;
 
 const int TOV_X = 16;
@@ -3090,11 +3091,11 @@ int16_t InputFloor()
 
         auto border_width = 7;
         auto border_height = 5;
-        auto outer_height = 200 - STATUSLINES - TOP_STRIP_HEIGHT;
+        auto outer_height = ::ref_view_height;
 
         ::BevelBox(
             0,
-            TOP_STRIP_HEIGHT,
+            ::ref_top_bar_height,
             static_cast<int16_t>(::vga_ref_width),
             static_cast<int16_t>(outer_height),
             BORDER_HI_COLOR,
@@ -3103,14 +3104,14 @@ int16_t InputFloor()
 
         ::BevelBox(
             static_cast<int16_t>(border_width),
-            static_cast<int16_t>(TOP_STRIP_HEIGHT + border_height),
+            static_cast<int16_t>(::ref_top_bar_height + border_height),
             static_cast<int16_t>(::vga_ref_width - (2 * border_width)),
             static_cast<int16_t>(outer_height - (2 * border_height)),
             BORDER_LO_COLOR,
             BORDER_MED_COLOR,
             BORDER_HI_COLOR);
 
-        ::CacheDrawPic(8, TOP_STRIP_HEIGHT + 6, TELEPORTBACKPIC);
+        ::CacheDrawPic(8, ref_top_bar_height + 6, TELEPORTBACKPIC);
 
         ::fontnumber = 1;
         ::CA_CacheGrChunk(STARTFONT + 1);
@@ -3119,7 +3120,7 @@ int16_t InputFloor()
 
         ::ShowOverhead(
             14,
-            TOP_STRIP_HEIGHT + 55,
+            ref_top_bar_height + 55,
             32,
             0,
             OV_KEYS | OV_WHOLE_MAP);
@@ -3139,7 +3140,7 @@ int16_t InputFloor()
 
         PresenterInfo pi {};
         pi.xl = 24;
-        pi.yl = TOP_STRIP_HEIGHT + 8;
+        pi.yl = ref_top_bar_height + 8;
         pi.xh = pi.xl + 210;
         pi.yh = pi.yl + 34;
         pi.fontnumber = 3;
@@ -3213,7 +3214,7 @@ int16_t InputFloor()
             if (draw_message) {
                 draw_message = false;
 
-                ::VWB_DrawPic(24, TOP_STRIP_HEIGHT + 10, TELEPORT_TEXT_BG);
+                ::VWB_DrawPic(24, ref_top_bar_height + 10, TELEPORT_TEXT_BG);
 
                 ::fontcolor = 0x97;
                 pi.script[0] = message->c_str();
@@ -3228,7 +3229,7 @@ int16_t InputFloor()
                     ::fontcolor = 0x38;
 
                     ::px = 167;
-                    ::py = TOP_STRIP_HEIGHT + 10;
+                    ::py = ref_top_bar_height + 10;
 
                     ::USL_DrawString(
                         floor_number_strings[::gamestate.mapon - 1]);
@@ -3239,7 +3240,7 @@ int16_t InputFloor()
                     ::fontcolor = 0x38;
 
                     ::px = 82;
-                    ::py = TOP_STRIP_HEIGHT + 10;
+                    ::py = ref_top_bar_height + 10;
 
                     ::USL_DrawString(
                         floor_number_strings[target_level - 1]);
@@ -3249,7 +3250,7 @@ int16_t InputFloor()
                     draw_button = false;
 
                     auto base_x = 264;
-                    auto base_y = TOP_STRIP_HEIGHT + 98;
+                    auto base_y = ref_top_bar_height + 98;
                     auto step_x = 24;
                     auto step_y = 20;
 
@@ -3280,7 +3281,7 @@ int16_t InputFloor()
 
                 static_cast<void>(::ShowStats(
                     167,
-                    TOP_STRIP_HEIGHT + 76,
+                    ref_top_bar_height + 76,
                     ss_normal,
                     &::gamestuff.level[::gamestate.mapon].stats));
 
@@ -3331,7 +3332,8 @@ int16_t InputFloor()
         player->angle = 90;
         player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
-        ov_buffer = new uint8_t[4096];
+        ov_buffer.resize(4096);
+
         ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
         memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
         ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
@@ -3493,9 +3495,6 @@ int16_t InputFloor()
 
         VW_FadeOut();
 
-        delete [] ov_buffer;
-        ov_buffer = nullptr;
-
         memcpy(player, &old_player, sizeof(objtype));
         UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
@@ -3508,7 +3507,7 @@ int16_t InputFloor()
 
 void ShowOverheadChunk()
 {
-    VL_MemToScreen(static_cast<const uint8_t*>(ov_buffer), 64, 64, TOV_X, TOV_Y);
+    VL_MemToScreen(ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
     ShowStats(235, 138, ss_quick, &ov_stats);
 }
 
@@ -3547,9 +3546,9 @@ void LoadOverheadChunk(
     }
 
     if (!is_succeed) {
-        std::uninitialized_fill_n(
-            ov_buffer,
-            4096,
+        std::uninitialized_fill(
+            ov_buffer.begin(),
+            ov_buffer.end(),
             0x52);
 
         std::uninitialized_fill_n(
@@ -3574,7 +3573,7 @@ void SaveOverheadChunk(
 
     // Prepare buffer
     //
-    ::VL_ScreenToMem(ov_buffer, 64, 64, TOV_X, TOV_Y);
+    ::VL_ScreenToMem(ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
 
     bstone::Crc32 checksum;
     bstone::BinaryWriter writer(&g_playtemp);
@@ -4101,7 +4100,10 @@ void GunAttack(
     while (true) {
         oldclosest = closest;
 
-        for (check = ob->next; check; check = check->next) {
+        for (check = ob->next; check; check = check->next)
+        {
+// BBi Widescreen
+#if 0
             int unscaled_viewx = check->viewx;
 
             if (::vga_scale > 1) {
@@ -4125,6 +4127,23 @@ void GunAttack(
                     closest = check;
                 }
             }
+#else
+            if ((check->flags & FL_SHOOTABLE) &&
+                (check->flags & FL_VISABLE) &&
+                (std::abs(check->viewx - ::centerx) < shootdelta))
+            {
+                if (check->transx < viewdist) {
+                    if ((skip && (check->obclass == hang_terrotobj))
+                        || (check->flags2 & FL2_NOTGUNSHOOTABLE))
+                    {
+                        continue;
+                    }
+
+                    viewdist = check->transx;
+                    closest = check;
+                }
+            }
+#endif // 0
         }
 
         if (closest == oldclosest) {

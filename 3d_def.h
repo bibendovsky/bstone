@@ -2925,10 +2925,14 @@ extern std::string data_dir;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
+// FIXME Unused
+#if 0
 extern int16_t view_xl;
 extern int16_t view_xh;
 extern int16_t view_yl;
 extern int16_t view_yh;
+#endif
+
 extern int16_t starting_level;
 extern int16_t debug_value;
 extern int16_t starting_episode;
@@ -2969,7 +2973,7 @@ const int default_mouse_sensitivity = 5;
 //
 // math tables
 //
-extern int* pixelangle;
+extern std::vector<int> pixelangle;
 extern int finetangent[FINEANGLES / 4];
 extern int sintable[];
 extern int* costable;
@@ -3003,9 +3007,14 @@ void TEDDeath();
 void CalcProjection(
     int32_t focal);
 
+// BBi Widescreen
+#if 0
 void SetViewSize(
     int width,
     int height);
+#else
+void SetViewSize();
+#endif // 0
 
 void NewGame(
     int16_t difficulty,

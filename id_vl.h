@@ -27,10 +27,13 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include <array>
 #include <vector>
+#include "bstone_ref_values.h"
 
 
 using VgaBuffer = std::vector<uint8_t>;
+using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 
 // ===========================================================================
@@ -48,9 +51,6 @@ extern int bufferofs; // all drawing is reletive to this
 extern bool screenfaded;
 
 // BBi
-const int vga_ref_width = 320;
-const int vga_ref_height = 200;
-
 const int vga_ref_size = 256 * 1024;
 const int vga_plane_count = 4;
 const int vga_plane_width = vga_ref_width / 4;
@@ -292,6 +292,12 @@ void vid_export_ui(
 void vid_import_ui(
     const VgaBuffer& src_buffer,
     bool is_transparent = false);
+
+void vid_export_ui_mask(
+    UiMaskBuffer& dst_buffer);
+
+void vid_import_ui_mask(
+    const UiMaskBuffer& src_buffer);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

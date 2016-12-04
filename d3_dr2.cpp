@@ -50,7 +50,7 @@ extern int finetangent[FINEANGLES / 4];
 extern int viewwidth;
 extern uint8_t tilemap[MAPSIZE][MAPSIZE];
 extern uint8_t spotvis[MAPSIZE][MAPSIZE];
-extern int* pixelangle;
+extern std::vector<int> pixelangle;
 extern int midangle;
 extern int focaltx;
 extern int focalty;
@@ -486,7 +486,14 @@ horizentry:
 nextpix:
     ++pixx;
 
+// BBi Widescreen
+#if 0
     if (pixx < (viewwidth * vga_scale)) {
         goto pixxloop;
     }
+#else
+    if (pixx < ::viewwidth) {
+        goto pixxloop;
+    }
+#endif
 }

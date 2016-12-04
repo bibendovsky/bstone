@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include <memory>
 #include "bstone_fizzle_fx.h"
 
 
@@ -82,10 +83,9 @@ protected:
 
 
 private:
-    uint8_t plot_color_;
-    bool is_transparent_;
-    int y_offset_;
-    int height_;
+    class Impl;
+
+    std::unique_ptr<Impl> impl_;
 }; // GenericFizzleFX
 
 

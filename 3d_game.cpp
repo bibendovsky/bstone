@@ -2559,7 +2559,21 @@ void LoadLocationText(
 void DrawPlayBorder()
 {
     ::vid_set_ui_mask_3d(
-        false);
+        ::playstate == ex_transported);
+
+    ::VL_Bar(
+        0,
+        ::ref_view_top,
+        ::vga_ref_width,
+        ::ref_3d_margin,
+        BLACK);
+
+    ::VL_Bar(
+        0,
+        ::ref_3d_view_bottom,
+        ::vga_ref_width,
+        ::ref_3d_margin,
+        BLACK);
 }
 
 // --------------------------------------------------------------------------
@@ -2801,14 +2815,24 @@ void DrawWarpIn()
     ::WindowH = 8;
     ::fontnumber = 2;
 
+// BBi Widescreen
+#if 0
     VW_Bar(
         (320 - ::viewwidth) / 2,
         (200 - STATUSLINES - ::viewheight + TOP_STRIP_HEIGHT) / 2,
         ::viewwidth,
         ::viewheight,
         BLACK);
+#else
+    VW_Bar(
+        0,
+        ::ref_view_top,
+        ::vga_ref_width,
+        ::ref_view_height,
+        BLACK);
+#endif // 0
 
-    ::LatchDrawPic(0, 200 - STATUSLINES, ::STATUSBARPIC);
+    ::LatchDrawPic(0, ::ref_view_bottom, ::STATUSBARPIC);
     ::LatchDrawPic(0, 0, ::TOP_STATUSBARPIC);
 
     ::ShadowPrintLocationText(sp_normal);

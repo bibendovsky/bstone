@@ -92,7 +92,12 @@ void DrawSpans(
     int startyfrac = viewy - FixedMul(length, psin);
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
+// BBi Widescreen
+#if 0
         int i = shade_max - ((63 * height) / (vga_scale * normalshade));
+#else
+        int i = ::shade_max - ((63 * height) / ::normalshade);
+#endif // 0
 
         if (i < 0) {
             i = 0;
@@ -103,7 +108,12 @@ void DrawSpans(
         shadingtable = lightsource + (i * 256);
     }
 
+// BBi Widescreen
+#if 0
     int prestep = ((viewwidth * vga_scale) / 2) - x1;
+#else
+    int prestep = (::viewwidth / 2) - x1;
+#endif // 0
 
     mr_xfrac = startxfrac - (mr_xstep * prestep);
     mr_yfrac = startyfrac - (mr_ystep * prestep);
@@ -131,7 +141,12 @@ void SetPlaneViewSize()
     const uint8_t* src;
     uint8_t* dest;
 
+// BBi Widescreen
+#if 0
     halfheight = (viewheight * vga_scale) / 2;
+#else
+    ::halfheight = ::viewheight / 2;
+#endif // 0
 
     for (int y = 0; y < halfheight; ++y) {
         planeylookup[y] = (halfheight - 1 - y) * vga_width;
@@ -162,10 +177,19 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
+// BBi WIdescreen
+#if 0
     if (((viewheight / 2) * vga_scale) != halfheight) {
         SetPlaneViewSize(); // screen size has changed
 
     }
+#else
+    if ((::viewheight / 2) != ::halfheight)
+    {
+        ::SetPlaneViewSize(); // screen size has changed
+    }
+#endif // 0
+
     psin = viewsin;
 
     if (psin < 0) {
@@ -182,7 +206,13 @@ void DrawPlanes()
     int height = 0;
     int lastheight = halfheight;
 
-    for (x = 0; x < viewwidth * vga_scale; ++x) {
+// BBi Widescreen
+#if 0
+    for (x = 0; x < viewwidth * vga_scale; ++x)
+#else
+    for (x = 0; x < ::viewwidth; ++x)
+#endif // 0
+    {
         height = wallheight[x] / 8;
 
         if (height < lastheight) { // more starts

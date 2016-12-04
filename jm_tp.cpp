@@ -113,6 +113,11 @@ void VWL_MeasureString(
 void VH_UpdateScreen();
 void ClearMemory();
 
+void draw_wall_ui(
+    const int x,
+    const int y,
+    const void* raw_wall);
+
 
 // string array table is a quick, easy and expandable way to print
 // any number of strings in a text file using the ^DS codes...
@@ -2444,6 +2449,8 @@ int16_t TP_DrawShape(
         ::TP_CacheIn(ct_scaled, 0);
         addr = ::PM_GetPage(shapenum);
 
+// BBi Widescreen
+#if 0
         ::postx = x;
         ::posty = y - 30;
 
@@ -2457,6 +2464,12 @@ int16_t TP_DrawShape(
 
             ::postsource += 64;
         }
+#else
+        draw_wall_ui(
+            x,
+            y,
+            addr);
+#endif // 0
 
         break;
 

@@ -97,7 +97,12 @@ void generic_scale_masked_post(
     int height,
     ShapeDrawMode draw_mode)
 {
+// BBi Widescreen
+#if 0
     const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+#else
+    const auto scale = 1;
+#endif // 0
 
     int bounce;
 
@@ -177,6 +182,8 @@ void generic_scale_masked_post(
     }
 }
 
+// BBi Widescreen
+#if 0
 void generic_scale_shape(
     int xcenter,
     int shapenum,
@@ -273,6 +280,117 @@ void generic_scale_shape(
         generic_scale_masked_post(height / 4, draw_mode);
     }
 }
+#else
+void generic_scale_shape(
+    int xcenter,
+    int shapenum,
+    int height,
+    int8_t lighting,
+    ShapeDrawMode draw_mode)
+{
+    if ((height / 2) > ::maxscaleshl2 || (height / 2) == 0)
+    {
+        return;
+    }
+
+    //xcenter += centerx * (vga_scale - 1);
+
+    auto shape = static_cast<t_compshape*>(::PM_GetSpritePage(shapenum));
+
+    ::dc_seg = reinterpret_cast<uint8_t*>(shape);
+
+    auto xscale = static_cast<int64_t>(height) << 12;
+
+    auto xcent = (static_cast<int64_t>(xcenter) << 20) -
+        (static_cast<int64_t>(height) << 17) + 0x80000;
+
+    //
+    // calculate edges of the shape
+    //
+    int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
+
+    if (x1 >= ::viewwidth)
+    {
+        return; // off the right side
+    }
+
+    int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
+
+    if (x2 < 0)
+    {
+        return; // off the left side
+    }
+
+    const int screenscale = (256 << 20) / height;
+
+    //
+    // store information in a vissprite
+    //
+    int frac;
+
+    if (x1 < 0)
+    {
+        frac = (-x1) * screenscale;
+        x1 = 0;
+    }
+    else
+    {
+        frac = screenscale / 2;
+    }
+
+    if (x2 >= ::viewwidth)
+    {
+        x2 = ::viewwidth - 1;
+    }
+
+    if (draw_mode == e_sdm_shaded) {
+        int i = shade_max - (63 * height / (normalshade * 8)) + lighting;
+
+        if (i < 0)
+        {
+            i = 0;
+        }
+        else if (i > 63)
+        {
+            i = 63;
+        }
+
+        // BBi Don't shade cloaked shape
+        if (::cloaked_shape)
+        {
+            i = 0;
+        }
+
+        ::shadingtable = &::lightsource[i * 256];
+    }
+
+    ::dc_y = 0;
+
+    const int swidth = shape->rightpix - shape->leftpix;
+
+    for ( ; x1 <= x2; ++x1, frac += screenscale)
+    {
+        if (::wallheight[x1] > height)
+        {
+            continue;
+        }
+
+        dc_x = x1;
+
+        int texturecolumn = frac >> 20;
+
+        if (texturecolumn > swidth)
+        {
+            texturecolumn = swidth;
+        }
+
+        ::linecmds = reinterpret_cast<uint16_t*>(
+            &::dc_seg[shape->dataofs[texturecolumn]]);
+
+        ::generic_scale_masked_post(height / 4, draw_mode);
+    }
+}
+#endif // 0
 
 /*
 =======================
@@ -381,7 +499,7 @@ void MegaSimpleScaleShape(
     const auto scale = (::vid_is_3d ? ::vga_scale : 1);
 
     dc_y = 0;
-    dc_y -= (viewheight - 64) / 2;
+    dc_y -= (::viewheight - 64) / 2;
     dc_y += ycenter - 34;
     dc_y *= scale;
 
@@ -444,7 +562,7 @@ void MegaSimpleScaleShape(
 
     int swidth = shape->rightpix - shape->leftpix;
 
-    for (; x1 <= x2; ++x1, frac += screenscale)
+    for ( ; x1 <= x2; ++x1, frac += screenscale)
     {
         dc_x = x1;
 

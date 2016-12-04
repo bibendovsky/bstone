@@ -52,7 +52,13 @@ static void generic_draw_post(
     }
 
     int y = ::posty;
+
+// BBi Widescreen
+#if 0
     const auto scale = (::vid_is_3d ? ::vga_scale : 1);
+#else
+    const auto scale = 1;
+#endif
 
     int cur_step = (32L * 65536L) / postheight;
 
@@ -161,3 +167,29 @@ void DrawLSPost()
 {
     generic_draw_post(DRAW_LIGHTED);
 }
+
+// BBi Draws a wall for UI (text presenter, etc.)
+void draw_wall_ui(
+    const int x,
+    const int y,
+    const void* raw_wall)
+{
+    const int wall_side = 64;
+    auto wall = static_cast<const uint8_t*>(raw_wall);
+
+    for (int w = 0; w < wall_side; ++w)
+    {
+        const auto wall_base = wall_side * w;
+
+        for (int h = 0; h < wall_side; ++h)
+        {
+            auto pixel = wall[wall_base + h];
+
+            ::VL_Plot(
+                x + w,
+                y + h,
+                pixel);
+        }
+    }
+}
+// BBi

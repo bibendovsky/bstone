@@ -41,6 +41,8 @@ extern int dc_dy;
 
 extern const uint8_t* shadingtable;
 
+extern bool is_drawing_player_weapon;
+
 
 enum DrawMode {
     DRAW_DEFAULT,
@@ -77,9 +79,19 @@ static void generic_draw_column(
         }
         else
         {
+            auto y = ::dc_y + ::dc_dy + i;
+
+            if (::is_drawing_player_weapon)
+            {
+                if (y >= ::ref_3d_view_bottom)
+                {
+                    return;
+                }
+            }
+
             ::VL_Plot(
                 ::dc_x,
-                ::dc_y + ::dc_dy + i,
+                y,
                 pixel);
         }
 

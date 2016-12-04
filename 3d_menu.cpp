@@ -2273,7 +2273,19 @@ void DrawLSAction(
     VW_FadeOut();
     screenfaded = true;
     DrawTopInfo(static_cast<sp_type>(sp_loading + which));
+
+// BBi Widescreen
+#if 0
     DrawPlayBorder();
+#else
+    ::VL_Bar(
+        0,
+        ::ref_view_top,
+        ::vga_ref_width,
+        ::ref_view_height,
+        BLACK);
+#endif // 0
+
     DisplayPrepingMsg(LOADSAVE_GAME_MSG[which]);
 
     if (which) {
