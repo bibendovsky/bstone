@@ -4,6 +4,7 @@
 
 const int vga_ref_width = 320;
 const int vga_ref_height = 200;
+const int vga_ref_height_4x3 = (::vga_ref_height * 12) / 10;
 
 const int ref_top_bar_height = 16;
 const int ref_bottom_bar_height = 48;

@@ -625,14 +625,24 @@ void sdl_initialize_video()
         height_str,
         ::window_height));
 
-    if (::window_width < ::vga_ref_width)
+    if (::window_width == 0)
     {
         ::window_width = ::default_window_width;
     }
 
-    if (::window_height < ::vga_ref_height)
+    if (::window_height == 0)
     {
         ::window_height = ::default_window_height;
+    }
+
+    if (::window_width < ::vga_ref_width)
+    {
+        ::window_width = ::vga_ref_width;
+    }
+
+    if (::window_height < ::vga_ref_height_4x3)
+    {
+        ::window_height = ::vga_ref_height_4x3;
     }
 
 
@@ -680,55 +690,30 @@ void sdl_initialize_video()
         ::window_height = ::display_mode.h;
     }
 
-    ::vga_width = 0;
-    ::vga_height = 0;
 
-    // Force 4:3 aspect ratio
-    double ar_correction = 1.2;
+    ::vid_stretch = true;
 
-    if (is_custom_scale)
+    ::vga_height = (10 * ::window_height) / 12;
+    ::vga_height += 4 - 1;
+    ::vga_height /= 4;
+    ::vga_height *= 4;
+
+    if (::vid_stretch)
     {
-        ::vga_width = ::vga_scale * ::vga_ref_width;
-        ::vga_height = ::vga_scale * ::vga_ref_height;
+        ::vga_width = ::window_width;
+        ::vga_width += 4 - 1;
+        ::vga_width /= 4;
+        ::vga_width *= 4;
     }
     else
     {
-        ::vga_scale = 0;
-
-        while (::vga_width < ::window_width ||
-            (::vga_height * ar_correction) < ::window_height)
-        {
-            ::vga_scale += 1;
-            ::vga_width += ::vga_ref_width;
-            ::vga_height += ::vga_ref_height;
-        }
+        ::vga_width = (::vga_ref_width * ::vga_height) / ::vga_ref_height;
     }
 
     ::vga_area = ::vga_width * ::vga_height;
 
-    double h_scale = static_cast<double>(::window_width) / ::vga_width;
-    double v_scale = ::window_height / (ar_correction * ::vga_height);
-
-    double video_scale;
-
-    if (h_scale <= v_scale)
-    {
-        video_scale = h_scale;
-    }
-    else
-    {
-        video_scale = v_scale;
-    }
-
-    ::screen_width = static_cast<int>(
-        (::vga_width * video_scale) + 0.5);
-
-    ::screen_height = static_cast<int>(
-        (::vga_height * video_scale * ar_correction) + 0.5);
-
-    ::screen_x = (::window_width - ::screen_width) / 2;
-    ::screen_y = (::window_height - ::screen_height) / 2;
-
+    ::screen_width = ::vga_width;
+    ::screen_height = (12 * ::vga_height) / 10;
 
     bool is_succeed = true;
 
