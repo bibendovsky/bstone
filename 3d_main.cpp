@@ -8062,52 +8062,6 @@ void ShutdownId()
 =
 ====================
 */
-// BBi Widescreen
-#if 0
-void CalcProjection(
-    int32_t focal)
-{
-    focallength = focal;
-    double facedist = focal + MINDIST;
-    int halfview = (viewwidth * vga_scale) / 2; // half view in pixels
-
-    //
-    // calculate scale value for vertical height calculations
-    // and sprite x calculations
-    //
-    scale = static_cast<fixed>(halfview * facedist / (VIEWGLOBAL / 2));
-
-    //
-    // divide heightnumerator by a posts distance to get the posts height for
-    // the heightbuffer.  The pixel height is height>>2
-    //
-    heightnumerator = (TILEGLOBAL * scale) >> 6;
-    minheightdiv = static_cast<int16_t>((heightnumerator / 0x7FFF) + 1);
-
-    //
-    // calculate the angle offset from view angle of each pixel's ray
-    //
-
-    delete [] pixelangle;
-    pixelangle = new int[vga_width];
-
-    for (int i = 0; i < halfview; i++) {
-        // start 1/2 pixel over, so viewangle bisects two middle pixels
-        double tang = i * VIEWGLOBAL / (viewwidth * vga_scale) / facedist;
-        float angle = static_cast<float>(atan(tang));
-        int intang = static_cast<int>(angle * radtoint);
-        pixelangle[halfview - 1 - i] = intang;
-        pixelangle[halfview + i] = -intang;
-    }
-
-    //
-    // if a point's abs(y/x) is greater than maxslope, the point is outside
-    // the view area
-    //
-    maxslope = finetangent[pixelangle[0]];
-    maxslope >>= 8;
-}
-#else
 void CalcProjection(
     int32_t focal)
 {
@@ -8152,7 +8106,6 @@ void CalcProjection(
     ::maxslope = ::finetangent[::pixelangle[0]];
     ::maxslope /= 256;
 }
-#endif // 0
 
 bool DoMovie(
     movie_t movie,
@@ -8186,36 +8139,6 @@ void LoadFonts()
     CA_CacheGrChunk(STARTFONT + 2);
 }
 
-// BBi Widescreen
-#if 0
-void SetViewSize(
-    int width,
-    int height)
-{
-    viewwidth = width & ~15; // must be divisable by 16
-    viewheight = height & ~1; // must be even
-    centerx = (viewwidth / 2) - 1;
-    shootdelta = viewwidth / 10;
-
-    screenofs = ((200 - STATUSLINES - viewheight + TOP_STRIP_HEIGHT) /
-                 2 * ::vga_ref_width) + ((320 - viewwidth) / 2);
-
-    //
-    // calculate trace angles and projection constants
-    //
-    CalcProjection(FOCALLENGTH);
-
-    //
-    // build all needed compiled scalers
-    //
-    SetupScaling((3 * viewwidth) / 2);
-
-    view_xl = 0;
-    view_xh = static_cast<int16_t>(view_xl + viewwidth - 1);
-    view_yl = 0;
-    view_yh = static_cast<int16_t>(view_yl + viewheight - 1);
-}
-#else
 void SetViewSize()
 {
     ::viewwidth = ::vga_width;
@@ -8233,19 +8156,11 @@ void SetViewSize()
     // build all needed compiled scalers
     ::SetupScaling((3 * ::viewwidth) / 2);
 }
-#endif // 0
 
 void NewViewSize()
 {
     CA_UpLevel();
-
-// BBi Widescreen
-#if 0
-    SetViewSize(viewsize * 16, static_cast<int>(viewsize * 16 * HEIGHTRATIO));
-#else
     ::SetViewSize();
-#endif // 0
-
     CA_DownLevel();
 }
 

@@ -440,14 +440,7 @@ void ScalePost()
     postheight = height;
 
     if ((gamestate.flags & GS_LIGHTING) != 0) {
-// BBi Widescreen
-#if 0
-        const auto scale = (::vid_is_3d ? ::vga_scale : 1);
-#else
-        const auto scale = 1;
-#endif
-
-        int i = shade_max - ((63 * height) / (normalshade * scale));
+        int i = shade_max - ((63 * height) / normalshade);
 
         if (i < 0) {
             i = 0;
@@ -976,34 +969,6 @@ void HitVertPWall()
 namespace {
 
 
-// BBi Widescreen
-#if 0
-void vga_clear_screen(
-    int y_offset,
-    int height,
-    int color)
-{
-    height *= vga_scale;
-
-    int pixel_offset = vl_get_offset(bufferofs, 0, y_offset);
-
-    if (viewwidth == ::vga_ref_width) {
-        std::uninitialized_fill_n(
-            &vga_memory[pixel_offset],
-            height * vga_width,
-            static_cast<uint8_t>(color));
-    } else {
-        for (int y = 0; y < height; ++y) {
-            std::uninitialized_fill_n(
-                &vga_memory[pixel_offset],
-                vga_scale * viewwidth,
-                static_cast<uint8_t>(color));
-
-            pixel_offset += vga_width;
-        }
-    }
-}
-#else
 void vga_clear_screen(
     int y_offset,
     int height,
@@ -1027,7 +992,6 @@ void vga_clear_screen(
         }
     }
 }
-#endif // 0
 
 
 } // namespace
@@ -1058,12 +1022,7 @@ int16_t CalcRotate(
     // this isn't exactly correct, as it should vary by a trig value,
     // but it is close enough with only eight rotations
 
-// BBi Widescreen
-#if 0
-    int view_angle = player->angle + ((centerx - ob->viewx) / (8 * vga_scale));
-#else
     int view_angle = ::player->angle + ((::centerx - ob->viewx) / 8);
-#endif // 0
 
     if (dir == nodir) {
         dir = static_cast<dirtype>(ob->trydir & 127);
@@ -1331,17 +1290,11 @@ void DrawPlayerWeapon()
             if (::is_aog()) {
                 const auto weapon_scale = 2.0F;
                 const auto height = static_cast<int>(64 * weapon_scale);
-// BBi Widescreen
-#if 0
-                const auto center_x = ::centerx;
-                const auto center_y = ::viewheight - (height / 2) + 2;
-#else
                 const auto center_x = ::ref_center_x;
                 const auto center_y = ::ref_3d_view_height - (height / 2) + 21;
 
                 ::viewwidth = ::vga_ref_width;
                 ::viewheight = ref_3d_view_height;
-#endif // 0
 
                 ::MegaSimpleScaleShape(
                     center_x,
@@ -1354,18 +1307,10 @@ void DrawPlayerWeapon()
 
                 ::viewwidth = ::vga_ref_width;
 
-// BBi Widescreen
-#if 0
-                ::viewheight = 87;
-
-                const auto center_x = ::centerx / ::vga_scale;
-                const auto view_height = ::viewheight;
-#else
                 const auto center_x = ::ref_center_x;
                 const auto view_height = 88;
 
                 ::viewheight = ref_3d_view_height;
-#endif // 0
 
                 const int center_y = 107;
 

@@ -77,16 +77,6 @@ void GenericFizzleFX::initialize()
     impl_->y_offset_ = ::ref_view_top;
     impl_->height_ = ::ref_view_height;
 
-// BBi Widescreen
-#if 0
-    ::VL_Bar(
-        0,
-        y_offset_,
-        ::vga_ref_width,
-        height_,
-        plot_color_,
-        is_transparent_);
-#else
     if (!impl_->is_transparent_)
     {
         ::vid_export_ui(impl_->old_ui_);
@@ -100,7 +90,6 @@ void GenericFizzleFX::initialize()
             impl_->plot_color_,
             false);
     }
-#endif // 0
 }
 
 void GenericFizzleFX::uninitialize()

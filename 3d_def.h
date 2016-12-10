@@ -3007,15 +3007,8 @@ void TEDDeath();
 void CalcProjection(
     int32_t focal);
 
-// BBi Widescreen
-#if 0
-void SetViewSize(
-    int width,
-    int height);
-#else
 void SetViewSize();
 void SetPlaneViewSize();
-#endif // 0
 
 void NewGame(
     int16_t difficulty,

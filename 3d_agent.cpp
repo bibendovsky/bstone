@@ -4102,32 +4102,6 @@ void GunAttack(
 
         for (check = ob->next; check; check = check->next)
         {
-// BBi Widescreen
-#if 0
-            int unscaled_viewx = check->viewx;
-
-            if (::vga_scale > 1) {
-                unscaled_viewx -= centerx;
-                unscaled_viewx /= ::vga_scale;
-                unscaled_viewx += centerx;
-            }
-
-            if ((check->flags & FL_SHOOTABLE) &&
-                (check->flags & FL_VISABLE) &&
-                (std::abs(unscaled_viewx - centerx) < shootdelta))
-            {
-                if (check->transx < viewdist) {
-                    if ((skip && (check->obclass == hang_terrotobj))
-                        || (check->flags2 & FL2_NOTGUNSHOOTABLE))
-                    {
-                        continue;
-                    }
-
-                    viewdist = check->transx;
-                    closest = check;
-                }
-            }
-#else
             if ((check->flags & FL_SHOOTABLE) &&
                 (check->flags & FL_VISABLE) &&
                 (std::abs(check->viewx - ::centerx) < shootdelta))
@@ -4143,7 +4117,6 @@ void GunAttack(
                     closest = check;
                 }
             }
-#endif // 0
         }
 
         if (closest == oldclosest) {

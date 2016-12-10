@@ -1598,12 +1598,7 @@ void VH_UpdateScreen()
 int vl_get_offset(
     int base_offset)
 {
-// BBi Widescreen
-#if 0
-    return ::vga_scale * ::vga_scale * base_offset;
-#else
     return base_offset;
-#endif // 0
 }
 
 int vl_get_offset(
@@ -1611,13 +1606,7 @@ int vl_get_offset(
     int x,
     int y)
 {
-// BBi Widescreen
-#if 0
-    return ::vga_scale *
-        ((::vga_scale * base_offset) + (y * ::vga_width) + x);
-#else
     return base_offset + (y * ::vga_width) + x;
-#endif // 0
 }
 
 uint8_t vl_get_pixel(
@@ -1625,12 +1614,7 @@ uint8_t vl_get_pixel(
     int x,
     int y)
 {
-// BBi Widescreen
-#if 0
-    return ::vga_memory[::vl_get_offset(base_offset, x, y)];
-#else
     return ::sdl_ui_buffer[(y * ::vga_ref_width) + x];
-#endif // 0
 }
 
 void vl_minimize_fullscreen_window(

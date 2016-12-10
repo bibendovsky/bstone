@@ -53,13 +53,6 @@ static void generic_draw_post(
 
     int y = ::posty;
 
-// BBi Widescreen
-#if 0
-    const auto scale = (::vid_is_3d ? ::vga_scale : 1);
-#else
-    const auto scale = 1;
-#endif
-
     int cur_step = (32L * 65536L) / postheight;
 
     int step = cur_step;
@@ -67,7 +60,7 @@ static void generic_draw_post(
 
     int fraction = (::vid_is_3d ? ::vga_width : 1);
 
-    const int max_height = (::viewheight / 2) * scale;
+    const int max_height = ::viewheight / 2;
 
     int screen_column = 0;
 

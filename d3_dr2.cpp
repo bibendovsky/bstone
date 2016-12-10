@@ -486,14 +486,7 @@ horizentry:
 nextpix:
     ++pixx;
 
-// BBi Widescreen
-#if 0
-    if (pixx < (viewwidth * vga_scale)) {
-        goto pixxloop;
-    }
-#else
     if (pixx < ::viewwidth) {
         goto pixxloop;
     }
-#endif
 }
