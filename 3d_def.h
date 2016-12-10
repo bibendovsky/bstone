@@ -3014,6 +3014,7 @@ void SetViewSize(
     int height);
 #else
 void SetViewSize();
+void SetPlaneViewSize();
 #endif // 0
 
 void NewGame(

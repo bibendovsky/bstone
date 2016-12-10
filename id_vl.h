@@ -71,7 +71,7 @@ extern int vga_height;
 extern int vga_area;
 
 const bool default_vid_stretch = false;
-extern bool vid_stretch;
+extern bool vid_widescreen;
 
 // Is VSync enabled?
 extern bool vid_has_vsync;
@@ -269,7 +269,7 @@ uint8_t vl_get_pixel(
     int x,
     int y);
 
-void vl_update_vid_stretch();
+void vl_update_widescreen();
 
 void vid_set_ui_mask(
     bool value);

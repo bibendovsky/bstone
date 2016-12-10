@@ -282,7 +282,7 @@ CP_itemtype CusMenu[] = {
 
 // BBi
 CP_itemtype video_menu[] = {
-    { AT_ENABLED, "STRETCH TO WINDOW", nullptr },
+    { AT_ENABLED, "TOGGLE WIDESCREEN", nullptr },
 };
 // BBi
 
@@ -4764,7 +4764,7 @@ void video_draw_switch(
 
             switch (i) {
             case mvl_stretch_to_window:
-                if (::vid_stretch) {
+                if (::vid_widescreen) {
                     Shape++;
                 }
                 break;
@@ -4798,10 +4798,14 @@ void cp_video(
 
         switch (which) {
         case mvl_stretch_to_window:
-            ::vid_stretch = !::vid_stretch;
+            ::vid_widescreen = !::vid_widescreen;
             ::ShootSnd();
-            video_draw_switch(video_items.curpos);
-            ::vl_update_vid_stretch();
+            ::video_draw_switch(video_items.curpos);
+            ::vl_update_widescreen();
+            ::SetupWalls();
+            ::NewViewSize();
+            ::SetPlaneViewSize();
+            ::VL_RefreshScreen();
             break;
 
         default:
