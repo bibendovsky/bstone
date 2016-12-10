@@ -1596,12 +1596,6 @@ void VH_UpdateScreen()
 }
 
 int vl_get_offset(
-    int base_offset)
-{
-    return base_offset;
-}
-
-int vl_get_offset(
     int base_offset,
     int x,
     int y)

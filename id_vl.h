@@ -257,9 +257,6 @@ void VL_SizePropString(
 void VL_RefreshScreen();
 
 int vl_get_offset(
-    int base_offset);
-
-int vl_get_offset(
     int base_offset,
     int x,
     int y);

@@ -56,7 +56,7 @@ static void generic_draw_column(
     int fraction = dc_frac;
 
     uint8_t* source = dc_seg + dc_source;
-    const int base_offset = vl_get_offset(bufferofs) + dc_x;
+    const int base_offset = bufferofs + dc_x;
 
     for (int i = 0; i < dc_length; ++i)
     {
@@ -106,7 +106,7 @@ void R_DrawColumn()
 
 void R_DrawSLSColumn()
 {
-    int base_offset = vl_get_offset(bufferofs) + dc_x;
+    int base_offset = bufferofs + dc_x;
 
     for (int i = 0; i < dc_length; ++i) {
         int offset = base_offset + ((dc_y + dc_dy + i) * vga_width);

@@ -67,7 +67,7 @@ static void generic_draw_post(
     if (::vid_is_3d)
     {
         screen_column =
-            ::vl_get_offset(::bufferofs) +
+            ::bufferofs +
             ((max_height - 1) * ::vga_width) +
             ::postx;
     }

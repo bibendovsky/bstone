@@ -81,7 +81,7 @@ void DrawSpans(
     int x2,
     int height)
 {
-    int toprow = vl_get_offset(bufferofs) + planeylookup[height];
+    int toprow = bufferofs + planeylookup[height];
     mr_rowofs = mirrorofs[height];
 
     mr_xstep = psin / (2 * height);
