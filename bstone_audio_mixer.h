@@ -31,7 +31,12 @@ Free Software Foundation, Inc.,
 
 #include <atomic>
 #include <list>
+#include <memory>
+
+#if BSTONE_AUDIO_MIXER_USE_THREAD
 #include <mutex>
+#endif // BSTONE_AUDIO_MIXER_USE_THREAD
+
 #include <thread>
 #include <vector>
 #include "SDL.h"
@@ -40,17 +45,20 @@ Free Software Foundation, Inc.,
 #include "bstone_mt_queue_1r1w.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-enum ActorType {
+enum ActorType
+{
     AT_NONE,
     AT_ACTOR,
     AT_DOOR,
     AT_WALL
 }; // ActorType
 
-enum ActorChannel {
+enum ActorChannel
+{
     AC_VOICE,
     AC_WEAPON,
     AC_ITEM,
@@ -59,7 +67,8 @@ enum ActorChannel {
     AC_INTERROGATION,
 }; // ActorChannel
 
-enum SoundType {
+enum SoundType
+{
     ST_NONE,
     ST_ADLIB_MUSIC,
     ST_ADLIB_SFX,
@@ -67,11 +76,19 @@ enum SoundType {
 }; // SoundType
 
 
-class AudioMixer {
+class AudioMixer
+{
 public:
     AudioMixer();
 
+    AudioMixer(
+        const AudioMixer& that) = delete;
+
+    AudioMixer& operator=(
+        const AudioMixer& that) = delete;
+
     ~AudioMixer();
+
 
     // Note: Mix size in milliseconds.
     bool initialize(
@@ -141,6 +158,7 @@ public:
 
     static int get_max_commands();
 
+
 private:
     using Sample = int16_t;
     using Samples = std::vector<Sample>;
@@ -148,7 +166,8 @@ private:
     using MixSample = float;
     using MixSamples = std::vector<MixSample>;
 
-    class CacheItem {
+    class CacheItem
+    {
     public:
         bool is_active;
         bool is_invalid;
@@ -156,7 +175,7 @@ private:
         int samples_count;
         int decoded_count;
         Samples samples;
-        AudioDecoder* decoder;
+        std::unique_ptr<AudioDecoder> decoder;
 
         CacheItem();
 
@@ -173,7 +192,8 @@ private:
 
     using Cache = std::vector<CacheItem>;
 
-    class Location {
+    class Location
+    {
     public:
         Atomic<int> x;
         Atomic<int> y;
@@ -181,7 +201,8 @@ private:
 
     using Locations = std::vector<Location>;
 
-    class PlayerLocation {
+    class PlayerLocation
+    {
     public:
         Atomic<int> view_x;
         Atomic<int> view_y;
@@ -189,7 +210,8 @@ private:
         Atomic<int> view_sin;
     }; // PlayerLocation
 
-    class Positions {
+    class Positions
+    {
     public:
         PlayerLocation player;
         Locations actors;
@@ -202,7 +224,8 @@ private:
             Positions& positions);
     }; // Positions
 
-    class Sound {
+    class Sound
+    {
     public:
         SoundType type;
         int priority;
@@ -219,13 +242,15 @@ private:
 
     using Sounds = std::list<Sound>;
 
-    enum CommandType {
+    enum CommandType
+    {
         CMD_PLAY,
         CMD_STOP_MUSIC,
         CMD_STOP_ALL_SFX
     }; // CommandType
 
-    class Command {
+    class Command
+    {
     public:
         CommandType command;
         Sound sound;
@@ -235,23 +260,29 @@ private:
 
     using Commands = bstone::MtQueue1R1W<Command>;
 
+#if BSTONE_AUDIO_MIXER_USE_THREAD
     using Mutex = std::mutex;
     using MutexGuard = std::lock_guard<Mutex>;
+#endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
     bool is_initialized_;
     int dst_rate_;
     SDL_AudioDeviceID device_id_;
+
 #if BSTONE_AUDIO_MIXER_USE_THREAD
     Mutex mutex_;
     std::thread thread_;
-#endif
+#endif // BSTONE_AUDIO_MIXER_USE_THREAD
+
     int mix_samples_count_;
     Samples buffer_;
     MixSamples mix_buffer_;
     std::atomic_bool is_data_available_;
+
 #if BSTONE_AUDIO_MIXER_USE_THREAD
     std::atomic_bool quit_thread_;
-#endif
+#endif // BSTONE_AUDIO_MIXER_USE_THREAD
+
     Sounds sounds_;
     Commands commands_;
     bool mute_;
@@ -338,12 +369,6 @@ private:
     static bool is_sound_index_valid(
         int sound_index,
         SoundType sound_type);
-
-    AudioMixer(
-        const AudioMixer& that);
-
-    AudioMixer& operator=(
-        const AudioMixer& that);
 }; // AudioMixer
 
 
