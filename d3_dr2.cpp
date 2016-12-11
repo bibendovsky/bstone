@@ -64,7 +64,7 @@ extern int ypartialup;
 extern int ypartialdown;
 extern int tilehit;
 extern int pixx;
-extern int* wallheight;
+extern WallHeight wallheight;
 extern int xtile;
 extern int ytile;
 extern int xtilestep;

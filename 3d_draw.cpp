@@ -94,7 +94,7 @@ int32_t lasttimecount;
 int32_t frameon;
 int32_t framecount;
 
-int* wallheight = nullptr;
+WallHeight wallheight;
 
 fixed mindist = MINDIST;
 

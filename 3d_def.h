@@ -3290,7 +3290,14 @@ extern int32_t framecount;
 extern int32_t frameon;
 extern bool fizzlein;
 
-extern int* wallheight;
+using SpanStart = std::vector<int>;
+using StepScale = std::vector<int>;
+using BaseDist = std::vector<int>;
+using PlaneYLookup = std::vector<int>;
+using MirrorOfs = std::vector<int>;
+using WallHeight = std::vector<int>;
+
+extern WallHeight wallheight;
 
 extern fixed focallength;
 extern fixed mindist;

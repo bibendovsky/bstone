@@ -33,11 +33,11 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 
 
-extern int* spanstart;
-extern int* stepscale;
-extern int* basedist;
-extern int* planeylookup;
-extern int* mirrorofs;
+extern SpanStart spanstart;
+extern StepScale stepscale;
+extern BaseDist basedist;
+extern PlaneYLookup planeylookup;
+extern MirrorOfs mirrorofs;
 
 
 void CA_CannotOpen(
@@ -237,42 +237,37 @@ void BuildTables()
 // Map tile values to scaled pics
 void SetupWalls()
 {
-    int16_t i;
-
     //
     // Hey! Yea You! This is where you can VERY easly setup to use a
     // specific 'BANK' of wall graphics.... JTR
     //
 
-    for (i = 1; i < MAXWALLTILES; i++) {
-        horizwall[i] = (i - 1) * 2;
-        vertwall[i] = (i - 1) * 2 + 1;
+    for (int i = 1; i < MAXWALLTILES; ++i)
+    {
+        ::horizwall[i] = (i - 1) * 2;
+        ::vertwall[i] = ::horizwall[i] + 1;
     }
 
-    delete [] wallheight;
-    wallheight = new int[vga_width];
+    WallHeight().swap(wallheight);
+    wallheight.resize(::vga_width);
 
-    const int k_half_height = vga_height / 2;
 
-    delete [] spanstart;
-    spanstart = new int[k_half_height];
-    std::uninitialized_fill_n(spanstart, k_half_height, 0);
+    const int k_half_height = ::vga_height / 2;
 
-    delete [] stepscale;
-    stepscale = new int[k_half_height];
-    std::uninitialized_fill_n(stepscale, k_half_height, 0);
+    SpanStart().swap(spanstart);
+    spanstart.resize(k_half_height);
 
-    delete [] basedist;
-    basedist = new int[k_half_height];
-    std::uninitialized_fill_n(basedist, k_half_height, 0);
+    StepScale().swap(stepscale);
+    stepscale.resize(k_half_height);
 
-    delete [] planeylookup;
-    planeylookup = new int[k_half_height];
-    std::uninitialized_fill_n(planeylookup, k_half_height, 0);
+    BaseDist().swap(basedist);
+    basedist.resize(k_half_height);
 
-    delete [] mirrorofs;
-    mirrorofs = new int[k_half_height];
-    std::uninitialized_fill_n(mirrorofs, k_half_height, 0);
+    PlaneYLookup().swap(planeylookup);
+    planeylookup.resize(k_half_height);
+
+    MirrorOfs().swap(mirrorofs);
+    mirrorofs.resize(k_half_height);
 }
 
 void InitDigiMap()
