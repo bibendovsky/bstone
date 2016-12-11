@@ -37,8 +37,10 @@ int PMSoundStart = 0;
 namespace {
 
 
+using RawData = std::vector<uint8_t>;
+
 bstone::FileStream PageFile;
-uint8_t* raw_data = nullptr;
+RawData raw_data;
 uint32_t* chunks_offsets = nullptr;
 
 
@@ -54,22 +56,22 @@ static void open_page_file(
         ::Quit("Failed to open page file \"{}\".", file_name);
     }
 
-    int64_t file_length = PageFile.get_size();
+    const auto file_length = PageFile.get_size();
 
     if (file_length > 4 * 1024 * 1024) {
         ::Quit("Page file is too large.");
     }
 
-    int32_t file_length_32 = static_cast<int32_t>(file_length);
+    const auto file_length_32 = static_cast<int32_t>(file_length);
 
-    raw_data = new uint8_t[file_length_32 + PMPageSize];
-    std::uninitialized_fill_n(&raw_data[file_length], PMPageSize, 0);
+    raw_data.resize(file_length_32 + PMPageSize);
 
-    if (PageFile.read(raw_data, file_length_32) != file_length_32) {
+    if (PageFile.read(raw_data.data(), file_length_32) != file_length_32)
+    {
         ::Quit("Page file read error.");
     }
 
-    bstone::MemoryBinaryReader reader(raw_data, file_length);
+    bstone::MemoryBinaryReader reader(raw_data.data(), file_length);
 
     ChunksInFile = bstone::Endian::le(reader.read_u16());
     PMSpriteStart = bstone::Endian::le(reader.read_u16());
@@ -93,8 +95,7 @@ void PM_Shutdown()
     PMSpriteStart = 0;
     PMSoundStart = 0;
 
-    delete [] raw_data;
-    raw_data = nullptr;
+    RawData{}.swap(raw_data);
 
     chunks_offsets = nullptr;
 }
