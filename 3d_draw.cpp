@@ -1294,7 +1294,7 @@ void DrawPlayerWeapon()
                 const auto center_y = ::ref_3d_view_height - (height / 2) + 21;
 
                 ::viewwidth = ::vga_ref_width;
-                ::viewheight = ref_3d_view_height;
+                ::viewheight = ::ref_3d_view_height;
 
                 ::MegaSimpleScaleShape(
                     center_x,
@@ -1310,7 +1310,7 @@ void DrawPlayerWeapon()
                 const auto center_x = ::ref_center_x;
                 const auto view_height = 88;
 
-                ::viewheight = ref_3d_view_height;
+                ::viewheight = ::ref_3d_view_height;
 
                 const int center_y = 107;
 

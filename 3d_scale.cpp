@@ -387,15 +387,9 @@ void MegaSimpleScaleShape(
     int height,
     int shade)
 {
-    const auto scale = (::vid_is_3d ? ::vga_scale : 1);
-
     dc_y = 0;
     dc_y -= (::viewheight - 64) / 2;
     dc_y += ycenter - 34;
-    dc_y *= scale;
-
-    xcenter *= scale;
-    height *= scale;
 
     t_compshape* shape =
         static_cast<t_compshape*>(PM_GetSpritePage(shapenum));
@@ -412,18 +406,18 @@ void MegaSimpleScaleShape(
     //
     int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
 
-    if (x1 >= (viewwidth * scale))
+    if (x1 >= viewwidth)
     {
         return; // off the right side
-
     }
+
     int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
 
     if (x2 < 0)
     {
         return; // off the left side
-
     }
+
     int screenscale = (64 << 20) / height;
 
     //
