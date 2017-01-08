@@ -2462,13 +2462,7 @@ int16_t TP_DrawShape(
             VWB_Bar(x, y, 64, 64, static_cast<uint8_t>(bgcolor));
         }
 
-        {
-            const auto old_viewheight = ::viewheight;
-            ::viewheight = ::ref_3d_view_height;
-            ::MegaSimpleScaleShape(x + 32, y + 32, shapenum, 64, 0);
-            ::viewheight = old_viewheight;
-        }
-
+        ::vid_draw_ui_sprite(shapenum, x + 32, y + 32);
         break;
 
     case pis_latchpic:

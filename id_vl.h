@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <vector>
 #include "bstone_ref_values.h"
+#include "bstone_sprite_cache.h"
 
 
 using VgaBuffer = std::vector<uint8_t>;
@@ -81,6 +82,8 @@ extern bool vid_is_hud;
 
 // Are we drawing a level?
 extern bool vid_is_3d;
+
+extern bstone::SpriteCache vid_sprite_cache;
 // BBi
 
 // ===========================================================================
@@ -295,6 +298,12 @@ void vid_export_ui_mask(
 
 void vid_import_ui_mask(
     const UiMaskBuffer& src_buffer);
+
+void vid_draw_ui_sprite(
+    const int sprite_id,
+    const int center_x,
+    const int center_y,
+    const int new_side = bstone::Sprite::side);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

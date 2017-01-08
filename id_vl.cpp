@@ -52,6 +52,8 @@ bool vid_widescreen = default_vid_stretch;
 bool vid_is_hud = false;
 bool vid_is_3d = false;
 
+bstone::SpriteCache vid_sprite_cache;
+
 
 // BBi
 namespace
@@ -1701,4 +1703,69 @@ void vid_import_ui_mask(
     ::sdl_mask_buffer = src_buffer;
 }
 
+void vid_draw_ui_sprite(
+    const int sprite_id,
+    const int center_x,
+    const int center_y,
+    const int new_side)
+{
+    constexpr auto side = bstone::Sprite::side;
+    const auto sprite_data = ::PM_GetSpritePage(sprite_id);
+
+    auto sprite_ptr = ::vid_sprite_cache.cache(
+        sprite_id,
+        sprite_data);
+
+    const auto width = sprite_ptr->get_width();
+    const auto height = sprite_ptr->get_height();
+
+    const auto left = sprite_ptr->get_left();
+    const auto x1 = center_x + ((new_side * (left - (side / 2))) / side);
+    const auto x2 = x1 + ((width * new_side) / side);
+
+    const auto top = sprite_ptr->get_top();
+    const auto y1 = center_y + ((new_side * (top - (side / 2))) / side) - 2;
+    const auto y2 = y1 + ((height * new_side) / side);
+
+    for (int x = x1; x < x2; ++x)
+    {
+        if (x < 0)
+        {
+            continue;
+        }
+
+        if (x >= ::vga_ref_width)
+        {
+            break;
+        }
+
+        const auto column_index = ((width - 1) * (x - x1)) / (x2 - x1 - 1);
+        const auto column = sprite_ptr->get_column(column_index);
+
+        for (int y = y1; y < y2; ++y)
+        {
+            if (y < 0)
+            {
+                continue;
+            }
+
+            if (y >= ::vga_ref_height)
+            {
+                break;
+            }
+
+            const auto row_index = ((height - 1) * (y - y1)) / (y2 - y1 - 1);
+            const auto sprite_color = column[row_index];
+
+            if (sprite_color < 0)
+            {
+                continue;
+            }
+
+            const auto color_index = static_cast<uint8_t>(sprite_color);
+
+            ::VL_Plot(x, y, color_index);
+        }
+    }
+}
 // BBi

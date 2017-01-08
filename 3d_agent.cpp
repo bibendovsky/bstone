@@ -1908,14 +1908,7 @@ int16_t DrawShape(
     switch (shapetype) {
     case pis_scaled:
         VW_Bar(x, y, 37, 37, static_cast<uint8_t>(InfoAreaSetup.backgr_color)); // JTR changed
-
-        {
-            const auto old_viewheight = ::viewheight;
-            ::viewheight = ::ref_3d_view_height;
-            ::MegaSimpleScaleShape(x + 19, y + 20, shapenum, 37, shade);
-            ::viewheight = old_viewheight;
-        }
-
+        ::vid_draw_ui_sprite(shapenum, x + 19, y + 20, 37);
         width = 37;
         break;
 
