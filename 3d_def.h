@@ -3526,13 +3526,6 @@ void SimpleScaleShape(
     int shapenum,
     int height);
 
-void MegaSimpleScaleShape(
-    int xcenter,
-    int ycenter,
-    int shapenum,
-    int height,
-    int shade);
-
 
 /*
 =============================================================================

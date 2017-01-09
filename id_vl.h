@@ -70,6 +70,8 @@ extern int vga_scale;
 extern int vga_width;
 extern int vga_height;
 extern int vga_area;
+extern int vga_3d_view_top;
+extern int vga_3d_view_bottom;
 
 const bool default_vid_stretch = false;
 extern bool vid_widescreen;
@@ -304,6 +306,10 @@ void vid_draw_ui_sprite(
     const int center_x,
     const int center_y,
     const int new_side = bstone::Sprite::side);
+
+void vid_draw_player_weapon(
+    const int sprite_id,
+    const int ref_height);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

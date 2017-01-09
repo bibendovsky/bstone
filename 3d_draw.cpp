@@ -1264,13 +1264,9 @@ void initialize_weapon_constants()
 
 bool useBounceOffset = false;
 
-// BBi
-bool is_drawing_player_weapon = false;
-
 void DrawPlayerWeapon()
 {
     if (::playstate == ex_victorious) {
-        ::vid_set_ui_mask_3d(false);
         return;
     }
 
@@ -1280,54 +1276,13 @@ void DrawPlayerWeapon()
             ::gamestate.weaponframe;
 
         if (shapenum != 0) {
-            ::is_drawing_player_weapon = true;
-
-            ::vid_set_ui_mask_3d(false);
-
-            const auto oldviewwidth = ::viewwidth;
-            const auto oldviewheight = ::viewheight;
-
             if (::is_aog()) {
-                const auto weapon_scale = 2.0F;
-                const auto height = static_cast<int>(64 * weapon_scale);
-                const auto center_x = ::ref_center_x;
-                const auto center_y = ::ref_3d_view_height - (height / 2) + 21;
-
-                ::viewwidth = ::vga_ref_width;
-                ::viewheight = ::ref_3d_view_height;
-
-                ::MegaSimpleScaleShape(
-                    center_x,
-                    center_y,
-                    shapenum,
-                    height,
-                    0);
+                ::vid_draw_player_weapon(shapenum, 128);
             } else {
                 ::useBounceOffset = true;
-
-                ::viewwidth = ::vga_ref_width;
-
-                const auto center_x = ::ref_center_x;
-                const auto view_height = 88;
-
-                ::viewheight = ::ref_3d_view_height;
-
-                const int center_y = 107;
-
-                ::MegaSimpleScaleShape(
-                    center_x,
-                    center_y,
-                    shapenum,
-                    view_height,
-                    0);
-
+                ::vid_draw_player_weapon(shapenum, 88);
                 ::useBounceOffset = false;
             }
-
-            ::viewwidth = oldviewwidth;
-            ::viewheight = oldviewheight;
-
-            ::is_drawing_player_weapon = false;
         }
     }
 }

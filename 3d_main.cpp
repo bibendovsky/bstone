@@ -8146,9 +8146,10 @@ void SetViewSize()
     ::centerx = (::viewwidth / 2) - 1;
     ::shootdelta = ::viewwidth / 10;
 
-    const auto scaled_y_offset = (::ref_3d_view_top * ::vga_height) / ::vga_ref_height;
+    ::vga_3d_view_top = (::ref_3d_view_top * ::vga_height) / ::vga_ref_height;
+    ::vga_3d_view_bottom = (::ref_3d_view_bottom * ::vga_height) / ::vga_ref_height;
 
-    ::screenofs = scaled_y_offset * ::viewwidth;
+    ::screenofs = ::vga_3d_view_top * ::viewwidth;
 
     // calculate trace angles and projection constants
     ::CalcProjection(FOCALLENGTH);
