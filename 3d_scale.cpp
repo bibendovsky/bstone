@@ -106,11 +106,8 @@ void generic_scale_shape(
 
     constexpr auto side = bstone::Sprite::side;
 
-    const auto sprite_data = ::PM_GetSpritePage(shapenum);
-
     auto sprite_ptr = ::vid_sprite_cache.cache(
-        shapenum,
-        sprite_data);
+        shapenum);
 
     const auto sprite_width = sprite_ptr->get_width();
     const auto sprite_height = sprite_ptr->get_height();

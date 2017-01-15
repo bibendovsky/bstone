@@ -1712,11 +1712,9 @@ void vid_draw_ui_sprite(
     const int new_side)
 {
     constexpr auto side = bstone::Sprite::side;
-    const auto sprite_data = ::PM_GetSpritePage(sprite_id);
 
     auto sprite_ptr = ::vid_sprite_cache.cache(
-        sprite_id,
-        sprite_data);
+        sprite_id);
 
     const auto sprite_width = sprite_ptr->get_width();
     const auto sprite_height = sprite_ptr->get_height();
@@ -1782,11 +1780,8 @@ void vid_draw_player_weapon(
 
     constexpr int mid_bob = 6;
 
-    const auto sprite_data = ::PM_GetSpritePage(sprite_id);
-
     auto sprite_ptr = ::vid_sprite_cache.cache(
-        sprite_id,
-        sprite_data);
+        sprite_id);
 
     const auto sprite_width = sprite_ptr->get_width();
     const auto sprite_height = sprite_ptr->get_height();

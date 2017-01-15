@@ -33,8 +33,7 @@ public:
 
 
     const Sprite* cache(
-        const int sprite_id,
-        const void* sprite_data);
+        const int sprite_id);
 
 
 private:

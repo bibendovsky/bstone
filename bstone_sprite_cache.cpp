@@ -4,6 +4,7 @@
 
 
 #include "bstone_sprite_cache.h"
+#include "id_pm.h"
 
 
 namespace bstone
@@ -20,13 +21,14 @@ SpriteCache::~SpriteCache()
 }
 
 const Sprite* SpriteCache::cache(
-    const int sprite_id,
-    const void* sprite_data)
+    const int sprite_id)
 {
     if (sprite_id <= 0 || sprite_id >= max_sprites)
     {
         throw "Invalid sprite id.";
     }
+
+    const auto sprite_data = ::PM_GetSpritePage(sprite_id);
 
     if (!sprite_data)
     {
