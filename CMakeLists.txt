@@ -220,6 +220,7 @@ set(
     "${CMAKE_SOURCE_DIR}/bstone_endian.h"
     "${CMAKE_SOURCE_DIR}/bstone_file_stream.h"
     "${CMAKE_SOURCE_DIR}/bstone_fizzle_fx.h"
+    "${CMAKE_SOURCE_DIR}/bstone_fixed_point.h"
     "${CMAKE_SOURCE_DIR}/bstone_format_string.h"
     "${CMAKE_SOURCE_DIR}/bstone_generic_fizzle_fx.h"
     "${CMAKE_SOURCE_DIR}/bstone_istream.h"
