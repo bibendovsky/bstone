@@ -350,42 +350,6 @@ void ScaleShape(
         ShapeDrawMode::simple);
 }
 
-/*
-=======================
-=
-= SimpleScaleShape
-=
-= NO CLIPPING, height in pixels
-=
-= Draws a compiled shape at [scale] pixels high
-=
-= each vertical line of the shape has a pointer to segment data:
-=       end of segment pixel*2 (0 terminates line) used to patch rtl in scaler
-=       top of virtual line with segment in proper place
-=       start of segment pixel*2, used to jsl into compiled scaler
-=       <repeat>
-=
-= Setup for call
-= --------------
-= GC_MODE read mode 1, write mode 2
-= GC_COLORDONTCARE  set to 0, so all reads from video memory return 0xff
-= GC_INDEX pointing at GC_BITMASK
-=
-=======================
-*/
-void SimpleScaleShape(
-    int xcenter,
-    int shapenum,
-    int height)
-{
-    generic_scale_shape(
-        xcenter,
-        shapenum,
-        height,
-        0,
-        ShapeDrawMode::simple);
-}
-
 // BBi
 void scale_player_weapon(
     const int sprite_id,
