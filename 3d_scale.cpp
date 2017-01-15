@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "bstone_fixed_point.h"
 
 
 enum ShapeDrawMode {
@@ -34,12 +35,9 @@ enum ShapeDrawMode {
 extern const uint8_t* shadingtable;
 extern const uint8_t* lightsource;
 
-void R_DrawSLSColumn();
-void R_DrawLSColumn();
-void R_DrawColumn();
-
 
 #define CLOAKED_SHAPES (1)
+
 
 /*
 =============================================================================
@@ -74,169 +72,118 @@ void SetupScaling(
 }
 
 
-// Draw Column vars
-
-int dc_iscale;
-int dc_frac;
-int dc_source;
-uint8_t* dc_seg;
-int dc_length;
-int dc_dest;
-int dc_x;
-int dc_y;
-int dc_dy;
-
-
-#define SFRACUNIT (0x10000)
-
 extern bool useBounceOffset;
 
 int bounceOffset = 0;
 
-void generic_scale_masked_post(
-    int height,
-    ShapeDrawMode draw_mode)
-{
-    int bounce;
-
-    if (useBounceOffset)
-    {
-        bounce = bounceOffset;
-    }
-    else
-    {
-        bounce = 0;
-    }
-
-    const uint16_t* srcpost = linecmds;
-    dc_iscale = (64 * 65536) / height;
-    int screenstep = height << 10;
-
-    int sprtopoffset = (viewheight << 15) -
-        (height << 15) + (bounce >> 1);
-
-    int end = (bstone::Endian::le(*srcpost++)) / 2;
-
-    while (end != 0)
-    {
-        dc_source = bstone::Endian::le(*srcpost++);
-
-        int start = bstone::Endian::le(*srcpost++) / 2;
-
-        dc_source += start;
-        dc_source %= 65536;
-
-        int length = end - start;
-        int topscreen = sprtopoffset + (screenstep * start);
-        int bottomscreen = topscreen + (screenstep * length);
-
-        int dc_yl = (topscreen + SFRACUNIT - 1) >> 16;
-        int dc_yh = (bottomscreen - 1) >> 16;
-
-        if (dc_yh >= viewheight)
-        {
-            dc_yh = viewheight - 1;
-        }
-
-        if (dc_yl < 0)
-        {
-            dc_frac = dc_iscale * (-dc_yl);
-            dc_yl = 0;
-        }
-        else
-        {
-            dc_frac = 0;
-        }
-
-        if (dc_yl <= dc_yh)
-        {
-            dc_dy = dc_yl;
-            dc_length = dc_yh - dc_yl + 1;
-            if (draw_mode == e_sdm_shaded)
-            {
-#if CLOAKED_SHAPES
-                if (cloaked_shape)
-                {
-                    R_DrawSLSColumn();
-                }
-                else
-#endif
-                    R_DrawLSColumn();
-            }
-            else
-            {
-                R_DrawColumn();
-            }
-        }
-
-        end = bstone::Endian::le(*srcpost++) / 2;
-    }
-}
-
 void generic_scale_shape(
     int xcenter,
     int shapenum,
-    int height,
+    int ref_height,
     int8_t lighting,
     ShapeDrawMode draw_mode)
 {
-    if ((height / 2) > ::maxscaleshl2 || (height / 2) == 0)
+    const auto ref_half_height = ref_height / 2;
+
+    if (ref_half_height == 0)
     {
         return;
     }
 
-    //xcenter += centerx * (vga_scale - 1);
+    if (ref_half_height > ::maxscaleshl2)
+    {
+        return;
+    }
 
-    auto shape = static_cast<t_compshape*>(::PM_GetSpritePage(shapenum));
+    const auto height = ref_height / 4;
 
-    ::dc_seg = reinterpret_cast<uint8_t*>(shape);
+    if (height == 0)
+    {
+        return;
+    }
 
-    auto xscale = static_cast<int64_t>(height) << 12;
+    const auto width = height;
 
-    auto xcent = (static_cast<int64_t>(xcenter) << 20) -
-        (static_cast<int64_t>(height) << 17) + 0x80000;
+    constexpr auto side = bstone::Sprite::side;
 
-    //
-    // calculate edges of the shape
-    //
-    int x1 = static_cast<int>((xcent + (shape->leftpix * xscale)) >> 20);
+    const auto sprite_data = ::PM_GetSpritePage(shapenum);
+
+    auto sprite_ptr = ::vid_sprite_cache.cache(
+        shapenum,
+        sprite_data);
+
+    const auto sprite_width = sprite_ptr->get_width();
+    const auto sprite_height = sprite_ptr->get_height();
+
+    const auto half_height = height / 2;
+
+    const auto offset_x = xcenter - half_height;
+    const auto offset_y = ::vga_3d_view_top + ::centery - half_height;
+
+    const auto left = sprite_ptr->get_left();
+    auto x1 = offset_x + ((left * width) / side);
 
     if (x1 >= ::viewwidth)
     {
-        return; // off the right side
+        return;
     }
 
-    int x2 = static_cast<int>((xcent + (shape->rightpix * xscale)) >> 20);
+    auto x2 = x1 + ((sprite_width * width) / side);
 
-    if (x2 < 0)
+    const auto top = sprite_ptr->get_top();
+    auto y1 = offset_y + ((top * height) / side);
+
+    if (y1 >= ::vga_3d_view_bottom)
     {
-        return; // off the left side
+        return;
     }
 
-    const int screenscale = (256 << 20) / height;
+    auto y2 = y1 + ((sprite_height * height) / side);
 
-    //
-    // store information in a vissprite
-    //
-    int frac;
+
+    const auto tx_delta = bstone::FixedPoint{side, 0} / height;
+
+    auto tx_column = bstone::FixedPoint{};
 
     if (x1 < 0)
     {
-        frac = (-x1) * screenscale;
+        tx_column += tx_delta * (-x1);
         x1 = 0;
-    }
-    else
-    {
-        frac = screenscale / 2;
     }
 
     if (x2 >= ::viewwidth)
     {
-        x2 = ::viewwidth - 1;
+        x2 = ::viewwidth;
     }
 
-    if (draw_mode == e_sdm_shaded) {
-        int i = shade_max - (63 * height / (normalshade * 8)) + lighting;
+    if (x2 <= x1)
+    {
+        return;
+    }
+
+    auto tx_row_begin = bstone::FixedPoint{};
+
+    if (y1 < ::vga_3d_view_top)
+    {
+        tx_row_begin += tx_delta * (::vga_3d_view_top - y1);
+        y1 = ::vga_3d_view_top;
+    }
+
+    if (y2 > ::vga_3d_view_bottom)
+    {
+        y2 = ::vga_3d_view_bottom;
+    }
+
+    if (y2 <= y1)
+    {
+        return;
+    }
+
+    const uint8_t* shading = nullptr;
+
+    if (draw_mode == e_sdm_shaded)
+    {
+        auto i = shade_max - (63 * ref_height / (::normalshade * 8)) + lighting;
 
         if (i < 0)
         {
@@ -253,33 +200,56 @@ void generic_scale_shape(
             i = 0;
         }
 
-        ::shadingtable = &::lightsource[i * 256];
+        shading = &::lightsource[i * 256];
     }
 
-    ::dc_y = 0;
 
-    const int swidth = shape->rightpix - shape->leftpix;
-
-    for ( ; x1 <= x2; ++x1, frac += screenscale)
+    for (int x = x1; x < x2; ++x)
     {
-        if (::wallheight[x1] > height)
+        if (::wallheight[x] > ref_height)
         {
+            tx_column += tx_delta;
             continue;
         }
 
-        dc_x = x1;
+        const auto column_index = tx_column.get_int();
+        const auto column = sprite_ptr->get_column(column_index);
+        auto tx_row = tx_row_begin;
 
-        int texturecolumn = frac >> 20;
-
-        if (texturecolumn > swidth)
+        for (int y = y1; y < y2; ++y)
         {
-            texturecolumn = swidth;
+            const auto row_index = tx_row.get_int();
+            const auto sprite_color = column[row_index];
+
+            if (sprite_color < 0)
+            {
+                tx_row += tx_delta;
+                continue;
+            }
+
+            const auto pixel_offset = ::vl_get_offset(0, x, y);
+            auto color_index = static_cast<uint8_t>(sprite_color);
+
+            if (draw_mode == e_sdm_shaded)
+            {
+#if CLOAKED_SHAPES
+                if (::cloaked_shape)
+                {
+                    color_index = shading[0x1000 | ::vga_memory[pixel_offset]];
+                }
+                else
+#endif
+                {
+                    color_index = shading[color_index];
+                }
+            }
+
+            ::vga_memory[pixel_offset] = color_index;
+
+            tx_row += tx_delta;
         }
 
-        ::linecmds = reinterpret_cast<uint16_t*>(
-            &::dc_seg[shape->dataofs[texturecolumn]]);
-
-        ::generic_scale_masked_post(height / 4, draw_mode);
+        tx_column += tx_delta;
     }
 }
 
