@@ -1713,7 +1713,7 @@ void vid_draw_ui_sprite(
 {
     constexpr auto side = bstone::Sprite::side;
 
-    auto sprite_ptr = ::vid_sprite_cache.cache(
+    const auto sprite_ptr = ::vid_sprite_cache.cache(
         sprite_id);
 
     const auto sprite_width = sprite_ptr->get_width();
@@ -1765,84 +1765,6 @@ void vid_draw_ui_sprite(
             const auto color_index = static_cast<uint8_t>(sprite_color);
 
             ::VL_Plot(x, y, color_index);
-        }
-    }
-}
-
-extern bool useBounceOffset;
-extern int bounceOffset;
-
-void vid_draw_player_weapon(
-    const int sprite_id,
-    const int ref_height)
-{
-    constexpr auto side = bstone::Sprite::side;
-
-    constexpr int mid_bob = 6;
-
-    auto sprite_ptr = ::vid_sprite_cache.cache(
-        sprite_id);
-
-    const auto sprite_width = sprite_ptr->get_width();
-    const auto sprite_height = sprite_ptr->get_height();
-
-    const auto height = (::vga_height * ref_height) / ::vga_ref_height;
-    const auto width = height;
-
-    const auto bounce_offset_n = bounceOffset / 0x10000;
-    const auto bob_start = 6;
-    const auto bob_offset = (::vga_height * (bob_start + mid_bob - bounce_offset_n)) / ::vga_ref_height;
-
-    const auto offset_x = (::viewwidth - width) / 2;
-    const auto offset_y = ::vga_3d_view_bottom - height + (useBounceOffset ? bob_offset : 0);
-
-    const auto left = sprite_ptr->get_left();
-    const auto x1 = offset_x + ((left * width) / side);
-    const auto x2 = x1 + ((sprite_width * width) / side);
-
-    const auto top = sprite_ptr->get_top();
-    const auto y1 = offset_y + ((top * height) / side);
-    const auto y2 = y1 + ((sprite_height * height) / side);
-
-    for (int x = x1; x < x2; ++x)
-    {
-        if (x < 0)
-        {
-            continue;
-        }
-
-        if (x >= ::viewwidth)
-        {
-            break;
-        }
-
-        const auto column_index = ((sprite_width - 1) * (x - x1)) / (x2 - x1 - 1);
-        const auto column = sprite_ptr->get_column(column_index);
-
-        for (int y = y1; y < y2; ++y)
-        {
-            if (y < ::vga_3d_view_top)
-            {
-                continue;
-            }
-
-            if (y >= ::vga_3d_view_bottom)
-            {
-                break;
-            }
-
-            const auto row_index = ((sprite_height - 1) * (y - y1)) / (y2 - y1 - 1);
-            const auto sprite_color = column[row_index];
-
-            if (sprite_color < 0)
-            {
-                continue;
-            }
-
-            const auto color_index = static_cast<uint8_t>(sprite_color);
-
-            const auto dst_index = ::vl_get_offset(0, x, y);
-            ::vga_memory[dst_index] = color_index;
         }
     }
 }

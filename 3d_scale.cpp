@@ -26,9 +26,10 @@ Free Software Foundation, Inc.,
 #include "bstone_fixed_point.h"
 
 
-enum ShapeDrawMode {
-    e_sdm_simple,
-    e_sdm_shaded
+enum class ShapeDrawMode {
+    simple,
+    shaded,
+    player_weapon,
 }; // ShapeDrawMode
 
 
@@ -77,36 +78,59 @@ extern bool useBounceOffset;
 int bounceOffset = 0;
 
 void generic_scale_shape(
-    int xcenter,
-    int shapenum,
-    int ref_height,
-    int8_t lighting,
-    ShapeDrawMode draw_mode)
+    const int xcenter,
+    const int shapenum,
+    const int ref_height,
+    const int8_t lighting,
+    const ShapeDrawMode draw_mode)
 {
-    const auto ref_half_height = ref_height / 2;
+    const auto is_player_weapon = (draw_mode == ShapeDrawMode::player_weapon);
 
-    if (ref_half_height == 0)
+    if (!is_player_weapon)
     {
-        return;
+        const auto ref_half_height = ref_height / 2;
+
+        if (ref_half_height == 0)
+        {
+            return;
+        }
+
+        if (ref_half_height > ::maxscaleshl2)
+        {
+            return;
+        }
     }
 
-    if (ref_half_height > ::maxscaleshl2)
-    {
-        return;
-    }
-
-    const auto height = ref_height / 4;
+    const auto height =
+        is_player_weapon ?
+        (::vga_height * ref_height) / ::vga_ref_height :
+        ref_height / 4;
 
     if (height == 0)
     {
         return;
     }
 
-    const auto width = height;
 
     constexpr auto side = bstone::Sprite::side;
 
-    auto sprite_ptr = ::vid_sprite_cache.cache(
+    constexpr int mid_bob = 6;
+    constexpr auto bob_start = 6;
+
+    const auto use_bobbing = is_player_weapon && useBounceOffset;
+
+    const auto bounce_offset_n =
+        use_bobbing ?
+            bounceOffset / 0x10000 :
+            0;
+
+    const auto bob_offset =
+        use_bobbing ?
+        (::vga_height * (bob_start + mid_bob - bounce_offset_n)) / ::vga_ref_height :
+        0;
+
+
+    const auto sprite_ptr = ::vid_sprite_cache.cache(
         shapenum);
 
     const auto sprite_width = sprite_ptr->get_width();
@@ -114,18 +138,25 @@ void generic_scale_shape(
 
     const auto half_height = height / 2;
 
-    const auto offset_x = xcenter - half_height;
-    const auto offset_y = ::vga_3d_view_top + ::centery - half_height;
+    const auto offset_x =
+        is_player_weapon ?
+            (::viewwidth - height) / 2 :
+            xcenter - half_height;
+
+    const auto offset_y =
+        is_player_weapon ?
+            ::vga_3d_view_bottom - height + bob_offset :
+            ::vga_3d_view_top + ::centery - half_height;
 
     const auto left = sprite_ptr->get_left();
-    auto x1 = offset_x + ((left * width) / side);
+    auto x1 = offset_x + ((left * height) / side);
 
     if (x1 >= ::viewwidth)
     {
         return;
     }
 
-    auto x2 = x1 + ((sprite_width * width) / side);
+    auto x2 = x1 + ((sprite_width * height) / side);
 
     const auto top = sprite_ptr->get_top();
     auto y1 = offset_y + ((top * height) / side);
@@ -178,7 +209,7 @@ void generic_scale_shape(
 
     const uint8_t* shading = nullptr;
 
-    if (draw_mode == e_sdm_shaded)
+    if (draw_mode == ShapeDrawMode::shaded)
     {
         auto i = shade_max - (63 * ref_height / (::normalshade * 8)) + lighting;
 
@@ -203,7 +234,7 @@ void generic_scale_shape(
 
     for (int x = x1; x < x2; ++x)
     {
-        if (::wallheight[x] > ref_height)
+        if (!is_player_weapon && ::wallheight[x] > ref_height)
         {
             tx_column += tx_delta;
             continue;
@@ -227,7 +258,7 @@ void generic_scale_shape(
             const auto pixel_offset = ::vl_get_offset(0, x, y);
             auto color_index = static_cast<uint8_t>(sprite_color);
 
-            if (draw_mode == e_sdm_shaded)
+            if (draw_mode == ShapeDrawMode::shaded)
             {
 #if CLOAKED_SHAPES
                 if (::cloaked_shape)
@@ -277,7 +308,12 @@ void ScaleLSShape(
     int height,
     int8_t lighting)
 {
-    generic_scale_shape(xcenter, shapenum, height, lighting, e_sdm_shaded);
+    generic_scale_shape(
+        xcenter,
+        shapenum,
+        height,
+        lighting,
+        ShapeDrawMode::shaded);
 }
 
 /*
@@ -306,7 +342,12 @@ void ScaleShape(
     int shapenum,
     int height)
 {
-    generic_scale_shape(xcenter, shapenum, height, 0, e_sdm_simple);
+    generic_scale_shape(
+        xcenter,
+        shapenum,
+        height,
+        0,
+        ShapeDrawMode::simple);
 }
 
 /*
@@ -337,5 +378,24 @@ void SimpleScaleShape(
     int shapenum,
     int height)
 {
-    generic_scale_shape(xcenter, shapenum, height, 0, e_sdm_simple);
+    generic_scale_shape(
+        xcenter,
+        shapenum,
+        height,
+        0,
+        ShapeDrawMode::simple);
 }
+
+// BBi
+void scale_player_weapon(
+    const int sprite_id,
+    const int height)
+{
+    generic_scale_shape(
+        0,
+        sprite_id,
+        height,
+        0,
+        ShapeDrawMode::player_weapon);
+}
+// BBi

@@ -1266,23 +1266,24 @@ bool useBounceOffset = false;
 
 void DrawPlayerWeapon()
 {
-    if (::playstate == ex_victorious) {
+    if (::playstate == ex_victorious)
+    {
         return;
     }
 
-    if (gamestate.weapon != -1) {
-        auto shapenum =
+    if (::gamestate.weapon != -1)
+    {
+        const auto shapenum =
             ::weaponscale[static_cast<int>(::gamestate.weapon)] +
             ::gamestate.weaponframe;
 
-        if (shapenum != 0) {
-            if (::is_aog()) {
-                ::vid_draw_player_weapon(shapenum, 128);
-            } else {
-                ::useBounceOffset = true;
-                ::vid_draw_player_weapon(shapenum, 88);
-                ::useBounceOffset = false;
-            }
+        if (shapenum != 0)
+        {
+            const auto height = ::is_aog() ? 128 : 88;
+
+            ::useBounceOffset = ::is_ps();
+            ::scale_player_weapon(shapenum, height);
+            ::useBounceOffset = false;
         }
     }
 }

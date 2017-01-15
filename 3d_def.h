@@ -3526,6 +3526,11 @@ void SimpleScaleShape(
     int shapenum,
     int height);
 
+// BBi
+void scale_player_weapon(
+    const int sprite_id,
+    const int height);
+
 
 /*
 =============================================================================

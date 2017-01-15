@@ -307,9 +307,5 @@ void vid_draw_ui_sprite(
     const int center_y,
     const int new_side = bstone::Sprite::side);
 
-void vid_draw_player_weapon(
-    const int sprite_id,
-    const int ref_height);
-
 
 #endif // BSTONE_ID_VL_INCLUDED
