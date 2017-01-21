@@ -774,7 +774,7 @@ void SpawnDoor(
     }
 
     // consider it a solid wall
-    actorat[tilex][tiley] = reinterpret_cast<objtype*>(doornum | 0x80);
+    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<size_t>(doornum | 0x80));
 
 //
 // make the door tile a special tile, and mark the adjacent tiles
@@ -979,7 +979,7 @@ void CloseDoor(
 // make the door space solid
 //
 
-    actorat[tilex][tiley] = reinterpret_cast<objtype*>(door | 0x80);
+    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<size_t>(door | 0x80));
 
     CheckLinkedDoors(door, dr_closing);
 
@@ -1371,7 +1371,7 @@ void DoorClosing(
     tilex = doorobjlist[door].tilex;
     tiley = doorobjlist[door].tiley;
 
-    if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(door | 0x80)) ||
+    if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(static_cast<size_t>(door | 0x80))) ||
         (player->tilex == tilex && player->tiley == tiley))
     {
         // something got inside the door

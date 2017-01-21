@@ -7125,7 +7125,7 @@ bool LoadLevel(
                 if (value < 0) {
                     actorat[i][j] = &objlist[-value];
                 } else {
-                    actorat[i][j] = reinterpret_cast<objtype*>(value);
+                    actorat[i][j] = reinterpret_cast<objtype*>(static_cast<size_t>(value));
                 }
             }
         }
@@ -7969,7 +7969,7 @@ void ClearNClose()
         ::doorposition[door_index] = 0; // draw it closed!
 
         // make it solid!
-        ::actorat[tx][ty] = reinterpret_cast<objtype*>(door_index | 0x80);
+        ::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<size_t>(door_index | 0x80));
     }
 }
 
