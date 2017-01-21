@@ -1135,16 +1135,20 @@ void DrawWeaponPic()
 void GiveWeapon(
     int weapon)
 {
-    GiveAmmo(6);
+    ::GiveAmmo(6);
 
-    if (!(gamestate.weapons & (1 << weapon))) {
-        gamestate.weapons |= (1 << weapon);
+    if ((::gamestate.weapons & (1 << weapon)) == 0)
+    {
+        ::gamestate.weapons |= 1 << weapon;
 
-        if (gamestate.weapon < weapon) {
-            gamestate.weapon = static_cast<int8_t>(weapon);
-            gamestate.chosenweapon = static_cast<int8_t>(weapon);
-            DrawWeapon();
+        if (::gamestate.weapon < weapon)
+        {
+            ::gamestate.weapon = static_cast<int8_t>(weapon);
+            ::gamestate.chosenweapon = static_cast<int8_t>(weapon);
+            ::DrawWeapon();
         }
+
+        ::ComputeAvailWeapons();
     }
 }
 
@@ -1425,28 +1429,39 @@ void ComputeAvailWeapons()
     // Determine what ammo ammounts we have avail
     //
 
-    if (gamestate.ammo) {
-        if (::is_ps() && gamestate.ammo >= BFG_ENERGY_USE) {
-            gamestate.useable_weapons = (1 << wp_bfg_cannon)
-                                        | (1 << wp_grenade)
-                                        | (1 << wp_ion_cannon)
-                                        | (1 << wp_burst_rifle)
-                                        | (1 << wp_pistol)
-                                        | (1 << wp_autocharge);
-        } else if (gamestate.ammo >= GRENADE_ENERGY_USE) {
-            gamestate.useable_weapons = (1 << wp_grenade)
-                                        | (1 << wp_ion_cannon)
-                                        | (1 << wp_burst_rifle)
-                                        | (1 << wp_pistol)
-                                        | (1 << wp_autocharge);
-        } else {
-            gamestate.useable_weapons = (1 << wp_ion_cannon)
-                                        | (1 << wp_burst_rifle)
-                                        | (1 << wp_pistol)
-                                        | (1 << wp_autocharge);
+    if (::gamestate.ammo > 0)
+    {
+        if (::is_ps() && gamestate.ammo >= BFG_ENERGY_USE)
+        {
+            ::gamestate.useable_weapons =
+                (1 << wp_bfg_cannon) |
+                (1 << wp_grenade) |
+                (1 << wp_ion_cannon) |
+                (1 << wp_burst_rifle) |
+                (1 << wp_pistol) |
+                (1 << wp_autocharge);
         }
-    } else {
-        gamestate.useable_weapons = (1 << wp_autocharge);
+        else if (gamestate.ammo >= GRENADE_ENERGY_USE)
+        {
+            ::gamestate.useable_weapons =
+                (1 << wp_grenade) |
+                (1 << wp_ion_cannon) |
+                (1 << wp_burst_rifle) |
+                (1 << wp_pistol) |
+                (1 << wp_autocharge);
+        }
+        else
+        {
+            ::gamestate.useable_weapons =
+                (1 << wp_ion_cannon) |
+                (1 << wp_burst_rifle) |
+                (1 << wp_pistol) |
+                (1 << wp_autocharge);
+        }
+    }
+    else
+    {
+        ::gamestate.useable_weapons = 1 << wp_autocharge;
     }
 
     //

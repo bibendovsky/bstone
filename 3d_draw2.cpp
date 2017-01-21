@@ -162,18 +162,10 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
-// BBi WIdescreen
-#if 0
-    if (((viewheight / 2) * vga_scale) != halfheight) {
-        SetPlaneViewSize(); // screen size has changed
-
-    }
-#else
     if ((::viewheight / 2) != ::halfheight)
     {
         ::SetPlaneViewSize(); // screen size has changed
     }
-#endif // 0
 
     psin = viewsin;
 
