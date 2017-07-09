@@ -31,9 +31,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_MEMORY_TEXT_WRITER_INCLUDED
 
 
-#include <cstdint>
 #include <string>
 #include "bstone_istream.h"
+#include "bstone_string_helper.h"
 
 
 namespace bstone
@@ -72,6 +72,40 @@ public:
     // Returns true on success or false otherwise.
     bool write_line(
         const std::string& string);
+
+
+    template<typename T>
+    bool write(
+         T&& value)
+    {
+        auto value_string = std::string{};
+
+        if (!StringHelper::lexical_cast<std::string, T>(value, value_string))
+        {
+            return false;
+        }
+
+        return write(value_string);
+    }
+
+    template<typename T>
+    bool write_line(
+         T&& value)
+    {
+        static const std::string new_line = "\n";
+
+        if (!write(value))
+        {
+            return false;
+        }
+
+        if (!write(new_line))
+        {
+            return false;
+        }
+
+        return true;
+    }
 
 
 private:
