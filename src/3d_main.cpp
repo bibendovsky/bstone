@@ -140,7 +140,8 @@ bool startgame;
 bool loadedgame;
 int16_t mouseadjustment;
 
-const std::string config_file_name = "bstone_config";
+const std::string binary_config_file_name = "bstone_config";
+const std::string text_config_file_name = "bstone_config.txt";
 
 // FIXME Unused
 #if 0
@@ -6681,7 +6682,7 @@ void ReadConfig()
     bool is_succeed = true;
     uint16_t flags = gamestate.flags;
 
-    auto config_path = ::get_profile_dir() + ::config_file_name;
+    auto config_path = ::get_profile_dir() + ::binary_config_file_name;
 
     bstone::FileStream stream(config_path);
 
@@ -6856,7 +6857,7 @@ void ReadConfig()
 
 void WriteConfig()
 {
-    auto config_path = ::get_profile_dir() + ::config_file_name;
+    auto config_path = ::get_profile_dir() + ::binary_config_file_name;
 
     bstone::FileStream stream(config_path, bstone::StreamOpenMode::write);
 
