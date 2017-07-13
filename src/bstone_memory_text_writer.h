@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
+#include <type_traits>
 #include "bstone_istream.h"
 #include "bstone_string_helper.h"
 
@@ -65,47 +66,7 @@ public:
     //
     // Returns true on success or false otherwise.
     bool write(
-        const std::string& string);
-
-    // Writes a string terminated with new-line symbol (\n).
-    //
-    // Returns true on success or false otherwise.
-    bool write_line(
-        const std::string& string);
-
-
-    template<typename T>
-    bool write(
-         T&& value)
-    {
-        auto value_string = std::string{};
-
-        if (!StringHelper::lexical_cast<std::string, T>(value, value_string))
-        {
-            return false;
-        }
-
-        return write(value_string);
-    }
-
-    template<typename T>
-    bool write_line(
-         T&& value)
-    {
-        static const std::string new_line = "\n";
-
-        if (!write(value))
-        {
-            return false;
-        }
-
-        if (!write(new_line))
-        {
-            return false;
-        }
-
-        return true;
-    }
+         const std::string& string);
 
 
 private:

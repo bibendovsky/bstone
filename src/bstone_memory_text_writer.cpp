@@ -80,30 +80,13 @@ bool MemoryTextWriter::write(
         return false;
     }
 
+
     if (string.empty())
     {
         return true;
     }
 
     return stream_->write(string.data(), static_cast<int>(string.length()));
-}
-
-bool MemoryTextWriter::write_line(
-    const std::string& string)
-{
-    static const std::string new_line = "\n";
-
-    if (!write(string))
-    {
-        return false;
-    }
-
-    if (!write(new_line))
-    {
-        return false;
-    }
-
-    return true;
 }
 
 
