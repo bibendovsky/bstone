@@ -26,6 +26,9 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
+#include "bstone_memory_stream.h"
+#include "bstone_memory_text_writer.h"
+#include "bstone_string_helper.h"
 #include "bstone_ps_fizzle_fx.h"
 
 
@@ -6855,64 +6858,340 @@ void ReadConfig()
     ::vl_update_widescreen();
 }
 
-void WriteConfig()
+
+namespace
 {
-    auto config_path = ::get_profile_dir() + ::binary_config_file_name;
 
-    bstone::FileStream stream(config_path, bstone::StreamOpenMode::write);
 
-    if (!stream.is_open()) {
-        bstone::Log::write_error(
-            "Failed to open a config file for writing: {}.",
-            config_path);
+template<typename T>
+class ToString
+{
+public:
+    static bool convert(
+        T&& src_value,
+        std::string& dst_value)
+    {
+        return bstone::StringHelper::lexical_cast(src_value, dst_value);
+    }
+};
 
-        return;
+template<>
+class ToString<bool>
+{
+public:
+    static bool convert(
+        const bool src_value,
+        std::string& dst_value)
+    {
+        dst_value = (src_value ? "1" : "0");
+
+        return true;
+    }
+};
+
+
+template<typename T>
+void write_config_entry(
+    bstone::MemoryTextWriter& writer,
+    const std::string& name,
+    T&& value)
+{
+    auto value_string = std::string{};
+
+    if (!ToString<T>::convert(value, value_string))
+    {
+        bstone::Log::write_warning("Failed to convert value for setting \"{}\".", name);
     }
 
-    bstone::Crc32 checksum;
-    bstone::BinaryWriter writer(&stream);
+    const auto string = name + " \"" + value_string + "\"\n";
 
-    ::serialize_field(::sd_is_sound_enabled, writer, checksum);
-    ::serialize_field(::sd_is_music_enabled, writer, checksum);
+    if (!writer.write(string))
+    {
+        bstone::Log::write_warning("Failed to write setting \"{}\".", name);
+    }
+}
 
-    ::serialize_field(mouseenabled, writer, checksum);
-    ::serialize_field(joystickenabled, writer, checksum);
-    ::serialize_field(joypadenabled, writer, checksum);
-    ::serialize_field(joystickprogressive, writer, checksum);
-    ::serialize_field(joystickport, writer, checksum);
+const std::string& get_scan_code_name(
+    ScanCode scan_code)
+{
+    static const auto empty_name = std::string{};
 
-    ::serialize_field(dirscan, writer, checksum);
-    ::serialize_field(buttonscan, writer, checksum);
-    ::serialize_field(buttonmouse, writer, checksum);
-    ::serialize_field(buttonjoy, writer, checksum);
+    static const auto scan_code_name_map = std::unordered_map<ScanCode, std::string>{
+        {ScanCode::sc_return, "return",},
+        {ScanCode::sc_escape, "escape",},
+        {ScanCode::sc_space, "space",},
+        {ScanCode::sc_minus, "minus",},
+        {ScanCode::sc_equals, "equals",},
+        {ScanCode::sc_backspace, "backspace",},
+        {ScanCode::sc_tab, "tab",},
+        {ScanCode::sc_alt, "alt",},
+        {ScanCode::sc_left_bracket, "left_bracket",},
+        {ScanCode::sc_right_bracket, "right_bracket",},
+        {ScanCode::sc_control, "control",},
+        {ScanCode::sc_caps_lock, "caps_lock",},
+        {ScanCode::sc_num_lock, "num_lock",},
+        {ScanCode::sc_scroll_lock, "scroll_lock",},
+        {ScanCode::sc_left_shift, "left_shift",},
+        {ScanCode::sc_right_shift, "right_shift",},
+        {ScanCode::sc_up_arrow, "up_arrow",},
+        {ScanCode::sc_down_arrow, "down_arrow",},
+        {ScanCode::sc_left_arrow, "left_arrow",},
+        {ScanCode::sc_right_arrow, "right_arrow",},
+        {ScanCode::sc_insert, "insert",},
+        {ScanCode::sc_delete, "delete",},
+        {ScanCode::sc_home, "home",},
+        {ScanCode::sc_end, "end",},
+        {ScanCode::sc_page_up, "page_up",},
+        {ScanCode::sc_page_down, "page_down",},
+        {ScanCode::sc_slash, "slash",},
+        {ScanCode::sc_f1, "f1",},
+        {ScanCode::sc_f2, "f2",},
+        {ScanCode::sc_f3, "f3",},
+        {ScanCode::sc_f4, "f4",},
+        {ScanCode::sc_f5, "f5",},
+        {ScanCode::sc_f6, "f6",},
+        {ScanCode::sc_f7, "f7",},
+        {ScanCode::sc_f8, "f8",},
+        {ScanCode::sc_f9, "f9",},
+        {ScanCode::sc_f10, "f10",},
+        {ScanCode::sc_f11, "f11",},
+        {ScanCode::sc_f12, "f12",},
+        {ScanCode::sc_print_screen, "print_screen",},
+        {ScanCode::sc_pause, "pause",},
+        {ScanCode::sc_back_quote, "back_quote",},
+        {ScanCode::sc_semicolon, "semicolon",},
+        {ScanCode::sc_quote, "quote",},
+        {ScanCode::sc_backslash, "backslash",},
+        {ScanCode::sc_comma, "comma",},
+        {ScanCode::sc_period, "period",},
+        {ScanCode::sc_1, "1",},
+        {ScanCode::sc_2, "2",},
+        {ScanCode::sc_3, "3",},
+        {ScanCode::sc_4, "4",},
+        {ScanCode::sc_5, "5",},
+        {ScanCode::sc_6, "6",},
+        {ScanCode::sc_7, "7",},
+        {ScanCode::sc_8, "8",},
+        {ScanCode::sc_9, "9",},
+        {ScanCode::sc_0, "0",},
+        {ScanCode::sc_a, "a",},
+        {ScanCode::sc_b, "b",},
+        {ScanCode::sc_c, "c",},
+        {ScanCode::sc_d, "d",},
+        {ScanCode::sc_e, "e",},
+        {ScanCode::sc_f, "f",},
+        {ScanCode::sc_g, "g",},
+        {ScanCode::sc_h, "h",},
+        {ScanCode::sc_i, "i",},
+        {ScanCode::sc_j, "j",},
+        {ScanCode::sc_k, "k",},
+        {ScanCode::sc_l, "l",},
+        {ScanCode::sc_m, "m",},
+        {ScanCode::sc_n, "n",},
+        {ScanCode::sc_o, "o",},
+        {ScanCode::sc_p, "p",},
+        {ScanCode::sc_q, "q",},
+        {ScanCode::sc_r, "r",},
+        {ScanCode::sc_s, "s",},
+        {ScanCode::sc_t, "t",},
+        {ScanCode::sc_u, "u",},
+        {ScanCode::sc_v, "v",},
+        {ScanCode::sc_w, "w",},
+        {ScanCode::sc_x, "x",},
+        {ScanCode::sc_y, "y",},
+        {ScanCode::sc_z, "z",},
+        {ScanCode::sc_kp_minus, "kp_minus",},
+        {ScanCode::sc_kp_plus, "kp_plus",},
+        {ScanCode::sc_mouse_left, "mouse_left",},
+        {ScanCode::sc_mouse_middle, "mouse_middle",},
+        {ScanCode::sc_mouse_right, "mouse_right",},
+        {ScanCode::sc_mouse_x1, "mouse_x1",},
+        {ScanCode::sc_mouse_x2, "mouse_x2",},
+    };
 
-    ::serialize_field(in_bindings, writer, checksum);
+    const auto it = scan_code_name_map.find(scan_code);
 
-    int16_t dummy_viewsize = static_cast<int16_t>(viewsize);
-    ::serialize_field(dummy_viewsize, writer, checksum);
+    if (it == scan_code_name_map.cend())
+    {
+        return empty_name;
+    }
 
-    ::serialize_field(mouseadjustment, writer, checksum);
-    ::serialize_field(gamestate.flags, writer, checksum);
+    return it->second;
+}
 
-    uint8_t temp_u8;
+void write_x_scan_config(
+    const ScanCodes& scan_codes,
+    const std::string& name_prefix,
+    bstone::MemoryTextWriter& writer)
+{
+    auto line = std::string{};
 
-    temp_u8 = static_cast<uint8_t>(::sd_sfx_volume);
-    ::serialize_field(temp_u8, writer, checksum);
+    auto counter = 0;
 
-    temp_u8 = static_cast<uint8_t>(::sd_music_volume);
-    ::serialize_field(temp_u8, writer, checksum);
+    for (const auto scan_code : scan_codes)
+    {
+        const auto scan_code_name = get_scan_code_name(scan_code);
 
-    ::serialize_field(g_no_wall_hit_sound, writer, checksum);
-    ::serialize_field(in_use_modern_bindings, writer, checksum);
-    ::serialize_field(g_always_run, writer, checksum);
+        if (!scan_code_name.empty())
+        {
+            line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
+            writer.write(line);
+        }
 
-    // AOG options
-    ::serialize_field(g_heart_beat_sound, writer, checksum);
-    ::serialize_field(g_rotated_automap, writer, checksum);
+        counter += 1;
+    }
+}
 
-    ::serialize_field(::vid_widescreen, writer, checksum);
+void write_buttons_config(
+    const Buttons& buttons,
+    const std::string& name_prefix,
+    bstone::MemoryTextWriter& writer)
+{
+    auto line = std::string{};
 
-    writer.write(bstone::Endian::le(checksum.get_value()));
+    auto counter = 0;
+
+    for (const auto button : buttons)
+    {
+        line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
+        writer.write(line);
+
+        counter += 1;
+    }
+}
+
+void write_bindings_config(
+    const std::string& name_prefix,
+    bstone::MemoryTextWriter& writer)
+{
+    auto line = std::string{};
+
+    auto counter0 = 0;
+
+    for (const auto& binding : in_bindings)
+    {
+        const auto& counter0_string = std::to_string(counter0);
+
+        auto counter1 = 0;
+
+        for (const auto scan_code : binding)
+        {
+            const auto& scan_code_name = get_scan_code_name(scan_code);
+
+            if (!scan_code_name.empty())
+            {
+                const auto& counter1_string = std::to_string(counter1);
+
+                line = name_prefix +
+                    "[" + counter0_string + "][" + counter1_string + "] \"" +
+                    scan_code_name + "\"\n";
+
+                writer.write(line);
+            }
+
+            counter1 += 1;
+        }
+
+        counter0 += 1;
+    }
+}
+
+const auto vid_is_widescreen_name = "vid_is_widescreen";
+const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
+const auto snd_is_music_enabled_name = "snd_is_music_enabled";
+const auto snd_sfx_volume_name = "snd_sfx_volume";
+const auto snd_music_volume_name = "snd_music_volume";
+const auto in_use_modern_bindings_name = "in_use_modern_bindings";
+const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
+const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
+const auto in_is_joystick_enabled_name = "in_is_joystick_enabled";
+const auto in_is_joystick_pad_enabled_name = "in_is_joystick_pad_enabled";
+const auto in_is_joystick_progressive_name = "in_is_joystick_progressive";
+const auto in_joystick_port_name = "in_joystick_port";
+const auto in_mouse_binding_name = "in_mouse_binding";
+const auto in_kb_binding_name = "in_kb_binding";
+const auto in_mouse_button_name = "in_mouse_button";
+const auto in_js_button_name = "in_js_button";
+const auto in_binding_name = "in_binding";
+const auto gp_flags_name = "gp_flags";
+const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
+const auto gp_is_always_run_name = "gp_is_always_run";
+const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
+const auto ui_view_size_name = "ui_view_size";
+const auto am_is_rotated_name = "am_is_rotated";
+
+void write_text_config()
+{
+    constexpr auto memory_stream_initial_size = 4096;
+
+    bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
+    bstone::MemoryTextWriter writer{&memory_stream};
+
+
+    writer.write("// BStone configuration file\n");
+    writer.write("// WARNING! This is auto-generated file.\n");
+    writer.write("\n");
+
+    writer.write("\n// Video\n");
+    write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
+
+    writer.write("\n// Audio\n");
+    write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
+    write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
+    write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
+    write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
+
+    writer.write("\n// Input\n");
+    write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
+    write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
+    write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
+    write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
+    write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
+    write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
+    write_config_entry(writer, in_joystick_port_name, ::joystickport);
+
+    writer.write("\n// Input bindings\n");
+    write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
+    write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
+    write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
+    write_buttons_config(::buttonjoy, in_js_button_name, writer);
+    write_bindings_config(::in_binding_name, writer);
+
+    writer.write("\n// Gameplay\n");
+    write_config_entry(writer, gp_flags_name, ::gamestate.flags);
+    write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
+    write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
+    write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
+
+    writer.write("\n// UI\n");
+    write_config_entry(writer, ui_view_size_name, ::viewsize);
+
+    writer.write("\n// Auto-map\n");
+    write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
+
+
+    static_cast<void>(memory_stream.flush());
+
+    const auto stream_size = static_cast<int>(memory_stream.get_size());
+    const auto stream_data = memory_stream.get_data();
+
+    const auto config_path = ::get_profile_dir() + ::text_config_file_name;
+
+    bstone::FileStream stream{config_path, bstone::StreamOpenMode::write};
+
+    if (!stream.write(stream_data, stream_size))
+    {
+        bstone::Log::write_warning("Failed to write a configuration.");
+    }
+}
+
+
+} // namespace
+
+
+void WriteConfig()
+{
+    write_text_config();
 }
 
 
