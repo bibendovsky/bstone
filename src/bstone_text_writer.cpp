@@ -27,29 +27,29 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "bstone_memory_text_writer.h"
+#include "bstone_text_writer.h"
 
 
 namespace bstone
 {
 
 
-MemoryTextWriter::MemoryTextWriter()
+TextWriter::TextWriter()
     :
     stream_{}
 {
 }
 
-MemoryTextWriter::MemoryTextWriter(
+TextWriter::TextWriter(
     IStream* stream)
     :
-    MemoryTextWriter{}
+    TextWriter{}
 {
     static_cast<void>(open(stream));
 }
 
 
-bool MemoryTextWriter::open(
+bool TextWriter::open(
     IStream* stream)
 {
     if (!stream)
@@ -62,17 +62,17 @@ bool MemoryTextWriter::open(
     return true;
 }
 
-void MemoryTextWriter::close()
+void TextWriter::close()
 {
     stream_ = nullptr;
 }
 
-bool MemoryTextWriter::is_initialized() const
+bool TextWriter::is_initialized() const
 {
     return stream_ != nullptr;
 }
 
-bool MemoryTextWriter::write(
+bool TextWriter::write(
     const std::string& string)
 {
     if (!is_initialized())

@@ -27,9 +27,9 @@ Free Software Foundation, Inc.,
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 #include "bstone_memory_stream.h"
-#include "bstone_memory_text_writer.h"
-#include "bstone_string_helper.h"
 #include "bstone_ps_fizzle_fx.h"
+#include "bstone_string_helper.h"
+#include "bstone_text_writer.h"
 
 
 void VL_LatchToScreen(
@@ -6892,7 +6892,7 @@ public:
 
 template<typename T>
 void write_config_entry(
-    bstone::MemoryTextWriter& writer,
+    bstone::TextWriter& writer,
     const std::string& name,
     T&& value)
 {
@@ -7022,7 +7022,7 @@ const std::string& get_scan_code_name(
 void write_x_scan_config(
     const ScanCodes& scan_codes,
     const std::string& name_prefix,
-    bstone::MemoryTextWriter& writer)
+    bstone::TextWriter& writer)
 {
     auto line = std::string{};
 
@@ -7045,7 +7045,7 @@ void write_x_scan_config(
 void write_buttons_config(
     const Buttons& buttons,
     const std::string& name_prefix,
-    bstone::MemoryTextWriter& writer)
+    bstone::TextWriter& writer)
 {
     auto line = std::string{};
 
@@ -7062,7 +7062,7 @@ void write_buttons_config(
 
 void write_bindings_config(
     const std::string& name_prefix,
-    bstone::MemoryTextWriter& writer)
+    bstone::TextWriter& writer)
 {
     auto line = std::string{};
 
@@ -7125,7 +7125,7 @@ void write_text_config()
     constexpr auto memory_stream_initial_size = 4096;
 
     bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
-    bstone::MemoryTextWriter writer{&memory_stream};
+    bstone::TextWriter writer{&memory_stream};
 
 
     writer.write("// BStone configuration file\n");

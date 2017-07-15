@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_MEMORY_TEXT_WRITER_INCLUDED
-#define BSTONE_MEMORY_TEXT_WRITER_INCLUDED
+#ifndef BSTONE_TEXT_WRITER_INCLUDED
+#define BSTONE_TEXT_WRITER_INCLUDED
 
 
 #include <string>
@@ -42,12 +42,12 @@ namespace bstone
 
 
 // A binary reader for a block of memory.
-class MemoryTextWriter
+class TextWriter
 {
 public:
-    MemoryTextWriter();
+    TextWriter();
 
-    MemoryTextWriter(
+    TextWriter(
         IStream* stream);
 
 
@@ -71,10 +71,10 @@ public:
 
 private:
     IStream* stream_;
-}; // MemoryTextWriter
+}; // TextWriter
 
 
 } // bstone
 
 
-#endif // BSTONE_MEMORY_TEXT_WRITER_INCLUDED
+#endif // BSTONE_TEXT_WRITER_INCLUDED
