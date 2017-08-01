@@ -6702,7 +6702,6 @@ const auto gp_flags_name = "gp_flags";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
 const auto gp_is_always_run_name = "gp_is_always_run";
 const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
-const auto ui_view_size_name = "ui_view_size";
 const auto am_is_rotated_name = "am_is_rotated";
 
 const auto scan_code_name_map = std::unordered_map<ScanCode, std::string>{
@@ -7237,10 +7236,6 @@ void read_text_config()
                             ::g_heart_beat_sound = (value != 0);
                         }
                     }
-                    else if (name == ui_view_size_name)
-                    {
-                        // it's constant - nothing to do
-                    }
                     else if (name == am_is_rotated_name)
                     {
                         auto value = int{};
@@ -7464,9 +7459,6 @@ void write_text_config()
     write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
     write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
     write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
-
-    writer.write("\n// UI\n");
-    write_config_entry(writer, ui_view_size_name, ::viewsize);
 
     writer.write("\n// Auto-map\n");
     write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
