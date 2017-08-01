@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <unordered_map>
 #include "3d_def.h"
 #include "jm_lzh.h"
 #include "bstone_binary_reader.h"
