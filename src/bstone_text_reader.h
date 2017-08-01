@@ -23,47 +23,73 @@ Free Software Foundation, Inc.,
 
 
 //
-// Precompiled header
+// A text reader for a stream.
 //
 
 
-#ifndef BSTONE_PRECOMPILED_INCLUDED
-#define BSTONE_PRECOMPILED_INCLUDED
+#ifndef BSTONE_TEXT_READER_INCLUDED
+#define BSTONE_TEXT_READER_INCLUDED
 
-
-#include <cassert>
-#include <cctype>
-#include <cmath>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <cstdint>
-#include <cstring>
 
 #include <array>
-#include <algorithm>
-#include <bitset>
-#include <deque>
-#include <chrono>
-#include <exception>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <list>
-#include <locale>
-#include <memory>
-#include <mutex>
-#include <stdexcept>
-#include <sstream>
 #include <string>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
-
-#include "SDL.h"
+#include "bstone_istream.h"
 
 
-#endif // BSTONE_PRECOMPILED_INCLUDED
+namespace bstone
+{
+
+
+class TextReader final
+{
+public:
+    TextReader();
+
+    TextReader(
+        IStream* stream);
+
+    TextReader(
+        const TextReader& that) = delete;
+
+    TextReader& operator=(
+        const TextReader& that) = delete;
+
+    ~TextReader();
+
+
+    bool open(
+        IStream* stream);
+
+    void close();
+
+    bool is_open() const;
+
+
+    bool is_eos() const;
+
+
+    std::string read_line();
+
+
+private:
+    static constexpr int max_buffer_size = 4096;
+
+
+    using Buffer = std::array<char, max_buffer_size>;
+
+
+    IStream* stream_;
+    bool is_eos_;
+    int buffer_offset_;
+    int buffer_size_;
+    Buffer buffer_;
+    int char_buffer_;
+
+    int peek_char();
+}; // TextReader
+
+
+} // bstone
+
+
+#endif // BSTONE_TEXT_READER_INCLUDED

@@ -23,47 +23,71 @@ Free Software Foundation, Inc.,
 
 
 //
-// Precompiled header
+// A text writer for a stream.
 //
 
 
-#ifndef BSTONE_PRECOMPILED_INCLUDED
-#define BSTONE_PRECOMPILED_INCLUDED
+#include "bstone_text_writer.h"
 
 
-#include <cassert>
-#include <cctype>
-#include <cmath>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <cstdint>
-#include <cstring>
-
-#include <array>
-#include <algorithm>
-#include <bitset>
-#include <deque>
-#include <chrono>
-#include <exception>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <list>
-#include <locale>
-#include <memory>
-#include <mutex>
-#include <stdexcept>
-#include <sstream>
-#include <string>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
-
-#include "SDL.h"
+namespace bstone
+{
 
 
-#endif // BSTONE_PRECOMPILED_INCLUDED
+TextWriter::TextWriter()
+    :
+    stream_{}
+{
+}
+
+TextWriter::TextWriter(
+    IStream* stream)
+    :
+    TextWriter{}
+{
+    static_cast<void>(open(stream));
+}
+
+
+bool TextWriter::open(
+    IStream* stream)
+{
+    if (!stream)
+    {
+        return false;
+    }
+
+    stream_ = stream;
+
+    return true;
+}
+
+void TextWriter::close()
+{
+    stream_ = nullptr;
+}
+
+bool TextWriter::is_initialized() const
+{
+    return stream_ != nullptr;
+}
+
+bool TextWriter::write(
+    const std::string& string)
+{
+    if (!is_initialized())
+    {
+        return false;
+    }
+
+
+    if (string.empty())
+    {
+        return true;
+    }
+
+    return stream_->write(string.data(), static_cast<int>(string.length()));
+}
+
+
+} // bstone

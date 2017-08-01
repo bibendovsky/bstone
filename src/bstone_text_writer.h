@@ -23,47 +23,58 @@ Free Software Foundation, Inc.,
 
 
 //
-// Precompiled header
+// A text writer for a stream.
 //
 
 
-#ifndef BSTONE_PRECOMPILED_INCLUDED
-#define BSTONE_PRECOMPILED_INCLUDED
+#ifndef BSTONE_TEXT_WRITER_INCLUDED
+#define BSTONE_TEXT_WRITER_INCLUDED
 
 
-#include <cassert>
-#include <cctype>
-#include <cmath>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <cstdint>
-#include <cstring>
-
-#include <array>
-#include <algorithm>
-#include <bitset>
-#include <deque>
-#include <chrono>
-#include <exception>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <list>
-#include <locale>
-#include <memory>
-#include <mutex>
-#include <stdexcept>
-#include <sstream>
 #include <string>
-#include <thread>
 #include <type_traits>
-#include <unordered_map>
-#include <vector>
-
-#include "SDL.h"
+#include "bstone_istream.h"
+#include "bstone_string_helper.h"
 
 
-#endif // BSTONE_PRECOMPILED_INCLUDED
+namespace bstone
+{
+
+
+// A binary reader for a block of memory.
+class TextWriter
+{
+public:
+    TextWriter();
+
+    TextWriter(
+        IStream* stream);
+
+
+    // Opens the writer.
+    bool open(
+        IStream* stream);
+
+    // Closes the writer.
+    void close();
+
+    // Returns true if the writer is initialized or
+    // false otherwise.
+    bool is_initialized() const;
+
+    // Writes a string.
+    //
+    // Returns true on success or false otherwise.
+    bool write(
+         const std::string& string);
+
+
+private:
+    IStream* stream_;
+}; // TextWriter
+
+
+} // bstone
+
+
+#endif // BSTONE_TEXT_WRITER_INCLUDED
