@@ -80,7 +80,7 @@ void TextReader::close()
     buffer_offset_ = {};
     buffer_size_ = {};
     buffer_ = {};
-    char_buffer_ = {};
+    char_buffer_ = -1;
 }
 
 bool TextReader::is_open() const
