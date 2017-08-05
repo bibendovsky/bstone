@@ -1,6 +1,23 @@
 # BStone changelog
 
 ## [Unreleased]
+### Added
+- Widescreen mode.
+- Icon and it's resource file (Windows).
+
+### Changed
+- Use text format for configuration.
+- Made E2M6 completable with 100% stats.
+
+### Removed
+- Makefile.pandora.
+- Custom renderers.
+
+### Fixed
+- Command-line to force a software renderer.
+- Mouse sensitivity.
+- Weapon switching.
+- Offset of floor info on upper status bar.
 
 
 ## [1.1.7] - 2016-04-09
