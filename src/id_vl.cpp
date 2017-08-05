@@ -309,9 +309,9 @@ bool sdl_initialize_renderer()
                 bstone::Log::write(
                     "VID: Forcing OpenGL ES 2 renderer.");
             }
-            else if (ren_string == "d3d")
+            else if (ren_string == "soft")
             {
-                renderer_driver = "direct3d";
+                renderer_driver = "software";
 
                 bstone::Log::write(
                     "VID: Forcing software renderer.");
