@@ -419,6 +419,13 @@ install(
 
 install(
     FILES
+    "../CHANGELOG.md"
+    DESTINATION "."
+    RENAME "bstone_changelog.txt"
+)
+
+install(
+    FILES
     "../README.md"
     DESTINATION "."
     RENAME "bstone_readme.txt"
