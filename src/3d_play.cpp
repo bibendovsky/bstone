@@ -575,7 +575,6 @@ void PollJoystickMove()
 */
 void PollControls()
 {
-    int16_t max, min, i;
     uint8_t buttonbits;
 
     controlx = 0;
@@ -588,7 +587,8 @@ void PollControls()
         // read commands from demo buffer
         //
         buttonbits = *demoptr++;
-        for (i = 0; i < NUMBUTTONS; i++) {
+        for (int i = 0; i < NUMBUTTONS; ++i)
+        {
             buttonstate[i] = ((buttonbits & 1) != 0);
             buttonbits >>= 1;
         }
@@ -648,18 +648,26 @@ void PollControls()
 //
 // bound movement to a maximum
 //
-    max = 100 * tics;
-    min = -max;
-    if (controlx > max) {
-        controlx = max;
-    } else if (controlx < min) {
-        controlx = min;
+
+    const auto max_control = 1000000;
+    const auto min_control = -max_control;
+
+    if (controlx > max_control)
+    {
+        controlx = max_control;
+    }
+    else if (controlx < min_control)
+    {
+        controlx = min_control;
     }
 
-    if (controly > max) {
-        controly = max;
-    } else if (controly < min) {
-        controly = min;
+    if (controly > max_control)
+    {
+        controly = max_control;
+    }
+    else if (controly < min_control)
+    {
+        controly = min_control;
     }
 }
 
