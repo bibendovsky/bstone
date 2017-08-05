@@ -50,7 +50,7 @@ int screen_width = 0;
 int screen_height = 0;
 
 bool vid_has_vsync = false;
-bool vid_widescreen = default_vid_stretch;
+bool vid_widescreen = default_vid_widescreen;
 bool vid_is_hud = false;
 bool vid_is_3d = false;
 

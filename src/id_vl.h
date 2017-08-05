@@ -73,7 +73,7 @@ extern int vga_area;
 extern int vga_3d_view_top;
 extern int vga_3d_view_bottom;
 
-const bool default_vid_stretch = false;
+const bool default_vid_widescreen = true;
 extern bool vid_widescreen;
 
 // Is VSync enabled?
