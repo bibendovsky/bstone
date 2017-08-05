@@ -2962,7 +2962,7 @@ extern int16_t dirangle[9];
 
 extern bool startgame;
 extern bool loadedgame;
-extern int16_t mouseadjustment;
+extern int mouseadjustment;
 
 // BBi
 const int min_mouse_sensitivity = 0;
@@ -3587,7 +3587,7 @@ extern objtype* searchobj; // current object being searched
 extern uint16_t foundflag; // only show NOTHING if nothing was found
 extern objtype* moveobj; // current object being draged
 
-extern int16_t anglefrac;
+extern int anglefrac;
 extern int16_t facecount;
 
 extern uint16_t LastMsgPri;

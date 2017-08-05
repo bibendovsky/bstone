@@ -143,7 +143,7 @@ int minheightdiv;
 
 bool startgame;
 bool loadedgame;
-int16_t mouseadjustment;
+int mouseadjustment;
 
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
@@ -7063,7 +7063,7 @@ void read_text_config()
                     }
                     else if (name == in_mouse_sensitivity_name)
                     {
-                        auto value = int16_t{};
+                        auto value = int{};
 
                         if (bstone::StringHelper::lexical_cast(value_string, value))
                         {

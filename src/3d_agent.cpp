@@ -150,7 +150,7 @@ int32_t thrustspeed;
 
 // unsigned plux,pluy; // player coordinates scaled to unsigned
 
-int16_t anglefrac;
+int anglefrac;
 
 objtype* LastAttacker;
 
@@ -460,49 +460,61 @@ void ControlMovement(
         Thrust(static_cast<int16_t>(angle), -abs(strafe_value) * MOVESCALE);
     }
 
-    if (!use_classic_strafe) {
-        if (gamestate.turn_around) {
-            controlx = 100 * tics;
-            if (gamestate.turn_around < 0) {
-                controlx = -controlx;
+    if (!use_classic_strafe)
+    {
+        if (::gamestate.turn_around)
+        {
+            ::controlx = 100 * tics;
+
+            if (::gamestate.turn_around < 0)
+            {
+                ::controlx = -::controlx;
             }
         }
 
         //
         // not strafing
         //
-        anglefrac = static_cast<int16_t>(anglefrac + controlx);
+        anglefrac = anglefrac + controlx;
         int angleunits = anglefrac / ANGLESCALE;
-        anglefrac = static_cast<int16_t>(anglefrac - (angleunits * ANGLESCALE));
-        ob->angle = static_cast<int16_t>(ob->angle - angleunits);
+        anglefrac -= angleunits * ANGLESCALE;
+        ob->angle -= angleunits;
 
-        if (ob->angle >= ANGLES) {
+        while (ob->angle >= ANGLES)
+        {
             ob->angle -= ANGLES;
         }
-        if (ob->angle < 0) {
+
+        while (ob->angle < 0)
+        {
             ob->angle += ANGLES;
         }
 
-        if (gamestate.turn_around) {
+        if (gamestate.turn_around)
+        {
             bool done = false;
 
-            if (gamestate.turn_around > 0) {
-                gamestate.turn_around = static_cast<int16_t>(
-                    gamestate.turn_around - angleunits);
+            if (gamestate.turn_around > 0)
+            {
+                gamestate.turn_around = static_cast<int16_t>(gamestate.turn_around - angleunits);
 
-                if (gamestate.turn_around <= 0) {
+                if (gamestate.turn_around <= 0)
+                {
                     done = true;
                 }
-            } else {
-                gamestate.turn_around = static_cast<int16_t>(
-                    gamestate.turn_around - angleunits);
+            }
+            else
+            {
+                gamestate.turn_around = static_cast<int16_t>(gamestate.turn_around - angleunits);
 
-                if (gamestate.turn_around >= 0) {
+                if (gamestate.turn_around >= 0)
+                {
                     done = true;
                 }
             }
 
-            if (done) {
+            if (done)
+            {
                 gamestate.turn_around = 0;
                 ob->angle = gamestate.turn_angle;
             }

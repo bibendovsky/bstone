@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 
 void INL_GetJoyDelta(
     uint16_t joy,
-    int16_t* dx,
-    int16_t* dy);
+    int* dx,
+    int* dy);
 
 void UpdateRadarGuage();
 void ClearMemory();
@@ -482,12 +482,14 @@ void PollMouseMove()
 {
     int mousexmove;
     int mouseymove;
+
     ::in_get_mouse_deltas(mousexmove, mouseymove);
     ::in_clear_mouse_deltas();
 
-    bool is_running = in_is_binding_pressed(e_bi_run);
+    auto is_running = ::in_is_binding_pressed(e_bi_run);
 
-    if (g_always_run) {
+    if (g_always_run)
+    {
         is_running = !is_running;
     }
 
@@ -496,12 +498,14 @@ void PollMouseMove()
     auto delta_x = static_cast<float>(mousexmove);
     auto delta_y = static_cast<float>(mouseymove);
 
-    if (is_running) {
+    if (is_running)
+    {
         delta_x *= 1.5F;
         delta_y *= 5.0F;
     }
 
-    if (::in_use_modern_bindings) {
+    if (::in_use_modern_bindings)
+    {
         delta_y = 0.0F;
     }
 
@@ -514,7 +518,8 @@ void PollMouseMove()
 
 void PollJoystickMove()
 {
-    int16_t joyx, joyy;
+    int joyx;
+    int joyy;
 
     INL_GetJoyDelta(joystickport, &joyx, &joyy);
 

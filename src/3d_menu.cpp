@@ -43,8 +43,8 @@ void PreloadUpdate(
 
 void INL_GetJoyDelta(
     uint16_t joy,
-    int16_t* dx,
-    int16_t* dy);
+    int* dx,
+    int* dy);
 
 bool LoadTheGame(
     const std::string& file_name);
@@ -2709,9 +2709,10 @@ void MouseSensitivity(
     int16_t)
 {
     ControlInfo ci;
-    int16_t exit = 0, oldMA;
+    int16_t exit = 0;
 
-    oldMA = mouseadjustment;
+    const auto oldMA = ::mouseadjustment;
+
     DrawMouseSens();
     do {
         ReadAnyControl(&ci);
@@ -2734,7 +2735,8 @@ void MouseSensitivity(
 
         case dir_South:
         case dir_East:
-            if (::mouseadjustment < ::max_mouse_sensitivity) {
+            if (::mouseadjustment < ::max_mouse_sensitivity)
+            {
                 ::mouseadjustment += 1;
                 DrawMousePos();
                 VW_UpdateScreen();
@@ -2761,7 +2763,7 @@ void MouseSensitivity(
     } while (!exit);
 
     if (exit == 2) {
-        mouseadjustment = oldMA;
+        ::mouseadjustment = oldMA;
         ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
     } else {
         ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
@@ -4138,8 +4140,8 @@ void ReadAnyControl(
     }
 
     if (joystickenabled && !mouseactive) {
-        int16_t jx;
-        int16_t jy;
+        int jx;
+        int jy;
         int16_t jb;
 
         ::INL_GetJoyDelta(joystickport, &jx, &jy);

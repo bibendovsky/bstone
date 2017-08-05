@@ -818,11 +818,11 @@ static void in_handle_mouse(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void INL_GetMouseDelta(
-    int16_t* x,
-    int16_t* y)
+    int* x,
+    int* y)
 {
-    *x = static_cast<int16_t>(in_mouse_dx);
-    *y = static_cast<int16_t>(in_mouse_dy);
+    *x = ::in_mouse_dx;
+    *y = ::in_mouse_dy;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -976,8 +976,8 @@ done:
 ///////////////////////////////////////////////////////////////////////////
 void INL_GetJoyDelta(
     uint16_t joy,
-    int16_t* dx,
-    int16_t* dy)
+    int* dx,
+    int* dy)
 {
     uint16_t x, y;
     JoystickDef* def;
@@ -1334,7 +1334,8 @@ void IN_ReadControl(
 
     bool realdelta = false;
     uint16_t buttons;
-    int16_t dx, dy;
+    int dx;
+    int dy;
     Motion mx, my;
     register KeyboardDef* def;
 
@@ -1418,8 +1419,8 @@ void IN_ReadControl(
         mx = (dx < 0) ? motion_Left : ((dx > 0) ? motion_Right : motion_None);
         my = (dy < 0) ? motion_Up : ((dy > 0) ? motion_Down : motion_None);
     } else {
-        dx = static_cast<int16_t>(mx * 127);
-        dy = static_cast<int16_t>(my * 127);
+        dx = mx * 127;
+        dy = my * 127;
     }
 
     control_info->x = dx;
@@ -1605,19 +1606,13 @@ void in_get_mouse_deltas(
     int& dx,
     int& dy)
 {
-    int16_t dx16;
-    int16_t dy16;
-
-    ::INL_GetMouseDelta(&dx16, &dy16);
-
-    dx = dx16;
-    dy = dy16;
+    ::INL_GetMouseDelta(&dx, &dy);
 }
 
 void in_clear_mouse_deltas()
 {
-    in_mouse_dx = 0;
-    in_mouse_dy = 0;
+    ::in_mouse_dx = 0;
+    ::in_mouse_dy = 0;
 }
 
 void in_set_default_bindings()
