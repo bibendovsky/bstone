@@ -183,11 +183,15 @@ Notes:
 * --profile_dir path  
   Overrides default location of the game's profile files.  
 
-* --vid_renderer [soft|ogl]  
-  Forces to use a specified renderer.  
+* --vid_renderer [d3d|ogl|ogles|ogles2|soft]  
+  Forces to use a specified SDL renderer.  
+  "d3d" selects a Direct3D renderer.  
+  "ogl" selects an OpenGL renderer.  
+  "ogles" selects an OpenGL ES renderer.  
+  "ogles2" selects an OpenGL ES 2.0 renderer.  
   "soft" selects a software renderer.  
-  "ogl" selects an OpenGL 2.x compatible renderer.  
-  Default order without this option: ogl, soft.
+  Fallback renderer: soft.  
+  Default order without this option: d3d, ogl, ogles, ogles2, soft.
 
 * --vid_windowed  
   Runs the game in windowed mode.  
