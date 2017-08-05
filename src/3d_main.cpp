@@ -6827,7 +6827,7 @@ bool parse_config_line(
     }
 
 
-    const auto value_begin_quotes = line.find('\"');
+    const auto value_begin_quotes = line.find('\"', name_end_space);
 
     if (value_begin_quotes == line.npos)
     {
@@ -6850,8 +6850,14 @@ bool parse_config_line(
         return false;
     }
 
-
-    value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes);
+    if (value_end_quotes > value_begin_quotes)
+    {
+        value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes - 1);
+    }
+    else
+    {
+        value.clear();
+    }
 
 
     index0 = -1;
