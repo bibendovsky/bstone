@@ -156,14 +156,14 @@ int16_t view_yl;
 int16_t view_yh;
 #endif // 0
 
-static const bool default_no_wall_hit_sound = false;
+static const bool default_no_wall_hit_sound = true;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
 
-static const bool default_always_run = false;
+static const bool default_always_run = true;
 bool g_always_run = default_always_run;
 
 // BBi AOG only options
-static const bool default_heart_beat_sound = true;
+static const bool default_heart_beat_sound = false;
 bool g_heart_beat_sound = default_heart_beat_sound;
 
 static const bool default_rotated_automap = false;
@@ -6926,10 +6926,10 @@ void set_config_defaults()
     ::in_use_modern_bindings = default_in_use_modern_bindings;
     ::g_always_run = default_always_run;
 
-    ::g_heart_beat_sound = false;
-    ::g_rotated_automap = false;
+    ::g_heart_beat_sound = ::default_heart_beat_sound;
+    ::g_rotated_automap = ::default_rotated_automap;
 
-    ::vid_widescreen = ::default_vid_stretch;
+    ::vid_widescreen = ::default_vid_widescreen;
 }
 
 ScanCode get_scan_code_by_name(
