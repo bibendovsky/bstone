@@ -273,12 +273,12 @@ extern Bindings in_bindings;
 void in_set_default_bindings();
 
 struct CursorInfo {
-    int16_t button0;
-    int16_t button1;
-    int16_t button2;
-    int16_t button3;
-    int16_t x;
-    int16_t y;
+    int button0;
+    int button1;
+    int button2;
+    int button3;
+    int x;
+    int y;
     Motion xaxis;
     Motion yaxis;
     Direction dir;
