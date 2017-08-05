@@ -7360,11 +7360,8 @@ void write_x_scan_config(
     {
         const auto scan_code_name = get_scan_code_name(scan_code);
 
-        if (!scan_code_name.empty())
-        {
-            line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
-            writer.write(line);
-        }
+        line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
+        writer.write(line);
 
         counter += 1;
     }
@@ -7405,17 +7402,13 @@ void write_bindings_config(
         for (const auto scan_code : binding)
         {
             const auto& scan_code_name = get_scan_code_name(scan_code);
+            const auto& counter1_string = std::to_string(counter1);
 
-            if (!scan_code_name.empty())
-            {
-                const auto& counter1_string = std::to_string(counter1);
+            line = name_prefix +
+                "[" + counter0_string + "][" + counter1_string + "] \"" +
+                scan_code_name + "\"\n";
 
-                line = name_prefix +
-                    "[" + counter0_string + "][" + counter1_string + "] \"" +
-                    scan_code_name + "\"\n";
-
-                writer.write(line);
-            }
+            writer.write(line);
 
             counter1 += 1;
         }
