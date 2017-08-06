@@ -27,8 +27,7 @@ Supported games:
 
 Downloads
 ===
-[Latest release (Windows x86/x86_64)](https://github.com/bibendovsky/bstone/releases/latest)  
-[Source code (release)](https://github.com/bibendovsky/bstone/tree/master)  
+[Latest release (Windows x86/x86_64) and source code](https://github.com/bibendovsky/bstone/releases/latest)  
 
 
 Profile
