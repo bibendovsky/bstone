@@ -25,6 +25,12 @@ Supported games:
 * Planet Strike v1.1
 
 
+Downloads
+===
+[Latest release (Windows x86/x86_64)](https://github.com/bibendovsky/bstone/releases/latest)  
+[Source code (release)](https://github.com/bibendovsky/bstone/tree/master)  
+
+
 Profile
 ===
 
