@@ -220,34 +220,54 @@ Compiling
 
 Minimum requirements:
 * C++11 compatible compiler.  
-Tested with Visual C++ 12 and GCC 4.9.2.
 
-* [CMake](http://cmake.org/) 2.8
-* [pkg-config](http://pkg-config.freedesktop.org/) (only for non Visual C++ compiler)
-* [SDL](http://www.libsdl.org/) v2.0.1 (non-Windows) / [SDL](http://www.libsdl.org/) v2.0.3 (Windows)
+* CMake 2.8  
+  (<http://cmake.org/>)  
+  
+* pkg-config  
+  (<http://pkg-config.freedesktop.org/>)  
+  (only for non Visual C++ compiler)  
+  
+* SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
+  (<http://www.libsdl.org/>)  
 
+Tested platforms:
+  * Windows 10 x64  
+    Visual C++ v19.10.25019 (Visual Studio 2017 Community Edition)  
+    CMake x64 v3.9.0  
+    SDL v2.0.5  
+    
+  * Ubuntu Desktop x64 16.04.4  
+    GCC v5.4.0  
+    CMake x64 v3.5.1  
+    SDL v2.0.4  
+  
 CMake variables:
 * CMAKE_BUILD_TYPE  
-Selects which build(s) to compile. Use semicolon to separate entries. Usually it's Debug or Release.  
-For other values see CMake documentation.
+  Selects wich build(s) to compile.  
+  Use semicolon to separate entries. 
+  Usually it's Debug or Release.  
+  For other values see CMake documentation.
 
 * BSTONE_PANDORA  
-If enabled prepares build for Open Pandora.
+  If enabled prepares build for Open Pandora.
 
 * BSTONE_USE_PCH  
-If enabled utilizes precompiled headers to speed up compilation.  
-Note: Visual C++ only
+  If enabled utilizes precompiled headers to speed up compilation.  
+  Note: Visual C++ only
 
 * BSTONE_USE_STATIC_LINKING  
-If enabled links modules statically to avoid dependency on system and custom libraries at run-time.
+  If enabled links modules statically to avoid dependency on  
+  system and custom libraries at run-time.
 
 * SDL2_INCLUDE_DIRS  
-Defines directory with SDL2 headers.  
-Note: Visual C++ only
+  Defines directory with SDL2 headers.  
+  Note: Visual C++ only
 
 * SDL2_LIBRARIES  
-Defines list of SDL2 libraries. Use semicolon to separate entries.  
-Note: Visual C++ only
+  Defines list of SDL2 libraries.  
+  Use semicolon to separate entries.  
+  Note: Visual C++ only
 
 Notes:
 * Use ON value to enable option and value OFF to disable option.
