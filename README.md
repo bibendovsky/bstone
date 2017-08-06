@@ -96,17 +96,28 @@ Where "game" is:
 
 Minimum requirements:
 * C++11 compatible compiler.  
-  Tested with Visual C++ 12 and GCC 4.9.2.
 
 * CMake 2.8  
-  (<http://cmake.org/>).
-
-* pkg-config (only for non Visual C++ compiler)  
-  (<http://pkg-config.freedesktop.org/>)
-
+  (<http://cmake.org/>)  
+  
+* pkg-config  
+  (<http://pkg-config.freedesktop.org/>)  
+  (only for non Visual C++ compiler)  
+  
 * SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
-  (<http://www.libsdl.org/>)
+  (<http://www.libsdl.org/>)  
 
+Tested platforms:
+  * Windows 10 x64  
+    Visual C++ v19.10.25019 (Visual Studio 2017 Community Edition)  
+    CMake x64 v3.9.0  
+    SDL v2.0.5  
+    
+  * Ubuntu Desktop x64 16.04.4  
+    GCC v5.4.0  
+    CMake x64 v3.5.1  
+    SDL v2.0.4  
+  
 CMake variables:
 * CMAKE_BUILD_TYPE  
   Selects wich build(s) to compile.  
