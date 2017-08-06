@@ -14,7 +14,7 @@
 - Custom renderers.
 
 ### Fixed
-- Bottom view border when drawing sprites.
+- Bottom view bound when drawing sprites.
 - Command-line to force a software renderer.
 - Mouse sensitivity.
 - Weapon switching.
