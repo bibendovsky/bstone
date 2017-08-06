@@ -9619,7 +9619,7 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
-    static const std::string version = "1.1.7";
+    static const std::string version = "1.1.8";
     return version;
 }
 
