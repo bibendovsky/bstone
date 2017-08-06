@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <functional>
 #include <unordered_map>
 #include "3d_def.h"
 #include "jm_lzh.h"
@@ -6705,7 +6706,18 @@ const auto gp_is_always_run_name = "gp_is_always_run";
 const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
 const auto am_is_rotated_name = "am_is_rotated";
 
-const auto scan_code_name_map = std::unordered_map<ScanCode, std::string>{
+
+class ScanCodeHash
+{
+public:
+    std::size_t operator()(
+        const ScanCode scan_code) const
+    {
+        return (std::hash<int>{})(static_cast<int>(scan_code));
+    }
+}; // ScanCodeHash
+
+const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCodeHash>{
     {ScanCode::sc_return, "return",},
     {ScanCode::sc_escape, "escape",},
     {ScanCode::sc_space, "space",},
