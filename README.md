@@ -96,17 +96,28 @@ Where "game" is:
 
 Minimum requirements:
 * C++11 compatible compiler.  
-  Tested with Visual C++ 12 and GCC 4.9.2.
 
 * CMake 2.8  
-  (<http://cmake.org/>).
-
-* pkg-config (only for non Visual C++ compiler)  
-  (<http://pkg-config.freedesktop.org/>)
-
+  (<http://cmake.org/>)  
+  
+* pkg-config  
+  (<http://pkg-config.freedesktop.org/>)  
+  (only for non Visual C++ compiler)  
+  
 * SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
-  (<http://www.libsdl.org/>)
+  (<http://www.libsdl.org/>)  
 
+Tested platforms:
+  * Windows 10 x64  
+    Visual C++ v19.10.25019 (Visual Studio 2017 Community Edition)  
+    CMake x64 v3.9.0  
+    SDL v2.0.5  
+    
+  * Ubuntu Desktop x64 16.04.4  
+    GCC v5.4.0  
+    CMake x64 v3.5.1  
+    SDL v2.0.4  
+  
 CMake variables:
 * CMAKE_BUILD_TYPE  
   Selects wich build(s) to compile.  
@@ -183,11 +194,15 @@ Notes:
 * --profile_dir path  
   Overrides default location of the game's profile files.  
 
-* --vid_renderer [soft|ogl]  
-  Forces to use a specified renderer.  
+* --vid_renderer [d3d|ogl|ogles|ogles2|soft]  
+  Forces to use a specified SDL renderer.  
+  "d3d" selects a Direct3D renderer.  
+  "ogl" selects an OpenGL renderer.  
+  "ogles" selects an OpenGL ES renderer.  
+  "ogles2" selects an OpenGL ES 2.0 renderer.  
   "soft" selects a software renderer.  
-  "ogl" selects an OpenGL 2.x compatible renderer.  
-  Default order without this option: ogl, soft.
+  Fallback renderer: soft.  
+  Default order without this option: d3d, ogl, ogles, ogles2, soft.
 
 * --vid_windowed  
   Runs the game in windowed mode.  
