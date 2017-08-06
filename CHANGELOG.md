@@ -1,6 +1,6 @@
 # BStone changelog
 
-## [Unreleased]
+## [1.1.8] - 2017-08-06
 ### Added
 - Widescreen mode.
 - Icon and it's resource file (Windows).
