@@ -1,5 +1,10 @@
 # BStone changelog
 
+## [1.1.9] - 2017-09-08
+### Fixed
+- Teleporting out effect.
+
+
 ## [1.1.8] - 2017-08-06
 ### Added
 - Widescreen mode.
