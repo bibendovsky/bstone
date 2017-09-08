@@ -1484,15 +1484,15 @@ void ThreeDRefresh()
 // show screen and time last cycle
 //
     if (::fizzlein) {
-        bstone::GenericFizzleFX fizzle(
-            BLACK,
-            false);
+        ::fizzlein = false;
+
+        ::vid_set_ui_mask_3d(false);
+
+        bstone::GenericFizzleFX fizzle(BLACK, false);
 
         fizzle.initialize();
 
         static_cast<void>(fizzle.present());
-
-        ::fizzlein = false;
 
         ::lasttimecount = ::TimeCount; // don't make a big tic count
     }
