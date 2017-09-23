@@ -71,8 +71,6 @@ bool is_aog_sw();
 bool is_ps();
 
 
-std::string audioname = "AUDIO.";
-
 /*
 =============================================================================
 
@@ -92,13 +90,14 @@ extern uint8_t audiodict;
 
 
 std::string extension; // Need a string, not constant to change cache files
-std::string gheadname = "VGAHEAD.";
-std::string gfilename = "VGAGRAPH.";
-std::string gdictname = "VGADICT.";
-std::string mheadname = "MAPHEAD.";
-std::string mfilename = "MAPTEMP.";
-std::string aheadname = "AUDIOHED.";
-std::string afilename = "AUDIOT.";
+const std::string gheadname = "VGAHEAD.";
+const std::string gfilename = "VGAGRAPH.";
+const std::string gdictname = "VGADICT.";
+const std::string mheadname = "MAPHEAD.";
+const std::string mfilename = "MAPTEMP.";
+const std::string aheadname = "AUDIOHED.";
+const std::string afilename = "AUDIOT.";
+
 
 void CA_CannotOpen(
     const std::string& string);
@@ -166,17 +165,6 @@ int32_t GRFILEPOS(
 #define GRFILEPOS(c) (grstarts[c])
 #endif
 
-void OpenGrFile()
-{
-    auto fname = ::data_dir + ::gfilename + ::extension;
-
-    ::grhandle.open(fname);
-
-    if (!::grhandle.is_open()) {
-        ::CA_CannotOpen(fname);
-    }
-}
-
 void CloseGrFile()
 {
     ::grhandle.close();
@@ -184,8 +172,7 @@ void CloseGrFile()
 
 void OpenMapFile()
 {
-    std::string fname;
-
+// TODO Remove or fix
 #ifdef CARMACIZED
     strcpy(fname, "GAMEMAPS.");
     strcat(fname, extension);
@@ -196,13 +183,7 @@ void OpenMapFile()
         CA_CannotOpen(fname);
     }
 #else
-    fname = ::data_dir + ::mfilename + ::extension;
-
-    ::maphandle.open(fname);
-
-    if (!::maphandle.is_open()) {
-        ::CA_CannotOpen(fname);
-    }
+    ::ca_open_resource(::mfilename, ::maphandle);
 #endif
 }
 
@@ -213,17 +194,10 @@ void CloseMapFile()
 
 void OpenAudioFile()
 {
-    std::string fname;
-
 #ifndef AUDIOHEADERLINKED
-    fname = ::data_dir + ::afilename + ::extension;
-
-    ::audiohandle.open(fname);
-
-    if (!::audiohandle.is_open()) {
-        ::CA_CannotOpen(fname);
-    }
+    ::ca_open_resource(::afilename, ::audiohandle);
 #else
+    // TODO Remove or fix
     if ((audiohandle = open("AUDIO."EXTENSION,
                             O_RDONLY | O_BINARY, S_IREAD)) == -1)
     {
@@ -1058,4 +1032,63 @@ void initialize_ca_constants()
     NUMMAPS = NUM_EPISODES * MAPS_PER_EPISODE;
 
     mapheaderseg.resize(NUMMAPS);
+}
+
+bool ca_is_resource_exists(
+    const std::string& file_name)
+{
+    const auto path = ::data_dir + file_name;
+
+    auto is_open = false;
+
+    is_open = bstone::FileStream::is_exists(path);
+
+#ifndef _WIN32
+    if (!is_open)
+    {
+        const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
+        const auto path_lc = ::data_dir + file_name_lc;
+
+        is_open = bstone::FileStream::is_exists(path_lc);
+    }
+#endif // !_WIN32
+
+    return is_open;
+}
+
+bool ca_open_resource_non_fatal(
+    const std::string& file_name_without_ext,
+    const std::string& file_extension,
+    bstone::FileStream& file_stream)
+{
+    const auto file_name = file_name_without_ext + file_extension;
+    const auto path = ::data_dir + file_name;
+
+    auto is_open = false;
+
+    is_open = file_stream.open(path);
+
+    if (!is_open)
+    {
+        const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
+        const auto path_lc = ::data_dir + file_name_lc;
+
+        is_open = file_stream.open(path_lc);
+    }
+
+    return is_open;
+}
+
+void ca_open_resource(
+    const std::string& file_name_without_ext,
+    bstone::FileStream& file_stream)
+{
+    const auto is_open = ca_open_resource_non_fatal(file_name_without_ext, ::extension, file_stream);
+
+    if (!is_open)
+    {
+        const auto path = ::data_dir + file_name_without_ext + ::extension;
+
+        ::CA_CannotOpen(path);
+    }
 }

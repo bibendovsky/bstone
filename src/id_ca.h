@@ -77,8 +77,6 @@ using GrNeeded = std::vector<uint8_t>;
 using MapHeaderSegments = std::vector<maptype*>;
 
 
-extern std::string audioname;
-
 extern uint16_t rlew_tag;
 
 extern int16_t mapon;
@@ -96,13 +94,13 @@ extern char* titleptr[8];
 extern int16_t profilehandle, debughandle;
 
 extern std::string extension;
-extern std::string gheadname;
-extern std::string gfilename;
-extern std::string gdictname;
-extern std::string mheadname;
-extern std::string mfilename;
-extern std::string aheadname;
-extern std::string afilename;
+extern const std::string gheadname;
+extern const std::string gfilename;
+extern const std::string gdictname;
+extern const std::string mheadname;
+extern const std::string mfilename;
+extern const std::string aheadname;
+extern const std::string afilename;
 
 extern int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
 extern int32_t* audiostarts; // array of offsets in audio / audiot
@@ -211,7 +209,6 @@ void ca_huff_expand_on_screen(
     huffnode* hufftable);
 
 void CloseGrFile();
-void OpenGrFile();
 
 // BBi
 extern int ca_gr_last_expanded_size;
@@ -219,6 +216,18 @@ extern int ca_gr_last_expanded_size;
 std::string ca_load_script(
     int chunk_id,
     bool strip_xx = false);
+
+bool ca_is_resource_exists(
+    const std::string& file_name);
+
+bool ca_open_resource_non_fatal(
+    const std::string& file_name_without_ext,
+    const std::string& file_extension,
+    bstone::FileStream& file_stream);
+
+void ca_open_resource(
+    const std::string& file_name_without_ext,
+    bstone::FileStream& file_stream);
 
 
 #endif // BSTONE_ID_CA_INCLUDED

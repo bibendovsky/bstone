@@ -50,11 +50,7 @@ uint32_t* chunks_offsets = nullptr;
 static void open_page_file(
     const std::string& file_name)
 {
-    PageFile.open(file_name);
-
-    if (!PageFile.is_open()) {
-        ::Quit("Failed to open page file \"{}\".", file_name);
-    }
+    ::ca_open_resource(file_name, PageFile);
 
     const auto file_length = PageFile.get_size();
 
@@ -84,7 +80,7 @@ static void open_page_file(
 void PM_Startup()
 {
     ::PM_Shutdown();
-    ::open_page_file(::data_dir + PageFileName);
+    ::open_page_file(PageFileName);
 }
 
 void PM_Shutdown()
