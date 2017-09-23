@@ -282,25 +282,18 @@ void InitDigiMap()
 void CAL_SetupAudioFile()
 {
     bstone::FileStream handle;
-    int32_t length;
-    std::string fname;
 
 //
 // load maphead.ext (offsets and tileinfo for map file)
 //
 #ifndef AUDIOHEADERLINKED
-    fname = ::data_dir + ::aheadname + ::extension;
-
-    handle.open(fname);
-    if (!handle.is_open()) {
-        ::CA_CannotOpen(fname);
-    }
-
-    length = static_cast<int32_t>(handle.get_size());
+    ::ca_open_resource(::aheadname, handle);
+    auto length = static_cast<int32_t>(handle.get_size());
     ::audiostarts = new int32_t[length / 4];
     handle.read(::audiostarts, length);
     handle.close();
 #else
+    // TODO Remove or fix
     audiohuffman = (huffnode*)&audiodict;
     CAL_OptimizeNodes(audiohuffman);
     audiostarts = (int32_t*)FP_SEG(&audiohead);
@@ -314,7 +307,6 @@ void CAL_SetupAudioFile()
 
 void CAL_SetupGrFile()
 {
-    std::string fname;
     bstone::FileStream handle;
     uint8_t* compseg;
 
@@ -322,14 +314,7 @@ void CAL_SetupGrFile()
     // load ???dict.ext (huffman dictionary for graphics files)
     //
 
-    fname = ::data_dir + ::gdictname + ::extension;
-
-    handle.open(fname);
-
-    if (!handle.is_open()) {
-        ::CA_CannotOpen(fname);
-    }
-
+    ::ca_open_resource(::gdictname, handle);
     handle.read(&::grhuffman, sizeof(::grhuffman));
 
     //
@@ -339,20 +324,13 @@ void CAL_SetupGrFile()
 
     ::grstarts = new int32_t[(grstarts_size + 3) / 4];
 
-    fname = ::data_dir + ::gheadname + ::extension;
-
-    handle.open(fname);
-
-    if (!handle.is_open()) {
-        ::CA_CannotOpen(fname);
-    }
-
+    ::ca_open_resource(::gheadname, handle);
     handle.read(::grstarts, grstarts_size);
 
     //
     // Open the graphics file, leaving it open until the game is finished
     //
-    ::OpenGrFile();
+    ::ca_open_resource(::gfilename, ::grhandle);
 
     //
     // load the pic and sprite headers into the arrays in the data segment
@@ -376,7 +354,6 @@ void CAL_SetupMapFile()
     int16_t i;
     bstone::FileStream handle;
     int32_t pos;
-    std::string fname;
     mapfiletype header;
     maptype* map_header;
 
@@ -384,14 +361,7 @@ void CAL_SetupMapFile()
     // load maphead.ext (offsets and tileinfo for map file)
     //
 
-    fname = ::data_dir + ::mheadname + ::extension;
-
-    handle.open(fname);
-
-    if (!handle.is_open()) {
-        CA_CannotOpen(fname);
-    }
-
+    ::ca_open_resource(::mheadname, handle);
     handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
     handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
 
@@ -545,13 +515,14 @@ const bstone::StringList& get_file_names(
 }
 
 const std::string& get_file_extension(
-    GameType game_type)
+    const GameType game_type)
 {
     static const std::string aog_sw_extension = "BS1";
     static const std::string aog_full_extension = "BS6";
     static const std::string ps_extension = "VSI";
 
-    switch (game_type) {
+    switch (game_type)
+    {
     case GameType::aog_sw:
         return aog_sw_extension;
 
@@ -569,29 +540,33 @@ const std::string& get_file_extension(
 }
 
 bool are_files_exist(
-    GameType game_type)
+    const GameType game_type)
 {
-    auto&& file_names = get_file_names(game_type);
+    const auto& file_names = get_file_names(game_type);
 
-    for (const auto& file_name : file_names) {
-        auto file_path = ::data_dir + file_name;
+    const auto it_cend = file_names.cend();
 
-        if (!bstone::FileStream::is_exists(file_path)) {
-            return false;
+    const auto it = std::find_if_not(
+        file_names.cbegin(),
+        it_cend,
+        [](const std::string& file_name)
+        {
+            return ::ca_is_resource_exists(file_name);
         }
-    }
+    );
 
-    return true;
+    return it == it_cend;
 }
 
 int get_vgahead_offset_count(
-    GameType game_type)
+    const GameType game_type)
 {
-    auto file_name = "VGAHEAD." + get_file_extension(game_type);
+    bstone::FileStream stream;
+    const auto file_extension = get_file_extension(game_type);
+    const auto is_open = ::ca_open_resource_non_fatal(::gheadname, file_extension, stream);
 
-    bstone::FileStream stream(::data_dir + file_name);
-
-    if (!stream.is_open()) {
+    if (!is_open)
+    {
         return 0;
     }
 
@@ -740,9 +715,6 @@ void CheckForEpisodes()
             ::EpisodeSelect[i] = 1;
         }
     }
-
-    ::PageFileName += ::extension;
-    ::audioname += ::extension;
 }
 
 
