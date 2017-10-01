@@ -144,10 +144,10 @@ enum sw_labels {
     SW_NO_WALL_HIT_SOUND,
     SW_MODERN_CONTROLS,
     SW_ALWAYS_RUN,
+    SW_QUIT_ON_ESCAPE,
     SW_HEART_BEAT_SOUND,
     SW_ROTATED_AUTOMAP,
 
-    SW_QUIT_ON_ESCAPE,
 }; // sw_labels
 
 // BBi
