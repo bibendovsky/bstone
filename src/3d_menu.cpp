@@ -1358,6 +1358,15 @@ void US_ControlPanel(
             break;
 
         case -1:
+            // on hit ESC on main menu
+            if (ingame && !g_quit_on_escape) {
+                // return to game if quit on escape not enabled
+                StartGame = 1;
+            } else {
+                CP_Quit();
+            }
+            break;
+
         case MM_LOGOFF:
             CP_Quit();
             break;
