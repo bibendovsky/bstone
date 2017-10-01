@@ -170,6 +170,9 @@ bool g_heart_beat_sound = default_heart_beat_sound;
 static const bool default_rotated_automap = false;
 bool g_rotated_automap = default_rotated_automap;
 
+static const bool default_quit_on_escape = true;
+bool g_quit_on_escape = default_quit_on_escape;
+
 GameType g_game_type;
 
 
@@ -6704,6 +6707,7 @@ const auto gp_flags_name = "gp_flags";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
 const auto gp_is_always_run_name = "gp_is_always_run";
 const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
+const auto gp_quit_on_escape_name = "gp_quit_on_escape";
 const auto am_is_rotated_name = "am_is_rotated";
 
 
@@ -6940,6 +6944,8 @@ void set_config_defaults()
 
     ::g_heart_beat_sound = ::default_heart_beat_sound;
     ::g_rotated_automap = ::default_rotated_automap;
+
+    ::g_quit_on_escape = ::default_quit_on_escape;
 
     ::vid_widescreen = ::default_vid_widescreen;
 }
@@ -7255,6 +7261,15 @@ void read_text_config()
                             ::g_heart_beat_sound = (value != 0);
                         }
                     }
+                    else if (name == gp_quit_on_escape_name)
+                    {
+                        auto value = int{};
+
+                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        {
+                            ::g_quit_on_escape = (value != 0);
+                        }
+                    }
                     else if (name == am_is_rotated_name)
                     {
                         auto value = int{};
@@ -7471,6 +7486,7 @@ void write_text_config()
     write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
     write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
     write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
+    write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
 
     writer.write("\n// Auto-map\n");
     write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);

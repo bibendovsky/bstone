@@ -146,6 +146,8 @@ enum sw_labels {
     SW_ALWAYS_RUN,
     SW_HEART_BEAT_SOUND,
     SW_ROTATED_AUTOMAP,
+
+    SW_QUIT_ON_ESCAPE,
 }; // sw_labels
 
 // BBi

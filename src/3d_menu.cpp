@@ -224,6 +224,8 @@ CP_itemtype SwitchMenu[] = {
     { AT_ENABLED, "ALWAYS RUN", 0 },
     { AT_ENABLED, "HEART BEAT SOUND", 0 },
     { AT_ENABLED, "ROTATED AUTOMAP", 0 },
+
+    { AT_ENABLED, "QUIT ON ESCAPE", 0 },
 };
 
 
@@ -1961,6 +1963,12 @@ void CP_Switches(
             ShootSnd();
             DrawSwitchMenu();
             break;
+
+        case SW_QUIT_ON_ESCAPE:
+            g_quit_on_escape = !g_quit_on_escape;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
         }
     } while (which >= 0);
 
@@ -2058,6 +2066,12 @@ void DrawAllSwitchLights(
                     ++Shape;
                 }
                 break;
+
+            case SW_QUIT_ON_ESCAPE:
+                if (g_quit_on_escape) {
+                    ++Shape;
+                }
+                break;
             }
 
             VWB_DrawPic(SwitchItems.x - 16, SwitchItems.y + i * SwitchItems.y_spacing - 1, Shape);
@@ -2083,6 +2097,8 @@ void DrawSwitchDescription(
         "TOGGLES ALWAYS RUN MODE",
         "TOGGLES HEART BEAT SOUND WITH EKG",
         "TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS",
+
+        "ESC QUITS INSTEAD OF RETURNING TO GAME",
     };
 
     fontnumber = 2;

@@ -4330,6 +4330,8 @@ extern bool g_always_run;
 extern bool g_heart_beat_sound;
 extern bool g_rotated_automap;
 
+extern bool g_quit_on_escape;
+
 
 class ArchiveException : public std::exception {
 public:
