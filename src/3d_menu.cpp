@@ -222,6 +222,7 @@ CP_itemtype SwitchMenu[] = {
     { AT_ENABLED, "NO WALL HIT SOUND", 0 },
     { AT_ENABLED, "MODERN CONTROLS", 0 },
     { AT_ENABLED, "ALWAYS RUN", 0 },
+    { AT_ENABLED, "QUIT ON ESCAPE", 0 },
     { AT_ENABLED, "HEART BEAT SOUND", 0 },
     { AT_ENABLED, "ROTATED AUTOMAP", 0 },
 };
@@ -1357,6 +1358,15 @@ void US_ControlPanel(
             break;
 
         case -1:
+            // on hit ESC on main menu
+            if (ingame && !g_quit_on_escape) {
+                // return to game if quit on escape not enabled
+                StartGame = 1;
+            } else {
+                CP_Quit();
+            }
+            break;
+
         case MM_LOGOFF:
             CP_Quit();
             break;
@@ -1950,6 +1960,12 @@ void CP_Switches(
             DrawSwitchMenu();
             break;
 
+        case SW_QUIT_ON_ESCAPE:
+            g_quit_on_escape = !g_quit_on_escape;
+            ShootSnd();
+            DrawSwitchMenu();
+            break;
+
         case SW_HEART_BEAT_SOUND:
             g_heart_beat_sound = !g_heart_beat_sound;
             ShootSnd();
@@ -2047,6 +2063,12 @@ void DrawAllSwitchLights(
                 }
                 break;
 
+            case SW_QUIT_ON_ESCAPE:
+                if (g_quit_on_escape) {
+                    ++Shape;
+                }
+                break;
+
             case SW_HEART_BEAT_SOUND:
                 if (g_heart_beat_sound) {
                     ++Shape;
@@ -2081,8 +2103,10 @@ void DrawSwitchDescription(
         "TOGGLES WALL HIT SOUND",
         "TOGGLES BETWEEN CLASSIC AND MODERN CONTROLS",
         "TOGGLES ALWAYS RUN MODE",
+        "ESC QUITS INSTEAD OF RETURNING TO GAME",
         "TOGGLES HEART BEAT SOUND WITH EKG",
         "TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS",
+
     };
 
     fontnumber = 2;
@@ -3591,8 +3615,8 @@ void DrawOutline(
 void SetupControlPanel()
 {
     // BBi
-    SwitchItems.amount = (::is_ps() ? 7 : 9);
-    SwitchItems.y = MENU_Y + (::is_ps() ? 15 : 7);
+    SwitchItems.amount = (::is_ps() ? 8 : 10);
+    SwitchItems.y = MENU_Y + (::is_ps() ? 11 : 3);
     // BBi
 
     ControlPanelAlloc();
