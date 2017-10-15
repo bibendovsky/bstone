@@ -970,18 +970,23 @@ void CheckKeys()
     switch (scan) {
     case ScanCode::sc_f7: // END GAME
     case ScanCode::sc_f10: // QUIT TO DOS
+        ::vid_is_hud = true;
         FinishPaletteShifts();
         ClearMemory();
         US_ControlPanel(scan);
         CleanDrawPlayBorder();
+        ::vid_is_hud = false;
         return;
 
     case ScanCode::sc_f2: // SAVE MISSION
     case ScanCode::sc_f8: // QUICK SAVE
         // Make sure there's room to save...
         //
+        ::vid_is_hud = true;
         ClearMemory();
         FinishPaletteShifts();
+        ::vid_is_hud = false;
+
         if (!CheckDiskSpace(DISK_SPACE_NEEDED, CANT_SAVE_GAME_TXT, cds_id_print)) {
             CleanDrawPlayBorder();
             break;
@@ -994,20 +999,22 @@ void CheckKeys()
     case ScanCode::sc_f6: // CONTROLS MENU
     case ScanCode::sc_f9: // QUICK LOAD
     case ScanCode::sc_escape: // MAIN MENU
+    {
         refresh_screen = true;
         if (scan < ScanCode::sc_f8) {
+            ::vid_is_hud = true;
             VW_FadeOut();
+            ::vid_is_hud = false;
         }
         StopMusic();
         ClearMemory();
         ClearSplitVWB();
         US_ControlPanel(scan);
         if (refresh_screen) {
-            bool old = loadedgame;
-
+            const auto old_loadedgame = loadedgame;
             loadedgame = false;
             DrawPlayScreen(false);
-            loadedgame = old;
+            loadedgame = old_loadedgame;
         }
         ClearMemory();
         if (!sqActive || !loadedgame) {
@@ -1025,6 +1032,7 @@ void CheckKeys()
             StartMusic(false);
         }
         return;
+    }
 
     default:
         break;
@@ -1075,9 +1083,14 @@ void CheckKeys()
         if (old_num == music_num) {
             fontnumber = 4;
             SETFONTCOLOR(0, 15);
+
+            ::vid_is_hud = true;
+
             if (DebugKeys()) {
                 CleanDrawPlayBorder();
             }
+
+            ::vid_is_hud = false;
 
             ::in_clear_mouse_deltas();
 
@@ -1178,6 +1191,8 @@ char Computing[] = { "Computing..." };
 void PopupAutoMap(
     bool is_shift_pressed)
 {
+    ::vid_is_hud = true;
+
     const int16_t BASE_X = (::is_ps() ? 64 : 40);
     const int16_t BASE_Y = 44;
 
@@ -1232,6 +1247,8 @@ void PopupAutoMap(
 
     CleanDrawPlayBorder();
     IN_ClearKeysDown();
+
+    ::vid_is_hud = false;
 }
 
 
@@ -1797,8 +1814,8 @@ void PlayLoop()
             CheckSpawnGoldstern();
         }
 
+        ::vid_is_hud = true;
         UpdatePaletteShifts();
-
 
         ThreeDRefresh();
 
@@ -1815,6 +1832,8 @@ void PlayLoop()
         if (ShowQuickMsg) {
             ShowQuickInstructions();
         }
+
+        ::vid_is_hud = false;
 
         CheckKeys();
 

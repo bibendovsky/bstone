@@ -51,6 +51,8 @@ FizzleFX::~FizzleFX()
 
 bool FizzleFX::present()
 {
+    ::vid_is_fizzle_fade = true;
+
     const auto y_offset = get_y();
     const auto width = ::vga_ref_width;
     const auto height = get_height();
@@ -127,6 +129,8 @@ bool FizzleFX::present()
 
         ::CalcTics();
     }
+
+    ::vid_is_fizzle_fade = false;
 
     return is_aborted;
 }

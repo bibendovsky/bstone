@@ -6687,6 +6687,7 @@ namespace
 
 
 const auto vid_is_widescreen_name = "vid_is_widescreen";
+const auto vid_is_ui_stretched_name = "vid_is_ui_stretched";
 const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
 const auto snd_is_music_enabled_name = "snd_is_music_enabled";
 const auto snd_sfx_volume_name = "snd_sfx_volume";
@@ -7018,6 +7019,15 @@ void read_text_config()
                         if (bstone::StringHelper::lexical_cast(value_string, value))
                         {
                             ::vid_widescreen = (value != 0);
+                        }
+                    }
+                    else if (name == vid_is_ui_stretched_name)
+                    {
+                        auto value = int{};
+
+                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        {
+                            ::vid_is_ui_stretched = (value != 0);
                         }
                     }
                     else if (name == snd_is_sfx_enabled_name)
@@ -7458,6 +7468,7 @@ void write_text_config()
 
     writer.write("\n// Video\n");
     write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
+    write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
 
     writer.write("\n// Audio\n");
     write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
@@ -8787,15 +8798,27 @@ void Quit()
 void DemoLoop()
 {
     bool breakit;
+    auto is_first_time = true;
+
 
     while (true) {
+        if (is_first_time)
+        {
+            is_first_time = false;
+            ::vid_is_movie = true;
+        }
+
         playstate = ex_title;
         if (!screenfaded) {
             VW_FadeOut();
         }
         VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
+        ::vid_is_movie = false;
+
         if (!::no_screens) {
+            ::vid_is_movie = true;
+
             while (!(gamestate.flags & GS_NOWAIT)) {
                 extern bool sqActive;
 
@@ -8927,6 +8950,8 @@ void DemoLoop()
                 }
                 VW_FadeOut();
             }
+
+            ::vid_is_movie = false;
         } else {
             // Start music when coming from menu...
             if (!sqActive) {

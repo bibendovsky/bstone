@@ -75,6 +75,7 @@ extern int vga_3d_view_bottom;
 
 const bool default_vid_widescreen = true;
 extern bool vid_widescreen;
+extern bool vid_is_ui_stretched;
 
 // Is VSync enabled?
 extern bool vid_has_vsync;
@@ -84,6 +85,12 @@ extern bool vid_is_hud;
 
 // Are we drawing a level?
 extern bool vid_is_3d;
+
+// Is fizzle fade in progress?
+extern bool vid_is_fizzle_fade;
+
+// Is it intro/outro/you-win/etc?
+extern bool vid_is_movie;
 
 extern bstone::SpriteCache vid_sprite_cache;
 // BBi
