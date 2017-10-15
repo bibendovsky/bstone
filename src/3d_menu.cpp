@@ -151,7 +151,7 @@ extern bool refresh_screen;
 //
 // ===========================================================================
 
-CP_iteminfo MainItems = { MENU_X, MENU_Y, 12, MM_READ_THIS, 0, 9, { 77, 1, 154, 9, 1 } };
+CP_iteminfo MainItems = { MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, { 77, 1, 154, 9, 1 } };
 CP_iteminfo GopItems = { MENU_X, MENU_Y + 30, 5, 0, 0, 9, { 77, 1, 154, 9, 1 } };
 CP_iteminfo SndItems = { SM_X, SM_Y, 6, 0, 0, 7, { 87, -1, 144, 7, 1 } };
 CP_iteminfo LSItems = { LSM_X, LSM_Y, 10, 0, 0, 8, { 86, -1, 144, 8, 1 } };
