@@ -728,6 +728,8 @@ void PreDemo()
         return;
     }
 
+    ::vid_is_movie = true;
+
     VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
     if (!(gamestate.flags & GS_NOWAIT)) {
@@ -853,10 +855,14 @@ void PreDemo()
 
         VW_FadeOut();
     }
+
+    ::vid_is_movie = false;
 }
 
 void InitGame()
 {
+    ::vid_is_movie = true;
+
     int16_t i, x, y;
     uint16_t* blockstart;
 
@@ -915,6 +921,8 @@ void InitGame()
     //
 
     InitRedShifts();
+
+    ::vid_is_movie = false;
 }
 
 uint16_t scan_atoi(

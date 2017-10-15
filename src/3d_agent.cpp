@@ -4439,6 +4439,8 @@ void T_Player(
 
 void RunBlakeRun()
 {
+    ::vid_is_hud = true;
+
     const fixed BLAKE_SPEED = MOVESCALE * 50;
 
     int32_t xmove, ymove;
@@ -4513,6 +4515,8 @@ void RunBlakeRun()
         // BBi
         ::in_handle_events();
     } while ((dx < 6) && (dy < 6));
+
+    ::vid_is_hud = false;
 }
 
 void SW_HandleActor(

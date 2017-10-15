@@ -2803,6 +2803,8 @@ void DrawPlayScreen(
 
 void DrawWarpIn()
 {
+    ::vid_is_hud = true;
+
     ::InitInfoArea();
 
     ::DisplayInfoMsg(
@@ -2837,10 +2839,14 @@ void DrawWarpIn()
     ::fizzlein = true;
 
     ::ThreeDRefresh();
+
+    ::vid_is_hud = false;
 }
 
 void Warped()
 {
+    ::vid_is_hud = true;
+
     int16_t iangle;
 
     DisplayInfoMsg("\r\r\r   TRANSPORTING OUT", MP_POWERUP, 7 * 60, MT_GENERAL);
@@ -2874,11 +2880,15 @@ void Warped()
 
     IN_UserInput(100);
     SD_WaitSoundDone();
+
+    ::vid_is_hud = false;
 }
 
 
 void Died()
 {
+    ::vid_is_hud = true;
+
     const uint8_t DEATHROTATE = 2;
 
     int16_t iangle;
@@ -2929,6 +2939,8 @@ void Died()
         DrawKeys();
         ForceUpdateStatusBar();
     }
+
+    ::vid_is_hud = false;
 }
 
 // --------------------------------------------------------------------------
@@ -3067,7 +3079,6 @@ void RotateView(
 void GameLoop()
 {
     // BBi
-    ::vid_is_hud = true;
     ::vid_set_ui_mask_3d(false);
     // BBi
 
@@ -3134,6 +3145,7 @@ restartgame:
         if (!loadedgame) {
             if (LS_current == -1) {
                 // BBi
+                ::VL_Bar(0, ::ref_view_top, ::vga_ref_width, ::ref_view_height, BLACK);
                 ::vid_clear_3d();
                 // BBi
 
@@ -3231,6 +3243,8 @@ restartgame:
 
 
         case ex_victorious:
+            ::vid_is_hud = true;
+
             MainMenu[MM_SAVE_MISSION].active = AT_DISABLED;
             MainMenu[MM_VIEW_SCORES].routine = &CP_ViewScores;
             strcpy(MainMenu[MM_VIEW_SCORES].string, "HIGH SCORES");
@@ -3264,11 +3278,15 @@ restartgame:
 
             VW_FadeOut();
 
+            ::vid_is_hud = false;
+
             sprintf(Score, "%d", gamestate.score);
             piStringTable[0] = Score;
 
             if (playstate == ex_victorious) {
                 if (!::is_ps()) {
+                    ::vid_is_movie = true;
+
                     movie_t movie = mv_intro;
 
                     switch (gamestate.episode) {
@@ -3296,6 +3314,8 @@ restartgame:
 
                     UNCACHEGRCHUNK(ENDINGPALETTE);
                 }
+
+                ::vid_is_movie = false;
 
                 NewViewSize(); // Recreates & Allocs the ScaleDirectory
                 Breifing(BT_WIN, gamestate.episode);

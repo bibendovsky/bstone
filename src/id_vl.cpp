@@ -28,6 +28,9 @@ Free Software Foundation, Inc.,
 static const int palette_color_count = 256;
 
 
+extern bool is_full_menu_active;
+
+
 int bufferofs;
 
 bool screenfaded;
@@ -49,10 +52,15 @@ int screen_y = 0;
 int screen_width = 0;
 int screen_height = 0;
 
+int filler_width = 0;
+
 bool vid_has_vsync = false;
 bool vid_widescreen = default_vid_widescreen;
 bool vid_is_hud = false;
 bool vid_is_3d = false;
+bool vid_is_fizzle_fade = false;
+bool vid_is_movie = false;
+bool vid_is_ui_stretched = false;
 
 bstone::SpriteCache vid_sprite_cache;
 
@@ -102,6 +110,20 @@ SDL_PixelFormat* sdl_texture_pixel_format = nullptr;
 SDL_Texture* sdl_screen_texture = nullptr;
 SDL_Texture* sdl_ui_texture = nullptr;
 SdlPalette sdl_palette;
+SDL_Rect sdl_ui_whole_src_rect;
+SDL_Rect sdl_ui_whole_dst_rect;
+SDL_Rect sdl_ui_top_src_rect;
+SDL_Rect sdl_ui_top_dst_rect;
+SDL_Rect sdl_ui_wide_middle_src_rect;
+SDL_Rect sdl_ui_wide_middle_dst_rect;
+SDL_Rect sdl_ui_bottom_src_rect;
+SDL_Rect sdl_ui_bottom_dst_rect;
+std::array<SDL_Rect, 2> sdl_filler_ui_rects;
+std::array<SDL_Rect, 4> sdl_filler_hud_rects;
+const auto sdl_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF,};
+auto sdl_filler_color = SDL_Color{};
+
+const auto filler_color_index = 0xE8;
 
 
 void sdl_initialize_vga_buffer()
@@ -595,6 +617,135 @@ void sdl_calculate_dimensions()
 
     ::screen_width = ::vga_width;
     ::screen_height = (12 * ::vga_height) / 10;
+
+    ::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
+    ::filler_width /= 2 * ::vga_ref_height_4x3;
+
+    const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
+    const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
+    const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
+
+    // UI whole rect
+    //
+    ::sdl_ui_whole_src_rect = SDL_Rect{
+        0,
+        0,
+        ::vga_ref_width,
+        ::vga_ref_height,
+    };
+
+    ::sdl_ui_whole_dst_rect = SDL_Rect{
+        ::filler_width,
+        0,
+        ::screen_width - (2 * ::filler_width),
+        ::screen_height,
+    };
+
+
+    // UI top rect
+    //
+    ::sdl_ui_top_src_rect = SDL_Rect{
+        0,
+        0,
+        ::vga_ref_width,
+        ::ref_top_bar_height,
+    };
+
+    ::sdl_ui_top_dst_rect = SDL_Rect{
+        ::filler_width,
+        0,
+        ::screen_width - (2 * ::filler_width),
+        upper_filler_height,
+    };
+
+
+    // UI middle rect (stretched to full width)
+    //
+    ::sdl_ui_wide_middle_src_rect = SDL_Rect{
+        0,
+        ::ref_view_top,
+        ::vga_ref_width,
+        ::ref_view_height,
+    };
+
+    ::sdl_ui_wide_middle_dst_rect = SDL_Rect{
+        0,
+        upper_filler_height,
+        ::screen_width,
+        middle_filler_height,
+    };
+
+
+    // UI bottom rect
+    //
+    ::sdl_ui_bottom_src_rect = SDL_Rect{
+        0,
+        ::ref_view_bottom,
+        ::vga_ref_width,
+        ::ref_bottom_bar_height,
+    };
+
+    ::sdl_ui_bottom_dst_rect = SDL_Rect{
+        ::filler_width,
+        ::screen_height - lower_filler_height,
+        ::screen_width - (2 * ::filler_width),
+        lower_filler_height,
+    };
+
+
+    // UI left bar
+    ::sdl_filler_ui_rects[0] = SDL_Rect{
+        0,
+        0,
+        ::filler_width,
+        ::screen_height,
+    };
+
+    // UI right bar
+    ::sdl_filler_ui_rects[1] = SDL_Rect{
+        ::screen_width - ::filler_width,
+        0,
+        ::filler_width,
+        ::screen_height,
+    };
+
+    // HUD upper left rect
+    ::sdl_filler_hud_rects[0] = SDL_Rect{
+        0,
+        0,
+        ::filler_width,
+        upper_filler_height
+    };
+
+    // HUD upper right rect
+    ::sdl_filler_hud_rects[1] = SDL_Rect{
+        ::screen_width - ::filler_width,
+        0,
+        ::filler_width,
+        upper_filler_height,
+    };
+
+    // HUD lower left rect
+    ::sdl_filler_hud_rects[2] = SDL_Rect{
+        0,
+        ::screen_height - lower_filler_height,
+        ::filler_width,
+        lower_filler_height,
+    };
+
+    // HUD lower right rect
+    ::sdl_filler_hud_rects[3] = SDL_Rect{
+        ::screen_width - ::filler_width,
+        ::screen_height - lower_filler_height,
+        ::filler_width,
+        lower_filler_height,
+    };
+
+    ::sdl_filler_color = SDL_Color{
+        ::vgapal[(filler_color_index * 3) + 0],
+        ::vgapal[(filler_color_index * 3) + 1],
+        ::vgapal[(filler_color_index * 3) + 2],
+        0xFF,};
 }
 
 void sdl_initialize_video()
@@ -966,6 +1117,37 @@ void sdl_refresh_screen()
     }
 
 
+    // Use filler if necessary
+    //
+    if (!::vid_is_ui_stretched)
+    {
+        const auto is_hud = ::vid_is_hud;
+
+        auto fill_color = SDL_Color{};
+
+        if (!::vid_is_movie)
+        {
+            fill_color = ::sdl_filler_color;
+        }
+
+        ::SDL_SetRenderDrawColor(
+            sdl_renderer,
+            fill_color.r,
+            fill_color.g,
+            fill_color.b,
+            0xFF);
+
+        if (is_hud)
+        {
+            ::SDL_RenderFillRects(sdl_renderer, ::sdl_filler_hud_rects.data(), 4);
+        }
+        else
+        {
+            ::SDL_RenderFillRects(sdl_renderer, ::sdl_filler_ui_rects.data(), 2);
+        }
+    }
+
+
     // Copy 2D stuff
     //
 
@@ -983,11 +1165,55 @@ void sdl_refresh_screen()
         }
     }
 
-    sdl_result = ::SDL_RenderCopy(
-        ::sdl_renderer,
-        ::sdl_ui_texture,
-        nullptr,
-        nullptr);
+
+    if (!::vid_is_ui_stretched)
+    {
+        if (::vid_is_fizzle_fade)
+        {
+            if (sdl_result == 0)
+            {
+                sdl_result = ::SDL_RenderCopy(
+                    ::sdl_renderer,
+                    ::sdl_ui_texture,
+                    &::sdl_ui_top_src_rect,
+                    &::sdl_ui_top_dst_rect);
+            }
+
+            if (sdl_result == 0)
+            {
+                sdl_result = ::SDL_RenderCopy(
+                    ::sdl_renderer,
+                    ::sdl_ui_texture,
+                    &::sdl_ui_wide_middle_src_rect,
+                    &::sdl_ui_wide_middle_dst_rect);
+            }
+
+            if (sdl_result == 0)
+            {
+                sdl_result = ::SDL_RenderCopy(
+                    ::sdl_renderer,
+                    ::sdl_ui_texture,
+                    &::sdl_ui_bottom_src_rect,
+                    &::sdl_ui_bottom_dst_rect);
+            }
+        }
+        else
+        {
+            sdl_result = ::SDL_RenderCopy(
+                ::sdl_renderer,
+                ::sdl_ui_texture,
+                nullptr,
+                &::sdl_ui_whole_dst_rect);
+        }
+    }
+    else
+    {
+        sdl_result = ::SDL_RenderCopy(
+            ::sdl_renderer,
+            ::sdl_ui_texture,
+            nullptr,
+            nullptr);
+    }
 
     if (sdl_result != 0)
     {
@@ -1220,6 +1446,10 @@ void VL_FadeOut(
             *newptr++ = static_cast<uint8_t>(orig + ((delta * i) / steps));
         }
 
+        ::sdl_filler_color.r = ::palette2[filler_color_index][0];
+        ::sdl_filler_color.g = ::palette2[filler_color_index][1];
+        ::sdl_filler_color.b = ::palette2[filler_color_index][2];
+
         ::VL_SetPalette(
             0,
             256,
@@ -1232,6 +1462,13 @@ void VL_FadeOut(
             ::VL_WaitVBL(1);
         }
     }
+
+    ::sdl_filler_color = SDL_Color{
+        static_cast<uint8_t>(red),
+        static_cast<uint8_t>(green),
+        static_cast<uint8_t>(blue),
+        0xFF,
+    };
 
     //
     // final color
@@ -1271,15 +1508,21 @@ void VL_FadeIn(
     //
     // fade through intermediate frames
     //
+    auto delta = 0;
+
     for (int i = 0; i < steps; ++i)
     {
         for (int j = start; j <= end; ++j)
         {
-            int delta = palette[j] - ::palette1[0][j];
+            const int delta = palette[j] - ::palette1[0][j];
 
             ::palette2[0][j] =
                 static_cast<uint8_t>(::palette1[0][j] + ((delta * i) / steps));
         }
+
+        ::sdl_filler_color.r = ::palette2[filler_color_index][0];
+        ::sdl_filler_color.g = ::palette2[filler_color_index][1];
+        ::sdl_filler_color.b = ::palette2[filler_color_index][2];
 
         ::VL_SetPalette(
             0,
@@ -1293,6 +1536,10 @@ void VL_FadeIn(
             ::VL_WaitVBL(1);
         }
     }
+
+    ::sdl_filler_color.r = palette[(filler_color_index * 3) + 0];
+    ::sdl_filler_color.g = palette[(filler_color_index * 3) + 1];
+    ::sdl_filler_color.b = palette[(filler_color_index * 3) + 2];
 
     //
     // final color

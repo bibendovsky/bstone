@@ -27,6 +27,9 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 
 
+bool is_full_menu_active = false;
+
+
 void CA_CacheScreen(
     int16_t chunk);
 
@@ -159,7 +162,7 @@ CP_iteminfo NewItems = { NM_X, NM_Y, 4, 1, 0, 16, { 60, -2, 105, 16, 1 } };
 CP_iteminfo SwitchItems = { MENU_X, 0, 0, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 
 // BBi
-CP_iteminfo video_items = { MENU_X, MENU_Y + 30, 1, 0, 0, 9, { 77, -1, 154, 7, 1 } };
+CP_iteminfo video_items = { MENU_X, MENU_Y + 30, 2, 0, 0, 9, { 77, -1, 154, 7, 1 } };
 // BBi
 
 
@@ -283,6 +286,7 @@ CP_itemtype CusMenu[] = {
 // BBi
 CP_itemtype video_menu[] = {
     { AT_ENABLED, "TOGGLE WIDESCREEN", nullptr },
+    { AT_ENABLED, "TOGGLE UI STRETCH", nullptr },
 };
 // BBi
 
@@ -1275,6 +1279,15 @@ void HelpPresenter(
 void US_ControlPanel(
     ScanCode scancode)
 {
+    ::is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
+
+    bstone::ScopeGuard guard_flag{
+        [&]()
+        {
+            ::is_full_menu_active = false;
+        }
+    };
+
     // BBi
     menu_background_color = (
         (::is_aog_sw() | ::is_aog_full_v3_0()) ?
@@ -1507,7 +1520,9 @@ bool CP_CheckQuick(
         } else {
             CA_CacheGrChunk(STARTFONT + 1);
 
+            ::vid_is_hud = true;
             VW_FadeOut();
+            ::vid_is_hud = false;
 
             ::StartCPMusic(MENUSONG);
 
@@ -1546,7 +1561,9 @@ bool CP_CheckQuick(
         } else {
             CA_CacheGrChunk(STARTFONT + 1);
 
+            ::vid_is_hud = true;
             VW_FadeOut();
+            ::vid_is_hud = false;
 
             ::StartCPMusic(MENUSONG);
 
@@ -4499,6 +4516,8 @@ void ShootSnd()
 
 void ShowPromo()
 {
+    ::vid_is_movie = true;
+
     const auto PROMO_MUSIC = HIDINGA_MUS;
 
 // Load and start music
@@ -4525,6 +4544,8 @@ void ShowPromo()
 // Music off and freed!
 //
     ::StopMusic();
+
+    ::vid_is_movie = false;
 }
 
 void ExitGame()
@@ -4707,7 +4728,8 @@ void draw_video_descriptions(
     int16_t which)
 {
     const char* instructions[] = {
-        "STRETCHES RENDERED IMAGE TO THE WHOLE WINDOW",
+        "TOGGLES BETWEEN WIDESCREEN AND 4X3 MODES",
+        "TOGGLES STRETCHING OF USER INTERFACE",
     };
 
     ::fontnumber = 2;
@@ -4760,8 +4782,14 @@ void video_draw_switch(
             }
 
             switch (i) {
-            case mvl_stretch_to_window:
+            case mvl_widescreen:
                 if (::vid_widescreen) {
+                    Shape++;
+                }
+                break;
+
+            case mvl_stretch_ui:
+                if (::vid_is_ui_stretched) {
                     Shape++;
                 }
                 break;
@@ -4772,7 +4800,7 @@ void video_draw_switch(
 
             ::VWB_DrawPic(
                 video_items.x - 16,
-                video_items.y + i * video_items.y_spacing - 1,
+                video_items.y + (i * video_items.y_spacing) - 1,
                 Shape);
         }
     }
@@ -4794,7 +4822,7 @@ void cp_video(
         which = ::HandleMenu(&video_items, video_menu, video_draw_switch);
 
         switch (which) {
-        case mvl_stretch_to_window:
+        case mvl_widescreen:
             ::vid_widescreen = !::vid_widescreen;
             ::ShootSnd();
             ::video_draw_switch(video_items.curpos);
@@ -4802,6 +4830,13 @@ void cp_video(
             ::SetupWalls();
             ::NewViewSize();
             ::SetPlaneViewSize();
+            ::VL_RefreshScreen();
+            break;
+
+        case mvl_stretch_ui:
+            ::vid_is_ui_stretched = !::vid_is_ui_stretched;
+            ::ShootSnd();
+            ::video_draw_switch(video_items.curpos);
             ::VL_RefreshScreen();
             break;
 

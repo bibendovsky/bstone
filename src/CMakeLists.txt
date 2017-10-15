@@ -232,6 +232,7 @@ set(
     "bstone_ref_values.h"
     "bstone_pcm_decoder.h"
     "bstone_ps_fizzle_fx.h"
+    "bstone_scope_guard.h"
     "bstone_sha1.h"
     "bstone_sprite.h"
     "bstone_sprite_cache.h"

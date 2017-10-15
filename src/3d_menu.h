@@ -150,7 +150,8 @@ enum sw_labels {
 
 // BBi
 enum MenuVideoLables {
-    mvl_stretch_to_window,
+    mvl_widescreen,
+    mvl_stretch_ui,
 };
 // BBi
 
