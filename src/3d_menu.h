@@ -147,10 +147,14 @@ enum sw_labels {
     SW_QUIT_ON_ESCAPE,
     SW_HEART_BEAT_SOUND,
     SW_ROTATED_AUTOMAP,
-
 }; // sw_labels
 
 // BBi
+enum sw2_labels
+{
+    SW2_NO_INTRO_OUTRO,
+}; // sw2_labels
+
 enum MenuVideoLables {
     mvl_widescreen,
     mvl_stretch_ui,
