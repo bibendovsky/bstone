@@ -43,8 +43,6 @@ enum class ScanCode;
 
 const int BS_SAVE_VERSION = 4;
 
-extern bool no_screens;
-
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
 #define VERSION_TEXT_COLOR (0x82)
@@ -4331,6 +4329,7 @@ extern bool g_heart_beat_sound;
 extern bool g_rotated_automap;
 
 extern bool g_quit_on_escape;
+extern bool g_no_intro_outro;
 
 
 class ArchiveException : public std::exception {

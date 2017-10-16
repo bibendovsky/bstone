@@ -125,6 +125,9 @@ void ExitGame();
 void CP_Switches(
     int16_t temp1);
 
+void cp_switches2(
+    int16_t);
+
 void DrawSwitchMenu();
 
 void DrawAllSwitchLights(
@@ -152,7 +155,7 @@ extern bool refresh_screen;
 // ===========================================================================
 
 CP_iteminfo MainItems = { MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, { 77, 1, 154, 9, 1 } };
-CP_iteminfo GopItems = { MENU_X, MENU_Y + 30, 5, 0, 0, 9, { 77, 1, 154, 9, 1 } };
+CP_iteminfo GopItems = { MENU_X, MENU_Y + 25, 6, 0, 0, 9, { 77, 1, 154, 9, 1 } };
 CP_iteminfo SndItems = { SM_X, SM_Y, 6, 0, 0, 7, { 87, -1, 144, 7, 1 } };
 CP_iteminfo LSItems = { LSM_X, LSM_Y, 10, 0, 0, 8, { 86, -1, 144, 8, 1 } };
 CP_iteminfo CtlItems = { CTL_X, CTL_Y, 7, -1, 0, 9, { 87, 1, 174, 9, 1 } };
@@ -163,6 +166,7 @@ CP_iteminfo SwitchItems = { MENU_X, 0, 0, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 
 // BBi
 CP_iteminfo video_items = { MENU_X, MENU_Y + 30, 2, 0, 0, 9, { 77, -1, 154, 7, 1 } };
+CP_iteminfo switches2_items = { MENU_X, MENU_Y + 30, 1, 0, 0, 9, { 87, -1, 132, 7, 1 } };
 // BBi
 
 
@@ -193,7 +197,11 @@ CP_itemtype GopMenu[] = {
     // BBi
 
     { AT_ENABLED, "CONTROLS", CP_Control },
-    { AT_ENABLED, "SWITCHES", CP_Switches }
+    { AT_ENABLED, "SWITCHES", CP_Switches },
+
+    // BBi
+    { AT_ENABLED, "SWITCHES2", cp_switches2 },
+    // BBi
 };
 
 CP_itemtype SndMenu[] = {
@@ -229,6 +237,12 @@ CP_itemtype SwitchMenu[] = {
     { AT_ENABLED, "HEART BEAT SOUND", 0 },
     { AT_ENABLED, "ROTATED AUTOMAP", 0 },
 };
+
+CP_itemtype switch2_menu[] =
+{
+    { AT_ENABLED, "SKIP INTRO/OUTRO", 0 },
+};
+
 
 
 CP_itemtype NewEmenu[] = {
@@ -4576,7 +4590,8 @@ void ExitGame()
 {
     VW_FadeOut();
 
-    if (::is_aog_sw() && !::no_screens) {
+    if (::is_aog_sw() && !::g_no_intro_outro)
+    {
         ::ShowPromo();
     }
 
@@ -4865,6 +4880,117 @@ void cp_video(
             break;
 
         default:
+            break;
+        }
+    } while (which >= 0);
+
+    ::MenuFadeOut();
+}
+
+void draw_switch2_description(
+    int16_t which)
+{
+    const char* instr[] =
+    {
+        "TOGGLES INTRO/OUTRO",
+    };
+
+    fontnumber = 2;
+
+    WindowX = 48;
+    WindowY = (::is_ps() ? 134 : 144);
+    WindowW = 236;
+    WindowH = 8;
+
+    VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, ::menu_background_color);
+
+    SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(instr[which]);
+
+    WindowX--;
+    WindowY--;
+
+    SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+    US_PrintCentered(instr[which]);
+}
+
+void draw_all_switch2_lights(
+    int16_t which)
+{
+    uint16_t shape;
+
+    for (auto i = 0; i < switches2_items.amount; ++i)
+    {
+        if (switch2_menu[i].string[0])
+        {
+            shape = C_NOTSELECTEDPIC;
+
+            //
+            // DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
+            //
+
+            if (switches2_items.cursor.on)
+            {
+                // Is the cursor sitting on this pic?
+                if (i == which)
+                {
+                    shape += 2;
+                }
+            }
+
+            switch (i)
+            {
+            case SW2_NO_INTRO_OUTRO:
+                if (::g_no_intro_outro)
+                {
+                    shape += 1;
+                }
+                break;
+            }
+
+            VWB_DrawPic(switches2_items.x - 16, switches2_items.y + (i * switches2_items.y_spacing) - 1, shape);
+        }
+    }
+
+    draw_switch2_description(which);
+}
+
+void draw_switch2_menu()
+{
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+
+    ClearMScreen();
+    DrawMenuTitle("GAME SWITCHES 2");
+    DrawInstructions(IT_STANDARD);
+
+    fontnumber = 2;
+
+    DrawMenu(&switches2_items, &switch2_menu[0]);
+    draw_all_switch2_lights(switches2_items.curpos);
+
+    VW_UpdateScreen();
+}
+
+void cp_switches2(
+    int16_t)
+{
+    CA_CacheScreen(BACKGROUND_SCREENPIC);
+    draw_switch2_menu();
+    MenuFadeIn();
+    WaitKeyUp();
+
+    auto which = 0;
+
+    do
+    {
+        which = HandleMenu(&switches2_items, &switch2_menu[0], draw_all_switch2_lights);
+
+        switch (which)
+        {
+        case SW2_NO_INTRO_OUTRO:
+            ::g_no_intro_outro = !::g_no_intro_outro;
+            ShootSnd();
+            draw_switch2_menu();
             break;
         }
     } while (which >= 0);

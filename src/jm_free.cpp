@@ -724,7 +724,8 @@ extern char bc_buffer[];
 
 void PreDemo()
 {
-    if (::no_screens) {
+    if (::g_no_intro_outro)
+    {
         return;
     }
 
@@ -976,8 +977,9 @@ void freed_main()
     ::initialize_ca_constants();
     ::gamestuff.initialize();
 
-    if (::g_args.has_option("no_screens")) {
-        ::no_screens = true;
+    if (::g_args.has_option("no_screens"))
+    {
+        ::g_no_intro_outro = true;
     }
 
     if (::g_args.has_option("cheats")) {
