@@ -705,10 +705,6 @@ void CheckForEpisodes()
 
     ::extension = ::get_file_extension(::g_game_type);
 
-    for (int i = 0; i < mv_NUM_MOVIES; ++i) {
-        ::movies[i].file_name += ::extension;
-    }
-
     if (::is_aog_full()) {
         for (int i = 1; i < 6; ++i) {
             ::NewEmenu[i].active = AT_ENABLED;
