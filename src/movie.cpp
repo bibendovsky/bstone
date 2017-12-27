@@ -498,7 +498,7 @@ bool MOVIE_Play(
     // Start the anim process
     //
 
-    Movie_FHandle.open(::data_dir + MovieStuff->file_name);
+    ::ca_open_resource(MovieStuff->file_name, Movie_FHandle);
     if (!Movie_FHandle.is_open()) {
         return false;
     }
