@@ -8529,12 +8529,17 @@ void CleanUpDoors_N_Actors()
 
     for (y = 0; y < mapheight; ++y) {
         for (x = 0; x < mapwidth; ++x) {
-            tile = tilemap[y][x];
+            actor = actorat[y][x];
 
+            // actor is in actorat, but objtype X and Y don't match
+            if (actor > objlist &&
+                (actor->tilex != y || actor->tilex != y)) {
+                actorat[y][x] = nullptr;
+            }
+
+            tile = tilemap[y][x];
             if ((tile & 0x80) != 0) {
                 // Found a door
-
-                actor = actorat[y][x];
                 uint16_t actor_u16 = static_cast<uint16_t>(
                     reinterpret_cast<size_t>(actor));
 
