@@ -161,7 +161,7 @@ void generic_scale_shape(
     const auto top = sprite_ptr->get_top();
     auto y1 = offset_y + ((top * height) / side);
 
-    if (y1 >= ::vga_3d_view_bottom)
+    if (y1 > (::vga_3d_view_bottom - 1))
     {
         return;
     }
@@ -197,9 +197,9 @@ void generic_scale_shape(
         y1 = ::vga_3d_view_top;
     }
 
-    if (y2 > ::vga_3d_view_bottom)
+    if (y2 > (::vga_3d_view_bottom - 1))
     {
-        y2 = ::vga_3d_view_bottom;
+        y2 = ::vga_3d_view_bottom - 1;
     }
 
     if (y2 <= y1)
