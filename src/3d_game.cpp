@@ -2564,20 +2564,6 @@ void DrawPlayBorder()
 {
     ::vid_set_ui_mask_3d(
         ::playstate == ex_transported);
-
-    ::VL_Bar(
-        0,
-        ::ref_view_top,
-        ::vga_ref_width,
-        ::ref_3d_margin,
-        BLACK);
-
-    ::VL_Bar(
-        0,
-        ::ref_3d_view_bottom,
-        ::vga_ref_width,
-        ::ref_3d_margin,
-        BLACK);
 }
 
 // --------------------------------------------------------------------------

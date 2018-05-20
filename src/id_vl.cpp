@@ -1150,7 +1150,6 @@ void sdl_refresh_screen()
 
     // Copy 2D stuff
     //
-
     if (::vid_is_hud)
     {
         sdl_result = ::SDL_SetTextureBlendMode(
@@ -1164,7 +1163,6 @@ void sdl_refresh_screen()
                 ::SDL_GetError());
         }
     }
-
 
     if (!::vid_is_ui_stretched)
     {
@@ -1912,9 +1910,9 @@ void vid_set_ui_mask_3d(
 {
     ::vid_set_ui_mask(
         0,
-        ::ref_3d_view_top,
+        ::ref_3d_view_top - 1,
         ::vga_ref_width,
-        ::ref_3d_view_height,
+        ::ref_3d_view_height + 1,
         value);
 }
 
