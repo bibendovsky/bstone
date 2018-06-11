@@ -1492,7 +1492,7 @@ void ThreeDRefresh()
 
         fizzle.initialize();
 
-        static_cast<void>(fizzle.present());
+        static_cast<void>(fizzle.present(true));
 
         ::lasttimecount = ::TimeCount; // don't make a big tic count
     }

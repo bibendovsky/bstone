@@ -48,7 +48,8 @@ public:
     // Performs the effect.
     //
     // Returns true if aborted or false otherwise.
-    bool present();
+    bool present(
+		const bool trigger_fade);
 
 
 protected:

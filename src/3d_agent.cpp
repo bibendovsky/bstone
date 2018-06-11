@@ -3520,6 +3520,8 @@ int16_t InputFloor()
             }
         }
 
+		vid_set_ui_mask(false);
+
         VW_FadeOut();
 
         memcpy(player, &old_player, sizeof(objtype));

@@ -8936,7 +8936,7 @@ void DemoLoop()
 
                     fizzle.initialize();
 
-                    breakit |= fizzle.present();
+                    breakit |= fizzle.present(false);
                 }
 
                 if (breakit || ::IN_UserInput(TickBase * 6)) {
