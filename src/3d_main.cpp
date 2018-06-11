@@ -176,6 +176,8 @@ bool g_quit_on_escape = default_quit_on_escape;
 static const bool default_g_no_intro_outro = false;
 bool g_no_intro_outro = default_g_no_intro_outro;
 
+bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
+
 GameType g_game_type;
 
 
@@ -8833,7 +8835,7 @@ void DemoLoop()
 
         ::vid_is_movie = false;
 
-        if (!::g_no_intro_outro)
+        if (!::g_no_intro_outro && !::g_no_screens)
         {
             ::vid_is_movie = true;
 

@@ -720,7 +720,7 @@ extern char bc_buffer[];
 
 void PreDemo()
 {
-    if (::g_no_intro_outro)
+    if (::g_no_intro_outro || ::g_no_screens)
     {
         return;
     }
@@ -975,7 +975,7 @@ void freed_main()
 
     if (::g_args.has_option("no_screens"))
     {
-        ::g_no_intro_outro = true;
+        ::g_no_screens = true;
     }
 
     if (::g_args.has_option("cheats")) {
