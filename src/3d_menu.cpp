@@ -4590,7 +4590,7 @@ void ExitGame()
 {
     VW_FadeOut();
 
-    if (::is_aog_sw() && !::g_no_intro_outro)
+    if (::is_aog_sw() && !::g_no_intro_outro && !::g_no_screens)
     {
         ::ShowPromo();
     }

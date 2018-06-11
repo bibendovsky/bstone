@@ -4330,6 +4330,7 @@ extern bool g_rotated_automap;
 
 extern bool g_quit_on_escape;
 extern bool g_no_intro_outro;
+extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 
 
 class ArchiveException : public std::exception {
