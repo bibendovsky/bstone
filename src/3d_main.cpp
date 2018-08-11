@@ -7705,15 +7705,20 @@ bool LoadLevel(
 		level_index != 0xFF ? level_index : gamestate.mapon;
 
 	gamestuff.level[real_level_index].locked = false;
-	int mod = real_level_index % 6;
 
-	if (::is_ps())
+	if (::is_aog())
 	{
+		::normalshade_div = 1;
+		::shade_max = 29;
+	}
+	else
+	{
+		const auto mod = real_level_index % 6;
 		::normalshade_div = nsd_table[mod];
 		::shade_max = sm_table[mod];
 	}
 
-	normalshade = (3 * (maxscale >> 2)) / normalshade_div;
+	::update_normalshade();
 
 	std::string chunk_name = "LV" + (
 		bstone::FormatString() << std::setw(2) << std::setfill('0') <<

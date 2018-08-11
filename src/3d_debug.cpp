@@ -470,13 +470,13 @@ int16_t DebugKeys()
             normalshade_div--;
         }
 
-        normalshade = (3 * (maxscale >> 2)) / normalshade_div;
-
         if (Keyboard[ScanCode::sc_right_bracket] && shade_max < 63) {
             shade_max++;
         } else if (Keyboard[ScanCode::sc_left_bracket] && shade_max > 5) {
             shade_max--;
         }
+
+        ::update_normalshade();
     }
 
     return 0;

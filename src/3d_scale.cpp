@@ -62,14 +62,14 @@ uint16_t* linecmds;
 
 
 void SetupScaling(
-    int maxscaleheight)
+	int maxscaleheight)
 {
-    maxscaleheight /= 2; // one scaler every two pixels
+	maxscaleheight /= 2; // one scaler every two pixels
 
-    maxscale = maxscaleheight - 1;
-    maxscaleshl2 = maxscale * 4;
-    normalshade = (3 * maxscale) / (4 * normalshade_div);
-    centery = viewheight / 2;
+	::maxscale = maxscaleheight - 1;
+	::maxscaleshl2 = ::maxscale * 4;
+	::update_normalshade();
+	::centery = ::viewheight / 2;
 }
 
 
@@ -359,5 +359,10 @@ void scale_player_weapon(
         height,
         0,
         ShapeDrawMode::player_weapon);
+}
+
+void update_normalshade()
+{
+	::normalshade = static_cast<int>((3.0F * ::maxscale) / (4.0F * ::normalshade_div * ::vga_height_scale));
 }
 // BBi

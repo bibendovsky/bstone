@@ -67,6 +67,8 @@ extern int screen_width;
 extern int screen_height;
 
 extern int vga_scale;
+extern int vga_height_scale; // vga_width / 240
+extern int vga_width_scale; // vga_width / 320
 extern int vga_width;
 extern int vga_height;
 extern int vga_area;
