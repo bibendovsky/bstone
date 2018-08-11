@@ -125,7 +125,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
 
             }
-        //7,8 140-194
+            //7,8 140-194
             if (ev->tfinger.y > 140 / h  && ev->tfinger.y <= 194 / h)    
             {
                 if (ev->tfinger.x < m/w )
@@ -140,7 +140,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
 
             }
-        //5,6  194-249
+            //5,6  194-249
             if (ev->tfinger.y > 194 / h  && ev->tfinger.y <= 249 / h)    
             {
                 if (ev->tfinger.x < m/w )
@@ -155,7 +155,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
 
             }
-        //3,4  249-303
+            //3,4  249-303
             if (ev->tfinger.y > 249 / h  && ev->tfinger.y <= 303 / h)    
             {
                 if (ev->tfinger.x < m/w )
@@ -170,8 +170,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
 
             }
-        //1,2  303-410
-
+            //1,2  303-410
             if (ev->tfinger.y > 303 / h  && ev->tfinger.y <= 410 / h)    
             {
                 if (ev->tfinger.x < m/w )
@@ -184,19 +183,15 @@ void TranslateTouchEvent(SDL_Event *ev)
                         ev_new.key.keysym.sym = SDLK_2;
                         ev_new.key.keysym.scancode = SDL_SCANCODE_2;
                 }
-
             }
-
         }
 
         else
-            //outside of the column
+        //outside of the column
         {
         ev_new.key.keysym.sym = SDLK_BACKQUOTE;
         ev_new.key.keysym.scancode = SDL_SCANCODE_GRAVE;
         }
-    
-
     }
     else
     {
@@ -236,7 +231,7 @@ void TranslateAnalogEvent(SDL_Event *ev)
     {   
         delta = 0;
     }
-
+    // denominaors in the below expressiona estimated empirically
     if (ev->jaxis.axis == 0)
     {
         control2x = delta / 400;
@@ -247,6 +242,6 @@ void TranslateAnalogEvent(SDL_Event *ev)
     }
     else if (ev->jaxis.axis == 1)
     {
-        in_mouse_dy = delta / 1510 ; //estimated empirically
+        in_mouse_dy = delta / 1900 ;
     }
 }
