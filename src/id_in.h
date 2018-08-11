@@ -266,7 +266,12 @@ const int k_max_bindings = e_bi_last_entry;
 using Binding = ScanCode[k_max_binding_keys];
 using Bindings = Binding[k_max_bindings];
 
+#ifdef __vita__
+const bool default_in_use_modern_bindings = false;
+#else
 const bool default_in_use_modern_bindings = true;
+#endif
+
 extern bool in_use_modern_bindings;
 extern Bindings in_bindings;
 
@@ -377,6 +382,12 @@ extern uint8_t* DemoBuffer;
 extern uint16_t DemoOffset, DemoSize;
 
 // Function prototypes
+#ifdef __vita__
+void TranslateControllerEvent(SDL_Event *ev);
+void TranslateTouchEvent(SDL_Event *ev);
+void TranslateAnalogEvent(SDL_Event *ev);
+#endif
+
 #define IN_KeyDown(code) (Keyboard[(code)])
 #define IN_ClearKey(code) { Keyboard[code] = false; \
                             if (code == LastScan) { LastScan = ScanCode::sc_none; } }

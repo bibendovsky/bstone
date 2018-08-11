@@ -215,6 +215,15 @@ bool sdl_initialize_window()
         title = "Blake Stone: Planet Strike (full, v1.x)";
     }
 
+#ifdef __vita__
+    ::sdl_window = ::SDL_CreateWindow(
+        title.c_str(),
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        960,
+        544,
+        SDL_WINDOW_SHOWN);
+#else
     ::sdl_window = ::SDL_CreateWindow(
         title.c_str(),
         ::sdl_window_x,
@@ -222,6 +231,7 @@ bool sdl_initialize_window()
         ::window_width,
         ::window_height,
         window_flags);
+#endif
 
     if (!::sdl_window)
     {
@@ -612,7 +622,10 @@ void sdl_calculate_dimensions()
     {
         ::vga_width = (::vga_ref_width * ::vga_height) / ::vga_ref_height;
     }
-
+#ifdef __vita__
+    ::vga_width = 960;
+    ::vga_height = 454; // = makes ::screen_height = 544, but 454 is not divisible by 4. Todo: see if causes problems
+#endif
     ::vga_area = ::vga_width * ::vga_height;
 
     ::screen_width = ::vga_width;
@@ -621,8 +634,15 @@ void sdl_calculate_dimensions()
     ::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
     ::filler_width /= 2 * ::vga_ref_height_4x3;
 
+#ifdef __vita__
+//    ::filler_width = (960 - 320) /2 ;
+    ::filler_width = 117;
+    const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
+    const auto lower_filler_height =  (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 2;
+#else  
     const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
     const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
+#endif
     const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
 
     // UI whole rect
@@ -881,6 +901,10 @@ void sdl_initialize_video()
         ::window_height = ::display_mode.h;
     }
 
+#ifdef __vita__
+    ::window_width = 960;
+    ::window_height = 544;
+#endif
 
     ::sdl_calculate_dimensions();
 
@@ -919,6 +943,15 @@ void sdl_initialize_video()
 
         ::in_grab_mouse(
             true);
+#ifdef __vita__
+        // probably not the best place to put this (todo: fix)
+        if (!SDL_WasInit(SDL_INIT_JOYSTICK))
+        {
+            SDL_Init(SDL_INIT_JOYSTICK);
+        }
+        SDL_JoystickOpen(0);
+        SDL_JoystickEventState(SDL_ENABLE);
+#endif
     }
     else
     {

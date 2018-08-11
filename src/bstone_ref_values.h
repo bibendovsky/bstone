@@ -8,7 +8,12 @@ const int vga_ref_height_4x3 = (::vga_ref_height * 12) / 10;
 
 const int ref_top_bar_height = 16;
 const int ref_bottom_bar_height = 48;
+
+#ifdef __vita__
+const int ref_3d_margin = 0;
+#else
 const int ref_3d_margin = 3;
+#endif
 
 const int ref_center_x = (::vga_ref_width / 2) - 1;
 

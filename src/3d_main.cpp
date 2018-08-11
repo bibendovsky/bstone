@@ -34,6 +34,10 @@ Free Software Foundation, Inc.,
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
 
+#ifdef __vita__
+#include <psp2/kernel/processmgr.h>
+#include <psp2/power.h>
+#endif
 
 void VL_LatchToScreen(
     int source,
@@ -130,7 +134,7 @@ int16_t dirangle[9] = {
 //
 // proejection variables
 //
-int focallength;
+fixed focallength;
 int screenofs;
 int viewwidth;
 int viewheight;
@@ -6653,7 +6657,11 @@ static void set_vanilla_controls()
     }; // dirscan
 
     buttonscan = {
+#ifdef __vita__
+        ScanCode::sc_y,
+#else
         ScanCode::sc_control,
+#endif
         ScanCode::sc_alt,
         ScanCode::sc_right_shift,
         ScanCode::sc_space,
@@ -8778,9 +8786,14 @@ void SetViewSize()
     ::centerx = (::viewwidth / 2) - 1;
     ::shootdelta = ::viewwidth / 10;
 
+#ifdef __vita__
+    //todo: replace all this with hardcoded values for psvita screen dimensions
+    ::vga_3d_view_top = (::ref_3d_view_top * ::vga_height) / ::vga_ref_height + 1;
+    ::vga_3d_view_bottom = (::ref_3d_view_bottom * ::vga_height) / ::vga_ref_height + 1;
+#else
     ::vga_3d_view_top = (::ref_3d_view_top * ::vga_height) / ::vga_ref_height;
     ::vga_3d_view_bottom = (::ref_3d_view_bottom * ::vga_height) / ::vga_ref_height;
-
+#endif
     ::screenofs = ::vga_3d_view_top * ::viewwidth;
 
     // calculate trace angles and projection constants
@@ -9030,6 +9043,12 @@ int main(
     int argc,
     char* argv[])
 {
+#ifdef __vita__
+    scePowerSetArmClockFrequency(444);
+    scePowerSetBusClockFrequency(222);
+    scePowerSetGpuClockFrequency(222);
+    scePowerSetGpuXbarClockFrequency(166);
+#endif
     int sdl_result = 0;
 
     uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
@@ -9670,7 +9689,12 @@ bool is_ps()
 void sys_sleep_for(
     int milliseconds)
 {
+#ifdef __vita__
+    sceKernelDelayThread(milliseconds);
+//    SDL_Delay(milliseconds); // todo: investigate this as alternative
+#else
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+#endif
 }
 
 void sys_default_sleep_for()
@@ -9713,7 +9737,9 @@ const std::string& get_profile_dir()
             }
         }
     }
-
+#ifdef __vita__
+    profile_dir = "ux0:/data/bstone/";
+#endif
     return profile_dir;
 }
 
@@ -9732,7 +9758,9 @@ const std::string& get_default_data_dir()
             ::SDL_free(sdl_dir);
         }
     }
-
+#ifdef __vita__
+    result = "ux0:/data/bstone/";
+#endif
     return result;
 }
 // BBi

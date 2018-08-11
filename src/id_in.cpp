@@ -44,7 +44,6 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 
-
 #define KeyInt 9 // The keyboard ISR number
 
 //
@@ -780,8 +779,13 @@ static void in_handle_mouse_buttons(
     }
 }
 
+#ifndef __vita__
 static int in_mouse_dx;
 static int in_mouse_dy;
+#else
+int in_mouse_dx;
+int in_mouse_dy;
+#endif
 
 static void in_handle_mouse_motion(
     const SDL_MouseMotionEvent& e)
@@ -1281,6 +1285,19 @@ void in_handle_events()
 
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
+#ifdef __vita__
+        case SDL_JOYBUTTONDOWN:
+        case SDL_JOYBUTTONUP:
+            TranslateControllerEvent(&e);
+            break;
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+            TranslateTouchEvent(&e);
+            break;
+        case SDL_JOYAXISMOTION:
+            TranslateAnalogEvent(&e);
+            break;
+#endif
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             ::in_handle_keyboard(e.key);
@@ -1611,8 +1628,10 @@ void in_get_mouse_deltas(
 
 void in_clear_mouse_deltas()
 {
+#ifndef __vita__
     ::in_mouse_dx = 0;
     ::in_mouse_dy = 0;
+#endif
 }
 
 void in_set_default_bindings()
