@@ -86,44 +86,49 @@ void ViewMap();
 
 void DebugMemory()
 {
-    ::US_CenterWindow(22, 15);
+	::US_CenterWindow(22, 15);
 
-    ::US_Print("k\nTics      :");
-    ::US_PrintUnsigned(tics);
-    ::US_Print("\nReal Tics :");
-    ::US_PrintUnsigned(realtics);
+	::US_Print("\nTics: ");
+	::US_PrintUnsigned(::tics);
 
-    if ((gamestate.flags & GS_DRAW_CEILING) != 0) {
-        ::US_Print("\n\nCeiling TEX: ");
-        ::US_PrintUnsigned(CeilingTile - START_TEXTURES);
+	::US_Print("\nReal Tics: ");
+	::US_PrintUnsigned(::realtics);
 
-        ::US_Print(" Floor TEX: ");
-        ::US_PrintUnsigned(FloorTile - START_TEXTURES);
-    } else {
-        ::US_Print("\n\nTop COL: ");
-        ::US_PrintUnsigned(TopColor & 0xFF);
+	if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+	{
+		::US_Print("\n\nCeiling TEX: ");
+		::US_PrintUnsigned(::CeilingTile - START_TEXTURES);
 
-        ::US_Print(" Bottom COL: ");
-        ::US_PrintUnsigned(BottomColor & 0xFF);
-    }
+		::US_Print("\nFloor TEX: ");
+		::US_PrintUnsigned(::FloorTile - START_TEXTURES);
+	}
+	else
+	{
+		::US_Print("\n\nTop COL: ");
+		::US_PrintUnsigned(::TopColor & 0xFF);
 
-    if ((gamestate.flags & GS_LIGHTING) != 0) {
-        ::US_Print("\nShade div :");
-        ::US_PrintUnsigned(normalshade_div);
+		::US_Print("\nBottom COL: ");
+		::US_PrintUnsigned(::BottomColor & 0xFF);
+	}
 
-        ::US_Print("\nShade max :");
-        ::US_PrintUnsigned(shade_max);
-    }
+	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	{
+		::US_Print("\nShade div: ");
+		::US_PrintUnsigned(::normalshade_div);
 
-    VW_UpdateScreen();
-    ::IN_Ack();
+		::US_Print("\nShade max: ");
+		::US_PrintUnsigned(::shade_max);
+	}
 
-    ::WindowW = 253;
-    ::WindowH = 8;
-    ::fontnumber = 2;
+	VW_UpdateScreen();
+	::IN_Ack();
 
-    ::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
-    ::ShadowPrintLocationText(sp_normal);
+	::WindowW = 253;
+	::WindowH = 8;
+	::fontnumber = 2;
+
+	::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+	::ShadowPrintLocationText(sp_normal);
 }
 
 void CountObjects()
