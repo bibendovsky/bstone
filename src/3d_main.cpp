@@ -8810,15 +8810,21 @@ void LoadFonts()
 
 void SetViewSize()
 {
+	const auto alignment = 2;
+
     ::viewwidth = ::vga_width;
+
     ::viewheight = (ref_3d_view_height * ::vga_height) / ::vga_ref_height;
+	::viewheight /= alignment;
+	::viewheight *= alignment;
+
     ::centerx = (::viewwidth / 2) - 1;
     ::shootdelta = ::viewwidth / 10;
 
-    ::vga_3d_view_top = (::ref_3d_view_top * ::vga_height) / ::vga_ref_height;
-    ::vga_3d_view_bottom = (::ref_3d_view_bottom * ::vga_height) / ::vga_ref_height;
+    ::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height;
+	::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight;
 
-    ::screenofs = ::vga_3d_view_top * ::viewwidth;
+    ::screenofs = ::vga_3d_view_top_y * ::viewwidth;
 
     // calculate trace angles and projection constants
     ::CalcProjection(FOCALLENGTH);

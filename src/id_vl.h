@@ -72,8 +72,8 @@ extern int vga_width_scale; // vga_width / 320
 extern int vga_width;
 extern int vga_height;
 extern int vga_area;
-extern int vga_3d_view_top;
-extern int vga_3d_view_bottom;
+extern int vga_3d_view_top_y;
+extern int vga_3d_view_bottom_y;
 
 const bool default_vid_widescreen = true;
 extern bool vid_widescreen;

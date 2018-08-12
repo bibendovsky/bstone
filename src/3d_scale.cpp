@@ -143,8 +143,8 @@ void generic_scale_shape(
 
 	const auto offset_y =
 		is_player_weapon ?
-		::vga_3d_view_bottom - height + bob_offset :
-		::vga_3d_view_top + ::centery - half_height;
+		::vga_3d_view_bottom_y - height + bob_offset :
+		::vga_3d_view_top_y + ::centery - half_height;
 
 	const auto left = sprite_ptr->get_left();
 	auto x1 = offset_x + ((left * height) / side);
@@ -159,7 +159,7 @@ void generic_scale_shape(
 	const auto top = sprite_ptr->get_top();
 	auto y1 = offset_y + ((top * height) / side);
 
-	if (y1 > ::vga_3d_view_bottom)
+	if (y1 > ::vga_3d_view_bottom_y)
 	{
 		return;
 	}
@@ -177,30 +177,30 @@ void generic_scale_shape(
 		x1 = 0;
 	}
 
-	if (x2 >= ::viewwidth)
+	if (x2 > ::viewwidth)
 	{
 		x2 = ::viewwidth;
 	}
 
-	if (x2 <= x1)
+	if (x2 < x1)
 	{
 		return;
 	}
 
 	auto tx_row_begin = bstone::FixedPoint{};
 
-	if (y1 < ::vga_3d_view_top)
+	if (y1 < ::vga_3d_view_top_y)
 	{
-		tx_row_begin += tx_delta * (::vga_3d_view_top - y1);
-		y1 = ::vga_3d_view_top;
+		tx_row_begin += tx_delta * (::vga_3d_view_top_y - y1);
+		y1 = ::vga_3d_view_top_y;
 	}
 
-	if (y2 > ::vga_3d_view_bottom)
+	if (y2 > ::vga_3d_view_bottom_y)
 	{
-		y2 = ::vga_3d_view_bottom;
+		y2 = ::vga_3d_view_bottom_y;
 	}
 
-	if (y2 <= y1)
+	if (y2 < y1)
 	{
 		return;
 	}

@@ -12,20 +12,15 @@ const int ref_3d_margin = 3;
 
 const int ref_center_x = (::vga_ref_width / 2) - 1;
 
-const int ref_view_top = ::ref_top_bar_height;
-const int ref_view_bottom = ::vga_ref_height - ref_bottom_bar_height;
+const int ref_view_top_y = ::ref_top_bar_height;
+const int ref_view_bottom_y = ::vga_ref_height - ref_bottom_bar_height - 1;
 
-const int ref_view_height =
-    ::vga_ref_height -
-    ::ref_top_bar_height -
-    ::ref_bottom_bar_height;
+const int ref_view_height = ::vga_ref_height - (::ref_top_bar_height + ::ref_bottom_bar_height);
 
-const int ref_3d_view_height =
-    ::ref_view_height -
-    (2 * ::ref_3d_margin);
+const int ref_3d_view_height = ::ref_view_height - (2 * ::ref_3d_margin);
 
-const int ref_3d_view_top = ::ref_top_bar_height + ::ref_3d_margin;
-const int ref_3d_view_bottom = ::ref_3d_view_top + ::ref_3d_view_height;
+const int ref_3d_view_top_y = ::ref_top_bar_height + ::ref_3d_margin;
+const int ref_3d_view_bottom_y = ::vga_ref_height - (::ref_bottom_bar_height + ::ref_3d_margin) - 1;
 
 
 #endif // BSTONE_REF_VALUES_INCLUDED
