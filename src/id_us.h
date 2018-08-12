@@ -42,9 +42,6 @@ Free Software Foundation, Inc.,
 
 // #define      HELPTEXTLINKED
 
-#define MaxX 320
-#define MaxY 200
-
 #define MaxHelpLines 500
 
 #define MaxHighName 57
@@ -159,8 +156,8 @@ void US_SetLoadSaveHooks(bool (* load)(int16_t),
 void US_TextScreen();
 void US_UpdateTextScreen();
 void US_FinishTextScreen();
-void US_DrawWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-void US_CenterWindow(uint16_t, uint16_t);
+void US_DrawWindow(const int x, const int y, const int w, const int h);
+void US_CenterWindow(int w, int h);
 void US_SaveWindow(WindowRec * win);
 void US_RestoreWindow(WindowRec * win);
 void US_ClearWindow();

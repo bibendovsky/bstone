@@ -3224,10 +3224,6 @@ extern int strafe_value;
 extern char Computing[];
 
 
-void CenterWindow(
-    uint16_t w,
-    uint16_t h);
-
 void InitActorList();
 void GetNewActor();
 
@@ -3256,7 +3252,7 @@ void CheckMusicToggle();
 =============================================================================
 */
 
-int16_t DebugKeys();
+bool DebugKeys();
 void CalcMemFree();
 
 
