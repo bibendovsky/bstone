@@ -7706,17 +7706,19 @@ bool LoadLevel(
 
 	gamestuff.level[real_level_index].locked = false;
 
+	auto mod = -1;
+
 	if (::is_aog())
 	{
-		::normalshade_div = 1;
-		::shade_max = 29;
+		mod = 1;
 	}
 	else
 	{
-		const auto mod = real_level_index % 6;
-		::normalshade_div = nsd_table[mod];
-		::shade_max = sm_table[mod];
+		mod = real_level_index % 6;
 	}
+
+	::normalshade_div = nsd_table[mod];
+	::shade_max = sm_table[mod];
 
 	::update_normalshade();
 
