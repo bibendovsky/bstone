@@ -370,7 +370,13 @@ void US_CenterWindow(
 	const int w,
 	const int h)
 {
-    ::US_DrawWindow((::vga_ref_width - (w * 8)) / 2, (::vga_ref_height - (h * 8)) / 2, w * 8, h * 8);
+	const auto w8 = w * 8;
+	const auto h8 = h * 8;
+
+	const auto x = (::vga_ref_width - w8) / 2;
+	const auto y = ::ref_view_top_y + (::ref_view_height - h8) / 2;
+
+    ::US_DrawWindow(x, y, w8, h8);
 }
 
 ///////////////////////////////////////////////////////////////////////////
