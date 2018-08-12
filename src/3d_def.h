@@ -3225,8 +3225,8 @@ extern char Computing[];
 
 
 void CenterWindow(
-    uint16_t w,
-    uint16_t h);
+    int w,
+    int h);
 
 void InitActorList();
 void GetNewActor();

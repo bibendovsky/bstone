@@ -319,12 +319,12 @@ void US_ClearWindow()
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_DrawWindow(
-    uint16_t x,
-    uint16_t y,
-    uint16_t w,
-    uint16_t h)
+    int x,
+    int y,
+    int w,
+    int h)
 {
-    uint16_t i,
+    int i,
            sx, sy, sw, sh;
 
     WindowX = x * 8;
@@ -360,8 +360,8 @@ void US_DrawWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_CenterWindow(
-    uint16_t w,
-    uint16_t h)
+    int w,
+    int h)
 {
     US_DrawWindow(((MaxX / 8) - w) / 2, ((MaxY / 8) - h) / 2, w, h);
 }

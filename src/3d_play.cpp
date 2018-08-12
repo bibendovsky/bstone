@@ -153,8 +153,8 @@ int strafe_value = 0;
 
 
 void CenterWindow(
-    uint16_t w,
-    uint16_t h);
+    int w,
+    int h);
 
 void InitObjList();
 
@@ -679,8 +679,8 @@ void PollControls()
 ///////////////////////////////////////////////////////////////////////////
 
 void CenterWindow(
-    uint16_t w,
-    uint16_t h)
+    int w,
+    int h)
 {
     const auto MAXX = ::vga_ref_width;
     const auto MAXY = MAXX / 2;
