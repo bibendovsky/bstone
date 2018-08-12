@@ -303,7 +303,7 @@ int16_t DebugKeys()
         return 1;
     } else if (Keyboard[ScanCode::sc_e]) { // E = Win Mission
         ::US_CenterWindow(19, 3);
-        US_PrintCentered("Instant Winer!");
+        US_PrintCentered("Instant Winner!");
         InstantWin = 1;
         playstate = ex_victorious;
         VW_UpdateScreen();
