@@ -3252,7 +3252,7 @@ void CheckMusicToggle();
 =============================================================================
 */
 
-int16_t DebugKeys();
+bool DebugKeys();
 void CalcMemFree();
 
 
