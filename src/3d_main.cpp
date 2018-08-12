@@ -7690,233 +7690,270 @@ int8_t LS_current = -1;
 int8_t LS_total = -1;
 
 bool LoadLevel(
-    int level_index)
+	int level_index)
 {
-    extern bool ForceLoadDefault;
+	extern bool ForceLoadDefault;
 
-    bool oldloaded = loadedgame;
+	bool oldloaded = loadedgame;
 
-    extern int16_t nsd_table[];
-    extern int16_t sm_table[];
+	extern int16_t nsd_table[];
+	extern int16_t sm_table[];
 
-    WindowY = 181;
+	WindowY = 181;
 
-    int real_level_index =
-        level_index != 0xFF ? level_index : gamestate.mapon;
+	int real_level_index =
+		level_index != 0xFF ? level_index : gamestate.mapon;
 
-    gamestuff.level[real_level_index].locked = false;
-    int mod = real_level_index % 6;
-    normalshade_div = nsd_table[mod];
-    shade_max = sm_table[mod];
-    normalshade = (3 * (maxscale >> 2)) / normalshade_div;
+	gamestuff.level[real_level_index].locked = false;
 
-    std::string chunk_name = "LV" + (
-        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-        std::hex << std::uppercase << level_index).to_string();
+	auto mod = -1;
 
-    g_playtemp.set_position(0);
+	if (::is_aog())
+	{
+		mod = 1;
+	}
+	else
+	{
+		mod = real_level_index % 6;
+	}
 
-    if ((::FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault) {
-        ::SetupGameLevel();
+	::normalshade_div = nsd_table[mod];
+	::shade_max = sm_table[mod];
 
-        gamestate.flags |= GS_VIRGIN_LEVEL;
-        gamestate.turn_around = 0;
+	::update_normalshade();
 
-        ::PreloadUpdate(1, 1);
-        ForceLoadDefault = false;
-        return true;
-    }
+	std::string chunk_name = "LV" + (
+		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
+		std::hex << std::uppercase << level_index).to_string();
 
-    gamestate.flags &= ~GS_VIRGIN_LEVEL;
+	g_playtemp.set_position(0);
 
-    // Read all sorts of stuff...
-    //
+	if ((::FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault)
+	{
+		::SetupGameLevel();
 
-    bool is_succeed = true;
-    bstone::Crc32 checksum;
+		gamestate.flags |= GS_VIRGIN_LEVEL;
+		gamestate.turn_around = 0;
 
-    loadedgame = true;
-    ::SetupGameLevel();
-    loadedgame = oldloaded;
+		::PreloadUpdate(1, 1);
+		ForceLoadDefault = false;
+		return true;
+	}
 
-    bstone::BinaryReader reader(&g_playtemp);
+	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
-    try {
-        ::deserialize_field(tilemap, reader, checksum);
+	// Read all sorts of stuff...
+	//
 
-        for (int i = 0; i < MAPSIZE; ++i) {
-            for (int j = 0; j < MAPSIZE; ++j) {
-                int32_t value = 0;
-                ::deserialize_field(value, reader, checksum);
+	bool is_succeed = true;
+	bstone::Crc32 checksum;
 
-                if (value < 0) {
-                    actorat[i][j] = &objlist[-value];
-                } else {
-                    actorat[i][j] = reinterpret_cast<objtype*>(static_cast<size_t>(value));
-                }
-            }
-        }
+	loadedgame = true;
+	::SetupGameLevel();
+	loadedgame = oldloaded;
 
-        ::deserialize_field(areaconnect, reader, checksum);
-        ::deserialize_field(areabyplayer, reader, checksum);
+	bstone::BinaryReader reader(&g_playtemp);
 
-        // Restore 'save game' actors
-        //
+	try
+	{
+		::deserialize_field(tilemap, reader, checksum);
 
-        int32_t actor_count = 0;
-        ::deserialize_field(actor_count, reader, checksum);
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				int32_t value = 0;
+				::deserialize_field(value, reader, checksum);
 
-        if (actor_count < 1 || actor_count >= MAXACTORS) {
-            throw ArchiveException("actor_count");
-        }
+				if (value < 0)
+				{
+					actorat[i][j] = &objlist[-value];
+				}
+				else
+				{
+					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<size_t>(value));
+				}
+			}
+		}
 
-        ::InitActorList();
+		::deserialize_field(areaconnect, reader, checksum);
+		::deserialize_field(areabyplayer, reader, checksum);
 
-        // First actor is always player
-        new_actor->deserialize(reader, checksum);
+		// Restore 'save game' actors
+		//
 
-        for (int32_t i = 1; i < actor_count; ++i) {
-            ::GetNewActor();
-            new_actor->deserialize(reader, checksum);
-            actorat[new_actor->tilex][new_actor->tiley] = new_actor;
+		int32_t actor_count = 0;
+		::deserialize_field(actor_count, reader, checksum);
+
+		if (actor_count < 1 || actor_count >= MAXACTORS)
+		{
+			throw ArchiveException("actor_count");
+		}
+
+		::InitActorList();
+
+		// First actor is always player
+		new_actor->deserialize(reader, checksum);
+
+		for (int32_t i = 1; i < actor_count; ++i)
+		{
+			::GetNewActor();
+			new_actor->deserialize(reader, checksum);
+			actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
-            if ((new_actor->flags & FL_DEADGUY) != 0) {
-                DeadGuys[NumDeadGuys++] = new_actor;
-            }
+			if ((new_actor->flags & FL_DEADGUY) != 0)
+			{
+				DeadGuys[NumDeadGuys++] = new_actor;
+		}
 #endif
-        }
+	}
 
-        //
-        //  Re-Establish links to barrier switches
-        //
+		//
+		//  Re-Establish links to barrier switches
+		//
 
-        for (objtype* actor = objlist; actor; actor = actor->next) {
-            switch (actor->obclass) {
-            case arc_barrierobj:
-            case post_barrierobj:
-            case vspike_barrierobj:
-            case vpost_barrierobj:
-                actor->temp2 = ::ScanBarrierTable(
-                    actor->tilex, actor->tiley);
-                break;
+		for (objtype* actor = objlist; actor; actor = actor->next)
+		{
+			switch (actor->obclass)
+			{
+			case arc_barrierobj:
+			case post_barrierobj:
+			case vspike_barrierobj:
+			case vpost_barrierobj:
+				actor->temp2 = ::ScanBarrierTable(
+					actor->tilex, actor->tiley);
+				break;
 
-            default:
-                break;
-            }
-        }
+			default:
+				break;
+			}
+		}
 
-        ::ConnectBarriers();
+		::ConnectBarriers();
 
-        // Read all sorts of stuff...
-        //
+		// Read all sorts of stuff...
+		//
 
-        int32_t laststatobj_index = 0;
-        ::deserialize_field(laststatobj_index, reader, checksum);
+		int32_t laststatobj_index = 0;
+		::deserialize_field(laststatobj_index, reader, checksum);
 
-        if (laststatobj_index < 0) {
-            laststatobj = nullptr;
-        } else {
-            laststatobj = &statobjlist[laststatobj_index];
-        }
+		if (laststatobj_index < 0)
+		{
+			laststatobj = nullptr;
+		}
+		else
+		{
+			laststatobj = &statobjlist[laststatobj_index];
+		}
 
-        for (int i = 0; i < MAXSTATS; ++i) {
-            statobjlist[i].deserialize(reader, checksum);
-        }
+		for (int i = 0; i < MAXSTATS; ++i)
+		{
+			statobjlist[i].deserialize(reader, checksum);
+		}
 
-        ::deserialize_field(doorposition, reader, checksum);
+		::deserialize_field(doorposition, reader, checksum);
 
-        for (int i = 0; i < MAXDOORS; ++i) {
-            doorobjlist[i].deserialize(reader, checksum);
-        }
+		for (int i = 0; i < MAXDOORS; ++i)
+		{
+			doorobjlist[i].deserialize(reader, checksum);
+		}
 
-        ::deserialize_field(pwallstate, reader, checksum);
-        ::deserialize_field(pwallx, reader, checksum);
-        ::deserialize_field(pwally, reader, checksum);
-        ::deserialize_field(pwalldir, reader, checksum);
-        ::deserialize_field(pwallpos, reader, checksum);
-        ::deserialize_field(pwalldist, reader, checksum);
-        ::deserialize_field(TravelTable, reader, checksum);
-        ConHintList.deserialize(reader, checksum);
+		::deserialize_field(pwallstate, reader, checksum);
+		::deserialize_field(pwallx, reader, checksum);
+		::deserialize_field(pwally, reader, checksum);
+		::deserialize_field(pwalldir, reader, checksum);
+		::deserialize_field(pwallpos, reader, checksum);
+		::deserialize_field(pwalldist, reader, checksum);
+		::deserialize_field(TravelTable, reader, checksum);
+		ConHintList.deserialize(reader, checksum);
 
-        for (int i = 0; i < MAXEAWALLS; ++i) {
-            eaList[i].deserialize(reader, checksum);
-        }
+		for (int i = 0; i < MAXEAWALLS; ++i)
+		{
+			eaList[i].deserialize(reader, checksum);
+		}
 
-        GoldsternInfo.deserialize(reader, checksum);
+		GoldsternInfo.deserialize(reader, checksum);
 
-        for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i) {
-            GoldieList[i].deserialize(reader, checksum);
-        }
+		for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+		{
+			GoldieList[i].deserialize(reader, checksum);
+		}
 
-        for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-            ::gamestate.barrier_table[i].deserialize(reader, checksum);
-        }
+		for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+		{
+			::gamestate.barrier_table[i].deserialize(reader, checksum);
+		}
 
-        // BBi
-        ::apply_cross_barriers();
-        // BBi
+		// BBi
+		::apply_cross_barriers();
+		// BBi
 
-        ::deserialize_field(gamestate.plasma_detonators, reader, checksum);
-    } catch (const ArchiveException&) {
-        is_succeed = false;
-    }
+		::deserialize_field(gamestate.plasma_detonators, reader, checksum);
+}
+	catch (const ArchiveException&)
+	{
+		is_succeed = false;
+	}
 
-    // Read and evaluate checksum
-    //
-    if (is_succeed) {
-        uint32_t saved_checksum = 0;
-        reader.read(saved_checksum);
-        bstone::Endian::lei(saved_checksum);
+	// Read and evaluate checksum
+	//
+	if (is_succeed)
+	{
+		uint32_t saved_checksum = 0;
+		reader.read(saved_checksum);
+		bstone::Endian::lei(saved_checksum);
 
-        is_succeed = (saved_checksum == checksum.get_value());
-    }
+		is_succeed = (saved_checksum == checksum.get_value());
+	}
 
-    if (!is_succeed) {
-        int16_t old_wx = WindowX;
-        int16_t old_wy = WindowY;
-        int16_t old_ww = WindowW;
-        int16_t old_wh = WindowH;
-        int16_t old_px = px;
-        int16_t old_py = py;
+	if (!is_succeed)
+	{
+		int16_t old_wx = WindowX;
+		int16_t old_wy = WindowY;
+		int16_t old_ww = WindowW;
+		int16_t old_wh = WindowH;
+		int16_t old_px = px;
+		int16_t old_py = py;
 
-        WindowX = 0;
-        WindowY = 16;
-        WindowW = 320;
-        WindowH = 168;
+		WindowX = 0;
+		WindowY = 16;
+		WindowW = 320;
+		WindowH = 168;
 
-        ::CacheMessage(BADINFO_TEXT);
+		::CacheMessage(BADINFO_TEXT);
 
-        WindowX = old_wx;
-        WindowY = old_wy;
-        WindowW = old_ww;
-        WindowH = old_wh;
+		WindowX = old_wx;
+		WindowY = old_wy;
+		WindowW = old_ww;
+		WindowH = old_wh;
 
-        px = old_px;
-        py = old_py;
+		px = old_px;
+		py = old_py;
 
-        ::IN_ClearKeysDown();
-        ::IN_Ack();
+		::IN_ClearKeysDown();
+		::IN_Ack();
 
-        gamestate.score = 0;
-        gamestate.nextextra = EXTRAPOINTS;
-        gamestate.lives = 1;
+		gamestate.score = 0;
+		gamestate.nextextra = EXTRAPOINTS;
+		gamestate.lives = 1;
 
-        gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
-        gamestate.weapons = 1 << wp_autocharge;
+		gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
+		gamestate.weapons = 1 << wp_autocharge;
 
-        gamestate.ammo = 8;
-    }
+		gamestate.ammo = 8;
+	}
 
-    ::NewViewSize();
+	::NewViewSize();
 
-    // Check for Strange Door and Actor combos
-    //
-    if (is_succeed) {
-        ::CleanUpDoors_N_Actors();
-    }
+	// Check for Strange Door and Actor combos
+	//
+	if (is_succeed)
+	{
+		::CleanUpDoors_N_Actors();
+	}
 
-    return is_succeed;
+	return is_succeed;
 }
 
 bool SaveLevel(

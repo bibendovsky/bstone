@@ -62,14 +62,14 @@ uint16_t* linecmds;
 
 
 void SetupScaling(
-    int maxscaleheight)
+	int maxscaleheight)
 {
-    maxscaleheight /= 2; // one scaler every two pixels
+	maxscaleheight /= 2; // one scaler every two pixels
 
-    maxscale = maxscaleheight - 1;
-    maxscaleshl2 = maxscale * 4;
-    normalshade = (3 * maxscale) / (4 * normalshade_div);
-    centery = viewheight / 2;
+	::maxscale = maxscaleheight - 1;
+	::maxscaleshl2 = ::maxscale * 4;
+	::update_normalshade();
+	::centery = ::viewheight / 2;
 }
 
 
@@ -78,207 +78,205 @@ extern bool useBounceOffset;
 int bounceOffset = 0;
 
 void generic_scale_shape(
-    const int xcenter,
-    const int shapenum,
-    const int ref_height,
-    const int8_t lighting,
-    const ShapeDrawMode draw_mode)
+	const int xcenter,
+	const int shapenum,
+	const int ref_height,
+	const int8_t lighting,
+	const ShapeDrawMode draw_mode)
 {
-    const auto is_player_weapon = (draw_mode == ShapeDrawMode::player_weapon);
+	const auto is_player_weapon = (draw_mode == ShapeDrawMode::player_weapon);
 
-    if (!is_player_weapon)
-    {
-        const auto ref_half_height = ref_height / 2;
+	if (!is_player_weapon)
+	{
+		const auto ref_half_height = ref_height / 2;
 
-        if (ref_half_height == 0)
-        {
-            return;
-        }
+		if (ref_half_height == 0)
+		{
+			return;
+		}
 
-        if (ref_half_height > ::maxscaleshl2)
-        {
-            return;
-        }
-    }
+		if (ref_half_height > ::maxscaleshl2)
+		{
+			return;
+		}
+	}
 
-    const auto height =
-        is_player_weapon ?
-        (::vga_height * ref_height) / ::vga_ref_height :
-        ref_height / 4;
+	const auto height =
+		is_player_weapon ?
+		(::vga_height * ref_height) / ::vga_ref_height :
+		ref_height / 4;
 
-    if (height == 0)
-    {
-        return;
-    }
-
-
-    constexpr auto side = bstone::Sprite::side;
-
-    constexpr int mid_bob = 6;
-    constexpr auto bob_start = 6;
-
-    const auto use_bobbing = is_player_weapon && useBounceOffset;
-
-    const auto bounce_offset_n =
-        use_bobbing ?
-            bounceOffset / 0x10000 :
-            0;
-
-    const auto bob_offset =
-        use_bobbing ?
-        (::vga_height * (bob_start + mid_bob - bounce_offset_n)) / ::vga_ref_height :
-        0;
+	if (height == 0)
+	{
+		return;
+	}
 
 
-    const auto sprite_ptr = ::vid_sprite_cache.cache(
-        shapenum);
+	constexpr auto side = bstone::Sprite::side;
 
-    const auto sprite_width = sprite_ptr->get_width();
-    const auto sprite_height = sprite_ptr->get_height();
+	constexpr auto mid_bob = 6;
+	constexpr auto bob_start = 6;
 
-    const auto half_height = height / 2;
+	const auto use_bobbing = is_player_weapon && useBounceOffset;
 
-    const auto offset_x =
-        is_player_weapon ?
-            (::viewwidth - height) / 2 :
-            xcenter - half_height;
+	const auto bounce_offset_n =
+		use_bobbing ?
+		bounceOffset / 0x10000 :
+		0;
 
-    const auto offset_y =
-        is_player_weapon ?
-            ::vga_3d_view_bottom - height + bob_offset :
-            ::vga_3d_view_top + ::centery - half_height;
-
-    const auto left = sprite_ptr->get_left();
-    auto x1 = offset_x + ((left * height) / side);
-
-    if (x1 >= ::viewwidth)
-    {
-        return;
-    }
-
-    auto x2 = x1 + ((sprite_width * height) / side);
-
-    const auto top = sprite_ptr->get_top();
-    auto y1 = offset_y + ((top * height) / side);
-
-    if (y1 > ::vga_3d_view_bottom)
-    {
-        return;
-    }
-
-    auto y2 = y1 + ((sprite_height * height) / side);
+	const auto bob_offset =
+		use_bobbing ?
+		(::vga_height * (bob_start + mid_bob - bounce_offset_n)) / ::vga_ref_height :
+		0;
 
 
-    const auto tx_delta = bstone::FixedPoint{side, 0} / height;
+	const auto sprite_ptr = ::vid_sprite_cache.cache(shapenum);
+	const auto sprite_width = sprite_ptr->get_width();
+	const auto sprite_height = sprite_ptr->get_height();
 
-    auto tx_column = bstone::FixedPoint{};
+	const auto half_height = height / 2;
 
-    if (x1 < 0)
-    {
-        tx_column += tx_delta * (-x1);
-        x1 = 0;
-    }
+	const auto offset_x =
+		is_player_weapon ?
+		(::viewwidth - height) / 2 :
+		xcenter - half_height;
 
-    if (x2 >= ::viewwidth)
-    {
-        x2 = ::viewwidth;
-    }
+	const auto offset_y =
+		is_player_weapon ?
+		::vga_3d_view_bottom - height + bob_offset :
+		::vga_3d_view_top + ::centery - half_height;
 
-    if (x2 <= x1)
-    {
-        return;
-    }
+	const auto left = sprite_ptr->get_left();
+	auto x1 = offset_x + ((left * height) / side);
 
-    auto tx_row_begin = bstone::FixedPoint{};
+	if (x1 >= ::viewwidth)
+	{
+		return;
+	}
 
-    if (y1 < ::vga_3d_view_top)
-    {
-        tx_row_begin += tx_delta * (::vga_3d_view_top - y1);
-        y1 = ::vga_3d_view_top;
-    }
+	auto x2 = x1 + ((sprite_width * height) / side);
 
-    if (y2 > ::vga_3d_view_bottom)
-    {
-        y2 = ::vga_3d_view_bottom;
-    }
+	const auto top = sprite_ptr->get_top();
+	auto y1 = offset_y + ((top * height) / side);
 
-    if (y2 <= y1)
-    {
-        return;
-    }
+	if (y1 > ::vga_3d_view_bottom)
+	{
+		return;
+	}
 
-    const uint8_t* shading = nullptr;
-
-    if (draw_mode == ShapeDrawMode::shaded)
-    {
-        auto i = shade_max - (63 * ref_height / (::normalshade * 8)) + lighting;
-
-        if (i < 0)
-        {
-            i = 0;
-        }
-        else if (i > 63)
-        {
-            i = 63;
-        }
-
-        // BBi Don't shade cloaked shape
-        if (::cloaked_shape)
-        {
-            i = 0;
-        }
-
-        shading = &::lightsource[i * 256];
-    }
+	auto y2 = y1 + ((sprite_height * height) / side);
 
 
-    for (int x = x1; x < x2; ++x)
-    {
-        if (!is_player_weapon && ::wallheight[x] > ref_height)
-        {
-            tx_column += tx_delta;
-            continue;
-        }
+	const auto tx_delta = bstone::FixedPoint{side, 0} / height;
 
-        const auto column_index = tx_column.get_int();
-        const auto column = sprite_ptr->get_column(column_index);
-        auto tx_row = tx_row_begin;
+	auto tx_column = bstone::FixedPoint{};
 
-        for (int y = y1; y < y2; ++y)
-        {
-            const auto row_index = tx_row.get_int();
-            const auto sprite_color = column[row_index];
+	if (x1 < 0)
+	{
+		tx_column += tx_delta * (-x1);
+		x1 = 0;
+	}
 
-            if (sprite_color < 0)
-            {
-                tx_row += tx_delta;
-                continue;
-            }
+	if (x2 >= ::viewwidth)
+	{
+		x2 = ::viewwidth;
+	}
 
-            const auto pixel_offset = ::vl_get_offset(0, x, y);
-            auto color_index = static_cast<uint8_t>(sprite_color);
+	if (x2 <= x1)
+	{
+		return;
+	}
 
-            if (draw_mode == ShapeDrawMode::shaded)
-            {
+	auto tx_row_begin = bstone::FixedPoint{};
+
+	if (y1 < ::vga_3d_view_top)
+	{
+		tx_row_begin += tx_delta * (::vga_3d_view_top - y1);
+		y1 = ::vga_3d_view_top;
+	}
+
+	if (y2 > ::vga_3d_view_bottom)
+	{
+		y2 = ::vga_3d_view_bottom;
+	}
+
+	if (y2 <= y1)
+	{
+		return;
+	}
+
+	const uint8_t* shading = nullptr;
+
+	if (draw_mode == ShapeDrawMode::shaded)
+	{
+		auto i = shade_max - (63 * ref_height / (::normalshade * 8)) + lighting;
+
+		if (i < 0)
+		{
+			i = 0;
+		}
+		else if (i > 63)
+		{
+			i = 63;
+		}
+
+		// BBi Don't shade cloaked shape
+		if (::cloaked_shape)
+		{
+			i = 0;
+		}
+
+		shading = ::lightsource + (i * 256);
+	}
+
+
+	for (int x = x1; x < x2; ++x)
+	{
+		if (!is_player_weapon && ::wallheight[x] > ref_height)
+		{
+			tx_column += tx_delta;
+			continue;
+		}
+
+		const auto column_index = tx_column.get_int();
+		const auto column = sprite_ptr->get_column(column_index);
+		auto tx_row = tx_row_begin;
+
+		for (int y = y1; y < y2; ++y)
+		{
+			const auto row_index = tx_row.get_int();
+			const auto sprite_color = column[row_index];
+
+			if (sprite_color < 0)
+			{
+				tx_row += tx_delta;
+				continue;
+			}
+
+			const auto pixel_offset = ::vl_get_offset(0, x, y);
+			auto color_index = static_cast<uint8_t>(sprite_color);
+
+			if (draw_mode == ShapeDrawMode::shaded)
+			{
 #if CLOAKED_SHAPES
-                if (::cloaked_shape)
-                {
-                    color_index = shading[0x1000 | ::vga_memory[pixel_offset]];
-                }
-                else
+				if (::cloaked_shape)
+				{
+					color_index = shading[0x1000 | ::vga_memory[pixel_offset]];
+				}
+				else
 #endif
-                {
-                    color_index = shading[color_index];
-                }
-            }
+				{
+					color_index = shading[color_index];
+				}
+			}
 
-            ::vga_memory[pixel_offset] = color_index;
+			::vga_memory[pixel_offset] = color_index;
 
-            tx_row += tx_delta;
-        }
+			tx_row += tx_delta;
+		}
 
-        tx_column += tx_delta;
-    }
+		tx_column += tx_delta;
+	}
 }
 
 /*
@@ -361,5 +359,10 @@ void scale_player_weapon(
         height,
         0,
         ShapeDrawMode::player_weapon);
+}
+
+void update_normalshade()
+{
+	::normalshade = static_cast<int>((3.0F * ::maxscale) / (4.0F * ::normalshade_div * ::vga_height_scale));
 }
 // BBi

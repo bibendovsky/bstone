@@ -436,24 +436,31 @@ extern const uint8_t* lightsource;
 
 void ScalePost()
 {
-    int height = wallheight[postx] / 8;
-    postheight = height;
+	const auto height = ::wallheight[postx] / 8;
 
-    if ((gamestate.flags & GS_LIGHTING) != 0) {
-        int i = shade_max - ((63 * height) / normalshade);
+	::postheight = height;
 
-        if (i < 0) {
-            i = 0;
-        } else if (i > 63) {
-            i = 63;
-        }
+	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	{
+		auto i = ::shade_max - ((63 * height) / ::normalshade);
 
-        shadingtable = &lightsource[i * 256];
+		if (i < 0)
+		{
+			i = 0;
+		}
+		else if (i > 63)
+		{
+			i = 63;
+		}
 
-        DrawLSPost();
-    } else {
-        DrawPost();
-    }
+		::shadingtable = ::lightsource + (i * 256);
+
+		::DrawLSPost();
+	}
+	else
+	{
+		::DrawPost();
+	}
 }
 
 void FarScalePost() // just so other files can call
