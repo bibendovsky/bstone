@@ -133,45 +133,51 @@ void DebugMemory()
 
 void CountObjects()
 {
-    int16_t i, total, count, active, inactive, doors;
-    objtype* obj;
+	::US_CenterWindow(16, 7);
 
-    ::US_CenterWindow(16, 7);
-    active = inactive = count = doors = 0;
+	const auto total_statics = static_cast<int>(::laststatobj - &::statobjlist[0]);
+	::US_Print("Total statics: ");
+	::US_PrintUnsigned(total_statics);
 
-    US_Print("Total statics :");
-    total = static_cast<int16_t>(laststatobj - &statobjlist[0]);
-    US_PrintUnsigned(total);
+	auto in_use_static_count = 0;
 
-    US_Print("\nIn use statics:");
-    for (i = 0; i < total; i++) {
-        if (statobjlist[i].shapenum != -1) {
-            count++;
-        } else {
-            doors++; // debug
-        }
-    }
-    US_PrintUnsigned(count);
+	for (auto i = 0; i < total_statics; ++i)
+	{
+		if (::statobjlist[i].shapenum != -1)
+		{
+			in_use_static_count += 1;
+		}
+	}
 
-    US_Print("\nDoors         :");
-    US_PrintUnsigned(doornum);
+	::US_Print("\nIn use statics: ");
+	::US_PrintUnsigned(in_use_static_count);
 
-    for (obj = player->next; obj; obj = obj->next) {
-        if (obj->active) {
-            active++;
-        } else {
-            inactive++;
-        }
-    }
+	::US_Print("\nDoors: ");
+	::US_PrintUnsigned(::doornum);
 
-    US_Print("\nTotal actors  :");
-    US_PrintUnsigned(active + inactive);
+	auto active_static_count = 0;
+	auto inactive_static_count = 0;
 
-    US_Print("\nActive actors :");
-    US_PrintUnsigned(active);
+	for (auto obj = ::player->next; obj; obj = obj->next)
+	{
+		if (obj->active)
+		{
+			active_static_count += 1;
+		}
+		else
+		{
+			inactive_static_count += 1;
+		}
+	}
 
-    VW_UpdateScreen();
-    IN_Ack();
+	::US_Print("\nTotal actors: ");
+	::US_PrintUnsigned(active_static_count + inactive_static_count);
+
+	::US_Print("\nActive actors: ");
+	::US_PrintUnsigned(active_static_count);
+
+	VW_UpdateScreen();
+	::IN_Ack();
 }
 
 void CountTotals()
