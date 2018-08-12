@@ -2331,7 +2331,7 @@ void DrawLSAction(
 
     ::VL_Bar(
         0,
-        ::ref_view_top,
+        ::ref_view_top_y,
         ::vga_ref_width,
         ::ref_view_height,
         BLACK);

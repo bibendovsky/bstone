@@ -45,8 +45,8 @@ int vga_width_scale = 0;
 int vga_width = 0;
 int vga_height = 0;
 int vga_area = 0;
-int vga_3d_view_top = 0;
-int vga_3d_view_bottom = 0;
+int vga_3d_view_top_y = 0;
+int vga_3d_view_bottom_y = 0;
 
 int screen_x = 0;
 int screen_y = 0;
@@ -598,22 +598,26 @@ void sdl_initialize_palette()
 
 void sdl_calculate_dimensions()
 {
-    ::vga_height = (10 * ::window_height) / 12;
-    ::vga_height += 4 - 1;
-    ::vga_height /= 4;
-    ::vga_height *= 4;
+	const auto alignment = 2;
+
+	// Decrease by 20% to compensate vanilla VGA stretch.
+    ::vga_height = (10 * window_height) / 12;
+	::vga_height += alignment - 1;
+	::vga_height /= alignment;
+	::vga_height *= alignment;
 
     if (::vid_widescreen)
     {
         ::vga_width = ::window_width;
-        ::vga_width += 4 - 1;
-        ::vga_width /= 4;
-        ::vga_width *= 4;
     }
     else
     {
         ::vga_width = (::vga_ref_width * ::vga_height) / ::vga_ref_height;
     }
+
+	::vga_width += alignment - 1;
+	::vga_width /= alignment;
+	::vga_width *= alignment;
 
 	::vga_width_scale = ::vga_width / ::vga_ref_width;
 	::vga_height_scale = ::vga_height / ::vga_ref_height_4x3;
@@ -621,7 +625,11 @@ void sdl_calculate_dimensions()
     ::vga_area = ::vga_width * ::vga_height;
 
     ::screen_width = ::vga_width;
+
     ::screen_height = (12 * ::vga_height) / 10;
+	::screen_height += alignment - 1;
+	::screen_height /= alignment;
+	::screen_height *= alignment;
 
     ::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
     ::filler_width /= 2 * ::vga_ref_height_4x3;
@@ -668,7 +676,7 @@ void sdl_calculate_dimensions()
     //
     ::sdl_ui_wide_middle_src_rect = SDL_Rect{
         0,
-        ::ref_view_top,
+        ::ref_view_top_y,
         ::vga_ref_width,
         ::ref_view_height,
     };
@@ -685,7 +693,7 @@ void sdl_calculate_dimensions()
     //
     ::sdl_ui_bottom_src_rect = SDL_Rect{
         0,
-        ::ref_view_bottom,
+        ::ref_view_bottom_y,
         ::vga_ref_width,
         ::ref_bottom_bar_height,
     };
@@ -1915,7 +1923,7 @@ void vid_set_ui_mask_3d(
 {
     ::vid_set_ui_mask(
         0,
-        ::ref_3d_view_top - 1,
+        ::ref_3d_view_top_y - 1,
         ::vga_ref_width,
         ::ref_3d_view_height + 1,
         value);

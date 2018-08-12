@@ -2809,12 +2809,12 @@ void DrawWarpIn()
 
     VW_Bar(
         0,
-        ::ref_view_top,
+        ::ref_view_top_y,
         ::vga_ref_width,
         ::ref_view_height,
         BLACK);
 
-    ::LatchDrawPic(0, ::ref_view_bottom, ::STATUSBARPIC);
+    ::LatchDrawPic(0, ::ref_view_bottom_y, ::STATUSBARPIC);
     ::LatchDrawPic(0, 0, ::TOP_STATUSBARPIC);
 
     ::ShadowPrintLocationText(sp_normal);
@@ -3131,7 +3131,7 @@ restartgame:
         if (!loadedgame) {
             if (LS_current == -1) {
                 // BBi
-                ::VL_Bar(0, ::ref_view_top, ::vga_ref_width, ::ref_view_height, BLACK);
+                ::VL_Bar(0, ::ref_view_top_y, ::vga_ref_width, ::ref_view_height, BLACK);
                 ::vid_clear_3d();
                 // BBi
 

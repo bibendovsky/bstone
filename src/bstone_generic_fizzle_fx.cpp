@@ -74,7 +74,7 @@ GenericFizzleFX::~GenericFizzleFX()
 
 void GenericFizzleFX::initialize()
 {
-    impl_->y_offset_ = ::ref_view_top;
+    impl_->y_offset_ = ::ref_view_top_y;
     impl_->height_ = ::ref_view_height;
 
     if (!impl_->is_transparent_)
