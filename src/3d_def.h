@@ -3224,10 +3224,6 @@ extern int strafe_value;
 extern char Computing[];
 
 
-void CenterWindow(
-    int w,
-    int h);
-
 void InitActorList();
 void GetNewActor();
 

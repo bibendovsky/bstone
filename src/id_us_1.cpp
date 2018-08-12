@@ -319,38 +319,45 @@ void US_ClearWindow()
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_DrawWindow(
-    int x,
-    int y,
-    int w,
-    int h)
+	const int x,
+	const int y,
+	const int w,
+	const int h)
 {
-    int i,
-           sx, sy, sw, sh;
+	::WindowX = x;
+	::WindowY = y;
+	::WindowW = w;
+	::WindowH = h;
 
-    WindowX = x * 8;
-    WindowY = y * 8;
-    WindowW = w * 8;
-    WindowH = h * 8;
+	::PrintX = ::WindowX;
+	::PrintY = ::WindowY;
 
-    PrintX = WindowX;
-    PrintY = WindowY;
+	const auto sx = x - 8;
+	const auto sy = y - 8;
+	const auto sw = w + 8;
+	const auto sh = h + 8;
 
-    sx = (x - 1) * 8;
-    sy = (y - 1) * 8;
-    sw = (w + 1) * 8;
-    sh = (h + 1) * 8;
+	::US_ClearWindow();
 
-    US_ClearWindow();
+	auto i = 0;
 
-    VWB_DrawTile8(sx, sy, 0), VWB_DrawTile8(sx, sy + sh, 5);
-    for (i = sx + 8; i <= sx + sw - 8; i += 8) {
-        VWB_DrawTile8(i, sy, 1), VWB_DrawTile8(i, sy + sh, 6);
-    }
-    VWB_DrawTile8(i, sy, 2), VWB_DrawTile8(i, sy + sh, 7);
+	::VWB_DrawTile8(sx, sy, 0);
+	::VWB_DrawTile8(sx, sy + sh, 5);
 
-    for (i = sy + 8; i <= sy + sh - 8; i += 8) {
-        VWB_DrawTile8(sx, i, 3), VWB_DrawTile8(sx + sw, i, 4);
-    }
+	for (i = sx + 8; i <= sx + sw - 8; i += 8)
+	{
+		::VWB_DrawTile8(i, sy, 1);
+		::VWB_DrawTile8(i, sy + sh, 6);
+	}
+
+	::VWB_DrawTile8(i, sy, 2);
+	::VWB_DrawTile8(i, sy + sh, 7);
+
+	for (i = sy + 8; i <= sy + sh - 8; i += 8)
+	{
+		::VWB_DrawTile8(sx, i, 3);
+		::VWB_DrawTile8(sx + sw, i, 4);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -360,10 +367,10 @@ void US_DrawWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_CenterWindow(
-    int w,
-    int h)
+	const int w,
+	const int h)
 {
-    US_DrawWindow(((MaxX / 8) - w) / 2, ((MaxY / 8) - h) / 2, w, h);
+    ::US_DrawWindow((::vga_ref_width - (w * 8)) / 2, (::vga_ref_height - (h * 8)) / 2, w * 8, h * 8);
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -86,7 +86,7 @@ void ViewMap();
 
 void DebugMemory()
 {
-    ::CenterWindow(22, 15);
+    ::US_CenterWindow(22, 15);
 
     ::US_Print("k\nTics      :");
     ::US_PrintUnsigned(tics);
@@ -131,7 +131,7 @@ void CountObjects()
     int16_t i, total, count, active, inactive, doors;
     objtype* obj;
 
-    CenterWindow(16, 7);
+    ::US_CenterWindow(16, 7);
     active = inactive = count = doors = 0;
 
     US_Print("Total statics :");
@@ -171,7 +171,7 @@ void CountObjects()
 
 void CountTotals()
 {
-    CenterWindow(20, 11);
+    ::US_CenterWindow(20, 11);
 
     US_Print("  CURRENT MAP TOTALS\n");
 
@@ -196,7 +196,7 @@ void ShowMap()
     player->angle = 90;
     player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
-    CenterWindow(20, 11);
+    ::US_CenterWindow(20, 11);
 
     US_CPrint("CURRENT MAP\n\n ");
 
@@ -258,7 +258,7 @@ int16_t DebugKeys()
 
     if (Keyboard[ScanCode::sc_a]) {       // A = Show Actors on AutoMap
         ExtraRadarFlags ^= OV_ACTORS;
-        CenterWindow(24, 3);
+        ::US_CenterWindow(24, 3);
         if (ExtraRadarFlags & OV_ACTORS) {
             US_PrintCentered("AUTOMAP: Show Actors ON");
         } else {
@@ -279,7 +279,7 @@ int16_t DebugKeys()
         ShowMap();
         return 1;
     } else if (Keyboard[ScanCode::sc_d]) { // D = Dumb/Blind Objects (Player Invisable)
-        CenterWindow(19, 3);
+        ::US_CenterWindow(19, 3);
         ::PlayerInvisable = !::PlayerInvisable;
         if (PlayerInvisable) {
             US_PrintCentered("Player Invisible!");
@@ -291,7 +291,7 @@ int16_t DebugKeys()
         IN_Ack();
         return 1;
     } else if (Keyboard[ScanCode::sc_e]) { // E = Win Mission
-        CenterWindow(19, 3);
+        ::US_CenterWindow(19, 3);
         US_PrintCentered("Instant Wiener!");
         InstantWin = 1;
         playstate = ex_victorious;
@@ -299,7 +299,7 @@ int16_t DebugKeys()
         IN_Ack();
         return 1;
     } else if (Keyboard[ScanCode::sc_f]) { // F = facing spot
-        CenterWindow(18, 5);
+        ::US_CenterWindow(18, 5);
         US_Print("X:");
         US_PrintUnsigned(player->x);
         US_Print("  ");
@@ -318,7 +318,7 @@ int16_t DebugKeys()
     }
 
     if (Keyboard[ScanCode::sc_g]) { // G = god mode
-        CenterWindow(12, 2);
+        ::US_CenterWindow(12, 2);
         if (godmode) {
             US_PrintCentered("God mode OFF");
         } else {
@@ -335,7 +335,7 @@ int16_t DebugKeys()
         IN_ClearKeysDown();
         TakeDamage(1, nullptr);
     } else if (Keyboard[ScanCode::sc_i]) { // I = item cheat
-        CenterWindow(12, 3);
+        ::US_CenterWindow(12, 3);
         US_PrintCentered("Free items!");
         VW_UpdateScreen();
         HealSelf(99);
@@ -367,7 +367,7 @@ int16_t DebugKeys()
     }
     else if (Keyboard[ScanCode::sc_o]) { // O = Show Push Walls
         ExtraRadarFlags ^= OV_PUSHWALLS;
-        CenterWindow(24, 3);
+        ::US_CenterWindow(24, 3);
         if (ExtraRadarFlags & OV_PUSHWALLS) {
             US_PrintCentered("AUTOMAP: Show PWalls ON");
         } else {
@@ -377,7 +377,7 @@ int16_t DebugKeys()
         IN_Ack();
         return 1;
     } else if (Keyboard[ScanCode::sc_u]) { // Unlock All Floors
-        CenterWindow(24, 3);
+        ::US_CenterWindow(24, 3);
         US_PrintCentered("Unlock All Floors!");
         VW_UpdateScreen();
         IN_Ack();
@@ -389,7 +389,7 @@ int16_t DebugKeys()
         return 1;
     } else if (Keyboard[ScanCode::sc_s]) { // S = slow motion
         ::singlestep = !::singlestep;
-        CenterWindow(18, 3);
+        ::US_CenterWindow(18, 3);
         if (singlestep) {
             US_PrintCentered("Slow motion ON");
         } else {
@@ -401,7 +401,7 @@ int16_t DebugKeys()
     } else if (Keyboard[ScanCode::sc_w]) { // W = warp to level
         ForceLoadDefault = Keyboard[ScanCode::sc_left_shift] | Keyboard[ScanCode::sc_right_shift] | Keyboard[ScanCode::sc_caps_lock];
 
-        CenterWindow(26, 5);
+        ::US_CenterWindow(26, 5);
         PrintY += 6;
         if (ForceLoadDefault) {
             US_Print("         --- LOAD DEFAULT ---\n");
