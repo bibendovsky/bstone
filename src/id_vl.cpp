@@ -40,8 +40,8 @@ uint8_t palette2[palette_color_count][3];
 uint8_t* vga_memory = nullptr;
 
 int vga_scale = 0;
-int vga_height_scale = 0;
-int vga_width_scale = 0;
+float vga_height_scale = 0.0F;
+float vga_width_scale = 0.0F;
 int vga_width = 0;
 int vga_height = 0;
 int vga_area = 0;
@@ -619,8 +619,8 @@ void sdl_calculate_dimensions()
 	::vga_width /= alignment;
 	::vga_width *= alignment;
 
-	::vga_width_scale = ::vga_width / ::vga_ref_width;
-	::vga_height_scale = ::vga_height / ::vga_ref_height_4x3;
+	::vga_width_scale = static_cast<float>(::vga_width) / static_cast<float>(::vga_ref_width);
+	::vga_height_scale = static_cast<float>(::vga_height) / static_cast<float>(::vga_ref_height_4x3);
 
     ::vga_area = ::vga_width * ::vga_height;
 
