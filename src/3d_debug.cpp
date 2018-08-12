@@ -182,21 +182,21 @@ void CountObjects()
 
 void CountTotals()
 {
-    ::US_CenterWindow(20, 11);
+	::US_CenterWindow(20, 11);
 
-    US_Print("  CURRENT MAP TOTALS\n");
+	::US_Print("CURRENT MAP TOTALS\n");
 
-    US_Print("\nTotal Enemy:\n");
-    US_PrintUnsigned(gamestuff.level[gamestate.mapon].stats.total_enemy);
+	::US_Print("\nTotal Enemy: ");
+	::US_PrintUnsigned(::gamestuff.level[gamestate.mapon].stats.total_enemy);
 
-    US_Print("\nTotal Points:\n");
-    US_PrintUnsigned(gamestuff.level[gamestate.mapon].stats.total_points);
+	::US_Print("\nTotal Points: ");
+	::US_PrintUnsigned(::gamestuff.level[gamestate.mapon].stats.total_points);
 
-    US_Print("\nTotal Informants:\n");
-    US_PrintUnsigned(gamestuff.level[gamestate.mapon].stats.total_inf);
+	::US_Print("\nTotal Informants: ");
+	::US_PrintUnsigned(::gamestuff.level[gamestate.mapon].stats.total_inf);
 
-    VW_UpdateScreen();
-    IN_Ack();
+	VW_UpdateScreen();
+	::IN_Ack();
 }
 
 void ShowMap()
@@ -303,7 +303,7 @@ int16_t DebugKeys()
         return 1;
     } else if (Keyboard[ScanCode::sc_e]) { // E = Win Mission
         ::US_CenterWindow(19, 3);
-        US_PrintCentered("Instant Wiener!");
+        US_PrintCentered("Instant Winer!");
         InstantWin = 1;
         playstate = ex_victorious;
         VW_UpdateScreen();
