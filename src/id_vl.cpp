@@ -909,6 +909,7 @@ void sdl_initialize_video()
         ::window_height = ::display_mode.h;
     }
 
+
     ::sdl_calculate_dimensions();
 
     bool is_succeed = true;
