@@ -155,10 +155,6 @@ bool buttonstate[NUMBUTTONS];
 int strafe_value = 0;
 
 
-void CenterWindow(
-    uint16_t w,
-    uint16_t h);
-
 void InitObjList();
 
 void RemoveObj(
@@ -683,27 +679,6 @@ void PollControls()
     }
 #endif
 
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      CenterWindow() - Generates a window of a given width & height in the
-//              middle of the screen
-//
-///////////////////////////////////////////////////////////////////////////
-
-void CenterWindow(
-    uint16_t w,
-    uint16_t h)
-{
-    const auto MAXX = ::vga_ref_width;
-    const auto MAXY = MAXX / 2;
-
-    ::US_DrawWindow(
-        ((MAXX / 8) - w) / 2,
-        ((MAXY / 8) - h) / 2,
-        w,
-        h);
 }
 
 

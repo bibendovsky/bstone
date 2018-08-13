@@ -2333,7 +2333,7 @@ void DrawLSAction(
 
     ::VL_Bar(
         0,
-        ::ref_view_top,
+        ::ref_view_top_y,
         ::vga_ref_width,
         ::ref_view_height,
         BLACK);
@@ -4867,7 +4867,9 @@ void cp_video(
 
         switch (which) {
         case mvl_widescreen:
+#ifndef __vita__
             ::vid_widescreen = !::vid_widescreen;
+#endif
             ::ShootSnd();
             ::video_draw_switch(video_items.curpos);
             ::vl_update_widescreen();

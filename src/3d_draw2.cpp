@@ -77,52 +77,62 @@ int mr_dest = 0;
 ==============
 */
 void DrawSpans(
-    int x1,
-    int x2,
-    int height)
+	int x1,
+	int x2,
+	int height)
 {
-    int toprow = bufferofs + planeylookup[height];
-    mr_rowofs = mirrorofs[height];
+	const auto toprow = ::bufferofs + ::planeylookup[height];
 
-    mr_xstep = psin / (2 * height);
-    mr_ystep = pcos / (2 * height);
+	::mr_rowofs = ::mirrorofs[height];
 
-    int length = basedist[height];
-    int startxfrac = viewx + FixedMul(length, pcos);
-    int startyfrac = viewy - FixedMul(length, psin);
+	::mr_xstep = ::psin / (2 * height);
+	::mr_ystep = ::pcos / (2 * height);
 
-    if ((gamestate.flags & GS_LIGHTING) != 0) {
-        int i = ::shade_max - ((63 * height) / ::normalshade);
+	auto length = ::basedist[height];
+	auto startxfrac = ::viewx + ::FixedMul(length, pcos);
+	auto startyfrac = ::viewy - ::FixedMul(length, psin);
 
-        if (i < 0) {
-            i = 0;
-        } else if (i > 63) {
-            i = 63;
-        }
+	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	{
+		auto i = ::shade_max - ((63 * height) / ::normalshade);
 
-        shadingtable = lightsource + (i * 256);
-    }
+		if (i < 0)
+		{
+			i = 0;
+		}
+		else if (i > 63)
+		{
+			i = 63;
+		}
 
-    int prestep = (::viewwidth / 2) - x1;
+		::shadingtable = ::lightsource + (i * 256);
+	}
 
-    mr_xfrac = startxfrac - (mr_xstep * prestep);
-    mr_yfrac = startyfrac - (mr_ystep * prestep);
+	const auto prestep = (::viewwidth / 2) - x1;
 
-    mr_dest = toprow + x1;
-    mr_count = x2 - x1 + 1;
+	::mr_xfrac = startxfrac - (::mr_xstep * prestep);
+	::mr_yfrac = startyfrac - (::mr_ystep * prestep);
+
+	::mr_dest = toprow + x1;
+	::mr_count = x2 - x1 + 1;
 
 #if GAMESTATE_TEST
-    if (mr_count > 0) {
-        MapRowPtr();
-    }
+	if (::mr_count > 0)
+	{
+		::MapRowPtr();
+	}
 #else
-    if (mr_count > 0) {
-        if ((gamestate.flags & GS_LIGHTING) != 0) {
-            MapLSRow();
-        } else {
-            MapRow();
-        }
-    }
+	if (::mr_count > 0)
+	{
+		if ((::gamestate.flags & GS_LIGHTING) != 0)
+		{
+			::MapLSRow();
+		}
+		else
+		{
+			::MapRow();
+		}
+	}
 #endif
 }
 

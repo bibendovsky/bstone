@@ -40,11 +40,13 @@ uint8_t palette2[palette_color_count][3];
 uint8_t* vga_memory = nullptr;
 
 int vga_scale = 0;
+float vga_height_scale = 0.0F;
+float vga_width_scale = 0.0F;
 int vga_width = 0;
 int vga_height = 0;
 int vga_area = 0;
-int vga_3d_view_top = 0;
-int vga_3d_view_bottom = 0;
+int vga_3d_view_top_y = 0;
+int vga_3d_view_bottom_y = 0;
 
 int screen_x = 0;
 int screen_y = 0;
@@ -606,39 +608,45 @@ void sdl_initialize_palette()
 
 void sdl_calculate_dimensions()
 {
-    ::vga_height = (10 * ::window_height) / 12;
-    ::vga_height += 4 - 1;
-    ::vga_height /= 4;
-    ::vga_height *= 4;
+	const auto alignment = 2;
+
+	// Decrease by 20% to compensate vanilla VGA stretch.
+    ::vga_height = (10 * window_height) / 12;
+	::vga_height += alignment - 1;
+	::vga_height /= alignment;
+	::vga_height *= alignment;
 
     if (::vid_widescreen)
     {
         ::vga_width = ::window_width;
-        ::vga_width += 4 - 1;
-        ::vga_width /= 4;
-        ::vga_width *= 4;
     }
     else
     {
         ::vga_width = (::vga_ref_width * ::vga_height) / ::vga_ref_height;
     }
-#ifdef __vita__
-    ::vga_width = 960;
-    ::vga_height = 454; // = makes ::screen_height = 544, but 454 is not divisible by 4. Todo: see if causes problems
-#endif
+
+	::vga_width += alignment - 1;
+	::vga_width /= alignment;
+	::vga_width *= alignment;
+
+	::vga_width_scale = static_cast<float>(::vga_width) / static_cast<float>(::vga_ref_width);
+	::vga_height_scale = static_cast<float>(::vga_height) / static_cast<float>(::vga_ref_height_4x3);
+
     ::vga_area = ::vga_width * ::vga_height;
 
     ::screen_width = ::vga_width;
+
     ::screen_height = (12 * ::vga_height) / 10;
+	::screen_height += alignment - 1;
+	::screen_height /= alignment;
+	::screen_height *= alignment;
 
     ::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
     ::filler_width /= 2 * ::vga_ref_height_4x3;
 
 #ifdef __vita__
-//    ::filler_width = (960 - 320) /2 ;
-    ::filler_width = 117;
     const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
-    const auto lower_filler_height =  (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 2;
+    const auto lower_filler_height =  (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
 #else  
     const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
     const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
@@ -683,7 +691,7 @@ void sdl_calculate_dimensions()
     //
     ::sdl_ui_wide_middle_src_rect = SDL_Rect{
         0,
-        ::ref_view_top,
+        ::ref_view_top_y,
         ::vga_ref_width,
         ::ref_view_height,
     };
@@ -700,7 +708,7 @@ void sdl_calculate_dimensions()
     //
     ::sdl_ui_bottom_src_rect = SDL_Rect{
         0,
-        ::ref_view_bottom,
+        ::ref_view_bottom_y,
         ::vga_ref_width,
         ::ref_bottom_bar_height,
     };
@@ -900,11 +908,6 @@ void sdl_initialize_video()
         ::window_width = ::display_mode.w;
         ::window_height = ::display_mode.h;
     }
-
-#ifdef __vita__
-    ::window_width = 960;
-    ::window_height = 544;
-#endif
 
     ::sdl_calculate_dimensions();
 
@@ -1943,7 +1946,7 @@ void vid_set_ui_mask_3d(
 {
     ::vid_set_ui_mask(
         0,
-        ::ref_3d_view_top - 1,
+        ::ref_3d_view_top_y - 1,
         ::vga_ref_width,
         ::ref_3d_view_height + 1,
         value);
