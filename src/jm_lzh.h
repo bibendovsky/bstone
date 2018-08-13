@@ -51,7 +51,7 @@ int LZH_Compress(
     void* outfile,
     uint32_t DataLength);
 
-int32_t LZH_Decompress(
+int LZH_Decompress(
     const void* infile,
     void* outfile,
     uint32_t OrginalLength,
