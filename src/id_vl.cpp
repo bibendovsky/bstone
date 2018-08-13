@@ -179,6 +179,9 @@ bool sdl_initialize_window()
             SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
+#ifdef __vita__
+    window_flags = SDL_WINDOW_SHOWN;
+#endif
 
     std::string title = "Blake Stone: ???";
 
@@ -217,15 +220,6 @@ bool sdl_initialize_window()
         title = "Blake Stone: Planet Strike (full, v1.x)";
     }
 
-#ifdef __vita__
-    ::sdl_window = ::SDL_CreateWindow(
-        title.c_str(),
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        960,
-        544,
-        SDL_WINDOW_SHOWN);
-#else
     ::sdl_window = ::SDL_CreateWindow(
         title.c_str(),
         ::sdl_window_x,
@@ -233,7 +227,6 @@ bool sdl_initialize_window()
         ::window_width,
         ::window_height,
         window_flags);
-#endif
 
     if (!::sdl_window)
     {
@@ -947,15 +940,6 @@ void sdl_initialize_video()
 
         ::in_grab_mouse(
             true);
-#ifdef __vita__
-        // probably not the best place to put this (todo: fix)
-        if (!SDL_WasInit(SDL_INIT_JOYSTICK))
-        {
-            SDL_Init(SDL_INIT_JOYSTICK);
-        }
-        SDL_JoystickOpen(0);
-        SDL_JoystickEventState(SDL_ENABLE);
-#endif
     }
     else
     {

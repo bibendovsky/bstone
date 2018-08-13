@@ -1613,6 +1613,16 @@ void IN_Startup()
         JoysPresent[i] = INL_StartJoy(static_cast<uint16_t>(i));
     }
 
+#ifdef __vita__
+        // Vita joysticks are treated separately from other kinds of joystick
+        if (!SDL_WasInit(SDL_INIT_JOYSTICK))
+        {
+            SDL_Init(SDL_INIT_JOYSTICK);
+        }
+        SDL_JoystickOpen(0);
+        SDL_JoystickEventState(SDL_ENABLE);
+#endif
+
     ::in_set_default_bindings();
 
     IN_Started = true;

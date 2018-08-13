@@ -16,7 +16,7 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//  modified versions of controller routines from i_video.c and txt_sdl.c in vita chocolate doom
+// modified versions of controller routines from i_video.c and txt_sdl.c in vita chocolate doom
 //
 
 #include "SDL.h"
@@ -103,6 +103,11 @@ void TranslateTouchEvent(SDL_Event *ev)
     float w = 960.0; //screen width
     float m = 760.0; //midpoint between rows
     float h = 544.0; //screen height
+/*    if (::vid_is_ui_stretched)
+    {
+        w *= .75 ;   // adjusts for stretched screen
+    }
+*/
     if (ev->tfinger.touchId == 0)
     {
         // front touch

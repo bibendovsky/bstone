@@ -13,3 +13,12 @@ x64/
 *.sdf
 *.suo
 *.user
+CMakeCache.txt
+CMakeFiles/
+Makefile
+bstone
+bstone.vpk
+bstone.self
+bstone.velf
+bstone.vpk_param.sfo
+cmake_install.cmake
