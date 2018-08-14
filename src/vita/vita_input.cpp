@@ -54,7 +54,7 @@ void TranslateControllerEvent(SDL_Event *ev)
     memset(&ev_new, 0, sizeof(SDL_Event));
 
     btn = ev->jbutton.button;
-    in_prompt = 0; // TODO
+    in_prompt = 0; // TODO-- for now just use "y" for fire button
 
     if (in_prompt)
     {
@@ -101,15 +101,15 @@ void TranslateTouchEvent(SDL_Event *ev)
 
     memset(&ev_new, 0, sizeof(SDL_Event));
 
-    float w = 960.0; //screen width
-    float m = 760.0; //midpoint between rows
-    float h = 544.0; //screen height
+    float w = 960.0F; //screen width
+    float m = 760.0F; //midpoint between rows
+    float h = 544.0F; //screen height
     float fingerx = ev->tfinger.x;
     float fingery = ev->tfinger.y;
-    if (vid_is_ui_stretched) // adjusts for stretched screen
+    if (vid_is_ui_stretched) // adjusts for stretched screen, for expressions of the form (c/w)
     {
-        fingerx += 0.16667;
-        w *=  .75 ;
+        w *=  0.75F ; // (4/3) / (16/9)
+        fingerx += 0.166667F; // (1/6), compensates for 4:3 mode being centered on the vita's screen, as opposed to left flushed
     }
     if (ev->tfinger.touchId == 0)
     {
@@ -119,7 +119,7 @@ void TranslateTouchEvent(SDL_Event *ev)
         //column containing elevator buttons
         {
             if (fingery > 50 / h  && fingery <= 140 / h)    
-            // 9,10 50-140
+            //9,10  50-140 
             {
                 if (fingerx < m/w )
                 {
@@ -131,9 +131,8 @@ void TranslateTouchEvent(SDL_Event *ev)
                         ev_new.key.keysym.sym = SDLK_0;
                         ev_new.key.keysym.scancode = SDL_SCANCODE_0;
                 }
-
             }
-            //7,8 140-194
+            //7,8   140-194
             if (fingery > 140 / h  && fingery <= 194 / h)    
             {
                 if (fingerx < m/w )
@@ -146,9 +145,8 @@ void TranslateTouchEvent(SDL_Event *ev)
                         ev_new.key.keysym.sym = SDLK_8;
                         ev_new.key.keysym.scancode = SDL_SCANCODE_8;
                 }
-
             }
-            //5,6  194-249
+            //5,6   194-249
             if (fingery > 194 / h  && fingery <= 249 / h)    
             {
                 if (fingerx < m/w )
@@ -161,9 +159,8 @@ void TranslateTouchEvent(SDL_Event *ev)
                         ev_new.key.keysym.sym = SDLK_6;
                         ev_new.key.keysym.scancode = SDL_SCANCODE_6;
                 }
-
             }
-            //3,4  249-303
+            //3,4   249-303
             if (fingery > 249 / h  && fingery <= 303 / h)    
             {
                 if (fingerx < m/w )
@@ -176,9 +173,8 @@ void TranslateTouchEvent(SDL_Event *ev)
                         ev_new.key.keysym.sym = SDLK_4;
                         ev_new.key.keysym.scancode = SDL_SCANCODE_4;
                 }
-
             }
-            //1,2  303-410
+            //1,2   303-410
             if (fingery > 303 / h  && fingery <= 410 / h)    
             {
                 if (fingerx < m/w )
@@ -204,7 +200,7 @@ void TranslateTouchEvent(SDL_Event *ev)
     else
     {
         // back touch
-        if (fingerx > .5)
+        if (ev->tfinger.x > .5)
         {
             ev_new.key.keysym.sym = SDLK_EQUALS;
             ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
