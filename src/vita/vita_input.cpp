@@ -115,10 +115,10 @@ void TranslateTouchEvent(SDL_Event *ev)
     {
         // front touch
 
-        if (fingerx > 660 / w && fingerx < 860 / w)    
+        if (fingerx > 660.0F / w && fingerx < 860.0F / w)    
         //column containing elevator buttons
         {
-            if (fingery > 50 / h  && fingery <= 140 / h)    
+            if (fingery > 50.0F / h  && fingery <= 140.0F / h)    
             //9,10  50-140 
             {
                 if (fingerx < m/w )
@@ -133,7 +133,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //7,8   140-194
-            if (fingery > 140 / h  && fingery <= 194 / h)    
+            if (fingery > 140.0F / h  && fingery <= 194.0F / h)    
             {
                 if (fingerx < m/w )
                 {
@@ -147,7 +147,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //5,6   194-249
-            if (fingery > 194 / h  && fingery <= 249 / h)    
+            if (fingery > 194.0F / h  && fingery <= 249.0F / h)    
             {
                 if (fingerx < m/w )
                 {
@@ -161,7 +161,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //3,4   249-303
-            if (fingery > 249 / h  && fingery <= 303 / h)    
+            if (fingery > 249.0F / h  && fingery <= 303.0F / h)    
             {
                 if (fingerx < m/w )
                 {
@@ -175,7 +175,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //1,2   303-410
-            if (fingery > 303 / h  && fingery <= 410 / h)    
+            if (fingery > 303.0F / h  && fingery <= 410.0F / h)    
             {
                 if (fingerx < m/w )
                 {
@@ -200,7 +200,7 @@ void TranslateTouchEvent(SDL_Event *ev)
     else
     {
         // back touch
-        if (ev->tfinger.x > .5)
+        if (fingerx > 480.0F / w)
         {
             ev_new.key.keysym.sym = SDLK_EQUALS;
             ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
