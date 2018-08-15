@@ -179,6 +179,9 @@ bool sdl_initialize_window()
             SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
+#ifdef __vita__
+    window_flags = SDL_WINDOW_SHOWN;
+#endif
 
     std::string title = "Blake Stone: ???";
 
@@ -634,8 +637,13 @@ void sdl_calculate_dimensions()
     ::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
     ::filler_width /= 2 * ::vga_ref_height_4x3;
 
+#ifdef __vita__
+    const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
+    const auto lower_filler_height =  (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
+#else  
     const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
     const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
+#endif
     const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
 
     // UI whole rect

@@ -2948,7 +2948,6 @@ extern char str2[20];
 extern bool nospr;
 extern bool IsA386;
 
-extern int focallength;
 extern int viewangles;
 extern int screenofs;
 extern int viewwidth;
@@ -2983,7 +2982,6 @@ extern int scale;
 extern int maxslope;
 extern int heightnumerator;
 extern int minheightdiv;
-extern int mindist;
 
 extern char configname[13];
 
@@ -3218,6 +3216,9 @@ extern const int viewsize;
 //
 extern int controlx;
 extern int controly; // range from -100 to 100
+#ifdef __vita__
+extern int control2x; //left stick horizontal axis
+#endif
 extern bool buttonstate[NUMBUTTONS];
 extern int strafe_value;
 

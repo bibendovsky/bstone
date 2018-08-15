@@ -1980,7 +1980,9 @@ void CP_Switches(
             break;
 
         case SW_MODERN_CONTROLS:
+#ifndef __vita__
             in_use_modern_bindings = !in_use_modern_bindings;
+#endif
             ShootSnd();
             DrawSwitchMenu();
             break;
@@ -2607,6 +2609,9 @@ void CP_ExitOptions(
 void CP_Control(
     int16_t)
 {
+#ifdef __vita__
+    return;
+#endif
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, CALIBRATEJOY, MOUSESENS, CUSTOMIZE};
 
     int16_t which;
@@ -4862,7 +4867,9 @@ void cp_video(
 
         switch (which) {
         case mvl_widescreen:
+#ifndef __vita__
             ::vid_widescreen = !::vid_widescreen;
+#endif
             ::ShootSnd();
             ::video_draw_switch(video_items.curpos);
             ::vl_update_widescreen();

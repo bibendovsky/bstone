@@ -97,12 +97,12 @@ public:
         return get_min_scale();
     }
 
-    static int get_min_sample_value()
+    static int32_t get_min_sample_value()
     {
         return -32768;
     }
 
-    static int get_max_sample_value()
+    static int32_t get_max_sample_value()
     {
         return 32767;
     }
