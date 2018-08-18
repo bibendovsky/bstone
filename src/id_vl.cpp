@@ -1931,9 +1931,9 @@ void vid_set_ui_mask_3d(
 {
     ::vid_set_ui_mask(
         0,
-        ::ref_3d_view_top_y - 1,
+        ::ref_3d_view_top_y - ::ref_3d_margin,
         ::vga_ref_width,
-        ::ref_3d_view_height + 1,
+        ::ref_3d_view_height + 2 * ::ref_3d_margin,
         value);
 }
 
