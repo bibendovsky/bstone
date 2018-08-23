@@ -990,7 +990,7 @@ static int16_t DecodePosition(
 // ===========================================================================
 
 #if INCLUDE_LZH_DECOMP
-int LZH_Decompress(
+int32_t LZH_Decompress(
     const void* infile,
     void* outfile,
     uint32_t OriginalLength,
