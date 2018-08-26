@@ -12,25 +12,23 @@ set(SHORT_NAME bstone)
 project(${SHORT_NAME})
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
-set(VITA_APP_NAME "bstone-vita")
+set(VITA_APP_NAME "bstone")
 set(VITA_TITLEID  "BSTONE012")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(BSTONE_FLAGS "-Wall -Ofast -mtune=cortex-a9 -mfpu=neon -flto -fno-signed-zeros -fno-trapping-math -funroll-loops -ftree-vectorize -floop-nest-optimize -fvariable-expansion-in-unroller -fsplit-ivs-in-unroller")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -finline-functions -funswitch-loops -ftree-vectorize -fipa-cp-clone -floop-unroll-and-jam -ftree-loop-vectorize -ftree-loop-distribution -ffast-math -fgcse-after-reload")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -finline-functions -funswitch-loops -ftree-vectorize -fipa-cp-clone -floop-unroll-and-jam -ftree-loop-vectorize -ftree-loop-distribution -ffast-math -fgcse-after-reload")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${BSTONE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${BSTONE_FLAGS}")
 
 include_directories(
   "../dosbox"
   "${VITASDK}/arm-vita-eabi/include/SDL2"
+#    "${VITASDK}/arm-vita-eabi/include"
 )
 
 link_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
+#  "${VITASDK}/arm-vita-eabi/lib"
 )
 
 set(BSTONE_PCH_BASE_NAME "bstone_precompiled")
@@ -188,6 +186,8 @@ target_link_libraries(${SHORT_NAME}
   SceHid_stub
   m
   ScePower_stub
+#  SceAppUtil_stub
+#  SceSysmodule_stub
 #  pthread
 )
 
@@ -198,5 +198,6 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE sce_sys/icon0.png sce_sys/icon0.png
   FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+  FILE sce_sys/livearea/contents/ps.png sce_sys/livearea/contents/ps.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 )
