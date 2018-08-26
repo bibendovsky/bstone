@@ -1422,12 +1422,12 @@ void VL_GetPalette(
 */
 
 void VL_FadeOut(
-    int start,
-    int end,
+    volatile int start,
+    volatile int end,
     int red,
     int green,
     int blue,
-    int steps)
+    volatile int steps)
 {
     int orig;
     int delta;
@@ -1445,12 +1445,12 @@ void VL_FadeOut(
     //
     // fade through intermediate frames
     //
-    for (int i = 0; i < steps; ++i)
+    for (volatile int i = 0; i < steps; ++i)
     {
         auto origptr = &::palette1[start][0];
         auto newptr = &::palette2[start][0];
 
-        for (int j = start; j <= end; ++j)
+        for (volatile int j = start; j <= end; ++j)
         {
             orig = *origptr++;
             delta = red - orig;
@@ -1506,10 +1506,10 @@ void VL_FadeOut(
 }
 
 void VL_FadeIn(
-    int start,
-    int end,
+    volatile int start,
+    volatile int end,
     const uint8_t* palette,
-    int steps)
+    volatile int steps)
 {
     ::VL_GetPalette(
         0,
@@ -1527,11 +1527,11 @@ void VL_FadeIn(
     //
     // fade through intermediate frames
     //
-    auto delta = 0;
+//    auto delta = 0;
 
-    for (int i = 0; i < steps; ++i)
+    for (volatile int i = 0; i < steps; ++i)
     {
-        for (int j = start; j <= end; ++j)
+        for (volatile int j = start; j <= end; ++j)
         {
             const int delta = palette[j] - ::palette1[0][j];
 

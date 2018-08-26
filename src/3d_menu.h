@@ -78,11 +78,7 @@ void MenuFadeOut();
 #define HIGHLIGHT (0x13)
 
 
-inline void MenuFadeIn()
-{
-    ::VL_FadeIn(0, 255, ::vgapal, 10);
-}
-
+void MenuFadeIn();
 
 extern int16_t MENUSONG;
 extern int16_t ROSTER_MUS;

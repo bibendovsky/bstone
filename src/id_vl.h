@@ -155,18 +155,18 @@ void VL_SetPaletteIntensity(
     int intensity);
 
 void VL_FadeOut(
-    int start,
-    int end,
+    volatile int start,
+    volatile int end,
     int red,
     int green,
     int blue,
-    int steps);
+    volatile int steps);
 
 void VL_FadeIn(
-    int start,
-    int end,
+    volatile int start,
+    volatile int end,
     const uint8_t* palette,
-    int steps);
+    volatile int steps);
 
 void VL_ColorBorder(
     int16_t color);

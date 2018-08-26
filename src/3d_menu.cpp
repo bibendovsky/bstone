@@ -5014,4 +5014,11 @@ void MenuFadeOut()
         ::VL_FadeOut(0, 255, 40, 44, 44, 10);
     }
 }
+
+void MenuFadeIn()
+{
+    ::VL_FadeIn(0, 255, ::vgapal, 10);
+}
+
+
 // BBi
