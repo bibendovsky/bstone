@@ -35,8 +35,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 
 #ifdef __vita__
-#include <psp2/kernel/processmgr.h>
-#include <psp2/power.h>
+#include <vitasdk.h>
 #endif
 
 void VL_LatchToScreen(
@@ -9091,6 +9090,7 @@ int main(
     scePowerSetGpuClockFrequency(222);
     scePowerSetGpuXbarClockFrequency(166);
 #endif
+
     int sdl_result = 0;
 
     uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
@@ -9101,7 +9101,30 @@ int main(
         ::Quit(::SDL_GetError());
     }
 
+#ifdef __vita__
+    sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
+    SceAppUtilAppEventParam eventParam;
+    memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
+    sceAppUtilReceiveAppEvent(&eventParam);
+
+    if (eventParam.type == 0x05){
+        argc++;
+        const char* pargv[argc];
+        const char* newarg = "--ps";
+        for (int i = 0; i< argc - 1; i++)
+        {
+            pargv[i] = argv[i];
+        }
+        pargv[argc-1] = newarg;
+        ::g_args.initialize(argc, pargv);
+    }
+    else
+    {
+        ::g_args.initialize(argc, argv);
+    }
+#else
     ::g_args.initialize(argc, argv);
+#endif
 
     freed_main();
 

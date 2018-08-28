@@ -9,6 +9,7 @@ Contents
 
 1. Disclaimer
 2. Overview
+2.1 Overview (PS Vita)
 3. Profile
 4. Compiling
 5. Command-line options
@@ -62,6 +63,11 @@ Supported games:
 * Aliens of Gold v3.0 shareware
 * Planet Strike v1.0
 * Planet Strike v1.1
+
+
+2.1 - Overview (PS Vita)
+========================
+See README-PSVITA.md for details about the source port on PS Vita.
 
 
 3 - Profile
