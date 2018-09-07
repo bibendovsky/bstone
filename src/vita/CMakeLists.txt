@@ -14,8 +14,9 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "bstone")
 set(VITA_TITLEID  "BSTONE012")
+set(VITA_VERSION  "00.20")
 
-set(BSTONE_FLAGS "-Wall -Ofast -mtune=cortex-a9 -mfpu=neon -flto -fno-signed-zeros -fno-trapping-math -funroll-loops -ftree-vectorize -floop-nest-optimize -fvariable-expansion-in-unroller -fsplit-ivs-in-unroller")
+set(BSTONE_FLAGS "-Wall -g -Og -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${BSTONE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${BSTONE_FLAGS}")
@@ -23,15 +24,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${BSTONE_FLAGS}")
 include_directories(
   "../dosbox"
   "${VITASDK}/arm-vita-eabi/include/SDL2"
-#    "${VITASDK}/arm-vita-eabi/include"
 )
 
 link_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
-#  "${VITASDK}/arm-vita-eabi/lib"
 )
-
-set(BSTONE_PCH_BASE_NAME "bstone_precompiled")
 
 set(
     BSTONE_HEADERS
@@ -96,7 +93,6 @@ set(
     "../jm_tp.h"
     "../jm_vl.h"
     "../movie.h"
-    "../${BSTONE_PCH_BASE_NAME}.h"
 )
 
 set(
@@ -162,7 +158,6 @@ set(
     "../markhack.cpp"
     "../movie.cpp"
     "../scale.cpp"
-    "../${BSTONE_PCH_BASE_NAME}.cpp"
     "../stub.cpp"
     "../vgapal.cpp"
     "vita_input.cpp"
@@ -186,9 +181,8 @@ target_link_libraries(${SHORT_NAME}
   SceHid_stub
   m
   ScePower_stub
-#  SceAppUtil_stub
-#  SceSysmodule_stub
-#  pthread
+  SceAppUtil_stub
+  pthread
 )
 
 vita_create_self(${SHORT_NAME}.self ${SHORT_NAME})
