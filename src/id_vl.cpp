@@ -638,7 +638,7 @@ void sdl_calculate_dimensions()
     ::filler_width /= 2 * ::vga_ref_height_4x3;
 
 #ifdef __vita__
-    const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: off-by one error persists in fizzle fade only
+    const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1;
     const auto lower_filler_height =  (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
 #else  
     const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
