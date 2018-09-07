@@ -638,7 +638,7 @@ void sdl_calculate_dimensions()
     ::filler_width /= 2 * ::vga_ref_height_4x3;
 
 #ifdef __vita__
-    const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
+    const auto upper_filler_height =  (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: off-by one error persists in fizzle fade only
     const auto lower_filler_height =  (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
 #else  
     const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
@@ -699,6 +699,23 @@ void sdl_calculate_dimensions()
 
     // UI bottom rect
     //
+#ifdef __vita__
+    //works in special case of vita, with HUD looking the same in fizzle and non-fizzle states
+    //not counting "integer" rescaling unevenness differences.
+    ::sdl_ui_bottom_src_rect = SDL_Rect{
+        0,
+        ::ref_view_bottom_y,
+        ::vga_ref_width,
+        ::ref_bottom_bar_height + 1,
+    };
+
+    ::sdl_ui_bottom_dst_rect = SDL_Rect{
+        ::filler_width,
+        ::screen_height - lower_filler_height - 3,
+        ::screen_width - (2 * ::filler_width),
+        lower_filler_height + 3,
+    };
+#else
     ::sdl_ui_bottom_src_rect = SDL_Rect{
         0,
         ::ref_view_bottom_y,
@@ -712,7 +729,7 @@ void sdl_calculate_dimensions()
         ::screen_width - (2 * ::filler_width),
         lower_filler_height,
     };
-
+#endif
 
     // UI left bar
     ::sdl_filler_ui_rects[0] = SDL_Rect{
