@@ -9110,11 +9110,11 @@ int main(
     if (eventParam.type == 0x05){
         argc++;
         const char* pargv[argc];
-        const char* newarg = "--ps";
         for (int i = 0; i< argc - 1; i++)
         {
             pargv[i] = argv[i];
         }
+        const char* newarg = "--ps";
         pargv[argc-1] = newarg;
         ::g_args.initialize(argc, pargv);
     }
@@ -9755,8 +9755,7 @@ void sys_sleep_for(
     int milliseconds)
 {
 #ifdef __vita__
-    sceKernelDelayThread(milliseconds);
-//    SDL_Delay(milliseconds); // todo: investigate this as alternative
+    SDL_Delay(milliseconds);
 #else
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 #endif
@@ -9769,7 +9768,11 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
+#ifdef __vita__
+    static const std::string version = "0.2";
+#else
     static const std::string version = "1.1.9";
+#endif
     return version;
 }
 
