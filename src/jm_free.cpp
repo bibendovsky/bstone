@@ -658,7 +658,14 @@ void CheckForEpisodes()
         if (!is_found) {
             is_found = ::set_game_type(GameType::aog_full_v1_0);
         }
-
+#ifdef __vita__
+        if (!is_found) {
+            is_found = ::set_game_type(GameType::aog_sw);
+        }
+        if (!is_found) {
+            is_found = ::set_game_type(GameType::ps);
+        }
+#else
         if (!is_found) {
             is_found = ::set_game_type(GameType::ps);
         }
@@ -666,7 +673,7 @@ void CheckForEpisodes()
         if (!is_found) {
             is_found = ::set_game_type(GameType::aog_sw);
         }
-
+#endif
         if (is_found) {
             switch (::g_game_type) {
             case GameType::aog_sw:
