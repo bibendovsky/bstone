@@ -131,7 +131,7 @@ int16_t dirangle[9] = {
 }; // dirangle
 
 //
-// proejection variables
+// projection variables
 //
 fixed focallength;
 int screenofs;
@@ -167,7 +167,11 @@ static const bool default_always_run = true;
 bool g_always_run = default_always_run;
 
 // BBi AOG only options
+#ifdef __vita__
+static const bool default_heart_beat_sound = true;
+#else
 static const bool default_heart_beat_sound = false;
+#endif
 bool g_heart_beat_sound = default_heart_beat_sound;
 
 static const bool default_rotated_automap = false;
