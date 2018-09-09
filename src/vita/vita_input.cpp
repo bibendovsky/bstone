@@ -38,8 +38,7 @@ void TranslateControllerEvent(SDL_Event *ev)
     } v_keymap[] = 
     {
         { SDLK_y, SDL_SCANCODE_Y },                 // Triangle
-//        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},           // Circle
- { SDLK_RALT, SDL_SCANCODE_RALT},
+        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},  // Circle
         { SDLK_RETURN, SDL_SCANCODE_RETURN },       // Cross
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // Square
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // L Trigger
@@ -239,17 +238,17 @@ void TranslateAnalogEvent(SDL_Event *ev)
     {   
         delta = 0;
     }
-    // denominaors in the below expressions estimated empirically //todo
+    // denominators in the below expressions estimated empirically //todo
     if (ev->jaxis.axis == 0)  //side-to-side
     {
-        control2x = delta / 400;
+        control2x = delta / 380;
     }
     else if (ev->jaxis.axis == 2) //turn
     {
-        in_mouse_dx = delta / 600 ;
+        in_mouse_dx = delta / 500 ;
     }
     else if (ev->jaxis.axis == 1) //forward
     {
-        in_mouse_dy = delta / 2060 ; //2100 slower than key /2050 faster /2070 a bit slower?
+        in_mouse_dy = delta / 1870 ; //2100 slower than key /2050 faster /2070 a bit slower?
     }
 }
