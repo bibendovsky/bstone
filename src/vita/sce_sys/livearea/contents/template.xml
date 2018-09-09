@@ -9,13 +9,11 @@
 		<startup-image>startup.png</startup-image>
 	</gate>
 
-	<?ignore
 	<frame id='frame7' multi='o' autoflip='3' >
 		<liveitem>
 			<target>psla:--ps</target>
 			<image>ps.png</image>
 		</liveitem>
 	</frame>
-	?>	
 </livearea>
 
