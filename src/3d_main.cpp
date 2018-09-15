@@ -9118,7 +9118,8 @@ int main(
         {
             pargv[i] = argv[i];
         }
-        const char* newarg = "--ps";
+        //const char* newarg = "--ps";
+        const char* newarg = "--cheats";
         pargv[argc-1] = newarg;
         ::g_args.initialize(argc, pargv);
     }

@@ -38,7 +38,8 @@ void TranslateControllerEvent(SDL_Event *ev)
     } v_keymap[] = 
     {
         { SDLK_y, SDL_SCANCODE_Y },                 // Triangle
-        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},  // Circle
+        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
+//        { SDLK_TAB, SDL_SCANCODE_TAB },             // Circle
         { SDLK_RETURN, SDL_SCANCODE_RETURN },       // Cross
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // Square
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // L Trigger
@@ -196,11 +197,7 @@ void TranslateTouchEvent(SDL_Event *ev)
         ev_new.key.keysym.sym = SDLK_w;
         ev_new.key.keysym.scancode = SDL_SCANCODE_W;
         }
-    }
-    else
-    {
-        // back touch
-        if (fingerx > 240.0F / w && fingerx < 720.0F)
+        if (fingery > 410.0F / h)
         {
             if (fingerx > 480.0F / w)
             {
@@ -213,6 +210,14 @@ void TranslateTouchEvent(SDL_Event *ev)
                 ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
             }
         }
+
+    }
+    else
+    {
+        // back touch
+//        if (fingerx > 240.0F / w && fingerx < 720.0F)
+//        {
+//        }
     }
 
     if (ev->type == SDL_FINGERDOWN)
@@ -241,7 +246,7 @@ void TranslateAnalogEvent(SDL_Event *ev)
     // denominators in the below expressions estimated empirically //todo
     if (ev->jaxis.axis == 0)  //side-to-side
     {
-        control2x = delta / 380;
+        control2x = delta / 360;
     }
     else if (ev->jaxis.axis == 2) //turn
     {
@@ -249,6 +254,6 @@ void TranslateAnalogEvent(SDL_Event *ev)
     }
     else if (ev->jaxis.axis == 1) //forward
     {
-        in_mouse_dy = delta / 1870 ; //2100 slower than key /2050 faster /2070 a bit slower?
+        in_mouse_dy = delta / 1860 ; //2100 slower than key /2050 faster /2070 a bit slower?
     }
 }
