@@ -1,19 +1,15 @@
 ## Issues:
 
-* -/= on front
-* clear screen before elevator
-* Crashes:
-	* Planet Strike: playing multiple sounds when music enabled
-	* General: saving/loading, changing levels, fadeout
-* Image displayed after fadeout in level transitions?
+###High Priority
+* Clear screen before elevator fadein
+* Crashes sporadically when music is enabled
+* Premature partial fades to red on SW exit screens
 
-Medium Priority:
-*******
+###Medium Priority
 * Analog movement speed depends on framerate?
 * Distance fade in AOG differs from DOS version
 
-lower priority:
-****
+###Low Priority
 * Memory corruption and crashing after exiting using the PS button (or sleep?)
 * Delay in sound playing when triggered for the first time
 * Small seam in exact? middle of screen-- from "mirroring"?
@@ -21,11 +17,10 @@ lower priority:
 ## Future Features:
 
 * Fill numeric tables with higher accuracy values
-* Multithreading
-* Adjust controls
-* Pre-cache all assets/ Ramdisk
-* Add screenshots
-* In-prompt buttons
+* Multithreading various drawing routines
+* Change cache logic, minimizing file access
+* In-prompt buttons- use x,o
+* Add option to disable loading screens
 
 ## Changes:
 
