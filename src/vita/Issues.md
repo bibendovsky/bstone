@@ -1,15 +1,15 @@
 ## Issues:
 
-###High Priority
+### High Priority
 * Clear screen before elevator fadein
 * Crashes sporadically when music is enabled
 * Premature partial fades to red on SW exit screens
 
-###Medium Priority
+### Medium Priority
 * Analog movement speed depends on framerate?
 * Distance fade in AOG differs from DOS version
 
-###Low Priority
+### Low Priority
 * Memory corruption and crashing after exiting using the PS button (or sleep?)
 * Delay in sound playing when triggered for the first time
 * Small seam in exact? middle of screen-- from "mirroring"?
