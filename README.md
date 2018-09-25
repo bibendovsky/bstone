@@ -26,10 +26,10 @@ Then, in the root of `ux0:/data/bstone/`, place the game assets, which consist, 
 
 The full versions of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike each can currently be obatined from the 3D Realms website, and additionally from Steam and GOG.
 
-Any combination of these three may coexist in the directory. Press the main "start" region to launch the game. Game version will be chosen in the following order of preference: Registered, Shareware, Planetstrike. Press the "Planet Strike" region to start Planet Strike regardless of the presence of other versions.
+Any combination of these three may coexist in the directory. Press the main "start" region to launch the game. Game version will be chosen in the following order of preference: Registered, Shareware, Planet Strike. Press the "Planet Strike" region to start Planet Strike regardless of the presence of other versions.
 
 ## Important note
-As of version 0.2, leaving music enabled may lead to intermittent crashing while playing. Set the "Background Music" option in the "Game Settings" menu to "None" in order to prevent this.
+As of version 0.2, leaving music enabled may lead to intermittent crashing while playing. Set the "Background Music" option in the "Game Settings" menu to "None" in order to prevent this. As with other homebrew on the Vita, pressing the home button or going into sleep mode can lead to unwanted behavior upon returning to the still-running game.
 
 Playing the Game
 ================
@@ -37,17 +37,28 @@ Playing the Game
 ## Controls
 
 L - use/open
+
 R - fire/accept
+
 × - about face
+
 ○ - map or status window toggle
+
 △ - fire/accept
+
 □ - use/open
+
 ↑ - move forward
+
 ↓ - move backward
+
 ← - turn left
+
 → - turn right
+
 left stick - straight ahead and side-to-side motion
-right stick - turning
+
+right stick - turn
 
 Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", repectively. 
 

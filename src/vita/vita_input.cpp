@@ -30,7 +30,6 @@ void TranslateControllerEvent(SDL_Event *ev)
 {
     int btn;
     SDL_Event ev_new;
-    int in_prompt;
     static const struct 
     {
         SDL_Keycode sym;
@@ -38,8 +37,8 @@ void TranslateControllerEvent(SDL_Event *ev)
     } v_keymap[] = 
     {
         { SDLK_y, SDL_SCANCODE_Y },                 // Triangle
-        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
-//        { SDLK_TAB, SDL_SCANCODE_TAB },             // Circle
+//        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
+        { SDLK_TAB, SDL_SCANCODE_TAB },             // Circle
         { SDLK_RETURN, SDL_SCANCODE_RETURN },       // Cross
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // Square
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // L Trigger
@@ -53,34 +52,12 @@ void TranslateControllerEvent(SDL_Event *ev)
     };
     
     memset(&ev_new, 0, sizeof(SDL_Event));
-
     btn = ev->jbutton.button;
-    in_prompt = 0; // TODO-- for now just use "y" for fire button
 
-    if (in_prompt)
-    {
-        if (btn == 1 || btn == 10)
-        {
-            ev_new.key.keysym.sym = SDLK_n;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_N;
-        }
-        else if (btn == 2 || btn == 11)
-        {
-            ev_new.key.keysym.sym = SDLK_y;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_Y;
-        }
-        else
-        {
-            return;
-        }
-    }
-    else
-    {
-        if (btn < 0 || btn > 11)
-            return;
-        ev_new.key.keysym.sym = v_keymap[btn].sym;
-        ev_new.key.keysym.scancode = v_keymap[btn].scan;
-    }
+    if (btn < 0 || btn > 11)
+        return;
+    ev_new.key.keysym.sym = v_keymap[btn].sym;
+    ev_new.key.keysym.scancode = v_keymap[btn].scan;
 
     if (ev->type == SDL_JOYBUTTONDOWN)
     {
@@ -112,14 +89,13 @@ void TranslateTouchEvent(SDL_Event *ev)
         w *=  0.75F ; // (4/3) / (16/9)
         fingerx += 0.166667F; // (1/6), compensates for 4:3 mode being centered on the vita's screen, as opposed to left flushed
     }
+    // front touch
     if (ev->tfinger.touchId == 0)
     {
-        // front touch
-
-        if (fingerx > 660.0F / w && fingerx < 860.0F / w)    
+        if (fingerx > 660.0F / w && fingerx < 860.0F / w)
         //column containing elevator buttons
         {
-            if (fingery > 50.0F / h  && fingery <= 140.0F / h)    
+            if (fingery > 50.0F / h  && fingery <= 139.0F / h)
             //9,10  50-140 
             {
                 if (fingerx < m/w )
@@ -134,7 +110,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //7,8   140-194
-            if (fingery > 140.0F / h  && fingery <= 194.0F / h)    
+            if (fingery > 139.0F / h  && fingery <= 194.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -148,7 +124,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //5,6   194-249
-            if (fingery > 194.0F / h  && fingery <= 249.0F / h)    
+            if (fingery > 194.0F / h  && fingery <= 249.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -162,7 +138,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //3,4   249-303
-            if (fingery > 249.0F / h  && fingery <= 303.0F / h)    
+            if (fingery > 249.0F / h  && fingery <= 304.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -176,7 +152,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //1,2   303-410
-            if (fingery > 303.0F / h  && fingery <= 410.0F / h)    
+            if (fingery > 304.0F / h  && fingery <= 410.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -190,12 +166,12 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
         }
-
         else
         //outside of the column
         {
-        ev_new.key.keysym.sym = SDLK_w;
-        ev_new.key.keysym.scancode = SDL_SCANCODE_W;
+            /*ev_new.key.keysym.sym = SDLK_w;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_W;
+            */
         }
         if (fingery > 410.0F / h)
         {
@@ -215,9 +191,6 @@ void TranslateTouchEvent(SDL_Event *ev)
     else
     {
         // back touch
-//        if (fingerx > 240.0F / w && fingerx < 720.0F)
-//        {
-//        }
     }
 
     if (ev->type == SDL_FINGERDOWN)

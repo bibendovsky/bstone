@@ -7,6 +7,7 @@
 ### Medium Priority
 * Distance fade in AOG differs from DOS version
 * Premature partial fades to red on SW exit screens
+* Tearing during fadein
 
 ### Low Priority
 * Memory corruption and crashing after exiting using the PS button (or sleep?)
@@ -19,6 +20,7 @@
 * Add option to disable loading screens
 * Change cache logic, minimizing file access
 * Fill numeric tables with higher accuracy values
+* Rewrite routines to use cartesian instead of polar as much as possible
 * Multithreading various drawing routines
 * In-prompt buttons- use x,o
 * In-game control customization for Vita
@@ -31,7 +33,7 @@
 * Joystick sesitivity adjusted
 * Performance improvement (>20%)
 * HUD no longer drawn over in various circumstances
-* Live Area assets
+* Live Area assets tweaked, -ps shortcut added
 * Heartbeat on by default
 
 ### 0.1.1
