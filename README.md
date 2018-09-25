@@ -7,7 +7,7 @@ Installing and Running
 ======================
 
 Install the `.vpk`.
-Then, in the root of `ux0:/data/bstone/`, place the game assets, consisting of the following files:
+Then, in the root of `ux0:/data/bstone/`, place the game assets, which consist, depending on the intended version, of the following files:
 
 | Shareware    | Registered   | Planet Strike |
 |--------------|--------------|---------------|
@@ -24,11 +24,32 @@ Then, in the root of `ux0:/data/bstone/`, place the game assets, consisting of t
 | VGAHEAD.BS1  | VGAHEAD.BS6  | VGAHEAD.VSI   |
 | VSWAP.BS1    | VSWAP.BS6    | VSWAP.VSI     |
 
-Depending on which version(s) you wish to run.
-
 The full versions of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike each can currently be obatined from the 3D Realms website, and additionally from Steam and GOG.
 
-Planet Strike crashes frequently (a little less often without sound), so is not recommended at this point in time. Number keys, equals, and dash are hardcoded to the touch screen for easy weapon switching, elevator use, and map-zooming. Joystick sensitivity (and hence maximum speed) is subject to change in future versions, feedback welcome (if really needed, you can edit the config file to change it)
+Any combination of these three may coexist in the directory. Press the main "start" region to launch the game. Game version will be chosen in the following order of preference: Registered, Shareware, Planetstrike. Press the "Planet Strike" region to start Planet Strike regardless of the presence of other versions.
+
+## Important note
+As of version 0.2, leaving music enabled may lead to intermittent crashing while playing. Set the "Background Music" option in the "Game Settings" menu to "None" in order to prevent this.
+
+Playing the Game
+================
+
+## Controls
+
+L - use/open
+R - fire/accept
+× - about face
+○ - map or status window toggle
+△ - fire/accept
+□ - use/open
+↑ - move forward
+↓ - move backward
+← - turn left
+→ - turn right
+left stick - straight ahead and side-to-side motion
+right stick - turning
+
+Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", repectively. 
 
 Compiling
 =========
@@ -47,5 +68,7 @@ Boris Bendovsky for BStone
 JAM Productions, id Software, and Apogee for Blake Stone
 
 The control functions were based on those written by fgsfdsfgs for the vita port of Chocolate Doom
+
+Rinnegatamante for help with Live Area code
 
 The makers of vitasdk & Henkaku for making this possible in the first place

@@ -3,24 +3,26 @@
 ### High Priority
 * Clear screen before elevator fadein
 * Crashes sporadically when music is enabled
-* Premature partial fades to red on SW exit screens
 
 ### Medium Priority
-* Analog movement speed depends on framerate?
 * Distance fade in AOG differs from DOS version
+* Premature partial fades to red on SW exit screens
 
 ### Low Priority
 * Memory corruption and crashing after exiting using the PS button (or sleep?)
 * Delay in sound playing when triggered for the first time
+* Analog movement speed depends on framerate?
 * Small seam in exact? middle of screen-- from "mirroring"?
 
 ## Future Features:
 
+* Add option to disable loading screens
+* Change cache logic, minimizing file access
 * Fill numeric tables with higher accuracy values
 * Multithreading various drawing routines
-* Change cache logic, minimizing file access
 * In-prompt buttons- use x,o
-* Add option to disable loading screens
+* In-game control customization for Vita
+* Make 4:3 mode work properly
 
 ## Changes:
 
