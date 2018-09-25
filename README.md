@@ -60,6 +60,10 @@ left stick - straight ahead and side-to-side motion
 
 right stick - turn
 
+Select - map or status window toggle
+
+Start - Menu/back
+
 Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", repectively. 
 
 Compiling
