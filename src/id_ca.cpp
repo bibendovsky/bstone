@@ -36,6 +36,7 @@ loaded into the data segment
 
 
 #include "id_heads.h"
+#include "bstone_sha1.h"
 
 
 /*
@@ -826,7 +827,7 @@ void CA_CacheMap(
 
     // BBi
     map_sha1.finish();
-    ::map_sha1_string = map_sha1.get_digest_string();
+    ::map_sha1_string = map_sha1.to_string();
 }
 
 /*

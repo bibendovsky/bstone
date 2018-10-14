@@ -10,110 +10,100 @@
 
 #include <cstdint>
 #include <array>
-#include <stdexcept>
 #include <string>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Sha1Exception declaration
+// Sha1
+//
 
-class Sha1Exception :
-    public std::runtime_error
+class Sha1
 {
 public:
-    explicit Sha1Exception(
-        const std::string& message);
+	static const int hash_size = 20;
 
-    explicit Sha1Exception(
-        const char* message);
-
-    virtual ~Sha1Exception();
-}; // Sha1Exception
-
-// Sha1Exception declaration
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	using Digest = std::array<std::uint8_t, hash_size>;
 
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Sha1 declaration
+	Sha1();
 
-class Sha1 {
-public:
-    static const int hash_size = 20;
+	Sha1(
+		const std::string& sha1_string);
 
-    using Digest = std::array<uint8_t, hash_size>;
+	Sha1(
+		const Sha1& rhs);
 
+	Sha1(
+		Sha1&& rhs);
 
-    Sha1();
-
-    Sha1(
-        const Sha1& that);
-
-    Sha1(
-        Sha1&& that);
-
-    Sha1& operator=(
-        Sha1 that);
-
-    ~Sha1();
+	Sha1& operator=(
+		const Sha1& rhs);
 
 
-    void reset();
+	void reset();
 
-    void process(
-        const void* data,
-        int data_size);
+	void process(
+		const void* data,
+		const int data_size);
 
-    void finish();
+	void finish();
 
-    const Digest& get_digest() const;
+	bool is_finished() const;
 
-    std::string get_digest_string() const;
+	bool is_valid() const;
 
-    static void swap(
-        Sha1& a,
-        Sha1& b);
+	const Digest& get_digest() const;
+
+	std::string to_string() const;
 
 
 private:
-    using Block = std::array<uint8_t, 64>;
-    using Digest32 = std::array<uint32_t, hash_size / 4>;
+	using Block = std::array<std::uint8_t, 64>;
+	using Digest32 = std::array<std::uint32_t, hash_size / 4>;
 
 
-    // Message digest.
-    Digest digest_;
-
-    // Message digest as words.
-    Digest32 digest32_;
-
-    // Message length in bits.
-    uint32_t length_low_;
-
-    // Message length in bits.
-    uint32_t length_high_;
-
-    // Index into message block array.
-    int_least16_t block_index_;
-
-    // 512-bit message block.
-    Block block_;
-
-    // Is the digest computed?
-    bool is_computed_;
-
-    // Is the digest corrupted?
-    bool is_corrupted_;
+	static const Digest32 initial_digest_32;
 
 
-    void pad_message();
+	// 512-bit message block.
+	Block block_;
 
-    void process_block();
+	// Message digest.
+	Digest digest_;
+
+	// Message digest as words.
+	Digest32 digest32_;
+
+	// Message length in bits.
+	std::uint32_t length_low_;
+
+	// Message length in bits.
+	std::uint32_t length_high_;
+
+	// Index into message block array.
+	int block_index_;
+
+	// Is the digest computed?
+	bool is_finished_;
+
+	// Is the digest invalid?
+	bool is_invalid_;
+
+
+	void ctor(
+		const std::string& sha1_string);
+
+	void pad_message();
+
+	void process_block();
 }; // Sha1
 
-// Sha1 declaration
+//
+// Sha1
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -121,17 +111,27 @@ private:
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Sha1 functions
+// Sha1 operators
+//
 
 bool operator==(
-    const bstone::Sha1& sha1,
-    const std::string& sha1_string);
+	const bstone::Sha1& lhs,
+	const bstone::Sha1& rhs);
 
 bool operator!=(
-    const bstone::Sha1& sha1,
-    const std::string& sha1_string);
+	const bstone::Sha1& lhs,
+	const bstone::Sha1& rhs);
 
-// Sha1 functions
+bool operator==(
+	const bstone::Sha1& lhs,
+	const std::string& rhs);
+
+bool operator!=(
+	const bstone::Sha1& lhs,
+	const std::string& rhs);
+
+//
+// Sha1 operators
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
