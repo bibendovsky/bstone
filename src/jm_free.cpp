@@ -942,11 +942,20 @@ void freed_main()
     if (::g_args.has_option("version")) {
         bstone::Log::write_version();
         ::Quit();
+		return;
     }
 
     // Setup for APOGEECD thingie.
     //
     ::InitDestPath();
+
+	// BBi
+	if (::g_args.has_option("debug_dump_hashes"))
+	{
+		::ca_dump_hashes();
+		::Quit();
+		return;
+	}
 
     // Make sure there's room to play the game
     //

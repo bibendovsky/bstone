@@ -69,6 +69,38 @@ struct mapfiletype {
 //      uint8_t           tileinfo[];
 }; // mapfiletype
 
+
+struct Resources final
+{
+	static constexpr auto max_file_size = 3000000;
+
+
+	static const std::string& audio_header_base_name;
+	static const std::string& audio_data_base_name;
+
+	static const std::string& map_header_base_name;
+	static const std::string& map_data_base_name;
+
+	static const std::string& gfx_dictionary_base_name;
+	static const std::string& gfx_header_base_name;
+	static const std::string& gfx_data_base_name;
+
+	static const std::string& page_file_base_name;
+
+	static const std::string& episode_6_fmv_base_name;
+	static const std::string& episode_3_5_fmv_base_name;
+	static const std::string& intro_fmv_base_name;
+	static const std::string& episode_2_4_fmv_base_name;
+
+	static const std::string& aog_sw_extension;
+	static const std::string& aog_full_extension;
+	static const std::string& ps_extension;
+
+	static const bstone::StringList& get_extensions();
+
+	static const bstone::StringList& get_base_names();
+}; // Resources
+
 // ===========================================================================
 
 using AudioSegments = std::vector<uint8_t*>;
@@ -228,6 +260,8 @@ bool ca_open_resource_non_fatal(
 void ca_open_resource(
     const std::string& file_name_without_ext,
     bstone::FileStream& file_stream);
+
+void ca_dump_hashes();
 
 
 #endif // BSTONE_ID_CA_INCLUDED

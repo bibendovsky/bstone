@@ -1093,3 +1093,124 @@ void ca_open_resource(
         ::CA_CannotOpen(path);
     }
 }
+
+void ca_dump_hashes()
+{
+	bstone::Log::write();
+	bstone::Log::write("Dumping resource hashes...");
+
+	bstone::FileStream file_stream;
+
+	auto buffer = Buffer{};
+	buffer.reserve(Resources::max_file_size);
+
+	auto data_size = std::int32_t{};
+
+	auto sha1 = bstone::Sha1{};
+
+	for (const auto& base_name : Resources::get_base_names())
+	{
+		for (const auto& extension : Resources::get_extensions())
+		{
+			const auto open_result = ca_open_resource_non_fatal(base_name, extension, file_stream);
+
+			if (!open_result)
+			{
+				continue;
+			}
+
+			bstone::Log::write();
+			bstone::Log::write("{}{}:", base_name, extension);
+
+			const auto stream_size = file_stream.get_size();
+
+			if (stream_size > Resources::max_file_size)
+			{
+				bstone::Log::write_error("File size is too big.");
+				continue;
+			}
+
+			const auto file_size = static_cast<int>(stream_size);
+
+			const auto read_result = file_stream.read(buffer.data(), file_size);
+
+			if (read_result != file_size)
+			{
+				bstone::Log::write_error("Failed to read data.");
+				continue;
+			}
+
+			data_size = file_size;
+			bstone::Endian::lei(data_size);
+
+			sha1.reset();
+			sha1.process(buffer.data(), file_size);
+			sha1.process(&data_size, static_cast<int>(sizeof(data_size)));
+			sha1.finish();
+
+			const auto& sha1_string = sha1.to_string();
+
+			bstone::Log::write(sha1_string);
+		}
+	}
+}
+
+
+const std::string& Resources::audio_header_base_name = "AUDIOHED";
+const std::string& Resources::audio_data_base_name = "AUDIOT";
+
+const std::string& Resources::map_header_base_name = "MAPHEAD";
+const std::string& Resources::map_data_base_name = "MAPTEMP";
+
+const std::string& Resources::gfx_dictionary_base_name = "VGADICT";
+const std::string& Resources::gfx_header_base_name = "VGAHEAD";
+const std::string& Resources::gfx_data_base_name = "VGAGRAPH";
+
+const std::string& Resources::page_file_base_name = "VSWAP";
+
+const std::string& Resources::episode_6_fmv_base_name = "EANIM";
+const std::string& Resources::episode_3_5_fmv_base_name = "GANIM";
+const std::string& Resources::intro_fmv_base_name = "IANIM";
+const std::string& Resources::episode_2_4_fmv_base_name = "SANIM";
+
+const std::string& Resources::aog_sw_extension = ".BS1";
+const std::string& Resources::aog_full_extension = ".BS6";
+const std::string& Resources::ps_extension = ".VSI";
+
+
+const bstone::StringList& Resources::get_extensions()
+{
+	static const auto extensions = bstone::StringList
+	{
+		aog_sw_extension,
+		aog_full_extension,
+		ps_extension,
+	}; // extensions
+
+	return extensions;
+}
+
+const bstone::StringList& Resources::get_base_names()
+{
+	static const auto base_names = bstone::StringList
+	{
+		audio_header_base_name,
+		audio_data_base_name,
+
+		map_header_base_name,
+		map_data_base_name,
+
+		gfx_dictionary_base_name,
+		gfx_header_base_name,
+		gfx_data_base_name,
+
+		page_file_base_name,
+
+		episode_6_fmv_base_name,
+		episode_3_5_fmv_base_name,
+		intro_fmv_base_name,
+		episode_2_4_fmv_base_name,
+	}; // base_names
+
+	return base_names;
+}
