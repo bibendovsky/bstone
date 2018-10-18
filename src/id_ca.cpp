@@ -1044,7 +1044,6 @@ bool ca_is_resource_exists(
 
     is_open = bstone::FileStream::is_exists(path);
 
-#ifndef _WIN32
     if (!is_open)
     {
         const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
@@ -1052,32 +1051,40 @@ bool ca_is_resource_exists(
 
         is_open = bstone::FileStream::is_exists(path_lc);
     }
-#endif // !_WIN32
 
     return is_open;
 }
 
 bool ca_open_resource_non_fatal(
-    const std::string& file_name_without_ext,
-    const std::string& file_extension,
-    bstone::FileStream& file_stream)
+	const std::string& data_dir,
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream)
 {
-    const auto file_name = file_name_without_ext + file_extension;
-    const auto path = ::data_dir + file_name;
+	const auto file_name = file_name_without_ext + file_extension;
+	const auto path = data_dir + file_name;
 
-    auto is_open = false;
+	auto is_open = false;
 
-    is_open = file_stream.open(path);
+	is_open = file_stream.open(path);
 
-    if (!is_open)
-    {
-        const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
-        const auto path_lc = ::data_dir + file_name_lc;
+	if (!is_open)
+	{
+		const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
+		const auto path_lc = ::data_dir + file_name_lc;
 
-        is_open = file_stream.open(path_lc);
-    }
+		is_open = file_stream.open(path_lc);
+	}
 
-    return is_open;
+	return is_open;
+}
+
+bool ca_open_resource_non_fatal(
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream)
+{
+	return ca_open_resource_non_fatal(::data_dir, file_name_without_ext, file_extension, file_stream);
 }
 
 void ca_open_resource(

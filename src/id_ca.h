@@ -291,6 +291,12 @@ bool ca_is_resource_exists(
     const std::string& file_name);
 
 bool ca_open_resource_non_fatal(
+	const std::string& data_dir,
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream);
+
+bool ca_open_resource_non_fatal(
     const std::string& file_name_without_ext,
     const std::string& file_extension,
     bstone::FileStream& file_stream);
