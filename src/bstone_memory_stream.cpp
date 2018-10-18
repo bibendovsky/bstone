@@ -27,396 +27,411 @@ Free Software Foundation, Inc.,
 #include <algorithm>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 MemoryStream::MemoryStream(
-    int initial_capacity,
-    StreamOpenMode open_mode) :
-        is_open_(),
-        can_read_(),
-        can_write_(),
-        position_(),
-        size_(),
-        ext_size_(),
-        buffer_(),
-        ext_buffer_()
+	const int initial_capacity,
+	const StreamOpenMode open_mode)
+	:
+	is_open_{},
+	can_read_{},
+	can_write_{},
+	position_{},
+	size_{},
+	ext_size_{},
+	buffer_{},
+	ext_buffer_{}
 {
-    open(initial_capacity, open_mode);
+	static_cast<void>(open(initial_capacity, open_mode));
 }
 
 MemoryStream::MemoryStream(
-    int buffer_size,
-    int buffer_offset,
-    const uint8_t* buffer,
-    StreamOpenMode open_mode) :
-        is_open_(),
-        can_read_(),
-        can_write_(),
-        position_(),
-        size_(),
-        ext_size_(),
-        buffer_(),
-        ext_buffer_()
+	const int buffer_size,
+	const int buffer_offset,
+	const std::uint8_t* buffer,
+	const StreamOpenMode open_mode)
+	:
+	is_open_{},
+	can_read_{},
+	can_write_{},
+	position_{},
+	size_{},
+	ext_size_{},
+	buffer_{},
+	ext_buffer_{}
 {
-    open(buffer_size, buffer_offset, buffer, open_mode);
+	static_cast<void>(open(buffer_size, buffer_offset, buffer, open_mode));
 }
 
-// (virtual)
 MemoryStream::~MemoryStream()
 {
-    close();
+	close_internal();
 }
 
 bool MemoryStream::open(
-    int initial_capacity,
-    StreamOpenMode open_mode)
+	const int initial_capacity,
+	const StreamOpenMode open_mode)
 {
-    close();
+	close_internal();
 
 
-    bool is_readable = false;
-    bool is_writable = false;
+	auto is_readable = false;
+	auto is_writable = false;
 
-    switch (open_mode) {
-    case StreamOpenMode::read:
-        is_readable = true;
-        break;
+	switch (open_mode)
+	{
+	case StreamOpenMode::read:
+		is_readable = true;
+		break;
 
-    case StreamOpenMode::write:
-        is_writable = true;
-        break;
+	case StreamOpenMode::write:
+		is_writable = true;
+		break;
 
-    case StreamOpenMode::read_write:
-        is_readable = true;
-        is_writable = true;
-        break;
+	case StreamOpenMode::read_write:
+		is_readable = true;
+		is_writable = true;
+		break;
 
-    default:
-        return false;
-    }
+	default:
+		return false;
+	}
 
 
-    if (initial_capacity < 0) {
-        initial_capacity = 0;
-    }
+	auto capacity = initial_capacity;
 
-    int_buffer_.reserve(initial_capacity);
+	if (capacity < 0)
+	{
+		capacity = 0;
+	}
 
-    is_open_ = true;
-    can_read_ = is_readable;
-    can_write_ = is_writable;
+	int_buffer_.reserve(capacity);
 
-    return true;
+	is_open_ = true;
+	can_read_ = is_readable;
+	can_write_ = is_writable;
+
+	return true;
 }
 
 bool MemoryStream::open(
-    int buffer_size,
-    int buffer_offset,
-    const uint8_t* buffer,
-    StreamOpenMode open_mode)
+	const int buffer_size,
+	const int buffer_offset,
+	const std::uint8_t* buffer,
+	const StreamOpenMode open_mode)
 {
-    close();
+	close_internal();
 
-    if (buffer_size < 0) {
-        return false;
-    }
+	if (buffer_size < 0)
+	{
+		return false;
+	}
 
-    if (!buffer) {
-        return false;
-    }
-
-
-    bool is_readable = false;
-    bool is_writable = false;
-
-    switch (open_mode) {
-    case StreamOpenMode::read:
-        is_readable = true;
-        break;
-
-    case StreamOpenMode::write:
-        is_writable = true;
-        break;
-
-    case StreamOpenMode::read_write:
-        is_readable = true;
-        is_writable = true;
-        break;
-
-    default:
-        return false;
-    }
+	if (!buffer)
+	{
+		return false;
+	}
 
 
-    is_open_ = true;
-    can_read_ = is_readable;
-    can_write_ = is_writable;
-    size_ = buffer_size;
-    ext_size_ = buffer_size;
-    buffer_ = const_cast<uint8_t*>(&buffer[buffer_offset]);
-    ext_buffer_ = buffer_;
+	auto is_readable = false;
+	auto is_writable = false;
 
-    return true;
+	switch (open_mode)
+	{
+	case StreamOpenMode::read:
+		is_readable = true;
+		break;
+
+	case StreamOpenMode::write:
+		is_writable = true;
+		break;
+
+	case StreamOpenMode::read_write:
+		is_readable = true;
+		is_writable = true;
+		break;
+
+	default:
+		return false;
+	}
+
+
+	is_open_ = true;
+	can_read_ = is_readable;
+	can_write_ = is_writable;
+	size_ = buffer_size;
+	ext_size_ = buffer_size;
+	buffer_ = const_cast<std::uint8_t*>(&buffer[buffer_offset]);
+	ext_buffer_ = buffer_;
+
+	return true;
 }
 
-// (virtual)
 void MemoryStream::close()
 {
-    can_read_ = false;
-    can_write_ = false;
-    position_ = 0;
-    size_ = 0;
-    ext_size_ = 0;
-    buffer_ = nullptr;
-    ext_buffer_ = nullptr;
-    Buffer().swap(int_buffer_);
+	close_internal();
 }
 
-// (virtual)
 bool MemoryStream::is_open() const
 {
-    return is_open_;
+	return is_open_;
 }
 
-// (virtual)
-int64_t MemoryStream::get_size()
+std::int64_t MemoryStream::get_size()
 {
-    return size_;
+	return size_;
 }
 
-// (virtual)
 bool MemoryStream::set_size(
-    int64_t size)
+	const std::int64_t size)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!is_open_)
+	{
+		return false;
+	}
 
-    if (!can_write()) {
-        return false;
-    }
+	if (!can_write_)
+	{
+		return false;
+	}
 
-    if (size < 0) {
-        return false;
-    }
+	if (size < 0)
+	{
+		return false;
+	}
 
-    if (ext_buffer_) {
-        return false;
-    }
+	if (ext_buffer_)
+	{
+		return false;
+	}
 
-    int_buffer_.resize(static_cast<size_t>(size));
+	int_buffer_.resize(static_cast<std::size_t>(size));
 
-    size_ = size;
+	size_ = size;
 
-    if (size_ > 0) {
-        buffer_ = reinterpret_cast<uint8_t*>(&int_buffer_[0]);
-    } else {
-        buffer_ = nullptr;
-    }
+	if (size_ > 0)
+	{
+		buffer_ = reinterpret_cast<std::uint8_t*>(&int_buffer_[0]);
+	}
+	else
+	{
+		buffer_ = nullptr;
+	}
 
-    return true;
+	return true;
 }
 
-// (virtual)
-bool MemoryStream::flush()
+std::int64_t MemoryStream::seek(
+	const std::int64_t offset,
+	const StreamSeekOrigin origin)
 {
-    return is_open();
+	if (!is_open_)
+	{
+		return -1;
+	}
+
+	switch (origin)
+	{
+	case StreamSeekOrigin::begin:
+		position_ = offset;
+		break;
+
+	case StreamSeekOrigin::current:
+		position_ += offset;
+		break;
+
+	case StreamSeekOrigin::end:
+		position_ = size_ + offset;
+		break;
+
+	default:
+		return -1;
+	}
+
+	if (position_ < 0)
+	{
+		position_ = 0;
+	}
+
+	return position_;
 }
 
-// (virtual)
-int64_t MemoryStream::seek(
-    int64_t offset,
-    StreamSeekOrigin origin)
+std::int64_t MemoryStream::get_position()
 {
-    if (!is_open()) {
-        return -1;
-    }
-
-    if (!can_seek()) {
-        return -1;
-    }
-
-    switch (origin) {
-    case StreamSeekOrigin::begin:
-        position_ = offset;
-        break;
-
-    case StreamSeekOrigin::current:
-        position_ += offset;
-        break;
-
-    case StreamSeekOrigin::end:
-        position_ = size_ + offset;
-        break;
-
-    default:
-        return -1;
-    }
-
-    if (position_ < 0) {
-        position_ = 0;
-    }
-
-    return position_;
+	return position_;
 }
 
-// (virtual)
-int64_t MemoryStream::get_position()
-{
-    return position_;
-}
-
-// (virtual)
 int MemoryStream::read(
-    void* buffer,
-    int count)
+	void* buffer,
+	const int count)
 {
-    if (!is_open()) {
-        return 0;
-    }
+	if (!is_open_)
+	{
+		return 0;
+	}
 
-    if (!can_read()) {
-        return 0;
-    }
+	if (!can_read_)
+	{
+		return 0;
+	}
 
-    if (!buffer) {
-        return 0;
-    }
+	if (!buffer)
+	{
+		return 0;
+	}
 
-    if (count <= 0) {
-        return 0;
-    }
+	if (count <= 0)
+	{
+		return 0;
+	}
 
-    auto remain = size_ - position_;
+	const auto remain = size_ - position_;
 
-    if (remain <= 0) {
-        return 0;
-    }
+	if (remain <= 0)
+	{
+		return 0;
+	}
 
-    auto read_count = static_cast<int>(std::min(
-        static_cast<int64_t>(count),
-        remain));
+	auto read_count = static_cast<int>(std::min(static_cast<std::int64_t>(count), remain));
 
-    std::uninitialized_copy_n(
-        &buffer_[position_],
-        read_count,
-        static_cast<uint8_t*>(buffer));
+	std::uninitialized_copy_n(&buffer_[position_], read_count, static_cast<std::uint8_t*>(buffer));
 
-    position_ += read_count;
+	position_ += read_count;
 
-    return read_count;
+	return read_count;
 }
 
-// (virtual)
 bool MemoryStream::write(
-    const void* buffer,
-    int count)
+	const void* buffer,
+	const int count)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!is_open_)
+	{
+		return false;
+	}
 
-    if (!can_write()) {
-        return false;
-    }
+	if (!can_write_)
+	{
+		return false;
+	}
 
-    if (count < 0) {
-        return false;
-    }
+	if (count < 0)
+	{
+		return false;
+	}
 
-    if (count == 0) {
-        return true;
-    }
+	if (count == 0)
+	{
+		return true;
+	}
 
-    if (!buffer) {
-        return false;
-    }
+	if (!buffer)
+	{
+		return false;
+	}
 
-    if (!ext_buffer_) {
-        auto new_size = position_ + count;
+	if (!ext_buffer_)
+	{
+		auto new_size = position_ + count;
 
-        if (new_size > size_) {
-            int_buffer_.resize(static_cast<size_t>(new_size));
+		if (new_size > size_)
+		{
+			int_buffer_.resize(static_cast<std::size_t>(new_size));
 
-            size_ = new_size;
-            buffer_ = reinterpret_cast<uint8_t*>(&int_buffer_[0]);
-        }
-    } else {
-        if ((position_ + count) > ext_size_) {
-            return false;
-        }
-    }
+			size_ = new_size;
+			buffer_ = reinterpret_cast<std::uint8_t*>(&int_buffer_[0]);
+		}
+	}
+	else
+	{
+		if ((position_ + count) > ext_size_)
+		{
+			return false;
+		}
+	}
 
-    std::uninitialized_copy_n(
-        static_cast<const uint8_t*>(buffer),
-        count,
-        &buffer_[position_]);
+	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), count, &buffer_[position_]);
 
-    position_ += count;
+	position_ += count;
 
-    return true;
+	return true;
 }
 
-// (virtual)
 bool MemoryStream::can_read() const
 {
-    return is_open() && can_read_;
+	return is_open_ && can_read_;
 }
 
-// (virtual)
 bool MemoryStream::can_seek() const
 {
-    return is_open();
+	return is_open_;
 }
 
-// (virtual)
 bool MemoryStream::can_write() const
 {
-    return is_open() && can_write_;
+	return is_open_ && can_write_;
 }
 
-uint8_t* MemoryStream::get_data()
+std::uint8_t* MemoryStream::get_data()
 {
-    return buffer_;
+	return buffer_;
 }
 
-const uint8_t* MemoryStream::get_data() const
+const std::uint8_t* MemoryStream::get_data() const
 {
-    return buffer_;
+	return buffer_;
 }
 
 bool MemoryStream::remove_block(
-    int64_t offset,
-    int count)
+	const std::int64_t offset,
+	const int count)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!is_open_)
+	{
+		return false;
+	}
 
-    if (offset < 0) {
-        return false;
-    }
+	if (offset < 0)
+	{
+		return false;
+	}
 
-    if (count < 0) {
-        return false;
-    }
+	if (count < 0)
+	{
+		return false;
+	}
 
-    if (count == 0) {
-        return true;
-    }
+	if (count == 0)
+	{
+		return true;
+	}
 
-    if ((offset + count) > size_) {
-        return false;
-    }
+	if ((offset + count) > size_)
+	{
+		return false;
+	}
 
-    int_buffer_.erase(
-        int_buffer_.begin() + static_cast<ptrdiff_t>(offset),
-        int_buffer_.begin() + static_cast<ptrdiff_t>(offset) + count);
+	const auto where_it = int_buffer_.begin() + static_cast<std::intptr_t>(offset);
 
-    size_ -= count;
+	int_buffer_.erase(where_it, where_it + count);
 
-    return true;
+	size_ -= count;
+
+	return true;
+}
+
+void MemoryStream::close_internal()
+{
+	can_read_ = false;
+	can_write_ = false;
+	position_ = 0;
+	size_ = 0;
+	ext_size_ = 0;
+	buffer_ = nullptr;
+	ext_buffer_ = nullptr;
+	int_buffer_ = {};
 }
 
 

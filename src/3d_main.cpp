@@ -7525,8 +7525,6 @@ void write_text_config()
     write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
 
 
-    static_cast<void>(memory_stream.flush());
-
     const auto stream_size = static_cast<int>(memory_stream.get_size());
     const auto stream_data = memory_stream.get_data();
 
