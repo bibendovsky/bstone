@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <string>
 #include <type_traits>
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 #include "bstone_string_helper.h"
 
 
@@ -48,12 +48,12 @@ public:
     TextWriter();
 
     TextWriter(
-        IStream* stream);
+        Stream* stream);
 
 
     // Opens the writer.
     bool open(
-        IStream* stream);
+        Stream* stream);
 
     // Closes the writer.
     void close();
@@ -70,7 +70,7 @@ public:
 
 
 private:
-    IStream* stream_;
+    Stream* stream_;
 }; // TextWriter
 
 

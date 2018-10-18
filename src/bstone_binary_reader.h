@@ -26,7 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_BINARY_READER_INCLUDED
 
 
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 
 
 namespace bstone {
@@ -35,7 +35,7 @@ namespace bstone {
 class BinaryReader {
 public:
     BinaryReader(
-        IStream* stream = nullptr);
+        Stream* stream = nullptr);
 
     BinaryReader(
         const BinaryReader& that) = delete;
@@ -45,7 +45,7 @@ public:
 
 
     bool open(
-        IStream* stream);
+        Stream* stream);
 
     // Closes the reader but stream.
     void close();
@@ -128,7 +128,7 @@ public:
         int64_t position);
 
 private:
-    IStream* stream_;
+    Stream* stream_;
 
 
     template<typename T>

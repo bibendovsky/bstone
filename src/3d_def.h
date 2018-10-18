@@ -3057,11 +3057,11 @@ void InitDestPath();
 
 // On success current stream position is at chunk's data.
 int FindChunk(
-    bstone::IStream* stream,
+    bstone::Stream* stream,
     const std::string& dst_chunk_name);
 
 int NextChunk(
-    bstone::IStream* stream);
+    bstone::Stream* stream);
 
 /*
 =============================================================================

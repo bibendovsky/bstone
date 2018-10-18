@@ -72,7 +72,6 @@ void Log::write_version()
 	write_internal(MessageType::version, "BStone version: {}", ::get_version_string());
 }
 
-// (static)
 Log& Log::get_local()
 {
 	static Log log;

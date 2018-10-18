@@ -41,7 +41,7 @@ TextReader::TextReader()
 }
 
 TextReader::TextReader(
-    IStream* stream)
+    Stream* stream)
     :
     TextReader{}
 {
@@ -54,7 +54,7 @@ TextReader::~TextReader()
 }
 
 bool TextReader::open(
-    IStream* stream)
+    Stream* stream)
 {
     close();
 

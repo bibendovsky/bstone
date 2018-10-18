@@ -7635,7 +7635,7 @@ void InitPlaytemp()
 }
 
 int FindChunk(
-    bstone::IStream* stream,
+    bstone::Stream* stream,
     const std::string& dst_chunk_name)
 {
     std::string src_chunk_name;
@@ -7671,7 +7671,7 @@ int FindChunk(
 }
 
 int NextChunk(
-    bstone::IStream* stream)
+    bstone::Stream* stream)
 {
     bool is_succeed = true;
 
@@ -8163,7 +8163,7 @@ static const std::string& get_saved_game_version_string()
 
 static bool LoadCompressedChunk(
     const std::string& chunk_name,
-    bstone::IStream* stream,
+    bstone::Stream* stream,
     Buffer& buffer)
 {
     auto stream_size = stream->get_size();

@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <vector>
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 #include "bstone_un_value.h"
 
 
@@ -41,7 +41,7 @@ namespace bstone {
 
 // A memory stream.
 class MemoryStream :
-    public IStream
+    public Stream
 {
 public:
     MemoryStream(
@@ -124,7 +124,7 @@ private:
     uint8_t* buffer_;
     uint8_t* ext_buffer_;
     Buffer int_buffer_;
-}; // IStream
+}; // Stream
 
 
 } // bstone

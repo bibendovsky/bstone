@@ -30,14 +30,14 @@ namespace bstone {
 
 
 BinaryWriter::BinaryWriter(
-    IStream* stream) :
+    Stream* stream) :
         stream_()
 {
     open(stream);
 }
 
 bool BinaryWriter::open(
-    IStream* stream)
+    Stream* stream)
 {
     close();
 
