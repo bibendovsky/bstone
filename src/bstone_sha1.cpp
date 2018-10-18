@@ -57,9 +57,15 @@ Sha1::Sha1()
 }
 
 Sha1::Sha1(
+	const char (&sha1_string)[(hash_size * 2) + 1])
+{
+	ctor(sha1_string, hash_size * 2);
+}
+
+Sha1::Sha1(
 	const std::string& sha1_string)
 {
-	ctor(sha1_string);
+	ctor(sha1_string.c_str(), static_cast<int>(sha1_string.size()));
 }
 
 Sha1::Sha1(
@@ -247,17 +253,18 @@ std::string Sha1::to_string() const
 }
 
 void Sha1::ctor(
-	const std::string& sha1_string)
+	const char* const sha1_string,
+	const int sha1_string_length)
 {
 	is_finished_ = false;
 	is_invalid_ = true;
 
-	if (sha1_string.size() != (bstone::Sha1::hash_size * 2))
+	if (!sha1_string || sha1_string_length != (hash_size * 2))
 	{
 		return;
 	}
 
-	for (int i = 0; i < bstone::Sha1::hash_size; ++i)
+	for (int i = 0; i < hash_size; ++i)
 	{
 		int nibbles[2];
 

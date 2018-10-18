@@ -32,6 +32,9 @@ public:
 	Sha1();
 
 	Sha1(
+		const char (&sha1_string)[(hash_size * 2) + 1]);
+
+	Sha1(
 		const std::string& sha1_string);
 
 	Sha1(
@@ -95,7 +98,8 @@ private:
 
 
 	void ctor(
-		const std::string& sha1_string);
+		const char* const sha1_string,
+		const int sha1_string_length);
 
 	void pad_message();
 
