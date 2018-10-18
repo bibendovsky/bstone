@@ -37,173 +37,198 @@ const std::string& get_version_string();
 const std::string& get_profile_dir();
 
 
-namespace bstone {
-
-
-Log::Log() :
-        fstream_(),
-        args_(),
-        sstream_(),
-        message_(),
-        message_type_()
+namespace bstone
 {
-    auto log_path = ::get_profile_dir() + "bstone_log.txt";
-    fstream_.open(log_path, StreamOpenMode::write);
 
-    args_.reserve(16);
-    message_.reserve(1024);
+
+Log::Log()
+	:
+	fstream_{},
+	args_{},
+	sstream_{},
+	message_{},
+	message_type_{}
+{
+	const auto& log_path = ::get_profile_dir() + "bstone_log.txt";
+	fstream_.open(log_path, StreamOpenMode::write);
+
+	args_.reserve(16);
+	message_.reserve(1024);
 }
 
 Log::~Log()
 {
 }
 
-// (static)
 void Log::write()
 {
-    write(std::string());
+	write(std::string{});
 }
 
-// (static)
 void Log::write_version()
 {
-    clean_up();
+	clean_up();
 
-    write_internal(
-        MessageType::version,
-        "BStone version: {}",
-        ::get_version_string());
+	write_internal(MessageType::version, "BStone version: {}", ::get_version_string());
 }
 
 // (static)
 Log& Log::get_local()
 {
-    static Log log;
-    static bool is_initialized = false;
+	static Log log;
+	static auto is_initialized = false;
 
-    if (!is_initialized) {
-        is_initialized = true;
+	if (!is_initialized)
+	{
+		is_initialized = true;
 
-        write("BStone Log");
-        write("==========");
-        write();
-        write("Version: {}", ::get_version_string());
-        write();
-    }
+		write("BStone Log");
+		write("==========");
+		write();
+		write("Version: {}", ::get_version_string());
+		write();
+	}
 
-    return log;
+	return log;
 }
 
 void Log::write_internal(
-    const std::string& format)
+	const std::string& format)
 {
-    bool is_critical = false;
-    bool is_version = false;
+	bool is_critical = false;
+	bool is_version = false;
 
-    switch (message_type_) {
-    case MessageType::version:
-        is_version = true;
-        message_.clear();
-        break;
+	switch (message_type_)
+	{
+	case MessageType::version:
+		is_version = true;
+		message_.clear();
+		break;
 
-    case MessageType::information:
-        message_.clear();
-        break;
+	case MessageType::information:
+		message_.clear();
+		break;
 
-    case MessageType::warning:
-        message_ = "WARNING: ";
-        break;
+	case MessageType::warning:
+		message_ = "WARNING: ";
+		break;
 
-    case MessageType::error:
-        message_ = "ERROR: ";
-        break;
+	case MessageType::error:
+		message_ = "ERROR: ";
+		break;
 
-    case MessageType::critical_error:
-        is_critical = true;
-        message_ = "CRITICAL: ";
-        break;
+	case MessageType::critical_error:
+		is_critical = true;
+		message_ = "CRITICAL: ";
+		break;
 
-    default:
-        throw std::runtime_error("Invalid message type.");
-    }
+	default:
+		throw std::runtime_error("Invalid message type.");
+	}
 
-    if (args_.empty()) {
-        message_ += format;
-    } else if (!format.empty()) {
-        int i = 0;
-        char prev_char = '\0';
-        auto c_format = format.c_str();
-        int arg_index = 0;
-        while (c_format[i] != '\0') {
-            auto ch = c_format[i];
-            bool just_advance = false;
+	if (args_.empty())
+	{
+		message_ += format;
+	}
+	else if (!format.empty())
+	{
+		const auto c_format = format.c_str();
 
-            if (prev_char != '{' && ch == '{') {
-                int next_char = c_format[i + 1];
+		auto i = 0;
+		auto prev_char = '\0';
+		auto arg_index = 0;
 
-                if (next_char == '}') {
-                    if (arg_index < static_cast<int>(args_.size())) {
-                        message_ += args_[arg_index];
+		while (c_format[i] != '\0')
+		{
+			auto ch = c_format[i];
+			auto is_just_advance = false;
 
-                        i += 2;
-                        arg_index += 1;
-                    } else {
-                        just_advance = true;
-                    }
-                } else {
-                    int digit = next_char - '0';
+			if (prev_char != '{' && ch == '{')
+			{
+				int next_char = c_format[i + 1];
 
-                    if (digit >= 0 && digit <= 9) {
-                        next_char = c_format[i + 2];
+				if (next_char == '}')
+				{
+					if (arg_index < static_cast<int>(args_.size()))
+					{
+						message_ += args_[arg_index];
 
-                        if (next_char == '}') {
-                            if (digit < static_cast<int>(args_.size())) {
-                                message_ += args_[digit];
-                                i += 3;
-                            } else {
-                                just_advance = true;
-                            }
-                        } else {
-                            just_advance = true;
-                        }
-                    } else {
-                        just_advance = true;
-                    }
-                }
-            } else {
-                just_advance = true;
-            }
+						i += 2;
+						++arg_index;
+					}
+					else
+					{
+						is_just_advance = true;
+					}
+				}
+				else
+				{
+					const auto digit = next_char - '0';
 
-            if (just_advance) {
-                ++i;
-                message_ += ch;
-            }
+					if (digit >= 0 && digit <= 9)
+					{
+						next_char = c_format[i + 2];
 
-            prev_char = c_format[i - 1];
-        }
-    }
+						if (next_char == '}')
+						{
+							if (digit < static_cast<int>(args_.size()))
+							{
+								message_ += args_[digit];
+								i += 3;
+							}
+							else
+							{
+								is_just_advance = true;
+							}
+						}
+						else
+						{
+							is_just_advance = true;
+						}
+					}
+					else
+					{
+						is_just_advance = true;
+					}
+				}
+			}
+			else
+			{
+				is_just_advance = true;
+			}
 
-    std::cout << message_ << std::endl;
+			if (is_just_advance)
+			{
+				++i;
+				message_ += ch;
+			}
 
-    if (!is_version) {
-        fstream_.write_string(message_);
-        fstream_.write_octet('\n');
-    }
+			prev_char = c_format[i - 1];
+		}
+	}
 
-    if (is_critical || is_version) {
-        static_cast<void>(::SDL_ShowSimpleMessageBox(
-            is_version ? SDL_MESSAGEBOX_INFORMATION : SDL_MESSAGEBOX_ERROR,
-            "BStone",
-            message_.c_str(),
-            nullptr));
-    }
+	std::cout << message_ << std::endl;
+
+	if (!is_version)
+	{
+		fstream_.write_string(message_);
+		fstream_.write_octet('\n');
+	}
+
+	if (is_critical || is_version)
+	{
+		static_cast<void>(::SDL_ShowSimpleMessageBox(
+			is_version ? SDL_MESSAGEBOX_INFORMATION : SDL_MESSAGEBOX_ERROR,
+			"BStone",
+			message_.c_str(),
+			nullptr));
+	}
 }
 
-// (static)
 void Log::clean_up()
 {
-    auto& local = get_local();
-    local.args_.clear();
+	auto& local = get_local();
+	local.args_.clear();
 }
 
 
