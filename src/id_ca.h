@@ -72,7 +72,7 @@ struct mapfiletype {
 
 struct Resources final
 {
-	static constexpr auto max_file_size = 3000000;
+	static constexpr auto max_size = 4000000;
 
 
 	static const std::string& audio_header_base_name;
