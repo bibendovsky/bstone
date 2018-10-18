@@ -120,11 +120,11 @@ private:
 
 
 	bool is_open_;
-	bool can_read_;
-	bool can_write_;
-	int64_t position_;
-	int64_t size_;
-	int64_t ext_size_;
+	bool is_readable_;
+	bool is_writable_;
+	std::int64_t position_;
+	std::int64_t size_;
+	std::int64_t ext_size_;
 	std::uint8_t* buffer_;
 	std::uint8_t* ext_buffer_;
 	Buffer int_buffer_;

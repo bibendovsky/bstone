@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #include "bstone_memory_stream.h"
 #include <cstddef>
 #include <algorithm>
+#include <utility>
 
 
 namespace bstone
@@ -36,13 +37,14 @@ MemoryStream::MemoryStream(
 	const StreamOpenMode open_mode)
 	:
 	is_open_{},
-	can_read_{},
-	can_write_{},
+	is_readable_{},
+	is_writable_{},
 	position_{},
 	size_{},
 	ext_size_{},
 	buffer_{},
-	ext_buffer_{}
+	ext_buffer_{},
+	int_buffer_{}
 {
 	static_cast<void>(open(initial_capacity, open_mode));
 }
@@ -54,15 +56,32 @@ MemoryStream::MemoryStream(
 	const StreamOpenMode open_mode)
 	:
 	is_open_{},
-	can_read_{},
-	can_write_{},
+	is_readable_{},
+	is_writable_{},
 	position_{},
 	size_{},
 	ext_size_{},
 	buffer_{},
-	ext_buffer_{}
+	ext_buffer_{},
+	int_buffer_{}
 {
 	static_cast<void>(open(buffer_size, buffer_offset, buffer, open_mode));
+}
+
+MemoryStream::MemoryStream(
+	MemoryStream&& rhs)
+	:
+	is_open_{std::move(rhs.is_open_)},
+	is_readable_{std::move(rhs.is_readable_)},
+	is_writable_{std::move(rhs.is_writable_)},
+	position_{std::move(rhs.position_)},
+	size_{std::move(rhs.size_)},
+	ext_size_{std::move(rhs.ext_size_)},
+	buffer_{std::move(rhs.buffer_)},
+	ext_buffer_{std::move(rhs.ext_buffer_)},
+	int_buffer_{std::move(rhs.int_buffer_)}
+{
+	rhs.is_open_ = false;
 }
 
 MemoryStream::~MemoryStream()
@@ -110,8 +129,8 @@ bool MemoryStream::open(
 	int_buffer_.reserve(capacity);
 
 	is_open_ = true;
-	can_read_ = is_readable;
-	can_write_ = is_writable;
+	is_readable_ = is_readable;
+	is_writable_ = is_writable;
 
 	return true;
 }
@@ -159,8 +178,8 @@ bool MemoryStream::open(
 
 
 	is_open_ = true;
-	can_read_ = is_readable;
-	can_write_ = is_writable;
+	is_readable_ = is_readable;
+	is_writable_ = is_writable;
 	size_ = buffer_size;
 	ext_size_ = buffer_size;
 	buffer_ = const_cast<std::uint8_t*>(&buffer[buffer_offset]);
@@ -192,7 +211,7 @@ bool MemoryStream::set_size(
 		return false;
 	}
 
-	if (!can_write_)
+	if (!is_writable_)
 	{
 		return false;
 	}
@@ -272,7 +291,7 @@ int MemoryStream::read(
 		return 0;
 	}
 
-	if (!can_read_)
+	if (!is_readable_)
 	{
 		return 0;
 	}
@@ -312,7 +331,7 @@ bool MemoryStream::write(
 		return false;
 	}
 
-	if (!can_write_)
+	if (!is_writable_)
 	{
 		return false;
 	}
@@ -361,7 +380,7 @@ bool MemoryStream::write(
 
 bool MemoryStream::is_readable() const
 {
-	return is_open_ && can_read_;
+	return is_open_ && is_readable_;
 }
 
 bool MemoryStream::is_seekable() const
@@ -371,7 +390,7 @@ bool MemoryStream::is_seekable() const
 
 bool MemoryStream::is_writable() const
 {
-	return is_open_ && can_write_;
+	return is_open_ && is_writable_;
 }
 
 std::uint8_t* MemoryStream::get_data()
@@ -424,8 +443,9 @@ bool MemoryStream::remove_block(
 
 void MemoryStream::close_internal()
 {
-	can_read_ = false;
-	can_write_ = false;
+	is_open_ = false;
+	is_readable_ = false;
+	is_writable_ = false;
 	position_ = 0;
 	size_ = 0;
 	ext_size_ = 0;
