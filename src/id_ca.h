@@ -70,7 +70,7 @@ struct mapfiletype {
 }; // mapfiletype
 
 
-struct Resources final
+struct Assets final
 {
 	static constexpr auto max_size = 4000000;
 
@@ -99,7 +99,7 @@ struct Resources final
 	static const bstone::StringList& get_extensions();
 
 	static const bstone::StringList& get_base_names();
-}; // Resources
+}; // Assets
 
 // ===========================================================================
 

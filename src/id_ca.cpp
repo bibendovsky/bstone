@@ -1102,15 +1102,15 @@ void ca_dump_hashes()
 	bstone::FileStream file_stream;
 
 	auto buffer = Buffer{};
-	buffer.reserve(Resources::max_file_size);
+	buffer.reserve(Assets::max_size);
 
 	auto data_size = std::int32_t{};
 
 	auto sha1 = bstone::Sha1{};
 
-	for (const auto& base_name : Resources::get_base_names())
+	for (const auto& base_name : Assets::get_base_names())
 	{
-		for (const auto& extension : Resources::get_extensions())
+		for (const auto& extension : Assets::get_extensions())
 		{
 			const auto open_result = ca_open_resource_non_fatal(base_name, extension, file_stream);
 
@@ -1124,7 +1124,7 @@ void ca_dump_hashes()
 
 			const auto stream_size = file_stream.get_size();
 
-			if (stream_size > Resources::max_file_size)
+			if (stream_size > Assets::max_size)
 			{
 				bstone::Log::write_error("File size is too big.");
 				continue;
@@ -1156,29 +1156,29 @@ void ca_dump_hashes()
 }
 
 
-const std::string& Resources::audio_header_base_name = "AUDIOHED";
-const std::string& Resources::audio_data_base_name = "AUDIOT";
+const std::string& Assets::audio_header_base_name = "AUDIOHED";
+const std::string& Assets::audio_data_base_name = "AUDIOT";
 
-const std::string& Resources::map_header_base_name = "MAPHEAD";
-const std::string& Resources::map_data_base_name = "MAPTEMP";
+const std::string& Assets::map_header_base_name = "MAPHEAD";
+const std::string& Assets::map_data_base_name = "MAPTEMP";
 
-const std::string& Resources::gfx_dictionary_base_name = "VGADICT";
-const std::string& Resources::gfx_header_base_name = "VGAHEAD";
-const std::string& Resources::gfx_data_base_name = "VGAGRAPH";
+const std::string& Assets::gfx_dictionary_base_name = "VGADICT";
+const std::string& Assets::gfx_header_base_name = "VGAHEAD";
+const std::string& Assets::gfx_data_base_name = "VGAGRAPH";
 
-const std::string& Resources::page_file_base_name = "VSWAP";
+const std::string& Assets::page_file_base_name = "VSWAP";
 
-const std::string& Resources::episode_6_fmv_base_name = "EANIM";
-const std::string& Resources::episode_3_5_fmv_base_name = "GANIM";
-const std::string& Resources::intro_fmv_base_name = "IANIM";
-const std::string& Resources::episode_2_4_fmv_base_name = "SANIM";
+const std::string& Assets::episode_6_fmv_base_name = "EANIM";
+const std::string& Assets::episode_3_5_fmv_base_name = "GANIM";
+const std::string& Assets::intro_fmv_base_name = "IANIM";
+const std::string& Assets::episode_2_4_fmv_base_name = "SANIM";
 
-const std::string& Resources::aog_sw_extension = ".BS1";
-const std::string& Resources::aog_full_extension = ".BS6";
-const std::string& Resources::ps_extension = ".VSI";
+const std::string& Assets::aog_sw_extension = ".BS1";
+const std::string& Assets::aog_full_extension = ".BS6";
+const std::string& Assets::ps_extension = ".VSI";
 
 
-const bstone::StringList& Resources::get_extensions()
+const bstone::StringList& Assets::get_extensions()
 {
 	static const auto extensions = bstone::StringList
 	{
@@ -1190,7 +1190,7 @@ const bstone::StringList& Resources::get_extensions()
 	return extensions;
 }
 
-const bstone::StringList& Resources::get_base_names()
+const bstone::StringList& Assets::get_base_names()
 {
 	static const auto base_names = bstone::StringList
 	{
