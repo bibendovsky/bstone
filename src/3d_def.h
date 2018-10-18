@@ -4666,18 +4666,24 @@ inline void deserialize_field(
 }
 
 
-enum class GameType {
-    none,
-    aog_sw, // Aliens Of Gold (shareware, v3.0)
-    aog_full_v1_0, // Aliens Of Gold (full, v1.0)
-    aog_full_v2_x, // Aliens Of Gold (full, v2.0/v2.1)
-    aog_full_v3_0, // Aliens Of Gold (full, v3.0)
-    ps, // Planet Strike (full, v1.0/v1.1)
+enum class GameType
+{
+	none,
+	aog_sw, // Aliens Of Gold (shareware, v3.0)
+	aog_full_v1_0, // Aliens Of Gold (full, v1.0)
+	aog_full_v2_0, // Aliens Of Gold (full, v2.0)
+	aog_full_v2_1, // Aliens Of Gold (full, v2.1)
+	aog_full_v3_0, // Aliens Of Gold (full, v3.0)
+	ps, // Planet Strike (full, v1.0/v1.1)
 }; // GameType
 
 extern GameType g_game_type;
 
 bool is_aog_full_v1_0();
+
+bool is_aog_full_v2_0();
+
+bool is_aog_full_v2_1();
 
 bool is_aog_full_v2_x();
 

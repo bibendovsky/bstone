@@ -6523,37 +6523,40 @@ static bool is_config_loaded = false;
 
 static const std::string& get_score_file_name()
 {
-    static std::string file_name;
-    static bool is_initialized = false;
+	static auto file_name = std::string{};
+	static auto is_initialized = false;
 
-    if (!is_initialized) {
-        is_initialized = true;
+	if (!is_initialized)
+	{
+		is_initialized = true;
 
-        std::string game_type_string;
+		auto game_type_string = std::string{};
 
-        switch (::g_game_type) {
-        case GameType::aog_sw:
-            game_type_string = "aog_sw";
-            break;
+		switch (::g_game_type)
+		{
+		case GameType::aog_sw:
+			game_type_string = "aog_sw";
+			break;
 
-        case GameType::aog_full_v1_0:
-        case GameType::aog_full_v2_x:
-        case GameType::aog_full_v3_0:
-            game_type_string = "aog_full";
-            break;
+		case GameType::aog_full_v1_0:
+		case GameType::aog_full_v2_0:
+		case GameType::aog_full_v2_1:
+		case GameType::aog_full_v3_0:
+			game_type_string = "aog_full";
+			break;
 
-        case GameType::ps:
-            game_type_string = "ps";
-            break;
+		case GameType::ps:
+			game_type_string = "ps";
+			break;
 
-        default:
-            throw std::runtime_error("Invalid game type.");
-        }
+		default:
+			throw std::runtime_error("Invalid game type.");
+		}
 
-        file_name = "bstone_" + game_type_string + "_high_scores";
-    }
+		file_name = "bstone_" + game_type_string + "_high_scores";
+	}
 
-    return file_name;
+	return file_name;
 }
 
 static void set_default_high_scores()
@@ -9690,40 +9693,50 @@ void gametype::restore_local_barriers()
 
 bool is_aog_full_v1_0()
 {
-    return ::g_game_type == GameType::aog_full_v1_0;
+	return ::g_game_type == GameType::aog_full_v1_0;
+}
+
+bool is_aog_full_v2_0()
+{
+	return ::g_game_type == GameType::aog_full_v2_0;
+}
+
+bool is_aog_full_v2_1()
+{
+	return ::g_game_type == GameType::aog_full_v2_1;
 }
 
 bool is_aog_full_v2_x()
 {
-    return ::g_game_type == GameType::aog_full_v2_x;
+	return ::g_game_type == GameType::aog_full_v2_0 || ::g_game_type == GameType::aog_full_v2_1;
 }
 
 bool is_aog_full_v3_0()
 {
-    return ::g_game_type == GameType::aog_full_v3_0;
+	return ::g_game_type == GameType::aog_full_v3_0;
 }
 
 bool is_aog_full()
 {
-    return
-        ::is_aog_full_v1_0() ||
-        ::is_aog_full_v2_x() ||
-        ::is_aog_full_v3_0();
+	return
+		::is_aog_full_v1_0() ||
+		::is_aog_full_v2_x() ||
+		::is_aog_full_v3_0();
 }
 
 bool is_aog_sw()
 {
-    return ::g_game_type == GameType::aog_sw;
+	return ::g_game_type == GameType::aog_sw;
 }
 
 bool is_aog()
 {
-    return ::is_aog_sw() || ::is_aog_full();
+	return ::is_aog_sw() || ::is_aog_full();
 }
 
 bool is_ps()
 {
-    return ::g_game_type == GameType::ps;
+	return ::g_game_type == GameType::ps;
 }
 
 void sys_sleep_for(

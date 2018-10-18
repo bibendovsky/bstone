@@ -438,7 +438,8 @@ int get_ref_vgahead_offset_count(
     case GameType::aog_full_v1_0:
         return 213;
 
-    case GameType::aog_full_v2_x:
+    case GameType::aog_full_v2_0:
+	case GameType::aog_full_v2_1:
         return 224;
 
     case GameType::aog_full_v3_0:
@@ -502,7 +503,8 @@ const bstone::StringList& get_file_names(
         return aog_sw_file_names;
 
     case GameType::aog_full_v1_0:
-    case GameType::aog_full_v2_x:
+    case GameType::aog_full_v2_0:
+	case GameType::aog_full_v2_1:
     case GameType::aog_full_v3_0:
         return aog_full_file_names;
 
@@ -527,7 +529,8 @@ const std::string& get_file_extension(
         return aog_sw_extension;
 
     case GameType::aog_full_v1_0:
-    case GameType::aog_full_v2_x:
+    case GameType::aog_full_v2_0:
+	case GameType::aog_full_v2_1:
     case GameType::aog_full_v3_0:
         return aog_full_extension;
 
@@ -627,7 +630,7 @@ void CheckForEpisodes()
     } else if (::g_args.has_option("aog_2x")) {
         bstone::Log::write("Forcing Aliens Of Gold (full, v2.x).\n");
 
-        if (!::set_game_type(GameType::aog_full_v2_x)) {
+        if (!::set_game_type(GameType::aog_full_v2_1)) {
             is_succeed = false;
         }
     } else if (::g_args.has_option("aog_30")) {
@@ -652,7 +655,7 @@ void CheckForEpisodes()
         }
 
         if (!is_found) {
-            is_found = ::set_game_type(GameType::aog_full_v2_x);
+            is_found = ::set_game_type(GameType::aog_full_v2_1);
         }
 
         if (!is_found) {
@@ -677,7 +680,8 @@ void CheckForEpisodes()
                 bstone::Log::write("Found Aliens Of Gold (full, v1.0).\n");
                 break;
 
-            case GameType::aog_full_v2_x:
+            case GameType::aog_full_v2_0:
+			case GameType::aog_full_v2_1:
                 bstone::Log::write("Found Aliens Of Gold (full, v2.x).\n");
                 break;
 
