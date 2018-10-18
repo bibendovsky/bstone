@@ -99,9 +99,9 @@ public:
 
 private:
 	void* context_;
-	bool can_read_;
-	bool can_seek_;
-	bool can_write_;
+	bool is_readable_;
+	bool is_seekable_;
+	bool is_writable_;
 
 
 	void close_internal();

@@ -52,9 +52,9 @@ SDL_RWops* get_sdl_context(
 
 FileStream::FileStream() :
 	context_{},
-	can_read_{},
-	can_seek_{},
-	can_write_{}
+	is_readable_{},
+	is_seekable_{},
+	is_writable_{}
 {
 }
 
@@ -63,9 +63,9 @@ FileStream::FileStream(
 	StreamOpenMode open_mode)
 	:
 	context_{},
-	can_read_{},
-	can_seek_{},
-	can_write_{}
+	is_readable_{},
+	is_seekable_{},
+	is_writable_{}
 {
 	static_cast<void>(open(file_name, open_mode));
 }
@@ -74,14 +74,14 @@ FileStream::FileStream(
 	FileStream&& rhs)
 	:
 	context_{std::move(rhs.context_)},
-	can_read_{std::move(rhs.can_read_)},
-	can_seek_{std::move(rhs.can_seek_)},
-	can_write_{std::move(rhs.can_write_)}
+	is_readable_{std::move(rhs.is_readable_)},
+	is_seekable_{std::move(rhs.is_seekable_)},
+	is_writable_{std::move(rhs.is_writable_)}
 {
 	rhs.context_ = nullptr;
-	rhs.can_read_ = false;
-	rhs.can_seek_ = false;
-	rhs.can_write_ = false;
+	rhs.is_readable_ = false;
+	rhs.is_seekable_ = false;
+	rhs.is_writable_ = false;
 }
 
 FileStream::~FileStream()
@@ -131,9 +131,9 @@ bool FileStream::open(
 	}
 
 	context_ = sdl_context;
-	can_read_ = is_readable;
-	can_seek_ = true;
-	can_write_ = is_writable;
+	is_readable_ = is_readable;
+	is_seekable_ = true;
+	is_writable_ = is_writable;
 
 	return true;
 }
@@ -175,7 +175,7 @@ std::int64_t FileStream::seek(
 		return -1;
 	}
 
-	if (!can_seek_)
+	if (!is_seekable_)
 	{
 		return -1;
 	}
@@ -215,7 +215,7 @@ int FileStream::read(
 		return 0;
 	}
 
-	if (!can_read_)
+	if (!is_readable_)
 	{
 		return 0;
 	}
@@ -244,7 +244,7 @@ bool FileStream::write(
 		return false;
 	}
 
-	if (!can_write_)
+	if (!is_writable_)
 	{
 		return false;
 	}
@@ -271,17 +271,17 @@ bool FileStream::write(
 
 bool FileStream::is_readable() const
 {
-	return is_open() && can_read_;
+	return is_open() && is_readable_;
 }
 
 bool FileStream::is_seekable() const
 {
-	return context_ && can_seek_;
+	return context_ && is_seekable_;
 }
 
 bool FileStream::is_writable() const
 {
-	return context_ && can_write_;
+	return context_ && is_writable_;
 }
 
 bool FileStream::is_exists(
@@ -301,9 +301,9 @@ void FileStream::close_internal()
 		context_ = nullptr;
 	}
 
-	can_read_ = false;
-	can_seek_ = false;
-	can_write_ = false;
+	is_readable_ = false;
+	is_seekable_ = false;
+	is_writable_ = false;
 }
 
 
