@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 #include "3d_def.h"
+#include "bstone_sha1.h"
 
 
 extern int NUM_EPISODES;
@@ -77,6 +78,12 @@ struct Assets final
 
 	using RefList = std::vector<std::reference_wrapper<const std::string>>;
 
+	using BaseNameToHashMap = std::unordered_map<
+		std::reference_wrapper<const std::string>,
+		bstone::Sha1,
+		std::hash<std::string>,
+		std::equal_to<std::string>>;
+
 
 	static const std::string& audio_header_base_name;
 	static const std::string& audio_data_base_name;
@@ -102,6 +109,34 @@ struct Assets final
 	static const RefList& get_extensions();
 
 	static const RefList& get_base_names();
+
+
+	static const RefList& get_aog_sw_base_names();
+
+	static const RefList& get_aog_full_base_names();
+
+	static const RefList& get_ps_base_names();
+
+
+	static const BaseNameToHashMap& get_aog_sw_v1_0_base_name_to_hash_map();
+
+	static const BaseNameToHashMap& get_aog_sw_v2_0_base_name_to_hash_map();
+
+	static const BaseNameToHashMap& get_aog_sw_v2_1_base_name_to_hash_map();
+
+	static const BaseNameToHashMap& get_aog_sw_v3_0_base_name_to_hash_map();
+
+
+	static const BaseNameToHashMap& get_aog_full_v1_0_base_name_to_hash_map();
+
+	static const BaseNameToHashMap& get_aog_full_v2_0_base_name_to_hash_map();
+
+	static const BaseNameToHashMap& get_aog_full_v2_1_base_name_to_hash_map();
+
+	static const BaseNameToHashMap& get_aog_full_v3_0_base_name_to_hash_map();
+
+
+	static const BaseNameToHashMap& get_ps_base_name_to_hash_map();
 }; // Assets
 
 // ===========================================================================
