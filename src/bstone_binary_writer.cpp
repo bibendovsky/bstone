@@ -45,7 +45,7 @@ bool BinaryWriter::open(
         return false;
     }
 
-    if (!stream->can_write()) {
+    if (!stream->is_writable()) {
         return false;
     }
 

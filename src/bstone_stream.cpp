@@ -94,7 +94,7 @@ bool Stream::copy_to(
 		return false;
 	}
 
-	if (!dst_stream->can_write())
+	if (!dst_stream->is_writable())
 	{
 		return false;
 	}

@@ -100,11 +100,11 @@ public:
 		const void* buffer,
 		const int count) override;
 
-	bool can_read() const override;
+	bool is_readable() const override;
 
-	bool can_seek() const override;
+	bool is_seekable() const override;
 
-	bool can_write() const override;
+	bool is_writable() const override;
 
 	std::uint8_t* get_data();
 

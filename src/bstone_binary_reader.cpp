@@ -46,7 +46,7 @@ bool BinaryReader::open(
         return false;
     }
 
-    if (!stream->can_read()) {
+    if (!stream->is_readable()) {
         return false;
     }
 

@@ -151,7 +151,7 @@ public:
 	//    - "true" if stream is readable.
 	//    - "false" otherwise.
 	//
-	virtual bool can_read() const = 0;
+	virtual bool is_readable() const = 0;
 
 	//
 	// Indicates the stream is seekable.
@@ -160,7 +160,7 @@ public:
 	//    - "true" if stream is seekable.
 	//    - "false" otherwise.
 	//
-	virtual bool can_seek() const = 0;
+	virtual bool is_seekable() const = 0;
 
 	//
 	// Indicates the stream is writable.
@@ -169,7 +169,7 @@ public:
 	//    - "true" if stream is writable.
 	//    - "false" otherwise.
 	//
-	virtual bool can_write() const = 0;
+	virtual bool is_writable() const = 0;
 
 	// Copies the stream from a current position to
 	// an another stream using internal buffer.

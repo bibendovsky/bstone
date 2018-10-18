@@ -269,17 +269,17 @@ bool FileStream::write(
 	return write_result == count;
 }
 
-bool FileStream::can_read() const
+bool FileStream::is_readable() const
 {
 	return is_open() && can_read_;
 }
 
-bool FileStream::can_seek() const
+bool FileStream::is_seekable() const
 {
 	return context_ && can_seek_;
 }
 
-bool FileStream::can_write() const
+bool FileStream::is_writable() const
 {
 	return context_ && can_write_;
 }

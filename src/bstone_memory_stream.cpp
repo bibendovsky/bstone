@@ -359,17 +359,17 @@ bool MemoryStream::write(
 	return true;
 }
 
-bool MemoryStream::can_read() const
+bool MemoryStream::is_readable() const
 {
 	return is_open_ && can_read_;
 }
 
-bool MemoryStream::can_seek() const
+bool MemoryStream::is_seekable() const
 {
 	return is_open_;
 }
 
-bool MemoryStream::can_write() const
+bool MemoryStream::is_writable() const
 {
 	return is_open_ && can_write_;
 }
