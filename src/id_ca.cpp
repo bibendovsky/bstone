@@ -1178,9 +1178,9 @@ const std::string& Assets::aog_full_extension = ".BS6";
 const std::string& Assets::ps_extension = ".VSI";
 
 
-const bstone::StringList& Assets::get_extensions()
+const Assets::RefList& Assets::get_extensions()
 {
-	static const auto extensions = bstone::StringList
+	static const auto extensions = RefList
 	{
 		aog_sw_extension,
 		aog_full_extension,
@@ -1190,9 +1190,9 @@ const bstone::StringList& Assets::get_extensions()
 	return extensions;
 }
 
-const bstone::StringList& Assets::get_base_names()
+const Assets::RefList& Assets::get_base_names()
 {
-	static const auto base_names = bstone::StringList
+	static const auto base_names = RefList
 	{
 		audio_header_base_name,
 		audio_data_base_name,

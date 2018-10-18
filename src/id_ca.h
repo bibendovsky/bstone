@@ -75,6 +75,9 @@ struct Assets final
 	static constexpr auto max_size = 4000000;
 
 
+	using RefList = std::vector<std::reference_wrapper<const std::string>>;
+
+
 	static const std::string& audio_header_base_name;
 	static const std::string& audio_data_base_name;
 
@@ -96,9 +99,9 @@ struct Assets final
 	static const std::string& aog_full_extension;
 	static const std::string& ps_extension;
 
-	static const bstone::StringList& get_extensions();
+	static const RefList& get_extensions();
 
-	static const bstone::StringList& get_base_names();
+	static const RefList& get_base_names();
 }; // Assets
 
 // ===========================================================================
