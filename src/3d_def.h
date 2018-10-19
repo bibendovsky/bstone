@@ -4669,7 +4669,10 @@ inline void deserialize_field(
 enum class GameType
 {
 	none,
-	aog_sw, // Aliens Of Gold (shareware, v3.0)
+	aog_sw_v1_0, // Aliens Of Gold (shareware, v1.0)
+	aog_sw_v2_0, // Aliens Of Gold (shareware, v2.0)
+	aog_sw_v2_1, // Aliens Of Gold (shareware, v2.1)
+	aog_sw_v3_0, // Aliens Of Gold (shareware, v3.0)
 	aog_full_v1_0, // Aliens Of Gold (full, v1.0)
 	aog_full_v2_0, // Aliens Of Gold (full, v2.0)
 	aog_full_v2_1, // Aliens Of Gold (full, v2.1)

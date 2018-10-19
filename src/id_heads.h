@@ -128,16 +128,17 @@ void Quit();
 
 template<typename... TArgs>
 void Quit(
-    const std::string& format,
-    TArgs... args)
+	const std::string& format,
+	TArgs... args)
 {
-    ::pre_quit();
+	::pre_quit();
 
-    if (!format.empty()) {
-        bstone::Log::write_critical(format, args...);
-    }
+	if (!format.empty())
+	{
+		bstone::Log::write_critical(format, std::forward<TArgs>(args)...);
+	}
 
-    ::exit(1);
+	std::exit(1);
 }
 
 uint32_t sys_get_timer_ticks();

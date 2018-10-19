@@ -429,180 +429,373 @@ namespace {
 
 
 int get_ref_vgahead_offset_count(
-    GameType game_type)
+	GameType game_type)
 {
-    switch (game_type) {
-    case GameType::aog_sw:
-        return 213;
+	switch (game_type)
+	{
+	case GameType::aog_sw_v1_0:
+		return 213;
 
-    case GameType::aog_full_v1_0:
-        return 213;
+	case GameType::aog_full_v1_0:
+		return 213;
 
-    case GameType::aog_full_v2_0:
+	case GameType::aog_sw_v2_0:
+	case GameType::aog_sw_v2_1:
+	case GameType::aog_full_v2_0:
 	case GameType::aog_full_v2_1:
-        return 224;
+		return 224;
 
-    case GameType::aog_full_v3_0:
-        return 226;
+	case GameType::aog_sw_v3_0:
+	case GameType::aog_full_v3_0:
+		return 226;
 
-    case GameType::ps:
-        return 249;
+	case GameType::ps:
+		return 249;
 
-    default:
-        throw std::invalid_argument("Invalid game type.");
-    }
-}
-
-const bstone::StringList& get_file_names(
-    GameType game_type)
-{
-    static const bstone::StringList aog_sw_file_names = {
-        "AUDIOHED.BS1",
-        "AUDIOT.BS1",
-        "IANIM.BS1",
-        "MAPHEAD.BS1",
-        "MAPTEMP.BS1",
-        "SANIM.BS1",
-        "VGADICT.BS1",
-        "VGAGRAPH.BS1",
-        "VGAHEAD.BS1",
-        "VSWAP.BS1",
-    }; // aog_sw_file_names
-
-    static const bstone::StringList aog_full_file_names = {
-        "AUDIOHED.BS6",
-        "AUDIOT.BS6",
-        "EANIM.BS6",
-        "GANIM.BS6",
-        "IANIM.BS6",
-        "MAPHEAD.BS6",
-        "MAPTEMP.BS6",
-        "SANIM.BS6",
-        "VGADICT.BS6",
-        "VGAGRAPH.BS6",
-        "VGAHEAD.BS6",
-        "VSWAP.BS6",
-    }; // aog_file_names
-
-    static const bstone::StringList ps_file_names = {
-        "AUDIOHED.VSI",
-        "AUDIOT.VSI",
-        "EANIM.VSI",
-        "IANIM.VSI",
-        "MAPHEAD.VSI",
-        "MAPTEMP.VSI",
-        "VGADICT.VSI",
-        "VGAGRAPH.VSI",
-        "VGAHEAD.VSI",
-        "VSWAP.VSI",
-    }; // ps_file_names
-
-
-    switch (game_type) {
-    case GameType::aog_sw:
-        return aog_sw_file_names;
-
-    case GameType::aog_full_v1_0:
-    case GameType::aog_full_v2_0:
-	case GameType::aog_full_v2_1:
-    case GameType::aog_full_v3_0:
-        return aog_full_file_names;
-
-    case GameType::ps:
-        return ps_file_names;
-
-    default:
-        throw std::invalid_argument("Invalid game type.");
-    }
+	default:
+		throw std::runtime_error("Invalid game type.");
+	}
 }
 
 const std::string& get_file_extension(
-    const GameType game_type)
+	const GameType game_type)
 {
-    static const std::string aog_sw_extension = "BS1";
-    static const std::string aog_full_extension = "BS6";
-    static const std::string ps_extension = "VSI";
+	switch (game_type)
+	{
+	case GameType::aog_sw_v1_0:
+	case GameType::aog_sw_v2_0:
+	case GameType::aog_sw_v2_1:
+	case GameType::aog_sw_v3_0:
+		return Assets::aog_sw_extension;
 
-    switch (game_type)
-    {
-    case GameType::aog_sw:
-        return aog_sw_extension;
-
-    case GameType::aog_full_v1_0:
-    case GameType::aog_full_v2_0:
+	case GameType::aog_full_v1_0:
+	case GameType::aog_full_v2_0:
 	case GameType::aog_full_v2_1:
-    case GameType::aog_full_v3_0:
-        return aog_full_extension;
+	case GameType::aog_full_v3_0:
+		return Assets::aog_full_extension;
 
-    case GameType::ps:
-        return ps_extension;
+	case GameType::ps:
+		return Assets::ps_extension;
 
-    default:
-        throw std::invalid_argument("Invalid game type.");
-    }
-}
-
-bool are_files_exist(
-    const GameType game_type)
-{
-    const auto& file_names = get_file_names(game_type);
-
-    const auto it_cend = file_names.cend();
-
-    const auto it = std::find_if_not(
-        file_names.cbegin(),
-        it_cend,
-        [](const std::string& file_name)
-        {
-            return ::ca_is_resource_exists(file_name);
-        }
-    );
-
-    return it == it_cend;
+	default:
+		throw std::runtime_error("Invalid game type.");
+	}
 }
 
 int get_vgahead_offset_count(
-    const GameType game_type)
+	const GameType game_type)
 {
-    bstone::FileStream stream;
-    const auto file_extension = get_file_extension(game_type);
-    const auto is_open = ::ca_open_resource_non_fatal(::gheadname, file_extension, stream);
+	auto file_stream = bstone::FileStream{};
+	const auto file_extension = get_file_extension(game_type);
+	const auto is_open = ::ca_open_resource_non_fatal(::gheadname, file_extension, file_stream);
 
-    if (!is_open)
-    {
-        return 0;
-    }
+	if (!is_open)
+	{
+		return 0;
+	}
 
-    auto file_size = stream.get_size();
+	auto file_size = file_stream.get_size();
 
-    if ((file_size % FILEPOSSIZE) != 0) {
-        return 0;
-    }
+	if ((file_size % FILEPOSSIZE) != 0)
+	{
+		return 0;
+	}
 
-    return static_cast<int>(file_size / FILEPOSSIZE);
+	return static_cast<int>(file_size / FILEPOSSIZE);
 }
 
 bool check_vgahead_offset_count(
-    GameType game_type)
+	const GameType game_type)
 {
-    auto offset_count = get_vgahead_offset_count(game_type);
-    return offset_count == get_ref_vgahead_offset_count(game_type);
+	const auto offset_count = get_vgahead_offset_count(game_type);
+	return offset_count == get_ref_vgahead_offset_count(game_type);
 }
 
-static bool set_game_type(
-    GameType game_type)
+
+bool check_for_files(
+	const Assets::RefList& base_names,
+	const std::string& extension)
 {
-    if (!are_files_exist(game_type)) {
-        return false;
-    }
+	auto file_stream = bstone::FileStream{};
 
-    if (!check_vgahead_offset_count(game_type)) {
-        return false;
-    }
+	for (const auto& base_name : base_names)
+	{
+		if (!::ca_open_resource_non_fatal(::data_dir, base_name, extension, file_stream))
+		{
+			return false;
+		}
+	}
 
-    ::g_game_type = game_type;
+	return true;
+}
 
-    return true;
+Assets::BaseNameToHashMap get_assets_hashes(
+	const Assets::RefList& base_names,
+	const std::string& extension)
+{
+	auto map = Assets::BaseNameToHashMap{};
+
+	for (const auto& base_name : base_names)
+	{
+		const auto& hash = ::ca_calculate_hash(::data_dir, base_name, extension);
+
+		if (hash.empty())
+		{
+			return {};
+		}
+
+		map[base_name] = hash;
+	}
+
+	return map;
+}
+
+bool compare_assets_hashes(
+	const Assets::BaseNameToHashMap& lhs,
+	const Assets::BaseNameToHashMap& rhs)
+{
+	if (lhs.size() != rhs.size())
+	{
+		return false;
+	}
+
+	for (const auto& lhs_item : lhs)
+	{
+		const auto rhs_it = rhs.find(lhs_item.first);
+
+		if (rhs_it == rhs.cend())
+		{
+			return false;
+		}
+
+		if (lhs_item.second != rhs_it->second)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool find_aog_assets(
+	const bool is_required,
+	const std::string& title,
+	const Assets::RefList& base_names,
+	const std::string& extension,
+	const Assets::BaseNameToHashMap& hashes_v1_0,
+	const Assets::BaseNameToHashMap& hashes_v2_0,
+	const Assets::BaseNameToHashMap& hashes_v2_1,
+	const Assets::BaseNameToHashMap& hashes_v3_0,
+	const GameType game_type_v1_0,
+	const GameType game_type_v2_0,
+	const GameType game_type_v2_1,
+	const GameType game_type_v3_0)
+{
+	const auto has_assets = check_for_files(base_names, extension);
+
+	if (!has_assets)
+	{
+		if (is_required)
+		{
+			::Quit("Missing {} assets.", title);
+		}
+
+		return false;
+	}
+
+	const auto hashes = get_assets_hashes(base_names, extension);
+
+	if (hashes.empty())
+	{
+		if (is_required)
+		{
+			::Quit("Failed to calculate hashes for \"{}\" assets.", title);
+		}
+
+		return false;
+	}
+
+	if (compare_assets_hashes(hashes, hashes_v1_0))
+	{
+		::g_game_type = game_type_v1_0;
+		bstone::Log::write("Found \"{}\" v1.0.", title);
+		return true;
+	}
+
+	if (compare_assets_hashes(hashes, hashes_v2_0))
+	{
+		::g_game_type = game_type_v2_0;
+		bstone::Log::write("Found \"{}\" v2.0.", title);
+		return true;
+	}
+
+	if (compare_assets_hashes(hashes, hashes_v2_1))
+	{
+		::g_game_type = game_type_v2_1;
+		bstone::Log::write("Found \"{}\" v2.1.", title);
+		return true;
+	}
+
+	if (compare_assets_hashes(hashes, hashes_v3_0))
+	{
+		::g_game_type = game_type_v3_0;
+		bstone::Log::write("Found \"{}\" v3.0.", title);
+		return true;
+	}
+
+	if (is_required)
+	{
+		::Quit("Unsupported \"{}\" assets.", title);
+	}
+
+	return false;
+}
+
+bool find_aog_full_assets(
+	const bool is_required)
+{
+	const auto& title = std::string{"Aliens of Gold (full)"};
+
+	if (is_required)
+	{
+		bstone::Log::write("Forcing \"{}\"...", title);
+	}
+
+	const auto is_found = find_aog_assets(
+		is_required,
+		title,
+		Assets::get_aog_full_base_names(),
+		Assets::aog_full_extension,
+		Assets::get_aog_full_v1_0_base_name_to_hash_map(),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map(),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map(),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map(),
+		GameType::aog_full_v1_0,
+		GameType::aog_full_v2_0,
+		GameType::aog_full_v2_1,
+		GameType::aog_full_v3_0);
+
+	return is_found;
+}
+
+bool find_aog_sw_assets(
+	const bool is_required)
+{
+	const auto& title = std::string{"Aliens of Gold (shareware)"};
+
+	if (is_required)
+	{
+		bstone::Log::write("Forcing \"{}\"...", title);
+	}
+
+	const auto is_found = find_aog_assets(
+		is_required,
+		title,
+		Assets::get_aog_sw_base_names(),
+		Assets::aog_sw_extension,
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map(),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map(),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map(),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map(),
+		GameType::aog_sw_v1_0,
+		GameType::aog_sw_v2_0,
+		GameType::aog_sw_v2_1,
+		GameType::aog_sw_v3_0);
+
+	return is_found;
+}
+
+bool find_ps_assets(
+	const bool is_required)
+{
+	const auto& title = std::string{"Planet Strike"};
+
+	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::ps_extension);
+
+	if (!has_assets)
+	{
+		if (is_required)
+		{
+			::Quit("Missing {} assets.", title);
+		}
+
+		return false;
+	}
+
+	const auto hashes = get_assets_hashes(Assets::get_ps_base_names(), Assets::ps_extension);
+
+	if (hashes.empty())
+	{
+		if (is_required)
+		{
+			::Quit("Failed to calculate hashes for \"{}\" assets.", title);
+		}
+
+		return false;
+	}
+
+	if (compare_assets_hashes(hashes, Assets::get_ps_base_name_to_hash_map()))
+	{
+		::g_game_type = GameType::ps;
+		bstone::Log::write("Found \"{}\".", title);
+		return true;
+	}
+
+	if (is_required)
+	{
+		::Quit("Unsupported {} assets.", title);
+	}
+
+	return false;
+}
+
+void find_ps_assets()
+{
+	bstone::Log::write("Forcing \"Planet Strike\" version...");
+
+	static_cast<void>(find_ps_assets(true));
+}
+
+void find_any_assets()
+{
+	bstone::Log::write("Probing for assets...");
+
+	if (find_aog_full_assets(false))
+	{
+		return;
+	}
+
+	if (find_ps_assets(false))
+	{
+		return;
+	}
+
+	if (find_aog_sw_assets(false))
+	{
+		return;
+	}
+
+	::Quit("No assets.");
+}
+
+void find_assets()
+{
+	if (::g_args.has_option("aog"))
+	{
+		static_cast<void>(find_aog_full_assets(true));
+	}
+	else if (::g_args.has_option("aog_sw"))
+	{
+		static_cast<void>(find_aog_sw_assets(true));
+	}
+	else if (::g_args.has_option("ps"))
+	{
+		static_cast<void>(find_ps_assets(true));
+	}
+	else
+	{
+		static_cast<void>(find_any_assets());
+	}
 }
 
 
@@ -611,110 +804,20 @@ static bool set_game_type(
 
 void CheckForEpisodes()
 {
-    bool is_succeed = true;
+	::g_game_type = {};
 
-    ::g_game_type = GameType::none;
+	find_assets();
 
-    if (::g_args.has_option("aog_sw")) {
-        bstone::Log::write("Forcing Aliens Of Gold (shareware, v3.0).\n");
+	::extension = ::get_file_extension(::g_game_type);
 
-        if (!::set_game_type(GameType::aog_sw)) {
-            is_succeed = false;
-        }
-    } else if (::g_args.has_option("aog_10")) {
-        bstone::Log::write("Forcing Aliens Of Gold (full, v1.0).\n");
-
-        if (!::set_game_type(GameType::aog_full_v1_0)) {
-            is_succeed = false;
-        }
-    } else if (::g_args.has_option("aog_2x")) {
-        bstone::Log::write("Forcing Aliens Of Gold (full, v2.x).\n");
-
-        if (!::set_game_type(GameType::aog_full_v2_1)) {
-            is_succeed = false;
-        }
-    } else if (::g_args.has_option("aog_30")) {
-        bstone::Log::write("Forcing Aliens Of Gold (full, v3.0).\n");
-
-        if (!::set_game_type(GameType::aog_full_v3_0)) {
-            is_succeed = false;
-        }
-    } else if (::g_args.has_option("ps")) {
-        bstone::Log::write("Forcing Planet Strike (full, v1.0/v1.1).\n");
-
-        if (!::set_game_type(GameType::ps)) {
-            is_succeed = false;
-        }
-    } else {
-        bool is_found = false;
-
-        bstone::Log::write("Searching for data files...");
-
-        if (!is_found) {
-            is_found = ::set_game_type(GameType::aog_full_v3_0);
-        }
-
-        if (!is_found) {
-            is_found = ::set_game_type(GameType::aog_full_v2_1);
-        }
-
-        if (!is_found) {
-            is_found = ::set_game_type(GameType::aog_full_v1_0);
-        }
-
-        if (!is_found) {
-            is_found = ::set_game_type(GameType::ps);
-        }
-
-        if (!is_found) {
-            is_found = ::set_game_type(GameType::aog_sw);
-        }
-
-        if (is_found) {
-            switch (::g_game_type) {
-            case GameType::aog_sw:
-                bstone::Log::write("Found Aliens Of Gold (shareware, v3.0).\n");
-                break;
-
-            case GameType::aog_full_v1_0:
-                bstone::Log::write("Found Aliens Of Gold (full, v1.0).\n");
-                break;
-
-            case GameType::aog_full_v2_0:
-			case GameType::aog_full_v2_1:
-                bstone::Log::write("Found Aliens Of Gold (full, v2.x).\n");
-                break;
-
-            case GameType::aog_full_v3_0:
-                bstone::Log::write("Found Aliens Of Gold (full, v3.0).\n");
-                break;
-
-            case GameType::ps:
-                bstone::Log::write("Found Planet Strike (v1.x).\n");
-                break;
-
-            default:
-                is_succeed = false;
-                break;
-            }
-        } else {
-            is_succeed = false;
-        }
-    }
-
-    if (!is_succeed) {
-        ::Quit("Data files not found.");
-    }
-
-
-    ::extension = ::get_file_extension(::g_game_type);
-
-    if (::is_aog_full()) {
-        for (int i = 1; i < 6; ++i) {
-            ::NewEmenu[i].active = AT_ENABLED;
-            ::EpisodeSelect[i] = 1;
-        }
-    }
+	if (::is_aog_full())
+	{
+		for (int i = 1; i < 6; ++i)
+		{
+			::NewEmenu[i].active = AT_ENABLED;
+			::EpisodeSelect[i] = 1;
+		}
+	}
 }
 
 

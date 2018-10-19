@@ -6534,7 +6534,10 @@ static const std::string& get_score_file_name()
 
 		switch (::g_game_type)
 		{
-		case GameType::aog_sw:
+		case GameType::aog_sw_v1_0:
+		case GameType::aog_sw_v2_0:
+		case GameType::aog_sw_v2_1:
+		case GameType::aog_sw_v3_0:
 			game_type_string = "aog_sw";
 			break;
 
@@ -8865,9 +8868,9 @@ void pre_quit()
 
 void Quit()
 {
-    ::pre_quit();
+	::pre_quit();
 
-    ::exit(1);
+	std::exit(1);
 }
 
 void DemoLoop()
@@ -9726,7 +9729,11 @@ bool is_aog_full()
 
 bool is_aog_sw()
 {
-	return ::g_game_type == GameType::aog_sw;
+	return
+		::g_game_type == GameType::aog_sw_v1_0 ||
+		::g_game_type == GameType::aog_sw_v2_0 ||
+		::g_game_type == GameType::aog_sw_v2_1 ||
+		::g_game_type == GameType::aog_sw_v3_0;
 }
 
 bool is_aog()
