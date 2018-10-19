@@ -304,6 +304,11 @@ void ca_open_resource(
     const std::string& file_name_without_ext,
     bstone::FileStream& file_stream);
 
+std::string ca_calculate_hash(
+	const std::string& data_dir,
+	const std::string& base_name,
+	const std::string& extension);
+
 void ca_dump_hashes();
 
 

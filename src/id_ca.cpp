@@ -1101,6 +1101,64 @@ void ca_open_resource(
     }
 }
 
+std::string ca_calculate_hash(
+	const std::string& data_dir,
+	const std::string& base_name,
+	const std::string& extension)
+{
+	auto file_stream = bstone::FileStream{};
+
+	if (!::ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
+	{
+		return {};
+	}
+
+	const auto stream_size = file_stream.get_size();
+
+	if (stream_size <= 0 || stream_size > Assets::max_size)
+	{
+		return {};
+	}
+
+	constexpr auto buffer_size = 16384;
+	const auto file_size = static_cast<int>(stream_size);
+
+	static auto buffer = Buffer{};
+	buffer.resize(buffer_size);
+
+	static auto sha1 = bstone::Sha1{};
+	sha1.reset();
+
+	auto remain_size = 0;
+
+	while (remain_size > 0)
+	{
+		const auto read_count = std::min(remain_size, buffer_size);
+		const auto read_result = file_stream.read(buffer.data(), read_count);
+
+		if (read_result != read_count)
+		{
+			return {};
+		}
+
+		sha1.process(buffer.data(), read_count);
+
+		remain_size -= read_count;
+	}
+
+	const auto data_size = bstone::Endian::le(static_cast<std::int32_t>(file_size));
+
+	sha1.process(&data_size, static_cast<int>(sizeof(data_size)));
+	sha1.finish();
+
+	if (!sha1.is_valid())
+	{
+		return {};
+	}
+
+	return sha1.to_string();
+}
+
 void ca_dump_hashes()
 {
 	bstone::Log::write();
