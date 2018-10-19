@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 #include "3d_def.h"
-#include "bstone_sha1.h"
 
 
 extern int NUM_EPISODES;
@@ -80,7 +79,7 @@ struct Assets final
 
 	using BaseNameToHashMap = std::unordered_map<
 		std::reference_wrapper<const std::string>,
-		bstone::Sha1,
+		std::string,
 		std::hash<std::string>,
 		std::equal_to<std::string>>;
 

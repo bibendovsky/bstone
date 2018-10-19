@@ -1298,20 +1298,20 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
 {
 	static auto aog_sw_v1_0_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"08f91c4ce58d4ba15a83f06a8bf588a211124b22"}},
-		{audio_data_base_name, {"4d3da5709e903dbedf9564b53c354b00f607a0ff"}},
+		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
+		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
 
-		{map_header_base_name, {"ad8807e51704ef0e4b3ced663c0d579592b90a56"}},
-		{map_data_base_name, {"365824414c91947b1e3589da03a6b651da06514a"}},
+		{map_header_base_name, "ad8807e51704ef0e4b3ced663c0d579592b90a56"},
+		{map_data_base_name, "365824414c91947b1e3589da03a6b651da06514a"},
 
-		{gfx_dictionary_base_name, {"b70850f93ff827b042dec18c94ce60e8b03b1b3b"}},
-		{gfx_header_base_name, {"403dc7a9819654c9b0aad5fac0ed2bed681685a6"}},
-		{gfx_data_base_name, {"d880466fc01d16b7ab7aeaee35174b8f3cde270a"}},
+		{gfx_dictionary_base_name, "b70850f93ff827b042dec18c94ce60e8b03b1b3b"},
+		{gfx_header_base_name, "403dc7a9819654c9b0aad5fac0ed2bed681685a6"},
+		{gfx_data_base_name, "d880466fc01d16b7ab7aeaee35174b8f3cde270a"},
 
-		{page_file_base_name, {"d72bb643fbe0fa3289090e81a583732aecd1c788"}},
+		{page_file_base_name, "d72bb643fbe0fa3289090e81a583732aecd1c788"},
 
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v1_0_base_name_to_hash_map
 
 	return aog_sw_v1_0_base_name_to_hash_map;
@@ -1321,20 +1321,20 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
 {
 	static auto aog_sw_v2_0_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"08f91c4ce58d4ba15a83f06a8bf588a211124b22"}},
-		{audio_data_base_name, {"4d3da5709e903dbedf9564b53c354b00f607a0ff"}},
+		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
+		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
 
-		{map_header_base_name, {"5cc262f2429d57698b6a3a335239bd2cf1f47945"}},
-		{map_data_base_name, {"3e93219bd86584a25f5a58b9318c8f9f626e3795"}},
+		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
 
-		{gfx_dictionary_base_name, {"7ed53d1006fdd50bcce5949fc4544d28153983e8"}},
-		{gfx_header_base_name, {"34df3bbbe37a32b2e5936f481577385b6c218b69"}},
-		{gfx_data_base_name, {"8452d63ac3f66102d70f6afc20786768eed0f22a"}},
+		{gfx_dictionary_base_name, "7ed53d1006fdd50bcce5949fc4544d28153983e8"},
+		{gfx_header_base_name, "34df3bbbe37a32b2e5936f481577385b6c218b69"},
+		{gfx_data_base_name, "8452d63ac3f66102d70f6afc20786768eed0f22a"},
 
-		{page_file_base_name, {"b13126ee04c4a921329e8a420dbbb85de5b5be70"}},
+		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
 
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v2_0_base_name_to_hash_map
 
 	return aog_sw_v2_0_base_name_to_hash_map;
@@ -1344,20 +1344,20 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
 {
 	static auto aog_sw_v2_1_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"177a680aca41012539a1e3ecfbbee28af9664ebb"}},
-		{audio_data_base_name, {"bff757d712fa23697767591343879271c57684af"}},
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, {"5cc262f2429d57698b6a3a335239bd2cf1f47945"}},
-		{map_data_base_name, {"3e93219bd86584a25f5a58b9318c8f9f626e3795"}},
+		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
 
-		{gfx_dictionary_base_name, {"cfbda96717fc9d36aca347828000bd8739d25500"}},
-		{gfx_header_base_name, {"e40e4311341ec03b48f48ce35eb04d5493be27c9"}},
-		{gfx_data_base_name, {"b98e8f4b1f398429d4a76720e302615fe52caf8f"}},
+		{gfx_dictionary_base_name, "cfbda96717fc9d36aca347828000bd8739d25500"},
+		{gfx_header_base_name, "e40e4311341ec03b48f48ce35eb04d5493be27c9"},
+		{gfx_data_base_name, "b98e8f4b1f398429d4a76720e302615fe52caf8f"},
 
-		{page_file_base_name, {"b13126ee04c4a921329e8a420dbbb85de5b5be70"}},
+		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
 
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v2_1_base_name_to_hash_map
 
 	return aog_sw_v2_1_base_name_to_hash_map;
@@ -1367,20 +1367,20 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
 {
 	static auto aog_sw_v3_0_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"177a680aca41012539a1e3ecfbbee28af9664ebb"}},
-		{audio_data_base_name, {"bff757d712fa23697767591343879271c57684af"}},
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, {"5cc262f2429d57698b6a3a335239bd2cf1f47945"}},
-		{map_data_base_name, {"3e93219bd86584a25f5a58b9318c8f9f626e3795"}},
+		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
 
-		{gfx_dictionary_base_name, {"56c8a8cc4039079261ebc987f80f401df912406d"}},
-		{gfx_header_base_name, {"f589b6ddbfeac281ee2358dfcf9c421ac469fdc9"}},
-		{gfx_data_base_name, {"2f59b7c33c7a1895faf46cf5a7150d12353d8893"}},
+		{gfx_dictionary_base_name, "56c8a8cc4039079261ebc987f80f401df912406d"},
+		{gfx_header_base_name, "f589b6ddbfeac281ee2358dfcf9c421ac469fdc9"},
+		{gfx_data_base_name, "2f59b7c33c7a1895faf46cf5a7150d12353d8893"},
 
-		{page_file_base_name, {"b13126ee04c4a921329e8a420dbbb85de5b5be70"}},
+		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
 
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v3_0_base_name_to_hash_map
 
 	return aog_sw_v3_0_base_name_to_hash_map;
@@ -1391,22 +1391,22 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map
 {
 	static auto aog_full_v1_0_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"177a680aca41012539a1e3ecfbbee28af9664ebb"}},
-		{audio_data_base_name, {"bff757d712fa23697767591343879271c57684af"}},
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, {"9ac4a06bd7fc25b48852bf4da1ca9decf06e3873"}},
-		{map_data_base_name, {"22a160796397b515348752393d4f7f91f3ce786e"}},
+		{map_header_base_name, "9ac4a06bd7fc25b48852bf4da1ca9decf06e3873"},
+		{map_data_base_name, "22a160796397b515348752393d4f7f91f3ce786e"},
 
-		{gfx_dictionary_base_name, {"191dc0617f82f9d93ca5464b6af0d4abf614a3ec"}},
-		{gfx_header_base_name, {"2fbd05d76cdd9e13cc14e3a146db5f5388820a6f"}},
-		{gfx_data_base_name, {"76fc99265ddb463e12707eeefff7cf47c74cc18a"}},
+		{gfx_dictionary_base_name, "191dc0617f82f9d93ca5464b6af0d4abf614a3ec"},
+		{gfx_header_base_name, "2fbd05d76cdd9e13cc14e3a146db5f5388820a6f"},
+		{gfx_data_base_name, "76fc99265ddb463e12707eeefff7cf47c74cc18a"},
 
-		{page_file_base_name, {"4a6b188381028158ac392965edb753a807111b56"}},
+		{page_file_base_name, "4a6b188381028158ac392965edb753a807111b56"},
 
-		{episode_6_fmv_base_name, {"396b0f0b4409056f6b82239a7bd97b65e34b08a5"}},
-		{episode_3_5_fmv_base_name, {"9aac6157c774a739df40b3bbf6043423a1e6d317"}},
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v1_0_base_name_to_hash_map
 
 	return aog_full_v1_0_base_name_to_hash_map;
@@ -1416,22 +1416,22 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map
 {
 	static auto aog_full_v2_0_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"177a680aca41012539a1e3ecfbbee28af9664ebb"}},
-		{audio_data_base_name, {"bff757d712fa23697767591343879271c57684af"}},
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, {"8ee7970b93c7df2d035fbc168efea6081963924a"}},
-		{map_data_base_name, {"e22c5a638b58bc442b127d4b7c81b7fc221059da"}},
+		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
 
-		{gfx_dictionary_base_name, {"125ccb707edeb420aebf502ee8fc49d40171b2c1"}},
-		{gfx_header_base_name, {"1fdb177d8b010670399ed161c071ed09d2e06b03"}},
-		{gfx_data_base_name, {"36fcc86a858efcaf272e60434d4e69994546b1c9"}},
+		{gfx_dictionary_base_name, "125ccb707edeb420aebf502ee8fc49d40171b2c1"},
+		{gfx_header_base_name, "1fdb177d8b010670399ed161c071ed09d2e06b03"},
+		{gfx_data_base_name, "36fcc86a858efcaf272e60434d4e69994546b1c9"},
 
-		{page_file_base_name, {"0ddd940e2cb2e96bdebb46487e3e812e1bbda613"}},
+		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
 
-		{episode_6_fmv_base_name, {"396b0f0b4409056f6b82239a7bd97b65e34b08a5"}},
-		{episode_3_5_fmv_base_name, {"9aac6157c774a739df40b3bbf6043423a1e6d317"}},
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v2_0_base_name_to_hash_map
 
 	return aog_full_v2_0_base_name_to_hash_map;
@@ -1441,22 +1441,22 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map
 {
 	static auto aog_full_v2_1_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"177a680aca41012539a1e3ecfbbee28af9664ebb"}},
-		{audio_data_base_name, {"bff757d712fa23697767591343879271c57684af"}},
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, {"8ee7970b93c7df2d035fbc168efea6081963924a"}},
-		{map_data_base_name, {"e22c5a638b58bc442b127d4b7c81b7fc221059da"}},
+		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
 
-		{gfx_dictionary_base_name, {"f24edbeec8f9e6988fde4a91b423fd87ca72148e"}},
-		{gfx_header_base_name, {"ef373dd36ff5f03e21a696cd740ef2ce71585f3e"}},
-		{gfx_data_base_name, {"aefd4868e6e59616c149f6ae4fad7bd8fd8c1f90"}},
+		{gfx_dictionary_base_name, "f24edbeec8f9e6988fde4a91b423fd87ca72148e"},
+		{gfx_header_base_name, "ef373dd36ff5f03e21a696cd740ef2ce71585f3e"},
+		{gfx_data_base_name, "aefd4868e6e59616c149f6ae4fad7bd8fd8c1f90"},
 
-		{page_file_base_name, {"0ddd940e2cb2e96bdebb46487e3e812e1bbda613"}},
+		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
 
-		{episode_6_fmv_base_name, {"396b0f0b4409056f6b82239a7bd97b65e34b08a5"}},
-		{episode_3_5_fmv_base_name, {"9aac6157c774a739df40b3bbf6043423a1e6d317"}},
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v2_1_base_name_to_hash_map
 
 	return aog_full_v2_1_base_name_to_hash_map;
@@ -1466,22 +1466,22 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map
 {
 	static auto aog_full_v3_0_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"177a680aca41012539a1e3ecfbbee28af9664ebb"}},
-		{audio_data_base_name, {"bff757d712fa23697767591343879271c57684af"}},
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, {"8ee7970b93c7df2d035fbc168efea6081963924a"}},
-		{map_data_base_name, {"e22c5a638b58bc442b127d4b7c81b7fc221059da"}},
+		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
 
-		{gfx_dictionary_base_name, {"482aa07f75bd06c91fbad0239ee6f633800cfabc"}},
-		{gfx_header_base_name, {"818bed8b27d3c703d2e20ad1c91f2bac5a8d1cd9"}},
-		{gfx_data_base_name, {"28dac1c5f4ef19d834737c15ba8f37af5e66edee"}},
+		{gfx_dictionary_base_name, "482aa07f75bd06c91fbad0239ee6f633800cfabc"},
+		{gfx_header_base_name, "818bed8b27d3c703d2e20ad1c91f2bac5a8d1cd9"},
+		{gfx_data_base_name, "28dac1c5f4ef19d834737c15ba8f37af5e66edee"},
 
-		{page_file_base_name, {"0ddd940e2cb2e96bdebb46487e3e812e1bbda613"}},
+		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
 
-		{episode_6_fmv_base_name, {"396b0f0b4409056f6b82239a7bd97b65e34b08a5"}},
-		{episode_3_5_fmv_base_name, {"9aac6157c774a739df40b3bbf6043423a1e6d317"}},
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
-		{episode_2_4_fmv_base_name, {"2301d7e4f63858cf15f428dc3da25cfb5077efc5"}},
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v3_0_base_name_to_hash_map
 
 	return aog_full_v3_0_base_name_to_hash_map;
@@ -1492,20 +1492,20 @@ const Assets::BaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
 {
 	static auto ps_base_name_to_hash_map = BaseNameToHashMap
 	{
-		{audio_header_base_name, {"a713f75daf8274375dce0590c0caec6a994022dc"}},
-		{audio_data_base_name, {"6eadc8ac76bb3e20726db6e2584caf50ce36b624"}},
+		{audio_header_base_name, "a713f75daf8274375dce0590c0caec6a994022dc"},
+		{audio_data_base_name, "6eadc8ac76bb3e20726db6e2584caf50ce36b624"},
 
-		{map_header_base_name, {"155c550a1a240631e08e4f8be2686e29bde0549e"}},
-		{map_data_base_name, {"a40c9f6bbad59fe13c55388e265402e55167803a"}},
+		{map_header_base_name, "155c550a1a240631e08e4f8be2686e29bde0549e"},
+		{map_data_base_name, "a40c9f6bbad59fe13c55388e265402e55167803a"},
 
-		{gfx_dictionary_base_name, {"b74e45d850c92f2066fed2dfd38545cc28680c4e"}},
-		{gfx_header_base_name, {"e02d5d7c1e86812162eb2d86766ad8acf3dfe9be"}},
-		{gfx_data_base_name, {"523973d0df78d439960662a15a867d600720baf1"}},
+		{gfx_dictionary_base_name, "b74e45d850c92f2066fed2dfd38545cc28680c4e"},
+		{gfx_header_base_name, "e02d5d7c1e86812162eb2d86766ad8acf3dfe9be"},
+		{gfx_data_base_name, "523973d0df78d439960662a15a867d600720baf1"},
 
-		{page_file_base_name, {"ccf70bfb536545e9b2c709ce3ce12e2b1765bc03"}},
+		{page_file_base_name, "ccf70bfb536545e9b2c709ce3ce12e2b1765bc03"},
 
-		{episode_6_fmv_base_name, {"055b9c5d5256e4d8d97259da37381882f46c2550"}},
-		{intro_fmv_base_name, {"a29b7557738c8abf9e0c9109f563d02d427be4b2"}},
+		{episode_6_fmv_base_name, "055b9c5d5256e4d8d97259da37381882f46c2550"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
 	}; // ps_base_name_to_hash_map
 
 	return ps_base_name_to_hash_map;
