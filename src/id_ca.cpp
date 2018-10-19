@@ -1129,7 +1129,7 @@ std::string ca_calculate_hash(
 	static auto sha1 = bstone::Sha1{};
 	sha1.reset();
 
-	auto remain_size = 0;
+	auto remain_size = file_size;
 
 	while (remain_size > 0)
 	{
