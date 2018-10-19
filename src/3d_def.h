@@ -4694,6 +4694,16 @@ bool is_aog_full_v3_0();
 
 bool is_aog_full();
 
+bool is_aog_sw_v1_0();
+
+bool is_aog_sw_v2_0();
+
+bool is_aog_sw_v2_1();
+
+bool is_aog_sw_v2_x();
+
+bool is_aog_sw_v3_0();
+
 bool is_aog_sw();
 
 bool is_aog();

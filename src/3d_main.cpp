@@ -9721,19 +9721,37 @@ bool is_aog_full_v3_0()
 
 bool is_aog_full()
 {
-	return
-		::is_aog_full_v1_0() ||
-		::is_aog_full_v2_x() ||
-		::is_aog_full_v3_0();
+	return ::is_aog_full_v1_0() || ::is_aog_full_v2_x() || ::is_aog_full_v3_0();
+}
+
+bool is_aog_sw_v1_0()
+{
+	return ::g_game_type == GameType::aog_sw_v1_0;
+}
+
+bool is_aog_sw_v2_0()
+{
+	return ::g_game_type == GameType::aog_sw_v2_0;
+}
+
+bool is_aog_sw_v2_1()
+{
+	return ::g_game_type == GameType::aog_sw_v2_1;
+}
+
+bool is_aog_sw_v2_x()
+{
+	return ::g_game_type == GameType::aog_sw_v2_0 || ::g_game_type == GameType::aog_sw_v2_1;
+}
+
+bool is_aog_sw_v3_0()
+{
+	return ::g_game_type == GameType::aog_sw_v3_0;
 }
 
 bool is_aog_sw()
 {
-	return
-		::g_game_type == GameType::aog_sw_v1_0 ||
-		::g_game_type == GameType::aog_sw_v2_0 ||
-		::g_game_type == GameType::aog_sw_v2_1 ||
-		::g_game_type == GameType::aog_sw_v3_0;
+	return is_aog_sw_v1_0() || is_aog_sw_v2_x() || is_aog_sw_v3_0();
 }
 
 bool is_aog()

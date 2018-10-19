@@ -148,101 +148,127 @@ void sdl_initialize_ui_buffer()
 
 bool sdl_initialize_window()
 {
-    bstone::Log::write("VID: Creating a window...");
+	bstone::Log::write("VID: Creating a window...");
 
 
-    if (!::sdl_use_custom_window_position)
-    {
-        ::sdl_window_x = SDL_WINDOWPOS_CENTERED;
-        ::sdl_window_y = SDL_WINDOWPOS_CENTERED;
-    }
+	if (!::sdl_use_custom_window_position)
+	{
+		::sdl_window_x = SDL_WINDOWPOS_CENTERED;
+		::sdl_window_y = SDL_WINDOWPOS_CENTERED;
+	}
 
-    if (::sdl_window_x < 0)
-    {
-        ::sdl_window_x = 0;
-    }
+	if (::sdl_window_x < 0)
+	{
+		::sdl_window_x = 0;
+	}
 
-    if (::sdl_window_y < 0)
-    {
-        ::sdl_window_y = 0;
-    }
+	if (::sdl_window_y < 0)
+	{
+		::sdl_window_y = 0;
+	}
 
-    uint32_t window_flags =
-        SDL_WINDOW_OPENGL |
-        SDL_WINDOW_HIDDEN |
-        0;
+	auto window_flags = Uint32{
+		SDL_WINDOW_OPENGL |
+		SDL_WINDOW_HIDDEN |
+		0};
 
-    if (!::sdl_is_windowed)
-    {
-        window_flags |=
-            SDL_WINDOW_BORDERLESS |
-            SDL_WINDOW_FULLSCREEN_DESKTOP;
-    }
+	if (!::sdl_is_windowed)
+	{
+		window_flags |=
+			SDL_WINDOW_BORDERLESS |
+			SDL_WINDOW_FULLSCREEN_DESKTOP;
+	}
 
 #ifdef __vita__
-    window_flags = SDL_WINDOW_SHOWN;
+	window_flags = SDL_WINDOW_SHOWN;
 #endif
 
-    std::string title = "Blake Stone: ???";
+	auto title = std::string{"Blake Stone"};
 
-    if (::is_aog_full())
-    {
-        std::string version_string;
+	if (::is_aog())
+	{
+		auto version_string = std::string{};
 
-        if (::is_aog_full_v1_0())
-        {
-            version_string = "v1.0";
-        }
-        else if (::is_aog_full_v2_x())
-        {
-            version_string = "v2.x";
-        }
-        else if (::is_aog_full_v3_0())
-        {
-            version_string = "v3.0";
-        }
+		if (::is_aog_full_v1_0() || ::is_aog_sw_v1_0())
+		{
+			version_string = "v1.0";
+		}
+		else if (::is_aog_full_v2_0() || ::is_aog_sw_v2_0())
+		{
+			version_string = "v2.0";
+		}
+		else if (::is_aog_full_v2_1() || ::is_aog_sw_v2_1())
+		{
+			version_string = "v2.1";
+		}
+		else if (::is_aog_full_v3_0() || ::is_aog_sw_v3_0())
+		{
+			version_string = "v3.0";
+		}
 
-        title = "Blake Stone: Aliens of Gold (full";
+		auto type = std::string{};
 
-        if (!version_string.empty())
-        {
-            title += ", " + version_string;
-        }
+		if (::is_aog_full())
+		{
+			type = "full";
+		}
+		else if (::is_aog_sw())
+		{
+			type = "shareware";
+		}
 
-        title += ')';
-    }
-    else if (::is_aog_sw())
-    {
-        title = "Blake Stone: Aliens of Gold (shareware, v3.0)";
-    }
-    else if (::is_ps())
-    {
-        title = "Blake Stone: Planet Strike (full, v1.x)";
-    }
+		const auto has_type_or_version = (!version_string.empty() || !type.empty());
 
-    ::sdl_window = ::SDL_CreateWindow(
-        title.c_str(),
-        ::sdl_window_x,
-        ::sdl_window_y,
-        ::window_width,
-        ::window_height,
-        window_flags);
+		title += ": Aliens of Gold";
 
-    if (!::sdl_window)
-    {
-        ::sdl_error_message = "VID: Failed to create a window: ";
-        ::sdl_error_message += ::SDL_GetError();
+		if (has_type_or_version)
+		{
+			title += " (";
 
-        bstone::Log::write_error(::SDL_GetError());
+			if (!type.empty())
+			{
+				title += type;
+			}
 
-        return false;
-    }
+			if (!version_string.empty())
+			{
+				if (!type.empty())
+				{
+					title += ", ";
+				}
 
-    auto hint_result = ::SDL_SetHint(
-        "SDL_HINT_RENDER_DRIVER",
-        "opengl");
+				title += version_string;
+			}
 
-    return true;
+			title += ')';
+		}
+	}
+	else if (::is_ps())
+	{
+		title += ": Planet Strike";
+	}
+
+	::sdl_window = ::SDL_CreateWindow(
+		title.c_str(),
+		::sdl_window_x,
+		::sdl_window_y,
+		::window_width,
+		::window_height,
+		window_flags);
+
+	if (!::sdl_window)
+	{
+		::sdl_error_message = "VID: Failed to create a window: ";
+		::sdl_error_message += ::SDL_GetError();
+
+		bstone::Log::write_error(::SDL_GetError());
+
+		return false;
+	}
+
+	auto hint_result = ::SDL_SetHint("SDL_HINT_RENDER_DRIVER", "opengl");
+
+	return true;
 }
 
 bool sdl_initialize_renderer()

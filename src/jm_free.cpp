@@ -287,7 +287,7 @@ void CAL_SetupAudioFile()
 // load maphead.ext (offsets and tileinfo for map file)
 //
 #ifndef AUDIOHEADERLINKED
-    ::ca_open_resource(::aheadname, handle);
+    ::ca_open_resource(Assets::audio_header_base_name, handle);
     auto length = static_cast<int32_t>(handle.get_size());
     ::audiostarts = new int32_t[length / 4];
     handle.read(::audiostarts, length);
@@ -314,7 +314,7 @@ void CAL_SetupGrFile()
     // load ???dict.ext (huffman dictionary for graphics files)
     //
 
-    ::ca_open_resource(::gdictname, handle);
+    ::ca_open_resource(Assets::gfx_dictionary_base_name, handle);
     handle.read(&::grhuffman, sizeof(::grhuffman));
 
     //
@@ -324,13 +324,13 @@ void CAL_SetupGrFile()
 
     ::grstarts = new int32_t[(grstarts_size + 3) / 4];
 
-    ::ca_open_resource(::gheadname, handle);
+    ::ca_open_resource(Assets::gfx_header_base_name, handle);
     handle.read(::grstarts, grstarts_size);
 
     //
     // Open the graphics file, leaving it open until the game is finished
     //
-    ::ca_open_resource(::gfilename, ::grhandle);
+    ::ca_open_resource(Assets::gfx_data_base_name, ::grhandle);
 
     //
     // load the pic and sprite headers into the arrays in the data segment
@@ -361,7 +361,7 @@ void CAL_SetupMapFile()
     // load maphead.ext (offsets and tileinfo for map file)
     //
 
-    ::ca_open_resource(::mheadname, handle);
+    ::ca_open_resource(Assets::map_header_base_name, handle);
     handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
     handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
 
@@ -487,7 +487,7 @@ int get_vgahead_offset_count(
 {
 	auto file_stream = bstone::FileStream{};
 	const auto file_extension = get_file_extension(game_type);
-	const auto is_open = ::ca_open_resource_non_fatal(::gheadname, file_extension, file_stream);
+	const auto is_open = ::ca_open_resource_non_fatal(Assets::gfx_header_base_name, file_extension, file_stream);
 
 	if (!is_open)
 	{

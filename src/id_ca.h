@@ -163,13 +163,6 @@ extern char* titleptr[8];
 extern int16_t profilehandle, debughandle;
 
 extern std::string extension;
-extern const std::string gheadname;
-extern const std::string gfilename;
-extern const std::string gdictname;
-extern const std::string mheadname;
-extern const std::string mfilename;
-extern const std::string aheadname;
-extern const std::string afilename;
 
 extern int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
 extern int32_t* audiostarts; // array of offsets in audio / audiot

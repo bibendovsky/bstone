@@ -91,13 +91,6 @@ extern uint8_t audiodict;
 
 
 std::string extension; // Need a string, not constant to change cache files
-const std::string gheadname = "VGAHEAD.";
-const std::string gfilename = "VGAGRAPH.";
-const std::string gdictname = "VGADICT.";
-const std::string mheadname = "MAPHEAD.";
-const std::string mfilename = "MAPTEMP.";
-const std::string aheadname = "AUDIOHED.";
-const std::string afilename = "AUDIOT.";
 
 
 void CA_CannotOpen(
@@ -184,7 +177,7 @@ void OpenMapFile()
         CA_CannotOpen(fname);
     }
 #else
-    ::ca_open_resource(::mfilename, ::maphandle);
+    ::ca_open_resource(Assets::map_data_base_name, ::maphandle);
 #endif
 }
 
@@ -196,7 +189,7 @@ void CloseMapFile()
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-    ::ca_open_resource(::afilename, ::audiohandle);
+    ::ca_open_resource(Assets::audio_data_base_name, ::audiohandle);
 #else
     // TODO Remove or fix
     if ((audiohandle = open("AUDIO."EXTENSION,
