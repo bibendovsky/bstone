@@ -134,7 +134,9 @@ PiShapeInfos piShapeTable;
 
 void initialize_tp_shape_table()
 {
-    if (::is_aog_sw()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog_sw()) {
         piShapeTable = {
             { SPR_PRO_W3_7, pis_scaled, },
             { SPR_STAT_32, pis_scaled, },
@@ -356,7 +358,7 @@ void initialize_tp_shape_table()
             { PSPROMO2PIC, pis_pic, },
             { PSPROMO3PIC, pis_pic, },
         }; // piShapeTable
-    } else if (::is_aog_full_v1_0()) {
+    } else if (assets_info.is_aog_full_v1_0()) {
         piShapeTable = {
             { SPR_GREEN_OOZE1, pis_scaled, },
             { SPR_STAT_32, pis_scaled, },
@@ -575,7 +577,7 @@ void initialize_tp_shape_table()
             { H_LPIC, pis_pic, },
             { H_SHIFTPIC, pis_pic, },
         }; // piShapeTable
-    } else if (::is_aog_full_v2_x()) {
+    } else if (assets_info.is_aog_full_v2_x()) {
         piShapeTable = {
             { SPR_GREEN_OOZE1, pis_scaled, },
             { SPR_STAT_32, pis_scaled, },
@@ -794,7 +796,7 @@ void initialize_tp_shape_table()
             { H_LPIC, pis_pic, },
             { H_SHIFTPIC, pis_pic, },
         }; // piShapeTable
-    } else if (::is_aog_full_v3_0()) {
+    } else if (assets_info.is_aog_full_v3_0()) {
         piShapeTable = {
             { SPR_GREEN_OOZE1, pis_scaled, },
             { SPR_STAT_32, pis_scaled, },
@@ -1016,7 +1018,7 @@ void initialize_tp_shape_table()
             { PSPROMO2PIC, pis_pic, },
             { PSPROMO3PIC, pis_pic, },
         }; // piShapeTable
-    } else if (::is_ps()) {
+    } else if (assets_info.is_ps()) {
         piShapeTable = {
             { SPR_GREEN_OOZE1, pis_scaled, }, // 0 - Green Ooze
             { SPR_STAT_32, pis_scaled, }, // 1 - Red Key
@@ -1311,7 +1313,9 @@ PiAnimationInfos piAnimTable;
 
 void initialize_tp_animation_table()
 {
-    if (::is_aog_sw()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog_sw()) {
         piAnimTable = {
             { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
             { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
@@ -1354,7 +1358,7 @@ void initialize_tp_animation_table()
             { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
             { 209, 0, 8, 0, 8, pia_grabscript, pid_cycle, },
         }; // piAnimTable
-    } else if (::is_aog_full()) {
+    } else if (assets_info.is_aog_full()) {
         piAnimTable = {
             { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
             { 0, 0, 0, 0, 0, pia_grabscript, pid_cycle, },
@@ -1397,7 +1401,7 @@ void initialize_tp_animation_table()
             { 208, 0, 8, 0, 10, pia_grabscript, pid_cycle, },
             { 209, 0, 8, 0, 8, pia_grabscript, pid_cycle, },
         }; // piAnimTable
-    } else if (::is_ps()) {
+    } else if (assets_info.is_ps()) {
         piAnimTable = {
             { 136, 0, 2, 0, 20, pia_shapetable, pid_cycle, }, // 0 -  OPEN
             { 127, 0, 3, 0, 20, pia_shapetable, pid_cycle, }, // 1 -  podeggobj,

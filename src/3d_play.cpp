@@ -200,7 +200,9 @@ Songs songs;
 
 void initialize_songs()
 {
-    if (!::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_ps()) {
         songs = {
             // Episode 1
             INCNRATN_MUS,
@@ -366,7 +368,9 @@ void PollKeyboardButtons()
             buttonstate[bt_ready_grenade] = true;
         }
 
-        if (::is_ps()) {
+		const auto& assets_info = AssetsInfo{};
+
+        if (assets_info.is_ps()) {
             if (in_is_binding_pressed(e_bi_weapon_6)) {
                 buttonstate[bt_ready_bfg_cannon] = true;
             }
@@ -710,7 +714,9 @@ namespace {
 
 void check_heart_beat_key()
 {
-    if (!::is_aog()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_aog()) {
         return;
     }
 
@@ -757,7 +763,9 @@ void CheckKeys()
     // SECRET CHEAT CODE: 'JAM'
     //
 
-    if (!::is_aog_sw()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_aog_sw()) {
         if (Keyboard[ScanCode::sc_j] || Keyboard[ScanCode::sc_a] || Keyboard[ScanCode::sc_m]) {
             if (jam_buff.back() != LastScan) {
                 for (auto i = 1; i < 3; ++i) {
@@ -827,7 +835,7 @@ void CheckKeys()
         S_KeyReleased = true;
     }
 
-    if (!::is_aog_sw() && Keyboard[ScanCode::sc_return]) {
+    if (!assets_info.is_aog_sw() && Keyboard[ScanCode::sc_return]) {
         int8_t loop;
 
         if (jam_buff == jam_buff_cmp) {
@@ -1036,7 +1044,7 @@ void CheckKeys()
     if (Keyboard[ScanCode::sc_back_quote]) {
         Keyboard[ScanCode::sc_back_quote] = 0;
 
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             ::TryDropPlasmaDetonator();
         }
     }
@@ -1135,7 +1143,9 @@ void CheckMusicToggle()
     if (in_is_binding_pressed(e_bi_music)) {
         bool toggle = M_KeyReleased;
 
-        if (!::is_aog_sw()) {
+		const auto& assets_info = AssetsInfo{};
+
+        if (!assets_info.is_aog_sw()) {
             if (jam_buff[0] == ScanCode::sc_j &&
                 jam_buff[1] == ScanCode::sc_a &&
                 jam_buff[2] == ScanCode::sc_m)
@@ -1182,7 +1192,9 @@ void PopupAutoMap(
 {
     ::vid_is_hud = true;
 
-    const int16_t BASE_X = (::is_ps() ? 64 : 40);
+	const auto& assets_info = AssetsInfo{};
+
+    const int16_t BASE_X = (assets_info.is_ps() ? 64 : 40);
     const int16_t BASE_Y = 44;
 
     ThreeDRefresh();
@@ -1192,7 +1204,7 @@ void PopupAutoMap(
     ClearMemory();
     CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
-    if (::is_aog()) {
+    if (assets_info.is_aog()) {
         bool show_whole_map = true;
         int overlay_flags = OV_KEYS;
 
@@ -1218,7 +1230,7 @@ void PopupAutoMap(
     while (Keyboard[ScanCode::sc_back_quote]) {
         CalcTics();
 
-        if (!::is_ps()) {
+        if (!assets_info.is_ps()) {
             ::CycleColors();
             ::in_handle_events();
         }
@@ -1228,7 +1240,7 @@ void PopupAutoMap(
     while (!IN_CheckAck()) {
         CalcTics();
 
-        if (!::is_ps()) {
+        if (!assets_info.is_ps()) {
             ::CycleColors();
             ::in_handle_events();
         }
@@ -1422,7 +1434,9 @@ void StartMusic(
 
     SD_MusicOff();
 
-    if (!::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_ps()) {
         musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
     } else {
         if (playstate == ex_victorious) {
@@ -1857,8 +1871,10 @@ void ShowQuickInstructions()
 {
     ::ShowQuickMsg = false;
 
+	const auto& assets_info = AssetsInfo{};
+
     if (::demoplayback ||
-        (::is_ps() && (::gamestate.mapon > 0)) ||
+        (assets_info.is_ps() && (::gamestate.mapon > 0)) ||
         (::gamestate.flags & GS_QUICKRUN) != 0)
     {
         return;

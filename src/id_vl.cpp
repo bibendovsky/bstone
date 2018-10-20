@@ -183,36 +183,38 @@ bool sdl_initialize_window()
 	window_flags = SDL_WINDOW_SHOWN;
 #endif
 
+	const auto& assets_info = AssetsInfo{};
+
 	auto title = std::string{"Blake Stone"};
 
-	if (::is_aog())
+	if (assets_info.is_aog())
 	{
 		auto version_string = std::string{};
 
-		if (::is_aog_full_v1_0() || ::is_aog_sw_v1_0())
+		if (assets_info.is_aog_full_v1_0() || assets_info.is_aog_sw_v1_0())
 		{
 			version_string = "v1.0";
 		}
-		else if (::is_aog_full_v2_0() || ::is_aog_sw_v2_0())
+		else if (assets_info.is_aog_full_v2_0() || assets_info.is_aog_sw_v2_0())
 		{
 			version_string = "v2.0";
 		}
-		else if (::is_aog_full_v2_1() || ::is_aog_sw_v2_1())
+		else if (assets_info.is_aog_full_v2_1() || assets_info.is_aog_sw_v2_1())
 		{
 			version_string = "v2.1";
 		}
-		else if (::is_aog_full_v3_0() || ::is_aog_sw_v3_0())
+		else if (assets_info.is_aog_full_v3_0() || assets_info.is_aog_sw_v3_0())
 		{
 			version_string = "v3.0";
 		}
 
 		auto type = std::string{};
 
-		if (::is_aog_full())
+		if (assets_info.is_aog_full())
 		{
 			type = "full";
 		}
-		else if (::is_aog_sw())
+		else if (assets_info.is_aog_sw())
 		{
 			type = "shareware";
 		}
@@ -243,7 +245,7 @@ bool sdl_initialize_window()
 			title += ')';
 		}
 	}
-	else if (::is_ps())
+	else if (assets_info.is_ps())
 	{
 		title += ": Planet Strike";
 	}

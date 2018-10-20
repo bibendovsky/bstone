@@ -71,153 +71,156 @@ StatInfos statinfo;
 
 void initialize_static_info_constants()
 {
-    statinfo = {
-        { SPR_STAT_0, bo_water_puddle, }, // Water Puddle SPR1V
-        { SPR_STAT_1, block, }, // Containment Canister
-        { SPR_STAT_2, block, }, // Lunch Table
-        { SPR_STAT_3, block, }, // Floor Lamp
-        { SPR_STAT_4, block, }, // Lab Table
-        { SPR_STAT_5, block, }, // Pillar
-        { SPR_STAT_6, dressing, }, // Blood Puddle
-        { SPR_STAT_7, dressing, }, // Piss Puddle
+	const auto& assets_info = AssetsInfo{};
 
-        { SPR_STAT_8, block, }, // Ficus Tree SPR2V
-        { SPR_STAT_9, dressing, }, // Half-Eaten Corpse
-        { SPR_STAT_10, block, }, // Water Fountain
-        { SPR_STAT_11, block, }, // Plant 1
-        { SPR_STAT_12, block, }, // Vase
-        { SPR_STAT_13, block, }, // General Table
-        { SPR_STAT_14, dressing, }, // Ceiling Light
-        { SPR_STAT_15, block, }, // General Chair
+	statinfo =
+	{
+		{SPR_STAT_0, bo_water_puddle}, // Water Puddle SPR1V
+		{SPR_STAT_1, block}, // Containment Canister
+		{SPR_STAT_2, block}, // Lunch Table
+		{SPR_STAT_3, block}, // Floor Lamp
+		{SPR_STAT_4, block}, // Lab Table
+		{SPR_STAT_5, block}, // Pillar
+		{SPR_STAT_6, dressing}, // Blood Puddle
+		{SPR_STAT_7, dressing}, // Piss Puddle
 
-        { SPR_STAT_16, block, }, // Kitchen Trash SPR3V
-        { SPR_STAT_17, dressing, }, // Office Trash
-        { SPR_STAT_18, block, }, // Plant 2
-        { SPR_STAT_19, block, }, // Gurney No-Blood
-        { SPR_STAT_20, dressing, }, // Indirect Half-Sphere
-        { SPR_STAT_21, dressing, }, // Exit Sign
-        { SPR_STAT_22, dressing, }, // Transporter
-        { SPR_STAT_23, block, }, // Body Can
+		{SPR_STAT_8, block}, // Ficus Tree SPR2V
+		{SPR_STAT_9, dressing}, // Half-Eaten Corpse
+		{SPR_STAT_10, block}, // Water Fountain
+		{SPR_STAT_11, block}, // Plant 1
+		{SPR_STAT_12, block}, // Vase
+		{SPR_STAT_13, block}, // General Table
+		{SPR_STAT_14, dressing}, // Ceiling Light
+		{SPR_STAT_15, block}, // General Chair
 
-        { SPR_STAT_24, bo_pistol, }, // PISTOL SPR4V
-        { SPR_STAT_25, block, }, // Statue
+		{SPR_STAT_16, block}, // Kitchen Trash SPR3V
+		{SPR_STAT_17, dressing}, // Office Trash
+		{SPR_STAT_18, block}, // Plant 2
+		{SPR_STAT_19, block}, // Gurney No-Blood
+		{SPR_STAT_20, dressing}, // Indirect Half-Sphere
+		{SPR_STAT_21, dressing}, // Exit Sign
+		{SPR_STAT_22, dressing}, // Transporter
+		{SPR_STAT_23, block}, // Body Can
 
-        { SPR_STAT_31, bo_clip, }, // Charge Unit
+		{SPR_STAT_24, bo_pistol}, // PISTOL SPR4V
+		{SPR_STAT_25, block}, // Statue
 
-        { SPR_STAT_27, bo_burst_rifle, }, // Auto-Burst Rifle
-        { SPR_STAT_28, bo_ion_cannon, }, // Particle Charged ION
-        { SPR_STAT_29, bo_firstaid, }, // First Aid
-        { SPR_VSPIKE8, block, }, // Static VSPIKE
+		{SPR_STAT_31, bo_clip}, // Charge Unit
 
-        { SPR_STAT_26, bo_clip2, }, // Big Charge pack/clip
+		{SPR_STAT_27, bo_burst_rifle}, // Auto-Burst Rifle
+		{SPR_STAT_28, bo_ion_cannon}, // Particle Charged ION
+		{SPR_STAT_29, bo_firstaid}, // First Aid
+		{SPR_VSPIKE8, block}, // Static VSPIKE
 
-        { SPR_STAT_32, bo_red_key, }, // Red Key SPR5V
-        { SPR_STAT_33, bo_yellow_key, }, // Yellow Key
-        { SPR_STAT_34, ::is_ps() ? bo_bfg_cannon : bo_green_key, }, // BFG Cannon
-        { SPR_STAT_35, bo_blue_key, }, // Blue Key
-        { SPR_STAT_36, ::is_ps() ? dressing : bo_gold_key, }, // OPEN
-        { SPR_STAT_37, block, }, // Office Desk
-        { SPR_STAT_38, block, }, // Office Chair
-        { SPR_STAT_39, block, }, // Security Desk
+		{SPR_STAT_26, bo_clip2}, // Big Charge pack/clip
 
-        { SPR_STAT_40, bo_water, }, // Full Water Bowl SPR7V
-        { SPR_STAT_41, dressing, }, // Empty Water Bowl
-        { SPR_STAT_42, bo_chicken, }, // Chicken Leg
-        { SPR_STAT_43, dressing, }, // Chicken Bone
-        { SPR_STAT_44, bo_ham, }, // Ham
-        { SPR_STAT_45, dressing, }, // Ham Bone
-        { SPR_STAT_46, bo_grenade, }, // Grande Launcher
-        { SPR_STAT_47, dressing, }, // Video Game Machine
+		{SPR_STAT_32, bo_red_key}, // Red Key SPR5V
+		{SPR_STAT_33, bo_yellow_key}, // Yellow Key
+		{SPR_STAT_34, assets_info.is_ps() ? bo_bfg_cannon : bo_green_key}, // BFG Cannon
+		{SPR_STAT_35, bo_blue_key}, // Blue Key
+		{SPR_STAT_36, assets_info.is_ps() ? dressing : bo_gold_key}, // OPEN
+		{SPR_STAT_37, block}, // Office Desk
+		{SPR_STAT_38, block}, // Office Chair
+		{SPR_STAT_39, block}, // Security Desk
 
-        { SPR_VPOST8, block, }, // Static VPOST
+		{SPR_STAT_40, bo_water}, // Full Water Bowl SPR7V
+		{SPR_STAT_41, dressing}, // Empty Water Bowl
+		{SPR_STAT_42, bo_chicken}, // Chicken Leg
+		{SPR_STAT_43, dressing}, // Chicken Bone
+		{SPR_STAT_44, bo_ham}, // Ham
+		{SPR_STAT_45, dressing}, // Ham Bone
+		{SPR_STAT_46, bo_grenade}, // Grande Launcher
+		{SPR_STAT_47, dressing}, // Video Game Machine
 
-        // -- VARIOUS --
+		{SPR_VPOST8, block}, // Static VPOST
 
-        { SPR_GURNEY_MUT_READY, block, }, // 49 Gurney Mutant
-        { SPR_LCAN_ALIEN_READY, block, }, // 50 Large Alien Canister
-        { SPR_SCAN_ALIEN_READY, block, }, // 51 Small Alien Canister
+		// -- VARIOUS --
 
-        { SPR_GURNEY_MUT_EMPTY, block, }, // 52 Gurney Mutant
-        { SPR_LCAN_ALIEN_EMPTY, block, }, // 53 Large Alien Canister
-        { SPR_SCAN_ALIEN_EMPTY, block, }, // 54 Small Alien Canister
+		{SPR_GURNEY_MUT_READY, block}, // 49 Gurney Mutant
+		{SPR_LCAN_ALIEN_READY, block}, // 50 Large Alien Canister
+		{SPR_SCAN_ALIEN_READY, block}, // 51 Small Alien Canister
 
-        { SPR_OFC_DEAD, dressing, }, // 55 Dead Gen Sci.
+		{SPR_GURNEY_MUT_EMPTY, block}, // 52 Gurney Mutant
+		{SPR_LCAN_ALIEN_EMPTY, block}, // 53 Large Alien Canister
+		{SPR_SCAN_ALIEN_EMPTY, block}, // 54 Small Alien Canister
 
-        { SPR_DEMO, dressing, }, // 56 Spacer
+		{SPR_OFC_DEAD, dressing}, // 55 Dead Gen Sci.
 
-        { SPR_AIR_VENT, bo_plainvent, }, // 57 Plain air vent
-        { SPR_AIR_VENT, bo_bloodvent, }, // 58 Blood air vent
-        { SPR_AIR_VENT, bo_watervent, }, // 59 Water air vent
-        { SPR_GRATE, dressing, }, // 60 Floor Grate
-        { SPR_STEAM_PIPE, dressing, }, // 61 Steam Pipe
+		{SPR_DEMO, dressing}, // 56 Spacer
 
-        { SPR_STAT_48, bo_money_bag, }, // 62 money bag
-        { SPR_STAT_49, bo_loot, }, // 63 loot
-        { SPR_STAT_50, bo_gold, }, // 64 gold
-        { SPR_STAT_51, bo_bonus, }, // 65 bonus
+		{SPR_AIR_VENT, bo_plainvent}, // 57 Plain air vent
+		{SPR_AIR_VENT, bo_bloodvent}, // 58 Blood air vent
+		{SPR_AIR_VENT, bo_watervent}, // 59 Water air vent
+		{SPR_GRATE, dressing}, // 60 Floor Grate
+		{SPR_STEAM_PIPE, dressing}, // 61 Steam Pipe
 
-        { SPR_STAT_52, block, }, // 66 Greek Post
-        { SPR_STAT_53, block, }, // 67 Red/Blue post
-        { SPR_STAT_54, block, }, // 68 Red HiTech Post
-        { SPR_STAT_55, dressing, }, // 69 Ceiling Lamp #2
-        { SPR_STAT_56, dressing, }, // 70 Ceiling Lamp #3
-        { SPR_STAT_57, dressing, }, // 71 Body Parts
-        { SPR_STAT_58, dressing, }, // 72 OR Lamp
-        { SPR_STAT_59, block, }, // 73 Office Sink
-        { SPR_STAT_57, dressing, }, // EMPTY - Copy of 71 - Body Parts...
-        { SPR_CANDY_BAR, bo_candybar, }, // 75 candy bar
-        { SPR_SANDWICH, bo_sandwich, }, // 76 sandwich
-        { SPR_CRATE_1, block, }, // 77 Crate #1
-        { SPR_CRATE_2, block, }, // 78 Crate #2
-        { SPR_CRATE_3, block, }, // 79 Crate #3
-        { SPR_STAT_61, block, }, // 80 Table
-        { SPR_STAT_62, block, }, // 81 Chair
-        { SPR_STAT_63, block, }, // 82 Stool
-        { SPR_STAT_64, dressing, }, // 83 Gore
+		{SPR_STAT_48, bo_money_bag}, // 62 money bag
+		{SPR_STAT_49, bo_loot}, // 63 loot
+		{SPR_STAT_50, bo_gold}, // 64 gold
+		{SPR_STAT_51, bo_bonus}, // 65 bonus
 
-        { SPR_STAT_65, bo_gold3, }, // Gold 3
-        { SPR_STAT_66, bo_gold2, }, // Gold 2
-        { SPR_STAT_67, bo_gold1, }, // Gold 1
+		{SPR_STAT_52, block}, // 66 Greek Post
+		{SPR_STAT_53, block}, // 67 Red/Blue post
+		{SPR_STAT_54, block}, // 68 Red HiTech Post
+		{SPR_STAT_55, dressing}, // 69 Ceiling Lamp #2
+		{SPR_STAT_56, dressing}, // 70 Ceiling Lamp #3
+		{SPR_STAT_57, dressing}, // 71 Body Parts
+		{SPR_STAT_58, dressing}, // 72 OR Lamp
+		{SPR_STAT_59, block}, // 73 Office Sink
+		{SPR_STAT_57, dressing}, // EMPTY - Copy of 71 - Body Parts...
+		{SPR_CANDY_BAR, bo_candybar}, // 75 candy bar
+		{SPR_SANDWICH, bo_sandwich}, // 76 sandwich
+		{SPR_CRATE_1, block}, // 77 Crate #1
+		{SPR_CRATE_2, block}, // 78 Crate #2
+		{SPR_CRATE_3, block}, // 79 Crate #3
+		{SPR_STAT_61, block}, // 80 Table
+		{SPR_STAT_62, block}, // 81 Chair
+		{SPR_STAT_63, block}, // 82 Stool
+		{SPR_STAT_64, dressing}, // 83 Gore
 
-        { SPR_STAT_68, block, }, //
-        { SPR_STAT_69, block, }, //
-        { SPR_STAT_70, block, }, //
-        { SPR_STAT_71, block, }, //
-        { SPR_STAT_72, block, }, //
-        { SPR_STAT_73, dressing, }, //
-        { SPR_STAT_74, dressing, }, //
-        { SPR_STAT_75, dressing, }, //
-        { SPR_STAT_76, dressing, }, //
+		{SPR_STAT_65, bo_gold3}, // Gold 3
+		{SPR_STAT_66, bo_gold2}, // Gold 2
+		{SPR_STAT_67, bo_gold1}, // Gold 1
 
-        { SPR_RENT_DEAD, dressing, }, //
-        { SPR_PRO_DEAD, dressing, }, //
-        { SPR_SWAT_DEAD, dressing, }, //
-        { SPR_GSCOUT_DEAD, dressing, }, //
-        { SPR_FSCOUT_DEAD, dressing, }, //
-        { SPR_MUTHUM1_DEAD, dressing, },
-        { SPR_MUTHUM2_DEAD, dressing, },
-        { SPR_LCAN_ALIEN_DEAD, dressing, },
-        { SPR_SCAN_ALIEN_DEAD, dressing, },
-        { SPR_GURNEY_MUT_DEAD, dressing, },
-        { SPR_TERROT_DEAD, dressing, },
-        { SPR_POD_DIE3, dressing, },
-        { SPR_STAT_77, bo_coin, }, // Concession Machine Money
-        { SPR_STAT_78, bo_coin5, }, // Concession Machine Money
-        { SPR_STAT_79, dressing, }, // Auto-Charge Pistol
+		{SPR_STAT_68, block}, //
+		{SPR_STAT_69, block}, //
+		{SPR_STAT_70, block}, //
+		{SPR_STAT_71, block}, //
+		{SPR_STAT_72, block}, //
+		{SPR_STAT_73, dressing}, //
+		{SPR_STAT_74, dressing}, //
+		{SPR_STAT_75, dressing}, //
+		{SPR_STAT_76, dressing}, //
 
-        { SPR_DOORBOMB, bo_plasma_detonator, }, // Plasma Detonator
-        { SPR_RUBBLE, dressing, }, // Door Rubble
-        { SPR_AUTOMAPPER, bo_automapper1, }, // Auto Mapper Bonus #1
-        { SPR_BONZI_TREE, block, }, // BonziTree
-        { SPR_POT_PLANT, block, }, // Yellow Potted Plant
-        { SPR_TUBE_PLANT, block, }, // Tube Plant
-        { SPR_HITECH_CHAIR, block, }, // Hi Tech table and chair
-        { SPR_DEAD_RENT, dressing, }, // Dead AOG: Rent A Cop
-        { SPR_DEAD_PRO, dressing, }, // Dead AOG: Pro Guard
-        { SPR_DEAD_SWAT, dressing, }, // Dead AOG: Swat Guad
+		{SPR_RENT_DEAD, dressing}, //
+		{SPR_PRO_DEAD, dressing}, //
+		{SPR_SWAT_DEAD, dressing}, //
+		{SPR_GSCOUT_DEAD, dressing}, //
+		{SPR_FSCOUT_DEAD, dressing}, //
+		{SPR_MUTHUM1_DEAD, dressing},
+		{SPR_MUTHUM2_DEAD, dressing},
+		{SPR_LCAN_ALIEN_DEAD, dressing},
+		{SPR_SCAN_ALIEN_DEAD, dressing},
+		{SPR_GURNEY_MUT_DEAD, dressing},
+		{SPR_TERROT_DEAD, dressing},
+		{SPR_POD_DIE3, dressing},
+		{SPR_STAT_77, bo_coin}, // Concession Machine Money
+		{SPR_STAT_78, bo_coin5}, // Concession Machine Money
+		{SPR_STAT_79, dressing}, // Auto-Charge Pistol
 
-        { -1, dressing, }, // terminator
-    };
+		{SPR_DOORBOMB, bo_plasma_detonator}, // Plasma Detonator
+		{SPR_RUBBLE, dressing}, // Door Rubble
+		{SPR_AUTOMAPPER, bo_automapper1}, // Auto Mapper Bonus #1
+		{SPR_BONZI_TREE, block}, // BonziTree
+		{SPR_POT_PLANT, block}, // Yellow Potted Plant
+		{SPR_TUBE_PLANT, block}, // Tube Plant
+		{SPR_HITECH_CHAIR, block}, // Hi Tech table and chair
+		{SPR_DEAD_RENT, dressing}, // Dead AOG: Rent A Cop
+		{SPR_DEAD_PRO, dressing}, // Dead AOG: Pro Guard
+		{SPR_DEAD_SWAT, dressing}, // Dead AOG: Swat Guad
+
+		{-1, dressing}, // terminator
+	};
 }
 
 void InitStaticList()
@@ -280,109 +283,118 @@ statobj_t* FindEmptyStatic()
 }
 
 void SpawnStatic(
-    int16_t tilex,
-    int16_t tiley,
-    int16_t type)
+	int16_t tilex,
+	int16_t tiley,
+	int16_t type)
 {
-    statobj_t* spot;
+	const auto& assets_info = AssetsInfo{};
 
-    spot = FindEmptyStatic();
+	statobj_t* spot;
 
-    if (!spot) {
-        return;
-    }
+	spot = FindEmptyStatic();
 
-    spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<uint8_t>(tilex);
-    spot->tiley = static_cast<uint8_t>(tiley);
-    spot->visspot = &spotvis[tilex][tiley];
-    spot->flags = 0;
+	if (!spot)
+	{
+		return;
+	}
 
-    if ((!::is_aog_sw() && spot->shapenum == SPR_STAT_3) || // // floor lamp
-        spot->shapenum == SPR_STAT_14 || // ceiling light
-        (!::is_aog_sw() && spot->shapenum == SPR_STAT_20) ||
-        spot->shapenum == SPR_STAT_47 ||
-        spot->shapenum == SPR_STAT_51 ||
-        spot->shapenum == SPR_STAT_55 ||
-        spot->shapenum == SPR_STAT_56)
-    {
-        spot->lighting = LAMP_ON_SHADING;
-    } else {
-        spot->lighting = 0;
-    }
+	spot->shapenum = statinfo[type].picnum;
+	spot->tilex = static_cast<uint8_t>(tilex);
+	spot->tiley = static_cast<uint8_t>(tiley);
+	spot->visspot = &spotvis[tilex][tiley];
+	spot->flags = 0;
+
+	if ((!assets_info.is_aog_sw() && spot->shapenum == SPR_STAT_3) || // // floor lamp
+		spot->shapenum == SPR_STAT_14 || // ceiling light
+		(!assets_info.is_aog_sw() && spot->shapenum == SPR_STAT_20) ||
+		spot->shapenum == SPR_STAT_47 ||
+		spot->shapenum == SPR_STAT_51 ||
+		spot->shapenum == SPR_STAT_55 ||
+		spot->shapenum == SPR_STAT_56)
+	{
+		spot->lighting = LAMP_ON_SHADING;
+	}
+	else
+	{
+		spot->lighting = 0;
+	}
 
 
-    switch (statinfo[type].type) {
-    case block:
-        // consider it a blocking tile
-        actorat[tilex][tiley] = (objtype*)1;
-        break;
+	switch (statinfo[type].type)
+	{
+	case block:
+		// consider it a blocking tile
+		actorat[tilex][tiley] = (objtype*)1;
+		break;
 
-    case bo_green_key:
-    case bo_gold_key:
-        if (::is_ps()) {
-            ::Quit("Green/Gold key (AOG) at ({}, {}).", tilex, tiley);
-        }
-        TravelTable[tilex][tiley] |= TT_KEYS;
-        spot->flags = FL_BONUS;
-        spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
-        break;
+	case bo_green_key:
+	case bo_gold_key:
+		if (assets_info.is_ps())
+		{
+			::Quit("Green/Gold key (AOG) at ({}, {}).", tilex, tiley);
+		}
+		TravelTable[tilex][tiley] |= TT_KEYS;
+		spot->flags = FL_BONUS;
+		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		break;
 
-    case bo_plasma_detonator:
-        if (!::is_ps()) {
-            ::Quit("Plasma detonator (PS) at ({}, {}).", tilex, tiley);
-        }
-        TravelTable[tilex][tiley] |= TT_KEYS;
-        spot->flags = FL_BONUS;
-        spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
-        break;
+	case bo_plasma_detonator:
+		if (!assets_info.is_ps())
+		{
+			::Quit("Plasma detonator (PS) at ({}, {}).", tilex, tiley);
+		}
+		TravelTable[tilex][tiley] |= TT_KEYS;
+		spot->flags = FL_BONUS;
+		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		break;
 
-    case bo_red_key:
-    case bo_yellow_key:
-    case bo_blue_key:
-        TravelTable[tilex][tiley] |= TT_KEYS;
+	case bo_red_key:
+	case bo_yellow_key:
+	case bo_blue_key:
+		TravelTable[tilex][tiley] |= TT_KEYS;
 
-    case bo_gold1:
-    case bo_gold2:
-    case bo_gold3:
-    case bo_gold:
-    case bo_bonus:
-    case bo_money_bag:
-    case bo_loot:
+	case bo_gold1:
+	case bo_gold2:
+	case bo_gold3:
+	case bo_gold:
+	case bo_bonus:
+	case bo_money_bag:
+	case bo_loot:
 
-    case bo_fullheal:
-    case bo_firstaid:
-    case bo_clip:
-    case bo_clip2:
-    case bo_burst_rifle:
-    case bo_ion_cannon:
-    case bo_grenade:
-    case bo_bfg_cannon:
-    case bo_pistol:
-    case bo_chicken:
-    case bo_ham:
-    case bo_water:
-    case bo_water_puddle:
-    case bo_sandwich:
-    case bo_candybar:
-    case bo_coin:
-    case bo_coin5:
-    case bo_automapper1:
-        spot->flags = FL_BONUS;
-        spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
-        break;
+	case bo_fullheal:
+	case bo_firstaid:
+	case bo_clip:
+	case bo_clip2:
+	case bo_burst_rifle:
+	case bo_ion_cannon:
+	case bo_grenade:
+	case bo_bfg_cannon:
+	case bo_pistol:
+	case bo_chicken:
+	case bo_ham:
+	case bo_water:
+	case bo_water_puddle:
+	case bo_sandwich:
+	case bo_candybar:
+	case bo_coin:
+	case bo_coin5:
+	case bo_automapper1:
+		spot->flags = FL_BONUS;
+		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 
-    spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
+	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
-    spot++;
+	spot++;
 
-    if (spot == &statobjlist[MAXSTATS]) {
-        ::Quit("Too many static objects.");
-    }
+	if (spot == &statobjlist[MAXSTATS])
+	{
+		::Quit("Too many static objects.");
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -604,57 +616,65 @@ void PlaceItemNearTile(
 //
 // --------------------------------------------------------------------------
 void ExplodeStatics(
-    int16_t tilex,
-    int16_t tiley)
+	int16_t tilex,
+	int16_t tiley)
 {
-    if (!::is_ps()) {
-        return;
-    }
+	const auto& assets_info = AssetsInfo{};
 
-    statobj_t* spot;
-    int16_t y_diff, x_diff;
-    bool remove;
+	if (!assets_info.is_ps())
+	{
+		return;
+	}
 
-    for (spot = &statobjlist[0]; spot != laststatobj; spot++) {
-        if (spot->shapenum != -1) {
-            y_diff = spot->tiley - tiley;
-            y_diff = ABS(y_diff);
+	statobj_t* spot;
+	int16_t y_diff, x_diff;
+	bool remove;
 
-            x_diff = spot->tilex - tilex;
-            x_diff = ABS(x_diff);
+	for (spot = &statobjlist[0]; spot != laststatobj; spot++)
+	{
+		if (spot->shapenum != -1)
+		{
+			y_diff = spot->tiley - tiley;
+			y_diff = ABS(y_diff);
 
-            if (x_diff < 2 && y_diff < 2) {
-                remove = false;
+			x_diff = spot->tilex - tilex;
+			x_diff = ABS(x_diff);
 
-                //
-                // Test for specific statics..
-                //
+			if (x_diff < 2 && y_diff < 2)
+			{
+				remove = false;
 
-                switch (spot->itemnumber) {
-                //
-                // Check for Clips
-                //
-                case bo_clip:
-                case bo_clip2:
-                    remove = true;
-                    SpawnCusExplosion((((fixed)spot->tilex) << TILESHIFT) + 0x7FFF,
-                                      (((fixed)spot->tiley) << TILESHIFT) + 0x7FFF,
-                                      SPR_CLIP_EXP1, 7, 3 + (US_RndT() & 0x3), explosionobj);
-                    break;
-                }
+				//
+				// Test for specific statics..
+				//
+
+				switch (spot->itemnumber)
+				{
+					//
+					// Check for Clips
+					//
+				case bo_clip:
+				case bo_clip2:
+					remove = true;
+					SpawnCusExplosion((((fixed)spot->tilex) << TILESHIFT) + 0x7FFF,
+						(((fixed)spot->tiley) << TILESHIFT) + 0x7FFF,
+						SPR_CLIP_EXP1, 7, 3 + (US_RndT() & 0x3), explosionobj);
+					break;
+				}
 
 
-                //
-                // Check to see if we remove it.
-                //
-                if (remove) {
-                    // Remove static
-                    spot->shapenum = -1;
-                    spot->itemnumber = bo_nothing;
-                }
-            }
-        }
-    }
+				//
+				// Check to see if we remove it.
+				//
+				if (remove)
+				{
+					// Remove static
+					spot->shapenum = -1;
+					spot->itemnumber = bo_nothing;
+				}
+			}
+		}
+	}
 }
 
 /*
@@ -876,21 +896,26 @@ void OpenDoor(
 }
 
 objtype* get_actor_near_door(
-    int tile_x,
-    int tile_y)
+	int tile_x,
+	int tile_y)
 {
-    if (::is_aog()) {
-        for (int i = 0; i < doornum; ++i) {
-            const doorobj_t& door = doorobjlist[i];
+	const auto& assets_info = AssetsInfo{};
 
-            if (door.tilex == tile_x && door.tiley == tile_y) {
-                // It's a closing door, not an actor.
-                return nullptr;
-            }
-        }
-    }
+	if (assets_info.is_aog())
+	{
+		for (int i = 0; i < doornum; ++i)
+		{
+			const doorobj_t& door = doorobjlist[i];
 
-    return actorat[tile_x][tile_y];
+			if (door.tilex == tile_x && door.tiley == tile_y)
+			{
+				// It's a closing door, not an actor.
+				return nullptr;
+			}
+		}
+	}
+
+	return actorat[tile_x][tile_y];
 }
 
 void CloseDoor(
@@ -1827,74 +1852,91 @@ extern void writeTokenStr(
 const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX";
 
 void OperateConcession(
-    uint16_t concession)
+	uint16_t concession)
 {
-    con_mCacheInfo* ci;
-    bool ok = false;
+	const auto& assets_info = AssetsInfo{};
 
-    ci = &ConHintList.cmInfo[concession - 1];
+	con_mCacheInfo* ci;
+	bool ok = false;
 
-    switch (ci->type) {
-    case CT_FOOD:
-    case CT_BEVS:
-        if (ci->mInfo.local_val) {
-            if (gamestate.health == 100) {
-                DISPLAY_TIMED_MSG(noeat_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
-                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+	ci = &ConHintList.cmInfo[concession - 1];
 
-                return;
-            } else {
-                ok = true;
-            }
-        }
-        break;
-    }
+	switch (ci->type)
+	{
+	case CT_FOOD:
+	case CT_BEVS:
+		if (ci->mInfo.local_val)
+		{
+			if (gamestate.health == 100)
+			{
+				DISPLAY_TIMED_MSG(noeat_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
+				::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 
-    if (ok) {
-        // Whada' ya' want?
+				return;
+			}
+			else
+			{
+				ok = true;
+			}
+		}
+		break;
+	}
 
-        switch (ci->type) {
-        case CT_FOOD:
-        case CT_BEVS:
-            // One token please... Thank you.
+	if (ok)
+	{
+		// Whada' ya' want?
 
-            if (!gamestate.tokens) {
-                DISPLAY_TIMED_MSG(NoFoodTokens, MP_NO_MORE_TOKENS, MT_NO_MO_FOOD_TOKENS);
-                ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+		switch (ci->type)
+		{
+		case CT_FOOD:
+		case CT_BEVS:
+			// One token please... Thank you.
 
-                return;
-            } else {
-                gamestate.tokens--;
-            }
+			if (!gamestate.tokens)
+			{
+				DISPLAY_TIMED_MSG(NoFoodTokens, MP_NO_MORE_TOKENS, MT_NO_MO_FOOD_TOKENS);
+				::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
 
-            ci->mInfo.local_val--;
-            ::sd_play_player_sound(CONCESSIONSSND, bstone::AC_ITEM);
+				return;
+			}
+			else
+			{
+				gamestate.tokens--;
+			}
 
-            switch (ci->type) {
-            case CT_FOOD:
-                if (::is_ps()) {
-                    ::writeTokenStr(food_msg1);
-                }
+			ci->mInfo.local_val--;
+			::sd_play_player_sound(CONCESSIONSSND, bstone::AC_ITEM);
 
-                DISPLAY_TIMED_MSG(food_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
-                HealSelf(10);
-                break;
+			switch (ci->type)
+			{
+			case CT_FOOD:
+				if (assets_info.is_ps())
+				{
+					::writeTokenStr(food_msg1);
+				}
 
-            case CT_BEVS:
-                if (::is_ps()) {
-                    ::writeTokenStr(bevs_msg1);
-                }
+				DISPLAY_TIMED_MSG(food_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
+				HealSelf(10);
+				break;
 
-                DISPLAY_TIMED_MSG(bevs_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
-                HealSelf(7);
-                break;
-            }
-            break;
-        }
-    } else {
-        DISPLAY_TIMED_MSG(OutOrder, MP_CONCESSION_OUT_ORDER, MT_GENERAL);
-        ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
-    }
+			case CT_BEVS:
+				if (assets_info.is_ps())
+				{
+					::writeTokenStr(bevs_msg1);
+				}
+
+				DISPLAY_TIMED_MSG(bevs_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
+				HealSelf(7);
+				break;
+			}
+			break;
+		}
+	}
+	else
+	{
+		DISPLAY_TIMED_MSG(OutOrder, MP_CONCESSION_OUT_ORDER, MT_GENERAL);
+		::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+	}
 }
 
 int8_t xy_offset[8][2] = {

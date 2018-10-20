@@ -375,22 +375,29 @@ void T_Stand(
 */
 void CheckWeaponChange()
 {
-    const int n = ::is_ps() ? wp_bfg_cannon : wp_grenade;
+	const auto& assets_info = AssetsInfo{};
 
-    for (int i = wp_autocharge; i <= n; i++) {
-        if (buttonstate[bt_ready_autocharge + i - wp_autocharge]) {
-            if (gamestate.useable_weapons & (1 << i)) {
-                gamestate.weapon = static_cast<int8_t>(i);
-                gamestate.chosenweapon = static_cast<int8_t>(i);
+	const int n = assets_info.is_ps() ? wp_bfg_cannon : wp_grenade;
 
-                DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
-                DrawWeapon();
-                return;
-            } else {
-                DISPLAY_TIMED_MSG(WeaponNotAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
-            }
-        }
-    }
+	for (int i = wp_autocharge; i <= n; i++)
+	{
+		if (buttonstate[bt_ready_autocharge + i - wp_autocharge])
+		{
+			if (gamestate.useable_weapons & (1 << i))
+			{
+				gamestate.weapon = static_cast<int8_t>(i);
+				gamestate.chosenweapon = static_cast<int8_t>(i);
+
+				DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
+				DrawWeapon();
+				return;
+			}
+			else
+			{
+				DISPLAY_TIMED_MSG(WeaponNotAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
+			}
+		}
+	}
 }
 
 /*
@@ -801,124 +808,153 @@ void DrawHealthMonitor()
 // --------------------------------------------------------------------------
 void DrawHealth()
 {
-    if (::is_ps()) {
-        auto health_string = std::to_string(gamestate.health);
+	const auto& assets_info = AssetsInfo{};
 
-        std::uninitialized_fill_n(
-            gamestate.health_str,
-            4,
-            '\0');
+	if (assets_info.is_ps())
+	{
+		auto health_string = std::to_string(gamestate.health);
 
-        auto index = 0;
+		std::uninitialized_fill_n(
+			gamestate.health_str,
+			4,
+			'\0');
 
-        for (auto ch : health_string) {
-            gamestate.health_str[index] = ch - '0';
-            index += 1;
-        }
-    }
+		auto index = 0;
 
-    DrawHealthNum_COUNT = 3;
+		for (auto ch : health_string)
+		{
+			gamestate.health_str[index] = ch - '0';
+			index += 1;
+		}
+	}
+
+	DrawHealthNum_COUNT = 3;
 }
 
 void DrawHealthNum()
 {
-    if (!::is_ps()) {
-        ::CA_CacheGrChunk(ECG_GRID_PIECE);
+	const auto& assets_info = AssetsInfo{};
 
-        for (int i = 0; i < 3; ++i) {
-            ::VWB_DrawPic(
-                144 + (i * 8),
-                200 - STATUSLINES + 32,
-                ECG_GRID_PIECE);
-        }
+	if (!assets_info.is_ps())
+	{
+		::CA_CacheGrChunk(ECG_GRID_PIECE);
 
-        std::string health_string(4, ' ');
+		for (int i = 0; i < 3; ++i)
+		{
+			::VWB_DrawPic(
+				144 + (i * 8),
+				200 - STATUSLINES + 32,
+				ECG_GRID_PIECE);
+		}
 
-        bstone::StringHelper::lexical_cast(
-            gamestate.health,
-            health_string);
+		std::string health_string(4, ' ');
 
-        if (gamestate.health < 100) {
-            health_string.insert(0, 1, ' ');
+		bstone::StringHelper::lexical_cast(
+			gamestate.health,
+			health_string);
 
-            if (gamestate.health < 10) {
-                health_string.insert(0, 1, ' ');
-            }
-        }
+		if (gamestate.health < 100)
+		{
+			health_string.insert(0, 1, ' ');
 
-        health_string += '%';
+			if (gamestate.health < 10)
+			{
+				health_string.insert(0, 1, ' ');
+			}
+		}
 
-        fontnumber = 2;
-        fontcolor = 0x9D;
+		health_string += '%';
 
-        PrintX = 149;
-        PrintY = 200 - STATUSLINES + 34;
+		fontnumber = 2;
+		fontcolor = 0x9D;
 
-        px = PrintX;
-        py = PrintY;
+		PrintX = 149;
+		PrintY = 200 - STATUSLINES + 34;
 
-        VW_DrawPropString(health_string.c_str());
+		px = PrintX;
+		py = PrintY;
 
-        DrawHealthNum_COUNT -= 1;
-    } else {
-        int8_t loop, num;
-        int16_t check = 100;
+		VW_DrawPropString(health_string.c_str());
 
-        DrawHealthNum_COUNT--;
+		DrawHealthNum_COUNT -= 1;
+	}
+	else
+	{
+		int8_t loop, num;
+		int16_t check = 100;
 
-        for (loop = num = 0; loop < 3; loop++, check /= 10) {
-            if (gamestate.health < check) {
-                LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
-            } else {
-                LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
-            }
-        }
-    }
+		DrawHealthNum_COUNT--;
+
+		for (loop = num = 0; loop < 3; loop++, check /= 10)
+		{
+			if (gamestate.health < check)
+			{
+				LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
+			}
+			else
+			{
+				LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
+			}
+		}
+	}
 }
 
 void TakeDamage(
-    int16_t points,
-    objtype* attacker)
+	int16_t points,
+	objtype* attacker)
 {
-    LastAttacker = attacker;
+	LastAttacker = attacker;
 
-    if (gamestate.flags & GS_ATTACK_INFOAREA) {
-        if (attacker) {
-            if ((LastMsgType == MT_ATTACK) && (LastInfoAttacker == attacker->obclass)) {
-                MsgTicsRemain = DISPLAY_MSG_STD_TIME;
-            } else {
-                if (DISPLAY_TIMED_MSG(ActorInfoMsg[attacker->obclass - rentacopobj], MP_TAKE_DAMAGE, MT_ATTACK)) {
-                    LastInfoAttacker = attacker->obclass;
+	if (gamestate.flags & GS_ATTACK_INFOAREA)
+	{
+		if (attacker)
+		{
+			if ((LastMsgType == MT_ATTACK) && (LastInfoAttacker == attacker->obclass))
+			{
+				MsgTicsRemain = DISPLAY_MSG_STD_TIME;
+			}
+			else
+			{
+				if (DISPLAY_TIMED_MSG(ActorInfoMsg[attacker->obclass - rentacopobj], MP_TAKE_DAMAGE, MT_ATTACK))
+				{
+					LastInfoAttacker = attacker->obclass;
 
-                    if (::is_ps()) {
-                        LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
-                    }
-                }
-            }
-        }
-    }
+					const auto& assets_info = AssetsInfo{};
 
-    if (godmode) {
-        return;
-    }
+					if (assets_info.is_ps())
+					{
+						LastInfoAttacker_Cloaked = attacker->flags2 & FL2_CLOAKED;
+					}
+				}
+			}
+		}
+	}
 
-    if (gamestate.difficulty == gd_baby) {
-        points >>= 2;
-    }
+	if (godmode)
+	{
+		return;
+	}
 
-    gamestate.health -= points;
+	if (gamestate.difficulty == gd_baby)
+	{
+		points >>= 2;
+	}
 
-    if (gamestate.health <= 0) {
-        gamestate.health = 0;
-        playstate = ex_died;
-        killerobj = attacker;
-        if (killerobj) {
-            killerobj->flags |= FL_FREEZE;
-        }
-    }
+	gamestate.health -= points;
 
-    StartDamageFlash(points);
-    DrawHealth();
+	if (gamestate.health <= 0)
+	{
+		gamestate.health = 0;
+		playstate = ex_died;
+		killerobj = attacker;
+		if (killerobj)
+		{
+			killerobj->flags |= FL_FREEZE;
+		}
+	}
+
+	StartDamageFlash(points);
+	DrawHealth();
 }
 
 void HealSelf(
@@ -1068,47 +1104,60 @@ void DrawKeys()
 
 void DrawKeyPics()
 {
-    ::DrawKeyPics_COUNT -= 1;
+	::DrawKeyPics_COUNT -= 1;
 
-    if (::is_aog()) {
-        static const int indices[NUMKEYS] = {
-            0, 1, 3, 2, 4,
-        }; // indices
+	const auto& assets_info = AssetsInfo{};
 
-        static const uint8_t off_colors[NUMKEYS] = {
-            0x11, 0x31, 0x91, 0x51, 0x21,
-        }; // off_colors
+	if (assets_info.is_aog())
+	{
+		static const int indices[NUMKEYS] = {
+			0, 1, 3, 2, 4,
+		}; // indices
 
-        static const uint8_t on_colors[NUMKEYS] = {
-            0xC9, 0xB9, 0x9C, 0x5B, 0x2B,
-        }; // on_colors
+		static const uint8_t off_colors[NUMKEYS] = {
+			0x11, 0x31, 0x91, 0x51, 0x21,
+		}; // off_colors
 
-        for (auto i = 0; i < NUMKEYS; ++i) {
-            int index = indices[i];
-            uint8_t color = 0;
+		static const uint8_t on_colors[NUMKEYS] = {
+			0xC9, 0xB9, 0x9C, 0x5B, 0x2B,
+		}; // on_colors
 
-            if (gamestate.numkeys[index] > 0) {
-                color = on_colors[index];
-            } else {
-                color = off_colors[index];
-            }
+		for (auto i = 0; i < NUMKEYS; ++i)
+		{
+			int index = indices[i];
+			uint8_t color = 0;
 
-            ::VWB_Bar(
-                257 + (i * 8),
-                200 - STATUSLINES + 25,
-                7,
-                7,
-                color);
-        }
-    } else {
-        for (auto loop = 0; loop < 3; loop++) {
-            if (::gamestate.numkeys[loop]) {
-                ::LatchDrawPic(15 + 2 * loop, 179, ::RED_KEYPIC + loop);
-            } else {
-                ::LatchDrawPic(15 + 2 * loop, 179, ::NO_KEYPIC);
-            }
-        }
-    }
+			if (gamestate.numkeys[index] > 0)
+			{
+				color = on_colors[index];
+			}
+			else
+			{
+				color = off_colors[index];
+			}
+
+			::VWB_Bar(
+				257 + (i * 8),
+				200 - STATUSLINES + 25,
+				7,
+				7,
+				color);
+		}
+	}
+	else
+	{
+		for (auto loop = 0; loop < 3; loop++)
+		{
+			if (::gamestate.numkeys[loop])
+			{
+				::LatchDrawPic(15 + 2 * loop, 179, ::RED_KEYPIC + loop);
+			}
+			else
+			{
+				::LatchDrawPic(15 + 2 * loop, 179, ::NO_KEYPIC);
+			}
+		}
+	}
 }
 
 void GiveKey(
@@ -1148,16 +1197,19 @@ void DrawWeapon()
 
 void DrawWeaponPic()
 {
-    if (gamestate.weapon == -1) {
-        return;
-    }
+	if (gamestate.weapon == -1)
+	{
+		return;
+	}
 
-    ::LatchDrawPic(
-        ::is_ps() ? 31 : 22,
-        ::is_ps() ? 176 : 152,
-        WEAPON1PIC + gamestate.weapon);
+	const auto& assets_info = AssetsInfo{};
 
-    DrawWeaponPic_COUNT--;
+	::LatchDrawPic(
+		assets_info.is_ps() ? 31 : 22,
+		assets_info.is_ps() ? 176 : 152,
+		WEAPON1PIC + gamestate.weapon);
+
+	--DrawWeaponPic_COUNT;
 }
 
 void GiveWeapon(
@@ -1242,25 +1294,31 @@ void DrawAmmo(
 
 void DrawAmmoNum()
 {
-    if (gamestate.weapon == -1) {
-        return;
-    }
+	if (gamestate.weapon == -1)
+	{
+		return;
+	}
 
-    fontnumber = 2;
-    fontcolor = 0x9D;
+	const auto& assets_info = AssetsInfo{};
 
-    PrintX = (::is_ps() ? 252 : 211);
-    PrintY = 200 - STATUSLINES + 38;
+	fontnumber = 2;
+	fontcolor = 0x9D;
 
-    if (::is_ps() || (!::is_ps() && gamestate.weapon != wp_autocharge)) {
-        ::DrawGAmmoNum();
-    }
+	PrintX = (assets_info.is_ps() ? 252 : 211);
+	PrintY = 200 - STATUSLINES + 38;
 
-    DrawAmmoNum_COUNT--;
+	if (assets_info.is_ps() || (!assets_info.is_ps() && gamestate.weapon != wp_autocharge))
+	{
+		::DrawGAmmoNum();
+	}
+
+	DrawAmmoNum_COUNT--;
 }
 
 void DrawGAmmoNum()
 {
+	const auto& assets_info = AssetsInfo{};
+
     if (gamestate.ammo < 100) {
         PrintX += AMMO_SMALL_FONT_NUM_WIDTH;
         if (gamestate.ammo < 10) {
@@ -1268,7 +1326,7 @@ void DrawGAmmoNum()
         }
     }
 
-    if (::is_ps()) {
+    if (assets_info.is_ps()) {
         ::LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
     }
 
@@ -1297,7 +1355,9 @@ void DrawAmmoPic()
 
 void DrawAmmoMsg()
 {
-    int x = (::is_ps() ? 30 : 29);
+	const auto& assets_info = AssetsInfo{};
+
+    int x = (assets_info.is_ps() ? 30 : 29);
 
     if (gamestate.weapon_wait) {
         LatchDrawPic(x, (200 - STATUSLINES), WAITPIC);
@@ -1327,7 +1387,9 @@ void UpdateAmmoMsg()
 
 void DrawAmmoGuage()
 {
-    DrawLedStrip(::is_ps() ? 243 : 234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
+	const auto& assets_info = AssetsInfo{};
+
+    DrawLedStrip(assets_info.is_ps() ? 243 : 234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
 }
 
 void UpdateRadarGuage()
@@ -1359,7 +1421,9 @@ void UpdateRadarGuage()
 
 void DrawRadarGuage()
 {
-    if (!::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_ps()) {
         return;
     }
 
@@ -1394,7 +1458,9 @@ void DrawLedStrip(
         amount = max;
     }
 
-    int width = (::is_ps() ? 5 : 11);
+	const auto& assets_info = AssetsInfo{};
+
+    int width = (assets_info.is_ps() ? 5 : 11);
 
 // Draw dim LEDs.
 //
@@ -1429,7 +1495,9 @@ void GiveAmmo(
 
     DrawAmmo(false);
 
-    if (::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_ps()) {
         if (gamestate.weapon != gamestate.chosenweapon) {
             if (gamestate.useable_weapons & (1 << gamestate.chosenweapon)) {
                 gamestate.weapon = gamestate.chosenweapon;
@@ -1453,13 +1521,15 @@ void GiveAmmo(
 // ---------------------------------------------------------------------------
 void ComputeAvailWeapons()
 {
+	const auto& assets_info = AssetsInfo{};
+
     //
     // Determine what ammo ammounts we have avail
     //
 
     if (::gamestate.ammo > 0)
     {
-        if (::is_ps() && gamestate.ammo >= BFG_ENERGY_USE)
+        if (assets_info.is_ps() && gamestate.ammo >= BFG_ENERGY_USE)
         {
             ::gamestate.useable_weapons =
                 (1 << wp_bfg_cannon) |
@@ -1580,6 +1650,8 @@ bool DisplayInfoMsg(
     int16_t MsgType)
 {
     if (Priority >= LastMsgPri) {
+		const auto& assets_info = AssetsInfo{};
+
         if (Priority == MP_max_val) { // "System" msgs
             LastMsgPri = MP_min_val;
         } else {
@@ -1596,7 +1668,7 @@ bool DisplayInfoMsg(
 
         LastMsgType = static_cast<infomsg_type>(MsgType);
 
-        if (::is_ps() && LastMsgType != MT_ATTACK) {
+        if (assets_info.is_ps() && LastMsgType != MT_ATTACK) {
             LastInfoAttacker_Cloaked = 0;
         }
 
@@ -1698,9 +1770,11 @@ void DisplayNoMoMsgs()
     StatusAllDrawPic(0, 40, DIM_LIGHTPIC);
     sprintf((char*)&default_msg[40], "%-d", gamestate.tokens);
     if (gamestuff.level[gamestate.mapon + 1].locked) {
+		const auto& assets_info = AssetsInfo{};
+
         switch (gamestate.mapon) {
         case 19:
-            if (::is_ps()) {
+            if (assets_info.is_ps()) {
                 strcat(default_msg, destroyGoldfire_msg);
             }
             break;
@@ -1712,7 +1786,7 @@ void DisplayNoMoMsgs()
             break;
 
         default:
-            if (::is_ps()) {
+            if (assets_info.is_ps()) {
                 if (gamestate.plasma_detonators) {
                     strcat(default_msg, haveDetonator_msg);
                 } else {
@@ -2079,7 +2153,9 @@ void UpdateStatusBar()
         DrawScore();
     }
 
-    if (!::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_ps()) {
         ::DrawHealthMonitor();
     }
 }
@@ -2149,9 +2225,11 @@ void GetBonus(
     case bo_green_key:
     case bo_gold_key:
         {
+			const auto& assets_info = AssetsInfo{};
+
             uint16_t keynum = 0;
 
-            if (::is_aog()) {
+            if (assets_info.is_aog()) {
                 switch (check->itemnumber) {
                 case bo_red_key:
                     keynum = 0;
@@ -2534,6 +2612,8 @@ void Thrust(
 
 // Check for trigger tiles.
 //
+	const auto& assets_info = AssetsInfo{};
+
     switch (*map[0]) {
     case DOORTRIGGERTILE:
         dx = *map[1] >> 8; // x
@@ -2559,7 +2639,7 @@ void Thrust(
         dumb.flags = 0;
         dangle = CalcAngle(player, &dumb);
         RotateView(dangle, 2);
-        if (!::is_ps()) {
+        if (!assets_info.is_ps()) {
             RunBlakeRun();
         }
         ignore_map1 = true;
@@ -2754,6 +2834,8 @@ void Cmd_Use(
 
 // Test for a pushable wall
 //
+	const auto& assets_info = AssetsInfo{};
+
     if (iconnum == PUSHABLETILE) {
         PushWall(checkx, checky, dir);
     } else if (!buttonheld[bt_use]) {
@@ -2777,7 +2859,7 @@ void Cmd_Use(
                     gamestuff.level[gamestate.mapon].ptilex = player->tilex;
                     gamestuff.level[gamestate.mapon].ptiley = player->tiley;
 
-                    if (::is_ps()) {
+                    if (assets_info.is_ps()) {
                         angle = player->angle - 180;
                         if (angle < 0) {
                             angle += ANGLES;
@@ -2785,7 +2867,7 @@ void Cmd_Use(
                     }
 
                     gamestuff.level[gamestate.mapon].pangle = angle;
-                    playstate = ::is_ps() ? ex_transported : ex_warped;
+                    playstate = assets_info.is_ps() ? ex_transported : ex_warped;
 
                     gamestate.lastmapon = gamestate.mapon;
                     gamestate.mapon = new_floor - 1;
@@ -2802,7 +2884,7 @@ void Cmd_Use(
                     gamestate.lastmapon = gamestate.mapon;
                     gamestate.mapon = (iconnum & 0xff) - 1;
 
-                    if (::is_aog()) {
+                    if (assets_info.is_aog()) {
                         gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
                         gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
 
@@ -2858,7 +2940,7 @@ void Cmd_Use(
                 break;
 
             default:
-                if (::is_ps()) {
+                if (assets_info.is_ps()) {
                     tryDetonator = true;
                 }
                 break;
@@ -2922,7 +3004,7 @@ void Cmd_Use(
             } else {
                 interrogate_delay = 120; // Non-informants have 2 sec delay
             }
-        } else if (::is_ps()) {
+        } else if (assets_info.is_ps()) {
             tryDetonator = true;
         }
     } else {
@@ -2932,12 +3014,12 @@ void Cmd_Use(
             interrogate_delay = 0;
         }
 
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             tryDetonator = true;
         }
     }
 
-    if (::is_ps()) {
+    if (assets_info.is_ps()) {
         if (tryDetonator) {
             if ((!tryDetonatorDelay) && gamestate.plasma_detonators) {
                 TryDropPlasmaDetonator();
@@ -3109,7 +3191,9 @@ const int TOV_Y = 132;
 
 int16_t InputFloor()
 {
-    if (::is_aog()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog()) {
         const std::string messages[4] = {
             // "Current floor:\nSelect a floor."
             ::ca_load_script(ELEVMSG0_TEXT),
@@ -3740,7 +3824,9 @@ int16_t ShowStats(
 
 // Show OVERALL FLOOR ratio.
 //
-    by += (::is_ps() ? 13 : 12);
+	const auto& assets_info = AssetsInfo{};
+
+    by += (assets_info.is_ps() ? 13 : 12);
     floor = p1 + p2 + p3;
     ShowRatio(bx, by, bx + 52, by, maxPerFloor, floor, type);
 
@@ -4072,7 +4158,9 @@ void SpawnPlayer(
         tiley = gamestuff.level[gamestate.mapon].ptiley;
         dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
 
-        if (::is_aog()) {
+		const auto& assets_info = AssetsInfo{};
+
+        if (assets_info.is_aog()) {
             dir -= 1;
         }
     }
@@ -4230,6 +4318,8 @@ void T_Attack(
 //
 // change frame and fire
 //
+	const auto& assets_info = AssetsInfo{};
+
     gamestate.attackcount -= tics;
     if (gamestate.attackcount <= 0) {
         cur = &attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe];
@@ -4258,7 +4348,7 @@ void T_Attack(
             if (!gamestate.plasma_detonators) {
                 // Check to see what weapons are possible.
                 //
-                const auto n_x = static_cast<int16_t>(::is_ps() ? wp_bfg_cannon : wp_grenade);
+                const auto n_x = static_cast<int16_t>(assets_info.is_ps() ? wp_bfg_cannon : wp_grenade);
 
                 for (x = n_x; x >= wp_autocharge; x--) {
                     if (gamestate.useable_weapons & (1 << x)) {
@@ -4298,7 +4388,7 @@ void T_Attack(
             if (!godmode) {
                 gamestate.ammo--;
             }
-            if (!::is_ps()) {
+            if (!assets_info.is_ps()) {
                 DrawWeapon();
             } else {
                 DrawAmmo(false);
@@ -4311,7 +4401,7 @@ void T_Attack(
             }
             GunAttack(ob);
             gamestate.weapon_wait = AUTOCHARGE_WAIT;
-            if (!::is_ps()) {
+            if (!assets_info.is_ps()) {
                 DrawWeapon();
             } else {
                 DrawAmmo(false);
@@ -4346,7 +4436,7 @@ void T_Attack(
                 if (!godmode) {
                     if (gamestate.ammo >= GRENADE_ENERGY_USE) {
                         gamestate.ammo -= GRENADE_ENERGY_USE;
-                        if (!::is_ps()) {
+                        if (!assets_info.is_ps()) {
                             DrawWeapon();
                         } else {
                             DrawAmmo(false);
@@ -4426,7 +4516,9 @@ void T_Player(
         UpdateAmmoMsg();
     }
 
-    if (::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_ps()) {
         if (tryDetonatorDelay > tics) {
             tryDetonatorDelay -= tics;
         } else {
@@ -4619,10 +4711,12 @@ void SW_HandleStatic(
     uint16_t tilex,
     uint16_t tiley)
 {
+	const auto& assets_info = AssetsInfo{};
+
     switch (stat->itemnumber) {
     case bo_clip:
     case bo_clip2:
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             SpawnCusExplosion((((fixed)tilex) << TILESHIFT) + 0x7FFF,
                               (((fixed)tiley) << TILESHIFT) + 0x7FFF,
                               SPR_CLIP_EXP1, 7, 30 + (US_RndT() & 0x27), explosionobj);

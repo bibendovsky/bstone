@@ -1173,7 +1173,9 @@ void DrawScaleds()
 
             }
 
-            if (::is_ps() &&
+			const auto& assets_info = AssetsInfo{};
+
+            if (assets_info.is_ps() &&
                 (obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED)
             {
                 visptr->cloaked = true;
@@ -1183,7 +1185,7 @@ void DrawScaleds()
                 visptr->lighting = obj->lighting;
             }
 
-            if (::is_ps() && (obj->flags & FL_DEADGUY) == 0) {
+            if (assets_info.is_ps() && (obj->flags & FL_DEADGUY) == 0) {
                 obj->flags2 &= ~FL2_DAMAGE_CLOAK;
             }
 
@@ -1255,7 +1257,9 @@ WeaponScale weaponscale;
 
 void initialize_weapon_constants()
 {
-    NUMWEAPONS = ::is_ps() ? 7 : 6;
+	const auto& assets_info = AssetsInfo{};
+
+    NUMWEAPONS = assets_info.is_ps() ? 7 : 6;
 
     weaponscale = {
         SPR_KNIFEREADY,
@@ -1286,9 +1290,11 @@ void DrawPlayerWeapon()
 
         if (shapenum != 0)
         {
-            const auto height = ::is_aog() ? 128 : 88;
+			const auto& assets_info = AssetsInfo{};
 
-            ::useBounceOffset = ::is_ps();
+            const auto height = assets_info.is_aog() ? 128 : 88;
+
+            ::useBounceOffset = assets_info.is_ps();
             ::scale_player_weapon(shapenum, height);
             ::useBounceOffset = false;
         }
@@ -1506,7 +1512,9 @@ void ThreeDRefresh()
 
     ::bufferofs = 0;
 
-    if (::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_ps()) {
         ::DrawRadar();
     }
 
@@ -1557,7 +1565,9 @@ static bool show_pwalls_on_automap(
     int x,
     int y)
 {
-    if (::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_ps()) {
         return true;
     }
 
@@ -1598,9 +1608,11 @@ void ShowOverhead(
     int zoom,
     int flags)
 {
+	const auto& assets_info = AssetsInfo{};
+
     const uint8_t PWALL_COLOR = 0xF6;
     const uint8_t PLAYER_COLOR = 0xF0;
-    const uint8_t UNMAPPED_COLOR = (::is_ps() ? 0x52 : 0x06);
+    const uint8_t UNMAPPED_COLOR = (assets_info.is_ps() ? 0x52 : 0x06);
     const uint8_t MAPPED_COLOR = 0x55;
     const uint8_t HIDDEN_COLOR = 0x52;
 
@@ -1720,7 +1732,7 @@ void ShowOverhead(
                         // SHOW DOORS
                         //
                         if ((tile & 0x80) != 0) {
-                            if (::is_aog() && doorobjlist[door].type == dr_elevator) {
+                            if (assets_info.is_aog() && doorobjlist[door].type == dr_elevator) {
                                 color = 0xFD;
                             } else if (doorobjlist[door].lock != kt_none) {
                                 color = 0x18; // locked!
@@ -1729,13 +1741,13 @@ void ShowOverhead(
                                     color = 0x58; // closed!
                                 } else {
                                     color = MAPPED_COLOR; // floor!
-                                    check_for_hidden_area = ::is_aog();
+                                    check_for_hidden_area = assets_info.is_aog();
                                 }
                             }
                         }
                     } else {
                         color = MAPPED_COLOR; // floor!
-                        check_for_hidden_area = ::is_aog();
+                        check_for_hidden_area = assets_info.is_aog();
                     }
 
                     if (check_for_hidden_area) {
@@ -1755,7 +1767,7 @@ void ShowOverhead(
                     }
 
                     if ((ExtraRadarFlags & OV_ACTORS) != 0 ||
-                        (::is_ps() && zoom > 1 && (flags & OV_ACTORS) != 0))
+                        (assets_info.is_ps() && zoom > 1 && (flags & OV_ACTORS) != 0))
                     {
                         const auto ob = actorat[mx][my];
 
@@ -1771,7 +1783,7 @@ void ShowOverhead(
                     }
 
                     if ((ExtraRadarFlags & OV_PUSHWALLS) != 0 ||
-                        (::is_ps() && zoom == 4 && (flags & OV_PUSHWALLS) != 0))
+                        (assets_info.is_ps() && zoom == 4 && (flags & OV_PUSHWALLS) != 0))
                     {
                         auto iconnum = *(mapsegs[1] + farmapylookup[my] + mx);
 
@@ -1779,7 +1791,7 @@ void ShowOverhead(
                         //
                         if (iconnum == PUSHABLETILE) {
                             if (::show_pwalls_on_automap(mx, my)) {
-                                color = (::is_aog() ? PWALL_COLOR : 0x79);
+                                color = (assets_info.is_aog() ? PWALL_COLOR : 0x79);
                             }
                         }
                     }

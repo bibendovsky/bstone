@@ -70,19 +70,109 @@ struct mapfiletype {
 }; // mapfiletype
 
 
+using AssetsCRefString = std::reference_wrapper<const std::string>;
+
+using AssetsCRefStrings = std::vector<AssetsCRefString>;
+
+using AssetsBaseNameToHashMap = std::unordered_map<
+	AssetsCRefString,
+	std::string,
+	std::hash<std::string>,
+	std::equal_to<std::string>>;
+
+
+enum class AssetsVersion
+{
+	none,
+	aog_sw_v1_0, // Aliens Of Gold (shareware, v1.0)
+	aog_sw_v2_0, // Aliens Of Gold (shareware, v2.0)
+	aog_sw_v2_1, // Aliens Of Gold (shareware, v2.1)
+	aog_sw_v3_0, // Aliens Of Gold (shareware, v3.0)
+	aog_full_v1_0, // Aliens Of Gold (full, v1.0)
+	aog_full_v2_0, // Aliens Of Gold (full, v2.0)
+	aog_full_v2_1, // Aliens Of Gold (full, v2.1)
+	aog_full_v3_0, // Aliens Of Gold (full, v3.0)
+	ps, // Planet Strike (full, v1.0/v1.1)
+}; // AssetsVersion
+
+
+struct AssetsInfo final
+{
+public:
+	AssetsVersion get_version() const;
+
+	void set_version(
+		const AssetsVersion version);
+
+
+	const std::string& get_extension() const;
+
+	void set_extension(
+		const std::string& extension);
+
+
+	const AssetsCRefStrings& get_base_names() const;
+
+	void set_base_names(
+		const AssetsCRefStrings& base_names);
+
+
+	const AssetsBaseNameToHashMap& get_base_name_to_hash_map() const;
+
+	void set_base_name_to_hash_map(
+		const AssetsBaseNameToHashMap& base_name_to_hash_map);
+
+
+	int get_gfx_header_offset_count() const;
+
+
+	bool is_aog_full_v1_0() const;
+
+	bool is_aog_full_v2_0() const;
+
+	bool is_aog_full_v2_1() const;
+
+	bool is_aog_full_v2_x() const;
+
+	bool is_aog_full_v3_0() const;
+
+	bool is_aog_full() const;
+
+	bool is_aog_sw_v1_0() const;
+
+	bool is_aog_sw_v2_0() const;
+
+	bool is_aog_sw_v2_1() const;
+
+	bool is_aog_sw_v2_x() const;
+
+	bool is_aog_sw_v3_0() const;
+
+	bool is_aog_sw() const;
+
+	bool is_aog() const;
+
+	bool is_ps() const;
+
+
+private:
+	static std::string empty_extension_;
+
+	static AssetsVersion version_;
+
+	static AssetsCRefString extension_;
+
+	static AssetsCRefStrings base_names_;
+
+	static AssetsBaseNameToHashMap base_name_to_hash_map_;
+
+	static int gfx_header_offset_count_;
+}; // AssetsInfo
+
+
 struct Assets final
 {
 	static constexpr auto max_size = 4000000;
-
-
-	using RefList = std::vector<std::reference_wrapper<const std::string>>;
-
-	using BaseNameToHashMap = std::unordered_map<
-		std::reference_wrapper<const std::string>,
-		std::string,
-		std::hash<std::string>,
-		std::equal_to<std::string>>;
-
 
 	static const std::string& audio_header_base_name;
 	static const std::string& audio_data_base_name;
@@ -105,37 +195,37 @@ struct Assets final
 	static const std::string& aog_full_extension;
 	static const std::string& ps_extension;
 
-	static const RefList& get_extensions();
+	static const AssetsCRefStrings& get_extensions();
 
-	static const RefList& get_base_names();
-
-
-	static const RefList& get_aog_sw_base_names();
-
-	static const RefList& get_aog_full_base_names();
-
-	static const RefList& get_ps_base_names();
+	static const AssetsCRefStrings& get_base_names();
 
 
-	static const BaseNameToHashMap& get_aog_sw_v1_0_base_name_to_hash_map();
+	static const AssetsCRefStrings& get_aog_sw_base_names();
 
-	static const BaseNameToHashMap& get_aog_sw_v2_0_base_name_to_hash_map();
+	static const AssetsCRefStrings& get_aog_full_base_names();
 
-	static const BaseNameToHashMap& get_aog_sw_v2_1_base_name_to_hash_map();
-
-	static const BaseNameToHashMap& get_aog_sw_v3_0_base_name_to_hash_map();
+	static const AssetsCRefStrings& get_ps_base_names();
 
 
-	static const BaseNameToHashMap& get_aog_full_v1_0_base_name_to_hash_map();
+	static const AssetsBaseNameToHashMap& get_aog_sw_v1_0_base_name_to_hash_map();
 
-	static const BaseNameToHashMap& get_aog_full_v2_0_base_name_to_hash_map();
+	static const AssetsBaseNameToHashMap& get_aog_sw_v2_0_base_name_to_hash_map();
 
-	static const BaseNameToHashMap& get_aog_full_v2_1_base_name_to_hash_map();
+	static const AssetsBaseNameToHashMap& get_aog_sw_v2_1_base_name_to_hash_map();
 
-	static const BaseNameToHashMap& get_aog_full_v3_0_base_name_to_hash_map();
+	static const AssetsBaseNameToHashMap& get_aog_sw_v3_0_base_name_to_hash_map();
 
 
-	static const BaseNameToHashMap& get_ps_base_name_to_hash_map();
+	static const AssetsBaseNameToHashMap& get_aog_full_v1_0_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v2_0_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v2_1_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v3_0_base_name_to_hash_map();
+
+
+	static const AssetsBaseNameToHashMap& get_ps_base_name_to_hash_map();
 }; // Assets
 
 // ===========================================================================
@@ -161,8 +251,6 @@ extern uint8_t ca_levelbit, ca_levelnum;
 extern char* titleptr[8];
 
 extern int16_t profilehandle, debughandle;
-
-extern std::string extension;
 
 extern int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
 extern int32_t* audiostarts; // array of offsets in audio / audiot

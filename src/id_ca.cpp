@@ -90,9 +90,6 @@ extern uint8_t audiohead;
 extern uint8_t audiodict;
 
 
-std::string extension; // Need a string, not constant to change cache files
-
-
 void CA_CannotOpen(
     const std::string& string);
 
@@ -1009,15 +1006,17 @@ std::string ca_load_script(
 
 void initialize_ca_constants()
 {
-    if (::is_aog_full()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog_full()) {
         NUM_EPISODES = 6;
         MAPS_PER_EPISODE = 15;
         MAPS_WITH_STATS = 11;
-    } else if (::is_aog_sw()) {
+    } else if (assets_info.is_aog_sw()) {
         NUM_EPISODES = 1;
         MAPS_PER_EPISODE = 15;
         MAPS_WITH_STATS = 11;
-    } else if (::is_ps()) {
+    } else if (assets_info.is_ps()) {
         NUM_EPISODES = 1;
         MAPS_PER_EPISODE = 25;
         MAPS_WITH_STATS = 20;
@@ -1081,17 +1080,19 @@ bool ca_open_resource_non_fatal(
 }
 
 void ca_open_resource(
-    const std::string& file_name_without_ext,
-    bstone::FileStream& file_stream)
+	const std::string& file_name_without_ext,
+	bstone::FileStream& file_stream)
 {
-    const auto is_open = ca_open_resource_non_fatal(file_name_without_ext, ::extension, file_stream);
+	auto assets_info = AssetsInfo{};
 
-    if (!is_open)
-    {
-        const auto path = ::data_dir + file_name_without_ext + ::extension;
+	const auto is_open = ca_open_resource_non_fatal(file_name_without_ext, assets_info.get_extension(), file_stream);
 
-        ::CA_CannotOpen(path);
-    }
+	if (!is_open)
+	{
+		const auto path = ::data_dir + file_name_without_ext + assets_info.get_extension();
+
+		::CA_CannotOpen(path);
+	}
 }
 
 std::string ca_calculate_hash(
@@ -1214,6 +1215,169 @@ void ca_dump_hashes()
 }
 
 
+std::string AssetsInfo::empty_extension_;
+
+AssetsVersion AssetsInfo::version_;
+AssetsCRefString AssetsInfo::extension_ = empty_extension_;
+AssetsCRefStrings AssetsInfo::base_names_;
+AssetsBaseNameToHashMap AssetsInfo::base_name_to_hash_map_;
+int AssetsInfo::gfx_header_offset_count_;
+
+
+AssetsVersion AssetsInfo::get_version() const
+{
+	return version_;
+}
+
+void AssetsInfo::set_version(
+	const AssetsVersion version)
+{
+	version_ = version;
+
+	switch (version_)
+	{
+	case AssetsVersion::aog_sw_v1_0:
+		gfx_header_offset_count_ = 200;
+		break;
+
+	case AssetsVersion::aog_full_v1_0:
+		gfx_header_offset_count_ = 213;
+		break;
+
+	case AssetsVersion::aog_sw_v2_0:
+	case AssetsVersion::aog_sw_v2_1:
+		gfx_header_offset_count_ = 211;
+		break;
+
+	case AssetsVersion::aog_full_v2_0:
+	case AssetsVersion::aog_full_v2_1:
+		gfx_header_offset_count_ = 224;
+		break;
+
+	case AssetsVersion::aog_sw_v3_0:
+	case AssetsVersion::aog_full_v3_0:
+		gfx_header_offset_count_ = 226;
+		break;
+
+	case AssetsVersion::ps:
+		gfx_header_offset_count_ = 249;
+		break;
+
+	default:
+		gfx_header_offset_count_ = 0;
+		break;
+	}
+}
+
+const std::string& AssetsInfo::get_extension() const
+{
+	return extension_;
+}
+
+void AssetsInfo::set_extension(
+	const std::string& extension)
+{
+	extension_ = extension;
+}
+
+const AssetsCRefStrings& AssetsInfo::get_base_names() const
+{
+	return base_names_;
+}
+
+void AssetsInfo::set_base_names(
+	const AssetsCRefStrings& base_names)
+{
+	base_names_ = base_names;
+}
+
+const AssetsBaseNameToHashMap& AssetsInfo::get_base_name_to_hash_map() const
+{
+	return base_name_to_hash_map_;
+}
+
+void AssetsInfo::set_base_name_to_hash_map(
+	const AssetsBaseNameToHashMap& base_name_to_hash_map)
+{
+	base_name_to_hash_map_ = base_name_to_hash_map;
+}
+
+int AssetsInfo::get_gfx_header_offset_count() const
+{
+	return gfx_header_offset_count_;
+}
+
+bool AssetsInfo::is_aog_full_v1_0() const
+{
+	return version_ == AssetsVersion::aog_full_v1_0;
+}
+
+bool AssetsInfo::is_aog_full_v2_0() const
+{
+	return version_ == AssetsVersion::aog_full_v2_0;
+}
+
+bool AssetsInfo::is_aog_full_v2_1() const
+{
+	return version_ == AssetsVersion::aog_full_v2_1;
+}
+
+bool AssetsInfo::is_aog_full_v2_x() const
+{
+	return is_aog_full_v2_0() || is_aog_full_v2_1();
+}
+
+bool AssetsInfo::is_aog_full_v3_0() const
+{
+	return version_ == AssetsVersion::aog_full_v3_0;
+}
+
+bool AssetsInfo::is_aog_full() const
+{
+	return is_aog_full_v1_0() || is_aog_full_v2_x() || is_aog_full_v3_0();
+}
+
+bool AssetsInfo::is_aog_sw_v1_0() const
+{
+	return version_ == AssetsVersion::aog_sw_v1_0;
+}
+
+bool AssetsInfo::is_aog_sw_v2_0() const
+{
+	return version_ == AssetsVersion::aog_sw_v2_0;
+}
+
+bool AssetsInfo::is_aog_sw_v2_1() const
+{
+	return version_ == AssetsVersion::aog_sw_v2_1;
+}
+
+bool AssetsInfo::is_aog_sw_v2_x() const
+{
+	return is_aog_sw_v2_0() || is_aog_sw_v2_1();
+}
+
+bool AssetsInfo::is_aog_sw_v3_0() const
+{
+	return version_ == AssetsVersion::aog_sw_v3_0;
+}
+
+bool AssetsInfo::is_aog_sw() const
+{
+	return is_aog_sw_v1_0() || is_aog_sw_v2_x() || is_aog_sw_v3_0();
+}
+
+bool AssetsInfo::is_aog() const
+{
+	return is_aog_full() || is_aog_sw();
+}
+
+bool AssetsInfo::is_ps() const
+{
+	return version_ == AssetsVersion::ps;
+}
+
+
 const std::string& Assets::audio_header_base_name = "AUDIOHED";
 const std::string& Assets::audio_data_base_name = "AUDIOT";
 
@@ -1236,9 +1400,9 @@ const std::string& Assets::aog_full_extension = ".BS6";
 const std::string& Assets::ps_extension = ".VSI";
 
 
-const Assets::RefList& Assets::get_extensions()
+const AssetsCRefStrings& Assets::get_extensions()
 {
-	static const auto extensions = RefList
+	static const auto extensions = AssetsCRefStrings
 	{
 		aog_sw_extension,
 		aog_full_extension,
@@ -1248,9 +1412,9 @@ const Assets::RefList& Assets::get_extensions()
 	return extensions;
 }
 
-const Assets::RefList& Assets::get_base_names()
+const AssetsCRefStrings& Assets::get_base_names()
 {
-	static const auto base_names = RefList
+	static const auto base_names = AssetsCRefStrings
 	{
 		audio_header_base_name,
 		audio_data_base_name,
@@ -1273,9 +1437,9 @@ const Assets::RefList& Assets::get_base_names()
 	return base_names;
 }
 
-const Assets::RefList& Assets::get_aog_sw_base_names()
+const AssetsCRefStrings& Assets::get_aog_sw_base_names()
 {
-	static const auto aog_sw_base_names = RefList
+	static const auto aog_sw_base_names = AssetsCRefStrings
 	{
 		audio_header_base_name,
 		audio_data_base_name,
@@ -1296,9 +1460,9 @@ const Assets::RefList& Assets::get_aog_sw_base_names()
 	return aog_sw_base_names;
 }
 
-const Assets::RefList& Assets::get_aog_full_base_names()
+const AssetsCRefStrings& Assets::get_aog_full_base_names()
 {
-	static const auto aog_full_base_names = RefList
+	static const auto aog_full_base_names = AssetsCRefStrings
 	{
 		audio_header_base_name,
 		audio_data_base_name,
@@ -1321,9 +1485,9 @@ const Assets::RefList& Assets::get_aog_full_base_names()
 	return aog_full_base_names;
 }
 
-const Assets::RefList& Assets::get_ps_base_names()
+const AssetsCRefStrings& Assets::get_ps_base_names()
 {
-	static const auto ps_base_names = RefList
+	static const auto ps_base_names = AssetsCRefStrings
 	{
 		audio_header_base_name,
 		audio_data_base_name,
@@ -1345,9 +1509,9 @@ const Assets::RefList& Assets::get_ps_base_names()
 }
 
 
-const Assets::BaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
 {
-	static auto aog_sw_v1_0_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_sw_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
 		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
@@ -1368,9 +1532,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
 	return aog_sw_v1_0_base_name_to_hash_map;
 }
 
-const Assets::BaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
 {
-	static auto aog_sw_v2_0_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_sw_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
 		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
@@ -1391,9 +1555,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
 	return aog_sw_v2_0_base_name_to_hash_map;
 }
 
-const Assets::BaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
 {
-	static auto aog_sw_v2_1_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_sw_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
 		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
@@ -1414,9 +1578,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
 	return aog_sw_v2_1_base_name_to_hash_map;
 }
 
-const Assets::BaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
 {
-	static auto aog_sw_v3_0_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_sw_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
 		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
@@ -1438,9 +1602,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
 }
 
 
-const Assets::BaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map()
 {
-	static auto aog_full_v1_0_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_full_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
 		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
@@ -1463,9 +1627,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map
 	return aog_full_v1_0_base_name_to_hash_map;
 }
 
-const Assets::BaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map()
 {
-	static auto aog_full_v2_0_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_full_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
 		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
@@ -1488,9 +1652,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map
 	return aog_full_v2_0_base_name_to_hash_map;
 }
 
-const Assets::BaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map()
 {
-	static auto aog_full_v2_1_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_full_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
 		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
@@ -1513,9 +1677,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map
 	return aog_full_v2_1_base_name_to_hash_map;
 }
 
-const Assets::BaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map()
 {
-	static auto aog_full_v3_0_base_name_to_hash_map = BaseNameToHashMap
+	static auto aog_full_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
 		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
@@ -1539,9 +1703,9 @@ const Assets::BaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map
 }
 
 
-const Assets::BaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
+const AssetsBaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
 {
-	static auto ps_base_name_to_hash_map = BaseNameToHashMap
+	static auto ps_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "a713f75daf8274375dce0590c0caec6a994022dc"},
 		{audio_data_base_name, "6eadc8ac76bb3e20726db6e2584caf50ce36b624"},

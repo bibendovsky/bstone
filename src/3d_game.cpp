@@ -312,6 +312,8 @@ void ScanInfoPlane()
     bool gottextures = false;
     bool gotcolors = false;
 
+	const auto& assets_info = AssetsInfo{};
+
     detonators_spawned = 0;
 
     new_actor = nullptr;
@@ -330,7 +332,7 @@ void ScanInfoPlane()
             switch ((uint16_t) * (mapsegs[0] + farmapylookup[y] + x)) {
             case SMART_OFF_TRIGGER:
             case SMART_ON_TRIGGER:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Smart trigger (PS) at ({}, {}).", x, y);
                 }
                 continue;
@@ -446,7 +448,7 @@ void ScanInfoPlane()
             //
 
             if (tile >= 432 && tile <= 485) {
-                if (!::is_aog_sw() && tile >= 468) {
+                if (!assets_info.is_aog_sw() && tile >= 468) {
                     SpawnOffsetObj(en_crate3, x, y);
                     new_actor->temp2 = ExpCrateShapes[tile - 468];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
@@ -456,7 +458,7 @@ void ScanInfoPlane()
                     } else {
                         tile = 0;
                     }
-                } else if (!::is_aog_sw() && tile >= 450) {
+                } else if (!assets_info.is_aog_sw() && tile >= 450) {
                     SpawnOffsetObj(en_crate2, x, y);
                     new_actor->temp2 = ExpCrateShapes[tile - 450];
                     new_actor->temp3 = static_object_to_ui16(ReserveStatic());
@@ -498,14 +500,14 @@ void ScanInfoPlane()
                 break;
 
             case 30: // Yellow Puddle
-                if (::is_aog_sw()) {
+                if (assets_info.is_aog_sw()) {
                     ::Quit("Yellow puddle (AOG full/PS) at ({}, {}).", x, y);
                 }
                 SpawnStatic(x, y, tile - 23);
                 break;
 
             case 71: // BFG Weapon
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("BFG (PS) at ({}, {}).", x, y);
                 }
                 SpawnStatic(x, y, tile - 23);
@@ -633,7 +635,7 @@ void ScanInfoPlane()
                 break;
 
             case 486: // Plasma Detonator
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Plasma detonator (PS) at ({}, {}).", x, y);
                 }
 
@@ -710,7 +712,7 @@ void ScanInfoPlane()
 
 
             case 174:
-                if (::is_ps()) {
+                if (assets_info.is_ps()) {
                     ::SpawnBarrier(en_post_barrier, x, y, false);
                 } else {
                     ::SpawnBarrier(en_arc_barrier, x, y, true);
@@ -726,7 +728,7 @@ void ScanInfoPlane()
 
             case 138:
             case 139:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Switchable arc barrier (PS) at ({}, {}).", x, y);
                 }
 
@@ -745,7 +747,7 @@ void ScanInfoPlane()
             //
             case 563: // On
             case 562: // Off
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Switchable post barrier (PS) at ({}, {}).", x, y);
                 }
 
@@ -765,7 +767,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 565:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Cyclic post barrier (PS) at ({}, {}).", x, y);
                 }
 
@@ -781,7 +783,7 @@ void ScanInfoPlane()
             //
             case 426: // On
             case 425: // Off
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Spike barrier (PS) at ({}, {}).", x, y);
                 }
 
@@ -801,7 +803,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 428:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Cyclic spike barrier (PS) at ({}, {}).", x, y);
                 }
                 SpawnBarrier(en_vspike_barrier, x, y, 0);
@@ -842,7 +844,7 @@ void ScanInfoPlane()
                     GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<uint8_t>(y);
                     GoldsternInfo.SpawnCnt++;
 
-                    if (::is_ps() && gamestate.mapon == GOLD_MORPH_LEVEL) {
+                    if (assets_info.is_ps() && gamestate.mapon == GOLD_MORPH_LEVEL) {
                         AddTotalPoints(actor_points[goldsternobj - rentacopobj]);
                         AddTotalEnemy(1);
                     }
@@ -854,7 +856,7 @@ void ScanInfoPlane()
             //
 
             case 141:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Goldstern spawn (PS) at ({}, {}).", x, y);
                 }
 
@@ -895,7 +897,7 @@ void ScanInfoPlane()
             case 177:
                 ::SpawnOffsetObj(en_rotating_cube, x, y);
 
-                if (::is_ps()) {
+                if (assets_info.is_ps()) {
                     ::new_actor = nullptr;
                 }
 
@@ -1195,7 +1197,7 @@ void ScanInfoPlane()
             // Black Ooze
             //
             case 313:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Black ooze (PS) at ({}, {}).", x, y);
                 }
 
@@ -1204,7 +1206,7 @@ void ScanInfoPlane()
                 }
                 tile -= 18;
             case 295:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Black ooze (PS) at ({}, {}).", x, y);
                 }
 
@@ -1213,7 +1215,7 @@ void ScanInfoPlane()
                 }
                 tile -= 18;
             case 277:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Black ooze (PS) at ({}, {}).", x, y);
                 }
 
@@ -1226,7 +1228,7 @@ void ScanInfoPlane()
             // Green Ooze
             //
             case 322:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Green ooze (PS) at ({}, {}).", x, y);
                 }
 
@@ -1235,7 +1237,7 @@ void ScanInfoPlane()
                 }
                 tile -= 18;
             case 304:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Green ooze (PS) at ({}, {}).", x, y);
                 }
 
@@ -1244,7 +1246,7 @@ void ScanInfoPlane()
                 }
                 tile -= 18;
             case 286:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     ::Quit("Green ooze (PS) at ({}, {}).", x, y);
                 }
 
@@ -1259,7 +1261,7 @@ void ScanInfoPlane()
             case 355:
             case 356:
             case 357:
-                if (::is_aog_sw()) {
+                if (assets_info.is_aog_sw()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1271,7 +1273,7 @@ void ScanInfoPlane()
             case 337:
             case 338:
             case 339:
-                if (::is_aog_sw()) {
+                if (assets_info.is_aog_sw()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1283,7 +1285,7 @@ void ScanInfoPlane()
             case 319:
             case 320:
             case 321:
-                if (::is_aog_sw()) {
+                if (assets_info.is_aog_sw()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1311,7 +1313,7 @@ void ScanInfoPlane()
                 // Cyborg Warrior
                 //
             case 603:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1319,7 +1321,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 585:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1335,7 +1337,7 @@ void ScanInfoPlane()
                 // Spider Mutant
                 //
             case 601:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1343,7 +1345,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 583:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1358,7 +1360,7 @@ void ScanInfoPlane()
                 // Acid Dragon
                 //
             case 605:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1366,7 +1368,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 587:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1382,7 +1384,7 @@ void ScanInfoPlane()
                 // Breather beast
                 //
             case 602:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1390,7 +1392,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 584:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1406,7 +1408,7 @@ void ScanInfoPlane()
             // Mech Guardian
             //
             case 606:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1414,7 +1416,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 588:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1430,7 +1432,7 @@ void ScanInfoPlane()
             // Reptilian Warrior
             //
             case 604:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1438,7 +1440,7 @@ void ScanInfoPlane()
                     break;
                 }
             case 586:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1628,7 +1630,7 @@ void ScanInfoPlane()
             // Morphing Brown/LBlue Post -> Spider Mutant
             //
             case 610:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1637,7 +1639,7 @@ void ScanInfoPlane()
                 }
 
             case 609:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1646,7 +1648,7 @@ void ScanInfoPlane()
                 }
 
             case 608:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1664,7 +1666,7 @@ void ScanInfoPlane()
             // Morphing Gray/Green Post -> Reptilian Warrior
             //
             case 592:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1673,7 +1675,7 @@ void ScanInfoPlane()
                 }
 
             case 591:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1682,7 +1684,7 @@ void ScanInfoPlane()
                 }
 
             case 590:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1701,7 +1703,7 @@ void ScanInfoPlane()
             // Morphing Statue -> Blue Boy
             //
             case 628:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1710,7 +1712,7 @@ void ScanInfoPlane()
                 }
 
             case 627:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -1719,7 +1721,7 @@ void ScanInfoPlane()
                 }
 
             case 626:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -2065,7 +2067,7 @@ void ScanInfoPlane()
             case 631: // FINAL BOSS 2
             case 632: // FINAL BOSS 3
             case 633: // FINAL BOSS 4
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     INVALID_ACTOR_ERR;
                 }
 
@@ -2191,6 +2193,8 @@ void SetupGameLevel()
         ::wallheight.end(),
         0);
 
+	const auto& assets_info = AssetsInfo{};
+
     map = mapsegs[0];
     map2 = mapsegs[1];
     for (y = 0; y < mapheight; y++) {
@@ -2212,7 +2216,7 @@ void SetupGameLevel()
                 case CLOAK_TILE:
                 case LINC_TILE:
                 case CLOAK_AMBUSH_TILE:
-                    if (!::is_ps()) {
+                    if (!assets_info.is_ps()) {
                         INVALID_ACTOR_ERR;
                     }
                 case AMBUSHTILE:
@@ -2224,7 +2228,7 @@ void SetupGameLevel()
                 }
             }
 
-            if ((::is_ps() && tile < 64) || icon == PUSHABLETILE) {
+            if ((assets_info.is_ps() && tile < 64) || icon == PUSHABLETILE) {
                 TravelTable[x][y] |= TT_TRAVELED;
             }
         }
@@ -2283,7 +2287,7 @@ void SetupGameLevel()
                     break;
 
                 case 57:
-                    if (::is_ps()) {
+                    if (assets_info.is_ps()) {
                         lock = kt_none;
                         break;
                     }
@@ -2293,7 +2297,7 @@ void SetupGameLevel()
                     break;
 
                 case 59:
-                    if (::is_ps()) {
+                    if (assets_info.is_ps()) {
                         lock = kt_none;
                         break;
                     }
@@ -2391,7 +2395,7 @@ void SetupGameLevel()
                 case ON_SWITCH:
                     switchon = true;
                 case OFF_SWITCH: {
-                    if (::is_aog()) {
+                    if (assets_info.is_aog()) {
                         if (map1[1] != 0) {
                             uint8_t level = 0xFF;
 
@@ -2494,7 +2498,7 @@ void SetupGameLevel()
             case CLOAK_TILE:
             case LINC_TILE:
             case CLOAK_AMBUSH_TILE:
-                if (!::is_ps()) {
+                if (!assets_info.is_ps()) {
                     break;
                 }
             case AMBUSHTILE:
@@ -2514,7 +2518,7 @@ void SetupGameLevel()
 //
     CA_LoadAllSounds();
 
-    if (::is_aog()) {
+    if (assets_info.is_aog()) {
         if (!is_red_key_present &&
             gamestate.mapon > 0 &&
             gamestate.mapon < 10 &&
@@ -2523,7 +2527,7 @@ void SetupGameLevel()
             ::Quit("No red key on floor {}.", gamestate.mapon);
         }
 
-        if (::is_aog_full() &&
+        if (assets_info.is_aog_full() &&
             gamestate.episode == 5 &&
             gamestate.mapon == 9 &&
             !is_projection_generator_present)
@@ -2674,30 +2678,32 @@ void ShadowPrintLocationText(
 
 // Print LOCATION info...
 //
+	const auto& assets_info = AssetsInfo{};
+
     switch (type) {
     case sp_normal:
         // Print LEVEL info...
         //
 
-        if (::is_aog()) {
+        if (assets_info.is_aog()) {
             ::px = 17;
         } else {
             ::px = 13;
         }
 
-        if ((!::is_ps() && (gamestate.mapon % 10) == 0) ||
-            (::is_ps() && gamestate.mapon > 19))
+        if ((!assets_info.is_ps() && (gamestate.mapon % 10) == 0) ||
+            (assets_info.is_ps() && gamestate.mapon > 19))
         {
             ::ShPrint(" SECRET ", 0, false);
         } else {
-            if (!::is_ps()) {
+            if (!assets_info.is_ps()) {
                 ShPrint("FLOOR: ", 0, false);
             } else {
                 ShPrint(" AREA: ", 0, false);
             }
             if (!type) {
                 auto map_string = std::to_string(
-                    ::is_aog() ? gamestate.mapon : gamestate.mapon + 1);
+                    assets_info.is_aog() ? gamestate.mapon : gamestate.mapon + 1);
 
                 ::ShPrint(map_string.c_str(), 0, false);
             }
@@ -3270,7 +3276,9 @@ restartgame:
             piStringTable[0] = Score;
 
             if (playstate == ex_victorious) {
-                if (!::is_ps()) {
+				const auto& assets_info = AssetsInfo{};
+
+                if (!assets_info.is_ps()) {
                     ::vid_is_movie = true;
 
                     movie_t movie = mv_intro;
@@ -3356,6 +3364,8 @@ static bool is_map_compressed_size_match(
 
 static void fix_level_inplace()
 {
+	const auto& assets_info = AssetsInfo{};
+
     static const std::vector<int> e2m6_sizes = {
         // v1.0
         6412,
@@ -3377,7 +3387,7 @@ static void fix_level_inplace()
     // (E2M6; x: 38; y: 26)
     // (E2M6; x: 55; y: 33)
     //
-    if (::is_aog_full() &&
+    if (assets_info.is_aog_full() &&
         !::loadedgame &&
         ::gamestate.episode == 1 &&
         ::gamestate.mapon == 6 &&

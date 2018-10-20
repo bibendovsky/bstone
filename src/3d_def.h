@@ -4666,51 +4666,6 @@ inline void deserialize_field(
 }
 
 
-enum class GameType
-{
-	none,
-	aog_sw_v1_0, // Aliens Of Gold (shareware, v1.0)
-	aog_sw_v2_0, // Aliens Of Gold (shareware, v2.0)
-	aog_sw_v2_1, // Aliens Of Gold (shareware, v2.1)
-	aog_sw_v3_0, // Aliens Of Gold (shareware, v3.0)
-	aog_full_v1_0, // Aliens Of Gold (full, v1.0)
-	aog_full_v2_0, // Aliens Of Gold (full, v2.0)
-	aog_full_v2_1, // Aliens Of Gold (full, v2.1)
-	aog_full_v3_0, // Aliens Of Gold (full, v3.0)
-	ps, // Planet Strike (full, v1.0/v1.1)
-}; // GameType
-
-extern GameType g_game_type;
-
-bool is_aog_full_v1_0();
-
-bool is_aog_full_v2_0();
-
-bool is_aog_full_v2_1();
-
-bool is_aog_full_v2_x();
-
-bool is_aog_full_v3_0();
-
-bool is_aog_full();
-
-bool is_aog_sw_v1_0();
-
-bool is_aog_sw_v2_0();
-
-bool is_aog_sw_v2_1();
-
-bool is_aog_sw_v2_x();
-
-bool is_aog_sw_v3_0();
-
-bool is_aog_sw();
-
-bool is_aog();
-
-bool is_ps();
-
-
 void InitSmartSpeedAnim(
     objtype* obj,
     uint16_t ShapeNum,

@@ -428,66 +428,14 @@ extern int16_t EpisodeSelect[];
 namespace {
 
 
-int get_ref_vgahead_offset_count(
-	GameType game_type)
+int get_vgahead_offset_count()
 {
-	switch (game_type)
-	{
-	case GameType::aog_sw_v1_0:
-		return 213;
+	const auto& assets_info = AssetsInfo{};
 
-	case GameType::aog_full_v1_0:
-		return 213;
-
-	case GameType::aog_sw_v2_0:
-	case GameType::aog_sw_v2_1:
-	case GameType::aog_full_v2_0:
-	case GameType::aog_full_v2_1:
-		return 224;
-
-	case GameType::aog_sw_v3_0:
-	case GameType::aog_full_v3_0:
-		return 226;
-
-	case GameType::ps:
-		return 249;
-
-	default:
-		throw std::runtime_error("Invalid game type.");
-	}
-}
-
-const std::string& get_file_extension(
-	const GameType game_type)
-{
-	switch (game_type)
-	{
-	case GameType::aog_sw_v1_0:
-	case GameType::aog_sw_v2_0:
-	case GameType::aog_sw_v2_1:
-	case GameType::aog_sw_v3_0:
-		return Assets::aog_sw_extension;
-
-	case GameType::aog_full_v1_0:
-	case GameType::aog_full_v2_0:
-	case GameType::aog_full_v2_1:
-	case GameType::aog_full_v3_0:
-		return Assets::aog_full_extension;
-
-	case GameType::ps:
-		return Assets::ps_extension;
-
-	default:
-		throw std::runtime_error("Invalid game type.");
-	}
-}
-
-int get_vgahead_offset_count(
-	const GameType game_type)
-{
 	auto file_stream = bstone::FileStream{};
-	const auto file_extension = get_file_extension(game_type);
-	const auto is_open = ::ca_open_resource_non_fatal(Assets::gfx_header_base_name, file_extension, file_stream);
+	const auto& base_name = Assets::gfx_header_base_name;
+	const auto& file_extension = assets_info.get_extension();
+	const auto is_open = ::ca_open_resource_non_fatal(base_name, file_extension, file_stream);
 
 	if (!is_open)
 	{
@@ -504,16 +452,15 @@ int get_vgahead_offset_count(
 	return static_cast<int>(file_size / FILEPOSSIZE);
 }
 
-bool check_vgahead_offset_count(
-	const GameType game_type)
+bool check_vgahead_offset_count()
 {
-	const auto offset_count = get_vgahead_offset_count(game_type);
-	return offset_count == get_ref_vgahead_offset_count(game_type);
+	const auto& assets_info = AssetsInfo{};
+	const auto offset_count = get_vgahead_offset_count();
+	return offset_count == assets_info.get_gfx_header_offset_count();
 }
 
-
 bool check_for_files(
-	const Assets::RefList& base_names,
+	const AssetsCRefStrings& base_names,
 	const std::string& extension)
 {
 	auto file_stream = bstone::FileStream{};
@@ -529,11 +476,11 @@ bool check_for_files(
 	return true;
 }
 
-Assets::BaseNameToHashMap get_assets_hashes(
-	const Assets::RefList& base_names,
+AssetsBaseNameToHashMap get_assets_hashes(
+	const AssetsCRefStrings& base_names,
 	const std::string& extension)
 {
-	auto map = Assets::BaseNameToHashMap{};
+	auto map = AssetsBaseNameToHashMap{};
 
 	for (const auto& base_name : base_names)
 	{
@@ -551,8 +498,8 @@ Assets::BaseNameToHashMap get_assets_hashes(
 }
 
 bool compare_assets_hashes(
-	const Assets::BaseNameToHashMap& lhs,
-	const Assets::BaseNameToHashMap& rhs)
+	const AssetsBaseNameToHashMap& lhs,
+	const AssetsBaseNameToHashMap& rhs)
 {
 	if (lhs.size() != rhs.size())
 	{
@@ -580,17 +527,19 @@ bool compare_assets_hashes(
 bool find_aog_assets(
 	const bool is_required,
 	const std::string& title,
-	const Assets::RefList& base_names,
+	const AssetsCRefStrings& base_names,
 	const std::string& extension,
-	const Assets::BaseNameToHashMap& hashes_v1_0,
-	const Assets::BaseNameToHashMap& hashes_v2_0,
-	const Assets::BaseNameToHashMap& hashes_v2_1,
-	const Assets::BaseNameToHashMap& hashes_v3_0,
-	const GameType game_type_v1_0,
-	const GameType game_type_v2_0,
-	const GameType game_type_v2_1,
-	const GameType game_type_v3_0)
+	const AssetsBaseNameToHashMap& hashes_v1_0,
+	const AssetsBaseNameToHashMap& hashes_v2_0,
+	const AssetsBaseNameToHashMap& hashes_v2_1,
+	const AssetsBaseNameToHashMap& hashes_v3_0,
+	const AssetsVersion v1_0,
+	const AssetsVersion v2_0,
+	const AssetsVersion v2_1,
+	const AssetsVersion v3_0)
 {
+	auto assets_info = AssetsInfo{};
+
 	const auto has_assets = check_for_files(base_names, extension);
 
 	if (!has_assets)
@@ -617,29 +566,48 @@ bool find_aog_assets(
 
 	if (compare_assets_hashes(hashes, hashes_v1_0))
 	{
-		::g_game_type = game_type_v1_0;
+		assets_info.set_version(v1_0);
+		assets_info.set_base_names(base_names);
+		assets_info.set_extension(extension);
+		assets_info.set_base_name_to_hash_map(hashes_v1_0);
+
 		bstone::Log::write("Found \"{}\" v1.0.", title);
+
 		return true;
 	}
 
 	if (compare_assets_hashes(hashes, hashes_v2_0))
 	{
-		::g_game_type = game_type_v2_0;
+		assets_info.set_version(v2_0);
+		assets_info.set_base_names(base_names);
+		assets_info.set_extension(extension);
+		assets_info.set_base_name_to_hash_map(hashes_v2_0);
+
 		bstone::Log::write("Found \"{}\" v2.0.", title);
 		return true;
 	}
 
 	if (compare_assets_hashes(hashes, hashes_v2_1))
 	{
-		::g_game_type = game_type_v2_1;
+		assets_info.set_version(v2_1);
+		assets_info.set_base_names(base_names);
+		assets_info.set_extension(extension);
+		assets_info.set_base_name_to_hash_map(hashes_v2_1);
+
 		bstone::Log::write("Found \"{}\" v2.1.", title);
+
 		return true;
 	}
 
 	if (compare_assets_hashes(hashes, hashes_v3_0))
 	{
-		::g_game_type = game_type_v3_0;
+		assets_info.set_version(v3_0);
+		assets_info.set_base_names(base_names);
+		assets_info.set_extension(extension);
+		assets_info.set_base_name_to_hash_map(hashes_v3_0);
+
 		bstone::Log::write("Found \"{}\" v3.0.", title);
+
 		return true;
 	}
 
@@ -670,10 +638,10 @@ bool find_aog_full_assets(
 		Assets::get_aog_full_v2_0_base_name_to_hash_map(),
 		Assets::get_aog_full_v2_1_base_name_to_hash_map(),
 		Assets::get_aog_full_v3_0_base_name_to_hash_map(),
-		GameType::aog_full_v1_0,
-		GameType::aog_full_v2_0,
-		GameType::aog_full_v2_1,
-		GameType::aog_full_v3_0);
+		AssetsVersion::aog_full_v1_0,
+		AssetsVersion::aog_full_v2_0,
+		AssetsVersion::aog_full_v2_1,
+		AssetsVersion::aog_full_v3_0);
 
 	return is_found;
 }
@@ -697,10 +665,10 @@ bool find_aog_sw_assets(
 		Assets::get_aog_sw_v2_0_base_name_to_hash_map(),
 		Assets::get_aog_sw_v2_1_base_name_to_hash_map(),
 		Assets::get_aog_sw_v3_0_base_name_to_hash_map(),
-		GameType::aog_sw_v1_0,
-		GameType::aog_sw_v2_0,
-		GameType::aog_sw_v2_1,
-		GameType::aog_sw_v3_0);
+		AssetsVersion::aog_sw_v1_0,
+		AssetsVersion::aog_sw_v2_0,
+		AssetsVersion::aog_sw_v2_1,
+		AssetsVersion::aog_sw_v3_0);
 
 	return is_found;
 }
@@ -736,7 +704,13 @@ bool find_ps_assets(
 
 	if (compare_assets_hashes(hashes, Assets::get_ps_base_name_to_hash_map()))
 	{
-		::g_game_type = GameType::ps;
+		auto assets_info = AssetsInfo{};
+
+		assets_info.set_version(AssetsVersion::ps);
+		assets_info.set_base_names(Assets::get_ps_base_names());
+		assets_info.set_extension(Assets::ps_extension);
+		assets_info.set_base_name_to_hash_map(Assets::get_ps_base_name_to_hash_map());
+
 		bstone::Log::write("Found \"{}\".", title);
 		return true;
 	}
@@ -759,6 +733,8 @@ void find_ps_assets()
 void find_any_assets()
 {
 	bstone::Log::write("Probing for assets...");
+
+	auto assets_info = AssetsInfo{};
 
 	if (find_aog_full_assets(false))
 	{
@@ -804,13 +780,11 @@ void find_assets()
 
 void CheckForEpisodes()
 {
-	::g_game_type = {};
-
 	find_assets();
 
-	::extension = ::get_file_extension(::g_game_type);
+	const auto& assets_info = AssetsInfo{};
 
-	if (::is_aog_full())
+	if (assets_info.is_aog_full())
 	{
 		for (int i = 1; i < 6; ++i)
 		{
@@ -837,7 +811,9 @@ void PreDemo()
     VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
     if (!(gamestate.flags & GS_NOWAIT)) {
-        if (::is_aog_full()) {
+		const auto& assets_info = AssetsInfo{};
+
+        if (assets_info.is_aog_full()) {
             // ---------------------
             // Anti-piracy screen
             // ---------------------
@@ -892,7 +868,7 @@ void PreDemo()
         VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]));
         VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 0);
         VW_UpdateScreen();
-        if (::is_aog()) {
+        if (assets_info.is_aog()) {
             VL_FadeOut(0, 255, 0, 0, 0, 20);
         } else {
             VL_FadeOut(0, 255, 25, 29, 53, 20);
@@ -918,7 +894,7 @@ void PreDemo()
         delete [] audiosegs[STARTMUSIC + APOGFNFM_MUS];
         audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
 
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             // Do A Blue Flash!
             ::VL_FadeOut(0, 255, 25, 29, 53, 20);
         } else {
@@ -951,7 +927,7 @@ void PreDemo()
 
         // Do A Red Flash!
 
-        if (::is_aog()) {
+        if (assets_info.is_aog()) {
             ::VL_FadeOut(0, 255, 39, 0, 0, 20);
         } else {
             ::VL_FadeOut(0, 255, 0, 0, 0, 20);

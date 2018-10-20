@@ -58,7 +58,7 @@ struct anim_chunk {
 //
 struct MovieStuff_t
 {
-	std::reference_wrapper<const std::string> file_name;
+	AssetsCRefString file_name;
 	std::int8_t rep;
 	std::int8_t ticdelay;
 
