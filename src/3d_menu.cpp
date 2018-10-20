@@ -1309,7 +1309,7 @@ void US_ControlPanel(
 	const auto& assets_info = AssetsInfo{};
 
     menu_background_color = (
-        (assets_info.is_aog_sw() | assets_info.is_aog_full_v3_0()) ?
+        (assets_info.is_aog_sw_v3_0() | assets_info.is_aog_full_v3_0()) ?
         0x04 :
         TERM_BACK_COLOR);
 
@@ -4610,7 +4610,7 @@ void ExitGame()
 
 	const auto& assets_info = AssetsInfo{};
 
-    if (assets_info.is_aog_sw() && !::g_no_intro_outro && !::g_no_screens)
+    if (assets_info.is_aog_sw_v3_0() && !::g_no_intro_outro && !::g_no_screens)
     {
         ::ShowPromo();
     }
