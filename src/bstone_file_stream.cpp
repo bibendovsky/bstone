@@ -28,19 +28,22 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_file_stream.h"
+#include <utility>
 #include "SDL.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-namespace {
+namespace
+{
 
 
 SDL_RWops* get_sdl_context(
-    void* context)
+	void* context)
 {
-    return static_cast<SDL_RWops*>(context);
+	return static_cast<SDL_RWops*>(context);
 }
 
 
@@ -48,241 +51,259 @@ SDL_RWops* get_sdl_context(
 
 
 FileStream::FileStream() :
-        context_(),
-        can_read_(),
-        can_seek_(),
-        can_write_()
+	context_{},
+	is_readable_{},
+	is_seekable_{},
+	is_writable_{}
 {
 }
 
 FileStream::FileStream(
-    const std::string& file_name,
-    StreamOpenMode open_mode) :
-        context_(),
-        can_read_(),
-        can_seek_(),
-        can_write_()
+	const std::string& file_name,
+	StreamOpenMode open_mode)
+	:
+	context_{},
+	is_readable_{},
+	is_seekable_{},
+	is_writable_{}
 {
-    open(file_name, open_mode);
+	static_cast<void>(open(file_name, open_mode));
 }
 
-// (virtual)
+FileStream::FileStream(
+	FileStream&& rhs)
+	:
+	context_{std::move(rhs.context_)},
+	is_readable_{std::move(rhs.is_readable_)},
+	is_seekable_{std::move(rhs.is_seekable_)},
+	is_writable_{std::move(rhs.is_writable_)}
+{
+	rhs.context_ = nullptr;
+	rhs.is_readable_ = false;
+	rhs.is_seekable_ = false;
+	rhs.is_writable_ = false;
+}
+
 FileStream::~FileStream()
 {
-    close();
+	close_internal();
 }
 
 bool FileStream::open(
-    const std::string& file_name,
-    StreamOpenMode open_mode)
+	const std::string& file_name,
+	const StreamOpenMode open_mode)
 {
-    close();
+	close_internal();
 
 
-    auto mode = "";
-    bool is_readable = false;
-    bool is_writable = false;
+	auto mode = "";
+	bool is_readable = false;
+	bool is_writable = false;
 
-    switch (open_mode) {
-    case StreamOpenMode::read:
-        mode = "rb";
-        is_readable = true;
-        break;
+	switch (open_mode)
+	{
+	case StreamOpenMode::read:
+		mode = "rb";
+		is_readable = true;
+		break;
 
-    case StreamOpenMode::write:
-        mode = "wb";
-        is_writable = true;
-        break;
+	case StreamOpenMode::write:
+		mode = "wb";
+		is_writable = true;
+		break;
 
-    case StreamOpenMode::read_write:
-        mode = "r+b";
-        is_readable = true;
-        is_writable = true;
-        break;
+	case StreamOpenMode::read_write:
+		mode = "r+b";
+		is_readable = true;
+		is_writable = true;
+		break;
 
-    default:
-        return false;
-    }
+	default:
+		return false;
+	}
 
 
-    auto sdl_context = ::SDL_RWFromFile(file_name.c_str(), mode);
+	auto sdl_context = ::SDL_RWFromFile(file_name.c_str(), mode);
 
-    if (!sdl_context) {
-        return false;
-    }
+	if (!sdl_context)
+	{
+		return false;
+	}
 
-    context_ = sdl_context;
-    can_read_ = is_readable;
-    can_seek_ = true;
-    can_write_ = is_writable;
+	context_ = sdl_context;
+	is_readable_ = is_readable;
+	is_seekable_ = true;
+	is_writable_ = is_writable;
 
-    return true;
+	return true;
 }
 
-// (virtual)
 void FileStream::close()
 {
-    if (context_) {
-        auto sdl_context = get_sdl_context(context_);
-        static_cast<void>(SDL_RWclose(sdl_context));
-        context_ = nullptr;
-    }
-
-    can_read_ = false;
-    can_seek_ = false;
-    can_write_ = false;
+	close_internal();
 }
 
-// (virtual)
 bool FileStream::is_open() const
 {
-    return context_ != nullptr;
+	return context_ != nullptr;
 }
 
-// (virtual)
-int64_t FileStream::get_size()
+std::int64_t FileStream::get_size()
 {
-    if (!is_open()) {
-        return 0;
-    }
+	if (!context_)
+	{
+		return 0;
+	}
 
-    return SDL_RWsize(get_sdl_context(context_));
+	return SDL_RWsize(get_sdl_context(context_));
 }
 
-// (virtual)
 bool FileStream::set_size(
-    int64_t size)
+	const std::int64_t size)
 {
-    static_cast<void>(size);
-    return false;
+	static_cast<void>(size);
+
+	return false;
 }
 
-// (virtual)
-int64_t FileStream::seek(
-    int64_t offset,
-    StreamSeekOrigin origin)
+std::int64_t FileStream::seek(
+	const std::int64_t offset,
+	const StreamSeekOrigin origin)
 {
-    if (!is_open()) {
-        return -1;
-    }
+	if (!context_)
+	{
+		return -1;
+	}
 
-    if (!can_seek()) {
-        return -1;
-    }
+	if (!is_seekable_)
+	{
+		return -1;
+	}
 
 
-    int whence = 0;
+	auto whence = 0;
 
-    switch (origin) {
-    case StreamSeekOrigin::begin:
-        whence = RW_SEEK_SET;
-        break;
+	switch (origin)
+	{
+	case StreamSeekOrigin::begin:
+		whence = RW_SEEK_SET;
+		break;
 
-    case StreamSeekOrigin::current:
-        whence = RW_SEEK_CUR;
-        break;
+	case StreamSeekOrigin::current:
+		whence = RW_SEEK_CUR;
+		break;
 
-    case StreamSeekOrigin::end:
-        whence = RW_SEEK_END;
-        break;
+	case StreamSeekOrigin::end:
+		whence = RW_SEEK_END;
+		break;
 
-    default:
-        return -1;
-    }
+	default:
+		return -1;
+	}
 
-    auto position = SDL_RWseek(
-        get_sdl_context(context_),
-        offset,
-        whence);
+	const auto position = SDL_RWseek(get_sdl_context(context_), offset, whence);
 
-    return position;
+	return position;
 }
 
-// (virtual)
 int FileStream::read(
-    void* buffer,
-    int count)
+	void* buffer,
+	const int count)
 {
-    if (!is_open()) {
-        return 0;
-    }
+	if (!context_)
+	{
+		return 0;
+	}
 
-    if (!can_read()) {
-        return 0;
-    }
+	if (!is_readable_)
+	{
+		return 0;
+	}
 
-    if (!buffer) {
-        return 0;
-    }
+	if (!buffer)
+	{
+		return 0;
+	}
 
-    if (count <= 0) {
-        return 0;
-    }
+	if (count <= 0)
+	{
+		return 0;
+	}
 
-    return static_cast<int>(SDL_RWread(
-        get_sdl_context(context_),
-        buffer,
-        1,
-        count));
+	const auto read_result = static_cast<int>(SDL_RWread(get_sdl_context(context_), buffer, 1, count));
+
+	return read_result;
 }
 
-// (virtual)
 bool FileStream::write(
-    const void* buffer,
-    int count)
+	const void* buffer,
+	const int count)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!context_)
+	{
+		return false;
+	}
 
-    if (!can_write()) {
-        return false;
-    }
+	if (!is_writable_)
+	{
+		return false;
+	}
 
-    if (count < 0) {
-        return false;
-    }
+	if (count < 0)
+	{
+		return false;
+	}
 
-    if (count == 0) {
-        return true;
-    }
+	if (count == 0)
+	{
+		return true;
+	}
 
-    if (!buffer) {
-        return false;
-    }
+	if (!buffer)
+	{
+		return false;
+	}
 
-    auto written_count = static_cast<int>(SDL_RWwrite(
-        get_sdl_context(context_),
-        buffer,
-        1,
-        count));
+	auto write_result = static_cast<int>(SDL_RWwrite(get_sdl_context(context_), buffer, 1, count));
 
-    return written_count == count;
+	return write_result == count;
 }
 
-// (virtual)
-bool FileStream::can_read() const
+bool FileStream::is_readable() const
 {
-    return is_open() && can_read_;
+	return is_open() && is_readable_;
 }
 
-// (virtual)
-bool FileStream::can_seek() const
+bool FileStream::is_seekable() const
 {
-    return is_open() && can_seek_;
+	return context_ && is_seekable_;
 }
 
-// (virtual)
-bool FileStream::can_write() const
+bool FileStream::is_writable() const
 {
-    return is_open() && can_write_;
+	return context_ && is_writable_;
 }
 
-// (static)
 bool FileStream::is_exists(
-    const std::string& file_name)
+	const std::string& file_name)
 {
-    return FileStream(file_name).is_open();
+	const auto is_open = FileStream{file_name}.is_open();
+
+	return is_open;
+}
+
+void FileStream::close_internal()
+{
+	if (context_)
+	{
+		auto sdl_context = get_sdl_context(context_);
+		static_cast<void>(SDL_RWclose(sdl_context));
+		context_ = nullptr;
+	}
+
+	is_readable_ = false;
+	is_seekable_ = false;
+	is_writable_ = false;
 }
 
 

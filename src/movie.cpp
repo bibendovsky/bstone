@@ -97,12 +97,13 @@ const void* movie_palette;
 // NOTE: This list is ordered according to mv_???? enum list.
 //
 
-Movies movies = {
-    { "IANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_intro
-    { "EANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_final
-    { "SANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_final2
-    { "GANIM.", 1, 3, 0, 0, 200, nullptr, }, // mv_final3
-};
+Movies movies =
+{
+	{Assets::intro_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_intro
+	{Assets::episode_6_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_final
+	{Assets::episode_2_4_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_final2
+	{Assets::episode_3_5_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_final3
+}; // movies
 
 
 // ===========================================================================

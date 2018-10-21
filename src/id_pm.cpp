@@ -27,8 +27,6 @@ Free Software Foundation, Inc.,
 
 
 // File specific variables
-std::string PageFileName = "VSWAP.";
-
 int ChunksInFile = 0;
 int PMSpriteStart = 0;
 int PMSoundStart = 0;
@@ -80,7 +78,7 @@ static void open_page_file(
 void PM_Startup()
 {
     ::PM_Shutdown();
-    ::open_page_file(PageFileName);
+    ::open_page_file(Assets::page_file_base_name);
 }
 
 void PM_Shutdown()

@@ -69,6 +69,181 @@ struct mapfiletype {
 //      uint8_t           tileinfo[];
 }; // mapfiletype
 
+
+using AssetsCRefString = std::reference_wrapper<const std::string>;
+
+using AssetsCRefStrings = std::vector<AssetsCRefString>;
+
+using AssetsBaseNameToHashMap = std::unordered_map<
+	AssetsCRefString,
+	std::string,
+	std::hash<std::string>,
+	std::equal_to<std::string>>;
+
+
+enum class AssetsVersion
+{
+	none,
+	aog_sw_v1_0, // Aliens Of Gold (shareware, v1.0)
+	aog_sw_v2_0, // Aliens Of Gold (shareware, v2.0)
+	aog_sw_v2_1, // Aliens Of Gold (shareware, v2.1)
+	aog_sw_v3_0, // Aliens Of Gold (shareware, v3.0)
+	aog_full_v1_0, // Aliens Of Gold (full, v1.0)
+	aog_full_v2_0, // Aliens Of Gold (full, v2.0)
+	aog_full_v2_1, // Aliens Of Gold (full, v2.1)
+	aog_full_v3_0, // Aliens Of Gold (full, v3.0)
+	ps, // Planet Strike (full, v1.0/v1.1)
+}; // AssetsVersion
+
+
+struct AssetsInfo final
+{
+public:
+	AssetsVersion get_version() const;
+
+	void set_version(
+		const AssetsVersion version);
+
+
+	const std::string& get_extension() const;
+
+	void set_extension(
+		const std::string& extension);
+
+
+	const AssetsCRefStrings& get_base_names() const;
+
+	void set_base_names(
+		const AssetsCRefStrings& base_names);
+
+
+	const AssetsBaseNameToHashMap& get_base_name_to_hash_map() const;
+
+	void set_base_name_to_hash_map(
+		const AssetsBaseNameToHashMap& base_name_to_hash_map);
+
+
+	const std::string& get_levels_hash_string() const;
+
+	void set_levels_hash(
+		const std::string& levels_hash);
+
+
+	int get_gfx_header_offset_count() const;
+
+	bool are_modded_levels() const;
+
+
+	bool is_aog_full_v1_0() const;
+
+	bool is_aog_full_v2_0() const;
+
+	bool is_aog_full_v2_1() const;
+
+	bool is_aog_full_v2_x() const;
+
+	bool is_aog_full_v3_0() const;
+
+	bool is_aog_full() const;
+
+	bool is_aog_sw_v1_0() const;
+
+	bool is_aog_sw_v2_0() const;
+
+	bool is_aog_sw_v2_1() const;
+
+	bool is_aog_sw_v2_x() const;
+
+	bool is_aog_sw_v3_0() const;
+
+	bool is_aog_sw() const;
+
+	bool is_aog() const;
+
+	bool is_ps() const;
+
+
+private:
+	static std::string empty_extension_;
+
+	static AssetsVersion version_;
+
+	static AssetsCRefString extension_;
+
+	static AssetsCRefStrings base_names_;
+
+	static AssetsBaseNameToHashMap base_name_to_hash_map_;
+
+	static std::string levels_hash_;
+
+	static int gfx_header_offset_count_;
+
+	static bool are_modded_levels_;
+}; // AssetsInfo
+
+
+struct Assets final
+{
+	static constexpr auto max_size = 4000000;
+
+	static const std::string& audio_header_base_name;
+	static const std::string& audio_data_base_name;
+
+	static const std::string& map_header_base_name;
+	static const std::string& map_data_base_name;
+
+	static const std::string& gfx_dictionary_base_name;
+	static const std::string& gfx_header_base_name;
+	static const std::string& gfx_data_base_name;
+
+	static const std::string& page_file_base_name;
+
+	static const std::string& episode_6_fmv_base_name;
+	static const std::string& episode_3_5_fmv_base_name;
+	static const std::string& intro_fmv_base_name;
+	static const std::string& episode_2_4_fmv_base_name;
+
+	static const std::string& aog_sw_extension;
+	static const std::string& aog_full_extension;
+	static const std::string& ps_extension;
+
+	static const AssetsCRefStrings& get_extensions();
+
+	static const AssetsCRefStrings& get_base_names();
+
+
+	static const AssetsCRefStrings& get_aog_sw_base_names();
+
+	static const AssetsCRefStrings& get_aog_full_base_names();
+
+	static const AssetsCRefStrings& get_ps_base_names();
+
+
+	static const AssetsBaseNameToHashMap& get_aog_sw_v1_0_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_sw_v2_0_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_sw_v2_1_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_sw_v3_0_base_name_to_hash_map();
+
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v1_0_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v2_0_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v2_1_base_name_to_hash_map();
+
+	static const AssetsBaseNameToHashMap& get_aog_full_v3_0_base_name_to_hash_map();
+
+
+	static const AssetsBaseNameToHashMap& get_ps_base_name_to_hash_map();
+
+
+	static bool are_official_levels(
+		const std::string& levels_hash);
+}; // Assets
+
 // ===========================================================================
 
 using AudioSegments = std::vector<uint8_t*>;
@@ -92,15 +267,6 @@ extern uint8_t ca_levelbit, ca_levelnum;
 extern char* titleptr[8];
 
 extern int16_t profilehandle, debughandle;
-
-extern std::string extension;
-extern const std::string gheadname;
-extern const std::string gfilename;
-extern const std::string gdictname;
-extern const std::string mheadname;
-extern const std::string mfilename;
-extern const std::string aheadname;
-extern const std::string afilename;
 
 extern int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
 extern int32_t* audiostarts; // array of offsets in audio / audiot
@@ -126,8 +292,6 @@ extern huffnode* grhuffman;
 extern huffnode grhuffman[255];
 #endif
 
-extern int map_compressed_size;
-extern std::string map_sha1_string;
 
 // ===========================================================================
 
@@ -190,7 +354,7 @@ void CA_ClearAllMarks();
 void CA_CacheGrChunk(
     int16_t chunk);
 void CA_CacheMap(
-    int16_t mapnum);
+    std::int16_t mapnum);
 
 void CA_CacheMarks();
 
@@ -221,6 +385,12 @@ bool ca_is_resource_exists(
     const std::string& file_name);
 
 bool ca_open_resource_non_fatal(
+	const std::string& data_dir,
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream);
+
+bool ca_open_resource_non_fatal(
     const std::string& file_name_without_ext,
     const std::string& file_extension,
     bstone::FileStream& file_stream);
@@ -228,6 +398,13 @@ bool ca_open_resource_non_fatal(
 void ca_open_resource(
     const std::string& file_name_without_ext,
     bstone::FileStream& file_stream);
+
+std::string ca_calculate_hash(
+	const std::string& data_dir,
+	const std::string& base_name,
+	const std::string& extension);
+
+void ca_dump_hashes();
 
 
 #endif // BSTONE_ID_CA_INCLUDED

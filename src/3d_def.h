@@ -41,7 +41,7 @@ Free Software Foundation, Inc.,
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 4;
+const int BS_SAVE_VERSION = 5;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -2920,6 +2920,7 @@ extern int16_t TITLE_LOOP_MUSIC;
 
 
 extern std::string data_dir;
+extern std::string mod_dir_;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
@@ -3057,11 +3058,11 @@ void InitDestPath();
 
 // On success current stream position is at chunk's data.
 int FindChunk(
-    bstone::IStream* stream,
+    bstone::Stream* stream,
     const std::string& dst_chunk_name);
 
 int NextChunk(
-    bstone::IStream* stream);
+    bstone::Stream* stream);
 
 /*
 =============================================================================
@@ -4357,6 +4358,13 @@ public:
     static const bool value = false;
 }; // ArchiveIsContainter
 
+template<typename T, std::size_t N>
+class ArchiveIsContainter<std::array<T,N>>
+{
+public:
+    static const bool value = true;
+}; // ArchiveIsContainter
+
 template<typename T, typename... TArgs>
 class ArchiveIsContainter<std::vector<T,TArgs...>>
 {
@@ -4664,32 +4672,6 @@ inline void deserialize_field(
         }
     }
 }
-
-
-enum class GameType {
-    none,
-    aog_sw, // Aliens Of Gold (shareware, v3.0)
-    aog_full_v1_0, // Aliens Of Gold (full, v1.0)
-    aog_full_v2_x, // Aliens Of Gold (full, v2.0/v2.1)
-    aog_full_v3_0, // Aliens Of Gold (full, v3.0)
-    ps, // Planet Strike (full, v1.0/v1.1)
-}; // GameType
-
-extern GameType g_game_type;
-
-bool is_aog_full_v1_0();
-
-bool is_aog_full_v2_x();
-
-bool is_aog_full_v3_0();
-
-bool is_aog_full();
-
-bool is_aog_sw();
-
-bool is_aog();
-
-bool is_ps();
 
 
 void InitSmartSpeedAnim(

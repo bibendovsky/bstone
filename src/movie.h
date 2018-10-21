@@ -56,16 +56,17 @@ struct anim_chunk {
 //  start_line -- Starting line of screen to copy to other pages
 //  end_line -- Ending line  "   "   "   "   "   "   "   "
 //
-struct MovieStuff_t {
-    std::string file_name;
-    int8_t rep;
-    int8_t ticdelay;
+struct MovieStuff_t
+{
+	AssetsCRefString file_name;
+	std::int8_t rep;
+	std::int8_t ticdelay;
 
-    uint32_t max_mem_buffer;
+	std::uint32_t max_mem_buffer;
 
-    int16_t start_line;
-    int16_t end_line;
-    const void* palette;
+	std::int16_t start_line;
+	std::int16_t end_line;
+	const void* palette;
 }; // MovieStuff_t
 
 

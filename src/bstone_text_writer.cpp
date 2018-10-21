@@ -41,7 +41,7 @@ TextWriter::TextWriter()
 }
 
 TextWriter::TextWriter(
-    IStream* stream)
+    Stream* stream)
     :
     TextWriter{}
 {
@@ -50,7 +50,7 @@ TextWriter::TextWriter(
 
 
 bool TextWriter::open(
-    IStream* stream)
+    Stream* stream)
 {
     if (!stream)
     {

@@ -757,7 +757,9 @@ ActorMessages ActorInfoMsg = {
 
 void initialize_messages()
 {
-    if (::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_ps()) {
         bevs_msg1 =
             "\r FOOD UNIT DISPENSES\r"
             "  A COLD BEVERAGE.\r"

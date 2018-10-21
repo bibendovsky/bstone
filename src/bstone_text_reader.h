@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <array>
 #include <string>
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 
 
 namespace bstone
@@ -46,7 +46,7 @@ public:
     TextReader();
 
     TextReader(
-        IStream* stream);
+        Stream* stream);
 
     TextReader(
         const TextReader& that) = delete;
@@ -58,7 +58,7 @@ public:
 
 
     bool open(
-        IStream* stream);
+        Stream* stream);
 
     void close();
 
@@ -78,7 +78,7 @@ private:
     using Buffer = std::array<char, max_buffer_size>;
 
 
-    IStream* stream_;
+    Stream* stream_;
     bool is_eos_;
     int buffer_offset_;
     int buffer_size_;

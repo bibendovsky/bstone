@@ -1714,6 +1714,8 @@ bool in_is_binding_pressed(
         return (binding[0] != ScanCode::sc_none && Keyboard[binding[0]]) ||
                (binding[1] != ScanCode::sc_none && Keyboard[binding[1]]);
     } else {
+		const auto& assets_info = AssetsInfo{};
+
         switch (binding_id) {
         case e_bi_forward:
             return Keyboard[dirscan[di_north]];
@@ -1764,7 +1766,7 @@ bool in_is_binding_pressed(
             return Keyboard[ScanCode::sc_6];
 
         case e_bi_weapon_7:
-            if (!::is_ps()) {
+            if (!assets_info.is_ps()) {
                 return false;
             }
 
@@ -1777,14 +1779,14 @@ bool in_is_binding_pressed(
             return Keyboard[ScanCode::sc_tab];
 
         case e_bi_radar_magnify:
-            if (!::is_ps()) {
+            if (!assets_info.is_ps()) {
                 return false;
             }
 
             return Keyboard[ScanCode::sc_equals];
 
         case e_bi_radar_minify:
-            if (!::is_ps()) {
+            if (!assets_info.is_ps()) {
                 return false;
             }
 
@@ -1836,7 +1838,7 @@ bool in_is_binding_pressed(
             return Keyboard[ScanCode::sc_f];
 
         case e_bi_heart_beat:
-            if (!::is_aog()) {
+            if (!assets_info.is_aog()) {
                 return false;
             }
 
@@ -1865,6 +1867,8 @@ void in_reset_binding_state(
             Keyboard[binding[1]] = false;
         }
     } else {
+		const auto& assets_info = AssetsInfo{};
+
         switch (binding_id) {
         case e_bi_forward:
             Keyboard[dirscan[di_north]] = false;
@@ -1932,7 +1936,7 @@ void in_reset_binding_state(
             break;
 
         case e_bi_weapon_7:
-            if (::is_ps()) {
+            if (assets_info.is_ps()) {
                 Keyboard[ScanCode::sc_back_quote] = false;
             }
             break;
@@ -1946,13 +1950,13 @@ void in_reset_binding_state(
             break;
 
         case e_bi_radar_magnify:
-            if (::is_ps()) {
+            if (assets_info.is_ps()) {
                 Keyboard[ScanCode::sc_equals] = false;
             }
             break;
 
         case e_bi_radar_minify:
-            if (::is_ps()) {
+            if (assets_info.is_ps()) {
                 Keyboard[ScanCode::sc_minus] = false;
             }
             break;
@@ -2023,7 +2027,7 @@ void in_reset_binding_state(
             break;
 
         case e_bi_heart_beat:
-            if (::is_aog()) {
+            if (assets_info.is_aog()) {
                 Keyboard[ScanCode::sc_h] = false;
             }
             break;

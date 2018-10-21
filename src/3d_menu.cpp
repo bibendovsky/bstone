@@ -346,13 +346,15 @@ static const std::string& get_saved_game_base_name()
     if (!is_initialized) {
         is_initialized = true;
 
+		const auto& assets_info = AssetsInfo{};
+
         base_name = "bstone_";
 
-        if (::is_aog_sw()) {
+        if (assets_info.is_aog_sw()) {
             base_name += "aog_sw";
-        } else if (::is_aog_full()) {
+        } else if (assets_info.is_aog_full()) {
             base_name += "aog_full";
-        } else if (::is_ps()) {
+        } else if (assets_info.is_ps()) {
             base_name += "ps";
         } else {
             throw std::runtime_error("Invalid game type.");
@@ -1304,8 +1306,10 @@ void US_ControlPanel(
     };
 
     // BBi
+	const auto& assets_info = AssetsInfo{};
+
     menu_background_color = (
-        (::is_aog_sw() | ::is_aog_full_v3_0()) ?
+        (assets_info.is_aog_sw_v3_0() | assets_info.is_aog_full_v3_0()) ?
         0x04 :
         TERM_BACK_COLOR);
 
@@ -1670,10 +1674,11 @@ void CP_NewGame(
     DrawMenuTitle("Difficulty Level");
     DrawInstructions(IT_STANDARD);
 
+	const auto& assets_info = AssetsInfo{};
 
 firstpart:
 
-    if (!::is_ps()) {
+    if (!assets_info.is_ps()) {
         DrawNewEpisode();
         do {
             which = HandleMenu(&NewEitems, &NewEmenu[0], DrawEpisodePic);
@@ -1708,7 +1713,7 @@ firstpart:
     //
     // ALREADY IN A GAME?
     //
-    if (!::is_ps() && ingame) {
+    if (!assets_info.is_ps() && ingame) {
         if (!Confirm(CURGAME)) {
             ::MenuFadeOut();
             return;
@@ -1727,7 +1732,7 @@ secondpart:
     if (which < 0) {
         ::MenuFadeOut();
 
-        if (!::is_ps()) {
+        if (!assets_info.is_ps()) {
             goto firstpart;
         } else {
             return;
@@ -2142,10 +2147,12 @@ void DrawSwitchDescription(
 
     };
 
+	const auto& assets_info = AssetsInfo{};
+
     fontnumber = 2;
 
     WindowX = 48;
-    WindowY = (::is_ps() ? 134 : 144);
+    WindowY = (assets_info.is_ps() ? 134 : 144);
     WindowW = 236;
     WindowH = 8;
 
@@ -3650,9 +3657,11 @@ void DrawOutline(
 
 void SetupControlPanel()
 {
+	const auto& assets_info = AssetsInfo{};
+
     // BBi
-    SwitchItems.amount = (::is_ps() ? 8 : 10);
-    SwitchItems.y = MENU_Y + (::is_ps() ? 11 : 3);
+    SwitchItems.amount = (assets_info.is_ps() ? 8 : 10);
+    SwitchItems.y = MENU_Y + (assets_info.is_ps() ? 11 : 3);
     // BBi
 
     ControlPanelAlloc();
@@ -3989,7 +3998,9 @@ int16_t HandleMenu(
             //
             // ALREADY IN A GAME?
             //
-            if (::is_ps() && ingame && ((items + which)->routine == CP_NewGame)) {
+			const auto& assets_info = AssetsInfo{};
+
+            if (assets_info.is_ps() && ingame && ((items + which)->routine == CP_NewGame)) {
                 if (!Confirm(CURGAME)) {
                     ::MenuFadeOut();
                     return 0;
@@ -4413,7 +4424,9 @@ uint32_t CacheCompData(
     CA_CacheGrChunk(item_number);
     chunk = (char*)grsegs[item_number];
 
-    if (!::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (!assets_info.is_ps()) {
         data_length = ::ca_gr_last_expanded_size;
     } else {
         memcpy(CompHeader.NameId, &chunk[0], 4);
@@ -4431,7 +4444,7 @@ uint32_t CacheCompData(
     dst = new char[data_length];
     *dst_ptr = dst;
 
-    if (!::is_ps()) {
+    if (!assets_info.is_ps()) {
         std::copy(
             chunk,
             &chunk[data_length],
@@ -4595,7 +4608,9 @@ void ExitGame()
 {
     VW_FadeOut();
 
-    if (::is_aog_sw() && !::g_no_intro_outro && !::g_no_screens)
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog_sw_v3_0() && !::g_no_intro_outro && !::g_no_screens)
     {
         ::ShowPromo();
     }
@@ -4902,10 +4917,12 @@ void draw_switch2_description(
         "TOGGLES INTRO/OUTRO",
     };
 
+	const auto& assets_info = AssetsInfo{};
+
     fontnumber = 2;
 
     WindowX = 48;
-    WindowY = (::is_ps() ? 134 : 144);
+    WindowY = (assets_info.is_ps() ? 134 : 144);
     WindowW = 236;
     WindowH = 8;
 
@@ -5008,7 +5025,9 @@ void cp_switches2(
 
 void MenuFadeOut()
 {
-    if (::is_aog()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog()) {
         ::VL_FadeOut(0, 255, 44, 0, 0, 10);
     } else {
         ::VL_FadeOut(0, 255, 40, 44, 44, 10);

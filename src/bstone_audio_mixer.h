@@ -35,9 +35,9 @@ Free Software Foundation, Inc.,
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
 #include <mutex>
+#include <thread>
 #endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
-#include <thread>
 #include <vector>
 #include "SDL.h"
 #include "bstone_atomic.h"

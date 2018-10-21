@@ -423,7 +423,9 @@ bool DebugKeys()
 		::HealSelf(99);
 		::GiveToken(5);
 
-		const auto n = static_cast<int>(::is_ps() ? wp_bfg_cannon : wp_grenade);
+		const auto& assets_info = AssetsInfo{};
+
+		const auto n = static_cast<int>(assets_info.is_ps() ? wp_bfg_cannon : wp_grenade);
 
 		for (auto i = static_cast<int>(wp_autocharge); i <= n; ++i)
 		{
@@ -556,7 +558,9 @@ bool DebugKeys()
 
 		if (!esc && string[0] != '\0')
 		{
-			const auto max_warp_level = (::is_aog() ? 10 : 23);
+			const auto& assets_info = AssetsInfo{};
+
+			const auto max_warp_level = (assets_info.is_aog() ? 10 : 23);
 			const auto level = ::atoi(string);
 
 			if (level > -1 && level <= max_warp_level)
