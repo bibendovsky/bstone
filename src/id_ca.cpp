@@ -67,10 +67,6 @@ int MAPS_WITH_STATS = 0;
 
 int NUMMAPS = 0;
 
-bool is_aog_full();
-bool is_aog_sw();
-bool is_ps();
-
 
 /*
 =============================================================================
@@ -124,8 +120,6 @@ static const int BUFFERSIZE = 0x10000;
 
 // BBi
 int ca_gr_last_expanded_size;
-int map_compressed_size = 0;
-std::string map_sha1_string;
 
 void CAL_CarmackExpand(
     uint16_t* source,
@@ -748,72 +742,61 @@ void CA_CacheScreen(
 ======================
 */
 void CA_CacheMap(
-    int16_t mapnum)
+	std::int16_t mapnum)
 {
-    int32_t pos, compressed;
-    int16_t plane;
-    uint16_t** dest;
-    uint16_t size;
-    uint16_t* source;
+	std::int32_t pos;
+	std::int32_t compressed;
+	std::int16_t plane;
+	std::uint16_t** dest;
+	std::uint16_t size;
+	std::uint16_t* source;
 #ifdef CARMACIZED
-    memptr buffer2seg;
-    int32_t expanded;
+	memptr buffer2seg;
+	std::int32_t expanded;
 #endif
 
-    mapon = mapnum;
+	mapon = mapnum;
 
-    // BBi
-    bstone::Sha1 map_sha1;
-    ::map_compressed_size = 0;
+	//
+	// load the planes into the allready allocated buffers
+	//
+	size = MAPSIZE * MAPSIZE * MAPPLANES;
 
-//
-// load the planes into the allready allocated buffers
-//
-    size = MAPSIZE * MAPSIZE * MAPPLANES;
+	for (plane = 0; plane < MAPPLANES; plane++)
+	{
+		pos = mapheaderseg[mapnum]->planestart[plane];
+		compressed = mapheaderseg[mapnum]->planelength[plane];
 
-    for (plane = 0; plane < MAPPLANES; plane++) {
-        pos = mapheaderseg[mapnum]->planestart[plane];
-        compressed = mapheaderseg[mapnum]->planelength[plane];
+		dest = &mapsegs[plane];
 
-        dest = &mapsegs[plane];
+		maphandle.set_position(pos);
+		::ca_buffer.resize(compressed);
+		source = reinterpret_cast<std::uint16_t*>(::ca_buffer.data());
 
-        maphandle.set_position(pos);
-        ::ca_buffer.resize(compressed);
-        source = reinterpret_cast<uint16_t*>(::ca_buffer.data());
-
-        maphandle.read(source, compressed);
-
-        // BBi
-        ::map_compressed_size += compressed;
-        map_sha1.process(source, compressed);
+		maphandle.read(source, compressed);
 
 #ifdef CARMACIZED
-        //
-        // unhuffman, then unRLEW
-        // The huffman'd chunk has a two byte expanded length first
-        // The resulting RLEW chunk also does, even though it's not really
-        // needed
-        //
-        expanded = *source;
-        source++;
-        MM_GetPtr(&buffer2seg, expanded);
-        CAL_CarmackExpand(source, (uint16_t*)buffer2seg, expanded);
-        CA_RLEWexpand(((uint16_t*)buffer2seg) + 1, *dest, size,
-                      ((mapfiletype*)tinf)->RLEWtag);
-        MM_FreePtr(&buffer2seg);
+		//
+		// unhuffman, then unRLEW
+		// The huffman'd chunk has a two byte expanded length first
+		// The resulting RLEW chunk also does, even though it's not really
+		// needed
+		//
+		expanded = *source;
+		source++;
+		MM_GetPtr(&buffer2seg, expanded);
+		CAL_CarmackExpand(source, (std::uint16_t*)buffer2seg, expanded);
+		CA_RLEWexpand(((std::uint16_t*)buffer2seg) + 1, *dest, size,
+			((mapfiletype*)tinf)->RLEWtag);
+		MM_FreePtr(&buffer2seg);
 
 #else
-        //
-        // unRLEW, skipping expanded length
-        //
-        CA_RLEWexpand(source + 1, *dest, size,
-                      rlew_tag);
+		//
+		// unRLEW, skipping expanded length
+		//
+		::CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
 #endif
-    }
-
-    // BBi
-    map_sha1.finish();
-    ::map_sha1_string = map_sha1.to_string();
+	}
 }
 
 /*

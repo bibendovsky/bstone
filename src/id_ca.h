@@ -292,8 +292,6 @@ extern huffnode* grhuffman;
 extern huffnode grhuffman[255];
 #endif
 
-extern int map_compressed_size;
-extern std::string map_sha1_string;
 
 // ===========================================================================
 
@@ -356,7 +354,7 @@ void CA_ClearAllMarks();
 void CA_CacheGrChunk(
     int16_t chunk);
 void CA_CacheMap(
-    int16_t mapnum);
+    std::int16_t mapnum);
 
 void CA_CacheMarks();
 
