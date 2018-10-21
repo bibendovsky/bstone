@@ -123,7 +123,7 @@ public:
 		const AssetsBaseNameToHashMap& base_name_to_hash_map);
 
 
-	const std::string& get_levels_hash() const;
+	const std::string& get_levels_hash_string() const;
 
 	void set_levels_hash(
 		const std::string& levels_hash);

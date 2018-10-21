@@ -69,6 +69,20 @@ Sha1::Sha1(
 }
 
 Sha1::Sha1(
+	const Digest& digest)
+	:
+	block_{},
+	digest_{digest},
+	digest32_{},
+	length_low_{},
+	length_high_{},
+	block_index_{},
+	is_finished_{true},
+	is_invalid_{}
+{
+}
+
+Sha1::Sha1(
 	const Sha1& rhs)
 	:
 	block_{rhs.block_},

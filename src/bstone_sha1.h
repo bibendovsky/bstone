@@ -38,6 +38,9 @@ public:
 		const std::string& sha1_string);
 
 	Sha1(
+		const Digest& digest);
+
+	Sha1(
 		const Sha1& rhs);
 
 	Sha1(

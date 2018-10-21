@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_binary_writer.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
+#include "bstone_sha1.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
@@ -8782,322 +8783,353 @@ static bool LoadCompressedChunk(
 }
 
 bool LoadTheGame(
-    const std::string& file_name)
+	const std::string& file_name)
 {
-    bool is_succeed = true;
+	bool is_succeed = true;
 
-    bstone::FileStream file_stream(file_name);
+	auto file_stream = bstone::FileStream{file_name};
 
-    if (!file_stream.is_open()) {
-        is_succeed = false;
+	if (!file_stream.is_open())
+	{
+		is_succeed = false;
 
-        bstone::Log::write_error(
-            "LOAD: Failed to open file \"{}\".",
-            file_name);
-    }
+		bstone::Log::write_error("LOAD: Failed to open file \"{}\".", file_name);
+	}
 
-    bstone::BinaryReader file_reader(&file_stream);
+	bstone::BinaryReader file_reader(&file_stream);
 
-    if (is_succeed) {
-        is_succeed &= g_playtemp.set_size(0);
-        is_succeed &= g_playtemp.set_position(0);
-    }
-
-
-    // Read in VERS chunk
-    //
-    if (is_succeed) {
-        if (::FindChunk(&file_stream, "VERS") == 0) {
-            is_succeed = false;
-
-            bstone::Log::write_error(
-                "LOAD: Failed to locate VERS chunk.");
-        }
-    }
-
-    if (is_succeed) {
-        const int max_length = 128;
-
-        const auto& version_string = ::get_saved_game_version_string();
-
-        file_reader.skip(-4);
-
-        const auto saved_version_string = file_reader.read_string(
-            max_length);
-
-        if (saved_version_string != version_string) {
-            is_succeed = false;
-
-            bstone::Log::write_error(
-                "LOAD: Invalid version.");
-        }
-    }
+	if (is_succeed)
+	{
+		is_succeed &= g_playtemp.set_size(0);
+		is_succeed &= g_playtemp.set_position(0);
+	}
 
 
-    // Read in HEAD chunk
-    //
-    Buffer head_buffer;
+	// Read in VERS chunk
+	//
+	if (is_succeed)
+	{
+		if (::FindChunk(&file_stream, "VERS") == 0)
+		{
+			is_succeed = false;
 
-    if (is_succeed) {
-        if (!::LoadCompressedChunk("HEAD", &file_stream, head_buffer)) {
-            is_succeed = false;
-        }
-    }
+			bstone::Log::write_error("LOAD: Failed to locate VERS chunk.");
+		}
+	}
 
-    // Read in LVXX chunk
-    //
-    Buffer lvxx_buffer;
+	if (is_succeed)
+	{
+		const int max_length = 128;
 
-    if (is_succeed) {
-        if (!::LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer)) {
-            is_succeed = false;
-        }
-    }
+		const auto& version_string = ::get_saved_game_version_string();
 
+		file_reader.skip(-4);
 
-    bstone::Crc32 checksum;
+		const auto saved_version_string = file_reader.read_string(
+			max_length);
 
-    // Deserialize HEAD chunk
-    //
-    if (is_succeed) {
-        try {
-            bstone::MemoryStream head_stream(
-                static_cast<int>(head_buffer.size()),
-                0,
-                head_buffer.data());
+		if (saved_version_string != version_string)
+		{
+			is_succeed = false;
 
-            bstone::BinaryReader head_reader(&head_stream);
-
-            gamestate.deserialize(head_reader, checksum);
-            gamestuff.deserialize(head_reader, checksum);
-        } catch (const ArchiveException&) {
-            is_succeed = false;
-
-            bstone::Log::write_error(
-                "LOAD: Failed to deserialize HEAD data.");
-        }
-    }
-
-    // Deserialize LVXX chunk
-    //
-    if (is_succeed) {
-        is_succeed &= ::g_playtemp.set_position(0);
-        is_succeed &= ::g_playtemp.set_size(0);
-
-        if (is_succeed) {
-            bstone::MemoryStream lvxx_stream(
-                static_cast<int>(lvxx_buffer.size()),
-                0,
-                lvxx_buffer.data());
-
-            if (!lvxx_stream.copy_to(&::g_playtemp)) {
-                is_succeed = false;
-
-                bstone::Log::write_error(
-                    "LOAD: Failed to deserialize LVXX data.");
-            }
-        }
-    }
+			bstone::Log::write_error("LOAD: Invalid version.");
+		}
+	}
 
 
-    // Finish loading
-    //
-    ::NewViewSize();
+	// Read in HEAD chunk
+	//
+	Buffer head_buffer;
 
-    bool show_error_message = true;
+	if (is_succeed)
+	{
+		if (!::LoadCompressedChunk("HEAD", &file_stream, head_buffer))
+		{
+			is_succeed = false;
+		}
+	}
 
-    if (is_succeed) {
-        // Start music for the starting level in this loaded game.
-        //
-        ::FreeMusic();
-        ::StartMusic(false);
+	// Read in LVXX chunk
+	//
+	Buffer lvxx_buffer;
 
-        is_succeed = ::LoadLevel(0xFF);
+	if (is_succeed)
+	{
+		if (!::LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer))
+		{
+			is_succeed = false;
+		}
+	}
 
-        // Already shown in LoadLevel
-        show_error_message = false;
-    }
 
-    if (is_succeed) {
-        ::ShowQuickMsg = false;
-    } else {
-        static_cast<void>(::g_playtemp.set_position(0));
-        static_cast<void>(::g_playtemp.set_size(0));
+	bstone::Crc32 checksum;
 
-        if (show_error_message) {
-            const char* const message =
-                "The selected saved game is\n"
-                "from an unsupported version of\n"
-                "the game and can not be loaded.\n"
-                "\n"
-                "           Press a key."
-            ;
+	// Deserialize HEAD chunk
+	//
+	if (is_succeed)
+	{
+		try
+		{
+			bstone::MemoryStream head_stream(
+				static_cast<int>(head_buffer.size()),
+				0,
+				head_buffer.data());
 
-            auto old_wx = ::WindowX;
-            auto old_wy = ::WindowY;
-            auto old_ww = ::WindowW;
-            auto old_wh = ::WindowH;
-            auto old_px = ::px;
-            auto old_py = ::py;
+			bstone::BinaryReader head_reader(&head_stream);
 
-            ::WindowX = 0;
-            ::WindowY = 16;
-            ::WindowW = 320;
-            ::WindowH = 168;
+			auto levels_hash_digest = bstone::Sha1::Digest{};
+			::deserialize_field(levels_hash_digest, head_reader, checksum);
+			const auto& levels_hash = bstone::Sha1{levels_hash_digest};
+			const auto& levels_hash_string = levels_hash.to_string();
 
-            ::Message(message);
+			const auto& assets_info = AssetsInfo{};
 
-            ::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
+			if (assets_info.get_levels_hash_string() != levels_hash_string)
+			{
+				bstone::Log::write_error("LOAD: Levels hash mismatch.");
+				throw ArchiveException{"Levels hash mismatch."};
+			}
 
-            ::WindowX = old_wx;
-            ::WindowY = old_wy;
-            ::WindowW = old_ww;
-            ::WindowH = old_wh;
+			gamestate.deserialize(head_reader, checksum);
+			gamestuff.deserialize(head_reader, checksum);
+		}
+		catch (const ArchiveException&)
+		{
+			is_succeed = false;
 
-            ::px = old_px;
-            ::py = old_py;
+			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data.");
+		}
+	}
 
-            ::IN_ClearKeysDown();
-            ::IN_Ack();
+	// Deserialize LVXX chunk
+	//
+	if (is_succeed)
+	{
+		is_succeed &= ::g_playtemp.set_position(0);
+		is_succeed &= ::g_playtemp.set_size(0);
 
-            ::VW_FadeOut();
-            ::screenfaded = true;
-        }
-    }
+		if (is_succeed)
+		{
+			bstone::MemoryStream lvxx_stream(
+				static_cast<int>(lvxx_buffer.size()),
+				0,
+				lvxx_buffer.data());
 
-    return is_succeed;
+			if (!lvxx_stream.copy_to(&::g_playtemp))
+			{
+				is_succeed = false;
+
+				bstone::Log::write_error("LOAD: Failed to deserialize LVXX data.");
+			}
+		}
+	}
+
+
+	// Finish loading
+	//
+	::NewViewSize();
+
+	bool show_error_message = true;
+
+	if (is_succeed)
+	{
+		// Start music for the starting level in this loaded game.
+		//
+		::FreeMusic();
+		::StartMusic(false);
+
+		is_succeed = ::LoadLevel(0xFF);
+
+		// Already shown in LoadLevel
+		show_error_message = false;
+	}
+
+	if (is_succeed)
+	{
+		::ShowQuickMsg = false;
+	}
+	else
+	{
+		static_cast<void>(::g_playtemp.set_position(0));
+		static_cast<void>(::g_playtemp.set_size(0));
+
+		if (show_error_message)
+		{
+			const char* const message =
+				"The selected saved game is\n"
+				"from an unsupported version of\n"
+				"the game and can not be loaded.\n"
+				"\n"
+				"           Press a key."
+				;
+
+			auto old_wx = ::WindowX;
+			auto old_wy = ::WindowY;
+			auto old_ww = ::WindowW;
+			auto old_wh = ::WindowH;
+			auto old_px = ::px;
+			auto old_py = ::py;
+
+			::WindowX = 0;
+			::WindowY = 16;
+			::WindowW = 320;
+			::WindowH = 168;
+
+			::Message(message);
+
+			::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
+
+			::WindowX = old_wx;
+			::WindowY = old_wy;
+			::WindowW = old_ww;
+			::WindowH = old_wh;
+
+			::px = old_px;
+			::py = old_py;
+
+			::IN_ClearKeysDown();
+			::IN_Ack();
+
+			::VW_FadeOut();
+			::screenfaded = true;
+		}
+	}
+
+	return is_succeed;
 }
 
 bool SaveTheGame(
-    const std::string& file_name,
-    const std::string& description)
+	const std::string& file_name,
+	const std::string& description)
 {
-    bstone::FileStream file_stream(
-        file_name,
-        bstone::StreamOpenMode::write);
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
 
-    if (!file_stream.is_open()) {
-        bstone::Log::write_error(
-            "SAVE: Failed to open file \"{}\".",
-            file_name);
+	if (!file_stream.is_open())
+	{
+		bstone::Log::write_error("SAVE: Failed to open file \"{}\".", file_name);
 
-        return false;
-    }
+		return false;
+	}
 
 
-    // Store current level
-    //
-    static_cast<void>(::SaveLevel(0xFF));
+	// Store current level
+	//
+	static_cast<void>(::SaveLevel(0xFF));
 
 
-    // Compose HEAD data
-    //
-    bstone::Crc32 head_checksum;
-    bstone::MemoryStream head_stream;
-    bstone::BinaryWriter head_writer(&head_stream);
+	// Compose HEAD data
+	//
+	bstone::Crc32 head_checksum;
+	auto head_stream = bstone::MemoryStream{};
+	bstone::BinaryWriter head_writer(&head_stream);
 
-    try {
-        gamestate.serialize(head_writer, head_checksum);
-        gamestuff.serialize(head_writer, head_checksum);
-        head_writer.set_position(0);
-    } catch (const ArchiveException&) {
-        bstone::Log::write_error(
-            "SAVE: Failed to serialize HEAD chunk.");
+	try
+	{
+		// Levels hash.
+		//
+		const auto& assets_info = AssetsInfo{};
+		const auto& levels_hash_string = assets_info.get_levels_hash_string();
+		const auto& levels_hash = bstone::Sha1{levels_hash_string};
+		const auto& levels_digest = levels_hash.get_digest();
 
-        return false;
-    }
+		::serialize_field(levels_digest, head_writer, head_checksum);
 
+		// Other stuff.
+		//
+		gamestate.serialize(head_writer, head_checksum);
+		gamestuff.serialize(head_writer, head_checksum);
+		head_writer.set_position(0);
+	}
+	catch (const ArchiveException&)
+	{
+		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk.");
 
-    auto head_src_size = static_cast<int32_t>(head_stream.get_size());
-    const int32_t head_desire_dst_size = 2 * head_src_size;
-
-    Buffer head_buffer(head_desire_dst_size);
-
-    static_cast<void>(::LZH_Startup());
-
-    int32_t head_dst_size = ::LZH_Compress(
-        head_stream.get_data(),
-        head_buffer.data(),
-        head_src_size);
-
-    ::LZH_Shutdown();
-
-    if (head_dst_size > head_desire_dst_size) {
-        bstone::Log::write_error(
-            "SAVE: Failed to compress HEAD data.");
-
-        return false;
-    }
+		return false;
+	}
 
 
-    // Compose LVXX data
-    //
-    ::g_playtemp.set_position(0);
+	const auto head_src_size = static_cast<std::int32_t>(head_stream.get_size());
+	const auto head_desire_dst_size = 2 * head_src_size;
 
-    auto lvxx_src_size = static_cast<int32_t>(::g_playtemp.get_size());
+	Buffer head_buffer(head_desire_dst_size);
 
-    const int32_t lvxx_desire_dst_size = (2 * lvxx_src_size);
+	static_cast<void>(::LZH_Startup());
 
-    Buffer lvxx_buffer(lvxx_desire_dst_size);
+	const auto head_dst_size = ::LZH_Compress(head_stream.get_data(), head_buffer.data(), head_src_size);
 
-    static_cast<void>(::LZH_Startup());
+	::LZH_Shutdown();
 
-    int32_t lvxx_dst_size = ::LZH_Compress(
-        ::g_playtemp.get_data(),
-        lvxx_buffer.data(),
-        lvxx_src_size);
+	if (head_dst_size > head_desire_dst_size)
+	{
+		bstone::Log::write_error("SAVE: Failed to compress HEAD data.");
 
-    ::LZH_Shutdown();
-
-    if (lvxx_dst_size > lvxx_desire_dst_size) {
-        bstone::Log::write_error(
-            "SAVE: Failed to compress LVXX data.");
-
-        return false;
-    }
+		return false;
+	}
 
 
-    // Write to file
-    //
-    bool is_succeed = true;
+	// Compose LVXX data
+	//
+	::g_playtemp.set_position(0);
 
-    bstone::BinaryWriter file_writer(&file_stream);
+	const auto lvxx_src_size = static_cast<std::int32_t>(::g_playtemp.get_size());
 
-    // Write VERS chunk
-    //
-    is_succeed &= file_writer.write("VERS", 4);
-    is_succeed &= file_writer.write(::get_saved_game_version_string());
+	const auto lvxx_desire_dst_size = (2 * lvxx_src_size);
 
-    // Write DESC chunk
-    //
-    is_succeed &= file_writer.write("DESC", 4);
-    is_succeed &= file_writer.write(description);
+	Buffer lvxx_buffer(lvxx_desire_dst_size);
 
-    // Write HEAD chunk
-    //
-    is_succeed &= file_writer.write("HEAD", 4);
-    is_succeed &= file_writer.write(bstone::Endian::le(head_dst_size + 4));
-    is_succeed &= file_writer.write(bstone::Endian::le(head_src_size));
-    is_succeed &= file_stream.write(head_buffer.data(), head_dst_size);
+	static_cast<void>(::LZH_Startup());
 
-    // Write LVXX chunk
-    //
-    is_succeed &= file_writer.write("LVXX", 4);
-    is_succeed &= file_writer.write(
-        bstone::Endian::le(lvxx_dst_size + 4));
-    is_succeed &= file_writer.write(
-        bstone::Endian::le(lvxx_src_size));
-    is_succeed &= file_stream.write(lvxx_buffer.data(), lvxx_dst_size);
+	const auto lvxx_dst_size = ::LZH_Compress(::g_playtemp.get_data(), lvxx_buffer.data(), lvxx_src_size);
 
-    //
-    ::NewViewSize();
+	::LZH_Shutdown();
 
-    if (!is_succeed) {
-        bstone::Log::write_error(
-            "SAVE: Failed to write data.");
-    }
+	if (lvxx_dst_size > lvxx_desire_dst_size)
+	{
+		bstone::Log::write_error("SAVE: Failed to compress LVXX data.");
 
-    return is_succeed;
+		return false;
+	}
+
+
+	// Write to file
+	//
+	bool is_succeed = true;
+
+	bstone::BinaryWriter file_writer(&file_stream);
+
+	// Write VERS chunk
+	//
+	is_succeed &= file_writer.write("VERS", 4);
+	is_succeed &= file_writer.write(::get_saved_game_version_string());
+
+	// Write DESC chunk
+	//
+	is_succeed &= file_writer.write("DESC", 4);
+	is_succeed &= file_writer.write(description);
+
+	// Write HEAD chunk
+	//
+	is_succeed &= file_writer.write("HEAD", 4);
+	is_succeed &= file_writer.write(bstone::Endian::le(head_dst_size + 4));
+	is_succeed &= file_writer.write(bstone::Endian::le(head_src_size));
+	is_succeed &= file_stream.write(head_buffer.data(), head_dst_size);
+
+	// Write LVXX chunk
+	//
+	is_succeed &= file_writer.write("LVXX", 4);
+	is_succeed &= file_writer.write(bstone::Endian::le(lvxx_dst_size + 4));
+	is_succeed &= file_writer.write(bstone::Endian::le(lvxx_src_size));
+	is_succeed &= file_stream.write(lvxx_buffer.data(), lvxx_dst_size);
+
+	//
+	::NewViewSize();
+
+	if (!is_succeed)
+	{
+		bstone::Log::write_error("SAVE: Failed to write data.");
+	}
+
+	return is_succeed;
 }
 
 bool LevelInPlaytemp(

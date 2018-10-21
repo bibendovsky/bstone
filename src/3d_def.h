@@ -41,7 +41,7 @@ Free Software Foundation, Inc.,
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 4;
+const int BS_SAVE_VERSION = 5;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -4356,6 +4356,13 @@ class ArchiveIsContainter
 {
 public:
     static const bool value = false;
+}; // ArchiveIsContainter
+
+template<typename T, std::size_t N>
+class ArchiveIsContainter<std::array<T,N>>
+{
+public:
+    static const bool value = true;
 }; // ArchiveIsContainter
 
 template<typename T, typename... TArgs>

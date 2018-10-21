@@ -1314,7 +1314,7 @@ void AssetsInfo::set_base_name_to_hash_map(
 	base_name_to_hash_map_ = base_name_to_hash_map;
 }
 
-const std::string& AssetsInfo::get_levels_hash() const
+const std::string& AssetsInfo::get_levels_hash_string() const
 {
 	return levels_hash_;
 }

@@ -711,6 +711,8 @@ static void cal_setup_map_data_file()
 {
 	auto& assets_info = AssetsInfo{};
 
+	auto has_mod = false;
+
 	if (!::mod_dir_.empty())
 	{
 		const auto& modded_hash = ::ca_calculate_hash(
@@ -718,9 +720,11 @@ static void cal_setup_map_data_file()
 
 		if (!modded_hash.empty())
 		{
+			has_mod = true;
+
 			const auto are_official_levels = Assets::are_official_levels(modded_hash);
 
-			if (are_official_levels && modded_hash != assets_info.get_levels_hash())
+			if (are_official_levels && modded_hash != assets_info.get_levels_hash_string())
 			{
 				::Quit("Mismatch official levels are not allowed in the mod directory.");
 			}
@@ -728,7 +732,8 @@ static void cal_setup_map_data_file()
 			assets_info.set_levels_hash(modded_hash);
 		}
 	}
-	else
+
+	if (!has_mod)
 	{
 		const auto& official_hash = assets_info.get_base_name_to_hash_map().at(Assets::map_data_base_name);
 
