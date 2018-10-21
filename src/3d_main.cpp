@@ -110,6 +110,7 @@ int16_t starting_level;
 int16_t starting_difficulty;
 
 std::string data_dir;
+std::string mod_dir_;
 
 void InitPlaytemp();
 
@@ -9692,26 +9693,45 @@ int main(
 
 void InitDestPath()
 {
-    auto default_data_dir = ::get_default_data_dir();
-    auto requested_data_dir = ::g_args.get_option_value("data_dir");
-
-    if (requested_data_dir.empty()) {
-        data_dir = ::get_default_data_dir();
-    } else {
-        const auto separator =
+		const auto separator =
 #ifdef _WIN32
-            '\\'
+			'\\'
 #else
-            '/'
+			'/'
 #endif
-        ;
+		;
 
-        data_dir = requested_data_dir;
+	auto default_data_dir = ::get_default_data_dir();
+	auto requested_data_dir = ::g_args.get_option_value("data_dir");
 
-        if (data_dir.back() != separator) {
-            data_dir += separator;
-        }
-    }
+	if (requested_data_dir.empty())
+	{
+		data_dir = ::get_default_data_dir();
+	}
+	else
+	{
+		data_dir = requested_data_dir;
+
+		if (data_dir.back() != separator)
+		{
+			data_dir += separator;
+		}
+	}
+
+	static const auto& mod_dir_option_name = std::string{"mod_dir"};
+
+	if (::g_args.has_option(mod_dir_option_name))
+	{
+		::mod_dir_ = ::g_args.get_option_value(mod_dir_option_name);
+
+		if (!::mod_dir_.empty())
+		{
+			if (::mod_dir_.back() != separator)
+			{
+				::mod_dir_ += separator;
+			}
+		}
+	}
 }
 
 // BBi

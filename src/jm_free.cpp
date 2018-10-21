@@ -174,257 +174,6 @@ extern const uint8_t colormap[16896];
 const uint8_t* lightsource;
 
 
-// ------------------ ID Software 'startup' functions ---------------------
-
-
-/*
-==================
-=
-= BuildTables
-=
-= Calculates:
-=
-= scale                 projection constant
-= sintable/costable     overlapping fractional tables
-=
-==================
-*/
-
-const float radtoint = static_cast<float>(FINEANGLES / 2 / PI);
-
-
-void BuildTables()
-{
-    int16_t i;
-    float angle, anglestep;
-    double tang;
-    fixed value;
-
-
-//
-// calculate fine tangents
-//
-
-    for (i = 0; i < FINEANGLES / 8; i++) {
-        tang = tan((i + 0.5) / radtoint);
-        finetangent[i] = static_cast<int32_t>(tang * TILEGLOBAL);
-        finetangent[FINEANGLES / 4 - 1 - i] = static_cast<int32_t>(1 / tang * TILEGLOBAL);
-    }
-
-//
-// costable overlays sintable with a quarter phase shift
-// ANGLES is assumed to be divisable by four
-//
-// The low word of the value is the fraction, the high bit is the sign bit,
-// bits 16-30 should be 0
-//
-
-    angle = 0.0F;
-    anglestep = static_cast<float>(PI / 2 / ANGLEQUAD);
-    for (i = 0; i <= ANGLEQUAD; i++) {
-        value = static_cast<fixed>(GLOBAL1 * sin(static_cast<double>(angle)));
-        sintable[i] =
-            sintable[i + ANGLES] =
-                sintable[ANGLES / 2 - i] = value;
-        sintable[ANGLES - i] =
-            sintable[ANGLES / 2 + i] = value | 0x80000000l;
-        angle += anglestep;
-    }
-
-    lightsource = colormap;
-}
-
-// Map tile values to scaled pics
-void SetupWalls()
-{
-    //
-    // Hey! Yea You! This is where you can VERY easly setup to use a
-    // specific 'BANK' of wall graphics.... JTR
-    //
-
-    for (int i = 1; i < MAXWALLTILES; ++i)
-    {
-        ::horizwall[i] = (i - 1) * 2;
-        ::vertwall[i] = ::horizwall[i] + 1;
-    }
-
-    WallHeight().swap(wallheight);
-    wallheight.resize(::vga_width);
-
-
-    const int k_half_height = ::vga_height / 2;
-
-    SpanStart().swap(spanstart);
-    spanstart.resize(k_half_height);
-
-    StepScale().swap(stepscale);
-    stepscale.resize(k_half_height);
-
-    BaseDist().swap(basedist);
-    basedist.resize(k_half_height);
-
-    PlaneYLookup().swap(planeylookup);
-    planeylookup.resize(k_half_height);
-
-    MirrorOfs().swap(mirrorofs);
-    mirrorofs.resize(k_half_height);
-}
-
-void InitDigiMap()
-{
-    char* map;
-
-    for (map = reinterpret_cast<char*>(wolfdigimap); *map != LASTSOUND; map += 2) {
-        DigiMap[static_cast<int>(map[0])] = map[1];
-    }
-}
-
-void CAL_SetupAudioFile()
-{
-    bstone::FileStream handle;
-
-//
-// load maphead.ext (offsets and tileinfo for map file)
-//
-#ifndef AUDIOHEADERLINKED
-    ::ca_open_resource(Assets::audio_header_base_name, handle);
-    auto length = static_cast<int32_t>(handle.get_size());
-    ::audiostarts = new int32_t[length / 4];
-    handle.read(::audiostarts, length);
-    handle.close();
-#else
-    // TODO Remove or fix
-    audiohuffman = (huffnode*)&audiodict;
-    CAL_OptimizeNodes(audiohuffman);
-    audiostarts = (int32_t*)FP_SEG(&audiohead);
-#endif
-
-//
-// open the data file
-//
-    ::OpenAudioFile();
-}
-
-void CAL_SetupGrFile()
-{
-    bstone::FileStream handle;
-    uint8_t* compseg;
-
-    //
-    // load ???dict.ext (huffman dictionary for graphics files)
-    //
-
-    ::ca_open_resource(Assets::gfx_dictionary_base_name, handle);
-    handle.read(&::grhuffman, sizeof(::grhuffman));
-
-    //
-    // load the data offsets from ???head.ext
-    //
-    int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
-
-    ::grstarts = new int32_t[(grstarts_size + 3) / 4];
-
-    ::ca_open_resource(Assets::gfx_header_base_name, handle);
-    handle.read(::grstarts, grstarts_size);
-
-    //
-    // Open the graphics file, leaving it open until the game is finished
-    //
-    ::ca_open_resource(Assets::gfx_data_base_name, ::grhandle);
-
-    //
-    // load the pic and sprite headers into the arrays in the data segment
-    //
-    ::pictable = new pictabletype[NUMPICS];
-    ::CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-    compseg = new uint8_t[::chunkcomplen];
-    ::grhandle.read(compseg, ::chunkcomplen);
-
-    ::CAL_HuffExpand(
-        compseg,
-        reinterpret_cast<uint8_t*>(pictable),
-        NUMPICS * sizeof(pictabletype),
-        ::grhuffman);
-
-    delete [] compseg;
-}
-
-void CAL_SetupMapFile()
-{
-    int16_t i;
-    bstone::FileStream handle;
-    int32_t pos;
-    mapfiletype header;
-    maptype* map_header;
-
-    //
-    // load maphead.ext (offsets and tileinfo for map file)
-    //
-
-    ::ca_open_resource(Assets::map_header_base_name, handle);
-    handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
-    handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
-
-    rlew_tag = header.RLEWtag;
-
-    //
-    // open the data file
-    //
-    OpenMapFile();
-
-    //
-    // load all map header
-    //
-    for (i = 0; i < NUMMAPS; ++i) {
-        pos = header.headeroffsets[i];
-
-        if (pos < 0) {
-            continue;
-        }
-
-        mapheaderseg[i] = new maptype();
-        map_header = mapheaderseg[i];
-
-        maphandle.set_position(pos);
-
-        maphandle.read(
-            &map_header->planestart,
-            sizeof(map_header->planestart));
-
-        maphandle.read(
-            &map_header->planelength,
-            sizeof(map_header->planelength));
-
-        maphandle.read(
-            &map_header->width,
-            sizeof(map_header->width));
-
-        maphandle.read(
-            &map_header->height,
-            sizeof(map_header->height));
-
-        maphandle.read(
-            &map_header->name,
-            sizeof(map_header->name));
-    }
-
-    //
-    // allocate space for 3 64*64 planes
-    //
-    for (i = 0; i < MAPPLANES; ++i) {
-        mapsegs[i] = new uint16_t[64 * 64];
-    }
-
-    CloseMapFile();
-}
-
-
-// --------------------- Other general functions ------------------------
-
-extern CP_itemtype NewEmenu[];
-extern int16_t EpisodeSelect[];
-
-
 namespace {
 
 
@@ -776,6 +525,288 @@ void find_assets()
 
 
 } // namespace
+
+
+// ------------------ ID Software 'startup' functions ---------------------
+
+
+/*
+==================
+=
+= BuildTables
+=
+= Calculates:
+=
+= scale                 projection constant
+= sintable/costable     overlapping fractional tables
+=
+==================
+*/
+
+const float radtoint = static_cast<float>(FINEANGLES / 2 / PI);
+
+
+void BuildTables()
+{
+    int16_t i;
+    float angle, anglestep;
+    double tang;
+    fixed value;
+
+
+//
+// calculate fine tangents
+//
+
+    for (i = 0; i < FINEANGLES / 8; i++) {
+        tang = tan((i + 0.5) / radtoint);
+        finetangent[i] = static_cast<int32_t>(tang * TILEGLOBAL);
+        finetangent[FINEANGLES / 4 - 1 - i] = static_cast<int32_t>(1 / tang * TILEGLOBAL);
+    }
+
+//
+// costable overlays sintable with a quarter phase shift
+// ANGLES is assumed to be divisable by four
+//
+// The low word of the value is the fraction, the high bit is the sign bit,
+// bits 16-30 should be 0
+//
+
+    angle = 0.0F;
+    anglestep = static_cast<float>(PI / 2 / ANGLEQUAD);
+    for (i = 0; i <= ANGLEQUAD; i++) {
+        value = static_cast<fixed>(GLOBAL1 * sin(static_cast<double>(angle)));
+        sintable[i] =
+            sintable[i + ANGLES] =
+                sintable[ANGLES / 2 - i] = value;
+        sintable[ANGLES - i] =
+            sintable[ANGLES / 2 + i] = value | 0x80000000l;
+        angle += anglestep;
+    }
+
+    lightsource = colormap;
+}
+
+// Map tile values to scaled pics
+void SetupWalls()
+{
+    //
+    // Hey! Yea You! This is where you can VERY easly setup to use a
+    // specific 'BANK' of wall graphics.... JTR
+    //
+
+    for (int i = 1; i < MAXWALLTILES; ++i)
+    {
+        ::horizwall[i] = (i - 1) * 2;
+        ::vertwall[i] = ::horizwall[i] + 1;
+    }
+
+    WallHeight().swap(wallheight);
+    wallheight.resize(::vga_width);
+
+
+    const int k_half_height = ::vga_height / 2;
+
+    SpanStart().swap(spanstart);
+    spanstart.resize(k_half_height);
+
+    StepScale().swap(stepscale);
+    stepscale.resize(k_half_height);
+
+    BaseDist().swap(basedist);
+    basedist.resize(k_half_height);
+
+    PlaneYLookup().swap(planeylookup);
+    planeylookup.resize(k_half_height);
+
+    MirrorOfs().swap(mirrorofs);
+    mirrorofs.resize(k_half_height);
+}
+
+void InitDigiMap()
+{
+    char* map;
+
+    for (map = reinterpret_cast<char*>(wolfdigimap); *map != LASTSOUND; map += 2) {
+        DigiMap[static_cast<int>(map[0])] = map[1];
+    }
+}
+
+void CAL_SetupAudioFile()
+{
+    bstone::FileStream handle;
+
+//
+// load maphead.ext (offsets and tileinfo for map file)
+//
+#ifndef AUDIOHEADERLINKED
+    ::ca_open_resource(Assets::audio_header_base_name, handle);
+    auto length = static_cast<int32_t>(handle.get_size());
+    ::audiostarts = new int32_t[length / 4];
+    handle.read(::audiostarts, length);
+    handle.close();
+#else
+    // TODO Remove or fix
+    audiohuffman = (huffnode*)&audiodict;
+    CAL_OptimizeNodes(audiohuffman);
+    audiostarts = (int32_t*)FP_SEG(&audiohead);
+#endif
+
+//
+// open the data file
+//
+    ::OpenAudioFile();
+}
+
+void CAL_SetupGrFile()
+{
+	if (!check_vgahead_offset_count())
+	{
+		::Quit("Mismatch GFX header offset count.");
+	}
+
+    bstone::FileStream handle;
+    uint8_t* compseg;
+
+    //
+    // load ???dict.ext (huffman dictionary for graphics files)
+    //
+
+    ::ca_open_resource(Assets::gfx_dictionary_base_name, handle);
+    handle.read(&::grhuffman, sizeof(::grhuffman));
+
+    //
+    // load the data offsets from ???head.ext
+    //
+    int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
+
+    ::grstarts = new int32_t[(grstarts_size + 3) / 4];
+
+    ::ca_open_resource(Assets::gfx_header_base_name, handle);
+    handle.read(::grstarts, grstarts_size);
+
+    //
+    // Open the graphics file, leaving it open until the game is finished
+    //
+    ::ca_open_resource(Assets::gfx_data_base_name, ::grhandle);
+
+    //
+    // load the pic and sprite headers into the arrays in the data segment
+    //
+    ::pictable = new pictabletype[NUMPICS];
+    ::CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
+    compseg = new uint8_t[::chunkcomplen];
+    ::grhandle.read(compseg, ::chunkcomplen);
+
+    ::CAL_HuffExpand(
+        compseg,
+        reinterpret_cast<uint8_t*>(pictable),
+        NUMPICS * sizeof(pictabletype),
+        ::grhuffman);
+
+    delete [] compseg;
+}
+
+static void cal_setup_map_data_file()
+{
+	auto& assets_info = AssetsInfo{};
+
+	if (!::mod_dir_.empty())
+	{
+		const auto& modded_hash = ::ca_calculate_hash(
+			::mod_dir_, Assets::map_data_base_name, assets_info.get_extension());
+
+		if (!modded_hash.empty())
+		{
+			const auto are_official_levels = Assets::are_official_levels(modded_hash);
+
+			if (are_official_levels && modded_hash != assets_info.get_levels_hash())
+			{
+				::Quit("Mismatch official levels are not allowed in the mod directory.");
+			}
+
+			assets_info.set_levels_hash(modded_hash);
+		}
+	}
+	else
+	{
+		const auto& official_hash = assets_info.get_base_name_to_hash_map().at(Assets::map_data_base_name);
+
+		assets_info.set_levels_hash(official_hash);
+	}
+
+	::OpenMapFile();
+}
+
+void CAL_SetupMapFile()
+{
+    int16_t i;
+    bstone::FileStream handle;
+    int32_t pos;
+    mapfiletype header;
+    maptype* map_header;
+
+	cal_setup_map_data_file();
+
+    //
+    // load maphead.ext (offsets and tileinfo for map file)
+    //
+
+    ::ca_open_resource(Assets::map_header_base_name, handle);
+    handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
+    handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
+
+    rlew_tag = header.RLEWtag;
+
+    //
+    // load all map header
+    //
+    for (i = 0; i < NUMMAPS; ++i) {
+        pos = header.headeroffsets[i];
+
+        if (pos < 0) {
+            continue;
+        }
+
+        mapheaderseg[i] = new maptype();
+        map_header = mapheaderseg[i];
+
+        maphandle.set_position(pos);
+
+        maphandle.read(
+            &map_header->planestart,
+            sizeof(map_header->planestart));
+
+        maphandle.read(
+            &map_header->planelength,
+            sizeof(map_header->planelength));
+
+        maphandle.read(
+            &map_header->width,
+            sizeof(map_header->width));
+
+        maphandle.read(
+            &map_header->height,
+            sizeof(map_header->height));
+
+        maphandle.read(
+            &map_header->name,
+            sizeof(map_header->name));
+    }
+
+    //
+    // allocate space for 3 64*64 planes
+    //
+    for (i = 0; i < MAPPLANES; ++i) {
+        mapsegs[i] = new uint16_t[64 * 64];
+    }
+}
+
+
+// --------------------- Other general functions ------------------------
+
+extern CP_itemtype NewEmenu[];
+extern int16_t EpisodeSelect[];
 
 
 void CheckForEpisodes()

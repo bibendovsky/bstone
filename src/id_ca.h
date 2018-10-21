@@ -123,7 +123,15 @@ public:
 		const AssetsBaseNameToHashMap& base_name_to_hash_map);
 
 
+	const std::string& get_levels_hash() const;
+
+	void set_levels_hash(
+		const std::string& levels_hash);
+
+
 	int get_gfx_header_offset_count() const;
+
+	bool are_modded_levels() const;
 
 
 	bool is_aog_full_v1_0() const;
@@ -166,7 +174,11 @@ private:
 
 	static AssetsBaseNameToHashMap base_name_to_hash_map_;
 
+	static std::string levels_hash_;
+
 	static int gfx_header_offset_count_;
+
+	static bool are_modded_levels_;
 }; // AssetsInfo
 
 
@@ -226,6 +238,10 @@ struct Assets final
 
 
 	static const AssetsBaseNameToHashMap& get_ps_base_name_to_hash_map();
+
+
+	static bool are_official_levels(
+		const std::string& levels_hash);
 }; // Assets
 
 // ===========================================================================

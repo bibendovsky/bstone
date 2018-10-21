@@ -2920,6 +2920,7 @@ extern int16_t TITLE_LOOP_MUSIC;
 
 
 extern std::string data_dir;
+extern std::string mod_dir_;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 

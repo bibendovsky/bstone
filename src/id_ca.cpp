@@ -762,8 +762,6 @@ void CA_CacheMap(
 
     mapon = mapnum;
 
-    OpenMapFile();
-
     // BBi
     bstone::Sha1 map_sha1;
     ::map_compressed_size = 0;
@@ -812,8 +810,6 @@ void CA_CacheMap(
                       rlew_tag);
 #endif
     }
-
-    CloseMapFile();
 
     // BBi
     map_sha1.finish();
@@ -1063,7 +1059,7 @@ bool ca_open_resource_non_fatal(
 	if (!is_open)
 	{
 		const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
-		const auto path_lc = ::data_dir + file_name_lc;
+		const auto path_lc = data_dir + file_name_lc;
 
 		is_open = file_stream.open(path_lc);
 	}
@@ -1076,7 +1072,21 @@ bool ca_open_resource_non_fatal(
 	const std::string& file_extension,
 	bstone::FileStream& file_stream)
 {
-	return ca_open_resource_non_fatal(::data_dir, file_name_without_ext, file_extension, file_stream);
+	if (!::mod_dir_.empty())
+	{
+		const auto mod_dir_result = ca_open_resource_non_fatal(
+			::mod_dir_, file_name_without_ext, file_extension, file_stream);
+
+		if (mod_dir_result)
+		{
+			return true;
+		}
+	}
+
+	const auto data_dir_result = ca_open_resource_non_fatal(
+		::data_dir, file_name_without_ext, file_extension, file_stream);
+
+	return data_dir_result;
 }
 
 void ca_open_resource(
@@ -1222,6 +1232,8 @@ AssetsCRefString AssetsInfo::extension_ = empty_extension_;
 AssetsCRefStrings AssetsInfo::base_names_;
 AssetsBaseNameToHashMap AssetsInfo::base_name_to_hash_map_;
 int AssetsInfo::gfx_header_offset_count_;
+std::string AssetsInfo::levels_hash_;
+bool AssetsInfo::are_modded_levels_;
 
 
 AssetsVersion AssetsInfo::get_version() const
@@ -1302,9 +1314,42 @@ void AssetsInfo::set_base_name_to_hash_map(
 	base_name_to_hash_map_ = base_name_to_hash_map;
 }
 
+const std::string& AssetsInfo::get_levels_hash() const
+{
+	return levels_hash_;
+}
+
+void AssetsInfo::set_levels_hash(
+	const std::string& levels_hash)
+{
+	levels_hash_ = levels_hash;
+
+	static const auto all_levels_hashes = AssetsCRefStrings
+	{
+		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_ps_base_name_to_hash_map().at(Assets::map_data_base_name),
+	}; // all_levels_hashes
+
+	are_modded_levels_ = !Assets::are_official_levels(levels_hash_);
+}
+
 int AssetsInfo::get_gfx_header_offset_count() const
 {
 	return gfx_header_offset_count_;
+}
+
+bool AssetsInfo::are_modded_levels() const
+{
+	return are_modded_levels_;
 }
 
 bool AssetsInfo::is_aog_full_v1_0() const
@@ -1724,4 +1769,34 @@ const AssetsBaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
 	}; // ps_base_name_to_hash_map
 
 	return ps_base_name_to_hash_map;
+}
+
+bool Assets::are_official_levels(
+	const std::string& levels_hash)
+{
+	static const auto all_levels_hashes = AssetsCRefStrings
+	{
+		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_ps_base_name_to_hash_map().at(Assets::map_data_base_name),
+	}; // all_levels_hashes
+
+	const auto result = std::any_of(
+		all_levels_hashes.cbegin(),
+		all_levels_hashes.cend(),
+		[&](const std::string& item)
+		{
+			return item == levels_hash;
+		}
+	);
+
+	return result;
 }
