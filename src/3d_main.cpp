@@ -10321,13 +10321,13 @@ void gametype::restore_local_barriers()
 }
 
 void sys_sleep_for(
-    int milliseconds)
+	const int milliseconds)
 {
 #ifdef __vita__
     sceKernelDelayThread(milliseconds);
 //    SDL_Delay(milliseconds); // todo: investigate this as alternative
 #else
-    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+	::SDL_Delay(milliseconds);
 #endif
 }
 

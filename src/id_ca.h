@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include <unordered_map>
 #include "3d_def.h"
 
 

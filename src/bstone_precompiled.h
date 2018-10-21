@@ -31,6 +31,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_PRECOMPILED_INCLUDED
 
 
+#ifdef BSTONE_USE_PCH
+
+
 #include <cassert>
 #include <cctype>
 #include <cmath>
@@ -64,6 +67,9 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 #include "SDL.h"
+
+
+#endif // BSTONE_USE_PCH
 
 
 #endif // BSTONE_PRECOMPILED_INCLUDED
