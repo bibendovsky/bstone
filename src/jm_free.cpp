@@ -709,7 +709,7 @@ void CAL_SetupGrFile()
 
 static void cal_setup_map_data_file()
 {
-	auto& assets_info = AssetsInfo{};
+	auto assets_info = AssetsInfo{};
 
 	auto has_mod = false;
 

@@ -4699,7 +4699,7 @@ inline double m_pi()
 
 
 void sys_sleep_for(
-    int milliseconds);
+	const int milliseconds);
 
 void sys_default_sleep_for();
 
