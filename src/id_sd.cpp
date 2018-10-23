@@ -362,12 +362,12 @@ void sd_play_sound(
 
     if (actor) {
         switch (actor_type) {
-        case bstone::AT_ACTOR:
+        case bstone::ActorType::actor:
             actor_index = static_cast<int>(
                 static_cast<const objtype*>(actor) - objlist);
             break;
 
-        case bstone::AT_DOOR:
+        case bstone::ActorType::door:
             actor_index = static_cast<int>(
                 static_cast<const doorobj_t*>(actor) - doorobjlist);
             break;
@@ -424,7 +424,7 @@ void sd_play_actor_sound(
     sd_play_sound(
         sound_index,
         actor,
-        bstone::AT_ACTOR,
+        bstone::ActorType::actor,
         actor_channel);
 }
 
@@ -435,7 +435,7 @@ void sd_play_player_sound(
     sd_play_sound(
         sound_index,
         player,
-        bstone::AT_ACTOR,
+        bstone::ActorType::actor,
         actor_channel);
 }
 
@@ -446,8 +446,8 @@ void sd_play_door_sound(
     sd_play_sound(
         sound_index,
         door,
-        bstone::AT_DOOR,
-        bstone::AC_VOICE);
+        bstone::ActorType::door,
+        bstone::ActorChannel::voice);
 }
 
 void sd_play_wall_sound(
@@ -456,8 +456,8 @@ void sd_play_wall_sound(
     sd_play_sound(
         sound_index,
         nullptr,
-        bstone::AT_WALL,
-        bstone::AC_VOICE);
+        bstone::ActorType::wall,
+        bstone::ActorChannel::voice);
 }
 
 void sd_update_positions()

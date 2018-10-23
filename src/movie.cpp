@@ -366,7 +366,7 @@ void MOVIE_HandlePage(
 
         ::sd_play_player_sound(
             sound_chunk,
-            bstone::AC_ITEM);
+            bstone::ActorChannel::item);
 
         BufferPtr += blk.recsize;
     }

@@ -1088,7 +1088,7 @@ void OperateDoor(
     if (oneway) {
         if (doorobjlist[door].action == dr_closed) {
             DISPLAY_TIMED_MSG(od_oneway, MP_DOOR_OPERATE, MT_GENERAL);
-            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+            ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
         }
 
         return;
@@ -1101,7 +1101,7 @@ void OperateDoor(
     lock = static_cast<int16_t>(doorobjlist[door].lock);
     if (lock != kt_none) {
         if (!(gamestate.numkeys[lock - kt_red])) {
-            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+            ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
             switch (lock) {
             case kt_red:
@@ -1224,7 +1224,7 @@ void DropPlasmaDetonator()
         obj->flags |= FL_SHOOTABLE;
 
         DISPLAY_TIMED_MSG(pd_dropped, MP_DOOR_OPERATE, MT_GENERAL);
-        ::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::AC_VOICE);
+        ::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::ActorChannel::voice);
 
         TakePlasmaDetonator(1);
         return;
@@ -1870,7 +1870,7 @@ void OperateConcession(
 			if (gamestate.health == 100)
 			{
 				DISPLAY_TIMED_MSG(noeat_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
-				::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 
 				return;
 			}
@@ -1895,7 +1895,7 @@ void OperateConcession(
 			if (!gamestate.tokens)
 			{
 				DISPLAY_TIMED_MSG(NoFoodTokens, MP_NO_MORE_TOKENS, MT_NO_MO_FOOD_TOKENS);
-				::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 
 				return;
 			}
@@ -1905,7 +1905,7 @@ void OperateConcession(
 			}
 
 			ci->mInfo.local_val--;
-			::sd_play_player_sound(CONCESSIONSSND, bstone::AC_ITEM);
+			::sd_play_player_sound(CONCESSIONSSND, bstone::ActorChannel::item);
 
 			switch (ci->type)
 			{
@@ -1935,7 +1935,7 @@ void OperateConcession(
 	else
 	{
 		DISPLAY_TIMED_MSG(OutOrder, MP_CONCESSION_OUT_ORDER, MT_GENERAL);
-		::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+		::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 	}
 }
 
@@ -2035,13 +2035,13 @@ void CheckSpawnEA()
         usedummy = true;
         SpawnStand(en_electro_alien, temp.tilex, temp.tiley, 0);
 
-        ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
+        ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
 
         usedummy = false;
         if (new_actor != &dummyobj) {
             eaList[static_cast<int>(loop)].aliens_out++;
             new_actor->temp2 = loop;
-            ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
+            ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
         }
 
         // Reset spawn delay.

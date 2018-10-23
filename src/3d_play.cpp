@@ -1160,7 +1160,7 @@ void CheckMusicToggle()
             if (!::sd_has_audio) {
                 DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
-                ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+                ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
                 return;
             } else if (::sd_is_music_enabled) {
                 ::SD_EnableMusic(false);

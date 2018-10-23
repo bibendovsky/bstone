@@ -88,7 +88,7 @@ public:
 
 	operator T() const
 	{
-		return value_;
+		return value_.load(std::memory_order_acquire);
 	}
 
 	Atomic& operator-=(

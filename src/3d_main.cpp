@@ -8988,7 +8988,7 @@ bool LoadTheGame(
 
 			::Message(message);
 
-			::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
+			::sd_play_player_sound(::NOWAYSND, bstone::ActorChannel::no_way);
 
 			::WindowX = old_wx;
 			::WindowY = old_wy;

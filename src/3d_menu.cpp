@@ -1044,7 +1044,7 @@ void binds_draw_menu()
 
                 if (Keyboard[ScanCode::sc_escape]) {
                     quit = true;
-                    sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+                    sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
                 } else if (LastScan != ScanCode::sc_none) {
                     auto& item = binds[binds_window + binds_window_offset];
 
@@ -1052,7 +1052,7 @@ void binds_draw_menu()
                         ShootSnd();
                         quit = true;
                     } else {
-                        sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                        sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
                     }
                 }
             }
@@ -1196,7 +1196,7 @@ void binds_draw_menu()
 
             if (handle_escape) {
                 handle_escape = false;
-                sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+                sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
                 break;
             }
         }
@@ -1689,7 +1689,7 @@ firstpart:
 
             default:
                 if (!EpisodeSelect[which]) {
-                    ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                    ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
                     CacheMessage(READTHIS_TEXT);
                     IN_ClearKeysDown();
                     IN_Ack();
@@ -2591,7 +2591,7 @@ int16_t CP_SaveGame(
 
                 PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
                 VW_UpdateScreen();
-                ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+                ::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
                 continue;
             }
 
@@ -2790,7 +2790,7 @@ void MouseSensitivity(
                 ::mouseadjustment -= 1;
                 DrawMousePos();
                 VW_UpdateScreen();
-                ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+                ::sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 
                 while (Keyboard[ScanCode::sc_left_arrow]) {
                     ::in_handle_events();
@@ -2807,7 +2807,7 @@ void MouseSensitivity(
                 ::mouseadjustment += 1;
                 DrawMousePos();
                 VW_UpdateScreen();
-                ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+                ::sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 
                 while (Keyboard[ScanCode::sc_right_arrow]) {
                     ::in_handle_events();
@@ -2831,9 +2831,9 @@ void MouseSensitivity(
 
     if (exit == 2) {
         ::mouseadjustment = oldMA;
-        ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
     } else {
-        ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
     }
 
     WaitKeyUp();
@@ -3015,7 +3015,7 @@ bool TestForValidKey(
 
     if (found) {
         *it = ScanCode::sc_none;
-        ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(SHOOTDOORSND, bstone::ActorChannel::item);
         ::DrawCustomScreen();
     }
 
@@ -3131,7 +3131,7 @@ void EnterCtrlData(
                         US_Print("?");
 
                         ::sd_play_player_sound(
-                            HITWALLSND, bstone::AC_ITEM);
+                            HITWALLSND, bstone::ActorChannel::item);
                     }
 
                     tick ^= 1;
@@ -3170,7 +3170,7 @@ void EnterCtrlData(
                         picked = 1;
 
                         ::sd_play_player_sound(
-                            SHOOTDOORSND, bstone::AC_ITEM);
+                            SHOOTDOORSND, bstone::ActorChannel::item);
 
                         clean_display = false;
                     }
@@ -3200,7 +3200,7 @@ void EnterCtrlData(
                         buttonjoy[result - 1] = static_cast<int16_t>(order[which]);
                         picked = 1;
 
-                        ::sd_play_player_sound(SHOOTDOORSND, bstone::AC_ITEM);
+                        ::sd_play_player_sound(SHOOTDOORSND, bstone::ActorChannel::item);
 
                         clean_display = false;
                     }
@@ -3218,7 +3218,7 @@ void EnterCtrlData(
                             LastScan);
 
                         if (it != special_keys.cend()) {
-                            ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                            ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
                         } else {
                             clean_display = TestForValidKey(LastScan);
 
@@ -3247,7 +3247,7 @@ void EnterCtrlData(
                             LastScan);
 
                         if (it != special_keys.cend()) {
-                            ::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+                            ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
                         } else {
                             clean_display = TestForValidKey(LastScan);
 
@@ -3307,7 +3307,7 @@ void EnterCtrlData(
 
             redraw = 1;
 
-            ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+            ::sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 
             while (ReadAnyControl(&ci), ci.dir != dir_None) {
             }
@@ -3329,7 +3329,7 @@ void EnterCtrlData(
 
             redraw = 1;
 
-            ::sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+            ::sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 
             while (ReadAnyControl(&ci), ci.dir != dir_None) {
             }
@@ -3349,7 +3349,7 @@ void EnterCtrlData(
 
     FREEFONT(STARTFONT + fontnumber);
 
-    ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
     WaitKeyUp();
 }
@@ -4014,7 +4014,7 @@ int16_t HandleMenu(
         return which;
 
     case 2:
-        ::sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
         return -1;
     }
@@ -4308,7 +4308,7 @@ int16_t Confirm(
 
     ::sd_play_player_sound(
         whichsnd[xit],
-        bstone::AC_ITEM);
+        bstone::ActorChannel::item);
 
     FREEFONT(STARTFONT + fontnumber);
 
@@ -4567,7 +4567,7 @@ void DrawMenuGun(
 
 void ShootSnd()
 {
-    ::sd_play_player_sound(SHOOTSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
 }
 
 void ShowPromo()
@@ -4759,7 +4759,7 @@ void cp_sound_volume(
 
             if (old_volumes[0] != *volumes[0]) {
                 sd_set_sfx_volume(sd_sfx_volume);
-                sd_play_player_sound(MOVEGUN1SND, bstone::AC_ITEM);
+                sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
             }
 
             if (old_volumes[1] != *volumes[1]) {
@@ -4776,7 +4776,7 @@ void cp_sound_volume(
         quit = (ci.button1 || Keyboard[ScanCode::sc_escape]);
     }
 
-    sd_play_player_sound(ESCPRESSEDSND, bstone::AC_ITEM);
+    sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
     WaitKeyUp();
     MenuFadeIn();

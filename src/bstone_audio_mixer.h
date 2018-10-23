@@ -49,330 +49,325 @@ namespace bstone
 {
 
 
-enum ActorType
+enum class ActorType
 {
-    AT_NONE,
-    AT_ACTOR,
-    AT_DOOR,
-    AT_WALL
+	none,
+	actor,
+	door,
+	wall,
 }; // ActorType
 
-enum ActorChannel
+enum class ActorChannel
 {
-    AC_VOICE,
-    AC_WEAPON,
-    AC_ITEM,
-    AC_HIT_WALL,
-    AC_NO_WAY,
-    AC_INTERROGATION,
+	voice,
+	weapon,
+	item,
+	hit_wall,
+	no_way,
+	interrogation,
 }; // ActorChannel
 
-enum SoundType
+enum class SoundType
 {
-    ST_NONE,
-    ST_ADLIB_MUSIC,
-    ST_ADLIB_SFX,
-    ST_PCM
+	none,
+	adlib_music,
+	adlib_sfx,
+	pcm,
 }; // SoundType
 
 
-class AudioMixer
+class AudioMixer final
 {
 public:
-    AudioMixer();
+	AudioMixer();
 
-    AudioMixer(
-        const AudioMixer& that) = delete;
+	AudioMixer(
+		const AudioMixer& that) = delete;
 
-    AudioMixer& operator=(
-        const AudioMixer& that) = delete;
+	AudioMixer& operator=(
+		const AudioMixer& that) = delete;
 
-    ~AudioMixer();
+	~AudioMixer();
 
 
-    // Note: Mix size in milliseconds.
-    bool initialize(
-        int dst_rate,
-        int mix_size_ms);
+	// Note: Mix size in milliseconds.
+	bool initialize(
+		const int dst_rate,
+		const int mix_size_ms);
 
-    void uninitialize();
+	void uninitialize();
 
-    bool is_initialized() const;
+	bool is_initialized() const;
 
-    bool play_adlib_music(
-        int music_index,
-        const void* data,
-        int data_size);
+	bool play_adlib_music(
+		const int music_index,
+		const void* const data,
+		const int data_size);
 
-    // Negative index of an actor defines a non-positional sound.
-    bool play_adlib_sound(
-        int sound_index,
-        int priority,
-        const void* data,
-        int data_size,
-        int actor_index = -1,
-        ActorType actor_type = AT_NONE,
-        ActorChannel actor_channel = AC_VOICE);
+	// Negative index of an actor defines a non-positional sound.
+	bool play_adlib_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice);
 
-    // Negative index of an actor defines a non-positional sound.
-    bool play_pcm_sound(
-        int sound_index,
-        int priority,
-        const void* data,
-        int data_size,
-        int actor_index = -1,
-        ActorType actor_type = AT_NONE,
-        ActorChannel actor_channel = AC_VOICE);
+	// Negative index of an actor defines a non-positional sound.
+	bool play_pcm_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice);
 
-    bool update_positions();
+	bool update_positions();
 
-    bool stop_music();
+	bool stop_music();
 
-    bool stop_all_sfx();
+	bool stop_all_sfx();
 
-    bool set_mute(
-        bool value);
+	bool set_mute(
+		const bool value);
 
-    bool set_sfx_volume(
-        float volume);
+	bool set_sfx_volume(
+		const float volume);
 
-    bool set_music_volume(
-        float volume);
+	bool set_music_volume(
+		const float volume);
 
-    bool is_music_playing() const;
+	bool is_music_playing() const;
 
-    bool is_any_sfx_playing() const;
+	bool is_any_sfx_playing() const;
 
-    bool is_player_channel_playing(
-        ActorChannel channel) const;
+	bool is_player_channel_playing(
+		const ActorChannel channel) const;
 
-    static int get_min_rate();
+	static int get_min_rate();
 
-    static int get_default_rate();
+	static int get_default_rate();
 
-    static int get_min_mix_size_ms();
+	static int get_min_mix_size_ms();
 
-    static int get_default_mix_size_ms();
+	static int get_default_mix_size_ms();
 
-    static int get_max_channels();
+	static int get_max_channels();
 
-    static int get_max_commands();
+	static int get_max_commands();
 
 
 private:
-    using Sample = int16_t;
-    using Samples = std::vector<Sample>;
+	using Sample = std::int16_t;
+	using Samples = std::vector<Sample>;
 
-    using MixSample = float;
-    using MixSamples = std::vector<MixSample>;
+	using MixSample = float;
+	using MixSamples = std::vector<MixSample>;
 
-    class CacheItem
-    {
-    public:
-        bool is_active;
-        bool is_invalid;
-        SoundType sound_type;
-        int samples_count;
-        int decoded_count;
-        Samples samples;
-        std::unique_ptr<AudioDecoder> decoder;
+	class CacheItem
+	{
+	public:
+		bool is_active;
+		bool is_invalid;
+		SoundType sound_type;
+		int samples_count;
+		int decoded_count;
+		Samples samples;
+		std::unique_ptr<AudioDecoder> decoder;
 
-        CacheItem();
+		CacheItem();
 
-        CacheItem(
-            const CacheItem& that);
+		CacheItem(
+			const CacheItem& that);
 
-        ~CacheItem();
+		~CacheItem();
 
-        CacheItem& operator=(
-            const CacheItem& that);
+		CacheItem& operator=(
+			const CacheItem& that);
 
-        bool is_decoded() const;
-    }; // CacheItem
+		bool is_decoded() const;
+	}; // CacheItem
 
-    using Cache = std::vector<CacheItem>;
+	using Cache = std::vector<CacheItem>;
 
-    class Location
-    {
-    public:
-        Atomic<int> x;
-        Atomic<int> y;
-    }; // Location
+	struct Location final
+	{
+		Atomic<int> x;
+		Atomic<int> y;
+	}; // Location
 
-    using Locations = std::vector<Location>;
+	using Locations = std::vector<Location>;
 
-    class PlayerLocation
-    {
-    public:
-        Atomic<int> view_x;
-        Atomic<int> view_y;
-        Atomic<int> view_cos;
-        Atomic<int> view_sin;
-    }; // PlayerLocation
+	struct PlayerLocation final
+	{
+		Atomic<int> view_x;
+		Atomic<int> view_y;
+		Atomic<int> view_cos;
+		Atomic<int> view_sin;
+	}; // PlayerLocation
 
-    class Positions
-    {
-    public:
-        PlayerLocation player;
-        Locations actors;
-        Locations doors;
-        Location wall;
+	struct Positions final
+	{
+		PlayerLocation player;
+		Locations actors;
+		Locations doors;
+		Location wall;
 
-        void initialize();
+		void initialize();
 
-        void fixed_copy_to(
-            Positions& positions);
-    }; // Positions
+		void fixed_copy_to(
+			Positions& positions);
+	}; // Positions
 
-    class Sound
-    {
-    public:
-        SoundType type;
-        int priority;
-        CacheItem* cache;
-        int decode_offset;
-        int actor_index;
-        ActorType actor_type;
-        ActorChannel actor_channel;
-        float left_volume;
-        float right_volume;
+	struct Sound final
+	{
+		SoundType type;
+		int priority;
+		CacheItem* cache;
+		int decode_offset;
+		int actor_index;
+		ActorType actor_type;
+		ActorChannel actor_channel;
+		float left_volume;
+		float right_volume;
 
-        bool is_audible() const;
-    }; // Sound
+		bool is_audible() const;
+	}; // Sound
 
-    using Sounds = std::list<Sound>;
+	using Sounds = std::list<Sound>;
 
-    enum CommandType
-    {
-        CMD_PLAY,
-        CMD_STOP_MUSIC,
-        CMD_STOP_ALL_SFX
-    }; // CommandType
+	enum CommandType
+	{
+		CMD_PLAY,
+		CMD_STOP_MUSIC,
+		CMD_STOP_ALL_SFX
+	}; // CommandType
 
-    class Command
-    {
-    public:
-        CommandType command;
-        Sound sound;
-        const void* data;
-        int data_size;
-    }; // Command
+	struct Command final
+	{
+		CommandType command;
+		Sound sound;
+		const void* data;
+		int data_size;
+	}; // Command
 
-    using Commands = bstone::MtQueue1R1W<Command>;
+	using Commands = bstone::MtQueue1R1W<Command>;
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
-    using Mutex = std::mutex;
-    using MutexGuard = std::lock_guard<Mutex>;
+	using Mutex = std::mutex;
+	using MutexGuard = std::lock_guard<Mutex>;
 #endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
-    bool is_initialized_;
-    int dst_rate_;
-    SDL_AudioDeviceID device_id_;
+	bool is_initialized_;
+	int dst_rate_;
+	SDL_AudioDeviceID device_id_;
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
-    Mutex mutex_;
-    std::thread thread_;
+	Mutex mutex_;
+	std::thread thread_;
 #endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
-    int mix_samples_count_;
-    Samples buffer_;
-    MixSamples mix_buffer_;
-    std::atomic_bool is_data_available_;
+	int mix_samples_count_;
+	Samples buffer_;
+	MixSamples mix_buffer_;
+	std::atomic_bool is_data_available_;
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
-    std::atomic_bool quit_thread_;
+	std::atomic_bool quit_thread_;
 #endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
-    Sounds sounds_;
-    Commands commands_;
-    bool mute_;
-    Cache adlib_music_cache_;
-    Cache adlib_sfx_cache_;
-    Cache pcm_cache_;
-    Positions positions_;
-    std::atomic_int player_channels_state_;
-    std::atomic_bool is_music_playing_;
-    std::atomic_bool is_any_sfx_playing_;
-    std::atomic<float> sfx_volume_;
-    std::atomic<float> music_volume_;
-    int mix_size_ms_;
+	Sounds sounds_;
+	Commands commands_;
+	bool mute_;
+	Cache adlib_music_cache_;
+	Cache adlib_sfx_cache_;
+	Cache pcm_cache_;
+	Positions positions_;
+	std::atomic_int player_channels_state_;
+	std::atomic_bool is_music_playing_;
+	std::atomic_bool is_any_sfx_playing_;
+	std::atomic<float> sfx_volume_;
+	std::atomic<float> music_volume_;
+	int mix_size_ms_;
 
-    void callback(
-        uint8_t* dst_data,
-        int dst_length);
+	void callback(
+		std::uint8_t* dst_data,
+		const int dst_length);
 
-    void mix();
+	void mix();
 
-    void mix_samples();
+	void mix_samples();
 
-    void handle_commands();
+	void handle_commands();
 
-    void handle_play_command(
-        const Command& command);
+	void handle_play_command(
+		const Command& command);
 
-    void handle_stop_music_command();
+	void handle_stop_music_command();
 
-    void handle_stop_all_sfx_command();
+	void handle_stop_all_sfx_command();
 
-    bool initialize_cache_item(
-        const Command& command,
-        CacheItem& cache_item);
+	bool initialize_cache_item(
+		const Command& command,
+		CacheItem& cache_item);
 
-    bool decode_sound(
-        const Sound& sound);
+	bool decode_sound(
+		const Sound& sound);
 
-    void spatialize_sound(
-        Sound& sound);
+	void spatialize_sound(
+		Sound& sound);
 
-    void spatialize_sounds();
+	void spatialize_sounds();
 
-    bool play_sound(
-        SoundType sound_type,
-        int sound_index,
-        int priority,
-        const void* data,
-        int data_size,
-        int actor_index = -1,
-        ActorType actor_type = AT_NONE,
-        ActorChannel actor_channel = AC_VOICE);
+	bool play_sound(
+		const SoundType sound_type,
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice);
 
-    CacheItem* get_cache_item(
-        SoundType sound_type,
-        int sound_index);
+	CacheItem* get_cache_item(
+		const SoundType sound_type,
+		const int sound_index);
 
-    void set_player_channel_state(
-        const Sound& sound,
-        bool state);
+	void set_player_channel_state(
+		const Sound& sound,
+		const bool state);
 
-    void lock();
+	void lock();
 
-    void unlock();
+	void unlock();
 
-    static void callback_proxy(
-        void* user_data,
-        uint8_t* dst_data,
-        int dst_length);
+	static void callback_proxy(
+		void* user_data,
+		std::uint8_t* dst_data,
+		const int dst_length);
 
-    static int mix_proxy(
-        void* user_data);
+	static int mix_proxy(
+		void* user_data);
 
-    static int calculate_mix_samples_count(
-        int dst_rate,
-        int mix_size_ms);
+	static int calculate_mix_samples_count(
+		const int dst_rate,
+		const int mix_size_ms);
 
-    static AudioDecoder* create_decoder_by_sound_type(
-        SoundType sound_type);
+	static AudioDecoder* create_decoder_by_sound_type(
+		const SoundType sound_type);
 
-    static bool is_sound_type_valid(
-        SoundType sound_type);
+	static bool is_sound_type_valid(
+		const SoundType sound_type);
 
-    static bool is_sound_index_valid(
-        int sound_index,
-        SoundType sound_type);
+	static bool is_sound_index_valid(
+		const int sound_index,
+		const SoundType sound_type);
 }; // AudioMixer
 
 
 } // bstone
 
 
-#endif // BSTONE_AUDIO_MIXER_INCLUDED
+#endif // !BSTONE_AUDIO_MIXER_INCLUDED

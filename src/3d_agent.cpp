@@ -778,7 +778,7 @@ void DrawHealthMonitor()
             heart_picture_index = ECG_HEART_GOOD;
 
             if (::g_heart_beat_sound) {
-                ::sd_play_player_sound(H_BEATSND, bstone::AC_ITEM);
+                ::sd_play_player_sound(H_BEATSND, bstone::ActorChannel::item);
             }
         } else {
             heart_picture_index = ECG_GRID_PIECE;
@@ -1509,7 +1509,7 @@ void GiveAmmo(
         DrawWeapon();
     }
 
-    ::sd_play_player_sound(GETAMMOSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(GETAMMOSND, bstone::ActorChannel::item);
 }
 
 
@@ -1607,7 +1607,7 @@ void GiveToken(
         gamestate.tokens = MAX_TOKENS;
     }
 
-    ::sd_play_player_sound(GOTTOKENSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(GOTTOKENSND, bstone::ActorChannel::item);
 }
 
 
@@ -2262,19 +2262,19 @@ void GetBonus(
 
             GiveKey(keynum);
 
-            ::sd_play_player_sound(GETKEYSND, bstone::AC_ITEM);
+            ::sd_play_player_sound(GETKEYSND, bstone::ActorChannel::item);
 
             TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
             break;
         }
 
     case bo_money_bag:
-        ::sd_play_player_sound(BONUS1SND, bstone::AC_ITEM);
+        ::sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
         givepoints = true;
         break;
 
     case bo_loot:
-        ::sd_play_player_sound(BONUS2SND, bstone::AC_ITEM);
+        ::sd_play_player_sound(BONUS2SND, bstone::ActorChannel::item);
 
         givepoints = true;
         break;
@@ -2284,13 +2284,13 @@ void GetBonus(
     case bo_gold2:
     case bo_gold3:
     case bo_gold:
-        ::sd_play_player_sound(BONUS3SND, bstone::AC_ITEM);
+        ::sd_play_player_sound(BONUS3SND, bstone::ActorChannel::item);
         givepoints = true;
         break;
 
 
     case bo_bonus:
-        ::sd_play_player_sound(BONUS4SND, bstone::AC_ITEM);
+        ::sd_play_player_sound(BONUS4SND, bstone::ActorChannel::item);
         givepoints = true;
         break;
 
@@ -2310,7 +2310,7 @@ void GetBonus(
         }
 
         ::sd_play_player_sound(static_health[check->itemnumber - bo_fullheal][1],
-                               bstone::AC_ITEM);
+                               bstone::ActorChannel::item);
 
         HealSelf(static_health[check->itemnumber - bo_fullheal][0]);
         check->flags &= ~FL_BONUS;
@@ -2341,31 +2341,31 @@ void GetBonus(
     case bo_plasma_detonator:
         TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
         GivePlasmaDetonator(1);
-        ::sd_play_player_sound(GETDETONATORSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(GETDETONATORSND, bstone::ActorChannel::item);
         break;
 
     case bo_pistol:
-        ::sd_play_player_sound(GETPISTOLSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(GETPISTOLSND, bstone::ActorChannel::item);
         GiveWeapon(wp_pistol);
         break;
 
     case bo_burst_rifle:
-        ::sd_play_player_sound(GETBURSTRIFLESND, bstone::AC_ITEM);
+        ::sd_play_player_sound(GETBURSTRIFLESND, bstone::ActorChannel::item);
         GiveWeapon(wp_burst_rifle);
         break;
 
     case bo_ion_cannon:
-        ::sd_play_player_sound(GETIONCANNONSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(GETIONCANNONSND, bstone::ActorChannel::item);
         GiveWeapon(wp_ion_cannon);
         break;
 
     case bo_grenade:
-        ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
         GiveWeapon(wp_grenade);
         break;
 
     case bo_bfg_cannon:
-        ::sd_play_player_sound(GETCANNONSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
         GiveWeapon(wp_bfg_cannon);
         break;
 
@@ -2393,7 +2393,7 @@ void GetBonus(
         }
         gamestate.rpower += RADAR_PAK_VALUE;
 
-        ::sd_play_player_sound(RADAR_POWERUPSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(RADAR_POWERUPSND, bstone::ActorChannel::item);
 
         UpdateRadarGuage();
         break;
@@ -2539,8 +2539,8 @@ bool ClipMove(
     }
 
     if (!g_no_wall_hit_sound) {
-        if (!::sd_is_player_channel_playing(bstone::AC_HIT_WALL)) {
-            ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+        if (!::sd_is_player_channel_playing(bstone::ActorChannel::hit_wall)) {
+            ::sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
         }
     }
 
@@ -3161,7 +3161,7 @@ bool Interrogate(
         }
         DisplayInfoMsg(msg, MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
 
-        ::sd_play_player_sound(INTERROGATESND, bstone::AC_INTERROGATION);
+        ::sd_play_player_sound(INTERROGATESND, bstone::ActorChannel::interrogation);
     }
 
     return rt_value;
@@ -3305,7 +3305,7 @@ int16_t InputFloor()
             }
 
             if (target_level >= 1 && target_level != ::gamestate.mapon) {
-                ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
+                ::sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
 
                 draw_button = true;
                 is_button_pressed = true;
@@ -3505,8 +3505,8 @@ int16_t InputFloor()
                 break;
             } else if (Keyboard[ScanCode::sc_return] || buttonstate[bt_attack]) {
                 if (locked) {
-                    if (!::sd_is_player_channel_playing(bstone::AC_NO_WAY)) {
-                        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+                    if (!::sd_is_player_channel_playing(bstone::ActorChannel::no_way)) {
+                        ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
                     }
                 } else {
                     int8_t loop;
@@ -3912,7 +3912,7 @@ uint8_t ShowRatio(
 
         if (!show_stats_quick) {
             if (!(loop % 2)) {
-                ::sd_play_player_sound(STATS1SND, bstone::AC_ITEM);
+                ::sd_play_player_sound(STATS1SND, bstone::ActorChannel::item);
             }
             VW_WaitVBL(1);
             VW_UpdateScreen();
@@ -3920,7 +3920,7 @@ uint8_t ShowRatio(
     }
 
     if (!show_stats_quick && numbars) {
-        ::sd_play_player_sound(STATS2SND, bstone::AC_ITEM);
+        ::sd_play_player_sound(STATS2SND, bstone::ActorChannel::item);
 
         while (::SD_SoundPlaying() && LastScan == ScanCode::sc_none) {
             ::in_handle_events();
@@ -3981,7 +3981,7 @@ void B_GAliFunc()
 
 void B_EManFunc()
 {
-    ::sd_play_player_sound(EXTRA_MANSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(EXTRA_MANSND, bstone::ActorChannel::item);
 
     ::fontnumber = 2;
 
@@ -4058,7 +4058,7 @@ void DisplayPinballBonus()
         if ((BONUS_QUEUE & (1 << loop)) && (LastMsgPri < MP_PINBALL_BONUS)) {
             // Start this bonus!
             //
-            ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
+            ::sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
 
             DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
 
@@ -4206,23 +4206,23 @@ void GunAttack(
 
     switch (gamestate.weapon) {
     case wp_autocharge:
-        ::sd_play_player_sound(ATKAUTOCHARGESND, bstone::AC_WEAPON);
+        ::sd_play_player_sound(ATKAUTOCHARGESND, bstone::ActorChannel::weapon);
 
         skip = true;
         break;
 
     case wp_pistol:
-        ::sd_play_player_sound(ATKCHARGEDSND, bstone::AC_WEAPON);
+        ::sd_play_player_sound(ATKCHARGEDSND, bstone::ActorChannel::weapon);
 
         skip = true;
         break;
 
     case wp_burst_rifle:
-        ::sd_play_player_sound(ATKBURSTRIFLESND, bstone::AC_WEAPON);
+        ::sd_play_player_sound(ATKBURSTRIFLESND, bstone::ActorChannel::weapon);
         break;
 
     case wp_ion_cannon:
-        ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
+        ::sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
         break;
 
     }
@@ -4450,7 +4450,7 @@ void T_Attack(
                     }
                 }
 
-                ::sd_play_player_sound(ATKGRENADESND, bstone::AC_WEAPON);
+                ::sd_play_player_sound(ATKGRENADESND, bstone::ActorChannel::weapon);
 
                 SpawnProjectile(ob, grenadeobj);
                 MakeAlertNoise(ob);
@@ -4486,7 +4486,7 @@ void T_Attack(
                     }
                 }
 
-                ::sd_play_player_sound(ATKIONCANNONSND, bstone::AC_WEAPON);
+                ::sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
 
                 SpawnProjectile(ob, bfg_shotobj);
                 MakeAlertNoise(ob);
@@ -4536,7 +4536,7 @@ void T_Player(
         Cmd_Use(play_hit_wall_sound);
 
         if (play_hit_wall_sound) {
-            ::sd_play_player_sound(HITWALLSND, bstone::AC_HIT_WALL);
+            ::sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
         }
     }
 

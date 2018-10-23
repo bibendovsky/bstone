@@ -254,7 +254,7 @@ void CheckHighScore(
     // Check for cheaters
 
     if (DebugOk) {
-        ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+        ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
         return;
     }

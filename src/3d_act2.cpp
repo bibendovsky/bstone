@@ -1171,7 +1171,7 @@ void T_OfsThink(
             break;
         }
 
-        ::sd_play_actor_sound(PODHATCHSND, obj, bstone::AC_VOICE);
+        ::sd_play_actor_sound(PODHATCHSND, obj, bstone::ActorChannel::voice);
 
         ::InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
         break;
@@ -1298,7 +1298,7 @@ void T_OfsBounce(
     dist = dx > dy ? dx : dy;
 
     if (dist < TILEGLOBAL) {
-        ::sd_play_actor_sound(ELECARCDAMAGESND, ob, bstone::AC_WEAPON);
+        ::sd_play_actor_sound(ELECARCDAMAGESND, ob, bstone::ActorChannel::weapon);
 
         TakeDamage(4, ob);
     }
@@ -1750,7 +1750,7 @@ void T_SmartThought(
 			if (dy <= 0x16000 && dx <= 0x16000)
 			{
 				::sd_play_actor_sound(
-					ELECARCDAMAGESND, obj, bstone::AC_WEAPON);
+					ELECARCDAMAGESND, obj, bstone::ActorChannel::weapon);
 
 				TakeDamage(4, obj);
 			}
@@ -1803,7 +1803,7 @@ void T_SmartThought(
 				obj->temp1 = MorphEndShapes[dx];
 
 				::sd_play_actor_sound(
-					MorphSounds[dx], obj, bstone::AC_VOICE);
+					MorphSounds[dx], obj, bstone::ActorChannel::voice);
 
 				obj->obclass = static_cast<classtype>(MorphClass[dx]);
 				obj->hitpoints = starthitpoints[gamestate.difficulty][MorphClass[dx] - rentacopobj];
@@ -1840,7 +1840,7 @@ void T_SmartThought(
 				else if (assets_info.is_ps())
 				{
 					DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
-					::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
+					::sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
 					obj->lighting = 0;
 				}
 				break;
@@ -2326,7 +2326,7 @@ void ActivateWallSwitch(
         // BBi
 
         ::DisplaySwitchOperateMsg(num);
-        ::sd_play_player_sound(::SWITCHSND, bstone::AC_ITEM);
+        ::sd_play_player_sound(::SWITCHSND, bstone::ActorChannel::item);
 
         auto tile = &::tilemap[0][0];
         auto actor = reinterpret_cast<size_t*>(&::actorat[0][0]);
@@ -2348,7 +2348,7 @@ void ActivateWallSwitch(
         }
     } else {
         DISPLAY_TIMED_MSG(::SwitchNotActivateMsg, MP_WALLSWITCH_OPERATE, MT_GENERAL);
-        ::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
+        ::sd_play_player_sound(::NOWAYSND, bstone::ActorChannel::no_way);
     }
 }
 
@@ -2817,7 +2817,7 @@ void T_BarrierShutdown(
                     obj->temp3 = (obj->temp3 + 1) % 4;
 
                     ::sd_play_actor_sound(
-                        ELECARCDAMAGESND, obj, bstone::AC_WEAPON);
+                        ELECARCDAMAGESND, obj, bstone::ActorChannel::weapon);
 
                     obj->flags |= (FL_SOLID | FL_FAKE_STATIC);
                     obj->flags &= ~(FL_NEVERMARK | FL_NONMARK);
@@ -3912,7 +3912,7 @@ void A_DeathScream(
 
 		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
@@ -3926,7 +3926,7 @@ void A_DeathScream(
 
 		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
@@ -3948,14 +3948,14 @@ void A_DeathScream(
 
 		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
 
 	case rotating_cubeobj:
-		::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
-		::sd_play_player_sound(VITAL_GONESND, bstone::AC_ITEM);
+		::sd_play_actor_sound(EXPLODE1SND, ob, bstone::ActorChannel::voice);
+		::sd_play_player_sound(VITAL_GONESND, bstone::ActorChannel::item);
 		break;
 
 	case gen_scientistobj:
@@ -3970,14 +3970,14 @@ void A_DeathScream(
 
 		auto sound_index = assets_info.is_aog_sw() ? 0 : (::US_RndT() % 3);
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 		break;
 	}
 
 	case genetic_guardobj:
 		if (assets_info.is_aog())
 		{
-			::sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::AC_VOICE);
+			::sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::ActorChannel::voice);
 			break;
 		}
 
@@ -3985,11 +3985,11 @@ void A_DeathScream(
 	case cyborg_warriorobj:
 	case acid_dragonobj:
 	case podobj:
-		::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case liquidobj:
-		::sd_play_actor_sound(LIQUIDDIESND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(LIQUIDDIESND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case proguardobj:
@@ -4001,42 +4001,42 @@ void A_DeathScream(
 
 		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
 
 	case final_boss1obj:
 	case spider_mutantobj:
-		::sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case mech_guardianobj:
 	case final_boss3obj:
 	case mutant_human2obj:
-		::sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case reptilian_warriorobj:
 	case scan_alienobj:
-		::sd_play_actor_sound(SCANDEATHSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(SCANDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case lcan_alienobj:
 	case final_boss4obj:
-		::sd_play_actor_sound(LCANDEATHSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(LCANDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case gurneyobj:
-		::sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case lcan_wait_alienobj:
-		::sd_play_actor_sound(LCANBREAKSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(LCANBREAKSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case scan_wait_alienobj:
-		::sd_play_actor_sound(SCANBREAKSND, ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(SCANBREAKSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	default:
@@ -4750,12 +4750,12 @@ void T_Shoot(
 		case proguardobj:
 		case swatobj:
 			::sd_play_actor_sound(
-				ATKBURSTRIFLESND, ob, bstone::AC_WEAPON);
+				ATKBURSTRIFLESND, ob, bstone::ActorChannel::weapon);
 			break;
 
 		default:
 			::sd_play_actor_sound(
-				ATKCHARGEDSND, ob, bstone::AC_WEAPON);
+				ATKCHARGEDSND, ob, bstone::ActorChannel::weapon);
 			break;
 		}
 
@@ -4815,14 +4815,14 @@ void T_Hit(
     case podobj:
         hitchance = 220; // Higher - Better Chance (255 max!)
         damage = (US_RndT() >> 3) | 1;
-        ::sd_play_actor_sound(CLAWATTACKSND, ob, bstone::AC_WEAPON);
+        ::sd_play_actor_sound(CLAWATTACKSND, ob, bstone::ActorChannel::weapon);
         break;
 
     case genetic_guardobj:
     case mutant_human2obj:
         hitchance = 220; // Higher - Better Chance (255 max!)
         damage = (US_RndT() >> 3) | 1;
-        ::sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::AC_WEAPON);
+        ::sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::ActorChannel::weapon);
         break;
 
     default:
@@ -5033,25 +5033,25 @@ void T_GoldMorph(
 void A_Laugh(
     objtype* obj)
 {
-    ::sd_play_actor_sound(GOLDSTERNLAUGHSND, obj, bstone::AC_VOICE);
+    ::sd_play_actor_sound(GOLDSTERNLAUGHSND, obj, bstone::ActorChannel::voice);
 }
 
 void A_WarpIn(
     objtype*)
 {
-    ::sd_play_player_sound(WARPINSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
 }
 
 void A_WarpOut(
     objtype*)
 {
-    ::sd_play_player_sound(WARPOUTSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(WARPOUTSND, bstone::ActorChannel::item);
 }
 
 void A_Beep(
     objtype*)
 {
-    ::sd_play_player_sound(ELEV_BUTTONSND, bstone::AC_ITEM);
+    ::sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
 }
 
 void InitGoldsternInfo()
@@ -5147,7 +5147,7 @@ statetype s_scout_dead = { 0, SPR_DEMO, 20, nullptr, nullptr, &s_scout_dead };
 void A_Scout_Alert(
     objtype* obj)
 {
-    ::sd_play_actor_sound(SCOUT_ALERTSND, obj, bstone::AC_VOICE);
+    ::sd_play_actor_sound(SCOUT_ALERTSND, obj, bstone::ActorChannel::voice);
 
     MakeAlertNoise(obj);
 }
@@ -5493,7 +5493,7 @@ void SpawnProjectile(
         SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_random);
 
         ::sd_play_actor_sound(
-            SPITATTACKSND, new_actor, bstone::AC_VOICE);
+            SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
 
         new_actor->speed = SPDPROJ;
         angle_adj = 1 - (US_RndT() & 3);
@@ -5510,7 +5510,7 @@ void SpawnProjectile(
         SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_shot1);
 
         ::sd_play_actor_sound(
-            ELECTSHOTSND, new_actor, bstone::AC_VOICE);
+            ELECTSHOTSND, new_actor, bstone::ActorChannel::voice);
 
         new_actor->speed = SPDPROJ;
         angle_adj = 1 - (US_RndT() & 3);
@@ -5540,7 +5540,7 @@ void SpawnProjectile(
         SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_liquid_shot);
 
         ::sd_play_actor_sound(
-            SPITATTACKSND, new_actor, bstone::AC_VOICE);
+            SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
 
         new_actor->temp2 = SPR_SPIT1_1 + temp;
         new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
@@ -6055,7 +6055,7 @@ void ExplodeFill(
 						::InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
 
 						::sd_play_actor_sound(
-							EXPLODE1SND, proj_check, bstone::AC_VOICE);
+							EXPLODE1SND, proj_check, bstone::ActorChannel::voice);
 
 						// Unlock Next floor
 
