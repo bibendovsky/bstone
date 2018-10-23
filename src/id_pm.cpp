@@ -24,6 +24,7 @@ Free Software Foundation, Inc.,
 
 #include "id_pm.h"
 #include "id_heads.h"
+#include "bstone_memory_binary_reader.h"
 
 
 // File specific variables

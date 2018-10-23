@@ -31,194 +31,212 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 #include <memory>
 
-namespace bstone {
+
+namespace bstone
+{
 
 
-MemoryBinaryReader::MemoryBinaryReader() :
-        data_(),
-        data_size_(),
-        data_offset_()
+MemoryBinaryReader::MemoryBinaryReader()
+	:
+	data_{},
+	data_size_{},
+	data_offset_{}
 {
 }
 
 MemoryBinaryReader::MemoryBinaryReader(
-    const void* data,
-    int64_t data_size)
+	const void* data,
+	const std::int64_t data_size)
 {
-    open(data, data_size);
+	static_cast<void>(open(data, data_size));
 }
 
 bool MemoryBinaryReader::is_initialized() const
 {
-    return data_ != nullptr;
+	return data_ != nullptr;
 }
 
 bool MemoryBinaryReader::open(
-    const void* data,
-    int64_t data_size)
+	const void* data,
+	const std::int64_t data_size)
 {
-    close();
+	close();
 
-    if (!data) {
-        return false;
-    }
+	if (!data)
+	{
+		return false;
+	}
 
-    if (data_size <= 0) {
-        return false;
-    }
+	if (data_size <= 0)
+	{
+		return false;
+	}
 
-    data_ = static_cast<const uint8_t*>(data);
-    data_size_ = data_size;
-    data_offset_ = 0;
+	data_ = static_cast<const std::uint8_t*>(data);
+	data_size_ = data_size;
+	data_offset_ = 0;
 
-    return true;
+	return true;
 }
 
 void MemoryBinaryReader::close()
 {
-    data_ = nullptr;
-    data_size_ = 0;
-    data_offset_ = 0;
+	data_ = nullptr;
+	data_size_ = 0;
+	data_offset_ = 0;
 }
 
-int8_t MemoryBinaryReader::read_s8()
+std::int8_t MemoryBinaryReader::read_s8()
 {
-    return read<int8_t>();
+	return read<std::int8_t>();
 }
 
-uint8_t MemoryBinaryReader::read_u8()
+std::uint8_t MemoryBinaryReader::read_u8()
 {
-    return read<uint8_t>();
+	return read<std::uint8_t>();
 }
 
-int16_t MemoryBinaryReader::read_s16()
+std::int16_t MemoryBinaryReader::read_s16()
 {
-    return read<int16_t>();
+	return read<std::int16_t>();
 }
 
-uint16_t MemoryBinaryReader::read_u16()
+std::uint16_t MemoryBinaryReader::read_u16()
 {
-    return read<uint16_t>();
+	return read<std::uint16_t>();
 }
 
-int32_t MemoryBinaryReader::read_s32()
+std::int32_t MemoryBinaryReader::read_s32()
 {
-    return read<int32_t>();
+	return read<std::int32_t>();
 }
 
-uint32_t MemoryBinaryReader::read_u32()
+std::uint32_t MemoryBinaryReader::read_u32()
 {
-    return read<uint32_t>();
+	return read<std::uint32_t>();
 }
 
-int64_t MemoryBinaryReader::read_s64()
+std::int64_t MemoryBinaryReader::read_s64()
 {
-    return read<int64_t>();
+	return read<std::int64_t>();
 }
 
-uint64_t MemoryBinaryReader::read_u64()
+std::uint64_t MemoryBinaryReader::read_u64()
 {
-    return read<uint64_t>();
+	return read<std::uint64_t>();
 }
 
 float MemoryBinaryReader::read_r32()
 {
-    return read<float>();
+	return read<float>();
 }
 
 double MemoryBinaryReader::read_r64()
 {
-    return read<double>();
+	return read<double>();
 }
 
 std::string MemoryBinaryReader::read_string()
 {
 	const auto& endian = bstone::Endian{};
 
-    auto length = endian.little(read_s32());
+	auto length = endian.little(read_s32());
 
-    std::string string(length, '\0');
+	if (length == 0)
+	{
+		return {};
+	}
 
-    if (length > 0) {
-        if (!read(&string[0], length)) {
-            string.clear();
-        }
-    }
+	std::string string(length, '\0');
 
-    return string;
+	if (length > 0)
+	{
+		if (!read(&string[0], length))
+		{
+			return {};
+		}
+	}
+
+	return string;
 }
 
 bool MemoryBinaryReader::read(
-    void* buffer,
-    int count)
+	void* buffer,
+	const int count)
 {
-    if (!buffer) {
-        return false;
-    }
+	if (!buffer)
+	{
+		return false;
+	}
 
-    if (count <= 0) {
-        return true;
-    }
+	if (count <= 0)
+	{
+		return true;
+	}
 
-    if (!is_initialized()) {
-        return false;
-    }
+	if (!is_initialized())
+	{
+		return false;
+	}
 
-    if (data_offset_ < 0) {
-        return false;
-    }
+	if (data_offset_ < 0)
+	{
+		return false;
+	}
 
-    if ((data_offset_ + count) >= data_size_) {
-        return false;
-    }
+	if ((data_offset_ + count) >= data_size_)
+	{
+		return false;
+	}
 
-    std::uninitialized_copy_n(
-        &data_[data_offset_],
-        count,
-        static_cast<uint8_t*>(buffer));
+	std::uninitialized_copy_n(&data_[data_offset_], count, static_cast<std::uint8_t*>(buffer));
 
-    data_offset_ += count;
+	data_offset_ += count;
 
-    return true;
+	return true;
 }
 
 bool MemoryBinaryReader::skip(
-    int64_t count)
+	const std::int64_t count)
 {
-    if (!is_initialized()) {
-        return false;
-    }
+	if (!is_initialized())
+	{
+		return false;
+	}
 
-    auto new_offset = data_offset_ + count;
+	auto new_offset = data_offset_ + count;
 
-    if (new_offset < 0) {
-        return false;
-    }
+	if (new_offset < 0)
+	{
+		return false;
+	}
 
-    data_offset_ = new_offset;
+	data_offset_ = new_offset;
 
-    return true;
+	return true;
 }
 
-int64_t MemoryBinaryReader::get_position() const
+std::int64_t MemoryBinaryReader::get_position() const
 {
-    return data_offset_;
+	return data_offset_;
 }
 
 bool MemoryBinaryReader::set_position(
-    int64_t position)
+	const std::int64_t position)
 {
-    if (!is_initialized()) {
-        return false;
-    }
+	if (!is_initialized())
+	{
+		return false;
+	}
 
-    if (position < 0) {
-        return false;
-    }
+	if (position < 0)
+	{
+		return false;
+	}
 
-    data_offset_ = position;
+	data_offset_ = position;
 
-    return true;
+	return true;
 }
 
 
