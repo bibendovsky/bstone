@@ -2,14 +2,7 @@ cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(bstone VERSION 1.1.9 LANGUAGES CXX)
 
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-
-
-if (WIN32)
-	find_package(BStone_SDL2 REQUIRED 2.0.3)
-else ()
-	find_package(BStone_SDL2 REQUIRED 2.0.1)
-endif ()
+find_package(SDL2 REQUIRED)
 
 
 option(BSTONE_USE_STATIC_LINKING "Link build statically.")
@@ -20,7 +13,7 @@ option(BSTONE_USE_PCH "Use precompiled headers.")
 #
 # Target.
 #
-add_executable(bstone)
+add_executable(bstone "")
 
 
 #
@@ -115,6 +108,46 @@ endif ()
 #
 # Target link libraries.
 #
+if (BSTONE_USE_STATIC_LINKING AND NOT WIN32)
+	target_link_libraries(
+		bstone
+		-static
+	)
+endif ()
+
+if (WIN32 AND NOT MINGW)
+	target_link_libraries(
+		bstone
+		SDL2::SDL2main
+	)
+
+	if (BSTONE_USE_STATIC_LINKING)
+		target_link_libraries(
+			bstone
+			SDL2::SDL2-static
+		)
+	else ()
+		target_link_libraries(
+			bstone
+			SDL2::SDL2
+		)
+	endif ()
+else ()
+	target_link_libraries(
+		bstone
+		${SDL2_LIBRARIES}
+	)
+endif ()
+
+if (BSTONE_USE_STATIC_LINKING AND MINGW)
+	target_link_libraries(
+		bstone
+		imm32
+		version
+		winmm
+	)
+endif ()
+
 if (BSTONE_PANDORA)
 	target_link_libraries(
 		bstone
@@ -130,11 +163,6 @@ if (BSTONE_PANDORA)
 	)
 endif ()
 
-target_link_libraries(
-	bstone
-	BStone::SDL2
-)
-
 
 #
 # Target include directories.
@@ -142,9 +170,17 @@ target_link_libraries(
 target_include_directories(
 	bstone
 	PRIVATE
-		${BSTONE_SDL2_INCLUDE_DIR}
 		dosbox
 )
+
+if (NOT WIN32 OR MINGW)
+	target_include_directories(
+		bstone
+		PRIVATE
+			${SDL2_INCLUDE_DIRS}
+			dosbox
+	)
+endif ()
 
 if (BSTONE_PANDORA)
 	target_include_directories(
