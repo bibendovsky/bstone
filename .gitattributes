@@ -8,3 +8,5 @@
 *.hpp text
 
 *.prj binary
+
+README.md merge=ours

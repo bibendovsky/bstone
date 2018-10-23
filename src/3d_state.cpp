@@ -882,6 +882,8 @@ void KillActor(
     ob->flags &= ~(FL_FRIENDLY | FL_SHOOTABLE);
     clas = ob->obclass;
 
+	const auto& assets_info = AssetsInfo{};
+
     switch (clas) {
     case podeggobj:
         ::sd_play_actor_sound(PODHATCHSND, ob, bstone::AC_VOICE);
@@ -916,13 +918,13 @@ void KillActor(
     case floatingbombobj:
         ob->lighting = EXPLOSION_SHADING;
         A_DeathScream(ob);
-        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, ::is_ps() ? 5 : 17);
+        ::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
         break;
 
     case volatiletransportobj:
         ob->lighting = EXPLOSION_SHADING;
         A_DeathScream(ob);
-        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, ::is_ps() ? 5 : 17);
+        ::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
         break;
 
     case goldsternobj:
@@ -1047,7 +1049,7 @@ void KillActor(
     case cyborg_warriorobj:
     case mech_guardianobj:
     case reptilian_warriorobj:
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             ::PlaceItemNearTile(bo_clip2, tilex, tiley);
         }
     case spider_mutantobj:
@@ -1055,7 +1057,7 @@ void KillActor(
     case acid_dragonobj:
         ::NewState(ob, &s_ofs_die1);
 
-        if (!::is_ps()) {
+        if (!assets_info.is_ps()) {
             static_cast<void>(::ReserveStatic());
             ::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
             ActivatePinballBonus(B_GALIEN_DESTROYED);
@@ -1103,7 +1105,7 @@ void KillActor(
         break;
 
     case rotating_cubeobj:
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             break;
         }
 
@@ -1128,7 +1130,7 @@ void KillActor(
     if (KeepSolid) {
         ob->flags &= ~(FL_SHOOTABLE);
 
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             ob->flags2 &= ~FL2_BFG_SHOOTABLE;
         }
 
@@ -1154,7 +1156,7 @@ void KillActor(
 
         ob->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
 
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             ob->flags2 &= ~FL2_BFGSHOT_SOLID;
         }
 
@@ -1236,6 +1238,8 @@ void DamageActor(
         return;
     }
 
+	const auto& assets_info = AssetsInfo{};
+
     switch (ob->obclass) {
     case hang_terrotobj:
         if (gamestate.weapon < wp_burst_rifle) {
@@ -1262,7 +1266,7 @@ void DamageActor(
         return;
 
     case rotating_cubeobj:
-        if (::is_ps()) {
+        if (assets_info.is_ps()) {
             return;
         }
         break;
@@ -1293,7 +1297,7 @@ void DamageActor(
     }
 
     ob->hitpoints -= damage;
-    ob->flags2 |= (::is_ps() ? FL2_DAMAGE_CLOAK : 0);
+    ob->flags2 |= (assets_info.is_ps() ? FL2_DAMAGE_CLOAK : 0);
 
     if (ob->hitpoints <= 0) {
         switch (ob->obclass) {
@@ -1352,7 +1356,7 @@ void DamageActor(
             // a 'wound boundary'!
             //
             if (mod_before != mod_after) {
-                if (!::is_aog_sw()) {
+                if (!assets_info.is_aog_sw()) {
                     ::sd_play_actor_sound(::SWATDEATH2SND, ob, bstone::AC_VOICE);
                 }
 
@@ -1446,7 +1450,7 @@ void DamageActor(
             break;
 
         case rotating_cubeobj:
-            if (::is_ps()) {
+            if (assets_info.is_ps()) {
                 break;
             }
 

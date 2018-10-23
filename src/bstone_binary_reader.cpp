@@ -31,14 +31,14 @@ namespace bstone {
 
 
 BinaryReader::BinaryReader(
-    IStream* stream) :
+    Stream* stream) :
         stream_()
 {
     open(stream);
 }
 
 bool BinaryReader::open(
-    IStream* stream)
+    Stream* stream)
 {
     close();
 
@@ -46,7 +46,7 @@ bool BinaryReader::open(
         return false;
     }
 
-    if (!stream->can_read()) {
+    if (!stream->is_readable()) {
         return false;
     }
 

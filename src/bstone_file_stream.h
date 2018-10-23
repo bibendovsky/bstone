@@ -31,71 +31,80 @@ Free Software Foundation, Inc.,
 #define BSTONE_FILE_STREAM_INCLUDED
 
 
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // File stream.
-class FileStream :
-    public IStream
+class FileStream final :
+	public Stream
 {
 public:
-    FileStream();
+	FileStream();
 
-    FileStream(
-        const std::string& file_name,
-        StreamOpenMode open_mode = StreamOpenMode::read);
+	FileStream(
+		const std::string& file_name,
+		const StreamOpenMode open_mode = StreamOpenMode::read);
 
-    FileStream(
-        const FileStream& that) = delete;
+	FileStream(
+		const FileStream& rhs) = delete;
 
-    FileStream& operator=(
-        const FileStream& that) = delete;
+	FileStream(
+		FileStream&& rhs);
 
-    virtual ~FileStream();
+	FileStream& operator=(
+		const FileStream& rhs) = delete;
 
-    bool open(
-        const std::string& file_name,
-        StreamOpenMode open_mode = StreamOpenMode::read);
+	virtual ~FileStream();
 
-    virtual void close();
 
-    virtual bool is_open() const;
+	bool open(
+		const std::string& file_name,
+		const StreamOpenMode open_mode = StreamOpenMode::read);
 
-    virtual int64_t get_size();
+	void close() override;
 
-    virtual bool set_size(
-        int64_t size);
+	bool is_open() const override;
 
-    virtual int64_t seek(
-        int64_t offset,
-        StreamSeekOrigin origin);
+	std::int64_t get_size() override;
 
-    virtual int read(
-        void* buffer,
-        int count);
+	bool set_size(
+		const std::int64_t size) override;
 
-    virtual bool write(
-        const void* buffer,
-        int count);
+	std::int64_t seek(
+		const std::int64_t offset,
+		const StreamSeekOrigin origin) override;
 
-    virtual bool can_read() const;
+	int read(
+		void* buffer,
+		const int count) override;
 
-    virtual bool can_seek() const;
+	bool write(
+		const void* buffer,
+		const int count) override;
 
-    virtual bool can_write() const;
+	bool is_readable() const override;
 
-    static bool is_exists(
-        const std::string& file_name);
+	bool is_seekable() const override;
+
+	bool is_writable() const override;
+
+
+	static bool is_exists(
+		const std::string& file_name);
 
 
 private:
-    void* context_;
-    bool can_read_;
-    bool can_seek_;
-    bool can_write_;
+	void* context_;
+	bool is_readable_;
+	bool is_seekable_;
+	bool is_writable_;
+
+
+	void close_internal();
 }; // FileStream
 
 

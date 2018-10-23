@@ -26,7 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_BINARY_WRITER_INCLUDED
 
 
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 
 
 namespace bstone {
@@ -35,7 +35,7 @@ namespace bstone {
 class BinaryWriter {
 public:
     BinaryWriter(
-        IStream* stream = nullptr);
+        Stream* stream = nullptr);
 
     BinaryWriter(
         const BinaryWriter& that) = delete;
@@ -45,7 +45,7 @@ public:
 
 
     bool open(
-        IStream* stream);
+        Stream* stream);
 
     // Closes the writer but stream.
     void close();
@@ -137,7 +137,7 @@ public:
 
 
 private:
-    IStream* stream_;
+    Stream* stream_;
 }; // BinaryWriter
 
 

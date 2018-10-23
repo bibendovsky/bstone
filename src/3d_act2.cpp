@@ -318,47 +318,49 @@ uint16_t MorphClass[] = {
 
 void initialize_boss_constants()
 {
-    BossShotShapes = {
-        SPR_BOSS1_PROJ1,
-        0,
-        0,
-        0,
-        SPR_BOSS5_PROJ1,
-        0,
-        0,
-        ::is_ps() ? SPR_BOSS10_SPIT1 : static_cast<int16_t>(0),
-    };
+	const auto& assets_info = AssetsInfo{};
 
-    BossShapes = {
-        SPR_BOSS1_W1,
-        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS2_W1,
-        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS3_W1,
-        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS4_W1,
-        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS5_W1,
-        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS6_W1,
-        ::is_ps() ? SPR_BOSS7_W1 : static_cast<int16_t>(0),
-        ::is_ps() ? SPR_BOSS8_W1 : static_cast<int16_t>(0),
-        ::is_ps() ? SPR_BOSS9_W1 : static_cast<int16_t>(0),
-        ::is_ps() ? SPR_BOSS10_W1 : static_cast<int16_t>(0),
-    };
+	BossShotShapes = {
+		SPR_BOSS1_PROJ1,
+		0,
+		0,
+		0,
+		SPR_BOSS5_PROJ1,
+		0,
+		0,
+		assets_info.is_ps() ? SPR_BOSS10_SPIT1 : static_cast<int16_t>(0),
+	};
 
-    MorphShapes = {
-        SPR_BOSS1_MORPH1,
-        SPR_BOSS4_MORPH1,
-        SPR_MUTHUM2_MORPH1,
-    };
+	BossShapes = {
+		SPR_BOSS1_W1,
+		assets_info.is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS2_W1,
+		assets_info.is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS3_W1,
+		assets_info.is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS4_W1,
+		assets_info.is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS5_W1,
+		assets_info.is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS6_W1,
+		assets_info.is_ps() ? SPR_BOSS7_W1 : static_cast<int16_t>(0),
+		assets_info.is_ps() ? SPR_BOSS8_W1 : static_cast<int16_t>(0),
+		assets_info.is_ps() ? SPR_BOSS9_W1 : static_cast<int16_t>(0),
+		assets_info.is_ps() ? SPR_BOSS10_W1 : static_cast<int16_t>(0),
+	};
 
-    MorphEndShapes = {
-        SPR_BOSS1_W1,
-        ::is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS4_W1,
-        SPR_MUTHUM2_W1,
-    };
+	MorphShapes = {
+		SPR_BOSS1_MORPH1,
+		SPR_BOSS4_MORPH1,
+		SPR_MUTHUM2_MORPH1,
+	};
 
-    MorphSounds = {
-        SCANHALTSND,
-        GGUARDHALTSND,
-        DOGBOYHALTSND,
-    };
+	MorphEndShapes = {
+		SPR_BOSS1_W1,
+		assets_info.is_aog_sw() ? static_cast<int16_t>(0) : SPR_BOSS4_W1,
+		SPR_MUTHUM2_W1,
+	};
+
+	MorphSounds = {
+		SCANHALTSND,
+		GGUARDHALTSND,
+		DOGBOYHALTSND,
+	};
 }
 
 
@@ -654,310 +656,335 @@ uint16_t scan_value;
 
 
 void SpawnOffsetObj(
-    enemy_t which,
-    int16_t tilex,
-    int16_t tiley)
+	enemy_t which,
+	int16_t tilex,
+	int16_t tiley)
 {
-    enemy_t dir_which = en_rentacop;
+	const auto& assets_info = AssetsInfo{};
 
-    switch (which) {
-    case en_vertsphere:
-    case en_horzsphere:
-    case en_diagsphere:
-        dir_which = which;
-        which = en_electrosphere;
-        break;
+	enemy_t dir_which = en_rentacop;
 
-    case en_bloodvent:
-    case en_watervent:
-        dir_which = which;
-        which = en_ventdrip;
+	switch (which)
+	{
+	case en_vertsphere:
+	case en_horzsphere:
+	case en_diagsphere:
+		dir_which = which;
+		which = en_electrosphere;
+		break;
 
-    default:
-        break;
-    }
+	case en_bloodvent:
+	case en_watervent:
+		dir_which = which;
+		which = en_ventdrip;
 
-    SpawnNewObj(tilex, tiley, &s_ofs_stand);
-    new_actor->flags |= FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES;
-    new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	default:
+		break;
+	}
 
-    switch (which) {
-    case en_final_boss2:
-        new_actor->lighting = NO_SHADING;
-    case en_final_boss1:
-    case en_final_boss3:
-    case en_final_boss4:
-    case en_spider_mutant:
-    case en_breather_beast:
-    case en_cyborg_warrior:
-    case en_reptilian_warrior:
-    case en_acid_dragon:
-    case en_mech_guardian:
-        new_actor->temp1 = static_cast<int16_t>(BossShapes[which - en_spider_mutant]);
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags |= FL_PROJ_TRANSPARENT;
+	SpawnNewObj(tilex, tiley, &s_ofs_stand);
+	new_actor->flags |= FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES;
+	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFG_SHOOTABLE | FL2_BFGSHOT_SOLID : 0);
-        break;
+	switch (which)
+	{
+	case en_final_boss2:
+		new_actor->lighting = NO_SHADING;
+	case en_final_boss1:
+	case en_final_boss3:
+	case en_final_boss4:
+	case en_spider_mutant:
+	case en_breather_beast:
+	case en_cyborg_warrior:
+	case en_reptilian_warrior:
+	case en_acid_dragon:
+	case en_mech_guardian:
+		new_actor->temp1 = static_cast<int16_t>(BossShapes[which - en_spider_mutant]);
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags |= FL_PROJ_TRANSPARENT;
 
-    case en_green_ooze:
-        ::InitSmartSpeedAnim(
-            ::new_actor,
-            ::SPR_GREEN_OOZE1,
-            ::US_RndT() % 3,
-            2,
-            at_CYCLE,
-            ad_FWD,
-            (::is_ps() ? 5 + (::US_RndT() & 2) : 30));
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFG_SHOOTABLE | FL2_BFGSHOT_SOLID : 0);
+		break;
 
-        new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-        break;
+	case en_green_ooze:
+		::InitSmartSpeedAnim(
+			::new_actor,
+			::SPR_GREEN_OOZE1,
+			::US_RndT() % 3,
+			2,
+			at_CYCLE,
+			ad_FWD,
+			(assets_info.is_ps() ? 5 + (::US_RndT() & 2) : 30));
 
-    case en_black_ooze:
-        ::InitSmartSpeedAnim(
-            ::new_actor,
-            ::SPR_BLACK_OOZE1,
-            ::US_RndT() % 3,
-            2,
-            at_CYCLE,
-            ad_FWD,
-            (::is_ps() ? 5 + (::US_RndT() & 2) : 30));
+		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
+		break;
 
-        new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-        break;
+	case en_black_ooze:
+		::InitSmartSpeedAnim(
+			::new_actor,
+			::SPR_BLACK_OOZE1,
+			::US_RndT() % 3,
+			2,
+			at_CYCLE,
+			ad_FWD,
+			(assets_info.is_ps() ? 5 + (::US_RndT() & 2) : 30));
 
-    case en_green2_ooze:
-        ::InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
-        new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-        break;
+		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
+		break;
 
-    case en_black2_ooze:
-        ::InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
-        new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-        break;
+	case en_green2_ooze:
+		::InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
+		break;
 
-    case en_crate1:
-    case en_crate2:
-    case en_crate3:
-        new_actor->temp1 = static_cast<int16_t>(SPR_CRATE_1 + which - en_crate1);
-        new_actor->flags |= FL_NO_SLIDE | FL_FAKE_STATIC;
+	case en_black2_ooze:
+		::InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
+		break;
 
-        // NOTE : TEMP2 is modified in ScanInfoPlane to determine if
-        //                       this object is a "blastable" or not.
-        break;
+	case en_crate1:
+	case en_crate2:
+	case en_crate3:
+		new_actor->temp1 = static_cast<int16_t>(SPR_CRATE_1 + which - en_crate1);
+		new_actor->flags |= FL_NO_SLIDE | FL_FAKE_STATIC;
 
-    case en_rotating_cube:
-        if (!::is_ps()) {
-            ::InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
-        } else  {
-            ::InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
-            new_actor->flags2 = FL2_BFGSHOT_SOLID;
-        }
-        new_actor->lighting = LAMP_ON_SHADING;
-        break;
+		// NOTE : TEMP2 is modified in ScanInfoPlane to determine if
+		//                       this object is a "blastable" or not.
+		break;
 
-    case en_ventdrip:
-        if (dir_which == en_bloodvent) {
-            new_actor->temp1 = SPR_BLOOD_DRIP1;
-        } else {
-            new_actor->temp1 = SPR_WATER_DRIP1;
-        }
-        new_actor->temp2 = 5 + (US_RndT() % 10);
-        new_actor->temp3 = 0;
-        NewState(new_actor, &s_ofs_random);
-        new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-        break;
+	case en_rotating_cube:
+		if (!assets_info.is_ps())
+		{
+			::InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+		}
+		else
+		{
+			::InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
+			new_actor->flags2 = FL2_BFGSHOT_SOLID;
+		}
+		new_actor->lighting = LAMP_ON_SHADING;
+		break;
 
-    case en_plasma_detonator:
-    case en_plasma_detonator_reserve:
-        NewState(new_actor, &s_ofs_random);
-        new_actor->temp1 = SPR_DOORBOMB;
-        new_actor->temp3 = PLASMA_DETONATORS_DELAY;
-        new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
-        if (detonators_spawned++) {
-            ::Quit("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
-        }
-        break;
+	case en_ventdrip:
+		if (dir_which == en_bloodvent)
+		{
+			new_actor->temp1 = SPR_BLOOD_DRIP1;
+		}
+		else
+		{
+			new_actor->temp1 = SPR_WATER_DRIP1;
+		}
+		new_actor->temp2 = 5 + (US_RndT() % 10);
+		new_actor->temp3 = 0;
+		NewState(new_actor, &s_ofs_random);
+		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
+		break;
 
-    case en_flickerlight:
-        new_actor->temp1 = SPR_DECO_ARC_1;
-        new_actor->temp2 = (2 + (US_RndT() % 3)) * 60;
-        NewState(new_actor, &s_ofs_random);
-        new_actor->flags |= FL_NONMARK | FL_NEVERMARK;
-        new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
-        new_actor->lighting = LAMP_ON_SHADING;
-        break;
+	case en_plasma_detonator:
+	case en_plasma_detonator_reserve:
+		NewState(new_actor, &s_ofs_random);
+		new_actor->temp1 = SPR_DOORBOMB;
+		new_actor->temp3 = PLASMA_DETONATORS_DELAY;
+		new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
+		if (detonators_spawned++)
+		{
+			::Quit("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
+		}
+		break;
 
-    case en_security_light:
-        new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE); // ick - this is stupid...
-        NewState(new_actor, &s_security_light);
-        break;
+	case en_flickerlight:
+		new_actor->temp1 = SPR_DECO_ARC_1;
+		new_actor->temp2 = (2 + (US_RndT() % 3)) * 60;
+		NewState(new_actor, &s_ofs_random);
+		new_actor->flags |= FL_NONMARK | FL_NEVERMARK;
+		new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
+		new_actor->lighting = LAMP_ON_SHADING;
+		break;
 
-    case en_electrosphere:
-        new_actor->trydir = static_cast<dirtype>(dir_which);
-        new_actor->flags &= ~FL_SOLID;
-        new_actor->temp1 = SPR_ELECTRO_SPHERE_ROAM1;
-        new_actor->speed = 3096;
-        new_actor->lighting = NO_SHADING; // NO shading
-        NewState(new_actor, &s_ofs_bounce);
-        SphereStartDir(new_actor);
-        break;
+	case en_security_light:
+		new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE); // ick - this is stupid...
+		NewState(new_actor, &s_security_light);
+		break;
 
-    case en_podegg:
-        new_actor->temp1 = SPR_POD_EGG;
-        if (scan_value == 0xffff) {
-            new_actor->temp2 = 60 * 5 + (60 * (US_RndT() % 20));
-        } else {
-            new_actor->temp2 = scan_value * 60;
-        }
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        if (new_actor->temp2 == 0xff * 60) {
-            new_actor->flags &= ~FL_SHOOTABLE;
-        }
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_FAKE_STATIC;
+	case en_electrosphere:
+		new_actor->trydir = static_cast<dirtype>(dir_which);
+		new_actor->flags &= ~FL_SOLID;
+		new_actor->temp1 = SPR_ELECTRO_SPHERE_ROAM1;
+		new_actor->speed = 3096;
+		new_actor->lighting = NO_SHADING; // NO shading
+		NewState(new_actor, &s_ofs_bounce);
+		SphereStartDir(new_actor);
+		break;
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_podegg:
+		new_actor->temp1 = SPR_POD_EGG;
+		if (scan_value == 0xffff)
+		{
+			new_actor->temp2 = 60 * 5 + (60 * (US_RndT() % 20));
+		}
+		else
+		{
+			new_actor->temp2 = scan_value * 60;
+		}
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		if (new_actor->temp2 == 0xff * 60)
+		{
+			new_actor->flags &= ~FL_SHOOTABLE;
+		}
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_FAKE_STATIC;
 
-    case en_pod:
-        new_actor->temp1 = SPR_POD_WALK1;
-        new_actor->speed = SPDPATROL;
-        new_actor->ammo = static_cast<uint8_t>(-1);
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        break;
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    case en_genetic_guard:
-        new_actor->temp1 = SPR_GENETIC_W1;
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_pod:
+		new_actor->temp1 = SPR_POD_WALK1;
+		new_actor->speed = SPDPATROL;
+		new_actor->ammo = static_cast<uint8_t>(-1);
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    case en_mutant_human1:
-        new_actor->temp1 = SPR_MUTHUM1_W1;
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
+	case en_genetic_guard:
+		new_actor->temp1 = SPR_GENETIC_W1;
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		break;
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_mutant_human1:
+		new_actor->temp1 = SPR_MUTHUM1_W1;
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
 
-    case en_mutant_human2:
-        new_actor->temp1 = SPR_MUTHUM2_W1;
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_mutant_human2:
+		new_actor->temp1 = SPR_MUTHUM2_W1;
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
 
-    case en_scan_wait_alien:
-        new_actor->temp1 = SPR_SCAN_ALIEN_READY;
-        new_actor->flags |= FL_STATIONARY | FL_NO_SLIDE | FL_FAKE_STATIC;
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_scan_wait_alien:
+		new_actor->temp1 = SPR_SCAN_ALIEN_READY;
+		new_actor->flags |= FL_STATIONARY | FL_NO_SLIDE | FL_FAKE_STATIC;
 
-    case en_lcan_wait_alien:
-        new_actor->temp1 = SPR_LCAN_ALIEN_READY;
-        new_actor->flags |= FL_STATIONARY | FL_NO_SLIDE | FL_FAKE_STATIC;
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_lcan_wait_alien:
+		new_actor->temp1 = SPR_LCAN_ALIEN_READY;
+		new_actor->flags |= FL_STATIONARY | FL_NO_SLIDE | FL_FAKE_STATIC;
 
-    case en_morphing_spider_mutant:
-    case en_morphing_reptilian_warrior:
-    case en_morphing_mutanthuman2:
-        if (scan_value == 0xffff) {
-            new_actor->temp2 = -1; // set to max! // 60*5+(60*(US_RndT()%20));
-        } else {
-            new_actor->temp2 = scan_value * 60;
-        }
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-        if (new_actor->temp2 == 0xff * 60) {
-            new_actor->flags &= ~FL_SHOOTABLE;
-        }
+	case en_morphing_spider_mutant:
+	case en_morphing_reptilian_warrior:
+	case en_morphing_mutanthuman2:
+		if (scan_value == 0xffff)
+		{
+			new_actor->temp2 = -1; // set to max! // 60*5+(60*(US_RndT()%20));
+		}
+		else
+		{
+			new_actor->temp2 = scan_value * 60;
+		}
 
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->temp1 = MorphShapes[which - en_morphing_spider_mutant];
-        new_actor->flags |= FL_FAKE_STATIC;
-        new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-        NewState(new_actor, &s_ofs_random);
-        break;
+		if (new_actor->temp2 == 0xff * 60)
+		{
+			new_actor->flags &= ~FL_SHOOTABLE;
+		}
 
-    case en_gurney_wait:
-        if (scan_value == 0xffff) {
-            new_actor->temp3 = 0;
-        } else {
-            new_actor->temp3 = (scan_value & 0xff) * 60;
-        }
-        new_actor->temp1 = SPR_GURNEY_MUT_READY;
-        new_actor->flags |= FL_STATIONARY | FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_FAKE_STATIC;
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->temp1 = MorphShapes[which - en_morphing_spider_mutant];
+		new_actor->flags |= FL_FAKE_STATIC;
+		new_actor->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
+		NewState(new_actor, &s_ofs_random);
+		break;
 
-        new_actor->flags2 =
-            (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_gurney_wait:
+		if (scan_value == 0xffff)
+		{
+			new_actor->temp3 = 0;
+		}
+		else
+		{
+			new_actor->temp3 = (scan_value & 0xff) * 60;
+		}
+		new_actor->temp1 = SPR_GURNEY_MUT_READY;
+		new_actor->flags |= FL_STATIONARY | FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_FAKE_STATIC;
 
-    case en_lcan_alien: // Large Canister Alien - Out of can.
-        new_actor->temp1 = SPR_LCAN_ALIEN_W1;
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        break;
+		new_actor->flags2 =
+			(assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    case en_scan_alien: // Small Canister Alien - Out of can.
-        new_actor->temp1 = SPR_SCAN_ALIEN_W1;
-        new_actor->speed = ALIENSPEED;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags |= FL_PROJ_TRANSPARENT;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_lcan_alien: // Large Canister Alien - Out of can.
+		new_actor->temp1 = SPR_LCAN_ALIEN_W1;
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    case en_gurney: // Gurney Mutant - Off of gurney.
-        new_actor->temp1 = SPR_GURNEY_MUT_W1;
-        new_actor->speed = ALIENSPEED;
-        new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
-        new_actor->ammo = ALIENAMMOINIT;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_scan_alien: // Small Canister Alien - Out of can.
+		new_actor->temp1 = SPR_SCAN_ALIEN_W1;
+		new_actor->speed = ALIENSPEED;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags |= FL_PROJ_TRANSPARENT;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    default:
-        break;
-    }
+	case en_gurney: // Gurney Mutant - Off of gurney.
+		new_actor->temp1 = SPR_GURNEY_MUT_W1;
+		new_actor->speed = ALIENSPEED;
+		new_actor->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE;
+		new_actor->ammo = ALIENAMMOINIT;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    CheckForSpecialTile(new_actor, tilex, tiley);
+	default:
+		break;
+	}
 
-    if (which < static_cast<enemy_t>(SPACER1_OBJ)) {
-        new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
-    }
+	CheckForSpecialTile(new_actor, tilex, tiley);
 
-    if (!::is_ps()) {
-        switch (which) {
-        case en_spider_mutant:
-        case en_breather_beast:
-        case en_cyborg_warrior:
-        case en_reptilian_warrior:
-        case en_acid_dragon:
-        case en_mech_guardian:
-            ::new_actor->hitpoints *= 15;
-            break;
+	if (which < static_cast<enemy_t>(SPACER1_OBJ))
+	{
+		new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
+	}
 
-        default:
-            break;
-        }
-    }
+	if (!assets_info.is_ps())
+	{
+		switch (which)
+		{
+		case en_spider_mutant:
+		case en_breather_beast:
+		case en_cyborg_warrior:
+		case en_reptilian_warrior:
+		case en_acid_dragon:
+		case en_mech_guardian:
+			::new_actor->hitpoints *= 15;
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 
@@ -1684,278 +1711,323 @@ statetype s_ofs_smart_anim2 = { 0, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_a
 //  per state change.
 // ---------------------------------------------
 void T_SmartThought(
-    objtype* obj)
+	objtype* obj)
 {
-    int32_t dx, dy;
+	const auto& assets_info = AssetsInfo{};
 
-    switch (obj->obclass) {
-    case green_oozeobj:
-    case black_oozeobj:
-    case green2_oozeobj:
-    case black2_oozeobj: {
-        if (((::US_RndT() & 7) == 7) &&
-            ofs_anim_t::get_curframe(obj) == 2 &&
-            obj->tilex == player->tilex &&
-            obj->tiley == player->tiley)
-        {
-            TakeDamage(4, obj);
-        }
-    }
-    break;
+	int32_t dx, dy;
 
-    case arc_barrierobj:
-        if (BARRIER_STATE(obj) == bt_DISABLED) {
-            return;
-        }
+	switch (obj->obclass)
+	{
+	case green_oozeobj:
+	case black_oozeobj:
+	case green2_oozeobj:
+	case black2_oozeobj:
+	{
+		if (((::US_RndT() & 7) == 7) &&
+			ofs_anim_t::get_curframe(obj) == 2 &&
+			obj->tilex == player->tilex &&
+			obj->tiley == player->tiley)
+		{
+			TakeDamage(4, obj);
+		}
+	}
+	break;
 
-        if (US_RndT() < 0x10) {
-            dx = player->x - obj->x;
-            dx = LABS(dx);
-            dy = player->y - obj->y;
-            dy = LABS(dy);
+	case arc_barrierobj:
+		if (BARRIER_STATE(obj) == bt_DISABLED)
+		{
+			return;
+		}
 
-            if (dy <= 0x16000 && dx <= 0x16000) {
-                ::sd_play_actor_sound(
-                    ELECARCDAMAGESND, obj, bstone::AC_WEAPON);
+		if (US_RndT() < 0x10)
+		{
+			dx = player->x - obj->x;
+			dx = LABS(dx);
+			dy = player->y - obj->y;
+			dy = LABS(dy);
 
-                TakeDamage(4, obj);
-            }
-        }
+			if (dy <= 0x16000 && dx <= 0x16000)
+			{
+				::sd_play_actor_sound(
+					ELECARCDAMAGESND, obj, bstone::AC_WEAPON);
 
-    case post_barrierobj:
-        //
-        // Check for Turn offs
-        //
-        if ((uint16_t)obj->temp2 != 0xffff) {
-            if (!gamestate.barrier_table[obj->temp2].on) {
-                ToggleBarrier(obj);
-            }
-        }
-        break;
+				TakeDamage(4, obj);
+			}
+		}
 
-    case volatiletransportobj:
-    case floatingbombobj:
-        if (obj->lighting) {
-            // Slowly inc back to
+	case post_barrierobj:
+		//
+		// Check for Turn offs
+		//
+		if ((uint16_t)obj->temp2 != 0xffff)
+		{
+			if (!gamestate.barrier_table[obj->temp2].on)
+			{
+				ToggleBarrier(obj);
+			}
+		}
+		break;
 
-            obj->lighting += static_cast<int8_t>(ofs_anim_t::get_curframe(obj));
-            if (obj->lighting > 0) {
-                obj->lighting = 0;
-            }
-        }
-        break;
+	case volatiletransportobj:
+	case floatingbombobj:
+		if (obj->lighting)
+		{
+			// Slowly inc back to
 
-    default:
-        break;
-    }
+			obj->lighting += static_cast<int8_t>(ofs_anim_t::get_curframe(obj));
+			if (obj->lighting > 0)
+			{
+				obj->lighting = 0;
+			}
+		}
+		break;
 
-    if (ofs_anim_t::get_animtype(obj) != 0) {
-        int old_frame = ofs_anim_t::get_curframe(obj);
-        bool is_animated = ::AnimateOfsObj(obj);
+	default:
+		break;
+	}
 
-        if (is_animated) {
-            switch (obj->obclass) {
-            case morphing_spider_mutantobj:
-            case morphing_reptilian_warriorobj:
-            case morphing_mutanthuman2obj:
-                dx = obj->obclass - morphing_spider_mutantobj;
-                obj->temp1 = MorphEndShapes[dx];
+	if (ofs_anim_t::get_animtype(obj) != 0)
+	{
+		int old_frame = ofs_anim_t::get_curframe(obj);
+		bool is_animated = ::AnimateOfsObj(obj);
 
-                ::sd_play_actor_sound(
-                    MorphSounds[dx], obj, bstone::AC_VOICE);
+		if (is_animated)
+		{
+			switch (obj->obclass)
+			{
+			case morphing_spider_mutantobj:
+			case morphing_reptilian_warriorobj:
+			case morphing_mutanthuman2obj:
+				dx = obj->obclass - morphing_spider_mutantobj;
+				obj->temp1 = MorphEndShapes[dx];
 
-                obj->obclass = static_cast<classtype>(MorphClass[dx]);
-                obj->hitpoints = starthitpoints[gamestate.difficulty][MorphClass[dx] - rentacopobj];
-                obj->flags &= ~FL_FAKE_STATIC;
-                obj->flags |= FL_PROJ_TRANSPARENT | FL_SHOOTABLE;
-                NewState(obj, &s_ofs_chase1);
-                break;
+				::sd_play_actor_sound(
+					MorphSounds[dx], obj, bstone::AC_VOICE);
 
-            case podeggobj:
-                obj->flags |= FL_SHOOTABLE;
-                obj->obclass = podobj;
-                obj->temp1 = SPR_POD_WALK1;
-                NewState(obj, &s_ofs_chase1);
-                obj->hitpoints = starthitpoints[gamestate.difficulty][en_pod];
-                break;
+				obj->obclass = static_cast<classtype>(MorphClass[dx]);
+				obj->hitpoints = starthitpoints[gamestate.difficulty][MorphClass[dx] - rentacopobj];
+				obj->flags &= ~FL_FAKE_STATIC;
+				obj->flags |= FL_PROJ_TRANSPARENT | FL_SHOOTABLE;
+				NewState(obj, &s_ofs_chase1);
+				break;
 
-            case rotating_cubeobj:
-                if (::is_aog_full()) {
-                    if (obj->temp1 == SPR_VITAL_OUCH) {
-                        ::InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
-                    } else if (obj->temp1 == SPR_VITAL_DIE_8) {
-                        ::InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
+			case podeggobj:
+				obj->flags |= FL_SHOOTABLE;
+				obj->obclass = podobj;
+				obj->temp1 = SPR_POD_WALK1;
+				NewState(obj, &s_ofs_chase1);
+				obj->hitpoints = starthitpoints[gamestate.difficulty][en_pod];
+				break;
 
-                        if (::get_remaining_generators() == 0) {
-                            obj->ammo = 1;
-                        }
-                    }
-                } else if (::is_ps()) {
-                    DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
-                    ::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
-                    obj->lighting = 0;
-                }
-                break;
+			case rotating_cubeobj:
+				if (assets_info.is_aog_full())
+				{
+					if (obj->temp1 == SPR_VITAL_OUCH)
+					{
+						::InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+					}
+					else if (obj->temp1 == SPR_VITAL_DIE_8)
+					{
+						::InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
 
-            case inertobj:
-            case fixup_inertobj:
-            case scan_wait_alienobj:
-            case lcan_wait_alienobj:
-            case gurney_waitobj:
-                break;
+						if (::get_remaining_generators() == 0)
+						{
+							obj->ammo = 1;
+						}
+					}
+				}
+				else if (assets_info.is_ps())
+				{
+					DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
+					::sd_play_player_sound(ROLL_SCORESND, bstone::AC_ITEM);
+					obj->lighting = 0;
+				}
+				break;
 
-            case gold_morphobj:
-                //
-                // Game completed!
-                //
-                playstate = ex_victorious;
-                obj->state = nullptr;  // Mark to be removed.
-                break;
+			case inertobj:
+			case fixup_inertobj:
+			case scan_wait_alienobj:
+			case lcan_wait_alienobj:
+			case gurney_waitobj:
+				break;
+
+			case gold_morphobj:
+				//
+				// Game completed!
+				//
+				playstate = ex_victorious;
+				obj->state = nullptr;  // Mark to be removed.
+				break;
 
 
-            case volatiletransportobj:
-            case floatingbombobj:
-                NewState(obj, &s_scout_dead);
-                obj->lighting = 0;
-                return;
+			case volatiletransportobj:
+			case floatingbombobj:
+				NewState(obj, &s_scout_dead);
+				obj->lighting = 0;
+				return;
 
-            default:
-                obj->state = nullptr;  // Mark to be removed.
-                break;
-            }
-        }
+			default:
+				obj->state = nullptr;  // Mark to be removed.
+				break;
+			}
+		}
 
-        int new_frame = ofs_anim_t::get_curframe(obj);
-        bool is_frame_changed = (old_frame != new_frame);
+		int new_frame = ofs_anim_t::get_curframe(obj);
+		bool is_frame_changed = (old_frame != new_frame);
 
-        if (::is_aog_full() &&
-            !is_animated &&
-            is_frame_changed &&
-            obj->obclass == rotating_cubeobj)
-        {
-            if (obj->temp1 == SPR_VITAL_DIE_2) {
-                ::display_remaining_generators();
-            } else if (obj->temp1 == SPR_VITAL_DIE_4) {
-                ::display_remaining_generators();
-                ::ExplodeRadius(obj, 35 + (::US_RndT() & 15), true);
-            } else if (obj->temp1 == SPR_VITAL_DEAD_1) {
-                if (obj->ammo > 0) {
-                    obj->ammo -= 1;
+		if (assets_info.is_aog_full() &&
+			!is_animated &&
+			is_frame_changed &&
+			obj->obclass == rotating_cubeobj)
+		{
+			if (obj->temp1 == SPR_VITAL_DIE_2)
+			{
+				::display_remaining_generators();
+			}
+			else if (obj->temp1 == SPR_VITAL_DIE_4)
+			{
+				::display_remaining_generators();
+				::ExplodeRadius(obj, 35 + (::US_RndT() & 15), true);
+			}
+			else if (obj->temp1 == SPR_VITAL_DEAD_1)
+			{
+				if (obj->ammo > 0)
+				{
+					obj->ammo -= 1;
 
-                    if (obj->ammo == 0) {
-                        playstate = ex_victorious;
-                    }
-                }
-            }
-        }
+					if (obj->ammo == 0)
+					{
+						playstate = ex_victorious;
+					}
+				}
+			}
+		}
 
-        if (ofs_anim_t::get_curframe(obj) == 3) {
-            switch (obj->obclass) {
-            case doorexplodeobj:
-                if (!obj->temp2) {
-                    int16_t avail, total, i;
+		if (ofs_anim_t::get_curframe(obj) == 3)
+		{
+			switch (obj->obclass)
+			{
+			case doorexplodeobj:
+				if (!obj->temp2)
+				{
+					int16_t avail, total, i;
 
-                    // Make sure that there are at least DR_MIN_STATICS
+					// Make sure that there are at least DR_MIN_STATICS
 
-                    avail = MAXSTATS;
-                    total = static_cast<int16_t>(laststatobj - &statobjlist[0]);
-                    for (i = 0; i < total; i++) {
-                        if (statobjlist[i].shapenum != -1) {
-                            avail--;
-                        }
-                    }
+					avail = MAXSTATS;
+					total = static_cast<int16_t>(laststatobj - &statobjlist[0]);
+					for (i = 0; i < total; i++)
+					{
+						if (statobjlist[i].shapenum != -1)
+						{
+							avail--;
+						}
+					}
 
-                    if ((avail > DR_MIN_STATICS) && (US_RndT() & 1)) {
-                        SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM);
-                    }
-                }
-                break;
+					if ((avail > DR_MIN_STATICS) && (US_RndT() & 1))
+					{
+						SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM);
+					}
+				}
+				break;
 
-            case explosionobj:
-                if (!obj->temp2) {
-                    ExplodeRadius(obj, 20, true);
-                    MakeAlertNoise(obj);
-                    obj->temp2 = 1;
-                }
-                break;
+			case explosionobj:
+				if (!obj->temp2)
+				{
+					ExplodeRadius(obj, 20, true);
+					MakeAlertNoise(obj);
+					obj->temp2 = 1;
+				}
+				break;
 
-            case pd_explosionobj:
-                if (!obj->temp2) {
-                    ExplodeRadius(obj, PLASMA_DETONATOR_DAMAGE, true);
-                    MakeAlertNoise(obj);
-                    obj->temp2 = 1;
-                }
+			case pd_explosionobj:
+				if (!obj->temp2)
+				{
+					ExplodeRadius(obj, PLASMA_DETONATOR_DAMAGE, true);
+					MakeAlertNoise(obj);
+					obj->temp2 = 1;
+				}
 
-            case bfg_explosionobj:
-                if (!obj->temp2) {
-                    ExplodeRadius(obj, BFG_DAMAGE, true);
-                    MakeAlertNoise(obj);
-                    obj->temp2 = 1;
-                }
-                break;
+			case bfg_explosionobj:
+				if (!obj->temp2)
+				{
+					ExplodeRadius(obj, BFG_DAMAGE, true);
+					MakeAlertNoise(obj);
+					obj->temp2 = 1;
+				}
+				break;
 
-            case gurney_waitobj:
-                if (obj->temp2) {
-                    RemoveObj(ui16_to_actor(obj->temp2));
-                }
+			case gurney_waitobj:
+				if (obj->temp2)
+				{
+					RemoveObj(ui16_to_actor(obj->temp2));
+				}
 
-                SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
-                NewState(obj, &s_ofs_static);
-// obj->obclass = fixup_inertobj;
-                break;
+				SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
+				NewState(obj, &s_ofs_static);
+				// obj->obclass = fixup_inertobj;
+				break;
 
-            case scan_wait_alienobj:
-                if (obj->temp2) {
-                    RemoveObj(ui16_to_actor(obj->temp2));
-                }
+			case scan_wait_alienobj:
+				if (obj->temp2)
+				{
+					RemoveObj(ui16_to_actor(obj->temp2));
+				}
 
-                SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
-                NewState(obj, &s_ofs_static);
-// obj->obclass = fixup_inertobj;
-                break;
+				SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
+				NewState(obj, &s_ofs_static);
+				// obj->obclass = fixup_inertobj;
+				break;
 
-            case lcan_wait_alienobj:
-                if (obj->temp2) {
-                    RemoveObj(ui16_to_actor(obj->temp2));
-                }
+			case lcan_wait_alienobj:
+				if (obj->temp2)
+				{
+					RemoveObj(ui16_to_actor(obj->temp2));
+				}
 
-                SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
-                NewState(obj, &s_ofs_static);
-// obj->obclass = fixup_inertobj;
-                break;
+				SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
+				NewState(obj, &s_ofs_static);
+				// obj->obclass = fixup_inertobj;
+				break;
 
-            default:
-                break;
-            }
-        }
+			default:
+				break;
+			}
+		}
 
-        if (ofs_anim_t::get_curframe(obj) == 2) {
-            switch (obj->obclass) {
-            case volatiletransportobj:
-                if (!(obj->flags & FL_INTERROGATED)) {
-                    if (US_RndT() < 0x7f) {
-                        usedummy = true;
-                        SpawnOffsetObj(en_green_ooze, obj->tilex, obj->tiley);
-                        new_actor->x = obj->x + (US_RndT() << 7);
-                        new_actor->y = obj->y + (US_RndT() << 7);
-                        new_actor->tilex = static_cast<uint8_t>(new_actor->x >> TILESHIFT);
-                        new_actor->tiley = static_cast<uint8_t>(new_actor->y >> TILESHIFT);
-                        usedummy = false;
-                    }
-                }
+		if (ofs_anim_t::get_curframe(obj) == 2)
+		{
+			switch (obj->obclass)
+			{
+			case volatiletransportobj:
+				if (!(obj->flags & FL_INTERROGATED))
+				{
+					if (US_RndT() < 0x7f)
+					{
+						usedummy = true;
+						SpawnOffsetObj(en_green_ooze, obj->tilex, obj->tiley);
+						new_actor->x = obj->x + (US_RndT() << 7);
+						new_actor->y = obj->y + (US_RndT() << 7);
+						new_actor->tilex = static_cast<uint8_t>(new_actor->x >> TILESHIFT);
+						new_actor->tiley = static_cast<uint8_t>(new_actor->y >> TILESHIFT);
+						usedummy = false;
+					}
+				}
 
-            case floatingbombobj:
-                if (!(obj->flags & FL_INTERROGATED)) {
-                    T_ExplodeDamage(obj);
-                    obj->flags |= FL_INTERROGATED;
-                }
-                break;
+			case floatingbombobj:
+				if (!(obj->flags & FL_INTERROGATED))
+				{
+					T_ExplodeDamage(obj);
+					obj->flags |= FL_INTERROGATED;
+				}
+				break;
 
-            default:
-                break;
-            }
-        }
-    }
+			default:
+				break;
+			}
+		}
+	}
 }
 
 // ------------------------------------------------------------------
@@ -2097,23 +2169,27 @@ int get_cross_barrier_index(
 
 // Updates cross barrier's state
 void set_cross_barrier_state(
-    int local_barrier_index)
+	int local_barrier_index)
 {
-    if (::is_ps()) {
-        return;
-    }
+	const auto& assets_info = AssetsInfo{};
 
-    auto cross_barrier_index = get_cross_barrier_index(
-        local_barrier_index);
+	if (assets_info.is_ps())
+	{
+		return;
+	}
 
-    if (cross_barrier_index < 0) {
-        return;
-    }
+	auto cross_barrier_index = get_cross_barrier_index(
+		local_barrier_index);
 
-    const auto& local_barrier =
-        ::gamestate.barrier_table[local_barrier_index];
+	if (cross_barrier_index < 0)
+	{
+		return;
+	}
 
-    ::gamestate.cross_barriers[cross_barrier_index].on = local_barrier.on;
+	const auto& local_barrier =
+		::gamestate.barrier_table[local_barrier_index];
+
+	::gamestate.cross_barriers[cross_barrier_index].on = local_barrier.on;
 }
 
 
@@ -2164,54 +2240,64 @@ void store_cross_barrier(
 // Inserts or updates local barrier record
 void apply_cross_barriers()
 {
-    if (::is_ps()) {
-        return;
-    }
+	const auto& assets_info = AssetsInfo{};
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        const auto& cross_barrier = ::gamestate.cross_barriers[i];
+	if (assets_info.is_ps())
+	{
+		return;
+	}
 
-        if (cross_barrier.on == 0xFF) {
-            return;
-        }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		const auto& cross_barrier = ::gamestate.cross_barriers[i];
 
-        if (cross_barrier.level != ::gamestate.mapon) {
-            continue;
-        }
+		if (cross_barrier.on == 0xFF)
+		{
+			return;
+		}
 
-        int j = 0;
-        bool found_local = false;
-        barrier_type* local_barrier = nullptr;
+		if (cross_barrier.level != ::gamestate.mapon)
+		{
+			continue;
+		}
 
-        for (j = 0; j < MAX_BARRIER_SWITCHES; ++j) {
-            local_barrier = &::gamestate.barrier_table[j];
+		int j = 0;
+		bool found_local = false;
+		barrier_type* local_barrier = nullptr;
 
-            if (local_barrier->on == 0xFF) {
-                break;
-            }
+		for (j = 0; j < MAX_BARRIER_SWITCHES; ++j)
+		{
+			local_barrier = &::gamestate.barrier_table[j];
 
-            if (local_barrier->level != 0xFF ||
-                local_barrier->coord.tilex != cross_barrier.coord.tilex ||
-                local_barrier->coord.tiley != cross_barrier.coord.tiley)
-            {
-                continue;
-            }
+			if (local_barrier->on == 0xFF)
+			{
+				break;
+			}
 
-            found_local = true;
-            break;
-        }
+			if (local_barrier->level != 0xFF ||
+				local_barrier->coord.tilex != cross_barrier.coord.tilex ||
+				local_barrier->coord.tiley != cross_barrier.coord.tiley)
+			{
+				continue;
+			}
 
-        if (!found_local) {
-            if (j == MAX_BARRIER_SWITCHES) {
-                ::Quit("Failed to add local barrier.");
-            }
-        }
+			found_local = true;
+			break;
+		}
 
-        local_barrier->level = 0xFF;
-        local_barrier->coord.tilex = cross_barrier.coord.tilex;
-        local_barrier->coord.tiley = cross_barrier.coord.tiley;
-        local_barrier->on = cross_barrier.on;
-    }
+		if (!found_local)
+		{
+			if (j == MAX_BARRIER_SWITCHES)
+			{
+				::Quit("Failed to add local barrier.");
+			}
+		}
+
+		local_barrier->level = 0xFF;
+		local_barrier->coord.tilex = cross_barrier.coord.tilex;
+		local_barrier->coord.tiley = cross_barrier.coord.tiley;
+		local_barrier->on = cross_barrier.on;
+	}
 }
 // BBi
 
@@ -2283,7 +2369,9 @@ void DisplaySwitchOperateMsg(
         message = "\r\r DEACTIVATING BARRIER";
     }
 
-    if (!::is_ps()) {
+	const auto& assets_info = AssetsInfo{};
+
+	if (!assets_info.is_ps()) {
         int level = barrier->level;
 
         if (level == 0xFF) {
@@ -2439,7 +2527,9 @@ void ConnectBarriers()
                     barrier->coord.tiley,
                     num) == 0)
             {
-                if (::is_ps()) {
+				const auto& assets_info = AssetsInfo{};
+
+				if (assets_info.is_ps()) {
                     ::Quit("A barrier switch was not connect to any barriers.");
                 }
 
@@ -2490,93 +2580,107 @@ statetype s_barrier_shutdown = { 0, 0, 15, T_BarrierShutdown, nullptr, &s_barrie
 
 
 void SpawnBarrier(
-    enemy_t which,
-    int16_t tilex,
-    int16_t tiley,
-    bool OnOff)
+	enemy_t which,
+	int16_t tilex,
+	int16_t tiley,
+	bool OnOff)
 {
-    nevermark = !OnOff;
-    SpawnNewObj(tilex, tiley, &s_ofs_stand);
-    nevermark = false;
+	const auto& assets_info = AssetsInfo{};
 
-    if (OnOff) {
-        new_actor->flags = FL_OFFSET_STATES | FL_BARRIER | FL_FAKE_STATIC | FL_SOLID;
-    } else {
-        new_actor->flags = FL_OFFSET_STATES | FL_BARRIER;
-    }
+	nevermark = !OnOff;
+	SpawnNewObj(tilex, tiley, &s_ofs_stand);
+	nevermark = false;
 
-    new_actor->obclass = static_cast<classtype>(rentacopobj + which);
-    new_actor->ammo = static_cast<uint8_t>(OnOff);
-    new_actor->temp2 = ScanBarrierTable(static_cast<uint8_t>(tilex), static_cast<uint8_t>(tiley));
-    new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID : 0);
+	if (OnOff)
+	{
+		new_actor->flags = FL_OFFSET_STATES | FL_BARRIER | FL_FAKE_STATIC | FL_SOLID;
+	}
+	else
+	{
+		new_actor->flags = FL_OFFSET_STATES | FL_BARRIER;
+	}
 
-    switch (which) {
-    case en_arc_barrier:
-        new_actor->flags2 |= (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
+	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->ammo = static_cast<uint8_t>(OnOff);
+	new_actor->temp2 = ScanBarrierTable(static_cast<uint8_t>(tilex), static_cast<uint8_t>(tiley));
+	new_actor->flags2 = (assets_info.is_ps() ? FL2_BFGSHOT_SOLID : 0);
 
-        if (OnOff) {
-            ::InitSmartSpeedAnim(
-                new_actor,
-                SPR_ELEC_ARC1,
-                US_RndT() % 3,
-                2,
-                at_CYCLE,
-                ad_FWD,
-                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+	switch (which)
+	{
+	case en_arc_barrier:
+		new_actor->flags2 |= (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
 
-            new_actor->lighting = LAMP_ON_SHADING;
-        } else {
-            NewState(new_actor, &s_barrier_transition);
-            new_actor->temp3 = 0;
-            new_actor->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
-            new_actor->flags |= (FL_NEVERMARK | FL_NONMARK);
-            new_actor->lighting = 0;
-            BARRIER_STATE(new_actor) = bt_OFF;
-            new_actor->temp1 = SPR_ELEC_ARC4;
-        }
-        break;
+		if (OnOff)
+		{
+			::InitSmartSpeedAnim(
+				new_actor,
+				SPR_ELEC_ARC1,
+				US_RndT() % 3,
+				2,
+				at_CYCLE,
+				ad_FWD,
+				(assets_info.is_ps() ? 3 : 20) + (US_RndT() & (assets_info.is_ps() ? 3 : 7)));
 
-    case en_post_barrier:
-        if (OnOff) {
-            ::InitSmartSpeedAnim(
-                new_actor,
-                SPR_ELEC_POST1,
-                US_RndT() % 3,
-                2,
-                at_CYCLE,
-                ad_FWD,
-                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+			new_actor->lighting = LAMP_ON_SHADING;
+		}
+		else
+		{
+			NewState(new_actor, &s_barrier_transition);
+			new_actor->temp3 = 0;
+			new_actor->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
+			new_actor->flags |= (FL_NEVERMARK | FL_NONMARK);
+			new_actor->lighting = 0;
+			BARRIER_STATE(new_actor) = bt_OFF;
+			new_actor->temp1 = SPR_ELEC_ARC4;
+		}
+		break;
 
-            new_actor->lighting = LAMP_ON_SHADING;
-        } else {
-            NewState(new_actor, &s_barrier_transition);
-            new_actor->temp3 = 0;
-            new_actor->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
-            new_actor->flags |= (FL_NEVERMARK | FL_NONMARK);
-            new_actor->lighting = 0;
-            BARRIER_STATE(new_actor) = bt_OFF;
-            new_actor->temp1 = SPR_ELEC_POST4;
-        }
-        break;
+	case en_post_barrier:
+		if (OnOff)
+		{
+			::InitSmartSpeedAnim(
+				new_actor,
+				SPR_ELEC_POST1,
+				US_RndT() % 3,
+				2,
+				at_CYCLE,
+				ad_FWD,
+				(assets_info.is_ps() ? 3 : 20) + (US_RndT() & (assets_info.is_ps() ? 3 : 7)));
 
-    case en_vpost_barrier:
-        NewState(new_actor, &s_vpost_barrier);
-        if (OnOff) {
-            new_actor->temp1 = SPR_VPOST8 - SPR_VPOST1;
-        }
-        break;
+			new_actor->lighting = LAMP_ON_SHADING;
+		}
+		else
+		{
+			NewState(new_actor, &s_barrier_transition);
+			new_actor->temp3 = 0;
+			new_actor->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
+			new_actor->flags |= (FL_NEVERMARK | FL_NONMARK);
+			new_actor->lighting = 0;
+			BARRIER_STATE(new_actor) = bt_OFF;
+			new_actor->temp1 = SPR_ELEC_POST4;
+		}
+		break;
+
+	case en_vpost_barrier:
+		NewState(new_actor, &s_vpost_barrier);
+		if (OnOff)
+		{
+			new_actor->temp1 = SPR_VPOST8 - SPR_VPOST1;
+		}
+		break;
 
 
-    case en_vspike_barrier:
-        NewState(new_actor, &s_spike_barrier);
-        if (OnOff) {
-            new_actor->temp1 = SPR_VSPIKE8 - SPR_VSPIKE1;
-        }
-        break;
+	case en_vspike_barrier:
+		NewState(new_actor, &s_spike_barrier);
+		if (OnOff)
+		{
+			new_actor->temp1 = SPR_VSPIKE8 - SPR_VSPIKE1;
+		}
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 
 }
 
@@ -2612,83 +2716,88 @@ void TurnPostOn(
 }
 
 void ToggleBarrier(
-    objtype* obj)
+	objtype* obj)
 {
-    switch (BARRIER_STATE(obj)) {
-    case bt_ON: // Same as closed
-    case bt_CLOSING:
-        //
-        // Turn OFF/Open
-        //
+	const auto& assets_info = AssetsInfo{};
 
-        switch (obj->obclass) {
-        case post_barrierobj:
-            obj->temp1 = SPR_ELEC_POST4;
-            TurnPostOff(obj);
-            break;
+	switch (BARRIER_STATE(obj))
+	{
+	case bt_ON: // Same as closed
+	case bt_CLOSING:
+		//
+		// Turn OFF/Open
+		//
 
-        case arc_barrierobj:
-            obj->temp1 = SPR_ELEC_ARC4;
-            TurnPostOff(obj);
-            break;
+		switch (obj->obclass)
+		{
+		case post_barrierobj:
+			obj->temp1 = SPR_ELEC_POST4;
+			TurnPostOff(obj);
+			break;
 
-        case vpost_barrierobj:
-        case vspike_barrierobj:
-            BARRIER_STATE(obj) = bt_OPENING;
-            break;
+		case arc_barrierobj:
+			obj->temp1 = SPR_ELEC_ARC4;
+			TurnPostOff(obj);
+			break;
 
-        default:
-            break;
-        }
+		case vpost_barrierobj:
+		case vspike_barrierobj:
+			BARRIER_STATE(obj) = bt_OPENING;
+			break;
 
-        break;
+		default:
+			break;
+		}
 
-    case bt_OFF: // Same as open
-    case bt_OPENING:
-        //
-        // Turn ON/Closed
-        //
+		break;
 
-        switch (obj->obclass) {
-        case post_barrierobj:
-            ::InitSmartSpeedAnim(
-                obj,
-                SPR_ELEC_POST1,
-                US_RndT() % 3,
-                2,
-                at_CYCLE,
-                ad_FWD,
-                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+	case bt_OFF: // Same as open
+	case bt_OPENING:
+		//
+		// Turn ON/Closed
+		//
 
-            TurnPostOn(obj);
-            break;
+		switch (obj->obclass)
+		{
+		case post_barrierobj:
+			::InitSmartSpeedAnim(
+				obj,
+				SPR_ELEC_POST1,
+				US_RndT() % 3,
+				2,
+				at_CYCLE,
+				ad_FWD,
+				(assets_info.is_ps() ? 3 : 20) + (US_RndT() & (assets_info.is_ps() ? 3 : 7)));
 
-        case arc_barrierobj:
-            ::InitSmartSpeedAnim(
-                obj,
-                SPR_ELEC_ARC1,
-                US_RndT() % 3,
-                2,
-                at_CYCLE,
-                ad_FWD,
-                (::is_ps() ? 3 : 20) + (US_RndT() & (::is_ps() ? 3 : 7)));
+			TurnPostOn(obj);
+			break;
 
-            TurnPostOn(obj);
-            break;
+		case arc_barrierobj:
+			::InitSmartSpeedAnim(
+				obj,
+				SPR_ELEC_ARC1,
+				US_RndT() % 3,
+				2,
+				at_CYCLE,
+				ad_FWD,
+				(assets_info.is_ps() ? 3 : 20) + (US_RndT() & (assets_info.is_ps() ? 3 : 7)));
 
-        case vpost_barrierobj:
-        case vspike_barrierobj:
-            BARRIER_STATE(obj) = bt_CLOSING;
-            break;
+			TurnPostOn(obj);
+			break;
 
-        default:
-            break;
-        }
-        break;
+		case vpost_barrierobj:
+		case vspike_barrierobj:
+			BARRIER_STATE(obj) = bt_CLOSING;
+			break;
 
-    default:
-        break;
-    }
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -3436,133 +3545,142 @@ void T_SwatWound(
 }
 
 void SpawnStand(
-    enemy_t which,
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir)
+	enemy_t which,
+	int16_t tilex,
+	int16_t tiley,
+	int16_t dir)
 {
-    uint16_t ammo = 8;
+	const auto& assets_info = AssetsInfo{};
 
-    switch (which) {
-    case en_goldstern:
-        SpawnNewObj(tilex, tiley, &s_goldwarp_in1);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        new_actor->speed = SPDPATROL;
-        if (gamestate.mapon == 9) {
-            new_actor->hitpoints = starthitpoints[gamestate.difficulty][which] * 15;
-        }
-        ammo = 25;
-        break;
+	uint16_t ammo = 8;
 
-    case en_electro_alien:
-        SpawnNewObj(tilex, tiley, &s_electro_appear1);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_PROJ_TRANSPARENT;
-        new_actor->speed = SPDPATROL;
-        new_actor->lighting = NO_SHADING; // no shading
-        break;
+	switch (which)
+	{
+	case en_goldstern:
+		SpawnNewObj(tilex, tiley, &s_goldwarp_in1);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		new_actor->speed = SPDPATROL;
+		if (gamestate.mapon == 9)
+		{
+			new_actor->hitpoints = starthitpoints[gamestate.difficulty][which] * 15;
+		}
+		ammo = 25;
+		break;
 
-    case en_liquid:
-        SpawnNewObj(tilex, tiley, &s_liquid_wait);
-        new_actor->flags = FL_OFFSET_STATES | FL_PROJ_TRANSPARENT;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        new_actor->speed = SPDPATROL * 3;
-        break;
+	case en_electro_alien:
+		SpawnNewObj(tilex, tiley, &s_electro_appear1);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_PROJ_TRANSPARENT;
+		new_actor->speed = SPDPATROL;
+		new_actor->lighting = NO_SHADING; // no shading
+		break;
 
-    case en_rentacop:
-        SpawnNewObj(tilex, tiley, &s_rent_stand);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        new_actor->speed = SPDPATROL;
-        break;
+	case en_liquid:
+		SpawnNewObj(tilex, tiley, &s_liquid_wait);
+		new_actor->flags = FL_OFFSET_STATES | FL_PROJ_TRANSPARENT;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		new_actor->speed = SPDPATROL * 3;
+		break;
 
-    case en_gen_scientist:
-        SpawnNewObj(tilex, tiley, &s_ofcstand);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_FRIENDLY | FL_RANDOM_TURN;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
+	case en_rentacop:
+		SpawnNewObj(tilex, tiley, &s_rent_stand);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		new_actor->speed = SPDPATROL;
+		break;
 
-        if (US_RndT() & 1) {
-            new_actor->flags |= FL_INFORMANT;
-        }
-        new_actor->speed = SPDPATROL;
-        break;
+	case en_gen_scientist:
+		SpawnNewObj(tilex, tiley, &s_ofcstand);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_FRIENDLY | FL_RANDOM_TURN;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
 
-    case en_swat:
-        SpawnNewObj(tilex, tiley, &s_swatstand);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        new_actor->speed = SPDPATROL;
-        ammo = 30;
-        if (scan_value == 0xffff) {
-            new_actor->temp1 = US_RndT() & 1;
-        } else {
-            new_actor->temp1 = scan_value;
-        }
-        break;
+		if (US_RndT() & 1)
+		{
+			new_actor->flags |= FL_INFORMANT;
+		}
+		new_actor->speed = SPDPATROL;
+		break;
 
-    case en_proguard:
-        SpawnNewObj(tilex, tiley, &s_prostand);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        new_actor->speed = SPDPATROL;
-        ammo = 25;
-        break;
+	case en_swat:
+		SpawnNewObj(tilex, tiley, &s_swatstand);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		new_actor->speed = SPDPATROL;
+		ammo = 30;
+		if (scan_value == 0xffff)
+		{
+			new_actor->temp1 = US_RndT() & 1;
+		}
+		else
+		{
+			new_actor->temp1 = scan_value;
+		}
+		break;
 
-    case en_hang_terrot:
-        SpawnNewObj(tilex, tiley, &s_terrot_wait);
-        new_actor->flags = FL_SHOOTABLE | FL_NONMARK | FL_NEVERMARK;
-        new_actor->speed = SPDPATROL;
-        break;
+	case en_proguard:
+		SpawnNewObj(tilex, tiley, &s_prostand);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		new_actor->speed = SPDPATROL;
+		ammo = 25;
+		break;
 
-    case en_floatingbomb:
-        SpawnNewObj(tilex, tiley, &s_scout_stand);
-        new_actor->speed = SPDPATROL;
-        new_actor->temp1 = SPR_FSCOUT_W1_1;
-        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_FAKE_STATIC;
-        break;
+	case en_hang_terrot:
+		SpawnNewObj(tilex, tiley, &s_terrot_wait);
+		new_actor->flags = FL_SHOOTABLE | FL_NONMARK | FL_NEVERMARK;
+		new_actor->speed = SPDPATROL;
+		break;
 
-    case en_volatiletransport:
-        SpawnNewObj(tilex, tiley, &s_scout_stand);
-        new_actor->speed = SPDPATROL;
-        new_actor->temp1 = SPR_GSCOUT_W1_1;
-        new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_STATIONARY | FL_FAKE_STATIC;
-        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_floatingbomb:
+		SpawnNewObj(tilex, tiley, &s_scout_stand);
+		new_actor->speed = SPDPATROL;
+		new_actor->temp1 = SPR_FSCOUT_W1_1;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_FAKE_STATIC;
+		break;
 
-    case en_steamgrate:
-        SpawnNewObj(tilex, tiley, &s_steamgrate);
-        new_actor->flags = FL_OFFSET_STATES;
-        new_actor->temp1 = SPR_GRATE;
-        new_actor->temp2 = 60 * 4;
-        break;
+	case en_volatiletransport:
+		SpawnNewObj(tilex, tiley, &s_scout_stand);
+		new_actor->speed = SPDPATROL;
+		new_actor->temp1 = SPR_GSCOUT_W1_1;
+		new_actor->flags = FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES | FL_STATIONARY | FL_FAKE_STATIC;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    case en_steampipe:
-        nevermark = true;
-        SpawnNewObj(tilex, tiley, &s_steamgrate);
-        nevermark = false;
-        new_actor->flags = FL_OFFSET_STATES | FL_NONMARK | FL_NEVERMARK;
-        new_actor->temp1 = SPR_STEAM_PIPE;
-        new_actor->temp2 = 60 * 4;
-        break;
+	case en_steamgrate:
+		SpawnNewObj(tilex, tiley, &s_steamgrate);
+		new_actor->flags = FL_OFFSET_STATES;
+		new_actor->temp1 = SPR_GRATE;
+		new_actor->temp2 = 60 * 4;
+		break;
 
-    default:
-        break;
-    }
+	case en_steampipe:
+		nevermark = true;
+		SpawnNewObj(tilex, tiley, &s_steamgrate);
+		nevermark = false;
+		new_actor->flags = FL_OFFSET_STATES | FL_NONMARK | FL_NEVERMARK;
+		new_actor->temp1 = SPR_STEAM_PIPE;
+		new_actor->temp2 = 60 * 4;
+		break;
 
-    CheckForSpecialTile(new_actor, tilex, tiley);
+	default:
+		break;
+	}
 
-    new_actor->ammo = static_cast<uint8_t>(ammo);
-    new_actor->obclass = static_cast<classtype>(rentacopobj + which);
-    new_actor->hitpoints += starthitpoints[gamestate.difficulty][which];
-    new_actor->dir = static_cast<dirtype>(dir << 1);
+	CheckForSpecialTile(new_actor, tilex, tiley);
 
-    if (new_actor->flags & FL_INFORMANT) {
-        new_actor->hitpoints = 1;
-        new_actor->ammo = 0;
-        new_actor->flags |= FL_HAS_AMMO | FL_HAS_TOKENS;
-        new_actor->s_tilex = new_actor->s_tiley = 0xff;
-    }
+	new_actor->ammo = static_cast<uint8_t>(ammo);
+	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->hitpoints += starthitpoints[gamestate.difficulty][which];
+	new_actor->dir = static_cast<dirtype>(dir << 1);
+
+	if (new_actor->flags & FL_INFORMANT)
+	{
+		new_actor->hitpoints = 1;
+		new_actor->ammo = 0;
+		new_actor->flags |= FL_HAS_AMMO | FL_HAS_TOKENS;
+		new_actor->s_tilex = new_actor->s_tiley = 0xff;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -3570,334 +3688,361 @@ void SpawnStand(
 //      special tiles.
 // ---------------------------------------------------------------------------
 void CheckForSpecialTile(
-    objtype* obj,
-    uint16_t tilex,
-    uint16_t tiley)
+	objtype* obj,
+	uint16_t tilex,
+	uint16_t tiley)
 {
-    uint16_t* map, * map1;
-    objtype* old_new;
-    bool getarea = false;
+	uint16_t* map, *map1;
+	objtype* old_new;
+	bool getarea = false;
 
-    //
-    // Only shootables can use special tiles...
-    //
-    // (This also tests to make sure that the plasma_detonatorobj &
-    //  plasma_detonator_reservedobj will not enter this function.)
-    //
+	//
+	// Only shootables can use special tiles...
+	//
+	// (This also tests to make sure that the plasma_detonatorobj &
+	//  plasma_detonator_reservedobj will not enter this function.)
+	//
 
-    if (!(obj->flags & FL_SHOOTABLE)) {
-        return;
-    }
+	if (!(obj->flags & FL_SHOOTABLE))
+	{
+		return;
+	}
 
-    //
-    // Check and handle special tiles... Only one per actor... now!
-    //
+	//
+	// Check and handle special tiles... Only one per actor... now!
+	//
 
-    map = mapsegs[0] + farmapylookup[tiley] + tilex;
+	const auto& assets_info = AssetsInfo{};
 
-    switch (*map) {
-    case CLOAK_AMBUSH_TILE:
-        if (!::is_ps()) {
-            break;
-        }
+	map = mapsegs[0] + farmapylookup[tiley] + tilex;
 
-        obj->flags2 |= FL2_CLOAKED;
+	switch (*map)
+	{
+	case CLOAK_AMBUSH_TILE:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
 
-    case AMBUSHTILE:
-        obj->flags |= FL_AMBUSH | FL_SHOOTABLE | FL_SOLID;
-        getarea = true;
-        break;
+		obj->flags2 |= FL2_CLOAKED;
 
-    case DETONATOR_TILE:
-        if (!::is_ps()) {
-            break;
-        }
+	case AMBUSHTILE:
+		obj->flags |= FL_AMBUSH | FL_SHOOTABLE | FL_SOLID;
+		getarea = true;
+		break;
 
-        old_new = new_actor;
-        SpawnHiddenOfs(en_plasma_detonator_reserve, tilex, tiley);
-        new_actor = old_new;
-        obj->flags &= ~FL_INFORMANT;
-    case RKEY_TILE:
-    case YKEY_TILE:
-    case BKEY_TILE:
-    case BFG_TILE:
-    case ION_TILE:
-        if (!::is_ps()) {
-            break;
-        }
+	case DETONATOR_TILE:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
 
-        ReserveStatic();
-        obj->flags2 |= SpecialSpawnFlags[(*map) - RKEY_TILE];
-        getarea = true;
-        break;
+		old_new = new_actor;
+		SpawnHiddenOfs(en_plasma_detonator_reserve, tilex, tiley);
+		new_actor = old_new;
+		obj->flags &= ~FL_INFORMANT;
+	case RKEY_TILE:
+	case YKEY_TILE:
+	case BKEY_TILE:
+	case BFG_TILE:
+	case ION_TILE:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
 
-    case CLOAK_TILE:
-        if (!::is_ps()) {
-            break;
-        }
+		ReserveStatic();
+		obj->flags2 |= SpecialSpawnFlags[(*map) - RKEY_TILE];
+		getarea = true;
+		break;
 
-        obj->flags2 |= FL2_CLOAKED;
-        getarea = true;
-        break;
+	case CLOAK_TILE:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
 
-    case LINC_TILE:
-        if (!::is_ps()) {
-            break;
-        }
+		obj->flags2 |= FL2_CLOAKED;
+		getarea = true;
+		break;
 
-        obj->flags2 |= FL2_LINC;
-        obj->flags &= ~FL_INFORMANT; // Make sure informants dont have links
-        getarea = true;
-        map1 = mapsegs[1] + farmapylookup[tiley] + tilex + 1;
-        obj->linc = *map1;
-        *map1 = 0;
-        break;
-    }
+	case LINC_TILE:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
 
-    //
-    // Init areanumbers and tilemaps...
-    //
+		obj->flags2 |= FL2_LINC;
+		obj->flags &= ~FL_INFORMANT; // Make sure informants dont have links
+		getarea = true;
+		map1 = mapsegs[1] + farmapylookup[tiley] + tilex + 1;
+		obj->linc = *map1;
+		*map1 = 0;
+		break;
+	}
 
-    if (getarea) {
-        tilemap[tilex][tiley] = 0;
-        *map = obj->areanumber = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley));
-    }
+	//
+	// Init areanumbers and tilemaps...
+	//
+
+	if (getarea)
+	{
+		tilemap[tilex][tiley] = 0;
+		*map = obj->areanumber = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley));
+	}
 }
 
 void SpawnPatrol(
-    enemy_t which,
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir)
+	enemy_t which,
+	int16_t tilex,
+	int16_t tiley,
+	int16_t dir)
 {
-    int16_t ammo = 8;
+	const auto& assets_info = AssetsInfo{};
 
-    switch (which) {
-    case en_blake:
-        SpawnNewObj(tilex, tiley, &s_blake1);
-        new_actor->speed = SPDPATROL * 2;
-        break;
+	int16_t ammo = 8;
 
-    case en_rentacop:
-        SpawnNewObj(tilex, tiley, &s_rent_path1);
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        new_actor->speed = SPDPATROL;
-        break;
+	switch (which)
+	{
+	case en_blake:
+		SpawnNewObj(tilex, tiley, &s_blake1);
+		new_actor->speed = SPDPATROL * 2;
+		break;
 
-    case en_gen_scientist:
-        SpawnNewObj(tilex, tiley, &s_ofcpath1);
-        new_actor->flags = FL_FRIENDLY | FL_RANDOM_TURN;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
+	case en_rentacop:
+		SpawnNewObj(tilex, tiley, &s_rent_path1);
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		new_actor->speed = SPDPATROL;
+		break;
 
-        if (US_RndT() & 1) {
-            new_actor->flags |= FL_INFORMANT;
-        }
-        new_actor->speed = SPDPATROL;
-        break;
+	case en_gen_scientist:
+		SpawnNewObj(tilex, tiley, &s_ofcpath1);
+		new_actor->flags = FL_FRIENDLY | FL_RANDOM_TURN;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
 
-    case en_proguard:
-        SpawnNewObj(tilex, tiley, &s_propath1);
-        new_actor->speed = SPDPATROL;
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        ammo = 25;
-        break;
+		if (US_RndT() & 1)
+		{
+			new_actor->flags |= FL_INFORMANT;
+		}
+		new_actor->speed = SPDPATROL;
+		break;
 
-    case en_swat:
-        SpawnNewObj(tilex, tiley, &s_swatpath1);
-        new_actor->speed = SPDPATROL;
-        ammo = 30;
-        if (scan_value == 0xffff) {
-            new_actor->temp1 = US_RndT() & 1;
-        } else {
-            new_actor->temp1 = scan_value;
-        }
-        new_actor->flags2 = (::is_ps() ? FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_proguard:
+		SpawnNewObj(tilex, tiley, &s_propath1);
+		new_actor->speed = SPDPATROL;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		ammo = 25;
+		break;
 
-    case en_floatingbomb:
-        SpawnNewObj(tilex, tiley, &s_scout_path1);
-        new_actor->speed = SPDPATROL;
-        new_actor->temp1 = SPR_FSCOUT_W1_1;
-        new_actor->flags = FL_OFFSET_STATES;
-        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_swat:
+		SpawnNewObj(tilex, tiley, &s_swatpath1);
+		new_actor->speed = SPDPATROL;
+		ammo = 30;
+		if (scan_value == 0xffff)
+		{
+			new_actor->temp1 = US_RndT() & 1;
+		}
+		else
+		{
+			new_actor->temp1 = scan_value;
+		}
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    case en_volatiletransport:
-        SpawnNewObj(tilex, tiley, &s_scout_path1);
-        new_actor->speed = SPDPATROL;
-        new_actor->temp1 = SPR_GSCOUT_W1_1;
-        new_actor->flags = FL_OFFSET_STATES;
-        new_actor->flags2 = (::is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
-        break;
+	case en_floatingbomb:
+		SpawnNewObj(tilex, tiley, &s_scout_path1);
+		new_actor->speed = SPDPATROL;
+		new_actor->temp1 = SPR_FSCOUT_W1_1;
+		new_actor->flags = FL_OFFSET_STATES;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    default:
-        break;
-    }
+	case en_volatiletransport:
+		SpawnNewObj(tilex, tiley, &s_scout_path1);
+		new_actor->speed = SPDPATROL;
+		new_actor->temp1 = SPR_GSCOUT_W1_1;
+		new_actor->flags = FL_OFFSET_STATES;
+		new_actor->flags2 = (assets_info.is_ps() ? FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE : 0);
+		break;
 
-    new_actor->ammo = static_cast<uint8_t>(ammo);
-    new_actor->obclass = static_cast<classtype>(rentacopobj + which);
-    new_actor->dir = static_cast<dirtype>(dir << 1);
-    new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
-    new_actor->distance = 0;
-    if (new_actor->obclass != blakeobj) {
-        new_actor->flags |= FL_SHOOTABLE | FL_SOLID;
-    }
-    new_actor->active = ac_yes;
-    if (new_actor->flags & FL_INFORMANT) {
-        new_actor->hitpoints = 1;
-        new_actor->ammo = 0;
-        new_actor->flags |= FL_HAS_AMMO | FL_HAS_TOKENS;
-        new_actor->s_tilex = new_actor->s_tiley = 0xff;
-    }
+	default:
+		break;
+	}
 
-    CheckForSpecialTile(new_actor, tilex, tiley);
+	new_actor->ammo = static_cast<uint8_t>(ammo);
+	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->dir = static_cast<dirtype>(dir << 1);
+	new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
+	new_actor->distance = 0;
+	if (new_actor->obclass != blakeobj)
+	{
+		new_actor->flags |= FL_SHOOTABLE | FL_SOLID;
+	}
+	new_actor->active = ac_yes;
+	if (new_actor->flags & FL_INFORMANT)
+	{
+		new_actor->hitpoints = 1;
+		new_actor->ammo = 0;
+		new_actor->flags |= FL_HAS_AMMO | FL_HAS_TOKENS;
+		new_actor->s_tilex = new_actor->s_tiley = 0xff;
+	}
 
-    actorat[new_actor->tilex][new_actor->tiley] = nullptr; // don't use original spot
+	CheckForSpecialTile(new_actor, tilex, tiley);
 
-    TryWalk(new_actor, true);
+	actorat[new_actor->tilex][new_actor->tiley] = nullptr; // don't use original spot
 
-    actorat[new_actor->tilex][new_actor->tiley] = new_actor;
+	TryWalk(new_actor, true);
+
+	actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 }
 
 void A_DeathScream(
-    objtype* ob)
+	objtype* ob)
 {
-    switch (ob->obclass) {
+	const auto& assets_info = AssetsInfo{};
 
-    case swatobj: {
-        const int sounds[] = {
-            ::SWATDIESND,
-            ::is_ps() ? ::SWATDEATH2SND : ::SWATDEATH3SND,
-        }; // sounds
+	switch (ob->obclass)
+	{
+	case swatobj:
+	{
+		const int sounds[] = {
+			::SWATDIESND,
+			assets_info.is_ps() ? ::SWATDEATH2SND : ::SWATDEATH3SND,
+		}; // sounds
 
-        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
 
-        break;
-    }
+		break;
+	}
 
-    case rentacopobj: {
-        const int sounds[] = {
-            RENTDEATH1SND,
-            RENTDEATH2SND,
-        }; // sounds
+	case rentacopobj:
+	{
+		const int sounds[] = {
+			RENTDEATH1SND,
+			RENTDEATH2SND,
+		}; // sounds
 
-        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
 
-        break;
-    }
+		break;
+	}
 
-    case mutant_human1obj:
-    case hang_terrotobj:
-    case floatingbombobj:
-    case volatiletransportobj:
-    case explosionobj:
-    case gr_explosionobj:
-    case bfg_explosionobj:
-    case pd_explosionobj:
-    case doorexplodeobj: {
-        const int sounds[] = {
-            EXPLODE1SND,
-            EXPLODE2SND,
-        }; // sounds
+	case mutant_human1obj:
+	case hang_terrotobj:
+	case floatingbombobj:
+	case volatiletransportobj:
+	case explosionobj:
+	case gr_explosionobj:
+	case bfg_explosionobj:
+	case pd_explosionobj:
+	case doorexplodeobj:
+	{
+		const int sounds[] = {
+			EXPLODE1SND,
+			EXPLODE2SND,
+		}; // sounds
 
-        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
 
-        break;
-    }
+		break;
+	}
 
-    case rotating_cubeobj:
-        ::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
-        ::sd_play_player_sound(VITAL_GONESND, bstone::AC_ITEM);
-        break;
+	case rotating_cubeobj:
+		::sd_play_actor_sound(EXPLODE1SND, ob, bstone::AC_VOICE);
+		::sd_play_player_sound(VITAL_GONESND, bstone::AC_ITEM);
+		break;
 
-    case gen_scientistobj: {
-        auto is_informant = ((ob->flags & FL_INFORMANT) != 0);
+	case gen_scientistobj:
+	{
+		auto is_informant = ((ob->flags & FL_INFORMANT) != 0);
 
-        const int sounds[] = {
-            is_informant ? INFORMANTDEATHSND : SCIENTISTDEATHSND,
-            is_informant ? INFORMDEATH2SND : SCIDEATH2SND,
-            is_informant ? INFORMDEATH3SND : SCIDEATH3SND,
-        }; // sounds
+		const int sounds[] = {
+			is_informant ? INFORMANTDEATHSND : SCIENTISTDEATHSND,
+			is_informant ? INFORMDEATH2SND : SCIDEATH2SND,
+			is_informant ? INFORMDEATH3SND : SCIDEATH3SND,
+		}; // sounds
 
-        auto sound_index = ::is_aog_sw() ? 0 : (::US_RndT() % 3);
+		auto sound_index = assets_info.is_aog_sw() ? 0 : (::US_RndT() % 3);
 
-        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
-        break;
-    }
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		break;
+	}
 
-    case genetic_guardobj:
-        if (::is_aog()) {
-            ::sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::AC_VOICE);
-            break;
-        }
+	case genetic_guardobj:
+		if (assets_info.is_aog())
+		{
+			::sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::AC_VOICE);
+			break;
+		}
 
-    case breather_beastobj:
-    case cyborg_warriorobj:
-    case acid_dragonobj:
-    case podobj:
-        ::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
-        break;
+	case breather_beastobj:
+	case cyborg_warriorobj:
+	case acid_dragonobj:
+	case podobj:
+		::sd_play_actor_sound(PODDEATHSND, ob, bstone::AC_VOICE);
+		break;
 
-    case liquidobj:
-        ::sd_play_actor_sound(LIQUIDDIESND, ob, bstone::AC_VOICE);
-        break;
+	case liquidobj:
+		::sd_play_actor_sound(LIQUIDDIESND, ob, bstone::AC_VOICE);
+		break;
 
-    case proguardobj: {
-        const int sounds[3] = {
-            PROGUARDDEATHSND,
-            PRODEATH2SND,
-        }; // sounds
+	case proguardobj:
+	{
+		const int sounds[3] = {
+			PROGUARDDEATHSND,
+			PRODEATH2SND,
+		}; // sounds
 
-        auto sound_index = (::is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
 
-        ::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
+		::sd_play_actor_sound(sounds[sound_index], ob, bstone::AC_VOICE);
 
-        break;
-    }
+		break;
+	}
 
-    case final_boss1obj:
-    case spider_mutantobj:
-        ::sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::AC_VOICE);
-        break;
+	case final_boss1obj:
+	case spider_mutantobj:
+		::sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::AC_VOICE);
+		break;
 
-    case mech_guardianobj:
-    case final_boss3obj:
-    case mutant_human2obj:
-        ::sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::AC_VOICE);
-        break;
+	case mech_guardianobj:
+	case final_boss3obj:
+	case mutant_human2obj:
+		::sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::AC_VOICE);
+		break;
 
-    case reptilian_warriorobj:
-    case scan_alienobj:
-        ::sd_play_actor_sound(SCANDEATHSND, ob, bstone::AC_VOICE);
-        break;
+	case reptilian_warriorobj:
+	case scan_alienobj:
+		::sd_play_actor_sound(SCANDEATHSND, ob, bstone::AC_VOICE);
+		break;
 
-    case lcan_alienobj:
-    case final_boss4obj:
-        ::sd_play_actor_sound(LCANDEATHSND, ob, bstone::AC_VOICE);
-        break;
+	case lcan_alienobj:
+	case final_boss4obj:
+		::sd_play_actor_sound(LCANDEATHSND, ob, bstone::AC_VOICE);
+		break;
 
-    case gurneyobj:
-        ::sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::AC_VOICE);
-        break;
+	case gurneyobj:
+		::sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::AC_VOICE);
+		break;
 
-    case lcan_wait_alienobj:
-        ::sd_play_actor_sound(LCANBREAKSND, ob, bstone::AC_VOICE);
-        break;
+	case lcan_wait_alienobj:
+		::sd_play_actor_sound(LCANBREAKSND, ob, bstone::AC_VOICE);
+		break;
 
-    case scan_wait_alienobj:
-        ::sd_play_actor_sound(SCANBREAKSND, ob, bstone::AC_VOICE);
-        break;
+	case scan_wait_alienobj:
+		::sd_play_actor_sound(SCANBREAKSND, ob, bstone::AC_VOICE);
+		break;
 
-    default:
-        break;
+	default:
+		break;
 
-    }
+	}
 }
 
 
@@ -3908,43 +4053,53 @@ void A_DeathScream(
 // ============================================================================
 
 void DropCargo(
-    objtype* obj)
+	objtype* obj)
 {
-    if (!::is_ps()) {
-        return;
-    }
+	const auto& assets_info = AssetsInfo{};
 
-    //
-    // Keep seperate... May later have MULTI "cargo's"
-    //
+	if (!assets_info.is_ps())
+	{
+		return;
+	}
 
-    if (obj->flags2 & FL2_DROP_RKEY) {
-        PlaceReservedItemNearTile(bo_red_key, obj->tilex, obj->tiley);
-    }
+	//
+	// Keep seperate... May later have MULTI "cargo's"
+	//
 
-    if (obj->flags2 & FL2_DROP_YKEY) {
-        PlaceReservedItemNearTile(bo_yellow_key, obj->tilex, obj->tiley);
-    }
+	if (obj->flags2 & FL2_DROP_RKEY)
+	{
+		PlaceReservedItemNearTile(bo_red_key, obj->tilex, obj->tiley);
+	}
 
-    if (obj->flags2 & FL2_DROP_BKEY) {
-        PlaceReservedItemNearTile(bo_blue_key, obj->tilex, obj->tiley);
-    }
+	if (obj->flags2 & FL2_DROP_YKEY)
+	{
+		PlaceReservedItemNearTile(bo_yellow_key, obj->tilex, obj->tiley);
+	}
 
-    if (obj->flags2 & FL2_DROP_BFG) {
-        PlaceReservedItemNearTile(bo_bfg_cannon, obj->tilex, obj->tiley);
-    }
+	if (obj->flags2 & FL2_DROP_BKEY)
+	{
+		PlaceReservedItemNearTile(bo_blue_key, obj->tilex, obj->tiley);
+	}
 
-    if (obj->flags2 & FL2_DROP_ION) {
-        PlaceReservedItemNearTile(bo_ion_cannon, obj->tilex, obj->tiley);
-    }
+	if (obj->flags2 & FL2_DROP_BFG)
+	{
+		PlaceReservedItemNearTile(bo_bfg_cannon, obj->tilex, obj->tiley);
+	}
 
-    if (obj->flags2 & FL2_DROP_DETONATOR) {
-        PlaceReservedItemNearTile(bo_plasma_detonator, obj->tilex, obj->tiley);
-    }
+	if (obj->flags2 & FL2_DROP_ION)
+	{
+		PlaceReservedItemNearTile(bo_ion_cannon, obj->tilex, obj->tiley);
+	}
 
-    if ((obj->flags2 & FL2_LINC) && obj->linc) {
-        OperateSmartSwitch(obj->linc >> 8, obj->linc & 255, ST_TURN_OFF, true);
-    }
+	if (obj->flags2 & FL2_DROP_DETONATOR)
+	{
+		PlaceReservedItemNearTile(bo_plasma_detonator, obj->tilex, obj->tiley);
+	}
+
+	if ((obj->flags2 & FL2_LINC) && obj->linc)
+	{
+		OperateSmartSwitch(obj->linc >> 8, obj->linc & 255, ST_TURN_OFF, true);
+	}
 }
 
 
@@ -4153,19 +4308,25 @@ void T_Chase(
 }
 
 void ChangeShootMode(
-    objtype* ob)
+	objtype* ob)
 {
-    if (ob->flags & FL_SHOOTMODE) {
-        ob->flags &= ~FL_SHOOTMODE;
-        ob->ammo = 60 + (US_RndT() % 60);
-    } else {
-        ob->flags |= FL_SHOOTMODE;
-        ob->ammo = 1 + (US_RndT() % 2);
+	if (ob->flags & FL_SHOOTMODE)
+	{
+		ob->flags &= ~FL_SHOOTMODE;
+		ob->ammo = 60 + (US_RndT() % 60);
+	}
+	else
+	{
+		ob->flags |= FL_SHOOTMODE;
+		ob->ammo = 1 + (US_RndT() % 2);
 
-        if (::is_ps() && ob->obclass == gold_morphobj) {
-            ob->ammo += 3 + (US_RndT() % 5);
-        }
-    }
+		const auto& assets_info = AssetsInfo{};
+
+		if (assets_info.is_ps() && ob->obclass == gold_morphobj)
+		{
+			ob->ammo += 3 + (US_RndT() % 5);
+		}
+	}
 }
 
 void DoAttack(
@@ -4424,176 +4585,207 @@ void T_Path(
 int16_t morph_angle_adj = 0;
 
 void T_Shoot(
-    objtype* ob)
+	objtype* ob)
 {
-    int16_t dx, dy, dist;
-    int16_t hitchance, damage;
-    int16_t chance;
+	int16_t dx, dy, dist;
+	int16_t hitchance, damage;
+	int16_t chance;
 
-    switch (ob->obclass) {
-    case SMART_ACTORS:
-        if (!ob->ammo) {
-            return;
-        }
+	switch (ob->obclass)
+	{
+	case SMART_ACTORS:
+		if (!ob->ammo)
+		{
+			return;
+		}
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 
-    switch (ob->obclass) {
-    case electroobj:
-        ::SpawnProjectile(ob, electroshotobj);
-        break;
+	const auto& assets_info = AssetsInfo{};
 
-    case mutant_human2obj:
-        SpawnProjectile(ob, ::is_ps() ? electroshotobj : scanshotobj);
-        break;
+	switch (ob->obclass)
+	{
+	case electroobj:
+		::SpawnProjectile(ob, electroshotobj);
+		break;
 
-    case liquidobj:
-        SpawnProjectile(ob, liquidshotobj);
-        break;
+	case mutant_human2obj:
+		SpawnProjectile(ob, assets_info.is_ps() ? electroshotobj : scanshotobj);
+		break;
 
-    case lcan_alienobj:
-        SpawnProjectile(ob, lcanshotobj);
-        break;
+	case liquidobj:
+		SpawnProjectile(ob, liquidshotobj);
+		break;
 
-    case podobj:
-        SpawnProjectile(ob, podshotobj);
-        break;
+	case lcan_alienobj:
+		SpawnProjectile(ob, lcanshotobj);
+		break;
 
-    case scan_alienobj:
-        SpawnProjectile(ob, scanshotobj);
-        break;
+	case podobj:
+		SpawnProjectile(ob, podshotobj);
+		break;
 
-    case gold_morphobj:
-        SpawnProjectile(ob, goldmorphshotobj);
+	case scan_alienobj:
+		SpawnProjectile(ob, scanshotobj);
+		break;
 
-        if (ob->hitpoints < 500) {
-            chance = 255 / 2;
-        } else {
-            chance = 255 / 4;
-        }
+	case gold_morphobj:
+		SpawnProjectile(ob, goldmorphshotobj);
 
-        if (US_RndT() < chance) {
-            morph_angle_adj = 24;
-            SpawnProjectile(ob, goldmorphshotobj);
-            morph_angle_adj = -24;
-            SpawnProjectile(ob, goldmorphshotobj);
-            morph_angle_adj = 16;
-            SpawnProjectile(ob, goldmorphshotobj);
-            morph_angle_adj = -16;
-            SpawnProjectile(ob, goldmorphshotobj);
-            morph_angle_adj = 8;
-            SpawnProjectile(ob, goldmorphshotobj);
-            morph_angle_adj = -8;
-            SpawnProjectile(ob, goldmorphshotobj);
-            morph_angle_adj = 0;
-        }
-        break;
+		if (ob->hitpoints < 500)
+		{
+			chance = 255 / 2;
+		}
+		else
+		{
+			chance = 255 / 4;
+		}
 
-    case spider_mutantobj:
-    case acid_dragonobj:
-        SpawnProjectile(ob, static_cast<classtype>(spider_mutantshotobj + (ob->obclass - spider_mutantobj)));
-        break;
+		if (US_RndT() < chance)
+		{
+			morph_angle_adj = 24;
+			SpawnProjectile(ob, goldmorphshotobj);
+			morph_angle_adj = -24;
+			SpawnProjectile(ob, goldmorphshotobj);
+			morph_angle_adj = 16;
+			SpawnProjectile(ob, goldmorphshotobj);
+			morph_angle_adj = -16;
+			SpawnProjectile(ob, goldmorphshotobj);
+			morph_angle_adj = 8;
+			SpawnProjectile(ob, goldmorphshotobj);
+			morph_angle_adj = -8;
+			SpawnProjectile(ob, goldmorphshotobj);
+			morph_angle_adj = 0;
+		}
+		break;
 
-    case final_boss2obj:
-        SpawnProjectile(ob, final_boss2shotobj);
-        break;
+	case spider_mutantobj:
+	case acid_dragonobj:
+		SpawnProjectile(ob, static_cast<classtype>(spider_mutantshotobj + (ob->obclass - spider_mutantobj)));
+		break;
 
-    case final_boss4obj:
-        SpawnProjectile(ob, final_boss4shotobj);
-        break;
+	case final_boss2obj:
+		SpawnProjectile(ob, final_boss2shotobj);
+		break;
 
-    default:
-        hitchance = 128;
+	case final_boss4obj:
+		SpawnProjectile(ob, final_boss4shotobj);
+		break;
 
-        ob->lighting = -10;
+	default:
+		hitchance = 128;
 
-        if (!areabyplayer[ob->areanumber]) {
-            return;
-        }
+		ob->lighting = -10;
 
-        if (!CheckLine(ob, player)) { // player is behind a wall
-            return;
-        }
+		if (!areabyplayer[ob->areanumber])
+		{
+			return;
+		}
 
-        dx = static_cast<int16_t>(abs(ob->tilex - player->tilex));
-        dy = static_cast<int16_t>(abs(ob->tiley - player->tiley));
-        dist = dx > dy ? dx : dy;
+		if (!CheckLine(ob, player))
+		{ // player is behind a wall
+			return;
+		}
 
-        if (ob->obclass == swatobj) {
-            if (dist) {
-                dist = dist * 2 / 3; // ss are better shots
+		dx = static_cast<int16_t>(abs(ob->tilex - player->tilex));
+		dy = static_cast<int16_t>(abs(ob->tiley - player->tiley));
+		dist = dx > dy ? dx : dy;
 
-            }
-        }
-        if (thrustspeed >= RUNSPEED) {
-            if (ob->flags & FL_VISABLE) {
-                hitchance = 160 - dist * 16; // player can see to dodge
-            } else {
-                hitchance = 160 - dist * 8;
-            }
-        } else {
-            if (ob->flags & FL_VISABLE) {
-                hitchance = 256 - dist * 16; // player can see to dodge
-            } else {
-                hitchance = 256 - dist * 8;
-            }
-        }
+		if (ob->obclass == swatobj)
+		{
+			if (dist)
+			{
+				dist = dist * 2 / 3; // ss are better shots
 
-        // See if the shot was a hit.
-        //
-        if (US_RndT() < hitchance) {
-            if (dist < 2) {
-                damage = US_RndT() >> 2;
-            } else if (dist < 4) {
-                damage = US_RndT() >> 3;
-            } else {
-                damage = US_RndT() >> 4;
-            }
+			}
+		}
+		if (thrustspeed >= RUNSPEED)
+		{
+			if (ob->flags & FL_VISABLE)
+			{
+				hitchance = 160 - dist * 16; // player can see to dodge
+			}
+			else
+			{
+				hitchance = 160 - dist * 8;
+			}
+		}
+		else
+		{
+			if (ob->flags & FL_VISABLE)
+			{
+				hitchance = 256 - dist * 16; // player can see to dodge
+			}
+			else
+			{
+				hitchance = 256 - dist * 8;
+			}
+		}
 
-            TakeDamage(damage, ob);
-        }
+		// See if the shot was a hit.
+		//
+		if (US_RndT() < hitchance)
+		{
+			if (dist < 2)
+			{
+				damage = US_RndT() >> 2;
+			}
+			else if (dist < 4)
+			{
+				damage = US_RndT() >> 3;
+			}
+			else
+			{
+				damage = US_RndT() >> 4;
+			}
 
-        switch (ob->obclass) {
+			TakeDamage(damage, ob);
+		}
 
-        case proguardobj:
-        case swatobj:
-            ::sd_play_actor_sound(
-                ATKBURSTRIFLESND, ob, bstone::AC_WEAPON);
-            break;
+		switch (ob->obclass)
+		{
 
-        default:
-            ::sd_play_actor_sound(
-                ATKCHARGEDSND, ob, bstone::AC_WEAPON);
-            break;
-        }
+		case proguardobj:
+		case swatobj:
+			::sd_play_actor_sound(
+				ATKBURSTRIFLESND, ob, bstone::AC_WEAPON);
+			break;
+
+		default:
+			::sd_play_actor_sound(
+				ATKCHARGEDSND, ob, bstone::AC_WEAPON);
+			break;
+		}
 
 #ifdef LIMITED_AMMO
-        switch (ob->obclass) {
-        case SMART_ACTORS:
-            ob->ammo--;
-            CheckRunChase(ob);
-            break;
+		switch (ob->obclass)
+		{
+		case SMART_ACTORS:
+			ob->ammo--;
+			CheckRunChase(ob);
+			break;
 
-        default:
-            break;
-        }
+		default:
+			break;
+		}
 #endif
 
-        MakeAlertNoise(ob);
-        break;
-    }
+		MakeAlertNoise(ob);
+		break;
+	}
 
-    switch (ob->obclass) {
-    case proguardobj:
-    case swatobj:
-        break;
+	switch (ob->obclass)
+	{
+	case proguardobj:
+	case swatobj:
+		break;
 
-    default:
-        ob->flags &= ~FL_LOCKED_STATE;
-        break;
-    }
+	default:
+		ob->flags &= ~FL_LOCKED_STATE;
+		break;
+	}
 }
 
 void T_Shade(
@@ -4977,79 +5169,93 @@ void T_ExplodeDamage(
 }
 
 void T_PainThink(
-    objtype* obj)
+	objtype* obj)
 {
-    if (::is_aog_sw()) {
-        return;
-    }
+	const auto& assets_info = AssetsInfo{};
 
-    int16_t full_hp = starthitpoints[gamestate.difficulty][obj->obclass - rentacopobj];
+	if (assets_info.is_aog_sw())
+	{
+		return;
+	}
 
-    if (obj->hitpoints > (full_hp >> 1) + (full_hp >> 2)) {
-        //       Orginal HitPoints
-        //
+	int16_t full_hp = starthitpoints[gamestate.difficulty][obj->obclass - rentacopobj];
 
-        switch (obj->obclass) {
-        case floatingbombobj:
-            NewState(obj, &s_scout_run);
-            break;
+	if (obj->hitpoints > (full_hp >> 1) + (full_hp >> 2))
+	{
+		//       Orginal HitPoints
+		//
 
-        case volatiletransportobj:
-            NewState(obj, &s_scout_path1);
-            break;
+		switch (obj->obclass)
+		{
+		case floatingbombobj:
+			NewState(obj, &s_scout_run);
+			break;
 
-        default:
-            break;
-        }
-    } else if (obj->hitpoints > (full_hp >> 1)) {
-        //      3/4 Orginal HitPoints
-        //
+		case volatiletransportobj:
+			NewState(obj, &s_scout_path1);
+			break;
 
-        switch (obj->obclass) {
-        case floatingbombobj:
-            NewState(obj, &s_scout_run2);
-            break;
+		default:
+			break;
+		}
+	}
+	else if (obj->hitpoints > (full_hp >> 1))
+	{
+		//      3/4 Orginal HitPoints
+		//
 
-        case volatiletransportobj:
-            NewState(obj, &s_scout_path2);
-            break;
+		switch (obj->obclass)
+		{
+		case floatingbombobj:
+			NewState(obj, &s_scout_run2);
+			break;
 
-        default:
-            break;
-        }
-    } else if (obj->hitpoints > (full_hp >> 2)) {
-        //      1/2 Orginal HitPoints
-        //
+		case volatiletransportobj:
+			NewState(obj, &s_scout_path2);
+			break;
 
-        switch (obj->obclass) {
-        case floatingbombobj:
-            NewState(obj, &s_scout_run3);
-            break;
+		default:
+			break;
+		}
+	}
+	else if (obj->hitpoints > (full_hp >> 2))
+	{
+		//      1/2 Orginal HitPoints
+		//
 
-        case volatiletransportobj:
-            NewState(obj, &s_scout_path3);
-            break;
+		switch (obj->obclass)
+		{
+		case floatingbombobj:
+			NewState(obj, &s_scout_run3);
+			break;
 
-        default:
-            break;
-        }
-    } else {
-        //      1/4 Orginal HitPoints
-        //
+		case volatiletransportobj:
+			NewState(obj, &s_scout_path3);
+			break;
 
-        switch (obj->obclass) {
-        case floatingbombobj:
-            NewState(obj, &s_scout_run4);
-            break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		//      1/4 Orginal HitPoints
+		//
 
-        case volatiletransportobj:
-            NewState(obj, &s_scout_path4);
-            break;
+		switch (obj->obclass)
+		{
+		case floatingbombobj:
+			NewState(obj, &s_scout_run4);
+			break;
 
-        default:
-            break;
-        }
-    }
+		case volatiletransportobj:
+			NewState(obj, &s_scout_path4);
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 
@@ -5791,158 +5997,186 @@ void ExplodeRadius(
 }
 
 void ExplodeFill(
-    int8_t tx,
-    int8_t ty)
+	int8_t tx,
+	int8_t ty)
 {
-    int8_t bx = tx - ff_obj->tilex + EX_RADIUS,
-         by = ty - ff_obj->tiley + EX_RADIUS,
-         door, no_wall;
+	const auto& assets_info = AssetsInfo{};
 
-// Damage actors on this spot!
-//
-    if (ff_damageplayer && tx == player->tilex && ty == player->tiley) {
-        TakeDamage(EXPLODE_DAMAGE, ff_obj);
-    } else {
-        proj_check = actorat[tx & 63][ty & 63];
+	int8_t bx = tx - ff_obj->tilex + EX_RADIUS,
+		by = ty - ff_obj->tiley + EX_RADIUS,
+		door, no_wall;
 
-        if ((proj_check >= objlist) && (proj_check < &objlist[MAXACTORS])) {
-            if ((proj_check->flags & FL_SHOOTABLE)) {
-                switch (proj_check->obclass) {
-                // Detinate all floating bombs & VMTs
-                //
-                case floatingbombobj:
-                case volatiletransportobj:
-                    DamageActor(proj_check, 500, ff_obj);
-                    break;
+	// Damage actors on this spot!
+	//
+	if (ff_damageplayer && tx == player->tilex && ty == player->tiley)
+	{
+		TakeDamage(EXPLODE_DAMAGE, ff_obj);
+	}
+	else
+	{
+		proj_check = actorat[tx & 63][ty & 63];
 
-                // Hanging turrets are not effected by
-                // concussion weapons.
-                //
-                case hang_terrotobj:
-                case arc_barrierobj:
-                case post_barrierobj:
-                case vpost_barrierobj:
-                case vspike_barrierobj:
-                    break;
+		if ((proj_check >= objlist) && (proj_check < &objlist[MAXACTORS]))
+		{
+			if ((proj_check->flags & FL_SHOOTABLE))
+			{
+				switch (proj_check->obclass)
+				{
+					// Detinate all floating bombs & VMTs
+					//
+				case floatingbombobj:
+				case volatiletransportobj:
+					DamageActor(proj_check, 500, ff_obj);
+					break;
 
-                //
-                // Test for Level completion object
-                //
-                case rotating_cubeobj:
-                    if (!::is_ps()) {
-                        break;
-                    }
+					// Hanging turrets are not effected by
+					// concussion weapons.
+					//
+				case hang_terrotobj:
+				case arc_barrierobj:
+				case post_barrierobj:
+				case vpost_barrierobj:
+				case vspike_barrierobj:
+					break;
 
-                    if (ff_obj->obclass == pd_explosionobj) {
-                        proj_check->lighting = EXPLOSION_SHADING;
-                        proj_check->flags &= ~(FL_SOLID | FL_SHOOTABLE);
-                        ::InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
+					//
+					// Test for Level completion object
+					//
+				case rotating_cubeobj:
+					if (!assets_info.is_ps())
+					{
+						break;
+					}
 
-                        ::sd_play_actor_sound(
-                            EXPLODE1SND, proj_check, bstone::AC_VOICE);
+					if (ff_obj->obclass == pd_explosionobj)
+					{
+						proj_check->lighting = EXPLOSION_SHADING;
+						proj_check->flags &= ~(FL_SOLID | FL_SHOOTABLE);
+						::InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
 
-                        // Unlock Next floor
+						::sd_play_actor_sound(
+							EXPLODE1SND, proj_check, bstone::AC_VOICE);
 
-                        gamestuff.level[gamestate.mapon + 1].locked = false;
-                    }
-                    break;
+						// Unlock Next floor
 
-                //
-                // Plasma/Fision Detonators (already armed)
-                //
-                case plasma_detonatorobj:
-                    if (ff_obj == player || // Player shot it with gun
-                        (ff_obj->tilex == tx && ff_obj->tiley == ty)) // Direct Hit with grenade
-                    {
-                        DamageActor(proj_check, 1, ff_obj);
-                    } else {
-                        DamageActor(proj_check, 20, ff_obj); // An explosion has started a chain reaction
-                    }
-                    break;
+						gamestuff.level[gamestate.mapon + 1].locked = false;
+					}
+					break;
+
+					//
+					// Plasma/Fision Detonators (already armed)
+					//
+				case plasma_detonatorobj:
+					if (ff_obj == player || // Player shot it with gun
+						(ff_obj->tilex == tx && ff_obj->tiley == ty)) // Direct Hit with grenade
+					{
+						DamageActor(proj_check, 1, ff_obj);
+					}
+					else
+					{
+						DamageActor(proj_check, 20, ff_obj); // An explosion has started a chain reaction
+					}
+					break;
 
 
-                // Everyone else gets the shit kicked
-                // out of them...
-                //
-                default:
-                    if (!::is_ps() || (::is_ps() && !(proj_check->flags2 & FL2_CLOAKED)))
-                        SpawnFlash(proj_check->x, proj_check->y);
-                    DamageActor(proj_check, ff_damage, ff_obj);
-                    break;
-                }
-            }
-        }
-    }
+					// Everyone else gets the shit kicked
+					// out of them...
+					//
+				default:
+					if (!assets_info.is_ps() || (assets_info.is_ps() && !(proj_check->flags2 & FL2_CLOAKED)))
+						SpawnFlash(proj_check->x, proj_check->y);
+					DamageActor(proj_check, ff_damage, ff_obj);
+					break;
+				}
+			}
+		}
+	}
 
-// Mark spot as exploded!
-//
-    ff_buffer[static_cast<int>(bx)][static_cast<int>(by)] = 1;
+	// Mark spot as exploded!
+	//
+	ff_buffer[static_cast<int>(bx)][static_cast<int>(by)] = 1;
 
-// Explode to the EAST!
-//
-    bx += 1;
-    tx += 1;
+	// Explode to the EAST!
+	//
+	bx += 1;
+	tx += 1;
 
-    door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    if (door & 0x80) {
-        no_wall = doorobjlist[door & 0x7f].action != dr_closed;
-    } else {
-        no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    }
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	if (door & 0x80)
+	{
+		no_wall = doorobjlist[door & 0x7f].action != dr_closed;
+	}
+	else
+	{
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	}
 
-    if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx <= EX_RADIUS * 2)) {
-        ExplodeFill(tx, ty);
-    }
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx <= EX_RADIUS * 2))
+	{
+		ExplodeFill(tx, ty);
+	}
 
-// Explode to the WEST!
-//
-    bx -= 2;
-    tx -= 2;
+	// Explode to the WEST!
+	//
+	bx -= 2;
+	tx -= 2;
 
-    door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    if (door & 0x80) {
-        no_wall = doorobjlist[door & 0x7f].action != dr_closed;
-    } else {
-        no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    }
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	if (door & 0x80)
+	{
+		no_wall = doorobjlist[door & 0x7f].action != dr_closed;
+	}
+	else
+	{
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	}
 
-    if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx >= 0)) {
-        ExplodeFill(tx, ty);
-    }
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx >= 0))
+	{
+		ExplodeFill(tx, ty);
+	}
 
-// Explode to the SOUTH!
-//
-    bx++;
-    tx++;
-    by += 1;
-    ty += 1;
+	// Explode to the SOUTH!
+	//
+	bx++;
+	tx++;
+	by += 1;
+	ty += 1;
 
-    door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    if (door & 0x80) {
-        no_wall = doorobjlist[door & 0x7f].action != dr_closed;
-    } else {
-        no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    }
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	if (door & 0x80)
+	{
+		no_wall = doorobjlist[door & 0x7f].action != dr_closed;
+	}
+	else
+	{
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	}
 
-    if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by <= EX_RADIUS * 2)) {
-        ExplodeFill(tx, ty);
-    }
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by <= EX_RADIUS * 2))
+	{
+		ExplodeFill(tx, ty);
+	}
 
-// Explode to the NORTH!
-//
-    by -= 2;
-    ty -= 2;
+	// Explode to the NORTH!
+	//
+	by -= 2;
+	ty -= 2;
 
-    door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    if (door & 0x80) {
-        no_wall = doorobjlist[door & 0x7f].action != dr_closed;
-    } else {
-        no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
-    }
+	door = tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	if (door & 0x80)
+	{
+		no_wall = doorobjlist[door & 0x7f].action != dr_closed;
+	}
+	else
+	{
+		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
+	}
 
-    if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by >= 0)) {
-        ExplodeFill(tx, ty);
-    }
+	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by >= 0))
+	{
+		ExplodeFill(tx, ty);
+	}
 }
 
 // ---------------------------------------------------------------------------

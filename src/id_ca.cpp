@@ -36,6 +36,7 @@ loaded into the data segment
 
 
 #include "id_heads.h"
+#include "bstone_sha1.h"
 
 
 /*
@@ -66,10 +67,6 @@ int MAPS_WITH_STATS = 0;
 
 int NUMMAPS = 0;
 
-bool is_aog_full();
-bool is_aog_sw();
-bool is_ps();
-
 
 /*
 =============================================================================
@@ -87,16 +84,6 @@ extern uint8_t maphead;
 extern uint8_t mapdict;
 extern uint8_t audiohead;
 extern uint8_t audiodict;
-
-
-std::string extension; // Need a string, not constant to change cache files
-const std::string gheadname = "VGAHEAD.";
-const std::string gfilename = "VGAGRAPH.";
-const std::string gdictname = "VGADICT.";
-const std::string mheadname = "MAPHEAD.";
-const std::string mfilename = "MAPTEMP.";
-const std::string aheadname = "AUDIOHED.";
-const std::string afilename = "AUDIOT.";
 
 
 void CA_CannotOpen(
@@ -133,8 +120,6 @@ static const int BUFFERSIZE = 0x10000;
 
 // BBi
 int ca_gr_last_expanded_size;
-int map_compressed_size = 0;
-std::string map_sha1_string;
 
 void CAL_CarmackExpand(
     uint16_t* source,
@@ -183,7 +168,7 @@ void OpenMapFile()
         CA_CannotOpen(fname);
     }
 #else
-    ::ca_open_resource(::mfilename, ::maphandle);
+    ::ca_open_resource(Assets::map_data_base_name, ::maphandle);
 #endif
 }
 
@@ -195,7 +180,7 @@ void CloseMapFile()
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-    ::ca_open_resource(::afilename, ::audiohandle);
+    ::ca_open_resource(Assets::audio_data_base_name, ::audiohandle);
 #else
     // TODO Remove or fix
     if ((audiohandle = open("AUDIO."EXTENSION,
@@ -757,76 +742,61 @@ void CA_CacheScreen(
 ======================
 */
 void CA_CacheMap(
-    int16_t mapnum)
+	std::int16_t mapnum)
 {
-    int32_t pos, compressed;
-    int16_t plane;
-    uint16_t** dest;
-    uint16_t size;
-    uint16_t* source;
+	std::int32_t pos;
+	std::int32_t compressed;
+	std::int16_t plane;
+	std::uint16_t** dest;
+	std::uint16_t size;
+	std::uint16_t* source;
 #ifdef CARMACIZED
-    memptr buffer2seg;
-    int32_t expanded;
+	memptr buffer2seg;
+	std::int32_t expanded;
 #endif
 
-    mapon = mapnum;
+	mapon = mapnum;
 
-    OpenMapFile();
+	//
+	// load the planes into the allready allocated buffers
+	//
+	size = MAPSIZE * MAPSIZE * MAPPLANES;
 
-    // BBi
-    bstone::Sha1 map_sha1;
-    ::map_compressed_size = 0;
+	for (plane = 0; plane < MAPPLANES; plane++)
+	{
+		pos = mapheaderseg[mapnum]->planestart[plane];
+		compressed = mapheaderseg[mapnum]->planelength[plane];
 
-//
-// load the planes into the allready allocated buffers
-//
-    size = MAPSIZE * MAPSIZE * MAPPLANES;
+		dest = &mapsegs[plane];
 
-    for (plane = 0; plane < MAPPLANES; plane++) {
-        pos = mapheaderseg[mapnum]->planestart[plane];
-        compressed = mapheaderseg[mapnum]->planelength[plane];
+		maphandle.set_position(pos);
+		::ca_buffer.resize(compressed);
+		source = reinterpret_cast<std::uint16_t*>(::ca_buffer.data());
 
-        dest = &mapsegs[plane];
-
-        maphandle.set_position(pos);
-        ::ca_buffer.resize(compressed);
-        source = reinterpret_cast<uint16_t*>(::ca_buffer.data());
-
-        maphandle.read(source, compressed);
-
-        // BBi
-        ::map_compressed_size += compressed;
-        map_sha1.process(source, compressed);
+		maphandle.read(source, compressed);
 
 #ifdef CARMACIZED
-        //
-        // unhuffman, then unRLEW
-        // The huffman'd chunk has a two byte expanded length first
-        // The resulting RLEW chunk also does, even though it's not really
-        // needed
-        //
-        expanded = *source;
-        source++;
-        MM_GetPtr(&buffer2seg, expanded);
-        CAL_CarmackExpand(source, (uint16_t*)buffer2seg, expanded);
-        CA_RLEWexpand(((uint16_t*)buffer2seg) + 1, *dest, size,
-                      ((mapfiletype*)tinf)->RLEWtag);
-        MM_FreePtr(&buffer2seg);
+		//
+		// unhuffman, then unRLEW
+		// The huffman'd chunk has a two byte expanded length first
+		// The resulting RLEW chunk also does, even though it's not really
+		// needed
+		//
+		expanded = *source;
+		source++;
+		MM_GetPtr(&buffer2seg, expanded);
+		CAL_CarmackExpand(source, (std::uint16_t*)buffer2seg, expanded);
+		CA_RLEWexpand(((std::uint16_t*)buffer2seg) + 1, *dest, size,
+			((mapfiletype*)tinf)->RLEWtag);
+		MM_FreePtr(&buffer2seg);
 
 #else
-        //
-        // unRLEW, skipping expanded length
-        //
-        CA_RLEWexpand(source + 1, *dest, size,
-                      rlew_tag);
+		//
+		// unRLEW, skipping expanded length
+		//
+		::CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
 #endif
-    }
-
-    CloseMapFile();
-
-    // BBi
-    map_sha1.finish();
-    ::map_sha1_string = map_sha1.get_digest_string();
+	}
 }
 
 /*
@@ -1015,15 +985,17 @@ std::string ca_load_script(
 
 void initialize_ca_constants()
 {
-    if (::is_aog_full()) {
+	const auto& assets_info = AssetsInfo{};
+
+    if (assets_info.is_aog_full()) {
         NUM_EPISODES = 6;
         MAPS_PER_EPISODE = 15;
         MAPS_WITH_STATS = 11;
-    } else if (::is_aog_sw()) {
+    } else if (assets_info.is_aog_sw()) {
         NUM_EPISODES = 1;
         MAPS_PER_EPISODE = 15;
         MAPS_WITH_STATS = 11;
-    } else if (::is_ps()) {
+    } else if (assets_info.is_ps()) {
         NUM_EPISODES = 1;
         MAPS_PER_EPISODE = 25;
         MAPS_WITH_STATS = 20;
@@ -1043,7 +1015,6 @@ bool ca_is_resource_exists(
 
     is_open = bstone::FileStream::is_exists(path);
 
-#ifndef _WIN32
     if (!is_open)
     {
         const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
@@ -1051,44 +1022,764 @@ bool ca_is_resource_exists(
 
         is_open = bstone::FileStream::is_exists(path_lc);
     }
-#endif // !_WIN32
 
     return is_open;
 }
 
 bool ca_open_resource_non_fatal(
-    const std::string& file_name_without_ext,
-    const std::string& file_extension,
-    bstone::FileStream& file_stream)
+	const std::string& data_dir,
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream)
 {
-    const auto file_name = file_name_without_ext + file_extension;
-    const auto path = ::data_dir + file_name;
+	const auto file_name = file_name_without_ext + file_extension;
+	const auto path = data_dir + file_name;
 
-    auto is_open = false;
+	auto is_open = false;
 
-    is_open = file_stream.open(path);
+	is_open = file_stream.open(path);
 
-    if (!is_open)
-    {
-        const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
-        const auto path_lc = ::data_dir + file_name_lc;
+	if (!is_open)
+	{
+		const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
+		const auto path_lc = data_dir + file_name_lc;
 
-        is_open = file_stream.open(path_lc);
-    }
+		is_open = file_stream.open(path_lc);
+	}
 
-    return is_open;
+	return is_open;
+}
+
+bool ca_open_resource_non_fatal(
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream)
+{
+	if (!::mod_dir_.empty())
+	{
+		const auto mod_dir_result = ca_open_resource_non_fatal(
+			::mod_dir_, file_name_without_ext, file_extension, file_stream);
+
+		if (mod_dir_result)
+		{
+			return true;
+		}
+	}
+
+	const auto data_dir_result = ca_open_resource_non_fatal(
+		::data_dir, file_name_without_ext, file_extension, file_stream);
+
+	return data_dir_result;
 }
 
 void ca_open_resource(
-    const std::string& file_name_without_ext,
-    bstone::FileStream& file_stream)
+	const std::string& file_name_without_ext,
+	bstone::FileStream& file_stream)
 {
-    const auto is_open = ca_open_resource_non_fatal(file_name_without_ext, ::extension, file_stream);
+	auto assets_info = AssetsInfo{};
 
-    if (!is_open)
-    {
-        const auto path = ::data_dir + file_name_without_ext + ::extension;
+	const auto is_open = ca_open_resource_non_fatal(file_name_without_ext, assets_info.get_extension(), file_stream);
 
-        ::CA_CannotOpen(path);
-    }
+	if (!is_open)
+	{
+		const auto path = ::data_dir + file_name_without_ext + assets_info.get_extension();
+
+		::CA_CannotOpen(path);
+	}
+}
+
+std::string ca_calculate_hash(
+	const std::string& data_dir,
+	const std::string& base_name,
+	const std::string& extension)
+{
+	auto file_stream = bstone::FileStream{};
+
+	if (!::ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
+	{
+		return {};
+	}
+
+	const auto stream_size = file_stream.get_size();
+
+	if (stream_size <= 0 || stream_size > Assets::max_size)
+	{
+		return {};
+	}
+
+	constexpr auto buffer_size = 16384;
+	const auto file_size = static_cast<int>(stream_size);
+
+	static auto buffer = Buffer{};
+	buffer.resize(buffer_size);
+
+	static auto sha1 = bstone::Sha1{};
+	sha1.reset();
+
+	auto remain_size = file_size;
+
+	while (remain_size > 0)
+	{
+		const auto read_count = std::min(remain_size, buffer_size);
+		const auto read_result = file_stream.read(buffer.data(), read_count);
+
+		if (read_result != read_count)
+		{
+			return {};
+		}
+
+		sha1.process(buffer.data(), read_count);
+
+		remain_size -= read_count;
+	}
+
+	const auto data_size = bstone::Endian::le(static_cast<std::int32_t>(file_size));
+
+	sha1.process(&data_size, static_cast<int>(sizeof(data_size)));
+	sha1.finish();
+
+	if (!sha1.is_valid())
+	{
+		return {};
+	}
+
+	return sha1.to_string();
+}
+
+void ca_dump_hashes()
+{
+	bstone::Log::write();
+	bstone::Log::write("Dumping resource hashes...");
+
+	bstone::FileStream file_stream;
+
+	auto buffer = Buffer{};
+	buffer.reserve(Assets::max_size);
+
+	auto data_size = std::int32_t{};
+
+	auto sha1 = bstone::Sha1{};
+
+	for (const auto& base_name : Assets::get_base_names())
+	{
+		for (const auto& extension : Assets::get_extensions())
+		{
+			const auto open_result = ca_open_resource_non_fatal(base_name, extension, file_stream);
+
+			if (!open_result)
+			{
+				continue;
+			}
+
+			bstone::Log::write();
+			bstone::Log::write("{}{}:", base_name, extension);
+
+			const auto stream_size = file_stream.get_size();
+
+			if (stream_size > Assets::max_size)
+			{
+				bstone::Log::write_error("File size is too big.");
+				continue;
+			}
+
+			const auto file_size = static_cast<int>(stream_size);
+
+			const auto read_result = file_stream.read(buffer.data(), file_size);
+
+			if (read_result != file_size)
+			{
+				bstone::Log::write_error("Failed to read data.");
+				continue;
+			}
+
+			data_size = file_size;
+			bstone::Endian::lei(data_size);
+
+			sha1.reset();
+			sha1.process(buffer.data(), file_size);
+			sha1.process(&data_size, static_cast<int>(sizeof(data_size)));
+			sha1.finish();
+
+			const auto& sha1_string = sha1.to_string();
+
+			bstone::Log::write(sha1_string);
+		}
+	}
+}
+
+
+std::string AssetsInfo::empty_extension_;
+
+AssetsVersion AssetsInfo::version_;
+AssetsCRefString AssetsInfo::extension_ = empty_extension_;
+AssetsCRefStrings AssetsInfo::base_names_;
+AssetsBaseNameToHashMap AssetsInfo::base_name_to_hash_map_;
+int AssetsInfo::gfx_header_offset_count_;
+std::string AssetsInfo::levels_hash_;
+bool AssetsInfo::are_modded_levels_;
+
+
+AssetsVersion AssetsInfo::get_version() const
+{
+	return version_;
+}
+
+void AssetsInfo::set_version(
+	const AssetsVersion version)
+{
+	version_ = version;
+
+	switch (version_)
+	{
+	case AssetsVersion::aog_sw_v1_0:
+		gfx_header_offset_count_ = 200;
+		break;
+
+	case AssetsVersion::aog_full_v1_0:
+		gfx_header_offset_count_ = 213;
+		break;
+
+	case AssetsVersion::aog_sw_v2_0:
+	case AssetsVersion::aog_sw_v2_1:
+		gfx_header_offset_count_ = 211;
+		break;
+
+	case AssetsVersion::aog_full_v2_0:
+	case AssetsVersion::aog_full_v2_1:
+		gfx_header_offset_count_ = 224;
+		break;
+
+	case AssetsVersion::aog_sw_v3_0:
+	case AssetsVersion::aog_full_v3_0:
+		gfx_header_offset_count_ = 226;
+		break;
+
+	case AssetsVersion::ps:
+		gfx_header_offset_count_ = 249;
+		break;
+
+	default:
+		gfx_header_offset_count_ = 0;
+		break;
+	}
+}
+
+const std::string& AssetsInfo::get_extension() const
+{
+	return extension_;
+}
+
+void AssetsInfo::set_extension(
+	const std::string& extension)
+{
+	extension_ = extension;
+}
+
+const AssetsCRefStrings& AssetsInfo::get_base_names() const
+{
+	return base_names_;
+}
+
+void AssetsInfo::set_base_names(
+	const AssetsCRefStrings& base_names)
+{
+	base_names_ = base_names;
+}
+
+const AssetsBaseNameToHashMap& AssetsInfo::get_base_name_to_hash_map() const
+{
+	return base_name_to_hash_map_;
+}
+
+void AssetsInfo::set_base_name_to_hash_map(
+	const AssetsBaseNameToHashMap& base_name_to_hash_map)
+{
+	base_name_to_hash_map_ = base_name_to_hash_map;
+}
+
+const std::string& AssetsInfo::get_levels_hash_string() const
+{
+	return levels_hash_;
+}
+
+void AssetsInfo::set_levels_hash(
+	const std::string& levels_hash)
+{
+	levels_hash_ = levels_hash;
+
+	static const auto all_levels_hashes = AssetsCRefStrings
+	{
+		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_ps_base_name_to_hash_map().at(Assets::map_data_base_name),
+	}; // all_levels_hashes
+
+	are_modded_levels_ = !Assets::are_official_levels(levels_hash_);
+}
+
+int AssetsInfo::get_gfx_header_offset_count() const
+{
+	return gfx_header_offset_count_;
+}
+
+bool AssetsInfo::are_modded_levels() const
+{
+	return are_modded_levels_;
+}
+
+bool AssetsInfo::is_aog_full_v1_0() const
+{
+	return version_ == AssetsVersion::aog_full_v1_0;
+}
+
+bool AssetsInfo::is_aog_full_v2_0() const
+{
+	return version_ == AssetsVersion::aog_full_v2_0;
+}
+
+bool AssetsInfo::is_aog_full_v2_1() const
+{
+	return version_ == AssetsVersion::aog_full_v2_1;
+}
+
+bool AssetsInfo::is_aog_full_v2_x() const
+{
+	return is_aog_full_v2_0() || is_aog_full_v2_1();
+}
+
+bool AssetsInfo::is_aog_full_v3_0() const
+{
+	return version_ == AssetsVersion::aog_full_v3_0;
+}
+
+bool AssetsInfo::is_aog_full() const
+{
+	return is_aog_full_v1_0() || is_aog_full_v2_x() || is_aog_full_v3_0();
+}
+
+bool AssetsInfo::is_aog_sw_v1_0() const
+{
+	return version_ == AssetsVersion::aog_sw_v1_0;
+}
+
+bool AssetsInfo::is_aog_sw_v2_0() const
+{
+	return version_ == AssetsVersion::aog_sw_v2_0;
+}
+
+bool AssetsInfo::is_aog_sw_v2_1() const
+{
+	return version_ == AssetsVersion::aog_sw_v2_1;
+}
+
+bool AssetsInfo::is_aog_sw_v2_x() const
+{
+	return is_aog_sw_v2_0() || is_aog_sw_v2_1();
+}
+
+bool AssetsInfo::is_aog_sw_v3_0() const
+{
+	return version_ == AssetsVersion::aog_sw_v3_0;
+}
+
+bool AssetsInfo::is_aog_sw() const
+{
+	return is_aog_sw_v1_0() || is_aog_sw_v2_x() || is_aog_sw_v3_0();
+}
+
+bool AssetsInfo::is_aog() const
+{
+	return is_aog_full() || is_aog_sw();
+}
+
+bool AssetsInfo::is_ps() const
+{
+	return version_ == AssetsVersion::ps;
+}
+
+
+const std::string& Assets::audio_header_base_name = "AUDIOHED";
+const std::string& Assets::audio_data_base_name = "AUDIOT";
+
+const std::string& Assets::map_header_base_name = "MAPHEAD";
+const std::string& Assets::map_data_base_name = "MAPTEMP";
+
+const std::string& Assets::gfx_dictionary_base_name = "VGADICT";
+const std::string& Assets::gfx_header_base_name = "VGAHEAD";
+const std::string& Assets::gfx_data_base_name = "VGAGRAPH";
+
+const std::string& Assets::page_file_base_name = "VSWAP";
+
+const std::string& Assets::episode_6_fmv_base_name = "EANIM";
+const std::string& Assets::episode_3_5_fmv_base_name = "GANIM";
+const std::string& Assets::intro_fmv_base_name = "IANIM";
+const std::string& Assets::episode_2_4_fmv_base_name = "SANIM";
+
+const std::string& Assets::aog_sw_extension = ".BS1";
+const std::string& Assets::aog_full_extension = ".BS6";
+const std::string& Assets::ps_extension = ".VSI";
+
+
+const AssetsCRefStrings& Assets::get_extensions()
+{
+	static const auto extensions = AssetsCRefStrings
+	{
+		aog_sw_extension,
+		aog_full_extension,
+		ps_extension,
+	}; // extensions
+
+	return extensions;
+}
+
+const AssetsCRefStrings& Assets::get_base_names()
+{
+	static const auto base_names = AssetsCRefStrings
+	{
+		audio_header_base_name,
+		audio_data_base_name,
+
+		map_header_base_name,
+		map_data_base_name,
+
+		gfx_dictionary_base_name,
+		gfx_header_base_name,
+		gfx_data_base_name,
+
+		page_file_base_name,
+
+		episode_6_fmv_base_name,
+		episode_3_5_fmv_base_name,
+		intro_fmv_base_name,
+		episode_2_4_fmv_base_name,
+	}; // base_names
+
+	return base_names;
+}
+
+const AssetsCRefStrings& Assets::get_aog_sw_base_names()
+{
+	static const auto aog_sw_base_names = AssetsCRefStrings
+	{
+		audio_header_base_name,
+		audio_data_base_name,
+
+		map_header_base_name,
+		map_data_base_name,
+
+		gfx_dictionary_base_name,
+		gfx_header_base_name,
+		gfx_data_base_name,
+
+		page_file_base_name,
+
+		intro_fmv_base_name,
+		episode_2_4_fmv_base_name,
+	}; // aog_sw_base_names
+
+	return aog_sw_base_names;
+}
+
+const AssetsCRefStrings& Assets::get_aog_full_base_names()
+{
+	static const auto aog_full_base_names = AssetsCRefStrings
+	{
+		audio_header_base_name,
+		audio_data_base_name,
+
+		map_header_base_name,
+		map_data_base_name,
+
+		gfx_dictionary_base_name,
+		gfx_header_base_name,
+		gfx_data_base_name,
+
+		page_file_base_name,
+
+		episode_6_fmv_base_name,
+		episode_3_5_fmv_base_name,
+		intro_fmv_base_name,
+		episode_2_4_fmv_base_name,
+	}; // aog_full_base_names
+
+	return aog_full_base_names;
+}
+
+const AssetsCRefStrings& Assets::get_ps_base_names()
+{
+	static const auto ps_base_names = AssetsCRefStrings
+	{
+		audio_header_base_name,
+		audio_data_base_name,
+
+		map_header_base_name,
+		map_data_base_name,
+
+		gfx_dictionary_base_name,
+		gfx_header_base_name,
+		gfx_data_base_name,
+
+		page_file_base_name,
+
+		episode_6_fmv_base_name,
+		intro_fmv_base_name,
+	}; // ps_base_names
+
+	return ps_base_names;
+}
+
+
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
+{
+	static auto aog_sw_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
+		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
+
+		{map_header_base_name, "ad8807e51704ef0e4b3ced663c0d579592b90a56"},
+		{map_data_base_name, "365824414c91947b1e3589da03a6b651da06514a"},
+
+		{gfx_dictionary_base_name, "b70850f93ff827b042dec18c94ce60e8b03b1b3b"},
+		{gfx_header_base_name, "403dc7a9819654c9b0aad5fac0ed2bed681685a6"},
+		{gfx_data_base_name, "d880466fc01d16b7ab7aeaee35174b8f3cde270a"},
+
+		{page_file_base_name, "d72bb643fbe0fa3289090e81a583732aecd1c788"},
+
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_sw_v1_0_base_name_to_hash_map
+
+	return aog_sw_v1_0_base_name_to_hash_map;
+}
+
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
+{
+	static auto aog_sw_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
+		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
+
+		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
+
+		{gfx_dictionary_base_name, "7ed53d1006fdd50bcce5949fc4544d28153983e8"},
+		{gfx_header_base_name, "34df3bbbe37a32b2e5936f481577385b6c218b69"},
+		{gfx_data_base_name, "8452d63ac3f66102d70f6afc20786768eed0f22a"},
+
+		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
+
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_sw_v2_0_base_name_to_hash_map
+
+	return aog_sw_v2_0_base_name_to_hash_map;
+}
+
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
+{
+	static auto aog_sw_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+
+		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
+
+		{gfx_dictionary_base_name, "cfbda96717fc9d36aca347828000bd8739d25500"},
+		{gfx_header_base_name, "e40e4311341ec03b48f48ce35eb04d5493be27c9"},
+		{gfx_data_base_name, "b98e8f4b1f398429d4a76720e302615fe52caf8f"},
+
+		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
+
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_sw_v2_1_base_name_to_hash_map
+
+	return aog_sw_v2_1_base_name_to_hash_map;
+}
+
+const AssetsBaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
+{
+	static auto aog_sw_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+
+		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
+
+		{gfx_dictionary_base_name, "56c8a8cc4039079261ebc987f80f401df912406d"},
+		{gfx_header_base_name, "f589b6ddbfeac281ee2358dfcf9c421ac469fdc9"},
+		{gfx_data_base_name, "2f59b7c33c7a1895faf46cf5a7150d12353d8893"},
+
+		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
+
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_sw_v3_0_base_name_to_hash_map
+
+	return aog_sw_v3_0_base_name_to_hash_map;
+}
+
+
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map()
+{
+	static auto aog_full_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+
+		{map_header_base_name, "9ac4a06bd7fc25b48852bf4da1ca9decf06e3873"},
+		{map_data_base_name, "22a160796397b515348752393d4f7f91f3ce786e"},
+
+		{gfx_dictionary_base_name, "191dc0617f82f9d93ca5464b6af0d4abf614a3ec"},
+		{gfx_header_base_name, "2fbd05d76cdd9e13cc14e3a146db5f5388820a6f"},
+		{gfx_data_base_name, "76fc99265ddb463e12707eeefff7cf47c74cc18a"},
+
+		{page_file_base_name, "4a6b188381028158ac392965edb753a807111b56"},
+
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_full_v1_0_base_name_to_hash_map
+
+	return aog_full_v1_0_base_name_to_hash_map;
+}
+
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map()
+{
+	static auto aog_full_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+
+		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
+
+		{gfx_dictionary_base_name, "125ccb707edeb420aebf502ee8fc49d40171b2c1"},
+		{gfx_header_base_name, "1fdb177d8b010670399ed161c071ed09d2e06b03"},
+		{gfx_data_base_name, "36fcc86a858efcaf272e60434d4e69994546b1c9"},
+
+		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
+
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_full_v2_0_base_name_to_hash_map
+
+	return aog_full_v2_0_base_name_to_hash_map;
+}
+
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map()
+{
+	static auto aog_full_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+
+		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
+
+		{gfx_dictionary_base_name, "f24edbeec8f9e6988fde4a91b423fd87ca72148e"},
+		{gfx_header_base_name, "ef373dd36ff5f03e21a696cd740ef2ce71585f3e"},
+		{gfx_data_base_name, "aefd4868e6e59616c149f6ae4fad7bd8fd8c1f90"},
+
+		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
+
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_full_v2_1_base_name_to_hash_map
+
+	return aog_full_v2_1_base_name_to_hash_map;
+}
+
+const AssetsBaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map()
+{
+	static auto aog_full_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
+		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+
+		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
+
+		{gfx_dictionary_base_name, "482aa07f75bd06c91fbad0239ee6f633800cfabc"},
+		{gfx_header_base_name, "818bed8b27d3c703d2e20ad1c91f2bac5a8d1cd9"},
+		{gfx_data_base_name, "28dac1c5f4ef19d834737c15ba8f37af5e66edee"},
+
+		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
+
+		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	}; // aog_full_v3_0_base_name_to_hash_map
+
+	return aog_full_v3_0_base_name_to_hash_map;
+}
+
+
+const AssetsBaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
+{
+	static auto ps_base_name_to_hash_map = AssetsBaseNameToHashMap
+	{
+		{audio_header_base_name, "a713f75daf8274375dce0590c0caec6a994022dc"},
+		{audio_data_base_name, "6eadc8ac76bb3e20726db6e2584caf50ce36b624"},
+
+		{map_header_base_name, "155c550a1a240631e08e4f8be2686e29bde0549e"},
+		{map_data_base_name, "a40c9f6bbad59fe13c55388e265402e55167803a"},
+
+		{gfx_dictionary_base_name, "b74e45d850c92f2066fed2dfd38545cc28680c4e"},
+		{gfx_header_base_name, "e02d5d7c1e86812162eb2d86766ad8acf3dfe9be"},
+		{gfx_data_base_name, "523973d0df78d439960662a15a867d600720baf1"},
+
+		{page_file_base_name, "ccf70bfb536545e9b2c709ce3ce12e2b1765bc03"},
+
+		{episode_6_fmv_base_name, "055b9c5d5256e4d8d97259da37381882f46c2550"},
+		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	}; // ps_base_name_to_hash_map
+
+	return ps_base_name_to_hash_map;
+}
+
+bool Assets::are_official_levels(
+	const std::string& levels_hash)
+{
+	static const auto all_levels_hashes = AssetsCRefStrings
+	{
+		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+
+		Assets::get_ps_base_name_to_hash_map().at(Assets::map_data_base_name),
+	}; // all_levels_hashes
+
+	const auto result = std::any_of(
+		all_levels_hashes.cbegin(),
+		all_levels_hashes.cend(),
+		[&](const std::string& item)
+		{
+			return item == levels_hash;
+		}
+	);
+
+	return result;
 }

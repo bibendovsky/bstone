@@ -32,99 +32,106 @@ Free Software Foundation, Inc.,
 
 
 #include <vector>
-#include "bstone_istream.h"
+#include "bstone_stream.h"
 #include "bstone_un_value.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A memory stream.
-class MemoryStream :
-    public IStream
+class MemoryStream final :
+	public Stream
 {
 public:
-    MemoryStream(
-        int initial_capacity = 0,
-        StreamOpenMode open_mode = StreamOpenMode::read_write);
+	MemoryStream(
+		const int initial_capacity = 0,
+		const StreamOpenMode open_mode = StreamOpenMode::read_write);
 
-    MemoryStream(
-        int buffer_size,
-        int buffer_offset,
-        const uint8_t* buffer,
-        StreamOpenMode open_mode = StreamOpenMode::read);
+	MemoryStream(
+		const int buffer_size,
+		const int buffer_offset,
+		const std::uint8_t* buffer,
+		const StreamOpenMode open_mode = StreamOpenMode::read);
 
-    MemoryStream(
-        const MemoryStream& that) = delete;
+	MemoryStream(
+		const MemoryStream& rhs) = delete;
 
-    MemoryStream& operator=(
-        const MemoryStream& that) = delete;
+	MemoryStream(
+		MemoryStream&& rhs);
 
-    virtual ~MemoryStream();
+	MemoryStream& operator=(
+		const MemoryStream& rhs) = delete;
+
+	virtual ~MemoryStream();
 
 
-    bool open(
-        int initial_capacity = 0,
-        StreamOpenMode open_mode = StreamOpenMode::read_write);
+	bool open(
+		const int initial_capacity = 0,
+		const StreamOpenMode open_mode = StreamOpenMode::read_write);
 
-    bool open(
-        int buffer_size,
-        int buffer_offset,
-        const uint8_t* buffer,
-        StreamOpenMode open_mode = StreamOpenMode::read);
+	bool open(
+		const int buffer_size,
+		const int buffer_offset,
+		const std::uint8_t* buffer,
+		const StreamOpenMode open_mode = StreamOpenMode::read);
 
-    virtual void close();
+	void close() override;
 
-    virtual bool is_open() const;
+	bool is_open() const override;
 
-    virtual int64_t get_size();
+	std::int64_t get_size() override;
 
-    virtual bool set_size(
-        int64_t size);
+	bool set_size(
+		const std::int64_t size) override;
 
-    virtual bool flush();
+	std::int64_t seek(
+		const std::int64_t offset,
+		const StreamSeekOrigin origin) override;
 
-    virtual int64_t seek(
-        int64_t offset,
-        StreamSeekOrigin origin);
+	std::int64_t get_position() override;
 
-    virtual int64_t get_position();
+	int read(
+		void* buffer,
+		const int count) override;
 
-    virtual int read(
-        void* buffer,
-        int count);
+	bool write(
+		const void* buffer,
+		const int count) override;
 
-    virtual bool write(
-        const void* buffer,
-        int count);
+	bool is_readable() const override;
 
-    virtual bool can_read() const;
+	bool is_seekable() const override;
 
-    virtual bool can_seek() const;
+	bool is_writable() const override;
 
-    virtual bool can_write() const;
+	std::uint8_t* get_data();
 
-    uint8_t* get_data();
+	const std::uint8_t* get_data() const;
 
-    const uint8_t* get_data() const;
+	bool remove_block(
+		const std::int64_t offset,
+		const int count);
 
-    bool remove_block(
-        int64_t offset,
-        int count);
 
 private:
-    using Buffer = std::vector<UnValue<uint8_t>>;
+	using Buffer = std::vector<UnValue<std::uint8_t>>;
 
-    bool is_open_;
-    bool can_read_;
-    bool can_write_;
-    int64_t position_;
-    int64_t size_;
-    int64_t ext_size_;
-    uint8_t* buffer_;
-    uint8_t* ext_buffer_;
-    Buffer int_buffer_;
-}; // IStream
+
+	bool is_open_;
+	bool is_readable_;
+	bool is_writable_;
+	std::int64_t position_;
+	std::int64_t size_;
+	std::int64_t ext_size_;
+	std::uint8_t* buffer_;
+	std::uint8_t* ext_buffer_;
+	Buffer int_buffer_;
+
+
+	void close_internal();
+}; // Stream
 
 
 } // bstone
