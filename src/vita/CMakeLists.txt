@@ -129,6 +129,7 @@ set(
     "../bstone_crc32.cpp"
     "../bstone_file_stream.cpp"
     "../bstone_fizzle_fx.cpp"
+    "../bstone_fixed_point.cpp"
     "../bstone_format_string.cpp"
     "../bstone_generic_fizzle_fx.cpp"
     "../bstone_stream.cpp"

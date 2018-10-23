@@ -27,46 +27,47 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_FIXED_POINT_INCLUDED
-#define BSTONE_FIXED_POINT_INCLUDED
+#include "bstone_fixed_point.h"
 
 
 namespace bstone
 {
 
 
-class FixedPoint final
+FixedPoint::FixedPoint(
+	const Value new_value)
+	:
+	value_{new_value}
 {
-public:
-	using Value = int;
+}
 
+FixedPoint::FixedPoint(
+	const Value int_part,
+	const Value frac_part)
+	:
+	value_{(int_part << frac_bits) | (frac_part & frac_mask)}
+{
+}
 
-	static constexpr auto frac_bits = Value{16};
-	static constexpr auto max_frac = 1 << frac_bits;
-	static constexpr auto frac_mask = max_frac - 1;
+int FixedPoint::get_int() const
+{
+	return value_ >> frac_bits;
+}
 
+int FixedPoint::get_frac() const
+{
+	return value_ & frac_mask;
+}
 
-	FixedPoint(
-		const Value new_value = 0);
+FixedPoint::Value& FixedPoint::get_value()
+{
+	return value_;
+}
 
-	FixedPoint(
-		const Value int_part,
-		const Value frac_part);
-
-
-	Value get_int() const;
-
-	Value get_frac() const;
-
-
-	Value& get_value();
-
-	Value get_value() const;
-
-
-private:
-	Value value_;
-}; // FixedPoint
+FixedPoint::Value FixedPoint::get_value() const
+{
+	return value_;
+}
 
 
 } // bstone
@@ -74,23 +75,37 @@ private:
 
 bstone::FixedPoint operator+(
 	const bstone::FixedPoint& lhs,
-	const bstone::FixedPoint& rhs);
+	const bstone::FixedPoint& rhs)
+{
+	return lhs.get_value() + rhs.get_value();
+}
 
 bstone::FixedPoint& operator+=(
 	bstone::FixedPoint& lhs,
-	const bstone::FixedPoint& rhs);
+	const bstone::FixedPoint& rhs)
+{
+	lhs.get_value() += rhs.get_value();
+
+	return lhs;
+}
 
 bstone::FixedPoint operator/(
 	const bstone::FixedPoint& lhs,
-	const int rhs);
+	const int rhs)
+{
+	return lhs.get_value() / rhs;
+}
 
 bstone::FixedPoint operator*(
 	const bstone::FixedPoint& lhs,
-	const int rhs);
+	const int rhs)
+{
+	return lhs.get_value() * rhs;
+}
 
 bstone::FixedPoint operator*(
 	const int lhs,
-	const bstone::FixedPoint& rhs);
-
-
-#endif // BSTONE_FIXED_POINT_INCLUDED
+	const bstone::FixedPoint& rhs)
+{
+	return lhs * rhs.get_value();
+}
