@@ -31,7 +31,8 @@ namespace bstone
 {
 
 
-Crc32::Crc32() :
+Crc32::Crc32()
+	:
 	value_{}
 {
 }
@@ -42,7 +43,7 @@ void Crc32::reset()
 }
 
 void Crc32::update(
-	const void* data,
+	const void* const data,
 	const int size)
 {
 	if (!data)
@@ -61,7 +62,7 @@ void Crc32::update(
 	}
 
 
-	using Table = std::array<ValueType, 256>;
+	using Table = std::array<Value, 256>;
 
 	static const auto table = Table
 	{
@@ -132,7 +133,7 @@ void Crc32::update(
 	value_ ^= 0xFFFFFFFF;
 }
 
-Crc32::ValueType Crc32::get_value() const
+Crc32::Value Crc32::get_value() const
 {
 	return value_;
 }

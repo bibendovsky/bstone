@@ -33,10 +33,10 @@ namespace bstone
 {
 
 
-class Crc32
+class Crc32 final
 {
 public:
-	using ValueType = std::uint32_t;
+	using Value = std::uint32_t;
 
 
 	Crc32();
@@ -44,10 +44,10 @@ public:
 
 	void reset();
 
-	ValueType get_value() const;
+	Value get_value() const;
 
 	void update(
-		const void* data,
+		const void* const data,
 		const int size);
 
 
@@ -60,7 +60,7 @@ public:
 
 
 private:
-	ValueType value_;
+	Value value_;
 }; // Crc32
 
 
