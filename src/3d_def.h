@@ -33,6 +33,16 @@ Free Software Foundation, Inc.,
 #include "jm_cio.h"
 
 
+namespace bstone
+{
+
+
+class MemoryStream;
+
+
+} // bstone
+
+
 #define LOOK_FOR_DEAD_GUYS (0)
 
 #define LIMITED_AMMO

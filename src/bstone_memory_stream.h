@@ -137,4 +137,4 @@ private:
 } // bstone
 
 
-#endif // BSTONE_MEMORY_STREAM_INCLUDED
+#endif // !BSTONE_MEMORY_STREAM_INCLUDED

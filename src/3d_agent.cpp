@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #include <deque>
 #include <array>
 #include "3d_def.h"
+#include "bstone_memory_stream.h"
 #include "bstone_ref_values.h"
 
 
