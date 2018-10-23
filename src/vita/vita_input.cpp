@@ -216,7 +216,7 @@ void TranslateAnalogEvent(SDL_Event *ev)
     {   
         delta = 0;
     }
-    // denominators in the below expressions estimated empirically //todo
+    // denominators in the below expressions estimated empirically
     if (ev->jaxis.axis == 0)  //side-to-side
     {
         control2x = delta / 360;

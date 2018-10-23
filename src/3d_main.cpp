@@ -169,11 +169,8 @@ static const bool default_always_run = true;
 bool g_always_run = default_always_run;
 
 // BBi AOG only options
-#ifdef __vita__
-static const bool default_heart_beat_sound = true;
-#else
+
 static const bool default_heart_beat_sound = false;
-#endif
 bool g_heart_beat_sound = default_heart_beat_sound;
 
 static const bool default_rotated_automap = false;
@@ -10351,11 +10348,7 @@ void gametype::restore_local_barriers()
 void sys_sleep_for(
 	const int milliseconds)
 {
-#ifdef __vita__
-    SDL_Delay(milliseconds);
-#else
 	::SDL_Delay(milliseconds);
-#endif
 }
 
 void sys_default_sleep_for()
@@ -10366,7 +10359,7 @@ void sys_default_sleep_for()
 const std::string& get_version_string()
 {
 #ifdef __vita__
-    static const std::string version = "0.2";
+    static const std::string version = "0.2.1";
 #else
     static const std::string version = "1.1.9";
 #endif
