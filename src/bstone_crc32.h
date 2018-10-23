@@ -67,4 +67,4 @@ private:
 } // bstone
 
 
-#endif // BSTONE_CRC32_INCLUDED
+#endif // !BSTONE_CRC32_INCLUDED
