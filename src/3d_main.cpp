@@ -169,7 +169,6 @@ static const bool default_always_run = true;
 bool g_always_run = default_always_run;
 
 // BBi AOG only options
-
 static const bool default_heart_beat_sound = false;
 bool g_heart_beat_sound = default_heart_beat_sound;
 
@@ -9702,7 +9701,6 @@ int main(
     scePowerSetGpuClockFrequency(222);
     scePowerSetGpuXbarClockFrequency(166);
 #endif
-
     int sdl_result = 0;
 
     uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
