@@ -7137,9 +7137,10 @@ void read_high_scores()
         }
 
         if (is_succeed) {
+			const auto& endian = bstone::Endian{};
             uint32_t saved_checksum = 0;
             reader.read(saved_checksum);
-            bstone::Endian::lei(saved_checksum);
+			endian.little_i(saved_checksum);
 
             is_succeed = (saved_checksum == check_sum.get_value());
         }
@@ -7188,7 +7189,9 @@ static void write_high_scores()
 		::serialize_field(score.ratio, writer, checksum);
 	}
 
-	writer.write(bstone::Endian::le(checksum.get_value()));
+	const auto& endian = bstone::Endian{};
+
+	writer.write(endian.little(checksum.get_value()));
 }
 
 static void set_vanilla_controls()
@@ -8192,7 +8195,9 @@ int FindChunk(
             int32_t chunk_size = 0;
 
             if (stream->read(&chunk_size, 4) == 4) {
-                bstone::Endian::lei(chunk_size);
+				const auto& endian = bstone::Endian{};
+
+                endian.little_i(chunk_size);
 
                 src_chunk_name.assign(src_chunk_name_buffer, 4);
 
@@ -8454,9 +8459,11 @@ bool LoadLevel(
 	//
 	if (is_succeed)
 	{
+		const auto& endian = bstone::Endian{};
+
 		uint32_t saved_checksum = 0;
 		reader.read(saved_checksum);
-		bstone::Endian::lei(saved_checksum);
+		endian.little_i(saved_checksum);
 
 		is_succeed = (saved_checksum == checksum.get_value());
 	}
@@ -8641,9 +8648,11 @@ bool SaveLevel(
 
     ::serialize_field(::gamestate.plasma_detonators, writer, checksum);
 
+	const auto& endian = bstone::Endian{};
+
     // Write checksum and determine size of file
     //
-    writer.write(bstone::Endian::le(checksum.get_value()));
+    writer.write(endian.little(checksum.get_value()));
 
     int64_t end_offset = g_playtemp.get_position();
     int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
@@ -8651,7 +8660,7 @@ bool SaveLevel(
     // Write chunk size, set file size, and close file
     //
     g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
-    writer.write(bstone::Endian::le(chunk_size));
+    writer.write(endian.little(chunk_size));
     g_playtemp.set_size(end_offset);
 
     ::NewViewSize();
@@ -8737,7 +8746,9 @@ static bool LoadCompressedChunk(
 
     reader.skip(-4);
 
-    auto total_size = bstone::Endian::le(reader.read_s32());
+	const auto& endian = bstone::Endian{};
+
+    auto total_size = endian.little(reader.read_s32());
 
     if (total_size <= 0 || total_size > stream_size) {
         bstone::Log::write_error(
@@ -8748,7 +8759,7 @@ static bool LoadCompressedChunk(
     }
 
     auto size = total_size - 4;
-    auto src_size = bstone::Endian::le(reader.read_s32());
+    auto src_size = endian.little(reader.read_s32());
 
     Buffer src_buffer(size);
 
@@ -9107,18 +9118,20 @@ bool SaveTheGame(
 	is_succeed &= file_writer.write("DESC", 4);
 	is_succeed &= file_writer.write(description);
 
+	const auto& endian = bstone::Endian{};
+
 	// Write HEAD chunk
 	//
 	is_succeed &= file_writer.write("HEAD", 4);
-	is_succeed &= file_writer.write(bstone::Endian::le(head_dst_size + 4));
-	is_succeed &= file_writer.write(bstone::Endian::le(head_src_size));
+	is_succeed &= file_writer.write(endian.little(head_dst_size + 4));
+	is_succeed &= file_writer.write(endian.little(head_src_size));
 	is_succeed &= file_stream.write(head_buffer.data(), head_dst_size);
 
 	// Write LVXX chunk
 	//
 	is_succeed &= file_writer.write("LVXX", 4);
-	is_succeed &= file_writer.write(bstone::Endian::le(lvxx_dst_size + 4));
-	is_succeed &= file_writer.write(bstone::Endian::le(lvxx_src_size));
+	is_succeed &= file_writer.write(endian.little(lvxx_dst_size + 4));
+	is_succeed &= file_writer.write(endian.little(lvxx_src_size));
 	is_succeed &= file_stream.write(lvxx_buffer.data(), lvxx_dst_size);
 
 	//

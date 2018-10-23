@@ -67,8 +67,10 @@ void Sprite::initialize(
     const auto values_16 = static_cast<const uint16_t*>(raw_data);
     const auto values_8 = static_cast<const uint8_t*>(raw_data);
 
-    const int left = Endian::le(values_16[0]);
-    const int right = Endian::le(values_16[1]);
+	const auto& endian = bstone::Endian{};
+
+    const int left = endian.little(values_16[0]);
+    const int right = endian.little(values_16[1]);
 
     if (left > right || left >= side || right >= side)
     {
@@ -85,17 +87,17 @@ void Sprite::initialize(
 
     for (int i = left; i <= right; ++i)
     {
-        const int commands_offset = Endian::le(commands_offsets[i - left]);
+        const int commands_offset = endian.little(commands_offsets[i - left]);
         const auto commands = reinterpret_cast<const uint16_t*>(&values_8[commands_offset]);
 
         int iCommand = 0;
 
-        int end = Endian::le(commands[iCommand++]) / 2;
+        int end = endian.little(commands[iCommand++]) / 2;
 
         while (end != 0)
         {
-            const int pixels_offset = Endian::le(commands[iCommand++]);
-            const int start = Endian::le(commands[iCommand++]) / 2;
+            const int pixels_offset = endian.little(commands[iCommand++]);
+            const int start = endian.little(commands[iCommand++]) / 2;
 
             if (top < 0 || start < top)
             {
@@ -107,7 +109,7 @@ void Sprite::initialize(
                 bottom = end;
             }
 
-            end = Endian::le(commands[iCommand++]) / 2;
+            end = endian.little(commands[iCommand++]) / 2;
         }
     }
 
@@ -122,17 +124,17 @@ void Sprite::initialize(
 
     for (int i = 0; i < width; ++i)
     {
-        const int commands_offset = Endian::le(commands_offsets[i]);
+        const int commands_offset = endian.little(commands_offsets[i]);
         const auto commands = reinterpret_cast<const uint16_t*>(&values_8[commands_offset]);
 
         int iCommand = 0;
 
-        int end = Endian::le(commands[iCommand++]) / 2;
+        int end = endian.little(commands[iCommand++]) / 2;
 
         while (end != 0)
         {
-            int pixels_offset = Endian::le(commands[iCommand++]);
-            const int start = Endian::le(commands[iCommand++]) / 2;
+            int pixels_offset = endian.little(commands[iCommand++]);
+            const int start = endian.little(commands[iCommand++]) / 2;
             const auto count = end - start;
 
             pixels_offset += start;
@@ -146,7 +148,7 @@ void Sprite::initialize(
                 count,
                 dst_pixels);
 
-            end = Endian::le(commands[iCommand++]) / 2;
+            end = endian.little(commands[iCommand++]) / 2;
         }
     }
 

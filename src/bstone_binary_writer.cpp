@@ -142,7 +142,9 @@ bool BinaryWriter::write(
 
     bool is_succeed = true;
 
-    is_succeed &= write_s32(bstone::Endian::le(length));
+	const auto& endian = bstone::Endian{};
+
+    is_succeed &= write_s32(endian.little(length));
     is_succeed &= write(string.c_str(), length);
 
     return is_succeed;

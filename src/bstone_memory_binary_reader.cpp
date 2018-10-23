@@ -133,7 +133,9 @@ double MemoryBinaryReader::read_r64()
 
 std::string MemoryBinaryReader::read_string()
 {
-    auto length = bstone::Endian::le(read_s32());
+	const auto& endian = bstone::Endian{};
+
+    auto length = endian.little(read_s32());
 
     std::string string(length, '\0');
 

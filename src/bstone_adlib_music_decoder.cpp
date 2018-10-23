@@ -65,7 +65,9 @@ bool AdlibMusicDecoder::initialize(
 
     reader_.open(raw_data, raw_size);
 
-    int commands_size = bstone::Endian::le(reader_.read_u16());
+	const auto& endian = bstone::Endian{};
+
+    int commands_size = endian.little(reader_.read_u16());
 
     if ((commands_size % 4) != 0) {
         return false;
@@ -85,7 +87,7 @@ bool AdlibMusicDecoder::initialize(
 
     for (int i = 0; i < commands_count_; ++i) {
         reader_.skip(2);
-        ticks_count += bstone::Endian::le(reader_.read_u16());
+        ticks_count += endian.little(reader_.read_u16());
     }
 
     set_dst_length_in_samples(ticks_count * samples_per_tick_);
@@ -167,9 +169,10 @@ int AdlibMusicDecoder::decode(
             int delay = 0;
 
             while (command_index_ < commands_count_ && delay == 0) {
+				const auto& endian = bstone::Endian{};
                 int command_port = reader_.read_u8();
                 int command_value = reader_.read_u8();
-                delay = bstone::Endian::le(reader_.read_u16());
+                delay = endian.little(reader_.read_u16());
 
                 emulator_.write(command_port, command_value);
                 ++command_index_;

@@ -627,7 +627,9 @@ void CAL_ExpandGrChunk(
         //
         // everything else has an explicit size longword
         //
-        expanded = bstone::Endian::le(*reinterpret_cast<int32_t*>(source));
+		const auto& endian = bstone::Endian{};
+
+        expanded = endian.little(*reinterpret_cast<int32_t*>(source));
         source += 4; // skip over length
     }
 
@@ -1133,7 +1135,9 @@ std::string ca_calculate_hash(
 		remain_size -= read_count;
 	}
 
-	const auto data_size = bstone::Endian::le(static_cast<std::int32_t>(file_size));
+	const auto& endian = bstone::Endian{};
+
+	const auto data_size = endian.little(static_cast<std::int32_t>(file_size));
 
 	sha1.process(&data_size, static_cast<int>(sizeof(data_size)));
 	sha1.finish();
@@ -1192,8 +1196,9 @@ void ca_dump_hashes()
 				continue;
 			}
 
-			data_size = file_size;
-			bstone::Endian::lei(data_size);
+			const auto& endian = bstone::Endian{};
+
+			data_size = endian.little(file_size);
 
 			sha1.reset();
 			sha1.process(buffer.data(), file_size);

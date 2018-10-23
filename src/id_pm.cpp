@@ -67,12 +67,18 @@ static void open_page_file(
 
     bstone::MemoryBinaryReader reader(raw_data.data(), file_length);
 
-    ChunksInFile = bstone::Endian::le(reader.read_u16());
-    PMSpriteStart = bstone::Endian::le(reader.read_u16());
-    PMSoundStart = bstone::Endian::le(reader.read_u16());
+	const auto& endian = bstone::Endian{};
+
+    ChunksInFile = endian.little(reader.read_u16());
+    PMSpriteStart = endian.little(reader.read_u16());
+    PMSoundStart = endian.little(reader.read_u16());
 
     chunks_offsets = reinterpret_cast<uint32_t*>(&raw_data[6]);
-    bstone::Endian::lei(chunks_offsets, ChunksInFile + 1);
+
+	for (auto i = 0; i < (ChunksInFile + 1); ++i)
+	{
+		endian.little(chunks_offsets[i]);
+	}
 }
 
 void PM_Startup()
