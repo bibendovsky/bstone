@@ -93,4 +93,4 @@ bstone::FixedPoint operator*(
 	const bstone::FixedPoint& rhs);
 
 
-#endif // BSTONE_FIXED_POINT_INCLUDED
+#endif // !BSTONE_FIXED_POINT_INCLUDED
