@@ -2,12 +2,14 @@
 
 ### High Priority
 * Clear screen before elevator fadein
-* Crashes sporadically when music is enabled
+* Distance fade in AOG differs from DOS version
+* Tearing during fadein
+* Add option to disable loading screens
 
 ### Medium Priority
-* Distance fade in AOG differs from DOS version
+* Crashes sporadically when music is enabled
 * Premature partial fades to red on SW exit screens
-* Tearing during fadein
+* Make 4:3 mode work properly
 
 ### Low Priority
 * Memory corruption and crashing after exiting using the PS button (or sleep?)
@@ -17,16 +19,16 @@
 
 ## Future Features:
 
-* Add option to disable loading screens
 * Change cache logic, minimizing file access
 * Fill numeric tables with higher accuracy values
 * Rewrite routines to use cartesian instead of polar as much as possible
 * Multithreading various drawing routines
 * In-prompt buttons- use x,o
 * In-game control customization for Vita
-* Make 4:3 mode work properly
 
 ## Changes:
+
+### 0.3
 
 ### 0.2
 * L is now "use"; -/= in the front
