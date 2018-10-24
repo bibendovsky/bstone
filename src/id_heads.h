@@ -93,11 +93,11 @@ extern std::uint8_t fontcolor;
 extern std::uint8_t backcolor;
 
 inline void SETFONTCOLOR(
-    int foreground_color,
-    int background_color)
+	int foreground_color,
+	int background_color)
 {
-    ::fontcolor = static_cast<std::uint8_t>(foreground_color);
-    ::backcolor = static_cast<std::uint8_t>(background_color);
+	::fontcolor = static_cast<std::uint8_t>(foreground_color);
+	::backcolor = static_cast<std::uint8_t>(background_color);
 }
 
 

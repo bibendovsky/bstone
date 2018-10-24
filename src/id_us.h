@@ -47,67 +47,73 @@ Free Software Foundation, Inc.,
 #define MaxHighName 57
 #define MaxScores 10
 
-struct HighScore {
-    char name[MaxHighName + 1];
-    std::int32_t score;
-    std::uint16_t completed;
-    std::uint16_t episode;
-    std::uint16_t ratio;
+struct HighScore
+{
+	char name[MaxHighName + 1];
+	std::int32_t score;
+	std::uint16_t completed;
+	std::uint16_t episode;
+	std::uint16_t ratio;
 }; // HighScore
 
 #define MaxGameName 32
 #define MaxSaveGames 6
 
-struct SaveGame {
-    char signature[4];
-    std::uint16_t* oldtest;
-    bool present;
-    char name[MaxGameName + 1];
+struct SaveGame
+{
+	char signature[4];
+	std::uint16_t* oldtest;
+	bool present;
+	char name[MaxGameName + 1];
 }; // SaveGame
 
 #define MaxString 128 // Maximum input string size
 
 // Record used to save & restore screen windows
-struct WindowRec {
-    std::int16_t x;
-    std::int16_t y;
-    std::int16_t w;
-    std::int16_t h;
-    std::int16_t px;
-    std::int16_t py;
+struct WindowRec
+{
+	std::int16_t x;
+	std::int16_t y;
+	std::int16_t w;
+	std::int16_t h;
+	std::int16_t px;
+	std::int16_t py;
 }; // WindowRec;
 
-enum GameDiff {
-    gd_Continue,
-    gd_Easy,
-    gd_Normal,
-    gd_Hard
+enum GameDiff
+{
+	gd_Continue,
+	gd_Easy,
+	gd_Normal,
+	gd_Hard
 }; // GameDiff
 
 // Custom Cursor struct type for US_LineInput()
 
 // JAM - Custom Cursor Support
-struct US_CursorStruct {
-    char cursor_char;
-    char do_not_use; // Space holder for ASCZ string
-    std::uint16_t cursor_color;
-    std::uint16_t font_number;
+struct US_CursorStruct
+{
+	char cursor_char;
+	char do_not_use; // Space holder for ASCZ string
+	std::uint16_t cursor_color;
+	std::uint16_t font_number;
 }; // US_CursorStruct
 
-struct Point {
-    std::int16_t x;
-    std::int16_t y;
+struct Point
+{
+	std::int16_t x;
+	std::int16_t y;
 }; // Point
 
-struct Rect {
-    Point ul;
-    Point lr;
+struct Rect
+{
+	Point ul;
+	Point lr;
 }; // Rect
 
 //      Hack import for TED launch support
 // extern       bool         tedlevel;
 // extern       std::uint16_t          tedlevelnum;
-extern void TEDDeath();
 
 extern bool ingame; // Set by game code if a game is in progress
 extern bool abortgame; // Set if a game load failed
@@ -129,12 +135,12 @@ extern bool CursorBad;
 extern std::int16_t CursorX;
 extern std::int16_t CursorY;
 
-extern void (* USL_MeasureString)(const char*, int*, int*);
-extern void (*USL_DrawString)(const char*);
+extern void(*USL_MeasureString)(const char*, int*, int*);
+extern void(*USL_DrawString)(const char*);
 
-extern bool (* USL_SaveGame)(std::int16_t);
-extern bool (* USL_LoadGame)(std::int16_t);
-extern void (* USL_ResetGame)();
+extern bool(*USL_SaveGame)(std::int16_t);
+extern bool(*USL_LoadGame)(std::int16_t);
+extern void(*USL_ResetGame)();
 extern SaveGame Games[MaxSaveGames];
 
 using HighScores = std::vector<HighScore>;
@@ -147,51 +153,33 @@ extern bool use_custom_cursor; // JAM
 #define US_HomeWindow() { PrintX = WindowX; PrintY = WindowY; }
 
 void US_Startup();
-void US_Setup();
 void US_Shutdown();
 void US_InitRndT(bool randomize);
-void US_SetLoadSaveHooks(bool (* load)(std::int16_t),
-                    bool (* save)(std::int16_t),
-                    void (* reset)());
-void US_TextScreen();
-void US_UpdateTextScreen();
-void US_FinishTextScreen();
 void US_DrawWindow(const int x, const int y, const int w, const int h);
 void US_CenterWindow(int w, int h);
 void US_SaveWindow(WindowRec * win);
 void US_RestoreWindow(WindowRec * win);
 void US_ClearWindow();
-void US_SetPrintRoutines(void (* measure)(char*, std::uint16_t*, std::uint16_t*),
-                    void (* print)(char*));
 void US_PrintCentered(const char* s);
 void US_CPrint(const char* s);
 void US_CPrintLine(const char* s);
 void US_Print(const char* s);
 void US_PrintUnsigned(std::uint32_t n);
-void US_PrintSigned(std::int32_t n);
-void US_StartCursor();
-void US_ShutCursor();
-void US_CheckHighScore(std::int32_t score, std::uint16_t other);
-void US_DisplayHighScores(std::int16_t which);
-
-bool US_UpdateCursor();
 
 bool US_LineInput(
-    std::int16_t x,
-    std::int16_t y,
-    char* buf,
-    char* def,
-    bool escok,
-    std::int16_t maxchars,
-    std::int16_t maxwidth);
+	std::int16_t x,
+	std::int16_t y,
+	char* buf,
+	char* def,
+	bool escok,
+	std::int16_t maxchars,
+	std::int16_t maxwidth);
 
 extern std::int16_t US_RndT();
 
 void USL_PrintInCenter(
-    const char* s,
-    Rect r);
-char* USL_GiveSaveName(
-    std::uint16_t game);
+	const char* s,
+	Rect r);
 
 
 #endif // BSTONE_ID_US_INCLUDED

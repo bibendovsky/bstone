@@ -46,9 +46,9 @@ Free Software Foundation, Inc.,
 // VGA Routines
 // ---------------------------------------------------------------------
 void JM_VGALinearFill(
-    int start,
-    int length,
-    std::uint8_t fill);
+	int start,
+	int length,
+	std::uint8_t fill);
 
 
 

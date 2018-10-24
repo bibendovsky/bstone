@@ -42,33 +42,36 @@ struct objtype;
 struct doorobj_t;
 
 
-struct SoundCommon {
-    std::uint32_t length;
-    std::uint16_t priority;
+struct SoundCommon
+{
+	std::uint32_t length;
+	std::uint16_t priority;
 }; // SoundCommon
 
-struct Instrument {
-    std::uint8_t mChar;
-    std::uint8_t cChar;
-    std::uint8_t mScale;
-    std::uint8_t cScale;
-    std::uint8_t mAttack;
-    std::uint8_t cAttack;
-    std::uint8_t mSus;
-    std::uint8_t cSus;
-    std::uint8_t mWave;
-    std::uint8_t cWave;
-    std::uint8_t nConn;
+struct Instrument
+{
+	std::uint8_t mChar;
+	std::uint8_t cChar;
+	std::uint8_t mScale;
+	std::uint8_t cScale;
+	std::uint8_t mAttack;
+	std::uint8_t cAttack;
+	std::uint8_t mSus;
+	std::uint8_t cSus;
+	std::uint8_t mWave;
+	std::uint8_t cWave;
+	std::uint8_t nConn;
 
-    // These are only for Muse - these bytes are really unused
-    std::uint8_t voice;
-    std::uint8_t mode;
-    std::uint8_t unused[3];
+	// These are only for Muse - these bytes are really unused
+	std::uint8_t voice;
+	std::uint8_t mode;
+	std::uint8_t unused[3];
 }; // Instrument
 
-struct MusicGroup {
-    std::uint16_t length;
-    std::uint16_t values[1];
+struct MusicGroup
+{
+	std::uint16_t length;
+	std::uint16_t values[1];
 }; // MusicGroup
 
 
@@ -85,22 +88,18 @@ extern bool sqPlayedOnce;
 // Function prototypes
 void SD_Startup();
 void SD_Shutdown();
-bool SD_PlaySound(
-    int sound);
 void SD_StopSound();
 void SD_WaitSoundDone();
 void SD_StartMusic(
-    int index);
+	int index);
 void SD_MusicOn();
 void SD_MusicOff();
 
-bool SD_MusicPlaying();
-
 bool SD_EnableSound(
-    bool enable);
+	bool enable);
 
 bool SD_EnableMusic(
-    bool enable);
+	bool enable);
 
 bool SD_SoundPlaying();
 
@@ -115,40 +114,40 @@ extern int sd_sfx_volume;
 extern int sd_music_volume;
 
 void sd_play_sound(
-    int sound_index,
-    const void* actor,
-    bstone::ActorType actor_type,
-    bstone::ActorChannel actor_channel);
+	int sound_index,
+	const void* actor,
+	bstone::ActorType actor_type,
+	bstone::ActorChannel actor_channel);
 
 void sd_play_actor_sound(
-    int sound_index,
-    const objtype* actor,
-    bstone::ActorChannel actor_channel);
+	int sound_index,
+	const objtype* actor,
+	bstone::ActorChannel actor_channel);
 
 void sd_play_player_sound(
-    int sound_index,
-    bstone::ActorChannel actor_channel);
+	int sound_index,
+	bstone::ActorChannel actor_channel);
 
 void sd_play_door_sound(
-    int sound_index,
-    const doorobj_t* door);
+	int sound_index,
+	const doorobj_t* door);
 
 void sd_play_wall_sound(
-    int sound_index);
+	int sound_index);
 
 void sd_update_positions();
 
 bool sd_is_player_channel_playing(
-    bstone::ActorChannel channel);
+	bstone::ActorChannel channel);
 
 void sd_set_sfx_volume(
-    int volume);
+	int volume);
 
 void sd_set_music_volume(
-    int volume);
+	int volume);
 
 void sd_mute(
-    bool mute);
+	bool mute);
 // BBi
 
 

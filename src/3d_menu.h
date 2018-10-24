@@ -80,7 +80,7 @@ void MenuFadeOut();
 
 inline void MenuFadeIn()
 {
-    ::VL_FadeIn(0, 255, ::vgapal, 10);
+	::VL_FadeIn(0, 255, ::vgapal, 10);
 }
 
 
@@ -118,90 +118,98 @@ extern std::int16_t TEXTSONG;
 #define CST_SPC (41)
 
 
-enum mm_labels {
-    MM_NEW_MISSION,
-    MM_ORDERING_INFO,
-    MM_READ_THIS,
-    MM_BLAKE_STONE_SAGA,
-    MM_BLANK1,
-    MM_GAME_OPTIONS,
-    MM_VIEW_SCORES,
-    MM_LOAD_MISSION,
-    MM_SAVE_MISSION,
-    MM_BLANK2,
-    MM_BACK_TO_DEMO,
-    MM_LOGOFF,
+enum mm_labels
+{
+	MM_NEW_MISSION,
+	MM_ORDERING_INFO,
+	MM_READ_THIS,
+	MM_BLAKE_STONE_SAGA,
+	MM_BLANK1,
+	MM_GAME_OPTIONS,
+	MM_VIEW_SCORES,
+	MM_LOAD_MISSION,
+	MM_SAVE_MISSION,
+	MM_BLANK2,
+	MM_BACK_TO_DEMO,
+	MM_LOGOFF,
 }; // mm_labels
 
 // CP_Switch() menu labels
-enum sw_labels {
-    SW_LIGHTING,
-    SW_REBA_ATTACK_INFO,
-    SW_CEILING,
-    SW_FLOORS,
+enum sw_labels
+{
+	SW_LIGHTING,
+	SW_REBA_ATTACK_INFO,
+	SW_CEILING,
+	SW_FLOORS,
 
-    // BBi
-    SW_NO_WALL_HIT_SOUND,
-    SW_MODERN_CONTROLS,
-    SW_ALWAYS_RUN,
-    SW_QUIT_ON_ESCAPE,
-    SW_HEART_BEAT_SOUND,
-    SW_ROTATED_AUTOMAP,
+	// BBi
+	SW_NO_WALL_HIT_SOUND,
+	SW_MODERN_CONTROLS,
+	SW_ALWAYS_RUN,
+	SW_QUIT_ON_ESCAPE,
+	SW_HEART_BEAT_SOUND,
+	SW_ROTATED_AUTOMAP,
 }; // sw_labels
 
 // BBi
 enum sw2_labels
 {
-    SW2_NO_INTRO_OUTRO,
+	SW2_NO_INTRO_OUTRO,
 }; // sw2_labels
 
-enum MenuVideoLables {
-    mvl_widescreen,
-    mvl_stretch_ui,
+enum MenuVideoLables
+{
+	mvl_widescreen,
+	mvl_stretch_ui,
 };
 // BBi
 
 //  ActiveType flags for menu options (SEE CP_itemtype.active)
-enum activetypes {
-    AT_DISABLED = 0,
-    AT_ENABLED,
-    AT_READIT,
-    AT_NON_SELECTABLE, // Menu Bar/Separator - Not a selectable item.
+enum activetypes
+{
+	AT_DISABLED = 0,
+	AT_ENABLED,
+	AT_READIT,
+	AT_NON_SELECTABLE, // Menu Bar/Separator - Not a selectable item.
 }; // activetypes
 
 
-struct CP_cursortype {
-    std::uint8_t x;
-    std::int8_t y_ofs;
-    std::uint8_t width;
-    std::uint8_t height;
-    std::int8_t on;
+struct CP_cursortype
+{
+	std::uint8_t x;
+	std::int8_t y_ofs;
+	std::uint8_t width;
+	std::uint8_t height;
+	std::int8_t on;
 }; // CP_cursortype
 
-struct CP_iteminfo {
-    std::uint8_t x;
-    std::uint8_t y;
-    std::uint8_t amount;
-    std::int8_t curpos;
-    std::uint8_t indent;
-    std::uint8_t y_spacing;
+struct CP_iteminfo
+{
+	std::uint8_t x;
+	std::uint8_t y;
+	std::uint8_t amount;
+	std::int8_t curpos;
+	std::uint8_t indent;
+	std::uint8_t y_spacing;
 
-    CP_cursortype cursor;
+	CP_cursortype cursor;
 }; // CP_iteminfo
 
-struct CP_itemtype {
-    activetypes active;
-    char string[36];
+struct CP_itemtype
+{
+	activetypes active;
+	char string[36];
 
-    void (* routine)(
-        std::int16_t temp1);
+	void(*routine)(
+		std::int16_t temp1);
 
-    std::uint8_t fontnumber; // Font to print text in
-    std::uint8_t height; // Hight of text (Y_Offset from previous line)
+	std::uint8_t fontnumber; // Font to print text in
+	std::uint8_t height; // Hight of text (Y_Offset from previous line)
 }; // CP_itemtype
 
-struct CustomCtrls {
-    std::int16_t allowed[4];
+struct CustomCtrls
+{
+	std::int16_t allowed[4];
 }; // CustomCtrls
 
 extern CP_itemtype MainMenu[];
@@ -215,90 +223,81 @@ void ControlPanelFree();
 void ControlPanelAlloc();
 
 void DrawMenu(
-    CP_iteminfo* item_i,
-    CP_itemtype* items);
+	CP_iteminfo* item_i,
+	CP_itemtype* items);
 
 std::int16_t HandleMenu(
-    CP_iteminfo* item_i,
-    CP_itemtype* items,
-    void (* routine)(std::int16_t w));
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	void(*routine)(std::int16_t w));
 
 void ClearMScreen();
 
 void DrawWindow(
-    std::int16_t x,
-    std::int16_t y,
-    std::int16_t w,
-    std::int16_t h,
-    std::int16_t wcolor);
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t w,
+	std::int16_t h,
+	std::int16_t wcolor);
 
 void DrawOutline(
-    std::int16_t x,
-    std::int16_t y,
-    std::int16_t w,
-    std::int16_t h,
-    std::int16_t color1,
-    std::int16_t color2);
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t w,
+	std::int16_t h,
+	std::int16_t color1,
+	std::int16_t color2);
 
 void WaitKeyUp();
 
 void ReadAnyControl(
-    ControlInfo* ci);
+	ControlInfo* ci);
 
 void TicDelay(
-    std::int16_t count);
+	std::int16_t count);
 
 void CacheLump(
-    std::int16_t lumpstart,
-    std::int16_t lumpend);
+	std::int16_t lumpstart,
+	std::int16_t lumpend);
 
 void UnCacheLump(
-    std::int16_t lumpstart,
-    std::int16_t lumpend);
+	std::int16_t lumpstart,
+	std::int16_t lumpend);
 
 void StartCPMusic(
-    std::int16_t song);
+	std::int16_t song);
 
 std::int16_t Confirm(
-    const char* string);
+	const char* string);
 
 void Message(
-    const char* string);
+	const char* string);
 
 void CheckPause();
 void ShootSnd();
-void CheckSecretMissions();
 
 void DrawGun(
-    CP_iteminfo* item_i,
-    CP_itemtype* items,
-    std::int16_t x,
-    std::int16_t* y,
-    std::int16_t which,
-    std::int16_t basey,
-    void (* routine)(std::int16_t w));
-
-void DrawHalfStep(
-    std::int16_t x,
-    std::int16_t y,
-    std::int16_t y_spacing);
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	std::int16_t x,
+	std::int16_t* y,
+	std::int16_t which,
+	std::int16_t basey,
+	void(*routine)(std::int16_t w));
 
 void EraseGun(
-    CP_iteminfo* item_i,
-    CP_itemtype* items,
-    std::int16_t x,
-    std::int16_t y,
-    std::int16_t which);
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t which);
 
 void SetTextColor(
-    CP_itemtype* items,
-    std::int16_t hlight);
+	CP_itemtype* items,
+	std::int16_t hlight);
 
 void DrawMenuGun(
-    CP_iteminfo* iteminfo);
-
-void DrawStripes(
-    std::int16_t y);
+	CP_iteminfo* iteminfo);
 
 void DefineMouseBtns();
 void DefineJoyBtns();
@@ -306,120 +305,117 @@ void DefineKeyBtns();
 void DefineKeyMove();
 
 void EnterCtrlData(
-    std::int16_t index,
-    CustomCtrls* cust,
-    void (* DrawRtn)(std::int16_t),
-    void (* PrintRtn)(std::int16_t),
-    std::int16_t type);
+	std::int16_t index,
+	CustomCtrls* cust,
+	void(*DrawRtn)(std::int16_t),
+	void(*PrintRtn)(std::int16_t),
+	std::int16_t type);
 
 void DrawMainMenu();
 void DrawSoundMenu();
 
 void DrawLoadSaveScreen(
-    std::int16_t loadsave);
+	std::int16_t loadsave);
 
 void DrawNewEpisode();
 void DrawNewGame();
-
-void DrawChangeView(
-    std::int16_t view);
 
 void DrawMouseSens();
 void DrawCtlScreen();
 void DrawCustomScreen();
 
 void DrawLSAction(
-    std::int16_t which);
+	std::int16_t which);
 
 void DrawCustMouse(
-    std::int16_t hilight);
+	std::int16_t hilight);
 
 void DrawCustJoy(
-    std::int16_t hilight);
+	std::int16_t hilight);
 
 void DrawCustKeybd(
-    std::int16_t hilight);
+	std::int16_t hilight);
 
 void DrawCustKeys(
-    std::int16_t hilight);
+	std::int16_t hilight);
 
 void PrintCustMouse(
-    std::int16_t i);
+	std::int16_t i);
 
 void PrintCustJoy(
-    std::int16_t i);
+	std::int16_t i);
 
 void PrintCustKeybd(
-    std::int16_t i);
+	std::int16_t i);
 
 void PrintCustKeys(
-    std::int16_t i);
+	std::int16_t i);
 
 void PrintLSEntry(
-    std::int16_t w,
-    std::int16_t color);
+	std::int16_t w,
+	std::int16_t color);
 
 void TrackWhichGame(
-    std::int16_t w);
+	std::int16_t w);
 
 void DrawNewGameDiff(
-    std::int16_t w);
+	std::int16_t w);
 
 void FixupCustom(
-    std::int16_t w);
+	std::int16_t w);
 
 void CP_BlakeStoneSaga(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 void CP_NewGame(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 void CP_Sound(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 std::int16_t CP_LoadGame(
-    std::int16_t quick);
+	std::int16_t quick);
 
 std::int16_t CP_SaveGame(
-    std::int16_t quick);
+	std::int16_t quick);
 
 void CP_Control(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 void CP_ExitOptions(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 void CP_Quit();
 
 void CP_ViewScores(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 std::int16_t CP_EndGame();
 
 bool CP_CheckQuick(
-    ScanCode scancode);
+	ScanCode scancode);
 
 void CustomControls(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 void MouseSensitivity(
-    std::int16_t temp1);
+	std::int16_t temp1);
 
 void DrawMenuTitle(
-    const char* title);
+	const char* title);
 
 void CheckForEpisodes();
 
 void HelpPresenter(
-    const char* fname,
-    bool continuekeys,
-    std::uint16_t id_cache,
-    bool startmusic);
+	const char* fname,
+	bool continuekeys,
+	std::uint16_t id_cache,
+	bool startmusic);
 
 void ShadowPrint(
-    const char* string,
-    std::int16_t x,
-    std::int16_t y);
+	const char* string,
+	std::int16_t x,
+	std::int16_t y);
 
 //
 // VARIABLES
@@ -430,27 +426,24 @@ extern std::int16_t SoundStatus;
 extern char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 
 // FOR INPUT TYPES
-enum MenuInputType {
-    MOUSE,
-    JOYSTICK,
-    KEYBOARDBTNS,
-    KEYBOARDMOVE
+enum MenuInputType
+{
+	MOUSE,
+	JOYSTICK,
+	KEYBOARDBTNS,
+	KEYBOARDMOVE
 }; // MenuInputType
 
 //
 // WL_INTER
 //
-struct LRstruct {
-    std::int16_t kill, secret, treasure;
-    std::int32_t time;
+struct LRstruct
+{
+	std::int16_t kill, secret, treasure;
+	std::int32_t time;
 }; // LRstruct
 
 extern LRstruct LevelRatios[];
-
-void Write(
-    std::int16_t x,
-    std::int16_t y,
-    char* string);
 
 
 #endif // BSTONE_3D_MENU_INCLUDED

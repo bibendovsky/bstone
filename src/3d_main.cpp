@@ -155,14 +155,6 @@ int mouseadjustment;
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
 
-// FIXME Unused
-#if 0
-std::int16_t view_xl;
-std::int16_t view_xh;
-std::int16_t view_yl;
-std::int16_t view_yh;
-#endif // 0
-
 static const bool default_no_wall_hit_sound = true;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
 

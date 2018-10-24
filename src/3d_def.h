@@ -397,25 +397,28 @@ case gen_scientistobj
 #define CANT_SAVE_GAME_TXT " Can't save this game! \n" \
     "    Hard Disk FULL!"
 
-enum ss_type {
-    ss_normal,
-    ss_quick,
-    ss_justcalc
+enum ss_type
+{
+	ss_normal,
+	ss_quick,
+	ss_justcalc
 }; // ss_type
 
-enum cds_io_type {
-    cds_dos_print,
-    cds_id_print,
-    cds_menu_print
+enum cds_io_type
+{
+	cds_dos_print,
+	cds_id_print,
+	cds_menu_print
 }; // cds_io_type
 
 
-enum sp_type {
-    sp_normal,
-    sp_loading,
-    sp_saving,
-    sp_changeview,
-    sp_teleporting
+enum sp_type
+{
+	sp_normal,
+	sp_loading,
+	sp_saving,
+	sp_changeview,
+	sp_teleporting
 }; // sp_type
 
 //
@@ -1680,107 +1683,110 @@ extern std::int16_t SPR_BFG_EXP8;
 //
 // Door Objects
 //
-enum doortype {
-    // LOCKED DOORS
+enum doortype
+{
+	// LOCKED DOORS
 
-    L_METAL,
-    L_METAL_SHADE,
+	L_METAL,
+	L_METAL_SHADE,
 
-    L_BIO,
-    L_BIO_SHADE,
+	L_BIO,
+	L_BIO_SHADE,
 
-    L_ELEVATOR,
-    L_ELEVATOR_SHADE,
+	L_ELEVATOR,
+	L_ELEVATOR_SHADE,
 
-    L_SPACE,
-    L_SPACE_SHADE,
+	L_SPACE,
+	L_SPACE_SHADE,
 
-    L_PRISON,
-    L_PRISON_SHADE,
+	L_PRISON,
+	L_PRISON_SHADE,
 
-    L_HIGH_SECURITY,
-    L_HIGH_SECURITY_SHADE,
+	L_HIGH_SECURITY,
+	L_HIGH_SECURITY_SHADE,
 
-    L_ENTER_ONLY,
-    L_ENTER_ONLY_SHADE,
+	L_ENTER_ONLY,
+	L_ENTER_ONLY_SHADE,
 
-    L_HIGH_TECH,
-    L_HIGH_TECH_SHADE,
-
-
-    // UNLOCKED DOORS
-
-    UL_METAL,
-    UL_METAL_SHADE,
-
-    UL_BIO,
-    UL_BIO_SHADE,
-
-    UL_ELEVATOR,
-    UL_ELEVATOR_SHADE,
-
-    UL_SPACE,
-    UL_SPACE_SHADE,
-
-    UL_PRISON,
-    UL_PRISON_SHADE,
-
-    UL_HIGH_SECURITY,
-    UL_HIGH_SECURITY_SHADE,
-
-    UL_ENTER_ONLY,
-    UL_ENTER_ONLY_SHADE,
-
-    UL_HIGH_TECH,
-    UL_HIGH_TECH_SHADE,
+	L_HIGH_TECH,
+	L_HIGH_TECH_SHADE,
 
 
-    // MISC DOORS
+	// UNLOCKED DOORS
 
-    NOEXIT,
-    NOEXIT_SHADE,
+	UL_METAL,
+	UL_METAL_SHADE,
 
-    STEEL_JAM,
-    STEEL_JAM_SHADE,
+	UL_BIO,
+	UL_BIO_SHADE,
 
-    SPACE_JAM,
-    SPACE_JAM_SHADE,
+	UL_ELEVATOR,
+	UL_ELEVATOR_SHADE,
 
-    OFFICE_JAM,
-    OFFICE_JAM_SHADE,
+	UL_SPACE,
+	UL_SPACE_SHADE,
 
-    BIO_JAM,
-    BIO_JAM_SHADE,
+	UL_PRISON,
+	UL_PRISON_SHADE,
 
-    SPACE_JAM_2,
-    SPACE_JAM_2_SHADE,
+	UL_HIGH_SECURITY,
+	UL_HIGH_SECURITY_SHADE,
+
+	UL_ENTER_ONLY,
+	UL_ENTER_ONLY_SHADE,
+
+	UL_HIGH_TECH,
+	UL_HIGH_TECH_SHADE,
 
 
-    // END OF DOOR LIST
-    NUMDOORTYPES,
+	// MISC DOORS
+
+	NOEXIT,
+	NOEXIT_SHADE,
+
+	STEEL_JAM,
+	STEEL_JAM_SHADE,
+
+	SPACE_JAM,
+	SPACE_JAM_SHADE,
+
+	OFFICE_JAM,
+	OFFICE_JAM_SHADE,
+
+	BIO_JAM,
+	BIO_JAM_SHADE,
+
+	SPACE_JAM_2,
+	SPACE_JAM_2_SHADE,
+
+
+	// END OF DOOR LIST
+	NUMDOORTYPES,
 }; // doortype
 
 
 //
 // Breifing types - Note these are ordered to an char array in Breifing().
 //
-enum breifing_type {
-    BT_LOSE,
-    BT_WIN,
-    BT_INTRO
+enum breifing_type
+{
+	BT_LOSE,
+	BT_WIN,
+	BT_INTRO
 }; // breifing_type
 
 
 //
 // Barrier State Transistions
 //
-enum barrier_state_type {
-    bt_OFF,
-    bt_ON,
-    bt_DISABLING,
-    bt_DISABLED,
-    bt_OPENING, // For physical barriers
-    bt_CLOSING, //            " " "
+enum barrier_state_type
+{
+	bt_OFF,
+	bt_ON,
+	bt_DISABLING,
+	bt_DISABLED,
+	bt_OPENING, // For physical barriers
+	bt_CLOSING, //            " " "
 }; // barrier_state_type
 
 
@@ -1811,187 +1817,195 @@ using fixed = std::int32_t;
 #define PinballBonusShown(bonus) (BONUS_SHOWN & bonus)
 #define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus))BONUS_QUEUE |= bonus
 
-struct PinballBonusInfo {
-    char* BonusText; // REBA text pointer
-    std::int32_t Points; // Score for this bonus
-    bool Recurring; // Appear multiple times in a single level?
-    void (* func)(); // Code to execute when you get this bonus.
+struct PinballBonusInfo
+{
+	char* BonusText; // REBA text pointer
+	std::int32_t Points; // Score for this bonus
+	bool Recurring; // Appear multiple times in a single level?
+	void(*func)(); // Code to execute when you get this bonus.
 }; // PinballBonusInfo
 
-struct atkinf_t {
-    std::int8_t tics;
-    std::int8_t attack;
-    std::int8_t frame; // attack is 1 for gun, 2 for knife
+struct atkinf_t
+{
+	std::int8_t tics;
+	std::int8_t attack;
+	std::int8_t frame; // attack is 1 for gun, 2 for knife
 }; // atkinf_t
 
 
 // NOTE - This enum list is ORDERED!
-enum movie_t {
-    mv_intro,
-    mv_final,
-    mv_final2, // AOG Episode 3/5
-    mv_final3, // AOG Episode 6
-    mv_NUM_MOVIES,
+enum movie_t
+{
+	mv_intro,
+	mv_final,
+	mv_final2, // AOG Episode 3/5
+	mv_final3, // AOG Episode 6
+	mv_NUM_MOVIES,
 }; // movie_t
 
-enum controldir_t {
-    di_north,
-    di_east,
-    di_south,
-    di_west
+enum controldir_t
+{
+	di_north,
+	di_east,
+	di_south,
+	di_west
 }; // controldir_t
 
 // NOTE - This enum list is ORDERED!
-enum door_t {
-    dr_bio,
-    dr_normal,
-    dr_prison,
-    dr_elevator,
-    dr_high_security,
-    dr_office,
-    dr_oneway_left,
-    dr_oneway_up,
-    dr_oneway_right,
-    dr_oneway_down,
-    dr_space
+enum door_t
+{
+	dr_bio,
+	dr_normal,
+	dr_prison,
+	dr_elevator,
+	dr_high_security,
+	dr_office,
+	dr_oneway_left,
+	dr_oneway_up,
+	dr_oneway_right,
+	dr_oneway_down,
+	dr_space
 }; // door_t
 
-enum keytype {
-    kt_none = -1,
-    kt_red,
-    kt_yellow,
-    kt_blue,
-    kt_green,
-    kt_gold,
-    NUMKEYS,
+enum keytype
+{
+	kt_none = -1,
+	kt_red,
+	kt_yellow,
+	kt_blue,
+	kt_green,
+	kt_gold,
+	NUMKEYS,
 }; // keytype
 
-enum activetype {
-    ac_badobject = -1,
-    ac_no,
-    ac_yes,
-    ac_allways
+enum activetype
+{
+	ac_badobject = -1,
+	ac_no,
+	ac_yes,
+	ac_allways
 }; // activetype
 
-enum classtype {
-    nothing,
-    playerobj,
-    inertobj,
-    fixup_inertobj,
-    deadobj,
+enum classtype
+{
+	nothing,
+	playerobj,
+	inertobj,
+	fixup_inertobj,
+	deadobj,
 
 
-    // BEGIN - Start of ordered list for ActorInfoMsg[] for attacking
-    // actor REBA messages
+	// BEGIN - Start of ordered list for ActorInfoMsg[] for attacking
+	// actor REBA messages
 
-    rentacopobj,
-    hang_terrotobj,
-    gen_scientistobj,
-    podobj,
-    electroobj,
-    electrosphereobj,
-    proguardobj,
-    genetic_guardobj,
-    mutant_human1obj,
-    mutant_human2obj,
-    lcan_wait_alienobj,
-    lcan_alienobj,
-    scan_wait_alienobj,
-    scan_alienobj,
-    gurney_waitobj,
-    gurneyobj,
-    liquidobj,
-    swatobj,
-    goldsternobj,
-    gold_morphobj,
-    volatiletransportobj,
-    floatingbombobj,
-    rotating_cubeobj,
+	rentacopobj,
+	hang_terrotobj,
+	gen_scientistobj,
+	podobj,
+	electroobj,
+	electrosphereobj,
+	proguardobj,
+	genetic_guardobj,
+	mutant_human1obj,
+	mutant_human2obj,
+	lcan_wait_alienobj,
+	lcan_alienobj,
+	scan_wait_alienobj,
+	scan_alienobj,
+	gurney_waitobj,
+	gurneyobj,
+	liquidobj,
+	swatobj,
+	goldsternobj,
+	gold_morphobj,
+	volatiletransportobj,
+	floatingbombobj,
+	rotating_cubeobj,
 
-    spider_mutantobj,
-    breather_beastobj,
-    cyborg_warriorobj,
-    reptilian_warriorobj,
-    acid_dragonobj,
-    mech_guardianobj,
+	spider_mutantobj,
+	breather_beastobj,
+	cyborg_warriorobj,
+	reptilian_warriorobj,
+	acid_dragonobj,
+	mech_guardianobj,
 
-    final_boss1obj,
-    final_boss2obj,
-    final_boss3obj,
-    final_boss4obj,
+	final_boss1obj,
+	final_boss2obj,
+	final_boss3obj,
+	final_boss4obj,
 
-    blakeobj,
+	blakeobj,
 
-    crate1obj,
-    crate2obj,
-    crate3obj,
+	crate1obj,
+	crate2obj,
+	crate3obj,
 
-    green_oozeobj,
-    black_oozeobj,
-    green2_oozeobj,
-    black2_oozeobj,
-    podeggobj,
+	green_oozeobj,
+	black_oozeobj,
+	green2_oozeobj,
+	black2_oozeobj,
+	podeggobj,
 
-    morphing_spider_mutantobj,
-    morphing_reptilian_warriorobj,
-    morphing_mutanthuman2obj,
+	morphing_spider_mutantobj,
+	morphing_reptilian_warriorobj,
+	morphing_mutanthuman2obj,
 
-    SPACER1_OBJ,
-    electroshotobj, // NON-HITPOINT objects...
-    post_barrierobj,
-    arc_barrierobj,
-    vpost_barrierobj,
-    vspike_barrierobj,
-    goldmorphshotobj,
+	SPACER1_OBJ,
+	electroshotobj, // NON-HITPOINT objects...
+	post_barrierobj,
+	arc_barrierobj,
+	vpost_barrierobj,
+	vspike_barrierobj,
+	goldmorphshotobj,
 
-    security_lightobj,
-    explosionobj,
-    steamgrateobj,
-    steampipeobj,
+	security_lightobj,
+	explosionobj,
+	steamgrateobj,
+	steampipeobj,
 
-    liquidshotobj,
+	liquidshotobj,
 
-    lcanshotobj,
-    podshotobj,
-    scanshotobj,
-    dogshotobj,
-    mut_hum1shotobj,
+	lcanshotobj,
+	podshotobj,
+	scanshotobj,
+	dogshotobj,
+	mut_hum1shotobj,
 
-    ventdripobj,
-    playerspshotobj,
-    flickerlightobj,
+	ventdripobj,
+	playerspshotobj,
+	flickerlightobj,
 
-    plasma_detonatorobj,
-    plasma_detonator_reserveobj,
+	plasma_detonatorobj,
+	plasma_detonator_reserveobj,
 
-    grenadeobj,
-    bfg_shotobj,
-    bfg_explosionobj,
-    pd_explosionobj,
+	grenadeobj,
+	bfg_shotobj,
+	bfg_explosionobj,
+	pd_explosionobj,
 
-    spider_mutantshotobj,
-    breather_beastshotobj,
-    cyborg_warriorshotobj,
-    reptilian_warriorshotobj,
-    acid_dragonshotobj,
-    mech_guardianshotobj,
-    final_boss2shotobj,
-    final_boss4shotobj,
+	spider_mutantshotobj,
+	breather_beastshotobj,
+	cyborg_warriorshotobj,
+	reptilian_warriorshotobj,
+	acid_dragonshotobj,
+	mech_guardianshotobj,
+	final_boss2shotobj,
+	final_boss4shotobj,
 
-    doorexplodeobj, // Door explosion_anim acto
-    gr_explosionobj,
-    gold_morphingobj
+	doorexplodeobj, // Door explosion_anim acto
+	gr_explosionobj,
+	gold_morphingobj
 
 }; // classtype
 
 // BBi
 inline classtype operator++(
-    classtype& a,
-    int)
+	classtype& a,
+	int)
 {
-    auto result = a;
-    a = static_cast<classtype>(a + 1);
-    return result;
+	auto result = a;
+	a = static_cast<classtype>(a + 1);
+	return result;
 }
 // BBi
 
@@ -2001,210 +2015,214 @@ inline classtype operator++(
 // updated.
 //
 
-enum stat_t {
-    dressing,
+enum stat_t
+{
+	dressing,
 
-    bo_red_key,
-    bo_yellow_key,
-    bo_blue_key,
+	bo_red_key,
+	bo_yellow_key,
+	bo_blue_key,
 
-    bo_clip,
-    bo_clip2,
-    bo_pistol,
-    bo_burst_rifle,
-    bo_ion_cannon,
-    bo_grenade,
-    bo_bfg_cannon,
+	bo_clip,
+	bo_clip2,
+	bo_pistol,
+	bo_burst_rifle,
+	bo_ion_cannon,
+	bo_grenade,
+	bo_bfg_cannon,
 
-    // START of Bonus Health Ordered list
+	// START of Bonus Health Ordered list
 
-    bo_fullheal,
-    bo_firstaid,
-    bo_ham,
-    bo_chicken,
-    bo_sandwich,
-    bo_candybar,
-    bo_water,
-    bo_water_puddle,
+	bo_fullheal,
+	bo_firstaid,
+	bo_ham,
+	bo_chicken,
+	bo_sandwich,
+	bo_candybar,
+	bo_water,
+	bo_water_puddle,
 
-    // END of ordered ...
+	// END of ordered ...
 
-    bo_money_bag,
-    bo_loot,
+	bo_money_bag,
+	bo_loot,
 
-    bo_gold1,
-    bo_gold2,
-    bo_gold3,
+	bo_gold1,
+	bo_gold2,
+	bo_gold3,
 
-    bo_gold,
-    bo_bonus,
+	bo_gold,
+	bo_bonus,
 
-    bo_plainvent,
-    bo_bloodvent,
-    bo_watervent,
+	bo_plainvent,
+	bo_bloodvent,
+	bo_watervent,
 
-    bo_coin,
-    bo_coin5,
+	bo_coin,
+	bo_coin5,
 
-    bo_plasma_detonator,
-    bo_automapper1,
+	bo_plasma_detonator,
+	bo_automapper1,
 
-    bo_nothing,
+	bo_nothing,
 
-    block,
+	block,
 
-    bo_green_key,
-    bo_gold_key,
+	bo_green_key,
+	bo_gold_key,
 }; // stat_t
 
-struct stattype {
-    std::int16_t picnum;
-    stat_t type;
+struct stattype
+{
+	std::int16_t picnum;
+	stat_t type;
 }; // stattype
 
-enum dirtype {
-    east,
-    northeast,
-    north,
-    northwest,
-    west,
-    southwest,
-    south,
-    southeast,
-    nodir
+enum dirtype
+{
+	east,
+	northeast,
+	north,
+	northwest,
+	west,
+	southwest,
+	south,
+	southeast,
+	nodir
 }; // dirtype
 
 // BBi
 inline dirtype operator+=(
-    dirtype& a,
-    int b)
+	dirtype& a,
+	int b)
 {
-    a = static_cast<dirtype>(a + b);
-    return a;
+	a = static_cast<dirtype>(a + b);
+	return a;
 }
 
 inline dirtype operator-=(
-    dirtype& a,
-    int b)
+	dirtype& a,
+	int b)
 {
-    a = static_cast<dirtype>(a - b);
-    return a;
+	a = static_cast<dirtype>(a - b);
+	return a;
 }
 
 inline dirtype operator|=(
-    dirtype& a,
-    int b)
+	dirtype& a,
+	int b)
 {
-    a = static_cast<dirtype>(a | b);
-    return a;
+	a = static_cast<dirtype>(a | b);
+	return a;
 }
 
 inline dirtype operator--(
-    dirtype& a,
-    int)
+	dirtype& a,
+	int)
 {
-    auto result = a;
-    a -= 1;
-    return result;
+	auto result = a;
+	a -= 1;
+	return result;
 }
 
 inline dirtype operator++(
-    dirtype& a,
-    int)
+	dirtype& a,
+	int)
 {
-    auto result = a;
-    a += 1;
-    return result;
+	auto result = a;
+	a += 1;
+	return result;
 }
 
-enum enemy_t {
-    en_rentacop, // Actors with hitpoints (normal actors)
-    en_hang_terrot,
-    en_gen_scientist,
-    en_pod,
-    en_electro_alien,
-    en_electrosphere,
-    en_proguard,
-    en_genetic_guard,
-    en_mutant_human1,
-    en_mutant_human2,
-    en_lcan_wait_alien,
-    en_lcan_alien,
-    en_scan_wait_alien,
-    en_scan_alien,
-    en_gurney_wait,
-    en_gurney,
-    en_liquid,
-    en_swat,
-    en_goldstern,
-    en_gold_morph,
-    en_volatiletransport,
-    en_floatingbomb,
-    en_rotating_cube,
+enum enemy_t
+{
+	en_rentacop, // Actors with hitpoints (normal actors)
+	en_hang_terrot,
+	en_gen_scientist,
+	en_pod,
+	en_electro_alien,
+	en_electrosphere,
+	en_proguard,
+	en_genetic_guard,
+	en_mutant_human1,
+	en_mutant_human2,
+	en_lcan_wait_alien,
+	en_lcan_alien,
+	en_scan_wait_alien,
+	en_scan_alien,
+	en_gurney_wait,
+	en_gurney,
+	en_liquid,
+	en_swat,
+	en_goldstern,
+	en_gold_morph,
+	en_volatiletransport,
+	en_floatingbomb,
+	en_rotating_cube,
 
-    en_spider_mutant,
-    en_breather_beast,
-    en_cyborg_warrior,
-    en_reptilian_warrior,
-    en_acid_dragon,
-    en_mech_guardian,
+	en_spider_mutant,
+	en_breather_beast,
+	en_cyborg_warrior,
+	en_reptilian_warrior,
+	en_acid_dragon,
+	en_mech_guardian,
 
-    en_final_boss1,
-    en_final_boss2,
-    en_final_boss3,
-    en_final_boss4,
+	en_final_boss1,
+	en_final_boss2,
+	en_final_boss3,
+	en_final_boss4,
 
-    en_blake,
+	en_blake,
 
-    en_crate1,
-    en_crate2,
-    en_crate3,
+	en_crate1,
+	en_crate2,
+	en_crate3,
 
-    en_green_ooze,
-    en_black_ooze,
-    en_green2_ooze,
-    en_black2_ooze,
-    en_podegg,
+	en_green_ooze,
+	en_black_ooze,
+	en_green2_ooze,
+	en_black2_ooze,
+	en_podegg,
 
-    en_morphing_spider_mutant,
-    en_morphing_reptilian_warrior,
-    en_morphing_mutanthuman2,
+	en_morphing_spider_mutant,
+	en_morphing_reptilian_warrior,
+	en_morphing_mutanthuman2,
 
-    NUMHITENEMIES,
+	NUMHITENEMIES,
 
-    en_electro_shot, // Actors WITHOUT hitpoints (abnormal actors?)
-    en_post_barrier,
-    en_arc_barrier,
-    en_vpost_barrier,
-    en_vspike_barrier,
-    en_goldmorphshot,
+	en_electro_shot, // Actors WITHOUT hitpoints (abnormal actors?)
+	en_post_barrier,
+	en_arc_barrier,
+	en_vpost_barrier,
+	en_vspike_barrier,
+	en_goldmorphshot,
 
-    en_security_light,
-    en_explosion,
-    en_steamgrate,
-    en_steampipe,
+	en_security_light,
+	en_explosion,
+	en_steamgrate,
+	en_steampipe,
 
-    en_liquidshot,
+	en_liquidshot,
 
-    en_lcanshot,
-    en_podshot,
-    en_scanshot,
-    en_dogshot,
-    en_mut_hum1shot,
+	en_lcanshot,
+	en_podshot,
+	en_scanshot,
+	en_dogshot,
+	en_mut_hum1shot,
 
-    en_ventdrip,
-    en_playerspshotobj,
-    en_flickerlight,
+	en_ventdrip,
+	en_playerspshotobj,
+	en_flickerlight,
 
-    en_plasma_detonator,
-    en_plasma_detonator_reserve,
+	en_plasma_detonator,
+	en_plasma_detonator_reserve,
 
-    en_vertsphere, // Actor types only used for spawning.
-    en_horzsphere,
-    en_diagsphere,
-    en_bloodvent,
-    en_watervent,
-    NUMENEMIES,
+	en_vertsphere, // Actor types only used for spawning.
+	en_horzsphere,
+	en_diagsphere,
+	en_bloodvent,
+	en_watervent,
+	NUMENEMIES,
 }; // enemy_t
 
 
@@ -2215,18 +2233,19 @@ enum enemy_t {
 struct objtype;
 
 
-struct statetype {
-    int flags;
-    int shapenum; // a shapenum of -1 means get from ob->temp1
-    int tictime;
+struct statetype
+{
+	int flags;
+	int shapenum; // a shapenum of -1 means get from ob->temp1
+	int tictime;
 
-    void (* think)(
-        objtype* actor);
+	void(*think)(
+		objtype* actor);
 
-    void (* action)(
-        objtype* actor);
+	void(*action)(
+		objtype* actor);
 
-    statetype* next;
+	statetype* next;
 }; // statetype
 
 
@@ -2236,24 +2255,25 @@ struct statetype {
 //
 // ---------------------
 
-struct statobj_t {
-    std::uint8_t tilex;
-    std::uint8_t tiley;
-    std::uint8_t areanumber;
+struct statobj_t
+{
+	std::uint8_t tilex;
+	std::uint8_t tiley;
+	std::uint8_t areanumber;
 
-    std::uint8_t* visspot;
-    std::int16_t shapenum; // if shapenum == -1 the obj has been removed
-    std::uint16_t flags;
-    std::uint8_t itemnumber;
-    std::int8_t lighting;
+	std::uint8_t* visspot;
+	std::int16_t shapenum; // if shapenum == -1 the obj has been removed
+	std::uint16_t flags;
+	std::uint8_t itemnumber;
+	std::int8_t lighting;
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // statobj_t
 
 
@@ -2264,32 +2284,34 @@ struct statobj_t {
 // ---------------------
 
 // BBi
-enum DoorAction {
-    dr_open,
-    dr_closed,
-    dr_opening,
-    dr_closing,
-    dr_jammed,
+enum DoorAction
+{
+	dr_open,
+	dr_closed,
+	dr_opening,
+	dr_closing,
+	dr_jammed,
 }; // DoorAction
 
-struct doorobj_t {
-    std::uint8_t tilex;
-    std::uint8_t tiley;
-    bool vertical;
-    std::int8_t flags;
-    keytype lock;
-    door_t type;
-    DoorAction action;
-    std::int16_t ticcount;
-    std::uint8_t areanumber[2];
+struct doorobj_t
+{
+	std::uint8_t tilex;
+	std::uint8_t tiley;
+	bool vertical;
+	std::int8_t flags;
+	keytype lock;
+	door_t type;
+	DoorAction action;
+	std::int16_t ticcount;
+	std::uint8_t areanumber[2];
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // doorobj_t
 
 
@@ -2299,132 +2321,138 @@ struct doorobj_t {
 //
 // --------------------
 
-struct objtype {
-    std::uint8_t tilex;
-    std::uint8_t tiley;
-    std::uint8_t areanumber;
+struct objtype
+{
+	std::uint8_t tilex;
+	std::uint8_t tiley;
+	std::uint8_t areanumber;
 
-    activetype active;
-    std::int16_t ticcount;
-    classtype obclass;
-    statetype* state;
+	activetype active;
+	std::int16_t ticcount;
+	classtype obclass;
+	statetype* state;
 
-    std::uint32_t flags;
-    std::uint16_t flags2; // Aux flags
+	std::uint32_t flags;
+	std::uint16_t flags2; // Aux flags
 
-    std::int32_t distance; // if negative, wait for that door to open
-    dirtype dir;
-    dirtype trydir; // "bit 7" == "direction to turn" flag
+	std::int32_t distance; // if negative, wait for that door to open
+	dirtype dir;
+	dirtype trydir; // "bit 7" == "direction to turn" flag
 
-    fixed x;
-    fixed y;
-    std::uint8_t s_tilex;
-    std::uint8_t s_tiley; // s_tilex==0, running for corner
+	fixed x;
+	fixed y;
+	std::uint8_t s_tilex;
+	std::uint8_t s_tiley; // s_tilex==0, running for corner
 
-    std::int16_t viewx;
-    std::uint16_t viewheight;
-    fixed transx;
-    fixed transy; // in global coord
+	std::int16_t viewx;
+	std::uint16_t viewheight;
+	fixed transx;
+	fixed transy; // in global coord
 
-    // FIXME
-    // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object.
-    std::int16_t hitpoints;
+	// FIXME
+	// In original code it also used to store a 16-bit pointer to object.
+	// Since our code is at least 32-bit we are using an index of object.
+	std::int16_t hitpoints;
 
-    std::uint8_t ammo;
-    std::int8_t lighting;
-    std::uint16_t linc;
-    std::int16_t angle;
-    std::int32_t speed;
+	std::uint8_t ammo;
+	std::int8_t lighting;
+	std::uint16_t linc;
+	std::int16_t angle;
+	std::int32_t speed;
 
-    std::int16_t temp1;
+	std::int16_t temp1;
 
-    // FIXME
-    // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object.
-    std::int16_t temp2;
+	// FIXME
+	// In original code it also used to store a 16-bit pointer to object.
+	// Since our code is at least 32-bit we are using an index of object.
+	std::int16_t temp2;
 
-    // FIXME
-    // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object.
-    std::uint16_t temp3; // holds 'last door used' by 'smart' actors
+	// FIXME
+	// In original code it also used to store a 16-bit pointer to object.
+	// Since our code is at least 32-bit we are using an index of object.
+	std::uint16_t temp3; // holds 'last door used' by 'smart' actors
 
-    objtype* next;
-    objtype* prev;
+	objtype* next;
+	objtype* prev;
 
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // objtype
 
 
-enum ButtonState {
-    bt_nobutton = -1,
-    bt_attack = 0,
-    bt_strafe,
-    bt_run,
-    bt_use,
-    bt_ready_autocharge,
-    bt_ready_pistol,
-    bt_ready_burst_rifle,
-    bt_ready_ion_cannon,
-    bt_ready_grenade,
-    bt_ready_bfg_cannon,
-    bt_ready_plasma_detonators,
+enum ButtonState
+{
+	bt_nobutton = -1,
+	bt_attack = 0,
+	bt_strafe,
+	bt_run,
+	bt_use,
+	bt_ready_autocharge,
+	bt_ready_pistol,
+	bt_ready_burst_rifle,
+	bt_ready_ion_cannon,
+	bt_ready_grenade,
+	bt_ready_bfg_cannon,
+	bt_ready_plasma_detonators,
 
-    bt_SPACER,
+	bt_SPACER,
 
-    NUMBUTTONS,
+	NUMBUTTONS,
 }; // ButtonState
 
 
-enum weapontype {
-    wp_autocharge,
-    wp_pistol,
-    wp_burst_rifle,
-    wp_ion_cannon,
-    wp_grenade,
-    wp_bfg_cannon,
+enum weapontype
+{
+	wp_autocharge,
+	wp_pistol,
+	wp_burst_rifle,
+	wp_ion_cannon,
+	wp_grenade,
+	wp_bfg_cannon,
 
-    wp_SPACER,
+	wp_SPACER,
 }; // weapontype
 
 extern int NUMWEAPONS;
 
 
-enum Difficulty {
-    gd_baby,
-    gd_easy,
-    gd_medium,
-    gd_hard,
+enum Difficulty
+{
+	gd_baby,
+	gd_easy,
+	gd_medium,
+	gd_hard,
 }; // Difficulty
 
 
-enum backgroundtype {
-    ELEVATOR_BACK,
-    TRANSPORTER_BACK
+enum backgroundtype
+{
+	ELEVATOR_BACK,
+	TRANSPORTER_BACK
 }; // backgroundtype
 
 
 //
 // General Coord (tile) structure
 //
-struct tilecoord_t {
-    std::uint8_t tilex;
-    std::uint8_t tiley;
+struct tilecoord_t
+{
+	std::uint8_t tilex;
+	std::uint8_t tiley;
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // tilecoord_t
 
 
@@ -2433,288 +2461,299 @@ struct tilecoord_t {
 // barrier coord/table structure
 //
 // -----------------------------------
-struct barrier_type {
-    std::uint8_t level;
-    tilecoord_t coord;
-    std::uint8_t on;
+struct barrier_type
+{
+	std::uint8_t level;
+	tilecoord_t coord;
+	std::uint8_t on;
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // barrier_type;
 
-struct statsInfoType {
-    std::int32_t total_points;
-    std::int32_t accum_points;
-    std::uint8_t total_enemy;
-    std::uint8_t accum_enemy;
-    std::uint8_t total_inf;
-    std::uint8_t accum_inf;
-    std::int16_t overall_floor;
+struct statsInfoType
+{
+	std::int32_t total_points;
+	std::int32_t accum_points;
+	std::uint8_t total_enemy;
+	std::uint8_t accum_enemy;
+	std::uint8_t total_inf;
+	std::uint8_t accum_inf;
+	std::int16_t overall_floor;
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // statsInfoType
 
-struct levelinfo {
-    std::uint16_t bonus_queue; // bonuses that need to be shown
-    std::uint16_t bonus_shown; // bonuses that have been shown
-    bool locked;
-    statsInfoType stats;
-    std::uint8_t ptilex;
-    std::uint8_t ptiley;
-    std::int16_t pangle;
+struct levelinfo
+{
+	std::uint16_t bonus_queue; // bonuses that need to be shown
+	std::uint16_t bonus_shown; // bonuses that have been shown
+	bool locked;
+	statsInfoType stats;
+	std::uint8_t ptilex;
+	std::uint8_t ptiley;
+	std::int16_t pangle;
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // levelinfo
 
 
-struct fargametype {
-    using LevelInfos = std::vector<levelinfo>;
+struct fargametype
+{
+	using LevelInfos = std::vector<levelinfo>;
 
-    LevelInfos old_levelinfo;
-    LevelInfos level;
+	LevelInfos old_levelinfo;
+	LevelInfos level;
 
-    fargametype();
+	fargametype();
 
-    fargametype(
-        const fargametype& that) = delete;
+	fargametype(
+		const fargametype& that) = delete;
 
-    fargametype& operator=(
-        const fargametype& that) = delete;
+	fargametype& operator=(
+		const fargametype& that) = delete;
 
-    void initialize();
+	void initialize();
 
-    void clear();
+	void clear();
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // fargametype
 
-struct gametype {
-    std::int16_t turn_around;
-    std::int16_t turn_angle;
-    std::uint16_t flags;
-    std::int16_t lastmapon;
-    std::int16_t difficulty;
-    std::int16_t mapon;
-    std::int32_t oldscore;
-    std::int32_t tic_score;
-    std::int32_t score;
-    std::int32_t nextextra;
-    std::int16_t score_roll_wait;
-    std::int16_t lives;
-    std::int16_t health;
-    char health_str[4];
+struct gametype
+{
+	std::int16_t turn_around;
+	std::int16_t turn_angle;
+	std::uint16_t flags;
+	std::int16_t lastmapon;
+	std::int16_t difficulty;
+	std::int16_t mapon;
+	std::int32_t oldscore;
+	std::int32_t tic_score;
+	std::int32_t score;
+	std::int32_t nextextra;
+	std::int16_t score_roll_wait;
+	std::int16_t lives;
+	std::int16_t health;
+	char health_str[4];
 
-    std::int16_t rpower;
-    std::int16_t old_rpower;
-    std::int8_t rzoom;
-    std::int8_t radar_leds;
-    std::int8_t lastradar_leds;
+	std::int16_t rpower;
+	std::int16_t old_rpower;
+	std::int8_t rzoom;
+	std::int8_t radar_leds;
+	std::int8_t lastradar_leds;
 
-    std::int8_t lastammo_leds;
-    std::int8_t ammo_leds;
-    std::int16_t ammo;
-    std::int16_t old_ammo;
+	std::int8_t lastammo_leds;
+	std::int8_t ammo_leds;
+	std::int16_t ammo;
+	std::int16_t old_ammo;
 
-    std::int16_t plasma_detonators;
-    std::int16_t old_plasma_detonators;
+	std::int16_t plasma_detonators;
+	std::int16_t old_plasma_detonators;
 
-    std::int8_t useable_weapons;
-    std::int8_t weapons;
-    std::int8_t weapon;
-    std::int8_t chosenweapon;
-    std::int8_t old_weapons[4];
+	std::int8_t useable_weapons;
+	std::int8_t weapons;
+	std::int8_t weapon;
+	std::int8_t chosenweapon;
+	std::int8_t old_weapons[4];
 
-    std::int8_t weapon_wait;
-    std::int16_t attackframe;
-    std::int16_t attackcount;
-    std::int16_t weaponframe;
-    std::int16_t episode;
-    std::uint32_t TimeCount;
-    const char* msg; // InfoArea msg...
-    std::int8_t numkeys[NUMKEYS];
-    std::int8_t old_numkeys[NUMKEYS];
+	std::int8_t weapon_wait;
+	std::int16_t attackframe;
+	std::int16_t attackcount;
+	std::int16_t weaponframe;
+	std::int16_t episode;
+	std::uint32_t TimeCount;
+	const char* msg; // InfoArea msg...
+	std::int8_t numkeys[NUMKEYS];
+	std::int8_t old_numkeys[NUMKEYS];
 
-    // BBi
-    barrier_type cross_barriers[MAX_BARRIER_SWITCHES];
-    // BBi
+	// BBi
+	barrier_type cross_barriers[MAX_BARRIER_SWITCHES];
+	// BBi
 
-    barrier_type barrier_table[MAX_BARRIER_SWITCHES];
-    barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
-    std::uint16_t tokens;
-    std::uint16_t old_tokens;
-    bool boss_key_dropped;
-    bool old_boss_key_dropped;
-    std::int16_t wintilex;
-    std::int16_t wintiley;
+	barrier_type barrier_table[MAX_BARRIER_SWITCHES];
+	barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
+	std::uint16_t tokens;
+	std::uint16_t old_tokens;
+	bool boss_key_dropped;
+	bool old_boss_key_dropped;
+	std::int16_t wintilex;
+	std::int16_t wintiley;
 
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 
-    void initialize_cross_barriers();
-    void initialize_local_barriers();
-    void store_local_barriers();
-    void restore_local_barriers();
+	void initialize_cross_barriers();
+	void initialize_local_barriers();
+	void store_local_barriers();
+	void restore_local_barriers();
 }; // gametype
 
-enum exit_t {
-    ex_stillplaying,
-    ex_completed,
-    ex_transported,
-    ex_died,
-    ex_warped,
-    ex_resetgame,
-    ex_loadedgame,
-    ex_victorious,
-    ex_abort,
-    ex_demodone,
-    ex_secretlevel,
-    ex_title
+enum exit_t
+{
+	ex_stillplaying,
+	ex_completed,
+	ex_transported,
+	ex_died,
+	ex_warped,
+	ex_resetgame,
+	ex_loadedgame,
+	ex_victorious,
+	ex_abort,
+	ex_demodone,
+	ex_secretlevel,
+	ex_title
 }; // exit_t
 
 
-struct CycleInfo {
-    std::uint8_t init_delay;
-    std::uint8_t delay_count;
-    std::uint8_t firstreg;
-    std::uint8_t lastreg;
+struct CycleInfo
+{
+	std::uint8_t init_delay;
+	std::uint8_t delay_count;
+	std::uint8_t firstreg;
+	std::uint8_t lastreg;
 }; // CycleInfo
 
 
-struct visobj_t {
-    std::int16_t viewx;
-    std::int16_t viewheight;
-    std::int16_t shapenum;
-    std::int8_t lighting;
-    bool cloaked;
+struct visobj_t
+{
+	std::int16_t viewx;
+	std::int16_t viewheight;
+	std::int16_t shapenum;
+	std::int8_t lighting;
+	bool cloaked;
 }; // visobj_t
 
 
-enum animtype_t {
-    at_NONE = 0,
-    at_CYCLE,
-    at_REBOUND,
-    at_ONCE,
+enum animtype_t
+{
+	at_NONE = 0,
+	at_CYCLE,
+	at_REBOUND,
+	at_ONCE,
 }; // animtype_t
 
-enum animdir_t {
-    ad_FWD = 0,
-    ad_REV,
+enum animdir_t
+{
+	ad_FWD = 0,
+	ad_REV,
 }; // animdir_t
 
 
-struct ofs_anim_t {
-    static const int animtype_offset = 0;
-    static const int animtype_size = 2;
+struct ofs_anim_t
+{
+	static const int animtype_offset = 0;
+	static const int animtype_size = 2;
 
-    static const int curframe_offset = animtype_offset + animtype_size;
-    static const int curframe_size = 5;
+	static const int curframe_offset = animtype_offset + animtype_size;
+	static const int curframe_size = 5;
 
-    static const int maxframe_offset = curframe_offset + curframe_size;
-    static const int maxframe_size = 5;
+	static const int maxframe_offset = curframe_offset + curframe_size;
+	static const int maxframe_size = 5;
 
-    static const int animdir_offset = maxframe_offset + maxframe_size;
-    static const int animdir_size = 1;
-
-
-    template<int TOffset, int TSize>
-    static std::uint16_t get(
-        const objtype* o)
-    {
-        return (o->temp3 >> TOffset) & ((1 << TSize) - 1);
-    }
-
-    template<int TOffset, int TSize>
-    static void set(
-        const std::uint16_t value,
-        objtype* o)
-    {
-        o->temp3 &= ~(((1 << TSize) - 1) << TOffset);
-        o->temp3 |= ((value & ((1 << TSize) - 1)) << TOffset);
-    }
-
-    static std::uint16_t get_animtype(
-        const objtype* o)
-    {
-        return get<animtype_offset, animtype_size>(o);
-    }
-
-    static void set_animtype(
-        const std::uint16_t value,
-        objtype* o)
-    {
-        set<animtype_offset, animtype_size>(value, o);
-    }
+	static const int animdir_offset = maxframe_offset + maxframe_size;
+	static const int animdir_size = 1;
 
 
-    static std::uint16_t get_curframe(
-        const objtype* o)
-    {
-        return get<curframe_offset, curframe_size>(o);
-    }
+	template<int TOffset, int TSize>
+	static std::uint16_t get(
+		const objtype* o)
+	{
+		return (o->temp3 >> TOffset) & ((1 << TSize) - 1);
+	}
 
-    static void set_curframe(
-        const std::uint16_t value,
-        objtype* o)
-    {
-        set<curframe_offset, curframe_size>(value, o);
-    }
+	template<int TOffset, int TSize>
+	static void set(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		o->temp3 &= ~(((1 << TSize) - 1) << TOffset);
+		o->temp3 |= ((value & ((1 << TSize) - 1)) << TOffset);
+	}
+
+	static std::uint16_t get_animtype(
+		const objtype* o)
+	{
+		return get<animtype_offset, animtype_size>(o);
+	}
+
+	static void set_animtype(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<animtype_offset, animtype_size>(value, o);
+	}
 
 
-    static std::uint16_t get_maxframe(
-        const objtype* o)
-    {
-        return get<maxframe_offset, maxframe_size>(o);
-    }
+	static std::uint16_t get_curframe(
+		const objtype* o)
+	{
+		return get<curframe_offset, curframe_size>(o);
+	}
 
-    static void set_maxframe(
-        const std::uint16_t value,
-        objtype* o)
-    {
-        set<maxframe_offset, maxframe_size>(value, o);
-    }
+	static void set_curframe(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<curframe_offset, curframe_size>(value, o);
+	}
 
 
-    static std::uint16_t get_animdir(
-        const objtype* o)
-    {
-        return get<animdir_offset, animdir_size>(o);
-    }
+	static std::uint16_t get_maxframe(
+		const objtype* o)
+	{
+		return get<maxframe_offset, maxframe_size>(o);
+	}
 
-    static void set_animdir(
-        const std::uint16_t value,
-        objtype* o)
-    {
-        set<animdir_offset, animdir_size>(value, o);
-    }
+	static void set_maxframe(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<maxframe_offset, maxframe_size>(value, o);
+	}
+
+
+	static std::uint16_t get_animdir(
+		const objtype* o)
+	{
+		return get<animdir_offset, animdir_size>(o);
+	}
+
+	static void set_animdir(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<animdir_offset, animdir_size>(value, o);
+	}
 }; // ofs_anim_t
 
 
@@ -2727,64 +2766,67 @@ struct ofs_anim_t {
 //
 // Msg_Priorities - Hell.. Lets just make them all the same...
 
-enum msg_priorities {
-    MP_min_val = 0,
+enum msg_priorities
+{
+	MP_min_val = 0,
 
-    MP_HEARTB_SND = 0x0200,
-    MP_WALLSWITCH_OPERATE = 0x0200,
+	MP_HEARTB_SND = 0x0200,
+	MP_WALLSWITCH_OPERATE = 0x0200,
 
-    MP_DOOR_OPERATE = 0x0200,
-    MP_CONCESSION_OPERATE = 0x0200,
-    MP_WEAPON_AVAIL = 0x0200,
+	MP_DOOR_OPERATE = 0x0200,
+	MP_CONCESSION_OPERATE = 0x0200,
+	MP_WEAPON_AVAIL = 0x0200,
 
-    MP_ATTACK_INFO = 0x0200,
-    MP_NO_MORE_AMMO = 0x0200,
-    MP_WEAPON_MALFUNCTION = 0x0200,
+	MP_ATTACK_INFO = 0x0200,
+	MP_NO_MORE_AMMO = 0x0200,
+	MP_WEAPON_MALFUNCTION = 0x0200,
 
-    MP_INTERROGATE = 0x0200,
-    MP_CONCESSION_HINT = 0x0200,
-    MP_NO_MORE_TOKENS = 0x0200,
-    MP_CONCESSION_OUT_ORDER = 0x0200,
+	MP_INTERROGATE = 0x0200,
+	MP_CONCESSION_HINT = 0x0200,
+	MP_NO_MORE_TOKENS = 0x0200,
+	MP_CONCESSION_OUT_ORDER = 0x0200,
 
-    MP_BONUS = 0x0200,
+	MP_BONUS = 0x0200,
 
-    MP_TAKE_DAMAGE = 0x0200,
-    MP_DETONATOR = 0x0200,
+	MP_TAKE_DAMAGE = 0x0200,
+	MP_DETONATOR = 0x0200,
 
-    MP_PINBALL_BONUS = 0x3000,
-    MP_FLOOR_UNLOCKED = 0x3000,
+	MP_PINBALL_BONUS = 0x3000,
+	MP_FLOOR_UNLOCKED = 0x3000,
 
-    MP_POWERUP = 0x7000, // Power-Up/Game-Start Value
-    MP_max_val = 0x7FFF, // DO NOT USE/EXCEED - MAX Val
+	MP_POWERUP = 0x7000, // Power-Up/Game-Start Value
+	MP_max_val = 0x7FFF, // DO NOT USE/EXCEED - MAX Val
 }; // msg_priorities
 
-enum infomsg_type {
-    MT_NOTHING,
-    MT_CLEAR,
-    MT_ATTACK,
-    MT_GENERAL,
-    MT_OUT_OF_AMMO,
-    MT_MALFUNCTION,
-    MT_NO_MO_FOOD_TOKENS,
-    MT_BONUS,
+enum infomsg_type
+{
+	MT_NOTHING,
+	MT_CLEAR,
+	MT_ATTACK,
+	MT_GENERAL,
+	MT_OUT_OF_AMMO,
+	MT_MALFUNCTION,
+	MT_NO_MO_FOOD_TOKENS,
+	MT_BONUS,
 }; // infomsg_type
 
 
 //
 // Menu Instruction Text types...
 //
-enum inst_type {
-    IT_STANDARD,
-    IT_HIGHSCORES,
-    IT_ENTER_HIGHSCORE,
-    IT_MOUSE_SEN,
+enum inst_type
+{
+	IT_STANDARD,
+	IT_HIGHSCORES,
+	IT_ENTER_HIGHSCORE,
+	IT_MOUSE_SEN,
 
-    // BBi
-    IT_SOUND_VOLUME,
-    IT_CONTROLS,
-    IT_CONTROLS_ASSIGNING_KEY,
+	// BBi
+	IT_SOUND_VOLUME,
+	IT_CONTROLS,
+	IT_CONTROLS_ASSIGNING_KEY,
 
-    MAX_INSTRUCTIONS,
+	MAX_INSTRUCTIONS,
 }; // inst_type
 
 
@@ -2796,121 +2838,130 @@ enum inst_type {
 
 // Basic 'message info' structure
 //
-struct mCacheInfo {
-    std::uint8_t local_val; // where msg is in 'local' list
-    std::uint8_t global_val; // where msg was in 'global' list
-    char* mSeg; // pointer to message
+struct mCacheInfo
+{
+	std::uint8_t local_val; // where msg is in 'local' list
+	std::uint8_t global_val; // where msg was in 'global' list
+	char* mSeg; // pointer to message
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // mCacheInfo
 
 // Basic 'message list' structure
 //
-struct mCacheList {
-    std::int16_t NumMsgs; // number of messages
-    mCacheInfo mInfo[MAX_CACHE_MSGS]; // table of message 'info'
+struct mCacheList
+{
+	std::int16_t NumMsgs; // number of messages
+	mCacheInfo mInfo[MAX_CACHE_MSGS]; // table of message 'info'
 }; // mCacheList
 
 // ----------------------- CONCESSION STRUCTURES --------------------------
 
 // Concession 'message info' structure
 //
-struct con_mCacheInfo {
-    mCacheInfo mInfo;
-    std::uint8_t type; // type of concession
-    std::uint8_t operate_cnt; // # of times req'd to operate
+struct con_mCacheInfo
+{
+	mCacheInfo mInfo;
+	std::uint8_t type; // type of concession
+	std::uint8_t operate_cnt; // # of times req'd to operate
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // con_mCacheInfo
 
 // Concession 'message list' structure
 //
-struct concession_t {
-    std::int16_t NumMsgs; // also, num concessions
-    con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
+struct concession_t
+{
+	std::int16_t NumMsgs; // also, num concessions
+	con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // concession_t
 
 // ------------------------ INFORMANT STRUCTURES --------------------------
 
 // Informant 'message info' structure
 //
-struct sci_mCacheInfo {
-    mCacheInfo mInfo;
-    std::uint8_t areanumber; // 'where' msg can be used
+struct sci_mCacheInfo
+{
+	mCacheInfo mInfo;
+	std::uint8_t areanumber; // 'where' msg can be used
 }; // sci_mCacheInfo
 
 // Informant 'message list' structure
 //
-struct scientist_t {
-    std::int16_t NumMsgs;
-    sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
+struct scientist_t
+{
+	std::int16_t NumMsgs;
+	sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
 }; // scientist_t
 
 // ------------------------------------------------------------------------
 
 // Electro-Alien controller structer
 //
-struct eaWallInfo {
-    std::int8_t tilex;
-    std::int8_t tiley; // where this controller is in the map.
-    std::int8_t aliens_out; // aliens spawned by this controller.
-    std::int16_t delay; // delay before spawning another alien.
+struct eaWallInfo
+{
+	std::int8_t tilex;
+	std::int8_t tiley; // where this controller is in the map.
+	std::int8_t aliens_out; // aliens spawned by this controller.
+	std::int16_t delay; // delay before spawning another alien.
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // eaWallInfo
 
 
 // General Structure to hold goldstern specific stuff...
 //
 
-struct GoldsternInfo_t {
-    std::uint8_t LastIndex; // Last Spawn Coord Index
-    std::uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
-    std::uint16_t flags; // What type of command/operation is needed...
-    std::uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
-    bool GoldSpawned; // Has Goldstern been spawned?
+struct GoldsternInfo_t
+{
+	std::uint8_t LastIndex; // Last Spawn Coord Index
+	std::uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
+	std::uint16_t flags; // What type of command/operation is needed...
+	std::uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
+	bool GoldSpawned; // Has Goldstern been spawned?
 
-    void serialize(
-        bstone::BinaryWriter& writer,
-        bstone::Crc32& checksum) const;
+	void serialize(
+		bstone::BinaryWriter& writer,
+		bstone::Crc32& checksum) const;
 
-    void deserialize(
-        bstone::BinaryReader& reader,
-        bstone::Crc32& checksum);
+	void deserialize(
+		bstone::BinaryReader& reader,
+		bstone::Crc32& checksum);
 }; // GoldsternInfo_t
 
 
-struct star_t {
-    std::int32_t x;
-    std::int32_t y;
-    std::int32_t z;
-    std::uint8_t color;
+struct star_t
+{
+	std::int32_t x;
+	std::int32_t y;
+	std::int32_t z;
+	std::uint8_t color;
 }; // star_t
 
 
@@ -2934,21 +2985,10 @@ extern std::string mod_dir_;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
-// FIXME Unused
-#if 0
-extern std::int16_t view_xl;
-extern std::int16_t view_xh;
-extern std::int16_t view_yl;
-extern std::int16_t view_yh;
-#endif
-
 extern std::int16_t starting_level;
 extern std::int16_t debug_value;
 extern std::int16_t starting_episode;
 extern std::int16_t starting_difficulty;
-
-extern bool MS_CheckParm(
-    const std::string& value);
 
 extern std::int8_t lastmap_tilex;
 extern std::int8_t lastmap_tiley;
@@ -2999,64 +3039,41 @@ extern char configname[13];
 extern bool ShowQuickMsg;
 
 int DeleteChunk(
-    bstone::MemoryStream& stream,
-    const std::string& chunk_name);
+	bstone::MemoryStream& stream,
+	const std::string& chunk_name);
 
 void LoadFonts();
 void ClearNClose();
 void CycleColors();
-void LoadAccessCodes();
-void AlignPlayerInElevator();
 void HelpScreens();
-void OrderingInfo();
-void TEDDeath();
 
 void CalcProjection(
-    std::int32_t focal);
+	std::int32_t focal);
 
 void SetViewSize();
 void SetPlaneViewSize();
 
 void NewGame(
-    std::int16_t difficulty,
-    std::int16_t episode);
+	std::int16_t difficulty,
+	std::int16_t episode);
 
 void NewViewSize();
 
 std::uint16_t scan_atoi(
-    const char* s);
-
-void AlignPlayerOnTransporter();
-
-std::uint16_t UseFunc(
-    const char* first,
-    const char* next);
+	const char* s);
 
 bool DoMovie(
-    movie_t movie,
-    void* palette);
+	movie_t movie,
+	void* palette);
 
 bool CheckDiskSpace(
-    std::int32_t needed,
-    const char* text,
-    cds_io_type io_type);
+	std::int32_t needed,
+	const char* text,
+	cds_io_type io_type);
 
 bool SaveTheGame(
-    const std::string& file_name,
-    const std::string& description);
-
-std::int32_t ChecksumFile(
-    const std::string& file,
-    std::int32_t checksum);
-
-void BadChecksum();
-
-void CheckValidity(
-    char* file,
-    std::int32_t valid_checksum);
-
-void UnauthorizedLevels();
-void ShowChecksums();
+	const std::string& file_name,
+	const std::string& description);
 
 void SetupWalls();
 void InitDigiMap();
@@ -3068,11 +3085,11 @@ void InitDestPath();
 
 // On success current stream position is at chunk's data.
 int FindChunk(
-    bstone::Stream* stream,
-    const std::string& dst_chunk_name);
+	bstone::Stream* stream,
+	const std::string& dst_chunk_name);
 
 int NextChunk(
-    bstone::Stream* stream);
+	bstone::Stream* stream);
 
 /*
 =============================================================================
@@ -3103,51 +3120,49 @@ extern std::int16_t doornum;
 void DrawPlayBorder();
 void ScanInfoPlane();
 void SetupGameLevel();
-void NormalScreen();
 void DrawPlayScreen(bool);
-void FizzleOut();
 void GameLoop();
 
 
 void Warped();
 
 void RotateView(
-    std::int16_t DestAngle,
-    std::uint8_t RotSpeed);
+	std::int16_t DestAngle,
+	std::uint8_t RotSpeed);
 
 void DrawWarpIn();
 
 void BMAmsg(
-    const char* msg);
+	const char* msg);
 
 void CacheBMAmsg(
-    std::uint16_t MsgNum);
+	std::uint16_t MsgNum);
 
 void BevelBox(
-    std::int16_t xl,
-    std::int16_t yl,
-    std::int16_t w,
-    std::int16_t h,
-    std::uint8_t hi,
-    std::uint8_t med,
-    std::uint8_t lo);
+	std::int16_t xl,
+	std::int16_t yl,
+	std::int16_t w,
+	std::int16_t h,
+	std::uint8_t hi,
+	std::uint8_t med,
+	std::uint8_t lo);
 
 void AddTotalPoints(
-    std::uint16_t points);
+	std::uint16_t points);
 
 void AddTotalInformants(
-    std::int8_t informants);
+	std::int8_t informants);
 
 void AddTotalEnemy(
-    std::uint16_t enemies);
+	std::uint16_t enemies);
 
 void ShadowPrintLocationText(
-    sp_type type);
+	sp_type type);
 
 void LoseScreen();
 
 void LoadLocationText(
-    std::int16_t textNum);
+	std::int16_t textNum);
 
 /*
 =============================================================================
@@ -3240,20 +3255,16 @@ void InitActorList();
 void GetNewActor();
 
 void RemoveObj(
-    objtype* gone);
+	objtype* gone);
 
 void PollControls();
 void StopMusic();
 
 void StartMusic(
-    bool startit);
+	bool startit);
 
 void PlayLoop();
 
-void ChangeSwapFiles(
-    bool display);
-
-void OpenPageFile();
 void CheckMusicToggle();
 
 /*
@@ -3265,7 +3276,6 @@ void CheckMusicToggle();
 */
 
 bool DebugKeys();
-void CalcMemFree();
 
 
 /*
@@ -3332,54 +3342,34 @@ extern std::uint16_t pwallpos;
 extern bool cloaked_shape;
 
 fixed FixedByFrac(
-    fixed a,
-    fixed b);
+	fixed a,
+	fixed b);
 
 void TransformActor(
-    objtype* ob);
+	objtype* ob);
 
 void BuildTables();
 
-void ClearScreen();
-
 std::int16_t CalcRotate(
-    objtype* ob);
+	objtype* ob);
 
 void DrawScaleds();
 void CalcTics();
 void ThreeDRefresh();
 void FarScalePost();
-void DrawStars();
 
 bool TransformTile(
-    std::int16_t tx,
-    std::int16_t ty,
-    std::int16_t* dispx,
-    std::int16_t* dispheight);
-
-void WrapTransformActor(
-    objtype* ob);
-
-void ComputeActorPosition(
-    objtype* ob,
-    std::int8_t adjust_x,
-    std::int8_t adjust_y);
-
-void WrapDrawScaleds();
-
-bool WrapActorPosition(
-    objtype* obj);
-
-void WrapStaticPosition(
-    statobj_t* statptr,
-    visobj_t* visptr);
+	std::int16_t tx,
+	std::int16_t ty,
+	std::int16_t* dispx,
+	std::int16_t* dispheight);
 
 void ShowOverhead(
-    int bx,
-    int by,
-    int radius,
-    int zoom,
-    int flags);
+	int bx,
+	int by,
+	int radius,
+	int zoom,
+	int flags);
 
 void UpdateTravelTable();
 
@@ -3393,7 +3383,7 @@ void UpdateTravelTable();
 */
 extern std::uint16_t CeilingTile;
 extern std::uint16_t FloorTile;
-extern void (* MapRowPtr)();
+extern void(*MapRowPtr)();
 
 void DrawPlanes();
 
@@ -3417,75 +3407,64 @@ extern dirtype diagonal[9][9];
 
 
 void SeekPlayerOrStatic(
-    objtype* ob,
-    std::int16_t* deltax,
-    std::int16_t* deltay);
+	objtype* ob,
+	std::int16_t* deltax,
+	std::int16_t* deltay);
 
 std::uint16_t CheckRunChase(
-    objtype* ob);
+	objtype* ob);
 
 void GetCornerSeek(
-    objtype* ob);
+	objtype* ob);
 
 bool LookForGoodies(
-    objtype* ob,
-    std::uint16_t RunReason);
-
-void InitHitRect(
-    objtype* ob,
-    std::uint16_t radius);
+	objtype* ob,
+	std::uint16_t RunReason);
 
 void SpawnNewObj(
-    std::uint16_t tilex,
-    std::uint16_t tiley,
-    statetype* state);
+	std::uint16_t tilex,
+	std::uint16_t tiley,
+	statetype* state);
 
 void NewState(
-    objtype* ob,
-    statetype* state);
+	objtype* ob,
+	statetype* state);
 
 bool TryWalk(
-    objtype* ob,
-    bool moveit);
+	objtype* ob,
+	bool moveit);
 
 void SelectChaseDir(
-    objtype* ob);
+	objtype* ob);
 
 void SelectDodgeDir(
-    objtype* ob);
+	objtype* ob);
 
 void MoveObj(
-    objtype* ob,
-    std::int32_t move);
+	objtype* ob,
+	std::int32_t move);
 
 void KillActor(
-    objtype* ob);
+	objtype* ob);
 
 void DamageActor(
-    objtype* ob,
-    std::uint16_t damage,
-    objtype* attacker);
+	objtype* ob,
+	std::uint16_t damage,
+	objtype* attacker);
 
 bool CheckLine(
-    objtype* from_obj,
-    objtype* to_obj);
+	objtype* from_obj,
+	objtype* to_obj);
 
 bool CheckSight(
-    objtype* from_obj,
-    objtype* to_obj);
-
-bool PosVisable(
-    fixed from_x,
-    fixed from_y,
-    fixed to_x,
-    fixed to_y,
-    std::int16_t from_angle);
+	objtype* from_obj,
+	objtype* to_obj);
 
 bool PlayerIsBlocking(
-    objtype* ob);
+	objtype* ob);
 
 void MakeAlertNoise(
-    objtype* obj);
+	objtype* obj);
 
 objtype* CheckAndReserve();
 
@@ -3501,11 +3480,12 @@ objtype* CheckAndReserve();
 
 #define COMPSCALECODESTART (65 * 4) // offset to start of code in comp scaler
 
-struct t_compshape {
-    std::uint16_t leftpix, rightpix;
-    std::uint16_t dataofs[64];
+struct t_compshape
+{
+	std::uint16_t leftpix, rightpix;
+	std::uint16_t dataofs[64];
 
-    // table data after dataofs[rightpix-leftpix+1]
+	// table data after dataofs[rightpix-leftpix+1]
 }; // t_compshape
 
 extern int maxscale;
@@ -3517,20 +3497,18 @@ extern int normalshade_div;
 extern int shade_max;
 
 
-void FreeScaleDirectory();
-
 void SetupScaling(
-    int maxscaleheight);
+	int maxscaleheight);
 
 void ScaleShape(
-    int xcenter,
-    int shapenum,
-    int height);
+	int xcenter,
+	int shapenum,
+	int height);
 
 // BBi
 void scale_player_weapon(
-    const int sprite_id,
-    const int height);
+	const int sprite_id,
+	const int height);
 
 
 /*
@@ -3600,137 +3578,119 @@ extern std::uint16_t LastMsgPri;
 extern std::int16_t MsgTicsRemain;
 
 void GivePoints(
-    std::int32_t score,
-    bool add_to_stats);
+	std::int32_t score,
+	bool add_to_stats);
 
 void SpawnPlayer(
-    std::int16_t tilex,
-    std::int16_t tiley,
-    std::int16_t dir);
-
-void DrawCash();
-void UpdateHealth();
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::int16_t dir);
 
 void DrawAmmoGuage();
 void DrawAmmoMsg();
 
 void DrawAmmo(
-    bool ForceRefresh);
+	bool ForceRefresh);
 
 bool DisplayInfoMsg(
-    const char* Msg,
-    msg_priorities Priority,
-    std::int16_t DisplayTime,
-    std::int16_t MessageType);
+	const char* Msg,
+	msg_priorities Priority,
+	std::int16_t DisplayTime,
+	std::int16_t MessageType);
 
 bool DisplayInfoMsg(
-    const std::string& Msg,
-    msg_priorities Priority,
-    std::int16_t DisplayTime,
-    std::int16_t MessageType);
+	const std::string& Msg,
+	msg_priorities Priority,
+	std::int16_t DisplayTime,
+	std::int16_t MessageType);
 
 void UpdateInfoAreaClock();
 void UpdateInfoArea();
 void DrawHealthMonitor();
-void CalcHealthDisplay();
 void UpdateScore();
 
 std::uint8_t ValidAreaTile(
-    const std::uint16_t* ptr);
+	const std::uint16_t* ptr);
 
 std::int8_t GetAreaNumber(
-    int tilex,
-    int tiley);
+	int tilex,
+	int tiley);
 
 std::int16_t InputFloor();
-void RestoreInfoArea();
-void DrawHeartPic();
 void DrawInfoArea();
 void AnimatePage();
 
-void ActivateTerminal(bool);
-
-void TerminalPrint(
-    char* msg,
-    bool FastPrint);
-
-void FloorCheat(
-    std::uint16_t RadarFlags);
-
 bool Interrogate(
-    objtype* ob);
+	objtype* ob);
 
 void GiveKey(
-    std::int16_t key);
+	std::int16_t key);
 
 void TakeKey(
-    std::int16_t key);
+	std::int16_t key);
 
 void GiveToken(
-    std::int16_t tokens);
+	std::int16_t tokens);
 
 void TakePlasmaDetonator(
-    std::int16_t count);
+	std::int16_t count);
 
 void GivePlasmaDetonator(
-    std::int16_t count);
+	std::int16_t count);
 
 void CacheDrawPic(
-    int x,
-    int y,
-    int pic);
-
-void LoadTerminalCommands();
+	int x,
+	int y,
+	int pic);
 
 // BBi
 void store_cross_barrier(
-    std::uint8_t level,
-    std::uint8_t x,
-    std::uint8_t y,
-    bool state);
+	std::uint8_t level,
+	std::uint8_t x,
+	std::uint8_t y,
+	bool state);
 
 void apply_cross_barriers();
 // BBi
 
 void ActivateWallSwitch(
-    std::uint16_t iconnum,
-    std::int16_t x,
-    std::int16_t y);
+	std::uint16_t iconnum,
+	std::int16_t x,
+	std::int16_t y);
 
 std::uint16_t UpdateBarrierTable(
-    std::uint8_t level,
-    std::uint8_t x,
-    std::uint8_t y,
-    bool OnOff);
+	std::uint8_t level,
+	std::uint8_t x,
+	std::uint8_t y,
+	bool OnOff);
 
 std::uint16_t ScanBarrierTable(
-    std::uint8_t x,
-    std::uint8_t y);
+	std::uint8_t x,
+	std::uint8_t y);
 
 void DisplaySwitchOperateMsg(
-    int coords);
+	int coords);
 
 void DisplayNoMoMsgs();
 
 void PrintStatPercent(
-    std::int16_t nx,
-    std::int16_t ny,
-    std::int8_t percentage);
+	std::int16_t nx,
+	std::int16_t ny,
+	std::int8_t percentage);
 
 std::int16_t ShowStats(
-    std::int16_t bx,
-    std::int16_t by,
-    ss_type type,
-    statsInfoType* stats);
+	std::int16_t bx,
+	std::int16_t by,
+	ss_type type,
+	statsInfoType* stats);
 
 bool PerfectStats();
-bool CheckPerfectStats();
 
 bool OperateSmartSwitch(
-    std::uint16_t tilex,
-    std::uint16_t tiley,
-    std::int8_t Operation,
-    bool Force);
+	std::uint16_t tilex,
+	std::uint16_t tiley,
+	std::int8_t Operation,
+	bool Force);
 
 /*
 =============================================================================
@@ -3768,102 +3728,91 @@ extern std::int16_t pwalldist;
 statobj_t* ReserveStatic();
 
 void SpawnStatic(
-    std::int16_t tilex,
-    std::int16_t tiley,
-    std::int16_t type);
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::int16_t type);
 
 void SpawnDoor(
-    std::int16_t tilex,
-    std::int16_t tiley,
-    bool vertical,
-    keytype lock,
-    door_t type);
+	std::int16_t tilex,
+	std::int16_t tiley,
+	bool vertical,
+	keytype lock,
+	door_t type);
 
 void OperateConcession(
-    std::uint16_t concession);
+	std::uint16_t concession);
 
 void SpawnConcession(
-    std::int16_t tilex,
-    std::int16_t tiley,
-    std::uint16_t credits,
-    std::uint16_t machinetype);
-
-std::uint16_t LoadConcessionHint(
-    std::uint16_t MsgNum);
-
-void CacheInfoAreaMsg(
-    std::uint16_t block,
-    std::uint16_t MsgNum,
-    char* hint_buffer,
-    std::uint16_t MaxBufferLen);
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::uint16_t credits,
+	std::uint16_t machinetype);
 
 void CheckSpawnEA();
 
 std::int16_t TransformAreas(
-    std::int8_t tilex,
-    std::int8_t tiley,
-    std::int8_t xform);
+	std::int8_t tilex,
+	std::int8_t tiley,
+	std::int8_t xform);
 
 
 void CheckSpawnGoldstern();
 void FindNewGoldieSpawnSite();
 
 void InitMsgCache(
-    mCacheList* mList,
-    std::uint16_t listSize,
-    std::uint16_t infoSize);
+	mCacheList* mList,
+	std::uint16_t listSize,
+	std::uint16_t infoSize);
 
 void FreeMsgCache(
-    mCacheList* mList,
-    std::uint16_t listSize);
+	mCacheList* mList,
+	std::uint16_t listSize);
 
 void CacheMsg(
-    mCacheInfo* ci,
-    std::uint16_t SegNum,
-    std::uint16_t MsgNum);
+	mCacheInfo* ci,
+	std::uint16_t SegNum,
+	std::uint16_t MsgNum);
 
 std::int16_t LoadMsg(
-    char* hint_buffer,
-    std::uint16_t SegNum,
-    std::uint16_t MsgNum,
-    std::uint16_t MaxMsgLen);
-
-void CacheConcessionMsg();
+	char* hint_buffer,
+	std::uint16_t SegNum,
+	std::uint16_t MsgNum,
+	std::uint16_t MaxMsgLen);
 
 bool ReuseMsg(
-    mCacheInfo* ci,
-    std::int16_t count,
-    std::int16_t struct_size);
+	mCacheInfo* ci,
+	std::int16_t count,
+	std::int16_t struct_size);
 
 void DropPlasmaDetonator();
 
 void BlockDoorOpen(
-    std::int16_t door);
+	std::int16_t door);
 
 void BlastNearDoors(
-    std::int16_t tilex,
-    std::int16_t tiley);
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 void TryBlastDoor(
-    std::int8_t door);
+	std::int8_t door);
 
 statobj_t* FindStatic(
-    std::uint16_t tilex,
-    std::uint16_t tiley);
+	std::uint16_t tilex,
+	std::uint16_t tiley);
 
 statobj_t* UseReservedStatic(
-    std::int16_t itemtype,
-    std::int16_t tilex,
-    std::int16_t tiley);
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 void PlaceReservedItemNearTile(
-    std::int16_t itemtype,
-    std::int16_t tilex,
-    std::int16_t tiley);
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 void ExplodeStatics(
-    std::int16_t tilex,
-    std::int16_t tiley);
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 
 /*
@@ -3878,12 +3827,6 @@ void ExplodeStatics(
 
 
 #define BARRIER_STATE(obj) ((obj)->ammo)
-
-void MakeFakeStatic(
-    objtype* ob);
-
-void UnmakeFakeStatic(
-    objtype* ob);
 
 extern std::int8_t detonators_spawned;
 
@@ -4021,153 +3964,138 @@ extern statetype s_vpost_barrier;
 extern statetype s_spike_barrier;
 
 void T_PainThink(
-    objtype* obj);
+	objtype* obj);
 
 void T_ExplodeScout(
-    objtype* obj);
+	objtype* obj);
 
 void T_Security(
-    objtype* obj);
+	objtype* obj);
 
 void T_ChangeShape(
-    objtype* obj);
+	objtype* obj);
 
 void T_MakeOffset(
-    objtype* obj);
+	objtype* obj);
 
 void T_LiquidStand(
-    objtype* obj);
-
-void PlaceTowardPlayer(
-    objtype* obj);
+	objtype* obj);
 
 void T_Seek(
-    objtype* ob);
+	objtype* ob);
 
 void SpawnProjectile(
-    objtype* shooter,
-    classtype class_type);
+	objtype* shooter,
+	classtype class_type);
 
 void SpawnStand(
-    enemy_t which,
-    std::int16_t tilex,
-    std::int16_t tiley,
-    std::int16_t dir);
+	enemy_t which,
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::int16_t dir);
 
 void SpawnPatrol(
-    enemy_t which,
-    std::int16_t tilex,
-    std::int16_t tiley,
-    std::int16_t dir);
+	enemy_t which,
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::int16_t dir);
 
 void KillActor(
-    objtype* ob);
+	objtype* ob);
 
 void US_ControlPanel(
-    ScanCode scan_code);
-
-std::int16_t IntSqrt(
-    std::int32_t va);
-
-std::uint16_t CalcDistance(
-    std::uint16_t x1,
-    std::uint16_t y1,
-    std::uint16_t x2,
-    std::uint16_t y2);
+	ScanCode scan_code);
 
 void T_Hit(
-    objtype* ob);
+	objtype* ob);
 
 void SpawnOffsetObj(
-    enemy_t which,
-    std::int16_t tilex,
-    std::int16_t tiley);
+	enemy_t which,
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 
 void InitSmartAnimStruct(
-    objtype* obj,
-    std::uint16_t ShapeNum,
-    std::uint8_t StartOfs,
-    std::uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir);
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir);
 
 bool AnimateOfsObj(
-    objtype* obj);
-
-void AdvanceAnimREV(
-    objtype* obj);
+	objtype* obj);
 
 void AdvanceAnimFWD(
-    objtype* obj);
+	objtype* obj);
 
 void SpawnCusExplosion(
-    fixed x,
-    fixed y,
-    std::uint16_t StartFrame,
-    std::uint16_t NumFrames,
-    std::uint16_t Delay,
-    std::uint16_t Class);
+	fixed x,
+	fixed y,
+	std::uint16_t StartFrame,
+	std::uint16_t NumFrames,
+	std::uint16_t Delay,
+	std::uint16_t Class);
 
 void T_SpawnExplosion(
-    objtype* obj);
+	objtype* obj);
 
 void T_ExplodeDamage(
-    objtype* obj);
+	objtype* obj);
 
 void ExplodeRadius(
-    objtype* obj,
-    std::int16_t damage,
-    bool damageplayer);
+	objtype* obj,
+	std::int16_t damage,
+	bool damageplayer);
 
 extern statetype s_barrier_transition;
 extern statetype s_barrier_shutdown;
 
 void SpawnBarrier(
-    enemy_t which,
-    std::int16_t tilex,
-    std::int16_t tiley,
-    bool OnOff);
+	enemy_t which,
+	std::int16_t tilex,
+	std::int16_t tiley,
+	bool OnOff);
 
 void ToggleBarrier(
-    objtype* obj);
+	objtype* obj);
 
 void InitAnim(
-    objtype* obj,
-    std::uint16_t ShapeNum,
-    std::uint8_t StartOfs,
-    std::uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir,
-    std::uint16_t Delay,
-    std::uint16_t WaitDelay);
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir,
+	std::uint16_t Delay,
+	std::uint16_t WaitDelay);
 
 objtype* FindObj(
-    classtype which,
-    std::int16_t tilex,
-    std::int16_t tiley);
+	classtype which,
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 objtype* FindHiddenOfs(
-    classtype which);
+	classtype which);
 
 void SpawnHiddenOfs(
-    enemy_t which,
-    std::int16_t tilex,
-    std::int16_t tiley);
+	enemy_t which,
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 objtype* MoveHiddenOfs(
-    classtype which_class,
-    classtype new1,
-    fixed x,
-    fixed y);
+	classtype which_class,
+	classtype new1,
+	fixed x,
+	fixed y);
 
 void CheckForSpecialTile(
-    objtype* obj,
-    std::uint16_t tilex,
-    std::uint16_t tiley);
+	objtype* obj,
+	std::uint16_t tilex,
+	std::uint16_t tiley);
 
 void DropCargo(
-    objtype* obj);
+	objtype* obj);
 
 
 /*
@@ -4182,7 +4110,6 @@ extern char helpfilename[];
 extern char endfilename[];
 
 extern void HelpScreens();
-extern void EndText();
 
 
 /*
@@ -4256,22 +4183,20 @@ extern std::string pd_floornotlocked;
 
 extern char BreifingText[];
 
-void UpdateScreenPic();
-
 void DisplayPrepingMsg(
-    const char* text);
+	const char* text);
 
 bool Breifing(
-    breifing_type BreifingType,
-    std::uint16_t episode);
+	breifing_type BreifingType,
+	std::uint16_t episode);
 
 void ShPrint(
-    const char* text,
-    std::int8_t shadow_color,
-    bool single_char);
+	const char* text,
+	std::int8_t shadow_color,
+	bool single_char);
 
 std::uint16_t Random(
-    std::uint16_t Max);
+	std::uint16_t Max);
 
 
 // ===========================================================================
@@ -4283,17 +4208,17 @@ std::uint16_t Random(
 extern bool EscPressed;
 
 void DrawInstructions(
-    inst_type Type);
+	inst_type Type);
 
 void CacheMessage(
-    std::uint16_t MessageNum);
+	std::uint16_t MessageNum);
 
 void TerminateStr(
-    char* pos);
+	char* pos);
 
 std::uint32_t CacheCompData(
-    std::uint16_t ItemNum,
-    void** dest_loc);
+	std::uint16_t ItemNum,
+	void** dest_loc);
 
 
 // ===========================================================================
@@ -4312,22 +4237,22 @@ using Buffer = std::vector<unsigned char>;
 
 
 objtype* ui16_to_actor(
-    std::uint16_t value);
+	std::uint16_t value);
 
 std::uint16_t actor_to_ui16(
-    const objtype* actor);
+	const objtype* actor);
 
 statobj_t* ui16_to_static_object(
-    std::uint16_t value);
+	std::uint16_t value);
 
 std::uint16_t static_object_to_ui16(
-    const statobj_t* static_object);
+	const statobj_t* static_object);
 
 doorobj_t* ui16_to_door_object(
-    std::uint16_t value);
+	std::uint16_t value);
 
 std::uint16_t door_object_to_ui16(
-    const doorobj_t* door_object);
+	const doorobj_t* door_object);
 
 extern bool g_no_wall_hit_sound;
 extern bool g_always_run;
@@ -4341,23 +4266,24 @@ extern bool g_no_intro_outro;
 extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 
 
-class ArchiveException : public std::exception {
+class ArchiveException : public std::exception
+{
 public:
-    explicit ArchiveException(
-        const char* message) throw ();
+	explicit ArchiveException(
+		const char* message) throw ();
 
-    ArchiveException(
-        const ArchiveException& that) throw ();
+	ArchiveException(
+		const ArchiveException& that) throw ();
 
-    virtual ~ArchiveException() throw ();
+	virtual ~ArchiveException() throw ();
 
-    ArchiveException& operator=(
-        const ArchiveException& that) throw ();
+	ArchiveException& operator=(
+		const ArchiveException& that) throw ();
 
-    virtual const char* what() const throw ();
+	virtual const char* what() const throw ();
 
 private:
-    const char* message_;
+	const char* message_;
 }; // ArchiveException
 
 
@@ -4365,21 +4291,21 @@ template<typename T>
 class ArchiveIsContainter
 {
 public:
-    static const bool value = false;
+	static const bool value = false;
 }; // ArchiveIsContainter
 
 template<typename T, std::size_t N>
-class ArchiveIsContainter<std::array<T,N>>
+class ArchiveIsContainter<std::array<T, N>>
 {
 public:
-    static const bool value = true;
+	static const bool value = true;
 }; // ArchiveIsContainter
 
 template<typename T, typename... TArgs>
-class ArchiveIsContainter<std::vector<T,TArgs...>>
+class ArchiveIsContainter<std::vector<T, TArgs...>>
 {
 public:
-    static const bool value = true;
+	static const bool value = true;
 }; // ArchiveIsContainter
 
 
@@ -4403,32 +4329,33 @@ template<typename T>
 class ArchiveRemapTag
 {
 public:
-    using Type = typename std::conditional<
-        std::is_same<T,char>::value ||
-            std::is_same<T,bool>::value ||
-            std::is_same<T,keytype>::value ||
-            std::is_same<T,door_t>::value ||
-            std::is_same<T,DoorAction>::value ||
-            std::is_same<T,activetype>::value ||
-            std::is_same<T,classtype>::value ||
-            std::is_same<T,dirtype>::value ||
-            std::is_same<T,ScanCode>::value,
-        ArchiveRemapU8Tag,
-        typename std::conditional<
-            ArchiveIsContainter<T>::value,
-            ArchiveRemapContainerTag,
-            ArchiveRemapNoneTag>::type
-    >::type;
+	using Type = typename std::conditional<
+		std::is_same<T, char>::value ||
+		std::is_same<T, bool>::value ||
+		std::is_same<T, keytype>::value ||
+		std::is_same<T, door_t>::value ||
+		std::is_same<T, DoorAction>::value ||
+		std::is_same<T, activetype>::value ||
+		std::is_same<T, classtype>::value ||
+		std::is_same<T, dirtype>::value ||
+		std::is_same<T, ScanCode>::value,
+		ArchiveRemapU8Tag,
+		typename std::conditional<
+		ArchiveIsContainter<T>::value,
+		ArchiveRemapContainerTag,
+		ArchiveRemapNoneTag>::type
+	>::type;
 }; // RemapTag
 
 
 // Contains an id for enumeration or integral type.
 template<typename T>
-class ArchiveIEId {
+class ArchiveIEId
+{
 public:
-    static const int value = (
-        std::is_integral<T>::value ?
-            1 : (std::is_enum<T>::value ? 2 : 0));
+	static const int value = (
+		std::is_integral<T>::value ?
+		1 : (std::is_enum<T>::value ? 2 : 0));
 };
 
 // Remaps enumeration or integral type to integral type.
@@ -4436,32 +4363,33 @@ template<typename T, int>
 class ArchiveIETag;
 
 template<typename T>
-class ArchiveIETag<T,1>
+class ArchiveIETag<T, 1>
 {
 public:
-    using Type = T;
+	using Type = T;
 };
 
 template<typename T>
-class ArchiveIETag<T,2>
+class ArchiveIETag<T, 2>
 {
 public:
-    using Type = typename std::underlying_type<T>::type;
+	using Type = typename std::underlying_type<T>::type;
 };
 
 template<typename T>
 using ArchiveIEType =
-    typename ArchiveIETag<T, ArchiveIEId<T>::value>::Type;
+typename ArchiveIETag<T, ArchiveIEId<T>::value>::Type;
 
 
 // Contains an id of signed or unsigned integral type.
 template<typename T>
-class ArchiveSignX8Id {
+class ArchiveSignX8Id
+{
 public:
-    static const int value = (
-        std::is_integral<T>::value ?
-            (std::is_signed<T>::value ? 1 : 2) :
-            0);
+	static const int value = (
+		std::is_integral<T>::value ?
+		(std::is_signed<T>::value ? 1 : 2) :
+		0);
 };
 
 // Remaps integral type to appropriate 8-bit signed/unsigned type.
@@ -4469,246 +4397,259 @@ template<typename T, int>
 class ArchiveSignX8Tag;
 
 template<typename T>
-class ArchiveSignX8Tag<T,1>
+class ArchiveSignX8Tag<T, 1>
 {
 public:
-    using Type = std::int8_t;
+	using Type = std::int8_t;
 };
 
 template<typename T>
-class ArchiveSignX8Tag<T,2>
+class ArchiveSignX8Tag<T, 2>
 {
 public:
-    using Type = std::uint8_t;
+	using Type = std::uint8_t;
 };
 
 template<typename T>
 using ArchiveX8Type =
-    typename ArchiveSignX8Tag<T, ArchiveSignX8Id<T>::value>::Type;
+typename ArchiveSignX8Tag<T, ArchiveSignX8Id<T>::value>::Type;
 
 
 template<typename T>
 inline void serialize_field_internal(
-    const T& value,
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum,
-    ArchiveRemapNoneTag)
+	const T& value,
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum,
+	ArchiveRemapNoneTag)
 {
-    checksum.update(value);
+	checksum.update(value);
 
 	const auto& endian = bstone::Endian{};
 
-    if (!writer.write(endian.little(value))) {
-        throw ArchiveException("serialize_field");
-    }
+	if (!writer.write(endian.little(value)))
+	{
+		throw ArchiveException("serialize_field");
+	}
 }
 
 template<typename T>
 inline void serialize_field_internal(
-    const T& value,
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum,
-    ArchiveRemapU8Tag)
+	const T& value,
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum,
+	ArchiveRemapU8Tag)
 {
-    auto target_value = static_cast<std::uint8_t>(value);
+	auto target_value = static_cast<std::uint8_t>(value);
 
-    checksum.update(target_value);
+	checksum.update(target_value);
 
-    if (!writer.write(target_value)) {
-        throw ArchiveException("serialize_field");
-    }
+	if (!writer.write(target_value))
+	{
+		throw ArchiveException("serialize_field");
+	}
 }
 
 template<typename T>
 inline void serialize_field(
-    const T& value,
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum);
+	const T& value,
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum);
 
 template<typename T>
 inline void serialize_field_internal(
-    const T& container,
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum,
-    ArchiveRemapContainerTag)
+	const T& container,
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum,
+	ArchiveRemapContainerTag)
 {
-    for (auto& item : container) {
-        ::serialize_field(item, writer, checksum);
-    }
+	for (auto& item : container)
+	{
+		::serialize_field(item, writer, checksum);
+	}
 }
 
 template<typename T>
 inline void serialize_field(
-    const T& value,
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum)
+	const T& value,
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum)
 {
-    ::serialize_field_internal(
-        value,
-        writer,
-        checksum,
-        typename ArchiveRemapTag<T>::Type());
+	::serialize_field_internal(
+		value,
+		writer,
+		checksum,
+		typename ArchiveRemapTag<T>::Type());
 }
 
 template<typename T, std::size_t N>
 inline void serialize_field(
-    const T(&value)[N],
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum)
+	const T(&value)[N],
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum)
 {
-    for (std::size_t i = 0; i < N; ++i) {
-        ::serialize_field(value[i], writer, checksum);
-    }
+	for (std::size_t i = 0; i < N; ++i)
+	{
+		::serialize_field(value[i], writer, checksum);
+	}
 }
 
 template<typename T, std::size_t M, std::size_t N>
 inline void serialize_field(
-    const T(&value)[M][N],
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum)
+	const T(&value)[M][N],
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum)
 {
-    for (std::size_t i = 0; i < M; ++i) {
-        for (std::size_t j = 0; j < N; ++j) {
-            ::serialize_field(value[i][j], writer, checksum);
-        }
-    }
+	for (std::size_t i = 0; i < M; ++i)
+	{
+		for (std::size_t j = 0; j < N; ++j)
+		{
+			::serialize_field(value[i][j], writer, checksum);
+		}
+	}
 }
 
 template<typename T>
 inline void deserialize_field(
-    T& value,
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum);
+	T& value,
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum);
 
 template<typename T>
 inline void deserialize_field_internal(
-    T& value,
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum,
-    ArchiveRemapNoneTag)
+	T& value,
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum,
+	ArchiveRemapNoneTag)
 {
-    if (!reader.read(value)) {
-        throw ArchiveException("deserialize_field");
-    }
+	if (!reader.read(value))
+	{
+		throw ArchiveException("deserialize_field");
+	}
 
 	const auto& endian = bstone::Endian{};
 
-    endian.little_i(value);
+	endian.little_i(value);
 
-    checksum.update(value);
+	checksum.update(value);
 }
 
 template<typename T>
 inline void deserialize_field_internal(
-    T& value,
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum,
-    ArchiveRemapU8Tag)
+	T& value,
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum,
+	ArchiveRemapU8Tag)
 {
-    // Get proper signed/unsigned 8-bit type based on value's one.
-    using ValueType = ArchiveIEType<T>;
-    using ValueX8Type = ArchiveX8Type<ValueType>;
+	// Get proper signed/unsigned 8-bit type based on value's one.
+	using ValueType = ArchiveIEType<T>;
+	using ValueX8Type = ArchiveX8Type<ValueType>;
 
-    ValueX8Type source_value = 0;
+	ValueX8Type source_value = 0;
 
-    if (!reader.read(source_value)) {
-        throw ArchiveException("deserialize_field");
-    }
+	if (!reader.read(source_value))
+	{
+		throw ArchiveException("deserialize_field");
+	}
 
-    checksum.update(source_value);
+	checksum.update(source_value);
 
-    value = static_cast<T>(source_value);
+	value = static_cast<T>(source_value);
 }
 
 template<>
 inline void deserialize_field_internal<bool>(
-    bool& value,
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum,
-    ArchiveRemapU8Tag)
+	bool& value,
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum,
+	ArchiveRemapU8Tag)
 {
-    std::uint8_t source_value = 0;
+	std::uint8_t source_value = 0;
 
-    if (!reader.read(source_value)) {
-        throw ArchiveException("deserialize_field");
-    }
+	if (!reader.read(source_value))
+	{
+		throw ArchiveException("deserialize_field");
+	}
 
-    checksum.update(source_value);
+	checksum.update(source_value);
 
-    value = (source_value != 0 ? true : false);
+	value = (source_value != 0 ? true : false);
 }
 
 template<typename T>
 inline void deserialize_field_internal(
-    T& container,
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum,
-    ArchiveRemapContainerTag)
+	T& container,
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum,
+	ArchiveRemapContainerTag)
 {
-    for (auto& item : container) {
-        ::deserialize_field(item, reader, checksum);
-    }
+	for (auto& item : container)
+	{
+		::deserialize_field(item, reader, checksum);
+	}
 }
 
 template<typename T>
 inline void deserialize_field(
-    T& value,
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	T& value,
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field_internal(
-        value,
-        reader,
-        checksum,
-        typename ArchiveRemapTag<T>::Type());
+	::deserialize_field_internal(
+		value,
+		reader,
+		checksum,
+		typename ArchiveRemapTag<T>::Type());
 }
 
 template<typename T, std::size_t N>
 inline void deserialize_field(
-    T(&value)[N],
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	T(&value)[N],
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    for (std::size_t i = 0; i < N; ++i) {
-        ::deserialize_field(value[i], reader, checksum);
-    }
+	for (std::size_t i = 0; i < N; ++i)
+	{
+		::deserialize_field(value[i], reader, checksum);
+	}
 }
 
 template<typename T, std::size_t M, std::size_t N>
 inline void deserialize_field(
-    T(&value)[M][N],
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	T(&value)[M][N],
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    for (std::size_t i = 0; i < M; ++i) {
-        for (std::size_t j = 0; j < N; ++j) {
-            ::deserialize_field(value[i][j], reader, checksum);
-        }
-    }
+	for (std::size_t i = 0; i < M; ++i)
+	{
+		for (std::size_t j = 0; j < N; ++j)
+		{
+			::deserialize_field(value[i][j], reader, checksum);
+		}
+	}
 }
 
 
 void InitSmartSpeedAnim(
-    objtype* obj,
-    std::uint16_t ShapeNum,
-    std::uint8_t StartOfs,
-    std::uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir,
-    std::uint16_t Delay);
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir,
+	std::uint16_t Delay);
 
 void InitSmartAnim(
-    objtype* obj,
-    std::uint16_t ShapeNum,
-    std::uint8_t StartOfs,
-    std::uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir);
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir);
 
 
 inline double m_pi()
 {
-    return 3.14159265358979323846;
+	return 3.14159265358979323846;
 }
 
 

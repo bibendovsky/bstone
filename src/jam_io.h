@@ -53,10 +53,11 @@ Free Software Foundation, Inc.,
 //
 //      COMPRESSION TYPES
 //
-enum ct_TYPES {
-    ct_NONE = 0, // No compression - Just data..Rarely used!
-    ct_LZW, // LZW data compression
-    ct_LZH,
+enum ct_TYPES
+{
+	ct_NONE = 0, // No compression - Just data..Rarely used!
+	ct_LZW, // LZW data compression
+	ct_LZH,
 
 }; // ct_TYPES
 
@@ -64,15 +65,17 @@ enum ct_TYPES {
 //      FILE CHUNK HEADER FORMATS
 //
 
-struct COMPStruct {
-    std::uint32_t DecompLen;
+struct COMPStruct
+{
+	std::uint32_t DecompLen;
 };
 
 
-struct JAMPHeader {
-    std::uint32_t OrginalLen; // Orginal FileLength of compressed Data.
-    ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    std::uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+struct JAMPHeader
+{
+	std::uint32_t OrginalLen; // Orginal FileLength of compressed Data.
+	ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
+	std::uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };
 
 

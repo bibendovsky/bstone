@@ -128,7 +128,6 @@ void TransformActor(
     objtype* ob);
 
 void BuildTables();
-void ClearScreen();
 
 std::int16_t CalcRotate(
     objtype* ob);
