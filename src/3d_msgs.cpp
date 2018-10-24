@@ -353,7 +353,8 @@ std::string bonus_msg27 =
 ;
 
 
-BonusMessages BonusMsg = {
+BonusMessages BonusMsg =
+{
 	bonus_msg1,
 	bonus_msg2,
 	bonus_msg4,
@@ -390,7 +391,7 @@ BonusMessages BonusMsg = {
 	empty_msg,
 	bonus_msg4a,
 	bonus_msg4b,
-};
+}; // BonusMsg
 
 
 // ---------------------------------------------------------------------------
@@ -656,7 +657,8 @@ std::string actor_info56 =
 ;
 
 
-ActorMessages ActorInfoMsg = {
+ActorMessages ActorInfoMsg =
+{
 	actor_info4, // Sector Patrol
 	actor_info5, // Turret
 	actor_info9, // Bio-Tech

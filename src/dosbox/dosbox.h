@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 #define BSTONE_DOSBOX_INCLUDED
 
 
+#include <cassert>
+#include <cmath>
 #include <cstdint>
 
 

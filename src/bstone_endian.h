@@ -46,7 +46,7 @@ enum class EndianId
 	none,
 	big = SDL_BIG_ENDIAN,
 	little = SDL_LIL_ENDIAN,
-	default = SDL_BYTEORDER,
+	native = SDL_BYTEORDER,
 }; // EndianId
 
 
@@ -212,7 +212,7 @@ struct Endian<EndianId::little> final
 } // detail
 
 
-using Endian = detail::Endian<EndianId::default>;
+using Endian = detail::Endian<EndianId::native>;
 
 
 } // bstone

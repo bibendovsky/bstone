@@ -27,9 +27,12 @@ Free Software Foundation, Inc.,
 
 
 #include <cmath>
+#include <array>
+#include <functional>
 #include <vector>
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
+#include "bstone_endian.h"
 #include "bstone_crc32.h"
 
 
@@ -4131,11 +4134,11 @@ extern std::string bevs_msg1;
 extern std::string food_msg1;
 
 extern std::string bonus_msg7;
-
 extern std::string bonus_msg26;
 
 extern BonusMessages BonusMsg;
 extern ActorMessages ActorInfoMsg;
+
 extern std::string ekg_heartbeat_enabled;
 extern std::string ekg_heartbeat_disabled;
 extern std::string attacker_info_enabled;
