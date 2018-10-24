@@ -7558,7 +7558,7 @@ void read_text_config()
 
     if (stream.is_open())
     {
-        bstone::TextReader reader{&stream};
+		auto reader = bstone::TextReader{&stream};
 
         if (reader.is_open())
         {
