@@ -3654,7 +3654,7 @@ void LoadOverheadChunk(
 
     bool is_succeed = true;
     bstone::Crc32 checksum;
-    bstone::BinaryReader reader(&g_playtemp);
+	auto reader = bstone::BinaryReader{&g_playtemp};
 
     if (::FindChunk(&g_playtemp, chunk_name) > 0) {
         try {

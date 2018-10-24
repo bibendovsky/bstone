@@ -7122,7 +7122,7 @@ void read_high_scores()
 
     if (stream.is_open()) {
         bstone::Crc32 check_sum;
-        bstone::BinaryReader reader(&stream);
+		auto reader = bstone::BinaryReader{&stream};
 
         try {
             for (auto& score : scores) {
@@ -8311,7 +8311,7 @@ bool LoadLevel(
 	::SetupGameLevel();
 	loadedgame = oldloaded;
 
-	bstone::BinaryReader reader(&g_playtemp);
+	auto reader = bstone::BinaryReader{&g_playtemp};
 
 	try
 	{
@@ -8733,7 +8733,7 @@ static bool LoadCompressedChunk(
 {
     auto stream_size = stream->get_size();
 
-    bstone::BinaryReader reader(stream);
+	auto reader = bstone::BinaryReader{stream};
 
 
     if (::FindChunk(stream, chunk_name) == 0) {
@@ -8807,7 +8807,7 @@ bool LoadTheGame(
 		bstone::Log::write_error("LOAD: Failed to open file \"{}\".", file_name);
 	}
 
-	bstone::BinaryReader file_reader(&file_stream);
+	auto file_reader = bstone::BinaryReader{&file_stream};
 
 	if (is_succeed)
 	{
@@ -8886,7 +8886,7 @@ bool LoadTheGame(
 				0,
 				head_buffer.data());
 
-			bstone::BinaryReader head_reader(&head_stream);
+			auto head_reader = bstone::BinaryReader{&head_stream};
 
 			auto levels_hash_digest = bstone::Sha1::Digest{};
 			::deserialize_field(levels_hash_digest, head_reader, checksum);
