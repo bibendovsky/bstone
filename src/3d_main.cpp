@@ -7435,6 +7435,8 @@ bool parse_config_line(
     }
 
 
+	const auto& string_helper = bstone::StringHelper{};
+
     index0 = -1;
     index1 = -1;
     const auto index0_begin_bracket = full_name.find('[');
@@ -7454,7 +7456,7 @@ bool parse_config_line(
     {
         const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
 
-        if (!bstone::StringHelper::lexical_cast(index0_string, index0))
+        if (!string_helper.lexical_cast(index0_string, index0))
         {
             return false;
         }
@@ -7468,7 +7470,7 @@ bool parse_config_line(
 
         const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
 
-        if (!bstone::StringHelper::lexical_cast(index1_string, index1))
+        if (!string_helper.lexical_cast(index1_string, index1))
         {
             return false;
         }
@@ -7571,11 +7573,13 @@ void read_text_config()
 
                 if (parse_config_line(line, name, index0, index1, value_string))
                 {
+					const auto& string_helper = bstone::StringHelper{};
+
                     if (name == vid_is_widescreen_name)
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::vid_widescreen = (value != 0);
                         }
@@ -7584,7 +7588,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::vid_is_ui_stretched = (value != 0);
                         }
@@ -7593,7 +7597,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             is_sound_enabled = (value != 0);
                         }
@@ -7602,7 +7606,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             is_music_enabled = (value != 0);
                         }
@@ -7611,7 +7615,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::sd_sfx_volume = value;
                         }
@@ -7630,7 +7634,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::sd_music_volume = value;
                         }
@@ -7649,7 +7653,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::in_use_modern_bindings = (value != 0);
                         }
@@ -7658,7 +7662,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::mouseadjustment = value;
                         }
@@ -7677,7 +7681,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::mouseenabled = (value != 0);
                         }
@@ -7686,7 +7690,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::joystickenabled = (value != 0);
                         }
@@ -7695,7 +7699,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::joypadenabled = (value != 0);
                         }
@@ -7704,7 +7708,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::joystickprogressive = (value != 0);
                         }
@@ -7713,7 +7717,7 @@ void read_text_config()
                     {
                         auto value = int16_t{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::joystickport = value;
                         }
@@ -7751,7 +7755,7 @@ void read_text_config()
                             {
                                 auto value = int16_t{};
 
-                                if (bstone::StringHelper::lexical_cast(value_string, value))
+                                if (string_helper.lexical_cast(value_string, value))
                                 {
                                     ::buttonmouse[index0] = value;
                                 }
@@ -7771,7 +7775,7 @@ void read_text_config()
                             {
                                 auto value = int16_t{};
 
-                                if (bstone::StringHelper::lexical_cast(value_string, value))
+                                if (string_helper.lexical_cast(value_string, value))
                                 {
                                     ::buttonjoy[index0] = value;
                                 }
@@ -7798,7 +7802,7 @@ void read_text_config()
                     {
                         auto value = uint16_t{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             game_state_flags = value;
                         }
@@ -7807,7 +7811,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::g_no_wall_hit_sound = (value != 0);
                         }
@@ -7816,7 +7820,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::g_always_run = (value != 0);
                         }
@@ -7825,7 +7829,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::g_heart_beat_sound = (value != 0);
                         }
@@ -7834,7 +7838,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::g_quit_on_escape = (value != 0);
                         }
@@ -7843,7 +7847,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::g_no_intro_outro = (value != 0);
                         }
@@ -7852,7 +7856,7 @@ void read_text_config()
                     {
                         auto value = int{};
 
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
+                        if (string_helper.lexical_cast(value_string, value))
                         {
                             ::g_rotated_automap = (value != 0);
                         }
@@ -7897,7 +7901,9 @@ public:
         T&& src_value,
         std::string& dst_value)
     {
-        return bstone::StringHelper::lexical_cast(src_value, dst_value);
+		const auto& string_helper = bstone::StringHelper{};
+
+        return string_helper.lexical_cast(src_value, dst_value);
     }
 };
 

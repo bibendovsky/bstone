@@ -24,104 +24,94 @@ Free Software Foundation, Inc.,
 
 #include "bstone_string_helper.h"
 #include <algorithm>
+#include <functional>
 #include <locale>
 
 
-namespace {
+namespace
+{
 
 
-class Internals {
-public:
-    using CType = std::ctype<char>;
+struct Internals final
+{
+	using CType = std::ctype<char>;
 
 
-    Internals() = delete;
+	const CType& get_ctype_facet() const
+	{
+		static std::locale locale;
+		static const auto& result = std::use_facet<CType>(locale);
+		return result;
+	}
 
-    Internals(
-        const Internals& that) = delete;
-
-    Internals& operator=(
-        const Internals& that) = delete;
-
-    ~Internals() = delete;
-
-
-    static const CType& get_ctype_facet()
-    {
-        static std::locale locale;
-        static const auto& result = std::use_facet<CType>(locale);
-        return result;
-    }
-
-    static char to_lower(
-        char value)
-    {
-        return get_ctype_facet().tolower(value);
-    }
+	char to_lower(
+		const char value) const
+	{
+		return get_ctype_facet().tolower(value);
+	}
 }; // Internals
 
 
 } // namespace
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-// (static)
 char StringHelper::to_lower(
-    char value)
+	const char value) const
 {
-    return Internals::to_lower(value);
+	const auto& internals = Internals{};
+
+	return internals.to_lower(value);
 }
 
-// (static)
 std::string StringHelper::to_lower(
-    const std::string& value)
+	const std::string& value) const
 {
-    auto result = value;
+	auto result = value;
 
-    std::transform(
-        result.begin(),
-        result.end(),
-        result.begin(),
-        Internals::to_lower);
+	const auto& internals = Internals{};
 
-    return result;
+	std::transform(result.begin(), result.end(), result.begin(), std::bind(&Internals::to_lower, internals, std::placeholders::_1));
+
+	return result;
 }
 
-// (static)
 bool StringHelper::is_iequal(
-    const std::string& a,
-    const std::string& b)
+	const std::string& a,
+	const std::string& b) const
 {
-    auto result = std::mismatch(
-        a.cbegin(),
-        a.cend(),
-        b.cbegin(),
-        [] (char char_a, char char_b)
-        {
-            return
-                Internals::get_ctype_facet().tolower(char_a) ==
-                Internals::get_ctype_facet().tolower(char_b);
-        }
-    );
+	auto result = std::mismatch(
+		a.cbegin(),
+		a.cend(),
+		b.cbegin(),
+		[](const auto lhs, const auto rhs)
+		{
+			const auto& internals = Internals{};
 
-    return result.first == a.cend();
+			return internals.get_ctype_facet().tolower(lhs) == internals.get_ctype_facet().tolower(rhs);
+		}
+	);
+
+	return result.first == a.cend();
 }
 
-// (static)
 bool StringHelper::is(
-    std::ctype_base::mask mask,
-    char value)
+	std::ctype_base::mask mask,
+	const char value) const
 {
-    return Internals::get_ctype_facet().is(mask, value);
+	const auto& internals = Internals{};
+
+	return internals.get_ctype_facet().is(mask, value);
 }
 
-// (static)
-const std::string& StringHelper::get_empty()
+const std::string& StringHelper::get_empty() const
 {
-    static const std::string result;
-    return result;
+	static const auto result = std::string{};
+
+	return result;
 }
 
 

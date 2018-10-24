@@ -849,11 +849,11 @@ void DrawHealthNum()
 				ECG_GRID_PIECE);
 		}
 
+		const auto& string_helper = bstone::StringHelper{};
+
 		std::string health_string(4, ' ');
 
-		bstone::StringHelper::lexical_cast(
-			gamestate.health,
-			health_string);
+		string_helper.lexical_cast(gamestate.health, health_string);
 
 		if (gamestate.health < 100)
 		{

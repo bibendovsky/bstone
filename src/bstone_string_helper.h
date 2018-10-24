@@ -33,73 +33,67 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 using StringList = std::vector<std::string>;
 
 
-class StringHelper {
+struct StringHelper final
+{
 public:
-    StringHelper() = delete;
+	char to_lower(
+		const char value) const;
 
-    StringHelper(
-        const StringHelper& that) = delete;
+	std::string to_lower(
+		const std::string& value) const;
 
-    StringHelper& operator=(
-        const StringHelper& that) = delete;
+	template<typename T, typename U>
+	T lexical_cast(
+		const U& src_value) const
+	{
+		auto oss = std::stringstream{};
+		oss << src_value;
 
-    ~StringHelper() = delete;
+		auto result = T{};
+		oss >> result;
 
+		if (oss)
+		{
+			return result;
+		}
 
-    static char to_lower(
-        char value);
+		throw std::runtime_error("lexical_cast");
+	}
 
-    static std::string to_lower(
-        const std::string& value);
+	template<typename T, typename U>
+	bool lexical_cast(
+		const T& src_value,
+		U& dst_value) const
+	{
+		auto oss = std::stringstream{};
 
-    template<typename T, typename U>
-    static T lexical_cast(
-        const U& src_value)
-    {
-        std::stringstream oss;
-        oss << src_value;
+		oss.unsetf(std::ios_base::skipws);
+		oss << src_value;
+		oss >> dst_value;
 
-        T result;
-        oss >> result;
+		return !oss.fail();
+	}
 
-        if (oss) {
-            return result;
-        }
+	bool is_iequal(
+		const std::string& a,
+		const std::string& b) const;
 
-        throw std::runtime_error("lexical_cast");
-    }
+	bool is(
+		std::ctype_base::mask mask,
+		const char value) const;
 
-    template<typename T, typename U>
-    static bool lexical_cast(
-        const T& src_value,
-        U& dst_value)
-    {
-        std::stringstream oss;
-        oss.unsetf(std::ios_base::skipws);
-        oss << src_value;
-        oss >> dst_value;
-        return !oss.fail();
-    }
-
-    static bool is_iequal(
-        const std::string& a,
-        const std::string& b);
-
-    static bool is(
-        std::ctype_base::mask mask,
-        char value);
-
-    static const std::string& get_empty();
+	const std::string& get_empty() const;
 }; // StringHelper
 
 
 } // bstone
 
 
-#endif // BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_STRING_HELPER_INCLUDED

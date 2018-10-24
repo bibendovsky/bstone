@@ -468,11 +468,13 @@ static void display_remaining_generators()
     int remaining_generators = ::get_remaining_generators();
 
 
+	const auto& string_helper = bstone::StringHelper{};
+
     static std::string message;
 
     message =
         message_part_1 +
-        bstone::StringHelper::lexical_cast<std::string>(remaining_generators) +
+        string_helper.lexical_cast<std::string>(remaining_generators) +
         message_part_2;
 
     DISPLAY_TIMED_MSG(message.c_str(), MP_FLOOR_UNLOCKED, MT_GENERAL);

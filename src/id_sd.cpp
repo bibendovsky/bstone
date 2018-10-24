@@ -206,11 +206,11 @@ void SD_Startup()
     if (::sd_has_audio) {
         auto&& snd_rate_string = ::g_args.get_option_value("snd_rate");
 
+		const auto& string_helper = bstone::StringHelper{};
+
         auto snd_rate = 0;
 
-        if (!bstone::StringHelper::lexical_cast(
-            snd_rate_string,
-            snd_rate))
+        if (!string_helper.lexical_cast(snd_rate_string, snd_rate))
         {
             snd_rate = 0;
         }
@@ -220,9 +220,7 @@ void SD_Startup()
 
         auto snd_mix_size = 0;
 
-        if (!bstone::StringHelper::lexical_cast(
-            snd_mix_size_string,
-            snd_mix_size))
+        if (!string_helper.lexical_cast(snd_mix_size_string, snd_mix_size))
         {
             snd_mix_size = 0;
         }

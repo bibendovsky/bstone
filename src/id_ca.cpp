@@ -1019,7 +1019,8 @@ bool ca_is_resource_exists(
 
     if (!is_open)
     {
-        const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
+		const auto& string_helper = bstone::StringHelper{};
+        const auto file_name_lc = string_helper.to_lower(file_name);
         const auto path_lc = ::data_dir + file_name_lc;
 
         is_open = bstone::FileStream::is_exists(path_lc);
@@ -1043,7 +1044,8 @@ bool ca_open_resource_non_fatal(
 
 	if (!is_open)
 	{
-		const auto file_name_lc = bstone::StringHelper::to_lower(file_name);
+		const auto& string_helper = bstone::StringHelper{};
+		const auto file_name_lc = string_helper.to_lower(file_name);
 		const auto path_lc = data_dir + file_name_lc;
 
 		is_open = file_stream.open(path_lc);
