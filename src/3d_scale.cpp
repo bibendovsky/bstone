@@ -24,6 +24,11 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "bstone_fixed_point.h"
+#include "bstone_sprite.h"
+#include "bstone_sprite_cache.h"
+
+
+extern bstone::SpriteCache vid_sprite_cache;
 
 
 enum class ShapeDrawMode {

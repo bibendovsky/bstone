@@ -102,6 +102,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "bstone_sprite.h"
 
 
 void VWL_MeasureString(
@@ -2925,7 +2926,7 @@ int16_t TP_DrawShape(
             VWB_Bar(x, y, 64, 64, static_cast<uint8_t>(bgcolor));
         }
 
-        ::vid_draw_ui_sprite(shapenum, x + 32, y + 32);
+        ::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::side);
         break;
 
     case pis_latchpic:

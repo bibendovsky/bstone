@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ref_values.h"
+#include "bstone_sprite.h"
 
 
 void InitWeaponBounce();

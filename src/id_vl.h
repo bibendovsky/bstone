@@ -30,7 +30,6 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <vector>
 #include "bstone_ref_values.h"
-#include "bstone_sprite_cache.h"
 
 
 using VgaBuffer = std::vector<uint8_t>;
@@ -93,8 +92,6 @@ extern bool vid_is_fizzle_fade;
 
 // Is it intro/outro/you-win/etc?
 extern bool vid_is_movie;
-
-extern bstone::SpriteCache vid_sprite_cache;
 // BBi
 
 // ===========================================================================
@@ -314,7 +311,7 @@ void vid_draw_ui_sprite(
     const int sprite_id,
     const int center_x,
     const int center_y,
-    const int new_side = bstone::Sprite::side);
+    const int new_side);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

@@ -23,6 +23,8 @@ Free Software Foundation, Inc.,
 
 
 #include "id_heads.h"
+#include "bstone_sprite.h"
+#include "bstone_sprite_cache.h"
 
 
 static const int palette_color_count = 256;
