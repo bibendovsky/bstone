@@ -28,16 +28,16 @@ Free Software Foundation, Inc.,
 void VH_UpdateScreen();
 
 void TakeDamage(
-    std::int16_t points,
-    objtype* attacker);
+	std::int16_t points,
+	objtype* attacker);
 
 void SetPlaneViewSize();
 
 void HealSelf(
-    std::int16_t points);
+	std::int16_t points);
 
 void GiveWeapon(
-    int weapon);
+	int weapon);
 
 void DrawScore();
 void SetPlaneViewSize();
@@ -201,26 +201,26 @@ void CountTotals()
 
 void ShowMap()
 {
-    objtype old_player;
+	objtype old_player;
 
-    memcpy(&old_player, player, sizeof(objtype));
-    player->angle = 90;
-    player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
+	memcpy(&old_player, player, sizeof(objtype));
+	player->angle = 90;
+	player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
-    ::US_CenterWindow(20, 11);
+	::US_CenterWindow(20, 11);
 
-    US_CPrint("CURRENT MAP\n\n ");
+	US_CPrint("CURRENT MAP\n\n ");
 
-    auto old_flags = ::ExtraRadarFlags;
-    ::ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
+	auto old_flags = ::ExtraRadarFlags;
+	::ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
 
-    ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
-    VW_UpdateScreen();
+	ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
+	VW_UpdateScreen();
 
-    ::ExtraRadarFlags = old_flags;
+	::ExtraRadarFlags = old_flags;
 
-    memcpy(player, &old_player, sizeof(objtype));
-    IN_Ack();
+	memcpy(player, &old_player, sizeof(objtype));
+	IN_Ack();
 }
 
 
@@ -230,16 +230,19 @@ void ShowMap()
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
 std::uint16_t IncRange(
-    std::uint16_t Value,
-    std::uint16_t MaxValue)
+	std::uint16_t Value,
+	std::uint16_t MaxValue)
 {
-    if (Value == MaxValue) {
-        Value = 0;
-    } else {
-        Value++;
-    }
+	if (Value == MaxValue)
+	{
+		Value = 0;
+	}
+	else
+	{
+		Value++;
+	}
 
-    return Value;
+	return Value;
 }
 
 // ---------------------------------------------------------------------------
@@ -248,16 +251,19 @@ std::uint16_t IncRange(
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
 std::uint16_t DecRange(
-    std::uint16_t Value,
-    std::uint16_t MaxValue)
+	std::uint16_t Value,
+	std::uint16_t MaxValue)
 {
-    if (Value == 0) {
-        Value = MaxValue;
-    } else {
-        Value--;
-    }
+	if (Value == 0)
+	{
+		Value = MaxValue;
+	}
+	else
+	{
+		Value--;
+	}
 
-    return Value;
+	return Value;
 }
 
 

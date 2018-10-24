@@ -31,10 +31,11 @@ Free Software Foundation, Inc.,
 extern bstone::SpriteCache vid_sprite_cache;
 
 
-enum class ShapeDrawMode {
-    simple,
-    shaded,
-    player_weapon,
+enum class ShapeDrawMode
+{
+	simple,
+	shaded,
+	player_weapon,
 }; // ShapeDrawMode
 
 
@@ -61,8 +62,8 @@ int normalshade;
 int normalshade_div = 1;
 int shade_max = 1;
 
-std::int16_t nsd_table[] = { 1, 6, 3, 4, 1, 2 };
-std::int16_t sm_table[] = { 36, 51, 62, 63, 18, 52 };
+std::int16_t nsd_table[] = {1, 6, 3, 4, 1, 2};
+std::int16_t sm_table[] = {36, 51, 62, 63, 18, 52};
 std::uint16_t* linecmds;
 
 
@@ -306,17 +307,17 @@ void generic_scale_shape(
 =======================
 */
 void ScaleLSShape(
-    int xcenter,
-    int shapenum,
-    int height,
-    std::int8_t lighting)
+	int xcenter,
+	int shapenum,
+	int height,
+	std::int8_t lighting)
 {
-    generic_scale_shape(
-        xcenter,
-        shapenum,
-        height,
-        lighting,
-        ShapeDrawMode::shaded);
+	generic_scale_shape(
+		xcenter,
+		shapenum,
+		height,
+		lighting,
+		ShapeDrawMode::shaded);
 }
 
 /*
@@ -341,29 +342,29 @@ void ScaleLSShape(
 =======================
 */
 void ScaleShape(
-    int xcenter,
-    int shapenum,
-    int height)
+	int xcenter,
+	int shapenum,
+	int height)
 {
-    generic_scale_shape(
-        xcenter,
-        shapenum,
-        height,
-        0,
-        ShapeDrawMode::simple);
+	generic_scale_shape(
+		xcenter,
+		shapenum,
+		height,
+		0,
+		ShapeDrawMode::simple);
 }
 
 // BBi
 void scale_player_weapon(
-    const int sprite_id,
-    const int height)
+	const int sprite_id,
+	const int height)
 {
-    generic_scale_shape(
-        0,
-        sprite_id,
-        height,
-        0,
-        ShapeDrawMode::player_weapon);
+	generic_scale_shape(
+		0,
+		sprite_id,
+		height,
+		0,
+		ShapeDrawMode::player_weapon);
 }
 
 void update_normalshade()

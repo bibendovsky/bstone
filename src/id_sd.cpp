@@ -99,34 +99,37 @@ int sd_music_volume = ::sd_default_music_volume;
 
 void SDL_SetupDigi()
 {
-    const std::uint16_t* p;
-    int pg;
-    int i;
+	const std::uint16_t* p;
+	int pg;
+	int i;
 
 	const auto& endian = bstone::Endian{};
 
-    p = static_cast<const std::uint16_t*>(PM_GetPage(ChunksInFile - 1));
-    pg = PMSoundStart;
-    for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i) {
-        if (pg >= ChunksInFile - 1) {
-            break;
-        }
-        pg += (endian.little(p[1]) + (PMPageSize - 1)) / PMPageSize;
-        p += 2;
-    }
-    DigiList = new std::uint16_t[i * 2];
+	p = static_cast<const std::uint16_t*>(PM_GetPage(ChunksInFile - 1));
+	pg = PMSoundStart;
+	for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i)
+	{
+		if (pg >= ChunksInFile - 1)
+		{
+			break;
+		}
+		pg += (endian.little(p[1]) + (PMPageSize - 1)) / PMPageSize;
+		p += 2;
+	}
+	DigiList = new std::uint16_t[i * 2];
 
-    const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
-        ::PM_GetPage(ChunksInFile - 1));
+	const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
+		::PM_GetPage(ChunksInFile - 1));
 
 	for (auto j = 0; j < (i * 2); ++j)
 	{
 		DigiList[j] = endian.little(src_list[i]);
 	}
 
-    for (i = 0; i < sdLastSound; i++) {
-        DigiMap[i] = -1;
-    }
+	for (i = 0; i < sdLastSound; i++)
+	{
+		DigiMap[i] = -1;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -137,7 +140,7 @@ void SDL_SetupDigi()
 ///////////////////////////////////////////////////////////////////////////
 static bool SDL_DetectAdLib()
 {
-    return true;
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -147,7 +150,7 @@ static bool SDL_DetectAdLib()
 ////////////////////////////////////////////////////////////////////////////
 static void SDL_ShutDevice()
 {
-    sd_is_sound_enabled = false;
+	sd_is_sound_enabled = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -160,95 +163,103 @@ static void SDL_StartDevice()
 }
 
 bool SD_EnableSound(
-    bool enable)
+	bool enable)
 {
-    ::SD_StopSound();
+	::SD_StopSound();
 
-    if (enable && !::sd_has_audio) {
-        enable = false;
-    }
+	if (enable && !::sd_has_audio)
+	{
+		enable = false;
+	}
 
-    auto table_offset = (enable ? ::sdStartALSounds : sdStartPCSounds);
+	auto table_offset = (enable ? ::sdStartALSounds : sdStartPCSounds);
 
-    if (::sd_is_sound_enabled != enable) {
-        ::SDL_ShutDevice();
-        ::sd_is_sound_enabled = enable;
-        ::SoundTable = &::audiosegs[table_offset];
-        ::SDL_StartDevice();
-    }
+	if (::sd_is_sound_enabled != enable)
+	{
+		::SDL_ShutDevice();
+		::sd_is_sound_enabled = enable;
+		::SoundTable = &::audiosegs[table_offset];
+		::SDL_StartDevice();
+	}
 
-    return enable;
+	return enable;
 }
 
 bool SD_EnableMusic(
-    bool enable)
+	bool enable)
 {
-    ::SD_MusicOff();
+	::SD_MusicOff();
 
-    ::sd_is_music_enabled = enable;
+	::sd_is_music_enabled = enable;
 
-    return enable;
+	return enable;
 }
 
 void SD_Startup()
 {
-    if (SD_Started) {
-        return;
-    }
+	if (SD_Started)
+	{
+		return;
+	}
 
-    TimeCount = 0;
+	TimeCount = 0;
 
-    ::SD_EnableSound(false);
-    ::SD_EnableMusic(false);
+	::SD_EnableSound(false);
+	::SD_EnableMusic(false);
 
-    ::sd_has_audio = ::SDL_DetectAdLib();
+	::sd_has_audio = ::SDL_DetectAdLib();
 
-    if (::sd_has_audio) {
-        auto&& snd_rate_string = ::g_args.get_option_value("snd_rate");
+	if (::sd_has_audio)
+	{
+		auto&& snd_rate_string = ::g_args.get_option_value("snd_rate");
 
 		const auto& string_helper = bstone::StringHelper{};
 
-        auto snd_rate = 0;
+		auto snd_rate = 0;
 
-        if (!string_helper.lexical_cast(snd_rate_string, snd_rate))
-        {
-            snd_rate = 0;
-        }
+		if (!string_helper.lexical_cast(snd_rate_string, snd_rate))
+		{
+			snd_rate = 0;
+		}
 
-        auto&& snd_mix_size_string =
-            ::g_args.get_option_value("snd_mix_size");
+		auto&& snd_mix_size_string =
+			::g_args.get_option_value("snd_mix_size");
 
-        auto snd_mix_size = 0;
+		auto snd_mix_size = 0;
 
-        if (!string_helper.lexical_cast(snd_mix_size_string, snd_mix_size))
-        {
-            snd_mix_size = 0;
-        }
+		if (!string_helper.lexical_cast(snd_mix_size_string, snd_mix_size))
+		{
+			snd_mix_size = 0;
+		}
 
-        mixer.initialize(snd_rate, snd_mix_size);
-    } else {
-        mixer.uninitialize();
-    }
+		mixer.initialize(snd_rate, snd_mix_size);
+	}
+	else
+	{
+		mixer.uninitialize();
+	}
 
-    ::SDL_SetupDigi();
+	::SDL_SetupDigi();
 
-    ::SD_Started = true;
+	::SD_Started = true;
 }
 
 void SD_Shutdown()
 {
-    if (!SD_Started) {
-        return;
-    }
+	if (!SD_Started)
+	{
+		return;
+	}
 
-    mixer.uninitialize();
+	mixer.uninitialize();
 
-    // Free music data
-    for (int i = 0; i < LASTMUSIC; ++i) {
-        delete [] static_cast<std::uint8_t*>(::audiosegs[STARTMUSIC + i]);
-    }
+	// Free music data
+	for (int i = 0; i < LASTMUSIC; ++i)
+	{
+		delete[] static_cast<std::uint8_t*>(::audiosegs[STARTMUSIC + i]);
+	}
 
-    SD_Started = false;
+	SD_Started = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -259,11 +270,14 @@ void SD_Shutdown()
 ///////////////////////////////////////////////////////////////////////////
 bool SD_SoundPlaying()
 {
-    if (::sd_is_sound_enabled) {
-        return ::mixer.is_any_sfx_playing();
-    } else {
-        return false;
-    }
+	if (::sd_is_sound_enabled)
+	{
+		return ::mixer.is_any_sfx_playing();
+	}
+	else
+	{
+		return false;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -273,7 +287,7 @@ bool SD_SoundPlaying()
 ///////////////////////////////////////////////////////////////////////////
 void SD_StopSound()
 {
-    ::mixer.stop_all_sfx();
+	::mixer.stop_all_sfx();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -283,9 +297,10 @@ void SD_StopSound()
 ///////////////////////////////////////////////////////////////////////////
 void SD_WaitSoundDone()
 {
-    while (::SD_SoundPlaying()) {
-        ::sys_default_sleep_for();
-    }
+	while (::SD_SoundPlaying())
+	{
+		::sys_default_sleep_for();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -295,8 +310,8 @@ void SD_WaitSoundDone()
 ///////////////////////////////////////////////////////////////////////////
 void SD_MusicOn()
 {
-    ::sqActive = true;
-    ::mixer.play_adlib_music(music_index, sqHack, sqHackLen);
+	::sqActive = true;
+	::mixer.play_adlib_music(music_index, sqHack, sqHackLen);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -306,8 +321,8 @@ void SD_MusicOn()
 ///////////////////////////////////////////////////////////////////////////
 void SD_MusicOff()
 {
-    ::sqActive = false;
-    ::mixer.stop_music();
+	::sqActive = false;
+	::mixer.stop_music();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -316,190 +331,205 @@ void SD_MusicOff()
 //
 ///////////////////////////////////////////////////////////////////////////
 void SD_StartMusic(
-    int index)
+	int index)
 {
-    ::SD_MusicOff();
+	::SD_MusicOff();
 
-    ::sqPlayedOnce = false;
+	::sqPlayedOnce = false;
 
-    if (::sd_is_music_enabled) {
-        ::music_index = index;
+	if (::sd_is_music_enabled)
+	{
+		::music_index = index;
 
-        auto music_data = reinterpret_cast<std::uint16_t*>(
-            ::audiosegs[STARTMUSIC + index]);
+		auto music_data = reinterpret_cast<std::uint16_t*>(
+			::audiosegs[STARTMUSIC + index]);
 
 		const auto& endian = bstone::Endian{};
 
-        auto length = endian.little(music_data[0]) + 2;
+		auto length = endian.little(music_data[0]) + 2;
 
-        ::sqHack = music_data;
-        ::sqHackLen = static_cast<std::uint16_t>(length);
+		::sqHack = music_data;
+		::sqHackLen = static_cast<std::uint16_t>(length);
 
-        ::SD_MusicOn();
-    } else {
-        ::sqPlayedOnce = true;
-    }
+		::SD_MusicOn();
+	}
+	else
+	{
+		::sqPlayedOnce = true;
+	}
 }
 
 // BBi
 void sd_play_sound(
-    int sound_index,
-    const void* actor,
-    bstone::ActorType actor_type,
-    bstone::ActorChannel actor_channel)
+	int sound_index,
+	const void* actor,
+	bstone::ActorType actor_type,
+	bstone::ActorChannel actor_channel)
 {
-    if (sound_index < 0) {
-        return;
-    }
+	if (sound_index < 0)
+	{
+		return;
+	}
 
-    if (!SoundTable) {
-        return;
-    }
+	if (!SoundTable)
+	{
+		return;
+	}
 
-    int actor_index = -1;
+	int actor_index = -1;
 
-    if (actor) {
-        switch (actor_type) {
-        case bstone::ActorType::actor:
-            actor_index = static_cast<int>(
-                static_cast<const objtype*>(actor) - objlist);
-            break;
+	if (actor)
+	{
+		switch (actor_type)
+		{
+		case bstone::ActorType::actor:
+			actor_index = static_cast<int>(
+				static_cast<const objtype*>(actor) - objlist);
+			break;
 
-        case bstone::ActorType::door:
-            actor_index = static_cast<int>(
-                static_cast<const doorobj_t*>(actor) - doorobjlist);
-            break;
+		case bstone::ActorType::door:
+			actor_index = static_cast<int>(
+				static_cast<const doorobj_t*>(actor) - doorobjlist);
+			break;
 
-        default:
-            return;
-        }
-    }
+		default:
+			return;
+		}
+	}
 
-    const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
-        SoundTable[sound_index]);
+	const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
+		SoundTable[sound_index]);
 
-    if (!sound) {
-        return;
-    }
+	if (!sound)
+	{
+		return;
+	}
 
-    if (::sd_is_sound_enabled && !sound) {
-        ::Quit("Uncached sound.");
-    }
+	if (::sd_is_sound_enabled && !sound)
+	{
+		::Quit("Uncached sound.");
+	}
 
 	const auto& endian = bstone::Endian{};
 
-    int priority = endian.little(sound->priority);
+	int priority = endian.little(sound->priority);
 
-    int digi_index = DigiMap[sound_index];
+	int digi_index = DigiMap[sound_index];
 
-    if (digi_index != -1) {
-        int digi_page = DigiList[(2 * digi_index) + 0];
-        int digi_length = DigiList[(2 * digi_index) + 1];
-        const void* digi_data = ::PM_GetSoundPage(digi_page);
+	if (digi_index != -1)
+	{
+		int digi_page = DigiList[(2 * digi_index) + 0];
+		int digi_length = DigiList[(2 * digi_index) + 1];
+		const void* digi_data = ::PM_GetSoundPage(digi_page);
 
-        mixer.play_pcm_sound(digi_index, priority, digi_data, digi_length,
-                             actor_index, actor_type, actor_channel);
+		mixer.play_pcm_sound(digi_index, priority, digi_data, digi_length,
+			actor_index, actor_type, actor_channel);
 
-        return;
-    }
+		return;
+	}
 
-    if (!::sd_is_sound_enabled) {
-        return;
-    }
+	if (!::sd_is_sound_enabled)
+	{
+		return;
+	}
 
-    int data_size = audiostarts[sdStartALSounds + sound_index + 1] -
-                    audiostarts[sdStartALSounds + sound_index];
+	int data_size = audiostarts[sdStartALSounds + sound_index + 1] -
+		audiostarts[sdStartALSounds + sound_index];
 
-    mixer.play_adlib_sound(sound_index, priority, sound, data_size,
-                           actor_index, actor_type, actor_channel);
+	mixer.play_adlib_sound(sound_index, priority, sound, data_size,
+		actor_index, actor_type, actor_channel);
 }
 
 void sd_play_actor_sound(
-    int sound_index,
-    const objtype* actor,
-    bstone::ActorChannel actor_channel)
+	int sound_index,
+	const objtype* actor,
+	bstone::ActorChannel actor_channel)
 {
-    sd_play_sound(
-        sound_index,
-        actor,
-        bstone::ActorType::actor,
-        actor_channel);
+	sd_play_sound(
+		sound_index,
+		actor,
+		bstone::ActorType::actor,
+		actor_channel);
 }
 
 void sd_play_player_sound(
-    int sound_index,
-    bstone::ActorChannel actor_channel)
+	int sound_index,
+	bstone::ActorChannel actor_channel)
 {
-    sd_play_sound(
-        sound_index,
-        player,
-        bstone::ActorType::actor,
-        actor_channel);
+	sd_play_sound(
+		sound_index,
+		player,
+		bstone::ActorType::actor,
+		actor_channel);
 }
 
 void sd_play_door_sound(
-    int sound_index,
-    const doorobj_t* door)
+	int sound_index,
+	const doorobj_t* door)
 {
-    sd_play_sound(
-        sound_index,
-        door,
-        bstone::ActorType::door,
-        bstone::ActorChannel::voice);
+	sd_play_sound(
+		sound_index,
+		door,
+		bstone::ActorType::door,
+		bstone::ActorChannel::voice);
 }
 
 void sd_play_wall_sound(
-    int sound_index)
+	int sound_index)
 {
-    sd_play_sound(
-        sound_index,
-        nullptr,
-        bstone::ActorType::wall,
-        bstone::ActorChannel::voice);
+	sd_play_sound(
+		sound_index,
+		nullptr,
+		bstone::ActorType::wall,
+		bstone::ActorChannel::voice);
 }
 
 void sd_update_positions()
 {
-    mixer.update_positions();
+	mixer.update_positions();
 }
 
 bool sd_is_player_channel_playing(
-    bstone::ActorChannel channel)
+	bstone::ActorChannel channel)
 {
-    return mixer.is_player_channel_playing(channel);
+	return mixer.is_player_channel_playing(channel);
 }
 
 void sd_set_sfx_volume(
-    int volume)
+	int volume)
 {
-    if (volume < ::sd_min_volume) {
-        volume = ::sd_min_volume;
-    }
+	if (volume < ::sd_min_volume)
+	{
+		volume = ::sd_min_volume;
+	}
 
-    if (volume > ::sd_max_volume) {
-        volume = ::sd_max_volume;
-    }
+	if (volume > ::sd_max_volume)
+	{
+		volume = ::sd_max_volume;
+	}
 
-    mixer.set_sfx_volume(static_cast<float>(volume) / ::sd_max_volume);
+	mixer.set_sfx_volume(static_cast<float>(volume) / ::sd_max_volume);
 }
 
 void sd_set_music_volume(
-    int volume)
+	int volume)
 {
-    if (volume < ::sd_min_volume) {
-        volume = ::sd_min_volume;
-    }
+	if (volume < ::sd_min_volume)
+	{
+		volume = ::sd_min_volume;
+	}
 
-    if (volume > ::sd_max_volume) {
-        volume = ::sd_max_volume;
-    }
+	if (volume > ::sd_max_volume)
+	{
+		volume = ::sd_max_volume;
+	}
 
-    mixer.set_music_volume(static_cast<float>(volume) / ::sd_max_volume);
+	mixer.set_music_volume(static_cast<float>(volume) / ::sd_max_volume);
 }
 
 void sd_mute(
-    bool mute)
+	bool mute)
 {
-    ::mixer.set_mute(mute);
+	::mixer.set_mute(mute);
 }
 // BBi

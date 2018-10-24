@@ -34,7 +34,7 @@ void MapLSRow();
 
 std::uint16_t CeilingTile = 126, FloorTile = 126;
 
-void (* MapRowPtr)();
+void(*MapRowPtr)();
 
 SpanStart spanstart;
 StepScale stepscale;
@@ -52,10 +52,10 @@ fixed psin;
 fixed pcos;
 
 fixed FixedMul(
-    fixed a,
-    fixed b)
+	fixed a,
+	fixed b)
 {
-    return (a >> 8) * (b >> 8);
+	return (a >> 8) * (b >> 8);
 }
 
 
@@ -138,87 +138,102 @@ void DrawSpans(
 
 void SetPlaneViewSize()
 {
-    const std::uint8_t* src;
-    std::uint8_t* dest;
+	const std::uint8_t* src;
+	std::uint8_t* dest;
 
-    ::halfheight = ::viewheight / 2;
+	::halfheight = ::viewheight / 2;
 
-    for (int y = 0; y < halfheight; ++y) {
-        planeylookup[y] = (halfheight - 1 - y) * vga_width;
-        mirrorofs[y] = (y * 2 + 1) * vga_width;
-        stepscale[y] = y * GLOBAL1 / 32;
+	for (int y = 0; y < halfheight; ++y)
+	{
+		planeylookup[y] = (halfheight - 1 - y) * vga_width;
+		mirrorofs[y] = (y * 2 + 1) * vga_width;
+		stepscale[y] = y * GLOBAL1 / 32;
 
-        if (y > 0) {
-            basedist[y] = GLOBAL1 / 2 * scale / y;
-        }
-    }
+		if (y > 0)
+		{
+			basedist[y] = GLOBAL1 / 2 * scale / y;
+		}
+	}
 
-    src = static_cast<const std::uint8_t*>(PM_GetPage(CeilingTile));
-    dest = planepics;
+	src = static_cast<const std::uint8_t*>(PM_GetPage(CeilingTile));
+	dest = planepics;
 
-    for (int x = 0; x < 4096; ++x) {
-        *dest = *src++;
-        dest += 2;
-    }
+	for (int x = 0; x < 4096; ++x)
+	{
+		*dest = *src++;
+		dest += 2;
+	}
 
-    src = static_cast<const std::uint8_t*>(PM_GetPage(FloorTile));
-    dest = planepics + 1;
+	src = static_cast<const std::uint8_t*>(PM_GetPage(FloorTile));
+	dest = planepics + 1;
 
-    for (int x = 0; x < 4096; ++x) {
-        *dest = *src++;
-        dest += 2;
-    }
+	for (int x = 0; x < 4096; ++x)
+	{
+		*dest = *src++;
+		dest += 2;
+	}
 }
 
 void DrawPlanes()
 {
-    if ((::viewheight / 2) != ::halfheight)
-    {
-        ::SetPlaneViewSize(); // screen size has changed
-    }
+	if ((::viewheight / 2) != ::halfheight)
+	{
+		::SetPlaneViewSize(); // screen size has changed
+	}
 
-    psin = viewsin;
+	psin = viewsin;
 
-    if (psin < 0) {
-        psin = -(psin & 0xFFFF);
-    }
+	if (psin < 0)
+	{
+		psin = -(psin & 0xFFFF);
+	}
 
-    pcos = viewcos;
+	pcos = viewcos;
 
-    if (pcos < 0) {
-        pcos = -(pcos & 0xFFFF);
-    }
+	if (pcos < 0)
+	{
+		pcos = -(pcos & 0xFFFF);
+	}
 
-    int x = 0;
-    int height = 0;
-    int lastheight = halfheight;
+	int x = 0;
+	int height = 0;
+	int lastheight = halfheight;
 
-    for (x = 0; x < ::viewwidth; ++x)
-    {
-        height = wallheight[x] / 8;
+	for (x = 0; x < ::viewwidth; ++x)
+	{
+		height = wallheight[x] / 8;
 
-        if (height < lastheight) { // more starts
-            do {
-                spanstart[--lastheight] = x;
-            } while (lastheight > height);
-        } else if (height > lastheight) { // draw spans
-            if (height > halfheight) {
-                height = halfheight;
-            }
+		if (height < lastheight)
+		{ // more starts
+			do
+			{
+				spanstart[--lastheight] = x;
+			} while (lastheight > height);
+		}
+		else if (height > lastheight)
+		{ // draw spans
+			if (height > halfheight)
+			{
+				height = halfheight;
+			}
 
-            for (; lastheight < height; ++lastheight) {
-                if (lastheight > 0) {
-                    DrawSpans(spanstart[lastheight], x - 1, lastheight);
-                }
-            }
-        }
-    }
+			for (; lastheight < height; ++lastheight)
+			{
+				if (lastheight > 0)
+				{
+					DrawSpans(spanstart[lastheight], x - 1, lastheight);
+				}
+			}
+		}
+	}
 
-    height = halfheight;
+	height = halfheight;
 
-    for (; lastheight < height; ++lastheight) {
-        if (lastheight > 0) {
-            DrawSpans(spanstart[lastheight], x - 1, lastheight);
-        }
-    }
+	for (; lastheight < height; ++lastheight)
+	{
+		if (lastheight > 0)
+		{
+			DrawSpans(spanstart[lastheight], x - 1, lastheight);
+		}
+	}
 }

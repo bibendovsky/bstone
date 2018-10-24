@@ -87,7 +87,7 @@ extern std::uint8_t audiodict;
 
 
 void CA_CannotOpen(
-    const std::string& string);
+	const std::string& string);
 
 std::int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
 std::int32_t* audiostarts; // array of offsets in audio / audiot
@@ -122,29 +122,30 @@ static const int BUFFERSIZE = 0x10000;
 int ca_gr_last_expanded_size;
 
 void CAL_CarmackExpand(
-    std::uint16_t* source,
-    std::uint16_t* dest,
-    std::uint16_t length);
+	std::uint16_t* source,
+	std::uint16_t* dest,
+	std::uint16_t length);
 
 
 #ifdef THREEBYTEGRSTARTS
 std::int32_t GRFILEPOS(
-    std::int16_t c)
+	std::int16_t c)
 {
-    std::int32_t value;
-    std::int16_t offset;
+	std::int32_t value;
+	std::int16_t offset;
 
-    offset = c * 3;
+	offset = c * 3;
 
-    value = *(std::int32_t*)(((std::uint8_t*)grstarts) + offset);
+	value = *(std::int32_t*)(((std::uint8_t*)grstarts) + offset);
 
-    value &= 0x00ffffffl;
+	value &= 0x00ffffffl;
 
-    if (value == 0xffffffl) {
-        value = -1;
-    }
+	if (value == 0xffffffl)
+	{
+		value = -1;
+	}
 
-    return value;
+	return value;
 }
 #else
 #define GRFILEPOS(c) (grstarts[c])
@@ -152,48 +153,48 @@ std::int32_t GRFILEPOS(
 
 void CloseGrFile()
 {
-    ::grhandle.close();
+	::grhandle.close();
 }
 
 void OpenMapFile()
 {
-// TODO Remove or fix
+	// TODO Remove or fix
 #ifdef CARMACIZED
-    strcpy(fname, "GAMEMAPS.");
-    strcat(fname, extension);
+	strcpy(fname, "GAMEMAPS.");
+	strcat(fname, extension);
 
-    if ((maphandle = open(fname,
-                          O_RDONLY | O_BINARY, S_IREAD)) == -1)
-    {
-        CA_CannotOpen(fname);
-    }
+	if ((maphandle = open(fname,
+		O_RDONLY | O_BINARY, S_IREAD)) == -1)
+	{
+		CA_CannotOpen(fname);
+	}
 #else
-    ::ca_open_resource(Assets::map_data_base_name, ::maphandle);
+	::ca_open_resource(Assets::map_data_base_name, ::maphandle);
 #endif
 }
 
 void CloseMapFile()
 {
-    ::maphandle.close();
+	::maphandle.close();
 }
 
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-    ::ca_open_resource(Assets::audio_data_base_name, ::audiohandle);
+	::ca_open_resource(Assets::audio_data_base_name, ::audiohandle);
 #else
-    // TODO Remove or fix
-    if ((audiohandle = open("AUDIO."EXTENSION,
-                            O_RDONLY | O_BINARY, S_IREAD)) == -1)
-    {
-        CA_ERROR(SETUPAUDIO_CANT_OPEN);
-    }
+	// TODO Remove or fix
+	if ((audiohandle = open("AUDIO."EXTENSION,
+		O_RDONLY | O_BINARY, S_IREAD)) == -1)
+	{
+		CA_ERROR(SETUPAUDIO_CANT_OPEN);
+	}
 #endif
 }
 
 void CloseAudioFile()
 {
-    ::audiohandle.close();
+	::audiohandle.close();
 }
 
 /*
@@ -207,19 +208,19 @@ void CloseAudioFile()
 ============================
 */
 void CAL_GetGrChunkLength(
-    std::int16_t chunk)
+	std::int16_t chunk)
 {
-    grhandle.set_position(GRFILEPOS(chunk));
-    grhandle.read(&chunkexplen, sizeof(chunkexplen));
+	grhandle.set_position(GRFILEPOS(chunk));
+	grhandle.read(&chunkexplen, sizeof(chunkexplen));
 
-    chunkcomplen = GRFILEPOS(chunk + 1) - GRFILEPOS(chunk) - 4;
+	chunkcomplen = GRFILEPOS(chunk + 1) - GRFILEPOS(chunk) - 4;
 }
 
 
 /*
 ============================================================================
 
-                COMPRESSION routines, see JHUFF.C for more
+				COMPRESSION routines, see JHUFF.C for more
 
 ============================================================================
 */
@@ -236,90 +237,112 @@ void CAL_GetGrChunkLength(
 ======================
 */
 void CAL_HuffExpand(
-    std::uint8_t* source,
-    std::uint8_t* destination,
-    std::int32_t length,
-    huffnode* hufftable)
+	std::uint8_t* source,
+	std::uint8_t* destination,
+	std::int32_t length,
+	huffnode* hufftable)
 {
-    std::uint8_t val = *source++;
-    std::uint8_t mask = 1;
-    std::uint16_t nodeval;
+	std::uint8_t val = *source++;
+	std::uint8_t mask = 1;
+	std::uint16_t nodeval;
 
-    huffnode* headptr = &hufftable[254]; // head node is always node 254
+	huffnode* headptr = &hufftable[254]; // head node is always node 254
 
-    std::uint8_t* dst = destination;
-    std::uint8_t* end = dst + length;
+	std::uint8_t* dst = destination;
+	std::uint8_t* end = dst + length;
 
-    huffnode* huffptr = headptr;
+	huffnode* huffptr = headptr;
 
-    while (dst < end) {
-        if ((val & mask) == 0) {
-            nodeval = huffptr->bit0;
-        } else {
-            nodeval = huffptr->bit1;
-        }
+	while (dst < end)
+	{
+		if ((val & mask) == 0)
+		{
+			nodeval = huffptr->bit0;
+		}
+		else
+		{
+			nodeval = huffptr->bit1;
+		}
 
-        if (mask == 0x80) {
-            val = *source++;
-            mask = 1;
-        } else {
-            mask <<= 1;
-        }
+		if (mask == 0x80)
+		{
+			val = *source++;
+			mask = 1;
+		}
+		else
+		{
+			mask <<= 1;
+		}
 
-        if (nodeval < 256) {
-            dst[0] = static_cast<std::uint8_t>(nodeval);
-            ++dst;
-            huffptr = headptr;
-        } else {
-            huffptr = &hufftable[nodeval - 256];
-        }
-    }
+		if (nodeval < 256)
+		{
+			dst[0] = static_cast<std::uint8_t>(nodeval);
+			++dst;
+			huffptr = headptr;
+		}
+		else
+		{
+			huffptr = &hufftable[nodeval - 256];
+		}
+	}
 }
 
 void ca_huff_expand_on_screen(
-    std::uint8_t* source,
-    huffnode* hufftable)
+	std::uint8_t* source,
+	huffnode* hufftable)
 {
-    std::uint8_t val = *source++;
-    std::uint8_t mask = 1;
-    std::uint16_t nodeval;
+	std::uint8_t val = *source++;
+	std::uint8_t mask = 1;
+	std::uint16_t nodeval;
 
-    huffnode* headptr = &hufftable[254]; // head node is always node 254
-    huffnode* huffptr = headptr;
+	huffnode* headptr = &hufftable[254]; // head node is always node 254
+	huffnode* huffptr = headptr;
 
-    for (int p = 0; p < 4; ++p) {
-        int x = p;
-        int y = 0;
+	for (int p = 0; p < 4; ++p)
+	{
+		int x = p;
+		int y = 0;
 
-        while (y < ::vga_ref_height) {
-            if ((val & mask) == 0) {
-                nodeval = huffptr->bit0;
-            } else {
-                nodeval = huffptr->bit1;
-            }
+		while (y < ::vga_ref_height)
+		{
+			if ((val & mask) == 0)
+			{
+				nodeval = huffptr->bit0;
+			}
+			else
+			{
+				nodeval = huffptr->bit1;
+			}
 
-            if (mask == 0x80) {
-                val = *source++;
-                mask = 1;
-            } else {
-                mask <<= 1;
-            }
+			if (mask == 0x80)
+			{
+				val = *source++;
+				mask = 1;
+			}
+			else
+			{
+				mask <<= 1;
+			}
 
-            if (nodeval < 256) {
-                VL_Plot(x, y, static_cast<std::uint8_t>(nodeval));
-                huffptr = headptr;
+			if (nodeval < 256)
+			{
+				VL_Plot(x, y, static_cast<std::uint8_t>(nodeval));
+				huffptr = headptr;
 
-                x += 4;
+				x += 4;
 
-                if (x >= ::vga_ref_width) {
-                    x = p;
-                    ++y;
-                }
-            } else {
-                huffptr = &hufftable[nodeval - 256];
-            }
-        }
-    }
+				if (x >= ::vga_ref_width)
+				{
+					x = p;
+					++y;
+				}
+			}
+			else
+			{
+				huffptr = &hufftable[nodeval - 256];
+			}
+		}
+	}
 }
 
 #ifdef CARMACIZED
@@ -333,57 +356,71 @@ void ca_huff_expand_on_screen(
 ======================
 */
 void CAL_CarmackExpand(
-    std::uint16_t* source,
-    std::uint16_t* dest,
-    std::uint16_t length)
+	std::uint16_t* source,
+	std::uint16_t* dest,
+	std::uint16_t length)
 {
 #define NEARTAG 0xa7
 #define FARTAG 0xa8
 
-    std::uint16_t ch, chhigh, count, offset;
-    std::uint16_t* copyptr, * inptr, * outptr;
+	std::uint16_t ch, chhigh, count, offset;
+	std::uint16_t* copyptr, *inptr, *outptr;
 
-    length /= 2;
+	length /= 2;
 
-    inptr = source;
-    outptr = dest;
+	inptr = source;
+	outptr = dest;
 
-    while (length) {
-        ch = *inptr++;
-        chhigh = ch >> 8;
-        if (chhigh == NEARTAG) {
-            count = ch & 0xff;
-            if (!count) { // have to insert a word containing the tag byte
-                ch |= *((std::uint8_t*)inptr)++;
-                *outptr++ = ch;
-                length--;
-            } else {
-                offset = *((std::uint8_t*)inptr)++;
-                copyptr = outptr - offset;
-                length -= count;
-                while (count--) {
-                    *outptr++ = *copyptr++;
-                }
-            }
-        } else if (chhigh == FARTAG) {
-            count = ch & 0xff;
-            if (!count) { // have to insert a word containing the tag byte
-                ch |= *((std::uint8_t*)inptr)++;
-                *outptr++ = ch;
-                length--;
-            } else {
-                offset = *inptr++;
-                copyptr = dest + offset;
-                length -= count;
-                while (count--) {
-                    *outptr++ = *copyptr++;
-                }
-            }
-        } else {
-            *outptr++ = ch;
-            length--;
-        }
-    }
+	while (length)
+	{
+		ch = *inptr++;
+		chhigh = ch >> 8;
+		if (chhigh == NEARTAG)
+		{
+			count = ch & 0xff;
+			if (!count)
+			{ // have to insert a word containing the tag byte
+				ch |= *((std::uint8_t*)inptr)++;
+				*outptr++ = ch;
+				length--;
+			}
+			else
+			{
+				offset = *((std::uint8_t*)inptr)++;
+				copyptr = outptr - offset;
+				length -= count;
+				while (count--)
+				{
+					*outptr++ = *copyptr++;
+				}
+			}
+		}
+		else if (chhigh == FARTAG)
+		{
+			count = ch & 0xff;
+			if (!count)
+			{ // have to insert a word containing the tag byte
+				ch |= *((std::uint8_t*)inptr)++;
+				*outptr++ = ch;
+				length--;
+			}
+			else
+			{
+				offset = *inptr++;
+				copyptr = dest + offset;
+				length -= count;
+				while (count--)
+				{
+					*outptr++ = *copyptr++;
+				}
+			}
+		}
+		else
+		{
+			*outptr++ = ch;
+			length--;
+		}
+	}
 }
 
 #endif
@@ -397,30 +434,35 @@ void CAL_CarmackExpand(
 ======================
 */
 void CA_RLEWexpand(
-    std::uint16_t* source,
-    std::uint16_t* dest,
-    std::int32_t length,
-    std::uint16_t rlewtag)
+	std::uint16_t* source,
+	std::uint16_t* dest,
+	std::int32_t length,
+	std::uint16_t rlewtag)
 {
-    std::uint16_t i;
-    std::uint16_t value;
-    std::uint16_t count;
-    const std::uint16_t* end = &dest[length / 2];
+	std::uint16_t i;
+	std::uint16_t value;
+	std::uint16_t count;
+	const std::uint16_t* end = &dest[length / 2];
 
-    do {
-        value = *source++;
+	do
+	{
+		value = *source++;
 
-        if (value != rlewtag) {
-            *dest++ = value;
-        } else {
-            count = *source++;
-            value = *source++;
+		if (value != rlewtag)
+		{
+			*dest++ = value;
+		}
+		else
+		{
+			count = *source++;
+			value = *source++;
 
-            for (i = 0; i < count; ++i) {
-                *dest++ = value;
-            }
-        }
-    } while (dest < end);
+			for (i = 0; i < count; ++i)
+			{
+				*dest++ = value;
+			}
+		}
+	} while (dest < end);
 }
 
 /*
@@ -444,15 +486,16 @@ void CA_RLEWexpand(
 void CA_Shutdown()
 {
 #ifdef PROFILE
-    if (profilehandle != -1) {
-        close(profilehandle);
-        profilehandle = -1;
-    }
+	if (profilehandle != -1)
+	{
+		close(profilehandle);
+		profilehandle = -1;
+	}
 #endif
 
-    CloseMapFile();
-    CloseGrFile();
-    CloseAudioFile();
+	CloseMapFile();
+	CloseGrFile();
+	CloseAudioFile();
 }
 
 /*
@@ -467,19 +510,19 @@ void CA_Shutdown()
 void CA_Startup()
 {
 #ifdef PROFILE
-    unlink("PROFILE.TXT");
-    profilehandle = open("PROFILE.TXT", O_CREAT | O_WRONLY | O_TEXT);
+	unlink("PROFILE.TXT");
+	profilehandle = open("PROFILE.TXT", O_CREAT | O_WRONLY | O_TEXT);
 #endif
 
-    CAL_SetupMapFile();
-    CAL_SetupGrFile();
-    CAL_SetupAudioFile();
+	CAL_SetupMapFile();
+	CAL_SetupGrFile();
+	CAL_SetupAudioFile();
 
-    mapon = -1;
-    ca_levelbit = 1;
-    ca_levelnum = 0;
+	mapon = -1;
+	ca_levelbit = 1;
+	ca_levelnum = 0;
 
-    ::ca_buffer.reserve(BUFFERSIZE);
+	::ca_buffer.reserve(BUFFERSIZE);
 }
 
 /*
@@ -490,67 +533,74 @@ void CA_Startup()
 ======================
 */
 void CA_CacheAudioChunk(
-    std::int16_t chunk)
+	std::int16_t chunk)
 {
-    std::int32_t pos;
-    std::int32_t compressed;
+	std::int32_t pos;
+	std::int32_t compressed;
 #ifdef AUDIOHEADERLINKED
-    std::int32_t expanded;
-    memptr bigbufferseg;
-    std::uint8_t* source;
+	std::int32_t expanded;
+	memptr bigbufferseg;
+	std::uint8_t* source;
 #endif
 
-    if (audiosegs[chunk]) {
-        return; // allready in memory
-    }
+	if (audiosegs[chunk])
+	{
+		return; // allready in memory
+	}
 
-//
-// load the chunk into a buffer, either the miscbuffer if it fits, or allocate
-// a larger buffer
-//
-    pos = audiostarts[chunk];
-    compressed = audiostarts[chunk + 1] - pos;
+	//
+	// load the chunk into a buffer, either the miscbuffer if it fits, or allocate
+	// a larger buffer
+	//
+	pos = audiostarts[chunk];
+	compressed = audiostarts[chunk + 1] - pos;
 
-    OpenAudioFile();
+	OpenAudioFile();
 
-    audiohandle.set_position(pos);
+	audiohandle.set_position(pos);
 
 #ifndef AUDIOHEADERLINKED
 
-    audiosegs[chunk] = new std::uint8_t[compressed];
-    audiohandle.read(audiosegs[chunk], compressed);
+	audiosegs[chunk] = new std::uint8_t[compressed];
+	audiohandle.read(audiosegs[chunk], compressed);
 
 #else
 
-    if (compressed <= BUFFERSIZE) {
-        CA_FarRead(audiohandle, bufferseg, compressed);
-        source = bufferseg;
-    } else {
-        MM_GetPtr(&bigbufferseg, compressed);
-        if (mmerror) {
-            CloseAudioFile();
-            return;
-        }
-        MM_SetLock(&bigbufferseg, true);
-        CA_FarRead(audiohandle, bigbufferseg, compressed);
-        source = bigbufferseg;
-    }
+	if (compressed <= BUFFERSIZE)
+	{
+		CA_FarRead(audiohandle, bufferseg, compressed);
+		source = bufferseg;
+	}
+	else
+	{
+		MM_GetPtr(&bigbufferseg, compressed);
+		if (mmerror)
+		{
+			CloseAudioFile();
+			return;
+		}
+		MM_SetLock(&bigbufferseg, true);
+		CA_FarRead(audiohandle, bigbufferseg, compressed);
+		source = bigbufferseg;
+	}
 
-    expanded = *(std::int32_t*)source;
-    source += 4; // skip over length
-    MM_GetPtr(&(memptr)audiosegs[chunk], expanded);
-    if (mmerror) {
-        goto done;
-    }
-    CAL_HuffExpand(source, audiosegs[chunk], expanded, audiohuffman, false);
+	expanded = *(std::int32_t*)source;
+	source += 4; // skip over length
+	MM_GetPtr(&(memptr)audiosegs[chunk], expanded);
+	if (mmerror)
+	{
+		goto done;
+	}
+	CAL_HuffExpand(source, audiosegs[chunk], expanded, audiohuffman, false);
 
 done:
-    if (compressed > BUFFERSIZE) {
-        MM_FreePtr(&bigbufferseg);
-    }
+	if (compressed > BUFFERSIZE)
+	{
+		MM_FreePtr(&bigbufferseg);
+	}
 #endif
 
-    CloseAudioFile();
+	CloseAudioFile();
 }
 
 /*
@@ -564,23 +614,28 @@ done:
 */
 void CA_LoadAllSounds()
 {
-    std::int16_t start = 0;
+	std::int16_t start = 0;
 
-    if (::old_is_sound_enabled) {
-        start = STARTADLIBSOUNDS;
-    }
+	if (::old_is_sound_enabled)
+	{
+		start = STARTADLIBSOUNDS;
+	}
 
-    if (::sd_is_sound_enabled) {
-        start = STARTADLIBSOUNDS;
-    } else {
-        return;
-    }
+	if (::sd_is_sound_enabled)
+	{
+		start = STARTADLIBSOUNDS;
+	}
+	else
+	{
+		return;
+	}
 
-    for (auto i = 0; i < NUMSOUNDS; ++i, ++start) {
-        ::CA_CacheAudioChunk(start);
-    }
+	for (auto i = 0; i < NUMSOUNDS; ++i, ++start)
+	{
+		::CA_CacheAudioChunk(start);
+	}
 
-    ::old_is_sound_enabled = ::sd_is_sound_enabled;
+	::old_is_sound_enabled = ::sd_is_sound_enabled;
 }
 
 // ===========================================================================
@@ -597,51 +652,65 @@ void CA_LoadAllSounds()
 */
 
 void CAL_ExpandGrChunk(
-    std::int16_t chunk,
-    std::uint8_t* source)
+	std::int16_t chunk,
+	std::uint8_t* source)
 {
-    std::int32_t expanded;
+	std::int32_t expanded;
 
-    if (chunk >= STARTTILE8 && chunk < STARTEXTERNS) {
-        //
-        // expanded sizes of tile8/16/32 are implicit
-        //
+	if (chunk >= STARTTILE8 && chunk < STARTEXTERNS)
+	{
+		//
+		// expanded sizes of tile8/16/32 are implicit
+		//
 
-        const int BLOCK = 64;
-        const int MASKBLOCK = 128;
+		const int BLOCK = 64;
+		const int MASKBLOCK = 128;
 
-        if (chunk < STARTTILE8M) { // tile 8s are all in one chunk!
-            expanded = BLOCK * NUMTILE8;
-        } else if (chunk < STARTTILE16) {
-            expanded = MASKBLOCK * NUMTILE8M;
-        } else if (chunk < STARTTILE16M) {      // all other tiles are one/chunk
-            expanded = BLOCK * 4;
-        } else if (chunk < STARTTILE32) {
-            expanded = MASKBLOCK * 4;
-        } else if (chunk < STARTTILE32M) {
-            expanded = BLOCK * 16;
-        } else {
-            expanded = MASKBLOCK * 16;
-        }
-    } else {
-        //
-        // everything else has an explicit size longword
-        //
+		if (chunk < STARTTILE8M)
+		{ // tile 8s are all in one chunk!
+			expanded = BLOCK * NUMTILE8;
+		}
+		else if (chunk < STARTTILE16)
+		{
+			expanded = MASKBLOCK * NUMTILE8M;
+		}
+		else if (chunk < STARTTILE16M)
+		{      // all other tiles are one/chunk
+			expanded = BLOCK * 4;
+		}
+		else if (chunk < STARTTILE32)
+		{
+			expanded = MASKBLOCK * 4;
+		}
+		else if (chunk < STARTTILE32M)
+		{
+			expanded = BLOCK * 16;
+		}
+		else
+		{
+			expanded = MASKBLOCK * 16;
+		}
+	}
+	else
+	{
+		//
+		// everything else has an explicit size longword
+		//
 		const auto& endian = bstone::Endian{};
 
-        expanded = endian.little(*reinterpret_cast<std::int32_t*>(source));
-        source += 4; // skip over length
-    }
+		expanded = endian.little(*reinterpret_cast<std::int32_t*>(source));
+		source += 4; // skip over length
+	}
 
-//
-// allocate final space, decompress it, and free bigbuffer
-// Sprites need to have shifts made and various other junk
-//
-    grsegs[chunk] = new char[expanded];
+	//
+	// allocate final space, decompress it, and free bigbuffer
+	// Sprites need to have shifts made and various other junk
+	//
+	grsegs[chunk] = new char[expanded];
 
-    CAL_HuffExpand(source, static_cast<std::uint8_t*>(grsegs[chunk]), expanded, grhuffman);
+	CAL_HuffExpand(source, static_cast<std::uint8_t*>(grsegs[chunk]), expanded, grhuffman);
 
-    ca_gr_last_expanded_size = expanded;
+	ca_gr_last_expanded_size = expanded;
 }
 
 /*
@@ -654,41 +723,44 @@ void CAL_ExpandGrChunk(
 ======================
 */
 void CA_CacheGrChunk(
-    std::int16_t chunk)
+	std::int16_t chunk)
 {
-    std::int32_t pos, compressed;
-    std::uint8_t* source;
-    std::int16_t next;
+	std::int32_t pos, compressed;
+	std::uint8_t* source;
+	std::int16_t next;
 
-    grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
-    if (grsegs[chunk]) {
-        return; // allready in memory
+	grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
+	if (grsegs[chunk])
+	{
+		return; // allready in memory
 
-    }
-//
-// load the chunk into a buffer, either the miscbuffer if it fits, or allocate
-// a larger buffer
-//
-    pos = GRFILEPOS(chunk);
-    if (pos < 0) { // $FFFFFFFF start is a sparse tile
-        return;
-    }
+	}
+	//
+	// load the chunk into a buffer, either the miscbuffer if it fits, or allocate
+	// a larger buffer
+	//
+	pos = GRFILEPOS(chunk);
+	if (pos < 0)
+	{ // $FFFFFFFF start is a sparse tile
+		return;
+	}
 
-    next = chunk + 1;
-    while (GRFILEPOS(next) == -1) { // skip past any sparse tiles
-        next++;
-    }
+	next = chunk + 1;
+	while (GRFILEPOS(next) == -1)
+	{ // skip past any sparse tiles
+		next++;
+	}
 
-    compressed = GRFILEPOS(next) - pos;
+	compressed = GRFILEPOS(next) - pos;
 
 
-    ::grhandle.set_position(pos);
+	::grhandle.set_position(pos);
 
-    ::ca_buffer.resize(compressed);
-    ::grhandle.read(::ca_buffer.data(), compressed);
-    source = ::ca_buffer.data();
+	::ca_buffer.resize(compressed);
+	::grhandle.read(::ca_buffer.data(), compressed);
+	source = ::ca_buffer.data();
 
-    ::CAL_ExpandGrChunk(chunk, source);
+	::CAL_ExpandGrChunk(chunk, source);
 }
 
 
@@ -702,36 +774,37 @@ void CA_CacheGrChunk(
 ======================
 */
 void CA_CacheScreen(
-    std::int16_t chunk)
+	std::int16_t chunk)
 {
-    std::int32_t pos, compressed;
-    std::uint8_t* source;
-    std::int16_t next;
+	std::int32_t pos, compressed;
+	std::uint8_t* source;
+	std::int16_t next;
 
 
-//
-// load the chunk into a buffer
-//
-    pos = GRFILEPOS(chunk);
-    next = chunk + 1;
-    while (GRFILEPOS(next) == -1) { // skip past any sparse tiles
-        next++;
-    }
-    compressed = GRFILEPOS(next) - pos;
+	//
+	// load the chunk into a buffer
+	//
+	pos = GRFILEPOS(chunk);
+	next = chunk + 1;
+	while (GRFILEPOS(next) == -1)
+	{ // skip past any sparse tiles
+		next++;
+	}
+	compressed = GRFILEPOS(next) - pos;
 
-    grhandle.set_position(pos);
+	grhandle.set_position(pos);
 
-    ::ca_buffer.resize(compressed);
-    grhandle.read(::ca_buffer.data(), compressed);
-    source = ::ca_buffer.data();
+	::ca_buffer.resize(compressed);
+	grhandle.read(::ca_buffer.data(), compressed);
+	source = ::ca_buffer.data();
 
-    source += 4; // skip over length
+	source += 4; // skip over length
 
 //
 // allocate final space, decompress it, and free bigbuffer
 // Sprites need to have shifts made and various other junk
 //
-    ca_huff_expand_on_screen(source, grhuffman);
+	ca_huff_expand_on_screen(source, grhuffman);
 }
 
 /*
@@ -813,12 +886,13 @@ void CA_CacheMap(
 */
 void CA_UpLevel()
 {
-    if (ca_levelnum == 7) {
-        ::Quit("Up past level 7.");
-    }
+	if (ca_levelnum == 7)
+	{
+		::Quit("Up past level 7.");
+	}
 
-    ca_levelbit <<= 1;
-    ca_levelnum++;
+	ca_levelbit <<= 1;
+	ca_levelnum++;
 }
 
 /*
@@ -833,200 +907,228 @@ void CA_UpLevel()
 */
 void CA_DownLevel()
 {
-    if (!ca_levelnum) {
-        ::Quit("Down past level 0.");
-    }
+	if (!ca_levelnum)
+	{
+		::Quit("Down past level 0.");
+	}
 
-    ca_levelbit >>= 1;
-    ca_levelnum--;
-    CA_CacheMarks();
+	ca_levelbit >>= 1;
+	ca_levelnum--;
+	CA_CacheMarks();
 }
 
 void CA_CacheMarks()
 {
-    const int MAXEMPTYREAD = 1024;
+	const int MAXEMPTYREAD = 1024;
 
-    std::int16_t i;
-    std::int16_t next;
-    std::int16_t numcache;
-    std::int32_t pos;
-    std::int32_t endpos;
-    std::int32_t nextpos;
-    std::int32_t nextendpos;
-    std::int32_t compressed;
-    std::int32_t bufferstart;
-    std::int32_t bufferend; // file position of general buffer
-    std::uint8_t* source;
+	std::int16_t i;
+	std::int16_t next;
+	std::int16_t numcache;
+	std::int32_t pos;
+	std::int32_t endpos;
+	std::int32_t nextpos;
+	std::int32_t nextendpos;
+	std::int32_t compressed;
+	std::int32_t bufferstart;
+	std::int32_t bufferend; // file position of general buffer
+	std::uint8_t* source;
 
-    numcache = 0;
-//
-// go through and make everything not needed purgable
-//
-    for (i = 0; i < NUMCHUNKS; i++) {
-        if (grneeded[i] & ca_levelbit) {
-            if (grsegs[i]) { // its allready in memory, make
-            } else {
-                numcache++;
-            }
-        }
-    }
+	numcache = 0;
+	//
+	// go through and make everything not needed purgable
+	//
+	for (i = 0; i < NUMCHUNKS; i++)
+	{
+		if (grneeded[i] & ca_levelbit)
+		{
+			if (grsegs[i])
+			{ // its allready in memory, make
+			}
+			else
+			{
+				numcache++;
+			}
+		}
+	}
 
-    if (!numcache) { // nothing to cache!
-        return;
-    }
+	if (!numcache)
+	{ // nothing to cache!
+		return;
+	}
 
 
-//
-// go through and load in anything still needed
-//
-    bufferstart = bufferend = 0; // nothing good in buffer now
+	//
+	// go through and load in anything still needed
+	//
+	bufferstart = bufferend = 0; // nothing good in buffer now
 
-    for (i = 0; i < NUMCHUNKS; i++) {
-        if ((grneeded[i] & ca_levelbit) && !grsegs[i]) {
-            pos = GRFILEPOS(i);
-            if (pos < 0) {
-                continue;
-            }
+	for (i = 0; i < NUMCHUNKS; i++)
+	{
+		if ((grneeded[i] & ca_levelbit) && !grsegs[i])
+		{
+			pos = GRFILEPOS(i);
+			if (pos < 0)
+			{
+				continue;
+			}
 
-            next = i + 1;
-            while (GRFILEPOS(next) == -1) { // skip past any sparse tiles
-                next++;
-            }
+			next = i + 1;
+			while (GRFILEPOS(next) == -1)
+			{ // skip past any sparse tiles
+				next++;
+			}
 
-            compressed = GRFILEPOS(next) - pos;
-            endpos = pos + compressed;
+			compressed = GRFILEPOS(next) - pos;
+			endpos = pos + compressed;
 
-            if (bufferstart <= pos && bufferend >= endpos) {
-                // data is allready in buffer
-                source = ::ca_buffer.data() + (pos - bufferstart);
-            } else {
-                // load buffer with a new block from disk
-                // try to get as many of the needed blocks in as possible
-                while (next < NUMCHUNKS) {
-                    while (next < NUMCHUNKS &&
-                            !(grneeded[next] & ca_levelbit && !grsegs[next]))
-                    {
-                        ++next;
-                    }
+			if (bufferstart <= pos && bufferend >= endpos)
+			{
+				// data is allready in buffer
+				source = ::ca_buffer.data() + (pos - bufferstart);
+			}
+			else
+			{
+				// load buffer with a new block from disk
+				// try to get as many of the needed blocks in as possible
+				while (next < NUMCHUNKS)
+				{
+					while (next < NUMCHUNKS &&
+						!(grneeded[next] & ca_levelbit && !grsegs[next]))
+					{
+						++next;
+					}
 
-                    if (next == NUMCHUNKS) {
-                        continue;
-                    }
+					if (next == NUMCHUNKS)
+					{
+						continue;
+					}
 
-                    nextpos = GRFILEPOS(next);
+					nextpos = GRFILEPOS(next);
 
-                    while (GRFILEPOS(++next) == -1) {
-                        // skip past any sparse tiles
-                    }
+					while (GRFILEPOS(++next) == -1)
+					{
+						// skip past any sparse tiles
+					}
 
-                    nextendpos = GRFILEPOS(next);
+					nextendpos = GRFILEPOS(next);
 
-                    if ((nextpos - endpos) <= MAXEMPTYREAD
-                        && (nextendpos - pos) <= BUFFERSIZE)
-                    {
-                        endpos = nextendpos;
-                    } else {
-                        next = NUMCHUNKS; // read pos to posend
-                    }
-                }
+					if ((nextpos - endpos) <= MAXEMPTYREAD
+						&& (nextendpos - pos) <= BUFFERSIZE)
+					{
+						endpos = nextendpos;
+					}
+					else
+					{
+						next = NUMCHUNKS; // read pos to posend
+					}
+				}
 
-                grhandle.set_position(pos);
-                ::ca_buffer.resize(endpos - pos);
-                grhandle.read(::ca_buffer.data(), endpos - pos);
-                bufferstart = pos;
-                bufferend = endpos;
-                source = ::ca_buffer.data();
-            }
+				grhandle.set_position(pos);
+				::ca_buffer.resize(endpos - pos);
+				grhandle.read(::ca_buffer.data(), endpos - pos);
+				bufferstart = pos;
+				bufferend = endpos;
+				source = ::ca_buffer.data();
+			}
 
-            CAL_ExpandGrChunk(i, source);
-        }
-    }
+			CAL_ExpandGrChunk(i, source);
+		}
+	}
 }
 
 void CA_CannotOpen(
-    const std::string& string)
+	const std::string& string)
 {
-    ::Quit("Can't open " + string + "!\n");
+	::Quit("Can't open " + string + "!\n");
 }
 
 void UNCACHEGRCHUNK(
-    int chunk)
+	int chunk)
 {
-    delete [] static_cast<char*>(grsegs[chunk]);
-    grsegs[chunk] = nullptr;
+	delete[] static_cast<char*>(grsegs[chunk]);
+	grsegs[chunk] = nullptr;
 
-    grneeded[chunk] &= ~ca_levelbit;
+	grneeded[chunk] &= ~ca_levelbit;
 }
 
 std::string ca_load_script(
-    int chunk_id,
-    bool strip_xx)
+	int chunk_id,
+	bool strip_xx)
 {
-    ::CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
+	::CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
 
-    const char* script = static_cast<const char*>(grsegs[chunk_id]);
+	const char* script = static_cast<const char*>(grsegs[chunk_id]);
 
-    int length = 0;
+	int length = 0;
 
-    for (int i = 0; script[i] != '\x1A'; ++i) {
-        if (script[i] == '^' && script[i + 1] == 'X' && script[i + 2] == 'X') {
-            length = i + 3;
-        }
-    }
+	for (int i = 0; script[i] != '\x1A'; ++i)
+	{
+		if (script[i] == '^' && script[i + 1] == 'X' && script[i + 2] == 'X')
+		{
+			length = i + 3;
+		}
+	}
 
-    if (length == 0) {
-        ::Quit("Invalid script.");
-    }
+	if (length == 0)
+	{
+		::Quit("Invalid script.");
+	}
 
-    if (strip_xx) {
-        length -= 3;
-    }
+	if (strip_xx)
+	{
+		length -= 3;
+	}
 
-    return std::string(script, length);
+	return std::string(script, length);
 }
 
 void initialize_ca_constants()
 {
 	const auto& assets_info = AssetsInfo{};
 
-    if (assets_info.is_aog_full()) {
-        NUM_EPISODES = 6;
-        MAPS_PER_EPISODE = 15;
-        MAPS_WITH_STATS = 11;
-    } else if (assets_info.is_aog_sw()) {
-        NUM_EPISODES = 1;
-        MAPS_PER_EPISODE = 15;
-        MAPS_WITH_STATS = 11;
-    } else if (assets_info.is_ps()) {
-        NUM_EPISODES = 1;
-        MAPS_PER_EPISODE = 25;
-        MAPS_WITH_STATS = 20;
-    }
+	if (assets_info.is_aog_full())
+	{
+		NUM_EPISODES = 6;
+		MAPS_PER_EPISODE = 15;
+		MAPS_WITH_STATS = 11;
+	}
+	else if (assets_info.is_aog_sw())
+	{
+		NUM_EPISODES = 1;
+		MAPS_PER_EPISODE = 15;
+		MAPS_WITH_STATS = 11;
+	}
+	else if (assets_info.is_ps())
+	{
+		NUM_EPISODES = 1;
+		MAPS_PER_EPISODE = 25;
+		MAPS_WITH_STATS = 20;
+	}
 
-    NUMMAPS = NUM_EPISODES * MAPS_PER_EPISODE;
+	NUMMAPS = NUM_EPISODES * MAPS_PER_EPISODE;
 
-    mapheaderseg.resize(NUMMAPS);
+	mapheaderseg.resize(NUMMAPS);
 }
 
 bool ca_is_resource_exists(
-    const std::string& file_name)
+	const std::string& file_name)
 {
-    const auto path = ::data_dir + file_name;
+	const auto path = ::data_dir + file_name;
 
-    auto is_open = false;
+	auto is_open = false;
 
-    is_open = bstone::FileStream::is_exists(path);
+	is_open = bstone::FileStream::is_exists(path);
 
-    if (!is_open)
-    {
+	if (!is_open)
+	{
 		const auto& string_helper = bstone::StringHelper{};
-        const auto file_name_lc = string_helper.to_lower(file_name);
-        const auto path_lc = ::data_dir + file_name_lc;
+		const auto file_name_lc = string_helper.to_lower(file_name);
+		const auto path_lc = ::data_dir + file_name_lc;
 
-        is_open = bstone::FileStream::is_exists(path_lc);
-    }
+		is_open = bstone::FileStream::is_exists(path_lc);
+	}
 
-    return is_open;
+	return is_open;
 }
 
 bool ca_open_resource_non_fatal(
@@ -1549,19 +1651,19 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
 	static auto aog_sw_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
-		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
+	{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
 
-		{map_header_base_name, "ad8807e51704ef0e4b3ced663c0d579592b90a56"},
-		{map_data_base_name, "365824414c91947b1e3589da03a6b651da06514a"},
+	{map_header_base_name, "ad8807e51704ef0e4b3ced663c0d579592b90a56"},
+	{map_data_base_name, "365824414c91947b1e3589da03a6b651da06514a"},
 
-		{gfx_dictionary_base_name, "b70850f93ff827b042dec18c94ce60e8b03b1b3b"},
-		{gfx_header_base_name, "403dc7a9819654c9b0aad5fac0ed2bed681685a6"},
-		{gfx_data_base_name, "d880466fc01d16b7ab7aeaee35174b8f3cde270a"},
+	{gfx_dictionary_base_name, "b70850f93ff827b042dec18c94ce60e8b03b1b3b"},
+	{gfx_header_base_name, "403dc7a9819654c9b0aad5fac0ed2bed681685a6"},
+	{gfx_data_base_name, "d880466fc01d16b7ab7aeaee35174b8f3cde270a"},
 
-		{page_file_base_name, "d72bb643fbe0fa3289090e81a583732aecd1c788"},
+	{page_file_base_name, "d72bb643fbe0fa3289090e81a583732aecd1c788"},
 
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v1_0_base_name_to_hash_map
 
 	return aog_sw_v1_0_base_name_to_hash_map;
@@ -1572,19 +1674,19 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
 	static auto aog_sw_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "08f91c4ce58d4ba15a83f06a8bf588a211124b22"},
-		{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
+	{audio_data_base_name, "4d3da5709e903dbedf9564b53c354b00f607a0ff"},
 
-		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
-		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
+	{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+	{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
 
-		{gfx_dictionary_base_name, "7ed53d1006fdd50bcce5949fc4544d28153983e8"},
-		{gfx_header_base_name, "34df3bbbe37a32b2e5936f481577385b6c218b69"},
-		{gfx_data_base_name, "8452d63ac3f66102d70f6afc20786768eed0f22a"},
+	{gfx_dictionary_base_name, "7ed53d1006fdd50bcce5949fc4544d28153983e8"},
+	{gfx_header_base_name, "34df3bbbe37a32b2e5936f481577385b6c218b69"},
+	{gfx_data_base_name, "8452d63ac3f66102d70f6afc20786768eed0f22a"},
 
-		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
+	{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
 
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v2_0_base_name_to_hash_map
 
 	return aog_sw_v2_0_base_name_to_hash_map;
@@ -1595,19 +1697,19 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
 	static auto aog_sw_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
-		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+	{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
-		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
+	{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+	{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
 
-		{gfx_dictionary_base_name, "cfbda96717fc9d36aca347828000bd8739d25500"},
-		{gfx_header_base_name, "e40e4311341ec03b48f48ce35eb04d5493be27c9"},
-		{gfx_data_base_name, "b98e8f4b1f398429d4a76720e302615fe52caf8f"},
+	{gfx_dictionary_base_name, "cfbda96717fc9d36aca347828000bd8739d25500"},
+	{gfx_header_base_name, "e40e4311341ec03b48f48ce35eb04d5493be27c9"},
+	{gfx_data_base_name, "b98e8f4b1f398429d4a76720e302615fe52caf8f"},
 
-		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
+	{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
 
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v2_1_base_name_to_hash_map
 
 	return aog_sw_v2_1_base_name_to_hash_map;
@@ -1618,19 +1720,19 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
 	static auto aog_sw_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
-		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+	{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
-		{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
+	{map_header_base_name, "5cc262f2429d57698b6a3a335239bd2cf1f47945"},
+	{map_data_base_name, "3e93219bd86584a25f5a58b9318c8f9f626e3795"},
 
-		{gfx_dictionary_base_name, "56c8a8cc4039079261ebc987f80f401df912406d"},
-		{gfx_header_base_name, "f589b6ddbfeac281ee2358dfcf9c421ac469fdc9"},
-		{gfx_data_base_name, "2f59b7c33c7a1895faf46cf5a7150d12353d8893"},
+	{gfx_dictionary_base_name, "56c8a8cc4039079261ebc987f80f401df912406d"},
+	{gfx_header_base_name, "f589b6ddbfeac281ee2358dfcf9c421ac469fdc9"},
+	{gfx_data_base_name, "2f59b7c33c7a1895faf46cf5a7150d12353d8893"},
 
-		{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
+	{page_file_base_name, "b13126ee04c4a921329e8a420dbbb85de5b5be70"},
 
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_sw_v3_0_base_name_to_hash_map
 
 	return aog_sw_v3_0_base_name_to_hash_map;
@@ -1642,21 +1744,21 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map()
 	static auto aog_full_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
-		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+	{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, "9ac4a06bd7fc25b48852bf4da1ca9decf06e3873"},
-		{map_data_base_name, "22a160796397b515348752393d4f7f91f3ce786e"},
+	{map_header_base_name, "9ac4a06bd7fc25b48852bf4da1ca9decf06e3873"},
+	{map_data_base_name, "22a160796397b515348752393d4f7f91f3ce786e"},
 
-		{gfx_dictionary_base_name, "191dc0617f82f9d93ca5464b6af0d4abf614a3ec"},
-		{gfx_header_base_name, "2fbd05d76cdd9e13cc14e3a146db5f5388820a6f"},
-		{gfx_data_base_name, "76fc99265ddb463e12707eeefff7cf47c74cc18a"},
+	{gfx_dictionary_base_name, "191dc0617f82f9d93ca5464b6af0d4abf614a3ec"},
+	{gfx_header_base_name, "2fbd05d76cdd9e13cc14e3a146db5f5388820a6f"},
+	{gfx_data_base_name, "76fc99265ddb463e12707eeefff7cf47c74cc18a"},
 
-		{page_file_base_name, "4a6b188381028158ac392965edb753a807111b56"},
+	{page_file_base_name, "4a6b188381028158ac392965edb753a807111b56"},
 
-		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
-		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+	{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v1_0_base_name_to_hash_map
 
 	return aog_full_v1_0_base_name_to_hash_map;
@@ -1667,21 +1769,21 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map()
 	static auto aog_full_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
-		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+	{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
-		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
+	{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+	{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
 
-		{gfx_dictionary_base_name, "125ccb707edeb420aebf502ee8fc49d40171b2c1"},
-		{gfx_header_base_name, "1fdb177d8b010670399ed161c071ed09d2e06b03"},
-		{gfx_data_base_name, "36fcc86a858efcaf272e60434d4e69994546b1c9"},
+	{gfx_dictionary_base_name, "125ccb707edeb420aebf502ee8fc49d40171b2c1"},
+	{gfx_header_base_name, "1fdb177d8b010670399ed161c071ed09d2e06b03"},
+	{gfx_data_base_name, "36fcc86a858efcaf272e60434d4e69994546b1c9"},
 
-		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
+	{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
 
-		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
-		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+	{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v2_0_base_name_to_hash_map
 
 	return aog_full_v2_0_base_name_to_hash_map;
@@ -1692,21 +1794,21 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map()
 	static auto aog_full_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
-		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+	{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
-		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
+	{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+	{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
 
-		{gfx_dictionary_base_name, "f24edbeec8f9e6988fde4a91b423fd87ca72148e"},
-		{gfx_header_base_name, "ef373dd36ff5f03e21a696cd740ef2ce71585f3e"},
-		{gfx_data_base_name, "aefd4868e6e59616c149f6ae4fad7bd8fd8c1f90"},
+	{gfx_dictionary_base_name, "f24edbeec8f9e6988fde4a91b423fd87ca72148e"},
+	{gfx_header_base_name, "ef373dd36ff5f03e21a696cd740ef2ce71585f3e"},
+	{gfx_data_base_name, "aefd4868e6e59616c149f6ae4fad7bd8fd8c1f90"},
 
-		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
+	{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
 
-		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
-		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+	{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v2_1_base_name_to_hash_map
 
 	return aog_full_v2_1_base_name_to_hash_map;
@@ -1717,21 +1819,21 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map()
 	static auto aog_full_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "177a680aca41012539a1e3ecfbbee28af9664ebb"},
-		{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
+	{audio_data_base_name, "bff757d712fa23697767591343879271c57684af"},
 
-		{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
-		{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
+	{map_header_base_name, "8ee7970b93c7df2d035fbc168efea6081963924a"},
+	{map_data_base_name, "e22c5a638b58bc442b127d4b7c81b7fc221059da"},
 
-		{gfx_dictionary_base_name, "482aa07f75bd06c91fbad0239ee6f633800cfabc"},
-		{gfx_header_base_name, "818bed8b27d3c703d2e20ad1c91f2bac5a8d1cd9"},
-		{gfx_data_base_name, "28dac1c5f4ef19d834737c15ba8f37af5e66edee"},
+	{gfx_dictionary_base_name, "482aa07f75bd06c91fbad0239ee6f633800cfabc"},
+	{gfx_header_base_name, "818bed8b27d3c703d2e20ad1c91f2bac5a8d1cd9"},
+	{gfx_data_base_name, "28dac1c5f4ef19d834737c15ba8f37af5e66edee"},
 
-		{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
+	{page_file_base_name, "0ddd940e2cb2e96bdebb46487e3e812e1bbda613"},
 
-		{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
-		{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
-		{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
+	{episode_6_fmv_base_name, "396b0f0b4409056f6b82239a7bd97b65e34b08a5"},
+	{episode_3_5_fmv_base_name, "9aac6157c774a739df40b3bbf6043423a1e6d317"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_2_4_fmv_base_name, "2301d7e4f63858cf15f428dc3da25cfb5077efc5"},
 	}; // aog_full_v3_0_base_name_to_hash_map
 
 	return aog_full_v3_0_base_name_to_hash_map;
@@ -1743,19 +1845,19 @@ const AssetsBaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
 	static auto ps_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
 		{audio_header_base_name, "a713f75daf8274375dce0590c0caec6a994022dc"},
-		{audio_data_base_name, "6eadc8ac76bb3e20726db6e2584caf50ce36b624"},
+	{audio_data_base_name, "6eadc8ac76bb3e20726db6e2584caf50ce36b624"},
 
-		{map_header_base_name, "155c550a1a240631e08e4f8be2686e29bde0549e"},
-		{map_data_base_name, "a40c9f6bbad59fe13c55388e265402e55167803a"},
+	{map_header_base_name, "155c550a1a240631e08e4f8be2686e29bde0549e"},
+	{map_data_base_name, "a40c9f6bbad59fe13c55388e265402e55167803a"},
 
-		{gfx_dictionary_base_name, "b74e45d850c92f2066fed2dfd38545cc28680c4e"},
-		{gfx_header_base_name, "e02d5d7c1e86812162eb2d86766ad8acf3dfe9be"},
-		{gfx_data_base_name, "523973d0df78d439960662a15a867d600720baf1"},
+	{gfx_dictionary_base_name, "b74e45d850c92f2066fed2dfd38545cc28680c4e"},
+	{gfx_header_base_name, "e02d5d7c1e86812162eb2d86766ad8acf3dfe9be"},
+	{gfx_data_base_name, "523973d0df78d439960662a15a867d600720baf1"},
 
-		{page_file_base_name, "ccf70bfb536545e9b2c709ce3ce12e2b1765bc03"},
+	{page_file_base_name, "ccf70bfb536545e9b2c709ce3ce12e2b1765bc03"},
 
-		{episode_6_fmv_base_name, "055b9c5d5256e4d8d97259da37381882f46c2550"},
-		{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
+	{episode_6_fmv_base_name, "055b9c5d5256e4d8d97259da37381882f46c2550"},
+	{intro_fmv_base_name, "a29b7557738c8abf9e0c9109f563d02d427be4b2"},
 	}; // ps_base_name_to_hash_map
 
 	return ps_base_name_to_hash_map;
@@ -1783,9 +1885,9 @@ bool Assets::are_official_levels(
 		all_levels_hashes.cbegin(),
 		all_levels_hashes.cend(),
 		[&](const std::string& item)
-		{
-			return item == levels_hash;
-		}
+	{
+		return item == levels_hash;
+	}
 	);
 
 	return result;

@@ -34,101 +34,110 @@ const int STATOBJLIST_OFFSET = 0xFFFF - MAXSTATS;
 const int DOOROBJLIST_OFFSET = 0xFFFF - MAXDOORS;
 
 
-void ogl_update_screen();
-
-
 objtype* ui16_to_actor(
-    std::uint16_t value)
+	std::uint16_t value)
 {
-    int index = value - OBJLIST_OFFSET;
+	int index = value - OBJLIST_OFFSET;
 
-    if (index < 0) {
-        return nullptr;
-    }
+	if (index < 0)
+	{
+		return nullptr;
+	}
 
-    if (index >= MAXACTORS) {
-        return nullptr;
-    }
+	if (index >= MAXACTORS)
+	{
+		return nullptr;
+	}
 
-    return &objlist[index];
+	return &objlist[index];
 }
 
 std::uint16_t actor_to_ui16(
-    const objtype* actor)
+	const objtype* actor)
 {
-    auto index = actor - objlist;
+	auto index = actor - objlist;
 
-    if (index < 0) {
-        return 0;
-    }
+	if (index < 0)
+	{
+		return 0;
+	}
 
-    if (index >= MAXACTORS) {
-        return 0;
-    }
+	if (index >= MAXACTORS)
+	{
+		return 0;
+	}
 
-    return static_cast<std::uint16_t>(index + OBJLIST_OFFSET);
+	return static_cast<std::uint16_t>(index + OBJLIST_OFFSET);
 }
 
 statobj_t* ui16_to_static_object(
-    std::uint16_t value)
+	std::uint16_t value)
 {
-    int index = value - STATOBJLIST_OFFSET;
+	int index = value - STATOBJLIST_OFFSET;
 
-    if (index < 0) {
-        return nullptr;
-    }
+	if (index < 0)
+	{
+		return nullptr;
+	}
 
-    if (index >= MAXSTATS) {
-        return nullptr;
-    }
+	if (index >= MAXSTATS)
+	{
+		return nullptr;
+	}
 
-    return &statobjlist[index];
+	return &statobjlist[index];
 }
 
 std::uint16_t static_object_to_ui16(
-    const statobj_t* static_object)
+	const statobj_t* static_object)
 {
-    auto index = static_object - statobjlist;
+	auto index = static_object - statobjlist;
 
-    if (index < 0) {
-        return 0;
-    }
+	if (index < 0)
+	{
+		return 0;
+	}
 
-    if (index >= MAXSTATS) {
-        return 0;
-    }
+	if (index >= MAXSTATS)
+	{
+		return 0;
+	}
 
-    return static_cast<std::uint16_t>(index + STATOBJLIST_OFFSET);
+	return static_cast<std::uint16_t>(index + STATOBJLIST_OFFSET);
 }
 
 doorobj_t* ui16_to_door_object(
-    std::uint16_t value)
+	std::uint16_t value)
 {
-    int index = value - DOOROBJLIST_OFFSET;
+	int index = value - DOOROBJLIST_OFFSET;
 
-    if (index < 0) {
-        return nullptr;
-    }
+	if (index < 0)
+	{
+		return nullptr;
+	}
 
-    if (index >= MAXDOORS) {
-        return nullptr;
-    }
+	if (index >= MAXDOORS)
+	{
+		return nullptr;
+	}
 
-    return &doorobjlist[index];
+	return &doorobjlist[index];
 }
 
 std::uint16_t door_object_to_ui16(
-    const doorobj_t* door_object)
+	const doorobj_t* door_object)
 {
-    auto index = door_object - doorobjlist;
+	auto index = door_object - doorobjlist;
 
-    if (index < 0) {
-        return 0;
-    }
+	if (index < 0)
+	{
+		return 0;
+	}
 
-    if (index >= MAXDOORS) {
-        return 0;
-    }
+	if (index >= MAXDOORS)
+	{
+		return 0;
+	}
 
-    return static_cast<std::uint16_t>(index + DOOROBJLIST_OFFSET);
+	return static_cast<std::uint16_t>(index + DOOROBJLIST_OFFSET);
 }

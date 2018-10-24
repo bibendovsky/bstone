@@ -41,11 +41,11 @@ Free Software Foundation, Inc.,
 #endif
 
 void VL_LatchToScreen(
-    int source,
-    int width,
-    int height,
-    int x,
-    int y);
+	int source,
+	int width,
+	int height,
+	int x,
+	int y);
 
 /*
 =============================================================================
@@ -65,15 +65,15 @@ void FreeMusic();
 void ClearMemory();
 
 void CA_CacheScreen(
-    std::int16_t chunk);
+	std::int16_t chunk);
 
 void VH_UpdateScreen();
 void DrawHighScores();
 void freed_main();
 
 void PreloadUpdate(
-    std::uint16_t current,
-    std::uint16_t total);
+	std::uint16_t current,
+	std::uint16_t total);
 
 void OpenAudioFile();
 
@@ -122,15 +122,15 @@ std::uint16_t BottomColor;
 bool nospr;
 
 std::int16_t dirangle[9] = {
-    0 * ANGLES / 8,
-    1 * ANGLES / 8,
-    2 * ANGLES / 8,
-    3 * ANGLES / 8,
-    4 * ANGLES / 8,
-    5 * ANGLES / 8,
-    6 * ANGLES / 8,
-    7 * ANGLES / 8,
-    8 * ANGLES / 8,
+	0 * ANGLES / 8,
+	1 * ANGLES / 8,
+	2 * ANGLES / 8,
+	3 * ANGLES / 8,
+	4 * ANGLES / 8,
+	5 * ANGLES / 8,
+	6 * ANGLES / 8,
+	7 * ANGLES / 8,
+	8 * ANGLES / 8,
 }; // dirangle
 
 //
@@ -3850,12 +3850,13 @@ unsigned mspeed;
 
 void CalcSpeedRating()
 {
-    std::int16_t loop;
+	std::int16_t loop;
 
-    for (loop = 0; loop < 10; loop++) {
-        ThreeDRefresh();
-        mspeed += tics;
-    }
+	for (loop = 0; loop < 10; loop++)
+	{
+		ThreeDRefresh();
+		mspeed += tics;
+	}
 }
 
 #endif
@@ -4145,561 +4146,564 @@ extern statetype s_attack;
 
 
 statetype* states_list[] = {
-    nullptr,
-    &s_ofs_stand,
-    &s_ofs_chase1,
-    &s_ofs_chase1s,
-    &s_ofs_chase2,
-    &s_ofs_chase3,
-    &s_ofs_chase3s,
-    &s_ofs_chase4,
-    &s_ofs_pain,
-    &s_ofs_die1,
-    &s_ofs_die1s,
-    &s_ofs_die2,
-    &s_ofs_die3,
-    &s_ofs_die4,
-    &s_ofs_die5,
-    &s_ofs_attack1,
-    &s_ofs_attack2,
-    &s_ofs_attack3,
-    &s_ofs_spit1,
-    &s_ofs_spit2,
-    &s_ofs_spit3,
-    &s_ofs_shoot1,
-    &s_ofs_shoot2,
-    &s_ofs_shoot3,
-    &s_ofs_pod_attack1,
-    &s_ofs_pod_attack1a,
-    &s_ofs_pod_attack2,
-    &s_ofs_pod_spit1,
-    &s_ofs_pod_spit2,
-    &s_ofs_pod_spit3,
-    &s_ofs_pod_death1,
-    &s_ofs_pod_death2,
-    &s_ofs_pod_death3,
-    &s_ofs_pod_ouch,
-    &s_ofs_bounce,
-    &s_ofs_ouch,
-    &s_ofs_esphere_death1,
-    &s_ofs_esphere_death2,
-    &s_ofs_esphere_death3,
-    &s_ofs_random,
-    &s_ofs_static,
-    &s_hold,
-    &s_ofs_smart_anim,
-    &s_ofs_smart_anim2,
-    &s_barrier_transition,
-    &s_vpost_barrier,
-    &s_spike_barrier,
-    &s_barrier_shutdown,
-    &s_rent_stand,
-    &s_rent_path1,
-    &s_rent_path1s,
-    &s_rent_path2,
-    &s_rent_path3,
-    &s_rent_path3s,
-    &s_rent_path4,
-    &s_rent_pain,
-    &s_rent_shoot1,
-    &s_rent_shoot2,
-    &s_rent_shoot3,
-    &s_rent_chase1,
-    &s_rent_chase1s,
-    &s_rent_chase2,
-    &s_rent_chase3,
-    &s_rent_chase3s,
-    &s_rent_chase4,
-    &s_rent_die1,
-    &s_rent_die2,
-    &s_rent_die3,
-    &s_rent_die3s,
-    &s_rent_die4,
-    &s_ofcstand,
-    &s_ofcpath1,
-    &s_ofcpath1s,
-    &s_ofcpath2,
-    &s_ofcpath3,
-    &s_ofcpath3s,
-    &s_ofcpath4,
-    &s_ofcpain,
-    &s_ofcshoot1,
-    &s_ofcshoot2,
-    &s_ofcshoot3,
-    &s_ofcchase1,
-    &s_ofcchase1s,
-    &s_ofcchase2,
-    &s_ofcchase3,
-    &s_ofcchase3s,
-    &s_ofcchase4,
-    &s_ofcdie1,
-    &s_ofcdie2,
-    &s_ofcdie3,
-    &s_ofcdie4,
-    &s_ofcdie5,
-    &s_swatstand,
-    &s_swatpath1,
-    &s_swatpath1s,
-    &s_swatpath2,
-    &s_swatpath3,
-    &s_swatpath3s,
-    &s_swatpath4,
-    &s_swatpain,
-    &s_swatshoot1,
-    &s_swatshoot2,
-    &s_swatshoot3,
-    &s_swatshoot4,
-    &s_swatshoot5,
-    &s_swatshoot6,
-    &s_swatshoot7,
-    &s_swatchase1,
-    &s_swatchase1s,
-    &s_swatchase2,
-    &s_swatchase3,
-    &s_swatchase3s,
-    &s_swatchase4,
-    &s_swatwounded1,
-    &s_swatwounded2,
-    &s_swatwounded3,
-    &s_swatwounded4,
-    &s_swatunwounded1,
-    &s_swatunwounded2,
-    &s_swatunwounded3,
-    &s_swatunwounded4,
-    &s_swatdie1,
-    &s_swatdie2,
-    &s_swatdie3,
-    &s_swatdie4,
-    &s_swatdie5,
-    &s_prostand,
-    &s_propath1,
-    &s_propath1s,
-    &s_propath2,
-    &s_propath3,
-    &s_propath3s,
-    &s_propath4,
-    &s_propain,
-    &s_proshoot1,
-    &s_proshoot2,
-    &s_proshoot3,
-    &s_proshoot4,
-    &s_proshoot5,
-    &s_proshoot6,
-    &s_proshoot6a,
-    &s_prochase1,
-    &s_prochase1s,
-    &s_prochase2,
-    &s_prochase3,
-    &s_prochase3s,
-    &s_prochase4,
-    &s_prodie1,
-    &s_prodie2,
-    &s_prodie3,
-    &s_prodie3a,
-    &s_prodie4,
-    &s_electro_appear1,
-    &s_electro_appear2,
-    &s_electro_appear3,
-    &s_electro_chase1,
-    &s_electro_chase2,
-    &s_electro_chase3,
-    &s_electro_chase4,
-    &s_electro_ouch,
-    &s_electro_shoot1,
-    &s_electro_shoot2,
-    &s_electro_shoot3,
-    &s_electro_shot1,
-    &s_electro_shot2,
-    &s_ofs_shot1,
-    &s_ofs_shot2,
-    &s_electro_die1,
-    &s_electro_die2,
-    &s_electro_die3,
-    &s_liquid_wait,
-    &s_liquid_move,
-    &s_liquid_rise1,
-    &s_liquid_rise2,
-    &s_liquid_rise3,
-    &s_liquid_stand,
-    &s_liquid_fall1,
-    &s_liquid_fall2,
-    &s_liquid_fall3,
-    &s_liquid_shoot1,
-    &s_liquid_shoot2,
-    &s_liquid_shoot3,
-    &s_liquid_ouch,
-    &s_liquid_die1,
-    &s_liquid_die2,
-    &s_liquid_die3,
-    &s_liquid_die4,
-    &s_liquid_dead,
-    &s_liquid_shot,
-    &s_blake1,
-    &s_blake2,
-    &s_blake3,
-    &s_blake4,
-    &s_goldstand,
-    &s_goldpath1,
-    &s_goldpath1s,
-    &s_goldpath2,
-    &s_goldpath3,
-    &s_goldpath3s,
-    &s_goldpath4,
-    &s_goldpain,
-    &s_goldshoot1,
-    &s_goldshoot2,
-    &s_goldshoot3,
-    &s_goldshoot4,
-    &s_goldshoot5,
-    &s_goldshoot6,
-    &s_goldshoot7,
-    &s_goldchase1,
-    &s_goldchase1s,
-    &s_goldchase2,
-    &s_goldchase3,
-    &s_goldchase3s,
-    &s_goldchase4,
-    &s_goldwarp_it,
-    &s_goldwarp_it1,
-    &s_goldwarp_it2,
-    &s_goldwarp_it3,
-    &s_goldwarp_it4,
-    &s_goldwarp_it5,
-    &s_goldwarp_out1,
-    &s_goldwarp_out2,
-    &s_goldwarp_out3,
-    &s_goldwarp_out4,
-    &s_goldwarp_out5,
-    &s_goldwarp_in1,
-    &s_goldwarp_in2,
-    &s_goldwarp_in3,
-    &s_goldwarp_in4,
-    &s_goldwarp_in5,
-    &s_goldmorphwait1,
-    &s_goldmorph1,
-    &s_goldmorph2,
-    &s_goldmorph3,
-    &s_goldmorph4,
-    &s_goldmorph5,
-    &s_goldmorph6,
-    &s_goldmorph7,
-    &s_goldmorph8,
-    &s_mgold_chase1,
-    &s_mgold_chase2,
-    &s_mgold_chase3,
-    &s_mgold_chase4,
-    &s_mgold_shoot1,
-    &s_mgold_shoot2,
-    &s_mgold_shoot3,
-    &s_mgold_shoot4,
-    &s_mgold_pain,
-    &s_security_light,
-    &s_scout_stand,
-    &s_scout_path1,
-    &s_scout_path2,
-    &s_scout_path3,
-    &s_scout_path4,
-    &s_scout_run,
-    &s_scout_run2,
-    &s_scout_run3,
-    &s_scout_run4,
-    &s_scout_dead,
-    &s_steamgrate,
-    &s_steamrelease1,
-    &s_steamrelease2,
-    &s_steamrelease3,
-    &s_steamrelease4,
-    &s_steamrelease5,
-    &s_steamrelease6,
-    &s_terrot_wait,
-    &s_terrot_found,
-    &s_terrot_shoot1,
-    &s_terrot_shoot2,
-    &s_terrot_shoot3,
-    &s_terrot_shoot4,
-    &s_terrot_seek1,
-    &s_terrot_seek1s,
-    &s_terrot_die1,
-    &s_terrot_die2,
-    &s_terrot_die3,
-    &s_terrot_die4,
-    &s_terrot_die5,
-    &s_player,
-    &s_attack,
-    nullptr,
+	nullptr,
+	&s_ofs_stand,
+	&s_ofs_chase1,
+	&s_ofs_chase1s,
+	&s_ofs_chase2,
+	&s_ofs_chase3,
+	&s_ofs_chase3s,
+	&s_ofs_chase4,
+	&s_ofs_pain,
+	&s_ofs_die1,
+	&s_ofs_die1s,
+	&s_ofs_die2,
+	&s_ofs_die3,
+	&s_ofs_die4,
+	&s_ofs_die5,
+	&s_ofs_attack1,
+	&s_ofs_attack2,
+	&s_ofs_attack3,
+	&s_ofs_spit1,
+	&s_ofs_spit2,
+	&s_ofs_spit3,
+	&s_ofs_shoot1,
+	&s_ofs_shoot2,
+	&s_ofs_shoot3,
+	&s_ofs_pod_attack1,
+	&s_ofs_pod_attack1a,
+	&s_ofs_pod_attack2,
+	&s_ofs_pod_spit1,
+	&s_ofs_pod_spit2,
+	&s_ofs_pod_spit3,
+	&s_ofs_pod_death1,
+	&s_ofs_pod_death2,
+	&s_ofs_pod_death3,
+	&s_ofs_pod_ouch,
+	&s_ofs_bounce,
+	&s_ofs_ouch,
+	&s_ofs_esphere_death1,
+	&s_ofs_esphere_death2,
+	&s_ofs_esphere_death3,
+	&s_ofs_random,
+	&s_ofs_static,
+	&s_hold,
+	&s_ofs_smart_anim,
+	&s_ofs_smart_anim2,
+	&s_barrier_transition,
+	&s_vpost_barrier,
+	&s_spike_barrier,
+	&s_barrier_shutdown,
+	&s_rent_stand,
+	&s_rent_path1,
+	&s_rent_path1s,
+	&s_rent_path2,
+	&s_rent_path3,
+	&s_rent_path3s,
+	&s_rent_path4,
+	&s_rent_pain,
+	&s_rent_shoot1,
+	&s_rent_shoot2,
+	&s_rent_shoot3,
+	&s_rent_chase1,
+	&s_rent_chase1s,
+	&s_rent_chase2,
+	&s_rent_chase3,
+	&s_rent_chase3s,
+	&s_rent_chase4,
+	&s_rent_die1,
+	&s_rent_die2,
+	&s_rent_die3,
+	&s_rent_die3s,
+	&s_rent_die4,
+	&s_ofcstand,
+	&s_ofcpath1,
+	&s_ofcpath1s,
+	&s_ofcpath2,
+	&s_ofcpath3,
+	&s_ofcpath3s,
+	&s_ofcpath4,
+	&s_ofcpain,
+	&s_ofcshoot1,
+	&s_ofcshoot2,
+	&s_ofcshoot3,
+	&s_ofcchase1,
+	&s_ofcchase1s,
+	&s_ofcchase2,
+	&s_ofcchase3,
+	&s_ofcchase3s,
+	&s_ofcchase4,
+	&s_ofcdie1,
+	&s_ofcdie2,
+	&s_ofcdie3,
+	&s_ofcdie4,
+	&s_ofcdie5,
+	&s_swatstand,
+	&s_swatpath1,
+	&s_swatpath1s,
+	&s_swatpath2,
+	&s_swatpath3,
+	&s_swatpath3s,
+	&s_swatpath4,
+	&s_swatpain,
+	&s_swatshoot1,
+	&s_swatshoot2,
+	&s_swatshoot3,
+	&s_swatshoot4,
+	&s_swatshoot5,
+	&s_swatshoot6,
+	&s_swatshoot7,
+	&s_swatchase1,
+	&s_swatchase1s,
+	&s_swatchase2,
+	&s_swatchase3,
+	&s_swatchase3s,
+	&s_swatchase4,
+	&s_swatwounded1,
+	&s_swatwounded2,
+	&s_swatwounded3,
+	&s_swatwounded4,
+	&s_swatunwounded1,
+	&s_swatunwounded2,
+	&s_swatunwounded3,
+	&s_swatunwounded4,
+	&s_swatdie1,
+	&s_swatdie2,
+	&s_swatdie3,
+	&s_swatdie4,
+	&s_swatdie5,
+	&s_prostand,
+	&s_propath1,
+	&s_propath1s,
+	&s_propath2,
+	&s_propath3,
+	&s_propath3s,
+	&s_propath4,
+	&s_propain,
+	&s_proshoot1,
+	&s_proshoot2,
+	&s_proshoot3,
+	&s_proshoot4,
+	&s_proshoot5,
+	&s_proshoot6,
+	&s_proshoot6a,
+	&s_prochase1,
+	&s_prochase1s,
+	&s_prochase2,
+	&s_prochase3,
+	&s_prochase3s,
+	&s_prochase4,
+	&s_prodie1,
+	&s_prodie2,
+	&s_prodie3,
+	&s_prodie3a,
+	&s_prodie4,
+	&s_electro_appear1,
+	&s_electro_appear2,
+	&s_electro_appear3,
+	&s_electro_chase1,
+	&s_electro_chase2,
+	&s_electro_chase3,
+	&s_electro_chase4,
+	&s_electro_ouch,
+	&s_electro_shoot1,
+	&s_electro_shoot2,
+	&s_electro_shoot3,
+	&s_electro_shot1,
+	&s_electro_shot2,
+	&s_ofs_shot1,
+	&s_ofs_shot2,
+	&s_electro_die1,
+	&s_electro_die2,
+	&s_electro_die3,
+	&s_liquid_wait,
+	&s_liquid_move,
+	&s_liquid_rise1,
+	&s_liquid_rise2,
+	&s_liquid_rise3,
+	&s_liquid_stand,
+	&s_liquid_fall1,
+	&s_liquid_fall2,
+	&s_liquid_fall3,
+	&s_liquid_shoot1,
+	&s_liquid_shoot2,
+	&s_liquid_shoot3,
+	&s_liquid_ouch,
+	&s_liquid_die1,
+	&s_liquid_die2,
+	&s_liquid_die3,
+	&s_liquid_die4,
+	&s_liquid_dead,
+	&s_liquid_shot,
+	&s_blake1,
+	&s_blake2,
+	&s_blake3,
+	&s_blake4,
+	&s_goldstand,
+	&s_goldpath1,
+	&s_goldpath1s,
+	&s_goldpath2,
+	&s_goldpath3,
+	&s_goldpath3s,
+	&s_goldpath4,
+	&s_goldpain,
+	&s_goldshoot1,
+	&s_goldshoot2,
+	&s_goldshoot3,
+	&s_goldshoot4,
+	&s_goldshoot5,
+	&s_goldshoot6,
+	&s_goldshoot7,
+	&s_goldchase1,
+	&s_goldchase1s,
+	&s_goldchase2,
+	&s_goldchase3,
+	&s_goldchase3s,
+	&s_goldchase4,
+	&s_goldwarp_it,
+	&s_goldwarp_it1,
+	&s_goldwarp_it2,
+	&s_goldwarp_it3,
+	&s_goldwarp_it4,
+	&s_goldwarp_it5,
+	&s_goldwarp_out1,
+	&s_goldwarp_out2,
+	&s_goldwarp_out3,
+	&s_goldwarp_out4,
+	&s_goldwarp_out5,
+	&s_goldwarp_in1,
+	&s_goldwarp_in2,
+	&s_goldwarp_in3,
+	&s_goldwarp_in4,
+	&s_goldwarp_in5,
+	&s_goldmorphwait1,
+	&s_goldmorph1,
+	&s_goldmorph2,
+	&s_goldmorph3,
+	&s_goldmorph4,
+	&s_goldmorph5,
+	&s_goldmorph6,
+	&s_goldmorph7,
+	&s_goldmorph8,
+	&s_mgold_chase1,
+	&s_mgold_chase2,
+	&s_mgold_chase3,
+	&s_mgold_chase4,
+	&s_mgold_shoot1,
+	&s_mgold_shoot2,
+	&s_mgold_shoot3,
+	&s_mgold_shoot4,
+	&s_mgold_pain,
+	&s_security_light,
+	&s_scout_stand,
+	&s_scout_path1,
+	&s_scout_path2,
+	&s_scout_path3,
+	&s_scout_path4,
+	&s_scout_run,
+	&s_scout_run2,
+	&s_scout_run3,
+	&s_scout_run4,
+	&s_scout_dead,
+	&s_steamgrate,
+	&s_steamrelease1,
+	&s_steamrelease2,
+	&s_steamrelease3,
+	&s_steamrelease4,
+	&s_steamrelease5,
+	&s_steamrelease6,
+	&s_terrot_wait,
+	&s_terrot_found,
+	&s_terrot_shoot1,
+	&s_terrot_shoot2,
+	&s_terrot_shoot3,
+	&s_terrot_shoot4,
+	&s_terrot_seek1,
+	&s_terrot_seek1s,
+	&s_terrot_die1,
+	&s_terrot_die2,
+	&s_terrot_die3,
+	&s_terrot_die4,
+	&s_terrot_die5,
+	&s_player,
+	&s_attack,
+	nullptr,
 };
 
 static int get_state_index(
-    statetype* state)
+	statetype* state)
 {
-    if (!state) {
-        return 0;
-    }
+	if (!state)
+	{
+		return 0;
+	}
 
-    for (int i = 1; states_list[i]; ++i) {
-        if (states_list[i] == state) {
-            return i;
-        }
-    }
+	for (int i = 1; states_list[i]; ++i)
+	{
+		if (states_list[i] == state)
+		{
+			return i;
+		}
+	}
 
-    return -1;
+	return -1;
 }
 
 void initialize_states()
 {
-    s_ofs_stand.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
-    s_ofs_chase1.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
-    s_ofs_chase1s.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
-    s_ofs_chase2.shapenum = SPR_GENETIC_W2 - SPR_GENETIC_W1;
-    s_ofs_chase3.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
-    s_ofs_chase3s.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
-    s_ofs_chase4.shapenum = SPR_GENETIC_W4 - SPR_GENETIC_W1;
-    s_ofs_pain.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
-    s_ofs_die1.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
-    s_ofs_die1s.shapenum = SPR_GENETIC_DIE1 - SPR_GENETIC_W1;
-    s_ofs_die2.shapenum = SPR_GENETIC_DIE2 - SPR_GENETIC_W1;
-    s_ofs_die3.shapenum = SPR_GENETIC_DIE3 - SPR_GENETIC_W1;
-    s_ofs_die4.shapenum = SPR_GENETIC_DIE4 - SPR_GENETIC_W1;
-    s_ofs_die5.shapenum = SPR_GENETIC_DEAD - SPR_GENETIC_W1;
-    s_ofs_attack1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
-    s_ofs_attack2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
-    s_ofs_attack3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
-    s_ofs_spit1.shapenum = SPR_GENETIC_SHOOT1 - SPR_GENETIC_W1;
-    s_ofs_spit2.shapenum = SPR_GENETIC_SHOOT2 - SPR_GENETIC_W1;
-    s_ofs_spit3.shapenum = SPR_GENETIC_SHOOT3 - SPR_GENETIC_W1;
-    s_ofs_shoot1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
-    s_ofs_shoot2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
-    s_ofs_shoot3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
-    s_ofs_pod_attack1.shapenum = SPR_POD_ATTACK1 - SPR_POD_WALK1;
-    s_ofs_pod_attack1a.shapenum = SPR_POD_ATTACK2 - SPR_POD_WALK1;
-    s_ofs_pod_attack2.shapenum = SPR_POD_ATTACK3 - SPR_POD_WALK1;
-    s_ofs_pod_spit1.shapenum = SPR_POD_SPIT1 - SPR_POD_WALK1;
-    s_ofs_pod_spit2.shapenum = SPR_POD_SPIT2 - SPR_POD_WALK1;
-    s_ofs_pod_spit3.shapenum = SPR_POD_SPIT3 - SPR_POD_WALK1;
-    s_ofs_pod_ouch.shapenum = SPR_POD_OUCH - SPR_POD_WALK1;
-    s_vpost_barrier.shapenum = SPR_VPOST1;
-    s_spike_barrier.shapenum = SPR_VSPIKE1;
-    s_rent_stand.shapenum = SPR_RENT_S_1;
-    s_rent_path1.shapenum = SPR_RENT_W1_1;
-    s_rent_path1s.shapenum = SPR_RENT_W2_1;
-    s_rent_path2.shapenum = SPR_RENT_W2_1;
-    s_rent_path3.shapenum = SPR_RENT_W3_1;
-    s_rent_path3s.shapenum = SPR_RENT_W3_1;
-    s_rent_path4.shapenum = SPR_RENT_W4_1;
-    s_rent_pain.shapenum = SPR_RENT_PAIN_1;
-    s_rent_shoot1.shapenum = SPR_RENT_SHOOT1;
-    s_rent_shoot2.shapenum = SPR_RENT_SHOOT2;
-    s_rent_shoot3.shapenum = SPR_RENT_SHOOT3;
-    s_rent_chase1.shapenum = SPR_RENT_W1_1;
-    s_rent_chase1s.shapenum = SPR_RENT_W1_1;
-    s_rent_chase2.shapenum = SPR_RENT_W2_1;
-    s_rent_chase3.shapenum = SPR_RENT_W3_1;
-    s_rent_chase3s.shapenum = SPR_RENT_W3_1;
-    s_rent_chase4.shapenum = SPR_RENT_W4_1;
-    s_rent_die1.shapenum = SPR_RENT_DIE_1;
-    s_rent_die2.shapenum = SPR_RENT_DIE_2;
-    s_rent_die3.shapenum = SPR_RENT_DIE_3;
-    s_rent_die3s.shapenum = SPR_RENT_DIE_4;
-    s_rent_die4.shapenum = SPR_RENT_DEAD;
-    s_ofcstand.shapenum = SPR_OFC_S_1;
-    s_ofcpath1.shapenum = SPR_OFC_W1_1;
-    s_ofcpath1s.shapenum = SPR_OFC_W1_1;
-    s_ofcpath2.shapenum = SPR_OFC_W2_1;
-    s_ofcpath3.shapenum = SPR_OFC_W3_1;
-    s_ofcpath3s.shapenum = SPR_OFC_W3_1;
-    s_ofcpath4.shapenum = SPR_OFC_W4_1;
-    s_ofcpain.shapenum = SPR_OFC_PAIN_1;
-    s_ofcshoot1.shapenum = SPR_OFC_SHOOT1;
-    s_ofcshoot2.shapenum = SPR_OFC_SHOOT2;
-    s_ofcshoot3.shapenum = SPR_OFC_SHOOT3;
-    s_ofcchase1.shapenum = SPR_OFC_W1_1;
-    s_ofcchase1s.shapenum = SPR_OFC_W1_1;
-    s_ofcchase2.shapenum = SPR_OFC_W2_1;
-    s_ofcchase3.shapenum = SPR_OFC_W3_1;
-    s_ofcchase3s.shapenum = SPR_OFC_W3_1;
-    s_ofcchase4.shapenum = SPR_OFC_W4_1;
-    s_ofcdie1.shapenum = SPR_OFC_DIE_1;
-    s_ofcdie2.shapenum = SPR_OFC_DIE_2;
-    s_ofcdie3.shapenum = SPR_OFC_DIE_3;
-    s_ofcdie4.shapenum = SPR_OFC_DIE_4;
-    s_ofcdie5.shapenum = SPR_OFC_DEAD;
-    s_swatstand.shapenum = SPR_SWAT_S_1;
-    s_swatpath1.shapenum = SPR_SWAT_W1_1;
-    s_swatpath1s.shapenum = SPR_SWAT_W1_1;
-    s_swatpath2.shapenum = SPR_SWAT_W2_1;
-    s_swatpath3.shapenum = SPR_SWAT_W3_1;
-    s_swatpath3s.shapenum = SPR_SWAT_W3_1;
-    s_swatpath4.shapenum = SPR_SWAT_W4_1;
-    s_swatpain.shapenum = SPR_SWAT_PAIN_1;
-    s_swatshoot1.shapenum = SPR_SWAT_SHOOT1;
-    s_swatshoot2.shapenum = SPR_SWAT_SHOOT2;
-    s_swatshoot3.shapenum = SPR_SWAT_SHOOT3;
-    s_swatshoot4.shapenum = SPR_SWAT_SHOOT2;
-    s_swatshoot5.shapenum = SPR_SWAT_SHOOT3;
-    s_swatshoot6.shapenum = SPR_SWAT_SHOOT2;
-    s_swatshoot7.shapenum = SPR_SWAT_SHOOT3;
-    s_swatchase1.shapenum = SPR_SWAT_W1_1;
-    s_swatchase1s.shapenum = SPR_SWAT_W1_1;
-    s_swatchase2.shapenum = SPR_SWAT_W2_1;
-    s_swatchase3.shapenum = SPR_SWAT_W3_1;
-    s_swatchase3s.shapenum = SPR_SWAT_W3_1;
-    s_swatchase4.shapenum = SPR_SWAT_W4_1;
-    s_swatwounded1.shapenum = SPR_SWAT_WOUNDED1;
-    s_swatwounded2.shapenum = SPR_SWAT_WOUNDED2;
-    s_swatwounded3.shapenum = SPR_SWAT_WOUNDED3;
-    s_swatwounded4.shapenum = SPR_SWAT_WOUNDED4;
-    s_swatunwounded1.shapenum = SPR_SWAT_WOUNDED4;
-    s_swatunwounded2.shapenum = SPR_SWAT_WOUNDED3;
-    s_swatunwounded3.shapenum = SPR_SWAT_WOUNDED2;
-    s_swatunwounded4.shapenum = SPR_SWAT_WOUNDED1;
-    s_swatdie1.shapenum = SPR_SWAT_DIE_1;
-    s_swatdie2.shapenum = SPR_SWAT_DIE_2;
-    s_swatdie3.shapenum = SPR_SWAT_DIE_3;
-    s_swatdie4.shapenum = SPR_SWAT_DIE_4;
-    s_swatdie5.shapenum = SPR_SWAT_DEAD;
-    s_prostand.shapenum = SPR_PRO_S_1;
-    s_propath1.shapenum = SPR_PRO_W1_1;
-    s_propath1s.shapenum = SPR_PRO_W1_1;
-    s_propath2.shapenum = SPR_PRO_W2_1;
-    s_propath3.shapenum = SPR_PRO_W3_1;
-    s_propath3s.shapenum = SPR_PRO_W3_1;
-    s_propath4.shapenum = SPR_PRO_W4_1;
-    s_propain.shapenum = SPR_PRO_PAIN_1;
-    s_proshoot1.shapenum = SPR_PRO_SHOOT1;
-    s_proshoot2.shapenum = SPR_PRO_SHOOT2;
-    s_proshoot3.shapenum = SPR_PRO_SHOOT3;
-    s_proshoot4.shapenum = SPR_PRO_SHOOT2;
-    s_proshoot5.shapenum = SPR_PRO_SHOOT3;
-    s_proshoot6.shapenum = SPR_PRO_SHOOT2;
-    s_proshoot6a.shapenum = SPR_PRO_SHOOT3;
-    s_prochase1.shapenum = SPR_PRO_W1_1;
-    s_prochase1s.shapenum = SPR_PRO_W1_1;
-    s_prochase2.shapenum = SPR_PRO_W2_1;
-    s_prochase3.shapenum = SPR_PRO_W3_1;
-    s_prochase3s.shapenum = SPR_PRO_W3_1;
-    s_prochase4.shapenum = SPR_PRO_W4_1;
-    s_prodie1.shapenum = SPR_PRO_DIE_1;
-    s_prodie2.shapenum = SPR_PRO_DIE_2;
-    s_prodie3.shapenum = SPR_PRO_DIE_3;
-    s_prodie3a.shapenum = SPR_PRO_DIE_4;
-    s_prodie4.shapenum = SPR_PRO_DEAD;
-    s_electro_appear1.shapenum = SPR_ELEC_APPEAR1;
-    s_electro_appear2.shapenum = SPR_ELEC_APPEAR2;
-    s_electro_appear3.shapenum = SPR_ELEC_APPEAR3;
-    s_electro_chase1.shapenum = SPR_ELEC_WALK1;
-    s_electro_chase2.shapenum = SPR_ELEC_WALK2;
-    s_electro_chase3.shapenum = SPR_ELEC_WALK3;
-    s_electro_chase4.shapenum = SPR_ELEC_WALK4;
-    s_electro_ouch.shapenum = SPR_ELEC_OUCH;
-    s_electro_shoot1.shapenum = SPR_ELEC_SHOOT1;
-    s_electro_shoot2.shapenum = SPR_ELEC_SHOOT2;
-    s_electro_shoot3.shapenum = SPR_ELEC_SHOOT3;
-    s_electro_shot1.shapenum = SPR_ELEC_SHOT1;
-    s_electro_shot2.shapenum = SPR_ELEC_SHOT2;
-    s_electro_die1.shapenum = SPR_ELEC_DIE1;
-    s_electro_die2.shapenum = SPR_ELEC_DIE2;
-    s_electro_die3.shapenum = SPR_ELEC_DIE3;
-    s_liquid_wait.shapenum = SPR_LIQUID_M1;
-    s_liquid_move.shapenum = SPR_LIQUID_M1;
-    s_liquid_rise1.shapenum = SPR_LIQUID_R1;
-    s_liquid_rise2.shapenum = SPR_LIQUID_R2;
-    s_liquid_rise3.shapenum = SPR_LIQUID_R3;
-    s_liquid_stand.shapenum = SPR_LIQUID_R4;
-    s_liquid_fall1.shapenum = SPR_LIQUID_R3;
-    s_liquid_fall2.shapenum = SPR_LIQUID_R2;
-    s_liquid_fall3.shapenum = SPR_LIQUID_R1;
-    s_liquid_shoot1.shapenum = SPR_LIQUID_S1;
-    s_liquid_shoot2.shapenum = SPR_LIQUID_S2;
-    s_liquid_shoot3.shapenum = SPR_LIQUID_S3;
-    s_liquid_ouch.shapenum = SPR_LIQUID_OUCH;
-    s_liquid_die1.shapenum = SPR_LIQUID_DIE_1;
-    s_liquid_die2.shapenum = SPR_LIQUID_DIE_2;
-    s_liquid_die3.shapenum = SPR_LIQUID_DIE_3;
-    s_liquid_die4.shapenum = SPR_LIQUID_DIE_4;
-    s_liquid_dead.shapenum = SPR_LIQUID_DEAD;
-    s_blake1.shapenum = SPR_BLAKE_W1;
-    s_blake2.shapenum = SPR_BLAKE_W2;
-    s_blake3.shapenum = SPR_BLAKE_W3;
-    s_blake4.shapenum = SPR_BLAKE_W4;
-    s_goldstand.shapenum = SPR_GOLD_S_1;
-    s_goldpath1.shapenum = SPR_GOLD_W1_1;
-    s_goldpath1s.shapenum = SPR_GOLD_W1_1;
-    s_goldpath2.shapenum = SPR_GOLD_W2_1;
-    s_goldpath3.shapenum = SPR_GOLD_W3_1;
-    s_goldpath3s.shapenum = SPR_GOLD_W3_1;
-    s_goldpath4.shapenum = SPR_GOLD_W4_1;
-    s_goldpain.shapenum = SPR_GOLD_PAIN_1;
-    s_goldshoot1.shapenum = SPR_GOLD_SHOOT1;
-    s_goldshoot2.shapenum = SPR_GOLD_SHOOT2;
-    s_goldshoot3.shapenum = SPR_GOLD_SHOOT3;
-    s_goldshoot4.shapenum = SPR_GOLD_SHOOT2;
-    s_goldshoot5.shapenum = SPR_GOLD_SHOOT3;
-    s_goldshoot6.shapenum = SPR_GOLD_SHOOT2;
-    s_goldshoot7.shapenum = SPR_GOLD_SHOOT3;
-    s_goldchase1.shapenum = SPR_GOLD_W1_1;
-    s_goldchase1s.shapenum = SPR_GOLD_W1_1;
-    s_goldchase2.shapenum = SPR_GOLD_W2_1;
-    s_goldchase3.shapenum = SPR_GOLD_W3_1;
-    s_goldchase3s.shapenum = SPR_GOLD_W3_1;
-    s_goldchase4.shapenum = SPR_GOLD_W4_1;
-    s_goldwarp_it.shapenum = SPR_GOLD_S_1;
-    s_goldwarp_it1.shapenum = SPR_GOLD_WRIST_1;
-    s_goldwarp_it2.shapenum = SPR_GOLD_WRIST_2;
-    s_goldwarp_it3.shapenum = SPR_GOLD_WRIST_1;
-    s_goldwarp_it4.shapenum = SPR_GOLD_WRIST_2;
-    s_goldwarp_it5.shapenum = SPR_GOLD_S_1;
-    s_goldwarp_out1.shapenum = SPR_GOLD_WARP1;
-    s_goldwarp_out2.shapenum = SPR_GOLD_WARP2;
-    s_goldwarp_out3.shapenum = SPR_GOLD_WARP3;
-    s_goldwarp_out4.shapenum = SPR_GOLD_WARP4;
-    s_goldwarp_out5.shapenum = SPR_GOLD_WARP5;
-    s_goldwarp_in1.shapenum = SPR_GOLD_WARP5;
-    s_goldwarp_in2.shapenum = SPR_GOLD_WARP4;
-    s_goldwarp_in3.shapenum = SPR_GOLD_WARP3;
-    s_goldwarp_in4.shapenum = SPR_GOLD_WARP2;
-    s_goldwarp_in5.shapenum = SPR_GOLD_WARP1;
-    s_goldmorphwait1.shapenum = SPR_GOLD_WRIST_1;
-    s_goldmorph1.shapenum = SPR_GOLD_MORPH1;
-    s_goldmorph2.shapenum = SPR_GOLD_MORPH2;
-    s_goldmorph3.shapenum = SPR_GOLD_MORPH3;
-    s_goldmorph4.shapenum = SPR_GOLD_MORPH4;
-    s_goldmorph5.shapenum = SPR_GOLD_MORPH5;
-    s_goldmorph6.shapenum = SPR_GOLD_MORPH6;
-    s_goldmorph7.shapenum = SPR_GOLD_MORPH7;
-    s_goldmorph8.shapenum = SPR_GOLD_MORPH8;
-    s_mgold_chase1.shapenum = SPR_MGOLD_WALK1;
-    s_mgold_chase2.shapenum = SPR_MGOLD_WALK2;
-    s_mgold_chase3.shapenum = SPR_MGOLD_WALK3;
-    s_mgold_chase4.shapenum = SPR_MGOLD_WALK4;
-    s_mgold_shoot1.shapenum = SPR_MGOLD_ATTACK1;
-    s_mgold_shoot2.shapenum = SPR_MGOLD_ATTACK2;
-    s_mgold_shoot3.shapenum = SPR_MGOLD_ATTACK3;
-    s_mgold_shoot4.shapenum = SPR_MGOLD_ATTACK4;
-    s_mgold_pain.shapenum = SPR_MGOLD_OUCH;
-    s_security_light.shapenum = SPR_SECURITY_NORMAL;
-    s_scout_stand.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_scout_path1.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_scout_path2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
-    s_scout_path3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
-    s_scout_path4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
-    s_scout_run.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_scout_run2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
-    s_scout_run3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
-    s_scout_run4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
-    s_scout_dead.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_terrot_wait.shapenum = SPR_TERROT_1;
-    s_terrot_found.shapenum = SPR_TERROT_1;
-    s_terrot_shoot1.shapenum = SPR_TERROT_FIRE_1;
-    s_terrot_shoot2.shapenum = SPR_TERROT_FIRE_2;
-    s_terrot_shoot3.shapenum = SPR_TERROT_FIRE_1;
-    s_terrot_shoot4.shapenum = SPR_TERROT_FIRE_2;
-    s_terrot_seek1.shapenum = SPR_TERROT_1;
-    s_terrot_seek1s.shapenum = SPR_TERROT_1;
-    s_terrot_die1.shapenum = SPR_TERROT_DIE_1;
-    s_terrot_die2.shapenum = SPR_TERROT_DIE_2;
-    s_terrot_die3.shapenum = SPR_TERROT_DIE_3;
-    s_terrot_die4.shapenum = SPR_TERROT_DIE_4;
-    s_terrot_die5.shapenum = SPR_TERROT_DEAD;
+	s_ofs_stand.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
+	s_ofs_chase1.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
+	s_ofs_chase1s.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
+	s_ofs_chase2.shapenum = SPR_GENETIC_W2 - SPR_GENETIC_W1;
+	s_ofs_chase3.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
+	s_ofs_chase3s.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
+	s_ofs_chase4.shapenum = SPR_GENETIC_W4 - SPR_GENETIC_W1;
+	s_ofs_pain.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
+	s_ofs_die1.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
+	s_ofs_die1s.shapenum = SPR_GENETIC_DIE1 - SPR_GENETIC_W1;
+	s_ofs_die2.shapenum = SPR_GENETIC_DIE2 - SPR_GENETIC_W1;
+	s_ofs_die3.shapenum = SPR_GENETIC_DIE3 - SPR_GENETIC_W1;
+	s_ofs_die4.shapenum = SPR_GENETIC_DIE4 - SPR_GENETIC_W1;
+	s_ofs_die5.shapenum = SPR_GENETIC_DEAD - SPR_GENETIC_W1;
+	s_ofs_attack1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
+	s_ofs_attack2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
+	s_ofs_attack3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
+	s_ofs_spit1.shapenum = SPR_GENETIC_SHOOT1 - SPR_GENETIC_W1;
+	s_ofs_spit2.shapenum = SPR_GENETIC_SHOOT2 - SPR_GENETIC_W1;
+	s_ofs_spit3.shapenum = SPR_GENETIC_SHOOT3 - SPR_GENETIC_W1;
+	s_ofs_shoot1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
+	s_ofs_shoot2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
+	s_ofs_shoot3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
+	s_ofs_pod_attack1.shapenum = SPR_POD_ATTACK1 - SPR_POD_WALK1;
+	s_ofs_pod_attack1a.shapenum = SPR_POD_ATTACK2 - SPR_POD_WALK1;
+	s_ofs_pod_attack2.shapenum = SPR_POD_ATTACK3 - SPR_POD_WALK1;
+	s_ofs_pod_spit1.shapenum = SPR_POD_SPIT1 - SPR_POD_WALK1;
+	s_ofs_pod_spit2.shapenum = SPR_POD_SPIT2 - SPR_POD_WALK1;
+	s_ofs_pod_spit3.shapenum = SPR_POD_SPIT3 - SPR_POD_WALK1;
+	s_ofs_pod_ouch.shapenum = SPR_POD_OUCH - SPR_POD_WALK1;
+	s_vpost_barrier.shapenum = SPR_VPOST1;
+	s_spike_barrier.shapenum = SPR_VSPIKE1;
+	s_rent_stand.shapenum = SPR_RENT_S_1;
+	s_rent_path1.shapenum = SPR_RENT_W1_1;
+	s_rent_path1s.shapenum = SPR_RENT_W2_1;
+	s_rent_path2.shapenum = SPR_RENT_W2_1;
+	s_rent_path3.shapenum = SPR_RENT_W3_1;
+	s_rent_path3s.shapenum = SPR_RENT_W3_1;
+	s_rent_path4.shapenum = SPR_RENT_W4_1;
+	s_rent_pain.shapenum = SPR_RENT_PAIN_1;
+	s_rent_shoot1.shapenum = SPR_RENT_SHOOT1;
+	s_rent_shoot2.shapenum = SPR_RENT_SHOOT2;
+	s_rent_shoot3.shapenum = SPR_RENT_SHOOT3;
+	s_rent_chase1.shapenum = SPR_RENT_W1_1;
+	s_rent_chase1s.shapenum = SPR_RENT_W1_1;
+	s_rent_chase2.shapenum = SPR_RENT_W2_1;
+	s_rent_chase3.shapenum = SPR_RENT_W3_1;
+	s_rent_chase3s.shapenum = SPR_RENT_W3_1;
+	s_rent_chase4.shapenum = SPR_RENT_W4_1;
+	s_rent_die1.shapenum = SPR_RENT_DIE_1;
+	s_rent_die2.shapenum = SPR_RENT_DIE_2;
+	s_rent_die3.shapenum = SPR_RENT_DIE_3;
+	s_rent_die3s.shapenum = SPR_RENT_DIE_4;
+	s_rent_die4.shapenum = SPR_RENT_DEAD;
+	s_ofcstand.shapenum = SPR_OFC_S_1;
+	s_ofcpath1.shapenum = SPR_OFC_W1_1;
+	s_ofcpath1s.shapenum = SPR_OFC_W1_1;
+	s_ofcpath2.shapenum = SPR_OFC_W2_1;
+	s_ofcpath3.shapenum = SPR_OFC_W3_1;
+	s_ofcpath3s.shapenum = SPR_OFC_W3_1;
+	s_ofcpath4.shapenum = SPR_OFC_W4_1;
+	s_ofcpain.shapenum = SPR_OFC_PAIN_1;
+	s_ofcshoot1.shapenum = SPR_OFC_SHOOT1;
+	s_ofcshoot2.shapenum = SPR_OFC_SHOOT2;
+	s_ofcshoot3.shapenum = SPR_OFC_SHOOT3;
+	s_ofcchase1.shapenum = SPR_OFC_W1_1;
+	s_ofcchase1s.shapenum = SPR_OFC_W1_1;
+	s_ofcchase2.shapenum = SPR_OFC_W2_1;
+	s_ofcchase3.shapenum = SPR_OFC_W3_1;
+	s_ofcchase3s.shapenum = SPR_OFC_W3_1;
+	s_ofcchase4.shapenum = SPR_OFC_W4_1;
+	s_ofcdie1.shapenum = SPR_OFC_DIE_1;
+	s_ofcdie2.shapenum = SPR_OFC_DIE_2;
+	s_ofcdie3.shapenum = SPR_OFC_DIE_3;
+	s_ofcdie4.shapenum = SPR_OFC_DIE_4;
+	s_ofcdie5.shapenum = SPR_OFC_DEAD;
+	s_swatstand.shapenum = SPR_SWAT_S_1;
+	s_swatpath1.shapenum = SPR_SWAT_W1_1;
+	s_swatpath1s.shapenum = SPR_SWAT_W1_1;
+	s_swatpath2.shapenum = SPR_SWAT_W2_1;
+	s_swatpath3.shapenum = SPR_SWAT_W3_1;
+	s_swatpath3s.shapenum = SPR_SWAT_W3_1;
+	s_swatpath4.shapenum = SPR_SWAT_W4_1;
+	s_swatpain.shapenum = SPR_SWAT_PAIN_1;
+	s_swatshoot1.shapenum = SPR_SWAT_SHOOT1;
+	s_swatshoot2.shapenum = SPR_SWAT_SHOOT2;
+	s_swatshoot3.shapenum = SPR_SWAT_SHOOT3;
+	s_swatshoot4.shapenum = SPR_SWAT_SHOOT2;
+	s_swatshoot5.shapenum = SPR_SWAT_SHOOT3;
+	s_swatshoot6.shapenum = SPR_SWAT_SHOOT2;
+	s_swatshoot7.shapenum = SPR_SWAT_SHOOT3;
+	s_swatchase1.shapenum = SPR_SWAT_W1_1;
+	s_swatchase1s.shapenum = SPR_SWAT_W1_1;
+	s_swatchase2.shapenum = SPR_SWAT_W2_1;
+	s_swatchase3.shapenum = SPR_SWAT_W3_1;
+	s_swatchase3s.shapenum = SPR_SWAT_W3_1;
+	s_swatchase4.shapenum = SPR_SWAT_W4_1;
+	s_swatwounded1.shapenum = SPR_SWAT_WOUNDED1;
+	s_swatwounded2.shapenum = SPR_SWAT_WOUNDED2;
+	s_swatwounded3.shapenum = SPR_SWAT_WOUNDED3;
+	s_swatwounded4.shapenum = SPR_SWAT_WOUNDED4;
+	s_swatunwounded1.shapenum = SPR_SWAT_WOUNDED4;
+	s_swatunwounded2.shapenum = SPR_SWAT_WOUNDED3;
+	s_swatunwounded3.shapenum = SPR_SWAT_WOUNDED2;
+	s_swatunwounded4.shapenum = SPR_SWAT_WOUNDED1;
+	s_swatdie1.shapenum = SPR_SWAT_DIE_1;
+	s_swatdie2.shapenum = SPR_SWAT_DIE_2;
+	s_swatdie3.shapenum = SPR_SWAT_DIE_3;
+	s_swatdie4.shapenum = SPR_SWAT_DIE_4;
+	s_swatdie5.shapenum = SPR_SWAT_DEAD;
+	s_prostand.shapenum = SPR_PRO_S_1;
+	s_propath1.shapenum = SPR_PRO_W1_1;
+	s_propath1s.shapenum = SPR_PRO_W1_1;
+	s_propath2.shapenum = SPR_PRO_W2_1;
+	s_propath3.shapenum = SPR_PRO_W3_1;
+	s_propath3s.shapenum = SPR_PRO_W3_1;
+	s_propath4.shapenum = SPR_PRO_W4_1;
+	s_propain.shapenum = SPR_PRO_PAIN_1;
+	s_proshoot1.shapenum = SPR_PRO_SHOOT1;
+	s_proshoot2.shapenum = SPR_PRO_SHOOT2;
+	s_proshoot3.shapenum = SPR_PRO_SHOOT3;
+	s_proshoot4.shapenum = SPR_PRO_SHOOT2;
+	s_proshoot5.shapenum = SPR_PRO_SHOOT3;
+	s_proshoot6.shapenum = SPR_PRO_SHOOT2;
+	s_proshoot6a.shapenum = SPR_PRO_SHOOT3;
+	s_prochase1.shapenum = SPR_PRO_W1_1;
+	s_prochase1s.shapenum = SPR_PRO_W1_1;
+	s_prochase2.shapenum = SPR_PRO_W2_1;
+	s_prochase3.shapenum = SPR_PRO_W3_1;
+	s_prochase3s.shapenum = SPR_PRO_W3_1;
+	s_prochase4.shapenum = SPR_PRO_W4_1;
+	s_prodie1.shapenum = SPR_PRO_DIE_1;
+	s_prodie2.shapenum = SPR_PRO_DIE_2;
+	s_prodie3.shapenum = SPR_PRO_DIE_3;
+	s_prodie3a.shapenum = SPR_PRO_DIE_4;
+	s_prodie4.shapenum = SPR_PRO_DEAD;
+	s_electro_appear1.shapenum = SPR_ELEC_APPEAR1;
+	s_electro_appear2.shapenum = SPR_ELEC_APPEAR2;
+	s_electro_appear3.shapenum = SPR_ELEC_APPEAR3;
+	s_electro_chase1.shapenum = SPR_ELEC_WALK1;
+	s_electro_chase2.shapenum = SPR_ELEC_WALK2;
+	s_electro_chase3.shapenum = SPR_ELEC_WALK3;
+	s_electro_chase4.shapenum = SPR_ELEC_WALK4;
+	s_electro_ouch.shapenum = SPR_ELEC_OUCH;
+	s_electro_shoot1.shapenum = SPR_ELEC_SHOOT1;
+	s_electro_shoot2.shapenum = SPR_ELEC_SHOOT2;
+	s_electro_shoot3.shapenum = SPR_ELEC_SHOOT3;
+	s_electro_shot1.shapenum = SPR_ELEC_SHOT1;
+	s_electro_shot2.shapenum = SPR_ELEC_SHOT2;
+	s_electro_die1.shapenum = SPR_ELEC_DIE1;
+	s_electro_die2.shapenum = SPR_ELEC_DIE2;
+	s_electro_die3.shapenum = SPR_ELEC_DIE3;
+	s_liquid_wait.shapenum = SPR_LIQUID_M1;
+	s_liquid_move.shapenum = SPR_LIQUID_M1;
+	s_liquid_rise1.shapenum = SPR_LIQUID_R1;
+	s_liquid_rise2.shapenum = SPR_LIQUID_R2;
+	s_liquid_rise3.shapenum = SPR_LIQUID_R3;
+	s_liquid_stand.shapenum = SPR_LIQUID_R4;
+	s_liquid_fall1.shapenum = SPR_LIQUID_R3;
+	s_liquid_fall2.shapenum = SPR_LIQUID_R2;
+	s_liquid_fall3.shapenum = SPR_LIQUID_R1;
+	s_liquid_shoot1.shapenum = SPR_LIQUID_S1;
+	s_liquid_shoot2.shapenum = SPR_LIQUID_S2;
+	s_liquid_shoot3.shapenum = SPR_LIQUID_S3;
+	s_liquid_ouch.shapenum = SPR_LIQUID_OUCH;
+	s_liquid_die1.shapenum = SPR_LIQUID_DIE_1;
+	s_liquid_die2.shapenum = SPR_LIQUID_DIE_2;
+	s_liquid_die3.shapenum = SPR_LIQUID_DIE_3;
+	s_liquid_die4.shapenum = SPR_LIQUID_DIE_4;
+	s_liquid_dead.shapenum = SPR_LIQUID_DEAD;
+	s_blake1.shapenum = SPR_BLAKE_W1;
+	s_blake2.shapenum = SPR_BLAKE_W2;
+	s_blake3.shapenum = SPR_BLAKE_W3;
+	s_blake4.shapenum = SPR_BLAKE_W4;
+	s_goldstand.shapenum = SPR_GOLD_S_1;
+	s_goldpath1.shapenum = SPR_GOLD_W1_1;
+	s_goldpath1s.shapenum = SPR_GOLD_W1_1;
+	s_goldpath2.shapenum = SPR_GOLD_W2_1;
+	s_goldpath3.shapenum = SPR_GOLD_W3_1;
+	s_goldpath3s.shapenum = SPR_GOLD_W3_1;
+	s_goldpath4.shapenum = SPR_GOLD_W4_1;
+	s_goldpain.shapenum = SPR_GOLD_PAIN_1;
+	s_goldshoot1.shapenum = SPR_GOLD_SHOOT1;
+	s_goldshoot2.shapenum = SPR_GOLD_SHOOT2;
+	s_goldshoot3.shapenum = SPR_GOLD_SHOOT3;
+	s_goldshoot4.shapenum = SPR_GOLD_SHOOT2;
+	s_goldshoot5.shapenum = SPR_GOLD_SHOOT3;
+	s_goldshoot6.shapenum = SPR_GOLD_SHOOT2;
+	s_goldshoot7.shapenum = SPR_GOLD_SHOOT3;
+	s_goldchase1.shapenum = SPR_GOLD_W1_1;
+	s_goldchase1s.shapenum = SPR_GOLD_W1_1;
+	s_goldchase2.shapenum = SPR_GOLD_W2_1;
+	s_goldchase3.shapenum = SPR_GOLD_W3_1;
+	s_goldchase3s.shapenum = SPR_GOLD_W3_1;
+	s_goldchase4.shapenum = SPR_GOLD_W4_1;
+	s_goldwarp_it.shapenum = SPR_GOLD_S_1;
+	s_goldwarp_it1.shapenum = SPR_GOLD_WRIST_1;
+	s_goldwarp_it2.shapenum = SPR_GOLD_WRIST_2;
+	s_goldwarp_it3.shapenum = SPR_GOLD_WRIST_1;
+	s_goldwarp_it4.shapenum = SPR_GOLD_WRIST_2;
+	s_goldwarp_it5.shapenum = SPR_GOLD_S_1;
+	s_goldwarp_out1.shapenum = SPR_GOLD_WARP1;
+	s_goldwarp_out2.shapenum = SPR_GOLD_WARP2;
+	s_goldwarp_out3.shapenum = SPR_GOLD_WARP3;
+	s_goldwarp_out4.shapenum = SPR_GOLD_WARP4;
+	s_goldwarp_out5.shapenum = SPR_GOLD_WARP5;
+	s_goldwarp_in1.shapenum = SPR_GOLD_WARP5;
+	s_goldwarp_in2.shapenum = SPR_GOLD_WARP4;
+	s_goldwarp_in3.shapenum = SPR_GOLD_WARP3;
+	s_goldwarp_in4.shapenum = SPR_GOLD_WARP2;
+	s_goldwarp_in5.shapenum = SPR_GOLD_WARP1;
+	s_goldmorphwait1.shapenum = SPR_GOLD_WRIST_1;
+	s_goldmorph1.shapenum = SPR_GOLD_MORPH1;
+	s_goldmorph2.shapenum = SPR_GOLD_MORPH2;
+	s_goldmorph3.shapenum = SPR_GOLD_MORPH3;
+	s_goldmorph4.shapenum = SPR_GOLD_MORPH4;
+	s_goldmorph5.shapenum = SPR_GOLD_MORPH5;
+	s_goldmorph6.shapenum = SPR_GOLD_MORPH6;
+	s_goldmorph7.shapenum = SPR_GOLD_MORPH7;
+	s_goldmorph8.shapenum = SPR_GOLD_MORPH8;
+	s_mgold_chase1.shapenum = SPR_MGOLD_WALK1;
+	s_mgold_chase2.shapenum = SPR_MGOLD_WALK2;
+	s_mgold_chase3.shapenum = SPR_MGOLD_WALK3;
+	s_mgold_chase4.shapenum = SPR_MGOLD_WALK4;
+	s_mgold_shoot1.shapenum = SPR_MGOLD_ATTACK1;
+	s_mgold_shoot2.shapenum = SPR_MGOLD_ATTACK2;
+	s_mgold_shoot3.shapenum = SPR_MGOLD_ATTACK3;
+	s_mgold_shoot4.shapenum = SPR_MGOLD_ATTACK4;
+	s_mgold_pain.shapenum = SPR_MGOLD_OUCH;
+	s_security_light.shapenum = SPR_SECURITY_NORMAL;
+	s_scout_stand.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_scout_path1.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_scout_path2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
+	s_scout_path3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
+	s_scout_path4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
+	s_scout_run.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_scout_run2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
+	s_scout_run3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
+	s_scout_run4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
+	s_scout_dead.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_terrot_wait.shapenum = SPR_TERROT_1;
+	s_terrot_found.shapenum = SPR_TERROT_1;
+	s_terrot_shoot1.shapenum = SPR_TERROT_FIRE_1;
+	s_terrot_shoot2.shapenum = SPR_TERROT_FIRE_2;
+	s_terrot_shoot3.shapenum = SPR_TERROT_FIRE_1;
+	s_terrot_shoot4.shapenum = SPR_TERROT_FIRE_2;
+	s_terrot_seek1.shapenum = SPR_TERROT_1;
+	s_terrot_seek1s.shapenum = SPR_TERROT_1;
+	s_terrot_die1.shapenum = SPR_TERROT_DIE_1;
+	s_terrot_die2.shapenum = SPR_TERROT_DIE_2;
+	s_terrot_die3.shapenum = SPR_TERROT_DIE_3;
+	s_terrot_die4.shapenum = SPR_TERROT_DIE_4;
+	s_terrot_die5.shapenum = SPR_TERROT_DEAD;
 }
 
 
@@ -6969,42 +6973,42 @@ void initialize_gfxv_contants()
 
 
 void InitSmartSpeedAnim(
-    objtype* obj,
-    std::uint16_t ShapeNum,
-    std::uint8_t StartOfs,
-    std::uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir,
-    std::uint16_t Delay)
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir,
+	std::uint16_t Delay)
 {
-    ::InitAnim(
-        obj,
-        ShapeNum,
-        StartOfs,
-        MaxOfs,
-        AnimType,
-        AnimDir,
-        Delay,
-        Delay);
+	::InitAnim(
+		obj,
+		ShapeNum,
+		StartOfs,
+		MaxOfs,
+		AnimType,
+		AnimDir,
+		Delay,
+		Delay);
 }
 
 void InitSmartAnim(
-    objtype* obj,
-    std::uint16_t ShapeNum,
-    std::uint8_t StartOfs,
-    std::uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir)
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir)
 {
 	const auto& assets_info = AssetsInfo{};
 
-    ::InitSmartSpeedAnim(
-        obj,
-        ShapeNum,
-        StartOfs,
-        MaxOfs,
-        AnimType,
-        AnimDir,
+	::InitSmartSpeedAnim(
+		obj,
+		ShapeNum,
+		StartOfs,
+		MaxOfs,
+		AnimType,
+		AnimDir,
 		assets_info.is_ps() ? 7 : 21);
 }
 
@@ -7012,14 +7016,14 @@ void InitSmartAnim(
 // ArchiveException
 
 ArchiveException::ArchiveException(
-    const char* message) throw () :
-        message_(message)
+	const char* message) throw () :
+	message_(message)
 {
 }
 
 ArchiveException::ArchiveException(
-    const ArchiveException& that) throw () :
-        message_(that.message_)
+	const ArchiveException& that) throw () :
+	message_(that.message_)
 {
 }
 
@@ -7029,19 +7033,20 @@ ArchiveException::~ArchiveException() throw ()
 }
 
 ArchiveException& ArchiveException::operator=(
-    const ArchiveException& that) throw ()
+	const ArchiveException& that) throw ()
 {
-    if (&that != this) {
-        message_ = that.message_;
-    }
+	if (&that != this)
+	{
+		message_ = that.message_;
+	}
 
-    return *this;
+	return *this;
 }
 
 // (virtual)
 const char* ArchiveException::what() const throw ()
 {
-    return message_;
+	return message_;
 }
 
 // ArchiveException
@@ -7089,62 +7094,73 @@ static const std::string& get_score_file_name()
 
 static void set_default_high_scores()
 {
-    Scores = {
-        HighScore { "JAM PRODUCTIONS INC.", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-        HighScore { "JERRY JONES", 10000, 1, 0, 0, },
-        HighScore { "MICHAEL MAYNARD", 10000, 1, 0, 0, },
-        HighScore { "JAMES T. ROW", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-        HighScore { "TO REGISTER CALL", 10000, 1, 0, 0, },
-        HighScore { " 1-800-GAME123", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-    }; // Scores
+	Scores = {
+		HighScore{"JAM PRODUCTIONS INC.", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+		HighScore{"JERRY JONES", 10000, 1, 0, 0, },
+		HighScore{"MICHAEL MAYNARD", 10000, 1, 0, 0, },
+		HighScore{"JAMES T. ROW", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+		HighScore{"TO REGISTER CALL", 10000, 1, 0, 0, },
+		HighScore{" 1-800-GAME123", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+	}; // Scores
 }
 
 void read_high_scores()
 {
-    auto is_succeed = true;
+	auto is_succeed = true;
 
-    auto scores_path = ::get_profile_dir() + ::get_score_file_name();
+	auto scores_path = ::get_profile_dir() + ::get_score_file_name();
 
-    HighScores scores(MaxScores);
-    bstone::FileStream stream(scores_path);
+	HighScores scores(MaxScores);
+	bstone::FileStream stream(scores_path);
 
-    if (stream.is_open()) {
-        bstone::Crc32 check_sum;
+	if (stream.is_open())
+	{
+		bstone::Crc32 check_sum;
 		auto reader = bstone::BinaryReader{&stream};
 
-        try {
-            for (auto& score : scores) {
-                ::deserialize_field(score.name, reader, check_sum);
-                ::deserialize_field(score.score, reader, check_sum);
-                ::deserialize_field(score.completed, reader, check_sum);
-                ::deserialize_field(score.episode, reader, check_sum);
-                ::deserialize_field(score.ratio, reader, check_sum);
-            }
-        } catch (const ArchiveException&) {
-            is_succeed = false;
-        }
+		try
+		{
+			for (auto& score : scores)
+			{
+				::deserialize_field(score.name, reader, check_sum);
+				::deserialize_field(score.score, reader, check_sum);
+				::deserialize_field(score.completed, reader, check_sum);
+				::deserialize_field(score.episode, reader, check_sum);
+				::deserialize_field(score.ratio, reader, check_sum);
+			}
+		}
+		catch (const ArchiveException&)
+		{
+			is_succeed = false;
+		}
 
-        if (is_succeed) {
+		if (is_succeed)
+		{
 			const auto& endian = bstone::Endian{};
-            std::uint32_t saved_checksum = 0;
-            reader.read(saved_checksum);
+			std::uint32_t saved_checksum = 0;
+			reader.read(saved_checksum);
 			endian.little_i(saved_checksum);
 
-            is_succeed = (saved_checksum == check_sum.get_value());
-        }
-    } else {
-        is_succeed = false;
-    }
+			is_succeed = (saved_checksum == check_sum.get_value());
+		}
+	}
+	else
+	{
+		is_succeed = false;
+	}
 
-    if (is_succeed) {
-        ::Scores = scores;
-    } else {
-        ::set_default_high_scores();
-    }
+	if (is_succeed)
+	{
+		::Scores = scores;
+	}
+	else
+	{
+		::set_default_high_scores();
+	}
 }
 
 static void write_high_scores()
@@ -7188,45 +7204,45 @@ static void write_high_scores()
 
 static void set_vanilla_controls()
 {
-    dirscan = {
-        ScanCode::sc_up_arrow,
-        ScanCode::sc_right_arrow,
-        ScanCode::sc_down_arrow,
-        ScanCode::sc_left_arrow,
-    }; // dirscan
+	dirscan = {
+		ScanCode::sc_up_arrow,
+		ScanCode::sc_right_arrow,
+		ScanCode::sc_down_arrow,
+		ScanCode::sc_left_arrow,
+	}; // dirscan
 
-    buttonscan = {
+	buttonscan = {
 #ifdef __vita__
-        ScanCode::sc_y,
+		ScanCode::sc_y,
 #else
-        ScanCode::sc_control,
+		ScanCode::sc_control,
 #endif
-        ScanCode::sc_alt,
-        ScanCode::sc_right_shift,
-        ScanCode::sc_space,
-        ScanCode::sc_1,
-        ScanCode::sc_2,
-        ScanCode::sc_3,
-        ScanCode::sc_4,
-        ScanCode::sc_5,
-        ScanCode::sc_6,
-        ScanCode::sc_7,
-        ScanCode::sc_none,
-    }; // buttonscan
+		ScanCode::sc_alt,
+		ScanCode::sc_right_shift,
+		ScanCode::sc_space,
+		ScanCode::sc_1,
+		ScanCode::sc_2,
+		ScanCode::sc_3,
+		ScanCode::sc_4,
+		ScanCode::sc_5,
+		ScanCode::sc_6,
+		ScanCode::sc_7,
+		ScanCode::sc_none,
+	}; // buttonscan
 
-    buttonmouse = {
-        bt_attack,
-        bt_strafe,
-        bt_use,
-        bt_nobutton,
-    }; // buttonmouse
+	buttonmouse = {
+		bt_attack,
+		bt_strafe,
+		bt_use,
+		bt_nobutton,
+	}; // buttonmouse
 
-    buttonjoy = {
-        bt_attack,
-        bt_strafe,
-        bt_use,
-        bt_run,
-    }; // buttonjoy
+	buttonjoy = {
+		bt_attack,
+		bt_strafe,
+		bt_use,
+		bt_run,
+	}; // buttonjoy
 }
 // BBi
 
@@ -7265,610 +7281,610 @@ const auto am_is_rotated_name = "am_is_rotated";
 class ScanCodeHash
 {
 public:
-    std::size_t operator()(
-        const ScanCode scan_code) const
-    {
-        return (std::hash<int>{})(static_cast<int>(scan_code));
-    }
+	std::size_t operator()(
+		const ScanCode scan_code) const
+	{
+		return (std::hash<int>{})(static_cast<int>(scan_code));
+	}
 }; // ScanCodeHash
 
 const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCodeHash>{
-    {ScanCode::sc_return, "return",},
-    {ScanCode::sc_escape, "escape",},
-    {ScanCode::sc_space, "space",},
-    {ScanCode::sc_minus, "minus",},
-    {ScanCode::sc_equals, "equals",},
-    {ScanCode::sc_backspace, "backspace",},
-    {ScanCode::sc_tab, "tab",},
-    {ScanCode::sc_alt, "alt",},
-    {ScanCode::sc_left_bracket, "left_bracket",},
-    {ScanCode::sc_right_bracket, "right_bracket",},
-    {ScanCode::sc_control, "control",},
-    {ScanCode::sc_caps_lock, "caps_lock",},
-    {ScanCode::sc_num_lock, "num_lock",},
-    {ScanCode::sc_scroll_lock, "scroll_lock",},
-    {ScanCode::sc_left_shift, "left_shift",},
-    {ScanCode::sc_right_shift, "right_shift",},
-    {ScanCode::sc_up_arrow, "up_arrow",},
-    {ScanCode::sc_down_arrow, "down_arrow",},
-    {ScanCode::sc_left_arrow, "left_arrow",},
-    {ScanCode::sc_right_arrow, "right_arrow",},
-    {ScanCode::sc_insert, "insert",},
-    {ScanCode::sc_delete, "delete",},
-    {ScanCode::sc_home, "home",},
-    {ScanCode::sc_end, "end",},
-    {ScanCode::sc_page_up, "page_up",},
-    {ScanCode::sc_page_down, "page_down",},
-    {ScanCode::sc_slash, "slash",},
-    {ScanCode::sc_f1, "f1",},
-    {ScanCode::sc_f2, "f2",},
-    {ScanCode::sc_f3, "f3",},
-    {ScanCode::sc_f4, "f4",},
-    {ScanCode::sc_f5, "f5",},
-    {ScanCode::sc_f6, "f6",},
-    {ScanCode::sc_f7, "f7",},
-    {ScanCode::sc_f8, "f8",},
-    {ScanCode::sc_f9, "f9",},
-    {ScanCode::sc_f10, "f10",},
-    {ScanCode::sc_f11, "f11",},
-    {ScanCode::sc_f12, "f12",},
-    {ScanCode::sc_print_screen, "print_screen",},
-    {ScanCode::sc_pause, "pause",},
-    {ScanCode::sc_back_quote, "back_quote",},
-    {ScanCode::sc_semicolon, "semicolon",},
-    {ScanCode::sc_quote, "quote",},
-    {ScanCode::sc_backslash, "backslash",},
-    {ScanCode::sc_comma, "comma",},
-    {ScanCode::sc_period, "period",},
-    {ScanCode::sc_1, "1",},
-    {ScanCode::sc_2, "2",},
-    {ScanCode::sc_3, "3",},
-    {ScanCode::sc_4, "4",},
-    {ScanCode::sc_5, "5",},
-    {ScanCode::sc_6, "6",},
-    {ScanCode::sc_7, "7",},
-    {ScanCode::sc_8, "8",},
-    {ScanCode::sc_9, "9",},
-    {ScanCode::sc_0, "0",},
-    {ScanCode::sc_a, "a",},
-    {ScanCode::sc_b, "b",},
-    {ScanCode::sc_c, "c",},
-    {ScanCode::sc_d, "d",},
-    {ScanCode::sc_e, "e",},
-    {ScanCode::sc_f, "f",},
-    {ScanCode::sc_g, "g",},
-    {ScanCode::sc_h, "h",},
-    {ScanCode::sc_i, "i",},
-    {ScanCode::sc_j, "j",},
-    {ScanCode::sc_k, "k",},
-    {ScanCode::sc_l, "l",},
-    {ScanCode::sc_m, "m",},
-    {ScanCode::sc_n, "n",},
-    {ScanCode::sc_o, "o",},
-    {ScanCode::sc_p, "p",},
-    {ScanCode::sc_q, "q",},
-    {ScanCode::sc_r, "r",},
-    {ScanCode::sc_s, "s",},
-    {ScanCode::sc_t, "t",},
-    {ScanCode::sc_u, "u",},
-    {ScanCode::sc_v, "v",},
-    {ScanCode::sc_w, "w",},
-    {ScanCode::sc_x, "x",},
-    {ScanCode::sc_y, "y",},
-    {ScanCode::sc_z, "z",},
-    {ScanCode::sc_kp_minus, "kp_minus",},
-    {ScanCode::sc_kp_plus, "kp_plus",},
-    {ScanCode::sc_mouse_left, "mouse_left",},
-    {ScanCode::sc_mouse_middle, "mouse_middle",},
-    {ScanCode::sc_mouse_right, "mouse_right",},
-    {ScanCode::sc_mouse_x1, "mouse_x1",},
-    {ScanCode::sc_mouse_x2, "mouse_x2",},
+	{ScanCode::sc_return, "return", },
+{ScanCode::sc_escape, "escape", },
+{ScanCode::sc_space, "space", },
+{ScanCode::sc_minus, "minus", },
+{ScanCode::sc_equals, "equals", },
+{ScanCode::sc_backspace, "backspace", },
+{ScanCode::sc_tab, "tab", },
+{ScanCode::sc_alt, "alt", },
+{ScanCode::sc_left_bracket, "left_bracket", },
+{ScanCode::sc_right_bracket, "right_bracket", },
+{ScanCode::sc_control, "control", },
+{ScanCode::sc_caps_lock, "caps_lock", },
+{ScanCode::sc_num_lock, "num_lock", },
+{ScanCode::sc_scroll_lock, "scroll_lock", },
+{ScanCode::sc_left_shift, "left_shift", },
+{ScanCode::sc_right_shift, "right_shift", },
+{ScanCode::sc_up_arrow, "up_arrow", },
+{ScanCode::sc_down_arrow, "down_arrow", },
+{ScanCode::sc_left_arrow, "left_arrow", },
+{ScanCode::sc_right_arrow, "right_arrow", },
+{ScanCode::sc_insert, "insert", },
+{ScanCode::sc_delete, "delete", },
+{ScanCode::sc_home, "home", },
+{ScanCode::sc_end, "end", },
+{ScanCode::sc_page_up, "page_up", },
+{ScanCode::sc_page_down, "page_down", },
+{ScanCode::sc_slash, "slash", },
+{ScanCode::sc_f1, "f1", },
+{ScanCode::sc_f2, "f2", },
+{ScanCode::sc_f3, "f3", },
+{ScanCode::sc_f4, "f4", },
+{ScanCode::sc_f5, "f5", },
+{ScanCode::sc_f6, "f6", },
+{ScanCode::sc_f7, "f7", },
+{ScanCode::sc_f8, "f8", },
+{ScanCode::sc_f9, "f9", },
+{ScanCode::sc_f10, "f10", },
+{ScanCode::sc_f11, "f11", },
+{ScanCode::sc_f12, "f12", },
+{ScanCode::sc_print_screen, "print_screen", },
+{ScanCode::sc_pause, "pause", },
+{ScanCode::sc_back_quote, "back_quote", },
+{ScanCode::sc_semicolon, "semicolon", },
+{ScanCode::sc_quote, "quote", },
+{ScanCode::sc_backslash, "backslash", },
+{ScanCode::sc_comma, "comma", },
+{ScanCode::sc_period, "period", },
+{ScanCode::sc_1, "1", },
+{ScanCode::sc_2, "2", },
+{ScanCode::sc_3, "3", },
+{ScanCode::sc_4, "4", },
+{ScanCode::sc_5, "5", },
+{ScanCode::sc_6, "6", },
+{ScanCode::sc_7, "7", },
+{ScanCode::sc_8, "8", },
+{ScanCode::sc_9, "9", },
+{ScanCode::sc_0, "0", },
+{ScanCode::sc_a, "a", },
+{ScanCode::sc_b, "b", },
+{ScanCode::sc_c, "c", },
+{ScanCode::sc_d, "d", },
+{ScanCode::sc_e, "e", },
+{ScanCode::sc_f, "f", },
+{ScanCode::sc_g, "g", },
+{ScanCode::sc_h, "h", },
+{ScanCode::sc_i, "i", },
+{ScanCode::sc_j, "j", },
+{ScanCode::sc_k, "k", },
+{ScanCode::sc_l, "l", },
+{ScanCode::sc_m, "m", },
+{ScanCode::sc_n, "n", },
+{ScanCode::sc_o, "o", },
+{ScanCode::sc_p, "p", },
+{ScanCode::sc_q, "q", },
+{ScanCode::sc_r, "r", },
+{ScanCode::sc_s, "s", },
+{ScanCode::sc_t, "t", },
+{ScanCode::sc_u, "u", },
+{ScanCode::sc_v, "v", },
+{ScanCode::sc_w, "w", },
+{ScanCode::sc_x, "x", },
+{ScanCode::sc_y, "y", },
+{ScanCode::sc_z, "z", },
+{ScanCode::sc_kp_minus, "kp_minus", },
+{ScanCode::sc_kp_plus, "kp_plus", },
+{ScanCode::sc_mouse_left, "mouse_left", },
+{ScanCode::sc_mouse_middle, "mouse_middle", },
+{ScanCode::sc_mouse_right, "mouse_right", },
+{ScanCode::sc_mouse_x1, "mouse_x1", },
+{ScanCode::sc_mouse_x2, "mouse_x2", },
 };
 
 
 bool parse_config_line(
-    const std::string& line,
-    std::string& name,
-    int& index0,
-    int& index1,
-    std::string& value)
+	const std::string& line,
+	std::string& name,
+	int& index0,
+	int& index1,
+	std::string& value)
 {
-    if (line.empty())
-    {
-        return false;
-    }
+	if (line.empty())
+	{
+		return false;
+	}
 
-    const auto comment_position = line.find("//");
+	const auto comment_position = line.find("//");
 
-    if (comment_position != line.npos)
-    {
-        return false;
-    }
-
-
-    const auto name_end_space = line.find(' ');
-
-    if (name_end_space == line.npos)
-    {
-        return false;
-    }
+	if (comment_position != line.npos)
+	{
+		return false;
+	}
 
 
-    const auto value_begin_quotes = line.find('\"', name_end_space);
+	const auto name_end_space = line.find(' ');
 
-    if (value_begin_quotes == line.npos)
-    {
-        return false;
-    }
-
-
-    const auto value_end_quotes = line.find('\"', value_begin_quotes + 1);
-
-    if (value_end_quotes == line.npos)
-    {
-        return false;
-    }
+	if (name_end_space == line.npos)
+	{
+		return false;
+	}
 
 
-    const auto full_name = line.substr(0, name_end_space);
+	const auto value_begin_quotes = line.find('\"', name_end_space);
 
-    if (full_name.empty())
-    {
-        return false;
-    }
+	if (value_begin_quotes == line.npos)
+	{
+		return false;
+	}
 
-    if (value_end_quotes > value_begin_quotes)
-    {
-        value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes - 1);
-    }
-    else
-    {
-        value.clear();
-    }
+
+	const auto value_end_quotes = line.find('\"', value_begin_quotes + 1);
+
+	if (value_end_quotes == line.npos)
+	{
+		return false;
+	}
+
+
+	const auto full_name = line.substr(0, name_end_space);
+
+	if (full_name.empty())
+	{
+		return false;
+	}
+
+	if (value_end_quotes > value_begin_quotes)
+	{
+		value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes - 1);
+	}
+	else
+	{
+		value.clear();
+	}
 
 
 	const auto& string_helper = bstone::StringHelper{};
 
-    index0 = -1;
-    index1 = -1;
-    const auto index0_begin_bracket = full_name.find('[');
-    const auto index0_end_bracket = full_name.find(']');
-    const auto has_index0 = (index0_begin_bracket != full_name.npos && index0_end_bracket != full_name.npos);
+	index0 = -1;
+	index1 = -1;
+	const auto index0_begin_bracket = full_name.find('[');
+	const auto index0_end_bracket = full_name.find(']');
+	const auto has_index0 = (index0_begin_bracket != full_name.npos && index0_end_bracket != full_name.npos);
 
-    if (has_index0)
-    {
-        name = full_name.substr(0, index0_begin_bracket);
-    }
-    else
-    {
-        name = full_name;
-    }
+	if (has_index0)
+	{
+		name = full_name.substr(0, index0_begin_bracket);
+	}
+	else
+	{
+		name = full_name;
+	}
 
-    if (has_index0)
-    {
-        const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
+	if (has_index0)
+	{
+		const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
 
-        if (!string_helper.lexical_cast(index0_string, index0))
-        {
-            return false;
-        }
-    }
+		if (!string_helper.lexical_cast(index0_string, index0))
+		{
+			return false;
+		}
+	}
 
-    if (has_index0)
-    {
-        const auto index1_begin_bracket = full_name.find('[', index0_end_bracket + 1);
-        const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
-        const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
+	if (has_index0)
+	{
+		const auto index1_begin_bracket = full_name.find('[', index0_end_bracket + 1);
+		const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
+		const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
 
-        const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
+		const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
 
-        if (!string_helper.lexical_cast(index1_string, index1))
-        {
-            return false;
-        }
-    }
+		if (!string_helper.lexical_cast(index1_string, index1))
+		{
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 void set_config_defaults()
 {
-    ::mouseenabled = true;
+	::mouseenabled = true;
 
-    ::joystickenabled = false;
-    ::joypadenabled = false;
-    ::joystickport = 0;
-    ::joystickprogressive = false;
+	::joystickenabled = false;
+	::joypadenabled = false;
+	::joystickport = 0;
+	::joystickprogressive = false;
 
-    ::set_vanilla_controls();
-    ::in_set_default_bindings();
+	::set_vanilla_controls();
+	::in_set_default_bindings();
 
-    ::mouseadjustment = ::default_mouse_sensitivity;
+	::mouseadjustment = ::default_mouse_sensitivity;
 
-    ::gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
-    ::gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
+	::gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
+	::gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
 
-    ::sd_sfx_volume = ::sd_default_sfx_volume;
-    ::sd_music_volume = ::sd_default_music_volume;
+	::sd_sfx_volume = ::sd_default_sfx_volume;
+	::sd_music_volume = ::sd_default_music_volume;
 
-    ::g_no_wall_hit_sound = default_no_wall_hit_sound;
-    ::in_use_modern_bindings = default_in_use_modern_bindings;
-    ::g_always_run = default_always_run;
+	::g_no_wall_hit_sound = default_no_wall_hit_sound;
+	::in_use_modern_bindings = default_in_use_modern_bindings;
+	::g_always_run = default_always_run;
 
-    ::g_heart_beat_sound = ::default_heart_beat_sound;
-    ::g_rotated_automap = ::default_rotated_automap;
+	::g_heart_beat_sound = ::default_heart_beat_sound;
+	::g_rotated_automap = ::default_rotated_automap;
 
-    ::g_quit_on_escape = ::default_quit_on_escape;
-    ::g_no_intro_outro = ::default_g_no_intro_outro;
+	::g_quit_on_escape = ::default_quit_on_escape;
+	::g_no_intro_outro = ::default_g_no_intro_outro;
 
-    ::vid_widescreen = ::default_vid_widescreen;
+	::vid_widescreen = ::default_vid_widescreen;
 }
 
 ScanCode get_scan_code_by_name(
-    const std::string& name)
+	const std::string& name)
 {
-    const auto it = std::find_if(
-        scan_code_name_map.cbegin(),
-        scan_code_name_map.cend(),
-        [&](const std::pair<ScanCode, std::string>& item)
-        {
-            return item.second == name;
-        }
-    );
+	const auto it = std::find_if(
+		scan_code_name_map.cbegin(),
+		scan_code_name_map.cend(),
+		[&](const std::pair<ScanCode, std::string>& item)
+	{
+		return item.second == name;
+	}
+	);
 
-    if (it == scan_code_name_map.cend())
-    {
-        return ScanCode::sc_none;
-    }
+	if (it == scan_code_name_map.cend())
+	{
+		return ScanCode::sc_none;
+	}
 
-    return it->first;
+	return it->first;
 }
 
 void read_text_config()
 {
-    ::is_config_loaded = true;
+	::is_config_loaded = true;
 
 
-    const auto default_game_state_flags = std::uint16_t{
-        GS_HEARTB_SOUND |
-        GS_ATTACK_INFOAREA |
-        GS_LIGHTING |
-        GS_DRAW_CEILING |
-        GS_DRAW_FLOOR
-    };
+	const auto default_game_state_flags = std::uint16_t{
+		GS_HEARTB_SOUND |
+		GS_ATTACK_INFOAREA |
+		GS_LIGHTING |
+		GS_DRAW_CEILING |
+		GS_DRAW_FLOOR
+	};
 
-    auto is_sound_enabled = true;
-    auto is_music_enabled = true;
-    auto game_state_flags = default_game_state_flags;
+	auto is_sound_enabled = true;
+	auto is_music_enabled = true;
+	auto game_state_flags = default_game_state_flags;
 
 
-    set_config_defaults();
+	set_config_defaults();
 
-    const auto config_path = ::get_profile_dir() + ::text_config_file_name;
+	const auto config_path = ::get_profile_dir() + ::text_config_file_name;
 
-    bstone::FileStream stream{config_path};
+	bstone::FileStream stream{config_path};
 
-    if (stream.is_open())
-    {
+	if (stream.is_open())
+	{
 		auto reader = bstone::TextReader{&stream};
 
-        if (reader.is_open())
-        {
-            while (!reader.is_eos())
-            {
-                const auto line = reader.read_line();
+		if (reader.is_open())
+		{
+			while (!reader.is_eos())
+			{
+				const auto line = reader.read_line();
 
-                auto name = std::string{};
-                auto index0 = int{};
-                auto index1 = int{};
-                auto value_string = std::string{};
+				auto name = std::string{};
+				auto index0 = int{};
+				auto index1 = int{};
+				auto value_string = std::string{};
 
-                if (parse_config_line(line, name, index0, index1, value_string))
-                {
+				if (parse_config_line(line, name, index0, index1, value_string))
+				{
 					const auto& string_helper = bstone::StringHelper{};
 
-                    if (name == vid_is_widescreen_name)
-                    {
-                        auto value = int{};
+					if (name == vid_is_widescreen_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::vid_widescreen = (value != 0);
-                        }
-                    }
-                    else if (name == vid_is_ui_stretched_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::vid_widescreen = (value != 0);
+						}
+					}
+					else if (name == vid_is_ui_stretched_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::vid_is_ui_stretched = (value != 0);
-                        }
-                    }
-                    else if (name == snd_is_sfx_enabled_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::vid_is_ui_stretched = (value != 0);
+						}
+					}
+					else if (name == snd_is_sfx_enabled_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            is_sound_enabled = (value != 0);
-                        }
-                    }
-                    else if (name == snd_is_music_enabled_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							is_sound_enabled = (value != 0);
+						}
+					}
+					else if (name == snd_is_music_enabled_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            is_music_enabled = (value != 0);
-                        }
-                    }
-                    else if (name == snd_sfx_volume_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							is_music_enabled = (value != 0);
+						}
+					}
+					else if (name == snd_sfx_volume_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::sd_sfx_volume = value;
-                        }
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::sd_sfx_volume = value;
+						}
 
-                        if (::sd_sfx_volume < ::sd_min_volume)
-                        {
-                            ::sd_sfx_volume = ::sd_min_volume;
-                        }
+						if (::sd_sfx_volume < ::sd_min_volume)
+						{
+							::sd_sfx_volume = ::sd_min_volume;
+						}
 
-                        if (::sd_sfx_volume > ::sd_max_volume)
-                        {
-                            ::sd_sfx_volume = ::sd_max_volume;
-                        }
-                    }
-                    else if (name == snd_music_volume_name)
-                    {
-                        auto value = int{};
+						if (::sd_sfx_volume > ::sd_max_volume)
+						{
+							::sd_sfx_volume = ::sd_max_volume;
+						}
+					}
+					else if (name == snd_music_volume_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::sd_music_volume = value;
-                        }
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::sd_music_volume = value;
+						}
 
-                        if (::sd_music_volume < ::sd_min_volume)
-                        {
-                            ::sd_music_volume = ::sd_min_volume;
-                        }
+						if (::sd_music_volume < ::sd_min_volume)
+						{
+							::sd_music_volume = ::sd_min_volume;
+						}
 
-                        if (::sd_music_volume > ::sd_max_volume)
-                        {
-                            ::sd_music_volume = ::sd_max_volume;
-                        }
-                    }
-                    else if (name == in_use_modern_bindings_name)
-                    {
-                        auto value = int{};
+						if (::sd_music_volume > ::sd_max_volume)
+						{
+							::sd_music_volume = ::sd_max_volume;
+						}
+					}
+					else if (name == in_use_modern_bindings_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::in_use_modern_bindings = (value != 0);
-                        }
-                    }
-                    else if (name == in_mouse_sensitivity_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::in_use_modern_bindings = (value != 0);
+						}
+					}
+					else if (name == in_mouse_sensitivity_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::mouseadjustment = value;
-                        }
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::mouseadjustment = value;
+						}
 
-                        if (::mouseadjustment < min_mouse_sensitivity)
-                        {
-                            ::mouseadjustment = min_mouse_sensitivity;
-                        }
+						if (::mouseadjustment < min_mouse_sensitivity)
+						{
+							::mouseadjustment = min_mouse_sensitivity;
+						}
 
-                        if (::mouseadjustment > max_mouse_sensitivity)
-                        {
-                            ::mouseadjustment = max_mouse_sensitivity;
-                        }
-                    }
-                    else if (name == in_is_mouse_enabled_name)
-                    {
-                        auto value = int{};
+						if (::mouseadjustment > max_mouse_sensitivity)
+						{
+							::mouseadjustment = max_mouse_sensitivity;
+						}
+					}
+					else if (name == in_is_mouse_enabled_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::mouseenabled = (value != 0);
-                        }
-                    }
-                    else if (name == in_is_joystick_enabled_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::mouseenabled = (value != 0);
+						}
+					}
+					else if (name == in_is_joystick_enabled_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::joystickenabled = (value != 0);
-                        }
-                    }
-                    else if (name == in_is_joystick_pad_enabled_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::joystickenabled = (value != 0);
+						}
+					}
+					else if (name == in_is_joystick_pad_enabled_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::joypadenabled = (value != 0);
-                        }
-                    }
-                    else if (name == in_is_joystick_progressive_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::joypadenabled = (value != 0);
+						}
+					}
+					else if (name == in_is_joystick_progressive_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::joystickprogressive = (value != 0);
-                        }
-                    }
-                    else if (name == in_joystick_port_name)
-                    {
-                        auto value = std::int16_t{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::joystickprogressive = (value != 0);
+						}
+					}
+					else if (name == in_joystick_port_name)
+					{
+						auto value = std::int16_t{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::joystickport = value;
-                        }
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::joystickport = value;
+						}
 
-                        if (::joystickport < 0)
-                        {
-                            ::joystickport = 0;
-                        }
-                    }
-                    else if (name == in_mouse_binding_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::dirscan.size()))
-                            {
-                                ::dirscan[index0] = get_scan_code_by_name(value_string);
-                            }
-                        }
-                    }
-                    else if (name == in_kb_binding_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::buttonscan.size()))
-                            {
-                                ::buttonscan[index0] = get_scan_code_by_name(value_string);
-                            }
-                        }
-                    }
-                    else if (name == in_mouse_button_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
-                            {
-                                auto value = std::int16_t{};
+						if (::joystickport < 0)
+						{
+							::joystickport = 0;
+						}
+					}
+					else if (name == in_mouse_binding_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::dirscan.size()))
+							{
+								::dirscan[index0] = get_scan_code_by_name(value_string);
+							}
+						}
+					}
+					else if (name == in_kb_binding_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::buttonscan.size()))
+							{
+								::buttonscan[index0] = get_scan_code_by_name(value_string);
+							}
+						}
+					}
+					else if (name == in_mouse_button_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
+							{
+								auto value = std::int16_t{};
 
-                                if (string_helper.lexical_cast(value_string, value))
-                                {
-                                    ::buttonmouse[index0] = value;
-                                }
+								if (string_helper.lexical_cast(value_string, value))
+								{
+									::buttonmouse[index0] = value;
+								}
 
-                                if (::buttonmouse[index0] < 0)
-                                {
-                                    ::buttonmouse[index0] = 0;
-                                }
-                            }
-                        }
-                    }
-                    else if (name == in_js_button_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
-                            {
-                                auto value = std::int16_t{};
+								if (::buttonmouse[index0] < 0)
+								{
+									::buttonmouse[index0] = 0;
+								}
+							}
+						}
+					}
+					else if (name == in_js_button_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
+							{
+								auto value = std::int16_t{};
 
-                                if (string_helper.lexical_cast(value_string, value))
-                                {
-                                    ::buttonjoy[index0] = value;
-                                }
+								if (string_helper.lexical_cast(value_string, value))
+								{
+									::buttonjoy[index0] = value;
+								}
 
-                                if (::buttonjoy[index0] < 0)
-                                {
-                                    ::buttonjoy[index0] = 0;
-                                }
-                            }
-                        }
-                    }
-                    else if (name == in_binding_name)
-                    {
-                        static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
+								if (::buttonjoy[index0] < 0)
+								{
+									::buttonjoy[index0] = 0;
+								}
+							}
+						}
+					}
+					else if (name == in_binding_name)
+					{
+						static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
 
-                        constexpr auto bindings_count = static_cast<int>(std::extent<Bindings, 0>::value);
+						constexpr auto bindings_count = static_cast<int>(std::extent<Bindings, 0>::value);
 
-                        if (index0 >= 0 && index0 < bindings_count && index1 >= 0 && index1 < bindings_count)
-                        {
-                            ::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
-                        }
-                    }
-                    else if (name == gp_flags_name)
-                    {
-                        auto value = std::uint16_t{};
+						if (index0 >= 0 && index0 < bindings_count && index1 >= 0 && index1 < bindings_count)
+						{
+							::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
+						}
+					}
+					else if (name == gp_flags_name)
+					{
+						auto value = std::uint16_t{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            game_state_flags = value;
-                        }
-                    }
-                    else if (name == gp_no_wall_hit_sfx_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							game_state_flags = value;
+						}
+					}
+					else if (name == gp_no_wall_hit_sfx_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::g_no_wall_hit_sound = (value != 0);
-                        }
-                    }
-                    else if (name == gp_is_always_run_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::g_no_wall_hit_sound = (value != 0);
+						}
+					}
+					else if (name == gp_is_always_run_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::g_always_run = (value != 0);
-                        }
-                    }
-                    else if (name == gp_use_heart_beat_sfx_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::g_always_run = (value != 0);
+						}
+					}
+					else if (name == gp_use_heart_beat_sfx_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::g_heart_beat_sound = (value != 0);
-                        }
-                    }
-                    else if (name == gp_quit_on_escape_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::g_heart_beat_sound = (value != 0);
+						}
+					}
+					else if (name == gp_quit_on_escape_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::g_quit_on_escape = (value != 0);
-                        }
-                    }
-                    else if (name == gp_no_intro_outro_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::g_quit_on_escape = (value != 0);
+						}
+					}
+					else if (name == gp_no_intro_outro_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::g_no_intro_outro = (value != 0);
-                        }
-                    }
-                    else if (name == am_is_rotated_name)
-                    {
-                        auto value = int{};
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::g_no_intro_outro = (value != 0);
+						}
+					}
+					else if (name == am_is_rotated_name)
+					{
+						auto value = int{};
 
-                        if (string_helper.lexical_cast(value_string, value))
-                        {
-                            ::g_rotated_automap = (value != 0);
-                        }
-                    }
-                }
-            }
-        }
-    }
+						if (string_helper.lexical_cast(value_string, value))
+						{
+							::g_rotated_automap = (value != 0);
+						}
+					}
+				}
+			}
+		}
+	}
 
 
-    ::gamestate.flags &= ~default_game_state_flags;
-    ::gamestate.flags |= game_state_flags;
+	::gamestate.flags &= ~default_game_state_flags;
+	::gamestate.flags |= game_state_flags;
 
-    ::SD_EnableSound(is_sound_enabled);
-    ::SD_EnableMusic(is_music_enabled);
+	::SD_EnableSound(is_sound_enabled);
+	::SD_EnableMusic(is_music_enabled);
 
-    ::sd_set_sfx_volume(sd_sfx_volume);
-    ::sd_set_music_volume(sd_music_volume);
+	::sd_set_sfx_volume(sd_sfx_volume);
+	::sd_set_music_volume(sd_music_volume);
 
-    ::vl_update_widescreen();
+	::vl_update_widescreen();
 }
 
 
@@ -7877,7 +7893,7 @@ void read_text_config()
 
 void ReadConfig()
 {
-    read_text_config();
+	read_text_config();
 }
 
 
@@ -7889,198 +7905,198 @@ template<typename T>
 class ToString
 {
 public:
-    static bool convert(
-        T&& src_value,
-        std::string& dst_value)
-    {
+	static bool convert(
+		T&& src_value,
+		std::string& dst_value)
+	{
 		const auto& string_helper = bstone::StringHelper{};
 
-        return string_helper.lexical_cast(src_value, dst_value);
-    }
+		return string_helper.lexical_cast(src_value, dst_value);
+	}
 };
 
 template<>
 class ToString<bool>
 {
 public:
-    static bool convert(
-        const bool src_value,
-        std::string& dst_value)
-    {
-        dst_value = (src_value ? "1" : "0");
+	static bool convert(
+		const bool src_value,
+		std::string& dst_value)
+	{
+		dst_value = (src_value ? "1" : "0");
 
-        return true;
-    }
+		return true;
+	}
 };
 
 
 template<typename T>
 void write_config_entry(
-    bstone::TextWriter& writer,
-    const std::string& name,
-    T&& value)
+	bstone::TextWriter& writer,
+	const std::string& name,
+	T&& value)
 {
-    auto value_string = std::string{};
+	auto value_string = std::string{};
 
-    if (!ToString<T>::convert(value, value_string))
-    {
-        bstone::Log::write_warning("Failed to convert value for setting \"{}\".", name);
-    }
+	if (!ToString<T>::convert(value, value_string))
+	{
+		bstone::Log::write_warning("Failed to convert value for setting \"{}\".", name);
+	}
 
-    const auto string = name + " \"" + value_string + "\"\n";
+	const auto string = name + " \"" + value_string + "\"\n";
 
-    if (!writer.write(string))
-    {
-        bstone::Log::write_warning("Failed to write setting \"{}\".", name);
-    }
+	if (!writer.write(string))
+	{
+		bstone::Log::write_warning("Failed to write setting \"{}\".", name);
+	}
 }
 
 const std::string& get_scan_code_name(
-    ScanCode scan_code)
+	ScanCode scan_code)
 {
-    static const auto empty_name = std::string{};
+	static const auto empty_name = std::string{};
 
-    const auto it = scan_code_name_map.find(scan_code);
+	const auto it = scan_code_name_map.find(scan_code);
 
-    if (it == scan_code_name_map.cend())
-    {
-        return empty_name;
-    }
+	if (it == scan_code_name_map.cend())
+	{
+		return empty_name;
+	}
 
-    return it->second;
+	return it->second;
 }
 
 void write_x_scan_config(
-    const ScanCodes& scan_codes,
-    const std::string& name_prefix,
-    bstone::TextWriter& writer)
+	const ScanCodes& scan_codes,
+	const std::string& name_prefix,
+	bstone::TextWriter& writer)
 {
-    auto line = std::string{};
+	auto line = std::string{};
 
-    auto counter = 0;
+	auto counter = 0;
 
-    for (const auto scan_code : scan_codes)
-    {
-        const auto scan_code_name = get_scan_code_name(scan_code);
+	for (const auto scan_code : scan_codes)
+	{
+		const auto scan_code_name = get_scan_code_name(scan_code);
 
-        line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
-        writer.write(line);
+		line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
+		writer.write(line);
 
-        counter += 1;
-    }
+		counter += 1;
+	}
 }
 
 void write_buttons_config(
-    const Buttons& buttons,
-    const std::string& name_prefix,
-    bstone::TextWriter& writer)
+	const Buttons& buttons,
+	const std::string& name_prefix,
+	bstone::TextWriter& writer)
 {
-    auto line = std::string{};
+	auto line = std::string{};
 
-    auto counter = 0;
+	auto counter = 0;
 
-    for (const auto button : buttons)
-    {
-        line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
-        writer.write(line);
+	for (const auto button : buttons)
+	{
+		line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
+		writer.write(line);
 
-        counter += 1;
-    }
+		counter += 1;
+	}
 }
 
 void write_bindings_config(
-    const std::string& name_prefix,
-    bstone::TextWriter& writer)
+	const std::string& name_prefix,
+	bstone::TextWriter& writer)
 {
-    auto line = std::string{};
+	auto line = std::string{};
 
-    auto counter0 = 0;
+	auto counter0 = 0;
 
-    for (const auto& binding : in_bindings)
-    {
-        const auto& counter0_string = std::to_string(counter0);
+	for (const auto& binding : in_bindings)
+	{
+		const auto& counter0_string = std::to_string(counter0);
 
-        auto counter1 = 0;
+		auto counter1 = 0;
 
-        for (const auto scan_code : binding)
-        {
-            const auto& scan_code_name = get_scan_code_name(scan_code);
-            const auto& counter1_string = std::to_string(counter1);
+		for (const auto scan_code : binding)
+		{
+			const auto& scan_code_name = get_scan_code_name(scan_code);
+			const auto& counter1_string = std::to_string(counter1);
 
-            line = name_prefix +
-                "[" + counter0_string + "][" + counter1_string + "] \"" +
-                scan_code_name + "\"\n";
+			line = name_prefix +
+				"[" + counter0_string + "][" + counter1_string + "] \"" +
+				scan_code_name + "\"\n";
 
-            writer.write(line);
+			writer.write(line);
 
-            counter1 += 1;
-        }
+			counter1 += 1;
+		}
 
-        counter0 += 1;
-    }
+		counter0 += 1;
+	}
 }
 
 void write_text_config()
 {
-    constexpr auto memory_stream_initial_size = 4096;
+	constexpr auto memory_stream_initial_size = 4096;
 
-    bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
-    auto writer = bstone::TextWriter{&memory_stream};
-
-
-    writer.write("// BStone configuration file\n");
-    writer.write("// WARNING! This is auto-generated file.\n");
-    writer.write("\n");
-
-    writer.write("\n// Video\n");
-    write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
-    write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
-
-    writer.write("\n// Audio\n");
-    write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
-    write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
-    write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
-    write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
-
-    writer.write("\n// Input\n");
-    write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
-    write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
-    write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
-    write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
-    write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
-    write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
-    write_config_entry(writer, in_joystick_port_name, ::joystickport);
-
-    writer.write("\n// Input bindings\n");
-    write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
-    write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
-    write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
-    write_buttons_config(::buttonjoy, in_js_button_name, writer);
-    write_bindings_config(::in_binding_name, writer);
-
-    writer.write("\n// Gameplay\n");
-    write_config_entry(writer, gp_flags_name, ::gamestate.flags);
-    write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
-    write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
-    write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
-    write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
-    write_config_entry(writer, gp_no_intro_outro_name, ::g_no_intro_outro);
-
-    writer.write("\n// Auto-map\n");
-    write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
+	bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
+	auto writer = bstone::TextWriter{&memory_stream};
 
 
-    const auto stream_size = static_cast<int>(memory_stream.get_size());
-    const auto stream_data = memory_stream.get_data();
+	writer.write("// BStone configuration file\n");
+	writer.write("// WARNING! This is auto-generated file.\n");
+	writer.write("\n");
 
-    const auto config_path = ::get_profile_dir() + ::text_config_file_name;
+	writer.write("\n// Video\n");
+	write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
+	write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
 
-    bstone::FileStream stream{config_path, bstone::StreamOpenMode::write};
+	writer.write("\n// Audio\n");
+	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
+	write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
+	write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
+	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
 
-    if (!stream.write(stream_data, stream_size))
-    {
-        bstone::Log::write_warning("Failed to write a configuration.");
-    }
+	writer.write("\n// Input\n");
+	write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
+	write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
+	write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
+	write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
+	write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
+	write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
+	write_config_entry(writer, in_joystick_port_name, ::joystickport);
+
+	writer.write("\n// Input bindings\n");
+	write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
+	write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
+	write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
+	write_buttons_config(::buttonjoy, in_js_button_name, writer);
+	write_bindings_config(::in_binding_name, writer);
+
+	writer.write("\n// Gameplay\n");
+	write_config_entry(writer, gp_flags_name, ::gamestate.flags);
+	write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
+	write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
+	write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
+	write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
+	write_config_entry(writer, gp_no_intro_outro_name, ::g_no_intro_outro);
+
+	writer.write("\n// Auto-map\n");
+	write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
+
+
+	const auto stream_size = static_cast<int>(memory_stream.get_size());
+	const auto stream_data = memory_stream.get_data();
+
+	const auto config_path = ::get_profile_dir() + ::text_config_file_name;
+
+	bstone::FileStream stream{config_path, bstone::StreamOpenMode::write};
+
+	if (!stream.write(stream_data, stream_size))
+	{
+		bstone::Log::write_warning("Failed to write a configuration.");
+	}
 }
 
 
@@ -8089,7 +8105,7 @@ void write_text_config()
 
 void WriteConfig()
 {
-    write_text_config();
+	write_text_config();
 }
 
 
@@ -8105,68 +8121,70 @@ bool ShowQuickMsg;
 =====================
 */
 void NewGame(
-    std::int16_t difficulty,
-    std::int16_t episode)
+	std::int16_t difficulty,
+	std::int16_t episode)
 {
 	const auto& assets_info = AssetsInfo{};
 
-    std::uint16_t oldf = gamestate.flags, loop;
+	std::uint16_t oldf = gamestate.flags, loop;
 
-    InitPlaytemp();
-    playstate = ex_stillplaying;
+	InitPlaytemp();
+	playstate = ex_stillplaying;
 
-    ShowQuickMsg = true;
-    ::gamestuff.clear();
-    memset(&gamestate, 0, sizeof(gamestate));
+	ShowQuickMsg = true;
+	::gamestuff.clear();
+	memset(&gamestate, 0, sizeof(gamestate));
 
-    ::gamestate.initialize_cross_barriers();
-    ::gamestate.initialize_local_barriers();
-    ::gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
+	::gamestate.initialize_cross_barriers();
+	::gamestate.initialize_local_barriers();
+	::gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
 
-    ::gamestate.difficulty = difficulty;
+	::gamestate.difficulty = difficulty;
 
-    ::gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
-    ::gamestate.weapon = wp_autocharge;
-    ::gamestate.chosenweapon = wp_autocharge;
-    ::gamestate.old_weapons[0] = ::gamestate.weapons;
-    ::gamestate.old_weapons[1] = ::gamestate.weapon;
-    ::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
+	::gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
+	::gamestate.weapon = wp_autocharge;
+	::gamestate.chosenweapon = wp_autocharge;
+	::gamestate.old_weapons[0] = ::gamestate.weapons;
+	::gamestate.old_weapons[1] = ::gamestate.weapon;
+	::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
 
-    ::gamestate.health = 100;
-    ::gamestate.old_ammo = STARTAMMO;
-    ::gamestate.ammo = STARTAMMO;
-    ::gamestate.lives = 3;
-    ::gamestate.nextextra = EXTRAPOINTS;
-    ::gamestate.episode = episode;
-    ::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
+	::gamestate.health = 100;
+	::gamestate.old_ammo = STARTAMMO;
+	::gamestate.ammo = STARTAMMO;
+	::gamestate.lives = 3;
+	::gamestate.nextextra = EXTRAPOINTS;
+	::gamestate.episode = episode;
+	::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 	::gamestate.mapon = (assets_info.is_ps() ? 0 : 1);
 
-    ::startgame = true;
+	::startgame = true;
 
-    for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
-        ::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
-        if (loop) {
-            ::gamestuff.old_levelinfo[loop].locked = true;
-        }
-    }
+	for (loop = 0; loop < MAPS_WITH_STATS; loop++)
+	{
+		::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
+		if (loop)
+		{
+			::gamestuff.old_levelinfo[loop].locked = true;
+		}
+	}
 
-    ::ExtraRadarFlags = 0;
-    ::InstantWin = 0;
-    ::InstantQuit = 0;
+	::ExtraRadarFlags = 0;
+	::InstantWin = 0;
+	::InstantQuit = 0;
 
-    ::pickquick = 0;
+	::pickquick = 0;
 
-    // BBi
-    ::g_playtemp.set_position(0);
-    ::g_playtemp.set_size(0);
-    // BBi
+	// BBi
+	::g_playtemp.set_position(0);
+	::g_playtemp.set_size(0);
+	// BBi
 }
 
 // ===========================================================================
 
 
 bool LevelInPlaytemp(
-    int level_index);
+	int level_index);
 
 #define LZH_WORK_BUFFER_SIZE (8192)
 
@@ -8174,71 +8192,82 @@ void* lzh_work_buffer;
 
 void InitPlaytemp()
 {
-    g_playtemp.open(1 * 1024 * 1024);
-    g_playtemp.set_size(0);
-    g_playtemp.set_position(0);
+	g_playtemp.open(1 * 1024 * 1024);
+	g_playtemp.set_size(0);
+	g_playtemp.set_position(0);
 }
 
 int FindChunk(
-    bstone::Stream* stream,
-    const std::string& dst_chunk_name)
+	bstone::Stream* stream,
+	const std::string& dst_chunk_name)
 {
-    std::string src_chunk_name;
-    char src_chunk_name_buffer[4];
+	std::string src_chunk_name;
+	char src_chunk_name_buffer[4];
 
-    stream->set_position(0);
+	stream->set_position(0);
 
-    for (bool quit = false; !quit; ) {
-        if (stream->read(src_chunk_name_buffer, 4) == 4) {
-            std::int32_t chunk_size = 0;
+	for (bool quit = false; !quit; )
+	{
+		if (stream->read(src_chunk_name_buffer, 4) == 4)
+		{
+			std::int32_t chunk_size = 0;
 
-            if (stream->read(&chunk_size, 4) == 4) {
+			if (stream->read(&chunk_size, 4) == 4)
+			{
 				const auto& endian = bstone::Endian{};
 
-                endian.little_i(chunk_size);
+				endian.little_i(chunk_size);
 
-                src_chunk_name.assign(src_chunk_name_buffer, 4);
+				src_chunk_name.assign(src_chunk_name_buffer, 4);
 
-                if (src_chunk_name == dst_chunk_name) {
-                    return chunk_size;
-                }
+				if (src_chunk_name == dst_chunk_name)
+				{
+					return chunk_size;
+				}
 
-                stream->skip(chunk_size);
-            } else {
-                quit = true;
-            }
-        } else {
-            quit = true;
-        }
-    }
+				stream->skip(chunk_size);
+			}
+			else
+			{
+				quit = true;
+			}
+		}
+		else
+		{
+			quit = true;
+		}
+	}
 
-    stream->seek(0, bstone::StreamSeekOrigin::end);
+	stream->seek(0, bstone::StreamSeekOrigin::end);
 
-    return 0;
+	return 0;
 }
 
 int NextChunk(
-    bstone::Stream* stream)
+	bstone::Stream* stream)
 {
-    bool is_succeed = true;
+	bool is_succeed = true;
 
-    if (is_succeed) {
-        char name_buffer[4];
-        is_succeed = (stream->read(name_buffer, 4) == 4);
-    }
+	if (is_succeed)
+	{
+		char name_buffer[4];
+		is_succeed = (stream->read(name_buffer, 4) == 4);
+	}
 
-    std::int32_t chunk_size = 0;
+	std::int32_t chunk_size = 0;
 
-    if (is_succeed) {
-        is_succeed = (stream->read(&chunk_size, 4) == 4);
-    }
+	if (is_succeed)
+	{
+		is_succeed = (stream->read(&chunk_size, 4) == 4);
+	}
 
-    if (is_succeed) {
-        return chunk_size;
-    }
+	if (is_succeed)
+	{
+		return chunk_size;
+	}
 
-    stream->seek(0, bstone::StreamSeekOrigin::end);
-    return 0;
+	stream->seek(0, bstone::StreamSeekOrigin::end);
+	return 0;
 }
 
 std::int8_t LS_current = -1;
@@ -8362,9 +8391,9 @@ bool LoadLevel(
 			if ((new_actor->flags & FL_DEADGUY) != 0)
 			{
 				DeadGuys[NumDeadGuys++] = new_actor;
-		}
+			}
 #endif
-	}
+		}
 
 		//
 		//  Re-Establish links to barrier switches
@@ -8447,7 +8476,7 @@ bool LoadLevel(
 		// BBi
 
 		::deserialize_field(gamestate.plasma_detonators, reader, checksum);
-}
+	}
 	catch (const ArchiveException&)
 	{
 		is_succeed = false;
@@ -8516,172 +8545,185 @@ bool LoadLevel(
 }
 
 bool SaveLevel(
-    int level_index)
+	int level_index)
 {
-    WindowY = 181;
+	WindowY = 181;
 
-    // Make sure floor stats are saved!
-    //
-    std::int16_t oldmapon = gamestate.mapon;
-    gamestate.mapon = gamestate.lastmapon;
-    ::ShowStats(0, 0, ss_justcalc,
-                &gamestuff.level[gamestate.mapon].stats);
-    gamestate.mapon = oldmapon;
+	// Make sure floor stats are saved!
+	//
+	std::int16_t oldmapon = gamestate.mapon;
+	gamestate.mapon = gamestate.lastmapon;
+	::ShowStats(0, 0, ss_justcalc,
+		&gamestuff.level[gamestate.mapon].stats);
+	gamestate.mapon = oldmapon;
 
-    // Yeah! We're no longer a virgin!
-    //
-    gamestate.flags &= ~GS_VIRGIN_LEVEL;
+	// Yeah! We're no longer a virgin!
+	//
+	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
-    // Remove level chunk from file
-    //
-    std::string chunk_name = "LV" + (
-        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-        std::hex << std::uppercase << level_index).to_string();
+	// Remove level chunk from file
+	//
+	std::string chunk_name = "LV" + (
+		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
+		std::hex << std::uppercase << level_index).to_string();
 
-    ::DeleteChunk(g_playtemp, chunk_name);
+	::DeleteChunk(g_playtemp, chunk_name);
 
-    g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
+	g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
 
-    // Write level chunk id
-    //
-    g_playtemp.write(chunk_name.c_str(), 4);
+	// Write level chunk id
+	//
+	g_playtemp.write(chunk_name.c_str(), 4);
 
-    // leave four bytes for chunk size
-    g_playtemp.skip(4);
+	// leave four bytes for chunk size
+	g_playtemp.skip(4);
 
-    bstone::Crc32 checksum;
-    std::int64_t beg_offset = g_playtemp.get_position();
+	bstone::Crc32 checksum;
+	std::int64_t beg_offset = g_playtemp.get_position();
 
 	auto writer = bstone::BinaryWriter{&g_playtemp};
 
-    ::serialize_field(tilemap, writer, checksum);
+	::serialize_field(tilemap, writer, checksum);
 
-    //
-    // actorat
-    //
+	//
+	// actorat
+	//
 
-    for (int i = 0; i < MAPSIZE; ++i) {
-        for (int j = 0; j < MAPSIZE; ++j) {
-            std::int32_t s_value;
+	for (int i = 0; i < MAPSIZE; ++i)
+	{
+		for (int j = 0; j < MAPSIZE; ++j)
+		{
+			std::int32_t s_value;
 
-            if (actorat[i][j] >= objlist) {
-                s_value = -static_cast<std::int32_t>(
-                    actorat[i][j] - objlist);
-            } else {
-                s_value = static_cast<std::int32_t>(
-                    reinterpret_cast<std::size_t>(actorat[i][j]));
-            }
+			if (actorat[i][j] >= objlist)
+			{
+				s_value = -static_cast<std::int32_t>(
+					actorat[i][j] - objlist);
+			}
+			else
+			{
+				s_value = static_cast<std::int32_t>(
+					reinterpret_cast<std::size_t>(actorat[i][j]));
+			}
 
-            ::serialize_field(s_value, writer, checksum);
-        }
-    }
+			::serialize_field(s_value, writer, checksum);
+		}
+	}
 
-    ::serialize_field(areaconnect, writer, checksum);
-    ::serialize_field(areabyplayer, writer, checksum);
+	::serialize_field(areaconnect, writer, checksum);
+	::serialize_field(areabyplayer, writer, checksum);
 
-    //
-    // objlist
-    //
+	//
+	// objlist
+	//
 
-    std::int32_t actor_count = 0;
-    const objtype* actor = nullptr;
+	std::int32_t actor_count = 0;
+	const objtype* actor = nullptr;
 
-    for (actor = player; actor; actor = actor->next) {
-        ++actor_count;
-    }
+	for (actor = player; actor; actor = actor->next)
+	{
+		++actor_count;
+	}
 
-    ::serialize_field(actor_count, writer, checksum);
+	::serialize_field(actor_count, writer, checksum);
 
-    for (actor = player; actor; actor = actor->next) {
-        actor->serialize(writer, checksum);
-    }
+	for (actor = player; actor; actor = actor->next)
+	{
+		actor->serialize(writer, checksum);
+	}
 
-    //
-    // laststatobj
-    //
+	//
+	// laststatobj
+	//
 
-    std::int32_t laststatobj_index =
-        static_cast<std::int32_t>(laststatobj - statobjlist);
+	std::int32_t laststatobj_index =
+		static_cast<std::int32_t>(laststatobj - statobjlist);
 
-    ::serialize_field(laststatobj_index, writer, checksum);
+	::serialize_field(laststatobj_index, writer, checksum);
 
 
-    //
-    // statobjlist
-    //
-    for (int i = 0; i < MAXSTATS; ++i) {
-        statobjlist[i].serialize(writer, checksum);
-    }
+	//
+	// statobjlist
+	//
+	for (int i = 0; i < MAXSTATS; ++i)
+	{
+		statobjlist[i].serialize(writer, checksum);
+	}
 
-    //
+	//
 
-    ::serialize_field(doorposition, writer, checksum);
+	::serialize_field(doorposition, writer, checksum);
 
-    for (int i = 0; i < MAXDOORS; ++i) {
-        doorobjlist[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAXDOORS; ++i)
+	{
+		doorobjlist[i].serialize(writer, checksum);
+	}
 
-    ::serialize_field(pwallstate, writer, checksum);
-    ::serialize_field(pwallx, writer, checksum);
-    ::serialize_field(pwally, writer, checksum);
-    ::serialize_field(pwalldir, writer, checksum);
-    ::serialize_field(pwallpos, writer, checksum);
-    ::serialize_field(pwalldist, writer, checksum);
-    ::serialize_field(TravelTable, writer, checksum);
-    ConHintList.serialize(writer, checksum);
+	::serialize_field(pwallstate, writer, checksum);
+	::serialize_field(pwallx, writer, checksum);
+	::serialize_field(pwally, writer, checksum);
+	::serialize_field(pwalldir, writer, checksum);
+	::serialize_field(pwallpos, writer, checksum);
+	::serialize_field(pwalldist, writer, checksum);
+	::serialize_field(TravelTable, writer, checksum);
+	ConHintList.serialize(writer, checksum);
 
-    for (int i = 0; i < MAXEAWALLS; ++i) {
-        eaList[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAXEAWALLS; ++i)
+	{
+		eaList[i].serialize(writer, checksum);
+	}
 
-    GoldsternInfo.serialize(writer, checksum);
+	GoldsternInfo.serialize(writer, checksum);
 
-    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i) {
-        GoldieList[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+	{
+		GoldieList[i].serialize(writer, checksum);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        ::gamestate.barrier_table[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		::gamestate.barrier_table[i].serialize(writer, checksum);
+	}
 
-    ::serialize_field(::gamestate.plasma_detonators, writer, checksum);
+	::serialize_field(::gamestate.plasma_detonators, writer, checksum);
 
 	const auto& endian = bstone::Endian{};
 
-    // Write checksum and determine size of file
-    //
-    writer.write(endian.little(checksum.get_value()));
+	// Write checksum and determine size of file
+	//
+	writer.write(endian.little(checksum.get_value()));
 
-    std::int64_t end_offset = g_playtemp.get_position();
-    std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
+	std::int64_t end_offset = g_playtemp.get_position();
+	std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
 
-    // Write chunk size, set file size, and close file
-    //
-    g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
-    writer.write(endian.little(chunk_size));
-    g_playtemp.set_size(end_offset);
+	// Write chunk size, set file size, and close file
+	//
+	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
+	writer.write(endian.little(chunk_size));
+	g_playtemp.set_size(end_offset);
 
-    ::NewViewSize();
+	::NewViewSize();
 
-    return true;
+	return true;
 }
 
 int DeleteChunk(
-    bstone::MemoryStream& stream,
-    const std::string& chunk_name)
+	bstone::MemoryStream& stream,
+	const std::string& chunk_name)
 {
-    stream.set_position(0);
+	stream.set_position(0);
 
-    int chunk_size = ::FindChunk(&stream, chunk_name);
+	int chunk_size = ::FindChunk(&stream, chunk_name);
 
-    if (chunk_size > 0) {
-        std::int64_t offset = stream.get_position() - 8;
-        int count = chunk_size + 8;
+	if (chunk_size > 0)
+	{
+		std::int64_t offset = stream.get_position() - 8;
+		int count = chunk_size + 8;
 
-        stream.remove_block(offset, count);
-    }
+		stream.remove_block(offset, count);
+	}
 
-    return chunk_size;
+	return chunk_size;
 }
 
 static const std::string& get_saved_game_version_string()
@@ -8725,70 +8767,74 @@ static const std::string& get_saved_game_version_string()
 }
 
 static bool LoadCompressedChunk(
-    const std::string& chunk_name,
-    bstone::Stream* stream,
-    Buffer& buffer)
+	const std::string& chunk_name,
+	bstone::Stream* stream,
+	Buffer& buffer)
 {
-    auto stream_size = stream->get_size();
+	auto stream_size = stream->get_size();
 
 	auto reader = bstone::BinaryReader{stream};
 
 
-    if (::FindChunk(stream, chunk_name) == 0) {
-        bstone::Log::write_error(
-            "LOAD: Failed to locate {} chunk.",
-            chunk_name);
+	if (::FindChunk(stream, chunk_name) == 0)
+	{
+		bstone::Log::write_error(
+			"LOAD: Failed to locate {} chunk.",
+			chunk_name);
 
-        return false;
-    }
+		return false;
+	}
 
-    reader.skip(-4);
+	reader.skip(-4);
 
 	const auto& endian = bstone::Endian{};
 
-    auto total_size = endian.little(reader.read_s32());
+	auto total_size = endian.little(reader.read_s32());
 
-    if (total_size <= 0 || total_size > stream_size) {
-        bstone::Log::write_error(
-            "LOAD: Invalid {} size.",
-            chunk_name);
+	if (total_size <= 0 || total_size > stream_size)
+	{
+		bstone::Log::write_error(
+			"LOAD: Invalid {} size.",
+			chunk_name);
 
-        return false;
-    }
+		return false;
+	}
 
-    auto size = total_size - 4;
-    auto src_size = endian.little(reader.read_s32());
+	auto size = total_size - 4;
+	auto src_size = endian.little(reader.read_s32());
 
-    Buffer src_buffer(size);
+	Buffer src_buffer(size);
 
-    if (!reader.read(src_buffer.data(), size)) {
-        bstone::Log::write_error(
-            "LOAD: Unexpected end of {} data.",
-            chunk_name);
-    }
+	if (!reader.read(src_buffer.data(), size))
+	{
+		bstone::Log::write_error(
+			"LOAD: Unexpected end of {} data.",
+			chunk_name);
+	}
 
 
-    buffer.resize(src_size);
+	buffer.resize(src_size);
 
-    static_cast<void>(::LZH_Startup());
+	static_cast<void>(::LZH_Startup());
 
-    auto decoded_size = ::LZH_Decompress(
-        src_buffer.data(),
-        buffer.data(),
-        src_size,
-        size);
+	auto decoded_size = ::LZH_Decompress(
+		src_buffer.data(),
+		buffer.data(),
+		src_size,
+		size);
 
-    ::LZH_Shutdown();
+	::LZH_Shutdown();
 
-    if (decoded_size != src_size) {
-        bstone::Log::write_error(
-            "LOAD: Failed to decompress {} data.",
-            chunk_name);
+	if (decoded_size != src_size)
+	{
+		bstone::Log::write_error(
+			"LOAD: Failed to decompress {} data.",
+			chunk_name);
 
-        return false;
-    }
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 bool LoadTheGame(
@@ -9144,68 +9190,74 @@ bool SaveTheGame(
 }
 
 bool LevelInPlaytemp(
-    int level_index)
+	int level_index)
 {
-    bstone::FormatString format;
-    format << "LV" << std::uppercase << std::hex <<
-        std::setfill('0') << std::setw(2) << level_index;
+	bstone::FormatString format;
+	format << "LV" << std::uppercase << std::hex <<
+		std::setfill('0') << std::setw(2) << level_index;
 
-    return ::FindChunk(&g_playtemp, format.to_string()) != 0;
+	return ::FindChunk(&g_playtemp, format.to_string()) != 0;
 }
 
 bool CheckDiskSpace(
-    std::int32_t needed,
-    const char* text,
-    cds_io_type io_type)
+	std::int32_t needed,
+	const char* text,
+	cds_io_type io_type)
 {
-    static_cast<void>(needed);
-    static_cast<void>(text);
-    static_cast<void>(io_type);
-    return true;
+	static_cast<void>(needed);
+	static_cast<void>(text);
+	static_cast<void>(io_type);
+	return true;
 }
 
 void CleanUpDoors_N_Actors()
 {
-    int x;
-    int y;
-    objtype* actor;
-    std::uint8_t tile;
-    std::uint16_t door;
+	int x;
+	int y;
+	objtype* actor;
+	std::uint8_t tile;
+	std::uint16_t door;
 
-    for (y = 0; y < mapheight; ++y) {
-        for (x = 0; x < mapwidth; ++x) {
-            actor = actorat[y][x];
+	for (y = 0; y < mapheight; ++y)
+	{
+		for (x = 0; x < mapwidth; ++x)
+		{
+			actor = actorat[y][x];
 
-            // actor is in actorat, but objtype X and Y don't match
-            if (actor > objlist &&
-                (actor->tilex != y || actor->tilex != y)) {
-                actorat[y][x] = nullptr;
-            }
+			// actor is in actorat, but objtype X and Y don't match
+			if (actor > objlist &&
+				(actor->tilex != y || actor->tilex != y))
+			{
+				actorat[y][x] = nullptr;
+			}
 
-            tile = tilemap[y][x];
-            if ((tile & 0x80) != 0) {
-                // Found a door
-                std::uint16_t actor_u16 = static_cast<std::uint16_t>(
-                    reinterpret_cast<std::size_t>(actor));
+			tile = tilemap[y][x];
+			if ((tile & 0x80) != 0)
+			{
+				// Found a door
+				std::uint16_t actor_u16 = static_cast<std::uint16_t>(
+					reinterpret_cast<std::size_t>(actor));
 
-                if (ui16_to_actor(actor_u16)) {
-                    // Found an actor
+				if (ui16_to_actor(actor_u16))
+				{
+					// Found an actor
 
-                    door = tile & 0x3F;
+					door = tile & 0x3F;
 
-                    if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY)) {
-                        actor->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
-                    }
+					if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY))
+					{
+						actor->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
+					}
 
-                    // Make sure door is open
+					// Make sure door is open
 
-                    doorobjlist[door].ticcount = 0;
-                    doorobjlist[door].action = dr_open;
-                    doorposition[door] = 0xFFFF;
-                }
-            }
-        }
-    }
+					doorobjlist[door].ticcount = 0;
+					doorobjlist[door].action = dr_open;
+					doorposition[door] = 0xFFFF;
+				}
+			}
+		}
+	}
 }
 
 // --------------------------------------------------------------------------
@@ -9218,95 +9270,107 @@ void CleanUpDoors_N_Actors()
 // --------------------------------------------------------------------------
 void ClearNClose()
 {
-    int tx = 0;
-    int ty = 0;
-    int p_x = (::player->x >> TILESHIFT) & 0xFF;
-    int p_y = (::player->y >> TILESHIFT) & 0xFF;
+	int tx = 0;
+	int ty = 0;
+	int p_x = (::player->x >> TILESHIFT) & 0xFF;
+	int p_y = (::player->y >> TILESHIFT) & 0xFF;
 
-    // Locate the door.
-    //
-    for (int x = -1; x < 2 && tx == 0; x += 2) {
-        for (int y = -1; y < 2; y += 2) {
-            if ((::tilemap[p_x + x][p_y + y] & 0x80) != 0) {
-                tx = p_x + x;
-                ty = p_y + y;
-                break;
-            }
-        }
-    }
+	// Locate the door.
+	//
+	for (int x = -1; x < 2 && tx == 0; x += 2)
+	{
+		for (int y = -1; y < 2; y += 2)
+		{
+			if ((::tilemap[p_x + x][p_y + y] & 0x80) != 0)
+			{
+				tx = p_x + x;
+				ty = p_y + y;
+				break;
+			}
+		}
+	}
 
-    // Close the door!
-    //
-    if (tx != 0) {
-        int door_index = ::tilemap[tx][ty] & 63;
+	// Close the door!
+	//
+	if (tx != 0)
+	{
+		int door_index = ::tilemap[tx][ty] & 63;
 
-        ::doorobjlist[door_index].action = dr_closed; // this door is closed!
-        ::doorposition[door_index] = 0; // draw it closed!
+		::doorobjlist[door_index].action = dr_closed; // this door is closed!
+		::doorposition[door_index] = 0; // draw it closed!
 
-        // make it solid!
-        ::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
-    }
+		// make it solid!
+		::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
+	}
 }
 
 void CycleColors()
 {
-    const int NUM_RANGES = 5;
-    const std::uint8_t CRNG_LOW = 0xF0;
-    const std::uint8_t CRNG_HIGH = 0xFE;
-    const int CRNG_SIZE = CRNG_HIGH - CRNG_LOW + 1;
+	const int NUM_RANGES = 5;
+	const std::uint8_t CRNG_LOW = 0xF0;
+	const std::uint8_t CRNG_HIGH = 0xFE;
+	const int CRNG_SIZE = CRNG_HIGH - CRNG_LOW + 1;
 
-    static CycleInfo crng[NUM_RANGES] = {
-        { 7, 0, 0xF0, 0xF1 },
-        { 15, 0, 0xF2, 0xF3 },
-        { 30, 0, 0xF4, 0xF5 },
-        { 10, 0, 0xF6, 0xF9 },
-        { 12, 0, 0xFA, 0xFE },
-    };
+	static CycleInfo crng[NUM_RANGES] = {
+		{7, 0, 0xF0, 0xF1},
+	{15, 0, 0xF2, 0xF3},
+	{30, 0, 0xF4, 0xF5},
+	{10, 0, 0xF6, 0xF9},
+	{12, 0, 0xFA, 0xFE},
+	};
 
-    std::uint8_t loop;
-    std::uint8_t cbuffer[CRNG_SIZE][3];
-    bool changes = false;
+	std::uint8_t loop;
+	std::uint8_t cbuffer[CRNG_SIZE][3];
+	bool changes = false;
 
-    for (loop = 0; loop < NUM_RANGES; loop++) {
-        CycleInfo* c = &crng[loop];
+	for (loop = 0; loop < NUM_RANGES; loop++)
+	{
+		CycleInfo* c = &crng[loop];
 
-        if (tics >= c->delay_count) {
-            std::uint8_t temp[3], first, last, numregs;
+		if (tics >= c->delay_count)
+		{
+			std::uint8_t temp[3], first, last, numregs;
 
-            if (!changes) {
-                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
-                changes = true;
-            }
+			if (!changes)
+			{
+				VL_GetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
+				changes = true;
+			}
 
-            first = c->firstreg - CRNG_LOW;
-            numregs = c->lastreg - c->firstreg;                 // is one less than in range
-            last = first + numregs;
+			first = c->firstreg - CRNG_LOW;
+			numregs = c->lastreg - c->firstreg;                 // is one less than in range
+			last = first + numregs;
 
-            memcpy(temp, cbuffer[last], 3);
-            memmove(cbuffer[first + 1], cbuffer[first], numregs * 3);
-            memcpy(cbuffer[first], temp, 3);
+			memcpy(temp, cbuffer[last], 3);
+			memmove(cbuffer[first + 1], cbuffer[first], numregs * 3);
+			memcpy(cbuffer[first], temp, 3);
 
-            c->delay_count = c->init_delay;
-        } else {
-            c->delay_count -= static_cast<std::uint8_t>(tics);
-        }
-    }
+			c->delay_count = c->init_delay;
+		}
+		else
+		{
+			c->delay_count -= static_cast<std::uint8_t>(tics);
+		}
+	}
 
-    bool use_delay = false;
+	bool use_delay = false;
 
-    if (changes) {
-        ::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
-        ::VL_RefreshScreen();
+	if (changes)
+	{
+		::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
+		::VL_RefreshScreen();
 
-        use_delay = !::vid_has_vsync;
-    } else {
-        use_delay = true;
-    }
+		use_delay = !::vid_has_vsync;
+	}
+	else
+	{
+		use_delay = true;
+	}
 
-    if (use_delay)
-    {
-        VW_WaitVBL(1);
-    }
+	if (use_delay)
+	{
+		VW_WaitVBL(1);
+	}
 }
 
 /*
@@ -9320,12 +9384,12 @@ void CycleColors()
 */
 void ShutdownId()
 {
-    US_Shutdown();
-    SD_Shutdown();
-    PM_Shutdown();
-    IN_Shutdown();
-    VW_Shutdown();
-    CA_Shutdown();
+	US_Shutdown();
+	SD_Shutdown();
+	PM_Shutdown();
+	IN_Shutdown();
+	VW_Shutdown();
+	CA_Shutdown();
 }
 
 /*
@@ -9338,126 +9402,130 @@ void ShutdownId()
 ====================
 */
 void CalcProjection(
-    std::int32_t focal)
+	std::int32_t focal)
 {
-    ::focallength = focal;
-    const double facedist = focal + MINDIST;
-    const auto halfview = ::viewwidth / 2; // half view in pixels
+	::focallength = focal;
+	const double facedist = focal + MINDIST;
+	const auto halfview = ::viewwidth / 2; // half view in pixels
 
-    //
-    // calculate scale value for vertical height calculations
-    // and sprite x calculations
-    //
-    ::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
+	//
+	// calculate scale value for vertical height calculations
+	// and sprite x calculations
+	//
+	::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
 
-    //
-    // divide heightnumerator by a posts distance to get the posts height for
-    // the heightbuffer.  The pixel height is height>>2
-    //
-    ::heightnumerator = (TILEGLOBAL * ::scale) / 64;
-    ::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
+	//
+	// divide heightnumerator by a posts distance to get the posts height for
+	// the heightbuffer.  The pixel height is height>>2
+	//
+	::heightnumerator = (TILEGLOBAL * ::scale) / 64;
+	::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
 
-    //
-    // calculate the angle offset from view angle of each pixel's ray
-    //
+	//
+	// calculate the angle offset from view angle of each pixel's ray
+	//
 
-    ::pixelangle.clear();
-    ::pixelangle.resize(::vga_width);
+	::pixelangle.clear();
+	::pixelangle.resize(::vga_width);
 
-    for (int i = 0; i < halfview; i++)
-    {
-        // start 1/2 pixel over, so viewangle bisects two middle pixels
-        const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
-        const auto angle = static_cast<float>(::atan(tang));
-        const auto intang = static_cast<int>(angle * radtoint);
-        ::pixelangle[halfview - 1 - i] = intang;
-        ::pixelangle[halfview + i] = -intang;
-    }
+	for (int i = 0; i < halfview; i++)
+	{
+		// start 1/2 pixel over, so viewangle bisects two middle pixels
+		const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
+		const auto angle = static_cast<float>(::atan(tang));
+		const auto intang = static_cast<int>(angle * radtoint);
+		::pixelangle[halfview - 1 - i] = intang;
+		::pixelangle[halfview + i] = -intang;
+	}
 
-    //
-    // if a point's abs(y/x) is greater than maxslope, the point is outside
-    // the view area
-    //
-    ::maxslope = ::finetangent[::pixelangle[0]];
-    ::maxslope /= 256;
+	//
+	// if a point's abs(y/x) is greater than maxslope, the point is outside
+	// the view area
+	//
+	::maxslope = ::finetangent[::pixelangle[0]];
+	::maxslope /= 256;
 }
 
 bool DoMovie(
-    movie_t movie,
-    void* palette)
+	movie_t movie,
+	void* palette)
 {
-    bool ReturnVal;
-    SD_StopSound();
+	bool ReturnVal;
+	SD_StopSound();
 
-    ClearMemory();
-    UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
-    CA_LoadAllSounds();
+	ClearMemory();
+	UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
+	CA_LoadAllSounds();
 
-    if (palette) {
-        movies[movie].palette = palette;
-    } else {
-        movies[movie].palette = vgapal;
-    }
+	if (palette)
+	{
+		movies[movie].palette = palette;
+	}
+	else
+	{
+		movies[movie].palette = vgapal;
+	}
 
-    ReturnVal = MOVIE_Play(&movies[movie]);
+	ReturnVal = MOVIE_Play(&movies[movie]);
 
-    SD_StopSound();
-    ClearMemory();
-    LoadFonts();
+	SD_StopSound();
+	ClearMemory();
+	LoadFonts();
 
-    return ReturnVal;
+	return ReturnVal;
 }
 
 void LoadFonts()
 {
-    CA_CacheGrChunk(STARTFONT + 4);
-    CA_CacheGrChunk(STARTFONT + 2);
+	CA_CacheGrChunk(STARTFONT + 4);
+	CA_CacheGrChunk(STARTFONT + 2);
 }
 
 void SetViewSize()
 {
 	const auto alignment = 2;
 
-    ::viewwidth = ::vga_width;
+	::viewwidth = ::vga_width;
 
-    ::viewheight = (ref_3d_view_height * ::vga_height) / ::vga_ref_height;
+	::viewheight = (ref_3d_view_height * ::vga_height) / ::vga_ref_height;
 	::viewheight /= alignment;
 	::viewheight *= alignment;
 
-    ::centerx = (::viewwidth / 2) - 1;
-    ::shootdelta = ::viewwidth / 10;
+	::centerx = (::viewwidth / 2) - 1;
+	::shootdelta = ::viewwidth / 10;
 
 #ifdef __vita__
-    ::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height + 1;
-    ::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight + 1;
+	::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height + 1;
+	::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight + 1;
 #else    
-    ::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height;
+	::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height;
 	::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight;
 #endif
-    ::screenofs = ::vga_3d_view_top_y * ::viewwidth;
+	::screenofs = ::vga_3d_view_top_y * ::viewwidth;
 
-    // calculate trace angles and projection constants
-    ::CalcProjection(FOCALLENGTH);
+	// calculate trace angles and projection constants
+	::CalcProjection(FOCALLENGTH);
 
-    // build all needed compiled scalers
-    ::SetupScaling((3 * ::viewwidth) / 2);
+	// build all needed compiled scalers
+	::SetupScaling((3 * ::viewwidth) / 2);
 }
 
 void NewViewSize()
 {
-    CA_UpLevel();
-    ::SetViewSize();
-    CA_DownLevel();
+	CA_UpLevel();
+	::SetViewSize();
+	CA_DownLevel();
 }
 
 void pre_quit()
 {
-    if (::is_config_loaded) {
-        ::WriteConfig();
-        ::write_high_scores();
-    }
+	if (::is_config_loaded)
+	{
+		::WriteConfig();
+		::write_high_scores();
+	}
 
-    ::ShutdownId();
+	::ShutdownId();
 }
 
 void Quit()
@@ -9680,67 +9748,68 @@ void DemoLoop()
 
 void DrawCreditsPage()
 {
-    PresenterInfo pi;
+	PresenterInfo pi;
 
-    CA_CacheScreen(BACKGROUND_SCREENPIC);
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
 
-    memset(&pi, 0, sizeof(pi));
-    pi.flags = TPF_CACHE_NO_GFX;
-    pi.xl = 38;
-    pi.yl = 28;
-    pi.xh = 281;
-    pi.yh = 170;
-    pi.bgcolor = 2;
-    pi.ltcolor = BORDER_HI_COLOR;
-    fontcolor = BORDER_TEXT_COLOR;
-    pi.shcolor = pi.dkcolor = 0;
-    pi.fontnumber = static_cast<std::int8_t>(fontnumber);
+	memset(&pi, 0, sizeof(pi));
+	pi.flags = TPF_CACHE_NO_GFX;
+	pi.xl = 38;
+	pi.yl = 28;
+	pi.xh = 281;
+	pi.yh = 170;
+	pi.bgcolor = 2;
+	pi.ltcolor = BORDER_HI_COLOR;
+	fontcolor = BORDER_TEXT_COLOR;
+	pi.shcolor = pi.dkcolor = 0;
+	pi.fontnumber = static_cast<std::int8_t>(fontnumber);
 
-    TP_LoadScript(nullptr, &pi, CREDITSTEXT);
-    TP_Presenter(&pi);
+	TP_LoadScript(nullptr, &pi, CREDITSTEXT);
+	TP_Presenter(&pi);
 }
 
 
 std::int16_t debug_value = 0;
 
 int main(
-    int argc,
-    char* argv[])
+	int argc,
+	char* argv[])
 {
 #ifdef __vita__
-    scePowerSetArmClockFrequency(444);
-    scePowerSetBusClockFrequency(222);
-    scePowerSetGpuClockFrequency(222);
-    scePowerSetGpuXbarClockFrequency(166);
+	scePowerSetArmClockFrequency(444);
+	scePowerSetBusClockFrequency(222);
+	scePowerSetGpuClockFrequency(222);
+	scePowerSetGpuXbarClockFrequency(166);
 #endif
-    int sdl_result = 0;
+	int sdl_result = 0;
 
-    std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+	std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
 
-    sdl_result = ::SDL_Init(init_flags);
+	sdl_result = ::SDL_Init(init_flags);
 
-    if (sdl_result != 0) {
-        ::Quit(::SDL_GetError());
-    }
+	if (sdl_result != 0)
+	{
+		::Quit(::SDL_GetError());
+	}
 
-    ::g_args.initialize(argc, argv);
+	::g_args.initialize(argc, argv);
 
-    freed_main();
+	freed_main();
 
-    DemoLoop();
+	DemoLoop();
 
-    Quit();
+	Quit();
 
-    return 0;
+	return 0;
 }
 
 void InitDestPath()
 {
-		const auto separator =
+	const auto separator =
 #ifdef _WIN32
-			'\\'
+		'\\'
 #else
-			'/'
+		'/'
 #endif
 		;
 
@@ -9779,564 +9848,583 @@ void InitDestPath()
 
 // BBi
 void objtype::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(areanumber, writer, checksum);
-    ::serialize_field(active, writer, checksum);
-    ::serialize_field(ticcount, writer, checksum);
-    ::serialize_field(obclass, writer, checksum);
+	::serialize_field(tilex, writer, checksum);
+	::serialize_field(tiley, writer, checksum);
+	::serialize_field(areanumber, writer, checksum);
+	::serialize_field(active, writer, checksum);
+	::serialize_field(ticcount, writer, checksum);
+	::serialize_field(obclass, writer, checksum);
 
-    std::int32_t state_index = static_cast<std::int32_t>(::get_state_index(state));
-    ::serialize_field(state_index, writer, checksum);
+	std::int32_t state_index = static_cast<std::int32_t>(::get_state_index(state));
+	::serialize_field(state_index, writer, checksum);
 
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(flags2, writer, checksum);
-    ::serialize_field(distance, writer, checksum);
-    ::serialize_field(dir, writer, checksum);
-    ::serialize_field(trydir, writer, checksum);
-    ::serialize_field(x, writer, checksum);
-    ::serialize_field(y, writer, checksum);
-    ::serialize_field(s_tilex, writer, checksum);
-    ::serialize_field(s_tiley, writer, checksum);
-    ::serialize_field(viewx, writer, checksum);
-    ::serialize_field(viewheight, writer, checksum);
-    ::serialize_field(transx, writer, checksum);
-    ::serialize_field(transy, writer, checksum);
-    ::serialize_field(hitpoints, writer, checksum);
-    ::serialize_field(ammo, writer, checksum);
-    ::serialize_field(lighting, writer, checksum);
-    ::serialize_field(linc, writer, checksum);
-    ::serialize_field(angle, writer, checksum);
-    ::serialize_field(speed, writer, checksum);
-    ::serialize_field(temp1, writer, checksum);
-    ::serialize_field(temp2, writer, checksum);
-    ::serialize_field(temp3, writer, checksum);
+	::serialize_field(flags, writer, checksum);
+	::serialize_field(flags2, writer, checksum);
+	::serialize_field(distance, writer, checksum);
+	::serialize_field(dir, writer, checksum);
+	::serialize_field(trydir, writer, checksum);
+	::serialize_field(x, writer, checksum);
+	::serialize_field(y, writer, checksum);
+	::serialize_field(s_tilex, writer, checksum);
+	::serialize_field(s_tiley, writer, checksum);
+	::serialize_field(viewx, writer, checksum);
+	::serialize_field(viewheight, writer, checksum);
+	::serialize_field(transx, writer, checksum);
+	::serialize_field(transy, writer, checksum);
+	::serialize_field(hitpoints, writer, checksum);
+	::serialize_field(ammo, writer, checksum);
+	::serialize_field(lighting, writer, checksum);
+	::serialize_field(linc, writer, checksum);
+	::serialize_field(angle, writer, checksum);
+	::serialize_field(speed, writer, checksum);
+	::serialize_field(temp1, writer, checksum);
+	::serialize_field(temp2, writer, checksum);
+	::serialize_field(temp3, writer, checksum);
 }
 
 void objtype::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(areanumber, reader, checksum);
-    ::deserialize_field(active, reader, checksum);
-    ::deserialize_field(ticcount, reader, checksum);
-    ::deserialize_field(obclass, reader, checksum);
+	::deserialize_field(tilex, reader, checksum);
+	::deserialize_field(tiley, reader, checksum);
+	::deserialize_field(areanumber, reader, checksum);
+	::deserialize_field(active, reader, checksum);
+	::deserialize_field(ticcount, reader, checksum);
+	::deserialize_field(obclass, reader, checksum);
 
-    std::int32_t state_index = 0;
-    ::deserialize_field(state_index, reader, checksum);
-    state = states_list[state_index];
+	std::int32_t state_index = 0;
+	::deserialize_field(state_index, reader, checksum);
+	state = states_list[state_index];
 
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(flags2, reader, checksum);
-    ::deserialize_field(distance, reader, checksum);
-    ::deserialize_field(dir, reader, checksum);
-    ::deserialize_field(trydir, reader, checksum);
-    ::deserialize_field(x, reader, checksum);
-    ::deserialize_field(y, reader, checksum);
-    ::deserialize_field(s_tilex, reader, checksum);
-    ::deserialize_field(s_tiley, reader, checksum);
-    ::deserialize_field(viewx, reader, checksum);
-    ::deserialize_field(viewheight, reader, checksum);
-    ::deserialize_field(transx, reader, checksum);
-    ::deserialize_field(transy, reader, checksum);
-    ::deserialize_field(hitpoints, reader, checksum);
-    ::deserialize_field(ammo, reader, checksum);
-    ::deserialize_field(lighting, reader, checksum);
-    ::deserialize_field(linc, reader, checksum);
-    ::deserialize_field(angle, reader, checksum);
-    ::deserialize_field(speed, reader, checksum);
-    ::deserialize_field(temp1, reader, checksum);
-    ::deserialize_field(temp2, reader, checksum);
-    ::deserialize_field(temp3, reader, checksum);
+	::deserialize_field(flags, reader, checksum);
+	::deserialize_field(flags2, reader, checksum);
+	::deserialize_field(distance, reader, checksum);
+	::deserialize_field(dir, reader, checksum);
+	::deserialize_field(trydir, reader, checksum);
+	::deserialize_field(x, reader, checksum);
+	::deserialize_field(y, reader, checksum);
+	::deserialize_field(s_tilex, reader, checksum);
+	::deserialize_field(s_tiley, reader, checksum);
+	::deserialize_field(viewx, reader, checksum);
+	::deserialize_field(viewheight, reader, checksum);
+	::deserialize_field(transx, reader, checksum);
+	::deserialize_field(transy, reader, checksum);
+	::deserialize_field(hitpoints, reader, checksum);
+	::deserialize_field(ammo, reader, checksum);
+	::deserialize_field(lighting, reader, checksum);
+	::deserialize_field(linc, reader, checksum);
+	::deserialize_field(angle, reader, checksum);
+	::deserialize_field(speed, reader, checksum);
+	::deserialize_field(temp1, reader, checksum);
+	::deserialize_field(temp2, reader, checksum);
+	::deserialize_field(temp3, reader, checksum);
 }
 
 void statobj_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(areanumber, writer, checksum);
+	::serialize_field(tilex, writer, checksum);
+	::serialize_field(tiley, writer, checksum);
+	::serialize_field(areanumber, writer, checksum);
 
-    std::int32_t vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
-    ::serialize_field(vis_index, writer, checksum);
+	std::int32_t vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
+	::serialize_field(vis_index, writer, checksum);
 
-    ::serialize_field(shapenum, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(itemnumber, writer, checksum);
-    ::serialize_field(lighting, writer, checksum);
+	::serialize_field(shapenum, writer, checksum);
+	::serialize_field(flags, writer, checksum);
+	::serialize_field(itemnumber, writer, checksum);
+	::serialize_field(lighting, writer, checksum);
 }
 
 void statobj_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(areanumber, reader, checksum);
+	::deserialize_field(tilex, reader, checksum);
+	::deserialize_field(tiley, reader, checksum);
+	::deserialize_field(areanumber, reader, checksum);
 
-    std::int32_t vis_index = 0;
-    ::deserialize_field(vis_index, reader, checksum);
+	std::int32_t vis_index = 0;
+	::deserialize_field(vis_index, reader, checksum);
 
-    if (vis_index < 0) {
-        visspot = nullptr;
-    } else {
-        visspot = &(&spotvis[0][0])[vis_index];
-    }
+	if (vis_index < 0)
+	{
+		visspot = nullptr;
+	}
+	else
+	{
+		visspot = &(&spotvis[0][0])[vis_index];
+	}
 
-    ::deserialize_field(shapenum, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(itemnumber, reader, checksum);
-    ::deserialize_field(lighting, reader, checksum);
+	::deserialize_field(shapenum, reader, checksum);
+	::deserialize_field(flags, reader, checksum);
+	::deserialize_field(itemnumber, reader, checksum);
+	::deserialize_field(lighting, reader, checksum);
 }
 
 void doorobj_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(vertical, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(lock, writer, checksum);
-    ::serialize_field(type, writer, checksum);
-    ::serialize_field(action, writer, checksum);
-    ::serialize_field(ticcount, writer, checksum);
-    ::serialize_field(areanumber, writer, checksum);
+	::serialize_field(tilex, writer, checksum);
+	::serialize_field(tiley, writer, checksum);
+	::serialize_field(vertical, writer, checksum);
+	::serialize_field(flags, writer, checksum);
+	::serialize_field(lock, writer, checksum);
+	::serialize_field(type, writer, checksum);
+	::serialize_field(action, writer, checksum);
+	::serialize_field(ticcount, writer, checksum);
+	::serialize_field(areanumber, writer, checksum);
 }
 
 void doorobj_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(vertical, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(lock, reader, checksum);
-    ::deserialize_field(type, reader, checksum);
-    ::deserialize_field(action, reader, checksum);
-    ::deserialize_field(ticcount, reader, checksum);
-    ::deserialize_field(areanumber, reader, checksum);
+	::deserialize_field(tilex, reader, checksum);
+	::deserialize_field(tiley, reader, checksum);
+	::deserialize_field(vertical, reader, checksum);
+	::deserialize_field(flags, reader, checksum);
+	::deserialize_field(lock, reader, checksum);
+	::deserialize_field(type, reader, checksum);
+	::deserialize_field(action, reader, checksum);
+	::deserialize_field(ticcount, reader, checksum);
+	::deserialize_field(areanumber, reader, checksum);
 }
 
 void mCacheInfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(local_val, writer, checksum);
-    ::serialize_field(global_val, writer, checksum);
+	::serialize_field(local_val, writer, checksum);
+	::serialize_field(global_val, writer, checksum);
 }
 
 void mCacheInfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(local_val, reader, checksum);
-    ::deserialize_field(global_val, reader, checksum);
-    mSeg = nullptr;
+	::deserialize_field(local_val, reader, checksum);
+	::deserialize_field(global_val, reader, checksum);
+	mSeg = nullptr;
 }
 
 void con_mCacheInfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    mInfo.serialize(writer, checksum);
-    ::serialize_field(type, writer, checksum);
-    ::serialize_field(operate_cnt, writer, checksum);
+	mInfo.serialize(writer, checksum);
+	::serialize_field(type, writer, checksum);
+	::serialize_field(operate_cnt, writer, checksum);
 }
 
 void con_mCacheInfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    mInfo.deserialize(reader, checksum);
-    ::deserialize_field(type, reader, checksum);
-    ::deserialize_field(operate_cnt, reader, checksum);
+	mInfo.deserialize(reader, checksum);
+	::deserialize_field(type, reader, checksum);
+	::deserialize_field(operate_cnt, reader, checksum);
 }
 
 void concession_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(NumMsgs, writer, checksum);
+	::serialize_field(NumMsgs, writer, checksum);
 
-    for (int i = 0; i < NumMsgs; ++i) {
-        cmInfo[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < NumMsgs; ++i)
+	{
+		cmInfo[i].serialize(writer, checksum);
+	}
 }
 
 void concession_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(NumMsgs, reader, checksum);
+	::deserialize_field(NumMsgs, reader, checksum);
 
-    for (int i = 0; i < NumMsgs; ++i) {
-        cmInfo[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < NumMsgs; ++i)
+	{
+		cmInfo[i].deserialize(reader, checksum);
+	}
 }
 
 void eaWallInfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(aliens_out, writer, checksum);
-    ::serialize_field(delay, writer, checksum);
+	::serialize_field(tilex, writer, checksum);
+	::serialize_field(tiley, writer, checksum);
+	::serialize_field(aliens_out, writer, checksum);
+	::serialize_field(delay, writer, checksum);
 }
 
 void eaWallInfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(aliens_out, reader, checksum);
-    ::deserialize_field(delay, reader, checksum);
+	::deserialize_field(tilex, reader, checksum);
+	::deserialize_field(tiley, reader, checksum);
+	::deserialize_field(aliens_out, reader, checksum);
+	::deserialize_field(delay, reader, checksum);
 }
 
 void GoldsternInfo_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(LastIndex, writer, checksum);
-    ::serialize_field(SpawnCnt, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(WaitTime, writer, checksum);
-    ::serialize_field(GoldSpawned, writer, checksum);
+	::serialize_field(LastIndex, writer, checksum);
+	::serialize_field(SpawnCnt, writer, checksum);
+	::serialize_field(flags, writer, checksum);
+	::serialize_field(WaitTime, writer, checksum);
+	::serialize_field(GoldSpawned, writer, checksum);
 }
 
 void GoldsternInfo_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(LastIndex, reader, checksum);
-    ::deserialize_field(SpawnCnt, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(WaitTime, reader, checksum);
-    ::deserialize_field(GoldSpawned, reader, checksum);
+	::deserialize_field(LastIndex, reader, checksum);
+	::deserialize_field(SpawnCnt, reader, checksum);
+	::deserialize_field(flags, reader, checksum);
+	::deserialize_field(WaitTime, reader, checksum);
+	::deserialize_field(GoldSpawned, reader, checksum);
 }
 
 void tilecoord_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
+	::serialize_field(tilex, writer, checksum);
+	::serialize_field(tiley, writer, checksum);
 }
 
 void tilecoord_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
+	::deserialize_field(tilex, reader, checksum);
+	::deserialize_field(tiley, reader, checksum);
 }
 
 void barrier_type::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(level, writer, checksum);
-    coord.serialize(writer, checksum);
-    ::serialize_field(on, writer, checksum);
+	::serialize_field(level, writer, checksum);
+	coord.serialize(writer, checksum);
+	::serialize_field(on, writer, checksum);
 }
 
 void barrier_type::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(level, reader, checksum);
-    coord.deserialize(reader, checksum);
-    ::deserialize_field(on, reader, checksum);
+	::deserialize_field(level, reader, checksum);
+	coord.deserialize(reader, checksum);
+	::deserialize_field(on, reader, checksum);
 }
 
 void statsInfoType::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(total_points, writer, checksum);
-    ::serialize_field(accum_points, writer, checksum);
-    ::serialize_field(total_enemy, writer, checksum);
-    ::serialize_field(accum_enemy, writer, checksum);
-    ::serialize_field(total_inf, writer, checksum);
-    ::serialize_field(accum_inf, writer, checksum);
-    ::serialize_field(overall_floor, writer, checksum);
+	::serialize_field(total_points, writer, checksum);
+	::serialize_field(accum_points, writer, checksum);
+	::serialize_field(total_enemy, writer, checksum);
+	::serialize_field(accum_enemy, writer, checksum);
+	::serialize_field(total_inf, writer, checksum);
+	::serialize_field(accum_inf, writer, checksum);
+	::serialize_field(overall_floor, writer, checksum);
 }
 
 void statsInfoType::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(total_points, reader, checksum);
-    ::deserialize_field(accum_points, reader, checksum);
-    ::deserialize_field(total_enemy, reader, checksum);
-    ::deserialize_field(accum_enemy, reader, checksum);
-    ::deserialize_field(total_inf, reader, checksum);
-    ::deserialize_field(accum_inf, reader, checksum);
-    ::deserialize_field(overall_floor, reader, checksum);
+	::deserialize_field(total_points, reader, checksum);
+	::deserialize_field(accum_points, reader, checksum);
+	::deserialize_field(total_enemy, reader, checksum);
+	::deserialize_field(accum_enemy, reader, checksum);
+	::deserialize_field(total_inf, reader, checksum);
+	::deserialize_field(accum_inf, reader, checksum);
+	::deserialize_field(overall_floor, reader, checksum);
 }
 
 void levelinfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(bonus_queue, writer, checksum);
-    ::serialize_field(bonus_shown, writer, checksum);
-    ::serialize_field(locked, writer, checksum);
-    stats.serialize(writer, checksum);
-    ::serialize_field(ptilex, writer, checksum);
-    ::serialize_field(ptiley, writer, checksum);
-    ::serialize_field(pangle, writer, checksum);
+	::serialize_field(bonus_queue, writer, checksum);
+	::serialize_field(bonus_shown, writer, checksum);
+	::serialize_field(locked, writer, checksum);
+	stats.serialize(writer, checksum);
+	::serialize_field(ptilex, writer, checksum);
+	::serialize_field(ptiley, writer, checksum);
+	::serialize_field(pangle, writer, checksum);
 }
 
 void levelinfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(bonus_queue, reader, checksum);
-    ::deserialize_field(bonus_shown, reader, checksum);
-    ::deserialize_field(locked, reader, checksum);
-    stats.deserialize(reader, checksum);
-    ::deserialize_field(ptilex, reader, checksum);
-    ::deserialize_field(ptiley, reader, checksum);
-    ::deserialize_field(pangle, reader, checksum);
+	::deserialize_field(bonus_queue, reader, checksum);
+	::deserialize_field(bonus_shown, reader, checksum);
+	::deserialize_field(locked, reader, checksum);
+	stats.deserialize(reader, checksum);
+	::deserialize_field(ptilex, reader, checksum);
+	::deserialize_field(ptiley, reader, checksum);
+	::deserialize_field(pangle, reader, checksum);
 }
 
 fargametype::fargametype() :
-    old_levelinfo(),
-    level()
+	old_levelinfo(),
+	level()
 {
 }
 
 void fargametype::initialize()
 {
-    old_levelinfo.resize(MAPS_PER_EPISODE);
-    level.resize(MAPS_PER_EPISODE);
+	old_levelinfo.resize(MAPS_PER_EPISODE);
+	level.resize(MAPS_PER_EPISODE);
 }
 
 void fargametype::clear()
 {
-    old_levelinfo.clear();
-    level.clear();
+	old_levelinfo.clear();
+	level.clear();
 
-    initialize();
+	initialize();
 }
 
 void fargametype::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        old_levelinfo[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		old_levelinfo[i].serialize(writer, checksum);
+	}
 
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        level[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		level[i].serialize(writer, checksum);
+	}
 }
 
 void fargametype::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        old_levelinfo[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		old_levelinfo[i].deserialize(reader, checksum);
+	}
 
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        level[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		level[i].deserialize(reader, checksum);
+	}
 }
 
 void gametype::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+	bstone::BinaryWriter& writer,
+	bstone::Crc32& checksum) const
 {
-    ::serialize_field(turn_around, writer, checksum);
-    ::serialize_field(turn_angle, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(lastmapon, writer, checksum);
-    ::serialize_field(difficulty, writer, checksum);
-    ::serialize_field(mapon, writer, checksum);
-    ::serialize_field(oldscore, writer, checksum);
-    ::serialize_field(tic_score, writer, checksum);
-    ::serialize_field(score, writer, checksum);
-    ::serialize_field(nextextra, writer, checksum);
-    ::serialize_field(score_roll_wait, writer, checksum);
-    ::serialize_field(lives, writer, checksum);
-    ::serialize_field(health, writer, checksum);
-    ::serialize_field(health_str, writer, checksum);
-    ::serialize_field(rpower, writer, checksum);
-    ::serialize_field(old_rpower, writer, checksum);
-    ::serialize_field(rzoom, writer, checksum);
-    ::serialize_field(radar_leds, writer, checksum);
-    ::serialize_field(lastradar_leds, writer, checksum);
-    ::serialize_field(lastammo_leds, writer, checksum);
-    ::serialize_field(ammo_leds, writer, checksum);
-    ::serialize_field(ammo, writer, checksum);
-    ::serialize_field(old_ammo, writer, checksum);
-    ::serialize_field(plasma_detonators, writer, checksum);
-    ::serialize_field(old_plasma_detonators, writer, checksum);
-    ::serialize_field(useable_weapons, writer, checksum);
-    ::serialize_field(weapons, writer, checksum);
-    ::serialize_field(weapon, writer, checksum);
-    ::serialize_field(chosenweapon, writer, checksum);
-    ::serialize_field(old_weapons, writer, checksum);
-    ::serialize_field(weapon_wait, writer, checksum);
-    ::serialize_field(attackframe, writer, checksum);
-    ::serialize_field(attackcount, writer, checksum);
-    ::serialize_field(weaponframe, writer, checksum);
-    ::serialize_field(episode, writer, checksum);
+	::serialize_field(turn_around, writer, checksum);
+	::serialize_field(turn_angle, writer, checksum);
+	::serialize_field(flags, writer, checksum);
+	::serialize_field(lastmapon, writer, checksum);
+	::serialize_field(difficulty, writer, checksum);
+	::serialize_field(mapon, writer, checksum);
+	::serialize_field(oldscore, writer, checksum);
+	::serialize_field(tic_score, writer, checksum);
+	::serialize_field(score, writer, checksum);
+	::serialize_field(nextextra, writer, checksum);
+	::serialize_field(score_roll_wait, writer, checksum);
+	::serialize_field(lives, writer, checksum);
+	::serialize_field(health, writer, checksum);
+	::serialize_field(health_str, writer, checksum);
+	::serialize_field(rpower, writer, checksum);
+	::serialize_field(old_rpower, writer, checksum);
+	::serialize_field(rzoom, writer, checksum);
+	::serialize_field(radar_leds, writer, checksum);
+	::serialize_field(lastradar_leds, writer, checksum);
+	::serialize_field(lastammo_leds, writer, checksum);
+	::serialize_field(ammo_leds, writer, checksum);
+	::serialize_field(ammo, writer, checksum);
+	::serialize_field(old_ammo, writer, checksum);
+	::serialize_field(plasma_detonators, writer, checksum);
+	::serialize_field(old_plasma_detonators, writer, checksum);
+	::serialize_field(useable_weapons, writer, checksum);
+	::serialize_field(weapons, writer, checksum);
+	::serialize_field(weapon, writer, checksum);
+	::serialize_field(chosenweapon, writer, checksum);
+	::serialize_field(old_weapons, writer, checksum);
+	::serialize_field(weapon_wait, writer, checksum);
+	::serialize_field(attackframe, writer, checksum);
+	::serialize_field(attackcount, writer, checksum);
+	::serialize_field(weaponframe, writer, checksum);
+	::serialize_field(episode, writer, checksum);
 
-    auto time_count = TimeCount;
-    ::serialize_field(time_count, writer, checksum);
+	auto time_count = TimeCount;
+	::serialize_field(time_count, writer, checksum);
 
-    // Skip "msg"
-    ::serialize_field(numkeys, writer, checksum);
-    ::serialize_field(old_numkeys, writer, checksum);
+	// Skip "msg"
+	::serialize_field(numkeys, writer, checksum);
+	::serialize_field(old_numkeys, writer, checksum);
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        cross_barriers[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		cross_barriers[i].serialize(writer, checksum);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i].serialize(writer, checksum);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        old_barrier_table[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		old_barrier_table[i].serialize(writer, checksum);
+	}
 
-    ::serialize_field(tokens, writer, checksum);
-    ::serialize_field(old_tokens, writer, checksum);
-    ::serialize_field(boss_key_dropped, writer, checksum);
-    ::serialize_field(old_boss_key_dropped, writer, checksum);
-    ::serialize_field(wintilex, writer, checksum);
-    ::serialize_field(wintiley, writer, checksum);
+	::serialize_field(tokens, writer, checksum);
+	::serialize_field(old_tokens, writer, checksum);
+	::serialize_field(boss_key_dropped, writer, checksum);
+	::serialize_field(old_boss_key_dropped, writer, checksum);
+	::serialize_field(wintilex, writer, checksum);
+	::serialize_field(wintiley, writer, checksum);
 }
 
 void gametype::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+	bstone::BinaryReader& reader,
+	bstone::Crc32& checksum)
 {
-    ::deserialize_field(turn_around, reader, checksum);
-    ::deserialize_field(turn_angle, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(lastmapon, reader, checksum);
-    ::deserialize_field(difficulty, reader, checksum);
-    ::deserialize_field(mapon, reader, checksum);
-    ::deserialize_field(oldscore, reader, checksum);
-    ::deserialize_field(tic_score, reader, checksum);
-    ::deserialize_field(score, reader, checksum);
-    ::deserialize_field(nextextra, reader, checksum);
-    ::deserialize_field(score_roll_wait, reader, checksum);
-    ::deserialize_field(lives, reader, checksum);
-    ::deserialize_field(health, reader, checksum);
-    ::deserialize_field(health_str, reader, checksum);
-    ::deserialize_field(rpower, reader, checksum);
-    ::deserialize_field(old_rpower, reader, checksum);
-    ::deserialize_field(rzoom, reader, checksum);
-    ::deserialize_field(radar_leds, reader, checksum);
-    ::deserialize_field(lastradar_leds, reader, checksum);
-    ::deserialize_field(lastammo_leds, reader, checksum);
-    ::deserialize_field(ammo_leds, reader, checksum);
-    ::deserialize_field(ammo, reader, checksum);
-    ::deserialize_field(old_ammo, reader, checksum);
-    ::deserialize_field(plasma_detonators, reader, checksum);
-    ::deserialize_field(old_plasma_detonators, reader, checksum);
-    ::deserialize_field(useable_weapons, reader, checksum);
-    ::deserialize_field(weapons, reader, checksum);
-    ::deserialize_field(weapon, reader, checksum);
-    ::deserialize_field(chosenweapon, reader, checksum);
-    ::deserialize_field(old_weapons, reader, checksum);
-    ::deserialize_field(weapon_wait, reader, checksum);
-    ::deserialize_field(attackframe, reader, checksum);
-    ::deserialize_field(attackcount, reader, checksum);
-    ::deserialize_field(weaponframe, reader, checksum);
-    ::deserialize_field(episode, reader, checksum);
+	::deserialize_field(turn_around, reader, checksum);
+	::deserialize_field(turn_angle, reader, checksum);
+	::deserialize_field(flags, reader, checksum);
+	::deserialize_field(lastmapon, reader, checksum);
+	::deserialize_field(difficulty, reader, checksum);
+	::deserialize_field(mapon, reader, checksum);
+	::deserialize_field(oldscore, reader, checksum);
+	::deserialize_field(tic_score, reader, checksum);
+	::deserialize_field(score, reader, checksum);
+	::deserialize_field(nextextra, reader, checksum);
+	::deserialize_field(score_roll_wait, reader, checksum);
+	::deserialize_field(lives, reader, checksum);
+	::deserialize_field(health, reader, checksum);
+	::deserialize_field(health_str, reader, checksum);
+	::deserialize_field(rpower, reader, checksum);
+	::deserialize_field(old_rpower, reader, checksum);
+	::deserialize_field(rzoom, reader, checksum);
+	::deserialize_field(radar_leds, reader, checksum);
+	::deserialize_field(lastradar_leds, reader, checksum);
+	::deserialize_field(lastammo_leds, reader, checksum);
+	::deserialize_field(ammo_leds, reader, checksum);
+	::deserialize_field(ammo, reader, checksum);
+	::deserialize_field(old_ammo, reader, checksum);
+	::deserialize_field(plasma_detonators, reader, checksum);
+	::deserialize_field(old_plasma_detonators, reader, checksum);
+	::deserialize_field(useable_weapons, reader, checksum);
+	::deserialize_field(weapons, reader, checksum);
+	::deserialize_field(weapon, reader, checksum);
+	::deserialize_field(chosenweapon, reader, checksum);
+	::deserialize_field(old_weapons, reader, checksum);
+	::deserialize_field(weapon_wait, reader, checksum);
+	::deserialize_field(attackframe, reader, checksum);
+	::deserialize_field(attackcount, reader, checksum);
+	::deserialize_field(weaponframe, reader, checksum);
+	::deserialize_field(episode, reader, checksum);
 
-    std::uint32_t time_count = 0;
-    ::deserialize_field(time_count, reader, checksum);
+	std::uint32_t time_count = 0;
+	::deserialize_field(time_count, reader, checksum);
 
-    msg = nullptr;
-    ::deserialize_field(numkeys, reader, checksum);
-    ::deserialize_field(old_numkeys, reader, checksum);
+	msg = nullptr;
+	::deserialize_field(numkeys, reader, checksum);
+	::deserialize_field(old_numkeys, reader, checksum);
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        cross_barriers[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		cross_barriers[i].deserialize(reader, checksum);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i].deserialize(reader, checksum);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        old_barrier_table[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		old_barrier_table[i].deserialize(reader, checksum);
+	}
 
-    ::deserialize_field(tokens, reader, checksum);
-    ::deserialize_field(old_tokens, reader, checksum);
-    ::deserialize_field(boss_key_dropped, reader, checksum);
-    ::deserialize_field(old_boss_key_dropped, reader, checksum);
-    ::deserialize_field(wintilex, reader, checksum);
-    ::deserialize_field(wintiley, reader, checksum);
+	::deserialize_field(tokens, reader, checksum);
+	::deserialize_field(old_tokens, reader, checksum);
+	::deserialize_field(boss_key_dropped, reader, checksum);
+	::deserialize_field(old_boss_key_dropped, reader, checksum);
+	::deserialize_field(wintilex, reader, checksum);
+	::deserialize_field(wintiley, reader, checksum);
 
-    TimeCount = time_count;
+	TimeCount = time_count;
 }
 
 void gametype::initialize_cross_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        cross_barriers[i].level = 0xFF;
-        cross_barriers[i].coord.tilex = 0xFF;
-        cross_barriers[i].coord.tiley = 0xFF;
-        cross_barriers[i].on = 0xFF;
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		cross_barriers[i].level = 0xFF;
+		cross_barriers[i].coord.tilex = 0xFF;
+		cross_barriers[i].coord.tiley = 0xFF;
+		cross_barriers[i].on = 0xFF;
+	}
 }
 
 void gametype::initialize_local_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i].level = 0xFF;
-        barrier_table[i].coord.tilex = 0xFF;
-        barrier_table[i].coord.tiley = 0xFF;
-        barrier_table[i].on = 0xFF;
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i].level = 0xFF;
+		barrier_table[i].coord.tilex = 0xFF;
+		barrier_table[i].coord.tiley = 0xFF;
+		barrier_table[i].on = 0xFF;
 
-        old_barrier_table[i].level = 0xFF;
-        old_barrier_table[i].coord.tilex = 0xFF;
-        old_barrier_table[i].coord.tiley = 0xFF;
-        old_barrier_table[i].on = 0xFF;
-    }
+		old_barrier_table[i].level = 0xFF;
+		old_barrier_table[i].coord.tilex = 0xFF;
+		old_barrier_table[i].coord.tiley = 0xFF;
+		old_barrier_table[i].on = 0xFF;
+	}
 }
 
 void gametype::store_local_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        old_barrier_table[i] = barrier_table[i];
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		old_barrier_table[i] = barrier_table[i];
+	}
 }
 
 void gametype::restore_local_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i] = old_barrier_table[i];
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i] = old_barrier_table[i];
+	}
 }
 
 void sys_sleep_for(
 	const int milliseconds)
 {
 #ifdef __vita__
-    sceKernelDelayThread(milliseconds);
-//    SDL_Delay(milliseconds); // todo: investigate this as alternative
+	sceKernelDelayThread(milliseconds);
+	//    SDL_Delay(milliseconds); // todo: investigate this as alternative
 #else
 	::SDL_Delay(milliseconds);
 #endif
@@ -10344,68 +10432,74 @@ void sys_sleep_for(
 
 void sys_default_sleep_for()
 {
-    ::sys_sleep_for(10);
+	::sys_sleep_for(10);
 }
 
 const std::string& get_version_string()
 {
-    static const std::string version = "1.1.9";
-    return version;
+	static const std::string version = "1.1.9";
+	return version;
 }
 
 const std::string& get_profile_dir()
 {
-    static std::string profile_dir;
-    static auto is_initialized = false;
+	static std::string profile_dir;
+	static auto is_initialized = false;
 
-    if (!is_initialized) {
-        is_initialized = true;
+	if (!is_initialized)
+	{
+		is_initialized = true;
 
-        profile_dir = ::g_args.get_option_value("profile_dir");
+		profile_dir = ::g_args.get_option_value("profile_dir");
 
-        if (!profile_dir.empty()) {
-            profile_dir +=
+		if (!profile_dir.empty())
+		{
+			profile_dir +=
 #ifdef _WIN32
-                '\\'
+				'\\'
 #else
-                '/'
+				'/'
 #endif
-            ;
-        }
+				;
+		}
 
-        if (profile_dir.empty()) {
-            auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
+		if (profile_dir.empty())
+		{
+			auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
 
-            if (sdl_dir) {
-                profile_dir = sdl_dir;
-                ::SDL_free(sdl_dir);
-            }
-        }
-    }
+			if (sdl_dir)
+			{
+				profile_dir = sdl_dir;
+				::SDL_free(sdl_dir);
+			}
+		}
+	}
 #ifdef __vita__
-    profile_dir = "ux0:/data/bstone/";
+	profile_dir = "ux0:/data/bstone/";
 #endif
-    return profile_dir;
+	return profile_dir;
 }
 
 const std::string& get_default_data_dir()
 {
-    static std::string result;
-    static auto is_initialized = false;
+	static std::string result;
+	static auto is_initialized = false;
 
-    if (!is_initialized) {
-        is_initialized = true;
+	if (!is_initialized)
+	{
+		is_initialized = true;
 
-        auto sdl_dir = ::SDL_GetBasePath();
+		auto sdl_dir = ::SDL_GetBasePath();
 
-        if (sdl_dir) {
-            result = sdl_dir;
-            ::SDL_free(sdl_dir);
-        }
-    }
+		if (sdl_dir)
+		{
+			result = sdl_dir;
+			::SDL_free(sdl_dir);
+		}
+	}
 #ifdef __vita__
-    result = "ux0:/data/bstone/";
+	result = "ux0:/data/bstone/";
 #endif
-    return result;
+	return result;
 }
 // BBi
