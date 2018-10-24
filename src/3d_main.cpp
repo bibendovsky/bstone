@@ -7178,7 +7178,7 @@ static void write_high_scores()
 	}
 
 	bstone::Crc32 checksum;
-	bstone::BinaryWriter writer(&stream);
+	auto writer = bstone::BinaryWriter{&stream};
 
 	for (const auto& score : Scores)
 	{
@@ -8554,7 +8554,7 @@ bool SaveLevel(
     bstone::Crc32 checksum;
     int64_t beg_offset = g_playtemp.get_position();
 
-    bstone::BinaryWriter writer(&g_playtemp);
+	auto writer = bstone::BinaryWriter{&g_playtemp};
 
     ::serialize_field(tilemap, writer, checksum);
 
@@ -9032,7 +9032,7 @@ bool SaveTheGame(
 	//
 	bstone::Crc32 head_checksum;
 	auto head_stream = bstone::MemoryStream{};
-	bstone::BinaryWriter head_writer(&head_stream);
+	auto head_writer = bstone::BinaryWriter{&head_stream};
 
 	try
 	{
@@ -9106,7 +9106,7 @@ bool SaveTheGame(
 	//
 	bool is_succeed = true;
 
-	bstone::BinaryWriter file_writer(&file_stream);
+	auto file_writer = bstone::BinaryWriter{&file_stream};
 
 	// Write VERS chunk
 	//

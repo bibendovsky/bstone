@@ -3707,7 +3707,7 @@ void SaveOverheadChunk(
     ::VL_ScreenToMem(ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
 
     bstone::Crc32 checksum;
-    bstone::BinaryWriter writer(&g_playtemp);
+	auto writer = bstone::BinaryWriter{&g_playtemp};
 
     // Write chunk ID, SIZE, and IMAGE
     //
