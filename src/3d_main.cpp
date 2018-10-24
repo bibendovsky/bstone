@@ -9599,7 +9599,7 @@ void DemoLoop()
 
 				if (assets_info.is_ps())
 				{
-					bstone::PSFizzleFX fizzle;
+					bstone::PsFizzleFX fizzle;
 
 					fizzle.initialize();
 
