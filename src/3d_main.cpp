@@ -8033,7 +8033,7 @@ void write_text_config()
     constexpr auto memory_stream_initial_size = 4096;
 
     bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
-    bstone::TextWriter writer{&memory_stream};
+    auto writer = bstone::TextWriter{&memory_stream};
 
 
     writer.write("// BStone configuration file\n");
