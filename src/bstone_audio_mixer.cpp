@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include <functional>
 #include <memory>
 #include "3d_def.h"
+#include "audio.h"
 #include "bstone_adlib_music_decoder.h"
 #include "bstone_adlib_sfx_decoder.h"
 #include "bstone_pcm_decoder.h"

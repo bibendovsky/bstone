@@ -26,23 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_HEADS_INCLUDED
 
 
-#include <cassert>
-#include <cctype>
 #include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-#include <algorithm>
-#include <atomic>
-#include <chrono>
-#include <exception>
-#include <functional>
-#include <memory>
-#include <type_traits>
-#include <vector>
-
-#include "SDL.h"
 
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
@@ -54,17 +38,11 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_cl_args.h"
 
-#include "audio.h"
-#include "gfxv.h"
-#include "id_pm.h"
-#include "id_ca.h"
 #include "id_vl.h"
 #include "id_vh.h"
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_us.h"
-#include "jm_tp.h"
-#include "movie.h"
 
 
 //
@@ -99,14 +77,6 @@ inline void SETFONTCOLOR(
 	::fontcolor = static_cast<std::uint8_t>(foreground_color);
 	::backcolor = static_cast<std::uint8_t>(background_color);
 }
-
-
-#include "3d_menu.h"
-
-
-// BBi
-using Clock = std::chrono::system_clock;
-using TimePoint = Clock::time_point;
 
 
 const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;

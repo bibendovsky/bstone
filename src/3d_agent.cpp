@@ -25,6 +25,11 @@ Free Software Foundation, Inc.,
 #include <deque>
 #include <array>
 #include "3d_def.h"
+#include "3d_menu.h"
+#include "audio.h"
+#include "gfxv.h"
+#include "jm_tp.h"
+#include "id_ca.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ref_values.h"
 #include "bstone_sprite.h"

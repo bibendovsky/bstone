@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #include <utility>
 #include "3d_def.h"
 #include "id_vl.h"
+#include "gfxv.h"
 
 
 void CA_CacheScreen(

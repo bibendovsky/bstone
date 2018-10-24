@@ -28,7 +28,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "id_heads.h"
+#include <cstdint>
+#include "audio.h"
 
 
 std::uint16_t sdStartPCSounds = STARTPCSOUNDS;

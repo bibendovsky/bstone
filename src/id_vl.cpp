@@ -22,7 +22,9 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <chrono>
 #include "id_heads.h"
+#include "id_ca.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 
@@ -1291,6 +1293,8 @@ void sdl_refresh_screen()
 
 void sdl_check_vsync()
 {
+	using Clock = std::chrono::system_clock;
+
 	constexpr int draw_count = 10;
 
 	constexpr int duration_tolerance_pct = 25;

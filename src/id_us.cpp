@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <chrono>
 #include "id_heads.h"
 
 
@@ -72,6 +73,8 @@ void US_InitRndT(
 	}
 	else
 	{
+		using Clock = std::chrono::system_clock;
+
 		auto ticks = (Clock::now() - Clock::time_point()).count();
 		rndindex = static_cast<int>(ticks % 256);
 	}

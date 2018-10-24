@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "id_heads.h"
+#include "id_ca.h"
 #include "jm_io.h"
 #include "jm_lzh.h"
 

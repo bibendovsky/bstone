@@ -23,6 +23,9 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "gfxv.h"
+#include "id_pm.h"
+#include "id_ca.h"
 #include "bstone_generic_fizzle_fx.h"
 
 

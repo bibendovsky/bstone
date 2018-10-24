@@ -25,7 +25,13 @@ Free Software Foundation, Inc.,
 #include <functional>
 #include <unordered_map>
 #include "3d_def.h"
+#include "3d_menu.h"
+#include "audio.h"
 #include "jm_lzh.h"
+#include "jm_tp.h"
+#include "id_pm.h"
+#include "id_ca.h"
+#include "movie.h"
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 #include "bstone_memory_stream.h"

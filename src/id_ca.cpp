@@ -35,7 +35,10 @@ loaded into the data segment
 */
 
 
+#include "id_ca.h"
+#include "audio.h"
 #include "id_heads.h"
+#include "gfxv.h"
 #include "bstone_sha1.h"
 
 

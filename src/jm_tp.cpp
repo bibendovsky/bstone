@@ -102,6 +102,12 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "3d_menu.h"
+#include "audio.h"
+#include "id_ca.h"
+#include "jm_tp.h"
+#include "gfxv.h"
+#include "id_pm.h"
 #include "bstone_sprite.h"
 
 

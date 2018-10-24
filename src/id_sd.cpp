@@ -55,6 +55,9 @@ Free Software Foundation, Inc.,
 
 #include "id_sd.h"
 #include "3d_def.h"
+#include "audio.h"
+#include "id_ca.h"
+#include "id_pm.h"
 #include "bstone_audio_mixer.h"
 #include "bstone_memory_binary_reader.h"
 

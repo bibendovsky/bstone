@@ -24,6 +24,8 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "an_codes.h"
+#include "id_ca.h"
+#include "movie.h"
 
 
 bool IN_CheckAck();
