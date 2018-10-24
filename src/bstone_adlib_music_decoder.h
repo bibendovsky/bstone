@@ -37,45 +37,52 @@ Free Software Foundation, Inc.,
 #include "bstone_memory_binary_reader.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A decoder for AdLib music.
-class AdlibMusicDecoder : public AdlibDecoder {
+class AdlibMusicDecoder final :
+	public AdlibDecoder
+{
 public:
-    AdlibMusicDecoder();
+	AdlibMusicDecoder();
 
-    virtual ~AdlibMusicDecoder();
+	~AdlibMusicDecoder() override;
 
-    virtual bool initialize(
-        const void* raw_data,
-        int raw_size,
-        int dst_rate);
+	bool initialize(
+		const void* const raw_data,
+		const int raw_size,
+		const int dst_rate) override;
 
-    virtual void uninitialize();
+	void uninitialize() override;
 
-    virtual bool reset();
+	bool reset() override;
 
-    virtual AudioDecoder* clone();
+	AudioDecoder* clone() override;
 
-    virtual int decode(
-        int dst_count,
-        int16_t* dst_data);
+	int decode(
+		const int dst_count,
+		int16_t* const dst_data) override;
 
-    // Returns a number of calls per second of
-    // original interrupt routine.
-    static int get_tick_rate();
+	// Returns a number of calls per second of
+	// original interrupt routine.
+	static int get_tick_rate();
+
 
 private:
-    MemoryBinaryReader reader_;
-    int commands_count_;
-    int command_index_;
-    int samples_per_tick_;
-    int remains_count_;
+	MemoryBinaryReader reader_;
+	int commands_count_;
+	int command_index_;
+	int samples_per_tick_;
+	int remains_count_;
+
+
+	void uninitialize_internal();
 }; // AdlibDecoder
 
 
 } // bstone
 
 
-#endif // BSTONE_ADLIB_MUSIC_DECODER_INCLUDED
+#endif // !BSTONE_ADLIB_MUSIC_DECODER_INCLUDED

@@ -32,230 +32,242 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 void AdlibSfxDecoder::Instrument::reset()
 {
-    m_char = 0;
-    c_char = 0;
-    m_scale = 0;
-    c_scale = 0;
-    m_attack = 0;
-    c_attack = 0;
-    m_sus = 0;
-    c_sus = 0;
-    m_wave = 0;
-    c_wave = 0;
+	m_char_ = 0;
+	c_char_ = 0;
+	m_scale_ = 0;
+	c_scale_ = 0;
+	m_attack_ = 0;
+	c_attack_ = 0;
+	m_sus_ = 0;
+	c_sus_ = 0;
+	m_wave_ = 0;
+	c_wave_ = 0;
 }
 
 AdlibSfxDecoder::AdlibSfxDecoder() :
-    commands_count_(),
-    command_index_(),
-    samples_per_tick_(),
-    remains_count_(),
-    hf_()
+	commands_count_{},
+	command_index_{},
+	samples_per_tick_{},
+	remains_count_{},
+	hf_{}
 {
 }
 
-// (virtual)
 AdlibSfxDecoder::~AdlibSfxDecoder()
 {
-    uninitialize();
+	uninitialize_internal();
 }
 
-// (virtual)
 bool AdlibSfxDecoder::initialize(
-    const void* raw_data,
-    int raw_size,
-    int dst_rate)
+	const void* const raw_data,
+	const int raw_size,
+	const int dst_rate)
 {
-    if (!AdlibDecoder::initialize(
-        raw_data,
-        raw_size,
-        dst_rate))
-    {
-        return false;
-    }
+	if (!AdlibDecoder::initialize(raw_data, raw_size, dst_rate))
+	{
+		return false;
+	}
 
-    reader_.open(raw_data, raw_size);
+	static_cast<void>(reader_.open(raw_data, raw_size));
 
 	const auto& endian = bstone::Endian{};
 
-    int sfx_length = endian.little(reader_.read_s32());
+	const auto sfx_length = static_cast<int>(endian.little(reader_.read_s32()));
 
-    if (sfx_length <= 0) {
-        return false;
-    }
+	if (sfx_length <= 0)
+	{
+		return false;
+	}
 
-    if ((sfx_length + get_header_size()) >= raw_size) {
-        return false;
-    }
+	if ((sfx_length + get_header_size()) >= raw_size)
+	{
+		return false;
+	}
 
-    // Skip priority.
-    reader_.skip(2);
+	// Skip priority.
+	reader_.skip(2);
 
-    instrument_.m_char = reader_.read_u8();
-    instrument_.c_char = reader_.read_u8();
-    instrument_.m_scale = reader_.read_u8();
-    instrument_.c_scale = reader_.read_u8();
-    instrument_.m_attack = reader_.read_u8();
-    instrument_.c_attack = reader_.read_u8();
-    instrument_.m_sus = reader_.read_u8();
-    instrument_.c_sus = reader_.read_u8();
-    instrument_.m_wave = reader_.read_u8();
-    instrument_.c_wave = reader_.read_u8();
+	instrument_.m_char_ = reader_.read_u8();
+	instrument_.c_char_ = reader_.read_u8();
+	instrument_.m_scale_ = reader_.read_u8();
+	instrument_.c_scale_ = reader_.read_u8();
+	instrument_.m_attack_ = reader_.read_u8();
+	instrument_.c_attack_ = reader_.read_u8();
+	instrument_.m_sus_ = reader_.read_u8();
+	instrument_.c_sus_ = reader_.read_u8();
+	instrument_.m_wave_ = reader_.read_u8();
+	instrument_.c_wave_ = reader_.read_u8();
 
-    // Skip nConn, voice, mode and 3 unused octets
-    reader_.skip(6);
+	// Skip nConn, voice, mode and 3 unused octets
+	reader_.skip(6);
 
-    if (instrument_.m_sus == 0 && instrument_.c_sus == 0) {
-        return false;
-    }
+	if (instrument_.m_sus_ == 0 && instrument_.c_sus_ == 0)
+	{
+		return false;
+	}
 
-    hf_ = reader_.read_u8();
-    hf_ = ((hf_ & 7) << 2) | 0x20;
+	hf_ = reader_.read_u8();
+	hf_ = ((hf_ & 7) << 2) | 0x20;
 
-    initialize_instrument();
+	initialize_instrument();
 
-    command_index_ = 0;
-    commands_count_ = sfx_length;
-    samples_per_tick_ = emulator_.get_sample_rate() / get_tick_rate();
-    set_dst_length_in_samples(samples_per_tick_ * sfx_length);
-    remains_count_ = 0;
+	command_index_ = 0;
+	commands_count_ = sfx_length;
+	samples_per_tick_ = emulator_.get_sample_rate() / get_tick_rate();
+	set_dst_length_in_samples(samples_per_tick_ * sfx_length);
+	remains_count_ = 0;
 
-    set_is_initialized(true);
+	set_is_initialized(true);
 
-    return true;
+	return true;
 }
 
-// (virtual)
 void AdlibSfxDecoder::uninitialize()
 {
-    reader_.close();
-    instrument_.reset();
-    commands_count_ = 0;
-    command_index_ = 0;
-    samples_per_tick_ = 0;
-    remains_count_ = 0;
-    hf_ = 0;
+	uninitialize_internal();
 
-    AdlibDecoder::uninitialize();
+	AdlibDecoder::uninitialize();
 }
 
-// (virtual)
 bool AdlibSfxDecoder::reset()
 {
-    if (!AdlibDecoder::reset()) {
-        return false;
-    }
+	if (!AdlibDecoder::reset())
+	{
+		return false;
+	}
 
-    initialize_instrument();
+	initialize_instrument();
 
-    command_index_ = 0;
-    remains_count_ = 0;
+	command_index_ = 0;
+	remains_count_ = 0;
 
-    reader_.set_position(get_header_size());
+	reader_.set_position(get_header_size());
 
-    return true;
+	return true;
 }
 
-// (virtual)
 AudioDecoder* AdlibSfxDecoder::clone()
 {
-    return new AdlibSfxDecoder(*this);
+	return new AdlibSfxDecoder(*this);
 }
 
-// (virtual)
 int AdlibSfxDecoder::decode(
-    int dst_count,
-    int16_t* dst_data)
+	const int dst_count,
+	std::int16_t* const dst_data)
 {
-    if (!is_initialized()) {
-        return 0;
-    }
+	if (!is_initialized())
+	{
+		return 0;
+	}
 
-    if (dst_count < 1) {
-        return 0;
-    }
+	if (dst_count < 1)
+	{
+		return 0;
+	}
 
-    if (!dst_data) {
-        return 0;
-    }
+	if (!dst_data)
+	{
+		return 0;
+	}
 
-    if (command_index_ == commands_count_ && remains_count_ == 0) {
-        return 0;
-    }
+	if (command_index_ == commands_count_ && remains_count_ == 0)
+	{
+		return 0;
+	}
 
-    int decoded_samples_count = 0;
+	auto decoded_samples_count = 0;
 
-    for (bool quit = false; !quit; ) {
-        if (remains_count_ > 0) {
-            int count = std::min(dst_count, remains_count_);
+	auto dst_data_index = 0;
+	auto dst_remain_count = dst_count;
 
-            emulator_.generate(count, dst_data);
+	for (bool quit = false; !quit; )
+	{
+		if (remains_count_ > 0)
+		{
+			int count = std::min(dst_remain_count, remains_count_);
 
-            dst_data += count;
-            dst_count -= count;
-            remains_count_ -= count;
-            decoded_samples_count += count;
-        } else {
-            if (command_index_ < commands_count_) {
-                int lf = reader_.read_u8();
+			emulator_.generate(count, &dst_data[dst_data_index]);
 
-                if (lf > 0) {
-                    emulator_.write(AL_FREQ_L, lf);
-                    emulator_.write(AL_FREQ_H, hf_);
-                } else
-                    emulator_.write(AL_FREQ_H, 0x00);
+			dst_data_index += count;
+			dst_remain_count -= count;
+			remains_count_ -= count;
+			decoded_samples_count += count;
+		}
+		else
+		{
+			if (command_index_ < commands_count_)
+			{
+				int lf = reader_.read_u8();
 
-                ++command_index_;
+				if (lf > 0)
+				{
+					emulator_.write(al_freq_l, lf);
+					emulator_.write(al_freq_h, hf_);
+				}
+				else
+				{
+					emulator_.write(al_freq_h, 0x00);
+				}
 
-                remains_count_ = samples_per_tick_;
-            }
-        }
+				++command_index_;
 
-        quit =
-            (command_index_ == commands_count_ && remains_count_ == 0) ||
-            dst_count == 0;
-    }
+				remains_count_ = samples_per_tick_;
+			}
+		}
 
-    return decoded_samples_count;
+		quit = ((command_index_ == commands_count_ && remains_count_ == 0) || dst_count == 0);
+	}
+
+	return decoded_samples_count;
+}
+
+void AdlibSfxDecoder::uninitialize_internal()
+{
+	reader_.close();
+	instrument_.reset();
+	commands_count_ = 0;
+	command_index_ = 0;
+	samples_per_tick_ = 0;
+	remains_count_ = 0;
+	hf_ = 0;
 }
 
 void AdlibSfxDecoder::initialize_instrument()
 {
-    // carrier
-    const int c = 3;
+	// carrier
+	const auto c = 3;
 
-    // modifier
-    const int m = 0;
+	// modifier
+	const auto m = 0;
 
-    emulator_.write(m + AL_CHAR, instrument_.m_char);
-    emulator_.write(m + AL_SCALE, instrument_.m_scale);
-    emulator_.write(m + AL_ATTACK, instrument_.m_attack);
-    emulator_.write(m + AL_SUS, instrument_.m_sus);
-    emulator_.write(m + AL_WAVE, instrument_.m_wave);
-    emulator_.write(c + AL_CHAR, instrument_.c_char);
-    emulator_.write(c + AL_SCALE, instrument_.c_scale);
-    emulator_.write(c + AL_ATTACK, instrument_.c_attack);
-    emulator_.write(c + AL_SUS, instrument_.c_sus);
-    emulator_.write(c + AL_WAVE, instrument_.c_wave);
+	emulator_.write(m + al_char, instrument_.m_char_);
+	emulator_.write(m + al_scale, instrument_.m_scale_);
+	emulator_.write(m + al_attack, instrument_.m_attack_);
+	emulator_.write(m + al_sus, instrument_.m_sus_);
+	emulator_.write(m + al_wave, instrument_.m_wave_);
+	emulator_.write(c + al_char, instrument_.c_char_);
+	emulator_.write(c + al_scale, instrument_.c_scale_);
+	emulator_.write(c + al_attack, instrument_.c_attack_);
+	emulator_.write(c + al_sus, instrument_.c_sus_);
+	emulator_.write(c + al_wave, instrument_.c_wave_);
 
-    // AL_FEED_CON
-    emulator_.write(AL_FEED_CON, 0);
+	emulator_.write(al_feed_con, 0);
 }
 
-// (static)
 int AdlibSfxDecoder::get_tick_rate()
 {
-    return 140;
+	return 140;
 }
 
-// (static)
 int AdlibSfxDecoder::get_header_size()
 {
-    return 23;
+	return 23;
 }
 
 
