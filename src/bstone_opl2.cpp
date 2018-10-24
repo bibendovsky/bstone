@@ -48,7 +48,7 @@ void Opl2::initialize(
 
 	sample_rate_ = std::max(sample_rate, get_min_sample_rate());
 
-	emulator_ = DBOPL::Handler();
+	emulator_ = DBOPL::Handler{};
 	emulator_.Init(sample_rate_);
 
 	is_initialized_ = true;
@@ -58,7 +58,7 @@ void Opl2::uninitialize()
 {
 	is_initialized_ = false;
 	sample_rate_ = 0;
-	emulator_ = DBOPL::Handler();
+	emulator_ = DBOPL::Handler{};
 }
 
 bool Opl2::is_initialized() const
