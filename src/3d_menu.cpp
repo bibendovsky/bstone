@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #include <map>
 #include "3d_def.h"
 #include "jm_lzh.h"
+#include "bstone_scope_guard.h"
 
 
 bool is_full_menu_active = false;
@@ -1298,7 +1299,7 @@ void US_ControlPanel(
 {
     ::is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
 
-    bstone::ScopeGuard guard_flag{
+    auto guard_flag = bstone::ScopeGuard{
         [&]()
         {
             ::is_full_menu_active = false;
