@@ -58,30 +58,30 @@ Free Software Foundation, Inc.,
 #include "bstone_audio_mixer.h"
 #include "bstone_memory_binary_reader.h"
 
-extern uint16_t sdStartPCSounds;
-extern uint16_t sdStartALSounds;
-extern int16_t sdLastSound;
-extern int16_t DigiMap[];
+extern std::uint16_t sdStartPCSounds;
+extern std::uint16_t sdStartALSounds;
+extern std::int16_t sdLastSound;
+extern std::int16_t DigiMap[];
 
 
 // Global variables
 bool sd_has_audio = false;
 bool sd_is_sound_enabled = false;
 bool sd_is_music_enabled = false;
-std::atomic<uint32_t> TimeCount;
+std::atomic<std::uint32_t> TimeCount;
 
-uint8_t** SoundTable;
+std::uint8_t** SoundTable;
 
 // Internal variables
 static bool SD_Started;
 bool nextsoundpos;
 
-uint16_t* DigiList;
+std::uint16_t* DigiList;
 
 // AdLib variables
 bool sqActive;
-uint16_t* sqHack;
-uint16_t sqHackLen;
+std::uint16_t* sqHack;
+std::uint16_t sqHackLen;
 bool sqPlayedOnce;
 
 // Internal routines
@@ -99,13 +99,13 @@ int sd_music_volume = ::sd_default_music_volume;
 
 void SDL_SetupDigi()
 {
-    const uint16_t* p;
+    const std::uint16_t* p;
     int pg;
     int i;
 
 	const auto& endian = bstone::Endian{};
 
-    p = static_cast<const uint16_t*>(PM_GetPage(ChunksInFile - 1));
+    p = static_cast<const std::uint16_t*>(PM_GetPage(ChunksInFile - 1));
     pg = PMSoundStart;
     for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i) {
         if (pg >= ChunksInFile - 1) {
@@ -114,9 +114,9 @@ void SDL_SetupDigi()
         pg += (endian.little(p[1]) + (PMPageSize - 1)) / PMPageSize;
         p += 2;
     }
-    DigiList = new uint16_t[i * 2];
+    DigiList = new std::uint16_t[i * 2];
 
-    const uint16_t* src_list = static_cast<const uint16_t*>(
+    const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
         ::PM_GetPage(ChunksInFile - 1));
 
 	for (auto j = 0; j < (i * 2); ++j)
@@ -245,7 +245,7 @@ void SD_Shutdown()
 
     // Free music data
     for (int i = 0; i < LASTMUSIC; ++i) {
-        delete [] static_cast<uint8_t*>(::audiosegs[STARTMUSIC + i]);
+        delete [] static_cast<std::uint8_t*>(::audiosegs[STARTMUSIC + i]);
     }
 
     SD_Started = false;
@@ -325,7 +325,7 @@ void SD_StartMusic(
     if (::sd_is_music_enabled) {
         ::music_index = index;
 
-        auto music_data = reinterpret_cast<uint16_t*>(
+        auto music_data = reinterpret_cast<std::uint16_t*>(
             ::audiosegs[STARTMUSIC + index]);
 
 		const auto& endian = bstone::Endian{};
@@ -333,7 +333,7 @@ void SD_StartMusic(
         auto length = endian.little(music_data[0]) + 2;
 
         ::sqHack = music_data;
-        ::sqHackLen = static_cast<uint16_t>(length);
+        ::sqHackLen = static_cast<std::uint16_t>(length);
 
         ::SD_MusicOn();
     } else {

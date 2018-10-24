@@ -28,7 +28,7 @@ Free Software Foundation, Inc.,
 void VH_UpdateScreen();
 
 void CA_CacheScreen(
-    int16_t chunk);
+    std::int16_t chunk);
 
 
 // ==========================================================================
@@ -48,12 +48,12 @@ void ClearSplitVWB()
 
 bool Breifing(
     breifing_type BreifingType,
-    uint16_t episode)
+    std::uint16_t episode)
 {
     ::HelpPresenter(
         nullptr,
         true,
-        static_cast<uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1),
+        static_cast<std::uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1),
         false);
 
     return EscPressed;
@@ -61,10 +61,10 @@ bool Breifing(
 
 void ShPrint(
     const char* text,
-    int8_t shadow_color,
+    std::int8_t shadow_color,
     bool single_char)
 {
-    uint16_t old_color = fontcolor, old_x = px, old_y = py;
+    std::uint16_t old_color = fontcolor, old_x = px, old_y = py;
     const char* string;
     char buf[2] = { 0, 0 };
 
@@ -80,25 +80,25 @@ void ShPrint(
     px++;
     USL_DrawString(string); // JTR - This marks blocks!
 
-    fontcolor = static_cast<uint8_t>(old_color);
+    fontcolor = static_cast<std::uint8_t>(old_color);
     py = old_y;
     px = old_x;
     USL_DrawString(string); // JTR - This marks blocks!
 }
 
 void PreloadUpdate(
-    uint16_t current,
-    uint16_t total)
+    std::uint16_t current,
+    std::uint16_t total)
 {
 // BBi No progress bars
 #if 0
-    uint16_t w = WindowW - 10;
+    std::uint16_t w = WindowW - 10;
 
     if (current > total) {
         current = total;
     }
 
-    w = ((int32_t)w * current) / total;
+    w = ((std::int32_t)w * current) / total;
     if (w) {
         VWB_Bar(WindowX, WindowY, w - 1, 1, BORDER_TEXT_COLOR);
     }
@@ -182,7 +182,7 @@ void PreloadGraphics()
 }
 
 
-static const int16_t SCORE_Y_SPACING = 7;
+static const std::int16_t SCORE_Y_SPACING = 7;
 
 void DrawHighScores()
 {
@@ -213,7 +213,7 @@ void DrawHighScores()
         // name
         //
         if (*s->name) {
-            ShadowPrint(s->name, 45, static_cast<int16_t>(68 + (SCORE_Y_SPACING * i)));
+            ShadowPrint(s->name, 45, static_cast<std::int16_t>(68 + (SCORE_Y_SPACING * i)));
         }
 
         //
@@ -228,25 +228,25 @@ void DrawHighScores()
 
         buffer = std::to_string(s->score);
         ::USL_MeasureString(buffer.c_str(), &w, &h);
-        ::ShadowPrint(buffer.c_str(), static_cast<int16_t>(205 - w), static_cast<int16_t>(68 + (SCORE_Y_SPACING * i))); // 235
+        ::ShadowPrint(buffer.c_str(), static_cast<std::int16_t>(205 - w), static_cast<std::int16_t>(68 + (SCORE_Y_SPACING * i))); // 235
 
         //
         // mission ratio
         //
         buffer = std::to_string(s->ratio);
         USL_MeasureString(buffer.c_str(), &w, &h);
-        ShadowPrint(buffer.c_str(), static_cast<int16_t>(272 - w), static_cast<int16_t>(68 + (SCORE_Y_SPACING * i)));
+        ShadowPrint(buffer.c_str(), static_cast<std::int16_t>(272 - w), static_cast<std::int16_t>(68 + (SCORE_Y_SPACING * i)));
     }
 
     VW_UpdateScreen();
 }
 
 void CheckHighScore(
-    int32_t score,
-    uint16_t other)
+    std::int32_t score,
+    std::uint16_t other)
 {
-    uint16_t i, j;
-    int16_t n;
+    std::uint16_t i, j;
+    std::int16_t n;
     HighScore myscore;
     US_CursorStruct TermCursor = { '@', 0, HIGHLIGHT_TEXT_COLOR, 2 };
 
@@ -278,7 +278,7 @@ void CheckHighScore(
         }
     }
 
-    ::StartCPMusic(static_cast<int16_t>(ROSTER_MUS));
+    ::StartCPMusic(static_cast<std::int16_t>(ROSTER_MUS));
 
     DrawHighScores();
 
@@ -306,10 +306,10 @@ void CheckHighScore(
     use_custom_cursor = false;
 }
 
-uint16_t Random(
-    uint16_t Max)
+std::uint16_t Random(
+    std::uint16_t Max)
 {
-    uint16_t returnval;
+    std::uint16_t returnval;
 
     if (Max) {
         if (Max > 255) {

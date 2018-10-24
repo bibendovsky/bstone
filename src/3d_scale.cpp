@@ -38,8 +38,8 @@ enum class ShapeDrawMode {
 }; // ShapeDrawMode
 
 
-extern const uint8_t* shadingtable;
-extern const uint8_t* lightsource;
+extern const std::uint8_t* shadingtable;
+extern const std::uint8_t* lightsource;
 
 
 #define CLOAKED_SHAPES (1)
@@ -61,9 +61,9 @@ int normalshade;
 int normalshade_div = 1;
 int shade_max = 1;
 
-int16_t nsd_table[] = { 1, 6, 3, 4, 1, 2 };
-int16_t sm_table[] = { 36, 51, 62, 63, 18, 52 };
-uint16_t* linecmds;
+std::int16_t nsd_table[] = { 1, 6, 3, 4, 1, 2 };
+std::int16_t sm_table[] = { 36, 51, 62, 63, 18, 52 };
+std::uint16_t* linecmds;
 
 
 void SetupScaling(
@@ -86,7 +86,7 @@ void generic_scale_shape(
 	const int xcenter,
 	const int shapenum,
 	const int ref_height,
-	const int8_t lighting,
+	const std::int8_t lighting,
 	const ShapeDrawMode draw_mode)
 {
 	const auto is_player_weapon = (draw_mode == ShapeDrawMode::player_weapon);
@@ -210,7 +210,7 @@ void generic_scale_shape(
 		return;
 	}
 
-	const uint8_t* shading = nullptr;
+	const std::uint8_t* shading = nullptr;
 
 	if (draw_mode == ShapeDrawMode::shaded)
 	{
@@ -259,7 +259,7 @@ void generic_scale_shape(
 			}
 
 			const auto pixel_offset = ::vl_get_offset(0, x, y);
-			auto color_index = static_cast<uint8_t>(sprite_color);
+			auto color_index = static_cast<std::uint8_t>(sprite_color);
 
 			if (draw_mode == ShapeDrawMode::shaded)
 			{
@@ -309,7 +309,7 @@ void ScaleLSShape(
     int xcenter,
     int shapenum,
     int height,
-    int8_t lighting)
+    std::int8_t lighting)
 {
     generic_scale_shape(
         xcenter,

@@ -305,18 +305,18 @@ struct KeyboardDef {
 }; // KeyboardDef
 
 struct JoystickDef {
-    uint16_t joyMinX;
-    uint16_t joyMinY;
-    uint16_t threshMinX;
-    uint16_t threshMinY;
-    uint16_t threshMaxX;
-    uint16_t threshMaxY;
-    uint16_t joyMaxX;
-    uint16_t joyMaxY;
-    uint16_t joyMultXL;
-    uint16_t joyMultYL;
-    uint16_t joyMultXH;
-    uint16_t joyMultYH;
+    std::uint16_t joyMinX;
+    std::uint16_t joyMinY;
+    std::uint16_t threshMinX;
+    std::uint16_t threshMinY;
+    std::uint16_t threshMaxX;
+    std::uint16_t threshMaxY;
+    std::uint16_t joyMaxX;
+    std::uint16_t joyMaxY;
+    std::uint16_t joyMultXL;
+    std::uint16_t joyMultYL;
+    std::uint16_t joyMultXH;
+    std::uint16_t joyMultYH;
 }; // JoystickDef
 
 
@@ -352,7 +352,7 @@ public:
     State::reference operator[](
         ScanCode scan_code)
     {
-        return state_[static_cast<size_t>(scan_code)];
+        return state_[static_cast<std::size_t>(scan_code)];
     }
 
     void reset()
@@ -378,8 +378,8 @@ extern KeyboardDef KbdDefs;
 extern JoystickDef JoyDefs[];
 extern ControlType Controls[MaxPlayers];
 
-extern uint8_t* DemoBuffer;
-extern uint16_t DemoOffset, DemoSize;
+extern std::uint8_t* DemoBuffer;
+extern std::uint16_t DemoOffset, DemoSize;
 
 // Function prototypes
 #ifdef __vita__
@@ -403,16 +403,16 @@ void IN_Default(
 void IN_SetKeyHook(void (*)());
 void IN_ClearKeysDown();
 void IN_ReadCursor(CursorInfo*);
-void IN_ReadControl(int16_t, ControlInfo*);
-void IN_SetControlType(int16_t, ControlType);
-void IN_GetJoyAbs(uint16_t joy, uint16_t * xp, uint16_t * yp);
+void IN_ReadControl(std::int16_t, ControlInfo*);
+void IN_SetControlType(std::int16_t, ControlType);
+void IN_GetJoyAbs(std::uint16_t joy, std::uint16_t * xp, std::uint16_t * yp);
 
 void IN_SetupJoy(
-    uint16_t joy,
-    uint16_t minx,
-    uint16_t maxx,
-    uint16_t miny,
-    uint16_t maxy);
+    std::uint16_t joy,
+    std::uint16_t minx,
+    std::uint16_t maxx,
+    std::uint16_t miny,
+    std::uint16_t maxy);
 
 void IN_StopDemo();
 void IN_FreeDemoBuffer();
@@ -420,16 +420,16 @@ void IN_Ack();
 void IN_AckBack();
 
 extern bool IN_UserInput(
-    uint32_t delay);
+    std::uint32_t delay);
 extern char IN_WaitForASCII();
 extern ScanCode IN_WaitForKey();
-extern uint16_t IN_GetJoyButtonsDB(
-    uint16_t joy);
+extern std::uint16_t IN_GetJoyButtonsDB(
+    std::uint16_t joy);
 extern const std::string& IN_GetScanName(ScanCode);
 
 
-uint8_t IN_MouseButtons();
-uint8_t IN_JoyButtons();
+std::uint8_t IN_MouseButtons();
+std::uint8_t IN_JoyButtons();
 
 
 // BBi

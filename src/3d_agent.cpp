@@ -45,17 +45,17 @@ void StartDamageFlash(
 
 void StartBonusFlash();
 
-int16_t CalcAngle(
+std::int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
 
 void PushWall(
-    int16_t checkx,
-    int16_t checky,
-    int16_t dir);
+    std::int16_t checkx,
+    std::int16_t checky,
+    std::int16_t dir);
 
 void OperateDoor(
-    int16_t door);
+    std::int16_t door);
 
 void TryDropPlasmaDetonator();
 
@@ -67,7 +67,7 @@ void FirstSighting(
     objtype* ob);
 
 void OpenDoor(
-    int16_t door);
+    std::int16_t door);
 
 void DrawTopInfo(
     sp_type type);
@@ -79,10 +79,10 @@ void RunBlakeRun();
 
 #define VW_UpdateScreen() VH_UpdateScreen()
 
-int16_t DrawShape(
-    int16_t x,
-    int16_t y,
-    int16_t shapenum,
+std::int16_t DrawShape(
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t shapenum,
     pisType shapetype);
 
 
@@ -115,7 +115,7 @@ int16_t DrawShape(
 
 // Text "InfoArea" defines
 #define INFOAREA_X (3)
-#define INFOAREA_Y (static_cast<uint16_t>(200) - STATUSLINES + 3)
+#define INFOAREA_Y (static_cast<std::uint16_t>(200) - STATUSLINES + 3)
 #define INFOAREA_W (109)
 #define INFOAREA_H (37)
 
@@ -141,14 +141,14 @@ int16_t DrawShape(
 */
 
 extern bool noShots;
-extern int16_t bounceOk;
+extern std::int16_t bounceOk;
 
-int16_t tryDetonatorDelay = 0;
+std::int16_t tryDetonatorDelay = 0;
 
 //
 // player state info
 //
-int32_t thrustspeed;
+std::int32_t thrustspeed;
 
 // unsigned plux,pluy; // player coordinates scaled to unsigned
 
@@ -160,8 +160,8 @@ bool PlayerInvisable = false;
 
 char LocationText[MAX_LOCATION_DESC_LEN];
 
-uint16_t player_oldtilex;
-uint16_t player_oldtiley;
+std::uint16_t player_oldtilex;
+std::uint16_t player_oldtiley;
 
 // BBi
 extern bstone::MemoryStream g_playtemp;
@@ -187,24 +187,24 @@ void SaveOverheadChunk(
     int tpNum);
 
 void DisplayTeleportName(
-    int8_t tpNum,
+    std::int8_t tpNum,
     bool locked);
 
 void ForceUpdateStatusBar();
 void UpdateRadarGuage();
 
 void DrawLedStrip(
-    int16_t x,
-    int16_t y,
-    int16_t frac,
-    int16_t max);
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t frac,
+    std::int16_t max);
 
 void DisplayPinballBonus();
 
 void CheckPinballBonus(
-    int32_t points);
+    std::int32_t points);
 
-uint8_t LevelCompleted();
+std::uint8_t LevelCompleted();
 
 void T_Player(
     objtype* ob);
@@ -215,7 +215,7 @@ void T_Attack(
 statetype s_player = { 0, 0, 0, &T_Player, nullptr, nullptr };
 statetype s_attack = { 0, 0, 0, &T_Attack, nullptr, nullptr };
 
-int32_t playerxmove, playerymove;
+std::int32_t playerxmove, playerymove;
 
 atkinf_t attackinfo[7][14] = {
     { { 6, 0, 1 }, { 6, 2, 2 }, { 6, 0, 3 }, { 6, -1, 4 } }, // Auto charge
@@ -236,7 +236,7 @@ atkinf_t attackinfo[7][14] = {
 #define YD1 (0x33)
 #define RD1 (0x13)
 
-int8_t DimAmmo[2][22] = {
+std::int8_t DimAmmo[2][22] = {
     { GD0, GD0, GD0, GD0, GD0, GD0, GD0, YD0, YD0, YD0, YD0, YD0, YD0, YD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0, RD0 },
     { GD1, GD1, GD1, GD1, GD1, GD1, GD1, YD1, YD1, YD1, YD1, YD1, YD1, YD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1, RD1 },
 };
@@ -249,7 +249,7 @@ int8_t DimAmmo[2][22] = {
 #define YL1 (0x36)
 #define RL1 (0x16)
 
-int8_t LitAmmo[2][22] = {
+std::int8_t LitAmmo[2][22] = {
     { GL0, GL0, GL0, GL0, GL0, GL0, GL0, YL0, YL0, YL0, YL0, YL0, YL0, YL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0, RL0 },
     { GL1, GL1, GL1, GL1, GL1, GL1, GL1, YL1, YL1, YL1, YL1, YL1, YL1, YL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1, RL1 },
 };
@@ -257,35 +257,35 @@ int8_t LitAmmo[2][22] = {
 #define IA_MAX_LINE (30)
 
 struct InfoArea_Struct {
-    int16_t x, y;
-    int16_t text_color;
-    int16_t backgr_color;
-    int16_t left_margin;
-    int8_t delay;
-    int8_t numanims;
-    int8_t framecount;
+    std::int16_t x, y;
+    std::int16_t text_color;
+    std::int16_t backgr_color;
+    std::int16_t left_margin;
+    std::int8_t delay;
+    std::int8_t numanims;
+    std::int8_t framecount;
 }; // InfoArea_Struct
 
-uint16_t LastMsgPri = 0;
-int16_t MsgTicsRemain = 0;
+std::uint16_t LastMsgPri = 0;
+std::int16_t MsgTicsRemain = 0;
 classtype LastInfoAttacker = nothing;
 
-int16_t LastInfoAttacker_Cloaked = 0;
+std::int16_t LastInfoAttacker_Cloaked = 0;
 
 infomsg_type LastMsgType = MT_NOTHING;
 InfoArea_Struct InfoAreaSetup;
 
-int8_t DrawRadarGuage_COUNT = 3;
-int8_t DrawAmmoNum_COUNT = 3;
-int8_t DrawAmmoPic_COUNT = 3;
-int8_t DrawScoreNum_COUNT = 3;
-int8_t DrawWeaponPic_COUNT = 3;
-int8_t DrawKeyPics_COUNT = 3;
-int8_t DrawHealthNum_COUNT = 3;
+std::int8_t DrawRadarGuage_COUNT = 3;
+std::int8_t DrawAmmoNum_COUNT = 3;
+std::int8_t DrawAmmoPic_COUNT = 3;
+std::int8_t DrawScoreNum_COUNT = 3;
+std::int8_t DrawWeaponPic_COUNT = 3;
+std::int8_t DrawKeyPics_COUNT = 3;
+std::int8_t DrawHealthNum_COUNT = 3;
 
-int8_t DrawInfoArea_COUNT = 3;
-int8_t InitInfoArea_COUNT = 3;
-int8_t ClearInfoArea_COUNT = 3;
+std::int8_t DrawInfoArea_COUNT = 3;
+std::int8_t InitInfoArea_COUNT = 3;
+std::int8_t ClearInfoArea_COUNT = 3;
 
 void DrawWeapon();
 
@@ -293,7 +293,7 @@ void GiveWeapon(
     int weapon);
 
 void GiveAmmo(
-    int16_t ammo);
+    std::int16_t ammo);
 
 void DrawGAmmoNum();
 void DrawMAmmoNum();
@@ -305,18 +305,18 @@ void SW_HandleActor(
 
 void SW_HandleStatic(
     statobj_t* stat,
-    uint16_t tilex,
-    uint16_t tiley);
+    std::uint16_t tilex,
+    std::uint16_t tiley);
 
 // ===========================================================================
 
-uint8_t ShowRatio(
-    int16_t bx,
-    int16_t by,
-    int16_t px,
-    int16_t py,
-    int32_t total,
-    int32_t perc,
+std::uint8_t ShowRatio(
+    std::int16_t bx,
+    std::int16_t by,
+    std::int16_t px,
+    std::int16_t py,
+    std::int32_t total,
+    std::int32_t perc,
     ss_type type);
 
 void Attack();
@@ -329,13 +329,13 @@ void SelectWeapon();
 void SelectItem();
 
 void SpawnPlayer(
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir);
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::int16_t dir);
 
 void Thrust(
-    int16_t angle,
-    int32_t speed);
+    std::int16_t angle,
+    std::int32_t speed);
 
 bool TryMove(
     objtype* ob);
@@ -345,8 +345,8 @@ void T_Player(
 
 bool ClipMove(
     objtype* ob,
-    int32_t xmove,
-    int32_t ymove);
+    std::int32_t xmove,
+    std::int32_t ymove);
 
 void SocketToggle(
     bool TurnOn);
@@ -387,8 +387,8 @@ void CheckWeaponChange()
 		{
 			if (gamestate.useable_weapons & (1 << i))
 			{
-				gamestate.weapon = static_cast<int8_t>(i);
-				gamestate.chosenweapon = static_cast<int8_t>(i);
+				gamestate.weapon = static_cast<std::int8_t>(i);
+				gamestate.chosenweapon = static_cast<std::int8_t>(i);
 
 				DISPLAY_TIMED_MSG(WeaponAvailMsg, MP_WEAPON_AVAIL, MT_GENERAL);
 				DrawWeapon();
@@ -439,13 +439,13 @@ void ControlMovement(
                 if (angle2 < 0) {
                     angle2 += ANGLES;
                 }
-                Thrust(static_cast<int16_t>(angle2), control2x * MOVESCALE); // move to left
+                Thrust(static_cast<std::int16_t>(angle2), control2x * MOVESCALE); // move to left
             } else if (control2x < 0) {
                 int angle2 = ob->angle + ANGLES / 4;
                 if (angle2 >= ANGLES) {
                     angle2 -= ANGLES;
                 }
-                Thrust(static_cast<int16_t>(angle2), -control2x * MOVESCALE); // move to right
+                Thrust(static_cast<std::int16_t>(angle2), -control2x * MOVESCALE); // move to right
             }
     }
 #else
@@ -459,13 +459,13 @@ void ControlMovement(
                 if (angle < 0) {
                     angle += ANGLES;
                 }
-                Thrust(static_cast<int16_t>(angle), controlx * MOVESCALE); // move to left
+                Thrust(static_cast<std::int16_t>(angle), controlx * MOVESCALE); // move to left
             } else if (controlx < 0) {
                 int angle = ob->angle + ANGLES / 4;
                 if (angle >= ANGLES) {
                     angle -= ANGLES;
                 }
-                Thrust(static_cast<int16_t>(angle), -controlx * MOVESCALE); // move to right
+                Thrust(static_cast<std::int16_t>(angle), -controlx * MOVESCALE); // move to right
             }
         }
     } else if (!gamestate.turn_around) {
@@ -482,7 +482,7 @@ void ControlMovement(
             angle -= ANGLES;
         }
 
-        Thrust(static_cast<int16_t>(angle), -abs(strafe_value) * MOVESCALE);
+        Thrust(static_cast<std::int16_t>(angle), -abs(strafe_value) * MOVESCALE);
     }
 #endif
     if (!use_classic_strafe)
@@ -521,7 +521,7 @@ void ControlMovement(
 
             if (gamestate.turn_around > 0)
             {
-                gamestate.turn_around = static_cast<int16_t>(gamestate.turn_around - angleunits);
+                gamestate.turn_around = static_cast<std::int16_t>(gamestate.turn_around - angleunits);
 
                 if (gamestate.turn_around <= 0)
                 {
@@ -530,7 +530,7 @@ void ControlMovement(
             }
             else
             {
-                gamestate.turn_around = static_cast<int16_t>(gamestate.turn_around - angleunits);
+                gamestate.turn_around = static_cast<std::int16_t>(gamestate.turn_around - angleunits);
 
                 if (gamestate.turn_around >= 0)
                 {
@@ -557,7 +557,7 @@ void ControlMovement(
         if (angle >= ANGLES) {
             angle -= ANGLES;
         }
-        Thrust(static_cast<int16_t>(angle), controly * BACKMOVESCALE); // move backwards
+        Thrust(static_cast<std::int16_t>(angle), controly * BACKMOVESCALE); // move backwards
     } else if (bounceOk) {
         bounceOk--;
     }
@@ -595,9 +595,9 @@ static void STATUSDRAWPIC(
 }
 
 void StatusAllDrawPic(
-    uint16_t x,
-    uint16_t y,
-    uint16_t picnum)
+    std::uint16_t x,
+    std::uint16_t y,
+    std::uint16_t picnum)
 {
     ::STATUSDRAWPIC(x, y, picnum);
 }
@@ -612,10 +612,10 @@ void StatusAllDrawPic(
 ===============
 */
 void LatchNumber(
-    int16_t x,
-    int16_t y,
-    int16_t width,
-    int32_t number)
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t width,
+    std::int32_t number)
 {
     auto wide = 0;
     auto number_string = std::to_string(number);
@@ -751,7 +751,7 @@ void DrawHealthMonitor()
 
     for (int i = 0; i < 6; ++i) {
         ::CA_CacheGrChunk(
-            static_cast<int16_t>(ECG_HEARTBEAT_00 + ecg_segments[i]));
+            static_cast<std::int16_t>(ECG_HEARTBEAT_00 + ecg_segments[i]));
 
         ::VWB_DrawPic(
             120 + (i * 8),
@@ -794,7 +794,7 @@ void DrawHealthMonitor()
     }
 
     ::CA_CacheGrChunk(
-        static_cast<int16_t>(heart_picture_index));
+        static_cast<std::int16_t>(heart_picture_index));
 
     ::VWB_DrawPic(
         120,
@@ -882,8 +882,8 @@ void DrawHealthNum()
 	}
 	else
 	{
-		int8_t loop, num;
-		int16_t check = 100;
+		std::int8_t loop, num;
+		std::int16_t check = 100;
 
 		DrawHealthNum_COUNT--;
 
@@ -902,7 +902,7 @@ void DrawHealthNum()
 }
 
 void TakeDamage(
-	int16_t points,
+	std::int16_t points,
 	objtype* attacker)
 {
 	LastAttacker = attacker;
@@ -960,7 +960,7 @@ void TakeDamage(
 }
 
 void HealSelf(
-    int16_t points)
+    std::int16_t points)
 {
     gamestate.health += points;
     if (gamestate.health > 100) {
@@ -990,7 +990,7 @@ void DrawScore()
     DrawScoreNum_COUNT = 3;
 }
 
-extern uint8_t music_num;
+extern std::uint8_t music_num;
 
 
 // --------------------------------------------------------------------------
@@ -1029,7 +1029,7 @@ void DrawScoreNum()
 
 void UpdateScore()
 {
-    int32_t score_diff, temp_tics;
+    std::int32_t score_diff, temp_tics;
 
     score_diff = gamestate.score - gamestate.tic_score;
 
@@ -1066,7 +1066,7 @@ void UpdateScore()
 //
 // --------------------------------------------------------------------------
 void GivePoints(
-    int32_t points,
+    std::int32_t points,
     bool add_to_stats)
 {
 // Add score to statistics.
@@ -1116,18 +1116,18 @@ void DrawKeyPics()
 			0, 1, 3, 2, 4,
 		}; // indices
 
-		static const uint8_t off_colors[NUMKEYS] = {
+		static const std::uint8_t off_colors[NUMKEYS] = {
 			0x11, 0x31, 0x91, 0x51, 0x21,
 		}; // off_colors
 
-		static const uint8_t on_colors[NUMKEYS] = {
+		static const std::uint8_t on_colors[NUMKEYS] = {
 			0xC9, 0xB9, 0x9C, 0x5B, 0x2B,
 		}; // on_colors
 
 		for (auto i = 0; i < NUMKEYS; ++i)
 		{
 			int index = indices[i];
-			uint8_t color = 0;
+			std::uint8_t color = 0;
 
 			if (gamestate.numkeys[index] > 0)
 			{
@@ -1163,14 +1163,14 @@ void DrawKeyPics()
 }
 
 void GiveKey(
-    int16_t key)
+    std::int16_t key)
 {
     gamestate.numkeys[key]++;
     DrawKeys();
 }
 
 void TakeKey(
-    int16_t key)
+    std::int16_t key)
 {
     gamestate.numkeys[key]--;
     DrawKeys();
@@ -1225,8 +1225,8 @@ void GiveWeapon(
 
         if (::gamestate.weapon < weapon)
         {
-            ::gamestate.weapon = static_cast<int8_t>(weapon);
-            ::gamestate.chosenweapon = static_cast<int8_t>(weapon);
+            ::gamestate.weapon = static_cast<std::int8_t>(weapon);
+            ::gamestate.chosenweapon = static_cast<std::int8_t>(weapon);
             ::DrawWeapon();
         }
 
@@ -1254,8 +1254,8 @@ void GiveWeapon(
 void DrawAmmo(
     bool ForceRefresh)
 {
-    int16_t temp;
-    uint16_t ammo, max_ammo;
+    std::int16_t temp;
+    std::uint16_t ammo, max_ammo;
 
     ComputeAvailWeapons();
 
@@ -1284,10 +1284,10 @@ void DrawAmmo(
         temp = 0;
     }
 
-    gamestate.ammo_leds = static_cast<int8_t>(temp);
+    gamestate.ammo_leds = static_cast<std::int8_t>(temp);
 
     if ((temp != gamestate.lastammo_leds) || ForceRefresh) {
-        gamestate.lastammo_leds = static_cast<int8_t>(temp);
+        gamestate.lastammo_leds = static_cast<std::int8_t>(temp);
         DrawAmmoPic_COUNT = 3;
     }
 
@@ -1380,7 +1380,7 @@ void DrawPDAmmoMsg()
 void UpdateAmmoMsg()
 {
     if (gamestate.weapon_wait) {
-        if ((gamestate.weapon_wait -= static_cast<int8_t>(tics)) <= 0) {
+        if ((gamestate.weapon_wait -= static_cast<std::int8_t>(tics)) <= 0) {
             gamestate.weapon_wait = 0;
             DrawAmmoPic_COUNT = 3;
         }
@@ -1396,10 +1396,10 @@ void DrawAmmoGuage()
 
 void UpdateRadarGuage()
 {
-    int16_t temp;
+    std::int16_t temp;
 
     if (gamestate.rpower) {
-        temp = ((int32_t)gamestate.rpower * NUM_AMMO_SEGS) / MAX_RADAR_ENERGY;
+        temp = ((std::int32_t)gamestate.rpower * NUM_AMMO_SEGS) / MAX_RADAR_ENERGY;
 
         if (temp > NUM_AMMO_SEGS) {
             temp = NUM_AMMO_SEGS;
@@ -1412,10 +1412,10 @@ void UpdateRadarGuage()
         temp = 0;
     }
 
-    gamestate.radar_leds = static_cast<int8_t>(temp);
+    gamestate.radar_leds = static_cast<std::int8_t>(temp);
 
     if (temp != gamestate.lastradar_leds) {
-        gamestate.lastradar_leds = static_cast<int8_t>(temp);
+        gamestate.lastradar_leds = static_cast<std::int8_t>(temp);
     }
 
     DrawRadarGuage_COUNT = 3;
@@ -1429,7 +1429,7 @@ void DrawRadarGuage()
         return;
     }
 
-    int8_t zoom;
+    std::int8_t zoom;
 
     DrawLedStrip(235, 155, gamestate.radar_leds, NUM_AMMO_SEGS);
 
@@ -1443,16 +1443,16 @@ void DrawRadarGuage()
 }
 
 void DrawLedStrip(
-    int16_t x,
-    int16_t y,
-    int16_t frac,
-    int16_t max)
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t frac,
+    std::int16_t max)
 {
-    int16_t ypos;
-    uint16_t amount;
-    int8_t leds;
+    std::int16_t ypos;
+    std::uint16_t amount;
+    std::int8_t leds;
 
-    leds = static_cast<int8_t>(frac);
+    leds = static_cast<std::int8_t>(frac);
 
     if (leds) {
         amount = max - leds;
@@ -1480,7 +1480,7 @@ void DrawLedStrip(
 }
 
 void GiveAmmo(
-    int16_t ammo)
+    std::int16_t ammo)
 {
 
 #if MP_NO_MORE_AMMO > MP_BONUS
@@ -1572,7 +1572,7 @@ void ComputeAvailWeapons()
 }
 
 void TakePlasmaDetonator(
-    int16_t count)
+    std::int16_t count)
 {
     if (gamestate.plasma_detonators < count) {
         gamestate.plasma_detonators = 0;
@@ -1582,7 +1582,7 @@ void TakePlasmaDetonator(
 }
 
 void GivePlasmaDetonator(
-    int16_t count)
+    std::int16_t count)
 {
     gamestate.plasma_detonators += count;
 
@@ -1594,7 +1594,7 @@ void GivePlasmaDetonator(
 }
 
 void GiveToken(
-    int16_t tokens)
+    std::int16_t tokens)
 {
 #if MP_NO_MORE_TOKENS > MP_BONUS
     if (LastMsgType == MT_NO_MO_FOOD_TOKENS) {
@@ -1631,8 +1631,8 @@ void GiveToken(
 bool DisplayInfoMsg(
     const std::string& Msg,
     msg_priorities Priority,
-    int16_t DisplayTime,
-    int16_t MsgType)
+    std::int16_t DisplayTime,
+    std::int16_t MsgType)
 {
     if (Msg.empty()) {
         return false;
@@ -1648,8 +1648,8 @@ bool DisplayInfoMsg(
 bool DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
-    int16_t DisplayTime,
-    int16_t MsgType)
+    std::int16_t DisplayTime,
+    std::int16_t MsgType)
 {
     if (Priority >= LastMsgPri) {
 		const auto& assets_info = AssetsInfo{};
@@ -1657,7 +1657,7 @@ bool DisplayInfoMsg(
         if (Priority == MP_max_val) { // "System" msgs
             LastMsgPri = MP_min_val;
         } else {
-            LastMsgPri = static_cast<uint16_t>(Priority);
+            LastMsgPri = static_cast<std::uint16_t>(Priority);
         }
 
         if ((MsgTicsRemain = DisplayTime) != 0) {
@@ -1841,7 +1841,7 @@ char* HandleControlCodes(
 
 void DrawInfoArea()
 {
-    const int16_t IA_FONT_HEIGHT = 6;
+    const std::int16_t IA_FONT_HEIGHT = 6;
 
     char* first_ch;
     char* scan_ch, temp;
@@ -1863,7 +1863,7 @@ void DrawInfoArea()
     first_ch = &buffer[0];
 
     fontnumber = 2;
-    fontcolor = static_cast<uint8_t>(InfoAreaSetup.text_color);
+    fontcolor = static_cast<std::uint8_t>(InfoAreaSetup.text_color);
 
     while (first_ch && *first_ch) {
 
@@ -1881,7 +1881,7 @@ void DrawInfoArea()
             *scan_ch = 0;
 
             if (*first_ch != TP_RETURN_CHAR) {
-                int8_t temp_color;
+                std::int8_t temp_color;
 
                 temp_color = fontcolor;
                 fontcolor = INFOAREA_TSHAD_COLOR;
@@ -1926,7 +1926,7 @@ char* HandleControlCodes(
 {
     piShapeInfo* shape;
     piAnimInfo* anim;
-    uint16_t shapenum;
+    std::uint16_t shapenum;
 
     first_ch++;
 
@@ -1935,7 +1935,7 @@ char* HandleControlCodes(
     *(first_ch + 1) = toupper(*(first_ch + 1));
 #endif
 
-    uint16_t code = *reinterpret_cast<const uint16_t*>(first_ch);
+    std::uint16_t code = *reinterpret_cast<const std::uint16_t*>(first_ch);
     first_ch += 2;
 
     switch (code) {
@@ -1973,7 +1973,7 @@ char* HandleControlCodes(
     //
     case TP_CNVT_CODE('F', 'C'):
         InfoAreaSetup.text_color = TP_VALUE(first_ch, 2);
-        fontcolor = static_cast<uint8_t>(TP_VALUE(first_ch, 2));
+        fontcolor = static_cast<std::uint8_t>(TP_VALUE(first_ch, 2));
         first_ch += 2;
         break;
 
@@ -2007,14 +2007,14 @@ char* HandleControlCodes(
 
 }
 
-int16_t DrawShape(
-    int16_t x,
-    int16_t y,
-    int16_t shapenum,
+std::int16_t DrawShape(
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t shapenum,
     pisType shapetype)
 {
-    int16_t width = 0;
-    uint16_t shade;
+    std::int16_t width = 0;
+    std::uint16_t shade;
 
     //
     // If Image is Cloaked... Shade the image
@@ -2026,7 +2026,7 @@ int16_t DrawShape(
 
     switch (shapetype) {
     case pis_scaled:
-        VW_Bar(x, y, 37, 37, static_cast<uint8_t>(InfoAreaSetup.backgr_color)); // JTR changed
+        VW_Bar(x, y, 37, 37, static_cast<std::uint8_t>(InfoAreaSetup.backgr_color)); // JTR changed
         ::vid_draw_ui_sprite(shapenum, x + 19, y + 20, 37);
         width = 37;
         break;
@@ -2184,7 +2184,7 @@ void ForceUpdateStatusBar()
 ===================
 */
 
-uint16_t static_points[] = { 100, // money bag
+std::uint16_t static_points[] = { 100, // money bag
                            500, // loot
                            250, // gold1
                            500, // gold2
@@ -2193,7 +2193,7 @@ uint16_t static_points[] = { 100, // money bag
                            5000 // bonus
 };
 
-using StaticHealthTable = std::vector<std::array<int16_t, 3>>;
+using StaticHealthTable = std::vector<std::array<std::int16_t, 3>>;
 
 StaticHealthTable static_health;
 
@@ -2218,7 +2218,7 @@ void GetBonus(
     statobj_t* check)
 {
     bool givepoints = false;
-    int16_t shapenum = -1;
+    std::int16_t shapenum = -1;
 
     switch (check->itemnumber) {
     case bo_red_key:
@@ -2229,7 +2229,7 @@ void GetBonus(
         {
 			const auto& assets_info = AssetsInfo{};
 
-            uint16_t keynum = 0;
+            std::uint16_t keynum = 0;
 
             if (assets_info.is_aog()) {
                 switch (check->itemnumber) {
@@ -2327,7 +2327,7 @@ void GetBonus(
         break;
 
     case bo_clip2: {
-        uint8_t ammo;
+        std::uint8_t ammo;
 
         if (gamestate.ammo == MAX_AMMO) {
             return;
@@ -2436,9 +2436,9 @@ void writeTokenStr(
 bool TryMove(
     objtype* ob)
 {
-    int16_t xl, yl, xh, yh, x, y, xx, yy;
+    std::int16_t xl, yl, xh, yh, x, y, xx, yy;
     objtype* check;
-    int32_t deltax, deltay;
+    std::int32_t deltax, deltay;
 
     if (ob == player) {
         xl = (ob->x - PLAYERSIZE) >> TILESHIFT;
@@ -2524,10 +2524,10 @@ bool TryMove(
 */
 bool ClipMove(
     objtype* ob,
-    int32_t xmove,
-    int32_t ymove)
+    std::int32_t xmove,
+    std::int32_t ymove)
 {
-    int32_t basex, basey;
+    std::int32_t basex, basey;
 
     basex = ob->x;
     basey = ob->y;
@@ -2575,15 +2575,15 @@ bool ClipMove(
 ===================
 */
 void Thrust(
-    int16_t angle,
-    int32_t speed)
+    std::int16_t angle,
+    std::int32_t speed)
 {
-    extern uint8_t TravelTable[MAPSIZE][MAPSIZE];
+    extern std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
     objtype dumb;
-    int32_t xmove, ymove;
-    uint16_t offset, * map[2];
-    int16_t dx, dy;
-    int16_t dangle;
+    std::int32_t xmove, ymove;
+    std::uint16_t offset, * map[2];
+    std::int16_t dx, dy;
+    std::int16_t dangle;
     bool ignore_map1;
 
     thrustspeed += speed;
@@ -2601,8 +2601,8 @@ void Thrust(
 
     player_oldtilex = player->tilex;
     player_oldtiley = player->tiley;
-    player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
-    player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
+    player->tilex = static_cast<std::uint8_t>(player->x >> TILESHIFT); // scale to tile values
+    player->tiley = static_cast<std::uint8_t>(player->y >> TILESHIFT);
 
     player->areanumber = GetAreaNumber(player->tilex, player->tiley);
     areabyplayer[player->areanumber] = true;
@@ -2630,14 +2630,14 @@ void Thrust(
     case SMART_ON_TRIGGER:
         dx = *map[1] >> 8;
         dy = *map[1] & 255;
-        OperateSmartSwitch(dx, dy, static_cast<int8_t>((*map[0]) - SMART_OFF_TRIGGER), false);
+        OperateSmartSwitch(dx, dy, static_cast<std::int8_t>((*map[0]) - SMART_OFF_TRIGGER), false);
         ignore_map1 = true;
         break;
 
     case WINTIGGERTILE:
         playstate = ex_victorious;
-        dumb.x = ((int32_t)gamestate.wintilex << TILESHIFT) + TILEGLOBAL / 2;
-        dumb.y = ((int32_t)gamestate.wintiley << TILESHIFT) + TILEGLOBAL / 2;
+        dumb.x = ((std::int32_t)gamestate.wintilex << TILESHIFT) + TILEGLOBAL / 2;
+        dumb.y = ((std::int32_t)gamestate.wintiley << TILESHIFT) + TILEGLOBAL / 2;
         dumb.flags = 0;
         dangle = CalcAngle(player, &dumb);
         RotateView(dangle, 2);
@@ -2671,7 +2671,7 @@ void Thrust(
 
 bool GAN_HiddenArea;
 
-int8_t GetAreaNumber(
+std::int8_t GetAreaNumber(
     int tilex,
     int tiley)
 {
@@ -2736,8 +2736,8 @@ int8_t GetAreaNumber(
     return areanumber;
 }
 
-uint8_t ValidAreaTile(
-    const uint16_t* ptr)
+std::uint8_t ValidAreaTile(
+    const std::uint16_t* ptr)
 {
     switch (*ptr) {
     case AREATILE:
@@ -2753,7 +2753,7 @@ uint8_t ValidAreaTile(
 
     default:
         if (*ptr > AREATILE) {
-            return static_cast<uint8_t>(*ptr);
+            return static_cast<std::uint8_t>(*ptr);
         }
         break;
     }
@@ -2797,12 +2797,12 @@ void Cmd_Use(
     play_hit_wall_sound = false;
 
 
-    int16_t checkx;
-    int16_t checky;
-    int16_t door_index;
-    int16_t dir;
-    uint16_t iconnum;
-    uint8_t static interrogate_delay = 0;
+    std::int16_t checkx;
+    std::int16_t checky;
+    std::int16_t door_index;
+    std::int16_t dir;
+    std::uint16_t iconnum;
+    std::uint8_t static interrogate_delay = 0;
 
     bool tryDetonator = false;
 
@@ -2853,10 +2853,10 @@ void Cmd_Use(
             // Test for 'display elevator buttons'
             //
             case TRANSPORTERTILE: {
-                int16_t new_floor;
+                std::int16_t new_floor;
 
                 if ((new_floor = InputFloor()) != -1 && new_floor != gamestate.mapon) {
-                    int16_t angle = player->angle;
+                    std::int16_t angle = player->angle;
 
                     gamestuff.level[gamestate.mapon].ptilex = player->tilex;
                     gamestuff.level[gamestate.mapon].ptiley = player->tiley;
@@ -2899,7 +2899,7 @@ void Cmd_Use(
                             }
 
                             gamestuff.level[gamestate.mapon + 1].pangle =
-                                static_cast<int16_t>(angle);
+                                static_cast<std::int16_t>(angle);
                         }
 #else
                         gamestuff.level[gamestate.mapon + 1].pangle = 0;
@@ -2916,8 +2916,8 @@ void Cmd_Use(
 
                     player->tilex = (iconnum >> 8);
                     player->tiley = iconnum & 0xff;
-                    player->x = ((int32_t)player->tilex << TILESHIFT) + TILEGLOBAL / 2;
-                    player->y = ((int32_t)player->tiley << TILESHIFT) + TILEGLOBAL / 2;
+                    player->x = ((std::int32_t)player->tilex << TILESHIFT) + TILEGLOBAL / 2;
+                    player->y = ((std::int32_t)player->tiley << TILESHIFT) + TILEGLOBAL / 2;
 
                     DrawWarpIn();
                     break;
@@ -2938,7 +2938,7 @@ void Cmd_Use(
 
             case FOODTILE:
             case SODATILE:
-                OperateConcession(static_cast<uint16_t>(reinterpret_cast<size_t>(actorat[checkx][checky])));
+                OperateConcession(static_cast<std::uint16_t>(reinterpret_cast<std::size_t>(actorat[checkx][checky])));
                 break;
 
             default:
@@ -2950,12 +2950,12 @@ void Cmd_Use(
         }
     } else if (!interrogate_delay) {
         const int INTERROGATEDIST = MINACTORDIST;
-        const int8_t MDIST = 2;
-        const int16_t INTG_ANGLE = 45;
+        const std::int8_t MDIST = 2;
+        const std::int16_t INTG_ANGLE = 45;
 
-        int8_t x, y;
+        std::int8_t x, y;
         objtype* intg_ob = nullptr, * ob;
-        int32_t dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
+        std::int32_t dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
 
         for (y = -MDIST; y < MDIST + 1; y++) {
             for (x = -MDIST; x < MDIST + 1; x++) {
@@ -2986,7 +2986,7 @@ void Cmd_Use(
                     if ((ob->flags & FL_ATTACKMODE) != 0) {
                         ob->flags &= ~(FL_FRIENDLY | FL_INFORMANT);
                     } else {
-                        int16_t angle = CalcAngle(player, ob);
+                        std::int16_t angle = CalcAngle(player, ob);
 
                         angle = ABS(player->angle - angle);
                         if (angle > INTG_ANGLE / 2) {
@@ -3011,7 +3011,7 @@ void Cmd_Use(
         }
     } else {
         if (tics < interrogate_delay) {
-            interrogate_delay -= static_cast<uint8_t>(tics);
+            interrogate_delay -= static_cast<std::uint8_t>(tics);
         } else {
             interrogate_delay = 0;
         }
@@ -3049,8 +3049,8 @@ const int MSG_BUFFER_LEN = 150;
 char msg[MSG_BUFFER_LEN + 1];
 
 char* InfAreaMsgs[MAX_INF_AREA_MSGS];
-uint8_t NumAreaMsgs, LastInfArea;
-int16_t FirstGenInfMsg, TotalGenInfMsgs;
+std::uint8_t NumAreaMsgs, LastInfArea;
+std::int16_t FirstGenInfMsg, TotalGenInfMsgs;
 
 scientist_t InfHintList; // Informant messages
 scientist_t NiceSciList; // Non-informant, non-pissed messages
@@ -3118,12 +3118,12 @@ bool Interrogate(
                 }
                 ob->ammo = ob->areanumber;
                 if (ob->s_tilex == 0xFF) {
-                    ob->s_tilex = static_cast<uint8_t>(Random(NumAreaMsgs));
+                    ob->s_tilex = static_cast<std::uint8_t>(Random(NumAreaMsgs));
                 }
                 msgptr = InfAreaMsgs[ob->s_tilex];
             } else {
                 if (ob->s_tiley == 0xff) {
-                    ob->s_tiley = static_cast<uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
+                    ob->s_tiley = static_cast<std::uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
                 }
                 msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
             }
@@ -3191,7 +3191,7 @@ const int TOV_X = 16;
 const int TOV_Y = 132;
 
 
-int16_t InputFloor()
+std::int16_t InputFloor()
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -3225,17 +3225,17 @@ int16_t InputFloor()
         ::BevelBox(
             0,
             ::ref_top_bar_height,
-            static_cast<int16_t>(::vga_ref_width),
-            static_cast<int16_t>(outer_height),
+            static_cast<std::int16_t>(::vga_ref_width),
+            static_cast<std::int16_t>(outer_height),
             BORDER_HI_COLOR,
             BORDER_MED_COLOR,
             BORDER_LO_COLOR);
 
         ::BevelBox(
-            static_cast<int16_t>(border_width),
-            static_cast<int16_t>(::ref_top_bar_height + border_height),
-            static_cast<int16_t>(::vga_ref_width - (2 * border_width)),
-            static_cast<int16_t>(outer_height - (2 * border_height)),
+            static_cast<std::int16_t>(border_width),
+            static_cast<std::int16_t>(::ref_top_bar_height + border_height),
+            static_cast<std::int16_t>(::vga_ref_width - (2 * border_width)),
+            static_cast<std::int16_t>(outer_height - (2 * border_height)),
             BORDER_LO_COLOR,
             BORDER_MED_COLOR,
             BORDER_HI_COLOR);
@@ -3433,17 +3433,17 @@ int16_t InputFloor()
 
         ::IN_ClearKeysDown();
 
-        return static_cast<int16_t>(result);
+        return static_cast<std::int16_t>(result);
     } else {
         const auto RADAR_FLAGS = OV_KEYS;
         const auto MAX_TELEPORTS = 20;
-        const int8_t MAX_MOVE_DELAY = 10;
+        const std::int8_t MAX_MOVE_DELAY = 10;
 
-        int16_t buttonPic, buttonY;
-        int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
-        int16_t teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
-        int16_t teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
-        int8_t moveActive = 0;
+        std::int16_t buttonPic, buttonY;
+        std::int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
+        std::int16_t teleX[MAX_TELEPORTS] = { 16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276 };
+        std::int16_t teleY[MAX_TELEPORTS] = { 13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30 };
+        std::int8_t moveActive = 0;
         objtype old_player;
         bool locked = false;
         bool buttonsDrawn = false;
@@ -3453,13 +3453,13 @@ int16_t InputFloor()
 
         CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
         CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
-        DisplayTeleportName(static_cast<int8_t>(tpNum), locked);
+        DisplayTeleportName(static_cast<std::int8_t>(tpNum), locked);
         CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
         VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
         memcpy(&old_player, player, sizeof(objtype));
         player->angle = 90;
-        player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
+        player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
         ov_buffer.resize(4096);
 
@@ -3501,7 +3501,7 @@ int16_t InputFloor()
             if (Keyboard[ScanCode::sc_escape] || buttonstate[bt_strafe]) {
                 rt_code = -1; // ABORT
 
-                LoadLocationText(static_cast<int16_t>(
+                LoadLocationText(static_cast<std::int16_t>(
                     gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
                 break;
             } else if (Keyboard[ScanCode::sc_return] || buttonstate[bt_attack]) {
@@ -3510,7 +3510,7 @@ int16_t InputFloor()
                         ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
                     }
                 } else {
-                    int8_t loop;
+                    std::int8_t loop;
 
                     rt_code = tpNum; // ACCEPT
 
@@ -3535,7 +3535,7 @@ int16_t InputFloor()
             // Handle delay
             //
             if (moveActive) {
-                moveActive -= static_cast<int8_t>(tics);
+                moveActive -= static_cast<std::int8_t>(tics);
                 if (moveActive < 0) {
                     moveActive = 0;
                 }
@@ -3588,7 +3588,7 @@ int16_t InputFloor()
             //
             if (tpNum != lastTpNum) {
                 locked = gamestuff.level[tpNum].locked;
-                DisplayTeleportName(static_cast<int8_t>(tpNum), locked);
+                DisplayTeleportName(static_cast<std::int8_t>(tpNum), locked);
 
                 VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
                 VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
@@ -3660,7 +3660,7 @@ void LoadOverheadChunk(
     if (::FindChunk(&g_playtemp, chunk_name) > 0) {
         try {
             ::deserialize_field(
-                reinterpret_cast<uint8_t(&)[4096]>(ov_buffer[0]),
+                reinterpret_cast<std::uint8_t(&)[4096]>(ov_buffer[0]),
                 reader, checksum);
         } catch (const ArchiveException&) {
             is_succeed = false;
@@ -3669,7 +3669,7 @@ void LoadOverheadChunk(
         ov_stats.deserialize(reader, checksum);
 
 		const auto& endian = bstone::Endian{};
-        uint32_t saved_checksum = 0;
+        std::uint32_t saved_checksum = 0;
         is_succeed &= reader.read(saved_checksum);
 		endian.little_i(saved_checksum);
         is_succeed &= (saved_checksum == checksum.get_value());
@@ -3684,7 +3684,7 @@ void LoadOverheadChunk(
             0x52);
 
         std::uninitialized_fill_n(
-            reinterpret_cast<uint8_t*>(&ov_stats),
+            reinterpret_cast<std::uint8_t*>(&ov_stats),
             sizeof(statsInfoType),
             0);
     }
@@ -3718,22 +3718,22 @@ void SaveOverheadChunk(
 
 	const auto& endian = bstone::Endian{};
 
-    int64_t beg_offset = g_playtemp.get_position();
+    std::int64_t beg_offset = g_playtemp.get_position();
 
     ::serialize_field(
-        reinterpret_cast<const uint8_t(&)[4096]>(ov_buffer[0]),
+        reinterpret_cast<const std::uint8_t(&)[4096]>(ov_buffer[0]),
         writer, checksum);
     ov_stats.serialize(writer, checksum);
     writer.write(endian.little(checksum.get_value()));
 
-    int64_t end_offset = g_playtemp.get_position();
-    int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
+    std::int64_t end_offset = g_playtemp.get_position();
+    std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
     g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
     writer.write(endian.little(chunk_size));
 }
 
 void DisplayTeleportName(
-    int8_t tpNum,
+    std::int8_t tpNum,
     bool locked)
 {
     const char* s;
@@ -3750,7 +3750,7 @@ void DisplayTeleportName(
     }
     VW_MeasurePropString(s, &w, &h);
     py = 103;
-    px = static_cast<int16_t>(160 - w / 2);
+    px = static_cast<std::int16_t>(160 - w / 2);
     VW_Bar(54, 101, 212, 9, 0x52);
     ShPrint(s, 0, false);
 }
@@ -3760,9 +3760,9 @@ void CacheDrawPic(
     int y,
     int pic)
 {
-    CA_CacheGrChunk(static_cast<int16_t>(pic));
+    CA_CacheGrChunk(static_cast<std::int16_t>(pic));
     VWB_DrawPic(x, y, pic);
-    UNCACHEGRCHUNK(static_cast<uint16_t>(pic));
+    UNCACHEGRCHUNK(static_cast<std::uint16_t>(pic));
 }
 
 
@@ -3781,13 +3781,13 @@ const int PERC_H = 5;
 bool show_stats_quick;
 
 
-int16_t ShowStats(
-    int16_t bx,
-    int16_t by,
+std::int16_t ShowStats(
+    std::int16_t bx,
+    std::int16_t by,
     ss_type type,
     statsInfoType* stats)
 {
-    int16_t floor, total = 0, mission = 0, p1, p2, p3, loop, maxPerFloor;
+    std::int16_t floor, total = 0, mission = 0, p1, p2, p3, loop, maxPerFloor;
 
 // Define max points per floor...
 //
@@ -3852,23 +3852,23 @@ int16_t ShowStats(
     return mission;
 }
 
-uint8_t ShowRatio(
-    int16_t bx,
-    int16_t by,
-    int16_t nx,
-    int16_t ny,
-    int32_t total,
-    int32_t perc,
+std::uint8_t ShowRatio(
+    std::int16_t bx,
+    std::int16_t by,
+    std::int16_t nx,
+    std::int16_t ny,
+    std::int32_t total,
+    std::int32_t perc,
     ss_type type)
 {
-    int8_t numbars;
-    int8_t maxperc;
-    int8_t percentage = 1, loop;
+    std::int8_t numbars;
+    std::int8_t maxperc;
+    std::int8_t percentage = 1, loop;
 
 // Catch those nasty divide-by-zeros!
 //
     if (total) {
-        maxperc = static_cast<int8_t>(LRATIO(100, total, perc, 10));
+        maxperc = static_cast<std::int8_t>(LRATIO(100, total, perc, 10));
         numbars = LRATIO(48, 100, maxperc, 10);
     } else {
         if (type != ss_justcalc) {
@@ -3932,9 +3932,9 @@ uint8_t ShowRatio(
 }
 
 void PrintStatPercent(
-    int16_t nx,
-    int16_t ny,
-    int8_t percentage)
+    std::int16_t nx,
+    std::int16_t ny,
+    std::int8_t percentage)
 {
     if (percentage < 10) {
         PrintX = nx + 9;
@@ -4051,11 +4051,11 @@ PinballBonusInfo PinballBonus[] = {
 
 void DisplayPinballBonus()
 {
-    int8_t loop;
+    std::int8_t loop;
 
 // Check queue for bonuses
 //
-    for (loop = 0; loop < static_cast<int8_t>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++) {
+    for (loop = 0; loop < static_cast<std::int8_t>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++) {
         if ((BONUS_QUEUE & (1 << loop)) && (LastMsgPri < MP_PINBALL_BONUS)) {
             // Start this bonus!
             //
@@ -4081,9 +4081,9 @@ void DisplayPinballBonus()
 }
 
 void CheckPinballBonus(
-    int32_t points)
+    std::int32_t points)
 {
-    int32_t score_before = gamestate.score,
+    std::int32_t score_before = gamestate.score,
            score_after = gamestate.score + points;
 
 // Check SCORE ROLLED bonus
@@ -4152,9 +4152,9 @@ void CheckPinballBonus(
 */
 
 void SpawnPlayer(
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir)
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::int16_t dir)
 {
     if (gamestuff.level[gamestate.mapon].ptilex &&
         gamestuff.level[gamestate.mapon].ptiley)
@@ -4172,13 +4172,13 @@ void SpawnPlayer(
 
     player->obclass = playerobj;
     player->active = ac_yes;
-    player->tilex = static_cast<uint8_t>(tilex);
-    player->tiley = static_cast<uint8_t>(tiley);
+    player->tilex = static_cast<std::uint8_t>(tilex);
+    player->tiley = static_cast<std::uint8_t>(tiley);
 
     player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 
-    player->x = ((int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
-    player->y = ((int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
+    player->x = ((std::int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
+    player->y = ((std::int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
     player->state = &s_player;
     player->angle = (1 - dir) * 90;
     if (player->angle < 0) {
@@ -4196,9 +4196,9 @@ void GunAttack(
     objtype* ob)
 {
     objtype* check, * closest, * oldclosest;
-    int16_t damage;
-    int16_t dx, dy, dist;
-    int32_t viewdist;
+    std::int16_t damage;
+    std::int16_t dx, dy, dist;
+    std::int32_t viewdist;
     bool skip = false;
 
     if (gamestate.weapon != wp_autocharge) {
@@ -4273,8 +4273,8 @@ void GunAttack(
     // hit something
     //
 
-    dx = static_cast<int16_t>(abs(closest->tilex - player->tilex));
-    dy = static_cast<int16_t>(abs(closest->tiley - player->tiley));
+    dx = static_cast<std::int16_t>(abs(closest->tilex - player->tilex));
+    dy = static_cast<std::int16_t>(abs(closest->tiley - player->tiley));
     dist = dx > dy ? dx : dy;
 
     if (dist < 2) {
@@ -4295,7 +4295,7 @@ void T_Attack(
     objtype* ob)
 {
     atkinf_t* cur;
-    int16_t x;
+    std::int16_t x;
 
     if (noShots) {
         ob->state = &s_player;
@@ -4317,8 +4317,8 @@ void T_Attack(
 
     ControlMovement(ob);
 
-    player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
-    player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
+    player->tilex = static_cast<std::uint8_t>(player->x >> TILESHIFT); // scale to tile values
+    player->tiley = static_cast<std::uint8_t>(player->y >> TILESHIFT);
 
 //
 // change frame and fire
@@ -4353,11 +4353,11 @@ void T_Attack(
             if (!gamestate.plasma_detonators) {
                 // Check to see what weapons are possible.
                 //
-                const auto n_x = static_cast<int16_t>(assets_info.is_ps() ? wp_bfg_cannon : wp_grenade);
+                const auto n_x = static_cast<std::int16_t>(assets_info.is_ps() ? wp_bfg_cannon : wp_grenade);
 
                 for (x = n_x; x >= wp_autocharge; x--) {
                     if (gamestate.useable_weapons & (1 << x)) {
-                        gamestate.weapon = static_cast<int8_t>(x);
+                        gamestate.weapon = static_cast<std::int8_t>(x);
                         break;
                     }
                 }
@@ -4548,8 +4548,8 @@ void T_Player(
     ControlMovement(ob);
     HandleWeaponBounce();
 
-    player->tilex = static_cast<uint8_t>(player->x >> TILESHIFT); // scale to tile values
-    player->tiley = static_cast<uint8_t>(player->y >> TILESHIFT);
+    player->tilex = static_cast<std::uint8_t>(player->x >> TILESHIFT); // scale to tile values
+    player->tiley = static_cast<std::uint8_t>(player->y >> TILESHIFT);
 }
 
 void RunBlakeRun()
@@ -4558,13 +4558,13 @@ void RunBlakeRun()
 
     const fixed BLAKE_SPEED = MOVESCALE * 50;
 
-    int32_t xmove, ymove;
+    std::int32_t xmove, ymove;
     objtype* blake;
-    int16_t startx, starty, dx, dy;
+    std::int16_t startx, starty, dx, dy;
 
 // Spawn Blake and set pointer.
 //
-    SpawnPatrol(en_blake, player->tilex, player->tiley, static_cast<int16_t>(player->dir >> 1));
+    SpawnPatrol(en_blake, player->tilex, player->tiley, static_cast<std::int16_t>(player->dir >> 1));
     blake = new_actor;
 
 // Blake object starts one tile behind player object.
@@ -4592,11 +4592,11 @@ void RunBlakeRun()
 
 // Align Blake on the middle of the tile.
 //
-    blake->x = ((int32_t)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
-    blake->y = ((int32_t)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
-    blake->tilex = static_cast<uint8_t>(blake->x >> TILESHIFT);
+    blake->x = ((std::int32_t)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
+    blake->y = ((std::int32_t)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
+    blake->tilex = static_cast<std::uint8_t>(blake->x >> TILESHIFT);
     startx = blake->tilex;
-    blake->tiley = static_cast<uint8_t>(blake->y >> TILESHIFT);
+    blake->tiley = static_cast<std::uint8_t>(blake->y >> TILESHIFT);
     starty = blake->tiley;
 
 // Run, Blake, Run!
@@ -4617,8 +4617,8 @@ void RunBlakeRun()
 
         // Calc new tile X/Y.
         //
-        blake->tilex = static_cast<uint8_t>(blake->x >> TILESHIFT);
-        blake->tiley = static_cast<uint8_t>(blake->y >> TILESHIFT);
+        blake->tilex = static_cast<std::uint8_t>(blake->x >> TILESHIFT);
+        blake->tiley = static_cast<std::uint8_t>(blake->y >> TILESHIFT);
 
         // Evaluate distance from start.
         //
@@ -4713,8 +4713,8 @@ void SW_HandleActor(
 // -------------------------------------------------------------------------
 void SW_HandleStatic(
     statobj_t* stat,
-    uint16_t tilex,
-    uint16_t tiley)
+    std::uint16_t tilex,
+    std::uint16_t tiley)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -4747,9 +4747,9 @@ void SW_HandleStatic(
 //
 // -------------------------------------------------------------------------
 bool OperateSmartSwitch(
-    uint16_t tilex,
-    uint16_t tiley,
-    int8_t Operation,
+    std::uint16_t tilex,
+    std::uint16_t tiley,
+    std::int8_t Operation,
     bool Force)
 {
     enum what_is_it {
@@ -4763,8 +4763,8 @@ bool OperateSmartSwitch(
     what_is_it WhatItIs;
     objtype* obj;
     statobj_t* stat = nullptr;
-    uint8_t tile, DoorNum = 0;
-    uint16_t iconnum;
+    std::uint8_t tile, DoorNum = 0;
+    std::uint16_t iconnum;
 
     //
     // Get some information about what
@@ -4907,18 +4907,18 @@ bool OperateSmartSwitch(
 //
 // ==========================================================================
 
-#define wb_MaxPoint ((int32_t)10 << TILESHIFT)
-#define wb_MidPoint ((int32_t)6 << TILESHIFT)
-#define wb_MinPoint ((int32_t)2 << TILESHIFT)
+#define wb_MaxPoint ((std::int32_t)10 << TILESHIFT)
+#define wb_MidPoint ((std::int32_t)6 << TILESHIFT)
+#define wb_MinPoint ((std::int32_t)2 << TILESHIFT)
 #define wb_MaxGoalDist (wb_MaxPoint - wb_MidPoint)
 
-#define wb_MaxOffset (wb_MaxPoint + ((int32_t)2 << TILESHIFT))
-#define wb_MinOffset (wb_MinPoint - ((int32_t)2 << TILESHIFT))
+#define wb_MaxOffset (wb_MaxPoint + ((std::int32_t)2 << TILESHIFT))
+#define wb_MinOffset (wb_MinPoint - ((std::int32_t)2 << TILESHIFT))
 
 extern fixed bounceOffset;
 
 fixed bounceVel, bounceDest;
-int16_t bounceOk;
+std::int16_t bounceOk;
 
 void InitWeaponBounce()
 {
@@ -4952,12 +4952,12 @@ void HandleWeaponBounce()
         }
     } else {
         if (bounceOffset > wb_MidPoint) {
-            bounceOffset -= ((int32_t)2 << TILESHIFT);
+            bounceOffset -= ((std::int32_t)2 << TILESHIFT);
             if (bounceOffset < wb_MidPoint) {
                 bounceOffset = wb_MidPoint;
             }
         } else if (bounceOffset < wb_MidPoint) {
-            bounceOffset += ((int32_t)2 << TILESHIFT);
+            bounceOffset += ((std::int32_t)2 << TILESHIFT);
             if (bounceOffset > wb_MidPoint) {
                 bounceOffset = wb_MidPoint;
             }

@@ -43,32 +43,32 @@ struct doorobj_t;
 
 
 struct SoundCommon {
-    uint32_t length;
-    uint16_t priority;
+    std::uint32_t length;
+    std::uint16_t priority;
 }; // SoundCommon
 
 struct Instrument {
-    uint8_t mChar;
-    uint8_t cChar;
-    uint8_t mScale;
-    uint8_t cScale;
-    uint8_t mAttack;
-    uint8_t cAttack;
-    uint8_t mSus;
-    uint8_t cSus;
-    uint8_t mWave;
-    uint8_t cWave;
-    uint8_t nConn;
+    std::uint8_t mChar;
+    std::uint8_t cChar;
+    std::uint8_t mScale;
+    std::uint8_t cScale;
+    std::uint8_t mAttack;
+    std::uint8_t cAttack;
+    std::uint8_t mSus;
+    std::uint8_t cSus;
+    std::uint8_t mWave;
+    std::uint8_t cWave;
+    std::uint8_t nConn;
 
     // These are only for Muse - these bytes are really unused
-    uint8_t voice;
-    uint8_t mode;
-    uint8_t unused[3];
+    std::uint8_t voice;
+    std::uint8_t mode;
+    std::uint8_t unused[3];
 }; // Instrument
 
 struct MusicGroup {
-    uint16_t length;
-    uint16_t values[1];
+    std::uint16_t length;
+    std::uint16_t values[1];
 }; // MusicGroup
 
 
@@ -76,8 +76,8 @@ struct MusicGroup {
 extern bool sd_has_audio;
 extern bool sd_is_sound_enabled;
 extern bool sd_is_music_enabled;
-extern int16_t DigiMap[];
-extern std::atomic<uint32_t> TimeCount; // Global time in ticks
+extern std::int16_t DigiMap[];
+extern std::atomic<std::uint32_t> TimeCount; // Global time in ticks
 
 extern bool sqActive;
 extern bool sqPlayedOnce;

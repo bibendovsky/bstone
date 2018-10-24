@@ -91,8 +91,8 @@ const int BS_SAVE_VERSION = 5;
 
 #define MAPSPOT(x, y, plane) (*(mapsegs[plane] + farmapylookup[y] + x))
 
-#define ABS(x) (static_cast<int16_t>(x) > 0 ? (x) : -(x))
-#define LABS(x) (static_cast<int32_t>(x) > 0 ? (x) : -(x))
+#define ABS(x) (static_cast<std::int16_t>(x) > 0 ? (x) : -(x))
+#define LABS(x) (static_cast<std::int32_t>(x) > 0 ? (x) : -(x))
 
 #define DISPLAY_MSG_STD_TIME (5 * 60) // Tics display len
 #define DISPLAY_TIMED_MSG(msg, pri, type) DisplayInfoMsg((msg), (pri), DISPLAY_MSG_STD_TIME, (type))
@@ -131,7 +131,7 @@ case gen_scientistobj
 //
 // LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
 //
-#define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((int32_t)M_BASE1 * (((int32_t)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
+#define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((std::int32_t)M_BASE1 * (((std::int32_t)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
 
 
 #define MAX_INF_AREA_MSGS (6)
@@ -422,1259 +422,1259 @@ enum sp_type {
 // sprite constants
 //
 
-extern int16_t SPR_DEMO;
+extern std::int16_t SPR_DEMO;
 
 //
 // Static sprites
 //
-extern int16_t SPR_STAT_0;
-extern int16_t SPR_STAT_1;
-extern int16_t SPR_STAT_2;
-extern int16_t SPR_STAT_3;
-extern int16_t SPR_STAT_4;
-extern int16_t SPR_STAT_5;
-extern int16_t SPR_STAT_6;
-extern int16_t SPR_STAT_7;
-extern int16_t SPR_STAT_8;
-extern int16_t SPR_STAT_9;
-extern int16_t SPR_STAT_10;
-extern int16_t SPR_STAT_11;
-extern int16_t SPR_STAT_12;
-extern int16_t SPR_STAT_13;
-extern int16_t SPR_STAT_14;
-extern int16_t SPR_STAT_15;
-extern int16_t SPR_STAT_16;
-extern int16_t SPR_STAT_17;
-extern int16_t SPR_STAT_18;
-extern int16_t SPR_STAT_19;
-extern int16_t SPR_STAT_20;
-extern int16_t SPR_STAT_21;
-extern int16_t SPR_STAT_22;
-extern int16_t SPR_STAT_23;
-extern int16_t SPR_STAT_24;
-extern int16_t SPR_STAT_25;
-extern int16_t SPR_STAT_26;
-extern int16_t SPR_STAT_27;
-extern int16_t SPR_STAT_28;
-extern int16_t SPR_STAT_29;
-extern int16_t SPR_STAT_30;
-extern int16_t SPR_STAT_31;
-extern int16_t SPR_STAT_32;
-extern int16_t SPR_STAT_33;
-extern int16_t SPR_STAT_34; // Green Key (AOG) / Anti-Plasma Cannon (PS)
-extern int16_t SPR_STAT_35;
-extern int16_t SPR_STAT_36; // Gold Key (AOG) / Yellow Package? (PS)
-extern int16_t SPR_STAT_37;
-extern int16_t SPR_STAT_38;
-extern int16_t SPR_STAT_39;
-extern int16_t SPR_STAT_40;
-extern int16_t SPR_STAT_41;
-extern int16_t SPR_STAT_42;
-extern int16_t SPR_STAT_43;
-extern int16_t SPR_STAT_44;
-extern int16_t SPR_STAT_45;
-extern int16_t SPR_STAT_46;
-extern int16_t SPR_STAT_47;
-extern int16_t SPR_STAT_48;
-extern int16_t SPR_STAT_49;
-extern int16_t SPR_STAT_50;
-extern int16_t SPR_STAT_51;
-extern int16_t SPR_STAT_52;
-extern int16_t SPR_STAT_53;
-extern int16_t SPR_STAT_54;
-extern int16_t SPR_STAT_55;
-extern int16_t SPR_STAT_56;
+extern std::int16_t SPR_STAT_0;
+extern std::int16_t SPR_STAT_1;
+extern std::int16_t SPR_STAT_2;
+extern std::int16_t SPR_STAT_3;
+extern std::int16_t SPR_STAT_4;
+extern std::int16_t SPR_STAT_5;
+extern std::int16_t SPR_STAT_6;
+extern std::int16_t SPR_STAT_7;
+extern std::int16_t SPR_STAT_8;
+extern std::int16_t SPR_STAT_9;
+extern std::int16_t SPR_STAT_10;
+extern std::int16_t SPR_STAT_11;
+extern std::int16_t SPR_STAT_12;
+extern std::int16_t SPR_STAT_13;
+extern std::int16_t SPR_STAT_14;
+extern std::int16_t SPR_STAT_15;
+extern std::int16_t SPR_STAT_16;
+extern std::int16_t SPR_STAT_17;
+extern std::int16_t SPR_STAT_18;
+extern std::int16_t SPR_STAT_19;
+extern std::int16_t SPR_STAT_20;
+extern std::int16_t SPR_STAT_21;
+extern std::int16_t SPR_STAT_22;
+extern std::int16_t SPR_STAT_23;
+extern std::int16_t SPR_STAT_24;
+extern std::int16_t SPR_STAT_25;
+extern std::int16_t SPR_STAT_26;
+extern std::int16_t SPR_STAT_27;
+extern std::int16_t SPR_STAT_28;
+extern std::int16_t SPR_STAT_29;
+extern std::int16_t SPR_STAT_30;
+extern std::int16_t SPR_STAT_31;
+extern std::int16_t SPR_STAT_32;
+extern std::int16_t SPR_STAT_33;
+extern std::int16_t SPR_STAT_34; // Green Key (AOG) / Anti-Plasma Cannon (PS)
+extern std::int16_t SPR_STAT_35;
+extern std::int16_t SPR_STAT_36; // Gold Key (AOG) / Yellow Package? (PS)
+extern std::int16_t SPR_STAT_37;
+extern std::int16_t SPR_STAT_38;
+extern std::int16_t SPR_STAT_39;
+extern std::int16_t SPR_STAT_40;
+extern std::int16_t SPR_STAT_41;
+extern std::int16_t SPR_STAT_42;
+extern std::int16_t SPR_STAT_43;
+extern std::int16_t SPR_STAT_44;
+extern std::int16_t SPR_STAT_45;
+extern std::int16_t SPR_STAT_46;
+extern std::int16_t SPR_STAT_47;
+extern std::int16_t SPR_STAT_48;
+extern std::int16_t SPR_STAT_49;
+extern std::int16_t SPR_STAT_50;
+extern std::int16_t SPR_STAT_51;
+extern std::int16_t SPR_STAT_52;
+extern std::int16_t SPR_STAT_53;
+extern std::int16_t SPR_STAT_54;
+extern std::int16_t SPR_STAT_55;
+extern std::int16_t SPR_STAT_56;
 
-extern int16_t SPR_CRATE_1;
-extern int16_t SPR_CRATE_2;
-extern int16_t SPR_CRATE_3;
+extern std::int16_t SPR_CRATE_1;
+extern std::int16_t SPR_CRATE_2;
+extern std::int16_t SPR_CRATE_3;
 
-extern int16_t SPR_STAT_57;
-extern int16_t SPR_STAT_58;
-extern int16_t SPR_STAT_59;
-extern int16_t SPR_STAT_60;
-extern int16_t SPR_STAT_61;
-extern int16_t SPR_STAT_62;
-extern int16_t SPR_STAT_63;
-extern int16_t SPR_STAT_64;
-extern int16_t SPR_STAT_65;
-extern int16_t SPR_STAT_66;
-extern int16_t SPR_STAT_67;
-extern int16_t SPR_STAT_68;
-extern int16_t SPR_STAT_69;
-extern int16_t SPR_STAT_70;
-extern int16_t SPR_STAT_71;
-extern int16_t SPR_STAT_72;
-extern int16_t SPR_STAT_73;
-extern int16_t SPR_STAT_74;
-extern int16_t SPR_STAT_75;
-extern int16_t SPR_STAT_76;
-extern int16_t SPR_STAT_77;
-extern int16_t SPR_STAT_78;
-extern int16_t SPR_STAT_79;
+extern std::int16_t SPR_STAT_57;
+extern std::int16_t SPR_STAT_58;
+extern std::int16_t SPR_STAT_59;
+extern std::int16_t SPR_STAT_60;
+extern std::int16_t SPR_STAT_61;
+extern std::int16_t SPR_STAT_62;
+extern std::int16_t SPR_STAT_63;
+extern std::int16_t SPR_STAT_64;
+extern std::int16_t SPR_STAT_65;
+extern std::int16_t SPR_STAT_66;
+extern std::int16_t SPR_STAT_67;
+extern std::int16_t SPR_STAT_68;
+extern std::int16_t SPR_STAT_69;
+extern std::int16_t SPR_STAT_70;
+extern std::int16_t SPR_STAT_71;
+extern std::int16_t SPR_STAT_72;
+extern std::int16_t SPR_STAT_73;
+extern std::int16_t SPR_STAT_74;
+extern std::int16_t SPR_STAT_75;
+extern std::int16_t SPR_STAT_76;
+extern std::int16_t SPR_STAT_77;
+extern std::int16_t SPR_STAT_78;
+extern std::int16_t SPR_STAT_79;
 
-extern int16_t SPR_DOORBOMB;
-extern int16_t SPR_ALT_DOORBOMB;
-extern int16_t SPR_RUBBLE;
-extern int16_t SPR_BONZI_TREE;
-extern int16_t SPR_AUTOMAPPER;
-extern int16_t SPR_POT_PLANT;
-extern int16_t SPR_TUBE_PLANT;
-extern int16_t SPR_HITECH_CHAIR;
+extern std::int16_t SPR_DOORBOMB;
+extern std::int16_t SPR_ALT_DOORBOMB;
+extern std::int16_t SPR_RUBBLE;
+extern std::int16_t SPR_BONZI_TREE;
+extern std::int16_t SPR_AUTOMAPPER;
+extern std::int16_t SPR_POT_PLANT;
+extern std::int16_t SPR_TUBE_PLANT;
+extern std::int16_t SPR_HITECH_CHAIR;
 
 //
 // Aesthetics
 //
-extern int16_t SPR_AIR_VENT;
-extern int16_t SPR_BLOOD_DRIP1;
-extern int16_t SPR_BLOOD_DRIP2;
-extern int16_t SPR_BLOOD_DRIP3;
-extern int16_t SPR_BLOOD_DRIP4;
-extern int16_t SPR_WATER_DRIP1;
-extern int16_t SPR_WATER_DRIP2;
-extern int16_t SPR_WATER_DRIP3;
-extern int16_t SPR_WATER_DRIP4;
+extern std::int16_t SPR_AIR_VENT;
+extern std::int16_t SPR_BLOOD_DRIP1;
+extern std::int16_t SPR_BLOOD_DRIP2;
+extern std::int16_t SPR_BLOOD_DRIP3;
+extern std::int16_t SPR_BLOOD_DRIP4;
+extern std::int16_t SPR_WATER_DRIP1;
+extern std::int16_t SPR_WATER_DRIP2;
+extern std::int16_t SPR_WATER_DRIP3;
+extern std::int16_t SPR_WATER_DRIP4;
 
-extern int16_t SPR_DECO_ARC_1;
-extern int16_t SPR_DECO_ARC_2;
-extern int16_t SPR_DECO_ARC_3;
+extern std::int16_t SPR_DECO_ARC_1;
+extern std::int16_t SPR_DECO_ARC_2;
+extern std::int16_t SPR_DECO_ARC_3;
 
-extern int16_t SPR_GRATE;
-extern int16_t SPR_STEAM_1;
-extern int16_t SPR_STEAM_2;
-extern int16_t SPR_STEAM_3;
-extern int16_t SPR_STEAM_4;
+extern std::int16_t SPR_GRATE;
+extern std::int16_t SPR_STEAM_1;
+extern std::int16_t SPR_STEAM_2;
+extern std::int16_t SPR_STEAM_3;
+extern std::int16_t SPR_STEAM_4;
 
-extern int16_t SPR_STEAM_PIPE;
-extern int16_t SPR_PIPE_STEAM_1;
-extern int16_t SPR_PIPE_STEAM_2;
-extern int16_t SPR_PIPE_STEAM_3;
-extern int16_t SPR_PIPE_STEAM_4;
+extern std::int16_t SPR_STEAM_PIPE;
+extern std::int16_t SPR_PIPE_STEAM_1;
+extern std::int16_t SPR_PIPE_STEAM_2;
+extern std::int16_t SPR_PIPE_STEAM_3;
+extern std::int16_t SPR_PIPE_STEAM_4;
 
 //
 // Dead Actors (from Blake Stone: AOG)
 //
-extern int16_t SPR_DEAD_RENT;
-extern int16_t SPR_DEAD_PRO;
-extern int16_t SPR_DEAD_SWAT;
+extern std::int16_t SPR_DEAD_RENT;
+extern std::int16_t SPR_DEAD_PRO;
+extern std::int16_t SPR_DEAD_SWAT;
 
 //
 // Sector Patrol (AOG) / Rent-A-Cop (PS)
 //
-extern int16_t SPR_RENT_S_1;
-extern int16_t SPR_RENT_S_2;
-extern int16_t SPR_RENT_S_3;
-extern int16_t SPR_RENT_S_4;
-extern int16_t SPR_RENT_S_5;
-extern int16_t SPR_RENT_S_6;
-extern int16_t SPR_RENT_S_7;
-extern int16_t SPR_RENT_S_8;
+extern std::int16_t SPR_RENT_S_1;
+extern std::int16_t SPR_RENT_S_2;
+extern std::int16_t SPR_RENT_S_3;
+extern std::int16_t SPR_RENT_S_4;
+extern std::int16_t SPR_RENT_S_5;
+extern std::int16_t SPR_RENT_S_6;
+extern std::int16_t SPR_RENT_S_7;
+extern std::int16_t SPR_RENT_S_8;
 
-extern int16_t SPR_RENT_W1_1;
-extern int16_t SPR_RENT_W1_2;
-extern int16_t SPR_RENT_W1_3;
-extern int16_t SPR_RENT_W1_4;
-extern int16_t SPR_RENT_W1_5;
-extern int16_t SPR_RENT_W1_6;
-extern int16_t SPR_RENT_W1_7;
-extern int16_t SPR_RENT_W1_8;
+extern std::int16_t SPR_RENT_W1_1;
+extern std::int16_t SPR_RENT_W1_2;
+extern std::int16_t SPR_RENT_W1_3;
+extern std::int16_t SPR_RENT_W1_4;
+extern std::int16_t SPR_RENT_W1_5;
+extern std::int16_t SPR_RENT_W1_6;
+extern std::int16_t SPR_RENT_W1_7;
+extern std::int16_t SPR_RENT_W1_8;
 
-extern int16_t SPR_RENT_W2_1;
-extern int16_t SPR_RENT_W2_2;
-extern int16_t SPR_RENT_W2_3;
-extern int16_t SPR_RENT_W2_4;
-extern int16_t SPR_RENT_W2_5;
-extern int16_t SPR_RENT_W2_6;
-extern int16_t SPR_RENT_W2_7;
-extern int16_t SPR_RENT_W2_8;
+extern std::int16_t SPR_RENT_W2_1;
+extern std::int16_t SPR_RENT_W2_2;
+extern std::int16_t SPR_RENT_W2_3;
+extern std::int16_t SPR_RENT_W2_4;
+extern std::int16_t SPR_RENT_W2_5;
+extern std::int16_t SPR_RENT_W2_6;
+extern std::int16_t SPR_RENT_W2_7;
+extern std::int16_t SPR_RENT_W2_8;
 
-extern int16_t SPR_RENT_W3_1;
-extern int16_t SPR_RENT_W3_2;
-extern int16_t SPR_RENT_W3_3;
-extern int16_t SPR_RENT_W3_4;
-extern int16_t SPR_RENT_W3_5;
-extern int16_t SPR_RENT_W3_6;
-extern int16_t SPR_RENT_W3_7;
-extern int16_t SPR_RENT_W3_8;
+extern std::int16_t SPR_RENT_W3_1;
+extern std::int16_t SPR_RENT_W3_2;
+extern std::int16_t SPR_RENT_W3_3;
+extern std::int16_t SPR_RENT_W3_4;
+extern std::int16_t SPR_RENT_W3_5;
+extern std::int16_t SPR_RENT_W3_6;
+extern std::int16_t SPR_RENT_W3_7;
+extern std::int16_t SPR_RENT_W3_8;
 
-extern int16_t SPR_RENT_W4_1;
-extern int16_t SPR_RENT_W4_2;
-extern int16_t SPR_RENT_W4_3;
-extern int16_t SPR_RENT_W4_4;
-extern int16_t SPR_RENT_W4_5;
-extern int16_t SPR_RENT_W4_6;
-extern int16_t SPR_RENT_W4_7;
-extern int16_t SPR_RENT_W4_8;
+extern std::int16_t SPR_RENT_W4_1;
+extern std::int16_t SPR_RENT_W4_2;
+extern std::int16_t SPR_RENT_W4_3;
+extern std::int16_t SPR_RENT_W4_4;
+extern std::int16_t SPR_RENT_W4_5;
+extern std::int16_t SPR_RENT_W4_6;
+extern std::int16_t SPR_RENT_W4_7;
+extern std::int16_t SPR_RENT_W4_8;
 
-extern int16_t SPR_RENT_DIE_1;
-extern int16_t SPR_RENT_DIE_2;
-extern int16_t SPR_RENT_DIE_3;
-extern int16_t SPR_RENT_DIE_4;
-extern int16_t SPR_RENT_PAIN_1;
-extern int16_t SPR_RENT_DEAD;
+extern std::int16_t SPR_RENT_DIE_1;
+extern std::int16_t SPR_RENT_DIE_2;
+extern std::int16_t SPR_RENT_DIE_3;
+extern std::int16_t SPR_RENT_DIE_4;
+extern std::int16_t SPR_RENT_PAIN_1;
+extern std::int16_t SPR_RENT_DEAD;
 
-extern int16_t SPR_RENT_SHOOT1;
-extern int16_t SPR_RENT_SHOOT2;
-extern int16_t SPR_RENT_SHOOT3;
+extern std::int16_t SPR_RENT_SHOOT1;
+extern std::int16_t SPR_RENT_SHOOT2;
+extern std::int16_t SPR_RENT_SHOOT3;
 
 //
 // Star Sentinel (AOG) / Pro-Guard (PS)
 //
-extern int16_t SPR_PRO_S_1;
-extern int16_t SPR_PRO_S_2;
-extern int16_t SPR_PRO_S_3;
-extern int16_t SPR_PRO_S_4;
-extern int16_t SPR_PRO_S_5;
-extern int16_t SPR_PRO_S_6;
-extern int16_t SPR_PRO_S_7;
-extern int16_t SPR_PRO_S_8;
+extern std::int16_t SPR_PRO_S_1;
+extern std::int16_t SPR_PRO_S_2;
+extern std::int16_t SPR_PRO_S_3;
+extern std::int16_t SPR_PRO_S_4;
+extern std::int16_t SPR_PRO_S_5;
+extern std::int16_t SPR_PRO_S_6;
+extern std::int16_t SPR_PRO_S_7;
+extern std::int16_t SPR_PRO_S_8;
 
-extern int16_t SPR_PRO_W1_1;
-extern int16_t SPR_PRO_W1_2;
-extern int16_t SPR_PRO_W1_3;
-extern int16_t SPR_PRO_W1_4;
-extern int16_t SPR_PRO_W1_5;
-extern int16_t SPR_PRO_W1_6;
-extern int16_t SPR_PRO_W1_7;
-extern int16_t SPR_PRO_W1_8;
+extern std::int16_t SPR_PRO_W1_1;
+extern std::int16_t SPR_PRO_W1_2;
+extern std::int16_t SPR_PRO_W1_3;
+extern std::int16_t SPR_PRO_W1_4;
+extern std::int16_t SPR_PRO_W1_5;
+extern std::int16_t SPR_PRO_W1_6;
+extern std::int16_t SPR_PRO_W1_7;
+extern std::int16_t SPR_PRO_W1_8;
 
-extern int16_t SPR_PRO_W2_1;
-extern int16_t SPR_PRO_W2_2;
-extern int16_t SPR_PRO_W2_3;
-extern int16_t SPR_PRO_W2_4;
-extern int16_t SPR_PRO_W2_5;
-extern int16_t SPR_PRO_W2_6;
-extern int16_t SPR_PRO_W2_7;
-extern int16_t SPR_PRO_W2_8;
+extern std::int16_t SPR_PRO_W2_1;
+extern std::int16_t SPR_PRO_W2_2;
+extern std::int16_t SPR_PRO_W2_3;
+extern std::int16_t SPR_PRO_W2_4;
+extern std::int16_t SPR_PRO_W2_5;
+extern std::int16_t SPR_PRO_W2_6;
+extern std::int16_t SPR_PRO_W2_7;
+extern std::int16_t SPR_PRO_W2_8;
 
-extern int16_t SPR_PRO_W3_1;
-extern int16_t SPR_PRO_W3_2;
-extern int16_t SPR_PRO_W3_3;
-extern int16_t SPR_PRO_W3_4;
-extern int16_t SPR_PRO_W3_5;
-extern int16_t SPR_PRO_W3_6;
-extern int16_t SPR_PRO_W3_7;
-extern int16_t SPR_PRO_W3_8;
+extern std::int16_t SPR_PRO_W3_1;
+extern std::int16_t SPR_PRO_W3_2;
+extern std::int16_t SPR_PRO_W3_3;
+extern std::int16_t SPR_PRO_W3_4;
+extern std::int16_t SPR_PRO_W3_5;
+extern std::int16_t SPR_PRO_W3_6;
+extern std::int16_t SPR_PRO_W3_7;
+extern std::int16_t SPR_PRO_W3_8;
 
-extern int16_t SPR_PRO_W4_1;
-extern int16_t SPR_PRO_W4_2;
-extern int16_t SPR_PRO_W4_3;
-extern int16_t SPR_PRO_W4_4;
-extern int16_t SPR_PRO_W4_5;
-extern int16_t SPR_PRO_W4_6;
-extern int16_t SPR_PRO_W4_7;
-extern int16_t SPR_PRO_W4_8;
+extern std::int16_t SPR_PRO_W4_1;
+extern std::int16_t SPR_PRO_W4_2;
+extern std::int16_t SPR_PRO_W4_3;
+extern std::int16_t SPR_PRO_W4_4;
+extern std::int16_t SPR_PRO_W4_5;
+extern std::int16_t SPR_PRO_W4_6;
+extern std::int16_t SPR_PRO_W4_7;
+extern std::int16_t SPR_PRO_W4_8;
 
-extern int16_t SPR_PRO_PAIN_1;
-extern int16_t SPR_PRO_DIE_1;
-extern int16_t SPR_PRO_DIE_2;
-extern int16_t SPR_PRO_DIE_3;
-extern int16_t SPR_PRO_PAIN_2;
-extern int16_t SPR_PRO_DIE_4;
-extern int16_t SPR_PRO_DEAD;
+extern std::int16_t SPR_PRO_PAIN_1;
+extern std::int16_t SPR_PRO_DIE_1;
+extern std::int16_t SPR_PRO_DIE_2;
+extern std::int16_t SPR_PRO_DIE_3;
+extern std::int16_t SPR_PRO_PAIN_2;
+extern std::int16_t SPR_PRO_DIE_4;
+extern std::int16_t SPR_PRO_DEAD;
 
-extern int16_t SPR_PRO_SHOOT1;
-extern int16_t SPR_PRO_SHOOT2;
-extern int16_t SPR_PRO_SHOOT3;
+extern std::int16_t SPR_PRO_SHOOT1;
+extern std::int16_t SPR_PRO_SHOOT2;
+extern std::int16_t SPR_PRO_SHOOT3;
 
 //
 // Star Trooper (AOG) / SWAT (PS)
 //
-extern int16_t SPR_SWAT_S_1;
-extern int16_t SPR_SWAT_S_2;
-extern int16_t SPR_SWAT_S_3;
-extern int16_t SPR_SWAT_S_4;
-extern int16_t SPR_SWAT_S_5;
-extern int16_t SPR_SWAT_S_6;
-extern int16_t SPR_SWAT_S_7;
-extern int16_t SPR_SWAT_S_8;
+extern std::int16_t SPR_SWAT_S_1;
+extern std::int16_t SPR_SWAT_S_2;
+extern std::int16_t SPR_SWAT_S_3;
+extern std::int16_t SPR_SWAT_S_4;
+extern std::int16_t SPR_SWAT_S_5;
+extern std::int16_t SPR_SWAT_S_6;
+extern std::int16_t SPR_SWAT_S_7;
+extern std::int16_t SPR_SWAT_S_8;
 
-extern int16_t SPR_SWAT_W1_1;
-extern int16_t SPR_SWAT_W1_2;
-extern int16_t SPR_SWAT_W1_3;
-extern int16_t SPR_SWAT_W1_4;
-extern int16_t SPR_SWAT_W1_5;
-extern int16_t SPR_SWAT_W1_6;
-extern int16_t SPR_SWAT_W1_7;
-extern int16_t SPR_SWAT_W1_8;
+extern std::int16_t SPR_SWAT_W1_1;
+extern std::int16_t SPR_SWAT_W1_2;
+extern std::int16_t SPR_SWAT_W1_3;
+extern std::int16_t SPR_SWAT_W1_4;
+extern std::int16_t SPR_SWAT_W1_5;
+extern std::int16_t SPR_SWAT_W1_6;
+extern std::int16_t SPR_SWAT_W1_7;
+extern std::int16_t SPR_SWAT_W1_8;
 
-extern int16_t SPR_SWAT_W2_1;
-extern int16_t SPR_SWAT_W2_2;
-extern int16_t SPR_SWAT_W2_3;
-extern int16_t SPR_SWAT_W2_4;
-extern int16_t SPR_SWAT_W2_5;
-extern int16_t SPR_SWAT_W2_6;
-extern int16_t SPR_SWAT_W2_7;
-extern int16_t SPR_SWAT_W2_8;
+extern std::int16_t SPR_SWAT_W2_1;
+extern std::int16_t SPR_SWAT_W2_2;
+extern std::int16_t SPR_SWAT_W2_3;
+extern std::int16_t SPR_SWAT_W2_4;
+extern std::int16_t SPR_SWAT_W2_5;
+extern std::int16_t SPR_SWAT_W2_6;
+extern std::int16_t SPR_SWAT_W2_7;
+extern std::int16_t SPR_SWAT_W2_8;
 
-extern int16_t SPR_SWAT_W3_1;
-extern int16_t SPR_SWAT_W3_2;
-extern int16_t SPR_SWAT_W3_3;
-extern int16_t SPR_SWAT_W3_4;
-extern int16_t SPR_SWAT_W3_5;
-extern int16_t SPR_SWAT_W3_6;
-extern int16_t SPR_SWAT_W3_7;
-extern int16_t SPR_SWAT_W3_8;
+extern std::int16_t SPR_SWAT_W3_1;
+extern std::int16_t SPR_SWAT_W3_2;
+extern std::int16_t SPR_SWAT_W3_3;
+extern std::int16_t SPR_SWAT_W3_4;
+extern std::int16_t SPR_SWAT_W3_5;
+extern std::int16_t SPR_SWAT_W3_6;
+extern std::int16_t SPR_SWAT_W3_7;
+extern std::int16_t SPR_SWAT_W3_8;
 
-extern int16_t SPR_SWAT_W4_1;
-extern int16_t SPR_SWAT_W4_2;
-extern int16_t SPR_SWAT_W4_3;
-extern int16_t SPR_SWAT_W4_4;
-extern int16_t SPR_SWAT_W4_5;
-extern int16_t SPR_SWAT_W4_6;
-extern int16_t SPR_SWAT_W4_7;
-extern int16_t SPR_SWAT_W4_8;
+extern std::int16_t SPR_SWAT_W4_1;
+extern std::int16_t SPR_SWAT_W4_2;
+extern std::int16_t SPR_SWAT_W4_3;
+extern std::int16_t SPR_SWAT_W4_4;
+extern std::int16_t SPR_SWAT_W4_5;
+extern std::int16_t SPR_SWAT_W4_6;
+extern std::int16_t SPR_SWAT_W4_7;
+extern std::int16_t SPR_SWAT_W4_8;
 
-extern int16_t SPR_SWAT_PAIN_1;
-extern int16_t SPR_SWAT_DIE_1;
-extern int16_t SPR_SWAT_DIE_2;
-extern int16_t SPR_SWAT_DIE_3;
-extern int16_t SPR_SWAT_PAIN_2;
-extern int16_t SPR_SWAT_DIE_4;
-extern int16_t SPR_SWAT_DEAD;
+extern std::int16_t SPR_SWAT_PAIN_1;
+extern std::int16_t SPR_SWAT_DIE_1;
+extern std::int16_t SPR_SWAT_DIE_2;
+extern std::int16_t SPR_SWAT_DIE_3;
+extern std::int16_t SPR_SWAT_PAIN_2;
+extern std::int16_t SPR_SWAT_DIE_4;
+extern std::int16_t SPR_SWAT_DEAD;
 
-extern int16_t SPR_SWAT_SHOOT1;
-extern int16_t SPR_SWAT_SHOOT2;
-extern int16_t SPR_SWAT_SHOOT3;
+extern std::int16_t SPR_SWAT_SHOOT1;
+extern std::int16_t SPR_SWAT_SHOOT2;
+extern std::int16_t SPR_SWAT_SHOOT3;
 
-extern int16_t SPR_SWAT_WOUNDED1;
-extern int16_t SPR_SWAT_WOUNDED2;
-extern int16_t SPR_SWAT_WOUNDED3;
-extern int16_t SPR_SWAT_WOUNDED4;
+extern std::int16_t SPR_SWAT_WOUNDED1;
+extern std::int16_t SPR_SWAT_WOUNDED2;
+extern std::int16_t SPR_SWAT_WOUNDED3;
+extern std::int16_t SPR_SWAT_WOUNDED4;
 
 //
 // General Scientist
 //
-extern int16_t SPR_OFC_S_1;
-extern int16_t SPR_OFC_S_2;
-extern int16_t SPR_OFC_S_3;
-extern int16_t SPR_OFC_S_4;
-extern int16_t SPR_OFC_S_5;
-extern int16_t SPR_OFC_S_6;
-extern int16_t SPR_OFC_S_7;
-extern int16_t SPR_OFC_S_8;
+extern std::int16_t SPR_OFC_S_1;
+extern std::int16_t SPR_OFC_S_2;
+extern std::int16_t SPR_OFC_S_3;
+extern std::int16_t SPR_OFC_S_4;
+extern std::int16_t SPR_OFC_S_5;
+extern std::int16_t SPR_OFC_S_6;
+extern std::int16_t SPR_OFC_S_7;
+extern std::int16_t SPR_OFC_S_8;
 
-extern int16_t SPR_OFC_W1_1;
-extern int16_t SPR_OFC_W1_2;
-extern int16_t SPR_OFC_W1_3;
-extern int16_t SPR_OFC_W1_4;
-extern int16_t SPR_OFC_W1_5;
-extern int16_t SPR_OFC_W1_6;
-extern int16_t SPR_OFC_W1_7;
-extern int16_t SPR_OFC_W1_8;
+extern std::int16_t SPR_OFC_W1_1;
+extern std::int16_t SPR_OFC_W1_2;
+extern std::int16_t SPR_OFC_W1_3;
+extern std::int16_t SPR_OFC_W1_4;
+extern std::int16_t SPR_OFC_W1_5;
+extern std::int16_t SPR_OFC_W1_6;
+extern std::int16_t SPR_OFC_W1_7;
+extern std::int16_t SPR_OFC_W1_8;
 
-extern int16_t SPR_OFC_W2_1;
-extern int16_t SPR_OFC_W2_2;
-extern int16_t SPR_OFC_W2_3;
-extern int16_t SPR_OFC_W2_4;
-extern int16_t SPR_OFC_W2_5;
-extern int16_t SPR_OFC_W2_6;
-extern int16_t SPR_OFC_W2_7;
-extern int16_t SPR_OFC_W2_8;
+extern std::int16_t SPR_OFC_W2_1;
+extern std::int16_t SPR_OFC_W2_2;
+extern std::int16_t SPR_OFC_W2_3;
+extern std::int16_t SPR_OFC_W2_4;
+extern std::int16_t SPR_OFC_W2_5;
+extern std::int16_t SPR_OFC_W2_6;
+extern std::int16_t SPR_OFC_W2_7;
+extern std::int16_t SPR_OFC_W2_8;
 
-extern int16_t SPR_OFC_W3_1;
-extern int16_t SPR_OFC_W3_2;
-extern int16_t SPR_OFC_W3_3;
-extern int16_t SPR_OFC_W3_4;
-extern int16_t SPR_OFC_W3_5;
-extern int16_t SPR_OFC_W3_6;
-extern int16_t SPR_OFC_W3_7;
-extern int16_t SPR_OFC_W3_8;
+extern std::int16_t SPR_OFC_W3_1;
+extern std::int16_t SPR_OFC_W3_2;
+extern std::int16_t SPR_OFC_W3_3;
+extern std::int16_t SPR_OFC_W3_4;
+extern std::int16_t SPR_OFC_W3_5;
+extern std::int16_t SPR_OFC_W3_6;
+extern std::int16_t SPR_OFC_W3_7;
+extern std::int16_t SPR_OFC_W3_8;
 
-extern int16_t SPR_OFC_W4_1;
-extern int16_t SPR_OFC_W4_2;
-extern int16_t SPR_OFC_W4_3;
-extern int16_t SPR_OFC_W4_4;
-extern int16_t SPR_OFC_W4_5;
-extern int16_t SPR_OFC_W4_6;
-extern int16_t SPR_OFC_W4_7;
-extern int16_t SPR_OFC_W4_8;
+extern std::int16_t SPR_OFC_W4_1;
+extern std::int16_t SPR_OFC_W4_2;
+extern std::int16_t SPR_OFC_W4_3;
+extern std::int16_t SPR_OFC_W4_4;
+extern std::int16_t SPR_OFC_W4_5;
+extern std::int16_t SPR_OFC_W4_6;
+extern std::int16_t SPR_OFC_W4_7;
+extern std::int16_t SPR_OFC_W4_8;
 
-extern int16_t SPR_OFC_PAIN_1;
-extern int16_t SPR_OFC_DIE_1;
-extern int16_t SPR_OFC_DIE_2;
-extern int16_t SPR_OFC_DIE_3;
-extern int16_t SPR_OFC_PAIN_2;
-extern int16_t SPR_OFC_DIE_4;
-extern int16_t SPR_OFC_DEAD;
+extern std::int16_t SPR_OFC_PAIN_1;
+extern std::int16_t SPR_OFC_DIE_1;
+extern std::int16_t SPR_OFC_DIE_2;
+extern std::int16_t SPR_OFC_DIE_3;
+extern std::int16_t SPR_OFC_PAIN_2;
+extern std::int16_t SPR_OFC_DIE_4;
+extern std::int16_t SPR_OFC_DEAD;
 
-extern int16_t SPR_OFC_SHOOT1;
-extern int16_t SPR_OFC_SHOOT2;
-extern int16_t SPR_OFC_SHOOT3;
+extern std::int16_t SPR_OFC_SHOOT1;
+extern std::int16_t SPR_OFC_SHOOT2;
+extern std::int16_t SPR_OFC_SHOOT3;
 
 //
 // Bad Boy Dr. Goldstern
 //
-extern int16_t SPR_GOLD_S_1;
-extern int16_t SPR_GOLD_S_2;
-extern int16_t SPR_GOLD_S_3;
-extern int16_t SPR_GOLD_S_4;
-extern int16_t SPR_GOLD_S_5;
-extern int16_t SPR_GOLD_S_6;
-extern int16_t SPR_GOLD_S_7;
-extern int16_t SPR_GOLD_S_8;
+extern std::int16_t SPR_GOLD_S_1;
+extern std::int16_t SPR_GOLD_S_2;
+extern std::int16_t SPR_GOLD_S_3;
+extern std::int16_t SPR_GOLD_S_4;
+extern std::int16_t SPR_GOLD_S_5;
+extern std::int16_t SPR_GOLD_S_6;
+extern std::int16_t SPR_GOLD_S_7;
+extern std::int16_t SPR_GOLD_S_8;
 
-extern int16_t SPR_GOLD_W1_1;
-extern int16_t SPR_GOLD_W1_2;
-extern int16_t SPR_GOLD_W1_3;
-extern int16_t SPR_GOLD_W1_4;
-extern int16_t SPR_GOLD_W1_5;
-extern int16_t SPR_GOLD_W1_6;
-extern int16_t SPR_GOLD_W1_7;
-extern int16_t SPR_GOLD_W1_8;
+extern std::int16_t SPR_GOLD_W1_1;
+extern std::int16_t SPR_GOLD_W1_2;
+extern std::int16_t SPR_GOLD_W1_3;
+extern std::int16_t SPR_GOLD_W1_4;
+extern std::int16_t SPR_GOLD_W1_5;
+extern std::int16_t SPR_GOLD_W1_6;
+extern std::int16_t SPR_GOLD_W1_7;
+extern std::int16_t SPR_GOLD_W1_8;
 
-extern int16_t SPR_GOLD_W2_1;
-extern int16_t SPR_GOLD_W2_2;
-extern int16_t SPR_GOLD_W2_3;
-extern int16_t SPR_GOLD_W2_4;
-extern int16_t SPR_GOLD_W2_5;
-extern int16_t SPR_GOLD_W2_6;
-extern int16_t SPR_GOLD_W2_7;
-extern int16_t SPR_GOLD_W2_8;
+extern std::int16_t SPR_GOLD_W2_1;
+extern std::int16_t SPR_GOLD_W2_2;
+extern std::int16_t SPR_GOLD_W2_3;
+extern std::int16_t SPR_GOLD_W2_4;
+extern std::int16_t SPR_GOLD_W2_5;
+extern std::int16_t SPR_GOLD_W2_6;
+extern std::int16_t SPR_GOLD_W2_7;
+extern std::int16_t SPR_GOLD_W2_8;
 
-extern int16_t SPR_GOLD_W3_1;
-extern int16_t SPR_GOLD_W3_2;
-extern int16_t SPR_GOLD_W3_3;
-extern int16_t SPR_GOLD_W3_4;
-extern int16_t SPR_GOLD_W3_5;
-extern int16_t SPR_GOLD_W3_6;
-extern int16_t SPR_GOLD_W3_7;
-extern int16_t SPR_GOLD_W3_8;
+extern std::int16_t SPR_GOLD_W3_1;
+extern std::int16_t SPR_GOLD_W3_2;
+extern std::int16_t SPR_GOLD_W3_3;
+extern std::int16_t SPR_GOLD_W3_4;
+extern std::int16_t SPR_GOLD_W3_5;
+extern std::int16_t SPR_GOLD_W3_6;
+extern std::int16_t SPR_GOLD_W3_7;
+extern std::int16_t SPR_GOLD_W3_8;
 
-extern int16_t SPR_GOLD_W4_1;
-extern int16_t SPR_GOLD_W4_2;
-extern int16_t SPR_GOLD_W4_3;
-extern int16_t SPR_GOLD_W4_4;
-extern int16_t SPR_GOLD_W4_5;
-extern int16_t SPR_GOLD_W4_6;
-extern int16_t SPR_GOLD_W4_7;
-extern int16_t SPR_GOLD_W4_8;
+extern std::int16_t SPR_GOLD_W4_1;
+extern std::int16_t SPR_GOLD_W4_2;
+extern std::int16_t SPR_GOLD_W4_3;
+extern std::int16_t SPR_GOLD_W4_4;
+extern std::int16_t SPR_GOLD_W4_5;
+extern std::int16_t SPR_GOLD_W4_6;
+extern std::int16_t SPR_GOLD_W4_7;
+extern std::int16_t SPR_GOLD_W4_8;
 
-extern int16_t SPR_GOLD_PAIN_1;
+extern std::int16_t SPR_GOLD_PAIN_1;
 
-extern int16_t SPR_GOLD_WRIST_1;
-extern int16_t SPR_GOLD_WRIST_2;
+extern std::int16_t SPR_GOLD_WRIST_1;
+extern std::int16_t SPR_GOLD_WRIST_2;
 
-extern int16_t SPR_GOLD_SHOOT1;
-extern int16_t SPR_GOLD_SHOOT2;
-extern int16_t SPR_GOLD_SHOOT3;
+extern std::int16_t SPR_GOLD_SHOOT1;
+extern std::int16_t SPR_GOLD_SHOOT2;
+extern std::int16_t SPR_GOLD_SHOOT3;
 
-extern int16_t SPR_GOLD_WARP1;
-extern int16_t SPR_GOLD_WARP2;
-extern int16_t SPR_GOLD_WARP3;
-extern int16_t SPR_GOLD_WARP4;
-extern int16_t SPR_GOLD_WARP5;
+extern std::int16_t SPR_GOLD_WARP1;
+extern std::int16_t SPR_GOLD_WARP2;
+extern std::int16_t SPR_GOLD_WARP3;
+extern std::int16_t SPR_GOLD_WARP4;
+extern std::int16_t SPR_GOLD_WARP5;
 
-extern int16_t SPR_GOLD_DEATH1;
-extern int16_t SPR_GOLD_DEATH2;
-extern int16_t SPR_GOLD_DEATH3;
-extern int16_t SPR_GOLD_DEATH4;
-extern int16_t SPR_GOLD_DEATH5;
-extern int16_t SPR_MGOLD_OUCH;
+extern std::int16_t SPR_GOLD_DEATH1;
+extern std::int16_t SPR_GOLD_DEATH2;
+extern std::int16_t SPR_GOLD_DEATH3;
+extern std::int16_t SPR_GOLD_DEATH4;
+extern std::int16_t SPR_GOLD_DEATH5;
+extern std::int16_t SPR_MGOLD_OUCH;
 
-extern int16_t SPR_GOLD_MORPH1;
-extern int16_t SPR_GOLD_MORPH2;
-extern int16_t SPR_GOLD_MORPH3;
-extern int16_t SPR_GOLD_MORPH4;
-extern int16_t SPR_GOLD_MORPH5;
-extern int16_t SPR_GOLD_MORPH6;
-extern int16_t SPR_GOLD_MORPH7;
-extern int16_t SPR_GOLD_MORPH8;
+extern std::int16_t SPR_GOLD_MORPH1;
+extern std::int16_t SPR_GOLD_MORPH2;
+extern std::int16_t SPR_GOLD_MORPH3;
+extern std::int16_t SPR_GOLD_MORPH4;
+extern std::int16_t SPR_GOLD_MORPH5;
+extern std::int16_t SPR_GOLD_MORPH6;
+extern std::int16_t SPR_GOLD_MORPH7;
+extern std::int16_t SPR_GOLD_MORPH8;
 
-extern int16_t SPR_MGOLD_WALK1;
-extern int16_t SPR_MGOLD_WALK2;
-extern int16_t SPR_MGOLD_WALK3;
-extern int16_t SPR_MGOLD_WALK4;
-extern int16_t SPR_MGOLD_ATTACK1;
-extern int16_t SPR_MGOLD_ATTACK2;
-extern int16_t SPR_MGOLD_ATTACK3;
-extern int16_t SPR_MGOLD_ATTACK4;
+extern std::int16_t SPR_MGOLD_WALK1;
+extern std::int16_t SPR_MGOLD_WALK2;
+extern std::int16_t SPR_MGOLD_WALK3;
+extern std::int16_t SPR_MGOLD_WALK4;
+extern std::int16_t SPR_MGOLD_ATTACK1;
+extern std::int16_t SPR_MGOLD_ATTACK2;
+extern std::int16_t SPR_MGOLD_ATTACK3;
+extern std::int16_t SPR_MGOLD_ATTACK4;
 
-extern int16_t SPR_MGOLD_SHOT1;
-extern int16_t SPR_MGOLD_SHOT2;
-extern int16_t SPR_MGOLD_SHOT3;
-extern int16_t SPR_MGOLD_SHOT_EXP1;
-extern int16_t SPR_MGOLD_SHOT_EXP2;
-extern int16_t SPR_MGOLD_SHOT_EXP3;
+extern std::int16_t SPR_MGOLD_SHOT1;
+extern std::int16_t SPR_MGOLD_SHOT2;
+extern std::int16_t SPR_MGOLD_SHOT3;
+extern std::int16_t SPR_MGOLD_SHOT_EXP1;
+extern std::int16_t SPR_MGOLD_SHOT_EXP2;
+extern std::int16_t SPR_MGOLD_SHOT_EXP3;
 
 //
 // Volatile Material Transporter
 //
-extern int16_t SPR_GSCOUT_W1_1;
-extern int16_t SPR_GSCOUT_W1_2;
-extern int16_t SPR_GSCOUT_W1_3;
-extern int16_t SPR_GSCOUT_W1_4;
-extern int16_t SPR_GSCOUT_W1_5;
-extern int16_t SPR_GSCOUT_W1_6;
-extern int16_t SPR_GSCOUT_W1_7;
-extern int16_t SPR_GSCOUT_W1_8;
+extern std::int16_t SPR_GSCOUT_W1_1;
+extern std::int16_t SPR_GSCOUT_W1_2;
+extern std::int16_t SPR_GSCOUT_W1_3;
+extern std::int16_t SPR_GSCOUT_W1_4;
+extern std::int16_t SPR_GSCOUT_W1_5;
+extern std::int16_t SPR_GSCOUT_W1_6;
+extern std::int16_t SPR_GSCOUT_W1_7;
+extern std::int16_t SPR_GSCOUT_W1_8;
 
-extern int16_t SPR_GSCOUT_W2_1;
-extern int16_t SPR_GSCOUT_W2_2;
-extern int16_t SPR_GSCOUT_W2_3;
-extern int16_t SPR_GSCOUT_W2_4;
-extern int16_t SPR_GSCOUT_W2_5;
-extern int16_t SPR_GSCOUT_W2_6;
-extern int16_t SPR_GSCOUT_W2_7;
-extern int16_t SPR_GSCOUT_W2_8;
+extern std::int16_t SPR_GSCOUT_W2_1;
+extern std::int16_t SPR_GSCOUT_W2_2;
+extern std::int16_t SPR_GSCOUT_W2_3;
+extern std::int16_t SPR_GSCOUT_W2_4;
+extern std::int16_t SPR_GSCOUT_W2_5;
+extern std::int16_t SPR_GSCOUT_W2_6;
+extern std::int16_t SPR_GSCOUT_W2_7;
+extern std::int16_t SPR_GSCOUT_W2_8;
 
-extern int16_t SPR_GSCOUT_W3_1;
-extern int16_t SPR_GSCOUT_W3_2;
-extern int16_t SPR_GSCOUT_W3_3;
-extern int16_t SPR_GSCOUT_W3_4;
-extern int16_t SPR_GSCOUT_W3_5;
-extern int16_t SPR_GSCOUT_W3_6;
-extern int16_t SPR_GSCOUT_W3_7;
-extern int16_t SPR_GSCOUT_W3_8;
+extern std::int16_t SPR_GSCOUT_W3_1;
+extern std::int16_t SPR_GSCOUT_W3_2;
+extern std::int16_t SPR_GSCOUT_W3_3;
+extern std::int16_t SPR_GSCOUT_W3_4;
+extern std::int16_t SPR_GSCOUT_W3_5;
+extern std::int16_t SPR_GSCOUT_W3_6;
+extern std::int16_t SPR_GSCOUT_W3_7;
+extern std::int16_t SPR_GSCOUT_W3_8;
 
-extern int16_t SPR_GSCOUT_W4_1;
-extern int16_t SPR_GSCOUT_W4_2;
-extern int16_t SPR_GSCOUT_W4_3;
-extern int16_t SPR_GSCOUT_W4_4;
-extern int16_t SPR_GSCOUT_W4_5;
-extern int16_t SPR_GSCOUT_W4_6;
-extern int16_t SPR_GSCOUT_W4_7;
-extern int16_t SPR_GSCOUT_W4_8;
+extern std::int16_t SPR_GSCOUT_W4_1;
+extern std::int16_t SPR_GSCOUT_W4_2;
+extern std::int16_t SPR_GSCOUT_W4_3;
+extern std::int16_t SPR_GSCOUT_W4_4;
+extern std::int16_t SPR_GSCOUT_W4_5;
+extern std::int16_t SPR_GSCOUT_W4_6;
+extern std::int16_t SPR_GSCOUT_W4_7;
+extern std::int16_t SPR_GSCOUT_W4_8;
 
-extern int16_t SPR_GSCOUT_DIE1;
-extern int16_t SPR_GSCOUT_DIE2;
-extern int16_t SPR_GSCOUT_DIE3;
-extern int16_t SPR_GSCOUT_DIE4;
-extern int16_t SPR_GSCOUT_DIE5;
-extern int16_t SPR_GSCOUT_DIE6;
-extern int16_t SPR_GSCOUT_DIE7;
-extern int16_t SPR_GSCOUT_DIE8;
+extern std::int16_t SPR_GSCOUT_DIE1;
+extern std::int16_t SPR_GSCOUT_DIE2;
+extern std::int16_t SPR_GSCOUT_DIE3;
+extern std::int16_t SPR_GSCOUT_DIE4;
+extern std::int16_t SPR_GSCOUT_DIE5;
+extern std::int16_t SPR_GSCOUT_DIE6;
+extern std::int16_t SPR_GSCOUT_DIE7;
+extern std::int16_t SPR_GSCOUT_DIE8;
 
-extern int16_t SPR_GSCOUT_DEAD;
+extern std::int16_t SPR_GSCOUT_DEAD;
 
 //
 // Perscan Drone
 //
-extern int16_t SPR_FSCOUT_W1_1;
-extern int16_t SPR_FSCOUT_W1_2;
-extern int16_t SPR_FSCOUT_W1_3;
-extern int16_t SPR_FSCOUT_W1_4;
-extern int16_t SPR_FSCOUT_W1_5;
-extern int16_t SPR_FSCOUT_W1_6;
-extern int16_t SPR_FSCOUT_W1_7;
-extern int16_t SPR_FSCOUT_W1_8;
+extern std::int16_t SPR_FSCOUT_W1_1;
+extern std::int16_t SPR_FSCOUT_W1_2;
+extern std::int16_t SPR_FSCOUT_W1_3;
+extern std::int16_t SPR_FSCOUT_W1_4;
+extern std::int16_t SPR_FSCOUT_W1_5;
+extern std::int16_t SPR_FSCOUT_W1_6;
+extern std::int16_t SPR_FSCOUT_W1_7;
+extern std::int16_t SPR_FSCOUT_W1_8;
 
-extern int16_t SPR_FSCOUT_W2_1;
-extern int16_t SPR_FSCOUT_W2_2;
-extern int16_t SPR_FSCOUT_W2_3;
-extern int16_t SPR_FSCOUT_W2_4;
-extern int16_t SPR_FSCOUT_W2_5;
-extern int16_t SPR_FSCOUT_W2_6;
-extern int16_t SPR_FSCOUT_W2_7;
-extern int16_t SPR_FSCOUT_W2_8;
+extern std::int16_t SPR_FSCOUT_W2_1;
+extern std::int16_t SPR_FSCOUT_W2_2;
+extern std::int16_t SPR_FSCOUT_W2_3;
+extern std::int16_t SPR_FSCOUT_W2_4;
+extern std::int16_t SPR_FSCOUT_W2_5;
+extern std::int16_t SPR_FSCOUT_W2_6;
+extern std::int16_t SPR_FSCOUT_W2_7;
+extern std::int16_t SPR_FSCOUT_W2_8;
 
-extern int16_t SPR_FSCOUT_W3_1;
-extern int16_t SPR_FSCOUT_W3_2;
-extern int16_t SPR_FSCOUT_W3_3;
-extern int16_t SPR_FSCOUT_W3_4;
-extern int16_t SPR_FSCOUT_W3_5;
-extern int16_t SPR_FSCOUT_W3_6;
-extern int16_t SPR_FSCOUT_W3_7;
-extern int16_t SPR_FSCOUT_W3_8;
+extern std::int16_t SPR_FSCOUT_W3_1;
+extern std::int16_t SPR_FSCOUT_W3_2;
+extern std::int16_t SPR_FSCOUT_W3_3;
+extern std::int16_t SPR_FSCOUT_W3_4;
+extern std::int16_t SPR_FSCOUT_W3_5;
+extern std::int16_t SPR_FSCOUT_W3_6;
+extern std::int16_t SPR_FSCOUT_W3_7;
+extern std::int16_t SPR_FSCOUT_W3_8;
 
-extern int16_t SPR_FSCOUT_W4_1;
-extern int16_t SPR_FSCOUT_W4_2;
-extern int16_t SPR_FSCOUT_W4_3;
-extern int16_t SPR_FSCOUT_W4_4;
-extern int16_t SPR_FSCOUT_W4_5;
-extern int16_t SPR_FSCOUT_W4_6;
-extern int16_t SPR_FSCOUT_W4_7;
-extern int16_t SPR_FSCOUT_W4_8;
+extern std::int16_t SPR_FSCOUT_W4_1;
+extern std::int16_t SPR_FSCOUT_W4_2;
+extern std::int16_t SPR_FSCOUT_W4_3;
+extern std::int16_t SPR_FSCOUT_W4_4;
+extern std::int16_t SPR_FSCOUT_W4_5;
+extern std::int16_t SPR_FSCOUT_W4_6;
+extern std::int16_t SPR_FSCOUT_W4_7;
+extern std::int16_t SPR_FSCOUT_W4_8;
 
-extern int16_t SPR_FSCOUT_DIE1;
-extern int16_t SPR_FSCOUT_DIE2;
-extern int16_t SPR_FSCOUT_DIE3;
-extern int16_t SPR_FSCOUT_DIE4;
-extern int16_t SPR_FSCOUT_DIE5;
-extern int16_t SPR_FSCOUT_DIE6;
-extern int16_t SPR_FSCOUT_DIE7;
-extern int16_t SPR_FSCOUT_DEAD;
+extern std::int16_t SPR_FSCOUT_DIE1;
+extern std::int16_t SPR_FSCOUT_DIE2;
+extern std::int16_t SPR_FSCOUT_DIE3;
+extern std::int16_t SPR_FSCOUT_DIE4;
+extern std::int16_t SPR_FSCOUT_DIE5;
+extern std::int16_t SPR_FSCOUT_DIE6;
+extern std::int16_t SPR_FSCOUT_DIE7;
+extern std::int16_t SPR_FSCOUT_DEAD;
 
 //
 // General Explosion Anim
 //
-extern int16_t SPR_EXPLOSION_1;
-extern int16_t SPR_EXPLOSION_2;
-extern int16_t SPR_EXPLOSION_3;
-extern int16_t SPR_EXPLOSION_4;
-extern int16_t SPR_EXPLOSION_5;
+extern std::int16_t SPR_EXPLOSION_1;
+extern std::int16_t SPR_EXPLOSION_2;
+extern std::int16_t SPR_EXPLOSION_3;
+extern std::int16_t SPR_EXPLOSION_4;
+extern std::int16_t SPR_EXPLOSION_5;
 
 //
 // Projection Generator
 //
-extern int16_t SPR_VITAL_STAND;
-extern int16_t SPR_VITAL_DIE_1;
-extern int16_t SPR_VITAL_DIE_2;
-extern int16_t SPR_VITAL_DIE_3;
-extern int16_t SPR_VITAL_DIE_4;
-extern int16_t SPR_VITAL_DIE_5;
-extern int16_t SPR_VITAL_DIE_6;
-extern int16_t SPR_VITAL_DIE_7;
-extern int16_t SPR_VITAL_DIE_8;
-extern int16_t SPR_VITAL_DEAD_1;
-extern int16_t SPR_VITAL_DEAD_2;
-extern int16_t SPR_VITAL_DEAD_3;
-extern int16_t SPR_VITAL_OUCH;
+extern std::int16_t SPR_VITAL_STAND;
+extern std::int16_t SPR_VITAL_DIE_1;
+extern std::int16_t SPR_VITAL_DIE_2;
+extern std::int16_t SPR_VITAL_DIE_3;
+extern std::int16_t SPR_VITAL_DIE_4;
+extern std::int16_t SPR_VITAL_DIE_5;
+extern std::int16_t SPR_VITAL_DIE_6;
+extern std::int16_t SPR_VITAL_DIE_7;
+extern std::int16_t SPR_VITAL_DIE_8;
+extern std::int16_t SPR_VITAL_DEAD_1;
+extern std::int16_t SPR_VITAL_DEAD_2;
+extern std::int16_t SPR_VITAL_DEAD_3;
+extern std::int16_t SPR_VITAL_OUCH;
 
 //
 // Security Cube
 //
-extern int16_t SPR_CUBE1;
-extern int16_t SPR_CUBE2;
-extern int16_t SPR_CUBE3;
-extern int16_t SPR_CUBE4;
-extern int16_t SPR_CUBE5;
-extern int16_t SPR_CUBE6;
-extern int16_t SPR_CUBE7;
-extern int16_t SPR_CUBE8;
-extern int16_t SPR_CUBE9;
-extern int16_t SPR_CUBE10;
-extern int16_t SPR_CUBE_EXP1;
-extern int16_t SPR_CUBE_EXP2;
-extern int16_t SPR_CUBE_EXP3;
-extern int16_t SPR_CUBE_EXP4;
-extern int16_t SPR_CUBE_EXP5;
-extern int16_t SPR_CUBE_EXP6;
-extern int16_t SPR_CUBE_EXP7;
-extern int16_t SPR_CUBE_EXP8;
-extern int16_t SPR_DEAD_CUBE;
+extern std::int16_t SPR_CUBE1;
+extern std::int16_t SPR_CUBE2;
+extern std::int16_t SPR_CUBE3;
+extern std::int16_t SPR_CUBE4;
+extern std::int16_t SPR_CUBE5;
+extern std::int16_t SPR_CUBE6;
+extern std::int16_t SPR_CUBE7;
+extern std::int16_t SPR_CUBE8;
+extern std::int16_t SPR_CUBE9;
+extern std::int16_t SPR_CUBE10;
+extern std::int16_t SPR_CUBE_EXP1;
+extern std::int16_t SPR_CUBE_EXP2;
+extern std::int16_t SPR_CUBE_EXP3;
+extern std::int16_t SPR_CUBE_EXP4;
+extern std::int16_t SPR_CUBE_EXP5;
+extern std::int16_t SPR_CUBE_EXP6;
+extern std::int16_t SPR_CUBE_EXP7;
+extern std::int16_t SPR_CUBE_EXP8;
+extern std::int16_t SPR_DEAD_CUBE;
 
 //
 // Red Security Lights
 //
-extern int16_t SPR_SECURITY_NORMAL;
-extern int16_t SPR_SECURITY_ALERT;
+extern std::int16_t SPR_SECURITY_NORMAL;
+extern std::int16_t SPR_SECURITY_ALERT;
 
 //
 // P.O.D. Alien
 //
-extern int16_t SPR_POD_EGG;
-extern int16_t SPR_POD_HATCH1;
-extern int16_t SPR_POD_HATCH2;
-extern int16_t SPR_POD_HATCH3;
-extern int16_t SPR_POD_WALK1;
-extern int16_t SPR_POD_WALK2;
-extern int16_t SPR_POD_WALK3;
-extern int16_t SPR_POD_WALK4;
-extern int16_t SPR_POD_ATTACK1;
-extern int16_t SPR_POD_ATTACK2;
-extern int16_t SPR_POD_ATTACK3;
-extern int16_t SPR_POD_OUCH;
-extern int16_t SPR_POD_DIE1;
-extern int16_t SPR_POD_DIE2;
-extern int16_t SPR_POD_DIE3;
-extern int16_t SPR_POD_SPIT1;
-extern int16_t SPR_POD_SPIT2;
-extern int16_t SPR_POD_SPIT3;
+extern std::int16_t SPR_POD_EGG;
+extern std::int16_t SPR_POD_HATCH1;
+extern std::int16_t SPR_POD_HATCH2;
+extern std::int16_t SPR_POD_HATCH3;
+extern std::int16_t SPR_POD_WALK1;
+extern std::int16_t SPR_POD_WALK2;
+extern std::int16_t SPR_POD_WALK3;
+extern std::int16_t SPR_POD_WALK4;
+extern std::int16_t SPR_POD_ATTACK1;
+extern std::int16_t SPR_POD_ATTACK2;
+extern std::int16_t SPR_POD_ATTACK3;
+extern std::int16_t SPR_POD_OUCH;
+extern std::int16_t SPR_POD_DIE1;
+extern std::int16_t SPR_POD_DIE2;
+extern std::int16_t SPR_POD_DIE3;
+extern std::int16_t SPR_POD_SPIT1;
+extern std::int16_t SPR_POD_SPIT2;
+extern std::int16_t SPR_POD_SPIT3;
 
 //
 // Electro-Alien
 //
-extern int16_t SPR_ELEC_APPEAR1;
-extern int16_t SPR_ELEC_APPEAR2;
-extern int16_t SPR_ELEC_APPEAR3;
-extern int16_t SPR_ELEC_WALK1;
-extern int16_t SPR_ELEC_WALK2;
-extern int16_t SPR_ELEC_WALK3;
-extern int16_t SPR_ELEC_WALK4;
-extern int16_t SPR_ELEC_OUCH;
-extern int16_t SPR_ELEC_SHOOT1;
-extern int16_t SPR_ELEC_SHOOT2;
-extern int16_t SPR_ELEC_SHOOT3;
-extern int16_t SPR_ELEC_DIE1;
-extern int16_t SPR_ELEC_DIE2;
-extern int16_t SPR_ELEC_DIE3;
-extern int16_t SPR_ELEC_SHOT1;
-extern int16_t SPR_ELEC_SHOT2;
-extern int16_t SPR_ELEC_SHOT_EXP1;
-extern int16_t SPR_ELEC_SHOT_EXP2;
+extern std::int16_t SPR_ELEC_APPEAR1;
+extern std::int16_t SPR_ELEC_APPEAR2;
+extern std::int16_t SPR_ELEC_APPEAR3;
+extern std::int16_t SPR_ELEC_WALK1;
+extern std::int16_t SPR_ELEC_WALK2;
+extern std::int16_t SPR_ELEC_WALK3;
+extern std::int16_t SPR_ELEC_WALK4;
+extern std::int16_t SPR_ELEC_OUCH;
+extern std::int16_t SPR_ELEC_SHOOT1;
+extern std::int16_t SPR_ELEC_SHOOT2;
+extern std::int16_t SPR_ELEC_SHOOT3;
+extern std::int16_t SPR_ELEC_DIE1;
+extern std::int16_t SPR_ELEC_DIE2;
+extern std::int16_t SPR_ELEC_DIE3;
+extern std::int16_t SPR_ELEC_SHOT1;
+extern std::int16_t SPR_ELEC_SHOT2;
+extern std::int16_t SPR_ELEC_SHOT_EXP1;
+extern std::int16_t SPR_ELEC_SHOT_EXP2;
 
 //
 // ElectroSphere
 //
-extern int16_t SPR_ELECTRO_SPHERE_ROAM1;
-extern int16_t SPR_ELECTRO_SPHERE_ROAM2;
-extern int16_t SPR_ELECTRO_SPHERE_ROAM3;
-extern int16_t SPR_ELECTRO_SPHERE_OUCH;
-extern int16_t SPR_ELECTRO_SPHERE_DIE1;
-extern int16_t SPR_ELECTRO_SPHERE_DIE2;
-extern int16_t SPR_ELECTRO_SPHERE_DIE3;
-extern int16_t SPR_ELECTRO_SPHERE_DIE4;
+extern std::int16_t SPR_ELECTRO_SPHERE_ROAM1;
+extern std::int16_t SPR_ELECTRO_SPHERE_ROAM2;
+extern std::int16_t SPR_ELECTRO_SPHERE_ROAM3;
+extern std::int16_t SPR_ELECTRO_SPHERE_OUCH;
+extern std::int16_t SPR_ELECTRO_SPHERE_DIE1;
+extern std::int16_t SPR_ELECTRO_SPHERE_DIE2;
+extern std::int16_t SPR_ELECTRO_SPHERE_DIE3;
+extern std::int16_t SPR_ELECTRO_SPHERE_DIE4;
 
 //
 // Genetic Guard
 //
-extern int16_t SPR_GENETIC_W1;
-extern int16_t SPR_GENETIC_W2;
-extern int16_t SPR_GENETIC_W3;
-extern int16_t SPR_GENETIC_W4;
-extern int16_t SPR_GENETIC_SWING1;
-extern int16_t SPR_GENETIC_SWING2;
-extern int16_t SPR_GENETIC_SWING3;
-extern int16_t SPR_GENETIC_DEAD;
-extern int16_t SPR_GENETIC_DIE1;
-extern int16_t SPR_GENETIC_DIE2;
-extern int16_t SPR_GENETIC_DIE3;
-extern int16_t SPR_GENETIC_DIE4;
-extern int16_t SPR_GENETIC_OUCH;
-extern int16_t SPR_GENETIC_SHOOT1;
-extern int16_t SPR_GENETIC_SHOOT2;
-extern int16_t SPR_GENETIC_SHOOT3;
+extern std::int16_t SPR_GENETIC_W1;
+extern std::int16_t SPR_GENETIC_W2;
+extern std::int16_t SPR_GENETIC_W3;
+extern std::int16_t SPR_GENETIC_W4;
+extern std::int16_t SPR_GENETIC_SWING1;
+extern std::int16_t SPR_GENETIC_SWING2;
+extern std::int16_t SPR_GENETIC_SWING3;
+extern std::int16_t SPR_GENETIC_DEAD;
+extern std::int16_t SPR_GENETIC_DIE1;
+extern std::int16_t SPR_GENETIC_DIE2;
+extern std::int16_t SPR_GENETIC_DIE3;
+extern std::int16_t SPR_GENETIC_DIE4;
+extern std::int16_t SPR_GENETIC_OUCH;
+extern std::int16_t SPR_GENETIC_SHOOT1;
+extern std::int16_t SPR_GENETIC_SHOOT2;
+extern std::int16_t SPR_GENETIC_SHOOT3;
 
 //
 // Experimental Mech-Sentinel
 //
-extern int16_t SPR_MUTHUM1_W1;
-extern int16_t SPR_MUTHUM1_W2;
-extern int16_t SPR_MUTHUM1_W3;
-extern int16_t SPR_MUTHUM1_W4;
-extern int16_t SPR_MUTHUM1_SWING1;
-extern int16_t SPR_MUTHUM1_SWING2;
-extern int16_t SPR_MUTHUM1_SWING3;
-extern int16_t SPR_MUTHUM1_DEAD;
-extern int16_t SPR_MUTHUM1_DIE1;
-extern int16_t SPR_MUTHUM1_DIE2;
-extern int16_t SPR_MUTHUM1_DIE3;
-extern int16_t SPR_MUTHUM1_DIE4;
-extern int16_t SPR_MUTHUM1_OUCH;
-extern int16_t SPR_MUTHUM1_SPIT1;
-extern int16_t SPR_MUTHUM1_SPIT2;
-extern int16_t SPR_MUTHUM1_SPIT3;
+extern std::int16_t SPR_MUTHUM1_W1;
+extern std::int16_t SPR_MUTHUM1_W2;
+extern std::int16_t SPR_MUTHUM1_W3;
+extern std::int16_t SPR_MUTHUM1_W4;
+extern std::int16_t SPR_MUTHUM1_SWING1;
+extern std::int16_t SPR_MUTHUM1_SWING2;
+extern std::int16_t SPR_MUTHUM1_SWING3;
+extern std::int16_t SPR_MUTHUM1_DEAD;
+extern std::int16_t SPR_MUTHUM1_DIE1;
+extern std::int16_t SPR_MUTHUM1_DIE2;
+extern std::int16_t SPR_MUTHUM1_DIE3;
+extern std::int16_t SPR_MUTHUM1_DIE4;
+extern std::int16_t SPR_MUTHUM1_OUCH;
+extern std::int16_t SPR_MUTHUM1_SPIT1;
+extern std::int16_t SPR_MUTHUM1_SPIT2;
+extern std::int16_t SPR_MUTHUM1_SPIT3;
 
 //
 // Muntant human type 2
 //
-extern int16_t SPR_MUTHUM2_W1;
-extern int16_t SPR_MUTHUM2_W2;
-extern int16_t SPR_MUTHUM2_W3;
-extern int16_t SPR_MUTHUM2_W4;
-extern int16_t SPR_MUTHUM2_SWING1;
-extern int16_t SPR_MUTHUM2_SWING2;
-extern int16_t SPR_MUTHUM2_SWING3;
-extern int16_t SPR_MUTHUM2_DEAD;
-extern int16_t SPR_MUTHUM2_DIE1;
-extern int16_t SPR_MUTHUM2_DIE2;
-extern int16_t SPR_MUTHUM2_DIE3;
-extern int16_t SPR_MUTHUM2_DIE4;
-extern int16_t SPR_MUTHUM2_OUCH;
-extern int16_t SPR_MUTHUM2_SPIT1;
-extern int16_t SPR_MUTHUM2_SPIT2;
-extern int16_t SPR_MUTHUM2_SPIT3;
+extern std::int16_t SPR_MUTHUM2_W1;
+extern std::int16_t SPR_MUTHUM2_W2;
+extern std::int16_t SPR_MUTHUM2_W3;
+extern std::int16_t SPR_MUTHUM2_W4;
+extern std::int16_t SPR_MUTHUM2_SWING1;
+extern std::int16_t SPR_MUTHUM2_SWING2;
+extern std::int16_t SPR_MUTHUM2_SWING3;
+extern std::int16_t SPR_MUTHUM2_DEAD;
+extern std::int16_t SPR_MUTHUM2_DIE1;
+extern std::int16_t SPR_MUTHUM2_DIE2;
+extern std::int16_t SPR_MUTHUM2_DIE3;
+extern std::int16_t SPR_MUTHUM2_DIE4;
+extern std::int16_t SPR_MUTHUM2_OUCH;
+extern std::int16_t SPR_MUTHUM2_SPIT1;
+extern std::int16_t SPR_MUTHUM2_SPIT2;
+extern std::int16_t SPR_MUTHUM2_SPIT3;
 
-extern int16_t SPR_MUTHUM2_MORPH1;
-extern int16_t SPR_MUTHUM2_MORPH2;
-extern int16_t SPR_MUTHUM2_MORPH3;
-extern int16_t SPR_MUTHUM2_MORPH4;
-extern int16_t SPR_MUTHUM2_MORPH5;
-extern int16_t SPR_MUTHUM2_MORPH6;
-extern int16_t SPR_MUTHUM2_MORPH7;
-extern int16_t SPR_MUTHUM2_MORPH8;
-extern int16_t SPR_MUTHUM2_MORPH9;
+extern std::int16_t SPR_MUTHUM2_MORPH1;
+extern std::int16_t SPR_MUTHUM2_MORPH2;
+extern std::int16_t SPR_MUTHUM2_MORPH3;
+extern std::int16_t SPR_MUTHUM2_MORPH4;
+extern std::int16_t SPR_MUTHUM2_MORPH5;
+extern std::int16_t SPR_MUTHUM2_MORPH6;
+extern std::int16_t SPR_MUTHUM2_MORPH7;
+extern std::int16_t SPR_MUTHUM2_MORPH8;
+extern std::int16_t SPR_MUTHUM2_MORPH9;
 
 //
 // Large Cantained Alien
 //
-extern int16_t SPR_LCAN_ALIEN_READY;
-extern int16_t SPR_LCAN_ALIEN_B1;
-extern int16_t SPR_LCAN_ALIEN_B2;
-extern int16_t SPR_LCAN_ALIEN_B3;
-extern int16_t SPR_LCAN_ALIEN_EMPTY;
+extern std::int16_t SPR_LCAN_ALIEN_READY;
+extern std::int16_t SPR_LCAN_ALIEN_B1;
+extern std::int16_t SPR_LCAN_ALIEN_B2;
+extern std::int16_t SPR_LCAN_ALIEN_B3;
+extern std::int16_t SPR_LCAN_ALIEN_EMPTY;
 
-extern int16_t SPR_LCAN_ALIEN_W1;
-extern int16_t SPR_LCAN_ALIEN_W2;
-extern int16_t SPR_LCAN_ALIEN_W3;
-extern int16_t SPR_LCAN_ALIEN_W4;
-extern int16_t SPR_LCAN_ALIEN_SWING1;
-extern int16_t SPR_LCAN_ALIEN_SWING2;
-extern int16_t SPR_LCAN_ALIEN_SWING3;
-extern int16_t SPR_LCAN_ALIEN_DEAD;
-extern int16_t SPR_LCAN_ALIEN_DIE1;
-extern int16_t SPR_LCAN_ALIEN_DIE2;
-extern int16_t SPR_LCAN_ALIEN_DIE3;
-extern int16_t SPR_LCAN_ALIEN_DIE4;
-extern int16_t SPR_LCAN_ALIEN_OUCH;
-extern int16_t SPR_LCAN_ALIEN_SPIT1;
-extern int16_t SPR_LCAN_ALIEN_SPIT2;
-extern int16_t SPR_LCAN_ALIEN_SPIT3;
+extern std::int16_t SPR_LCAN_ALIEN_W1;
+extern std::int16_t SPR_LCAN_ALIEN_W2;
+extern std::int16_t SPR_LCAN_ALIEN_W3;
+extern std::int16_t SPR_LCAN_ALIEN_W4;
+extern std::int16_t SPR_LCAN_ALIEN_SWING1;
+extern std::int16_t SPR_LCAN_ALIEN_SWING2;
+extern std::int16_t SPR_LCAN_ALIEN_SWING3;
+extern std::int16_t SPR_LCAN_ALIEN_DEAD;
+extern std::int16_t SPR_LCAN_ALIEN_DIE1;
+extern std::int16_t SPR_LCAN_ALIEN_DIE2;
+extern std::int16_t SPR_LCAN_ALIEN_DIE3;
+extern std::int16_t SPR_LCAN_ALIEN_DIE4;
+extern std::int16_t SPR_LCAN_ALIEN_OUCH;
+extern std::int16_t SPR_LCAN_ALIEN_SPIT1;
+extern std::int16_t SPR_LCAN_ALIEN_SPIT2;
+extern std::int16_t SPR_LCAN_ALIEN_SPIT3;
 
 //
 // Small Canister Alien
 //
-extern int16_t SPR_SCAN_ALIEN_READY;
-extern int16_t SPR_SCAN_ALIEN_B1;
-extern int16_t SPR_SCAN_ALIEN_B2;
-extern int16_t SPR_SCAN_ALIEN_B3;
-extern int16_t SPR_SCAN_ALIEN_EMPTY;
+extern std::int16_t SPR_SCAN_ALIEN_READY;
+extern std::int16_t SPR_SCAN_ALIEN_B1;
+extern std::int16_t SPR_SCAN_ALIEN_B2;
+extern std::int16_t SPR_SCAN_ALIEN_B3;
+extern std::int16_t SPR_SCAN_ALIEN_EMPTY;
 
-extern int16_t SPR_SCAN_ALIEN_W1;
-extern int16_t SPR_SCAN_ALIEN_W2;
-extern int16_t SPR_SCAN_ALIEN_W3;
-extern int16_t SPR_SCAN_ALIEN_W4;
-extern int16_t SPR_SCAN_ALIEN_SWING1;
-extern int16_t SPR_SCAN_ALIEN_SWING2;
-extern int16_t SPR_SCAN_ALIEN_SWING3;
-extern int16_t SPR_SCAN_ALIEN_DEAD;
-extern int16_t SPR_SCAN_ALIEN_DIE1;
-extern int16_t SPR_SCAN_ALIEN_DIE2;
-extern int16_t SPR_SCAN_ALIEN_DIE3;
-extern int16_t SPR_SCAN_ALIEN_DIE4;
-extern int16_t SPR_SCAN_ALIEN_OUCH;
+extern std::int16_t SPR_SCAN_ALIEN_W1;
+extern std::int16_t SPR_SCAN_ALIEN_W2;
+extern std::int16_t SPR_SCAN_ALIEN_W3;
+extern std::int16_t SPR_SCAN_ALIEN_W4;
+extern std::int16_t SPR_SCAN_ALIEN_SWING1;
+extern std::int16_t SPR_SCAN_ALIEN_SWING2;
+extern std::int16_t SPR_SCAN_ALIEN_SWING3;
+extern std::int16_t SPR_SCAN_ALIEN_DEAD;
+extern std::int16_t SPR_SCAN_ALIEN_DIE1;
+extern std::int16_t SPR_SCAN_ALIEN_DIE2;
+extern std::int16_t SPR_SCAN_ALIEN_DIE3;
+extern std::int16_t SPR_SCAN_ALIEN_DIE4;
+extern std::int16_t SPR_SCAN_ALIEN_OUCH;
 
-extern int16_t SPR_SCAN_ALIEN_SPIT1;
-extern int16_t SPR_SCAN_ALIEN_SPIT2;
-extern int16_t SPR_SCAN_ALIEN_SPIT3;
+extern std::int16_t SPR_SCAN_ALIEN_SPIT1;
+extern std::int16_t SPR_SCAN_ALIEN_SPIT2;
+extern std::int16_t SPR_SCAN_ALIEN_SPIT3;
 
 //
 // Gurney Mutant
 //
-extern int16_t SPR_GURNEY_MUT_READY;
-extern int16_t SPR_GURNEY_MUT_B1;
-extern int16_t SPR_GURNEY_MUT_B2;
-extern int16_t SPR_GURNEY_MUT_B3;
-extern int16_t SPR_GURNEY_MUT_EMPTY;
+extern std::int16_t SPR_GURNEY_MUT_READY;
+extern std::int16_t SPR_GURNEY_MUT_B1;
+extern std::int16_t SPR_GURNEY_MUT_B2;
+extern std::int16_t SPR_GURNEY_MUT_B3;
+extern std::int16_t SPR_GURNEY_MUT_EMPTY;
 
-extern int16_t SPR_GURNEY_MUT_W1;
-extern int16_t SPR_GURNEY_MUT_W2;
-extern int16_t SPR_GURNEY_MUT_W3;
-extern int16_t SPR_GURNEY_MUT_W4;
-extern int16_t SPR_GURNEY_MUT_SWING1;
-extern int16_t SPR_GURNEY_MUT_SWING2;
-extern int16_t SPR_GURNEY_MUT_SWING3;
-extern int16_t SPR_GURNEY_MUT_DEAD;
-extern int16_t SPR_GURNEY_MUT_DIE1;
-extern int16_t SPR_GURNEY_MUT_DIE2;
-extern int16_t SPR_GURNEY_MUT_DIE3;
-extern int16_t SPR_GURNEY_MUT_DIE4;
-extern int16_t SPR_GURNEY_MUT_OUCH;
+extern std::int16_t SPR_GURNEY_MUT_W1;
+extern std::int16_t SPR_GURNEY_MUT_W2;
+extern std::int16_t SPR_GURNEY_MUT_W3;
+extern std::int16_t SPR_GURNEY_MUT_W4;
+extern std::int16_t SPR_GURNEY_MUT_SWING1;
+extern std::int16_t SPR_GURNEY_MUT_SWING2;
+extern std::int16_t SPR_GURNEY_MUT_SWING3;
+extern std::int16_t SPR_GURNEY_MUT_DEAD;
+extern std::int16_t SPR_GURNEY_MUT_DIE1;
+extern std::int16_t SPR_GURNEY_MUT_DIE2;
+extern std::int16_t SPR_GURNEY_MUT_DIE3;
+extern std::int16_t SPR_GURNEY_MUT_DIE4;
+extern std::int16_t SPR_GURNEY_MUT_OUCH;
 
 //
 // Liquid Alien
 //
-extern int16_t SPR_LIQUID_M1;
-extern int16_t SPR_LIQUID_M2;
-extern int16_t SPR_LIQUID_M3;
-extern int16_t SPR_LIQUID_R1;
-extern int16_t SPR_LIQUID_R2;
-extern int16_t SPR_LIQUID_R3;
-extern int16_t SPR_LIQUID_R4;
-extern int16_t SPR_LIQUID_S1;
-extern int16_t SPR_LIQUID_S2;
-extern int16_t SPR_LIQUID_S3;
-extern int16_t SPR_LIQUID_OUCH;
-extern int16_t SPR_LIQUID_DIE_1;
-extern int16_t SPR_LIQUID_DIE_2;
-extern int16_t SPR_LIQUID_DIE_3;
-extern int16_t SPR_LIQUID_DIE_4;
-extern int16_t SPR_LIQUID_DEAD;
-extern int16_t SPR_LIQUID_SHOT_FLY_1;
-extern int16_t SPR_LIQUID_SHOT_FLY_2;
-extern int16_t SPR_LIQUID_SHOT_FLY_3;
-extern int16_t SPR_LIQUID_SHOT_BURST_1;
-extern int16_t SPR_LIQUID_SHOT_BURST_2;
-extern int16_t SPR_LIQUID_SHOT_BURST_3;
+extern std::int16_t SPR_LIQUID_M1;
+extern std::int16_t SPR_LIQUID_M2;
+extern std::int16_t SPR_LIQUID_M3;
+extern std::int16_t SPR_LIQUID_R1;
+extern std::int16_t SPR_LIQUID_R2;
+extern std::int16_t SPR_LIQUID_R3;
+extern std::int16_t SPR_LIQUID_R4;
+extern std::int16_t SPR_LIQUID_S1;
+extern std::int16_t SPR_LIQUID_S2;
+extern std::int16_t SPR_LIQUID_S3;
+extern std::int16_t SPR_LIQUID_OUCH;
+extern std::int16_t SPR_LIQUID_DIE_1;
+extern std::int16_t SPR_LIQUID_DIE_2;
+extern std::int16_t SPR_LIQUID_DIE_3;
+extern std::int16_t SPR_LIQUID_DIE_4;
+extern std::int16_t SPR_LIQUID_DEAD;
+extern std::int16_t SPR_LIQUID_SHOT_FLY_1;
+extern std::int16_t SPR_LIQUID_SHOT_FLY_2;
+extern std::int16_t SPR_LIQUID_SHOT_FLY_3;
+extern std::int16_t SPR_LIQUID_SHOT_BURST_1;
+extern std::int16_t SPR_LIQUID_SHOT_BURST_2;
+extern std::int16_t SPR_LIQUID_SHOT_BURST_3;
 
 //
 // Spit Shots
 //
-extern int16_t SPR_SPIT1_1;
-extern int16_t SPR_SPIT1_2;
-extern int16_t SPR_SPIT1_3;
-extern int16_t SPR_SPIT_EXP1_1;
-extern int16_t SPR_SPIT_EXP1_2;
-extern int16_t SPR_SPIT_EXP1_3;
+extern std::int16_t SPR_SPIT1_1;
+extern std::int16_t SPR_SPIT1_2;
+extern std::int16_t SPR_SPIT1_3;
+extern std::int16_t SPR_SPIT_EXP1_1;
+extern std::int16_t SPR_SPIT_EXP1_2;
+extern std::int16_t SPR_SPIT_EXP1_3;
 
-extern int16_t SPR_SPIT2_1;
-extern int16_t SPR_SPIT2_2;
-extern int16_t SPR_SPIT2_3;
-extern int16_t SPR_SPIT_EXP2_1;
-extern int16_t SPR_SPIT_EXP2_2;
-extern int16_t SPR_SPIT_EXP2_3;
+extern std::int16_t SPR_SPIT2_1;
+extern std::int16_t SPR_SPIT2_2;
+extern std::int16_t SPR_SPIT2_3;
+extern std::int16_t SPR_SPIT_EXP2_1;
+extern std::int16_t SPR_SPIT_EXP2_2;
+extern std::int16_t SPR_SPIT_EXP2_3;
 
-extern int16_t SPR_SPIT3_1;
-extern int16_t SPR_SPIT3_2;
-extern int16_t SPR_SPIT3_3;
-extern int16_t SPR_SPIT_EXP3_1;
-extern int16_t SPR_SPIT_EXP3_2;
-extern int16_t SPR_SPIT_EXP3_3;
+extern std::int16_t SPR_SPIT3_1;
+extern std::int16_t SPR_SPIT3_2;
+extern std::int16_t SPR_SPIT3_3;
+extern std::int16_t SPR_SPIT_EXP3_1;
+extern std::int16_t SPR_SPIT_EXP3_2;
+extern std::int16_t SPR_SPIT_EXP3_3;
 
 //
 // Hanging Turret
 //
-extern int16_t SPR_TERROT_1;
-extern int16_t SPR_TERROT_2;
-extern int16_t SPR_TERROT_3;
-extern int16_t SPR_TERROT_4;
-extern int16_t SPR_TERROT_5;
-extern int16_t SPR_TERROT_6;
-extern int16_t SPR_TERROT_7;
-extern int16_t SPR_TERROT_8;
+extern std::int16_t SPR_TERROT_1;
+extern std::int16_t SPR_TERROT_2;
+extern std::int16_t SPR_TERROT_3;
+extern std::int16_t SPR_TERROT_4;
+extern std::int16_t SPR_TERROT_5;
+extern std::int16_t SPR_TERROT_6;
+extern std::int16_t SPR_TERROT_7;
+extern std::int16_t SPR_TERROT_8;
 
-extern int16_t SPR_TERROT_FIRE_1;
-extern int16_t SPR_TERROT_FIRE_2;
-extern int16_t SPR_TERROT_DIE_1;
-extern int16_t SPR_TERROT_DIE_2;
-extern int16_t SPR_TERROT_DIE_3;
-extern int16_t SPR_TERROT_DIE_4;
-extern int16_t SPR_TERROT_DEAD;
+extern std::int16_t SPR_TERROT_FIRE_1;
+extern std::int16_t SPR_TERROT_FIRE_2;
+extern std::int16_t SPR_TERROT_DIE_1;
+extern std::int16_t SPR_TERROT_DIE_2;
+extern std::int16_t SPR_TERROT_DIE_3;
+extern std::int16_t SPR_TERROT_DIE_4;
+extern std::int16_t SPR_TERROT_DEAD;
 
 //
 // Player attack frames
 //
-extern int16_t SPR_KNIFEREADY;
-extern int16_t SPR_KNIFEATK1;
-extern int16_t SPR_KNIFEATK2;
-extern int16_t SPR_KNIFEATK3;
-extern int16_t SPR_KNIFEATK4;
+extern std::int16_t SPR_KNIFEREADY;
+extern std::int16_t SPR_KNIFEATK1;
+extern std::int16_t SPR_KNIFEATK2;
+extern std::int16_t SPR_KNIFEATK3;
+extern std::int16_t SPR_KNIFEATK4;
 
-extern int16_t SPR_PISTOLREADY;
-extern int16_t SPR_PISTOLATK1;
-extern int16_t SPR_PISTOLATK2;
-extern int16_t SPR_PISTOLATK3;
-extern int16_t SPR_PISTOLATK4;
+extern std::int16_t SPR_PISTOLREADY;
+extern std::int16_t SPR_PISTOLATK1;
+extern std::int16_t SPR_PISTOLATK2;
+extern std::int16_t SPR_PISTOLATK3;
+extern std::int16_t SPR_PISTOLATK4;
 
-extern int16_t SPR_MACHINEGUNREADY;
-extern int16_t SPR_MACHINEGUNATK1;
-extern int16_t SPR_MACHINEGUNATK2;
-extern int16_t SPR_MACHINEGUNATK3;
-extern int16_t SPR_MACHINEGUNATK4;
+extern std::int16_t SPR_MACHINEGUNREADY;
+extern std::int16_t SPR_MACHINEGUNATK1;
+extern std::int16_t SPR_MACHINEGUNATK2;
+extern std::int16_t SPR_MACHINEGUNATK3;
+extern std::int16_t SPR_MACHINEGUNATK4;
 
-extern int16_t SPR_CHAINREADY;
-extern int16_t SPR_CHAINATK1;
-extern int16_t SPR_CHAINATK2;
-extern int16_t SPR_CHAINATK3;
-extern int16_t SPR_CHAINATK4;
+extern std::int16_t SPR_CHAINREADY;
+extern std::int16_t SPR_CHAINATK1;
+extern std::int16_t SPR_CHAINATK2;
+extern std::int16_t SPR_CHAINATK3;
+extern std::int16_t SPR_CHAINATK4;
 
-extern int16_t SPR_GRENADEREADY;
-extern int16_t SPR_GRENADEATK1;
-extern int16_t SPR_GRENADEATK2;
-extern int16_t SPR_GRENADEATK3;
-extern int16_t SPR_GRENADEATK4;
+extern std::int16_t SPR_GRENADEREADY;
+extern std::int16_t SPR_GRENADEATK1;
+extern std::int16_t SPR_GRENADEATK2;
+extern std::int16_t SPR_GRENADEATK3;
+extern std::int16_t SPR_GRENADEATK4;
 
-extern int16_t SPR_GRENADE_FLY1;
-extern int16_t SPR_GRENADE_FLY2;
-extern int16_t SPR_GRENADE_FLY3;
-extern int16_t SPR_GRENADE_FLY4;
-extern int16_t SPR_GRENADE_EXPLODE1;
-extern int16_t SPR_GRENADE_EXPLODE2;
-extern int16_t SPR_GRENADE_EXPLODE3;
-extern int16_t SPR_GRENADE_EXPLODE4;
-extern int16_t SPR_GRENADE_EXPLODE5;
+extern std::int16_t SPR_GRENADE_FLY1;
+extern std::int16_t SPR_GRENADE_FLY2;
+extern std::int16_t SPR_GRENADE_FLY3;
+extern std::int16_t SPR_GRENADE_FLY4;
+extern std::int16_t SPR_GRENADE_EXPLODE1;
+extern std::int16_t SPR_GRENADE_EXPLODE2;
+extern std::int16_t SPR_GRENADE_EXPLODE3;
+extern std::int16_t SPR_GRENADE_EXPLODE4;
+extern std::int16_t SPR_GRENADE_EXPLODE5;
 
-extern int16_t SPR_ELEC_ARC1;
-extern int16_t SPR_ELEC_ARC2;
-extern int16_t SPR_ELEC_ARC3;
-extern int16_t SPR_ELEC_ARC4;
-extern int16_t SPR_ELEC_POST1;
-extern int16_t SPR_ELEC_POST2;
-extern int16_t SPR_ELEC_POST3;
-extern int16_t SPR_ELEC_POST4;
+extern std::int16_t SPR_ELEC_ARC1;
+extern std::int16_t SPR_ELEC_ARC2;
+extern std::int16_t SPR_ELEC_ARC3;
+extern std::int16_t SPR_ELEC_ARC4;
+extern std::int16_t SPR_ELEC_POST1;
+extern std::int16_t SPR_ELEC_POST2;
+extern std::int16_t SPR_ELEC_POST3;
+extern std::int16_t SPR_ELEC_POST4;
 
-extern int16_t SPR_VPOST1;
-extern int16_t SPR_VPOST2;
-extern int16_t SPR_VPOST3;
-extern int16_t SPR_VPOST4;
-extern int16_t SPR_VPOST5;
-extern int16_t SPR_VPOST6;
-extern int16_t SPR_VPOST7;
-extern int16_t SPR_VPOST8;
+extern std::int16_t SPR_VPOST1;
+extern std::int16_t SPR_VPOST2;
+extern std::int16_t SPR_VPOST3;
+extern std::int16_t SPR_VPOST4;
+extern std::int16_t SPR_VPOST5;
+extern std::int16_t SPR_VPOST6;
+extern std::int16_t SPR_VPOST7;
+extern std::int16_t SPR_VPOST8;
 
-extern int16_t SPR_VSPIKE1;
-extern int16_t SPR_VSPIKE2;
-extern int16_t SPR_VSPIKE3;
-extern int16_t SPR_VSPIKE4;
-extern int16_t SPR_VSPIKE5;
-extern int16_t SPR_VSPIKE6;
-extern int16_t SPR_VSPIKE7;
-extern int16_t SPR_VSPIKE8;
+extern std::int16_t SPR_VSPIKE1;
+extern std::int16_t SPR_VSPIKE2;
+extern std::int16_t SPR_VSPIKE3;
+extern std::int16_t SPR_VSPIKE4;
+extern std::int16_t SPR_VSPIKE5;
+extern std::int16_t SPR_VSPIKE6;
+extern std::int16_t SPR_VSPIKE7;
+extern std::int16_t SPR_VSPIKE8;
 
-extern int16_t SPR_GREEN_OOZE1;
-extern int16_t SPR_GREEN_OOZE2;
-extern int16_t SPR_GREEN_OOZE3;
-extern int16_t SPR_BLACK_OOZE1;
-extern int16_t SPR_BLACK_OOZE2;
-extern int16_t SPR_BLACK_OOZE3;
+extern std::int16_t SPR_GREEN_OOZE1;
+extern std::int16_t SPR_GREEN_OOZE2;
+extern std::int16_t SPR_GREEN_OOZE3;
+extern std::int16_t SPR_BLACK_OOZE1;
+extern std::int16_t SPR_BLACK_OOZE2;
+extern std::int16_t SPR_BLACK_OOZE3;
 
-extern int16_t SPR_GREEN2_OOZE1;
-extern int16_t SPR_GREEN2_OOZE2;
-extern int16_t SPR_GREEN2_OOZE3;
-extern int16_t SPR_BLACK2_OOZE1;
-extern int16_t SPR_BLACK2_OOZE2;
-extern int16_t SPR_BLACK2_OOZE3;
+extern std::int16_t SPR_GREEN2_OOZE1;
+extern std::int16_t SPR_GREEN2_OOZE2;
+extern std::int16_t SPR_GREEN2_OOZE3;
+extern std::int16_t SPR_BLACK2_OOZE1;
+extern std::int16_t SPR_BLACK2_OOZE2;
+extern std::int16_t SPR_BLACK2_OOZE3;
 
-extern int16_t SPR_CANDY_BAR;
-extern int16_t SPR_CANDY_WRAPER;
-extern int16_t SPR_SANDWICH;
-extern int16_t SPR_SANDWICH_WRAPER;
+extern std::int16_t SPR_CANDY_BAR;
+extern std::int16_t SPR_CANDY_WRAPER;
+extern std::int16_t SPR_SANDWICH;
+extern std::int16_t SPR_SANDWICH_WRAPER;
 
-extern int16_t SPR_BLAKE_W1;
-extern int16_t SPR_BLAKE_W2;
-extern int16_t SPR_BLAKE_W3;
-extern int16_t SPR_BLAKE_W4;
+extern std::int16_t SPR_BLAKE_W1;
+extern std::int16_t SPR_BLAKE_W2;
+extern std::int16_t SPR_BLAKE_W3;
+extern std::int16_t SPR_BLAKE_W4;
 
 //
 // Boss 1 (Spider Mutant)
 //
-extern int16_t SPR_BOSS1_W1;
-extern int16_t SPR_BOSS1_W2;
-extern int16_t SPR_BOSS1_W3;
-extern int16_t SPR_BOSS1_W4;
-extern int16_t SPR_BOSS1_SWING1;
-extern int16_t SPR_BOSS1_SWING2;
-extern int16_t SPR_BOSS1_SWING3;
-extern int16_t SPR_BOSS1_DEAD;
-extern int16_t SPR_BOSS1_DIE1;
-extern int16_t SPR_BOSS1_DIE2;
-extern int16_t SPR_BOSS1_DIE3;
-extern int16_t SPR_BOSS1_DIE4;
-extern int16_t SPR_BOSS1_OUCH;
-extern int16_t SPR_BOSS1_PROJ1;
-extern int16_t SPR_BOSS1_PROJ2;
-extern int16_t SPR_BOSS1_PROJ3;
-extern int16_t SPR_BOSS1_EXP1;
-extern int16_t SPR_BOSS1_EXP2;
-extern int16_t SPR_BOSS1_EXP3;
-extern int16_t SPR_BOSS1_MORPH1;
-extern int16_t SPR_BOSS1_MORPH2;
-extern int16_t SPR_BOSS1_MORPH3;
-extern int16_t SPR_BOSS1_MORPH4;
-extern int16_t SPR_BOSS1_MORPH5;
-extern int16_t SPR_BOSS1_MORPH6;
-extern int16_t SPR_BOSS1_MORPH7;
-extern int16_t SPR_BOSS1_MORPH8;
-extern int16_t SPR_BOSS1_MORPH9;
+extern std::int16_t SPR_BOSS1_W1;
+extern std::int16_t SPR_BOSS1_W2;
+extern std::int16_t SPR_BOSS1_W3;
+extern std::int16_t SPR_BOSS1_W4;
+extern std::int16_t SPR_BOSS1_SWING1;
+extern std::int16_t SPR_BOSS1_SWING2;
+extern std::int16_t SPR_BOSS1_SWING3;
+extern std::int16_t SPR_BOSS1_DEAD;
+extern std::int16_t SPR_BOSS1_DIE1;
+extern std::int16_t SPR_BOSS1_DIE2;
+extern std::int16_t SPR_BOSS1_DIE3;
+extern std::int16_t SPR_BOSS1_DIE4;
+extern std::int16_t SPR_BOSS1_OUCH;
+extern std::int16_t SPR_BOSS1_PROJ1;
+extern std::int16_t SPR_BOSS1_PROJ2;
+extern std::int16_t SPR_BOSS1_PROJ3;
+extern std::int16_t SPR_BOSS1_EXP1;
+extern std::int16_t SPR_BOSS1_EXP2;
+extern std::int16_t SPR_BOSS1_EXP3;
+extern std::int16_t SPR_BOSS1_MORPH1;
+extern std::int16_t SPR_BOSS1_MORPH2;
+extern std::int16_t SPR_BOSS1_MORPH3;
+extern std::int16_t SPR_BOSS1_MORPH4;
+extern std::int16_t SPR_BOSS1_MORPH5;
+extern std::int16_t SPR_BOSS1_MORPH6;
+extern std::int16_t SPR_BOSS1_MORPH7;
+extern std::int16_t SPR_BOSS1_MORPH8;
+extern std::int16_t SPR_BOSS1_MORPH9;
 
 //
 // Boss 2 (Breather Beast)
 //
-extern int16_t SPR_BOSS2_W1;
-extern int16_t SPR_BOSS2_W2;
-extern int16_t SPR_BOSS2_W3;
-extern int16_t SPR_BOSS2_W4;
-extern int16_t SPR_BOSS2_SWING1;
-extern int16_t SPR_BOSS2_SWING2;
-extern int16_t SPR_BOSS2_SWING3;
-extern int16_t SPR_BOSS2_DEAD;
-extern int16_t SPR_BOSS2_DIE1;
-extern int16_t SPR_BOSS2_DIE2;
-extern int16_t SPR_BOSS2_DIE3;
-extern int16_t SPR_BOSS2_DIE4;
-extern int16_t SPR_BOSS2_OUCH;
+extern std::int16_t SPR_BOSS2_W1;
+extern std::int16_t SPR_BOSS2_W2;
+extern std::int16_t SPR_BOSS2_W3;
+extern std::int16_t SPR_BOSS2_W4;
+extern std::int16_t SPR_BOSS2_SWING1;
+extern std::int16_t SPR_BOSS2_SWING2;
+extern std::int16_t SPR_BOSS2_SWING3;
+extern std::int16_t SPR_BOSS2_DEAD;
+extern std::int16_t SPR_BOSS2_DIE1;
+extern std::int16_t SPR_BOSS2_DIE2;
+extern std::int16_t SPR_BOSS2_DIE3;
+extern std::int16_t SPR_BOSS2_DIE4;
+extern std::int16_t SPR_BOSS2_OUCH;
 
 //
 // Boss 3 (Cyborg Warrior)
 //
-extern int16_t SPR_BOSS3_W1;
-extern int16_t SPR_BOSS3_W2;
-extern int16_t SPR_BOSS3_W3;
-extern int16_t SPR_BOSS3_W4;
-extern int16_t SPR_BOSS3_SWING1;
-extern int16_t SPR_BOSS3_SWING2;
-extern int16_t SPR_BOSS3_SWING3;
-extern int16_t SPR_BOSS3_DEAD;
-extern int16_t SPR_BOSS3_DIE1;
-extern int16_t SPR_BOSS3_DIE2;
-extern int16_t SPR_BOSS3_DIE3;
-extern int16_t SPR_BOSS3_DIE4;
-extern int16_t SPR_BOSS3_OUCH;
+extern std::int16_t SPR_BOSS3_W1;
+extern std::int16_t SPR_BOSS3_W2;
+extern std::int16_t SPR_BOSS3_W3;
+extern std::int16_t SPR_BOSS3_W4;
+extern std::int16_t SPR_BOSS3_SWING1;
+extern std::int16_t SPR_BOSS3_SWING2;
+extern std::int16_t SPR_BOSS3_SWING3;
+extern std::int16_t SPR_BOSS3_DEAD;
+extern std::int16_t SPR_BOSS3_DIE1;
+extern std::int16_t SPR_BOSS3_DIE2;
+extern std::int16_t SPR_BOSS3_DIE3;
+extern std::int16_t SPR_BOSS3_DIE4;
+extern std::int16_t SPR_BOSS3_OUCH;
 
 //
 // Boss 4 (Reptilian Warrior)
 //
-extern int16_t SPR_BOSS4_W1;
-extern int16_t SPR_BOSS4_W2;
-extern int16_t SPR_BOSS4_W3;
-extern int16_t SPR_BOSS4_W4;
-extern int16_t SPR_BOSS4_SWING1;
-extern int16_t SPR_BOSS4_SWING2;
-extern int16_t SPR_BOSS4_SWING3;
-extern int16_t SPR_BOSS4_DEAD;
-extern int16_t SPR_BOSS4_DIE1;
-extern int16_t SPR_BOSS4_DIE2;
-extern int16_t SPR_BOSS4_DIE3;
-extern int16_t SPR_BOSS4_DIE4;
-extern int16_t SPR_BOSS4_OUCH;
-extern int16_t SPR_BOSS4_MORPH1;
-extern int16_t SPR_BOSS4_MORPH2;
-extern int16_t SPR_BOSS4_MORPH3;
-extern int16_t SPR_BOSS4_MORPH4;
-extern int16_t SPR_BOSS4_MORPH5;
-extern int16_t SPR_BOSS4_MORPH6;
-extern int16_t SPR_BOSS4_MORPH7;
-extern int16_t SPR_BOSS4_MORPH8;
-extern int16_t SPR_BOSS4_MORPH9;
+extern std::int16_t SPR_BOSS4_W1;
+extern std::int16_t SPR_BOSS4_W2;
+extern std::int16_t SPR_BOSS4_W3;
+extern std::int16_t SPR_BOSS4_W4;
+extern std::int16_t SPR_BOSS4_SWING1;
+extern std::int16_t SPR_BOSS4_SWING2;
+extern std::int16_t SPR_BOSS4_SWING3;
+extern std::int16_t SPR_BOSS4_DEAD;
+extern std::int16_t SPR_BOSS4_DIE1;
+extern std::int16_t SPR_BOSS4_DIE2;
+extern std::int16_t SPR_BOSS4_DIE3;
+extern std::int16_t SPR_BOSS4_DIE4;
+extern std::int16_t SPR_BOSS4_OUCH;
+extern std::int16_t SPR_BOSS4_MORPH1;
+extern std::int16_t SPR_BOSS4_MORPH2;
+extern std::int16_t SPR_BOSS4_MORPH3;
+extern std::int16_t SPR_BOSS4_MORPH4;
+extern std::int16_t SPR_BOSS4_MORPH5;
+extern std::int16_t SPR_BOSS4_MORPH6;
+extern std::int16_t SPR_BOSS4_MORPH7;
+extern std::int16_t SPR_BOSS4_MORPH8;
+extern std::int16_t SPR_BOSS4_MORPH9;
 
 //
 // Boss 5 (Acid Dragon)
 //
-extern int16_t SPR_BOSS5_W1;
-extern int16_t SPR_BOSS5_W2;
-extern int16_t SPR_BOSS5_W3;
-extern int16_t SPR_BOSS5_W4;
-extern int16_t SPR_BOSS5_SWING1;
-extern int16_t SPR_BOSS5_SWING2;
-extern int16_t SPR_BOSS5_SWING3;
-extern int16_t SPR_BOSS5_DEAD;
-extern int16_t SPR_BOSS5_DIE1;
-extern int16_t SPR_BOSS5_DIE2;
-extern int16_t SPR_BOSS5_DIE3;
-extern int16_t SPR_BOSS5_DIE4;
-extern int16_t SPR_BOSS5_OUCH;
-extern int16_t SPR_BOSS5_PROJ1;
-extern int16_t SPR_BOSS5_PROJ2;
-extern int16_t SPR_BOSS5_PROJ3;
-extern int16_t SPR_BOSS5_EXP1;
-extern int16_t SPR_BOSS5_EXP2;
-extern int16_t SPR_BOSS5_EXP3;
+extern std::int16_t SPR_BOSS5_W1;
+extern std::int16_t SPR_BOSS5_W2;
+extern std::int16_t SPR_BOSS5_W3;
+extern std::int16_t SPR_BOSS5_W4;
+extern std::int16_t SPR_BOSS5_SWING1;
+extern std::int16_t SPR_BOSS5_SWING2;
+extern std::int16_t SPR_BOSS5_SWING3;
+extern std::int16_t SPR_BOSS5_DEAD;
+extern std::int16_t SPR_BOSS5_DIE1;
+extern std::int16_t SPR_BOSS5_DIE2;
+extern std::int16_t SPR_BOSS5_DIE3;
+extern std::int16_t SPR_BOSS5_DIE4;
+extern std::int16_t SPR_BOSS5_OUCH;
+extern std::int16_t SPR_BOSS5_PROJ1;
+extern std::int16_t SPR_BOSS5_PROJ2;
+extern std::int16_t SPR_BOSS5_PROJ3;
+extern std::int16_t SPR_BOSS5_EXP1;
+extern std::int16_t SPR_BOSS5_EXP2;
+extern std::int16_t SPR_BOSS5_EXP3;
 
 //
 // Boss 6 (Bio-Mech Guardian)
 //
-extern int16_t SPR_BOSS6_W1;
-extern int16_t SPR_BOSS6_W2;
-extern int16_t SPR_BOSS6_W3;
-extern int16_t SPR_BOSS6_W4;
-extern int16_t SPR_BOSS6_SWING1;
-extern int16_t SPR_BOSS6_SWING2;
-extern int16_t SPR_BOSS6_SWING3;
-extern int16_t SPR_BOSS6_DEAD;
-extern int16_t SPR_BOSS6_DIE1;
-extern int16_t SPR_BOSS6_DIE2;
-extern int16_t SPR_BOSS6_DIE3;
-extern int16_t SPR_BOSS6_DIE4;
-extern int16_t SPR_BOSS6_OUCH;
+extern std::int16_t SPR_BOSS6_W1;
+extern std::int16_t SPR_BOSS6_W2;
+extern std::int16_t SPR_BOSS6_W3;
+extern std::int16_t SPR_BOSS6_W4;
+extern std::int16_t SPR_BOSS6_SWING1;
+extern std::int16_t SPR_BOSS6_SWING2;
+extern std::int16_t SPR_BOSS6_SWING3;
+extern std::int16_t SPR_BOSS6_DEAD;
+extern std::int16_t SPR_BOSS6_DIE1;
+extern std::int16_t SPR_BOSS6_DIE2;
+extern std::int16_t SPR_BOSS6_DIE3;
+extern std::int16_t SPR_BOSS6_DIE4;
+extern std::int16_t SPR_BOSS6_OUCH;
 
 
 //
 // Boss 7
 //
-extern int16_t SPR_BOSS7_W1;
-extern int16_t SPR_BOSS7_W2;
-extern int16_t SPR_BOSS7_W3;
-extern int16_t SPR_BOSS7_W4;
-extern int16_t SPR_BOSS7_SHOOT1;
-extern int16_t SPR_BOSS7_SHOOT2;
-extern int16_t SPR_BOSS7_SHOOT3;
-extern int16_t SPR_BOSS7_DEAD;
-extern int16_t SPR_BOSS7_DIE1;
-extern int16_t SPR_BOSS7_DIE2;
-extern int16_t SPR_BOSS7_DIE3;
-extern int16_t SPR_BOSS7_DIE4;
-extern int16_t SPR_BOSS7_OUCH;
+extern std::int16_t SPR_BOSS7_W1;
+extern std::int16_t SPR_BOSS7_W2;
+extern std::int16_t SPR_BOSS7_W3;
+extern std::int16_t SPR_BOSS7_W4;
+extern std::int16_t SPR_BOSS7_SHOOT1;
+extern std::int16_t SPR_BOSS7_SHOOT2;
+extern std::int16_t SPR_BOSS7_SHOOT3;
+extern std::int16_t SPR_BOSS7_DEAD;
+extern std::int16_t SPR_BOSS7_DIE1;
+extern std::int16_t SPR_BOSS7_DIE2;
+extern std::int16_t SPR_BOSS7_DIE3;
+extern std::int16_t SPR_BOSS7_DIE4;
+extern std::int16_t SPR_BOSS7_OUCH;
 
 //
 // Boss 8
 //
-extern int16_t SPR_BOSS8_W1;
-extern int16_t SPR_BOSS8_W2;
-extern int16_t SPR_BOSS8_W3;
-extern int16_t SPR_BOSS8_W4;
-extern int16_t SPR_BOSS8_SHOOT1;
-extern int16_t SPR_BOSS8_SHOOT2;
-extern int16_t SPR_BOSS8_SHOOT3;
-extern int16_t SPR_BOSS8_DIE1;
-extern int16_t SPR_BOSS8_DIE2;
-extern int16_t SPR_BOSS8_DIE3;
-extern int16_t SPR_BOSS8_DIE4;
-extern int16_t SPR_BOSS8_DEAD;
-extern int16_t SPR_BOSS8_OUCH;
+extern std::int16_t SPR_BOSS8_W1;
+extern std::int16_t SPR_BOSS8_W2;
+extern std::int16_t SPR_BOSS8_W3;
+extern std::int16_t SPR_BOSS8_W4;
+extern std::int16_t SPR_BOSS8_SHOOT1;
+extern std::int16_t SPR_BOSS8_SHOOT2;
+extern std::int16_t SPR_BOSS8_SHOOT3;
+extern std::int16_t SPR_BOSS8_DIE1;
+extern std::int16_t SPR_BOSS8_DIE2;
+extern std::int16_t SPR_BOSS8_DIE3;
+extern std::int16_t SPR_BOSS8_DIE4;
+extern std::int16_t SPR_BOSS8_DEAD;
+extern std::int16_t SPR_BOSS8_OUCH;
 
 //
 // Boss 9
 //
-extern int16_t SPR_BOSS9_W1;
-extern int16_t SPR_BOSS9_W2;
-extern int16_t SPR_BOSS9_W3;
-extern int16_t SPR_BOSS9_W4;
-extern int16_t SPR_BOSS9_SHOOT1;
-extern int16_t SPR_BOSS9_SHOOT2;
-extern int16_t SPR_BOSS9_SHOOT3;
-extern int16_t SPR_BOSS9_DIE1;
-extern int16_t SPR_BOSS9_DIE2;
-extern int16_t SPR_BOSS9_DIE3;
-extern int16_t SPR_BOSS9_DIE4;
-extern int16_t SPR_BOSS9_DEAD;
-extern int16_t SPR_BOSS9_OUCH;
+extern std::int16_t SPR_BOSS9_W1;
+extern std::int16_t SPR_BOSS9_W2;
+extern std::int16_t SPR_BOSS9_W3;
+extern std::int16_t SPR_BOSS9_W4;
+extern std::int16_t SPR_BOSS9_SHOOT1;
+extern std::int16_t SPR_BOSS9_SHOOT2;
+extern std::int16_t SPR_BOSS9_SHOOT3;
+extern std::int16_t SPR_BOSS9_DIE1;
+extern std::int16_t SPR_BOSS9_DIE2;
+extern std::int16_t SPR_BOSS9_DIE3;
+extern std::int16_t SPR_BOSS9_DIE4;
+extern std::int16_t SPR_BOSS9_DEAD;
+extern std::int16_t SPR_BOSS9_OUCH;
 
 //
 // Boss 10
 //
-extern int16_t SPR_BOSS10_W1;
-extern int16_t SPR_BOSS10_W2;
-extern int16_t SPR_BOSS10_W3;
-extern int16_t SPR_BOSS10_W4;
-extern int16_t SPR_BOSS10_SHOOT1;
-extern int16_t SPR_BOSS10_SHOOT2;
-extern int16_t SPR_BOSS10_SHOOT3;
-extern int16_t SPR_BOSS10_DEAD;
-extern int16_t SPR_BOSS10_DIE1;
-extern int16_t SPR_BOSS10_DIE2;
-extern int16_t SPR_BOSS10_DIE3;
-extern int16_t SPR_BOSS10_DIE4;
-extern int16_t SPR_BOSS10_OUCH;
+extern std::int16_t SPR_BOSS10_W1;
+extern std::int16_t SPR_BOSS10_W2;
+extern std::int16_t SPR_BOSS10_W3;
+extern std::int16_t SPR_BOSS10_W4;
+extern std::int16_t SPR_BOSS10_SHOOT1;
+extern std::int16_t SPR_BOSS10_SHOOT2;
+extern std::int16_t SPR_BOSS10_SHOOT3;
+extern std::int16_t SPR_BOSS10_DEAD;
+extern std::int16_t SPR_BOSS10_DIE1;
+extern std::int16_t SPR_BOSS10_DIE2;
+extern std::int16_t SPR_BOSS10_DIE3;
+extern std::int16_t SPR_BOSS10_DIE4;
+extern std::int16_t SPR_BOSS10_OUCH;
 
-extern int16_t SPR_BOSS10_SPIT1;
-extern int16_t SPR_BOSS10_SPIT2;
-extern int16_t SPR_BOSS10_SPIT3;
-extern int16_t SPR_BOSS10_SPIT_EXP1;
-extern int16_t SPR_BOSS10_SPIT_EXP2;
-extern int16_t SPR_BOSS10_SPIT_EXP3;
+extern std::int16_t SPR_BOSS10_SPIT1;
+extern std::int16_t SPR_BOSS10_SPIT2;
+extern std::int16_t SPR_BOSS10_SPIT3;
+extern std::int16_t SPR_BOSS10_SPIT_EXP1;
+extern std::int16_t SPR_BOSS10_SPIT_EXP2;
+extern std::int16_t SPR_BOSS10_SPIT_EXP3;
 
 //
 // Plasma detonator explosion
 //
-extern int16_t SPR_DETONATOR_EXP1;
-extern int16_t SPR_DETONATOR_EXP2;
-extern int16_t SPR_DETONATOR_EXP3;
-extern int16_t SPR_DETONATOR_EXP4;
-extern int16_t SPR_DETONATOR_EXP5;
-extern int16_t SPR_DETONATOR_EXP6;
-extern int16_t SPR_DETONATOR_EXP7;
-extern int16_t SPR_DETONATOR_EXP8;
+extern std::int16_t SPR_DETONATOR_EXP1;
+extern std::int16_t SPR_DETONATOR_EXP2;
+extern std::int16_t SPR_DETONATOR_EXP3;
+extern std::int16_t SPR_DETONATOR_EXP4;
+extern std::int16_t SPR_DETONATOR_EXP5;
+extern std::int16_t SPR_DETONATOR_EXP6;
+extern std::int16_t SPR_DETONATOR_EXP7;
+extern std::int16_t SPR_DETONATOR_EXP8;
 
 //
 // Clip Explosion
 //
-extern int16_t SPR_CLIP_EXP1;
-extern int16_t SPR_CLIP_EXP2;
-extern int16_t SPR_CLIP_EXP3;
-extern int16_t SPR_CLIP_EXP4;
-extern int16_t SPR_CLIP_EXP5;
-extern int16_t SPR_CLIP_EXP6;
-extern int16_t SPR_CLIP_EXP7;
-extern int16_t SPR_CLIP_EXP8;
+extern std::int16_t SPR_CLIP_EXP1;
+extern std::int16_t SPR_CLIP_EXP2;
+extern std::int16_t SPR_CLIP_EXP3;
+extern std::int16_t SPR_CLIP_EXP4;
+extern std::int16_t SPR_CLIP_EXP5;
+extern std::int16_t SPR_CLIP_EXP6;
+extern std::int16_t SPR_CLIP_EXP7;
+extern std::int16_t SPR_CLIP_EXP8;
 
 //
 // BFG Cannon Weapon
 //
-extern int16_t SPR_BFG_WEAPON1;
-extern int16_t SPR_BFG_WEAPON2;
-extern int16_t SPR_BFG_WEAPON3;
-extern int16_t SPR_BFG_WEAPON4;
-extern int16_t SPR_BFG_WEAPON5;
+extern std::int16_t SPR_BFG_WEAPON1;
+extern std::int16_t SPR_BFG_WEAPON2;
+extern std::int16_t SPR_BFG_WEAPON3;
+extern std::int16_t SPR_BFG_WEAPON4;
+extern std::int16_t SPR_BFG_WEAPON5;
 
 //
 // BFG Cannon Weapon shots
 //
-extern int16_t SPR_BFG_WEAPON_SHOT1;
-extern int16_t SPR_BFG_WEAPON_SHOT2;
-extern int16_t SPR_BFG_WEAPON_SHOT3;
+extern std::int16_t SPR_BFG_WEAPON_SHOT1;
+extern std::int16_t SPR_BFG_WEAPON_SHOT2;
+extern std::int16_t SPR_BFG_WEAPON_SHOT3;
 
 //
 // BFG Shot explosion
 //
-extern int16_t SPR_BFG_EXP1;
-extern int16_t SPR_BFG_EXP2;
-extern int16_t SPR_BFG_EXP3;
-extern int16_t SPR_BFG_EXP4;
-extern int16_t SPR_BFG_EXP5;
-extern int16_t SPR_BFG_EXP6;
-extern int16_t SPR_BFG_EXP7;
-extern int16_t SPR_BFG_EXP8;
+extern std::int16_t SPR_BFG_EXP1;
+extern std::int16_t SPR_BFG_EXP2;
+extern std::int16_t SPR_BFG_EXP3;
+extern std::int16_t SPR_BFG_EXP4;
+extern std::int16_t SPR_BFG_EXP5;
+extern std::int16_t SPR_BFG_EXP6;
+extern std::int16_t SPR_BFG_EXP7;
+extern std::int16_t SPR_BFG_EXP8;
 
 
 //
@@ -1792,7 +1792,7 @@ enum barrier_state_type {
 =============================================================================
 */
 
-using fixed = int32_t;
+using fixed = std::int32_t;
 
 // Display priority is determined by the order of these bits!
 // And, this order must match the PinballBonus table in AGENT.C!
@@ -1813,15 +1813,15 @@ using fixed = int32_t;
 
 struct PinballBonusInfo {
     char* BonusText; // REBA text pointer
-    int32_t Points; // Score for this bonus
+    std::int32_t Points; // Score for this bonus
     bool Recurring; // Appear multiple times in a single level?
     void (* func)(); // Code to execute when you get this bonus.
 }; // PinballBonusInfo
 
 struct atkinf_t {
-    int8_t tics;
-    int8_t attack;
-    int8_t frame; // attack is 1 for gun, 2 for knife
+    std::int8_t tics;
+    std::int8_t attack;
+    std::int8_t frame; // attack is 1 for gun, 2 for knife
 }; // atkinf_t
 
 
@@ -2058,7 +2058,7 @@ enum stat_t {
 }; // stat_t
 
 struct stattype {
-    int16_t picnum;
+    std::int16_t picnum;
     stat_t type;
 }; // stattype
 
@@ -2237,15 +2237,15 @@ struct statetype {
 // ---------------------
 
 struct statobj_t {
-    uint8_t tilex;
-    uint8_t tiley;
-    uint8_t areanumber;
+    std::uint8_t tilex;
+    std::uint8_t tiley;
+    std::uint8_t areanumber;
 
-    uint8_t* visspot;
-    int16_t shapenum; // if shapenum == -1 the obj has been removed
-    uint16_t flags;
-    uint8_t itemnumber;
-    int8_t lighting;
+    std::uint8_t* visspot;
+    std::int16_t shapenum; // if shapenum == -1 the obj has been removed
+    std::uint16_t flags;
+    std::uint8_t itemnumber;
+    std::int8_t lighting;
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2273,15 +2273,15 @@ enum DoorAction {
 }; // DoorAction
 
 struct doorobj_t {
-    uint8_t tilex;
-    uint8_t tiley;
+    std::uint8_t tilex;
+    std::uint8_t tiley;
     bool vertical;
-    int8_t flags;
+    std::int8_t flags;
     keytype lock;
     door_t type;
     DoorAction action;
-    int16_t ticcount;
-    uint8_t areanumber[2];
+    std::int16_t ticcount;
+    std::uint8_t areanumber[2];
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2300,54 +2300,54 @@ struct doorobj_t {
 // --------------------
 
 struct objtype {
-    uint8_t tilex;
-    uint8_t tiley;
-    uint8_t areanumber;
+    std::uint8_t tilex;
+    std::uint8_t tiley;
+    std::uint8_t areanumber;
 
     activetype active;
-    int16_t ticcount;
+    std::int16_t ticcount;
     classtype obclass;
     statetype* state;
 
-    uint32_t flags;
-    uint16_t flags2; // Aux flags
+    std::uint32_t flags;
+    std::uint16_t flags2; // Aux flags
 
-    int32_t distance; // if negative, wait for that door to open
+    std::int32_t distance; // if negative, wait for that door to open
     dirtype dir;
     dirtype trydir; // "bit 7" == "direction to turn" flag
 
     fixed x;
     fixed y;
-    uint8_t s_tilex;
-    uint8_t s_tiley; // s_tilex==0, running for corner
+    std::uint8_t s_tilex;
+    std::uint8_t s_tiley; // s_tilex==0, running for corner
 
-    int16_t viewx;
-    uint16_t viewheight;
+    std::int16_t viewx;
+    std::uint16_t viewheight;
     fixed transx;
     fixed transy; // in global coord
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
     // Since our code is at least 32-bit we are using an index of object.
-    int16_t hitpoints;
+    std::int16_t hitpoints;
 
-    uint8_t ammo;
-    int8_t lighting;
-    uint16_t linc;
-    int16_t angle;
-    int32_t speed;
+    std::uint8_t ammo;
+    std::int8_t lighting;
+    std::uint16_t linc;
+    std::int16_t angle;
+    std::int32_t speed;
 
-    int16_t temp1;
-
-    // FIXME
-    // In original code it also used to store a 16-bit pointer to object.
-    // Since our code is at least 32-bit we are using an index of object.
-    int16_t temp2;
+    std::int16_t temp1;
 
     // FIXME
     // In original code it also used to store a 16-bit pointer to object.
     // Since our code is at least 32-bit we are using an index of object.
-    uint16_t temp3; // holds 'last door used' by 'smart' actors
+    std::int16_t temp2;
+
+    // FIXME
+    // In original code it also used to store a 16-bit pointer to object.
+    // Since our code is at least 32-bit we are using an index of object.
+    std::uint16_t temp3; // holds 'last door used' by 'smart' actors
 
     objtype* next;
     objtype* prev;
@@ -2415,8 +2415,8 @@ enum backgroundtype {
 // General Coord (tile) structure
 //
 struct tilecoord_t {
-    uint8_t tilex;
-    uint8_t tiley;
+    std::uint8_t tilex;
+    std::uint8_t tiley;
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2434,9 +2434,9 @@ struct tilecoord_t {
 //
 // -----------------------------------
 struct barrier_type {
-    uint8_t level;
+    std::uint8_t level;
     tilecoord_t coord;
-    uint8_t on;
+    std::uint8_t on;
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2448,13 +2448,13 @@ struct barrier_type {
 }; // barrier_type;
 
 struct statsInfoType {
-    int32_t total_points;
-    int32_t accum_points;
-    uint8_t total_enemy;
-    uint8_t accum_enemy;
-    uint8_t total_inf;
-    uint8_t accum_inf;
-    int16_t overall_floor;
+    std::int32_t total_points;
+    std::int32_t accum_points;
+    std::uint8_t total_enemy;
+    std::uint8_t accum_enemy;
+    std::uint8_t total_inf;
+    std::uint8_t accum_inf;
+    std::int16_t overall_floor;
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2466,13 +2466,13 @@ struct statsInfoType {
 }; // statsInfoType
 
 struct levelinfo {
-    uint16_t bonus_queue; // bonuses that need to be shown
-    uint16_t bonus_shown; // bonuses that have been shown
+    std::uint16_t bonus_queue; // bonuses that need to be shown
+    std::uint16_t bonus_shown; // bonuses that have been shown
     bool locked;
     statsInfoType stats;
-    uint8_t ptilex;
-    uint8_t ptiley;
-    int16_t pangle;
+    std::uint8_t ptilex;
+    std::uint8_t ptiley;
+    std::int16_t pangle;
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2512,50 +2512,50 @@ struct fargametype {
 }; // fargametype
 
 struct gametype {
-    int16_t turn_around;
-    int16_t turn_angle;
-    uint16_t flags;
-    int16_t lastmapon;
-    int16_t difficulty;
-    int16_t mapon;
-    int32_t oldscore;
-    int32_t tic_score;
-    int32_t score;
-    int32_t nextextra;
-    int16_t score_roll_wait;
-    int16_t lives;
-    int16_t health;
+    std::int16_t turn_around;
+    std::int16_t turn_angle;
+    std::uint16_t flags;
+    std::int16_t lastmapon;
+    std::int16_t difficulty;
+    std::int16_t mapon;
+    std::int32_t oldscore;
+    std::int32_t tic_score;
+    std::int32_t score;
+    std::int32_t nextextra;
+    std::int16_t score_roll_wait;
+    std::int16_t lives;
+    std::int16_t health;
     char health_str[4];
 
-    int16_t rpower;
-    int16_t old_rpower;
-    int8_t rzoom;
-    int8_t radar_leds;
-    int8_t lastradar_leds;
+    std::int16_t rpower;
+    std::int16_t old_rpower;
+    std::int8_t rzoom;
+    std::int8_t radar_leds;
+    std::int8_t lastradar_leds;
 
-    int8_t lastammo_leds;
-    int8_t ammo_leds;
-    int16_t ammo;
-    int16_t old_ammo;
+    std::int8_t lastammo_leds;
+    std::int8_t ammo_leds;
+    std::int16_t ammo;
+    std::int16_t old_ammo;
 
-    int16_t plasma_detonators;
-    int16_t old_plasma_detonators;
+    std::int16_t plasma_detonators;
+    std::int16_t old_plasma_detonators;
 
-    int8_t useable_weapons;
-    int8_t weapons;
-    int8_t weapon;
-    int8_t chosenweapon;
-    int8_t old_weapons[4];
+    std::int8_t useable_weapons;
+    std::int8_t weapons;
+    std::int8_t weapon;
+    std::int8_t chosenweapon;
+    std::int8_t old_weapons[4];
 
-    int8_t weapon_wait;
-    int16_t attackframe;
-    int16_t attackcount;
-    int16_t weaponframe;
-    int16_t episode;
-    uint32_t TimeCount;
+    std::int8_t weapon_wait;
+    std::int16_t attackframe;
+    std::int16_t attackcount;
+    std::int16_t weaponframe;
+    std::int16_t episode;
+    std::uint32_t TimeCount;
     const char* msg; // InfoArea msg...
-    int8_t numkeys[NUMKEYS];
-    int8_t old_numkeys[NUMKEYS];
+    std::int8_t numkeys[NUMKEYS];
+    std::int8_t old_numkeys[NUMKEYS];
 
     // BBi
     barrier_type cross_barriers[MAX_BARRIER_SWITCHES];
@@ -2563,12 +2563,12 @@ struct gametype {
 
     barrier_type barrier_table[MAX_BARRIER_SWITCHES];
     barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
-    uint16_t tokens;
-    uint16_t old_tokens;
+    std::uint16_t tokens;
+    std::uint16_t old_tokens;
     bool boss_key_dropped;
     bool old_boss_key_dropped;
-    int16_t wintilex;
-    int16_t wintiley;
+    std::int16_t wintilex;
+    std::int16_t wintiley;
 
 
     void serialize(
@@ -2602,18 +2602,18 @@ enum exit_t {
 
 
 struct CycleInfo {
-    uint8_t init_delay;
-    uint8_t delay_count;
-    uint8_t firstreg;
-    uint8_t lastreg;
+    std::uint8_t init_delay;
+    std::uint8_t delay_count;
+    std::uint8_t firstreg;
+    std::uint8_t lastreg;
 }; // CycleInfo
 
 
 struct visobj_t {
-    int16_t viewx;
-    int16_t viewheight;
-    int16_t shapenum;
-    int8_t lighting;
+    std::int16_t viewx;
+    std::int16_t viewheight;
+    std::int16_t shapenum;
+    std::int8_t lighting;
     bool cloaked;
 }; // visobj_t
 
@@ -2646,7 +2646,7 @@ struct ofs_anim_t {
 
 
     template<int TOffset, int TSize>
-    static uint16_t get(
+    static std::uint16_t get(
         const objtype* o)
     {
         return (o->temp3 >> TOffset) & ((1 << TSize) - 1);
@@ -2654,63 +2654,63 @@ struct ofs_anim_t {
 
     template<int TOffset, int TSize>
     static void set(
-        const uint16_t value,
+        const std::uint16_t value,
         objtype* o)
     {
         o->temp3 &= ~(((1 << TSize) - 1) << TOffset);
         o->temp3 |= ((value & ((1 << TSize) - 1)) << TOffset);
     }
 
-    static uint16_t get_animtype(
+    static std::uint16_t get_animtype(
         const objtype* o)
     {
         return get<animtype_offset, animtype_size>(o);
     }
 
     static void set_animtype(
-        const uint16_t value,
+        const std::uint16_t value,
         objtype* o)
     {
         set<animtype_offset, animtype_size>(value, o);
     }
 
 
-    static uint16_t get_curframe(
+    static std::uint16_t get_curframe(
         const objtype* o)
     {
         return get<curframe_offset, curframe_size>(o);
     }
 
     static void set_curframe(
-        const uint16_t value,
+        const std::uint16_t value,
         objtype* o)
     {
         set<curframe_offset, curframe_size>(value, o);
     }
 
 
-    static uint16_t get_maxframe(
+    static std::uint16_t get_maxframe(
         const objtype* o)
     {
         return get<maxframe_offset, maxframe_size>(o);
     }
 
     static void set_maxframe(
-        const uint16_t value,
+        const std::uint16_t value,
         objtype* o)
     {
         set<maxframe_offset, maxframe_size>(value, o);
     }
 
 
-    static uint16_t get_animdir(
+    static std::uint16_t get_animdir(
         const objtype* o)
     {
         return get<animdir_offset, animdir_size>(o);
     }
 
     static void set_animdir(
-        const uint16_t value,
+        const std::uint16_t value,
         objtype* o)
     {
         set<animdir_offset, animdir_size>(value, o);
@@ -2797,8 +2797,8 @@ enum inst_type {
 // Basic 'message info' structure
 //
 struct mCacheInfo {
-    uint8_t local_val; // where msg is in 'local' list
-    uint8_t global_val; // where msg was in 'global' list
+    std::uint8_t local_val; // where msg is in 'local' list
+    std::uint8_t global_val; // where msg was in 'global' list
     char* mSeg; // pointer to message
 
     void serialize(
@@ -2813,7 +2813,7 @@ struct mCacheInfo {
 // Basic 'message list' structure
 //
 struct mCacheList {
-    int16_t NumMsgs; // number of messages
+    std::int16_t NumMsgs; // number of messages
     mCacheInfo mInfo[MAX_CACHE_MSGS]; // table of message 'info'
 }; // mCacheList
 
@@ -2823,8 +2823,8 @@ struct mCacheList {
 //
 struct con_mCacheInfo {
     mCacheInfo mInfo;
-    uint8_t type; // type of concession
-    uint8_t operate_cnt; // # of times req'd to operate
+    std::uint8_t type; // type of concession
+    std::uint8_t operate_cnt; // # of times req'd to operate
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2838,7 +2838,7 @@ struct con_mCacheInfo {
 // Concession 'message list' structure
 //
 struct concession_t {
-    int16_t NumMsgs; // also, num concessions
+    std::int16_t NumMsgs; // also, num concessions
     con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
 
     void serialize(
@@ -2856,13 +2856,13 @@ struct concession_t {
 //
 struct sci_mCacheInfo {
     mCacheInfo mInfo;
-    uint8_t areanumber; // 'where' msg can be used
+    std::uint8_t areanumber; // 'where' msg can be used
 }; // sci_mCacheInfo
 
 // Informant 'message list' structure
 //
 struct scientist_t {
-    int16_t NumMsgs;
+    std::int16_t NumMsgs;
     sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
 }; // scientist_t
 
@@ -2871,10 +2871,10 @@ struct scientist_t {
 // Electro-Alien controller structer
 //
 struct eaWallInfo {
-    int8_t tilex;
-    int8_t tiley; // where this controller is in the map.
-    int8_t aliens_out; // aliens spawned by this controller.
-    int16_t delay; // delay before spawning another alien.
+    std::int8_t tilex;
+    std::int8_t tiley; // where this controller is in the map.
+    std::int8_t aliens_out; // aliens spawned by this controller.
+    std::int16_t delay; // delay before spawning another alien.
 
     void serialize(
         bstone::BinaryWriter& writer,
@@ -2890,10 +2890,10 @@ struct eaWallInfo {
 //
 
 struct GoldsternInfo_t {
-    uint8_t LastIndex; // Last Spawn Coord Index
-    uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
-    uint16_t flags; // What type of command/operation is needed...
-    uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
+    std::uint8_t LastIndex; // Last Spawn Coord Index
+    std::uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
+    std::uint16_t flags; // What type of command/operation is needed...
+    std::uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
     bool GoldSpawned; // Has Goldstern been spawned?
 
     void serialize(
@@ -2907,10 +2907,10 @@ struct GoldsternInfo_t {
 
 
 struct star_t {
-    int32_t x;
-    int32_t y;
-    int32_t z;
-    uint8_t color;
+    std::int32_t x;
+    std::int32_t y;
+    std::int32_t z;
+    std::uint8_t color;
 }; // star_t
 
 
@@ -2922,7 +2922,7 @@ struct star_t {
 =============================================================================
 */
 
-extern int16_t TITLE_LOOP_MUSIC;
+extern std::int16_t TITLE_LOOP_MUSIC;
 
 #define CANT_PLAY_TXT "\n" \
     "ERROR: Insufficient disk space.\n" \
@@ -2936,24 +2936,24 @@ extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
 // FIXME Unused
 #if 0
-extern int16_t view_xl;
-extern int16_t view_xh;
-extern int16_t view_yl;
-extern int16_t view_yh;
+extern std::int16_t view_xl;
+extern std::int16_t view_xh;
+extern std::int16_t view_yl;
+extern std::int16_t view_yh;
 #endif
 
-extern int16_t starting_level;
-extern int16_t debug_value;
-extern int16_t starting_episode;
-extern int16_t starting_difficulty;
+extern std::int16_t starting_level;
+extern std::int16_t debug_value;
+extern std::int16_t starting_episode;
+extern std::int16_t starting_difficulty;
 
 extern bool MS_CheckParm(
     const std::string& value);
 
-extern int8_t lastmap_tilex;
-extern int8_t lastmap_tiley;
-extern uint16_t TopColor;
-extern uint16_t BottomColor;
+extern std::int8_t lastmap_tilex;
+extern std::int8_t lastmap_tiley;
+extern std::uint16_t TopColor;
+extern std::uint16_t BottomColor;
 extern char str[80];
 extern char str2[20];
 extern bool nospr;
@@ -2966,7 +2966,7 @@ extern int viewheight;
 extern int centerx;
 extern int shootdelta;
 
-extern int16_t dirangle[9];
+extern std::int16_t dirangle[9];
 
 extern bool startgame;
 extern bool loadedgame;
@@ -3012,23 +3012,23 @@ void OrderingInfo();
 void TEDDeath();
 
 void CalcProjection(
-    int32_t focal);
+    std::int32_t focal);
 
 void SetViewSize();
 void SetPlaneViewSize();
 
 void NewGame(
-    int16_t difficulty,
-    int16_t episode);
+    std::int16_t difficulty,
+    std::int16_t episode);
 
 void NewViewSize();
 
-uint16_t scan_atoi(
+std::uint16_t scan_atoi(
     const char* s);
 
 void AlignPlayerOnTransporter();
 
-uint16_t UseFunc(
+std::uint16_t UseFunc(
     const char* first,
     const char* next);
 
@@ -3037,7 +3037,7 @@ bool DoMovie(
     void* palette);
 
 bool CheckDiskSpace(
-    int32_t needed,
+    std::int32_t needed,
     const char* text,
     cds_io_type io_type);
 
@@ -3045,15 +3045,15 @@ bool SaveTheGame(
     const std::string& file_name,
     const std::string& description);
 
-int32_t ChecksumFile(
+std::int32_t ChecksumFile(
     const std::string& file,
-    int32_t checksum);
+    std::int32_t checksum);
 
 void BadChecksum();
 
 void CheckValidity(
     char* file,
-    int32_t valid_checksum);
+    std::int32_t valid_checksum);
 
 void UnauthorizedLevels();
 void ShowChecksums();
@@ -3082,23 +3082,23 @@ int NextChunk(
 =============================================================================
 */
 
-extern int16_t db_count;
+extern std::int16_t db_count;
 extern classtype debug_bonus[2][800];
 extern fargametype gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
-extern uint8_t VitalsRemain;
-extern uint8_t VitalsOnFloor;
+extern std::uint8_t VitalsRemain;
+extern std::uint8_t VitalsOnFloor;
 
 extern eaWallInfo eaList[];
-extern int8_t NumEAWalls;
-extern int8_t NumEASpawned;
+extern std::int8_t NumEAWalls;
+extern std::int8_t NumEASpawned;
 extern bool ingame;
 extern bool fizzlein;
 extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
-extern int16_t doornum;
+extern std::int16_t doornum;
 
 void DrawPlayBorder();
 void ScanInfoPlane();
@@ -3112,8 +3112,8 @@ void GameLoop();
 void Warped();
 
 void RotateView(
-    int16_t DestAngle,
-    uint8_t RotSpeed);
+    std::int16_t DestAngle,
+    std::uint8_t RotSpeed);
 
 void DrawWarpIn();
 
@@ -3121,25 +3121,25 @@ void BMAmsg(
     const char* msg);
 
 void CacheBMAmsg(
-    uint16_t MsgNum);
+    std::uint16_t MsgNum);
 
 void BevelBox(
-    int16_t xl,
-    int16_t yl,
-    int16_t w,
-    int16_t h,
-    uint8_t hi,
-    uint8_t med,
-    uint8_t lo);
+    std::int16_t xl,
+    std::int16_t yl,
+    std::int16_t w,
+    std::int16_t h,
+    std::uint8_t hi,
+    std::uint8_t med,
+    std::uint8_t lo);
 
 void AddTotalPoints(
-    uint16_t points);
+    std::uint16_t points);
 
 void AddTotalInformants(
-    int8_t informants);
+    std::int8_t informants);
 
 void AddTotalEnemy(
-    uint16_t enemies);
+    std::uint16_t enemies);
 
 void ShadowPrintLocationText(
     sp_type type);
@@ -3147,7 +3147,7 @@ void ShadowPrintLocationText(
 void LoseScreen();
 
 void LoadLocationText(
-    int16_t textNum);
+    std::int16_t textNum);
 
 /*
 =============================================================================
@@ -3161,17 +3161,17 @@ extern int objcount;
 
 extern objtype* DeadGuys[];
 extern objtype dummyobj;
-extern uint8_t NumDeadGuys;
+extern std::uint8_t NumDeadGuys;
 
 extern exit_t playstate;
 
-extern int16_t bordertime;
+extern std::int16_t bordertime;
 
 extern bool madenoise;
 extern bool usedummy;
 extern bool nevermark;
-extern uint8_t alerted;
-extern uint8_t alerted_areanum;
+extern std::uint8_t alerted;
+extern std::uint8_t alerted_areanum;
 
 extern objtype objlist[MAXACTORS];
 extern objtype* new_actor;
@@ -3184,35 +3184,35 @@ extern statobj_t* laststatobj;
 extern doorobj_t doorobjlist[MAXDOORS];
 extern doorobj_t* lastdoorobj;
 
-extern uint16_t farmapylookup[MAPSIZE];
-extern uint8_t* nearmapylookup[MAPSIZE];
+extern std::uint16_t farmapylookup[MAPSIZE];
+extern std::uint8_t* nearmapylookup[MAPSIZE];
 
-extern uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
-extern uint8_t spotvis[MAPSIZE][MAPSIZE];
+extern std::uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
+extern std::uint8_t spotvis[MAPSIZE][MAPSIZE];
 extern objtype* actorat[MAPSIZE][MAPSIZE];
 
 extern bool singlestep;
 extern bool godmode;
 extern bool noclip;
 extern bool DebugOk;
-extern int16_t InstantWin;
-extern int16_t InstantQuit;
-extern int16_t TestQuickSave;
-extern int16_t TestAutoMapper;
-extern uint16_t ExtraRadarFlags;
+extern std::int16_t InstantWin;
+extern std::int16_t InstantQuit;
+extern std::int16_t TestQuickSave;
+extern std::int16_t TestAutoMapper;
+extern std::uint16_t ExtraRadarFlags;
 
 //
 // control info
 //
 using ScanCodes = std::vector<ScanCode>;
-using Buttons = std::vector<int16_t>;
+using Buttons = std::vector<std::int16_t>;
 
 
 extern bool mouseenabled;
 extern bool joystickenabled;
 extern bool joypadenabled;
 extern bool joystickprogressive;
-extern int16_t joystickport;
+extern std::int16_t joystickport;
 extern ScanCodes dirscan;
 extern ScanCodes buttonscan;
 extern Buttons buttonmouse;
@@ -3276,24 +3276,24 @@ void CalcMemFree();
 =============================================================================
 */
 
-extern uint8_t TravelTable[MAPSIZE][MAPSIZE];
+extern std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
 
-extern int16_t weaponchangetics;
-extern int16_t itemchangetics;
-extern int16_t bodychangetics;
-extern int16_t plaqueon;
-extern int16_t plaquetime;
-extern int16_t plaquetimefrac;
-extern int16_t getpic;
+extern std::int16_t weaponchangetics;
+extern std::int16_t itemchangetics;
+extern std::int16_t bodychangetics;
+extern std::int16_t plaqueon;
+extern std::int16_t plaquetime;
+extern std::int16_t plaquetimefrac;
+extern std::int16_t getpic;
 
 extern statobj_t* firststarobj;
 
-extern int32_t space_xmove;
-extern int32_t space_ymove;
+extern std::int32_t space_xmove;
+extern std::int32_t space_ymove;
 
-extern int32_t lasttimecount;
-extern int32_t framecount;
-extern int32_t frameon;
+extern std::int32_t lasttimecount;
+extern std::int32_t framecount;
+extern std::int32_t frameon;
 extern bool fizzlein;
 
 using SpanStart = std::vector<int>;
@@ -3317,17 +3317,17 @@ extern int viewangle;
 extern int viewsin;
 extern int viewcos;
 
-extern const uint8_t* postsource;
+extern const std::uint8_t* postsource;
 extern int postx;
 
 // BBi
 extern int posty;
 
 
-extern int16_t horizwall[];
-extern int16_t vertwall[];
+extern std::int16_t horizwall[];
+extern std::int16_t vertwall[];
 
-extern uint16_t pwallpos;
+extern std::uint16_t pwallpos;
 
 extern bool cloaked_shape;
 
@@ -3342,7 +3342,7 @@ void BuildTables();
 
 void ClearScreen();
 
-int16_t CalcRotate(
+std::int16_t CalcRotate(
     objtype* ob);
 
 void DrawScaleds();
@@ -3352,18 +3352,18 @@ void FarScalePost();
 void DrawStars();
 
 bool TransformTile(
-    int16_t tx,
-    int16_t ty,
-    int16_t* dispx,
-    int16_t* dispheight);
+    std::int16_t tx,
+    std::int16_t ty,
+    std::int16_t* dispx,
+    std::int16_t* dispheight);
 
 void WrapTransformActor(
     objtype* ob);
 
 void ComputeActorPosition(
     objtype* ob,
-    int8_t adjust_x,
-    int8_t adjust_y);
+    std::int8_t adjust_x,
+    std::int8_t adjust_y);
 
 void WrapDrawScaleds();
 
@@ -3391,8 +3391,8 @@ void UpdateTravelTable();
 
 =============================================================================
 */
-extern uint16_t CeilingTile;
-extern uint16_t FloorTile;
+extern std::uint16_t CeilingTile;
+extern std::uint16_t FloorTile;
 extern void (* MapRowPtr)();
 
 void DrawPlanes();
@@ -3411,17 +3411,17 @@ void F_MapRow();
 =============================================================================
 */
 
-extern uint16_t actor_points[];
+extern std::uint16_t actor_points[];
 extern dirtype opposite[9];
 extern dirtype diagonal[9][9];
 
 
 void SeekPlayerOrStatic(
     objtype* ob,
-    int16_t* deltax,
-    int16_t* deltay);
+    std::int16_t* deltax,
+    std::int16_t* deltay);
 
-uint16_t CheckRunChase(
+std::uint16_t CheckRunChase(
     objtype* ob);
 
 void GetCornerSeek(
@@ -3429,15 +3429,15 @@ void GetCornerSeek(
 
 bool LookForGoodies(
     objtype* ob,
-    uint16_t RunReason);
+    std::uint16_t RunReason);
 
 void InitHitRect(
     objtype* ob,
-    uint16_t radius);
+    std::uint16_t radius);
 
 void SpawnNewObj(
-    uint16_t tilex,
-    uint16_t tiley,
+    std::uint16_t tilex,
+    std::uint16_t tiley,
     statetype* state);
 
 void NewState(
@@ -3456,14 +3456,14 @@ void SelectDodgeDir(
 
 void MoveObj(
     objtype* ob,
-    int32_t move);
+    std::int32_t move);
 
 void KillActor(
     objtype* ob);
 
 void DamageActor(
     objtype* ob,
-    uint16_t damage,
+    std::uint16_t damage,
     objtype* attacker);
 
 bool CheckLine(
@@ -3479,7 +3479,7 @@ bool PosVisable(
     fixed from_y,
     fixed to_x,
     fixed to_y,
-    int16_t from_angle);
+    std::int16_t from_angle);
 
 bool PlayerIsBlocking(
     objtype* ob);
@@ -3502,8 +3502,8 @@ objtype* CheckAndReserve();
 #define COMPSCALECODESTART (65 * 4) // offset to start of code in comp scaler
 
 struct t_compshape {
-    uint16_t leftpix, rightpix;
-    uint16_t dataofs[64];
+    std::uint16_t leftpix, rightpix;
+    std::uint16_t dataofs[64];
 
     // table data after dataofs[rightpix-leftpix+1]
 }; // t_compshape
@@ -3545,16 +3545,16 @@ extern scientist_t InfHintList;
 extern scientist_t NiceSciList;
 extern scientist_t MeanSciList;
 
-extern uint16_t static_points[];
+extern std::uint16_t static_points[];
 extern bool GAN_HiddenArea;
 extern char* InfAreaMsgs[];
-extern uint8_t NumAreaMsgs;
-extern uint8_t LastInfArea;
-extern int16_t FirstGenInfMsg;
-extern int16_t TotalGenInfMsgs;
+extern std::uint8_t NumAreaMsgs;
+extern std::uint8_t LastInfArea;
+extern std::int16_t FirstGenInfMsg;
+extern std::int16_t TotalGenInfMsgs;
 extern classtype LastInfoAttacker;
 
-extern int16_t LastInfoAttacker_Cloaked;
+extern std::int16_t LastInfoAttacker_Cloaked;
 
 extern char term_com_name[];
 extern char term_msg_name[];
@@ -3565,19 +3565,19 @@ extern atkinf_t attackinfo[7][14];
 // player state info
 //
 extern bool commandmode;
-extern int32_t thrustspeed;
-extern uint16_t plux;
-extern uint16_t pluy; // player coordinates scaled to unsigned
+extern std::int32_t thrustspeed;
+extern std::uint16_t plux;
+extern std::uint16_t pluy; // player coordinates scaled to unsigned
 extern bool PlayerInvisable;
-extern int8_t DrawInfoArea_COUNT;
-extern int8_t InitInfoArea_COUNT;
+extern std::int8_t DrawInfoArea_COUNT;
+extern std::int8_t InitInfoArea_COUNT;
 
-extern uint16_t player_oldtilex;
-extern uint16_t player_oldtiley;
+extern std::uint16_t player_oldtilex;
+extern std::uint16_t player_oldtiley;
 
 // Terminal variables
 
-extern uint16_t RadarSw;
+extern std::uint16_t RadarSw;
 
 // Location Bar message string...
 
@@ -3587,26 +3587,26 @@ extern char LocationText[MAX_LOCATION_DESC_LEN];
 //
 // search / move info
 //
-extern uint16_t searchon; // held object number looking at
-extern int16_t searchtics; // when it reaches SEARCHTICS, get an obj
+extern std::uint16_t searchon; // held object number looking at
+extern std::int16_t searchtics; // when it reaches SEARCHTICS, get an obj
 extern objtype* searchobj; // current object being searched
-extern uint16_t foundflag; // only show NOTHING if nothing was found
+extern std::uint16_t foundflag; // only show NOTHING if nothing was found
 extern objtype* moveobj; // current object being draged
 
 extern int anglefrac;
-extern int16_t facecount;
+extern std::int16_t facecount;
 
-extern uint16_t LastMsgPri;
-extern int16_t MsgTicsRemain;
+extern std::uint16_t LastMsgPri;
+extern std::int16_t MsgTicsRemain;
 
 void GivePoints(
-    int32_t score,
+    std::int32_t score,
     bool add_to_stats);
 
 void SpawnPlayer(
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir);
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::int16_t dir);
 
 void DrawCash();
 void UpdateHealth();
@@ -3620,14 +3620,14 @@ void DrawAmmo(
 bool DisplayInfoMsg(
     const char* Msg,
     msg_priorities Priority,
-    int16_t DisplayTime,
-    int16_t MessageType);
+    std::int16_t DisplayTime,
+    std::int16_t MessageType);
 
 bool DisplayInfoMsg(
     const std::string& Msg,
     msg_priorities Priority,
-    int16_t DisplayTime,
-    int16_t MessageType);
+    std::int16_t DisplayTime,
+    std::int16_t MessageType);
 
 void UpdateInfoAreaClock();
 void UpdateInfoArea();
@@ -3635,14 +3635,14 @@ void DrawHealthMonitor();
 void CalcHealthDisplay();
 void UpdateScore();
 
-uint8_t ValidAreaTile(
-    const uint16_t* ptr);
+std::uint8_t ValidAreaTile(
+    const std::uint16_t* ptr);
 
-int8_t GetAreaNumber(
+std::int8_t GetAreaNumber(
     int tilex,
     int tiley);
 
-int16_t InputFloor();
+std::int16_t InputFloor();
 void RestoreInfoArea();
 void DrawHeartPic();
 void DrawInfoArea();
@@ -3655,25 +3655,25 @@ void TerminalPrint(
     bool FastPrint);
 
 void FloorCheat(
-    uint16_t RadarFlags);
+    std::uint16_t RadarFlags);
 
 bool Interrogate(
     objtype* ob);
 
 void GiveKey(
-    int16_t key);
+    std::int16_t key);
 
 void TakeKey(
-    int16_t key);
+    std::int16_t key);
 
 void GiveToken(
-    int16_t tokens);
+    std::int16_t tokens);
 
 void TakePlasmaDetonator(
-    int16_t count);
+    std::int16_t count);
 
 void GivePlasmaDetonator(
-    int16_t count);
+    std::int16_t count);
 
 void CacheDrawPic(
     int x,
@@ -3684,28 +3684,28 @@ void LoadTerminalCommands();
 
 // BBi
 void store_cross_barrier(
-    uint8_t level,
-    uint8_t x,
-    uint8_t y,
+    std::uint8_t level,
+    std::uint8_t x,
+    std::uint8_t y,
     bool state);
 
 void apply_cross_barriers();
 // BBi
 
 void ActivateWallSwitch(
-    uint16_t iconnum,
-    int16_t x,
-    int16_t y);
+    std::uint16_t iconnum,
+    std::int16_t x,
+    std::int16_t y);
 
-uint16_t UpdateBarrierTable(
-    uint8_t level,
-    uint8_t x,
-    uint8_t y,
+std::uint16_t UpdateBarrierTable(
+    std::uint8_t level,
+    std::uint8_t x,
+    std::uint8_t y,
     bool OnOff);
 
-uint16_t ScanBarrierTable(
-    uint8_t x,
-    uint8_t y);
+std::uint16_t ScanBarrierTable(
+    std::uint8_t x,
+    std::uint8_t y);
 
 void DisplaySwitchOperateMsg(
     int coords);
@@ -3713,13 +3713,13 @@ void DisplaySwitchOperateMsg(
 void DisplayNoMoMsgs();
 
 void PrintStatPercent(
-    int16_t nx,
-    int16_t ny,
-    int8_t percentage);
+    std::int16_t nx,
+    std::int16_t ny,
+    std::int8_t percentage);
 
-int16_t ShowStats(
-    int16_t bx,
-    int16_t by,
+std::int16_t ShowStats(
+    std::int16_t bx,
+    std::int16_t by,
     ss_type type,
     statsInfoType* stats);
 
@@ -3727,9 +3727,9 @@ bool PerfectStats();
 bool CheckPerfectStats();
 
 bool OperateSmartSwitch(
-    uint16_t tilex,
-    uint16_t tiley,
-    int8_t Operation,
+    std::uint16_t tilex,
+    std::uint16_t tiley,
+    std::int8_t Operation,
     bool Force);
 
 /*
@@ -3742,67 +3742,67 @@ bool OperateSmartSwitch(
 using StatInfos = std::vector<stattype>;
 
 
-extern int8_t xy_offset[8][2];
+extern std::int8_t xy_offset[8][2];
 extern StatInfos statinfo;
 extern concession_t ConHintList;
 
 extern doorobj_t doorobjlist[MAXDOORS];
 extern doorobj_t* lastdoorobj;
-extern int16_t doornum;
+extern std::int16_t doornum;
 
-extern uint16_t doorposition[MAXDOORS];
-extern uint16_t pwallstate;
+extern std::uint16_t doorposition[MAXDOORS];
+extern std::uint16_t pwallstate;
 
-extern uint8_t areaconnect[NUMAREAS][NUMAREAS];
+extern std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
 extern bool areabyplayer[NUMAREAS];
 
-extern uint16_t pwallstate;
-extern uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
-extern uint16_t pwallx;
-extern uint16_t pwally;
-extern int16_t pwalldir;
-extern int16_t pwalldist;
+extern std::uint16_t pwallstate;
+extern std::uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
+extern std::uint16_t pwallx;
+extern std::uint16_t pwally;
+extern std::int16_t pwalldir;
+extern std::int16_t pwalldist;
 
 
 statobj_t* ReserveStatic();
 
 void SpawnStatic(
-    int16_t tilex,
-    int16_t tiley,
-    int16_t type);
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::int16_t type);
 
 void SpawnDoor(
-    int16_t tilex,
-    int16_t tiley,
+    std::int16_t tilex,
+    std::int16_t tiley,
     bool vertical,
     keytype lock,
     door_t type);
 
 void OperateConcession(
-    uint16_t concession);
+    std::uint16_t concession);
 
 void SpawnConcession(
-    int16_t tilex,
-    int16_t tiley,
-    uint16_t credits,
-    uint16_t machinetype);
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::uint16_t credits,
+    std::uint16_t machinetype);
 
-uint16_t LoadConcessionHint(
-    uint16_t MsgNum);
+std::uint16_t LoadConcessionHint(
+    std::uint16_t MsgNum);
 
 void CacheInfoAreaMsg(
-    uint16_t block,
-    uint16_t MsgNum,
+    std::uint16_t block,
+    std::uint16_t MsgNum,
     char* hint_buffer,
-    uint16_t MaxBufferLen);
+    std::uint16_t MaxBufferLen);
 
 void CheckSpawnEA();
 
-int16_t TransformAreas(
-    int8_t tilex,
-    int8_t tiley,
-    int8_t xform);
+std::int16_t TransformAreas(
+    std::int8_t tilex,
+    std::int8_t tiley,
+    std::int8_t xform);
 
 
 void CheckSpawnGoldstern();
@@ -3810,60 +3810,60 @@ void FindNewGoldieSpawnSite();
 
 void InitMsgCache(
     mCacheList* mList,
-    uint16_t listSize,
-    uint16_t infoSize);
+    std::uint16_t listSize,
+    std::uint16_t infoSize);
 
 void FreeMsgCache(
     mCacheList* mList,
-    uint16_t listSize);
+    std::uint16_t listSize);
 
 void CacheMsg(
     mCacheInfo* ci,
-    uint16_t SegNum,
-    uint16_t MsgNum);
+    std::uint16_t SegNum,
+    std::uint16_t MsgNum);
 
-int16_t LoadMsg(
+std::int16_t LoadMsg(
     char* hint_buffer,
-    uint16_t SegNum,
-    uint16_t MsgNum,
-    uint16_t MaxMsgLen);
+    std::uint16_t SegNum,
+    std::uint16_t MsgNum,
+    std::uint16_t MaxMsgLen);
 
 void CacheConcessionMsg();
 
 bool ReuseMsg(
     mCacheInfo* ci,
-    int16_t count,
-    int16_t struct_size);
+    std::int16_t count,
+    std::int16_t struct_size);
 
 void DropPlasmaDetonator();
 
 void BlockDoorOpen(
-    int16_t door);
+    std::int16_t door);
 
 void BlastNearDoors(
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 void TryBlastDoor(
-    int8_t door);
+    std::int8_t door);
 
 statobj_t* FindStatic(
-    uint16_t tilex,
-    uint16_t tiley);
+    std::uint16_t tilex,
+    std::uint16_t tiley);
 
 statobj_t* UseReservedStatic(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 void PlaceReservedItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 void ExplodeStatics(
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 
 /*
@@ -3885,11 +3885,11 @@ void MakeFakeStatic(
 void UnmakeFakeStatic(
     objtype* ob);
 
-extern int8_t detonators_spawned;
+extern std::int8_t detonators_spawned;
 
-extern int16_t starthitpoints[][NUMHITENEMIES];
+extern std::int16_t starthitpoints[][NUMHITENEMIES];
 
-extern uint16_t MorphClass[];
+extern std::uint16_t MorphClass[];
 
 extern statetype s_ofs_bounce;
 
@@ -4050,15 +4050,15 @@ void SpawnProjectile(
 
 void SpawnStand(
     enemy_t which,
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir);
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::int16_t dir);
 
 void SpawnPatrol(
     enemy_t which,
-    int16_t tilex,
-    int16_t tiley,
-    int16_t dir);
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::int16_t dir);
 
 void KillActor(
     objtype* ob);
@@ -4066,29 +4066,29 @@ void KillActor(
 void US_ControlPanel(
     ScanCode scan_code);
 
-int16_t IntSqrt(
-    int32_t va);
+std::int16_t IntSqrt(
+    std::int32_t va);
 
-uint16_t CalcDistance(
-    uint16_t x1,
-    uint16_t y1,
-    uint16_t x2,
-    uint16_t y2);
+std::uint16_t CalcDistance(
+    std::uint16_t x1,
+    std::uint16_t y1,
+    std::uint16_t x2,
+    std::uint16_t y2);
 
 void T_Hit(
     objtype* ob);
 
 void SpawnOffsetObj(
     enemy_t which,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 
 void InitSmartAnimStruct(
     objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
+    std::uint16_t ShapeNum,
+    std::uint8_t StartOfs,
+    std::uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
 
@@ -4104,10 +4104,10 @@ void AdvanceAnimFWD(
 void SpawnCusExplosion(
     fixed x,
     fixed y,
-    uint16_t StartFrame,
-    uint16_t NumFrames,
-    uint16_t Delay,
-    uint16_t Class);
+    std::uint16_t StartFrame,
+    std::uint16_t NumFrames,
+    std::uint16_t Delay,
+    std::uint16_t Class);
 
 void T_SpawnExplosion(
     objtype* obj);
@@ -4117,7 +4117,7 @@ void T_ExplodeDamage(
 
 void ExplodeRadius(
     objtype* obj,
-    int16_t damage,
+    std::int16_t damage,
     bool damageplayer);
 
 extern statetype s_barrier_transition;
@@ -4125,8 +4125,8 @@ extern statetype s_barrier_shutdown;
 
 void SpawnBarrier(
     enemy_t which,
-    int16_t tilex,
-    int16_t tiley,
+    std::int16_t tilex,
+    std::int16_t tiley,
     bool OnOff);
 
 void ToggleBarrier(
@@ -4134,26 +4134,26 @@ void ToggleBarrier(
 
 void InitAnim(
     objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
+    std::uint16_t ShapeNum,
+    std::uint8_t StartOfs,
+    std::uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir,
-    uint16_t Delay,
-    uint16_t WaitDelay);
+    std::uint16_t Delay,
+    std::uint16_t WaitDelay);
 
 objtype* FindObj(
     classtype which,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 objtype* FindHiddenOfs(
     classtype which);
 
 void SpawnHiddenOfs(
     enemy_t which,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 objtype* MoveHiddenOfs(
     classtype which_class,
@@ -4163,8 +4163,8 @@ objtype* MoveHiddenOfs(
 
 void CheckForSpecialTile(
     objtype* obj,
-    uint16_t tilex,
-    uint16_t tiley);
+    std::uint16_t tilex,
+    std::uint16_t tiley);
 
 void DropCargo(
     objtype* obj);
@@ -4263,15 +4263,15 @@ void DisplayPrepingMsg(
 
 bool Breifing(
     breifing_type BreifingType,
-    uint16_t episode);
+    std::uint16_t episode);
 
 void ShPrint(
     const char* text,
-    int8_t shadow_color,
+    std::int8_t shadow_color,
     bool single_char);
 
-uint16_t Random(
-    uint16_t Max);
+std::uint16_t Random(
+    std::uint16_t Max);
 
 
 // ===========================================================================
@@ -4286,13 +4286,13 @@ void DrawInstructions(
     inst_type Type);
 
 void CacheMessage(
-    uint16_t MessageNum);
+    std::uint16_t MessageNum);
 
 void TerminateStr(
     char* pos);
 
-uint32_t CacheCompData(
-    uint16_t ItemNum,
+std::uint32_t CacheCompData(
+    std::uint16_t ItemNum,
     void** dest_loc);
 
 
@@ -4312,21 +4312,21 @@ using Buffer = std::vector<unsigned char>;
 
 
 objtype* ui16_to_actor(
-    uint16_t value);
+    std::uint16_t value);
 
-uint16_t actor_to_ui16(
+std::uint16_t actor_to_ui16(
     const objtype* actor);
 
 statobj_t* ui16_to_static_object(
-    uint16_t value);
+    std::uint16_t value);
 
-uint16_t static_object_to_ui16(
+std::uint16_t static_object_to_ui16(
     const statobj_t* static_object);
 
 doorobj_t* ui16_to_door_object(
-    uint16_t value);
+    std::uint16_t value);
 
-uint16_t door_object_to_ui16(
+std::uint16_t door_object_to_ui16(
     const doorobj_t* door_object);
 
 extern bool g_no_wall_hit_sound;
@@ -4472,14 +4472,14 @@ template<typename T>
 class ArchiveSignX8Tag<T,1>
 {
 public:
-    using Type = int8_t;
+    using Type = std::int8_t;
 };
 
 template<typename T>
 class ArchiveSignX8Tag<T,2>
 {
 public:
-    using Type = uint8_t;
+    using Type = std::uint8_t;
 };
 
 template<typename T>
@@ -4510,7 +4510,7 @@ inline void serialize_field_internal(
     bstone::Crc32& checksum,
     ArchiveRemapU8Tag)
 {
-    auto target_value = static_cast<uint8_t>(value);
+    auto target_value = static_cast<std::uint8_t>(value);
 
     checksum.update(target_value);
 
@@ -4550,25 +4550,25 @@ inline void serialize_field(
         typename ArchiveRemapTag<T>::Type());
 }
 
-template<typename T, size_t N>
+template<typename T, std::size_t N>
 inline void serialize_field(
     const T(&value)[N],
     bstone::BinaryWriter& writer,
     bstone::Crc32& checksum)
 {
-    for (size_t i = 0; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         ::serialize_field(value[i], writer, checksum);
     }
 }
 
-template<typename T, size_t M, size_t N>
+template<typename T, std::size_t M, std::size_t N>
 inline void serialize_field(
     const T(&value)[M][N],
     bstone::BinaryWriter& writer,
     bstone::Crc32& checksum)
 {
-    for (size_t i = 0; i < M; ++i) {
-        for (size_t j = 0; j < N; ++j) {
+    for (std::size_t i = 0; i < M; ++i) {
+        for (std::size_t j = 0; j < N; ++j) {
             ::serialize_field(value[i][j], writer, checksum);
         }
     }
@@ -4627,7 +4627,7 @@ inline void deserialize_field_internal<bool>(
     bstone::Crc32& checksum,
     ArchiveRemapU8Tag)
 {
-    uint8_t source_value = 0;
+    std::uint8_t source_value = 0;
 
     if (!reader.read(source_value)) {
         throw ArchiveException("deserialize_field");
@@ -4663,25 +4663,25 @@ inline void deserialize_field(
         typename ArchiveRemapTag<T>::Type());
 }
 
-template<typename T, size_t N>
+template<typename T, std::size_t N>
 inline void deserialize_field(
     T(&value)[N],
     bstone::BinaryReader& reader,
     bstone::Crc32& checksum)
 {
-    for (size_t i = 0; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         ::deserialize_field(value[i], reader, checksum);
     }
 }
 
-template<typename T, size_t M, size_t N>
+template<typename T, std::size_t M, std::size_t N>
 inline void deserialize_field(
     T(&value)[M][N],
     bstone::BinaryReader& reader,
     bstone::Crc32& checksum)
 {
-    for (size_t i = 0; i < M; ++i) {
-        for (size_t j = 0; j < N; ++j) {
+    for (std::size_t i = 0; i < M; ++i) {
+        for (std::size_t j = 0; j < N; ++j) {
             ::deserialize_field(value[i][j], reader, checksum);
         }
     }
@@ -4690,18 +4690,18 @@ inline void deserialize_field(
 
 void InitSmartSpeedAnim(
     objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
+    std::uint16_t ShapeNum,
+    std::uint8_t StartOfs,
+    std::uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir,
-    uint16_t Delay);
+    std::uint16_t Delay);
 
 void InitSmartAnim(
     objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
+    std::uint16_t ShapeNum,
+    std::uint8_t StartOfs,
+    std::uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir);
 

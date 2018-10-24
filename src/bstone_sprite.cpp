@@ -136,7 +136,7 @@ void Sprite::initialize(
 	for (int i = 0; i < width; ++i)
 	{
 		const auto commands_offset = static_cast<int>(endian.little(commands_offsets[i]));
-		const auto commands = reinterpret_cast<const uint16_t*>(&values_8[commands_offset]);
+		const auto commands = reinterpret_cast<const std::uint16_t*>(&values_8[commands_offset]);
 
 		auto iCommand = 0;
 

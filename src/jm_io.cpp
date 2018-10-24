@@ -33,7 +33,7 @@ int IO_LoadFile(
 {
     char buffer[5] = { 0, 0, 0, 0, 0 };
     bstone::FileStream handle;
-    int32_t size = 0;
+    std::int32_t size = 0;
 
     handle.open(filename);
 
@@ -55,8 +55,8 @@ int IO_LoadFile(
             *dst = new char[head.OriginalLen];
 
             {
-                std::unique_ptr<uint8_t> compressed_buffer(
-                    new uint8_t[head.CompressLen]);
+                std::unique_ptr<std::uint8_t> compressed_buffer(
+                    new std::uint8_t[head.CompressLen]);
 
                 ::LZH_Decompress(compressed_buffer.get(), *dst,
                                  size, head.CompressLen);
@@ -75,7 +75,7 @@ int IO_LoadFile(
         }
     } else {
         handle.set_position(0);
-        size = static_cast<int32_t>(handle.get_size());
+        size = static_cast<std::int32_t>(handle.get_size());
         *dst = new char[size];
         if (handle.read(*dst, size) != size) {
             return size;

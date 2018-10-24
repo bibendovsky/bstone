@@ -47,19 +47,19 @@ loaded into the data segment
 =============================================================================
 */
 
-uint16_t rlew_tag;
+std::uint16_t rlew_tag;
 
-int16_t mapon;
+std::int16_t mapon;
 
-uint16_t* mapsegs[MAPPLANES];
+std::uint16_t* mapsegs[MAPPLANES];
 MapHeaderSegments mapheaderseg;
 AudioSegments audiosegs;
 GrSegments grsegs;
 
 GrNeeded grneeded;
-uint8_t ca_levelbit, ca_levelnum;
+std::uint8_t ca_levelbit, ca_levelnum;
 
-int16_t profilehandle, debughandle;
+std::int16_t profilehandle, debughandle;
 
 int NUM_EPISODES = 0;
 int MAPS_PER_EPISODE = 0;
@@ -76,21 +76,21 @@ int NUMMAPS = 0;
 =============================================================================
 */
 
-extern int32_t CGAhead;
-extern int32_t EGAhead;
-extern uint8_t CGAdict;
-extern uint8_t EGAdict;
-extern uint8_t maphead;
-extern uint8_t mapdict;
-extern uint8_t audiohead;
-extern uint8_t audiodict;
+extern std::int32_t CGAhead;
+extern std::int32_t EGAhead;
+extern std::uint8_t CGAdict;
+extern std::uint8_t EGAdict;
+extern std::uint8_t maphead;
+extern std::uint8_t mapdict;
+extern std::uint8_t audiohead;
+extern std::uint8_t audiodict;
 
 
 void CA_CannotOpen(
     const std::string& string);
 
-int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
-int32_t* audiostarts; // array of offsets in audio / audiot
+std::int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
+std::int32_t* audiostarts; // array of offsets in audio / audiot
 
 #ifdef GRHEADERLINKED
 huffnode* grhuffman;
@@ -108,8 +108,8 @@ bstone::FileStream grhandle; // handle to EGAGRAPH
 bstone::FileStream maphandle; // handle to MAPTEMP / GAMEMAPS
 bstone::FileStream audiohandle; // handle to AUDIOT / AUDIO
 
-int32_t chunkcomplen;
-int32_t chunkexplen;
+std::int32_t chunkcomplen;
+std::int32_t chunkexplen;
 
 bool old_is_sound_enabled;
 
@@ -122,21 +122,21 @@ static const int BUFFERSIZE = 0x10000;
 int ca_gr_last_expanded_size;
 
 void CAL_CarmackExpand(
-    uint16_t* source,
-    uint16_t* dest,
-    uint16_t length);
+    std::uint16_t* source,
+    std::uint16_t* dest,
+    std::uint16_t length);
 
 
 #ifdef THREEBYTEGRSTARTS
-int32_t GRFILEPOS(
-    int16_t c)
+std::int32_t GRFILEPOS(
+    std::int16_t c)
 {
-    int32_t value;
-    int16_t offset;
+    std::int32_t value;
+    std::int16_t offset;
 
     offset = c * 3;
 
-    value = *(int32_t*)(((uint8_t*)grstarts) + offset);
+    value = *(std::int32_t*)(((std::uint8_t*)grstarts) + offset);
 
     value &= 0x00ffffffl;
 
@@ -207,7 +207,7 @@ void CloseAudioFile()
 ============================
 */
 void CAL_GetGrChunkLength(
-    int16_t chunk)
+    std::int16_t chunk)
 {
     grhandle.set_position(GRFILEPOS(chunk));
     grhandle.read(&chunkexplen, sizeof(chunkexplen));
@@ -236,19 +236,19 @@ void CAL_GetGrChunkLength(
 ======================
 */
 void CAL_HuffExpand(
-    uint8_t* source,
-    uint8_t* destination,
-    int32_t length,
+    std::uint8_t* source,
+    std::uint8_t* destination,
+    std::int32_t length,
     huffnode* hufftable)
 {
-    uint8_t val = *source++;
-    uint8_t mask = 1;
-    uint16_t nodeval;
+    std::uint8_t val = *source++;
+    std::uint8_t mask = 1;
+    std::uint16_t nodeval;
 
     huffnode* headptr = &hufftable[254]; // head node is always node 254
 
-    uint8_t* dst = destination;
-    uint8_t* end = dst + length;
+    std::uint8_t* dst = destination;
+    std::uint8_t* end = dst + length;
 
     huffnode* huffptr = headptr;
 
@@ -267,7 +267,7 @@ void CAL_HuffExpand(
         }
 
         if (nodeval < 256) {
-            dst[0] = static_cast<uint8_t>(nodeval);
+            dst[0] = static_cast<std::uint8_t>(nodeval);
             ++dst;
             huffptr = headptr;
         } else {
@@ -277,12 +277,12 @@ void CAL_HuffExpand(
 }
 
 void ca_huff_expand_on_screen(
-    uint8_t* source,
+    std::uint8_t* source,
     huffnode* hufftable)
 {
-    uint8_t val = *source++;
-    uint8_t mask = 1;
-    uint16_t nodeval;
+    std::uint8_t val = *source++;
+    std::uint8_t mask = 1;
+    std::uint16_t nodeval;
 
     huffnode* headptr = &hufftable[254]; // head node is always node 254
     huffnode* huffptr = headptr;
@@ -306,7 +306,7 @@ void ca_huff_expand_on_screen(
             }
 
             if (nodeval < 256) {
-                VL_Plot(x, y, static_cast<uint8_t>(nodeval));
+                VL_Plot(x, y, static_cast<std::uint8_t>(nodeval));
                 huffptr = headptr;
 
                 x += 4;
@@ -333,15 +333,15 @@ void ca_huff_expand_on_screen(
 ======================
 */
 void CAL_CarmackExpand(
-    uint16_t* source,
-    uint16_t* dest,
-    uint16_t length)
+    std::uint16_t* source,
+    std::uint16_t* dest,
+    std::uint16_t length)
 {
 #define NEARTAG 0xa7
 #define FARTAG 0xa8
 
-    uint16_t ch, chhigh, count, offset;
-    uint16_t* copyptr, * inptr, * outptr;
+    std::uint16_t ch, chhigh, count, offset;
+    std::uint16_t* copyptr, * inptr, * outptr;
 
     length /= 2;
 
@@ -354,11 +354,11 @@ void CAL_CarmackExpand(
         if (chhigh == NEARTAG) {
             count = ch & 0xff;
             if (!count) { // have to insert a word containing the tag byte
-                ch |= *((uint8_t*)inptr)++;
+                ch |= *((std::uint8_t*)inptr)++;
                 *outptr++ = ch;
                 length--;
             } else {
-                offset = *((uint8_t*)inptr)++;
+                offset = *((std::uint8_t*)inptr)++;
                 copyptr = outptr - offset;
                 length -= count;
                 while (count--) {
@@ -368,7 +368,7 @@ void CAL_CarmackExpand(
         } else if (chhigh == FARTAG) {
             count = ch & 0xff;
             if (!count) { // have to insert a word containing the tag byte
-                ch |= *((uint8_t*)inptr)++;
+                ch |= *((std::uint8_t*)inptr)++;
                 *outptr++ = ch;
                 length--;
             } else {
@@ -397,15 +397,15 @@ void CAL_CarmackExpand(
 ======================
 */
 void CA_RLEWexpand(
-    uint16_t* source,
-    uint16_t* dest,
-    int32_t length,
-    uint16_t rlewtag)
+    std::uint16_t* source,
+    std::uint16_t* dest,
+    std::int32_t length,
+    std::uint16_t rlewtag)
 {
-    uint16_t i;
-    uint16_t value;
-    uint16_t count;
-    const uint16_t* end = &dest[length / 2];
+    std::uint16_t i;
+    std::uint16_t value;
+    std::uint16_t count;
+    const std::uint16_t* end = &dest[length / 2];
 
     do {
         value = *source++;
@@ -490,14 +490,14 @@ void CA_Startup()
 ======================
 */
 void CA_CacheAudioChunk(
-    int16_t chunk)
+    std::int16_t chunk)
 {
-    int32_t pos;
-    int32_t compressed;
+    std::int32_t pos;
+    std::int32_t compressed;
 #ifdef AUDIOHEADERLINKED
-    int32_t expanded;
+    std::int32_t expanded;
     memptr bigbufferseg;
-    uint8_t* source;
+    std::uint8_t* source;
 #endif
 
     if (audiosegs[chunk]) {
@@ -517,7 +517,7 @@ void CA_CacheAudioChunk(
 
 #ifndef AUDIOHEADERLINKED
 
-    audiosegs[chunk] = new uint8_t[compressed];
+    audiosegs[chunk] = new std::uint8_t[compressed];
     audiohandle.read(audiosegs[chunk], compressed);
 
 #else
@@ -536,7 +536,7 @@ void CA_CacheAudioChunk(
         source = bigbufferseg;
     }
 
-    expanded = *(int32_t*)source;
+    expanded = *(std::int32_t*)source;
     source += 4; // skip over length
     MM_GetPtr(&(memptr)audiosegs[chunk], expanded);
     if (mmerror) {
@@ -564,7 +564,7 @@ done:
 */
 void CA_LoadAllSounds()
 {
-    int16_t start = 0;
+    std::int16_t start = 0;
 
     if (::old_is_sound_enabled) {
         start = STARTADLIBSOUNDS;
@@ -597,10 +597,10 @@ void CA_LoadAllSounds()
 */
 
 void CAL_ExpandGrChunk(
-    int16_t chunk,
-    uint8_t* source)
+    std::int16_t chunk,
+    std::uint8_t* source)
 {
-    int32_t expanded;
+    std::int32_t expanded;
 
     if (chunk >= STARTTILE8 && chunk < STARTEXTERNS) {
         //
@@ -629,7 +629,7 @@ void CAL_ExpandGrChunk(
         //
 		const auto& endian = bstone::Endian{};
 
-        expanded = endian.little(*reinterpret_cast<int32_t*>(source));
+        expanded = endian.little(*reinterpret_cast<std::int32_t*>(source));
         source += 4; // skip over length
     }
 
@@ -639,7 +639,7 @@ void CAL_ExpandGrChunk(
 //
     grsegs[chunk] = new char[expanded];
 
-    CAL_HuffExpand(source, static_cast<uint8_t*>(grsegs[chunk]), expanded, grhuffman);
+    CAL_HuffExpand(source, static_cast<std::uint8_t*>(grsegs[chunk]), expanded, grhuffman);
 
     ca_gr_last_expanded_size = expanded;
 }
@@ -654,11 +654,11 @@ void CAL_ExpandGrChunk(
 ======================
 */
 void CA_CacheGrChunk(
-    int16_t chunk)
+    std::int16_t chunk)
 {
-    int32_t pos, compressed;
-    uint8_t* source;
-    int16_t next;
+    std::int32_t pos, compressed;
+    std::uint8_t* source;
+    std::int16_t next;
 
     grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
     if (grsegs[chunk]) {
@@ -702,11 +702,11 @@ void CA_CacheGrChunk(
 ======================
 */
 void CA_CacheScreen(
-    int16_t chunk)
+    std::int16_t chunk)
 {
-    int32_t pos, compressed;
-    uint8_t* source;
-    int16_t next;
+    std::int32_t pos, compressed;
+    std::uint8_t* source;
+    std::int16_t next;
 
 
 //
@@ -846,17 +846,17 @@ void CA_CacheMarks()
 {
     const int MAXEMPTYREAD = 1024;
 
-    int16_t i;
-    int16_t next;
-    int16_t numcache;
-    int32_t pos;
-    int32_t endpos;
-    int32_t nextpos;
-    int32_t nextendpos;
-    int32_t compressed;
-    int32_t bufferstart;
-    int32_t bufferend; // file position of general buffer
-    uint8_t* source;
+    std::int16_t i;
+    std::int16_t next;
+    std::int16_t numcache;
+    std::int32_t pos;
+    std::int32_t endpos;
+    std::int32_t nextpos;
+    std::int32_t nextendpos;
+    std::int32_t compressed;
+    std::int32_t bufferstart;
+    std::int32_t bufferend; // file position of general buffer
+    std::uint8_t* source;
 
     numcache = 0;
 //
@@ -962,7 +962,7 @@ std::string ca_load_script(
     int chunk_id,
     bool strip_xx)
 {
-    ::CA_CacheGrChunk(static_cast<int16_t>(chunk_id));
+    ::CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
 
     const char* script = static_cast<const char*>(grsegs[chunk_id]);
 

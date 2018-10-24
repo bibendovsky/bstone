@@ -71,12 +71,12 @@ bstone::FileStream Movie_FHandle;
 
 // Fade Variables
 FADES fade_flags, fi_type, fo_type;
-uint8_t fi_rate, fo_rate;
+std::uint8_t fi_rate, fo_rate;
 
 // MOVIE_GetFrame & MOVIE_LoadBuffer variables
 char* MovieBuffer; // Ptr to Allocated Memory for Buffer
-uint32_t BufferLen; // Len of MovieBuffer (Ammount of RAM allocated)
-uint32_t PageLen; // Len of data loaded into MovieBuffer
+std::uint32_t BufferLen; // Len of MovieBuffer (Ammount of RAM allocated)
+std::uint32_t PageLen; // Len of data loaded into MovieBuffer
 char* BufferPtr; // Ptr to next frame in MovieBuffer
 char* NextPtr; // Ptr Ofs to next frame after BufferOfs
 
@@ -85,8 +85,8 @@ bool MorePagesAvail; // More Pages avail on disk?
 MOVIE_FLAGS movie_flag;
 bool ExitMovie;
 bool EverFaded;
-int32_t seek_pos;
-int8_t movie_reps;
+std::int32_t seek_pos;
+std::int8_t movie_reps;
 ControlInfo ci;
 const void* movie_palette;
 
@@ -115,7 +115,7 @@ Movies movies =
 void JM_MemToScreen();
 
 void JM_ClearVGAScreen(
-    uint8_t fill);
+    std::uint8_t fill);
 
 void FlipPages();
 bool CheckFading();
@@ -198,7 +198,7 @@ void JM_DrawBlock(
     int y = byte_offset / ::vga_ref_width;
 
     for (int i = 0; i < length; ++i) {
-        VL_Plot(x, y, static_cast<uint8_t>(source[i]));
+        VL_Plot(x, y, static_cast<std::uint8_t>(source[i]));
 
         ++x;
 
@@ -250,7 +250,7 @@ bool MOVIE_LoadBuffer()
     anim_frame blk;
     long chunkstart;
     char* frame;
-    uint32_t free_space;
+    std::uint32_t free_space;
 
     NextPtr = BufferPtr = frame = MovieBuffer;
     free_space = BufferLen;
@@ -315,7 +315,7 @@ bool MOVIE_LoadBuffer()
 // RETURNS:  0 - Ok
 //          1 - End Of File
 // ---------------------------------------------------------------------------
-int16_t MOVIE_GetFrame()
+std::int16_t MOVIE_GetFrame()
 {
     anim_frame blk;
 
@@ -361,8 +361,8 @@ void MOVIE_HandlePage(
 
     case AN_SOUND: // Sound Chunk
     {
-        uint16_t sound_chunk;
-        sound_chunk = *(uint16_t*)frame;
+        std::uint16_t sound_chunk;
+        sound_chunk = *(std::uint16_t*)frame;
 
         ::sd_play_player_sound(
             sound_chunk,
@@ -373,7 +373,7 @@ void MOVIE_HandlePage(
     break;
 
     case AN_FADE_IN_FRAME: // Fade In Page
-        VL_FadeIn(0, 255, (const uint8_t*)movie_palette, 30);
+        VL_FadeIn(0, 255, (const std::uint8_t*)movie_palette, 30);
         fade_flags = FADE_NONE;
         EverFaded = true;
         screenfaded = false;
@@ -387,8 +387,8 @@ void MOVIE_HandlePage(
 
     case AN_PAUSE: // Pause
     {
-        uint16_t vbls;
-        vbls = *(uint16_t*)frame;
+        std::uint16_t vbls;
+        vbls = *(std::uint16_t*)frame;
         IN_UserInput(vbls);
         BufferPtr += blk.recsize;
 
@@ -437,7 +437,7 @@ void MOVIE_HandlePage(
 
         FlipPages();
 
-        if (TimeCount < static_cast<uint32_t>(MovieStuff->ticdelay)) {
+        if (TimeCount < static_cast<std::uint32_t>(MovieStuff->ticdelay)) {
             const auto min_wait_time = 0;
             const auto max_wait_time = 2 * TickBase; // 2 seconds
 

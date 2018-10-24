@@ -63,7 +63,7 @@ public:
 
 	int decode(
 		const int dst_count,
-		int16_t* const dst_data) override;
+		std::int16_t* const dst_data) override;
 
 	// Returns a number of calls per second of
 	// original interrupt routine.

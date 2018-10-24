@@ -109,7 +109,7 @@ public:
 		return stream_->read(&value, sizeof(T)) == sizeof(T);
 	}
 
-	template<typename T, size_t N>
+	template<typename T, std::size_t N>
 	bool read(
 		T(&value)[N])
 	{

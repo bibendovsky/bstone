@@ -89,14 +89,14 @@ enum ct_TYPES {
 //
 
 struct COMPStruct {
-    uint32_t DecompLen;
+    std::uint32_t DecompLen;
 };
 
 
 struct JAMPHeader {
-    uint32_t OriginalLen; // Original FileLength of compressed Data.
+    std::uint32_t OriginalLen; // Original FileLength of compressed Data.
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+    std::uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };
 
 
@@ -107,9 +107,9 @@ struct JAMPHeader {
 
 struct CompHeader_t {
     char NameId[4];
-    uint32_t OriginalLen; // Original FileLength of compressed Data.
+    std::uint32_t OriginalLen; // Original FileLength of compressed Data.
     ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+    std::uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 }; // CompHeader_t
 
 
@@ -121,9 +121,9 @@ struct CompHeader_t {
 
 char CIO_WritePtr(
     void*& dst,
-    uint8_t value);
+    std::uint8_t value);
 
-int16_t CIO_ReadPtr(
+std::int16_t CIO_ReadPtr(
     const void*& src);
 
 

@@ -42,13 +42,13 @@ void Stream::close()
 {
 }
 
-int64_t Stream::skip(
+std::int64_t Stream::skip(
 	const int count)
 {
 	return seek(count, StreamSeekOrigin::current);
 }
 
-int64_t Stream::get_position()
+std::int64_t Stream::get_position()
 {
 	return seek(0, StreamSeekOrigin::current);
 }
@@ -61,7 +61,7 @@ bool Stream::set_position(
 
 int Stream::read_octet()
 {
-	uint8_t value;
+	std::uint8_t value;
 
 	if (read(&value, 1) > 0)
 	{

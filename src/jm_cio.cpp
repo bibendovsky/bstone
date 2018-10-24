@@ -42,9 +42,9 @@ Free Software Foundation, Inc.,
 // ---------------------------------------------------------------------------
 char CIO_WritePtr(
     void*& buffer,
-    uint8_t value)
+    std::uint8_t value)
 {
-    uint8_t*& buffer_ref = reinterpret_cast<uint8_t*&>(buffer);
+    std::uint8_t*& buffer_ref = reinterpret_cast<std::uint8_t*&>(buffer);
     buffer_ref[0] = value;
     ++buffer_ref;
     return '\0';
@@ -60,11 +60,11 @@ char CIO_WritePtr(
 //
 //
 // ---------------------------------------------------------------------------
-int16_t CIO_ReadPtr(
+std::int16_t CIO_ReadPtr(
     const void*& buffer)
 {
-    const uint8_t*& buffer_ref = reinterpret_cast<const uint8_t*&>(buffer);
-    uint8_t value = buffer_ref[0];
+    const std::uint8_t*& buffer_ref = reinterpret_cast<const std::uint8_t*&>(buffer);
+    std::uint8_t value = buffer_ref[0];
     ++buffer_ref;
     return value;
 }

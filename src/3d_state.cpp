@@ -26,20 +26,20 @@ Free Software Foundation, Inc.,
 
 
 void OpenDoor(
-    int16_t door);
+    std::int16_t door);
 
 void A_DeathScream(
     objtype* ob);
 
 void PlaceItemType(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 void PlaceItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 void ChangeShootMode(
     objtype* ob);
@@ -71,8 +71,8 @@ dirtype diagonal[9][9] = {
 
 
 void SpawnNewObj(
-    uint16_t tilex,
-    uint16_t tiley,
+    std::uint16_t tilex,
+    std::uint16_t tiley,
     statetype* state);
 
 void NewState(
@@ -85,7 +85,7 @@ bool TryWalk(
 
 void MoveObj(
     objtype* ob,
-    int32_t move);
+    std::int32_t move);
 
 void KillActor(
     objtype* ob);
@@ -102,8 +102,8 @@ bool CheckSight(
     objtype* to_obj);
 
 bool ElevatorFloor(
-    int8_t x,
-    int8_t y);
+    std::int8_t x,
+    std::int8_t y);
 
 /*
 ===================
@@ -118,19 +118,19 @@ bool ElevatorFloor(
 ===================
 */
 void SpawnNewObj(
-    uint16_t tilex,
-    uint16_t tiley,
+    std::uint16_t tilex,
+    std::uint16_t tiley,
     statetype* state)
 {
     GetNewActor();
     new_actor->state = state;
-    new_actor->ticcount = static_cast<int16_t>(Random(static_cast<uint16_t>(
+    new_actor->ticcount = static_cast<std::int16_t>(Random(static_cast<std::uint16_t>(
         state->tictime)) + 1);
 
-    new_actor->tilex = static_cast<uint8_t>(tilex);
-    new_actor->tiley = static_cast<uint8_t>(tiley);
-    new_actor->x = ((int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
-    new_actor->y = ((int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
+    new_actor->tilex = static_cast<std::uint8_t>(tilex);
+    new_actor->tiley = static_cast<std::uint8_t>(tiley);
+    new_actor->x = ((std::int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
+    new_actor->y = ((std::int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
     new_actor->dir = new_actor->trydir = nodir;
 
     if (!nevermark) {
@@ -156,7 +156,7 @@ void NewState(
     statetype* state)
 {
     ob->state = state;
-    ob->ticcount = static_cast<int16_t>(state->tictime);
+    ob->ticcount = static_cast<std::int16_t>(state->tictime);
 }
 
 
@@ -173,7 +173,7 @@ static bool CHECKDIAG(
     int y)
 {
     auto actor = ::actorat[x][y];
-    auto temp = reinterpret_cast<size_t>(actor);
+    auto temp = reinterpret_cast<std::size_t>(actor);
 
     if (temp != 0) {
         if (temp < 256) {
@@ -185,7 +185,7 @@ static bool CHECKDIAG(
         }
     }
 
-    if (::ElevatorFloor(static_cast<int8_t>(x), static_cast<int8_t>(y))) {
+    if (::ElevatorFloor(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y))) {
         return false;
     }
 
@@ -195,10 +195,10 @@ static bool CHECKDIAG(
 static bool CHECKSIDE(
     int x,
     int y,
-    int16_t& door_index)
+    std::int16_t& door_index)
 {
     auto actor = ::actorat[x][y];
-    auto temp = reinterpret_cast<size_t>(actor);
+    auto temp = reinterpret_cast<std::size_t>(actor);
 
     if (temp != 0) {
         if (temp < 128) {
@@ -246,13 +246,13 @@ bool TryWalk(
     objtype* ob,
     bool moveit)
 {
-    uint8_t old_tilex = ob->tilex, old_tiley = ob->tiley;
+    std::uint8_t old_tilex = ob->tilex, old_tiley = ob->tiley;
 
     if (ElevatorFloor(ob->tilex, ob->tiley)) {
         return false;
     }
 
-    int16_t door_index = -1;
+    std::int16_t door_index = -1;
 
     switch (ob->dir) {
     case north:
@@ -437,10 +437,10 @@ bool TryWalk(
 }
 
 bool ElevatorFloor(
-    int8_t x,
-    int8_t y)
+    std::int8_t x,
+    std::int8_t y)
 {
-    uint8_t tile = static_cast<uint8_t>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
+    std::uint8_t tile = static_cast<std::uint8_t>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
 
     if (tile >= HIDDENAREATILE) {
         tile -= HIDDENAREATILE;
@@ -476,8 +476,8 @@ bool ElevatorFloor(
 void SelectDodgeDir(
     objtype* ob)
 {
-    int16_t deltax = 0, deltay = 0, i;
-    uint16_t absdx, absdy;
+    std::int16_t deltax = 0, deltay = 0, i;
+    std::uint16_t absdx, absdy;
     dirtype dirtry[5];
     dirtype turnaround, tdir;
 
@@ -519,8 +519,8 @@ void SelectDodgeDir(
 //
 // randomize a bit for dodging
 //
-    absdx = static_cast<uint16_t>(abs(deltax));
-    absdy = static_cast<uint16_t>(abs(deltay));
+    absdx = static_cast<std::uint16_t>(abs(deltax));
+    absdy = static_cast<std::uint16_t>(abs(deltay));
 
     if (absdx > absdy) {
         tdir = dirtry[1];
@@ -586,7 +586,7 @@ void SelectDodgeDir(
 void SelectChaseDir(
     objtype* ob)
 {
-    int16_t deltax = 0, deltay = 0;
+    std::int16_t deltax = 0, deltay = 0;
     dirtype d[3];
     dirtype tdir, olddir, turnaround;
 
@@ -685,9 +685,9 @@ void SelectChaseDir(
 void GetCornerSeek(
     objtype* ob)
 {
-    uint8_t SeekPointX[] = { 32, 63, 32, 1 }; // s_tilex can't seek to 0!
-    uint8_t SeekPointY[] = { 1, 63, 32, 1 };
-    uint8_t seek_tile = US_RndT() & 3;
+    std::uint8_t SeekPointX[] = { 32, 63, 32, 1 }; // s_tilex can't seek to 0!
+    std::uint8_t SeekPointY[] = { 1, 63, 32, 1 };
+    std::uint8_t seek_tile = US_RndT() & 3;
 
     ob->flags &= ~FL_RUNTOSTATIC;
     ob->s_tilex = SeekPointX[seek_tile];
@@ -695,7 +695,7 @@ void GetCornerSeek(
 }
 
 
-extern int32_t last_objy;
+extern std::int32_t last_objy;
 
 /*
 =================
@@ -713,10 +713,10 @@ extern int32_t last_objy;
 */
 void MoveObj(
     objtype* ob,
-    int32_t move)
+    std::int32_t move)
 {
-    int32_t sign_x = 0;
-    int32_t sign_y = 0;
+    std::int32_t sign_x = 0;
+    std::int32_t sign_y = 0;
 
     switch (ob->dir) {
     case north:
@@ -805,7 +805,7 @@ char dki_msg[] =
     "^FC19	    DO NOT SHOOT\r"
     "	    INFORMANTS!!\r";
 
-uint16_t actor_points[] = {
+std::uint16_t actor_points[] = {
     1025, // rent-a-cop
     1050, // turret
     500, // general scientist
@@ -870,7 +870,7 @@ objtype* CheckAndReserve()
 void KillActor(
     objtype* ob)
 {
-    int16_t tilex, tiley;
+    std::int16_t tilex, tiley;
     bool KeepSolid = false;
     bool givepoints = true;
     bool deadguy = true;
@@ -1180,8 +1180,8 @@ void KillActor(
 
     DropCargo(ob);
 
-    ob->tilex = static_cast<uint8_t>(tilex);
-    ob->tiley = static_cast<uint8_t>(tiley);
+    ob->tilex = static_cast<std::uint8_t>(tilex);
+    ob->tiley = static_cast<std::uint8_t>(tiley);
 
     if ((LastMsgPri == MP_TAKE_DAMAGE) && (LastInfoAttacker == clas)) {
         MsgTicsRemain = 1;
@@ -1221,10 +1221,10 @@ extern bool barrier_damage;
 */
 void DamageActor(
     objtype* ob,
-    uint16_t damage,
+    std::uint16_t damage,
     objtype* attacker)
 {
-    int16_t old_hp = ob->hitpoints, wound_mod, mod_before = 0, mod_after = 1;
+    std::int16_t old_hp = ob->hitpoints, wound_mod, mod_before = 0, mod_after = 1;
 
     if (!(ob->flags & FL_SHOOTABLE)) {
         return;
@@ -1314,7 +1314,7 @@ void DamageActor(
 
         case goldsternobj:
             if (gamestate.mapon == GOLD_MORPH_LEVEL) {
-                extern int16_t morphWaitTime;
+                extern std::int16_t morphWaitTime;
                 extern bool noShots;
 
                 morphWaitTime = 60;
@@ -1502,31 +1502,31 @@ bool CheckLine(
     objtype* from_obj,
     objtype* to_obj)
 {
-    int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
-    int16_t x, y;
-    int16_t xdist, ydist, xstep, ystep;
-    int16_t partial, delta;
-    int32_t ltemp;
-    int16_t xfrac, yfrac, deltafrac;
-    uint16_t value, intercept;
+    std::int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
+    std::int16_t x, y;
+    std::int16_t xdist, ydist, xstep, ystep;
+    std::int16_t partial, delta;
+    std::int32_t ltemp;
+    std::int16_t xfrac, yfrac, deltafrac;
+    std::uint16_t value, intercept;
 
 
 
-    x1 = static_cast<int16_t>(from_obj->x >> UNSIGNEDSHIFT); // 1/256 tile precision
-    y1 = static_cast<int16_t>(from_obj->y >> UNSIGNEDSHIFT);
+    x1 = static_cast<std::int16_t>(from_obj->x >> UNSIGNEDSHIFT); // 1/256 tile precision
+    y1 = static_cast<std::int16_t>(from_obj->y >> UNSIGNEDSHIFT);
     xt1 = x1 >> 8;
     yt1 = y1 >> 8;
 
 //      x2 = plux;
 //      y2 = pluy;
 
-    x2 = static_cast<int16_t>(to_obj->x >> UNSIGNEDSHIFT);
-    y2 = static_cast<int16_t>(to_obj->y >> UNSIGNEDSHIFT);
+    x2 = static_cast<std::int16_t>(to_obj->x >> UNSIGNEDSHIFT);
+    y2 = static_cast<std::int16_t>(to_obj->y >> UNSIGNEDSHIFT);
     xt2 = to_obj->tilex;
     yt2 = to_obj->tiley;
 
 
-    xdist = static_cast<int16_t>(abs(xt2 - xt1));
+    xdist = static_cast<std::int16_t>(abs(xt2 - xt1));
 
     if (xdist > 0) {
         if (xt2 > xt1) {
@@ -1537,20 +1537,20 @@ bool CheckLine(
             xstep = -1;
         }
 
-        deltafrac = static_cast<int16_t>(abs(x2 - x1));
+        deltafrac = static_cast<std::int16_t>(abs(x2 - x1));
         if (!deltafrac) {
             deltafrac = 1;
         }
         delta = y2 - y1;
-        ltemp = ((int32_t)delta << 8) / deltafrac;
+        ltemp = ((std::int32_t)delta << 8) / deltafrac;
         if (ltemp > 0x7fffl) {
             ystep = 0x7fff;
         } else if (ltemp < -0x7fffl) {
             ystep = -0x7fff;
         } else {
-            ystep = static_cast<int16_t>(ltemp);
+            ystep = static_cast<std::int16_t>(ltemp);
         }
-        yfrac = y1 + ((static_cast<int32_t>(ystep) * partial) >> 8);
+        yfrac = y1 + ((static_cast<std::int32_t>(ystep) * partial) >> 8);
 
         x = xt1 + xstep;
         xt2 += xstep;
@@ -1558,7 +1558,7 @@ bool CheckLine(
             y = yfrac >> 8;
             yfrac += ystep;
 
-            value = (uint16_t)tilemap[x][y];
+            value = (std::uint16_t)tilemap[x][y];
             x += xstep;
 
             if (!value) {
@@ -1582,7 +1582,7 @@ bool CheckLine(
         } while (x != xt2);
     }
 
-    ydist = static_cast<int16_t>(abs(yt2 - yt1));
+    ydist = static_cast<std::int16_t>(abs(yt2 - yt1));
 
     if (ydist > 0) {
         if (yt2 > yt1) {
@@ -1593,20 +1593,20 @@ bool CheckLine(
             ystep = -1;
         }
 
-        deltafrac = static_cast<int16_t>(abs(y2 - y1));
+        deltafrac = static_cast<std::int16_t>(abs(y2 - y1));
         if (!deltafrac) {
             deltafrac = 1;
         }
         delta = x2 - x1;
-        ltemp = ((int32_t)delta << 8) / deltafrac;
+        ltemp = ((std::int32_t)delta << 8) / deltafrac;
         if (ltemp > 0x7fffl) {
             xstep = 0x7fff;
         } else if (ltemp < -0x7fffl) {
             xstep = -0x7fff;
         } else {
-            xstep = static_cast<int16_t>(ltemp);
+            xstep = static_cast<std::int16_t>(ltemp);
         }
-        xfrac = x1 + (((int32_t)xstep * partial) >> 8);
+        xfrac = x1 + (((std::int32_t)xstep * partial) >> 8);
 
         y = yt1 + ystep;
         yt2 += ystep;
@@ -1614,7 +1614,7 @@ bool CheckLine(
             x = xfrac >> 8;
             xfrac += xstep;
 
-            value = (uint16_t)tilemap[x][y];
+            value = (std::uint16_t)tilemap[x][y];
             y += ystep;
 
             if (!value) {
@@ -1659,7 +1659,7 @@ bool CheckSight(
 {
     const int MINSIGHT = 0x18000L;
 
-    int32_t deltax, deltay;
+    std::int32_t deltax, deltay;
 
 //
 // don't bother tracing a line if the area isn't connected to the player's
@@ -2030,7 +2030,7 @@ bool SightPlayer(
 }
 
 
-int16_t AdjAngleTable[2][8] = {
+std::int16_t AdjAngleTable[2][8] = {
     { 225, 270, 315, 360, 45, 90, 135, 180 }, // Upper Bound
     { 180, 225, 270, 315, 0, 45, 90, 135 }, // Lower Bound
 };
@@ -2044,8 +2044,8 @@ bool CheckView(
     objtype* from_obj,
     objtype* to_obj)
 {
-    int32_t deltax, deltay;
-    int16_t angle;
+    std::int32_t deltax, deltay;
+    std::int16_t angle;
     float fangle;
 
     //
@@ -2065,7 +2065,7 @@ bool CheckView(
         fangle = static_cast<float>(::m_pi() * 2 + fangle);
     }
 
-    angle = static_cast<int16_t>(fangle / (::m_pi() * 2) * ANGLES + 23);
+    angle = static_cast<std::int16_t>(fangle / (::m_pi() * 2) * ANGLES + 23);
 
     if (angle > 360) {
         angle = 360;
@@ -2089,7 +2089,7 @@ bool CheckView(
 bool LookForDeadGuys(
     objtype* obj)
 {
-    uint8_t loop;
+    std::uint8_t loop;
     bool DeadGuyFound = false;
 
     if ((obj->obclass == gen_scientistobj) && (obj->flags & FL_INFORMANT)) {
@@ -2110,7 +2110,7 @@ bool LookForDeadGuys(
 
 bool LookForGoodies(
     objtype* ob,
-    uint16_t RunReason)
+    std::uint16_t RunReason)
 {
     statobj_t* statptr;
     bool just_find_door = false;
@@ -2154,7 +2154,7 @@ bool LookForGoodies(
                     // If actor is 'on top' of this object, get it!
                     //
                     if ((statptr->tilex == ob->tilex) && (statptr->tiley == ob->tiley)) {
-                        int16_t shapenum = -1;
+                        std::int16_t shapenum = -1;
 
                         switch (statptr->itemnumber) {
                         case bo_clip:
@@ -2234,7 +2234,7 @@ bool LookForGoodies(
 
         doorobj_t* door;
         doorobj_t* doorlist[DOOR_CHOICES];
-        int8_t doorsfound = 0;
+        std::int8_t doorsfound = 0;
 
         // If actor is running for a 'goody' or a door -- leave it alone!
         //
@@ -2303,12 +2303,12 @@ bool LookForGoodies(
     return false;
 }
 
-uint16_t CheckRunChase(
+std::uint16_t CheckRunChase(
     objtype* ob)
 {
     const int RUNAWAY_SPEED = 1000;
 
-    uint16_t RunReason = 0;
+    std::uint16_t RunReason = 0;
 
 // Mark the reason for running.
 //
@@ -2345,10 +2345,10 @@ uint16_t CheckRunChase(
 
 void SeekPlayerOrStatic(
     objtype* ob,
-    int16_t* deltax,
-    int16_t* deltay)
+    std::int16_t* deltax,
+    std::int16_t* deltay)
 {
-    uint16_t whyrun = 0;
+    std::uint16_t whyrun = 0;
     bool smart = false;
 
 // Is this a "smart" actor?
@@ -2410,7 +2410,7 @@ void SeekPlayerOrStatic(
 bool PlayerIsBlocking(
     objtype* ob)
 {
-    int8_t opp_off[9][2] = {
+    std::int8_t opp_off[9][2] = {
         { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 },
         { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { 0, 0 }
     };

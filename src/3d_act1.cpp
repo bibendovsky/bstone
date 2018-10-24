@@ -32,18 +32,18 @@ Free Software Foundation, Inc.,
 // ===========================================================================
 
 void OpenDoor(
-    int16_t door);
+    std::int16_t door);
 
 void CloseDoor(
-    int16_t door);
+    std::int16_t door);
 
 void PlaceItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley);
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley);
 
 void HealSelf(
-    int16_t points);
+    std::int16_t points);
 
 
 // ===========================================================================
@@ -238,8 +238,8 @@ void InitStaticList()
 //          NULL == No static found.
 // ---------------------------------------------------------------------------
 statobj_t* FindStatic(
-    uint16_t tilex,
-    uint16_t tiley)
+    std::uint16_t tilex,
+    std::uint16_t tiley)
 {
     statobj_t* spot;
 
@@ -283,9 +283,9 @@ statobj_t* FindEmptyStatic()
 }
 
 void SpawnStatic(
-	int16_t tilex,
-	int16_t tiley,
-	int16_t type)
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::int16_t type)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -299,8 +299,8 @@ void SpawnStatic(
 	}
 
 	spot->shapenum = statinfo[type].picnum;
-	spot->tilex = static_cast<uint8_t>(tilex);
-	spot->tiley = static_cast<uint8_t>(tiley);
+	spot->tilex = static_cast<std::uint8_t>(tilex);
+	spot->tiley = static_cast<std::uint8_t>(tiley);
 	spot->visspot = &spotvis[tilex][tiley];
 	spot->flags = 0;
 
@@ -335,7 +335,7 @@ void SpawnStatic(
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
-		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
 
 	case bo_plasma_detonator:
@@ -345,7 +345,7 @@ void SpawnStatic(
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
-		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
 
 	case bo_red_key:
@@ -380,7 +380,7 @@ void SpawnStatic(
 	case bo_coin5:
 	case bo_automapper1:
 		spot->flags = FL_BONUS;
-		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
 
 	default:
@@ -451,12 +451,12 @@ statobj_t* FindReservedStatic()
 // reserved a static to be used using ReserveStatic();
 // ---------------------------------------------------------------------------
 statobj_t* UseReservedStatic(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley)
 {
     auto spot = FindReservedStatic();
-    int16_t type;
+    std::int16_t type;
 
     if (!spot) {
         ::Quit("Count not find a reserved static at location (0, 0) with shape #1.");
@@ -491,31 +491,31 @@ statobj_t* UseReservedStatic(
     }
 
     spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<uint8_t>(tilex);
-    spot->tiley = static_cast<uint8_t>(tiley);
+    spot->tilex = static_cast<std::uint8_t>(tilex);
+    spot->tiley = static_cast<std::uint8_t>(tiley);
     spot->visspot = &spotvis[tilex][tiley];
     spot->flags = FL_BONUS;
-    spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+    spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 
     spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
     return spot;
 }
 
-int8_t pint_xy[8][2] = {
+std::int8_t pint_xy[8][2] = {
     { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 },
     { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 },
 };
 
 void PlaceReservedItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley)
 {
-    int8_t loop;
+    std::int8_t loop;
 
     for (loop = 0; loop < 8; loop++) {
-        int8_t x = static_cast<int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
+        std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
         if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
             if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
@@ -542,11 +542,11 @@ void PlaceReservedItemNearTile(
 ===============
 */
 void PlaceItemType(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley)
 {
-    int16_t type;
+    std::int16_t type;
     statobj_t* spot;
 
 //
@@ -574,27 +574,27 @@ void PlaceItemType(
 // place it
 //
     spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<uint8_t>(tilex);
-    spot->tiley = static_cast<uint8_t>(tiley);
+    spot->tilex = static_cast<std::uint8_t>(tilex);
+    spot->tiley = static_cast<std::uint8_t>(tiley);
     spot->visspot = &spotvis[tilex][tiley];
     spot->flags = FL_BONUS;
-    spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+    spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 
     spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 }
 
 void PlaceItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+    std::int16_t itemtype,
+    std::int16_t tilex,
+    std::int16_t tiley)
 {
 // [0] is the y offset
 // [1] is the x offset
 //
-    int8_t loop;
+    std::int8_t loop;
 
     for (loop = 0; loop < 8; loop++) {
-        int8_t x = static_cast<int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
+        std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
         if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
             if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
@@ -616,8 +616,8 @@ void PlaceItemNearTile(
 //
 // --------------------------------------------------------------------------
 void ExplodeStatics(
-	int16_t tilex,
-	int16_t tiley)
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -627,7 +627,7 @@ void ExplodeStatics(
 	}
 
 	statobj_t* spot;
-	int16_t y_diff, x_diff;
+	std::int16_t y_diff, x_diff;
 	bool remove;
 
 	for (spot = &statobjlist[0]; spot != laststatobj; spot++)
@@ -702,16 +702,16 @@ Every time a door opens or closes the areabyplayer matrix gets recalculated.
 =============================================================================
 */
 
-static const int16_t OPENTICS = 300;
+static const std::int16_t OPENTICS = 300;
 
 doorobj_t doorobjlist[MAXDOORS];
 doorobj_t* lastdoorobj;
-int16_t doornum;
+std::int16_t doornum;
 
 // leading edge of door 0=closed, 0xffff = fully open
-uint16_t doorposition[MAXDOORS];
+std::uint16_t doorposition[MAXDOORS];
 
-uint8_t areaconnect[NUMAREAS][NUMAREAS];
+std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
 bool areabyplayer[NUMAREAS];
 
@@ -726,9 +726,9 @@ bool areabyplayer[NUMAREAS];
 ==============
 */
 void RecursiveConnect(
-    int16_t areanumber)
+    std::int16_t areanumber)
 {
-    int16_t i;
+    std::int16_t i;
 
     for (i = 0; i < NUMAREAS; i++) {
         if (areaconnect[areanumber][i] && !areabyplayer[i]) {
@@ -761,13 +761,13 @@ void InitDoorList()
 }
 
 void SpawnDoor(
-    int16_t tilex,
-    int16_t tiley,
+    std::int16_t tilex,
+    std::int16_t tiley,
     bool vertical,
     keytype lock,
     door_t type)
 {
-    uint16_t* map[2];
+    std::uint16_t* map[2];
 
     map[0] = mapsegs[0] + farmapylookup[tiley] + tilex;
     map[1] = mapsegs[1] + farmapylookup[tiley] + tilex;
@@ -777,8 +777,8 @@ void SpawnDoor(
     }
 
     doorposition[doornum] = 0; // doors start out fully closed
-    lastdoorobj->tilex = static_cast<uint8_t>(tilex);
-    lastdoorobj->tiley = static_cast<uint8_t>(tiley);
+    lastdoorobj->tilex = static_cast<std::uint8_t>(tilex);
+    lastdoorobj->tiley = static_cast<std::uint8_t>(tiley);
     lastdoorobj->vertical = vertical;
     lastdoorobj->lock = lock;
     lastdoorobj->type = type;
@@ -786,32 +786,32 @@ void SpawnDoor(
     lastdoorobj->flags = DR_BLASTABLE; // JIM - Do something with this! jdebug
 
     if (vertical) {
-        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<int8_t>(tilex + 1), static_cast<int8_t>(tiley));
-        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<int8_t>(tilex - 1), static_cast<int8_t>(tiley));
+        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<std::int8_t>(tilex + 1), static_cast<std::int8_t>(tiley));
+        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<std::int8_t>(tilex - 1), static_cast<std::int8_t>(tiley));
     } else {
-        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley - 1));
-        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley + 1));
+        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<std::int8_t>(tilex), static_cast<std::int8_t>(tiley - 1));
+        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<std::int8_t>(tilex), static_cast<std::int8_t>(tiley + 1));
     }
 
     // consider it a solid wall
-    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<size_t>(doornum | 0x80));
+    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<std::size_t>(doornum | 0x80));
 
 //
 // make the door tile a special tile, and mark the adjacent tiles
 // for door sides
 //
-    tilemap[tilex][tiley] = static_cast<uint8_t>(doornum | 0x80);
+    tilemap[tilex][tiley] = static_cast<std::uint8_t>(doornum | 0x80);
 
     if (vertical) {
         if (*(map[0] - mapwidth - 1) == TRANSPORTERTILE) {
-            *map[0] = GetAreaNumber(static_cast<int8_t>(tilex + 1), static_cast<int8_t>(tiley));
+            *map[0] = GetAreaNumber(static_cast<std::int8_t>(tilex + 1), static_cast<std::int8_t>(tiley));
         } else {
-            *map[0] = GetAreaNumber(static_cast<int8_t>(tilex - 1), static_cast<int8_t>(tiley));
+            *map[0] = GetAreaNumber(static_cast<std::int8_t>(tilex - 1), static_cast<std::int8_t>(tiley));
         }
         tilemap[tilex][tiley - 1] |= 0x40;
         tilemap[tilex][tiley + 1] |= 0x40;
     } else {
-        *map[0] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley - 1));
+        *map[0] = GetAreaNumber(static_cast<std::int8_t>(tilex), static_cast<std::int8_t>(tiley - 1));
         tilemap[tilex - 1][tiley] |= 0x40;
         tilemap[tilex + 1][tiley] |= 0x40;
     }
@@ -821,22 +821,22 @@ void SpawnDoor(
 }
 
 void CheckLinkedDoors(
-    int16_t door,
-    int16_t door_dir)
+    std::int16_t door,
+    std::int16_t door_dir)
 {
-    static int16_t LinkCheck = 0;
-    static int16_t base_tilex;
-    static int16_t base_tiley;
+    static std::int16_t LinkCheck = 0;
+    static std::int16_t base_tilex;
+    static std::int16_t base_tiley;
 
-    int16_t tilex = doorobjlist[door].tilex;
-    int16_t tiley = doorobjlist[door].tiley;
-    int16_t next_tilex = 0;
-    int16_t next_tiley = 0;
+    std::int16_t tilex = doorobjlist[door].tilex;
+    std::int16_t tiley = doorobjlist[door].tiley;
+    std::int16_t next_tilex = 0;
+    std::int16_t next_tiley = 0;
 
 // Find next door in link.
 //
     if (*(mapsegs[1] + (farmapylookup[tiley] + tilex))) {
-        uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
+        std::uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
 
         // Define the next door in the link.
         //
@@ -860,7 +860,7 @@ void CheckLinkedDoors(
         ((next_tilex != base_tilex) || (next_tiley != base_tiley))
         )
     {
-        int16_t door_index = tilemap[next_tilex][next_tiley] & ~0x80;
+        std::int16_t door_index = tilemap[next_tilex][next_tiley] & ~0x80;
 
         switch (door_dir) {
         case dr_opening:
@@ -879,7 +879,7 @@ void CheckLinkedDoors(
 }
 
 void OpenDoor(
-    int16_t door)
+    std::int16_t door)
 {
 
     if (doorobjlist[door].action == dr_jammed) {
@@ -919,9 +919,9 @@ objtype* get_actor_near_door(
 }
 
 void CloseDoor(
-    int16_t door)
+    std::int16_t door)
 {
-    int16_t tilex, tiley, area;
+    std::int16_t tilex, tiley, area;
     objtype* check;
 
     if (doorobjlist[door].action == dr_jammed) {
@@ -1004,7 +1004,7 @@ void CloseDoor(
 // make the door space solid
 //
 
-    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<size_t>(door | 0x80));
+    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door | 0x80));
 
     CheckLinkedDoors(door, dr_closing);
 
@@ -1046,9 +1046,9 @@ const char* const od_granted = "\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX"
 const char* const od_operating = "\r\r    OPERATING DOOR.\r^XX";
 
 void OperateDoor(
-    int16_t door)
+    std::int16_t door)
 {
-    int16_t lock;
+    std::int16_t lock;
     bool oneway = false;
 
 
@@ -1098,7 +1098,7 @@ void OperateDoor(
     // Check for possibly being locked
     //
 
-    lock = static_cast<int16_t>(doorobjlist[door].lock);
+    lock = static_cast<std::int16_t>(doorobjlist[door].lock);
     if (lock != kt_none) {
         if (!(gamestate.numkeys[lock - kt_red])) {
             ::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
@@ -1155,7 +1155,7 @@ void OperateDoor(
 }
 
 void BlockDoorOpen(
-    int16_t door)
+    std::int16_t door)
 {
     doorobjlist[door].action = dr_jammed;
     doorobjlist[door].ticcount = 0;
@@ -1169,7 +1169,7 @@ void BlockDoorOpen(
 }
 
 void TryBlastDoor(
-    int8_t door)
+    std::int8_t door)
 {
     switch (doorobjlist[static_cast<int>(door)].type) {
     case dr_oneway_left:
@@ -1193,12 +1193,12 @@ void TryBlastDoor(
 }
 
 void BlastNearDoors(
-    int16_t tilex,
-    int16_t tiley)
+    std::int16_t tilex,
+    std::int16_t tiley)
 {
-    uint8_t door;
+    std::uint8_t door;
     char* doorptr;
-    int16_t x, y;
+    std::int16_t x, y;
 
     doorptr = (char*)&tilemap[tilex][tiley];
 
@@ -1239,10 +1239,10 @@ void DropPlasmaDetonator()
 // --------------------------------------------------------------------------
 void TryDropPlasmaDetonator()
 {
-    const int16_t MAX_RANGE_DIST = 2;
+    const std::int16_t MAX_RANGE_DIST = 2;
 
     objtype* obj;
-    int16_t distx, disty, distance;
+    std::int16_t distx, disty, distance;
 
 
     if (!gamestuff.level[gamestate.mapon + 1].locked) {
@@ -1295,20 +1295,20 @@ void TryDropPlasmaDetonator()
 ===============
 */
 void DoorOpen(
-    int16_t door)
+    std::int16_t door)
 {
     if ((doorobjlist[door].ticcount += tics) >= OPENTICS) {
         CloseDoor(door);
     }
 }
 
-int16_t TransformAreas(
-    int8_t tilex,
-    int8_t tiley,
-    int8_t xform)
+std::int16_t TransformAreas(
+    std::int8_t tilex,
+    std::int8_t tiley,
+    std::int8_t xform)
 {
-    int16_t xofs = 0, yofs = 0;
-    uint8_t area1, area2;
+    std::int16_t xofs = 0, yofs = 0;
+    std::uint8_t area1, area2;
 
 // Is this walkway:  Horizontal?   Vertical?   Error?
 //
@@ -1324,12 +1324,12 @@ int16_t TransformAreas(
 
 // Define the two areas...
 //
-    area1 = GetAreaNumber(static_cast<int8_t>(tilex + xofs), static_cast<int8_t>(tiley + yofs));
+    area1 = GetAreaNumber(static_cast<std::int8_t>(tilex + xofs), static_cast<std::int8_t>(tiley + yofs));
     if (area1 >= NUMAREAS) {
         ::Quit("Area1 out of table range.");
     }
 
-    area2 = GetAreaNumber(static_cast<int8_t>(tilex - xofs), static_cast<int8_t>(tiley - yofs));
+    area2 = GetAreaNumber(static_cast<std::int8_t>(tilex - xofs), static_cast<std::int8_t>(tiley - yofs));
     if (area2 >= NUMAREAS) {
         ::Quit("Area2 out of table range.");
     }
@@ -1344,10 +1344,10 @@ int16_t TransformAreas(
 }
 
 void DoorOpening(
-    int16_t door)
+    std::int16_t door)
 {
-    int16_t area1;
-    int32_t position;
+    std::int16_t area1;
+    std::int32_t position;
 
     position = doorposition[door];
     if (!position) {
@@ -1384,19 +1384,19 @@ void DoorOpening(
         actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
     }
 
-    doorposition[door] = static_cast<uint16_t>(position);
+    doorposition[door] = static_cast<std::uint16_t>(position);
 }
 
 void DoorClosing(
-    int16_t door)
+    std::int16_t door)
 {
-    int32_t position;
-    int16_t tilex, tiley;
+    std::int32_t position;
+    std::int16_t tilex, tiley;
 
     tilex = doorobjlist[door].tilex;
     tiley = doorobjlist[door].tiley;
 
-    if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(static_cast<size_t>(door | 0x80))) ||
+    if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(static_cast<std::size_t>(door | 0x80))) ||
         (player->tilex == tilex && player->tiley == tiley))
     {
         // something got inside the door
@@ -1416,7 +1416,7 @@ void DoorClosing(
         TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, -1);
     }
 
-    doorposition[door] = static_cast<uint16_t>(position);
+    doorposition[door] = static_cast<std::uint16_t>(position);
 }
 
 /*
@@ -1430,7 +1430,7 @@ void DoorClosing(
 */
 void MoveDoors()
 {
-    int16_t door;
+    std::int16_t door;
 
     for (door = 0; door < doornum; door++) {
         switch (doorobjlist[door].action) {
@@ -1461,24 +1461,24 @@ void MoveDoors()
 =============================================================================
 */
 
-uint16_t pwallstate;
-uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
-uint16_t pwallx = 0, pwally = 0;
-int16_t pwalldir, pwalldist;
+std::uint16_t pwallstate;
+std::uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
+std::uint16_t pwallx = 0, pwally = 0;
+std::int16_t pwalldir, pwalldist;
 
 
 void PushWall(
-    int16_t checkx,
-    int16_t checky,
-    int16_t dir)
+    std::int16_t checkx,
+    std::int16_t checky,
+    std::int16_t dir)
 {
-    int16_t oldtile;
+    std::int16_t oldtile;
 
     if (pwallstate) {
         return;
     }
 
-    TransformAreas(static_cast<int8_t>(checkx), static_cast<int8_t>(checky), 1);
+    TransformAreas(static_cast<std::int8_t>(checkx), static_cast<std::int8_t>(checky), 1);
 
     oldtile = tilemap[checkx][checky];
     if (!oldtile) {
@@ -1491,7 +1491,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx][checky - 1] = static_cast<uint8_t>(oldtile);
+        tilemap[checkx][checky - 1] = static_cast<std::uint8_t>(oldtile);
         actorat[checkx][checky - 1] = reinterpret_cast<objtype*>(oldtile);
         break;
 
@@ -1500,7 +1500,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx + 1][checky] = static_cast<uint8_t>(oldtile);
+        tilemap[checkx + 1][checky] = static_cast<std::uint8_t>(oldtile);
         actorat[checkx + 1][checky] = reinterpret_cast<objtype*>(oldtile);
         break;
 
@@ -1509,7 +1509,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx][checky + 1] = static_cast<uint8_t>(oldtile);
+        tilemap[checkx][checky + 1] = static_cast<std::uint8_t>(oldtile);
         actorat[checkx][checky + 1] = reinterpret_cast<objtype*>(oldtile);
         break;
 
@@ -1518,7 +1518,7 @@ void PushWall(
             return;
         }
 
-        tilemap[checkx - 1][checky] = static_cast<uint8_t>(oldtile);
+        tilemap[checkx - 1][checky] = static_cast<std::uint8_t>(oldtile);
         actorat[checkx - 1][checky] = reinterpret_cast<objtype*>(oldtile);
         break;
     }
@@ -1537,7 +1537,7 @@ void PushWall(
 
 void MovePWalls()
 {
-    int16_t oldblock, oldtile;
+    std::int16_t oldblock, oldtile;
 
     if (!pwallstate) {
         return;
@@ -1548,7 +1548,7 @@ void MovePWalls()
     pwallstate += tics * 4;
 
     if (pwallstate / 128 != oldblock) {
-        uint16_t areanumber;
+        std::uint16_t areanumber;
 
         pwalldist--;
 
@@ -1588,7 +1588,7 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx][pwally - 1] = static_cast<uint8_t>(oldtile);
+                tilemap[pwallx][pwally - 1] = static_cast<std::uint8_t>(oldtile);
                 actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
                 break;
 
@@ -1599,7 +1599,7 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx + 1][pwally] = static_cast<uint8_t>(oldtile);
+                tilemap[pwallx + 1][pwally] = static_cast<std::uint8_t>(oldtile);
                 actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
                 break;
 
@@ -1610,7 +1610,7 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx][pwally + 1] = static_cast<uint8_t>(oldtile);
+                tilemap[pwallx][pwally + 1] = static_cast<std::uint8_t>(oldtile);
                 actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
                 break;
 
@@ -1621,12 +1621,12 @@ void MovePWalls()
                     return;
                 }
 
-                tilemap[pwallx - 1][pwally] = static_cast<uint8_t>(oldtile);
+                tilemap[pwallx - 1][pwally] = static_cast<std::uint8_t>(oldtile);
                 actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
                 break;
             }
 
-            tilemap[pwallx][pwally] = static_cast<uint8_t>(oldtile | 0xc0);
+            tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xc0);
         }
     }
 
@@ -1655,8 +1655,8 @@ void MovePWalls()
 
 void InitMsgCache(
     mCacheList* mList,
-    uint16_t listSize,
-    uint16_t infoSize)
+    std::uint16_t listSize,
+    std::uint16_t infoSize)
 {
     FreeMsgCache(mList, infoSize);
     memset(mList, 0, listSize);
@@ -1664,7 +1664,7 @@ void InitMsgCache(
 
 void FreeMsgCache(
     mCacheList* mList,
-    uint16_t infoSize)
+    std::uint16_t infoSize)
 {
     mCacheInfo* ci = mList->mInfo;
     char* ch_ptr;
@@ -1689,8 +1689,8 @@ extern char int_xx[];
 // ---------------------------------------------------------------------------
 void CacheMsg(
     mCacheInfo* ci,
-    uint16_t SegNum,
-    uint16_t MsgNum)
+    std::uint16_t SegNum,
+    std::uint16_t MsgNum)
 {
     ci->mSeg = new char[MAX_CACHE_MSG_LEN];
     LoadMsg(ci->mSeg, SegNum, MsgNum, MAX_CACHE_MSG_LEN);
@@ -1710,14 +1710,14 @@ void CacheMsg(
 //
 // RETURNS : Returns the length of the loaded message
 // ---------------------------------------------------------------------------
-int16_t LoadMsg(
+std::int16_t LoadMsg(
     char* hint_buffer,
-    uint16_t SegNum,
-    uint16_t MsgNum,
-    uint16_t MaxMsgLen)
+    std::uint16_t SegNum,
+    std::uint16_t MsgNum,
+    std::uint16_t MaxMsgLen)
 {
     char* Message, * EndOfMsg;
-    int16_t pos = 0;
+    std::int16_t pos = 0;
 
     CA_CacheGrChunk(SegNum);
     Message = static_cast<char*>(grsegs[SegNum]);
@@ -1782,10 +1782,10 @@ int16_t LoadMsg(
 // actorat[][] - Holds concession machine number (1 - MAXCONCESSIONS+1)
 // --------------------------------------------------------------------------
 void SpawnConcession(
-    int16_t tilex,
-    int16_t tiley,
-    uint16_t credits,
-    uint16_t machinetype)
+    std::int16_t tilex,
+    std::int16_t tiley,
+    std::uint16_t credits,
+    std::uint16_t machinetype)
 {
     con_mCacheInfo* ci = &ConHintList.cmInfo[ConHintList.NumMsgs];
 
@@ -1799,7 +1799,7 @@ void SpawnConcession(
         case 0xFC00: // Food Id
             ci->mInfo.local_val = credits & 0xff;
             ci->operate_cnt = 0;
-            ci->type = static_cast<uint8_t>(machinetype);
+            ci->type = static_cast<std::uint8_t>(machinetype);
             break;
         }
     }
@@ -1815,8 +1815,8 @@ void SpawnConcession(
 
 bool ReuseMsg(
     mCacheInfo* ci,
-    int16_t count,
-    int16_t struct_size)
+    std::int16_t count,
+    std::int16_t struct_size)
 {
     char* scan_ch = (char*)ci;
     mCacheInfo* scan = (mCacheInfo*)(scan_ch - struct_size);
@@ -1852,7 +1852,7 @@ extern void writeTokenStr(
 const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX";
 
 void OperateConcession(
-	uint16_t concession)
+	std::uint16_t concession)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -1939,7 +1939,7 @@ void OperateConcession(
 	}
 }
 
-int8_t xy_offset[8][2] = {
+std::int8_t xy_offset[8][2] = {
     { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
     { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 }, // diagnals
 };
@@ -1947,14 +1947,14 @@ int8_t xy_offset[8][2] = {
 void CheckSpawnEA()
 {
     objtype temp, * ob;
-    int8_t loop, ofs, x_diff, y_diff;
+    std::int8_t loop, ofs, x_diff, y_diff;
 
     if (objcount > MAXACTORS - 8) {
         return;
     }
 
     for (loop = 0; loop < NumEAWalls; loop++) {
-        uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
+        std::uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
 
         // Limit the number of aliens spawned by each outlet.
         //
@@ -1978,9 +1978,9 @@ void CheckSpawnEA()
         // Does this wall touch the 'area' that the player is in?
         //
         for (ofs = 0; ofs < 4; ofs++) {
-            int8_t nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
-            int8_t ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
-            int8_t areanumber = GetAreaNumber(nx, ny);
+            std::int8_t nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
+            std::int8_t ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
+            std::int8_t areanumber = GetAreaNumber(nx, ny);
 
             if ((nx < 0) || (nx > 63) || (ny < 0) || (ny > 63)) {
                 continue;
@@ -2070,7 +2070,7 @@ void CheckSpawnGoldstern()
         //
 
         if (GoldsternInfo.flags == GS_COORDFOUND) {
-            uint16_t tilex, tiley;
+            std::uint16_t tilex, tiley;
 
             // See if we can spawn Dr. Goldstern...
 
@@ -2092,7 +2092,7 @@ void CheckSpawnGoldstern()
 void FindNewGoldieSpawnSite()
 {
     objtype temp;
-    int8_t loop;
+    std::int8_t loop;
 
     GoldsternInfo.WaitTime = 0;
 

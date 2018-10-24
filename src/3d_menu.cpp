@@ -32,7 +32,7 @@ bool is_full_menu_active = false;
 
 
 void CA_CacheScreen(
-    int16_t chunk);
+    std::int16_t chunk);
 
 void VH_UpdateScreen();
 void DrawHighScores();
@@ -42,11 +42,11 @@ void DrawTopInfo(
     sp_type type);
 
 void PreloadUpdate(
-    uint16_t current,
-    uint16_t total);
+    std::uint16_t current,
+    std::uint16_t total);
 
 void INL_GetJoyDelta(
-    uint16_t joy,
+    std::uint16_t joy,
     int* dx,
     int* dy);
 
@@ -88,11 +88,11 @@ static const char* const GAMESVD =
 
 bool EscPressed = false;
 
-int16_t lastmenumusic;
+std::int16_t lastmenumusic;
 
-int16_t MENUSONG = 0;
-int16_t ROSTER_MUS = 0;
-int16_t TEXTSONG = 0;
+std::int16_t MENUSONG = 0;
+std::int16_t ROSTER_MUS = 0;
+std::int16_t TEXTSONG = 0;
 
 
 // ===========================================================================
@@ -102,47 +102,47 @@ int16_t TEXTSONG = 0;
 // ===========================================================================
 
 void CP_ReadThis(
-    int16_t temp1);
+    std::int16_t temp1);
 
 void CP_OrderingInfo(
-    int16_t temp1);
+    std::int16_t temp1);
 
 void DrawEpisodePic(
-    int16_t w);
+    std::int16_t w);
 
 void DrawAllSoundLights(
-    int16_t which);
+    std::int16_t which);
 
 void ReadGameNames();
 void FreeMusic();
 
 void CP_GameOptions(
-    int16_t temp1);
+    std::int16_t temp1);
 
 void DrawGopMenu();
 void CalibrateJoystick();
 void ExitGame();
 
 void CP_Switches(
-    int16_t temp1);
+    std::int16_t temp1);
 
 void cp_switches2(
-    int16_t);
+    std::int16_t);
 
 void DrawSwitchMenu();
 
 void DrawAllSwitchLights(
-    int16_t which);
+    std::int16_t which);
 
 void DrawSwitchDescription(
-    int16_t which);
+    std::int16_t which);
 
 // BBi
 void cp_sound_volume(
-    int16_t);
+    std::int16_t);
 
 void cp_video(
-    int16_t);
+    std::int16_t);
 // BBi
 
 
@@ -172,15 +172,15 @@ CP_iteminfo switches2_items = { MENU_X, MENU_Y + 30, 1, 0, 0, 9, { 87, -1, 132, 
 
 
 CP_itemtype MainMenu[] = {
-    { AT_ENABLED, "NEW MISSION", CP_NewGame, static_cast<uint8_t>(COAL_FONT) },
+    { AT_ENABLED, "NEW MISSION", CP_NewGame, static_cast<std::uint8_t>(COAL_FONT) },
     { AT_READIT, "ORDERING INFO", CP_OrderingInfo },
     { AT_READIT, "INSTRUCTIONS", CP_ReadThis },
     { AT_ENABLED, "STORY", CP_BlakeStoneSaga },
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "GAME OPTIONS", CP_GameOptions },
     { AT_ENABLED, "HIGH SCORES", CP_ViewScores },
-    { AT_ENABLED, "LOAD MISSION", reinterpret_cast<void (*)(int16_t)>(CP_LoadGame) },
-    { AT_DISABLED, "SAVE MISSION", reinterpret_cast<void (*)(int16_t)>(CP_SaveGame) },
+    { AT_ENABLED, "LOAD MISSION", reinterpret_cast<void (*)(std::int16_t)>(CP_LoadGame) },
+    { AT_DISABLED, "SAVE MISSION", reinterpret_cast<void (*)(std::int16_t)>(CP_SaveGame) },
     { AT_DISABLED, "", 0 },
     { AT_ENABLED, "BACK TO DEMO", CP_ExitOptions },
     { AT_ENABLED, "LOGOFF", 0 }
@@ -307,21 +307,21 @@ CP_itemtype video_menu[] = {
 // BBi
 
 
-int16_t color_hlite[] = {
+std::int16_t color_hlite[] = {
     HIGHLIGHT_DISABLED_COLOR,
     HIGHLIGHT_TEXT_COLOR,
     READHCOLOR,
     HIGHLIGHT_DEACTIAVED_COLOR,
 };
 
-int16_t color_norml[] = {
+std::int16_t color_norml[] = {
     DISABLED_TEXT_COLOR,
     ENABLED_TEXT_COLOR,
     READCOLOR,
     DEACTIAVED_TEXT_COLOR,
 };
 
-int16_t EpisodeSelect[6] = {
+std::int16_t EpisodeSelect[6] = {
     1,
     0,
     0,
@@ -330,13 +330,13 @@ int16_t EpisodeSelect[6] = {
     0,
 };
 
-int16_t SaveGamesAvail[10];
-int16_t StartGame;
-int16_t SoundStatus = 1;
-int16_t pickquick;
+std::int16_t SaveGamesAvail[10];
+std::int16_t StartGame;
+std::int16_t SoundStatus = 1;
+std::int16_t pickquick;
 char SaveGameNames[10][GAME_DESCRIPTION_LEN + 1];
 
-static uint8_t menu_background_color = 0x00;
+static std::uint8_t menu_background_color = 0x00;
 
 
 static const std::string& get_saved_game_base_name()
@@ -440,7 +440,7 @@ static ScanNames ext_scan_names = {
 
 #else
 
-uint8_t* ScanNames, * ExtScanNames;
+std::uint8_t* ScanNames, * ExtScanNames;
 ScanCode* ExtScanCodes;
 
 #endif
@@ -575,12 +575,12 @@ const int k_binds_text_keys_gap = 3;
 const int k_binds_line_spacing = 1;
 const int k_binds_top = 28;
 
-const uint8_t k_binds_category_color = 0x4A;
-const uint8_t k_binds_text_color = 0x56;
-const uint8_t k_binds_key_text_color = 0x7F;
-const uint8_t k_binds_key_bar_default_color = 0x03;
-const uint8_t k_binds_key_bar_active_color = 0x31;
-const uint8_t k_binds_key_bar_assign_color = 0x14;
+const std::uint8_t k_binds_category_color = 0x4A;
+const std::uint8_t k_binds_text_color = 0x56;
+const std::uint8_t k_binds_key_text_color = 0x7F;
+const std::uint8_t k_binds_key_bar_default_color = 0x03;
+const std::uint8_t k_binds_key_bar_active_color = 0x31;
+const std::uint8_t k_binds_key_bar_assign_color = 0x14;
 
 int binds_count;
 int binds_window;
@@ -883,12 +883,12 @@ void binds_draw_item_text(
         text_width = SCREEN_W;
     }
 
-    PrintX = static_cast<int16_t>(x + text_left_offset);
-    PrintY = static_cast<int16_t>(y);
+    PrintX = static_cast<std::int16_t>(x + text_left_offset);
+    PrintY = static_cast<std::int16_t>(y);
     WindowX = PrintX;
     WindowY = PrintY;
-    WindowW = static_cast<int16_t>(text_width);
-    WindowH = static_cast<int16_t>(binds_text_height);
+    WindowW = static_cast<std::int16_t>(text_width);
+    WindowH = static_cast<std::int16_t>(binds_text_height);
 
     if (item.binding) {
         fontcolor = k_binds_text_color;
@@ -914,7 +914,7 @@ void binds_draw_keys(
     bool is_current = (item_index == binds_window_offset);
 
     for (int k = 0; k < k_max_binding_keys; ++k) {
-        uint8_t color;
+        std::uint8_t color;
         ScanCode key;
         const char* key_name;
 
@@ -938,12 +938,12 @@ void binds_draw_keys(
             binds_text_height,
             color);
 
-        PrintX = static_cast<int16_t>(x);
-        PrintY = static_cast<int16_t>(y);
+        PrintX = static_cast<std::int16_t>(x);
+        PrintY = static_cast<std::int16_t>(y);
         WindowX = PrintX;
         WindowY = PrintY;
-        WindowW = static_cast<int16_t>(binds_key_width);
-        WindowH = static_cast<int16_t>(binds_text_height);
+        WindowW = static_cast<std::int16_t>(binds_key_width);
+        WindowH = static_cast<std::int16_t>(binds_text_height);
 
         if (!(is_active && binds_is_assigning)) {
             key = (*item.binding)[k];
@@ -1218,7 +1218,7 @@ void HelpScreens()
 void HelpPresenter(
     const char* fname,
     bool continue_keys,
-    uint16_t id_cache,
+    std::uint16_t id_cache,
     bool startmusic)
 {
     const int FULL_VIEW_WIDTH = 19;
@@ -1270,7 +1270,7 @@ void HelpPresenter(
     }
 
     if (startmusic) {
-        ::StartCPMusic(static_cast<int16_t>(TEXTSONG));
+        ::StartCPMusic(static_cast<std::int16_t>(TEXTSONG));
     }
 
 // Load, present, and free help text.
@@ -1315,7 +1315,7 @@ void US_ControlPanel(
         TERM_BACK_COLOR);
 
 
-    int16_t which;
+    std::int16_t which;
 
     if (ingame) {
         if (CP_CheckQuick(scancode)) {
@@ -1473,7 +1473,7 @@ void DrawMainMenu()
 }
 
 void CP_ReadThis(
-    int16_t)
+    std::int16_t)
 {
     ControlPanelFree();
     HelpScreens();
@@ -1481,7 +1481,7 @@ void CP_ReadThis(
 }
 
 void CP_OrderingInfo(
-    int16_t)
+    std::int16_t)
 {
     ControlPanelFree();
     HelpPresenter("", false, ORDERTEXT, true);
@@ -1489,7 +1489,7 @@ void CP_OrderingInfo(
 }
 
 void CP_BlakeStoneSaga(
-    int16_t)
+    std::int16_t)
 {
     ControlPanelFree();
     HelpPresenter("", false, SAGATEXT, true);
@@ -1635,7 +1635,7 @@ bool CP_CheckQuick(
     }
 }
 
-int16_t CP_EndGame()
+std::int16_t CP_EndGame()
 {
     if (!Confirm(ENDGAMESTR)) {
         return 0;
@@ -1649,11 +1649,11 @@ int16_t CP_EndGame()
 }
 
 void CP_ViewScores(
-    int16_t)
+    std::int16_t)
 {
     fontnumber = 4;
 
-    ::StartCPMusic(static_cast<int16_t>(ROSTER_MUS));
+    ::StartCPMusic(static_cast<std::int16_t>(ROSTER_MUS));
 
     DrawHighScores();
     VW_UpdateScreen();
@@ -1668,9 +1668,9 @@ void CP_ViewScores(
 }
 
 void CP_NewGame(
-    int16_t)
+    std::int16_t)
 {
-    int16_t which, episode = 0;
+    std::int16_t which, episode = 0;
 
     DrawMenuTitle("Difficulty Level");
     DrawInstructions(IT_STANDARD);
@@ -1784,7 +1784,7 @@ void DrawMenuTitle(
 
 }
 
-const int16_t INSTRUCTIONS_Y_POS = 154 + 10;
+const std::int16_t INSTRUCTIONS_Y_POS = 154 + 10;
 
 // ---------------------------------------------------------------------------
 // DrawInstructions() - Draws instructions centered at the bottom of
@@ -1874,21 +1874,21 @@ void DrawNewGame()
 }
 
 void DrawNewGameDiff(
-    int16_t w)
+    std::int16_t w)
 {
     VWB_DrawPic(192, 77, w + C_BABYMODEPIC);
 }
 
 void DrawEpisodePic(
-    int16_t w)
+    std::int16_t w)
 {
     VWB_DrawPic(176, 72, w + C_EPISODE1PIC);
 }
 
 void CP_GameOptions(
-    int16_t)
+    std::int16_t)
 {
-    int16_t which;
+    std::int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     DrawGopMenu();
@@ -1941,9 +1941,9 @@ void ChangeSwaps()
 }
 
 void CP_Switches(
-    int16_t)
+    std::int16_t)
 {
-    int16_t which;
+    std::int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     DrawSwitchMenu();
@@ -2039,10 +2039,10 @@ void DrawSwitchMenu()
 }
 
 void DrawAllSwitchLights(
-    int16_t which)
+    std::int16_t which)
 {
-    int16_t i;
-    uint16_t Shape;
+    std::int16_t i;
+    std::uint16_t Shape;
 
     for (i = 0; i < SwitchItems.amount; i++) {
         if (SwitchMenu[i].string[0]) {
@@ -2130,7 +2130,7 @@ void DrawAllSwitchLights(
 }
 
 void DrawSwitchDescription(
-    int16_t which)
+    std::int16_t which)
 {
     const char* instr[] = {
         "TOGGLES LIGHT SOURCING IN HALLWAYS",
@@ -2170,9 +2170,9 @@ void DrawSwitchDescription(
 }
 
 void CP_Sound(
-    int16_t)
+    std::int16_t)
 {
-    int16_t which;
+    std::int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     DrawSoundMenu();
@@ -2266,10 +2266,10 @@ void DrawSoundMenu()
 }
 
 void DrawAllSoundLights(
-    int16_t which)
+    std::int16_t which)
 {
-    int16_t i;
-    uint16_t Shape;
+    std::int16_t i;
+    std::uint16_t Shape;
 
     for (i = 0; i < SndItems.amount; i++) {
         if (SndMenu[i].string[0]) {
@@ -2325,15 +2325,15 @@ void DrawAllSoundLights(
 char LOADSAVE_GAME_MSG[2][25] = { "^ST1^CELoading Game\r^XX",
                                   "^ST1^CESaving Game\r^XX" };
 
-extern int8_t LS_current, LS_total;
+extern std::int8_t LS_current, LS_total;
 
 // --------------------------------------------------------------------------
 // DrawLSAction() - DRAW LOAD/SAVE IN PROGRESS
 // --------------------------------------------------------------------------
 void DrawLSAction(
-    int16_t which)
+    std::int16_t which)
 {
-    int8_t total[] = { 19, 19 };
+    std::int8_t total[] = { 19, 19 };
 
     VW_FadeOut();
     screenfaded = true;
@@ -2357,11 +2357,11 @@ void DrawLSAction(
     WindowY = 181;
 }
 
-int16_t CP_LoadGame(
-    int16_t quick)
+std::int16_t CP_LoadGame(
+    std::int16_t quick)
 {
-    int16_t which;
-    int16_t exit = 0;
+    std::int16_t which;
+    std::int16_t exit = 0;
 
     //
     // QUICKLOAD?
@@ -2444,9 +2444,9 @@ restart:
 // HIGHLIGHT CURRENT SELECTED ENTRY
 //
 void TrackWhichGame(
-    int16_t w)
+    std::int16_t w)
 {
-    static int16_t lastgameon = 0;
+    static std::int16_t lastgameon = 0;
 
     PrintLSEntry(lastgameon, ENABLED_TEXT_COLOR);
     PrintLSEntry(w, HIGHLIGHT_TEXT_COLOR);
@@ -2455,9 +2455,9 @@ void TrackWhichGame(
 }
 
 void DrawLoadSaveScreen(
-    int16_t loadsave)
+    std::int16_t loadsave)
 {
-    int16_t i;
+    std::int16_t i;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     ClearMScreen();
@@ -2488,8 +2488,8 @@ void DrawLoadSaveScreen(
 // PRINT LOAD/SAVE GAME ENTRY W/BOX OUTLINE
 // --------------------------------------------------------------------------
 void PrintLSEntry(
-    int16_t w,
-    int16_t color)
+    std::int16_t w,
+    std::int16_t color)
 {
     SETFONTCOLOR(color, BKGDCOLOR);
     DrawOutline(LSM_X + LSItems.indent, LSM_Y + w * LSItems.y_spacing - 2, LSM_W - LSItems.indent, 8, color, color);
@@ -2508,10 +2508,10 @@ void PrintLSEntry(
     fontnumber = 1;
 }
 
-int16_t CP_SaveGame(
-    int16_t quick)
+std::int16_t CP_SaveGame(
+    std::int16_t quick)
 {
-    int16_t which, exit = 0;
+    std::int16_t which, exit = 0;
     char input[GAME_DESCRIPTION_LEN + 1];
     bool temp_caps = allcaps;
     US_CursorStruct TermCursor = { '@', 0, HIGHLIGHT_TEXT_COLOR, 2 };
@@ -2609,20 +2609,20 @@ int16_t CP_SaveGame(
 }
 
 void CP_ExitOptions(
-    int16_t)
+    std::int16_t)
 {
     StartGame = 1;
 }
 
 void CP_Control(
-    int16_t)
+    std::int16_t)
 {
 #ifdef __vita__
     return;
 #endif
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, CALIBRATEJOY, MOUSESENS, CUSTOMIZE};
 
-    int16_t which;
+    std::int16_t which;
 
     CA_CacheScreen(BACKGROUND_SCREENPIC);
 
@@ -2734,7 +2734,7 @@ void DrawMouseSens()
 
 void CalibrateJoystick()
 {
-    uint16_t minx, maxx, miny, maxy;
+    std::uint16_t minx, maxx, miny, maxy;
 
     CacheMessage(CALJOY1_TEXT);
     VW_UpdateScreen();
@@ -2774,10 +2774,10 @@ void CalibrateJoystick()
 }
 
 void MouseSensitivity(
-    int16_t)
+    std::int16_t)
 {
     ControlInfo ci;
-    int16_t exit = 0;
+    std::int16_t exit = 0;
 
     const auto oldMA = ::mouseadjustment;
 
@@ -2846,11 +2846,11 @@ void MouseSensitivity(
 // --------------------------------------------------------------------------
 void DrawCtlScreen()
 {
-    const int16_t Y_CTL_PIC_OFS = 3;
+    const std::int16_t Y_CTL_PIC_OFS = 3;
 
-    int16_t i;
-    int16_t x;
-    int16_t y;
+    std::int16_t i;
+    std::int16_t x;
+    std::int16_t y;
 
     ClearMScreen();
     DrawMenuTitle("CONTROL");
@@ -2915,7 +2915,7 @@ void DrawCtlScreen()
     if (CtlItems.curpos < 0 || !CtlMenu[static_cast<int>(CtlItems.curpos)].active) {
         for (i = 0; i < CtlItems.amount; ++i) {
             if (CtlMenu[i].active) {
-                CtlItems.curpos = static_cast<int8_t>(i);
+                CtlItems.curpos = static_cast<std::int8_t>(i);
                 break;
             }
         }
@@ -2936,14 +2936,14 @@ char mbarray[4][3] = { "B0", "B1", "B2", "B3" };
 int order[4] = { RUN, OPEN, FIRE, STRAFE, };
 
 void CustomControls(
-    int16_t)
+    std::int16_t)
 {
     if (in_use_modern_bindings) {
         binds_draw_menu();
         return;
     }
 
-    int16_t which;
+    std::int16_t which;
 
     DrawCustomScreen();
 
@@ -3031,25 +3031,25 @@ enum ControlButton2 {
     LEFT
 }; // ControlButton2
 
-int16_t moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
+std::int16_t moveorder[4] = { LEFT, RIGHT, FWRD, BKWD };
 
 // --------------------------------------------------------------------------
 // EnterCtrlData() - ENTER CONTROL DATA FOR ANY TYPE OF CONTROL
 // --------------------------------------------------------------------------
 void EnterCtrlData(
-    int16_t index,
+    std::int16_t index,
     CustomCtrls* cust,
-    void (* DrawRtn)(int16_t),
-    void (* PrintRtn)(int16_t),
-    int16_t type)
+    void (* DrawRtn)(std::int16_t),
+    void (* PrintRtn)(std::int16_t),
+    std::int16_t type)
 {
-    int16_t j;
-    int16_t exit;
-    int16_t tick;
-    int16_t redraw;
-    int16_t which = 0;
-    int16_t x = 0;
-    int16_t picked;
+    std::int16_t j;
+    std::int16_t exit;
+    std::int16_t tick;
+    std::int16_t redraw;
+    std::int16_t which = 0;
+    std::int16_t x = 0;
+    std::int16_t picked;
     ControlInfo ci;
     bool clean_display = true;
 
@@ -3108,7 +3108,7 @@ void EnterCtrlData(
             SETFONTCOLOR(HIGHLIGHT_TEXT_COLOR, HIGHLIGHT_BOX_COLOR);
 
             do {
-                int16_t button, result = 0;
+                std::int16_t button, result = 0;
 
                 if (type == KEYBOARDBTNS || type == KEYBOARDMOVE) {
                     IN_ClearKeysDown();
@@ -3158,7 +3158,7 @@ void EnterCtrlData(
                     }
 
                     if (result) {
-                        int16_t z;
+                        std::int16_t z;
 
                         for (z = 0; z < 4; z++) {
                             if (order[which] == buttonmouse[z]) {
@@ -3167,7 +3167,7 @@ void EnterCtrlData(
                             }
                         }
 
-                        buttonmouse[result - 1] = static_cast<int16_t>(order[which]);
+                        buttonmouse[result - 1] = static_cast<std::int16_t>(order[which]);
                         picked = 1;
 
                         ::sd_play_player_sound(
@@ -3189,7 +3189,7 @@ void EnterCtrlData(
                     }
 
                     if (result) {
-                        int16_t z;
+                        std::int16_t z;
 
                         for (z = 0; z < 4; z++) {
                             if (order[which] == buttonjoy[z]) {
@@ -3198,7 +3198,7 @@ void EnterCtrlData(
                             }
                         }
 
-                        buttonjoy[result - 1] = static_cast<int16_t>(order[which]);
+                        buttonjoy[result - 1] = static_cast<std::int16_t>(order[which]);
                         picked = 1;
 
                         ::sd_play_player_sound(SHOOTDOORSND, bstone::ActorChannel::item);
@@ -3359,9 +3359,9 @@ void EnterCtrlData(
 // FIXUP GUN CURSOR OVERDRAW SHIT
 // --------------------------------------------------------------------------
 void FixupCustom(
-    int16_t w)
+    std::int16_t w)
 {
-    static int16_t lastwhich = -1;
+    static std::int16_t lastwhich = -1;
 
     switch (w) {
     case 0: DrawCustMouse(1);
@@ -3393,7 +3393,7 @@ void FixupCustom(
 
 void DrawCustomScreen()
 {
-    int16_t i;
+    std::int16_t i;
 
     ClearMScreen();
     DrawMenuTitle("CUSTOMIZE");
@@ -3446,7 +3446,7 @@ void DrawCustomScreen()
     if (CusItems.curpos < 0) {
         for (i = 0; i < CusItems.amount; i++) {
             if (CusMenu[i].active) {
-                CusItems.curpos = static_cast<int8_t>(i);
+                CusItems.curpos = static_cast<std::int8_t>(i);
                 break;
             }
         }
@@ -3457,9 +3457,9 @@ void DrawCustomScreen()
 }
 
 void PrintCustMouse(
-    int16_t i)
+    std::int16_t i)
 {
-    int16_t j;
+    std::int16_t j;
 
     for (j = 0; j < 4; j++) {
         if (order[i] == buttonmouse[j]) {
@@ -3471,9 +3471,9 @@ void PrintCustMouse(
 }
 
 void DrawCustMouse(
-    int16_t hilight)
+    std::int16_t hilight)
 {
-    int16_t i, color;
+    std::int16_t i, color;
 
     color = ENABLED_TEXT_COLOR;
 
@@ -3497,9 +3497,9 @@ void DrawCustMouse(
 }
 
 void PrintCustJoy(
-    int16_t i)
+    std::int16_t i)
 {
-    int16_t j;
+    std::int16_t j;
 
     for (j = 0; j < 4; j++) {
         if (order[i] == buttonjoy[j]) {
@@ -3511,9 +3511,9 @@ void PrintCustJoy(
 }
 
 void DrawCustJoy(
-    int16_t hilight)
+    std::int16_t hilight)
 {
-    int16_t i, color;
+    std::int16_t i, color;
 
 
     color = ENABLED_TEXT_COLOR;
@@ -3537,16 +3537,16 @@ void DrawCustJoy(
 }
 
 void PrintCustKeybd(
-    int16_t i)
+    std::int16_t i)
 {
     PrintX = CST_START + CST_SPC * i;
     US_Print(IN_GetScanName(buttonscan[order[i]]).c_str());
 }
 
 void DrawCustKeybd(
-    int16_t hilight)
+    std::int16_t hilight)
 {
-    int16_t i, color;
+    std::int16_t i, color;
 
     if (hilight) {
         color = HIGHLIGHT_TEXT_COLOR;
@@ -3564,16 +3564,16 @@ void DrawCustKeybd(
 }
 
 void PrintCustKeys(
-    int16_t i)
+    std::int16_t i)
 {
     PrintX = CST_START + CST_SPC * i;
     US_Print(IN_GetScanName(dirscan[moveorder[i]]).c_str());
 }
 
 void DrawCustKeys(
-    int16_t hilight)
+    std::int16_t hilight)
 {
-    int16_t i, color;
+    std::int16_t i, color;
 
     color = ENABLED_TEXT_COLOR;
 
@@ -3610,10 +3610,10 @@ void ClearMScreen()
 // Un/Cache a LUMP of graphics
 // ---------------------------------------------------------------------------
 void CacheLump(
-    int16_t lumpstart,
-    int16_t lumpend)
+    std::int16_t lumpstart,
+    std::int16_t lumpend)
 {
-    int16_t i;
+    std::int16_t i;
 
     for (i = lumpstart; i <= lumpend; i++) {
         CA_CacheGrChunk(i);
@@ -3621,10 +3621,10 @@ void CacheLump(
 }
 
 void UnCacheLump(
-    int16_t lumpstart,
-    int16_t lumpend)
+    std::int16_t lumpstart,
+    std::int16_t lumpend)
 {
-    int16_t i;
+    std::int16_t i;
 
     for (i = lumpstart; i <= lumpend; i++) {
         FREEFONT(i);
@@ -3632,28 +3632,28 @@ void UnCacheLump(
 }
 
 void DrawWindow(
-    int16_t x,
-    int16_t y,
-    int16_t w,
-    int16_t h,
-    int16_t wcolor)
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t w,
+    std::int16_t h,
+    std::int16_t wcolor)
 {
-    VWB_Bar(x, y, w, h, static_cast<uint8_t>(wcolor));
+    VWB_Bar(x, y, w, h, static_cast<std::uint8_t>(wcolor));
     DrawOutline(x, y, w, h, BORD2COLOR, DEACTIVE);
 }
 
 void DrawOutline(
-    int16_t x,
-    int16_t y,
-    int16_t w,
-    int16_t h,
-    int16_t color1,
-    int16_t color2)
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t w,
+    std::int16_t h,
+    std::int16_t color1,
+    std::int16_t color2)
 {
-    VWB_Hlin(x, x + w, y, static_cast<uint8_t>(color2));
-    VWB_Vlin(y, y + h, x, static_cast<uint8_t>(color2));
-    VWB_Hlin(x, x + w, y + h, static_cast<uint8_t>(color1));
-    VWB_Vlin(y, y + h, x + w, static_cast<uint8_t>(color1));
+    VWB_Hlin(x, x + w, y, static_cast<std::uint8_t>(color2));
+    VWB_Vlin(y, y + h, x, static_cast<std::uint8_t>(color2));
+    VWB_Hlin(x, x + w, y + h, static_cast<std::uint8_t>(color1));
+    VWB_Vlin(y, y + h, x + w, static_cast<std::uint8_t>(color1));
 }
 
 void SetupControlPanel()
@@ -3752,10 +3752,10 @@ void ControlPanelAlloc()
 // ---------------------------------------------------------------------------
 void ShadowPrint(
     const char* strng,
-    int16_t x,
-    int16_t y)
+    std::int16_t x,
+    std::int16_t y)
 {
-    int16_t old_bc, old_fc;
+    std::int16_t old_bc, old_fc;
 
     old_fc = fontcolor;
     old_bc = backcolor;
@@ -3775,16 +3775,16 @@ void ShadowPrint(
 // ---------------------------------------------------------------------------
 // HandleMenu() - Handle moving gun around a menu
 // ---------------------------------------------------------------------------
-int16_t HandleMenu(
+std::int16_t HandleMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    void (* routine)(int16_t w))
+    void (* routine)(std::int16_t w))
 {
 #define box_on item_i->cursor.on
-    int8_t key;
-    static int16_t redrawitem = 1;
+    std::int8_t key;
+    static std::int16_t redrawitem = 1;
 
-    int16_t i, x, y, basey, exit, which, flash_tics;
+    std::int16_t i, x, y, basey, exit, which, flash_tics;
     ControlInfo ci;
 
     which = item_i->curpos;
@@ -3852,7 +3852,7 @@ int16_t HandleMenu(
 
         key = LastASCII;
         if (key) {
-            int16_t ok = 0;
+            std::int16_t ok = 0;
 
             if (key >= 'a') {
                 key -= 'a' - 'A';
@@ -3862,7 +3862,7 @@ int16_t HandleMenu(
                 if ((items + i)->active && (items + i)->string[0] == key) {
                     EraseGun(item_i, items, x, y, which);
                     which = i;
-                    item_i->curpos = static_cast<int8_t>(which); // jtr -testing
+                    item_i->curpos = static_cast<std::int8_t>(which); // jtr -testing
                     box_on = 1;
                     DrawGun(item_i, items, x, &y, which, basey, routine);
                     VW_UpdateScreen();
@@ -3882,7 +3882,7 @@ int16_t HandleMenu(
                     if ((items + i)->active && (items + i)->string[0] == key) {
                         EraseGun(item_i, items, x, y, which);
                         which = i;
-                        item_i->curpos = static_cast<int8_t>(which); // jtr -testing
+                        item_i->curpos = static_cast<std::int8_t>(which); // jtr -testing
                         box_on = 1;
                         DrawGun(item_i, items, x, &y, which, basey, routine);
                         VW_UpdateScreen();
@@ -3916,7 +3916,7 @@ int16_t HandleMenu(
 
             } while (!(items + which)->active);
 
-            item_i->curpos = static_cast<int8_t>(which); // jtr -testing
+            item_i->curpos = static_cast<std::int8_t>(which); // jtr -testing
 
             box_on = 1;
             DrawGun(item_i, items, x, &y, which, basey, routine);
@@ -3940,7 +3940,7 @@ int16_t HandleMenu(
                 }
             } while (!(items + which)->active);
 
-            item_i->curpos = static_cast<int8_t>(which); // jtr -testing
+            item_i->curpos = static_cast<std::int8_t>(which); // jtr -testing
 
             box_on = 1;
             DrawGun(item_i, items, x, &y, which, basey, routine);
@@ -3980,7 +3980,7 @@ int16_t HandleMenu(
 
     VW_UpdateScreen();
 
-    item_i->curpos = static_cast<int8_t>(which);
+    item_i->curpos = static_cast<std::int8_t>(which);
 
     switch (exit) {
     case 1:
@@ -3990,7 +3990,7 @@ int16_t HandleMenu(
         if ((items + which)->routine) {
             // Make sure there's room to save when CP_SaveGame() is called.
             //
-            if (reinterpret_cast<size_t>(items[which].routine) == reinterpret_cast<size_t>(CP_SaveGame)) {
+            if (reinterpret_cast<std::size_t>(items[which].routine) == reinterpret_cast<std::size_t>(CP_SaveGame)) {
                 if (!CheckDiskSpace(DISK_SPACE_NEEDED, CANT_SAVE_GAME_TXT, cds_menu_print)) {
                     return which;
                 }
@@ -4029,9 +4029,9 @@ int16_t HandleMenu(
 void EraseGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    int16_t x,
-    int16_t y,
-    int16_t which)
+    std::int16_t x,
+    std::int16_t y,
+    std::int16_t which)
 {
     static_cast<void>(x);
 
@@ -4047,11 +4047,11 @@ void EraseGun(
 void DrawGun(
     CP_iteminfo* item_i,
     CP_itemtype* items,
-    int16_t x,
-    int16_t* y,
-    int16_t which,
-    int16_t basey,
-    void (* routine)(int16_t w))
+    std::int16_t x,
+    std::int16_t* y,
+    std::int16_t which,
+    std::int16_t basey,
+    void (* routine)(std::int16_t w))
 {
     static_cast<void>(x);
 
@@ -4075,7 +4075,7 @@ void DrawGun(
 // TicDelay() - DELAY FOR AN AMOUNT OF TICS OR UNTIL CONTROLS ARE INACTIVE
 // ---------------------------------------------------------------------------
 void TicDelay(
-    int16_t count)
+    std::int16_t count)
 {
     ControlInfo ci;
 
@@ -4083,7 +4083,7 @@ void TicDelay(
 
     do {
         ReadAnyControl(&ci);
-    } while (TimeCount < static_cast<uint32_t>(count) && ci.dir != dir_None);
+    } while (TimeCount < static_cast<std::uint32_t>(count) && ci.dir != dir_None);
 }
 
 // ---------------------------------------------------------------------------
@@ -4096,7 +4096,7 @@ void DrawMenu(
     CP_iteminfo* item_i,
     CP_itemtype* items)
 {
-    int16_t i, which = item_i->curpos;
+    std::int16_t i, which = item_i->curpos;
 
     WindowX = PrintX = item_i->x + item_i->indent;
     WindowY = PrintY = item_i->y;
@@ -4115,7 +4115,7 @@ void DrawMenu(
 // ---------------------------------------------------------------------------
 void SetTextColor(
     CP_itemtype* items,
-    int16_t hlight)
+    std::int16_t hlight)
 {
     if (hlight) {
         SETFONTCOLOR(color_hlite[items->active], TERM_BACK_COLOR);
@@ -4214,7 +4214,7 @@ void ReadAnyControl(
     if (joystickenabled && !mouseactive) {
         int jx;
         int jy;
-        int16_t jb;
+        std::int16_t jb;
 
         ::INL_GetJoyDelta(joystickport, &jx, &jy);
 
@@ -4252,10 +4252,10 @@ void ReadAnyControl(
 // DRAW DIALOG AND CONFIRM YES OR NO TO QUESTION
 //
 ////////////////////////////////////////////////////////////////////
-int16_t Confirm(
+std::int16_t Confirm(
     const char* string)
 {
-    int16_t xit = 0, x, y, tick = 0, whichsnd[2] = { ESCPRESSEDSND, SHOOTSND };
+    std::int16_t xit = 0, x, y, tick = 0, whichsnd[2] = { ESCPRESSEDSND, SHOOTSND };
 
 
     Message(string);
@@ -4322,10 +4322,10 @@ int16_t Confirm(
 void Message(
     const char* string)
 {
-    int16_t h = 0, w = 0, mw = 0;
-    size_t i;
+    std::int16_t h = 0, w = 0, mw = 0;
+    std::size_t i;
     fontstruct* font;
-    uint16_t OldPrintX, OldPrintY;
+    std::uint16_t OldPrintX, OldPrintY;
 
     fontnumber = 1;
     CA_CacheGrChunk(STARTFONT + 1);
@@ -4388,7 +4388,7 @@ void TerminateStr(
 // Caches and prints a message in a window.
 // ---------------------------------------------------------------------------
 void CacheMessage(
-    uint16_t MessageNum)
+    std::uint16_t MessageNum)
 {
     char* string;
 
@@ -4412,14 +4412,14 @@ void CacheMessage(
 // RETURNS: Lenght of loaded (decompressed) data
 //
 // ---------------------------------------------------------------------------
-uint32_t CacheCompData(
-    uint16_t item_number,
+std::uint32_t CacheCompData(
+    std::uint16_t item_number,
     void** dst_ptr)
 {
     char* chunk;
     char* dst;
     CompHeader_t CompHeader {};
-    uint32_t data_length;
+    std::uint32_t data_length;
 
     // Load compressed data
     CA_CacheGrChunk(item_number);
@@ -4431,9 +4431,9 @@ uint32_t CacheCompData(
         data_length = ::ca_gr_last_expanded_size;
     } else {
         memcpy(CompHeader.NameId, &chunk[0], 4);
-        CompHeader.OriginalLen = ((uint32_t*)&chunk[4])[0];
-        CompHeader.CompType = (ct_TYPES)((int16_t*)&chunk[8])[0];
-        CompHeader.CompressLen = ((uint32_t*)&chunk[10])[0];
+        CompHeader.OriginalLen = ((std::uint32_t*)&chunk[4])[0];
+        CompHeader.CompType = (ct_TYPES)((std::int16_t*)&chunk[8])[0];
+        CompHeader.CompressLen = ((std::uint32_t*)&chunk[10])[0];
 
         data_length = CompHeader.OriginalLen;
 
@@ -4474,7 +4474,7 @@ uint32_t CacheCompData(
 }
 
 void StartCPMusic(
-    int16_t song)
+    std::int16_t song)
 {
     int chunk;
 
@@ -4482,7 +4482,7 @@ void StartCPMusic(
 
     SD_MusicOff();
     chunk = song;
-    CA_CacheAudioChunk(static_cast<int16_t>(STARTMUSIC + chunk));
+    CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + chunk));
     ::SD_StartMusic(chunk);
 }
 
@@ -4497,19 +4497,19 @@ void FreeMusic()
 // IN_GetScanName() - Returns a string containing the name of the
 //      specified scan code
 // ---------------------------------------------------------------------------
-uint8_t far* IN_GetScanName(
+std::uint8_t far* IN_GetScanName(
     ScanCode scan)
 {
-    uint8_t* p;
+    std::uint8_t* p;
     ScanCode* s;
 
     for (s = ExtScanCodes, p = ExtScanNames; *s; p += 7, s++) {
         if (*s == scan) {
-            return (uint8_t*)p;
+            return (std::uint8_t*)p;
         }
     }
 
-    return (uint8_t*)(ScanNames + (scan << 1));
+    return (std::uint8_t*)(ScanNames + (scan << 1));
 }
 #else
 // ---------------------------------------------------------------------------
@@ -4558,7 +4558,7 @@ void CheckPause()
 void DrawMenuGun(
     CP_iteminfo* iteminfo)
 {
-    int16_t x, y;
+    std::int16_t x, y;
 
     x = iteminfo->cursor.x;
     y = iteminfo->y + iteminfo->curpos * iteminfo->y_spacing + iteminfo->cursor.y_ofs;
@@ -4630,19 +4630,19 @@ void draw_volume_control(
     int volume,
     bool is_enabled)
 {
-    int16_t slider_color =
+    std::int16_t slider_color =
         is_enabled ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
 
-    int16_t outline_color =
+    std::int16_t outline_color =
         is_enabled ? HIGHLIGHT_TEXT_COLOR : DEACTIAVED_TEXT_COLOR;
 
     int y = 82 + (index * 40);
 
-    VWB_Bar(74, static_cast<int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
-    DrawOutline(73, static_cast<int16_t>(y - 1), 161, 9,
+    VWB_Bar(74, static_cast<std::int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
+    DrawOutline(73, static_cast<std::int16_t>(y - 1), 161, 9,
                 outline_color, outline_color);
-    VWB_Bar(static_cast<int16_t>(74 + ((160 * volume) / (::sd_max_volume + 1))),
-            static_cast<int16_t>(y), 16, 8, static_cast<uint8_t>(slider_color));
+    VWB_Bar(static_cast<std::int16_t>(74 + ((160 * volume) / (::sd_max_volume + 1))),
+            static_cast<std::int16_t>(y), 16, 8, static_cast<std::uint8_t>(slider_color));
 }
 
 void draw_volume_controls()
@@ -4653,7 +4653,7 @@ void draw_volume_controls()
 }
 
 void cp_sound_volume(
-    int16_t)
+    std::int16_t)
 {
     ClearMScreen();
     DrawMenuTitle("SOUND VOLUME");
@@ -4673,7 +4673,7 @@ void cp_sound_volume(
 
     for (int i = 0; i < 2; ++i) {
         PrintX = 36;
-        PrintY = static_cast<uint16_t>(81 + (i * 40));
+        PrintY = static_cast<std::uint16_t>(81 + (i * 40));
         US_Print("MUTE");
 
         PrintX = 242;
@@ -4785,7 +4785,7 @@ void cp_sound_volume(
 
 ///
 void draw_video_descriptions(
-    int16_t which)
+    std::int16_t which)
 {
     const char* instructions[] = {
         "TOGGLES BETWEEN WIDESCREEN AND 4X3 MODES",
@@ -4827,9 +4827,9 @@ void video_draw_menu()
 }
 
 void video_draw_switch(
-    int16_t which)
+    std::int16_t which)
 {
-    uint16_t Shape;
+    std::uint16_t Shape;
 
     for (int i = 0; i < video_items.amount; i++) {
         if (video_menu[i].string[0]) {
@@ -4869,9 +4869,9 @@ void video_draw_switch(
 }
 
 void cp_video(
-    int16_t)
+    std::int16_t)
 {
-    int16_t which;
+    std::int16_t which;
 
     ::CA_CacheScreen(BACKGROUND_SCREENPIC);
     ::video_draw_menu();
@@ -4911,7 +4911,7 @@ void cp_video(
 }
 
 void draw_switch2_description(
-    int16_t which)
+    std::int16_t which)
 {
     const char* instr[] =
     {
@@ -4940,9 +4940,9 @@ void draw_switch2_description(
 }
 
 void draw_all_switch2_lights(
-    int16_t which)
+    std::int16_t which)
 {
-    uint16_t shape;
+    std::uint16_t shape;
 
     for (auto i = 0; i < switches2_items.amount; ++i)
     {
@@ -4997,7 +4997,7 @@ void draw_switch2_menu()
 }
 
 void cp_switches2(
-    int16_t)
+    std::int16_t)
 {
     CA_CacheScreen(BACKGROUND_SCREENPIC);
     draw_switch2_menu();

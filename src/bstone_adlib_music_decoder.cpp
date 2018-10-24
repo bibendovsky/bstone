@@ -129,7 +129,7 @@ AudioDecoder* AdlibMusicDecoder::clone()
 
 int AdlibMusicDecoder::decode(
 	const int dst_count,
-	int16_t* const dst_data)
+	std::int16_t* const dst_data)
 {
 	if (!is_initialized())
 	{

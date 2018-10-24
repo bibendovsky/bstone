@@ -38,7 +38,7 @@ void ogl_update_screen();
 
 
 objtype* ui16_to_actor(
-    uint16_t value)
+    std::uint16_t value)
 {
     int index = value - OBJLIST_OFFSET;
 
@@ -53,7 +53,7 @@ objtype* ui16_to_actor(
     return &objlist[index];
 }
 
-uint16_t actor_to_ui16(
+std::uint16_t actor_to_ui16(
     const objtype* actor)
 {
     auto index = actor - objlist;
@@ -66,11 +66,11 @@ uint16_t actor_to_ui16(
         return 0;
     }
 
-    return static_cast<uint16_t>(index + OBJLIST_OFFSET);
+    return static_cast<std::uint16_t>(index + OBJLIST_OFFSET);
 }
 
 statobj_t* ui16_to_static_object(
-    uint16_t value)
+    std::uint16_t value)
 {
     int index = value - STATOBJLIST_OFFSET;
 
@@ -85,7 +85,7 @@ statobj_t* ui16_to_static_object(
     return &statobjlist[index];
 }
 
-uint16_t static_object_to_ui16(
+std::uint16_t static_object_to_ui16(
     const statobj_t* static_object)
 {
     auto index = static_object - statobjlist;
@@ -98,11 +98,11 @@ uint16_t static_object_to_ui16(
         return 0;
     }
 
-    return static_cast<uint16_t>(index + STATOBJLIST_OFFSET);
+    return static_cast<std::uint16_t>(index + STATOBJLIST_OFFSET);
 }
 
 doorobj_t* ui16_to_door_object(
-    uint16_t value)
+    std::uint16_t value)
 {
     int index = value - DOOROBJLIST_OFFSET;
 
@@ -117,7 +117,7 @@ doorobj_t* ui16_to_door_object(
     return &doorobjlist[index];
 }
 
-uint16_t door_object_to_ui16(
+std::uint16_t door_object_to_ui16(
     const doorobj_t* door_object)
 {
     auto index = door_object - doorobjlist;
@@ -130,5 +130,5 @@ uint16_t door_object_to_ui16(
         return 0;
     }
 
-    return static_cast<uint16_t>(index + DOOROBJLIST_OFFSET);
+    return static_cast<std::uint16_t>(index + DOOROBJLIST_OFFSET);
 }

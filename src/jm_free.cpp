@@ -44,10 +44,10 @@ void CA_CannotOpen(
     const std::string& string);
 
 void CAL_GetGrChunkLength(
-    int16_t chunk);
+    std::int16_t chunk);
 
 void CA_CacheScreen(
-    int16_t chunk);
+    std::int16_t chunk);
 
 void VH_UpdateScreen();
 void IN_StartAck();
@@ -83,7 +83,7 @@ void initialize_ca_constants();
 void SDL_SetupDigi();
 
 
-static uint8_t wolfdigimap[] = {
+static std::uint8_t wolfdigimap[] = {
     // These first sounds are in the upload version
 
     ATKIONCANNONSND, 0,
@@ -170,8 +170,8 @@ static uint8_t wolfdigimap[] = {
 };
 
 
-extern const uint8_t colormap[16896];
-const uint8_t* lightsource;
+extern const std::uint8_t colormap[16896];
+const std::uint8_t* lightsource;
 
 
 namespace {
@@ -548,7 +548,7 @@ const float radtoint = static_cast<float>(FINEANGLES / 2 / PI);
 
 void BuildTables()
 {
-    int16_t i;
+    std::int16_t i;
     float angle, anglestep;
     double tang;
     fixed value;
@@ -560,8 +560,8 @@ void BuildTables()
 
     for (i = 0; i < FINEANGLES / 8; i++) {
         tang = tan((i + 0.5) / radtoint);
-        finetangent[i] = static_cast<int32_t>(tang * TILEGLOBAL);
-        finetangent[FINEANGLES / 4 - 1 - i] = static_cast<int32_t>(1 / tang * TILEGLOBAL);
+        finetangent[i] = static_cast<std::int32_t>(tang * TILEGLOBAL);
+        finetangent[FINEANGLES / 4 - 1 - i] = static_cast<std::int32_t>(1 / tang * TILEGLOBAL);
     }
 
 //
@@ -641,15 +641,15 @@ void CAL_SetupAudioFile()
 //
 #ifndef AUDIOHEADERLINKED
     ::ca_open_resource(Assets::audio_header_base_name, handle);
-    auto length = static_cast<int32_t>(handle.get_size());
-    ::audiostarts = new int32_t[length / 4];
+    auto length = static_cast<std::int32_t>(handle.get_size());
+    ::audiostarts = new std::int32_t[length / 4];
     handle.read(::audiostarts, length);
     handle.close();
 #else
     // TODO Remove or fix
     audiohuffman = (huffnode*)&audiodict;
     CAL_OptimizeNodes(audiohuffman);
-    audiostarts = (int32_t*)FP_SEG(&audiohead);
+    audiostarts = (std::int32_t*)FP_SEG(&audiohead);
 #endif
 
 //
@@ -666,7 +666,7 @@ void CAL_SetupGrFile()
 	}
 
     bstone::FileStream handle;
-    uint8_t* compseg;
+    std::uint8_t* compseg;
 
     //
     // load ???dict.ext (huffman dictionary for graphics files)
@@ -680,7 +680,7 @@ void CAL_SetupGrFile()
     //
     int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
 
-    ::grstarts = new int32_t[(grstarts_size + 3) / 4];
+    ::grstarts = new std::int32_t[(grstarts_size + 3) / 4];
 
     ::ca_open_resource(Assets::gfx_header_base_name, handle);
     handle.read(::grstarts, grstarts_size);
@@ -695,12 +695,12 @@ void CAL_SetupGrFile()
     //
     ::pictable = new pictabletype[NUMPICS];
     ::CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-    compseg = new uint8_t[::chunkcomplen];
+    compseg = new std::uint8_t[::chunkcomplen];
     ::grhandle.read(compseg, ::chunkcomplen);
 
     ::CAL_HuffExpand(
         compseg,
-        reinterpret_cast<uint8_t*>(pictable),
+        reinterpret_cast<std::uint8_t*>(pictable),
         NUMPICS * sizeof(pictabletype),
         ::grhuffman);
 
@@ -745,9 +745,9 @@ static void cal_setup_map_data_file()
 
 void CAL_SetupMapFile()
 {
-    int16_t i;
+    std::int16_t i;
     bstone::FileStream handle;
-    int32_t pos;
+    std::int32_t pos;
     mapfiletype header;
     maptype* map_header;
 
@@ -803,7 +803,7 @@ void CAL_SetupMapFile()
     // allocate space for 3 64*64 planes
     //
     for (i = 0; i < MAPPLANES; ++i) {
-        mapsegs[i] = new uint16_t[64 * 64];
+        mapsegs[i] = new std::uint16_t[64 * 64];
     }
 }
 
@@ -811,7 +811,7 @@ void CAL_SetupMapFile()
 // --------------------- Other general functions ------------------------
 
 extern CP_itemtype NewEmenu[];
-extern int16_t EpisodeSelect[];
+extern std::int16_t EpisodeSelect[];
 
 
 void CheckForEpisodes()
@@ -861,12 +861,12 @@ void PreDemo()
             // Cache and set palette.  AND  Fade it in!
             //
             CA_CacheGrChunk(PIRACYPALETTE);
-            VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]));
-            VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), 0);
+            VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]));
+            VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 0);
             VW_UpdateScreen();
 
             VL_FadeOut(0, 255, 0, 0, 25, 20);
-            VL_FadeIn(0, 255, static_cast<const uint8_t*>(grsegs[PIRACYPALETTE]), 30);
+            VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 30);
 
             // Wait a little
             //
@@ -901,15 +901,15 @@ void PreDemo()
         // Cache and set palette.  AND  Fade it in!
         //
         CA_CacheGrChunk(APOGEEPALETTE);
-        VL_SetPalette(0, 256, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]));
-        VL_SetPaletteIntensity(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 0);
+        VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]));
+        VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 0);
         VW_UpdateScreen();
         if (assets_info.is_aog()) {
             VL_FadeOut(0, 255, 0, 0, 0, 20);
         } else {
             VL_FadeOut(0, 255, 25, 29, 53, 20);
         }
-        VL_FadeIn(0, 255, static_cast<const uint8_t*>(grsegs[APOGEEPALETTE]), 30);
+        VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 30);
 
         // Wait for end of fanfare
         //
@@ -979,8 +979,8 @@ void InitGame()
 {
     ::vid_is_movie = true;
 
-    int16_t i, x, y;
-    uint16_t* blockstart;
+    std::int16_t i, x, y;
+    std::uint16_t* blockstart;
 
     CA_Startup();
     VW_Startup();
@@ -1041,19 +1041,19 @@ void InitGame()
     ::vid_is_movie = false;
 }
 
-uint16_t scan_atoi(
+std::uint16_t scan_atoi(
     const char* s)
 {
     while (*s && (!isdigit(*s))) { // First scans for a digit...
         s++;
     }
 
-    return static_cast<uint16_t>(atoi(s)); // Then converts to integer...
+    return static_cast<std::uint16_t>(atoi(s)); // Then converts to integer...
 }
 
 
 extern const char* MainStrs[];
-extern int16_t starting_episode, starting_level, starting_difficulty;
+extern std::int16_t starting_episode, starting_level, starting_difficulty;
 
 
 void freed_main()

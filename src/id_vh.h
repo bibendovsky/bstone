@@ -35,25 +35,25 @@ Free Software Foundation, Inc.,
 
 
 struct spritetabletype {
-    int16_t width;
-    int16_t height;
-    int16_t orgx;
-    int16_t orgy;
-    int16_t xl;
-    int16_t yl;
-    int16_t xh;
-    int16_t yh;
-    int16_t shifts;
+    std::int16_t width;
+    std::int16_t height;
+    std::int16_t orgx;
+    std::int16_t orgy;
+    std::int16_t xl;
+    std::int16_t yl;
+    std::int16_t xh;
+    std::int16_t yh;
+    std::int16_t shifts;
 }; // spritetabletype
 
 struct pictabletype {
-    int16_t width;
-    int16_t height;
+    std::int16_t width;
+    std::int16_t height;
 }; // pictabletype
 
 struct fontstruct {
-    int16_t height;
-    int16_t location[256];
+    std::int16_t height;
+    std::int16_t location[256];
     char width[256];
 }; // fontstruct
 
@@ -62,10 +62,10 @@ extern pictabletype* pictable;
 extern pictabletype* picmtable;
 extern spritetabletype* spritetable;
 
-extern uint8_t fontcolor;
-extern int16_t fontnumber;
-extern int16_t px;
-extern int16_t py;
+extern std::uint8_t fontcolor;
+extern std::int16_t fontnumber;
+extern std::int16_t px;
+extern std::int16_t py;
 extern bool allcaps;
 
 
@@ -92,7 +92,7 @@ void VWB_Bar(
     int y,
     int width,
     int height,
-    uint8_t color);
+    std::uint8_t color);
 
 void VWB_DrawPropString(
     const char* string);
@@ -101,23 +101,23 @@ void VW_DrawPropString(
 void VWB_Plot(
     int x,
     int y,
-    uint8_t color);
+    std::uint8_t color);
 void VWB_Hlin(
     int x1,
     int x2,
     int y,
-    uint8_t color);
+    std::uint8_t color);
 void VWB_Vlin(
     int y1,
     int y2,
     int x,
-    uint8_t color);
+    std::uint8_t color);
 
 
 //
 // wolfenstein EGA compatability stuff
 //
-extern const uint8_t vgapal[768];
+extern const std::uint8_t vgapal[768];
 
 
 #define VW_Startup VL_Startup
@@ -153,7 +153,7 @@ extern int LatchMemFree;
 void vl_minimize_fullscreen_window(
     bool value);
 
-using LatchesCache = std::vector<uint8_t>;
+using LatchesCache = std::vector<std::uint8_t>;
 extern LatchesCache latches_cache;
 
 

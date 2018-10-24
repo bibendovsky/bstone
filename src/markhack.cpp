@@ -35,7 +35,7 @@ extern int viewheight;
 extern int bufferofs;
 extern int centery;
 extern int postheight;
-extern const uint8_t* shadingtable;
+extern const std::uint8_t* shadingtable;
 
 
 enum DrawMode {
@@ -83,8 +83,8 @@ static void generic_draw_post(
     }
 
     for (int h = 0; h < n; ++h) {
-        uint8_t pixel;
-        uint8_t pixel_index;
+        std::uint8_t pixel;
+        std::uint8_t pixel_index;
 
         // top half
 
@@ -168,7 +168,7 @@ void draw_wall_ui(
     const void* raw_wall)
 {
     const int wall_side = 64;
-    auto wall = static_cast<const uint8_t*>(raw_wall);
+    auto wall = static_cast<const std::uint8_t*>(raw_wall);
 
     for (int w = 0; w < wall_side; ++w)
     {

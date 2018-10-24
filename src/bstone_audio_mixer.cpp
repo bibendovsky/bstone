@@ -222,8 +222,8 @@ bool AudioMixer::initialize(
 	auto src_spec = SDL_AudioSpec{};
 	src_spec.freq = dst_rate_;
 	src_spec.format = AUDIO_S16SYS;
-	src_spec.channels = static_cast<uint8_t>(get_max_channels());
-	src_spec.samples = static_cast<uint16_t>(mix_samples_count_);
+	src_spec.channels = static_cast<std::uint8_t>(get_max_channels());
+	src_spec.samples = static_cast<std::uint16_t>(mix_samples_count_);
 	src_spec.callback = callback_proxy;
 	src_spec.userdata = this;
 
@@ -561,12 +561,12 @@ int AudioMixer::get_max_commands()
 }
 
 void AudioMixer::callback(
-	uint8_t* dst_data,
+	std::uint8_t* dst_data,
 	const int dst_length)
 {
 	if (!mute_ && is_data_available_)
 	{
-		std::uninitialized_copy_n(reinterpret_cast<const uint8_t*>(buffer_.data()), dst_length, dst_data);
+		std::uninitialized_copy_n(reinterpret_cast<const std::uint8_t*>(buffer_.data()), dst_length, dst_data);
 	}
 	else
 	{

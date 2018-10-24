@@ -37,14 +37,14 @@ Free Software Foundation, Inc.,
 #define LOCATION_TEXT_COLOR (0xAF)
 
 extern char prep_msg[];
-extern int8_t LS_current;
-extern int8_t LS_total;
+extern std::int8_t LS_current;
+extern std::int8_t LS_total;
 
 
 void Died();
 
 void PM_SetMainMemPurge(
-    int16_t level);
+    std::int16_t level);
 
 void InitGoldsternInfo();
 void InitDoorList();
@@ -63,14 +63,14 @@ bool LoadLevel(
 
 void SetPlaneViewSize();
 
-int16_t CalcAngle(
+std::int16_t CalcAngle(
     objtype* from_obj,
     objtype* to_obj);
 
 void FinishPaletteShifts();
 
 void CA_CacheScreen(
-    int16_t chunk);
+    std::int16_t chunk);
 
 void VH_UpdateScreen();
 
@@ -81,8 +81,8 @@ bool LevelInPlaytemp(
     int level_index);
 
 void PreloadUpdate(
-    uint16_t current,
-    uint16_t total);
+    std::uint16_t current,
+    std::uint16_t total);
 
 void PreloadGraphics();
 
@@ -90,8 +90,8 @@ bool SaveLevel(
     int level_index);
 
 void CheckHighScore(
-    int32_t score,
-    uint16_t other);
+    std::int32_t score,
+    std::uint16_t other);
 
 
 /*
@@ -108,12 +108,12 @@ bool ingame;
 bool fizzlein;
 int latchpics[NUMLATCHPICS];
 eaWallInfo eaList[MAXEAWALLS];
-int8_t NumEAWalls;
+std::int8_t NumEAWalls;
 
 tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 GoldsternInfo_t GoldsternInfo;
 
-extern uint16_t scan_value;
+extern std::uint16_t scan_value;
 
 int NUMWEAPONS = 0;
 
@@ -144,7 +144,7 @@ static void fix_level_inplace();
 //                 upon tile number/values.
 //
 
-int8_t ExpCrateShapes[] = {
+std::int8_t ExpCrateShapes[] = {
     42, // Chicken Leg
     44, // Ham/Steak
     26, // Clip
@@ -181,12 +181,12 @@ int8_t ExpCrateShapes[] = {
 
 fixed globalsoundx;
 fixed globalsoundy;
-int16_t leftchannel;
-int16_t rightchannel;
+std::int16_t leftchannel;
+std::int16_t rightchannel;
 
 #define ATABLEMAX (15)
 
-uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] = {
+std::uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8 },
@@ -204,7 +204,7 @@ uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 }
 };
 
-uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2] = {
+std::uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2] = {
     { 8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
     { 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8 },
@@ -227,7 +227,7 @@ void SetSoundLoc(
     fixed gy)
 {
     fixed xt, yt;
-    int16_t x, y;
+    std::int16_t x, y;
 
 //
 // translate point to view centered coordinates
@@ -306,9 +306,9 @@ void ClearMemory()
 */
 void ScanInfoPlane()
 {
-    uint16_t x, y;
-    int16_t tile;
-    uint16_t* start;
+    std::uint16_t x, y;
+    std::int16_t tile;
+    std::uint16_t* start;
     bool gottextures = false;
     bool gotcolors = false;
 
@@ -322,14 +322,14 @@ void ScanInfoPlane()
         for (x = 0; x < mapwidth; x++) {
             sci_mCacheInfo* ci;
             scientist_t* st = nullptr;
-            uint8_t tilehi, tilelo, block = 0;
+            std::uint8_t tilehi, tilelo, block = 0;
 
 
             tile = *start++;
             //
             // Check for tiles/icons to ignore...
             //
-            switch ((uint16_t) * (mapsegs[0] + farmapylookup[y] + x)) {
+            switch ((std::uint16_t) * (mapsegs[0] + farmapylookup[y] + x)) {
             case SMART_OFF_TRIGGER:
             case SMART_ON_TRIGGER:
                 if (!assets_info.is_ps()) {
@@ -401,17 +401,17 @@ void ScanInfoPlane()
             case 0xf3: // "Mean" scientist messages
                 switch (tilehi) {
                 case 0xf1:
-                    block = static_cast<uint8_t>(INFORMANT_HINTS);
+                    block = static_cast<std::uint8_t>(INFORMANT_HINTS);
                     st = &InfHintList;
                     break;
 
                 case 0xf2:
-                    block = static_cast<uint8_t>(NICE_SCIE_HINTS);
+                    block = static_cast<std::uint8_t>(NICE_SCIE_HINTS);
                     st = &NiceSciList;
                     break;
 
                 case 0xf3:
-                    block = static_cast<uint8_t>(MEAN_SCIE_HINTS);
+                    block = static_cast<std::uint8_t>(MEAN_SCIE_HINTS);
                     st = &MeanSciList;
                     break;
                 }
@@ -421,14 +421,14 @@ void ScanInfoPlane()
                 ci->mInfo.global_val = tilelo;
                 if (!ReuseMsg((mCacheInfo*)ci, st->NumMsgs, sizeof(sci_mCacheInfo))) {
                     CacheMsg((mCacheInfo*)ci, block, ci->mInfo.global_val);
-                    ci->mInfo.local_val = static_cast<uint8_t>(InfHintList.NumMsgs);
+                    ci->mInfo.local_val = static_cast<std::uint8_t>(InfHintList.NumMsgs);
                 }
 
                 if (++st->NumMsgs > MAX_CACHE_MSGS) {
                     ::Quit("(INFORMANTS) Too many 'cached msgs' loaded.");
                 }
 
-                ci->areanumber = GetAreaNumber(static_cast<int8_t>(x), static_cast<int8_t>(y));
+                ci->areanumber = GetAreaNumber(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y));
 
                 if (ci->areanumber == 0 || ci->areanumber >= NUMAREAS) {
                     ci->areanumber = 0xff;
@@ -840,8 +840,8 @@ void ScanInfoPlane()
                     } else {
                         GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT - MIN_GOLDIE_FIRST_WAIT);
                     }
-                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<uint8_t>(x);
-                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<uint8_t>(y);
+                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
+                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<std::uint8_t>(y);
                     GoldsternInfo.SpawnCnt++;
 
                     if (assets_info.is_ps() && gamestate.mapon == GOLD_MORPH_LEVEL) {
@@ -869,8 +869,8 @@ void ScanInfoPlane()
                         ::Quit("Too many Dr. Goldfire Spawn sites in level.");
                     }
 
-                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<uint8_t>(x);
-                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<uint8_t>(y);
+                    GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
+                    GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<std::uint8_t>(y);
 
                     GoldsternInfo.LastIndex = GoldsternInfo.SpawnCnt++;
                     GoldsternInfo.flags = GS_COORDFOUND;
@@ -2113,7 +2113,7 @@ void ScanInfoPlane()
 }
 
 void AddTotalPoints(
-    uint16_t points)
+    std::uint16_t points)
 {
     if (loadedgame) {
         return;
@@ -2123,7 +2123,7 @@ void AddTotalPoints(
 }
 
 void AddTotalInformants(
-    int8_t informants)
+    std::int8_t informants)
 {
     if (loadedgame) {
         return;
@@ -2133,25 +2133,25 @@ void AddTotalInformants(
 }
 
 void AddTotalEnemy(
-    uint16_t enemies)
+    std::uint16_t enemies)
 {
     if (loadedgame) {
         return;
     }
 
     gamestuff.level[gamestate.mapon].stats.total_enemy +=
-        static_cast<uint8_t>(enemies);
+        static_cast<std::uint8_t>(enemies);
 }
 
 void SetupGameLevel()
 {
     bool switchon = false;
     sci_mCacheInfo* ci = InfHintList.smInfo;
-    int16_t x, y;
-    uint16_t* map, tile, icon;
+    std::int16_t x, y;
+    std::uint16_t* map, tile, icon;
     keytype lock;
-    uint16_t* map1, * map2;
-    int16_t count;
+    std::uint16_t* map1, * map2;
+    std::int16_t count;
 
     if (!loadedgame) {
         gamestate.flags |= GS_CLIP_WALLS;
@@ -2163,9 +2163,9 @@ void SetupGameLevel()
 //
 // load the level
 //
-    CA_CacheMap(static_cast<int16_t>(
+    CA_CacheMap(static_cast<std::int16_t>(
         gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
-    mapon = static_cast<int16_t>(mapon - (gamestate.episode * MAPS_PER_EPISODE));
+    mapon = static_cast<std::int16_t>(mapon - (gamestate.episode * MAPS_PER_EPISODE));
 
     mapwidth = mapheaderseg[mapon]->width;
     mapheight = mapheaderseg[mapon]->height;
@@ -2177,7 +2177,7 @@ void SetupGameLevel()
     // BBi
     fix_level_inplace();
 
-    LoadLocationText(static_cast<int16_t>(
+    LoadLocationText(static_cast<std::int16_t>(
         gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
 
 //
@@ -2204,7 +2204,7 @@ void SetupGameLevel()
 
             if (tile < AREATILE) {
                 // solid wall
-                tilemap[x][y] = static_cast<uint8_t>(tile);
+                tilemap[x][y] = static_cast<std::uint8_t>(tile);
 
                 switch (tile) {
                 case RKEY_TILE:
@@ -2364,7 +2364,7 @@ void SetupGameLevel()
                 switch (tile) {
                 case SODATILE:
                     if (!loadedgame) {
-                        SpawnConcession(x, y, static_cast<uint16_t>(lock), CT_BEVS);
+                        SpawnConcession(x, y, static_cast<std::uint16_t>(lock), CT_BEVS);
                         *map1 = 0;
                     }
                     break;
@@ -2373,14 +2373,14 @@ void SetupGameLevel()
 
                 case FOODTILE:
                     if (!loadedgame) {
-                        SpawnConcession(x, y, static_cast<uint16_t>(lock), CT_FOOD);
+                        SpawnConcession(x, y, static_cast<std::uint16_t>(lock), CT_FOOD);
                         *map1 = 0;
                     }
                     break;
 
                 case EATILE:
-                    eaList[static_cast<int>(NumEAWalls)].tilex = static_cast<int8_t>(x);
-                    eaList[static_cast<int>(NumEAWalls)].tiley = static_cast<int8_t>(y);
+                    eaList[static_cast<int>(NumEAWalls)].tilex = static_cast<std::int8_t>(x);
+                    eaList[static_cast<int>(NumEAWalls)].tiley = static_cast<std::int8_t>(y);
                     eaList[static_cast<int>(NumEAWalls)].aliens_out = 0;
                     if ((lock & 0xff00) == 0xfa00) {
                         eaList[static_cast<int>(NumEAWalls)].delay = 60 * (lock & 0xff);
@@ -2397,18 +2397,18 @@ void SetupGameLevel()
                 case OFF_SWITCH: {
                     if (assets_info.is_aog()) {
                         if (map1[1] != 0) {
-                            uint8_t level = 0xFF;
+                            std::uint8_t level = 0xFF;
 
                             if (map1[0] != 0xF8FF) {
-                                level = static_cast<uint8_t>(map1[0] & 0xFF);
+                                level = static_cast<std::uint8_t>(map1[0] & 0xFF);
                             }
 
                             if (level == ::gamestate.mapon) {
                                 level = 0xFF;
                             }
 
-                            auto switch_x = static_cast<uint8_t>((map1[1] / 256) & 0xFF);
-                            auto switch_y = static_cast<uint8_t>(map1[1] & 0xFF);
+                            auto switch_x = static_cast<std::uint8_t>((map1[1] / 256) & 0xFF);
+                            auto switch_y = static_cast<std::uint8_t>(map1[1] & 0xFF);
 
                             map1[1] = 0;
                             map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
@@ -2418,8 +2418,8 @@ void SetupGameLevel()
                             }
                         }
                     } else {
-                        auto switch_x = static_cast<uint8_t>((map1[0] / 256) & 0xFF);
-                        auto switch_y = static_cast<uint8_t>(map1[0] & 0xFF);
+                        auto switch_x = static_cast<std::uint8_t>((map1[0] / 256) & 0xFF);
+                        auto switch_y = static_cast<std::uint8_t>(map1[0] & 0xFF);
 
                         map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
                     }
@@ -2506,7 +2506,7 @@ void SetupGameLevel()
                 if (actorat[x][y] == (objtype*)AMBUSHTILE) {
                     actorat[x][y] = nullptr;
                 }
-                *(map - 1) = GetAreaNumber(static_cast<int8_t>(x), static_cast<int8_t>(y));
+                *(map - 1) = GetAreaNumber(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y));
                 break;
             }
         }
@@ -2553,7 +2553,7 @@ void SetupGameLevel()
 // LoadLocationText()
 // ------------------------------------------------------------------------
 void LoadLocationText(
-    int16_t textNum)
+    std::int16_t textNum)
 {
     char* temp;
 
@@ -2576,15 +2576,15 @@ void DrawPlayBorder()
 void BMAmsg(
     const char* msg)
 {
-    const int16_t BMAx1 = 0; // outer bevel
-    const int16_t BMAy1 = 152;
-    const int16_t BMAw1 = 320;
-    const int16_t BMAh1 = 48;
+    const std::int16_t BMAx1 = 0; // outer bevel
+    const std::int16_t BMAy1 = 152;
+    const std::int16_t BMAw1 = 320;
+    const std::int16_t BMAh1 = 48;
 
-    const int16_t BMAx2 = BMAx1 + 7; // inner bevel
-    const int16_t BMAy2 = BMAy1 + 4;
-    const int16_t BMAw2 = BMAw1 - 14;
-    const int16_t BMAh2 = BMAh1 - 8;
+    const std::int16_t BMAx2 = BMAx1 + 7; // inner bevel
+    const std::int16_t BMAy2 = BMAy1 + 4;
+    const std::int16_t BMAw2 = BMAw1 - 14;
+    const std::int16_t BMAh2 = BMAh1 - 8;
 
     BevelBox(BMAx1, BMAy1, BMAw1, BMAh1, BORDER_HI_COLOR, BORDER_MED_COLOR, BORDER_LO_COLOR);
     BevelBox(BMAx2, BMAy2, BMAw2, BMAh2, BORDER_LO_COLOR, BORDER_MED_COLOR, BORDER_HI_COLOR);
@@ -2592,9 +2592,9 @@ void BMAmsg(
     if (msg) {
         PresenterInfo pi;
         fontstruct* font = (fontstruct*)grsegs[STARTFONT + fontnumber];
-        int8_t numlines = 1;
+        std::int8_t numlines = 1;
         const char* p = msg;
-        int16_t cheight;
+        std::int16_t cheight;
 
         memset(&pi, 0, sizeof(pi));
         pi.flags = TPF_CACHE_NO_GFX;
@@ -2614,7 +2614,7 @@ void BMAmsg(
         pi.ltcolor = BORDER_HI_COLOR;
         fontcolor = BORDER_TEXT_COLOR;
         pi.shcolor = pi.dkcolor = BORDER_LO_COLOR;
-        pi.fontnumber = static_cast<int8_t>(fontnumber);
+        pi.fontnumber = static_cast<std::int8_t>(fontnumber);
         TP_InitScript(&pi);
         TP_Presenter(&pi);
     }
@@ -2625,7 +2625,7 @@ void BMAmsg(
 //      BMAmsg()
 // ----------------------------------------------------------------------
 void CacheBMAmsg(
-    uint16_t MsgNum)
+    std::uint16_t MsgNum)
 {
     char* string, * pos;
 
@@ -2641,16 +2641,16 @@ void CacheBMAmsg(
 }
 
 void BevelBox(
-    int16_t xl,
-    int16_t yl,
-    int16_t w,
-    int16_t h,
-    uint8_t hi,
-    uint8_t med,
-    uint8_t lo)
+    std::int16_t xl,
+    std::int16_t yl,
+    std::int16_t w,
+    std::int16_t h,
+    std::uint8_t hi,
+    std::uint8_t med,
+    std::uint8_t lo)
 {
-    int16_t xh = xl + w - 1, yh = yl + h - 1;
-    uint8_t hc;
+    std::int16_t xh = xl + w - 1, yh = yl + h - 1;
+    std::uint8_t hc;
 
     VWB_Bar(xl, yl, w, h, med); // inside
 
@@ -2740,14 +2740,14 @@ void ShadowPrintLocationText(
     }
 
     VW_MeasurePropString(s, &w, &h);
-    px = static_cast<int16_t>(160 - w / 2);
+    px = static_cast<std::int16_t>(160 - w / 2);
     ShPrint(s, 0, false);
 }
 
 void DrawTopInfo(
     sp_type type)
 {
-    auto old = static_cast<int8_t>(fontnumber);
+    auto old = static_cast<std::int8_t>(fontnumber);
 
     LatchDrawPic(0, 0, TOP_STATUSBARPIC);
     fontnumber = 2;
@@ -2839,7 +2839,7 @@ void Warped()
 {
     ::vid_is_hud = true;
 
-    int16_t iangle;
+    std::int16_t iangle;
 
     DisplayInfoMsg("\r\r\r   TRANSPORTING OUT", MP_POWERUP, 7 * 60, MT_GENERAL);
     gamestate.old_weapons[3] = gamestate.weapon;
@@ -2881,9 +2881,9 @@ void Died()
 {
     ::vid_is_hud = true;
 
-    const uint8_t DEATHROTATE = 2;
+    const std::uint8_t DEATHROTATE = 2;
 
-    int16_t iangle;
+    std::int16_t iangle;
 
     gamestate.weapon = -1; // take away weapon
 
@@ -2955,7 +2955,7 @@ void LoseScreen()
     pi.dkcolor = 1;
     pi.shcolor = 1;
     pi.fontnumber = 2;
-    pi.cur_x = static_cast<uint16_t>(-1);
+    pi.cur_x = static_cast<std::uint16_t>(-1);
     pi.print_delay = 2;
 
     ClearMemory();
@@ -2989,10 +2989,10 @@ void LoseScreen()
 //      RotSpeed  - Rotation Speed
 // --------------------------------------------------------------------------
 void RotateView(
-    int16_t DestAngle,
-    uint8_t RotSpeed)
+    std::int16_t DestAngle,
+    std::uint8_t RotSpeed)
 {
-    int16_t curangle, clockwise, counter, change;
+    std::int16_t curangle, clockwise, counter, change;
     objtype* obj;
     bool old_godmode = godmode;
 
@@ -3089,7 +3089,7 @@ restartgame:
 
     died = false;
     do {
-        extern int16_t pickquick;
+        extern std::int16_t pickquick;
 
         ingame = true;
 

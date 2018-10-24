@@ -41,15 +41,15 @@ Free Software Foundation, Inc.,
 #define GCC_UNLIKELY(x) (x)
 
 
-typedef uint32_t Bit32u;
-typedef int32_t Bit32s;
-typedef uint16_t Bit16u;
-typedef int16_t Bit16s;
-typedef uint8_t Bit8u;
-typedef int8_t Bit8s;
+using Bit32u = std::uint32_t;
+using Bit32s = std::int32_t;
+using Bit16u = std::uint16_t;
+using Bit16s = std::int16_t;
+using Bit8u = std::uint8_t;
+using Bit8s = std::int8_t;
 
-typedef uintptr_t Bitu;
-typedef intptr_t Bits;
+using Bitu = std::uintptr_t;
+using Bits = std::intptr_t;
 
 
 #endif // BSTONE_DOSBOX_INCLUDED

@@ -26,7 +26,7 @@ Free Software Foundation, Inc.,
 
 
 void INL_GetJoyDelta(
-    uint16_t joy,
+    std::uint16_t joy,
     int* dx,
     int* dy);
 
@@ -62,26 +62,26 @@ void UpdateSoundLoc();
 */
 
 
-uint8_t music_num = 0;
+std::uint8_t music_num = 0;
 
 #if LOOK_FOR_DEAD_GUYS
 objtype* DeadGuys[MAXACTORS];
-uint8_t NumDeadGuys;
+std::uint8_t NumDeadGuys;
 #endif
 
 bool madenoise; // true when shooting or screaming
-uint8_t alerted = 0;
-uint8_t alerted_areanum;
+std::uint8_t alerted = 0;
+std::uint8_t alerted_areanum;
 
 
 exit_t playstate;
 
-int16_t bordertime;
+std::int16_t bordertime;
 bool DebugOk = false;
-int16_t InstantWin = 0;
-int16_t InstantQuit = 0;
+std::int16_t InstantWin = 0;
+std::int16_t InstantQuit = 0;
 
-uint16_t ExtraRadarFlags = 0;
+std::uint16_t ExtraRadarFlags = 0;
 
 
 objtype objlist[MAXACTORS];
@@ -91,29 +91,29 @@ objtype* lastobj;
 objtype* objfreelist;
 objtype* killerobj;
 
-uint16_t farmapylookup[MAPSIZE];
-uint8_t* nearmapylookup[MAPSIZE];
+std::uint16_t farmapylookup[MAPSIZE];
+std::uint8_t* nearmapylookup[MAPSIZE];
 
 bool singlestep = false;
 bool godmode; // ,noclip;
 
-uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
-uint8_t spotvis[MAPSIZE][MAPSIZE];
+std::uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
+std::uint8_t spotvis[MAPSIZE][MAPSIZE];
 objtype* actorat[MAPSIZE][MAPSIZE];
 
 
 //
 // replacing refresh manager
 //
-uint16_t mapwidth, mapheight, tics, realtics;
+std::uint16_t mapwidth, mapheight, tics, realtics;
 bool compatability;
 bool usedummy = false;
 bool nevermark = false;
-uint8_t* updateptr;
-uint16_t mapwidthtable[64];
-uint16_t uwidthtable[UPDATEHIGH];
-uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
-uint8_t update[UPDATESIZE];
+std::uint8_t* updateptr;
+std::uint16_t mapwidthtable[64];
+std::uint16_t uwidthtable[UPDATEHIGH];
+std::uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
+std::uint8_t update[UPDATESIZE];
 
 //
 // control info
@@ -122,7 +122,7 @@ bool mouseenabled;
 bool joystickenabled;
 bool joypadenabled;
 bool joystickprogressive;
-int16_t joystickport;
+std::int16_t joystickport;
 
 ScanCodes dirscan;
 ScanCodes buttonscan;
@@ -141,7 +141,7 @@ void* demobuffer;
 
 // Light sourcing flag
 
-uint8_t lightson;
+std::uint8_t lightson;
 
 //
 // curent user input
@@ -394,7 +394,7 @@ void PollMouseButtons()
         return;
     }
 
-    uint8_t buttons = IN_MouseButtons();
+    std::uint8_t buttons = IN_MouseButtons();
 
     if ((buttons & 1) != 0) {
         buttonstate[buttonmouse[0]] = true;
@@ -411,7 +411,7 @@ void PollMouseButtons()
 
 void PollJoystickButtons()
 {
-    int16_t buttons;
+    std::int16_t buttons;
 
     buttons = IN_JoyButtons();
 
@@ -578,7 +578,7 @@ void PollJoystickMove()
 */
 void PollControls()
 {
-    uint8_t buttonbits;
+    std::uint8_t buttonbits;
 
     controlx = 0;
     controly = 0;
@@ -688,7 +688,7 @@ void PollControls()
 
 extern bool PP_step;
 extern bool sqActive;
-extern int16_t pickquick;
+extern std::int16_t pickquick;
 
 bool refresh_screen;
 
@@ -836,7 +836,7 @@ void CheckKeys()
     }
 
     if (!assets_info.is_aog_sw() && Keyboard[ScanCode::sc_return]) {
-        int8_t loop;
+        std::int8_t loop;
 
         if (jam_buff == jam_buff_cmp) {
             jam_buff[0] = ScanCode::sc_none;
@@ -1051,7 +1051,7 @@ void CheckKeys()
 
 
     if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[ScanCode::sc_backspace])) {
-        uint8_t old_num = music_num;
+        std::uint8_t old_num = music_num;
 
         if (gamestate.flags & GS_MUSIC_TEST) {
             if (Keyboard[ScanCode::sc_left_arrow]) {
@@ -1194,8 +1194,8 @@ void PopupAutoMap(
 
 	const auto& assets_info = AssetsInfo{};
 
-    const int16_t BASE_X = (assets_info.is_ps() ? 64 : 40);
-    const int16_t BASE_Y = 44;
+    const std::int16_t BASE_X = (assets_info.is_ps() ? 64 : 40);
+    const std::int16_t BASE_Y = 44;
 
     ThreeDRefresh();
     ThreeDRefresh();
@@ -1289,7 +1289,7 @@ int objcount;
 */
 void InitActorList()
 {
-    int16_t i;
+    std::int16_t i;
 
 //
 // init the actor lists
@@ -1447,7 +1447,7 @@ void StartMusic(
     }
 
     if (!audiosegs[STARTMUSIC + musicchunk]) {
-        CA_CacheAudioChunk(static_cast<int16_t>(STARTMUSIC + musicchunk));
+        CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + musicchunk));
     }
 
     {
@@ -1466,8 +1466,8 @@ const int WHITESTEPS = 20;
 const int WHITETICS = 6;
 
 
-uint8_t redshifts[NUMREDSHIFTS][768];
-uint8_t whiteshifts[NUMREDSHIFTS][768];
+std::uint8_t redshifts[NUMREDSHIFTS][768];
+std::uint8_t whiteshifts[NUMREDSHIFTS][768];
 
 int damagecount;
 int bonuscount;
@@ -1480,23 +1480,23 @@ void InitRedShifts()
     // fade through intermediate frames
     //
     for (int i = 1; i <= NUMREDSHIFTS; i++) {
-        uint8_t* workptr = &redshifts[i - 1][0];
-        const uint8_t* baseptr = vgapal;
+        std::uint8_t* workptr = &redshifts[i - 1][0];
+        const std::uint8_t* baseptr = vgapal;
 
         for (int j = 0; j <= 255; ++j) {
             int delta = 64 - baseptr[0];
 
-            workptr[0] = static_cast<uint8_t>(
+            workptr[0] = static_cast<std::uint8_t>(
                 baseptr[0] + ((delta * i) / REDSTEPS));
 
             delta = -baseptr[1];
 
-            workptr[1] = static_cast<uint8_t>(
+            workptr[1] = static_cast<std::uint8_t>(
                 baseptr[1] + ((delta * i) / REDSTEPS));
 
             delta = -baseptr[2];
 
-            workptr[2] = static_cast<uint8_t>(
+            workptr[2] = static_cast<std::uint8_t>(
                 baseptr[2] + ((delta * i) / REDSTEPS));
 
             baseptr += 3;
@@ -1505,23 +1505,23 @@ void InitRedShifts()
     }
 
     for (int i = 1; i <= NUMWHITESHIFTS; i++) {
-        uint8_t* workptr = &whiteshifts[i - 1][0];
-        const uint8_t* baseptr = vgapal;
+        std::uint8_t* workptr = &whiteshifts[i - 1][0];
+        const std::uint8_t* baseptr = vgapal;
 
         for (int j = 0; j <= 255; ++j) {
             int delta = 64 - baseptr[0];
 
-            workptr[0] = static_cast<uint8_t>(
+            workptr[0] = static_cast<std::uint8_t>(
                 baseptr[0] + ((delta * i) / WHITESTEPS));
 
             delta = 62 - baseptr[1];
 
-            workptr[1] = static_cast<uint8_t>(
+            workptr[1] = static_cast<std::uint8_t>(
                 baseptr[1] + ((delta * i) / WHITESTEPS));
 
             delta = 0 - baseptr[2];
 
-            workptr[2] = static_cast<uint8_t>(
+            workptr[2] = static_cast<std::uint8_t>(
                 baseptr[2] + ((delta * i) / WHITESTEPS));
 
             baseptr += 3;
@@ -1639,7 +1639,7 @@ void DoActor(
         actor = actorat[ob->tilex][ob->tiley];
         if (BARRIER_STATE(ob) == bt_ON) {
             if (actor) {
-                int16_t damage = 0;
+                std::int16_t damage = 0;
 
                 actor->flags |= FL_BARRIER_DAMAGE;
                 if ((US_RndT() < 0x7f) && (actor->flags & FL_SHOOTABLE)) {
@@ -1722,7 +1722,7 @@ void DoActor(
             goto think;
         }
 
-        ob->ticcount = static_cast<int16_t>(ob->ticcount + ob->state->tictime);
+        ob->ticcount = static_cast<std::int16_t>(ob->ticcount + ob->state->tictime);
     }
 
 think:

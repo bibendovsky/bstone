@@ -49,10 +49,10 @@ Free Software Foundation, Inc.,
 
 struct HighScore {
     char name[MaxHighName + 1];
-    int32_t score;
-    uint16_t completed;
-    uint16_t episode;
-    uint16_t ratio;
+    std::int32_t score;
+    std::uint16_t completed;
+    std::uint16_t episode;
+    std::uint16_t ratio;
 }; // HighScore
 
 #define MaxGameName 32
@@ -60,7 +60,7 @@ struct HighScore {
 
 struct SaveGame {
     char signature[4];
-    uint16_t* oldtest;
+    std::uint16_t* oldtest;
     bool present;
     char name[MaxGameName + 1];
 }; // SaveGame
@@ -69,12 +69,12 @@ struct SaveGame {
 
 // Record used to save & restore screen windows
 struct WindowRec {
-    int16_t x;
-    int16_t y;
-    int16_t w;
-    int16_t h;
-    int16_t px;
-    int16_t py;
+    std::int16_t x;
+    std::int16_t y;
+    std::int16_t w;
+    std::int16_t h;
+    std::int16_t px;
+    std::int16_t py;
 }; // WindowRec;
 
 enum GameDiff {
@@ -90,13 +90,13 @@ enum GameDiff {
 struct US_CursorStruct {
     char cursor_char;
     char do_not_use; // Space holder for ASCZ string
-    uint16_t cursor_color;
-    uint16_t font_number;
+    std::uint16_t cursor_color;
+    std::uint16_t font_number;
 }; // US_CursorStruct
 
 struct Point {
-    int16_t x;
-    int16_t y;
+    std::int16_t x;
+    std::int16_t y;
 }; // Point
 
 struct Rect {
@@ -106,7 +106,7 @@ struct Rect {
 
 //      Hack import for TED launch support
 // extern       bool         tedlevel;
-// extern       uint16_t          tedlevelnum;
+// extern       std::uint16_t          tedlevelnum;
 extern void TEDDeath();
 
 extern bool ingame; // Set by game code if a game is in progress
@@ -116,24 +116,24 @@ extern bool NoWait;
 extern bool HighScoresDirty;
 extern char* abortprogram; // Set to error msg if program is dying
 extern GameDiff restartgame; // Normally gd_Continue, else starts game
-extern int16_t PrintX;
-extern int16_t PrintY; // Current printing location in the window
-extern int16_t WindowX;
-extern int16_t WindowY; // Current location of window
-extern int16_t WindowW;
-extern int16_t WindowH; // Current size of window
+extern std::int16_t PrintX;
+extern std::int16_t PrintY; // Current printing location in the window
+extern std::int16_t WindowX;
+extern std::int16_t WindowY; // Current location of window
+extern std::int16_t WindowW;
+extern std::int16_t WindowH; // Current size of window
 
 extern bool Button0;
 extern bool Button1;
 extern bool CursorBad;
-extern int16_t CursorX;
-extern int16_t CursorY;
+extern std::int16_t CursorX;
+extern std::int16_t CursorY;
 
 extern void (* USL_MeasureString)(const char*, int*, int*);
 extern void (*USL_DrawString)(const char*);
 
-extern bool (* USL_SaveGame)(int16_t);
-extern bool (* USL_LoadGame)(int16_t);
+extern bool (* USL_SaveGame)(std::int16_t);
+extern bool (* USL_LoadGame)(std::int16_t);
 extern void (* USL_ResetGame)();
 extern SaveGame Games[MaxSaveGames];
 
@@ -150,8 +150,8 @@ void US_Startup();
 void US_Setup();
 void US_Shutdown();
 void US_InitRndT(bool randomize);
-void US_SetLoadSaveHooks(bool (* load)(int16_t),
-                    bool (* save)(int16_t),
+void US_SetLoadSaveHooks(bool (* load)(std::int16_t),
+                    bool (* save)(std::int16_t),
                     void (* reset)());
 void US_TextScreen();
 void US_UpdateTextScreen();
@@ -161,37 +161,37 @@ void US_CenterWindow(int w, int h);
 void US_SaveWindow(WindowRec * win);
 void US_RestoreWindow(WindowRec * win);
 void US_ClearWindow();
-void US_SetPrintRoutines(void (* measure)(char*, uint16_t*, uint16_t*),
+void US_SetPrintRoutines(void (* measure)(char*, std::uint16_t*, std::uint16_t*),
                     void (* print)(char*));
 void US_PrintCentered(const char* s);
 void US_CPrint(const char* s);
 void US_CPrintLine(const char* s);
 void US_Print(const char* s);
-void US_PrintUnsigned(uint32_t n);
-void US_PrintSigned(int32_t n);
+void US_PrintUnsigned(std::uint32_t n);
+void US_PrintSigned(std::int32_t n);
 void US_StartCursor();
 void US_ShutCursor();
-void US_CheckHighScore(int32_t score, uint16_t other);
-void US_DisplayHighScores(int16_t which);
+void US_CheckHighScore(std::int32_t score, std::uint16_t other);
+void US_DisplayHighScores(std::int16_t which);
 
 bool US_UpdateCursor();
 
 bool US_LineInput(
-    int16_t x,
-    int16_t y,
+    std::int16_t x,
+    std::int16_t y,
     char* buf,
     char* def,
     bool escok,
-    int16_t maxchars,
-    int16_t maxwidth);
+    std::int16_t maxchars,
+    std::int16_t maxwidth);
 
-extern int16_t US_RndT();
+extern std::int16_t US_RndT();
 
 void USL_PrintInCenter(
     const char* s,
     Rect r);
 char* USL_GiveSaveName(
-    uint16_t game);
+    std::uint16_t game);
 
 
 #endif // BSTONE_ID_US_INCLUDED

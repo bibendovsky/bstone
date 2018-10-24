@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 #include "bstone_ref_values.h"
 
 
-using VgaBuffer = std::vector<uint8_t>;
+using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 
@@ -107,21 +107,21 @@ void VL_SetTextMode();
 void VL_DePlaneVGA();
 
 void VL_ClearVideo(
-    uint8_t color);
+    std::uint8_t color);
 
 void WaitVBL(
-    int16_t vbls);
+    std::int16_t vbls);
 
 void VL_WaitVBL(
-    uint32_t vbls);
+    std::uint32_t vbls);
 
 void VL_CrtcStart(
-    int16_t crtc);
+    std::int16_t crtc);
 
 void VL_FillPalette(
-    uint8_t red,
-    uint8_t green,
-    uint8_t blue);
+    std::uint8_t red,
+    std::uint8_t green,
+    std::uint8_t blue);
 
 void VL_SetColor(
     int color,
@@ -138,17 +138,17 @@ void VL_GetColor(
 void VL_SetPalette(
     int first,
     int count,
-    const uint8_t* palette);
+    const std::uint8_t* palette);
 
 void VL_GetPalette(
     int first,
     int count,
-    uint8_t* palette);
+    std::uint8_t* palette);
 
 void VL_SetPaletteIntensity(
     int start,
     int end,
-    const uint8_t* palette,
+    const std::uint8_t* palette,
     int intensity);
 
 void VL_FadeOut(
@@ -162,47 +162,47 @@ void VL_FadeOut(
 void VL_FadeIn(
     int start,
     int end,
-    const uint8_t* palette,
+    const std::uint8_t* palette,
     int steps);
 
 void VL_ColorBorder(
-    int16_t color);
+    std::int16_t color);
 
 void VL_Plot(
     int x,
     int y,
-    uint8_t color,
+    std::uint8_t color,
     const bool is_transparent = false);
 
 void VL_Hlin(
     int x,
     int y,
     int width,
-    uint8_t color);
+    std::uint8_t color);
 
 void VL_Vlin(
     int x,
     int y,
     int height,
-    uint8_t color);
+    std::uint8_t color);
 
 void VL_Bar(
     int x,
     int y,
     int width,
     int height,
-    uint8_t color,
+    std::uint8_t color,
     const bool is_transparent = false);
 
 void VL_DrawPicBare(
-    int16_t x,
-    int16_t y,
-    uint8_t* pic,
-    int16_t width,
-    int16_t height);
+    std::int16_t x,
+    std::int16_t y,
+    std::uint8_t* pic,
+    std::int16_t width,
+    std::int16_t height);
 
 void VL_MemToLatch(
-    const uint8_t* source,
+    const std::uint8_t* source,
     int width,
     int height,
     int dest);
@@ -214,22 +214,22 @@ void VL_ScreenToScreen(
     int height);
 
 void VL_MemToScreen(
-    const uint8_t* source,
+    const std::uint8_t* source,
     int width,
     int height,
     int x,
     int y);
 
 void VL_MaskMemToScreen(
-    const uint8_t* source,
+    const std::uint8_t* source,
     int width,
     int height,
     int x,
     int y,
-    uint8_t mask);
+    std::uint8_t mask);
 
 void VL_ScreenToMem(
-    uint8_t* dest,
+    std::uint8_t* dest,
     int width,
     int height,
     int x,
@@ -238,30 +238,30 @@ void VL_ScreenToMem(
 void VL_DrawTile8String(
     char* str,
     char* tile8ptr,
-    int16_t printx,
-    int16_t printy);
+    std::int16_t printx,
+    std::int16_t printy);
 
 void VL_DrawLatch8String(
     char* str,
-    uint16_t tile8ptr,
-    int16_t printx,
-    int16_t printy);
+    std::uint16_t tile8ptr,
+    std::int16_t printx,
+    std::int16_t printy);
 
 void VL_SizeTile8String(
     char* str,
-    int16_t* width,
-    int16_t* height);
+    std::int16_t* width,
+    std::int16_t* height);
 
 void VL_DrawPropString(
     char* str,
-    uint16_t tile8ptr,
-    int16_t printx,
-    int16_t printy);
+    std::uint16_t tile8ptr,
+    std::int16_t printx,
+    std::int16_t printy);
 
 void VL_SizePropString(
     char* str,
-    int16_t* width,
-    int16_t* height,
+    std::int16_t* width,
+    std::int16_t* height,
     char* font);
 
 // BBi
@@ -272,7 +272,7 @@ int vl_get_offset(
     int x,
     int y);
 
-uint8_t vl_get_pixel(
+std::uint8_t vl_get_pixel(
     int base_offset,
     int x,
     int y);

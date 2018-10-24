@@ -40,11 +40,11 @@ void ForceUpdateStatusBar();
 pictabletype* pictable;
 pictabletype* picmtable;
 
-int16_t px;
-int16_t py;
-uint8_t fontcolor;
-uint8_t backcolor;
-int16_t fontnumber;
+std::int16_t px;
+std::int16_t py;
+std::uint8_t fontcolor;
+std::uint8_t backcolor;
+std::int16_t fontnumber;
 
 bool allcaps = false;
 
@@ -62,11 +62,11 @@ void VW_DrawPropString(
     int string_length = static_cast<int>(strlen(string));
 
     for (int c = 0; c < string_length; ++c) {
-        uint8_t ch = string[c];
+        std::uint8_t ch = string[c];
         int width = font->width[ch];
 
-        const uint8_t* source =
-            (reinterpret_cast<const uint8_t*>(font)) + font->location[ch];
+        const std::uint8_t* source =
+            (reinterpret_cast<const std::uint8_t*>(font)) + font->location[ch];
 
         for (int w = 0; w < width; ++w) {
             for (int h = 0; h < height; ++h) {
@@ -78,7 +78,7 @@ void VW_DrawPropString(
             ++source;
         }
 
-        px = static_cast<int16_t>(px + width);
+        px = static_cast<std::int16_t>(px + width);
     }
 }
 
@@ -92,7 +92,7 @@ void VWL_MeasureString(
 
     for (*width = 0; string[0] != '\0'; ++string) {
         // proportional width
-        *width += font->width[static_cast<uint8_t>(*string)];
+        *width += font->width[static_cast<std::uint8_t>(*string)];
     }
 }
 
@@ -135,7 +135,7 @@ void VWB_DrawPic(
     int height = pictable[picnum].height;
 
     VL_MemToScreen(
-        static_cast<const uint8_t*>(grsegs[chunknum]),
+        static_cast<const std::uint8_t*>(grsegs[chunknum]),
         width,
         height,
         x & (~7),
@@ -152,7 +152,7 @@ void VWB_DrawMPic(
     int height = pictable[picnum].height;
 
     VL_MaskMemToScreen(
-        static_cast<const uint8_t*>(grsegs[chunknum]),
+        static_cast<const std::uint8_t*>(grsegs[chunknum]),
         width,
         height,
         x,
@@ -171,7 +171,7 @@ void VWB_Bar(
     int y,
     int width,
     int height,
-    uint8_t color)
+    std::uint8_t color)
 {
     VW_Bar(x, y, width, height, color);
 }
@@ -179,7 +179,7 @@ void VWB_Bar(
 void VWB_Plot(
     int x,
     int y,
-    uint8_t color)
+    std::uint8_t color)
 {
     VW_Plot(x, y, color);
 }
@@ -188,7 +188,7 @@ void VWB_Hlin(
     int x1,
     int x2,
     int y,
-    uint8_t color)
+    std::uint8_t color)
 {
     VW_Hlin(x1, x2, y, color);
 }
@@ -197,7 +197,7 @@ void VWB_Vlin(
     int y1,
     int y2,
     int x,
-    uint8_t color)
+    std::uint8_t color)
 {
     VW_Vlin(y1, y2, x, color);
 }
@@ -254,7 +254,7 @@ void LoadLatchMem()
     //
     ::latchpics[picnum++] = destoff;
     ::CA_CacheGrChunk(::STARTTILE8);
-    auto src = static_cast<const uint8_t*>(::grsegs[::STARTTILE8]);
+    auto src = static_cast<const std::uint8_t*>(::grsegs[::STARTTILE8]);
 
     for (int i = 0; i < ::NUMTILE8; ++i)
     {
@@ -278,7 +278,7 @@ void LoadLatchMem()
         ::CA_CacheGrChunk(i);
 
         ::VL_MemToLatch(
-            static_cast<const uint8_t*>(::grsegs[i]),
+            static_cast<const std::uint8_t*>(::grsegs[i]),
             width,
             height,
             destoff);

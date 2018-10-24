@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 void MapLSRow();
 
 
-uint16_t CeilingTile = 126, FloorTile = 126;
+std::uint16_t CeilingTile = 126, FloorTile = 126;
 
 void (* MapRowPtr)();
 
@@ -42,9 +42,9 @@ BaseDist basedist;
 PlaneYLookup planeylookup;
 MirrorOfs mirrorofs;
 
-extern uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
-extern const uint8_t* lightsource;
-extern const uint8_t* shadingtable;
+extern std::uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
+extern const std::uint8_t* lightsource;
+extern const std::uint8_t* shadingtable;
 
 int halfheight = 0;
 
@@ -138,8 +138,8 @@ void DrawSpans(
 
 void SetPlaneViewSize()
 {
-    const uint8_t* src;
-    uint8_t* dest;
+    const std::uint8_t* src;
+    std::uint8_t* dest;
 
     ::halfheight = ::viewheight / 2;
 
@@ -153,7 +153,7 @@ void SetPlaneViewSize()
         }
     }
 
-    src = static_cast<const uint8_t*>(PM_GetPage(CeilingTile));
+    src = static_cast<const std::uint8_t*>(PM_GetPage(CeilingTile));
     dest = planepics;
 
     for (int x = 0; x < 4096; ++x) {
@@ -161,7 +161,7 @@ void SetPlaneViewSize()
         dest += 2;
     }
 
-    src = static_cast<const uint8_t*>(PM_GetPage(FloorTile));
+    src = static_cast<const std::uint8_t*>(PM_GetPage(FloorTile));
     dest = planepics + 1;
 
     for (int x = 0; x < 4096; ++x) {

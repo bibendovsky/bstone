@@ -80,24 +80,24 @@ Free Software Foundation, Inc.,
 #define TickBase (70) // 70Hz per tick - used as a base for timer 0
 #define MAXTICS (10)
 
-extern uint16_t mapwidth;
-extern uint16_t mapheight;
-extern uint16_t tics;
-extern uint16_t realtics;
+extern std::uint16_t mapwidth;
+extern std::uint16_t mapheight;
+extern std::uint16_t tics;
+extern std::uint16_t realtics;
 
-extern uint8_t* updateptr;
-extern uint16_t uwidthtable[UPDATEHIGH];
-extern uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
+extern std::uint8_t* updateptr;
+extern std::uint16_t uwidthtable[UPDATEHIGH];
+extern std::uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
 
-extern uint8_t fontcolor;
-extern uint8_t backcolor;
+extern std::uint8_t fontcolor;
+extern std::uint8_t backcolor;
 
 inline void SETFONTCOLOR(
     int foreground_color,
     int background_color)
 {
-    ::fontcolor = static_cast<uint8_t>(foreground_color);
-    ::backcolor = static_cast<uint8_t>(background_color);
+    ::fontcolor = static_cast<std::uint8_t>(foreground_color);
+    ::backcolor = static_cast<std::uint8_t>(background_color);
 }
 
 
@@ -111,12 +111,12 @@ using TimePoint = Clock::time_point;
 
 const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
 
-extern uint8_t update[UPDATESIZE];
+extern std::uint8_t update[UPDATESIZE];
 
 
-extern uint8_t* vga_memory;
+extern std::uint8_t* vga_memory;
 extern bstone::ClArgs g_args;
-extern uint8_t update[UPDATESIZE];
+extern std::uint8_t update[UPDATESIZE];
 
 
 void pre_quit();
@@ -138,7 +138,7 @@ void Quit(
 	std::exit(1);
 }
 
-uint32_t sys_get_timer_ticks();
+std::uint32_t sys_get_timer_ticks();
 // BBi
 
 

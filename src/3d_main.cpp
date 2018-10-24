@@ -65,15 +65,15 @@ void FreeMusic();
 void ClearMemory();
 
 void CA_CacheScreen(
-    int16_t chunk);
+    std::int16_t chunk);
 
 void VH_UpdateScreen();
 void DrawHighScores();
 void freed_main();
 
 void PreloadUpdate(
-    uint16_t current,
-    uint16_t total);
+    std::uint16_t current,
+    std::uint16_t total);
 
 void OpenAudioFile();
 
@@ -99,16 +99,16 @@ bstone::ClArgs g_args;
 =============================================================================
 */
 
-extern int16_t pickquick;
+extern std::int16_t pickquick;
 
 
 void DrawCreditsPage();
 void unfreed_main();
 void ShowPromo();
 
-int16_t starting_episode;
-int16_t starting_level;
-int16_t starting_difficulty;
+std::int16_t starting_episode;
+std::int16_t starting_level;
+std::int16_t starting_difficulty;
 
 std::string data_dir;
 std::string mod_dir_;
@@ -116,12 +116,12 @@ std::string mod_dir_;
 void InitPlaytemp();
 
 
-uint16_t TopColor;
-uint16_t BottomColor;
+std::uint16_t TopColor;
+std::uint16_t BottomColor;
 
 bool nospr;
 
-int16_t dirangle[9] = {
+std::int16_t dirangle[9] = {
     0 * ANGLES / 8,
     1 * ANGLES / 8,
     2 * ANGLES / 8,
@@ -157,10 +157,10 @@ const std::string text_config_file_name = "bstone_config.txt";
 
 // FIXME Unused
 #if 0
-int16_t view_xl;
-int16_t view_xh;
-int16_t view_yl;
-int16_t view_yh;
+std::int16_t view_xl;
+std::int16_t view_xh;
+std::int16_t view_yl;
+std::int16_t view_yh;
 #endif // 0
 
 static const bool default_no_wall_hit_sound = true;
@@ -188,1132 +188,1132 @@ bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
 // ==========================================================================
 // Sprites
 
-int16_t SPR_DEMO = 0;
-
-int16_t SPR_STAT_0 = 0;
-int16_t SPR_STAT_1 = 0;
-int16_t SPR_STAT_2 = 0;
-int16_t SPR_STAT_3 = 0;
-int16_t SPR_STAT_4 = 0;
-int16_t SPR_STAT_5 = 0;
-int16_t SPR_STAT_6 = 0;
-int16_t SPR_STAT_7 = 0;
-int16_t SPR_STAT_8 = 0;
-int16_t SPR_STAT_9 = 0;
-int16_t SPR_STAT_10 = 0;
-int16_t SPR_STAT_11 = 0;
-int16_t SPR_STAT_12 = 0;
-int16_t SPR_STAT_13 = 0;
-int16_t SPR_STAT_14 = 0;
-int16_t SPR_STAT_15 = 0;
-int16_t SPR_STAT_16 = 0;
-int16_t SPR_STAT_17 = 0;
-int16_t SPR_STAT_18 = 0;
-int16_t SPR_STAT_19 = 0;
-int16_t SPR_STAT_20 = 0;
-int16_t SPR_STAT_21 = 0;
-int16_t SPR_STAT_22 = 0;
-int16_t SPR_STAT_23 = 0;
-int16_t SPR_STAT_24 = 0;
-int16_t SPR_STAT_25 = 0;
-int16_t SPR_STAT_26 = 0;
-int16_t SPR_STAT_27 = 0;
-int16_t SPR_STAT_28 = 0;
-int16_t SPR_STAT_29 = 0;
-int16_t SPR_STAT_30 = 0;
-int16_t SPR_STAT_31 = 0;
-int16_t SPR_STAT_32 = 0;
-int16_t SPR_STAT_33 = 0;
-int16_t SPR_STAT_34 = 0;
-int16_t SPR_STAT_35 = 0;
-int16_t SPR_STAT_36 = 0;
-int16_t SPR_STAT_37 = 0;
-int16_t SPR_STAT_38 = 0;
-int16_t SPR_STAT_39 = 0;
-int16_t SPR_STAT_40 = 0;
-int16_t SPR_STAT_41 = 0;
-int16_t SPR_STAT_42 = 0;
-int16_t SPR_STAT_43 = 0;
-int16_t SPR_STAT_44 = 0;
-int16_t SPR_STAT_45 = 0;
-int16_t SPR_STAT_46 = 0;
-int16_t SPR_STAT_47 = 0;
-int16_t SPR_STAT_48 = 0;
-int16_t SPR_STAT_49 = 0;
-int16_t SPR_STAT_50 = 0;
-int16_t SPR_STAT_51 = 0;
-int16_t SPR_STAT_52 = 0;
-int16_t SPR_STAT_53 = 0;
-int16_t SPR_STAT_54 = 0;
-int16_t SPR_STAT_55 = 0;
-int16_t SPR_STAT_56 = 0;
-
-int16_t SPR_CRATE_1 = 0;
-int16_t SPR_CRATE_2 = 0;
-int16_t SPR_CRATE_3 = 0;
-
-int16_t SPR_STAT_57 = 0;
-int16_t SPR_STAT_58 = 0;
-int16_t SPR_STAT_59 = 0;
-int16_t SPR_STAT_60 = 0;
-int16_t SPR_STAT_61 = 0;
-int16_t SPR_STAT_62 = 0;
-int16_t SPR_STAT_63 = 0;
-int16_t SPR_STAT_64 = 0;
-int16_t SPR_STAT_65 = 0;
-int16_t SPR_STAT_66 = 0;
-int16_t SPR_STAT_67 = 0;
-int16_t SPR_STAT_68 = 0;
-int16_t SPR_STAT_69 = 0;
-int16_t SPR_STAT_70 = 0;
-int16_t SPR_STAT_71 = 0;
-int16_t SPR_STAT_72 = 0;
-int16_t SPR_STAT_73 = 0;
-int16_t SPR_STAT_74 = 0;
-int16_t SPR_STAT_75 = 0;
-int16_t SPR_STAT_76 = 0;
-int16_t SPR_STAT_77 = 0;
-int16_t SPR_STAT_78 = 0;
-int16_t SPR_STAT_79 = 0;
-
-int16_t SPR_DOORBOMB = 0;
-int16_t SPR_ALT_DOORBOMB = 0;
-int16_t SPR_RUBBLE = 0;
-int16_t SPR_BONZI_TREE = 0;
-int16_t SPR_AUTOMAPPER = 0;
-int16_t SPR_POT_PLANT = 0;
-int16_t SPR_TUBE_PLANT = 0;
-int16_t SPR_HITECH_CHAIR = 0;
-
-int16_t SPR_AIR_VENT = 0;
-int16_t SPR_BLOOD_DRIP1 = 0;
-int16_t SPR_BLOOD_DRIP2 = 0;
-int16_t SPR_BLOOD_DRIP3 = 0;
-int16_t SPR_BLOOD_DRIP4 = 0;
-int16_t SPR_WATER_DRIP1 = 0;
-int16_t SPR_WATER_DRIP2 = 0;
-int16_t SPR_WATER_DRIP3 = 0;
-int16_t SPR_WATER_DRIP4 = 0;
-
-int16_t SPR_DECO_ARC_1 = 0;
-int16_t SPR_DECO_ARC_2 = 0;
-int16_t SPR_DECO_ARC_3 = 0;
-
-int16_t SPR_GRATE = 0;
-int16_t SPR_STEAM_1 = 0;
-int16_t SPR_STEAM_2 = 0;
-int16_t SPR_STEAM_3 = 0;
-int16_t SPR_STEAM_4 = 0;
-
-int16_t SPR_STEAM_PIPE = 0;
-int16_t SPR_PIPE_STEAM_1 = 0;
-int16_t SPR_PIPE_STEAM_2 = 0;
-int16_t SPR_PIPE_STEAM_3 = 0;
-int16_t SPR_PIPE_STEAM_4 = 0;
-
-int16_t SPR_DEAD_RENT = 0;
-int16_t SPR_DEAD_PRO = 0;
-int16_t SPR_DEAD_SWAT = 0;
-
-int16_t SPR_RENT_S_1 = 0;
-int16_t SPR_RENT_S_2 = 0;
-int16_t SPR_RENT_S_3 = 0;
-int16_t SPR_RENT_S_4 = 0;
-int16_t SPR_RENT_S_5 = 0;
-int16_t SPR_RENT_S_6 = 0;
-int16_t SPR_RENT_S_7 = 0;
-int16_t SPR_RENT_S_8 = 0;
-
-int16_t SPR_RENT_W1_1 = 0;
-int16_t SPR_RENT_W1_2 = 0;
-int16_t SPR_RENT_W1_3 = 0;
-int16_t SPR_RENT_W1_4 = 0;
-int16_t SPR_RENT_W1_5 = 0;
-int16_t SPR_RENT_W1_6 = 0;
-int16_t SPR_RENT_W1_7 = 0;
-int16_t SPR_RENT_W1_8 = 0;
-
-int16_t SPR_RENT_W2_1 = 0;
-int16_t SPR_RENT_W2_2 = 0;
-int16_t SPR_RENT_W2_3 = 0;
-int16_t SPR_RENT_W2_4 = 0;
-int16_t SPR_RENT_W2_5 = 0;
-int16_t SPR_RENT_W2_6 = 0;
-int16_t SPR_RENT_W2_7 = 0;
-int16_t SPR_RENT_W2_8 = 0;
-
-int16_t SPR_RENT_W3_1 = 0;
-int16_t SPR_RENT_W3_2 = 0;
-int16_t SPR_RENT_W3_3 = 0;
-int16_t SPR_RENT_W3_4 = 0;
-int16_t SPR_RENT_W3_5 = 0;
-int16_t SPR_RENT_W3_6 = 0;
-int16_t SPR_RENT_W3_7 = 0;
-int16_t SPR_RENT_W3_8 = 0;
-
-int16_t SPR_RENT_W4_1 = 0;
-int16_t SPR_RENT_W4_2 = 0;
-int16_t SPR_RENT_W4_3 = 0;
-int16_t SPR_RENT_W4_4 = 0;
-int16_t SPR_RENT_W4_5 = 0;
-int16_t SPR_RENT_W4_6 = 0;
-int16_t SPR_RENT_W4_7 = 0;
-int16_t SPR_RENT_W4_8 = 0;
-
-int16_t SPR_RENT_DIE_1 = 0;
-int16_t SPR_RENT_DIE_2 = 0;
-int16_t SPR_RENT_DIE_3 = 0;
-int16_t SPR_RENT_DIE_4 = 0;
-int16_t SPR_RENT_PAIN_1 = 0;
-int16_t SPR_RENT_DEAD = 0;
-
-int16_t SPR_RENT_SHOOT1 = 0;
-int16_t SPR_RENT_SHOOT2 = 0;
-int16_t SPR_RENT_SHOOT3 = 0;
-
-int16_t SPR_PRO_S_1 = 0;
-int16_t SPR_PRO_S_2 = 0;
-int16_t SPR_PRO_S_3 = 0;
-int16_t SPR_PRO_S_4 = 0;
-int16_t SPR_PRO_S_5 = 0;
-int16_t SPR_PRO_S_6 = 0;
-int16_t SPR_PRO_S_7 = 0;
-int16_t SPR_PRO_S_8 = 0;
-
-int16_t SPR_PRO_W1_1 = 0;
-int16_t SPR_PRO_W1_2 = 0;
-int16_t SPR_PRO_W1_3 = 0;
-int16_t SPR_PRO_W1_4 = 0;
-int16_t SPR_PRO_W1_5 = 0;
-int16_t SPR_PRO_W1_6 = 0;
-int16_t SPR_PRO_W1_7 = 0;
-int16_t SPR_PRO_W1_8 = 0;
-
-int16_t SPR_PRO_W2_1 = 0;
-int16_t SPR_PRO_W2_2 = 0;
-int16_t SPR_PRO_W2_3 = 0;
-int16_t SPR_PRO_W2_4 = 0;
-int16_t SPR_PRO_W2_5 = 0;
-int16_t SPR_PRO_W2_6 = 0;
-int16_t SPR_PRO_W2_7 = 0;
-int16_t SPR_PRO_W2_8 = 0;
-
-int16_t SPR_PRO_W3_1 = 0;
-int16_t SPR_PRO_W3_2 = 0;
-int16_t SPR_PRO_W3_3 = 0;
-int16_t SPR_PRO_W3_4 = 0;
-int16_t SPR_PRO_W3_5 = 0;
-int16_t SPR_PRO_W3_6 = 0;
-int16_t SPR_PRO_W3_7 = 0;
-int16_t SPR_PRO_W3_8 = 0;
-
-int16_t SPR_PRO_W4_1 = 0;
-int16_t SPR_PRO_W4_2 = 0;
-int16_t SPR_PRO_W4_3 = 0;
-int16_t SPR_PRO_W4_4 = 0;
-int16_t SPR_PRO_W4_5 = 0;
-int16_t SPR_PRO_W4_6 = 0;
-int16_t SPR_PRO_W4_7 = 0;
-int16_t SPR_PRO_W4_8 = 0;
-
-int16_t SPR_PRO_PAIN_1 = 0;
-int16_t SPR_PRO_DIE_1 = 0;
-int16_t SPR_PRO_DIE_2 = 0;
-int16_t SPR_PRO_DIE_3 = 0;
-int16_t SPR_PRO_PAIN_2 = 0;
-int16_t SPR_PRO_DIE_4 = 0;
-int16_t SPR_PRO_DEAD = 0;
-
-int16_t SPR_PRO_SHOOT1 = 0;
-int16_t SPR_PRO_SHOOT2 = 0;
-int16_t SPR_PRO_SHOOT3 = 0;
-
-int16_t SPR_SWAT_S_1 = 0;
-int16_t SPR_SWAT_S_2 = 0;
-int16_t SPR_SWAT_S_3 = 0;
-int16_t SPR_SWAT_S_4 = 0;
-int16_t SPR_SWAT_S_5 = 0;
-int16_t SPR_SWAT_S_6 = 0;
-int16_t SPR_SWAT_S_7 = 0;
-int16_t SPR_SWAT_S_8 = 0;
-
-int16_t SPR_SWAT_W1_1 = 0;
-int16_t SPR_SWAT_W1_2 = 0;
-int16_t SPR_SWAT_W1_3 = 0;
-int16_t SPR_SWAT_W1_4 = 0;
-int16_t SPR_SWAT_W1_5 = 0;
-int16_t SPR_SWAT_W1_6 = 0;
-int16_t SPR_SWAT_W1_7 = 0;
-int16_t SPR_SWAT_W1_8 = 0;
-
-int16_t SPR_SWAT_W2_1 = 0;
-int16_t SPR_SWAT_W2_2 = 0;
-int16_t SPR_SWAT_W2_3 = 0;
-int16_t SPR_SWAT_W2_4 = 0;
-int16_t SPR_SWAT_W2_5 = 0;
-int16_t SPR_SWAT_W2_6 = 0;
-int16_t SPR_SWAT_W2_7 = 0;
-int16_t SPR_SWAT_W2_8 = 0;
-
-int16_t SPR_SWAT_W3_1 = 0;
-int16_t SPR_SWAT_W3_2 = 0;
-int16_t SPR_SWAT_W3_3 = 0;
-int16_t SPR_SWAT_W3_4 = 0;
-int16_t SPR_SWAT_W3_5 = 0;
-int16_t SPR_SWAT_W3_6 = 0;
-int16_t SPR_SWAT_W3_7 = 0;
-int16_t SPR_SWAT_W3_8 = 0;
-
-int16_t SPR_SWAT_W4_1 = 0;
-int16_t SPR_SWAT_W4_2 = 0;
-int16_t SPR_SWAT_W4_3 = 0;
-int16_t SPR_SWAT_W4_4 = 0;
-int16_t SPR_SWAT_W4_5 = 0;
-int16_t SPR_SWAT_W4_6 = 0;
-int16_t SPR_SWAT_W4_7 = 0;
-int16_t SPR_SWAT_W4_8 = 0;
-
-int16_t SPR_SWAT_PAIN_1 = 0;
-int16_t SPR_SWAT_DIE_1 = 0;
-int16_t SPR_SWAT_DIE_2 = 0;
-int16_t SPR_SWAT_DIE_3 = 0;
-int16_t SPR_SWAT_PAIN_2 = 0;
-int16_t SPR_SWAT_DIE_4 = 0;
-int16_t SPR_SWAT_DEAD = 0;
-
-int16_t SPR_SWAT_SHOOT1 = 0;
-int16_t SPR_SWAT_SHOOT2 = 0;
-int16_t SPR_SWAT_SHOOT3 = 0;
-
-int16_t SPR_SWAT_WOUNDED1 = 0;
-int16_t SPR_SWAT_WOUNDED2 = 0;
-int16_t SPR_SWAT_WOUNDED3 = 0;
-int16_t SPR_SWAT_WOUNDED4 = 0;
-
-int16_t SPR_OFC_S_1 = 0;
-int16_t SPR_OFC_S_2 = 0;
-int16_t SPR_OFC_S_3 = 0;
-int16_t SPR_OFC_S_4 = 0;
-int16_t SPR_OFC_S_5 = 0;
-int16_t SPR_OFC_S_6 = 0;
-int16_t SPR_OFC_S_7 = 0;
-int16_t SPR_OFC_S_8 = 0;
-
-int16_t SPR_OFC_W1_1 = 0;
-int16_t SPR_OFC_W1_2 = 0;
-int16_t SPR_OFC_W1_3 = 0;
-int16_t SPR_OFC_W1_4 = 0;
-int16_t SPR_OFC_W1_5 = 0;
-int16_t SPR_OFC_W1_6 = 0;
-int16_t SPR_OFC_W1_7 = 0;
-int16_t SPR_OFC_W1_8 = 0;
-
-int16_t SPR_OFC_W2_1 = 0;
-int16_t SPR_OFC_W2_2 = 0;
-int16_t SPR_OFC_W2_3 = 0;
-int16_t SPR_OFC_W2_4 = 0;
-int16_t SPR_OFC_W2_5 = 0;
-int16_t SPR_OFC_W2_6 = 0;
-int16_t SPR_OFC_W2_7 = 0;
-int16_t SPR_OFC_W2_8 = 0;
-
-int16_t SPR_OFC_W3_1 = 0;
-int16_t SPR_OFC_W3_2 = 0;
-int16_t SPR_OFC_W3_3 = 0;
-int16_t SPR_OFC_W3_4 = 0;
-int16_t SPR_OFC_W3_5 = 0;
-int16_t SPR_OFC_W3_6 = 0;
-int16_t SPR_OFC_W3_7 = 0;
-int16_t SPR_OFC_W3_8 = 0;
-
-int16_t SPR_OFC_W4_1 = 0;
-int16_t SPR_OFC_W4_2 = 0;
-int16_t SPR_OFC_W4_3 = 0;
-int16_t SPR_OFC_W4_4 = 0;
-int16_t SPR_OFC_W4_5 = 0;
-int16_t SPR_OFC_W4_6 = 0;
-int16_t SPR_OFC_W4_7 = 0;
-int16_t SPR_OFC_W4_8 = 0;
-
-int16_t SPR_OFC_PAIN_1 = 0;
-int16_t SPR_OFC_DIE_1 = 0;
-int16_t SPR_OFC_DIE_2 = 0;
-int16_t SPR_OFC_DIE_3 = 0;
-int16_t SPR_OFC_PAIN_2 = 0;
-int16_t SPR_OFC_DIE_4 = 0;
-int16_t SPR_OFC_DEAD = 0;
-
-int16_t SPR_OFC_SHOOT1 = 0;
-int16_t SPR_OFC_SHOOT2 = 0;
-int16_t SPR_OFC_SHOOT3 = 0;
-
-int16_t SPR_GOLD_S_1 = 0;
-int16_t SPR_GOLD_S_2 = 0;
-int16_t SPR_GOLD_S_3 = 0;
-int16_t SPR_GOLD_S_4 = 0;
-int16_t SPR_GOLD_S_5 = 0;
-int16_t SPR_GOLD_S_6 = 0;
-int16_t SPR_GOLD_S_7 = 0;
-int16_t SPR_GOLD_S_8 = 0;
-
-int16_t SPR_GOLD_W1_1 = 0;
-int16_t SPR_GOLD_W1_2 = 0;
-int16_t SPR_GOLD_W1_3 = 0;
-int16_t SPR_GOLD_W1_4 = 0;
-int16_t SPR_GOLD_W1_5 = 0;
-int16_t SPR_GOLD_W1_6 = 0;
-int16_t SPR_GOLD_W1_7 = 0;
-int16_t SPR_GOLD_W1_8 = 0;
-
-int16_t SPR_GOLD_W2_1 = 0;
-int16_t SPR_GOLD_W2_2 = 0;
-int16_t SPR_GOLD_W2_3 = 0;
-int16_t SPR_GOLD_W2_4 = 0;
-int16_t SPR_GOLD_W2_5 = 0;
-int16_t SPR_GOLD_W2_6 = 0;
-int16_t SPR_GOLD_W2_7 = 0;
-int16_t SPR_GOLD_W2_8 = 0;
-
-int16_t SPR_GOLD_W3_1 = 0;
-int16_t SPR_GOLD_W3_2 = 0;
-int16_t SPR_GOLD_W3_3 = 0;
-int16_t SPR_GOLD_W3_4 = 0;
-int16_t SPR_GOLD_W3_5 = 0;
-int16_t SPR_GOLD_W3_6 = 0;
-int16_t SPR_GOLD_W3_7 = 0;
-int16_t SPR_GOLD_W3_8 = 0;
-
-int16_t SPR_GOLD_W4_1 = 0;
-int16_t SPR_GOLD_W4_2 = 0;
-int16_t SPR_GOLD_W4_3 = 0;
-int16_t SPR_GOLD_W4_4 = 0;
-int16_t SPR_GOLD_W4_5 = 0;
-int16_t SPR_GOLD_W4_6 = 0;
-int16_t SPR_GOLD_W4_7 = 0;
-int16_t SPR_GOLD_W4_8 = 0;
-
-int16_t SPR_GOLD_PAIN_1 = 0;
-
-int16_t SPR_GOLD_WRIST_1 = 0;
-int16_t SPR_GOLD_WRIST_2 = 0;
-
-int16_t SPR_GOLD_SHOOT1 = 0;
-int16_t SPR_GOLD_SHOOT2 = 0;
-int16_t SPR_GOLD_SHOOT3 = 0;
-
-int16_t SPR_GOLD_WARP1 = 0;
-int16_t SPR_GOLD_WARP2 = 0;
-int16_t SPR_GOLD_WARP3 = 0;
-int16_t SPR_GOLD_WARP4 = 0;
-int16_t SPR_GOLD_WARP5 = 0;
-
-int16_t SPR_GOLD_DEATH1 = 0;
-int16_t SPR_GOLD_DEATH2 = 0;
-int16_t SPR_GOLD_DEATH3 = 0;
-int16_t SPR_GOLD_DEATH4 = 0;
-int16_t SPR_GOLD_DEATH5 = 0;
-int16_t SPR_MGOLD_OUCH = 0;
-
-int16_t SPR_GOLD_MORPH1 = 0;
-int16_t SPR_GOLD_MORPH2 = 0;
-int16_t SPR_GOLD_MORPH3 = 0;
-int16_t SPR_GOLD_MORPH4 = 0;
-int16_t SPR_GOLD_MORPH5 = 0;
-int16_t SPR_GOLD_MORPH6 = 0;
-int16_t SPR_GOLD_MORPH7 = 0;
-int16_t SPR_GOLD_MORPH8 = 0;
-
-int16_t SPR_MGOLD_WALK1 = 0;
-int16_t SPR_MGOLD_WALK2 = 0;
-int16_t SPR_MGOLD_WALK3 = 0;
-int16_t SPR_MGOLD_WALK4 = 0;
-int16_t SPR_MGOLD_ATTACK1 = 0;
-int16_t SPR_MGOLD_ATTACK2 = 0;
-int16_t SPR_MGOLD_ATTACK3 = 0;
-int16_t SPR_MGOLD_ATTACK4 = 0;
-
-int16_t SPR_MGOLD_SHOT1 = 0;
-int16_t SPR_MGOLD_SHOT2 = 0;
-int16_t SPR_MGOLD_SHOT3 = 0;
-int16_t SPR_MGOLD_SHOT_EXP1 = 0;
-int16_t SPR_MGOLD_SHOT_EXP2 = 0;
-int16_t SPR_MGOLD_SHOT_EXP3 = 0;
-
-int16_t SPR_GSCOUT_W1_1 = 0;
-int16_t SPR_GSCOUT_W1_2 = 0;
-int16_t SPR_GSCOUT_W1_3 = 0;
-int16_t SPR_GSCOUT_W1_4 = 0;
-int16_t SPR_GSCOUT_W1_5 = 0;
-int16_t SPR_GSCOUT_W1_6 = 0;
-int16_t SPR_GSCOUT_W1_7 = 0;
-int16_t SPR_GSCOUT_W1_8 = 0;
-
-int16_t SPR_GSCOUT_W2_1 = 0;
-int16_t SPR_GSCOUT_W2_2 = 0;
-int16_t SPR_GSCOUT_W2_3 = 0;
-int16_t SPR_GSCOUT_W2_4 = 0;
-int16_t SPR_GSCOUT_W2_5 = 0;
-int16_t SPR_GSCOUT_W2_6 = 0;
-int16_t SPR_GSCOUT_W2_7 = 0;
-int16_t SPR_GSCOUT_W2_8 = 0;
-
-int16_t SPR_GSCOUT_W3_1 = 0;
-int16_t SPR_GSCOUT_W3_2 = 0;
-int16_t SPR_GSCOUT_W3_3 = 0;
-int16_t SPR_GSCOUT_W3_4 = 0;
-int16_t SPR_GSCOUT_W3_5 = 0;
-int16_t SPR_GSCOUT_W3_6 = 0;
-int16_t SPR_GSCOUT_W3_7 = 0;
-int16_t SPR_GSCOUT_W3_8 = 0;
-
-int16_t SPR_GSCOUT_W4_1 = 0;
-int16_t SPR_GSCOUT_W4_2 = 0;
-int16_t SPR_GSCOUT_W4_3 = 0;
-int16_t SPR_GSCOUT_W4_4 = 0;
-int16_t SPR_GSCOUT_W4_5 = 0;
-int16_t SPR_GSCOUT_W4_6 = 0;
-int16_t SPR_GSCOUT_W4_7 = 0;
-int16_t SPR_GSCOUT_W4_8 = 0;
-
-int16_t SPR_GSCOUT_DIE1 = 0;
-int16_t SPR_GSCOUT_DIE2 = 0;
-int16_t SPR_GSCOUT_DIE3 = 0;
-int16_t SPR_GSCOUT_DIE4 = 0;
-int16_t SPR_GSCOUT_DIE5 = 0;
-int16_t SPR_GSCOUT_DIE6 = 0;
-int16_t SPR_GSCOUT_DIE7 = 0;
-int16_t SPR_GSCOUT_DIE8 = 0;
-
-int16_t SPR_GSCOUT_DEAD = 0;
-
-int16_t SPR_FSCOUT_W1_1 = 0;
-int16_t SPR_FSCOUT_W1_2 = 0;
-int16_t SPR_FSCOUT_W1_3 = 0;
-int16_t SPR_FSCOUT_W1_4 = 0;
-int16_t SPR_FSCOUT_W1_5 = 0;
-int16_t SPR_FSCOUT_W1_6 = 0;
-int16_t SPR_FSCOUT_W1_7 = 0;
-int16_t SPR_FSCOUT_W1_8 = 0;
-
-int16_t SPR_FSCOUT_W2_1 = 0;
-int16_t SPR_FSCOUT_W2_2 = 0;
-int16_t SPR_FSCOUT_W2_3 = 0;
-int16_t SPR_FSCOUT_W2_4 = 0;
-int16_t SPR_FSCOUT_W2_5 = 0;
-int16_t SPR_FSCOUT_W2_6 = 0;
-int16_t SPR_FSCOUT_W2_7 = 0;
-int16_t SPR_FSCOUT_W2_8 = 0;
-
-int16_t SPR_FSCOUT_W3_1 = 0;
-int16_t SPR_FSCOUT_W3_2 = 0;
-int16_t SPR_FSCOUT_W3_3 = 0;
-int16_t SPR_FSCOUT_W3_4 = 0;
-int16_t SPR_FSCOUT_W3_5 = 0;
-int16_t SPR_FSCOUT_W3_6 = 0;
-int16_t SPR_FSCOUT_W3_7 = 0;
-int16_t SPR_FSCOUT_W3_8 = 0;
-
-int16_t SPR_FSCOUT_W4_1 = 0;
-int16_t SPR_FSCOUT_W4_2 = 0;
-int16_t SPR_FSCOUT_W4_3 = 0;
-int16_t SPR_FSCOUT_W4_4 = 0;
-int16_t SPR_FSCOUT_W4_5 = 0;
-int16_t SPR_FSCOUT_W4_6 = 0;
-int16_t SPR_FSCOUT_W4_7 = 0;
-int16_t SPR_FSCOUT_W4_8 = 0;
-
-int16_t SPR_FSCOUT_DIE1 = 0;
-int16_t SPR_FSCOUT_DIE2 = 0;
-int16_t SPR_FSCOUT_DIE3 = 0;
-int16_t SPR_FSCOUT_DIE4 = 0;
-int16_t SPR_FSCOUT_DIE5 = 0;
-int16_t SPR_FSCOUT_DIE6 = 0;
-int16_t SPR_FSCOUT_DIE7 = 0;
-int16_t SPR_FSCOUT_DEAD = 0;
-
-int16_t SPR_EXPLOSION_1 = 0;
-int16_t SPR_EXPLOSION_2 = 0;
-int16_t SPR_EXPLOSION_3 = 0;
-int16_t SPR_EXPLOSION_4 = 0;
-int16_t SPR_EXPLOSION_5 = 0;
-
-int16_t SPR_VITAL_STAND = 0;
-int16_t SPR_VITAL_DIE_1 = 0;
-int16_t SPR_VITAL_DIE_2 = 0;
-int16_t SPR_VITAL_DIE_3 = 0;
-int16_t SPR_VITAL_DIE_4 = 0;
-int16_t SPR_VITAL_DIE_5 = 0;
-int16_t SPR_VITAL_DIE_6 = 0;
-int16_t SPR_VITAL_DIE_7 = 0;
-int16_t SPR_VITAL_DIE_8 = 0;
-int16_t SPR_VITAL_DEAD_1 = 0;
-int16_t SPR_VITAL_DEAD_2 = 0;
-int16_t SPR_VITAL_DEAD_3 = 0;
-int16_t SPR_VITAL_OUCH = 0;
-
-int16_t SPR_CUBE1 = 0;
-int16_t SPR_CUBE2 = 0;
-int16_t SPR_CUBE3 = 0;
-int16_t SPR_CUBE4 = 0;
-int16_t SPR_CUBE5 = 0;
-int16_t SPR_CUBE6 = 0;
-int16_t SPR_CUBE7 = 0;
-int16_t SPR_CUBE8 = 0;
-int16_t SPR_CUBE9 = 0;
-int16_t SPR_CUBE10 = 0;
-int16_t SPR_CUBE_EXP1 = 0;
-int16_t SPR_CUBE_EXP2 = 0;
-int16_t SPR_CUBE_EXP3 = 0;
-int16_t SPR_CUBE_EXP4 = 0;
-int16_t SPR_CUBE_EXP5 = 0;
-int16_t SPR_CUBE_EXP6 = 0;
-int16_t SPR_CUBE_EXP7 = 0;
-int16_t SPR_CUBE_EXP8 = 0;
-int16_t SPR_DEAD_CUBE = 0;
-
-int16_t SPR_SECURITY_NORMAL = 0;
-int16_t SPR_SECURITY_ALERT = 0;
-
-int16_t SPR_POD_EGG = 0;
-int16_t SPR_POD_HATCH1 = 0;
-int16_t SPR_POD_HATCH2 = 0;
-int16_t SPR_POD_HATCH3 = 0;
-int16_t SPR_POD_WALK1 = 0;
-int16_t SPR_POD_WALK2 = 0;
-int16_t SPR_POD_WALK3 = 0;
-int16_t SPR_POD_WALK4 = 0;
-int16_t SPR_POD_ATTACK1 = 0;
-int16_t SPR_POD_ATTACK2 = 0;
-int16_t SPR_POD_ATTACK3 = 0;
-int16_t SPR_POD_OUCH = 0;
-int16_t SPR_POD_DIE1 = 0;
-int16_t SPR_POD_DIE2 = 0;
-int16_t SPR_POD_DIE3 = 0;
-int16_t SPR_POD_SPIT1 = 0;
-int16_t SPR_POD_SPIT2 = 0;
-int16_t SPR_POD_SPIT3 = 0;
-
-int16_t SPR_ELEC_APPEAR1 = 0;
-int16_t SPR_ELEC_APPEAR2 = 0;
-int16_t SPR_ELEC_APPEAR3 = 0;
-int16_t SPR_ELEC_WALK1 = 0;
-int16_t SPR_ELEC_WALK2 = 0;
-int16_t SPR_ELEC_WALK3 = 0;
-int16_t SPR_ELEC_WALK4 = 0;
-int16_t SPR_ELEC_OUCH = 0;
-int16_t SPR_ELEC_SHOOT1 = 0;
-int16_t SPR_ELEC_SHOOT2 = 0;
-int16_t SPR_ELEC_SHOOT3 = 0;
-int16_t SPR_ELEC_DIE1 = 0;
-int16_t SPR_ELEC_DIE2 = 0;
-int16_t SPR_ELEC_DIE3 = 0;
-int16_t SPR_ELEC_SHOT1 = 0;
-int16_t SPR_ELEC_SHOT2 = 0;
-int16_t SPR_ELEC_SHOT_EXP1 = 0;
-int16_t SPR_ELEC_SHOT_EXP2 = 0;
-
-int16_t SPR_ELECTRO_SPHERE_ROAM1 = 0;
-int16_t SPR_ELECTRO_SPHERE_ROAM2 = 0;
-int16_t SPR_ELECTRO_SPHERE_ROAM3 = 0;
-int16_t SPR_ELECTRO_SPHERE_OUCH = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE1 = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE2 = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE3 = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE4 = 0;
-
-int16_t SPR_GENETIC_W1 = 0;
-int16_t SPR_GENETIC_W2 = 0;
-int16_t SPR_GENETIC_W3 = 0;
-int16_t SPR_GENETIC_W4 = 0;
-int16_t SPR_GENETIC_SWING1 = 0;
-int16_t SPR_GENETIC_SWING2 = 0;
-int16_t SPR_GENETIC_SWING3 = 0;
-int16_t SPR_GENETIC_DEAD = 0;
-int16_t SPR_GENETIC_DIE1 = 0;
-int16_t SPR_GENETIC_DIE2 = 0;
-int16_t SPR_GENETIC_DIE3 = 0;
-int16_t SPR_GENETIC_DIE4 = 0;
-int16_t SPR_GENETIC_OUCH = 0;
-int16_t SPR_GENETIC_SHOOT1 = 0;
-int16_t SPR_GENETIC_SHOOT2 = 0;
-int16_t SPR_GENETIC_SHOOT3 = 0;
-
-int16_t SPR_MUTHUM1_W1 = 0;
-int16_t SPR_MUTHUM1_W2 = 0;
-int16_t SPR_MUTHUM1_W3 = 0;
-int16_t SPR_MUTHUM1_W4 = 0;
-int16_t SPR_MUTHUM1_SWING1 = 0;
-int16_t SPR_MUTHUM1_SWING2 = 0;
-int16_t SPR_MUTHUM1_SWING3 = 0;
-int16_t SPR_MUTHUM1_DEAD = 0;
-int16_t SPR_MUTHUM1_DIE1 = 0;
-int16_t SPR_MUTHUM1_DIE2 = 0;
-int16_t SPR_MUTHUM1_DIE3 = 0;
-int16_t SPR_MUTHUM1_DIE4 = 0;
-int16_t SPR_MUTHUM1_OUCH = 0;
-int16_t SPR_MUTHUM1_SPIT1 = 0;
-int16_t SPR_MUTHUM1_SPIT2 = 0;
-int16_t SPR_MUTHUM1_SPIT3 = 0;
-
-int16_t SPR_MUTHUM2_W1 = 0;
-int16_t SPR_MUTHUM2_W2 = 0;
-int16_t SPR_MUTHUM2_W3 = 0;
-int16_t SPR_MUTHUM2_W4 = 0;
-int16_t SPR_MUTHUM2_SWING1 = 0;
-int16_t SPR_MUTHUM2_SWING2 = 0;
-int16_t SPR_MUTHUM2_SWING3 = 0;
-int16_t SPR_MUTHUM2_DEAD = 0;
-int16_t SPR_MUTHUM2_DIE1 = 0;
-int16_t SPR_MUTHUM2_DIE2 = 0;
-int16_t SPR_MUTHUM2_DIE3 = 0;
-int16_t SPR_MUTHUM2_DIE4 = 0;
-int16_t SPR_MUTHUM2_OUCH = 0;
-int16_t SPR_MUTHUM2_SPIT1 = 0;
-int16_t SPR_MUTHUM2_SPIT2 = 0;
-int16_t SPR_MUTHUM2_SPIT3 = 0;
-
-int16_t SPR_MUTHUM2_MORPH1 = 0;
-int16_t SPR_MUTHUM2_MORPH2 = 0;
-int16_t SPR_MUTHUM2_MORPH3 = 0;
-int16_t SPR_MUTHUM2_MORPH4 = 0;
-int16_t SPR_MUTHUM2_MORPH5 = 0;
-int16_t SPR_MUTHUM2_MORPH6 = 0;
-int16_t SPR_MUTHUM2_MORPH7 = 0;
-int16_t SPR_MUTHUM2_MORPH8 = 0;
-int16_t SPR_MUTHUM2_MORPH9 = 0;
-
-int16_t SPR_LCAN_ALIEN_READY = 0;
-int16_t SPR_LCAN_ALIEN_B1 = 0;
-int16_t SPR_LCAN_ALIEN_B2 = 0;
-int16_t SPR_LCAN_ALIEN_B3 = 0;
-int16_t SPR_LCAN_ALIEN_EMPTY = 0;
-
-int16_t SPR_LCAN_ALIEN_W1 = 0;
-int16_t SPR_LCAN_ALIEN_W2 = 0;
-int16_t SPR_LCAN_ALIEN_W3 = 0;
-int16_t SPR_LCAN_ALIEN_W4 = 0;
-int16_t SPR_LCAN_ALIEN_SWING1 = 0;
-int16_t SPR_LCAN_ALIEN_SWING2 = 0;
-int16_t SPR_LCAN_ALIEN_SWING3 = 0;
-int16_t SPR_LCAN_ALIEN_DEAD = 0;
-int16_t SPR_LCAN_ALIEN_DIE1 = 0;
-int16_t SPR_LCAN_ALIEN_DIE2 = 0;
-int16_t SPR_LCAN_ALIEN_DIE3 = 0;
-int16_t SPR_LCAN_ALIEN_DIE4 = 0;
-int16_t SPR_LCAN_ALIEN_OUCH = 0;
-int16_t SPR_LCAN_ALIEN_SPIT1 = 0;
-int16_t SPR_LCAN_ALIEN_SPIT2 = 0;
-int16_t SPR_LCAN_ALIEN_SPIT3 = 0;
-
-int16_t SPR_SCAN_ALIEN_READY = 0;
-int16_t SPR_SCAN_ALIEN_B1 = 0;
-int16_t SPR_SCAN_ALIEN_B2 = 0;
-int16_t SPR_SCAN_ALIEN_B3 = 0;
-int16_t SPR_SCAN_ALIEN_EMPTY = 0;
-
-int16_t SPR_SCAN_ALIEN_W1 = 0;
-int16_t SPR_SCAN_ALIEN_W2 = 0;
-int16_t SPR_SCAN_ALIEN_W3 = 0;
-int16_t SPR_SCAN_ALIEN_W4 = 0;
-int16_t SPR_SCAN_ALIEN_SWING1 = 0;
-int16_t SPR_SCAN_ALIEN_SWING2 = 0;
-int16_t SPR_SCAN_ALIEN_SWING3 = 0;
-int16_t SPR_SCAN_ALIEN_DEAD = 0;
-int16_t SPR_SCAN_ALIEN_DIE1 = 0;
-int16_t SPR_SCAN_ALIEN_DIE2 = 0;
-int16_t SPR_SCAN_ALIEN_DIE3 = 0;
-int16_t SPR_SCAN_ALIEN_DIE4 = 0;
-int16_t SPR_SCAN_ALIEN_OUCH = 0;
-
-int16_t SPR_SCAN_ALIEN_SPIT1 = 0;
-int16_t SPR_SCAN_ALIEN_SPIT2 = 0;
-int16_t SPR_SCAN_ALIEN_SPIT3 = 0;
-
-int16_t SPR_GURNEY_MUT_READY = 0;
-int16_t SPR_GURNEY_MUT_B1 = 0;
-int16_t SPR_GURNEY_MUT_B2 = 0;
-int16_t SPR_GURNEY_MUT_B3 = 0;
-int16_t SPR_GURNEY_MUT_EMPTY = 0;
-
-int16_t SPR_GURNEY_MUT_W1 = 0;
-int16_t SPR_GURNEY_MUT_W2 = 0;
-int16_t SPR_GURNEY_MUT_W3 = 0;
-int16_t SPR_GURNEY_MUT_W4 = 0;
-int16_t SPR_GURNEY_MUT_SWING1 = 0;
-int16_t SPR_GURNEY_MUT_SWING2 = 0;
-int16_t SPR_GURNEY_MUT_SWING3 = 0;
-int16_t SPR_GURNEY_MUT_DEAD = 0;
-int16_t SPR_GURNEY_MUT_DIE1 = 0;
-int16_t SPR_GURNEY_MUT_DIE2 = 0;
-int16_t SPR_GURNEY_MUT_DIE3 = 0;
-int16_t SPR_GURNEY_MUT_DIE4 = 0;
-int16_t SPR_GURNEY_MUT_OUCH = 0;
-
-int16_t SPR_LIQUID_M1 = 0;
-int16_t SPR_LIQUID_M2 = 0;
-int16_t SPR_LIQUID_M3 = 0;
-int16_t SPR_LIQUID_R1 = 0;
-int16_t SPR_LIQUID_R2 = 0;
-int16_t SPR_LIQUID_R3 = 0;
-int16_t SPR_LIQUID_R4 = 0;
-int16_t SPR_LIQUID_S1 = 0;
-int16_t SPR_LIQUID_S2 = 0;
-int16_t SPR_LIQUID_S3 = 0;
-int16_t SPR_LIQUID_OUCH = 0;
-int16_t SPR_LIQUID_DIE_1 = 0;
-int16_t SPR_LIQUID_DIE_2 = 0;
-int16_t SPR_LIQUID_DIE_3 = 0;
-int16_t SPR_LIQUID_DIE_4 = 0;
-int16_t SPR_LIQUID_DEAD = 0;
-int16_t SPR_LIQUID_SHOT_FLY_1 = 0;
-int16_t SPR_LIQUID_SHOT_FLY_2 = 0;
-int16_t SPR_LIQUID_SHOT_FLY_3 = 0;
-int16_t SPR_LIQUID_SHOT_BURST_1 = 0;
-int16_t SPR_LIQUID_SHOT_BURST_2 = 0;
-int16_t SPR_LIQUID_SHOT_BURST_3 = 0;
-
-int16_t SPR_SPIT1_1 = 0;
-int16_t SPR_SPIT1_2 = 0;
-int16_t SPR_SPIT1_3 = 0;
-int16_t SPR_SPIT_EXP1_1 = 0;
-int16_t SPR_SPIT_EXP1_2 = 0;
-int16_t SPR_SPIT_EXP1_3 = 0;
-
-int16_t SPR_SPIT2_1 = 0;
-int16_t SPR_SPIT2_2 = 0;
-int16_t SPR_SPIT2_3 = 0;
-int16_t SPR_SPIT_EXP2_1 = 0;
-int16_t SPR_SPIT_EXP2_2 = 0;
-int16_t SPR_SPIT_EXP2_3 = 0;
-
-int16_t SPR_SPIT3_1 = 0;
-int16_t SPR_SPIT3_2 = 0;
-int16_t SPR_SPIT3_3 = 0;
-int16_t SPR_SPIT_EXP3_1 = 0;
-int16_t SPR_SPIT_EXP3_2 = 0;
-int16_t SPR_SPIT_EXP3_3 = 0;
-
-int16_t SPR_TERROT_1 = 0;
-int16_t SPR_TERROT_2 = 0;
-int16_t SPR_TERROT_3 = 0;
-int16_t SPR_TERROT_4 = 0;
-int16_t SPR_TERROT_5 = 0;
-int16_t SPR_TERROT_6 = 0;
-int16_t SPR_TERROT_7 = 0;
-int16_t SPR_TERROT_8 = 0;
-
-int16_t SPR_TERROT_FIRE_1 = 0;
-int16_t SPR_TERROT_FIRE_2 = 0;
-int16_t SPR_TERROT_DIE_1 = 0;
-int16_t SPR_TERROT_DIE_2 = 0;
-int16_t SPR_TERROT_DIE_3 = 0;
-int16_t SPR_TERROT_DIE_4 = 0;
-int16_t SPR_TERROT_DEAD = 0;
-
-int16_t SPR_KNIFEREADY = 0;
-int16_t SPR_KNIFEATK1 = 0;
-int16_t SPR_KNIFEATK2 = 0;
-int16_t SPR_KNIFEATK3 = 0;
-int16_t SPR_KNIFEATK4 = 0;
-
-int16_t SPR_PISTOLREADY = 0;
-int16_t SPR_PISTOLATK1 = 0;
-int16_t SPR_PISTOLATK2 = 0;
-int16_t SPR_PISTOLATK3 = 0;
-int16_t SPR_PISTOLATK4 = 0;
-
-int16_t SPR_MACHINEGUNREADY = 0;
-int16_t SPR_MACHINEGUNATK1 = 0;
-int16_t SPR_MACHINEGUNATK2 = 0;
-int16_t SPR_MACHINEGUNATK3 = 0;
-int16_t SPR_MACHINEGUNATK4 = 0;
-
-int16_t SPR_CHAINREADY = 0;
-int16_t SPR_CHAINATK1 = 0;
-int16_t SPR_CHAINATK2 = 0;
-int16_t SPR_CHAINATK3 = 0;
-int16_t SPR_CHAINATK4 = 0;
-
-int16_t SPR_GRENADEREADY = 0;
-int16_t SPR_GRENADEATK1 = 0;
-int16_t SPR_GRENADEATK2 = 0;
-int16_t SPR_GRENADEATK3 = 0;
-int16_t SPR_GRENADEATK4 = 0;
-
-int16_t SPR_GRENADE_FLY1 = 0;
-int16_t SPR_GRENADE_FLY2 = 0;
-int16_t SPR_GRENADE_FLY3 = 0;
-int16_t SPR_GRENADE_FLY4 = 0;
-int16_t SPR_GRENADE_EXPLODE1 = 0;
-int16_t SPR_GRENADE_EXPLODE2 = 0;
-int16_t SPR_GRENADE_EXPLODE3 = 0;
-int16_t SPR_GRENADE_EXPLODE4 = 0;
-int16_t SPR_GRENADE_EXPLODE5 = 0;
-
-int16_t SPR_ELEC_ARC1 = 0;
-int16_t SPR_ELEC_ARC2 = 0;
-int16_t SPR_ELEC_ARC3 = 0;
-int16_t SPR_ELEC_ARC4 = 0;
-int16_t SPR_ELEC_POST1 = 0;
-int16_t SPR_ELEC_POST2 = 0;
-int16_t SPR_ELEC_POST3 = 0;
-int16_t SPR_ELEC_POST4 = 0;
-
-int16_t SPR_VPOST1 = 0;
-int16_t SPR_VPOST2 = 0;
-int16_t SPR_VPOST3 = 0;
-int16_t SPR_VPOST4 = 0;
-int16_t SPR_VPOST5 = 0;
-int16_t SPR_VPOST6 = 0;
-int16_t SPR_VPOST7 = 0;
-int16_t SPR_VPOST8 = 0;
-
-int16_t SPR_VSPIKE1 = 0;
-int16_t SPR_VSPIKE2 = 0;
-int16_t SPR_VSPIKE3 = 0;
-int16_t SPR_VSPIKE4 = 0;
-int16_t SPR_VSPIKE5 = 0;
-int16_t SPR_VSPIKE6 = 0;
-int16_t SPR_VSPIKE7 = 0;
-int16_t SPR_VSPIKE8 = 0;
-
-int16_t SPR_GREEN_OOZE1 = 0;
-int16_t SPR_GREEN_OOZE2 = 0;
-int16_t SPR_GREEN_OOZE3 = 0;
-int16_t SPR_BLACK_OOZE1 = 0;
-int16_t SPR_BLACK_OOZE2 = 0;
-int16_t SPR_BLACK_OOZE3 = 0;
-
-int16_t SPR_GREEN2_OOZE1 = 0;
-int16_t SPR_GREEN2_OOZE2 = 0;
-int16_t SPR_GREEN2_OOZE3 = 0;
-int16_t SPR_BLACK2_OOZE1 = 0;
-int16_t SPR_BLACK2_OOZE2 = 0;
-int16_t SPR_BLACK2_OOZE3 = 0;
-
-int16_t SPR_CANDY_BAR = 0;
-int16_t SPR_CANDY_WRAPER = 0;
-int16_t SPR_SANDWICH = 0;
-int16_t SPR_SANDWICH_WRAPER = 0;
-
-int16_t SPR_BLAKE_W1 = 0;
-int16_t SPR_BLAKE_W2 = 0;
-int16_t SPR_BLAKE_W3 = 0;
-int16_t SPR_BLAKE_W4 = 0;
-
-int16_t SPR_BOSS1_W1 = 0;
-int16_t SPR_BOSS1_W2 = 0;
-int16_t SPR_BOSS1_W3 = 0;
-int16_t SPR_BOSS1_W4 = 0;
-int16_t SPR_BOSS1_SWING1 = 0;
-int16_t SPR_BOSS1_SWING2 = 0;
-int16_t SPR_BOSS1_SWING3 = 0;
-int16_t SPR_BOSS1_DEAD = 0;
-int16_t SPR_BOSS1_DIE1 = 0;
-int16_t SPR_BOSS1_DIE2 = 0;
-int16_t SPR_BOSS1_DIE3 = 0;
-int16_t SPR_BOSS1_DIE4 = 0;
-int16_t SPR_BOSS1_OUCH = 0;
-int16_t SPR_BOSS1_PROJ1 = 0;
-int16_t SPR_BOSS1_PROJ2 = 0;
-int16_t SPR_BOSS1_PROJ3 = 0;
-int16_t SPR_BOSS1_EXP1 = 0;
-int16_t SPR_BOSS1_EXP2 = 0;
-int16_t SPR_BOSS1_EXP3 = 0;
-int16_t SPR_BOSS1_MORPH1 = 0;
-int16_t SPR_BOSS1_MORPH2 = 0;
-int16_t SPR_BOSS1_MORPH3 = 0;
-int16_t SPR_BOSS1_MORPH4 = 0;
-int16_t SPR_BOSS1_MORPH5 = 0;
-int16_t SPR_BOSS1_MORPH6 = 0;
-int16_t SPR_BOSS1_MORPH7 = 0;
-int16_t SPR_BOSS1_MORPH8 = 0;
-int16_t SPR_BOSS1_MORPH9 = 0;
-
-int16_t SPR_BOSS2_W1 = 0;
-int16_t SPR_BOSS2_W2 = 0;
-int16_t SPR_BOSS2_W3 = 0;
-int16_t SPR_BOSS2_W4 = 0;
-int16_t SPR_BOSS2_SWING1 = 0;
-int16_t SPR_BOSS2_SWING2 = 0;
-int16_t SPR_BOSS2_SWING3 = 0;
-int16_t SPR_BOSS2_DEAD = 0;
-int16_t SPR_BOSS2_DIE1 = 0;
-int16_t SPR_BOSS2_DIE2 = 0;
-int16_t SPR_BOSS2_DIE3 = 0;
-int16_t SPR_BOSS2_DIE4 = 0;
-int16_t SPR_BOSS2_OUCH = 0;
-
-int16_t SPR_BOSS3_W1 = 0;
-int16_t SPR_BOSS3_W2 = 0;
-int16_t SPR_BOSS3_W3 = 0;
-int16_t SPR_BOSS3_W4 = 0;
-int16_t SPR_BOSS3_SWING1 = 0;
-int16_t SPR_BOSS3_SWING2 = 0;
-int16_t SPR_BOSS3_SWING3 = 0;
-int16_t SPR_BOSS3_DEAD = 0;
-int16_t SPR_BOSS3_DIE1 = 0;
-int16_t SPR_BOSS3_DIE2 = 0;
-int16_t SPR_BOSS3_DIE3 = 0;
-int16_t SPR_BOSS3_DIE4 = 0;
-int16_t SPR_BOSS3_OUCH = 0;
-
-int16_t SPR_BOSS4_W1 = 0;
-int16_t SPR_BOSS4_W2 = 0;
-int16_t SPR_BOSS4_W3 = 0;
-int16_t SPR_BOSS4_W4 = 0;
-int16_t SPR_BOSS4_SWING1 = 0;
-int16_t SPR_BOSS4_SWING2 = 0;
-int16_t SPR_BOSS4_SWING3 = 0;
-int16_t SPR_BOSS4_DEAD = 0;
-int16_t SPR_BOSS4_DIE1 = 0;
-int16_t SPR_BOSS4_DIE2 = 0;
-int16_t SPR_BOSS4_DIE3 = 0;
-int16_t SPR_BOSS4_DIE4 = 0;
-int16_t SPR_BOSS4_OUCH = 0;
-int16_t SPR_BOSS4_MORPH1 = 0;
-int16_t SPR_BOSS4_MORPH2 = 0;
-int16_t SPR_BOSS4_MORPH3 = 0;
-int16_t SPR_BOSS4_MORPH4 = 0;
-int16_t SPR_BOSS4_MORPH5 = 0;
-int16_t SPR_BOSS4_MORPH6 = 0;
-int16_t SPR_BOSS4_MORPH7 = 0;
-int16_t SPR_BOSS4_MORPH8 = 0;
-int16_t SPR_BOSS4_MORPH9 = 0;
-
-int16_t SPR_BOSS5_W1 = 0;
-int16_t SPR_BOSS5_W2 = 0;
-int16_t SPR_BOSS5_W3 = 0;
-int16_t SPR_BOSS5_W4 = 0;
-int16_t SPR_BOSS5_SWING1 = 0;
-int16_t SPR_BOSS5_SWING2 = 0;
-int16_t SPR_BOSS5_SWING3 = 0;
-int16_t SPR_BOSS5_DEAD = 0;
-int16_t SPR_BOSS5_DIE1 = 0;
-int16_t SPR_BOSS5_DIE2 = 0;
-int16_t SPR_BOSS5_DIE3 = 0;
-int16_t SPR_BOSS5_DIE4 = 0;
-int16_t SPR_BOSS5_OUCH = 0;
-int16_t SPR_BOSS5_PROJ1 = 0;
-int16_t SPR_BOSS5_PROJ2 = 0;
-int16_t SPR_BOSS5_PROJ3 = 0;
-int16_t SPR_BOSS5_EXP1 = 0;
-int16_t SPR_BOSS5_EXP2 = 0;
-int16_t SPR_BOSS5_EXP3 = 0;
-
-int16_t SPR_BOSS6_W1 = 0;
-int16_t SPR_BOSS6_W2 = 0;
-int16_t SPR_BOSS6_W3 = 0;
-int16_t SPR_BOSS6_W4 = 0;
-int16_t SPR_BOSS6_SWING1 = 0;
-int16_t SPR_BOSS6_SWING2 = 0;
-int16_t SPR_BOSS6_SWING3 = 0;
-int16_t SPR_BOSS6_DEAD = 0;
-int16_t SPR_BOSS6_DIE1 = 0;
-int16_t SPR_BOSS6_DIE2 = 0;
-int16_t SPR_BOSS6_DIE3 = 0;
-int16_t SPR_BOSS6_DIE4 = 0;
-int16_t SPR_BOSS6_OUCH = 0;
-
-int16_t SPR_BOSS7_W1 = 0;
-int16_t SPR_BOSS7_W2 = 0;
-int16_t SPR_BOSS7_W3 = 0;
-int16_t SPR_BOSS7_W4 = 0;
-int16_t SPR_BOSS7_SHOOT1 = 0;
-int16_t SPR_BOSS7_SHOOT2 = 0;
-int16_t SPR_BOSS7_SHOOT3 = 0;
-int16_t SPR_BOSS7_DEAD = 0;
-int16_t SPR_BOSS7_DIE1 = 0;
-int16_t SPR_BOSS7_DIE2 = 0;
-int16_t SPR_BOSS7_DIE3 = 0;
-int16_t SPR_BOSS7_DIE4 = 0;
-int16_t SPR_BOSS7_OUCH = 0;
-
-int16_t SPR_BOSS8_W1 = 0;
-int16_t SPR_BOSS8_W2 = 0;
-int16_t SPR_BOSS8_W3 = 0;
-int16_t SPR_BOSS8_W4 = 0;
-int16_t SPR_BOSS8_SHOOT1 = 0;
-int16_t SPR_BOSS8_SHOOT2 = 0;
-int16_t SPR_BOSS8_SHOOT3 = 0;
-int16_t SPR_BOSS8_DIE1 = 0;
-int16_t SPR_BOSS8_DIE2 = 0;
-int16_t SPR_BOSS8_DIE3 = 0;
-int16_t SPR_BOSS8_DIE4 = 0;
-int16_t SPR_BOSS8_DEAD = 0;
-int16_t SPR_BOSS8_OUCH = 0;
-
-int16_t SPR_BOSS9_W1 = 0;
-int16_t SPR_BOSS9_W2 = 0;
-int16_t SPR_BOSS9_W3 = 0;
-int16_t SPR_BOSS9_W4 = 0;
-int16_t SPR_BOSS9_SHOOT1 = 0;
-int16_t SPR_BOSS9_SHOOT2 = 0;
-int16_t SPR_BOSS9_SHOOT3 = 0;
-int16_t SPR_BOSS9_DIE1 = 0;
-int16_t SPR_BOSS9_DIE2 = 0;
-int16_t SPR_BOSS9_DIE3 = 0;
-int16_t SPR_BOSS9_DIE4 = 0;
-int16_t SPR_BOSS9_DEAD = 0;
-int16_t SPR_BOSS9_OUCH = 0;
-
-int16_t SPR_BOSS10_W1 = 0;
-int16_t SPR_BOSS10_W2 = 0;
-int16_t SPR_BOSS10_W3 = 0;
-int16_t SPR_BOSS10_W4 = 0;
-int16_t SPR_BOSS10_SHOOT1 = 0;
-int16_t SPR_BOSS10_SHOOT2 = 0;
-int16_t SPR_BOSS10_SHOOT3 = 0;
-int16_t SPR_BOSS10_DEAD = 0;
-int16_t SPR_BOSS10_DIE1 = 0;
-int16_t SPR_BOSS10_DIE2 = 0;
-int16_t SPR_BOSS10_DIE3 = 0;
-int16_t SPR_BOSS10_DIE4 = 0;
-int16_t SPR_BOSS10_OUCH = 0;
-
-int16_t SPR_BOSS10_SPIT1 = 0;
-int16_t SPR_BOSS10_SPIT2 = 0;
-int16_t SPR_BOSS10_SPIT3 = 0;
-int16_t SPR_BOSS10_SPIT_EXP1 = 0;
-int16_t SPR_BOSS10_SPIT_EXP2 = 0;
-int16_t SPR_BOSS10_SPIT_EXP3 = 0;
-
-int16_t SPR_DETONATOR_EXP1 = 0;
-int16_t SPR_DETONATOR_EXP2 = 0;
-int16_t SPR_DETONATOR_EXP3 = 0;
-int16_t SPR_DETONATOR_EXP4 = 0;
-int16_t SPR_DETONATOR_EXP5 = 0;
-int16_t SPR_DETONATOR_EXP6 = 0;
-int16_t SPR_DETONATOR_EXP7 = 0;
-int16_t SPR_DETONATOR_EXP8 = 0;
-
-int16_t SPR_CLIP_EXP1 = 0;
-int16_t SPR_CLIP_EXP2 = 0;
-int16_t SPR_CLIP_EXP3 = 0;
-int16_t SPR_CLIP_EXP4 = 0;
-int16_t SPR_CLIP_EXP5 = 0;
-int16_t SPR_CLIP_EXP6 = 0;
-int16_t SPR_CLIP_EXP7 = 0;
-int16_t SPR_CLIP_EXP8 = 0;
-
-int16_t SPR_BFG_WEAPON1 = 0;
-int16_t SPR_BFG_WEAPON2 = 0;
-int16_t SPR_BFG_WEAPON3 = 0;
-int16_t SPR_BFG_WEAPON4 = 0;
-int16_t SPR_BFG_WEAPON5 = 0;
-
-int16_t SPR_BFG_WEAPON_SHOT1 = 0;
-int16_t SPR_BFG_WEAPON_SHOT2 = 0;
-int16_t SPR_BFG_WEAPON_SHOT3 = 0;
-
-int16_t SPR_BFG_EXP1 = 0;
-int16_t SPR_BFG_EXP2 = 0;
-int16_t SPR_BFG_EXP3 = 0;
-int16_t SPR_BFG_EXP4 = 0;
-int16_t SPR_BFG_EXP5 = 0;
-int16_t SPR_BFG_EXP6 = 0;
-int16_t SPR_BFG_EXP7 = 0;
-int16_t SPR_BFG_EXP8 = 0;
+std::int16_t SPR_DEMO = 0;
+
+std::int16_t SPR_STAT_0 = 0;
+std::int16_t SPR_STAT_1 = 0;
+std::int16_t SPR_STAT_2 = 0;
+std::int16_t SPR_STAT_3 = 0;
+std::int16_t SPR_STAT_4 = 0;
+std::int16_t SPR_STAT_5 = 0;
+std::int16_t SPR_STAT_6 = 0;
+std::int16_t SPR_STAT_7 = 0;
+std::int16_t SPR_STAT_8 = 0;
+std::int16_t SPR_STAT_9 = 0;
+std::int16_t SPR_STAT_10 = 0;
+std::int16_t SPR_STAT_11 = 0;
+std::int16_t SPR_STAT_12 = 0;
+std::int16_t SPR_STAT_13 = 0;
+std::int16_t SPR_STAT_14 = 0;
+std::int16_t SPR_STAT_15 = 0;
+std::int16_t SPR_STAT_16 = 0;
+std::int16_t SPR_STAT_17 = 0;
+std::int16_t SPR_STAT_18 = 0;
+std::int16_t SPR_STAT_19 = 0;
+std::int16_t SPR_STAT_20 = 0;
+std::int16_t SPR_STAT_21 = 0;
+std::int16_t SPR_STAT_22 = 0;
+std::int16_t SPR_STAT_23 = 0;
+std::int16_t SPR_STAT_24 = 0;
+std::int16_t SPR_STAT_25 = 0;
+std::int16_t SPR_STAT_26 = 0;
+std::int16_t SPR_STAT_27 = 0;
+std::int16_t SPR_STAT_28 = 0;
+std::int16_t SPR_STAT_29 = 0;
+std::int16_t SPR_STAT_30 = 0;
+std::int16_t SPR_STAT_31 = 0;
+std::int16_t SPR_STAT_32 = 0;
+std::int16_t SPR_STAT_33 = 0;
+std::int16_t SPR_STAT_34 = 0;
+std::int16_t SPR_STAT_35 = 0;
+std::int16_t SPR_STAT_36 = 0;
+std::int16_t SPR_STAT_37 = 0;
+std::int16_t SPR_STAT_38 = 0;
+std::int16_t SPR_STAT_39 = 0;
+std::int16_t SPR_STAT_40 = 0;
+std::int16_t SPR_STAT_41 = 0;
+std::int16_t SPR_STAT_42 = 0;
+std::int16_t SPR_STAT_43 = 0;
+std::int16_t SPR_STAT_44 = 0;
+std::int16_t SPR_STAT_45 = 0;
+std::int16_t SPR_STAT_46 = 0;
+std::int16_t SPR_STAT_47 = 0;
+std::int16_t SPR_STAT_48 = 0;
+std::int16_t SPR_STAT_49 = 0;
+std::int16_t SPR_STAT_50 = 0;
+std::int16_t SPR_STAT_51 = 0;
+std::int16_t SPR_STAT_52 = 0;
+std::int16_t SPR_STAT_53 = 0;
+std::int16_t SPR_STAT_54 = 0;
+std::int16_t SPR_STAT_55 = 0;
+std::int16_t SPR_STAT_56 = 0;
+
+std::int16_t SPR_CRATE_1 = 0;
+std::int16_t SPR_CRATE_2 = 0;
+std::int16_t SPR_CRATE_3 = 0;
+
+std::int16_t SPR_STAT_57 = 0;
+std::int16_t SPR_STAT_58 = 0;
+std::int16_t SPR_STAT_59 = 0;
+std::int16_t SPR_STAT_60 = 0;
+std::int16_t SPR_STAT_61 = 0;
+std::int16_t SPR_STAT_62 = 0;
+std::int16_t SPR_STAT_63 = 0;
+std::int16_t SPR_STAT_64 = 0;
+std::int16_t SPR_STAT_65 = 0;
+std::int16_t SPR_STAT_66 = 0;
+std::int16_t SPR_STAT_67 = 0;
+std::int16_t SPR_STAT_68 = 0;
+std::int16_t SPR_STAT_69 = 0;
+std::int16_t SPR_STAT_70 = 0;
+std::int16_t SPR_STAT_71 = 0;
+std::int16_t SPR_STAT_72 = 0;
+std::int16_t SPR_STAT_73 = 0;
+std::int16_t SPR_STAT_74 = 0;
+std::int16_t SPR_STAT_75 = 0;
+std::int16_t SPR_STAT_76 = 0;
+std::int16_t SPR_STAT_77 = 0;
+std::int16_t SPR_STAT_78 = 0;
+std::int16_t SPR_STAT_79 = 0;
+
+std::int16_t SPR_DOORBOMB = 0;
+std::int16_t SPR_ALT_DOORBOMB = 0;
+std::int16_t SPR_RUBBLE = 0;
+std::int16_t SPR_BONZI_TREE = 0;
+std::int16_t SPR_AUTOMAPPER = 0;
+std::int16_t SPR_POT_PLANT = 0;
+std::int16_t SPR_TUBE_PLANT = 0;
+std::int16_t SPR_HITECH_CHAIR = 0;
+
+std::int16_t SPR_AIR_VENT = 0;
+std::int16_t SPR_BLOOD_DRIP1 = 0;
+std::int16_t SPR_BLOOD_DRIP2 = 0;
+std::int16_t SPR_BLOOD_DRIP3 = 0;
+std::int16_t SPR_BLOOD_DRIP4 = 0;
+std::int16_t SPR_WATER_DRIP1 = 0;
+std::int16_t SPR_WATER_DRIP2 = 0;
+std::int16_t SPR_WATER_DRIP3 = 0;
+std::int16_t SPR_WATER_DRIP4 = 0;
+
+std::int16_t SPR_DECO_ARC_1 = 0;
+std::int16_t SPR_DECO_ARC_2 = 0;
+std::int16_t SPR_DECO_ARC_3 = 0;
+
+std::int16_t SPR_GRATE = 0;
+std::int16_t SPR_STEAM_1 = 0;
+std::int16_t SPR_STEAM_2 = 0;
+std::int16_t SPR_STEAM_3 = 0;
+std::int16_t SPR_STEAM_4 = 0;
+
+std::int16_t SPR_STEAM_PIPE = 0;
+std::int16_t SPR_PIPE_STEAM_1 = 0;
+std::int16_t SPR_PIPE_STEAM_2 = 0;
+std::int16_t SPR_PIPE_STEAM_3 = 0;
+std::int16_t SPR_PIPE_STEAM_4 = 0;
+
+std::int16_t SPR_DEAD_RENT = 0;
+std::int16_t SPR_DEAD_PRO = 0;
+std::int16_t SPR_DEAD_SWAT = 0;
+
+std::int16_t SPR_RENT_S_1 = 0;
+std::int16_t SPR_RENT_S_2 = 0;
+std::int16_t SPR_RENT_S_3 = 0;
+std::int16_t SPR_RENT_S_4 = 0;
+std::int16_t SPR_RENT_S_5 = 0;
+std::int16_t SPR_RENT_S_6 = 0;
+std::int16_t SPR_RENT_S_7 = 0;
+std::int16_t SPR_RENT_S_8 = 0;
+
+std::int16_t SPR_RENT_W1_1 = 0;
+std::int16_t SPR_RENT_W1_2 = 0;
+std::int16_t SPR_RENT_W1_3 = 0;
+std::int16_t SPR_RENT_W1_4 = 0;
+std::int16_t SPR_RENT_W1_5 = 0;
+std::int16_t SPR_RENT_W1_6 = 0;
+std::int16_t SPR_RENT_W1_7 = 0;
+std::int16_t SPR_RENT_W1_8 = 0;
+
+std::int16_t SPR_RENT_W2_1 = 0;
+std::int16_t SPR_RENT_W2_2 = 0;
+std::int16_t SPR_RENT_W2_3 = 0;
+std::int16_t SPR_RENT_W2_4 = 0;
+std::int16_t SPR_RENT_W2_5 = 0;
+std::int16_t SPR_RENT_W2_6 = 0;
+std::int16_t SPR_RENT_W2_7 = 0;
+std::int16_t SPR_RENT_W2_8 = 0;
+
+std::int16_t SPR_RENT_W3_1 = 0;
+std::int16_t SPR_RENT_W3_2 = 0;
+std::int16_t SPR_RENT_W3_3 = 0;
+std::int16_t SPR_RENT_W3_4 = 0;
+std::int16_t SPR_RENT_W3_5 = 0;
+std::int16_t SPR_RENT_W3_6 = 0;
+std::int16_t SPR_RENT_W3_7 = 0;
+std::int16_t SPR_RENT_W3_8 = 0;
+
+std::int16_t SPR_RENT_W4_1 = 0;
+std::int16_t SPR_RENT_W4_2 = 0;
+std::int16_t SPR_RENT_W4_3 = 0;
+std::int16_t SPR_RENT_W4_4 = 0;
+std::int16_t SPR_RENT_W4_5 = 0;
+std::int16_t SPR_RENT_W4_6 = 0;
+std::int16_t SPR_RENT_W4_7 = 0;
+std::int16_t SPR_RENT_W4_8 = 0;
+
+std::int16_t SPR_RENT_DIE_1 = 0;
+std::int16_t SPR_RENT_DIE_2 = 0;
+std::int16_t SPR_RENT_DIE_3 = 0;
+std::int16_t SPR_RENT_DIE_4 = 0;
+std::int16_t SPR_RENT_PAIN_1 = 0;
+std::int16_t SPR_RENT_DEAD = 0;
+
+std::int16_t SPR_RENT_SHOOT1 = 0;
+std::int16_t SPR_RENT_SHOOT2 = 0;
+std::int16_t SPR_RENT_SHOOT3 = 0;
+
+std::int16_t SPR_PRO_S_1 = 0;
+std::int16_t SPR_PRO_S_2 = 0;
+std::int16_t SPR_PRO_S_3 = 0;
+std::int16_t SPR_PRO_S_4 = 0;
+std::int16_t SPR_PRO_S_5 = 0;
+std::int16_t SPR_PRO_S_6 = 0;
+std::int16_t SPR_PRO_S_7 = 0;
+std::int16_t SPR_PRO_S_8 = 0;
+
+std::int16_t SPR_PRO_W1_1 = 0;
+std::int16_t SPR_PRO_W1_2 = 0;
+std::int16_t SPR_PRO_W1_3 = 0;
+std::int16_t SPR_PRO_W1_4 = 0;
+std::int16_t SPR_PRO_W1_5 = 0;
+std::int16_t SPR_PRO_W1_6 = 0;
+std::int16_t SPR_PRO_W1_7 = 0;
+std::int16_t SPR_PRO_W1_8 = 0;
+
+std::int16_t SPR_PRO_W2_1 = 0;
+std::int16_t SPR_PRO_W2_2 = 0;
+std::int16_t SPR_PRO_W2_3 = 0;
+std::int16_t SPR_PRO_W2_4 = 0;
+std::int16_t SPR_PRO_W2_5 = 0;
+std::int16_t SPR_PRO_W2_6 = 0;
+std::int16_t SPR_PRO_W2_7 = 0;
+std::int16_t SPR_PRO_W2_8 = 0;
+
+std::int16_t SPR_PRO_W3_1 = 0;
+std::int16_t SPR_PRO_W3_2 = 0;
+std::int16_t SPR_PRO_W3_3 = 0;
+std::int16_t SPR_PRO_W3_4 = 0;
+std::int16_t SPR_PRO_W3_5 = 0;
+std::int16_t SPR_PRO_W3_6 = 0;
+std::int16_t SPR_PRO_W3_7 = 0;
+std::int16_t SPR_PRO_W3_8 = 0;
+
+std::int16_t SPR_PRO_W4_1 = 0;
+std::int16_t SPR_PRO_W4_2 = 0;
+std::int16_t SPR_PRO_W4_3 = 0;
+std::int16_t SPR_PRO_W4_4 = 0;
+std::int16_t SPR_PRO_W4_5 = 0;
+std::int16_t SPR_PRO_W4_6 = 0;
+std::int16_t SPR_PRO_W4_7 = 0;
+std::int16_t SPR_PRO_W4_8 = 0;
+
+std::int16_t SPR_PRO_PAIN_1 = 0;
+std::int16_t SPR_PRO_DIE_1 = 0;
+std::int16_t SPR_PRO_DIE_2 = 0;
+std::int16_t SPR_PRO_DIE_3 = 0;
+std::int16_t SPR_PRO_PAIN_2 = 0;
+std::int16_t SPR_PRO_DIE_4 = 0;
+std::int16_t SPR_PRO_DEAD = 0;
+
+std::int16_t SPR_PRO_SHOOT1 = 0;
+std::int16_t SPR_PRO_SHOOT2 = 0;
+std::int16_t SPR_PRO_SHOOT3 = 0;
+
+std::int16_t SPR_SWAT_S_1 = 0;
+std::int16_t SPR_SWAT_S_2 = 0;
+std::int16_t SPR_SWAT_S_3 = 0;
+std::int16_t SPR_SWAT_S_4 = 0;
+std::int16_t SPR_SWAT_S_5 = 0;
+std::int16_t SPR_SWAT_S_6 = 0;
+std::int16_t SPR_SWAT_S_7 = 0;
+std::int16_t SPR_SWAT_S_8 = 0;
+
+std::int16_t SPR_SWAT_W1_1 = 0;
+std::int16_t SPR_SWAT_W1_2 = 0;
+std::int16_t SPR_SWAT_W1_3 = 0;
+std::int16_t SPR_SWAT_W1_4 = 0;
+std::int16_t SPR_SWAT_W1_5 = 0;
+std::int16_t SPR_SWAT_W1_6 = 0;
+std::int16_t SPR_SWAT_W1_7 = 0;
+std::int16_t SPR_SWAT_W1_8 = 0;
+
+std::int16_t SPR_SWAT_W2_1 = 0;
+std::int16_t SPR_SWAT_W2_2 = 0;
+std::int16_t SPR_SWAT_W2_3 = 0;
+std::int16_t SPR_SWAT_W2_4 = 0;
+std::int16_t SPR_SWAT_W2_5 = 0;
+std::int16_t SPR_SWAT_W2_6 = 0;
+std::int16_t SPR_SWAT_W2_7 = 0;
+std::int16_t SPR_SWAT_W2_8 = 0;
+
+std::int16_t SPR_SWAT_W3_1 = 0;
+std::int16_t SPR_SWAT_W3_2 = 0;
+std::int16_t SPR_SWAT_W3_3 = 0;
+std::int16_t SPR_SWAT_W3_4 = 0;
+std::int16_t SPR_SWAT_W3_5 = 0;
+std::int16_t SPR_SWAT_W3_6 = 0;
+std::int16_t SPR_SWAT_W3_7 = 0;
+std::int16_t SPR_SWAT_W3_8 = 0;
+
+std::int16_t SPR_SWAT_W4_1 = 0;
+std::int16_t SPR_SWAT_W4_2 = 0;
+std::int16_t SPR_SWAT_W4_3 = 0;
+std::int16_t SPR_SWAT_W4_4 = 0;
+std::int16_t SPR_SWAT_W4_5 = 0;
+std::int16_t SPR_SWAT_W4_6 = 0;
+std::int16_t SPR_SWAT_W4_7 = 0;
+std::int16_t SPR_SWAT_W4_8 = 0;
+
+std::int16_t SPR_SWAT_PAIN_1 = 0;
+std::int16_t SPR_SWAT_DIE_1 = 0;
+std::int16_t SPR_SWAT_DIE_2 = 0;
+std::int16_t SPR_SWAT_DIE_3 = 0;
+std::int16_t SPR_SWAT_PAIN_2 = 0;
+std::int16_t SPR_SWAT_DIE_4 = 0;
+std::int16_t SPR_SWAT_DEAD = 0;
+
+std::int16_t SPR_SWAT_SHOOT1 = 0;
+std::int16_t SPR_SWAT_SHOOT2 = 0;
+std::int16_t SPR_SWAT_SHOOT3 = 0;
+
+std::int16_t SPR_SWAT_WOUNDED1 = 0;
+std::int16_t SPR_SWAT_WOUNDED2 = 0;
+std::int16_t SPR_SWAT_WOUNDED3 = 0;
+std::int16_t SPR_SWAT_WOUNDED4 = 0;
+
+std::int16_t SPR_OFC_S_1 = 0;
+std::int16_t SPR_OFC_S_2 = 0;
+std::int16_t SPR_OFC_S_3 = 0;
+std::int16_t SPR_OFC_S_4 = 0;
+std::int16_t SPR_OFC_S_5 = 0;
+std::int16_t SPR_OFC_S_6 = 0;
+std::int16_t SPR_OFC_S_7 = 0;
+std::int16_t SPR_OFC_S_8 = 0;
+
+std::int16_t SPR_OFC_W1_1 = 0;
+std::int16_t SPR_OFC_W1_2 = 0;
+std::int16_t SPR_OFC_W1_3 = 0;
+std::int16_t SPR_OFC_W1_4 = 0;
+std::int16_t SPR_OFC_W1_5 = 0;
+std::int16_t SPR_OFC_W1_6 = 0;
+std::int16_t SPR_OFC_W1_7 = 0;
+std::int16_t SPR_OFC_W1_8 = 0;
+
+std::int16_t SPR_OFC_W2_1 = 0;
+std::int16_t SPR_OFC_W2_2 = 0;
+std::int16_t SPR_OFC_W2_3 = 0;
+std::int16_t SPR_OFC_W2_4 = 0;
+std::int16_t SPR_OFC_W2_5 = 0;
+std::int16_t SPR_OFC_W2_6 = 0;
+std::int16_t SPR_OFC_W2_7 = 0;
+std::int16_t SPR_OFC_W2_8 = 0;
+
+std::int16_t SPR_OFC_W3_1 = 0;
+std::int16_t SPR_OFC_W3_2 = 0;
+std::int16_t SPR_OFC_W3_3 = 0;
+std::int16_t SPR_OFC_W3_4 = 0;
+std::int16_t SPR_OFC_W3_5 = 0;
+std::int16_t SPR_OFC_W3_6 = 0;
+std::int16_t SPR_OFC_W3_7 = 0;
+std::int16_t SPR_OFC_W3_8 = 0;
+
+std::int16_t SPR_OFC_W4_1 = 0;
+std::int16_t SPR_OFC_W4_2 = 0;
+std::int16_t SPR_OFC_W4_3 = 0;
+std::int16_t SPR_OFC_W4_4 = 0;
+std::int16_t SPR_OFC_W4_5 = 0;
+std::int16_t SPR_OFC_W4_6 = 0;
+std::int16_t SPR_OFC_W4_7 = 0;
+std::int16_t SPR_OFC_W4_8 = 0;
+
+std::int16_t SPR_OFC_PAIN_1 = 0;
+std::int16_t SPR_OFC_DIE_1 = 0;
+std::int16_t SPR_OFC_DIE_2 = 0;
+std::int16_t SPR_OFC_DIE_3 = 0;
+std::int16_t SPR_OFC_PAIN_2 = 0;
+std::int16_t SPR_OFC_DIE_4 = 0;
+std::int16_t SPR_OFC_DEAD = 0;
+
+std::int16_t SPR_OFC_SHOOT1 = 0;
+std::int16_t SPR_OFC_SHOOT2 = 0;
+std::int16_t SPR_OFC_SHOOT3 = 0;
+
+std::int16_t SPR_GOLD_S_1 = 0;
+std::int16_t SPR_GOLD_S_2 = 0;
+std::int16_t SPR_GOLD_S_3 = 0;
+std::int16_t SPR_GOLD_S_4 = 0;
+std::int16_t SPR_GOLD_S_5 = 0;
+std::int16_t SPR_GOLD_S_6 = 0;
+std::int16_t SPR_GOLD_S_7 = 0;
+std::int16_t SPR_GOLD_S_8 = 0;
+
+std::int16_t SPR_GOLD_W1_1 = 0;
+std::int16_t SPR_GOLD_W1_2 = 0;
+std::int16_t SPR_GOLD_W1_3 = 0;
+std::int16_t SPR_GOLD_W1_4 = 0;
+std::int16_t SPR_GOLD_W1_5 = 0;
+std::int16_t SPR_GOLD_W1_6 = 0;
+std::int16_t SPR_GOLD_W1_7 = 0;
+std::int16_t SPR_GOLD_W1_8 = 0;
+
+std::int16_t SPR_GOLD_W2_1 = 0;
+std::int16_t SPR_GOLD_W2_2 = 0;
+std::int16_t SPR_GOLD_W2_3 = 0;
+std::int16_t SPR_GOLD_W2_4 = 0;
+std::int16_t SPR_GOLD_W2_5 = 0;
+std::int16_t SPR_GOLD_W2_6 = 0;
+std::int16_t SPR_GOLD_W2_7 = 0;
+std::int16_t SPR_GOLD_W2_8 = 0;
+
+std::int16_t SPR_GOLD_W3_1 = 0;
+std::int16_t SPR_GOLD_W3_2 = 0;
+std::int16_t SPR_GOLD_W3_3 = 0;
+std::int16_t SPR_GOLD_W3_4 = 0;
+std::int16_t SPR_GOLD_W3_5 = 0;
+std::int16_t SPR_GOLD_W3_6 = 0;
+std::int16_t SPR_GOLD_W3_7 = 0;
+std::int16_t SPR_GOLD_W3_8 = 0;
+
+std::int16_t SPR_GOLD_W4_1 = 0;
+std::int16_t SPR_GOLD_W4_2 = 0;
+std::int16_t SPR_GOLD_W4_3 = 0;
+std::int16_t SPR_GOLD_W4_4 = 0;
+std::int16_t SPR_GOLD_W4_5 = 0;
+std::int16_t SPR_GOLD_W4_6 = 0;
+std::int16_t SPR_GOLD_W4_7 = 0;
+std::int16_t SPR_GOLD_W4_8 = 0;
+
+std::int16_t SPR_GOLD_PAIN_1 = 0;
+
+std::int16_t SPR_GOLD_WRIST_1 = 0;
+std::int16_t SPR_GOLD_WRIST_2 = 0;
+
+std::int16_t SPR_GOLD_SHOOT1 = 0;
+std::int16_t SPR_GOLD_SHOOT2 = 0;
+std::int16_t SPR_GOLD_SHOOT3 = 0;
+
+std::int16_t SPR_GOLD_WARP1 = 0;
+std::int16_t SPR_GOLD_WARP2 = 0;
+std::int16_t SPR_GOLD_WARP3 = 0;
+std::int16_t SPR_GOLD_WARP4 = 0;
+std::int16_t SPR_GOLD_WARP5 = 0;
+
+std::int16_t SPR_GOLD_DEATH1 = 0;
+std::int16_t SPR_GOLD_DEATH2 = 0;
+std::int16_t SPR_GOLD_DEATH3 = 0;
+std::int16_t SPR_GOLD_DEATH4 = 0;
+std::int16_t SPR_GOLD_DEATH5 = 0;
+std::int16_t SPR_MGOLD_OUCH = 0;
+
+std::int16_t SPR_GOLD_MORPH1 = 0;
+std::int16_t SPR_GOLD_MORPH2 = 0;
+std::int16_t SPR_GOLD_MORPH3 = 0;
+std::int16_t SPR_GOLD_MORPH4 = 0;
+std::int16_t SPR_GOLD_MORPH5 = 0;
+std::int16_t SPR_GOLD_MORPH6 = 0;
+std::int16_t SPR_GOLD_MORPH7 = 0;
+std::int16_t SPR_GOLD_MORPH8 = 0;
+
+std::int16_t SPR_MGOLD_WALK1 = 0;
+std::int16_t SPR_MGOLD_WALK2 = 0;
+std::int16_t SPR_MGOLD_WALK3 = 0;
+std::int16_t SPR_MGOLD_WALK4 = 0;
+std::int16_t SPR_MGOLD_ATTACK1 = 0;
+std::int16_t SPR_MGOLD_ATTACK2 = 0;
+std::int16_t SPR_MGOLD_ATTACK3 = 0;
+std::int16_t SPR_MGOLD_ATTACK4 = 0;
+
+std::int16_t SPR_MGOLD_SHOT1 = 0;
+std::int16_t SPR_MGOLD_SHOT2 = 0;
+std::int16_t SPR_MGOLD_SHOT3 = 0;
+std::int16_t SPR_MGOLD_SHOT_EXP1 = 0;
+std::int16_t SPR_MGOLD_SHOT_EXP2 = 0;
+std::int16_t SPR_MGOLD_SHOT_EXP3 = 0;
+
+std::int16_t SPR_GSCOUT_W1_1 = 0;
+std::int16_t SPR_GSCOUT_W1_2 = 0;
+std::int16_t SPR_GSCOUT_W1_3 = 0;
+std::int16_t SPR_GSCOUT_W1_4 = 0;
+std::int16_t SPR_GSCOUT_W1_5 = 0;
+std::int16_t SPR_GSCOUT_W1_6 = 0;
+std::int16_t SPR_GSCOUT_W1_7 = 0;
+std::int16_t SPR_GSCOUT_W1_8 = 0;
+
+std::int16_t SPR_GSCOUT_W2_1 = 0;
+std::int16_t SPR_GSCOUT_W2_2 = 0;
+std::int16_t SPR_GSCOUT_W2_3 = 0;
+std::int16_t SPR_GSCOUT_W2_4 = 0;
+std::int16_t SPR_GSCOUT_W2_5 = 0;
+std::int16_t SPR_GSCOUT_W2_6 = 0;
+std::int16_t SPR_GSCOUT_W2_7 = 0;
+std::int16_t SPR_GSCOUT_W2_8 = 0;
+
+std::int16_t SPR_GSCOUT_W3_1 = 0;
+std::int16_t SPR_GSCOUT_W3_2 = 0;
+std::int16_t SPR_GSCOUT_W3_3 = 0;
+std::int16_t SPR_GSCOUT_W3_4 = 0;
+std::int16_t SPR_GSCOUT_W3_5 = 0;
+std::int16_t SPR_GSCOUT_W3_6 = 0;
+std::int16_t SPR_GSCOUT_W3_7 = 0;
+std::int16_t SPR_GSCOUT_W3_8 = 0;
+
+std::int16_t SPR_GSCOUT_W4_1 = 0;
+std::int16_t SPR_GSCOUT_W4_2 = 0;
+std::int16_t SPR_GSCOUT_W4_3 = 0;
+std::int16_t SPR_GSCOUT_W4_4 = 0;
+std::int16_t SPR_GSCOUT_W4_5 = 0;
+std::int16_t SPR_GSCOUT_W4_6 = 0;
+std::int16_t SPR_GSCOUT_W4_7 = 0;
+std::int16_t SPR_GSCOUT_W4_8 = 0;
+
+std::int16_t SPR_GSCOUT_DIE1 = 0;
+std::int16_t SPR_GSCOUT_DIE2 = 0;
+std::int16_t SPR_GSCOUT_DIE3 = 0;
+std::int16_t SPR_GSCOUT_DIE4 = 0;
+std::int16_t SPR_GSCOUT_DIE5 = 0;
+std::int16_t SPR_GSCOUT_DIE6 = 0;
+std::int16_t SPR_GSCOUT_DIE7 = 0;
+std::int16_t SPR_GSCOUT_DIE8 = 0;
+
+std::int16_t SPR_GSCOUT_DEAD = 0;
+
+std::int16_t SPR_FSCOUT_W1_1 = 0;
+std::int16_t SPR_FSCOUT_W1_2 = 0;
+std::int16_t SPR_FSCOUT_W1_3 = 0;
+std::int16_t SPR_FSCOUT_W1_4 = 0;
+std::int16_t SPR_FSCOUT_W1_5 = 0;
+std::int16_t SPR_FSCOUT_W1_6 = 0;
+std::int16_t SPR_FSCOUT_W1_7 = 0;
+std::int16_t SPR_FSCOUT_W1_8 = 0;
+
+std::int16_t SPR_FSCOUT_W2_1 = 0;
+std::int16_t SPR_FSCOUT_W2_2 = 0;
+std::int16_t SPR_FSCOUT_W2_3 = 0;
+std::int16_t SPR_FSCOUT_W2_4 = 0;
+std::int16_t SPR_FSCOUT_W2_5 = 0;
+std::int16_t SPR_FSCOUT_W2_6 = 0;
+std::int16_t SPR_FSCOUT_W2_7 = 0;
+std::int16_t SPR_FSCOUT_W2_8 = 0;
+
+std::int16_t SPR_FSCOUT_W3_1 = 0;
+std::int16_t SPR_FSCOUT_W3_2 = 0;
+std::int16_t SPR_FSCOUT_W3_3 = 0;
+std::int16_t SPR_FSCOUT_W3_4 = 0;
+std::int16_t SPR_FSCOUT_W3_5 = 0;
+std::int16_t SPR_FSCOUT_W3_6 = 0;
+std::int16_t SPR_FSCOUT_W3_7 = 0;
+std::int16_t SPR_FSCOUT_W3_8 = 0;
+
+std::int16_t SPR_FSCOUT_W4_1 = 0;
+std::int16_t SPR_FSCOUT_W4_2 = 0;
+std::int16_t SPR_FSCOUT_W4_3 = 0;
+std::int16_t SPR_FSCOUT_W4_4 = 0;
+std::int16_t SPR_FSCOUT_W4_5 = 0;
+std::int16_t SPR_FSCOUT_W4_6 = 0;
+std::int16_t SPR_FSCOUT_W4_7 = 0;
+std::int16_t SPR_FSCOUT_W4_8 = 0;
+
+std::int16_t SPR_FSCOUT_DIE1 = 0;
+std::int16_t SPR_FSCOUT_DIE2 = 0;
+std::int16_t SPR_FSCOUT_DIE3 = 0;
+std::int16_t SPR_FSCOUT_DIE4 = 0;
+std::int16_t SPR_FSCOUT_DIE5 = 0;
+std::int16_t SPR_FSCOUT_DIE6 = 0;
+std::int16_t SPR_FSCOUT_DIE7 = 0;
+std::int16_t SPR_FSCOUT_DEAD = 0;
+
+std::int16_t SPR_EXPLOSION_1 = 0;
+std::int16_t SPR_EXPLOSION_2 = 0;
+std::int16_t SPR_EXPLOSION_3 = 0;
+std::int16_t SPR_EXPLOSION_4 = 0;
+std::int16_t SPR_EXPLOSION_5 = 0;
+
+std::int16_t SPR_VITAL_STAND = 0;
+std::int16_t SPR_VITAL_DIE_1 = 0;
+std::int16_t SPR_VITAL_DIE_2 = 0;
+std::int16_t SPR_VITAL_DIE_3 = 0;
+std::int16_t SPR_VITAL_DIE_4 = 0;
+std::int16_t SPR_VITAL_DIE_5 = 0;
+std::int16_t SPR_VITAL_DIE_6 = 0;
+std::int16_t SPR_VITAL_DIE_7 = 0;
+std::int16_t SPR_VITAL_DIE_8 = 0;
+std::int16_t SPR_VITAL_DEAD_1 = 0;
+std::int16_t SPR_VITAL_DEAD_2 = 0;
+std::int16_t SPR_VITAL_DEAD_3 = 0;
+std::int16_t SPR_VITAL_OUCH = 0;
+
+std::int16_t SPR_CUBE1 = 0;
+std::int16_t SPR_CUBE2 = 0;
+std::int16_t SPR_CUBE3 = 0;
+std::int16_t SPR_CUBE4 = 0;
+std::int16_t SPR_CUBE5 = 0;
+std::int16_t SPR_CUBE6 = 0;
+std::int16_t SPR_CUBE7 = 0;
+std::int16_t SPR_CUBE8 = 0;
+std::int16_t SPR_CUBE9 = 0;
+std::int16_t SPR_CUBE10 = 0;
+std::int16_t SPR_CUBE_EXP1 = 0;
+std::int16_t SPR_CUBE_EXP2 = 0;
+std::int16_t SPR_CUBE_EXP3 = 0;
+std::int16_t SPR_CUBE_EXP4 = 0;
+std::int16_t SPR_CUBE_EXP5 = 0;
+std::int16_t SPR_CUBE_EXP6 = 0;
+std::int16_t SPR_CUBE_EXP7 = 0;
+std::int16_t SPR_CUBE_EXP8 = 0;
+std::int16_t SPR_DEAD_CUBE = 0;
+
+std::int16_t SPR_SECURITY_NORMAL = 0;
+std::int16_t SPR_SECURITY_ALERT = 0;
+
+std::int16_t SPR_POD_EGG = 0;
+std::int16_t SPR_POD_HATCH1 = 0;
+std::int16_t SPR_POD_HATCH2 = 0;
+std::int16_t SPR_POD_HATCH3 = 0;
+std::int16_t SPR_POD_WALK1 = 0;
+std::int16_t SPR_POD_WALK2 = 0;
+std::int16_t SPR_POD_WALK3 = 0;
+std::int16_t SPR_POD_WALK4 = 0;
+std::int16_t SPR_POD_ATTACK1 = 0;
+std::int16_t SPR_POD_ATTACK2 = 0;
+std::int16_t SPR_POD_ATTACK3 = 0;
+std::int16_t SPR_POD_OUCH = 0;
+std::int16_t SPR_POD_DIE1 = 0;
+std::int16_t SPR_POD_DIE2 = 0;
+std::int16_t SPR_POD_DIE3 = 0;
+std::int16_t SPR_POD_SPIT1 = 0;
+std::int16_t SPR_POD_SPIT2 = 0;
+std::int16_t SPR_POD_SPIT3 = 0;
+
+std::int16_t SPR_ELEC_APPEAR1 = 0;
+std::int16_t SPR_ELEC_APPEAR2 = 0;
+std::int16_t SPR_ELEC_APPEAR3 = 0;
+std::int16_t SPR_ELEC_WALK1 = 0;
+std::int16_t SPR_ELEC_WALK2 = 0;
+std::int16_t SPR_ELEC_WALK3 = 0;
+std::int16_t SPR_ELEC_WALK4 = 0;
+std::int16_t SPR_ELEC_OUCH = 0;
+std::int16_t SPR_ELEC_SHOOT1 = 0;
+std::int16_t SPR_ELEC_SHOOT2 = 0;
+std::int16_t SPR_ELEC_SHOOT3 = 0;
+std::int16_t SPR_ELEC_DIE1 = 0;
+std::int16_t SPR_ELEC_DIE2 = 0;
+std::int16_t SPR_ELEC_DIE3 = 0;
+std::int16_t SPR_ELEC_SHOT1 = 0;
+std::int16_t SPR_ELEC_SHOT2 = 0;
+std::int16_t SPR_ELEC_SHOT_EXP1 = 0;
+std::int16_t SPR_ELEC_SHOT_EXP2 = 0;
+
+std::int16_t SPR_ELECTRO_SPHERE_ROAM1 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_ROAM2 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_ROAM3 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_OUCH = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE1 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE2 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE3 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE4 = 0;
+
+std::int16_t SPR_GENETIC_W1 = 0;
+std::int16_t SPR_GENETIC_W2 = 0;
+std::int16_t SPR_GENETIC_W3 = 0;
+std::int16_t SPR_GENETIC_W4 = 0;
+std::int16_t SPR_GENETIC_SWING1 = 0;
+std::int16_t SPR_GENETIC_SWING2 = 0;
+std::int16_t SPR_GENETIC_SWING3 = 0;
+std::int16_t SPR_GENETIC_DEAD = 0;
+std::int16_t SPR_GENETIC_DIE1 = 0;
+std::int16_t SPR_GENETIC_DIE2 = 0;
+std::int16_t SPR_GENETIC_DIE3 = 0;
+std::int16_t SPR_GENETIC_DIE4 = 0;
+std::int16_t SPR_GENETIC_OUCH = 0;
+std::int16_t SPR_GENETIC_SHOOT1 = 0;
+std::int16_t SPR_GENETIC_SHOOT2 = 0;
+std::int16_t SPR_GENETIC_SHOOT3 = 0;
+
+std::int16_t SPR_MUTHUM1_W1 = 0;
+std::int16_t SPR_MUTHUM1_W2 = 0;
+std::int16_t SPR_MUTHUM1_W3 = 0;
+std::int16_t SPR_MUTHUM1_W4 = 0;
+std::int16_t SPR_MUTHUM1_SWING1 = 0;
+std::int16_t SPR_MUTHUM1_SWING2 = 0;
+std::int16_t SPR_MUTHUM1_SWING3 = 0;
+std::int16_t SPR_MUTHUM1_DEAD = 0;
+std::int16_t SPR_MUTHUM1_DIE1 = 0;
+std::int16_t SPR_MUTHUM1_DIE2 = 0;
+std::int16_t SPR_MUTHUM1_DIE3 = 0;
+std::int16_t SPR_MUTHUM1_DIE4 = 0;
+std::int16_t SPR_MUTHUM1_OUCH = 0;
+std::int16_t SPR_MUTHUM1_SPIT1 = 0;
+std::int16_t SPR_MUTHUM1_SPIT2 = 0;
+std::int16_t SPR_MUTHUM1_SPIT3 = 0;
+
+std::int16_t SPR_MUTHUM2_W1 = 0;
+std::int16_t SPR_MUTHUM2_W2 = 0;
+std::int16_t SPR_MUTHUM2_W3 = 0;
+std::int16_t SPR_MUTHUM2_W4 = 0;
+std::int16_t SPR_MUTHUM2_SWING1 = 0;
+std::int16_t SPR_MUTHUM2_SWING2 = 0;
+std::int16_t SPR_MUTHUM2_SWING3 = 0;
+std::int16_t SPR_MUTHUM2_DEAD = 0;
+std::int16_t SPR_MUTHUM2_DIE1 = 0;
+std::int16_t SPR_MUTHUM2_DIE2 = 0;
+std::int16_t SPR_MUTHUM2_DIE3 = 0;
+std::int16_t SPR_MUTHUM2_DIE4 = 0;
+std::int16_t SPR_MUTHUM2_OUCH = 0;
+std::int16_t SPR_MUTHUM2_SPIT1 = 0;
+std::int16_t SPR_MUTHUM2_SPIT2 = 0;
+std::int16_t SPR_MUTHUM2_SPIT3 = 0;
+
+std::int16_t SPR_MUTHUM2_MORPH1 = 0;
+std::int16_t SPR_MUTHUM2_MORPH2 = 0;
+std::int16_t SPR_MUTHUM2_MORPH3 = 0;
+std::int16_t SPR_MUTHUM2_MORPH4 = 0;
+std::int16_t SPR_MUTHUM2_MORPH5 = 0;
+std::int16_t SPR_MUTHUM2_MORPH6 = 0;
+std::int16_t SPR_MUTHUM2_MORPH7 = 0;
+std::int16_t SPR_MUTHUM2_MORPH8 = 0;
+std::int16_t SPR_MUTHUM2_MORPH9 = 0;
+
+std::int16_t SPR_LCAN_ALIEN_READY = 0;
+std::int16_t SPR_LCAN_ALIEN_B1 = 0;
+std::int16_t SPR_LCAN_ALIEN_B2 = 0;
+std::int16_t SPR_LCAN_ALIEN_B3 = 0;
+std::int16_t SPR_LCAN_ALIEN_EMPTY = 0;
+
+std::int16_t SPR_LCAN_ALIEN_W1 = 0;
+std::int16_t SPR_LCAN_ALIEN_W2 = 0;
+std::int16_t SPR_LCAN_ALIEN_W3 = 0;
+std::int16_t SPR_LCAN_ALIEN_W4 = 0;
+std::int16_t SPR_LCAN_ALIEN_SWING1 = 0;
+std::int16_t SPR_LCAN_ALIEN_SWING2 = 0;
+std::int16_t SPR_LCAN_ALIEN_SWING3 = 0;
+std::int16_t SPR_LCAN_ALIEN_DEAD = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE1 = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE2 = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE3 = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE4 = 0;
+std::int16_t SPR_LCAN_ALIEN_OUCH = 0;
+std::int16_t SPR_LCAN_ALIEN_SPIT1 = 0;
+std::int16_t SPR_LCAN_ALIEN_SPIT2 = 0;
+std::int16_t SPR_LCAN_ALIEN_SPIT3 = 0;
+
+std::int16_t SPR_SCAN_ALIEN_READY = 0;
+std::int16_t SPR_SCAN_ALIEN_B1 = 0;
+std::int16_t SPR_SCAN_ALIEN_B2 = 0;
+std::int16_t SPR_SCAN_ALIEN_B3 = 0;
+std::int16_t SPR_SCAN_ALIEN_EMPTY = 0;
+
+std::int16_t SPR_SCAN_ALIEN_W1 = 0;
+std::int16_t SPR_SCAN_ALIEN_W2 = 0;
+std::int16_t SPR_SCAN_ALIEN_W3 = 0;
+std::int16_t SPR_SCAN_ALIEN_W4 = 0;
+std::int16_t SPR_SCAN_ALIEN_SWING1 = 0;
+std::int16_t SPR_SCAN_ALIEN_SWING2 = 0;
+std::int16_t SPR_SCAN_ALIEN_SWING3 = 0;
+std::int16_t SPR_SCAN_ALIEN_DEAD = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE1 = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE2 = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE3 = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE4 = 0;
+std::int16_t SPR_SCAN_ALIEN_OUCH = 0;
+
+std::int16_t SPR_SCAN_ALIEN_SPIT1 = 0;
+std::int16_t SPR_SCAN_ALIEN_SPIT2 = 0;
+std::int16_t SPR_SCAN_ALIEN_SPIT3 = 0;
+
+std::int16_t SPR_GURNEY_MUT_READY = 0;
+std::int16_t SPR_GURNEY_MUT_B1 = 0;
+std::int16_t SPR_GURNEY_MUT_B2 = 0;
+std::int16_t SPR_GURNEY_MUT_B3 = 0;
+std::int16_t SPR_GURNEY_MUT_EMPTY = 0;
+
+std::int16_t SPR_GURNEY_MUT_W1 = 0;
+std::int16_t SPR_GURNEY_MUT_W2 = 0;
+std::int16_t SPR_GURNEY_MUT_W3 = 0;
+std::int16_t SPR_GURNEY_MUT_W4 = 0;
+std::int16_t SPR_GURNEY_MUT_SWING1 = 0;
+std::int16_t SPR_GURNEY_MUT_SWING2 = 0;
+std::int16_t SPR_GURNEY_MUT_SWING3 = 0;
+std::int16_t SPR_GURNEY_MUT_DEAD = 0;
+std::int16_t SPR_GURNEY_MUT_DIE1 = 0;
+std::int16_t SPR_GURNEY_MUT_DIE2 = 0;
+std::int16_t SPR_GURNEY_MUT_DIE3 = 0;
+std::int16_t SPR_GURNEY_MUT_DIE4 = 0;
+std::int16_t SPR_GURNEY_MUT_OUCH = 0;
+
+std::int16_t SPR_LIQUID_M1 = 0;
+std::int16_t SPR_LIQUID_M2 = 0;
+std::int16_t SPR_LIQUID_M3 = 0;
+std::int16_t SPR_LIQUID_R1 = 0;
+std::int16_t SPR_LIQUID_R2 = 0;
+std::int16_t SPR_LIQUID_R3 = 0;
+std::int16_t SPR_LIQUID_R4 = 0;
+std::int16_t SPR_LIQUID_S1 = 0;
+std::int16_t SPR_LIQUID_S2 = 0;
+std::int16_t SPR_LIQUID_S3 = 0;
+std::int16_t SPR_LIQUID_OUCH = 0;
+std::int16_t SPR_LIQUID_DIE_1 = 0;
+std::int16_t SPR_LIQUID_DIE_2 = 0;
+std::int16_t SPR_LIQUID_DIE_3 = 0;
+std::int16_t SPR_LIQUID_DIE_4 = 0;
+std::int16_t SPR_LIQUID_DEAD = 0;
+std::int16_t SPR_LIQUID_SHOT_FLY_1 = 0;
+std::int16_t SPR_LIQUID_SHOT_FLY_2 = 0;
+std::int16_t SPR_LIQUID_SHOT_FLY_3 = 0;
+std::int16_t SPR_LIQUID_SHOT_BURST_1 = 0;
+std::int16_t SPR_LIQUID_SHOT_BURST_2 = 0;
+std::int16_t SPR_LIQUID_SHOT_BURST_3 = 0;
+
+std::int16_t SPR_SPIT1_1 = 0;
+std::int16_t SPR_SPIT1_2 = 0;
+std::int16_t SPR_SPIT1_3 = 0;
+std::int16_t SPR_SPIT_EXP1_1 = 0;
+std::int16_t SPR_SPIT_EXP1_2 = 0;
+std::int16_t SPR_SPIT_EXP1_3 = 0;
+
+std::int16_t SPR_SPIT2_1 = 0;
+std::int16_t SPR_SPIT2_2 = 0;
+std::int16_t SPR_SPIT2_3 = 0;
+std::int16_t SPR_SPIT_EXP2_1 = 0;
+std::int16_t SPR_SPIT_EXP2_2 = 0;
+std::int16_t SPR_SPIT_EXP2_3 = 0;
+
+std::int16_t SPR_SPIT3_1 = 0;
+std::int16_t SPR_SPIT3_2 = 0;
+std::int16_t SPR_SPIT3_3 = 0;
+std::int16_t SPR_SPIT_EXP3_1 = 0;
+std::int16_t SPR_SPIT_EXP3_2 = 0;
+std::int16_t SPR_SPIT_EXP3_3 = 0;
+
+std::int16_t SPR_TERROT_1 = 0;
+std::int16_t SPR_TERROT_2 = 0;
+std::int16_t SPR_TERROT_3 = 0;
+std::int16_t SPR_TERROT_4 = 0;
+std::int16_t SPR_TERROT_5 = 0;
+std::int16_t SPR_TERROT_6 = 0;
+std::int16_t SPR_TERROT_7 = 0;
+std::int16_t SPR_TERROT_8 = 0;
+
+std::int16_t SPR_TERROT_FIRE_1 = 0;
+std::int16_t SPR_TERROT_FIRE_2 = 0;
+std::int16_t SPR_TERROT_DIE_1 = 0;
+std::int16_t SPR_TERROT_DIE_2 = 0;
+std::int16_t SPR_TERROT_DIE_3 = 0;
+std::int16_t SPR_TERROT_DIE_4 = 0;
+std::int16_t SPR_TERROT_DEAD = 0;
+
+std::int16_t SPR_KNIFEREADY = 0;
+std::int16_t SPR_KNIFEATK1 = 0;
+std::int16_t SPR_KNIFEATK2 = 0;
+std::int16_t SPR_KNIFEATK3 = 0;
+std::int16_t SPR_KNIFEATK4 = 0;
+
+std::int16_t SPR_PISTOLREADY = 0;
+std::int16_t SPR_PISTOLATK1 = 0;
+std::int16_t SPR_PISTOLATK2 = 0;
+std::int16_t SPR_PISTOLATK3 = 0;
+std::int16_t SPR_PISTOLATK4 = 0;
+
+std::int16_t SPR_MACHINEGUNREADY = 0;
+std::int16_t SPR_MACHINEGUNATK1 = 0;
+std::int16_t SPR_MACHINEGUNATK2 = 0;
+std::int16_t SPR_MACHINEGUNATK3 = 0;
+std::int16_t SPR_MACHINEGUNATK4 = 0;
+
+std::int16_t SPR_CHAINREADY = 0;
+std::int16_t SPR_CHAINATK1 = 0;
+std::int16_t SPR_CHAINATK2 = 0;
+std::int16_t SPR_CHAINATK3 = 0;
+std::int16_t SPR_CHAINATK4 = 0;
+
+std::int16_t SPR_GRENADEREADY = 0;
+std::int16_t SPR_GRENADEATK1 = 0;
+std::int16_t SPR_GRENADEATK2 = 0;
+std::int16_t SPR_GRENADEATK3 = 0;
+std::int16_t SPR_GRENADEATK4 = 0;
+
+std::int16_t SPR_GRENADE_FLY1 = 0;
+std::int16_t SPR_GRENADE_FLY2 = 0;
+std::int16_t SPR_GRENADE_FLY3 = 0;
+std::int16_t SPR_GRENADE_FLY4 = 0;
+std::int16_t SPR_GRENADE_EXPLODE1 = 0;
+std::int16_t SPR_GRENADE_EXPLODE2 = 0;
+std::int16_t SPR_GRENADE_EXPLODE3 = 0;
+std::int16_t SPR_GRENADE_EXPLODE4 = 0;
+std::int16_t SPR_GRENADE_EXPLODE5 = 0;
+
+std::int16_t SPR_ELEC_ARC1 = 0;
+std::int16_t SPR_ELEC_ARC2 = 0;
+std::int16_t SPR_ELEC_ARC3 = 0;
+std::int16_t SPR_ELEC_ARC4 = 0;
+std::int16_t SPR_ELEC_POST1 = 0;
+std::int16_t SPR_ELEC_POST2 = 0;
+std::int16_t SPR_ELEC_POST3 = 0;
+std::int16_t SPR_ELEC_POST4 = 0;
+
+std::int16_t SPR_VPOST1 = 0;
+std::int16_t SPR_VPOST2 = 0;
+std::int16_t SPR_VPOST3 = 0;
+std::int16_t SPR_VPOST4 = 0;
+std::int16_t SPR_VPOST5 = 0;
+std::int16_t SPR_VPOST6 = 0;
+std::int16_t SPR_VPOST7 = 0;
+std::int16_t SPR_VPOST8 = 0;
+
+std::int16_t SPR_VSPIKE1 = 0;
+std::int16_t SPR_VSPIKE2 = 0;
+std::int16_t SPR_VSPIKE3 = 0;
+std::int16_t SPR_VSPIKE4 = 0;
+std::int16_t SPR_VSPIKE5 = 0;
+std::int16_t SPR_VSPIKE6 = 0;
+std::int16_t SPR_VSPIKE7 = 0;
+std::int16_t SPR_VSPIKE8 = 0;
+
+std::int16_t SPR_GREEN_OOZE1 = 0;
+std::int16_t SPR_GREEN_OOZE2 = 0;
+std::int16_t SPR_GREEN_OOZE3 = 0;
+std::int16_t SPR_BLACK_OOZE1 = 0;
+std::int16_t SPR_BLACK_OOZE2 = 0;
+std::int16_t SPR_BLACK_OOZE3 = 0;
+
+std::int16_t SPR_GREEN2_OOZE1 = 0;
+std::int16_t SPR_GREEN2_OOZE2 = 0;
+std::int16_t SPR_GREEN2_OOZE3 = 0;
+std::int16_t SPR_BLACK2_OOZE1 = 0;
+std::int16_t SPR_BLACK2_OOZE2 = 0;
+std::int16_t SPR_BLACK2_OOZE3 = 0;
+
+std::int16_t SPR_CANDY_BAR = 0;
+std::int16_t SPR_CANDY_WRAPER = 0;
+std::int16_t SPR_SANDWICH = 0;
+std::int16_t SPR_SANDWICH_WRAPER = 0;
+
+std::int16_t SPR_BLAKE_W1 = 0;
+std::int16_t SPR_BLAKE_W2 = 0;
+std::int16_t SPR_BLAKE_W3 = 0;
+std::int16_t SPR_BLAKE_W4 = 0;
+
+std::int16_t SPR_BOSS1_W1 = 0;
+std::int16_t SPR_BOSS1_W2 = 0;
+std::int16_t SPR_BOSS1_W3 = 0;
+std::int16_t SPR_BOSS1_W4 = 0;
+std::int16_t SPR_BOSS1_SWING1 = 0;
+std::int16_t SPR_BOSS1_SWING2 = 0;
+std::int16_t SPR_BOSS1_SWING3 = 0;
+std::int16_t SPR_BOSS1_DEAD = 0;
+std::int16_t SPR_BOSS1_DIE1 = 0;
+std::int16_t SPR_BOSS1_DIE2 = 0;
+std::int16_t SPR_BOSS1_DIE3 = 0;
+std::int16_t SPR_BOSS1_DIE4 = 0;
+std::int16_t SPR_BOSS1_OUCH = 0;
+std::int16_t SPR_BOSS1_PROJ1 = 0;
+std::int16_t SPR_BOSS1_PROJ2 = 0;
+std::int16_t SPR_BOSS1_PROJ3 = 0;
+std::int16_t SPR_BOSS1_EXP1 = 0;
+std::int16_t SPR_BOSS1_EXP2 = 0;
+std::int16_t SPR_BOSS1_EXP3 = 0;
+std::int16_t SPR_BOSS1_MORPH1 = 0;
+std::int16_t SPR_BOSS1_MORPH2 = 0;
+std::int16_t SPR_BOSS1_MORPH3 = 0;
+std::int16_t SPR_BOSS1_MORPH4 = 0;
+std::int16_t SPR_BOSS1_MORPH5 = 0;
+std::int16_t SPR_BOSS1_MORPH6 = 0;
+std::int16_t SPR_BOSS1_MORPH7 = 0;
+std::int16_t SPR_BOSS1_MORPH8 = 0;
+std::int16_t SPR_BOSS1_MORPH9 = 0;
+
+std::int16_t SPR_BOSS2_W1 = 0;
+std::int16_t SPR_BOSS2_W2 = 0;
+std::int16_t SPR_BOSS2_W3 = 0;
+std::int16_t SPR_BOSS2_W4 = 0;
+std::int16_t SPR_BOSS2_SWING1 = 0;
+std::int16_t SPR_BOSS2_SWING2 = 0;
+std::int16_t SPR_BOSS2_SWING3 = 0;
+std::int16_t SPR_BOSS2_DEAD = 0;
+std::int16_t SPR_BOSS2_DIE1 = 0;
+std::int16_t SPR_BOSS2_DIE2 = 0;
+std::int16_t SPR_BOSS2_DIE3 = 0;
+std::int16_t SPR_BOSS2_DIE4 = 0;
+std::int16_t SPR_BOSS2_OUCH = 0;
+
+std::int16_t SPR_BOSS3_W1 = 0;
+std::int16_t SPR_BOSS3_W2 = 0;
+std::int16_t SPR_BOSS3_W3 = 0;
+std::int16_t SPR_BOSS3_W4 = 0;
+std::int16_t SPR_BOSS3_SWING1 = 0;
+std::int16_t SPR_BOSS3_SWING2 = 0;
+std::int16_t SPR_BOSS3_SWING3 = 0;
+std::int16_t SPR_BOSS3_DEAD = 0;
+std::int16_t SPR_BOSS3_DIE1 = 0;
+std::int16_t SPR_BOSS3_DIE2 = 0;
+std::int16_t SPR_BOSS3_DIE3 = 0;
+std::int16_t SPR_BOSS3_DIE4 = 0;
+std::int16_t SPR_BOSS3_OUCH = 0;
+
+std::int16_t SPR_BOSS4_W1 = 0;
+std::int16_t SPR_BOSS4_W2 = 0;
+std::int16_t SPR_BOSS4_W3 = 0;
+std::int16_t SPR_BOSS4_W4 = 0;
+std::int16_t SPR_BOSS4_SWING1 = 0;
+std::int16_t SPR_BOSS4_SWING2 = 0;
+std::int16_t SPR_BOSS4_SWING3 = 0;
+std::int16_t SPR_BOSS4_DEAD = 0;
+std::int16_t SPR_BOSS4_DIE1 = 0;
+std::int16_t SPR_BOSS4_DIE2 = 0;
+std::int16_t SPR_BOSS4_DIE3 = 0;
+std::int16_t SPR_BOSS4_DIE4 = 0;
+std::int16_t SPR_BOSS4_OUCH = 0;
+std::int16_t SPR_BOSS4_MORPH1 = 0;
+std::int16_t SPR_BOSS4_MORPH2 = 0;
+std::int16_t SPR_BOSS4_MORPH3 = 0;
+std::int16_t SPR_BOSS4_MORPH4 = 0;
+std::int16_t SPR_BOSS4_MORPH5 = 0;
+std::int16_t SPR_BOSS4_MORPH6 = 0;
+std::int16_t SPR_BOSS4_MORPH7 = 0;
+std::int16_t SPR_BOSS4_MORPH8 = 0;
+std::int16_t SPR_BOSS4_MORPH9 = 0;
+
+std::int16_t SPR_BOSS5_W1 = 0;
+std::int16_t SPR_BOSS5_W2 = 0;
+std::int16_t SPR_BOSS5_W3 = 0;
+std::int16_t SPR_BOSS5_W4 = 0;
+std::int16_t SPR_BOSS5_SWING1 = 0;
+std::int16_t SPR_BOSS5_SWING2 = 0;
+std::int16_t SPR_BOSS5_SWING3 = 0;
+std::int16_t SPR_BOSS5_DEAD = 0;
+std::int16_t SPR_BOSS5_DIE1 = 0;
+std::int16_t SPR_BOSS5_DIE2 = 0;
+std::int16_t SPR_BOSS5_DIE3 = 0;
+std::int16_t SPR_BOSS5_DIE4 = 0;
+std::int16_t SPR_BOSS5_OUCH = 0;
+std::int16_t SPR_BOSS5_PROJ1 = 0;
+std::int16_t SPR_BOSS5_PROJ2 = 0;
+std::int16_t SPR_BOSS5_PROJ3 = 0;
+std::int16_t SPR_BOSS5_EXP1 = 0;
+std::int16_t SPR_BOSS5_EXP2 = 0;
+std::int16_t SPR_BOSS5_EXP3 = 0;
+
+std::int16_t SPR_BOSS6_W1 = 0;
+std::int16_t SPR_BOSS6_W2 = 0;
+std::int16_t SPR_BOSS6_W3 = 0;
+std::int16_t SPR_BOSS6_W4 = 0;
+std::int16_t SPR_BOSS6_SWING1 = 0;
+std::int16_t SPR_BOSS6_SWING2 = 0;
+std::int16_t SPR_BOSS6_SWING3 = 0;
+std::int16_t SPR_BOSS6_DEAD = 0;
+std::int16_t SPR_BOSS6_DIE1 = 0;
+std::int16_t SPR_BOSS6_DIE2 = 0;
+std::int16_t SPR_BOSS6_DIE3 = 0;
+std::int16_t SPR_BOSS6_DIE4 = 0;
+std::int16_t SPR_BOSS6_OUCH = 0;
+
+std::int16_t SPR_BOSS7_W1 = 0;
+std::int16_t SPR_BOSS7_W2 = 0;
+std::int16_t SPR_BOSS7_W3 = 0;
+std::int16_t SPR_BOSS7_W4 = 0;
+std::int16_t SPR_BOSS7_SHOOT1 = 0;
+std::int16_t SPR_BOSS7_SHOOT2 = 0;
+std::int16_t SPR_BOSS7_SHOOT3 = 0;
+std::int16_t SPR_BOSS7_DEAD = 0;
+std::int16_t SPR_BOSS7_DIE1 = 0;
+std::int16_t SPR_BOSS7_DIE2 = 0;
+std::int16_t SPR_BOSS7_DIE3 = 0;
+std::int16_t SPR_BOSS7_DIE4 = 0;
+std::int16_t SPR_BOSS7_OUCH = 0;
+
+std::int16_t SPR_BOSS8_W1 = 0;
+std::int16_t SPR_BOSS8_W2 = 0;
+std::int16_t SPR_BOSS8_W3 = 0;
+std::int16_t SPR_BOSS8_W4 = 0;
+std::int16_t SPR_BOSS8_SHOOT1 = 0;
+std::int16_t SPR_BOSS8_SHOOT2 = 0;
+std::int16_t SPR_BOSS8_SHOOT3 = 0;
+std::int16_t SPR_BOSS8_DIE1 = 0;
+std::int16_t SPR_BOSS8_DIE2 = 0;
+std::int16_t SPR_BOSS8_DIE3 = 0;
+std::int16_t SPR_BOSS8_DIE4 = 0;
+std::int16_t SPR_BOSS8_DEAD = 0;
+std::int16_t SPR_BOSS8_OUCH = 0;
+
+std::int16_t SPR_BOSS9_W1 = 0;
+std::int16_t SPR_BOSS9_W2 = 0;
+std::int16_t SPR_BOSS9_W3 = 0;
+std::int16_t SPR_BOSS9_W4 = 0;
+std::int16_t SPR_BOSS9_SHOOT1 = 0;
+std::int16_t SPR_BOSS9_SHOOT2 = 0;
+std::int16_t SPR_BOSS9_SHOOT3 = 0;
+std::int16_t SPR_BOSS9_DIE1 = 0;
+std::int16_t SPR_BOSS9_DIE2 = 0;
+std::int16_t SPR_BOSS9_DIE3 = 0;
+std::int16_t SPR_BOSS9_DIE4 = 0;
+std::int16_t SPR_BOSS9_DEAD = 0;
+std::int16_t SPR_BOSS9_OUCH = 0;
+
+std::int16_t SPR_BOSS10_W1 = 0;
+std::int16_t SPR_BOSS10_W2 = 0;
+std::int16_t SPR_BOSS10_W3 = 0;
+std::int16_t SPR_BOSS10_W4 = 0;
+std::int16_t SPR_BOSS10_SHOOT1 = 0;
+std::int16_t SPR_BOSS10_SHOOT2 = 0;
+std::int16_t SPR_BOSS10_SHOOT3 = 0;
+std::int16_t SPR_BOSS10_DEAD = 0;
+std::int16_t SPR_BOSS10_DIE1 = 0;
+std::int16_t SPR_BOSS10_DIE2 = 0;
+std::int16_t SPR_BOSS10_DIE3 = 0;
+std::int16_t SPR_BOSS10_DIE4 = 0;
+std::int16_t SPR_BOSS10_OUCH = 0;
+
+std::int16_t SPR_BOSS10_SPIT1 = 0;
+std::int16_t SPR_BOSS10_SPIT2 = 0;
+std::int16_t SPR_BOSS10_SPIT3 = 0;
+std::int16_t SPR_BOSS10_SPIT_EXP1 = 0;
+std::int16_t SPR_BOSS10_SPIT_EXP2 = 0;
+std::int16_t SPR_BOSS10_SPIT_EXP3 = 0;
+
+std::int16_t SPR_DETONATOR_EXP1 = 0;
+std::int16_t SPR_DETONATOR_EXP2 = 0;
+std::int16_t SPR_DETONATOR_EXP3 = 0;
+std::int16_t SPR_DETONATOR_EXP4 = 0;
+std::int16_t SPR_DETONATOR_EXP5 = 0;
+std::int16_t SPR_DETONATOR_EXP6 = 0;
+std::int16_t SPR_DETONATOR_EXP7 = 0;
+std::int16_t SPR_DETONATOR_EXP8 = 0;
+
+std::int16_t SPR_CLIP_EXP1 = 0;
+std::int16_t SPR_CLIP_EXP2 = 0;
+std::int16_t SPR_CLIP_EXP3 = 0;
+std::int16_t SPR_CLIP_EXP4 = 0;
+std::int16_t SPR_CLIP_EXP5 = 0;
+std::int16_t SPR_CLIP_EXP6 = 0;
+std::int16_t SPR_CLIP_EXP7 = 0;
+std::int16_t SPR_CLIP_EXP8 = 0;
+
+std::int16_t SPR_BFG_WEAPON1 = 0;
+std::int16_t SPR_BFG_WEAPON2 = 0;
+std::int16_t SPR_BFG_WEAPON3 = 0;
+std::int16_t SPR_BFG_WEAPON4 = 0;
+std::int16_t SPR_BFG_WEAPON5 = 0;
+
+std::int16_t SPR_BFG_WEAPON_SHOT1 = 0;
+std::int16_t SPR_BFG_WEAPON_SHOT2 = 0;
+std::int16_t SPR_BFG_WEAPON_SHOT3 = 0;
+
+std::int16_t SPR_BFG_EXP1 = 0;
+std::int16_t SPR_BFG_EXP2 = 0;
+std::int16_t SPR_BFG_EXP3 = 0;
+std::int16_t SPR_BFG_EXP4 = 0;
+std::int16_t SPR_BFG_EXP5 = 0;
+std::int16_t SPR_BFG_EXP6 = 0;
+std::int16_t SPR_BFG_EXP7 = 0;
+std::int16_t SPR_BFG_EXP8 = 0;
 
 
 void initialize_sprites()
@@ -3858,7 +3858,7 @@ unsigned mspeed;
 
 void CalcSpeedRating()
 {
-    int16_t loop;
+    std::int16_t loop;
 
     for (loop = 0; loop < 10; loop++) {
         ThreeDRefresh();
@@ -4711,50 +4711,50 @@ void initialize_states()
 }
 
 
-int16_t NUMSNDCHUNKS = 0;
+std::int16_t NUMSNDCHUNKS = 0;
 
-int16_t S2100A_MUS = 0;
-int16_t GOLDA_MUS = 0;
-int16_t DRKHALLA_MUS = 0;
-int16_t FREEDOMA_MUS = 0;
-int16_t GENEFUNK_MUS = 0;
-int16_t TIMEA_MUS = 0;
-int16_t HIDINGA_MUS = 0;
-int16_t INCNRATN_MUS = 0;
-int16_t JUNGLEA_MUS = 0;
-int16_t LEVELA_MUS = 0;
-int16_t MEETINGA_MUS = 0;
-int16_t STRUTA_MUS = 0;
-int16_t RACSHUFL_MUS = 0;
-int16_t RUMBAA_MUS = 0;
-int16_t SEARCHNA_MUS = 0;
-int16_t THEWAYA_MUS = 0;
-int16_t INTRIGEA_MUS = 0;
+std::int16_t S2100A_MUS = 0;
+std::int16_t GOLDA_MUS = 0;
+std::int16_t DRKHALLA_MUS = 0;
+std::int16_t FREEDOMA_MUS = 0;
+std::int16_t GENEFUNK_MUS = 0;
+std::int16_t TIMEA_MUS = 0;
+std::int16_t HIDINGA_MUS = 0;
+std::int16_t INCNRATN_MUS = 0;
+std::int16_t JUNGLEA_MUS = 0;
+std::int16_t LEVELA_MUS = 0;
+std::int16_t MEETINGA_MUS = 0;
+std::int16_t STRUTA_MUS = 0;
+std::int16_t RACSHUFL_MUS = 0;
+std::int16_t RUMBAA_MUS = 0;
+std::int16_t SEARCHNA_MUS = 0;
+std::int16_t THEWAYA_MUS = 0;
+std::int16_t INTRIGEA_MUS = 0;
 
-int16_t CATACOMB_MUS = 0;
-int16_t STICKS_MUS = 0;
-int16_t PLOT_MUS = 0;
-int16_t CIRCLES_MUS = 0;
-int16_t LASTLAFF_MUS = 0;
-int16_t TOHELL_MUS = 0;
-int16_t FORTRESS_MUS = 0;
-int16_t GIVING_MUS = 0;
-int16_t HARTBEAT_MUS = 0;
-int16_t LURKING_MUS = 0;
-int16_t MAJMIN_MUS = 0;
-int16_t VACCINAP_MUS = 0;
-int16_t DARKNESS_MUS = 0;
-int16_t MONASTRY_MUS = 0;
-int16_t TOMBP_MUS = 0;
-int16_t TIME_MUS = 0;
-int16_t MOURNING_MUS = 0;
-int16_t SERPENT_MUS = 0;
-int16_t HISCORE_MUS = 0;
+std::int16_t CATACOMB_MUS = 0;
+std::int16_t STICKS_MUS = 0;
+std::int16_t PLOT_MUS = 0;
+std::int16_t CIRCLES_MUS = 0;
+std::int16_t LASTLAFF_MUS = 0;
+std::int16_t TOHELL_MUS = 0;
+std::int16_t FORTRESS_MUS = 0;
+std::int16_t GIVING_MUS = 0;
+std::int16_t HARTBEAT_MUS = 0;
+std::int16_t LURKING_MUS = 0;
+std::int16_t MAJMIN_MUS = 0;
+std::int16_t VACCINAP_MUS = 0;
+std::int16_t DARKNESS_MUS = 0;
+std::int16_t MONASTRY_MUS = 0;
+std::int16_t TOMBP_MUS = 0;
+std::int16_t TIME_MUS = 0;
+std::int16_t MOURNING_MUS = 0;
+std::int16_t SERPENT_MUS = 0;
+std::int16_t HISCORE_MUS = 0;
 
-int16_t APOGFNFM_MUS = 0;
-int16_t THEME_MUS = 0;
-int16_t LASTMUSIC = 0;
-int16_t TITLE_LOOP_MUSIC = 0;
+std::int16_t APOGFNFM_MUS = 0;
+std::int16_t THEME_MUS = 0;
+std::int16_t LASTMUSIC = 0;
+std::int16_t TITLE_LOOP_MUSIC = 0;
 
 
 void initialize_audio_constants()
@@ -4836,349 +4836,349 @@ void initialize_audio_constants()
 }
 
 
-int16_t TELEPORT_LUMP_START = 0;
-int16_t TELEPORT_LUMP_END = 0;
+std::int16_t TELEPORT_LUMP_START = 0;
+std::int16_t TELEPORT_LUMP_END = 0;
 
-int16_t README_LUMP_START = 0;
-int16_t README_LUMP_END = 0;
+std::int16_t README_LUMP_START = 0;
+std::int16_t README_LUMP_END = 0;
 
-int16_t CONTROLS_LUMP_START = 0;
-int16_t CONTROLS_LUMP_END = 0;
+std::int16_t CONTROLS_LUMP_START = 0;
+std::int16_t CONTROLS_LUMP_END = 0;
 
-int16_t LATCHPICS_LUMP_START = 0;
-int16_t LATCHPICS_LUMP_END = 0;
+std::int16_t LATCHPICS_LUMP_START = 0;
+std::int16_t LATCHPICS_LUMP_END = 0;
 
 
 //
 // Amount of each data item
 //
-int16_t NUMCHUNKS = 0;
-int16_t NUMFONT = 0;
-int16_t NUMFONTM = 0;
-int16_t NUMPICS = 0;
-int16_t NUMPICM = 0;
-int16_t NUMSPRITES = 0;
-int16_t NUMTILE8 = 0;
-int16_t NUMTILE8M = 0;
-int16_t NUMTILE16 = 0;
-int16_t NUMTILE16M = 0;
-int16_t NUMTILE32 = 0;
-int16_t NUMTILE32M = 0;
-int16_t NUMEXTERNS = 0;
+std::int16_t NUMCHUNKS = 0;
+std::int16_t NUMFONT = 0;
+std::int16_t NUMFONTM = 0;
+std::int16_t NUMPICS = 0;
+std::int16_t NUMPICM = 0;
+std::int16_t NUMSPRITES = 0;
+std::int16_t NUMTILE8 = 0;
+std::int16_t NUMTILE8M = 0;
+std::int16_t NUMTILE16 = 0;
+std::int16_t NUMTILE16M = 0;
+std::int16_t NUMTILE32 = 0;
+std::int16_t NUMTILE32M = 0;
+std::int16_t NUMEXTERNS = 0;
 
 //
 // File offsets for data items
 //
-int16_t STRUCTPIC = 0;
+std::int16_t STRUCTPIC = 0;
 
-int16_t STARTFONT = 0;
-int16_t STARTFONTM = 0;
-int16_t STARTPICS = 0;
-int16_t STARTPICM = 0;
-int16_t STARTSPRITES = 0;
-int16_t STARTTILE8 = 0;
-int16_t STARTTILE8M = 0;
-int16_t STARTTILE16 = 0;
-int16_t STARTTILE16M = 0;
-int16_t STARTTILE32 = 0;
-int16_t STARTTILE32M = 0;
-int16_t STARTEXTERNS = 0;
+std::int16_t STARTFONT = 0;
+std::int16_t STARTFONTM = 0;
+std::int16_t STARTPICS = 0;
+std::int16_t STARTPICM = 0;
+std::int16_t STARTSPRITES = 0;
+std::int16_t STARTTILE8 = 0;
+std::int16_t STARTTILE8M = 0;
+std::int16_t STARTTILE16 = 0;
+std::int16_t STARTTILE16M = 0;
+std::int16_t STARTTILE32 = 0;
+std::int16_t STARTTILE32M = 0;
+std::int16_t STARTEXTERNS = 0;
 
 
-int16_t TELEPORTBACKPIC = 0;
-int16_t TELEPORT1OFFPIC = 0;
-int16_t TELEPORT2OFFPIC = 0;
-int16_t TELEPORT3OFFPIC = 0;
-int16_t TELEPORT4OFFPIC = 0;
-int16_t TELEPORT5OFFPIC = 0;
-int16_t TELEPORT6OFFPIC = 0;
-int16_t TELEPORT7OFFPIC = 0;
-int16_t TELEPORT8OFFPIC = 0;
-int16_t TELEPORT9OFFPIC = 0;
-int16_t TELEPORT10OFFPIC = 0;
-int16_t TELEPORT1ONPIC = 0;
-int16_t TELEPORT2ONPIC = 0;
-int16_t TELEPORT3ONPIC = 0;
-int16_t TELEPORT4ONPIC = 0;
-int16_t TELEPORT5ONPIC = 0;
-int16_t TELEPORT6ONPIC = 0;
-int16_t TELEPORT7ONPIC = 0;
-int16_t TELEPORT8ONPIC = 0;
-int16_t TELEPORT9ONPIC = 0;
-int16_t TELEPORT10ONPIC = 0;
-int16_t TELEPORT_TEXT_BG = 0;
-int16_t BACKGROUND_SCREENPIC = 0;
-int16_t APOGEEPIC = 0;
-int16_t PIRACYPIC = 0;
-int16_t PC13PIC = 0;
-int16_t LOSEPIC = 0;
-int16_t AUTOMAPPIC = 0;
-int16_t PSPROMO1PIC = 0;
-int16_t PSPROMO2PIC = 0;
-int16_t PSPROMO3PIC = 0;
-int16_t H_ALTPIC = 0;
-int16_t H_CTRLPIC = 0;
-int16_t H_SPACEPIC = 0;
-int16_t H_PAUSEPIC = 0;
-int16_t H_ESCPIC = 0;
-int16_t H_LTARROWPIC = 0;
-int16_t H_UPARROWPIC = 0;
-int16_t H_DNARROWPIC = 0;
-int16_t H_RTARROWPIC = 0;
-int16_t H_ENTERPIC = 0;
-int16_t H_QPIC = 0;
-int16_t H_WPIC = 0;
-int16_t H_EPIC = 0;
-int16_t H_IPIC = 0;
-int16_t H_HPIC = 0;
-int16_t H_1PIC = 0;
-int16_t H_2PIC = 0;
-int16_t H_3PIC = 0;
-int16_t H_4PIC = 0;
-int16_t H_5PIC = 0;
-int16_t H_F1PIC = 0;
-int16_t H_F2PIC = 0;
-int16_t H_F3PIC = 0;
-int16_t H_F4PIC = 0;
-int16_t H_F5PIC = 0;
-int16_t H_F6PIC = 0;
-int16_t H_F7PIC = 0;
-int16_t H_F8PIC = 0;
-int16_t H_F9PIC = 0;
-int16_t H_F10PIC = 0;
-int16_t H_TABPIC = 0;
-int16_t H_CPIC = 0;
-int16_t H_FPIC = 0;
-int16_t H_PPIC = 0;
-int16_t H_MPIC = 0;
-int16_t H_LPIC = 0;
-int16_t H_SHIFTPIC = 0;
-int16_t APOGEE_LOGOPIC = 0;
-int16_t VISAPIC = 0;
-int16_t MCPIC = 0;
-int16_t FAXPIC = 0;
-int16_t H_TOPWINDOWPIC = 0;
-int16_t H_LEFTWINDOWPIC = 0;
-int16_t H_RIGHTWINDOWPIC = 0;
-int16_t H_BOTTOMINFOPIC = 0;
-int16_t C_NOTSELECTEDPIC = 0;
-int16_t C_SELECTEDPIC = 0;
-int16_t C_NOTSELECTED_HIPIC = 0;
-int16_t C_SELECTED_HIPIC = 0;
-int16_t C_BABYMODEPIC = 0;
-int16_t C_EASYPIC = 0;
-int16_t C_NORMALPIC = 0;
-int16_t C_HARDPIC = 0;
-int16_t C_EPISODE1PIC = 0;
-int16_t C_EPISODE2PIC = 0;
-int16_t C_EPISODE3PIC = 0;
-int16_t C_EPISODE4PIC = 0;
-int16_t C_EPISODE5PIC = 0;
-int16_t C_EPISODE6PIC = 0;
-int16_t BIGGOLDSTERNPIC = 0;
-int16_t STARLOGOPIC = 0;
-int16_t BLAKEWITHGUNPIC = 0;
-int16_t STARINSTITUTEPIC = 0;
-int16_t MEDALOFHONORPIC = 0;
-int16_t SMALLGOLDSTERNPIC = 0;
-int16_t BLAKEWINPIC = 0;
-int16_t SHUTTLEEXPPIC = 0;
-int16_t PLANETSPIC = 0;
-int16_t MOUSEPIC = 0;
-int16_t JOYSTICKPIC = 0;
-int16_t GRAVISPADPIC = 0;
-int16_t TITLEPIC = 0;
-int16_t PROMO1PIC = 0;
-int16_t PROMO2PIC = 0;
-int16_t WEAPON1PIC = 0;
-int16_t WEAPON2PIC = 0;
-int16_t WEAPON3PIC = 0;
-int16_t WEAPON4PIC = 0;
-int16_t WEAPON5PIC = 0;
-int16_t WAITPIC = 0;
-int16_t READYPIC = 0;
-int16_t N_BLANKPIC = 0;
-int16_t N_0PIC = 0;
-int16_t N_1PIC = 0;
-int16_t N_2PIC = 0;
-int16_t N_3PIC = 0;
-int16_t N_4PIC = 0;
-int16_t N_5PIC = 0;
-int16_t N_6PIC = 0;
-int16_t N_7PIC = 0;
-int16_t N_8PIC = 0;
-int16_t N_9PIC = 0;
-int16_t N_RPIC = 0;
-int16_t N_OPIC = 0;
-int16_t N_LPIC = 0;
-int16_t N_DASHPIC = 0;
-int16_t DIM_LIGHTPIC = 0;
-int16_t BRI_LIGHTPIC = 0;
-int16_t ECG_HEART_GOOD = 0;
-int16_t ECG_HEART_BAD = 0;
-int16_t ECG_GRID_PIECE = 0;
-int16_t AMMONUM_BACKGR = 0;
-int16_t ECG_HEARTBEAT_00 = 0;
-int16_t ECG_HEARTBEAT_01 = 0;
-int16_t ECG_HEARTBEAT_02 = 0;
-int16_t ECG_HEARTBEAT_03 = 0;
-int16_t ECG_HEARTBEAT_04 = 0;
-int16_t ECG_HEARTBEAT_05 = 0;
-int16_t ECG_HEARTBEAT_06 = 0;
-int16_t ECG_HEARTBEAT_07 = 0;
-int16_t ECG_HEARTBEAT_08 = 0;
-int16_t ECG_HEARTBEAT_09 = 0;
-int16_t ECG_HEARTBEAT_10 = 0;
-int16_t ECG_HEARTBEAT_11 = 0;
-int16_t ECG_HEARTBEAT_12 = 0;
-int16_t ECG_HEARTBEAT_13 = 0;
-int16_t ECG_HEARTBEAT_14 = 0;
-int16_t ECG_HEARTBEAT_15 = 0;
-int16_t ECG_HEARTBEAT_16 = 0;
-int16_t ECG_HEARTBEAT_17 = 0;
-int16_t ECG_HEARTBEAT_18 = 0;
-int16_t ECG_HEARTBEAT_19 = 0;
-int16_t ECG_HEARTBEAT_20 = 0;
-int16_t ECG_HEARTBEAT_21 = 0;
-int16_t ECG_HEARTBEAT_22 = 0;
-int16_t ECG_HEARTBEAT_23 = 0;
-int16_t ECG_HEARTBEAT_24 = 0;
-int16_t ECG_HEARTBEAT_25 = 0;
-int16_t ECG_HEARTBEAT_26 = 0;
-int16_t ECG_HEARTBEAT_27 = 0;
-int16_t INFOAREAPIC = 0;
-int16_t TOP_STATUSBARPIC = 0;
-int16_t STATUSBARPIC = 0;
-int16_t PIRACYPALETTE = 0;
-int16_t APOGEEPALETTE = 0;
-int16_t TITLEPALETTE = 0;
-int16_t ORDERSCREEN = 0;
-int16_t ERRORSCREEN = 0;
-int16_t INFORMANT_HINTS = 0;
-int16_t NICE_SCIE_HINTS = 0;
-int16_t MEAN_SCIE_HINTS = 0;
-int16_t BRIEF_W1 = 0;
-int16_t BRIEF_I1 = 0;
-int16_t BRIEF_W2 = 0;
-int16_t BRIEF_I2 = 0;
-int16_t BRIEF_W3 = 0;
-int16_t BRIEF_I3 = 0;
-int16_t BRIEF_W4 = 0;
-int16_t BRIEF_I4 = 0;
-int16_t BRIEF_W5 = 0;
-int16_t BRIEF_I5 = 0;
-int16_t BRIEF_W6 = 0;
-int16_t BRIEF_I6 = 0;
-int16_t LEVEL_DESCS = 0;
-int16_t POWERBALLTEXT = 0;
-int16_t TICSTEXT = 0;
-int16_t MUSICTEXT = 0;
-int16_t RADARTEXT = 0;
-int16_t HELPTEXT = 0;
-int16_t SAGATEXT = 0;
-int16_t LOSETEXT = 0;
-int16_t ORDERTEXT = 0;
-int16_t CREDITSTEXT = 0;
-int16_t MUSTBE386TEXT = 0;
-int16_t QUICK_INFO1_TEXT = 0;
-int16_t QUICK_INFO2_TEXT = 0;
-int16_t BADINFO_TEXT = 0;
-int16_t CALJOY1_TEXT = 0;
-int16_t CALJOY2_TEXT = 0;
-int16_t READTHIS_TEXT = 0;
-int16_t ELEVMSG0_TEXT = 0;
-int16_t ELEVMSG1_TEXT = 0;
-int16_t ELEVMSG4_TEXT = 0;
-int16_t ELEVMSG5_TEXT = 0;
-int16_t FLOORMSG_TEXT = 0;
-int16_t YOUWIN_TEXT = 0;
-int16_t CHANGEVIEW_TEXT = 0;
-int16_t BADCHECKSUMTEXT = 0;
-int16_t DIZ_ERR_TEXT = 0;
-int16_t BADLEVELSTEXT = 0;
-int16_t BADSAVEGAME_TEXT = 0;
+std::int16_t TELEPORTBACKPIC = 0;
+std::int16_t TELEPORT1OFFPIC = 0;
+std::int16_t TELEPORT2OFFPIC = 0;
+std::int16_t TELEPORT3OFFPIC = 0;
+std::int16_t TELEPORT4OFFPIC = 0;
+std::int16_t TELEPORT5OFFPIC = 0;
+std::int16_t TELEPORT6OFFPIC = 0;
+std::int16_t TELEPORT7OFFPIC = 0;
+std::int16_t TELEPORT8OFFPIC = 0;
+std::int16_t TELEPORT9OFFPIC = 0;
+std::int16_t TELEPORT10OFFPIC = 0;
+std::int16_t TELEPORT1ONPIC = 0;
+std::int16_t TELEPORT2ONPIC = 0;
+std::int16_t TELEPORT3ONPIC = 0;
+std::int16_t TELEPORT4ONPIC = 0;
+std::int16_t TELEPORT5ONPIC = 0;
+std::int16_t TELEPORT6ONPIC = 0;
+std::int16_t TELEPORT7ONPIC = 0;
+std::int16_t TELEPORT8ONPIC = 0;
+std::int16_t TELEPORT9ONPIC = 0;
+std::int16_t TELEPORT10ONPIC = 0;
+std::int16_t TELEPORT_TEXT_BG = 0;
+std::int16_t BACKGROUND_SCREENPIC = 0;
+std::int16_t APOGEEPIC = 0;
+std::int16_t PIRACYPIC = 0;
+std::int16_t PC13PIC = 0;
+std::int16_t LOSEPIC = 0;
+std::int16_t AUTOMAPPIC = 0;
+std::int16_t PSPROMO1PIC = 0;
+std::int16_t PSPROMO2PIC = 0;
+std::int16_t PSPROMO3PIC = 0;
+std::int16_t H_ALTPIC = 0;
+std::int16_t H_CTRLPIC = 0;
+std::int16_t H_SPACEPIC = 0;
+std::int16_t H_PAUSEPIC = 0;
+std::int16_t H_ESCPIC = 0;
+std::int16_t H_LTARROWPIC = 0;
+std::int16_t H_UPARROWPIC = 0;
+std::int16_t H_DNARROWPIC = 0;
+std::int16_t H_RTARROWPIC = 0;
+std::int16_t H_ENTERPIC = 0;
+std::int16_t H_QPIC = 0;
+std::int16_t H_WPIC = 0;
+std::int16_t H_EPIC = 0;
+std::int16_t H_IPIC = 0;
+std::int16_t H_HPIC = 0;
+std::int16_t H_1PIC = 0;
+std::int16_t H_2PIC = 0;
+std::int16_t H_3PIC = 0;
+std::int16_t H_4PIC = 0;
+std::int16_t H_5PIC = 0;
+std::int16_t H_F1PIC = 0;
+std::int16_t H_F2PIC = 0;
+std::int16_t H_F3PIC = 0;
+std::int16_t H_F4PIC = 0;
+std::int16_t H_F5PIC = 0;
+std::int16_t H_F6PIC = 0;
+std::int16_t H_F7PIC = 0;
+std::int16_t H_F8PIC = 0;
+std::int16_t H_F9PIC = 0;
+std::int16_t H_F10PIC = 0;
+std::int16_t H_TABPIC = 0;
+std::int16_t H_CPIC = 0;
+std::int16_t H_FPIC = 0;
+std::int16_t H_PPIC = 0;
+std::int16_t H_MPIC = 0;
+std::int16_t H_LPIC = 0;
+std::int16_t H_SHIFTPIC = 0;
+std::int16_t APOGEE_LOGOPIC = 0;
+std::int16_t VISAPIC = 0;
+std::int16_t MCPIC = 0;
+std::int16_t FAXPIC = 0;
+std::int16_t H_TOPWINDOWPIC = 0;
+std::int16_t H_LEFTWINDOWPIC = 0;
+std::int16_t H_RIGHTWINDOWPIC = 0;
+std::int16_t H_BOTTOMINFOPIC = 0;
+std::int16_t C_NOTSELECTEDPIC = 0;
+std::int16_t C_SELECTEDPIC = 0;
+std::int16_t C_NOTSELECTED_HIPIC = 0;
+std::int16_t C_SELECTED_HIPIC = 0;
+std::int16_t C_BABYMODEPIC = 0;
+std::int16_t C_EASYPIC = 0;
+std::int16_t C_NORMALPIC = 0;
+std::int16_t C_HARDPIC = 0;
+std::int16_t C_EPISODE1PIC = 0;
+std::int16_t C_EPISODE2PIC = 0;
+std::int16_t C_EPISODE3PIC = 0;
+std::int16_t C_EPISODE4PIC = 0;
+std::int16_t C_EPISODE5PIC = 0;
+std::int16_t C_EPISODE6PIC = 0;
+std::int16_t BIGGOLDSTERNPIC = 0;
+std::int16_t STARLOGOPIC = 0;
+std::int16_t BLAKEWITHGUNPIC = 0;
+std::int16_t STARINSTITUTEPIC = 0;
+std::int16_t MEDALOFHONORPIC = 0;
+std::int16_t SMALLGOLDSTERNPIC = 0;
+std::int16_t BLAKEWINPIC = 0;
+std::int16_t SHUTTLEEXPPIC = 0;
+std::int16_t PLANETSPIC = 0;
+std::int16_t MOUSEPIC = 0;
+std::int16_t JOYSTICKPIC = 0;
+std::int16_t GRAVISPADPIC = 0;
+std::int16_t TITLEPIC = 0;
+std::int16_t PROMO1PIC = 0;
+std::int16_t PROMO2PIC = 0;
+std::int16_t WEAPON1PIC = 0;
+std::int16_t WEAPON2PIC = 0;
+std::int16_t WEAPON3PIC = 0;
+std::int16_t WEAPON4PIC = 0;
+std::int16_t WEAPON5PIC = 0;
+std::int16_t WAITPIC = 0;
+std::int16_t READYPIC = 0;
+std::int16_t N_BLANKPIC = 0;
+std::int16_t N_0PIC = 0;
+std::int16_t N_1PIC = 0;
+std::int16_t N_2PIC = 0;
+std::int16_t N_3PIC = 0;
+std::int16_t N_4PIC = 0;
+std::int16_t N_5PIC = 0;
+std::int16_t N_6PIC = 0;
+std::int16_t N_7PIC = 0;
+std::int16_t N_8PIC = 0;
+std::int16_t N_9PIC = 0;
+std::int16_t N_RPIC = 0;
+std::int16_t N_OPIC = 0;
+std::int16_t N_LPIC = 0;
+std::int16_t N_DASHPIC = 0;
+std::int16_t DIM_LIGHTPIC = 0;
+std::int16_t BRI_LIGHTPIC = 0;
+std::int16_t ECG_HEART_GOOD = 0;
+std::int16_t ECG_HEART_BAD = 0;
+std::int16_t ECG_GRID_PIECE = 0;
+std::int16_t AMMONUM_BACKGR = 0;
+std::int16_t ECG_HEARTBEAT_00 = 0;
+std::int16_t ECG_HEARTBEAT_01 = 0;
+std::int16_t ECG_HEARTBEAT_02 = 0;
+std::int16_t ECG_HEARTBEAT_03 = 0;
+std::int16_t ECG_HEARTBEAT_04 = 0;
+std::int16_t ECG_HEARTBEAT_05 = 0;
+std::int16_t ECG_HEARTBEAT_06 = 0;
+std::int16_t ECG_HEARTBEAT_07 = 0;
+std::int16_t ECG_HEARTBEAT_08 = 0;
+std::int16_t ECG_HEARTBEAT_09 = 0;
+std::int16_t ECG_HEARTBEAT_10 = 0;
+std::int16_t ECG_HEARTBEAT_11 = 0;
+std::int16_t ECG_HEARTBEAT_12 = 0;
+std::int16_t ECG_HEARTBEAT_13 = 0;
+std::int16_t ECG_HEARTBEAT_14 = 0;
+std::int16_t ECG_HEARTBEAT_15 = 0;
+std::int16_t ECG_HEARTBEAT_16 = 0;
+std::int16_t ECG_HEARTBEAT_17 = 0;
+std::int16_t ECG_HEARTBEAT_18 = 0;
+std::int16_t ECG_HEARTBEAT_19 = 0;
+std::int16_t ECG_HEARTBEAT_20 = 0;
+std::int16_t ECG_HEARTBEAT_21 = 0;
+std::int16_t ECG_HEARTBEAT_22 = 0;
+std::int16_t ECG_HEARTBEAT_23 = 0;
+std::int16_t ECG_HEARTBEAT_24 = 0;
+std::int16_t ECG_HEARTBEAT_25 = 0;
+std::int16_t ECG_HEARTBEAT_26 = 0;
+std::int16_t ECG_HEARTBEAT_27 = 0;
+std::int16_t INFOAREAPIC = 0;
+std::int16_t TOP_STATUSBARPIC = 0;
+std::int16_t STATUSBARPIC = 0;
+std::int16_t PIRACYPALETTE = 0;
+std::int16_t APOGEEPALETTE = 0;
+std::int16_t TITLEPALETTE = 0;
+std::int16_t ORDERSCREEN = 0;
+std::int16_t ERRORSCREEN = 0;
+std::int16_t INFORMANT_HINTS = 0;
+std::int16_t NICE_SCIE_HINTS = 0;
+std::int16_t MEAN_SCIE_HINTS = 0;
+std::int16_t BRIEF_W1 = 0;
+std::int16_t BRIEF_I1 = 0;
+std::int16_t BRIEF_W2 = 0;
+std::int16_t BRIEF_I2 = 0;
+std::int16_t BRIEF_W3 = 0;
+std::int16_t BRIEF_I3 = 0;
+std::int16_t BRIEF_W4 = 0;
+std::int16_t BRIEF_I4 = 0;
+std::int16_t BRIEF_W5 = 0;
+std::int16_t BRIEF_I5 = 0;
+std::int16_t BRIEF_W6 = 0;
+std::int16_t BRIEF_I6 = 0;
+std::int16_t LEVEL_DESCS = 0;
+std::int16_t POWERBALLTEXT = 0;
+std::int16_t TICSTEXT = 0;
+std::int16_t MUSICTEXT = 0;
+std::int16_t RADARTEXT = 0;
+std::int16_t HELPTEXT = 0;
+std::int16_t SAGATEXT = 0;
+std::int16_t LOSETEXT = 0;
+std::int16_t ORDERTEXT = 0;
+std::int16_t CREDITSTEXT = 0;
+std::int16_t MUSTBE386TEXT = 0;
+std::int16_t QUICK_INFO1_TEXT = 0;
+std::int16_t QUICK_INFO2_TEXT = 0;
+std::int16_t BADINFO_TEXT = 0;
+std::int16_t CALJOY1_TEXT = 0;
+std::int16_t CALJOY2_TEXT = 0;
+std::int16_t READTHIS_TEXT = 0;
+std::int16_t ELEVMSG0_TEXT = 0;
+std::int16_t ELEVMSG1_TEXT = 0;
+std::int16_t ELEVMSG4_TEXT = 0;
+std::int16_t ELEVMSG5_TEXT = 0;
+std::int16_t FLOORMSG_TEXT = 0;
+std::int16_t YOUWIN_TEXT = 0;
+std::int16_t CHANGEVIEW_TEXT = 0;
+std::int16_t BADCHECKSUMTEXT = 0;
+std::int16_t DIZ_ERR_TEXT = 0;
+std::int16_t BADLEVELSTEXT = 0;
+std::int16_t BADSAVEGAME_TEXT = 0;
 
-int16_t TELEPORTBACKTOPPIC = 0;
-int16_t TELEPORTBACKBOTPIC = 0;
-int16_t TELEPORT11ONPIC = 0;
-int16_t TELEPORT12ONPIC = 0;
-int16_t TELEPORT13ONPIC = 0;
-int16_t TELEPORT14ONPIC = 0;
-int16_t TELEPORT15ONPIC = 0;
-int16_t TELEPORT16ONPIC = 0;
-int16_t TELEPORT17ONPIC = 0;
-int16_t TELEPORT18ONPIC = 0;
-int16_t TELEPORT19ONPIC = 0;
-int16_t TELEPORT20ONPIC = 0;
-int16_t TELEUPONPIC = 0;
-int16_t TELEDNONPIC = 0;
-int16_t TELEUPOFFPIC = 0;
-int16_t TELEDNOFFPIC = 0;
-int16_t TELEPORT11OFFPIC = 0;
-int16_t TELEPORT12OFFPIC = 0;
-int16_t TELEPORT13OFFPIC = 0;
-int16_t TELEPORT14OFFPIC = 0;
-int16_t TELEPORT15OFFPIC = 0;
-int16_t TELEPORT16OFFPIC = 0;
-int16_t TELEPORT17OFFPIC = 0;
-int16_t TELEPORT18OFFPIC = 0;
-int16_t TELEPORT19OFFPIC = 0;
-int16_t TELEPORT20OFFPIC = 0;
-int16_t AUTOMAP_MAG1PIC = 0;
-int16_t AUTOMAP_MAG2PIC = 0;
-int16_t AUTOMAP_MAG4PIC = 0;
-int16_t H_6PIC = 0;
-int16_t H_TILDEPIC = 0;
-int16_t H_PLUSPIC = 0;
-int16_t H_MINUSPIC = 0;
-int16_t STARPORTPIC = 0;
-int16_t BOSSPIC = 0;
-int16_t THREEPLANETSPIC = 0;
-int16_t SOLARSYSTEMPIC = 0;
-int16_t AOGENDINGPIC = 0;
-int16_t GFLOGOSPIC = 0;
-int16_t BLAKEHEADPIC = 0;
-int16_t PROJECTFOLDERPIC = 0;
-int16_t TITLE1PIC = 0;
-int16_t TITLE2PIC = 0;
-int16_t WEAPON6PIC = 0;
-int16_t WEAPON7PIC = 0;
-int16_t W1_CORNERPIC = 0;
-int16_t W2_CORNERPIC = 0;
-int16_t W3_CORNERPIC = 0;
-int16_t W4_CORNERPIC = 0;
-int16_t W5_CORNERPIC = 0;
-int16_t W6_CORNERPIC = 0;
-int16_t NG_BLANKPIC = 0;
-int16_t NG_0PIC = 0;
-int16_t NG_1PIC = 0;
-int16_t NG_2PIC = 0;
-int16_t NG_3PIC = 0;
-int16_t NG_4PIC = 0;
-int16_t NG_5PIC = 0;
-int16_t NG_6PIC = 0;
-int16_t NG_7PIC = 0;
-int16_t NG_8PIC = 0;
-int16_t NG_9PIC = 0;
-int16_t ONEXZOOMPIC = 0;
-int16_t TWOXZOOMPIC = 0;
-int16_t FOURXZOOMPIC = 0;
-int16_t NO_KEYPIC = 0;
-int16_t RED_KEYPIC = 0;
-int16_t YEL_KEYPIC = 0;
-int16_t BLU_KEYPIC = 0;
-int16_t ENDINGPALETTE = 0;
-int16_t NO386SCREEN = 0;
-int16_t T_DEMO0 = 0;
-int16_t T_DEMO1 = 0;
-int16_t T_DEMO2 = 0;
-int16_t T_DEMO3 = 0;
-int16_t T_DEMO4 = 0;
-int16_t T_DEMO5 = 0;
-int16_t DECOY = 0;
-int16_t DECOY2 = 0;
-int16_t DECOY3 = 0;
-int16_t DECOY4 = 0;
+std::int16_t TELEPORTBACKTOPPIC = 0;
+std::int16_t TELEPORTBACKBOTPIC = 0;
+std::int16_t TELEPORT11ONPIC = 0;
+std::int16_t TELEPORT12ONPIC = 0;
+std::int16_t TELEPORT13ONPIC = 0;
+std::int16_t TELEPORT14ONPIC = 0;
+std::int16_t TELEPORT15ONPIC = 0;
+std::int16_t TELEPORT16ONPIC = 0;
+std::int16_t TELEPORT17ONPIC = 0;
+std::int16_t TELEPORT18ONPIC = 0;
+std::int16_t TELEPORT19ONPIC = 0;
+std::int16_t TELEPORT20ONPIC = 0;
+std::int16_t TELEUPONPIC = 0;
+std::int16_t TELEDNONPIC = 0;
+std::int16_t TELEUPOFFPIC = 0;
+std::int16_t TELEDNOFFPIC = 0;
+std::int16_t TELEPORT11OFFPIC = 0;
+std::int16_t TELEPORT12OFFPIC = 0;
+std::int16_t TELEPORT13OFFPIC = 0;
+std::int16_t TELEPORT14OFFPIC = 0;
+std::int16_t TELEPORT15OFFPIC = 0;
+std::int16_t TELEPORT16OFFPIC = 0;
+std::int16_t TELEPORT17OFFPIC = 0;
+std::int16_t TELEPORT18OFFPIC = 0;
+std::int16_t TELEPORT19OFFPIC = 0;
+std::int16_t TELEPORT20OFFPIC = 0;
+std::int16_t AUTOMAP_MAG1PIC = 0;
+std::int16_t AUTOMAP_MAG2PIC = 0;
+std::int16_t AUTOMAP_MAG4PIC = 0;
+std::int16_t H_6PIC = 0;
+std::int16_t H_TILDEPIC = 0;
+std::int16_t H_PLUSPIC = 0;
+std::int16_t H_MINUSPIC = 0;
+std::int16_t STARPORTPIC = 0;
+std::int16_t BOSSPIC = 0;
+std::int16_t THREEPLANETSPIC = 0;
+std::int16_t SOLARSYSTEMPIC = 0;
+std::int16_t AOGENDINGPIC = 0;
+std::int16_t GFLOGOSPIC = 0;
+std::int16_t BLAKEHEADPIC = 0;
+std::int16_t PROJECTFOLDERPIC = 0;
+std::int16_t TITLE1PIC = 0;
+std::int16_t TITLE2PIC = 0;
+std::int16_t WEAPON6PIC = 0;
+std::int16_t WEAPON7PIC = 0;
+std::int16_t W1_CORNERPIC = 0;
+std::int16_t W2_CORNERPIC = 0;
+std::int16_t W3_CORNERPIC = 0;
+std::int16_t W4_CORNERPIC = 0;
+std::int16_t W5_CORNERPIC = 0;
+std::int16_t W6_CORNERPIC = 0;
+std::int16_t NG_BLANKPIC = 0;
+std::int16_t NG_0PIC = 0;
+std::int16_t NG_1PIC = 0;
+std::int16_t NG_2PIC = 0;
+std::int16_t NG_3PIC = 0;
+std::int16_t NG_4PIC = 0;
+std::int16_t NG_5PIC = 0;
+std::int16_t NG_6PIC = 0;
+std::int16_t NG_7PIC = 0;
+std::int16_t NG_8PIC = 0;
+std::int16_t NG_9PIC = 0;
+std::int16_t ONEXZOOMPIC = 0;
+std::int16_t TWOXZOOMPIC = 0;
+std::int16_t FOURXZOOMPIC = 0;
+std::int16_t NO_KEYPIC = 0;
+std::int16_t RED_KEYPIC = 0;
+std::int16_t YEL_KEYPIC = 0;
+std::int16_t BLU_KEYPIC = 0;
+std::int16_t ENDINGPALETTE = 0;
+std::int16_t NO386SCREEN = 0;
+std::int16_t T_DEMO0 = 0;
+std::int16_t T_DEMO1 = 0;
+std::int16_t T_DEMO2 = 0;
+std::int16_t T_DEMO3 = 0;
+std::int16_t T_DEMO4 = 0;
+std::int16_t T_DEMO5 = 0;
+std::int16_t DECOY = 0;
+std::int16_t DECOY2 = 0;
+std::int16_t DECOY3 = 0;
+std::int16_t DECOY4 = 0;
 
 
 void initialize_gfxv_contants()
@@ -6978,12 +6978,12 @@ void initialize_gfxv_contants()
 
 void InitSmartSpeedAnim(
     objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
+    std::uint16_t ShapeNum,
+    std::uint8_t StartOfs,
+    std::uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir,
-    uint16_t Delay)
+    std::uint16_t Delay)
 {
     ::InitAnim(
         obj,
@@ -6998,9 +6998,9 @@ void InitSmartSpeedAnim(
 
 void InitSmartAnim(
     objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
+    std::uint16_t ShapeNum,
+    std::uint8_t StartOfs,
+    std::uint8_t MaxOfs,
     animtype_t AnimType,
     animdir_t AnimDir)
 {
@@ -7138,7 +7138,7 @@ void read_high_scores()
 
         if (is_succeed) {
 			const auto& endian = bstone::Endian{};
-            uint32_t saved_checksum = 0;
+            std::uint32_t saved_checksum = 0;
             reader.read(saved_checksum);
 			endian.little_i(saved_checksum);
 
@@ -7537,7 +7537,7 @@ void read_text_config()
     ::is_config_loaded = true;
 
 
-    const auto default_game_state_flags = uint16_t{
+    const auto default_game_state_flags = std::uint16_t{
         GS_HEARTB_SOUND |
         GS_ATTACK_INFOAREA |
         GS_LIGHTING |
@@ -7715,7 +7715,7 @@ void read_text_config()
                     }
                     else if (name == in_joystick_port_name)
                     {
-                        auto value = int16_t{};
+                        auto value = std::int16_t{};
 
                         if (string_helper.lexical_cast(value_string, value))
                         {
@@ -7753,7 +7753,7 @@ void read_text_config()
                         {
                             if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
                             {
-                                auto value = int16_t{};
+                                auto value = std::int16_t{};
 
                                 if (string_helper.lexical_cast(value_string, value))
                                 {
@@ -7773,7 +7773,7 @@ void read_text_config()
                         {
                             if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
                             {
-                                auto value = int16_t{};
+                                auto value = std::int16_t{};
 
                                 if (string_helper.lexical_cast(value_string, value))
                                 {
@@ -7800,7 +7800,7 @@ void read_text_config()
                     }
                     else if (name == gp_flags_name)
                     {
-                        auto value = uint16_t{};
+                        auto value = std::uint16_t{};
 
                         if (string_helper.lexical_cast(value_string, value))
                         {
@@ -8113,12 +8113,12 @@ bool ShowQuickMsg;
 =====================
 */
 void NewGame(
-    int16_t difficulty,
-    int16_t episode)
+    std::int16_t difficulty,
+    std::int16_t episode)
 {
 	const auto& assets_info = AssetsInfo{};
 
-    uint16_t oldf = gamestate.flags, loop;
+    std::uint16_t oldf = gamestate.flags, loop;
 
     InitPlaytemp();
     playstate = ex_stillplaying;
@@ -8198,7 +8198,7 @@ int FindChunk(
 
     for (bool quit = false; !quit; ) {
         if (stream->read(src_chunk_name_buffer, 4) == 4) {
-            int32_t chunk_size = 0;
+            std::int32_t chunk_size = 0;
 
             if (stream->read(&chunk_size, 4) == 4) {
 				const auto& endian = bstone::Endian{};
@@ -8235,7 +8235,7 @@ int NextChunk(
         is_succeed = (stream->read(name_buffer, 4) == 4);
     }
 
-    int32_t chunk_size = 0;
+    std::int32_t chunk_size = 0;
 
     if (is_succeed) {
         is_succeed = (stream->read(&chunk_size, 4) == 4);
@@ -8249,8 +8249,8 @@ int NextChunk(
     return 0;
 }
 
-int8_t LS_current = -1;
-int8_t LS_total = -1;
+std::int8_t LS_current = -1;
+std::int8_t LS_total = -1;
 
 bool LoadLevel(
 	int level_index)
@@ -8259,8 +8259,8 @@ bool LoadLevel(
 
 	bool oldloaded = loadedgame;
 
-	extern int16_t nsd_table[];
-	extern int16_t sm_table[];
+	extern std::int16_t nsd_table[];
+	extern std::int16_t sm_table[];
 
 	WindowY = 181;
 
@@ -8327,7 +8327,7 @@ bool LoadLevel(
 		{
 			for (int j = 0; j < MAPSIZE; ++j)
 			{
-				int32_t value = 0;
+				std::int32_t value = 0;
 				::deserialize_field(value, reader, checksum);
 
 				if (value < 0)
@@ -8336,7 +8336,7 @@ bool LoadLevel(
 				}
 				else
 				{
-					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<size_t>(value));
+					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<std::size_t>(value));
 				}
 			}
 		}
@@ -8347,7 +8347,7 @@ bool LoadLevel(
 		// Restore 'save game' actors
 		//
 
-		int32_t actor_count = 0;
+		std::int32_t actor_count = 0;
 		::deserialize_field(actor_count, reader, checksum);
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
@@ -8360,7 +8360,7 @@ bool LoadLevel(
 		// First actor is always player
 		new_actor->deserialize(reader, checksum);
 
-		for (int32_t i = 1; i < actor_count; ++i)
+		for (std::int32_t i = 1; i < actor_count; ++i)
 		{
 			::GetNewActor();
 			new_actor->deserialize(reader, checksum);
@@ -8400,7 +8400,7 @@ bool LoadLevel(
 		// Read all sorts of stuff...
 		//
 
-		int32_t laststatobj_index = 0;
+		std::int32_t laststatobj_index = 0;
 		::deserialize_field(laststatobj_index, reader, checksum);
 
 		if (laststatobj_index < 0)
@@ -8467,7 +8467,7 @@ bool LoadLevel(
 	{
 		const auto& endian = bstone::Endian{};
 
-		uint32_t saved_checksum = 0;
+		std::uint32_t saved_checksum = 0;
 		reader.read(saved_checksum);
 		endian.little_i(saved_checksum);
 
@@ -8476,12 +8476,12 @@ bool LoadLevel(
 
 	if (!is_succeed)
 	{
-		int16_t old_wx = WindowX;
-		int16_t old_wy = WindowY;
-		int16_t old_ww = WindowW;
-		int16_t old_wh = WindowH;
-		int16_t old_px = px;
-		int16_t old_py = py;
+		std::int16_t old_wx = WindowX;
+		std::int16_t old_wy = WindowY;
+		std::int16_t old_ww = WindowW;
+		std::int16_t old_wh = WindowH;
+		std::int16_t old_px = px;
+		std::int16_t old_py = py;
 
 		WindowX = 0;
 		WindowY = 16;
@@ -8530,7 +8530,7 @@ bool SaveLevel(
 
     // Make sure floor stats are saved!
     //
-    int16_t oldmapon = gamestate.mapon;
+    std::int16_t oldmapon = gamestate.mapon;
     gamestate.mapon = gamestate.lastmapon;
     ::ShowStats(0, 0, ss_justcalc,
                 &gamestuff.level[gamestate.mapon].stats);
@@ -8558,7 +8558,7 @@ bool SaveLevel(
     g_playtemp.skip(4);
 
     bstone::Crc32 checksum;
-    int64_t beg_offset = g_playtemp.get_position();
+    std::int64_t beg_offset = g_playtemp.get_position();
 
 	auto writer = bstone::BinaryWriter{&g_playtemp};
 
@@ -8570,14 +8570,14 @@ bool SaveLevel(
 
     for (int i = 0; i < MAPSIZE; ++i) {
         for (int j = 0; j < MAPSIZE; ++j) {
-            int32_t s_value;
+            std::int32_t s_value;
 
             if (actorat[i][j] >= objlist) {
-                s_value = -static_cast<int32_t>(
+                s_value = -static_cast<std::int32_t>(
                     actorat[i][j] - objlist);
             } else {
-                s_value = static_cast<int32_t>(
-                    reinterpret_cast<size_t>(actorat[i][j]));
+                s_value = static_cast<std::int32_t>(
+                    reinterpret_cast<std::size_t>(actorat[i][j]));
             }
 
             ::serialize_field(s_value, writer, checksum);
@@ -8591,7 +8591,7 @@ bool SaveLevel(
     // objlist
     //
 
-    int32_t actor_count = 0;
+    std::int32_t actor_count = 0;
     const objtype* actor = nullptr;
 
     for (actor = player; actor; actor = actor->next) {
@@ -8608,8 +8608,8 @@ bool SaveLevel(
     // laststatobj
     //
 
-    int32_t laststatobj_index =
-        static_cast<int32_t>(laststatobj - statobjlist);
+    std::int32_t laststatobj_index =
+        static_cast<std::int32_t>(laststatobj - statobjlist);
 
     ::serialize_field(laststatobj_index, writer, checksum);
 
@@ -8660,8 +8660,8 @@ bool SaveLevel(
     //
     writer.write(endian.little(checksum.get_value()));
 
-    int64_t end_offset = g_playtemp.get_position();
-    int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
+    std::int64_t end_offset = g_playtemp.get_position();
+    std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
 
     // Write chunk size, set file size, and close file
     //
@@ -8683,7 +8683,7 @@ int DeleteChunk(
     int chunk_size = ::FindChunk(&stream, chunk_name);
 
     if (chunk_size > 0) {
-        int64_t offset = stream.get_position() - 8;
+        std::int64_t offset = stream.get_position() - 8;
         int count = chunk_size + 8;
 
         stream.remove_block(offset, count);
@@ -9162,7 +9162,7 @@ bool LevelInPlaytemp(
 }
 
 bool CheckDiskSpace(
-    int32_t needed,
+    std::int32_t needed,
     const char* text,
     cds_io_type io_type)
 {
@@ -9177,8 +9177,8 @@ void CleanUpDoors_N_Actors()
     int x;
     int y;
     objtype* actor;
-    uint8_t tile;
-    uint16_t door;
+    std::uint8_t tile;
+    std::uint16_t door;
 
     for (y = 0; y < mapheight; ++y) {
         for (x = 0; x < mapwidth; ++x) {
@@ -9193,8 +9193,8 @@ void CleanUpDoors_N_Actors()
             tile = tilemap[y][x];
             if ((tile & 0x80) != 0) {
                 // Found a door
-                uint16_t actor_u16 = static_cast<uint16_t>(
-                    reinterpret_cast<size_t>(actor));
+                std::uint16_t actor_u16 = static_cast<std::uint16_t>(
+                    reinterpret_cast<std::size_t>(actor));
 
                 if (ui16_to_actor(actor_u16)) {
                     // Found an actor
@@ -9252,15 +9252,15 @@ void ClearNClose()
         ::doorposition[door_index] = 0; // draw it closed!
 
         // make it solid!
-        ::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<size_t>(door_index | 0x80));
+        ::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
     }
 }
 
 void CycleColors()
 {
     const int NUM_RANGES = 5;
-    const uint8_t CRNG_LOW = 0xF0;
-    const uint8_t CRNG_HIGH = 0xFE;
+    const std::uint8_t CRNG_LOW = 0xF0;
+    const std::uint8_t CRNG_HIGH = 0xFE;
     const int CRNG_SIZE = CRNG_HIGH - CRNG_LOW + 1;
 
     static CycleInfo crng[NUM_RANGES] = {
@@ -9271,18 +9271,18 @@ void CycleColors()
         { 12, 0, 0xFA, 0xFE },
     };
 
-    uint8_t loop;
-    uint8_t cbuffer[CRNG_SIZE][3];
+    std::uint8_t loop;
+    std::uint8_t cbuffer[CRNG_SIZE][3];
     bool changes = false;
 
     for (loop = 0; loop < NUM_RANGES; loop++) {
         CycleInfo* c = &crng[loop];
 
         if (tics >= c->delay_count) {
-            uint8_t temp[3], first, last, numregs;
+            std::uint8_t temp[3], first, last, numregs;
 
             if (!changes) {
-                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
+                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
                 changes = true;
             }
 
@@ -9296,14 +9296,14 @@ void CycleColors()
 
             c->delay_count = c->init_delay;
         } else {
-            c->delay_count -= static_cast<uint8_t>(tics);
+            c->delay_count -= static_cast<std::uint8_t>(tics);
         }
     }
 
     bool use_delay = false;
 
     if (changes) {
-        ::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
+        ::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
         ::VL_RefreshScreen();
 
         use_delay = !::vid_has_vsync;
@@ -9346,7 +9346,7 @@ void ShutdownId()
 ====================
 */
 void CalcProjection(
-    int32_t focal)
+    std::int32_t focal)
 {
     ::focallength = focal;
     const double facedist = focal + MINDIST;
@@ -9545,12 +9545,12 @@ void DemoLoop()
 				::VL_SetPalette(
 					0,
 					256,
-					reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]));
+					reinterpret_cast<const std::uint8_t*>(::grsegs[TITLEPALETTE]));
 
 				::VL_SetPaletteIntensity(
 					0,
 					255,
-					reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]),
+					reinterpret_cast<const std::uint8_t*>(::grsegs[TITLEPALETTE]),
 					0);
 
 				auto version_text_width = 0;
@@ -9582,12 +9582,12 @@ void DemoLoop()
 					::vga_ref_height -
 					(version_bar_height + ps_fizzle_height));
 
-				::WindowX = static_cast<uint16_t>(version_bar_x);
-				::WindowY = static_cast<uint16_t>(version_bar_y);
+				::WindowX = static_cast<std::uint16_t>(version_bar_x);
+				::WindowY = static_cast<std::uint16_t>(version_bar_y);
 				::PrintX = ::WindowX + version_padding;
 				::PrintY = ::WindowY + version_padding;
-				::WindowW = static_cast<uint16_t>(version_bar_width);
-				::WindowH = static_cast<uint16_t>(version_bar_height);
+				::WindowW = static_cast<std::uint16_t>(version_bar_width);
+				::WindowH = static_cast<std::uint16_t>(version_bar_height);
 
 				::VWB_Bar(
 					::WindowX,
@@ -9600,7 +9600,7 @@ void DemoLoop()
 				::US_Print(::get_version_string().c_str());
 
 				VW_UpdateScreen();
-				::VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(::grsegs[TITLEPALETTE]), 30);
+				::VL_FadeIn(0, 255, reinterpret_cast<std::uint8_t*>(::grsegs[TITLEPALETTE]), 30);
 				::UNCACHEGRCHUNK(TITLEPALETTE);
 
 				if (assets_info.is_ps())
@@ -9702,14 +9702,14 @@ void DrawCreditsPage()
     pi.ltcolor = BORDER_HI_COLOR;
     fontcolor = BORDER_TEXT_COLOR;
     pi.shcolor = pi.dkcolor = 0;
-    pi.fontnumber = static_cast<int8_t>(fontnumber);
+    pi.fontnumber = static_cast<std::int8_t>(fontnumber);
 
     TP_LoadScript(nullptr, &pi, CREDITSTEXT);
     TP_Presenter(&pi);
 }
 
 
-int16_t debug_value = 0;
+std::int16_t debug_value = 0;
 
 int main(
     int argc,
@@ -9723,7 +9723,7 @@ int main(
 #endif
     int sdl_result = 0;
 
-    uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+    std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
 
     sdl_result = ::SDL_Init(init_flags);
 
@@ -9797,7 +9797,7 @@ void objtype::serialize(
     ::serialize_field(ticcount, writer, checksum);
     ::serialize_field(obclass, writer, checksum);
 
-    int32_t state_index = static_cast<int32_t>(::get_state_index(state));
+    std::int32_t state_index = static_cast<std::int32_t>(::get_state_index(state));
     ::serialize_field(state_index, writer, checksum);
 
     ::serialize_field(flags, writer, checksum);
@@ -9835,7 +9835,7 @@ void objtype::deserialize(
     ::deserialize_field(ticcount, reader, checksum);
     ::deserialize_field(obclass, reader, checksum);
 
-    int32_t state_index = 0;
+    std::int32_t state_index = 0;
     ::deserialize_field(state_index, reader, checksum);
     state = states_list[state_index];
 
@@ -9871,7 +9871,7 @@ void statobj_t::serialize(
     ::serialize_field(tiley, writer, checksum);
     ::serialize_field(areanumber, writer, checksum);
 
-    int32_t vis_index = static_cast<int32_t>(visspot - &spotvis[0][0]);
+    std::int32_t vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
     ::serialize_field(vis_index, writer, checksum);
 
     ::serialize_field(shapenum, writer, checksum);
@@ -9888,7 +9888,7 @@ void statobj_t::deserialize(
     ::deserialize_field(tiley, reader, checksum);
     ::deserialize_field(areanumber, reader, checksum);
 
-    int32_t vis_index = 0;
+    std::int32_t vis_index = 0;
     ::deserialize_field(vis_index, reader, checksum);
 
     if (vis_index < 0) {
@@ -10271,7 +10271,7 @@ void gametype::deserialize(
     ::deserialize_field(weaponframe, reader, checksum);
     ::deserialize_field(episode, reader, checksum);
 
-    uint32_t time_count = 0;
+    std::uint32_t time_count = 0;
     ::deserialize_field(time_count, reader, checksum);
 
     msg = nullptr;

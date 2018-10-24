@@ -130,7 +130,7 @@ public:
 		return stream_->write(&value, sizeof(T));
 	}
 
-	template<typename T, size_t N>
+	template<typename T, std::size_t N>
 	bool write(
 		const T(&value)[N])
 	{

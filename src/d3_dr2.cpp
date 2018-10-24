@@ -48,8 +48,8 @@ void HitVertPWall();
 
 extern int finetangent[FINEANGLES / 4];
 extern int viewwidth;
-extern uint8_t tilemap[MAPSIZE][MAPSIZE];
-extern uint8_t spotvis[MAPSIZE][MAPSIZE];
+extern std::uint8_t tilemap[MAPSIZE][MAPSIZE];
+extern std::uint8_t spotvis[MAPSIZE][MAPSIZE];
 extern std::vector<int> pixelangle;
 extern int midangle;
 extern int focaltx;
@@ -73,8 +73,8 @@ extern int xintercept;
 extern int yintercept;
 extern int xstep;
 extern int ystep;
-extern uint16_t doorposition[MAXDOORS];
-extern uint16_t pwallpos;
+extern std::uint16_t doorposition[MAXDOORS];
+extern std::uint16_t pwallpos;
 
 
 static int partial_by_step(
@@ -211,9 +211,9 @@ vertcheck:
 
 vertentry:
 
-    if (reinterpret_cast<const uint8_t*>(tilemap)[xs] != 0) {
+    if (reinterpret_cast<const std::uint8_t*>(tilemap)[xs] != 0) {
         tilehit &= 0xFF00;
-        tilehit |= reinterpret_cast<const uint8_t*>(tilemap)[xs];
+        tilehit |= reinterpret_cast<const std::uint8_t*>(tilemap)[xs];
 
         if ((tilehit & 0x80) != 0) {
             //
@@ -324,7 +324,7 @@ vertentry:
         }
     }
 
-    reinterpret_cast<uint8_t*>(spotvis)[xs] = 1;
+    reinterpret_cast<std::uint8_t*>(spotvis)[xs] = 1;
 
     xt += xtilestep;
 
@@ -352,9 +352,9 @@ horizcheck:
 
 horizentry:
 
-    if (reinterpret_cast<const uint8_t*>(tilemap)[ys] != 0) {
+    if (reinterpret_cast<const std::uint8_t*>(tilemap)[ys] != 0) {
         tilehit &= 0xFF00;
-        tilehit |= reinterpret_cast<const uint8_t*>(tilemap)[ys];
+        tilehit |= reinterpret_cast<const std::uint8_t*>(tilemap)[ys];
 
         if ((tilehit & 0x80) != 0) {
             //
@@ -465,7 +465,7 @@ horizentry:
         }
     }
 
-    reinterpret_cast<uint8_t*>(spotvis)[ys] = 1;
+    reinterpret_cast<std::uint8_t*>(spotvis)[ys] = 1;
 
     yt += ytilestep;
 

@@ -60,12 +60,12 @@ void VH_UpdateScreen();
 
 // Global variables
 char* abortprogram;
-int16_t PrintX;
-int16_t PrintY;
-int16_t WindowX;
-int16_t WindowY;
-int16_t WindowW;
-int16_t WindowH;
+std::int16_t PrintX;
+std::int16_t PrintY;
+std::int16_t WindowX;
+std::int16_t WindowY;
+std::int16_t WindowW;
+std::int16_t WindowH;
 
 US_CursorStruct US_CustomCursor; // JAM
 bool use_custom_cursor = false; // JAM
@@ -78,8 +78,8 @@ bool US_Started;
 bool Button0;
 bool Button1;
 bool CursorBad;
-int16_t CursorX;
-int16_t CursorY;
+std::int16_t CursorX;
+std::int16_t CursorY;
 
 void (* USL_MeasureString)(
     const char*,
@@ -96,7 +96,7 @@ namespace {
 
 
 SDL_TimerID sys_timer_id;
-std::atomic<uint32_t> sys_timer_ticks;
+std::atomic<std::uint32_t> sys_timer_ticks;
 
 
 Uint32 sys_timer_callback(
@@ -115,7 +115,7 @@ Uint32 sys_timer_callback(
 } // namespace
 
 
-uint32_t sys_get_timer_ticks()
+std::uint32_t sys_get_timer_ticks()
 {
     return ::sys_timer_ticks;
 }
@@ -181,9 +181,9 @@ void US_Print(
             s++;
 
             PrintX = WindowX;
-            PrintY = static_cast<uint16_t>(PrintY + h);
+            PrintY = static_cast<std::uint16_t>(PrintY + h);
         } else {
-            PrintX = static_cast<uint16_t>(PrintX + w);
+            PrintX = static_cast<std::uint16_t>(PrintX + w);
         }
     }
 }
@@ -194,7 +194,7 @@ void US_Print(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_PrintUnsigned(
-    uint32_t n)
+    std::uint32_t n)
 {
     auto buffer = std::to_string(n);
     ::US_Print(buffer.c_str());
@@ -218,8 +218,8 @@ void USL_PrintInCenter(
     rw = r.lr.x - r.ul.x;
     rh = r.lr.y - r.ul.y;
 
-    px = static_cast<int16_t>(r.ul.x + ((rw - w) / 2));
-    py = static_cast<int16_t>(r.ul.y + ((rh - h) / 2));
+    px = static_cast<std::int16_t>(r.ul.x + ((rw - w) / 2));
+    py = static_cast<std::int16_t>(r.ul.y + ((rh - h) / 2));
     USL_DrawString(s);
 }
 
@@ -258,10 +258,10 @@ void US_CPrintLine(
     if (w > WindowW) {
         ::Quit("String exceeds width.");
     }
-    px = static_cast<int16_t>(WindowX + ((WindowW - w) / 2));
+    px = static_cast<std::int16_t>(WindowX + ((WindowW - w) / 2));
     py = PrintY;
     USL_DrawString(s);
-    PrintY = static_cast<uint16_t>(PrintY + h);
+    PrintY = static_cast<std::uint16_t>(PrintY + h);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -421,8 +421,8 @@ void US_RestoreWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void USL_XORICursor(
-    int16_t x,
-    int16_t y,
+    std::int16_t x,
+    std::int16_t y,
     char* s,
     int cursor)
 {
@@ -435,7 +435,7 @@ static void USL_XORICursor(
     buf[cursor] = '\0';
     USL_MeasureString(buf, &w, &h);
 
-    px = static_cast<int16_t>(x + w - 1);
+    px = static_cast<std::int16_t>(x + w - 1);
     py = y;
 
     VL_WaitVBL(1);
@@ -448,7 +448,7 @@ static void USL_XORICursor(
         temp = fontcolor;
         fontcolor = backcolor;
         USL_DrawString("\x80");
-        fontcolor = static_cast<uint8_t>(temp);
+        fontcolor = static_cast<std::uint8_t>(temp);
     }
 
 }
@@ -461,8 +461,8 @@ static void USL_XORICursor(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void USL_CustomCursor(
-    int16_t x,
-    int16_t y,
+    std::int16_t x,
+    std::int16_t y,
     char* s,
     int cursor)
 {
@@ -475,7 +475,7 @@ static void USL_CustomCursor(
     buf[cursor] = '\0';
     USL_MeasureString(buf, &w, &h);
 
-    px = static_cast<int16_t>(x + w - 1);
+    px = static_cast<std::int16_t>(x + w - 1);
     py = y;
 
     temp = fontcolor;
@@ -486,7 +486,7 @@ static void USL_CustomCursor(
     status = !status;
 
     if (status) {
-        fontcolor = static_cast<uint8_t>(US_CustomCursor.cursor_color);
+        fontcolor = static_cast<std::uint8_t>(US_CustomCursor.cursor_color);
     } else {
         fontcolor = backcolor;
     }
@@ -494,7 +494,7 @@ static void USL_CustomCursor(
     VL_WaitVBL(1);
 
     USL_DrawString(&US_CustomCursor.cursor_char);
-    fontcolor = static_cast<uint8_t>(temp);
+    fontcolor = static_cast<std::uint8_t>(temp);
     fontnumber = temp_font;
 
 }
@@ -511,13 +511,13 @@ static void USL_CustomCursor(
 //
 ///////////////////////////////////////////////////////////////////////////
 bool US_LineInput(
-    int16_t x,
-    int16_t y,
+    std::int16_t x,
+    std::int16_t y,
     char* buf,
     char* def,
     bool escok,
-    int16_t maxchars,
-    int16_t maxwidth)
+    std::int16_t maxchars,
+    std::int16_t maxwidth)
 {
     bool redraw,
          cursorvis, cursormoved,
@@ -529,7 +529,7 @@ bool US_LineInput(
         cursor,
         w, h,
         len, temp;
-    uint32_t lasttime;
+    std::uint32_t lasttime;
 
     if (def) {
         strcpy(s, def);
@@ -537,7 +537,7 @@ bool US_LineInput(
         *s = '\0';
     }
     *olds = '\0';
-    cursor = static_cast<uint16_t>(strlen(s));
+    cursor = static_cast<std::uint16_t>(strlen(s));
     cursormoved = redraw = true;
 
     cursorvis = done = false;
@@ -599,7 +599,7 @@ bool US_LineInput(
         }
 
         if (c) {
-            len = static_cast<uint16_t>(strlen(s));
+            len = static_cast<std::uint16_t>(strlen(s));
             USL_MeasureString(s, &w, &h);
 
             if (isprint(c) && (len < MaxString - 1)
@@ -620,7 +620,7 @@ bool US_LineInput(
             temp = fontcolor;
             fontcolor = backcolor;
             USL_DrawString(olds);
-            fontcolor = static_cast<uint8_t>(temp);
+            fontcolor = static_cast<std::uint8_t>(temp);
             strcpy(olds, s);
 
             px = x;

@@ -103,7 +103,7 @@ KeyboardDef KbdDefs = {
 JoystickDef JoyDefs[MaxJoys];
 ControlType Controls[MaxPlayers];
 
-uint32_t MouseDownCount;
+std::uint32_t MouseDownCount;
 
 bool in_use_modern_bindings = default_in_use_modern_bindings;
 Bindings in_bindings;
@@ -505,7 +505,7 @@ static ScanCode in_keyboard_map_to_bstone(
 static char in_keyboard_map_to_char(
     const SDL_KeyboardEvent& e)
 {
-    uint16_t flags = e.keysym.mod;
+    std::uint16_t flags = e.keysym.mod;
     bool is_caps = false;
     bool is_shift = false;
     SDL_Keycode key_code = e.keysym.sym;
@@ -870,15 +870,15 @@ static int INL_GetMouseButtons()
 //
 ///////////////////////////////////////////////////////////////////////////
 void IN_GetJoyAbs(
-    uint16_t joy,
-    uint16_t* xp,
-    uint16_t* yp)
+    std::uint16_t joy,
+    std::uint16_t* xp,
+    std::uint16_t* yp)
 {
 // FIXME
 #if 0
-    uint8_t xb, yb;
-    uint8_t xs, ys;
-    uint16_t x, y;
+    std::uint8_t xb, yb;
+    std::uint8_t xs, ys;
+    std::uint16_t x, y;
 
 // Handle Notebook Gamepad's joystick.
 //
@@ -979,16 +979,16 @@ done:
 //
 ///////////////////////////////////////////////////////////////////////////
 void INL_GetJoyDelta(
-    uint16_t joy,
+    std::uint16_t joy,
     int* dx,
     int* dy)
 {
-    uint16_t x, y;
+    std::uint16_t x, y;
     JoystickDef* def;
 
 // FIXME
 #if 0
-    static uint32_t lasttime;
+    static std::uint32_t lasttime;
 #endif // 0
 
     IN_GetJoyAbs(joy, &x, &y);
@@ -1050,12 +1050,12 @@ void INL_GetJoyDelta(
 //              joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-static uint16_t INL_GetJoyButtons(
-    uint16_t joy)
+static std::uint16_t INL_GetJoyButtons(
+    std::uint16_t joy)
 {
 // FIXME
 #if 0
-    register uint16_t result;
+    register std::uint16_t result;
 
 // Handle Notebook Gamepad's joystick.
 //
@@ -1095,11 +1095,11 @@ static uint16_t INL_GetJoyButtons(
 //              specified joystick
 //
 ///////////////////////////////////////////////////////////////////////////
-uint16_t IN_GetJoyButtonsDB(
-    uint16_t joy)
+std::uint16_t IN_GetJoyButtonsDB(
+    std::uint16_t joy)
 {
-    uint32_t lasttime;
-    uint16_t result1, result2;
+    std::uint32_t lasttime;
+    std::uint16_t result1, result2;
 
     do {
         result1 = INL_GetJoyButtons(joy);
@@ -1152,7 +1152,7 @@ static void INL_ShutMouse()
 //      INL_SetJoyScale() - Sets up scaling values for the specified joystick
 //
 static void INL_SetJoyScale(
-    uint16_t joy)
+    std::uint16_t joy)
 {
     JoystickDef* def;
 
@@ -1170,13 +1170,13 @@ static void INL_SetJoyScale(
 //
 ///////////////////////////////////////////////////////////////////////////
 void IN_SetupJoy(
-    uint16_t joy,
-    uint16_t minx,
-    uint16_t maxx,
-    uint16_t miny,
-    uint16_t maxy)
+    std::uint16_t joy,
+    std::uint16_t minx,
+    std::uint16_t maxx,
+    std::uint16_t miny,
+    std::uint16_t maxy)
 {
-    uint16_t d, r;
+    std::uint16_t d, r;
     JoystickDef* def;
 
     def = &JoyDefs[joy];
@@ -1204,7 +1204,7 @@ void IN_SetupJoy(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void INL_ShutJoy(
-    uint16_t joy)
+    std::uint16_t joy)
 {
     JoysPresent[joy] = false;
 }
@@ -1216,7 +1216,7 @@ static void INL_ShutJoy(
 ///////////////////////////////////////////////////////////////////////////
 void IN_Shutdown()
 {
-    uint16_t i;
+    std::uint16_t i;
 
     if (!IN_Started) {
         return;
@@ -1344,13 +1344,13 @@ void in_handle_events()
 //
 ///////////////////////////////////////////////////////////////////////////
 void IN_ReadControl(
-    int16_t player_index,
+    std::int16_t player_index,
     ControlInfo* control_info)
 {
     static_cast<void>(player_index);
 
     bool realdelta = false;
-    uint16_t buttons;
+    std::uint16_t buttons;
     int dx;
     int dy;
     Motion mx, my;
@@ -1411,7 +1411,7 @@ void IN_ReadControl(
         //
         if (MousePresent && (ControlTypeUsed == ctrl_None)) {
             INL_GetMouseDelta(&dx, &dy);
-            buttons = static_cast<uint16_t>(INL_GetMouseButtons());
+            buttons = static_cast<std::uint16_t>(INL_GetMouseButtons());
             realdelta = true;
             if (dx || dy || buttons) {
                 ControlTypeUsed = ctrl_Mouse;
@@ -1479,7 +1479,7 @@ bool btnstate[8];
 
 void IN_StartAck()
 {
-    uint16_t i, buttons;
+    std::uint16_t i, buttons;
 
 //
 // get initial state of everything
@@ -1501,7 +1501,7 @@ void IN_StartAck()
 
 bool IN_CheckAck()
 {
-    uint16_t i, buttons;
+    std::uint16_t i, buttons;
 
     in_handle_events();
 //
@@ -1546,9 +1546,9 @@ void IN_Ack()
 //
 ///////////////////////////////////////////////////////////////////////////
 bool IN_UserInput(
-    uint32_t delay)
+    std::uint32_t delay)
 {
-    uint32_t lasttime;
+    std::uint32_t lasttime;
 
     lasttime = TimeCount;
     IN_StartAck();
@@ -1561,12 +1561,12 @@ bool IN_UserInput(
     return false;
 }
 
-uint8_t IN_MouseButtons()
+std::uint8_t IN_MouseButtons()
 {
-    return static_cast<uint8_t>(::INL_GetMouseButtons());
+    return static_cast<std::uint8_t>(::INL_GetMouseButtons());
 }
 
-uint8_t IN_JoyButtons()
+std::uint8_t IN_JoyButtons()
 {
 // FIXME
 #if 0
@@ -1583,10 +1583,10 @@ uint8_t IN_JoyButtons()
 }
 
 bool INL_StartJoy(
-    uint16_t joy)
+    std::uint16_t joy)
 {
-    uint16_t x;
-    uint16_t y;
+    std::uint16_t x;
+    std::uint16_t y;
 
     IN_GetJoyAbs(joy, &x, &y);
 
@@ -1610,7 +1610,7 @@ void IN_Startup()
     MousePresent = INL_StartMouse();
 
     for (int i = 0; i < MaxJoys; ++i) {
-        JoysPresent[i] = INL_StartJoy(static_cast<uint16_t>(i));
+        JoysPresent[i] = INL_StartJoy(static_cast<std::uint16_t>(i));
     }
 
 #ifdef __vita__

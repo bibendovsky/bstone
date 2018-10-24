@@ -32,16 +32,16 @@ Free Software Foundation, Inc.,
 
 
 struct anim_frame {
-    uint16_t code;
-    int32_t block_num;
-    int32_t recsize;
+    std::uint16_t code;
+    std::int32_t block_num;
+    std::int32_t recsize;
 }; // anim_frame
 
 
 struct anim_chunk {
-    uint16_t opt;
-    uint16_t offset;
-    uint16_t length;
+    std::uint16_t opt;
+    std::uint16_t offset;
+    std::uint16_t length;
 }; // anim_chunk
 
 

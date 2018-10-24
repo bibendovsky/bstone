@@ -36,11 +36,11 @@ int PMSoundStart = 0;
 namespace {
 
 
-using RawData = std::vector<uint8_t>;
+using RawData = std::vector<std::uint8_t>;
 
 bstone::FileStream PageFile;
 RawData raw_data;
-uint32_t* chunks_offsets = nullptr;
+std::uint32_t* chunks_offsets = nullptr;
 
 
 } // namespace
@@ -57,7 +57,7 @@ static void open_page_file(
         ::Quit("Page file is too large.");
     }
 
-    const auto file_length_32 = static_cast<int32_t>(file_length);
+    const auto file_length_32 = static_cast<std::int32_t>(file_length);
 
     raw_data.resize(file_length_32 + PMPageSize);
 
@@ -74,7 +74,7 @@ static void open_page_file(
     PMSpriteStart = endian.little(reader.read_u16());
     PMSoundStart = endian.little(reader.read_u16());
 
-    chunks_offsets = reinterpret_cast<uint32_t*>(&raw_data[6]);
+    chunks_offsets = reinterpret_cast<std::uint32_t*>(&raw_data[6]);
 
 	for (auto i = 0; i < (ChunksInFile + 1); ++i)
 	{
@@ -108,7 +108,7 @@ void* PM_GetPage(
         ::Quit("Invalid page request.");
     }
 
-    uint32_t offset = chunks_offsets[page_number];
+    std::uint32_t offset = chunks_offsets[page_number];
 
     if (offset == 0) {
         ::Quit("Tried to load a sparse page.");

@@ -28,13 +28,13 @@ Free Software Foundation, Inc.,
 void VH_UpdateScreen();
 
 void TakeDamage(
-    int16_t points,
+    std::int16_t points,
     objtype* attacker);
 
 void SetPlaneViewSize();
 
 void HealSelf(
-    int16_t points);
+    std::int16_t points);
 
 void GiveWeapon(
     int weapon);
@@ -78,8 +78,8 @@ bool DebugKeys();
 
 bool PP_step = false;
 
-int16_t maporgx;
-int16_t maporgy;
+std::int16_t maporgx;
+std::int16_t maporgy;
 
 void ViewMap();
 
@@ -205,7 +205,7 @@ void ShowMap()
 
     memcpy(&old_player, player, sizeof(objtype));
     player->angle = 90;
-    player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
+    player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
     ::US_CenterWindow(20, 11);
 
@@ -229,9 +229,9 @@ void ShowMap()
 //
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
-uint16_t IncRange(
-    uint16_t Value,
-    uint16_t MaxValue)
+std::uint16_t IncRange(
+    std::uint16_t Value,
+    std::uint16_t MaxValue)
 {
     if (Value == MaxValue) {
         Value = 0;
@@ -247,9 +247,9 @@ uint16_t IncRange(
 //
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
-uint16_t DecRange(
-    uint16_t Value,
-    uint16_t MaxValue)
+std::uint16_t DecRange(
+    std::uint16_t Value,
+    std::uint16_t MaxValue)
 {
     if (Value == 0) {
         Value = MaxValue;

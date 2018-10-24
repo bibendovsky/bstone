@@ -31,8 +31,8 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 
 
-uint16_t sdStartPCSounds = STARTPCSOUNDS;
-uint16_t sdStartALSounds = STARTADLIBSOUNDS;
+std::uint16_t sdStartPCSounds = STARTPCSOUNDS;
+std::uint16_t sdStartALSounds = STARTADLIBSOUNDS;
 
-int16_t sdLastSound = LASTSOUND;
-int16_t DigiMap[LASTSOUND];
+std::int16_t sdLastSound = LASTSOUND;
+std::int16_t DigiMap[LASTSOUND];
