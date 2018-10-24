@@ -26,6 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_GFXV_INCLUDED
 
 
+#include <cstdint>
+
+
 extern std::int16_t TELEPORT_LUMP_START;
 extern std::int16_t TELEPORT_LUMP_END;
 

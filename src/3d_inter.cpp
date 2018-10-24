@@ -23,10 +23,15 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
-#include "3d_menu.h"
 #include "audio.h"
 #include "gfxv.h"
 #include "id_ca.h"
+#include "id_in.h"
+#include "id_sd.h"
+#include "id_us.h"
+#include "id_vh.h"
+#include "id_vl.h"
+#include "3d_menu.h"
 
 
 void VH_UpdateScreen();

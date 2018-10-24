@@ -31,10 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DOSBOX_INCLUDED
 
 
-#include <cassert>
-#include <cmath>
-#include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 
 
 #define INLINE

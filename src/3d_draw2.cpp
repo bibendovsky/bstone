@@ -24,6 +24,7 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "id_pm.h"
+#include "id_vl.h"
 
 
 #define MAXVIEWHEIGHT (200)

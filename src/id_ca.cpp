@@ -38,7 +38,10 @@ loaded into the data segment
 #include "id_ca.h"
 #include "audio.h"
 #include "id_heads.h"
+#include "id_sd.h"
+#include "id_vl.h"
 #include "gfxv.h"
+#include "bstone_endian.h"
 #include "bstone_sha1.h"
 
 

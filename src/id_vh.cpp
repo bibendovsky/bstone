@@ -24,6 +24,9 @@ Free Software Foundation, Inc.,
 
 #include "id_heads.h"
 #include "id_ca.h"
+#include "id_in.h"
+#include "id_vh.h"
+#include "id_vl.h"
 #include "gfxv.h"
 
 

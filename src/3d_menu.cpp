@@ -24,13 +24,19 @@ Free Software Foundation, Inc.,
 
 #include <map>
 #include "3d_def.h"
-#include "3d_menu.h"
 #include "audio.h"
 #include "gfxv.h"
 #include "jm_lzh.h"
 #include "jm_tp.h"
 #include "id_ca.h"
+#include "id_in.h"
 #include "id_pm.h"
+#include "id_sd.h"
+#include "id_us.h"
+#include "id_vh.h"
+#include "id_vl.h"
+#include "3d_menu.h"
+#include "jm_cio.h"
 #include "bstone_scope_guard.h"
 
 

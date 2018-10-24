@@ -52,6 +52,11 @@ Free Software Foundation, Inc.,
 
 
 #include "id_heads.h"
+#include "id_in.h"
+#include "id_sd.h"
+#include "id_us.h"
+#include "id_vh.h"
+#include "id_vl.h"
 
 
 #define VW_UpdateScreen() VH_UpdateScreen()

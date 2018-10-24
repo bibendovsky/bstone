@@ -28,6 +28,8 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "id_heads.h"
+#include "id_vl.h"
 
 
 extern int viewwidth;

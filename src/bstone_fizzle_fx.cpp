@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_fizzle_fx.h"
 #include "3d_def.h"
 #include "id_in.h"
+#include "id_sd.h"
 #include "id_vl.h"
 
 

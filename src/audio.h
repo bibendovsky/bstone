@@ -26,6 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_INCLUDED
 
 
+#include <cstdint>
+
+
 //
 // Base offsets
 //

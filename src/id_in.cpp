@@ -44,6 +44,12 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "id_ca.h"
+#include "id_heads.h"
+#include "id_in.h"
+#include "id_sd.h"
+#include "id_vh.h"
+#include "id_vl.h"
+
 
 #define KeyInt 9 // The keyboard ISR number
 

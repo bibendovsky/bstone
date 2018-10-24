@@ -29,6 +29,7 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 #include <unordered_map>
 #include "3d_def.h"
+#include "bstone_file_stream.h"
 
 
 extern int NUM_EPISODES;

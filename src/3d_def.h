@@ -27,10 +27,10 @@ Free Software Foundation, Inc.,
 
 
 #include <cmath>
-
-#include "id_heads.h"
-#include "jm_io.h"
-#include "jm_cio.h"
+#include <vector>
+#include "bstone_binary_reader.h"
+#include "bstone_binary_writer.h"
+#include "bstone_crc32.h"
 
 
 namespace bstone

@@ -57,8 +57,10 @@ Free Software Foundation, Inc.,
 #include "3d_def.h"
 #include "audio.h"
 #include "id_ca.h"
+#include "id_heads.h"
 #include "id_pm.h"
 #include "bstone_audio_mixer.h"
+#include "bstone_endian.h"
 #include "bstone_memory_binary_reader.h"
 
 extern std::uint16_t sdStartPCSounds;
