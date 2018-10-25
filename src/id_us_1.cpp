@@ -745,3 +745,11 @@ void US_Startup()
 	::US_InitRndT(true); // Initialize the random number generator
 	::US_Started = true;
 }
+
+void SETFONTCOLOR(
+	const int foreground_color,
+	const int background_color)
+{
+	::fontcolor = static_cast<std::uint8_t>(foreground_color);
+	::backcolor = static_cast<std::uint8_t>(background_color);
+}

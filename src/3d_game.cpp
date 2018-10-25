@@ -24,7 +24,6 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "audio.h"
-#include "gfxv.h"
 #include "jm_tp.h"
 #include "id_ca.h"
 #include "id_in.h"
@@ -34,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 #include "3d_menu.h"
+#include "gfxv.h"
 #include "bstone_generic_fizzle_fx.h"
 
 

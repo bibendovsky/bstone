@@ -57,14 +57,9 @@ extern std::uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
 extern std::uint8_t fontcolor;
 extern std::uint8_t backcolor;
 
-inline void SETFONTCOLOR(
-	int foreground_color,
-	int background_color)
-{
-	::fontcolor = static_cast<std::uint8_t>(foreground_color);
-	::backcolor = static_cast<std::uint8_t>(background_color);
-}
-
+void SETFONTCOLOR(
+	const int foreground_color,
+	const int background_color);
 
 const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
 

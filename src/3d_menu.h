@@ -78,10 +78,7 @@ void MenuFadeOut();
 #define HIGHLIGHT (0x13)
 
 
-inline void MenuFadeIn()
-{
-	::VL_FadeIn(0, 255, ::vgapal, 10);
-}
+void MenuFadeIn();
 
 
 extern std::int16_t MENUSONG;

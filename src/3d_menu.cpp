@@ -25,9 +25,6 @@ Free Software Foundation, Inc.,
 #include <map>
 #include "3d_def.h"
 #include "audio.h"
-#include "gfxv.h"
-#include "jm_lzh.h"
-#include "jm_tp.h"
 #include "id_ca.h"
 #include "id_in.h"
 #include "id_pm.h"
@@ -36,7 +33,10 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 #include "3d_menu.h"
+#include "gfxv.h"
 #include "jm_cio.h"
+#include "jm_lzh.h"
+#include "jm_tp.h"
 #include "bstone_scope_guard.h"
 
 
@@ -5534,5 +5534,10 @@ void MenuFadeOut()
 	{
 		::VL_FadeOut(0, 255, 40, 44, 44, 10);
 	}
+}
+
+void MenuFadeIn()
+{
+	::VL_FadeIn(0, 255, ::vgapal, 10);
 }
 // BBi

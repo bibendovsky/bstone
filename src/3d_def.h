@@ -29,6 +29,7 @@ Free Software Foundation, Inc.,
 #include <cmath>
 #include <array>
 #include <functional>
+#include <stdexcept>
 #include <vector>
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
@@ -2002,14 +2003,9 @@ enum classtype
 }; // classtype
 
 // BBi
-inline classtype operator++(
-	classtype& a,
-	int)
-{
-	auto result = a;
-	a = static_cast<classtype>(a + 1);
-	return result;
-}
+classtype operator++(
+	classtype& value,
+	const int);
 // BBi
 
 //
@@ -2095,47 +2091,25 @@ enum dirtype
 }; // dirtype
 
 // BBi
-inline dirtype operator+=(
-	dirtype& a,
-	int b)
-{
-	a = static_cast<dirtype>(a + b);
-	return a;
-}
+dirtype operator+=(
+	dirtype& lhs,
+	const int rhs);
 
-inline dirtype operator-=(
-	dirtype& a,
-	int b)
-{
-	a = static_cast<dirtype>(a - b);
-	return a;
-}
+dirtype operator-=(
+	dirtype& lhs,
+	const int rhs);
 
-inline dirtype operator|=(
-	dirtype& a,
-	int b)
-{
-	a = static_cast<dirtype>(a | b);
-	return a;
-}
+dirtype operator|=(
+	dirtype& lhs,
+	const int rhs);
 
-inline dirtype operator--(
-	dirtype& a,
-	int)
-{
-	auto result = a;
-	a -= 1;
-	return result;
-}
+dirtype operator--(
+	dirtype& value,
+	const int);
 
-inline dirtype operator++(
-	dirtype& a,
-	int)
-{
-	auto result = a;
-	a += 1;
-	return result;
-}
+dirtype operator++(
+	dirtype& value,
+	const int);
 
 enum enemy_t
 {
@@ -4269,24 +4243,15 @@ extern bool g_no_intro_outro;
 extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 
 
-class ArchiveException : public std::exception
+class ArchiveException :
+	public std::runtime_error
 {
 public:
 	explicit ArchiveException(
-		const char* message) throw ();
+		const char* const message);
 
-	ArchiveException(
-		const ArchiveException& that) throw ();
-
-	virtual ~ArchiveException() throw ();
-
-	ArchiveException& operator=(
-		const ArchiveException& that) throw ();
-
-	virtual const char* what() const throw ();
-
-private:
-	const char* message_;
+	explicit ArchiveException(
+		const std::string& message);
 }; // ArchiveException
 
 
@@ -4650,10 +4615,7 @@ void InitSmartAnim(
 	animdir_t AnimDir);
 
 
-inline double m_pi()
-{
-	return 3.14159265358979323846;
-}
+double m_pi();
 
 
 void sys_sleep_for(

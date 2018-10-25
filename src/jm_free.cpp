@@ -32,7 +32,6 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "audio.h"
-#include "gfxv.h"
 #include "id_ca.h"
 #include "id_in.h"
 #include "id_pm.h"
@@ -41,6 +40,7 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 #include "3d_menu.h"
+#include "gfxv.h"
 
 
 extern SpanStart spanstart;

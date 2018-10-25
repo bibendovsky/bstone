@@ -7029,37 +7029,17 @@ void InitSmartAnim(
 // ArchiveException
 
 ArchiveException::ArchiveException(
-	const char* message) throw () :
-	message_(message)
+	const char* const message)
+	:
+	std::runtime_error{message}
 {
 }
 
 ArchiveException::ArchiveException(
-	const ArchiveException& that) throw () :
-	message_(that.message_)
+	const std::string& message)
+	:
+	std::runtime_error{message}
 {
-}
-
-// (virtual)
-ArchiveException::~ArchiveException() throw ()
-{
-}
-
-ArchiveException& ArchiveException::operator=(
-	const ArchiveException& that) throw ()
-{
-	if (&that != this)
-	{
-		message_ = that.message_;
-	}
-
-	return *this;
-}
-
-// (virtual)
-const char* ArchiveException::what() const throw ()
-{
-	return message_;
 }
 
 // ArchiveException
@@ -10514,5 +10494,61 @@ const std::string& get_default_data_dir()
 	result = "ux0:/data/bstone/";
 #endif
 	return result;
+}
+
+classtype operator++(
+	classtype& value,
+	const int)
+{
+	auto result = value;
+	value = static_cast<classtype>(value + 1);
+	return result;
+}
+
+dirtype operator+=(
+	dirtype& lhs,
+	const int rhs)
+{
+	lhs = static_cast<dirtype>(lhs + rhs);
+	return lhs;
+}
+
+dirtype operator-=(
+	dirtype& lhs,
+	const int rhs)
+{
+	lhs = static_cast<dirtype>(lhs - rhs);
+	return lhs;
+}
+
+dirtype operator|=(
+	dirtype& lhs,
+	const int rhs)
+{
+	lhs = static_cast<dirtype>(lhs | rhs);
+	return lhs;
+}
+
+dirtype operator--(
+	dirtype& value,
+	const int)
+{
+	auto result = value;
+	value -= 1;
+	return result;
+}
+
+dirtype operator++(
+	dirtype& value,
+	const int)
+{
+	auto result = value;
+	value += 1;
+	return result;
+}
+
+double m_pi()
+{
+	return 3.14159265358979323846;
 }
 // BBi
