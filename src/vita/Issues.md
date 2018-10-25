@@ -1,10 +1,9 @@
 ## Issues:
 
 ### High Priority
-* Clear screen before elevator fadein
-* Distance fade in AOG differs from DOS version
+* In elevator, fade out from viewport instead of messagebox
+* Distance fade in AOG differs from DOS version (off by 1?)
 * Tearing during fadein
-* Add option to disable loading screens
 
 ### Medium Priority
 * Crashes sporadically when music is enabled
@@ -25,6 +24,7 @@
 * Multithreading various drawing routines
 * In-prompt buttons- use x,o
 * In-game control customization for Vita
+* Add option to disable loading screens
 
 ## Changes:
 

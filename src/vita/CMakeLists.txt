@@ -14,7 +14,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "bstone")
 set(VITA_TITLEID  "BSTONE012")
-set(VITA_VERSION  "00.20")
+set(VITA_VERSION  "00.21")
 
 set(BSTONE_FLAGS "-Wall -g -Og -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
 
