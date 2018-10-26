@@ -85,7 +85,9 @@ int ClArgs::find_option(
 
 	for (int i = 0; i < arg_count; ++i)
 	{
-		const auto& arg = args_[arg_count - i - 1];
+		const auto index = arg_count - i - 1;
+
+		const auto& arg = args_[index];
 
 		if (arg.size() != (2 + lc_name.size()))
 		{
@@ -99,7 +101,7 @@ int ClArgs::find_option(
 
 		if (arg.compare(2, lc_name.size(), lc_name) == 0)
 		{
-			return i;
+			return index;
 		}
 	}
 
