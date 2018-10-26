@@ -128,7 +128,7 @@ void SDL_SetupDigi()
 
 	for (auto j = 0; j < (i * 2); ++j)
 	{
-		DigiList[j] = endian.little(src_list[i]);
+		DigiList[j] = endian.little(src_list[j]);
 	}
 
 	for (i = 0; i < sdLastSound; i++)
