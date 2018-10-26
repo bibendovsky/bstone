@@ -32,15 +32,14 @@ Free Software Foundation, Inc.,
 #include <atomic>
 #include <list>
 #include <memory>
+#include <mutex>
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
-#include <mutex>
 #include <thread>
 #endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
 #include <vector>
 #include "SDL.h"
-#include "bstone_atomic.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_mt_queue_1r1w.h"
 
@@ -166,6 +165,9 @@ private:
 	using MixSample = int;
 	using MixSamples = std::vector<MixSample>;
 
+	using MtLock = std::mutex;
+	using MtLockGuard = std::lock_guard<MtLock>;
+
 	class CacheItem
 	{
 	public:
@@ -194,18 +196,18 @@ private:
 
 	struct Location final
 	{
-		Atomic<int> x;
-		Atomic<int> y;
+		int x;
+		int y;
 	}; // Location
 
 	using Locations = std::vector<Location>;
 
 	struct PlayerLocation final
 	{
-		Atomic<int> view_x;
-		Atomic<int> view_y;
-		Atomic<int> view_cos;
-		Atomic<int> view_sin;
+		int view_x;
+		int view_y;
+		int view_cos;
+		int view_sin;
 	}; // PlayerLocation
 
 	struct Positions final
@@ -220,6 +222,8 @@ private:
 		void fixed_copy_to(
 			Positions& positions);
 	}; // Positions
+
+	using Indices = std::vector<int>;
 
 	struct Sound final
 	{
@@ -284,7 +288,11 @@ private:
 	Cache adlib_music_cache_;
 	Cache adlib_sfx_cache_;
 	Cache pcm_cache_;
+	Positions mt_positions_;
 	Positions positions_;
+	Indices modified_actors_indices_;
+	Indices modified_doors_indices_;
+	MtLock mt_positions_lock_;
 	std::atomic_int player_channels_state_;
 	std::atomic_bool is_music_playing_;
 	std::atomic_bool is_any_sfx_playing_;

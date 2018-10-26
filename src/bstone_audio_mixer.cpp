@@ -165,7 +165,11 @@ AudioMixer::AudioMixer()
 	adlib_music_cache_{},
 	adlib_sfx_cache_{},
 	pcm_cache_{},
+	mt_positions_{},
 	positions_{},
+	modified_actors_indices_{},
+	modified_doors_indices_{},
+	mt_positions_lock_{},
 	player_channels_state_{},
 	is_music_playing_{},
 	is_any_sfx_playing_{},
@@ -247,7 +251,10 @@ bool AudioMixer::initialize(
 
 	if (is_succeed)
 	{
+		mt_positions_.initialize();
 		positions_.initialize();
+		modified_actors_indices_.reserve(MAXACTORS);
+		modified_doors_indices_.reserve(MAXDOORS);
 	}
 
 #if BSTONE_AUDIO_MIXER_USE_THREAD
@@ -374,59 +381,159 @@ bool AudioMixer::update_positions()
 		return false;
 	}
 
+	auto has_modifications = false;
 
-	auto& state = positions_;
+	// Player.
+	//
+	auto is_player_modified = false;
 
-	state.player.view_x = viewx;
-	state.player.view_y = viewy;
-	state.player.view_cos = viewcos;
-	state.player.view_sin = viewsin;
+	{
+		auto& player = positions_.player;
 
-	state.actors.resize(MAXACTORS);
+		is_player_modified =
+			player.view_x != ::viewx ||
+			player.view_y != ::viewy ||
+			player.view_cos != ::viewcos ||
+			player.view_sin != ::viewsin;
+
+		if (is_player_modified)
+		{
+			player.view_x = ::viewx;
+			player.view_y = ::viewy;
+			player.view_cos = ::viewcos;
+			player.view_sin = ::viewsin;
+
+			has_modifications = true;
+		}
+	}
+
+
+
+	// Actors.
+	//
+	modified_actors_indices_.clear();
 
 	for (int i = 0; i < MAXACTORS; ++i)
 	{
-		auto& actor = state.actors[i];
+		auto& actor = positions_.actors[i];
 
-		actor.x = objlist[i].x;
-		actor.y = objlist[i].y;
+		const auto is_actor_modified =
+			actor.x != ::objlist[i].x ||
+			actor.y != ::objlist[i].y;
+
+		if (is_actor_modified)
+		{
+			actor.x = ::objlist[i].x;
+			actor.y = ::objlist[i].y;
+
+			has_modifications = true;
+			modified_actors_indices_.emplace_back(i);
+		}
 	}
 
-	state.doors.resize(MAXDOORS);
+	// Doors.
+	//
+	modified_doors_indices_.clear();
 
 	for (int i = 0; i < MAXDOORS; ++i)
 	{
-		auto& door = state.doors[i];
+		auto& door = positions_.doors[i];
 
-		door.x = (doorobjlist[i].tilex << TILESHIFT) + (1 << (TILESHIFT - 1));
-		door.y = (doorobjlist[i].tiley << TILESHIFT) + (1 << (TILESHIFT - 1));
+		const auto x = (::doorobjlist[i].tilex << TILESHIFT) + (1 << (TILESHIFT - 1));
+		const auto y = (::doorobjlist[i].tiley << TILESHIFT) + (1 << (TILESHIFT - 1));
+
+		const auto is_door_modified =
+			door.x != x ||
+			door.y != y;
+
+		if (is_door_modified)
+		{
+			door.x = x;
+			door.y = y;
+
+			has_modifications = true;
+			modified_doors_indices_.emplace_back(i);
+		}
 	}
 
-	state.wall.x = (pwallx << TILESHIFT) + (1 << (TILESHIFT - 1));
-	state.wall.y = (pwally << TILESHIFT) + (1 << (TILESHIFT - 1));
+	// Push-wall.
+	//
+	auto is_push_wall_modified = false;
 
-	const int wall_offset = (65535 * pwallpos) / 63;
-
-	switch (pwalldir)
 	{
-	case di_east:
-		state.wall.x += wall_offset;
-		break;
+		auto x = (::pwallx << TILESHIFT) + (1 << (TILESHIFT - 1));
+		auto y = (::pwally << TILESHIFT) + (1 << (TILESHIFT - 1));
 
-	case di_north:
-		state.wall.y -= wall_offset;
-		break;
+		const auto wall_offset = (65535 * ::pwallpos) / 63;
 
-	case di_south:
-		state.wall.y += wall_offset;
-		break;
+		switch (::pwalldir)
+		{
+		case di_east:
+			x += wall_offset;
+			break;
 
-	case di_west:
-		state.wall.x -= wall_offset;
-		break;
+		case di_north:
+			y -= wall_offset;
+			break;
 
-	default:
-		break;
+		case di_south:
+			y += wall_offset;
+			break;
+
+		case di_west:
+			x -= wall_offset;
+			break;
+
+		default:
+			break;
+		}
+
+		is_push_wall_modified =
+			positions_.wall.x != x ||
+			positions_.wall.y != y;
+
+		if (is_push_wall_modified)
+		{
+			positions_.wall.x = x;
+			positions_.wall.y = y;
+
+			has_modifications = true;
+		}
+	}
+
+	// Commit changes.
+	//
+	if (!has_modifications)
+	{
+		return true;
+	}
+
+	MtLockGuard guard_lock{mt_positions_lock_};
+
+	if (is_player_modified)
+	{
+		mt_positions_.player = positions_.player;
+	}
+
+	if (!modified_actors_indices_.empty())
+	{
+		for (const auto& actor_index : modified_actors_indices_)
+		{
+			mt_positions_.actors[actor_index] = positions_.actors[actor_index];
+		}
+	}
+
+	if (!modified_doors_indices_.empty())
+	{
+		for (const auto& door_index : modified_doors_indices_)
+		{
+			mt_positions_.doors[door_index] = positions_.doors[door_index];
+		}
+	}
+
+	if (is_push_wall_modified)
+	{
+		mt_positions_.wall = positions_.wall;
 	}
 
 	return true;
@@ -1027,42 +1134,42 @@ void AudioMixer::spatialize_sound(
 	switch (sound.actor_type)
 	{
 	case ActorType::actor:
-		location = &positions_.actors[sound.actor_index];
+		location = &mt_positions_.actors[sound.actor_index];
 		break;
 
 	case ActorType::door:
-		location = &positions_.doors[sound.actor_index];
+		location = &mt_positions_.doors[sound.actor_index];
 		break;
 
 	case ActorType::wall:
-		location = &positions_.wall;
+		location = &mt_positions_.wall;
 		break;
 
 	default:
 		return;
 	}
 
-	auto gx = static_cast<int>(location->x);
-	auto gy = static_cast<int>(location->y);
+	auto gx = location->x;
+	auto gy = location->y;
 
 	//
 	// translate point to view centered coordinates
 	//
-	gx -= positions_.player.view_x;
-	gy -= positions_.player.view_y;
+	gx -= mt_positions_.player.view_x;
+	gy -= mt_positions_.player.view_y;
 
 	//
 	// calculate newx
 	//
-	auto xt = ::FixedByFrac(gx, positions_.player.view_cos);
-	auto yt = ::FixedByFrac(gy, positions_.player.view_sin);
+	auto xt = ::FixedByFrac(gx, mt_positions_.player.view_cos);
+	auto yt = ::FixedByFrac(gy, mt_positions_.player.view_sin);
 	auto x = (xt - yt) >> TILESHIFT;
 
 	//
 	// calculate newy
 	//
-	xt = ::FixedByFrac(gx, positions_.player.view_sin);
-	yt = ::FixedByFrac(gy, positions_.player.view_cos);
+	xt = ::FixedByFrac(gx, mt_positions_.player.view_sin);
+	yt = ::FixedByFrac(gy, mt_positions_.player.view_cos);
 
 	auto y = (yt + xt) >> TILESHIFT;
 
@@ -1095,6 +1202,13 @@ void AudioMixer::spatialize_sound(
 
 void AudioMixer::spatialize_sounds()
 {
+	if (sounds_.empty())
+	{
+		return;
+	}
+
+	MtLockGuard guard_lock{mt_positions_lock_};
+
 	for (auto& sound : sounds_)
 	{
 		spatialize_sound(sound);
