@@ -136,7 +136,7 @@ void AudioMixer::Positions::fixed_copy_to(
 
 bool AudioMixer::Sound::is_audible() const
 {
-	return left_volume > 0.0F && right_volume > 0.0F;
+	return left_volume > 0.0F || right_volume > 0.0F;
 }
 
 AudioMixer::AudioMixer()
@@ -603,123 +603,150 @@ void AudioMixer::mix()
 
 void AudioMixer::mix_samples()
 {
+	if (sounds_.empty())
+	{
+		is_any_sfx_playing_ = false;
+		std::uninitialized_fill(buffer_.begin(), buffer_.end(), std::int16_t{});
+		return;
+	}
+
 	spatialize_sounds();
 
-	auto sfx_volume = sfx_volume_.load(std::memory_order_acquire);
-	auto music_volume = music_volume_.load(std::memory_order_acquire);
+	std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), 0);
 
-	auto min_left_sample = 32767.0F;
-	auto max_left_sample = -32768.0F;
+	auto sfx_volume = static_cast<float>(sfx_volume_);
+	auto music_volume = static_cast<float>(music_volume_);
 
-	auto min_right_sample = 32767.0F;
-	auto max_right_sample = -32768.0F;
+	auto min_left_sample = 32767;
+	auto max_left_sample = -32768;
 
-	for (int i = 0; i < mix_samples_count_; ++i)
+	auto min_right_sample = 32767;
+	auto max_right_sample = -32768;
+
+	auto sound_it = sounds_.begin();
+	auto sound_end_it = sounds_.end();
+
+	while (sound_it != sound_end_it)
 	{
-		auto left_sample = 0.0F;
-		auto right_sample = 0.0F;
-
-		for (auto sound = sounds_.begin(); sound != sounds_.end(); )
+		if (!decode_sound(*sound_it))
 		{
-			if (!decode_sound(*sound))
-			{
-				set_player_channel_state(*sound, false);
-				sound = sounds_.erase(sound);
-				continue;
-			}
-
-			auto cache_item = sound->cache;
-
-			if (sound->decode_offset == cache_item->decoded_count)
-			{
-				++sound;
-				continue;
-			}
-
-			auto volume_scale = 1.0F;
-
-			switch (sound->type)
-			{
-			case SoundType::adlib_music:
-				volume_scale = 8.0F * music_volume;
-				break;
-
-			case SoundType::adlib_sfx:
-				volume_scale = 8.0F * sfx_volume;
-				break;
-
-			default:
-				volume_scale = sfx_volume;
-				break;
-			}
-
-			if (sound->is_audible())
-			{
-				const auto sample = volume_scale * cache_item->samples[sound->decode_offset];
-
-				left_sample += sound->left_volume * sample;
-				right_sample += sound->right_volume * sample;
-			}
-
-			++sound->decode_offset;
-
-			if (sound->decode_offset == cache_item->decoded_count)
-			{
-				if (cache_item->is_decoded())
-				{
-					if (sound->type == SoundType::adlib_music)
-					{
-						sqPlayedOnce = true;
-						sound->decode_offset = 0;
-					}
-					else
-					{
-						set_player_channel_state(*sound, false);
-						sound = sounds_.erase(sound);
-						continue;
-					}
-				}
-			}
-
-			++sound;
+			set_player_channel_state(*sound_it, false);
+			sound_it = sounds_.erase(sound_it);
+			continue;
 		}
 
-		mix_buffer_[(2 * i) + 0] = left_sample;
-		min_left_sample = std::min(left_sample, min_left_sample);
-		max_left_sample = std::max(left_sample, max_left_sample);
+		auto cache_item = sound_it->cache;
 
-		mix_buffer_[(2 * i) + 1] = right_sample;
-		min_right_sample = std::min(right_sample, min_right_sample);
-		max_right_sample = std::max(right_sample, max_right_sample);
+		if (sound_it->decode_offset == cache_item->decoded_count)
+		{
+			++sound_it;
+			continue;
+		}
+
+		if (!sound_it->is_audible())
+		{
+			++sound_it;
+			continue;
+		}
+
+		auto volume_scale = 1.0F;
+
+		switch (sound_it->type)
+		{
+		case SoundType::adlib_music:
+			volume_scale = 8.0F * music_volume;
+			break;
+
+		case SoundType::adlib_sfx:
+			volume_scale = 8.0F * sfx_volume;
+			break;
+
+		default:
+			volume_scale = sfx_volume;
+			break;
+		}
+
+		const auto remain_count = cache_item->decoded_count - sound_it->decode_offset;
+		const auto decode_count = std::min(remain_count, mix_samples_count_);
+
+		for (int i = 0; i < decode_count; ++i)
+		{
+			const auto sample = volume_scale * cache_item->samples[sound_it->decode_offset + i];
+
+			// Left channel.
+			//
+			const auto left_sample = static_cast<int>(sound_it->left_volume * sample);
+
+			mix_buffer_[(2 * i) + 0] += left_sample;
+
+			min_left_sample = std::min(left_sample, min_left_sample);
+			max_left_sample = std::max(left_sample, max_left_sample);
+
+			// Right channel.
+			//
+			const auto right_sample = static_cast<int>(sound_it->right_volume * sample);
+
+			mix_buffer_[(2 * i) + 1] += right_sample;
+
+			min_right_sample = std::min(right_sample, min_right_sample);
+			max_right_sample = std::max(right_sample, max_right_sample);
+		}
+
+		sound_it->decode_offset += decode_count;
+
+		if (sound_it->decode_offset == cache_item->decoded_count)
+		{
+			if (cache_item->is_decoded())
+			{
+				if (sound_it->type == SoundType::adlib_music)
+				{
+					::sqPlayedOnce = true;
+					sound_it->decode_offset = 0;
+				}
+				else
+				{
+					set_player_channel_state(*sound_it, false);
+					sound_it = sounds_.erase(sound_it);
+					continue;
+				}
+			}
+		}
+
+		++sound_it;
 	}
+
 
 	//
 	// Calculate normalizations factors.
 	//
 
+	// Left channel.
+	//
 	auto normalize_left = false;
 	auto normalize_left_scale = 1.0F;
 
-	if (min_left_sample < -32768.0F && -min_left_sample > max_left_sample)
+	if (min_left_sample < -32768 && -min_left_sample > max_left_sample)
 	{
 		normalize_left = true;
 		normalize_left_scale = -32768.0F / min_left_sample;
 	}
-	else if (max_left_sample > 32767.0F && max_left_sample >= -min_left_sample)
+	else if (max_left_sample > 32767 && max_left_sample >= -min_left_sample)
 	{
 		normalize_left = true;
 		normalize_left_scale = 32767.0F / max_left_sample;
 	}
 
+	// Right channel.
+	//
 	auto normalize_right = false;
 	auto normalize_right_scale = 1.0F;
 
-	if (min_right_sample < -32768.0F && -min_right_sample > max_right_sample)
+	if (min_right_sample < -32768 && -min_right_sample > max_right_sample)
 	{
 		normalize_right = true;
 		normalize_right_scale = -32768.0F / min_right_sample;
 	}
-	else if (max_right_sample > 32767.0F && max_right_sample >= -min_right_sample)
+	else if (max_right_sample > 32767 && max_right_sample >= -min_right_sample)
 	{
 		normalize_right = true;
 		normalize_right_scale = 32767.0F / max_right_sample;
@@ -729,29 +756,35 @@ void AudioMixer::mix_samples()
 	//
 	// Normalize and output.
 	//
-
 	for (int i = 0; i < mix_samples_count_; ++i)
 	{
+		// Left channel.
+		//
 		auto left_sample = mix_buffer_[(2 * i) + 0];
-		auto right_sample = mix_buffer_[(2 * i) + 1];
 
 		if (normalize_left)
 		{
-			left_sample *= normalize_left_scale;
+			left_sample = static_cast<int>(normalize_left_scale * left_sample);
 		}
 
-		left_sample = std::min(left_sample, 32767.0F);
-		left_sample = std::max(left_sample, -32768.0F);
+		left_sample = std::min(left_sample, 32767);
+		left_sample = std::max(left_sample, -32768);
+
+		buffer_[(2 * i) + 0] = static_cast<std::int16_t>(left_sample);
+
+
+		// Right channel.
+		//
+		auto right_sample = mix_buffer_[(2 * i) + 1];
 
 		if (normalize_right)
 		{
-			right_sample *= normalize_right_scale;
+			right_sample = static_cast<int>(normalize_right_scale * right_sample);
 		}
 
-		right_sample = std::min(right_sample, 32767.0F);
-		right_sample = std::max(right_sample, -32768.0F);
+		right_sample = std::min(right_sample, 32767);
+		right_sample = std::max(right_sample, -32768);
 
-		buffer_[(2 * i) + 0] = static_cast<std::int16_t>(left_sample);
 		buffer_[(2 * i) + 1] = static_cast<std::int16_t>(right_sample);
 	}
 

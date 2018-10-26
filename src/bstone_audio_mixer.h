@@ -163,7 +163,7 @@ private:
 	using Sample = std::int16_t;
 	using Samples = std::vector<Sample>;
 
-	using MixSample = float;
+	using MixSample = int;
 	using MixSamples = std::vector<MixSample>;
 
 	class CacheItem
