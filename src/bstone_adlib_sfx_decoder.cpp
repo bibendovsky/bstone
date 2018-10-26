@@ -221,7 +221,7 @@ int AdlibSfxDecoder::decode(
 			}
 		}
 
-		quit = ((command_index_ == commands_count_ && remains_count_ == 0) || dst_count == 0);
+		quit = ((command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0);
 	}
 
 	return decoded_samples_count;
