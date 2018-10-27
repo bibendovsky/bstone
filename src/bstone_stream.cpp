@@ -110,7 +110,7 @@ bool Stream::copy_to(
 
 	for (int count = -1; count != 0; )
 	{
-		count = read(&buffer[0], buffer_size);
+		count = read(&buffer[0], new_buffer_size);
 
 		if (!dst_stream->write(&buffer[0], count))
 		{
