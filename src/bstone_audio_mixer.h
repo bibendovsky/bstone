@@ -26,22 +26,13 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_MIXER_INCLUDED
 
 
-#define BSTONE_AUDIO_MIXER_USE_THREAD (0)
-
-
 #include <atomic>
 #include <list>
 #include <memory>
 #include <mutex>
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-#include <thread>
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 #include <vector>
 #include "SDL.h"
 #include "bstone_audio_decoder.h"
-#include "bstone_mt_queue_1r1w.h"
 
 
 namespace bstone
@@ -242,11 +233,11 @@ private:
 
 	using Sounds = std::list<Sound>;
 
-	enum CommandType
+	enum class CommandType
 	{
-		CMD_PLAY,
-		CMD_STOP_MUSIC,
-		CMD_STOP_ALL_SFX
+		play,
+		stop_music,
+		stop_all_sfx
 	}; // CommandType
 
 	struct Command final
@@ -257,33 +248,20 @@ private:
 		int data_size;
 	}; // Command
 
-	using Commands = bstone::MtQueue1R1W<Command>;
+	using Commands = std::vector<Command>;
 
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	using Mutex = std::mutex;
-	using MutexGuard = std::lock_guard<Mutex>;
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
 
 	bool is_initialized_;
 	int dst_rate_;
 	SDL_AudioDeviceID device_id_;
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	Mutex mutex_;
-	std::thread thread_;
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 	int mix_samples_count_;
 	Samples buffer_;
 	MixSamples mix_buffer_;
 	std::atomic_bool is_data_available_;
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	std::atomic_bool quit_thread_;
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 	Sounds sounds_;
 	Commands commands_;
+	Commands mt_commands_;
+	MtLock mt_commands_lock_;
 	bool mute_;
 	Cache adlib_music_cache_;
 	Cache adlib_sfx_cache_;
@@ -299,6 +277,7 @@ private:
 	std::atomic<float> sfx_volume_;
 	std::atomic<float> music_volume_;
 	int mix_size_ms_;
+
 
 	void callback(
 		std::uint8_t* dst_data,

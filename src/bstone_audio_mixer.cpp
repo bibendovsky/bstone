@@ -144,23 +144,14 @@ AudioMixer::AudioMixer()
 	is_initialized_{},
 	dst_rate_{},
 	device_id_{},
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	mutex_{},
-	thread_{},
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 	mix_samples_count_{},
 	buffer_{},
 	mix_buffer_{},
 	is_data_available_{},
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	quit_thread_{},
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 	sounds_{},
 	commands_{},
+	mt_commands_{},
+	mt_commands_lock_{},
 	mute_{},
 	adlib_music_cache_{},
 	adlib_sfx_cache_{},
@@ -179,13 +170,7 @@ AudioMixer::AudioMixer()
 {
 	// Initialize atomic fields
 	//
-
 	is_data_available_ = false;
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	quit_thread_ = false;
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 	player_channels_state_ = 0;
 	is_music_playing_ = false;
 	is_any_sfx_playing_ = false;
@@ -246,25 +231,7 @@ bool AudioMixer::initialize(
 		return false;
 	}
 
-	bool is_succeed = true;
-
-
-	if (is_succeed)
-	{
-		mt_positions_.initialize();
-		positions_.initialize();
-		modified_actors_indices_.reserve(MAXACTORS);
-		modified_doors_indices_.reserve(MAXDOORS);
-	}
-
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	auto thread = std::thread{};
-
-	if (is_succeed)
-	{
-		thread = std::thread(mix_proxy, this);
-	}
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
+	auto is_succeed = true;
 
 	if (is_succeed)
 	{
@@ -280,11 +247,15 @@ bool AudioMixer::initialize(
 		adlib_sfx_cache_.resize(NUMSOUNDS);
 		pcm_cache_.resize(NUMSOUNDS);
 
-		commands_.initialize(get_max_commands());
+		const auto max_commands = get_max_commands();
 
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-		thread_ = std::move(thread);
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
+		commands_.reserve(max_commands);
+		mt_commands_.reserve(max_commands);
+
+		mt_positions_.initialize();
+		positions_.initialize();
+		modified_actors_indices_.reserve(MAXACTORS);
+		modified_doors_indices_.reserve(MAXDOORS);
 
 		::SDL_PauseAudioDevice(device_id_, 0);
 	}
@@ -307,26 +278,15 @@ void AudioMixer::uninitialize()
 		device_id_ = 0;
 	}
 
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	if (thread_.joinable())
-	{
-		quit_thread_ = true;
-		thread_.join();
-	}
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
 	dst_rate_ = 0;
 	mix_samples_count_ = 0;
 	buffer_ = {};
 	mix_buffer_ = {};
 	is_data_available_ = false;
 
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	quit_thread_ = false;
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-
-	sounds_ = {};
-	commands_.uninitialize();
+	sounds_.clear();
+	commands_.clear();
+	mt_commands_.clear();
 	mute_ = false;
 	adlib_music_cache_ = {};
 	adlib_sfx_cache_ = {};
@@ -546,12 +506,12 @@ bool AudioMixer::stop_music()
 		return false;
 	}
 
-	commands_.push(
-		[](Command& command)
-		{
-			command.command = CMD_STOP_MUSIC;
-		}
-	);
+	auto command = Command{};
+	command.command = CommandType::stop_music;
+
+	MtLockGuard guard_lock{mt_commands_lock_};
+
+	mt_commands_.push_back(command);
 
 	return true;
 }
@@ -563,12 +523,12 @@ bool AudioMixer::stop_all_sfx()
 		return false;
 	}
 
-	commands_.push(
-		[](Command& command)
-		{
-			command.command = CMD_STOP_ALL_SFX;
-		}
-	);
+	auto command = Command{};
+	command.command = CommandType::stop_all_sfx;
+
+	MtLockGuard guard_lock{mt_commands_lock_};
+
+	mt_commands_.push_back(command);
 
 	return true;
 }
@@ -686,26 +646,13 @@ void AudioMixer::callback(
 
 void AudioMixer::mix()
 {
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	while (!quit_thread_)
-	{
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-		handle_commands();
+	handle_commands();
 
-		if (!is_data_available_ && !sounds_.empty())
-		{
-			mix_samples();
-			is_data_available_ = true;
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-		}
-		else
-		{
-			::sys_default_sleep_for();
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
-		}
-#if BSTONE_AUDIO_MIXER_USE_THREAD
+	if (!is_data_available_ && !sounds_.empty())
+	{
+		mix_samples();
+		is_data_available_ = true;
 	}
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
 }
 
 void AudioMixer::mix_samples()
@@ -902,17 +849,38 @@ void AudioMixer::mix_samples()
 
 void AudioMixer::handle_commands()
 {
-	auto command = Command{};
+	{
+		MtLockGuard guard_lock{mt_commands_lock_};
 
-	while (commands_.pop(command))
+		if (!mt_commands_.empty())
+		{
+			if (commands_.empty())
+			{
+				commands_ = mt_commands_;
+			}
+			else
+			{
+				commands_.insert(commands_.cend(), mt_commands_.cbegin(), mt_commands_.cend());
+			}
+
+			mt_commands_.clear();
+		}
+	}
+
+	if (commands_.empty())
+	{
+		return;
+	}
+
+	for (const auto& command : commands_)
 	{
 		switch (command.command)
 		{
-		case CMD_PLAY:
+		case CommandType::play:
 			handle_play_command(command);
 			break;
 
-		case CMD_STOP_MUSIC:
+		case CommandType::stop_music:
 			handle_stop_music_command();
 			break;
 
@@ -920,6 +888,8 @@ void AudioMixer::handle_commands()
 			break;
 		}
 	}
+
+	commands_.clear();
 }
 
 void AudioMixer::handle_play_command(
@@ -1269,40 +1239,32 @@ bool AudioMixer::play_sound(
 		throw std::runtime_error("Invalid actor channel.");
 	}
 
-	commands_.push(
-		[&](Command& command)
-		{
-			command.command = CMD_PLAY;
-			command.sound.type = sound_type;
-			command.sound.priority = priority;
-			command.sound.cache = get_cache_item(sound_type, sound_index);
-			command.sound.actor_index = actor_index;
-			command.sound.actor_type = actor_type;
-			command.sound.actor_channel = actor_channel;
-			command.data = data;
-			command.data_size = data_size;
-		}
-	);
+	auto command = Command{};
+	command.command = CommandType::play;
+	command.sound.type = sound_type;
+	command.sound.priority = priority;
+	command.sound.cache = get_cache_item(sound_type, sound_index);
+	command.sound.actor_index = actor_index;
+	command.sound.actor_type = actor_type;
+	command.sound.actor_channel = actor_channel;
+	command.data = data;
+	command.data_size = data_size;
+
+	MtLockGuard guard_lock{mt_commands_lock_};
+
+	mt_commands_.push_back(command);
 
 	return true;
 }
 
 void AudioMixer::lock()
 {
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	mutex_.lock();
-#else
 	::SDL_LockAudioDevice(device_id_);
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
 }
 
 void AudioMixer::unlock()
 {
-#if BSTONE_AUDIO_MIXER_USE_THREAD
-	mutex_.unlock();
-#else
 	::SDL_UnlockAudioDevice(device_id_);
-#endif // BSTONE_AUDIO_MIXER_USE_THREAD
 }
 
 void AudioMixer::callback_proxy(
@@ -1314,9 +1276,7 @@ void AudioMixer::callback_proxy(
 
 	auto mixer = static_cast<AudioMixer*>(user_data);
 
-#if !BSTONE_AUDIO_MIXER_USE_THREAD
 	mixer->mix();
-#endif // !BSTONE_AUDIO_MIXER_USE_THREAD
 
 	mixer->callback(dst_data, dst_length);
 }
