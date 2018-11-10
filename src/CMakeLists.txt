@@ -2,12 +2,20 @@ cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(bstone VERSION 1.1.9 LANGUAGES CXX)
 
 
-find_package(SDL2 REQUIRED)
-
-
 option(BSTONE_USE_STATIC_LINKING "Link build statically.")
 option(BSTONE_PANDORA "Build for Pandora.")
 option(BSTONE_USE_PCH "Use precompiled headers.")
+
+
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+set(BSTONE_SDL2_COMPONENTS "")
+
+if (BSTONE_USE_STATIC_LINKING)
+	set(BSTONE_SDL2_COMPONENTS "${BSTONE_SDL2_COMPONENTS} static")
+endif ()
+
+find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL2_COMPONENTS})
 
 
 #
@@ -115,51 +123,25 @@ if (BSTONE_USE_STATIC_LINKING AND NOT WIN32)
 	)
 endif ()
 
-if (WIN32 AND NOT MINGW)
-	target_link_libraries(
-		bstone
-		SDL2::SDL2main
-	)
-
-	if (BSTONE_USE_STATIC_LINKING)
-		target_link_libraries(
-			bstone
-			SDL2::SDL2-static
-		)
-	else ()
-		target_link_libraries(
-			bstone
-			SDL2::SDL2
-		)
-	endif ()
-else ()
-	target_link_libraries(
-		bstone
-		${SDL2_LIBRARIES}
-	)
-endif ()
-
-if (BSTONE_USE_STATIC_LINKING AND MINGW)
-	target_link_libraries(
-		bstone
-		imm32
-		version
-		winmm
-	)
-endif ()
+target_link_libraries(
+	bstone
+	PRIVATE
+		SDL2W
+)
 
 if (BSTONE_PANDORA)
 	target_link_libraries(
 		bstone
-		Xext
-		Xau
-		Xdmcp
-		X11
-		GLESv2
-		EGL
-		IMGegl
-		srv_um
-		ts
+		PRIVATE
+			Xext
+			Xau
+			Xdmcp
+			X11
+			GLESv2
+			EGL
+			IMGegl
+			srv_um
+			ts
 	)
 endif ()
 
@@ -177,7 +159,6 @@ if (NOT WIN32 OR MINGW)
 	target_include_directories(
 		bstone
 		PRIVATE
-			${SDL2_INCLUDE_DIRS}
 			dosbox
 	)
 endif ()
