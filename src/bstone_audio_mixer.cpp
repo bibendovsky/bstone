@@ -23,6 +23,10 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_audio_mixer.h"
+#include <atomic>
+#include <list>
+#include <mutex>
+#include <utility>
 #include "3d_def.h"
 #include "audio.h"
 #include "bstone_adlib_music_decoder.h"
@@ -41,7 +45,289 @@ namespace bstone
 {
 
 
-AudioMixer::CacheItem::CacheItem()
+class AudioMixer::Impl final
+{
+public:
+	Impl();
+
+	~Impl();
+
+
+	// Note: Mix size in milliseconds.
+	bool initialize(
+		const int dst_rate,
+		const int mix_size_ms);
+
+	void uninitialize();
+
+	bool is_initialized() const;
+
+	bool play_adlib_music(
+		const int music_index,
+		const void* const data,
+		const int data_size);
+
+	// Negative index of an actor defines a non-positional sound.
+	bool play_adlib_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice);
+
+	// Negative index of an actor defines a non-positional sound.
+	bool play_pcm_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice);
+
+	bool update_positions();
+
+	bool stop_music();
+
+	bool stop_all_sfx();
+
+	bool set_mute(
+		const bool value);
+
+	bool set_sfx_volume(
+		const float volume);
+
+	bool set_music_volume(
+		const float volume);
+
+	bool is_music_playing() const;
+
+	bool is_any_sfx_playing() const;
+
+	bool is_player_channel_playing(
+		const ActorChannel channel) const;
+
+	static int get_min_rate();
+
+	static int get_default_rate();
+
+	static int get_min_mix_size_ms();
+
+	static int get_default_mix_size_ms();
+
+	static int get_max_channels();
+
+	static int get_max_commands();
+
+
+private:
+	using Sample = std::int16_t;
+	using Samples = std::vector<Sample>;
+
+	using MixSample = int;
+	using MixSamples = std::vector<MixSample>;
+
+	using MtLock = std::mutex;
+	using MtLockGuard = std::lock_guard<MtLock>;
+
+	class CacheItem
+	{
+	public:
+		bool is_active;
+		bool is_invalid;
+		SoundType sound_type;
+		int samples_count;
+		int decoded_count;
+		Samples samples;
+		std::unique_ptr<AudioDecoder> decoder;
+
+		CacheItem();
+
+		CacheItem(
+			const CacheItem& that);
+
+		~CacheItem();
+
+		CacheItem& operator=(
+			const CacheItem& that);
+
+		bool is_decoded() const;
+	}; // CacheItem
+
+	using Cache = std::vector<CacheItem>;
+
+	struct Location final
+	{
+		int x;
+		int y;
+	}; // Location
+
+	using Locations = std::vector<Location>;
+
+	struct PlayerLocation final
+	{
+		int view_x;
+		int view_y;
+		int view_cos;
+		int view_sin;
+	}; // PlayerLocation
+
+	struct Positions final
+	{
+		PlayerLocation player;
+		Locations actors;
+		Locations doors;
+		Location wall;
+
+		void initialize();
+
+		void fixed_copy_to(
+			Positions& positions);
+	}; // Positions
+
+	using Indices = std::vector<int>;
+
+	struct Sound final
+	{
+		SoundType type;
+		int priority;
+		CacheItem* cache;
+		int decode_offset;
+		int actor_index;
+		ActorType actor_type;
+		ActorChannel actor_channel;
+		float left_volume;
+		float right_volume;
+
+		bool is_audible() const;
+	}; // Sound
+
+	using Sounds = std::list<Sound>;
+
+	enum class CommandType
+	{
+		play,
+		stop_music,
+		stop_all_sfx
+	}; // CommandType
+
+	struct Command final
+	{
+		CommandType command;
+		Sound sound;
+		const void* data;
+		int data_size;
+	}; // Command
+
+	using Commands = std::vector<Command>;
+
+
+	bool is_initialized_;
+	int dst_rate_;
+	SDL_AudioDeviceID device_id_;
+	int mix_samples_count_;
+	Samples buffer_;
+	MixSamples mix_buffer_;
+	std::atomic_bool is_data_available_;
+	Sounds sounds_;
+	Commands commands_;
+	Commands mt_commands_;
+	MtLock mt_commands_lock_;
+	bool mute_;
+	Cache adlib_music_cache_;
+	Cache adlib_sfx_cache_;
+	Cache pcm_cache_;
+	Positions mt_positions_;
+	Positions positions_;
+	Indices modified_actors_indices_;
+	Indices modified_doors_indices_;
+	MtLock mt_positions_lock_;
+	std::atomic_int player_channels_state_;
+	std::atomic_bool is_music_playing_;
+	std::atomic_bool is_any_sfx_playing_;
+	std::atomic<float> sfx_volume_;
+	std::atomic<float> music_volume_;
+	int mix_size_ms_;
+
+
+	void callback(
+		std::uint8_t* dst_data,
+		const int dst_length);
+
+	void mix();
+
+	void mix_samples();
+
+	void handle_commands();
+
+	void handle_play_command(
+		const Command& command);
+
+	void handle_stop_music_command();
+
+	void handle_stop_all_sfx_command();
+
+	bool initialize_cache_item(
+		const Command& command,
+		CacheItem& cache_item);
+
+	bool decode_sound(
+		const Sound& sound);
+
+	void spatialize_sound(
+		Sound& sound);
+
+	void spatialize_sounds();
+
+	bool play_sound(
+		const SoundType sound_type,
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice);
+
+	CacheItem* get_cache_item(
+		const SoundType sound_type,
+		const int sound_index);
+
+	void set_player_channel_state(
+		const Sound& sound,
+		const bool state);
+
+	void lock();
+
+	void unlock();
+
+	static void callback_proxy(
+		void* user_data,
+		std::uint8_t* dst_data,
+		const int dst_length);
+
+	static int mix_proxy(
+		void* user_data);
+
+	static int calculate_mix_samples_count(
+		const int dst_rate,
+		const int mix_size_ms);
+
+	static AudioDecoder* create_decoder_by_sound_type(
+		const SoundType sound_type);
+
+	static bool is_sound_type_valid(
+		const SoundType sound_type);
+
+	static bool is_sound_index_valid(
+		const int sound_index,
+		const SoundType sound_type);
+}; // AudioMixer
+
+
+AudioMixer::Impl::CacheItem::CacheItem()
 	:
 	is_active{},
 	is_invalid{},
@@ -52,7 +338,7 @@ AudioMixer::CacheItem::CacheItem()
 {
 }
 
-AudioMixer::CacheItem::CacheItem(
+AudioMixer::Impl::CacheItem::CacheItem(
 	const CacheItem& that)
 	:
 	is_active{that.is_active},
@@ -72,11 +358,11 @@ AudioMixer::CacheItem::CacheItem(
 	}
 }
 
-AudioMixer::CacheItem::~CacheItem()
+AudioMixer::Impl::CacheItem::~CacheItem()
 {
 }
 
-AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
+AudioMixer::Impl::CacheItem& AudioMixer::Impl::CacheItem::operator=(
 	const CacheItem& that)
 {
 	if (std::addressof(that) != this)
@@ -101,12 +387,12 @@ AudioMixer::CacheItem& AudioMixer::CacheItem::operator=(
 	return *this;
 }
 
-bool AudioMixer::CacheItem::is_decoded() const
+bool AudioMixer::Impl::CacheItem::is_decoded() const
 {
 	return decoded_count == samples_count;
 }
 
-void AudioMixer::Positions::initialize()
+void AudioMixer::Impl::Positions::initialize()
 {
 	player = {};
 
@@ -119,7 +405,7 @@ void AudioMixer::Positions::initialize()
 	wall = {};
 }
 
-void AudioMixer::Positions::fixed_copy_to(
+void AudioMixer::Impl::Positions::fixed_copy_to(
 	Positions& target)
 {
 	player = target.player;
@@ -130,12 +416,12 @@ void AudioMixer::Positions::fixed_copy_to(
 	wall = target.wall;
 }
 
-bool AudioMixer::Sound::is_audible() const
+bool AudioMixer::Impl::Sound::is_audible() const
 {
 	return left_volume > 0.0F || right_volume > 0.0F;
 }
 
-AudioMixer::AudioMixer()
+AudioMixer::Impl::Impl()
 	:
 	is_initialized_{},
 	dst_rate_{},
@@ -174,12 +460,12 @@ AudioMixer::AudioMixer()
 	music_volume_ = 1.0F;
 }
 
-AudioMixer::~AudioMixer()
+AudioMixer::Impl::~Impl()
 {
 	uninitialize();
 }
 
-bool AudioMixer::initialize(
+bool AudioMixer::Impl::initialize(
 	const int dst_rate,
 	const int mix_size_ms)
 {
@@ -263,7 +549,7 @@ bool AudioMixer::initialize(
 	return is_succeed;
 }
 
-void AudioMixer::uninitialize()
+void AudioMixer::Impl::uninitialize()
 {
 	is_initialized_ = false;
 
@@ -293,12 +579,12 @@ void AudioMixer::uninitialize()
 	mix_size_ms_ = 0;
 }
 
-bool AudioMixer::is_initialized() const
+bool AudioMixer::Impl::is_initialized() const
 {
 	return is_initialized_;
 }
 
-bool AudioMixer::play_adlib_music(
+bool AudioMixer::Impl::play_adlib_music(
 	const int music_index,
 	const void* const data,
 	const int data_size)
@@ -306,7 +592,7 @@ bool AudioMixer::play_adlib_music(
 	return play_sound(SoundType::adlib_music, 0, music_index, data, data_size);
 }
 
-bool AudioMixer::play_adlib_sound(
+bool AudioMixer::Impl::play_adlib_sound(
 	const int sound_index,
 	const int priority,
 	const void* const data,
@@ -318,7 +604,7 @@ bool AudioMixer::play_adlib_sound(
 	return play_sound(SoundType::adlib_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
 }
 
-bool AudioMixer::play_pcm_sound(
+bool AudioMixer::Impl::play_pcm_sound(
 	const int sound_index,
 	const int priority,
 	const void* const data,
@@ -330,7 +616,7 @@ bool AudioMixer::play_pcm_sound(
 	return play_sound(SoundType::pcm, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
 }
 
-bool AudioMixer::update_positions()
+bool AudioMixer::Impl::update_positions()
 {
 	if (!is_initialized())
 	{
@@ -495,7 +781,7 @@ bool AudioMixer::update_positions()
 	return true;
 }
 
-bool AudioMixer::stop_music()
+bool AudioMixer::Impl::stop_music()
 {
 	if (!is_initialized())
 	{
@@ -512,7 +798,7 @@ bool AudioMixer::stop_music()
 	return true;
 }
 
-bool AudioMixer::stop_all_sfx()
+bool AudioMixer::Impl::stop_all_sfx()
 {
 	if (!is_initialized())
 	{
@@ -529,7 +815,7 @@ bool AudioMixer::stop_all_sfx()
 	return true;
 }
 
-bool AudioMixer::set_mute(
+bool AudioMixer::Impl::set_mute(
 	const bool value)
 {
 	if (!is_initialized())
@@ -542,7 +828,7 @@ bool AudioMixer::set_mute(
 	return true;
 }
 
-bool AudioMixer::set_sfx_volume(
+bool AudioMixer::Impl::set_sfx_volume(
 	const float volume)
 {
 	if (!is_initialized())
@@ -555,7 +841,7 @@ bool AudioMixer::set_sfx_volume(
 	return true;
 }
 
-bool AudioMixer::set_music_volume(
+bool AudioMixer::Impl::set_music_volume(
 	const float volume)
 {
 	if (!is_initialized())
@@ -568,7 +854,7 @@ bool AudioMixer::set_music_volume(
 	return true;
 }
 
-bool AudioMixer::is_music_playing() const
+bool AudioMixer::Impl::is_music_playing() const
 {
 	if (!is_initialized())
 	{
@@ -578,7 +864,7 @@ bool AudioMixer::is_music_playing() const
 	return is_music_playing_;
 }
 
-bool AudioMixer::is_any_sfx_playing() const
+bool AudioMixer::Impl::is_any_sfx_playing() const
 {
 	if (!is_initialized())
 	{
@@ -588,43 +874,43 @@ bool AudioMixer::is_any_sfx_playing() const
 	return is_any_sfx_playing_;
 }
 
-bool AudioMixer::is_player_channel_playing(
+bool AudioMixer::Impl::is_player_channel_playing(
 	const ActorChannel channel) const
 {
 	return (player_channels_state_ & (1 << static_cast<int>(channel))) != 0;
 }
 
-int AudioMixer::get_min_rate()
+int AudioMixer::Impl::get_min_rate()
 {
 	return 11025;
 }
 
-int AudioMixer::get_default_rate()
+int AudioMixer::Impl::get_default_rate()
 {
 	return 44100;
 }
 
-int AudioMixer::get_min_mix_size_ms()
+int AudioMixer::Impl::get_min_mix_size_ms()
 {
 	return 20;
 }
 
-int AudioMixer::get_default_mix_size_ms()
+int AudioMixer::Impl::get_default_mix_size_ms()
 {
 	return 40;
 }
 
-int AudioMixer::get_max_channels()
+int AudioMixer::Impl::get_max_channels()
 {
 	return 2;
 }
 
-int AudioMixer::get_max_commands()
+int AudioMixer::Impl::get_max_commands()
 {
 	return 128;
 }
 
-void AudioMixer::callback(
+void AudioMixer::Impl::callback(
 	std::uint8_t* dst_data,
 	const int dst_length)
 {
@@ -640,7 +926,7 @@ void AudioMixer::callback(
 	is_data_available_ = false;
 }
 
-void AudioMixer::mix()
+void AudioMixer::Impl::mix()
 {
 	handle_commands();
 
@@ -651,7 +937,7 @@ void AudioMixer::mix()
 	}
 }
 
-void AudioMixer::mix_samples()
+void AudioMixer::Impl::mix_samples()
 {
 	if (sounds_.empty())
 	{
@@ -843,7 +1129,7 @@ void AudioMixer::mix_samples()
 	is_any_sfx_playing_ = ((sounds_.size() - music_count) > 0);
 }
 
-void AudioMixer::handle_commands()
+void AudioMixer::Impl::handle_commands()
 {
 	{
 		MtLockGuard guard_lock{mt_commands_lock_};
@@ -888,7 +1174,7 @@ void AudioMixer::handle_commands()
 	commands_.clear();
 }
 
-void AudioMixer::handle_play_command(
+void AudioMixer::Impl::handle_play_command(
 	const Command& command)
 {
 	auto cache_item = command.sound.cache;
@@ -953,7 +1239,7 @@ void AudioMixer::handle_play_command(
 	set_player_channel_state(sound, true);
 }
 
-void AudioMixer::handle_stop_music_command()
+void AudioMixer::Impl::handle_stop_music_command()
 {
 	is_music_playing_ = false;
 
@@ -971,7 +1257,7 @@ void AudioMixer::handle_stop_music_command()
 	}
 }
 
-void AudioMixer::handle_stop_all_sfx_command()
+void AudioMixer::Impl::handle_stop_all_sfx_command()
 {
 	is_any_sfx_playing_ = false;
 
@@ -983,7 +1269,7 @@ void AudioMixer::handle_stop_all_sfx_command()
 	);
 }
 
-bool AudioMixer::initialize_cache_item(
+bool AudioMixer::Impl::initialize_cache_item(
 	const Command& command,
 	CacheItem& cache_item)
 {
@@ -1034,7 +1320,7 @@ bool AudioMixer::initialize_cache_item(
 	return is_succeed;
 }
 
-bool AudioMixer::decode_sound(
+bool AudioMixer::Impl::decode_sound(
 	const Sound& sound)
 {
 	auto cache_item = sound.cache;
@@ -1079,7 +1365,7 @@ bool AudioMixer::decode_sound(
 	return true;
 }
 
-void AudioMixer::spatialize_sound(
+void AudioMixer::Impl::spatialize_sound(
 	Sound& sound)
 {
 	sound.left_volume = 1.0F;
@@ -1166,7 +1452,7 @@ void AudioMixer::spatialize_sound(
 	sound.right_volume = right / 9.0F;
 }
 
-void AudioMixer::spatialize_sounds()
+void AudioMixer::Impl::spatialize_sounds()
 {
 	if (sounds_.empty())
 	{
@@ -1181,7 +1467,7 @@ void AudioMixer::spatialize_sounds()
 	}
 }
 
-bool AudioMixer::play_sound(
+bool AudioMixer::Impl::play_sound(
 	const SoundType sound_type,
 	const int priority,
 	const int sound_index,
@@ -1253,42 +1539,42 @@ bool AudioMixer::play_sound(
 	return true;
 }
 
-void AudioMixer::lock()
+void AudioMixer::Impl::lock()
 {
 	::SDL_LockAudioDevice(device_id_);
 }
 
-void AudioMixer::unlock()
+void AudioMixer::Impl::unlock()
 {
 	::SDL_UnlockAudioDevice(device_id_);
 }
 
-void AudioMixer::callback_proxy(
+void AudioMixer::Impl::callback_proxy(
 	void* user_data,
 	std::uint8_t* dst_data,
 	const int dst_length)
 {
 	assert(user_data);
 
-	auto mixer = static_cast<AudioMixer*>(user_data);
+	auto mixer = static_cast<AudioMixer::Impl*>(user_data);
 
 	mixer->mix();
 
 	mixer->callback(dst_data, dst_length);
 }
 
-int AudioMixer::mix_proxy(
+int AudioMixer::Impl::mix_proxy(
 	void* user_data)
 {
 	assert(user_data);
 
-	auto mixer = static_cast<AudioMixer*>(user_data);
+	auto mixer = static_cast<AudioMixer::Impl*>(user_data);
 	mixer->mix();
 
 	return 0;
 }
 
-int AudioMixer::calculate_mix_samples_count(
+int AudioMixer::Impl::calculate_mix_samples_count(
 	const int dst_rate,
 	const int mix_size_ms)
 {
@@ -1309,7 +1595,7 @@ int AudioMixer::calculate_mix_samples_count(
 	return actual_count;
 }
 
-AudioMixer::CacheItem* AudioMixer::get_cache_item(
+AudioMixer::Impl::CacheItem* AudioMixer::Impl::get_cache_item(
 	const SoundType sound_type,
 	const int sound_index)
 {
@@ -1334,7 +1620,7 @@ AudioMixer::CacheItem* AudioMixer::get_cache_item(
 	}
 }
 
-void AudioMixer::set_player_channel_state(
+void AudioMixer::Impl::set_player_channel_state(
 	const Sound& sound,
 	const bool state)
 {
@@ -1365,7 +1651,7 @@ void AudioMixer::set_player_channel_state(
 	}
 }
 
-AudioDecoder* AudioMixer::create_decoder_by_sound_type(
+AudioDecoder* AudioMixer::Impl::create_decoder_by_sound_type(
 	const SoundType sound_type)
 {
 	switch (sound_type)
@@ -1384,7 +1670,7 @@ AudioDecoder* AudioMixer::create_decoder_by_sound_type(
 	}
 }
 
-bool AudioMixer::is_sound_type_valid(
+bool AudioMixer::Impl::is_sound_type_valid(
 	const SoundType sound_type)
 {
 	switch (sound_type)
@@ -1399,7 +1685,7 @@ bool AudioMixer::is_sound_type_valid(
 	}
 }
 
-bool AudioMixer::is_sound_index_valid(
+bool AudioMixer::Impl::is_sound_index_valid(
 	const int sound_index,
 	const SoundType sound_type)
 {
@@ -1415,6 +1701,169 @@ bool AudioMixer::is_sound_index_valid(
 	default:
 		return false;
 	}
+}
+
+
+///
+
+
+AudioMixer::AudioMixer()
+	:
+	impl_{new Impl{}}
+{
+}
+
+AudioMixer::AudioMixer(
+	AudioMixer&& rhs)
+	:
+	impl_{std::move(rhs.impl_)}
+{
+}
+
+AudioMixer::~AudioMixer()
+{
+}
+
+bool AudioMixer::initialize(
+	const int dst_rate,
+	const int mix_size_ms)
+{
+	return impl_->initialize(dst_rate, mix_size_ms);
+}
+
+void AudioMixer::uninitialize()
+{
+	impl_->uninitialize();
+}
+
+bool AudioMixer::is_initialized() const
+{
+	return impl_->is_initialized();
+}
+
+bool AudioMixer::play_adlib_music(
+	const int music_index,
+	const void* const data,
+	const int data_size)
+{
+	return impl_->play_adlib_music(music_index, data, data_size);
+}
+
+bool AudioMixer::play_adlib_sound(
+	const int sound_index,
+	const int priority,
+	const void* const data,
+	const int data_size,
+	const int actor_index,
+	const ActorType actor_type,
+	const ActorChannel actor_channel)
+{
+	return impl_->play_adlib_sound(
+		sound_index,
+		priority,
+		data,
+		data_size,
+		actor_index,
+		actor_type,
+		actor_channel);
+}
+
+bool AudioMixer::play_pcm_sound(
+	const int sound_index,
+	const int priority,
+	const void* const data,
+	const int data_size,
+	const int actor_index,
+	const ActorType actor_type,
+	const ActorChannel actor_channel)
+{
+	return impl_->play_pcm_sound(
+		sound_index,
+		priority,
+		data,
+		data_size,
+		actor_index,
+		actor_type,
+		actor_channel);
+}
+
+bool AudioMixer::update_positions()
+{
+	return impl_->update_positions();
+}
+
+bool AudioMixer::stop_music()
+{
+	return impl_->stop_music();
+}
+
+bool AudioMixer::stop_all_sfx()
+{
+	return impl_->stop_all_sfx();
+}
+
+bool AudioMixer::set_mute(
+	const bool value)
+{
+	return impl_->set_mute(value);
+}
+
+bool AudioMixer::set_sfx_volume(
+	const float volume)
+{
+	return impl_->set_sfx_volume(volume);
+}
+
+bool AudioMixer::set_music_volume(
+	const float volume)
+{
+	return impl_->set_music_volume(volume);
+}
+
+bool AudioMixer::is_music_playing() const
+{
+	return impl_->is_music_playing();
+}
+
+bool AudioMixer::is_any_sfx_playing() const
+{
+	return impl_->is_any_sfx_playing();
+}
+
+bool AudioMixer::is_player_channel_playing(
+	const ActorChannel channel) const
+{
+	return impl_->is_player_channel_playing(channel);
+}
+
+int AudioMixer::get_min_rate()
+{
+	return Impl::get_min_rate();
+}
+
+int AudioMixer::get_default_rate()
+{
+	return Impl::get_default_rate();
+}
+
+int AudioMixer::get_min_mix_size_ms()
+{
+	return Impl::get_min_mix_size_ms();
+}
+
+int AudioMixer::get_default_mix_size_ms()
+{
+	return Impl::get_default_mix_size_ms();
+}
+
+int AudioMixer::get_max_channels()
+{
+	return Impl::get_max_channels();
+}
+
+int AudioMixer::get_max_commands()
+{
+	return Impl::get_max_commands();
 }
 
 

@@ -26,13 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_AUDIO_MIXER_INCLUDED
 
 
-#include <atomic>
-#include <list>
 #include <memory>
-#include <mutex>
-#include <vector>
-#include "SDL.h"
-#include "bstone_audio_decoder.h"
 
 
 namespace bstone
@@ -72,10 +66,13 @@ public:
 	AudioMixer();
 
 	AudioMixer(
-		const AudioMixer& that) = delete;
+		const AudioMixer& rhs) = delete;
+
+	AudioMixer(
+		AudioMixer&& rhs);
 
 	AudioMixer& operator=(
-		const AudioMixer& that) = delete;
+		const AudioMixer& rhs) = delete;
 
 	~AudioMixer();
 
@@ -150,207 +147,13 @@ public:
 
 
 private:
-	using Sample = std::int16_t;
-	using Samples = std::vector<Sample>;
-
-	using MixSample = int;
-	using MixSamples = std::vector<MixSample>;
-
-	using MtLock = std::mutex;
-	using MtLockGuard = std::lock_guard<MtLock>;
-
-	class CacheItem
-	{
-	public:
-		bool is_active;
-		bool is_invalid;
-		SoundType sound_type;
-		int samples_count;
-		int decoded_count;
-		Samples samples;
-		std::unique_ptr<AudioDecoder> decoder;
-
-		CacheItem();
-
-		CacheItem(
-			const CacheItem& that);
-
-		~CacheItem();
-
-		CacheItem& operator=(
-			const CacheItem& that);
-
-		bool is_decoded() const;
-	}; // CacheItem
-
-	using Cache = std::vector<CacheItem>;
-
-	struct Location final
-	{
-		int x;
-		int y;
-	}; // Location
-
-	using Locations = std::vector<Location>;
-
-	struct PlayerLocation final
-	{
-		int view_x;
-		int view_y;
-		int view_cos;
-		int view_sin;
-	}; // PlayerLocation
-
-	struct Positions final
-	{
-		PlayerLocation player;
-		Locations actors;
-		Locations doors;
-		Location wall;
-
-		void initialize();
-
-		void fixed_copy_to(
-			Positions& positions);
-	}; // Positions
-
-	using Indices = std::vector<int>;
-
-	struct Sound final
-	{
-		SoundType type;
-		int priority;
-		CacheItem* cache;
-		int decode_offset;
-		int actor_index;
-		ActorType actor_type;
-		ActorChannel actor_channel;
-		float left_volume;
-		float right_volume;
-
-		bool is_audible() const;
-	}; // Sound
-
-	using Sounds = std::list<Sound>;
-
-	enum class CommandType
-	{
-		play,
-		stop_music,
-		stop_all_sfx
-	}; // CommandType
-
-	struct Command final
-	{
-		CommandType command;
-		Sound sound;
-		const void* data;
-		int data_size;
-	}; // Command
-
-	using Commands = std::vector<Command>;
+	class Impl;
 
 
-	bool is_initialized_;
-	int dst_rate_;
-	SDL_AudioDeviceID device_id_;
-	int mix_samples_count_;
-	Samples buffer_;
-	MixSamples mix_buffer_;
-	std::atomic_bool is_data_available_;
-	Sounds sounds_;
-	Commands commands_;
-	Commands mt_commands_;
-	MtLock mt_commands_lock_;
-	bool mute_;
-	Cache adlib_music_cache_;
-	Cache adlib_sfx_cache_;
-	Cache pcm_cache_;
-	Positions mt_positions_;
-	Positions positions_;
-	Indices modified_actors_indices_;
-	Indices modified_doors_indices_;
-	MtLock mt_positions_lock_;
-	std::atomic_int player_channels_state_;
-	std::atomic_bool is_music_playing_;
-	std::atomic_bool is_any_sfx_playing_;
-	std::atomic<float> sfx_volume_;
-	std::atomic<float> music_volume_;
-	int mix_size_ms_;
+	using ImplUPtr = std::unique_ptr<Impl>;
 
 
-	void callback(
-		std::uint8_t* dst_data,
-		const int dst_length);
-
-	void mix();
-
-	void mix_samples();
-
-	void handle_commands();
-
-	void handle_play_command(
-		const Command& command);
-
-	void handle_stop_music_command();
-
-	void handle_stop_all_sfx_command();
-
-	bool initialize_cache_item(
-		const Command& command,
-		CacheItem& cache_item);
-
-	bool decode_sound(
-		const Sound& sound);
-
-	void spatialize_sound(
-		Sound& sound);
-
-	void spatialize_sounds();
-
-	bool play_sound(
-		const SoundType sound_type,
-		const int sound_index,
-		const int priority,
-		const void* const data,
-		const int data_size,
-		const int actor_index = -1,
-		const ActorType actor_type = ActorType::none,
-		const ActorChannel actor_channel = ActorChannel::voice);
-
-	CacheItem* get_cache_item(
-		const SoundType sound_type,
-		const int sound_index);
-
-	void set_player_channel_state(
-		const Sound& sound,
-		const bool state);
-
-	void lock();
-
-	void unlock();
-
-	static void callback_proxy(
-		void* user_data,
-		std::uint8_t* dst_data,
-		const int dst_length);
-
-	static int mix_proxy(
-		void* user_data);
-
-	static int calculate_mix_samples_count(
-		const int dst_rate,
-		const int mix_size_ms);
-
-	static AudioDecoder* create_decoder_by_sound_type(
-		const SoundType sound_type);
-
-	static bool is_sound_type_valid(
-		const SoundType sound_type);
-
-	static bool is_sound_index_valid(
-		const int sound_index,
-		const SoundType sound_type);
+	ImplUPtr impl_;
 }; // AudioMixer
 
 

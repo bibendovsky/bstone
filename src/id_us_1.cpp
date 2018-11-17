@@ -52,6 +52,7 @@ Free Software Foundation, Inc.,
 
 
 #include "id_heads.h"
+#include "SDL_timer.h"
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_us.h"
