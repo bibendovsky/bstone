@@ -39,6 +39,19 @@ Free Software Foundation, Inc.,
 #include "bstone_scope_guard.h"
 
 
+namespace
+{
+
+
+std::int16_t COAL_FONT()
+{
+	return ::STARTFONT + 4;
+}
+
+
+} // namespace
+
+
 bool is_full_menu_active = false;
 
 
@@ -183,7 +196,7 @@ CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 1, 0, 0, 9, {87, -1, 132, 7,
 
 
 CP_itemtype MainMenu[] = {
-	{AT_ENABLED, "NEW MISSION", CP_NewGame, static_cast<std::uint8_t>(COAL_FONT)},
+	{AT_ENABLED, "NEW MISSION", CP_NewGame, static_cast<std::uint8_t>(COAL_FONT())},
 {AT_READIT, "ORDERING INFO", CP_OrderingInfo},
 {AT_READIT, "INSTRUCTIONS", CP_ReadThis},
 {AT_ENABLED, "STORY", CP_BlakeStoneSaga},

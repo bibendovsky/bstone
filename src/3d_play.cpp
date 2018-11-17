@@ -84,7 +84,6 @@ std::uint8_t alerted_areanum;
 
 exit_t playstate;
 
-std::int16_t bordertime;
 bool DebugOk = false;
 std::int16_t InstantWin = 0;
 std::int16_t InstantQuit = 0;

@@ -39,6 +39,55 @@ Free Software Foundation, Inc.,
 #include "bstone_memory_stream.h"
 
 
+namespace
+{
+
+
+struct PinballBonusInfo
+{
+	char* BonusText; // REBA text pointer
+	std::int32_t Points; // Score for this bonus
+	bool Recurring; // Appear multiple times in a single level?
+	void (*func)(); // Code to execute when you get this bonus.
+}; // PinballBonusInfo
+
+struct atkinf_t
+{
+	std::int8_t tics;
+	std::int8_t attack;
+	std::int8_t frame; // attack is 1 for gun, 2 for knife
+}; // atkinf_t
+
+
+//
+// M_BASE1 - represents 100 percent in 1st base
+// M_BASE2 - represents 100 percent in 2nd base
+// F_BASE2 - fractional portion of 2nd base
+// SCALE - arbitrary scaling value (bigger number means more accurate)
+//
+// RETURNS: F_BASE1 - represents fractional portion of 1st base
+//
+// ex: RATIO(320,16,8,7)    returns  160
+//
+// Make sure values used won't overflow a WORD! In general, if largest number
+// to be used (320 in ex: above) * (1<<SCALE) is greater than 65535, use
+// LRATIO or a lower SCALE. Using a SCALE of 8 in the example above would
+// overflow a WORD in some circumstances!
+//
+// LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
+//
+int LRATIO(
+	const std::int32_t M_BASE1,
+	const std::int32_t M_BASE2,
+	const std::int32_t F_BASE2,
+	const std::int32_t SCALE)
+{
+	return (M_BASE1 * ((F_BASE2 << SCALE) / M_BASE2)) >> SCALE;
+}
+
+
+} // namespace
+
 void InitWeaponBounce();
 void HandleWeaponBounce();
 
@@ -93,6 +142,27 @@ std::int16_t DrawShape(
 	std::int16_t y,
 	std::int16_t shapenum,
 	pisType shapetype);
+
+void DrawAmmoMsg();
+
+void AnimatePage();
+
+void DrawInfoArea();
+
+std::uint8_t ValidAreaTile(
+	const std::uint16_t* ptr);
+
+std::int16_t InputFloor();
+
+bool Interrogate(
+	objtype* ob);
+
+void PrintStatPercent(
+	std::int16_t nx,
+	std::int16_t ny,
+	std::int8_t percentage);
+
+void DrawAmmoGuage();
 
 
 /*

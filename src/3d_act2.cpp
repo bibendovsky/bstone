@@ -29,6 +29,135 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 
 
+// 3d_def.h stuff
+//
+namespace
+{
+
+
+const std::int16_t DOOR_RUBBLE_STATNUM = 112; // Door Rubble sprite
+
+
+struct ofs_anim_t
+{
+	static const int animtype_offset = 0;
+	static const int animtype_size = 2;
+
+	static const int curframe_offset = animtype_offset + animtype_size;
+	static const int curframe_size = 5;
+
+	static const int maxframe_offset = curframe_offset + curframe_size;
+	static const int maxframe_size = 5;
+
+	static const int animdir_offset = maxframe_offset + maxframe_size;
+	static const int animdir_size = 1;
+
+
+	template<int TOffset, int TSize>
+	static std::uint16_t get(
+		const objtype* o)
+	{
+		return (o->temp3 >> TOffset) & ((1 << TSize) - 1);
+	}
+
+	template<int TOffset, int TSize>
+	static void set(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		o->temp3 &= ~(((1 << TSize) - 1) << TOffset);
+		o->temp3 |= ((value & ((1 << TSize) - 1)) << TOffset);
+	}
+
+	static std::uint16_t get_animtype(
+		const objtype* o)
+	{
+		return get<animtype_offset, animtype_size>(o);
+	}
+
+	static void set_animtype(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<animtype_offset, animtype_size>(value, o);
+	}
+
+
+	static std::uint16_t get_curframe(
+		const objtype* o)
+	{
+		return get<curframe_offset, curframe_size>(o);
+	}
+
+	static void set_curframe(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<curframe_offset, curframe_size>(value, o);
+	}
+
+
+	static std::uint16_t get_maxframe(
+		const objtype* o)
+	{
+		return get<maxframe_offset, maxframe_size>(o);
+	}
+
+	static void set_maxframe(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<maxframe_offset, maxframe_size>(value, o);
+	}
+
+
+	static std::uint16_t get_animdir(
+		const objtype* o)
+	{
+		return get<animdir_offset, animdir_size>(o);
+	}
+
+	static void set_animdir(
+		const std::uint16_t value,
+		objtype* o)
+	{
+		set<animdir_offset, animdir_size>(value, o);
+	}
+}; // ofs_anim_t
+
+
+std::uint16_t MAPSPOT(
+	const std::uint8_t x,
+	const std::uint8_t y,
+	const std::uint8_t plane)
+{
+	return ::mapsegs[plane][::farmapylookup[y] + x];
+}
+
+objtype* SLIDE_TEMP(
+	const objtype* const obj)
+{
+	return ::ui16_to_actor(obj->hitpoints);
+}
+
+void SpawnExplosion(
+	const fixed x,
+	const fixed y)
+{
+	::SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, explosionobj);
+}
+
+void SpawnFlash(
+	const fixed x,
+	const fixed y)
+{
+	::SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, deadobj);
+}
+
+
+} // namespace
+
+
 void FirstSighting(
 	objtype* ob);
 
@@ -54,6 +183,49 @@ bool ClipMove(
 	objtype* ob,
 	std::int32_t xmove,
 	std::int32_t ymove);
+
+void DisplaySwitchOperateMsg(
+	int coords);
+
+void T_Hit(
+	objtype* ob);
+
+void CheckForSpecialTile(
+	objtype* obj,
+	std::uint16_t tilex,
+	std::uint16_t tiley);
+
+void ExplodeRadius(
+	objtype* obj,
+	std::int16_t damage,
+	bool damageplayer);
+
+void ToggleBarrier(
+	objtype* obj);
+
+bool AnimateOfsObj(
+	objtype* obj);
+
+void T_Seek(
+	objtype* ob);
+
+void T_ExplodeDamage(
+	objtype* obj);
+
+void AdvanceAnimFWD(
+	objtype* obj);
+
+void T_ChangeShape(
+	objtype* obj);
+
+void T_LiquidStand(
+	objtype* obj);
+
+void T_ChangeShape(
+	objtype* obj);
+
+void T_Security(
+	objtype* obj);
 
 
 /*

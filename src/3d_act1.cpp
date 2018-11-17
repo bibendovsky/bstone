@@ -49,6 +49,17 @@ void PlaceItemNearTile(
 void HealSelf(
 	std::int16_t points);
 
+std::int16_t TransformAreas(
+	std::int8_t tilex,
+	std::int8_t tiley,
+	std::int8_t xform);
+
+void FreeMsgCache(
+	mCacheList* mList,
+	std::uint16_t infoSize);
+
+void FindNewGoldieSpawnSite();
+
 
 // ===========================================================================
 //

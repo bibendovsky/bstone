@@ -48,6 +48,14 @@ void PlaceItemNearTile(
 void ChangeShootMode(
 	objtype* ob);
 
+void SeekPlayerOrStatic(
+	objtype* ob,
+	std::int16_t* deltax,
+	std::int16_t* deltay);
+
+bool PlayerIsBlocking(
+	objtype* ob);
+
 
 /*
 =============================================================================

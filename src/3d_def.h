@@ -26,7 +26,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_DEF_INCLUDED
 
 
-#include <cmath>
 #include <array>
 #include <functional>
 #include <stdexcept>
@@ -74,11 +73,6 @@ const int BS_SAVE_VERSION = 5;
 #define BORDER_TEXT_COLOR (0xAF)
 
 
-// FONT DEFINES
-//
-#define COAL_FONT (STARTFONT + 4)
-
-
 /*
 =============================================================================
 
@@ -92,8 +86,6 @@ const int BS_SAVE_VERSION = 5;
 #define RADAR_PAK_VALUE (60 * 15)
 
 #define MAXKEYS (1)
-
-#define MAPSPOT(x, y, plane) (*(mapsegs[plane] + farmapylookup[y] + x))
 
 #define ABS(x) (static_cast<std::int16_t>(x) > 0 ? (x) : -(x))
 #define LABS(x) (static_cast<std::int32_t>(x) > 0 ? (x) : -(x))
@@ -116,35 +108,8 @@ case gen_scientistobj
 #define MAX_BARRIER_SWITCHES (40) // max number level wall switches
 
 
-#define SLIDE_TEMP(obj) (ui16_to_actor(obj->hitpoints))
-
-//
-// M_BASE1 - represents 100 percent in 1st base
-// M_BASE2 - represents 100 percent in 2nd base
-// F_BASE2 - fractional portion of 2nd base
-// SCALE - arbitrary scaling value (bigger number means more accurate)
-//
-// RETURNS: F_BASE1 - represents fractional portion of 1st base
-//
-// ex: RATIO(320,16,8,7)    returns  160
-//
-// Make sure values used won't overflow a WORD! In general, if largest number
-// to be used (320 in ex: above) * (1<<SCALE) is greater than 65535, use
-// LRATIO or a lower SCALE. Using a SCALE of 8 in the example above would
-// overflow a WORD in some circumstances!
-//
-// LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
-//
-#define LRATIO(M_BASE1, M_BASE2, F_BASE2, SCALE) (((std::int32_t)M_BASE1 * (((std::int32_t)F_BASE2 << SCALE) / M_BASE2)) >> SCALE)
-
-
 #define MAX_INF_AREA_MSGS (6)
 #define MAX_LOCATION_DESC_LEN (45)
-
-#define DOOR_RUBBLE_STATNUM (112) // Door Rubble sprite
-
-#define SpawnExplosion(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, explosionobj)
-#define SpawnFlash(a, b) SpawnCusExplosion((a), (b), SPR_EXPLOSION_1, 4, 5, deadobj)
 
 
 /*
@@ -227,7 +192,6 @@ case gen_scientistobj
 #define WINTIGGERTILE (157) // Win Tile
 
 #define START_TEXTURES (125) // Start of Textures - (Also LAST_WALL_TILE NUM)
-#define NUM_TILES (PMSpriteStart)
 
 
 // ----------------
@@ -237,8 +201,6 @@ case gen_scientistobj
 #define MAX_EXTRA_LIVES (4)
 
 #define RUNSPEED (6000)
-
-#define SCREENBWIDE (::vga_ref_width)
 
 #define HEIGHTRATIO (0.41)
 #define TOP_STRIP_HEIGHT (16) // Pix height of top strip.
@@ -270,8 +232,6 @@ case gen_scientistobj
 #define WEST (3)
 
 #define STATUSLINES (48)
-
-#define SCREENSIZE (SCREENBWIDE * ::vga_ref_height)
 
 #define STARTAMMO (8)
 
@@ -414,7 +374,6 @@ enum cds_io_type
 	cds_id_print,
 	cds_menu_print
 }; // cds_io_type
-
 
 enum sp_type
 {
@@ -1685,91 +1644,6 @@ extern std::int16_t SPR_BFG_EXP8;
 
 
 //
-// Door Objects
-//
-enum doortype
-{
-	// LOCKED DOORS
-
-	L_METAL,
-	L_METAL_SHADE,
-
-	L_BIO,
-	L_BIO_SHADE,
-
-	L_ELEVATOR,
-	L_ELEVATOR_SHADE,
-
-	L_SPACE,
-	L_SPACE_SHADE,
-
-	L_PRISON,
-	L_PRISON_SHADE,
-
-	L_HIGH_SECURITY,
-	L_HIGH_SECURITY_SHADE,
-
-	L_ENTER_ONLY,
-	L_ENTER_ONLY_SHADE,
-
-	L_HIGH_TECH,
-	L_HIGH_TECH_SHADE,
-
-
-	// UNLOCKED DOORS
-
-	UL_METAL,
-	UL_METAL_SHADE,
-
-	UL_BIO,
-	UL_BIO_SHADE,
-
-	UL_ELEVATOR,
-	UL_ELEVATOR_SHADE,
-
-	UL_SPACE,
-	UL_SPACE_SHADE,
-
-	UL_PRISON,
-	UL_PRISON_SHADE,
-
-	UL_HIGH_SECURITY,
-	UL_HIGH_SECURITY_SHADE,
-
-	UL_ENTER_ONLY,
-	UL_ENTER_ONLY_SHADE,
-
-	UL_HIGH_TECH,
-	UL_HIGH_TECH_SHADE,
-
-
-	// MISC DOORS
-
-	NOEXIT,
-	NOEXIT_SHADE,
-
-	STEEL_JAM,
-	STEEL_JAM_SHADE,
-
-	SPACE_JAM,
-	SPACE_JAM_SHADE,
-
-	OFFICE_JAM,
-	OFFICE_JAM_SHADE,
-
-	BIO_JAM,
-	BIO_JAM_SHADE,
-
-	SPACE_JAM_2,
-	SPACE_JAM_2_SHADE,
-
-
-	// END OF DOOR LIST
-	NUMDOORTYPES,
-}; // doortype
-
-
-//
 // Breifing types - Note these are ordered to an char array in Breifing().
 //
 enum breifing_type
@@ -1820,21 +1694,6 @@ using fixed = std::int32_t;
 
 #define PinballBonusShown(bonus) (BONUS_SHOWN & bonus)
 #define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus))BONUS_QUEUE |= bonus
-
-struct PinballBonusInfo
-{
-	char* BonusText; // REBA text pointer
-	std::int32_t Points; // Score for this bonus
-	bool Recurring; // Appear multiple times in a single level?
-	void(*func)(); // Code to execute when you get this bonus.
-}; // PinballBonusInfo
-
-struct atkinf_t
-{
-	std::int8_t tics;
-	std::int8_t attack;
-	std::int8_t frame; // attack is 1 for gun, 2 for knife
-}; // atkinf_t
 
 
 // NOTE - This enum list is ORDERED!
@@ -2216,10 +2075,10 @@ struct statetype
 	int shapenum; // a shapenum of -1 means get from ob->temp1
 	int tictime;
 
-	void(*think)(
+	void (*think)(
 		objtype* actor);
 
-	void(*action)(
+	void (*action)(
 		objtype* actor);
 
 	statetype* next;
@@ -2408,11 +2267,13 @@ enum Difficulty
 }; // Difficulty
 
 
+/*
 enum backgroundtype
 {
 	ELEVATOR_BACK,
 	TRANSPORTER_BACK
 }; // backgroundtype
+*/
 
 
 //
@@ -2612,25 +2473,6 @@ enum exit_t
 }; // exit_t
 
 
-struct CycleInfo
-{
-	std::uint8_t init_delay;
-	std::uint8_t delay_count;
-	std::uint8_t firstreg;
-	std::uint8_t lastreg;
-}; // CycleInfo
-
-
-struct visobj_t
-{
-	std::int16_t viewx;
-	std::int16_t viewheight;
-	std::int16_t shapenum;
-	std::int8_t lighting;
-	bool cloaked;
-}; // visobj_t
-
-
 enum animtype_t
 {
 	at_NONE = 0,
@@ -2644,94 +2486,6 @@ enum animdir_t
 	ad_FWD = 0,
 	ad_REV,
 }; // animdir_t
-
-
-struct ofs_anim_t
-{
-	static const int animtype_offset = 0;
-	static const int animtype_size = 2;
-
-	static const int curframe_offset = animtype_offset + animtype_size;
-	static const int curframe_size = 5;
-
-	static const int maxframe_offset = curframe_offset + curframe_size;
-	static const int maxframe_size = 5;
-
-	static const int animdir_offset = maxframe_offset + maxframe_size;
-	static const int animdir_size = 1;
-
-
-	template<int TOffset, int TSize>
-	static std::uint16_t get(
-		const objtype* o)
-	{
-		return (o->temp3 >> TOffset) & ((1 << TSize) - 1);
-	}
-
-	template<int TOffset, int TSize>
-	static void set(
-		const std::uint16_t value,
-		objtype* o)
-	{
-		o->temp3 &= ~(((1 << TSize) - 1) << TOffset);
-		o->temp3 |= ((value & ((1 << TSize) - 1)) << TOffset);
-	}
-
-	static std::uint16_t get_animtype(
-		const objtype* o)
-	{
-		return get<animtype_offset, animtype_size>(o);
-	}
-
-	static void set_animtype(
-		const std::uint16_t value,
-		objtype* o)
-	{
-		set<animtype_offset, animtype_size>(value, o);
-	}
-
-
-	static std::uint16_t get_curframe(
-		const objtype* o)
-	{
-		return get<curframe_offset, curframe_size>(o);
-	}
-
-	static void set_curframe(
-		const std::uint16_t value,
-		objtype* o)
-	{
-		set<curframe_offset, curframe_size>(value, o);
-	}
-
-
-	static std::uint16_t get_maxframe(
-		const objtype* o)
-	{
-		return get<maxframe_offset, maxframe_size>(o);
-	}
-
-	static void set_maxframe(
-		const std::uint16_t value,
-		objtype* o)
-	{
-		set<maxframe_offset, maxframe_size>(value, o);
-	}
-
-
-	static std::uint16_t get_animdir(
-		const objtype* o)
-	{
-		return get<animdir_offset, animdir_size>(o);
-	}
-
-	static void set_animdir(
-		const std::uint16_t value,
-		objtype* o)
-	{
-		set<animdir_offset, animdir_size>(value, o);
-	}
-}; // ofs_anim_t
 
 
 //
@@ -2933,15 +2687,6 @@ struct GoldsternInfo_t
 }; // GoldsternInfo_t
 
 
-struct star_t
-{
-	std::int32_t x;
-	std::int32_t y;
-	std::int32_t z;
-	std::uint8_t color;
-}; // star_t
-
-
 /*
 =============================================================================
 
@@ -2963,20 +2708,13 @@ extern std::string mod_dir_;
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
 
 extern std::int16_t starting_level;
-extern std::int16_t debug_value;
 extern std::int16_t starting_episode;
 extern std::int16_t starting_difficulty;
 
-extern std::int8_t lastmap_tilex;
-extern std::int8_t lastmap_tiley;
 extern std::uint16_t TopColor;
 extern std::uint16_t BottomColor;
 extern char str[80];
-extern char str2[20];
-extern bool nospr;
-extern bool IsA386;
 
-extern int viewangles;
 extern int screenofs;
 extern int viewwidth;
 extern int viewheight;
@@ -3007,37 +2745,26 @@ extern int* costable;
 // derived constants
 //
 extern int scale;
-extern int maxslope;
 extern int heightnumerator;
-extern int minheightdiv;
-
-extern char configname[13];
 
 extern bool ShowQuickMsg;
+
 
 int DeleteChunk(
 	bstone::MemoryStream& stream,
 	const std::string& chunk_name);
 
 void LoadFonts();
-void ClearNClose();
-void CycleColors();
-void HelpScreens();
 
-void CalcProjection(
-	std::int32_t focal);
+void ClearNClose();
+
+void CycleColors();
 
 void SetViewSize();
+
 void SetPlaneViewSize();
 
-void NewGame(
-	std::int16_t difficulty,
-	std::int16_t episode);
-
 void NewViewSize();
-
-std::uint16_t scan_atoi(
-	const char* s);
 
 bool DoMovie(
 	movie_t movie,
@@ -3053,10 +2780,6 @@ bool SaveTheGame(
 	const std::string& description);
 
 void SetupWalls();
-void InitDigiMap();
-
-void CleanUpDoors_N_Actors();
-
 
 void InitDestPath();
 
@@ -3065,8 +2788,6 @@ int FindChunk(
 	bstone::Stream* stream,
 	const std::string& dst_chunk_name);
 
-int NextChunk(
-	bstone::Stream* stream);
 
 /*
 =============================================================================
@@ -3076,30 +2797,28 @@ int NextChunk(
 =============================================================================
 */
 
-extern std::int16_t db_count;
-extern classtype debug_bonus[2][800];
 extern fargametype gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
-extern std::uint8_t VitalsRemain;
-extern std::uint8_t VitalsOnFloor;
-
 extern eaWallInfo eaList[];
 extern std::int8_t NumEAWalls;
-extern std::int8_t NumEASpawned;
 extern bool ingame;
 extern bool fizzlein;
 extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
 extern std::int16_t doornum;
 
-void DrawPlayBorder();
-void ScanInfoPlane();
-void SetupGameLevel();
-void DrawPlayScreen(bool);
-void GameLoop();
 
+void DrawPlayBorder();
+
+void ScanInfoPlane();
+
+void SetupGameLevel();
+
+void DrawPlayScreen(bool);
+
+void GameLoop();
 
 void Warped();
 
@@ -3124,22 +2843,15 @@ void BevelBox(
 	std::uint8_t med,
 	std::uint8_t lo);
 
-void AddTotalPoints(
-	std::uint16_t points);
-
-void AddTotalInformants(
-	std::int8_t informants);
-
-void AddTotalEnemy(
-	std::uint16_t enemies);
-
 void ShadowPrintLocationText(
 	sp_type type);
 
-void LoseScreen();
-
 void LoadLocationText(
 	std::int16_t textNum);
+
+void NewGame(
+	std::int16_t difficulty,
+	std::int16_t episode);
 
 /*
 =============================================================================
@@ -3156,8 +2868,6 @@ extern objtype dummyobj;
 extern std::uint8_t NumDeadGuys;
 
 extern exit_t playstate;
-
-extern std::int16_t bordertime;
 
 extern bool madenoise;
 extern bool usedummy;
@@ -3185,12 +2895,9 @@ extern objtype* actorat[MAPSIZE][MAPSIZE];
 
 extern bool singlestep;
 extern bool godmode;
-extern bool noclip;
 extern bool DebugOk;
 extern std::int16_t InstantWin;
 extern std::int16_t InstantQuit;
-extern std::int16_t TestQuickSave;
-extern std::int16_t TestAutoMapper;
 extern std::uint16_t ExtraRadarFlags;
 
 //
@@ -3229,12 +2936,12 @@ extern char Computing[];
 
 
 void InitActorList();
+
 void GetNewActor();
 
 void RemoveObj(
 	objtype* gone);
 
-void PollControls();
 void StopMusic();
 
 void StartMusic(
@@ -3264,19 +2971,6 @@ bool DebugKeys();
 */
 
 extern std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
-
-extern std::int16_t weaponchangetics;
-extern std::int16_t itemchangetics;
-extern std::int16_t bodychangetics;
-extern std::int16_t plaqueon;
-extern std::int16_t plaquetime;
-extern std::int16_t plaquetimefrac;
-extern std::int16_t getpic;
-
-extern statobj_t* firststarobj;
-
-extern std::int32_t space_xmove;
-extern std::int32_t space_ymove;
 
 extern std::int32_t lasttimecount;
 extern std::int32_t framecount;
@@ -3318,28 +3012,16 @@ extern std::uint16_t pwallpos;
 
 extern bool cloaked_shape;
 
+
 fixed FixedByFrac(
 	fixed a,
 	fixed b);
 
-void TransformActor(
-	objtype* ob);
-
 void BuildTables();
 
-std::int16_t CalcRotate(
-	objtype* ob);
-
-void DrawScaleds();
 void CalcTics();
-void ThreeDRefresh();
-void FarScalePost();
 
-bool TransformTile(
-	std::int16_t tx,
-	std::int16_t ty,
-	std::int16_t* dispx,
-	std::int16_t* dispheight);
+void ThreeDRefresh();
 
 void ShowOverhead(
 	int bx,
@@ -3347,8 +3029,6 @@ void ShowOverhead(
 	int radius,
 	int zoom,
 	int flags);
-
-void UpdateTravelTable();
 
 
 /*
@@ -3364,9 +3044,10 @@ extern void(*MapRowPtr)();
 
 void DrawPlanes();
 
-
 void MapRow();
+
 void C_MapRow();
+
 void F_MapRow();
 
 
@@ -3383,15 +3064,7 @@ extern dirtype opposite[9];
 extern dirtype diagonal[9][9];
 
 
-void SeekPlayerOrStatic(
-	objtype* ob,
-	std::int16_t* deltax,
-	std::int16_t* deltay);
-
 std::uint16_t CheckRunChase(
-	objtype* ob);
-
-void GetCornerSeek(
 	objtype* ob);
 
 bool LookForGoodies(
@@ -3437,13 +3110,8 @@ bool CheckSight(
 	objtype* from_obj,
 	objtype* to_obj);
 
-bool PlayerIsBlocking(
-	objtype* ob);
-
 void MakeAlertNoise(
 	objtype* obj);
-
-objtype* CheckAndReserve();
 
 
 /*
@@ -3454,20 +3122,6 @@ objtype* CheckAndReserve();
 =============================================================================
 */
 
-
-#define COMPSCALECODESTART (65 * 4) // offset to start of code in comp scaler
-
-struct t_compshape
-{
-	std::uint16_t leftpix, rightpix;
-	std::uint16_t dataofs[64];
-
-	// table data after dataofs[rightpix-leftpix+1]
-}; // t_compshape
-
-extern int maxscale;
-extern int maxscaleshl2;
-extern bool scaledir_avail;
 
 extern int normalshade;
 extern int normalshade_div;
@@ -3502,24 +3156,15 @@ extern scientist_t MeanSciList;
 
 extern std::uint16_t static_points[];
 extern bool GAN_HiddenArea;
-extern char* InfAreaMsgs[];
-extern std::uint8_t NumAreaMsgs;
 extern std::uint8_t LastInfArea;
 extern std::int16_t FirstGenInfMsg;
 extern std::int16_t TotalGenInfMsgs;
 extern classtype LastInfoAttacker;
 
-extern std::int16_t LastInfoAttacker_Cloaked;
-
-extern char term_com_name[];
-extern char term_msg_name[];
-
-extern atkinf_t attackinfo[7][14];
 
 //
 // player state info
 //
-extern bool commandmode;
 extern std::int32_t thrustspeed;
 extern std::uint16_t plux;
 extern std::uint16_t pluy; // player coordinates scaled to unsigned
@@ -3527,12 +3172,6 @@ extern bool PlayerInvisable;
 extern std::int8_t DrawInfoArea_COUNT;
 extern std::int8_t InitInfoArea_COUNT;
 
-extern std::uint16_t player_oldtilex;
-extern std::uint16_t player_oldtiley;
-
-// Terminal variables
-
-extern std::uint16_t RadarSw;
 
 // Location Bar message string...
 
@@ -3542,14 +3181,7 @@ extern char LocationText[MAX_LOCATION_DESC_LEN];
 //
 // search / move info
 //
-extern std::uint16_t searchon; // held object number looking at
-extern std::int16_t searchtics; // when it reaches SEARCHTICS, get an obj
-extern objtype* searchobj; // current object being searched
-extern std::uint16_t foundflag; // only show NOTHING if nothing was found
-extern objtype* moveobj; // current object being draged
-
 extern int anglefrac;
-extern std::int16_t facecount;
 
 extern std::uint16_t LastMsgPri;
 extern std::int16_t MsgTicsRemain;
@@ -3562,9 +3194,6 @@ void SpawnPlayer(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	std::int16_t dir);
-
-void DrawAmmoGuage();
-void DrawAmmoMsg();
 
 void DrawAmmo(
 	bool ForceRefresh);
@@ -3582,26 +3211,10 @@ bool DisplayInfoMsg(
 	std::int16_t MessageType);
 
 void UpdateInfoAreaClock();
-void UpdateInfoArea();
-void DrawHealthMonitor();
-void UpdateScore();
-
-std::uint8_t ValidAreaTile(
-	const std::uint16_t* ptr);
 
 std::int8_t GetAreaNumber(
 	int tilex,
 	int tiley);
-
-std::int16_t InputFloor();
-void DrawInfoArea();
-void AnimatePage();
-
-bool Interrogate(
-	objtype* ob);
-
-void GiveKey(
-	std::int16_t key);
 
 void TakeKey(
 	std::int16_t key);
@@ -3610,9 +3223,6 @@ void GiveToken(
 	std::int16_t tokens);
 
 void TakePlasmaDetonator(
-	std::int16_t count);
-
-void GivePlasmaDetonator(
 	std::int16_t count);
 
 void CacheDrawPic(
@@ -3645,23 +3255,13 @@ std::uint16_t ScanBarrierTable(
 	std::uint8_t x,
 	std::uint8_t y);
 
-void DisplaySwitchOperateMsg(
-	int coords);
-
 void DisplayNoMoMsgs();
-
-void PrintStatPercent(
-	std::int16_t nx,
-	std::int16_t ny,
-	std::int8_t percentage);
 
 std::int16_t ShowStats(
 	std::int16_t bx,
 	std::int16_t by,
 	ss_type type,
 	statsInfoType* stats);
-
-bool PerfectStats();
 
 bool OperateSmartSwitch(
 	std::uint16_t tilex,
@@ -3688,7 +3288,6 @@ extern doorobj_t* lastdoorobj;
 extern std::int16_t doornum;
 
 extern std::uint16_t doorposition[MAXDOORS];
-extern std::uint16_t pwallstate;
 
 extern std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
@@ -3727,23 +3326,12 @@ void SpawnConcession(
 
 void CheckSpawnEA();
 
-std::int16_t TransformAreas(
-	std::int8_t tilex,
-	std::int8_t tiley,
-	std::int8_t xform);
-
-
 void CheckSpawnGoldstern();
-void FindNewGoldieSpawnSite();
 
 void InitMsgCache(
 	mCacheList* mList,
 	std::uint16_t listSize,
 	std::uint16_t infoSize);
-
-void FreeMsgCache(
-	mCacheList* mList,
-	std::uint16_t listSize);
 
 void CacheMsg(
 	mCacheInfo* ci,
@@ -3761,11 +3349,6 @@ bool ReuseMsg(
 	std::int16_t count,
 	std::int16_t struct_size);
 
-void DropPlasmaDetonator();
-
-void BlockDoorOpen(
-	std::int16_t door);
-
 void BlastNearDoors(
 	std::int16_t tilex,
 	std::int16_t tiley);
@@ -3776,11 +3359,6 @@ void TryBlastDoor(
 statobj_t* FindStatic(
 	std::uint16_t tilex,
 	std::uint16_t tiley);
-
-statobj_t* UseReservedStatic(
-	std::int16_t itemtype,
-	std::int16_t tilex,
-	std::int16_t tiley);
 
 void PlaceReservedItemNearTile(
 	std::int16_t itemtype,
@@ -3800,16 +3378,11 @@ void ExplodeStatics(
 =============================================================================
 */
 
-#define s_nakedbody s_static10
-
-
 #define BARRIER_STATE(obj) ((obj)->ammo)
 
 extern std::int8_t detonators_spawned;
 
 extern std::int16_t starthitpoints[][NUMHITENEMIES];
-
-extern std::uint16_t MorphClass[];
 
 extern statetype s_ofs_bounce;
 
@@ -3943,24 +3516,6 @@ extern statetype s_spike_barrier;
 void T_PainThink(
 	objtype* obj);
 
-void T_ExplodeScout(
-	objtype* obj);
-
-void T_Security(
-	objtype* obj);
-
-void T_ChangeShape(
-	objtype* obj);
-
-void T_MakeOffset(
-	objtype* obj);
-
-void T_LiquidStand(
-	objtype* obj);
-
-void T_Seek(
-	objtype* ob);
-
 void SpawnProjectile(
 	objtype* shooter,
 	classtype class_type);
@@ -3983,28 +3538,10 @@ void KillActor(
 void US_ControlPanel(
 	ScanCode scan_code);
 
-void T_Hit(
-	objtype* ob);
-
 void SpawnOffsetObj(
 	enemy_t which,
 	std::int16_t tilex,
 	std::int16_t tiley);
-
-
-void InitSmartAnimStruct(
-	objtype* obj,
-	std::uint16_t ShapeNum,
-	std::uint8_t StartOfs,
-	std::uint8_t MaxOfs,
-	animtype_t AnimType,
-	animdir_t AnimDir);
-
-bool AnimateOfsObj(
-	objtype* obj);
-
-void AdvanceAnimFWD(
-	objtype* obj);
 
 void SpawnCusExplosion(
 	fixed x,
@@ -4014,17 +3551,6 @@ void SpawnCusExplosion(
 	std::uint16_t Delay,
 	std::uint16_t Class);
 
-void T_SpawnExplosion(
-	objtype* obj);
-
-void T_ExplodeDamage(
-	objtype* obj);
-
-void ExplodeRadius(
-	objtype* obj,
-	std::int16_t damage,
-	bool damageplayer);
-
 extern statetype s_barrier_transition;
 extern statetype s_barrier_shutdown;
 
@@ -4033,9 +3559,6 @@ void SpawnBarrier(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	bool OnOff);
-
-void ToggleBarrier(
-	objtype* obj);
 
 void InitAnim(
 	objtype* obj,
@@ -4052,9 +3575,6 @@ objtype* FindObj(
 	std::int16_t tilex,
 	std::int16_t tiley);
 
-objtype* FindHiddenOfs(
-	classtype which);
-
 void SpawnHiddenOfs(
 	enemy_t which,
 	std::int16_t tilex,
@@ -4066,27 +3586,8 @@ objtype* MoveHiddenOfs(
 	fixed x,
 	fixed y);
 
-void CheckForSpecialTile(
-	objtype* obj,
-	std::uint16_t tilex,
-	std::uint16_t tiley);
-
 void DropCargo(
 	objtype* obj);
-
-
-/*
-=============================================================================
-
- 3D_TEXT DEFINITIONS
-
-=============================================================================
-*/
-
-extern char helpfilename[];
-extern char endfilename[];
-
-extern void HelpScreens();
 
 
 /*
@@ -4108,7 +3609,6 @@ extern std::string bevs_msg1;
 extern std::string food_msg1;
 
 extern std::string bonus_msg7;
-extern std::string bonus_msg26;
 
 extern BonusMessages BonusMsg;
 extern ActorMessages ActorInfoMsg;
@@ -4119,9 +3619,7 @@ extern std::string attacker_info_enabled;
 extern std::string attacker_info_disabled;
 extern std::string WeaponNotAvailMsg;
 extern std::string WeaponAvailMsg;
-extern std::string RadarAvailMsg;
 extern std::string RadarEnergyGoneMsg;
-extern std::string WeaponAutoSelectMsg;
 extern std::string EnergyPackDepleted;
 extern std::string NotEnoughEnergyForWeapon;
 
@@ -4129,9 +3627,6 @@ extern std::string WeaponMalfunction;
 
 extern std::string SwitchNotActivateMsg;
 extern std::string NoFoodTokens;
-extern std::string ExtraMan;
-extern std::string OneMillion;
-extern std::string TenMillion;
 
 extern std::string NoAdLibCard;
 extern std::string MusicOn;
@@ -4140,8 +3635,6 @@ extern std::string SoundOn;
 extern std::string SoundOff;
 
 extern std::string pd_dropped;
-extern std::string pd_nomore;
-extern std::string pd_switching;
 extern std::string pd_notnear;
 extern std::string pd_getcloser;
 extern std::string pd_floorunlocked;
@@ -4157,8 +3650,6 @@ extern std::string pd_floornotlocked;
 
 =============================================================================
 */
-
-extern char BreifingText[];
 
 void DisplayPrepingMsg(
 	const char* text);
@@ -4184,18 +3675,12 @@ std::uint16_t Random(
 
 extern bool EscPressed;
 
+
 void DrawInstructions(
 	inst_type Type);
 
 void CacheMessage(
 	std::uint16_t MessageNum);
-
-void TerminateStr(
-	char* pos);
-
-std::uint32_t CacheCompData(
-	std::uint16_t ItemNum,
-	void** dest_loc);
 
 
 // ===========================================================================
@@ -4203,10 +3688,6 @@ std::uint32_t CacheCompData(
 // 3D_FREE DEFINATIONS - WHICH NEED TO BE GLOBAL
 //
 // ===========================================================================
-
-
-extern char JM_FREE_DATA_END[];
-extern char JM_FREE_DATA_START[];
 
 
 // BBi
@@ -4626,8 +4107,6 @@ void sys_default_sleep_for();
 const std::string& get_version_string();
 
 const std::string& get_profile_dir();
-
-const std::string& get_default_data_dir();
 
 void update_normalshade();
 // BBi

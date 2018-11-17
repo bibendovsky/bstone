@@ -53,12 +53,31 @@ Free Software Foundation, Inc.,
 #include <psp2/power.h>
 #endif
 
+
+namespace
+{
+
+
+struct CycleInfo
+{
+	std::uint8_t init_delay;
+	std::uint8_t delay_count;
+	std::uint8_t firstreg;
+	std::uint8_t lastreg;
+}; // CycleInfo
+
+
+} // namespace
+
+
 void VL_LatchToScreen(
 	int source,
 	int width,
 	int height,
 	int x,
 	int y);
+
+const std::string& get_default_data_dir();
 
 /*
 =============================================================================
@@ -89,6 +108,12 @@ void PreloadUpdate(
 	std::uint16_t total);
 
 void OpenAudioFile();
+
+void CleanUpDoors_N_Actors();
+
+void NewGame(
+	std::int16_t difficulty,
+	std::int16_t episode);
 
 
 bstone::ClArgs g_args;
@@ -131,8 +156,6 @@ void InitPlaytemp();
 
 std::uint16_t TopColor;
 std::uint16_t BottomColor;
-
-bool nospr;
 
 std::int16_t dirangle[9] = {
 	0 * ANGLES / 8,
@@ -9761,8 +9784,6 @@ void DrawCreditsPage()
 	TP_Presenter(&pi);
 }
 
-
-std::int16_t debug_value = 0;
 
 int main(
 	int argc,

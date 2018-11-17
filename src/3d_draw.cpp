@@ -38,6 +38,116 @@ Free Software Foundation, Inc.,
 #define MASKABLE_POSTS (MASKABLE_DOORS)
 
 
+namespace
+{
+
+
+//
+// Door Objects
+//
+enum doortype
+{
+	// LOCKED DOORS
+
+	L_METAL,
+	L_METAL_SHADE,
+
+	L_BIO,
+	L_BIO_SHADE,
+
+	L_ELEVATOR,
+	L_ELEVATOR_SHADE,
+
+	L_SPACE,
+	L_SPACE_SHADE,
+
+	L_PRISON,
+	L_PRISON_SHADE,
+
+	L_HIGH_SECURITY,
+	L_HIGH_SECURITY_SHADE,
+
+	L_ENTER_ONLY,
+	L_ENTER_ONLY_SHADE,
+
+	L_HIGH_TECH,
+	L_HIGH_TECH_SHADE,
+
+
+	// UNLOCKED DOORS
+
+	UL_METAL,
+	UL_METAL_SHADE,
+
+	UL_BIO,
+	UL_BIO_SHADE,
+
+	UL_ELEVATOR,
+	UL_ELEVATOR_SHADE,
+
+	UL_SPACE,
+	UL_SPACE_SHADE,
+
+	UL_PRISON,
+	UL_PRISON_SHADE,
+
+	UL_HIGH_SECURITY,
+	UL_HIGH_SECURITY_SHADE,
+
+	UL_ENTER_ONLY,
+	UL_ENTER_ONLY_SHADE,
+
+	UL_HIGH_TECH,
+	UL_HIGH_TECH_SHADE,
+
+
+	// MISC DOORS
+
+	NOEXIT,
+	NOEXIT_SHADE,
+
+	STEEL_JAM,
+	STEEL_JAM_SHADE,
+
+	SPACE_JAM,
+	SPACE_JAM_SHADE,
+
+	OFFICE_JAM,
+	OFFICE_JAM_SHADE,
+
+	BIO_JAM,
+	BIO_JAM_SHADE,
+
+	SPACE_JAM_2,
+	SPACE_JAM_2_SHADE,
+
+
+	// END OF DOOR LIST
+	NUMDOORTYPES,
+}; // doortype
+
+
+struct visobj_t
+{
+	std::int16_t viewx;
+	std::int16_t viewheight;
+	std::int16_t shapenum;
+	std::int8_t lighting;
+	bool cloaked;
+}; // visobj_t
+
+struct star_t
+{
+	std::int32_t x;
+	std::int32_t y;
+	std::int32_t z;
+	std::uint8_t color;
+}; // star_t
+
+
+} // namespace
+
+
 /*
 =============================================================================
 
@@ -74,6 +184,8 @@ void DrawHealthNum();
 void UpdateStatusBar();
 void UpdateRadarGuage();
 
+void UpdateTravelTable();
+
 
 /*
 =============================================================================
@@ -86,12 +198,6 @@ void UpdateRadarGuage();
 //
 // player interface stuff
 //
-std::int16_t weaponchangetics;
-std::int16_t itemchangetics;
-std::int16_t bodychangetics;
-std::int16_t plaqueon;
-std::int16_t plaquetime
-; std::int16_t getpic;
 
 star_t* firststar;
 star_t* laststar;

@@ -31,6 +31,9 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 
 
+#define NUM_TILES (::PMSpriteStart)
+
+
 void VH_UpdateScreen();
 
 void TakeDamage(

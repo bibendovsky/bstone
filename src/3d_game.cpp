@@ -37,6 +37,9 @@ Free Software Foundation, Inc.,
 #include "bstone_generic_fizzle_fx.h"
 
 
+#define NUM_TILES (::PMSpriteStart)
+
+
 /*
 =============================================================================
 
@@ -100,6 +103,15 @@ bool SaveLevel(
 void CheckHighScore(
 	std::int32_t score,
 	std::uint16_t other);
+
+void AddTotalPoints(
+	std::uint16_t points);
+
+void AddTotalInformants(
+	std::int8_t informants);
+
+void AddTotalEnemy(
+	std::uint16_t enemies);
 
 
 /*
