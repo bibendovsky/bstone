@@ -1,6 +1,6 @@
 #[[
 
-CMake find module wrapper for SDL2.
+CMake wrapper for SDL2 module.
 
 
 Copyright (c) 2018 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
@@ -28,7 +28,8 @@ Virtual components:
     - static - uses static version of SDL2.
 
 Required variables:
-    - SDL2_DIR - directory with import targets.
+    - SDL2W_SDL2_DIR - the directory with SDL2 CMake configuration files or
+                       the directory with official SDL2 development Windows build.
 
 Targets:
     - SDL2W
@@ -38,13 +39,42 @@ Targets:
 
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 
-find_package(SDL2 QUIET)
+set(SDL2W_SDL2_DIR "" CACHE PATH "The directory with CMake configuration files or the directory with official SDL2 development Windows build. Leave empty to figure out the location of SDL2.")
+
+set(SDL2_DIR "" CACHE PATH "The directory containing a CMake configuration file for SDL2." FORCE)
+
+find_package(SDL2 QUIET HINTS ${SDL2W_SDL2_DIR})
 
 unset(SDL2W_TMP_USE_STATIC)
-
 set(SDL2W_TMP_VERSION_STRING "")
 
-if (SDL2_FOUND)
+unset(SDL2W_TMP_NO_CMAKE_CONFIG)
+
+if (NOT SDL2_FOUND AND SDL2W_SDL2_DIR)
+	unset(SDL2W_TMP_ARCH_NAME)
+	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(SDL2W_TMP_ARCH_NAME x64)
+	elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+		set(SDL2W_TMP_ARCH_NAME x86)
+	endif ()
+
+	if (SDL2W_TMP_ARCH_NAME)
+		set(SDL2W_TMP_SDL2_INCLUDE_DIR ${SDL2W_SDL2_DIR}/include)
+		set(SDL2W_TMP_SDL2_LIBRARIES_DIR ${SDL2W_SDL2_DIR}/lib/${SDL2W_TMP_ARCH_NAME})
+
+		set(SDL2W_TMP_SDL_H ${SDL2W_TMP_SDL2_INCLUDE_DIR}/SDL.h)
+		set(SDL2W_TMP_SDL2_LIB ${SDL2W_TMP_SDL2_LIBRARIES_DIR}/SDL2.lib)
+		set(SDL2W_TMP_SDL2MAIN_LIB ${SDL2W_TMP_SDL2_LIBRARIES_DIR}/SDL2main.lib)
+
+		if (EXISTS ${SDL2W_TMP_SDL_H} AND EXISTS ${SDL2W_TMP_SDL2_LIB} AND EXISTS ${SDL2W_TMP_SDL2MAIN_LIB})
+			set(SDL2W_TMP_NO_CMAKE_CONFIG TRUE)
+			set(SDL2_INCLUDE_DIRS ${SDL2W_TMP_SDL2_INCLUDE_DIR})
+			set(SDL2_LIBRARIES ${SDL2W_TMP_SDL2_LIB};${SDL2W_TMP_SDL2MAIN_LIB})
+		endif ()
+	endif ()
+endif ()
+
+if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 	# Parse components.
 	#
 	foreach(SDL2W_TMP_COMP ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
@@ -57,7 +87,7 @@ if (SDL2_FOUND)
 	#
 	unset(SDL2W_TMP_INCLUDE_DIRS)
 
-	if (WIN32 AND NOT MINGW)
+	if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_NO_CMAKE_CONFIG)
 		if (SDL2W_TMP_USE_STATIC)
 			get_target_property(
 				SDL2W_TMP_INCLUDE_DIRS
@@ -113,21 +143,21 @@ if (SDL2_FOUND)
 			file(
 				STRINGS
 				${SDL2W_TMP_SDL_VERSION_H}
-				SDL2W_MAJOR_VERSION_LINE
+				SDL2W_TMP_MAJOR_VERSION_STRING
 				REGEX ${SDL2W_TMP_MAJOR_REGEX}
 			)
 
 			file(
 				STRINGS
 				${SDL2W_TMP_SDL_VERSION_H}
-				SDL2W_MINOR_VERSION_LINE
+				SDL2W_TMP_MINOR_VERSION_STRING
 				REGEX ${SDL2W_TMP_MINOR_REGEX}
 			)
 
 			file(
 				STRINGS
 				${SDL2W_TMP_SDL_VERSION_H}
-				SDL2W_PATCH_VERSION_LINE
+				SDL2W_TMP_PATCH_VERSION_STRING
 				REGEX ${SDL2W_TMP_PATCH_REGEX}
 			)
 
@@ -135,24 +165,24 @@ if (SDL2_FOUND)
 				REGEX REPLACE
 				${SDL2W_TMP_MAJOR_REGEX}
 				"\\1"
-				SDL2W_MAJOR_VERSION
-				${SDL2W_MAJOR_VERSION_LINE}
+				SDL2W_TMP_MAJOR_VERSION
+				${SDL2W_TMP_MAJOR_VERSION_STRING}
 			)
 
 			string(
 				REGEX REPLACE
 				${SDL2W_TMP_MINOR_REGEX}
 				"\\1"
-				SDL2W_MINOR_VERSION
-				${SDL2W_MINOR_VERSION_LINE}
+				SDL2W_TMP_MINOR_VERSION
+				${SDL2W_TMP_MINOR_VERSION_STRING}
 			)
 
 			string(
 				REGEX REPLACE
 				${SDL2W_TMP_PATCH_REGEX}
 				"\\1"
-				SDL2W_PATCH_VERSION
-				${SDL2W_PATCH_VERSION_LINE}
+				SDL2W_TMP_PATCH_VERSION
+				${SDL2W_TMP_PATCH_VERSION_STRING}
 			)
 
 			set(
@@ -160,31 +190,39 @@ if (SDL2_FOUND)
 				"^[0-9]$"
 			)
 
-			if (SDL2W_MAJOR_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX} AND
-				SDL2W_MINOR_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX} AND
-				SDL2W_PATCH_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX}
+			if (SDL2W_TMP_MAJOR_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX} AND
+				SDL2W_TMP_MINOR_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX} AND
+				SDL2W_TMP_PATCH_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX}
 				)
-				if (NOT ${SDL2W_MAJOR_VERSION} EQUAL 2)
-					message(FATAL_ERROR "Unsupported major version (got: ${SDL2W_MAJOR_VERSION}; expected: 2).")
+				if (NOT ${SDL2W_TMP_MAJOR_VERSION} EQUAL 2)
+					message(FATAL_ERROR "Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
 				endif ()
 
 				set(
 					SDL2W_TMP_VERSION_STRING
-					${SDL2W_MAJOR_VERSION}.${SDL2W_MINOR_VERSION}.${SDL2W_PATCH_VERSION}
+					${SDL2W_TMP_MAJOR_VERSION}.${SDL2W_TMP_MINOR_VERSION}.${SDL2W_TMP_PATCH_VERSION}
 				)
 			endif ()
 		endif ()
 	endif ()
 
-	
+
 	# Default handler.
 	#
 	include(FindPackageHandleStandardArgs)
 
+	unset(SDL2W_TMP_REQUIRED_VARS)
+
+	if (SDL2W_TMP_NO_CMAKE_CONFIG)
+		set(SDL2W_TMP_REQUIRED_VARS SDL2W_TMP_NO_CMAKE_CONFIG)
+	else ()
+		set(SDL2W_TMP_REQUIRED_VARS SDL2_FOUND)
+	endif ()
+
 	find_package_handle_standard_args(
 		${CMAKE_FIND_PACKAGE_NAME}
 		REQUIRED_VARS
-			SDL2_FOUND
+			${SDL2W_TMP_REQUIRED_VARS}
 		VERSION_VAR
 			SDL2W_TMP_VERSION_STRING
 	)
@@ -194,7 +232,7 @@ if (SDL2_FOUND)
 	if (NOT TARGET ${CMAKE_FIND_PACKAGE_NAME})
 		add_library(${CMAKE_FIND_PACKAGE_NAME} INTERFACE)
 
-		if (NOT WIN32 OR MINGW)
+		if (NOT WIN32 OR MINGW OR SDL2W_TMP_NO_CMAKE_CONFIG)
 			target_include_directories(
 				${CMAKE_FIND_PACKAGE_NAME}
 				INTERFACE
@@ -202,7 +240,7 @@ if (SDL2_FOUND)
 			)
 		endif ()
 
-		if (WIN32 AND NOT MINGW)
+		if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_NO_CMAKE_CONFIG)
 			target_link_libraries(
 				${CMAKE_FIND_PACKAGE_NAME}
 				INTERFACE
@@ -229,7 +267,7 @@ if (SDL2_FOUND)
 					${SDL2_LIBRARIES}
 			)
 
-			if (MINGW)
+			if (MINGW OR SDL2W_TMP_NO_CMAKE_CONFIG)
 				target_link_libraries(
 					${CMAKE_FIND_PACKAGE_NAME}
 					INTERFACE
