@@ -28,9 +28,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_adlib_decoder.h"
-#include <cassert>
-#include <cstddef>
-#include <algorithm>
 
 
 namespace bstone

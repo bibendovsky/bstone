@@ -6,7 +6,6 @@
 #include "bstone_sprite.h"
 #include <stdexcept>
 #include <memory>
-#include <utility>
 #include "bstone_endian.h"
 
 

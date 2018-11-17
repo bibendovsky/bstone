@@ -23,8 +23,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_binary_reader.h"
-#include <utility>
-#include <vector>
 #include "bstone_endian.h"
 
 

@@ -40,8 +40,6 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 #include <bitset>
-#include <memory>
-#include <vector>
 
 #define MaxPlayers 4
 #define MaxKbds 2

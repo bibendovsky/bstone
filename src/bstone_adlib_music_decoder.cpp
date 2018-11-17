@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_adlib_music_decoder.h"
-#include <cstdint>
 #include "bstone_endian.h"
 
 

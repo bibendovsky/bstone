@@ -35,11 +35,8 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
-#include "bstone_endian.h"
 #include "bstone_format_string.h"
 #include "bstone_memory_stream.h"
-#include "bstone_ref_values.h"
-#include "bstone_sprite.h"
 
 
 void InitWeaponBounce();

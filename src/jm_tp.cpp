@@ -101,7 +101,6 @@ Free Software Foundation, Inc.,
 // --------------------------------------------------------------------------
 
 
-#include "3d_def.h"
 #include "audio.h"
 #include "id_ca.h"
 #include "id_in.h"

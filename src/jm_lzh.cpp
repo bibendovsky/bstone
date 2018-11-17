@@ -47,7 +47,6 @@ Free Software Foundation, Inc.,
 // ---------------------------------------------------------------------------
 
 
-#include <cstdlib>
 #include <cstring>
 #include "jm_cio.h"
 #include "jm_lzh.h"

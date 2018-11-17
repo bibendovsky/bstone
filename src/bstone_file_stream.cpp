@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_file_stream.h"
-#include <utility>
 #include "SDL.h"
 
 

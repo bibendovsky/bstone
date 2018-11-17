@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_text_reader.h"
-#include <utility>
 
 
 namespace bstone

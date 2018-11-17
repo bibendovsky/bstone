@@ -23,7 +23,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_binary_writer.h"
-#include <utility>
 #include "bstone_endian.h"
 
 

@@ -23,7 +23,6 @@ Free Software Foundation, Inc.,
 
 
 #include <chrono>
-#include "SDL.h"
 #include "id_heads.h"
 #include "id_ca.h"
 #include "id_in.h"

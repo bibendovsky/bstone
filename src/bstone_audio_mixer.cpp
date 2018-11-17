@@ -23,10 +23,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_audio_mixer.h"
-#include <cassert>
-#include <algorithm>
-#include <functional>
-#include <memory>
 #include "3d_def.h"
 #include "audio.h"
 #include "bstone_adlib_music_decoder.h"

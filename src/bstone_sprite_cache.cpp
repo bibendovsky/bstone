@@ -5,7 +5,6 @@
 
 #include "bstone_sprite_cache.h"
 #include <stdexcept>
-#include <utility>
 #include "id_pm.h"
 
 

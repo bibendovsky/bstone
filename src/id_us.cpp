@@ -28,7 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include <chrono>
-#include "id_heads.h"
+#include <cstdint>
 
 
 // Force compiler to emit a symbol.

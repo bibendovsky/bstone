@@ -26,7 +26,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_MOVIE_INCLUDED
 
 
-#include <string>
 #include <vector>
 #include "jm_vl.h"
 

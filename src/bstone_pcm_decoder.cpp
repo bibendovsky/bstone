@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_pcm_decoder.h"
-#include <cstddef>
 
 
 namespace bstone

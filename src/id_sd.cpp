@@ -54,7 +54,6 @@ Free Software Foundation, Inc.,
 
 
 #include "id_sd.h"
-#include "3d_def.h"
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"

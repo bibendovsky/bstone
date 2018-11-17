@@ -27,7 +27,6 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
-#include <string>
 #include "bstone_cl_args.h"
 #include "bstone_log.h"
 

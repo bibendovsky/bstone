@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_text_writer.h"
-#include <utility>
 
 
 namespace bstone

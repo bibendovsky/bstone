@@ -29,8 +29,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_log.h"
 #include <iostream>
-#include <stdexcept>
-#include "SDL.h"
+#include "SDL_messagebox.h"
 
 
 const std::string& get_version_string();
