@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 #include "audio.h"
 #include "id_ca.h"
+#include "id_heads.h"
 #include "id_in.h"
 #include "id_pm.h"
 #include "id_sd.h"

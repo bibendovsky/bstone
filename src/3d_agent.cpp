@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include "audio.h"
 #include "jm_tp.h"
 #include "id_ca.h"
+#include "id_heads.h"
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_us.h"

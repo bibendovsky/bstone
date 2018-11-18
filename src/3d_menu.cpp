@@ -25,7 +25,7 @@ Free Software Foundation, Inc.,
 #include <map>
 #include "audio.h"
 #include "id_ca.h"
-#include "id_in.h"
+#include "id_heads.h"
 #include "id_pm.h"
 #include "id_sd.h"
 #include "id_us.h"
@@ -37,6 +37,108 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 #include "jm_tp.h"
 #include "bstone_scope_guard.h"
+
+
+#define GAME_DESCRIPTION_LEN (31)
+
+// Box behind text for cursor
+#define HIGHLIGHT_BOX_COLOR (0x52)
+
+#define HIGHLIGHT_DEACTIAVED_COLOR (0x55)
+
+#define DISABLED_TEXT_COLOR (0x53)
+#define DEACTIAVED_TEXT_COLOR (0x52)
+
+#define INSTRUCTIONS_TEXT_COLOR (0x53)
+
+#define TERM_SHADOW_COLOR (0x01)
+
+//
+// Clearable Menu Terminal Area
+//
+
+#define SCREEN_X (32)
+#define SCREEN_Y (28)
+#define SCREEN_W (244)
+#define SCREEN_H (132)
+
+#define BORD2COLOR (0x74)
+#define DEACTIVE (0x72)
+#define BKGDCOLOR (0x76)
+
+
+#define READCOLOR (0x4A)
+#define READHCOLOR (0x47)
+#define TEXTCOLOR (WHITE)
+
+
+#define SENSITIVE (60)
+#define CENTER (SENSITIVE * 2)
+
+#define MENU_X (111)
+#define MENU_Y (50)
+
+#define SM_X (121)
+#define SM_Y (84)
+
+#define CTL_X (100)
+#define CTL_Y (70)
+
+#define LSM_X (85)
+#define LSM_Y (55)
+#define LSM_W (144)
+
+#define NM_X (71)
+#define NM_Y (66)
+
+#define NE_X (58)
+#define NE_Y (54)
+
+#define CST_X (77)
+#define CST_Y (60)
+
+#define CST_START (77)
+#define CST_SPC (41)
+
+
+// CP_Switch() menu labels
+enum sw_labels
+{
+	SW_LIGHTING,
+	SW_REBA_ATTACK_INFO,
+	SW_CEILING,
+	SW_FLOORS,
+
+	// BBi
+	SW_NO_WALL_HIT_SOUND,
+	SW_MODERN_CONTROLS,
+	SW_ALWAYS_RUN,
+	SW_QUIT_ON_ESCAPE,
+	SW_HEART_BEAT_SOUND,
+	SW_ROTATED_AUTOMAP,
+}; // sw_labels
+
+// BBi
+enum sw2_labels
+{
+	SW2_NO_INTRO_OUTRO,
+}; // sw2_labels
+
+enum MenuVideoLables
+{
+	mvl_widescreen,
+	mvl_stretch_ui,
+};
+// BBi
+
+// FOR INPUT TYPES
+enum MenuInputType
+{
+	MOUSE,
+	JOYSTICK,
+	KEYBOARDBTNS,
+	KEYBOARDMOVE
+}; // MenuInputType
 
 
 namespace
@@ -53,6 +155,14 @@ std::int16_t COAL_FONT()
 
 
 bool is_full_menu_active = false;
+
+
+//
+// VARIABLES
+//
+extern std::int16_t SaveGamesAvail[10];
+extern std::int16_t StartGame;
+extern std::int16_t SoundStatus;
 
 
 void CA_CacheScreen(
@@ -79,6 +189,178 @@ bool LoadTheGame(
 
 bool IN_CheckAck();
 
+void MenuFadeIn();
+
+void MenuFadeOut();
+
+void SetupControlPanel();
+
+void CleanupControlPanel();
+
+void ControlPanelFree();
+
+void ControlPanelAlloc();
+
+void DrawMenu(
+	CP_iteminfo* item_i,
+	CP_itemtype* items);
+
+std::int16_t HandleMenu(
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	void (*routine)(std::int16_t w));
+
+void DrawWindow(
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t w,
+	std::int16_t h,
+	std::int16_t wcolor);
+
+void DrawOutline(
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t w,
+	std::int16_t h,
+	std::int16_t color1,
+	std::int16_t color2);
+
+void WaitKeyUp();
+
+void TicDelay(
+	std::int16_t count);
+
+void CheckPause();
+
+void ShootSnd();
+
+void DrawGun(
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	std::int16_t x,
+	std::int16_t* y,
+	std::int16_t which,
+	std::int16_t basey,
+	void(*routine)(std::int16_t w));
+
+void EraseGun(
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t which);
+
+void SetTextColor(
+	CP_itemtype* items,
+	std::int16_t hlight);
+
+void DrawMenuGun(
+	CP_iteminfo* iteminfo);
+
+void DefineMouseBtns();
+
+void DefineJoyBtns();
+
+void DefineKeyBtns();
+
+void DefineKeyMove();
+
+void EnterCtrlData(
+	std::int16_t index,
+	CustomCtrls* cust,
+	void(*DrawRtn)(std::int16_t),
+	void(*PrintRtn)(std::int16_t),
+	std::int16_t type);
+
+void DrawMainMenu();
+void DrawSoundMenu();
+
+void DrawLoadSaveScreen(
+	std::int16_t loadsave);
+
+void DrawNewEpisode();
+
+void DrawNewGame();
+
+void DrawMouseSens();
+
+void DrawCtlScreen();
+
+void DrawCustomScreen();
+
+void DrawLSAction(
+	std::int16_t which);
+
+void DrawCustMouse(
+	std::int16_t hilight);
+
+void DrawCustJoy(
+	std::int16_t hilight);
+
+void DrawCustKeybd(
+	std::int16_t hilight);
+
+void DrawCustKeys(
+	std::int16_t hilight);
+
+void PrintCustMouse(
+	std::int16_t i);
+
+void PrintCustJoy(
+	std::int16_t i);
+
+void PrintCustKeybd(
+	std::int16_t i);
+
+void PrintCustKeys(
+	std::int16_t i);
+
+void PrintLSEntry(
+	std::int16_t w,
+	std::int16_t color);
+
+void TrackWhichGame(
+	std::int16_t w);
+
+void DrawNewGameDiff(
+	std::int16_t w);
+
+void FixupCustom(
+	std::int16_t w);
+
+void CP_BlakeStoneSaga(
+	std::int16_t temp1);
+
+void CP_NewGame(
+	std::int16_t temp1);
+
+void CP_Sound(
+	std::int16_t temp1);
+
+std::int16_t CP_LoadGame(
+	std::int16_t quick);
+
+std::int16_t CP_SaveGame(
+	std::int16_t quick);
+
+void CP_Control(
+	std::int16_t temp1);
+
+void CP_ExitOptions(
+	std::int16_t temp1);
+
+void CP_Quit();
+
+std::int16_t CP_EndGame();
+
+bool CP_CheckQuick(
+	ScanCode scancode);
+
+void CustomControls(
+	std::int16_t temp1);
+
+void MouseSensitivity(
+	std::int16_t temp1);
 
 //
 // End game message
