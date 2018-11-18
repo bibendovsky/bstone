@@ -335,7 +335,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v1_0);
 
-		bstone::Log::write("Found \"{}\" v1.0.", title);
+		bstone::Log::write("Found \"" + title + "\" v1.0.");
 
 		return true;
 	}
@@ -347,7 +347,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v2_0);
 
-		bstone::Log::write("Found \"{}\" v2.0.", title);
+		bstone::Log::write("Found \"" + title + "\" v2.0.");
 		return true;
 	}
 
@@ -358,7 +358,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v2_1);
 
-		bstone::Log::write("Found \"{}\" v2.1.", title);
+		bstone::Log::write("Found \"" + title + "\" v2.1.");
 
 		return true;
 	}
@@ -417,7 +417,7 @@ bool find_aog_sw_assets(
 
 	if (is_required)
 	{
-		bstone::Log::write("Forcing \"{}\"...", title);
+		bstone::Log::write("Forcing \"" + title + "\"...");
 	}
 
 	const auto is_found = find_aog_assets(

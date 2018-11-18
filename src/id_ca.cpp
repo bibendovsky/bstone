@@ -1287,7 +1287,7 @@ void ca_dump_hashes()
 			}
 
 			bstone::Log::write();
-			bstone::Log::write("{}{}:", base_name, extension);
+			bstone::Log::write(base_name.get() + extension.get() + ':');
 
 			const auto stream_size = file_stream.get_size();
 

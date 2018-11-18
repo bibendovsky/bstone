@@ -311,10 +311,7 @@ bool sdl_initialize_renderer()
 				i,
 				&info);
 
-			bstone::Log::write(
-				"{}. {}",
-				i + 1,
-				info.name);
+			bstone::Log::write(std::to_string(i + 1) + ". "s + info.name);
 		}
 	}
 
@@ -387,9 +384,7 @@ bool sdl_initialize_renderer()
 			}
 			else
 			{
-				bstone::Log::write_warning(
-					"VID: Unsupported renderer: {}",
-					ren_string);
+				bstone::Log::write_warning("VID: Unsupported renderer: \"" + ren_string + "\".");
 			}
 
 
@@ -460,16 +455,12 @@ bool sdl_initialize_renderer()
 				renderer_driver,
 				renderer_info.name) != 0)
 			{
-				bstone::Log::write_warning(
-					"VID: Unexpected renderer is selected: {0}.",
-					renderer_info.name);
+				bstone::Log::write_warning("VID: Unexpected renderer is selected: \""s + renderer_info.name + "\"."s);
 			}
 		}
 		else
 		{
-			bstone::Log::write(
-				"VID: Current renderer: {0}.",
-				renderer_info.name);
+			bstone::Log::write("VID: Current renderer: \""s + renderer_info.name + "\"."s);
 		}
 	}
 

@@ -7201,9 +7201,7 @@ static void write_high_scores()
 
 	if (!stream.is_open())
 	{
-		bstone::Log::write_error(
-			"Failed to open a high scores file for writing: {}.",
-			scores_path);
+		bstone::Log::write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
 
 		return;
 	}
@@ -7932,7 +7930,7 @@ void write_config_entry(
 
 	if (!writer.write(string))
 	{
-		bstone::Log::write_warning("Failed to write setting \"{}\".", name);
+		bstone::Log::write_warning("Failed to write setting \"" + name + "\".");
 	}
 }
 
@@ -8763,9 +8761,7 @@ static bool LoadCompressedChunk(
 
 	if (::FindChunk(stream, chunk_name) == 0)
 	{
-		bstone::Log::write_error(
-			"LOAD: Failed to locate {} chunk.",
-			chunk_name);
+		bstone::Log::write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
 
 		return false;
 	}
@@ -8778,9 +8774,7 @@ static bool LoadCompressedChunk(
 
 	if (total_size <= 0 || total_size > stream_size)
 	{
-		bstone::Log::write_error(
-			"LOAD: Invalid {} size.",
-			chunk_name);
+		bstone::Log::write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
 
 		return false;
 	}
@@ -8792,9 +8786,7 @@ static bool LoadCompressedChunk(
 
 	if (!reader.read(src_buffer.data(), size))
 	{
-		bstone::Log::write_error(
-			"LOAD: Unexpected end of {} data.",
-			chunk_name);
+		bstone::Log::write_error("LOAD: Unexpected end of \"" + chunk_name + "\" data.");
 	}
 
 
@@ -8812,9 +8804,7 @@ static bool LoadCompressedChunk(
 
 	if (decoded_size != src_size)
 	{
-		bstone::Log::write_error(
-			"LOAD: Failed to decompress {} data.",
-			chunk_name);
+		bstone::Log::write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
 
 		return false;
 	}
@@ -8833,7 +8823,7 @@ bool LoadTheGame(
 	{
 		is_succeed = false;
 
-		bstone::Log::write_error("LOAD: Failed to open file \"{}\".", file_name);
+		bstone::Log::write_error("LOAD: Failed to open file \"" + file_name + "\".");
 	}
 
 	auto file_reader = bstone::BinaryReader{&file_stream};
@@ -9046,7 +9036,7 @@ bool SaveTheGame(
 
 	if (!file_stream.is_open())
 	{
-		bstone::Log::write_error("SAVE: Failed to open file \"{}\".", file_name);
+		bstone::Log::write_error("SAVE: Failed to open file \"" + file_name + "\".");
 
 		return false;
 	}
@@ -9527,7 +9517,7 @@ void Quit(
 
 	if (!message.empty())
 	{
-		bstone::Log::write_critical("{}", message);
+		bstone::Log::write_critical(message);
 	}
 
 	std::exit(1);
@@ -9777,6 +9767,9 @@ int main(
 	scePowerSetGpuClockFrequency(222);
 	scePowerSetGpuXbarClockFrequency(166);
 #endif
+
+	bstone::Log::initialize();
+
 	int sdl_result = 0;
 
 	std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;

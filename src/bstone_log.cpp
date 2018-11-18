@@ -40,23 +40,30 @@ namespace bstone
 {
 
 
-Log::Log()
-	:
-	fstream_{},
-	args_{},
-	sstream_{},
-	message_{},
-	message_type_{}
+bool Log::is_initialized_;
+FileStream Log::fstream_;
+LogMessageType Log::message_type_;
+std::string Log::message_;
+
+
+void Log::initialize()
 {
-	const auto& log_path = ::get_profile_dir() + "bstone_log.txt";
+	if (is_initialized_)
+	{
+		return;
+	}
+
+	auto&& log_path = ::get_profile_dir() + "bstone_log.txt";
+
+	is_initialized_ = true;
 	fstream_.open(log_path, StreamOpenMode::write);
-
-	args_.reserve(16);
 	message_.reserve(1024);
-}
 
-Log::~Log()
-{
+	write("BStone Log");
+	write("==========");
+	write();
+	write("Version: " + ::get_version_string());
+	write();
 }
 
 void Log::write()
@@ -66,56 +73,64 @@ void Log::write()
 
 void Log::write_version()
 {
-	clean_up();
-
-	write_internal(MessageType::version, "BStone version: {}", ::get_version_string());
+	message_type_ = LogMessageType::version;
+	write_internal("BStone version: " + ::get_version_string());
 }
 
-Log& Log::get_local()
+void Log::write(
+	const std::string& message)
 {
-	static Log log;
-	static auto is_initialized = false;
+	message_type_ = LogMessageType::information;
+	write_internal(message);
+}
 
-	if (!is_initialized)
-	{
-		is_initialized = true;
+void Log::write_warning(
+	const std::string& message)
+{
+	message_type_ = LogMessageType::warning;
+	write_internal(message);
+}
 
-		write("BStone Log");
-		write("==========");
-		write();
-		write("Version: {}", ::get_version_string());
-		write();
-	}
+void Log::write_error(
+	const std::string& message)
+{
+	message_type_ = LogMessageType::error;
+	write_internal(message);
+}
 
-	return log;
+void Log::write_critical(
+	const std::string& message)
+{
+	message_type_ = LogMessageType::critical_error;
+	write_internal(message);
 }
 
 void Log::write_internal(
-	const std::string& format)
+	const std::string& message)
 {
-	bool is_critical = false;
-	bool is_version = false;
+	auto is_critical = false;
+	auto is_version = false;
 
 	switch (message_type_)
 	{
-	case MessageType::version:
+	case LogMessageType::version:
 		is_version = true;
 		message_.clear();
 		break;
 
-	case MessageType::information:
+	case LogMessageType::information:
 		message_.clear();
 		break;
 
-	case MessageType::warning:
+	case LogMessageType::warning:
 		message_ = "WARNING: ";
 		break;
 
-	case MessageType::error:
+	case LogMessageType::error:
 		message_ = "ERROR: ";
 		break;
 
-	case MessageType::critical_error:
+	case LogMessageType::critical_error:
 		is_critical = true;
 		message_ = "CRITICAL: ";
 		break;
@@ -124,86 +139,7 @@ void Log::write_internal(
 		throw std::runtime_error("Invalid message type.");
 	}
 
-	if (args_.empty())
-	{
-		message_ += format;
-	}
-	else if (!format.empty())
-	{
-		const auto c_format = format.c_str();
-
-		auto i = 0;
-		auto prev_char = '\0';
-		auto arg_index = 0;
-
-		while (c_format[i] != '\0')
-		{
-			auto ch = c_format[i];
-			auto is_just_advance = false;
-
-			if (prev_char != '{' && ch == '{')
-			{
-				int next_char = c_format[i + 1];
-
-				if (next_char == '}')
-				{
-					if (arg_index < static_cast<int>(args_.size()))
-					{
-						message_ += args_[arg_index];
-
-						i += 2;
-						++arg_index;
-					}
-					else
-					{
-						is_just_advance = true;
-					}
-				}
-				else
-				{
-					const auto digit = next_char - '0';
-
-					if (digit >= 0 && digit <= 9)
-					{
-						next_char = c_format[i + 2];
-
-						if (next_char == '}')
-						{
-							if (digit < static_cast<int>(args_.size()))
-							{
-								message_ += args_[digit];
-								i += 3;
-							}
-							else
-							{
-								is_just_advance = true;
-							}
-						}
-						else
-						{
-							is_just_advance = true;
-						}
-					}
-					else
-					{
-						is_just_advance = true;
-					}
-				}
-			}
-			else
-			{
-				is_just_advance = true;
-			}
-
-			if (is_just_advance)
-			{
-				++i;
-				message_ += ch;
-			}
-
-			prev_char = c_format[i - 1];
-		}
-	}
+	message_ += message;
 
 	std::cout << message_ << std::endl;
 
@@ -221,12 +157,6 @@ void Log::write_internal(
 			message_.c_str(),
 			nullptr));
 	}
-}
-
-void Log::clean_up()
-{
-	auto& local = get_local();
-	local.args_.clear();
 }
 
 
