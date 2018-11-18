@@ -103,7 +103,6 @@ namespace
 
 
 SDL_TimerID sys_timer_id;
-std::atomic<std::uint32_t> sys_timer_ticks;
 
 
 Uint32 sys_timer_callback(
@@ -113,19 +112,12 @@ Uint32 sys_timer_callback(
 	static_cast<void>(param);
 
 	++::TimeCount;
-	sys_timer_ticks = ::SDL_GetTicks();
 
 	return interval;
 }
 
 
 } // namespace
-
-
-std::uint32_t sys_get_timer_ticks()
-{
-	return ::sys_timer_ticks;
-}
 // BBi
 
 
@@ -730,8 +722,6 @@ void US_Startup()
 	}
 
 	// BBi
-	sys_timer_ticks = 0;
-
 	sys_timer_id = ::SDL_AddTimer(
 		1000 / TickBase,
 		sys_timer_callback,

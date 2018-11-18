@@ -36,6 +36,9 @@ using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 
+extern std::uint8_t* vga_memory;
+
+
 // ===========================================================================
 
 #define NOFADE_CODE

@@ -64,7 +64,6 @@ const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
 extern std::uint8_t update[UPDATESIZE];
 
 
-extern std::uint8_t* vga_memory;
 extern bstone::ClArgs g_args;
 extern std::uint8_t update[UPDATESIZE];
 
@@ -87,8 +86,6 @@ void Quit(
 
 	std::exit(1);
 }
-
-std::uint32_t sys_get_timer_ticks();
 // BBi
 
 

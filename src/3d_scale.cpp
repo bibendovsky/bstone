@@ -23,7 +23,6 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
-#include "id_heads.h"
 #include "id_vl.h"
 #include "bstone_fixed_point.h"
 #include "bstone_sprite.h"
