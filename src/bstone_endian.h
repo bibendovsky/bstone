@@ -31,10 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_ENDIAN_INCLUDED
 
 
-#include <cstdint>
-#include <algorithm>
-#include <type_traits>
-#include "SDL.h"
+#include "SDL_endian.h"
 
 
 namespace bstone

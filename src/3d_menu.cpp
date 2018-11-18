@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <algorithm>
 #include <map>
 #include "audio.h"
 #include "id_ca.h"

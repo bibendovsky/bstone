@@ -35,6 +35,7 @@ loaded into the data segment
 */
 
 
+#include <algorithm>
 #include "id_ca.h"
 #include "audio.h"
 #include "id_heads.h"
