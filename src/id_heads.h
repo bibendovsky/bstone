@@ -27,7 +27,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_cl_args.h"
-#include "bstone_log.h"
 
 
 //
@@ -68,24 +67,10 @@ extern bstone::ClArgs g_args;
 extern std::uint8_t update[UPDATESIZE];
 
 
-void pre_quit();
-
 void Quit();
 
-template<typename... TArgs>
 void Quit(
-	const std::string& format,
-	TArgs... args)
-{
-	::pre_quit();
-
-	if (!format.empty())
-	{
-		bstone::Log::write_critical(format, std::forward<TArgs>(args)...);
-	}
-
-	std::exit(1);
-}
+	const std::string& message);
 // BBi
 
 

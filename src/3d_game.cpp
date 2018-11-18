@@ -319,7 +319,12 @@ void ClearMemory()
 }
 
 
-#define INVALID_ACTOR_ERR Quit("Invalid actor: {} {}", x, y)
+void INVALID_ACTOR_ERR(
+	const int x,
+	const int y)
+{
+	::Quit("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+}
 
 
 /*
@@ -364,7 +369,7 @@ void ScanInfoPlane()
 			case SMART_ON_TRIGGER:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Smart trigger (PS) at ({}, {}).", x, y);
+					::Quit("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				continue;
 
@@ -467,7 +472,7 @@ void ScanInfoPlane()
 
 				if (++st->NumMsgs > MAX_CACHE_MSGS)
 				{
-					::Quit("(INFORMANTS) Too many 'cached msgs' loaded.");
+					::Quit("(INFORMANTS) Too many \"cached msgs\" loaded.");
 				}
 
 				ci->areanumber = GetAreaNumber(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y));
@@ -564,7 +569,7 @@ void ScanInfoPlane()
 			case 30: // Yellow Puddle
 				if (assets_info.is_aog_sw())
 				{
-					::Quit("Yellow puddle (AOG full/PS) at ({}, {}).", x, y);
+					::Quit("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				SpawnStatic(x, y, tile - 23);
 				break;
@@ -572,7 +577,7 @@ void ScanInfoPlane()
 			case 71: // BFG Weapon
 				if (!assets_info.is_ps())
 				{
-					::Quit("BFG (PS) at ({}, {}).", x, y);
+					::Quit("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				SpawnStatic(x, y, tile - 23);
 				break;
@@ -701,7 +706,7 @@ void ScanInfoPlane()
 			case 486: // Plasma Detonator
 				if (!assets_info.is_ps())
 				{
-					::Quit("Plasma detonator (PS) at ({}, {}).", x, y);
+					::Quit("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
@@ -802,7 +807,7 @@ void ScanInfoPlane()
 			case 139:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Switchable arc barrier (PS) at ({}, {}).", x, y);
+					::Quit("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				//
@@ -822,7 +827,7 @@ void ScanInfoPlane()
 			case 562: // Off
 				if (!assets_info.is_ps())
 				{
-					::Quit("Switchable post barrier (PS) at ({}, {}).", x, y);
+					::Quit("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
@@ -845,7 +850,7 @@ void ScanInfoPlane()
 			case 565:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Cyclic post barrier (PS) at ({}, {}).", x, y);
+					::Quit("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, 0);
@@ -862,7 +867,7 @@ void ScanInfoPlane()
 			case 425: // Off
 				if (!assets_info.is_ps())
 				{
-					::Quit("Spike barrier (PS) at ({}, {}).", x, y);
+					::Quit("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
@@ -885,7 +890,7 @@ void ScanInfoPlane()
 			case 428:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Cyclic spike barrier (PS) at ({}, {}).", x, y);
+					::Quit("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				SpawnBarrier(en_vspike_barrier, x, y, 0);
 				break;
@@ -945,7 +950,7 @@ void ScanInfoPlane()
 			case 141:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Goldstern spawn (PS) at ({}, {}).", x, y);
+					::Quit("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (!loadedgame)
@@ -1315,7 +1320,7 @@ void ScanInfoPlane()
 			case 313:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Black ooze (PS) at ({}, {}).", x, y);
+					::Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1326,7 +1331,7 @@ void ScanInfoPlane()
 			case 295:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Black ooze (PS) at ({}, {}).", x, y);
+					::Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1337,7 +1342,7 @@ void ScanInfoPlane()
 			case 277:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Black ooze (PS) at ({}, {}).", x, y);
+					::Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnOffsetObj(en_black2_ooze, x, y);
@@ -1351,7 +1356,7 @@ void ScanInfoPlane()
 			case 322:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Green ooze (PS) at ({}, {}).", x, y);
+					::Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1362,7 +1367,7 @@ void ScanInfoPlane()
 			case 304:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Green ooze (PS) at ({}, {}).", x, y);
+					::Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1373,7 +1378,7 @@ void ScanInfoPlane()
 			case 286:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Green ooze (PS) at ({}, {}).", x, y);
+					::Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnOffsetObj(en_green2_ooze, x, y);
@@ -1389,7 +1394,7 @@ void ScanInfoPlane()
 			case 357:
 				if (assets_info.is_aog_sw())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1403,7 +1408,7 @@ void ScanInfoPlane()
 			case 339:
 				if (assets_info.is_aog_sw())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1417,7 +1422,7 @@ void ScanInfoPlane()
 			case 321:
 				if (assets_info.is_aog_sw())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				SpawnPatrol(en_volatiletransport, x, y, tile - 318);
@@ -1448,7 +1453,7 @@ void ScanInfoPlane()
 			case 603:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1458,7 +1463,7 @@ void ScanInfoPlane()
 			case 585:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1476,7 +1481,7 @@ void ScanInfoPlane()
 			case 601:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1486,7 +1491,7 @@ void ScanInfoPlane()
 			case 583:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1503,7 +1508,7 @@ void ScanInfoPlane()
 			case 605:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1513,7 +1518,7 @@ void ScanInfoPlane()
 			case 587:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1531,7 +1536,7 @@ void ScanInfoPlane()
 			case 602:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1541,7 +1546,7 @@ void ScanInfoPlane()
 			case 584:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1559,7 +1564,7 @@ void ScanInfoPlane()
 			case 606:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1569,7 +1574,7 @@ void ScanInfoPlane()
 			case 588:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1587,7 +1592,7 @@ void ScanInfoPlane()
 			case 604:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1597,7 +1602,7 @@ void ScanInfoPlane()
 			case 586:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1812,7 +1817,7 @@ void ScanInfoPlane()
 			case 610:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1823,7 +1828,7 @@ void ScanInfoPlane()
 			case 609:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1834,7 +1839,7 @@ void ScanInfoPlane()
 			case 608:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (scan_value == 0xff)
@@ -1856,7 +1861,7 @@ void ScanInfoPlane()
 			case 592:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1867,7 +1872,7 @@ void ScanInfoPlane()
 			case 591:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1878,7 +1883,7 @@ void ScanInfoPlane()
 			case 590:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (scan_value == 0xff)
@@ -1901,7 +1906,7 @@ void ScanInfoPlane()
 			case 628:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1912,7 +1917,7 @@ void ScanInfoPlane()
 			case 627:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1923,7 +1928,7 @@ void ScanInfoPlane()
 			case 626:
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				if (scan_value == 0xff)
@@ -2299,7 +2304,7 @@ void ScanInfoPlane()
 			case 633: // FINAL BOSS 4
 				if (!assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR;
+					INVALID_ACTOR_ERR(x, y);
 				}
 
 				SpawnOffsetObj(static_cast<enemy_t>(en_final_boss1 + tile - 630), x, y);
@@ -2462,7 +2467,7 @@ void SetupGameLevel()
 				case CLOAK_AMBUSH_TILE:
 					if (!assets_info.is_ps())
 					{
-						INVALID_ACTOR_ERR;
+						INVALID_ACTOR_ERR(x, y);
 					}
 				case AMBUSHTILE:
 					break;
@@ -2805,7 +2810,7 @@ void SetupGameLevel()
 			gamestate.mapon < 10 &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			::Quit("No red key on floor {}.", gamestate.mapon);
+			::Quit("No red key on floor " + std::to_string(gamestate.mapon) + ".");
 		}
 
 		if (assets_info.is_aog_full() &&
@@ -2826,7 +2831,7 @@ void SetupGameLevel()
 			!detonators_spawned &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			::Quit("No Fision/Plasma Detonator in level!");
+			::Quit("No Fision/Plasma Detonator on level.");
 		}
 	}
 }

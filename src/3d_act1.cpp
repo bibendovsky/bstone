@@ -352,7 +352,7 @@ void SpawnStatic(
 	case bo_gold_key:
 		if (assets_info.is_ps())
 		{
-			::Quit("Green/Gold key (AOG) at ({}, {}).", tilex, tiley);
+			::Quit("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
@@ -362,7 +362,7 @@ void SpawnStatic(
 	case bo_plasma_detonator:
 		if (!assets_info.is_ps())
 		{
-			::Quit("Plasma detonator (PS) at ({}, {}).", tilex, tiley);
+			::Quit("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;

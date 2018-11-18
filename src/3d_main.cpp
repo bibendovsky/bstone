@@ -44,6 +44,7 @@ Free Software Foundation, Inc.,
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
 #include "bstone_format_string.h"
+#include "bstone_log.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
@@ -55,6 +56,9 @@ Free Software Foundation, Inc.,
 #include <psp2/kernel/processmgr.h>
 #include <psp2/power.h>
 #endif
+
+
+using namespace std::string_literals;
 
 
 namespace
@@ -9516,6 +9520,19 @@ void Quit()
 	std::exit(1);
 }
 
+void Quit(
+	const std::string& message)
+{
+	::pre_quit();
+
+	if (!message.empty())
+	{
+		bstone::Log::write_critical("{}", message);
+	}
+
+	std::exit(1);
+}
+
 void DemoLoop()
 {
 	bool breakit;
@@ -9768,7 +9785,7 @@ int main(
 
 	if (sdl_result != 0)
 	{
-		::Quit(::SDL_GetError());
+		::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
 	}
 
 	::g_args.initialize(argc, argv);

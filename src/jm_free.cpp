@@ -41,6 +41,10 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+#include "bstone_log.h"
+
+
+using namespace std::string_literals;
 
 
 extern SpanStart spanstart;
@@ -306,7 +310,7 @@ bool find_aog_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Missing {} assets.", title);
+			::Quit("Missing \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -318,7 +322,7 @@ bool find_aog_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Failed to calculate hashes for \"{}\" assets.", title);
+			::Quit("Failed to calculate hashes for \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -366,14 +370,14 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v3_0);
 
-		bstone::Log::write("Found \"{}\" v3.0.", title);
+		bstone::Log::write("Found \"" + title + "\" v3.0.");
 
 		return true;
 	}
 
 	if (is_required)
 	{
-		::Quit("Unsupported \"{}\" assets.", title);
+		::Quit("Unsupported \"" + title + "\" assets.");
 	}
 
 	return false;
@@ -382,11 +386,11 @@ bool find_aog_assets(
 bool find_aog_full_assets(
 	const bool is_required)
 {
-	const auto& title = std::string{"Aliens of Gold (full)"};
+	const auto& title = "Aliens of Gold (full)"s;
 
 	if (is_required)
 	{
-		bstone::Log::write("Forcing \"{}\"...", title);
+		bstone::Log::write("Forcing \"" + title + "\"...");
 	}
 
 	const auto is_found = find_aog_assets(
@@ -409,7 +413,7 @@ bool find_aog_full_assets(
 bool find_aog_sw_assets(
 	const bool is_required)
 {
-	const auto& title = std::string{"Aliens of Gold (shareware)"};
+	const auto& title = "Aliens of Gold (shareware)"s;
 
 	if (is_required)
 	{
@@ -436,7 +440,7 @@ bool find_aog_sw_assets(
 bool find_ps_assets(
 	const bool is_required)
 {
-	const auto& title = std::string{"Planet Strike"};
+	const auto& title = "Planet Strike"s;
 
 	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::ps_extension);
 
@@ -444,7 +448,7 @@ bool find_ps_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Missing {} assets.", title);
+			::Quit("Missing \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -456,7 +460,7 @@ bool find_ps_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Failed to calculate hashes for \"{}\" assets.", title);
+			::Quit("Failed to calculate hashes for \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -471,13 +475,13 @@ bool find_ps_assets(
 		assets_info.set_extension(Assets::ps_extension);
 		assets_info.set_base_name_to_hash_map(Assets::get_ps_base_name_to_hash_map());
 
-		bstone::Log::write("Found \"{}\".", title);
+		bstone::Log::write("Found \"" + title + "\".");
 		return true;
 	}
 
 	if (is_required)
 	{
-		::Quit("Unsupported {} assets.", title);
+		::Quit("Unsupported \"" + title + "\" assets.");
 	}
 
 	return false;

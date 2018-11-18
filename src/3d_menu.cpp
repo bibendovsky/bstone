@@ -5215,7 +5215,7 @@ std::uint32_t CacheCompData(
 
 		if (!LZH_Startup())
 		{
-			Quit("out of memory");
+			Quit("Out of memory.");
 		}
 
 		::LZH_Decompress(

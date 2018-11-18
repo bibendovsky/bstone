@@ -43,6 +43,7 @@ loaded into the data segment
 #include "id_vl.h"
 #include "gfxv.h"
 #include "bstone_endian.h"
+#include "bstone_log.h"
 #include "bstone_sha1.h"
 #include "bstone_string_helper.h"
 

@@ -58,6 +58,7 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
+#include "bstone_log.h"
 
 
 #define VW_UpdateScreen() VH_UpdateScreen()

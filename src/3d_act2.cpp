@@ -2470,7 +2470,7 @@ void store_cross_barrier(
 		{
 			if (barrier.level != level)
 			{
-				::Quit("Mismatch cross-barrier at ({}, {})", x, y);
+				::Quit("Mismatch cross-barrier at (" + std::to_string(x) + ", " + std::to_string(y) + ")");
 			}
 
 			return;

@@ -30,9 +30,13 @@ Free Software Foundation, Inc.,
 #include "id_in.h"
 #include "id_vh.h"
 #include "id_vl.h"
+#include "bstone_log.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+
+
+using namespace std::string_literals;
 
 
 static const int palette_color_count = 256;
@@ -195,7 +199,7 @@ bool sdl_initialize_window()
 
 	const auto& assets_info = AssetsInfo{};
 
-	auto title = std::string{"Blake Stone"};
+	auto title = "Blake Stone"s;
 
 	if (assets_info.is_aog())
 	{
@@ -1058,9 +1062,7 @@ void sdl_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit(
-				"VID: Failed to lock a screen texture: {}",
-				::SDL_GetError());
+			::Quit("VID: Failed to lock a screen texture: "s + ::SDL_GetError());
 		}
 
 		auto dst_pixels = static_cast<std::uint32_t*>(
@@ -1096,9 +1098,7 @@ void sdl_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit(
-				"VID: Failed to lock an UI texture: {}",
-				::SDL_GetError());
+			::Quit("VID: Failed to lock an UI texture: "s + ::SDL_GetError());
 		}
 
 		const auto alpha_0_mask = ~sdl_texture_pixel_format->Amask;
@@ -1139,9 +1139,7 @@ void sdl_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit(
-			"VID: Failed to clear a render target: {}",
-			::SDL_GetError());
+		::Quit("VID: Failed to clear a render target: "s + ::SDL_GetError());
 	}
 
 
@@ -1157,9 +1155,7 @@ void sdl_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit(
-				"VID: Failed to copy a screen texture on a render target: {}",
-				::SDL_GetError());
+			::Quit("VID: Failed to copy a screen texture on a render target: "s + ::SDL_GetError());
 		}
 	}
 
@@ -1205,9 +1201,7 @@ void sdl_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit(
-				"VID: Failed to set blend mode for an UI texture: {}",
-				::SDL_GetError());
+			::Quit("VID: Failed to set blend mode for an UI texture: "s + ::SDL_GetError());
 		}
 	}
 
@@ -1262,9 +1256,7 @@ void sdl_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit(
-			"VID: Failed to copy an UI texture on a render target: {}",
-			::SDL_GetError());
+		::Quit("VID: Failed to copy an UI texture on a render target: "s + ::SDL_GetError());
 	}
 
 	if (::vid_is_hud)
@@ -1275,9 +1267,7 @@ void sdl_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit(
-				"VID: Failed to set blend mode for an UI texture: {}",
-				::SDL_GetError());
+			::Quit("VID: Failed to set blend mode for an UI texture: "s + ::SDL_GetError());
 		}
 	}
 
@@ -1289,9 +1279,7 @@ void sdl_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit(
-			"VID: Failed to present a render target: {}",
-			::SDL_GetError());
+		::Quit("VID: Failed to present a render target: "s + ::SDL_GetError());
 	}
 }
 
