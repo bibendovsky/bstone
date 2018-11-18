@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_cl_args.h"
+#include "bstone_string_helper.h"
 
 
 namespace bstone
@@ -50,12 +51,10 @@ void ClArgs::initialize(
 	args_.resize(argc);
 	lc_args_.resize(argc);
 
-	const auto& string_helper = bstone::StringHelper{};
-
 	for (int i = 0; i < argc; ++i)
 	{
 		args_[i] = argv[i];
-		lc_args_[i] = string_helper.to_lower(args_[i]);
+		lc_args_[i] = StringHelper::to_lower_ascii(args_[i]);
 	}
 }
 
@@ -80,7 +79,7 @@ int ClArgs::find_option(
 	}
 
 	const auto& string_helper = bstone::StringHelper{};
-	const auto& lc_name = string_helper.to_lower(option_name);
+	const auto& lc_name = string_helper.to_lower_ascii(option_name);
 	const auto arg_count = static_cast<int>(args_.size());
 
 	for (int i = 0; i < arg_count; ++i)
@@ -117,7 +116,7 @@ int ClArgs::find_argument(
 	}
 
 	const auto& string_helper = bstone::StringHelper{};
-	const auto& lc_name = string_helper.to_lower(name);
+	const auto& lc_name = string_helper.to_lower_ascii(name);
 
 	for (int i = 1; i < get_count(); ++i)
 	{

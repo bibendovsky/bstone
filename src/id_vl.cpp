@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
+#include "bstone_string_helper.h"
 
 
 static const int palette_color_count = 256;
@@ -809,8 +810,6 @@ void sdl_initialize_video()
 	bstone::Log::write(
 		"VID: Initializing a system...");
 
-	const auto& string_helper = bstone::StringHelper{};
-
 	bool is_custom_scale = false;
 
 	//
@@ -830,7 +829,7 @@ void sdl_initialize_video()
 	const auto& vid_window_x_str = ::g_args.get_option_value(
 		"vid_window_x");
 
-	if (string_helper.lexical_cast(vid_window_x_str, ::sdl_window_x))
+	if (bstone::StringHelper::string_to_int(vid_window_x_str, ::sdl_window_x))
 	{
 		::sdl_use_custom_window_position = true;
 	}
@@ -843,7 +842,7 @@ void sdl_initialize_video()
 	const auto& vid_window_y_str = ::g_args.get_option_value(
 		"vid_window_y");
 
-	if (string_helper.lexical_cast(vid_window_y_str, ::sdl_window_y))
+	if (bstone::StringHelper::string_to_int(vid_window_y_str, ::sdl_window_y))
 	{
 		::sdl_use_custom_window_position = true;
 	}
@@ -861,8 +860,8 @@ void sdl_initialize_video()
 		width_str,
 		height_str);
 
-	static_cast<void>(string_helper.lexical_cast(width_str, ::window_width));
-	static_cast<void>(string_helper.lexical_cast(height_str, ::window_height));
+	static_cast<void>(bstone::StringHelper::string_to_int(width_str, ::window_width));
+	static_cast<void>(bstone::StringHelper::string_to_int(height_str, ::window_height));
 
 	if (::window_width == 0)
 	{
@@ -894,9 +893,9 @@ void sdl_initialize_video()
 
 	if (!vid_scale_str.empty())
 	{
-		int scale_value = 0;
+		int scale_value;
 
-		if (string_helper.lexical_cast(vid_scale_str, scale_value))
+		if (bstone::StringHelper::string_to_int(vid_scale_str, scale_value))
 		{
 			is_custom_scale = true;
 

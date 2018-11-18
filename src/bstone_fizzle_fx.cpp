@@ -42,19 +42,6 @@ namespace bstone
 {
 
 
-FizzleFX::FizzleFX()
-{
-}
-
-FizzleFX::FizzleFX(
-	FizzleFX&& rhs)
-{
-}
-
-FizzleFX::~FizzleFX()
-{
-}
-
 bool FizzleFX::present(
 	const bool trigger_fade)
 {

@@ -61,6 +61,7 @@ Free Software Foundation, Inc.,
 #include "bstone_audio_mixer.h"
 #include "bstone_endian.h"
 #include "bstone_memory_binary_reader.h"
+#include "bstone_string_helper.h"
 
 extern std::uint16_t sdStartPCSounds;
 extern std::uint16_t sdStartALSounds;
@@ -217,24 +218,16 @@ void SD_Startup()
 	{
 		auto&& snd_rate_string = ::g_args.get_option_value("snd_rate");
 
-		const auto& string_helper = bstone::StringHelper{};
+		int snd_rate;
 
-		auto snd_rate = 0;
-
-		if (!string_helper.lexical_cast(snd_rate_string, snd_rate))
-		{
-			snd_rate = 0;
-		}
+		static_cast<void>(bstone::StringHelper::string_to_int(snd_rate_string, snd_rate));
 
 		auto&& snd_mix_size_string =
 			::g_args.get_option_value("snd_mix_size");
 
-		auto snd_mix_size = 0;
+		int snd_mix_size;
 
-		if (!string_helper.lexical_cast(snd_mix_size_string, snd_mix_size))
-		{
-			snd_mix_size = 0;
-		}
+		static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 
 		mixer.initialize(snd_rate, snd_mix_size);
 	}

@@ -26,7 +26,8 @@ Free Software Foundation, Inc.,
 #define BSTONE_CL_ARGS_INCLUDED
 
 
-#include "bstone_string_helper.h"
+#include <string>
+#include <vector>
 
 
 namespace bstone
@@ -72,6 +73,9 @@ public:
 
 
 private:
+	using StringList = std::vector<std::string>;
+
+
 	StringList args_;
 	StringList lc_args_;
 }; // ClArgs

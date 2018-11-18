@@ -26,7 +26,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_HEADS_INCLUDED
 
 
-#include <cstdint>
 #include "bstone_cl_args.h"
 #include "bstone_log.h"
 

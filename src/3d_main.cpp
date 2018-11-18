@@ -7459,8 +7459,6 @@ bool parse_config_line(
 	}
 
 
-	const auto& string_helper = bstone::StringHelper{};
-
 	index0 = -1;
 	index1 = -1;
 	const auto index0_begin_bracket = full_name.find('[');
@@ -7480,7 +7478,7 @@ bool parse_config_line(
 	{
 		const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
 
-		if (!string_helper.lexical_cast(index0_string, index0))
+		if (!bstone::StringHelper::string_to_int(index0_string, index0))
 		{
 			return false;
 		}
@@ -7494,7 +7492,7 @@ bool parse_config_line(
 
 		const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
 
-		if (!string_helper.lexical_cast(index1_string, index1))
+		if (!bstone::StringHelper::string_to_int(index1_string, index1))
 		{
 			return false;
 		}
@@ -7597,49 +7595,47 @@ void read_text_config()
 
 				if (parse_config_line(line, name, index0, index1, value_string))
 				{
-					const auto& string_helper = bstone::StringHelper{};
-
 					if (name == vid_is_widescreen_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::vid_widescreen = (value != 0);
 						}
 					}
 					else if (name == vid_is_ui_stretched_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::vid_is_ui_stretched = (value != 0);
 						}
 					}
 					else if (name == snd_is_sfx_enabled_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							is_sound_enabled = (value != 0);
 						}
 					}
 					else if (name == snd_is_music_enabled_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							is_music_enabled = (value != 0);
 						}
 					}
 					else if (name == snd_sfx_volume_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::sd_sfx_volume = value;
 						}
@@ -7656,9 +7652,9 @@ void read_text_config()
 					}
 					else if (name == snd_music_volume_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::sd_music_volume = value;
 						}
@@ -7675,18 +7671,18 @@ void read_text_config()
 					}
 					else if (name == in_use_modern_bindings_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::in_use_modern_bindings = (value != 0);
 						}
 					}
 					else if (name == in_mouse_sensitivity_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::mouseadjustment = value;
 						}
@@ -7703,45 +7699,45 @@ void read_text_config()
 					}
 					else if (name == in_is_mouse_enabled_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::mouseenabled = (value != 0);
 						}
 					}
 					else if (name == in_is_joystick_enabled_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::joystickenabled = (value != 0);
 						}
 					}
 					else if (name == in_is_joystick_pad_enabled_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::joypadenabled = (value != 0);
 						}
 					}
 					else if (name == in_is_joystick_progressive_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::joystickprogressive = (value != 0);
 						}
 					}
 					else if (name == in_joystick_port_name)
 					{
-						auto value = std::int16_t{};
+						std::int16_t value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int16(value_string, value))
 						{
 							::joystickport = value;
 						}
@@ -7779,7 +7775,7 @@ void read_text_config()
 							{
 								auto value = std::int16_t{};
 
-								if (string_helper.lexical_cast(value_string, value))
+								if (bstone::StringHelper::string_to_int16(value_string, value))
 								{
 									::buttonmouse[index0] = value;
 								}
@@ -7799,7 +7795,7 @@ void read_text_config()
 							{
 								auto value = std::int16_t{};
 
-								if (string_helper.lexical_cast(value_string, value))
+								if (bstone::StringHelper::string_to_int16(value_string, value))
 								{
 									::buttonjoy[index0] = value;
 								}
@@ -7824,63 +7820,63 @@ void read_text_config()
 					}
 					else if (name == gp_flags_name)
 					{
-						auto value = std::uint16_t{};
+						std::uint16_t value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_uint16(value_string, value))
 						{
 							game_state_flags = value;
 						}
 					}
 					else if (name == gp_no_wall_hit_sfx_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::g_no_wall_hit_sound = (value != 0);
 						}
 					}
 					else if (name == gp_is_always_run_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::g_always_run = (value != 0);
 						}
 					}
 					else if (name == gp_use_heart_beat_sfx_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::g_heart_beat_sound = (value != 0);
 						}
 					}
 					else if (name == gp_quit_on_escape_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::g_quit_on_escape = (value != 0);
 						}
 					}
 					else if (name == gp_no_intro_outro_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::g_no_intro_outro = (value != 0);
 						}
 					}
 					else if (name == am_is_rotated_name)
 					{
-						auto value = int{};
+						int value;
 
-						if (string_helper.lexical_cast(value_string, value))
+						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::g_rotated_automap = (value != 0);
 						}
@@ -7918,46 +7914,12 @@ namespace
 
 
 template<typename T>
-class ToString
-{
-public:
-	static bool convert(
-		T&& src_value,
-		std::string& dst_value)
-	{
-		const auto& string_helper = bstone::StringHelper{};
-
-		return string_helper.lexical_cast(src_value, dst_value);
-	}
-};
-
-template<>
-class ToString<bool>
-{
-public:
-	static bool convert(
-		const bool src_value,
-		std::string& dst_value)
-	{
-		dst_value = (src_value ? "1" : "0");
-
-		return true;
-	}
-};
-
-
-template<typename T>
 void write_config_entry(
 	bstone::TextWriter& writer,
 	const std::string& name,
 	T&& value)
 {
-	auto value_string = std::string{};
-
-	if (!ToString<T>::convert(value, value_string))
-	{
-		bstone::Log::write_warning("Failed to convert value for setting \"{}\".", name);
-	}
+	auto&& value_string = std::to_string(value);
 
 	const auto string = name + " \"" + value_string + "\"\n";
 

@@ -26,68 +26,31 @@ Free Software Foundation, Inc.,
 #define BSTONE_STRING_HELPER_INCLUDED
 
 
-#include <locale>
-#include <stdexcept>
 #include <string>
-#include <sstream>
-#include <vector>
 
 
 namespace bstone
 {
 
 
-using StringList = std::vector<std::string>;
-
-
 struct StringHelper final
 {
 public:
-	char to_lower(
-		const char value) const;
+	static std::string to_lower_ascii(
+		const std::string& string);
 
-	std::string to_lower(
-		const std::string& value) const;
+	static bool string_to_int(
+		const std::string& string,
+		int& int_value);
 
-	template<typename T, typename U>
-	T lexical_cast(
-		const U& src_value) const
-	{
-		auto oss = std::stringstream{};
-		oss << src_value;
+	static bool string_to_int16(
+		const std::string& string,
+		std::int16_t& int16_value);
 
-		auto result = T{};
-		oss >> result;
+	static bool string_to_uint16(
+		const std::string& string,
+		std::uint16_t& uint16_value);
 
-		if (oss)
-		{
-			return result;
-		}
-
-		throw std::runtime_error("lexical_cast");
-	}
-
-	template<typename T, typename U>
-	bool lexical_cast(
-		const T& src_value,
-		U& dst_value) const
-	{
-		auto oss = std::stringstream{};
-
-		oss.unsetf(std::ios_base::skipws);
-		oss << src_value;
-		oss >> dst_value;
-
-		return !oss.fail();
-	}
-
-	bool is_iequal(
-		const std::string& a,
-		const std::string& b) const;
-
-	bool is(
-		std::ctype_base::mask mask,
-		const char value) const;
 
 	const std::string& get_empty() const;
 }; // StringHelper

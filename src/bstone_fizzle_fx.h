@@ -38,18 +38,18 @@ namespace bstone
 class FizzleFX
 {
 public:
-	FizzleFX();
+	FizzleFX() = default;
 
 	FizzleFX(
 		const FizzleFX& rhs) = delete;
 
 	FizzleFX(
-		FizzleFX&& rhs);
+		FizzleFX&& rhs) = default;
 
 	FizzleFX& operator=(
 		const FizzleFX& rhs) = delete;
 
-	virtual ~FizzleFX();
+	virtual ~FizzleFX() = default;
 
 
 	// Performs the effect.

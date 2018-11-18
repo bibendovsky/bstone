@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <memory>
 #include "id_heads.h"
 #include "id_ca.h"
 #include "jm_cio.h"

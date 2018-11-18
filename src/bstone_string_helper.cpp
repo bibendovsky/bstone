@@ -23,87 +23,100 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_string_helper.h"
-#include <algorithm>
-#include <functional>
-
-
-namespace
-{
-
-
-struct Internals final
-{
-	using CType = std::ctype<char>;
-
-
-	const CType& get_ctype_facet() const
-	{
-		static std::locale locale;
-		static const auto& result = std::use_facet<CType>(locale);
-		return result;
-	}
-
-	char to_lower(
-		const char value) const
-	{
-		return get_ctype_facet().tolower(value);
-	}
-}; // Internals
-
-
-} // namespace
 
 
 namespace bstone
 {
 
 
-char StringHelper::to_lower(
-	const char value) const
+std::string StringHelper::to_lower_ascii(
+	const std::string& string)
 {
-	const auto& internals = Internals{};
+	if (string.empty())
+	{
+		return {};
+	}
 
-	return internals.to_lower(value);
-}
+	auto string_lc = string;
 
-std::string StringHelper::to_lower(
-	const std::string& value) const
-{
-	auto result = value;
-
-	const auto& internals = Internals{};
-
-	std::transform(result.begin(), result.end(), result.begin(), std::bind(&Internals::to_lower, internals, std::placeholders::_1));
-
-	return result;
-}
-
-bool StringHelper::is_iequal(
-	const std::string& a,
-	const std::string& b) const
-{
-	auto result = std::mismatch(
-		a.cbegin(),
-		a.cend(),
-		b.cbegin(),
-		[](const auto lhs, const auto rhs)
+	for (auto& char_lc : string_lc)
+	{
+		if (char_lc >= 'A' && char_lc <= 'Z')
 		{
-			const auto& internals = Internals{};
-
-			return internals.get_ctype_facet().tolower(lhs) == internals.get_ctype_facet().tolower(rhs);
+			char_lc = static_cast<char>('a' + char_lc - 'A');
 		}
-	);
+	}
 
-	return result.first == a.cend();
+	return string_lc;
 }
 
-bool StringHelper::is(
-	std::ctype_base::mask mask,
-	const char value) const
+bool StringHelper::string_to_int(
+	const std::string& string,
+	int& int_value)
 {
-	const auto& internals = Internals{};
+	int_value = 0;
 
-	return internals.get_ctype_facet().is(mask, value);
+	if (string.empty())
+	{
+		return false;
+	}
+
+	try
+	{
+		int_value = std::stoi(string);
+	}
+	catch (std::exception&)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool StringHelper::string_to_int16(
+	const std::string& string,
+	std::int16_t& int16_value)
+{
+	int16_value = 0;
+
+	int int_value;
+
+	if (!string_to_int(string, int_value))
+	{
+		return false;
+	}
+
+	if (int_value < -32'768 || int_value > 32'767)
+	{
+		return false;
+	}
+
+	int16_value = static_cast<std::int16_t>(int_value);
+
+	return true;
+}
+
+bool StringHelper::string_to_uint16(
+	const std::string& string,
+	std::uint16_t& uint16_value)
+{
+	uint16_value = 0;
+
+	int int_value;
+
+	if (!string_to_int(string, int_value))
+	{
+		return false;
+	}
+
+	if (int_value < 0 || int_value > 65'535)
+	{
+		return false;
+	}
+
+	uint16_value = static_cast<std::uint16_t>(int_value);
+
+	return true;
 }
 
 const std::string& StringHelper::get_empty() const
