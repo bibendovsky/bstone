@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include <cstdint>
 #include "bstone_fizzle_fx.h"
 #include "id_vl.h"
 

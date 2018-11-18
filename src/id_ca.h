@@ -26,7 +26,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_CA_INCLUDED
 
 
-#include <cstdint>
 #include <unordered_map>
 #include "3d_def.h"
 #include "bstone_file_stream.h"

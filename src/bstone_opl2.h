@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_OPL2_INCLUDED
 
 
-#include <cstdint>
 #include "dbopl.h"
 
 
