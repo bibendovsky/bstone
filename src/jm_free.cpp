@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <cmath>
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"

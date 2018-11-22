@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cstring>
 #include <deque>
 #include <array>
 #include "3d_def.h"

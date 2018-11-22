@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cstring>
 #include <algorithm>
 #include <map>
 #include "audio.h"

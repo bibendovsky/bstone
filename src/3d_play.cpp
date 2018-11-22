@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cstring>
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"

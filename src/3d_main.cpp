@@ -40,6 +40,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "movie.h"
+#include "bstone_archiver.h"
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
@@ -7137,37 +7138,35 @@ void read_high_scores()
 
 	auto scores_path = ::get_profile_dir() + ::get_score_file_name();
 
-	HighScores scores(MaxScores);
-	bstone::FileStream stream(scores_path);
+	auto scores = HighScores{};
+	scores.resize(MaxScores);
+
+	auto stream = bstone::FileStream{scores_path};
 
 	if (stream.is_open())
 	{
-		bstone::Crc32 check_sum;
-		auto reader = bstone::BinaryReader{&stream};
+		auto archiver = bstone::ArchiverFactory::create();
 
 		try
 		{
+			archiver->initialize(&stream);
+
 			for (auto& score : scores)
 			{
-				::deserialize_field(score.name, reader, check_sum);
-				::deserialize_field(score.score, reader, check_sum);
-				::deserialize_field(score.completed, reader, check_sum);
-				::deserialize_field(score.episode, reader, check_sum);
-				::deserialize_field(score.ratio, reader, check_sum);
+				archiver->read_char_array(score.name, MaxHighName + 1);
+				score.score = archiver->read_slong();
+				score.completed = archiver->read_ushort();
+				score.episode = archiver->read_ushort();
+				score.ratio = archiver->read_ushort();
 			}
+
+			archiver->read_checksum();
 		}
-		catch (const ArchiveException&)
+		catch (const bstone::ArchiverException& ex)
 		{
 			is_succeed = false;
-		}
 
-		if (is_succeed)
-		{
-			std::uint32_t saved_checksum = 0;
-			reader.read(saved_checksum);
-			bstone::Endian::little_i(saved_checksum);
-
-			is_succeed = (saved_checksum == check_sum.get_value());
+			bstone::Log::write_error("Failed to unarchive high scores. "s + ex.get_message());
 		}
 	}
 	else
@@ -7205,19 +7204,27 @@ static void write_high_scores()
 		return;
 	}
 
-	bstone::Crc32 checksum;
-	auto writer = bstone::BinaryWriter{&stream};
+	auto archiver = bstone::ArchiverFactory::create();
 
-	for (const auto& score : Scores)
+	try
 	{
-		::serialize_field(score.name, writer, checksum);
-		::serialize_field(score.score, writer, checksum);
-		::serialize_field(score.completed, writer, checksum);
-		::serialize_field(score.episode, writer, checksum);
-		::serialize_field(score.ratio, writer, checksum);
-	}
+		archiver->initialize(&stream);
 
-	writer.write(bstone::Endian::little(checksum.get_value()));
+		for (const auto& score : Scores)
+		{
+			archiver->write_char_array(score.name, MaxHighName + 1);
+			archiver->write_slong(score.score);
+			archiver->write_ushort(score.completed);
+			archiver->write_ushort(score.episode);
+			archiver->write_ushort(score.ratio);
+		}
+
+		archiver->write_checksum();
+	}
+	catch (const bstone::ArchiverException& ex)
+	{
+		bstone::Log::write_error("Failed to archive high scores data."s + ex.get_message());
+	}
 }
 
 static void set_vanilla_controls()
