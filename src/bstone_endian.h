@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_ENDIAN_INCLUDED
 
 
-#include "SDL_endian.h"
+#include <cstdint>
 
 
 namespace bstone
@@ -41,9 +41,14 @@ namespace bstone
 enum class EndianId
 {
 	none,
-	big = SDL_BIG_ENDIAN,
-	little = SDL_LIL_ENDIAN,
-	native = SDL_BYTEORDER,
+	big,
+	little,
+
+#ifdef BSTONE_USE_BIG_ENDIAN
+	native = big,
+#else
+	native = little,
+#endif // BSTONE_USE_BIG_ENDIAN
 }; // EndianId
 
 
@@ -138,6 +143,10 @@ struct Endian final
 	template<typename T>
 	static void little_i(
 		T& value) = delete;
+
+	static bool is_big() = delete;
+
+	static bool is_little() = delete;
 }; // Endian
 
 
@@ -168,8 +177,17 @@ struct Endian<EndianId::big> final
 	static void little_i(
 		T& value)
 	{
-
 		value = detail::EndianSwap::swap(value);
+	}
+
+	static constexpr bool is_big()
+	{
+		return true;
+	}
+
+	static constexpr bool is_little()
+	{
+		return false;
 	}
 }; // Endian
 
@@ -202,6 +220,16 @@ struct Endian<EndianId::little> final
 	static void little_i(
 		T&)
 	{
+	}
+
+	static constexpr bool is_big()
+	{
+		return false;
+	}
+
+	static constexpr bool is_little()
+	{
+		return true;
 	}
 }; // Endian
 
