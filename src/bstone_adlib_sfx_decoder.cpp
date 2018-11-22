@@ -75,9 +75,7 @@ bool AdlibSfxDecoder::initialize(
 
 	static_cast<void>(reader_.open(raw_data, raw_size));
 
-	const auto& endian = bstone::Endian{};
-
-	const auto sfx_length = static_cast<int>(endian.little(reader_.read_s32()));
+	const auto sfx_length = static_cast<int>(bstone::Endian::little(reader_.read_s32()));
 
 	if (sfx_length <= 0)
 	{

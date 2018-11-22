@@ -129,8 +129,7 @@ double BinaryReader::read_r64()
 std::string BinaryReader::read_string(
 	const int max_length)
 {
-	const auto& endian = bstone::Endian{};
-	const auto length = endian.little(read_s32());
+	const auto length = bstone::Endian::little(read_s32());
 
 	if (max_length >= 0 && length > max_length)
 	{

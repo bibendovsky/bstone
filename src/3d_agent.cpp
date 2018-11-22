@@ -4118,10 +4118,9 @@ void LoadOverheadChunk(
 
 		ov_stats.deserialize(reader, checksum);
 
-		const auto& endian = bstone::Endian{};
 		std::uint32_t saved_checksum = 0;
 		is_succeed &= reader.read(saved_checksum);
-		endian.little_i(saved_checksum);
+		bstone::Endian::little_i(saved_checksum);
 		is_succeed &= (saved_checksum == checksum.get_value());
 	}
 	else
@@ -4169,20 +4168,18 @@ void SaveOverheadChunk(
 	g_playtemp.write(chunk_name.c_str(), 4);
 	g_playtemp.skip(4);
 
-	const auto& endian = bstone::Endian{};
-
 	std::int64_t beg_offset = g_playtemp.get_position();
 
 	::serialize_field(
 		reinterpret_cast<const std::uint8_t(&)[4096]>(ov_buffer[0]),
 		writer, checksum);
 	ov_stats.serialize(writer, checksum);
-	writer.write(endian.little(checksum.get_value()));
+	writer.write(bstone::Endian::little(checksum.get_value()));
 
 	std::int64_t end_offset = g_playtemp.get_position();
 	std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
 	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
-	writer.write(endian.little(chunk_size));
+	writer.write(bstone::Endian::little(chunk_size));
 }
 
 void DisplayTeleportName(

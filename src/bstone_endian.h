@@ -54,32 +54,32 @@ namespace detail
 class EndianSwap final
 {
 public:
-	std::uint8_t swap(
-		const std::uint8_t value) const
+	static std::uint8_t swap(
+		const std::uint8_t value)
 	{
 		return value;
 	}
 
-	std::int8_t swap(
-		const std::int8_t value) const
+	static std::int8_t swap(
+		const std::int8_t value)
 	{
 		return value;
 	}
 
-	std::uint16_t swap(
-		const std::uint16_t value) const
+	static std::uint16_t swap(
+		const std::uint16_t value)
 	{
 		return (value >> 8) | (value << 8);
 	}
 
-	std::int16_t swap(
-		const std::int16_t value) const
+	static std::int16_t swap(
+		const std::int16_t value)
 	{
 		return static_cast<std::int16_t>(swap(static_cast<std::uint16_t>(value)));
 	}
 
-	std::uint32_t swap(
-		const std::uint32_t value) const
+	static std::uint32_t swap(
+		const std::uint32_t value)
 	{
 		constexpr auto ooxxooxx = std::uint32_t{0x00FF00FF};
 		constexpr auto xxooxxoo = std::uint32_t{0xFF00FF00};
@@ -88,14 +88,14 @@ public:
 		return ((swap16 << 8) & xxooxxoo) | ((swap16 >> 8) & ooxxooxx);
 	}
 
-	std::int32_t swap(
-		const std::int32_t value) const
+	static std::int32_t swap(
+		const std::int32_t value)
 	{
 		return static_cast<std::int32_t>(swap(static_cast<std::uint32_t>(value)));
 	}
 
-	std::uint64_t swap(
-		const std::uint64_t value) const
+	static std::uint64_t swap(
+		const std::uint64_t value)
 	{
 		constexpr auto ooxxooxx = std::uint64_t{0x0000FFFF0000FFFF};
 		constexpr auto xxooxxoo = std::uint64_t{0xFFFF0000FFFF0000};
@@ -108,8 +108,8 @@ public:
 		return ((swap16 & oxoxoxox) << 8) | ((swap16 & xoxoxoxo) >> 8);
 	}
 
-	std::int64_t swap(
-		const std::int64_t value) const
+	static std::int64_t swap(
+		const std::int64_t value)
 	{
 		return static_cast<std::int64_t>(swap(static_cast<std::uint64_t>(value)));
 	}
@@ -121,22 +121,22 @@ struct Endian final
 {
 	// Returns swaped bytes on little-endian platform or as-is otherwise.
 	template<typename T>
-	T big(
+	static T big(
 		const T value) = delete;
 
 	// Swaps the bytes inplace on little-endian platform.
 	template<typename T>
-	void big_i(
+	static void big_i(
 		T& value) = delete;
 
 	// Returns swaped bytes on big-endian platform or as-is otherwise.
 	template<typename T>
-	T little(
+	static T little(
 		const T value) = delete;
 
 	// Swaps the bytes inplace on big-endian platform.
 	template<typename T>
-	void little_i(
+	static void little_i(
 		T& value) = delete;
 }; // Endian
 
@@ -145,31 +145,31 @@ template<>
 struct Endian<EndianId::big> final
 {
 	template<typename T>
-	T big(
-		const T value) const
+	static T big(
+		const T value)
 	{
 		return value;
 	}
 
 	template<typename T>
-	void big_i(
-		T&) const
+	static void big_i(
+		T&)
 	{
 	}
 
 	template<typename T>
-	T little(
-		const T value) const
+	static T little(
+		const T value)
 	{
-		return detail::EndianSwap{}.swap(value);
+		return detail::EndianSwap::swap(value);
 	}
 
 	template<typename T>
-	void little_i(
-		T& value) const
+	static void little_i(
+		T& value)
 	{
 
-		value = detail::EndianSwap{}.swap(value);
+		value = detail::EndianSwap::swap(value);
 	}
 }; // Endian
 
@@ -178,29 +178,29 @@ template<>
 struct Endian<EndianId::little> final
 {
 	template<typename T>
-	T big(
-		const T value) const
+	static T big(
+		const T value)
 	{
-		return detail::EndianSwap{}.swap(value);
+		return detail::EndianSwap::swap(value);
 	}
 
 	template<typename T>
-	void big_i(
-		T& value) const
+	static void big_i(
+		T& value)
 	{
-		value = detail::EndianSwap{}.swap(value);
+		value = detail::EndianSwap::swap(value);
 	}
 
 	template<typename T>
-	T little(
-		const T value) const
+	static T little(
+		const T value)
 	{
 		return value;
 	}
 
 	template<typename T>
-	void little_i(
-		T&) const
+	static void little_i(
+		T&)
 	{
 	}
 }; // Endian

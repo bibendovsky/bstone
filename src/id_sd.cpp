@@ -108,8 +108,6 @@ void SDL_SetupDigi()
 	int pg;
 	int i;
 
-	const auto& endian = bstone::Endian{};
-
 	p = static_cast<const std::uint16_t*>(PM_GetPage(ChunksInFile - 1));
 	pg = PMSoundStart;
 	for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i)
@@ -118,7 +116,7 @@ void SDL_SetupDigi()
 		{
 			break;
 		}
-		pg += (endian.little(p[1]) + (PMPageSize - 1)) / PMPageSize;
+		pg += (bstone::Endian::little(p[1]) + (PMPageSize - 1)) / PMPageSize;
 		p += 2;
 	}
 	DigiList = new std::uint16_t[i * 2];
@@ -128,7 +126,7 @@ void SDL_SetupDigi()
 
 	for (auto j = 0; j < (i * 2); ++j)
 	{
-		DigiList[j] = endian.little(src_list[j]);
+		DigiList[j] = bstone::Endian::little(src_list[j]);
 	}
 
 	for (i = 0; i < sdLastSound; i++)
@@ -341,9 +339,7 @@ void SD_StartMusic(
 		auto music_data = reinterpret_cast<std::uint16_t*>(
 			::audiosegs[STARTMUSIC + index]);
 
-		const auto& endian = bstone::Endian{};
-
-		auto length = endian.little(music_data[0]) + 2;
+		auto length = bstone::Endian::little(music_data[0]) + 2;
 
 		::sqHack = music_data;
 		::sqHackLen = static_cast<std::uint16_t>(length);
@@ -407,9 +403,7 @@ void sd_play_sound(
 		::Quit("Uncached sound.");
 	}
 
-	const auto& endian = bstone::Endian{};
-
-	int priority = endian.little(sound->priority);
+	int priority = bstone::Endian::little(sound->priority);
 
 	int digi_index = DigiMap[sound_index];
 

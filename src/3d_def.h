@@ -3873,9 +3873,7 @@ inline void serialize_field_internal(
 {
 	checksum.update(value);
 
-	const auto& endian = bstone::Endian{};
-
-	if (!writer.write(endian.little(value)))
+	if (!writer.write(bstone::Endian::little(value)))
 	{
 		throw ArchiveException("serialize_field");
 	}
@@ -3975,9 +3973,7 @@ inline void deserialize_field_internal(
 		throw ArchiveException("deserialize_field");
 	}
 
-	const auto& endian = bstone::Endian{};
-
-	endian.little_i(value);
+	bstone::Endian::little_i(value);
 
 	checksum.update(value);
 }
