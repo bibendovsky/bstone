@@ -2093,14 +2093,29 @@ struct statetype
 
 struct statobj_t
 {
+	// !!! Used in saved game.
 	std::uint8_t tilex;
+
+	// !!! Used in saved game.
 	std::uint8_t tiley;
+
+	// !!! Used in saved game.
 	std::uint8_t areanumber;
 
+	// !!! Used in saved game.
 	std::uint8_t* visspot;
-	std::int16_t shapenum; // if shapenum == -1 the obj has been removed
+
+	// if shapenum == -1 the obj has been removed
+	// !!! Used in saved game.
+	std::int16_t shapenum;
+
+	// !!! Used in saved game.
 	std::uint16_t flags;
+
+	// !!! Used in saved game.
 	std::uint8_t itemnumber;
+
+	// !!! Used in saved game.
 	std::int8_t lighting;
 
 	void serialize(
@@ -2131,14 +2146,31 @@ enum DoorAction
 
 struct doorobj_t
 {
+	// !!! Used in saved game.
 	std::uint8_t tilex;
+
+	// !!! Used in saved game.
 	std::uint8_t tiley;
+
+	// !!! Used in saved game.
 	bool vertical;
+
+	// !!! Used in saved game.
 	std::int8_t flags;
+
+	// !!! Used in saved game.
 	keytype lock;
+
+	// !!! Used in saved game.
 	door_t type;
+
+	// !!! Used in saved game.
 	DoorAction action;
+
+	// !!! Used in saved game.
 	std::int16_t ticcount;
+
+	// !!! Used in saved game.
 	std::uint8_t areanumber[2];
 
 	void serialize(
@@ -2159,53 +2191,105 @@ struct doorobj_t
 
 struct objtype
 {
+	// !!! Used in saved game.
 	std::uint8_t tilex;
+
+	// !!! Used in saved game.
 	std::uint8_t tiley;
+
+	// !!! Used in saved game.
 	std::uint8_t areanumber;
 
+	// !!! Used in saved game.
 	activetype active;
+
+	// !!! Used in saved game.
 	std::int16_t ticcount;
+
+	// !!! Used in saved game.
 	classtype obclass;
+
+	// !!! Used in saved game.
 	statetype* state;
 
+	// !!! Used in saved game.
 	std::uint32_t flags;
-	std::uint16_t flags2; // Aux flags
 
-	std::int32_t distance; // if negative, wait for that door to open
+	// Aux flags
+	// !!! Used in saved game.
+	std::uint16_t flags2;
+
+	// if negative, wait for that door to open
+	// !!! Used in saved game.
+	std::int32_t distance;
+
+	// !!! Used in saved game.
 	dirtype dir;
-	dirtype trydir; // "bit 7" == "direction to turn" flag
 
+	// "bit 7" == "direction to turn" flag
+	// !!! Used in saved game.
+	dirtype trydir;
+
+	// !!! Used in saved game.
 	fixed x;
-	fixed y;
-	std::uint8_t s_tilex;
-	std::uint8_t s_tiley; // s_tilex==0, running for corner
 
+	// !!! Used in saved game.
+	fixed y;
+
+	// !!! Used in saved game.
+	std::uint8_t s_tilex;
+
+	// s_tilex==0, running for corner
+	// !!! Used in saved game.
+	std::uint8_t s_tiley;
+
+	// !!! Used in saved game.
 	std::int16_t viewx;
+
+	// !!! Used in saved game.
 	std::uint16_t viewheight;
+
+	// !!! Used in saved game.
 	fixed transx;
-	fixed transy; // in global coord
+
+	// in global coord
+	// !!! Used in saved game.
+	fixed transy;
 
 	// FIXME
 	// In original code it also used to store a 16-bit pointer to object.
 	// Since our code is at least 32-bit we are using an index of object.
+	// !!! Used in saved game.
 	std::int16_t hitpoints;
 
+	// !!! Used in saved game.
 	std::uint8_t ammo;
+
+	// !!! Used in saved game.
 	std::int8_t lighting;
+
+	// !!! Used in saved game.
 	std::uint16_t linc;
+
+	// !!! Used in saved game.
 	std::int16_t angle;
+
+	// !!! Used in saved game.
 	std::int32_t speed;
 
+	// !!! Used in saved game.
 	std::int16_t temp1;
 
 	// FIXME
 	// In original code it also used to store a 16-bit pointer to object.
 	// Since our code is at least 32-bit we are using an index of object.
+	// !!! Used in saved game.
 	std::int16_t temp2;
 
 	// FIXME
 	// In original code it also used to store a 16-bit pointer to object.
 	// Since our code is at least 32-bit we are using an index of object.
+	// !!! Used in saved game.
 	std::uint16_t temp3; // holds 'last door used' by 'smart' actors
 
 	objtype* next;
@@ -2281,7 +2365,10 @@ enum backgroundtype
 //
 struct tilecoord_t
 {
+	// !!! Used in saved game.
 	std::uint8_t tilex;
+
+	// !!! Used in saved game.
 	std::uint8_t tiley;
 
 	void serialize(
@@ -2301,8 +2388,13 @@ struct tilecoord_t
 // -----------------------------------
 struct barrier_type
 {
+	// !!! Used in saved game.
 	std::uint8_t level;
+
+	// !!! Used in saved game.
 	tilecoord_t coord;
+
+	// !!! Used in saved game.
 	std::uint8_t on;
 
 	void serialize(
@@ -2316,12 +2408,25 @@ struct barrier_type
 
 struct statsInfoType
 {
+	// !!! Used in saved game.
 	std::int32_t total_points;
+
+	// !!! Used in saved game.
 	std::int32_t accum_points;
+
+	// !!! Used in saved game.
 	std::uint8_t total_enemy;
+
+	// !!! Used in saved game.
 	std::uint8_t accum_enemy;
+
+	// !!! Used in saved game.
 	std::uint8_t total_inf;
+
+	// !!! Used in saved game.
 	std::uint8_t accum_inf;
+
+	// !!! Used in saved game.
 	std::int16_t overall_floor;
 
 	void serialize(
@@ -2335,12 +2440,25 @@ struct statsInfoType
 
 struct levelinfo
 {
+	// !!! Used in saved game.
 	std::uint16_t bonus_queue; // bonuses that need to be shown
+
+	// !!! Used in saved game.
 	std::uint16_t bonus_shown; // bonuses that have been shown
+
+	// !!! Used in saved game.
 	bool locked;
+
+	// !!! Used in saved game.
 	statsInfoType stats;
+
+	// !!! Used in saved game.
 	std::uint8_t ptilex;
+
+	// !!! Used in saved game.
 	std::uint8_t ptiley;
+
+	// !!! Used in saved game.
 	std::int16_t pangle;
 
 	void serialize(
@@ -2383,62 +2501,148 @@ struct fargametype
 
 struct gametype
 {
+	// !!! Used in saved game.
 	std::int16_t turn_around;
+
+	// !!! Used in saved game.
 	std::int16_t turn_angle;
+
+	// !!! Used in saved game.
 	std::uint16_t flags;
+
+	// !!! Used in saved game.
 	std::int16_t lastmapon;
+
+	// !!! Used in saved game.
 	std::int16_t difficulty;
+
+	// !!! Used in saved game.
 	std::int16_t mapon;
+
+	// !!! Used in saved game.
 	std::int32_t oldscore;
+
+	// !!! Used in saved game.
 	std::int32_t tic_score;
+
+	// !!! Used in saved game.
 	std::int32_t score;
+
+	// !!! Used in saved game.
 	std::int32_t nextextra;
+
+	// !!! Used in saved game.
 	std::int16_t score_roll_wait;
+
+	// !!! Used in saved game.
 	std::int16_t lives;
+
+	// !!! Used in saved game.
 	std::int16_t health;
+
+	// !!! Used in saved game.
 	char health_str[4];
 
+	// !!! Used in saved game.
 	std::int16_t rpower;
+
+	// !!! Used in saved game.
 	std::int16_t old_rpower;
+
+	// !!! Used in saved game.
 	std::int8_t rzoom;
+
+	// !!! Used in saved game.
 	std::int8_t radar_leds;
+
+	// !!! Used in saved game.
 	std::int8_t lastradar_leds;
 
+	// !!! Used in saved game.
 	std::int8_t lastammo_leds;
+
+	// !!! Used in saved game.
 	std::int8_t ammo_leds;
+
+	// !!! Used in saved game.
 	std::int16_t ammo;
+
+	// !!! Used in saved game.
 	std::int16_t old_ammo;
 
+	// !!! Used in saved game.
 	std::int16_t plasma_detonators;
+
+	// !!! Used in saved game.
 	std::int16_t old_plasma_detonators;
 
+	// !!! Used in saved game.
 	std::int8_t useable_weapons;
+
+	// !!! Used in saved game.
 	std::int8_t weapons;
+
+	// !!! Used in saved game.
 	std::int8_t weapon;
+
+	// !!! Used in saved game.
 	std::int8_t chosenweapon;
+
+	// !!! Used in saved game.
 	std::int8_t old_weapons[4];
 
+	// !!! Used in saved game.
 	std::int8_t weapon_wait;
+
+	// !!! Used in saved game.
 	std::int16_t attackframe;
+
+	// !!! Used in saved game.
 	std::int16_t attackcount;
+
+	// !!! Used in saved game.
 	std::int16_t weaponframe;
+
+	// !!! Used in saved game.
 	std::int16_t episode;
+
+	// !!! Used in saved game.
 	std::uint32_t TimeCount;
+
 	const char* msg; // InfoArea msg...
+
+	// !!! Used in saved game.
 	std::int8_t numkeys[NUMKEYS];
+
+	// !!! Used in saved game.
 	std::int8_t old_numkeys[NUMKEYS];
 
 	// BBi
 	barrier_type cross_barriers[MAX_BARRIER_SWITCHES];
 	// BBi
 
+	// !!! Used in saved game.
 	barrier_type barrier_table[MAX_BARRIER_SWITCHES];
+
+	// !!! Used in saved game.
 	barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
+
+	// !!! Used in saved game.
 	std::uint16_t tokens;
+
+	// !!! Used in saved game.
 	std::uint16_t old_tokens;
+
+	// !!! Used in saved game.
 	bool boss_key_dropped;
+
+	// !!! Used in saved game.
 	bool old_boss_key_dropped;
+
+	// !!! Used in saved game.
 	std::int16_t wintilex;
+
+	// !!! Used in saved game.
 	std::int16_t wintiley;
 
 
@@ -2571,9 +2775,16 @@ enum inst_type
 //
 struct mCacheInfo
 {
-	std::uint8_t local_val; // where msg is in 'local' list
-	std::uint8_t global_val; // where msg was in 'global' list
-	char* mSeg; // pointer to message
+	// where msg is in 'local' list
+	// !!! Used in saved game.
+	std::uint8_t local_val;
+
+	// where msg was in 'global' list
+	// !!! Used in saved game.
+	std::uint8_t global_val;
+
+	// pointer to message
+	char* mSeg;
 
 	void serialize(
 		bstone::BinaryWriter& writer,
@@ -2599,8 +2810,14 @@ struct mCacheList
 struct con_mCacheInfo
 {
 	mCacheInfo mInfo;
-	std::uint8_t type; // type of concession
-	std::uint8_t operate_cnt; // # of times req'd to operate
+
+	// type of concession
+	// !!! Used in saved game.
+	std::uint8_t type;
+
+	// # of times req'd to operate
+	// !!! Used in saved game.
+	std::uint8_t operate_cnt;
 
 	void serialize(
 		bstone::BinaryWriter& writer,
@@ -2615,7 +2832,11 @@ struct con_mCacheInfo
 //
 struct concession_t
 {
-	std::int16_t NumMsgs; // also, num concessions
+	// also, num concessions
+	// !!! Used in saved game.
+	std::int16_t NumMsgs;
+
+	// !!! Used in saved game.
 	con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
 
 	void serialize(
@@ -2651,10 +2872,20 @@ struct scientist_t
 //
 struct eaWallInfo
 {
+	// !!! Used in saved game.
 	std::int8_t tilex;
-	std::int8_t tiley; // where this controller is in the map.
-	std::int8_t aliens_out; // aliens spawned by this controller.
-	std::int16_t delay; // delay before spawning another alien.
+
+	// where this controller is in the map.
+	// !!! Used in saved game.
+	std::int8_t tiley;
+
+	// aliens spawned by this controller.
+	// !!! Used in saved game.
+	std::int8_t aliens_out;
+
+	// delay before spawning another alien.
+	// !!! Used in saved game.
+	std::int16_t delay;
 
 	void serialize(
 		bstone::BinaryWriter& writer,
@@ -2671,10 +2902,23 @@ struct eaWallInfo
 
 struct GoldsternInfo_t
 {
-	std::uint8_t LastIndex; // Last Spawn Coord Index
-	std::uint8_t SpawnCnt; // Num of Spawnpoints for Goldstern
-	std::uint16_t flags; // What type of command/operation is needed...
-	std::uint16_t WaitTime; // Wait time for Goldstern Spawn (current & Next)
+	// Last Spawn Coord Index
+	// !!! Used in saved game.
+	std::uint8_t LastIndex;
+
+	// Num of Spawnpoints for Goldstern
+	// !!! Used in saved game.
+	std::uint8_t SpawnCnt;
+
+	// What type of command/operation is needed...
+	// !!! Used in saved game.
+	std::uint16_t flags;
+
+	// Wait time for Goldstern Spawn (current & Next)
+	// !!! Used in saved game.
+	std::uint16_t WaitTime;
+
+	// !!! Used in saved game.
 	bool GoldSpawned; // Has Goldstern been spawned?
 
 	void serialize(

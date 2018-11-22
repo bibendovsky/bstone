@@ -1768,6 +1768,7 @@ void ThreeDRefresh()
 	::frameon++;
 }
 
+// !!! Used in saved game.
 std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
 
 void UpdateTravelTable()

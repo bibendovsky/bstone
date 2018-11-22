@@ -748,10 +748,13 @@ doorobj_t* lastdoorobj;
 std::int16_t doornum;
 
 // leading edge of door 0=closed, 0xffff = fully open
+ // !!! Used in saved game.
 std::uint16_t doorposition[MAXDOORS];
 
+ // !!! Used in saved game.
 std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
+ // !!! Used in saved game.
 bool areabyplayer[NUMAREAS];
 
 
@@ -1580,10 +1583,24 @@ void MoveDoors()
 =============================================================================
 */
 
+// !!! Used in saved game.
 std::uint16_t pwallstate;
-std::uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
-std::uint16_t pwallx = 0, pwally = 0;
-std::int16_t pwalldir, pwalldist;
+
+// amount a pushable wall has been moved (0-63)
+// !!! Used in saved game.
+std::uint16_t pwallpos;
+
+// !!! Used in saved game.
+std::uint16_t pwallx = 0;
+
+// !!! Used in saved game.
+std::uint16_t pwally = 0;
+
+// !!! Used in saved game.
+std::int16_t pwalldir;
+
+// !!! Used in saved game.
+std::int16_t pwalldist;
 
 
 void PushWall(

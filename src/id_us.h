@@ -49,11 +49,11 @@ Free Software Foundation, Inc.,
 
 struct HighScore
 {
-	char name[MaxHighName + 1];
-	std::int32_t score;
-	std::uint16_t completed;
-	std::uint16_t episode;
-	std::uint16_t ratio;
+	char name[MaxHighName + 1]; // !!! Used in saved game.
+	std::int32_t score; // !!! Used in saved game.
+	std::uint16_t completed; // !!! Used in saved game.
+	std::uint16_t episode; // !!! Used in saved game.
+	std::uint16_t ratio; // !!! Used in saved game.
 }; // HighScore
 
 #define MaxGameName 32

@@ -3574,7 +3574,10 @@ char if_noImage[] = "   AREA\n"
 " TO TELEPORT";
 
 statsInfoType ov_stats;
+
+// !!! Used in saved game.
 static VgaBuffer ov_buffer;
+
 bool ov_noImage = false;
 
 const int TOV_X = 16;

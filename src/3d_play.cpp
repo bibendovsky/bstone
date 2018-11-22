@@ -105,7 +105,7 @@ std::uint8_t* nearmapylookup[MAPSIZE];
 bool singlestep = false;
 bool godmode; // ,noclip;
 
-std::uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
+std::uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only !!! Used in saved game.
 std::uint8_t spotvis[MAPSIZE][MAPSIZE];
 objtype* actorat[MAPSIZE][MAPSIZE];
 
