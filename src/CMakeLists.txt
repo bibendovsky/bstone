@@ -211,6 +211,7 @@ target_sources(
 		bstone_adlib_sfx_decoder.h
 		bstone_audio_decoder.h
 		bstone_audio_mixer.h
+		bstone_archiver.h
 		bstone_atomic.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
@@ -279,6 +280,7 @@ target_sources(
 		bstone_adlib_decoder.cpp
 		bstone_adlib_music_decoder.cpp
 		bstone_adlib_sfx_decoder.cpp
+		bstone_archiver_impl.cpp
 		bstone_audio_decoder.cpp
 		bstone_audio_mixer.cpp
 		bstone_binary_reader.cpp
