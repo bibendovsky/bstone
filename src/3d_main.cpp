@@ -7154,10 +7154,10 @@ void read_high_scores()
 			for (auto& score : scores)
 			{
 				archiver->read_char_array(score.name, MaxHighName + 1);
-				score.score = archiver->read_slong();
-				score.completed = archiver->read_ushort();
-				score.episode = archiver->read_ushort();
-				score.ratio = archiver->read_ushort();
+				score.score = archiver->read_int32();
+				score.completed = archiver->read_uint16();
+				score.episode = archiver->read_uint16();
+				score.ratio = archiver->read_uint16();
 			}
 
 			archiver->read_checksum();
@@ -7213,10 +7213,10 @@ static void write_high_scores()
 		for (const auto& score : Scores)
 		{
 			archiver->write_char_array(score.name, MaxHighName + 1);
-			archiver->write_slong(score.score);
-			archiver->write_ushort(score.completed);
-			archiver->write_ushort(score.episode);
-			archiver->write_ushort(score.ratio);
+			archiver->write_int32(score.score);
+			archiver->write_uint16(score.completed);
+			archiver->write_uint16(score.episode);
+			archiver->write_uint16(score.ratio);
 		}
 
 		archiver->write_checksum();

@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_ARCHIVER_INCLUDED
 
 
+#include <cstdint>
 #include <memory>
 
 
@@ -35,6 +36,19 @@ namespace bstone
 
 class Stream;
 using StreamPtr = Stream*;
+
+
+class ArchiverException
+{
+public:
+	virtual const char* get_message() const = 0;
+
+
+protected:
+	ArchiverException() = default;
+
+	virtual ~ArchiverException() = default;
+}; // ArchiverException
 
 
 class Archiver
@@ -53,40 +67,40 @@ public:
 
 	virtual char read_char() = 0;
 
-	virtual signed char read_schar() = 0;
+	virtual std::int8_t read_int8() = 0;
 
-	virtual unsigned char read_uchar() = 0;
+	virtual std::uint8_t read_uint8() = 0;
+
+
+	virtual std::int16_t read_int16() = 0;
+
+	virtual std::uint16_t read_uint16() = 0;
+
+
+	virtual std::int32_t read_int32() = 0;
+
+	virtual std::uint32_t read_uint32() = 0;
 
 
 	virtual void read_char_array(
-		char* items,
+		char* items_char,
 		const int item_count) = 0;
 
-	virtual void read_schar_array(
-		signed char* items,
+	virtual void read_int8_array(
+		std::int8_t* items_int8,
 		const int item_count) = 0;
 
-	virtual void read_uchar_array(
-		unsigned char* items,
+	virtual void read_uint8_array(
+		std::uint8_t* items_uint8,
 		const int item_count) = 0;
 
 
-	virtual short read_sshort() = 0;
-
-	virtual unsigned short read_ushort() = 0;
-
-
-	virtual long read_slong() = 0;
-
-	virtual unsigned long read_ulong() = 0;
-
-
-	virtual void read_sshort_array(
-		short* items,
+	virtual void read_int16_array(
+		std::int16_t* items_int16,
 		const int item_count) = 0;
 
-	virtual void read_ushort_array(
-		unsigned short* items,
+	virtual void read_uint16_array(
+		std::uint16_t* items_uint16,
 		const int item_count) = 0;
 
 
@@ -102,47 +116,46 @@ public:
 	virtual void write_char(
 		const char value_char) = 0;
 
-	virtual void write_schar(
-		const signed char value_schar) = 0;
+	virtual void write_int8(
+		const std::int8_t value_int8) = 0;
 
-	virtual void write_uchar(
-		const unsigned char value_uchar) = 0;
+	virtual void write_uint8(
+		const std::uint8_t value_uint8) = 0;
+
+
+	virtual void write_int16(
+		const std::int16_t value_int16) = 0;
+
+	virtual void write_uint16(
+		const std::uint16_t value_uint16) = 0;
+
+
+	virtual void write_int32(
+		const std::int32_t value_int32) = 0;
+
+	virtual void write_uint32(
+		const std::uint32_t value_uint32) = 0;
 
 
 	virtual void write_char_array(
-		const char* const items,
+		const char* const items_char,
 		const int item_count) = 0;
 
-	virtual void write_schar_array(
-		const signed char* const items,
+	virtual void write_int8_array(
+		const std::int8_t* const items_int8,
 		const int item_count) = 0;
 
-	virtual void write_uchar_array(
-		const unsigned char* const items,
+	virtual void write_uint8_array(
+		const std::uint8_t* const items_uint8,
 		const int item_count) = 0;
 
 
-	virtual void write_sshort(
-		const short value_sshort) = 0;
-
-	virtual void write_ushort(
-		const unsigned short value_ushort) = 0;
-
-
-	virtual void write_slong(
-		const long value_slong) = 0;
-
-	virtual void write_ulong(
-		const unsigned long value_ulong) = 0;
-
-
-
-	virtual void write_sshort_array(
-		const short* const items,
+	virtual void write_int16_array(
+		const std::int16_t* const items_int16,
 		const int item_count) = 0;
 
-	virtual void write_ushort_array(
-		const unsigned short* const items,
+	virtual void write_uint16_array(
+		const std::uint16_t* const items_uint16,
 		const int item_count) = 0;
 
 
@@ -162,19 +175,6 @@ protected:
 
 
 using ArchiverPtr = Archiver*;
-
-
-class ArchiverException
-{
-public:
-	virtual const char* get_message() const = 0;
-
-
-protected:
-	ArchiverException() = default;
-
-	virtual ~ArchiverException() = default;
-}; // ArchiverException
 
 
 struct ArchiverDeleter
