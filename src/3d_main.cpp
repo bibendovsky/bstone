@@ -8317,24 +8317,24 @@ bool LoadLevel(
 	//
 
 	bool is_succeed = true;
-	bstone::Crc32 checksum;
 
 	loadedgame = true;
 	::SetupGameLevel();
 	loadedgame = oldloaded;
 
-	auto reader = bstone::BinaryReader{&g_playtemp};
+	auto archiver = bstone::ArchiverFactory::create();
 
 	try
 	{
-		::deserialize_field(tilemap, reader, checksum);
+		archiver->initialize(&g_playtemp);
+
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(tilemap), MAPSIZE * MAPSIZE);
 
 		for (int i = 0; i < MAPSIZE; ++i)
 		{
 			for (int j = 0; j < MAPSIZE; ++j)
 			{
-				std::int32_t value = 0;
-				::deserialize_field(value, reader, checksum);
+				const auto value = archiver->read_int32();
 
 				if (value < 0)
 				{
@@ -8347,29 +8347,28 @@ bool LoadLevel(
 			}
 		}
 
-		::deserialize_field(areaconnect, reader, checksum);
-		::deserialize_field(areabyplayer, reader, checksum);
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areaconnect), NUMAREAS * NUMAREAS);
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areabyplayer), NUMAREAS);
 
 		// Restore 'save game' actors
 		//
 
-		std::int32_t actor_count = 0;
-		::deserialize_field(actor_count, reader, checksum);
+		const auto actor_count = archiver->read_int32();
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
-			throw ArchiveException("actor_count");
+			throw "Actor count out of range.";
 		}
 
 		::InitActorList();
 
 		// First actor is always player
-		new_actor->deserialize(reader, checksum);
+		new_actor->unarchive(archiver.get());
 
 		for (std::int32_t i = 1; i < actor_count; ++i)
 		{
 			::GetNewActor();
-			new_actor->deserialize(reader, checksum);
+			new_actor->unarchive(archiver.get());
 			actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
@@ -8406,8 +8405,7 @@ bool LoadLevel(
 		// Read all sorts of stuff...
 		//
 
-		std::int32_t laststatobj_index = 0;
-		::deserialize_field(laststatobj_index, reader, checksum);
+		const auto laststatobj_index = archiver->read_int32();
 
 		if (laststatobj_index < 0)
 		{
@@ -8420,62 +8418,59 @@ bool LoadLevel(
 
 		for (int i = 0; i < MAXSTATS; ++i)
 		{
-			statobjlist[i].deserialize(reader, checksum);
+			statobjlist[i].unarchive(archiver.get());
 		}
 
-		::deserialize_field(doorposition, reader, checksum);
+		archiver->read_uint16_array(doorposition, MAXDOORS);
 
 		for (int i = 0; i < MAXDOORS; ++i)
 		{
-			doorobjlist[i].deserialize(reader, checksum);
+			doorobjlist[i].unarchive(archiver.get());
 		}
 
-		::deserialize_field(pwallstate, reader, checksum);
-		::deserialize_field(pwallx, reader, checksum);
-		::deserialize_field(pwally, reader, checksum);
-		::deserialize_field(pwalldir, reader, checksum);
-		::deserialize_field(pwallpos, reader, checksum);
-		::deserialize_field(pwalldist, reader, checksum);
-		::deserialize_field(TravelTable, reader, checksum);
-		ConHintList.deserialize(reader, checksum);
+		pwallstate = archiver->read_uint16();
+		pwallx = archiver->read_uint16();
+		pwally = archiver->read_uint16();
+		pwalldir = archiver->read_int16();
+		pwallpos = archiver->read_uint16();
+		pwalldist = archiver->read_int16();
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(TravelTable), MAPSIZE * MAPSIZE);
+		ConHintList.unarchive(archiver.get());
 
 		for (int i = 0; i < MAXEAWALLS; ++i)
 		{
-			eaList[i].deserialize(reader, checksum);
+			eaList[i].unarchive(archiver.get());
 		}
 
-		GoldsternInfo.deserialize(reader, checksum);
+		GoldsternInfo.unarchive(archiver.get());
 
 		for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 		{
-			GoldieList[i].deserialize(reader, checksum);
+			GoldieList[i].unarchive(archiver.get());
 		}
 
 		for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 		{
-			::gamestate.barrier_table[i].deserialize(reader, checksum);
+			::gamestate.barrier_table[i].unarchive(archiver.get());
 		}
 
 		// BBi
 		::apply_cross_barriers();
 		// BBi
 
-		::deserialize_field(gamestate.plasma_detonators, reader, checksum);
+		gamestate.plasma_detonators = archiver->read_int16();
+
+		// Read and evaluate checksum
+		//
+		archiver->read_checksum();
 	}
-	catch (const ArchiveException&)
+	catch (const bstone::ArchiverException&)
 	{
 		is_succeed = false;
 	}
-
-	// Read and evaluate checksum
-	//
-	if (is_succeed)
+	catch (const char*)
 	{
-		std::uint32_t saved_checksum = 0;
-		reader.read(saved_checksum);
-		bstone::Endian::little_i(saved_checksum);
-
-		is_succeed = (saved_checksum == checksum.get_value());
+		is_succeed = false;
 	}
 
 	if (!is_succeed)
@@ -8612,7 +8607,7 @@ bool SaveLevel(
 
 	for (actor = player; actor; actor = actor->next)
 	{
-		actor->serialize(writer, checksum);
+		actor->archive(writer, checksum);
 	}
 
 	//
@@ -8630,7 +8625,7 @@ bool SaveLevel(
 	//
 	for (int i = 0; i < MAXSTATS; ++i)
 	{
-		statobjlist[i].serialize(writer, checksum);
+		statobjlist[i].archive(writer, checksum);
 	}
 
 	//
@@ -8639,7 +8634,7 @@ bool SaveLevel(
 
 	for (int i = 0; i < MAXDOORS; ++i)
 	{
-		doorobjlist[i].serialize(writer, checksum);
+		doorobjlist[i].archive(writer, checksum);
 	}
 
 	::serialize_field(pwallstate, writer, checksum);
@@ -8649,23 +8644,23 @@ bool SaveLevel(
 	::serialize_field(pwallpos, writer, checksum);
 	::serialize_field(pwalldist, writer, checksum);
 	::serialize_field(TravelTable, writer, checksum);
-	ConHintList.serialize(writer, checksum);
+	ConHintList.archive(writer, checksum);
 
 	for (int i = 0; i < MAXEAWALLS; ++i)
 	{
-		eaList[i].serialize(writer, checksum);
+		eaList[i].archive(writer, checksum);
 	}
 
-	GoldsternInfo.serialize(writer, checksum);
+	GoldsternInfo.archive(writer, checksum);
 
 	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 	{
-		GoldieList[i].serialize(writer, checksum);
+		GoldieList[i].archive(writer, checksum);
 	}
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		::gamestate.barrier_table[i].serialize(writer, checksum);
+		::gamestate.barrier_table[i].archive(writer, checksum);
 	}
 
 	::serialize_field(::gamestate.plasma_detonators, writer, checksum);
@@ -8916,8 +8911,8 @@ bool LoadTheGame(
 				throw ArchiveException{"Levels hash mismatch."};
 			}
 
-			gamestate.deserialize(head_reader, checksum);
-			gamestuff.deserialize(head_reader, checksum);
+			gamestate.unarchive(head_reader, checksum);
+			gamestuff.unarchive(head_reader, checksum);
 		}
 		catch (const ArchiveException&)
 		{
@@ -9062,8 +9057,8 @@ bool SaveTheGame(
 
 		// Other stuff.
 		//
-		gamestate.serialize(head_writer, head_checksum);
-		gamestuff.serialize(head_writer, head_checksum);
+		gamestate.archive(head_writer, head_checksum);
+		gamestuff.archive(head_writer, head_checksum);
 		head_writer.set_position(0);
 	}
 	catch (const ArchiveException&)
@@ -9830,110 +9825,104 @@ void InitDestPath()
 }
 
 // BBi
-void objtype::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void objtype::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(tilex, writer, checksum);
-	::serialize_field(tiley, writer, checksum);
-	::serialize_field(areanumber, writer, checksum);
-	::serialize_field(active, writer, checksum);
-	::serialize_field(ticcount, writer, checksum);
-	::serialize_field(obclass, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
+	archiver->write_uint8(areanumber);
+	archiver->write_int32(active);
+	archiver->write_int16(ticcount);
+	archiver->write_int32(obclass);
 
-	std::int32_t state_index = static_cast<std::int32_t>(::get_state_index(state));
-	::serialize_field(state_index, writer, checksum);
+	const auto state_index = ::get_state_index(state);
+	archiver->write_int32(state_index);
 
-	::serialize_field(flags, writer, checksum);
-	::serialize_field(flags2, writer, checksum);
-	::serialize_field(distance, writer, checksum);
-	::serialize_field(dir, writer, checksum);
-	::serialize_field(trydir, writer, checksum);
-	::serialize_field(x, writer, checksum);
-	::serialize_field(y, writer, checksum);
-	::serialize_field(s_tilex, writer, checksum);
-	::serialize_field(s_tiley, writer, checksum);
-	::serialize_field(viewx, writer, checksum);
-	::serialize_field(viewheight, writer, checksum);
-	::serialize_field(transx, writer, checksum);
-	::serialize_field(transy, writer, checksum);
-	::serialize_field(hitpoints, writer, checksum);
-	::serialize_field(ammo, writer, checksum);
-	::serialize_field(lighting, writer, checksum);
-	::serialize_field(linc, writer, checksum);
-	::serialize_field(angle, writer, checksum);
-	::serialize_field(speed, writer, checksum);
-	::serialize_field(temp1, writer, checksum);
-	::serialize_field(temp2, writer, checksum);
-	::serialize_field(temp3, writer, checksum);
+	archiver->write_uint32(flags);
+	archiver->write_uint16(flags2);
+	archiver->write_int32(distance);
+	archiver->write_int32(dir);
+	archiver->write_int32(trydir);
+	archiver->write_int32(x);
+	archiver->write_int32(y);
+	archiver->write_uint8(s_tilex);
+	archiver->write_uint8(s_tiley);
+	archiver->write_int16(viewx);
+	archiver->write_uint16(viewheight);
+	archiver->write_int32(transx);
+	archiver->write_int32(transy);
+	archiver->write_int16(hitpoints);
+	archiver->write_uint8(ammo);
+	archiver->write_int8(lighting);
+	archiver->write_uint16(linc);
+	archiver->write_int16(angle);
+	archiver->write_int32(speed);
+	archiver->write_int16(temp1);
+	archiver->write_int16(temp2);
+	archiver->write_uint16(temp3);
 }
 
-void objtype::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void objtype::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(tilex, reader, checksum);
-	::deserialize_field(tiley, reader, checksum);
-	::deserialize_field(areanumber, reader, checksum);
-	::deserialize_field(active, reader, checksum);
-	::deserialize_field(ticcount, reader, checksum);
-	::deserialize_field(obclass, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
+	areanumber = archiver->read_uint8();
+	active = static_cast<activetype>(archiver->read_int32());
+	ticcount = archiver->read_int16();
+	obclass = static_cast<classtype>(archiver->read_int32());
 
-	std::int32_t state_index = 0;
-	::deserialize_field(state_index, reader, checksum);
+	const auto state_index = archiver->read_int32();
 	state = states_list[state_index];
 
-	::deserialize_field(flags, reader, checksum);
-	::deserialize_field(flags2, reader, checksum);
-	::deserialize_field(distance, reader, checksum);
-	::deserialize_field(dir, reader, checksum);
-	::deserialize_field(trydir, reader, checksum);
-	::deserialize_field(x, reader, checksum);
-	::deserialize_field(y, reader, checksum);
-	::deserialize_field(s_tilex, reader, checksum);
-	::deserialize_field(s_tiley, reader, checksum);
-	::deserialize_field(viewx, reader, checksum);
-	::deserialize_field(viewheight, reader, checksum);
-	::deserialize_field(transx, reader, checksum);
-	::deserialize_field(transy, reader, checksum);
-	::deserialize_field(hitpoints, reader, checksum);
-	::deserialize_field(ammo, reader, checksum);
-	::deserialize_field(lighting, reader, checksum);
-	::deserialize_field(linc, reader, checksum);
-	::deserialize_field(angle, reader, checksum);
-	::deserialize_field(speed, reader, checksum);
-	::deserialize_field(temp1, reader, checksum);
-	::deserialize_field(temp2, reader, checksum);
-	::deserialize_field(temp3, reader, checksum);
+	flags = archiver->read_uint32();
+	flags2 = archiver->read_uint16();
+	distance = archiver->read_int32();
+	dir = static_cast<dirtype>(archiver->read_int32());
+	trydir = static_cast<dirtype>(archiver->read_int32());
+	x = archiver->read_int32();
+	y = archiver->read_int32();
+	s_tilex = archiver->read_uint8();
+	s_tiley = archiver->read_uint8();
+	viewx = archiver->read_int16();
+	viewheight = archiver->read_uint16();
+	transx = archiver->read_int32();
+	transy = archiver->read_int32();
+	hitpoints = archiver->read_int16();
+	ammo = archiver->read_uint8();
+	lighting = archiver->read_int8();
+	linc = archiver->read_uint16();
+	angle = archiver->read_int16();
+	speed = archiver->read_int32();
+	temp1 = archiver->read_int16();
+	temp2 = archiver->read_int16();
+	temp3 = archiver->read_uint16();
 }
 
-void statobj_t::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void statobj_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(tilex, writer, checksum);
-	::serialize_field(tiley, writer, checksum);
-	::serialize_field(areanumber, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
+	archiver->write_uint8(areanumber);
 
-	std::int32_t vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
-	::serialize_field(vis_index, writer, checksum);
+	const auto vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
+	archiver->write_int32(vis_index);
 
-	::serialize_field(shapenum, writer, checksum);
-	::serialize_field(flags, writer, checksum);
-	::serialize_field(itemnumber, writer, checksum);
-	::serialize_field(lighting, writer, checksum);
+	archiver->write_int16(shapenum);
+	archiver->write_uint16(flags);
+	archiver->write_uint8(itemnumber);
+	archiver->write_int8(lighting);
 }
 
-void statobj_t::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void statobj_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(tilex, reader, checksum);
-	::deserialize_field(tiley, reader, checksum);
-	::deserialize_field(areanumber, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
+	areanumber = archiver->read_uint8();
 
-	std::int32_t vis_index = 0;
-	::deserialize_field(vis_index, reader, checksum);
+	const auto vis_index = archiver->read_int32();
 
 	if (vis_index < 0)
 	{
@@ -9944,232 +9933,213 @@ void statobj_t::deserialize(
 		visspot = &(&spotvis[0][0])[vis_index];
 	}
 
-	::deserialize_field(shapenum, reader, checksum);
-	::deserialize_field(flags, reader, checksum);
-	::deserialize_field(itemnumber, reader, checksum);
-	::deserialize_field(lighting, reader, checksum);
+	shapenum = archiver->read_int16();
+	flags = archiver->read_uint16();
+	itemnumber = archiver->read_uint8();
+	lighting = archiver->read_int8();
 }
 
-void doorobj_t::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void doorobj_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(tilex, writer, checksum);
-	::serialize_field(tiley, writer, checksum);
-	::serialize_field(vertical, writer, checksum);
-	::serialize_field(flags, writer, checksum);
-	::serialize_field(lock, writer, checksum);
-	::serialize_field(type, writer, checksum);
-	::serialize_field(action, writer, checksum);
-	::serialize_field(ticcount, writer, checksum);
-	::serialize_field(areanumber, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
+	archiver->write_bool(vertical);
+	archiver->write_int8(flags);
+	archiver->write_int32(lock);
+	archiver->write_int32(type);
+	archiver->write_int32(action);
+	archiver->write_int16(ticcount);
+	archiver->write_uint8_array(areanumber, 2);
 }
 
-void doorobj_t::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void doorobj_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(tilex, reader, checksum);
-	::deserialize_field(tiley, reader, checksum);
-	::deserialize_field(vertical, reader, checksum);
-	::deserialize_field(flags, reader, checksum);
-	::deserialize_field(lock, reader, checksum);
-	::deserialize_field(type, reader, checksum);
-	::deserialize_field(action, reader, checksum);
-	::deserialize_field(ticcount, reader, checksum);
-	::deserialize_field(areanumber, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
+	vertical = archiver->read_bool();
+	flags = archiver->read_int8();
+	lock = static_cast<keytype>(archiver->read_int32());
+	type = static_cast<door_t>(archiver->read_int32());
+	action = static_cast<DoorAction>(archiver->read_int32());
+	ticcount = archiver->read_int16();
+	archiver->read_uint8_array(areanumber, 2);
 }
 
-void mCacheInfo::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void mCacheInfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(local_val, writer, checksum);
-	::serialize_field(global_val, writer, checksum);
+	archiver->write_uint8(local_val);
+	archiver->write_uint8(global_val);
 }
 
-void mCacheInfo::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void mCacheInfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(local_val, reader, checksum);
-	::deserialize_field(global_val, reader, checksum);
+	local_val = archiver->read_uint8();
+	global_val = archiver->read_uint8();
 	mSeg = nullptr;
 }
 
-void con_mCacheInfo::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void con_mCacheInfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	mInfo.serialize(writer, checksum);
-	::serialize_field(type, writer, checksum);
-	::serialize_field(operate_cnt, writer, checksum);
+	mInfo.archive(archiver);
+	archiver->write_uint8(type);
+	archiver->write_uint8(operate_cnt);
 }
 
-void con_mCacheInfo::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void con_mCacheInfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	mInfo.deserialize(reader, checksum);
-	::deserialize_field(type, reader, checksum);
-	::deserialize_field(operate_cnt, reader, checksum);
+	mInfo.unarchive(archiver);
+	type = archiver->read_uint8();
+	operate_cnt = archiver->read_uint8();
 }
 
-void concession_t::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void concession_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(NumMsgs, writer, checksum);
+	archiver->write_int16(NumMsgs);
 
 	for (int i = 0; i < NumMsgs; ++i)
 	{
-		cmInfo[i].serialize(writer, checksum);
+		cmInfo[i].archive(archiver);
 	}
 }
 
-void concession_t::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void concession_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(NumMsgs, reader, checksum);
+	NumMsgs = archiver->read_int16();
 
 	for (int i = 0; i < NumMsgs; ++i)
 	{
-		cmInfo[i].deserialize(reader, checksum);
+		cmInfo[i].unarchive(archiver);
 	}
 }
 
-void eaWallInfo::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void eaWallInfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(tilex, writer, checksum);
-	::serialize_field(tiley, writer, checksum);
-	::serialize_field(aliens_out, writer, checksum);
-	::serialize_field(delay, writer, checksum);
+	archiver->write_int8(tilex);
+	archiver->write_int8(tiley);
+	archiver->write_int8(aliens_out);
+	archiver->write_int16(delay);
 }
 
-void eaWallInfo::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void eaWallInfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(tilex, reader, checksum);
-	::deserialize_field(tiley, reader, checksum);
-	::deserialize_field(aliens_out, reader, checksum);
-	::deserialize_field(delay, reader, checksum);
+	tilex = archiver->read_int8();
+	tiley = archiver->read_int8();
+	aliens_out = archiver->read_int8();
+	delay = archiver->read_int16();
 }
 
-void GoldsternInfo_t::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void GoldsternInfo_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(LastIndex, writer, checksum);
-	::serialize_field(SpawnCnt, writer, checksum);
-	::serialize_field(flags, writer, checksum);
-	::serialize_field(WaitTime, writer, checksum);
-	::serialize_field(GoldSpawned, writer, checksum);
+	archiver->write_uint8(LastIndex);
+	archiver->write_uint8(SpawnCnt);
+	archiver->write_uint16(flags);
+	archiver->write_uint16(WaitTime);
+	archiver->write_bool(GoldSpawned);
 }
 
-void GoldsternInfo_t::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void GoldsternInfo_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(LastIndex, reader, checksum);
-	::deserialize_field(SpawnCnt, reader, checksum);
-	::deserialize_field(flags, reader, checksum);
-	::deserialize_field(WaitTime, reader, checksum);
-	::deserialize_field(GoldSpawned, reader, checksum);
+	LastIndex = archiver->read_uint8();
+	SpawnCnt = archiver->read_uint8();
+	flags = archiver->read_uint16();
+	WaitTime = archiver->read_uint16();
+	GoldSpawned = archiver->read_bool();
 }
 
-void tilecoord_t::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void tilecoord_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(tilex, writer, checksum);
-	::serialize_field(tiley, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
 }
 
-void tilecoord_t::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void tilecoord_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(tilex, reader, checksum);
-	::deserialize_field(tiley, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
 }
 
-void barrier_type::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void barrier_type::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(level, writer, checksum);
-	coord.serialize(writer, checksum);
-	::serialize_field(on, writer, checksum);
+	archiver->write_uint8(level);
+	coord.archive(archiver);
+	archiver->write_uint8(on);
 }
 
-void barrier_type::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void barrier_type::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(level, reader, checksum);
-	coord.deserialize(reader, checksum);
-	::deserialize_field(on, reader, checksum);
+	level = archiver->read_uint8();
+	coord.unarchive(archiver);
+	on = archiver->read_uint8();
 }
 
-void statsInfoType::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void statsInfoType::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(total_points, writer, checksum);
-	::serialize_field(accum_points, writer, checksum);
-	::serialize_field(total_enemy, writer, checksum);
-	::serialize_field(accum_enemy, writer, checksum);
-	::serialize_field(total_inf, writer, checksum);
-	::serialize_field(accum_inf, writer, checksum);
-	::serialize_field(overall_floor, writer, checksum);
+	archiver->write_int32(total_points);
+	archiver->write_int32(accum_points);
+	archiver->write_uint8(total_enemy);
+	archiver->write_uint8(accum_enemy);
+	archiver->write_uint8(total_inf);
+	archiver->write_uint8(accum_inf);
+	archiver->write_int16(overall_floor);
 }
 
-void statsInfoType::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void statsInfoType::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(total_points, reader, checksum);
-	::deserialize_field(accum_points, reader, checksum);
-	::deserialize_field(total_enemy, reader, checksum);
-	::deserialize_field(accum_enemy, reader, checksum);
-	::deserialize_field(total_inf, reader, checksum);
-	::deserialize_field(accum_inf, reader, checksum);
-	::deserialize_field(overall_floor, reader, checksum);
+	total_points = archiver->read_int32();
+	accum_points = archiver->read_int32();
+	total_enemy = archiver->read_uint8();
+	accum_enemy = archiver->read_uint8();
+	total_inf = archiver->read_uint8();
+	accum_inf = archiver->read_uint8();
+	overall_floor = archiver->read_int16();
 }
 
-void levelinfo::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void levelinfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(bonus_queue, writer, checksum);
-	::serialize_field(bonus_shown, writer, checksum);
-	::serialize_field(locked, writer, checksum);
-	stats.serialize(writer, checksum);
-	::serialize_field(ptilex, writer, checksum);
-	::serialize_field(ptiley, writer, checksum);
-	::serialize_field(pangle, writer, checksum);
+	archiver->write_uint16(bonus_queue);
+	archiver->write_uint16(bonus_shown);
+	archiver->write_bool(locked);
+	stats.archive(archiver);
+	archiver->write_uint8(ptilex);
+	archiver->write_uint8(ptiley);
+	archiver->write_int16(pangle);
 }
 
-void levelinfo::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void levelinfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(bonus_queue, reader, checksum);
-	::deserialize_field(bonus_shown, reader, checksum);
-	::deserialize_field(locked, reader, checksum);
-	stats.deserialize(reader, checksum);
-	::deserialize_field(ptilex, reader, checksum);
-	::deserialize_field(ptiley, reader, checksum);
-	::deserialize_field(pangle, reader, checksum);
+	bonus_queue = archiver->read_uint16();
+	bonus_shown = archiver->read_uint16();
+	locked = archiver->read_bool();
+	stats.unarchive(archiver);
+	ptilex = archiver->read_uint8();
+	ptiley = archiver->read_uint8();
+	pangle = archiver->read_int16();
 }
 
-fargametype::fargametype() :
-	old_levelinfo(),
-	level()
+fargametype::fargametype()
+	:
+	old_levelinfo{},
+	level{}
 {
 }
 
@@ -10187,176 +10157,164 @@ void fargametype::clear()
 	initialize();
 }
 
-void fargametype::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void fargametype::archive(
+	bstone::ArchiverPtr archiver) const
 {
 	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
 	{
-		old_levelinfo[i].serialize(writer, checksum);
+		old_levelinfo[i].archive(archiver);
 	}
 
 	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
 	{
-		level[i].serialize(writer, checksum);
+		level[i].archive(archiver);
 	}
 }
 
-void fargametype::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void fargametype::unarchive(
+	bstone::ArchiverPtr archiver)
 {
 	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
 	{
-		old_levelinfo[i].deserialize(reader, checksum);
+		old_levelinfo[i].unarchive(archiver);
 	}
 
 	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
 	{
-		level[i].deserialize(reader, checksum);
+		level[i].unarchive(archiver);
 	}
 }
 
-void gametype::serialize(
-	bstone::BinaryWriter& writer,
-	bstone::Crc32& checksum) const
+void gametype::archive(
+	bstone::ArchiverPtr archiver) const
 {
-	::serialize_field(turn_around, writer, checksum);
-	::serialize_field(turn_angle, writer, checksum);
-	::serialize_field(flags, writer, checksum);
-	::serialize_field(lastmapon, writer, checksum);
-	::serialize_field(difficulty, writer, checksum);
-	::serialize_field(mapon, writer, checksum);
-	::serialize_field(oldscore, writer, checksum);
-	::serialize_field(tic_score, writer, checksum);
-	::serialize_field(score, writer, checksum);
-	::serialize_field(nextextra, writer, checksum);
-	::serialize_field(score_roll_wait, writer, checksum);
-	::serialize_field(lives, writer, checksum);
-	::serialize_field(health, writer, checksum);
-	::serialize_field(health_str, writer, checksum);
-	::serialize_field(rpower, writer, checksum);
-	::serialize_field(old_rpower, writer, checksum);
-	::serialize_field(rzoom, writer, checksum);
-	::serialize_field(radar_leds, writer, checksum);
-	::serialize_field(lastradar_leds, writer, checksum);
-	::serialize_field(lastammo_leds, writer, checksum);
-	::serialize_field(ammo_leds, writer, checksum);
-	::serialize_field(ammo, writer, checksum);
-	::serialize_field(old_ammo, writer, checksum);
-	::serialize_field(plasma_detonators, writer, checksum);
-	::serialize_field(old_plasma_detonators, writer, checksum);
-	::serialize_field(useable_weapons, writer, checksum);
-	::serialize_field(weapons, writer, checksum);
-	::serialize_field(weapon, writer, checksum);
-	::serialize_field(chosenweapon, writer, checksum);
-	::serialize_field(old_weapons, writer, checksum);
-	::serialize_field(weapon_wait, writer, checksum);
-	::serialize_field(attackframe, writer, checksum);
-	::serialize_field(attackcount, writer, checksum);
-	::serialize_field(weaponframe, writer, checksum);
-	::serialize_field(episode, writer, checksum);
-
-	auto time_count = TimeCount;
-	::serialize_field(time_count, writer, checksum);
-
+	archiver->write_int16(turn_around);
+	archiver->write_int16(turn_angle);
+	archiver->write_uint16(flags);
+	archiver->write_int16(lastmapon);
+	archiver->write_int16(difficulty);
+	archiver->write_int16(mapon);
+	archiver->write_int32(oldscore);
+	archiver->write_int32(tic_score);
+	archiver->write_int32(score);
+	archiver->write_int32(nextextra);
+	archiver->write_int16(score_roll_wait);
+	archiver->write_int16(lives);
+	archiver->write_int16(health);
+	archiver->write_char_array(health_str, 4);
+	archiver->write_int16(rpower);
+	archiver->write_int16(old_rpower);
+	archiver->write_int8(rzoom);
+	archiver->write_int8(radar_leds);
+	archiver->write_int8(lastradar_leds);
+	archiver->write_int8(lastammo_leds);
+	archiver->write_int8(ammo_leds);
+	archiver->write_int16(ammo);
+	archiver->write_int16(old_ammo);
+	archiver->write_int16(plasma_detonators);
+	archiver->write_int16(old_plasma_detonators);
+	archiver->write_int8(useable_weapons);
+	archiver->write_int8(weapons);
+	archiver->write_int8(weapon);
+	archiver->write_int8(chosenweapon);
+	archiver->write_int8_array(old_weapons, 4);
+	archiver->write_int8(weapon_wait);
+	archiver->write_int16(attackframe);
+	archiver->write_int16(attackcount);
+	archiver->write_int16(weaponframe);
+	archiver->write_int16(episode);
+	archiver->write_uint32(TimeCount);
 	// Skip "msg"
-	::serialize_field(numkeys, writer, checksum);
-	::serialize_field(old_numkeys, writer, checksum);
+	archiver->write_int8_array(numkeys, NUMKEYS);
+	archiver->write_int8_array(old_numkeys, NUMKEYS);
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		cross_barriers[i].serialize(writer, checksum);
+		cross_barriers[i].archive(archiver);
 	}
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		barrier_table[i].serialize(writer, checksum);
+		barrier_table[i].archive(archiver);
 	}
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		old_barrier_table[i].serialize(writer, checksum);
+		old_barrier_table[i].archive(archiver);
 	}
 
-	::serialize_field(tokens, writer, checksum);
-	::serialize_field(old_tokens, writer, checksum);
-	::serialize_field(boss_key_dropped, writer, checksum);
-	::serialize_field(old_boss_key_dropped, writer, checksum);
-	::serialize_field(wintilex, writer, checksum);
-	::serialize_field(wintiley, writer, checksum);
+	archiver->write_uint16(tokens);
+	archiver->write_uint16(old_tokens);
+	archiver->write_bool(boss_key_dropped);
+	archiver->write_bool(old_boss_key_dropped);
+	archiver->write_int16(wintilex);
+	archiver->write_int16(wintiley);
 }
 
-void gametype::deserialize(
-	bstone::BinaryReader& reader,
-	bstone::Crc32& checksum)
+void gametype::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-	::deserialize_field(turn_around, reader, checksum);
-	::deserialize_field(turn_angle, reader, checksum);
-	::deserialize_field(flags, reader, checksum);
-	::deserialize_field(lastmapon, reader, checksum);
-	::deserialize_field(difficulty, reader, checksum);
-	::deserialize_field(mapon, reader, checksum);
-	::deserialize_field(oldscore, reader, checksum);
-	::deserialize_field(tic_score, reader, checksum);
-	::deserialize_field(score, reader, checksum);
-	::deserialize_field(nextextra, reader, checksum);
-	::deserialize_field(score_roll_wait, reader, checksum);
-	::deserialize_field(lives, reader, checksum);
-	::deserialize_field(health, reader, checksum);
-	::deserialize_field(health_str, reader, checksum);
-	::deserialize_field(rpower, reader, checksum);
-	::deserialize_field(old_rpower, reader, checksum);
-	::deserialize_field(rzoom, reader, checksum);
-	::deserialize_field(radar_leds, reader, checksum);
-	::deserialize_field(lastradar_leds, reader, checksum);
-	::deserialize_field(lastammo_leds, reader, checksum);
-	::deserialize_field(ammo_leds, reader, checksum);
-	::deserialize_field(ammo, reader, checksum);
-	::deserialize_field(old_ammo, reader, checksum);
-	::deserialize_field(plasma_detonators, reader, checksum);
-	::deserialize_field(old_plasma_detonators, reader, checksum);
-	::deserialize_field(useable_weapons, reader, checksum);
-	::deserialize_field(weapons, reader, checksum);
-	::deserialize_field(weapon, reader, checksum);
-	::deserialize_field(chosenweapon, reader, checksum);
-	::deserialize_field(old_weapons, reader, checksum);
-	::deserialize_field(weapon_wait, reader, checksum);
-	::deserialize_field(attackframe, reader, checksum);
-	::deserialize_field(attackcount, reader, checksum);
-	::deserialize_field(weaponframe, reader, checksum);
-	::deserialize_field(episode, reader, checksum);
-
-	std::uint32_t time_count = 0;
-	::deserialize_field(time_count, reader, checksum);
-
+	turn_around = archiver->read_int16();
+	turn_angle = archiver->read_int16();
+	flags = archiver->read_uint16();
+	lastmapon = archiver->read_int16();
+	difficulty = archiver->read_int16();
+	mapon = archiver->read_int16();
+	oldscore = archiver->read_int32();
+	tic_score = archiver->read_int32();
+	score = archiver->read_int32();
+	nextextra = archiver->read_int32();
+	score_roll_wait = archiver->read_int16();
+	lives = archiver->read_int16();
+	health = archiver->read_int16();
+	archiver->read_char_array(health_str, 4);
+	rpower = archiver->read_int16();
+	old_rpower = archiver->read_int16();
+	rzoom = archiver->read_int8();
+	radar_leds = archiver->read_int8();
+	lastradar_leds = archiver->read_int8();
+	lastammo_leds = archiver->read_int8();
+	ammo_leds = archiver->read_int8();
+	ammo = archiver->read_int16();
+	old_ammo = archiver->read_int16();
+	plasma_detonators = archiver->read_int16();
+	old_plasma_detonators = archiver->read_int16();
+	useable_weapons = archiver->read_int8();
+	weapons = archiver->read_int8();
+	weapon = archiver->read_int8();
+	chosenweapon = archiver->read_int8();
+	archiver->read_int8_array(old_weapons, 4);
+	weapon_wait = archiver->read_int8();
+	attackframe = archiver->read_int16();
+	attackcount = archiver->read_int16();
+	weaponframe = archiver->read_int16();
+	episode = archiver->read_int16();
+	TimeCount = archiver->read_uint32();
 	msg = nullptr;
-	::deserialize_field(numkeys, reader, checksum);
-	::deserialize_field(old_numkeys, reader, checksum);
+	archiver->read_int8_array(numkeys, MAXKEYS);
+	archiver->read_int8_array(old_numkeys, MAXKEYS);
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		cross_barriers[i].deserialize(reader, checksum);
+		cross_barriers[i].unarchive(archiver);
 	}
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		barrier_table[i].deserialize(reader, checksum);
+		barrier_table[i].unarchive(archiver);
 	}
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		old_barrier_table[i].deserialize(reader, checksum);
+		old_barrier_table[i].unarchive(archiver);
 	}
 
-	::deserialize_field(tokens, reader, checksum);
-	::deserialize_field(old_tokens, reader, checksum);
-	::deserialize_field(boss_key_dropped, reader, checksum);
-	::deserialize_field(old_boss_key_dropped, reader, checksum);
-	::deserialize_field(wintilex, reader, checksum);
-	::deserialize_field(wintiley, reader, checksum);
-
-	TimeCount = time_count;
+	tokens = archiver->read_uint16();
+	old_tokens = archiver->read_uint16();
+	boss_key_dropped = archiver->read_bool();
+	old_boss_key_dropped = archiver->read_bool();
+	wintilex = archiver->read_int16();
+	wintiley = archiver->read_int16();
 }
 
 void gametype::initialize_cross_barriers()

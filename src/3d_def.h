@@ -40,6 +40,9 @@ namespace bstone
 {
 
 
+class Archiver;
+using ArchiverPtr = Archiver*;
+
 class MemoryStream;
 
 
@@ -2118,13 +2121,12 @@ struct statobj_t
 	// !!! Used in saved game.
 	std::int8_t lighting;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // statobj_t
 
 
@@ -2173,13 +2175,12 @@ struct doorobj_t
 	// !!! Used in saved game.
 	std::uint8_t areanumber[2];
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // doorobj_t
 
 
@@ -2296,13 +2297,11 @@ struct objtype
 	objtype* prev;
 
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
+	void archive(
+		bstone::ArchiverPtr archiver) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // objtype
 
 
@@ -2371,13 +2370,11 @@ struct tilecoord_t
 	// !!! Used in saved game.
 	std::uint8_t tiley;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
+	void archive(
+		bstone::ArchiverPtr archiver) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // tilecoord_t
 
 
@@ -2397,13 +2394,12 @@ struct barrier_type
 	// !!! Used in saved game.
 	std::uint8_t on;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // barrier_type;
 
 struct statsInfoType
@@ -2429,13 +2425,12 @@ struct statsInfoType
 	// !!! Used in saved game.
 	std::int16_t overall_floor;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // statsInfoType
 
 struct levelinfo
@@ -2461,13 +2456,12 @@ struct levelinfo
 	// !!! Used in saved game.
 	std::int16_t pangle;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // levelinfo
 
 
@@ -2490,13 +2484,12 @@ struct fargametype
 
 	void clear();
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // fargametype
 
 struct gametype
@@ -2646,13 +2639,11 @@ struct gametype
 	std::int16_t wintiley;
 
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
+	void archive(
+		bstone::ArchiverPtr archiver) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 
 	void initialize_cross_barriers();
 	void initialize_local_barriers();
@@ -2786,13 +2777,12 @@ struct mCacheInfo
 	// pointer to message
 	char* mSeg;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // mCacheInfo
 
 // Basic 'message list' structure
@@ -2819,13 +2809,12 @@ struct con_mCacheInfo
 	// !!! Used in saved game.
 	std::uint8_t operate_cnt;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // con_mCacheInfo
 
 // Concession 'message list' structure
@@ -2839,13 +2828,12 @@ struct concession_t
 	// !!! Used in saved game.
 	con_mCacheInfo cmInfo[MAX_CACHE_MSGS];
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // concession_t
 
 // ------------------------ INFORMANT STRUCTURES --------------------------
@@ -2887,13 +2875,12 @@ struct eaWallInfo
 	// !!! Used in saved game.
 	std::int16_t delay;
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // eaWallInfo
 
 
@@ -2921,13 +2908,12 @@ struct GoldsternInfo_t
 	// !!! Used in saved game.
 	bool GoldSpawned; // Has Goldstern been spawned?
 
-	void serialize(
-		bstone::BinaryWriter& writer,
-		bstone::Crc32& checksum) const;
 
-	void deserialize(
-		bstone::BinaryReader& reader,
-		bstone::Crc32& checksum);
+	void archive(
+		bstone::ArchiverPtr archiver) const;
+
+	void unarchive(
+		bstone::ArchiverPtr archiver);
 }; // GoldsternInfo_t
 
 
