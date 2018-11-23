@@ -22,9 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#include <limits>
 #include <string>
-#include <type_traits>
 #include <vector>
 #include "bstone_archiver.h"
 #include "bstone_crc32.h"
@@ -39,15 +37,6 @@ namespace bstone
 
 namespace
 {
-
-
-template<typename T>
-struct ShouldSwap
-{
-	static constexpr bool value =
-		Endian::is_big() &&
-		std::numeric_limits<typename std::make_unsigned_t<T>>::max() > 0xFF;
-}; // ShouldSwap
 
 
 class ArchiverExceptionImpl final :
@@ -244,7 +233,7 @@ private:
 			crc32_.update(&value, value_size);
 		}
 
-		const auto result = (ShouldSwap<T>::value ? Endian::little(value) : value);
+		const auto result = (Endian::should_be_swapped<T>() ? Endian::little(value) : value);
 
 		return result;
 	}
@@ -271,7 +260,7 @@ private:
 			crc32_.update(&integer_value, value_size);
 		}
 
-		const auto value = (ShouldSwap<T>::value ? Endian::little(integer_value) : integer_value);
+		const auto value = (Endian::should_be_swapped<T>() ? Endian::little(integer_value) : integer_value);
 
 		const auto write_result = stream_->write(&value, value_size);
 
@@ -317,7 +306,7 @@ private:
 			throw ArchiverExceptionImpl{"Failed to read an array of integer values."};
 		}
 
-		if (ShouldSwap<T>::value)
+		if (Endian::should_be_swapped<T>())
 		{
 			for (int i_item = 0; i_item < item_count; ++i_item)
 			{
@@ -358,7 +347,7 @@ private:
 
 		crc32_.update(items, items_size);
 
-		if (ShouldSwap<T>::value)
+		if (Endian::should_be_swapped<T>())
 		{
 			if (buffer_.size() < static_cast<std::size_t>(items_size))
 			{

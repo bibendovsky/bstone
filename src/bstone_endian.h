@@ -56,6 +56,17 @@ namespace detail
 {
 
 
+//
+// Notes:
+//    - We are assuming CPU architecture without exotic types (i.e. 9-bit char, etc).
+//
+template<typename T>
+struct ShouldBeSwapped
+{
+	static constexpr auto value_ = (sizeof(T) > 1);
+}; // ShouldBeSwapped
+
+
 class EndianSwap final
 {
 public:
@@ -147,6 +158,8 @@ struct Endian final
 	static bool is_big() = delete;
 
 	static bool is_little() = delete;
+
+	static bool should_be_swapped() = delete;
 }; // Endian
 
 
@@ -189,6 +202,12 @@ struct Endian<EndianId::big> final
 	{
 		return false;
 	}
+
+	template<typename T>
+	static constexpr bool should_be_swapped()
+	{
+		return ShouldBeSwapped<T>::value_;
+	}
 }; // Endian
 
 
@@ -230,6 +249,12 @@ struct Endian<EndianId::little> final
 	static constexpr bool is_little()
 	{
 		return true;
+	}
+
+	template<typename T>
+	static constexpr bool should_be_swapped()
+	{
+		return ShouldBeSwapped<T>::value_;
 	}
 }; // Endian
 
