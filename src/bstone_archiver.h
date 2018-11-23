@@ -65,7 +65,10 @@ public:
 	virtual bool is_initialized() const = 0;
 
 
+	virtual bool read_bool() = 0;
+
 	virtual char read_char() = 0;
+
 
 	virtual std::int8_t read_int8() = 0;
 
@@ -113,8 +116,12 @@ public:
 	virtual void read_checksum() = 0;
 
 
+	virtual void write_bool(
+		const bool value_bool) = 0;
+
 	virtual void write_char(
 		const char value_char) = 0;
+
 
 	virtual void write_int8(
 		const std::int8_t value_int8) = 0;

@@ -94,7 +94,10 @@ public:
 	bool is_initialized() const override;
 
 
+	bool read_bool() override;
+
 	char read_char() override;
+
 
 	std::int8_t read_int8() override;
 
@@ -141,6 +144,9 @@ public:
 
 	void read_checksum() override;
 
+
+	void write_bool(
+		const bool value_bool) override;
 
 	void write_char(
 		const char value_char) override;
@@ -453,6 +459,13 @@ bool ArchiverImpl::is_initialized() const
 	return is_initialized_;
 }
 
+bool ArchiverImpl::read_bool()
+{
+	const auto value_uint8 = read_integer<std::uint8_t>();
+
+	return value_uint8 != 0;
+}
+
 char ArchiverImpl::read_char()
 {
 	const auto value_char = read_integer<char>();
@@ -577,6 +590,12 @@ void ArchiverImpl::read_checksum()
 	{
 		throw ArchiverExceptionImpl{"Checksum mismatch."};
 	}
+}
+
+void ArchiverImpl::write_bool(
+	const bool value_bool)
+{
+	write_integer<std::uint8_t>(value_bool);
 }
 
 void ArchiverImpl::write_char(
