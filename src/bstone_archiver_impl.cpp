@@ -83,6 +83,10 @@ public:
 	bool is_initialized() const override;
 
 
+	void throw_exception(
+		const char* const message) const override;
+
+
 	bool read_bool() override;
 
 	char read_char() override;
@@ -448,6 +452,12 @@ bool ArchiverImpl::is_initialized() const
 	return is_initialized_;
 }
 
+void ArchiverImpl::throw_exception(
+	const char* const message) const
+{
+	throw ArchiverExceptionImpl{message};
+}
+
 bool ArchiverImpl::read_bool()
 {
 	const auto value_uint8 = read_integer<std::uint8_t>();
@@ -554,7 +564,7 @@ void ArchiverImpl::read_string(
 		throw ArchiverExceptionImpl{"Null string."};
 	}
 
-	const auto archived_string_length = read_int32();
+	const auto archived_string_length = read_integer<std::int32_t>();
 
 	if (archived_string_length < 0 || archived_string_length > max_string_length)
 	{
@@ -678,7 +688,7 @@ void ArchiverImpl::write_string(
 		throw ArchiverExceptionImpl{"String length out of range."};
 	}
 
-	write_int32(string_length);
+	write_integer<std::int32_t>(string_length);
 
 	if (string_length == 0)
 	{

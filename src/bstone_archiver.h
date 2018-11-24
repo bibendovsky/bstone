@@ -65,6 +65,10 @@ public:
 	virtual bool is_initialized() const = 0;
 
 
+	virtual void throw_exception(
+		const char* const message) const = 0;
+
+
 	virtual bool read_bool() = 0;
 
 	virtual char read_char() = 0;

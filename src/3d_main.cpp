@@ -41,8 +41,6 @@ Free Software Foundation, Inc.,
 #include "3d_menu.h"
 #include "movie.h"
 #include "bstone_archiver.h"
-#include "bstone_binary_reader.h"
-#include "bstone_binary_writer.h"
 #include "bstone_endian.h"
 #include "bstone_format_string.h"
 #include "bstone_log.h"
@@ -7056,26 +7054,6 @@ void InitSmartAnim(
 		assets_info.is_ps() ? 7 : 21);
 }
 
-// ========================================================================
-// ArchiveException
-
-ArchiveException::ArchiveException(
-	const char* const message)
-	:
-	std::runtime_error{message}
-{
-}
-
-ArchiveException::ArchiveException(
-	const std::string& message)
-	:
-	std::runtime_error{message}
-{
-}
-
-// ArchiveException
-// ========================================================================
-
 bstone::MemoryStream g_playtemp;
 
 static bool is_config_loaded = false;
@@ -8322,10 +8300,12 @@ bool LoadLevel(
 	::SetupGameLevel();
 	loadedgame = oldloaded;
 
-	auto archiver = bstone::ArchiverFactory::create();
+	auto archiver_uptr = bstone::ArchiverFactory::create();
 
 	try
 	{
+		auto archiver = archiver_uptr.get();
+
 		archiver->initialize(&g_playtemp);
 
 		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(tilemap), MAPSIZE * MAPSIZE);
@@ -8363,12 +8343,12 @@ bool LoadLevel(
 		::InitActorList();
 
 		// First actor is always player
-		new_actor->unarchive(archiver.get());
+		new_actor->unarchive(archiver);
 
 		for (std::int32_t i = 1; i < actor_count; ++i)
 		{
 			::GetNewActor();
-			new_actor->unarchive(archiver.get());
+			new_actor->unarchive(archiver);
 			actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
@@ -8418,14 +8398,14 @@ bool LoadLevel(
 
 		for (int i = 0; i < MAXSTATS; ++i)
 		{
-			statobjlist[i].unarchive(archiver.get());
+			statobjlist[i].unarchive(archiver);
 		}
 
 		archiver->read_uint16_array(doorposition, MAXDOORS);
 
 		for (int i = 0; i < MAXDOORS; ++i)
 		{
-			doorobjlist[i].unarchive(archiver.get());
+			doorobjlist[i].unarchive(archiver);
 		}
 
 		pwallstate = archiver->read_uint16();
@@ -8435,23 +8415,23 @@ bool LoadLevel(
 		pwallpos = archiver->read_uint16();
 		pwalldist = archiver->read_int16();
 		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(TravelTable), MAPSIZE * MAPSIZE);
-		ConHintList.unarchive(archiver.get());
+		ConHintList.unarchive(archiver);
 
 		for (int i = 0; i < MAXEAWALLS; ++i)
 		{
-			eaList[i].unarchive(archiver.get());
+			eaList[i].unarchive(archiver);
 		}
 
-		GoldsternInfo.unarchive(archiver.get());
+		GoldsternInfo.unarchive(archiver);
 
 		for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 		{
-			GoldieList[i].unarchive(archiver.get());
+			GoldieList[i].unarchive(archiver);
 		}
 
 		for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 		{
-			::gamestate.barrier_table[i].unarchive(archiver.get());
+			::gamestate.barrier_table[i].unarchive(archiver);
 		}
 
 		// BBi
@@ -8556,12 +8536,14 @@ bool SaveLevel(
 	// leave four bytes for chunk size
 	g_playtemp.skip(4);
 
-	bstone::Crc32 checksum;
 	std::int64_t beg_offset = g_playtemp.get_position();
 
-	auto writer = bstone::BinaryWriter{&g_playtemp};
+	auto archiver_uptr = bstone::ArchiverFactory::create();
+	archiver_uptr->initialize(&g_playtemp);
 
-	::serialize_field(tilemap, writer, checksum);
+	auto archiver = archiver_uptr.get();
+
+	archiver->write_uint8_array(&tilemap[0][0], MAPSIZE * MAPSIZE);
 
 	//
 	// actorat
@@ -8575,21 +8557,19 @@ bool SaveLevel(
 
 			if (actorat[i][j] >= objlist)
 			{
-				s_value = -static_cast<std::int32_t>(
-					actorat[i][j] - objlist);
+				s_value = -static_cast<std::int32_t>(actorat[i][j] - objlist);
 			}
 			else
 			{
-				s_value = static_cast<std::int32_t>(
-					reinterpret_cast<std::size_t>(actorat[i][j]));
+				s_value = static_cast<std::int32_t>(reinterpret_cast<std::size_t>(actorat[i][j]));
 			}
 
-			::serialize_field(s_value, writer, checksum);
+			archiver->write_int32(s_value);
 		}
 	}
 
-	::serialize_field(areaconnect, writer, checksum);
-	::serialize_field(areabyplayer, writer, checksum);
+	archiver->write_uint8_array(&areaconnect[0][0], NUMAREAS * NUMAREAS);
+	archiver->write_uint8_array(reinterpret_cast<const std::uint8_t*>(areabyplayer), NUMAREAS);
 
 	//
 	// objlist
@@ -8603,21 +8583,20 @@ bool SaveLevel(
 		++actor_count;
 	}
 
-	::serialize_field(actor_count, writer, checksum);
+	archiver->write_int32(actor_count);
 
 	for (actor = player; actor; actor = actor->next)
 	{
-		actor->archive(writer, checksum);
+		actor->archive(archiver);
 	}
 
 	//
 	// laststatobj
 	//
 
-	std::int32_t laststatobj_index =
-		static_cast<std::int32_t>(laststatobj - statobjlist);
+	const auto laststatobj_index = static_cast<std::int32_t>(laststatobj - statobjlist);
 
-	::serialize_field(laststatobj_index, writer, checksum);
+	archiver->write_int32(laststatobj_index);
 
 
 	//
@@ -8625,49 +8604,49 @@ bool SaveLevel(
 	//
 	for (int i = 0; i < MAXSTATS; ++i)
 	{
-		statobjlist[i].archive(writer, checksum);
+		statobjlist[i].archive(archiver);
 	}
 
 	//
 
-	::serialize_field(doorposition, writer, checksum);
+	archiver->write_uint16_array(doorposition, MAXDOORS);
 
 	for (int i = 0; i < MAXDOORS; ++i)
 	{
-		doorobjlist[i].archive(writer, checksum);
+		doorobjlist[i].archive(archiver);
 	}
 
-	::serialize_field(pwallstate, writer, checksum);
-	::serialize_field(pwallx, writer, checksum);
-	::serialize_field(pwally, writer, checksum);
-	::serialize_field(pwalldir, writer, checksum);
-	::serialize_field(pwallpos, writer, checksum);
-	::serialize_field(pwalldist, writer, checksum);
-	::serialize_field(TravelTable, writer, checksum);
-	ConHintList.archive(writer, checksum);
+	archiver->write_uint16(pwallstate);
+	archiver->write_uint16(pwallx);
+	archiver->write_uint16(pwally);
+	archiver->write_int16(pwalldir);
+	archiver->write_uint16(pwallpos);
+	archiver->write_int16(pwalldist);
+	archiver->write_uint8_array(&TravelTable[0][0], MAPSIZE * MAPSIZE);
+	ConHintList.archive(archiver);
 
 	for (int i = 0; i < MAXEAWALLS; ++i)
 	{
-		eaList[i].archive(writer, checksum);
+		eaList[i].archive(archiver);
 	}
 
-	GoldsternInfo.archive(writer, checksum);
+	GoldsternInfo.archive(archiver);
 
 	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 	{
-		GoldieList[i].archive(writer, checksum);
+		GoldieList[i].archive(archiver);
 	}
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{
-		::gamestate.barrier_table[i].archive(writer, checksum);
+		::gamestate.barrier_table[i].archive(archiver);
 	}
 
-	::serialize_field(::gamestate.plasma_detonators, writer, checksum);
+	archiver->write_int16(::gamestate.plasma_detonators);
 
 	// Write checksum and determine size of file
 	//
-	writer.write(bstone::Endian::little(checksum.get_value()));
+	archiver->write_checksum();
 
 	std::int64_t end_offset = g_playtemp.get_position();
 	std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
@@ -8675,7 +8654,7 @@ bool SaveLevel(
 	// Write chunk size, set file size, and close file
 	//
 	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
-	writer.write(bstone::Endian::little(chunk_size));
+	archiver->write_int32(chunk_size);
 	g_playtemp.set_size(end_offset);
 
 	::NewViewSize();
@@ -8749,9 +8728,6 @@ static bool LoadCompressedChunk(
 {
 	auto stream_size = stream->get_size();
 
-	auto reader = bstone::BinaryReader{stream};
-
-
 	if (::FindChunk(stream, chunk_name) == 0)
 	{
 		bstone::Log::write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
@@ -8759,43 +8735,54 @@ static bool LoadCompressedChunk(
 		return false;
 	}
 
-	reader.skip(-4);
+	stream->skip(-4);
 
-	auto total_size = bstone::Endian::little(reader.read_s32());
-
-	if (total_size <= 0 || total_size > stream_size)
+	try
 	{
-		bstone::Log::write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		archiver_uptr->initialize(stream);
 
-		return false;
+		auto archiver = archiver_uptr.get();
+
+		auto total_size = archiver->read_int32();
+
+		if (total_size <= 0 || total_size > stream_size)
+		{
+			bstone::Log::write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
+
+			return false;
+		}
+
+		auto size = total_size - 4;
+		auto src_size = archiver->read_int32();
+
+		auto src_buffer = Buffer{};
+		src_buffer.resize(size);
+
+		archiver->read_uint8_array(src_buffer.data(), size);
+
+		buffer.resize(src_size);
+
+		static_cast<void>(::LZH_Startup());
+
+		auto decoded_size = ::LZH_Decompress(
+			src_buffer.data(),
+			buffer.data(),
+			src_size,
+			size);
+
+		::LZH_Shutdown();
+
+		if (decoded_size != src_size)
+		{
+			bstone::Log::write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
+
+			return false;
+		}
 	}
-
-	auto size = total_size - 4;
-	auto src_size = bstone::Endian::little(reader.read_s32());
-
-	Buffer src_buffer(size);
-
-	if (!reader.read(src_buffer.data(), size))
+	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("LOAD: Unexpected end of \"" + chunk_name + "\" data.");
-	}
-
-
-	buffer.resize(src_size);
-
-	static_cast<void>(::LZH_Startup());
-
-	auto decoded_size = ::LZH_Decompress(
-		src_buffer.data(),
-		buffer.data(),
-		src_size,
-		size);
-
-	::LZH_Shutdown();
-
-	if (decoded_size != src_size)
-	{
-		bstone::Log::write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
+		bstone::Log::write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + ex.get_message());
 
 		return false;
 	}
@@ -8816,8 +8803,6 @@ bool LoadTheGame(
 
 		bstone::Log::write_error("LOAD: Failed to open file \"" + file_name + "\".");
 	}
-
-	auto file_reader = bstone::BinaryReader{&file_stream};
 
 	if (is_succeed)
 	{
@@ -8844,12 +8829,32 @@ bool LoadTheGame(
 
 		const auto& version_string = ::get_saved_game_version_string();
 
-		file_reader.skip(-4);
+		file_stream.skip(-4);
 
-		const auto saved_version_string = file_reader.read_string(
-			max_length);
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		auto archiver = archiver_uptr.get();
 
-		if (saved_version_string != version_string)
+		try
+		{
+			archiver->initialize(&file_stream);
+
+			auto saved_version_string = std::string{};
+			saved_version_string.resize(max_length);
+
+			int string_length;
+
+			archiver->read_string(max_length, &saved_version_string[0], string_length);
+
+			saved_version_string.resize(string_length);
+
+			if (saved_version_string != version_string)
+			{
+				is_succeed = false;
+
+				bstone::Log::write_error("LOAD: Invalid version.");
+			}
+		}
+		catch (const bstone::ArchiverException&)
 		{
 			is_succeed = false;
 
@@ -8883,12 +8888,12 @@ bool LoadTheGame(
 	}
 
 
-	bstone::Crc32 checksum;
-
 	// Deserialize HEAD chunk
 	//
 	if (is_succeed)
 	{
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+
 		try
 		{
 			bstone::MemoryStream head_stream(
@@ -8896,10 +8901,11 @@ bool LoadTheGame(
 				0,
 				head_buffer.data());
 
-			auto head_reader = bstone::BinaryReader{&head_stream};
+			auto archiver = archiver_uptr.get();
+			archiver->initialize(&head_stream);
 
 			auto levels_hash_digest = bstone::Sha1::Digest{};
-			::deserialize_field(levels_hash_digest, head_reader, checksum);
+			archiver->read_uint8_array(levels_hash_digest.data(), bstone::Sha1::hash_size);
 			const auto& levels_hash = bstone::Sha1{levels_hash_digest};
 			const auto& levels_hash_string = levels_hash.to_string();
 
@@ -8908,17 +8914,17 @@ bool LoadTheGame(
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
 				bstone::Log::write_error("LOAD: Levels hash mismatch.");
-				throw ArchiveException{"Levels hash mismatch."};
+				archiver->throw_exception("Levels hash mismatch.");
 			}
 
-			gamestate.unarchive(head_reader, checksum);
-			gamestuff.unarchive(head_reader, checksum);
+			gamestate.unarchive(archiver);
+			gamestuff.unarchive(archiver);
 		}
-		catch (const ArchiveException&)
+		catch (const bstone::ArchiverException& ex)
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data.");
+			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data. "s + ex.get_message());
 		}
 	}
 
@@ -9040,12 +9046,15 @@ bool SaveTheGame(
 
 	// Compose HEAD data
 	//
-	bstone::Crc32 head_checksum;
 	auto head_stream = bstone::MemoryStream{};
-	auto head_writer = bstone::BinaryWriter{&head_stream};
 
 	try
 	{
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		archiver_uptr->initialize(&head_stream);
+
+		auto archiver = archiver_uptr.get();
+
 		// Levels hash.
 		//
 		const auto& assets_info = AssetsInfo{};
@@ -9053,17 +9062,18 @@ bool SaveTheGame(
 		const auto& levels_hash = bstone::Sha1{levels_hash_string};
 		const auto& levels_digest = levels_hash.get_digest();
 
-		::serialize_field(levels_digest, head_writer, head_checksum);
+		archiver->write_uint8_array(levels_digest.data(), bstone::Sha1::hash_size);
 
 		// Other stuff.
 		//
-		gamestate.archive(head_writer, head_checksum);
-		gamestuff.archive(head_writer, head_checksum);
-		head_writer.set_position(0);
+		gamestate.archive(archiver);
+		gamestuff.archive(archiver);
+
+		head_stream.set_position(0);
 	}
-	catch (const ArchiveException&)
+	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk.");
+		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk. "s + ex.get_message());
 
 		return false;
 	}
@@ -9114,43 +9124,49 @@ bool SaveTheGame(
 
 	// Write to file
 	//
-	bool is_succeed = true;
-
-	auto file_writer = bstone::BinaryWriter{&file_stream};
-
-	// Write VERS chunk
-	//
-	is_succeed &= file_writer.write("VERS", 4);
-	is_succeed &= file_writer.write(::get_saved_game_version_string());
-
-	// Write DESC chunk
-	//
-	is_succeed &= file_writer.write("DESC", 4);
-	is_succeed &= file_writer.write(description);
-
-	// Write HEAD chunk
-	//
-	is_succeed &= file_writer.write("HEAD", 4);
-	is_succeed &= file_writer.write(bstone::Endian::little(head_dst_size + 4));
-	is_succeed &= file_writer.write(bstone::Endian::little(head_src_size));
-	is_succeed &= file_stream.write(head_buffer.data(), head_dst_size);
-
-	// Write LVXX chunk
-	//
-	is_succeed &= file_writer.write("LVXX", 4);
-	is_succeed &= file_writer.write(bstone::Endian::little(lvxx_dst_size + 4));
-	is_succeed &= file_writer.write(bstone::Endian::little(lvxx_src_size));
-	is_succeed &= file_stream.write(lvxx_buffer.data(), lvxx_dst_size);
-
-	//
-	::NewViewSize();
-
-	if (!is_succeed)
+	try
 	{
-		bstone::Log::write_error("SAVE: Failed to write data.");
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		archiver_uptr->initialize(&file_stream);
+
+		auto archiver = archiver_uptr.get();
+
+		// Write VERS chunk
+		//
+		const auto& version_string = ::get_saved_game_version_string();
+		archiver->write_char_array("VERS", 4);
+		archiver->write_string(version_string.c_str(), static_cast<int>(version_string.length()));
+
+		// Write DESC chunk
+		//
+		archiver->write_char_array("DESC", 4);
+		archiver->write_string(description.c_str(), static_cast<int>(description.length()));
+
+		// Write HEAD chunk
+		//
+		archiver->write_char_array("HEAD", 4);
+		archiver->write_int32(head_dst_size + 4);
+		archiver->write_int32(head_src_size);
+		archiver->write_uint8_array(head_buffer.data(), head_dst_size);
+
+		// Write LVXX chunk
+		//
+		archiver->write_char_array("LVXX", 4);
+		archiver->write_int32(lvxx_dst_size + 4);
+		archiver->write_int32(lvxx_src_size);
+		archiver->write_uint8_array(lvxx_buffer.data(), lvxx_dst_size);
+
+		//
+		::NewViewSize();
+	}
+	catch (const bstone::ArchiverException& ex)
+	{
+		bstone::Log::write_error("SAVE: Failed to write data. "s + ex.get_message());
+
+		return false;
 	}
 
-	return is_succeed;
+	return true;
 }
 
 bool LevelInPlaytemp(
@@ -9831,9 +9847,9 @@ void objtype::archive(
 	archiver->write_uint8(tilex);
 	archiver->write_uint8(tiley);
 	archiver->write_uint8(areanumber);
-	archiver->write_int32(active);
+	archiver->write_int8(active);
 	archiver->write_int16(ticcount);
-	archiver->write_int32(obclass);
+	archiver->write_uint8(obclass);
 
 	const auto state_index = ::get_state_index(state);
 	archiver->write_int32(state_index);
@@ -9841,8 +9857,8 @@ void objtype::archive(
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);
 	archiver->write_int32(distance);
-	archiver->write_int32(dir);
-	archiver->write_int32(trydir);
+	archiver->write_uint8(dir);
+	archiver->write_uint8(trydir);
 	archiver->write_int32(x);
 	archiver->write_int32(y);
 	archiver->write_uint8(s_tilex);
@@ -9868,9 +9884,9 @@ void objtype::unarchive(
 	tilex = archiver->read_uint8();
 	tiley = archiver->read_uint8();
 	areanumber = archiver->read_uint8();
-	active = static_cast<activetype>(archiver->read_int32());
+	active = static_cast<activetype>(archiver->read_int8());
 	ticcount = archiver->read_int16();
-	obclass = static_cast<classtype>(archiver->read_int32());
+	obclass = static_cast<classtype>(archiver->read_uint8());
 
 	const auto state_index = archiver->read_int32();
 	state = states_list[state_index];
@@ -9878,8 +9894,8 @@ void objtype::unarchive(
 	flags = archiver->read_uint32();
 	flags2 = archiver->read_uint16();
 	distance = archiver->read_int32();
-	dir = static_cast<dirtype>(archiver->read_int32());
-	trydir = static_cast<dirtype>(archiver->read_int32());
+	dir = static_cast<dirtype>(archiver->read_uint8());
+	trydir = static_cast<dirtype>(archiver->read_uint8());
 	x = archiver->read_int32();
 	y = archiver->read_int32();
 	s_tilex = archiver->read_uint8();
@@ -9946,9 +9962,9 @@ void doorobj_t::archive(
 	archiver->write_uint8(tiley);
 	archiver->write_bool(vertical);
 	archiver->write_int8(flags);
-	archiver->write_int32(lock);
-	archiver->write_int32(type);
-	archiver->write_int32(action);
+	archiver->write_int8(lock);
+	archiver->write_uint8(type);
+	archiver->write_uint8(action);
 	archiver->write_int16(ticcount);
 	archiver->write_uint8_array(areanumber, 2);
 }
@@ -9960,9 +9976,9 @@ void doorobj_t::unarchive(
 	tiley = archiver->read_uint8();
 	vertical = archiver->read_bool();
 	flags = archiver->read_int8();
-	lock = static_cast<keytype>(archiver->read_int32());
-	type = static_cast<door_t>(archiver->read_int32());
-	action = static_cast<DoorAction>(archiver->read_int32());
+	lock = static_cast<keytype>(archiver->read_int8());
+	type = static_cast<door_t>(archiver->read_uint8());
+	action = static_cast<DoorAction>(archiver->read_uint8());
 	ticcount = archiver->read_int16();
 	archiver->read_uint8_array(areanumber, 2);
 }
@@ -10291,8 +10307,8 @@ void gametype::unarchive(
 	episode = archiver->read_int16();
 	TimeCount = archiver->read_uint32();
 	msg = nullptr;
-	archiver->read_int8_array(numkeys, MAXKEYS);
-	archiver->read_int8_array(old_numkeys, MAXKEYS);
+	archiver->read_int8_array(numkeys, NUMKEYS);
+	archiver->read_int8_array(old_numkeys, NUMKEYS);
 
 	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 	{

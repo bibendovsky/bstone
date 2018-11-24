@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+#include "bstone_archiver.h"
 #include "bstone_format_string.h"
 #include "bstone_memory_stream.h"
 
@@ -4104,28 +4105,24 @@ void LoadOverheadChunk(
 		std::hex << std::uppercase << tpNum).to_string();
 
 	bool is_succeed = true;
-	bstone::Crc32 checksum;
-	auto reader = bstone::BinaryReader{&g_playtemp};
 
 	if (::FindChunk(&g_playtemp, chunk_name) > 0)
 	{
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+
 		try
 		{
-			::deserialize_field(
-				reinterpret_cast<std::uint8_t(&)[4096]>(ov_buffer[0]),
-				reader, checksum);
+			auto archiver = archiver_uptr.get();
+			archiver->initialize(&::g_playtemp);
+
+			archiver->read_uint8_array(::ov_buffer.data(), 4096);
+			::ov_stats.unarchive(archiver);
+			archiver->read_checksum();
 		}
-		catch (const ArchiveException&)
+		catch (const bstone::ArchiverException&)
 		{
 			is_succeed = false;
 		}
-
-		ov_stats.deserialize(reader, checksum);
-
-		std::uint32_t saved_checksum = 0;
-		is_succeed &= reader.read(saved_checksum);
-		bstone::Endian::little_i(saved_checksum);
-		is_succeed &= (saved_checksum == checksum.get_value());
 	}
 	else
 	{
@@ -4134,15 +4131,8 @@ void LoadOverheadChunk(
 
 	if (!is_succeed)
 	{
-		std::uninitialized_fill(
-			ov_buffer.begin(),
-			ov_buffer.end(),
-			0x52);
-
-		std::uninitialized_fill_n(
-			reinterpret_cast<std::uint8_t*>(&ov_stats),
-			sizeof(statsInfoType),
-			0);
+		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), 0x52);
+		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), 0);
 	}
 
 	ov_noImage = !is_succeed;
@@ -4157,33 +4147,32 @@ void SaveOverheadChunk(
 		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
 		std::hex << std::uppercase << tpNum).to_string();
 
-	::DeleteChunk(g_playtemp, chunk_name);
+	::DeleteChunk(::g_playtemp, chunk_name);
 
 	// Prepare buffer
 	//
-	::VL_ScreenToMem(ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
-
-	bstone::Crc32 checksum;
-	auto writer = bstone::BinaryWriter{&g_playtemp};
+	::VL_ScreenToMem(::ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
 
 	// Write chunk ID, SIZE, and IMAGE
 	//
-	g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
-	g_playtemp.write(chunk_name.c_str(), 4);
-	g_playtemp.skip(4);
+	::g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
+	::g_playtemp.write(chunk_name.c_str(), 4);
+	::g_playtemp.skip(4);
 
-	std::int64_t beg_offset = g_playtemp.get_position();
+	const auto beg_offset = ::g_playtemp.get_position();
 
-	::serialize_field(
-		reinterpret_cast<const std::uint8_t(&)[4096]>(ov_buffer[0]),
-		writer, checksum);
-	ov_stats.serialize(writer, checksum);
-	writer.write(bstone::Endian::little(checksum.get_value()));
+	auto archiver_uptr = bstone::ArchiverFactory::create();
+	auto archiver = archiver_uptr.get();
+	archiver->initialize(&::g_playtemp);
 
-	std::int64_t end_offset = g_playtemp.get_position();
-	std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
-	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
-	writer.write(bstone::Endian::little(chunk_size));
+	archiver->write_uint8_array(::ov_buffer.data(), 4096);
+	::ov_stats.archive(archiver);
+	archiver->write_checksum();
+
+	const auto end_offset = ::g_playtemp.get_position();
+	const auto chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
+	::g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
+	archiver->write_int32(chunk_size);
 }
 
 void DisplayTeleportName(
