@@ -39,6 +39,7 @@ public:
 	static std::string to_lower_ascii(
 		const std::string& string);
 
+
 	static bool string_to_int(
 		const std::string& string,
 		int& int_value);
@@ -50,6 +51,10 @@ public:
 	static bool string_to_uint16(
 		const std::string& string,
 		std::uint16_t& uint16_value);
+
+
+	static std::string octet_to_hex_string(
+		const int octet);
 
 
 	const std::string& get_empty() const;

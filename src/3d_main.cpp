@@ -42,7 +42,6 @@ Free Software Foundation, Inc.,
 #include "movie.h"
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
-#include "bstone_format_string.h"
 #include "bstone_log.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
@@ -8271,9 +8270,7 @@ bool LoadLevel(
 
 	::update_normalshade();
 
-	std::string chunk_name = "LV" + (
-		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-		std::hex << std::uppercase << level_index).to_string();
+	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
 	g_playtemp.set_position(0);
 
@@ -8521,9 +8518,7 @@ bool SaveLevel(
 
 	// Remove level chunk from file
 	//
-	std::string chunk_name = "LV" + (
-		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-		std::hex << std::uppercase << level_index).to_string();
+	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
 	::DeleteChunk(g_playtemp, chunk_name);
 
@@ -9172,11 +9167,9 @@ bool SaveTheGame(
 bool LevelInPlaytemp(
 	int level_index)
 {
-	bstone::FormatString format;
-	format << "LV" << std::uppercase << std::hex <<
-		std::setfill('0') << std::setw(2) << level_index;
+	auto&& chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
-	return ::FindChunk(&g_playtemp, format.to_string()) != 0;
+	return ::FindChunk(&g_playtemp, chunk_name) != 0;
 }
 
 bool CheckDiskSpace(

@@ -25,6 +25,10 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 
 
+void Quit(
+	const std::string& message);
+
+
 namespace bstone
 {
 
@@ -117,6 +121,34 @@ bool StringHelper::string_to_uint16(
 	uint16_value = static_cast<std::uint16_t>(int_value);
 
 	return true;
+}
+
+std::string StringHelper::octet_to_hex_string(
+	const int octet)
+{
+	if (octet < 0 || octet > 0xFF)
+	{
+		::Quit("Octet value out of range: " + std::to_string(octet) + ".");
+
+		return {};
+	}
+
+	const auto high_nibble = (octet >> 4) & 0xF;
+	const auto low_nibble = (octet >> 0) & 0xF;
+
+	const auto high_nibble_char = (
+		high_nibble < 0xA ?
+			static_cast<char>('0' + high_nibble) :
+			static_cast<char>('A' + high_nibble - 0xA));
+
+	const auto low_nibble_char = (
+		low_nibble < 0xA ?
+			static_cast<char>('0' + low_nibble) :
+			static_cast<char>('A' + low_nibble - 0xA));
+
+	auto&& level_number_string = std::string{high_nibble_char, low_nibble_char};
+
+	return level_number_string;
 }
 
 const std::string& StringHelper::get_empty() const

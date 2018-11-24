@@ -38,8 +38,8 @@ Free Software Foundation, Inc.,
 #include "3d_menu.h"
 #include "gfxv.h"
 #include "bstone_archiver.h"
-#include "bstone_format_string.h"
 #include "bstone_memory_stream.h"
+#include "bstone_string_helper.h"
 
 
 namespace
@@ -4100,9 +4100,7 @@ void LoadOverheadChunk(
 	//
 	::g_playtemp.set_position(0);
 
-	std::string chunk_name = "OV" + (
-		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-		std::hex << std::uppercase << tpNum).to_string();
+	std::string chunk_name = "OV" + bstone::StringHelper::octet_to_hex_string(tpNum);
 
 	bool is_succeed = true;
 
@@ -4143,9 +4141,7 @@ void SaveOverheadChunk(
 {
 	// Remove level chunk from file
 	//
-	std::string chunk_name = "OV" + (
-		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-		std::hex << std::uppercase << tpNum).to_string();
+	std::string chunk_name = "OV" + bstone::StringHelper::octet_to_hex_string(tpNum);
 
 	::DeleteChunk(::g_playtemp, chunk_name);
 
