@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_DEF_INCLUDED
 
 
+#include <functional>
 #include <vector>
 
 
