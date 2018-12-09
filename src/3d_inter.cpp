@@ -144,6 +144,8 @@ void DisplayPrepingMsg(
 		}
 	}
 
+	::vid_set_ui_mask_3d(false);
+
 	// Cache-in font
 	//
 	fontnumber = 1;
@@ -170,16 +172,31 @@ void DisplayPrepingMsg(
 
 	// Update screen and fade in
 	//
+	const auto old_vid_is_hud = ::vid_is_hud;
+
+	::vid_is_hud = true;
+
 	VW_UpdateScreen();
 	if (screenfaded)
 	{
 		VW_FadeIn();
 	}
+
+	::vid_is_hud = old_vid_is_hud;
 }
 
 void PreloadGraphics()
 {
 	WindowY = 188;
+
+	const auto old_vid_is_hud = ::vid_is_hud;
+
+	if (::playstate != ex_transported)
+	{
+		::vid_is_hud = true;
+
+		::vid_set_ui_mask_3d(false);
+	}
 
 	if (!(gamestate.flags & GS_QUICKRUN))
 	{
@@ -198,6 +215,8 @@ void PreloadGraphics()
 
 	DrawPlayBorder();
 	VW_UpdateScreen();
+
+	::vid_is_hud = old_vid_is_hud;
 }
 
 

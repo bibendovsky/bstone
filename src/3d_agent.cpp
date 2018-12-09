@@ -3610,7 +3610,11 @@ std::int16_t InputFloor()
 		::CA_CacheGrChunk(STARTFONT + 3);
 		::CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
+		const auto old_vid_is_hud = ::vid_is_hud;
+		::vid_is_hud = true;
+		::vid_set_ui_mask_3d(false);
 		::VW_FadeOut();
+		::vid_is_hud = old_vid_is_hud;
 
 		::DrawTopInfo(sp_normal);
 
@@ -3867,7 +3871,12 @@ std::int16_t InputFloor()
 		bool buttonsDrawn = false;
 
 		ClearMemory();
-		VW_FadeOut();
+
+		const auto old_vid_is_hud = ::vid_is_hud;
+		::vid_is_hud = true;
+		::vid_set_ui_mask_3d(false);
+		::VW_FadeOut();
+		::vid_is_hud = old_vid_is_hud;
 
 		CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
 		CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
