@@ -8914,6 +8914,8 @@ bool LoadTheGame(
 
 			gamestate.unarchive(archiver);
 			gamestuff.unarchive(archiver);
+
+			archiver->read_checksum();
 		}
 		catch (const bstone::ArchiverException& ex)
 		{
@@ -9063,6 +9065,10 @@ bool SaveTheGame(
 		//
 		gamestate.archive(archiver);
 		gamestuff.archive(archiver);
+
+		// Checksum.
+		//
+		archiver->write_checksum();
 
 		head_stream.set_position(0);
 	}
