@@ -1436,56 +1436,59 @@ void VL_FadeOut(
 	int blue,
 	int steps)
 {
-	int orig;
-	int delta;
-
-	::VL_GetPalette(
-		0,
-		256,
-		&::palette1[0][0]);
-
-	std::uninitialized_copy_n(
-		&::palette1[0][0],
-		768,
-		&::palette2[0][0]);
-
-	//
-	// fade through intermediate frames
-	//
-	for (int i = 0; i < steps; ++i)
+	if (!::g_no_fade_in_or_out)
 	{
-		auto origptr = &::palette1[start][0];
-		auto newptr = &::palette2[start][0];
+		int orig;
+		int delta;
 
-		for (int j = start; j <= end; ++j)
-		{
-			orig = *origptr++;
-			delta = red - orig;
-			*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
-
-			orig = *origptr++;
-			delta = green - orig;
-			*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
-
-			orig = *origptr++;
-			delta = blue - orig;
-			*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
-		}
-
-		::sdl_filler_color.r = ::palette2[filler_color_index][0];
-		::sdl_filler_color.g = ::palette2[filler_color_index][1];
-		::sdl_filler_color.b = ::palette2[filler_color_index][2];
-
-		::VL_SetPalette(
+		::VL_GetPalette(
 			0,
 			256,
+			&::palette1[0][0]);
+
+		std::uninitialized_copy_n(
+			&::palette1[0][0],
+			768,
 			&::palette2[0][0]);
 
-		::VL_RefreshScreen();
-
-		if (!::vid_has_vsync)
+		//
+		// fade through intermediate frames
+		//
+		for (int i = 0; i < steps; ++i)
 		{
-			::VL_WaitVBL(1);
+			auto origptr = &::palette1[start][0];
+			auto newptr = &::palette2[start][0];
+
+			for (int j = start; j <= end; ++j)
+			{
+				orig = *origptr++;
+				delta = red - orig;
+				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
+
+				orig = *origptr++;
+				delta = green - orig;
+				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
+
+				orig = *origptr++;
+				delta = blue - orig;
+				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
+			}
+
+			::sdl_filler_color.r = ::palette2[filler_color_index][0];
+			::sdl_filler_color.g = ::palette2[filler_color_index][1];
+			::sdl_filler_color.b = ::palette2[filler_color_index][2];
+
+			::VL_SetPalette(
+				0,
+				256,
+				&::palette2[0][0]);
+
+			::VL_RefreshScreen();
+
+			if (!::vid_has_vsync)
+			{
+				::VL_WaitVBL(1);
+			}
 		}
 	}
 
@@ -1518,48 +1521,51 @@ void VL_FadeIn(
 	const std::uint8_t* palette,
 	int steps)
 {
-	::VL_GetPalette(
-		0,
-		256,
-		&::palette1[0][0]);
-
-	std::uninitialized_copy_n(
-		&::palette1[0][0],
-		768,
-		&::palette2[0][0]);
-
-	start *= 3;
-	end = (end * 3) + 2;
-
-	//
-	// fade through intermediate frames
-	//
-	auto delta = 0;
-
-	for (int i = 0; i < steps; ++i)
+	if (!::g_no_fade_in_or_out)
 	{
-		for (int j = start; j <= end; ++j)
-		{
-			const int delta = palette[j] - ::palette1[0][j];
-
-			::palette2[0][j] =
-				static_cast<std::uint8_t>(::palette1[0][j] + ((delta * i) / steps));
-		}
-
-		::sdl_filler_color.r = ::palette2[filler_color_index][0];
-		::sdl_filler_color.g = ::palette2[filler_color_index][1];
-		::sdl_filler_color.b = ::palette2[filler_color_index][2];
-
-		::VL_SetPalette(
+		::VL_GetPalette(
 			0,
 			256,
+			&::palette1[0][0]);
+
+		std::uninitialized_copy_n(
+			&::palette1[0][0],
+			768,
 			&::palette2[0][0]);
 
-		::VL_RefreshScreen();
+		start *= 3;
+		end = (end * 3) + 2;
 
-		if (!::vid_has_vsync)
+		//
+		// fade through intermediate frames
+		//
+		auto delta = 0;
+
+		for (int i = 0; i < steps; ++i)
 		{
-			::VL_WaitVBL(1);
+			for (int j = start; j <= end; ++j)
+			{
+				const int delta = palette[j] - ::palette1[0][j];
+
+				::palette2[0][j] =
+					static_cast<std::uint8_t>(::palette1[0][j] + ((delta * i) / steps));
+			}
+
+			::sdl_filler_color.r = ::palette2[filler_color_index][0];
+			::sdl_filler_color.g = ::palette2[filler_color_index][1];
+			::sdl_filler_color.b = ::palette2[filler_color_index][2];
+
+			::VL_SetPalette(
+				0,
+				256,
+				&::palette2[0][0]);
+
+			::VL_RefreshScreen();
+
+			if (!::vid_has_vsync)
+			{
+				::VL_WaitVBL(1);
+			}
 		}
 	}
 

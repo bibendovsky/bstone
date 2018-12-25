@@ -124,6 +124,7 @@ enum sw_labels
 enum sw2_labels
 {
 	SW2_NO_INTRO_OUTRO,
+	SW2_NO_FADE_IN_OR_OUT,
 }; // sw2_labels
 
 enum MenuVideoLables
@@ -475,7 +476,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 
 // BBi
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {77, -1, 154, 7, 1}};
-CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 1, 0, 0, 9, {87, -1, 132, 7, 1}};
+CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
 
 
@@ -550,6 +551,7 @@ CP_itemtype SwitchMenu[] = {
 CP_itemtype switch2_menu[] =
 {
 	{AT_ENABLED, "SKIP INTRO/OUTRO", 0},
+	{AT_ENABLED, "SKIP FADE IN/OUT EFFECT", 0},
 };
 
 
@@ -5710,6 +5712,7 @@ void draw_switch2_description(
 	const char* instr[] =
 	{
 		"TOGGLES INTRO/OUTRO",
+		"TOGGLES FADE IN/OUT EFFECT",
 	};
 
 	const auto& assets_info = AssetsInfo{};
@@ -5765,6 +5768,13 @@ void draw_all_switch2_lights(
 					shape += 1;
 				}
 				break;
+
+			case SW2_NO_FADE_IN_OR_OUT:
+				if (::g_no_fade_in_or_out)
+				{
+					shape += 1;
+				}
+				break;
 			}
 
 			VWB_DrawPic(switches2_items.x - 16, switches2_items.y + (i * switches2_items.y_spacing) - 1, shape);
@@ -5808,6 +5818,12 @@ void cp_switches2(
 		{
 		case SW2_NO_INTRO_OUTRO:
 			::g_no_intro_outro = !::g_no_intro_outro;
+			ShootSnd();
+			draw_switch2_menu();
+			break;
+
+		case SW2_NO_FADE_IN_OR_OUT:
+			::g_no_fade_in_or_out = !::g_no_fade_in_or_out;
 			ShootSnd();
 			draw_switch2_menu();
 			break;
