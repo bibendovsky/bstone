@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.1.9 LANGUAGES CXX)
+project(bstone VERSION 1.1.10 LANGUAGES CXX)
 
 
 option(BSTONE_USE_STATIC_LINKING "Link build statically.")
