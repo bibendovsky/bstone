@@ -3576,7 +3576,7 @@ void TP_FreeScript(
 	{
 		UNCACHEGRCHUNK(id_cache);
 	}
-	else if ((p_i->script) && (p_i->flags & TPF_CACHED_SCRIPT))
+	else if ((*p_i->script != nullptr) && (p_i->flags & TPF_CACHED_SCRIPT))
 	{
 		delete[] static_cast<char*>(p_i->scriptstart);
 		p_i->scriptstart = nullptr;
