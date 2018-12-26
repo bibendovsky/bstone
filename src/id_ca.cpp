@@ -1278,9 +1278,6 @@ std::string ca_calculate_hash(
 void ca_dump_hashes()
 {
 	bstone::Log::write();
-	bstone::Log::write("Data path: " + ::data_dir);
-	bstone::Log::write("Mod path: " + ::mod_dir_);
-	bstone::Log::write();
 	bstone::Log::write("Dumping resource hashes...");
 
 	auto data_size = std::int32_t{};

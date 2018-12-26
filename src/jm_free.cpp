@@ -497,6 +497,7 @@ void find_ps_assets()
 
 void find_any_assets()
 {
+	bstone::Log::write();
 	bstone::Log::write("Probing for assets...");
 
 	auto assets_info = AssetsInfo{};
@@ -1111,6 +1112,10 @@ void freed_main()
 	// Setup for APOGEECD thingie.
 	//
 	::InitDestPath();
+
+	bstone::Log::write();
+	bstone::Log::write("Data path: \"" + ::data_dir + "\"");
+	bstone::Log::write("Mod path: \"" + ::mod_dir_ + "\"");
 
 	// BBi
 	if (::g_args.has_option("debug_dump_hashes"))
