@@ -1,5 +1,32 @@
 # BStone changelog
 
+## [1.1.10] - 2018-12-??
+### Added
+- Allow lowercase asset file name.
+- Allow to back to the game from the main menu by hitting ESC.
+- Option to toggle UI stretching.
+- Option to toggle intro/outro/promo.
+- Playstation Vita support.
+- Command-line option to dump assets SHA1 hash (--debug_dump_hashes).
+- Command-line option to specify mod assets (--mod_dir).
+- Track map file hash in saved game.
+- AoG Shareware support (v1.0/v2.0/v2.1).
+- Option to toggle fade in/out effect.
+
+
+### Changed
+- Rewrite CMake script.
+- C++ standard to C++14.
+- Revise code.
+
+### Removed
+- Command-line options: --aog_10, --aog_2x, --aog_30.
+
+### Fixed
+- One pixel gap between the edge of view and weapon sprite.
+- Lightning on AoG maps.
+- Mask UI between some screen transitions.
+
 ## [1.1.9] - 2017-09-08
 ### Fixed
 - Teleporting out effect.
