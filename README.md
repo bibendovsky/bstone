@@ -8,7 +8,7 @@ Contents
 ========
 
 1. Disclaimer
-2. Overview
+2. Overview  
 2.1 Overview (PS Vita)
 3. Required assets
 4. Profile
