@@ -22,15 +22,20 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "id_heads.h"
+#include <cstring>
+#include "id_ca.h"
+#include "id_in.h"
+#include "id_vh.h"
+#include "id_vl.h"
+#include "gfxv.h"
 
 
 void VL_LatchToScreen(
-    int source,
-    int width,
-    int height,
-    int x,
-    int y);
+	int source,
+	int width,
+	int height,
+	int x,
+	int y);
 
 void IN_StartAck();
 bool IN_CheckAck();
@@ -40,11 +45,11 @@ void ForceUpdateStatusBar();
 pictabletype* pictable;
 pictabletype* picmtable;
 
-int16_t px;
-int16_t py;
-uint8_t fontcolor;
-uint8_t backcolor;
-int16_t fontnumber;
+std::int16_t px;
+std::int16_t py;
+std::uint8_t fontcolor;
+std::uint8_t backcolor;
+std::int16_t fontnumber;
 
 bool allcaps = false;
 
@@ -52,60 +57,65 @@ bool allcaps = false;
 LatchesCache latches_cache;
 
 void VW_DrawPropString(
-    const char* string)
+	const char* string)
 {
-    fontstruct* font =
-        static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]);
+	fontstruct* font =
+		static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]);
 
-    int height = font->height;
+	int height = font->height;
 
-    int string_length = static_cast<int>(strlen(string));
+	int string_length = static_cast<int>(strlen(string));
 
-    for (int c = 0; c < string_length; ++c) {
-        uint8_t ch = string[c];
-        int width = font->width[ch];
+	for (int c = 0; c < string_length; ++c)
+	{
+		std::uint8_t ch = string[c];
+		int width = font->width[ch];
 
-        const uint8_t* source =
-            (reinterpret_cast<const uint8_t*>(font)) + font->location[ch];
+		const std::uint8_t* source =
+			(reinterpret_cast<const std::uint8_t*>(font)) + font->location[ch];
 
-        for (int w = 0; w < width; ++w) {
-            for (int h = 0; h < height; ++h) {
-                if (source[h * width] != 0) {
-                    VL_Plot(px + w, py + h, fontcolor);
-                }
-            }
+		for (int w = 0; w < width; ++w)
+		{
+			for (int h = 0; h < height; ++h)
+			{
+				if (source[h * width] != 0)
+				{
+					VL_Plot(px + w, py + h, fontcolor);
+				}
+			}
 
-            ++source;
-        }
+			++source;
+		}
 
-        px = static_cast<int16_t>(px + width);
-    }
+		px = static_cast<std::int16_t>(px + width);
+	}
 }
 
 void VWL_MeasureString(
-    const char* string,
-    int* width,
-    int* height,
-    fontstruct* font)
+	const char* string,
+	int* width,
+	int* height,
+	fontstruct* font)
 {
-    *height = font->height;
+	*height = font->height;
 
-    for (*width = 0; string[0] != '\0'; ++string) {
-        // proportional width
-        *width += font->width[static_cast<uint8_t>(*string)];
-    }
+	for (*width = 0; string[0] != '\0'; ++string)
+	{
+		// proportional width
+		*width += font->width[static_cast<std::uint8_t>(*string)];
+	}
 }
 
 void VW_MeasurePropString(
-    const char* string,
-    int* width,
-    int* height)
+	const char* string,
+	int* width,
+	int* height)
 {
-    VWL_MeasureString(
-        string,
-        width,
-        height,
-        static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]));
+	VWL_MeasureString(
+		string,
+		width,
+		height,
+		static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]));
 }
 
 
@@ -118,88 +128,88 @@ void VW_MeasurePropString(
 */
 
 void VWB_DrawTile8(
-    int x,
-    int y,
-    int tile)
+	int x,
+	int y,
+	int tile)
 {
-    LatchDrawChar(x, y, tile);
+	LatchDrawChar(x, y, tile);
 }
 
 void VWB_DrawPic(
-    int x,
-    int y,
-    int chunknum)
+	int x,
+	int y,
+	int chunknum)
 {
-    int picnum = chunknum - STARTPICS;
-    int width = pictable[picnum].width;
-    int height = pictable[picnum].height;
+	int picnum = chunknum - STARTPICS;
+	int width = pictable[picnum].width;
+	int height = pictable[picnum].height;
 
-    VL_MemToScreen(
-        static_cast<const uint8_t*>(grsegs[chunknum]),
-        width,
-        height,
-        x & (~7),
-        y);
+	VL_MemToScreen(
+		static_cast<const std::uint8_t*>(grsegs[chunknum]),
+		width,
+		height,
+		x & (~7),
+		y);
 }
 
 void VWB_DrawMPic(
-    int x,
-    int y,
-    int chunknum)
+	int x,
+	int y,
+	int chunknum)
 {
-    int picnum = chunknum - STARTPICS;
-    int width = pictable[picnum].width;
-    int height = pictable[picnum].height;
+	int picnum = chunknum - STARTPICS;
+	int width = pictable[picnum].width;
+	int height = pictable[picnum].height;
 
-    VL_MaskMemToScreen(
-        static_cast<const uint8_t*>(grsegs[chunknum]),
-        width,
-        height,
-        x,
-        y,
-        255);
+	VL_MaskMemToScreen(
+		static_cast<const std::uint8_t*>(grsegs[chunknum]),
+		width,
+		height,
+		x,
+		y,
+		255);
 }
 
 void VWB_DrawPropString(
-    const char* string)
+	const char* string)
 {
-    VW_DrawPropString(string);
+	VW_DrawPropString(string);
 }
 
 void VWB_Bar(
-    int x,
-    int y,
-    int width,
-    int height,
-    uint8_t color)
+	int x,
+	int y,
+	int width,
+	int height,
+	std::uint8_t color)
 {
-    VW_Bar(x, y, width, height, color);
+	VW_Bar(x, y, width, height, color);
 }
 
 void VWB_Plot(
-    int x,
-    int y,
-    uint8_t color)
+	int x,
+	int y,
+	std::uint8_t color)
 {
-    VW_Plot(x, y, color);
+	VW_Plot(x, y, color);
 }
 
 void VWB_Hlin(
-    int x1,
-    int x2,
-    int y,
-    uint8_t color)
+	int x1,
+	int x2,
+	int y,
+	std::uint8_t color)
 {
-    VW_Hlin(x1, x2, y, color);
+	VW_Hlin(x1, x2, y, color);
 }
 
 void VWB_Vlin(
-    int y1,
-    int y2,
-    int x,
-    uint8_t color)
+	int y1,
+	int y2,
+	int x,
+	std::uint8_t color)
 {
-    VW_Vlin(y1, y2, x, color);
+	VW_Vlin(y1, y2, x, color);
 }
 
 
@@ -212,82 +222,82 @@ void VWB_Vlin(
 */
 
 void LatchDrawPic(
-    int x,
-    int y,
-    int picnum)
+	int x,
+	int y,
+	int picnum)
 {
-    int wide = pictable[picnum - STARTPICS].width;
-    int height = pictable[picnum - STARTPICS].height;
-    int source = latchpics[2 + picnum - LATCHPICS_LUMP_START];
+	int wide = pictable[picnum - STARTPICS].width;
+	int height = pictable[picnum - STARTPICS].height;
+	int source = latchpics[2 + picnum - LATCHPICS_LUMP_START];
 
-    VL_LatchToScreen(source, wide, height, x * 8, y);
+	VL_LatchToScreen(source, wide, height, x * 8, y);
 }
 
 void LoadLatchMem()
 {
-    // Calculate total size of latches cache.
-    //
-    const auto tile8_total_size =
-        ::STARTTILE8 * 8 * 8;
+	// Calculate total size of latches cache.
+	//
+	const auto tile8_total_size =
+		::STARTTILE8 * 8 * 8;
 
-    int pics_total_size = 0;
+	int pics_total_size = 0;
 
-    for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
-    {
-        const auto width = pictable[i - ::STARTPICS].width;
-        const auto height = pictable[i - ::STARTPICS].height;
+	for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
+	{
+		const auto width = pictable[i - ::STARTPICS].width;
+		const auto height = pictable[i - ::STARTPICS].height;
 
-        pics_total_size += width * height;
-    }
+		pics_total_size += width * height;
+	}
 
-    const auto latches_cache_size = tile8_total_size + pics_total_size;
+	const auto latches_cache_size = tile8_total_size + pics_total_size;
 
-    ::latches_cache.resize(
-        latches_cache_size);
+	::latches_cache.resize(
+		latches_cache_size);
 
 
-    int destoff = 0;
-    int picnum = 0;
+	int destoff = 0;
+	int picnum = 0;
 
-    //
-    // tile 8s
-    //
-    ::latchpics[picnum++] = destoff;
-    ::CA_CacheGrChunk(::STARTTILE8);
-    auto src = static_cast<const uint8_t*>(::grsegs[::STARTTILE8]);
+	//
+	// tile 8s
+	//
+	::latchpics[picnum++] = destoff;
+	::CA_CacheGrChunk(::STARTTILE8);
+	auto src = static_cast<const std::uint8_t*>(::grsegs[::STARTTILE8]);
 
-    for (int i = 0; i < ::NUMTILE8; ++i)
-    {
-        ::VL_MemToLatch(src, 8, 8, destoff);
-        src += 64;
-        destoff += 64;
-    }
+	for (int i = 0; i < ::NUMTILE8; ++i)
+	{
+		::VL_MemToLatch(src, 8, 8, destoff);
+		src += 64;
+		destoff += 64;
+	}
 
-    ::UNCACHEGRCHUNK(::STARTTILE8);
+	::UNCACHEGRCHUNK(::STARTTILE8);
 
-    //
-    // pics
-    //
-    ++picnum;
+	//
+	// pics
+	//
+	++picnum;
 
-    for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
-    {
-        const auto width = pictable[i - ::STARTPICS].width;
-        const auto height = pictable[i - ::STARTPICS].height;
+	for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
+	{
+		const auto width = pictable[i - ::STARTPICS].width;
+		const auto height = pictable[i - ::STARTPICS].height;
 
-        ::CA_CacheGrChunk(i);
+		::CA_CacheGrChunk(i);
 
-        ::VL_MemToLatch(
-            static_cast<const uint8_t*>(::grsegs[i]),
-            width,
-            height,
-            destoff);
+		::VL_MemToLatch(
+			static_cast<const std::uint8_t*>(::grsegs[i]),
+			width,
+			height,
+			destoff);
 
-        ::UNCACHEGRCHUNK(i);
+		::UNCACHEGRCHUNK(i);
 
-        ::latchpics[picnum++] = destoff;
-        destoff += width * height;
-    }
+		::latchpics[picnum++] = destoff;
+		destoff += width * height;
+	}
 }
 
 extern ControlInfo c;

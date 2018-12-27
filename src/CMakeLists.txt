@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.1.9 LANGUAGES CXX)
-
-
-find_package(SDL2 REQUIRED)
+project(bstone VERSION 1.1.10 LANGUAGES CXX)
 
 
 option(BSTONE_USE_STATIC_LINKING "Link build statically.")
@@ -10,26 +7,45 @@ option(BSTONE_PANDORA "Build for Pandora.")
 option(BSTONE_USE_PCH "Use precompiled headers.")
 
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+set(BSTONE_SDL2_COMPONENTS "")
+
+if (BSTONE_USE_STATIC_LINKING)
+	set(BSTONE_SDL2_COMPONENTS "${BSTONE_SDL2_COMPONENTS} static")
+endif ()
+
+find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL2_COMPONENTS})
+
+
+#
+# Byte order.
+#
+include(TestBigEndian)
+unset(BSTONE_USE_BIG_ENDIAN)
+TEST_BIG_ENDIAN(BSTONE_USE_BIG_ENDIAN)
+
+
 #
 # Target.
 #
-add_executable(bstone "")
+add_executable(${PROJECT_NAME} "")
 
 
 #
 # Target properties.
 #
 set_target_properties(
-	bstone
+	${PROJECT_NAME}
 	PROPERTIES
-	CXX_STANDARD 11
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
+		CXX_STANDARD 14
+		CXX_STANDARD_REQUIRED ON
+		CXX_EXTENSIONS OFF
 )
 
 if (WIN32)
 	set_target_properties(
-		bstone
+		${PROJECT_NAME}
 		PROPERTIES
 			WIN32_EXECUTABLE TRUE
 	)
@@ -39,9 +55,17 @@ endif ()
 #
 # Target compile definitions.
 #
+if (BSTONE_USE_BIG_ENDIAN)
+	target_compile_definitions(
+		${PROJECT_NAME}
+		PRIVATE
+			BSTONE_USE_BIG_ENDIAN
+	)
+endif ()
+
 if (BSTONE_USE_PCH)
 	target_compile_definitions(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
 			BSTONE_USE_PCH
 	)
@@ -49,7 +73,7 @@ endif ()
 
 if (MSVC)
 	target_compile_definitions(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
 			_CRT_SECURE_NO_WARNINGS
 			_SCL_SECURE_NO_WARNINGS
@@ -59,7 +83,7 @@ endif ()
 
 if (BSTONE_PANDORA)
 	target_compile_definitions(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
 			BSTONE_PANDORA
 	)
@@ -72,7 +96,7 @@ endif ()
 if (MSVC)
 	if (BSTONE_USE_PCH)
 		target_compile_options(
-			bstone
+			${PROJECT_NAME}
 			PRIVATE
 				-Yubstone_precompiled.h
 				-FIbstone_precompiled.h
@@ -81,7 +105,7 @@ if (MSVC)
 
 	if (BSTONE_USE_STATIC_LINKING)
 		target_compile_options(
-			bstone
+			${PROJECT_NAME}
 			PRIVATE
 				$<$<CONFIG:DEBUG>:-MTd>
 				$<$<NOT:$<CONFIG:DEBUG>>:-MT>
@@ -91,7 +115,7 @@ endif ()
 
 if (BSTONE_PANDORA)
 	target_compile_options(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
 			-fsigned-char
 			-fsigned-char
@@ -110,56 +134,30 @@ endif ()
 #
 if (BSTONE_USE_STATIC_LINKING AND NOT WIN32)
 	target_link_libraries(
-		bstone
+		${PROJECT_NAME}
 		-static
 	)
 endif ()
 
-if (WIN32 AND NOT MINGW)
-	target_link_libraries(
-		bstone
-		SDL2::SDL2main
-	)
-
-	if (BSTONE_USE_STATIC_LINKING)
-		target_link_libraries(
-			bstone
-			SDL2::SDL2-static
-		)
-	else ()
-		target_link_libraries(
-			bstone
-			SDL2::SDL2
-		)
-	endif ()
-else ()
-	target_link_libraries(
-		bstone
-		${SDL2_LIBRARIES}
-	)
-endif ()
-
-if (BSTONE_USE_STATIC_LINKING AND MINGW)
-	target_link_libraries(
-		bstone
-		imm32
-		version
-		winmm
-	)
-endif ()
+target_link_libraries(
+	${PROJECT_NAME}
+	PRIVATE
+		SDL2W
+)
 
 if (BSTONE_PANDORA)
 	target_link_libraries(
-		bstone
-		Xext
-		Xau
-		Xdmcp
-		X11
-		GLESv2
-		EGL
-		IMGegl
-		srv_um
-		ts
+		${PROJECT_NAME}
+		PRIVATE
+			Xext
+			Xau
+			Xdmcp
+			X11
+			GLESv2
+			EGL
+			IMGegl
+			srv_um
+			ts
 	)
 endif ()
 
@@ -168,23 +166,22 @@ endif ()
 # Target include directories.
 #
 target_include_directories(
-	bstone
+	${PROJECT_NAME}
 	PRIVATE
 		dosbox
 )
 
 if (NOT WIN32 OR MINGW)
 	target_include_directories(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
-			${SDL2_INCLUDE_DIRS}
 			dosbox
 	)
 endif ()
 
 if (BSTONE_PANDORA)
 	target_include_directories(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
 			$ENV{PNDSDK}
 	)
@@ -195,7 +192,7 @@ endif ()
 # Target sources.
 #
 target_sources(
-	bstone
+	${PROJECT_NAME}
 	PRIVATE
 		dosbox/adlib.h
 		dosbox/dbopl.h
@@ -214,6 +211,7 @@ target_sources(
 		bstone_adlib_sfx_decoder.h
 		bstone_audio_decoder.h
 		bstone_audio_mixer.h
+		bstone_archiver.h
 		bstone_atomic.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
@@ -262,7 +260,7 @@ target_sources(
 )
 
 target_sources(
-	bstone
+	${PROJECT_NAME}
 	PRIVATE
 		dosbox/dbopl.cpp
 		3d_act1.cpp
@@ -282,6 +280,7 @@ target_sources(
 		bstone_adlib_decoder.cpp
 		bstone_adlib_music_decoder.cpp
 		bstone_adlib_sfx_decoder.cpp
+		bstone_archiver_impl.cpp
 		bstone_audio_decoder.cpp
 		bstone_audio_mixer.cpp
 		bstone_binary_reader.cpp
@@ -290,6 +289,7 @@ target_sources(
 		bstone_crc32.cpp
 		bstone_file_stream.cpp
 		bstone_fizzle_fx.cpp
+		bstone_fixed_point.cpp
 		bstone_format_string.cpp
 		bstone_generic_fizzle_fx.cpp
 		bstone_stream.cpp
@@ -332,7 +332,7 @@ target_sources(
 
 if (WIN32)
 	target_sources(
-		bstone
+		${PROJECT_NAME}
 		PRIVATE
 			sys/win32/bstone_win32.rc
 	)
@@ -357,8 +357,8 @@ endif ()
 #
 install(
 	TARGETS
-	bstone
-		RUNTIME DESTINATION "."
+		${PROJECT_NAME}
+	RUNTIME DESTINATION "."
 )
 
 install(

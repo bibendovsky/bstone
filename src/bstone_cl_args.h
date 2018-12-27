@@ -26,70 +26,62 @@ Free Software Foundation, Inc.,
 #define BSTONE_CL_ARGS_INCLUDED
 
 
-#include "bstone_string_helper.h"
+#include <string>
+#include <vector>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-class ClArgs {
+class ClArgs
+{
 public:
-    ClArgs();
-
-    ClArgs(
-        const ClArgs& that);
-
-    ClArgs& operator=(
-        const ClArgs& that);
-
-    ~ClArgs();
+	ClArgs();
 
 
-    const std::string& operator[](
-        int index) const;
+	const std::string& operator[](
+		const int index) const;
 
-    void initialize(
-        int argc,
-        char* const* argv);
+	void initialize(
+		const int argc,
+		char* const* argv);
 
-    void unintialize();
+	void unintialize();
 
-    bool has_option(
-        const std::string& option_name) const;
+	bool has_option(
+		const std::string& option_name) const;
 
-    int find_option(
-        const std::string& option_name) const;
+	int find_option(
+		const std::string& option_name) const;
 
-    int find_argument(
-        const std::string& name) const;
+	int find_argument(
+		const std::string& name) const;
 
-    int check_argument(
-        const char* const list[]);
+	int get_count() const;
 
-    int check_argument(
-        const char* const list[],
-        std::string& found_argument);
+	const std::string& get_argument(
+		const int index) const;
 
-    int get_count() const;
+	const std::string& get_option_value(
+		const std::string& option_name) const;
 
-    const std::string& get_argument(
-        int index) const;
+	void get_option_values(
+		const std::string& option_name,
+		std::string& value1,
+		std::string& value2) const;
 
-    const std::string& get_option_value(
-        const std::string& option_name) const;
-
-    void get_option_values(
-        const std::string& option_name,
-        std::string& value1,
-        std::string& value2) const;
 
 private:
-    StringList args_;
-    StringList lc_args_;
+	using StringList = std::vector<std::string>;
+
+
+	StringList args_;
+	StringList lc_args_;
 }; // ClArgs
 
 
 } // bstone
 
 
-#endif // BSTONE_CL_ARGS_INCLUDED
+#endif // !BSTONE_CL_ARGS_INCLUDED

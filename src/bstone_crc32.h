@@ -29,47 +29,42 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-class Crc32 {
+class Crc32 final
+{
 public:
-    using ValueType = uint32_t;
+	using Value = std::uint32_t;
 
 
-    Crc32();
-
-    Crc32(
-        const Crc32& that);
-
-    Crc32& operator=(
-        const Crc32& that);
-
-    ~Crc32();
+	Crc32();
 
 
-    void reset();
+	void reset();
 
-    ValueType get_value() const;
+	Value get_value() const;
 
-    void update(
-        const void* data,
-        int size);
+	void update(
+		const void* const data,
+		const int size);
 
-    template<typename T>
-    void update(
-        const T& value)
-    {
-        update(&value, static_cast<int>(sizeof(T)));
-    }
+
+	template<typename T>
+	void update(
+		const T& value)
+	{
+		update(&value, static_cast<int>(sizeof(T)));
+	}
 
 
 private:
-    ValueType value_;
+	Value value_;
 }; // Crc32
 
 
 } // bstone
 
 
-#endif // BSTONE_CRC32_INCLUDED
+#endif // !BSTONE_CRC32_INCLUDED

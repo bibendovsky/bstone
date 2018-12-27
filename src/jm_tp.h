@@ -96,78 +96,85 @@ Free Software Foundation, Inc.,
 // -------------------------------------------------------------------------
 //  typedefs
 // -------------------------------------------------------------------------
-struct PresenterInfo {
-    uint16_t flags;
-    uint16_t gflags;
-    const char* script[TP_MAX_PAGES];
-    void* scriptstart;
-    int8_t numpages;
-    int8_t pagenum;
-    uint16_t xl;
-    uint16_t yl;
-    uint16_t xh;
-    uint16_t yh;
-    int8_t fontnumber;
-    uint8_t bgcolor;
-    uint8_t ltcolor;
-    uint8_t dkcolor;
-    uint8_t shcolor;
-    uint16_t cur_x;
-    uint16_t cur_y;
-    int8_t print_delay;
-    uint8_t highlight_color;
-    uint8_t fontcolor;
-    int16_t id_cache;
-    char* infoline;
-    int custom_line_height;
+struct PresenterInfo
+{
+	std::uint16_t flags;
+	std::uint16_t gflags;
+	const char* script[TP_MAX_PAGES];
+	void* scriptstart;
+	std::int8_t numpages;
+	std::int8_t pagenum;
+	std::uint16_t xl;
+	std::uint16_t yl;
+	std::uint16_t xh;
+	std::uint16_t yh;
+	std::int8_t fontnumber;
+	std::uint8_t bgcolor;
+	std::uint8_t ltcolor;
+	std::uint8_t dkcolor;
+	std::uint8_t shcolor;
+	std::uint16_t cur_x;
+	std::uint16_t cur_y;
+	std::int8_t print_delay;
+	std::uint8_t highlight_color;
+	std::uint8_t fontcolor;
+	std::int16_t id_cache;
+	char* infoline;
+	int custom_line_height;
 }; // PresenterInfo;
 
-enum tpCacheType {
-    ct_scaled,
-    ct_chunk,
-    ct_marks,
-    ct_music
+enum tpCacheType
+{
+	ct_scaled,
+	ct_chunk,
+	ct_marks,
+	ct_music
 }; // tpCacheType
 
-enum pisType {
-    pis_pic,
-    pis_sprite,
-    pis_scaled,
-    pis_scwall,
-    pis_latchpic
+enum pisType
+{
+	pis_pic,
+	pis_sprite,
+	pis_scaled,
+	pis_scwall,
+	pis_latchpic
 
 #if TP_640x200
-    ,
-    pis_pic2x,
-    pis_sprite2x
+	,
+	pis_pic2x,
+	pis_sprite2x
 #endif
 }; // pisType;
 
-struct piShapeInfo {
-    int16_t shapenum;
-    pisType shapetype;
+struct piShapeInfo
+{
+	std::int16_t shapenum;
+	pisType shapetype;
 }; // piShapeInfo
 
-enum piaType {
-    pia_grabscript,
-    pia_shapetable
+enum piaType
+{
+	pia_grabscript,
+	pia_shapetable
 }; // piaType;
 
-enum pidType {
-    pid_cycle,
-    pid_rebound
+enum pidType
+{
+	pid_cycle,
+	pid_rebound
 }; // pidType
 
-struct piAnimInfo {
-    int16_t baseshape;
-    int8_t frame;
-    int8_t maxframes;
-    int16_t delay;
-    int16_t maxdelay;
-    piaType animtype;
-    pidType dirtype;
-    int16_t x, y;
-    int8_t diradd;
+struct piAnimInfo
+{
+	std::int16_t baseshape;
+	std::int8_t frame;
+	std::int8_t maxframes;
+	std::int16_t delay;
+	std::int16_t maxdelay;
+	piaType animtype;
+	pidType dirtype;
+	std::int16_t x, y;
+	std::int8_t diradd;
 }; // piAnimInfo
 
 // -------------------------------------------------------------------------
@@ -186,49 +193,48 @@ extern ScanCode TPscan;
 // Function prototypes
 // -------------------------------------------------------------------------
 void TP_Presenter(
-    PresenterInfo* pi);
+	PresenterInfo* pi);
 void TP_WrapText();
 void TP_HandleCodes();
-int16_t TP_DrawShape(
-    int16_t x,
-    int16_t y,
-    int16_t shapenum,
-    pisType type);
-uint16_t TP_VALUE(
-    const char* ptr,
-    int8_t num_nybbles);
-int32_t TP_LoadScript(
-    const char* filename,
-    PresenterInfo* pi,
-    uint16_t id_cache);
+std::int16_t TP_DrawShape(
+	std::int16_t x,
+	std::int16_t y,
+	std::int16_t shapenum,
+	pisType type);
+std::uint16_t TP_VALUE(
+	const char* ptr,
+	std::int8_t num_nybbles);
+std::int32_t TP_LoadScript(
+	const char* filename,
+	PresenterInfo* pi,
+	std::uint16_t id_cache);
 void TP_FreeScript(
-    PresenterInfo* pi,
-    uint16_t id_cache);
+	PresenterInfo* pi,
+	std::uint16_t id_cache);
 void TP_InitScript(
-    PresenterInfo* pi);
+	PresenterInfo* pi);
 void TP_AnimatePage(
-    int16_t numanims);
-int16_t TP_BoxAroundShape(
-    int16_t x1,
-    int16_t y1,
-    uint16_t shapenum,
-    pisType shapetype);
+	std::int16_t numanims);
+std::int16_t TP_BoxAroundShape(
+	std::int16_t x1,
+	std::int16_t y1,
+	std::uint16_t shapenum,
+	pisType shapetype);
 void TP_JumpCursor();
 void TP_Print(
-    const char* str,
-    bool single_char);
+	const char* str,
+	bool single_char);
 bool TP_SlowPrint(
-    const char* str,
-    int8_t delay);
+	const char* str,
+	std::int8_t delay);
 void TP_PurgeAllGfx();
 void TP_CachePage(
-    const char* script);
+	const char* script);
 void TP_CacheIn(
-    tpCacheType type,
-    int16_t chunk);
-void TP_ResetPagePointers();
-int16_t TP_LineCommented(
-    const char* s);
+	tpCacheType type,
+	std::int16_t chunk);
+std::int16_t TP_LineCommented(
+	const char* s);
 void TP_PrintPageNumber();
 
 

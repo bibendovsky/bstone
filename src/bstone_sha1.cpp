@@ -6,8 +6,6 @@
 
 #include "bstone_sha1.h"
 #include <cassert>
-#include <memory>
-#include <utility>
 
 
 namespace bstone

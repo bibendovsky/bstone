@@ -26,22 +26,23 @@ Free Software Foundation, Inc.,
 #define BSTONE_MOVIE_INCLUDED
 
 
-#include <string>
 #include <vector>
 #include "jm_vl.h"
 
 
-struct anim_frame {
-    uint16_t code;
-    int32_t block_num;
-    int32_t recsize;
+struct anim_frame
+{
+	std::uint16_t code;
+	std::int32_t block_num;
+	std::int32_t recsize;
 }; // anim_frame
 
 
-struct anim_chunk {
-    uint16_t opt;
-    uint16_t offset;
-    uint16_t length;
+struct anim_chunk
+{
+	std::uint16_t opt;
+	std::uint16_t offset;
+	std::uint16_t length;
 }; // anim_chunk
 
 
@@ -89,11 +90,11 @@ extern Movies movies;
 // ===========================================================================
 
 void MOVIE_ShowFrame(
-    char* inpic);
+	char* inpic);
 bool MOVIE_Play(
-    MovieStuff_t* MovieStuff);
+	MovieStuff_t* MovieStuff);
 void SetupMovie(
-    MovieStuff_t* MovieStuff);
+	MovieStuff_t* MovieStuff);
 void ShutdownMovie();
 
 

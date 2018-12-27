@@ -26,34 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_JM_IO_INCLUDED
 
 
-// -------------------------------------------------------------------------
-// Function Prototypes
-// -------------------------------------------------------------------------
-bool IO_FarRead(
-    int handle,
-    void* dest,
-    int length);
-bool IO_FarWrite(
-    int handle,
-    const void* source,
-    int length);
-bool IO_ReadFile(
-    const char* filename,
-    void** ptr);
-bool IO_WriteFile(
-    const char* filename,
-    const void* ptr,
-    int length);
 int IO_LoadFile(
-    const char* filename,
-    void** dst);
-void IO_CopyFile(
-    const char* sFilename,
-    const char* dFilename);
-void IO_CopyHandle(
-    int sHandle,
-    int dHandle,
-    int num_bytes);
+	const char* filename,
+	void** dst);
 
 
 #endif // BSTONE_JM_IO_INCLUDED

@@ -26,9 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_CA_INCLUDED
 
 
-#include <cstdint>
 #include <unordered_map>
 #include "3d_def.h"
+#include "bstone_file_stream.h"
 
 
 extern int NUM_EPISODES;
@@ -41,7 +41,7 @@ const int MAPPLANES = 2;
 
 
 void UNCACHEGRCHUNK(
-    int chunk);
+	int chunk);
 
 #define THREEBYTEGRSTARTS
 
@@ -53,21 +53,24 @@ void UNCACHEGRCHUNK(
 
 // ===========================================================================
 
-struct maptype {
-    int32_t planestart[3];
-    uint16_t planelength[3];
-    uint16_t width, height;
-    char name[16];
+struct maptype
+{
+	std::int32_t planestart[3];
+	std::uint16_t planelength[3];
+	std::uint16_t width, height;
+	char name[16];
 }; // maptype
 
-struct huffnode {
-    uint16_t bit0, bit1; // 0-255 is a character, > is a pointer to a node
+struct huffnode
+{
+	std::uint16_t bit0, bit1; // 0-255 is a character, > is a pointer to a node
 }; // huffnode
 
-struct mapfiletype {
-    uint16_t RLEWtag;
-    int32_t headeroffsets[100];
-//      uint8_t           tileinfo[];
+struct mapfiletype
+{
+	std::uint16_t RLEWtag;
+	std::int32_t headeroffsets[100];
+	//      std::uint8_t           tileinfo[];
 }; // mapfiletype
 
 
@@ -247,45 +250,45 @@ struct Assets final
 
 // ===========================================================================
 
-using AudioSegments = std::vector<uint8_t*>;
+using AudioSegments = std::vector<std::uint8_t*>;
 using GrSegments = std::vector<void*>;
-using GrNeeded = std::vector<uint8_t>;
+using GrNeeded = std::vector<std::uint8_t>;
 using MapHeaderSegments = std::vector<maptype*>;
 
 
-extern uint16_t rlew_tag;
+extern std::uint16_t rlew_tag;
 
-extern int16_t mapon;
+extern std::int16_t mapon;
 
-extern uint16_t* mapsegs[MAPPLANES];
+extern std::uint16_t* mapsegs[MAPPLANES];
 extern MapHeaderSegments mapheaderseg;
 extern AudioSegments audiosegs;
 extern GrSegments grsegs;
 
 extern GrNeeded grneeded;
-extern uint8_t ca_levelbit, ca_levelnum;
+extern std::uint8_t ca_levelbit, ca_levelnum;
 
 extern char* titleptr[8];
 
-extern int16_t profilehandle, debughandle;
+extern std::int16_t profilehandle, debughandle;
 
-extern int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
-extern int32_t* audiostarts; // array of offsets in audio / audiot
+extern std::int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
+extern std::int32_t* audiostarts; // array of offsets in audio / audiot
 //
 // hooks for custom cache dialogs
 //
-extern void (* drawcachebox)(
-    char* title,
-    uint16_t numcache);
-extern void (* updatecachebox)();
-extern void (* finishcachebox)();
+extern void(*drawcachebox)(
+	char* title,
+	std::uint16_t numcache);
+extern void(*updatecachebox)();
+extern void(*finishcachebox)();
 
 extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
 extern bstone::FileStream audiohandle;
 
-extern int32_t chunkcomplen;
-extern int32_t chunkexplen;
+extern std::int32_t chunkcomplen;
+extern std::int32_t chunkexplen;
 
 #ifdef GRHEADERLINKED
 extern huffnode* grhuffman;
@@ -296,66 +299,28 @@ extern huffnode grhuffman[255];
 
 // ===========================================================================
 
-// just for the score box reshifting
-
-void CAL_ShiftSprite(
-    uint16_t segment,
-    uint16_t source,
-    uint16_t dest,
-    uint16_t width,
-    uint16_t height,
-    uint16_t pixshift);
-
-// ===========================================================================
-
-void CA_OpenDebug();
-void CA_CloseDebug();
-
-bool CA_ReadFile(
-    char* filename,
-    void** ptr);
-bool CA_LoadFile(
-    char* filename,
-    void** ptr);
-bool CA_WriteFile(
-    char* filename,
-    void* ptr,
-    int32_t length);
-
-int32_t CA_RLEWCompress(
-    uint16_t* source,
-    int32_t length,
-    uint16_t* dest,
-    uint16_t rlewtag);
-
 void CA_RLEWexpand(
-    uint16_t* source,
-    uint16_t* dest,
-    int32_t length,
-    uint16_t rlewtag);
+	std::uint16_t* source,
+	std::uint16_t* dest,
+	std::int32_t length,
+	std::uint16_t rlewtag);
 
 void CA_Startup();
 void CA_Shutdown();
 
-void CA_SetGrPurge();
 void CA_CacheAudioChunk(
-    int16_t chunk);
+	std::int16_t chunk);
 void CA_LoadAllSounds();
 
 void CA_UpLevel();
 void CA_DownLevel();
 
-void CA_SetAllPurge();
-
-void CA_ClearMarks();
-void CA_ClearAllMarks();
-
 #define CA_MarkGrChunk(chunk) grneeded[chunk] |= ca_levelbit
 
 void CA_CacheGrChunk(
-    int16_t chunk);
+	std::int16_t chunk);
 void CA_CacheMap(
-    std::int16_t mapnum);
+	std::int16_t mapnum);
 
 void CA_CacheMarks();
 
@@ -364,14 +329,14 @@ void CAL_SetupGrFile();
 void CAL_SetupMapFile();
 
 void CAL_HuffExpand(
-    uint8_t* source,
-    uint8_t* dest,
-    int32_t length,
-    huffnode* hufftable);
+	std::uint8_t* source,
+	std::uint8_t* dest,
+	std::int32_t length,
+	huffnode* hufftable);
 
 void ca_huff_expand_on_screen(
-    uint8_t* source,
-    huffnode* hufftable);
+	std::uint8_t* source,
+	huffnode* hufftable);
 
 void CloseGrFile();
 
@@ -379,11 +344,11 @@ void CloseGrFile();
 extern int ca_gr_last_expanded_size;
 
 std::string ca_load_script(
-    int chunk_id,
-    bool strip_xx = false);
+	int chunk_id,
+	bool strip_xx = false);
 
 bool ca_is_resource_exists(
-    const std::string& file_name);
+	const std::string& file_name);
 
 bool ca_open_resource_non_fatal(
 	const std::string& data_dir,
@@ -392,13 +357,13 @@ bool ca_open_resource_non_fatal(
 	bstone::FileStream& file_stream);
 
 bool ca_open_resource_non_fatal(
-    const std::string& file_name_without_ext,
-    const std::string& file_extension,
-    bstone::FileStream& file_stream);
+	const std::string& file_name_without_ext,
+	const std::string& file_extension,
+	bstone::FileStream& file_stream);
 
 void ca_open_resource(
-    const std::string& file_name_without_ext,
-    bstone::FileStream& file_stream);
+	const std::string& file_name_without_ext,
+	bstone::FileStream& file_stream);
 
 std::string ca_calculate_hash(
 	const std::string& data_dir,

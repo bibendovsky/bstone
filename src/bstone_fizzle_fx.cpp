@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_fizzle_fx.h"
 #include "3d_def.h"
 #include "id_in.h"
+#include "id_sd.h"
 #include "id_vl.h"
 
 
@@ -41,14 +42,6 @@ namespace bstone
 {
 
 
-FizzleFX::FizzleFX()
-{
-}
-
-FizzleFX::~FizzleFX()
-{
-}
-
 bool FizzleFX::present(
 	const bool trigger_fade)
 {
@@ -57,121 +50,119 @@ bool FizzleFX::present(
 		::vid_is_fizzle_fade = true;
 	}
 
-    const auto y_offset = get_y();
-    const auto width = ::vga_ref_width;
-    const auto height = get_height();
-    const auto frame_count = get_frame_count();
-    const auto area = width * height;
+	const auto y_offset = get_y();
+	const auto width = ::vga_ref_width;
+	const auto height = get_height();
+	const auto frame_count = get_frame_count();
+	const auto area = width * height;
 
-    auto rndval = 1;
-    const auto pixels_per_frame = area / frame_count;
-    auto remain_pixels = area % frame_count;
-    auto frame = 0;
+	auto rndval = 1;
+	const auto pixels_per_frame = area / frame_count;
+	auto remain_pixels = area % frame_count;
+	auto frame = 0;
 
-    ::IN_StartAck();
+	::IN_StartAck();
 
-    ::TimeCount = 0;
-    ::LastScan = ScanCode::sc_none;
+	::TimeCount = 0;
+	::LastScan = ScanCode::sc_none;
 
-    auto is_finished = false;
-    auto is_aborted = false;
-    auto do_full_copy = false;
+	auto is_finished = false;
+	auto is_aborted = false;
+	auto do_full_copy = false;
 
-    while (!is_finished)
-    {
-        if (is_abortable() && ::IN_CheckAck())
-        {
-            is_aborted = true;
-            do_full_copy = true;
-        }
+	while (!is_finished)
+	{
+		if (is_abortable() && ::IN_CheckAck())
+		{
+			is_aborted = true;
+			do_full_copy = true;
+		}
 
-        if (!do_full_copy)
-        {
-            const auto pixel_count = pixels_per_frame + remain_pixels;
+		if (!do_full_copy)
+		{
+			const auto pixel_count = pixels_per_frame + remain_pixels;
 
-            remain_pixels = 0;
+			remain_pixels = 0;
 
-            for (auto p = 0; p < pixel_count; ++p)
-            {
-                auto x = (rndval >> 8) & 0xFFFF;
-                auto y = ((rndval & 0xFF) - 1) & 0xFF;
+			for (auto p = 0; p < pixel_count; ++p)
+			{
+				auto x = (rndval >> 8) & 0xFFFF;
+				auto y = ((rndval & 0xFF) - 1) & 0xFF;
 
-                auto carry = ((rndval & 1) != 0);
+				auto carry = ((rndval & 1) != 0);
 
-                rndval >>= 1;
+				rndval >>= 1;
 
-                if (carry)
-                {
-                    rndval ^= 0x00012000;
-                }
+				if (carry)
+				{
+					rndval ^= 0x00012000;
+				}
 
-                if (x >= width || y >= height)
-                {
-                    continue;
-                }
+				if (x >= width || y >= height)
+				{
+					continue;
+				}
 
-                plot(
-                    x,
-                    y_offset + y);
+				plot(x, y_offset + y);
 
-                if (rndval == 1)
-                {
-                    do_full_copy = true;
-                }
-            }
-        }
-        else
-        {
-            is_finished = true;
+				if (rndval == 1)
+				{
+					do_full_copy = true;
+				}
+			}
+		}
+		else
+		{
+			is_finished = true;
 
-            skip_to_the_end();
-        }
+			skip_to_the_end();
+		}
 
-        ::VL_RefreshScreen();
+		::VL_RefreshScreen();
 
-        ++frame;
+		++frame;
 
-        ::CalcTics();
-    }
+		::CalcTics();
+	}
 
 	if (trigger_fade)
 	{
 		::vid_is_fizzle_fade = false;
 	}
 
-    return is_aborted;
+	return is_aborted;
 }
 
 bool FizzleFX::is_abortable() const
 {
-    throw "Not implemented.";
+	throw "Not implemented.";
 }
 
 int FizzleFX::get_frame_count() const
 {
-    throw "Not implemented.";
+	throw "Not implemented.";
 }
 
 int FizzleFX::get_y() const
 {
-    throw "Not implemented.";
+	throw "Not implemented.";
 }
 
 int FizzleFX::get_height() const
 {
-    throw "Not implemented.";
+	throw "Not implemented.";
 }
 
 void FizzleFX::plot(
-    int x,
-    int y)
+	const int x,
+	const int y)
 {
-    throw "Not implemented.";
+	throw "Not implemented.";
 }
 
 void FizzleFX::skip_to_the_end()
 {
-    throw "Not implemented.";
+	throw "Not implemented.";
 }
 
 

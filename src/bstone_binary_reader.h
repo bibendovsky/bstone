@@ -29,123 +29,132 @@ Free Software Foundation, Inc.,
 #include "bstone_stream.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-class BinaryReader {
+class BinaryReader
+{
 public:
-    BinaryReader(
-        Stream* stream = nullptr);
+	BinaryReader(
+		Stream* stream = nullptr);
 
-    BinaryReader(
-        const BinaryReader& that) = delete;
+	BinaryReader(
+		BinaryReader&& rhs);
 
-    BinaryReader& operator=(
-        const BinaryReader& that) = delete;
+	BinaryReader(
+		const BinaryReader& rhs) = delete;
 
-
-    bool open(
-        Stream* stream);
-
-    // Closes the reader but stream.
-    void close();
-
-    bool is_open() const;
-
-    // Reads a signed 8-bit integer value.
-    int8_t read_s8();
-
-    // Reads an unsigned 8-bit integer value.
-    uint8_t read_u8();
-
-    // Reads a signed 16-bit integer value.
-    int16_t read_s16();
-
-    // Reads an unsigned 16-bit integer value.
-    uint16_t read_u16();
-
-    // Reads a signed 32-bit integer value.
-    int32_t read_s32();
-
-    // Reads an unsigned 32-bit integer value.
-    uint32_t read_u32();
-
-    // Reads a signed 64-bit integer value.
-    int64_t read_s64();
-
-    // Reads an unsigned 64-bit integer value.
-    uint64_t read_u64();
-
-    // Reads a 32-bit float-point value.
-    float read_r32();
-
-    // Reads a 64-bit float-point value.
-    double read_r64();
-
-    // Reads a string prepended with signed 32-bit (little-endian) length.
-    // Returns empty string on error or when max length reached.
-    std::string read_string(
-        int max_length = -1);
-
-    bool read(
-        void* buffer,
-        int count);
+	BinaryReader& operator=(
+		const BinaryReader& rhs) = delete;
 
 
-    template<typename T>
-    bool read(
-        T& value)
-    {
-        if (!is_open()) {
-            return false;
-        }
+	bool open(
+		Stream* stream);
 
-        return stream_->read(&value, sizeof(T)) == sizeof(T);
-    }
+	// Closes the reader but stream.
+	void close();
 
-    template<typename T,size_t N>
-    bool read(
-        T (&value)[N])
-    {
-        if (!is_open()) {
-            return false;
-        }
+	bool is_open() const;
 
-        return stream_->read(value, N * sizeof(T)) == N * sizeof(T);
-    }
+	// Reads a signed 8-bit integer value.
+	std::int8_t read_s8();
 
-    // Skips a number of octets forward if count is positive or
-    // backward otherwise.
-    // Returns false on error.
-    bool skip(
-        int count);
+	// Reads an unsigned 8-bit integer value.
+	std::uint8_t read_u8();
 
-    // Returns a current position.
-    int64_t get_position() const;
+	// Reads a signed 16-bit integer value.
+	std::int16_t read_s16();
 
-    // Sets a current position to a specified one.
-    bool set_position(
-        int64_t position);
+	// Reads an unsigned 16-bit integer value.
+	std::uint16_t read_u16();
+
+	// Reads a signed 32-bit integer value.
+	std::int32_t read_s32();
+
+	// Reads an unsigned 32-bit integer value.
+	std::uint32_t read_u32();
+
+	// Reads a signed 64-bit integer value.
+	std::int64_t read_s64();
+
+	// Reads an unsigned 64-bit integer value.
+	std::uint64_t read_u64();
+
+	// Reads a 32-bit float-point value.
+	float read_r32();
+
+	// Reads a 64-bit float-point value.
+	double read_r64();
+
+	// Reads a string prepended with signed 32-bit (little-endian) length.
+	// Returns empty string on error or when max length reached.
+	std::string read_string(
+		const int max_length = -1);
+
+	bool read(
+		void* buffer,
+		const int count);
+
+
+	template<typename T>
+	bool read(
+		T& value)
+	{
+		if (!is_open())
+		{
+			return false;
+		}
+
+		return stream_->read(&value, sizeof(T)) == sizeof(T);
+	}
+
+	template<typename T, std::size_t N>
+	bool read(
+		T(&value)[N])
+	{
+		if (!is_open())
+		{
+			return false;
+		}
+
+		return stream_->read(value, N * sizeof(T)) == N * sizeof(T);
+	}
+
+	// Skips a number of octets forward if count is positive or
+	// backward otherwise.
+	// Returns false on error.
+	bool skip(
+		const int count);
+
+	// Returns a current position.
+	std::int64_t get_position() const;
+
+	// Sets a current position to a specified one.
+	bool set_position(
+		const std::int64_t position);
 
 private:
-    Stream* stream_;
+	Stream* stream_;
 
 
-    template<typename T>
-    T read()
-    {
-        if (!is_open()) {
-            return 0;
-        }
+	template<typename T>
+	T read()
+	{
+		if (!is_open())
+		{
+			return 0;
+		}
 
-        T value;
+		T value;
 
-        if (stream_->read(&value, sizeof(T)) != sizeof(T)) {
-            return 0;
-        }
+		if (stream_->read(&value, sizeof(T)) != sizeof(T))
+		{
+			return 0;
+		}
 
-        return value;
-    }
+		return value;
+	}
 }; // BinaryReader
 
 

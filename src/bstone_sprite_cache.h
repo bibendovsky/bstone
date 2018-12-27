@@ -18,29 +18,30 @@ namespace bstone
 class SpriteCache
 {
 public:
-    static constexpr int max_sprites = 1000;
+	static constexpr auto max_sprites = 1'000;
 
 
-    SpriteCache();
+	SpriteCache();
 
-    SpriteCache(
-        const SpriteCache& that) = delete;
+	SpriteCache(
+		SpriteCache&& rhs);
 
-    SpriteCache& operator=(
-        const SpriteCache& that) = delete;
+	SpriteCache(
+		const SpriteCache& rhs) = delete;
 
-    ~SpriteCache();
+	SpriteCache& operator=(
+		const SpriteCache& rhs) = delete;
 
 
-    const Sprite* cache(
-        const int sprite_id);
+	const Sprite* cache(
+		const int sprite_id);
 
 
 private:
-    using Cache = std::vector<Sprite>;
+	using Cache = std::vector<Sprite>;
 
 
-    Cache cache_;
+	Cache cache_;
 }; // SpriteCache
 
 

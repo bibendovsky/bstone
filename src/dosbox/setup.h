@@ -31,11 +31,13 @@ Free Software Foundation, Inc.,
 #define BSTONE_DOSBOX_SETUP_INCLUDED
 
 
-class Section {
+struct Section
+{
 }; // Section
 
 
-class Module_base {
+struct Module_base
+{
 }; // Module_base
 
 

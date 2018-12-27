@@ -23,7 +23,10 @@ Free Software Foundation, Inc.,
 
 
 #include "id_pm.h"
+#include "id_ca.h"
 #include "id_heads.h"
+#include "bstone_endian.h"
+#include "bstone_memory_binary_reader.h"
 
 
 // File specific variables
@@ -32,92 +35,100 @@ int PMSpriteStart = 0;
 int PMSoundStart = 0;
 
 
-namespace {
+namespace
+{
 
 
-using RawData = std::vector<uint8_t>;
+using RawData = std::vector<std::uint8_t>;
 
 bstone::FileStream PageFile;
 RawData raw_data;
-uint32_t* chunks_offsets = nullptr;
+std::uint32_t* chunks_offsets = nullptr;
 
 
 } // namespace
 
 
 static void open_page_file(
-    const std::string& file_name)
+	const std::string& file_name)
 {
-    ::ca_open_resource(file_name, PageFile);
+	::ca_open_resource(file_name, PageFile);
 
-    const auto file_length = PageFile.get_size();
+	const auto file_length = PageFile.get_size();
 
-    if (file_length > 4 * 1024 * 1024) {
-        ::Quit("Page file is too large.");
-    }
+	if (file_length > 4 * 1024 * 1024)
+	{
+		::Quit("Page file is too large.");
+	}
 
-    const auto file_length_32 = static_cast<int32_t>(file_length);
+	const auto file_length_32 = static_cast<std::int32_t>(file_length);
 
-    raw_data.resize(file_length_32 + PMPageSize);
+	raw_data.resize(file_length_32 + PMPageSize);
 
-    if (PageFile.read(raw_data.data(), file_length_32) != file_length_32)
-    {
-        ::Quit("Page file read error.");
-    }
+	if (PageFile.read(raw_data.data(), file_length_32) != file_length_32)
+	{
+		::Quit("Page file read error.");
+	}
 
-    bstone::MemoryBinaryReader reader(raw_data.data(), file_length);
+	bstone::MemoryBinaryReader reader(raw_data.data(), file_length);
 
-    ChunksInFile = bstone::Endian::le(reader.read_u16());
-    PMSpriteStart = bstone::Endian::le(reader.read_u16());
-    PMSoundStart = bstone::Endian::le(reader.read_u16());
+	ChunksInFile = bstone::Endian::little(reader.read_u16());
+	PMSpriteStart = bstone::Endian::little(reader.read_u16());
+	PMSoundStart = bstone::Endian::little(reader.read_u16());
 
-    chunks_offsets = reinterpret_cast<uint32_t*>(&raw_data[6]);
-    bstone::Endian::lei(chunks_offsets, ChunksInFile + 1);
+	chunks_offsets = reinterpret_cast<std::uint32_t*>(&raw_data[6]);
+
+	for (auto i = 0; i < (ChunksInFile + 1); ++i)
+	{
+		bstone::Endian::little(chunks_offsets[i]);
+	}
 }
 
 void PM_Startup()
 {
-    ::PM_Shutdown();
-    ::open_page_file(Assets::page_file_base_name);
+	::PM_Shutdown();
+	::open_page_file(Assets::page_file_base_name);
 }
 
 void PM_Shutdown()
 {
-    PageFile.close();
+	PageFile.close();
 
-    ChunksInFile = 0;
-    PMSpriteStart = 0;
-    PMSoundStart = 0;
+	ChunksInFile = 0;
+	PMSpriteStart = 0;
+	PMSoundStart = 0;
 
-    RawData{}.swap(raw_data);
+	RawData{}.swap(raw_data);
 
-    chunks_offsets = nullptr;
+	chunks_offsets = nullptr;
 }
 
 void* PM_GetPage(
-    int page_number)
+	int page_number)
 {
-    if (page_number >= ChunksInFile) {
-        ::Quit("Invalid page request.");
-    }
+	if (page_number >= ChunksInFile)
+	{
+		::Quit("Invalid page request.");
+	}
 
-    uint32_t offset = chunks_offsets[page_number];
+	std::uint32_t offset = chunks_offsets[page_number];
 
-    if (offset == 0) {
-        ::Quit("Tried to load a sparse page.");
-    }
+	if (offset == 0)
+	{
+		::Quit("Tried to load a sparse page.");
+	}
 
-    return &raw_data[offset];
+	return &raw_data[offset];
 }
 
 void* PM_GetSoundPage(
-    int page_number)
+	int page_number)
 {
-    return PM_GetPage(PMSoundStart + page_number);
+	return PM_GetPage(PMSoundStart + page_number);
 }
 
 void* PM_GetSpritePage(
-    int page_number)
+	int page_number)
 {
-    return PM_GetPage(PMSpriteStart + page_number);
+	return PM_GetPage(PMSpriteStart + page_number);
 }

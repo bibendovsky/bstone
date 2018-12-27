@@ -34,27 +34,30 @@ Free Software Foundation, Inc.,
 #define BLACK (0)
 
 
-struct spritetabletype {
-    int16_t width;
-    int16_t height;
-    int16_t orgx;
-    int16_t orgy;
-    int16_t xl;
-    int16_t yl;
-    int16_t xh;
-    int16_t yh;
-    int16_t shifts;
+struct spritetabletype
+{
+	std::int16_t width;
+	std::int16_t height;
+	std::int16_t orgx;
+	std::int16_t orgy;
+	std::int16_t xl;
+	std::int16_t yl;
+	std::int16_t xh;
+	std::int16_t yh;
+	std::int16_t shifts;
 }; // spritetabletype
 
-struct pictabletype {
-    int16_t width;
-    int16_t height;
+struct pictabletype
+{
+	std::int16_t width;
+	std::int16_t height;
 }; // pictabletype
 
-struct fontstruct {
-    int16_t height;
-    int16_t location[256];
-    char width[256];
+struct fontstruct
+{
+	std::int16_t height;
+	std::int16_t location[256];
+	char width[256];
 }; // fontstruct
 
 
@@ -62,10 +65,10 @@ extern pictabletype* pictable;
 extern pictabletype* picmtable;
 extern spritetabletype* spritetable;
 
-extern uint8_t fontcolor;
-extern int16_t fontnumber;
-extern int16_t px;
-extern int16_t py;
+extern std::uint8_t fontcolor;
+extern std::int16_t fontnumber;
+extern std::int16_t px;
+extern std::int16_t py;
 extern bool allcaps;
 
 
@@ -76,48 +79,48 @@ extern bool allcaps;
 //
 
 void VWB_DrawTile8(
-    int x,
-    int y,
-    int tile);
+	int x,
+	int y,
+	int tile);
 void VWB_DrawPic(
-    int x,
-    int y,
-    int chunknum);
+	int x,
+	int y,
+	int chunknum);
 void VWB_DrawMPic(
-    int x,
-    int y,
-    int chunknum);
+	int x,
+	int y,
+	int chunknum);
 void VWB_Bar(
-    int x,
-    int y,
-    int width,
-    int height,
-    uint8_t color);
+	int x,
+	int y,
+	int width,
+	int height,
+	std::uint8_t color);
 
 void VWB_DrawPropString(
-    const char* string);
+	const char* string);
 void VW_DrawPropString(
-    const char* string);
+	const char* string);
 void VWB_Plot(
-    int x,
-    int y,
-    uint8_t color);
+	int x,
+	int y,
+	std::uint8_t color);
 void VWB_Hlin(
-    int x1,
-    int x2,
-    int y,
-    uint8_t color);
+	int x1,
+	int x2,
+	int y,
+	std::uint8_t color);
 void VWB_Vlin(
-    int y1,
-    int y2,
-    int x,
-    uint8_t color);
+	int y1,
+	int y2,
+	int x,
+	std::uint8_t color);
 
 
 //
 // wolfenstein EGA compatability stuff
 //
-extern const uint8_t vgapal[768];
+extern const std::uint8_t vgapal[768];
 
 
 #define VW_Startup VL_Startup
@@ -131,18 +134,18 @@ extern const uint8_t vgapal[768];
 #define VW_FadeOut() VL_FadeOut(0, 255, 0, 0, 0, 30);
 #define VW_ScreenToScreen VL_ScreenToScreen
 void VW_MeasurePropString(
-    const char* string,
-    int* width,
-    int* height);
+	const char* string,
+	int* width,
+	int* height);
 #define VW_UpdateScreen() VH_UpdateScreen()
 
 #define LatchDrawChar(x, y, p) VL_LatchToScreen(latchpics[0] + (p) * 64, 8, 8, x, y)
 #define LatchDrawTile(x, y, p) VL_LatchToScreen(latchpics[1] + (p) * 64, 16, 16, x, y)
 
 void LatchDrawPic(
-    int x,
-    int y,
-    int picnum);
+	int x,
+	int y,
+	int picnum);
 void LoadLatchMem();
 
 extern int latchpics[];
@@ -151,9 +154,9 @@ extern int LatchMemFree;
 
 // BBi
 void vl_minimize_fullscreen_window(
-    bool value);
+	bool value);
 
-using LatchesCache = std::vector<uint8_t>;
+using LatchesCache = std::vector<std::uint8_t>;
 extern LatchesCache latches_cache;
 
 
