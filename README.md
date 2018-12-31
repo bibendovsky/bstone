@@ -71,49 +71,33 @@ See README-PSVITA.md for details about the source port on PS Vita.
 
 Since all titles are not free (except shareware) you have to own a copy of the game(s) in order to play.
 
-Required files for full Aliens of Gold:
-* AUDIOHED.BS6
-* AUDIOT.BS6
-* EANIM.BS6
-* GANIM.BS6
-* IANIM.BS6
-* MAPHEAD.BS6
-* MAPTEMP.BS6
-* SANIM.BS6
-* VGADICT.BS6
-* VGAGRAPH.BS6
-* VGAHEAD.BS6
-* VSWAP.BS6
+Required files for each game:
 
-Required files for shareware Aliens of Gold:
-* AUDIOHED.BS1
-* AUDIOT.BS1
-* IANIM.BS1
-* MAPHEAD.BS1
-* MAPTEMP.BS1
-* SANIM.BS1
-* VGADICT.BS1
-* VGAGRAPH.BS1
-* VGAHEAD.BS1
-* VSWAP.BS1
+|    AoG SW    |      AoG     |      PS      |
+|--------------|--------------|--------------|
+| AUDIOHED.BS1 | AUDIOHED.BS6 | AUDIOHED.VSI |
+| AUDIOT.BS1   | AUDIOT.BS6   | AUDIOT.VSI   |
+|              | EANIM.BS6    | EANIM.VSI    |
+|              | GANIM.BS6    |              |
+| IANIM.BS1    | IANIM.BS6    | IANIM.VSI    |
+| MAPHEAD.BS1  | MAPHEAD.BS6  | MAPHEAD.VSI  |
+| MAPTEMP.BS1  | MAPTEMP.BS6  | MAPTEMP.VSI  |
+| SANIM.BS1    | SANIM.BS6    |              |
+| VGADICT.BS1  | VGADICT.BS6  | VGADICT.VSI  |
+| VGAGRAPH.BS1 | VGAGRAPH.BS6 | VGAGRAPH.VSI |
+| VGAHEAD.BS1  | VGAHEAD.BS6  | VGAHEAD.VSI  |
+| VSWAP.BS1    | VSWAP.BS6    | VSWAP.VSI    |
 
-Required files for Planet Strike:
-* AUDIOHED.VSI
-* AUDIOT.VSI
-* EANIM.VSI
-* IANIM.VSI
-* MAPHEAD.VSI
-* MAPTEMP.VSI
-* VGADICT.VSI
-* VGAGRAPH.VSI
-* VGAHEAD.VSI
-* VSWAP.VSI
+Legend:
+* AoG SW - Aliens of Gold (shareware)
+* AoG - Aliens of Gold (full)
+* PS - Planet Strike
 
 
 4 - Profile
 ===========
 
-The port stores configuration file, saved game files, etc. in user's profile.  
+Configuration file, saved game files, etc. are stored in user's profile.  
 The path to those files depends on platform.  
 To override the path use --profile_dir option.
 
@@ -186,17 +170,22 @@ Notes:
   into message box.
 
 * --aog_sw  
-  Switches the port to Blake Stone: Aliens of Gold (shareware, v3.0) mode.  
+  Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
+  Default switch strategy: AoG -> PS -> AoG (SW)
 
-* --ps  
-  Switches the port to Blake Stone: Planet Strike (full, v1.0/v1.1) mode.  
+* --aog  
+  Switches the port to Blake Stone: Aliens of Gold mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
+  Default switch strategy: AoG -> PS -> AoG (SW)
+  
+* --ps  
+  Switches the port to Blake Stone: Planet Strike mode.  
+  If appropriate data files will not be found the port will fail.  
+  Default switch strategy: AoG -> PS -> AoG (SW)
 
 * --no_screens  
-  Skips start-up screens (AoG/PS) and ending promo pages (AoG SW only).
+  Skips start-up screens and the ending promo pages (AoG SW).
 
 * --cheats  
   Enables so called "debug mode" without much fuss.
