@@ -18,6 +18,7 @@
 - Rewrite CMake script.
 - C++ standard to C++14.
 - Revise code.
+- Find assets strategy: AoG -> PS -> AoG SW
 
 ### Removed
 - Command-line options: --aog_10, --aog_2x, --aog_30.

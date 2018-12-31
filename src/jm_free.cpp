@@ -526,13 +526,13 @@ void find_assets()
 	{
 		static_cast<void>(find_aog_full_assets(true));
 	}
-	else if (::g_args.has_option("aog_sw"))
-	{
-		static_cast<void>(find_aog_sw_assets(true));
-	}
 	else if (::g_args.has_option("ps"))
 	{
 		static_cast<void>(find_ps_assets(true));
+	}
+	else if (::g_args.has_option("aog_sw"))
+	{
+		static_cast<void>(find_aog_sw_assets(true));
 	}
 	else
 	{
