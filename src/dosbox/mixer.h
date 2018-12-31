@@ -36,89 +36,87 @@ Free Software Foundation, Inc.,
 #include "dosbox.h"
 
 
-typedef void (*MIXER_Handler)(uintptr_t len);
+typedef void(*MIXER_Handler)(std::uintptr_t len);
 
 
-class MixerChannel {
+class MixerChannel
+{
 public:
-    MixerChannel()
-    {
-        set_buffer(nullptr);
-        set_scale(get_default_scale());
-    }
+	MixerChannel()
+	{
+		set_buffer(nullptr);
+		set_scale(get_default_scale());
+	}
 
-    void AddSamples_m32(uintptr_t count, const int32_t* buffer)
-    {
-        if (count < 1)
-            return;
+	void AddSamples_m32(std::uintptr_t count, const std::int32_t* buffer)
+	{
+		if (count < 1)
+			return;
 
-        if (!buffer)
-            return;
+		if (!buffer)
+			return;
 
-        assert(buffer_);
+		assert(buffer_);
 
-        if (!buffer_)
-            return;
+		if (!buffer_)
+			return;
 
-        for (uintptr_t i = 0; i < count; ++i) {
-            int32_t value = scale_ * buffer[i];
+		for (std::uintptr_t i = 0; i < count; ++i)
+		{
+			std::int32_t value = scale_ * buffer[i];
 
-            value = std::min(value, get_max_sample_value());
-            value = std::max(value, get_min_sample_value());
+			value = std::min(value, get_max_sample_value());
+			value = std::max(value, get_min_sample_value());
 
-            buffer_[i] = static_cast<int16_t>(value);
-        }
-    }
+			buffer_[i] = static_cast<std::int16_t>(value);
+		}
+	}
 
-    void AddSamples_s32(uintptr_t, const int32_t*)
-    {
-        assert(!"AddSamples_s32 not implemented.");
-    }
+	void AddSamples_s32(std::uintptr_t, const std::int32_t*)
+	{
+		assert(!"AddSamples_s32 not implemented.");
+	}
 
-    // Sets a buffer to write data to.
-    void set_buffer(int16_t* buffer)
-    {
-        buffer_ = buffer;
-    }
+	// Sets a buffer to write data to.
+	void set_buffer(std::int16_t* buffer)
+	{
+		buffer_ = buffer;
+	}
 
-    // Sets a scale for output samples.
-    void set_scale(int new_scale)
-    {
-        scale_ = std::max(new_scale, get_min_scale());
-    }
+	// Sets a scale for output samples.
+	void set_scale(int new_scale)
+	{
+		scale_ = std::max(new_scale, get_min_scale());
+	}
 
-    static int get_min_scale()
-    {
-        return 1;
-    }
+	static int get_min_scale()
+	{
+		return 1;
+	}
 
-    static int get_default_scale()
-    {
-        return get_min_scale();
-    }
+	static int get_default_scale()
+	{
+		return get_min_scale();
+	}
 
-    static int get_min_sample_value()
-    {
-        return -32768;
-    }
+	static std::int32_t get_min_sample_value()
+	{
+		return -32768;
+	}
 
-    static int get_max_sample_value()
-    {
-        return 32767;
-    }
+	static std::int32_t get_max_sample_value()
+	{
+		return 32767;
+	}
 
 private:
-    int16_t* buffer_;
-    int scale_;
+	std::int16_t* buffer_;
+	int scale_;
 }; // MixerChannel
 
 
-class MixerObject {
-public:
-    MixerChannel* Install(
-        MIXER_Handler handler,
-        Bitu freq,
-        const char* name);
+struct MixerObject
+{
 }; // MixerObject
 
 

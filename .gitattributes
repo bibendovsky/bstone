@@ -1,10 +1,1 @@
 * text=auto
-
-*.asm text
-*.equ text
-*.c text
-*.cpp text
-*.h text
-*.hpp text
-
-*.prj binary

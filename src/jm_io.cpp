@@ -22,65 +22,75 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cstring>
+#include <memory>
 #include "id_heads.h"
+#include "id_ca.h"
+#include "jm_cio.h"
 #include "jm_io.h"
 #include "jm_lzh.h"
 
 
 int IO_LoadFile(
-    const char* filename,
-    void** dst)
+	const char* filename,
+	void** dst)
 {
-    char buffer[5] = { 0, 0, 0, 0, 0 };
-    bstone::FileStream handle;
-    int32_t size = 0;
+	char buffer[5] = {0, 0, 0, 0, 0};
+	bstone::FileStream handle;
+	std::int32_t size = 0;
 
-    handle.open(filename);
+	handle.open(filename);
 
-    if (!handle.is_open()) {
-        return size;
-    }
+	if (!handle.is_open())
+	{
+		return size;
+	}
 
-    handle.read(buffer, 4);
+	handle.read(buffer, 4);
 
-    if (!strcmp(buffer, "JAMP")) {
-        struct JAMPHeader head;
+	if (!strcmp(buffer, "JAMP"))
+	{
+		struct JAMPHeader head;
 
-        handle.read(&head, sizeof(head));
-        size = head.OriginalLen;
-        switch (head.CompType) {
-        case ct_LZH:
-            LZH_Startup();
+		handle.read(&head, sizeof(head));
+		size = head.OriginalLen;
+		switch (head.CompType)
+		{
+		case ct_LZH:
+			LZH_Startup();
 
-            *dst = new char[head.OriginalLen];
+			*dst = new char[head.OriginalLen];
 
-            {
-                std::unique_ptr<uint8_t> compressed_buffer(
-                    new uint8_t[head.CompressLen]);
+			{
+				std::unique_ptr<std::uint8_t> compressed_buffer(
+					new std::uint8_t[head.CompressLen]);
 
-                ::LZH_Decompress(compressed_buffer.get(), *dst,
-                                 size, head.CompressLen);
-            }
+				::LZH_Decompress(compressed_buffer.get(), *dst,
+					size, head.CompressLen);
+			}
 
-            LZH_Shutdown();
-            break;
+			LZH_Shutdown();
+			break;
 
-        case ct_LZW:
-            ::Quit("No code for LZW compression.");
-            break;
+		case ct_LZW:
+			::Quit("No code for LZW compression.");
+			break;
 
-        default:
-            ::Quit("Unknown compression type.");
-            break;
-        }
-    } else {
-        handle.set_position(0);
-        size = static_cast<int32_t>(handle.get_size());
-        *dst = new char[size];
-        if (handle.read(*dst, size) != size) {
-            return size;
-        }
-    }
+		default:
+			::Quit("Unknown compression type.");
+			break;
+		}
+	}
+	else
+	{
+		handle.set_position(0);
+		size = static_cast<std::int32_t>(handle.get_size());
+		*dst = new char[size];
+		if (handle.read(*dst, size) != size)
+		{
+			return size;
+		}
+	}
 
-    return size;
+	return size;
 }

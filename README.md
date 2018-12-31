@@ -8,22 +8,24 @@ Contents
 ========
 
 1. Disclaimer
-2. Overview
-3. Profile
-4. Compiling
-5. Command-line options
-6. Cheat key
-7. Debug keys
-8. Third party use
-9. Credits
-10. Links
+2. Overview  
+2.1 Overview (PS Vita)
+3. Required assets
+4. Profile
+5. Compiling
+6. Command-line options
+7. Cheat key
+8. Debug keys
+9. Third party use
+10. Credits
+11. Links
 
 
 1 - Disclaimer
 ==============
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC  
-Copyright (c) 2013-2015 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
+Copyright (c) 2013-2018 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
 
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License  
@@ -55,19 +57,47 @@ Features:
 * Separate volume control of sound effects and music
 
 Supported games:
-* Aliens of Gold v1.0 full
-* Aliens of Gold v2.0 full
-* Aliens of Gold v2.1 full
-* Aliens of Gold v3.0 full
-* Aliens of Gold v3.0 shareware
-* Planet Strike v1.0
-* Planet Strike v1.1
+* Aliens of Gold (v1.0/v2.0/v2.1/v3.0) full or shareware
+* Planet Strike (v1.0/v1.1)
 
 
-3 - Profile
+2.1 - Overview (PS Vita)
+========================
+See README-PSVITA.md for details about the source port on PS Vita.
+
+
+3 - Required assets
+===================
+
+Since all titles are not free (except shareware) you have to own a copy of the game(s) in order to play.
+
+Required files for each game:
+
+|    AoG SW    |      AoG     |      PS      |
+|--------------|--------------|--------------|
+| AUDIOHED.BS1 | AUDIOHED.BS6 | AUDIOHED.VSI |
+| AUDIOT.BS1   | AUDIOT.BS6   | AUDIOT.VSI   |
+|              | EANIM.BS6    | EANIM.VSI    |
+|              | GANIM.BS6    |              |
+| IANIM.BS1    | IANIM.BS6    | IANIM.VSI    |
+| MAPHEAD.BS1  | MAPHEAD.BS6  | MAPHEAD.VSI  |
+| MAPTEMP.BS1  | MAPTEMP.BS6  | MAPTEMP.VSI  |
+| SANIM.BS1    | SANIM.BS6    |              |
+| VGADICT.BS1  | VGADICT.BS6  | VGADICT.VSI  |
+| VGAGRAPH.BS1 | VGAGRAPH.BS6 | VGAGRAPH.VSI |
+| VGAHEAD.BS1  | VGAHEAD.BS6  | VGAHEAD.VSI  |
+| VSWAP.BS1    | VSWAP.BS6    | VSWAP.VSI    |
+
+Legend:
+* AoG SW - Aliens of Gold (shareware)
+* AoG - Aliens of Gold (full)
+* PS - Planet Strike
+
+
+4 - Profile
 ===========
 
-The port stores configuration file, saved game files, etc. in user's profile.  
+Configuration file, saved game files, etc. are stored in user's profile.  
 The path to those files depends on platform.  
 To override the path use --profile_dir option.
 
@@ -91,42 +121,30 @@ Where "game" is:
 * ps - Planet Strike
 
 
-4 - Compiling
+5 - Compiling
 =============
 
 Minimum requirements:
-* C++11 compatible compiler.  
+* C++14 compatible compiler.
 
-* CMake 2.8  
-  (<http://cmake.org/>)  
-  
-* pkg-config  
-  (<http://pkg-config.freedesktop.org/>)  
-  (only for non Visual C++ compiler)  
-  
-* SDL v2.0.1 (non-Windows) / SDL v2.0.3 (Windows)  
-  (<http://www.libsdl.org/>)  
+* CMake 3.1.3  
+  (<http://cmake.org/>)
 
-Tested platforms:
-  * Windows 10 x64  
-    Visual C++ v19.10.25019 (Visual Studio 2017 Community Edition)  
-    CMake x64 v3.9.0  
-    SDL v2.0.5  
-    
-  * Ubuntu Desktop x64 16.04.4  
-    GCC v5.4.0  
-    CMake x64 v3.5.1  
-    SDL v2.0.4  
-  
+* SDL v2.0.4
+  (<http://www.libsdl.org/>)
+
 CMake variables:
 * CMAKE_BUILD_TYPE  
-  Selects wich build(s) to compile.  
+  Selects which build(s) to compile.  
   Use semicolon to separate entries. 
   Usually it's Debug or Release.  
   For other values see CMake documentation.
 
+* CMAKE_INSTALL_PREFIX  
+  Selects location where install files to.
+
 * BSTONE_PANDORA  
-  If enabled prepares build for Open Pandora.
+  Enables build for Open Pandora.
 
 * BSTONE_USE_PCH  
   If enabled utilizes precompiled headers to speed up compilation.  
@@ -136,20 +154,15 @@ CMake variables:
   If enabled links modules statically to avoid dependency on  
   system and custom libraries at run-time.
 
-* SDL2_INCLUDE_DIRS  
-  Defines directory with SDL2 headers.  
-  Note: Visual C++ only
+* SDL2W_SDL2_DIR  
+  Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
 
-* SDL2_LIBRARIES  
-  Defines list of SDL2 libraries.  
-  Use semicolon to separate entries.  
-  Note: Visual C++ only
 
 Notes:
 * Use ON value to enable option and value OFF to disable option.
 
 
-5 - Command-line options
+6 - Command-line options
 ========================
 
 * --version  
@@ -157,32 +170,22 @@ Notes:
   into message box.
 
 * --aog_sw  
-  Switches the port to Blake Stone: Aliens of Gold (shareware, v3.0) mode.  
+  Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
+  Default switch strategy: AoG -> PS -> AoG (SW)
 
-* --aog_10  
-  Switches the port to Blake Stone: Aliens of Gold (full, v1.0) mode.  
+* --aog  
+  Switches the port to Blake Stone: Aliens of Gold mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
-
-* --aog_2x  
-  Switches the port to Blake Stone: Aliens of Gold (full, v2.0/v2.1) mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
-
-* --aog_30  
-  Switches the port to Blake Stone: Aliens of Gold (full, v3.0) mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
-
+  Default switch strategy: AoG -> PS -> AoG (SW)
+  
 * --ps  
-  Switches the port to Blake Stone: Planet Strike (full, v1.0/v1.1) mode.  
+  Switches the port to Blake Stone: Planet Strike mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG (full) -> AoG (SW) -> PS
+  Default switch strategy: AoG -> PS -> AoG (SW)
 
 * --no_screens  
-  Skips start-up screens (AoG/PS) and ending promo pages (AoG SW only).
+  Skips start-up screens and the ending promo pages (AoG SW).
 
 * --cheats  
   Enables so called "debug mode" without much fuss.
@@ -190,6 +193,10 @@ Notes:
 * --data_dir path_to_data  
   Specifies location to the game's data files.  
   Default: current working directory.
+
+* --mod_dir path_to_data  
+  Specifies location to the mod's data files.  
+  Default: undefined.
 
 * --profile_dir path  
   Overrides default location of the game's profile files.  
@@ -213,6 +220,9 @@ Notes:
   Without this option the game will use desktop's resolution.  
   Minimum width: 640  
   Minimum height: 480
+
+* --vid_no_vsync  
+  Disables vertical synchronization.
 
 * --vid_scale factor  
   Refinement factor. The higher a value the greater internal resolution  
@@ -242,7 +252,7 @@ Notes:
   Minimum: 20 ms
 
 
-6 - Cheat key
+7 - Cheat key
 =============
 
 [J] [A] [M] [Enter]  
@@ -252,7 +262,7 @@ all weapons and restores health to 100% but zeroes score points.
 Not available in shareware version.
 
 
-7 - Debug keys
+8 - Debug keys
 ==============
 
 Add option "--cheats" to enable these keys.
@@ -335,7 +345,7 @@ Add option "--cheats" to enable these keys.
   Increases shading drop off.
 
 
-8 - Third party use
+9 - Third party use
 ===================
 
 * Simple DirectMedia Library (v2)  
@@ -348,7 +358,7 @@ Add option "--cheats" to enable these keys.
   Note: The source port uses only an OPL emulation code.
 
 
-9 - Credits
+10 - Credits
 ===========
 
 * id Software  
@@ -362,10 +372,6 @@ Add option "--cheats" to enable these keys.
   Publishing the game and releasing a source code.  
   <http://www.apogeesoftware.com/>
 
-* Boris I. Bendovsky  
-  Author of the source code.  
-  <bibendovsky@hotmail.com>
-
 * Scott Smith  
   Adaptation to Pandora console, various fixes.
 
@@ -373,7 +379,7 @@ Add option "--cheats" to enable these keys.
   Testing the port.
 
 
-10 - Links
+11 - Links
 ==========
 
 * Home page:  
@@ -381,3 +387,6 @@ Add option "--cheats" to enable these keys.
 
 * Apogee's article about releasing of an original source code:  
   <http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code>
+
+* Official shareware Blake Stone: Aliens of Gold, patches and maps (search for "Blake Stone: Aliens of Gold" section):
+  <http://legacy.3drealms.com/downloads.html>

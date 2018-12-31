@@ -35,38 +35,36 @@ Free Software Foundation, Inc.,
 #include <sstream>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A wrapper for std::ostringstream to produce a formatted string.
-class FormatString {
+class FormatString final
+{
 public:
-    FormatString();
+	FormatString();
 
-    operator std::string();
+	operator std::string();
 
-    std::string to_string() const;
+	std::string to_string() const;
 
-    template<class T>
-    bstone::FormatString& operator <<(
-        const T& value)
-    {
-        stream_ << value;
-        return *this;
-    }
+
+	template<typename T>
+	bstone::FormatString& operator<<(
+		const T& value)
+	{
+		stream_ << value;
+		return *this;
+	}
+
 
 private:
-    std::ostringstream stream_;
-
-    FormatString(
-        const FormatString& that);
-
-    FormatString& operator=(
-        const FormatString& that);
+	std::ostringstream stream_;
 }; // FormatString
 
 
 } // bstone
 
 
-#endif // BSTONE_FORMAT_STRING_INCLUDED
+#endif // !BSTONE_FORMAT_STRING_INCLUDED

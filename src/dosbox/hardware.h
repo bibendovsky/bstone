@@ -31,12 +31,13 @@ Free Software Foundation, Inc.,
 #define BSTONE_DOSBOX_HARDWARE_INCLUDED
 
 
-enum OPL_Mode {
-    OPL_none,
-    OPL_cms,
-    OPL_opl2,
-    OPL_dualopl2,
-    OPL_opl3
+enum OPL_Mode
+{
+	OPL_none,
+	OPL_cms,
+	OPL_opl2,
+	OPL_dualopl2,
+	OPL_opl3
 }; // OPL_Mode
 
 

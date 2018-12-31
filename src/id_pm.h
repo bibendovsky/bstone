@@ -26,9 +26,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_PM_INCLUDED
 
 
-#include <string>
-
-
 const int PMPageSize = 4096;
 
 
@@ -36,17 +33,15 @@ extern int ChunksInFile;
 extern int PMSpriteStart;
 extern int PMSoundStart;
 
-extern std::string PageFileName;
-
 
 void PM_Startup();
 void PM_Shutdown();
 void* PM_GetPage(
-    int page_number);
+	int page_number);
 void* PM_GetSoundPage(
-    int page_number);
+	int page_number);
 void* PM_GetSpritePage(
-    int page_number);
+	int page_number);
 
 
 #endif // BSTONE_ID_PM_INCLUDED

@@ -22,6 +22,10 @@ Free Software Foundation, Inc.,
 */
 
 
+#ifndef BSTONE_FIZZLE_FX_INCLUDED
+#define BSTONE_FIZZLE_FX_INCLUDED
+
+
 //
 // Fizzle effect (base class).
 //
@@ -34,50 +38,57 @@ namespace bstone
 class FizzleFX
 {
 public:
-    FizzleFX();
+	FizzleFX() = default;
 
-    FizzleFX(
-        const FizzleFX& that) = delete;
+	FizzleFX(
+		const FizzleFX& rhs) = delete;
 
-    FizzleFX& operator=(
-        const FizzleFX& that) = delete;
+	FizzleFX(
+		FizzleFX&& rhs) = default;
 
-    virtual ~FizzleFX();
+	FizzleFX& operator=(
+		const FizzleFX& rhs) = delete;
+
+	virtual ~FizzleFX() = default;
 
 
-    // Performs the effect.
-    //
-    // Returns true if aborted or false otherwise.
-    bool present();
+	// Performs the effect.
+	//
+	// Returns true if aborted or false otherwise.
+	bool present(
+		const bool trigger_fade);
 
 
 protected:
-    // Initializes the effect.
-    virtual void initialize() = 0;
+	// Initializes the effect.
+	virtual void initialize() = 0;
 
-    // Clean-ups the effect.
-    virtual void uninitialize() = 0;
+	// Clean-ups the effect.
+	virtual void uninitialize() = 0;
 
-    // Returns true if the effect can be interrupted.
-    virtual bool is_abortable() const = 0;
+	// Returns true if the effect can be interrupted.
+	virtual bool is_abortable() const = 0;
 
-    // Returns total frame count.
-    virtual int get_frame_count() const = 0;
+	// Returns total frame count.
+	virtual int get_frame_count() const = 0;
 
-    // Returns vertical offset of the effect beginning.
-    virtual int get_y() const = 0;
+	// Returns vertical offset of the effect beginning.
+	virtual int get_y() const = 0;
 
-    // Returns total height of the effect.
-    virtual int get_height() const = 0;
+	// Returns total height of the effect.
+	virtual int get_height() const = 0;
 
-    // Performs operation on one pixel.
-    virtual void plot(
-        int x,
-        int y) = 0;
+	// Performs operation on one pixel.
+	virtual void plot(
+		const int x,
+		const int y) = 0;
 
-    // Presents the final stage of the effect.
-    virtual void skip_to_the_end() = 0;
+	// Presents the final stage of the effect.
+	virtual void skip_to_the_end() = 0;
 }; // FizzleFX
 
 
 } // bstone
+
+
+#endif // !BSTONE_FIZZLE_FX_INCLUDED

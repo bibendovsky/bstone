@@ -28,73 +28,74 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_adlib_decoder.h"
-#include <cassert>
-#include <cstddef>
-#include <algorithm>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 AdlibDecoder::AdlibDecoder()
+	:
+	emulator_{}
 {
 }
 
-// (virtual)
 AdlibDecoder::~AdlibDecoder()
 {
-    uninitialize();
 }
 
-// (virtual)
 bool AdlibDecoder::initialize(
-    const void* raw_data,
-    int raw_size,
-    int dst_rate)
+	const void* const raw_data,
+	const int raw_size,
+	const int dst_rate)
 {
-    if (!AudioDecoder::initialize(
-        raw_data,
-        raw_size,
-        dst_rate))
-    {
-        return false;
-    }
+	uninitialize();
 
-    emulator_.initialize(dst_rate);
-    set_emulator_default_state();
+	if (!AudioDecoder::initialize(raw_data, raw_size, dst_rate))
+	{
+		return false;
+	}
 
-    return true;
+	emulator_.initialize(dst_rate);
+	set_emulator_default_state();
+
+	return true;
 }
 
-// (virtual)
 void AdlibDecoder::uninitialize()
 {
-    emulator_.uninitialize();
+	uninitialize_internal();
 
-    AudioDecoder::uninitialize();
+	AudioDecoder::uninitialize();
 }
 
-// (virtual)
 bool AdlibDecoder::reset()
 {
-    if (!is_initialized()) {
-        return false;
-    }
+	if (!is_initialized())
+	{
+		return false;
+	}
 
-    emulator_.initialize(get_dst_rate());
-    set_emulator_default_state();
+	emulator_.initialize(get_dst_rate());
+	set_emulator_default_state();
 
-    return true;
+	return true;
 }
 
 void AdlibDecoder::set_emulator_default_state()
 {
-    for (int i = 1; i <= 0xF5; ++i) {
-        emulator_.write(i, 0x00);
-    }
+	for (int i = 1; i <= 0xF5; ++i)
+	{
+		emulator_.write(i, 0x00);
+	}
 
-    emulator_.write(0x01, 0x20);
-    emulator_.write(0x08, 0x00);
+	emulator_.write(0x01, 0x20);
+	emulator_.write(0x08, 0x00);
+}
+
+void AdlibDecoder::uninitialize_internal()
+{
+	emulator_.uninitialize();
 }
 
 

@@ -29,181 +29,134 @@ Free Software Foundation, Inc.,
 
 #include "bstone_log.h"
 #include <iostream>
-#include <stdexcept>
-#include "SDL.h"
+#include "SDL_messagebox.h"
 
 
 const std::string& get_version_string();
 const std::string& get_profile_dir();
 
 
-namespace bstone {
-
-
-Log::Log() :
-        fstream_(),
-        args_(),
-        sstream_(),
-        message_(),
-        message_type_()
+namespace bstone
 {
-    auto log_path = ::get_profile_dir() + "bstone_log.txt";
-    fstream_.open(log_path, StreamOpenMode::write);
 
-    args_.reserve(16);
-    message_.reserve(1024);
+
+bool Log::is_initialized_;
+FileStream Log::fstream_;
+LogMessageType Log::message_type_;
+std::string Log::message_;
+
+
+void Log::initialize()
+{
+	if (is_initialized_)
+	{
+		return;
+	}
+
+	auto&& log_path = ::get_profile_dir() + "bstone_log.txt";
+
+	is_initialized_ = true;
+	fstream_.open(log_path, StreamOpenMode::write);
+	message_.reserve(1024);
+
+	write("BStone Log");
+	write("==========");
+	write();
+	write("Version: " + ::get_version_string());
+	write();
 }
 
-Log::~Log()
-{
-}
-
-// (static)
 void Log::write()
 {
-    write(std::string());
+	write(std::string{});
 }
 
-// (static)
 void Log::write_version()
 {
-    clean_up();
-
-    write_internal(
-        MessageType::version,
-        "BStone version: {}",
-        ::get_version_string());
+	message_type_ = LogMessageType::version;
+	write_internal("BStone version: " + ::get_version_string());
 }
 
-// (static)
-Log& Log::get_local()
+void Log::write(
+	const std::string& message)
 {
-    static Log log;
-    static bool is_initialized = false;
+	message_type_ = LogMessageType::information;
+	write_internal(message);
+}
 
-    if (!is_initialized) {
-        is_initialized = true;
+void Log::write_warning(
+	const std::string& message)
+{
+	message_type_ = LogMessageType::warning;
+	write_internal(message);
+}
 
-        write("BStone Log");
-        write("==========");
-        write();
-        write("Version: {}", ::get_version_string());
-        write();
-    }
+void Log::write_error(
+	const std::string& message)
+{
+	message_type_ = LogMessageType::error;
+	write_internal(message);
+}
 
-    return log;
+void Log::write_critical(
+	const std::string& message)
+{
+	message_type_ = LogMessageType::critical_error;
+	write_internal(message);
 }
 
 void Log::write_internal(
-    const std::string& format)
+	const std::string& message)
 {
-    bool is_critical = false;
-    bool is_version = false;
+	auto is_critical = false;
+	auto is_version = false;
 
-    switch (message_type_) {
-    case MessageType::version:
-        is_version = true;
-        message_.clear();
-        break;
+	switch (message_type_)
+	{
+	case LogMessageType::version:
+		is_version = true;
+		message_.clear();
+		break;
 
-    case MessageType::information:
-        message_.clear();
-        break;
+	case LogMessageType::information:
+		message_.clear();
+		break;
 
-    case MessageType::warning:
-        message_ = "WARNING: ";
-        break;
+	case LogMessageType::warning:
+		message_ = "WARNING: ";
+		break;
 
-    case MessageType::error:
-        message_ = "ERROR: ";
-        break;
+	case LogMessageType::error:
+		message_ = "ERROR: ";
+		break;
 
-    case MessageType::critical_error:
-        is_critical = true;
-        message_ = "CRITICAL: ";
-        break;
+	case LogMessageType::critical_error:
+		is_critical = true;
+		message_ = "CRITICAL: ";
+		break;
 
-    default:
-        throw std::runtime_error("Invalid message type.");
-    }
+	default:
+		throw std::runtime_error("Invalid message type.");
+	}
 
-    if (args_.empty()) {
-        message_ += format;
-    } else if (!format.empty()) {
-        int i = 0;
-        char prev_char = '\0';
-        auto c_format = format.c_str();
-        int arg_index = 0;
-        while (c_format[i] != '\0') {
-            auto ch = c_format[i];
-            bool just_advance = false;
+	message_ += message;
 
-            if (prev_char != '{' && ch == '{') {
-                int next_char = c_format[i + 1];
+	std::cout << message_ << std::endl;
 
-                if (next_char == '}') {
-                    if (arg_index < static_cast<int>(args_.size())) {
-                        message_ += args_[arg_index];
+	if (!is_version)
+	{
+		fstream_.write_string(message_);
+		fstream_.write_octet('\n');
+	}
 
-                        i += 2;
-                        arg_index += 1;
-                    } else {
-                        just_advance = true;
-                    }
-                } else {
-                    int digit = next_char - '0';
-
-                    if (digit >= 0 && digit <= 9) {
-                        next_char = c_format[i + 2];
-
-                        if (next_char == '}') {
-                            if (digit < static_cast<int>(args_.size())) {
-                                message_ += args_[digit];
-                                i += 3;
-                            } else {
-                                just_advance = true;
-                            }
-                        } else {
-                            just_advance = true;
-                        }
-                    } else {
-                        just_advance = true;
-                    }
-                }
-            } else {
-                just_advance = true;
-            }
-
-            if (just_advance) {
-                ++i;
-                message_ += ch;
-            }
-
-            prev_char = c_format[i - 1];
-        }
-    }
-
-    std::cout << message_ << std::endl;
-
-    if (!is_version) {
-        fstream_.write_string(message_);
-        fstream_.write_octet('\n');
-    }
-
-    if (is_critical || is_version) {
-        static_cast<void>(::SDL_ShowSimpleMessageBox(
-            is_version ? SDL_MESSAGEBOX_INFORMATION : SDL_MESSAGEBOX_ERROR,
-            "BStone",
-            message_.c_str(),
-            nullptr));
-    }
-}
-
-// (static)
-void Log::clean_up()
-{
-    auto& local = get_local();
-    local.args_.clear();
+	if (is_critical || is_version)
+	{
+		static_cast<void>(::SDL_ShowSimpleMessageBox(
+			is_version ? SDL_MESSAGEBOX_INFORMATION : SDL_MESSAGEBOX_ERROR,
+			"BStone",
+			message_.c_str(),
+			nullptr));
+	}
 }
 
 

@@ -31,83 +31,92 @@ Free Software Foundation, Inc.,
 #define BSTONE_ADLIB_SFX_DECODER_INCLUDED
 
 
-#include <cstdint>
 #include <vector>
 #include "bstone_adlib_decoder.h"
 #include "bstone_memory_binary_reader.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A decoder for AdLib sound effects.
-class AdlibSfxDecoder : public AdlibDecoder {
+class AdlibSfxDecoder final :
+	public AdlibDecoder
+{
 public:
-    AdlibSfxDecoder();
+	AdlibSfxDecoder();
 
-    virtual ~AdlibSfxDecoder();
+	~AdlibSfxDecoder() override;
 
-    virtual bool initialize(
-        const void* raw_data,
-        int raw_size,
-        int dst_rate);
+	bool initialize(
+		const void* const raw_data,
+		const int raw_size,
+		const int dst_rate) override;
 
-    virtual void uninitialize();
+	void uninitialize() override;
 
-    virtual bool reset();
+	bool reset() override;
 
-    virtual AudioDecoder* clone();
+	AudioDecoder* clone() override;
 
-    virtual int decode(
-        int dst_count,
-        int16_t* dst_data);
+	int decode(
+		const int dst_count,
+		std::int16_t* const dst_data) override;
 
-    // Returns a number of calls per second of
-    // original interrupt routine.
-    static int get_tick_rate();
+	// Returns a number of calls per second of
+	// original interrupt routine.
+	static int get_tick_rate();
+
 
 private:
-    static const int AL_CHAR = 0x20;
-    static const int AL_SCALE = 0x40;
-    static const int AL_ATTACK = 0x60;
-    static const int AL_SUS = 0x80;
-    static const int AL_WAVE = 0xE0;
-    static const int AL_FREQ_L = 0xA0;
-    static const int AL_FREQ_H = 0xB0;
-    static const int AL_FEED_CON = 0xC0;
+	static const auto al_char = 0x20;
+	static const auto al_scale = 0x40;
+	static const auto al_attack = 0x60;
+	static const auto al_sus = 0x80;
+	static const auto al_wave = 0xE0;
+	static const auto al_freq_l = 0xA0;
+	static const auto al_freq_h = 0xB0;
+	static const auto al_feed_con = 0xC0;
 
-    class Instrument {
-    public:
-        int m_char;
-        int c_char;
-        int m_scale;
-        int c_scale;
-        int m_attack;
-        int c_attack;
-        int m_sus;
-        int c_sus;
-        int m_wave;
-        int c_wave;
 
-        void reset();
-    }; // Instrument
+	struct Instrument final
+	{
+		int m_char_;
+		int c_char_;
+		int m_scale_;
+		int c_scale_;
+		int m_attack_;
+		int c_attack_;
+		int m_sus_;
+		int c_sus_;
+		int m_wave_;
+		int c_wave_;
 
-    MemoryBinaryReader reader_;
-    Instrument instrument_;
-    int commands_count_;
-    int command_index_;
-    int samples_per_tick_;
-    int remains_count_;
-    int hf_;
 
-    void initialize_instrument();
+		void reset();
+	}; // Instrument
 
-    // Returns an original size of an AdLibSound structure.
-    static int get_header_size();
+
+	MemoryBinaryReader reader_;
+	Instrument instrument_;
+	int commands_count_;
+	int command_index_;
+	int samples_per_tick_;
+	int remains_count_;
+	int hf_;
+
+
+	void uninitialize_internal();
+
+	void initialize_instrument();
+
+	// Returns an original size of an AdLibSound structure.
+	static int get_header_size();
 }; // AdlibDecoder
 
 
 } // bstone
 
 
-#endif // BSTONE_ADLIB_SFX_DECODER_INCLUDED
+#endif // !BSTONE_ADLIB_SFX_DECODER_INCLUDED

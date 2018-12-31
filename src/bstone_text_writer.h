@@ -32,9 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
-#include <type_traits>
-#include "bstone_istream.h"
-#include "bstone_string_helper.h"
+#include "bstone_stream.h"
 
 
 namespace bstone
@@ -42,39 +40,42 @@ namespace bstone
 
 
 // A binary reader for a block of memory.
-class TextWriter
+class TextWriter final
 {
 public:
-    TextWriter();
+	TextWriter();
 
-    TextWriter(
-        IStream* stream);
+	TextWriter(
+		Stream* stream);
+
+	TextWriter(
+		TextWriter&& rhs);
 
 
-    // Opens the writer.
-    bool open(
-        IStream* stream);
+	// Opens the writer.
+	bool open(
+		Stream* stream);
 
-    // Closes the writer.
-    void close();
+	// Closes the writer.
+	void close();
 
-    // Returns true if the writer is initialized or
-    // false otherwise.
-    bool is_initialized() const;
+	// Returns true if the writer is initialized or
+	// false otherwise.
+	bool is_initialized() const;
 
-    // Writes a string.
-    //
-    // Returns true on success or false otherwise.
-    bool write(
-         const std::string& string);
+	// Writes a string.
+	//
+	// Returns true on success or false otherwise.
+	bool write(
+		const std::string& string);
 
 
 private:
-    IStream* stream_;
+	Stream* stream_;
 }; // TextWriter
 
 
 } // bstone
 
 
-#endif // BSTONE_TEXT_WRITER_INCLUDED
+#endif // !BSTONE_TEXT_WRITER_INCLUDED

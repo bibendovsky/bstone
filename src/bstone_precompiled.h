@@ -31,6 +31,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_PRECOMPILED_INCLUDED
 
 
+#ifdef BSTONE_USE_PCH
+
+
 #include <cassert>
 #include <cctype>
 #include <cmath>
@@ -61,9 +64,20 @@ Free Software Foundation, Inc.,
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "SDL.h"
+
+#include "bstone_cl_args.h"
+#include "bstone_endian.h"
+#include "bstone_log.h"
+#include "bstone_sha1.h"
+#include "bstone_stream.h"
+#include "bstone_string_helper.h"
+
+
+#endif // BSTONE_USE_PCH
 
 
 #endif // BSTONE_PRECOMPILED_INCLUDED

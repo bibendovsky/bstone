@@ -26,80 +26,42 @@ Free Software Foundation, Inc.,
 #define BSTONE_STRING_HELPER_INCLUDED
 
 
-#include <locale>
-#include <stdexcept>
 #include <string>
-#include <sstream>
-#include <vector>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-using StringList = std::vector<std::string>;
-
-
-class StringHelper {
+struct StringHelper final
+{
 public:
-    StringHelper() = delete;
-
-    StringHelper(
-        const StringHelper& that) = delete;
-
-    StringHelper& operator=(
-        const StringHelper& that) = delete;
-
-    ~StringHelper() = delete;
+	static std::string to_lower_ascii(
+		const std::string& string);
 
 
-    static char to_lower(
-        char value);
+	static bool string_to_int(
+		const std::string& string,
+		int& int_value);
 
-    static std::string to_lower(
-        const std::string& value);
+	static bool string_to_int16(
+		const std::string& string,
+		std::int16_t& int16_value);
 
-    template<typename T, typename U>
-    static T lexical_cast(
-        const U& src_value)
-    {
-        std::stringstream oss;
-        oss << src_value;
+	static bool string_to_uint16(
+		const std::string& string,
+		std::uint16_t& uint16_value);
 
-        T result;
-        oss >> result;
 
-        if (oss) {
-            return result;
-        }
+	static std::string octet_to_hex_string(
+		const int octet);
 
-        throw std::runtime_error("lexical_cast");
-    }
 
-    template<typename T, typename U>
-    static bool lexical_cast(
-        const T& src_value,
-        U& dst_value)
-    {
-        std::stringstream oss;
-        oss.unsetf(std::ios_base::skipws);
-        oss << src_value;
-        oss >> dst_value;
-        return !oss.fail();
-    }
-
-    static bool is_iequal(
-        const std::string& a,
-        const std::string& b);
-
-    static bool is(
-        std::ctype_base::mask mask,
-        char value);
-
-    static const std::string& get_empty();
+	const std::string& get_empty() const;
 }; // StringHelper
 
 
 } // bstone
 
 
-#endif // BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_STRING_HELPER_INCLUDED

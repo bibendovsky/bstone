@@ -30,11 +30,13 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <vector>
 #include "bstone_ref_values.h"
-#include "bstone_sprite_cache.h"
 
 
-using VgaBuffer = std::vector<uint8_t>;
+using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
+
+
+extern std::uint8_t* vga_memory;
 
 
 // ===========================================================================
@@ -67,14 +69,17 @@ extern int screen_width;
 extern int screen_height;
 
 extern int vga_scale;
+extern float vga_height_scale; // vga_width / 240
+extern float vga_width_scale; // vga_width / 320
 extern int vga_width;
 extern int vga_height;
 extern int vga_area;
-extern int vga_3d_view_top;
-extern int vga_3d_view_bottom;
+extern int vga_3d_view_top_y;
+extern int vga_3d_view_bottom_y;
 
 const bool default_vid_widescreen = true;
 extern bool vid_widescreen;
+extern bool vid_is_ui_stretched;
 
 // Is VSync enabled?
 extern bool vid_has_vsync;
@@ -85,7 +90,11 @@ extern bool vid_is_hud;
 // Are we drawing a level?
 extern bool vid_is_3d;
 
-extern bstone::SpriteCache vid_sprite_cache;
+// Is fizzle fade in progress?
+extern bool vid_is_fizzle_fade;
+
+// Is it intro/outro/you-win/etc?
+extern bool vid_is_movie;
 // BBi
 
 // ===========================================================================
@@ -94,218 +103,152 @@ void VL_Startup();
 
 void VL_Shutdown();
 
-void VL_SetVGAPlane();
-
-void VL_SetTextMode();
-
-void VL_DePlaneVGA();
-
-void VL_ClearVideo(
-    uint8_t color);
-
-void WaitVBL(
-    int16_t vbls);
-
 void VL_WaitVBL(
-    uint32_t vbls);
-
-void VL_CrtcStart(
-    int16_t crtc);
+	std::uint32_t vbls);
 
 void VL_FillPalette(
-    uint8_t red,
-    uint8_t green,
-    uint8_t blue);
-
-void VL_SetColor(
-    int color,
-    int red,
-    int green,
-    int blue);
-
-void VL_GetColor(
-    int color,
-    int* red,
-    int* green,
-    int* blue);
+	std::uint8_t red,
+	std::uint8_t green,
+	std::uint8_t blue);
 
 void VL_SetPalette(
-    int first,
-    int count,
-    const uint8_t* palette);
+	int first,
+	int count,
+	const std::uint8_t* palette);
 
 void VL_GetPalette(
-    int first,
-    int count,
-    uint8_t* palette);
+	int first,
+	int count,
+	std::uint8_t* palette);
 
 void VL_SetPaletteIntensity(
-    int start,
-    int end,
-    const uint8_t* palette,
-    int intensity);
+	int start,
+	int end,
+	const std::uint8_t* palette,
+	int intensity);
 
 void VL_FadeOut(
-    int start,
-    int end,
-    int red,
-    int green,
-    int blue,
-    int steps);
+	int start,
+	int end,
+	int red,
+	int green,
+	int blue,
+	int steps);
 
 void VL_FadeIn(
-    int start,
-    int end,
-    const uint8_t* palette,
-    int steps);
-
-void VL_ColorBorder(
-    int16_t color);
+	int start,
+	int end,
+	const std::uint8_t* palette,
+	int steps);
 
 void VL_Plot(
-    int x,
-    int y,
-    uint8_t color,
-    const bool is_transparent = false);
+	int x,
+	int y,
+	std::uint8_t color,
+	const bool is_transparent = false);
 
 void VL_Hlin(
-    int x,
-    int y,
-    int width,
-    uint8_t color);
+	int x,
+	int y,
+	int width,
+	std::uint8_t color);
 
 void VL_Vlin(
-    int x,
-    int y,
-    int height,
-    uint8_t color);
+	int x,
+	int y,
+	int height,
+	std::uint8_t color);
 
 void VL_Bar(
-    int x,
-    int y,
-    int width,
-    int height,
-    uint8_t color,
-    const bool is_transparent = false);
-
-void VL_DrawPicBare(
-    int16_t x,
-    int16_t y,
-    uint8_t* pic,
-    int16_t width,
-    int16_t height);
+	int x,
+	int y,
+	int width,
+	int height,
+	std::uint8_t color,
+	const bool is_transparent = false);
 
 void VL_MemToLatch(
-    const uint8_t* source,
-    int width,
-    int height,
-    int dest);
+	const std::uint8_t* source,
+	int width,
+	int height,
+	int dest);
 
 void VL_ScreenToScreen(
-    int source,
-    int dest,
-    int width,
-    int height);
+	int source,
+	int dest,
+	int width,
+	int height);
 
 void VL_MemToScreen(
-    const uint8_t* source,
-    int width,
-    int height,
-    int x,
-    int y);
+	const std::uint8_t* source,
+	int width,
+	int height,
+	int x,
+	int y);
 
 void VL_MaskMemToScreen(
-    const uint8_t* source,
-    int width,
-    int height,
-    int x,
-    int y,
-    uint8_t mask);
+	const std::uint8_t* source,
+	int width,
+	int height,
+	int x,
+	int y,
+	std::uint8_t mask);
 
 void VL_ScreenToMem(
-    uint8_t* dest,
-    int width,
-    int height,
-    int x,
-    int y);
-
-void VL_DrawTile8String(
-    char* str,
-    char* tile8ptr,
-    int16_t printx,
-    int16_t printy);
-
-void VL_DrawLatch8String(
-    char* str,
-    uint16_t tile8ptr,
-    int16_t printx,
-    int16_t printy);
-
-void VL_SizeTile8String(
-    char* str,
-    int16_t* width,
-    int16_t* height);
-
-void VL_DrawPropString(
-    char* str,
-    uint16_t tile8ptr,
-    int16_t printx,
-    int16_t printy);
-
-void VL_SizePropString(
-    char* str,
-    int16_t* width,
-    int16_t* height,
-    char* font);
+	std::uint8_t* dest,
+	int width,
+	int height,
+	int x,
+	int y);
 
 // BBi
 void VL_RefreshScreen();
 
 int vl_get_offset(
-    int base_offset,
-    int x,
-    int y);
+	int base_offset,
+	int x,
+	int y);
 
-uint8_t vl_get_pixel(
-    int base_offset,
-    int x,
-    int y);
+std::uint8_t vl_get_pixel(
+	int base_offset,
+	int x,
+	int y);
 
 void vl_update_widescreen();
 
 void vid_set_ui_mask(
-    bool value);
+	bool value);
 
 void vid_set_ui_mask(
-    int x,
-    int y,
-    int width,
-    int height,
-    bool value);
+	int x,
+	int y,
+	int width,
+	int height,
+	bool value);
 
 void vid_set_ui_mask_3d(
-    bool value);
+	bool value);
 
 void vid_clear_3d();
 
 void vid_export_ui(
-    VgaBuffer& dst_buffer);
+	VgaBuffer& dst_buffer);
 
 void vid_import_ui(
-    const VgaBuffer& src_buffer,
-    bool is_transparent = false);
+	const VgaBuffer& src_buffer,
+	bool is_transparent = false);
 
 void vid_export_ui_mask(
-    UiMaskBuffer& dst_buffer);
+	UiMaskBuffer& dst_buffer);
 
 void vid_import_ui_mask(
-    const UiMaskBuffer& src_buffer);
+	const UiMaskBuffer& src_buffer);
 
 void vid_draw_ui_sprite(
-    const int sprite_id,
-    const int center_x,
-    const int center_y,
-    const int new_side = bstone::Sprite::side);
+	const int sprite_id,
+	const int center_x,
+	const int center_y,
+	const int new_side);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

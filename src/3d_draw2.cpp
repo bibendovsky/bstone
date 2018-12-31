@@ -23,6 +23,8 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "id_pm.h"
+#include "id_vl.h"
 
 
 #define MAXVIEWHEIGHT (200)
@@ -32,9 +34,9 @@ Free Software Foundation, Inc.,
 void MapLSRow();
 
 
-uint16_t CeilingTile = 126, FloorTile = 126;
+std::uint16_t CeilingTile = 126, FloorTile = 126;
 
-void (* MapRowPtr)();
+void(*MapRowPtr)();
 
 SpanStart spanstart;
 StepScale stepscale;
@@ -42,9 +44,9 @@ BaseDist basedist;
 PlaneYLookup planeylookup;
 MirrorOfs mirrorofs;
 
-extern uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
-extern const uint8_t* lightsource;
-extern const uint8_t* shadingtable;
+extern std::uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
+extern const std::uint8_t* lightsource;
+extern const std::uint8_t* shadingtable;
 
 int halfheight = 0;
 
@@ -52,10 +54,10 @@ fixed psin;
 fixed pcos;
 
 fixed FixedMul(
-    fixed a,
-    fixed b)
+	fixed a,
+	fixed b)
 {
-    return (a >> 8) * (b >> 8);
+	return (a >> 8) * (b >> 8);
 }
 
 
@@ -77,138 +79,163 @@ int mr_dest = 0;
 ==============
 */
 void DrawSpans(
-    int x1,
-    int x2,
-    int height)
+	int x1,
+	int x2,
+	int height)
 {
-    int toprow = bufferofs + planeylookup[height];
-    mr_rowofs = mirrorofs[height];
+	const auto toprow = ::bufferofs + ::planeylookup[height];
 
-    mr_xstep = psin / (2 * height);
-    mr_ystep = pcos / (2 * height);
+	::mr_rowofs = ::mirrorofs[height];
 
-    int length = basedist[height];
-    int startxfrac = viewx + FixedMul(length, pcos);
-    int startyfrac = viewy - FixedMul(length, psin);
+	::mr_xstep = ::psin / (2 * height);
+	::mr_ystep = ::pcos / (2 * height);
 
-    if ((gamestate.flags & GS_LIGHTING) != 0) {
-        int i = ::shade_max - ((63 * height) / ::normalshade);
+	auto length = ::basedist[height];
+	auto startxfrac = ::viewx + ::FixedMul(length, pcos);
+	auto startyfrac = ::viewy - ::FixedMul(length, psin);
 
-        if (i < 0) {
-            i = 0;
-        } else if (i > 63) {
-            i = 63;
-        }
+	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	{
+		auto i = ::shade_max - ((63 * height) / ::normalshade);
 
-        shadingtable = lightsource + (i * 256);
-    }
+		if (i < 0)
+		{
+			i = 0;
+		}
+		else if (i > 63)
+		{
+			i = 63;
+		}
 
-    int prestep = (::viewwidth / 2) - x1;
+		::shadingtable = ::lightsource + (i * 256);
+	}
 
-    mr_xfrac = startxfrac - (mr_xstep * prestep);
-    mr_yfrac = startyfrac - (mr_ystep * prestep);
+	const auto prestep = (::viewwidth / 2) - x1;
 
-    mr_dest = toprow + x1;
-    mr_count = x2 - x1 + 1;
+	::mr_xfrac = startxfrac - (::mr_xstep * prestep);
+	::mr_yfrac = startyfrac - (::mr_ystep * prestep);
+
+	::mr_dest = toprow + x1;
+	::mr_count = x2 - x1 + 1;
 
 #if GAMESTATE_TEST
-    if (mr_count > 0) {
-        MapRowPtr();
-    }
+	if (::mr_count > 0)
+	{
+		::MapRowPtr();
+	}
 #else
-    if (mr_count > 0) {
-        if ((gamestate.flags & GS_LIGHTING) != 0) {
-            MapLSRow();
-        } else {
-            MapRow();
-        }
-    }
+	if (::mr_count > 0)
+	{
+		if ((::gamestate.flags & GS_LIGHTING) != 0)
+		{
+			::MapLSRow();
+		}
+		else
+		{
+			::MapRow();
+		}
+	}
 #endif
 }
 
 void SetPlaneViewSize()
 {
-    const uint8_t* src;
-    uint8_t* dest;
+	const std::uint8_t* src;
+	std::uint8_t* dest;
 
-    ::halfheight = ::viewheight / 2;
+	::halfheight = ::viewheight / 2;
 
-    for (int y = 0; y < halfheight; ++y) {
-        planeylookup[y] = (halfheight - 1 - y) * vga_width;
-        mirrorofs[y] = (y * 2 + 1) * vga_width;
-        stepscale[y] = y * GLOBAL1 / 32;
+	for (int y = 0; y < halfheight; ++y)
+	{
+		planeylookup[y] = (halfheight - 1 - y) * vga_width;
+		mirrorofs[y] = (y * 2 + 1) * vga_width;
+		stepscale[y] = y * GLOBAL1 / 32;
 
-        if (y > 0) {
-            basedist[y] = GLOBAL1 / 2 * scale / y;
-        }
-    }
+		if (y > 0)
+		{
+			basedist[y] = GLOBAL1 / 2 * scale / y;
+		}
+	}
 
-    src = static_cast<const uint8_t*>(PM_GetPage(CeilingTile));
-    dest = planepics;
+	src = static_cast<const std::uint8_t*>(PM_GetPage(CeilingTile));
+	dest = planepics;
 
-    for (int x = 0; x < 4096; ++x) {
-        *dest = *src++;
-        dest += 2;
-    }
+	for (int x = 0; x < 4096; ++x)
+	{
+		*dest = *src++;
+		dest += 2;
+	}
 
-    src = static_cast<const uint8_t*>(PM_GetPage(FloorTile));
-    dest = planepics + 1;
+	src = static_cast<const std::uint8_t*>(PM_GetPage(FloorTile));
+	dest = planepics + 1;
 
-    for (int x = 0; x < 4096; ++x) {
-        *dest = *src++;
-        dest += 2;
-    }
+	for (int x = 0; x < 4096; ++x)
+	{
+		*dest = *src++;
+		dest += 2;
+	}
 }
 
 void DrawPlanes()
 {
-    if ((::viewheight / 2) != ::halfheight)
-    {
-        ::SetPlaneViewSize(); // screen size has changed
-    }
+	if ((::viewheight / 2) != ::halfheight)
+	{
+		::SetPlaneViewSize(); // screen size has changed
+	}
 
-    psin = viewsin;
+	psin = viewsin;
 
-    if (psin < 0) {
-        psin = -(psin & 0xFFFF);
-    }
+	if (psin < 0)
+	{
+		psin = -(psin & 0xFFFF);
+	}
 
-    pcos = viewcos;
+	pcos = viewcos;
 
-    if (pcos < 0) {
-        pcos = -(pcos & 0xFFFF);
-    }
+	if (pcos < 0)
+	{
+		pcos = -(pcos & 0xFFFF);
+	}
 
-    int x = 0;
-    int height = 0;
-    int lastheight = halfheight;
+	int x = 0;
+	int height = 0;
+	int lastheight = halfheight;
 
-    for (x = 0; x < ::viewwidth; ++x)
-    {
-        height = wallheight[x] / 8;
+	for (x = 0; x < ::viewwidth; ++x)
+	{
+		height = wallheight[x] / 8;
 
-        if (height < lastheight) { // more starts
-            do {
-                spanstart[--lastheight] = x;
-            } while (lastheight > height);
-        } else if (height > lastheight) { // draw spans
-            if (height > halfheight) {
-                height = halfheight;
-            }
+		if (height < lastheight)
+		{ // more starts
+			do
+			{
+				spanstart[--lastheight] = x;
+			} while (lastheight > height);
+		}
+		else if (height > lastheight)
+		{ // draw spans
+			if (height > halfheight)
+			{
+				height = halfheight;
+			}
 
-            for (; lastheight < height; ++lastheight) {
-                if (lastheight > 0) {
-                    DrawSpans(spanstart[lastheight], x - 1, lastheight);
-                }
-            }
-        }
-    }
+			for (; lastheight < height; ++lastheight)
+			{
+				if (lastheight > 0)
+				{
+					DrawSpans(spanstart[lastheight], x - 1, lastheight);
+				}
+			}
+		}
+	}
 
-    height = halfheight;
+	height = halfheight;
 
-    for (; lastheight < height; ++lastheight) {
-        if (lastheight > 0) {
-            DrawSpans(spanstart[lastheight], x - 1, lastheight);
-        }
-    }
+	for (; lastheight < height; ++lastheight)
+	{
+		if (lastheight > 0)
+		{
+			DrawSpans(spanstart[lastheight], x - 1, lastheight);
+		}
+	}
 }

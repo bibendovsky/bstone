@@ -35,58 +35,66 @@ namespace bstone
 
 
 TextWriter::TextWriter()
-    :
-    stream_{}
+	:
+	stream_{}
 {
 }
 
 TextWriter::TextWriter(
-    IStream* stream)
-    :
-    TextWriter{}
+	Stream* stream)
+	:
+	TextWriter{}
 {
-    static_cast<void>(open(stream));
+	static_cast<void>(open(stream));
 }
 
+TextWriter::TextWriter(
+	TextWriter&& rhs)
+	:
+	stream_{std::move(rhs.stream_)}
+{
+	rhs.stream_ = nullptr;
+}
 
 bool TextWriter::open(
-    IStream* stream)
+	Stream* stream)
 {
-    if (!stream)
-    {
-        return false;
-    }
+	close();
 
-    stream_ = stream;
+	if (!stream)
+	{
+		return false;
+	}
 
-    return true;
+	stream_ = stream;
+
+	return true;
 }
 
 void TextWriter::close()
 {
-    stream_ = nullptr;
+	stream_ = nullptr;
 }
 
 bool TextWriter::is_initialized() const
 {
-    return stream_ != nullptr;
+	return stream_ != nullptr;
 }
 
 bool TextWriter::write(
-    const std::string& string)
+	const std::string& string)
 {
-    if (!is_initialized())
-    {
-        return false;
-    }
+	if (!is_initialized())
+	{
+		return false;
+	}
 
+	if (string.empty())
+	{
+		return true;
+	}
 
-    if (string.empty())
-    {
-        return true;
-    }
-
-    return stream_->write(string.data(), static_cast<int>(string.length()));
+	return stream_->write(string.data(), static_cast<int>(string.length()));
 }
 
 

@@ -52,6 +52,13 @@ Free Software Foundation, Inc.,
 
 
 #include "id_heads.h"
+#include "SDL_timer.h"
+#include "id_in.h"
+#include "id_sd.h"
+#include "id_us.h"
+#include "id_vh.h"
+#include "id_vl.h"
+#include "bstone_log.h"
 
 
 #define VW_UpdateScreen() VH_UpdateScreen()
@@ -60,12 +67,12 @@ void VH_UpdateScreen();
 
 // Global variables
 char* abortprogram;
-int16_t PrintX;
-int16_t PrintY;
-int16_t WindowX;
-int16_t WindowY;
-int16_t WindowW;
-int16_t WindowH;
+std::int16_t PrintX;
+std::int16_t PrintY;
+std::int16_t WindowX;
+std::int16_t WindowY;
+std::int16_t WindowW;
+std::int16_t WindowH;
 
 US_CursorStruct US_CustomCursor; // JAM
 bool use_custom_cursor = false; // JAM
@@ -78,47 +85,40 @@ bool US_Started;
 bool Button0;
 bool Button1;
 bool CursorBad;
-int16_t CursorX;
-int16_t CursorY;
+std::int16_t CursorX;
+std::int16_t CursorY;
 
-void (* USL_MeasureString)(
-    const char*,
-    int*,
-    int*) = VW_MeasurePropString;
+void(*USL_MeasureString)(
+	const char*,
+	int*,
+	int*) = VW_MeasurePropString;
 
-void (*USL_DrawString)(const char*) = VWB_DrawPropString;
+void(*USL_DrawString)(const char*) = VWB_DrawPropString;
 
 SaveGame Games[MaxSaveGames];
 
 
 // BBi
-namespace {
+namespace
+{
 
 
 SDL_TimerID sys_timer_id;
-std::atomic<uint32_t> sys_timer_ticks;
 
 
 Uint32 sys_timer_callback(
-    Uint32 interval,
-    void* param)
+	Uint32 interval,
+	void* param)
 {
-    static_cast<void>(param);
+	static_cast<void>(param);
 
-    ++::TimeCount;
-    sys_timer_ticks = ::SDL_GetTicks();
+	++::TimeCount;
 
-    return interval;
+	return interval;
 }
 
 
 } // namespace
-
-
-uint32_t sys_get_timer_ticks()
-{
-    return ::sys_timer_ticks;
-}
 // BBi
 
 
@@ -131,19 +131,21 @@ HighScores Scores;
 ///////////////////////////////////////////////////////////////////////////
 void US_Shutdown()
 {
-    if (!::US_Started) {
-        return;
-    }
+	if (!::US_Started)
+	{
+		return;
+	}
 
-    // BBi
-    if (::SDL_RemoveTimer(sys_timer_id) == SDL_FALSE) {
-        bstone::Log::write_warning("Failed to remove a timer.");
-    }
+	// BBi
+	if (::SDL_RemoveTimer(sys_timer_id) == SDL_FALSE)
+	{
+		bstone::Log::write_warning("Failed to remove a timer.");
+	}
 
-    sys_timer_id = 0;
-    // BBi
+	sys_timer_id = 0;
+	// BBi
 
-    ::US_Started = false;
+	::US_Started = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -153,39 +155,44 @@ void US_Shutdown()
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_Print(
-    const char* s)
+	const char* s)
 {
-    std::vector<char> buffer(
-        s, s + std::string::traits_type::length(s) + 1);
-    s = &buffer[0];
+	std::vector<char> buffer(
+		s, s + std::string::traits_type::length(s) + 1);
+	s = &buffer[0];
 
-    char c;
-    const char* se;
-    int w, h;
+	char c;
+	const char* se;
+	int w, h;
 
-    while (*s) {
-        se = s;
-        while ((c = *se) != '\0' && (c != '\n')) {
-            se++;
-        }
-        *(char*)se = '\0';
+	while (*s)
+	{
+		se = s;
+		while ((c = *se) != '\0' && (c != '\n'))
+		{
+			se++;
+		}
+		*(char*)se = '\0';
 
-        USL_MeasureString(s, &w, &h);
-        px = PrintX;
-        py = PrintY;
-        USL_DrawString(s);
+		USL_MeasureString(s, &w, &h);
+		px = PrintX;
+		py = PrintY;
+		USL_DrawString(s);
 
-        s = se;
-        if (c) {
-            *(char*)se = c;
-            s++;
+		s = se;
+		if (c)
+		{
+			*(char*)se = c;
+			s++;
 
-            PrintX = WindowX;
-            PrintY = static_cast<uint16_t>(PrintY + h);
-        } else {
-            PrintX = static_cast<uint16_t>(PrintX + w);
-        }
-    }
+			PrintX = WindowX;
+			PrintY = static_cast<std::uint16_t>(PrintY + h);
+		}
+		else
+		{
+			PrintX = static_cast<std::uint16_t>(PrintX + w);
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -194,10 +201,10 @@ void US_Print(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_PrintUnsigned(
-    uint32_t n)
+	std::uint32_t n)
 {
-    auto buffer = std::to_string(n);
-    ::US_Print(buffer.c_str());
+	auto buffer = std::to_string(n);
+	::US_Print(buffer.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -206,21 +213,21 @@ void US_PrintUnsigned(
 //
 ///////////////////////////////////////////////////////////////////////////
 void USL_PrintInCenter(
-    const char* s,
-    Rect r)
+	const char* s,
+	Rect r)
 {
-    int w;
-    int h;
-    int rw;
-    int rh;
+	int w;
+	int h;
+	int rw;
+	int rh;
 
-    USL_MeasureString(s, &w, &h);
-    rw = r.lr.x - r.ul.x;
-    rh = r.lr.y - r.ul.y;
+	USL_MeasureString(s, &w, &h);
+	rw = r.lr.x - r.ul.x;
+	rh = r.lr.y - r.ul.y;
 
-    px = static_cast<int16_t>(r.ul.x + ((rw - w) / 2));
-    py = static_cast<int16_t>(r.ul.y + ((rh - h) / 2));
-    USL_DrawString(s);
+	px = static_cast<std::int16_t>(r.ul.x + ((rw - w) / 2));
+	py = static_cast<std::int16_t>(r.ul.y + ((rh - h) / 2));
+	USL_DrawString(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -229,16 +236,16 @@ void USL_PrintInCenter(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_PrintCentered(
-    const char* s)
+	const char* s)
 {
-    Rect r;
+	Rect r;
 
-    r.ul.x = WindowX;
-    r.ul.y = WindowY;
-    r.lr.x = r.ul.x + WindowW;
-    r.lr.y = r.ul.y + WindowH;
+	r.ul.x = WindowX;
+	r.ul.y = WindowY;
+	r.lr.x = r.ul.x + WindowW;
+	r.lr.y = r.ul.y + WindowH;
 
-    USL_PrintInCenter(s, r);
+	USL_PrintInCenter(s, r);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -248,20 +255,21 @@ void US_PrintCentered(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_CPrintLine(
-    const char* s)
+	const char* s)
 {
-    int w;
-    int h;
+	int w;
+	int h;
 
-    USL_MeasureString(s, &w, &h);
+	USL_MeasureString(s, &w, &h);
 
-    if (w > WindowW) {
-        ::Quit("String exceeds width.");
-    }
-    px = static_cast<int16_t>(WindowX + ((WindowW - w) / 2));
-    py = PrintY;
-    USL_DrawString(s);
-    PrintY = static_cast<uint16_t>(PrintY + h);
+	if (w > WindowW)
+	{
+		::Quit("String exceeds width.");
+	}
+	px = static_cast<std::int16_t>(WindowX + ((WindowW - w) / 2));
+	py = PrintY;
+	USL_DrawString(s);
+	PrintY = static_cast<std::uint16_t>(PrintY + h);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -271,33 +279,36 @@ void US_CPrintLine(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_CPrint(
-    const char* s)
+	const char* s)
 {
-    std::string string(s);
+	std::string string(s);
 
-    if (string.back() != '\n') {
-        string += '\n';
-    }
+	if (string.back() != '\n')
+	{
+		string += '\n';
+	}
 
-    std::string::size_type line_begin = 0;
+	std::string::size_type line_begin = 0;
 
-    while (true) {
-        auto line_end = string.find(
-            '\n',
-            line_begin);
+	while (true)
+	{
+		auto line_end = string.find(
+			'\n',
+			line_begin);
 
-        if (line_end == std::string::npos) {
-            break;
-        }
+		if (line_end == std::string::npos)
+		{
+			break;
+		}
 
-        auto substring = string.substr(
-            line_begin,
-            line_end - line_begin);
+		auto substring = string.substr(
+			line_begin,
+			line_end - line_begin);
 
-        ::US_CPrintLine(substring.c_str());
+		::US_CPrintLine(substring.c_str());
 
-        line_begin = line_end + 1;
-    }
+		line_begin = line_end + 1;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -308,9 +319,9 @@ void US_CPrint(
 ///////////////////////////////////////////////////////////////////////////
 void US_ClearWindow()
 {
-    VWB_Bar(WindowX, WindowY, WindowW, WindowH, 0xEF);
-    PrintX = WindowX;
-    PrintY = WindowY;
+	VWB_Bar(WindowX, WindowY, WindowW, WindowH, 0xEF);
+	PrintX = WindowX;
+	PrintY = WindowY;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -319,38 +330,45 @@ void US_ClearWindow()
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_DrawWindow(
-    uint16_t x,
-    uint16_t y,
-    uint16_t w,
-    uint16_t h)
+	const int x,
+	const int y,
+	const int w,
+	const int h)
 {
-    uint16_t i,
-           sx, sy, sw, sh;
+	::WindowX = x;
+	::WindowY = y;
+	::WindowW = w;
+	::WindowH = h;
 
-    WindowX = x * 8;
-    WindowY = y * 8;
-    WindowW = w * 8;
-    WindowH = h * 8;
+	::PrintX = ::WindowX;
+	::PrintY = ::WindowY;
 
-    PrintX = WindowX;
-    PrintY = WindowY;
+	const auto sx = x - 8;
+	const auto sy = y - 8;
+	const auto sw = w + 8;
+	const auto sh = h + 8;
 
-    sx = (x - 1) * 8;
-    sy = (y - 1) * 8;
-    sw = (w + 1) * 8;
-    sh = (h + 1) * 8;
+	::US_ClearWindow();
 
-    US_ClearWindow();
+	auto i = 0;
 
-    VWB_DrawTile8(sx, sy, 0), VWB_DrawTile8(sx, sy + sh, 5);
-    for (i = sx + 8; i <= sx + sw - 8; i += 8) {
-        VWB_DrawTile8(i, sy, 1), VWB_DrawTile8(i, sy + sh, 6);
-    }
-    VWB_DrawTile8(i, sy, 2), VWB_DrawTile8(i, sy + sh, 7);
+	::VWB_DrawTile8(sx, sy, 0);
+	::VWB_DrawTile8(sx, sy + sh, 5);
 
-    for (i = sy + 8; i <= sy + sh - 8; i += 8) {
-        VWB_DrawTile8(sx, i, 3), VWB_DrawTile8(sx + sw, i, 4);
-    }
+	for (i = sx + 8; i <= sx + sw - 8; i += 8)
+	{
+		::VWB_DrawTile8(i, sy, 1);
+		::VWB_DrawTile8(i, sy + sh, 6);
+	}
+
+	::VWB_DrawTile8(i, sy, 2);
+	::VWB_DrawTile8(i, sy + sh, 7);
+
+	for (i = sy + 8; i <= sy + sh - 8; i += 8)
+	{
+		::VWB_DrawTile8(sx, i, 3);
+		::VWB_DrawTile8(sx + sw, i, 4);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -360,10 +378,16 @@ void US_DrawWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_CenterWindow(
-    uint16_t w,
-    uint16_t h)
+	const int w,
+	const int h)
 {
-    US_DrawWindow(((MaxX / 8) - w) / 2, ((MaxY / 8) - h) / 2, w, h);
+	const auto w8 = w * 8;
+	const auto h8 = h * 8;
+
+	const auto x = (::vga_ref_width - w8) / 2;
+	const auto y = ::ref_view_top_y + (::ref_view_height - h8) / 2;
+
+	::US_DrawWindow(x, y, w8, h8);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -373,15 +397,15 @@ void US_CenterWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_SaveWindow(
-    WindowRec* win)
+	WindowRec* win)
 {
-    win->x = WindowX;
-    win->y = WindowY;
-    win->w = WindowW;
-    win->h = WindowH;
+	win->x = WindowX;
+	win->y = WindowY;
+	win->w = WindowW;
+	win->h = WindowH;
 
-    win->px = PrintX;
-    win->py = PrintY;
+	win->px = PrintX;
+	win->py = PrintY;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -391,15 +415,15 @@ void US_SaveWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 void US_RestoreWindow(
-    WindowRec* win)
+	WindowRec* win)
 {
-    WindowX = win->x;
-    WindowY = win->y;
-    WindowW = win->w;
-    WindowH = win->h;
+	WindowX = win->x;
+	WindowY = win->y;
+	WindowW = win->w;
+	WindowH = win->h;
 
-    PrintX = win->px;
-    PrintY = win->py;
+	PrintX = win->px;
+	PrintY = win->py;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -408,35 +432,38 @@ void US_RestoreWindow(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void USL_XORICursor(
-    int16_t x,
-    int16_t y,
-    char* s,
-    int cursor)
+	std::int16_t x,
+	std::int16_t y,
+	char* s,
+	int cursor)
 {
-    static bool status; // VGA doesn't XOR...
-    char buf[MaxString];
-    int temp;
-    int w, h;
+	static bool status; // VGA doesn't XOR...
+	char buf[MaxString];
+	int temp;
+	int w, h;
 
-    strcpy(buf, s);
-    buf[cursor] = '\0';
-    USL_MeasureString(buf, &w, &h);
+	strcpy(buf, s);
+	buf[cursor] = '\0';
+	USL_MeasureString(buf, &w, &h);
 
-    px = static_cast<int16_t>(x + w - 1);
-    py = y;
+	px = static_cast<std::int16_t>(x + w - 1);
+	py = y;
 
-    VL_WaitVBL(1);
+	VL_WaitVBL(1);
 
-    status = !status;
+	status = !status;
 
-    if (status) {
-        USL_DrawString("\x80");
-    } else {
-        temp = fontcolor;
-        fontcolor = backcolor;
-        USL_DrawString("\x80");
-        fontcolor = static_cast<uint8_t>(temp);
-    }
+	if (status)
+	{
+		USL_DrawString("\x80");
+	}
+	else
+	{
+		temp = fontcolor;
+		fontcolor = backcolor;
+		USL_DrawString("\x80");
+		fontcolor = static_cast<std::uint8_t>(temp);
+	}
 
 }
 
@@ -448,41 +475,44 @@ static void USL_XORICursor(
 //
 ///////////////////////////////////////////////////////////////////////////
 static void USL_CustomCursor(
-    int16_t x,
-    int16_t y,
-    char* s,
-    int cursor)
+	std::int16_t x,
+	std::int16_t y,
+	char* s,
+	int cursor)
 {
-    static bool status; // VGA doesn't XOR...
-    char buf[MaxString];
-    int temp;
-    int w, h;
+	static bool status; // VGA doesn't XOR...
+	char buf[MaxString];
+	int temp;
+	int w, h;
 
-    strcpy(buf, s);
-    buf[cursor] = '\0';
-    USL_MeasureString(buf, &w, &h);
+	strcpy(buf, s);
+	buf[cursor] = '\0';
+	USL_MeasureString(buf, &w, &h);
 
-    px = static_cast<int16_t>(x + w - 1);
-    py = y;
+	px = static_cast<std::int16_t>(x + w - 1);
+	py = y;
 
-    temp = fontcolor;
-    auto temp_font = fontnumber;
+	temp = fontcolor;
+	auto temp_font = fontnumber;
 
-    fontnumber = US_CustomCursor.font_number;
+	fontnumber = US_CustomCursor.font_number;
 
-    status = !status;
+	status = !status;
 
-    if (status) {
-        fontcolor = static_cast<uint8_t>(US_CustomCursor.cursor_color);
-    } else {
-        fontcolor = backcolor;
-    }
+	if (status)
+	{
+		fontcolor = static_cast<std::uint8_t>(US_CustomCursor.cursor_color);
+	}
+	else
+	{
+		fontcolor = backcolor;
+	}
 
-    VL_WaitVBL(1);
+	VL_WaitVBL(1);
 
-    USL_DrawString(&US_CustomCursor.cursor_char);
-    fontcolor = static_cast<uint8_t>(temp);
-    fontnumber = temp_font;
+	USL_DrawString(&US_CustomCursor.cursor_char);
+	fontcolor = static_cast<std::uint8_t>(temp);
+	fontnumber = temp_font;
 
 }
 // JAM END - New Function
@@ -498,187 +528,220 @@ static void USL_CustomCursor(
 //
 ///////////////////////////////////////////////////////////////////////////
 bool US_LineInput(
-    int16_t x,
-    int16_t y,
-    char* buf,
-    char* def,
-    bool escok,
-    int16_t maxchars,
-    int16_t maxwidth)
+	std::int16_t x,
+	std::int16_t y,
+	char* buf,
+	char* def,
+	bool escok,
+	std::int16_t maxchars,
+	std::int16_t maxwidth)
 {
-    bool redraw,
-         cursorvis, cursormoved,
-         done, result = false;
-    ScanCode sc;
-    char c,
-         s[MaxString], olds[MaxString];
-    int i,
-        cursor,
-        w, h,
-        len, temp;
-    uint32_t lasttime;
+	bool redraw,
+		cursorvis, cursormoved,
+		done, result = false;
+	ScanCode sc;
+	char c,
+		s[MaxString], olds[MaxString];
+	int i,
+		cursor,
+		w, h,
+		len, temp;
+	std::uint32_t lasttime;
 
-    if (def) {
-        strcpy(s, def);
-    } else {
-        *s = '\0';
-    }
-    *olds = '\0';
-    cursor = static_cast<uint16_t>(strlen(s));
-    cursormoved = redraw = true;
+	if (def)
+	{
+		strcpy(s, def);
+	}
+	else
+	{
+		*s = '\0';
+	}
+	*olds = '\0';
+	cursor = static_cast<std::uint16_t>(strlen(s));
+	cursormoved = redraw = true;
 
-    cursorvis = done = false;
-    lasttime = TimeCount;
-    LastASCII = key_None;
-    LastScan = ScanCode::sc_none;
+	cursorvis = done = false;
+	lasttime = TimeCount;
+	LastASCII = key_None;
+	LastScan = ScanCode::sc_none;
 
-    while (!done) {
-        if (cursorvis) {
-            if (use_custom_cursor) { // JAM
-                USL_CustomCursor(x, y, s, cursor); // JAM
-            } else {
-                USL_XORICursor(x, y, s, cursor);
-            }
-        }
+	while (!done)
+	{
+		if (cursorvis)
+		{
+			if (use_custom_cursor)
+			{ // JAM
+				USL_CustomCursor(x, y, s, cursor); // JAM
+			}
+			else
+			{
+				USL_XORICursor(x, y, s, cursor);
+			}
+		}
 
-        ::in_handle_events();
+		::in_handle_events();
 
-        sc = LastScan;
-        LastScan = ScanCode::sc_none;
-        c = LastASCII;
-        LastASCII = key_None;
+		sc = LastScan;
+		LastScan = ScanCode::sc_none;
+		c = LastASCII;
+		LastASCII = key_None;
 
-        switch (sc) {
-        case ScanCode::sc_return:
-            strcpy(buf, s);
-            done = true;
-            result = true;
-            c = key_None;
-            break;
-        case ScanCode::sc_escape:
-            if (escok) {
-                done = true;
-                result = false;
-            }
-            c = key_None;
-            break;
+		switch (sc)
+		{
+		case ScanCode::sc_return:
+			strcpy(buf, s);
+			done = true;
+			result = true;
+			c = key_None;
+			break;
+		case ScanCode::sc_escape:
+			if (escok)
+			{
+				done = true;
+				result = false;
+			}
+			c = key_None;
+			break;
 
-        case ScanCode::sc_backspace:
-            if (cursor) {
-                strcpy(s + cursor - 1, s + cursor);
-                cursor--;
-                redraw = true;
-            }
-            c = key_None;
-            cursormoved = true;
-            break;
+		case ScanCode::sc_backspace:
+			if (cursor)
+			{
+				strcpy(s + cursor - 1, s + cursor);
+				cursor--;
+				redraw = true;
+			}
+			c = key_None;
+			cursormoved = true;
+			break;
 
-        case ScanCode::sc_up_arrow:
-        case ScanCode::sc_down_arrow:
-        case ScanCode::sc_page_up:
-        case ScanCode::sc_page_down:
-        case ScanCode::sc_insert:
-            c = key_None;
-            break;
+		case ScanCode::sc_up_arrow:
+		case ScanCode::sc_down_arrow:
+		case ScanCode::sc_page_up:
+		case ScanCode::sc_page_down:
+		case ScanCode::sc_insert:
+			c = key_None;
+			break;
 
-        default:
-            break;
-        }
+		default:
+			break;
+		}
 
-        if (c) {
-            len = static_cast<uint16_t>(strlen(s));
-            USL_MeasureString(s, &w, &h);
+		if (c)
+		{
+			len = static_cast<std::uint16_t>(strlen(s));
+			USL_MeasureString(s, &w, &h);
 
-            if (isprint(c) && (len < MaxString - 1)
-                && ((!maxchars) || (len < maxchars))
-                && ((!maxwidth) || (w < maxwidth)))
-            {
-                for (i = len + 1; i > cursor; i--) {
-                    s[i] = s[i - 1];
-                }
-                s[cursor++] = c;
-                redraw = true;
-            }
-        }
+			if (isprint(c) && (len < MaxString - 1)
+				&& ((!maxchars) || (len < maxchars))
+				&& ((!maxwidth) || (w < maxwidth)))
+			{
+				for (i = len + 1; i > cursor; i--)
+				{
+					s[i] = s[i - 1];
+				}
+				s[cursor++] = c;
+				redraw = true;
+			}
+		}
 
-        if (redraw) {
-            px = x;
-            py = y;
-            temp = fontcolor;
-            fontcolor = backcolor;
-            USL_DrawString(olds);
-            fontcolor = static_cast<uint8_t>(temp);
-            strcpy(olds, s);
+		if (redraw)
+		{
+			px = x;
+			py = y;
+			temp = fontcolor;
+			fontcolor = backcolor;
+			USL_DrawString(olds);
+			fontcolor = static_cast<std::uint8_t>(temp);
+			strcpy(olds, s);
 
-            px = x;
-            py = y;
-            USL_DrawString(s);
+			px = x;
+			py = y;
+			USL_DrawString(s);
 
-            redraw = false;
-        }
+			redraw = false;
+		}
 
-        if (cursormoved) {
-            cursorvis = false;
-            lasttime = TimeCount - TickBase;
+		if (cursormoved)
+		{
+			cursorvis = false;
+			lasttime = TimeCount - TickBase;
 
-            cursormoved = false;
-        }
+			cursormoved = false;
+		}
 
-        if (TimeCount - lasttime > TickBase / 2) {
-            lasttime = TimeCount;
+		if (TimeCount - lasttime > TickBase / 2)
+		{
+			lasttime = TimeCount;
 
-            cursorvis ^= true;
-        }
+			cursorvis ^= true;
+		}
 
-        if (cursorvis) {
-            if (use_custom_cursor) { // JAM
-                USL_CustomCursor(x, y, s, cursor); // JAM
-            } else {
-                USL_XORICursor(x, y, s, cursor);
-            }
-        }
+		if (cursorvis)
+		{
+			if (use_custom_cursor)
+			{ // JAM
+				USL_CustomCursor(x, y, s, cursor); // JAM
+			}
+			else
+			{
+				USL_XORICursor(x, y, s, cursor);
+			}
+		}
 
-        VW_UpdateScreen();
-    }
+		VW_UpdateScreen();
+	}
 
-    if (cursorvis) {
-        if (use_custom_cursor) { // JAM
-            USL_CustomCursor(x, y, s, cursor); // JAM
-        } else {
-            USL_XORICursor(x, y, s, cursor);
-        }
-    }
+	if (cursorvis)
+	{
+		if (use_custom_cursor)
+		{ // JAM
+			USL_CustomCursor(x, y, s, cursor); // JAM
+		}
+		else
+		{
+			USL_XORICursor(x, y, s, cursor);
+		}
+	}
 
-    if (!result) {
-        px = x;
-        py = y;
-        USL_DrawString(olds);
-    }
-    VW_UpdateScreen();
+	if (!result)
+	{
+		px = x;
+		py = y;
+		USL_DrawString(olds);
+	}
+	VW_UpdateScreen();
 
-    IN_ClearKeysDown();
-    return result;
+	IN_ClearKeysDown();
+	return result;
 }
 
 void US_Startup()
 {
-    if (::US_Started) {
-        return;
-    }
+	if (::US_Started)
+	{
+		return;
+	}
 
-    // BBi
-    sys_timer_ticks = 0;
+	// BBi
+	sys_timer_id = ::SDL_AddTimer(
+		1000 / TickBase,
+		sys_timer_callback,
+		nullptr);
 
-    sys_timer_id = ::SDL_AddTimer(
-        1000 / TickBase,
-        sys_timer_callback,
-        nullptr);
+	if (sys_timer_id == 0)
+	{
+		::Quit("Failed to add a timer.");
+	}
+	// BBi
 
-    if (sys_timer_id == 0) {
-        ::Quit("Failed to add a timer.");
-    }
-    // BBi
+	::US_InitRndT(true); // Initialize the random number generator
+	::US_Started = true;
+}
 
-    ::US_InitRndT(true); // Initialize the random number generator
-    ::US_Started = true;
+void SETFONTCOLOR(
+	const int foreground_color,
+	const int background_color)
+{
+	::fontcolor = static_cast<std::uint8_t>(foreground_color);
+	::backcolor = static_cast<std::uint8_t>(background_color);
 }

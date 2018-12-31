@@ -26,22 +26,23 @@ Free Software Foundation, Inc.,
 #define BSTONE_MOVIE_INCLUDED
 
 
-#include <string>
 #include <vector>
 #include "jm_vl.h"
 
 
-struct anim_frame {
-    uint16_t code;
-    int32_t block_num;
-    int32_t recsize;
+struct anim_frame
+{
+	std::uint16_t code;
+	std::int32_t block_num;
+	std::int32_t recsize;
 }; // anim_frame
 
 
-struct anim_chunk {
-    uint16_t opt;
-    uint16_t offset;
-    uint16_t length;
+struct anim_chunk
+{
+	std::uint16_t opt;
+	std::uint16_t offset;
+	std::uint16_t length;
 }; // anim_chunk
 
 
@@ -56,16 +57,17 @@ struct anim_chunk {
 //  start_line -- Starting line of screen to copy to other pages
 //  end_line -- Ending line  "   "   "   "   "   "   "   "
 //
-struct MovieStuff_t {
-    std::string file_name;
-    int8_t rep;
-    int8_t ticdelay;
+struct MovieStuff_t
+{
+	AssetsCRefString file_name;
+	std::int8_t rep;
+	std::int8_t ticdelay;
 
-    uint32_t max_mem_buffer;
+	std::uint32_t max_mem_buffer;
 
-    int16_t start_line;
-    int16_t end_line;
-    const void* palette;
+	std::int16_t start_line;
+	std::int16_t end_line;
+	const void* palette;
 }; // MovieStuff_t
 
 
@@ -88,11 +90,11 @@ extern Movies movies;
 // ===========================================================================
 
 void MOVIE_ShowFrame(
-    char* inpic);
+	char* inpic);
 bool MOVIE_Play(
-    MovieStuff_t* MovieStuff);
+	MovieStuff_t* MovieStuff);
 void SetupMovie(
-    MovieStuff_t* MovieStuff);
+	MovieStuff_t* MovieStuff);
 void ShutdownMovie();
 
 

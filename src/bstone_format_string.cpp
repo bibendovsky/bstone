@@ -30,21 +30,24 @@ Free Software Foundation, Inc.,
 #include "bstone_format_string.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 FormatString::FormatString()
+	:
+	stream_{}
 {
 }
 
 FormatString::operator std::string()
 {
-    return stream_.str();
+	return stream_.str();
 }
 
 std::string FormatString::to_string() const
 {
-    return stream_.str();
+	return stream_.str();
 }
 
 

@@ -26,36 +26,40 @@ Free Software Foundation, Inc.,
 #define BSTONE_UN_VALUE_INCLUDED
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 //
 // A wrapper to make a value uninitalized.
 //
 template<typename T>
-class UnValue {
+class UnValue
+{
 public:
-    UnValue()
-    {
-    }
+	UnValue()
+	{
+	}
 
-    UnValue(
-        const T& that) :
-            value_(that)
-    {
-    }
+	UnValue(
+		const T& that)
+		:
+		value_{that}
+	{
+	}
 
-    operator T&()
-    {
-        return value_;
-    }
+	operator T&()
+	{
+		return value_;
+	}
+
 
 private:
-    T value_;
+	T value_;
 }; // UnValue
 
 
 } // bstone
 
 
-#endif // BSTONE_UN_VALUE_INCLUDED
+#endif // !BSTONE_UN_VALUE_INCLUDED

@@ -23,156 +23,174 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_binary_reader.h"
-#include <vector>
 #include "bstone_endian.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 BinaryReader::BinaryReader(
-    IStream* stream) :
-        stream_()
+	Stream* stream)
+	:
+	stream_{}
 {
-    open(stream);
+	static_cast<void>(open(stream));
+}
+
+BinaryReader::BinaryReader(
+	BinaryReader&& rhs)
+	:
+	stream_{std::move(rhs.stream_)}
+{
+	rhs.stream_ = nullptr;
 }
 
 bool BinaryReader::open(
-    IStream* stream)
+	Stream* stream)
 {
-    close();
+	close();
 
-    if (!stream) {
-        return false;
-    }
+	if (!stream)
+	{
+		return false;
+	}
 
-    if (!stream->can_read()) {
-        return false;
-    }
+	if (!stream->is_readable())
+	{
+		return false;
+	}
 
-    stream_ = stream;
+	stream_ = stream;
 
-    return true;
+	return true;
 }
 
 void BinaryReader::close()
 {
-    stream_ = nullptr;
+	stream_ = nullptr;
 }
 
 bool BinaryReader::is_open() const
 {
-    return stream_ != nullptr;
+	return stream_ != nullptr;
 }
 
-int8_t BinaryReader::read_s8()
+std::int8_t BinaryReader::read_s8()
 {
-    return read<int8_t>();
+	return read<std::int8_t>();
 }
 
-uint8_t BinaryReader::read_u8()
+std::uint8_t BinaryReader::read_u8()
 {
-    return read<uint8_t>();
+	return read<std::uint8_t>();
 }
 
-int16_t BinaryReader::read_s16()
+std::int16_t BinaryReader::read_s16()
 {
-    return read<int16_t>();
+	return read<std::int16_t>();
 }
 
-uint16_t BinaryReader::read_u16()
+std::uint16_t BinaryReader::read_u16()
 {
-    return read<uint16_t>();
+	return read<std::uint16_t>();
 }
 
-int32_t BinaryReader::read_s32()
+std::int32_t BinaryReader::read_s32()
 {
-    return read<int32_t>();
+	return read<std::int32_t>();
 }
 
-uint32_t BinaryReader::read_u32()
+std::uint32_t BinaryReader::read_u32()
 {
-    return read<uint32_t>();
+	return read<std::uint32_t>();
 }
 
-int64_t BinaryReader::read_s64()
+std::int64_t BinaryReader::read_s64()
 {
-    return read<int64_t>();
+	return read<std::int64_t>();
 }
 
-uint64_t BinaryReader::read_u64()
+std::uint64_t BinaryReader::read_u64()
 {
-    return read<uint64_t>();
+	return read<std::uint64_t>();
 }
 
 float BinaryReader::read_r32()
 {
-    return read<float>();
+	return read<float>();
 }
 
 double BinaryReader::read_r64()
 {
-    return read<double>();
+	return read<double>();
 }
 
 std::string BinaryReader::read_string(
-    int max_length)
+	const int max_length)
 {
-    auto length = bstone::Endian::le(read_s32());
+	const auto length = bstone::Endian::little(read_s32());
 
-    if (max_length >= 0 && length > max_length) {
-        return {};
-    }
+	if (max_length >= 0 && length > max_length)
+	{
+		return {};
+	}
 
-    std::string string(length, '\0');
+	std::string string(length, '\0');
 
-    if (length > 0) {
-        if (!read(&string[0], length)) {
-            string.clear();
-        }
-    }
+	if (length > 0)
+	{
+		if (!read(&string[0], length))
+		{
+			string.clear();
+		}
+	}
 
-    return string;
+	return string;
 }
 
 bool BinaryReader::read(
-    void* buffer,
-    int count)
+	void* buffer,
+	const int count)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!is_open())
+	{
+		return false;
+	}
 
-    return stream_->read(buffer, count) == count;
+	return stream_->read(buffer, count) == count;
 }
 
 bool BinaryReader::skip(
-    int count)
+	const int count)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!is_open())
+	{
+		return false;
+	}
 
-    return stream_->skip(count) >= 0;
+	return stream_->skip(count) >= 0;
 }
 
-int64_t BinaryReader::get_position() const
+std::int64_t BinaryReader::get_position() const
 {
-    if (!is_open()) {
-        return 0;
-    }
+	if (!is_open())
+	{
+		return 0;
+	}
 
-    return stream_->get_position();
+	return stream_->get_position();
 }
 
 bool BinaryReader::set_position(
-    int64_t position)
+	std::int64_t position)
 {
-    if (!is_open()) {
-        return false;
-    }
+	if (!is_open())
+	{
+		return false;
+	}
 
-    return stream_->set_position(position);
+	return stream_->set_position(position);
 }
 
 
