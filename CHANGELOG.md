@@ -1,6 +1,6 @@
 # BStone changelog
 
-## [1.1.10] - 2018-12-??
+## [1.1.10] - 2018-12-31
 ### Added
 - Allow lowercase asset file name.
 - Allow to back to the game from the main menu by hitting ESC.
