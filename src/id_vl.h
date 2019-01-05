@@ -128,18 +128,18 @@ void VL_SetPaletteIntensity(
 	int intensity);
 
 void VL_FadeOut(
-	int start,
-	int end,
-	int red,
-	int green,
-	int blue,
-	int steps);
+	const int start,
+	const int end,
+	const int red,
+	const int green,
+	const int blue,
+	const int steps);
 
 void VL_FadeIn(
-	int start,
-	int end,
-	const std::uint8_t* palette,
-	int steps);
+	const int start,
+	const int end,
+	const std::uint8_t* const palette,
+	const int steps);
 
 void VL_Plot(
 	int x,
