@@ -108,10 +108,10 @@ const void* movie_palette;
 
 Movies movies =
 {
-	{Assets::intro_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_intro
-	{Assets::episode_6_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_final
-	{Assets::episode_2_4_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_final2
-	{Assets::episode_3_5_fmv_base_name, 1, 3, 0, 0, 200, nullptr}, // mv_final3
+	{Assets::get_intro_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_intro
+	{Assets::get_episode_6_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_final
+	{Assets::get_episode_2_4_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_final2
+	{Assets::get_episode_3_5_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_final3
 }; // movies
 
 

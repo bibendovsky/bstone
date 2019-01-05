@@ -48,6 +48,9 @@ loaded into the data segment
 #include "bstone_string_helper.h"
 
 
+using namespace std::string_literals;
+
+
 /*
 =============================================================================
 
@@ -178,7 +181,7 @@ void OpenMapFile()
 		CA_CannotOpen(fname);
 	}
 #else
-	::ca_open_resource(Assets::map_data_base_name, ::maphandle);
+	::ca_open_resource(Assets::get_map_data_base_name(), ::maphandle);
 #endif
 }
 
@@ -190,7 +193,7 @@ void CloseMapFile()
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-	::ca_open_resource(Assets::audio_data_base_name, ::audiohandle);
+	::ca_open_resource(Assets::get_audio_data_base_name(), ::audiohandle);
 #else
 	// TODO Remove or fix
 	if ((audiohandle = open("AUDIO."EXTENSION,
@@ -1402,17 +1405,17 @@ void AssetsInfo::set_levels_hash(
 
 	static const auto all_levels_hashes = AssetsCRefStrings
 	{
-		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
 
-		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
 
-		Assets::get_ps_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_ps_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
 	}; // all_levels_hashes
 
 	are_modded_levels_ = !Assets::are_official_levels(levels_hash_);
@@ -1499,35 +1502,118 @@ bool AssetsInfo::is_ps() const
 }
 
 
-const std::string& Assets::audio_header_base_name = "AUDIOHED";
-const std::string& Assets::audio_data_base_name = "AUDIOT";
+const std::string& Assets::get_audio_header_base_name()
+{
+	static const auto audio_header_base_name = "AUDIOHED"s;
 
-const std::string& Assets::map_header_base_name = "MAPHEAD";
-const std::string& Assets::map_data_base_name = "MAPTEMP";
+	return audio_header_base_name;
+}
 
-const std::string& Assets::gfx_dictionary_base_name = "VGADICT";
-const std::string& Assets::gfx_header_base_name = "VGAHEAD";
-const std::string& Assets::gfx_data_base_name = "VGAGRAPH";
+const std::string& Assets::get_audio_data_base_name()
+{
+	static const auto audio_data_base_name = "AUDIOT"s;
 
-const std::string& Assets::page_file_base_name = "VSWAP";
+	return audio_data_base_name;
+}
 
-const std::string& Assets::episode_6_fmv_base_name = "EANIM";
-const std::string& Assets::episode_3_5_fmv_base_name = "GANIM";
-const std::string& Assets::intro_fmv_base_name = "IANIM";
-const std::string& Assets::episode_2_4_fmv_base_name = "SANIM";
+const std::string& Assets::get_map_header_base_name()
+{
+	static const auto map_header_base_name = "MAPHEAD"s;
 
-const std::string& Assets::aog_sw_extension = ".BS1";
-const std::string& Assets::aog_full_extension = ".BS6";
-const std::string& Assets::ps_extension = ".VSI";
+	return map_header_base_name;
+}
 
+const std::string& Assets::get_map_data_base_name()
+{
+	static const auto map_data_base_name = "MAPTEMP"s;
+
+	return map_data_base_name;
+}
+
+const std::string& Assets::get_gfx_dictionary_base_name()
+{
+	static const auto gfx_dictionary_base_name = "VGADICT"s;
+
+	return gfx_dictionary_base_name;
+}
+
+const std::string& Assets::get_gfx_header_base_name()
+{
+	static const auto gfx_header_base_name = "VGAHEAD"s;
+
+	return gfx_header_base_name;
+}
+
+const std::string& Assets::get_gfx_data_base_name()
+{
+	static const auto gfx_data_base_name = "VGAGRAPH"s;
+
+	return gfx_data_base_name;
+}
+
+const std::string& Assets::get_page_file_base_name()
+{
+	static const auto page_file_base_name = "VSWAP"s;
+
+	return page_file_base_name;
+}
+
+const std::string& Assets::get_episode_6_fmv_base_name()
+{
+	static const auto episode_6_fmv_base_name = "EANIM"s;
+
+	return episode_6_fmv_base_name;
+}
+
+const std::string& Assets::get_episode_3_5_fmv_base_name()
+{
+	static const auto episode_3_5_fmv_base_name = "GANIM"s;
+
+	return episode_3_5_fmv_base_name;
+}
+
+const std::string& Assets::get_intro_fmv_base_name()
+{
+	static const auto get_intro_fmv_base_name = "IANIM"s;
+
+	return get_intro_fmv_base_name;
+}
+
+const std::string& Assets::get_episode_2_4_fmv_base_name()
+{
+	static const auto get_episode_2_4_fmv_base_name = "SANIM"s;
+
+	return get_episode_2_4_fmv_base_name;
+}
+
+const std::string& Assets::get_aog_sw_extension()
+{
+	static const auto get_aog_sw_extension = ".BS1"s;
+
+	return get_aog_sw_extension;
+}
+
+const std::string& Assets::get_aog_full_extension()
+{
+	static const auto get_aog_full_extension = ".BS6"s;
+
+	return get_aog_full_extension;
+}
+
+const std::string& Assets::get_ps_extension()
+{
+	static const auto get_ps_extension = ".VSI"s;
+
+	return get_ps_extension;
+}
 
 const AssetsCRefStrings& Assets::get_extensions()
 {
 	static const auto extensions = AssetsCRefStrings
 	{
-		aog_sw_extension,
-		aog_full_extension,
-		ps_extension,
+		get_aog_sw_extension(),
+		get_aog_full_extension(),
+		get_ps_extension(),
 	}; // extensions
 
 	return extensions;
@@ -1537,22 +1623,22 @@ const AssetsCRefStrings& Assets::get_base_names()
 {
 	static const auto base_names = AssetsCRefStrings
 	{
-		audio_header_base_name,
-		audio_data_base_name,
+		get_audio_header_base_name(),
+		get_audio_data_base_name(),
 
-		map_header_base_name,
-		map_data_base_name,
+		get_map_header_base_name(),
+		get_map_data_base_name(),
 
-		gfx_dictionary_base_name,
-		gfx_header_base_name,
-		gfx_data_base_name,
+		get_gfx_dictionary_base_name(),
+		get_gfx_header_base_name(),
+		get_gfx_data_base_name(),
 
-		page_file_base_name,
+		get_page_file_base_name(),
 
-		episode_6_fmv_base_name,
-		episode_3_5_fmv_base_name,
-		intro_fmv_base_name,
-		episode_2_4_fmv_base_name,
+		get_episode_6_fmv_base_name(),
+		get_episode_3_5_fmv_base_name(),
+		get_intro_fmv_base_name(),
+		get_episode_2_4_fmv_base_name(),
 	}; // base_names
 
 	return base_names;
@@ -1562,20 +1648,20 @@ const AssetsCRefStrings& Assets::get_aog_sw_base_names()
 {
 	static const auto aog_sw_base_names = AssetsCRefStrings
 	{
-		audio_header_base_name,
-		audio_data_base_name,
+		get_audio_header_base_name(),
+		get_audio_data_base_name(),
 
-		map_header_base_name,
-		map_data_base_name,
+		get_map_header_base_name(),
+		get_map_data_base_name(),
 
-		gfx_dictionary_base_name,
-		gfx_header_base_name,
-		gfx_data_base_name,
+		get_gfx_dictionary_base_name(),
+		get_gfx_header_base_name(),
+		get_gfx_data_base_name(),
 
-		page_file_base_name,
+		get_page_file_base_name(),
 
-		intro_fmv_base_name,
-		episode_2_4_fmv_base_name,
+		get_intro_fmv_base_name(),
+		get_episode_2_4_fmv_base_name(),
 	}; // aog_sw_base_names
 
 	return aog_sw_base_names;
@@ -1585,22 +1671,22 @@ const AssetsCRefStrings& Assets::get_aog_full_base_names()
 {
 	static const auto aog_full_base_names = AssetsCRefStrings
 	{
-		audio_header_base_name,
-		audio_data_base_name,
+		get_audio_header_base_name(),
+		get_audio_data_base_name(),
 
-		map_header_base_name,
-		map_data_base_name,
+		get_map_header_base_name(),
+		get_map_data_base_name(),
 
-		gfx_dictionary_base_name,
-		gfx_header_base_name,
-		gfx_data_base_name,
+		get_gfx_dictionary_base_name(),
+		get_gfx_header_base_name(),
+		get_gfx_data_base_name(),
 
-		page_file_base_name,
+		get_page_file_base_name(),
 
-		episode_6_fmv_base_name,
-		episode_3_5_fmv_base_name,
-		intro_fmv_base_name,
-		episode_2_4_fmv_base_name,
+		get_episode_6_fmv_base_name(),
+		get_episode_3_5_fmv_base_name(),
+		get_intro_fmv_base_name(),
+		get_episode_2_4_fmv_base_name(),
 	}; // aog_full_base_names
 
 	return aog_full_base_names;
@@ -1610,20 +1696,20 @@ const AssetsCRefStrings& Assets::get_ps_base_names()
 {
 	static const auto ps_base_names = AssetsCRefStrings
 	{
-		audio_header_base_name,
-		audio_data_base_name,
+		get_audio_header_base_name(),
+		get_audio_data_base_name(),
 
-		map_header_base_name,
-		map_data_base_name,
+		get_map_header_base_name(),
+		get_map_data_base_name(),
 
-		gfx_dictionary_base_name,
-		gfx_header_base_name,
-		gfx_data_base_name,
+		get_gfx_dictionary_base_name(),
+		get_gfx_header_base_name(),
+		get_gfx_data_base_name(),
 
-		page_file_base_name,
+		get_page_file_base_name(),
 
-		episode_6_fmv_base_name,
-		intro_fmv_base_name,
+		get_episode_6_fmv_base_name(),
+		get_intro_fmv_base_name(),
 	}; // ps_base_names
 
 	return ps_base_names;
@@ -1634,20 +1720,20 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
 {
 	static auto aog_sw_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "0c3de403b524107809fa9308b730d60e8e41ba93"},
-		{audio_data_base_name, "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
+		{get_audio_header_base_name(), "0c3de403b524107809fa9308b730d60e8e41ba93"},
+		{get_audio_data_base_name(), "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
 
-		{map_header_base_name, "55b9eb9ed555b0f249c2cefd54ecc3f511bfcd55"},
-		{map_data_base_name, "293464e7143ff7e6faf5f5b20799e76a394d65bf"},
+		{get_map_header_base_name(), "55b9eb9ed555b0f249c2cefd54ecc3f511bfcd55"},
+		{get_map_data_base_name(), "293464e7143ff7e6faf5f5b20799e76a394d65bf"},
 
-		{gfx_dictionary_base_name, "b54d48d35d095e27a3c9130cfa59ed9c4f05abe7"},
-		{gfx_header_base_name, "cc44c362e9e2c9f7b9fb2e4ba31331dde42a1e96"},
-		{gfx_data_base_name, "d1fa19131281d30787125f946881652be876f57a"},
+		{get_gfx_dictionary_base_name(), "b54d48d35d095e27a3c9130cfa59ed9c4f05abe7"},
+		{get_gfx_header_base_name(), "cc44c362e9e2c9f7b9fb2e4ba31331dde42a1e96"},
+		{get_gfx_data_base_name(), "d1fa19131281d30787125f946881652be876f57a"},
 
-		{page_file_base_name, "37412ca9139562fc31330d72470822de4d9ceb4a"},
+		{get_page_file_base_name(), "37412ca9139562fc31330d72470822de4d9ceb4a"},
 
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_sw_v1_0_base_name_to_hash_map
 
 	return aog_sw_v1_0_base_name_to_hash_map;
@@ -1657,20 +1743,20 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
 {
 	static auto aog_sw_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "0c3de403b524107809fa9308b730d60e8e41ba93"},
-		{audio_data_base_name, "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
+		{get_audio_header_base_name(), "0c3de403b524107809fa9308b730d60e8e41ba93"},
+		{get_audio_data_base_name(), "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
 
-		{map_header_base_name, "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
-		{map_data_base_name, "bbb3cd6ab3e742eada427862504eba06437036d0"},
+		{get_map_header_base_name(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
+		{get_map_data_base_name(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
 
-		{gfx_dictionary_base_name, "058fe0b59c7aa020bf4e7509103892d4c7459aa6"},
-		{gfx_header_base_name, "6c0e273df7fd3940c038fc20a5bdfb81cd50e7ef"},
-		{gfx_data_base_name, "e14b6172b6ab7568d3736f087f07a0df5eac5dad"},
+		{get_gfx_dictionary_base_name(), "058fe0b59c7aa020bf4e7509103892d4c7459aa6"},
+		{get_gfx_header_base_name(), "6c0e273df7fd3940c038fc20a5bdfb81cd50e7ef"},
+		{get_gfx_data_base_name(), "e14b6172b6ab7568d3736f087f07a0df5eac5dad"},
 
-		{page_file_base_name, "dbde907ba1110bef445d6daae283c4520d6951b4"},
+		{get_page_file_base_name(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
 
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_sw_v2_0_base_name_to_hash_map
 
 	return aog_sw_v2_0_base_name_to_hash_map;
@@ -1680,20 +1766,20 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
 {
 	static auto aog_sw_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{audio_data_base_name, "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
 
-		{map_header_base_name, "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
-		{map_data_base_name, "bbb3cd6ab3e742eada427862504eba06437036d0"},
+		{get_map_header_base_name(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
+		{get_map_data_base_name(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
 
-		{gfx_dictionary_base_name, "ed1ab61ad2529e046f966d9c1627508f76693ef8"},
-		{gfx_header_base_name, "0635a4a2b823eef2904ed1d590d98362fb16621d"},
-		{gfx_data_base_name, "b59cbe3793b4612b06254ece48bf8e961ab6f528"},
+		{get_gfx_dictionary_base_name(), "ed1ab61ad2529e046f966d9c1627508f76693ef8"},
+		{get_gfx_header_base_name(), "0635a4a2b823eef2904ed1d590d98362fb16621d"},
+		{get_gfx_data_base_name(), "b59cbe3793b4612b06254ece48bf8e961ab6f528"},
 
-		{page_file_base_name, "dbde907ba1110bef445d6daae283c4520d6951b4"},
+		{get_page_file_base_name(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
 
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_sw_v2_1_base_name_to_hash_map
 
 	return aog_sw_v2_1_base_name_to_hash_map;
@@ -1703,20 +1789,20 @@ const AssetsBaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
 {
 	static auto aog_sw_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{audio_data_base_name, "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
 
-		{map_header_base_name, "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
-		{map_data_base_name, "bbb3cd6ab3e742eada427862504eba06437036d0"},
+		{get_map_header_base_name(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
+		{get_map_data_base_name(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
 
-		{gfx_dictionary_base_name, "537676ddcafeee415c22bb9d00097b25bc7e13c5"},
-		{gfx_header_base_name, "e7fb8f241b8fa94739c3bd09ea05c1afc7bbfc95"},
-		{gfx_data_base_name, "9f9f4c40c9637af472ce5e1a360e51364c3a418a"},
+		{get_gfx_dictionary_base_name(), "537676ddcafeee415c22bb9d00097b25bc7e13c5"},
+		{get_gfx_header_base_name(), "e7fb8f241b8fa94739c3bd09ea05c1afc7bbfc95"},
+		{get_gfx_data_base_name(), "9f9f4c40c9637af472ce5e1a360e51364c3a418a"},
 
-		{page_file_base_name, "dbde907ba1110bef445d6daae283c4520d6951b4"},
+		{get_page_file_base_name(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
 
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_sw_v3_0_base_name_to_hash_map
 
 	return aog_sw_v3_0_base_name_to_hash_map;
@@ -1727,22 +1813,22 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map()
 {
 	static auto aog_full_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{audio_data_base_name, "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
 
-		{map_header_base_name, "6f19a144d8985e90f096fc1c67ade58e9051235c"},
-		{map_data_base_name, "4d00c5f5c843f99a266bd938648192a6eff17b5a"},
+		{get_map_header_base_name(), "6f19a144d8985e90f096fc1c67ade58e9051235c"},
+		{get_map_data_base_name(), "4d00c5f5c843f99a266bd938648192a6eff17b5a"},
 
-		{gfx_dictionary_base_name, "d4f81ace1701a7338d43ce07723c2adaafdc837c"},
-		{gfx_header_base_name, "639ec9e7a81ad83fc5b5c557cf4fc5fa28b9676b"},
-		{gfx_data_base_name, "02dc27d4810e3ffa26540b310eac6091f5e16de0"},
+		{get_gfx_dictionary_base_name(), "d4f81ace1701a7338d43ce07723c2adaafdc837c"},
+		{get_gfx_header_base_name(), "639ec9e7a81ad83fc5b5c557cf4fc5fa28b9676b"},
+		{get_gfx_data_base_name(), "02dc27d4810e3ffa26540b310eac6091f5e16de0"},
 
-		{page_file_base_name, "0a700732ccbc72f95318a6226a7e1ad78ac713bb"},
+		{get_page_file_base_name(), "0a700732ccbc72f95318a6226a7e1ad78ac713bb"},
 
-		{episode_6_fmv_base_name, "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{episode_3_5_fmv_base_name, "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_full_v1_0_base_name_to_hash_map
 
 	return aog_full_v1_0_base_name_to_hash_map;
@@ -1752,22 +1838,22 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map()
 {
 	static auto aog_full_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{audio_data_base_name, "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
 
-		{map_header_base_name, "028f624e150f84ffc8336336cb0ecea0932cc22d"},
-		{map_data_base_name, "8b48e7eb859382a4c84948c5a62899194288e853"},
+		{get_map_header_base_name(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
+		{get_map_data_base_name(), "8b48e7eb859382a4c84948c5a62899194288e853"},
 
-		{gfx_dictionary_base_name, "e83b690836c9edf9ef60f6189b8384fb2319b735"},
-		{gfx_header_base_name, "48b18caa86151610957b64b207cf2a2977ef7d57"},
-		{gfx_data_base_name, "67a679e3b107db8685ba5ff1643a38f9291b00bf"},
+		{get_gfx_dictionary_base_name(), "e83b690836c9edf9ef60f6189b8384fb2319b735"},
+		{get_gfx_header_base_name(), "48b18caa86151610957b64b207cf2a2977ef7d57"},
+		{get_gfx_data_base_name(), "67a679e3b107db8685ba5ff1643a38f9291b00bf"},
 
-		{page_file_base_name, "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
+		{get_page_file_base_name(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
 
-		{episode_6_fmv_base_name, "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{episode_3_5_fmv_base_name, "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_full_v2_0_base_name_to_hash_map
 
 	return aog_full_v2_0_base_name_to_hash_map;
@@ -1777,22 +1863,22 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map()
 {
 	static auto aog_full_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{audio_data_base_name, "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
 
-		{map_header_base_name, "028f624e150f84ffc8336336cb0ecea0932cc22d"},
-		{map_data_base_name, "8b48e7eb859382a4c84948c5a62899194288e853"},
+		{get_map_header_base_name(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
+		{get_map_data_base_name(), "8b48e7eb859382a4c84948c5a62899194288e853"},
 
-		{gfx_dictionary_base_name, "e4ae3ef9a3ac158a832092b7b5487227337c6f13"},
-		{gfx_header_base_name, "1a3864cd12de4b8fd6be023b73d2d79e91b9018d"},
-		{gfx_data_base_name, "6868e6cc4f8cb9160a218c5bce680a11f64c675a"},
+		{get_gfx_dictionary_base_name(), "e4ae3ef9a3ac158a832092b7b5487227337c6f13"},
+		{get_gfx_header_base_name(), "1a3864cd12de4b8fd6be023b73d2d79e91b9018d"},
+		{get_gfx_data_base_name(), "6868e6cc4f8cb9160a218c5bce680a11f64c675a"},
 
-		{page_file_base_name, "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
+		{get_page_file_base_name(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
 
-		{episode_6_fmv_base_name, "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{episode_3_5_fmv_base_name, "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_full_v2_1_base_name_to_hash_map
 
 	return aog_full_v2_1_base_name_to_hash_map;
@@ -1802,22 +1888,22 @@ const AssetsBaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map()
 {
 	static auto aog_full_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{audio_data_base_name, "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
 
-		{map_header_base_name, "028f624e150f84ffc8336336cb0ecea0932cc22d"},
-		{map_data_base_name, "8b48e7eb859382a4c84948c5a62899194288e853"},
+		{get_map_header_base_name(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
+		{get_map_data_base_name(), "8b48e7eb859382a4c84948c5a62899194288e853"},
 
-		{gfx_dictionary_base_name, "60da35e506d57753f83cca5f232a76dd1cf074ba"},
-		{gfx_header_base_name, "ff165ca5924d738853587a7e4ab1cd239e10e359"},
-		{gfx_data_base_name, "001037fafdff124befb5437c563d0b9c613b3c00"},
+		{get_gfx_dictionary_base_name(), "60da35e506d57753f83cca5f232a76dd1cf074ba"},
+		{get_gfx_header_base_name(), "ff165ca5924d738853587a7e4ab1cd239e10e359"},
+		{get_gfx_data_base_name(), "001037fafdff124befb5437c563d0b9c613b3c00"},
 
-		{page_file_base_name, "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
+		{get_page_file_base_name(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
 
-		{episode_6_fmv_base_name, "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{episode_3_5_fmv_base_name, "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{episode_2_4_fmv_base_name, "22bf818465da0f32eef9611de936cba9966b14aa"},
+		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
 	}; // aog_full_v3_0_base_name_to_hash_map
 
 	return aog_full_v3_0_base_name_to_hash_map;
@@ -1828,20 +1914,20 @@ const AssetsBaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
 {
 	static auto ps_base_name_to_hash_map = AssetsBaseNameToHashMap
 	{
-		{audio_header_base_name, "2ed9a587926b2b455f8176788f595d03f6359171"},
-		{audio_data_base_name, "ecac8a800c5d021c8b68d170066c8859df9bd79a"},
+		{get_audio_header_base_name(), "2ed9a587926b2b455f8176788f595d03f6359171"},
+		{get_audio_data_base_name(), "ecac8a800c5d021c8b68d170066c8859df9bd79a"},
 
-		{map_header_base_name, "c3fb0a9b81e0240d12c952fe5b57b78c1108aa48"},
-		{map_data_base_name, "acd03031d526eeaee64072518adf6814f96e2a37"},
+		{get_map_header_base_name(), "c3fb0a9b81e0240d12c952fe5b57b78c1108aa48"},
+		{get_map_data_base_name(), "acd03031d526eeaee64072518adf6814f96e2a37"},
 
-		{gfx_dictionary_base_name, "061692d166f68d7e0b81568725439078cc728f33"},
-		{gfx_header_base_name, "ad5fed9de5d1d82145df3ff2286e4bc62cb80e2a"},
-		{gfx_data_base_name, "e619a3e6245f79888da5436df138d63204d2caba"},
+		{get_gfx_dictionary_base_name(), "061692d166f68d7e0b81568725439078cc728f33"},
+		{get_gfx_header_base_name(), "ad5fed9de5d1d82145df3ff2286e4bc62cb80e2a"},
+		{get_gfx_data_base_name(), "e619a3e6245f79888da5436df138d63204d2caba"},
 
-		{page_file_base_name, "4113ce83c42e69dc5cb20de79f41971a100f876e"},
+		{get_page_file_base_name(), "4113ce83c42e69dc5cb20de79f41971a100f876e"},
 
-		{episode_6_fmv_base_name, "b668330e56ceb069c1b972cefddd8a3d618a14af"},
-		{intro_fmv_base_name, "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		{get_episode_6_fmv_base_name(), "b668330e56ceb069c1b972cefddd8a3d618a14af"},
+		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
 	}; // ps_base_name_to_hash_map
 
 	return ps_base_name_to_hash_map;
@@ -1852,17 +1938,17 @@ bool Assets::are_official_levels(
 {
 	static const auto all_levels_hashes = AssetsCRefStrings
 	{
-		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
 
-		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::map_data_base_name),
-		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
+		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
 
-		Assets::get_ps_base_name_to_hash_map().at(Assets::map_data_base_name),
+		Assets::get_ps_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
 	}; // all_levels_hashes
 
 	const auto result = std::any_of(

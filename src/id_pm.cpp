@@ -87,7 +87,7 @@ static void open_page_file(
 void PM_Startup()
 {
 	::PM_Shutdown();
-	::open_page_file(Assets::page_file_base_name);
+	::open_page_file(Assets::get_page_file_base_name());
 }
 
 void PM_Shutdown()
