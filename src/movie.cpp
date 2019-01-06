@@ -35,155 +35,220 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 
 
-struct MovieStuff
+class Movie
 {
-	AssetsCRefString file_base_name_;
-
-	std::int8_t repeat_count_;
-	std::int8_t tick_delay_;
-}; // MovieStuff
-
-
-struct AnimFrame
-{
-	static constexpr auto class_size = 12;
-
-
-	std::uint16_t code;
-	std::int32_t block_num;
-	std::int32_t recsize;
-}; // AnimFrame
-
-static_assert(AnimFrame::class_size == sizeof(AnimFrame), "Class size mismatch.");
+public:
+	//
+	// Playes an animation.
+	//
+	// Returns:
+	//    - True if movie file was found and "played".
+	//    - False otherwise.
+	//
+	bool play(
+		const MovieId movie_id,
+		const std::uint8_t* const palette);
 
 
-struct AnimChunk
-{
-	static constexpr auto class_size = 6;
-
-
-	std::uint16_t opt;
-	std::uint16_t offset;
-	std::uint16_t length;
-
-
-	void endian()
+private:
+	struct Descriptor
 	{
-		if (bstone::Endian::is_little())
+		AssetsCRefString file_base_name_;
+
+		std::int8_t repeat_count_;
+		std::int8_t tick_delay_;
+	}; // descriptor
+
+
+	struct AnimFrame
+	{
+		static constexpr auto class_size = 12;
+
+
+		std::uint16_t code;
+		std::int32_t block_num;
+		std::int32_t recsize;
+	}; // AnimFrame
+
+	static_assert(AnimFrame::class_size == sizeof(AnimFrame), "Class size mismatch.");
+
+
+	struct AnimChunk
+	{
+		static constexpr auto class_size = 6;
+
+
+		std::uint16_t opt;
+		std::uint16_t offset;
+		std::uint16_t length;
+
+
+		void endian()
 		{
-			return;
+			if (bstone::Endian::is_little())
+			{
+				return;
+			}
+
+			bstone::Endian::little_i(opt);
+			bstone::Endian::little_i(offset);
+			bstone::Endian::little_i(length);
 		}
+	}; // AnimChunk
 
-		bstone::Endian::little_i(opt);
-		bstone::Endian::little_i(offset);
-		bstone::Endian::little_i(length);
-	}
-}; // AnimChunk
-
-static_assert(AnimChunk::class_size == sizeof(AnimChunk), "Class size mismatch.");
+	static_assert(AnimChunk::class_size == sizeof(AnimChunk), "Class size mismatch.");
 
 
-constexpr auto max_movies = 4;
+	static constexpr auto max_movies = 4;
 
-using Movies = std::array<MovieStuff, max_movies>;
+	using Descriptors = std::array<Descriptor, max_movies>;
 
 
-enum class MovieFlag
+	enum class Flag
+	{
+		none,
+		fill,
+		skip,
+	}; // Flag
+
+
+	static constexpr auto max_buffer_size = 65'536;
+
+
+	using Buffer = std::vector<char>;
+
+	bstone::FileStream file_stream_;
+
+	Buffer buffer_;
+	int buffer_offset_; // Len of data loaded into buffer_
+	char* buffer_ptr_; // Ptr to next frame in buffer_
+	char* next_ptr_; // Ptr Ofs to next frame after BufferOfs
+
+	bool has_more_pages_; // More Pages avail on disk?
+
+	Flag flag_;
+	bool is_exit_;
+	bool is_ever_faded_;
+	int repeat_count_;
+	ControlInfo control_info_;
+	const std::uint8_t* palette_;
+
+	bstone::ArchiverUPtr archiver_;
+
+
+	const Descriptor& get_descriptor(
+		const MovieId movie_id);
+
+	//
+	// Inits all the internal routines for the Movie Presenter
+	//
+	void initialize(
+		const Descriptor& MovieDescriptor,
+		const std::uint8_t* const palette);
+
+	void uninitialize();
+
+	//
+	// Draws a block of image.
+	//
+	// Parameters:
+	//    - byte_offset - offset for the image to be drawn.
+	//
+	//    - source - source image of graphic to be blasted to latch memory.
+	//               This pic is NOT 'munged'.
+	//
+	//    - length = length of the source image in bytes
+	//
+	void jm_draw_block(
+		const int byte_offset,
+		const char* const source,
+		const int length);
+
+	//
+	// Shows an animation frame
+	//
+	// Parameters:
+	//    - inpic - pointer to animpic.
+	//
+	void show_frame(
+		char* inpic);
+
+	//
+	// Loads the RAM Buffer full of graphics.
+	//
+	// Returns:
+	//    - True if more pages available.
+	//    - False otherwise.
+	//
+	bool load_buffer();
+
+	//
+	// Returns pointer to next Block/Screen of animation
+	//
+	// This function "buffers" the movie presentation.
+	// It loads and buffers incomming frames of animation.
+	//
+	// Returns:
+	//    - True on success.
+	//    - False otherwise.
+	//
+	bool get_frame();
+
+	//
+	// This handles the current page of data from the ram buffer.
+	//
+	void handle_page(
+		const Descriptor& descriptor);
+}; // Movie
+
+
+const Movie::Descriptor& Movie::get_descriptor(
+	const MovieId movie_id)
 {
-	none,
-	fill,
-	skip,
-}; // MovieFlag
+	static const auto descriptors = Descriptors
+	{{
+		{Assets::get_intro_fmv_base_name(), 1, 3}, // intro
+		{Assets::get_episode_6_fmv_base_name(), 1, 3}, // final
+		{Assets::get_episode_2_4_fmv_base_name(), 1, 3}, // final_2
+		{Assets::get_episode_3_5_fmv_base_name(), 1, 3}, // final_3
+	}}; // descriptors
 
+	return descriptors[movie_id];
+}
 
-constexpr auto max_buffer_size = 65'536;
-
-
-using MovieBuffer = std::vector<char>;
-
-// Movie File variables
-bstone::FileStream movie_stream_;
-
-// movie_get_frame & movie_load_buffer variables
-MovieBuffer movie_buffer_; // Ptr to Allocated Memory for Buffer
-int movie_buffer_offset_; // Len of data loaded into movie_buffer_
-char* movie_buffer_ptr_; // Ptr to next frame in movie_buffer_
-char* movie_next_ptr_; // Ptr Ofs to next frame after BufferOfs
-
-bool movie_has_more_pages_; // More Pages avail on disk?
-
-MovieFlag movie_flag_;
-bool movie_is_exit_;
-bool movie_is_ever_faded_;
-int movie_repeat_count_;
-ControlInfo control_info_;
-const std::uint8_t* movie_palette_;
-
-bstone::ArchiverUPtr movie_archiver_;
-
-
-//
-// MOVIE Definations for external movies
-//
-// NOTE: This list is ordered according to mv_???? enum list.
-//
-
-const auto movies = Movies
-{{
-	{Assets::get_intro_fmv_base_name(), 1, 3}, // intro
-	{Assets::get_episode_6_fmv_base_name(), 1, 3}, // final
-	{Assets::get_episode_2_4_fmv_base_name(), 1, 3}, // final_2
-	{Assets::get_episode_3_5_fmv_base_name(), 1, 3}, // final_3
-}}; // movies
-
-
-// Inits all the internal routines for the Movie Presenter
-static void movie_setup(
-	const MovieStuff& MovieStuff,
+void Movie::initialize(
+	const Descriptor& descriptor,
 	const std::uint8_t* const palette)
 {
-	movie_repeat_count_ = MovieStuff.repeat_count_;
-	movie_flag_ = MovieFlag::fill;
-	movie_buffer_offset_ = 0;
-	movie_has_more_pages_ = true;
-	movie_is_exit_ = false;
-	movie_is_ever_faded_ = false;
+	repeat_count_ = descriptor.repeat_count_;
+	flag_ = Flag::fill;
+	buffer_offset_ = 0;
+	has_more_pages_ = true;
+	is_exit_ = false;
+	is_ever_faded_ = false;
 
-	movie_palette_ = palette;
+	palette_ = palette;
 
 	::JM_VGALinearFill(0, ::vga_ref_width * ::vga_ref_height, 0);
 
 	::VL_FillPalette(0, 0, 0);
 
 	// Find out how much memory we have to work with.
-	movie_buffer_.resize(max_buffer_size);
+	buffer_.resize(max_buffer_size);
 
-	movie_archiver_ = bstone::ArchiverFactory::create();
+	archiver_ = bstone::ArchiverFactory::create();
 
 	::IN_ClearKeysDown();
 }
 
-static void movie_shutdown()
+void Movie::uninitialize()
 {
-	movie_archiver_ = nullptr;
-	movie_buffer_.clear();
-	movie_stream_.close();
+	archiver_ = nullptr;
+	buffer_.clear();
+	file_stream_.close();
 }
 
-// ---------------------------------------------------------------------------
-//
-// dest_offset = Correct offset value for memory location for Paged/Latch mem
-//
-// byte_offset = Offset for the image to be drawn - This address is NOT
-//               a calculated Paged/Latch value but a byte offset in
-//               conventional memory.
-//
-// source = Source image of graphic to be blasted to latch memory.
-//          This pic is NOT 'munged'.
-//
-// length = length of the source image in bytes
-// ---------------------------------------------------------------------------
-static void movie_jm_draw_block(
+void Movie::jm_draw_block(
 	const int byte_offset,
 	const char* const source,
 	const int length)
@@ -205,12 +270,7 @@ static void movie_jm_draw_block(
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Shows an animation frame
-//
-// PARAMETERS: pointer to animpic
-// ---------------------------------------------------------------------------
-static void movie_show_frame(
+void Movie::show_frame(
 	char* inpic)
 {
 	if (!inpic)
@@ -231,38 +291,29 @@ static void movie_show_frame(
 
 		inpic += AnimChunk::class_size;
 
-		movie_jm_draw_block(ah.offset, inpic, ah.length);
+		jm_draw_block(ah.offset, inpic, ah.length);
 
 		inpic += ah.length;
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Loads the RAM Buffer full of graphics...
-//
-// RETURNS:  true - MORE Pages avail on disk..
-//          false   - LAST Pages from disk..
-//
-// movie_buffer_offset_ = Length of data loaded into buffer
-//
-// ---------------------------------------------------------------------------
-static bool movie_load_buffer()
+bool Movie::load_buffer()
 {
-	auto frame = movie_buffer_.data();
+	auto frame = buffer_.data();
 	auto free_space = max_buffer_size;
 
-	movie_next_ptr_ = frame;
-	movie_buffer_ptr_ = frame;
+	next_ptr_ = frame;
+	buffer_ptr_ = frame;
 
 	AnimFrame blk;
 
 	while (free_space)
 	{
-		const auto chunkstart = movie_stream_.get_position();
+		const auto chunkstart = file_stream_.get_position();
 
-		blk.code = movie_archiver_->read_uint16();
-		blk.block_num = movie_archiver_->read_int32();
-		blk.recsize = movie_archiver_->read_int32();
+		blk.code = archiver_->read_uint16();
+		blk.block_num = archiver_->read_int32();
+		blk.recsize = archiver_->read_int32();
 
 		if (blk.code == AN_END_OF_ANIM)
 		{
@@ -275,20 +326,20 @@ static bool movie_load_buffer()
 
 			free_space -= AnimFrame::class_size;
 			frame += AnimFrame::class_size;
-			movie_buffer_offset_ += AnimFrame::class_size;
+			buffer_offset_ += AnimFrame::class_size;
 
 			if (blk.recsize > 0)
 			{
-				movie_archiver_->read_char_array(frame, blk.recsize);
+				archiver_->read_char_array(frame, blk.recsize);
 			}
 
 			free_space -= blk.recsize;
 			frame += blk.recsize;
-			movie_buffer_offset_ += blk.recsize;
+			buffer_offset_ += blk.recsize;
 		}
 		else
 		{
-			movie_stream_.set_position(chunkstart);
+			file_stream_.set_position(chunkstart);
 			free_space = 0;
 		}
 	}
@@ -296,22 +347,13 @@ static bool movie_load_buffer()
 	return true;
 }
 
-// ---------------------------------------------------------------------------
-// Returns pointer to next Block/Screen of animation
-//
-// PURPOSE: This function "Buffers" the movie presentation from allocated
-//      ram.  It loads and buffers incomming frames of animation..
-//
-// RETURNS:  true - Ok
-//           false - End Of File
-// ---------------------------------------------------------------------------
-static bool movie_get_frame()
+bool Movie::get_frame()
 {
-	if (movie_buffer_offset_ == 0)
+	if (buffer_offset_ == 0)
 	{
-		if (movie_has_more_pages_)
+		if (has_more_pages_)
 		{
-			movie_has_more_pages_ = movie_load_buffer();
+			has_more_pages_ = load_buffer();
 		}
 		else
 		{
@@ -319,31 +361,25 @@ static bool movie_get_frame()
 		}
 	}
 
-	movie_buffer_ptr_ = movie_next_ptr_;
+	buffer_ptr_ = next_ptr_;
 
-	const auto& blk = *reinterpret_cast<const AnimFrame*>(movie_buffer_ptr_);
+	const auto& blk = *reinterpret_cast<const AnimFrame*>(buffer_ptr_);
 
-	movie_buffer_offset_ -= AnimFrame::class_size;
-	movie_buffer_offset_ -= blk.recsize;
-	movie_next_ptr_ = movie_buffer_ptr_ + AnimFrame::class_size + blk.recsize;
+	buffer_offset_ -= AnimFrame::class_size;
+	buffer_offset_ -= blk.recsize;
+	next_ptr_ = buffer_ptr_ + AnimFrame::class_size + blk.recsize;
 
 	return true;
 }
 
-// ---------------------------------------------------------------------------
-// This handles the current page of data from the ram buffer...
-//
-// PURPOSE: Process current Page of anim.
-//
-// ---------------------------------------------------------------------------
-static void movie_handle_page(
-	const MovieStuff& MovieStuff)
+void Movie::handle_page(
+	const Descriptor& descriptor)
 {
-	const auto& blk = *reinterpret_cast<const AnimFrame*>(movie_buffer_ptr_);
+	const auto& blk = *reinterpret_cast<const AnimFrame*>(buffer_ptr_);
 
-	movie_buffer_ptr_ += AnimFrame::class_size;
+	buffer_ptr_ += AnimFrame::class_size;
 
-	auto frame = movie_buffer_ptr_;
+	auto frame = buffer_ptr_;
 
 	::IN_ReadControl(0, &control_info_);
 
@@ -358,7 +394,7 @@ static void movie_handle_page(
 
 		::sd_play_player_sound(sound_chunk, bstone::ActorChannel::item);
 
-		movie_buffer_ptr_ += blk.recsize;
+		buffer_ptr_ += blk.recsize;
 	}
 	break;
 
@@ -366,8 +402,8 @@ static void movie_handle_page(
 		// Fade In Page
 		//
 
-		::VL_FadeIn(0, 255, movie_palette_, 30);
-		movie_is_ever_faded_ = true;
+		::VL_FadeIn(0, 255, palette_, 30);
+		is_ever_faded_ = true;
 		::screenfaded = false;
 		break;
 
@@ -385,7 +421,7 @@ static void movie_handle_page(
 
 		::IN_UserInput(vbls);
 
-		movie_buffer_ptr_ += blk.recsize;
+		buffer_ptr_ += blk.recsize;
 
 		// BBi
 		::IN_ClearKeysDown();
@@ -397,29 +433,29 @@ static void movie_handle_page(
 	// Graphics Chunk
 	case AN_PAGE:
 	{
-		if (movie_flag_ == MovieFlag::fill)
+		if (flag_ == Flag::fill)
 		{
 			// First page comming in. Fill screen with fill color...
 			//
 
 			// Set READ flag to skip the first frame on an anim repeat
-			movie_flag_ = MovieFlag::none;
+			flag_ = Flag::none;
 
 			::JM_VGALinearFill(0, ::vga_ref_width * ::vga_ref_height, *frame);
 
 			++frame;
 		}
 
-		movie_show_frame(frame);
+		show_frame(frame);
 
 		::VL_RefreshScreen();
 
-		if (TimeCount < static_cast<std::uint32_t>(MovieStuff.tick_delay_))
+		if (TimeCount < static_cast<std::uint32_t>(descriptor.tick_delay_))
 		{
 			const auto min_wait_time = 0;
 			const auto max_wait_time = 2 * TickBase; // 2 seconds
 
-			auto wait_time = MovieStuff.tick_delay_ - static_cast<int>(TimeCount);
+			auto wait_time = descriptor.tick_delay_ - static_cast<int>(TimeCount);
 
 			if (wait_time < min_wait_time)
 			{
@@ -449,9 +485,9 @@ static void movie_handle_page(
 		if (!::screenfaded &&
 			(control_info_.button0 || control_info_.button1 || ::LastScan != ScanCode::sc_none))
 		{
-			movie_is_exit_ = true;
+			is_exit_ = true;
 
-			if (movie_is_ever_faded_)
+			if (is_ever_faded_)
 			{
 				// This needs to be a passed flag...
 
@@ -463,7 +499,7 @@ static void movie_handle_page(
 	}
 
 	case AN_END_OF_ANIM:
-		movie_is_exit_ = true;
+		is_exit_ = true;
 		break;
 
 	default:
@@ -472,52 +508,46 @@ static void movie_handle_page(
 	}
 }
 
-// ---------------------------------------------------------------------------
-// movie_play() - Playes an Animation
-//
-// RETURNS: true  - Movie File was found and "played"
-//      false - Movie file was NOT found!
-// ---------------------------------------------------------------------------
-bool movie_play(
+bool Movie::play(
 	const MovieId movie_id,
 	const std::uint8_t* const palette)
 {
-	const auto& MovieStuff = movies[movie_id];
+	const auto& descriptor = get_descriptor(movie_id);
 
 	// Init our Movie Stuff...
 	//
 
-	movie_setup(MovieStuff, palette);
+	initialize(descriptor, palette);
 
 	// Start the anim process
 	//
 
-	::ca_open_resource(MovieStuff.file_base_name_, movie_stream_);
+	::ca_open_resource(descriptor.file_base_name_, file_stream_);
 
-	if (!movie_stream_.is_open())
+	if (!file_stream_.is_open())
 	{
 		return false;
 	}
 
 	try
 	{
-		movie_archiver_->initialize(&movie_stream_);
+		archiver_->initialize(&file_stream_);
 
-		while (movie_repeat_count_ && !movie_is_exit_)
+		while (repeat_count_ && !is_exit_)
 		{
-			while (!movie_is_exit_)
+			while (!is_exit_)
 			{
-				if (!movie_get_frame())
+				if (!get_frame())
 				{
 					break;
 				}
 
-				movie_handle_page(MovieStuff);
+				handle_page(descriptor);
 			}
 
-			--movie_repeat_count_;
+			--repeat_count_;
 
-			movie_flag_ = MovieFlag::skip;
+			flag_ = Flag::skip;
 		}
 	}
 	catch (const bstone::ArchiverException& ex)
@@ -525,7 +555,17 @@ bool movie_play(
 		::Quit(ex.get_message());
 	}
 
-	movie_shutdown();
+	uninitialize();
 
 	return true;
+}
+
+
+bool movie_play(
+	const MovieId movie_id,
+	const std::uint8_t* const palette)
+{
+	static auto movie = Movie{};
+
+	return movie.play(movie_id, palette);
 }
