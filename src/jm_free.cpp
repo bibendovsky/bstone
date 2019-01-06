@@ -198,7 +198,7 @@ int get_vgahead_offset_count()
 	const auto& assets_info = AssetsInfo{};
 
 	auto file_stream = bstone::FileStream{};
-	const auto& base_name = Assets::gfx_header_base_name;
+	const auto& base_name = Assets::get_gfx_header_base_name();
 	const auto& file_extension = assets_info.get_extension();
 	const auto is_open = ::ca_open_resource_non_fatal(base_name, file_extension, file_stream);
 
@@ -398,7 +398,7 @@ bool find_aog_full_assets(
 		is_required,
 		title,
 		Assets::get_aog_full_base_names(),
-		Assets::aog_full_extension,
+		Assets::get_aog_full_extension(),
 		Assets::get_aog_full_v1_0_base_name_to_hash_map(),
 		Assets::get_aog_full_v2_0_base_name_to_hash_map(),
 		Assets::get_aog_full_v2_1_base_name_to_hash_map(),
@@ -425,7 +425,7 @@ bool find_aog_sw_assets(
 		is_required,
 		title,
 		Assets::get_aog_sw_base_names(),
-		Assets::aog_sw_extension,
+		Assets::get_aog_sw_extension(),
 		Assets::get_aog_sw_v1_0_base_name_to_hash_map(),
 		Assets::get_aog_sw_v2_0_base_name_to_hash_map(),
 		Assets::get_aog_sw_v2_1_base_name_to_hash_map(),
@@ -443,7 +443,7 @@ bool find_ps_assets(
 {
 	const auto& title = "Planet Strike"s;
 
-	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::ps_extension);
+	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::get_ps_extension());
 
 	if (!has_assets)
 	{
@@ -455,7 +455,7 @@ bool find_ps_assets(
 		return false;
 	}
 
-	const auto hashes = get_assets_hashes(Assets::get_ps_base_names(), Assets::ps_extension);
+	const auto hashes = get_assets_hashes(Assets::get_ps_base_names(), Assets::get_ps_extension());
 
 	if (hashes.empty())
 	{
@@ -473,7 +473,7 @@ bool find_ps_assets(
 
 		assets_info.set_version(AssetsVersion::ps);
 		assets_info.set_base_names(Assets::get_ps_base_names());
-		assets_info.set_extension(Assets::ps_extension);
+		assets_info.set_extension(Assets::get_ps_extension());
 		assets_info.set_base_name_to_hash_map(Assets::get_ps_base_name_to_hash_map());
 
 		bstone::Log::write("Found \"" + title + "\".");
@@ -660,7 +660,7 @@ void CAL_SetupAudioFile()
 	// load maphead.ext (offsets and tileinfo for map file)
 	//
 #ifndef AUDIOHEADERLINKED
-	::ca_open_resource(Assets::audio_header_base_name, handle);
+	::ca_open_resource(Assets::get_audio_header_base_name(), handle);
 	auto length = static_cast<std::int32_t>(handle.get_size());
 	::audiostarts = new std::int32_t[length / 4];
 	handle.read(::audiostarts, length);
@@ -692,7 +692,7 @@ void CAL_SetupGrFile()
 	// load ???dict.ext (huffman dictionary for graphics files)
 	//
 
-	::ca_open_resource(Assets::gfx_dictionary_base_name, handle);
+	::ca_open_resource(Assets::get_gfx_dictionary_base_name(), handle);
 	handle.read(&::grhuffman, sizeof(::grhuffman));
 
 	//
@@ -702,13 +702,13 @@ void CAL_SetupGrFile()
 
 	::grstarts = new std::int32_t[(grstarts_size + 3) / 4];
 
-	::ca_open_resource(Assets::gfx_header_base_name, handle);
+	::ca_open_resource(Assets::get_gfx_header_base_name(), handle);
 	handle.read(::grstarts, grstarts_size);
 
 	//
 	// Open the graphics file, leaving it open until the game is finished
 	//
-	::ca_open_resource(Assets::gfx_data_base_name, ::grhandle);
+	::ca_open_resource(Assets::get_gfx_data_base_name(), ::grhandle);
 
 	//
 	// load the pic and sprite headers into the arrays in the data segment
@@ -736,7 +736,7 @@ static void cal_setup_map_data_file()
 	if (!::mod_dir_.empty())
 	{
 		const auto& modded_hash = ::ca_calculate_hash(
-			::mod_dir_, Assets::map_data_base_name, assets_info.get_extension());
+			::mod_dir_, Assets::get_map_data_base_name(), assets_info.get_extension());
 
 		if (!modded_hash.empty())
 		{
@@ -755,7 +755,7 @@ static void cal_setup_map_data_file()
 
 	if (!has_mod)
 	{
-		const auto& official_hash = assets_info.get_base_name_to_hash_map().at(Assets::map_data_base_name);
+		const auto& official_hash = assets_info.get_base_name_to_hash_map().at(Assets::get_map_data_base_name());
 
 		assets_info.set_levels_hash(official_hash);
 	}
@@ -777,7 +777,7 @@ void CAL_SetupMapFile()
 	// load maphead.ext (offsets and tileinfo for map file)
 	//
 
-	::ca_open_resource(Assets::map_header_base_name, handle);
+	::ca_open_resource(Assets::get_map_header_base_name(), handle);
 	handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
 	handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
 
@@ -983,7 +983,7 @@ void PreDemo()
 
 		// Show JAM logo
 		//
-		if (!DoMovie(mv_intro, 0))
+		if (!::DoMovie(MovieId::intro))
 		{
 			::Quit("JAM animation (IANIM.xxx) does not exist.");
 		}

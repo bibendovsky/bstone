@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 #include <functional>
 #include <vector>
+#include "movie.h"
 
 
 namespace bstone
@@ -1694,16 +1695,6 @@ using fixed = std::int32_t;
 #define ActivatePinballBonus(bonus) if (!PinballBonusShown(bonus))BONUS_QUEUE |= bonus
 
 
-// NOTE - This enum list is ORDERED!
-enum movie_t
-{
-	mv_intro,
-	mv_final,
-	mv_final2, // AOG Episode 3/5
-	mv_final3, // AOG Episode 6
-	mv_NUM_MOVIES,
-}; // movie_t
-
 enum controldir_t
 {
 	di_north,
@@ -2992,8 +2983,8 @@ void SetPlaneViewSize();
 void NewViewSize();
 
 bool DoMovie(
-	movie_t movie,
-	void* palette);
+	const MovieId movie,
+	const void* const raw_palette = nullptr);
 
 bool CheckDiskSpace(
 	std::int32_t needed,

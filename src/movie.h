@@ -26,76 +26,22 @@ Free Software Foundation, Inc.,
 #define BSTONE_MOVIE_INCLUDED
 
 
-#include <vector>
-#include "jm_vl.h"
+#include <cstdint>
 
 
-struct anim_frame
+// NOTE - This enum list is ORDERED!
+enum MovieId
 {
-	std::uint16_t code;
-	std::int32_t block_num;
-	std::int32_t recsize;
-}; // anim_frame
+	intro,
+	final,
+	final_2, // AOG Episode 3 / 5
+	final_3, // AOG Episode 6
+}; // MovieId
 
 
-struct anim_chunk
-{
-	std::uint16_t opt;
-	std::uint16_t offset;
-	std::uint16_t length;
-}; // anim_chunk
-
-
-// -------------------------------------------------------------------------
-//   MovieStuff Anim Stucture...
-//
-//
-//  fname -- File Name of the Anim to be played..
-//  rep -- Number of repetitions to play the anim
-//  ticdelay -- Tic wait between frames
-//  maxmembuffer -- Maximum ammount to use as a ram buffer
-//  start_line -- Starting line of screen to copy to other pages
-//  end_line -- Ending line  "   "   "   "   "   "   "   "
-//
-struct MovieStuff_t
-{
-	AssetsCRefString file_name;
-	std::int8_t rep;
-	std::int8_t ticdelay;
-
-	std::uint32_t max_mem_buffer;
-
-	std::int16_t start_line;
-	std::int16_t end_line;
-	const void* palette;
-}; // MovieStuff_t
-
-
-
-// =========================================================================
-//
-// EXTERNS
-//
-// =========================================================================
-
-using Movies = std::vector<MovieStuff_t>;
-
-extern void* displaybuffer;
-extern Movies movies;
-
-// ===========================================================================
-//
-// Prototypes
-//
-// ===========================================================================
-
-void MOVIE_ShowFrame(
-	char* inpic);
-bool MOVIE_Play(
-	MovieStuff_t* MovieStuff);
-void SetupMovie(
-	MovieStuff_t* MovieStuff);
-void ShutdownMovie();
+bool movie_play(
+	const MovieId movie_id,
+	const std::uint8_t* const palette);
 
 
 #endif // BSTONE_MOVIE_INCLUDED

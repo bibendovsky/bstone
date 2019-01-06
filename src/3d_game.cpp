@@ -3635,33 +3635,33 @@ restartgame:
 				{
 					::vid_is_movie = true;
 
-					movie_t movie = mv_intro;
+					auto movie = MovieId::intro;
 
 					switch (gamestate.episode)
 					{
 					case 0:
 					case 1:
 					case 3:
-						movie = mv_final2;
+						movie = MovieId::final_2;
 						break;
 
 					case 2:
 					case 4:
-						movie = mv_final3;
+						movie = MovieId::final_3;
 						break;
 
 					case 5:
-						movie = mv_final;
+						movie = MovieId::final;
 						break;
 					}
 
-					::DoMovie(movie, nullptr);
+					::DoMovie(movie);
 				}
 				else
 				{
 					CA_CacheGrChunk(ENDINGPALETTE);
 
-					DoMovie(mv_final, grsegs[ENDINGPALETTE]);
+					::DoMovie(MovieId::final, ::grsegs[ENDINGPALETTE]);
 
 					UNCACHEGRCHUNK(ENDINGPALETTE);
 				}
