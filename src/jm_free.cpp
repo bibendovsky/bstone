@@ -983,7 +983,7 @@ void PreDemo()
 
 		// Show JAM logo
 		//
-		if (!DoMovie(mv_intro, 0))
+		if (!::DoMovie(MovieId::intro))
 		{
 			::Quit("JAM animation (IANIM.xxx) does not exist.");
 		}

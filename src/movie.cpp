@@ -22,7 +22,6 @@ Free Software Foundation, Inc.,
 */
 
 
-#include <cstring>
 #include "an_codes.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -30,74 +29,97 @@ Free Software Foundation, Inc.,
 #include "id_sd.h"
 #include "id_vh.h"
 #include "id_vl.h"
+#include "jm_vl.h"
 #include "movie.h"
+#include "bstone_archiver.h"
+#include "bstone_endian.h"
 
 
-bool IN_CheckAck();
-void VH_UpdateScreen();
-
-void VL_LatchToScreen(
-	int source,
-	int width,
-	int height,
-	int x,
-	int y);
-
-
-//
-// Various types for various purposes...
-//
-
-enum FADES
+struct MovieStuff
 {
-	FADE_NONE,
-	FADE_SET,
-	FADE_IN,
-	FADE_OUT,
-	FADE_IN_FRAME,
-	FADE_OUT_FRAME
-}; // FADES
+	AssetsCRefString file_base_name_;
+
+	std::int8_t repeat_count_;
+	std::int8_t tick_delay_;
+}; // MovieStuff
 
 
-enum MOVIE_FLAGS
+struct AnimFrame
 {
-	MV_NONE,
-	MV_FILL,
-	MV_SKIP,
-	MV_READ
-}; // MOVIE_FLAGS
+	static constexpr auto class_size = 12;
 
 
-// ===========================================================================
-//
-// VARIABLES
-//
-// ===========================================================================
+	std::uint16_t code;
+	std::int32_t block_num;
+	std::int32_t recsize;
+}; // AnimFrame
 
+static_assert(AnimFrame::class_size == sizeof(AnimFrame), "Class size mismatch.");
+
+
+struct AnimChunk
+{
+	static constexpr auto class_size = 6;
+
+
+	std::uint16_t opt;
+	std::uint16_t offset;
+	std::uint16_t length;
+
+
+	void endian()
+	{
+		if (bstone::Endian::is_little())
+		{
+			return;
+		}
+
+		bstone::Endian::little_i(opt);
+		bstone::Endian::little_i(offset);
+		bstone::Endian::little_i(length);
+	}
+}; // AnimChunk
+
+static_assert(AnimChunk::class_size == sizeof(AnimChunk), "Class size mismatch.");
+
+
+constexpr auto max_movies = 4;
+
+using Movies = std::array<MovieStuff, max_movies>;
+
+
+enum class MovieFlag
+{
+	none,
+	fill,
+	skip,
+}; // MovieFlag
+
+
+constexpr auto max_buffer_size = 65'536;
+
+
+using MovieBuffer = std::vector<char>;
 
 // Movie File variables
-bstone::FileStream Movie_FHandle;
+bstone::FileStream movie_stream_;
 
-// Fade Variables
-FADES fade_flags, fi_type, fo_type;
-std::uint8_t fi_rate, fo_rate;
+// movie_get_frame & movie_load_buffer variables
+MovieBuffer movie_buffer_; // Ptr to Allocated Memory for Buffer
+int movie_buffer_offset_; // Len of data loaded into movie_buffer_
+char* movie_buffer_ptr_; // Ptr to next frame in movie_buffer_
+char* movie_next_ptr_; // Ptr Ofs to next frame after BufferOfs
 
-// MOVIE_GetFrame & MOVIE_LoadBuffer variables
-char* MovieBuffer; // Ptr to Allocated Memory for Buffer
-std::uint32_t BufferLen; // Len of MovieBuffer (Ammount of RAM allocated)
-std::uint32_t PageLen; // Len of data loaded into MovieBuffer
-char* BufferPtr; // Ptr to next frame in MovieBuffer
-char* NextPtr; // Ptr Ofs to next frame after BufferOfs
+bool movie_has_more_pages_; // More Pages avail on disk?
 
-bool MorePagesAvail; // More Pages avail on disk?
+MovieFlag movie_flag_;
+bool movie_is_exit_;
+bool movie_is_ever_faded_;
+int movie_repeat_count_;
+ControlInfo control_info_;
+const std::uint8_t* movie_palette_;
 
-MOVIE_FLAGS movie_flag;
-bool ExitMovie;
-bool EverFaded;
-std::int32_t seek_pos;
-std::int8_t movie_reps;
-ControlInfo ci;
-const void* movie_palette;
+bstone::ArchiverUPtr movie_archiver_;
 
 
 //
@@ -106,103 +128,72 @@ const void* movie_palette;
 // NOTE: This list is ordered according to mv_???? enum list.
 //
 
-Movies movies =
-{
-	{Assets::get_intro_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_intro
-	{Assets::get_episode_6_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_final
-	{Assets::get_episode_2_4_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_final2
-	{Assets::get_episode_3_5_fmv_base_name(), 1, 3, 0, 0, 200, nullptr}, // mv_final3
-}; // movies
-
-
-// ===========================================================================
-//
-// LOCAL PROTO TYPES
-//
-// ===========================================================================
-
-void FlipPages();
-
-
-// ===========================================================================
-//
-// FUNCTIONS
-//
-// ===========================================================================
+const auto movies = Movies
+{{
+	{Assets::get_intro_fmv_base_name(), 1, 3}, // intro
+	{Assets::get_episode_6_fmv_base_name(), 1, 3}, // final
+	{Assets::get_episode_2_4_fmv_base_name(), 1, 3}, // final_2
+	{Assets::get_episode_3_5_fmv_base_name(), 1, 3}, // final_3
+}}; // movies
 
 
 // Inits all the internal routines for the Movie Presenter
-void SetupMovie(
-	MovieStuff_t* MovieStuff)
+static void movie_setup(
+	const MovieStuff& MovieStuff,
+	const std::uint8_t* const palette)
 {
-	movie_reps = MovieStuff->rep;
-	movie_flag = MV_FILL;
-	LastScan = ScanCode::sc_none;
-	PageLen = 0;
-	MorePagesAvail = true;
-	ExitMovie = false;
-	EverFaded = false;
-	IN_ClearKeysDown();
+	movie_repeat_count_ = MovieStuff.repeat_count_;
+	movie_flag_ = MovieFlag::fill;
+	movie_buffer_offset_ = 0;
+	movie_has_more_pages_ = true;
+	movie_is_exit_ = false;
+	movie_is_ever_faded_ = false;
 
-	movie_palette = MovieStuff->palette;
+	movie_palette_ = palette;
 
-	::JM_VGALinearFill(
-		0,
-		::vga_ref_width * ::vga_ref_height,
-		0);
+	::JM_VGALinearFill(0, ::vga_ref_width * ::vga_ref_height, 0);
 
-	VL_FillPalette(0, 0, 0);
-	LastScan = ScanCode::sc_none;
+	::VL_FillPalette(0, 0, 0);
 
-	// Find out how much memory we have to work with..
+	// Find out how much memory we have to work with.
+	movie_buffer_.resize(max_buffer_size);
 
-	BufferLen = 65535;
-	BufferLen -= 65535; // HACK: Save some room for sounds - This is cludgey
+	movie_archiver_ = bstone::ArchiverFactory::create();
 
-	if (BufferLen < 64256)
-	{
-		BufferLen = 64256;
-	}
-
-	MovieBuffer = new char[BufferLen];
+	::IN_ClearKeysDown();
 }
 
-void ShutdownMovie()
+static void movie_shutdown()
 {
-	delete[] MovieBuffer;
-	MovieBuffer = nullptr;
-
-	Movie_FHandle.close();
+	movie_archiver_ = nullptr;
+	movie_buffer_.clear();
+	movie_stream_.close();
 }
 
 // ---------------------------------------------------------------------------
-// void JM_DrawBlock()
 //
 // dest_offset = Correct offset value for memory location for Paged/Latch mem
 //
 // byte_offset = Offset for the image to be drawn - This address is NOT
-// a calculated Paged/Latch value but a byte offset in
-// conventional memory.
+//               a calculated Paged/Latch value but a byte offset in
+//               conventional memory.
 //
-// source = Source image of graphic to be blasted to latch memory.  This
-//                                        pic is NOT 'munged'
+// source = Source image of graphic to be blasted to latch memory.
+//          This pic is NOT 'munged'.
 //
 // length = length of the source image in bytes
 // ---------------------------------------------------------------------------
-void JM_DrawBlock(
-	int dest_offset,
-	int byte_offset,
-	const char* source,
-	int length)
+static void movie_jm_draw_block(
+	const int byte_offset,
+	const char* const source,
+	const int length)
 {
-	static_cast<void>(dest_offset);
-
-	int x = byte_offset % ::vga_ref_width;
-	int y = byte_offset / ::vga_ref_width;
+	auto x = byte_offset % ::vga_ref_width;
+	auto y = byte_offset / ::vga_ref_width;
 
 	for (int i = 0; i < length; ++i)
 	{
-		VL_Plot(x, y, static_cast<std::uint8_t>(source[i]));
+		::VL_Plot(x, y, static_cast<std::uint8_t>(source[i]));
 
 		++x;
 
@@ -215,104 +206,89 @@ void JM_DrawBlock(
 }
 
 // ---------------------------------------------------------------------------
-// MOVIE_ShowFrame() - Shows an animation frame
+// Shows an animation frame
 //
 // PARAMETERS: pointer to animpic
 // ---------------------------------------------------------------------------
-void MOVIE_ShowFrame(
+static void movie_show_frame(
 	char* inpic)
 {
-	anim_chunk* ah;
-
 	if (!inpic)
 	{
 		return;
 	}
 
-	for (; ; )
+	while (true)
 	{
-		ah = (anim_chunk*)inpic;
+		auto& ah = *reinterpret_cast<AnimChunk*>(inpic);
 
-		if (ah->opt == 0)
+		if (ah.opt == 0)
 		{
 			break;
 		}
 
-		inpic += sizeof(anim_chunk);
-		JM_DrawBlock(bufferofs, ah->offset, (char*)inpic, ah->length);
-		inpic += ah->length;
+		ah.endian();
+
+		inpic += AnimChunk::class_size;
+
+		movie_jm_draw_block(ah.offset, inpic, ah.length);
+
+		inpic += ah.length;
 	}
 }
 
 // ---------------------------------------------------------------------------
-// MOVIE_LoadBuffer() - Loads the RAM Buffer full of graphics...
+// Loads the RAM Buffer full of graphics...
 //
 // RETURNS:  true - MORE Pages avail on disk..
 //          false   - LAST Pages from disk..
 //
-// PageLen = Length of data loaded into buffer
+// movie_buffer_offset_ = Length of data loaded into buffer
 //
 // ---------------------------------------------------------------------------
-bool MOVIE_LoadBuffer()
+static bool movie_load_buffer()
 {
-	anim_frame blk;
-	long chunkstart;
-	char* frame;
-	std::uint32_t free_space;
+	auto frame = movie_buffer_.data();
+	auto free_space = max_buffer_size;
 
-	NextPtr = BufferPtr = frame = MovieBuffer;
-	free_space = BufferLen;
+	movie_next_ptr_ = frame;
+	movie_buffer_ptr_ = frame;
+
+	AnimFrame blk;
 
 	while (free_space)
 	{
-		chunkstart = static_cast<long>(Movie_FHandle.get_position());
+		const auto chunkstart = movie_stream_.get_position();
 
-		if (Movie_FHandle.read(
-			&blk.code,
-			sizeof(blk.code)) != sizeof(blk.code))
-		{
-			::Quit("Animation file is corrupt or truncated.");
-		}
-
-		if (Movie_FHandle.read(
-			&blk.block_num,
-			sizeof(blk.block_num)) != sizeof(blk.block_num))
-		{
-			::Quit("Animation file is corrupt or truncated.");
-		}
-
-		if (Movie_FHandle.read(
-			&blk.recsize,
-			sizeof(blk.recsize)) != sizeof(blk.recsize))
-		{
-			::Quit("Animation file is corrupt or truncated.");
-		}
+		blk.code = movie_archiver_->read_uint16();
+		blk.block_num = movie_archiver_->read_int32();
+		blk.recsize = movie_archiver_->read_int32();
 
 		if (blk.code == AN_END_OF_ANIM)
 		{
 			return false;
 		}
 
-		if (free_space >= (blk.recsize + sizeof(anim_frame)))
+		if (free_space >= (blk.recsize + AnimFrame::class_size))
 		{
-			memcpy(frame, &blk, sizeof(anim_frame));
+			*reinterpret_cast<AnimFrame*>(frame) = blk;
 
-			free_space -= sizeof(anim_frame);
-			frame += sizeof(anim_frame);
-			PageLen += sizeof(anim_frame);
+			free_space -= AnimFrame::class_size;
+			frame += AnimFrame::class_size;
+			movie_buffer_offset_ += AnimFrame::class_size;
 
-			if (Movie_FHandle.read(frame, blk.recsize) != blk.recsize)
+			if (blk.recsize > 0)
 			{
-				::Quit("Animation file is corrupt or truncated.");
+				movie_archiver_->read_char_array(frame, blk.recsize);
 			}
 
 			free_space -= blk.recsize;
 			frame += blk.recsize;
-			PageLen += blk.recsize;
+			movie_buffer_offset_ += blk.recsize;
 		}
 		else
 		{
-			Movie_FHandle.set_position(chunkstart);
+			movie_stream_.set_position(chunkstart);
 			free_space = 0;
 		}
 	}
@@ -321,148 +297,129 @@ bool MOVIE_LoadBuffer()
 }
 
 // ---------------------------------------------------------------------------
-// MOVIE_GetFrame() - Returns pointer to next Block/Screen of animation
+// Returns pointer to next Block/Screen of animation
 //
 // PURPOSE: This function "Buffers" the movie presentation from allocated
 //      ram.  It loads and buffers incomming frames of animation..
 //
-// RETURNS:  0 - Ok
-//          1 - End Of File
+// RETURNS:  true - Ok
+//           false - End Of File
 // ---------------------------------------------------------------------------
-std::int16_t MOVIE_GetFrame()
+static bool movie_get_frame()
 {
-	anim_frame blk;
-
-	if (PageLen == 0)
+	if (movie_buffer_offset_ == 0)
 	{
-		if (MorePagesAvail)
+		if (movie_has_more_pages_)
 		{
-			MorePagesAvail = MOVIE_LoadBuffer();
+			movie_has_more_pages_ = movie_load_buffer();
 		}
 		else
 		{
-			return 1;
+			return false;
 		}
 	}
 
-	BufferPtr = NextPtr;
-	memcpy(&blk, BufferPtr, sizeof(anim_frame));
-	PageLen -= sizeof(anim_frame);
-	PageLen -= blk.recsize;
-	NextPtr = BufferPtr + sizeof(anim_frame) + blk.recsize;
-	return 0;
+	movie_buffer_ptr_ = movie_next_ptr_;
+
+	const auto& blk = *reinterpret_cast<const AnimFrame*>(movie_buffer_ptr_);
+
+	movie_buffer_offset_ -= AnimFrame::class_size;
+	movie_buffer_offset_ -= blk.recsize;
+	movie_next_ptr_ = movie_buffer_ptr_ + AnimFrame::class_size + blk.recsize;
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------
-// MOVIE_HandlePage() - This handles the current page of data from the
-//      ram buffer...
+// This handles the current page of data from the ram buffer...
 //
 // PURPOSE: Process current Page of anim.
 //
-//
-// RETURNS:
-//
 // ---------------------------------------------------------------------------
-void MOVIE_HandlePage(
-	MovieStuff_t* MovieStuff)
+static void movie_handle_page(
+	const MovieStuff& MovieStuff)
 {
-	anim_frame blk;
-	char* frame;
+	const auto& blk = *reinterpret_cast<const AnimFrame*>(movie_buffer_ptr_);
 
-	memcpy(&blk, BufferPtr, sizeof(anim_frame));
-	BufferPtr += sizeof(anim_frame);
-	frame = BufferPtr;
+	movie_buffer_ptr_ += AnimFrame::class_size;
 
-	IN_ReadControl(0, &ci);
+	auto frame = movie_buffer_ptr_;
+
+	::IN_ReadControl(0, &control_info_);
 
 	switch (blk.code)
 	{
-
-	case AN_SOUND: // Sound Chunk
+	case AN_SOUND:
 	{
-		std::uint16_t sound_chunk;
-		sound_chunk = *(std::uint16_t*)frame;
+		// Sound Chunk
+		//
 
-		::sd_play_player_sound(
-			sound_chunk,
-			bstone::ActorChannel::item);
+		const auto sound_chunk = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
 
-		BufferPtr += blk.recsize;
+		::sd_play_player_sound(sound_chunk, bstone::ActorChannel::item);
+
+		movie_buffer_ptr_ += blk.recsize;
 	}
 	break;
 
-	case AN_FADE_IN_FRAME: // Fade In Page
-		VL_FadeIn(0, 255, (const std::uint8_t*)movie_palette, 30);
-		fade_flags = FADE_NONE;
-		EverFaded = true;
-		screenfaded = false;
+	case AN_FADE_IN_FRAME:
+		// Fade In Page
+		//
+
+		::VL_FadeIn(0, 255, movie_palette_, 30);
+		movie_is_ever_faded_ = true;
+		::screenfaded = false;
 		break;
 
-	case AN_FADE_OUT_FRAME: // Fade Out Page
+	case AN_FADE_OUT_FRAME:
+		// Fade Out Page
+		//
+
 		VW_FadeOut();
-		screenfaded = true;
-		fade_flags = FADE_NONE;
+		::screenfaded = true;
 		break;
 
 	case AN_PAUSE: // Pause
 	{
-		std::uint16_t vbls;
-		vbls = *(std::uint16_t*)frame;
-		IN_UserInput(vbls);
-		BufferPtr += blk.recsize;
+		const auto vbls = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
+
+		::IN_UserInput(vbls);
+
+		movie_buffer_ptr_ += blk.recsize;
 
 		// BBi
 		::IN_ClearKeysDown();
-		ci = {};
+		control_info_ = {};
 		// BBi
 	}
 	break;
 
-
-
-	// -------------------------------------------
-	//
-	//
-	// -------------------------------------------
-
-	case AN_PAGE: // Graphics Chunk
-		if (movie_flag == MV_FILL)
+	// Graphics Chunk
+	case AN_PAGE:
+	{
+		if (movie_flag_ == MovieFlag::fill)
 		{
-			// First page comming in.. Fill screen with fill color...
+			// First page comming in. Fill screen with fill color...
 			//
-			movie_flag = MV_NONE; // Set READ flag to skip the first frame on an anim repeat
 
-			::JM_VGALinearFill(
-				0,
-				::vga_ref_width * ::vga_ref_height,
-				*frame);
+			// Set READ flag to skip the first frame on an anim repeat
+			movie_flag_ = MovieFlag::none;
 
-			frame++;
+			::JM_VGALinearFill(0, ::vga_ref_width * ::vga_ref_height, *frame);
+
+			++frame;
 		}
-		// BBi No need without page flipping
-#if 0
-		else
-		{
-			VL_LatchToScreen(
-				PAGE1START + ylookup[MovieStuff->start_line],
-				::vga_ref_width / 4,
-				MovieStuff->end_line - MovieStuff->start_line,
-				0,
-				MovieStuff->start_line);
-		}
-#endif
 
-		MOVIE_ShowFrame(frame);
+		movie_show_frame(frame);
 
-		FlipPages();
+		::VL_RefreshScreen();
 
-		if (TimeCount < static_cast<std::uint32_t>(MovieStuff->ticdelay))
+		if (TimeCount < static_cast<std::uint32_t>(MovieStuff.tick_delay_))
 		{
 			const auto min_wait_time = 0;
 			const auto max_wait_time = 2 * TickBase; // 2 seconds
 
-			auto wait_time =
-				MovieStuff->ticdelay - static_cast<int>(TimeCount);
+			auto wait_time = MovieStuff.tick_delay_ - static_cast<int>(TimeCount);
 
 			if (wait_time < min_wait_time)
 			{
@@ -478,6 +435,7 @@ void MOVIE_HandlePage(
 			{
 				wait_time *= 1000;
 				wait_time /= TickBase;
+
 				::sys_sleep_for(wait_time);
 			}
 		}
@@ -486,21 +444,26 @@ void MOVIE_HandlePage(
 			::sys_sleep_for(1000 / TickBase);
 		}
 
-		TimeCount = 0;
+		::TimeCount = 0;
 
-		if ((!screenfaded) && (ci.button0 || ci.button1 || LastScan != ScanCode::sc_none))
+		if (!::screenfaded &&
+			(control_info_.button0 || control_info_.button1 || ::LastScan != ScanCode::sc_none))
 		{
-			ExitMovie = true;
-			if (EverFaded)
-			{ // This needs to be a passed flag...
+			movie_is_exit_ = true;
+
+			if (movie_is_ever_faded_)
+			{
+				// This needs to be a passed flag...
+
 				VW_FadeOut();
-				screenfaded = true;
+				::screenfaded = true;
 			}
 		}
 		break;
+	}
 
 	case AN_END_OF_ANIM:
-		ExitMovie = true;
+		movie_is_exit_ = true;
 		break;
 
 	default:
@@ -510,50 +473,59 @@ void MOVIE_HandlePage(
 }
 
 // ---------------------------------------------------------------------------
-// MOVIE_Play() - Playes an Animation
+// movie_play() - Playes an Animation
 //
 // RETURNS: true  - Movie File was found and "played"
 //      false - Movie file was NOT found!
 // ---------------------------------------------------------------------------
-bool MOVIE_Play(
-	MovieStuff_t* MovieStuff)
+bool movie_play(
+	const MovieId movie_id,
+	const std::uint8_t* const palette)
 {
+	const auto& MovieStuff = movies[movie_id];
+
 	// Init our Movie Stuff...
 	//
 
-	SetupMovie(MovieStuff);
+	movie_setup(MovieStuff, palette);
 
 	// Start the anim process
 	//
 
-	::ca_open_resource(MovieStuff->file_name, Movie_FHandle);
-	if (!Movie_FHandle.is_open())
+	::ca_open_resource(MovieStuff.file_base_name_, movie_stream_);
+
+	if (!movie_stream_.is_open())
 	{
 		return false;
 	}
 
-	while (movie_reps && (!ExitMovie))
+	try
 	{
-		for (; !ExitMovie; )
+		movie_archiver_->initialize(&movie_stream_);
+
+		while (movie_repeat_count_ && !movie_is_exit_)
 		{
-			if (MOVIE_GetFrame())
+			while (!movie_is_exit_)
 			{
-				break;
+				if (!movie_get_frame())
+				{
+					break;
+				}
+
+				movie_handle_page(MovieStuff);
 			}
 
-			MOVIE_HandlePage(MovieStuff);
-		}
+			--movie_repeat_count_;
 
-		movie_reps--;
-		movie_flag = MV_SKIP;
+			movie_flag_ = MovieFlag::skip;
+		}
+	}
+	catch (const bstone::ArchiverException& ex)
+	{
+		::Quit(ex.get_message());
 	}
 
-	ShutdownMovie();
+	movie_shutdown();
 
 	return true;
-}
-
-void FlipPages()
-{
-	::VL_RefreshScreen();
 }

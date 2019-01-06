@@ -9442,32 +9442,24 @@ void CalcProjection(
 }
 
 bool DoMovie(
-	movie_t movie,
-	void* palette)
+	const MovieId movie,
+	const void* const raw_palette)
 {
-	bool ReturnVal;
-	SD_StopSound();
+	::SD_StopSound();
 
-	ClearMemory();
-	UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
-	CA_LoadAllSounds();
+	::ClearMemory();
+	::UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
+	::CA_LoadAllSounds();
 
-	if (palette)
-	{
-		movies[movie].palette = palette;
-	}
-	else
-	{
-		movies[movie].palette = vgapal;
-	}
+	const auto palette = static_cast<const std::uint8_t*>(raw_palette);
 
-	ReturnVal = MOVIE_Play(&movies[movie]);
+	const auto result = movie_play(movie, palette ? palette : ::vgapal);
 
-	SD_StopSound();
-	ClearMemory();
-	LoadFonts();
+	::SD_StopSound();
+	::ClearMemory();
+	::LoadFonts();
 
-	return ReturnVal;
+	return result;
 }
 
 void LoadFonts()
