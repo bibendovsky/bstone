@@ -53,7 +53,8 @@ void Log::initialize()
 		return;
 	}
 
-	auto&& log_path = ::get_profile_dir() + "bstone_log.txt";
+	const auto& profile_dir = ::get_profile_dir();
+	const auto& log_path = profile_dir + "bstone_log.txt";
 
 	is_initialized_ = true;
 	fstream_.open(log_path, StreamOpenMode::write);

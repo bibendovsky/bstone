@@ -9780,6 +9780,8 @@ int main(
 	scePowerSetGpuXbarClockFrequency(166);
 #endif
 
+	::g_args.initialize(argc, argv);
+
 	bstone::Log::initialize();
 
 	int sdl_result = 0;
@@ -9792,8 +9794,6 @@ int main(
 	{
 		::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
 	}
-
-	::g_args.initialize(argc, argv);
 
 	freed_main();
 
@@ -10418,13 +10418,20 @@ const std::string& get_profile_dir()
 
 		if (!profile_dir.empty())
 		{
-			profile_dir +=
+			const auto separator_char =
 #ifdef _WIN32
 				'\\'
 #else
 				'/'
 #endif
-				;
+			;
+
+			const auto end_char = profile_dir.back();
+
+			if (end_char != '\\' && end_char != '/')
+			{
+				profile_dir += separator_char;
+			}
 		}
 
 		if (profile_dir.empty())
