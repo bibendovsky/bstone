@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cassert>
 #include <chrono>
 #include "SDL_hints.h"
 #include "SDL_render.h"

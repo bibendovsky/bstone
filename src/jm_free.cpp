@@ -1116,6 +1116,7 @@ void freed_main()
 	bstone::Log::write();
 	bstone::Log::write("Data path: \"" + ::data_dir + "\"");
 	bstone::Log::write("Mod path: \"" + ::mod_dir_ + "\"");
+	bstone::Log::write("Profile path: \"" + ::get_profile_dir() + "\"");
 
 	// BBi
 	if (::g_args.has_option("debug_dump_hashes"))
