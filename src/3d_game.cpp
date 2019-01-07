@@ -2509,6 +2509,8 @@ void SetupGameLevel()
 	// BBi
 	bool is_red_key_present = false;
 	bool is_projection_generator_present = false;
+
+	auto is_wintile_found = false;
 	// BBi
 
 	for (y = 0; y < mapheight; y++)
@@ -2518,10 +2520,20 @@ void SetupGameLevel()
 			tile = *map++;
 			lock = static_cast<keytype>(*map1);
 
-			if (y < 63 && x < 63 && *map == 30)
+			if (y <= 63 && x <= 63 && tile == 30)
 			{
-				gamestate.wintilex = x + 1;
-				gamestate.wintiley = y;
+				if (assets_info.is_aog() && ::gamestate.episode < 5 && ::gamestate.mapon == 9)
+				{
+					if (is_wintile_found)
+					{
+						::Quit("Multiple \"wintile\"s on level.");
+					}
+
+					is_wintile_found = true;
+
+					::gamestate.wintilex = x;
+					::gamestate.wintiley = y;
+				}
 			}
 
 			if (tile >= 88 && tile <= 105)
