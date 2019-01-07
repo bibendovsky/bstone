@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_MENU_INCLUDED
 
 
+#include <string>
 #include "id_in.h"
 
 
@@ -102,7 +103,7 @@ struct CP_iteminfo
 struct CP_itemtype
 {
 	activetypes active;
-	char string[36];
+	std::string string;
 
 	void (*routine)(
 		std::int16_t temp1);

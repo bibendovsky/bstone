@@ -1454,7 +1454,7 @@ void IN_ReadControl(
 	int dx;
 	int dy;
 	Motion mx, my;
-	register KeyboardDef* def;
+	KeyboardDef* def;
 
 	// BBi
 	::in_handle_events();
