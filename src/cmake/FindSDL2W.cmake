@@ -58,12 +58,14 @@ if (SDL2_FOUND)
 
 	set(SDL2W_TMP_FOUND_CONFIG TRUE)
 
-	if (NOT SDL2_INCLUDE_DIRS AND NOT SDL2_LIBRARIES)
+	if (TARGET SDL2::SDL2main AND (TARGET SDL2::SDL2 OR TARGET SDL2::SDL2-static))
 		message(STATUS "SDL2W: Found targets.")
 
 		set(SDL2W_TMP_FOUND_TARGETS TRUE)
+	elseif (SDL2_INCLUDE_DIRS AND SDL2_LIBRARIES)
+		message(STATUS "SDL2W: Found config variables.")
 	else ()
-		message(STATUS "SDL2W: Targets not found.")
+		message(FATAL_ERROR "SDL2W: Supported config not found.")
 	endif ()
 else ()
 	message(STATUS "SDL2W: Config not found.")
@@ -130,11 +132,11 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 				)
 			endif ()
 		else ()
-				get_target_property(
-					SDL2W_TMP_INCLUDE_DIRS
-					SDL2::SDL2
-					INTERFACE_INCLUDE_DIRECTORIES
-				)
+			get_target_property(
+				SDL2W_TMP_INCLUDE_DIRS
+				SDL2::SDL2
+				INTERFACE_INCLUDE_DIRECTORIES
+			)
 		endif ()
 	else ()
 		set(SDL2W_TMP_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
@@ -230,7 +232,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 				SDL2W_TMP_PATCH_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX}
 				)
 				if (NOT ${SDL2W_TMP_MAJOR_VERSION} EQUAL 2)
-					message(FATAL_ERROR "Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
+					message(FATAL_ERROR "SDL2W: Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
 				endif ()
 
 				set(
@@ -241,6 +243,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 		endif ()
 	endif ()
 
+	message(STATUS "SDL2W: Found version: ${SDL2W_TMP_VERSION_STRING}")
 
 	# Default handler.
 	#
