@@ -186,7 +186,7 @@ using PiAnimationInfos = std::vector<piAnimInfo>;
 extern PiShapeInfos piShapeTable;
 extern PiAnimationInfos piAnimTable;
 extern piAnimInfo piAnimList[TP_MAX_ANIMS];
-extern char* piStringTable[PI_MAX_NUM_DISP_STRS];
+extern const char* piStringTable[PI_MAX_NUM_DISP_STRS];
 extern ScanCode TPscan;
 
 // -------------------------------------------------------------------------

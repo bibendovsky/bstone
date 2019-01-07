@@ -1880,7 +1880,7 @@ void US_ControlPanel(
 	if (startgame || loadedgame)
 	{
 		MainMenu[MM_VIEW_SCORES].routine = nullptr;
-		strcpy(MainMenu[MM_VIEW_SCORES].string, "END GAME");
+		MainMenu[MM_VIEW_SCORES].string = "END GAME";
 	}
 
 	if (ingame && loadedgame)
@@ -1911,12 +1911,14 @@ void DrawMainMenu()
 	//
 	if (ingame)
 	{
-		strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8], "MISSION");
+		MainMenu[MM_BACK_TO_DEMO].string.resize(8);
+		MainMenu[MM_BACK_TO_DEMO].string += "MISSION";
 		MainMenu[MM_BACK_TO_DEMO].active = AT_READIT;
 	}
 	else
 	{
-		strcpy(&MainMenu[MM_BACK_TO_DEMO].string[8], "DEMO");
+		MainMenu[MM_BACK_TO_DEMO].string.resize(8);
+		MainMenu[MM_BACK_TO_DEMO].string += "DEMO";
 		MainMenu[MM_BACK_TO_DEMO].active = AT_ENABLED;
 	}
 
@@ -1957,6 +1959,9 @@ void CP_BlakeStoneSaga(
 bool CP_CheckQuick(
 	ScanCode scancode)
 {
+	auto string = std::string{};
+	string.reserve(100);
+
 	switch (scancode)
 	{
 		// END GAME
@@ -1985,19 +1990,19 @@ bool CP_CheckQuick(
 	case ScanCode::sc_f8:
 		if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
 		{
-			char string[100] = "Quick Save will overwrite:\n\"";
+			string = "Quick Save will overwrite:\n\"";
 
-			CA_CacheGrChunk(STARTFONT + 1);
+			::CA_CacheGrChunk(STARTFONT + 1);
 
-			strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
-			strcat(string, "\"?");
+			string += ::SaveGameNames[static_cast<int>(::LSItems.curpos)];
+			string += "\"?";
 
 			// BBi
 #if 0
 			VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
 #endif
 
-			if (Confirm(string))
+			if (Confirm(string.c_str()))
 			{
 				CA_CacheGrChunk(STARTFONT + 1);
 				CP_SaveGame(1);
@@ -2031,19 +2036,19 @@ bool CP_CheckQuick(
 	case ScanCode::sc_f9:
 		if (SaveGamesAvail[static_cast<int>(LSItems.curpos)] && pickquick)
 		{
-			char string[100] = "Quick Load:\n\"";
+			string = "Quick Load:\n\"";
 
-			CA_CacheGrChunk(STARTFONT + 1);
+			::CA_CacheGrChunk(STARTFONT + 1);
 
-			strcat(string, SaveGameNames[static_cast<int>(LSItems.curpos)]);
-			strcat(string, "\"?");
+			string += ::SaveGameNames[static_cast<int>(::LSItems.curpos)];
+			string += "\"?";
 
 			// BBi
 #if 0
 			VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
 #endif
 
-			if (Confirm(string))
+			if (Confirm(string.c_str()))
 			{
 				CP_LoadGame(1);
 			}
@@ -4484,7 +4489,10 @@ std::int16_t HandleMenu(
 
 	if (redrawitem)
 	{
-		ShadowPrint((items + which)->string, item_i->x + item_i->indent, item_i->y + which * item_i->y_spacing);
+		ShadowPrint(
+			(items + which)->string.c_str(),
+			item_i->x + item_i->indent,
+			item_i->y + which * item_i->y_spacing);
 	}
 
 	//
@@ -4757,7 +4765,7 @@ void EraseGun(
 	VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, ::menu_background_color);
 	SetTextColor(items + which, 0);
 
-	ShadowPrint((items + which)->string, item_i->x + item_i->indent, y);
+	ShadowPrint((items + which)->string.c_str(), item_i->x + item_i->indent, y);
 }
 
 // ---------------------------------------------------------------------------
@@ -4779,7 +4787,10 @@ void DrawGun(
 	VWB_Bar(item_i->cursor.x, *y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, HIGHLIGHT_BOX_COLOR);
 	SetTextColor(items + which, 1);
 
-	ShadowPrint((items + which)->string, item_i->x + item_i->indent, item_i->y + which * item_i->y_spacing);
+	ShadowPrint(
+		(items + which)->string.c_str(),
+		item_i->x + item_i->indent,
+		item_i->y + which * item_i->y_spacing);
 
 	//
 	// CALL CUSTOM ROUTINE IF IT IS NEEDED
@@ -4828,7 +4839,7 @@ void DrawMenu(
 	for (i = 0; i < item_i->amount; i++)
 	{
 		SetTextColor(items + i, which == i);
-		ShadowPrint((items + i)->string, WindowX, item_i->y + i * item_i->y_spacing);
+		ShadowPrint((items + i)->string.c_str(), WindowX, item_i->y + i * item_i->y_spacing);
 	}
 }
 

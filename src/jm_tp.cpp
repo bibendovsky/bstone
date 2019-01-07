@@ -139,7 +139,7 @@ void draw_wall_ui(
 //
 // See Macro TP_INIT_DISPLAY_STR(num,str_ptr) - JM_TP.h
 // To init strings and handle range checking....
-char* piStringTable[PI_MAX_NUM_DISP_STRS];
+const char* piStringTable[PI_MAX_NUM_DISP_STRS];
 
 
 // shape table provides a way for the presenter to access and
@@ -2829,7 +2829,7 @@ void TP_HandleCodes()
 
 			old_first_ch = first_ch + 2;
 
-			first_ch = const_cast<const char*>(piStringTable[disp_str_num]);
+			first_ch = piStringTable[disp_str_num];
 
 			if (first_ch)
 			{
@@ -2998,7 +2998,6 @@ void TP_HandleCodes()
 
 void TP_PrintPageNumber()
 {
-	char buffer[5];
 	auto oldf = static_cast<std::int8_t>(fontnumber);
 	auto oldc = fontcolor;
 
@@ -3015,16 +3014,31 @@ void TP_PrintPageNumber()
 	px = pagex[0];
 	py = pagey[0];
 	VW_Bar(px, py, 12, 7, 0xe3);
-	sprintf(buffer, "%02d", pi->pagenum + 1);
-	ShPrint(buffer, static_cast<std::int8_t>(shcolor), false);
+
+	auto buffer = std::to_string(pi->pagenum + 1);
+
+	if (buffer.length() < 2)
+	{
+		buffer.insert(0, 1, ' ');
+	}
+
+	ShPrint(buffer.c_str(), static_cast<std::int8_t>(shcolor), false);
 
 	// Print current page number.
 	//
 	if ((px = pagex[1]) > -1)
 	{
 		py = pagey[1];
-		sprintf(buffer, "%02d", pi->numpages);
-		ShPrint(buffer, static_cast<std::int8_t>(shcolor), false);
+
+		buffer = std::to_string(pi->numpages);
+
+		if (buffer.length() < 2)
+		{
+			buffer.insert(0, 1, ' ');
+		}
+
+		ShPrint(buffer.c_str(), static_cast<std::int8_t>(shcolor), false);
+
 		pagex[1] = -1;
 	}
 

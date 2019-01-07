@@ -3419,7 +3419,7 @@ void GameLoop()
 
 	extern bool sqActive;
 
-	char Score[13];
+	auto Score = std::string{};
 	bool died;
 
 restartgame:
@@ -3601,7 +3601,7 @@ restartgame:
 
 			MainMenu[MM_SAVE_MISSION].active = AT_DISABLED;
 			MainMenu[MM_VIEW_SCORES].routine = &CP_ViewScores;
-			strcpy(MainMenu[MM_VIEW_SCORES].string, "HIGH SCORES");
+			MainMenu[MM_VIEW_SCORES].string = "HIGH SCORES";
 
 			if (playstate == ex_victorious)
 			{
@@ -3636,8 +3636,8 @@ restartgame:
 
 			::vid_is_hud = false;
 
-			sprintf(Score, "%d", gamestate.score);
-			piStringTable[0] = Score;
+			Score = std::to_string(gamestate.score);
+			piStringTable[0] = Score.c_str();
 
 			if (playstate == ex_victorious)
 			{
