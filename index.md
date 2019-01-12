@@ -14,8 +14,8 @@ Contents
 ========
 
 1. Disclaimer
-2. Overview  
-2.1 Overview (PS Vita)
+2. Overview
+   1. Overview (PS Vita)
 3. Required assets
 4. Profile
 5. Compiling
@@ -24,14 +24,17 @@ Contents
 8. Debug keys
 9. Third party use
 10. Credits
-11. Links
+11. Links  
+    1. General
+    2. Add-ons for Aliens Of Gold (full)
+    3. Add-ons for Planet Strike
 
 
 1 - Disclaimer
 ==============
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC  
-Copyright (c) 2013-2018 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
+Copyright (c) 2013-2019 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
 
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License  
@@ -136,7 +139,7 @@ Minimum requirements:
 * CMake 3.1.3  
   (<http://cmake.org/>)
 
-* SDL v2.0.4
+* SDL v2.0.4  
   (<http://www.libsdl.org/>)
 
 CMake variables:
@@ -354,7 +357,7 @@ Add option "--cheats" to enable these keys.
 9 - Third party use
 ===================
 
-* Simple DirectMedia Library (v2)  
+* Simple DirectMedia Library  
   <http://libsdl.org/>  
   See file COPYING-SDL2.txt for a license information.
 
@@ -388,11 +391,47 @@ Add option "--cheats" to enable these keys.
 11 - Links
 ==========
 
+11.1 - General
+==============
+
 * Home page:  
   <http://bibendovsky.github.io/bstone/>
+
+* Blake Stone: Aliens of Gold official site:  
+  <http://legacy.3drealms.com/blake/index.html>
+
+* Blake Stone: Planet Strike official site:  
+  <http://legacy.3drealms.com/planet/index.html>
 
 * Apogee's article about releasing of an original source code:  
   <http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code>
 
-* Official shareware Blake Stone: Aliens of Gold, patches and maps (search for "Blake Stone: Aliens of Gold" section):
-  <http://legacy.3drealms.com/downloads.html>
+* Original source code:  
+  <http://bibendovsky.github.io/bstone/files/official/Blake%20Stone%20Planet%20Strike%20Source%20Code.rar>
+
+* Repacked shareware Blake Stone: Aliens Of Gold (v3.0):  
+  <http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip>
+
+11.2 - Add-ons for Aliens Of Gold (full)
+========================================
+
+* Add-on "BSE90" by ack  
+  <http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip>
+
+* Add-on "GUYSTONE" by Guy Brys  
+  <http://bibendovsky.github.io/bstone/files/community/aog/guystone.zip>
+
+* Ling's Blake Stone Levels by Ling Yan Li  
+  <http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip>
+
+11.3 - Add-ons for Planet Strike
+================================
+
+* Add-on "BSE24" by ack  
+  <http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip>
+
+* Add-on "GUYSTRIKE" by Guy Brys  
+  <http://bibendovsky.github.io/bstone/files/community/ps/guystrike.zip>
+
+* Ling's Planet Strike Levels by Ling Yan Li  
+  <http://bibendovsky.github.io/bstone/files/community/ps/lingstrike.zip>
