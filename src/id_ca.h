@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -190,26 +190,28 @@ struct Assets final
 {
 	static constexpr auto max_size = 4000000;
 
-	static const std::string& audio_header_base_name;
-	static const std::string& audio_data_base_name;
 
-	static const std::string& map_header_base_name;
-	static const std::string& map_data_base_name;
+	static const std::string& get_audio_header_base_name();
+	static const std::string& get_audio_data_base_name();
 
-	static const std::string& gfx_dictionary_base_name;
-	static const std::string& gfx_header_base_name;
-	static const std::string& gfx_data_base_name;
+	static const std::string& get_map_header_base_name();
+	static const std::string& get_map_data_base_name();
 
-	static const std::string& page_file_base_name;
+	static const std::string& get_gfx_dictionary_base_name();
+	static const std::string& get_gfx_header_base_name();
+	static const std::string& get_gfx_data_base_name();
 
-	static const std::string& episode_6_fmv_base_name;
-	static const std::string& episode_3_5_fmv_base_name;
-	static const std::string& intro_fmv_base_name;
-	static const std::string& episode_2_4_fmv_base_name;
+	static const std::string& get_page_file_base_name();
 
-	static const std::string& aog_sw_extension;
-	static const std::string& aog_full_extension;
-	static const std::string& ps_extension;
+	static const std::string& get_episode_6_fmv_base_name();
+	static const std::string& get_episode_3_5_fmv_base_name();
+	static const std::string& get_intro_fmv_base_name();
+	static const std::string& get_episode_2_4_fmv_base_name();
+
+	static const std::string& get_aog_sw_extension();
+	static const std::string& get_aog_full_extension();
+	static const std::string& get_ps_extension();
+
 
 	static const AssetsCRefStrings& get_extensions();
 

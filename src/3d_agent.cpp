@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -1968,29 +1968,35 @@ void UpdateInfoAreaClock()
 
 }
 
-char default_msg[] = {"\r    NO MESSAGES."
-"^FCA8\r    FOOD TOKENS:      "
-"                                 "};
-
-char needDetonator_msg[] = "\r\r^FC39 FIND THE DETONATOR!";
-
-char haveDetonator_msg[] = "\r\r^FC39DESTROY SECURITY CUBE!";
-
-char destroyGoldfire_msg[] = "\r\r^FC39  DESTROY GOLDFIRE!";
+auto status_message = std::string{};
 
 void DisplayNoMoMsgs()
 {
-	LastMsgPri = MP_min_val;
+	::LastMsgPri = MP_min_val;
 
 	if (BONUS_QUEUE)
 	{
-		DisplayPinballBonus();
+		::DisplayPinballBonus();
+
 		return;
 	}
 
-	MsgTicsRemain = 0;
-	StatusAllDrawPic(0, 40, DIM_LIGHTPIC);
-	sprintf((char*)&default_msg[40], "%-d", gamestate.tokens);
+	const auto need_detonator_msg = "\r\r^FC39 FIND THE DETONATOR!";
+	const auto have_detonator_msg = "\r\r^FC39DESTROY SECURITY CUBE!";
+	const auto destroy_goldfire_msg = "\r\r^FC39  DESTROY GOLDFIRE!";
+
+	::MsgTicsRemain = 0;
+	::StatusAllDrawPic(0, 40, DIM_LIGHTPIC);
+
+	const auto default_msg_length = 78;
+
+	status_message =
+		"\r    NO MESSAGES."
+		"^FCA8\r    FOOD TOKENS: ";
+
+	status_message += std::to_string(gamestate.tokens);
+	status_message.resize(default_msg_length, ' ');
+
 	if (gamestuff.level[gamestate.mapon + 1].locked)
 	{
 		const auto& assets_info = AssetsInfo{};
@@ -2000,7 +2006,7 @@ void DisplayNoMoMsgs()
 		case 19:
 			if (assets_info.is_ps())
 			{
-				strcat(default_msg, destroyGoldfire_msg);
+				status_message += destroy_goldfire_msg;
 			}
 			break;
 
@@ -2015,18 +2021,18 @@ void DisplayNoMoMsgs()
 			{
 				if (gamestate.plasma_detonators)
 				{
-					strcat(default_msg, haveDetonator_msg);
+					status_message += have_detonator_msg;
 				}
 				else
 				{
-					strcat(default_msg, needDetonator_msg);
+					status_message += need_detonator_msg;
 				}
 			}
 			break;
 		}
 	}
 
-	DisplayInfoMsg(default_msg, MP_max_val, 0, MT_NOTHING);
+	::DisplayInfoMsg(status_message.c_str(), MP_max_val, 0, MT_NOTHING);
 }
 
 // --------------------------------------------------------------------------
@@ -3414,7 +3420,8 @@ void Cmd_Use(
 
 const int MSG_BUFFER_LEN = 150;
 
-char msg[MSG_BUFFER_LEN + 1];
+//char msg[MSG_BUFFER_LEN + 1];
+auto msg = std::string{};
 
 char* InfAreaMsgs[MAX_INF_AREA_MSGS];
 std::uint8_t NumAreaMsgs, LastInfArea;
@@ -3424,39 +3431,41 @@ scientist_t InfHintList; // Informant messages
 scientist_t NiceSciList; // Non-informant, non-pissed messages
 scientist_t MeanSciList; // Non-informant, pissed messages
 
-char int_interrogate[] = "INTERROGATE:",
-int_informant[] = " ^FC3aINFORMANT^FCa6",
-int_rr[] = "\r\r",
-int_xx[] = "^XX",
-int_haveammo[] = " HEY BLAKE,\r TAKE MY CHARGE PACK!",
-int_havetoken[] = " HEY BLAKE,\r TAKE MY FOOD TOKENS!";
-
-
 bool Interrogate(
 	objtype* ob)
 {
+	const auto msg_interrogate = "INTERROGATE:";
+	const auto msg_informant = " ^FC3aINFORMANT^FCa6";
+	const auto msg_rr = "\r\r";
+	const auto msg_xx = "^XX";
+	const auto msg_have_ammo = " HEY BLAKE,\r TAKE MY CHARGE PACK!";
+	const auto msg_have_token = " HEY BLAKE,\r TAKE MY FOOD TOKENS!";
+
+
 	bool rt_value = true;
-	char* msgptr = nullptr;
+	const char* msgptr = nullptr;
 
-	strcpy(msg, int_interrogate);
+	msg = msg_interrogate;
 
-	if (ob->flags & FL_INFORMANT)
-	{ // Informant
-		strcat(msg, int_informant);
+	if ((ob->flags & FL_INFORMANT) != 0)
+	{
+		// Informant
+		msg += msg_informant;
 
-		if (ob->flags & FL_INTERROGATED)
+		if ((ob->flags & FL_INTERROGATED) != 0)
 		{
-			if ((ob->flags & FL_HAS_AMMO) && (gamestate.ammo != MAX_AMMO))
+			if ((ob->flags & FL_HAS_AMMO) != 0 && (gamestate.ammo != MAX_AMMO))
 			{
-				GiveAmmo((US_RndT() % 8) + 1);
+				::GiveAmmo((US_RndT() % 8) + 1);
 				ob->flags &= ~FL_HAS_AMMO;
-				msgptr = int_haveammo;
+				msgptr = msg_have_ammo;
 			}
+
 			else if ((ob->flags & FL_HAS_TOKENS) && (gamestate.tokens != MAX_TOKENS))
 			{
-				GiveToken(5);
+				::GiveToken(5);
 				ob->flags &= ~FL_HAS_TOKENS;
-				msgptr = int_havetoken;
+				msgptr = msg_have_token;
 			}
 		}
 
@@ -3465,13 +3474,13 @@ bool Interrogate(
 			// If new areanumber OR no 'area msgs' have been compiled, compile
 			// a list of all special messages for this areanumber.
 			//
-			if ((LastInfArea == 0xFF) || (LastInfArea != ob->areanumber))
+			if ((::LastInfArea == 0xFF) || (::LastInfArea != ob->areanumber))
 			{
-				NumAreaMsgs = 0;
+				::NumAreaMsgs = 0;
 
-				for (auto i = 0; i < InfHintList.NumMsgs; ++i)
+				for (auto i = 0; i < ::InfHintList.NumMsgs; ++i)
 				{
-					const auto& ci = InfHintList.smInfo[i];
+					const auto& ci = ::InfHintList.smInfo[i];
 
 					if (ci.areanumber == 0xFF)
 					{
@@ -3480,36 +3489,40 @@ bool Interrogate(
 
 					if (ci.areanumber == ob->areanumber)
 					{
-						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
+						::InfAreaMsgs[::NumAreaMsgs++] = ::InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
 					}
 				}
 
-				LastInfArea = ob->areanumber;
+				::LastInfArea = ob->areanumber;
 			}
 
 			// Randomly select an informant hint, either: specific to areanumber
 			// or general hint...
 			//
-			if (NumAreaMsgs)
+			if (::NumAreaMsgs)
 			{
 				if (ob->ammo != ob->areanumber)
 				{
 					ob->s_tilex = 0xFF;
 				}
+
 				ob->ammo = ob->areanumber;
+
 				if (ob->s_tilex == 0xFF)
 				{
-					ob->s_tilex = static_cast<std::uint8_t>(Random(NumAreaMsgs));
+					ob->s_tilex = static_cast<std::uint8_t>(::Random(::NumAreaMsgs));
 				}
-				msgptr = InfAreaMsgs[ob->s_tilex];
+
+				msgptr = ::InfAreaMsgs[ob->s_tilex];
 			}
 			else
 			{
 				if (ob->s_tiley == 0xff)
 				{
-					ob->s_tiley = static_cast<std::uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
+					ob->s_tiley = static_cast<std::uint8_t>(::FirstGenInfMsg + ::Random(::TotalGenInfMsgs));
 				}
-				msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
+
+				msgptr = ::InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
 			}
 
 			// Still no msgptr? This is a shared message! Use smInfo[local_val]
@@ -3517,42 +3530,51 @@ bool Interrogate(
 			//
 			if (!msgptr)
 			{
-				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+				msgptr = ::InfHintList.smInfo[::InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
 			}
 
 			ob->flags |= FL_INTERROGATED; // Scientist has been interrogated
 		}
 	}
 	else
-	{ // Non-Informant
+	{
+		// Non-Informant
+		//
 		scientist_t* st;
 
 		rt_value = false;
-		if ((ob->flags & FL_MUST_ATTACK) || (US_RndT() & 1))
-		{ // Mean
+
+		if ((ob->flags & FL_MUST_ATTACK) != 0 || (::US_RndT() & 1) != 0)
+		{
+			// Mean
+			//
 			ob->flags &= ~FL_FRIENDLY; // Make him attack!
 			ob->flags |= FL_INTERROGATED; //  "    "     "
-			st = &MeanSciList;
+			st = &::MeanSciList;
 		}
 		else
-		{ // Nice
+		{
+			// Nice
+			//
 			ob->flags |= FL_MUST_ATTACK; // Make him mean!
-			st = &NiceSciList;
+			st = &::NiceSciList;
 		}
 
-		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
+		msgptr = st->smInfo[::Random(st->NumMsgs)].mInfo.mSeg;
 	}
 
 	if (msgptr)
 	{
-		strcat(msg, int_rr);
-		strcat(msg, msgptr);
-		strcat(msg, int_xx);
-		if (strlen(msg) > MSG_BUFFER_LEN)
+		msg += msg_rr;
+		msg += msgptr;
+		msg += msg_xx;
+
+		if (msg.size() > static_cast<std::string::size_type>(MSG_BUFFER_LEN))
 		{
 			::Quit("Interrogation message too long.");
 		}
-		DisplayInfoMsg(msg, MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
+
+		::DisplayInfoMsg(msg.c_str(), MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
 
 		::sd_play_player_sound(INTERROGATESND, bstone::ActorChannel::interrogation);
 	}

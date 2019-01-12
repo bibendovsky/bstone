@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -9441,32 +9441,24 @@ void CalcProjection(
 }
 
 bool DoMovie(
-	movie_t movie,
-	void* palette)
+	const MovieId movie,
+	const void* const raw_palette)
 {
-	bool ReturnVal;
-	SD_StopSound();
+	::SD_StopSound();
 
-	ClearMemory();
-	UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
-	CA_LoadAllSounds();
+	::ClearMemory();
+	::UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
+	::CA_LoadAllSounds();
 
-	if (palette)
-	{
-		movies[movie].palette = palette;
-	}
-	else
-	{
-		movies[movie].palette = vgapal;
-	}
+	const auto palette = static_cast<const std::uint8_t*>(raw_palette);
 
-	ReturnVal = MOVIE_Play(&movies[movie]);
+	const auto result = movie_play(movie, palette ? palette : ::vgapal);
 
-	SD_StopSound();
-	ClearMemory();
-	LoadFonts();
+	::SD_StopSound();
+	::ClearMemory();
+	::LoadFonts();
 
-	return ReturnVal;
+	return result;
 }
 
 void LoadFonts()
@@ -9787,6 +9779,8 @@ int main(
 	scePowerSetGpuXbarClockFrequency(166);
 #endif
 
+	::g_args.initialize(argc, argv);
+
 	bstone::Log::initialize();
 
 	int sdl_result = 0;
@@ -9799,8 +9793,6 @@ int main(
 	{
 		::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
 	}
-
-	::g_args.initialize(argc, argv);
 
 	freed_main();
 
@@ -10408,7 +10400,7 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
-	static const std::string version = "1.1.10";
+	static const std::string version = "1.1.11";
 	return version;
 }
 
@@ -10425,13 +10417,20 @@ const std::string& get_profile_dir()
 
 		if (!profile_dir.empty())
 		{
-			profile_dir +=
+			const auto separator_char =
 #ifdef _WIN32
 				'\\'
 #else
 				'/'
 #endif
-				;
+			;
+
+			const auto end_char = profile_dir.back();
+
+			if (end_char != '\\' && end_char != '/')
+			{
+				profile_dir += separator_char;
+			}
 		}
 
 		if (profile_dir.empty())

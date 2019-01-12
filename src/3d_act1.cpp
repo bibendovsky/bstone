@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -1837,8 +1837,6 @@ void FreeMsgCache(
 	}
 }
 
-extern char int_xx[];
-
 // ---------------------------------------------------------------------------
 // CacheMsg()
 //
@@ -1874,6 +1872,8 @@ std::int16_t LoadMsg(
 	std::uint16_t MsgNum,
 	std::uint16_t MaxMsgLen)
 {
+	const auto msg_xx = "^XX";
+
 	char* Message, *EndOfMsg;
 	std::int16_t pos = 0;
 
@@ -1884,7 +1884,7 @@ std::int16_t LoadMsg(
 	//
 	while (--MsgNum)
 	{
-		Message = strstr(Message, int_xx);
+		Message = strstr(Message, msg_xx);
 
 		if (!Message)
 		{
@@ -1903,7 +1903,7 @@ std::int16_t LoadMsg(
 
 	// Find the end of the message
 	//
-	if ((EndOfMsg = strstr(Message, int_xx)) == nullptr)
+	if ((EndOfMsg = strstr(Message, msg_xx)) == nullptr)
 	{
 		::Quit("Invalid 'Cached Message' number");
 	}

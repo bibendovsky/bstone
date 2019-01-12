@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cassert>
 #include <chrono>
 #include "SDL_hints.h"
 #include "SDL_render.h"
@@ -734,7 +735,7 @@ void sdl_calculate_dimensions()
 	//
 	::sdl_ui_bottom_src_rect = SDL_Rect{
 		0,
-		::ref_view_bottom_y,
+		::ref_view_bottom_y + 1,
 		::vga_ref_width,
 		::ref_bottom_bar_height,
 	};
@@ -1418,38 +1419,28 @@ void VL_GetPalette(
 	}
 }
 
-/*
-=================
-=
-= VL_FadeOut
-=
-= Fades the current palette to the given color in the given number of steps
-=
-=================
-*/
-
+// Fades the current palette to the given color in the given number of steps.
 void VL_FadeOut(
-	int start,
-	int end,
-	int red,
-	int green,
-	int blue,
-	int steps)
+	const int start,
+	const int end,
+	const int red,
+	const int green,
+	const int blue,
+	const int steps)
 {
+	assert(start >= 0);
+	assert(end >= 0);
+	assert(red >= 0 && red <= 0xFF);
+	assert(green >= 0 && green <= 0xFF);
+	assert(blue >= 0 && blue <= 0xFF);
+	assert(steps > 0);
+	assert(start <= end);
+
 	if (!::g_no_fade_in_or_out)
 	{
-		int orig;
-		int delta;
+		::VL_GetPalette(0, 256, &::palette1[0][0]);
 
-		::VL_GetPalette(
-			0,
-			256,
-			&::palette1[0][0]);
-
-		std::uninitialized_copy_n(
-			&::palette1[0][0],
-			768,
-			&::palette2[0][0]);
+		std::uninitialized_copy_n(&::palette1[0][0], 768, &::palette2[0][0]);
 
 		//
 		// fade through intermediate frames
@@ -1461,8 +1452,8 @@ void VL_FadeOut(
 
 			for (int j = start; j <= end; ++j)
 			{
-				orig = *origptr++;
-				delta = red - orig;
+				auto orig = *origptr++;
+				auto delta = red - orig;
 				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
 
 				orig = *origptr++;
@@ -1478,10 +1469,7 @@ void VL_FadeOut(
 			::sdl_filler_color.g = ::palette2[filler_color_index][1];
 			::sdl_filler_color.b = ::palette2[filler_color_index][2];
 
-			::VL_SetPalette(
-				0,
-				256,
-				&::palette2[0][0]);
+			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
 			::VL_RefreshScreen();
 
@@ -1492,20 +1480,23 @@ void VL_FadeOut(
 		}
 	}
 
-	::sdl_filler_color = SDL_Color{
-		static_cast<std::uint8_t>(red),
-		static_cast<std::uint8_t>(green),
-		static_cast<std::uint8_t>(blue),
-		0xFF,
-	};
-
 	//
 	// final color
 	//
+	::sdl_filler_color = SDL_Color
+	{
+		static_cast<std::uint8_t>(red),
+		static_cast<std::uint8_t>(green),
+		static_cast<std::uint8_t>(blue),
+		0xFF
+	};
+
 	::VL_FillPalette(
 		static_cast<std::uint8_t>(red),
 		static_cast<std::uint8_t>(green),
 		static_cast<std::uint8_t>(blue));
+
+	::VL_RefreshScreen();
 
 	if (!::vid_has_vsync)
 	{
@@ -1516,25 +1507,25 @@ void VL_FadeOut(
 }
 
 void VL_FadeIn(
-	int start,
-	int end,
-	const std::uint8_t* palette,
-	int steps)
+	const int start,
+	const int end,
+	const std::uint8_t* const palette,
+	const int steps)
 {
+	assert(start >= 0);
+	assert(end >= 0);
+	assert(palette != nullptr);
+	assert(steps > 0);
+	assert(start <= end);
+
 	if (!::g_no_fade_in_or_out)
 	{
-		::VL_GetPalette(
-			0,
-			256,
-			&::palette1[0][0]);
+		::VL_GetPalette(0, 256, &::palette1[0][0]);
 
-		std::uninitialized_copy_n(
-			&::palette1[0][0],
-			768,
-			&::palette2[0][0]);
+		std::uninitialized_copy_n(&::palette1[0][0], 768, &::palette2[0][0]);
 
-		start *= 3;
-		end = (end * 3) + 2;
+		const auto start_index = start * 3;
+		const auto end_index = (end * 3) + 2;
 
 		//
 		// fade through intermediate frames
@@ -1543,7 +1534,7 @@ void VL_FadeIn(
 
 		for (int i = 0; i < steps; ++i)
 		{
-			for (int j = start; j <= end; ++j)
+			for (int j = start_index; j <= end_index; ++j)
 			{
 				const int delta = palette[j] - ::palette1[0][j];
 
@@ -1555,10 +1546,7 @@ void VL_FadeIn(
 			::sdl_filler_color.g = ::palette2[filler_color_index][1];
 			::sdl_filler_color.b = ::palette2[filler_color_index][2];
 
-			::VL_SetPalette(
-				0,
-				256,
-				&::palette2[0][0]);
+			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
 			::VL_RefreshScreen();
 
@@ -1569,14 +1557,16 @@ void VL_FadeIn(
 		}
 	}
 
+	//
+	// final color
+	//
 	::sdl_filler_color.r = palette[(filler_color_index * 3) + 0];
 	::sdl_filler_color.g = palette[(filler_color_index * 3) + 1];
 	::sdl_filler_color.b = palette[(filler_color_index * 3) + 2];
 
-	//
-	// final color
-	//
 	::VL_SetPalette(0, 256, palette);
+
+	::VL_RefreshScreen();
 
 	if (!::vid_has_vsync)
 	{

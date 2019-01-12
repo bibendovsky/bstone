@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -128,18 +128,18 @@ void VL_SetPaletteIntensity(
 	int intensity);
 
 void VL_FadeOut(
-	int start,
-	int end,
-	int red,
-	int green,
-	int blue,
-	int steps);
+	const int start,
+	const int end,
+	const int red,
+	const int green,
+	const int blue,
+	const int steps);
 
 void VL_FadeIn(
-	int start,
-	int end,
-	const std::uint8_t* palette,
-	int steps);
+	const int start,
+	const int end,
+	const std::uint8_t* const palette,
+	const int steps);
 
 void VL_Plot(
 	int x,

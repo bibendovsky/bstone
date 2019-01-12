@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -2509,6 +2509,8 @@ void SetupGameLevel()
 	// BBi
 	bool is_red_key_present = false;
 	bool is_projection_generator_present = false;
+
+	auto is_wintile_found = false;
 	// BBi
 
 	for (y = 0; y < mapheight; y++)
@@ -2518,10 +2520,20 @@ void SetupGameLevel()
 			tile = *map++;
 			lock = static_cast<keytype>(*map1);
 
-			if (y < 63 && x < 63 && *map == 30)
+			if (y <= 63 && x <= 63 && tile == 30)
 			{
-				gamestate.wintilex = x + 1;
-				gamestate.wintiley = y;
+				if (assets_info.is_aog() && ::gamestate.episode < 5 && ::gamestate.mapon == 9)
+				{
+					if (is_wintile_found)
+					{
+						::Quit("Multiple \"wintile\"s on level.");
+					}
+
+					is_wintile_found = true;
+
+					::gamestate.wintilex = x;
+					::gamestate.wintiley = y;
+				}
 			}
 
 			if (tile >= 88 && tile <= 105)
@@ -3407,7 +3419,7 @@ void GameLoop()
 
 	extern bool sqActive;
 
-	char Score[13];
+	auto Score = std::string{};
 	bool died;
 
 restartgame:
@@ -3589,7 +3601,7 @@ restartgame:
 
 			MainMenu[MM_SAVE_MISSION].active = AT_DISABLED;
 			MainMenu[MM_VIEW_SCORES].routine = &CP_ViewScores;
-			strcpy(MainMenu[MM_VIEW_SCORES].string, "HIGH SCORES");
+			MainMenu[MM_VIEW_SCORES].string = "HIGH SCORES";
 
 			if (playstate == ex_victorious)
 			{
@@ -3624,8 +3636,8 @@ restartgame:
 
 			::vid_is_hud = false;
 
-			sprintf(Score, "%d", gamestate.score);
-			piStringTable[0] = Score;
+			Score = std::to_string(gamestate.score);
+			piStringTable[0] = Score.c_str();
 
 			if (playstate == ex_victorious)
 			{
@@ -3635,33 +3647,33 @@ restartgame:
 				{
 					::vid_is_movie = true;
 
-					movie_t movie = mv_intro;
+					auto movie = MovieId::intro;
 
 					switch (gamestate.episode)
 					{
 					case 0:
 					case 1:
 					case 3:
-						movie = mv_final2;
+						movie = MovieId::final_2;
 						break;
 
 					case 2:
 					case 4:
-						movie = mv_final3;
+						movie = MovieId::final_3;
 						break;
 
 					case 5:
-						movie = mv_final;
+						movie = MovieId::final;
 						break;
 					}
 
-					::DoMovie(movie, nullptr);
+					::DoMovie(movie);
 				}
 				else
 				{
 					CA_CacheGrChunk(ENDINGPALETTE);
 
-					DoMovie(mv_final, grsegs[ENDINGPALETTE]);
+					::DoMovie(MovieId::final, ::grsegs[ENDINGPALETTE]);
 
 					UNCACHEGRCHUNK(ENDINGPALETTE);
 				}

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -53,7 +53,8 @@ void Log::initialize()
 		return;
 	}
 
-	auto&& log_path = ::get_profile_dir() + "bstone_log.txt";
+	const auto& profile_dir = ::get_profile_dir();
+	const auto& log_path = profile_dir + "bstone_log.txt";
 
 	is_initialized_ = true;
 	fstream_.open(log_path, StreamOpenMode::write);

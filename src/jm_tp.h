@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -186,7 +186,7 @@ using PiAnimationInfos = std::vector<piAnimInfo>;
 extern PiShapeInfos piShapeTable;
 extern PiAnimationInfos piAnimTable;
 extern piAnimInfo piAnimList[TP_MAX_ANIMS];
-extern char* piStringTable[PI_MAX_NUM_DISP_STRS];
+extern const char* piStringTable[PI_MAX_NUM_DISP_STRS];
 extern ScanCode TPscan;
 
 // -------------------------------------------------------------------------

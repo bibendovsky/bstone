@@ -3,7 +3,7 @@
 CMake wrapper for SDL2 module.
 
 
-Copyright (c) 2018 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
+Copyright (c) 2018-2019 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,8 @@ Virtual components:
 
 Required variables:
     - SDL2W_SDL2_DIR - the directory with SDL2 CMake configuration files or
-                       the directory with official SDL2 development Windows build.
+                       the directory with official SDL2 development build for Visual C++.
+                       Leave empty to search automatically.
 
 Targets:
     - SDL2W
@@ -48,14 +49,40 @@ find_package(SDL2 QUIET HINTS ${SDL2W_SDL2_DIR})
 unset(SDL2W_TMP_USE_STATIC)
 set(SDL2W_TMP_VERSION_STRING "")
 
-unset(SDL2W_TMP_NO_CMAKE_CONFIG)
+unset(SDL2W_TMP_FOUND_CONFIG)
+unset(SDL2W_TMP_FOUND_TARGETS)
+unset(SDL2W_TMP_FOUND_VC_DEV)
 
-if (NOT SDL2_FOUND AND SDL2W_SDL2_DIR)
+if (SDL2_FOUND)
+	message(STATUS "SDL2W: Found config.")
+
+	set(SDL2W_TMP_FOUND_CONFIG TRUE)
+
+	if (TARGET SDL2::SDL2main AND (TARGET SDL2::SDL2 OR TARGET SDL2::SDL2-static))
+		message(STATUS "SDL2W: Found targets.")
+
+		set(SDL2W_TMP_FOUND_TARGETS TRUE)
+	elseif (SDL2_INCLUDE_DIRS AND SDL2_LIBRARIES)
+		message(STATUS "SDL2W: Found config variables.")
+	else ()
+		message(FATAL_ERROR "SDL2W: Supported config not found.")
+	endif ()
+else ()
+	message(STATUS "SDL2W: Config not found.")
+endif ()
+
+#
+# Official development build for Visual C++.
+#
+if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_FOUND_CONFIG AND SDL2W_SDL2_DIR)
 	unset(SDL2W_TMP_ARCH_NAME)
+
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(SDL2W_TMP_ARCH_NAME x64)
 	elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set(SDL2W_TMP_ARCH_NAME x86)
+	else ()
+		message(FATAL_ERROR "SDL2W: Unsupported CPU architecture.")
 	endif ()
 
 	if (SDL2W_TMP_ARCH_NAME)
@@ -67,14 +94,16 @@ if (NOT SDL2_FOUND AND SDL2W_SDL2_DIR)
 		set(SDL2W_TMP_SDL2MAIN_LIB ${SDL2W_TMP_SDL2_LIBRARIES_DIR}/SDL2main.lib)
 
 		if (EXISTS ${SDL2W_TMP_SDL_H} AND EXISTS ${SDL2W_TMP_SDL2_LIB} AND EXISTS ${SDL2W_TMP_SDL2MAIN_LIB})
-			set(SDL2W_TMP_NO_CMAKE_CONFIG TRUE)
+			message(STATUS "SDL2W: Found official development build for Visual C++.")
+
+			set(SDL2W_TMP_FOUND_VC_DEV TRUE)
 			set(SDL2_INCLUDE_DIRS ${SDL2W_TMP_SDL2_INCLUDE_DIR})
 			set(SDL2_LIBRARIES ${SDL2W_TMP_SDL2_LIB};${SDL2W_TMP_SDL2MAIN_LIB})
 		endif ()
 	endif ()
 endif ()
 
-if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
+if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 	# Parse components.
 	#
 	foreach(SDL2W_TMP_COMP ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
@@ -87,13 +116,21 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 	#
 	unset(SDL2W_TMP_INCLUDE_DIRS)
 
-	if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_NO_CMAKE_CONFIG)
-		if (SDL2W_TMP_USE_STATIC)
-			get_target_property(
-				SDL2W_TMP_INCLUDE_DIRS
-				SDL2::SDL2-static
-				INTERFACE_INCLUDE_DIRECTORIES
-			)
+	if (SDL2W_TMP_FOUND_TARGETS)
+		if (WIN32 AND NOT MINGW)
+			if (SDL2W_TMP_USE_STATIC)
+				get_target_property(
+					SDL2W_TMP_INCLUDE_DIRS
+					SDL2::SDL2-static
+					INTERFACE_INCLUDE_DIRECTORIES
+				)
+			else ()
+				get_target_property(
+					SDL2W_TMP_INCLUDE_DIRS
+					SDL2::SDL2
+					INTERFACE_INCLUDE_DIRECTORIES
+				)
+			endif ()
 		else ()
 			get_target_property(
 				SDL2W_TMP_INCLUDE_DIRS
@@ -195,7 +232,7 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 				SDL2W_TMP_PATCH_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX}
 				)
 				if (NOT ${SDL2W_TMP_MAJOR_VERSION} EQUAL 2)
-					message(FATAL_ERROR "Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
+					message(FATAL_ERROR "SDL2W: Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
 				endif ()
 
 				set(
@@ -206,6 +243,7 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 		endif ()
 	endif ()
 
+	message(STATUS "SDL2W: Found version: ${SDL2W_TMP_VERSION_STRING}")
 
 	# Default handler.
 	#
@@ -213,10 +251,10 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 
 	unset(SDL2W_TMP_REQUIRED_VARS)
 
-	if (SDL2W_TMP_NO_CMAKE_CONFIG)
-		set(SDL2W_TMP_REQUIRED_VARS SDL2W_TMP_NO_CMAKE_CONFIG)
-	else ()
+	if (SDL2W_TMP_FOUND_TARGETS)
 		set(SDL2W_TMP_REQUIRED_VARS SDL2_FOUND)
+	else ()
+		set(SDL2W_TMP_REQUIRED_VARS SDL2_INCLUDE_DIRS;SDL2_LIBRARIES)
 	endif ()
 
 	find_package_handle_standard_args(
@@ -232,7 +270,7 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 	if (NOT TARGET ${CMAKE_FIND_PACKAGE_NAME})
 		add_library(${CMAKE_FIND_PACKAGE_NAME} INTERFACE)
 
-		if (NOT WIN32 OR MINGW OR SDL2W_TMP_NO_CMAKE_CONFIG)
+		if (NOT SDL2W_TMP_FOUND_TARGETS)
 			target_include_directories(
 				${CMAKE_FIND_PACKAGE_NAME}
 				INTERFACE
@@ -240,19 +278,21 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 			)
 		endif ()
 
-		if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_NO_CMAKE_CONFIG)
+		if (SDL2W_TMP_FOUND_TARGETS)
 			target_link_libraries(
 				${CMAKE_FIND_PACKAGE_NAME}
 				INTERFACE
 					SDL2::SDL2main
 			)
-			
+
 			if (SDL2W_TMP_USE_STATIC)
-				target_link_libraries(
-					${CMAKE_FIND_PACKAGE_NAME}
-					INTERFACE
-						SDL2::SDL2-static
-				)
+				if (WIN32 AND NOT MINGW)
+					target_link_libraries(
+						${CMAKE_FIND_PACKAGE_NAME}
+						INTERFACE
+							SDL2::SDL2-static
+					)
+				endif ()
 			else ()
 				target_link_libraries(
 					${CMAKE_FIND_PACKAGE_NAME}
@@ -266,21 +306,21 @@ if (SDL2_FOUND OR SDL2W_TMP_NO_CMAKE_CONFIG)
 				INTERFACE
 					${SDL2_LIBRARIES}
 			)
+		endif ()
 
-			if (MINGW OR SDL2W_TMP_NO_CMAKE_CONFIG)
-				target_link_libraries(
-					${CMAKE_FIND_PACKAGE_NAME}
-					INTERFACE
-						imm32
-						setupapi
-						version
-						winmm
-				)
-			endif ()
+		if (WIN32 AND SDL2W_TMP_USE_STATIC)
+			target_link_libraries(
+				${CMAKE_FIND_PACKAGE_NAME}
+				INTERFACE
+					imm32
+					setupapi
+					version
+					winmm
+			)
 		endif ()
 	endif ()
 else ()
 	if (${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED)
-		message(FATAL_ERROR "SDL2 not found.")
+		message(FATAL_ERROR "SDL2W: SDL2 not found.")
 	endif ()
 endif ()
