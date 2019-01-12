@@ -735,7 +735,7 @@ void sdl_calculate_dimensions()
 	//
 	::sdl_ui_bottom_src_rect = SDL_Rect{
 		0,
-		::ref_view_bottom_y,
+		::ref_view_bottom_y + 1,
 		::vga_ref_width,
 		::ref_bottom_bar_height,
 	};
