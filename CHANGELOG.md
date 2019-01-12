@@ -1,5 +1,14 @@
 # BStone changelog
 
+## [1.1.11] - 2010-01-12
+### Fixed
+- Disabled fade in/out effect.
+- Segfault at JAM logo on some platforms.
+- Invalid direction of running Blake at the ending of mission 2.
+- Lowered by one pixel lower status panel.
+- Option "--profile_dir".
+
+
 ## [1.1.10] - 2018-12-31
 ### Added
 - Allow lowercase asset file name.
@@ -12,7 +21,6 @@
 - Track map file hash in saved game.
 - AoG Shareware support (v1.0/v2.0/v2.1).
 - Option to toggle fade in/out effect.
-
 
 ### Changed
 - Rewrite CMake script.
@@ -27,6 +35,7 @@
 - One pixel gap between the edge of view and weapon sprite.
 - Lightning on AoG maps.
 - Mask UI between some screen transitions.
+
 
 ## [1.1.9] - 2017-09-08
 ### Fixed
