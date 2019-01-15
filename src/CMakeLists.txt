@@ -19,14 +19,6 @@ find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL2_COMPONENTS})
 
 
 #
-# Byte order.
-#
-include(TestBigEndian)
-unset(BSTONE_USE_BIG_ENDIAN)
-TEST_BIG_ENDIAN(BSTONE_USE_BIG_ENDIAN)
-
-
-#
 # Target.
 #
 add_executable(${PROJECT_NAME} "")
@@ -55,14 +47,6 @@ endif ()
 #
 # Target compile definitions.
 #
-if (BSTONE_USE_BIG_ENDIAN)
-	target_compile_definitions(
-		${PROJECT_NAME}
-		PRIVATE
-			BSTONE_USE_BIG_ENDIAN
-	)
-endif ()
-
 if (BSTONE_USE_PCH)
 	target_compile_definitions(
 		${PROJECT_NAME}
