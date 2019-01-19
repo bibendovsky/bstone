@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+#include "SDL_endian.h"
 
 
 namespace bstone
@@ -44,11 +45,11 @@ enum class EndianId
 	big,
 	little,
 
-#ifdef BSTONE_USE_BIG_ENDIAN
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	native = big,
-#else
+#else // SDL_BYTEORDER == SDL_BIG_ENDIAN
 	native = little,
-#endif // BSTONE_USE_BIG_ENDIAN
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN
 }; // EndianId
 
 
