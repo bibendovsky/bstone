@@ -312,7 +312,6 @@ case gen_scientistobj
 #define FL2_BFGSHOT_SOLID (0x0001)
 #define FL2_BFG_SHOOTABLE (0x0002)
 
-#define FL2_NOTGUNSHOOTABLE (0x0004)
 #define FL2_SCARED (0x0008)
 #define FL2_DROP_RKEY (0x0010)
 #define FL2_DROP_YKEY (0x0020)
