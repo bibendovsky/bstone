@@ -59,6 +59,38 @@ Free Software Foundation, Inc.,
 using namespace std::string_literals;
 
 
+// ==========================================================================
+// QuitException
+//
+
+QuitException::QuitException()
+	:
+	message_{}
+{
+}
+
+QuitException::QuitException(
+	const std::string& message)
+	:
+	message_{message}
+{
+}
+
+bool QuitException::is_empty() const
+{
+	return message_.empty();
+}
+
+const std::string& QuitException::get_message() const
+{
+	return message_;
+}
+
+//
+// QuitException
+// ==========================================================================
+
+
 namespace
 {
 
@@ -9514,9 +9546,7 @@ void pre_quit()
 
 void Quit()
 {
-	::pre_quit();
-
-	std::exit(1);
+	::Quit({});
 }
 
 void Quit(
@@ -9524,12 +9554,7 @@ void Quit(
 {
 	::pre_quit();
 
-	if (!message.empty())
-	{
-		bstone::Log::write_critical(message);
-	}
-
-	std::exit(1);
+	throw QuitException{message};
 }
 
 void DemoLoop()
@@ -9781,22 +9806,36 @@ int main(
 
 	bstone::Log::initialize();
 
-	int sdl_result = 0;
+	auto quit_message = std::string{};
 
-	std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
-
-	sdl_result = ::SDL_Init(init_flags);
-
-	if (sdl_result != 0)
+	try
 	{
-		::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+		int sdl_result = 0;
+
+		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+
+		sdl_result = ::SDL_Init(init_flags);
+
+		if (sdl_result != 0)
+		{
+			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+		}
+
+		freed_main();
+
+		DemoLoop();
+	}
+	catch (const QuitException& ex)
+	{
+		quit_message = ex.get_message();
 	}
 
-	freed_main();
+	if (!quit_message.empty())
+	{
+		bstone::Log::write_critical(quit_message);
 
-	DemoLoop();
-
-	Quit();
+		return 1;
+	}
 
 	return 0;
 }
