@@ -69,6 +69,11 @@ FixedPoint::Value FixedPoint::get_value() const
 	return value_;
 }
 
+double FixedPoint::to_double() const
+{
+	return static_cast<double>(get_int()) + (static_cast<double>(get_frac()) / static_cast<double>(max_frac));
+}
+
 
 } // bstone
 
@@ -77,7 +82,7 @@ bstone::FixedPoint operator+(
 	const bstone::FixedPoint& lhs,
 	const bstone::FixedPoint& rhs)
 {
-	return lhs.get_value() + rhs.get_value();
+	return bstone::FixedPoint{lhs.get_value() + rhs.get_value()};
 }
 
 bstone::FixedPoint& operator+=(
@@ -93,19 +98,19 @@ bstone::FixedPoint operator/(
 	const bstone::FixedPoint& lhs,
 	const int rhs)
 {
-	return lhs.get_value() / rhs;
+	return bstone::FixedPoint{lhs.get_value() / rhs};
 }
 
 bstone::FixedPoint operator*(
 	const bstone::FixedPoint& lhs,
 	const int rhs)
 {
-	return lhs.get_value() * rhs;
+	return bstone::FixedPoint{lhs.get_value() * rhs};
 }
 
 bstone::FixedPoint operator*(
 	const int lhs,
 	const bstone::FixedPoint& rhs)
 {
-	return lhs * rhs.get_value();
+	return bstone::FixedPoint{lhs * rhs.get_value()};
 }
