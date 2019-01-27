@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "3d_menu.h"
 #include "gfxv.h"
 #include "bstone_archiver.h"
+#include "bstone_fixed_point.h"
 #include "bstone_memory_stream.h"
 #include "bstone_string_helper.h"
 
@@ -4707,81 +4708,127 @@ void SpawnPlayer(
 void GunAttack(
 	objtype* ob)
 {
-	objtype* check, *closest, *oldclosest;
-	std::int16_t damage;
-	std::int16_t dx, dy, dist;
-	std::int32_t viewdist;
-	bool skip = false;
-
-	if (gamestate.weapon != wp_autocharge)
+	if (::gamestate.weapon != wp_autocharge)
 	{
-		MakeAlertNoise(ob);
+		::MakeAlertNoise(ob);
 	}
 
-	switch (gamestate.weapon)
+	auto skip = false;
+
+	switch (::gamestate.weapon)
 	{
 	case wp_autocharge:
-		::sd_play_player_sound(ATKAUTOCHARGESND, bstone::ActorChannel::weapon);
-
 		skip = true;
+		::sd_play_player_sound(::ATKAUTOCHARGESND, bstone::ActorChannel::weapon);
+
 		break;
 
 	case wp_pistol:
-		::sd_play_player_sound(ATKCHARGEDSND, bstone::ActorChannel::weapon);
-
 		skip = true;
+		::sd_play_player_sound(::ATKCHARGEDSND, bstone::ActorChannel::weapon);
+
 		break;
 
 	case wp_burst_rifle:
-		::sd_play_player_sound(ATKBURSTRIFLESND, bstone::ActorChannel::weapon);
+		::sd_play_player_sound(::ATKBURSTRIFLESND, bstone::ActorChannel::weapon);
 		break;
 
 	case wp_ion_cannon:
-		::sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
+		::sd_play_player_sound(::ATKIONCANNONSND, bstone::ActorChannel::weapon);
 		break;
 
+	default:
+		break;
 	}
+
+	const auto object_radius = 0.5;
+	const auto theta = (::player->angle * ::m_pi()) / 180.0;
+	const auto cos_t = std::cos(theta);
+	const auto sin_t = std::sin(theta);
+	const auto x_1 = bstone::FixedPoint{::player->x}.to_double();
+	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{::player->y}.to_double();
 
 	//
 	// find potential targets
 	//
 
-	viewdist = 0x7fffffffl;
-	closest = nullptr;
+	auto view_dist = std::numeric_limits<double>::max();
+
+	objtype* closest = nullptr;
 
 	while (true)
 	{
-		oldclosest = closest;
+		const auto old_closest = closest;
 
-		for (check = ob->next; check; check = check->next)
+		for (auto check = ob->next; check; check = check->next)
 		{
-			if ((check->flags & FL_SHOOTABLE) &&
-				(check->flags & FL_VISABLE) &&
-				(std::abs(check->viewx - ::centerx) < shootdelta))
+			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISABLE) == 0)
 			{
-				if (check->transx < viewdist)
-				{
-					if ((skip && (check->obclass == hang_terrotobj))
-						|| (check->flags2 & FL2_NOTGUNSHOOTABLE))
-					{
-						continue;
-					}
+				continue;
+			}
 
-					viewdist = check->transx;
-					closest = check;
+			const auto x_0 = bstone::FixedPoint{check->x}.to_double();
+			const auto y_0 = (MAPSIZE - 1) - bstone::FixedPoint{check->y}.to_double();
+
+			const auto dx_0_1 = x_0 - x_1;
+			const auto dy_0_1 = y_0 - y_1;
+
+			//
+			// How to calculate a distance from a line defined by two points to the given point.
+			// (http://wikipedia.org/wiki/Distance_from_a_point_to_a_line)
+			//
+			//                              |(y2 - y1) x0 - (x2 - x1) y0 + x2 y1 - y2 x1|
+			// distance(P1, P2, (x0, y0)) = ---------------------------------------------
+			//                                   sqrt((y2 - y1) ^ 2 + (x2 - x1) ^ 2)
+			//
+			// where:
+			//    P1 = (x1, y1), P2 = (x2, y2) - two points which defines the line;
+			//    (x0, y0) - a point to calculate the distance to.
+			//
+			//
+			// Our case:
+			//
+			// ->   ->   ->   ------->   ----------------------->
+			// P2 = P1 +  u = (x1, y1) + (cos(theta), sin(theta))
+			//
+			// where: (x1, y1) - player's position; theta - player's direction as angle.
+			//
+			// So the distance is:
+			//
+			// distance(x1, y1, a, (x0, y0) = |sin(theta) (x0 - x1) - cos(theta) (y0 - y1)|
+			//
+			const auto distance_to_hitscan_line = std::abs((sin_t * dx_0_1) - (cos_t * dy_0_1));
+
+			if (distance_to_hitscan_line > object_radius)
+			{
+				continue;
+			}
+
+			// Squared distance to an object from the player.
+			const auto sqr_distance_to_object = (dx_0_1 * dx_0_1) + (dy_0_1 * dy_0_1);
+
+			if (sqr_distance_to_object < view_dist)
+			{
+				if (skip && (check->obclass == hang_terrotobj))
+				{
+					continue;
 				}
+
+				view_dist = sqr_distance_to_object;
+
+				closest = check;
 			}
 		}
 
-		if (closest == oldclosest)
+		if (closest == old_closest)
 		{
 			return; // no more targets, all missed
-
 		}
+
 		//
 		// trace a line from player to enemey
 		//
-		if (CheckLine(closest, player))
+		if (::CheckLine(closest, ::player))
 		{
 			break;
 		}
@@ -4791,28 +4838,33 @@ void GunAttack(
 	// hit something
 	//
 
-	dx = static_cast<std::int16_t>(abs(closest->tilex - player->tilex));
-	dy = static_cast<std::int16_t>(abs(closest->tiley - player->tiley));
-	dist = dx > dy ? dx : dy;
+	const auto dx = std::abs(closest->tilex - ::player->tilex);
+	const auto dy = std::abs(closest->tiley - ::player->tiley);
+
+	auto dist = (dx > dy ? dx : dy);
+
+	auto damage = 0;
 
 	if (dist < 2)
 	{
-		damage = US_RndT() / 2; // 4
+		damage = ::US_RndT() / 2; // 4
 	}
 	else if (dist < 4)
 	{
-		damage = US_RndT() / 4; // 6
+		damage = ::US_RndT() / 4; // 6
 	}
 	else
 	{
-		if ((US_RndT() / 12) < dist)
-		{ // missed
+		if ((::US_RndT() / 12) < dist)
+		{
+			// missed
 			return;
 		}
-		damage = US_RndT() / 4; // 6
+
+		damage = ::US_RndT() / 4; // 6
 	}
 
-	DamageActor(closest, damage, player);
+	::DamageActor(closest, damage, ::player);
 }
 
 void T_Attack(
