@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(bstone VERSION 1.1.12 LANGUAGES CXX)
 
 
-option(BSTONE_USE_STATIC_LINKING "Link build statically.")
-option(BSTONE_PANDORA "Build for Pandora.")
-option(BSTONE_USE_PCH "Use precompiled headers.")
+option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
+option(BSTONE_PANDORA "Build for Pandora." OFF)
+option(BSTONE_USE_PCH "Use precompiled headers." OFF)
+option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -93,6 +94,14 @@ if (MSVC)
 			PRIVATE
 				$<$<CONFIG:DEBUG>:-MTd>
 				$<$<NOT:$<CONFIG:DEBUG>>:-MT>
+		)
+	endif ()
+
+	if (BSTONE_USE_MULTI_PROCESS_COMPILATION)
+		target_compile_options(
+			${PROJECT_NAME}
+			PRIVATE
+				-MP
 		)
 	endif ()
 endif ()
