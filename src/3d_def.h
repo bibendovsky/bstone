@@ -2935,7 +2935,6 @@ extern int screenofs;
 extern int viewwidth;
 extern int viewheight;
 extern int centerx;
-extern int shootdelta;
 
 extern std::int16_t dirangle[9];
 
