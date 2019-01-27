@@ -182,7 +182,6 @@ int screenofs;
 int viewwidth;
 int viewheight;
 int centerx;
-int shootdelta; // pixels away from centerx a target can be
 int scale;
 int maxslope;
 int heightnumerator;
@@ -9478,7 +9477,6 @@ void SetViewSize()
 	::viewheight *= alignment;
 
 	::centerx = (::viewwidth / 2) - 1;
-	::shootdelta = ::viewwidth / 10;
 
 #ifdef __vita__
 	::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height + 1;
