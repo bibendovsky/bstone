@@ -29,6 +29,24 @@ Free Software Foundation, Inc.,
 #include "bstone_cl_args.h"
 
 
+class QuitException
+{
+public:
+	QuitException();
+
+	QuitException(
+		const std::string& message);
+
+	bool is_empty() const;
+
+	const std::string& get_message() const;
+
+
+private:
+	std::string message_;
+}; // QuitException
+
+
 //
 // replacing refresh manager with custom routines
 //
