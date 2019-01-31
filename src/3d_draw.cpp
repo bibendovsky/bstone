@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
+#include "bstone_fixed_point.h"
 #include "bstone_generic_fizzle_fx.h"
 
 
@@ -186,6 +187,8 @@ void UpdateStatusBar();
 void UpdateRadarGuage();
 
 void UpdateTravelTable();
+
+static void try_to_grab_bonus_items();
 
 
 /*
@@ -439,17 +442,21 @@ void TransformActor(
 = sets:
 =   screenx,transx,transy,screenheight: projected edge location and size
 =
-= Returns true if the tile is withing getting distance
-=
 ========================
 */
-bool TransformTile(
+void TransformTile(
 	std::int16_t tx,
 	std::int16_t ty,
 	std::int16_t* dispx,
 	std::int16_t* dispheight)
 {
-	fixed gx, gy, gxt, gyt, nx, ny;
+	fixed gx;
+	fixed gy;
+	fixed gxt;
+	fixed gyt;
+	fixed nx;
+	fixed ny;
+
 	std::int32_t temp;
 	std::int32_t q;
 	std::int32_t r;
@@ -463,15 +470,15 @@ bool TransformTile(
 	//
 	// calculate newx
 	//
-	gxt = FixedByFrac(gx, viewcos);
-	gyt = FixedByFrac(gy, viewsin);
+	gxt = FixedByFrac(gx, ::viewcos);
+	gyt = FixedByFrac(gy, ::viewsin);
 	nx = gxt - gyt - 0x2000; // 0x2000 is size of object
 
-//
-// calculate newy
-//
-	gxt = FixedByFrac(gx, viewsin);
-	gyt = FixedByFrac(gy, viewcos);
+	//
+	// calculate newy
+	//
+	gxt = ::FixedByFrac(gx, ::viewsin);
+	gyt = ::FixedByFrac(gy, ::viewcos);
 	ny = gyt + gxt;
 
 
@@ -479,30 +486,20 @@ bool TransformTile(
 	// calculate perspective ratio
 	//
 	if (nx < mindist)
-	{ // too close, don't overflow the divide
+	{
+		// too close, don't overflow the divide
 		*dispheight = 0;
-		return false;
+
+		return;
 	}
 
-	*dispx = static_cast<std::int16_t>(centerx + ny * scale / nx); // DEBUG: use assembly divide
+	*dispx = static_cast<std::int16_t>(centerx + ((ny * scale) / nx)); // DEBUG: use assembly divide
 
 	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
 	r = (heightnumerator % (nx >> 8)) & 0xFFFF;
 	temp = (r << 16) | q;
 
 	*dispheight = static_cast<std::int16_t>(temp);
-
-	//
-	// see if it should be grabbed
-	//
-	if (nx < TILEGLOBAL && ny > -TILEGLOBAL / 2 && ny < TILEGLOBAL / 2)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 /*
@@ -1277,69 +1274,61 @@ visobj_t* farthest;
 */
 void DrawScaleds()
 {
-	std::int16_t i, least, numvisable, height;
-	std::uint8_t* tilespot, *visspot;
+	std::int16_t i;
+	std::int16_t least;
+	std::int16_t numvisable;
+	std::int16_t height;
+	std::uint8_t* tilespot;
+	std::uint8_t* visspot;
 	std::uint16_t spotloc;
 
 	statobj_t* statptr;
 	objtype* obj;
 
-	visptr = &vislist[0];
+	::visptr = &::vislist[0];
 
 	//
 	// place static objects
 	//
-	for (statptr = &statobjlist[0]; statptr != laststatobj; statptr++)
+	for (statptr = ::statobjlist; statptr != laststatobj; ++statptr)
 	{
-		if ((visptr->shapenum = statptr->shapenum) == -1)
+		::visptr->shapenum = statptr->shapenum;
+
+		if (::visptr->shapenum == -1)
 		{
 			continue; // object has been deleted
-
-		}
-		if ((Keyboard[ScanCode::sc_6] && (Keyboard[ScanCode::sc_7] || Keyboard[ScanCode::sc_8]) && DebugOk) && (statptr->flags & FL_BONUS))
-		{
-			GetBonus(statptr);
-			continue;
 		}
 
 		if (!*statptr->visspot)
 		{
 			continue; // not visable
-
-
-		}
-		if (TransformTile(statptr->tilex, statptr->tiley, &visptr->viewx, &visptr->viewheight) &&
-			(statptr->flags & FL_BONUS))
-		{
-			GetBonus(statptr);
-			continue;
 		}
 
-		if (!visptr->viewheight)
+		::TransformTile(statptr->tilex, statptr->tiley, &::visptr->viewx, &::visptr->viewheight);
+
+		if (!::visptr->viewheight)
 		{
 			continue; // to close to the object
-
 		}
-		visptr->cloaked = false;
-		visptr->lighting = statptr->lighting; // Could add additional
-		// flashing/lighting
-		if (visptr < &vislist[MAXVISABLE - 1])
-		{ // don't let it overflow
-			visptr++;
+
+		::visptr->cloaked = false;
+		::visptr->lighting = statptr->lighting; // Could add additional flashing/lighting
+
+		if (::visptr < &::vislist[MAXVISABLE - 1])
+		{
+			// don't let it overflow
+			++visptr;
 		}
 	}
 
 	//
 	// place active objects
 	//
-	for (obj = player->next; obj; obj = obj->next)
+	for (obj = ::player->next; obj; obj = obj->next)
 	{
-
-
-		if (obj->flags & FL_OFFSET_STATES)
+		if ((obj->flags & FL_OFFSET_STATES) != 0)
 		{
-			visptr->shapenum = static_cast<std::int16_t>(
-				obj->temp1 + obj->state->shapenum);
+			::visptr->shapenum = static_cast<std::int16_t>(obj->temp1 + obj->state->shapenum);
 
 			if (visptr->shapenum == 0)
 			{
@@ -1350,11 +1339,12 @@ void DrawScaleds()
 		{
 			visptr->shapenum = static_cast<std::int16_t>(obj->state->shapenum);
 
-			if (visptr->shapenum == 0)
+			if (::visptr->shapenum == 0)
 			{
 				continue; // no shape
 			}
 		}
+
 		spotloc = (obj->tilex << 6) + obj->tiley; // optimize: keep in struct?
 
 		// BBi Do not draw detonator if it's not visible.
@@ -1363,8 +1353,8 @@ void DrawScaleds()
 			continue;
 		}
 
-		visspot = &spotvis[0][0] + spotloc;
-		tilespot = &tilemap[0][0] + spotloc;
+		visspot = &::spotvis[0][0] + spotloc;
+		tilespot = &::tilemap[0][0] + spotloc;
 
 		//
 		// could be in any of the nine surrounding tiles
@@ -1382,12 +1372,11 @@ void DrawScaleds()
 		{
 			obj->active = ac_yes;
 
-			TransformActor(obj);
+			::TransformActor(obj);
 
 			if (!obj->viewheight)
 			{
 				continue; // too close or far away
-
 			}
 
 			const auto& assets_info = AssetsInfo{};
@@ -1395,13 +1384,13 @@ void DrawScaleds()
 			if (assets_info.is_ps() &&
 				(obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED)
 			{
-				visptr->cloaked = true;
-				visptr->lighting = 0;
+				::visptr->cloaked = true;
+				::visptr->lighting = 0;
 			}
 			else
 			{
-				visptr->cloaked = false;
-				visptr->lighting = obj->lighting;
+				::visptr->cloaked = false;
+				::visptr->lighting = obj->lighting;
 			}
 
 			if (assets_info.is_ps() && (obj->flags & FL_DEADGUY) == 0)
@@ -1409,23 +1398,25 @@ void DrawScaleds()
 				obj->flags2 &= ~FL2_DAMAGE_CLOAK;
 			}
 
-			visptr->viewx = obj->viewx;
-			visptr->viewheight = obj->viewheight;
+			::visptr->viewx = obj->viewx;
+			::visptr->viewheight = obj->viewheight;
 
-			if (visptr->shapenum == -1)
+			if (::visptr->shapenum == -1)
 			{
-				visptr->shapenum = obj->temp1; // special shape
-
+				::visptr->shapenum = obj->temp1; // special shape
 			}
-			if (obj->state->flags & SF_ROTATE)
+
+			if ((obj->state->flags & SF_ROTATE) != 0)
 			{
-				visptr->shapenum += CalcRotate(obj);
+				::visptr->shapenum += ::CalcRotate(obj);
 			}
 
-			if (visptr < &vislist[MAXVISABLE - 1])
-			{ // don't let it overflow
-				visptr++;
+			if (::visptr < &::vislist[MAXVISABLE - 1])
+			{
+				// don't let it overflow
+				++::visptr;
 			}
+
 			obj->flags |= FL_VISABLE;
 		}
 		else
@@ -1437,19 +1428,21 @@ void DrawScaleds()
 	//
 	// draw from back to front
 	//
-	numvisable = static_cast<std::int16_t>(visptr - &vislist[0]);
+	numvisable = static_cast<std::int16_t>(::visptr - &::vislist[0]);
 
 	if (!numvisable)
 	{
 		return; // no visable objects
-
 	}
+
 	for (i = 0; i < numvisable; i++)
 	{
 		least = 32000;
-		for (visstep = &vislist[0]; visstep < visptr; visstep++)
+
+		for (::visstep = &::vislist[0]; ::visstep < ::visptr; ++::visstep)
 		{
-			height = visstep->viewheight;
+			height = ::visstep->viewheight;
+
 			if (height < least)
 			{
 				least = height;
@@ -1460,26 +1453,24 @@ void DrawScaleds()
 		//
 		// Init our global flag...
 		//
-
-		cloaked_shape = farthest->cloaked;
+		::cloaked_shape = ::farthest->cloaked;
 
 		//
 		// draw farthest
 		//
-		if (((gamestate.flags & GS_LIGHTING) != 0 && farthest->lighting != NO_SHADING) || cloaked_shape)
+		if (((::gamestate.flags & GS_LIGHTING) != 0 && ::farthest->lighting != NO_SHADING) || cloaked_shape)
 		{
-			ScaleLSShape(farthest->viewx, farthest->shapenum, farthest->viewheight, farthest->lighting);
+			::ScaleLSShape(::farthest->viewx, ::farthest->shapenum, ::farthest->viewheight, ::farthest->lighting);
 		}
 		else
 		{
-			ScaleShape(farthest->viewx, farthest->shapenum, farthest->viewheight);
+			::ScaleShape(::farthest->viewx, ::farthest->shapenum, ::farthest->viewheight);
 		}
 
-		farthest->viewheight = 32000;
+		::farthest->viewheight = 32000;
 	}
 
-	cloaked_shape = false;
-
+	::cloaked_shape = false;
 }
 
 
@@ -1725,10 +1716,11 @@ void ThreeDRefresh()
 
 	::UpdateTravelTable();
 
+	::try_to_grab_bonus_items();
+
 	//
 	// draw all the scaled images
 	//
-
 	::DrawScaleds(); // draw scaled stuf
 
 	// BBi
@@ -2096,5 +2088,39 @@ void ShowOverhead(
 
 		baselmx += yinc;
 		baselmy -= xinc;
+	}
+}
+
+static void try_to_grab_bonus_items()
+{
+	const auto item_radius = 0.25;
+	const auto player_radius = 0.5;
+	const auto min_distance = item_radius + player_radius;
+	const auto min_sqr_distance = min_distance * min_distance;
+
+	const auto player_x = bstone::FixedPoint{::player->x}.to_double();
+	const auto player_y = bstone::FixedPoint{::player->y}.to_double();
+
+	for (auto item = ::statobjlist; item != laststatobj; ++item)
+	{
+		if (item->shapenum < 0 || (item->flags & FL_BONUS) == 0)
+		{
+			continue;
+		}
+
+		const auto item_x = static_cast<double>(item->tilex);
+		const auto item_y = static_cast<double>(item->tiley);
+
+		const auto dx = item_x - player_x;
+		const auto dy = item_y - player_y;
+
+		const auto sqr_distance = (dx * dx) + (dy * dy);
+
+		if (sqr_distance > min_sqr_distance)
+		{
+			continue;
+		}
+
+		::GetBonus(item);
 	}
 }
