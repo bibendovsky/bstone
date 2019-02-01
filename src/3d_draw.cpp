@@ -2094,6 +2094,7 @@ void ShowOverhead(
 static void try_to_grab_bonus_items()
 {
 	const auto item_radius = 0.25;
+	const auto item_tile_offset = 0.5;
 	const auto player_radius = 0.5;
 	const auto min_distance = item_radius + player_radius;
 	const auto min_sqr_distance = min_distance * min_distance;
@@ -2108,8 +2109,8 @@ static void try_to_grab_bonus_items()
 			continue;
 		}
 
-		const auto item_x = static_cast<double>(item->tilex);
-		const auto item_y = static_cast<double>(item->tiley);
+		const auto item_x = static_cast<double>(item->tilex) + item_tile_offset;
+		const auto item_y = static_cast<double>(item->tiley) + item_tile_offset;
 
 		const auto dx = item_x - player_x;
 		const auto dy = item_y - player_y;
