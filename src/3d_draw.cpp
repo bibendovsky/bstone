@@ -188,8 +188,6 @@ void UpdateRadarGuage();
 
 void UpdateTravelTable();
 
-static void try_to_grab_bonus_items();
-
 
 /*
 =============================================================================
@@ -1716,8 +1714,6 @@ void ThreeDRefresh()
 
 	::UpdateTravelTable();
 
-	::try_to_grab_bonus_items();
-
 	//
 	// draw all the scaled images
 	//
@@ -2088,40 +2084,5 @@ void ShowOverhead(
 
 		baselmx += yinc;
 		baselmy -= xinc;
-	}
-}
-
-static void try_to_grab_bonus_items()
-{
-	const auto item_radius = 0.25;
-	const auto item_tile_offset = 0.5;
-	const auto player_radius = 0.5;
-	const auto min_distance = item_radius + player_radius;
-	const auto min_sqr_distance = min_distance * min_distance;
-
-	const auto player_x = bstone::FixedPoint{::player->x}.to_double();
-	const auto player_y = bstone::FixedPoint{::player->y}.to_double();
-
-	for (auto item = ::statobjlist; item != laststatobj; ++item)
-	{
-		if (item->shapenum < 0 || (item->flags & FL_BONUS) == 0)
-		{
-			continue;
-		}
-
-		const auto item_x = static_cast<double>(item->tilex) + item_tile_offset;
-		const auto item_y = static_cast<double>(item->tiley) + item_tile_offset;
-
-		const auto dx = item_x - player_x;
-		const auto dy = item_y - player_y;
-
-		const auto sqr_distance = (dx * dx) + (dy * dy);
-
-		if (sqr_distance > min_sqr_distance)
-		{
-			continue;
-		}
-
-		::GetBonus(item);
 	}
 }
