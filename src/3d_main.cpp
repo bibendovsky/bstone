@@ -9906,10 +9906,10 @@ void objtype::archive(
 	archiver->write_int32(y);
 	archiver->write_uint8(s_tilex);
 	archiver->write_uint8(s_tiley);
-	archiver->write_int16(viewx);
-	archiver->write_uint16(viewheight);
-	archiver->write_int32(transx);
-	archiver->write_int32(transy);
+	// viewx
+	// viewheight
+	// transx
+	// transy
 	archiver->write_int16(hitpoints);
 	archiver->write_uint8(ammo);
 	archiver->write_int8(lighting);
@@ -9943,10 +9943,10 @@ void objtype::unarchive(
 	y = archiver->read_int32();
 	s_tilex = archiver->read_uint8();
 	s_tiley = archiver->read_uint8();
-	viewx = archiver->read_int16();
-	viewheight = archiver->read_uint16();
-	transx = archiver->read_int32();
-	transy = archiver->read_int32();
+	viewx = {};
+	viewheight = {};
+	transx = {};
+	transy = {};
 	hitpoints = archiver->read_int16();
 	ammo = archiver->read_uint8();
 	lighting = archiver->read_int8();
