@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.1.11 LANGUAGES CXX)
+project(bstone VERSION 1.1.12 LANGUAGES CXX)
 
 
-option(BSTONE_USE_STATIC_LINKING "Link build statically.")
-option(BSTONE_PANDORA "Build for Pandora.")
-option(BSTONE_USE_PCH "Use precompiled headers.")
+option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
+option(BSTONE_PANDORA "Build for Pandora." OFF)
+option(BSTONE_USE_PCH "Use precompiled headers." OFF)
+option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -16,14 +17,6 @@ if (BSTONE_USE_STATIC_LINKING)
 endif ()
 
 find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL2_COMPONENTS})
-
-
-#
-# Byte order.
-#
-include(TestBigEndian)
-unset(BSTONE_USE_BIG_ENDIAN)
-TEST_BIG_ENDIAN(BSTONE_USE_BIG_ENDIAN)
 
 
 #
@@ -55,14 +48,6 @@ endif ()
 #
 # Target compile definitions.
 #
-if (BSTONE_USE_BIG_ENDIAN)
-	target_compile_definitions(
-		${PROJECT_NAME}
-		PRIVATE
-			BSTONE_USE_BIG_ENDIAN
-	)
-endif ()
-
 if (BSTONE_USE_PCH)
 	target_compile_definitions(
 		${PROJECT_NAME}
@@ -109,6 +94,14 @@ if (MSVC)
 			PRIVATE
 				$<$<CONFIG:DEBUG>:-MTd>
 				$<$<NOT:$<CONFIG:DEBUG>>:-MT>
+		)
+	endif ()
+
+	if (BSTONE_USE_MULTI_PROCESS_COMPILATION)
+		target_compile_options(
+			${PROJECT_NAME}
+			PRIVATE
+				-MP
 		)
 	endif ()
 endif ()

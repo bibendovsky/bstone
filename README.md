@@ -157,6 +157,9 @@ CMake variables:
   If enabled links modules statically to avoid dependency on  
   system and custom libraries at run-time.
 
+* BSTONE_USE_MULTI_PROCESS_COMPILATION  
+  Enables multi-process compilation if supported.
+
 * SDL2W_SDL2_DIR  
   Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
 

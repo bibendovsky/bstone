@@ -59,6 +59,38 @@ Free Software Foundation, Inc.,
 using namespace std::string_literals;
 
 
+// ==========================================================================
+// QuitException
+//
+
+QuitException::QuitException()
+	:
+	message_{}
+{
+}
+
+QuitException::QuitException(
+	const std::string& message)
+	:
+	message_{message}
+{
+}
+
+bool QuitException::is_empty() const
+{
+	return message_.empty();
+}
+
+const std::string& QuitException::get_message() const
+{
+	return message_;
+}
+
+//
+// QuitException
+// ==========================================================================
+
+
 namespace
 {
 
@@ -182,7 +214,6 @@ int screenofs;
 int viewwidth;
 int viewheight;
 int centerx;
-int shootdelta; // pixels away from centerx a target can be
 int scale;
 int maxslope;
 int heightnumerator;
@@ -9478,7 +9509,6 @@ void SetViewSize()
 	::viewheight *= alignment;
 
 	::centerx = (::viewwidth / 2) - 1;
-	::shootdelta = ::viewwidth / 10;
 
 #ifdef __vita__
 	::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height + 1;
@@ -9516,9 +9546,7 @@ void pre_quit()
 
 void Quit()
 {
-	::pre_quit();
-
-	std::exit(1);
+	::Quit({});
 }
 
 void Quit(
@@ -9526,12 +9554,7 @@ void Quit(
 {
 	::pre_quit();
 
-	if (!message.empty())
-	{
-		bstone::Log::write_critical(message);
-	}
-
-	std::exit(1);
+	throw QuitException{message};
 }
 
 void DemoLoop()
@@ -9783,22 +9806,36 @@ int main(
 
 	bstone::Log::initialize();
 
-	int sdl_result = 0;
+	auto quit_message = std::string{};
 
-	std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
-
-	sdl_result = ::SDL_Init(init_flags);
-
-	if (sdl_result != 0)
+	try
 	{
-		::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+		int sdl_result = 0;
+
+		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+
+		sdl_result = ::SDL_Init(init_flags);
+
+		if (sdl_result != 0)
+		{
+			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+		}
+
+		freed_main();
+
+		DemoLoop();
+	}
+	catch (const QuitException& ex)
+	{
+		quit_message = ex.get_message();
 	}
 
-	freed_main();
+	if (!quit_message.empty())
+	{
+		bstone::Log::write_critical(quit_message);
 
-	DemoLoop();
-
-	Quit();
+		return 1;
+	}
 
 	return 0;
 }
@@ -9869,10 +9906,10 @@ void objtype::archive(
 	archiver->write_int32(y);
 	archiver->write_uint8(s_tilex);
 	archiver->write_uint8(s_tiley);
-	archiver->write_int16(viewx);
-	archiver->write_uint16(viewheight);
-	archiver->write_int32(transx);
-	archiver->write_int32(transy);
+	// viewx
+	// viewheight
+	// transx
+	// transy
 	archiver->write_int16(hitpoints);
 	archiver->write_uint8(ammo);
 	archiver->write_int8(lighting);
@@ -9906,10 +9943,10 @@ void objtype::unarchive(
 	y = archiver->read_int32();
 	s_tilex = archiver->read_uint8();
 	s_tiley = archiver->read_uint8();
-	viewx = archiver->read_int16();
-	viewheight = archiver->read_uint16();
-	transx = archiver->read_int32();
-	transy = archiver->read_int32();
+	viewx = {};
+	viewheight = {};
+	transx = {};
+	transy = {};
 	hitpoints = archiver->read_int16();
 	ammo = archiver->read_uint8();
 	lighting = archiver->read_int8();
@@ -10400,7 +10437,7 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
-	static const std::string version = "1.1.11";
+	static const std::string version = "1.1.12";
 	return version;
 }
 

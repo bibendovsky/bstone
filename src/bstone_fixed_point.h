@@ -46,7 +46,7 @@ public:
 	static constexpr auto frac_mask = max_frac - 1;
 
 
-	FixedPoint(
+	explicit FixedPoint(
 		const Value new_value = 0);
 
 	FixedPoint(
@@ -62,6 +62,9 @@ public:
 	Value& get_value();
 
 	Value get_value() const;
+
+
+	double to_double() const;
 
 
 private:

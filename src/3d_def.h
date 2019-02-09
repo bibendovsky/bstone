@@ -53,7 +53,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 5;
+const int BS_SAVE_VERSION = 6;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -312,7 +312,6 @@ case gen_scientistobj
 #define FL2_BFGSHOT_SOLID (0x0001)
 #define FL2_BFG_SHOOTABLE (0x0002)
 
-#define FL2_NOTGUNSHOOTABLE (0x0004)
 #define FL2_SCARED (0x0008)
 #define FL2_DROP_RKEY (0x0010)
 #define FL2_DROP_YKEY (0x0020)
@@ -2935,7 +2934,6 @@ extern int screenofs;
 extern int viewwidth;
 extern int viewheight;
 extern int centerx;
-extern int shootdelta;
 
 extern std::int16_t dirangle[9];
 
