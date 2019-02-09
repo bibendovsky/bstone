@@ -1,6 +1,15 @@
 # BStone changelog
 
-## [1.1.11] - 2010-01-12
+## [1.1.12] - 2019-02-09
+### Fixed
+- [CMake] Dependency on TestBigEndian.
+- Dependencies on raycaster for hitscan, item pickup and saved game.
+
+### Added
+- [MSVC] Add option for multi-process compilation (BSTONE_USE_MULTI_PROCESS_COMPILATION).
+
+
+## [1.1.11] - 2019-01-12
 ### Fixed
 - Disabled fade in/out effect.
 - Segfault at JAM logo on some platforms.
