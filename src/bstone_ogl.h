@@ -33,6 +33,19 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 
+#ifdef _WIN32
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif // !WIN32_LEAN_AND_MEAN
+
+#ifndef NO_MINMAX
+#define NO_MINMAX 1
+#endif // NO_MINMAX
+
+#include <windows.h>
+#endif // _WIN32
+
 
 #ifndef APIENTRY
 #define APIENTRY
