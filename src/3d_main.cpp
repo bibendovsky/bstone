@@ -49,6 +49,8 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
+#include "bstone_renderer_utils.h"
+#include "bstone_ogl_renderer_utils.h"
 
 #ifdef __vita__
 #include <psp2/kernel/processmgr.h>
@@ -9791,6 +9793,30 @@ void DrawCreditsPage()
 }
 
 
+void test()
+{
+	std::string error_message;
+
+	const auto ll_result = bstone::RendererUtils::initialize(error_message);
+
+	SdlWindowPtr sdl_window;
+
+	auto wparam = bstone::RendererUtilsCreateWindowParam{};
+	wparam.is_opengl_ = true;
+	wparam.width_ = 640;
+	wparam.height_ = 480;
+
+	const auto cw_result = bstone::RendererUtils::create_window(wparam, sdl_window, error_message);
+
+	SdlGlContext sdl_gl_context;
+
+	const auto cc_result = bstone::OglRendererUtils::create_context(sdl_window, sdl_gl_context, error_message);
+
+	bstone::OglRendererUtils::Strings missing_symbols;
+
+	const auto rs_result = bstone::OglRendererUtils::resolve_symbols_1_1(missing_symbols);
+}
+
 int main(
 	int argc,
 	char* argv[])
@@ -9820,7 +9846,7 @@ int main(
 		{
 			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
 		}
-
+test();
 		freed_main();
 
 		DemoLoop();

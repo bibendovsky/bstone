@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_RENDERER_UTILS_INCLUDED
 
 
+#include <vector>
 #include "bstone_renderer_utils.h"
 
 
@@ -46,13 +47,13 @@ namespace bstone
 class OglRendererUtils
 {
 public:
+	using Strings = std::vector<std::string>;
+
+
 	static bool load_library(
 		std::string& error_message);
 
 	static void unload_library();
-
-	static void* resolve_symbol(
-		const char* const symbol);
 
 
 	static bool create_context(
@@ -64,6 +65,10 @@ public:
 		SdlWindowPtr sdl_window,
 		SdlGlContext sdl_ogl_context,
 		std::string& error_message);
+
+
+	static bool resolve_symbols_1_1(
+		Strings& missing_symbols);
 
 
 	static void swap_window(
