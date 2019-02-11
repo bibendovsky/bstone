@@ -221,11 +221,16 @@ target_sources(
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_mt_queue_1r1w.h
+		bstone_ogl.h
+		bstone_ogl_renderer.h
+		bstone_ogl_renderer_utils.h
 		bstone_opl2.h
 		bstone_ref_values.h
+		bstone_renderer.h
 		bstone_pcm_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
+		bstone_renderer_utils.h
 		bstone_scope_guard.h
 		bstone_sha1.h
 		bstone_sprite.h
@@ -289,10 +294,14 @@ target_sources(
 		bstone_log.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
+		bstone_ogl.cpp
+		bstone_ogl_renderer.cpp
+		bstone_ogl_renderer_utils.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
+		bstone_renderer_utils.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
