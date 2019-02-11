@@ -189,6 +189,17 @@ void OglRendererUtils::unload_library()
 	Detail::unload_library();
 }
 
+void* OglRendererUtils::resolve_symbol(
+	const char* const symbol)
+{
+	if (!symbol)
+	{
+		return nullptr;
+	}
+
+	return ::SDL_GL_GetProcAddress(symbol);
+}
+
 bool OglRendererUtils::create_context(
 	SdlWindowPtr sdl_window,
 	SdlGlContext& sdl_ogl_context,

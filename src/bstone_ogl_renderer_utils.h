@@ -51,6 +51,9 @@ public:
 
 	static void unload_library();
 
+	static void* resolve_symbol(
+		const char* const symbol);
+
 
 	static bool create_context(
 		SdlWindowPtr sdl_window,
