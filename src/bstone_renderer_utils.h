@@ -59,6 +59,12 @@ public:
 class RendererUtils
 {
 public:
+	static bool initialize(
+		std::string& error_message);
+
+	static void uninitialize();
+
+
 	static bool create_window(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowPtr& sdl_window,

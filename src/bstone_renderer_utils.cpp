@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
+#include "bstone_ogl_renderer_utils.h"
 #include "bstone_renderer_utils.h"
 #include "SDL_video.h"
 
@@ -146,6 +147,22 @@ bool RendererUtils::Detail::create_window(
 // ==========================================================================
 // RendererUtils
 //
+
+bool RendererUtils::initialize(
+	std::string& error_message)
+{
+	if (!OglRendererUtils::load_library(error_message))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void RendererUtils::uninitialize()
+{
+	OglRendererUtils::unload_library();
+}
 
 bool RendererUtils::create_window(
 	const RendererUtilsCreateWindowParam& param,
