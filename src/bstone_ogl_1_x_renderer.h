@@ -23,56 +23,69 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer utils.
+// OpenGL 1.x renderer.
 //
-// !!! Internal usage only. !!!
+// !!! Internal usage only !!!
 //
 
 
-#ifndef BSTONE_RENDERER_UTILS_INCLUDED
-#define BSTONE_RENDERER_UTILS_INCLUDED
+#ifndef BSTONE_OGL_1_X_RENDERER_INCLUDED
+#define BSTONE_OGL_1_X_RENDERER_INCLUDED
 
 
-#include <string>
-
-
-struct SDL_Window;
-using SdlWindowPtr = SDL_Window*;
+#include "bstone_ogl_renderer.h"
 
 
 namespace bstone
 {
 
 
-class RendererUtilsCreateWindowParam
+class Ogl1XRenderer :
+	public OglXRenderer
 {
 public:
-	bool is_visible_;
-	bool is_fullscreen_desktop_;
-	bool is_opengl_;
+	Ogl1XRenderer();
 
-	int width_;
-	int height_;
+	Ogl1XRenderer(
+		Ogl1XRenderer&& rhs);
 
-	std::string title_utf8_;
-}; // RendererUtilsCreateWindowParam
+	~Ogl1XRenderer() override;
 
 
-class RendererUtils
-{
-public:
-	static bool create_window(
-		const RendererUtilsCreateWindowParam& param,
-		SdlWindowPtr& sdl_window,
-		std::string& error_message);
+	const std::string& get_error_message() const override;
+
+
+	RendererKind get_kind() const override;
+
+	const std::string& get_name() const override;
+
+	const std::string& get_description() const override;
+
+
+	bool probe(
+		const RendererPath renderer_path) override;
+
+	RendererPath get_probe_path() const override;
+
+
+	bool is_initialized() const override;
+
+	bool initialize(
+		const RendererPath renderer_path) override;
+
+	void uninitialize() override;
+
+
+	RendererPath get_path() const override;
 
 
 private:
-	class Detail;
-}; // RendererUtils
+	bool is_initialized_;
+	std::string error_message_;
+}; // OglRenderer
 
 
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_UTILS_INCLUDED
+#endif // !BSTONE_OGL_1_X_RENDERER_INCLUDED

@@ -32,58 +32,166 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_ogl_renderer.h"
+#include "bstone_ogl_1_x_renderer.h"
 
 
 namespace bstone
 {
 
 
+OglRenderer::OglRenderer()
+	:
+	is_initialized_{},
+	error_message_{},
+	probe_renderer_path_{},
+	renderer_path_{},
+	renderer_{}
+{
+}
+
+OglRenderer::OglRenderer(
+	OglRenderer&& rhs)
+	:
+	is_initialized_{std::move(rhs.is_initialized_)},
+	error_message_{std::move(rhs.error_message_)},
+	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
+	renderer_path_{std::move(rhs.renderer_path_)},
+	renderer_{std::move(rhs.renderer_)}
+{
+	rhs.is_initialized_ = false;
+}
+
+OglRenderer::~OglRenderer()
+{
+}
+
 const std::string& OglRenderer::get_error_message() const
 {
-	throw "Not implemented.";
+	return error_message_;
 }
 
 RendererKind OglRenderer::get_kind() const
 {
-	throw "Not implemented.";
+	return RendererKind::opengl;
 }
 
 const std::string& OglRenderer::get_name() const
 {
-	throw "Not implemented.";
+	static const auto default_name = std::string{"OpenGL"};
+
+	if (is_initialized_)
+	{
+		return renderer_->get_name();
+	}
+
+	return default_name;
 }
 
 const std::string& OglRenderer::get_description() const
 {
-	throw "Not implemented.";
+	static const auto default_description = std::string{"OpenGL"};
+
+	if (is_initialized_)
+	{
+		return renderer_->get_description();
+	}
+
+	return default_description;
 }
 
 bool OglRenderer::probe(
-	const RendererPath renderer_path,
-	RendererPath& selected_renderer_path)
+	const RendererPath renderer_path)
 {
-	throw "Not implemented.";
+	if (renderer_path == RendererPath::none)
+	{
+		error_message_ = "No render path.";
+
+		return false;
+	}
+
+	if (renderer_path == RendererPath::autodetect)
+	{
+		if (probe_ogl_x<Ogl1XRenderer>(RendererPath::ogl_1_x))
+		{
+			return true;
+		}
+
+		return false;
+	}
+	else
+	{
+		switch (renderer_path)
+		{
+		case RendererPath::ogl_1_x:
+			return probe_ogl_x<Ogl1XRenderer>(RendererPath::ogl_1_x);
+
+		default:
+			return false;
+		}
+	}
+
+	return false;
+}
+
+RendererPath OglRenderer::get_probe_path() const
+{
+	return probe_renderer_path_;
 }
 
 bool OglRenderer::is_initialized() const
 {
-	throw "Not implemented.";
+	return is_initialized_;
 }
 
 bool OglRenderer::initialize(
 	const RendererPath renderer_path)
 {
-	throw "Not implemented.";
+	if (renderer_path == RendererPath::none)
+	{
+		error_message_ = "No render path.";
+
+		return false;
+	}
+
+	switch (renderer_path)
+	{
+	case RendererPath::autodetect:
+	{
+		if (initialize_ogl_x<Ogl1XRenderer>(renderer_path))
+		{
+			return true;
+		}
+
+		error_message_ = "Failed to initialize any renderer path.";
+
+		return false;
+	}
+
+	case RendererPath::ogl_1_x:
+		return initialize_ogl_x<Ogl1XRenderer>(renderer_path);
+
+	default:
+		error_message_ = "Unsupported renderer path.";
+
+		return false;
+	}
 }
 
 void OglRenderer::uninitialize()
 {
-	throw "Not implemented.";
+	is_initialized_ = false;
+
+	if (renderer_)
+	{
+		renderer_->uninitialize();
+
+		renderer_ = nullptr;
+	}
 }
 
 RendererPath OglRenderer::get_path() const
 {
-	throw "Not implemented.";
+	return renderer_path_;
 }
 
 

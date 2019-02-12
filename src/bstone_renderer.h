@@ -74,8 +74,9 @@ public:
 
 
 	virtual bool probe(
-		const RendererPath target_renderer_path,
-		RendererPath& selected_renderer_path) = 0;
+		const RendererPath renderer_path) = 0;
+
+	virtual RendererPath get_probe_path() const = 0;
 
 
 	virtual bool is_initialized() const = 0;

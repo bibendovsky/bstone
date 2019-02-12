@@ -40,13 +40,25 @@ namespace bstone
 {
 
 
-class OglRenderer :
+class OglXRenderer :
 	public Renderer
 {
 public:
-	OglRenderer() = default;
+}; // OglXRenderer
 
-	~OglRenderer() override = default;
+using OglXRendererUPtr = std::unique_ptr<OglXRenderer>;
+
+
+class OglRenderer :
+	public OglXRenderer
+{
+public:
+	OglRenderer();
+
+	OglRenderer(
+		OglRenderer&& rhs);
+
+	~OglRenderer() override;
 
 
 	const std::string& get_error_message() const override;
@@ -60,8 +72,9 @@ public:
 
 
 	bool probe(
-		const RendererPath renderer_path,
-		RendererPath& selected_renderer_path) override;
+		const RendererPath renderer_path) override;
+
+	RendererPath get_probe_path() const override;
 
 
 	bool is_initialized() const override;
@@ -73,6 +86,52 @@ public:
 
 
 	RendererPath get_path() const override;
+
+
+private:
+	bool is_initialized_;
+	std::string error_message_;
+
+	RendererPath probe_renderer_path_;
+	RendererPath renderer_path_;
+	OglXRendererUPtr renderer_;
+
+
+	template<typename TRenderer>
+	bool probe_ogl_x(
+		const RendererPath renderer_path)
+	{
+		auto ogl_x_renderer = TRenderer{};
+
+		if (!ogl_x_renderer.probe(renderer_path))
+		{
+			probe_renderer_path_ = RendererPath::none;
+
+			return false;
+		}
+
+		probe_renderer_path_ = renderer_path;
+
+		return true;
+	}
+
+	template<typename TRenderer>
+	bool initialize_ogl_x(
+		const RendererPath renderer_path)
+	{
+		auto renderer = OglXRendererUPtr{new TRenderer{}};
+
+		if (!renderer->initialize(renderer_path))
+		{
+			error_message_ = renderer->get_error_message();
+
+			return false;
+		}
+
+		renderer_ = std::move(renderer);
+
+		return true;
+	}
 }; // OglRenderer
 
 

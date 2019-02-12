@@ -223,6 +223,7 @@ target_sources(
 		bstone_mt_queue_1r1w.h
 		bstone_ogl.h
 		bstone_ogl_renderer.h
+		bstone_ogl_1_x_renderer.h
 		bstone_ogl_renderer_utils.h
 		bstone_opl2.h
 		bstone_ref_values.h
@@ -297,6 +298,7 @@ target_sources(
 		bstone_memory_stream.cpp
 		bstone_ogl.cpp
 		bstone_ogl_renderer.cpp
+		bstone_ogl_1_x_renderer.cpp
 		bstone_ogl_renderer_utils.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp

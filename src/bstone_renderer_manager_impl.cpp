@@ -180,6 +180,8 @@ bool RendererManagerImpl::Impl::initialize()
 		return false;
 	}
 
+	is_initialized_ = true;
+
 	renderers_.resize(renderer_count);
 	renderers_[ogl_index] = &ogl_renderer_;
 

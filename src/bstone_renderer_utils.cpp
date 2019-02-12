@@ -25,6 +25,8 @@ Free Software Foundation, Inc.,
 //
 // Renderer utils.
 //
+// !!! Internal usage only. !!!
+//
 
 
 #include "bstone_precompiled.h"
@@ -147,22 +149,6 @@ bool RendererUtils::Detail::create_window(
 // ==========================================================================
 // RendererUtils
 //
-
-bool RendererUtils::load_libraries(
-	std::string& error_message)
-{
-	if (!OglRendererUtils::load_library(error_message))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void RendererUtils::unload_libraries()
-{
-	OglRendererUtils::unload_library();
-}
 
 bool RendererUtils::create_window(
 	const RendererUtilsCreateWindowParam& param,

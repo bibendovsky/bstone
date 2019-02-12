@@ -9803,23 +9803,12 @@ void test()
 
 	const auto renderer_count = renderer_manager->get_renderer_count();
 
+	for (int i_renderer = 0; i_renderer < renderer_count; ++i_renderer)
+	{
+		auto renderer = renderer_manager->get_renderer(i_renderer);
 
-	SdlWindowPtr sdl_window;
-
-	auto wparam = bstone::RendererUtilsCreateWindowParam{};
-	wparam.is_opengl_ = true;
-	wparam.width_ = 640;
-	wparam.height_ = 480;
-
-	const auto cw_result = bstone::RendererUtils::create_window(wparam, sdl_window, error_message);
-
-	SdlGlContext sdl_gl_context;
-
-	const auto cc_result = bstone::OglRendererUtils::create_context(sdl_window, sdl_gl_context, error_message);
-
-	bstone::OglRendererUtils::Strings missing_symbols;
-
-	const auto rs_result = bstone::OglRendererUtils::resolve_symbols_1_1(missing_symbols);
+		const auto probe_result = renderer->probe(bstone::RendererPath::autodetect);
+	}
 
 	renderer_manager->uninitialize();
 }
