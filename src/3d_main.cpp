@@ -9797,7 +9797,7 @@ void test()
 {
 	std::string error_message;
 
-	const auto ll_result = bstone::RendererUtils::initialize(error_message);
+	const auto ll_result = bstone::RendererUtils::load_libraries(error_message);
 
 	SdlWindowPtr sdl_window;
 

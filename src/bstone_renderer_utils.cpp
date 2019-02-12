@@ -148,7 +148,7 @@ bool RendererUtils::Detail::create_window(
 // RendererUtils
 //
 
-bool RendererUtils::initialize(
+bool RendererUtils::load_libraries(
 	std::string& error_message)
 {
 	if (!OglRendererUtils::load_library(error_message))
@@ -159,7 +159,7 @@ bool RendererUtils::initialize(
 	return true;
 }
 
-void RendererUtils::uninitialize()
+void RendererUtils::unload_libraries()
 {
 	OglRendererUtils::unload_library();
 }

@@ -59,10 +59,10 @@ public:
 class RendererUtils
 {
 public:
-	static bool initialize(
+	static bool load_libraries(
 		std::string& error_message);
 
-	static void uninitialize();
+	static void unload_libraries();
 
 
 	static bool create_window(
