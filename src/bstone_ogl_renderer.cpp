@@ -38,4 +38,53 @@ namespace bstone
 {
 
 
+const std::string& OglRenderer::get_error_message() const
+{
+	throw "Not implemented.";
+}
+
+RendererKind OglRenderer::get_kind() const
+{
+	throw "Not implemented.";
+}
+
+const std::string& OglRenderer::get_name() const
+{
+	throw "Not implemented.";
+}
+
+const std::string& OglRenderer::get_description() const
+{
+	throw "Not implemented.";
+}
+
+bool OglRenderer::probe(
+	const RendererPath renderer_path,
+	RendererPath& selected_renderer_path)
+{
+	throw "Not implemented.";
+}
+
+bool OglRenderer::is_initialized() const
+{
+	throw "Not implemented.";
+}
+
+bool OglRenderer::initialize(
+	const RendererPath renderer_path)
+{
+	throw "Not implemented.";
+}
+
+void OglRenderer::uninitialize()
+{
+	throw "Not implemented.";
+}
+
+RendererPath OglRenderer::get_path() const
+{
+	throw "Not implemented.";
+}
+
+
 } // bstone

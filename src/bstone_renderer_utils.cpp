@@ -169,7 +169,7 @@ bool RendererUtils::create_window(
 	SdlWindowPtr& sdl_window,
 	std::string& error_message)
 {
-	const auto error_message_prefix = "Failed create a window. ";
+	const auto error_message_prefix = "Failed to create a window. ";
 
 	sdl_window = nullptr;
 

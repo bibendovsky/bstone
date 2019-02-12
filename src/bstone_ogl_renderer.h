@@ -33,19 +33,46 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_RENDERER_INCLUDED
 
 
+#include "bstone_renderer.h"
+
+
 namespace bstone
 {
 
 
-class OglRenderer
+class OglRenderer :
+	public Renderer
 {
-protected:
+public:
 	OglRenderer() = default;
 
-	virtual ~OglRenderer() = default;
+	~OglRenderer() override = default;
 
 
-public:
+	const std::string& get_error_message() const override;
+
+
+	RendererKind get_kind() const override;
+
+	const std::string& get_name() const override;
+
+	const std::string& get_description() const override;
+
+
+	bool probe(
+		const RendererPath renderer_path,
+		RendererPath& selected_renderer_path) override;
+
+
+	bool is_initialized() const override;
+
+	bool initialize(
+		const RendererPath renderer_path) override;
+
+	void uninitialize() override;
+
+
+	RendererPath get_path() const override;
 }; // OglRenderer
 
 

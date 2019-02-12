@@ -31,8 +31,27 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_INCLUDED
 
 
+#include <string>
+
+
 namespace bstone
 {
+
+
+enum class RendererKind
+{
+	none,
+	opengl,
+}; // RendererKind
+
+enum class RendererPath
+{
+	none,
+
+	autodetect,
+
+	ogl_1_x,
+}; // RendererPath
 
 
 class Renderer
@@ -44,7 +63,33 @@ protected:
 
 
 public:
+	virtual const std::string& get_error_message() const = 0;
+
+
+	virtual RendererKind get_kind() const = 0;
+
+	virtual const std::string& get_name() const = 0;
+
+	virtual const std::string& get_description() const = 0;
+
+
+	virtual bool probe(
+		const RendererPath target_renderer_path,
+		RendererPath& selected_renderer_path) = 0;
+
+
+	virtual bool is_initialized() const = 0;
+
+	virtual bool initialize(
+		const RendererPath renderer_path) = 0;
+
+	virtual void uninitialize() = 0;
+
+
+	virtual RendererPath get_path() const = 0;
 }; // Renderer
+
+using RendererPtr = Renderer*;
 
 
 } // bstone

@@ -51,6 +51,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 #include "bstone_renderer_utils.h"
 #include "bstone_ogl_renderer_utils.h"
+#include "bstone_renderer_manager.h"
 
 #ifdef __vita__
 #include <psp2/kernel/processmgr.h>
@@ -9797,7 +9798,11 @@ void test()
 {
 	std::string error_message;
 
-	const auto ll_result = bstone::RendererUtils::load_libraries(error_message);
+	auto renderer_manager = bstone::RendererManagerFactory::create();
+	const auto rm_result = renderer_manager->initialize();
+
+	const auto renderer_count = renderer_manager->get_renderer_count();
+
 
 	SdlWindowPtr sdl_window;
 
@@ -9815,6 +9820,8 @@ void test()
 	bstone::OglRendererUtils::Strings missing_symbols;
 
 	const auto rs_result = bstone::OglRendererUtils::resolve_symbols_1_1(missing_symbols);
+
+	renderer_manager->uninitialize();
 }
 
 int main(
