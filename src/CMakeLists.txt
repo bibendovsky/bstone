@@ -230,6 +230,7 @@ target_sources(
 		bstone_pcm_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
+		bstone_renderer_manager.h
 		bstone_renderer_utils.h
 		bstone_scope_guard.h
 		bstone_sha1.h
@@ -301,6 +302,7 @@ target_sources(
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
+		bstone_renderer_manager_impl.cpp
 		bstone_renderer_utils.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
