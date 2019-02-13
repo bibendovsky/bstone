@@ -58,29 +58,29 @@ public:
 
 	static bool create_context(
 		SdlWindowPtr sdl_window,
-		SdlGlContext& sdl_ogl_context,
+		SdlGlContext& sdl_gl_context,
 		std::string& error_message);
 
 	static bool make_context_current(
 		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_ogl_context,
+		SdlGlContext sdl_gl_context,
 		std::string& error_message);
 
 
 	static bool create_window_and_context(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_ogl_context,
+		SdlGlContext& sdl_gl_context,
 		std::string& error_message);
 
 	static bool create_probe_window_and_context(
 		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_ogl_context,
+		SdlGlContext& sdl_gl_context,
 		std::string& error_message);
 
 	static void destroy_window_and_context(
 		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_ogl_context);
+		SdlGlContext& sdl_gl_context);
 
 
 	static bool resolve_symbols_1_1(

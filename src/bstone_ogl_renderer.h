@@ -80,7 +80,7 @@ public:
 	bool is_initialized() const override;
 
 	bool initialize(
-		const RendererPath renderer_path) override;
+		const RendererInitializeParam& param) override;
 
 	void uninitialize() override;
 
@@ -117,11 +117,11 @@ private:
 
 	template<typename TRenderer>
 	bool initialize_ogl_x(
-		const RendererPath renderer_path)
+		const RendererInitializeParam param)
 	{
 		auto renderer = OglXRendererUPtr{new TRenderer{}};
 
-		if (!renderer->initialize(renderer_path))
+		if (!renderer->initialize(param))
 		{
 			error_message_ = renderer->get_error_message();
 
@@ -132,6 +132,9 @@ private:
 
 		return true;
 	}
+
+	void uninitialize_internal(
+		const bool is_dtor = false);
 }; // OglRenderer
 
 

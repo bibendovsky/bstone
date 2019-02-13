@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
+#include "bstone_renderer.h"
 
 
 struct SDL_Window;
@@ -64,6 +65,10 @@ public:
 	static bool create_window(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowPtr& sdl_window,
+		std::string& error_message);
+
+	static bool validate_renderer_initialize_param(
+		const RendererInitializeParam& param,
 		std::string& error_message);
 
 

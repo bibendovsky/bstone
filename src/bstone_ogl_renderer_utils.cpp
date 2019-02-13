@@ -63,25 +63,25 @@ public:
 
 	static bool create_context(
 		SdlWindowPtr sdl_window,
-		SdlGlContext& sdl_ogl_context,
+		SdlGlContext& sdl_gl_context,
 		std::string& error_message);
 
 
 	static bool make_context_current_validate_params(
 		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_ogl_context,
+		SdlGlContext sdl_gl_context,
 		std::string& error_message);
 
 	static bool make_context_current(
 		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_ogl_context,
+		SdlGlContext sdl_gl_context,
 		std::string& error_message);
 
 
 	static bool create_window_and_context(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_ogl_context,
+		SdlGlContext& sdl_gl_context,
 		std::string& error_message);
 
 
@@ -151,12 +151,12 @@ bool OglRendererUtils::Detail::create_context_validate_params(
 
 bool OglRendererUtils::Detail::create_context(
 	SdlWindowPtr sdl_window,
-	SdlGlContext& sdl_ogl_context,
+	SdlGlContext& sdl_gl_context,
 	std::string& error_message)
 {
-	sdl_ogl_context = ::SDL_GL_CreateContext(sdl_window);
+	sdl_gl_context = ::SDL_GL_CreateContext(sdl_window);
 
-	if (!sdl_ogl_context)
+	if (!sdl_gl_context)
 	{
 		error_message = ::SDL_GetError();
 
@@ -168,7 +168,7 @@ bool OglRendererUtils::Detail::create_context(
 
 bool OglRendererUtils::Detail::make_context_current_validate_params(
 	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_ogl_context,
+	SdlGlContext sdl_gl_context,
 	std::string& error_message)
 {
 	if (!sdl_window)
@@ -178,17 +178,17 @@ bool OglRendererUtils::Detail::make_context_current_validate_params(
 		return false;
 	}
 
-	static_cast<void>(sdl_ogl_context);
+	static_cast<void>(sdl_gl_context);
 
 	return true;
 }
 
 bool OglRendererUtils::Detail::make_context_current(
 	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_ogl_context,
+	SdlGlContext sdl_gl_context,
 	std::string& error_message)
 {
-	const auto sdl_result = ::SDL_GL_MakeCurrent(sdl_window, sdl_ogl_context);
+	const auto sdl_result = ::SDL_GL_MakeCurrent(sdl_window, sdl_gl_context);
 
 	if (sdl_result < 0)
 	{
@@ -945,12 +945,12 @@ void OglRendererUtils::unload_library()
 
 bool OglRendererUtils::create_context(
 	SdlWindowPtr sdl_window,
-	SdlGlContext& sdl_ogl_context,
+	SdlGlContext& sdl_gl_context,
 	std::string& error_message)
 {
 	const auto error_message_prefix = "Failed to create OpenGL context. ";
 
-	sdl_ogl_context = nullptr;
+	sdl_gl_context = nullptr;
 
 	if (!Detail::create_context_validate_params(sdl_window, error_message))
 	{
@@ -959,7 +959,7 @@ bool OglRendererUtils::create_context(
 		return false;
 	}
 
-	if (!Detail::create_context(sdl_window, sdl_ogl_context, error_message))
+	if (!Detail::create_context(sdl_window, sdl_gl_context, error_message))
 	{
 		error_message = error_message_prefix + error_message;
 
@@ -971,19 +971,19 @@ bool OglRendererUtils::create_context(
 
 bool OglRendererUtils::make_context_current(
 	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_ogl_context,
+	SdlGlContext sdl_gl_context,
 	std::string& error_message)
 {
 	const auto error_message_prefix = "Failed to make a context current. ";
 
-	if (!Detail::make_context_current_validate_params(sdl_window, sdl_ogl_context, error_message))
+	if (!Detail::make_context_current_validate_params(sdl_window, sdl_gl_context, error_message))
 	{
 		error_message = error_message_prefix + error_message;
 
 		return false;
 	}
 
-	if (!Detail::make_context_current(sdl_window, sdl_ogl_context, error_message))
+	if (!Detail::make_context_current(sdl_window, sdl_gl_context, error_message))
 	{
 		error_message = error_message_prefix + error_message;
 
@@ -996,7 +996,7 @@ bool OglRendererUtils::make_context_current(
 bool OglRendererUtils::create_window_and_context(
 	const RendererUtilsCreateWindowParam& param,
 	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_ogl_context,
+	SdlGlContext& sdl_gl_context,
 	std::string& error_message)
 {
 	auto is_succeed = true;
@@ -1011,7 +1011,7 @@ bool OglRendererUtils::create_window_and_context(
 
 	if (is_succeed)
 	{
-		if (!create_context(sdl_window, sdl_ogl_context, error_message))
+		if (!create_context(sdl_window, sdl_gl_context, error_message))
 		{
 			is_succeed = false;
 		}
@@ -1019,7 +1019,7 @@ bool OglRendererUtils::create_window_and_context(
 
 	if (!is_succeed)
 	{
-		destroy_window_and_context(sdl_window, sdl_ogl_context);
+		destroy_window_and_context(sdl_window, sdl_gl_context);
 
 		return false;
 	}
@@ -1029,7 +1029,7 @@ bool OglRendererUtils::create_window_and_context(
 
 bool OglRendererUtils::create_probe_window_and_context(
 	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_ogl_context,
+	SdlGlContext& sdl_gl_context,
 	std::string& error_message)
 {
 	auto param = RendererUtilsCreateWindowParam{};
@@ -1037,18 +1037,18 @@ bool OglRendererUtils::create_probe_window_and_context(
 	param.width_ = 1;
 	param.height_ = 1;
 
-	return create_window_and_context(param, sdl_window, sdl_ogl_context, error_message);
+	return create_window_and_context(param, sdl_window, sdl_gl_context, error_message);
 }
 
 void OglRendererUtils::destroy_window_and_context(
 	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_ogl_context)
+	SdlGlContext& sdl_gl_context)
 {
-	if (sdl_ogl_context)
+	if (sdl_gl_context)
 	{
-		::SDL_GL_DeleteContext(sdl_ogl_context);
+		::SDL_GL_DeleteContext(sdl_gl_context);
 
-		sdl_ogl_context = nullptr;
+		sdl_gl_context = nullptr;
 	}
 
 	if (sdl_window)

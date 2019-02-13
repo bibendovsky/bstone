@@ -183,6 +183,39 @@ bool RendererUtils::create_window(
 	return true;
 }
 
+bool RendererUtils::validate_renderer_initialize_param(
+	const RendererInitializeParam& param,
+	std::string& error_message)
+{
+	switch (param.renderer_path_)
+	{
+	case RendererPath::autodetect:
+	case RendererPath::ogl_1_x:
+		return true;
+
+	default:
+		error_message = "Unsupported renderer path.";
+
+		return false;
+	}
+
+	if (param.window_width_ <= 0)
+	{
+		error_message = "Non-positive window width.";
+
+		return false;
+	}
+
+	if (param.window_height_ <= 0)
+	{
+		error_message = "Non-positive window width.";
+
+		return false;
+	}
+
+	return true;
+}
+
 //
 // RendererUtils
 // ==========================================================================

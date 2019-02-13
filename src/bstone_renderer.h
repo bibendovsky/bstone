@@ -54,6 +54,16 @@ enum class RendererPath
 }; // RendererPath
 
 
+class RendererInitializeParam
+{
+public:
+	RendererPath renderer_path_;
+
+	int window_width_;
+	int window_height_;
+}; // RendererInitializeParam
+
+
 class Renderer
 {
 protected:
@@ -82,7 +92,7 @@ public:
 	virtual bool is_initialized() const = 0;
 
 	virtual bool initialize(
-		const RendererPath renderer_path) = 0;
+		const RendererInitializeParam& param) = 0;
 
 	virtual void uninitialize() = 0;
 

@@ -63,6 +63,7 @@ OglRenderer::OglRenderer(
 
 OglRenderer::~OglRenderer()
 {
+	uninitialize_internal(true);
 }
 
 const std::string& OglRenderer::get_error_message() const
@@ -144,20 +145,20 @@ bool OglRenderer::is_initialized() const
 }
 
 bool OglRenderer::initialize(
-	const RendererPath renderer_path)
+	const RendererInitializeParam& param)
 {
-	if (renderer_path == RendererPath::none)
+	if (!RendererUtils::validate_renderer_initialize_param(param, error_message_))
 	{
-		error_message_ = "No render path.";
+		error_message_ = "Failed to validate initialize param. " + error_message_;
 
 		return false;
 	}
 
-	switch (renderer_path)
+	switch (param.renderer_path_)
 	{
 	case RendererPath::autodetect:
 	{
-		if (initialize_ogl_x<Ogl1XRenderer>(renderer_path))
+		if (initialize_ogl_x<Ogl1XRenderer>(param))
 		{
 			return true;
 		}
@@ -168,7 +169,7 @@ bool OglRenderer::initialize(
 	}
 
 	case RendererPath::ogl_1_x:
-		return initialize_ogl_x<Ogl1XRenderer>(renderer_path);
+		return initialize_ogl_x<Ogl1XRenderer>(param);
 
 	default:
 		error_message_ = "Unsupported renderer path.";
@@ -179,6 +180,17 @@ bool OglRenderer::initialize(
 
 void OglRenderer::uninitialize()
 {
+	uninitialize_internal();
+}
+
+RendererPath OglRenderer::get_path() const
+{
+	return renderer_path_;
+}
+
+void OglRenderer::uninitialize_internal(
+	const bool is_dtor)
+{
 	is_initialized_ = false;
 
 	if (renderer_)
@@ -187,11 +199,6 @@ void OglRenderer::uninitialize()
 
 		renderer_ = nullptr;
 	}
-}
-
-RendererPath OglRenderer::get_path() const
-{
-	return renderer_path_;
 }
 
 

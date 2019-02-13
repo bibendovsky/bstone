@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_ogl_renderer.h"
+#include "bstone_ogl_renderer_utils.h"
 
 
 namespace bstone
@@ -71,7 +72,7 @@ public:
 	bool is_initialized() const override;
 
 	bool initialize(
-		const RendererPath renderer_path) override;
+		const RendererInitializeParam& param) override;
 
 	void uninitialize() override;
 
@@ -82,6 +83,20 @@ public:
 private:
 	bool is_initialized_;
 	std::string error_message_;
+
+	RendererPath probe_renderer_path_;
+
+	SdlWindowPtr sdl_window_;
+	SdlGlContext sdl_gl_context_;
+
+
+	bool probe_or_initialize(
+		const bool is_probe,
+		const RendererPath probe_renderer_path,
+		const RendererInitializeParam& param);
+
+	void uninitialize_internal(
+		const bool is_dtor = false);
 }; // OglRenderer
 
 
