@@ -78,13 +78,6 @@ public:
 		std::string& error_message);
 
 
-	static bool create_window_and_context(
-		const RendererUtilsCreateWindowParam& param,
-		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_gl_context,
-		std::string& error_message);
-
-
 	static void* resolve_symbol(
 		const char* const symbol);
 
@@ -1034,8 +1027,8 @@ bool OglRendererUtils::create_probe_window_and_context(
 {
 	auto param = RendererUtilsCreateWindowParam{};
 	param.is_opengl_ = true;
-	param.width_ = 1;
-	param.height_ = 1;
+	param.window_.width_ = 1;
+	param.window_.height_ = 1;
 
 	return create_window_and_context(param, sdl_window, sdl_gl_context, error_message);
 }

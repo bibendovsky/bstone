@@ -67,7 +67,7 @@ bool RendererUtils::Detail::create_window_validate_param(
 	const RendererUtilsCreateWindowParam& param,
 	std::string& error_message)
 {
-	if (param.width_ <= 0 || param.height_ <= 0)
+	if (param.window_.width_ <= 0 || param.window_.height_ <= 0)
 	{
 		error_message = "Invalid dimensions.";
 
@@ -93,7 +93,7 @@ Uint32 RendererUtils::Detail::create_window_sdl_flags(
 {
 	auto flags = Uint32{};
 
-	if (param.is_visible_)
+	if (param.window_.is_visible_)
 	{
 		flags |= SDL_WINDOW_SHOWN;
 	}
@@ -102,7 +102,7 @@ Uint32 RendererUtils::Detail::create_window_sdl_flags(
 		flags |= SDL_WINDOW_HIDDEN;
 	}
 
-	if (param.is_fullscreen_desktop_)
+	if (param.window_.is_fullscreen_desktop_)
 	{
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
@@ -123,11 +123,11 @@ bool RendererUtils::Detail::create_window(
 	const auto sdl_flags = create_window_sdl_flags(param);
 
 	sdl_window = ::SDL_CreateWindow(
-		param.title_utf8_.c_str(),
+		param.window_.title_utf8_.c_str(),
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		param.width_,
-		param.height_,
+		param.window_.width_,
+		param.window_.height_,
 		sdl_flags
 	);
 
@@ -199,14 +199,14 @@ bool RendererUtils::validate_renderer_initialize_param(
 		return false;
 	}
 
-	if (param.window_width_ <= 0)
+	if (param.window_.width_ <= 0)
 	{
 		error_message = "Non-positive window width.";
 
 		return false;
 	}
 
-	if (param.window_height_ <= 0)
+	if (param.window_.height_ <= 0)
 	{
 		error_message = "Non-positive window width.";
 

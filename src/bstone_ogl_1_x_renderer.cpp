@@ -80,7 +80,7 @@ RendererKind Ogl1XRenderer::get_kind() const
 
 const std::string& Ogl1XRenderer::get_name() const
 {
-	static const auto result = std::string{"OGL1"};
+	static const auto result = std::string{"ogl1"};
 
 	return result;
 }
@@ -95,44 +95,12 @@ const std::string& Ogl1XRenderer::get_description() const
 bool Ogl1XRenderer::probe(
 	const RendererPath renderer_path)
 {
-	if (renderer_path != RendererPath::ogl_1_x)
-	{
-		error_message_ = "Invalid renderer path value.";
-
-		return false;
-	}
-
-	auto is_succeed = true;
-	auto sdl_window = SdlWindowPtr{};
-	auto sdl_gl_context = SdlGlContext{};
-	auto missing_symbols = OglRendererUtils::Strings{};
-
-	if (is_succeed)
-	{
-		if (!OglRendererUtils::create_probe_window_and_context(sdl_window, sdl_gl_context, error_message_))
-		{
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!OglRendererUtils::resolve_symbols_1_1(missing_symbols))
-		{
-			error_message_ = "Failed to load OpenGL 1.1 symbols.";
-
-			is_succeed = false;
-		}
-	}
-
-	OglRendererUtils::destroy_window_and_context(sdl_window, sdl_gl_context);
-
-	return is_succeed;
+	return probe_or_initialize(true, renderer_path, {});
 }
 
 RendererPath Ogl1XRenderer::get_probe_path() const
 {
-	throw "Not implemented.";
+	return probe_renderer_path_;
 }
 
 bool Ogl1XRenderer::is_initialized() const
@@ -143,7 +111,7 @@ bool Ogl1XRenderer::is_initialized() const
 bool Ogl1XRenderer::initialize(
 	const RendererInitializeParam& param)
 {
-	throw "Not implemented.";
+	return probe_or_initialize(false, {}, param);
 }
 
 void Ogl1XRenderer::uninitialize()
@@ -153,7 +121,12 @@ void Ogl1XRenderer::uninitialize()
 
 RendererPath Ogl1XRenderer::get_path() const
 {
-	throw "Not implemented.";
+	if (!is_initialized_)
+	{
+		return RendererPath::none;
+	}
+
+	return RendererPath::ogl_1_x;
 }
 
 bool Ogl1XRenderer::probe_or_initialize(
@@ -186,7 +159,11 @@ bool Ogl1XRenderer::probe_or_initialize(
 		}
 		else
 		{
-			if (!OglRendererUtils::create_window_and_context(sdl_window, sdl_gl_context, error_message_))
+			auto window_param = RendererUtilsCreateWindowParam{};
+			window_param.is_opengl_ = true;
+			window_param.window_ = param.window_;
+
+			if (!OglRendererUtils::create_window_and_context(window_param, sdl_window, sdl_gl_context, error_message_))
 			{
 				is_succeed = false;
 			}
@@ -203,9 +180,18 @@ bool Ogl1XRenderer::probe_or_initialize(
 		}
 	}
 
-	OglRendererUtils::destroy_window_and_context(sdl_window, sdl_gl_context);
+	if (!is_succeed)
+	{
+		OglRendererUtils::destroy_window_and_context(sdl_window, sdl_gl_context);
 
-	return is_succeed;
+		return false;
+	}
+
+	is_initialized_ = true;
+	sdl_window_ = sdl_window;
+	sdl_gl_context_ = sdl_gl_context;
+
+	return true;
 }
 
 void Ogl1XRenderer::uninitialize_internal(

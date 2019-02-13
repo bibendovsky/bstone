@@ -54,13 +54,23 @@ enum class RendererPath
 }; // RendererPath
 
 
+class RendererInitializeWindowParam
+{
+public:
+	bool is_visible_;
+	bool is_fullscreen_desktop_;
+
+	int width_;
+	int height_;
+
+	std::string title_utf8_;
+}; // RendererInitializeWindowParam
+
 class RendererInitializeParam
 {
 public:
 	RendererPath renderer_path_;
-
-	int window_width_;
-	int window_height_;
+	RendererInitializeWindowParam window_;
 }; // RendererInitializeParam
 
 

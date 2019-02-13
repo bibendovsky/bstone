@@ -192,13 +192,7 @@ void OglRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
 	is_initialized_ = false;
-
-	if (renderer_)
-	{
-		renderer_->uninitialize();
-
-		renderer_ = nullptr;
-	}
+	renderer_ = nullptr;
 }
 
 

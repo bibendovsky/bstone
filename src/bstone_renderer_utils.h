@@ -48,14 +48,9 @@ namespace bstone
 class RendererUtilsCreateWindowParam
 {
 public:
-	bool is_visible_;
-	bool is_fullscreen_desktop_;
 	bool is_opengl_;
 
-	int width_;
-	int height_;
-
-	std::string title_utf8_;
+	RendererInitializeWindowParam window_;
 }; // RendererUtilsCreateWindowParam
 
 

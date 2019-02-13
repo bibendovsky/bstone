@@ -9808,6 +9808,16 @@ void test()
 		auto renderer = renderer_manager->get_renderer(i_renderer);
 
 		const auto probe_result = renderer->probe(bstone::RendererPath::autodetect);
+
+		auto param = bstone::RendererInitializeParam{};
+		param.renderer_path_ = renderer->get_probe_path();
+		param.window_.is_visible_ = true;
+		param.window_.width_ = 640;
+		param.window_.height_ = 480;
+
+		const auto init_result = renderer->initialize(param);
+
+		;
 	}
 
 	renderer_manager->uninitialize();
