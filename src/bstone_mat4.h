@@ -27,6 +27,10 @@ Free Software Foundation, Inc.,
 //
 
 
+#ifndef BSTONE_MAT4_INCLUDED
+#define BSTONE_MAT4_INCLUDED
+
+
 #include <array>
 
 
@@ -255,3 +259,6 @@ constexpr Mat4T<T> operator*(
 
 
 } // bstone
+
+
+#endif // BSTONE_MAT4_INCLUDED
