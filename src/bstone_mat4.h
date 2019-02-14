@@ -261,4 +261,4 @@ constexpr Mat4T<T> operator*(
 } // bstone
 
 
-#endif // BSTONE_MAT4_INCLUDED
+#endif // !BSTONE_MAT4_INCLUDED

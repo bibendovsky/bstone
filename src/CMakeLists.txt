@@ -242,6 +242,7 @@ target_sources(
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_un_value.h
+		bstone_vec4.h
 		gfxv.h
 		id_ca.h
 		id_heads.h
