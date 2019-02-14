@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_ogl_renderer.h"
+#include <cassert>
 #include "bstone_ogl_1_x_renderer.h"
 
 
@@ -186,6 +187,17 @@ void OglRenderer::uninitialize()
 RendererPath OglRenderer::get_path() const
 {
 	return renderer_path_;
+}
+
+void OglRenderer::set_2d_projection_matrix(
+	const int width,
+	const int height)
+{
+	assert(is_initialized_);
+	assert(width > 0);
+	assert(height > 0);
+
+	renderer_->set_2d_projection_matrix(width, height);
 }
 
 void OglRenderer::uninitialize_internal(

@@ -80,6 +80,11 @@ public:
 	RendererPath get_path() const override;
 
 
+	void set_2d_projection_matrix(
+		const int width,
+		const int height) override;
+
+
 private:
 	bool is_initialized_;
 	std::string error_message_;
@@ -88,6 +93,8 @@ private:
 
 	SdlWindowPtr sdl_window_;
 	SdlGlContext sdl_gl_context_;
+
+	Mat4F two_d_projection_matrix_;
 
 
 	bool probe_or_initialize(

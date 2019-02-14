@@ -108,6 +108,11 @@ public:
 
 
 	virtual RendererPath get_path() const = 0;
+
+
+	virtual void set_2d_projection_matrix(
+		const int width,
+		const int height) = 0;
 }; // Renderer
 
 using RendererPtr = Renderer*;

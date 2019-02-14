@@ -144,6 +144,13 @@ public:
 		};
 	}
 
+	static constexpr bool are_equal(
+		const Mat4T& lhs,
+		const Mat4T& rhs)
+	{
+		return lhs.items_ == rhs.items_;
+	}
+
 	T& operator[](
 		const int index)
 	{
@@ -192,31 +199,47 @@ using Mat4D = Mat4T<double>;
 
 
 template<typename T>
+constexpr bool operator==(
+	const Mat4T<T>& lhs,
+	const Mat4T<T>& rhs)
+{
+	return Mat4T<T>::are_equal(lhs, rhs);
+}
+
+template<typename T>
+constexpr bool operator!=(
+	const Mat4T<T>& lhs,
+	const Mat4T<T>& rhs)
+{
+	return !(lhs == rhs);
+}
+
+template<typename T>
 constexpr Mat4T<T> operator*(
-	const T rhs,
-	const Mat4T<T>& lhs)
+	const T lhs,
+	const Mat4T<T>& rhs)
 {
 	return
 	{
-		lhs(1, 1) * rhs,
-		lhs(1, 2) * rhs,
-		lhs(1, 3) * rhs,
-		lhs(1, 4) * rhs,
+		rhs(1, 1) * lhs,
+		rhs(1, 2) * lhs,
+		rhs(1, 3) * lhs,
+		rhs(1, 4) * lhs,
 
-		lhs(2, 1) * rhs,
-		lhs(2, 2) * rhs,
-		lhs(2, 3) * rhs,
-		lhs(2, 4) * rhs,
+		rhs(2, 1) * lhs,
+		rhs(2, 2) * lhs,
+		rhs(2, 3) * lhs,
+		rhs(2, 4) * lhs,
 
-		lhs(3, 1) * rhs,
-		lhs(3, 2) * rhs,
-		lhs(3, 3) * rhs,
-		lhs(3, 4) * rhs,
+		rhs(3, 1) * lhs,
+		rhs(3, 2) * lhs,
+		rhs(3, 3) * lhs,
+		rhs(3, 4) * lhs,
 
-		lhs(4, 1) * rhs,
-		lhs(4, 2) * rhs,
-		lhs(4, 3) * rhs,
-		lhs(4, 4) * rhs,
+		rhs(4, 1) * lhs,
+		rhs(4, 2) * lhs,
+		rhs(4, 3) * lhs,
+		rhs(4, 4) * lhs,
 	};
 }
 

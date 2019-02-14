@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_ogl_1_x_renderer.h"
+#include <cassert>
 #include "bstone_ogl_renderer_utils.h"
 
 
@@ -45,7 +46,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	error_message_{},
 	probe_renderer_path_{},
 	sdl_window_{},
-	sdl_gl_context_{}
+	sdl_gl_context_{},
+	two_d_projection_matrix_{}
 {
 }
 
@@ -56,7 +58,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	error_message_{std::move(rhs.error_message_)},
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
-	sdl_gl_context_{std::move(rhs.sdl_gl_context_)}
+	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
@@ -127,6 +130,24 @@ RendererPath Ogl1XRenderer::get_path() const
 	}
 
 	return RendererPath::ogl_1_x;
+}
+
+void Ogl1XRenderer::set_2d_projection_matrix(
+	const int width,
+	const int height)
+{
+	assert(is_initialized_);
+	assert(width > 0);
+	assert(height > 0);
+
+	const auto& new_matrix = OglRendererUtils::build_2d_projection_matrix(width, height);
+
+	if (two_d_projection_matrix_ == new_matrix)
+	{
+		return;
+	}
+
+	two_d_projection_matrix_ = new_matrix;
 }
 
 bool Ogl1XRenderer::probe_or_initialize(
@@ -202,6 +223,11 @@ void Ogl1XRenderer::uninitialize_internal(
 	}
 
 	OglRendererUtils::destroy_window_and_context(sdl_window_, sdl_gl_context_);
+
+	if (!is_dtor)
+	{
+		two_d_projection_matrix_ = {};
+	}
 }
 
 

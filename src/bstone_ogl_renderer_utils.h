@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include <vector>
+#include "bstone_mat4.h"
 #include "bstone_renderer_utils.h"
 
 
@@ -88,6 +89,11 @@ public:
 
 	static void swap_window(
 		SdlWindowPtr sdl_window);
+
+
+	static Mat4F build_2d_projection_matrix(
+		const int width,
+		const int height);
 
 
 private:

@@ -1075,6 +1075,22 @@ void OglRendererUtils::swap_window(
 	::SDL_GL_SwapWindow(sdl_window);
 }
 
+Mat4F OglRendererUtils::build_2d_projection_matrix(
+	const int width,
+	const int height)
+{
+	assert(width > 0);
+	assert(height > 0);
+
+	return Mat4F
+	{
+		2.0F / width, 0.0F, 0.0F, 0.0F,
+		0.0F, 2.0F / height, 0.0F, 0.0F,
+		0.0F, 0.0F, -1.0F, 0.0F,
+		0.0F, 0.0F, 0.0F, 1.0F,
+	};
+}
+
 //
 // OglRendererUtils
 // ==========================================================================
