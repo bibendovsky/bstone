@@ -146,7 +146,6 @@ bool Ogl1XRenderer::probe_or_initialize(
 	auto is_succeed = true;
 	auto sdl_window = SdlWindowPtr{};
 	auto sdl_gl_context = SdlGlContext{};
-	auto missing_symbols = OglRendererUtils::Strings{};
 
 	if (is_succeed)
 	{
@@ -172,7 +171,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (is_succeed)
 	{
-		if (!OglRendererUtils::resolve_symbols_1_1(missing_symbols))
+		if (!OglRendererUtils::resolve_symbols_1_1())
 		{
 			error_message_ = "Failed to load OpenGL 1.1 symbols.";
 

@@ -83,8 +83,7 @@ public:
 		SdlGlContext& sdl_gl_context);
 
 
-	static bool resolve_symbols_1_1(
-		Strings& missing_symbols);
+	static bool resolve_symbols_1_1();
 
 
 	static void swap_window(
