@@ -32,6 +32,8 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
+#include "bstone_color32.h"
+#include "bstone_vecn.h"
 
 
 namespace bstone
@@ -73,6 +75,19 @@ public:
 	RendererInitializeWindowParam window_;
 }; // RendererInitializeParam
 
+class RendererVertex
+{
+public:
+	static constexpr auto class_size = 24;
+
+
+	Vec3F xyz_;
+	Color32 rgba_;
+	Vec2F uv_;
+}; // RendererVertex
+
+static_assert(RendererVertex::class_size == sizeof(RendererVertex), "Class size mismatch.");
+
 
 class Renderer
 {
@@ -83,6 +98,11 @@ protected:
 
 
 public:
+	using ObjectId = void*;
+
+	static constexpr auto NullObjectId = ObjectId{};
+
+
 	virtual const std::string& get_error_message() const = 0;
 
 
@@ -113,6 +133,19 @@ public:
 	virtual void set_2d_projection_matrix(
 		const int width,
 		const int height) = 0;
+
+
+	virtual ObjectId vertex_buffer_create(
+		const int vertex_count) = 0;
+
+	virtual void vertex_buffer_destroy(
+		ObjectId id) = 0;
+
+	virtual void vertex_buffer_update(
+		ObjectId id,
+		const int offset,
+		const int count,
+		const RendererVertex* const vertices) = 0;
 }; // Renderer
 
 using RendererPtr = Renderer*;

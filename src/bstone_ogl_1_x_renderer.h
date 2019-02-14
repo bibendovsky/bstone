@@ -33,6 +33,8 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_1_X_RENDERER_INCLUDED
 
 
+#include <list>
+#include <vector>
 #include "bstone_ogl_renderer.h"
 #include "bstone_ogl_renderer_utils.h"
 
@@ -85,7 +87,24 @@ public:
 		const int height) override;
 
 
+	ObjectId vertex_buffer_create(
+		const int vertex_count) override;
+
+	void vertex_buffer_destroy(
+		ObjectId id) override;
+
+	void vertex_buffer_update(
+		ObjectId id,
+		const int offset,
+		const int count,
+		const RendererVertex* const vertices) override;
+
+
 private:
+	using VertexBuffer = std::vector<RendererVertex>;
+	using VertexBuffers = std::list<VertexBuffer>;
+
+
 	bool is_initialized_;
 	std::string error_message_;
 
@@ -95,6 +114,8 @@ private:
 	SdlGlContext sdl_gl_context_;
 
 	Mat4F two_d_projection_matrix_;
+
+	VertexBuffers vertex_buffers_;
 
 
 	bool probe_or_initialize(

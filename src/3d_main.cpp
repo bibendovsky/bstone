@@ -9817,7 +9817,13 @@ void test()
 
 		const auto init_result = renderer->initialize(param);
 
-		;
+		auto vertex = bstone::RendererVertex{};
+		vertex.xyz_ = bstone::Vec3F{1.0F, 2.0F, 3.0F};
+		vertex.rgba_ = {};
+		vertex.uv_ = bstone::Vec2F{0.1F, 0.2F};
+
+		const auto vb1 = renderer->vertex_buffer_create(12);
+		renderer->vertex_buffer_destroy(vb1);
 	}
 
 	renderer_manager->uninitialize();

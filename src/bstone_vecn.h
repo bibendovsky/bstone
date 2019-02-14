@@ -52,21 +52,21 @@ public:
 
 	template<typename... TArgs>
 	explicit constexpr VecNT(
-		TArgs&&... args)
+		TArgs... args)
 		:
-		items_{std::forward<TArgs>(args...)}
+		items_{std::forward<TArgs>(args)...}
 	{
-		static_cast(sizeof...(TArgs) == N, "Argument count mismatch.");
+		static_assert(sizeof...(TArgs) == N, "Argument count mismatch.");
 	}
 
 
-	T& operator(
+	T& operator[](
 		const int index)
 	{
 		return items_[index];
 	}
 
-	constexpr T operator(
+	constexpr T operator[](
 		const int index) const
 	{
 		return items_[index];

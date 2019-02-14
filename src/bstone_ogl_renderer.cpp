@@ -200,6 +200,39 @@ void OglRenderer::set_2d_projection_matrix(
 	renderer_->set_2d_projection_matrix(width, height);
 }
 
+Renderer::ObjectId OglRenderer::vertex_buffer_create(
+	const int vertex_count)
+{
+	assert(is_initialized_);
+	assert(vertex_count > 0 && (vertex_count % 3) == 0);
+
+	return renderer_->vertex_buffer_create(vertex_count);
+}
+
+void OglRenderer::vertex_buffer_destroy(
+	ObjectId id)
+{
+	assert(is_initialized_);
+	assert(id != NullObjectId);
+
+	renderer_->vertex_buffer_destroy(id);
+}
+
+void OglRenderer::vertex_buffer_update(
+	ObjectId id,
+	const int offset,
+	const int count,
+	const RendererVertex* const vertices)
+{
+	assert(is_initialized_);
+	assert(id != NullObjectId);
+	assert(offset >= 0);
+	assert(count > 0);
+	assert(vertices != nullptr);
+
+	renderer_->vertex_buffer_update(id, offset, count, vertices);
+}
+
 void OglRenderer::uninitialize_internal(
 	const bool is_dtor)
 {

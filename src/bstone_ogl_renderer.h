@@ -93,6 +93,19 @@ public:
 		const int height) override;
 
 
+	ObjectId vertex_buffer_create(
+		const int vertex_count) override;
+
+	void vertex_buffer_destroy(
+		ObjectId id) override;
+
+	void vertex_buffer_update(
+		ObjectId id,
+		const int offset,
+		const int count,
+		const RendererVertex* const vertices) override;
+
+
 private:
 	bool is_initialized_;
 	std::string error_message_;
@@ -133,6 +146,7 @@ private:
 			return false;
 		}
 
+		is_initialized_ = true;
 		renderer_ = std::move(renderer);
 
 		return true;

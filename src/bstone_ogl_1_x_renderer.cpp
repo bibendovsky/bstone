@@ -47,7 +47,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	probe_renderer_path_{},
 	sdl_window_{},
 	sdl_gl_context_{},
-	two_d_projection_matrix_{}
+	two_d_projection_matrix_{},
+	vertex_buffers_{}
 {
 }
 
@@ -59,7 +60,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
-	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)}
+	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
+	vertex_buffers_{std::move(rhs.vertex_buffers_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
@@ -148,6 +150,58 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	}
 
 	two_d_projection_matrix_ = new_matrix;
+}
+
+Renderer::ObjectId Ogl1XRenderer::vertex_buffer_create(
+	const int vertex_count)
+{
+	assert(is_initialized_);
+	assert(vertex_count > 0 && (vertex_count % 3) == 0);
+
+	const auto vertex_buffer_size = vertex_count * RendererVertex::class_size;
+
+	vertex_buffers_.emplace_back();
+	auto& vertex_buffer = vertex_buffers_.back();
+
+	vertex_buffer.resize(vertex_buffer_size);
+
+	return &vertex_buffer;
+}
+
+void Ogl1XRenderer::vertex_buffer_destroy(
+	ObjectId id)
+{
+	assert(is_initialized_);
+	assert(id != NullObjectId);
+
+	vertex_buffers_.remove_if(
+		[=](const auto& item)
+		{
+			return id == &item;
+		}
+	);
+}
+
+void Ogl1XRenderer::vertex_buffer_update(
+	ObjectId id,
+	const int offset,
+	const int count,
+	const RendererVertex* const vertices)
+{
+	assert(is_initialized_);
+	assert(id != NullObjectId);
+	assert(offset >= 0);
+	assert(count > 0);
+	assert(vertices != nullptr);
+
+	auto& vertex_buffer = *static_cast<VertexBuffer*>(id);
+	const auto max_vertex_count = static_cast<int>(vertex_buffer.size());
+
+	assert(offset >= max_vertex_count);
+	assert(count > max_vertex_count);
+	assert(count <= (max_vertex_count - offset));
+
+	std::uninitialized_copy_n(vertices, count, vertex_buffer.begin() + offset);
 }
 
 bool Ogl1XRenderer::probe_or_initialize(
