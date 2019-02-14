@@ -23,84 +23,78 @@ Free Software Foundation, Inc.,
 
 
 //
-// The fourth dimensional vector.
+// The N-dimensional vector.
 //
 
 
 
-#ifndef BSTONE_VEC4_INCLUDED
-#define BSTONE_VEC4_INCLUDED
+#ifndef BSTONE_VECN_INCLUDED
+#define BSTONE_VECN_INCLUDED
 
 
 #include <array>
+#include <utility>
 
 
 namespace bstone
 {
 
 
-template<typename T>
-class Vec4T
+template<int N, typename T>
+class VecNT
 {
 public:
-	static constexpr auto dimension = 4;
-
-
-	constexpr Vec4T()
+	constexpr VecNT()
 		:
 		items_{}
 	{
 	}
 
-	constexpr Vec4T(
-		const T a1,
-		const T a2,
-		const T a3,
-		const T a4)
+	template<typename... TArgs>
+	explicit constexpr VecNT(
+		TArgs&&... args)
 		:
-		items_{a1, a2, a3, a4}
+		items_{std::forward<TArgs>(args...)}
 	{
-	}
-
-	T& get_item(
-		const int index)
-	{
-		return items_[index];
-	}
-
-	constexpr T get_item(
-		const int index) const
-	{
-		return items_[index];
+		static_cast(sizeof...(TArgs) == N, "Argument count mismatch.");
 	}
 
 
 	T& operator(
 		const int index)
 	{
-		return get_item(index);
+		return items_[index];
 	}
 
 	constexpr T operator(
 		const int index) const
 	{
-		return get_item(index);
+		return items_[index];
 	}
 
 
 private:
-	using Items = std::array<T, dimension>;
+	using Items = std::array<T, N>;
 
 
 	Items items_;
-}; // Vec4T
+}; // VecNT
 
-using Vec4I = Vec4T<int>;
-using Vec4F = Vec4T<float>;
-using Vec4D = Vec4T<double>;
+
+using Vec2I = VecNT<2, int>;
+using Vec2F = VecNT<2, float>;
+using Vec2D = VecNT<2, double>;
+
+using Vec3I = VecNT<3, int>;
+using Vec3F = VecNT<3, float>;
+using Vec3D = VecNT<3, double>;
+
+using Vec4I = VecNT<4, int>;
+using Vec4F = VecNT<4, float>;
+using Vec4D = VecNT<4, double>;
 
 
 } // bstone
 
 
-#endif // !BSTONE_VEC4_INCLUDED
+#endif // !BSTONE_VECN_INCLUDED
