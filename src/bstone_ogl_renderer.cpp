@@ -200,7 +200,7 @@ void OglRenderer::set_2d_projection_matrix(
 	renderer_->set_2d_projection_matrix(width, height);
 }
 
-Renderer::ObjectId OglRenderer::vertex_buffer_create(
+RendererObjectId OglRenderer::vertex_buffer_create(
 	const int vertex_count)
 {
 	assert(is_initialized_);
@@ -210,22 +210,22 @@ Renderer::ObjectId OglRenderer::vertex_buffer_create(
 }
 
 void OglRenderer::vertex_buffer_destroy(
-	ObjectId id)
+	RendererObjectId id)
 {
 	assert(is_initialized_);
-	assert(id != NullObjectId);
+	assert(id != RendererNullObjectId);
 
 	renderer_->vertex_buffer_destroy(id);
 }
 
 void OglRenderer::vertex_buffer_update(
-	ObjectId id,
+	RendererObjectId id,
 	const int offset,
 	const int count,
 	const RendererVertex* const vertices)
 {
 	assert(is_initialized_);
-	assert(id != NullObjectId);
+	assert(id != RendererNullObjectId);
 	assert(offset >= 0);
 	assert(count > 0);
 	assert(vertices != nullptr);
@@ -233,7 +233,7 @@ void OglRenderer::vertex_buffer_update(
 	renderer_->vertex_buffer_update(id, offset, count, vertices);
 }
 
-Renderer::ObjectId OglRenderer::texture_2d_create(
+RendererObjectId OglRenderer::texture_2d_create(
 	const RendererTextureCreateParam& param)
 {
 	assert(is_initialized_);
@@ -243,20 +243,20 @@ Renderer::ObjectId OglRenderer::texture_2d_create(
 }
 
 void OglRenderer::texture_2d_destroy(
-	ObjectId texture_id)
+	RendererObjectId texture_id)
 {
 	assert(is_initialized_);
-	assert(texture_id != NullObjectId);
+	assert(texture_id != RendererNullObjectId);
 
 	renderer_->texture_2d_destroy(texture_id);
 }
 
 void OglRenderer::texture_2d_update(
-	ObjectId texture_id,
+	RendererObjectId texture_id,
 	const RendererTextureUpdateParam& param)
 {
 	assert(is_initialized_);
-	assert(texture_id != NullObjectId);
+	assert(texture_id != RendererNullObjectId);
 	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
 
 	renderer_->texture_2d_update(texture_id, param);

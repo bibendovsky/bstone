@@ -39,6 +39,11 @@ namespace bstone
 {
 
 
+using RendererObjectId = void*;
+
+constexpr auto RendererNullObjectId = RendererObjectId{};
+
+
 enum class RendererKind
 {
 	none,
@@ -142,9 +147,7 @@ protected:
 
 
 public:
-	using ObjectId = void*;
-
-	static constexpr auto NullObjectId = ObjectId{};
+	static constexpr auto RendererNullObjectId = RendererObjectId{};
 
 
 	virtual const std::string& get_error_message() const = 0;
@@ -179,27 +182,27 @@ public:
 		const int height) = 0;
 
 
-	virtual ObjectId vertex_buffer_create(
+	virtual RendererObjectId vertex_buffer_create(
 		const int vertex_count) = 0;
 
 	virtual void vertex_buffer_destroy(
-		ObjectId id) = 0;
+		RendererObjectId id) = 0;
 
 	virtual void vertex_buffer_update(
-		ObjectId id,
+		RendererObjectId id,
 		const int offset,
 		const int count,
 		const RendererVertex* const vertices) = 0;
 
 
-	virtual ObjectId texture_2d_create(
+	virtual RendererObjectId texture_2d_create(
 		const RendererTextureCreateParam& param) = 0;
 
 	virtual void texture_2d_destroy(
-		ObjectId texture_id) = 0;
+		RendererObjectId texture_id) = 0;
 
 	virtual void texture_2d_update(
-		ObjectId texture_id,
+		RendererObjectId texture_id,
 		const RendererTextureUpdateParam& param) = 0;
 }; // Renderer
 

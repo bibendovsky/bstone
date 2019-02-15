@@ -158,7 +158,7 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	two_d_projection_matrix_ = new_matrix;
 }
 
-Renderer::ObjectId Ogl1XRenderer::vertex_buffer_create(
+RendererObjectId Ogl1XRenderer::vertex_buffer_create(
 	const int vertex_count)
 {
 	assert(is_initialized_);
@@ -175,10 +175,10 @@ Renderer::ObjectId Ogl1XRenderer::vertex_buffer_create(
 }
 
 void Ogl1XRenderer::vertex_buffer_destroy(
-	ObjectId id)
+	RendererObjectId id)
 {
 	assert(is_initialized_);
-	assert(id != NullObjectId);
+	assert(id != RendererNullObjectId);
 
 	vertex_buffers_.remove_if(
 		[=](const auto& item)
@@ -189,13 +189,13 @@ void Ogl1XRenderer::vertex_buffer_destroy(
 }
 
 void Ogl1XRenderer::vertex_buffer_update(
-	ObjectId id,
+	RendererObjectId id,
 	const int offset,
 	const int count,
 	const RendererVertex* const vertices)
 {
 	assert(is_initialized_);
-	assert(id != NullObjectId);
+	assert(id != RendererNullObjectId);
 	assert(offset >= 0);
 	assert(count > 0);
 	assert(vertices != nullptr);
@@ -274,7 +274,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	return true;
 }
 
-Renderer::ObjectId Ogl1XRenderer::texture_2d_create(
+RendererObjectId Ogl1XRenderer::texture_2d_create(
 	const RendererTextureCreateParam& param)
 {
 	assert(is_initialized_);
@@ -339,10 +339,10 @@ Renderer::ObjectId Ogl1XRenderer::texture_2d_create(
 }
 
 void Ogl1XRenderer::texture_2d_destroy(
-	ObjectId texture_id)
+	RendererObjectId texture_id)
 {
 	assert(is_initialized_);
-	assert(texture_id != NullObjectId);
+	assert(texture_id != RendererNullObjectId);
 
 	const auto texture_end_it = textures_2d_.end();
 
@@ -364,11 +364,11 @@ void Ogl1XRenderer::texture_2d_destroy(
 }
 
 void Ogl1XRenderer::texture_2d_update(
-	ObjectId texture_id,
+	RendererObjectId texture_id,
 	const RendererTextureUpdateParam& param)
 {
 	assert(is_initialized_);
-	assert(texture_id != NullObjectId);
+	assert(texture_id != RendererNullObjectId);
 	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
 
 	const auto texture_end_it = textures_2d_.end();

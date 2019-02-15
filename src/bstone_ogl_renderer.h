@@ -93,27 +93,27 @@ public:
 		const int height) override;
 
 
-	ObjectId vertex_buffer_create(
+	RendererObjectId vertex_buffer_create(
 		const int vertex_count) override;
 
 	void vertex_buffer_destroy(
-		ObjectId id) override;
+		RendererObjectId id) override;
 
 	void vertex_buffer_update(
-		ObjectId id,
+		RendererObjectId id,
 		const int offset,
 		const int count,
 		const RendererVertex* const vertices) override;
 
 
-	ObjectId texture_2d_create(
+	RendererObjectId texture_2d_create(
 		const RendererTextureCreateParam& param) override;
 
 	void texture_2d_destroy(
-		ObjectId texture_id) override;
+		RendererObjectId texture_id) override;
 
 	void texture_2d_update(
-		ObjectId texture_id,
+		RendererObjectId texture_id,
 		const RendererTextureUpdateParam& param) override;
 
 
