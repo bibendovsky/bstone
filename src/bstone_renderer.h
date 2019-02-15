@@ -107,6 +107,8 @@ public:
 	}
 }; // RendererColor32
 
+using RendererPalette = std::array<RendererColor32, 256>;
+
 class RendererVertex
 {
 public:

@@ -47,6 +47,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	probe_renderer_path_{},
 	sdl_window_{},
 	sdl_gl_context_{},
+	palette_{},
 	two_d_projection_matrix_{},
 	vertex_buffers_{}
 {
@@ -60,6 +61,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	palette_{std::move(rhs.palette_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)}
 {
@@ -280,6 +282,7 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
+		palette_ = {};
 		two_d_projection_matrix_ = {};
 	}
 }

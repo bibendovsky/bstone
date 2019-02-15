@@ -113,6 +113,8 @@ private:
 	SdlWindowPtr sdl_window_;
 	SdlGlContext sdl_gl_context_;
 
+	RendererPalette palette_;
+
 	Mat4F two_d_projection_matrix_;
 
 	VertexBuffers vertex_buffers_;
