@@ -49,7 +49,9 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_gl_context_{},
 	palette_{},
 	two_d_projection_matrix_{},
-	vertex_buffers_{}
+	vertex_buffers_{},
+	texture_buffer_{},
+	textures_2d_{}
 {
 }
 
@@ -63,7 +65,9 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	palette_{std::move(rhs.palette_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
-	vertex_buffers_{std::move(rhs.vertex_buffers_)}
+	vertex_buffers_{std::move(rhs.vertex_buffers_)},
+	texture_buffer_{std::move(rhs.texture_buffer_)},
+	textures_2d_{std::move(rhs.textures_2d_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
@@ -270,6 +274,173 @@ bool Ogl1XRenderer::probe_or_initialize(
 	return true;
 }
 
+Renderer::ObjectId Ogl1XRenderer::texture_2d_create(
+	const RendererTextureCreateParam& param)
+{
+	assert(is_initialized_);
+	assert(RendererUtils::validate_renderer_texture_create_param(param, error_message_));
+
+	const RendererColor32* pixels = nullptr;
+
+	const auto actual_width = RendererUtils::find_nearest_pot_value(param.width_);
+	const auto actual_height = RendererUtils::find_nearest_pot_value(param.height_);
+
+	const auto is_pot = (param.width_ == actual_width && param.height_ == actual_height);
+
+	const auto actual_u = static_cast<float>(param.width_) / static_cast<float>(actual_width);
+	const auto actual_v = static_cast<float>(param.height_) / static_cast<float>(actual_height);
+
+	if (param.indexed_data_)
+	{
+		const auto area = actual_width * actual_height;
+
+		texture_buffer_.resize(area);
+
+		if (is_pot)
+		{
+			for (int i = 0; i < area; ++i)
+			{
+				texture_buffer_[i] = palette_[param.indexed_data_[i]];
+			}
+		}
+		else
+		{
+			const auto black_width = actual_width - param.width_;
+
+			auto src_index = 0;
+			auto dst_base_index = 0;
+
+			for (int h = 0; h < param.height_; ++h)
+			{
+				auto dst_index = dst_base_index;
+
+				for (int w = 0; w < param.width_; ++w)
+				{
+					texture_buffer_[dst_index + w] = palette_[param.indexed_data_[src_index]];
+
+					++src_index;
+				}
+
+				std::uninitialized_fill_n(
+					texture_buffer_.begin() + dst_base_index + param.width_,
+					black_width,
+					RendererColor32{});
+
+				dst_base_index += actual_width;
+			}
+		}
+
+		pixels = texture_buffer_.data();
+	}
+
+	// TODO Generate mipmaps.
+
+	auto ogl_id = GLuint{};
+	::glGenTextures(1, &ogl_id);
+	assert(ogl_id != 0);
+	::glBindTexture(GL_TEXTURE_2D, ogl_id);
+	::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, actual_width, actual_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	textures_2d_.emplace_back();
+	auto& texture_2d = textures_2d_.back();
+
+	texture_2d.width_ = param.width_;
+	texture_2d.height_ = param.height_;
+
+	texture_2d.actual_width_ = actual_width;
+	texture_2d.actual_height_ = actual_height;
+
+	texture_2d.actual_u_ = actual_u;
+	texture_2d.actual_v_ = actual_v;
+
+	texture_2d.ogl_id_ = ogl_id;
+
+	return &texture_2d;
+}
+
+void Ogl1XRenderer::texture_2d_destroy(
+	ObjectId texture_id)
+{
+	assert(is_initialized_);
+	assert(texture_id != NullObjectId);
+
+	const auto texture_end_it = textures_2d_.end();
+
+	auto texture_2d_it = std::find_if(
+		textures_2d_.begin(),
+		texture_end_it,
+		[=](const auto& item)
+		{
+			return texture_id == &item;
+		}
+	);
+
+	assert(texture_2d_it != texture_end_it);
+
+	::glDeleteTextures(1, &texture_2d_it->ogl_id_);
+
+	static_cast<void>(textures_2d_.erase(texture_2d_it));
+}
+
+void Ogl1XRenderer::texture_2d_update(
+	ObjectId texture_id,
+	const RendererTextureUpdateParam& param)
+{
+	assert(is_initialized_);
+	assert(texture_id != NullObjectId);
+	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
+
+	const auto texture_end_it = textures_2d_.end();
+
+	auto texture_2d_it = std::find_if(
+		textures_2d_.begin(),
+		texture_end_it,
+		[=](const auto& item)
+		{
+			return texture_id == &item;
+		}
+	);
+
+	assert(texture_2d_it != texture_end_it);
+
+	auto& texture_2d = *texture_2d_it;
+
+	assert(param.x_ < texture_2d.width_);
+	assert(param.y_ < texture_2d.height_);
+
+	assert(param.width_ < texture_2d.width_);
+	assert(param.height_ < texture_2d.height_);
+
+	assert((param.x_ + param.width_) <= texture_2d.width_);
+	assert((param.y_ + param.height_) <= texture_2d.height_);
+
+	const auto area = param.width_ * param.height_;
+
+	texture_buffer_.resize(area);
+
+	for (int i = 0; i < area; ++i)
+	{
+		texture_buffer_[i] = palette_[param.indexed_data_[i]];
+	}
+
+	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
+
+	::glTexSubImage2D(
+		GL_TEXTURE_2D,
+		0,
+		param.x_,
+		param.y_,
+		param.width_,
+		param.height_,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		texture_buffer_.data());
+}
+
 void Ogl1XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
@@ -284,7 +455,15 @@ void Ogl1XRenderer::uninitialize_internal(
 	{
 		palette_ = {};
 		two_d_projection_matrix_ = {};
+		texture_buffer_.clear();
 	}
+
+	for (const auto& texture_2d : textures_2d_)
+	{
+		::glDeleteTextures(1, &texture_2d.ogl_id_);
+	}
+
+	textures_2d_.clear();
 }
 
 

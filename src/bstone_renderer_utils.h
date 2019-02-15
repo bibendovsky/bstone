@@ -57,6 +57,9 @@ public:
 class RendererUtils
 {
 public:
+	static int find_nearest_pot_value(
+		const int value);
+
 	static bool create_window(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowPtr& sdl_window,
@@ -64,6 +67,14 @@ public:
 
 	static bool validate_renderer_initialize_param(
 		const RendererInitializeParam& param,
+		std::string& error_message);
+
+	static bool validate_renderer_texture_create_param(
+		const RendererTextureCreateParam& param,
+		std::string& error_message);
+
+	static bool validate_renderer_texture_update_param(
+		const RendererTextureUpdateParam& param,
 		std::string& error_message);
 
 

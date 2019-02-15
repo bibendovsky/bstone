@@ -35,6 +35,7 @@ Free Software Foundation, Inc.,
 
 #include <list>
 #include <vector>
+#include "bstone_ogl.h"
 #include "bstone_ogl_renderer.h"
 #include "bstone_ogl_renderer_utils.h"
 
@@ -100,9 +101,39 @@ public:
 		const RendererVertex* const vertices) override;
 
 
+	ObjectId texture_2d_create(
+		const RendererTextureCreateParam& param) override;
+
+	void texture_2d_destroy(
+		ObjectId texture_id) override;
+
+	void texture_2d_update(
+		ObjectId texture_id,
+		const RendererTextureUpdateParam& param) override;
+
+
 private:
 	using VertexBuffer = std::vector<RendererVertex>;
 	using VertexBuffers = std::list<VertexBuffer>;
+
+	using TextureBuffer = std::vector<RendererColor32>;
+
+	class Texture2d
+	{
+	public:
+		int width_;
+		int height_;
+
+		int actual_width_;
+		int actual_height_;
+
+		float actual_u_;
+		float actual_v_;
+
+		GLuint ogl_id_;
+	}; // Texture2d
+
+	using Textures2d = std::list<Texture2d>;
 
 
 	bool is_initialized_;
@@ -118,6 +149,9 @@ private:
 	Mat4F two_d_projection_matrix_;
 
 	VertexBuffers vertex_buffers_;
+
+	TextureBuffer texture_buffer_;
+	Textures2d textures_2d_;
 
 
 	bool probe_or_initialize(

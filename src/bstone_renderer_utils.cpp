@@ -150,6 +150,22 @@ bool RendererUtils::Detail::create_window(
 // RendererUtils
 //
 
+int RendererUtils::find_nearest_pot_value(
+	const int value)
+{
+	for (int i = 0; i < 32; ++i)
+	{
+		const auto new_value = 1 << i;
+
+		if (new_value >= value)
+		{
+			return new_value;
+		}
+	}
+
+	return 0;
+}
+
 bool RendererUtils::create_window(
 	const RendererUtilsCreateWindowParam& param,
 	SdlWindowPtr& sdl_window,
@@ -208,7 +224,70 @@ bool RendererUtils::validate_renderer_initialize_param(
 
 	if (param.window_.height_ <= 0)
 	{
-		error_message = "Non-positive window width.";
+		error_message = "Non-positive window height.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererUtils::validate_renderer_texture_create_param(
+	const RendererTextureCreateParam& param,
+	std::string& error_message)
+{
+	if (param.width_ <= 0)
+	{
+		error_message = "Non-positive width.";
+
+		return false;
+	}
+
+	if (param.height_ <= 0)
+	{
+		error_message = "Non-positive height.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererUtils::validate_renderer_texture_update_param(
+	const RendererTextureUpdateParam& param,
+	std::string& error_message)
+{
+	if (param.x_ < 0)
+	{
+		error_message = "Negative offset by x.";
+
+		return false;
+	}
+
+	if (param.y_ < 0)
+	{
+		error_message = "Negative offset by y.";
+
+		return false;
+	}
+
+	if (param.width_ <= 0)
+	{
+		error_message = "Non-positive width.";
+
+		return false;
+	}
+
+	if (param.height_ <= 0)
+	{
+		error_message = "Non-positive height.";
+
+		return false;
+	}
+
+	if (!param.indexed_data_)
+	{
+		error_message = "Null indexed data.";
 
 		return false;
 	}

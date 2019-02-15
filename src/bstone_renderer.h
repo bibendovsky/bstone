@@ -117,6 +117,27 @@ public:
 	Vec2F uv_;
 }; // RendererVertex
 
+class RendererTextureCreateParam
+{
+public:
+	int width_;
+	int height_;
+
+	const std::uint8_t* indexed_data_;
+}; // RendererTextureCreateParam
+
+class RendererTextureUpdateParam
+{
+public:
+	int x_;
+	int y_;
+
+	int width_;
+	int height_;
+
+	const std::uint8_t* indexed_data_;
+}; // RendererTextureUpdateParam
+
 
 class Renderer
 {
@@ -175,6 +196,17 @@ public:
 		const int offset,
 		const int count,
 		const RendererVertex* const vertices) = 0;
+
+
+	virtual ObjectId texture_2d_create(
+		const RendererTextureCreateParam& param) = 0;
+
+	virtual void texture_2d_destroy(
+		ObjectId texture_id) = 0;
+
+	virtual void texture_2d_update(
+		ObjectId texture_id,
+		const RendererTextureUpdateParam& param) = 0;
 }; // Renderer
 
 using RendererPtr = Renderer*;

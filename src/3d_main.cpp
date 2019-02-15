@@ -9803,6 +9803,13 @@ void test()
 
 	const auto renderer_count = renderer_manager->get_renderer_count();
 
+	const std::uint8_t indexed_data[9] =
+	{
+		1, 2, 3,
+		4, 5, 6,
+		7, 8, 9,
+	};
+
 	for (int i_renderer = 0; i_renderer < renderer_count; ++i_renderer)
 	{
 		auto renderer = renderer_manager->get_renderer(i_renderer);
@@ -9824,6 +9831,14 @@ void test()
 
 		const auto vb1 = renderer->vertex_buffer_create(12);
 		renderer->vertex_buffer_destroy(vb1);
+
+		auto tx1_param = bstone::RendererTextureCreateParam{};
+		tx1_param.width_ = 3;
+		tx1_param.height_ = 3;
+		tx1_param.indexed_data_ = indexed_data;
+
+		const auto tx1 = renderer->texture_2d_create(tx1_param);
+		renderer->texture_2d_destroy(tx1);
 	}
 
 	renderer_manager->uninitialize();

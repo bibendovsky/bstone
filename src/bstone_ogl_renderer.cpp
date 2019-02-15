@@ -233,6 +233,35 @@ void OglRenderer::vertex_buffer_update(
 	renderer_->vertex_buffer_update(id, offset, count, vertices);
 }
 
+Renderer::ObjectId OglRenderer::texture_2d_create(
+	const RendererTextureCreateParam& param)
+{
+	assert(is_initialized_);
+	assert(RendererUtils::validate_renderer_texture_create_param(param, error_message_));
+
+	return renderer_->texture_2d_create(param);
+}
+
+void OglRenderer::texture_2d_destroy(
+	ObjectId texture_id)
+{
+	assert(is_initialized_);
+	assert(texture_id != NullObjectId);
+
+	renderer_->texture_2d_destroy(texture_id);
+}
+
+void OglRenderer::texture_2d_update(
+	ObjectId texture_id,
+	const RendererTextureUpdateParam& param)
+{
+	assert(is_initialized_);
+	assert(texture_id != NullObjectId);
+	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
+
+	renderer_->texture_2d_update(texture_id, param);
+}
+
 void OglRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
