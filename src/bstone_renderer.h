@@ -129,12 +129,6 @@ public:
 class RendererTextureUpdateParam
 {
 public:
-	int x_;
-	int y_;
-
-	int width_;
-	int height_;
-
 	const std::uint8_t* indexed_data_;
 }; // RendererTextureUpdateParam
 

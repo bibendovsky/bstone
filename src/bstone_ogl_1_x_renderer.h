@@ -130,6 +130,8 @@ private:
 		float actual_u_;
 		float actual_v_;
 
+		const std::uint8_t* indexed_data_;
+
 		GLuint ogl_id_;
 	}; // Texture2d
 
@@ -161,6 +163,12 @@ private:
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
+
+	void update_indexed_texture(
+		const int mipmap_level,
+		const Texture2d& texture_2d);
+
+	void update_indexed_textures();
 }; // OglRenderer
 
 

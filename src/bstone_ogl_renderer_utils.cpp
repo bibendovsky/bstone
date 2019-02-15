@@ -1075,6 +1075,27 @@ void OglRendererUtils::swap_window(
 	::SDL_GL_SwapWindow(sdl_window);
 }
 
+bool OglRendererUtils::was_errors()
+{
+	assert(::glGetError != nullptr);
+
+	const auto max_error_count = 32;
+
+	auto was_error = false;
+
+	for (int i = 0; i < max_error_count; ++i)
+	{
+		if (::glGetError() == GL_NO_ERROR)
+		{
+			break;
+		}
+
+		was_error = true;
+	}
+
+	return was_error;
+}
+
 Mat4F OglRendererUtils::build_2d_projection_matrix(
 	const int width,
 	const int height)

@@ -250,6 +250,13 @@ bool RendererUtils::validate_renderer_texture_create_param(
 		return false;
 	}
 
+	if (!param.indexed_data_)
+	{
+		error_message = "Null indexed data.";
+
+		return false;
+	}
+
 	return true;
 }
 
@@ -257,34 +264,6 @@ bool RendererUtils::validate_renderer_texture_update_param(
 	const RendererTextureUpdateParam& param,
 	std::string& error_message)
 {
-	if (param.x_ < 0)
-	{
-		error_message = "Negative offset by x.";
-
-		return false;
-	}
-
-	if (param.y_ < 0)
-	{
-		error_message = "Negative offset by y.";
-
-		return false;
-	}
-
-	if (param.width_ <= 0)
-	{
-		error_message = "Non-positive width.";
-
-		return false;
-	}
-
-	if (param.height_ <= 0)
-	{
-		error_message = "Non-positive height.";
-
-		return false;
-	}
-
 	if (!param.indexed_data_)
 	{
 		error_message = "Null indexed data.";

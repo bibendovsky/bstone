@@ -90,6 +90,8 @@ public:
 	static void swap_window(
 		SdlWindowPtr sdl_window);
 
+	static bool was_errors();
+
 
 	static Mat4F build_2d_projection_matrix(
 		const int width,

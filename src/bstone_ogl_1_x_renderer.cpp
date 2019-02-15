@@ -280,86 +280,62 @@ Renderer::ObjectId Ogl1XRenderer::texture_2d_create(
 	assert(is_initialized_);
 	assert(RendererUtils::validate_renderer_texture_create_param(param, error_message_));
 
-	const RendererColor32* pixels = nullptr;
-
-	const auto actual_width = RendererUtils::find_nearest_pot_value(param.width_);
-	const auto actual_height = RendererUtils::find_nearest_pot_value(param.height_);
-
-	const auto is_pot = (param.width_ == actual_width && param.height_ == actual_height);
-
-	const auto actual_u = static_cast<float>(param.width_) / static_cast<float>(actual_width);
-	const auto actual_v = static_cast<float>(param.height_) / static_cast<float>(actual_height);
-
-	if (param.indexed_data_)
-	{
-		const auto area = actual_width * actual_height;
-
-		texture_buffer_.resize(area);
-
-		if (is_pot)
-		{
-			for (int i = 0; i < area; ++i)
-			{
-				texture_buffer_[i] = palette_[param.indexed_data_[i]];
-			}
-		}
-		else
-		{
-			const auto black_width = actual_width - param.width_;
-
-			auto src_index = 0;
-			auto dst_base_index = 0;
-
-			for (int h = 0; h < param.height_; ++h)
-			{
-				auto dst_index = dst_base_index;
-
-				for (int w = 0; w < param.width_; ++w)
-				{
-					texture_buffer_[dst_index + w] = palette_[param.indexed_data_[src_index]];
-
-					++src_index;
-				}
-
-				std::uninitialized_fill_n(
-					texture_buffer_.begin() + dst_base_index + param.width_,
-					black_width,
-					RendererColor32{});
-
-				dst_base_index += actual_width;
-			}
-		}
-
-		pixels = texture_buffer_.data();
-	}
-
-	// TODO Generate mipmaps.
-
-	auto ogl_id = GLuint{};
-	::glGenTextures(1, &ogl_id);
-	assert(ogl_id != 0);
-	::glBindTexture(GL_TEXTURE_2D, ogl_id);
-	::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, actual_width, actual_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	textures_2d_.emplace_back();
-	auto& texture_2d = textures_2d_.back();
-
+	auto texture_2d = Texture2d{};
 	texture_2d.width_ = param.width_;
 	texture_2d.height_ = param.height_;
 
-	texture_2d.actual_width_ = actual_width;
-	texture_2d.actual_height_ = actual_height;
+	texture_2d.actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
+	texture_2d.actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
 
-	texture_2d.actual_u_ = actual_u;
-	texture_2d.actual_v_ = actual_v;
+	texture_2d.actual_u_ =
+		static_cast<float>(param.width_) / static_cast<float>(texture_2d.actual_width_);
+
+	texture_2d.actual_v_ =
+		static_cast<float>(param.height_) / static_cast<float>(texture_2d.actual_height_);
+
+	texture_2d.indexed_data_ = param.indexed_data_;
+
+	auto ogl_id = GLuint{};
+
+	::glGenTextures(1, &ogl_id);
+	assert(!OglRendererUtils::was_errors());
+	assert(ogl_id != 0);
+
+	::glBindTexture(GL_TEXTURE_2D, ogl_id);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGB8,
+		texture_2d.actual_width_,
+		texture_2d.actual_height_,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		nullptr);
+
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	assert(!OglRendererUtils::was_errors());
+
+	update_indexed_texture(0, texture_2d);
 
 	texture_2d.ogl_id_ = ogl_id;
 
-	return &texture_2d;
+	textures_2d_.push_back(texture_2d);
+
+	return &textures_2d_.back();
 }
 
 void Ogl1XRenderer::texture_2d_destroy(
@@ -382,6 +358,7 @@ void Ogl1XRenderer::texture_2d_destroy(
 	assert(texture_2d_it != texture_end_it);
 
 	::glDeleteTextures(1, &texture_2d_it->ogl_id_);
+	assert(!OglRendererUtils::was_errors());
 
 	static_cast<void>(textures_2d_.erase(texture_2d_it));
 }
@@ -408,37 +385,9 @@ void Ogl1XRenderer::texture_2d_update(
 	assert(texture_2d_it != texture_end_it);
 
 	auto& texture_2d = *texture_2d_it;
+	texture_2d.indexed_data_ = param.indexed_data_;
 
-	assert(param.x_ < texture_2d.width_);
-	assert(param.y_ < texture_2d.height_);
-
-	assert(param.width_ < texture_2d.width_);
-	assert(param.height_ < texture_2d.height_);
-
-	assert((param.x_ + param.width_) <= texture_2d.width_);
-	assert((param.y_ + param.height_) <= texture_2d.height_);
-
-	const auto area = param.width_ * param.height_;
-
-	texture_buffer_.resize(area);
-
-	for (int i = 0; i < area; ++i)
-	{
-		texture_buffer_[i] = palette_[param.indexed_data_[i]];
-	}
-
-	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
-
-	::glTexSubImage2D(
-		GL_TEXTURE_2D,
-		0,
-		param.x_,
-		param.y_,
-		param.width_,
-		param.height_,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		texture_buffer_.data());
+	update_indexed_texture(0, texture_2d);
 }
 
 void Ogl1XRenderer::uninitialize_internal(
@@ -461,9 +410,72 @@ void Ogl1XRenderer::uninitialize_internal(
 	for (const auto& texture_2d : textures_2d_)
 	{
 		::glDeleteTextures(1, &texture_2d.ogl_id_);
+		assert(!OglRendererUtils::was_errors());
 	}
 
 	textures_2d_.clear();
+}
+
+void Ogl1XRenderer::update_indexed_texture(
+	const int mipmap_level,
+	const Texture2d& texture_2d)
+{
+	assert(mipmap_level == 0);
+
+	const auto area = texture_2d.actual_width_ * texture_2d.actual_height_;
+
+	texture_buffer_.clear();
+	texture_buffer_.resize(area);
+
+	if (texture_2d.width_ == texture_2d.actual_width_ &&
+		texture_2d.height_ == texture_2d.actual_height_)
+	{
+		for (int i = 0; i < area; ++i)
+		{
+			texture_buffer_[i] = palette_[texture_2d.indexed_data_[i]];
+		}
+	}
+	else
+	{
+		auto src_index = 0;
+		auto dst_base_index = 0;
+
+		for (int h = 0; h < texture_2d.height_; ++h)
+		{
+			auto dst_index = dst_base_index;
+
+			for (int w = 0; w < texture_2d.width_; ++w)
+			{
+				texture_buffer_[dst_index + w] = palette_[texture_2d.indexed_data_[src_index]];
+
+				++src_index;
+			}
+
+			dst_base_index += texture_2d.actual_width_;
+		}
+	}
+
+	::glTexSubImage2D(
+		GL_TEXTURE_2D,
+		0, // level
+		0, // xoffset
+		0, // yoffset
+		texture_2d.actual_width_, // width
+		texture_2d.actual_height_, // height
+		GL_RGBA, // format
+		GL_UNSIGNED_BYTE, // type
+		texture_buffer_.data() // pixels
+	);
+
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::update_indexed_textures()
+{
+	for (const auto& texture_2d : textures_2d_)
+	{
+		update_indexed_texture(0, texture_2d);
+	}
 }
 
 
