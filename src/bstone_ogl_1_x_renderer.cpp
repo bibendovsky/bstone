@@ -158,7 +158,7 @@ Renderer::ObjectId Ogl1XRenderer::vertex_buffer_create(
 	assert(is_initialized_);
 	assert(vertex_count > 0 && (vertex_count % 3) == 0);
 
-	const auto vertex_buffer_size = vertex_count * RendererVertex::class_size;
+	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(RendererVertex));
 
 	vertex_buffers_.emplace_back();
 	auto& vertex_buffer = vertex_buffers_.back();

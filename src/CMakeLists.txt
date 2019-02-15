@@ -210,7 +210,6 @@ target_sources(
 		bstone_binary_writer.h
 		bstone_cl_args.h
 		bstone_crc32.h
-		bstone_color32.h
 		bstone_endian.h
 		bstone_file_stream.h
 		bstone_fizzle_fx.h

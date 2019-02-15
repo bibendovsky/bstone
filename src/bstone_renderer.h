@@ -32,7 +32,6 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
-#include "bstone_color32.h"
 #include "bstone_vecn.h"
 
 
@@ -75,18 +74,46 @@ public:
 	RendererInitializeWindowParam window_;
 }; // RendererInitializeParam
 
+
+class RendererColor32
+{
+public:
+	std::uint8_t r_;
+	std::uint8_t g_;
+	std::uint8_t b_;
+	std::uint8_t a_;
+
+
+	constexpr RendererColor32()
+		:
+		r_{},
+		g_{},
+		b_{},
+		a_{}
+	{
+	}
+
+	constexpr RendererColor32(
+		const std::uint8_t r,
+		const std::uint8_t g,
+		const std::uint8_t b,
+		const std::uint8_t a)
+		:
+		r_{},
+		g_{},
+		b_{},
+		a_{}
+	{
+	}
+}; // RendererColor32
+
 class RendererVertex
 {
 public:
-	static constexpr auto class_size = 24;
-
-
 	Vec3F xyz_;
-	Color32 rgba_;
+	RendererColor32 rgba_;
 	Vec2F uv_;
 }; // RendererVertex
-
-static_assert(RendererVertex::class_size == sizeof(RendererVertex), "Class size mismatch.");
 
 
 class Renderer
