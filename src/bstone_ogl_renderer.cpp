@@ -204,7 +204,7 @@ RendererObjectId OglRenderer::vertex_buffer_create(
 	const int vertex_count)
 {
 	assert(is_initialized_);
-	assert(vertex_count > 0 && (vertex_count % 3) == 0);
+	assert(vertex_count > 0 && (vertex_count % 4) == 0);
 
 	return renderer_->vertex_buffer_create(vertex_count);
 }
