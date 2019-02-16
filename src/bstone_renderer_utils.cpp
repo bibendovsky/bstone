@@ -67,6 +67,13 @@ bool RendererUtils::Detail::create_window_validate_param(
 	const RendererUtilsCreateWindowParam& param,
 	std::string& error_message)
 {
+	if (param.window_.is_positioned_ && (param.window_.x_ < 0 || param.window_.y_ < 0))
+	{
+		error_message = "Negative position.";
+
+		return false;
+	}
+
 	if (param.window_.width_ <= 0 || param.window_.height_ <= 0)
 	{
 		error_message = "Invalid dimensions.";
@@ -107,6 +114,11 @@ Uint32 RendererUtils::Detail::create_window_sdl_flags(
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
 
+	if (param.window_.is_borderless_)
+	{
+		flags |= SDL_WINDOW_BORDERLESS;
+	}
+
 	if (param.is_opengl_)
 	{
 		flags |= SDL_WINDOW_OPENGL;
@@ -122,10 +134,24 @@ bool RendererUtils::Detail::create_window(
 {
 	const auto sdl_flags = create_window_sdl_flags(param);
 
+	const auto x = (
+		param.window_.is_positioned_ ?
+			param.window_.x_
+			:
+			SDL_WINDOWPOS_CENTERED
+	);
+
+	const auto y = (
+		param.window_.is_positioned_ ?
+			param.window_.y_
+			:
+			SDL_WINDOWPOS_CENTERED
+	);
+
 	sdl_window = ::SDL_CreateWindow(
 		param.window_.title_utf8_.c_str(),
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
+		x,
+		y,
 		param.window_.width_,
 		param.window_.height_,
 		sdl_flags

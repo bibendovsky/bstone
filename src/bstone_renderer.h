@@ -75,7 +75,12 @@ class RendererInitializeWindowParam
 {
 public:
 	bool is_visible_;
+	bool is_borderless_;
 	bool is_fullscreen_desktop_;
+	bool is_positioned_;
+
+	int x_;
+	int y_;
 
 	int width_;
 	int height_;
