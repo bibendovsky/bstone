@@ -130,6 +130,10 @@ public:
 		const RendererTextureUpdateParam& param) override;
 
 
+	void execute_commands(
+		const RendererCommands& commands) override;
+
+
 private:
 	bool is_initialized_;
 	std::string error_message_;

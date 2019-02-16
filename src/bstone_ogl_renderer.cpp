@@ -295,6 +295,15 @@ void OglRenderer::texture_2d_update(
 	renderer_->texture_2d_update(texture_id, param);
 }
 
+void OglRenderer::execute_commands(
+	const RendererCommands& commands)
+{
+	assert(is_initialized_);
+	assert(!commands.empty());
+
+	renderer_->execute_commands(commands);
+}
+
 void OglRenderer::uninitialize_internal(
 	const bool is_dtor)
 {

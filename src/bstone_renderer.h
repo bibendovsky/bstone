@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
+#include <vector>
 #include "bstone_vecn.h"
 
 
@@ -58,6 +59,16 @@ enum class RendererPath
 
 	ogl_1_x,
 }; // RendererPath
+
+enum class RendererCommandId
+{
+	none,
+
+	set_2d,
+	update_palette,
+
+	draw_quads,
+}; // RendererCommandId
 
 
 class RendererInitializeWindowParam
@@ -110,6 +121,17 @@ public:
 		a_{}
 	{
 	}
+
+	constexpr std::uint32_t to_u32() const
+	{
+		return (r_ << 24) | (g_ << 16) | (b_ << 8) | a_;
+	}
+
+	constexpr bool operator<(
+		const RendererColor32& rhs) const
+	{
+		return to_u32() < rhs.to_u32();
+	}
 }; // RendererColor32
 
 using RendererPalette = std::array<RendererColor32, 256>;
@@ -138,6 +160,40 @@ public:
 	const std::uint8_t* indexed_pixels_;
 	const bool* indexed_alphas_;
 }; // RendererTextureUpdateParam
+
+
+class RendererCommand
+{
+public:
+	class UpdatePalette
+	{
+	public:
+		int offset_;
+		int count_;
+		const RendererColor32* colors_;
+	}; // UpdatePalette
+
+	class DrawQuads
+	{
+	public:
+		int count_;
+		int index_offset_;
+		RendererObjectId texture_2d_id_;
+		RendererObjectId index_buffer_id_;
+		RendererObjectId vertex_buffer_id_;
+	}; // DrawQuads
+
+
+	RendererCommandId id_;
+
+	union
+	{
+		UpdatePalette update_palette_;
+		DrawQuads draw_quads_;
+	}; // union
+}; // RendererCommand
+
+using RendererCommands = std::vector<RendererCommand>;
 
 
 class Renderer
@@ -219,6 +275,10 @@ public:
 	virtual void texture_2d_update(
 		RendererObjectId texture_id,
 		const RendererTextureUpdateParam& param) = 0;
+
+
+	virtual void execute_commands(
+		const RendererCommands& commands) = 0;
 }; // Renderer
 
 using RendererPtr = Renderer*;

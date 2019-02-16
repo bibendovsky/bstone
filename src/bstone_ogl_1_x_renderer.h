@@ -125,6 +125,10 @@ public:
 		const RendererTextureUpdateParam& param) override;
 
 
+	void execute_commands(
+		const RendererCommands& commands) override;
+
+
 private:
 	class IndexBuffer
 	{
@@ -135,6 +139,7 @@ private:
 		int count_;
 		int byte_depth_;
 		int size_in_bytes_;
+		GLenum data_type_;
 
 		Data data_;
 	}; // IndexBuffer
@@ -200,6 +205,15 @@ private:
 		const Texture2d& texture_2d);
 
 	void update_indexed_textures();
+
+
+	void execute_command_set_2d();
+
+	void execute_command_update_palette(
+		const RendererCommand::UpdatePalette& command);
+
+	void execute_command_draw_quads(
+		const RendererCommand::DrawQuads& command);
 }; // OglRenderer
 
 

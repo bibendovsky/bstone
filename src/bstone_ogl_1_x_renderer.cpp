@@ -167,18 +167,22 @@ RendererObjectId Ogl1XRenderer::index_buffer_create(
 	assert(index_count > 0);
 
 	auto byte_depth = 0;
+	auto data_type = GLenum{};
 
 	if (index_count <= 0x100)
 	{
 		byte_depth = 1;
+		data_type = GL_UNSIGNED_BYTE;
 	}
 	else if (index_count <= 0x10'000)
 	{
 		byte_depth = 2;
+		data_type = GL_UNSIGNED_SHORT;
 	}
 	else
 	{
 		byte_depth = 4;
+		data_type = GL_UNSIGNED_INT;
 	}
 
 	const auto size_in_bytes = index_count * byte_depth;
@@ -188,6 +192,7 @@ RendererObjectId Ogl1XRenderer::index_buffer_create(
 	index_buffer.count_ = index_count;
 	index_buffer.byte_depth_ = byte_depth;
 	index_buffer.size_in_bytes_ = size_in_bytes;
+	index_buffer.data_type_ = data_type;
 	index_buffer.data_.resize(size_in_bytes);
 
 	return &index_buffer;
@@ -287,6 +292,37 @@ void Ogl1XRenderer::vertex_buffer_update(
 	std::uninitialized_copy_n(vertices, count, vertex_buffer.begin() + offset);
 }
 
+void Ogl1XRenderer::execute_commands(
+	const RendererCommands& commands)
+{
+	assert(!commands.empty());
+
+	for (auto& command : commands)
+	{
+		switch (command.id_)
+		{
+		case RendererCommandId::set_2d:
+			execute_command_set_2d();
+			break;
+
+		case RendererCommandId::update_palette:
+			execute_command_update_palette(command.update_palette_);
+			break;
+
+		case RendererCommandId::draw_quads:
+			execute_command_draw_quads(command.draw_quads_);
+			break;
+
+		default:
+			assert(!"Unsupported command id.");
+			break;
+		}
+	}
+
+	OglRendererUtils::swap_window(sdl_window_);
+	OglRendererUtils::clear_buffers();
+}
+
 bool Ogl1XRenderer::probe_or_initialize(
 	const bool is_probe,
 	const RendererPath probe_renderer_path,
@@ -347,6 +383,12 @@ bool Ogl1XRenderer::probe_or_initialize(
 	is_initialized_ = true;
 	sdl_window_ = sdl_window;
 	sdl_gl_context_ = sdl_gl_context;
+
+	if (!is_probe)
+	{
+		OglRendererUtils::clear_buffers();
+		OglRendererUtils::swap_window(sdl_window);
+	}
 
 	return true;
 }
@@ -595,6 +637,156 @@ void Ogl1XRenderer::update_indexed_textures()
 	{
 		update_indexed_texture(0, texture_2d);
 	}
+}
+
+void Ogl1XRenderer::execute_command_set_2d()
+{
+	// Disable depth test.
+	//
+	::glDisable(GL_DEPTH_TEST);
+	assert(!OglRendererUtils::was_errors());
+
+	// Model-view.
+	//
+	::glMatrixMode(GL_MODELVIEW);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadIdentity();
+	assert(!OglRendererUtils::was_errors());
+
+	// Projection.
+	//
+	::glMatrixMode(GL_PROJECTION);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadMatrixf(two_d_projection_matrix_.get_data());
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::execute_command_update_palette(
+	const RendererCommand::UpdatePalette& command)
+{
+	assert(command.offset_ >= 0);
+	assert(command.offset_ < 256);
+	assert(command.count_ >= 0);
+	assert(command.count_ <= 256);
+	assert((command.offset_ + command.count_) <= 256);
+	assert(command.colors_ != nullptr);
+
+	const auto is_modified = !std::lexicographical_compare(
+		palette_.begin() + command.offset_,
+		palette_.begin() + command.offset_ + command.count_,
+		command.colors_,
+		command.colors_ + command.count_
+	);
+
+	if (!is_modified)
+	{
+		return;
+	}
+
+	std::uninitialized_copy_n(
+		command.colors_,
+		command.count_,
+		palette_.begin() + command.offset_
+	);
+
+	update_indexed_textures();
+}
+
+void Ogl1XRenderer::execute_command_draw_quads(
+	const RendererCommand::DrawQuads& command)
+{
+	assert(command.count_ > 0);
+	assert(command.index_offset_ > 0);
+	assert(command.texture_2d_id_ != RendererNullObjectId);
+	assert(command.index_buffer_id_ != RendererNullObjectId);
+	assert(command.vertex_buffer_id_ != RendererNullObjectId);
+
+	const auto triangles_per_quad = 2;
+	const auto triangle_count = command.count_ * triangles_per_quad;
+
+	const auto indices_per_triangle = 3;
+	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
+	const auto index_count = indices_per_quad * command.count_;
+
+	auto& texture_2d = *static_cast<Texture2d*>(command.texture_2d_id_);
+	auto& index_buffer = *static_cast<IndexBuffer*>(command.index_buffer_id_);
+	auto& vertex_buffer = *static_cast<VertexBuffer*>(command.vertex_buffer_id_);
+
+	assert(command.index_offset_ < index_buffer.count_);
+	assert(command.count_ <= index_buffer.count_);
+	assert((command.index_offset_ + command.count_) <= index_buffer.count_);
+
+	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
+	assert(!OglRendererUtils::was_errors());
+
+	// Position.
+	//
+	::glEnableClientState(GL_VERTEX_ARRAY);
+	assert(!OglRendererUtils::was_errors());
+
+	::glVertexPointer(
+		3, // size
+		GL_FLOAT, // type
+		static_cast<GLsizei>(sizeof(RendererVertex)), // stride
+		vertex_buffer.data() + offsetof(RendererVertex, xyz_) // pointer
+	);
+
+	assert(!OglRendererUtils::was_errors());
+
+	// Diffuse.
+	//
+	::glEnableClientState(GL_COLOR_ARRAY);
+	assert(!OglRendererUtils::was_errors());
+
+	::glColorPointer(
+		4, // size
+		GL_UNSIGNED_BYTE, // type
+		static_cast<GLsizei>(sizeof(RendererVertex)), // stride
+		vertex_buffer.data() + offsetof(RendererVertex, rgba_) // pointer
+	);
+
+	assert(!OglRendererUtils::was_errors());
+
+	// Texture coordinates.
+	//
+	::glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexCoordPointer(
+		2, // size
+		GL_FLOAT, // type
+		static_cast<GLsizei>(sizeof(RendererVertex)), // stride
+		vertex_buffer.data() + offsetof(RendererVertex, uv_) // pointer
+	);
+
+	assert(!OglRendererUtils::was_errors());
+
+	// Draw the quads.
+	//
+	::glDrawElements(
+		GL_TRIANGLES, // mode
+		triangle_count, // count
+		index_buffer.data_type_, // type
+		index_buffer.data_.data() + (index_buffer.byte_depth_ * command.index_offset_) // indices
+	);
+
+	assert(!OglRendererUtils::was_errors());
+
+	// Disable the state.
+	//
+	::glBindTexture(GL_TEXTURE_2D, 0);
+	assert(!OglRendererUtils::was_errors());
+
+	::glDisableClientState(GL_VERTEX_ARRAY);
+	assert(!OglRendererUtils::was_errors());
+
+	::glDisableClientState(GL_COLOR_ARRAY);
+	assert(!OglRendererUtils::was_errors());
+
+	::glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	assert(!OglRendererUtils::was_errors());
 }
 
 

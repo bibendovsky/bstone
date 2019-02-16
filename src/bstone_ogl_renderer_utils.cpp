@@ -1067,6 +1067,14 @@ bool OglRendererUtils::resolve_symbols_1_1()
 	return true;
 }
 
+void OglRendererUtils::clear_buffers()
+{
+	assert(::glClear != nullptr);
+
+	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	assert(!OglRendererUtils::was_errors());
+}
+
 void OglRendererUtils::swap_window(
 	SdlWindowPtr sdl_window)
 {

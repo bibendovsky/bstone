@@ -87,6 +87,8 @@ public:
 	static bool resolve_symbols_1_1();
 
 
+	static void clear_buffers();
+
 	static void swap_window(
 		SdlWindowPtr sdl_window);
 
