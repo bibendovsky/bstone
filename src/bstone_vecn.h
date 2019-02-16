@@ -33,7 +33,6 @@ Free Software Foundation, Inc.,
 
 
 #include <array>
-#include <utility>
 
 
 namespace bstone
@@ -44,6 +43,9 @@ template<int N, typename T>
 class VecNT
 {
 public:
+	static_assert(N >= 2 && N <= 4, "Unsupported dimension.");
+
+
 	constexpr VecNT()
 		:
 		items_{}
@@ -51,10 +53,10 @@ public:
 	}
 
 	template<typename... TArgs>
-	explicit constexpr VecNT(
-		TArgs... args)
+	constexpr VecNT(
+		const TArgs&... args)
 		:
-		items_{std::forward<TArgs>(args)...}
+		items_{args...}
 	{
 		static_assert(sizeof...(TArgs) == N, "Argument count mismatch.");
 	}
@@ -66,7 +68,7 @@ public:
 		return items_[index];
 	}
 
-	constexpr T operator[](
+	constexpr const T& operator[](
 		const int index) const
 	{
 		return items_[index];
