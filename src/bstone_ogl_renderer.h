@@ -93,6 +93,19 @@ public:
 		const int height) override;
 
 
+	RendererObjectId index_buffer_create(
+		const int index_count) override;
+
+	void index_buffer_destroy(
+		RendererObjectId id) override;
+
+	void index_buffer_update(
+		RendererObjectId id,
+		const int offset,
+		const int count,
+		const void* const indices) override;
+
+
 	RendererObjectId vertex_buffer_create(
 		const int vertex_count) override;
 

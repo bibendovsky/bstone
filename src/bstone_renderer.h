@@ -184,6 +184,19 @@ public:
 		const int height) = 0;
 
 
+	virtual RendererObjectId index_buffer_create(
+		const int index_count) = 0;
+
+	virtual void index_buffer_destroy(
+		RendererObjectId id) = 0;
+
+	virtual void index_buffer_update(
+		RendererObjectId id,
+		const int offset,
+		const int count,
+		const void* const indices) = 0;
+
+
 	virtual RendererObjectId vertex_buffer_create(
 		const int vertex_count) = 0;
 

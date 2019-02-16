@@ -49,6 +49,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_gl_context_{},
 	palette_{},
 	two_d_projection_matrix_{},
+	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
 	textures_2d_{}
@@ -65,6 +66,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	palette_{std::move(rhs.palette_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
+	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
 	textures_2d_{std::move(rhs.textures_2d_)}
@@ -156,6 +158,81 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	}
 
 	two_d_projection_matrix_ = new_matrix;
+}
+
+RendererObjectId Ogl1XRenderer::index_buffer_create(
+	const int index_count)
+{
+	assert(is_initialized_);
+	assert(index_count > 0);
+
+	auto byte_depth = 0;
+
+	if (index_count <= 0x100)
+	{
+		byte_depth = 1;
+	}
+	else if (index_count <= 0x10'000)
+	{
+		byte_depth = 2;
+	}
+	else
+	{
+		byte_depth = 4;
+	}
+
+	const auto size_in_bytes = index_count * byte_depth;
+
+	index_buffers_.emplace_back();
+	auto& index_buffer = index_buffers_.back();
+	index_buffer.count_ = index_count;
+	index_buffer.byte_depth_ = byte_depth;
+	index_buffer.size_in_bytes_ = size_in_bytes;
+	index_buffer.data_.resize(size_in_bytes);
+
+	return &index_buffer;
+}
+
+void Ogl1XRenderer::index_buffer_destroy(
+	RendererObjectId id)
+{
+	assert(is_initialized_);
+	assert(id != RendererNullObjectId);
+
+	index_buffers_.remove_if(
+		[=](const auto& item)
+		{
+			return id == &item;
+		}
+	);
+}
+
+void Ogl1XRenderer::index_buffer_update(
+	RendererObjectId id,
+	const int offset,
+	const int count,
+	const void* const indices)
+{
+	assert(is_initialized_);
+	assert(id != RendererNullObjectId);
+	assert(offset >= 0);
+	assert(count > 0);
+	assert(indices != nullptr);
+
+	auto& index_buffer = *static_cast<IndexBuffer*>(id);
+
+	assert(offset < index_buffer.count_);
+	assert(count <= index_buffer.count_);
+	assert((offset + count) <= index_buffer.count_);
+
+	const auto offset_in_bytes = offset * index_buffer.byte_depth_;
+	const auto size_in_bytes = count * index_buffer.byte_depth_;
+
+	std::uninitialized_copy_n(
+		static_cast<const std::uint8_t*>(indices),
+		size_in_bytes,
+		index_buffer.data_.begin() + offset_in_bytes
+	);
 }
 
 RendererObjectId Ogl1XRenderer::vertex_buffer_create(
@@ -408,6 +485,8 @@ void Ogl1XRenderer::uninitialize_internal(
 	{
 		palette_ = {};
 		two_d_projection_matrix_ = {};
+		index_buffers_.clear();
+		vertex_buffers_.clear();
 		texture_buffer_.clear();
 	}
 

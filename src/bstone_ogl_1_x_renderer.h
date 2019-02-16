@@ -88,6 +88,19 @@ public:
 		const int height) override;
 
 
+	RendererObjectId index_buffer_create(
+		const int index_count) override;
+
+	void index_buffer_destroy(
+		RendererObjectId id) override;
+
+	void index_buffer_update(
+		RendererObjectId id,
+		const int offset,
+		const int count,
+		const void* const indices) override;
+
+
 	RendererObjectId vertex_buffer_create(
 		const int vertex_count) override;
 
@@ -113,6 +126,22 @@ public:
 
 
 private:
+	class IndexBuffer
+	{
+	public:
+		using Data = std::vector<std::uint8_t>;
+
+
+		int count_;
+		int byte_depth_;
+		int size_in_bytes_;
+
+		Data data_;
+	}; // IndexBuffer
+
+	using IndexBuffers = std::list<IndexBuffer>;
+
+
 	using VertexBuffer = std::vector<RendererVertex>;
 	using VertexBuffers = std::list<VertexBuffer>;
 
@@ -151,6 +180,7 @@ private:
 
 	Mat4F two_d_projection_matrix_;
 
+	IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;
 
 	TextureBuffer texture_buffer_;
