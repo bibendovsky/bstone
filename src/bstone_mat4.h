@@ -103,7 +103,7 @@ public:
 	{
 	}
 
-	T& get_item(
+	constexpr T& get_item(
 		const int index)
 	{
 		return items_[index];
@@ -117,7 +117,7 @@ public:
 
 	// Notes:
 	//    - Indices are one-based.
-	T& get_item(
+	constexpr T& get_item(
 		const int row_index,
 		const int column_index)
 	{
@@ -131,6 +131,16 @@ public:
 		const int column_index) const
 	{
 		return items_[(rank * (row_index - 1)) + column_index - 1];
+	}
+
+	constexpr T* get_data()
+	{
+		return items_.data();
+	}
+
+	constexpr const T* get_data() const
+	{
+		return items_.data();
 	}
 
 	constexpr Mat4T transpose() const
