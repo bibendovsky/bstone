@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include <vector>
-#include "bstone_mat4.h"
+#include "bstone_matn.h"
 #include "bstone_renderer_utils.h"
 
 

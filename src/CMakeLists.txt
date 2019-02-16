@@ -218,7 +218,7 @@ target_sources(
 		bstone_generic_fizzle_fx.h
 		bstone_stream.h
 		bstone_log.h
-		bstone_mat4.h
+		bstone_matn.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_mt_queue_1r1w.h
