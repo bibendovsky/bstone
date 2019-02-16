@@ -250,7 +250,7 @@ bool RendererUtils::validate_renderer_texture_create_param(
 		return false;
 	}
 
-	if (!param.indexed_data_)
+	if (!param.indexed_pixels_)
 	{
 		error_message = "Null indexed data.";
 
@@ -264,7 +264,7 @@ bool RendererUtils::validate_renderer_texture_update_param(
 	const RendererTextureUpdateParam& param,
 	std::string& error_message)
 {
-	if (!param.indexed_data_)
+	if (!param.indexed_pixels_)
 	{
 		error_message = "Null indexed data.";
 

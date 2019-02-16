@@ -130,7 +130,8 @@ private:
 		float actual_u_;
 		float actual_v_;
 
-		const std::uint8_t* indexed_data_;
+		const std::uint8_t* indexed_pixels_;
+		const bool* indexed_alphas_;
 
 		GLuint ogl_id_;
 	}; // Texture2d

@@ -9835,7 +9835,7 @@ void test()
 		auto tx1_param = bstone::RendererTextureCreateParam{};
 		tx1_param.width_ = 3;
 		tx1_param.height_ = 3;
-		tx1_param.indexed_data_ = indexed_data;
+		tx1_param.indexed_pixels_ = indexed_data;
 
 		const auto tx1 = renderer->texture_2d_create(tx1_param);
 		renderer->texture_2d_destroy(tx1);

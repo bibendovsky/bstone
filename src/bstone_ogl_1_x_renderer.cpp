@@ -293,7 +293,10 @@ RendererObjectId Ogl1XRenderer::texture_2d_create(
 	texture_2d.actual_v_ =
 		static_cast<float>(param.height_) / static_cast<float>(texture_2d.actual_height_);
 
-	texture_2d.indexed_data_ = param.indexed_data_;
+	texture_2d.indexed_pixels_ = param.indexed_pixels_;
+	texture_2d.indexed_alphas_ = param.indexed_alphas_;
+
+	const auto internal_format = (texture_2d.indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
 
 	auto ogl_id = GLuint{};
 
@@ -305,15 +308,16 @@ RendererObjectId Ogl1XRenderer::texture_2d_create(
 	assert(!OglRendererUtils::was_errors());
 
 	::glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		GL_RGB8,
-		texture_2d.actual_width_,
-		texture_2d.actual_height_,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		nullptr);
+		GL_TEXTURE_2D, // target
+		0, // level
+		internal_format, // internal format
+		texture_2d.actual_width_, // width
+		texture_2d.actual_height_, // height
+		0, // border
+		GL_RGBA, // format
+		GL_UNSIGNED_BYTE, // type
+		nullptr // pixels
+	);
 
 	assert(!OglRendererUtils::was_errors());
 
@@ -385,7 +389,7 @@ void Ogl1XRenderer::texture_2d_update(
 	assert(texture_2d_it != texture_end_it);
 
 	auto& texture_2d = *texture_2d_it;
-	texture_2d.indexed_data_ = param.indexed_data_;
+	texture_2d.indexed_pixels_ = param.indexed_pixels_;
 
 	update_indexed_texture(0, texture_2d);
 }
@@ -422,6 +426,7 @@ void Ogl1XRenderer::update_indexed_texture(
 {
 	assert(mipmap_level == 0);
 
+	const auto has_alpha = (texture_2d.indexed_alphas_ != nullptr);
 	const auto area = texture_2d.actual_width_ * texture_2d.actual_height_;
 
 	texture_buffer_.clear();
@@ -430,9 +435,22 @@ void Ogl1XRenderer::update_indexed_texture(
 	if (texture_2d.width_ == texture_2d.actual_width_ &&
 		texture_2d.height_ == texture_2d.actual_height_)
 	{
-		for (int i = 0; i < area; ++i)
+		if (has_alpha)
 		{
-			texture_buffer_[i] = palette_[texture_2d.indexed_data_[i]];
+			for (int i = 0; i < area; ++i)
+			{
+				if (texture_2d.indexed_alphas_[i])
+				{
+					texture_buffer_[i] = palette_[texture_2d.indexed_pixels_[i]];
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < area; ++i)
+			{
+				texture_buffer_[i] = palette_[texture_2d.indexed_pixels_[i]];
+			}
 		}
 	}
 	else
@@ -440,23 +458,45 @@ void Ogl1XRenderer::update_indexed_texture(
 		auto src_index = 0;
 		auto dst_base_index = 0;
 
-		for (int h = 0; h < texture_2d.height_; ++h)
+		if (has_alpha)
 		{
-			auto dst_index = dst_base_index;
-
-			for (int w = 0; w < texture_2d.width_; ++w)
+			for (int h = 0; h < texture_2d.height_; ++h)
 			{
-				texture_buffer_[dst_index + w] = palette_[texture_2d.indexed_data_[src_index]];
+				auto dst_index = dst_base_index;
 
-				++src_index;
+				for (int w = 0; w < texture_2d.width_; ++w)
+				{
+					texture_buffer_[dst_index + w] = palette_[texture_2d.indexed_pixels_[src_index]];
+
+					++src_index;
+				}
+
+				dst_base_index += texture_2d.actual_width_;
 			}
+		}
+		else
+		{
+			for (int h = 0; h < texture_2d.height_; ++h)
+			{
+				auto dst_index = dst_base_index;
 
-			dst_base_index += texture_2d.actual_width_;
+				for (int w = 0; w < texture_2d.width_; ++w)
+				{
+					if (texture_2d.indexed_alphas_)
+					{
+						texture_buffer_[dst_index + w] = palette_[texture_2d.indexed_pixels_[src_index]];
+					}
+
+					++src_index;
+				}
+
+				dst_base_index += texture_2d.actual_width_;
+			}
 		}
 	}
 
 	::glTexSubImage2D(
-		GL_TEXTURE_2D,
+		GL_TEXTURE_2D, // target
 		0, // level
 		0, // xoffset
 		0, // yoffset

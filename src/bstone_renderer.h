@@ -128,13 +128,15 @@ public:
 	int width_;
 	int height_;
 
-	const std::uint8_t* indexed_data_;
+	const std::uint8_t* indexed_pixels_;
+	const bool* indexed_alphas_;
 }; // RendererTextureCreateParam
 
 class RendererTextureUpdateParam
 {
 public:
-	const std::uint8_t* indexed_data_;
+	const std::uint8_t* indexed_pixels_;
+	const bool* indexed_alphas_;
 }; // RendererTextureUpdateParam
 
 
