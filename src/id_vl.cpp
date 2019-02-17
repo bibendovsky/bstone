@@ -35,6 +35,7 @@ Free Software Foundation, Inc.,
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+#include "bstone_renderer_manager.h"
 
 
 using namespace std::string_literals;
@@ -45,6 +46,8 @@ static const int palette_color_count = 256;
 
 extern bool is_full_menu_active;
 
+
+bool vid_is_hw_ = false;
 
 int bufferofs;
 
@@ -106,80 +109,80 @@ using SdlPalette = std::array<std::uint32_t, palette_color_count>;
 int window_width = 0;
 int window_height = 0;
 
-VgaBuffer sdl_ui_buffer;
-UiMaskBuffer sdl_mask_buffer;
+VgaBuffer vid_ui_buffer;
+UiMaskBuffer vid_mask_buffer;
 
 
-std::string sdl_error_message;
+std::string soft_error_message;
 
-VgaPalette sdl_vga_palette;
-VgaBuffer sdl_vga_buffer;
+VgaPalette vid_vga_palette;
+VgaBuffer soft_vga_buffer;
 
-bool sdl_use_custom_window_position = false;
-int sdl_window_x = 0;
-int sdl_window_y = 0;
+bool vid_use_custom_window_position = false;
+int vid_window_x = 0;
+int vid_window_y = 0;
 
 SDL_DisplayMode display_mode;
-bool sdl_is_windowed = false;
-SDL_Window* sdl_window = nullptr;
-SDL_Renderer* sdl_renderer = nullptr;
-SDL_PixelFormat* sdl_texture_pixel_format = nullptr;
-SDL_Texture* sdl_screen_texture = nullptr;
-SDL_Texture* sdl_ui_texture = nullptr;
-SdlPalette sdl_palette;
-SDL_Rect sdl_ui_whole_src_rect;
-SDL_Rect sdl_ui_whole_dst_rect;
-SDL_Rect sdl_ui_top_src_rect;
-SDL_Rect sdl_ui_top_dst_rect;
-SDL_Rect sdl_ui_wide_middle_src_rect;
-SDL_Rect sdl_ui_wide_middle_dst_rect;
-SDL_Rect sdl_ui_bottom_src_rect;
-SDL_Rect sdl_ui_bottom_dst_rect;
-std::array<SDL_Rect, 2> sdl_filler_ui_rects;
-std::array<SDL_Rect, 4> sdl_filler_hud_rects;
-const auto sdl_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF, };
-auto sdl_filler_color = SDL_Color{};
+bool vid_is_windowed = false;
+SDL_Window* soft_window = nullptr;
+SDL_Renderer* soft_renderer = nullptr;
+SDL_PixelFormat* soft_texture_pixel_format = nullptr;
+SDL_Texture* soft_screen_texture = nullptr;
+SDL_Texture* soft_ui_texture = nullptr;
+SdlPalette soft_palette;
+SDL_Rect soft_ui_whole_src_rect;
+SDL_Rect soft_ui_whole_dst_rect;
+SDL_Rect soft_ui_top_src_rect;
+SDL_Rect soft_ui_top_dst_rect;
+SDL_Rect soft_ui_wide_middle_src_rect;
+SDL_Rect soft_ui_wide_middle_dst_rect;
+SDL_Rect soft_ui_bottom_src_rect;
+SDL_Rect soft_ui_bottom_dst_rect;
+std::array<SDL_Rect, 2> soft_filler_ui_rects;
+std::array<SDL_Rect, 4> soft_filler_hud_rects;
+const auto soft_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF, };
+auto soft_filler_color = SDL_Color{};
 
 const auto filler_color_index = 0xE8;
 
 
-void sdl_initialize_vga_buffer()
+void soft_initialize_vga_buffer()
 {
 	const auto vga_area = 2 * ::vga_width * ::vga_height;
 
-	::sdl_vga_buffer.resize(
+	::soft_vga_buffer.resize(
 		vga_area);
 
-	::vga_memory = ::sdl_vga_buffer.data();
+	::vga_memory = ::soft_vga_buffer.data();
 }
 
-void sdl_initialize_ui_buffer()
+void soft_initialize_ui_buffer()
 {
 	const auto area = ::vga_ref_width * ::vga_ref_height;
 
-	::sdl_ui_buffer.resize(
+	::vid_ui_buffer.resize(
 		area);
 }
 
-bool sdl_initialize_window()
+bool soft_initialize_window()
 {
 	bstone::Log::write("VID: Creating a window...");
 
 
-	if (!::sdl_use_custom_window_position)
+	if (!::vid_use_custom_window_position)
 	{
-		::sdl_window_x = SDL_WINDOWPOS_CENTERED;
-		::sdl_window_y = SDL_WINDOWPOS_CENTERED;
+		::vid_window_x = SDL_WINDOWPOS_CENTERED;
+		::vid_window_y = SDL_WINDOWPOS_CENTERED;
 	}
 
-	if (::sdl_window_x < 0)
+	if (::vid_window_x < 0)
 	{
-		::sdl_window_x = 0;
+		::vid_window_x = 0;
 	}
 
-	if (::sdl_window_y < 0)
+	if (::vid_window_y < 0)
 	{
-		::sdl_window_y = 0;
+		::vid_window_y = 0;
 	}
 
 	auto window_flags = Uint32{
@@ -187,7 +190,7 @@ bool sdl_initialize_window()
 		SDL_WINDOW_HIDDEN |
 		0};
 
-	if (!::sdl_is_windowed)
+	if (!::vid_is_windowed)
 	{
 		window_flags |=
 			SDL_WINDOW_BORDERLESS |
@@ -265,18 +268,18 @@ bool sdl_initialize_window()
 		title += ": Planet Strike";
 	}
 
-	::sdl_window = ::SDL_CreateWindow(
+	::soft_window = ::SDL_CreateWindow(
 		title.c_str(),
-		::sdl_window_x,
-		::sdl_window_y,
+		::vid_window_x,
+		::vid_window_y,
 		::window_width,
 		::window_height,
 		window_flags);
 
-	if (!::sdl_window)
+	if (!::soft_window)
 	{
-		::sdl_error_message = "VID: Failed to create a window: ";
-		::sdl_error_message += ::SDL_GetError();
+		::soft_error_message = "VID: Failed to create a window: ";
+		::soft_error_message += ::SDL_GetError();
 
 		bstone::Log::write_error(::SDL_GetError());
 
@@ -288,7 +291,7 @@ bool sdl_initialize_window()
 	return true;
 }
 
-bool sdl_initialize_renderer()
+bool soft_initialize_renderer()
 {
 	bstone::Log::write(
 		"VID: Initializing a renderer...");
@@ -406,17 +409,17 @@ bool sdl_initialize_renderer()
 		bstone::Log::write(
 			"VID: Creating a renderer...");
 
-		::sdl_renderer = ::SDL_CreateRenderer(
-			::sdl_window,
+		::soft_renderer = ::SDL_CreateRenderer(
+			::soft_window,
 			-1,
 			renderer_flags);
 
-		if (!::sdl_renderer)
+		if (!::soft_renderer)
 		{
 			is_succeed = false;
 
-			::sdl_error_message = "VID: Failed to create a renderer: ";
-			::sdl_error_message += ::SDL_GetError();
+			::soft_error_message = "VID: Failed to create a renderer: ";
+			::soft_error_message += ::SDL_GetError();
 
 			bstone::Log::write_error(
 				::SDL_GetError());
@@ -432,15 +435,15 @@ bool sdl_initialize_renderer()
 			"VID: Quering renderer for info...");
 
 		auto sdl_result = ::SDL_GetRendererInfo(
-			::sdl_renderer,
+			::soft_renderer,
 			&renderer_info);
 
 		if (sdl_result != 0)
 		{
 			is_succeed = false;
 
-			::sdl_error_message = "VID: Failed to query the renderer: ";
-			::sdl_error_message += ::SDL_GetError();
+			::soft_error_message = "VID: Failed to query the renderer: ";
+			::soft_error_message += ::SDL_GetError();
 
 			bstone::Log::write_error(
 				::SDL_GetError());
@@ -501,15 +504,15 @@ bool sdl_initialize_renderer()
 		bstone::Log::write(
 			"VID: Allocating a texture pixel format...");
 
-		::sdl_texture_pixel_format = ::SDL_AllocFormat(
+		::soft_texture_pixel_format = ::SDL_AllocFormat(
 			pixel_format);
 
-		if (!::sdl_texture_pixel_format)
+		if (!::soft_texture_pixel_format)
 		{
 			is_succeed = false;
 
-			::sdl_error_message = "VID: Failed to allocate a texture pixel format: ";
-			::sdl_error_message += ::SDL_GetError();
+			::soft_error_message = "VID: Failed to allocate a texture pixel format: ";
+			::soft_error_message += ::SDL_GetError();
 
 			bstone::Log::write_error(
 				::SDL_GetError());
@@ -519,22 +522,22 @@ bool sdl_initialize_renderer()
 	return is_succeed;
 }
 
-bool sdl_initialize_screen_texture()
+bool soft_initialize_screen_texture()
 {
 	bstone::Log::write(
 		"VID: Creating a screen texture...");
 
-	::sdl_screen_texture = ::SDL_CreateTexture(
-		::sdl_renderer,
-		::sdl_texture_pixel_format->format,
+	::soft_screen_texture = ::SDL_CreateTexture(
+		::soft_renderer,
+		::soft_texture_pixel_format->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		::vga_width,
 		::vga_height);
 
-	if (!::sdl_screen_texture)
+	if (!::soft_screen_texture)
 	{
-		::sdl_error_message = "VID: Failed to create a screen texture: ";
-		::sdl_error_message += ::SDL_GetError();
+		::soft_error_message = "VID: Failed to create a screen texture: ";
+		::soft_error_message += ::SDL_GetError();
 
 		bstone::Log::write(
 			::SDL_GetError());
@@ -545,22 +548,22 @@ bool sdl_initialize_screen_texture()
 	return true;
 }
 
-bool sdl_initialize_ui_texture()
+bool soft_initialize_ui_texture()
 {
 	bstone::Log::write(
 		"VID: Creating an UI texture...");
 
-	::sdl_ui_texture = ::SDL_CreateTexture(
-		::sdl_renderer,
-		::sdl_texture_pixel_format->format,
+	::soft_ui_texture = ::SDL_CreateTexture(
+		::soft_renderer,
+		::soft_texture_pixel_format->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		::vga_ref_width,
 		::vga_ref_height);
 
-	if (!::sdl_ui_texture)
+	if (!::soft_ui_texture)
 	{
-		::sdl_error_message = "VID: Failed to create an UI texture: ";
-		::sdl_error_message += ::SDL_GetError();
+		::soft_error_message = "VID: Failed to create an UI texture: ";
+		::soft_error_message += ::SDL_GetError();
 
 		bstone::Log::write(
 			::SDL_GetError());
@@ -571,7 +574,7 @@ bool sdl_initialize_ui_texture()
 	return true;
 }
 
-bool sdl_initialize_textures()
+bool soft_initialize_textures()
 {
 	bstone::Log::write(
 		"VID: Initializing textures...");
@@ -581,39 +584,39 @@ bool sdl_initialize_textures()
 
 	if (is_succeed)
 	{
-		is_succeed = sdl_initialize_screen_texture();
+		is_succeed = soft_initialize_screen_texture();
 	}
 
 	if (is_succeed)
 	{
-		is_succeed = sdl_initialize_ui_texture();
+		is_succeed = soft_initialize_ui_texture();
 	}
 
 	return is_succeed;
 }
 
-void sdl_update_palette(
+void soft_update_palette(
 	int first_index,
 	int color_count)
 {
 	for (int i = 0; i < color_count; ++i)
 	{
 		const auto color_index = first_index + i;
-		const auto& vga_color = ::sdl_vga_palette[color_index];
-		auto& sdl_color = ::sdl_palette[color_index];
+		const auto& vga_color = ::vid_vga_palette[color_index];
+		auto& sdl_color = ::soft_palette[color_index];
 
 		sdl_color = ::SDL_MapRGB(
-			::sdl_texture_pixel_format,
+			::soft_texture_pixel_format,
 			(255 * vga_color.r) / 63,
 			(255 * vga_color.g) / 63,
 			(255 * vga_color.b) / 63);
 	}
 }
 
-void sdl_update_viewport()
+void soft_update_viewport()
 {
 	auto sdl_result = ::SDL_RenderSetLogicalSize(
-		::sdl_renderer,
+		::soft_renderer,
 		::screen_width,
 		::screen_height);
 
@@ -624,16 +627,16 @@ void sdl_update_viewport()
 	}
 }
 
-void sdl_initialize_palette()
+void soft_initialize_palette()
 {
-	::sdl_vga_palette.fill({});
+	::vid_vga_palette.fill({});
 
-	::sdl_update_palette(
+	::soft_update_palette(
 		0,
 		palette_color_count);
 }
 
-void sdl_calculate_dimensions()
+void soft_calculate_dimensions()
 {
 	const auto alignment = 2;
 
@@ -682,14 +685,14 @@ void sdl_calculate_dimensions()
 
 	// UI whole rect
 	//
-	::sdl_ui_whole_src_rect = SDL_Rect{
+	::soft_ui_whole_src_rect = SDL_Rect{
 		0,
 		0,
 		::vga_ref_width,
 		::vga_ref_height,
 	};
 
-	::sdl_ui_whole_dst_rect = SDL_Rect{
+	::soft_ui_whole_dst_rect = SDL_Rect{
 		::filler_width,
 		0,
 		::screen_width - (2 * ::filler_width),
@@ -699,14 +702,14 @@ void sdl_calculate_dimensions()
 
 	// UI top rect
 	//
-	::sdl_ui_top_src_rect = SDL_Rect{
+	::soft_ui_top_src_rect = SDL_Rect{
 		0,
 		0,
 		::vga_ref_width,
 		::ref_top_bar_height,
 	};
 
-	::sdl_ui_top_dst_rect = SDL_Rect{
+	::soft_ui_top_dst_rect = SDL_Rect{
 		::filler_width,
 		0,
 		::screen_width - (2 * ::filler_width),
@@ -716,14 +719,14 @@ void sdl_calculate_dimensions()
 
 	// UI middle rect (stretched to full width)
 	//
-	::sdl_ui_wide_middle_src_rect = SDL_Rect{
+	::soft_ui_wide_middle_src_rect = SDL_Rect{
 		0,
 		::ref_view_top_y,
 		::vga_ref_width,
 		::ref_view_height,
 	};
 
-	::sdl_ui_wide_middle_dst_rect = SDL_Rect{
+	::soft_ui_wide_middle_dst_rect = SDL_Rect{
 		0,
 		upper_filler_height,
 		::screen_width,
@@ -733,14 +736,14 @@ void sdl_calculate_dimensions()
 
 	// UI bottom rect
 	//
-	::sdl_ui_bottom_src_rect = SDL_Rect{
+	::soft_ui_bottom_src_rect = SDL_Rect{
 		0,
 		::ref_view_bottom_y + 1,
 		::vga_ref_width,
 		::ref_bottom_bar_height,
 	};
 
-	::sdl_ui_bottom_dst_rect = SDL_Rect{
+	::soft_ui_bottom_dst_rect = SDL_Rect{
 		::filler_width,
 		::screen_height - lower_filler_height,
 		::screen_width - (2 * ::filler_width),
@@ -749,7 +752,7 @@ void sdl_calculate_dimensions()
 
 
 	// UI left bar
-	::sdl_filler_ui_rects[0] = SDL_Rect{
+	::soft_filler_ui_rects[0] = SDL_Rect{
 		0,
 		0,
 		::filler_width,
@@ -757,7 +760,7 @@ void sdl_calculate_dimensions()
 	};
 
 	// UI right bar
-	::sdl_filler_ui_rects[1] = SDL_Rect{
+	::soft_filler_ui_rects[1] = SDL_Rect{
 		::screen_width - ::filler_width,
 		0,
 		::filler_width,
@@ -765,7 +768,7 @@ void sdl_calculate_dimensions()
 	};
 
 	// HUD upper left rect
-	::sdl_filler_hud_rects[0] = SDL_Rect{
+	::soft_filler_hud_rects[0] = SDL_Rect{
 		0,
 		0,
 		::filler_width,
@@ -773,7 +776,7 @@ void sdl_calculate_dimensions()
 	};
 
 	// HUD upper right rect
-	::sdl_filler_hud_rects[1] = SDL_Rect{
+	::soft_filler_hud_rects[1] = SDL_Rect{
 		::screen_width - ::filler_width,
 		0,
 		::filler_width,
@@ -781,7 +784,7 @@ void sdl_calculate_dimensions()
 	};
 
 	// HUD lower left rect
-	::sdl_filler_hud_rects[2] = SDL_Rect{
+	::soft_filler_hud_rects[2] = SDL_Rect{
 		0,
 		::screen_height - lower_filler_height,
 		::filler_width,
@@ -789,21 +792,21 @@ void sdl_calculate_dimensions()
 	};
 
 	// HUD lower right rect
-	::sdl_filler_hud_rects[3] = SDL_Rect{
+	::soft_filler_hud_rects[3] = SDL_Rect{
 		::screen_width - ::filler_width,
 		::screen_height - lower_filler_height,
 		::filler_width,
 		lower_filler_height,
 	};
 
-	::sdl_filler_color = SDL_Color{
+	::soft_filler_color = SDL_Color{
 		::vgapal[(filler_color_index * 3) + 0],
 		::vgapal[(filler_color_index * 3) + 1],
 		::vgapal[(filler_color_index * 3) + 2],
 		0xFF, };
 }
 
-void sdl_initialize_video()
+void soft_initialize_video()
 {
 	bstone::Log::write(
 		"VID: Initializing a system...");
@@ -814,10 +817,10 @@ void sdl_initialize_video()
 	// Option "vid_windowed"
 	//
 
-	::sdl_is_windowed = ::g_args.has_option(
+	::vid_is_windowed = ::g_args.has_option(
 		"vid_windowed");
 
-	::sdl_use_custom_window_position = false;
+	::vid_use_custom_window_position = false;
 
 
 	//
@@ -827,9 +830,9 @@ void sdl_initialize_video()
 	const auto& vid_window_x_str = ::g_args.get_option_value(
 		"vid_window_x");
 
-	if (bstone::StringHelper::string_to_int(vid_window_x_str, ::sdl_window_x))
+	if (bstone::StringHelper::string_to_int(vid_window_x_str, ::vid_window_x))
 	{
-		::sdl_use_custom_window_position = true;
+		::vid_use_custom_window_position = true;
 	}
 
 
@@ -840,9 +843,9 @@ void sdl_initialize_video()
 	const auto& vid_window_y_str = ::g_args.get_option_value(
 		"vid_window_y");
 
-	if (bstone::StringHelper::string_to_int(vid_window_y_str, ::sdl_window_y))
+	if (bstone::StringHelper::string_to_int(vid_window_y_str, ::vid_window_y))
 	{
-		::sdl_use_custom_window_position = true;
+		::vid_use_custom_window_position = true;
 	}
 
 
@@ -918,47 +921,47 @@ void sdl_initialize_video()
 		::Quit("VID: Failed to get a display mode.");
 	}
 
-	if (!::sdl_is_windowed)
+	if (!::vid_is_windowed)
 	{
 		::window_width = ::display_mode.w;
 		::window_height = ::display_mode.h;
 	}
 
 
-	::sdl_calculate_dimensions();
+	::soft_calculate_dimensions();
 
 	bool is_succeed = true;
 
 	if (is_succeed)
 	{
-		is_succeed = ::sdl_initialize_window();
+		is_succeed = ::soft_initialize_window();
 	}
 
 	if (is_succeed)
 	{
-		is_succeed = ::sdl_initialize_renderer();
+		is_succeed = ::soft_initialize_renderer();
 	}
 
 	if (is_succeed)
 	{
-		is_succeed = ::sdl_initialize_textures();
+		is_succeed = ::soft_initialize_textures();
 	}
 
 	if (is_succeed)
 	{
-		::sdl_initialize_palette();
+		::soft_initialize_palette();
 	}
 
 	if (is_succeed)
 	{
-		::sdl_initialize_vga_buffer();
-		::sdl_initialize_ui_buffer();
+		::soft_initialize_vga_buffer();
+		::soft_initialize_ui_buffer();
 	}
 
 	if (is_succeed)
 	{
 		::SDL_ShowWindow(
-			::sdl_window);
+			::soft_window);
 
 		::in_grab_mouse(
 			true);
@@ -966,73 +969,73 @@ void sdl_initialize_video()
 	else
 	{
 		::Quit(
-			::sdl_error_message);
+			::soft_error_message);
 	}
 }
 
-void sdl_uninitialize_screen_texture()
+void soft_uninitialize_screen_texture()
 {
-	if (::sdl_screen_texture)
+	if (::soft_screen_texture)
 	{
 		::SDL_DestroyTexture(
-			::sdl_screen_texture);
+			::soft_screen_texture);
 
-		::sdl_screen_texture = nullptr;
+		::soft_screen_texture = nullptr;
 	}
 }
 
-void sdl_uninitialize_ui_texture()
+void soft_uninitialize_ui_texture()
 {
-	if (::sdl_ui_texture)
+	if (::soft_ui_texture)
 	{
 		::SDL_DestroyTexture(
-			::sdl_ui_texture);
+			::soft_ui_texture);
 
-		::sdl_ui_texture = nullptr;
+		::soft_ui_texture = nullptr;
 	}
 }
 
-void sdl_uninitialize_vga_buffer()
+void soft_uninitialize_vga_buffer()
 {
-	::sdl_vga_buffer.clear();
-	::sdl_vga_buffer.shrink_to_fit();
+	::soft_vga_buffer.clear();
+	::soft_vga_buffer.shrink_to_fit();
 
 	::vga_memory = nullptr;
 }
 
-void sdl_uninitialize_video()
+void soft_uninitialize_video()
 {
-	if (::sdl_texture_pixel_format)
+	if (::soft_texture_pixel_format)
 	{
 		::SDL_FreeFormat(
-			::sdl_texture_pixel_format);
+			::soft_texture_pixel_format);
 
-		::sdl_texture_pixel_format = nullptr;
+		::soft_texture_pixel_format = nullptr;
 	}
 
-	::sdl_uninitialize_screen_texture();
-	::sdl_uninitialize_ui_texture();
+	::soft_uninitialize_screen_texture();
+	::soft_uninitialize_ui_texture();
 
-	if (::sdl_renderer)
+	if (::soft_renderer)
 	{
 		::SDL_DestroyRenderer(
-			::sdl_renderer);
+			::soft_renderer);
 
-		::sdl_renderer = nullptr;
+		::soft_renderer = nullptr;
 	}
 
-	if (::sdl_window)
+	if (::soft_window)
 	{
 		::SDL_DestroyWindow(
-			::sdl_window);
+			::soft_window);
 
-		::sdl_window = nullptr;
+		::soft_window = nullptr;
 	}
 
-	::sdl_uninitialize_vga_buffer();
+	::soft_uninitialize_vga_buffer();
 }
 
-void sdl_refresh_screen()
+void soft_refresh_screen()
 {
 	int sdl_result = 0;
 
@@ -1040,14 +1043,14 @@ void sdl_refresh_screen()
 	//
 	if (::vid_is_hud)
 	{
-		const auto src_pixels = ::sdl_vga_buffer.data();
+		const auto src_pixels = ::soft_vga_buffer.data();
 		const auto src_pitch = ::vga_width;
 
 		void* dst_raw_pixels = nullptr;
 		int dst_pitch = 0;
 
 		sdl_result = ::SDL_LockTexture(
-			::sdl_screen_texture,
+			::soft_screen_texture,
 			nullptr,
 			&dst_raw_pixels,
 			&dst_pitch);
@@ -1067,12 +1070,12 @@ void sdl_refresh_screen()
 
 			for (int x = 0; x < ::vga_width; ++x)
 			{
-				dst_line[x] = sdl_palette[src_line[x]];
+				dst_line[x] = soft_palette[src_line[x]];
 			}
 		}
 
 		::SDL_UnlockTexture(
-			::sdl_screen_texture);
+			::soft_screen_texture);
 	}
 
 
@@ -1083,7 +1086,7 @@ void sdl_refresh_screen()
 		int dst_pitch = 0;
 
 		sdl_result = ::SDL_LockTexture(
-			::sdl_ui_texture,
+			::soft_ui_texture,
 			nullptr,
 			&dst_raw_pixels,
 			&dst_pitch);
@@ -1093,7 +1096,7 @@ void sdl_refresh_screen()
 			::Quit("VID: Failed to lock an UI texture: "s + ::SDL_GetError());
 		}
 
-		const auto alpha_0_mask = ~sdl_texture_pixel_format->Amask;
+		const auto alpha_0_mask = ~soft_texture_pixel_format->Amask;
 
 		auto dst_pixels = static_cast<std::uint32_t*>(
 			dst_raw_pixels);
@@ -1105,11 +1108,11 @@ void sdl_refresh_screen()
 			for (int x = 0; x < ::vga_ref_width; ++x)
 			{
 				const auto src_offset = (y * ::vga_ref_width) + x;
-				auto dst_color = ::sdl_palette[::sdl_ui_buffer[src_offset]];
+				auto dst_color = ::soft_palette[::vid_ui_buffer[src_offset]];
 
 				if (::vid_is_hud)
 				{
-					if (!::sdl_mask_buffer[src_offset])
+					if (!::vid_mask_buffer[src_offset])
 					{
 						dst_color &= alpha_0_mask;
 					}
@@ -1120,14 +1123,14 @@ void sdl_refresh_screen()
 		}
 
 		::SDL_UnlockTexture(
-			::sdl_ui_texture);
+			::soft_ui_texture);
 	}
 
 
 	// Clear all
 	//
 	sdl_result = ::SDL_RenderClear(
-		sdl_renderer);
+		soft_renderer);
 
 	if (sdl_result != 0)
 	{
@@ -1140,8 +1143,8 @@ void sdl_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_RenderCopy(
-			sdl_renderer,
-			sdl_screen_texture,
+			soft_renderer,
+			soft_screen_texture,
 			nullptr,
 			nullptr);
 
@@ -1162,11 +1165,11 @@ void sdl_refresh_screen()
 
 		if (!::vid_is_movie)
 		{
-			fill_color = ::sdl_filler_color;
+			fill_color = ::soft_filler_color;
 		}
 
 		::SDL_SetRenderDrawColor(
-			sdl_renderer,
+			soft_renderer,
 			fill_color.r,
 			fill_color.g,
 			fill_color.b,
@@ -1174,11 +1177,11 @@ void sdl_refresh_screen()
 
 		if (is_hud)
 		{
-			::SDL_RenderFillRects(sdl_renderer, ::sdl_filler_hud_rects.data(), 4);
+			::SDL_RenderFillRects(soft_renderer, ::soft_filler_hud_rects.data(), 4);
 		}
 		else
 		{
-			::SDL_RenderFillRects(sdl_renderer, ::sdl_filler_ui_rects.data(), 2);
+			::SDL_RenderFillRects(soft_renderer, ::soft_filler_ui_rects.data(), 2);
 		}
 	}
 
@@ -1188,7 +1191,7 @@ void sdl_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_SetTextureBlendMode(
-			::sdl_ui_texture,
+			::soft_ui_texture,
 			SDL_BLENDMODE_BLEND);
 
 		if (sdl_result != 0)
@@ -1204,44 +1207,44 @@ void sdl_refresh_screen()
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sdl_renderer,
-					::sdl_ui_texture,
-					&::sdl_ui_top_src_rect,
-					&::sdl_ui_top_dst_rect);
+					::soft_renderer,
+					::soft_ui_texture,
+					&::soft_ui_top_src_rect,
+					&::soft_ui_top_dst_rect);
 			}
 
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sdl_renderer,
-					::sdl_ui_texture,
-					&::sdl_ui_wide_middle_src_rect,
-					&::sdl_ui_wide_middle_dst_rect);
+					::soft_renderer,
+					::soft_ui_texture,
+					&::soft_ui_wide_middle_src_rect,
+					&::soft_ui_wide_middle_dst_rect);
 			}
 
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sdl_renderer,
-					::sdl_ui_texture,
-					&::sdl_ui_bottom_src_rect,
-					&::sdl_ui_bottom_dst_rect);
+					::soft_renderer,
+					::soft_ui_texture,
+					&::soft_ui_bottom_src_rect,
+					&::soft_ui_bottom_dst_rect);
 			}
 		}
 		else
 		{
 			sdl_result = ::SDL_RenderCopy(
-				::sdl_renderer,
-				::sdl_ui_texture,
+				::soft_renderer,
+				::soft_ui_texture,
 				nullptr,
-				&::sdl_ui_whole_dst_rect);
+				&::soft_ui_whole_dst_rect);
 		}
 	}
 	else
 	{
 		sdl_result = ::SDL_RenderCopy(
-			::sdl_renderer,
-			::sdl_ui_texture,
+			::soft_renderer,
+			::soft_ui_texture,
 			nullptr,
 			nullptr);
 	}
@@ -1254,7 +1257,7 @@ void sdl_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_SetTextureBlendMode(
-			::sdl_ui_texture,
+			::soft_ui_texture,
 			SDL_BLENDMODE_NONE);
 
 		if (sdl_result != 0)
@@ -1267,7 +1270,7 @@ void sdl_refresh_screen()
 	// Present
 	//
 	::SDL_RenderPresent(
-		sdl_renderer);
+		soft_renderer);
 
 	if (sdl_result != 0)
 	{
@@ -1275,7 +1278,7 @@ void sdl_refresh_screen()
 	}
 }
 
-void sdl_check_vsync()
+void soft_check_vsync()
 {
 	using Clock = std::chrono::system_clock;
 
@@ -1293,7 +1296,7 @@ void sdl_check_vsync()
 
 	for (int i = 0; i < draw_count; ++i)
 	{
-		::sdl_refresh_screen();
+		::soft_refresh_screen();
 	}
 
 	const auto after_timestamp = Clock::now();
@@ -1306,16 +1309,675 @@ void sdl_check_vsync()
 	::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
 }
 
-void sdl_update_widescreen()
+void soft_update_widescreen()
 {
-	::sdl_uninitialize_screen_texture();
-	::sdl_uninitialize_vga_buffer();
-	::sdl_calculate_dimensions();
-	::sdl_initialize_vga_buffer();
-	::sdl_initialize_screen_texture();
-	::sdl_update_viewport();
+	::soft_uninitialize_screen_texture();
+	::soft_uninitialize_vga_buffer();
+	::soft_calculate_dimensions();
+	::soft_initialize_vga_buffer();
+	::soft_initialize_screen_texture();
+	::soft_update_viewport();
 }
 
+
+// ==========================================================================
+// Accelerated renderer.
+//
+
+bstone::RendererManagerUPtr hard_renderer_manager_ = nullptr;
+bstone::RendererPtr hard_renderer_ = nullptr;
+
+bstone::RendererPalette hard_palette_;
+
+
+void hard_initialize_vga_buffer()
+{
+	::soft_initialize_vga_buffer();
+}
+
+void hard_initialize_ui_buffer()
+{
+	::soft_initialize_ui_buffer();
+}
+
+bool hard_initialize_renderer()
+{
+	bstone::Log::write("VID: Initializing HW renderer...");
+
+	// Custom position.
+	//
+	if (::vid_use_custom_window_position)
+	{
+		if (::vid_window_x < 0)
+		{
+			::vid_window_x = 0;
+		}
+
+		if (::vid_window_y < 0)
+		{
+			::vid_window_y = 0;
+		}
+	}
+
+	// Title.
+	//
+	const auto& assets_info = AssetsInfo{};
+
+	auto title = "Blake Stone"s;
+
+	if (assets_info.is_aog())
+	{
+		auto version_string = std::string{};
+
+		if (assets_info.is_aog_full_v1_0() || assets_info.is_aog_sw_v1_0())
+		{
+			version_string = "v1.0";
+		}
+		else if (assets_info.is_aog_full_v2_0() || assets_info.is_aog_sw_v2_0())
+		{
+			version_string = "v2.0";
+		}
+		else if (assets_info.is_aog_full_v2_1() || assets_info.is_aog_sw_v2_1())
+		{
+			version_string = "v2.1";
+		}
+		else if (assets_info.is_aog_full_v3_0() || assets_info.is_aog_sw_v3_0())
+		{
+			version_string = "v3.0";
+		}
+
+		auto type = std::string{};
+
+		if (assets_info.is_aog_full())
+		{
+			type = "full";
+		}
+		else if (assets_info.is_aog_sw())
+		{
+			type = "shareware";
+		}
+
+		const auto has_type_or_version = (!version_string.empty() || !type.empty());
+
+		title += ": Aliens of Gold";
+
+		if (has_type_or_version)
+		{
+			title += " (";
+
+			if (!type.empty())
+			{
+				title += type;
+			}
+
+			if (!version_string.empty())
+			{
+				if (!type.empty())
+				{
+					title += ", ";
+				}
+
+				title += version_string;
+			}
+
+			title += ')';
+		}
+	}
+	else if (assets_info.is_ps())
+	{
+		title += ": Planet Strike";
+	}
+
+
+	// Initialization parameter.
+	//
+	auto param = bstone::RendererInitializeParam{};
+	param.renderer_path_ = hard_renderer_manager_->renderer_get_probe_path();
+
+#ifdef __vita__
+	param.window_.is_visible_ = true;
+#endif // __vita__
+
+	if (!::vid_is_windowed)
+	{
+		param.window_.is_borderless_ = true;
+		param.window_.is_fullscreen_desktop_ = true;
+	}
+
+	param.window_.is_positioned_ = ::vid_use_custom_window_position;
+	param.window_.x_ = ::vid_window_x;
+	param.window_.y_ = ::vid_window_y;
+
+	param.window_.width_ = ::window_width;
+	param.window_.height_ = ::window_height;
+
+	param.window_.title_utf8_ = title;
+
+	hard_renderer_ = hard_renderer_manager_->renderer_initialize(param);
+
+	if (!hard_renderer_)
+	{
+		bstone::Log::write_error("VID: Failed to initialize HW renderer.");
+
+		return false;
+	}
+
+	return true;
+}
+
+bool hard_initialize_screen_texture()
+{
+	return true;
+}
+
+bool hard_initialize_ui_texture()
+{
+	return true;
+}
+
+bool hard_initialize_textures()
+{
+	return true;
+}
+
+void hard_update_palette(
+	const int first_index,
+	const int color_count)
+{
+	for (int i = 0; i < color_count; ++i)
+	{
+		const auto color_index = first_index + i;
+		const auto& vga_color = ::vid_vga_palette[color_index];
+		auto& hard_color = ::hard_palette_[color_index];
+
+		hard_color.r_ = (0xFF * vga_color.r) / 0x3F;
+		hard_color.g_ = (0xFF * vga_color.g) / 0x3F;
+		hard_color.b_ = (0xFF * vga_color.b) / 0x3F;
+		hard_color.a_ = 0xFF;
+	}
+}
+
+void hard_update_viewport()
+{
+}
+
+void hard_initialize_palette()
+{
+	::hard_palette_ = {};
+
+	::hard_update_palette(0, palette_color_count);
+}
+
+void hard_calculate_dimensions()
+{
+	const auto alignment = 2;
+
+	// Decrease by 20% to compensate vanilla VGA stretch.
+	::vga_height = (10 * window_height) / 12;
+	::vga_height += alignment - 1;
+	::vga_height /= alignment;
+	::vga_height *= alignment;
+
+	if (::vid_widescreen)
+	{
+		::vga_width = ::window_width;
+	}
+	else
+	{
+		::vga_width = (::vga_ref_width * ::vga_height) / ::vga_ref_height;
+	}
+
+	::vga_width += alignment - 1;
+	::vga_width /= alignment;
+	::vga_width *= alignment;
+
+	::vga_width_scale = static_cast<float>(::vga_width) / static_cast<float>(::vga_ref_width);
+	::vga_height_scale = static_cast<float>(::vga_height) / static_cast<float>(::vga_ref_height_4x3);
+
+	::vga_area = ::vga_width * ::vga_height;
+
+	::screen_width = ::vga_width;
+
+	::screen_height = (12 * ::vga_height) / 10;
+	::screen_height += alignment - 1;
+	::screen_height /= alignment;
+	::screen_height *= alignment;
+
+	::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
+	::filler_width /= 2 * ::vga_ref_height_4x3;
+
+#ifdef __vita__
+	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
+	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
+#else  
+	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
+	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
+#endif
+	const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
+
+	// UI whole rect
+	//
+	::soft_ui_whole_src_rect = SDL_Rect{
+		0,
+		0,
+		::vga_ref_width,
+		::vga_ref_height,
+	};
+
+	::soft_ui_whole_dst_rect = SDL_Rect{
+		::filler_width,
+		0,
+		::screen_width - (2 * ::filler_width),
+		::screen_height,
+	};
+
+
+	// UI top rect
+	//
+	::soft_ui_top_src_rect = SDL_Rect{
+		0,
+		0,
+		::vga_ref_width,
+		::ref_top_bar_height,
+	};
+
+	::soft_ui_top_dst_rect = SDL_Rect{
+		::filler_width,
+		0,
+		::screen_width - (2 * ::filler_width),
+		upper_filler_height,
+	};
+
+
+	// UI middle rect (stretched to full width)
+	//
+	::soft_ui_wide_middle_src_rect = SDL_Rect{
+		0,
+		::ref_view_top_y,
+		::vga_ref_width,
+		::ref_view_height,
+	};
+
+	::soft_ui_wide_middle_dst_rect = SDL_Rect{
+		0,
+		upper_filler_height,
+		::screen_width,
+		middle_filler_height,
+	};
+
+
+	// UI bottom rect
+	//
+	::soft_ui_bottom_src_rect = SDL_Rect{
+		0,
+		::ref_view_bottom_y + 1,
+		::vga_ref_width,
+		::ref_bottom_bar_height,
+	};
+
+	::soft_ui_bottom_dst_rect = SDL_Rect{
+		::filler_width,
+		::screen_height - lower_filler_height,
+		::screen_width - (2 * ::filler_width),
+		lower_filler_height,
+	};
+
+
+	// UI left bar
+	::soft_filler_ui_rects[0] = SDL_Rect{
+		0,
+		0,
+		::filler_width,
+		::screen_height,
+	};
+
+	// UI right bar
+	::soft_filler_ui_rects[1] = SDL_Rect{
+		::screen_width - ::filler_width,
+		0,
+		::filler_width,
+		::screen_height,
+	};
+
+	// HUD upper left rect
+	::soft_filler_hud_rects[0] = SDL_Rect{
+		0,
+		0,
+		::filler_width,
+		upper_filler_height
+	};
+
+	// HUD upper right rect
+	::soft_filler_hud_rects[1] = SDL_Rect{
+		::screen_width - ::filler_width,
+		0,
+		::filler_width,
+		upper_filler_height,
+	};
+
+	// HUD lower left rect
+	::soft_filler_hud_rects[2] = SDL_Rect{
+		0,
+		::screen_height - lower_filler_height,
+		::filler_width,
+		lower_filler_height,
+	};
+
+	// HUD lower right rect
+	::soft_filler_hud_rects[3] = SDL_Rect{
+		::screen_width - ::filler_width,
+		::screen_height - lower_filler_height,
+		::filler_width,
+		lower_filler_height,
+	};
+
+	::soft_filler_color = SDL_Color{
+		::vgapal[(filler_color_index * 3) + 0],
+		::vgapal[(filler_color_index * 3) + 1],
+		::vgapal[(filler_color_index * 3) + 2],
+		0xFF, };
+}
+
+bool hard_initialize_video()
+{
+	::vid_is_hw_ = false;
+
+	bstone::Log::write("VID: Probing for hardware accelerated renderer...");
+
+	hard_renderer_manager_ = bstone::RendererManagerFactory::create();
+
+	if (!hard_renderer_manager_->initialize())
+	{
+		bstone::Log::write_warning("VID: Failed to initialize renderer manager.");
+
+		return false;
+	}
+
+	if (!hard_renderer_manager_->renderer_probe(bstone::RendererPath::autodetect))
+	{
+		bstone::Log::write_warning("VID: No renderer path was found.");
+
+		return false;
+	}
+
+	bool is_custom_scale = false;
+
+	//
+	// Option "vid_windowed"
+	//
+
+	::vid_is_windowed = ::g_args.has_option("vid_windowed");
+
+	::vid_use_custom_window_position = false;
+
+
+	//
+	// Option "vid_window_x"
+	//
+
+	const auto& vid_window_x_str = ::g_args.get_option_value("vid_window_x");
+
+	if (bstone::StringHelper::string_to_int(vid_window_x_str, ::vid_window_x))
+	{
+		::vid_use_custom_window_position = true;
+	}
+
+
+	//
+	// Option "vid_window_y"
+	//
+
+	const auto& vid_window_y_str = ::g_args.get_option_value("vid_window_y");
+
+	if (bstone::StringHelper::string_to_int(vid_window_y_str, ::vid_window_y))
+	{
+		::vid_use_custom_window_position = true;
+	}
+
+
+	//
+	// Option "vid_mode"
+	//
+
+	std::string width_str;
+	std::string height_str;
+
+	::g_args.get_option_values("vid_mode", width_str, height_str);
+
+	static_cast<void>(bstone::StringHelper::string_to_int(width_str, ::window_width));
+	static_cast<void>(bstone::StringHelper::string_to_int(height_str, ::window_height));
+
+	if (::window_width == 0)
+	{
+		::window_width = ::default_window_width;
+	}
+
+	if (::window_height == 0)
+	{
+		::window_height = ::default_window_height;
+	}
+
+	if (::window_width < ::vga_ref_width)
+	{
+		::window_width = ::vga_ref_width;
+	}
+
+	if (::window_height < ::vga_ref_height_4x3)
+	{
+		::window_height = ::vga_ref_height_4x3;
+	}
+
+
+	//
+	// Option "vid_scale"
+	//
+
+	const auto& vid_scale_str = ::g_args.get_option_value("vid_scale");
+
+	if (!vid_scale_str.empty())
+	{
+		int scale_value;
+
+		if (bstone::StringHelper::string_to_int(vid_scale_str, scale_value))
+		{
+			is_custom_scale = true;
+
+			if (scale_value < 1)
+			{
+				scale_value = 1;
+			}
+
+			::vga_scale = scale_value;
+		}
+	}
+
+
+	int sdl_result = 0;
+
+	sdl_result = ::SDL_GetDesktopDisplayMode(0, &::display_mode);
+
+	if (sdl_result != 0)
+	{
+		//::Quit("VID: Failed to get a display mode.");
+		return false;
+	}
+
+	if (!::vid_is_windowed)
+	{
+		::window_width = ::display_mode.w;
+		::window_height = ::display_mode.h;
+	}
+
+
+	::hard_calculate_dimensions();
+
+	bool is_succeed = true;
+
+	if (is_succeed)
+	{
+		is_succeed = ::hard_initialize_renderer();
+	}
+
+	if (is_succeed)
+	{
+		::hard_initialize_palette();
+	}
+
+	if (is_succeed)
+	{
+		is_succeed = ::hard_initialize_textures();
+	}
+
+	if (is_succeed)
+	{
+		::hard_initialize_vga_buffer();
+		::hard_initialize_ui_buffer();
+	}
+
+	if (is_succeed)
+	{
+		::vid_is_hw_ = true;
+
+		hard_renderer_->window_show(true);
+
+		::in_grab_mouse(true);
+	}
+
+	return is_succeed;
+}
+
+void hard_uninitialize_screen_texture()
+{
+}
+
+void hard_uninitialize_ui_texture()
+{
+}
+
+void hard_uninitialize_vga_buffer()
+{
+	::soft_vga_buffer.clear();
+	::soft_vga_buffer.shrink_to_fit();
+
+	::vga_memory = nullptr;
+}
+
+void hard_uninitialize_video()
+{
+	::hard_uninitialize_screen_texture();
+	::hard_uninitialize_ui_texture();
+	::hard_uninitialize_vga_buffer();
+
+	if (hard_renderer_manager_)
+	{
+		hard_renderer_manager_->uninitialize();
+		hard_renderer_manager_ = nullptr;
+	}
+}
+
+void hard_refresh_screen()
+{
+	int sdl_result = 0;
+
+	// HUD+3D stuff
+	//
+	if (::vid_is_hud)
+	{
+	}
+
+
+	// 2D stuff
+	//
+	{
+	}
+
+
+	// Clear all
+	//
+
+
+	// Copy HUD+3D stuff
+	//
+	if (::vid_is_hud)
+	{
+	}
+
+
+	// Use filler if necessary
+	//
+	if (!::vid_is_ui_stretched)
+	{
+	}
+
+
+	// Copy 2D stuff
+	//
+	if (::vid_is_hud)
+	{
+	}
+
+	if (!::vid_is_ui_stretched)
+	{
+		if (::vid_is_fizzle_fade)
+		{
+		}
+		else
+		{
+		}
+	}
+	else
+	{
+	}
+
+
+	// Present
+	//
+}
+
+void hard_check_vsync()
+{
+	using Clock = std::chrono::system_clock;
+
+	constexpr int draw_count = 10;
+
+	constexpr int duration_tolerance_pct = 25;
+
+	const int expected_duration_ms =
+		(1000 * draw_count) / ::display_mode.refresh_rate;
+
+	const int min_expected_duration_ms =
+		((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
+
+	const auto before_timestamp = Clock::now();
+
+	for (int i = 0; i < draw_count; ++i)
+	{
+		::hard_refresh_screen();
+	}
+
+	const auto after_timestamp = Clock::now();
+
+	const auto duration = after_timestamp - before_timestamp;
+
+	const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+		duration).count();
+
+	::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
+}
+
+void hard_update_widescreen()
+{
+	::hard_uninitialize_screen_texture();
+	::hard_uninitialize_vga_buffer();
+	::hard_calculate_dimensions();
+	::hard_initialize_vga_buffer();
+	::hard_initialize_screen_texture();
+	::hard_update_viewport();
+}
+
+//
+// Accelerated renderer.
+// ==========================================================================
 
 } // namespace
 // BBi
@@ -1342,18 +2004,34 @@ void VL_WaitVBL(
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
-	::sdl_initialize_video();
-	::sdl_refresh_screen();
+	if (::hard_initialize_video())
+	{
+		::hard_refresh_screen();
+	}
+	else
+	{
+		::hard_uninitialize_video();
+
+		::soft_initialize_video();
+		::soft_refresh_screen();
+	}
 
 	::in_handle_events();
 
-	::sdl_check_vsync();
+	if (::vid_is_hw_)
+	{
+		::hard_check_vsync();
+	}
+	else
+	{
+		::soft_check_vsync();
+	}
 }
 // BBi
 
 void VL_Shutdown()
 {
-	::sdl_uninitialize_video();
+	::soft_uninitialize_video();
 }
 
 // ===========================================================================
@@ -1373,16 +2051,21 @@ void VL_FillPalette(
 	std::uint8_t green,
 	std::uint8_t blue)
 {
-	for (auto& vga_color : ::sdl_vga_palette)
+	for (auto& vga_color : ::vid_vga_palette)
 	{
 		vga_color.r = red;
 		vga_color.g = green;
 		vga_color.b = blue;
 	}
 
-	::sdl_update_palette(
-		0,
-		palette_color_count);
+	if (::vid_is_hw_)
+	{
+		::hard_update_palette(0, palette_color_count);
+	}
+	else
+	{
+		::soft_update_palette(0, palette_color_count);
+	}
 }
 
 void VL_SetPalette(
@@ -1392,16 +2075,21 @@ void VL_SetPalette(
 {
 	for (int i = 0; i < count; ++i)
 	{
-		auto& vga_color = ::sdl_vga_palette[first + i];
+		auto& vga_color = ::vid_vga_palette[first + i];
 
 		vga_color.r = palette[(3 * i) + 0];
 		vga_color.g = palette[(3 * i) + 1];
 		vga_color.b = palette[(3 * i) + 2];
 	}
 
-	::sdl_update_palette(
-		first,
-		count);
+	if (::vid_is_hw_)
+	{
+		::hard_update_palette(0, palette_color_count);
+	}
+	else
+	{
+		::soft_update_palette(0, palette_color_count);
+	}
 }
 
 void VL_GetPalette(
@@ -1411,7 +2099,7 @@ void VL_GetPalette(
 {
 	for (int i = 0; i < count; ++i)
 	{
-		const auto& vga_color = ::sdl_vga_palette[first + i];
+		const auto& vga_color = ::vid_vga_palette[first + i];
 
 		palette[(3 * i) + 0] = vga_color.r;
 		palette[(3 * i) + 1] = vga_color.g;
@@ -1465,9 +2153,9 @@ void VL_FadeOut(
 				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
 			}
 
-			::sdl_filler_color.r = ::palette2[filler_color_index][0];
-			::sdl_filler_color.g = ::palette2[filler_color_index][1];
-			::sdl_filler_color.b = ::palette2[filler_color_index][2];
+			::soft_filler_color.r = ::palette2[filler_color_index][0];
+			::soft_filler_color.g = ::palette2[filler_color_index][1];
+			::soft_filler_color.b = ::palette2[filler_color_index][2];
 
 			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
@@ -1483,7 +2171,7 @@ void VL_FadeOut(
 	//
 	// final color
 	//
-	::sdl_filler_color = SDL_Color
+	::soft_filler_color = SDL_Color
 	{
 		static_cast<std::uint8_t>(red),
 		static_cast<std::uint8_t>(green),
@@ -1542,9 +2230,9 @@ void VL_FadeIn(
 					static_cast<std::uint8_t>(::palette1[0][j] + ((delta * i) / steps));
 			}
 
-			::sdl_filler_color.r = ::palette2[filler_color_index][0];
-			::sdl_filler_color.g = ::palette2[filler_color_index][1];
-			::sdl_filler_color.b = ::palette2[filler_color_index][2];
+			::soft_filler_color.r = ::palette2[filler_color_index][0];
+			::soft_filler_color.g = ::palette2[filler_color_index][1];
+			::soft_filler_color.b = ::palette2[filler_color_index][2];
 
 			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
@@ -1560,9 +2248,9 @@ void VL_FadeIn(
 	//
 	// final color
 	//
-	::sdl_filler_color.r = palette[(filler_color_index * 3) + 0];
-	::sdl_filler_color.g = palette[(filler_color_index * 3) + 1];
-	::sdl_filler_color.b = palette[(filler_color_index * 3) + 2];
+	::soft_filler_color.r = palette[(filler_color_index * 3) + 0];
+	::soft_filler_color.g = palette[(filler_color_index * 3) + 1];
+	::soft_filler_color.b = palette[(filler_color_index * 3) + 2];
 
 	::VL_SetPalette(0, 256, palette);
 
@@ -1638,8 +2326,8 @@ void VL_Plot(
 {
 	const auto offset = (y * ::vga_ref_width) + x;
 
-	::sdl_ui_buffer[offset] = color;
-	::sdl_mask_buffer[offset] = !is_transparent;
+	::vid_ui_buffer[offset] = color;
+	::vid_mask_buffer[offset] = !is_transparent;
 }
 
 void VL_Hlin(
@@ -1674,13 +2362,13 @@ void VL_Bar(
 		const auto count = height * ::vga_ref_width;
 
 		std::uninitialized_fill(
-			::sdl_ui_buffer.begin() + offset,
-			::sdl_ui_buffer.begin() + offset + count,
+			::vid_ui_buffer.begin() + offset,
+			::vid_ui_buffer.begin() + offset + count,
 			color);
 
 		std::uninitialized_fill(
-			::sdl_mask_buffer.begin() + offset,
-			::sdl_mask_buffer.begin() + offset + count,
+			::vid_mask_buffer.begin() + offset,
+			::vid_mask_buffer.begin() + offset + count,
 			!is_transparent);
 	}
 	else
@@ -1690,13 +2378,13 @@ void VL_Bar(
 			const auto offset = ((y + i) * ::vga_ref_width) + x;
 
 			std::uninitialized_fill(
-				::sdl_ui_buffer.begin() + offset,
-				::sdl_ui_buffer.begin() + offset + width,
+				::vid_ui_buffer.begin() + offset,
+				::vid_ui_buffer.begin() + offset + width,
 				color);
 
 			std::uninitialized_fill(
-				::sdl_mask_buffer.begin() + offset,
-				::sdl_mask_buffer.begin() + offset + width,
+				::vid_mask_buffer.begin() + offset,
+				::vid_mask_buffer.begin() + offset + width,
 				!is_transparent);
 		}
 	}
@@ -1809,11 +2497,11 @@ void VL_LatchToScreen(
 		std::uninitialized_copy(
 			::latches_cache.cbegin() + src_offset,
 			::latches_cache.cbegin() + src_offset + width,
-			::sdl_ui_buffer.begin() + dst_offset);
+			::vid_ui_buffer.begin() + dst_offset);
 
 		std::uninitialized_fill(
-			::sdl_mask_buffer.begin() + dst_offset,
-			::sdl_mask_buffer.begin() + dst_offset + width,
+			::vid_mask_buffer.begin() + dst_offset,
+			::vid_mask_buffer.begin() + dst_offset + width,
 			true);
 	}
 }
@@ -1830,13 +2518,13 @@ void VL_ScreenToScreen(
 		const auto dst_offset = dest + (h * ::vga_ref_width);
 
 		std::uninitialized_copy(
-			::sdl_ui_buffer.cbegin() + src_offset,
-			::sdl_ui_buffer.cbegin() + src_offset + width,
-			::sdl_ui_buffer.begin() + dst_offset);
+			::vid_ui_buffer.cbegin() + src_offset,
+			::vid_ui_buffer.cbegin() + src_offset + width,
+			::vid_ui_buffer.begin() + dst_offset);
 
 		std::uninitialized_fill(
-			::sdl_mask_buffer.begin() + dst_offset,
-			::sdl_mask_buffer.begin() + dst_offset + width,
+			::vid_mask_buffer.begin() + dst_offset,
+			::vid_mask_buffer.begin() + dst_offset + width,
 			true);
 	}
 }
@@ -1848,24 +2536,38 @@ void JM_VGALinearFill(
 	std::uint8_t fill)
 {
 	std::uninitialized_fill(
-		::sdl_ui_buffer.begin() + start,
-		::sdl_ui_buffer.begin() + start + length,
+		::vid_ui_buffer.begin() + start,
+		::vid_ui_buffer.begin() + start + length,
 		fill);
 
 	std::uninitialized_fill(
-		::sdl_mask_buffer.begin() + start,
-		::sdl_mask_buffer.begin() + start + length,
+		::vid_mask_buffer.begin() + start,
+		::vid_mask_buffer.begin() + start + length,
 		true);
 }
 
 void VL_RefreshScreen()
 {
-	::sdl_refresh_screen();
+	if (::vid_is_hw_)
+	{
+		::hard_refresh_screen();
+	}
+	else
+	{
+		::soft_refresh_screen();
+	}
 }
 
 void VH_UpdateScreen()
 {
-	::sdl_refresh_screen();
+	if (::vid_is_hw_)
+	{
+		::hard_refresh_screen();
+	}
+	else
+	{
+		::soft_refresh_screen();
+	}
 }
 
 int vl_get_offset(
@@ -1881,7 +2583,7 @@ std::uint8_t vl_get_pixel(
 	int x,
 	int y)
 {
-	return ::sdl_ui_buffer[(y * ::vga_ref_width) + x];
+	return ::vid_ui_buffer[(y * ::vga_ref_width) + x];
 }
 
 void vl_minimize_fullscreen_window(
@@ -1890,24 +2592,31 @@ void vl_minimize_fullscreen_window(
 	if (value)
 	{
 		::SDL_MinimizeWindow(
-			::sdl_window);
+			::soft_window);
 	}
 	else
 	{
 		::SDL_RestoreWindow(
-			::sdl_window);
+			::soft_window);
 	}
 }
 
 void vl_update_widescreen()
 {
-	::sdl_update_widescreen();
+	if (::vid_is_hw_)
+	{
+		::hard_update_widescreen();
+	}
+	else
+	{
+		::soft_update_widescreen();
+	}
 }
 
 void vid_set_ui_mask(
 	bool value)
 {
-	::sdl_mask_buffer.fill(
+	::vid_mask_buffer.fill(
 		value);
 }
 
@@ -1923,8 +2632,8 @@ void vid_set_ui_mask(
 		const auto offset = ((y + h) * ::vga_ref_width) + x;
 
 		std::uninitialized_fill(
-			::sdl_mask_buffer.begin() + offset,
-			::sdl_mask_buffer.begin() + offset + width,
+			::vid_mask_buffer.begin() + offset,
+			::vid_mask_buffer.begin() + offset + width,
 			value);
 	}
 }
@@ -1943,35 +2652,35 @@ void vid_set_ui_mask_3d(
 void vid_clear_3d()
 {
 	std::uninitialized_fill(
-		::sdl_vga_buffer.begin(),
-		::sdl_vga_buffer.end(),
+		::soft_vga_buffer.begin(),
+		::soft_vga_buffer.end(),
 		0);
 }
 
 void vid_export_ui(
 	VgaBuffer& dst_buffer)
 {
-	dst_buffer = ::sdl_ui_buffer;
+	dst_buffer = ::vid_ui_buffer;
 }
 
 void vid_import_ui(
 	const VgaBuffer& src_buffer,
 	bool is_transparent)
 {
-	::sdl_ui_buffer = src_buffer;
+	::vid_ui_buffer = src_buffer;
 	::vid_set_ui_mask(!is_transparent);
 }
 
 void vid_export_ui_mask(
 	UiMaskBuffer& dst_buffer)
 {
-	dst_buffer = ::sdl_mask_buffer;
+	dst_buffer = ::vid_mask_buffer;
 }
 
 void vid_import_ui_mask(
 	const UiMaskBuffer& src_buffer)
 {
-	::sdl_mask_buffer = src_buffer;
+	::vid_mask_buffer = src_buffer;
 }
 
 void vid_draw_ui_sprite(

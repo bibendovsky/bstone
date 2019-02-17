@@ -9794,26 +9794,6 @@ void DrawCreditsPage()
 }
 
 
-void test()
-{
-	std::string error_message;
-
-	auto renderer_manager = bstone::RendererManagerFactory::create();
-	const auto rm_result = renderer_manager->initialize();
-
-	auto probe_result = renderer_manager->renderer_probe(bstone::RendererPath::autodetect);
-
-	auto param = bstone::RendererInitializeParam{};
-	param.renderer_path_ = renderer_manager->renderer_get_probe_path();
-	param.window_.is_visible_ = true;
-	param.window_.width_ = 640;
-	param.window_.height_ = 480;
-
-	const auto renderer = renderer_manager->renderer_initialize(param);
-
-	renderer_manager->uninitialize();
-}
-
 int main(
 	int argc,
 	char* argv[])
@@ -9843,7 +9823,7 @@ int main(
 		{
 			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
 		}
-test();
+
 		freed_main();
 
 		DemoLoop();

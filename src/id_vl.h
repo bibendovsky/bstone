@@ -36,6 +36,8 @@ using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 
+extern bool vid_is_hw_;
+
 extern std::uint8_t* vga_memory;
 
 
