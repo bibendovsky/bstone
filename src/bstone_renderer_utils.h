@@ -77,6 +77,9 @@ public:
 		const RendererTextureUpdateParam& param,
 		std::string& error_message);
 
+	static bool is_ogl_renderer_path(
+		const RendererPath renderer_path);
+
 
 private:
 	class Detail;

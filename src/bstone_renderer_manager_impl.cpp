@@ -60,10 +60,13 @@ public:
 	void uninitialize() override;
 
 
-	int get_renderer_count() const override;
+	bool renderer_probe(
+		const RendererPath& renderer_path) override;
 
-	RendererPtr get_renderer(
-		const int index) const override;
+	RendererPath renderer_get_probe_path() const override;
+
+	RendererPtr renderer_initialize(
+		const RendererInitializeParam& param) override;
 
 
 private:
@@ -108,6 +111,15 @@ public:
 		const int index) const;
 
 
+	bool renderer_probe(
+		const RendererPath& renderer_path);
+
+	RendererPath renderer_get_probe_path() const;
+
+	RendererPtr renderer_initialize(
+		const RendererInitializeParam& param);
+
+
 private:
 	using Renderers = std::vector<RendererPtr>;
 
@@ -120,6 +132,7 @@ private:
 	bool is_initialized_;
 	std::string error_message_;
 
+	RendererPath renderer_probe_path_;
 	Renderers renderers_;
 
 	OglRenderer ogl_renderer_;
@@ -138,6 +151,7 @@ RendererManagerImpl::Impl::Impl()
 	:
 	is_initialized_{},
 	error_message_{},
+	renderer_probe_path_{},
 	renderers_{},
 	ogl_renderer_{}
 {
@@ -148,6 +162,7 @@ RendererManagerImpl::Impl::Impl(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	error_message_{std::move(rhs.error_message_)},
+	renderer_probe_path_{std::move(rhs.renderer_probe_path_)},
 	renderers_{std::move(rhs.renderers_)},
 	ogl_renderer_{std::move(rhs.ogl_renderer_)}
 {
@@ -228,6 +243,77 @@ RendererPtr RendererManagerImpl::Impl::get_renderer(
 	return renderers_[index];
 }
 
+bool RendererManagerImpl::Impl::renderer_probe(
+	const RendererPath& renderer_path)
+{
+	if (!is_initialized_)
+	{
+		return false;
+	}
+
+	if (renderer_path == RendererPath::autodetect)
+	{
+		// OpenGL.
+		//
+
+		// OpenGL 1.x.
+		if (ogl_renderer_.probe(renderer_path))
+		{
+			renderer_probe_path_ = ogl_renderer_.get_probe_path();
+
+			return true;
+		}
+	}
+	else
+	{
+		// OpenGL.
+		//
+
+		// OpenGL 1.x.
+		//
+		if (renderer_path == RendererPath::ogl_1_x)
+		{
+			if (ogl_renderer_.probe(renderer_path))
+			{
+				renderer_probe_path_ = renderer_path;
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+RendererPath RendererManagerImpl::Impl::renderer_get_probe_path() const
+{
+	return renderer_probe_path_;
+}
+
+RendererPtr RendererManagerImpl::Impl::renderer_initialize(
+	const RendererInitializeParam& param)
+{
+	auto error_message = std::string{};
+
+	if (!RendererUtils::validate_renderer_initialize_param(param, error_message))
+	{
+		return nullptr;
+	}
+
+	switch (param.renderer_path_)
+	{
+	case RendererPath::ogl_1_x:
+		if (ogl_renderer_.initialize(param))
+		{
+			return &ogl_renderer_;
+		}
+
+		break;
+	}
+
+	return nullptr;
+}
+
 //
 // RendererManagerImpl::Impl
 // ==========================================================================
@@ -265,19 +351,27 @@ void RendererManagerImpl::uninitialize()
 	impl.uninitialize();
 }
 
-int RendererManagerImpl::get_renderer_count() const
+bool RendererManagerImpl::renderer_probe(
+	const RendererPath& renderer_path)
 {
 	auto& impl = get_impl();
 
-	return impl.get_renderer_count();
+	return impl.renderer_probe(renderer_path);
 }
 
-RendererPtr RendererManagerImpl::get_renderer(
-	const int index) const
+RendererPath RendererManagerImpl::renderer_get_probe_path() const
 {
 	auto& impl = get_impl();
 
-	return impl.get_renderer(index);
+	return impl.renderer_get_probe_path();
+}
+
+RendererPtr RendererManagerImpl::renderer_initialize(
+	const RendererInitializeParam& param)
+{
+	auto& impl = get_impl();
+
+	return impl.renderer_initialize(param);
 }
 
 RendererManagerImpl::Impl& RendererManagerImpl::get_impl()

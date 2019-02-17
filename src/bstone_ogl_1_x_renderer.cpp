@@ -108,7 +108,7 @@ const std::string& Ogl1XRenderer::get_description() const
 bool Ogl1XRenderer::probe(
 	const RendererPath renderer_path)
 {
-	return probe_or_initialize(true, renderer_path, {});
+	return probe_or_initialize(true, renderer_path, RendererInitializeParam{});
 }
 
 RendererPath Ogl1XRenderer::get_probe_path() const
@@ -124,7 +124,9 @@ bool Ogl1XRenderer::is_initialized() const
 bool Ogl1XRenderer::initialize(
 	const RendererInitializeParam& param)
 {
-	return probe_or_initialize(false, {}, param);
+	uninitialize_internal();
+
+	return probe_or_initialize(false, RendererPath::none, param);
 }
 
 void Ogl1XRenderer::uninitialize()

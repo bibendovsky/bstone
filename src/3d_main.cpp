@@ -9801,45 +9801,15 @@ void test()
 	auto renderer_manager = bstone::RendererManagerFactory::create();
 	const auto rm_result = renderer_manager->initialize();
 
-	const auto renderer_count = renderer_manager->get_renderer_count();
+	auto probe_result = renderer_manager->renderer_probe(bstone::RendererPath::autodetect);
 
-	const std::uint8_t indexed_data[9] =
-	{
-		1, 2, 3,
-		4, 5, 6,
-		7, 8, 9,
-	};
+	auto param = bstone::RendererInitializeParam{};
+	param.renderer_path_ = renderer_manager->renderer_get_probe_path();
+	param.window_.is_visible_ = true;
+	param.window_.width_ = 640;
+	param.window_.height_ = 480;
 
-	for (int i_renderer = 0; i_renderer < renderer_count; ++i_renderer)
-	{
-		auto renderer = renderer_manager->get_renderer(i_renderer);
-
-		const auto probe_result = renderer->probe(bstone::RendererPath::autodetect);
-
-		auto param = bstone::RendererInitializeParam{};
-		param.renderer_path_ = renderer->get_probe_path();
-		param.window_.is_visible_ = true;
-		param.window_.width_ = 640;
-		param.window_.height_ = 480;
-
-		const auto init_result = renderer->initialize(param);
-
-		auto vertex = bstone::RendererVertex{};
-		vertex.xyz_ = bstone::Vec3F{1.0F, 2.0F, 3.0F};
-		vertex.rgba_ = {};
-		vertex.uv_ = bstone::Vec2F{0.1F, 0.2F};
-
-		const auto vb1 = renderer->vertex_buffer_create(12);
-		renderer->vertex_buffer_destroy(vb1);
-
-		auto tx1_param = bstone::RendererTextureCreateParam{};
-		tx1_param.width_ = 3;
-		tx1_param.height_ = 3;
-		tx1_param.indexed_pixels_ = indexed_data;
-
-		const auto tx1 = renderer->texture_2d_create(tx1_param);
-		renderer->texture_2d_destroy(tx1);
-	}
+	const auto renderer = renderer_manager->renderer_initialize(param);
 
 	renderer_manager->uninitialize();
 }

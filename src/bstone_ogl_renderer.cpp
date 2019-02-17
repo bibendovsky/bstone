@@ -150,25 +150,13 @@ bool OglRenderer::initialize(
 {
 	if (!RendererUtils::validate_renderer_initialize_param(param, error_message_))
 	{
-		error_message_ = "Failed to validate initialize param. " + error_message_;
+		error_message_ = "Failed to validate an initialize param. " + error_message_;
 
 		return false;
 	}
 
 	switch (param.renderer_path_)
 	{
-	case RendererPath::autodetect:
-	{
-		if (initialize_ogl_x<Ogl1XRenderer>(param))
-		{
-			return true;
-		}
-
-		error_message_ = "Failed to initialize any renderer path.";
-
-		return false;
-	}
-
 	case RendererPath::ogl_1_x:
 		return initialize_ogl_x<Ogl1XRenderer>(param);
 

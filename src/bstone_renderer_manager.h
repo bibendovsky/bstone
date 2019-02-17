@@ -57,10 +57,13 @@ public:
 	virtual void uninitialize() = 0;
 
 
-	virtual int get_renderer_count() const = 0;
+	virtual bool renderer_probe(
+		const RendererPath& renderer_path) = 0;
 
-	virtual RendererPtr get_renderer(
-		const int index) const = 0;
+	virtual RendererPath renderer_get_probe_path() const = 0;
+
+	virtual RendererPtr renderer_initialize(
+		const RendererInitializeParam& param) = 0;
 }; // RendererManager
 
 using RendererManagerUPtr = std::unique_ptr<RendererManager>;

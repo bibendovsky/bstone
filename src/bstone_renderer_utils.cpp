@@ -231,7 +231,6 @@ bool RendererUtils::validate_renderer_initialize_param(
 {
 	switch (param.renderer_path_)
 	{
-	case RendererPath::autodetect:
 	case RendererPath::ogl_1_x:
 		return true;
 
@@ -298,6 +297,19 @@ bool RendererUtils::validate_renderer_texture_update_param(
 	}
 
 	return true;
+}
+
+bool RendererUtils::is_ogl_renderer_path(
+	const RendererPath renderer_path)
+{
+	switch (renderer_path)
+	{
+	case RendererPath::ogl_1_x:
+		return true;
+
+	default:
+		return false;
+	}
 }
 
 //
