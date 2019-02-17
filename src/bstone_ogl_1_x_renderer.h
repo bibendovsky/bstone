@@ -83,6 +83,10 @@ public:
 	RendererPath get_path() const override;
 
 
+	void window_show(
+		const bool is_visible) override;
+
+
 	void set_2d_projection_matrix(
 		const int width,
 		const int height) override;

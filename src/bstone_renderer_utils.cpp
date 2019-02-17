@@ -225,6 +225,25 @@ bool RendererUtils::create_window(
 	return true;
 }
 
+bool RendererUtils::show_window(
+	SdlWindowPtr sdl_window,
+	const bool is_visible,
+	std::string& error_message)
+{
+	if (!sdl_window)
+	{
+		error_message = "Null SDL window.";
+
+		return false;
+	}
+
+	const auto sdl_function = (is_visible ? ::SDL_ShowWindow : ::SDL_HideWindow);
+
+	sdl_function(sdl_window);
+
+	return true;
+}
+
 bool RendererUtils::validate_renderer_initialize_param(
 	const RendererInitializeParam& param,
 	std::string& error_message)

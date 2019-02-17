@@ -144,6 +144,17 @@ RendererPath Ogl1XRenderer::get_path() const
 	return RendererPath::ogl_1_x;
 }
 
+void Ogl1XRenderer::window_show(
+	const bool is_visible)
+{
+	if (!is_initialized_)
+	{
+		return;
+	}
+
+	static_cast<void>(RendererUtils::show_window(sdl_window_, is_visible, error_message_));
+}
+
 void Ogl1XRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)

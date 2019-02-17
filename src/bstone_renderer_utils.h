@@ -65,6 +65,11 @@ public:
 		SdlWindowPtr& sdl_window,
 		std::string& error_message);
 
+	static bool show_window(
+		SdlWindowPtr sdl_window,
+		const bool is_visible,
+		std::string& error_message);
+
 	static bool validate_renderer_initialize_param(
 		const RendererInitializeParam& param,
 		std::string& error_message);

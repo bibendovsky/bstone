@@ -177,6 +177,14 @@ RendererPath OglRenderer::get_path() const
 	return renderer_path_;
 }
 
+void OglRenderer::window_show(
+	const bool is_visible)
+{
+	assert(is_initialized_);
+
+	renderer_->window_show(is_visible);
+}
+
 void OglRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)
