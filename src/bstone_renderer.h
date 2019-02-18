@@ -253,6 +253,9 @@ public:
 		const bool is_visible) = 0;
 
 
+	virtual void color_buffer_set_clear_color(
+		const RendererColor32& color) = 0;
+
 	virtual void set_2d_projection_matrix(
 		const int width,
 		const int height) = 0;

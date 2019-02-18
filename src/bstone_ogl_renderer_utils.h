@@ -95,6 +95,9 @@ public:
 	static bool was_errors();
 
 
+	static void set_color_buffer_clear_color(
+		const RendererColor32& color);
+
 	static Mat4F build_2d_projection_matrix(
 		const int width,
 		const int height);

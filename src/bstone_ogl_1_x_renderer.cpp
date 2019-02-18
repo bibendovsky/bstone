@@ -155,6 +155,14 @@ void Ogl1XRenderer::window_show(
 	static_cast<void>(RendererUtils::show_window(sdl_window_, is_visible, error_message_));
 }
 
+void Ogl1XRenderer::color_buffer_set_clear_color(
+	const RendererColor32& color)
+{
+	assert(is_initialized_);
+
+	OglRendererUtils::set_color_buffer_clear_color(color);
+}
+
 void Ogl1XRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)

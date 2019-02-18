@@ -1104,6 +1104,21 @@ bool OglRendererUtils::was_errors()
 	return was_error;
 }
 
+static void set_color_buffer_clear_color(
+	const RendererColor32& color)
+{
+	assert(::glClearColor != nullptr);
+
+	::glClearColor(
+		static_cast<float>(color.r_) / 255.0F,
+		static_cast<float>(color.g_) / 255.0F,
+		static_cast<float>(color.b_) / 255.0F,
+		static_cast<float>(color.a_) / 255.0F
+	);
+
+	assert(!OglRendererUtils::was_errors());
+}
+
 Mat4F OglRendererUtils::build_2d_projection_matrix(
 	const int width,
 	const int height)

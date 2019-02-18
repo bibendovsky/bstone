@@ -185,6 +185,14 @@ void OglRenderer::window_show(
 	renderer_->window_show(is_visible);
 }
 
+void OglRenderer::color_buffer_set_clear_color(
+	const RendererColor32& color)
+{
+	assert(is_initialized_);
+
+	renderer_->color_buffer_set_clear_color(color);
+}
+
 void OglRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)
