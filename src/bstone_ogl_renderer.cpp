@@ -291,13 +291,13 @@ void OglRenderer::texture_2d_update(
 	renderer_->texture_2d_update(texture_id, param);
 }
 
-void OglRenderer::execute_commands(
-	const RendererCommands& commands)
+void OglRenderer::execute_command_sets(
+	const RendererCommandSets& command_sets)
 {
 	assert(is_initialized_);
-	assert(!commands.empty());
+	assert(!command_sets.empty());
 
-	renderer_->execute_commands(commands);
+	renderer_->execute_command_sets(command_sets);
 }
 
 void OglRenderer::uninitialize_internal(

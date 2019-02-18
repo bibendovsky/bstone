@@ -129,8 +129,8 @@ public:
 		const RendererTextureUpdateParam& param) override;
 
 
-	void execute_commands(
-		const RendererCommands& commands) override;
+	void execute_command_sets(
+		const RendererCommandSets& command_sets) override;
 
 
 private:

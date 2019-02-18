@@ -305,35 +305,39 @@ void Ogl1XRenderer::vertex_buffer_update(
 	std::uninitialized_copy_n(vertices, count, vertex_buffer.begin() + offset);
 }
 
-void Ogl1XRenderer::execute_commands(
-	const RendererCommands& commands)
+void Ogl1XRenderer::execute_command_sets(
+	const RendererCommandSets& command_sets)
 {
-	assert(!commands.empty());
+	assert(!command_sets.empty());
 
-	for (auto& command : commands)
+	for (auto& command_set : command_sets)
 	{
-		switch (command.id_)
+		const auto& commands = command_set.commands_;
+
+		for (int i = 0; i < command_set.count_; ++i)
 		{
-		case RendererCommandId::set_2d:
-			execute_command_set_2d();
-			break;
+			const auto& command = commands[i];
 
-		case RendererCommandId::update_palette:
-			execute_command_update_palette(command.update_palette_);
-			break;
+			switch (command.id_)
+			{
+			case RendererCommandId::set_2d:
+				execute_command_set_2d();
+				break;
 
-		case RendererCommandId::draw_quads:
-			execute_command_draw_quads(command.draw_quads_);
-			break;
+			case RendererCommandId::update_palette:
+				execute_command_update_palette(command.update_palette_);
+				break;
 
-		default:
-			assert(!"Unsupported command id.");
-			break;
+			case RendererCommandId::draw_quads:
+				execute_command_draw_quads(command.draw_quads_);
+				break;
+
+			default:
+				assert(!"Unsupported command id.");
+				break;
+			}
 		}
 	}
-
-	OglRendererUtils::swap_window(sdl_window_);
-	OglRendererUtils::clear_buffers();
 }
 
 bool Ogl1XRenderer::probe_or_initialize(

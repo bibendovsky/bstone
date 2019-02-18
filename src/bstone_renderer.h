@@ -198,7 +198,16 @@ public:
 	}; // union
 }; // RendererCommand
 
-using RendererCommands = std::vector<RendererCommand>;
+struct RendererCommandSet
+{
+	using Commands = std::vector<RendererCommand>;
+
+
+	int count_;
+	Commands commands_;
+}; // RendererCommandSet
+
+using RendererCommandSets = std::vector<RendererCommandSet>;
 
 
 class Renderer
@@ -286,8 +295,8 @@ public:
 		const RendererTextureUpdateParam& param) = 0;
 
 
-	virtual void execute_commands(
-		const RendererCommands& commands) = 0;
+	virtual void execute_command_sets(
+		const RendererCommandSets& command_sets) = 0;
 }; // Renderer
 
 using RendererPtr = Renderer*;
