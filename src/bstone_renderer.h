@@ -120,10 +120,10 @@ public:
 		const std::uint8_t b,
 		const std::uint8_t a)
 		:
-		r_{},
-		g_{},
-		b_{},
-		a_{}
+		r_{r},
+		g_{g},
+		b_{b},
+		a_{a}
 	{
 	}
 
