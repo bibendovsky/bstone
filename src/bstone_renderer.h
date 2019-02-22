@@ -40,11 +40,6 @@ namespace bstone
 {
 
 
-using RendererObjectId = void*;
-
-constexpr auto RendererNullObjectId = RendererObjectId{};
-
-
 enum class RendererKind
 {
 	none,
@@ -70,6 +65,15 @@ enum class RendererCommandId
 	draw_quads,
 }; // RendererCommandId
 
+
+namespace { class RendererIndexBufferHandle_ final {}; }
+using RendererIndexBufferHandle = RendererIndexBufferHandle_*;
+
+namespace { class RendererVertexBufferHandle_ final {}; }
+using RendererVertexBufferHandle = RendererVertexBufferHandle_*;
+
+namespace { class RendererTexture2dHandle_ final {}; }
+using RendererTexture2dHandle = RendererTexture2dHandle_*;
 
 class RendererInitializeWindowParam
 {
@@ -195,9 +199,9 @@ public:
 	public:
 		int count_;
 		int index_offset_;
-		RendererObjectId texture_2d_id_;
-		RendererObjectId index_buffer_id_;
-		RendererObjectId vertex_buffer_id_;
+		RendererTexture2dHandle texture_2d_handle_;
+		RendererIndexBufferHandle index_buffer_handle_;
+		RendererVertexBufferHandle vertex_buffer_handle_;
 	}; // DrawQuads
 
 
@@ -231,9 +235,6 @@ protected:
 
 
 public:
-	static constexpr auto RendererNullObjectId = RendererObjectId{};
-
-
 	virtual const std::string& get_error_message() const = 0;
 
 
@@ -278,40 +279,40 @@ public:
 		const int height) = 0;
 
 
-	virtual RendererObjectId index_buffer_create(
+	virtual RendererIndexBufferHandle index_buffer_create(
 		const int index_count) = 0;
 
 	virtual void index_buffer_destroy(
-		RendererObjectId id) = 0;
+		RendererIndexBufferHandle id) = 0;
 
 	virtual void index_buffer_update(
-		RendererObjectId id,
+		RendererIndexBufferHandle id,
 		const int offset,
 		const int count,
 		const void* const indices) = 0;
 
 
-	virtual RendererObjectId vertex_buffer_create(
+	virtual RendererVertexBufferHandle vertex_buffer_create(
 		const int vertex_count) = 0;
 
 	virtual void vertex_buffer_destroy(
-		RendererObjectId id) = 0;
+		RendererVertexBufferHandle id) = 0;
 
 	virtual void vertex_buffer_update(
-		RendererObjectId id,
+		RendererVertexBufferHandle id,
 		const int offset,
 		const int count,
 		const RendererVertex* const vertices) = 0;
 
 
-	virtual RendererObjectId texture_2d_create(
+	virtual RendererTexture2dHandle texture_2d_create(
 		const RendererTextureCreateParam& param) = 0;
 
 	virtual void texture_2d_destroy(
-		RendererObjectId texture_id) = 0;
+		RendererTexture2dHandle texture_handle) = 0;
 
 	virtual void texture_2d_update(
-		RendererObjectId texture_id,
+		RendererTexture2dHandle texture_handle,
 		const RendererTextureUpdateParam& param) = 0;
 
 

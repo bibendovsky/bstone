@@ -218,7 +218,7 @@ void OglRenderer::set_2d_projection_matrix(
 	renderer_->set_2d_projection_matrix(width, height);
 }
 
-RendererObjectId OglRenderer::index_buffer_create(
+RendererIndexBufferHandle OglRenderer::index_buffer_create(
 	const int index_count)
 {
 	assert(is_initialized_);
@@ -228,22 +228,22 @@ RendererObjectId OglRenderer::index_buffer_create(
 }
 
 void OglRenderer::index_buffer_destroy(
-	RendererObjectId id)
+	RendererIndexBufferHandle id)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 
 	renderer_->index_buffer_destroy(id);
 }
 
 void OglRenderer::index_buffer_update(
-	RendererObjectId id,
+	RendererIndexBufferHandle id,
 	const int offset,
 	const int count,
 	const void* const indices)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 	assert(offset >= 0);
 	assert(count > 0);
 	assert(indices != nullptr);
@@ -251,7 +251,7 @@ void OglRenderer::index_buffer_update(
 	renderer_->index_buffer_update(id, offset, count, indices);
 }
 
-RendererObjectId OglRenderer::vertex_buffer_create(
+RendererVertexBufferHandle OglRenderer::vertex_buffer_create(
 	const int vertex_count)
 {
 	assert(is_initialized_);
@@ -261,22 +261,22 @@ RendererObjectId OglRenderer::vertex_buffer_create(
 }
 
 void OglRenderer::vertex_buffer_destroy(
-	RendererObjectId id)
+	RendererVertexBufferHandle id)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 
 	renderer_->vertex_buffer_destroy(id);
 }
 
 void OglRenderer::vertex_buffer_update(
-	RendererObjectId id,
+	RendererVertexBufferHandle id,
 	const int offset,
 	const int count,
 	const RendererVertex* const vertices)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 	assert(offset >= 0);
 	assert(count > 0);
 	assert(vertices != nullptr);
@@ -284,7 +284,7 @@ void OglRenderer::vertex_buffer_update(
 	renderer_->vertex_buffer_update(id, offset, count, vertices);
 }
 
-RendererObjectId OglRenderer::texture_2d_create(
+RendererTexture2dHandle OglRenderer::texture_2d_create(
 	const RendererTextureCreateParam& param)
 {
 	assert(is_initialized_);
@@ -294,23 +294,23 @@ RendererObjectId OglRenderer::texture_2d_create(
 }
 
 void OglRenderer::texture_2d_destroy(
-	RendererObjectId texture_id)
+	RendererTexture2dHandle texture_handle)
 {
 	assert(is_initialized_);
-	assert(texture_id != RendererNullObjectId);
+	assert(texture_handle);
 
-	renderer_->texture_2d_destroy(texture_id);
+	renderer_->texture_2d_destroy(texture_handle);
 }
 
 void OglRenderer::texture_2d_update(
-	RendererObjectId texture_id,
+	RendererTexture2dHandle texture_handle,
 	const RendererTextureUpdateParam& param)
 {
 	assert(is_initialized_);
-	assert(texture_id != RendererNullObjectId);
+	assert(texture_handle);
 	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
 
-	renderer_->texture_2d_update(texture_id, param);
+	renderer_->texture_2d_update(texture_handle, param);
 }
 
 void OglRenderer::execute_command_sets(

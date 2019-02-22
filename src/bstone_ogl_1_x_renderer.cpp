@@ -195,7 +195,7 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	two_d_projection_matrix_ = new_matrix;
 }
 
-RendererObjectId Ogl1XRenderer::index_buffer_create(
+RendererIndexBufferHandle Ogl1XRenderer::index_buffer_create(
 	const int index_count)
 {
 	assert(is_initialized_);
@@ -230,36 +230,36 @@ RendererObjectId Ogl1XRenderer::index_buffer_create(
 	index_buffer.data_type_ = data_type;
 	index_buffer.data_.resize(size_in_bytes);
 
-	return &index_buffer;
+	return reinterpret_cast<RendererIndexBufferHandle>(&index_buffer);
 }
 
 void Ogl1XRenderer::index_buffer_destroy(
-	RendererObjectId id)
+	RendererIndexBufferHandle id)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 
 	index_buffers_.remove_if(
 		[=](const auto& item)
 		{
-			return id == &item;
+			return reinterpret_cast<const IndexBuffer*>(id) == &item;
 		}
 	);
 }
 
 void Ogl1XRenderer::index_buffer_update(
-	RendererObjectId id,
+	RendererIndexBufferHandle id,
 	const int offset,
 	const int count,
 	const void* const indices)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 	assert(offset >= 0);
 	assert(count > 0);
 	assert(indices != nullptr);
 
-	auto& index_buffer = *static_cast<IndexBuffer*>(id);
+	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(id);
 
 	assert(offset < index_buffer.count_);
 	assert(count <= index_buffer.count_);
@@ -275,7 +275,7 @@ void Ogl1XRenderer::index_buffer_update(
 	);
 }
 
-RendererObjectId Ogl1XRenderer::vertex_buffer_create(
+RendererVertexBufferHandle Ogl1XRenderer::vertex_buffer_create(
 	const int vertex_count)
 {
 	assert(is_initialized_);
@@ -286,36 +286,36 @@ RendererObjectId Ogl1XRenderer::vertex_buffer_create(
 
 	vertex_buffer.resize(vertex_count);
 
-	return &vertex_buffer;
+	return reinterpret_cast<RendererVertexBufferHandle>(&vertex_buffer);
 }
 
 void Ogl1XRenderer::vertex_buffer_destroy(
-	RendererObjectId id)
+	RendererVertexBufferHandle id)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 
 	vertex_buffers_.remove_if(
 		[=](const auto& item)
 		{
-			return id == &item;
+			return reinterpret_cast<const VertexBuffer*>(id) == &item;
 		}
 	);
 }
 
 void Ogl1XRenderer::vertex_buffer_update(
-	RendererObjectId id,
+	RendererVertexBufferHandle id,
 	const int offset,
 	const int count,
 	const RendererVertex* const vertices)
 {
 	assert(is_initialized_);
-	assert(id != RendererNullObjectId);
+	assert(id);
 	assert(offset >= 0);
 	assert(count > 0);
 	assert(vertices != nullptr);
 
-	auto& vertex_buffer = *static_cast<VertexBuffer*>(id);
+	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(id);
 	const auto max_vertex_count = static_cast<int>(vertex_buffer.size());
 
 	assert(offset < max_vertex_count);
@@ -430,7 +430,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	return true;
 }
 
-RendererObjectId Ogl1XRenderer::texture_2d_create(
+RendererTexture2dHandle Ogl1XRenderer::texture_2d_create(
 	const RendererTextureCreateParam& param)
 {
 	assert(is_initialized_);
@@ -493,14 +493,14 @@ RendererObjectId Ogl1XRenderer::texture_2d_create(
 
 	textures_2d_.push_back(texture_2d);
 
-	return &textures_2d_.back();
+	return reinterpret_cast<RendererTexture2dHandle>(&textures_2d_.back());
 }
 
 void Ogl1XRenderer::texture_2d_destroy(
-	RendererObjectId texture_id)
+	RendererTexture2dHandle texture_handle)
 {
 	assert(is_initialized_);
-	assert(texture_id != RendererNullObjectId);
+	assert(texture_handle);
 
 	const auto texture_end_it = textures_2d_.end();
 
@@ -509,7 +509,7 @@ void Ogl1XRenderer::texture_2d_destroy(
 		texture_end_it,
 		[=](const auto& item)
 		{
-			return texture_id == &item;
+			return reinterpret_cast<const Texture2d*>(texture_handle) == &item;
 		}
 	);
 
@@ -522,11 +522,11 @@ void Ogl1XRenderer::texture_2d_destroy(
 }
 
 void Ogl1XRenderer::texture_2d_update(
-	RendererObjectId texture_id,
+	RendererTexture2dHandle texture_handle,
 	const RendererTextureUpdateParam& param)
 {
 	assert(is_initialized_);
-	assert(texture_id != RendererNullObjectId);
+	assert(texture_handle);
 	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
 
 	const auto texture_end_it = textures_2d_.end();
@@ -536,7 +536,7 @@ void Ogl1XRenderer::texture_2d_update(
 		texture_end_it,
 		[=](const auto& item)
 		{
-			return texture_id == &item;
+			return reinterpret_cast<const Texture2d*>(texture_handle) == &item;
 		}
 	);
 
@@ -770,9 +770,9 @@ void Ogl1XRenderer::execute_command_draw_quads(
 {
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);
-	assert(command.texture_2d_id_ != RendererNullObjectId);
-	assert(command.index_buffer_id_ != RendererNullObjectId);
-	assert(command.vertex_buffer_id_ != RendererNullObjectId);
+	assert(command.texture_2d_handle_);
+	assert(command.index_buffer_handle_);
+	assert(command.vertex_buffer_handle_);
 
 	const auto triangles_per_quad = 2;
 	const auto triangle_count = command.count_ * triangles_per_quad;
@@ -781,9 +781,9 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto& texture_2d = *static_cast<Texture2d*>(command.texture_2d_id_);
-	auto& index_buffer = *static_cast<IndexBuffer*>(command.index_buffer_id_);
-	auto& vertex_buffer = *static_cast<VertexBuffer*>(command.vertex_buffer_id_);
+	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_handle_);
+	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_handle_);
+	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(command.vertex_buffer_handle_);
 
 	assert(command.index_offset_ < index_buffer.count_);
 	assert(command.count_ <= index_buffer.count_);

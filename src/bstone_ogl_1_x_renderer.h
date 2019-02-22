@@ -99,40 +99,40 @@ public:
 	void present() override;
 
 
-	RendererObjectId index_buffer_create(
+	RendererIndexBufferHandle index_buffer_create(
 		const int index_count) override;
 
 	void index_buffer_destroy(
-		RendererObjectId id) override;
+		RendererIndexBufferHandle id) override;
 
 	void index_buffer_update(
-		RendererObjectId id,
+		RendererIndexBufferHandle id,
 		const int offset,
 		const int count,
 		const void* const indices) override;
 
 
-	RendererObjectId vertex_buffer_create(
+	RendererVertexBufferHandle vertex_buffer_create(
 		const int vertex_count) override;
 
 	void vertex_buffer_destroy(
-		RendererObjectId id) override;
+		RendererVertexBufferHandle id) override;
 
 	void vertex_buffer_update(
-		RendererObjectId id,
+		RendererVertexBufferHandle id,
 		const int offset,
 		const int count,
 		const RendererVertex* const vertices) override;
 
 
-	RendererObjectId texture_2d_create(
+	RendererTexture2dHandle texture_2d_create(
 		const RendererTextureCreateParam& param) override;
 
 	void texture_2d_destroy(
-		RendererObjectId texture_id) override;
+		RendererTexture2dHandle handle) override;
 
 	void texture_2d_update(
-		RendererObjectId texture_id,
+		RendererTexture2dHandle handle,
 		const RendererTextureUpdateParam& param) override;
 
 
