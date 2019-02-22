@@ -1093,7 +1093,9 @@ bool OglRendererUtils::was_errors()
 
 	for (int i = 0; i < max_error_count; ++i)
 	{
-		if (::glGetError() == GL_NO_ERROR)
+		const auto last_error = ::glGetError();
+
+		if (last_error == GL_NO_ERROR)
 		{
 			break;
 		}
@@ -1104,7 +1106,7 @@ bool OglRendererUtils::was_errors()
 	return was_error;
 }
 
-static void set_color_buffer_clear_color(
+void OglRendererUtils::set_color_buffer_clear_color(
 	const RendererColor32& color)
 {
 	assert(::glClearColor != nullptr);
@@ -1126,12 +1128,25 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 	assert(width > 0);
 	assert(height > 0);
 
+	const auto left = 0.0F;
+	const auto right = static_cast<float>(width);
+
+	const auto bottom = 0.0F;
+	const auto top = static_cast<float>(height);
+
+	const auto near_val = 0.0F;
+	const auto far_val = 1.0F;
+
+	const auto tx = -(right + left) / (right - left);
+	const auto ty = -(top + bottom) / (top - bottom);
+	const auto tz = -(far_val + near_val) / (far_val - near_val);
+
 	return Mat4F
 	{
-		2.0F / width, 0.0F, 0.0F, 0.0F,
-		0.0F, 2.0F / height, 0.0F, 0.0F,
-		0.0F, 0.0F, -1.0F, 0.0F,
-		0.0F, 0.0F, 0.0F, 1.0F,
+		2.0F / (right - left), 0.0F, 0.0F, 0.0F,
+		0.0F, 2.0F / (top - bottom), 0.0F, 0.0F,
+		0.0F, 0.0F, -2.0F / (far_val - near_val), 0.0F,
+		tx, ty, tz, 1.0F,
 	};
 }
 
