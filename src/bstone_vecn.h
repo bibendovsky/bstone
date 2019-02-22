@@ -62,6 +62,17 @@ public:
 	}
 
 
+	T* get_data()
+	{
+		return items_.data();
+	}
+
+	const T* get_data() const
+	{
+		return items_.data();
+	}
+
+
 	T& operator[](
 		const int index)
 	{
