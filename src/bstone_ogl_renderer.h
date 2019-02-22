@@ -99,6 +99,10 @@ public:
 		const int width,
 		const int height) override;
 
+	void clear_buffers() override;
+
+	void present() override;
+
 
 	RendererObjectId index_buffer_create(
 		const int index_count) override;

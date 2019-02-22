@@ -94,6 +94,10 @@ public:
 		const int width,
 		const int height) override;
 
+	void clear_buffers() override;
+
+	void present() override;
+
 
 	RendererObjectId index_buffer_create(
 		const int index_count) override;
@@ -162,14 +166,13 @@ private:
 	class Texture2d
 	{
 	public:
+		bool is_npot_;
+
 		int width_;
 		int height_;
 
 		int actual_width_;
 		int actual_height_;
-
-		float actual_u_;
-		float actual_v_;
 
 		const std::uint8_t* indexed_pixels_;
 		const bool* indexed_alphas_;
@@ -213,6 +216,10 @@ private:
 
 	void update_indexed_textures();
 
+
+	int fetch_index(
+		const IndexBuffer& index_buffer,
+		const int offset);
 
 	void execute_command_set_2d();
 

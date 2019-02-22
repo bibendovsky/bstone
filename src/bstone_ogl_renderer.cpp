@@ -193,6 +193,20 @@ void OglRenderer::color_buffer_set_clear_color(
 	renderer_->color_buffer_set_clear_color(color);
 }
 
+void OglRenderer::clear_buffers()
+{
+	assert(is_initialized_);
+
+	renderer_->clear_buffers();
+}
+
+void OglRenderer::present()
+{
+	assert(is_initialized_);
+
+	renderer_->present();
+}
+
 void OglRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)

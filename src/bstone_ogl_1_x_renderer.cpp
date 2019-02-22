@@ -163,6 +163,20 @@ void Ogl1XRenderer::color_buffer_set_clear_color(
 	OglRendererUtils::set_color_buffer_clear_color(color);
 }
 
+void Ogl1XRenderer::clear_buffers()
+{
+	assert(is_initialized_);
+
+	OglRendererUtils::clear_buffers();
+}
+
+void Ogl1XRenderer::present()
+{
+	assert(is_initialized_);
+
+	OglRendererUtils::swap_window(sdl_window_);
+}
+
 void Ogl1XRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)
@@ -267,12 +281,10 @@ RendererObjectId Ogl1XRenderer::vertex_buffer_create(
 	assert(is_initialized_);
 	assert(vertex_count > 0 && (vertex_count % 4) == 0);
 
-	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(RendererVertex));
-
 	vertex_buffers_.emplace_back();
 	auto& vertex_buffer = vertex_buffers_.back();
 
-	vertex_buffer.resize(vertex_buffer_size);
+	vertex_buffer.resize(vertex_count);
 
 	return &vertex_buffer;
 }
@@ -306,8 +318,8 @@ void Ogl1XRenderer::vertex_buffer_update(
 	auto& vertex_buffer = *static_cast<VertexBuffer*>(id);
 	const auto max_vertex_count = static_cast<int>(vertex_buffer.size());
 
-	assert(offset >= max_vertex_count);
-	assert(count > max_vertex_count);
+	assert(offset < max_vertex_count);
+	assert(count <= max_vertex_count);
 	assert(count <= (max_vertex_count - offset));
 
 	std::uninitialized_copy_n(vertices, count, vertex_buffer.begin() + offset);
@@ -431,14 +443,12 @@ RendererObjectId Ogl1XRenderer::texture_2d_create(
 	texture_2d.actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
 	texture_2d.actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
 
-	texture_2d.actual_u_ =
-		static_cast<float>(param.width_) / static_cast<float>(texture_2d.actual_width_);
-
-	texture_2d.actual_v_ =
-		static_cast<float>(param.height_) / static_cast<float>(texture_2d.actual_height_);
-
 	texture_2d.indexed_pixels_ = param.indexed_pixels_;
 	texture_2d.indexed_alphas_ = param.indexed_alphas_;
+
+	texture_2d.is_npot_ = (
+		texture_2d.width_ != texture_2d.actual_width_ ||
+		texture_2d.height_ != texture_2d.actual_height_);
 
 	const auto internal_format = (texture_2d.indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
 
@@ -535,6 +545,9 @@ void Ogl1XRenderer::texture_2d_update(
 	auto& texture_2d = *texture_2d_it;
 	texture_2d.indexed_pixels_ = param.indexed_pixels_;
 
+	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
+	assert(!OglRendererUtils::was_errors());
+
 	update_indexed_texture(0, texture_2d);
 }
 
@@ -578,66 +591,64 @@ void Ogl1XRenderer::update_indexed_texture(
 	texture_buffer_.clear();
 	texture_buffer_.resize(area);
 
-	if (texture_2d.width_ == texture_2d.actual_width_ &&
-		texture_2d.height_ == texture_2d.actual_height_)
+	if (!texture_2d.is_npot_)
 	{
-		if (has_alpha)
+		for (int i = 0; i < area; ++i)
 		{
-			for (int i = 0; i < area; ++i)
+			texture_buffer_[i] = palette_[texture_2d.indexed_pixels_[i]];
+
+			const auto is_transparent = (!has_alpha || (has_alpha && !texture_2d.indexed_alphas_[i]));
+
+			if (is_transparent)
 			{
-				if (texture_2d.indexed_alphas_[i])
-				{
-					texture_buffer_[i] = palette_[texture_2d.indexed_pixels_[i]];
-				}
-			}
-		}
-		else
-		{
-			for (int i = 0; i < area; ++i)
-			{
-				texture_buffer_[i] = palette_[texture_2d.indexed_pixels_[i]];
+				texture_buffer_[i].a_ = 0x00;
 			}
 		}
 	}
 	else
 	{
-		auto src_index = 0;
-		auto dst_base_index = 0;
+		// Resample.
+		//
 
-		if (has_alpha)
+		const auto src_du_d =
+			static_cast<double>(texture_2d.width_) /
+			static_cast<double>(texture_2d.actual_width_);
+
+		const auto src_dv_d =
+			static_cast<double>(texture_2d.height_) /
+			static_cast<double>(texture_2d.actual_height_);
+
+		auto src_v_d = 0.5 * src_dv_d;
+
+		for (int h = 0; h < texture_2d.actual_height_; ++h)
 		{
-			for (int h = 0; h < texture_2d.height_; ++h)
+			const auto src_v = static_cast<int>(src_v_d);
+
+			auto src_u_d = 0.5 * src_du_d;
+
+			for (int w = 0; w < texture_2d.actual_width_; ++w)
 			{
-				auto dst_index = dst_base_index;
+				const auto src_u = static_cast<int>(src_u_d);
 
-				for (int w = 0; w < texture_2d.width_; ++w)
+				const auto src_index = (src_v * texture_2d.width_) + src_u;
+
+				const auto dst_index =
+					((texture_2d.actual_height_ - 1 - h) * texture_2d.actual_width_) + w;
+
+				texture_buffer_[dst_index] = palette_[texture_2d.indexed_pixels_[src_index]];
+
+				const auto is_transparent =
+					(!has_alpha || (has_alpha && !texture_2d.indexed_alphas_[src_index]));
+
+				if (is_transparent)
 				{
-					texture_buffer_[dst_index + w] = palette_[texture_2d.indexed_pixels_[src_index]];
-
-					++src_index;
+					texture_buffer_[dst_index].a_ = 0x00;
 				}
 
-				dst_base_index += texture_2d.actual_width_;
+				src_u_d += src_du_d;
 			}
-		}
-		else
-		{
-			for (int h = 0; h < texture_2d.height_; ++h)
-			{
-				auto dst_index = dst_base_index;
 
-				for (int w = 0; w < texture_2d.width_; ++w)
-				{
-					if (texture_2d.indexed_alphas_)
-					{
-						texture_buffer_[dst_index + w] = palette_[texture_2d.indexed_pixels_[src_index]];
-					}
-
-					++src_index;
-				}
-
-				dst_base_index += texture_2d.actual_width_;
-			}
+			src_v_d += src_dv_d;
 		}
 	}
 
@@ -664,8 +675,44 @@ void Ogl1XRenderer::update_indexed_textures()
 	}
 }
 
+int Ogl1XRenderer::fetch_index(
+	const IndexBuffer& index_buffer,
+	const int offset)
+{
+	const auto data_offset = index_buffer.byte_depth_ * offset;
+	const auto data = &index_buffer.data_[data_offset];
+
+	unsigned int result;
+
+	switch (index_buffer.byte_depth_)
+	{
+	case 1:
+		result = *reinterpret_cast<const std::uint8_t*>(data);
+		break;
+
+	case 2:
+		result = *reinterpret_cast<const std::uint16_t*>(data);
+		break;
+
+	case 4:
+		result = *reinterpret_cast<const std::int32_t*>(data);
+		break;
+
+	default:
+		result = 0;
+		break;
+	}
+
+	return result;
+}
+
 void Ogl1XRenderer::execute_command_set_2d()
 {
+	// Enable 2D texturing.
+	//
+	::glEnable(GL_TEXTURE_2D);
+	assert(!OglRendererUtils::was_errors());
+
 	// Disable depth test.
 	//
 	::glDisable(GL_DEPTH_TEST);
@@ -698,11 +745,10 @@ void Ogl1XRenderer::execute_command_update_palette(
 	assert((command.offset_ + command.count_) <= 256);
 	assert(command.colors_ != nullptr);
 
-	const auto is_modified = !std::lexicographical_compare(
+	const auto is_modified = !std::equal(
 		palette_.begin() + command.offset_,
 		palette_.begin() + command.offset_ + command.count_,
-		command.colors_,
-		command.colors_ + command.count_
+		command.colors_
 	);
 
 	if (!is_modified)
@@ -723,7 +769,7 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	const RendererCommand::DrawQuads& command)
 {
 	assert(command.count_ > 0);
-	assert(command.index_offset_ > 0);
+	assert(command.index_offset_ >= 0);
 	assert(command.texture_2d_id_ != RendererNullObjectId);
 	assert(command.index_buffer_id_ != RendererNullObjectId);
 	assert(command.vertex_buffer_id_ != RendererNullObjectId);
@@ -743,21 +789,10 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	assert(command.count_ <= index_buffer.count_);
 	assert((command.index_offset_ + command.count_) <= index_buffer.count_);
 
+	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
+	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.data());
+
 	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
-	assert(!OglRendererUtils::was_errors());
-
-	// Position.
-	//
-	::glEnableClientState(GL_VERTEX_ARRAY);
-	assert(!OglRendererUtils::was_errors());
-
-	::glVertexPointer(
-		3, // size
-		GL_FLOAT, // type
-		static_cast<GLsizei>(sizeof(RendererVertex)), // stride
-		vertex_buffer.data() + offsetof(RendererVertex, xyz_) // pointer
-	);
-
 	assert(!OglRendererUtils::was_errors());
 
 	// Diffuse.
@@ -768,8 +803,8 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	::glColorPointer(
 		4, // size
 		GL_UNSIGNED_BYTE, // type
-		static_cast<GLsizei>(sizeof(RendererVertex)), // stride
-		vertex_buffer.data() + offsetof(RendererVertex, rgba_) // pointer
+		stride, // stride
+		vertex_buffer_data + offsetof(RendererVertex, rgba_) // pointer
 	);
 
 	assert(!OglRendererUtils::was_errors());
@@ -782,19 +817,38 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	::glTexCoordPointer(
 		2, // size
 		GL_FLOAT, // type
-		static_cast<GLsizei>(sizeof(RendererVertex)), // stride
-		vertex_buffer.data() + offsetof(RendererVertex, uv_) // pointer
+		stride, // stride
+		vertex_buffer_data + offsetof(RendererVertex, uv_) // pointer
+	);
+
+	assert(!OglRendererUtils::was_errors());
+
+	// Position.
+	//
+	::glEnableClientState(GL_VERTEX_ARRAY);
+	assert(!OglRendererUtils::was_errors());
+
+	::glVertexPointer(
+		3, // size
+		GL_FLOAT, // type
+		stride, // stride
+		vertex_buffer_data + offsetof(RendererVertex, xyz_) // pointer
 	);
 
 	assert(!OglRendererUtils::was_errors());
 
 	// Draw the quads.
 	//
+
+	const auto index_buffer_data =
+		index_buffer.data_.data() +
+		(index_buffer.byte_depth_ * command.index_offset_);
+
 	::glDrawElements(
 		GL_TRIANGLES, // mode
-		triangle_count, // count
+		index_count, // count
 		index_buffer.data_type_, // type
-		index_buffer.data_.data() + (index_buffer.byte_depth_ * command.index_offset_) // indices
+		index_buffer_data // indices
 	);
 
 	assert(!OglRendererUtils::was_errors());

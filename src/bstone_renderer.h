@@ -127,15 +127,27 @@ public:
 	{
 	}
 
+
+	std::uint8_t* get_data()
+	{
+		return reinterpret_cast<std::uint8_t*>(this);
+	}
+
+	const std::uint8_t* get_data() const
+	{
+		return reinterpret_cast<const std::uint8_t*>(this);
+	}
+
+
 	constexpr std::uint32_t to_u32() const
 	{
 		return (r_ << 24) | (g_ << 16) | (b_ << 8) | a_;
 	}
 
-	constexpr bool operator<(
+	constexpr bool operator==(
 		const RendererColor32& rhs) const
 	{
-		return to_u32() < rhs.to_u32();
+		return r_ == rhs.r_ && g_ == rhs.g_ && b_ == rhs.b_ && a_ == rhs.a_;
 	}
 }; // RendererColor32
 
@@ -255,6 +267,11 @@ public:
 
 	virtual void color_buffer_set_clear_color(
 		const RendererColor32& color) = 0;
+
+	virtual void clear_buffers() = 0;
+
+	virtual void present() = 0;
+
 
 	virtual void set_2d_projection_matrix(
 		const int width,
