@@ -295,7 +295,7 @@ RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 {
 	auto error_message = std::string{};
 
-	if (!RendererUtils::validate_renderer_initialize_param(param, error_message))
+	if (!RendererUtils::validate_initialize_param(param, error_message))
 	{
 		return nullptr;
 	}

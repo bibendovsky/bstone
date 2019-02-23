@@ -214,7 +214,7 @@ Ogl1XRenderer::Texture2d::~Texture2d()
 void Ogl1XRenderer::Texture2d::update(
 	const RendererTexture2dUpdateParam& param)
 {
-	if (!RendererUtils::validate_renderer_texture_2d_update_param(param, error_message_))
+	if (!RendererUtils::validate_texture_2d_update_param(param, error_message_))
 	{
 		return;
 	}
@@ -228,7 +228,7 @@ void Ogl1XRenderer::Texture2d::update(
 bool Ogl1XRenderer::Texture2d::initialize(
 	const RendererTexture2dCreateParam& param)
 {
-	if (!RendererUtils::validate_renderer_texture_2d_create_param(param, error_message_))
+	if (!RendererUtils::validate_texture_2d_create_param(param, error_message_))
 	{
 		return false;
 	}

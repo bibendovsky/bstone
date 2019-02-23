@@ -70,7 +70,7 @@ public:
 		const bool is_visible,
 		std::string& error_message);
 
-	static bool validate_renderer_initialize_param(
+	static bool validate_initialize_param(
 		const RendererInitializeParam& param,
 		std::string& error_message);
 
@@ -93,11 +93,11 @@ public:
 		std::string& error_message);
 
 
-	static bool validate_renderer_texture_2d_create_param(
+	static bool validate_texture_2d_create_param(
 		const RendererTexture2dCreateParam& param,
 		std::string& error_message);
 
-	static bool validate_renderer_texture_2d_update_param(
+	static bool validate_texture_2d_update_param(
 		const RendererTexture2dUpdateParam& param,
 		std::string& error_message);
 

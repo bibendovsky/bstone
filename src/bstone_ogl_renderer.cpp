@@ -148,7 +148,7 @@ bool OglRenderer::is_initialized() const
 bool OglRenderer::initialize(
 	const RendererInitializeParam& param)
 {
-	if (!RendererUtils::validate_renderer_initialize_param(param, error_message_))
+	if (!RendererUtils::validate_initialize_param(param, error_message_))
 	{
 		error_message_ = "Failed to validate an initialize param. " + error_message_;
 
