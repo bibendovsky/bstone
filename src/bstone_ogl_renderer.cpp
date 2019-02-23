@@ -250,33 +250,20 @@ void OglRenderer::vertex_buffer_destroy(
 	renderer_->vertex_buffer_destroy(vertex_buffer);
 }
 
-RendererTexture2dHandle OglRenderer::texture_2d_create(
-	const RendererTextureCreateParam& param)
+RendererTexture2dPtr OglRenderer::texture_2d_create(
+	const RendererTexture2dCreateParam& param)
 {
 	assert(is_initialized_);
-	assert(RendererUtils::validate_renderer_texture_create_param(param, error_message_));
 
 	return renderer_->texture_2d_create(param);
 }
 
 void OglRenderer::texture_2d_destroy(
-	RendererTexture2dHandle texture_handle)
+	RendererTexture2dPtr texture_2d)
 {
 	assert(is_initialized_);
-	assert(texture_handle);
 
-	renderer_->texture_2d_destroy(texture_handle);
-}
-
-void OglRenderer::texture_2d_update(
-	RendererTexture2dHandle texture_handle,
-	const RendererTextureUpdateParam& param)
-{
-	assert(is_initialized_);
-	assert(texture_handle);
-	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
-
-	renderer_->texture_2d_update(texture_handle, param);
+	renderer_->texture_2d_destroy(texture_2d);
 }
 
 void OglRenderer::execute_command_sets(

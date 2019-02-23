@@ -93,12 +93,12 @@ public:
 		std::string& error_message);
 
 
-	static bool validate_renderer_texture_create_param(
-		const RendererTextureCreateParam& param,
+	static bool validate_renderer_texture_2d_create_param(
+		const RendererTexture2dCreateParam& param,
 		std::string& error_message);
 
-	static bool validate_renderer_texture_update_param(
-		const RendererTextureUpdateParam& param,
+	static bool validate_renderer_texture_2d_update_param(
+		const RendererTexture2dUpdateParam& param,
 		std::string& error_message);
 
 	static bool is_ogl_renderer_path(

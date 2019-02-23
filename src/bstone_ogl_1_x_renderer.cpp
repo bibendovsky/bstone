@@ -187,6 +187,208 @@ bool Ogl1XRenderer::VertexBuffer::initialize(
 
 
 // ==========================================================================
+// Ogl1XRenderer::Texture2d
+//
+
+Ogl1XRenderer::Texture2d::Texture2d(
+	Ogl1XRendererPtr renderer)
+	:
+	renderer_{renderer},
+	error_message_{},
+	is_npot_{},
+	width_{},
+	height_{},
+	actual_width_{},
+	actual_height_{},
+	indexed_pixels_{},
+	indexed_alphas_{}
+{
+	assert(renderer_);
+}
+
+Ogl1XRenderer::Texture2d::~Texture2d()
+{
+	uninitialize_internal();
+}
+
+void Ogl1XRenderer::Texture2d::update(
+	const RendererTexture2dUpdateParam& param)
+{
+	if (!RendererUtils::validate_renderer_texture_2d_update_param(param, error_message_))
+	{
+		return;
+	}
+
+	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
+	assert(!OglRendererUtils::was_errors());
+
+	update_internal(0);
+}
+
+bool Ogl1XRenderer::Texture2d::initialize(
+	const RendererTexture2dCreateParam& param)
+{
+	if (!RendererUtils::validate_renderer_texture_2d_create_param(param, error_message_))
+	{
+		return false;
+	}
+
+	width_ = param.width_;
+	height_ = param.height_;
+
+	actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
+	actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
+
+	indexed_pixels_ = param.indexed_pixels_;
+	indexed_alphas_ = param.indexed_alphas_;
+
+	is_npot_ = (width_ != actual_width_ || height_ != actual_height_);
+
+	const auto internal_format = (indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
+
+	::glGenTextures(1, &ogl_id_);
+	assert(!OglRendererUtils::was_errors());
+	assert(ogl_id_ != 0);
+
+	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexImage2D(
+		GL_TEXTURE_2D, // target
+		0, // level
+		internal_format, // internal format
+		actual_width_, // width
+		actual_height_, // height
+		0, // border
+		GL_RGBA, // format
+		GL_UNSIGNED_BYTE, // type
+		nullptr // pixels
+	);
+
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	assert(!OglRendererUtils::was_errors());
+
+	update_internal(0);
+
+	return true;
+}
+
+void Ogl1XRenderer::Texture2d::uninitialize_internal()
+{
+	if (ogl_id_)
+	{
+		::glDeleteTextures(1, &ogl_id_);
+		assert(!OglRendererUtils::was_errors());
+
+		ogl_id_ = 0;
+	}
+}
+
+void Ogl1XRenderer::Texture2d::update_internal(
+	const int mipmap_level)
+{
+	assert(mipmap_level == 0);
+
+	const auto has_alpha = (indexed_alphas_ != nullptr);
+	const auto area = actual_width_ * actual_height_;
+
+	auto& buffer = renderer_->texture_buffer_;
+	auto& palette = renderer_->palette_;
+
+	buffer.clear();
+	buffer.resize(area);
+
+	if (!is_npot_)
+	{
+		for (int i = 0; i < area; ++i)
+		{
+			renderer_->texture_buffer_[i] = palette[indexed_pixels_[i]];
+
+			const auto is_transparent = (!has_alpha || (has_alpha && !indexed_alphas_[i]));
+
+			if (is_transparent)
+			{
+				buffer[i].a_ = 0x00;
+			}
+		}
+	}
+	else
+	{
+		// Resample.
+		//
+
+		const auto src_du_d =
+			static_cast<double>(width_) /
+			static_cast<double>(actual_width_);
+
+		const auto src_dv_d =
+			static_cast<double>(height_) /
+			static_cast<double>(actual_height_);
+
+		auto src_v_d = 0.5 * src_dv_d;
+
+		for (int h = 0; h < actual_height_; ++h)
+		{
+			const auto src_v = static_cast<int>(src_v_d);
+
+			auto src_u_d = 0.5 * src_du_d;
+
+			for (int w = 0; w < actual_width_; ++w)
+			{
+				const auto src_u = static_cast<int>(src_u_d);
+
+				const auto src_index = (src_v * width_) + src_u;
+
+				const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
+
+				buffer[dst_index] = palette[indexed_pixels_[src_index]];
+
+				const auto is_transparent = (!has_alpha || (has_alpha && !indexed_alphas_[src_index]));
+
+				if (is_transparent)
+				{
+					buffer[dst_index].a_ = 0x00;
+				}
+
+				src_u_d += src_du_d;
+			}
+
+			src_v_d += src_dv_d;
+		}
+	}
+
+	::glTexSubImage2D(
+		GL_TEXTURE_2D, // target
+		0, // level
+		0, // xoffset
+		0, // yoffset
+		actual_width_, // width
+		actual_height_, // height
+		GL_RGBA, // format
+		GL_UNSIGNED_BYTE, // type
+		buffer.data() // pixels
+	);
+
+	assert(!OglRendererUtils::was_errors());
+}
+
+//
+// Ogl1XRenderer::Texture2d
+// ==========================================================================
+
+
+// ==========================================================================
 // Ogl1XRenderer
 //
 
@@ -516,125 +718,37 @@ bool Ogl1XRenderer::probe_or_initialize(
 	return true;
 }
 
-RendererTexture2dHandle Ogl1XRenderer::texture_2d_create(
-	const RendererTextureCreateParam& param)
+RendererTexture2dPtr Ogl1XRenderer::texture_2d_create(
+	const RendererTexture2dCreateParam& param)
 {
-	assert(is_initialized_);
-	assert(RendererUtils::validate_renderer_texture_create_param(param, error_message_));
+	auto texture_2d = Texture2dUPtr{new Texture2d{this}};
 
-	auto texture_2d = Texture2d{};
-	texture_2d.width_ = param.width_;
-	texture_2d.height_ = param.height_;
+	if (!texture_2d->initialize(param))
+	{
+		error_message_ = texture_2d->error_message_;
 
-	texture_2d.actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
-	texture_2d.actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
+		return nullptr;
+	}
 
-	texture_2d.indexed_pixels_ = param.indexed_pixels_;
-	texture_2d.indexed_alphas_ = param.indexed_alphas_;
+	textures_2d_.push_back(std::move(texture_2d));
 
-	texture_2d.is_npot_ = (
-		texture_2d.width_ != texture_2d.actual_width_ ||
-		texture_2d.height_ != texture_2d.actual_height_);
-
-	const auto internal_format = (texture_2d.indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
-
-	auto ogl_id = GLuint{};
-
-	::glGenTextures(1, &ogl_id);
-	assert(!OglRendererUtils::was_errors());
-	assert(ogl_id != 0);
-
-	::glBindTexture(GL_TEXTURE_2D, ogl_id);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexImage2D(
-		GL_TEXTURE_2D, // target
-		0, // level
-		internal_format, // internal format
-		texture_2d.actual_width_, // width
-		texture_2d.actual_height_, // height
-		0, // border
-		GL_RGBA, // format
-		GL_UNSIGNED_BYTE, // type
-		nullptr // pixels
-	);
-
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	assert(!OglRendererUtils::was_errors());
-
-	update_indexed_texture(0, texture_2d);
-
-	texture_2d.ogl_id_ = ogl_id;
-
-	textures_2d_.push_back(texture_2d);
-
-	return reinterpret_cast<RendererTexture2dHandle>(&textures_2d_.back());
+	return textures_2d_.back().get();
 }
 
 void Ogl1XRenderer::texture_2d_destroy(
-	RendererTexture2dHandle texture_handle)
+	RendererTexture2dPtr texture_2d)
 {
-	assert(is_initialized_);
-	assert(texture_handle);
+	if (!texture_2d)
+	{
+		return;
+	}
 
-	const auto texture_end_it = textures_2d_.end();
-
-	auto texture_2d_it = std::find_if(
-		textures_2d_.begin(),
-		texture_end_it,
+	textures_2d_.remove_if(
 		[=](const auto& item)
 		{
-			return reinterpret_cast<const Texture2d*>(texture_handle) == &item;
+			return item.get() == texture_2d;
 		}
 	);
-
-	assert(texture_2d_it != texture_end_it);
-
-	::glDeleteTextures(1, &texture_2d_it->ogl_id_);
-	assert(!OglRendererUtils::was_errors());
-
-	static_cast<void>(textures_2d_.erase(texture_2d_it));
-}
-
-void Ogl1XRenderer::texture_2d_update(
-	RendererTexture2dHandle texture_handle,
-	const RendererTextureUpdateParam& param)
-{
-	assert(is_initialized_);
-	assert(texture_handle);
-	assert(RendererUtils::validate_renderer_texture_update_param(param, error_message_));
-
-	const auto texture_end_it = textures_2d_.end();
-
-	auto texture_2d_it = std::find_if(
-		textures_2d_.begin(),
-		texture_end_it,
-		[=](const auto& item)
-		{
-			return reinterpret_cast<const Texture2d*>(texture_handle) == &item;
-		}
-	);
-
-	assert(texture_2d_it != texture_end_it);
-
-	auto& texture_2d = *texture_2d_it;
-	texture_2d.indexed_pixels_ = param.indexed_pixels_;
-
-	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
-	assert(!OglRendererUtils::was_errors());
-
-	update_indexed_texture(0, texture_2d);
 }
 
 void Ogl1XRenderer::uninitialize_internal(
@@ -658,109 +772,14 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	index_buffers_.clear();
 	vertex_buffers_.clear();
-
-	for (const auto& texture_2d : textures_2d_)
-	{
-		::glDeleteTextures(1, &texture_2d.ogl_id_);
-		assert(!OglRendererUtils::was_errors());
-	}
-
 	textures_2d_.clear();
-}
-
-void Ogl1XRenderer::update_indexed_texture(
-	const int mipmap_level,
-	const Texture2d& texture_2d)
-{
-	assert(mipmap_level == 0);
-
-	const auto has_alpha = (texture_2d.indexed_alphas_ != nullptr);
-	const auto area = texture_2d.actual_width_ * texture_2d.actual_height_;
-
-	texture_buffer_.clear();
-	texture_buffer_.resize(area);
-
-	if (!texture_2d.is_npot_)
-	{
-		for (int i = 0; i < area; ++i)
-		{
-			texture_buffer_[i] = palette_[texture_2d.indexed_pixels_[i]];
-
-			const auto is_transparent = (!has_alpha || (has_alpha && !texture_2d.indexed_alphas_[i]));
-
-			if (is_transparent)
-			{
-				texture_buffer_[i].a_ = 0x00;
-			}
-		}
-	}
-	else
-	{
-		// Resample.
-		//
-
-		const auto src_du_d =
-			static_cast<double>(texture_2d.width_) /
-			static_cast<double>(texture_2d.actual_width_);
-
-		const auto src_dv_d =
-			static_cast<double>(texture_2d.height_) /
-			static_cast<double>(texture_2d.actual_height_);
-
-		auto src_v_d = 0.5 * src_dv_d;
-
-		for (int h = 0; h < texture_2d.actual_height_; ++h)
-		{
-			const auto src_v = static_cast<int>(src_v_d);
-
-			auto src_u_d = 0.5 * src_du_d;
-
-			for (int w = 0; w < texture_2d.actual_width_; ++w)
-			{
-				const auto src_u = static_cast<int>(src_u_d);
-
-				const auto src_index = (src_v * texture_2d.width_) + src_u;
-
-				const auto dst_index =
-					((texture_2d.actual_height_ - 1 - h) * texture_2d.actual_width_) + w;
-
-				texture_buffer_[dst_index] = palette_[texture_2d.indexed_pixels_[src_index]];
-
-				const auto is_transparent =
-					(!has_alpha || (has_alpha && !texture_2d.indexed_alphas_[src_index]));
-
-				if (is_transparent)
-				{
-					texture_buffer_[dst_index].a_ = 0x00;
-				}
-
-				src_u_d += src_du_d;
-			}
-
-			src_v_d += src_dv_d;
-		}
-	}
-
-	::glTexSubImage2D(
-		GL_TEXTURE_2D, // target
-		0, // level
-		0, // xoffset
-		0, // yoffset
-		texture_2d.actual_width_, // width
-		texture_2d.actual_height_, // height
-		GL_RGBA, // format
-		GL_UNSIGNED_BYTE, // type
-		texture_buffer_.data() // pixels
-	);
-
-	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::update_indexed_textures()
 {
-	for (const auto& texture_2d : textures_2d_)
+	for (auto& texture_2d : textures_2d_)
 	{
-		update_indexed_texture(0, texture_2d);
+		texture_2d->update_internal(0);
 	}
 }
 
@@ -828,7 +847,7 @@ void Ogl1XRenderer::execute_command_draw_quads(
 {
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);
-	assert(command.texture_2d_handle_);
+	assert(command.texture_2d_);
 	assert(command.index_buffer_);
 	assert(command.vertex_buffer_);
 
@@ -839,7 +858,7 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_handle_);
+	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_);
 	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_);
 	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(command.vertex_buffer_);
 

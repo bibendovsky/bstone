@@ -118,15 +118,11 @@ public:
 		RendererVertexBufferPtr vertex_buffer) override;
 
 
-	RendererTexture2dHandle texture_2d_create(
-		const RendererTextureCreateParam& param) override;
+	RendererTexture2dPtr texture_2d_create(
+		const RendererTexture2dCreateParam& param) override;
 
 	void texture_2d_destroy(
-		RendererTexture2dHandle texture_handle) override;
-
-	void texture_2d_update(
-		RendererTexture2dHandle texture_handle,
-		const RendererTextureUpdateParam& param) override;
+		RendererTexture2dPtr texture_2d) override;
 
 
 	void execute_command_sets(

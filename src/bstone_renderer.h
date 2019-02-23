@@ -66,12 +66,6 @@ enum class RendererCommandId
 }; // RendererCommandId
 
 
-namespace { class RendererVertexBufferHandle_ final {}; }
-using RendererVertexBufferHandle = RendererVertexBufferHandle_*;
-
-namespace { class RendererTexture2dHandle_ final {}; }
-using RendererTexture2dHandle = RendererTexture2dHandle_*;
-
 class RendererInitializeWindowParam
 {
 public:
@@ -235,22 +229,43 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 // ==========================================================================
 
 
-class RendererTextureCreateParam
+// ==========================================================================
+// RendererTexture2d
+//
+
+struct RendererTexture2dCreateParam
 {
-public:
 	int width_;
 	int height_;
 
 	const std::uint8_t* indexed_pixels_;
 	const bool* indexed_alphas_;
-}; // RendererTextureCreateParam
+}; // RendererTexture2dCreateParam
 
-class RendererTextureUpdateParam
+struct RendererTexture2dUpdateParam
 {
-public:
 	const std::uint8_t* indexed_pixels_;
 	const bool* indexed_alphas_;
-}; // RendererTextureUpdateParam
+}; // RendererTexture2dUpdateParam
+
+class RendererTexture2d
+{
+protected:
+	RendererTexture2d() = default;
+
+	virtual ~RendererTexture2d() = default;
+
+
+public:
+	virtual void update(
+		const RendererTexture2dUpdateParam& param) = 0;
+}; // RendererTexture2d
+
+using RendererTexture2dPtr = RendererTexture2d*;
+
+//
+// RendererTexture2d
+// ==========================================================================
 
 
 class RendererCommand
@@ -269,7 +284,7 @@ public:
 	public:
 		int count_;
 		int index_offset_;
-		RendererTexture2dHandle texture_2d_handle_;
+		RendererTexture2dPtr texture_2d_;
 		RendererIndexBufferPtr index_buffer_;
 		RendererVertexBufferPtr vertex_buffer_;
 	}; // DrawQuads
@@ -363,15 +378,11 @@ public:
 		RendererVertexBufferPtr vertex_buffer) = 0;
 
 
-	virtual RendererTexture2dHandle texture_2d_create(
-		const RendererTextureCreateParam& param) = 0;
+	virtual RendererTexture2dPtr texture_2d_create(
+		const RendererTexture2dCreateParam& param) = 0;
 
 	virtual void texture_2d_destroy(
-		RendererTexture2dHandle texture_handle) = 0;
-
-	virtual void texture_2d_update(
-		RendererTexture2dHandle texture_handle,
-		const RendererTextureUpdateParam& param) = 0;
+		RendererTexture2dPtr texture_2d) = 0;
 
 
 	virtual void execute_command_sets(

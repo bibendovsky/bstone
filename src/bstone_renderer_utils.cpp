@@ -360,8 +360,8 @@ bool RendererUtils::validate_vertex_buffer_update_param(
 	return true;
 }
 
-bool RendererUtils::validate_renderer_texture_create_param(
-	const RendererTextureCreateParam& param,
+bool RendererUtils::validate_renderer_texture_2d_create_param(
+	const RendererTexture2dCreateParam& param,
 	std::string& error_message)
 {
 	if (param.width_ <= 0)
@@ -388,8 +388,8 @@ bool RendererUtils::validate_renderer_texture_create_param(
 	return true;
 }
 
-bool RendererUtils::validate_renderer_texture_update_param(
-	const RendererTextureUpdateParam& param,
+bool RendererUtils::validate_renderer_texture_2d_update_param(
+	const RendererTexture2dUpdateParam& param,
 	std::string& error_message)
 {
 	if (!param.indexed_pixels_)

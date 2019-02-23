@@ -1347,7 +1347,7 @@ bstone::RendererPalette hw_palette_;
 bstone::RendererCommandSets hw_command_sets_;
 bstone::RendererCommandSet* hw_2d_command_set_;
 
-bstone::RendererTexture2dHandle hw_2d_texture_handle_ = nullptr;
+bstone::RendererTexture2dPtr hw_2d_texture_ = nullptr;
 bstone::RendererIndexBufferPtr hw_2d_index_buffer_ = nullptr;
 bstone::RendererVertexBufferPtr hw_2d_vertex_buffer_ = nullptr;
 
@@ -1630,15 +1630,15 @@ bool hw_initialize_ui_texture()
 
 	// Texture.
 	//
-	auto param = bstone::RendererTextureCreateParam{};
+	auto param = bstone::RendererTexture2dCreateParam{};
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
 	param.indexed_pixels_ = ::vid_ui_buffer.data();
 	param.indexed_alphas_ = ::vid_mask_buffer.data();
 
-	::hw_2d_texture_handle_ = hw_renderer_->texture_2d_create(param);
+	::hw_2d_texture_ = hw_renderer_->texture_2d_create(param);
 
-	if (!::hw_2d_texture_handle_)
+	if (!::hw_2d_texture_)
 	{
 		return false;
 	}
@@ -2041,10 +2041,10 @@ bool hw_initialize_video()
 
 void hw_uninitialize_ui_texture()
 {
-	if (::hw_2d_texture_handle_)
+	if (::hw_2d_texture_)
 	{
-		::hw_renderer_->texture_2d_destroy(::hw_2d_texture_handle_);
-		::hw_2d_texture_handle_ = nullptr;
+		::hw_renderer_->texture_2d_destroy(::hw_2d_texture_);
+		::hw_2d_texture_ = nullptr;
 	}
 
 	if (::hw_2d_index_buffer_)
@@ -2118,11 +2118,11 @@ void hw_refresh_screen()
 	::hw_renderer_->clear_buffers();
 
 	{
-		auto param = bstone::RendererTextureUpdateParam{};
+		auto param = bstone::RendererTexture2dUpdateParam{};
 		param.indexed_pixels_ = ::vid_ui_buffer.data();
 		param.indexed_alphas_ = nullptr;
 
-		::hw_renderer_->texture_2d_update(::hw_2d_texture_handle_, param);
+		::hw_2d_texture_->update(param);
 	}
 
 	auto command_index = 0;
@@ -2160,7 +2160,7 @@ void hw_refresh_screen()
 		draw_quads.count_ = 1;
 		draw_quads.index_buffer_ = ::hw_2d_index_buffer_;
 		draw_quads.index_offset_ = 0;
-		draw_quads.texture_2d_handle_ = ::hw_2d_texture_handle_;
+		draw_quads.texture_2d_ = ::hw_2d_texture_;
 		draw_quads.vertex_buffer_ = ::hw_2d_vertex_buffer_;
 	}
 

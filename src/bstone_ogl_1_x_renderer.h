@@ -44,6 +44,10 @@ namespace bstone
 {
 
 
+class Ogl1XRenderer;
+using Ogl1XRendererPtr = Ogl1XRenderer*;
+
+
 class Ogl1XRenderer :
 	public OglXRenderer
 {
@@ -113,15 +117,11 @@ public:
 		RendererVertexBufferPtr vertex_buffer) override;
 
 
-	RendererTexture2dHandle texture_2d_create(
-		const RendererTextureCreateParam& param) override;
+	RendererTexture2dPtr texture_2d_create(
+		const RendererTexture2dCreateParam& param) override;
 
 	void texture_2d_destroy(
-		RendererTexture2dHandle handle) override;
-
-	void texture_2d_update(
-		RendererTexture2dHandle handle,
-		const RendererTextureUpdateParam& param) override;
+		RendererTexture2dPtr texture_2d) override;
 
 
 	void execute_command_sets(
@@ -219,11 +219,20 @@ private:
 	// =========================================================================
 
 
-	using TextureBuffer = std::vector<RendererColor32>;
+	// =========================================================================
+	// Texture2d
+	//
 
-	class Texture2d
+	using TextureBuffer = std::vector<RendererColor32>;
+	using TextureBufferPtr = TextureBuffer*;
+
+	class Texture2d :
+		public RendererTexture2d
 	{
 	public:
+		Ogl1XRendererPtr renderer_;
+		std::string error_message_;
+
 		bool is_npot_;
 
 		int width_;
@@ -236,9 +245,38 @@ private:
 		const bool* indexed_alphas_;
 
 		GLuint ogl_id_;
+
+
+		Texture2d(
+			Ogl1XRendererPtr renderer);
+
+		Texture2d(
+			const Texture2d& rhs) = delete;
+
+		~Texture2d() override;
+
+
+		void update(
+			const RendererTexture2dUpdateParam& param) override;
+
+
+		bool initialize(
+			const RendererTexture2dCreateParam& param);
+
+		void uninitialize_internal();
+
+		void update_internal(
+			const int mipmap_level);
 	}; // Texture2d
 
-	using Textures2d = std::list<Texture2d>;
+	using Texture2dPtr = Texture2d*;
+	using Texture2dUPtr = std::unique_ptr<Texture2d>;
+
+	using Textures2d = std::list<Texture2dUPtr>;
+
+	//
+	// Texture2d
+	// =========================================================================
 
 
 	bool is_initialized_;
@@ -267,10 +305,6 @@ private:
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
-
-	void update_indexed_texture(
-		const int mipmap_level,
-		const Texture2d& texture_2d);
 
 	void update_indexed_textures();
 
