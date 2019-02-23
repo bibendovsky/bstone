@@ -67,45 +67,6 @@ Ogl1XRenderer::IndexBuffer::~IndexBuffer()
 	);
 }
 
-RendererIndexBuffer::Value Ogl1XRenderer::IndexBuffer::fetch_index(
-	const int offset)
-{
-	if (offset >= 0 && offset < count_)
-	{
-		assert(!"Invalid offset.");
-
-		return 0;
-	}
-
-	const auto data_offset = byte_depth_ * offset;
-	const auto data = &data_[data_offset];
-
-	Value result;
-
-	switch (byte_depth_)
-	{
-	case 1:
-		result = *reinterpret_cast<const std::uint8_t*>(data);
-		break;
-
-	case 2:
-		result = *reinterpret_cast<const std::uint16_t*>(data);
-		break;
-
-	case 4:
-		result = *reinterpret_cast<const std::uint32_t*>(data);
-		break;
-
-	default:
-		assert(!"Invalid byte depth.");
-
-		result = 0;
-		break;
-	}
-
-	return result;
-}
-
 void Ogl1XRenderer::IndexBuffer::update(
 	const RendererIndexBufferUpdateParam& param)
 {
@@ -768,37 +729,6 @@ void Ogl1XRenderer::update_indexed_textures()
 	{
 		update_indexed_texture(0, texture_2d);
 	}
-}
-
-int Ogl1XRenderer::fetch_index(
-	const IndexBuffer& index_buffer,
-	const int offset)
-{
-	const auto data_offset = index_buffer.byte_depth_ * offset;
-	const auto data = &index_buffer.data_[data_offset];
-
-	unsigned int result;
-
-	switch (index_buffer.byte_depth_)
-	{
-	case 1:
-		result = *reinterpret_cast<const std::uint8_t*>(data);
-		break;
-
-	case 2:
-		result = *reinterpret_cast<const std::uint16_t*>(data);
-		break;
-
-	case 4:
-		result = *reinterpret_cast<const std::int32_t*>(data);
-		break;
-
-	default:
-		result = 0;
-		break;
-	}
-
-	return result;
 }
 
 void Ogl1XRenderer::execute_command_set_2d()

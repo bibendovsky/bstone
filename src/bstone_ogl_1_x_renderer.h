@@ -158,9 +158,6 @@ private:
 		~IndexBuffer() override;
 
 
-		Value fetch_index(
-			const int offset) override;
-
 		void update(
 			const RendererIndexBufferUpdateParam& param) override;
 
@@ -234,10 +231,6 @@ private:
 
 	void update_indexed_textures();
 
-
-	int fetch_index(
-		const IndexBuffer& index_buffer,
-		const int offset);
 
 	void execute_command_set_2d();
 

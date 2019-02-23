@@ -190,9 +190,6 @@ public:
 	virtual ~RendererIndexBuffer() = default;
 
 
-	virtual Value fetch_index(
-		const int offset) = 0;
-
 	virtual void update(
 		const RendererIndexBufferUpdateParam& param) = 0;
 }; // RendererIndexBuffer
