@@ -40,6 +40,164 @@ namespace bstone
 {
 
 
+// ==========================================================================
+// Ogl1XRenderer::IndexBuffer
+//
+
+Ogl1XRenderer::IndexBuffer::IndexBuffer(
+	Ogl1XRenderer* renderer)
+	:
+	renderer_{renderer},
+	count_{},
+	byte_depth_{},
+	size_in_bytes_{},
+	data_type_{},
+	data_{}
+{
+	assert(renderer_);
+}
+
+Ogl1XRenderer::IndexBuffer::~IndexBuffer()
+{
+	renderer_->index_buffers_.remove_if(
+		[&](const auto& item)
+		{
+			return this == item;
+		}
+	);
+}
+
+RendererIndexBuffer::Value Ogl1XRenderer::IndexBuffer::fetch_index(
+	const int offset)
+{
+	if (offset >= 0 && offset < count_)
+	{
+		assert(!"Invalid offset.");
+
+		return 0;
+	}
+
+	const auto data_offset = byte_depth_ * offset;
+	const auto data = &data_[data_offset];
+
+	Value result;
+
+	switch (byte_depth_)
+	{
+	case 1:
+		result = *reinterpret_cast<const std::uint8_t*>(data);
+		break;
+
+	case 2:
+		result = *reinterpret_cast<const std::uint16_t*>(data);
+		break;
+
+	case 4:
+		result = *reinterpret_cast<const std::uint32_t*>(data);
+		break;
+
+	default:
+		assert(!"Invalid byte depth.");
+
+		result = 0;
+		break;
+	}
+
+	return result;
+}
+
+void Ogl1XRenderer::IndexBuffer::update(
+	const RendererIndexBufferUpdateParam& param)
+{
+	auto error_message = std::string{};
+
+	if (!RendererUtils::validate_index_buffer_update_param(param, error_message))
+	{
+		assert(!"Invalid update parameter.");
+
+		return;
+	}
+
+	if (param.offset_ >= count_)
+	{
+		assert(!"Offset out of range.");
+
+		return;
+	}
+
+	if (param.count_ > count_)
+	{
+		assert(!"Count out of range.");
+
+		return;
+	}
+
+	if ((param.offset_ + param.count_) > count_)
+	{
+		assert(!"Block out of range.");
+
+		return;
+	}
+
+
+	const auto offset_in_bytes = param.offset_ * byte_depth_;
+	const auto size_in_bytes = param.count_ * byte_depth_;
+
+	std::uninitialized_copy_n(
+		static_cast<const std::uint8_t*>(param.indices_),
+		size_in_bytes,
+		data_.begin() + offset_in_bytes
+	);
+}
+
+bool Ogl1XRenderer::IndexBuffer::initialize(
+	const RendererIndexBufferCreateParam& param,
+	std::string& error_message)
+{
+	if (!RendererUtils::validate_index_buffer_create_param(param, error_message))
+	{
+		return false;
+	}
+
+	auto byte_depth = 0;
+	auto data_type = GLenum{};
+
+	if (param.index_count_ <= 0x100)
+	{
+		byte_depth = 1;
+		data_type = GL_UNSIGNED_BYTE;
+	}
+	else if (param.index_count_ <= 0x10'000)
+	{
+		byte_depth = 2;
+		data_type = GL_UNSIGNED_SHORT;
+	}
+	else
+	{
+		byte_depth = 4;
+		data_type = GL_UNSIGNED_INT;
+	}
+
+	const auto size_in_bytes = param.index_count_ * byte_depth;
+
+	count_ = param.index_count_;
+	byte_depth_ = byte_depth;
+	size_in_bytes_ = size_in_bytes;
+	data_type_ = data_type;
+	data_.resize(size_in_bytes);
+
+	return true;
+}
+
+//
+// Ogl1XRenderer::IndexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// Ogl1XRenderer
+//
+
 Ogl1XRenderer::Ogl1XRenderer()
 	:
 	is_initialized_{},
@@ -195,84 +353,21 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	two_d_projection_matrix_ = new_matrix;
 }
 
-RendererIndexBufferHandle Ogl1XRenderer::index_buffer_create(
-	const int index_count)
+RendererIndexBufferUPtr Ogl1XRenderer::index_buffer_create(
+	const RendererIndexBufferCreateParam& param)
 {
-	assert(is_initialized_);
-	assert(index_count > 0);
+	auto index_buffer = IndexBufferUPtr{new IndexBuffer{this}};
 
-	auto byte_depth = 0;
-	auto data_type = GLenum{};
+	index_buffers_.emplace_back(index_buffer.get());
 
-	if (index_count <= 0x100)
+	if (!index_buffer->initialize(param, error_message_))
 	{
-		byte_depth = 1;
-		data_type = GL_UNSIGNED_BYTE;
-	}
-	else if (index_count <= 0x10'000)
-	{
-		byte_depth = 2;
-		data_type = GL_UNSIGNED_SHORT;
-	}
-	else
-	{
-		byte_depth = 4;
-		data_type = GL_UNSIGNED_INT;
+		error_message_ = "Failed to create an index buffer. " + error_message_;
+
+		return nullptr;
 	}
 
-	const auto size_in_bytes = index_count * byte_depth;
-
-	index_buffers_.emplace_back();
-	auto& index_buffer = index_buffers_.back();
-	index_buffer.count_ = index_count;
-	index_buffer.byte_depth_ = byte_depth;
-	index_buffer.size_in_bytes_ = size_in_bytes;
-	index_buffer.data_type_ = data_type;
-	index_buffer.data_.resize(size_in_bytes);
-
-	return reinterpret_cast<RendererIndexBufferHandle>(&index_buffer);
-}
-
-void Ogl1XRenderer::index_buffer_destroy(
-	RendererIndexBufferHandle id)
-{
-	assert(is_initialized_);
-	assert(id);
-
-	index_buffers_.remove_if(
-		[=](const auto& item)
-		{
-			return reinterpret_cast<const IndexBuffer*>(id) == &item;
-		}
-	);
-}
-
-void Ogl1XRenderer::index_buffer_update(
-	RendererIndexBufferHandle id,
-	const int offset,
-	const int count,
-	const void* const indices)
-{
-	assert(is_initialized_);
-	assert(id);
-	assert(offset >= 0);
-	assert(count > 0);
-	assert(indices != nullptr);
-
-	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(id);
-
-	assert(offset < index_buffer.count_);
-	assert(count <= index_buffer.count_);
-	assert((offset + count) <= index_buffer.count_);
-
-	const auto offset_in_bytes = offset * index_buffer.byte_depth_;
-	const auto size_in_bytes = count * index_buffer.byte_depth_;
-
-	std::uninitialized_copy_n(
-		static_cast<const std::uint8_t*>(indices),
-		size_in_bytes,
-		index_buffer.data_.begin() + offset_in_bytes
-	);
+	return index_buffer;
 }
 
 RendererVertexBufferHandle Ogl1XRenderer::vertex_buffer_create(
@@ -771,7 +866,7 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);
 	assert(command.texture_2d_handle_);
-	assert(command.index_buffer_handle_);
+	assert(command.index_buffer_);
 	assert(command.vertex_buffer_handle_);
 
 	const auto triangles_per_quad = 2;
@@ -782,7 +877,7 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	const auto index_count = indices_per_quad * command.count_;
 
 	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_handle_);
-	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_handle_);
+	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_);
 	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(command.vertex_buffer_handle_);
 
 	assert(command.index_offset_ < index_buffer.count_);
@@ -867,6 +962,10 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	::glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	assert(!OglRendererUtils::was_errors());
 }
+
+//
+// Ogl1XRenderer
+// ==========================================================================
 
 
 } // bstone

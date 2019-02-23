@@ -104,17 +104,8 @@ public:
 	void present() override;
 
 
-	RendererIndexBufferHandle index_buffer_create(
-		const int index_count) override;
-
-	void index_buffer_destroy(
-		RendererIndexBufferHandle id) override;
-
-	void index_buffer_update(
-		RendererIndexBufferHandle id,
-		const int offset,
-		const int count,
-		const void* const indices) override;
+	RendererIndexBufferUPtr index_buffer_create(
+		const RendererIndexBufferCreateParam& param) override;
 
 
 	RendererVertexBufferHandle vertex_buffer_create(

@@ -66,9 +66,6 @@ enum class RendererCommandId
 }; // RendererCommandId
 
 
-namespace { class RendererIndexBufferHandle_ final {}; }
-using RendererIndexBufferHandle = RendererIndexBufferHandle_*;
-
 namespace { class RendererVertexBufferHandle_ final {}; }
 using RendererVertexBufferHandle = RendererVertexBufferHandle_*;
 
@@ -165,6 +162,49 @@ public:
 	Vec2F uv_;
 }; // RendererVertex
 
+
+// ==========================================================================
+// RendererIndexBuffer
+//
+
+struct RendererIndexBufferCreateParam
+{
+	int index_count_;
+}; // RendererIndexBufferCreateParam
+
+struct RendererIndexBufferUpdateParam
+{
+	int offset_;
+	int count_;
+	const void* indices_;
+}; // RendererIndexBufferUpdateParam
+
+class RendererIndexBuffer
+{
+public:
+	using Value = std::uint32_t;
+
+
+	RendererIndexBuffer() = default;
+
+	virtual ~RendererIndexBuffer() = default;
+
+
+	virtual Value fetch_index(
+		const int offset) = 0;
+
+	virtual void update(
+		const RendererIndexBufferUpdateParam& param) = 0;
+}; // RendererIndexBuffer
+
+using RendererIndexBufferPtr = RendererIndexBuffer*;
+using RendererIndexBufferUPtr = std::unique_ptr<RendererIndexBuffer>;
+
+//
+// RendererIndexBuffer
+// ==========================================================================
+
+
 class RendererTextureCreateParam
 {
 public:
@@ -200,7 +240,7 @@ public:
 		int count_;
 		int index_offset_;
 		RendererTexture2dHandle texture_2d_handle_;
-		RendererIndexBufferHandle index_buffer_handle_;
+		RendererIndexBufferPtr index_buffer_;
 		RendererVertexBufferHandle vertex_buffer_handle_;
 	}; // DrawQuads
 
@@ -279,17 +319,8 @@ public:
 		const int height) = 0;
 
 
-	virtual RendererIndexBufferHandle index_buffer_create(
-		const int index_count) = 0;
-
-	virtual void index_buffer_destroy(
-		RendererIndexBufferHandle id) = 0;
-
-	virtual void index_buffer_update(
-		RendererIndexBufferHandle id,
-		const int offset,
-		const int count,
-		const void* const indices) = 0;
+	virtual RendererIndexBufferUPtr index_buffer_create(
+		const RendererIndexBufferCreateParam& param) = 0;
 
 
 	virtual RendererVertexBufferHandle vertex_buffer_create(

@@ -218,37 +218,12 @@ void OglRenderer::set_2d_projection_matrix(
 	renderer_->set_2d_projection_matrix(width, height);
 }
 
-RendererIndexBufferHandle OglRenderer::index_buffer_create(
-	const int index_count)
+RendererIndexBufferUPtr OglRenderer::index_buffer_create(
+	const RendererIndexBufferCreateParam& param)
 {
 	assert(is_initialized_);
-	assert(index_count > 0);
 
-	return renderer_->index_buffer_create(index_count);
-}
-
-void OglRenderer::index_buffer_destroy(
-	RendererIndexBufferHandle id)
-{
-	assert(is_initialized_);
-	assert(id);
-
-	renderer_->index_buffer_destroy(id);
-}
-
-void OglRenderer::index_buffer_update(
-	RendererIndexBufferHandle id,
-	const int offset,
-	const int count,
-	const void* const indices)
-{
-	assert(is_initialized_);
-	assert(id);
-	assert(offset >= 0);
-	assert(count > 0);
-	assert(indices != nullptr);
-
-	renderer_->index_buffer_update(id, offset, count, indices);
+	return renderer_->index_buffer_create(param);
 }
 
 RendererVertexBufferHandle OglRenderer::vertex_buffer_create(

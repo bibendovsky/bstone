@@ -74,6 +74,14 @@ public:
 		const RendererInitializeParam& param,
 		std::string& error_message);
 
+	static bool validate_index_buffer_create_param(
+		const RendererIndexBufferCreateParam& param,
+		std::string& error_message);
+
+	static bool validate_index_buffer_update_param(
+		const RendererIndexBufferUpdateParam& param,
+		std::string& error_message);
+
 	static bool validate_renderer_texture_create_param(
 		const RendererTextureCreateParam& param,
 		std::string& error_message);

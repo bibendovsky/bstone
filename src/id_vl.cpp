@@ -1348,7 +1348,7 @@ bstone::RendererCommandSets hw_command_sets_;
 bstone::RendererCommandSet* hw_2d_command_set_;
 
 bstone::RendererTexture2dHandle hw_2d_texture_handle_ = nullptr;
-bstone::RendererIndexBufferHandle hw_2d_index_buffer_handle_ = nullptr;
+bstone::RendererIndexBufferUPtr hw_2d_index_buffer_ = nullptr;
 bstone::RendererVertexBufferHandle hw_2d_vertex_buffer_handle_ = nullptr;
 
 
@@ -1549,9 +1549,12 @@ bool hw_initialize_ui_texture()
 	//
 	constexpr auto index_count = 6;
 
-	::hw_2d_index_buffer_handle_ = ::hw_renderer_->index_buffer_create(6);
+	auto index_buffer_create_param = bstone::RendererIndexBufferCreateParam{};
+	index_buffer_create_param.index_count_ = index_count;
 
-	if (!::hw_2d_index_buffer_handle_)
+	::hw_2d_index_buffer_ = ::hw_renderer_->index_buffer_create(index_buffer_create_param);
+
+	if (!::hw_2d_index_buffer_)
 	{
 		return false;
 	}
@@ -1565,12 +1568,12 @@ bool hw_initialize_ui_texture()
 		0, 2, 3,
 	};
 
-	::hw_renderer_->index_buffer_update(
-		::hw_2d_index_buffer_handle_,
-		0,
-		index_count,
-		indices.data()
-	);
+	auto index_buffer_update_param = bstone::RendererIndexBufferUpdateParam{};
+	index_buffer_update_param.offset_ = 0;
+	index_buffer_update_param.count_ = index_count;
+	index_buffer_update_param.indices_ = indices.data();
+
+	::hw_2d_index_buffer_->update(index_buffer_update_param);
 
 	
 	// Vertex buffer.
@@ -2041,11 +2044,7 @@ void hw_uninitialize_ui_texture()
 		::hw_2d_texture_handle_ = nullptr;
 	}
 
-	if (::hw_2d_index_buffer_handle_)
-	{
-		::hw_renderer_->index_buffer_destroy(::hw_2d_index_buffer_handle_);
-		::hw_2d_index_buffer_handle_ = nullptr;
-	}
+	::hw_2d_index_buffer_ = nullptr;
 
 	if (::hw_2d_vertex_buffer_handle_)
 	{
@@ -2152,7 +2151,7 @@ void hw_refresh_screen()
 
 		auto& draw_quads = command.draw_quads_;
 		draw_quads.count_ = 1;
-		draw_quads.index_buffer_handle_ = ::hw_2d_index_buffer_handle_;
+		draw_quads.index_buffer_ = ::hw_2d_index_buffer_.get();
 		draw_quads.index_offset_ = 0;
 		draw_quads.texture_2d_handle_ = ::hw_2d_texture_handle_;
 		draw_quads.vertex_buffer_handle_ = ::hw_2d_vertex_buffer_handle_;

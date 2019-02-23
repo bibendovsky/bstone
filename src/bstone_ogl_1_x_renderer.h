@@ -99,17 +99,8 @@ public:
 	void present() override;
 
 
-	RendererIndexBufferHandle index_buffer_create(
-		const int index_count) override;
-
-	void index_buffer_destroy(
-		RendererIndexBufferHandle id) override;
-
-	void index_buffer_update(
-		RendererIndexBufferHandle id,
-		const int offset,
-		const int count,
-		const void* const indices) override;
+	RendererIndexBufferUPtr index_buffer_create(
+		const RendererIndexBufferCreateParam& param) override;
 
 
 	RendererVertexBufferHandle vertex_buffer_create(
@@ -141,11 +132,14 @@ public:
 
 
 private:
-	class IndexBuffer
+	class IndexBuffer :
+		public RendererIndexBuffer
 	{
 	public:
 		using Data = std::vector<std::uint8_t>;
 
+
+		Ogl1XRenderer* renderer_;
 
 		int count_;
 		int byte_depth_;
@@ -153,9 +147,33 @@ private:
 		GLenum data_type_;
 
 		Data data_;
+
+
+		IndexBuffer(
+			Ogl1XRenderer* renderer);
+
+		IndexBuffer(
+			const IndexBuffer& rhs) = delete;
+
+		~IndexBuffer() override;
+
+
+		Value fetch_index(
+			const int offset) override;
+
+		void update(
+			const RendererIndexBufferUpdateParam& param) override;
+
+
+		bool initialize(
+			const RendererIndexBufferCreateParam& param,
+			std::string& error_message);
 	}; // IndexBuffer
 
-	using IndexBuffers = std::list<IndexBuffer>;
+	using IndexBufferPtr = IndexBuffer*;
+	using IndexBufferUPtr = std::unique_ptr<IndexBuffer>;
+
+	using IndexBuffers = std::list<IndexBufferPtr>;
 
 
 	using VertexBuffer = std::vector<RendererVertex>;
