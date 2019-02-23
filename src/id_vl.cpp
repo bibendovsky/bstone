@@ -1348,8 +1348,8 @@ bstone::RendererCommandSets hw_command_sets_;
 bstone::RendererCommandSet* hw_2d_command_set_;
 
 bstone::RendererTexture2dHandle hw_2d_texture_handle_ = nullptr;
-bstone::RendererIndexBufferUPtr hw_2d_index_buffer_ = nullptr;
-bstone::RendererVertexBufferHandle hw_2d_vertex_buffer_handle_ = nullptr;
+bstone::RendererIndexBufferPtr hw_2d_index_buffer_ = nullptr;
+bstone::RendererVertexBufferPtr hw_2d_vertex_buffer_ = nullptr;
 
 
 
@@ -1535,12 +1535,12 @@ void hw_2d_resize()
 		vertex.xyz_ = bstone::Vec3F{left_f, height_f, 0.0F};
 	}
 
-	::hw_renderer_->vertex_buffer_update(
-		::hw_2d_vertex_buffer_handle_,
-		0,
-		::hw_2d_vertex_count_,
-		::hw_2d_vertices_.data()
-	);
+	auto vertex_buffer_update_param = bstone::RendererVertexBufferUpdateParam{};
+	vertex_buffer_update_param.offset_ = 0;
+	vertex_buffer_update_param.count_ = ::hw_2d_vertex_count_;
+	vertex_buffer_update_param.vertices_ = ::hw_2d_vertices_.data();
+
+	::hw_2d_vertex_buffer_->update(vertex_buffer_update_param);
 }
 
 bool hw_initialize_ui_texture()
@@ -1580,9 +1580,12 @@ bool hw_initialize_ui_texture()
 	//
 	constexpr auto vertex_count = 4;
 
-	::hw_2d_vertex_buffer_handle_ = ::hw_renderer_->vertex_buffer_create(4);
+	auto vertex_buffer_create_param = bstone::RendererVertexBufferCreateParam{};
+	vertex_buffer_create_param.vertex_count_ = vertex_count;
 
-	if (!::hw_2d_vertex_buffer_handle_)
+	::hw_2d_vertex_buffer_ = ::hw_renderer_->vertex_buffer_create(vertex_buffer_create_param);
+
+	if (!::hw_2d_vertex_buffer_)
 	{
 		return false;
 	}
@@ -1617,12 +1620,12 @@ bool hw_initialize_ui_texture()
 		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
 	}
 
-	::hw_renderer_->vertex_buffer_update(
-		::hw_2d_vertex_buffer_handle_,
-		0,
-		::hw_2d_vertex_count_,
-		::hw_2d_vertices_.data()
-	);
+	auto vertex_buffer_update_param = bstone::RendererVertexBufferUpdateParam{};
+	vertex_buffer_update_param.offset_ = 0;
+	vertex_buffer_update_param.count_ = ::hw_2d_vertex_count_;
+	vertex_buffer_update_param.vertices_ = ::hw_2d_vertices_.data();
+
+	::hw_2d_vertex_buffer_->update(vertex_buffer_update_param);
 
 
 	// Texture.
@@ -2044,12 +2047,16 @@ void hw_uninitialize_ui_texture()
 		::hw_2d_texture_handle_ = nullptr;
 	}
 
-	::hw_2d_index_buffer_ = nullptr;
-
-	if (::hw_2d_vertex_buffer_handle_)
+	if (::hw_2d_index_buffer_)
 	{
-		::hw_renderer_->vertex_buffer_destroy(::hw_2d_vertex_buffer_handle_);
-		::hw_2d_vertex_buffer_handle_ = nullptr;
+		::hw_renderer_->index_buffer_destroy(::hw_2d_index_buffer_);
+		::hw_2d_index_buffer_ = nullptr;
+	}
+
+	if (::hw_2d_vertex_buffer_)
+	{
+		::hw_renderer_->vertex_buffer_destroy(::hw_2d_vertex_buffer_);
+		::hw_2d_vertex_buffer_ = nullptr;
 	}
 }
 
@@ -2151,10 +2158,10 @@ void hw_refresh_screen()
 
 		auto& draw_quads = command.draw_quads_;
 		draw_quads.count_ = 1;
-		draw_quads.index_buffer_ = ::hw_2d_index_buffer_.get();
+		draw_quads.index_buffer_ = ::hw_2d_index_buffer_;
 		draw_quads.index_offset_ = 0;
 		draw_quads.texture_2d_handle_ = ::hw_2d_texture_handle_;
-		draw_quads.vertex_buffer_handle_ = ::hw_2d_vertex_buffer_handle_;
+		draw_quads.vertex_buffer_ = ::hw_2d_vertex_buffer_;
 	}
 
 	::hw_2d_command_set_->count_ = command_index;

@@ -44,58 +44,33 @@ namespace bstone
 // Ogl1XRenderer::IndexBuffer
 //
 
-Ogl1XRenderer::IndexBuffer::IndexBuffer(
-	Ogl1XRenderer* renderer)
-	:
-	renderer_{renderer},
-	count_{},
-	byte_depth_{},
-	size_in_bytes_{},
-	data_type_{},
-	data_{}
-{
-	assert(renderer_);
-}
-
-Ogl1XRenderer::IndexBuffer::~IndexBuffer()
-{
-	renderer_->index_buffers_.remove_if(
-		[&](const auto& item)
-		{
-			return this == item;
-		}
-	);
-}
-
 void Ogl1XRenderer::IndexBuffer::update(
 	const RendererIndexBufferUpdateParam& param)
 {
-	auto error_message = std::string{};
-
-	if (!RendererUtils::validate_index_buffer_update_param(param, error_message))
+	if (!RendererUtils::validate_index_buffer_update_param(param, error_message_))
 	{
-		assert(!"Invalid update parameter.");
+		error_message_ = "Invalid update parameter.";
 
 		return;
 	}
 
 	if (param.offset_ >= count_)
 	{
-		assert(!"Offset out of range.");
+		error_message_ = "Offset out of range.";
 
 		return;
 	}
 
 	if (param.count_ > count_)
 	{
-		assert(!"Count out of range.");
+		error_message_ = "Count out of range.";
 
 		return;
 	}
 
 	if ((param.offset_ + param.count_) > count_)
 	{
-		assert(!"Block out of range.");
+		error_message_ = "Block out of range.";
 
 		return;
 	}
@@ -112,10 +87,9 @@ void Ogl1XRenderer::IndexBuffer::update(
 }
 
 bool Ogl1XRenderer::IndexBuffer::initialize(
-	const RendererIndexBufferCreateParam& param,
-	std::string& error_message)
+	const RendererIndexBufferCreateParam& param)
 {
-	if (!RendererUtils::validate_index_buffer_create_param(param, error_message))
+	if (!RendererUtils::validate_index_buffer_create_param(param, error_message_))
 	{
 		return false;
 	}
@@ -152,6 +126,63 @@ bool Ogl1XRenderer::IndexBuffer::initialize(
 
 //
 // Ogl1XRenderer::IndexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// Ogl1XRenderer::VertexBuffer
+//
+
+void Ogl1XRenderer::VertexBuffer::update(
+	const RendererVertexBufferUpdateParam& param)
+{
+	if (!RendererUtils::validate_vertex_buffer_update_param(param, error_message_))
+	{
+		error_message_ = "Invalid update parameter.";
+
+		return;
+	}
+
+	if (param.offset_ >= count_)
+	{
+		error_message_ = "Offset out of range.";
+
+		return;
+	}
+
+	if (param.count_ > count_)
+	{
+		error_message_ = "Count out of range.";
+
+		return;
+	}
+
+	if ((param.offset_ + param.count_) > count_)
+	{
+		error_message_ = "Block out of range.";
+
+		return;
+	}
+
+	std::uninitialized_copy_n(param.vertices_, param.count_, data_.begin() + param.offset_);
+}
+
+bool Ogl1XRenderer::VertexBuffer::initialize(
+	const RendererVertexBufferCreateParam& param)
+{
+	if (!RendererUtils::validate_vertex_buffer_create_param(param, error_message_))
+	{
+		return false;
+	}
+
+	count_ = param.vertex_count_;
+	data_.resize(param.vertex_count_);
+
+	return true;
+}
+
+//
+// Ogl1XRenderer::VertexBuffer
 // ==========================================================================
 
 
@@ -314,71 +345,70 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	two_d_projection_matrix_ = new_matrix;
 }
 
-RendererIndexBufferUPtr Ogl1XRenderer::index_buffer_create(
+RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
-	auto index_buffer = IndexBufferUPtr{new IndexBuffer{this}};
+	auto index_buffer = IndexBufferUPtr{new IndexBuffer{}};
 
-	index_buffers_.emplace_back(index_buffer.get());
-
-	if (!index_buffer->initialize(param, error_message_))
+	if (!index_buffer->initialize(param))
 	{
-		error_message_ = "Failed to create an index buffer. " + error_message_;
+		error_message_ = index_buffer->error_message_;
 
 		return nullptr;
 	}
 
-	return index_buffer;
+	index_buffers_.push_back(std::move(index_buffer));
+
+	return index_buffers_.back().get();
 }
 
-RendererVertexBufferHandle Ogl1XRenderer::vertex_buffer_create(
-	const int vertex_count)
+void Ogl1XRenderer::index_buffer_destroy(
+	RendererIndexBufferPtr index_buffer)
 {
-	assert(is_initialized_);
-	assert(vertex_count > 0 && (vertex_count % 4) == 0);
+	if (!index_buffer)
+	{
+		assert(!"Null index buffer.");
+	}
 
-	vertex_buffers_.emplace_back();
-	auto& vertex_buffer = vertex_buffers_.back();
-
-	vertex_buffer.resize(vertex_count);
-
-	return reinterpret_cast<RendererVertexBufferHandle>(&vertex_buffer);
-}
-
-void Ogl1XRenderer::vertex_buffer_destroy(
-	RendererVertexBufferHandle id)
-{
-	assert(is_initialized_);
-	assert(id);
-
-	vertex_buffers_.remove_if(
+	index_buffers_.remove_if(
 		[=](const auto& item)
 		{
-			return reinterpret_cast<const VertexBuffer*>(id) == &item;
+			return item.get() == index_buffer;
 		}
 	);
 }
 
-void Ogl1XRenderer::vertex_buffer_update(
-	RendererVertexBufferHandle id,
-	const int offset,
-	const int count,
-	const RendererVertex* const vertices)
+RendererVertexBufferPtr Ogl1XRenderer::vertex_buffer_create(
+	const RendererVertexBufferCreateParam& param)
 {
-	assert(is_initialized_);
-	assert(id);
-	assert(offset >= 0);
-	assert(count > 0);
-	assert(vertices != nullptr);
+	auto vertex_buffer = VertexBufferUPtr{new VertexBuffer{}};
 
-	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(id);
-	const auto max_vertex_count = static_cast<int>(vertex_buffer.size());
+	if (!vertex_buffer->initialize(param))
+	{
+		error_message_ = vertex_buffer->error_message_;
 
-	assert(offset < max_vertex_count);
-	assert(count <= max_vertex_count);
-	assert(count <= (max_vertex_count - offset));
+		return nullptr;
+	}
 
-	std::uninitialized_copy_n(vertices, count, vertex_buffer.begin() + offset);
+	vertex_buffers_.push_back(std::move(vertex_buffer));
+
+	return vertex_buffers_.back().get();
+}
+
+void Ogl1XRenderer::vertex_buffer_destroy(
+	RendererVertexBufferPtr vertex_buffer)
+{
+	if (!vertex_buffer)
+	{
+		assert(!"Null vertex buffer.");
+	}
+
+	vertex_buffers_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == vertex_buffer;
+		}
+	);
 }
 
 void Ogl1XRenderer::execute_command_sets(
@@ -626,6 +656,9 @@ void Ogl1XRenderer::uninitialize_internal(
 		texture_buffer_.clear();
 	}
 
+	index_buffers_.clear();
+	vertex_buffers_.clear();
+
 	for (const auto& texture_2d : textures_2d_)
 	{
 		::glDeleteTextures(1, &texture_2d.ogl_id_);
@@ -797,7 +830,7 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	assert(command.index_offset_ >= 0);
 	assert(command.texture_2d_handle_);
 	assert(command.index_buffer_);
-	assert(command.vertex_buffer_handle_);
+	assert(command.vertex_buffer_);
 
 	const auto triangles_per_quad = 2;
 	const auto triangle_count = command.count_ * triangles_per_quad;
@@ -808,14 +841,14 @@ void Ogl1XRenderer::execute_command_draw_quads(
 
 	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_handle_);
 	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_);
-	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(command.vertex_buffer_handle_);
+	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(command.vertex_buffer_);
 
 	assert(command.index_offset_ < index_buffer.count_);
 	assert(command.count_ <= index_buffer.count_);
 	assert((command.index_offset_ + command.count_) <= index_buffer.count_);
 
 	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
-	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.data());
+	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.data_.data());
 
 	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
 	assert(!OglRendererUtils::was_errors());

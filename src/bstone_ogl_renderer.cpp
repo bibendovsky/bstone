@@ -218,7 +218,7 @@ void OglRenderer::set_2d_projection_matrix(
 	renderer_->set_2d_projection_matrix(width, height);
 }
 
-RendererIndexBufferUPtr OglRenderer::index_buffer_create(
+RendererIndexBufferPtr OglRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
 	assert(is_initialized_);
@@ -226,37 +226,28 @@ RendererIndexBufferUPtr OglRenderer::index_buffer_create(
 	return renderer_->index_buffer_create(param);
 }
 
-RendererVertexBufferHandle OglRenderer::vertex_buffer_create(
-	const int vertex_count)
+void OglRenderer::index_buffer_destroy(
+	RendererIndexBufferPtr index_buffer)
 {
 	assert(is_initialized_);
-	assert(vertex_count > 0 && (vertex_count % 4) == 0);
 
-	return renderer_->vertex_buffer_create(vertex_count);
+	renderer_->index_buffer_destroy(index_buffer);
+}
+
+RendererVertexBufferPtr OglRenderer::vertex_buffer_create(
+	const RendererVertexBufferCreateParam& param)
+{
+	assert(is_initialized_);
+
+	return renderer_->vertex_buffer_create(param);
 }
 
 void OglRenderer::vertex_buffer_destroy(
-	RendererVertexBufferHandle id)
+	RendererVertexBufferPtr vertex_buffer)
 {
 	assert(is_initialized_);
-	assert(id);
 
-	renderer_->vertex_buffer_destroy(id);
-}
-
-void OglRenderer::vertex_buffer_update(
-	RendererVertexBufferHandle id,
-	const int offset,
-	const int count,
-	const RendererVertex* const vertices)
-{
-	assert(is_initialized_);
-	assert(id);
-	assert(offset >= 0);
-	assert(count > 0);
-	assert(vertices != nullptr);
-
-	renderer_->vertex_buffer_update(id, offset, count, vertices);
+	renderer_->vertex_buffer_destroy(vertex_buffer);
 }
 
 RendererTexture2dHandle OglRenderer::texture_2d_create(

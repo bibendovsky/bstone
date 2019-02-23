@@ -104,21 +104,18 @@ public:
 	void present() override;
 
 
-	RendererIndexBufferUPtr index_buffer_create(
+	RendererIndexBufferPtr index_buffer_create(
 		const RendererIndexBufferCreateParam& param) override;
 
+	void index_buffer_destroy(
+		RendererIndexBufferPtr index_buffer) override;
 
-	RendererVertexBufferHandle vertex_buffer_create(
-		const int vertex_count) override;
+
+	RendererVertexBufferPtr vertex_buffer_create(
+		const RendererVertexBufferCreateParam& param) override;
 
 	void vertex_buffer_destroy(
-		RendererVertexBufferHandle id) override;
-
-	void vertex_buffer_update(
-		RendererVertexBufferHandle id,
-		const int offset,
-		const int count,
-		const RendererVertex* const vertices) override;
+		RendererVertexBufferPtr vertex_buffer) override;
 
 
 	RendererTexture2dHandle texture_2d_create(

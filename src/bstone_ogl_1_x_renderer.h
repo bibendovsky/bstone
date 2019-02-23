@@ -99,21 +99,18 @@ public:
 	void present() override;
 
 
-	RendererIndexBufferUPtr index_buffer_create(
+	RendererIndexBufferPtr index_buffer_create(
 		const RendererIndexBufferCreateParam& param) override;
 
+	void index_buffer_destroy(
+		RendererIndexBufferPtr index_buffer) override;
 
-	RendererVertexBufferHandle vertex_buffer_create(
-		const int vertex_count) override;
+
+	RendererVertexBufferPtr vertex_buffer_create(
+		const RendererVertexBufferCreateParam& param) override;
 
 	void vertex_buffer_destroy(
-		RendererVertexBufferHandle id) override;
-
-	void vertex_buffer_update(
-		RendererVertexBufferHandle id,
-		const int offset,
-		const int count,
-		const RendererVertex* const vertices) override;
+		RendererVertexBufferPtr vertex_buffer) override;
 
 
 	RendererTexture2dHandle texture_2d_create(
@@ -132,6 +129,10 @@ public:
 
 
 private:
+	// =========================================================================
+	// IndexBuffer
+	//
+
 	class IndexBuffer :
 		public RendererIndexBuffer
 	{
@@ -139,7 +140,7 @@ private:
 		using Data = std::vector<std::uint8_t>;
 
 
-		Ogl1XRenderer* renderer_;
+		std::string error_message_;
 
 		int count_;
 		int byte_depth_;
@@ -149,13 +150,12 @@ private:
 		Data data_;
 
 
-		IndexBuffer(
-			Ogl1XRenderer* renderer);
+		IndexBuffer() = default;
 
 		IndexBuffer(
 			const IndexBuffer& rhs) = delete;
 
-		~IndexBuffer() override;
+		~IndexBuffer() override = default;
 
 
 		void update(
@@ -163,18 +163,61 @@ private:
 
 
 		bool initialize(
-			const RendererIndexBufferCreateParam& param,
-			std::string& error_message);
+			const RendererIndexBufferCreateParam& param);
 	}; // IndexBuffer
 
 	using IndexBufferPtr = IndexBuffer*;
 	using IndexBufferUPtr = std::unique_ptr<IndexBuffer>;
 
-	using IndexBuffers = std::list<IndexBufferPtr>;
+	using IndexBuffers = std::list<IndexBufferUPtr>;
+
+	//
+	// IndexBuffer
+	// =========================================================================
 
 
-	using VertexBuffer = std::vector<RendererVertex>;
-	using VertexBuffers = std::list<VertexBuffer>;
+	// =========================================================================
+	// VertexBuffer
+	//
+
+	class VertexBuffer :
+		public RendererVertexBuffer
+	{
+	public:
+		using Data = std::vector<RendererVertex>;
+
+
+		std::string error_message_;
+
+		int count_;
+		Data data_;
+
+
+		VertexBuffer() = default;
+
+		VertexBuffer(
+			const VertexBuffer& rhs) = delete;
+
+		~VertexBuffer() override = default;
+
+
+		void update(
+			const RendererVertexBufferUpdateParam& param) override;
+
+
+		bool initialize(
+			const RendererVertexBufferCreateParam& param);
+	}; // VertexBuffer
+
+	using VertexBufferPtr = VertexBuffer*;
+	using VertexBufferUPtr = std::unique_ptr<VertexBuffer>;
+
+	using VertexBuffers = std::list<VertexBufferUPtr>;
+
+	//
+	// VertexBuffer
+	// =========================================================================
+
 
 	using TextureBuffer = std::vector<RendererColor32>;
 

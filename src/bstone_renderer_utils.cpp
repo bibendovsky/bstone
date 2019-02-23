@@ -318,6 +318,48 @@ bool RendererUtils::validate_index_buffer_update_param(
 	return true;
 }
 
+bool RendererUtils::validate_vertex_buffer_create_param(
+	const RendererVertexBufferCreateParam& param,
+	std::string& error_message)
+{
+	if (param.vertex_count_ <= 0)
+	{
+		error_message = "Invalid vertex count.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererUtils::validate_vertex_buffer_update_param(
+	const RendererVertexBufferUpdateParam& param,
+	std::string& error_message)
+{
+	if (param.offset_ < 0)
+	{
+		error_message = "Invalid offset.";
+
+		return false;
+	}
+
+	if (param.count_ <= 0)
+	{
+		error_message = "Invalid count.";
+
+		return false;
+	}
+
+	if (!param.vertices_)
+	{
+		error_message = "Null vertices.";
+
+		return false;
+	}
+
+	return true;
+}
+
 bool RendererUtils::validate_renderer_texture_create_param(
 	const RendererTextureCreateParam& param,
 	std::string& error_message)

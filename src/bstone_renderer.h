@@ -181,24 +181,57 @@ struct RendererIndexBufferUpdateParam
 
 class RendererIndexBuffer
 {
-public:
-	using Value = std::uint32_t;
-
-
+protected:
 	RendererIndexBuffer() = default;
 
 	virtual ~RendererIndexBuffer() = default;
 
 
+public:
 	virtual void update(
 		const RendererIndexBufferUpdateParam& param) = 0;
 }; // RendererIndexBuffer
 
 using RendererIndexBufferPtr = RendererIndexBuffer*;
-using RendererIndexBufferUPtr = std::unique_ptr<RendererIndexBuffer>;
 
 //
 // RendererIndexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// RendererVertexBuffer
+//
+
+struct RendererVertexBufferCreateParam
+{
+	int vertex_count_;
+}; // RendererVertexBufferCreateParam
+
+struct RendererVertexBufferUpdateParam
+{
+	int offset_;
+	int count_;
+	const RendererVertex* vertices_;
+}; // RendererVertexBufferUpdateParam
+
+class RendererVertexBuffer
+{
+protected:
+	RendererVertexBuffer() = default;
+
+	virtual ~RendererVertexBuffer() = default;
+
+
+public:
+	virtual void update(
+		const RendererVertexBufferUpdateParam& param) = 0;
+}; // RendererVertexBuffer
+
+using RendererVertexBufferPtr = RendererVertexBuffer*;
+
+//
+// RendererVertexBuffer
 // ==========================================================================
 
 
@@ -238,7 +271,7 @@ public:
 		int index_offset_;
 		RendererTexture2dHandle texture_2d_handle_;
 		RendererIndexBufferPtr index_buffer_;
-		RendererVertexBufferHandle vertex_buffer_handle_;
+		RendererVertexBufferPtr vertex_buffer_;
 	}; // DrawQuads
 
 
@@ -316,21 +349,18 @@ public:
 		const int height) = 0;
 
 
-	virtual RendererIndexBufferUPtr index_buffer_create(
+	virtual RendererIndexBufferPtr index_buffer_create(
 		const RendererIndexBufferCreateParam& param) = 0;
 
+	virtual void index_buffer_destroy(
+		RendererIndexBufferPtr index_buffer) = 0;
 
-	virtual RendererVertexBufferHandle vertex_buffer_create(
-		const int vertex_count) = 0;
+
+	virtual RendererVertexBufferPtr vertex_buffer_create(
+		const RendererVertexBufferCreateParam& param) = 0;
 
 	virtual void vertex_buffer_destroy(
-		RendererVertexBufferHandle id) = 0;
-
-	virtual void vertex_buffer_update(
-		RendererVertexBufferHandle id,
-		const int offset,
-		const int count,
-		const RendererVertex* const vertices) = 0;
+		RendererVertexBufferPtr vertex_buffer) = 0;
 
 
 	virtual RendererTexture2dHandle texture_2d_create(
