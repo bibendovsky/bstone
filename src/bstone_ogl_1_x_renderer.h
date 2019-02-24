@@ -325,6 +325,9 @@ private:
 	void execute_command_set_2d(
 		const RendererCommand::Set2d& command);
 
+	void execute_command_enable_blending(
+		const RendererCommand::EnableBlending& command);
+
 	void execute_command_draw_quads(
 		const RendererCommand::DrawQuads& command);
 }; // OglRenderer

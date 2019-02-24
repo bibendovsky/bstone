@@ -220,19 +220,29 @@ void Ogl1XRenderer::Texture2d::update(
 		return;
 	}
 
-	if (param.indexed_pixels_)
+	if (is_rgba_)
 	{
-		indexed_pixels_ = param.indexed_pixels_;
+		if (param.rgba_pixels_)
+		{
+			rgba_pixels_ = param.rgba_pixels_;
+		}
 	}
-
-	if (param.indexed_palette_)
+	else
 	{
-		indexed_palette_ = param.indexed_palette_;
-	}
+		if (param.indexed_pixels_)
+		{
+			indexed_pixels_ = param.indexed_pixels_;
+		}
 
-	if (param.indexed_alphas_)
-	{
-		indexed_alphas_ = param.indexed_alphas_;
+		if (param.indexed_palette_)
+		{
+			indexed_palette_ = param.indexed_palette_;
+		}
+
+		if (param.indexed_alphas_)
+		{
+			indexed_alphas_ = param.indexed_alphas_;
+		}
 	}
 
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
@@ -764,6 +774,10 @@ void Ogl1XRenderer::execute_command_sets(
 				execute_command_set_2d(command.set_2d_);
 				break;
 
+			case RendererCommandId::enable_blending:
+				execute_command_enable_blending(command.enable_blending_);
+				break;
+
 			case RendererCommandId::draw_quads:
 				execute_command_draw_quads(command.draw_quads_);
 				break;
@@ -972,6 +986,21 @@ void Ogl1XRenderer::execute_command_set_2d(
 	assert(!OglRendererUtils::was_errors());
 
 	::glLoadMatrixf(two_d_projection_matrix_.get_data());
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::execute_command_enable_blending(
+	const RendererCommand::EnableBlending& command)
+{
+	if (command.is_enabled_)
+	{
+		::glEnable(GL_BLEND);
+	}
+	else
+	{
+		::glDisable(GL_BLEND);
+	}
+
 	assert(!OglRendererUtils::was_errors());
 }
 

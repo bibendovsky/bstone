@@ -60,6 +60,7 @@ enum class RendererCommandId
 	none,
 
 	set_2d,
+	enable_blending,
 
 	draw_quads,
 }; // RendererCommandId
@@ -281,6 +282,11 @@ struct RendererCommand
 	{
 	}; // Set2d
 
+	struct EnableBlending
+	{
+		bool is_enabled_;
+	}; // EnableBlending
+
 	struct DrawQuads
 	{
 		int count_;
@@ -296,6 +302,7 @@ struct RendererCommand
 	union
 	{
 		Set2d set_2d_;
+		EnableBlending enable_blending_;
 		DrawQuads draw_quads_;
 	}; // union
 }; // RendererCommand

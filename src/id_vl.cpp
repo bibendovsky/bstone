@@ -1347,8 +1347,6 @@ constexpr auto hw_2d_fillers_hud_index_offset_ = 6 * ::hw_2d_fillers_ui_quad_cou
 
 constexpr auto hw_2d_fillers_vertex_count_ = hw_2d_fillers_quad_count * 4;
 
-using Hw2dFillersVertices = std::array<bstone::RendererVertex, hw_2d_fillers_vertex_count_>;
-
 
 constexpr auto hw_min_2d_commands = 16;
 
@@ -1376,12 +1374,30 @@ bstone::RendererTexture2dPtr hw_2d_texture_ = nullptr;
 bstone::RendererIndexBufferPtr hw_2d_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_2d_vb_ = nullptr;
 
-bstone::RendererTexture2dPtr hw_2d_black_texture_1x1_ = nullptr;
-bstone::RendererTexture2dPtr hw_2d_white_texture_1x1_ = nullptr;
+bstone::RendererTexture2dPtr hw_2d_black_t2d_1x1_ = nullptr;
+bstone::RendererTexture2dPtr hw_2d_white_t2d_1x1_ = nullptr;
 
 bstone::RendererIndexBufferPtr hw_2d_fillers_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_2d_fillers_vb_ = nullptr;
 
+bool hw_2d_fade_is_enabled_ = false;
+bstone::RendererColor32 hw_2d_fade_color_ = bstone::RendererColor32{};
+bstone::RendererTexture2dPtr hw_2d_fade_t2d_ = nullptr;
+
+
+bstone::RendererColor32 hw_vga_color_to_color_32(
+	const int vga_red,
+	const int vga_green,
+	const int vga_blue)
+{
+	return bstone::RendererColor32
+	{
+		static_cast<std::uint8_t>((0xFF * vga_red) / 0x3F),
+		static_cast<std::uint8_t>((0xFF * vga_green) / 0x3F),
+		static_cast<std::uint8_t>((0xFF * vga_blue) / 0x3F),
+		0xFF
+	};
+}
 
 void hw_initialize_vga_buffer()
 {
@@ -1712,13 +1728,11 @@ bool hw_2d_fillers_create_vb()
 		return false;
 	}
 
-	const auto& filler_color = bstone::RendererColor32
-	{
-		static_cast<std::uint8_t>((0xFF * ::vgapal[(::filler_color_index * 3) + 0]) / 0x3F),
-		static_cast<std::uint8_t>((0xFF * ::vgapal[(::filler_color_index * 3) + 1]) / 0x3F),
-		static_cast<std::uint8_t>((0xFF * ::vgapal[(::filler_color_index * 3) + 2]) / 0x3F),
-		0xFF
-	};
+	const auto& filler_color = ::hw_vga_color_to_color_32(
+		::vgapal[(::filler_color_index * 3) + 0],
+		::vgapal[(::filler_color_index * 3) + 1],
+		::vgapal[(::filler_color_index * 3) + 2]
+	);
 
 	const auto left_left_f = static_cast<float>(0.0F);
 	const auto left_right_f = static_cast<float>(::hw_2d_left_filler_width_4x3_);
@@ -1733,6 +1747,8 @@ bool hw_2d_fillers_create_vb()
 	const auto bottom_bottom_f = static_cast<float>(0.0F);
 
 	auto vertex_index = 0;
+
+	using Hw2dFillersVertices = std::array<bstone::RendererVertex, hw_2d_fillers_vertex_count_>;
 	auto vertices = Hw2dFillersVertices{};
 
 
@@ -2053,18 +2069,20 @@ bool hw_2d_fillers_create_vb()
 	return true;
 }
 
-bool hw_2d_create_black_texture_1x1()
+bool hw_create_solid_texture_1x1(
+	const bstone::RendererColor32& color,
+	const bool has_alpha,
+	bstone::RendererTexture2dPtr& texture_2d)
 {
-	const auto& black_color = bstone::RendererColor32{0x00, 0x00, 0x00, 0xFF};
-
 	auto t2d_create_param = bstone::RendererTexture2dCreateParam{};
 	t2d_create_param.width_ = 1;
 	t2d_create_param.height_ = 1;
-	t2d_create_param.rgba_pixels_ = &black_color;
+	t2d_create_param.has_rgba_alpha_ = has_alpha;
+	t2d_create_param.rgba_pixels_ = &color;
 
-	::hw_2d_black_texture_1x1_ = ::hw_renderer_->texture_2d_create(t2d_create_param);
+	texture_2d = ::hw_renderer_->texture_2d_create(t2d_create_param);
 
-	if (!::hw_2d_black_texture_1x1_)
+	if (!texture_2d)
 	{
 		return false;
 	}
@@ -2072,23 +2090,25 @@ bool hw_2d_create_black_texture_1x1()
 	return true;
 }
 
+bool hw_2d_create_black_texture_1x1()
+{
+	const auto& black_color = bstone::RendererColor32{0x00, 0x00, 0x00, 0xFF};
+
+	return hw_create_solid_texture_1x1(black_color, false, ::hw_2d_black_t2d_1x1_);
+}
+
 bool hw_2d_create_white_texture_1x1()
 {
 	const auto& white_color = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 
-	auto t2d_create_param = bstone::RendererTexture2dCreateParam{};
-	t2d_create_param.width_ = 1;
-	t2d_create_param.height_ = 1;
-	t2d_create_param.rgba_pixels_ = &white_color;
+	return hw_create_solid_texture_1x1(white_color, false, ::hw_2d_white_t2d_1x1_);
+}
 
-	::hw_2d_white_texture_1x1_ = ::hw_renderer_->texture_2d_create(t2d_create_param);
+bool hw_2d_create_fade_texture_1x1()
+{
+	const auto& color = bstone::RendererColor32{};
 
-	if (!::hw_2d_white_texture_1x1_)
-	{
-		return false;
-	}
-
-	return true;
+	return hw_create_solid_texture_1x1(color, true, ::hw_2d_fade_t2d_);
 }
 
 bool hw_initialize_ui_texture()
@@ -2144,6 +2164,11 @@ bool hw_initialize_ui_texture()
 		return false;
 	}
 
+	if (!hw_2d_create_fade_texture_1x1())
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -2167,10 +2192,11 @@ void hw_update_palette(
 		const auto& vga_color = ::vid_vga_palette[color_index];
 		auto& hw_color = ::hw_palette_[color_index];
 
-		hw_color.r_ = (0xFF * vga_color.r) / 0x3F;
-		hw_color.g_ = (0xFF * vga_color.g) / 0x3F;
-		hw_color.b_ = (0xFF * vga_color.b) / 0x3F;
-		hw_color.a_ = 0xFF;
+		hw_color = ::hw_vga_color_to_color_32(
+			vga_color.r,
+			vga_color.g,
+			vga_color.b
+		);
 	}
 }
 
@@ -2187,10 +2213,8 @@ void hw_initialize_palette()
 		const auto vga_color = ::vgapal + (i * 3);
 		auto& hw_color = default_palette[i];
 
-		hw_color.r_ = (0xFF * vga_color[0]) / 0x3F;
-		hw_color.g_ = (0xFF * vga_color[1]) / 0x3F;
-		hw_color.b_ = (0xFF * vga_color[2]) / 0x3F;
-		hw_color.a_ = 0xFF;
+		hw_color = ::hw_vga_color_to_color_32(vga_color[0], vga_color[1], vga_color[2]);
+
 	}
 
 	::hw_renderer_->palette_update(default_palette);
@@ -2566,16 +2590,22 @@ void hw_uninitialize_ui_texture()
 		::hw_2d_texture_ = nullptr;
 	}
 
-	if (::hw_2d_black_texture_1x1_)
+	if (::hw_2d_black_t2d_1x1_)
 	{
-		::hw_renderer_->texture_2d_destroy(::hw_2d_black_texture_1x1_);
-		::hw_2d_black_texture_1x1_ = nullptr;
+		::hw_renderer_->texture_2d_destroy(::hw_2d_black_t2d_1x1_);
+		::hw_2d_black_t2d_1x1_ = nullptr;
 	}
 
-	if (::hw_2d_white_texture_1x1_)
+	if (::hw_2d_white_t2d_1x1_)
 	{
-		::hw_renderer_->texture_2d_destroy(::hw_2d_white_texture_1x1_);
-		::hw_2d_white_texture_1x1_ = nullptr;
+		::hw_renderer_->texture_2d_destroy(::hw_2d_white_t2d_1x1_);
+		::hw_2d_white_t2d_1x1_ = nullptr;
+	}
+
+	if (::hw_2d_fade_t2d_)
+	{
+		::hw_renderer_->texture_2d_destroy(::hw_2d_fade_t2d_);
+		::hw_2d_fade_t2d_ = nullptr;
 	}
 
 	if (::hw_2d_ib_)
@@ -2635,6 +2665,8 @@ void hw_refresh_screen()
 
 	::hw_renderer_->clear_buffers();
 
+	// Update 2D texture.
+	//
 	{
 		auto param = bstone::RendererTexture2dUpdateParam{};
 		param.indexed_pixels_ = ::vid_ui_buffer.data();
@@ -2644,13 +2676,31 @@ void hw_refresh_screen()
 		::hw_2d_texture_->update(param);
 	}
 
+	// Update fade color.
+	//
+	if (::hw_2d_fade_is_enabled_)
+	{
+		auto param = bstone::RendererTexture2dUpdateParam{};
+		param.rgba_pixels_ = &::hw_2d_fade_color_;
+
+		::hw_2d_fade_t2d_->update(param);
+	}
+
+
+	// Build commands.
+	//
 	auto command_index = 0;
 
+
+	// Enable 2D.
+	//
 	{
 		auto& command = ::hw_2d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::set_2d;
 	}
 
+	// Fillers.
+	//
 	if (!::vid_is_ui_stretched)
 	{
 		auto& command = ::hw_2d_command_set_->commands_[command_index++];
@@ -2673,11 +2723,11 @@ void hw_refresh_screen()
 
 		if (::vid_is_movie)
 		{
-			texture_2d = ::hw_2d_white_texture_1x1_;
+			texture_2d = ::hw_2d_white_t2d_1x1_;
 		}
 		else
 		{
-			texture_2d = ::hw_2d_black_texture_1x1_;
+			texture_2d = ::hw_2d_black_t2d_1x1_;
 		}
 
 		auto& draw_quads = command.draw_quads_;
@@ -2688,6 +2738,8 @@ void hw_refresh_screen()
 		draw_quads.vertex_buffer_ = ::hw_2d_fillers_vb_;
 	}
 
+	// Draw 2D (UI, menu, etc.).
+	//
 	{
 		auto& command = ::hw_2d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::draw_quads;
@@ -2707,6 +2759,54 @@ void hw_refresh_screen()
 		draw_quads.vertex_buffer_ = ::hw_2d_vb_;
 	}
 
+	// 2D fade in or out.
+	//
+	if (::hw_2d_fade_is_enabled_)
+	{
+		// Enable blending.
+		//
+		{
+			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::enable_blending;
+
+			auto& enable_blending = command.enable_blending_;
+			enable_blending.is_enabled_ = true;
+		}
+
+		// Draw the quad.
+		//
+		{
+			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
+
+			const auto index_offset = (::vid_is_ui_stretched
+				?
+				::hw_2d_stretched_index_offset_
+				:
+				::hw_2d_non_stretched_index_offset_
+			);
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = 1;
+			draw_quads.index_buffer_ = ::hw_2d_ib_;
+			draw_quads.index_offset_ = index_offset;
+			draw_quads.texture_2d_ = ::hw_2d_fade_t2d_;
+			draw_quads.vertex_buffer_ = ::hw_2d_vb_;
+		}
+
+		// Disable blending.
+		//
+		{
+			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::enable_blending;
+
+			auto& enable_blending = command.enable_blending_;
+			enable_blending.is_enabled_ = false;
+		}
+	}
+
+	// Commit commands.
+	//
 	::hw_2d_command_set_->count_ = command_index;
 
 	::hw_renderer_->execute_command_sets(::hw_command_sets_);
@@ -2946,6 +3046,52 @@ void VL_GetPalette(
 	}
 }
 
+void vl_hw_fade_out(
+	const int red,
+	const int green,
+	const int blue,
+	const int step_count)
+{
+	::hw_2d_fade_is_enabled_ = true;
+
+	::hw_2d_fade_color_ = ::hw_vga_color_to_color_32(red, green, blue);
+
+	if (!::g_no_fade_in_or_out)
+	{
+		const auto alpha = 0xFF;
+
+		for (int i = 0; i < step_count; ++i)
+		{
+			const auto new_alpha = (i * alpha) / step_count;
+
+			::hw_2d_fade_color_.a_ = static_cast<std::uint8_t>(new_alpha);
+
+			::VL_RefreshScreen();
+
+			if (!::vid_has_vsync)
+			{
+				::VL_WaitVBL(1);
+			}
+		}
+	}
+
+	//
+	// final color
+	//
+	::hw_2d_fade_color_.a_ = 0xFF;
+
+	::VL_RefreshScreen();
+
+	if (!::vid_has_vsync)
+	{
+		::VL_WaitVBL(1);
+	}
+
+	::hw_2d_fade_is_enabled_ = false;
+
+	::screenfaded = true;
+}
+
 // Fades the current palette to the given color in the given number of steps.
 void VL_FadeOut(
 	const int start,
@@ -2962,6 +3108,13 @@ void VL_FadeOut(
 	assert(blue >= 0 && blue <= 0xFF);
 	assert(steps > 0);
 	assert(start <= end);
+
+	if (::vid_is_hw_)
+	{
+		::vl_hw_fade_out(red, green, blue, steps);
+
+		return;
+	}
 
 	if (!::g_no_fade_in_or_out)
 	{
