@@ -80,10 +80,7 @@ bool vid_is_hud = false;
 bool vid_is_3d = false;
 bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
-
 bool vid_is_ui_stretched = false;
-bool vid_is_ui_stretched_old = false;
-bool vid_is_ui_stretched_modified_ = false;
 
 bstone::SpriteCache vid_sprite_cache;
 
@@ -1327,7 +1324,16 @@ void sw_update_widescreen()
 // Accelerated renderer.
 //
 
-constexpr auto hw_2d_vertex_count_ = 4;
+constexpr auto hw_2d_quad_count = 2;
+
+constexpr auto hw_2d_index_count_ = hw_2d_quad_count * 6;
+constexpr auto hw_2d_stretched_index_offset_ = 0;
+constexpr auto hw_2d_non_stretched_index_offset_ = 6;
+
+constexpr auto hw_2d_vertex_count_ = hw_2d_quad_count * 4;
+constexpr auto hw_2d_stretched_vertex_offset_ = 0;
+constexpr auto hw_2d_non_stretched_vertex_offset_ = 4;
+
 using Hard2dVertices = std::array<bstone::RendererVertex, hw_2d_vertex_count_>;
 
 
@@ -1348,9 +1354,8 @@ bstone::RendererCommandSets hw_command_sets_;
 bstone::RendererCommandSet* hw_2d_command_set_;
 
 bstone::RendererTexture2dPtr hw_2d_texture_ = nullptr;
-bstone::RendererIndexBufferPtr hw_2d_index_buffer_ = nullptr;
-bstone::RendererVertexBufferPtr hw_2d_vertex_buffer_ = nullptr;
-
+bstone::RendererIndexBufferPtr hw_2d_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_2d_vb_ = nullptr;
 
 
 void hw_initialize_vga_buffer()
@@ -1488,144 +1493,147 @@ bool hw_initialize_renderer()
 	return true;
 }
 
-void hw_2d_resize()
+bool hw_2d_create_ib()
 {
-	float left_f;
-	float right_f;
-	float width_f;
-
-	if (::vid_is_ui_stretched)
-	{
-		left_f = 0.0F;
-		right_f = static_cast<float>(::window_width);
-		width_f = static_cast<float>(::window_width);
-	}
-	else
-	{
-		left_f = static_cast<float>(::hw_2d_left_filler_width_4x3_);
-		right_f = static_cast<float>(::hw_2d_left_filler_width_4x3_ + ::hw_2d_width_4x3_);
-		width_f = static_cast<float>(::hw_2d_width_4x3_);
-	}
-
-	const auto height_f = static_cast<float>(::window_height);
-
-	auto vertex_index = 0;
-
-	// Bottom left.
-	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_f, 0.0F, 0.0F};
-	}
-
-	// Bottom right.
-	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_f, 0.0F, 0.0F};
-	}
-
-	// Upper right.
-	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_f, height_f, 0.0F};
-	}
-
-	// Upper left.
-	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_f, height_f, 0.0F};
-	}
-
-	auto vertex_buffer_update_param = bstone::RendererVertexBufferUpdateParam{};
-	vertex_buffer_update_param.offset_ = 0;
-	vertex_buffer_update_param.count_ = ::hw_2d_vertex_count_;
-	vertex_buffer_update_param.vertices_ = ::hw_2d_vertices_.data();
-
-	::hw_2d_vertex_buffer_->update(vertex_buffer_update_param);
-}
-
-bool hw_initialize_ui_texture()
-{
-	// Index buffer.
-	//
-	constexpr auto index_count = 6;
-
 	auto index_buffer_create_param = bstone::RendererIndexBufferCreateParam{};
-	index_buffer_create_param.index_count_ = index_count;
+	index_buffer_create_param.index_count_ = ::hw_2d_index_count_;
 
-	::hw_2d_index_buffer_ = ::hw_renderer_->index_buffer_create(index_buffer_create_param);
+	::hw_2d_ib_ = ::hw_renderer_->index_buffer_create(index_buffer_create_param);
 
-	if (!::hw_2d_index_buffer_)
+	if (!::hw_2d_ib_)
 	{
 		return false;
 	}
 
 
-	using Indices = std::array<std::uint8_t, index_count>;
+	using Indices = std::array<std::uint8_t, ::hw_2d_index_count_>;
 
 	const auto indices = Indices
 	{
-		0, 1, 2,
-		0, 2, 3,
+		// Stretched quad.
+		//
+		(4 * 0) + 0, (4 * 0) + 1, (4 * 0) + 2,
+		(4 * 0) + 0, (4 * 0) + 2, (4 * 0) + 3,
+
+		// Non-stretched quad.
+		//
+		(4 * 1) + 0, (4 * 1) + 1, (4 * 1) + 2,
+		(4 * 1) + 0, (4 * 1) + 2, (4 * 1) + 3,
 	};
 
 	auto index_buffer_update_param = bstone::RendererIndexBufferUpdateParam{};
 	index_buffer_update_param.offset_ = 0;
-	index_buffer_update_param.count_ = index_count;
+	index_buffer_update_param.count_ = ::hw_2d_index_count_;
 	index_buffer_update_param.indices_ = indices.data();
 
-	::hw_2d_index_buffer_->update(index_buffer_update_param);
+	::hw_2d_ib_->update(index_buffer_update_param);
 
-	
-	// Vertex buffer.
-	//
-	constexpr auto vertex_count = 4;
+	return true;
+}
 
-	auto vertex_buffer_create_param = bstone::RendererVertexBufferCreateParam{};
-	vertex_buffer_create_param.vertex_count_ = vertex_count;
+void hw_2d_fill_x_stretched_vb(
+	const float left_f,
+	const float right_f,
+	const float width_f,
+	const int vertex_offset)
+{
+	auto vertex_index = vertex_offset;
+	auto& vertices = ::hw_2d_vertices_;
 
-	::hw_2d_vertex_buffer_ = ::hw_renderer_->vertex_buffer_create(vertex_buffer_create_param);
-
-	if (!::hw_2d_vertex_buffer_)
-	{
-		return false;
-	}
-
-	auto vertex_index = 0;
+	const auto height_f = static_cast<float>(::window_height);
 
 	// Bottom left.
 	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = bstone::Vec3F{left_f, 0.0F, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = bstone::Vec3F{right_f, 0.0F, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
 	}
 
 	// Upper right.
 	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = bstone::Vec3F{right_f, height_f, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
 	}
 
 	// Upper left.
 	{
-		auto& vertex = ::hw_2d_vertices_[vertex_index++];
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = bstone::Vec3F{left_f, height_f, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
 	}
+}
+
+void hw_2d_fill_stretched_vb()
+{
+	const auto left_f = 0.0F;
+	const auto right_f = static_cast<float>(::window_width);
+	const auto width_f = static_cast<float>(::window_width);
+
+	hw_2d_fill_x_stretched_vb(left_f, right_f, width_f, ::hw_2d_stretched_vertex_offset_);
+}
+
+void hw_2d_fill_non_stretched_vb()
+{
+	const auto left_f = static_cast<float>(::hw_2d_left_filler_width_4x3_);
+	const auto right_f = static_cast<float>(::hw_2d_left_filler_width_4x3_ + ::hw_2d_width_4x3_);
+	const auto width_f = static_cast<float>(::hw_2d_width_4x3_);
+
+	hw_2d_fill_x_stretched_vb(left_f, right_f, width_f, ::hw_2d_non_stretched_vertex_offset_);
+}
+
+bool hw_2d_create_vb()
+{
+	auto vb_create_param = bstone::RendererVertexBufferCreateParam{};
+	vb_create_param.vertex_count_ = ::hw_2d_vertex_count_;
+
+	::hw_2d_vb_ = ::hw_renderer_->vertex_buffer_create(vb_create_param);
+
+	if (!::hw_2d_vb_)
+	{
+		return false;
+	}
+
+	hw_2d_fill_stretched_vb();
+	hw_2d_fill_non_stretched_vb();
 
 	auto vertex_buffer_update_param = bstone::RendererVertexBufferUpdateParam{};
 	vertex_buffer_update_param.offset_ = 0;
 	vertex_buffer_update_param.count_ = ::hw_2d_vertex_count_;
 	vertex_buffer_update_param.vertices_ = ::hw_2d_vertices_.data();
 
-	::hw_2d_vertex_buffer_->update(vertex_buffer_update_param);
+	::hw_2d_vb_->update(vertex_buffer_update_param);
+
+	return true;
+}
+
+bool hw_initialize_ui_texture()
+{
+	// Index buffer.
+	//
+	if (!::hw_2d_create_ib())
+	{
+		return false;
+	}
+
+	
+	// Vertex buffers.
+	//
+	if (!::hw_2d_create_vb())
+	{
+		return false;
+	}
 
 
 	// Texture.
@@ -2049,8 +2057,6 @@ bool hw_initialize_video()
 		::in_grab_mouse(true);
 	}
 
-	::vid_is_ui_stretched_modified_ = true;
-
 	return is_succeed;
 }
 
@@ -2062,16 +2068,16 @@ void hw_uninitialize_ui_texture()
 		::hw_2d_texture_ = nullptr;
 	}
 
-	if (::hw_2d_index_buffer_)
+	if (::hw_2d_ib_)
 	{
-		::hw_renderer_->index_buffer_destroy(::hw_2d_index_buffer_);
-		::hw_2d_index_buffer_ = nullptr;
+		::hw_renderer_->index_buffer_destroy(::hw_2d_ib_);
+		::hw_2d_ib_ = nullptr;
 	}
 
-	if (::hw_2d_vertex_buffer_)
+	if (::hw_2d_vb_)
 	{
-		::hw_renderer_->vertex_buffer_destroy(::hw_2d_vertex_buffer_);
-		::hw_2d_vertex_buffer_ = nullptr;
+		::hw_renderer_->vertex_buffer_destroy(::hw_2d_vb_);
+		::hw_2d_vb_ = nullptr;
 	}
 }
 
@@ -2098,37 +2104,12 @@ void hw_uninitialize_video()
 	}
 }
 
-void hw_check_for_stretch()
-{
-	if (!::vid_is_ui_stretched_modified_)
-	{
-		if (::vid_is_ui_stretched == ::vid_is_ui_stretched_old)
-		{
-			return;
-		}
-
-		::vid_is_ui_stretched_old = ::vid_is_ui_stretched;
-
-		::vid_is_ui_stretched_modified_ = true;
-	}
-
-	if (!::vid_is_ui_stretched_modified_)
-	{
-		return;
-	}
-
-	::vid_is_ui_stretched_modified_ = false;
-	::hw_2d_resize();
-}
-
 void hw_refresh_screen()
 {
 	if (!::hw_renderer_)
 	{
 		return;
 	}
-
-	::hw_check_for_stretch();
 
 	::hw_renderer_->clear_buffers();
 
@@ -2152,12 +2133,19 @@ void hw_refresh_screen()
 		auto& command = ::hw_2d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::draw_quads;
 
+		const auto index_offset = (::vid_is_ui_stretched
+			?
+			::hw_2d_stretched_index_offset_
+			:
+			::hw_2d_non_stretched_index_offset_
+		);
+
 		auto& draw_quads = command.draw_quads_;
 		draw_quads.count_ = 1;
-		draw_quads.index_buffer_ = ::hw_2d_index_buffer_;
-		draw_quads.index_offset_ = 0;
+		draw_quads.index_buffer_ = ::hw_2d_ib_;
+		draw_quads.index_offset_ = index_offset;
 		draw_quads.texture_2d_ = ::hw_2d_texture_;
-		draw_quads.vertex_buffer_ = ::hw_2d_vertex_buffer_;
+		draw_quads.vertex_buffer_ = ::hw_2d_vb_;
 	}
 
 	::hw_2d_command_set_->count_ = command_index;
