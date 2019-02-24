@@ -364,8 +364,6 @@ bool RendererUtils::validate_texture_2d_create_param(
 	const RendererTexture2dCreateParam& param,
 	std::string& error_message)
 {
-	const auto is_rgba = (param.rgba_pixels_ != nullptr);
-
 	if (param.width_ <= 0)
 	{
 		error_message = "Invalid width.";
