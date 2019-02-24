@@ -463,8 +463,11 @@ void Ogl1XRenderer::Texture2d::update_internal(
 	const auto area = actual_width_ * actual_height_;
 
 	auto& buffer = renderer_->texture_buffer_;
-	buffer.clear();
-	buffer.resize(area);
+
+	if (static_cast<int>(buffer.size()) < area)
+	{
+		buffer.resize(area);
+	}
 
 	if (is_rgba_)
 	{
