@@ -364,23 +364,32 @@ bool RendererUtils::validate_texture_2d_create_param(
 	const RendererTexture2dCreateParam& param,
 	std::string& error_message)
 {
+	const auto is_rgba = (param.rgba_pixels_ != nullptr);
+
 	if (param.width_ <= 0)
 	{
-		error_message = "Non-positive width.";
+		error_message = "Invalid width.";
 
 		return false;
 	}
 
 	if (param.height_ <= 0)
 	{
-		error_message = "Non-positive height.";
+		error_message = "Invalid height.";
 
 		return false;
 	}
 
-	if (!param.indexed_pixels_)
+	if (!param.indexed_pixels_ && !param.rgba_pixels_)
 	{
-		error_message = "Null indexed data.";
+		error_message = "Null pixel source.";
+
+		return false;
+	}
+
+	if (param.indexed_pixels_ && param.rgba_pixels_)
+	{
+		error_message = "Multiple pixel source.";
 
 		return false;
 	}
@@ -392,12 +401,8 @@ bool RendererUtils::validate_texture_2d_update_param(
 	const RendererTexture2dUpdateParam& param,
 	std::string& error_message)
 {
-	if (!param.indexed_pixels_)
-	{
-		error_message = "Null indexed data.";
-
-		return false;
-	}
+	static_cast<void>(param);
+	static_cast<void>(error_message);
 
 	return true;
 }

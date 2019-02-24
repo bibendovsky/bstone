@@ -249,6 +249,9 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		return false;
 	}
 
+	is_rgba_ = (param.rgba_pixels_ != nullptr);
+	has_rgba_alpha_ = param.has_rgba_alpha_;
+
 	width_ = param.width_;
 	height_ = param.height_;
 
@@ -259,9 +262,20 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	indexed_palette_ = param.indexed_palette_;
 	indexed_alphas_ = param.indexed_alphas_;
 
+	rgba_pixels_ = param.rgba_pixels_;
+
 	is_npot_ = (width_ != actual_width_ || height_ != actual_height_);
 
-	const auto internal_format = (indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
+	auto internal_format = GLenum{};
+
+	if (is_rgba_)
+	{
+		internal_format = (has_rgba_alpha_ ? GL_RGBA8 : GL_RGB8);
+	}
+	else
+	{
+		internal_format = (indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
+	}
 
 	::glGenTextures(1, &ogl_id_);
 	assert(!OglRendererUtils::was_errors());
@@ -312,31 +326,34 @@ void Ogl1XRenderer::Texture2d::uninitialize_internal()
 	}
 }
 
-void Ogl1XRenderer::Texture2d::update_internal(
+void Ogl1XRenderer::Texture2d::update_indexed_internal(
 	const int mipmap_level)
 {
 	assert(mipmap_level == 0);
 
 	const auto has_alpha = (indexed_alphas_ != nullptr);
-	const auto area = actual_width_ * actual_height_;
 
 	auto& buffer = renderer_->texture_buffer_;
 	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
-	buffer.clear();
-	buffer.resize(area);
-
 	if (!is_npot_)
 	{
-		for (int i = 0; i < area; ++i)
+		auto index = 0;
+
+		for (int h = 0; h < actual_height_; ++h)
 		{
-			renderer_->texture_buffer_[i] = palette[indexed_pixels_[i]];
-
-			const auto is_transparent = (!has_alpha || (has_alpha && !indexed_alphas_[i]));
-
-			if (is_transparent)
+			for (int w = 0; w < actual_width_; ++w)
 			{
-				buffer[i].a_ = 0x00;
+				buffer[index] = palette[indexed_pixels_[index]];
+
+				const auto is_transparent = (!has_alpha || (has_alpha && !indexed_alphas_[index]));
+
+				if (is_transparent)
+				{
+					buffer[index].a_ = 0x00;
+				}
+
+				++index;
 			}
 		}
 	}
@@ -384,17 +401,90 @@ void Ogl1XRenderer::Texture2d::update_internal(
 			src_v_d += src_dv_d;
 		}
 	}
+}
+
+void Ogl1XRenderer::Texture2d::update_rgba_internal(
+	const int mipmap_level)
+{
+	assert(mipmap_level == 0);
+
+	auto& buffer = renderer_->texture_buffer_;
+
+	if (!is_npot_)
+	{
+		const auto area = actual_width_ * actual_height_;
+
+		std::uninitialized_copy_n(rgba_pixels_, area, buffer.begin());
+	}
+	else
+	{
+		// Resample.
+		//
+
+		const auto src_du_d =
+			static_cast<double>(width_) /
+			static_cast<double>(actual_width_);
+
+		const auto src_dv_d =
+			static_cast<double>(height_) /
+			static_cast<double>(actual_height_);
+
+		auto src_v_d = 0.5 * src_dv_d;
+
+		for (int h = 0; h < actual_height_; ++h)
+		{
+			const auto src_v = static_cast<int>(src_v_d);
+
+			auto src_u_d = 0.5 * src_du_d;
+
+			for (int w = 0; w < actual_width_; ++w)
+			{
+				const auto src_u = static_cast<int>(src_u_d);
+
+				const auto src_index = (src_v * width_) + src_u;
+
+				const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
+
+				buffer[dst_index] = rgba_pixels_[src_index];
+
+				src_u_d += src_du_d;
+			}
+
+			src_v_d += src_dv_d;
+		}
+	}
+}
+
+void Ogl1XRenderer::Texture2d::update_internal(
+	const int mipmap_level)
+{
+	assert(mipmap_level == 0);
+
+	const auto area = actual_width_ * actual_height_;
+
+	auto& buffer = renderer_->texture_buffer_;
+	buffer.clear();
+	buffer.resize(area);
+
+	if (is_rgba_)
+	{
+		update_rgba_internal(mipmap_level);
+	}
+	else
+	{
+		update_indexed_internal(mipmap_level);
+	}
 
 	::glTexSubImage2D(
 		GL_TEXTURE_2D, // target
-		0, // level
+		mipmap_level, // level
 		0, // xoffset
 		0, // yoffset
 		actual_width_, // width
 		actual_height_, // height
 		GL_RGBA, // format
 		GL_UNSIGNED_BYTE, // type
-		buffer.data() // pixels
+		renderer_->texture_buffer_.data() // pixels
 	);
 
 	assert(!OglRendererUtils::was_errors());

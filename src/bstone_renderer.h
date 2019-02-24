@@ -234,12 +234,16 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 
 struct RendererTexture2dCreateParam
 {
+	bool has_rgba_alpha_;
+
 	int width_;
 	int height_;
 
 	const std::uint8_t* indexed_pixels_;
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
+
+	const RendererColor32* rgba_pixels_;
 }; // RendererTexture2dCreateParam
 
 struct RendererTexture2dUpdateParam
@@ -247,6 +251,8 @@ struct RendererTexture2dUpdateParam
 	const std::uint8_t* indexed_pixels_;
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
+
+	const RendererColor32* rgba_pixels_;
 }; // RendererTexture2dUpdateParam
 
 class RendererTexture2d

@@ -238,6 +238,9 @@ private:
 
 		bool is_npot_;
 
+		bool is_rgba_;
+		bool has_rgba_alpha_;
+
 		int width_;
 		int height_;
 
@@ -247,6 +250,8 @@ private:
 		const std::uint8_t* indexed_pixels_;
 		const RendererPalette* indexed_palette_;
 		const bool* indexed_alphas_;
+
+		const RendererColor32* rgba_pixels_;
 
 		GLuint ogl_id_;
 
@@ -268,6 +273,12 @@ private:
 			const RendererTexture2dCreateParam& param);
 
 		void uninitialize_internal();
+
+		void update_indexed_internal(
+			const int mipmap_level);
+
+		void update_rgba_internal(
+			const int mipmap_level);
 
 		void update_internal(
 			const int mipmap_level);
