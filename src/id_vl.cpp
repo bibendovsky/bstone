@@ -1678,6 +1678,21 @@ void hw_initialize_palette()
 	::hw_palette_ = {};
 
 	::hw_update_palette(0, palette_color_count);
+
+	auto default_palette = bstone::RendererPalette{};
+
+	for (int i = 0; i < palette_color_count; ++i)
+	{
+		const auto vga_color = ::vgapal + (i * 3);
+		auto& hw_color = default_palette[i];
+
+		hw_color.r_ = (0xFF * vga_color[0]) / 0x3F;
+		hw_color.g_ = (0xFF * vga_color[1]) / 0x3F;
+		hw_color.b_ = (0xFF * vga_color[2]) / 0x3F;
+		hw_color.a_ = 0xFF;
+	}
+
+	::hw_renderer_->palette_update(default_palette);
 }
 
 void hw_calculate_dimensions()
@@ -2120,6 +2135,7 @@ void hw_refresh_screen()
 	{
 		auto param = bstone::RendererTexture2dUpdateParam{};
 		param.indexed_pixels_ = ::vid_ui_buffer.data();
+		param.indexed_palette_ = &::hw_palette_;
 		param.indexed_alphas_ = nullptr;
 
 		::hw_2d_texture_->update(param);
@@ -2130,26 +2146,6 @@ void hw_refresh_screen()
 	{
 		auto& command = ::hw_2d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::set_2d;
-	}
-
-	{
-		auto& command = ::hw_2d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::update_palette;
-
-		auto& update_palette = command.update_palette_;
-		update_palette.offset_ = 0;
-		update_palette.count_ = palette_color_count;
-		update_palette.colors_ = ::hw_palette_.data();
-	}
-
-	{
-		auto& command = ::hw_2d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::update_palette;
-
-		auto& update_palette = command.update_palette_;
-		update_palette.offset_ = 0;
-		update_palette.count_ = palette_color_count;
-		update_palette.colors_ = ::hw_palette_.data();
 	}
 
 	{

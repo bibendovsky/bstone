@@ -207,6 +207,14 @@ void OglRenderer::present()
 	renderer_->present();
 }
 
+void OglRenderer::palette_update(
+	const RendererPalette& palette)
+{
+	assert(is_initialized_);
+
+	renderer_->palette_update(palette);
+}
+
 void OglRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)

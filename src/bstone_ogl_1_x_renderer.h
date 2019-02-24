@@ -94,6 +94,9 @@ public:
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
+	void palette_update(
+		const RendererPalette& palette) override;
+
 	void set_2d_projection_matrix(
 		const int width,
 		const int height) override;
@@ -242,6 +245,7 @@ private:
 		int actual_height_;
 
 		const std::uint8_t* indexed_pixels_;
+		const RendererPalette* indexed_palette_;
 		const bool* indexed_alphas_;
 
 		GLuint ogl_id_;
@@ -306,13 +310,9 @@ private:
 	void uninitialize_internal(
 		const bool is_dtor = false);
 
-	void update_indexed_textures();
 
-
-	void execute_command_set_2d();
-
-	void execute_command_update_palette(
-		const RendererCommand::UpdatePalette& command);
+	void execute_command_set_2d(
+		const RendererCommand::Set2d& command);
 
 	void execute_command_draw_quads(
 		const RendererCommand::DrawQuads& command);

@@ -95,6 +95,9 @@ public:
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
+	void palette_update(
+		const RendererPalette& palette) override;
+
 	void set_2d_projection_matrix(
 		const int width,
 		const int height) override;

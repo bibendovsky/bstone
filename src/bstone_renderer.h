@@ -60,7 +60,6 @@ enum class RendererCommandId
 	none,
 
 	set_2d,
-	update_palette,
 
 	draw_quads,
 }; // RendererCommandId
@@ -239,12 +238,14 @@ struct RendererTexture2dCreateParam
 	int height_;
 
 	const std::uint8_t* indexed_pixels_;
+	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
 }; // RendererTexture2dCreateParam
 
 struct RendererTexture2dUpdateParam
 {
 	const std::uint8_t* indexed_pixels_;
+	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
 }; // RendererTexture2dUpdateParam
 
@@ -268,20 +269,14 @@ using RendererTexture2dPtr = RendererTexture2d*;
 // ==========================================================================
 
 
-class RendererCommand
+struct RendererCommand
 {
-public:
-	class UpdatePalette
+	struct Set2d
 	{
-	public:
-		int offset_;
-		int count_;
-		const RendererColor32* colors_;
-	}; // UpdatePalette
+	}; // Set2d
 
-	class DrawQuads
+	struct DrawQuads
 	{
-	public:
 		int count_;
 		int index_offset_;
 		RendererTexture2dPtr texture_2d_;
@@ -294,7 +289,7 @@ public:
 
 	union
 	{
-		UpdatePalette update_palette_;
+		Set2d set_2d_;
 		DrawQuads draw_quads_;
 	}; // union
 }; // RendererCommand
@@ -357,6 +352,10 @@ public:
 	virtual void clear_buffers() = 0;
 
 	virtual void present() = 0;
+
+
+	virtual void palette_update(
+		const RendererPalette& palette) = 0;
 
 
 	virtual void set_2d_projection_matrix(

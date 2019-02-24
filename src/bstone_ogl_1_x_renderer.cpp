@@ -201,6 +201,7 @@ Ogl1XRenderer::Texture2d::Texture2d(
 	actual_width_{},
 	actual_height_{},
 	indexed_pixels_{},
+	indexed_palette_{},
 	indexed_alphas_{}
 {
 	assert(renderer_);
@@ -217,6 +218,21 @@ void Ogl1XRenderer::Texture2d::update(
 	if (!RendererUtils::validate_texture_2d_update_param(param, error_message_))
 	{
 		return;
+	}
+
+	if (param.indexed_pixels_)
+	{
+		indexed_pixels_ = param.indexed_pixels_;
+	}
+
+	if (param.indexed_palette_)
+	{
+		indexed_palette_ = param.indexed_palette_;
+	}
+
+	if (param.indexed_alphas_)
+	{
+		indexed_alphas_ = param.indexed_alphas_;
 	}
 
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
@@ -240,6 +256,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
 
 	indexed_pixels_ = param.indexed_pixels_;
+	indexed_palette_ = param.indexed_palette_;
 	indexed_alphas_ = param.indexed_alphas_;
 
 	is_npot_ = (width_ != actual_width_ || height_ != actual_height_);
@@ -304,7 +321,7 @@ void Ogl1XRenderer::Texture2d::update_internal(
 	const auto area = actual_width_ * actual_height_;
 
 	auto& buffer = renderer_->texture_buffer_;
-	auto& palette = renderer_->palette_;
+	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
 	buffer.clear();
 	buffer.resize(area);
@@ -529,6 +546,28 @@ void Ogl1XRenderer::present()
 	OglRendererUtils::swap_window(sdl_window_);
 }
 
+void Ogl1XRenderer::palette_update(
+	const RendererPalette& palette)
+{
+	if (palette_ == palette)
+	{
+		return;
+	}
+
+	palette_ = palette;
+
+	auto param = RendererTexture2dUpdateParam{};
+	param.indexed_palette_ = &palette_;
+
+	for (auto& texture_2d : textures_2d_)
+	{
+		if (!texture_2d->indexed_palette_)
+		{
+			texture_2d->update(param);
+		}
+	}
+}
+
 void Ogl1XRenderer::set_2d_projection_matrix(
 	const int width,
 	const int height)
@@ -629,11 +668,7 @@ void Ogl1XRenderer::execute_command_sets(
 			switch (command.id_)
 			{
 			case RendererCommandId::set_2d:
-				execute_command_set_2d();
-				break;
-
-			case RendererCommandId::update_palette:
-				execute_command_update_palette(command.update_palette_);
+				execute_command_set_2d(command.set_2d_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -775,16 +810,12 @@ void Ogl1XRenderer::uninitialize_internal(
 	textures_2d_.clear();
 }
 
-void Ogl1XRenderer::update_indexed_textures()
+void Ogl1XRenderer::execute_command_set_2d(
+	const RendererCommand::Set2d& command)
 {
-	for (auto& texture_2d : textures_2d_)
-	{
-		texture_2d->update_internal(0);
-	}
-}
+	static_cast<void>(command);
 
-void Ogl1XRenderer::execute_command_set_2d()
-{
+
 	// Enable 2D texturing.
 	//
 	::glEnable(GL_TEXTURE_2D);
@@ -810,36 +841,6 @@ void Ogl1XRenderer::execute_command_set_2d()
 
 	::glLoadMatrixf(two_d_projection_matrix_.get_data());
 	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl1XRenderer::execute_command_update_palette(
-	const RendererCommand::UpdatePalette& command)
-{
-	assert(command.offset_ >= 0);
-	assert(command.offset_ < 256);
-	assert(command.count_ >= 0);
-	assert(command.count_ <= 256);
-	assert((command.offset_ + command.count_) <= 256);
-	assert(command.colors_ != nullptr);
-
-	const auto is_modified = !std::equal(
-		palette_.begin() + command.offset_,
-		palette_.begin() + command.offset_ + command.count_,
-		command.colors_
-	);
-
-	if (!is_modified)
-	{
-		return;
-	}
-
-	std::uninitialized_copy_n(
-		command.colors_,
-		command.count_,
-		palette_.begin() + command.offset_
-	);
-
-	update_indexed_textures();
 }
 
 void Ogl1XRenderer::execute_command_draw_quads(
