@@ -839,6 +839,35 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
+		// Default state.
+		//
+		::glDisable(GL_TEXTURE_2D);
+		assert(!OglRendererUtils::was_errors());
+
+		::glDisable(GL_BLEND);
+		assert(!OglRendererUtils::was_errors());
+
+		::glDisable(GL_CULL_FACE);
+		assert(!OglRendererUtils::was_errors());
+
+		::glDisable(GL_DEPTH_TEST);
+		assert(!OglRendererUtils::was_errors());
+
+		// Blending function.
+		//
+		::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		assert(!OglRendererUtils::was_errors());
+
+		// Polygon culling.
+		//
+		::glCullFace(GL_BACK);
+		assert(!OglRendererUtils::was_errors());
+
+		::glFrontFace(GL_CCW);
+		assert(!OglRendererUtils::was_errors());
+
+		// Present.
+		//
 		OglRendererUtils::clear_buffers();
 		OglRendererUtils::swap_window(sdl_window);
 	}
@@ -917,6 +946,16 @@ void Ogl1XRenderer::execute_command_set_2d(
 	// Disable depth test.
 	//
 	::glDisable(GL_DEPTH_TEST);
+	assert(!OglRendererUtils::was_errors());
+
+	// Disable polygon culling.
+	//
+	::glDisable(GL_CULL_FACE);
+	assert(!OglRendererUtils::was_errors());
+
+	// Disable blending.
+	//
+	::glDisable(GL_BLEND);
 	assert(!OglRendererUtils::was_errors());
 
 	// Model-view.
