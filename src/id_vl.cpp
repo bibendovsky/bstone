@@ -3186,6 +3186,49 @@ void VL_FadeOut(
 	::screenfaded = true;
 }
 
+void vl_hw_fade_in(
+	const std::uint8_t* const palette,
+	const int step_count)
+{
+	::hw_2d_fade_is_enabled_ = true;
+
+	::VL_SetPalette(0, 256, palette);
+
+	::hw_2d_fade_color_ = bstone::RendererColor32{};
+
+	if (!::g_no_fade_in_or_out)
+	{
+		const auto alpha = 0xFF;
+
+		for (int i = 0; i < step_count; ++i)
+		{
+			const auto new_alpha = ((step_count - 1 - i) * alpha) / step_count;
+
+			::hw_2d_fade_color_.a_ = static_cast<std::uint8_t>(new_alpha);
+
+			::VL_RefreshScreen();
+
+			if (!::vid_has_vsync)
+			{
+				::VL_WaitVBL(1);
+			}
+		}
+	}
+
+	::hw_2d_fade_color_.a_ = 0x00;
+
+	::VL_RefreshScreen();
+
+	if (!::vid_has_vsync)
+	{
+		::VL_WaitVBL(1);
+	}
+
+	::hw_2d_fade_is_enabled_ = false;
+
+	::screenfaded = false;
+}
+
 void VL_FadeIn(
 	const int start,
 	const int end,
@@ -3197,6 +3240,13 @@ void VL_FadeIn(
 	assert(palette != nullptr);
 	assert(steps > 0);
 	assert(start <= end);
+
+	if (::vid_is_hw_)
+	{
+		::vl_hw_fade_in(palette, steps);
+
+		return;
+	}
 
 	if (!::g_no_fade_in_or_out)
 	{
