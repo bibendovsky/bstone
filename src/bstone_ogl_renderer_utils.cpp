@@ -41,79 +41,24 @@ namespace bstone
 
 
 // ==========================================================================
-// OglRendererUtils::Detail
+// OglRendererUtils
 //
 
-class OglRendererUtils::Detail
+const std::string& OglRendererUtils::get_error_message() const
 {
-public:
-	static const int v1_0_unique_symbol_count = 306;
-	static const int v1_1_unique_symbol_count = 30;
+	return error_message_;
+}
 
-
-	static bool load_library(
-		std::string& error_message);
-
-	static void unload_library();
-
-
-	static bool create_context_validate_params(
-		SdlWindowPtr sdl_window,
-		std::string& error_message);
-
-	static bool create_context(
-		SdlWindowPtr sdl_window,
-		SdlGlContext& sdl_gl_context,
-		std::string& error_message);
-
-
-	static bool make_context_current_validate_params(
-		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_gl_context,
-		std::string& error_message);
-
-	static bool make_context_current(
-		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_gl_context,
-		std::string& error_message);
-
-
-	static void* resolve_symbol(
-		const char* const symbol);
-
-	template<typename T>
-	static void resolve_symbol(
-		const char* const name,
-		T& symbol,
-		bool& is_failed)
-	{
-		symbol = reinterpret_cast<T>(resolve_symbol(name));
-
-		if (!symbol)
-		{
-			is_failed = true;
-		}
-	}
-
-	static void clear_unique_symbols_1_0();
-
-	static bool resolve_unique_symbols_1_0();
-
-
-	static void clear_unique_symbols_1_1();
-
-	static bool resolve_unique_symbols_1_1();
-}; // OglRendererUtils::Detail
-
-
-bool OglRendererUtils::Detail::load_library(
-	std::string& error_message)
+bool OglRendererUtils::load_library()
 {
+	const auto error_message_prefix = "Failed to load default OpenGL library. ";
+
 	const auto sdl_result = ::SDL_GL_LoadLibrary(nullptr);
 
 	if (sdl_result < 0)
 	{
-		error_message = ::SDL_GetError();
+		error_message_ = error_message_prefix;
+		error_message_ += ::SDL_GetError();
 
 		return false;
 	}
@@ -121,35 +66,33 @@ bool OglRendererUtils::Detail::load_library(
 	return true;
 }
 
-void OglRendererUtils::Detail::unload_library()
+void OglRendererUtils::unload_library()
 {
 	::SDL_GL_UnloadLibrary();
 }
 
-bool OglRendererUtils::Detail::create_context_validate_params(
+bool OglRendererUtils::create_context(
 	SdlWindowPtr sdl_window,
-	std::string& error_message)
+	SdlGlContext& sdl_gl_context)
 {
+	const auto error_message_prefix = "Failed to create OpenGL context. ";
+
+	sdl_gl_context = nullptr;
+
 	if (!sdl_window)
 	{
-		error_message = "Null SDL window.";
+		error_message_ = error_message_prefix;
+		error_message_ += "Null SDL window.";
 
 		return false;
 	}
 
-	return true;
-}
-
-bool OglRendererUtils::Detail::create_context(
-	SdlWindowPtr sdl_window,
-	SdlGlContext& sdl_gl_context,
-	std::string& error_message)
-{
 	sdl_gl_context = ::SDL_GL_CreateContext(sdl_window);
 
 	if (!sdl_gl_context)
 	{
-		error_message = ::SDL_GetError();
+		error_message_ = error_message_prefix;
+		error_message_ += ::SDL_GetError();
 
 		return false;
 	}
@@ -157,33 +100,26 @@ bool OglRendererUtils::Detail::create_context(
 	return true;
 }
 
-bool OglRendererUtils::Detail::make_context_current_validate_params(
+bool OglRendererUtils::make_context_current(
 	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_gl_context,
-	std::string& error_message)
+	SdlGlContext sdl_gl_context)
 {
+	const auto error_message_prefix = "Failed to make a context current. ";
+
 	if (!sdl_window)
 	{
-		error_message = "Null SDL window.";
+		error_message_ = error_message_prefix;
+		error_message_ += "Null SDL window.";
 
 		return false;
 	}
 
-	static_cast<void>(sdl_gl_context);
-
-	return true;
-}
-
-bool OglRendererUtils::Detail::make_context_current(
-	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_gl_context,
-	std::string& error_message)
-{
 	const auto sdl_result = ::SDL_GL_MakeCurrent(sdl_window, sdl_gl_context);
 
 	if (sdl_result < 0)
 	{
-		error_message = ::SDL_GetError();
+		error_message_ = error_message_prefix;
+		error_message_ += ::SDL_GetError();
 
 		return false;
 	}
@@ -191,13 +127,189 @@ bool OglRendererUtils::Detail::make_context_current(
 	return true;
 }
 
-void* OglRendererUtils::Detail::resolve_symbol(
+bool OglRendererUtils::create_window_and_context(
+	const RendererUtilsCreateWindowParam& param,
+	SdlWindowPtr& sdl_window,
+	SdlGlContext& sdl_gl_context)
+{
+	auto is_succeed = true;
+	auto renderer_utils = RendererUtils{};
+
+	if (is_succeed)
+	{
+		if (!renderer_utils.create_window(param, sdl_window))
+		{
+			is_succeed = false;
+
+			error_message_ = renderer_utils.get_error_message();
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!create_context(sdl_window, sdl_gl_context))
+		{
+			is_succeed = false;
+
+			error_message_ = renderer_utils.get_error_message();
+		}
+	}
+
+	if (!is_succeed)
+	{
+		destroy_window_and_context(sdl_window, sdl_gl_context);
+
+		return false;
+	}
+
+	return true;
+}
+
+bool OglRendererUtils::create_probe_window_and_context(
+	SdlWindowPtr& sdl_window,
+	SdlGlContext& sdl_gl_context)
+{
+	auto param = RendererUtilsCreateWindowParam{};
+	param.is_opengl_ = true;
+	param.window_.width_ = 1;
+	param.window_.height_ = 1;
+
+	return create_window_and_context(param, sdl_window, sdl_gl_context);
+}
+
+void OglRendererUtils::destroy_window_and_context(
+	SdlWindowPtr& sdl_window,
+	SdlGlContext& sdl_gl_context)
+{
+	if (sdl_gl_context)
+	{
+		::SDL_GL_DeleteContext(sdl_gl_context);
+
+		sdl_gl_context = nullptr;
+	}
+
+	if (sdl_window)
+	{
+		::SDL_DestroyWindow(sdl_window);
+
+		sdl_window = nullptr;
+	}
+}
+
+bool OglRendererUtils::resolve_symbols_1_1()
+{
+	if (!resolve_unique_symbols_1_0())
+	{
+		return false;
+	}
+
+	if (!resolve_unique_symbols_1_1())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void OglRendererUtils::clear_buffers()
+{
+	assert(::glClear != nullptr);
+
+	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::swap_window(
+	SdlWindowPtr sdl_window)
+{
+	assert(sdl_window != nullptr);
+
+	::SDL_GL_SwapWindow(sdl_window);
+}
+
+bool OglRendererUtils::was_errors()
+{
+	assert(::glGetError != nullptr);
+
+	const auto max_error_count = 32;
+
+	auto was_error = false;
+
+	for (int i = 0; i < max_error_count; ++i)
+	{
+		const auto last_error = ::glGetError();
+
+		if (last_error == GL_NO_ERROR)
+		{
+			break;
+		}
+
+		was_error = true;
+	}
+
+	return was_error;
+}
+
+void OglRendererUtils::set_color_buffer_clear_color(
+	const RendererColor32& color)
+{
+	assert(::glClearColor != nullptr);
+
+	const auto reciprocal_255 = 1.0F / 255.0F;
+
+	::glClearColor(
+		static_cast<float>(color.r_) * reciprocal_255,
+		static_cast<float>(color.g_) * reciprocal_255,
+		static_cast<float>(color.b_) * reciprocal_255,
+		static_cast<float>(color.a_) * reciprocal_255
+	);
+
+	assert(!OglRendererUtils::was_errors());
+}
+
+Mat4F OglRendererUtils::build_2d_projection_matrix(
+	const int width,
+	const int height)
+{
+	if (width <= 0 || height <= 0)
+	{
+		assert(!"Invalid dimensions.");
+
+		return Mat4F{};
+	}
+
+	const auto left = 0.0F;
+	const auto right = static_cast<float>(width);
+	const auto r_right_minus_left = 1.0F / (right - left);
+
+	const auto bottom = 0.0F;
+	const auto top = static_cast<float>(height);
+	const auto r_top_minus_bottom = 1.0F / (top - bottom);
+
+	const auto near_val = 0.0F;
+	const auto far_val = 1.0F;
+	const auto r_far_minus_near = 1.0F / (far_val - near_val);
+
+	const auto tx = -(right + left) * r_right_minus_left;
+	const auto ty = -(top + bottom) * r_top_minus_bottom;
+	const auto tz = -(far_val + near_val) * r_far_minus_near;
+
+	return Mat4F
+	{
+		2.0F * r_right_minus_left, 0.0F, 0.0F, 0.0F,
+		0.0F, 2.0F * r_top_minus_bottom, 0.0F, 0.0F,
+		0.0F, 0.0F, -2.0F * r_far_minus_near, 0.0F,
+		tx, ty, tz, 1.0F,
+	};
+}
+
+void* OglRendererUtils::resolve_symbol(
 	const char* const symbol)
 {
 	return ::SDL_GL_GetProcAddress(symbol);
 }
 
-void OglRendererUtils::Detail::clear_unique_symbols_1_0()
+void OglRendererUtils::clear_unique_symbols_1_0()
 {
 	::glCullFace = nullptr;
 	::glFrontFace = nullptr;
@@ -507,7 +619,7 @@ void OglRendererUtils::Detail::clear_unique_symbols_1_0()
 	::glTranslatef = nullptr;
 }
 
-bool OglRendererUtils::Detail::resolve_unique_symbols_1_0()
+bool OglRendererUtils::resolve_unique_symbols_1_0()
 {
 	auto is_failed = false;
 
@@ -828,7 +940,7 @@ bool OglRendererUtils::Detail::resolve_unique_symbols_1_0()
 	return true;
 }
 
-void OglRendererUtils::Detail::clear_unique_symbols_1_1()
+void OglRendererUtils::clear_unique_symbols_1_1()
 {
 	::glDrawArrays = nullptr;
 	::glDrawElements = nullptr;
@@ -862,7 +974,7 @@ void OglRendererUtils::Detail::clear_unique_symbols_1_1()
 	::glPushClientAttrib = nullptr;
 }
 
-bool OglRendererUtils::Detail::resolve_unique_symbols_1_1()
+bool OglRendererUtils::resolve_unique_symbols_1_1()
 {
 	auto is_failed = false;
 
@@ -905,249 +1017,6 @@ bool OglRendererUtils::Detail::resolve_unique_symbols_1_1()
 	}
 
 	return true;
-}
-
-//
-// OglRendererUtils::Detail
-// ==========================================================================
-
-
-// ==========================================================================
-// OglRendererUtils
-//
-
-bool OglRendererUtils::load_library(
-	std::string& error_message)
-{
-	const auto error_message_prefix = "Failed to load default OpenGL library. ";
-
-	if (!Detail::load_library(error_message))
-	{
-		error_message = error_message_prefix + error_message;
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglRendererUtils::unload_library()
-{
-	Detail::unload_library();
-}
-
-bool OglRendererUtils::create_context(
-	SdlWindowPtr sdl_window,
-	SdlGlContext& sdl_gl_context,
-	std::string& error_message)
-{
-	const auto error_message_prefix = "Failed to create OpenGL context. ";
-
-	sdl_gl_context = nullptr;
-
-	if (!Detail::create_context_validate_params(sdl_window, error_message))
-	{
-		error_message = error_message_prefix + error_message;
-
-		return false;
-	}
-
-	if (!Detail::create_context(sdl_window, sdl_gl_context, error_message))
-	{
-		error_message = error_message_prefix + error_message;
-
-		return false;
-	}
-
-	return true;
-}
-
-bool OglRendererUtils::make_context_current(
-	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_gl_context,
-	std::string& error_message)
-{
-	const auto error_message_prefix = "Failed to make a context current. ";
-
-	if (!Detail::make_context_current_validate_params(sdl_window, sdl_gl_context, error_message))
-	{
-		error_message = error_message_prefix + error_message;
-
-		return false;
-	}
-
-	if (!Detail::make_context_current(sdl_window, sdl_gl_context, error_message))
-	{
-		error_message = error_message_prefix + error_message;
-
-		return false;
-	}
-
-	return true;
-}
-
-bool OglRendererUtils::create_window_and_context(
-	const RendererUtilsCreateWindowParam& param,
-	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_gl_context,
-	std::string& error_message)
-{
-	auto is_succeed = true;
-
-	if (is_succeed)
-	{
-		if (!RendererUtils::create_window(param, sdl_window, error_message))
-		{
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!create_context(sdl_window, sdl_gl_context, error_message))
-		{
-			is_succeed = false;
-		}
-	}
-
-	if (!is_succeed)
-	{
-		destroy_window_and_context(sdl_window, sdl_gl_context);
-
-		return false;
-	}
-
-	return true;
-}
-
-bool OglRendererUtils::create_probe_window_and_context(
-	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_gl_context,
-	std::string& error_message)
-{
-	auto param = RendererUtilsCreateWindowParam{};
-	param.is_opengl_ = true;
-	param.window_.width_ = 1;
-	param.window_.height_ = 1;
-
-	return create_window_and_context(param, sdl_window, sdl_gl_context, error_message);
-}
-
-void OglRendererUtils::destroy_window_and_context(
-	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_gl_context)
-{
-	if (sdl_gl_context)
-	{
-		::SDL_GL_DeleteContext(sdl_gl_context);
-
-		sdl_gl_context = nullptr;
-	}
-
-	if (sdl_window)
-	{
-		::SDL_DestroyWindow(sdl_window);
-
-		sdl_window = nullptr;
-	}
-}
-
-bool OglRendererUtils::resolve_symbols_1_1()
-{
-	if (!Detail::resolve_unique_symbols_1_0())
-	{
-		return false;
-	}
-
-	if (!Detail::resolve_unique_symbols_1_1())
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void OglRendererUtils::clear_buffers()
-{
-	assert(::glClear != nullptr);
-
-	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void OglRendererUtils::swap_window(
-	SdlWindowPtr sdl_window)
-{
-	assert(sdl_window != nullptr);
-
-	::SDL_GL_SwapWindow(sdl_window);
-}
-
-bool OglRendererUtils::was_errors()
-{
-	assert(::glGetError != nullptr);
-
-	const auto max_error_count = 32;
-
-	auto was_error = false;
-
-	for (int i = 0; i < max_error_count; ++i)
-	{
-		const auto last_error = ::glGetError();
-
-		if (last_error == GL_NO_ERROR)
-		{
-			break;
-		}
-
-		was_error = true;
-	}
-
-	return was_error;
-}
-
-void OglRendererUtils::set_color_buffer_clear_color(
-	const RendererColor32& color)
-{
-	assert(::glClearColor != nullptr);
-
-	::glClearColor(
-		static_cast<float>(color.r_) / 255.0F,
-		static_cast<float>(color.g_) / 255.0F,
-		static_cast<float>(color.b_) / 255.0F,
-		static_cast<float>(color.a_) / 255.0F
-	);
-
-	assert(!OglRendererUtils::was_errors());
-}
-
-Mat4F OglRendererUtils::build_2d_projection_matrix(
-	const int width,
-	const int height)
-{
-	assert(width > 0);
-	assert(height > 0);
-
-	const auto left = 0.0F;
-	const auto right = static_cast<float>(width);
-
-	const auto bottom = 0.0F;
-	const auto top = static_cast<float>(height);
-
-	const auto near_val = 0.0F;
-	const auto far_val = 1.0F;
-
-	const auto tx = -(right + left) / (right - left);
-	const auto ty = -(top + bottom) / (top - bottom);
-	const auto tz = -(far_val + near_val) / (far_val - near_val);
-
-	return Mat4F
-	{
-		2.0F / (right - left), 0.0F, 0.0F, 0.0F,
-		0.0F, 2.0F / (top - bottom), 0.0F, 0.0F,
-		0.0F, 0.0F, -2.0F / (far_val - near_val), 0.0F,
-		tx, ty, tz, 1.0F,
-	};
 }
 
 //

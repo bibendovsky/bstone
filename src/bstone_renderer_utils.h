@@ -57,56 +57,59 @@ public:
 class RendererUtils
 {
 public:
+	const std::string& get_error_message() const;
+
+
 	static int find_nearest_pot_value(
 		const int value);
 
-	static bool create_window(
+	bool create_window(
 		const RendererUtilsCreateWindowParam& param,
-		SdlWindowPtr& sdl_window,
-		std::string& error_message);
+		SdlWindowPtr& sdl_window);
 
-	static bool show_window(
+	bool show_window(
 		SdlWindowPtr sdl_window,
-		const bool is_visible,
-		std::string& error_message);
+		const bool is_visible);
 
-	static bool validate_initialize_param(
-		const RendererInitializeParam& param,
-		std::string& error_message);
+	bool validate_initialize_param(
+		const RendererInitializeParam& param);
 
 
-	static bool validate_index_buffer_create_param(
-		const RendererIndexBufferCreateParam& param,
-		std::string& error_message);
+	bool validate_index_buffer_create_param(
+		const RendererIndexBufferCreateParam& param);
 
-	static bool validate_index_buffer_update_param(
-		const RendererIndexBufferUpdateParam& param,
-		std::string& error_message);
+	bool validate_index_buffer_update_param(
+		const RendererIndexBufferUpdateParam& param);
 
 
-	static bool validate_vertex_buffer_create_param(
-		const RendererVertexBufferCreateParam& param,
-		std::string& error_message);
+	bool validate_vertex_buffer_create_param(
+		const RendererVertexBufferCreateParam& param);
 
-	static bool validate_vertex_buffer_update_param(
-		const RendererVertexBufferUpdateParam& param,
-		std::string& error_message);
+	bool validate_vertex_buffer_update_param(
+		const RendererVertexBufferUpdateParam& param);
 
 
-	static bool validate_texture_2d_create_param(
-		const RendererTexture2dCreateParam& param,
-		std::string& error_message);
+	bool validate_texture_2d_create_param(
+		const RendererTexture2dCreateParam& param);
 
-	static bool validate_texture_2d_update_param(
-		const RendererTexture2dUpdateParam& param,
-		std::string& error_message);
+	bool validate_texture_2d_update_param(
+		const RendererTexture2dUpdateParam& param);
 
 	static bool is_ogl_renderer_path(
 		const RendererPath renderer_path);
 
 
 private:
-	class Detail;
+	std::string error_message_;
+
+
+	bool create_window_validate_param(
+		const RendererUtilsCreateWindowParam& param);
+
+	bool create_window_set_ogl_attributes();
+
+	std::uint32_t create_window_sdl_flags(
+		const RendererUtilsCreateWindowParam& param);
 }; // RendererUtils
 
 

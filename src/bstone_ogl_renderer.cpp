@@ -148,9 +148,11 @@ bool OglRenderer::is_initialized() const
 bool OglRenderer::initialize(
 	const RendererInitializeParam& param)
 {
-	if (!RendererUtils::validate_initialize_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_initialize_param(param))
 	{
-		error_message_ = "Failed to validate an initialize param. " + error_message_;
+		error_message_ = renderer_utils.get_error_message();
 
 		return false;
 	}
@@ -181,6 +183,7 @@ void OglRenderer::window_show(
 	const bool is_visible)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->window_show(is_visible);
 }
@@ -189,6 +192,7 @@ void OglRenderer::color_buffer_set_clear_color(
 	const RendererColor32& color)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->color_buffer_set_clear_color(color);
 }
@@ -196,6 +200,7 @@ void OglRenderer::color_buffer_set_clear_color(
 void OglRenderer::clear_buffers()
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->clear_buffers();
 }
@@ -203,6 +208,7 @@ void OglRenderer::clear_buffers()
 void OglRenderer::present()
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->present();
 }
@@ -211,6 +217,7 @@ void OglRenderer::palette_update(
 	const RendererPalette& palette)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->palette_update(palette);
 }
@@ -220,8 +227,7 @@ void OglRenderer::set_2d_projection_matrix(
 	const int height)
 {
 	assert(is_initialized_);
-	assert(width > 0);
-	assert(height > 0);
+	assert(renderer_);
 
 	renderer_->set_2d_projection_matrix(width, height);
 }
@@ -230,14 +236,23 @@ RendererIndexBufferPtr OglRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
-	return renderer_->index_buffer_create(param);
+	auto ib = renderer_->index_buffer_create(param);
+
+	if (!ib)
+	{
+		error_message_ = renderer_->get_error_message();
+	}
+
+	return ib;
 }
 
 void OglRenderer::index_buffer_destroy(
 	RendererIndexBufferPtr index_buffer)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->index_buffer_destroy(index_buffer);
 }
@@ -246,14 +261,23 @@ RendererVertexBufferPtr OglRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
-	return renderer_->vertex_buffer_create(param);
+	auto vb = renderer_->vertex_buffer_create(param);
+
+	if (!vb)
+	{
+		error_message_ = renderer_->get_error_message();
+	}
+
+	return vb;
 }
 
 void OglRenderer::vertex_buffer_destroy(
 	RendererVertexBufferPtr vertex_buffer)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->vertex_buffer_destroy(vertex_buffer);
 }
@@ -262,14 +286,23 @@ RendererTexture2dPtr OglRenderer::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
-	return renderer_->texture_2d_create(param);
+	auto t2d = renderer_->texture_2d_create(param);
+
+	if (!t2d)
+	{
+		error_message_ = renderer_->get_error_message();
+	}
+
+	return t2d;
 }
 
 void OglRenderer::texture_2d_destroy(
 	RendererTexture2dPtr texture_2d)
 {
 	assert(is_initialized_);
+	assert(renderer_);
 
 	renderer_->texture_2d_destroy(texture_2d);
 }
@@ -278,7 +311,7 @@ void OglRenderer::execute_command_sets(
 	const RendererCommandSets& command_sets)
 {
 	assert(is_initialized_);
-	assert(!command_sets.empty());
+	assert(renderer_);
 
 	renderer_->execute_command_sets(command_sets);
 }

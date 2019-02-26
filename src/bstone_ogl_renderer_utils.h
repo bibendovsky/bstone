@@ -48,38 +48,33 @@ namespace bstone
 class OglRendererUtils
 {
 public:
-	using Strings = std::vector<std::string>;
+	const std::string& get_error_message() const;
 
 
-	static bool load_library(
-		std::string& error_message);
+	bool load_library();
 
 	static void unload_library();
 
 
-	static bool create_context(
+	bool create_context(
 		SdlWindowPtr sdl_window,
-		SdlGlContext& sdl_gl_context,
-		std::string& error_message);
+		SdlGlContext& sdl_gl_context);
 
-	static bool make_context_current(
+	bool make_context_current(
 		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_gl_context,
-		std::string& error_message);
+		SdlGlContext sdl_gl_context);
 
 
-	static bool create_window_and_context(
+	bool create_window_and_context(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_gl_context,
-		std::string& error_message);
+		SdlGlContext& sdl_gl_context);
 
-	static bool create_probe_window_and_context(
+	bool create_probe_window_and_context(
 		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_gl_context,
-		std::string& error_message);
+		SdlGlContext& sdl_gl_context);
 
-	static void destroy_window_and_context(
+	void destroy_window_and_context(
 		SdlWindowPtr& sdl_window,
 		SdlGlContext& sdl_gl_context);
 
@@ -104,7 +99,34 @@ public:
 
 
 private:
-	class Detail;
+	std::string error_message_;
+
+
+	static void* resolve_symbol(
+		const char* const symbol);
+
+	template<typename T>
+	static void resolve_symbol(
+		const char* const name,
+		T& symbol,
+		bool& is_failed)
+	{
+		symbol = reinterpret_cast<T>(resolve_symbol(name));
+
+		if (!symbol)
+		{
+			is_failed = true;
+		}
+	}
+
+	static void clear_unique_symbols_1_0();
+
+	static bool resolve_unique_symbols_1_0();
+
+
+	static void clear_unique_symbols_1_1();
+
+	static bool resolve_unique_symbols_1_1();
 }; // OglRendererUtils
 
 

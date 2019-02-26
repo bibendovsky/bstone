@@ -190,7 +190,9 @@ bool RendererManagerImpl::Impl::initialize()
 		return true;
 	}
 
-	if (!OglRendererUtils::load_library(error_message_))
+	auto ogl_renderer_utils = OglRendererUtils{};
+
+	if (!ogl_renderer_utils.load_library())
 	{
 		return false;
 	}
@@ -293,9 +295,9 @@ RendererPath RendererManagerImpl::Impl::renderer_get_probe_path() const
 RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 	const RendererInitializeParam& param)
 {
-	auto error_message = std::string{};
+	auto renderer_utils = RendererUtils{};
 
-	if (!RendererUtils::validate_initialize_param(param, error_message))
+	if (!renderer_utils.validate_initialize_param(param))
 	{
 		return nullptr;
 	}

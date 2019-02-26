@@ -47,9 +47,11 @@ namespace bstone
 void Ogl1XRenderer::IndexBuffer::update(
 	const RendererIndexBufferUpdateParam& param)
 {
-	if (!RendererUtils::validate_index_buffer_update_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_index_buffer_update_param(param))
 	{
-		error_message_ = "Invalid update parameter.";
+		error_message_ = renderer_utils.get_error_message();
 
 		return;
 	}
@@ -89,8 +91,12 @@ void Ogl1XRenderer::IndexBuffer::update(
 bool Ogl1XRenderer::IndexBuffer::initialize(
 	const RendererIndexBufferCreateParam& param)
 {
-	if (!RendererUtils::validate_index_buffer_create_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_index_buffer_create_param(param))
 	{
+		error_message_ = renderer_utils.get_error_message();
+
 		return false;
 	}
 
@@ -136,9 +142,11 @@ bool Ogl1XRenderer::IndexBuffer::initialize(
 void Ogl1XRenderer::VertexBuffer::update(
 	const RendererVertexBufferUpdateParam& param)
 {
-	if (!RendererUtils::validate_vertex_buffer_update_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_vertex_buffer_update_param(param))
 	{
-		error_message_ = "Invalid update parameter.";
+		error_message_ = renderer_utils.get_error_message();
 
 		return;
 	}
@@ -170,8 +178,12 @@ void Ogl1XRenderer::VertexBuffer::update(
 bool Ogl1XRenderer::VertexBuffer::initialize(
 	const RendererVertexBufferCreateParam& param)
 {
-	if (!RendererUtils::validate_vertex_buffer_create_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_vertex_buffer_create_param(param))
 	{
+		error_message_ = renderer_utils.get_error_message();
+
 		return false;
 	}
 
@@ -215,8 +227,12 @@ Ogl1XRenderer::Texture2d::~Texture2d()
 void Ogl1XRenderer::Texture2d::update(
 	const RendererTexture2dUpdateParam& param)
 {
-	if (!RendererUtils::validate_texture_2d_update_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_texture_2d_update_param(param))
 	{
+		assert(!"Invalid update param.");
+
 		return;
 	}
 
@@ -254,8 +270,12 @@ void Ogl1XRenderer::Texture2d::update(
 bool Ogl1XRenderer::Texture2d::initialize(
 	const RendererTexture2dCreateParam& param)
 {
-	if (!RendererUtils::validate_texture_2d_create_param(param, error_message_))
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.validate_texture_2d_create_param(param))
 	{
+		error_message_ = renderer_utils.get_error_message();
+
 		return false;
 	}
 
@@ -619,12 +639,11 @@ RendererPath Ogl1XRenderer::get_path() const
 void Ogl1XRenderer::window_show(
 	const bool is_visible)
 {
-	if (!is_initialized_)
-	{
-		return;
-	}
+	assert(is_initialized_);
 
-	static_cast<void>(RendererUtils::show_window(sdl_window_, is_visible, error_message_));
+	auto renderer_utils = RendererUtils{};
+
+	static_cast<void>(renderer_utils.show_window(sdl_window_, is_visible));
 }
 
 void Ogl1XRenderer::color_buffer_set_clear_color(
@@ -676,8 +695,6 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	const int height)
 {
 	assert(is_initialized_);
-	assert(width > 0);
-	assert(height > 0);
 
 	const auto& new_matrix = OglRendererUtils::build_2d_projection_matrix(width, height);
 
@@ -692,6 +709,8 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
+	assert(is_initialized_);
+
 	auto index_buffer = IndexBufferUPtr{new IndexBuffer{}};
 
 	if (!index_buffer->initialize(param))
@@ -709,10 +728,7 @@ RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
 void Ogl1XRenderer::index_buffer_destroy(
 	RendererIndexBufferPtr index_buffer)
 {
-	if (!index_buffer)
-	{
-		assert(!"Null index buffer.");
-	}
+	assert(index_buffer);
 
 	index_buffers_.remove_if(
 		[=](const auto& item)
@@ -742,10 +758,7 @@ RendererVertexBufferPtr Ogl1XRenderer::vertex_buffer_create(
 void Ogl1XRenderer::vertex_buffer_destroy(
 	RendererVertexBufferPtr vertex_buffer)
 {
-	if (!vertex_buffer)
-	{
-		assert(!"Null vertex buffer.");
-	}
+	assert(vertex_buffer);
 
 	vertex_buffers_.remove_if(
 		[=](const auto& item)
@@ -758,8 +771,6 @@ void Ogl1XRenderer::vertex_buffer_destroy(
 void Ogl1XRenderer::execute_command_sets(
 	const RendererCommandSets& command_sets)
 {
-	assert(!command_sets.empty());
-
 	for (auto& command_set : command_sets)
 	{
 		const auto& commands = command_set.commands_;
@@ -808,13 +819,17 @@ bool Ogl1XRenderer::probe_or_initialize(
 	auto sdl_window = SdlWindowPtr{};
 	auto sdl_gl_context = SdlGlContext{};
 
+	auto ogl_renderer_utils = OglRendererUtils{};
+
 	if (is_succeed)
 	{
 		if (is_probe)
 		{
-			if (!OglRendererUtils::create_probe_window_and_context(sdl_window, sdl_gl_context, error_message_))
+			if (!ogl_renderer_utils.create_probe_window_and_context(sdl_window, sdl_gl_context))
 			{
 				is_succeed = false;
+
+				error_message_ = ogl_renderer_utils.get_error_message();
 			}
 		}
 		else
@@ -823,9 +838,11 @@ bool Ogl1XRenderer::probe_or_initialize(
 			window_param.is_opengl_ = true;
 			window_param.window_ = param.window_;
 
-			if (!OglRendererUtils::create_window_and_context(window_param, sdl_window, sdl_gl_context, error_message_))
+			if (!ogl_renderer_utils.create_window_and_context(window_param, sdl_window, sdl_gl_context))
 			{
 				is_succeed = false;
+
+				error_message_ = ogl_renderer_utils.get_error_message();
 			}
 		}
 	}
@@ -842,7 +859,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_succeed)
 	{
-		OglRendererUtils::destroy_window_and_context(sdl_window, sdl_gl_context);
+		ogl_renderer_utils.destroy_window_and_context(sdl_window, sdl_gl_context);
 
 		return false;
 	}
@@ -909,10 +926,7 @@ RendererTexture2dPtr Ogl1XRenderer::texture_2d_create(
 void Ogl1XRenderer::texture_2d_destroy(
 	RendererTexture2dPtr texture_2d)
 {
-	if (!texture_2d)
-	{
-		return;
-	}
+	assert(texture_2d);
 
 	textures_2d_.remove_if(
 		[=](const auto& item)
@@ -925,12 +939,14 @@ void Ogl1XRenderer::texture_2d_destroy(
 void Ogl1XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
+	auto ogl_renderer_utils = OglRendererUtils{};
+
 	if (sdl_gl_context_)
 	{
-		static_cast<void>(OglRendererUtils::make_context_current(sdl_window_, nullptr, error_message_));
+		static_cast<void>(ogl_renderer_utils.make_context_current(sdl_window_, nullptr));
 	}
 
-	OglRendererUtils::destroy_window_and_context(sdl_window_, sdl_gl_context_);
+	ogl_renderer_utils.destroy_window_and_context(sdl_window_, sdl_gl_context_);
 
 	if (!is_dtor)
 	{
