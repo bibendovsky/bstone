@@ -3080,6 +3080,11 @@ void vl_hw_fade_out(
 	//
 	::hw_2d_fade_color_.a_ = 0xFF;
 
+	::VL_FillPalette(
+		static_cast<std::uint8_t>(red),
+		static_cast<std::uint8_t>(green),
+		static_cast<std::uint8_t>(blue));
+
 	::VL_RefreshScreen();
 
 	if (!::vid_has_vsync)
@@ -3194,7 +3199,7 @@ void vl_hw_fade_in(
 
 	::VL_SetPalette(0, 256, palette);
 
-	::hw_2d_fade_color_ = bstone::RendererColor32{};
+	::hw_2d_fade_color_.a_ = 0xFF;
 
 	if (!::g_no_fade_in_or_out)
 	{
