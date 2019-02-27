@@ -672,11 +672,11 @@ void sdl_calculate_dimensions()
 	::filler_width /= 2 * ::vga_ref_height_4x3;
 
 #ifdef __vita__
-    const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1;
-    const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
+	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1;
+	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
 #else  
-    const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
-    const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
+	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
+	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
 #endif
 	const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
 
