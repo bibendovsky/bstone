@@ -1,11 +1,1 @@
 build/
-CMakeCache.txt
-CMakeFiles/
-Makefile
-bstone
-*.vpk
-bstone.self
-bstone.velf
-bstone.vpk_param.sfo
-cmake_install.cmake
-*.swp
