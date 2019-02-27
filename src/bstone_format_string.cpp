@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,21 +30,24 @@ Free Software Foundation, Inc.,
 #include "bstone_format_string.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 FormatString::FormatString()
+	:
+	stream_{}
 {
 }
 
 FormatString::operator std::string()
 {
-    return stream_.str();
+	return stream_.str();
 }
 
 std::string FormatString::to_string() const
 {
-    return stream_.str();
+	return stream_.str();
 }
 
 

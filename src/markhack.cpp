@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "id_vl.h"
 
 
 extern int viewwidth;
@@ -35,110 +36,120 @@ extern int viewheight;
 extern int bufferofs;
 extern int centery;
 extern int postheight;
-extern const uint8_t* shadingtable;
+extern const std::uint8_t* shadingtable;
 
 
-enum DrawMode {
-    DRAW_DEFAULT,
-    DRAW_LIGHTED
+enum DrawMode
+{
+	DRAW_DEFAULT,
+	DRAW_LIGHTED
 }; // DrawMode
 
 
 static void generic_draw_post(
-    DrawMode draw_mode)
+	DrawMode draw_mode)
 {
-    if (postheight == 0) {
-        return;
-    }
+	if (postheight == 0)
+	{
+		return;
+	}
 
-    int y = ::posty;
+	int y = ::posty;
 
-    int cur_step = (32L * 65536L) / postheight;
+	int cur_step = (32L * 65536L) / postheight;
 
-    int step = cur_step;
-    cur_step /= 2;
+	int step = cur_step;
+	cur_step /= 2;
 
-    int fraction = (::vid_is_3d ? ::vga_width : 1);
+	int fraction = (::vid_is_3d ? ::vga_width : 1);
 
-    const int max_height = ::viewheight / 2;
+	const int max_height = ::viewheight / 2;
 
-    int screen_column = 0;
+	int screen_column = 0;
 
-    if (::vid_is_3d)
-    {
-        screen_column =
-            ::bufferofs +
-            ((max_height - 1) * ::vga_width) +
-            ::postx;
-    }
-    else
-    {
-        y += max_height - 1;
-    }
+	if (::vid_is_3d)
+	{
+		screen_column =
+			::bufferofs +
+			((max_height - 1) * ::vga_width) +
+			::postx;
+	}
+	else
+	{
+		y += max_height - 1;
+	}
 
-    int n = postheight;
+	int n = postheight;
 
-    if (n > max_height) {
-        n = max_height;
-    }
+	if (n > max_height)
+	{
+		n = max_height;
+	}
 
-    for (int h = 0; h < n; ++h) {
-        uint8_t pixel;
-        uint8_t pixel_index;
+	for (int h = 0; h < n; ++h)
+	{
+		std::uint8_t pixel;
+		std::uint8_t pixel_index;
 
-        // top half
+		// top half
 
-        pixel_index = postsource[31 - (cur_step >> 16)];
+		pixel_index = postsource[31 - (cur_step >> 16)];
 
-        if (draw_mode == DRAW_LIGHTED) {
-            pixel = shadingtable[pixel_index];
-        } else {
-            pixel = pixel_index;
-        }
+		if (draw_mode == DRAW_LIGHTED)
+		{
+			pixel = shadingtable[pixel_index];
+		}
+		else
+		{
+			pixel = pixel_index;
+		}
 
-        if (::vid_is_3d)
-        {
-            ::vga_memory[screen_column] = pixel;
-        }
-        else
-        {
-            ::VL_Plot(
-                ::postx,
-                y,
-                pixel);
-        }
+		if (::vid_is_3d)
+		{
+			::vga_memory[screen_column] = pixel;
+		}
+		else
+		{
+			::VL_Plot(
+				::postx,
+				y,
+				pixel);
+		}
 
 
-        // bottom half
+		// bottom half
 
-        pixel_index = postsource[32 + (cur_step >> 16)];
+		pixel_index = postsource[32 + (cur_step >> 16)];
 
-        if (draw_mode == DRAW_LIGHTED) {
-            pixel = shadingtable[pixel_index];
-        } else {
-            pixel = pixel_index;
-        }
+		if (draw_mode == DRAW_LIGHTED)
+		{
+			pixel = shadingtable[pixel_index];
+		}
+		else
+		{
+			pixel = pixel_index;
+		}
 
-        if (::vid_is_3d)
-        {
-            ::vga_memory[screen_column + fraction] = pixel;
+		if (::vid_is_3d)
+		{
+			::vga_memory[screen_column + fraction] = pixel;
 
-            screen_column -= ::vga_width;
-            fraction += 2 * ::vga_width;
-        }
-        else
-        {
-            ::VL_Plot(
-                ::postx,
-                y + fraction,
-                pixel);
+			screen_column -= ::vga_width;
+			fraction += 2 * ::vga_width;
+		}
+		else
+		{
+			::VL_Plot(
+				::postx,
+				y + fraction,
+				pixel);
 
-            y -= 1;
-            fraction += 2;
-        }
+			y -= 1;
+			fraction += 2;
+		}
 
-        cur_step += step;
-    }
+		cur_step += step;
+	}
 }
 
 
@@ -148,7 +159,7 @@ static void generic_draw_post(
 
 void DrawPost()
 {
-    generic_draw_post(DRAW_DEFAULT);
+	generic_draw_post(DRAW_DEFAULT);
 }
 
 
@@ -158,31 +169,31 @@ void DrawPost()
 
 void DrawLSPost()
 {
-    generic_draw_post(DRAW_LIGHTED);
+	generic_draw_post(DRAW_LIGHTED);
 }
 
 // BBi Draws a wall for UI (text presenter, etc.)
 void draw_wall_ui(
-    const int x,
-    const int y,
-    const void* raw_wall)
+	const int x,
+	const int y,
+	const void* raw_wall)
 {
-    const int wall_side = 64;
-    auto wall = static_cast<const uint8_t*>(raw_wall);
+	const int wall_side = 64;
+	auto wall = static_cast<const std::uint8_t*>(raw_wall);
 
-    for (int w = 0; w < wall_side; ++w)
-    {
-        const auto wall_base = wall_side * w;
+	for (int w = 0; w < wall_side; ++w)
+	{
+		const auto wall_base = wall_side * w;
 
-        for (int h = 0; h < wall_side; ++h)
-        {
-            auto pixel = wall[wall_base + h];
+		for (int h = 0; h < wall_side; ++h)
+		{
+			auto pixel = wall[wall_base + h];
 
-            ::VL_Plot(
-                x + w,
-                y + h,
-                pixel);
-        }
-    }
+			::VL_Plot(
+				x + w,
+				y + h,
+				pixel);
+		}
+	}
 }
 // BBi

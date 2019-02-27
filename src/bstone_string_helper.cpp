@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,105 +23,139 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_string_helper.h"
-#include <algorithm>
-#include <locale>
 
 
-namespace {
+void Quit(
+	const std::string& message);
 
 
-class Internals {
-public:
-    using CType = std::ctype<char>;
-
-
-    Internals() = delete;
-
-    Internals(
-        const Internals& that) = delete;
-
-    Internals& operator=(
-        const Internals& that) = delete;
-
-    ~Internals() = delete;
-
-
-    static const CType& get_ctype_facet()
-    {
-        static std::locale locale;
-        static const auto& result = std::use_facet<CType>(locale);
-        return result;
-    }
-
-    static char to_lower(
-        char value)
-    {
-        return get_ctype_facet().tolower(value);
-    }
-}; // Internals
-
-
-} // namespace
-
-
-namespace bstone {
-
-
-// (static)
-char StringHelper::to_lower(
-    char value)
+namespace bstone
 {
-    return Internals::to_lower(value);
+
+
+std::string StringHelper::to_lower_ascii(
+	const std::string& string)
+{
+	if (string.empty())
+	{
+		return {};
+	}
+
+	auto string_lc = string;
+
+	for (auto& char_lc : string_lc)
+	{
+		if (char_lc >= 'A' && char_lc <= 'Z')
+		{
+			char_lc = static_cast<char>('a' + char_lc - 'A');
+		}
+	}
+
+	return string_lc;
 }
 
-// (static)
-std::string StringHelper::to_lower(
-    const std::string& value)
+bool StringHelper::string_to_int(
+	const std::string& string,
+	int& int_value)
 {
-    auto result = value;
+	int_value = 0;
 
-    std::transform(
-        result.begin(),
-        result.end(),
-        result.begin(),
-        Internals::to_lower);
+	if (string.empty())
+	{
+		return false;
+	}
 
-    return result;
+	try
+	{
+		int_value = std::stoi(string);
+	}
+	catch (std::exception&)
+	{
+		return false;
+	}
+
+	return true;
 }
 
-// (static)
-bool StringHelper::is_iequal(
-    const std::string& a,
-    const std::string& b)
+bool StringHelper::string_to_int16(
+	const std::string& string,
+	std::int16_t& int16_value)
 {
-    auto result = std::mismatch(
-        a.cbegin(),
-        a.cend(),
-        b.cbegin(),
-        [] (char char_a, char char_b)
-        {
-            return
-                Internals::get_ctype_facet().tolower(char_a) ==
-                Internals::get_ctype_facet().tolower(char_b);
-        }
-    );
+	int16_value = 0;
 
-    return result.first == a.cend();
+	int int_value;
+
+	if (!string_to_int(string, int_value))
+	{
+		return false;
+	}
+
+	if (int_value < -32'768 || int_value > 32'767)
+	{
+		return false;
+	}
+
+	int16_value = static_cast<std::int16_t>(int_value);
+
+	return true;
 }
 
-// (static)
-bool StringHelper::is(
-    std::ctype_base::mask mask,
-    char value)
+bool StringHelper::string_to_uint16(
+	const std::string& string,
+	std::uint16_t& uint16_value)
 {
-    return Internals::get_ctype_facet().is(mask, value);
+	uint16_value = 0;
+
+	int int_value;
+
+	if (!string_to_int(string, int_value))
+	{
+		return false;
+	}
+
+	if (int_value < 0 || int_value > 65'535)
+	{
+		return false;
+	}
+
+	uint16_value = static_cast<std::uint16_t>(int_value);
+
+	return true;
 }
 
-// (static)
-const std::string& StringHelper::get_empty()
+std::string StringHelper::octet_to_hex_string(
+	const int octet)
 {
-    static const std::string result;
-    return result;
+	if (octet < 0 || octet > 0xFF)
+	{
+		::Quit("Octet value out of range: " + std::to_string(octet) + ".");
+
+		return {};
+	}
+
+	const auto high_nibble = (octet >> 4) & 0xF;
+	const auto low_nibble = (octet >> 0) & 0xF;
+
+	const auto high_nibble_char = (
+		high_nibble < 0xA ?
+			static_cast<char>('0' + high_nibble) :
+			static_cast<char>('A' + high_nibble - 0xA));
+
+	const auto low_nibble_char = (
+		low_nibble < 0xA ?
+			static_cast<char>('0' + low_nibble) :
+			static_cast<char>('A' + low_nibble - 0xA));
+
+	auto&& level_number_string = std::string{high_nibble_char, low_nibble_char};
+
+	return level_number_string;
+}
+
+const std::string& StringHelper::get_empty() const
+{
+	static const auto result = std::string{};
+
+	return result;
 }
 
 

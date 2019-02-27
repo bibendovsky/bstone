@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -42,43 +42,50 @@ namespace bstone
 class ScopeGuard
 {
 public:
-    using Callback = std::function<void()>;
+	using Callback = std::function<void()>;
 
 
-    ScopeGuard(
-        Callback leave_callback)
-        :
-        leave_callback_(leave_callback)
-    {
-    }
+	ScopeGuard(
+		Callback leave_callback)
+		:
+		leave_callback_{leave_callback}
+	{
+	}
 
-    ScopeGuard(
-        Callback enter_callback,
-        Callback leave_callback)
-        :
-        ScopeGuard(leave_callback)
-    {
-        enter_callback();
-    }
+	ScopeGuard(
+		Callback enter_callback,
+		Callback leave_callback)
+		:
+		ScopeGuard{leave_callback}
+	{
+		enter_callback();
+	}
 
-    ScopeGuard(
-        const ScopeGuard& that) = delete;
+	ScopeGuard(
+		const ScopeGuard& rhs) = delete;
 
-    ScopeGuard& operator=(
-        const ScopeGuard& that) = delete;
+	ScopeGuard(
+		ScopeGuard&& rhs)
+		:
+		leave_callback_{std::move(rhs.leave_callback_)}
+	{
+	}
 
-    ~ScopeGuard()
-    {
-        leave_callback_();
-    }
+	ScopeGuard& operator=(
+		const ScopeGuard& rhs) = delete;
+
+	~ScopeGuard()
+	{
+		leave_callback_();
+	}
 
 
 private:
-    Callback leave_callback_;
+	Callback leave_callback_;
 }; // ScopeGuard
 
 
 } // bstone
 
 
-#endif // BSTONE_SCOPE_GUARD_INCLUDED
+#endif // !BSTONE_SCOPE_GUARD_INCLUDED

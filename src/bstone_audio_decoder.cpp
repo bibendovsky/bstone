@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,98 +28,100 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_audio_decoder.h"
-#include <cstddef>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 AudioDecoder::AudioDecoder() :
-        is_initialized_(),
-        raw_data_(),
-        raw_size_(),
-        dst_rate_(),
-        dst_length_in_samples_()
+	is_initialized_{},
+	raw_data_{},
+	raw_size_{},
+	dst_rate_{},
+	dst_length_in_samples_{}
 {
 }
 
-// (virtual)
 AudioDecoder::~AudioDecoder()
 {
 }
 
-// (virtual)
 bool AudioDecoder::initialize(
-    const void* raw_data,
-    int raw_size,
-    int dst_rate)
+	const void* const raw_data,
+	const int raw_size,
+	const int dst_rate)
 {
-    uninitialize();
+	uninitialize();
 
-    if (!raw_data) {
-        return false;
-    }
+	if (!raw_data)
+	{
+		return false;
+	}
 
-    if (raw_size < 0) {
-        return false;
-    }
+	if (raw_size < 0)
+	{
+		return false;
+	}
 
-    if (dst_rate < 1) {
-        return false;
-    }
+	if (dst_rate < 1)
+	{
+		return false;
+	}
 
-    raw_data_ = raw_data;
-    raw_size_ = raw_size;
-    dst_rate_ = dst_rate;
-    dst_length_in_samples_ = 0;
+	raw_data_ = raw_data;
+	raw_size_ = raw_size;
+	dst_rate_ = dst_rate;
+	dst_length_in_samples_ = 0;
 
-    return true;
+	return true;
 }
 
 void AudioDecoder::uninitialize()
 {
-    dst_length_in_samples_ = 0;
-    raw_data_ = nullptr;
-    raw_size_ = 0;
-    dst_rate_ = 0;
-    set_is_initialized(false);
+	dst_length_in_samples_ = 0;
+	raw_data_ = nullptr;
+	raw_size_ = 0;
+	dst_rate_ = 0;
+
+	set_is_initialized(false);
 }
 
 bool AudioDecoder::is_initialized() const
 {
-    return is_initialized_;
+	return is_initialized_;
 }
 
 int AudioDecoder::get_dst_rate() const
 {
-    return dst_rate_;
+	return dst_rate_;
 }
 
 int AudioDecoder::get_dst_length_in_samples() const
 {
-    return dst_length_in_samples_;
+	return dst_length_in_samples_;
 }
 
 const void* AudioDecoder::get_raw_data() const
 {
-    return raw_data_;
+	return raw_data_;
 }
 
 void AudioDecoder::set_is_initialized(
-    bool value)
+	const bool value)
 {
-    is_initialized_ = value;
+	is_initialized_ = value;
 }
 
 int AudioDecoder::get_raw_size() const
 {
-    return raw_size_;
+	return raw_size_;
 }
 
 void AudioDecoder::set_dst_length_in_samples(
-    int value)
+	const int value)
 {
-    dst_length_in_samples_ = value;
+	dst_length_in_samples_ = value;
 }
 
 

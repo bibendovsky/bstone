@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,36 +26,40 @@ Free Software Foundation, Inc.,
 #define BSTONE_UN_VALUE_INCLUDED
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 //
 // A wrapper to make a value uninitalized.
 //
 template<typename T>
-class UnValue {
+class UnValue
+{
 public:
-    UnValue()
-    {
-    }
+	UnValue()
+	{
+	}
 
-    UnValue(
-        const T& that) :
-            value_(that)
-    {
-    }
+	UnValue(
+		const T& that)
+		:
+		value_{that}
+	{
+	}
 
-    operator T&()
-    {
-        return value_;
-    }
+	operator T&()
+	{
+		return value_;
+	}
+
 
 private:
-    T value_;
+	T value_;
 }; // UnValue
 
 
 } // bstone
 
 
-#endif // BSTONE_UN_VALUE_INCLUDED
+#endif // !BSTONE_UN_VALUE_INCLUDED

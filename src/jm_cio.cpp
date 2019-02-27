@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -41,13 +41,13 @@ Free Software Foundation, Inc.,
 //
 // ---------------------------------------------------------------------------
 char CIO_WritePtr(
-    void*& buffer,
-    uint8_t value)
+	void*& buffer,
+	std::uint8_t value)
 {
-    uint8_t*& buffer_ref = reinterpret_cast<uint8_t*&>(buffer);
-    buffer_ref[0] = value;
-    ++buffer_ref;
-    return '\0';
+	std::uint8_t*& buffer_ref = reinterpret_cast<std::uint8_t*&>(buffer);
+	buffer_ref[0] = value;
+	++buffer_ref;
+	return '\0';
 }
 
 // ---------------------------------------------------------------------------
@@ -60,11 +60,11 @@ char CIO_WritePtr(
 //
 //
 // ---------------------------------------------------------------------------
-int16_t CIO_ReadPtr(
-    const void*& buffer)
+std::int16_t CIO_ReadPtr(
+	const void*& buffer)
 {
-    const uint8_t*& buffer_ref = reinterpret_cast<const uint8_t*&>(buffer);
-    uint8_t value = buffer_ref[0];
-    ++buffer_ref;
-    return value;
+	const std::uint8_t*& buffer_ref = reinterpret_cast<const std::uint8_t*&>(buffer);
+	std::uint8_t value = buffer_ref[0];
+	++buffer_ref;
+	return value;
 }

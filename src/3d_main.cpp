@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,12 +22,27 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <algorithm>
 #include <functional>
 #include <unordered_map>
+#include "SDL.h"
 #include "3d_def.h"
+#include "audio.h"
 #include "jm_lzh.h"
-#include "bstone_binary_reader.h"
-#include "bstone_binary_writer.h"
+#include "jm_tp.h"
+#include "id_ca.h"
+#include "id_heads.h"
+#include "id_in.h"
+#include "id_pm.h"
+#include "id_sd.h"
+#include "id_us.h"
+#include "id_vh.h"
+#include "id_vl.h"
+#include "3d_menu.h"
+#include "movie.h"
+#include "bstone_archiver.h"
+#include "bstone_endian.h"
+#include "bstone_log.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
@@ -39,12 +54,66 @@ Free Software Foundation, Inc.,
 #include <vitasdk.h>
 #endif
 
+
+using namespace std::string_literals;
+
+
+// ==========================================================================
+// QuitException
+//
+
+QuitException::QuitException()
+	:
+	message_{}
+{
+}
+
+QuitException::QuitException(
+	const std::string& message)
+	:
+	message_{message}
+{
+}
+
+bool QuitException::is_empty() const
+{
+	return message_.empty();
+}
+
+const std::string& QuitException::get_message() const
+{
+	return message_;
+}
+
+//
+// QuitException
+// ==========================================================================
+
+
+namespace
+{
+
+
+struct CycleInfo
+{
+	std::uint8_t init_delay;
+	std::uint8_t delay_count;
+	std::uint8_t firstreg;
+	std::uint8_t lastreg;
+}; // CycleInfo
+
+
+} // namespace
+
+
 void VL_LatchToScreen(
-    int source,
-    int width,
-    int height,
-    int x,
-    int y);
+	int source,
+	int width,
+	int height,
+	int x,
+	int y);
+
+const std::string& get_default_data_dir();
 
 /*
 =============================================================================
@@ -64,17 +133,23 @@ void FreeMusic();
 void ClearMemory();
 
 void CA_CacheScreen(
-    int16_t chunk);
+	std::int16_t chunk);
 
 void VH_UpdateScreen();
 void DrawHighScores();
 void freed_main();
 
 void PreloadUpdate(
-    uint16_t current,
-    uint16_t total);
+	std::uint16_t current,
+	std::uint16_t total);
 
 void OpenAudioFile();
+
+void CleanUpDoors_N_Actors();
+
+void NewGame(
+	std::int16_t difficulty,
+	std::int16_t episode);
 
 
 bstone::ClArgs g_args;
@@ -98,16 +173,16 @@ bstone::ClArgs g_args;
 =============================================================================
 */
 
-extern int16_t pickquick;
+extern std::int16_t pickquick;
 
 
 void DrawCreditsPage();
 void unfreed_main();
 void ShowPromo();
 
-int16_t starting_episode;
-int16_t starting_level;
-int16_t starting_difficulty;
+std::int16_t starting_episode;
+std::int16_t starting_level;
+std::int16_t starting_difficulty;
 
 std::string data_dir;
 std::string mod_dir_;
@@ -115,21 +190,19 @@ std::string mod_dir_;
 void InitPlaytemp();
 
 
-uint16_t TopColor;
-uint16_t BottomColor;
+std::uint16_t TopColor;
+std::uint16_t BottomColor;
 
-bool nospr;
-
-int16_t dirangle[9] = {
-    0 * ANGLES / 8,
-    1 * ANGLES / 8,
-    2 * ANGLES / 8,
-    3 * ANGLES / 8,
-    4 * ANGLES / 8,
-    5 * ANGLES / 8,
-    6 * ANGLES / 8,
-    7 * ANGLES / 8,
-    8 * ANGLES / 8,
+std::int16_t dirangle[9] = {
+	0 * ANGLES / 8,
+	1 * ANGLES / 8,
+	2 * ANGLES / 8,
+	3 * ANGLES / 8,
+	4 * ANGLES / 8,
+	5 * ANGLES / 8,
+	6 * ANGLES / 8,
+	7 * ANGLES / 8,
+	8 * ANGLES / 8,
 }; // dirangle
 
 //
@@ -140,7 +213,6 @@ int screenofs;
 int viewwidth;
 int viewheight;
 int centerx;
-int shootdelta; // pixels away from centerx a target can be
 int scale;
 int maxslope;
 int heightnumerator;
@@ -153,14 +225,6 @@ int mouseadjustment;
 
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
-
-// FIXME Unused
-#if 0
-int16_t view_xl;
-int16_t view_xh;
-int16_t view_yl;
-int16_t view_yh;
-#endif // 0
 
 static const bool default_no_wall_hit_sound = true;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
@@ -183,1136 +247,1140 @@ bool g_no_intro_outro = default_g_no_intro_outro;
 
 bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
 
+// Disables animated fade in/out effect.
+static const bool default_g_no_fade_in_or_out = false;
+bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
+
 
 // ==========================================================================
 // Sprites
 
-int16_t SPR_DEMO = 0;
-
-int16_t SPR_STAT_0 = 0;
-int16_t SPR_STAT_1 = 0;
-int16_t SPR_STAT_2 = 0;
-int16_t SPR_STAT_3 = 0;
-int16_t SPR_STAT_4 = 0;
-int16_t SPR_STAT_5 = 0;
-int16_t SPR_STAT_6 = 0;
-int16_t SPR_STAT_7 = 0;
-int16_t SPR_STAT_8 = 0;
-int16_t SPR_STAT_9 = 0;
-int16_t SPR_STAT_10 = 0;
-int16_t SPR_STAT_11 = 0;
-int16_t SPR_STAT_12 = 0;
-int16_t SPR_STAT_13 = 0;
-int16_t SPR_STAT_14 = 0;
-int16_t SPR_STAT_15 = 0;
-int16_t SPR_STAT_16 = 0;
-int16_t SPR_STAT_17 = 0;
-int16_t SPR_STAT_18 = 0;
-int16_t SPR_STAT_19 = 0;
-int16_t SPR_STAT_20 = 0;
-int16_t SPR_STAT_21 = 0;
-int16_t SPR_STAT_22 = 0;
-int16_t SPR_STAT_23 = 0;
-int16_t SPR_STAT_24 = 0;
-int16_t SPR_STAT_25 = 0;
-int16_t SPR_STAT_26 = 0;
-int16_t SPR_STAT_27 = 0;
-int16_t SPR_STAT_28 = 0;
-int16_t SPR_STAT_29 = 0;
-int16_t SPR_STAT_30 = 0;
-int16_t SPR_STAT_31 = 0;
-int16_t SPR_STAT_32 = 0;
-int16_t SPR_STAT_33 = 0;
-int16_t SPR_STAT_34 = 0;
-int16_t SPR_STAT_35 = 0;
-int16_t SPR_STAT_36 = 0;
-int16_t SPR_STAT_37 = 0;
-int16_t SPR_STAT_38 = 0;
-int16_t SPR_STAT_39 = 0;
-int16_t SPR_STAT_40 = 0;
-int16_t SPR_STAT_41 = 0;
-int16_t SPR_STAT_42 = 0;
-int16_t SPR_STAT_43 = 0;
-int16_t SPR_STAT_44 = 0;
-int16_t SPR_STAT_45 = 0;
-int16_t SPR_STAT_46 = 0;
-int16_t SPR_STAT_47 = 0;
-int16_t SPR_STAT_48 = 0;
-int16_t SPR_STAT_49 = 0;
-int16_t SPR_STAT_50 = 0;
-int16_t SPR_STAT_51 = 0;
-int16_t SPR_STAT_52 = 0;
-int16_t SPR_STAT_53 = 0;
-int16_t SPR_STAT_54 = 0;
-int16_t SPR_STAT_55 = 0;
-int16_t SPR_STAT_56 = 0;
-
-int16_t SPR_CRATE_1 = 0;
-int16_t SPR_CRATE_2 = 0;
-int16_t SPR_CRATE_3 = 0;
-
-int16_t SPR_STAT_57 = 0;
-int16_t SPR_STAT_58 = 0;
-int16_t SPR_STAT_59 = 0;
-int16_t SPR_STAT_60 = 0;
-int16_t SPR_STAT_61 = 0;
-int16_t SPR_STAT_62 = 0;
-int16_t SPR_STAT_63 = 0;
-int16_t SPR_STAT_64 = 0;
-int16_t SPR_STAT_65 = 0;
-int16_t SPR_STAT_66 = 0;
-int16_t SPR_STAT_67 = 0;
-int16_t SPR_STAT_68 = 0;
-int16_t SPR_STAT_69 = 0;
-int16_t SPR_STAT_70 = 0;
-int16_t SPR_STAT_71 = 0;
-int16_t SPR_STAT_72 = 0;
-int16_t SPR_STAT_73 = 0;
-int16_t SPR_STAT_74 = 0;
-int16_t SPR_STAT_75 = 0;
-int16_t SPR_STAT_76 = 0;
-int16_t SPR_STAT_77 = 0;
-int16_t SPR_STAT_78 = 0;
-int16_t SPR_STAT_79 = 0;
-
-int16_t SPR_DOORBOMB = 0;
-int16_t SPR_ALT_DOORBOMB = 0;
-int16_t SPR_RUBBLE = 0;
-int16_t SPR_BONZI_TREE = 0;
-int16_t SPR_AUTOMAPPER = 0;
-int16_t SPR_POT_PLANT = 0;
-int16_t SPR_TUBE_PLANT = 0;
-int16_t SPR_HITECH_CHAIR = 0;
-
-int16_t SPR_AIR_VENT = 0;
-int16_t SPR_BLOOD_DRIP1 = 0;
-int16_t SPR_BLOOD_DRIP2 = 0;
-int16_t SPR_BLOOD_DRIP3 = 0;
-int16_t SPR_BLOOD_DRIP4 = 0;
-int16_t SPR_WATER_DRIP1 = 0;
-int16_t SPR_WATER_DRIP2 = 0;
-int16_t SPR_WATER_DRIP3 = 0;
-int16_t SPR_WATER_DRIP4 = 0;
-
-int16_t SPR_DECO_ARC_1 = 0;
-int16_t SPR_DECO_ARC_2 = 0;
-int16_t SPR_DECO_ARC_3 = 0;
-
-int16_t SPR_GRATE = 0;
-int16_t SPR_STEAM_1 = 0;
-int16_t SPR_STEAM_2 = 0;
-int16_t SPR_STEAM_3 = 0;
-int16_t SPR_STEAM_4 = 0;
-
-int16_t SPR_STEAM_PIPE = 0;
-int16_t SPR_PIPE_STEAM_1 = 0;
-int16_t SPR_PIPE_STEAM_2 = 0;
-int16_t SPR_PIPE_STEAM_3 = 0;
-int16_t SPR_PIPE_STEAM_4 = 0;
-
-int16_t SPR_DEAD_RENT = 0;
-int16_t SPR_DEAD_PRO = 0;
-int16_t SPR_DEAD_SWAT = 0;
-
-int16_t SPR_RENT_S_1 = 0;
-int16_t SPR_RENT_S_2 = 0;
-int16_t SPR_RENT_S_3 = 0;
-int16_t SPR_RENT_S_4 = 0;
-int16_t SPR_RENT_S_5 = 0;
-int16_t SPR_RENT_S_6 = 0;
-int16_t SPR_RENT_S_7 = 0;
-int16_t SPR_RENT_S_8 = 0;
-
-int16_t SPR_RENT_W1_1 = 0;
-int16_t SPR_RENT_W1_2 = 0;
-int16_t SPR_RENT_W1_3 = 0;
-int16_t SPR_RENT_W1_4 = 0;
-int16_t SPR_RENT_W1_5 = 0;
-int16_t SPR_RENT_W1_6 = 0;
-int16_t SPR_RENT_W1_7 = 0;
-int16_t SPR_RENT_W1_8 = 0;
-
-int16_t SPR_RENT_W2_1 = 0;
-int16_t SPR_RENT_W2_2 = 0;
-int16_t SPR_RENT_W2_3 = 0;
-int16_t SPR_RENT_W2_4 = 0;
-int16_t SPR_RENT_W2_5 = 0;
-int16_t SPR_RENT_W2_6 = 0;
-int16_t SPR_RENT_W2_7 = 0;
-int16_t SPR_RENT_W2_8 = 0;
-
-int16_t SPR_RENT_W3_1 = 0;
-int16_t SPR_RENT_W3_2 = 0;
-int16_t SPR_RENT_W3_3 = 0;
-int16_t SPR_RENT_W3_4 = 0;
-int16_t SPR_RENT_W3_5 = 0;
-int16_t SPR_RENT_W3_6 = 0;
-int16_t SPR_RENT_W3_7 = 0;
-int16_t SPR_RENT_W3_8 = 0;
-
-int16_t SPR_RENT_W4_1 = 0;
-int16_t SPR_RENT_W4_2 = 0;
-int16_t SPR_RENT_W4_3 = 0;
-int16_t SPR_RENT_W4_4 = 0;
-int16_t SPR_RENT_W4_5 = 0;
-int16_t SPR_RENT_W4_6 = 0;
-int16_t SPR_RENT_W4_7 = 0;
-int16_t SPR_RENT_W4_8 = 0;
-
-int16_t SPR_RENT_DIE_1 = 0;
-int16_t SPR_RENT_DIE_2 = 0;
-int16_t SPR_RENT_DIE_3 = 0;
-int16_t SPR_RENT_DIE_4 = 0;
-int16_t SPR_RENT_PAIN_1 = 0;
-int16_t SPR_RENT_DEAD = 0;
-
-int16_t SPR_RENT_SHOOT1 = 0;
-int16_t SPR_RENT_SHOOT2 = 0;
-int16_t SPR_RENT_SHOOT3 = 0;
-
-int16_t SPR_PRO_S_1 = 0;
-int16_t SPR_PRO_S_2 = 0;
-int16_t SPR_PRO_S_3 = 0;
-int16_t SPR_PRO_S_4 = 0;
-int16_t SPR_PRO_S_5 = 0;
-int16_t SPR_PRO_S_6 = 0;
-int16_t SPR_PRO_S_7 = 0;
-int16_t SPR_PRO_S_8 = 0;
-
-int16_t SPR_PRO_W1_1 = 0;
-int16_t SPR_PRO_W1_2 = 0;
-int16_t SPR_PRO_W1_3 = 0;
-int16_t SPR_PRO_W1_4 = 0;
-int16_t SPR_PRO_W1_5 = 0;
-int16_t SPR_PRO_W1_6 = 0;
-int16_t SPR_PRO_W1_7 = 0;
-int16_t SPR_PRO_W1_8 = 0;
-
-int16_t SPR_PRO_W2_1 = 0;
-int16_t SPR_PRO_W2_2 = 0;
-int16_t SPR_PRO_W2_3 = 0;
-int16_t SPR_PRO_W2_4 = 0;
-int16_t SPR_PRO_W2_5 = 0;
-int16_t SPR_PRO_W2_6 = 0;
-int16_t SPR_PRO_W2_7 = 0;
-int16_t SPR_PRO_W2_8 = 0;
-
-int16_t SPR_PRO_W3_1 = 0;
-int16_t SPR_PRO_W3_2 = 0;
-int16_t SPR_PRO_W3_3 = 0;
-int16_t SPR_PRO_W3_4 = 0;
-int16_t SPR_PRO_W3_5 = 0;
-int16_t SPR_PRO_W3_6 = 0;
-int16_t SPR_PRO_W3_7 = 0;
-int16_t SPR_PRO_W3_8 = 0;
-
-int16_t SPR_PRO_W4_1 = 0;
-int16_t SPR_PRO_W4_2 = 0;
-int16_t SPR_PRO_W4_3 = 0;
-int16_t SPR_PRO_W4_4 = 0;
-int16_t SPR_PRO_W4_5 = 0;
-int16_t SPR_PRO_W4_6 = 0;
-int16_t SPR_PRO_W4_7 = 0;
-int16_t SPR_PRO_W4_8 = 0;
-
-int16_t SPR_PRO_PAIN_1 = 0;
-int16_t SPR_PRO_DIE_1 = 0;
-int16_t SPR_PRO_DIE_2 = 0;
-int16_t SPR_PRO_DIE_3 = 0;
-int16_t SPR_PRO_PAIN_2 = 0;
-int16_t SPR_PRO_DIE_4 = 0;
-int16_t SPR_PRO_DEAD = 0;
-
-int16_t SPR_PRO_SHOOT1 = 0;
-int16_t SPR_PRO_SHOOT2 = 0;
-int16_t SPR_PRO_SHOOT3 = 0;
-
-int16_t SPR_SWAT_S_1 = 0;
-int16_t SPR_SWAT_S_2 = 0;
-int16_t SPR_SWAT_S_3 = 0;
-int16_t SPR_SWAT_S_4 = 0;
-int16_t SPR_SWAT_S_5 = 0;
-int16_t SPR_SWAT_S_6 = 0;
-int16_t SPR_SWAT_S_7 = 0;
-int16_t SPR_SWAT_S_8 = 0;
-
-int16_t SPR_SWAT_W1_1 = 0;
-int16_t SPR_SWAT_W1_2 = 0;
-int16_t SPR_SWAT_W1_3 = 0;
-int16_t SPR_SWAT_W1_4 = 0;
-int16_t SPR_SWAT_W1_5 = 0;
-int16_t SPR_SWAT_W1_6 = 0;
-int16_t SPR_SWAT_W1_7 = 0;
-int16_t SPR_SWAT_W1_8 = 0;
-
-int16_t SPR_SWAT_W2_1 = 0;
-int16_t SPR_SWAT_W2_2 = 0;
-int16_t SPR_SWAT_W2_3 = 0;
-int16_t SPR_SWAT_W2_4 = 0;
-int16_t SPR_SWAT_W2_5 = 0;
-int16_t SPR_SWAT_W2_6 = 0;
-int16_t SPR_SWAT_W2_7 = 0;
-int16_t SPR_SWAT_W2_8 = 0;
-
-int16_t SPR_SWAT_W3_1 = 0;
-int16_t SPR_SWAT_W3_2 = 0;
-int16_t SPR_SWAT_W3_3 = 0;
-int16_t SPR_SWAT_W3_4 = 0;
-int16_t SPR_SWAT_W3_5 = 0;
-int16_t SPR_SWAT_W3_6 = 0;
-int16_t SPR_SWAT_W3_7 = 0;
-int16_t SPR_SWAT_W3_8 = 0;
-
-int16_t SPR_SWAT_W4_1 = 0;
-int16_t SPR_SWAT_W4_2 = 0;
-int16_t SPR_SWAT_W4_3 = 0;
-int16_t SPR_SWAT_W4_4 = 0;
-int16_t SPR_SWAT_W4_5 = 0;
-int16_t SPR_SWAT_W4_6 = 0;
-int16_t SPR_SWAT_W4_7 = 0;
-int16_t SPR_SWAT_W4_8 = 0;
-
-int16_t SPR_SWAT_PAIN_1 = 0;
-int16_t SPR_SWAT_DIE_1 = 0;
-int16_t SPR_SWAT_DIE_2 = 0;
-int16_t SPR_SWAT_DIE_3 = 0;
-int16_t SPR_SWAT_PAIN_2 = 0;
-int16_t SPR_SWAT_DIE_4 = 0;
-int16_t SPR_SWAT_DEAD = 0;
-
-int16_t SPR_SWAT_SHOOT1 = 0;
-int16_t SPR_SWAT_SHOOT2 = 0;
-int16_t SPR_SWAT_SHOOT3 = 0;
-
-int16_t SPR_SWAT_WOUNDED1 = 0;
-int16_t SPR_SWAT_WOUNDED2 = 0;
-int16_t SPR_SWAT_WOUNDED3 = 0;
-int16_t SPR_SWAT_WOUNDED4 = 0;
-
-int16_t SPR_OFC_S_1 = 0;
-int16_t SPR_OFC_S_2 = 0;
-int16_t SPR_OFC_S_3 = 0;
-int16_t SPR_OFC_S_4 = 0;
-int16_t SPR_OFC_S_5 = 0;
-int16_t SPR_OFC_S_6 = 0;
-int16_t SPR_OFC_S_7 = 0;
-int16_t SPR_OFC_S_8 = 0;
-
-int16_t SPR_OFC_W1_1 = 0;
-int16_t SPR_OFC_W1_2 = 0;
-int16_t SPR_OFC_W1_3 = 0;
-int16_t SPR_OFC_W1_4 = 0;
-int16_t SPR_OFC_W1_5 = 0;
-int16_t SPR_OFC_W1_6 = 0;
-int16_t SPR_OFC_W1_7 = 0;
-int16_t SPR_OFC_W1_8 = 0;
-
-int16_t SPR_OFC_W2_1 = 0;
-int16_t SPR_OFC_W2_2 = 0;
-int16_t SPR_OFC_W2_3 = 0;
-int16_t SPR_OFC_W2_4 = 0;
-int16_t SPR_OFC_W2_5 = 0;
-int16_t SPR_OFC_W2_6 = 0;
-int16_t SPR_OFC_W2_7 = 0;
-int16_t SPR_OFC_W2_8 = 0;
-
-int16_t SPR_OFC_W3_1 = 0;
-int16_t SPR_OFC_W3_2 = 0;
-int16_t SPR_OFC_W3_3 = 0;
-int16_t SPR_OFC_W3_4 = 0;
-int16_t SPR_OFC_W3_5 = 0;
-int16_t SPR_OFC_W3_6 = 0;
-int16_t SPR_OFC_W3_7 = 0;
-int16_t SPR_OFC_W3_8 = 0;
-
-int16_t SPR_OFC_W4_1 = 0;
-int16_t SPR_OFC_W4_2 = 0;
-int16_t SPR_OFC_W4_3 = 0;
-int16_t SPR_OFC_W4_4 = 0;
-int16_t SPR_OFC_W4_5 = 0;
-int16_t SPR_OFC_W4_6 = 0;
-int16_t SPR_OFC_W4_7 = 0;
-int16_t SPR_OFC_W4_8 = 0;
-
-int16_t SPR_OFC_PAIN_1 = 0;
-int16_t SPR_OFC_DIE_1 = 0;
-int16_t SPR_OFC_DIE_2 = 0;
-int16_t SPR_OFC_DIE_3 = 0;
-int16_t SPR_OFC_PAIN_2 = 0;
-int16_t SPR_OFC_DIE_4 = 0;
-int16_t SPR_OFC_DEAD = 0;
-
-int16_t SPR_OFC_SHOOT1 = 0;
-int16_t SPR_OFC_SHOOT2 = 0;
-int16_t SPR_OFC_SHOOT3 = 0;
-
-int16_t SPR_GOLD_S_1 = 0;
-int16_t SPR_GOLD_S_2 = 0;
-int16_t SPR_GOLD_S_3 = 0;
-int16_t SPR_GOLD_S_4 = 0;
-int16_t SPR_GOLD_S_5 = 0;
-int16_t SPR_GOLD_S_6 = 0;
-int16_t SPR_GOLD_S_7 = 0;
-int16_t SPR_GOLD_S_8 = 0;
-
-int16_t SPR_GOLD_W1_1 = 0;
-int16_t SPR_GOLD_W1_2 = 0;
-int16_t SPR_GOLD_W1_3 = 0;
-int16_t SPR_GOLD_W1_4 = 0;
-int16_t SPR_GOLD_W1_5 = 0;
-int16_t SPR_GOLD_W1_6 = 0;
-int16_t SPR_GOLD_W1_7 = 0;
-int16_t SPR_GOLD_W1_8 = 0;
-
-int16_t SPR_GOLD_W2_1 = 0;
-int16_t SPR_GOLD_W2_2 = 0;
-int16_t SPR_GOLD_W2_3 = 0;
-int16_t SPR_GOLD_W2_4 = 0;
-int16_t SPR_GOLD_W2_5 = 0;
-int16_t SPR_GOLD_W2_6 = 0;
-int16_t SPR_GOLD_W2_7 = 0;
-int16_t SPR_GOLD_W2_8 = 0;
-
-int16_t SPR_GOLD_W3_1 = 0;
-int16_t SPR_GOLD_W3_2 = 0;
-int16_t SPR_GOLD_W3_3 = 0;
-int16_t SPR_GOLD_W3_4 = 0;
-int16_t SPR_GOLD_W3_5 = 0;
-int16_t SPR_GOLD_W3_6 = 0;
-int16_t SPR_GOLD_W3_7 = 0;
-int16_t SPR_GOLD_W3_8 = 0;
-
-int16_t SPR_GOLD_W4_1 = 0;
-int16_t SPR_GOLD_W4_2 = 0;
-int16_t SPR_GOLD_W4_3 = 0;
-int16_t SPR_GOLD_W4_4 = 0;
-int16_t SPR_GOLD_W4_5 = 0;
-int16_t SPR_GOLD_W4_6 = 0;
-int16_t SPR_GOLD_W4_7 = 0;
-int16_t SPR_GOLD_W4_8 = 0;
-
-int16_t SPR_GOLD_PAIN_1 = 0;
-
-int16_t SPR_GOLD_WRIST_1 = 0;
-int16_t SPR_GOLD_WRIST_2 = 0;
-
-int16_t SPR_GOLD_SHOOT1 = 0;
-int16_t SPR_GOLD_SHOOT2 = 0;
-int16_t SPR_GOLD_SHOOT3 = 0;
-
-int16_t SPR_GOLD_WARP1 = 0;
-int16_t SPR_GOLD_WARP2 = 0;
-int16_t SPR_GOLD_WARP3 = 0;
-int16_t SPR_GOLD_WARP4 = 0;
-int16_t SPR_GOLD_WARP5 = 0;
-
-int16_t SPR_GOLD_DEATH1 = 0;
-int16_t SPR_GOLD_DEATH2 = 0;
-int16_t SPR_GOLD_DEATH3 = 0;
-int16_t SPR_GOLD_DEATH4 = 0;
-int16_t SPR_GOLD_DEATH5 = 0;
-int16_t SPR_MGOLD_OUCH = 0;
-
-int16_t SPR_GOLD_MORPH1 = 0;
-int16_t SPR_GOLD_MORPH2 = 0;
-int16_t SPR_GOLD_MORPH3 = 0;
-int16_t SPR_GOLD_MORPH4 = 0;
-int16_t SPR_GOLD_MORPH5 = 0;
-int16_t SPR_GOLD_MORPH6 = 0;
-int16_t SPR_GOLD_MORPH7 = 0;
-int16_t SPR_GOLD_MORPH8 = 0;
-
-int16_t SPR_MGOLD_WALK1 = 0;
-int16_t SPR_MGOLD_WALK2 = 0;
-int16_t SPR_MGOLD_WALK3 = 0;
-int16_t SPR_MGOLD_WALK4 = 0;
-int16_t SPR_MGOLD_ATTACK1 = 0;
-int16_t SPR_MGOLD_ATTACK2 = 0;
-int16_t SPR_MGOLD_ATTACK3 = 0;
-int16_t SPR_MGOLD_ATTACK4 = 0;
-
-int16_t SPR_MGOLD_SHOT1 = 0;
-int16_t SPR_MGOLD_SHOT2 = 0;
-int16_t SPR_MGOLD_SHOT3 = 0;
-int16_t SPR_MGOLD_SHOT_EXP1 = 0;
-int16_t SPR_MGOLD_SHOT_EXP2 = 0;
-int16_t SPR_MGOLD_SHOT_EXP3 = 0;
-
-int16_t SPR_GSCOUT_W1_1 = 0;
-int16_t SPR_GSCOUT_W1_2 = 0;
-int16_t SPR_GSCOUT_W1_3 = 0;
-int16_t SPR_GSCOUT_W1_4 = 0;
-int16_t SPR_GSCOUT_W1_5 = 0;
-int16_t SPR_GSCOUT_W1_6 = 0;
-int16_t SPR_GSCOUT_W1_7 = 0;
-int16_t SPR_GSCOUT_W1_8 = 0;
-
-int16_t SPR_GSCOUT_W2_1 = 0;
-int16_t SPR_GSCOUT_W2_2 = 0;
-int16_t SPR_GSCOUT_W2_3 = 0;
-int16_t SPR_GSCOUT_W2_4 = 0;
-int16_t SPR_GSCOUT_W2_5 = 0;
-int16_t SPR_GSCOUT_W2_6 = 0;
-int16_t SPR_GSCOUT_W2_7 = 0;
-int16_t SPR_GSCOUT_W2_8 = 0;
-
-int16_t SPR_GSCOUT_W3_1 = 0;
-int16_t SPR_GSCOUT_W3_2 = 0;
-int16_t SPR_GSCOUT_W3_3 = 0;
-int16_t SPR_GSCOUT_W3_4 = 0;
-int16_t SPR_GSCOUT_W3_5 = 0;
-int16_t SPR_GSCOUT_W3_6 = 0;
-int16_t SPR_GSCOUT_W3_7 = 0;
-int16_t SPR_GSCOUT_W3_8 = 0;
-
-int16_t SPR_GSCOUT_W4_1 = 0;
-int16_t SPR_GSCOUT_W4_2 = 0;
-int16_t SPR_GSCOUT_W4_3 = 0;
-int16_t SPR_GSCOUT_W4_4 = 0;
-int16_t SPR_GSCOUT_W4_5 = 0;
-int16_t SPR_GSCOUT_W4_6 = 0;
-int16_t SPR_GSCOUT_W4_7 = 0;
-int16_t SPR_GSCOUT_W4_8 = 0;
-
-int16_t SPR_GSCOUT_DIE1 = 0;
-int16_t SPR_GSCOUT_DIE2 = 0;
-int16_t SPR_GSCOUT_DIE3 = 0;
-int16_t SPR_GSCOUT_DIE4 = 0;
-int16_t SPR_GSCOUT_DIE5 = 0;
-int16_t SPR_GSCOUT_DIE6 = 0;
-int16_t SPR_GSCOUT_DIE7 = 0;
-int16_t SPR_GSCOUT_DIE8 = 0;
-
-int16_t SPR_GSCOUT_DEAD = 0;
-
-int16_t SPR_FSCOUT_W1_1 = 0;
-int16_t SPR_FSCOUT_W1_2 = 0;
-int16_t SPR_FSCOUT_W1_3 = 0;
-int16_t SPR_FSCOUT_W1_4 = 0;
-int16_t SPR_FSCOUT_W1_5 = 0;
-int16_t SPR_FSCOUT_W1_6 = 0;
-int16_t SPR_FSCOUT_W1_7 = 0;
-int16_t SPR_FSCOUT_W1_8 = 0;
-
-int16_t SPR_FSCOUT_W2_1 = 0;
-int16_t SPR_FSCOUT_W2_2 = 0;
-int16_t SPR_FSCOUT_W2_3 = 0;
-int16_t SPR_FSCOUT_W2_4 = 0;
-int16_t SPR_FSCOUT_W2_5 = 0;
-int16_t SPR_FSCOUT_W2_6 = 0;
-int16_t SPR_FSCOUT_W2_7 = 0;
-int16_t SPR_FSCOUT_W2_8 = 0;
-
-int16_t SPR_FSCOUT_W3_1 = 0;
-int16_t SPR_FSCOUT_W3_2 = 0;
-int16_t SPR_FSCOUT_W3_3 = 0;
-int16_t SPR_FSCOUT_W3_4 = 0;
-int16_t SPR_FSCOUT_W3_5 = 0;
-int16_t SPR_FSCOUT_W3_6 = 0;
-int16_t SPR_FSCOUT_W3_7 = 0;
-int16_t SPR_FSCOUT_W3_8 = 0;
-
-int16_t SPR_FSCOUT_W4_1 = 0;
-int16_t SPR_FSCOUT_W4_2 = 0;
-int16_t SPR_FSCOUT_W4_3 = 0;
-int16_t SPR_FSCOUT_W4_4 = 0;
-int16_t SPR_FSCOUT_W4_5 = 0;
-int16_t SPR_FSCOUT_W4_6 = 0;
-int16_t SPR_FSCOUT_W4_7 = 0;
-int16_t SPR_FSCOUT_W4_8 = 0;
-
-int16_t SPR_FSCOUT_DIE1 = 0;
-int16_t SPR_FSCOUT_DIE2 = 0;
-int16_t SPR_FSCOUT_DIE3 = 0;
-int16_t SPR_FSCOUT_DIE4 = 0;
-int16_t SPR_FSCOUT_DIE5 = 0;
-int16_t SPR_FSCOUT_DIE6 = 0;
-int16_t SPR_FSCOUT_DIE7 = 0;
-int16_t SPR_FSCOUT_DEAD = 0;
-
-int16_t SPR_EXPLOSION_1 = 0;
-int16_t SPR_EXPLOSION_2 = 0;
-int16_t SPR_EXPLOSION_3 = 0;
-int16_t SPR_EXPLOSION_4 = 0;
-int16_t SPR_EXPLOSION_5 = 0;
-
-int16_t SPR_VITAL_STAND = 0;
-int16_t SPR_VITAL_DIE_1 = 0;
-int16_t SPR_VITAL_DIE_2 = 0;
-int16_t SPR_VITAL_DIE_3 = 0;
-int16_t SPR_VITAL_DIE_4 = 0;
-int16_t SPR_VITAL_DIE_5 = 0;
-int16_t SPR_VITAL_DIE_6 = 0;
-int16_t SPR_VITAL_DIE_7 = 0;
-int16_t SPR_VITAL_DIE_8 = 0;
-int16_t SPR_VITAL_DEAD_1 = 0;
-int16_t SPR_VITAL_DEAD_2 = 0;
-int16_t SPR_VITAL_DEAD_3 = 0;
-int16_t SPR_VITAL_OUCH = 0;
-
-int16_t SPR_CUBE1 = 0;
-int16_t SPR_CUBE2 = 0;
-int16_t SPR_CUBE3 = 0;
-int16_t SPR_CUBE4 = 0;
-int16_t SPR_CUBE5 = 0;
-int16_t SPR_CUBE6 = 0;
-int16_t SPR_CUBE7 = 0;
-int16_t SPR_CUBE8 = 0;
-int16_t SPR_CUBE9 = 0;
-int16_t SPR_CUBE10 = 0;
-int16_t SPR_CUBE_EXP1 = 0;
-int16_t SPR_CUBE_EXP2 = 0;
-int16_t SPR_CUBE_EXP3 = 0;
-int16_t SPR_CUBE_EXP4 = 0;
-int16_t SPR_CUBE_EXP5 = 0;
-int16_t SPR_CUBE_EXP6 = 0;
-int16_t SPR_CUBE_EXP7 = 0;
-int16_t SPR_CUBE_EXP8 = 0;
-int16_t SPR_DEAD_CUBE = 0;
-
-int16_t SPR_SECURITY_NORMAL = 0;
-int16_t SPR_SECURITY_ALERT = 0;
-
-int16_t SPR_POD_EGG = 0;
-int16_t SPR_POD_HATCH1 = 0;
-int16_t SPR_POD_HATCH2 = 0;
-int16_t SPR_POD_HATCH3 = 0;
-int16_t SPR_POD_WALK1 = 0;
-int16_t SPR_POD_WALK2 = 0;
-int16_t SPR_POD_WALK3 = 0;
-int16_t SPR_POD_WALK4 = 0;
-int16_t SPR_POD_ATTACK1 = 0;
-int16_t SPR_POD_ATTACK2 = 0;
-int16_t SPR_POD_ATTACK3 = 0;
-int16_t SPR_POD_OUCH = 0;
-int16_t SPR_POD_DIE1 = 0;
-int16_t SPR_POD_DIE2 = 0;
-int16_t SPR_POD_DIE3 = 0;
-int16_t SPR_POD_SPIT1 = 0;
-int16_t SPR_POD_SPIT2 = 0;
-int16_t SPR_POD_SPIT3 = 0;
-
-int16_t SPR_ELEC_APPEAR1 = 0;
-int16_t SPR_ELEC_APPEAR2 = 0;
-int16_t SPR_ELEC_APPEAR3 = 0;
-int16_t SPR_ELEC_WALK1 = 0;
-int16_t SPR_ELEC_WALK2 = 0;
-int16_t SPR_ELEC_WALK3 = 0;
-int16_t SPR_ELEC_WALK4 = 0;
-int16_t SPR_ELEC_OUCH = 0;
-int16_t SPR_ELEC_SHOOT1 = 0;
-int16_t SPR_ELEC_SHOOT2 = 0;
-int16_t SPR_ELEC_SHOOT3 = 0;
-int16_t SPR_ELEC_DIE1 = 0;
-int16_t SPR_ELEC_DIE2 = 0;
-int16_t SPR_ELEC_DIE3 = 0;
-int16_t SPR_ELEC_SHOT1 = 0;
-int16_t SPR_ELEC_SHOT2 = 0;
-int16_t SPR_ELEC_SHOT_EXP1 = 0;
-int16_t SPR_ELEC_SHOT_EXP2 = 0;
-
-int16_t SPR_ELECTRO_SPHERE_ROAM1 = 0;
-int16_t SPR_ELECTRO_SPHERE_ROAM2 = 0;
-int16_t SPR_ELECTRO_SPHERE_ROAM3 = 0;
-int16_t SPR_ELECTRO_SPHERE_OUCH = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE1 = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE2 = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE3 = 0;
-int16_t SPR_ELECTRO_SPHERE_DIE4 = 0;
-
-int16_t SPR_GENETIC_W1 = 0;
-int16_t SPR_GENETIC_W2 = 0;
-int16_t SPR_GENETIC_W3 = 0;
-int16_t SPR_GENETIC_W4 = 0;
-int16_t SPR_GENETIC_SWING1 = 0;
-int16_t SPR_GENETIC_SWING2 = 0;
-int16_t SPR_GENETIC_SWING3 = 0;
-int16_t SPR_GENETIC_DEAD = 0;
-int16_t SPR_GENETIC_DIE1 = 0;
-int16_t SPR_GENETIC_DIE2 = 0;
-int16_t SPR_GENETIC_DIE3 = 0;
-int16_t SPR_GENETIC_DIE4 = 0;
-int16_t SPR_GENETIC_OUCH = 0;
-int16_t SPR_GENETIC_SHOOT1 = 0;
-int16_t SPR_GENETIC_SHOOT2 = 0;
-int16_t SPR_GENETIC_SHOOT3 = 0;
-
-int16_t SPR_MUTHUM1_W1 = 0;
-int16_t SPR_MUTHUM1_W2 = 0;
-int16_t SPR_MUTHUM1_W3 = 0;
-int16_t SPR_MUTHUM1_W4 = 0;
-int16_t SPR_MUTHUM1_SWING1 = 0;
-int16_t SPR_MUTHUM1_SWING2 = 0;
-int16_t SPR_MUTHUM1_SWING3 = 0;
-int16_t SPR_MUTHUM1_DEAD = 0;
-int16_t SPR_MUTHUM1_DIE1 = 0;
-int16_t SPR_MUTHUM1_DIE2 = 0;
-int16_t SPR_MUTHUM1_DIE3 = 0;
-int16_t SPR_MUTHUM1_DIE4 = 0;
-int16_t SPR_MUTHUM1_OUCH = 0;
-int16_t SPR_MUTHUM1_SPIT1 = 0;
-int16_t SPR_MUTHUM1_SPIT2 = 0;
-int16_t SPR_MUTHUM1_SPIT3 = 0;
-
-int16_t SPR_MUTHUM2_W1 = 0;
-int16_t SPR_MUTHUM2_W2 = 0;
-int16_t SPR_MUTHUM2_W3 = 0;
-int16_t SPR_MUTHUM2_W4 = 0;
-int16_t SPR_MUTHUM2_SWING1 = 0;
-int16_t SPR_MUTHUM2_SWING2 = 0;
-int16_t SPR_MUTHUM2_SWING3 = 0;
-int16_t SPR_MUTHUM2_DEAD = 0;
-int16_t SPR_MUTHUM2_DIE1 = 0;
-int16_t SPR_MUTHUM2_DIE2 = 0;
-int16_t SPR_MUTHUM2_DIE3 = 0;
-int16_t SPR_MUTHUM2_DIE4 = 0;
-int16_t SPR_MUTHUM2_OUCH = 0;
-int16_t SPR_MUTHUM2_SPIT1 = 0;
-int16_t SPR_MUTHUM2_SPIT2 = 0;
-int16_t SPR_MUTHUM2_SPIT3 = 0;
-
-int16_t SPR_MUTHUM2_MORPH1 = 0;
-int16_t SPR_MUTHUM2_MORPH2 = 0;
-int16_t SPR_MUTHUM2_MORPH3 = 0;
-int16_t SPR_MUTHUM2_MORPH4 = 0;
-int16_t SPR_MUTHUM2_MORPH5 = 0;
-int16_t SPR_MUTHUM2_MORPH6 = 0;
-int16_t SPR_MUTHUM2_MORPH7 = 0;
-int16_t SPR_MUTHUM2_MORPH8 = 0;
-int16_t SPR_MUTHUM2_MORPH9 = 0;
-
-int16_t SPR_LCAN_ALIEN_READY = 0;
-int16_t SPR_LCAN_ALIEN_B1 = 0;
-int16_t SPR_LCAN_ALIEN_B2 = 0;
-int16_t SPR_LCAN_ALIEN_B3 = 0;
-int16_t SPR_LCAN_ALIEN_EMPTY = 0;
-
-int16_t SPR_LCAN_ALIEN_W1 = 0;
-int16_t SPR_LCAN_ALIEN_W2 = 0;
-int16_t SPR_LCAN_ALIEN_W3 = 0;
-int16_t SPR_LCAN_ALIEN_W4 = 0;
-int16_t SPR_LCAN_ALIEN_SWING1 = 0;
-int16_t SPR_LCAN_ALIEN_SWING2 = 0;
-int16_t SPR_LCAN_ALIEN_SWING3 = 0;
-int16_t SPR_LCAN_ALIEN_DEAD = 0;
-int16_t SPR_LCAN_ALIEN_DIE1 = 0;
-int16_t SPR_LCAN_ALIEN_DIE2 = 0;
-int16_t SPR_LCAN_ALIEN_DIE3 = 0;
-int16_t SPR_LCAN_ALIEN_DIE4 = 0;
-int16_t SPR_LCAN_ALIEN_OUCH = 0;
-int16_t SPR_LCAN_ALIEN_SPIT1 = 0;
-int16_t SPR_LCAN_ALIEN_SPIT2 = 0;
-int16_t SPR_LCAN_ALIEN_SPIT3 = 0;
-
-int16_t SPR_SCAN_ALIEN_READY = 0;
-int16_t SPR_SCAN_ALIEN_B1 = 0;
-int16_t SPR_SCAN_ALIEN_B2 = 0;
-int16_t SPR_SCAN_ALIEN_B3 = 0;
-int16_t SPR_SCAN_ALIEN_EMPTY = 0;
-
-int16_t SPR_SCAN_ALIEN_W1 = 0;
-int16_t SPR_SCAN_ALIEN_W2 = 0;
-int16_t SPR_SCAN_ALIEN_W3 = 0;
-int16_t SPR_SCAN_ALIEN_W4 = 0;
-int16_t SPR_SCAN_ALIEN_SWING1 = 0;
-int16_t SPR_SCAN_ALIEN_SWING2 = 0;
-int16_t SPR_SCAN_ALIEN_SWING3 = 0;
-int16_t SPR_SCAN_ALIEN_DEAD = 0;
-int16_t SPR_SCAN_ALIEN_DIE1 = 0;
-int16_t SPR_SCAN_ALIEN_DIE2 = 0;
-int16_t SPR_SCAN_ALIEN_DIE3 = 0;
-int16_t SPR_SCAN_ALIEN_DIE4 = 0;
-int16_t SPR_SCAN_ALIEN_OUCH = 0;
-
-int16_t SPR_SCAN_ALIEN_SPIT1 = 0;
-int16_t SPR_SCAN_ALIEN_SPIT2 = 0;
-int16_t SPR_SCAN_ALIEN_SPIT3 = 0;
-
-int16_t SPR_GURNEY_MUT_READY = 0;
-int16_t SPR_GURNEY_MUT_B1 = 0;
-int16_t SPR_GURNEY_MUT_B2 = 0;
-int16_t SPR_GURNEY_MUT_B3 = 0;
-int16_t SPR_GURNEY_MUT_EMPTY = 0;
-
-int16_t SPR_GURNEY_MUT_W1 = 0;
-int16_t SPR_GURNEY_MUT_W2 = 0;
-int16_t SPR_GURNEY_MUT_W3 = 0;
-int16_t SPR_GURNEY_MUT_W4 = 0;
-int16_t SPR_GURNEY_MUT_SWING1 = 0;
-int16_t SPR_GURNEY_MUT_SWING2 = 0;
-int16_t SPR_GURNEY_MUT_SWING3 = 0;
-int16_t SPR_GURNEY_MUT_DEAD = 0;
-int16_t SPR_GURNEY_MUT_DIE1 = 0;
-int16_t SPR_GURNEY_MUT_DIE2 = 0;
-int16_t SPR_GURNEY_MUT_DIE3 = 0;
-int16_t SPR_GURNEY_MUT_DIE4 = 0;
-int16_t SPR_GURNEY_MUT_OUCH = 0;
-
-int16_t SPR_LIQUID_M1 = 0;
-int16_t SPR_LIQUID_M2 = 0;
-int16_t SPR_LIQUID_M3 = 0;
-int16_t SPR_LIQUID_R1 = 0;
-int16_t SPR_LIQUID_R2 = 0;
-int16_t SPR_LIQUID_R3 = 0;
-int16_t SPR_LIQUID_R4 = 0;
-int16_t SPR_LIQUID_S1 = 0;
-int16_t SPR_LIQUID_S2 = 0;
-int16_t SPR_LIQUID_S3 = 0;
-int16_t SPR_LIQUID_OUCH = 0;
-int16_t SPR_LIQUID_DIE_1 = 0;
-int16_t SPR_LIQUID_DIE_2 = 0;
-int16_t SPR_LIQUID_DIE_3 = 0;
-int16_t SPR_LIQUID_DIE_4 = 0;
-int16_t SPR_LIQUID_DEAD = 0;
-int16_t SPR_LIQUID_SHOT_FLY_1 = 0;
-int16_t SPR_LIQUID_SHOT_FLY_2 = 0;
-int16_t SPR_LIQUID_SHOT_FLY_3 = 0;
-int16_t SPR_LIQUID_SHOT_BURST_1 = 0;
-int16_t SPR_LIQUID_SHOT_BURST_2 = 0;
-int16_t SPR_LIQUID_SHOT_BURST_3 = 0;
-
-int16_t SPR_SPIT1_1 = 0;
-int16_t SPR_SPIT1_2 = 0;
-int16_t SPR_SPIT1_3 = 0;
-int16_t SPR_SPIT_EXP1_1 = 0;
-int16_t SPR_SPIT_EXP1_2 = 0;
-int16_t SPR_SPIT_EXP1_3 = 0;
-
-int16_t SPR_SPIT2_1 = 0;
-int16_t SPR_SPIT2_2 = 0;
-int16_t SPR_SPIT2_3 = 0;
-int16_t SPR_SPIT_EXP2_1 = 0;
-int16_t SPR_SPIT_EXP2_2 = 0;
-int16_t SPR_SPIT_EXP2_3 = 0;
-
-int16_t SPR_SPIT3_1 = 0;
-int16_t SPR_SPIT3_2 = 0;
-int16_t SPR_SPIT3_3 = 0;
-int16_t SPR_SPIT_EXP3_1 = 0;
-int16_t SPR_SPIT_EXP3_2 = 0;
-int16_t SPR_SPIT_EXP3_3 = 0;
-
-int16_t SPR_TERROT_1 = 0;
-int16_t SPR_TERROT_2 = 0;
-int16_t SPR_TERROT_3 = 0;
-int16_t SPR_TERROT_4 = 0;
-int16_t SPR_TERROT_5 = 0;
-int16_t SPR_TERROT_6 = 0;
-int16_t SPR_TERROT_7 = 0;
-int16_t SPR_TERROT_8 = 0;
-
-int16_t SPR_TERROT_FIRE_1 = 0;
-int16_t SPR_TERROT_FIRE_2 = 0;
-int16_t SPR_TERROT_DIE_1 = 0;
-int16_t SPR_TERROT_DIE_2 = 0;
-int16_t SPR_TERROT_DIE_3 = 0;
-int16_t SPR_TERROT_DIE_4 = 0;
-int16_t SPR_TERROT_DEAD = 0;
-
-int16_t SPR_KNIFEREADY = 0;
-int16_t SPR_KNIFEATK1 = 0;
-int16_t SPR_KNIFEATK2 = 0;
-int16_t SPR_KNIFEATK3 = 0;
-int16_t SPR_KNIFEATK4 = 0;
-
-int16_t SPR_PISTOLREADY = 0;
-int16_t SPR_PISTOLATK1 = 0;
-int16_t SPR_PISTOLATK2 = 0;
-int16_t SPR_PISTOLATK3 = 0;
-int16_t SPR_PISTOLATK4 = 0;
-
-int16_t SPR_MACHINEGUNREADY = 0;
-int16_t SPR_MACHINEGUNATK1 = 0;
-int16_t SPR_MACHINEGUNATK2 = 0;
-int16_t SPR_MACHINEGUNATK3 = 0;
-int16_t SPR_MACHINEGUNATK4 = 0;
-
-int16_t SPR_CHAINREADY = 0;
-int16_t SPR_CHAINATK1 = 0;
-int16_t SPR_CHAINATK2 = 0;
-int16_t SPR_CHAINATK3 = 0;
-int16_t SPR_CHAINATK4 = 0;
-
-int16_t SPR_GRENADEREADY = 0;
-int16_t SPR_GRENADEATK1 = 0;
-int16_t SPR_GRENADEATK2 = 0;
-int16_t SPR_GRENADEATK3 = 0;
-int16_t SPR_GRENADEATK4 = 0;
-
-int16_t SPR_GRENADE_FLY1 = 0;
-int16_t SPR_GRENADE_FLY2 = 0;
-int16_t SPR_GRENADE_FLY3 = 0;
-int16_t SPR_GRENADE_FLY4 = 0;
-int16_t SPR_GRENADE_EXPLODE1 = 0;
-int16_t SPR_GRENADE_EXPLODE2 = 0;
-int16_t SPR_GRENADE_EXPLODE3 = 0;
-int16_t SPR_GRENADE_EXPLODE4 = 0;
-int16_t SPR_GRENADE_EXPLODE5 = 0;
-
-int16_t SPR_ELEC_ARC1 = 0;
-int16_t SPR_ELEC_ARC2 = 0;
-int16_t SPR_ELEC_ARC3 = 0;
-int16_t SPR_ELEC_ARC4 = 0;
-int16_t SPR_ELEC_POST1 = 0;
-int16_t SPR_ELEC_POST2 = 0;
-int16_t SPR_ELEC_POST3 = 0;
-int16_t SPR_ELEC_POST4 = 0;
-
-int16_t SPR_VPOST1 = 0;
-int16_t SPR_VPOST2 = 0;
-int16_t SPR_VPOST3 = 0;
-int16_t SPR_VPOST4 = 0;
-int16_t SPR_VPOST5 = 0;
-int16_t SPR_VPOST6 = 0;
-int16_t SPR_VPOST7 = 0;
-int16_t SPR_VPOST8 = 0;
-
-int16_t SPR_VSPIKE1 = 0;
-int16_t SPR_VSPIKE2 = 0;
-int16_t SPR_VSPIKE3 = 0;
-int16_t SPR_VSPIKE4 = 0;
-int16_t SPR_VSPIKE5 = 0;
-int16_t SPR_VSPIKE6 = 0;
-int16_t SPR_VSPIKE7 = 0;
-int16_t SPR_VSPIKE8 = 0;
-
-int16_t SPR_GREEN_OOZE1 = 0;
-int16_t SPR_GREEN_OOZE2 = 0;
-int16_t SPR_GREEN_OOZE3 = 0;
-int16_t SPR_BLACK_OOZE1 = 0;
-int16_t SPR_BLACK_OOZE2 = 0;
-int16_t SPR_BLACK_OOZE3 = 0;
-
-int16_t SPR_GREEN2_OOZE1 = 0;
-int16_t SPR_GREEN2_OOZE2 = 0;
-int16_t SPR_GREEN2_OOZE3 = 0;
-int16_t SPR_BLACK2_OOZE1 = 0;
-int16_t SPR_BLACK2_OOZE2 = 0;
-int16_t SPR_BLACK2_OOZE3 = 0;
-
-int16_t SPR_CANDY_BAR = 0;
-int16_t SPR_CANDY_WRAPER = 0;
-int16_t SPR_SANDWICH = 0;
-int16_t SPR_SANDWICH_WRAPER = 0;
-
-int16_t SPR_BLAKE_W1 = 0;
-int16_t SPR_BLAKE_W2 = 0;
-int16_t SPR_BLAKE_W3 = 0;
-int16_t SPR_BLAKE_W4 = 0;
-
-int16_t SPR_BOSS1_W1 = 0;
-int16_t SPR_BOSS1_W2 = 0;
-int16_t SPR_BOSS1_W3 = 0;
-int16_t SPR_BOSS1_W4 = 0;
-int16_t SPR_BOSS1_SWING1 = 0;
-int16_t SPR_BOSS1_SWING2 = 0;
-int16_t SPR_BOSS1_SWING3 = 0;
-int16_t SPR_BOSS1_DEAD = 0;
-int16_t SPR_BOSS1_DIE1 = 0;
-int16_t SPR_BOSS1_DIE2 = 0;
-int16_t SPR_BOSS1_DIE3 = 0;
-int16_t SPR_BOSS1_DIE4 = 0;
-int16_t SPR_BOSS1_OUCH = 0;
-int16_t SPR_BOSS1_PROJ1 = 0;
-int16_t SPR_BOSS1_PROJ2 = 0;
-int16_t SPR_BOSS1_PROJ3 = 0;
-int16_t SPR_BOSS1_EXP1 = 0;
-int16_t SPR_BOSS1_EXP2 = 0;
-int16_t SPR_BOSS1_EXP3 = 0;
-int16_t SPR_BOSS1_MORPH1 = 0;
-int16_t SPR_BOSS1_MORPH2 = 0;
-int16_t SPR_BOSS1_MORPH3 = 0;
-int16_t SPR_BOSS1_MORPH4 = 0;
-int16_t SPR_BOSS1_MORPH5 = 0;
-int16_t SPR_BOSS1_MORPH6 = 0;
-int16_t SPR_BOSS1_MORPH7 = 0;
-int16_t SPR_BOSS1_MORPH8 = 0;
-int16_t SPR_BOSS1_MORPH9 = 0;
-
-int16_t SPR_BOSS2_W1 = 0;
-int16_t SPR_BOSS2_W2 = 0;
-int16_t SPR_BOSS2_W3 = 0;
-int16_t SPR_BOSS2_W4 = 0;
-int16_t SPR_BOSS2_SWING1 = 0;
-int16_t SPR_BOSS2_SWING2 = 0;
-int16_t SPR_BOSS2_SWING3 = 0;
-int16_t SPR_BOSS2_DEAD = 0;
-int16_t SPR_BOSS2_DIE1 = 0;
-int16_t SPR_BOSS2_DIE2 = 0;
-int16_t SPR_BOSS2_DIE3 = 0;
-int16_t SPR_BOSS2_DIE4 = 0;
-int16_t SPR_BOSS2_OUCH = 0;
-
-int16_t SPR_BOSS3_W1 = 0;
-int16_t SPR_BOSS3_W2 = 0;
-int16_t SPR_BOSS3_W3 = 0;
-int16_t SPR_BOSS3_W4 = 0;
-int16_t SPR_BOSS3_SWING1 = 0;
-int16_t SPR_BOSS3_SWING2 = 0;
-int16_t SPR_BOSS3_SWING3 = 0;
-int16_t SPR_BOSS3_DEAD = 0;
-int16_t SPR_BOSS3_DIE1 = 0;
-int16_t SPR_BOSS3_DIE2 = 0;
-int16_t SPR_BOSS3_DIE3 = 0;
-int16_t SPR_BOSS3_DIE4 = 0;
-int16_t SPR_BOSS3_OUCH = 0;
-
-int16_t SPR_BOSS4_W1 = 0;
-int16_t SPR_BOSS4_W2 = 0;
-int16_t SPR_BOSS4_W3 = 0;
-int16_t SPR_BOSS4_W4 = 0;
-int16_t SPR_BOSS4_SWING1 = 0;
-int16_t SPR_BOSS4_SWING2 = 0;
-int16_t SPR_BOSS4_SWING3 = 0;
-int16_t SPR_BOSS4_DEAD = 0;
-int16_t SPR_BOSS4_DIE1 = 0;
-int16_t SPR_BOSS4_DIE2 = 0;
-int16_t SPR_BOSS4_DIE3 = 0;
-int16_t SPR_BOSS4_DIE4 = 0;
-int16_t SPR_BOSS4_OUCH = 0;
-int16_t SPR_BOSS4_MORPH1 = 0;
-int16_t SPR_BOSS4_MORPH2 = 0;
-int16_t SPR_BOSS4_MORPH3 = 0;
-int16_t SPR_BOSS4_MORPH4 = 0;
-int16_t SPR_BOSS4_MORPH5 = 0;
-int16_t SPR_BOSS4_MORPH6 = 0;
-int16_t SPR_BOSS4_MORPH7 = 0;
-int16_t SPR_BOSS4_MORPH8 = 0;
-int16_t SPR_BOSS4_MORPH9 = 0;
-
-int16_t SPR_BOSS5_W1 = 0;
-int16_t SPR_BOSS5_W2 = 0;
-int16_t SPR_BOSS5_W3 = 0;
-int16_t SPR_BOSS5_W4 = 0;
-int16_t SPR_BOSS5_SWING1 = 0;
-int16_t SPR_BOSS5_SWING2 = 0;
-int16_t SPR_BOSS5_SWING3 = 0;
-int16_t SPR_BOSS5_DEAD = 0;
-int16_t SPR_BOSS5_DIE1 = 0;
-int16_t SPR_BOSS5_DIE2 = 0;
-int16_t SPR_BOSS5_DIE3 = 0;
-int16_t SPR_BOSS5_DIE4 = 0;
-int16_t SPR_BOSS5_OUCH = 0;
-int16_t SPR_BOSS5_PROJ1 = 0;
-int16_t SPR_BOSS5_PROJ2 = 0;
-int16_t SPR_BOSS5_PROJ3 = 0;
-int16_t SPR_BOSS5_EXP1 = 0;
-int16_t SPR_BOSS5_EXP2 = 0;
-int16_t SPR_BOSS5_EXP3 = 0;
-
-int16_t SPR_BOSS6_W1 = 0;
-int16_t SPR_BOSS6_W2 = 0;
-int16_t SPR_BOSS6_W3 = 0;
-int16_t SPR_BOSS6_W4 = 0;
-int16_t SPR_BOSS6_SWING1 = 0;
-int16_t SPR_BOSS6_SWING2 = 0;
-int16_t SPR_BOSS6_SWING3 = 0;
-int16_t SPR_BOSS6_DEAD = 0;
-int16_t SPR_BOSS6_DIE1 = 0;
-int16_t SPR_BOSS6_DIE2 = 0;
-int16_t SPR_BOSS6_DIE3 = 0;
-int16_t SPR_BOSS6_DIE4 = 0;
-int16_t SPR_BOSS6_OUCH = 0;
-
-int16_t SPR_BOSS7_W1 = 0;
-int16_t SPR_BOSS7_W2 = 0;
-int16_t SPR_BOSS7_W3 = 0;
-int16_t SPR_BOSS7_W4 = 0;
-int16_t SPR_BOSS7_SHOOT1 = 0;
-int16_t SPR_BOSS7_SHOOT2 = 0;
-int16_t SPR_BOSS7_SHOOT3 = 0;
-int16_t SPR_BOSS7_DEAD = 0;
-int16_t SPR_BOSS7_DIE1 = 0;
-int16_t SPR_BOSS7_DIE2 = 0;
-int16_t SPR_BOSS7_DIE3 = 0;
-int16_t SPR_BOSS7_DIE4 = 0;
-int16_t SPR_BOSS7_OUCH = 0;
-
-int16_t SPR_BOSS8_W1 = 0;
-int16_t SPR_BOSS8_W2 = 0;
-int16_t SPR_BOSS8_W3 = 0;
-int16_t SPR_BOSS8_W4 = 0;
-int16_t SPR_BOSS8_SHOOT1 = 0;
-int16_t SPR_BOSS8_SHOOT2 = 0;
-int16_t SPR_BOSS8_SHOOT3 = 0;
-int16_t SPR_BOSS8_DIE1 = 0;
-int16_t SPR_BOSS8_DIE2 = 0;
-int16_t SPR_BOSS8_DIE3 = 0;
-int16_t SPR_BOSS8_DIE4 = 0;
-int16_t SPR_BOSS8_DEAD = 0;
-int16_t SPR_BOSS8_OUCH = 0;
-
-int16_t SPR_BOSS9_W1 = 0;
-int16_t SPR_BOSS9_W2 = 0;
-int16_t SPR_BOSS9_W3 = 0;
-int16_t SPR_BOSS9_W4 = 0;
-int16_t SPR_BOSS9_SHOOT1 = 0;
-int16_t SPR_BOSS9_SHOOT2 = 0;
-int16_t SPR_BOSS9_SHOOT3 = 0;
-int16_t SPR_BOSS9_DIE1 = 0;
-int16_t SPR_BOSS9_DIE2 = 0;
-int16_t SPR_BOSS9_DIE3 = 0;
-int16_t SPR_BOSS9_DIE4 = 0;
-int16_t SPR_BOSS9_DEAD = 0;
-int16_t SPR_BOSS9_OUCH = 0;
-
-int16_t SPR_BOSS10_W1 = 0;
-int16_t SPR_BOSS10_W2 = 0;
-int16_t SPR_BOSS10_W3 = 0;
-int16_t SPR_BOSS10_W4 = 0;
-int16_t SPR_BOSS10_SHOOT1 = 0;
-int16_t SPR_BOSS10_SHOOT2 = 0;
-int16_t SPR_BOSS10_SHOOT3 = 0;
-int16_t SPR_BOSS10_DEAD = 0;
-int16_t SPR_BOSS10_DIE1 = 0;
-int16_t SPR_BOSS10_DIE2 = 0;
-int16_t SPR_BOSS10_DIE3 = 0;
-int16_t SPR_BOSS10_DIE4 = 0;
-int16_t SPR_BOSS10_OUCH = 0;
-
-int16_t SPR_BOSS10_SPIT1 = 0;
-int16_t SPR_BOSS10_SPIT2 = 0;
-int16_t SPR_BOSS10_SPIT3 = 0;
-int16_t SPR_BOSS10_SPIT_EXP1 = 0;
-int16_t SPR_BOSS10_SPIT_EXP2 = 0;
-int16_t SPR_BOSS10_SPIT_EXP3 = 0;
-
-int16_t SPR_DETONATOR_EXP1 = 0;
-int16_t SPR_DETONATOR_EXP2 = 0;
-int16_t SPR_DETONATOR_EXP3 = 0;
-int16_t SPR_DETONATOR_EXP4 = 0;
-int16_t SPR_DETONATOR_EXP5 = 0;
-int16_t SPR_DETONATOR_EXP6 = 0;
-int16_t SPR_DETONATOR_EXP7 = 0;
-int16_t SPR_DETONATOR_EXP8 = 0;
-
-int16_t SPR_CLIP_EXP1 = 0;
-int16_t SPR_CLIP_EXP2 = 0;
-int16_t SPR_CLIP_EXP3 = 0;
-int16_t SPR_CLIP_EXP4 = 0;
-int16_t SPR_CLIP_EXP5 = 0;
-int16_t SPR_CLIP_EXP6 = 0;
-int16_t SPR_CLIP_EXP7 = 0;
-int16_t SPR_CLIP_EXP8 = 0;
-
-int16_t SPR_BFG_WEAPON1 = 0;
-int16_t SPR_BFG_WEAPON2 = 0;
-int16_t SPR_BFG_WEAPON3 = 0;
-int16_t SPR_BFG_WEAPON4 = 0;
-int16_t SPR_BFG_WEAPON5 = 0;
-
-int16_t SPR_BFG_WEAPON_SHOT1 = 0;
-int16_t SPR_BFG_WEAPON_SHOT2 = 0;
-int16_t SPR_BFG_WEAPON_SHOT3 = 0;
-
-int16_t SPR_BFG_EXP1 = 0;
-int16_t SPR_BFG_EXP2 = 0;
-int16_t SPR_BFG_EXP3 = 0;
-int16_t SPR_BFG_EXP4 = 0;
-int16_t SPR_BFG_EXP5 = 0;
-int16_t SPR_BFG_EXP6 = 0;
-int16_t SPR_BFG_EXP7 = 0;
-int16_t SPR_BFG_EXP8 = 0;
+std::int16_t SPR_DEMO = 0;
+
+std::int16_t SPR_STAT_0 = 0;
+std::int16_t SPR_STAT_1 = 0;
+std::int16_t SPR_STAT_2 = 0;
+std::int16_t SPR_STAT_3 = 0;
+std::int16_t SPR_STAT_4 = 0;
+std::int16_t SPR_STAT_5 = 0;
+std::int16_t SPR_STAT_6 = 0;
+std::int16_t SPR_STAT_7 = 0;
+std::int16_t SPR_STAT_8 = 0;
+std::int16_t SPR_STAT_9 = 0;
+std::int16_t SPR_STAT_10 = 0;
+std::int16_t SPR_STAT_11 = 0;
+std::int16_t SPR_STAT_12 = 0;
+std::int16_t SPR_STAT_13 = 0;
+std::int16_t SPR_STAT_14 = 0;
+std::int16_t SPR_STAT_15 = 0;
+std::int16_t SPR_STAT_16 = 0;
+std::int16_t SPR_STAT_17 = 0;
+std::int16_t SPR_STAT_18 = 0;
+std::int16_t SPR_STAT_19 = 0;
+std::int16_t SPR_STAT_20 = 0;
+std::int16_t SPR_STAT_21 = 0;
+std::int16_t SPR_STAT_22 = 0;
+std::int16_t SPR_STAT_23 = 0;
+std::int16_t SPR_STAT_24 = 0;
+std::int16_t SPR_STAT_25 = 0;
+std::int16_t SPR_STAT_26 = 0;
+std::int16_t SPR_STAT_27 = 0;
+std::int16_t SPR_STAT_28 = 0;
+std::int16_t SPR_STAT_29 = 0;
+std::int16_t SPR_STAT_30 = 0;
+std::int16_t SPR_STAT_31 = 0;
+std::int16_t SPR_STAT_32 = 0;
+std::int16_t SPR_STAT_33 = 0;
+std::int16_t SPR_STAT_34 = 0;
+std::int16_t SPR_STAT_35 = 0;
+std::int16_t SPR_STAT_36 = 0;
+std::int16_t SPR_STAT_37 = 0;
+std::int16_t SPR_STAT_38 = 0;
+std::int16_t SPR_STAT_39 = 0;
+std::int16_t SPR_STAT_40 = 0;
+std::int16_t SPR_STAT_41 = 0;
+std::int16_t SPR_STAT_42 = 0;
+std::int16_t SPR_STAT_43 = 0;
+std::int16_t SPR_STAT_44 = 0;
+std::int16_t SPR_STAT_45 = 0;
+std::int16_t SPR_STAT_46 = 0;
+std::int16_t SPR_STAT_47 = 0;
+std::int16_t SPR_STAT_48 = 0;
+std::int16_t SPR_STAT_49 = 0;
+std::int16_t SPR_STAT_50 = 0;
+std::int16_t SPR_STAT_51 = 0;
+std::int16_t SPR_STAT_52 = 0;
+std::int16_t SPR_STAT_53 = 0;
+std::int16_t SPR_STAT_54 = 0;
+std::int16_t SPR_STAT_55 = 0;
+std::int16_t SPR_STAT_56 = 0;
+
+std::int16_t SPR_CRATE_1 = 0;
+std::int16_t SPR_CRATE_2 = 0;
+std::int16_t SPR_CRATE_3 = 0;
+
+std::int16_t SPR_STAT_57 = 0;
+std::int16_t SPR_STAT_58 = 0;
+std::int16_t SPR_STAT_59 = 0;
+std::int16_t SPR_STAT_60 = 0;
+std::int16_t SPR_STAT_61 = 0;
+std::int16_t SPR_STAT_62 = 0;
+std::int16_t SPR_STAT_63 = 0;
+std::int16_t SPR_STAT_64 = 0;
+std::int16_t SPR_STAT_65 = 0;
+std::int16_t SPR_STAT_66 = 0;
+std::int16_t SPR_STAT_67 = 0;
+std::int16_t SPR_STAT_68 = 0;
+std::int16_t SPR_STAT_69 = 0;
+std::int16_t SPR_STAT_70 = 0;
+std::int16_t SPR_STAT_71 = 0;
+std::int16_t SPR_STAT_72 = 0;
+std::int16_t SPR_STAT_73 = 0;
+std::int16_t SPR_STAT_74 = 0;
+std::int16_t SPR_STAT_75 = 0;
+std::int16_t SPR_STAT_76 = 0;
+std::int16_t SPR_STAT_77 = 0;
+std::int16_t SPR_STAT_78 = 0;
+std::int16_t SPR_STAT_79 = 0;
+
+std::int16_t SPR_DOORBOMB = 0;
+std::int16_t SPR_ALT_DOORBOMB = 0;
+std::int16_t SPR_RUBBLE = 0;
+std::int16_t SPR_BONZI_TREE = 0;
+std::int16_t SPR_AUTOMAPPER = 0;
+std::int16_t SPR_POT_PLANT = 0;
+std::int16_t SPR_TUBE_PLANT = 0;
+std::int16_t SPR_HITECH_CHAIR = 0;
+
+std::int16_t SPR_AIR_VENT = 0;
+std::int16_t SPR_BLOOD_DRIP1 = 0;
+std::int16_t SPR_BLOOD_DRIP2 = 0;
+std::int16_t SPR_BLOOD_DRIP3 = 0;
+std::int16_t SPR_BLOOD_DRIP4 = 0;
+std::int16_t SPR_WATER_DRIP1 = 0;
+std::int16_t SPR_WATER_DRIP2 = 0;
+std::int16_t SPR_WATER_DRIP3 = 0;
+std::int16_t SPR_WATER_DRIP4 = 0;
+
+std::int16_t SPR_DECO_ARC_1 = 0;
+std::int16_t SPR_DECO_ARC_2 = 0;
+std::int16_t SPR_DECO_ARC_3 = 0;
+
+std::int16_t SPR_GRATE = 0;
+std::int16_t SPR_STEAM_1 = 0;
+std::int16_t SPR_STEAM_2 = 0;
+std::int16_t SPR_STEAM_3 = 0;
+std::int16_t SPR_STEAM_4 = 0;
+
+std::int16_t SPR_STEAM_PIPE = 0;
+std::int16_t SPR_PIPE_STEAM_1 = 0;
+std::int16_t SPR_PIPE_STEAM_2 = 0;
+std::int16_t SPR_PIPE_STEAM_3 = 0;
+std::int16_t SPR_PIPE_STEAM_4 = 0;
+
+std::int16_t SPR_DEAD_RENT = 0;
+std::int16_t SPR_DEAD_PRO = 0;
+std::int16_t SPR_DEAD_SWAT = 0;
+
+std::int16_t SPR_RENT_S_1 = 0;
+std::int16_t SPR_RENT_S_2 = 0;
+std::int16_t SPR_RENT_S_3 = 0;
+std::int16_t SPR_RENT_S_4 = 0;
+std::int16_t SPR_RENT_S_5 = 0;
+std::int16_t SPR_RENT_S_6 = 0;
+std::int16_t SPR_RENT_S_7 = 0;
+std::int16_t SPR_RENT_S_8 = 0;
+
+std::int16_t SPR_RENT_W1_1 = 0;
+std::int16_t SPR_RENT_W1_2 = 0;
+std::int16_t SPR_RENT_W1_3 = 0;
+std::int16_t SPR_RENT_W1_4 = 0;
+std::int16_t SPR_RENT_W1_5 = 0;
+std::int16_t SPR_RENT_W1_6 = 0;
+std::int16_t SPR_RENT_W1_7 = 0;
+std::int16_t SPR_RENT_W1_8 = 0;
+
+std::int16_t SPR_RENT_W2_1 = 0;
+std::int16_t SPR_RENT_W2_2 = 0;
+std::int16_t SPR_RENT_W2_3 = 0;
+std::int16_t SPR_RENT_W2_4 = 0;
+std::int16_t SPR_RENT_W2_5 = 0;
+std::int16_t SPR_RENT_W2_6 = 0;
+std::int16_t SPR_RENT_W2_7 = 0;
+std::int16_t SPR_RENT_W2_8 = 0;
+
+std::int16_t SPR_RENT_W3_1 = 0;
+std::int16_t SPR_RENT_W3_2 = 0;
+std::int16_t SPR_RENT_W3_3 = 0;
+std::int16_t SPR_RENT_W3_4 = 0;
+std::int16_t SPR_RENT_W3_5 = 0;
+std::int16_t SPR_RENT_W3_6 = 0;
+std::int16_t SPR_RENT_W3_7 = 0;
+std::int16_t SPR_RENT_W3_8 = 0;
+
+std::int16_t SPR_RENT_W4_1 = 0;
+std::int16_t SPR_RENT_W4_2 = 0;
+std::int16_t SPR_RENT_W4_3 = 0;
+std::int16_t SPR_RENT_W4_4 = 0;
+std::int16_t SPR_RENT_W4_5 = 0;
+std::int16_t SPR_RENT_W4_6 = 0;
+std::int16_t SPR_RENT_W4_7 = 0;
+std::int16_t SPR_RENT_W4_8 = 0;
+
+std::int16_t SPR_RENT_DIE_1 = 0;
+std::int16_t SPR_RENT_DIE_2 = 0;
+std::int16_t SPR_RENT_DIE_3 = 0;
+std::int16_t SPR_RENT_DIE_4 = 0;
+std::int16_t SPR_RENT_PAIN_1 = 0;
+std::int16_t SPR_RENT_DEAD = 0;
+
+std::int16_t SPR_RENT_SHOOT1 = 0;
+std::int16_t SPR_RENT_SHOOT2 = 0;
+std::int16_t SPR_RENT_SHOOT3 = 0;
+
+std::int16_t SPR_PRO_S_1 = 0;
+std::int16_t SPR_PRO_S_2 = 0;
+std::int16_t SPR_PRO_S_3 = 0;
+std::int16_t SPR_PRO_S_4 = 0;
+std::int16_t SPR_PRO_S_5 = 0;
+std::int16_t SPR_PRO_S_6 = 0;
+std::int16_t SPR_PRO_S_7 = 0;
+std::int16_t SPR_PRO_S_8 = 0;
+
+std::int16_t SPR_PRO_W1_1 = 0;
+std::int16_t SPR_PRO_W1_2 = 0;
+std::int16_t SPR_PRO_W1_3 = 0;
+std::int16_t SPR_PRO_W1_4 = 0;
+std::int16_t SPR_PRO_W1_5 = 0;
+std::int16_t SPR_PRO_W1_6 = 0;
+std::int16_t SPR_PRO_W1_7 = 0;
+std::int16_t SPR_PRO_W1_8 = 0;
+
+std::int16_t SPR_PRO_W2_1 = 0;
+std::int16_t SPR_PRO_W2_2 = 0;
+std::int16_t SPR_PRO_W2_3 = 0;
+std::int16_t SPR_PRO_W2_4 = 0;
+std::int16_t SPR_PRO_W2_5 = 0;
+std::int16_t SPR_PRO_W2_6 = 0;
+std::int16_t SPR_PRO_W2_7 = 0;
+std::int16_t SPR_PRO_W2_8 = 0;
+
+std::int16_t SPR_PRO_W3_1 = 0;
+std::int16_t SPR_PRO_W3_2 = 0;
+std::int16_t SPR_PRO_W3_3 = 0;
+std::int16_t SPR_PRO_W3_4 = 0;
+std::int16_t SPR_PRO_W3_5 = 0;
+std::int16_t SPR_PRO_W3_6 = 0;
+std::int16_t SPR_PRO_W3_7 = 0;
+std::int16_t SPR_PRO_W3_8 = 0;
+
+std::int16_t SPR_PRO_W4_1 = 0;
+std::int16_t SPR_PRO_W4_2 = 0;
+std::int16_t SPR_PRO_W4_3 = 0;
+std::int16_t SPR_PRO_W4_4 = 0;
+std::int16_t SPR_PRO_W4_5 = 0;
+std::int16_t SPR_PRO_W4_6 = 0;
+std::int16_t SPR_PRO_W4_7 = 0;
+std::int16_t SPR_PRO_W4_8 = 0;
+
+std::int16_t SPR_PRO_PAIN_1 = 0;
+std::int16_t SPR_PRO_DIE_1 = 0;
+std::int16_t SPR_PRO_DIE_2 = 0;
+std::int16_t SPR_PRO_DIE_3 = 0;
+std::int16_t SPR_PRO_PAIN_2 = 0;
+std::int16_t SPR_PRO_DIE_4 = 0;
+std::int16_t SPR_PRO_DEAD = 0;
+
+std::int16_t SPR_PRO_SHOOT1 = 0;
+std::int16_t SPR_PRO_SHOOT2 = 0;
+std::int16_t SPR_PRO_SHOOT3 = 0;
+
+std::int16_t SPR_SWAT_S_1 = 0;
+std::int16_t SPR_SWAT_S_2 = 0;
+std::int16_t SPR_SWAT_S_3 = 0;
+std::int16_t SPR_SWAT_S_4 = 0;
+std::int16_t SPR_SWAT_S_5 = 0;
+std::int16_t SPR_SWAT_S_6 = 0;
+std::int16_t SPR_SWAT_S_7 = 0;
+std::int16_t SPR_SWAT_S_8 = 0;
+
+std::int16_t SPR_SWAT_W1_1 = 0;
+std::int16_t SPR_SWAT_W1_2 = 0;
+std::int16_t SPR_SWAT_W1_3 = 0;
+std::int16_t SPR_SWAT_W1_4 = 0;
+std::int16_t SPR_SWAT_W1_5 = 0;
+std::int16_t SPR_SWAT_W1_6 = 0;
+std::int16_t SPR_SWAT_W1_7 = 0;
+std::int16_t SPR_SWAT_W1_8 = 0;
+
+std::int16_t SPR_SWAT_W2_1 = 0;
+std::int16_t SPR_SWAT_W2_2 = 0;
+std::int16_t SPR_SWAT_W2_3 = 0;
+std::int16_t SPR_SWAT_W2_4 = 0;
+std::int16_t SPR_SWAT_W2_5 = 0;
+std::int16_t SPR_SWAT_W2_6 = 0;
+std::int16_t SPR_SWAT_W2_7 = 0;
+std::int16_t SPR_SWAT_W2_8 = 0;
+
+std::int16_t SPR_SWAT_W3_1 = 0;
+std::int16_t SPR_SWAT_W3_2 = 0;
+std::int16_t SPR_SWAT_W3_3 = 0;
+std::int16_t SPR_SWAT_W3_4 = 0;
+std::int16_t SPR_SWAT_W3_5 = 0;
+std::int16_t SPR_SWAT_W3_6 = 0;
+std::int16_t SPR_SWAT_W3_7 = 0;
+std::int16_t SPR_SWAT_W3_8 = 0;
+
+std::int16_t SPR_SWAT_W4_1 = 0;
+std::int16_t SPR_SWAT_W4_2 = 0;
+std::int16_t SPR_SWAT_W4_3 = 0;
+std::int16_t SPR_SWAT_W4_4 = 0;
+std::int16_t SPR_SWAT_W4_5 = 0;
+std::int16_t SPR_SWAT_W4_6 = 0;
+std::int16_t SPR_SWAT_W4_7 = 0;
+std::int16_t SPR_SWAT_W4_8 = 0;
+
+std::int16_t SPR_SWAT_PAIN_1 = 0;
+std::int16_t SPR_SWAT_DIE_1 = 0;
+std::int16_t SPR_SWAT_DIE_2 = 0;
+std::int16_t SPR_SWAT_DIE_3 = 0;
+std::int16_t SPR_SWAT_PAIN_2 = 0;
+std::int16_t SPR_SWAT_DIE_4 = 0;
+std::int16_t SPR_SWAT_DEAD = 0;
+
+std::int16_t SPR_SWAT_SHOOT1 = 0;
+std::int16_t SPR_SWAT_SHOOT2 = 0;
+std::int16_t SPR_SWAT_SHOOT3 = 0;
+
+std::int16_t SPR_SWAT_WOUNDED1 = 0;
+std::int16_t SPR_SWAT_WOUNDED2 = 0;
+std::int16_t SPR_SWAT_WOUNDED3 = 0;
+std::int16_t SPR_SWAT_WOUNDED4 = 0;
+
+std::int16_t SPR_OFC_S_1 = 0;
+std::int16_t SPR_OFC_S_2 = 0;
+std::int16_t SPR_OFC_S_3 = 0;
+std::int16_t SPR_OFC_S_4 = 0;
+std::int16_t SPR_OFC_S_5 = 0;
+std::int16_t SPR_OFC_S_6 = 0;
+std::int16_t SPR_OFC_S_7 = 0;
+std::int16_t SPR_OFC_S_8 = 0;
+
+std::int16_t SPR_OFC_W1_1 = 0;
+std::int16_t SPR_OFC_W1_2 = 0;
+std::int16_t SPR_OFC_W1_3 = 0;
+std::int16_t SPR_OFC_W1_4 = 0;
+std::int16_t SPR_OFC_W1_5 = 0;
+std::int16_t SPR_OFC_W1_6 = 0;
+std::int16_t SPR_OFC_W1_7 = 0;
+std::int16_t SPR_OFC_W1_8 = 0;
+
+std::int16_t SPR_OFC_W2_1 = 0;
+std::int16_t SPR_OFC_W2_2 = 0;
+std::int16_t SPR_OFC_W2_3 = 0;
+std::int16_t SPR_OFC_W2_4 = 0;
+std::int16_t SPR_OFC_W2_5 = 0;
+std::int16_t SPR_OFC_W2_6 = 0;
+std::int16_t SPR_OFC_W2_7 = 0;
+std::int16_t SPR_OFC_W2_8 = 0;
+
+std::int16_t SPR_OFC_W3_1 = 0;
+std::int16_t SPR_OFC_W3_2 = 0;
+std::int16_t SPR_OFC_W3_3 = 0;
+std::int16_t SPR_OFC_W3_4 = 0;
+std::int16_t SPR_OFC_W3_5 = 0;
+std::int16_t SPR_OFC_W3_6 = 0;
+std::int16_t SPR_OFC_W3_7 = 0;
+std::int16_t SPR_OFC_W3_8 = 0;
+
+std::int16_t SPR_OFC_W4_1 = 0;
+std::int16_t SPR_OFC_W4_2 = 0;
+std::int16_t SPR_OFC_W4_3 = 0;
+std::int16_t SPR_OFC_W4_4 = 0;
+std::int16_t SPR_OFC_W4_5 = 0;
+std::int16_t SPR_OFC_W4_6 = 0;
+std::int16_t SPR_OFC_W4_7 = 0;
+std::int16_t SPR_OFC_W4_8 = 0;
+
+std::int16_t SPR_OFC_PAIN_1 = 0;
+std::int16_t SPR_OFC_DIE_1 = 0;
+std::int16_t SPR_OFC_DIE_2 = 0;
+std::int16_t SPR_OFC_DIE_3 = 0;
+std::int16_t SPR_OFC_PAIN_2 = 0;
+std::int16_t SPR_OFC_DIE_4 = 0;
+std::int16_t SPR_OFC_DEAD = 0;
+
+std::int16_t SPR_OFC_SHOOT1 = 0;
+std::int16_t SPR_OFC_SHOOT2 = 0;
+std::int16_t SPR_OFC_SHOOT3 = 0;
+
+std::int16_t SPR_GOLD_S_1 = 0;
+std::int16_t SPR_GOLD_S_2 = 0;
+std::int16_t SPR_GOLD_S_3 = 0;
+std::int16_t SPR_GOLD_S_4 = 0;
+std::int16_t SPR_GOLD_S_5 = 0;
+std::int16_t SPR_GOLD_S_6 = 0;
+std::int16_t SPR_GOLD_S_7 = 0;
+std::int16_t SPR_GOLD_S_8 = 0;
+
+std::int16_t SPR_GOLD_W1_1 = 0;
+std::int16_t SPR_GOLD_W1_2 = 0;
+std::int16_t SPR_GOLD_W1_3 = 0;
+std::int16_t SPR_GOLD_W1_4 = 0;
+std::int16_t SPR_GOLD_W1_5 = 0;
+std::int16_t SPR_GOLD_W1_6 = 0;
+std::int16_t SPR_GOLD_W1_7 = 0;
+std::int16_t SPR_GOLD_W1_8 = 0;
+
+std::int16_t SPR_GOLD_W2_1 = 0;
+std::int16_t SPR_GOLD_W2_2 = 0;
+std::int16_t SPR_GOLD_W2_3 = 0;
+std::int16_t SPR_GOLD_W2_4 = 0;
+std::int16_t SPR_GOLD_W2_5 = 0;
+std::int16_t SPR_GOLD_W2_6 = 0;
+std::int16_t SPR_GOLD_W2_7 = 0;
+std::int16_t SPR_GOLD_W2_8 = 0;
+
+std::int16_t SPR_GOLD_W3_1 = 0;
+std::int16_t SPR_GOLD_W3_2 = 0;
+std::int16_t SPR_GOLD_W3_3 = 0;
+std::int16_t SPR_GOLD_W3_4 = 0;
+std::int16_t SPR_GOLD_W3_5 = 0;
+std::int16_t SPR_GOLD_W3_6 = 0;
+std::int16_t SPR_GOLD_W3_7 = 0;
+std::int16_t SPR_GOLD_W3_8 = 0;
+
+std::int16_t SPR_GOLD_W4_1 = 0;
+std::int16_t SPR_GOLD_W4_2 = 0;
+std::int16_t SPR_GOLD_W4_3 = 0;
+std::int16_t SPR_GOLD_W4_4 = 0;
+std::int16_t SPR_GOLD_W4_5 = 0;
+std::int16_t SPR_GOLD_W4_6 = 0;
+std::int16_t SPR_GOLD_W4_7 = 0;
+std::int16_t SPR_GOLD_W4_8 = 0;
+
+std::int16_t SPR_GOLD_PAIN_1 = 0;
+
+std::int16_t SPR_GOLD_WRIST_1 = 0;
+std::int16_t SPR_GOLD_WRIST_2 = 0;
+
+std::int16_t SPR_GOLD_SHOOT1 = 0;
+std::int16_t SPR_GOLD_SHOOT2 = 0;
+std::int16_t SPR_GOLD_SHOOT3 = 0;
+
+std::int16_t SPR_GOLD_WARP1 = 0;
+std::int16_t SPR_GOLD_WARP2 = 0;
+std::int16_t SPR_GOLD_WARP3 = 0;
+std::int16_t SPR_GOLD_WARP4 = 0;
+std::int16_t SPR_GOLD_WARP5 = 0;
+
+std::int16_t SPR_GOLD_DEATH1 = 0;
+std::int16_t SPR_GOLD_DEATH2 = 0;
+std::int16_t SPR_GOLD_DEATH3 = 0;
+std::int16_t SPR_GOLD_DEATH4 = 0;
+std::int16_t SPR_GOLD_DEATH5 = 0;
+std::int16_t SPR_MGOLD_OUCH = 0;
+
+std::int16_t SPR_GOLD_MORPH1 = 0;
+std::int16_t SPR_GOLD_MORPH2 = 0;
+std::int16_t SPR_GOLD_MORPH3 = 0;
+std::int16_t SPR_GOLD_MORPH4 = 0;
+std::int16_t SPR_GOLD_MORPH5 = 0;
+std::int16_t SPR_GOLD_MORPH6 = 0;
+std::int16_t SPR_GOLD_MORPH7 = 0;
+std::int16_t SPR_GOLD_MORPH8 = 0;
+
+std::int16_t SPR_MGOLD_WALK1 = 0;
+std::int16_t SPR_MGOLD_WALK2 = 0;
+std::int16_t SPR_MGOLD_WALK3 = 0;
+std::int16_t SPR_MGOLD_WALK4 = 0;
+std::int16_t SPR_MGOLD_ATTACK1 = 0;
+std::int16_t SPR_MGOLD_ATTACK2 = 0;
+std::int16_t SPR_MGOLD_ATTACK3 = 0;
+std::int16_t SPR_MGOLD_ATTACK4 = 0;
+
+std::int16_t SPR_MGOLD_SHOT1 = 0;
+std::int16_t SPR_MGOLD_SHOT2 = 0;
+std::int16_t SPR_MGOLD_SHOT3 = 0;
+std::int16_t SPR_MGOLD_SHOT_EXP1 = 0;
+std::int16_t SPR_MGOLD_SHOT_EXP2 = 0;
+std::int16_t SPR_MGOLD_SHOT_EXP3 = 0;
+
+std::int16_t SPR_GSCOUT_W1_1 = 0;
+std::int16_t SPR_GSCOUT_W1_2 = 0;
+std::int16_t SPR_GSCOUT_W1_3 = 0;
+std::int16_t SPR_GSCOUT_W1_4 = 0;
+std::int16_t SPR_GSCOUT_W1_5 = 0;
+std::int16_t SPR_GSCOUT_W1_6 = 0;
+std::int16_t SPR_GSCOUT_W1_7 = 0;
+std::int16_t SPR_GSCOUT_W1_8 = 0;
+
+std::int16_t SPR_GSCOUT_W2_1 = 0;
+std::int16_t SPR_GSCOUT_W2_2 = 0;
+std::int16_t SPR_GSCOUT_W2_3 = 0;
+std::int16_t SPR_GSCOUT_W2_4 = 0;
+std::int16_t SPR_GSCOUT_W2_5 = 0;
+std::int16_t SPR_GSCOUT_W2_6 = 0;
+std::int16_t SPR_GSCOUT_W2_7 = 0;
+std::int16_t SPR_GSCOUT_W2_8 = 0;
+
+std::int16_t SPR_GSCOUT_W3_1 = 0;
+std::int16_t SPR_GSCOUT_W3_2 = 0;
+std::int16_t SPR_GSCOUT_W3_3 = 0;
+std::int16_t SPR_GSCOUT_W3_4 = 0;
+std::int16_t SPR_GSCOUT_W3_5 = 0;
+std::int16_t SPR_GSCOUT_W3_6 = 0;
+std::int16_t SPR_GSCOUT_W3_7 = 0;
+std::int16_t SPR_GSCOUT_W3_8 = 0;
+
+std::int16_t SPR_GSCOUT_W4_1 = 0;
+std::int16_t SPR_GSCOUT_W4_2 = 0;
+std::int16_t SPR_GSCOUT_W4_3 = 0;
+std::int16_t SPR_GSCOUT_W4_4 = 0;
+std::int16_t SPR_GSCOUT_W4_5 = 0;
+std::int16_t SPR_GSCOUT_W4_6 = 0;
+std::int16_t SPR_GSCOUT_W4_7 = 0;
+std::int16_t SPR_GSCOUT_W4_8 = 0;
+
+std::int16_t SPR_GSCOUT_DIE1 = 0;
+std::int16_t SPR_GSCOUT_DIE2 = 0;
+std::int16_t SPR_GSCOUT_DIE3 = 0;
+std::int16_t SPR_GSCOUT_DIE4 = 0;
+std::int16_t SPR_GSCOUT_DIE5 = 0;
+std::int16_t SPR_GSCOUT_DIE6 = 0;
+std::int16_t SPR_GSCOUT_DIE7 = 0;
+std::int16_t SPR_GSCOUT_DIE8 = 0;
+
+std::int16_t SPR_GSCOUT_DEAD = 0;
+
+std::int16_t SPR_FSCOUT_W1_1 = 0;
+std::int16_t SPR_FSCOUT_W1_2 = 0;
+std::int16_t SPR_FSCOUT_W1_3 = 0;
+std::int16_t SPR_FSCOUT_W1_4 = 0;
+std::int16_t SPR_FSCOUT_W1_5 = 0;
+std::int16_t SPR_FSCOUT_W1_6 = 0;
+std::int16_t SPR_FSCOUT_W1_7 = 0;
+std::int16_t SPR_FSCOUT_W1_8 = 0;
+
+std::int16_t SPR_FSCOUT_W2_1 = 0;
+std::int16_t SPR_FSCOUT_W2_2 = 0;
+std::int16_t SPR_FSCOUT_W2_3 = 0;
+std::int16_t SPR_FSCOUT_W2_4 = 0;
+std::int16_t SPR_FSCOUT_W2_5 = 0;
+std::int16_t SPR_FSCOUT_W2_6 = 0;
+std::int16_t SPR_FSCOUT_W2_7 = 0;
+std::int16_t SPR_FSCOUT_W2_8 = 0;
+
+std::int16_t SPR_FSCOUT_W3_1 = 0;
+std::int16_t SPR_FSCOUT_W3_2 = 0;
+std::int16_t SPR_FSCOUT_W3_3 = 0;
+std::int16_t SPR_FSCOUT_W3_4 = 0;
+std::int16_t SPR_FSCOUT_W3_5 = 0;
+std::int16_t SPR_FSCOUT_W3_6 = 0;
+std::int16_t SPR_FSCOUT_W3_7 = 0;
+std::int16_t SPR_FSCOUT_W3_8 = 0;
+
+std::int16_t SPR_FSCOUT_W4_1 = 0;
+std::int16_t SPR_FSCOUT_W4_2 = 0;
+std::int16_t SPR_FSCOUT_W4_3 = 0;
+std::int16_t SPR_FSCOUT_W4_4 = 0;
+std::int16_t SPR_FSCOUT_W4_5 = 0;
+std::int16_t SPR_FSCOUT_W4_6 = 0;
+std::int16_t SPR_FSCOUT_W4_7 = 0;
+std::int16_t SPR_FSCOUT_W4_8 = 0;
+
+std::int16_t SPR_FSCOUT_DIE1 = 0;
+std::int16_t SPR_FSCOUT_DIE2 = 0;
+std::int16_t SPR_FSCOUT_DIE3 = 0;
+std::int16_t SPR_FSCOUT_DIE4 = 0;
+std::int16_t SPR_FSCOUT_DIE5 = 0;
+std::int16_t SPR_FSCOUT_DIE6 = 0;
+std::int16_t SPR_FSCOUT_DIE7 = 0;
+std::int16_t SPR_FSCOUT_DEAD = 0;
+
+std::int16_t SPR_EXPLOSION_1 = 0;
+std::int16_t SPR_EXPLOSION_2 = 0;
+std::int16_t SPR_EXPLOSION_3 = 0;
+std::int16_t SPR_EXPLOSION_4 = 0;
+std::int16_t SPR_EXPLOSION_5 = 0;
+
+std::int16_t SPR_VITAL_STAND = 0;
+std::int16_t SPR_VITAL_DIE_1 = 0;
+std::int16_t SPR_VITAL_DIE_2 = 0;
+std::int16_t SPR_VITAL_DIE_3 = 0;
+std::int16_t SPR_VITAL_DIE_4 = 0;
+std::int16_t SPR_VITAL_DIE_5 = 0;
+std::int16_t SPR_VITAL_DIE_6 = 0;
+std::int16_t SPR_VITAL_DIE_7 = 0;
+std::int16_t SPR_VITAL_DIE_8 = 0;
+std::int16_t SPR_VITAL_DEAD_1 = 0;
+std::int16_t SPR_VITAL_DEAD_2 = 0;
+std::int16_t SPR_VITAL_DEAD_3 = 0;
+std::int16_t SPR_VITAL_OUCH = 0;
+
+std::int16_t SPR_CUBE1 = 0;
+std::int16_t SPR_CUBE2 = 0;
+std::int16_t SPR_CUBE3 = 0;
+std::int16_t SPR_CUBE4 = 0;
+std::int16_t SPR_CUBE5 = 0;
+std::int16_t SPR_CUBE6 = 0;
+std::int16_t SPR_CUBE7 = 0;
+std::int16_t SPR_CUBE8 = 0;
+std::int16_t SPR_CUBE9 = 0;
+std::int16_t SPR_CUBE10 = 0;
+std::int16_t SPR_CUBE_EXP1 = 0;
+std::int16_t SPR_CUBE_EXP2 = 0;
+std::int16_t SPR_CUBE_EXP3 = 0;
+std::int16_t SPR_CUBE_EXP4 = 0;
+std::int16_t SPR_CUBE_EXP5 = 0;
+std::int16_t SPR_CUBE_EXP6 = 0;
+std::int16_t SPR_CUBE_EXP7 = 0;
+std::int16_t SPR_CUBE_EXP8 = 0;
+std::int16_t SPR_DEAD_CUBE = 0;
+
+std::int16_t SPR_SECURITY_NORMAL = 0;
+std::int16_t SPR_SECURITY_ALERT = 0;
+
+std::int16_t SPR_POD_EGG = 0;
+std::int16_t SPR_POD_HATCH1 = 0;
+std::int16_t SPR_POD_HATCH2 = 0;
+std::int16_t SPR_POD_HATCH3 = 0;
+std::int16_t SPR_POD_WALK1 = 0;
+std::int16_t SPR_POD_WALK2 = 0;
+std::int16_t SPR_POD_WALK3 = 0;
+std::int16_t SPR_POD_WALK4 = 0;
+std::int16_t SPR_POD_ATTACK1 = 0;
+std::int16_t SPR_POD_ATTACK2 = 0;
+std::int16_t SPR_POD_ATTACK3 = 0;
+std::int16_t SPR_POD_OUCH = 0;
+std::int16_t SPR_POD_DIE1 = 0;
+std::int16_t SPR_POD_DIE2 = 0;
+std::int16_t SPR_POD_DIE3 = 0;
+std::int16_t SPR_POD_SPIT1 = 0;
+std::int16_t SPR_POD_SPIT2 = 0;
+std::int16_t SPR_POD_SPIT3 = 0;
+
+std::int16_t SPR_ELEC_APPEAR1 = 0;
+std::int16_t SPR_ELEC_APPEAR2 = 0;
+std::int16_t SPR_ELEC_APPEAR3 = 0;
+std::int16_t SPR_ELEC_WALK1 = 0;
+std::int16_t SPR_ELEC_WALK2 = 0;
+std::int16_t SPR_ELEC_WALK3 = 0;
+std::int16_t SPR_ELEC_WALK4 = 0;
+std::int16_t SPR_ELEC_OUCH = 0;
+std::int16_t SPR_ELEC_SHOOT1 = 0;
+std::int16_t SPR_ELEC_SHOOT2 = 0;
+std::int16_t SPR_ELEC_SHOOT3 = 0;
+std::int16_t SPR_ELEC_DIE1 = 0;
+std::int16_t SPR_ELEC_DIE2 = 0;
+std::int16_t SPR_ELEC_DIE3 = 0;
+std::int16_t SPR_ELEC_SHOT1 = 0;
+std::int16_t SPR_ELEC_SHOT2 = 0;
+std::int16_t SPR_ELEC_SHOT_EXP1 = 0;
+std::int16_t SPR_ELEC_SHOT_EXP2 = 0;
+
+std::int16_t SPR_ELECTRO_SPHERE_ROAM1 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_ROAM2 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_ROAM3 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_OUCH = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE1 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE2 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE3 = 0;
+std::int16_t SPR_ELECTRO_SPHERE_DIE4 = 0;
+
+std::int16_t SPR_GENETIC_W1 = 0;
+std::int16_t SPR_GENETIC_W2 = 0;
+std::int16_t SPR_GENETIC_W3 = 0;
+std::int16_t SPR_GENETIC_W4 = 0;
+std::int16_t SPR_GENETIC_SWING1 = 0;
+std::int16_t SPR_GENETIC_SWING2 = 0;
+std::int16_t SPR_GENETIC_SWING3 = 0;
+std::int16_t SPR_GENETIC_DEAD = 0;
+std::int16_t SPR_GENETIC_DIE1 = 0;
+std::int16_t SPR_GENETIC_DIE2 = 0;
+std::int16_t SPR_GENETIC_DIE3 = 0;
+std::int16_t SPR_GENETIC_DIE4 = 0;
+std::int16_t SPR_GENETIC_OUCH = 0;
+std::int16_t SPR_GENETIC_SHOOT1 = 0;
+std::int16_t SPR_GENETIC_SHOOT2 = 0;
+std::int16_t SPR_GENETIC_SHOOT3 = 0;
+
+std::int16_t SPR_MUTHUM1_W1 = 0;
+std::int16_t SPR_MUTHUM1_W2 = 0;
+std::int16_t SPR_MUTHUM1_W3 = 0;
+std::int16_t SPR_MUTHUM1_W4 = 0;
+std::int16_t SPR_MUTHUM1_SWING1 = 0;
+std::int16_t SPR_MUTHUM1_SWING2 = 0;
+std::int16_t SPR_MUTHUM1_SWING3 = 0;
+std::int16_t SPR_MUTHUM1_DEAD = 0;
+std::int16_t SPR_MUTHUM1_DIE1 = 0;
+std::int16_t SPR_MUTHUM1_DIE2 = 0;
+std::int16_t SPR_MUTHUM1_DIE3 = 0;
+std::int16_t SPR_MUTHUM1_DIE4 = 0;
+std::int16_t SPR_MUTHUM1_OUCH = 0;
+std::int16_t SPR_MUTHUM1_SPIT1 = 0;
+std::int16_t SPR_MUTHUM1_SPIT2 = 0;
+std::int16_t SPR_MUTHUM1_SPIT3 = 0;
+
+std::int16_t SPR_MUTHUM2_W1 = 0;
+std::int16_t SPR_MUTHUM2_W2 = 0;
+std::int16_t SPR_MUTHUM2_W3 = 0;
+std::int16_t SPR_MUTHUM2_W4 = 0;
+std::int16_t SPR_MUTHUM2_SWING1 = 0;
+std::int16_t SPR_MUTHUM2_SWING2 = 0;
+std::int16_t SPR_MUTHUM2_SWING3 = 0;
+std::int16_t SPR_MUTHUM2_DEAD = 0;
+std::int16_t SPR_MUTHUM2_DIE1 = 0;
+std::int16_t SPR_MUTHUM2_DIE2 = 0;
+std::int16_t SPR_MUTHUM2_DIE3 = 0;
+std::int16_t SPR_MUTHUM2_DIE4 = 0;
+std::int16_t SPR_MUTHUM2_OUCH = 0;
+std::int16_t SPR_MUTHUM2_SPIT1 = 0;
+std::int16_t SPR_MUTHUM2_SPIT2 = 0;
+std::int16_t SPR_MUTHUM2_SPIT3 = 0;
+
+std::int16_t SPR_MUTHUM2_MORPH1 = 0;
+std::int16_t SPR_MUTHUM2_MORPH2 = 0;
+std::int16_t SPR_MUTHUM2_MORPH3 = 0;
+std::int16_t SPR_MUTHUM2_MORPH4 = 0;
+std::int16_t SPR_MUTHUM2_MORPH5 = 0;
+std::int16_t SPR_MUTHUM2_MORPH6 = 0;
+std::int16_t SPR_MUTHUM2_MORPH7 = 0;
+std::int16_t SPR_MUTHUM2_MORPH8 = 0;
+std::int16_t SPR_MUTHUM2_MORPH9 = 0;
+
+std::int16_t SPR_LCAN_ALIEN_READY = 0;
+std::int16_t SPR_LCAN_ALIEN_B1 = 0;
+std::int16_t SPR_LCAN_ALIEN_B2 = 0;
+std::int16_t SPR_LCAN_ALIEN_B3 = 0;
+std::int16_t SPR_LCAN_ALIEN_EMPTY = 0;
+
+std::int16_t SPR_LCAN_ALIEN_W1 = 0;
+std::int16_t SPR_LCAN_ALIEN_W2 = 0;
+std::int16_t SPR_LCAN_ALIEN_W3 = 0;
+std::int16_t SPR_LCAN_ALIEN_W4 = 0;
+std::int16_t SPR_LCAN_ALIEN_SWING1 = 0;
+std::int16_t SPR_LCAN_ALIEN_SWING2 = 0;
+std::int16_t SPR_LCAN_ALIEN_SWING3 = 0;
+std::int16_t SPR_LCAN_ALIEN_DEAD = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE1 = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE2 = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE3 = 0;
+std::int16_t SPR_LCAN_ALIEN_DIE4 = 0;
+std::int16_t SPR_LCAN_ALIEN_OUCH = 0;
+std::int16_t SPR_LCAN_ALIEN_SPIT1 = 0;
+std::int16_t SPR_LCAN_ALIEN_SPIT2 = 0;
+std::int16_t SPR_LCAN_ALIEN_SPIT3 = 0;
+
+std::int16_t SPR_SCAN_ALIEN_READY = 0;
+std::int16_t SPR_SCAN_ALIEN_B1 = 0;
+std::int16_t SPR_SCAN_ALIEN_B2 = 0;
+std::int16_t SPR_SCAN_ALIEN_B3 = 0;
+std::int16_t SPR_SCAN_ALIEN_EMPTY = 0;
+
+std::int16_t SPR_SCAN_ALIEN_W1 = 0;
+std::int16_t SPR_SCAN_ALIEN_W2 = 0;
+std::int16_t SPR_SCAN_ALIEN_W3 = 0;
+std::int16_t SPR_SCAN_ALIEN_W4 = 0;
+std::int16_t SPR_SCAN_ALIEN_SWING1 = 0;
+std::int16_t SPR_SCAN_ALIEN_SWING2 = 0;
+std::int16_t SPR_SCAN_ALIEN_SWING3 = 0;
+std::int16_t SPR_SCAN_ALIEN_DEAD = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE1 = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE2 = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE3 = 0;
+std::int16_t SPR_SCAN_ALIEN_DIE4 = 0;
+std::int16_t SPR_SCAN_ALIEN_OUCH = 0;
+
+std::int16_t SPR_SCAN_ALIEN_SPIT1 = 0;
+std::int16_t SPR_SCAN_ALIEN_SPIT2 = 0;
+std::int16_t SPR_SCAN_ALIEN_SPIT3 = 0;
+
+std::int16_t SPR_GURNEY_MUT_READY = 0;
+std::int16_t SPR_GURNEY_MUT_B1 = 0;
+std::int16_t SPR_GURNEY_MUT_B2 = 0;
+std::int16_t SPR_GURNEY_MUT_B3 = 0;
+std::int16_t SPR_GURNEY_MUT_EMPTY = 0;
+
+std::int16_t SPR_GURNEY_MUT_W1 = 0;
+std::int16_t SPR_GURNEY_MUT_W2 = 0;
+std::int16_t SPR_GURNEY_MUT_W3 = 0;
+std::int16_t SPR_GURNEY_MUT_W4 = 0;
+std::int16_t SPR_GURNEY_MUT_SWING1 = 0;
+std::int16_t SPR_GURNEY_MUT_SWING2 = 0;
+std::int16_t SPR_GURNEY_MUT_SWING3 = 0;
+std::int16_t SPR_GURNEY_MUT_DEAD = 0;
+std::int16_t SPR_GURNEY_MUT_DIE1 = 0;
+std::int16_t SPR_GURNEY_MUT_DIE2 = 0;
+std::int16_t SPR_GURNEY_MUT_DIE3 = 0;
+std::int16_t SPR_GURNEY_MUT_DIE4 = 0;
+std::int16_t SPR_GURNEY_MUT_OUCH = 0;
+
+std::int16_t SPR_LIQUID_M1 = 0;
+std::int16_t SPR_LIQUID_M2 = 0;
+std::int16_t SPR_LIQUID_M3 = 0;
+std::int16_t SPR_LIQUID_R1 = 0;
+std::int16_t SPR_LIQUID_R2 = 0;
+std::int16_t SPR_LIQUID_R3 = 0;
+std::int16_t SPR_LIQUID_R4 = 0;
+std::int16_t SPR_LIQUID_S1 = 0;
+std::int16_t SPR_LIQUID_S2 = 0;
+std::int16_t SPR_LIQUID_S3 = 0;
+std::int16_t SPR_LIQUID_OUCH = 0;
+std::int16_t SPR_LIQUID_DIE_1 = 0;
+std::int16_t SPR_LIQUID_DIE_2 = 0;
+std::int16_t SPR_LIQUID_DIE_3 = 0;
+std::int16_t SPR_LIQUID_DIE_4 = 0;
+std::int16_t SPR_LIQUID_DEAD = 0;
+std::int16_t SPR_LIQUID_SHOT_FLY_1 = 0;
+std::int16_t SPR_LIQUID_SHOT_FLY_2 = 0;
+std::int16_t SPR_LIQUID_SHOT_FLY_3 = 0;
+std::int16_t SPR_LIQUID_SHOT_BURST_1 = 0;
+std::int16_t SPR_LIQUID_SHOT_BURST_2 = 0;
+std::int16_t SPR_LIQUID_SHOT_BURST_3 = 0;
+
+std::int16_t SPR_SPIT1_1 = 0;
+std::int16_t SPR_SPIT1_2 = 0;
+std::int16_t SPR_SPIT1_3 = 0;
+std::int16_t SPR_SPIT_EXP1_1 = 0;
+std::int16_t SPR_SPIT_EXP1_2 = 0;
+std::int16_t SPR_SPIT_EXP1_3 = 0;
+
+std::int16_t SPR_SPIT2_1 = 0;
+std::int16_t SPR_SPIT2_2 = 0;
+std::int16_t SPR_SPIT2_3 = 0;
+std::int16_t SPR_SPIT_EXP2_1 = 0;
+std::int16_t SPR_SPIT_EXP2_2 = 0;
+std::int16_t SPR_SPIT_EXP2_3 = 0;
+
+std::int16_t SPR_SPIT3_1 = 0;
+std::int16_t SPR_SPIT3_2 = 0;
+std::int16_t SPR_SPIT3_3 = 0;
+std::int16_t SPR_SPIT_EXP3_1 = 0;
+std::int16_t SPR_SPIT_EXP3_2 = 0;
+std::int16_t SPR_SPIT_EXP3_3 = 0;
+
+std::int16_t SPR_TERROT_1 = 0;
+std::int16_t SPR_TERROT_2 = 0;
+std::int16_t SPR_TERROT_3 = 0;
+std::int16_t SPR_TERROT_4 = 0;
+std::int16_t SPR_TERROT_5 = 0;
+std::int16_t SPR_TERROT_6 = 0;
+std::int16_t SPR_TERROT_7 = 0;
+std::int16_t SPR_TERROT_8 = 0;
+
+std::int16_t SPR_TERROT_FIRE_1 = 0;
+std::int16_t SPR_TERROT_FIRE_2 = 0;
+std::int16_t SPR_TERROT_DIE_1 = 0;
+std::int16_t SPR_TERROT_DIE_2 = 0;
+std::int16_t SPR_TERROT_DIE_3 = 0;
+std::int16_t SPR_TERROT_DIE_4 = 0;
+std::int16_t SPR_TERROT_DEAD = 0;
+
+std::int16_t SPR_KNIFEREADY = 0;
+std::int16_t SPR_KNIFEATK1 = 0;
+std::int16_t SPR_KNIFEATK2 = 0;
+std::int16_t SPR_KNIFEATK3 = 0;
+std::int16_t SPR_KNIFEATK4 = 0;
+
+std::int16_t SPR_PISTOLREADY = 0;
+std::int16_t SPR_PISTOLATK1 = 0;
+std::int16_t SPR_PISTOLATK2 = 0;
+std::int16_t SPR_PISTOLATK3 = 0;
+std::int16_t SPR_PISTOLATK4 = 0;
+
+std::int16_t SPR_MACHINEGUNREADY = 0;
+std::int16_t SPR_MACHINEGUNATK1 = 0;
+std::int16_t SPR_MACHINEGUNATK2 = 0;
+std::int16_t SPR_MACHINEGUNATK3 = 0;
+std::int16_t SPR_MACHINEGUNATK4 = 0;
+
+std::int16_t SPR_CHAINREADY = 0;
+std::int16_t SPR_CHAINATK1 = 0;
+std::int16_t SPR_CHAINATK2 = 0;
+std::int16_t SPR_CHAINATK3 = 0;
+std::int16_t SPR_CHAINATK4 = 0;
+
+std::int16_t SPR_GRENADEREADY = 0;
+std::int16_t SPR_GRENADEATK1 = 0;
+std::int16_t SPR_GRENADEATK2 = 0;
+std::int16_t SPR_GRENADEATK3 = 0;
+std::int16_t SPR_GRENADEATK4 = 0;
+
+std::int16_t SPR_GRENADE_FLY1 = 0;
+std::int16_t SPR_GRENADE_FLY2 = 0;
+std::int16_t SPR_GRENADE_FLY3 = 0;
+std::int16_t SPR_GRENADE_FLY4 = 0;
+std::int16_t SPR_GRENADE_EXPLODE1 = 0;
+std::int16_t SPR_GRENADE_EXPLODE2 = 0;
+std::int16_t SPR_GRENADE_EXPLODE3 = 0;
+std::int16_t SPR_GRENADE_EXPLODE4 = 0;
+std::int16_t SPR_GRENADE_EXPLODE5 = 0;
+
+std::int16_t SPR_ELEC_ARC1 = 0;
+std::int16_t SPR_ELEC_ARC2 = 0;
+std::int16_t SPR_ELEC_ARC3 = 0;
+std::int16_t SPR_ELEC_ARC4 = 0;
+std::int16_t SPR_ELEC_POST1 = 0;
+std::int16_t SPR_ELEC_POST2 = 0;
+std::int16_t SPR_ELEC_POST3 = 0;
+std::int16_t SPR_ELEC_POST4 = 0;
+
+std::int16_t SPR_VPOST1 = 0;
+std::int16_t SPR_VPOST2 = 0;
+std::int16_t SPR_VPOST3 = 0;
+std::int16_t SPR_VPOST4 = 0;
+std::int16_t SPR_VPOST5 = 0;
+std::int16_t SPR_VPOST6 = 0;
+std::int16_t SPR_VPOST7 = 0;
+std::int16_t SPR_VPOST8 = 0;
+
+std::int16_t SPR_VSPIKE1 = 0;
+std::int16_t SPR_VSPIKE2 = 0;
+std::int16_t SPR_VSPIKE3 = 0;
+std::int16_t SPR_VSPIKE4 = 0;
+std::int16_t SPR_VSPIKE5 = 0;
+std::int16_t SPR_VSPIKE6 = 0;
+std::int16_t SPR_VSPIKE7 = 0;
+std::int16_t SPR_VSPIKE8 = 0;
+
+std::int16_t SPR_GREEN_OOZE1 = 0;
+std::int16_t SPR_GREEN_OOZE2 = 0;
+std::int16_t SPR_GREEN_OOZE3 = 0;
+std::int16_t SPR_BLACK_OOZE1 = 0;
+std::int16_t SPR_BLACK_OOZE2 = 0;
+std::int16_t SPR_BLACK_OOZE3 = 0;
+
+std::int16_t SPR_GREEN2_OOZE1 = 0;
+std::int16_t SPR_GREEN2_OOZE2 = 0;
+std::int16_t SPR_GREEN2_OOZE3 = 0;
+std::int16_t SPR_BLACK2_OOZE1 = 0;
+std::int16_t SPR_BLACK2_OOZE2 = 0;
+std::int16_t SPR_BLACK2_OOZE3 = 0;
+
+std::int16_t SPR_CANDY_BAR = 0;
+std::int16_t SPR_CANDY_WRAPER = 0;
+std::int16_t SPR_SANDWICH = 0;
+std::int16_t SPR_SANDWICH_WRAPER = 0;
+
+std::int16_t SPR_BLAKE_W1 = 0;
+std::int16_t SPR_BLAKE_W2 = 0;
+std::int16_t SPR_BLAKE_W3 = 0;
+std::int16_t SPR_BLAKE_W4 = 0;
+
+std::int16_t SPR_BOSS1_W1 = 0;
+std::int16_t SPR_BOSS1_W2 = 0;
+std::int16_t SPR_BOSS1_W3 = 0;
+std::int16_t SPR_BOSS1_W4 = 0;
+std::int16_t SPR_BOSS1_SWING1 = 0;
+std::int16_t SPR_BOSS1_SWING2 = 0;
+std::int16_t SPR_BOSS1_SWING3 = 0;
+std::int16_t SPR_BOSS1_DEAD = 0;
+std::int16_t SPR_BOSS1_DIE1 = 0;
+std::int16_t SPR_BOSS1_DIE2 = 0;
+std::int16_t SPR_BOSS1_DIE3 = 0;
+std::int16_t SPR_BOSS1_DIE4 = 0;
+std::int16_t SPR_BOSS1_OUCH = 0;
+std::int16_t SPR_BOSS1_PROJ1 = 0;
+std::int16_t SPR_BOSS1_PROJ2 = 0;
+std::int16_t SPR_BOSS1_PROJ3 = 0;
+std::int16_t SPR_BOSS1_EXP1 = 0;
+std::int16_t SPR_BOSS1_EXP2 = 0;
+std::int16_t SPR_BOSS1_EXP3 = 0;
+std::int16_t SPR_BOSS1_MORPH1 = 0;
+std::int16_t SPR_BOSS1_MORPH2 = 0;
+std::int16_t SPR_BOSS1_MORPH3 = 0;
+std::int16_t SPR_BOSS1_MORPH4 = 0;
+std::int16_t SPR_BOSS1_MORPH5 = 0;
+std::int16_t SPR_BOSS1_MORPH6 = 0;
+std::int16_t SPR_BOSS1_MORPH7 = 0;
+std::int16_t SPR_BOSS1_MORPH8 = 0;
+std::int16_t SPR_BOSS1_MORPH9 = 0;
+
+std::int16_t SPR_BOSS2_W1 = 0;
+std::int16_t SPR_BOSS2_W2 = 0;
+std::int16_t SPR_BOSS2_W3 = 0;
+std::int16_t SPR_BOSS2_W4 = 0;
+std::int16_t SPR_BOSS2_SWING1 = 0;
+std::int16_t SPR_BOSS2_SWING2 = 0;
+std::int16_t SPR_BOSS2_SWING3 = 0;
+std::int16_t SPR_BOSS2_DEAD = 0;
+std::int16_t SPR_BOSS2_DIE1 = 0;
+std::int16_t SPR_BOSS2_DIE2 = 0;
+std::int16_t SPR_BOSS2_DIE3 = 0;
+std::int16_t SPR_BOSS2_DIE4 = 0;
+std::int16_t SPR_BOSS2_OUCH = 0;
+
+std::int16_t SPR_BOSS3_W1 = 0;
+std::int16_t SPR_BOSS3_W2 = 0;
+std::int16_t SPR_BOSS3_W3 = 0;
+std::int16_t SPR_BOSS3_W4 = 0;
+std::int16_t SPR_BOSS3_SWING1 = 0;
+std::int16_t SPR_BOSS3_SWING2 = 0;
+std::int16_t SPR_BOSS3_SWING3 = 0;
+std::int16_t SPR_BOSS3_DEAD = 0;
+std::int16_t SPR_BOSS3_DIE1 = 0;
+std::int16_t SPR_BOSS3_DIE2 = 0;
+std::int16_t SPR_BOSS3_DIE3 = 0;
+std::int16_t SPR_BOSS3_DIE4 = 0;
+std::int16_t SPR_BOSS3_OUCH = 0;
+
+std::int16_t SPR_BOSS4_W1 = 0;
+std::int16_t SPR_BOSS4_W2 = 0;
+std::int16_t SPR_BOSS4_W3 = 0;
+std::int16_t SPR_BOSS4_W4 = 0;
+std::int16_t SPR_BOSS4_SWING1 = 0;
+std::int16_t SPR_BOSS4_SWING2 = 0;
+std::int16_t SPR_BOSS4_SWING3 = 0;
+std::int16_t SPR_BOSS4_DEAD = 0;
+std::int16_t SPR_BOSS4_DIE1 = 0;
+std::int16_t SPR_BOSS4_DIE2 = 0;
+std::int16_t SPR_BOSS4_DIE3 = 0;
+std::int16_t SPR_BOSS4_DIE4 = 0;
+std::int16_t SPR_BOSS4_OUCH = 0;
+std::int16_t SPR_BOSS4_MORPH1 = 0;
+std::int16_t SPR_BOSS4_MORPH2 = 0;
+std::int16_t SPR_BOSS4_MORPH3 = 0;
+std::int16_t SPR_BOSS4_MORPH4 = 0;
+std::int16_t SPR_BOSS4_MORPH5 = 0;
+std::int16_t SPR_BOSS4_MORPH6 = 0;
+std::int16_t SPR_BOSS4_MORPH7 = 0;
+std::int16_t SPR_BOSS4_MORPH8 = 0;
+std::int16_t SPR_BOSS4_MORPH9 = 0;
+
+std::int16_t SPR_BOSS5_W1 = 0;
+std::int16_t SPR_BOSS5_W2 = 0;
+std::int16_t SPR_BOSS5_W3 = 0;
+std::int16_t SPR_BOSS5_W4 = 0;
+std::int16_t SPR_BOSS5_SWING1 = 0;
+std::int16_t SPR_BOSS5_SWING2 = 0;
+std::int16_t SPR_BOSS5_SWING3 = 0;
+std::int16_t SPR_BOSS5_DEAD = 0;
+std::int16_t SPR_BOSS5_DIE1 = 0;
+std::int16_t SPR_BOSS5_DIE2 = 0;
+std::int16_t SPR_BOSS5_DIE3 = 0;
+std::int16_t SPR_BOSS5_DIE4 = 0;
+std::int16_t SPR_BOSS5_OUCH = 0;
+std::int16_t SPR_BOSS5_PROJ1 = 0;
+std::int16_t SPR_BOSS5_PROJ2 = 0;
+std::int16_t SPR_BOSS5_PROJ3 = 0;
+std::int16_t SPR_BOSS5_EXP1 = 0;
+std::int16_t SPR_BOSS5_EXP2 = 0;
+std::int16_t SPR_BOSS5_EXP3 = 0;
+
+std::int16_t SPR_BOSS6_W1 = 0;
+std::int16_t SPR_BOSS6_W2 = 0;
+std::int16_t SPR_BOSS6_W3 = 0;
+std::int16_t SPR_BOSS6_W4 = 0;
+std::int16_t SPR_BOSS6_SWING1 = 0;
+std::int16_t SPR_BOSS6_SWING2 = 0;
+std::int16_t SPR_BOSS6_SWING3 = 0;
+std::int16_t SPR_BOSS6_DEAD = 0;
+std::int16_t SPR_BOSS6_DIE1 = 0;
+std::int16_t SPR_BOSS6_DIE2 = 0;
+std::int16_t SPR_BOSS6_DIE3 = 0;
+std::int16_t SPR_BOSS6_DIE4 = 0;
+std::int16_t SPR_BOSS6_OUCH = 0;
+
+std::int16_t SPR_BOSS7_W1 = 0;
+std::int16_t SPR_BOSS7_W2 = 0;
+std::int16_t SPR_BOSS7_W3 = 0;
+std::int16_t SPR_BOSS7_W4 = 0;
+std::int16_t SPR_BOSS7_SHOOT1 = 0;
+std::int16_t SPR_BOSS7_SHOOT2 = 0;
+std::int16_t SPR_BOSS7_SHOOT3 = 0;
+std::int16_t SPR_BOSS7_DEAD = 0;
+std::int16_t SPR_BOSS7_DIE1 = 0;
+std::int16_t SPR_BOSS7_DIE2 = 0;
+std::int16_t SPR_BOSS7_DIE3 = 0;
+std::int16_t SPR_BOSS7_DIE4 = 0;
+std::int16_t SPR_BOSS7_OUCH = 0;
+
+std::int16_t SPR_BOSS8_W1 = 0;
+std::int16_t SPR_BOSS8_W2 = 0;
+std::int16_t SPR_BOSS8_W3 = 0;
+std::int16_t SPR_BOSS8_W4 = 0;
+std::int16_t SPR_BOSS8_SHOOT1 = 0;
+std::int16_t SPR_BOSS8_SHOOT2 = 0;
+std::int16_t SPR_BOSS8_SHOOT3 = 0;
+std::int16_t SPR_BOSS8_DIE1 = 0;
+std::int16_t SPR_BOSS8_DIE2 = 0;
+std::int16_t SPR_BOSS8_DIE3 = 0;
+std::int16_t SPR_BOSS8_DIE4 = 0;
+std::int16_t SPR_BOSS8_DEAD = 0;
+std::int16_t SPR_BOSS8_OUCH = 0;
+
+std::int16_t SPR_BOSS9_W1 = 0;
+std::int16_t SPR_BOSS9_W2 = 0;
+std::int16_t SPR_BOSS9_W3 = 0;
+std::int16_t SPR_BOSS9_W4 = 0;
+std::int16_t SPR_BOSS9_SHOOT1 = 0;
+std::int16_t SPR_BOSS9_SHOOT2 = 0;
+std::int16_t SPR_BOSS9_SHOOT3 = 0;
+std::int16_t SPR_BOSS9_DIE1 = 0;
+std::int16_t SPR_BOSS9_DIE2 = 0;
+std::int16_t SPR_BOSS9_DIE3 = 0;
+std::int16_t SPR_BOSS9_DIE4 = 0;
+std::int16_t SPR_BOSS9_DEAD = 0;
+std::int16_t SPR_BOSS9_OUCH = 0;
+
+std::int16_t SPR_BOSS10_W1 = 0;
+std::int16_t SPR_BOSS10_W2 = 0;
+std::int16_t SPR_BOSS10_W3 = 0;
+std::int16_t SPR_BOSS10_W4 = 0;
+std::int16_t SPR_BOSS10_SHOOT1 = 0;
+std::int16_t SPR_BOSS10_SHOOT2 = 0;
+std::int16_t SPR_BOSS10_SHOOT3 = 0;
+std::int16_t SPR_BOSS10_DEAD = 0;
+std::int16_t SPR_BOSS10_DIE1 = 0;
+std::int16_t SPR_BOSS10_DIE2 = 0;
+std::int16_t SPR_BOSS10_DIE3 = 0;
+std::int16_t SPR_BOSS10_DIE4 = 0;
+std::int16_t SPR_BOSS10_OUCH = 0;
+
+std::int16_t SPR_BOSS10_SPIT1 = 0;
+std::int16_t SPR_BOSS10_SPIT2 = 0;
+std::int16_t SPR_BOSS10_SPIT3 = 0;
+std::int16_t SPR_BOSS10_SPIT_EXP1 = 0;
+std::int16_t SPR_BOSS10_SPIT_EXP2 = 0;
+std::int16_t SPR_BOSS10_SPIT_EXP3 = 0;
+
+std::int16_t SPR_DETONATOR_EXP1 = 0;
+std::int16_t SPR_DETONATOR_EXP2 = 0;
+std::int16_t SPR_DETONATOR_EXP3 = 0;
+std::int16_t SPR_DETONATOR_EXP4 = 0;
+std::int16_t SPR_DETONATOR_EXP5 = 0;
+std::int16_t SPR_DETONATOR_EXP6 = 0;
+std::int16_t SPR_DETONATOR_EXP7 = 0;
+std::int16_t SPR_DETONATOR_EXP8 = 0;
+
+std::int16_t SPR_CLIP_EXP1 = 0;
+std::int16_t SPR_CLIP_EXP2 = 0;
+std::int16_t SPR_CLIP_EXP3 = 0;
+std::int16_t SPR_CLIP_EXP4 = 0;
+std::int16_t SPR_CLIP_EXP5 = 0;
+std::int16_t SPR_CLIP_EXP6 = 0;
+std::int16_t SPR_CLIP_EXP7 = 0;
+std::int16_t SPR_CLIP_EXP8 = 0;
+
+std::int16_t SPR_BFG_WEAPON1 = 0;
+std::int16_t SPR_BFG_WEAPON2 = 0;
+std::int16_t SPR_BFG_WEAPON3 = 0;
+std::int16_t SPR_BFG_WEAPON4 = 0;
+std::int16_t SPR_BFG_WEAPON5 = 0;
+
+std::int16_t SPR_BFG_WEAPON_SHOT1 = 0;
+std::int16_t SPR_BFG_WEAPON_SHOT2 = 0;
+std::int16_t SPR_BFG_WEAPON_SHOT3 = 0;
+
+std::int16_t SPR_BFG_EXP1 = 0;
+std::int16_t SPR_BFG_EXP2 = 0;
+std::int16_t SPR_BFG_EXP3 = 0;
+std::int16_t SPR_BFG_EXP4 = 0;
+std::int16_t SPR_BFG_EXP5 = 0;
+std::int16_t SPR_BFG_EXP6 = 0;
+std::int16_t SPR_BFG_EXP7 = 0;
+std::int16_t SPR_BFG_EXP8 = 0;
 
 
 void initialize_sprites()
@@ -3857,12 +3925,13 @@ unsigned mspeed;
 
 void CalcSpeedRating()
 {
-    int16_t loop;
+	std::int16_t loop;
 
-    for (loop = 0; loop < 10; loop++) {
-        ThreeDRefresh();
-        mspeed += tics;
-    }
+	for (loop = 0; loop < 10; loop++)
+	{
+		ThreeDRefresh();
+		mspeed += tics;
+	}
 }
 
 #endif
@@ -4152,608 +4221,611 @@ extern statetype s_attack;
 
 
 statetype* states_list[] = {
-    nullptr,
-    &s_ofs_stand,
-    &s_ofs_chase1,
-    &s_ofs_chase1s,
-    &s_ofs_chase2,
-    &s_ofs_chase3,
-    &s_ofs_chase3s,
-    &s_ofs_chase4,
-    &s_ofs_pain,
-    &s_ofs_die1,
-    &s_ofs_die1s,
-    &s_ofs_die2,
-    &s_ofs_die3,
-    &s_ofs_die4,
-    &s_ofs_die5,
-    &s_ofs_attack1,
-    &s_ofs_attack2,
-    &s_ofs_attack3,
-    &s_ofs_spit1,
-    &s_ofs_spit2,
-    &s_ofs_spit3,
-    &s_ofs_shoot1,
-    &s_ofs_shoot2,
-    &s_ofs_shoot3,
-    &s_ofs_pod_attack1,
-    &s_ofs_pod_attack1a,
-    &s_ofs_pod_attack2,
-    &s_ofs_pod_spit1,
-    &s_ofs_pod_spit2,
-    &s_ofs_pod_spit3,
-    &s_ofs_pod_death1,
-    &s_ofs_pod_death2,
-    &s_ofs_pod_death3,
-    &s_ofs_pod_ouch,
-    &s_ofs_bounce,
-    &s_ofs_ouch,
-    &s_ofs_esphere_death1,
-    &s_ofs_esphere_death2,
-    &s_ofs_esphere_death3,
-    &s_ofs_random,
-    &s_ofs_static,
-    &s_hold,
-    &s_ofs_smart_anim,
-    &s_ofs_smart_anim2,
-    &s_barrier_transition,
-    &s_vpost_barrier,
-    &s_spike_barrier,
-    &s_barrier_shutdown,
-    &s_rent_stand,
-    &s_rent_path1,
-    &s_rent_path1s,
-    &s_rent_path2,
-    &s_rent_path3,
-    &s_rent_path3s,
-    &s_rent_path4,
-    &s_rent_pain,
-    &s_rent_shoot1,
-    &s_rent_shoot2,
-    &s_rent_shoot3,
-    &s_rent_chase1,
-    &s_rent_chase1s,
-    &s_rent_chase2,
-    &s_rent_chase3,
-    &s_rent_chase3s,
-    &s_rent_chase4,
-    &s_rent_die1,
-    &s_rent_die2,
-    &s_rent_die3,
-    &s_rent_die3s,
-    &s_rent_die4,
-    &s_ofcstand,
-    &s_ofcpath1,
-    &s_ofcpath1s,
-    &s_ofcpath2,
-    &s_ofcpath3,
-    &s_ofcpath3s,
-    &s_ofcpath4,
-    &s_ofcpain,
-    &s_ofcshoot1,
-    &s_ofcshoot2,
-    &s_ofcshoot3,
-    &s_ofcchase1,
-    &s_ofcchase1s,
-    &s_ofcchase2,
-    &s_ofcchase3,
-    &s_ofcchase3s,
-    &s_ofcchase4,
-    &s_ofcdie1,
-    &s_ofcdie2,
-    &s_ofcdie3,
-    &s_ofcdie4,
-    &s_ofcdie5,
-    &s_swatstand,
-    &s_swatpath1,
-    &s_swatpath1s,
-    &s_swatpath2,
-    &s_swatpath3,
-    &s_swatpath3s,
-    &s_swatpath4,
-    &s_swatpain,
-    &s_swatshoot1,
-    &s_swatshoot2,
-    &s_swatshoot3,
-    &s_swatshoot4,
-    &s_swatshoot5,
-    &s_swatshoot6,
-    &s_swatshoot7,
-    &s_swatchase1,
-    &s_swatchase1s,
-    &s_swatchase2,
-    &s_swatchase3,
-    &s_swatchase3s,
-    &s_swatchase4,
-    &s_swatwounded1,
-    &s_swatwounded2,
-    &s_swatwounded3,
-    &s_swatwounded4,
-    &s_swatunwounded1,
-    &s_swatunwounded2,
-    &s_swatunwounded3,
-    &s_swatunwounded4,
-    &s_swatdie1,
-    &s_swatdie2,
-    &s_swatdie3,
-    &s_swatdie4,
-    &s_swatdie5,
-    &s_prostand,
-    &s_propath1,
-    &s_propath1s,
-    &s_propath2,
-    &s_propath3,
-    &s_propath3s,
-    &s_propath4,
-    &s_propain,
-    &s_proshoot1,
-    &s_proshoot2,
-    &s_proshoot3,
-    &s_proshoot4,
-    &s_proshoot5,
-    &s_proshoot6,
-    &s_proshoot6a,
-    &s_prochase1,
-    &s_prochase1s,
-    &s_prochase2,
-    &s_prochase3,
-    &s_prochase3s,
-    &s_prochase4,
-    &s_prodie1,
-    &s_prodie2,
-    &s_prodie3,
-    &s_prodie3a,
-    &s_prodie4,
-    &s_electro_appear1,
-    &s_electro_appear2,
-    &s_electro_appear3,
-    &s_electro_chase1,
-    &s_electro_chase2,
-    &s_electro_chase3,
-    &s_electro_chase4,
-    &s_electro_ouch,
-    &s_electro_shoot1,
-    &s_electro_shoot2,
-    &s_electro_shoot3,
-    &s_electro_shot1,
-    &s_electro_shot2,
-    &s_ofs_shot1,
-    &s_ofs_shot2,
-    &s_electro_die1,
-    &s_electro_die2,
-    &s_electro_die3,
-    &s_liquid_wait,
-    &s_liquid_move,
-    &s_liquid_rise1,
-    &s_liquid_rise2,
-    &s_liquid_rise3,
-    &s_liquid_stand,
-    &s_liquid_fall1,
-    &s_liquid_fall2,
-    &s_liquid_fall3,
-    &s_liquid_shoot1,
-    &s_liquid_shoot2,
-    &s_liquid_shoot3,
-    &s_liquid_ouch,
-    &s_liquid_die1,
-    &s_liquid_die2,
-    &s_liquid_die3,
-    &s_liquid_die4,
-    &s_liquid_dead,
-    &s_liquid_shot,
-    &s_blake1,
-    &s_blake2,
-    &s_blake3,
-    &s_blake4,
-    &s_goldstand,
-    &s_goldpath1,
-    &s_goldpath1s,
-    &s_goldpath2,
-    &s_goldpath3,
-    &s_goldpath3s,
-    &s_goldpath4,
-    &s_goldpain,
-    &s_goldshoot1,
-    &s_goldshoot2,
-    &s_goldshoot3,
-    &s_goldshoot4,
-    &s_goldshoot5,
-    &s_goldshoot6,
-    &s_goldshoot7,
-    &s_goldchase1,
-    &s_goldchase1s,
-    &s_goldchase2,
-    &s_goldchase3,
-    &s_goldchase3s,
-    &s_goldchase4,
-    &s_goldwarp_it,
-    &s_goldwarp_it1,
-    &s_goldwarp_it2,
-    &s_goldwarp_it3,
-    &s_goldwarp_it4,
-    &s_goldwarp_it5,
-    &s_goldwarp_out1,
-    &s_goldwarp_out2,
-    &s_goldwarp_out3,
-    &s_goldwarp_out4,
-    &s_goldwarp_out5,
-    &s_goldwarp_in1,
-    &s_goldwarp_in2,
-    &s_goldwarp_in3,
-    &s_goldwarp_in4,
-    &s_goldwarp_in5,
-    &s_goldmorphwait1,
-    &s_goldmorph1,
-    &s_goldmorph2,
-    &s_goldmorph3,
-    &s_goldmorph4,
-    &s_goldmorph5,
-    &s_goldmorph6,
-    &s_goldmorph7,
-    &s_goldmorph8,
-    &s_mgold_chase1,
-    &s_mgold_chase2,
-    &s_mgold_chase3,
-    &s_mgold_chase4,
-    &s_mgold_shoot1,
-    &s_mgold_shoot2,
-    &s_mgold_shoot3,
-    &s_mgold_shoot4,
-    &s_mgold_pain,
-    &s_security_light,
-    &s_scout_stand,
-    &s_scout_path1,
-    &s_scout_path2,
-    &s_scout_path3,
-    &s_scout_path4,
-    &s_scout_run,
-    &s_scout_run2,
-    &s_scout_run3,
-    &s_scout_run4,
-    &s_scout_dead,
-    &s_steamgrate,
-    &s_steamrelease1,
-    &s_steamrelease2,
-    &s_steamrelease3,
-    &s_steamrelease4,
-    &s_steamrelease5,
-    &s_steamrelease6,
-    &s_terrot_wait,
-    &s_terrot_found,
-    &s_terrot_shoot1,
-    &s_terrot_shoot2,
-    &s_terrot_shoot3,
-    &s_terrot_shoot4,
-    &s_terrot_seek1,
-    &s_terrot_seek1s,
-    &s_terrot_die1,
-    &s_terrot_die2,
-    &s_terrot_die3,
-    &s_terrot_die4,
-    &s_terrot_die5,
-    &s_player,
-    &s_attack,
-    nullptr,
+	nullptr,
+	&s_ofs_stand,
+	&s_ofs_chase1,
+	&s_ofs_chase1s,
+	&s_ofs_chase2,
+	&s_ofs_chase3,
+	&s_ofs_chase3s,
+	&s_ofs_chase4,
+	&s_ofs_pain,
+	&s_ofs_die1,
+	&s_ofs_die1s,
+	&s_ofs_die2,
+	&s_ofs_die3,
+	&s_ofs_die4,
+	&s_ofs_die5,
+	&s_ofs_attack1,
+	&s_ofs_attack2,
+	&s_ofs_attack3,
+	&s_ofs_spit1,
+	&s_ofs_spit2,
+	&s_ofs_spit3,
+	&s_ofs_shoot1,
+	&s_ofs_shoot2,
+	&s_ofs_shoot3,
+	&s_ofs_pod_attack1,
+	&s_ofs_pod_attack1a,
+	&s_ofs_pod_attack2,
+	&s_ofs_pod_spit1,
+	&s_ofs_pod_spit2,
+	&s_ofs_pod_spit3,
+	&s_ofs_pod_death1,
+	&s_ofs_pod_death2,
+	&s_ofs_pod_death3,
+	&s_ofs_pod_ouch,
+	&s_ofs_bounce,
+	&s_ofs_ouch,
+	&s_ofs_esphere_death1,
+	&s_ofs_esphere_death2,
+	&s_ofs_esphere_death3,
+	&s_ofs_random,
+	&s_ofs_static,
+	&s_hold,
+	&s_ofs_smart_anim,
+	&s_ofs_smart_anim2,
+	&s_barrier_transition,
+	&s_vpost_barrier,
+	&s_spike_barrier,
+	&s_barrier_shutdown,
+	&s_rent_stand,
+	&s_rent_path1,
+	&s_rent_path1s,
+	&s_rent_path2,
+	&s_rent_path3,
+	&s_rent_path3s,
+	&s_rent_path4,
+	&s_rent_pain,
+	&s_rent_shoot1,
+	&s_rent_shoot2,
+	&s_rent_shoot3,
+	&s_rent_chase1,
+	&s_rent_chase1s,
+	&s_rent_chase2,
+	&s_rent_chase3,
+	&s_rent_chase3s,
+	&s_rent_chase4,
+	&s_rent_die1,
+	&s_rent_die2,
+	&s_rent_die3,
+	&s_rent_die3s,
+	&s_rent_die4,
+	&s_ofcstand,
+	&s_ofcpath1,
+	&s_ofcpath1s,
+	&s_ofcpath2,
+	&s_ofcpath3,
+	&s_ofcpath3s,
+	&s_ofcpath4,
+	&s_ofcpain,
+	&s_ofcshoot1,
+	&s_ofcshoot2,
+	&s_ofcshoot3,
+	&s_ofcchase1,
+	&s_ofcchase1s,
+	&s_ofcchase2,
+	&s_ofcchase3,
+	&s_ofcchase3s,
+	&s_ofcchase4,
+	&s_ofcdie1,
+	&s_ofcdie2,
+	&s_ofcdie3,
+	&s_ofcdie4,
+	&s_ofcdie5,
+	&s_swatstand,
+	&s_swatpath1,
+	&s_swatpath1s,
+	&s_swatpath2,
+	&s_swatpath3,
+	&s_swatpath3s,
+	&s_swatpath4,
+	&s_swatpain,
+	&s_swatshoot1,
+	&s_swatshoot2,
+	&s_swatshoot3,
+	&s_swatshoot4,
+	&s_swatshoot5,
+	&s_swatshoot6,
+	&s_swatshoot7,
+	&s_swatchase1,
+	&s_swatchase1s,
+	&s_swatchase2,
+	&s_swatchase3,
+	&s_swatchase3s,
+	&s_swatchase4,
+	&s_swatwounded1,
+	&s_swatwounded2,
+	&s_swatwounded3,
+	&s_swatwounded4,
+	&s_swatunwounded1,
+	&s_swatunwounded2,
+	&s_swatunwounded3,
+	&s_swatunwounded4,
+	&s_swatdie1,
+	&s_swatdie2,
+	&s_swatdie3,
+	&s_swatdie4,
+	&s_swatdie5,
+	&s_prostand,
+	&s_propath1,
+	&s_propath1s,
+	&s_propath2,
+	&s_propath3,
+	&s_propath3s,
+	&s_propath4,
+	&s_propain,
+	&s_proshoot1,
+	&s_proshoot2,
+	&s_proshoot3,
+	&s_proshoot4,
+	&s_proshoot5,
+	&s_proshoot6,
+	&s_proshoot6a,
+	&s_prochase1,
+	&s_prochase1s,
+	&s_prochase2,
+	&s_prochase3,
+	&s_prochase3s,
+	&s_prochase4,
+	&s_prodie1,
+	&s_prodie2,
+	&s_prodie3,
+	&s_prodie3a,
+	&s_prodie4,
+	&s_electro_appear1,
+	&s_electro_appear2,
+	&s_electro_appear3,
+	&s_electro_chase1,
+	&s_electro_chase2,
+	&s_electro_chase3,
+	&s_electro_chase4,
+	&s_electro_ouch,
+	&s_electro_shoot1,
+	&s_electro_shoot2,
+	&s_electro_shoot3,
+	&s_electro_shot1,
+	&s_electro_shot2,
+	&s_ofs_shot1,
+	&s_ofs_shot2,
+	&s_electro_die1,
+	&s_electro_die2,
+	&s_electro_die3,
+	&s_liquid_wait,
+	&s_liquid_move,
+	&s_liquid_rise1,
+	&s_liquid_rise2,
+	&s_liquid_rise3,
+	&s_liquid_stand,
+	&s_liquid_fall1,
+	&s_liquid_fall2,
+	&s_liquid_fall3,
+	&s_liquid_shoot1,
+	&s_liquid_shoot2,
+	&s_liquid_shoot3,
+	&s_liquid_ouch,
+	&s_liquid_die1,
+	&s_liquid_die2,
+	&s_liquid_die3,
+	&s_liquid_die4,
+	&s_liquid_dead,
+	&s_liquid_shot,
+	&s_blake1,
+	&s_blake2,
+	&s_blake3,
+	&s_blake4,
+	&s_goldstand,
+	&s_goldpath1,
+	&s_goldpath1s,
+	&s_goldpath2,
+	&s_goldpath3,
+	&s_goldpath3s,
+	&s_goldpath4,
+	&s_goldpain,
+	&s_goldshoot1,
+	&s_goldshoot2,
+	&s_goldshoot3,
+	&s_goldshoot4,
+	&s_goldshoot5,
+	&s_goldshoot6,
+	&s_goldshoot7,
+	&s_goldchase1,
+	&s_goldchase1s,
+	&s_goldchase2,
+	&s_goldchase3,
+	&s_goldchase3s,
+	&s_goldchase4,
+	&s_goldwarp_it,
+	&s_goldwarp_it1,
+	&s_goldwarp_it2,
+	&s_goldwarp_it3,
+	&s_goldwarp_it4,
+	&s_goldwarp_it5,
+	&s_goldwarp_out1,
+	&s_goldwarp_out2,
+	&s_goldwarp_out3,
+	&s_goldwarp_out4,
+	&s_goldwarp_out5,
+	&s_goldwarp_in1,
+	&s_goldwarp_in2,
+	&s_goldwarp_in3,
+	&s_goldwarp_in4,
+	&s_goldwarp_in5,
+	&s_goldmorphwait1,
+	&s_goldmorph1,
+	&s_goldmorph2,
+	&s_goldmorph3,
+	&s_goldmorph4,
+	&s_goldmorph5,
+	&s_goldmorph6,
+	&s_goldmorph7,
+	&s_goldmorph8,
+	&s_mgold_chase1,
+	&s_mgold_chase2,
+	&s_mgold_chase3,
+	&s_mgold_chase4,
+	&s_mgold_shoot1,
+	&s_mgold_shoot2,
+	&s_mgold_shoot3,
+	&s_mgold_shoot4,
+	&s_mgold_pain,
+	&s_security_light,
+	&s_scout_stand,
+	&s_scout_path1,
+	&s_scout_path2,
+	&s_scout_path3,
+	&s_scout_path4,
+	&s_scout_run,
+	&s_scout_run2,
+	&s_scout_run3,
+	&s_scout_run4,
+	&s_scout_dead,
+	&s_steamgrate,
+	&s_steamrelease1,
+	&s_steamrelease2,
+	&s_steamrelease3,
+	&s_steamrelease4,
+	&s_steamrelease5,
+	&s_steamrelease6,
+	&s_terrot_wait,
+	&s_terrot_found,
+	&s_terrot_shoot1,
+	&s_terrot_shoot2,
+	&s_terrot_shoot3,
+	&s_terrot_shoot4,
+	&s_terrot_seek1,
+	&s_terrot_seek1s,
+	&s_terrot_die1,
+	&s_terrot_die2,
+	&s_terrot_die3,
+	&s_terrot_die4,
+	&s_terrot_die5,
+	&s_player,
+	&s_attack,
+	nullptr,
 };
 
 static int get_state_index(
-    statetype* state)
+	statetype* state)
 {
-    if (!state) {
-        return 0;
-    }
+	if (!state)
+	{
+		return 0;
+	}
 
-    for (int i = 1; states_list[i]; ++i) {
-        if (states_list[i] == state) {
-            return i;
-        }
-    }
+	for (int i = 1; states_list[i]; ++i)
+	{
+		if (states_list[i] == state)
+		{
+			return i;
+		}
+	}
 
-    return -1;
+	return -1;
 }
 
 void initialize_states()
 {
-    s_ofs_stand.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
-    s_ofs_chase1.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
-    s_ofs_chase1s.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
-    s_ofs_chase2.shapenum = SPR_GENETIC_W2 - SPR_GENETIC_W1;
-    s_ofs_chase3.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
-    s_ofs_chase3s.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
-    s_ofs_chase4.shapenum = SPR_GENETIC_W4 - SPR_GENETIC_W1;
-    s_ofs_pain.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
-    s_ofs_die1.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
-    s_ofs_die1s.shapenum = SPR_GENETIC_DIE1 - SPR_GENETIC_W1;
-    s_ofs_die2.shapenum = SPR_GENETIC_DIE2 - SPR_GENETIC_W1;
-    s_ofs_die3.shapenum = SPR_GENETIC_DIE3 - SPR_GENETIC_W1;
-    s_ofs_die4.shapenum = SPR_GENETIC_DIE4 - SPR_GENETIC_W1;
-    s_ofs_die5.shapenum = SPR_GENETIC_DEAD - SPR_GENETIC_W1;
-    s_ofs_attack1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
-    s_ofs_attack2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
-    s_ofs_attack3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
-    s_ofs_spit1.shapenum = SPR_GENETIC_SHOOT1 - SPR_GENETIC_W1;
-    s_ofs_spit2.shapenum = SPR_GENETIC_SHOOT2 - SPR_GENETIC_W1;
-    s_ofs_spit3.shapenum = SPR_GENETIC_SHOOT3 - SPR_GENETIC_W1;
-    s_ofs_shoot1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
-    s_ofs_shoot2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
-    s_ofs_shoot3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
-    s_ofs_pod_attack1.shapenum = SPR_POD_ATTACK1 - SPR_POD_WALK1;
-    s_ofs_pod_attack1a.shapenum = SPR_POD_ATTACK2 - SPR_POD_WALK1;
-    s_ofs_pod_attack2.shapenum = SPR_POD_ATTACK3 - SPR_POD_WALK1;
-    s_ofs_pod_spit1.shapenum = SPR_POD_SPIT1 - SPR_POD_WALK1;
-    s_ofs_pod_spit2.shapenum = SPR_POD_SPIT2 - SPR_POD_WALK1;
-    s_ofs_pod_spit3.shapenum = SPR_POD_SPIT3 - SPR_POD_WALK1;
-    s_ofs_pod_ouch.shapenum = SPR_POD_OUCH - SPR_POD_WALK1;
-    s_vpost_barrier.shapenum = SPR_VPOST1;
-    s_spike_barrier.shapenum = SPR_VSPIKE1;
-    s_rent_stand.shapenum = SPR_RENT_S_1;
-    s_rent_path1.shapenum = SPR_RENT_W1_1;
-    s_rent_path1s.shapenum = SPR_RENT_W2_1;
-    s_rent_path2.shapenum = SPR_RENT_W2_1;
-    s_rent_path3.shapenum = SPR_RENT_W3_1;
-    s_rent_path3s.shapenum = SPR_RENT_W3_1;
-    s_rent_path4.shapenum = SPR_RENT_W4_1;
-    s_rent_pain.shapenum = SPR_RENT_PAIN_1;
-    s_rent_shoot1.shapenum = SPR_RENT_SHOOT1;
-    s_rent_shoot2.shapenum = SPR_RENT_SHOOT2;
-    s_rent_shoot3.shapenum = SPR_RENT_SHOOT3;
-    s_rent_chase1.shapenum = SPR_RENT_W1_1;
-    s_rent_chase1s.shapenum = SPR_RENT_W1_1;
-    s_rent_chase2.shapenum = SPR_RENT_W2_1;
-    s_rent_chase3.shapenum = SPR_RENT_W3_1;
-    s_rent_chase3s.shapenum = SPR_RENT_W3_1;
-    s_rent_chase4.shapenum = SPR_RENT_W4_1;
-    s_rent_die1.shapenum = SPR_RENT_DIE_1;
-    s_rent_die2.shapenum = SPR_RENT_DIE_2;
-    s_rent_die3.shapenum = SPR_RENT_DIE_3;
-    s_rent_die3s.shapenum = SPR_RENT_DIE_4;
-    s_rent_die4.shapenum = SPR_RENT_DEAD;
-    s_ofcstand.shapenum = SPR_OFC_S_1;
-    s_ofcpath1.shapenum = SPR_OFC_W1_1;
-    s_ofcpath1s.shapenum = SPR_OFC_W1_1;
-    s_ofcpath2.shapenum = SPR_OFC_W2_1;
-    s_ofcpath3.shapenum = SPR_OFC_W3_1;
-    s_ofcpath3s.shapenum = SPR_OFC_W3_1;
-    s_ofcpath4.shapenum = SPR_OFC_W4_1;
-    s_ofcpain.shapenum = SPR_OFC_PAIN_1;
-    s_ofcshoot1.shapenum = SPR_OFC_SHOOT1;
-    s_ofcshoot2.shapenum = SPR_OFC_SHOOT2;
-    s_ofcshoot3.shapenum = SPR_OFC_SHOOT3;
-    s_ofcchase1.shapenum = SPR_OFC_W1_1;
-    s_ofcchase1s.shapenum = SPR_OFC_W1_1;
-    s_ofcchase2.shapenum = SPR_OFC_W2_1;
-    s_ofcchase3.shapenum = SPR_OFC_W3_1;
-    s_ofcchase3s.shapenum = SPR_OFC_W3_1;
-    s_ofcchase4.shapenum = SPR_OFC_W4_1;
-    s_ofcdie1.shapenum = SPR_OFC_DIE_1;
-    s_ofcdie2.shapenum = SPR_OFC_DIE_2;
-    s_ofcdie3.shapenum = SPR_OFC_DIE_3;
-    s_ofcdie4.shapenum = SPR_OFC_DIE_4;
-    s_ofcdie5.shapenum = SPR_OFC_DEAD;
-    s_swatstand.shapenum = SPR_SWAT_S_1;
-    s_swatpath1.shapenum = SPR_SWAT_W1_1;
-    s_swatpath1s.shapenum = SPR_SWAT_W1_1;
-    s_swatpath2.shapenum = SPR_SWAT_W2_1;
-    s_swatpath3.shapenum = SPR_SWAT_W3_1;
-    s_swatpath3s.shapenum = SPR_SWAT_W3_1;
-    s_swatpath4.shapenum = SPR_SWAT_W4_1;
-    s_swatpain.shapenum = SPR_SWAT_PAIN_1;
-    s_swatshoot1.shapenum = SPR_SWAT_SHOOT1;
-    s_swatshoot2.shapenum = SPR_SWAT_SHOOT2;
-    s_swatshoot3.shapenum = SPR_SWAT_SHOOT3;
-    s_swatshoot4.shapenum = SPR_SWAT_SHOOT2;
-    s_swatshoot5.shapenum = SPR_SWAT_SHOOT3;
-    s_swatshoot6.shapenum = SPR_SWAT_SHOOT2;
-    s_swatshoot7.shapenum = SPR_SWAT_SHOOT3;
-    s_swatchase1.shapenum = SPR_SWAT_W1_1;
-    s_swatchase1s.shapenum = SPR_SWAT_W1_1;
-    s_swatchase2.shapenum = SPR_SWAT_W2_1;
-    s_swatchase3.shapenum = SPR_SWAT_W3_1;
-    s_swatchase3s.shapenum = SPR_SWAT_W3_1;
-    s_swatchase4.shapenum = SPR_SWAT_W4_1;
-    s_swatwounded1.shapenum = SPR_SWAT_WOUNDED1;
-    s_swatwounded2.shapenum = SPR_SWAT_WOUNDED2;
-    s_swatwounded3.shapenum = SPR_SWAT_WOUNDED3;
-    s_swatwounded4.shapenum = SPR_SWAT_WOUNDED4;
-    s_swatunwounded1.shapenum = SPR_SWAT_WOUNDED4;
-    s_swatunwounded2.shapenum = SPR_SWAT_WOUNDED3;
-    s_swatunwounded3.shapenum = SPR_SWAT_WOUNDED2;
-    s_swatunwounded4.shapenum = SPR_SWAT_WOUNDED1;
-    s_swatdie1.shapenum = SPR_SWAT_DIE_1;
-    s_swatdie2.shapenum = SPR_SWAT_DIE_2;
-    s_swatdie3.shapenum = SPR_SWAT_DIE_3;
-    s_swatdie4.shapenum = SPR_SWAT_DIE_4;
-    s_swatdie5.shapenum = SPR_SWAT_DEAD;
-    s_prostand.shapenum = SPR_PRO_S_1;
-    s_propath1.shapenum = SPR_PRO_W1_1;
-    s_propath1s.shapenum = SPR_PRO_W1_1;
-    s_propath2.shapenum = SPR_PRO_W2_1;
-    s_propath3.shapenum = SPR_PRO_W3_1;
-    s_propath3s.shapenum = SPR_PRO_W3_1;
-    s_propath4.shapenum = SPR_PRO_W4_1;
-    s_propain.shapenum = SPR_PRO_PAIN_1;
-    s_proshoot1.shapenum = SPR_PRO_SHOOT1;
-    s_proshoot2.shapenum = SPR_PRO_SHOOT2;
-    s_proshoot3.shapenum = SPR_PRO_SHOOT3;
-    s_proshoot4.shapenum = SPR_PRO_SHOOT2;
-    s_proshoot5.shapenum = SPR_PRO_SHOOT3;
-    s_proshoot6.shapenum = SPR_PRO_SHOOT2;
-    s_proshoot6a.shapenum = SPR_PRO_SHOOT3;
-    s_prochase1.shapenum = SPR_PRO_W1_1;
-    s_prochase1s.shapenum = SPR_PRO_W1_1;
-    s_prochase2.shapenum = SPR_PRO_W2_1;
-    s_prochase3.shapenum = SPR_PRO_W3_1;
-    s_prochase3s.shapenum = SPR_PRO_W3_1;
-    s_prochase4.shapenum = SPR_PRO_W4_1;
-    s_prodie1.shapenum = SPR_PRO_DIE_1;
-    s_prodie2.shapenum = SPR_PRO_DIE_2;
-    s_prodie3.shapenum = SPR_PRO_DIE_3;
-    s_prodie3a.shapenum = SPR_PRO_DIE_4;
-    s_prodie4.shapenum = SPR_PRO_DEAD;
-    s_electro_appear1.shapenum = SPR_ELEC_APPEAR1;
-    s_electro_appear2.shapenum = SPR_ELEC_APPEAR2;
-    s_electro_appear3.shapenum = SPR_ELEC_APPEAR3;
-    s_electro_chase1.shapenum = SPR_ELEC_WALK1;
-    s_electro_chase2.shapenum = SPR_ELEC_WALK2;
-    s_electro_chase3.shapenum = SPR_ELEC_WALK3;
-    s_electro_chase4.shapenum = SPR_ELEC_WALK4;
-    s_electro_ouch.shapenum = SPR_ELEC_OUCH;
-    s_electro_shoot1.shapenum = SPR_ELEC_SHOOT1;
-    s_electro_shoot2.shapenum = SPR_ELEC_SHOOT2;
-    s_electro_shoot3.shapenum = SPR_ELEC_SHOOT3;
-    s_electro_shot1.shapenum = SPR_ELEC_SHOT1;
-    s_electro_shot2.shapenum = SPR_ELEC_SHOT2;
-    s_electro_die1.shapenum = SPR_ELEC_DIE1;
-    s_electro_die2.shapenum = SPR_ELEC_DIE2;
-    s_electro_die3.shapenum = SPR_ELEC_DIE3;
-    s_liquid_wait.shapenum = SPR_LIQUID_M1;
-    s_liquid_move.shapenum = SPR_LIQUID_M1;
-    s_liquid_rise1.shapenum = SPR_LIQUID_R1;
-    s_liquid_rise2.shapenum = SPR_LIQUID_R2;
-    s_liquid_rise3.shapenum = SPR_LIQUID_R3;
-    s_liquid_stand.shapenum = SPR_LIQUID_R4;
-    s_liquid_fall1.shapenum = SPR_LIQUID_R3;
-    s_liquid_fall2.shapenum = SPR_LIQUID_R2;
-    s_liquid_fall3.shapenum = SPR_LIQUID_R1;
-    s_liquid_shoot1.shapenum = SPR_LIQUID_S1;
-    s_liquid_shoot2.shapenum = SPR_LIQUID_S2;
-    s_liquid_shoot3.shapenum = SPR_LIQUID_S3;
-    s_liquid_ouch.shapenum = SPR_LIQUID_OUCH;
-    s_liquid_die1.shapenum = SPR_LIQUID_DIE_1;
-    s_liquid_die2.shapenum = SPR_LIQUID_DIE_2;
-    s_liquid_die3.shapenum = SPR_LIQUID_DIE_3;
-    s_liquid_die4.shapenum = SPR_LIQUID_DIE_4;
-    s_liquid_dead.shapenum = SPR_LIQUID_DEAD;
-    s_blake1.shapenum = SPR_BLAKE_W1;
-    s_blake2.shapenum = SPR_BLAKE_W2;
-    s_blake3.shapenum = SPR_BLAKE_W3;
-    s_blake4.shapenum = SPR_BLAKE_W4;
-    s_goldstand.shapenum = SPR_GOLD_S_1;
-    s_goldpath1.shapenum = SPR_GOLD_W1_1;
-    s_goldpath1s.shapenum = SPR_GOLD_W1_1;
-    s_goldpath2.shapenum = SPR_GOLD_W2_1;
-    s_goldpath3.shapenum = SPR_GOLD_W3_1;
-    s_goldpath3s.shapenum = SPR_GOLD_W3_1;
-    s_goldpath4.shapenum = SPR_GOLD_W4_1;
-    s_goldpain.shapenum = SPR_GOLD_PAIN_1;
-    s_goldshoot1.shapenum = SPR_GOLD_SHOOT1;
-    s_goldshoot2.shapenum = SPR_GOLD_SHOOT2;
-    s_goldshoot3.shapenum = SPR_GOLD_SHOOT3;
-    s_goldshoot4.shapenum = SPR_GOLD_SHOOT2;
-    s_goldshoot5.shapenum = SPR_GOLD_SHOOT3;
-    s_goldshoot6.shapenum = SPR_GOLD_SHOOT2;
-    s_goldshoot7.shapenum = SPR_GOLD_SHOOT3;
-    s_goldchase1.shapenum = SPR_GOLD_W1_1;
-    s_goldchase1s.shapenum = SPR_GOLD_W1_1;
-    s_goldchase2.shapenum = SPR_GOLD_W2_1;
-    s_goldchase3.shapenum = SPR_GOLD_W3_1;
-    s_goldchase3s.shapenum = SPR_GOLD_W3_1;
-    s_goldchase4.shapenum = SPR_GOLD_W4_1;
-    s_goldwarp_it.shapenum = SPR_GOLD_S_1;
-    s_goldwarp_it1.shapenum = SPR_GOLD_WRIST_1;
-    s_goldwarp_it2.shapenum = SPR_GOLD_WRIST_2;
-    s_goldwarp_it3.shapenum = SPR_GOLD_WRIST_1;
-    s_goldwarp_it4.shapenum = SPR_GOLD_WRIST_2;
-    s_goldwarp_it5.shapenum = SPR_GOLD_S_1;
-    s_goldwarp_out1.shapenum = SPR_GOLD_WARP1;
-    s_goldwarp_out2.shapenum = SPR_GOLD_WARP2;
-    s_goldwarp_out3.shapenum = SPR_GOLD_WARP3;
-    s_goldwarp_out4.shapenum = SPR_GOLD_WARP4;
-    s_goldwarp_out5.shapenum = SPR_GOLD_WARP5;
-    s_goldwarp_in1.shapenum = SPR_GOLD_WARP5;
-    s_goldwarp_in2.shapenum = SPR_GOLD_WARP4;
-    s_goldwarp_in3.shapenum = SPR_GOLD_WARP3;
-    s_goldwarp_in4.shapenum = SPR_GOLD_WARP2;
-    s_goldwarp_in5.shapenum = SPR_GOLD_WARP1;
-    s_goldmorphwait1.shapenum = SPR_GOLD_WRIST_1;
-    s_goldmorph1.shapenum = SPR_GOLD_MORPH1;
-    s_goldmorph2.shapenum = SPR_GOLD_MORPH2;
-    s_goldmorph3.shapenum = SPR_GOLD_MORPH3;
-    s_goldmorph4.shapenum = SPR_GOLD_MORPH4;
-    s_goldmorph5.shapenum = SPR_GOLD_MORPH5;
-    s_goldmorph6.shapenum = SPR_GOLD_MORPH6;
-    s_goldmorph7.shapenum = SPR_GOLD_MORPH7;
-    s_goldmorph8.shapenum = SPR_GOLD_MORPH8;
-    s_mgold_chase1.shapenum = SPR_MGOLD_WALK1;
-    s_mgold_chase2.shapenum = SPR_MGOLD_WALK2;
-    s_mgold_chase3.shapenum = SPR_MGOLD_WALK3;
-    s_mgold_chase4.shapenum = SPR_MGOLD_WALK4;
-    s_mgold_shoot1.shapenum = SPR_MGOLD_ATTACK1;
-    s_mgold_shoot2.shapenum = SPR_MGOLD_ATTACK2;
-    s_mgold_shoot3.shapenum = SPR_MGOLD_ATTACK3;
-    s_mgold_shoot4.shapenum = SPR_MGOLD_ATTACK4;
-    s_mgold_pain.shapenum = SPR_MGOLD_OUCH;
-    s_security_light.shapenum = SPR_SECURITY_NORMAL;
-    s_scout_stand.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_scout_path1.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_scout_path2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
-    s_scout_path3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
-    s_scout_path4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
-    s_scout_run.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_scout_run2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
-    s_scout_run3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
-    s_scout_run4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
-    s_scout_dead.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
-    s_terrot_wait.shapenum = SPR_TERROT_1;
-    s_terrot_found.shapenum = SPR_TERROT_1;
-    s_terrot_shoot1.shapenum = SPR_TERROT_FIRE_1;
-    s_terrot_shoot2.shapenum = SPR_TERROT_FIRE_2;
-    s_terrot_shoot3.shapenum = SPR_TERROT_FIRE_1;
-    s_terrot_shoot4.shapenum = SPR_TERROT_FIRE_2;
-    s_terrot_seek1.shapenum = SPR_TERROT_1;
-    s_terrot_seek1s.shapenum = SPR_TERROT_1;
-    s_terrot_die1.shapenum = SPR_TERROT_DIE_1;
-    s_terrot_die2.shapenum = SPR_TERROT_DIE_2;
-    s_terrot_die3.shapenum = SPR_TERROT_DIE_3;
-    s_terrot_die4.shapenum = SPR_TERROT_DIE_4;
-    s_terrot_die5.shapenum = SPR_TERROT_DEAD;
+	s_ofs_stand.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
+	s_ofs_chase1.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
+	s_ofs_chase1s.shapenum = SPR_GENETIC_W1 - SPR_GENETIC_W1;
+	s_ofs_chase2.shapenum = SPR_GENETIC_W2 - SPR_GENETIC_W1;
+	s_ofs_chase3.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
+	s_ofs_chase3s.shapenum = SPR_GENETIC_W3 - SPR_GENETIC_W1;
+	s_ofs_chase4.shapenum = SPR_GENETIC_W4 - SPR_GENETIC_W1;
+	s_ofs_pain.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
+	s_ofs_die1.shapenum = SPR_GENETIC_OUCH - SPR_GENETIC_W1;
+	s_ofs_die1s.shapenum = SPR_GENETIC_DIE1 - SPR_GENETIC_W1;
+	s_ofs_die2.shapenum = SPR_GENETIC_DIE2 - SPR_GENETIC_W1;
+	s_ofs_die3.shapenum = SPR_GENETIC_DIE3 - SPR_GENETIC_W1;
+	s_ofs_die4.shapenum = SPR_GENETIC_DIE4 - SPR_GENETIC_W1;
+	s_ofs_die5.shapenum = SPR_GENETIC_DEAD - SPR_GENETIC_W1;
+	s_ofs_attack1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
+	s_ofs_attack2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
+	s_ofs_attack3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
+	s_ofs_spit1.shapenum = SPR_GENETIC_SHOOT1 - SPR_GENETIC_W1;
+	s_ofs_spit2.shapenum = SPR_GENETIC_SHOOT2 - SPR_GENETIC_W1;
+	s_ofs_spit3.shapenum = SPR_GENETIC_SHOOT3 - SPR_GENETIC_W1;
+	s_ofs_shoot1.shapenum = SPR_GENETIC_SWING1 - SPR_GENETIC_W1;
+	s_ofs_shoot2.shapenum = SPR_GENETIC_SWING2 - SPR_GENETIC_W1;
+	s_ofs_shoot3.shapenum = SPR_GENETIC_SWING3 - SPR_GENETIC_W1;
+	s_ofs_pod_attack1.shapenum = SPR_POD_ATTACK1 - SPR_POD_WALK1;
+	s_ofs_pod_attack1a.shapenum = SPR_POD_ATTACK2 - SPR_POD_WALK1;
+	s_ofs_pod_attack2.shapenum = SPR_POD_ATTACK3 - SPR_POD_WALK1;
+	s_ofs_pod_spit1.shapenum = SPR_POD_SPIT1 - SPR_POD_WALK1;
+	s_ofs_pod_spit2.shapenum = SPR_POD_SPIT2 - SPR_POD_WALK1;
+	s_ofs_pod_spit3.shapenum = SPR_POD_SPIT3 - SPR_POD_WALK1;
+	s_ofs_pod_ouch.shapenum = SPR_POD_OUCH - SPR_POD_WALK1;
+	s_vpost_barrier.shapenum = SPR_VPOST1;
+	s_spike_barrier.shapenum = SPR_VSPIKE1;
+	s_rent_stand.shapenum = SPR_RENT_S_1;
+	s_rent_path1.shapenum = SPR_RENT_W1_1;
+	s_rent_path1s.shapenum = SPR_RENT_W2_1;
+	s_rent_path2.shapenum = SPR_RENT_W2_1;
+	s_rent_path3.shapenum = SPR_RENT_W3_1;
+	s_rent_path3s.shapenum = SPR_RENT_W3_1;
+	s_rent_path4.shapenum = SPR_RENT_W4_1;
+	s_rent_pain.shapenum = SPR_RENT_PAIN_1;
+	s_rent_shoot1.shapenum = SPR_RENT_SHOOT1;
+	s_rent_shoot2.shapenum = SPR_RENT_SHOOT2;
+	s_rent_shoot3.shapenum = SPR_RENT_SHOOT3;
+	s_rent_chase1.shapenum = SPR_RENT_W1_1;
+	s_rent_chase1s.shapenum = SPR_RENT_W1_1;
+	s_rent_chase2.shapenum = SPR_RENT_W2_1;
+	s_rent_chase3.shapenum = SPR_RENT_W3_1;
+	s_rent_chase3s.shapenum = SPR_RENT_W3_1;
+	s_rent_chase4.shapenum = SPR_RENT_W4_1;
+	s_rent_die1.shapenum = SPR_RENT_DIE_1;
+	s_rent_die2.shapenum = SPR_RENT_DIE_2;
+	s_rent_die3.shapenum = SPR_RENT_DIE_3;
+	s_rent_die3s.shapenum = SPR_RENT_DIE_4;
+	s_rent_die4.shapenum = SPR_RENT_DEAD;
+	s_ofcstand.shapenum = SPR_OFC_S_1;
+	s_ofcpath1.shapenum = SPR_OFC_W1_1;
+	s_ofcpath1s.shapenum = SPR_OFC_W1_1;
+	s_ofcpath2.shapenum = SPR_OFC_W2_1;
+	s_ofcpath3.shapenum = SPR_OFC_W3_1;
+	s_ofcpath3s.shapenum = SPR_OFC_W3_1;
+	s_ofcpath4.shapenum = SPR_OFC_W4_1;
+	s_ofcpain.shapenum = SPR_OFC_PAIN_1;
+	s_ofcshoot1.shapenum = SPR_OFC_SHOOT1;
+	s_ofcshoot2.shapenum = SPR_OFC_SHOOT2;
+	s_ofcshoot3.shapenum = SPR_OFC_SHOOT3;
+	s_ofcchase1.shapenum = SPR_OFC_W1_1;
+	s_ofcchase1s.shapenum = SPR_OFC_W1_1;
+	s_ofcchase2.shapenum = SPR_OFC_W2_1;
+	s_ofcchase3.shapenum = SPR_OFC_W3_1;
+	s_ofcchase3s.shapenum = SPR_OFC_W3_1;
+	s_ofcchase4.shapenum = SPR_OFC_W4_1;
+	s_ofcdie1.shapenum = SPR_OFC_DIE_1;
+	s_ofcdie2.shapenum = SPR_OFC_DIE_2;
+	s_ofcdie3.shapenum = SPR_OFC_DIE_3;
+	s_ofcdie4.shapenum = SPR_OFC_DIE_4;
+	s_ofcdie5.shapenum = SPR_OFC_DEAD;
+	s_swatstand.shapenum = SPR_SWAT_S_1;
+	s_swatpath1.shapenum = SPR_SWAT_W1_1;
+	s_swatpath1s.shapenum = SPR_SWAT_W1_1;
+	s_swatpath2.shapenum = SPR_SWAT_W2_1;
+	s_swatpath3.shapenum = SPR_SWAT_W3_1;
+	s_swatpath3s.shapenum = SPR_SWAT_W3_1;
+	s_swatpath4.shapenum = SPR_SWAT_W4_1;
+	s_swatpain.shapenum = SPR_SWAT_PAIN_1;
+	s_swatshoot1.shapenum = SPR_SWAT_SHOOT1;
+	s_swatshoot2.shapenum = SPR_SWAT_SHOOT2;
+	s_swatshoot3.shapenum = SPR_SWAT_SHOOT3;
+	s_swatshoot4.shapenum = SPR_SWAT_SHOOT2;
+	s_swatshoot5.shapenum = SPR_SWAT_SHOOT3;
+	s_swatshoot6.shapenum = SPR_SWAT_SHOOT2;
+	s_swatshoot7.shapenum = SPR_SWAT_SHOOT3;
+	s_swatchase1.shapenum = SPR_SWAT_W1_1;
+	s_swatchase1s.shapenum = SPR_SWAT_W1_1;
+	s_swatchase2.shapenum = SPR_SWAT_W2_1;
+	s_swatchase3.shapenum = SPR_SWAT_W3_1;
+	s_swatchase3s.shapenum = SPR_SWAT_W3_1;
+	s_swatchase4.shapenum = SPR_SWAT_W4_1;
+	s_swatwounded1.shapenum = SPR_SWAT_WOUNDED1;
+	s_swatwounded2.shapenum = SPR_SWAT_WOUNDED2;
+	s_swatwounded3.shapenum = SPR_SWAT_WOUNDED3;
+	s_swatwounded4.shapenum = SPR_SWAT_WOUNDED4;
+	s_swatunwounded1.shapenum = SPR_SWAT_WOUNDED4;
+	s_swatunwounded2.shapenum = SPR_SWAT_WOUNDED3;
+	s_swatunwounded3.shapenum = SPR_SWAT_WOUNDED2;
+	s_swatunwounded4.shapenum = SPR_SWAT_WOUNDED1;
+	s_swatdie1.shapenum = SPR_SWAT_DIE_1;
+	s_swatdie2.shapenum = SPR_SWAT_DIE_2;
+	s_swatdie3.shapenum = SPR_SWAT_DIE_3;
+	s_swatdie4.shapenum = SPR_SWAT_DIE_4;
+	s_swatdie5.shapenum = SPR_SWAT_DEAD;
+	s_prostand.shapenum = SPR_PRO_S_1;
+	s_propath1.shapenum = SPR_PRO_W1_1;
+	s_propath1s.shapenum = SPR_PRO_W1_1;
+	s_propath2.shapenum = SPR_PRO_W2_1;
+	s_propath3.shapenum = SPR_PRO_W3_1;
+	s_propath3s.shapenum = SPR_PRO_W3_1;
+	s_propath4.shapenum = SPR_PRO_W4_1;
+	s_propain.shapenum = SPR_PRO_PAIN_1;
+	s_proshoot1.shapenum = SPR_PRO_SHOOT1;
+	s_proshoot2.shapenum = SPR_PRO_SHOOT2;
+	s_proshoot3.shapenum = SPR_PRO_SHOOT3;
+	s_proshoot4.shapenum = SPR_PRO_SHOOT2;
+	s_proshoot5.shapenum = SPR_PRO_SHOOT3;
+	s_proshoot6.shapenum = SPR_PRO_SHOOT2;
+	s_proshoot6a.shapenum = SPR_PRO_SHOOT3;
+	s_prochase1.shapenum = SPR_PRO_W1_1;
+	s_prochase1s.shapenum = SPR_PRO_W1_1;
+	s_prochase2.shapenum = SPR_PRO_W2_1;
+	s_prochase3.shapenum = SPR_PRO_W3_1;
+	s_prochase3s.shapenum = SPR_PRO_W3_1;
+	s_prochase4.shapenum = SPR_PRO_W4_1;
+	s_prodie1.shapenum = SPR_PRO_DIE_1;
+	s_prodie2.shapenum = SPR_PRO_DIE_2;
+	s_prodie3.shapenum = SPR_PRO_DIE_3;
+	s_prodie3a.shapenum = SPR_PRO_DIE_4;
+	s_prodie4.shapenum = SPR_PRO_DEAD;
+	s_electro_appear1.shapenum = SPR_ELEC_APPEAR1;
+	s_electro_appear2.shapenum = SPR_ELEC_APPEAR2;
+	s_electro_appear3.shapenum = SPR_ELEC_APPEAR3;
+	s_electro_chase1.shapenum = SPR_ELEC_WALK1;
+	s_electro_chase2.shapenum = SPR_ELEC_WALK2;
+	s_electro_chase3.shapenum = SPR_ELEC_WALK3;
+	s_electro_chase4.shapenum = SPR_ELEC_WALK4;
+	s_electro_ouch.shapenum = SPR_ELEC_OUCH;
+	s_electro_shoot1.shapenum = SPR_ELEC_SHOOT1;
+	s_electro_shoot2.shapenum = SPR_ELEC_SHOOT2;
+	s_electro_shoot3.shapenum = SPR_ELEC_SHOOT3;
+	s_electro_shot1.shapenum = SPR_ELEC_SHOT1;
+	s_electro_shot2.shapenum = SPR_ELEC_SHOT2;
+	s_electro_die1.shapenum = SPR_ELEC_DIE1;
+	s_electro_die2.shapenum = SPR_ELEC_DIE2;
+	s_electro_die3.shapenum = SPR_ELEC_DIE3;
+	s_liquid_wait.shapenum = SPR_LIQUID_M1;
+	s_liquid_move.shapenum = SPR_LIQUID_M1;
+	s_liquid_rise1.shapenum = SPR_LIQUID_R1;
+	s_liquid_rise2.shapenum = SPR_LIQUID_R2;
+	s_liquid_rise3.shapenum = SPR_LIQUID_R3;
+	s_liquid_stand.shapenum = SPR_LIQUID_R4;
+	s_liquid_fall1.shapenum = SPR_LIQUID_R3;
+	s_liquid_fall2.shapenum = SPR_LIQUID_R2;
+	s_liquid_fall3.shapenum = SPR_LIQUID_R1;
+	s_liquid_shoot1.shapenum = SPR_LIQUID_S1;
+	s_liquid_shoot2.shapenum = SPR_LIQUID_S2;
+	s_liquid_shoot3.shapenum = SPR_LIQUID_S3;
+	s_liquid_ouch.shapenum = SPR_LIQUID_OUCH;
+	s_liquid_die1.shapenum = SPR_LIQUID_DIE_1;
+	s_liquid_die2.shapenum = SPR_LIQUID_DIE_2;
+	s_liquid_die3.shapenum = SPR_LIQUID_DIE_3;
+	s_liquid_die4.shapenum = SPR_LIQUID_DIE_4;
+	s_liquid_dead.shapenum = SPR_LIQUID_DEAD;
+	s_blake1.shapenum = SPR_BLAKE_W1;
+	s_blake2.shapenum = SPR_BLAKE_W2;
+	s_blake3.shapenum = SPR_BLAKE_W3;
+	s_blake4.shapenum = SPR_BLAKE_W4;
+	s_goldstand.shapenum = SPR_GOLD_S_1;
+	s_goldpath1.shapenum = SPR_GOLD_W1_1;
+	s_goldpath1s.shapenum = SPR_GOLD_W1_1;
+	s_goldpath2.shapenum = SPR_GOLD_W2_1;
+	s_goldpath3.shapenum = SPR_GOLD_W3_1;
+	s_goldpath3s.shapenum = SPR_GOLD_W3_1;
+	s_goldpath4.shapenum = SPR_GOLD_W4_1;
+	s_goldpain.shapenum = SPR_GOLD_PAIN_1;
+	s_goldshoot1.shapenum = SPR_GOLD_SHOOT1;
+	s_goldshoot2.shapenum = SPR_GOLD_SHOOT2;
+	s_goldshoot3.shapenum = SPR_GOLD_SHOOT3;
+	s_goldshoot4.shapenum = SPR_GOLD_SHOOT2;
+	s_goldshoot5.shapenum = SPR_GOLD_SHOOT3;
+	s_goldshoot6.shapenum = SPR_GOLD_SHOOT2;
+	s_goldshoot7.shapenum = SPR_GOLD_SHOOT3;
+	s_goldchase1.shapenum = SPR_GOLD_W1_1;
+	s_goldchase1s.shapenum = SPR_GOLD_W1_1;
+	s_goldchase2.shapenum = SPR_GOLD_W2_1;
+	s_goldchase3.shapenum = SPR_GOLD_W3_1;
+	s_goldchase3s.shapenum = SPR_GOLD_W3_1;
+	s_goldchase4.shapenum = SPR_GOLD_W4_1;
+	s_goldwarp_it.shapenum = SPR_GOLD_S_1;
+	s_goldwarp_it1.shapenum = SPR_GOLD_WRIST_1;
+	s_goldwarp_it2.shapenum = SPR_GOLD_WRIST_2;
+	s_goldwarp_it3.shapenum = SPR_GOLD_WRIST_1;
+	s_goldwarp_it4.shapenum = SPR_GOLD_WRIST_2;
+	s_goldwarp_it5.shapenum = SPR_GOLD_S_1;
+	s_goldwarp_out1.shapenum = SPR_GOLD_WARP1;
+	s_goldwarp_out2.shapenum = SPR_GOLD_WARP2;
+	s_goldwarp_out3.shapenum = SPR_GOLD_WARP3;
+	s_goldwarp_out4.shapenum = SPR_GOLD_WARP4;
+	s_goldwarp_out5.shapenum = SPR_GOLD_WARP5;
+	s_goldwarp_in1.shapenum = SPR_GOLD_WARP5;
+	s_goldwarp_in2.shapenum = SPR_GOLD_WARP4;
+	s_goldwarp_in3.shapenum = SPR_GOLD_WARP3;
+	s_goldwarp_in4.shapenum = SPR_GOLD_WARP2;
+	s_goldwarp_in5.shapenum = SPR_GOLD_WARP1;
+	s_goldmorphwait1.shapenum = SPR_GOLD_WRIST_1;
+	s_goldmorph1.shapenum = SPR_GOLD_MORPH1;
+	s_goldmorph2.shapenum = SPR_GOLD_MORPH2;
+	s_goldmorph3.shapenum = SPR_GOLD_MORPH3;
+	s_goldmorph4.shapenum = SPR_GOLD_MORPH4;
+	s_goldmorph5.shapenum = SPR_GOLD_MORPH5;
+	s_goldmorph6.shapenum = SPR_GOLD_MORPH6;
+	s_goldmorph7.shapenum = SPR_GOLD_MORPH7;
+	s_goldmorph8.shapenum = SPR_GOLD_MORPH8;
+	s_mgold_chase1.shapenum = SPR_MGOLD_WALK1;
+	s_mgold_chase2.shapenum = SPR_MGOLD_WALK2;
+	s_mgold_chase3.shapenum = SPR_MGOLD_WALK3;
+	s_mgold_chase4.shapenum = SPR_MGOLD_WALK4;
+	s_mgold_shoot1.shapenum = SPR_MGOLD_ATTACK1;
+	s_mgold_shoot2.shapenum = SPR_MGOLD_ATTACK2;
+	s_mgold_shoot3.shapenum = SPR_MGOLD_ATTACK3;
+	s_mgold_shoot4.shapenum = SPR_MGOLD_ATTACK4;
+	s_mgold_pain.shapenum = SPR_MGOLD_OUCH;
+	s_security_light.shapenum = SPR_SECURITY_NORMAL;
+	s_scout_stand.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_scout_path1.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_scout_path2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
+	s_scout_path3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
+	s_scout_path4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
+	s_scout_run.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_scout_run2.shapenum = SPR_GSCOUT_W2_1 - SPR_GSCOUT_W2_1;
+	s_scout_run3.shapenum = SPR_GSCOUT_W3_1 - SPR_GSCOUT_W3_1;
+	s_scout_run4.shapenum = SPR_GSCOUT_W4_1 - SPR_GSCOUT_W4_1;
+	s_scout_dead.shapenum = SPR_GSCOUT_W1_1 - SPR_GSCOUT_W1_1;
+	s_terrot_wait.shapenum = SPR_TERROT_1;
+	s_terrot_found.shapenum = SPR_TERROT_1;
+	s_terrot_shoot1.shapenum = SPR_TERROT_FIRE_1;
+	s_terrot_shoot2.shapenum = SPR_TERROT_FIRE_2;
+	s_terrot_shoot3.shapenum = SPR_TERROT_FIRE_1;
+	s_terrot_shoot4.shapenum = SPR_TERROT_FIRE_2;
+	s_terrot_seek1.shapenum = SPR_TERROT_1;
+	s_terrot_seek1s.shapenum = SPR_TERROT_1;
+	s_terrot_die1.shapenum = SPR_TERROT_DIE_1;
+	s_terrot_die2.shapenum = SPR_TERROT_DIE_2;
+	s_terrot_die3.shapenum = SPR_TERROT_DIE_3;
+	s_terrot_die4.shapenum = SPR_TERROT_DIE_4;
+	s_terrot_die5.shapenum = SPR_TERROT_DEAD;
 }
 
 
-int16_t NUMSNDCHUNKS = 0;
+std::int16_t NUMSNDCHUNKS = 0;
 
-int16_t S2100A_MUS = 0;
-int16_t GOLDA_MUS = 0;
-int16_t DRKHALLA_MUS = 0;
-int16_t FREEDOMA_MUS = 0;
-int16_t GENEFUNK_MUS = 0;
-int16_t TIMEA_MUS = 0;
-int16_t HIDINGA_MUS = 0;
-int16_t INCNRATN_MUS = 0;
-int16_t JUNGLEA_MUS = 0;
-int16_t LEVELA_MUS = 0;
-int16_t MEETINGA_MUS = 0;
-int16_t STRUTA_MUS = 0;
-int16_t RACSHUFL_MUS = 0;
-int16_t RUMBAA_MUS = 0;
-int16_t SEARCHNA_MUS = 0;
-int16_t THEWAYA_MUS = 0;
-int16_t INTRIGEA_MUS = 0;
+std::int16_t S2100A_MUS = 0;
+std::int16_t GOLDA_MUS = 0;
+std::int16_t DRKHALLA_MUS = 0;
+std::int16_t FREEDOMA_MUS = 0;
+std::int16_t GENEFUNK_MUS = 0;
+std::int16_t TIMEA_MUS = 0;
+std::int16_t HIDINGA_MUS = 0;
+std::int16_t INCNRATN_MUS = 0;
+std::int16_t JUNGLEA_MUS = 0;
+std::int16_t LEVELA_MUS = 0;
+std::int16_t MEETINGA_MUS = 0;
+std::int16_t STRUTA_MUS = 0;
+std::int16_t RACSHUFL_MUS = 0;
+std::int16_t RUMBAA_MUS = 0;
+std::int16_t SEARCHNA_MUS = 0;
+std::int16_t THEWAYA_MUS = 0;
+std::int16_t INTRIGEA_MUS = 0;
 
-int16_t CATACOMB_MUS = 0;
-int16_t STICKS_MUS = 0;
-int16_t PLOT_MUS = 0;
-int16_t CIRCLES_MUS = 0;
-int16_t LASTLAFF_MUS = 0;
-int16_t TOHELL_MUS = 0;
-int16_t FORTRESS_MUS = 0;
-int16_t GIVING_MUS = 0;
-int16_t HARTBEAT_MUS = 0;
-int16_t LURKING_MUS = 0;
-int16_t MAJMIN_MUS = 0;
-int16_t VACCINAP_MUS = 0;
-int16_t DARKNESS_MUS = 0;
-int16_t MONASTRY_MUS = 0;
-int16_t TOMBP_MUS = 0;
-int16_t TIME_MUS = 0;
-int16_t MOURNING_MUS = 0;
-int16_t SERPENT_MUS = 0;
-int16_t HISCORE_MUS = 0;
+std::int16_t CATACOMB_MUS = 0;
+std::int16_t STICKS_MUS = 0;
+std::int16_t PLOT_MUS = 0;
+std::int16_t CIRCLES_MUS = 0;
+std::int16_t LASTLAFF_MUS = 0;
+std::int16_t TOHELL_MUS = 0;
+std::int16_t FORTRESS_MUS = 0;
+std::int16_t GIVING_MUS = 0;
+std::int16_t HARTBEAT_MUS = 0;
+std::int16_t LURKING_MUS = 0;
+std::int16_t MAJMIN_MUS = 0;
+std::int16_t VACCINAP_MUS = 0;
+std::int16_t DARKNESS_MUS = 0;
+std::int16_t MONASTRY_MUS = 0;
+std::int16_t TOMBP_MUS = 0;
+std::int16_t TIME_MUS = 0;
+std::int16_t MOURNING_MUS = 0;
+std::int16_t SERPENT_MUS = 0;
+std::int16_t HISCORE_MUS = 0;
 
-int16_t APOGFNFM_MUS = 0;
-int16_t THEME_MUS = 0;
-int16_t LASTMUSIC = 0;
-int16_t TITLE_LOOP_MUSIC = 0;
+std::int16_t APOGFNFM_MUS = 0;
+std::int16_t THEME_MUS = 0;
+std::int16_t LASTMUSIC = 0;
+std::int16_t TITLE_LOOP_MUSIC = 0;
 
 
 void initialize_audio_constants()
@@ -4835,349 +4907,349 @@ void initialize_audio_constants()
 }
 
 
-int16_t TELEPORT_LUMP_START = 0;
-int16_t TELEPORT_LUMP_END = 0;
+std::int16_t TELEPORT_LUMP_START = 0;
+std::int16_t TELEPORT_LUMP_END = 0;
 
-int16_t README_LUMP_START = 0;
-int16_t README_LUMP_END = 0;
+std::int16_t README_LUMP_START = 0;
+std::int16_t README_LUMP_END = 0;
 
-int16_t CONTROLS_LUMP_START = 0;
-int16_t CONTROLS_LUMP_END = 0;
+std::int16_t CONTROLS_LUMP_START = 0;
+std::int16_t CONTROLS_LUMP_END = 0;
 
-int16_t LATCHPICS_LUMP_START = 0;
-int16_t LATCHPICS_LUMP_END = 0;
+std::int16_t LATCHPICS_LUMP_START = 0;
+std::int16_t LATCHPICS_LUMP_END = 0;
 
 
 //
 // Amount of each data item
 //
-int16_t NUMCHUNKS = 0;
-int16_t NUMFONT = 0;
-int16_t NUMFONTM = 0;
-int16_t NUMPICS = 0;
-int16_t NUMPICM = 0;
-int16_t NUMSPRITES = 0;
-int16_t NUMTILE8 = 0;
-int16_t NUMTILE8M = 0;
-int16_t NUMTILE16 = 0;
-int16_t NUMTILE16M = 0;
-int16_t NUMTILE32 = 0;
-int16_t NUMTILE32M = 0;
-int16_t NUMEXTERNS = 0;
+std::int16_t NUMCHUNKS = 0;
+std::int16_t NUMFONT = 0;
+std::int16_t NUMFONTM = 0;
+std::int16_t NUMPICS = 0;
+std::int16_t NUMPICM = 0;
+std::int16_t NUMSPRITES = 0;
+std::int16_t NUMTILE8 = 0;
+std::int16_t NUMTILE8M = 0;
+std::int16_t NUMTILE16 = 0;
+std::int16_t NUMTILE16M = 0;
+std::int16_t NUMTILE32 = 0;
+std::int16_t NUMTILE32M = 0;
+std::int16_t NUMEXTERNS = 0;
 
 //
 // File offsets for data items
 //
-int16_t STRUCTPIC = 0;
+std::int16_t STRUCTPIC = 0;
 
-int16_t STARTFONT = 0;
-int16_t STARTFONTM = 0;
-int16_t STARTPICS = 0;
-int16_t STARTPICM = 0;
-int16_t STARTSPRITES = 0;
-int16_t STARTTILE8 = 0;
-int16_t STARTTILE8M = 0;
-int16_t STARTTILE16 = 0;
-int16_t STARTTILE16M = 0;
-int16_t STARTTILE32 = 0;
-int16_t STARTTILE32M = 0;
-int16_t STARTEXTERNS = 0;
+std::int16_t STARTFONT = 0;
+std::int16_t STARTFONTM = 0;
+std::int16_t STARTPICS = 0;
+std::int16_t STARTPICM = 0;
+std::int16_t STARTSPRITES = 0;
+std::int16_t STARTTILE8 = 0;
+std::int16_t STARTTILE8M = 0;
+std::int16_t STARTTILE16 = 0;
+std::int16_t STARTTILE16M = 0;
+std::int16_t STARTTILE32 = 0;
+std::int16_t STARTTILE32M = 0;
+std::int16_t STARTEXTERNS = 0;
 
 
-int16_t TELEPORTBACKPIC = 0;
-int16_t TELEPORT1OFFPIC = 0;
-int16_t TELEPORT2OFFPIC = 0;
-int16_t TELEPORT3OFFPIC = 0;
-int16_t TELEPORT4OFFPIC = 0;
-int16_t TELEPORT5OFFPIC = 0;
-int16_t TELEPORT6OFFPIC = 0;
-int16_t TELEPORT7OFFPIC = 0;
-int16_t TELEPORT8OFFPIC = 0;
-int16_t TELEPORT9OFFPIC = 0;
-int16_t TELEPORT10OFFPIC = 0;
-int16_t TELEPORT1ONPIC = 0;
-int16_t TELEPORT2ONPIC = 0;
-int16_t TELEPORT3ONPIC = 0;
-int16_t TELEPORT4ONPIC = 0;
-int16_t TELEPORT5ONPIC = 0;
-int16_t TELEPORT6ONPIC = 0;
-int16_t TELEPORT7ONPIC = 0;
-int16_t TELEPORT8ONPIC = 0;
-int16_t TELEPORT9ONPIC = 0;
-int16_t TELEPORT10ONPIC = 0;
-int16_t TELEPORT_TEXT_BG = 0;
-int16_t BACKGROUND_SCREENPIC = 0;
-int16_t APOGEEPIC = 0;
-int16_t PIRACYPIC = 0;
-int16_t PC13PIC = 0;
-int16_t LOSEPIC = 0;
-int16_t AUTOMAPPIC = 0;
-int16_t PSPROMO1PIC = 0;
-int16_t PSPROMO2PIC = 0;
-int16_t PSPROMO3PIC = 0;
-int16_t H_ALTPIC = 0;
-int16_t H_CTRLPIC = 0;
-int16_t H_SPACEPIC = 0;
-int16_t H_PAUSEPIC = 0;
-int16_t H_ESCPIC = 0;
-int16_t H_LTARROWPIC = 0;
-int16_t H_UPARROWPIC = 0;
-int16_t H_DNARROWPIC = 0;
-int16_t H_RTARROWPIC = 0;
-int16_t H_ENTERPIC = 0;
-int16_t H_QPIC = 0;
-int16_t H_WPIC = 0;
-int16_t H_EPIC = 0;
-int16_t H_IPIC = 0;
-int16_t H_HPIC = 0;
-int16_t H_1PIC = 0;
-int16_t H_2PIC = 0;
-int16_t H_3PIC = 0;
-int16_t H_4PIC = 0;
-int16_t H_5PIC = 0;
-int16_t H_F1PIC = 0;
-int16_t H_F2PIC = 0;
-int16_t H_F3PIC = 0;
-int16_t H_F4PIC = 0;
-int16_t H_F5PIC = 0;
-int16_t H_F6PIC = 0;
-int16_t H_F7PIC = 0;
-int16_t H_F8PIC = 0;
-int16_t H_F9PIC = 0;
-int16_t H_F10PIC = 0;
-int16_t H_TABPIC = 0;
-int16_t H_CPIC = 0;
-int16_t H_FPIC = 0;
-int16_t H_PPIC = 0;
-int16_t H_MPIC = 0;
-int16_t H_LPIC = 0;
-int16_t H_SHIFTPIC = 0;
-int16_t APOGEE_LOGOPIC = 0;
-int16_t VISAPIC = 0;
-int16_t MCPIC = 0;
-int16_t FAXPIC = 0;
-int16_t H_TOPWINDOWPIC = 0;
-int16_t H_LEFTWINDOWPIC = 0;
-int16_t H_RIGHTWINDOWPIC = 0;
-int16_t H_BOTTOMINFOPIC = 0;
-int16_t C_NOTSELECTEDPIC = 0;
-int16_t C_SELECTEDPIC = 0;
-int16_t C_NOTSELECTED_HIPIC = 0;
-int16_t C_SELECTED_HIPIC = 0;
-int16_t C_BABYMODEPIC = 0;
-int16_t C_EASYPIC = 0;
-int16_t C_NORMALPIC = 0;
-int16_t C_HARDPIC = 0;
-int16_t C_EPISODE1PIC = 0;
-int16_t C_EPISODE2PIC = 0;
-int16_t C_EPISODE3PIC = 0;
-int16_t C_EPISODE4PIC = 0;
-int16_t C_EPISODE5PIC = 0;
-int16_t C_EPISODE6PIC = 0;
-int16_t BIGGOLDSTERNPIC = 0;
-int16_t STARLOGOPIC = 0;
-int16_t BLAKEWITHGUNPIC = 0;
-int16_t STARINSTITUTEPIC = 0;
-int16_t MEDALOFHONORPIC = 0;
-int16_t SMALLGOLDSTERNPIC = 0;
-int16_t BLAKEWINPIC = 0;
-int16_t SHUTTLEEXPPIC = 0;
-int16_t PLANETSPIC = 0;
-int16_t MOUSEPIC = 0;
-int16_t JOYSTICKPIC = 0;
-int16_t GRAVISPADPIC = 0;
-int16_t TITLEPIC = 0;
-int16_t PROMO1PIC = 0;
-int16_t PROMO2PIC = 0;
-int16_t WEAPON1PIC = 0;
-int16_t WEAPON2PIC = 0;
-int16_t WEAPON3PIC = 0;
-int16_t WEAPON4PIC = 0;
-int16_t WEAPON5PIC = 0;
-int16_t WAITPIC = 0;
-int16_t READYPIC = 0;
-int16_t N_BLANKPIC = 0;
-int16_t N_0PIC = 0;
-int16_t N_1PIC = 0;
-int16_t N_2PIC = 0;
-int16_t N_3PIC = 0;
-int16_t N_4PIC = 0;
-int16_t N_5PIC = 0;
-int16_t N_6PIC = 0;
-int16_t N_7PIC = 0;
-int16_t N_8PIC = 0;
-int16_t N_9PIC = 0;
-int16_t N_RPIC = 0;
-int16_t N_OPIC = 0;
-int16_t N_LPIC = 0;
-int16_t N_DASHPIC = 0;
-int16_t DIM_LIGHTPIC = 0;
-int16_t BRI_LIGHTPIC = 0;
-int16_t ECG_HEART_GOOD = 0;
-int16_t ECG_HEART_BAD = 0;
-int16_t ECG_GRID_PIECE = 0;
-int16_t AMMONUM_BACKGR = 0;
-int16_t ECG_HEARTBEAT_00 = 0;
-int16_t ECG_HEARTBEAT_01 = 0;
-int16_t ECG_HEARTBEAT_02 = 0;
-int16_t ECG_HEARTBEAT_03 = 0;
-int16_t ECG_HEARTBEAT_04 = 0;
-int16_t ECG_HEARTBEAT_05 = 0;
-int16_t ECG_HEARTBEAT_06 = 0;
-int16_t ECG_HEARTBEAT_07 = 0;
-int16_t ECG_HEARTBEAT_08 = 0;
-int16_t ECG_HEARTBEAT_09 = 0;
-int16_t ECG_HEARTBEAT_10 = 0;
-int16_t ECG_HEARTBEAT_11 = 0;
-int16_t ECG_HEARTBEAT_12 = 0;
-int16_t ECG_HEARTBEAT_13 = 0;
-int16_t ECG_HEARTBEAT_14 = 0;
-int16_t ECG_HEARTBEAT_15 = 0;
-int16_t ECG_HEARTBEAT_16 = 0;
-int16_t ECG_HEARTBEAT_17 = 0;
-int16_t ECG_HEARTBEAT_18 = 0;
-int16_t ECG_HEARTBEAT_19 = 0;
-int16_t ECG_HEARTBEAT_20 = 0;
-int16_t ECG_HEARTBEAT_21 = 0;
-int16_t ECG_HEARTBEAT_22 = 0;
-int16_t ECG_HEARTBEAT_23 = 0;
-int16_t ECG_HEARTBEAT_24 = 0;
-int16_t ECG_HEARTBEAT_25 = 0;
-int16_t ECG_HEARTBEAT_26 = 0;
-int16_t ECG_HEARTBEAT_27 = 0;
-int16_t INFOAREAPIC = 0;
-int16_t TOP_STATUSBARPIC = 0;
-int16_t STATUSBARPIC = 0;
-int16_t PIRACYPALETTE = 0;
-int16_t APOGEEPALETTE = 0;
-int16_t TITLEPALETTE = 0;
-int16_t ORDERSCREEN = 0;
-int16_t ERRORSCREEN = 0;
-int16_t INFORMANT_HINTS = 0;
-int16_t NICE_SCIE_HINTS = 0;
-int16_t MEAN_SCIE_HINTS = 0;
-int16_t BRIEF_W1 = 0;
-int16_t BRIEF_I1 = 0;
-int16_t BRIEF_W2 = 0;
-int16_t BRIEF_I2 = 0;
-int16_t BRIEF_W3 = 0;
-int16_t BRIEF_I3 = 0;
-int16_t BRIEF_W4 = 0;
-int16_t BRIEF_I4 = 0;
-int16_t BRIEF_W5 = 0;
-int16_t BRIEF_I5 = 0;
-int16_t BRIEF_W6 = 0;
-int16_t BRIEF_I6 = 0;
-int16_t LEVEL_DESCS = 0;
-int16_t POWERBALLTEXT = 0;
-int16_t TICSTEXT = 0;
-int16_t MUSICTEXT = 0;
-int16_t RADARTEXT = 0;
-int16_t HELPTEXT = 0;
-int16_t SAGATEXT = 0;
-int16_t LOSETEXT = 0;
-int16_t ORDERTEXT = 0;
-int16_t CREDITSTEXT = 0;
-int16_t MUSTBE386TEXT = 0;
-int16_t QUICK_INFO1_TEXT = 0;
-int16_t QUICK_INFO2_TEXT = 0;
-int16_t BADINFO_TEXT = 0;
-int16_t CALJOY1_TEXT = 0;
-int16_t CALJOY2_TEXT = 0;
-int16_t READTHIS_TEXT = 0;
-int16_t ELEVMSG0_TEXT = 0;
-int16_t ELEVMSG1_TEXT = 0;
-int16_t ELEVMSG4_TEXT = 0;
-int16_t ELEVMSG5_TEXT = 0;
-int16_t FLOORMSG_TEXT = 0;
-int16_t YOUWIN_TEXT = 0;
-int16_t CHANGEVIEW_TEXT = 0;
-int16_t BADCHECKSUMTEXT = 0;
-int16_t DIZ_ERR_TEXT = 0;
-int16_t BADLEVELSTEXT = 0;
-int16_t BADSAVEGAME_TEXT = 0;
+std::int16_t TELEPORTBACKPIC = 0;
+std::int16_t TELEPORT1OFFPIC = 0;
+std::int16_t TELEPORT2OFFPIC = 0;
+std::int16_t TELEPORT3OFFPIC = 0;
+std::int16_t TELEPORT4OFFPIC = 0;
+std::int16_t TELEPORT5OFFPIC = 0;
+std::int16_t TELEPORT6OFFPIC = 0;
+std::int16_t TELEPORT7OFFPIC = 0;
+std::int16_t TELEPORT8OFFPIC = 0;
+std::int16_t TELEPORT9OFFPIC = 0;
+std::int16_t TELEPORT10OFFPIC = 0;
+std::int16_t TELEPORT1ONPIC = 0;
+std::int16_t TELEPORT2ONPIC = 0;
+std::int16_t TELEPORT3ONPIC = 0;
+std::int16_t TELEPORT4ONPIC = 0;
+std::int16_t TELEPORT5ONPIC = 0;
+std::int16_t TELEPORT6ONPIC = 0;
+std::int16_t TELEPORT7ONPIC = 0;
+std::int16_t TELEPORT8ONPIC = 0;
+std::int16_t TELEPORT9ONPIC = 0;
+std::int16_t TELEPORT10ONPIC = 0;
+std::int16_t TELEPORT_TEXT_BG = 0;
+std::int16_t BACKGROUND_SCREENPIC = 0;
+std::int16_t APOGEEPIC = 0;
+std::int16_t PIRACYPIC = 0;
+std::int16_t PC13PIC = 0;
+std::int16_t LOSEPIC = 0;
+std::int16_t AUTOMAPPIC = 0;
+std::int16_t PSPROMO1PIC = 0;
+std::int16_t PSPROMO2PIC = 0;
+std::int16_t PSPROMO3PIC = 0;
+std::int16_t H_ALTPIC = 0;
+std::int16_t H_CTRLPIC = 0;
+std::int16_t H_SPACEPIC = 0;
+std::int16_t H_PAUSEPIC = 0;
+std::int16_t H_ESCPIC = 0;
+std::int16_t H_LTARROWPIC = 0;
+std::int16_t H_UPARROWPIC = 0;
+std::int16_t H_DNARROWPIC = 0;
+std::int16_t H_RTARROWPIC = 0;
+std::int16_t H_ENTERPIC = 0;
+std::int16_t H_QPIC = 0;
+std::int16_t H_WPIC = 0;
+std::int16_t H_EPIC = 0;
+std::int16_t H_IPIC = 0;
+std::int16_t H_HPIC = 0;
+std::int16_t H_1PIC = 0;
+std::int16_t H_2PIC = 0;
+std::int16_t H_3PIC = 0;
+std::int16_t H_4PIC = 0;
+std::int16_t H_5PIC = 0;
+std::int16_t H_F1PIC = 0;
+std::int16_t H_F2PIC = 0;
+std::int16_t H_F3PIC = 0;
+std::int16_t H_F4PIC = 0;
+std::int16_t H_F5PIC = 0;
+std::int16_t H_F6PIC = 0;
+std::int16_t H_F7PIC = 0;
+std::int16_t H_F8PIC = 0;
+std::int16_t H_F9PIC = 0;
+std::int16_t H_F10PIC = 0;
+std::int16_t H_TABPIC = 0;
+std::int16_t H_CPIC = 0;
+std::int16_t H_FPIC = 0;
+std::int16_t H_PPIC = 0;
+std::int16_t H_MPIC = 0;
+std::int16_t H_LPIC = 0;
+std::int16_t H_SHIFTPIC = 0;
+std::int16_t APOGEE_LOGOPIC = 0;
+std::int16_t VISAPIC = 0;
+std::int16_t MCPIC = 0;
+std::int16_t FAXPIC = 0;
+std::int16_t H_TOPWINDOWPIC = 0;
+std::int16_t H_LEFTWINDOWPIC = 0;
+std::int16_t H_RIGHTWINDOWPIC = 0;
+std::int16_t H_BOTTOMINFOPIC = 0;
+std::int16_t C_NOTSELECTEDPIC = 0;
+std::int16_t C_SELECTEDPIC = 0;
+std::int16_t C_NOTSELECTED_HIPIC = 0;
+std::int16_t C_SELECTED_HIPIC = 0;
+std::int16_t C_BABYMODEPIC = 0;
+std::int16_t C_EASYPIC = 0;
+std::int16_t C_NORMALPIC = 0;
+std::int16_t C_HARDPIC = 0;
+std::int16_t C_EPISODE1PIC = 0;
+std::int16_t C_EPISODE2PIC = 0;
+std::int16_t C_EPISODE3PIC = 0;
+std::int16_t C_EPISODE4PIC = 0;
+std::int16_t C_EPISODE5PIC = 0;
+std::int16_t C_EPISODE6PIC = 0;
+std::int16_t BIGGOLDSTERNPIC = 0;
+std::int16_t STARLOGOPIC = 0;
+std::int16_t BLAKEWITHGUNPIC = 0;
+std::int16_t STARINSTITUTEPIC = 0;
+std::int16_t MEDALOFHONORPIC = 0;
+std::int16_t SMALLGOLDSTERNPIC = 0;
+std::int16_t BLAKEWINPIC = 0;
+std::int16_t SHUTTLEEXPPIC = 0;
+std::int16_t PLANETSPIC = 0;
+std::int16_t MOUSEPIC = 0;
+std::int16_t JOYSTICKPIC = 0;
+std::int16_t GRAVISPADPIC = 0;
+std::int16_t TITLEPIC = 0;
+std::int16_t PROMO1PIC = 0;
+std::int16_t PROMO2PIC = 0;
+std::int16_t WEAPON1PIC = 0;
+std::int16_t WEAPON2PIC = 0;
+std::int16_t WEAPON3PIC = 0;
+std::int16_t WEAPON4PIC = 0;
+std::int16_t WEAPON5PIC = 0;
+std::int16_t WAITPIC = 0;
+std::int16_t READYPIC = 0;
+std::int16_t N_BLANKPIC = 0;
+std::int16_t N_0PIC = 0;
+std::int16_t N_1PIC = 0;
+std::int16_t N_2PIC = 0;
+std::int16_t N_3PIC = 0;
+std::int16_t N_4PIC = 0;
+std::int16_t N_5PIC = 0;
+std::int16_t N_6PIC = 0;
+std::int16_t N_7PIC = 0;
+std::int16_t N_8PIC = 0;
+std::int16_t N_9PIC = 0;
+std::int16_t N_RPIC = 0;
+std::int16_t N_OPIC = 0;
+std::int16_t N_LPIC = 0;
+std::int16_t N_DASHPIC = 0;
+std::int16_t DIM_LIGHTPIC = 0;
+std::int16_t BRI_LIGHTPIC = 0;
+std::int16_t ECG_HEART_GOOD = 0;
+std::int16_t ECG_HEART_BAD = 0;
+std::int16_t ECG_GRID_PIECE = 0;
+std::int16_t AMMONUM_BACKGR = 0;
+std::int16_t ECG_HEARTBEAT_00 = 0;
+std::int16_t ECG_HEARTBEAT_01 = 0;
+std::int16_t ECG_HEARTBEAT_02 = 0;
+std::int16_t ECG_HEARTBEAT_03 = 0;
+std::int16_t ECG_HEARTBEAT_04 = 0;
+std::int16_t ECG_HEARTBEAT_05 = 0;
+std::int16_t ECG_HEARTBEAT_06 = 0;
+std::int16_t ECG_HEARTBEAT_07 = 0;
+std::int16_t ECG_HEARTBEAT_08 = 0;
+std::int16_t ECG_HEARTBEAT_09 = 0;
+std::int16_t ECG_HEARTBEAT_10 = 0;
+std::int16_t ECG_HEARTBEAT_11 = 0;
+std::int16_t ECG_HEARTBEAT_12 = 0;
+std::int16_t ECG_HEARTBEAT_13 = 0;
+std::int16_t ECG_HEARTBEAT_14 = 0;
+std::int16_t ECG_HEARTBEAT_15 = 0;
+std::int16_t ECG_HEARTBEAT_16 = 0;
+std::int16_t ECG_HEARTBEAT_17 = 0;
+std::int16_t ECG_HEARTBEAT_18 = 0;
+std::int16_t ECG_HEARTBEAT_19 = 0;
+std::int16_t ECG_HEARTBEAT_20 = 0;
+std::int16_t ECG_HEARTBEAT_21 = 0;
+std::int16_t ECG_HEARTBEAT_22 = 0;
+std::int16_t ECG_HEARTBEAT_23 = 0;
+std::int16_t ECG_HEARTBEAT_24 = 0;
+std::int16_t ECG_HEARTBEAT_25 = 0;
+std::int16_t ECG_HEARTBEAT_26 = 0;
+std::int16_t ECG_HEARTBEAT_27 = 0;
+std::int16_t INFOAREAPIC = 0;
+std::int16_t TOP_STATUSBARPIC = 0;
+std::int16_t STATUSBARPIC = 0;
+std::int16_t PIRACYPALETTE = 0;
+std::int16_t APOGEEPALETTE = 0;
+std::int16_t TITLEPALETTE = 0;
+std::int16_t ORDERSCREEN = 0;
+std::int16_t ERRORSCREEN = 0;
+std::int16_t INFORMANT_HINTS = 0;
+std::int16_t NICE_SCIE_HINTS = 0;
+std::int16_t MEAN_SCIE_HINTS = 0;
+std::int16_t BRIEF_W1 = 0;
+std::int16_t BRIEF_I1 = 0;
+std::int16_t BRIEF_W2 = 0;
+std::int16_t BRIEF_I2 = 0;
+std::int16_t BRIEF_W3 = 0;
+std::int16_t BRIEF_I3 = 0;
+std::int16_t BRIEF_W4 = 0;
+std::int16_t BRIEF_I4 = 0;
+std::int16_t BRIEF_W5 = 0;
+std::int16_t BRIEF_I5 = 0;
+std::int16_t BRIEF_W6 = 0;
+std::int16_t BRIEF_I6 = 0;
+std::int16_t LEVEL_DESCS = 0;
+std::int16_t POWERBALLTEXT = 0;
+std::int16_t TICSTEXT = 0;
+std::int16_t MUSICTEXT = 0;
+std::int16_t RADARTEXT = 0;
+std::int16_t HELPTEXT = 0;
+std::int16_t SAGATEXT = 0;
+std::int16_t LOSETEXT = 0;
+std::int16_t ORDERTEXT = 0;
+std::int16_t CREDITSTEXT = 0;
+std::int16_t MUSTBE386TEXT = 0;
+std::int16_t QUICK_INFO1_TEXT = 0;
+std::int16_t QUICK_INFO2_TEXT = 0;
+std::int16_t BADINFO_TEXT = 0;
+std::int16_t CALJOY1_TEXT = 0;
+std::int16_t CALJOY2_TEXT = 0;
+std::int16_t READTHIS_TEXT = 0;
+std::int16_t ELEVMSG0_TEXT = 0;
+std::int16_t ELEVMSG1_TEXT = 0;
+std::int16_t ELEVMSG4_TEXT = 0;
+std::int16_t ELEVMSG5_TEXT = 0;
+std::int16_t FLOORMSG_TEXT = 0;
+std::int16_t YOUWIN_TEXT = 0;
+std::int16_t CHANGEVIEW_TEXT = 0;
+std::int16_t BADCHECKSUMTEXT = 0;
+std::int16_t DIZ_ERR_TEXT = 0;
+std::int16_t BADLEVELSTEXT = 0;
+std::int16_t BADSAVEGAME_TEXT = 0;
 
-int16_t TELEPORTBACKTOPPIC = 0;
-int16_t TELEPORTBACKBOTPIC = 0;
-int16_t TELEPORT11ONPIC = 0;
-int16_t TELEPORT12ONPIC = 0;
-int16_t TELEPORT13ONPIC = 0;
-int16_t TELEPORT14ONPIC = 0;
-int16_t TELEPORT15ONPIC = 0;
-int16_t TELEPORT16ONPIC = 0;
-int16_t TELEPORT17ONPIC = 0;
-int16_t TELEPORT18ONPIC = 0;
-int16_t TELEPORT19ONPIC = 0;
-int16_t TELEPORT20ONPIC = 0;
-int16_t TELEUPONPIC = 0;
-int16_t TELEDNONPIC = 0;
-int16_t TELEUPOFFPIC = 0;
-int16_t TELEDNOFFPIC = 0;
-int16_t TELEPORT11OFFPIC = 0;
-int16_t TELEPORT12OFFPIC = 0;
-int16_t TELEPORT13OFFPIC = 0;
-int16_t TELEPORT14OFFPIC = 0;
-int16_t TELEPORT15OFFPIC = 0;
-int16_t TELEPORT16OFFPIC = 0;
-int16_t TELEPORT17OFFPIC = 0;
-int16_t TELEPORT18OFFPIC = 0;
-int16_t TELEPORT19OFFPIC = 0;
-int16_t TELEPORT20OFFPIC = 0;
-int16_t AUTOMAP_MAG1PIC = 0;
-int16_t AUTOMAP_MAG2PIC = 0;
-int16_t AUTOMAP_MAG4PIC = 0;
-int16_t H_6PIC = 0;
-int16_t H_TILDEPIC = 0;
-int16_t H_PLUSPIC = 0;
-int16_t H_MINUSPIC = 0;
-int16_t STARPORTPIC = 0;
-int16_t BOSSPIC = 0;
-int16_t THREEPLANETSPIC = 0;
-int16_t SOLARSYSTEMPIC = 0;
-int16_t AOGENDINGPIC = 0;
-int16_t GFLOGOSPIC = 0;
-int16_t BLAKEHEADPIC = 0;
-int16_t PROJECTFOLDERPIC = 0;
-int16_t TITLE1PIC = 0;
-int16_t TITLE2PIC = 0;
-int16_t WEAPON6PIC = 0;
-int16_t WEAPON7PIC = 0;
-int16_t W1_CORNERPIC = 0;
-int16_t W2_CORNERPIC = 0;
-int16_t W3_CORNERPIC = 0;
-int16_t W4_CORNERPIC = 0;
-int16_t W5_CORNERPIC = 0;
-int16_t W6_CORNERPIC = 0;
-int16_t NG_BLANKPIC = 0;
-int16_t NG_0PIC = 0;
-int16_t NG_1PIC = 0;
-int16_t NG_2PIC = 0;
-int16_t NG_3PIC = 0;
-int16_t NG_4PIC = 0;
-int16_t NG_5PIC = 0;
-int16_t NG_6PIC = 0;
-int16_t NG_7PIC = 0;
-int16_t NG_8PIC = 0;
-int16_t NG_9PIC = 0;
-int16_t ONEXZOOMPIC = 0;
-int16_t TWOXZOOMPIC = 0;
-int16_t FOURXZOOMPIC = 0;
-int16_t NO_KEYPIC = 0;
-int16_t RED_KEYPIC = 0;
-int16_t YEL_KEYPIC = 0;
-int16_t BLU_KEYPIC = 0;
-int16_t ENDINGPALETTE = 0;
-int16_t NO386SCREEN = 0;
-int16_t T_DEMO0 = 0;
-int16_t T_DEMO1 = 0;
-int16_t T_DEMO2 = 0;
-int16_t T_DEMO3 = 0;
-int16_t T_DEMO4 = 0;
-int16_t T_DEMO5 = 0;
-int16_t DECOY = 0;
-int16_t DECOY2 = 0;
-int16_t DECOY3 = 0;
-int16_t DECOY4 = 0;
+std::int16_t TELEPORTBACKTOPPIC = 0;
+std::int16_t TELEPORTBACKBOTPIC = 0;
+std::int16_t TELEPORT11ONPIC = 0;
+std::int16_t TELEPORT12ONPIC = 0;
+std::int16_t TELEPORT13ONPIC = 0;
+std::int16_t TELEPORT14ONPIC = 0;
+std::int16_t TELEPORT15ONPIC = 0;
+std::int16_t TELEPORT16ONPIC = 0;
+std::int16_t TELEPORT17ONPIC = 0;
+std::int16_t TELEPORT18ONPIC = 0;
+std::int16_t TELEPORT19ONPIC = 0;
+std::int16_t TELEPORT20ONPIC = 0;
+std::int16_t TELEUPONPIC = 0;
+std::int16_t TELEDNONPIC = 0;
+std::int16_t TELEUPOFFPIC = 0;
+std::int16_t TELEDNOFFPIC = 0;
+std::int16_t TELEPORT11OFFPIC = 0;
+std::int16_t TELEPORT12OFFPIC = 0;
+std::int16_t TELEPORT13OFFPIC = 0;
+std::int16_t TELEPORT14OFFPIC = 0;
+std::int16_t TELEPORT15OFFPIC = 0;
+std::int16_t TELEPORT16OFFPIC = 0;
+std::int16_t TELEPORT17OFFPIC = 0;
+std::int16_t TELEPORT18OFFPIC = 0;
+std::int16_t TELEPORT19OFFPIC = 0;
+std::int16_t TELEPORT20OFFPIC = 0;
+std::int16_t AUTOMAP_MAG1PIC = 0;
+std::int16_t AUTOMAP_MAG2PIC = 0;
+std::int16_t AUTOMAP_MAG4PIC = 0;
+std::int16_t H_6PIC = 0;
+std::int16_t H_TILDEPIC = 0;
+std::int16_t H_PLUSPIC = 0;
+std::int16_t H_MINUSPIC = 0;
+std::int16_t STARPORTPIC = 0;
+std::int16_t BOSSPIC = 0;
+std::int16_t THREEPLANETSPIC = 0;
+std::int16_t SOLARSYSTEMPIC = 0;
+std::int16_t AOGENDINGPIC = 0;
+std::int16_t GFLOGOSPIC = 0;
+std::int16_t BLAKEHEADPIC = 0;
+std::int16_t PROJECTFOLDERPIC = 0;
+std::int16_t TITLE1PIC = 0;
+std::int16_t TITLE2PIC = 0;
+std::int16_t WEAPON6PIC = 0;
+std::int16_t WEAPON7PIC = 0;
+std::int16_t W1_CORNERPIC = 0;
+std::int16_t W2_CORNERPIC = 0;
+std::int16_t W3_CORNERPIC = 0;
+std::int16_t W4_CORNERPIC = 0;
+std::int16_t W5_CORNERPIC = 0;
+std::int16_t W6_CORNERPIC = 0;
+std::int16_t NG_BLANKPIC = 0;
+std::int16_t NG_0PIC = 0;
+std::int16_t NG_1PIC = 0;
+std::int16_t NG_2PIC = 0;
+std::int16_t NG_3PIC = 0;
+std::int16_t NG_4PIC = 0;
+std::int16_t NG_5PIC = 0;
+std::int16_t NG_6PIC = 0;
+std::int16_t NG_7PIC = 0;
+std::int16_t NG_8PIC = 0;
+std::int16_t NG_9PIC = 0;
+std::int16_t ONEXZOOMPIC = 0;
+std::int16_t TWOXZOOMPIC = 0;
+std::int16_t FOURXZOOMPIC = 0;
+std::int16_t NO_KEYPIC = 0;
+std::int16_t RED_KEYPIC = 0;
+std::int16_t YEL_KEYPIC = 0;
+std::int16_t BLU_KEYPIC = 0;
+std::int16_t ENDINGPALETTE = 0;
+std::int16_t NO386SCREEN = 0;
+std::int16_t T_DEMO0 = 0;
+std::int16_t T_DEMO1 = 0;
+std::int16_t T_DEMO2 = 0;
+std::int16_t T_DEMO3 = 0;
+std::int16_t T_DEMO4 = 0;
+std::int16_t T_DEMO5 = 0;
+std::int16_t DECOY = 0;
+std::int16_t DECOY2 = 0;
+std::int16_t DECOY3 = 0;
+std::int16_t DECOY4 = 0;
 
 
 void initialize_gfxv_contants()
@@ -6976,83 +7048,44 @@ void initialize_gfxv_contants()
 
 
 void InitSmartSpeedAnim(
-    objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir,
-    uint16_t Delay)
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir,
+	std::uint16_t Delay)
 {
-    ::InitAnim(
-        obj,
-        ShapeNum,
-        StartOfs,
-        MaxOfs,
-        AnimType,
-        AnimDir,
-        Delay,
-        Delay);
+	::InitAnim(
+		obj,
+		ShapeNum,
+		StartOfs,
+		MaxOfs,
+		AnimType,
+		AnimDir,
+		Delay,
+		Delay);
 }
 
 void InitSmartAnim(
-    objtype* obj,
-    uint16_t ShapeNum,
-    uint8_t StartOfs,
-    uint8_t MaxOfs,
-    animtype_t AnimType,
-    animdir_t AnimDir)
+	objtype* obj,
+	std::uint16_t ShapeNum,
+	std::uint8_t StartOfs,
+	std::uint8_t MaxOfs,
+	animtype_t AnimType,
+	animdir_t AnimDir)
 {
 	const auto& assets_info = AssetsInfo{};
 
-    ::InitSmartSpeedAnim(
-        obj,
-        ShapeNum,
-        StartOfs,
-        MaxOfs,
-        AnimType,
-        AnimDir,
+	::InitSmartSpeedAnim(
+		obj,
+		ShapeNum,
+		StartOfs,
+		MaxOfs,
+		AnimType,
+		AnimDir,
 		assets_info.is_ps() ? 7 : 21);
 }
-
-// ========================================================================
-// ArchiveException
-
-ArchiveException::ArchiveException(
-    const char* message) throw () :
-        message_(message)
-{
-}
-
-ArchiveException::ArchiveException(
-    const ArchiveException& that) throw () :
-        message_(that.message_)
-{
-}
-
-// (virtual)
-ArchiveException::~ArchiveException() throw ()
-{
-}
-
-ArchiveException& ArchiveException::operator=(
-    const ArchiveException& that) throw ()
-{
-    if (&that != this) {
-        message_ = that.message_;
-    }
-
-    return *this;
-}
-
-// (virtual)
-const char* ArchiveException::what() const throw ()
-{
-    return message_;
-}
-
-// ArchiveException
-// ========================================================================
 
 bstone::MemoryStream g_playtemp;
 
@@ -7096,61 +7129,70 @@ static const std::string& get_score_file_name()
 
 static void set_default_high_scores()
 {
-    Scores = {
-        HighScore { "JAM PRODUCTIONS INC.", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-        HighScore { "JERRY JONES", 10000, 1, 0, 0, },
-        HighScore { "MICHAEL MAYNARD", 10000, 1, 0, 0, },
-        HighScore { "JAMES T. ROW", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-        HighScore { "TO REGISTER CALL", 10000, 1, 0, 0, },
-        HighScore { " 1-800-GAME123", 10000, 1, 0, 0, },
-        HighScore { "", 10000, 1, 0, 0, },
-    }; // Scores
+	Scores = {
+		HighScore{"JAM PRODUCTIONS INC.", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+		HighScore{"JERRY JONES", 10000, 1, 0, 0, },
+		HighScore{"MICHAEL MAYNARD", 10000, 1, 0, 0, },
+		HighScore{"JAMES T. ROW", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+		HighScore{"TO REGISTER CALL", 10000, 1, 0, 0, },
+		HighScore{" 1-800-GAME123", 10000, 1, 0, 0, },
+		HighScore{"", 10000, 1, 0, 0, },
+	}; // Scores
 }
 
 void read_high_scores()
 {
-    auto is_succeed = true;
+	auto is_succeed = true;
 
-    auto scores_path = ::get_profile_dir() + ::get_score_file_name();
+	auto scores_path = ::get_profile_dir() + ::get_score_file_name();
 
-    HighScores scores(MaxScores);
-    bstone::FileStream stream(scores_path);
+	auto scores = HighScores{};
+	scores.resize(MaxScores);
 
-    if (stream.is_open()) {
-        bstone::Crc32 check_sum;
-        bstone::BinaryReader reader(&stream);
+	auto stream = bstone::FileStream{scores_path};
 
-        try {
-            for (auto& score : scores) {
-                ::deserialize_field(score.name, reader, check_sum);
-                ::deserialize_field(score.score, reader, check_sum);
-                ::deserialize_field(score.completed, reader, check_sum);
-                ::deserialize_field(score.episode, reader, check_sum);
-                ::deserialize_field(score.ratio, reader, check_sum);
-            }
-        } catch (const ArchiveException&) {
-            is_succeed = false;
-        }
+	if (stream.is_open())
+	{
+		auto archiver = bstone::ArchiverFactory::create();
 
-        if (is_succeed) {
-            uint32_t saved_checksum = 0;
-            reader.read(saved_checksum);
-            bstone::Endian::lei(saved_checksum);
+		try
+		{
+			archiver->initialize(&stream);
 
-            is_succeed = (saved_checksum == check_sum.get_value());
-        }
-    } else {
-        is_succeed = false;
-    }
+			for (auto& score : scores)
+			{
+				archiver->read_char_array(score.name, MaxHighName + 1);
+				score.score = archiver->read_int32();
+				score.completed = archiver->read_uint16();
+				score.episode = archiver->read_uint16();
+				score.ratio = archiver->read_uint16();
+			}
 
-    if (is_succeed) {
-        ::Scores = scores;
-    } else {
-        ::set_default_high_scores();
-    }
+			archiver->read_checksum();
+		}
+		catch (const bstone::ArchiverException& ex)
+		{
+			is_succeed = false;
+
+			bstone::Log::write_error("Failed to unarchive high scores. "s + ex.get_message());
+		}
+	}
+	else
+	{
+		is_succeed = false;
+	}
+
+	if (is_succeed)
+	{
+		::Scores = scores;
+	}
+	else
+	{
+		::set_default_high_scores();
+	}
 }
 
 static void write_high_scores()
@@ -7168,69 +7210,75 @@ static void write_high_scores()
 
 	if (!stream.is_open())
 	{
-		bstone::Log::write_error(
-			"Failed to open a high scores file for writing: {}.",
-			scores_path);
+		bstone::Log::write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
 
 		return;
 	}
 
-	bstone::Crc32 checksum;
-	bstone::BinaryWriter writer(&stream);
+	auto archiver = bstone::ArchiverFactory::create();
 
-	for (const auto& score : Scores)
+	try
 	{
-		::serialize_field(score.name, writer, checksum);
-		::serialize_field(score.score, writer, checksum);
-		::serialize_field(score.completed, writer, checksum);
-		::serialize_field(score.episode, writer, checksum);
-		::serialize_field(score.ratio, writer, checksum);
-	}
+		archiver->initialize(&stream);
 
-	writer.write(bstone::Endian::le(checksum.get_value()));
+		for (const auto& score : Scores)
+		{
+			archiver->write_char_array(score.name, MaxHighName + 1);
+			archiver->write_int32(score.score);
+			archiver->write_uint16(score.completed);
+			archiver->write_uint16(score.episode);
+			archiver->write_uint16(score.ratio);
+		}
+
+		archiver->write_checksum();
+	}
+	catch (const bstone::ArchiverException& ex)
+	{
+		bstone::Log::write_error("Failed to archive high scores data."s + ex.get_message());
+	}
 }
 
 static void set_vanilla_controls()
 {
-    dirscan = {
-        ScanCode::sc_up_arrow,
-        ScanCode::sc_right_arrow,
-        ScanCode::sc_down_arrow,
-        ScanCode::sc_left_arrow,
-    }; // dirscan
+	dirscan = {
+		ScanCode::sc_up_arrow,
+		ScanCode::sc_right_arrow,
+		ScanCode::sc_down_arrow,
+		ScanCode::sc_left_arrow,
+	}; // dirscan
 
-    buttonscan = {
+	buttonscan = {
 #ifdef __vita__
-        ScanCode::sc_y,
+		ScanCode::sc_y,
 #else
-        ScanCode::sc_control,
+		ScanCode::sc_control,
 #endif
-        ScanCode::sc_alt,
-        ScanCode::sc_right_shift,
-        ScanCode::sc_space,
-        ScanCode::sc_1,
-        ScanCode::sc_2,
-        ScanCode::sc_3,
-        ScanCode::sc_4,
-        ScanCode::sc_5,
-        ScanCode::sc_6,
-        ScanCode::sc_7,
-        ScanCode::sc_none,
-    }; // buttonscan
+		ScanCode::sc_alt,
+		ScanCode::sc_right_shift,
+		ScanCode::sc_space,
+		ScanCode::sc_1,
+		ScanCode::sc_2,
+		ScanCode::sc_3,
+		ScanCode::sc_4,
+		ScanCode::sc_5,
+		ScanCode::sc_6,
+		ScanCode::sc_7,
+		ScanCode::sc_none,
+	}; // buttonscan
 
-    buttonmouse = {
-        bt_attack,
-        bt_strafe,
-        bt_use,
-        bt_nobutton,
-    }; // buttonmouse
+	buttonmouse = {
+		bt_attack,
+		bt_strafe,
+		bt_use,
+		bt_nobutton,
+	}; // buttonmouse
 
-    buttonjoy = {
-        bt_attack,
-        bt_strafe,
-        bt_use,
-        bt_run,
-    }; // buttonjoy
+	buttonjoy = {
+		bt_attack,
+		bt_strafe,
+		bt_use,
+		bt_run,
+	}; // buttonjoy
 }
 // BBi
 
@@ -7264,611 +7312,621 @@ const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
 const auto gp_quit_on_escape_name = "gp_quit_on_escape";
 const auto gp_no_intro_outro_name = "gp_no_intro_outro";
 const auto am_is_rotated_name = "am_is_rotated";
+const auto gp_no_fade_in_or_out_name = "gp_no_fade_in_or_out";
 
 
 class ScanCodeHash
 {
 public:
-    std::size_t operator()(
-        const ScanCode scan_code) const
-    {
-        return (std::hash<int>{})(static_cast<int>(scan_code));
-    }
+	std::size_t operator()(
+		const ScanCode scan_code) const
+	{
+		return (std::hash<int>{})(static_cast<int>(scan_code));
+	}
 }; // ScanCodeHash
 
 const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCodeHash>{
-    {ScanCode::sc_return, "return",},
-    {ScanCode::sc_escape, "escape",},
-    {ScanCode::sc_space, "space",},
-    {ScanCode::sc_minus, "minus",},
-    {ScanCode::sc_equals, "equals",},
-    {ScanCode::sc_backspace, "backspace",},
-    {ScanCode::sc_tab, "tab",},
-    {ScanCode::sc_alt, "alt",},
-    {ScanCode::sc_left_bracket, "left_bracket",},
-    {ScanCode::sc_right_bracket, "right_bracket",},
-    {ScanCode::sc_control, "control",},
-    {ScanCode::sc_caps_lock, "caps_lock",},
-    {ScanCode::sc_num_lock, "num_lock",},
-    {ScanCode::sc_scroll_lock, "scroll_lock",},
-    {ScanCode::sc_left_shift, "left_shift",},
-    {ScanCode::sc_right_shift, "right_shift",},
-    {ScanCode::sc_up_arrow, "up_arrow",},
-    {ScanCode::sc_down_arrow, "down_arrow",},
-    {ScanCode::sc_left_arrow, "left_arrow",},
-    {ScanCode::sc_right_arrow, "right_arrow",},
-    {ScanCode::sc_insert, "insert",},
-    {ScanCode::sc_delete, "delete",},
-    {ScanCode::sc_home, "home",},
-    {ScanCode::sc_end, "end",},
-    {ScanCode::sc_page_up, "page_up",},
-    {ScanCode::sc_page_down, "page_down",},
-    {ScanCode::sc_slash, "slash",},
-    {ScanCode::sc_f1, "f1",},
-    {ScanCode::sc_f2, "f2",},
-    {ScanCode::sc_f3, "f3",},
-    {ScanCode::sc_f4, "f4",},
-    {ScanCode::sc_f5, "f5",},
-    {ScanCode::sc_f6, "f6",},
-    {ScanCode::sc_f7, "f7",},
-    {ScanCode::sc_f8, "f8",},
-    {ScanCode::sc_f9, "f9",},
-    {ScanCode::sc_f10, "f10",},
-    {ScanCode::sc_f11, "f11",},
-    {ScanCode::sc_f12, "f12",},
-    {ScanCode::sc_print_screen, "print_screen",},
-    {ScanCode::sc_pause, "pause",},
-    {ScanCode::sc_back_quote, "back_quote",},
-    {ScanCode::sc_semicolon, "semicolon",},
-    {ScanCode::sc_quote, "quote",},
-    {ScanCode::sc_backslash, "backslash",},
-    {ScanCode::sc_comma, "comma",},
-    {ScanCode::sc_period, "period",},
-    {ScanCode::sc_1, "1",},
-    {ScanCode::sc_2, "2",},
-    {ScanCode::sc_3, "3",},
-    {ScanCode::sc_4, "4",},
-    {ScanCode::sc_5, "5",},
-    {ScanCode::sc_6, "6",},
-    {ScanCode::sc_7, "7",},
-    {ScanCode::sc_8, "8",},
-    {ScanCode::sc_9, "9",},
-    {ScanCode::sc_0, "0",},
-    {ScanCode::sc_a, "a",},
-    {ScanCode::sc_b, "b",},
-    {ScanCode::sc_c, "c",},
-    {ScanCode::sc_d, "d",},
-    {ScanCode::sc_e, "e",},
-    {ScanCode::sc_f, "f",},
-    {ScanCode::sc_g, "g",},
-    {ScanCode::sc_h, "h",},
-    {ScanCode::sc_i, "i",},
-    {ScanCode::sc_j, "j",},
-    {ScanCode::sc_k, "k",},
-    {ScanCode::sc_l, "l",},
-    {ScanCode::sc_m, "m",},
-    {ScanCode::sc_n, "n",},
-    {ScanCode::sc_o, "o",},
-    {ScanCode::sc_p, "p",},
-    {ScanCode::sc_q, "q",},
-    {ScanCode::sc_r, "r",},
-    {ScanCode::sc_s, "s",},
-    {ScanCode::sc_t, "t",},
-    {ScanCode::sc_u, "u",},
-    {ScanCode::sc_v, "v",},
-    {ScanCode::sc_w, "w",},
-    {ScanCode::sc_x, "x",},
-    {ScanCode::sc_y, "y",},
-    {ScanCode::sc_z, "z",},
-    {ScanCode::sc_kp_minus, "kp_minus",},
-    {ScanCode::sc_kp_plus, "kp_plus",},
-    {ScanCode::sc_mouse_left, "mouse_left",},
-    {ScanCode::sc_mouse_middle, "mouse_middle",},
-    {ScanCode::sc_mouse_right, "mouse_right",},
-    {ScanCode::sc_mouse_x1, "mouse_x1",},
-    {ScanCode::sc_mouse_x2, "mouse_x2",},
+	{ScanCode::sc_return, "return", },
+{ScanCode::sc_escape, "escape", },
+{ScanCode::sc_space, "space", },
+{ScanCode::sc_minus, "minus", },
+{ScanCode::sc_equals, "equals", },
+{ScanCode::sc_backspace, "backspace", },
+{ScanCode::sc_tab, "tab", },
+{ScanCode::sc_alt, "alt", },
+{ScanCode::sc_left_bracket, "left_bracket", },
+{ScanCode::sc_right_bracket, "right_bracket", },
+{ScanCode::sc_control, "control", },
+{ScanCode::sc_caps_lock, "caps_lock", },
+{ScanCode::sc_num_lock, "num_lock", },
+{ScanCode::sc_scroll_lock, "scroll_lock", },
+{ScanCode::sc_left_shift, "left_shift", },
+{ScanCode::sc_right_shift, "right_shift", },
+{ScanCode::sc_up_arrow, "up_arrow", },
+{ScanCode::sc_down_arrow, "down_arrow", },
+{ScanCode::sc_left_arrow, "left_arrow", },
+{ScanCode::sc_right_arrow, "right_arrow", },
+{ScanCode::sc_insert, "insert", },
+{ScanCode::sc_delete, "delete", },
+{ScanCode::sc_home, "home", },
+{ScanCode::sc_end, "end", },
+{ScanCode::sc_page_up, "page_up", },
+{ScanCode::sc_page_down, "page_down", },
+{ScanCode::sc_slash, "slash", },
+{ScanCode::sc_f1, "f1", },
+{ScanCode::sc_f2, "f2", },
+{ScanCode::sc_f3, "f3", },
+{ScanCode::sc_f4, "f4", },
+{ScanCode::sc_f5, "f5", },
+{ScanCode::sc_f6, "f6", },
+{ScanCode::sc_f7, "f7", },
+{ScanCode::sc_f8, "f8", },
+{ScanCode::sc_f9, "f9", },
+{ScanCode::sc_f10, "f10", },
+{ScanCode::sc_f11, "f11", },
+{ScanCode::sc_f12, "f12", },
+{ScanCode::sc_print_screen, "print_screen", },
+{ScanCode::sc_pause, "pause", },
+{ScanCode::sc_back_quote, "back_quote", },
+{ScanCode::sc_semicolon, "semicolon", },
+{ScanCode::sc_quote, "quote", },
+{ScanCode::sc_backslash, "backslash", },
+{ScanCode::sc_comma, "comma", },
+{ScanCode::sc_period, "period", },
+{ScanCode::sc_1, "1", },
+{ScanCode::sc_2, "2", },
+{ScanCode::sc_3, "3", },
+{ScanCode::sc_4, "4", },
+{ScanCode::sc_5, "5", },
+{ScanCode::sc_6, "6", },
+{ScanCode::sc_7, "7", },
+{ScanCode::sc_8, "8", },
+{ScanCode::sc_9, "9", },
+{ScanCode::sc_0, "0", },
+{ScanCode::sc_a, "a", },
+{ScanCode::sc_b, "b", },
+{ScanCode::sc_c, "c", },
+{ScanCode::sc_d, "d", },
+{ScanCode::sc_e, "e", },
+{ScanCode::sc_f, "f", },
+{ScanCode::sc_g, "g", },
+{ScanCode::sc_h, "h", },
+{ScanCode::sc_i, "i", },
+{ScanCode::sc_j, "j", },
+{ScanCode::sc_k, "k", },
+{ScanCode::sc_l, "l", },
+{ScanCode::sc_m, "m", },
+{ScanCode::sc_n, "n", },
+{ScanCode::sc_o, "o", },
+{ScanCode::sc_p, "p", },
+{ScanCode::sc_q, "q", },
+{ScanCode::sc_r, "r", },
+{ScanCode::sc_s, "s", },
+{ScanCode::sc_t, "t", },
+{ScanCode::sc_u, "u", },
+{ScanCode::sc_v, "v", },
+{ScanCode::sc_w, "w", },
+{ScanCode::sc_x, "x", },
+{ScanCode::sc_y, "y", },
+{ScanCode::sc_z, "z", },
+{ScanCode::sc_kp_minus, "kp_minus", },
+{ScanCode::sc_kp_plus, "kp_plus", },
+{ScanCode::sc_mouse_left, "mouse_left", },
+{ScanCode::sc_mouse_middle, "mouse_middle", },
+{ScanCode::sc_mouse_right, "mouse_right", },
+{ScanCode::sc_mouse_x1, "mouse_x1", },
+{ScanCode::sc_mouse_x2, "mouse_x2", },
 };
 
 
 bool parse_config_line(
-    const std::string& line,
-    std::string& name,
-    int& index0,
-    int& index1,
-    std::string& value)
+	const std::string& line,
+	std::string& name,
+	int& index0,
+	int& index1,
+	std::string& value)
 {
-    if (line.empty())
-    {
-        return false;
-    }
+	if (line.empty())
+	{
+		return false;
+	}
 
-    const auto comment_position = line.find("//");
+	const auto comment_position = line.find("//");
 
-    if (comment_position != line.npos)
-    {
-        return false;
-    }
-
-
-    const auto name_end_space = line.find(' ');
-
-    if (name_end_space == line.npos)
-    {
-        return false;
-    }
+	if (comment_position != line.npos)
+	{
+		return false;
+	}
 
 
-    const auto value_begin_quotes = line.find('\"', name_end_space);
+	const auto name_end_space = line.find(' ');
 
-    if (value_begin_quotes == line.npos)
-    {
-        return false;
-    }
-
-
-    const auto value_end_quotes = line.find('\"', value_begin_quotes + 1);
-
-    if (value_end_quotes == line.npos)
-    {
-        return false;
-    }
+	if (name_end_space == line.npos)
+	{
+		return false;
+	}
 
 
-    const auto full_name = line.substr(0, name_end_space);
+	const auto value_begin_quotes = line.find('\"', name_end_space);
 
-    if (full_name.empty())
-    {
-        return false;
-    }
-
-    if (value_end_quotes > value_begin_quotes)
-    {
-        value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes - 1);
-    }
-    else
-    {
-        value.clear();
-    }
+	if (value_begin_quotes == line.npos)
+	{
+		return false;
+	}
 
 
-    index0 = -1;
-    index1 = -1;
-    const auto index0_begin_bracket = full_name.find('[');
-    const auto index0_end_bracket = full_name.find(']');
-    const auto has_index0 = (index0_begin_bracket != full_name.npos && index0_end_bracket != full_name.npos);
+	const auto value_end_quotes = line.find('\"', value_begin_quotes + 1);
 
-    if (has_index0)
-    {
-        name = full_name.substr(0, index0_begin_bracket);
-    }
-    else
-    {
-        name = full_name;
-    }
+	if (value_end_quotes == line.npos)
+	{
+		return false;
+	}
 
-    if (has_index0)
-    {
-        const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
 
-        if (!bstone::StringHelper::lexical_cast(index0_string, index0))
-        {
-            return false;
-        }
-    }
+	const auto full_name = line.substr(0, name_end_space);
 
-    if (has_index0)
-    {
-        const auto index1_begin_bracket = full_name.find('[', index0_end_bracket + 1);
-        const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
-        const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
+	if (full_name.empty())
+	{
+		return false;
+	}
 
-        const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
+	if (value_end_quotes > value_begin_quotes)
+	{
+		value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes - 1);
+	}
+	else
+	{
+		value.clear();
+	}
 
-        if (!bstone::StringHelper::lexical_cast(index1_string, index1))
-        {
-            return false;
-        }
-    }
 
-    return true;
+	index0 = -1;
+	index1 = -1;
+	const auto index0_begin_bracket = full_name.find('[');
+	const auto index0_end_bracket = full_name.find(']');
+	const auto has_index0 = (index0_begin_bracket != full_name.npos && index0_end_bracket != full_name.npos);
+
+	if (has_index0)
+	{
+		name = full_name.substr(0, index0_begin_bracket);
+	}
+	else
+	{
+		name = full_name;
+	}
+
+	if (has_index0)
+	{
+		const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
+
+		if (!bstone::StringHelper::string_to_int(index0_string, index0))
+		{
+			return false;
+		}
+	}
+
+	if (has_index0)
+	{
+		const auto index1_begin_bracket = full_name.find('[', index0_end_bracket + 1);
+		const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
+		const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
+
+		const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
+
+		if (!bstone::StringHelper::string_to_int(index1_string, index1))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void set_config_defaults()
 {
-    ::mouseenabled = true;
+	::mouseenabled = true;
 
-    ::joystickenabled = false;
-    ::joypadenabled = false;
-    ::joystickport = 0;
-    ::joystickprogressive = false;
+	::joystickenabled = false;
+	::joypadenabled = false;
+	::joystickport = 0;
+	::joystickprogressive = false;
 
-    ::set_vanilla_controls();
-    ::in_set_default_bindings();
+	::set_vanilla_controls();
+	::in_set_default_bindings();
 
-    ::mouseadjustment = ::default_mouse_sensitivity;
+	::mouseadjustment = ::default_mouse_sensitivity;
 
-    ::gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
-    ::gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
+	::gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
+	::gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
 
-    ::sd_sfx_volume = ::sd_default_sfx_volume;
-    ::sd_music_volume = ::sd_default_music_volume;
+	::sd_sfx_volume = ::sd_default_sfx_volume;
+	::sd_music_volume = ::sd_default_music_volume;
 
-    ::g_no_wall_hit_sound = default_no_wall_hit_sound;
-    ::in_use_modern_bindings = default_in_use_modern_bindings;
-    ::g_always_run = default_always_run;
+	::g_no_wall_hit_sound = default_no_wall_hit_sound;
+	::in_use_modern_bindings = default_in_use_modern_bindings;
+	::g_always_run = default_always_run;
 
-    ::g_heart_beat_sound = ::default_heart_beat_sound;
-    ::g_rotated_automap = ::default_rotated_automap;
+	::g_heart_beat_sound = ::default_heart_beat_sound;
+	::g_rotated_automap = ::default_rotated_automap;
 
-    ::g_quit_on_escape = ::default_quit_on_escape;
-    ::g_no_intro_outro = ::default_g_no_intro_outro;
+	::g_quit_on_escape = ::default_quit_on_escape;
+	::g_no_intro_outro = ::default_g_no_intro_outro;
 
-    ::vid_widescreen = ::default_vid_widescreen;
+	::vid_widescreen = ::default_vid_widescreen;
 }
 
 ScanCode get_scan_code_by_name(
-    const std::string& name)
+	const std::string& name)
 {
-    const auto it = std::find_if(
-        scan_code_name_map.cbegin(),
-        scan_code_name_map.cend(),
-        [&](const std::pair<ScanCode, std::string>& item)
-        {
-            return item.second == name;
-        }
-    );
+	const auto it = std::find_if(
+		scan_code_name_map.cbegin(),
+		scan_code_name_map.cend(),
+		[&](const std::pair<ScanCode, std::string>& item)
+	{
+		return item.second == name;
+	}
+	);
 
-    if (it == scan_code_name_map.cend())
-    {
-        return ScanCode::sc_none;
-    }
+	if (it == scan_code_name_map.cend())
+	{
+		return ScanCode::sc_none;
+	}
 
-    return it->first;
+	return it->first;
 }
 
 void read_text_config()
 {
-    ::is_config_loaded = true;
+	::is_config_loaded = true;
 
 
-    const auto default_game_state_flags = uint16_t{
-        GS_HEARTB_SOUND |
-        GS_ATTACK_INFOAREA |
-        GS_LIGHTING |
-        GS_DRAW_CEILING |
-        GS_DRAW_FLOOR
-    };
+	const auto default_game_state_flags = std::uint16_t{
+		GS_HEARTB_SOUND |
+		GS_ATTACK_INFOAREA |
+		GS_LIGHTING |
+		GS_DRAW_CEILING |
+		GS_DRAW_FLOOR
+	};
 
-    auto is_sound_enabled = true;
-    auto is_music_enabled = true;
-    auto game_state_flags = default_game_state_flags;
-
-
-    set_config_defaults();
-
-    const auto config_path = ::get_profile_dir() + ::text_config_file_name;
-
-    bstone::FileStream stream{config_path};
-
-    if (stream.is_open())
-    {
-        bstone::TextReader reader{&stream};
-
-        if (reader.is_open())
-        {
-            while (!reader.is_eos())
-            {
-                const auto line = reader.read_line();
-
-                auto name = std::string{};
-                auto index0 = int{};
-                auto index1 = int{};
-                auto value_string = std::string{};
-
-                if (parse_config_line(line, name, index0, index1, value_string))
-                {
-                    if (name == vid_is_widescreen_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::vid_widescreen = (value != 0);
-                        }
-                    }
-                    else if (name == vid_is_ui_stretched_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::vid_is_ui_stretched = (value != 0);
-                        }
-                    }
-                    else if (name == snd_is_sfx_enabled_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            is_sound_enabled = (value != 0);
-                        }
-                    }
-                    else if (name == snd_is_music_enabled_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            is_music_enabled = (value != 0);
-                        }
-                    }
-                    else if (name == snd_sfx_volume_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::sd_sfx_volume = value;
-                        }
-
-                        if (::sd_sfx_volume < ::sd_min_volume)
-                        {
-                            ::sd_sfx_volume = ::sd_min_volume;
-                        }
-
-                        if (::sd_sfx_volume > ::sd_max_volume)
-                        {
-                            ::sd_sfx_volume = ::sd_max_volume;
-                        }
-                    }
-                    else if (name == snd_music_volume_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::sd_music_volume = value;
-                        }
-
-                        if (::sd_music_volume < ::sd_min_volume)
-                        {
-                            ::sd_music_volume = ::sd_min_volume;
-                        }
-
-                        if (::sd_music_volume > ::sd_max_volume)
-                        {
-                            ::sd_music_volume = ::sd_max_volume;
-                        }
-                    }
-                    else if (name == in_use_modern_bindings_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::in_use_modern_bindings = (value != 0);
-                        }
-                    }
-                    else if (name == in_mouse_sensitivity_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::mouseadjustment = value;
-                        }
-
-                        if (::mouseadjustment < min_mouse_sensitivity)
-                        {
-                            ::mouseadjustment = min_mouse_sensitivity;
-                        }
-
-                        if (::mouseadjustment > max_mouse_sensitivity)
-                        {
-                            ::mouseadjustment = max_mouse_sensitivity;
-                        }
-                    }
-                    else if (name == in_is_mouse_enabled_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::mouseenabled = (value != 0);
-                        }
-                    }
-                    else if (name == in_is_joystick_enabled_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::joystickenabled = (value != 0);
-                        }
-                    }
-                    else if (name == in_is_joystick_pad_enabled_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::joypadenabled = (value != 0);
-                        }
-                    }
-                    else if (name == in_is_joystick_progressive_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::joystickprogressive = (value != 0);
-                        }
-                    }
-                    else if (name == in_joystick_port_name)
-                    {
-                        auto value = int16_t{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::joystickport = value;
-                        }
-
-                        if (::joystickport < 0)
-                        {
-                            ::joystickport = 0;
-                        }
-                    }
-                    else if (name == in_mouse_binding_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::dirscan.size()))
-                            {
-                                ::dirscan[index0] = get_scan_code_by_name(value_string);
-                            }
-                        }
-                    }
-                    else if (name == in_kb_binding_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::buttonscan.size()))
-                            {
-                                ::buttonscan[index0] = get_scan_code_by_name(value_string);
-                            }
-                        }
-                    }
-                    else if (name == in_mouse_button_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
-                            {
-                                auto value = int16_t{};
-
-                                if (bstone::StringHelper::lexical_cast(value_string, value))
-                                {
-                                    ::buttonmouse[index0] = value;
-                                }
-
-                                if (::buttonmouse[index0] < 0)
-                                {
-                                    ::buttonmouse[index0] = 0;
-                                }
-                            }
-                        }
-                    }
-                    else if (name == in_js_button_name)
-                    {
-                        if (index1 < 0)
-                        {
-                            if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
-                            {
-                                auto value = int16_t{};
-
-                                if (bstone::StringHelper::lexical_cast(value_string, value))
-                                {
-                                    ::buttonjoy[index0] = value;
-                                }
-
-                                if (::buttonjoy[index0] < 0)
-                                {
-                                    ::buttonjoy[index0] = 0;
-                                }
-                            }
-                        }
-                    }
-                    else if (name == in_binding_name)
-                    {
-                        static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
-
-                        constexpr auto bindings_count = static_cast<int>(std::extent<Bindings, 0>::value);
-
-                        if (index0 >= 0 && index0 < bindings_count && index1 >= 0 && index1 < bindings_count)
-                        {
-                            ::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
-                        }
-                    }
-                    else if (name == gp_flags_name)
-                    {
-                        auto value = uint16_t{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            game_state_flags = value;
-                        }
-                    }
-                    else if (name == gp_no_wall_hit_sfx_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::g_no_wall_hit_sound = (value != 0);
-                        }
-                    }
-                    else if (name == gp_is_always_run_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::g_always_run = (value != 0);
-                        }
-                    }
-                    else if (name == gp_use_heart_beat_sfx_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::g_heart_beat_sound = (value != 0);
-                        }
-                    }
-                    else if (name == gp_quit_on_escape_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::g_quit_on_escape = (value != 0);
-                        }
-                    }
-                    else if (name == gp_no_intro_outro_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::g_no_intro_outro = (value != 0);
-                        }
-                    }
-                    else if (name == am_is_rotated_name)
-                    {
-                        auto value = int{};
-
-                        if (bstone::StringHelper::lexical_cast(value_string, value))
-                        {
-                            ::g_rotated_automap = (value != 0);
-                        }
-                    }
-                }
-            }
-        }
-    }
+	auto is_sound_enabled = true;
+	auto is_music_enabled = true;
+	auto game_state_flags = default_game_state_flags;
 
 
-    ::gamestate.flags &= ~default_game_state_flags;
-    ::gamestate.flags |= game_state_flags;
+	set_config_defaults();
 
-    ::SD_EnableSound(is_sound_enabled);
-    ::SD_EnableMusic(is_music_enabled);
+	const auto config_path = ::get_profile_dir() + ::text_config_file_name;
 
-    ::sd_set_sfx_volume(sd_sfx_volume);
-    ::sd_set_music_volume(sd_music_volume);
+	bstone::FileStream stream{config_path};
 
-    ::vl_update_widescreen();
+	if (stream.is_open())
+	{
+		auto reader = bstone::TextReader{&stream};
+
+		if (reader.is_open())
+		{
+			while (!reader.is_eos())
+			{
+				const auto line = reader.read_line();
+
+				auto name = std::string{};
+				auto index0 = int{};
+				auto index1 = int{};
+				auto value_string = std::string{};
+
+				if (parse_config_line(line, name, index0, index1, value_string))
+				{
+					if (name == vid_is_widescreen_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::vid_widescreen = (value != 0);
+						}
+					}
+					else if (name == vid_is_ui_stretched_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::vid_is_ui_stretched = (value != 0);
+						}
+					}
+					else if (name == snd_is_sfx_enabled_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							is_sound_enabled = (value != 0);
+						}
+					}
+					else if (name == snd_is_music_enabled_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							is_music_enabled = (value != 0);
+						}
+					}
+					else if (name == snd_sfx_volume_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::sd_sfx_volume = value;
+						}
+
+						if (::sd_sfx_volume < ::sd_min_volume)
+						{
+							::sd_sfx_volume = ::sd_min_volume;
+						}
+
+						if (::sd_sfx_volume > ::sd_max_volume)
+						{
+							::sd_sfx_volume = ::sd_max_volume;
+						}
+					}
+					else if (name == snd_music_volume_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::sd_music_volume = value;
+						}
+
+						if (::sd_music_volume < ::sd_min_volume)
+						{
+							::sd_music_volume = ::sd_min_volume;
+						}
+
+						if (::sd_music_volume > ::sd_max_volume)
+						{
+							::sd_music_volume = ::sd_max_volume;
+						}
+					}
+					else if (name == in_use_modern_bindings_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::in_use_modern_bindings = (value != 0);
+						}
+					}
+					else if (name == in_mouse_sensitivity_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::mouseadjustment = value;
+						}
+
+						if (::mouseadjustment < min_mouse_sensitivity)
+						{
+							::mouseadjustment = min_mouse_sensitivity;
+						}
+
+						if (::mouseadjustment > max_mouse_sensitivity)
+						{
+							::mouseadjustment = max_mouse_sensitivity;
+						}
+					}
+					else if (name == in_is_mouse_enabled_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::mouseenabled = (value != 0);
+						}
+					}
+					else if (name == in_is_joystick_enabled_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::joystickenabled = (value != 0);
+						}
+					}
+					else if (name == in_is_joystick_pad_enabled_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::joypadenabled = (value != 0);
+						}
+					}
+					else if (name == in_is_joystick_progressive_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::joystickprogressive = (value != 0);
+						}
+					}
+					else if (name == in_joystick_port_name)
+					{
+						std::int16_t value;
+
+						if (bstone::StringHelper::string_to_int16(value_string, value))
+						{
+							::joystickport = value;
+						}
+
+						if (::joystickport < 0)
+						{
+							::joystickport = 0;
+						}
+					}
+					else if (name == in_mouse_binding_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::dirscan.size()))
+							{
+								::dirscan[index0] = get_scan_code_by_name(value_string);
+							}
+						}
+					}
+					else if (name == in_kb_binding_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::buttonscan.size()))
+							{
+								::buttonscan[index0] = get_scan_code_by_name(value_string);
+							}
+						}
+					}
+					else if (name == in_mouse_button_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
+							{
+								auto value = std::int16_t{};
+
+								if (bstone::StringHelper::string_to_int16(value_string, value))
+								{
+									::buttonmouse[index0] = value;
+								}
+
+								if (::buttonmouse[index0] < 0)
+								{
+									::buttonmouse[index0] = 0;
+								}
+							}
+						}
+					}
+					else if (name == in_js_button_name)
+					{
+						if (index1 < 0)
+						{
+							if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
+							{
+								auto value = std::int16_t{};
+
+								if (bstone::StringHelper::string_to_int16(value_string, value))
+								{
+									::buttonjoy[index0] = value;
+								}
+
+								if (::buttonjoy[index0] < 0)
+								{
+									::buttonjoy[index0] = 0;
+								}
+							}
+						}
+					}
+					else if (name == in_binding_name)
+					{
+						static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
+
+						constexpr auto bindings_count = static_cast<int>(std::extent<Bindings, 0>::value);
+
+						if (index0 >= 0 && index0 < bindings_count && index1 >= 0 && index1 < bindings_count)
+						{
+							::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
+						}
+					}
+					else if (name == gp_flags_name)
+					{
+						std::uint16_t value;
+
+						if (bstone::StringHelper::string_to_uint16(value_string, value))
+						{
+							game_state_flags = value;
+						}
+					}
+					else if (name == gp_no_wall_hit_sfx_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_no_wall_hit_sound = (value != 0);
+						}
+					}
+					else if (name == gp_is_always_run_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_always_run = (value != 0);
+						}
+					}
+					else if (name == gp_use_heart_beat_sfx_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_heart_beat_sound = (value != 0);
+						}
+					}
+					else if (name == gp_quit_on_escape_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_quit_on_escape = (value != 0);
+						}
+					}
+					else if (name == gp_no_intro_outro_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_no_intro_outro = (value != 0);
+						}
+					}
+					else if (name == am_is_rotated_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_rotated_automap = (value != 0);
+						}
+					}
+					else if (name == ::gp_no_fade_in_or_out_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::g_no_fade_in_or_out = (value != 0);
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	::gamestate.flags &= ~default_game_state_flags;
+	::gamestate.flags |= game_state_flags;
+
+	::SD_EnableSound(is_sound_enabled);
+	::SD_EnableMusic(is_music_enabled);
+
+	::sd_set_sfx_volume(sd_sfx_volume);
+	::sd_set_music_volume(sd_music_volume);
+
+	::vl_update_widescreen();
 }
 
 
@@ -7877,7 +7935,7 @@ void read_text_config()
 
 void ReadConfig()
 {
-    read_text_config();
+	read_text_config();
 }
 
 
@@ -7886,199 +7944,168 @@ namespace
 
 
 template<typename T>
-class ToString
-{
-public:
-    static bool convert(
-        T&& src_value,
-        std::string& dst_value)
-    {
-        return bstone::StringHelper::lexical_cast(src_value, dst_value);
-    }
-};
-
-template<>
-class ToString<bool>
-{
-public:
-    static bool convert(
-        const bool src_value,
-        std::string& dst_value)
-    {
-        dst_value = (src_value ? "1" : "0");
-
-        return true;
-    }
-};
-
-
-template<typename T>
 void write_config_entry(
-    bstone::TextWriter& writer,
-    const std::string& name,
-    T&& value)
+	bstone::TextWriter& writer,
+	const std::string& name,
+	T&& value)
 {
-    auto value_string = std::string{};
+	auto&& value_string = std::to_string(value);
 
-    if (!ToString<T>::convert(value, value_string))
-    {
-        bstone::Log::write_warning("Failed to convert value for setting \"{}\".", name);
-    }
+	const auto string = name + " \"" + value_string + "\"\n";
 
-    const auto string = name + " \"" + value_string + "\"\n";
-
-    if (!writer.write(string))
-    {
-        bstone::Log::write_warning("Failed to write setting \"{}\".", name);
-    }
+	if (!writer.write(string))
+	{
+		bstone::Log::write_warning("Failed to write setting \"" + name + "\".");
+	}
 }
 
 const std::string& get_scan_code_name(
-    ScanCode scan_code)
+	ScanCode scan_code)
 {
-    static const auto empty_name = std::string{};
+	static const auto empty_name = std::string{};
 
-    const auto it = scan_code_name_map.find(scan_code);
+	const auto it = scan_code_name_map.find(scan_code);
 
-    if (it == scan_code_name_map.cend())
-    {
-        return empty_name;
-    }
+	if (it == scan_code_name_map.cend())
+	{
+		return empty_name;
+	}
 
-    return it->second;
+	return it->second;
 }
 
 void write_x_scan_config(
-    const ScanCodes& scan_codes,
-    const std::string& name_prefix,
-    bstone::TextWriter& writer)
+	const ScanCodes& scan_codes,
+	const std::string& name_prefix,
+	bstone::TextWriter& writer)
 {
-    auto line = std::string{};
+	auto line = std::string{};
 
-    auto counter = 0;
+	auto counter = 0;
 
-    for (const auto scan_code : scan_codes)
-    {
-        const auto scan_code_name = get_scan_code_name(scan_code);
+	for (const auto scan_code : scan_codes)
+	{
+		const auto scan_code_name = get_scan_code_name(scan_code);
 
-        line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
-        writer.write(line);
+		line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
+		writer.write(line);
 
-        counter += 1;
-    }
+		counter += 1;
+	}
 }
 
 void write_buttons_config(
-    const Buttons& buttons,
-    const std::string& name_prefix,
-    bstone::TextWriter& writer)
+	const Buttons& buttons,
+	const std::string& name_prefix,
+	bstone::TextWriter& writer)
 {
-    auto line = std::string{};
+	auto line = std::string{};
 
-    auto counter = 0;
+	auto counter = 0;
 
-    for (const auto button : buttons)
-    {
-        line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
-        writer.write(line);
+	for (const auto button : buttons)
+	{
+		line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
+		writer.write(line);
 
-        counter += 1;
-    }
+		counter += 1;
+	}
 }
 
 void write_bindings_config(
-    const std::string& name_prefix,
-    bstone::TextWriter& writer)
+	const std::string& name_prefix,
+	bstone::TextWriter& writer)
 {
-    auto line = std::string{};
+	auto line = std::string{};
 
-    auto counter0 = 0;
+	auto counter0 = 0;
 
-    for (const auto& binding : in_bindings)
-    {
-        const auto& counter0_string = std::to_string(counter0);
+	for (const auto& binding : in_bindings)
+	{
+		const auto& counter0_string = std::to_string(counter0);
 
-        auto counter1 = 0;
+		auto counter1 = 0;
 
-        for (const auto scan_code : binding)
-        {
-            const auto& scan_code_name = get_scan_code_name(scan_code);
-            const auto& counter1_string = std::to_string(counter1);
+		for (const auto scan_code : binding)
+		{
+			const auto& scan_code_name = get_scan_code_name(scan_code);
+			const auto& counter1_string = std::to_string(counter1);
 
-            line = name_prefix +
-                "[" + counter0_string + "][" + counter1_string + "] \"" +
-                scan_code_name + "\"\n";
+			line = name_prefix +
+				"[" + counter0_string + "][" + counter1_string + "] \"" +
+				scan_code_name + "\"\n";
 
-            writer.write(line);
+			writer.write(line);
 
-            counter1 += 1;
-        }
+			counter1 += 1;
+		}
 
-        counter0 += 1;
-    }
+		counter0 += 1;
+	}
 }
 
 void write_text_config()
 {
-    constexpr auto memory_stream_initial_size = 4096;
+	constexpr auto memory_stream_initial_size = 4096;
 
-    bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
-    bstone::TextWriter writer{&memory_stream};
-
-
-    writer.write("// BStone configuration file\n");
-    writer.write("// WARNING! This is auto-generated file.\n");
-    writer.write("\n");
-
-    writer.write("\n// Video\n");
-    write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
-    write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
-
-    writer.write("\n// Audio\n");
-    write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
-    write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
-    write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
-    write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
-
-    writer.write("\n// Input\n");
-    write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
-    write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
-    write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
-    write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
-    write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
-    write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
-    write_config_entry(writer, in_joystick_port_name, ::joystickport);
-
-    writer.write("\n// Input bindings\n");
-    write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
-    write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
-    write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
-    write_buttons_config(::buttonjoy, in_js_button_name, writer);
-    write_bindings_config(::in_binding_name, writer);
-
-    writer.write("\n// Gameplay\n");
-    write_config_entry(writer, gp_flags_name, ::gamestate.flags);
-    write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
-    write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
-    write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
-    write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
-    write_config_entry(writer, gp_no_intro_outro_name, ::g_no_intro_outro);
-
-    writer.write("\n// Auto-map\n");
-    write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
+	bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
+	auto writer = bstone::TextWriter{&memory_stream};
 
 
-    const auto stream_size = static_cast<int>(memory_stream.get_size());
-    const auto stream_data = memory_stream.get_data();
+	writer.write("// BStone configuration file\n");
+	writer.write("// WARNING! This is auto-generated file.\n");
+	writer.write("\n");
 
-    const auto config_path = ::get_profile_dir() + ::text_config_file_name;
+	writer.write("\n// Video\n");
+	write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
+	write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
 
-    bstone::FileStream stream{config_path, bstone::StreamOpenMode::write};
+	writer.write("\n// Audio\n");
+	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
+	write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
+	write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
+	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
 
-    if (!stream.write(stream_data, stream_size))
-    {
-        bstone::Log::write_warning("Failed to write a configuration.");
-    }
+	writer.write("\n// Input\n");
+	write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
+	write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
+	write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
+	write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
+	write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
+	write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
+	write_config_entry(writer, in_joystick_port_name, ::joystickport);
+
+	writer.write("\n// Input bindings\n");
+	write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
+	write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
+	write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
+	write_buttons_config(::buttonjoy, in_js_button_name, writer);
+	write_bindings_config(::in_binding_name, writer);
+
+	writer.write("\n// Gameplay\n");
+	write_config_entry(writer, gp_flags_name, ::gamestate.flags);
+	write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
+	write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
+	write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
+	write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
+	write_config_entry(writer, gp_no_intro_outro_name, ::g_no_intro_outro);
+	write_config_entry(writer, gp_no_fade_in_or_out_name, ::g_no_fade_in_or_out);
+
+	writer.write("\n// Auto-map\n");
+	write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
+
+
+	const auto stream_size = static_cast<int>(memory_stream.get_size());
+	const auto stream_data = memory_stream.get_data();
+
+	const auto config_path = ::get_profile_dir() + ::text_config_file_name;
+
+	bstone::FileStream stream{config_path, bstone::StreamOpenMode::write};
+
+	if (!stream.write(stream_data, stream_size))
+	{
+		bstone::Log::write_warning("Failed to write a configuration.");
+	}
 }
 
 
@@ -8087,7 +8114,7 @@ void write_text_config()
 
 void WriteConfig()
 {
-    write_text_config();
+	write_text_config();
 }
 
 
@@ -8103,68 +8130,70 @@ bool ShowQuickMsg;
 =====================
 */
 void NewGame(
-    int16_t difficulty,
-    int16_t episode)
+	std::int16_t difficulty,
+	std::int16_t episode)
 {
 	const auto& assets_info = AssetsInfo{};
 
-    uint16_t oldf = gamestate.flags, loop;
+	std::uint16_t oldf = gamestate.flags, loop;
 
-    InitPlaytemp();
-    playstate = ex_stillplaying;
+	InitPlaytemp();
+	playstate = ex_stillplaying;
 
-    ShowQuickMsg = true;
-    ::gamestuff.clear();
-    memset(&gamestate, 0, sizeof(gamestate));
+	ShowQuickMsg = true;
+	::gamestuff.clear();
+	memset(&gamestate, 0, sizeof(gamestate));
 
-    ::gamestate.initialize_cross_barriers();
-    ::gamestate.initialize_local_barriers();
-    ::gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
+	::gamestate.initialize_cross_barriers();
+	::gamestate.initialize_local_barriers();
+	::gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
 
-    ::gamestate.difficulty = difficulty;
+	::gamestate.difficulty = difficulty;
 
-    ::gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
-    ::gamestate.weapon = wp_autocharge;
-    ::gamestate.chosenweapon = wp_autocharge;
-    ::gamestate.old_weapons[0] = ::gamestate.weapons;
-    ::gamestate.old_weapons[1] = ::gamestate.weapon;
-    ::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
+	::gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
+	::gamestate.weapon = wp_autocharge;
+	::gamestate.chosenweapon = wp_autocharge;
+	::gamestate.old_weapons[0] = ::gamestate.weapons;
+	::gamestate.old_weapons[1] = ::gamestate.weapon;
+	::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
 
-    ::gamestate.health = 100;
-    ::gamestate.old_ammo = STARTAMMO;
-    ::gamestate.ammo = STARTAMMO;
-    ::gamestate.lives = 3;
-    ::gamestate.nextextra = EXTRAPOINTS;
-    ::gamestate.episode = episode;
-    ::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
+	::gamestate.health = 100;
+	::gamestate.old_ammo = STARTAMMO;
+	::gamestate.ammo = STARTAMMO;
+	::gamestate.lives = 3;
+	::gamestate.nextextra = EXTRAPOINTS;
+	::gamestate.episode = episode;
+	::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 	::gamestate.mapon = (assets_info.is_ps() ? 0 : 1);
 
-    ::startgame = true;
+	::startgame = true;
 
-    for (loop = 0; loop < MAPS_WITH_STATS; loop++) {
-        ::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
-        if (loop) {
-            ::gamestuff.old_levelinfo[loop].locked = true;
-        }
-    }
+	for (loop = 0; loop < MAPS_WITH_STATS; loop++)
+	{
+		::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
+		if (loop)
+		{
+			::gamestuff.old_levelinfo[loop].locked = true;
+		}
+	}
 
-    ::ExtraRadarFlags = 0;
-    ::InstantWin = 0;
-    ::InstantQuit = 0;
+	::ExtraRadarFlags = 0;
+	::InstantWin = 0;
+	::InstantQuit = 0;
 
-    ::pickquick = 0;
+	::pickquick = 0;
 
-    // BBi
-    ::g_playtemp.set_position(0);
-    ::g_playtemp.set_size(0);
-    // BBi
+	// BBi
+	::g_playtemp.set_position(0);
+	::g_playtemp.set_size(0);
+	// BBi
 }
 
 // ===========================================================================
 
 
 bool LevelInPlaytemp(
-    int level_index);
+	int level_index);
 
 #define LZH_WORK_BUFFER_SIZE (8192)
 
@@ -8172,73 +8201,84 @@ void* lzh_work_buffer;
 
 void InitPlaytemp()
 {
-    g_playtemp.open(1 * 1024 * 1024);
-    g_playtemp.set_size(0);
-    g_playtemp.set_position(0);
+	g_playtemp.open(1 * 1024 * 1024);
+	g_playtemp.set_size(0);
+	g_playtemp.set_position(0);
 }
 
 int FindChunk(
-    bstone::Stream* stream,
-    const std::string& dst_chunk_name)
+	bstone::Stream* stream,
+	const std::string& dst_chunk_name)
 {
-    std::string src_chunk_name;
-    char src_chunk_name_buffer[4];
+	std::string src_chunk_name;
+	char src_chunk_name_buffer[4];
 
-    stream->set_position(0);
+	stream->set_position(0);
 
-    for (bool quit = false; !quit; ) {
-        if (stream->read(src_chunk_name_buffer, 4) == 4) {
-            int32_t chunk_size = 0;
+	for (bool quit = false; !quit; )
+	{
+		if (stream->read(src_chunk_name_buffer, 4) == 4)
+		{
+			std::int32_t chunk_size = 0;
 
-            if (stream->read(&chunk_size, 4) == 4) {
-                bstone::Endian::lei(chunk_size);
+			if (stream->read(&chunk_size, 4) == 4)
+			{
+				bstone::Endian::little_i(chunk_size);
 
-                src_chunk_name.assign(src_chunk_name_buffer, 4);
+				src_chunk_name.assign(src_chunk_name_buffer, 4);
 
-                if (src_chunk_name == dst_chunk_name) {
-                    return chunk_size;
-                }
+				if (src_chunk_name == dst_chunk_name)
+				{
+					return chunk_size;
+				}
 
-                stream->skip(chunk_size);
-            } else {
-                quit = true;
-            }
-        } else {
-            quit = true;
-        }
-    }
+				stream->skip(chunk_size);
+			}
+			else
+			{
+				quit = true;
+			}
+		}
+		else
+		{
+			quit = true;
+		}
+	}
 
-    stream->seek(0, bstone::StreamSeekOrigin::end);
+	stream->seek(0, bstone::StreamSeekOrigin::end);
 
-    return 0;
+	return 0;
 }
 
 int NextChunk(
-    bstone::Stream* stream)
+	bstone::Stream* stream)
 {
-    bool is_succeed = true;
+	bool is_succeed = true;
 
-    if (is_succeed) {
-        char name_buffer[4];
-        is_succeed = (stream->read(name_buffer, 4) == 4);
-    }
+	if (is_succeed)
+	{
+		char name_buffer[4];
+		is_succeed = (stream->read(name_buffer, 4) == 4);
+	}
 
-    int32_t chunk_size = 0;
+	std::int32_t chunk_size = 0;
 
-    if (is_succeed) {
-        is_succeed = (stream->read(&chunk_size, 4) == 4);
-    }
+	if (is_succeed)
+	{
+		is_succeed = (stream->read(&chunk_size, 4) == 4);
+	}
 
-    if (is_succeed) {
-        return chunk_size;
-    }
+	if (is_succeed)
+	{
+		return chunk_size;
+	}
 
-    stream->seek(0, bstone::StreamSeekOrigin::end);
-    return 0;
+	stream->seek(0, bstone::StreamSeekOrigin::end);
+	return 0;
 }
 
-int8_t LS_current = -1;
-int8_t LS_total = -1;
+std::int8_t LS_current = -1;
+std::int8_t LS_total = -1;
 
 bool LoadLevel(
 	int level_index)
@@ -8247,8 +8287,8 @@ bool LoadLevel(
 
 	bool oldloaded = loadedgame;
 
-	extern int16_t nsd_table[];
-	extern int16_t sm_table[];
+	extern std::int16_t nsd_table[];
+	extern std::int16_t sm_table[];
 
 	WindowY = 181;
 
@@ -8275,9 +8315,7 @@ bool LoadLevel(
 
 	::update_normalshade();
 
-	std::string chunk_name = "LV" + (
-		bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-		std::hex << std::uppercase << level_index).to_string();
+	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
 	g_playtemp.set_position(0);
 
@@ -8299,24 +8337,26 @@ bool LoadLevel(
 	//
 
 	bool is_succeed = true;
-	bstone::Crc32 checksum;
 
 	loadedgame = true;
 	::SetupGameLevel();
 	loadedgame = oldloaded;
 
-	bstone::BinaryReader reader(&g_playtemp);
+	auto archiver_uptr = bstone::ArchiverFactory::create();
 
 	try
 	{
-		::deserialize_field(tilemap, reader, checksum);
+		auto archiver = archiver_uptr.get();
+
+		archiver->initialize(&g_playtemp);
+
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(tilemap), MAPSIZE * MAPSIZE);
 
 		for (int i = 0; i < MAPSIZE; ++i)
 		{
 			for (int j = 0; j < MAPSIZE; ++j)
 			{
-				int32_t value = 0;
-				::deserialize_field(value, reader, checksum);
+				const auto value = archiver->read_int32();
 
 				if (value < 0)
 				{
@@ -8324,43 +8364,42 @@ bool LoadLevel(
 				}
 				else
 				{
-					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<size_t>(value));
+					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<std::size_t>(value));
 				}
 			}
 		}
 
-		::deserialize_field(areaconnect, reader, checksum);
-		::deserialize_field(areabyplayer, reader, checksum);
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areaconnect), NUMAREAS * NUMAREAS);
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areabyplayer), NUMAREAS);
 
 		// Restore 'save game' actors
 		//
 
-		int32_t actor_count = 0;
-		::deserialize_field(actor_count, reader, checksum);
+		const auto actor_count = archiver->read_int32();
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
-			throw ArchiveException("actor_count");
+			throw "Actor count out of range.";
 		}
 
 		::InitActorList();
 
 		// First actor is always player
-		new_actor->deserialize(reader, checksum);
+		new_actor->unarchive(archiver);
 
-		for (int32_t i = 1; i < actor_count; ++i)
+		for (std::int32_t i = 1; i < actor_count; ++i)
 		{
 			::GetNewActor();
-			new_actor->deserialize(reader, checksum);
+			new_actor->unarchive(archiver);
 			actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
 			if ((new_actor->flags & FL_DEADGUY) != 0)
 			{
 				DeadGuys[NumDeadGuys++] = new_actor;
-		}
+			}
 #endif
-	}
+		}
 
 		//
 		//  Re-Establish links to barrier switches
@@ -8388,8 +8427,7 @@ bool LoadLevel(
 		// Read all sorts of stuff...
 		//
 
-		int32_t laststatobj_index = 0;
-		::deserialize_field(laststatobj_index, reader, checksum);
+		const auto laststatobj_index = archiver->read_int32();
 
 		if (laststatobj_index < 0)
 		{
@@ -8402,72 +8440,69 @@ bool LoadLevel(
 
 		for (int i = 0; i < MAXSTATS; ++i)
 		{
-			statobjlist[i].deserialize(reader, checksum);
+			statobjlist[i].unarchive(archiver);
 		}
 
-		::deserialize_field(doorposition, reader, checksum);
+		archiver->read_uint16_array(doorposition, MAXDOORS);
 
 		for (int i = 0; i < MAXDOORS; ++i)
 		{
-			doorobjlist[i].deserialize(reader, checksum);
+			doorobjlist[i].unarchive(archiver);
 		}
 
-		::deserialize_field(pwallstate, reader, checksum);
-		::deserialize_field(pwallx, reader, checksum);
-		::deserialize_field(pwally, reader, checksum);
-		::deserialize_field(pwalldir, reader, checksum);
-		::deserialize_field(pwallpos, reader, checksum);
-		::deserialize_field(pwalldist, reader, checksum);
-		::deserialize_field(TravelTable, reader, checksum);
-		ConHintList.deserialize(reader, checksum);
+		pwallstate = archiver->read_uint16();
+		pwallx = archiver->read_uint16();
+		pwally = archiver->read_uint16();
+		pwalldir = archiver->read_int16();
+		pwallpos = archiver->read_uint16();
+		pwalldist = archiver->read_int16();
+		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(TravelTable), MAPSIZE * MAPSIZE);
+		ConHintList.unarchive(archiver);
 
 		for (int i = 0; i < MAXEAWALLS; ++i)
 		{
-			eaList[i].deserialize(reader, checksum);
+			eaList[i].unarchive(archiver);
 		}
 
-		GoldsternInfo.deserialize(reader, checksum);
+		GoldsternInfo.unarchive(archiver);
 
 		for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 		{
-			GoldieList[i].deserialize(reader, checksum);
+			GoldieList[i].unarchive(archiver);
 		}
 
 		for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
 		{
-			::gamestate.barrier_table[i].deserialize(reader, checksum);
+			::gamestate.barrier_table[i].unarchive(archiver);
 		}
 
 		// BBi
 		::apply_cross_barriers();
 		// BBi
 
-		::deserialize_field(gamestate.plasma_detonators, reader, checksum);
-}
-	catch (const ArchiveException&)
+		gamestate.plasma_detonators = archiver->read_int16();
+
+		// Read and evaluate checksum
+		//
+		archiver->read_checksum();
+	}
+	catch (const bstone::ArchiverException&)
+	{
+		is_succeed = false;
+	}
+	catch (const char*)
 	{
 		is_succeed = false;
 	}
 
-	// Read and evaluate checksum
-	//
-	if (is_succeed)
-	{
-		uint32_t saved_checksum = 0;
-		reader.read(saved_checksum);
-		bstone::Endian::lei(saved_checksum);
-
-		is_succeed = (saved_checksum == checksum.get_value());
-	}
-
 	if (!is_succeed)
 	{
-		int16_t old_wx = WindowX;
-		int16_t old_wy = WindowY;
-		int16_t old_ww = WindowW;
-		int16_t old_wh = WindowH;
-		int16_t old_px = px;
-		int16_t old_py = py;
+		std::int16_t old_wx = WindowX;
+		std::int16_t old_wy = WindowY;
+		std::int16_t old_ww = WindowW;
+		std::int16_t old_wh = WindowH;
+		std::int16_t old_px = px;
+		std::int16_t old_py = py;
 
 		WindowX = 0;
 		WindowY = 16;
@@ -8510,170 +8545,180 @@ bool LoadLevel(
 }
 
 bool SaveLevel(
-    int level_index)
+	int level_index)
 {
-    WindowY = 181;
+	WindowY = 181;
 
-    // Make sure floor stats are saved!
-    //
-    int16_t oldmapon = gamestate.mapon;
-    gamestate.mapon = gamestate.lastmapon;
-    ::ShowStats(0, 0, ss_justcalc,
-                &gamestuff.level[gamestate.mapon].stats);
-    gamestate.mapon = oldmapon;
+	// Make sure floor stats are saved!
+	//
+	std::int16_t oldmapon = gamestate.mapon;
+	gamestate.mapon = gamestate.lastmapon;
+	::ShowStats(0, 0, ss_justcalc,
+		&gamestuff.level[gamestate.mapon].stats);
+	gamestate.mapon = oldmapon;
 
-    // Yeah! We're no longer a virgin!
-    //
-    gamestate.flags &= ~GS_VIRGIN_LEVEL;
+	// Yeah! We're no longer a virgin!
+	//
+	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
-    // Remove level chunk from file
-    //
-    std::string chunk_name = "LV" + (
-        bstone::FormatString() << std::setw(2) << std::setfill('0') <<
-        std::hex << std::uppercase << level_index).to_string();
+	// Remove level chunk from file
+	//
+	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
-    ::DeleteChunk(g_playtemp, chunk_name);
+	::DeleteChunk(g_playtemp, chunk_name);
 
-    g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
+	g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
 
-    // Write level chunk id
-    //
-    g_playtemp.write(chunk_name.c_str(), 4);
+	// Write level chunk id
+	//
+	g_playtemp.write(chunk_name.c_str(), 4);
 
-    // leave four bytes for chunk size
-    g_playtemp.skip(4);
+	// leave four bytes for chunk size
+	g_playtemp.skip(4);
 
-    bstone::Crc32 checksum;
-    int64_t beg_offset = g_playtemp.get_position();
+	std::int64_t beg_offset = g_playtemp.get_position();
 
-    bstone::BinaryWriter writer(&g_playtemp);
+	auto archiver_uptr = bstone::ArchiverFactory::create();
+	archiver_uptr->initialize(&g_playtemp);
 
-    ::serialize_field(tilemap, writer, checksum);
+	auto archiver = archiver_uptr.get();
 
-    //
-    // actorat
-    //
+	archiver->write_uint8_array(&tilemap[0][0], MAPSIZE * MAPSIZE);
 
-    for (int i = 0; i < MAPSIZE; ++i) {
-        for (int j = 0; j < MAPSIZE; ++j) {
-            int32_t s_value;
+	//
+	// actorat
+	//
 
-            if (actorat[i][j] >= objlist) {
-                s_value = -static_cast<int32_t>(
-                    actorat[i][j] - objlist);
-            } else {
-                s_value = static_cast<int32_t>(
-                    reinterpret_cast<size_t>(actorat[i][j]));
-            }
+	for (int i = 0; i < MAPSIZE; ++i)
+	{
+		for (int j = 0; j < MAPSIZE; ++j)
+		{
+			std::int32_t s_value;
 
-            ::serialize_field(s_value, writer, checksum);
-        }
-    }
+			if (actorat[i][j] >= objlist)
+			{
+				s_value = -static_cast<std::int32_t>(actorat[i][j] - objlist);
+			}
+			else
+			{
+				s_value = static_cast<std::int32_t>(reinterpret_cast<std::size_t>(actorat[i][j]));
+			}
 
-    ::serialize_field(areaconnect, writer, checksum);
-    ::serialize_field(areabyplayer, writer, checksum);
+			archiver->write_int32(s_value);
+		}
+	}
 
-    //
-    // objlist
-    //
+	archiver->write_uint8_array(&areaconnect[0][0], NUMAREAS * NUMAREAS);
+	archiver->write_uint8_array(reinterpret_cast<const std::uint8_t*>(areabyplayer), NUMAREAS);
 
-    int32_t actor_count = 0;
-    const objtype* actor = nullptr;
+	//
+	// objlist
+	//
 
-    for (actor = player; actor; actor = actor->next) {
-        ++actor_count;
-    }
+	std::int32_t actor_count = 0;
+	const objtype* actor = nullptr;
 
-    ::serialize_field(actor_count, writer, checksum);
+	for (actor = player; actor; actor = actor->next)
+	{
+		++actor_count;
+	}
 
-    for (actor = player; actor; actor = actor->next) {
-        actor->serialize(writer, checksum);
-    }
+	archiver->write_int32(actor_count);
 
-    //
-    // laststatobj
-    //
+	for (actor = player; actor; actor = actor->next)
+	{
+		actor->archive(archiver);
+	}
 
-    int32_t laststatobj_index =
-        static_cast<int32_t>(laststatobj - statobjlist);
+	//
+	// laststatobj
+	//
 
-    ::serialize_field(laststatobj_index, writer, checksum);
+	const auto laststatobj_index = static_cast<std::int32_t>(laststatobj - statobjlist);
+
+	archiver->write_int32(laststatobj_index);
 
 
-    //
-    // statobjlist
-    //
-    for (int i = 0; i < MAXSTATS; ++i) {
-        statobjlist[i].serialize(writer, checksum);
-    }
+	//
+	// statobjlist
+	//
+	for (int i = 0; i < MAXSTATS; ++i)
+	{
+		statobjlist[i].archive(archiver);
+	}
 
-    //
+	//
 
-    ::serialize_field(doorposition, writer, checksum);
+	archiver->write_uint16_array(doorposition, MAXDOORS);
 
-    for (int i = 0; i < MAXDOORS; ++i) {
-        doorobjlist[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAXDOORS; ++i)
+	{
+		doorobjlist[i].archive(archiver);
+	}
 
-    ::serialize_field(pwallstate, writer, checksum);
-    ::serialize_field(pwallx, writer, checksum);
-    ::serialize_field(pwally, writer, checksum);
-    ::serialize_field(pwalldir, writer, checksum);
-    ::serialize_field(pwallpos, writer, checksum);
-    ::serialize_field(pwalldist, writer, checksum);
-    ::serialize_field(TravelTable, writer, checksum);
-    ConHintList.serialize(writer, checksum);
+	archiver->write_uint16(pwallstate);
+	archiver->write_uint16(pwallx);
+	archiver->write_uint16(pwally);
+	archiver->write_int16(pwalldir);
+	archiver->write_uint16(pwallpos);
+	archiver->write_int16(pwalldist);
+	archiver->write_uint8_array(&TravelTable[0][0], MAPSIZE * MAPSIZE);
+	ConHintList.archive(archiver);
 
-    for (int i = 0; i < MAXEAWALLS; ++i) {
-        eaList[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAXEAWALLS; ++i)
+	{
+		eaList[i].archive(archiver);
+	}
 
-    GoldsternInfo.serialize(writer, checksum);
+	GoldsternInfo.archive(archiver);
 
-    for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i) {
-        GoldieList[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
+	{
+		GoldieList[i].archive(archiver);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        ::gamestate.barrier_table[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		::gamestate.barrier_table[i].archive(archiver);
+	}
 
-    ::serialize_field(::gamestate.plasma_detonators, writer, checksum);
+	archiver->write_int16(::gamestate.plasma_detonators);
 
-    // Write checksum and determine size of file
-    //
-    writer.write(bstone::Endian::le(checksum.get_value()));
+	// Write checksum and determine size of file
+	//
+	archiver->write_checksum();
 
-    int64_t end_offset = g_playtemp.get_position();
-    int32_t chunk_size = static_cast<int32_t>(end_offset - beg_offset);
+	std::int64_t end_offset = g_playtemp.get_position();
+	std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
 
-    // Write chunk size, set file size, and close file
-    //
-    g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
-    writer.write(bstone::Endian::le(chunk_size));
-    g_playtemp.set_size(end_offset);
+	// Write chunk size, set file size, and close file
+	//
+	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
+	archiver->write_int32(chunk_size);
+	g_playtemp.set_size(end_offset);
 
-    ::NewViewSize();
+	::NewViewSize();
 
-    return true;
+	return true;
 }
 
 int DeleteChunk(
-    bstone::MemoryStream& stream,
-    const std::string& chunk_name)
+	bstone::MemoryStream& stream,
+	const std::string& chunk_name)
 {
-    stream.set_position(0);
+	stream.set_position(0);
 
-    int chunk_size = ::FindChunk(&stream, chunk_name);
+	int chunk_size = ::FindChunk(&stream, chunk_name);
 
-    if (chunk_size > 0) {
-        int64_t offset = stream.get_position() - 8;
-        int count = chunk_size + 8;
+	if (chunk_size > 0)
+	{
+		std::int64_t offset = stream.get_position() - 8;
+		int count = chunk_size + 8;
 
-        stream.remove_block(offset, count);
-    }
+		stream.remove_block(offset, count);
+	}
 
-    return chunk_size;
+	return chunk_size;
 }
 
 static const std::string& get_saved_game_version_string()
@@ -8717,68 +8762,72 @@ static const std::string& get_saved_game_version_string()
 }
 
 static bool LoadCompressedChunk(
-    const std::string& chunk_name,
-    bstone::Stream* stream,
-    Buffer& buffer)
+	const std::string& chunk_name,
+	bstone::Stream* stream,
+	Buffer& buffer)
 {
-    auto stream_size = stream->get_size();
+	auto stream_size = stream->get_size();
 
-    bstone::BinaryReader reader(stream);
+	if (::FindChunk(stream, chunk_name) == 0)
+	{
+		bstone::Log::write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
 
+		return false;
+	}
 
-    if (::FindChunk(stream, chunk_name) == 0) {
-        bstone::Log::write_error(
-            "LOAD: Failed to locate {} chunk.",
-            chunk_name);
+	stream->skip(-4);
 
-        return false;
-    }
+	try
+	{
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		archiver_uptr->initialize(stream);
 
-    reader.skip(-4);
+		auto archiver = archiver_uptr.get();
 
-    auto total_size = bstone::Endian::le(reader.read_s32());
+		auto total_size = archiver->read_int32();
 
-    if (total_size <= 0 || total_size > stream_size) {
-        bstone::Log::write_error(
-            "LOAD: Invalid {} size.",
-            chunk_name);
+		if (total_size <= 0 || total_size > stream_size)
+		{
+			bstone::Log::write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
 
-        return false;
-    }
+			return false;
+		}
 
-    auto size = total_size - 4;
-    auto src_size = bstone::Endian::le(reader.read_s32());
+		auto size = total_size - 4;
+		auto src_size = archiver->read_int32();
 
-    Buffer src_buffer(size);
+		auto src_buffer = Buffer{};
+		src_buffer.resize(size);
 
-    if (!reader.read(src_buffer.data(), size)) {
-        bstone::Log::write_error(
-            "LOAD: Unexpected end of {} data.",
-            chunk_name);
-    }
+		archiver->read_uint8_array(src_buffer.data(), size);
 
+		buffer.resize(src_size);
 
-    buffer.resize(src_size);
+		static_cast<void>(::LZH_Startup());
 
-    static_cast<void>(::LZH_Startup());
+		auto decoded_size = ::LZH_Decompress(
+			src_buffer.data(),
+			buffer.data(),
+			src_size,
+			size);
 
-    auto decoded_size = ::LZH_Decompress(
-        src_buffer.data(),
-        buffer.data(),
-        src_size,
-        size);
+		::LZH_Shutdown();
 
-    ::LZH_Shutdown();
+		if (decoded_size != src_size)
+		{
+			bstone::Log::write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
 
-    if (decoded_size != src_size) {
-        bstone::Log::write_error(
-            "LOAD: Failed to decompress {} data.",
-            chunk_name);
+			return false;
+		}
+	}
+	catch (const bstone::ArchiverException& ex)
+	{
+		bstone::Log::write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + ex.get_message());
 
-        return false;
-    }
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 bool LoadTheGame(
@@ -8792,10 +8841,8 @@ bool LoadTheGame(
 	{
 		is_succeed = false;
 
-		bstone::Log::write_error("LOAD: Failed to open file \"{}\".", file_name);
+		bstone::Log::write_error("LOAD: Failed to open file \"" + file_name + "\".");
 	}
-
-	bstone::BinaryReader file_reader(&file_stream);
 
 	if (is_succeed)
 	{
@@ -8822,12 +8869,32 @@ bool LoadTheGame(
 
 		const auto& version_string = ::get_saved_game_version_string();
 
-		file_reader.skip(-4);
+		file_stream.skip(-4);
 
-		const auto saved_version_string = file_reader.read_string(
-			max_length);
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		auto archiver = archiver_uptr.get();
 
-		if (saved_version_string != version_string)
+		try
+		{
+			archiver->initialize(&file_stream);
+
+			auto saved_version_string = std::string{};
+			saved_version_string.resize(max_length);
+
+			int string_length;
+
+			archiver->read_string(max_length, &saved_version_string[0], string_length);
+
+			saved_version_string.resize(string_length);
+
+			if (saved_version_string != version_string)
+			{
+				is_succeed = false;
+
+				bstone::Log::write_error("LOAD: Invalid version.");
+			}
+		}
+		catch (const bstone::ArchiverException&)
 		{
 			is_succeed = false;
 
@@ -8861,12 +8928,12 @@ bool LoadTheGame(
 	}
 
 
-	bstone::Crc32 checksum;
-
 	// Deserialize HEAD chunk
 	//
 	if (is_succeed)
 	{
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+
 		try
 		{
 			bstone::MemoryStream head_stream(
@@ -8874,10 +8941,11 @@ bool LoadTheGame(
 				0,
 				head_buffer.data());
 
-			bstone::BinaryReader head_reader(&head_stream);
+			auto archiver = archiver_uptr.get();
+			archiver->initialize(&head_stream);
 
 			auto levels_hash_digest = bstone::Sha1::Digest{};
-			::deserialize_field(levels_hash_digest, head_reader, checksum);
+			archiver->read_uint8_array(levels_hash_digest.data(), bstone::Sha1::hash_size);
 			const auto& levels_hash = bstone::Sha1{levels_hash_digest};
 			const auto& levels_hash_string = levels_hash.to_string();
 
@@ -8886,17 +8954,19 @@ bool LoadTheGame(
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
 				bstone::Log::write_error("LOAD: Levels hash mismatch.");
-				throw ArchiveException{"Levels hash mismatch."};
+				archiver->throw_exception("Levels hash mismatch.");
 			}
 
-			gamestate.deserialize(head_reader, checksum);
-			gamestuff.deserialize(head_reader, checksum);
+			gamestate.unarchive(archiver);
+			gamestuff.unarchive(archiver);
+
+			archiver->read_checksum();
 		}
-		catch (const ArchiveException&)
+		catch (const bstone::ArchiverException& ex)
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data.");
+			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data. "s + ex.get_message());
 		}
 	}
 
@@ -8976,7 +9046,7 @@ bool LoadTheGame(
 
 			::Message(message);
 
-			::sd_play_player_sound(::NOWAYSND, bstone::AC_NO_WAY);
+			::sd_play_player_sound(::NOWAYSND, bstone::ActorChannel::no_way);
 
 			::WindowX = old_wx;
 			::WindowY = old_wy;
@@ -9005,7 +9075,7 @@ bool SaveTheGame(
 
 	if (!file_stream.is_open())
 	{
-		bstone::Log::write_error("SAVE: Failed to open file \"{}\".", file_name);
+		bstone::Log::write_error("SAVE: Failed to open file \"" + file_name + "\".");
 
 		return false;
 	}
@@ -9018,12 +9088,15 @@ bool SaveTheGame(
 
 	// Compose HEAD data
 	//
-	bstone::Crc32 head_checksum;
 	auto head_stream = bstone::MemoryStream{};
-	bstone::BinaryWriter head_writer(&head_stream);
 
 	try
 	{
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		archiver_uptr->initialize(&head_stream);
+
+		auto archiver = archiver_uptr.get();
+
 		// Levels hash.
 		//
 		const auto& assets_info = AssetsInfo{};
@@ -9031,17 +9104,22 @@ bool SaveTheGame(
 		const auto& levels_hash = bstone::Sha1{levels_hash_string};
 		const auto& levels_digest = levels_hash.get_digest();
 
-		::serialize_field(levels_digest, head_writer, head_checksum);
+		archiver->write_uint8_array(levels_digest.data(), bstone::Sha1::hash_size);
 
 		// Other stuff.
 		//
-		gamestate.serialize(head_writer, head_checksum);
-		gamestuff.serialize(head_writer, head_checksum);
-		head_writer.set_position(0);
+		gamestate.archive(archiver);
+		gamestuff.archive(archiver);
+
+		// Checksum.
+		//
+		archiver->write_checksum();
+
+		head_stream.set_position(0);
 	}
-	catch (const ArchiveException&)
+	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk.");
+		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk. "s + ex.get_message());
 
 		return false;
 	}
@@ -9092,108 +9170,118 @@ bool SaveTheGame(
 
 	// Write to file
 	//
-	bool is_succeed = true;
-
-	bstone::BinaryWriter file_writer(&file_stream);
-
-	// Write VERS chunk
-	//
-	is_succeed &= file_writer.write("VERS", 4);
-	is_succeed &= file_writer.write(::get_saved_game_version_string());
-
-	// Write DESC chunk
-	//
-	is_succeed &= file_writer.write("DESC", 4);
-	is_succeed &= file_writer.write(description);
-
-	// Write HEAD chunk
-	//
-	is_succeed &= file_writer.write("HEAD", 4);
-	is_succeed &= file_writer.write(bstone::Endian::le(head_dst_size + 4));
-	is_succeed &= file_writer.write(bstone::Endian::le(head_src_size));
-	is_succeed &= file_stream.write(head_buffer.data(), head_dst_size);
-
-	// Write LVXX chunk
-	//
-	is_succeed &= file_writer.write("LVXX", 4);
-	is_succeed &= file_writer.write(bstone::Endian::le(lvxx_dst_size + 4));
-	is_succeed &= file_writer.write(bstone::Endian::le(lvxx_src_size));
-	is_succeed &= file_stream.write(lvxx_buffer.data(), lvxx_dst_size);
-
-	//
-	::NewViewSize();
-
-	if (!is_succeed)
+	try
 	{
-		bstone::Log::write_error("SAVE: Failed to write data.");
+		auto archiver_uptr = bstone::ArchiverFactory::create();
+		archiver_uptr->initialize(&file_stream);
+
+		auto archiver = archiver_uptr.get();
+
+		// Write VERS chunk
+		//
+		const auto& version_string = ::get_saved_game_version_string();
+		archiver->write_char_array("VERS", 4);
+		archiver->write_string(version_string.c_str(), static_cast<int>(version_string.length()));
+
+		// Write DESC chunk
+		//
+		archiver->write_char_array("DESC", 4);
+		archiver->write_string(description.c_str(), static_cast<int>(description.length()));
+
+		// Write HEAD chunk
+		//
+		archiver->write_char_array("HEAD", 4);
+		archiver->write_int32(head_dst_size + 4);
+		archiver->write_int32(head_src_size);
+		archiver->write_uint8_array(head_buffer.data(), head_dst_size);
+
+		// Write LVXX chunk
+		//
+		archiver->write_char_array("LVXX", 4);
+		archiver->write_int32(lvxx_dst_size + 4);
+		archiver->write_int32(lvxx_src_size);
+		archiver->write_uint8_array(lvxx_buffer.data(), lvxx_dst_size);
+
+		//
+		::NewViewSize();
+	}
+	catch (const bstone::ArchiverException& ex)
+	{
+		bstone::Log::write_error("SAVE: Failed to write data. "s + ex.get_message());
+
+		return false;
 	}
 
-	return is_succeed;
+	return true;
 }
 
 bool LevelInPlaytemp(
-    int level_index)
+	int level_index)
 {
-    bstone::FormatString format;
-    format << "LV" << std::uppercase << std::hex <<
-        std::setfill('0') << std::setw(2) << level_index;
+	auto&& chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
-    return ::FindChunk(&g_playtemp, format.to_string()) != 0;
+	return ::FindChunk(&g_playtemp, chunk_name) != 0;
 }
 
 bool CheckDiskSpace(
-    int32_t needed,
-    const char* text,
-    cds_io_type io_type)
+	std::int32_t needed,
+	const char* text,
+	cds_io_type io_type)
 {
-    static_cast<void>(needed);
-    static_cast<void>(text);
-    static_cast<void>(io_type);
-    return true;
+	static_cast<void>(needed);
+	static_cast<void>(text);
+	static_cast<void>(io_type);
+	return true;
 }
 
 void CleanUpDoors_N_Actors()
 {
-    int x;
-    int y;
-    objtype* actor;
-    uint8_t tile;
-    uint16_t door;
+	int x;
+	int y;
+	objtype* actor;
+	std::uint8_t tile;
+	std::uint16_t door;
 
-    for (y = 0; y < mapheight; ++y) {
-        for (x = 0; x < mapwidth; ++x) {
-            actor = actorat[y][x];
+	for (y = 0; y < mapheight; ++y)
+	{
+		for (x = 0; x < mapwidth; ++x)
+		{
+			actor = actorat[y][x];
 
-            // actor is in actorat, but objtype X and Y don't match
-            if (actor > objlist &&
-                (actor->tilex != y || actor->tilex != y)) {
-                actorat[y][x] = nullptr;
-            }
+			// actor is in actorat, but objtype X and Y don't match
+			if (actor > objlist &&
+				(actor->tilex != y || actor->tilex != y))
+			{
+				actorat[y][x] = nullptr;
+			}
 
-            tile = tilemap[y][x];
-            if ((tile & 0x80) != 0) {
-                // Found a door
-                uint16_t actor_u16 = static_cast<uint16_t>(
-                    reinterpret_cast<size_t>(actor));
+			tile = tilemap[y][x];
+			if ((tile & 0x80) != 0)
+			{
+				// Found a door
+				std::uint16_t actor_u16 = static_cast<std::uint16_t>(
+					reinterpret_cast<std::size_t>(actor));
 
-                if (ui16_to_actor(actor_u16)) {
-                    // Found an actor
+				if (ui16_to_actor(actor_u16))
+				{
+					// Found an actor
 
-                    door = tile & 0x3F;
+					door = tile & 0x3F;
 
-                    if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY)) {
-                        actor->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
-                    }
+					if ((actor->flags & (FL_SOLID | FL_DEADGUY)) == (FL_SOLID | FL_DEADGUY))
+					{
+						actor->flags &= ~(FL_SHOOTABLE | FL_SOLID | FL_FAKE_STATIC);
+					}
 
-                    // Make sure door is open
+					// Make sure door is open
 
-                    doorobjlist[door].ticcount = 0;
-                    doorobjlist[door].action = dr_open;
-                    doorposition[door] = 0xFFFF;
-                }
-            }
-        }
-    }
+					doorobjlist[door].ticcount = 0;
+					doorobjlist[door].action = dr_open;
+					doorposition[door] = 0xFFFF;
+				}
+			}
+		}
+	}
 }
 
 // --------------------------------------------------------------------------
@@ -9206,95 +9294,107 @@ void CleanUpDoors_N_Actors()
 // --------------------------------------------------------------------------
 void ClearNClose()
 {
-    int tx = 0;
-    int ty = 0;
-    int p_x = (::player->x >> TILESHIFT) & 0xFF;
-    int p_y = (::player->y >> TILESHIFT) & 0xFF;
+	int tx = 0;
+	int ty = 0;
+	int p_x = (::player->x >> TILESHIFT) & 0xFF;
+	int p_y = (::player->y >> TILESHIFT) & 0xFF;
 
-    // Locate the door.
-    //
-    for (int x = -1; x < 2 && tx == 0; x += 2) {
-        for (int y = -1; y < 2; y += 2) {
-            if ((::tilemap[p_x + x][p_y + y] & 0x80) != 0) {
-                tx = p_x + x;
-                ty = p_y + y;
-                break;
-            }
-        }
-    }
+	// Locate the door.
+	//
+	for (int x = -1; x < 2 && tx == 0; x += 2)
+	{
+		for (int y = -1; y < 2; y += 2)
+		{
+			if ((::tilemap[p_x + x][p_y + y] & 0x80) != 0)
+			{
+				tx = p_x + x;
+				ty = p_y + y;
+				break;
+			}
+		}
+	}
 
-    // Close the door!
-    //
-    if (tx != 0) {
-        int door_index = ::tilemap[tx][ty] & 63;
+	// Close the door!
+	//
+	if (tx != 0)
+	{
+		int door_index = ::tilemap[tx][ty] & 63;
 
-        ::doorobjlist[door_index].action = dr_closed; // this door is closed!
-        ::doorposition[door_index] = 0; // draw it closed!
+		::doorobjlist[door_index].action = dr_closed; // this door is closed!
+		::doorposition[door_index] = 0; // draw it closed!
 
-        // make it solid!
-        ::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<size_t>(door_index | 0x80));
-    }
+		// make it solid!
+		::actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
+	}
 }
 
 void CycleColors()
 {
-    const int NUM_RANGES = 5;
-    const uint8_t CRNG_LOW = 0xF0;
-    const uint8_t CRNG_HIGH = 0xFE;
-    const int CRNG_SIZE = CRNG_HIGH - CRNG_LOW + 1;
+	const int NUM_RANGES = 5;
+	const std::uint8_t CRNG_LOW = 0xF0;
+	const std::uint8_t CRNG_HIGH = 0xFE;
+	const int CRNG_SIZE = CRNG_HIGH - CRNG_LOW + 1;
 
-    static CycleInfo crng[NUM_RANGES] = {
-        { 7, 0, 0xF0, 0xF1 },
-        { 15, 0, 0xF2, 0xF3 },
-        { 30, 0, 0xF4, 0xF5 },
-        { 10, 0, 0xF6, 0xF9 },
-        { 12, 0, 0xFA, 0xFE },
-    };
+	static CycleInfo crng[NUM_RANGES] = {
+		{7, 0, 0xF0, 0xF1},
+	{15, 0, 0xF2, 0xF3},
+	{30, 0, 0xF4, 0xF5},
+	{10, 0, 0xF6, 0xF9},
+	{12, 0, 0xFA, 0xFE},
+	};
 
-    uint8_t loop;
-    uint8_t cbuffer[CRNG_SIZE][3];
-    bool changes = false;
+	std::uint8_t loop;
+	std::uint8_t cbuffer[CRNG_SIZE][3];
+	bool changes = false;
 
-    for (loop = 0; loop < NUM_RANGES; loop++) {
-        CycleInfo* c = &crng[loop];
+	for (loop = 0; loop < NUM_RANGES; loop++)
+	{
+		CycleInfo* c = &crng[loop];
 
-        if (tics >= c->delay_count) {
-            uint8_t temp[3], first, last, numregs;
+		if (tics >= c->delay_count)
+		{
+			std::uint8_t temp[3], first, last, numregs;
 
-            if (!changes) {
-                VL_GetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
-                changes = true;
-            }
+			if (!changes)
+			{
+				VL_GetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
+				changes = true;
+			}
 
-            first = c->firstreg - CRNG_LOW;
-            numregs = c->lastreg - c->firstreg;                 // is one less than in range
-            last = first + numregs;
+			first = c->firstreg - CRNG_LOW;
+			numregs = c->lastreg - c->firstreg;                 // is one less than in range
+			last = first + numregs;
 
-            memcpy(temp, cbuffer[last], 3);
-            memmove(cbuffer[first + 1], cbuffer[first], numregs * 3);
-            memcpy(cbuffer[first], temp, 3);
+			memcpy(temp, cbuffer[last], 3);
+			memmove(cbuffer[first + 1], cbuffer[first], numregs * 3);
+			memcpy(cbuffer[first], temp, 3);
 
-            c->delay_count = c->init_delay;
-        } else {
-            c->delay_count -= static_cast<uint8_t>(tics);
-        }
-    }
+			c->delay_count = c->init_delay;
+		}
+		else
+		{
+			c->delay_count -= static_cast<std::uint8_t>(tics);
+		}
+	}
 
-    bool use_delay = false;
+	bool use_delay = false;
 
-    if (changes) {
-        ::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (uint8_t*)cbuffer);
-        ::VL_RefreshScreen();
+	if (changes)
+	{
+		::VL_SetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
+		::VL_RefreshScreen();
 
-        use_delay = !::vid_has_vsync;
-    } else {
-        use_delay = true;
-    }
+		use_delay = !::vid_has_vsync;
+	}
+	else
+	{
+		use_delay = true;
+	}
 
-    if (use_delay)
-    {
-        VW_WaitVBL(1);
-    }
+	if (use_delay)
+	{
+		VW_WaitVBL(1);
+	}
 }
 
 /*
@@ -9308,12 +9408,12 @@ void CycleColors()
 */
 void ShutdownId()
 {
-    US_Shutdown();
-    SD_Shutdown();
-    PM_Shutdown();
-    IN_Shutdown();
-    VW_Shutdown();
-    CA_Shutdown();
+	US_Shutdown();
+	SD_Shutdown();
+	PM_Shutdown();
+	IN_Shutdown();
+	VW_Shutdown();
+	CA_Shutdown();
 }
 
 /*
@@ -9326,133 +9426,134 @@ void ShutdownId()
 ====================
 */
 void CalcProjection(
-    int32_t focal)
+	std::int32_t focal)
 {
-    ::focallength = focal;
-    const double facedist = focal + MINDIST;
-    const auto halfview = ::viewwidth / 2; // half view in pixels
+	::focallength = focal;
+	const double facedist = focal + MINDIST;
+	const auto halfview = ::viewwidth / 2; // half view in pixels
 
-    //
-    // calculate scale value for vertical height calculations
-    // and sprite x calculations
-    //
-    ::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
+	//
+	// calculate scale value for vertical height calculations
+	// and sprite x calculations
+	//
+	::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
 
-    //
-    // divide heightnumerator by a posts distance to get the posts height for
-    // the heightbuffer.  The pixel height is height>>2
-    //
-    ::heightnumerator = (TILEGLOBAL * ::scale) / 64;
-    ::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
+	//
+	// divide heightnumerator by a posts distance to get the posts height for
+	// the heightbuffer.  The pixel height is height>>2
+	//
+	::heightnumerator = (TILEGLOBAL * ::scale) / 64;
+	::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
 
-    //
-    // calculate the angle offset from view angle of each pixel's ray
-    //
+	//
+	// calculate the angle offset from view angle of each pixel's ray
+	//
 
-    ::pixelangle.clear();
-    ::pixelangle.resize(::vga_width);
+	::pixelangle.clear();
+	::pixelangle.resize(::vga_width);
 
-    for (int i = 0; i < halfview; i++)
-    {
-        // start 1/2 pixel over, so viewangle bisects two middle pixels
-        const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
-        const auto angle = static_cast<float>(::atan(tang));
-        const auto intang = static_cast<int>(angle * radtoint);
-        ::pixelangle[halfview - 1 - i] = intang;
-        ::pixelangle[halfview + i] = -intang;
-    }
+	for (int i = 0; i < halfview; i++)
+	{
+		// start 1/2 pixel over, so viewangle bisects two middle pixels
+		const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
+		const auto angle = static_cast<float>(::atan(tang));
+		const auto intang = static_cast<int>(angle * radtoint);
+		::pixelangle[halfview - 1 - i] = intang;
+		::pixelangle[halfview + i] = -intang;
+	}
 
-    //
-    // if a point's abs(y/x) is greater than maxslope, the point is outside
-    // the view area
-    //
-    ::maxslope = ::finetangent[::pixelangle[0]];
-    ::maxslope /= 256;
+	//
+	// if a point's abs(y/x) is greater than maxslope, the point is outside
+	// the view area
+	//
+	::maxslope = ::finetangent[::pixelangle[0]];
+	::maxslope /= 256;
 }
 
 bool DoMovie(
-    movie_t movie,
-    void* palette)
+	const MovieId movie,
+	const void* const raw_palette)
 {
-    bool ReturnVal;
-    SD_StopSound();
+	::SD_StopSound();
 
-    ClearMemory();
-    UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
-    CA_LoadAllSounds();
+	::ClearMemory();
+	::UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
+	::CA_LoadAllSounds();
 
-    if (palette) {
-        movies[movie].palette = palette;
-    } else {
-        movies[movie].palette = vgapal;
-    }
+	const auto palette = static_cast<const std::uint8_t*>(raw_palette);
 
-    ReturnVal = MOVIE_Play(&movies[movie]);
+	const auto result = movie_play(movie, palette ? palette : ::vgapal);
 
-    SD_StopSound();
-    ClearMemory();
-    LoadFonts();
+	::SD_StopSound();
+	::ClearMemory();
+	::LoadFonts();
 
-    return ReturnVal;
+	return result;
 }
 
 void LoadFonts()
 {
-    CA_CacheGrChunk(STARTFONT + 4);
-    CA_CacheGrChunk(STARTFONT + 2);
+	CA_CacheGrChunk(STARTFONT + 4);
+	CA_CacheGrChunk(STARTFONT + 2);
 }
 
 void SetViewSize()
 {
 	const auto alignment = 2;
 
-    ::viewwidth = ::vga_width;
+	::viewwidth = ::vga_width;
 
-    ::viewheight = (ref_3d_view_height * ::vga_height) / ::vga_ref_height;
+	::viewheight = (ref_3d_view_height * ::vga_height) / ::vga_ref_height;
 	::viewheight /= alignment;
 	::viewheight *= alignment;
 
-    ::centerx = (::viewwidth / 2) - 1;
-    ::shootdelta = ::viewwidth / 10;
+	::centerx = (::viewwidth / 2) - 1;
 
 #ifdef __vita__
-    ::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height + 1;
-    ::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight + 1;
+	::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height + 1;
+	::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight + 1;
 #else    
-    ::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height;
+	::vga_3d_view_top_y = (::ref_3d_view_top_y * ::vga_height) / ::vga_ref_height;
 	::vga_3d_view_bottom_y = ::vga_3d_view_top_y + ::viewheight;
 #endif
-    ::screenofs = ::vga_3d_view_top_y * ::viewwidth;
+	::screenofs = ::vga_3d_view_top_y * ::viewwidth;
 
-    // calculate trace angles and projection constants
-    ::CalcProjection(FOCALLENGTH);
+	// calculate trace angles and projection constants
+	::CalcProjection(FOCALLENGTH);
 
-    // build all needed compiled scalers
-    ::SetupScaling((3 * ::viewwidth) / 2);
+	// build all needed compiled scalers
+	::SetupScaling((3 * ::viewwidth) / 2);
 }
 
 void NewViewSize()
 {
-    CA_UpLevel();
-    ::SetViewSize();
-    CA_DownLevel();
+	CA_UpLevel();
+	::SetViewSize();
+	CA_DownLevel();
 }
 
 void pre_quit()
 {
-    if (::is_config_loaded) {
-        ::WriteConfig();
-        ::write_high_scores();
-    }
+	if (::is_config_loaded)
+	{
+		::WriteConfig();
+		::write_high_scores();
+	}
 
-    ::ShutdownId();
+	::ShutdownId();
 }
 
 void Quit()
 {
+	::Quit({});
+}
+
+void Quit(
+	const std::string& message)
+{
 	::pre_quit();
 
-	std::exit(1);
+	throw QuitException{message};
 }
 
 void DemoLoop()
@@ -9525,12 +9626,12 @@ void DemoLoop()
 				::VL_SetPalette(
 					0,
 					256,
-					reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]));
+					reinterpret_cast<const std::uint8_t*>(::grsegs[TITLEPALETTE]));
 
 				::VL_SetPaletteIntensity(
 					0,
 					255,
-					reinterpret_cast<const uint8_t*>(::grsegs[TITLEPALETTE]),
+					reinterpret_cast<const std::uint8_t*>(::grsegs[TITLEPALETTE]),
 					0);
 
 				auto version_text_width = 0;
@@ -9562,12 +9663,12 @@ void DemoLoop()
 					::vga_ref_height -
 					(version_bar_height + ps_fizzle_height));
 
-				::WindowX = static_cast<uint16_t>(version_bar_x);
-				::WindowY = static_cast<uint16_t>(version_bar_y);
+				::WindowX = static_cast<std::uint16_t>(version_bar_x);
+				::WindowY = static_cast<std::uint16_t>(version_bar_y);
 				::PrintX = ::WindowX + version_padding;
 				::PrintY = ::WindowY + version_padding;
-				::WindowW = static_cast<uint16_t>(version_bar_width);
-				::WindowH = static_cast<uint16_t>(version_bar_height);
+				::WindowW = static_cast<std::uint16_t>(version_bar_width);
+				::WindowH = static_cast<std::uint16_t>(version_bar_height);
 
 				::VWB_Bar(
 					::WindowX,
@@ -9580,12 +9681,12 @@ void DemoLoop()
 				::US_Print(::get_version_string().c_str());
 
 				VW_UpdateScreen();
-				::VL_FadeIn(0, 255, reinterpret_cast<uint8_t*>(::grsegs[TITLEPALETTE]), 30);
+				::VL_FadeIn(0, 255, reinterpret_cast<std::uint8_t*>(::grsegs[TITLEPALETTE]), 30);
 				::UNCACHEGRCHUNK(TITLEPALETTE);
 
 				if (assets_info.is_ps())
 				{
-					bstone::PSFizzleFX fizzle;
+					bstone::PsFizzleFX fizzle;
 
 					fizzle.initialize();
 
@@ -9668,50 +9769,36 @@ void DemoLoop()
 
 void DrawCreditsPage()
 {
-    PresenterInfo pi;
+	PresenterInfo pi;
 
-    CA_CacheScreen(BACKGROUND_SCREENPIC);
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
 
-    memset(&pi, 0, sizeof(pi));
-    pi.flags = TPF_CACHE_NO_GFX;
-    pi.xl = 38;
-    pi.yl = 28;
-    pi.xh = 281;
-    pi.yh = 170;
-    pi.bgcolor = 2;
-    pi.ltcolor = BORDER_HI_COLOR;
-    fontcolor = BORDER_TEXT_COLOR;
-    pi.shcolor = pi.dkcolor = 0;
-    pi.fontnumber = static_cast<int8_t>(fontnumber);
+	memset(&pi, 0, sizeof(pi));
+	pi.flags = TPF_CACHE_NO_GFX;
+	pi.xl = 38;
+	pi.yl = 28;
+	pi.xh = 281;
+	pi.yh = 170;
+	pi.bgcolor = 2;
+	pi.ltcolor = BORDER_HI_COLOR;
+	fontcolor = BORDER_TEXT_COLOR;
+	pi.shcolor = pi.dkcolor = 0;
+	pi.fontnumber = static_cast<std::int8_t>(fontnumber);
 
-    TP_LoadScript(nullptr, &pi, CREDITSTEXT);
-    TP_Presenter(&pi);
+	TP_LoadScript(nullptr, &pi, CREDITSTEXT);
+	TP_Presenter(&pi);
 }
 
 
-int16_t debug_value = 0;
-
 int main(
-    int argc,
-    char* argv[])
+	int argc,
+	char* argv[])
 {
 #ifdef __vita__
-    scePowerSetArmClockFrequency(444);
-    scePowerSetBusClockFrequency(222);
-    scePowerSetGpuClockFrequency(222);
-    scePowerSetGpuXbarClockFrequency(166);
-#endif
-    int sdl_result = 0;
-
-    uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
-
-    sdl_result = ::SDL_Init(init_flags);
-
-    if (sdl_result != 0) {
-        ::Quit(::SDL_GetError());
-    }
-
-#ifdef __vita__
+	scePowerSetArmClockFrequency(444);
+	scePowerSetBusClockFrequency(222);
+	scePowerSetGpuClockFrequency(222);
+	scePowerSetGpuXbarClockFrequency(166);
     sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
     SceAppUtilAppEventParam eventParam;
     memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
@@ -9737,22 +9824,49 @@ int main(
     ::g_args.initialize(argc, argv);
 #endif
 
-    freed_main();
+	bstone::Log::initialize();
 
-    DemoLoop();
+	auto quit_message = std::string{};
 
-    Quit();
+	try
+	{
+		int sdl_result = 0;
 
-    return 0;
+		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+
+		sdl_result = ::SDL_Init(init_flags);
+
+		if (sdl_result != 0)
+		{
+			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+		}
+
+		freed_main();
+
+		DemoLoop();
+	}
+	catch (const QuitException& ex)
+	{
+		quit_message = ex.get_message();
+	}
+
+	if (!quit_message.empty())
+	{
+		bstone::Log::write_critical(quit_message);
+
+		return 1;
+	}
+
+	return 0;
 }
 
 void InitDestPath()
 {
-		const auto separator =
+	const auto separator =
 #ifdef _WIN32
-			'\\'
+		'\\'
 #else
-			'/'
+		'/'
 #endif
 		;
 
@@ -9790,557 +9904,539 @@ void InitDestPath()
 }
 
 // BBi
-void objtype::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void objtype::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(areanumber, writer, checksum);
-    ::serialize_field(active, writer, checksum);
-    ::serialize_field(ticcount, writer, checksum);
-    ::serialize_field(obclass, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
+	archiver->write_uint8(areanumber);
+	archiver->write_int8(active);
+	archiver->write_int16(ticcount);
+	archiver->write_uint8(obclass);
 
-    int32_t state_index = static_cast<int32_t>(::get_state_index(state));
-    ::serialize_field(state_index, writer, checksum);
+	const auto state_index = ::get_state_index(state);
+	archiver->write_int32(state_index);
 
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(flags2, writer, checksum);
-    ::serialize_field(distance, writer, checksum);
-    ::serialize_field(dir, writer, checksum);
-    ::serialize_field(trydir, writer, checksum);
-    ::serialize_field(x, writer, checksum);
-    ::serialize_field(y, writer, checksum);
-    ::serialize_field(s_tilex, writer, checksum);
-    ::serialize_field(s_tiley, writer, checksum);
-    ::serialize_field(viewx, writer, checksum);
-    ::serialize_field(viewheight, writer, checksum);
-    ::serialize_field(transx, writer, checksum);
-    ::serialize_field(transy, writer, checksum);
-    ::serialize_field(hitpoints, writer, checksum);
-    ::serialize_field(ammo, writer, checksum);
-    ::serialize_field(lighting, writer, checksum);
-    ::serialize_field(linc, writer, checksum);
-    ::serialize_field(angle, writer, checksum);
-    ::serialize_field(speed, writer, checksum);
-    ::serialize_field(temp1, writer, checksum);
-    ::serialize_field(temp2, writer, checksum);
-    ::serialize_field(temp3, writer, checksum);
+	archiver->write_uint32(flags);
+	archiver->write_uint16(flags2);
+	archiver->write_int32(distance);
+	archiver->write_uint8(dir);
+	archiver->write_uint8(trydir);
+	archiver->write_int32(x);
+	archiver->write_int32(y);
+	archiver->write_uint8(s_tilex);
+	archiver->write_uint8(s_tiley);
+	// viewx
+	// viewheight
+	// transx
+	// transy
+	archiver->write_int16(hitpoints);
+	archiver->write_uint8(ammo);
+	archiver->write_int8(lighting);
+	archiver->write_uint16(linc);
+	archiver->write_int16(angle);
+	archiver->write_int32(speed);
+	archiver->write_int16(temp1);
+	archiver->write_int16(temp2);
+	archiver->write_uint16(temp3);
 }
 
-void objtype::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void objtype::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(areanumber, reader, checksum);
-    ::deserialize_field(active, reader, checksum);
-    ::deserialize_field(ticcount, reader, checksum);
-    ::deserialize_field(obclass, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
+	areanumber = archiver->read_uint8();
+	active = static_cast<activetype>(archiver->read_int8());
+	ticcount = archiver->read_int16();
+	obclass = static_cast<classtype>(archiver->read_uint8());
 
-    int32_t state_index = 0;
-    ::deserialize_field(state_index, reader, checksum);
-    state = states_list[state_index];
+	const auto state_index = archiver->read_int32();
+	state = states_list[state_index];
 
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(flags2, reader, checksum);
-    ::deserialize_field(distance, reader, checksum);
-    ::deserialize_field(dir, reader, checksum);
-    ::deserialize_field(trydir, reader, checksum);
-    ::deserialize_field(x, reader, checksum);
-    ::deserialize_field(y, reader, checksum);
-    ::deserialize_field(s_tilex, reader, checksum);
-    ::deserialize_field(s_tiley, reader, checksum);
-    ::deserialize_field(viewx, reader, checksum);
-    ::deserialize_field(viewheight, reader, checksum);
-    ::deserialize_field(transx, reader, checksum);
-    ::deserialize_field(transy, reader, checksum);
-    ::deserialize_field(hitpoints, reader, checksum);
-    ::deserialize_field(ammo, reader, checksum);
-    ::deserialize_field(lighting, reader, checksum);
-    ::deserialize_field(linc, reader, checksum);
-    ::deserialize_field(angle, reader, checksum);
-    ::deserialize_field(speed, reader, checksum);
-    ::deserialize_field(temp1, reader, checksum);
-    ::deserialize_field(temp2, reader, checksum);
-    ::deserialize_field(temp3, reader, checksum);
+	flags = archiver->read_uint32();
+	flags2 = archiver->read_uint16();
+	distance = archiver->read_int32();
+	dir = static_cast<dirtype>(archiver->read_uint8());
+	trydir = static_cast<dirtype>(archiver->read_uint8());
+	x = archiver->read_int32();
+	y = archiver->read_int32();
+	s_tilex = archiver->read_uint8();
+	s_tiley = archiver->read_uint8();
+	viewx = {};
+	viewheight = {};
+	transx = {};
+	transy = {};
+	hitpoints = archiver->read_int16();
+	ammo = archiver->read_uint8();
+	lighting = archiver->read_int8();
+	linc = archiver->read_uint16();
+	angle = archiver->read_int16();
+	speed = archiver->read_int32();
+	temp1 = archiver->read_int16();
+	temp2 = archiver->read_int16();
+	temp3 = archiver->read_uint16();
 }
 
-void statobj_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void statobj_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(areanumber, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
+	archiver->write_uint8(areanumber);
 
-    int32_t vis_index = static_cast<int32_t>(visspot - &spotvis[0][0]);
-    ::serialize_field(vis_index, writer, checksum);
+	const auto vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
+	archiver->write_int32(vis_index);
 
-    ::serialize_field(shapenum, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(itemnumber, writer, checksum);
-    ::serialize_field(lighting, writer, checksum);
+	archiver->write_int16(shapenum);
+	archiver->write_uint16(flags);
+	archiver->write_uint8(itemnumber);
+	archiver->write_int8(lighting);
 }
 
-void statobj_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void statobj_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(areanumber, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
+	areanumber = archiver->read_uint8();
 
-    int32_t vis_index = 0;
-    ::deserialize_field(vis_index, reader, checksum);
+	const auto vis_index = archiver->read_int32();
 
-    if (vis_index < 0) {
-        visspot = nullptr;
-    } else {
-        visspot = &(&spotvis[0][0])[vis_index];
-    }
+	if (vis_index < 0)
+	{
+		visspot = nullptr;
+	}
+	else
+	{
+		visspot = &(&spotvis[0][0])[vis_index];
+	}
 
-    ::deserialize_field(shapenum, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(itemnumber, reader, checksum);
-    ::deserialize_field(lighting, reader, checksum);
+	shapenum = archiver->read_int16();
+	flags = archiver->read_uint16();
+	itemnumber = archiver->read_uint8();
+	lighting = archiver->read_int8();
 }
 
-void doorobj_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void doorobj_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(vertical, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(lock, writer, checksum);
-    ::serialize_field(type, writer, checksum);
-    ::serialize_field(action, writer, checksum);
-    ::serialize_field(ticcount, writer, checksum);
-    ::serialize_field(areanumber, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
+	archiver->write_bool(vertical);
+	archiver->write_int8(flags);
+	archiver->write_int8(lock);
+	archiver->write_uint8(type);
+	archiver->write_uint8(action);
+	archiver->write_int16(ticcount);
+	archiver->write_uint8_array(areanumber, 2);
 }
 
-void doorobj_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void doorobj_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(vertical, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(lock, reader, checksum);
-    ::deserialize_field(type, reader, checksum);
-    ::deserialize_field(action, reader, checksum);
-    ::deserialize_field(ticcount, reader, checksum);
-    ::deserialize_field(areanumber, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
+	vertical = archiver->read_bool();
+	flags = archiver->read_int8();
+	lock = static_cast<keytype>(archiver->read_int8());
+	type = static_cast<door_t>(archiver->read_uint8());
+	action = static_cast<DoorAction>(archiver->read_uint8());
+	ticcount = archiver->read_int16();
+	archiver->read_uint8_array(areanumber, 2);
 }
 
-void mCacheInfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void mCacheInfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(local_val, writer, checksum);
-    ::serialize_field(global_val, writer, checksum);
+	archiver->write_uint8(local_val);
+	archiver->write_uint8(global_val);
 }
 
-void mCacheInfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void mCacheInfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(local_val, reader, checksum);
-    ::deserialize_field(global_val, reader, checksum);
-    mSeg = nullptr;
+	local_val = archiver->read_uint8();
+	global_val = archiver->read_uint8();
+	mSeg = nullptr;
 }
 
-void con_mCacheInfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void con_mCacheInfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    mInfo.serialize(writer, checksum);
-    ::serialize_field(type, writer, checksum);
-    ::serialize_field(operate_cnt, writer, checksum);
+	mInfo.archive(archiver);
+	archiver->write_uint8(type);
+	archiver->write_uint8(operate_cnt);
 }
 
-void con_mCacheInfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void con_mCacheInfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    mInfo.deserialize(reader, checksum);
-    ::deserialize_field(type, reader, checksum);
-    ::deserialize_field(operate_cnt, reader, checksum);
+	mInfo.unarchive(archiver);
+	type = archiver->read_uint8();
+	operate_cnt = archiver->read_uint8();
 }
 
-void concession_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void concession_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(NumMsgs, writer, checksum);
+	archiver->write_int16(NumMsgs);
 
-    for (int i = 0; i < NumMsgs; ++i) {
-        cmInfo[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < NumMsgs; ++i)
+	{
+		cmInfo[i].archive(archiver);
+	}
 }
 
-void concession_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void concession_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(NumMsgs, reader, checksum);
+	NumMsgs = archiver->read_int16();
 
-    for (int i = 0; i < NumMsgs; ++i) {
-        cmInfo[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < NumMsgs; ++i)
+	{
+		cmInfo[i].unarchive(archiver);
+	}
 }
 
-void eaWallInfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void eaWallInfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
-    ::serialize_field(aliens_out, writer, checksum);
-    ::serialize_field(delay, writer, checksum);
+	archiver->write_int8(tilex);
+	archiver->write_int8(tiley);
+	archiver->write_int8(aliens_out);
+	archiver->write_int16(delay);
 }
 
-void eaWallInfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void eaWallInfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
-    ::deserialize_field(aliens_out, reader, checksum);
-    ::deserialize_field(delay, reader, checksum);
+	tilex = archiver->read_int8();
+	tiley = archiver->read_int8();
+	aliens_out = archiver->read_int8();
+	delay = archiver->read_int16();
 }
 
-void GoldsternInfo_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void GoldsternInfo_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(LastIndex, writer, checksum);
-    ::serialize_field(SpawnCnt, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(WaitTime, writer, checksum);
-    ::serialize_field(GoldSpawned, writer, checksum);
+	archiver->write_uint8(LastIndex);
+	archiver->write_uint8(SpawnCnt);
+	archiver->write_uint16(flags);
+	archiver->write_uint16(WaitTime);
+	archiver->write_bool(GoldSpawned);
 }
 
-void GoldsternInfo_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void GoldsternInfo_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(LastIndex, reader, checksum);
-    ::deserialize_field(SpawnCnt, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(WaitTime, reader, checksum);
-    ::deserialize_field(GoldSpawned, reader, checksum);
+	LastIndex = archiver->read_uint8();
+	SpawnCnt = archiver->read_uint8();
+	flags = archiver->read_uint16();
+	WaitTime = archiver->read_uint16();
+	GoldSpawned = archiver->read_bool();
 }
 
-void tilecoord_t::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void tilecoord_t::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(tilex, writer, checksum);
-    ::serialize_field(tiley, writer, checksum);
+	archiver->write_uint8(tilex);
+	archiver->write_uint8(tiley);
 }
 
-void tilecoord_t::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void tilecoord_t::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(tilex, reader, checksum);
-    ::deserialize_field(tiley, reader, checksum);
+	tilex = archiver->read_uint8();
+	tiley = archiver->read_uint8();
 }
 
-void barrier_type::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void barrier_type::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(level, writer, checksum);
-    coord.serialize(writer, checksum);
-    ::serialize_field(on, writer, checksum);
+	archiver->write_uint8(level);
+	coord.archive(archiver);
+	archiver->write_uint8(on);
 }
 
-void barrier_type::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void barrier_type::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(level, reader, checksum);
-    coord.deserialize(reader, checksum);
-    ::deserialize_field(on, reader, checksum);
+	level = archiver->read_uint8();
+	coord.unarchive(archiver);
+	on = archiver->read_uint8();
 }
 
-void statsInfoType::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void statsInfoType::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(total_points, writer, checksum);
-    ::serialize_field(accum_points, writer, checksum);
-    ::serialize_field(total_enemy, writer, checksum);
-    ::serialize_field(accum_enemy, writer, checksum);
-    ::serialize_field(total_inf, writer, checksum);
-    ::serialize_field(accum_inf, writer, checksum);
-    ::serialize_field(overall_floor, writer, checksum);
+	archiver->write_int32(total_points);
+	archiver->write_int32(accum_points);
+	archiver->write_uint8(total_enemy);
+	archiver->write_uint8(accum_enemy);
+	archiver->write_uint8(total_inf);
+	archiver->write_uint8(accum_inf);
+	archiver->write_int16(overall_floor);
 }
 
-void statsInfoType::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void statsInfoType::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(total_points, reader, checksum);
-    ::deserialize_field(accum_points, reader, checksum);
-    ::deserialize_field(total_enemy, reader, checksum);
-    ::deserialize_field(accum_enemy, reader, checksum);
-    ::deserialize_field(total_inf, reader, checksum);
-    ::deserialize_field(accum_inf, reader, checksum);
-    ::deserialize_field(overall_floor, reader, checksum);
+	total_points = archiver->read_int32();
+	accum_points = archiver->read_int32();
+	total_enemy = archiver->read_uint8();
+	accum_enemy = archiver->read_uint8();
+	total_inf = archiver->read_uint8();
+	accum_inf = archiver->read_uint8();
+	overall_floor = archiver->read_int16();
 }
 
-void levelinfo::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void levelinfo::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(bonus_queue, writer, checksum);
-    ::serialize_field(bonus_shown, writer, checksum);
-    ::serialize_field(locked, writer, checksum);
-    stats.serialize(writer, checksum);
-    ::serialize_field(ptilex, writer, checksum);
-    ::serialize_field(ptiley, writer, checksum);
-    ::serialize_field(pangle, writer, checksum);
+	archiver->write_uint16(bonus_queue);
+	archiver->write_uint16(bonus_shown);
+	archiver->write_bool(locked);
+	stats.archive(archiver);
+	archiver->write_uint8(ptilex);
+	archiver->write_uint8(ptiley);
+	archiver->write_int16(pangle);
 }
 
-void levelinfo::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void levelinfo::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(bonus_queue, reader, checksum);
-    ::deserialize_field(bonus_shown, reader, checksum);
-    ::deserialize_field(locked, reader, checksum);
-    stats.deserialize(reader, checksum);
-    ::deserialize_field(ptilex, reader, checksum);
-    ::deserialize_field(ptiley, reader, checksum);
-    ::deserialize_field(pangle, reader, checksum);
+	bonus_queue = archiver->read_uint16();
+	bonus_shown = archiver->read_uint16();
+	locked = archiver->read_bool();
+	stats.unarchive(archiver);
+	ptilex = archiver->read_uint8();
+	ptiley = archiver->read_uint8();
+	pangle = archiver->read_int16();
 }
 
-fargametype::fargametype() :
-    old_levelinfo(),
-    level()
+fargametype::fargametype()
+	:
+	old_levelinfo{},
+	level{}
 {
 }
 
 void fargametype::initialize()
 {
-    old_levelinfo.resize(MAPS_PER_EPISODE);
-    level.resize(MAPS_PER_EPISODE);
+	old_levelinfo.resize(MAPS_PER_EPISODE);
+	level.resize(MAPS_PER_EPISODE);
 }
 
 void fargametype::clear()
 {
-    old_levelinfo.clear();
-    level.clear();
+	old_levelinfo.clear();
+	level.clear();
 
-    initialize();
+	initialize();
 }
 
-void fargametype::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void fargametype::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        old_levelinfo[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		old_levelinfo[i].archive(archiver);
+	}
 
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        level[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		level[i].archive(archiver);
+	}
 }
 
-void fargametype::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void fargametype::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        old_levelinfo[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		old_levelinfo[i].unarchive(archiver);
+	}
 
-    for (int i = 0; i < MAPS_PER_EPISODE; ++i) {
-        level[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	{
+		level[i].unarchive(archiver);
+	}
 }
 
-void gametype::serialize(
-    bstone::BinaryWriter& writer,
-    bstone::Crc32& checksum) const
+void gametype::archive(
+	bstone::ArchiverPtr archiver) const
 {
-    ::serialize_field(turn_around, writer, checksum);
-    ::serialize_field(turn_angle, writer, checksum);
-    ::serialize_field(flags, writer, checksum);
-    ::serialize_field(lastmapon, writer, checksum);
-    ::serialize_field(difficulty, writer, checksum);
-    ::serialize_field(mapon, writer, checksum);
-    ::serialize_field(oldscore, writer, checksum);
-    ::serialize_field(tic_score, writer, checksum);
-    ::serialize_field(score, writer, checksum);
-    ::serialize_field(nextextra, writer, checksum);
-    ::serialize_field(score_roll_wait, writer, checksum);
-    ::serialize_field(lives, writer, checksum);
-    ::serialize_field(health, writer, checksum);
-    ::serialize_field(health_str, writer, checksum);
-    ::serialize_field(rpower, writer, checksum);
-    ::serialize_field(old_rpower, writer, checksum);
-    ::serialize_field(rzoom, writer, checksum);
-    ::serialize_field(radar_leds, writer, checksum);
-    ::serialize_field(lastradar_leds, writer, checksum);
-    ::serialize_field(lastammo_leds, writer, checksum);
-    ::serialize_field(ammo_leds, writer, checksum);
-    ::serialize_field(ammo, writer, checksum);
-    ::serialize_field(old_ammo, writer, checksum);
-    ::serialize_field(plasma_detonators, writer, checksum);
-    ::serialize_field(old_plasma_detonators, writer, checksum);
-    ::serialize_field(useable_weapons, writer, checksum);
-    ::serialize_field(weapons, writer, checksum);
-    ::serialize_field(weapon, writer, checksum);
-    ::serialize_field(chosenweapon, writer, checksum);
-    ::serialize_field(old_weapons, writer, checksum);
-    ::serialize_field(weapon_wait, writer, checksum);
-    ::serialize_field(attackframe, writer, checksum);
-    ::serialize_field(attackcount, writer, checksum);
-    ::serialize_field(weaponframe, writer, checksum);
-    ::serialize_field(episode, writer, checksum);
+	archiver->write_int16(turn_around);
+	archiver->write_int16(turn_angle);
+	archiver->write_uint16(flags);
+	archiver->write_int16(lastmapon);
+	archiver->write_int16(difficulty);
+	archiver->write_int16(mapon);
+	archiver->write_int32(oldscore);
+	archiver->write_int32(tic_score);
+	archiver->write_int32(score);
+	archiver->write_int32(nextextra);
+	archiver->write_int16(score_roll_wait);
+	archiver->write_int16(lives);
+	archiver->write_int16(health);
+	archiver->write_char_array(health_str, 4);
+	archiver->write_int16(rpower);
+	archiver->write_int16(old_rpower);
+	archiver->write_int8(rzoom);
+	archiver->write_int8(radar_leds);
+	archiver->write_int8(lastradar_leds);
+	archiver->write_int8(lastammo_leds);
+	archiver->write_int8(ammo_leds);
+	archiver->write_int16(ammo);
+	archiver->write_int16(old_ammo);
+	archiver->write_int16(plasma_detonators);
+	archiver->write_int16(old_plasma_detonators);
+	archiver->write_int8(useable_weapons);
+	archiver->write_int8(weapons);
+	archiver->write_int8(weapon);
+	archiver->write_int8(chosenweapon);
+	archiver->write_int8_array(old_weapons, 4);
+	archiver->write_int8(weapon_wait);
+	archiver->write_int16(attackframe);
+	archiver->write_int16(attackcount);
+	archiver->write_int16(weaponframe);
+	archiver->write_int16(episode);
+	archiver->write_uint32(TimeCount);
+	// Skip "msg"
+	archiver->write_int8_array(numkeys, NUMKEYS);
+	archiver->write_int8_array(old_numkeys, NUMKEYS);
 
-    auto time_count = TimeCount;
-    ::serialize_field(time_count, writer, checksum);
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		cross_barriers[i].archive(archiver);
+	}
 
-    // Skip "msg"
-    ::serialize_field(numkeys, writer, checksum);
-    ::serialize_field(old_numkeys, writer, checksum);
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i].archive(archiver);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        cross_barriers[i].serialize(writer, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		old_barrier_table[i].archive(archiver);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i].serialize(writer, checksum);
-    }
-
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        old_barrier_table[i].serialize(writer, checksum);
-    }
-
-    ::serialize_field(tokens, writer, checksum);
-    ::serialize_field(old_tokens, writer, checksum);
-    ::serialize_field(boss_key_dropped, writer, checksum);
-    ::serialize_field(old_boss_key_dropped, writer, checksum);
-    ::serialize_field(wintilex, writer, checksum);
-    ::serialize_field(wintiley, writer, checksum);
+	archiver->write_uint16(tokens);
+	archiver->write_uint16(old_tokens);
+	archiver->write_bool(boss_key_dropped);
+	archiver->write_bool(old_boss_key_dropped);
+	archiver->write_int16(wintilex);
+	archiver->write_int16(wintiley);
 }
 
-void gametype::deserialize(
-    bstone::BinaryReader& reader,
-    bstone::Crc32& checksum)
+void gametype::unarchive(
+	bstone::ArchiverPtr archiver)
 {
-    ::deserialize_field(turn_around, reader, checksum);
-    ::deserialize_field(turn_angle, reader, checksum);
-    ::deserialize_field(flags, reader, checksum);
-    ::deserialize_field(lastmapon, reader, checksum);
-    ::deserialize_field(difficulty, reader, checksum);
-    ::deserialize_field(mapon, reader, checksum);
-    ::deserialize_field(oldscore, reader, checksum);
-    ::deserialize_field(tic_score, reader, checksum);
-    ::deserialize_field(score, reader, checksum);
-    ::deserialize_field(nextextra, reader, checksum);
-    ::deserialize_field(score_roll_wait, reader, checksum);
-    ::deserialize_field(lives, reader, checksum);
-    ::deserialize_field(health, reader, checksum);
-    ::deserialize_field(health_str, reader, checksum);
-    ::deserialize_field(rpower, reader, checksum);
-    ::deserialize_field(old_rpower, reader, checksum);
-    ::deserialize_field(rzoom, reader, checksum);
-    ::deserialize_field(radar_leds, reader, checksum);
-    ::deserialize_field(lastradar_leds, reader, checksum);
-    ::deserialize_field(lastammo_leds, reader, checksum);
-    ::deserialize_field(ammo_leds, reader, checksum);
-    ::deserialize_field(ammo, reader, checksum);
-    ::deserialize_field(old_ammo, reader, checksum);
-    ::deserialize_field(plasma_detonators, reader, checksum);
-    ::deserialize_field(old_plasma_detonators, reader, checksum);
-    ::deserialize_field(useable_weapons, reader, checksum);
-    ::deserialize_field(weapons, reader, checksum);
-    ::deserialize_field(weapon, reader, checksum);
-    ::deserialize_field(chosenweapon, reader, checksum);
-    ::deserialize_field(old_weapons, reader, checksum);
-    ::deserialize_field(weapon_wait, reader, checksum);
-    ::deserialize_field(attackframe, reader, checksum);
-    ::deserialize_field(attackcount, reader, checksum);
-    ::deserialize_field(weaponframe, reader, checksum);
-    ::deserialize_field(episode, reader, checksum);
+	turn_around = archiver->read_int16();
+	turn_angle = archiver->read_int16();
+	flags = archiver->read_uint16();
+	lastmapon = archiver->read_int16();
+	difficulty = archiver->read_int16();
+	mapon = archiver->read_int16();
+	oldscore = archiver->read_int32();
+	tic_score = archiver->read_int32();
+	score = archiver->read_int32();
+	nextextra = archiver->read_int32();
+	score_roll_wait = archiver->read_int16();
+	lives = archiver->read_int16();
+	health = archiver->read_int16();
+	archiver->read_char_array(health_str, 4);
+	rpower = archiver->read_int16();
+	old_rpower = archiver->read_int16();
+	rzoom = archiver->read_int8();
+	radar_leds = archiver->read_int8();
+	lastradar_leds = archiver->read_int8();
+	lastammo_leds = archiver->read_int8();
+	ammo_leds = archiver->read_int8();
+	ammo = archiver->read_int16();
+	old_ammo = archiver->read_int16();
+	plasma_detonators = archiver->read_int16();
+	old_plasma_detonators = archiver->read_int16();
+	useable_weapons = archiver->read_int8();
+	weapons = archiver->read_int8();
+	weapon = archiver->read_int8();
+	chosenweapon = archiver->read_int8();
+	archiver->read_int8_array(old_weapons, 4);
+	weapon_wait = archiver->read_int8();
+	attackframe = archiver->read_int16();
+	attackcount = archiver->read_int16();
+	weaponframe = archiver->read_int16();
+	episode = archiver->read_int16();
+	TimeCount = archiver->read_uint32();
+	msg = nullptr;
+	archiver->read_int8_array(numkeys, NUMKEYS);
+	archiver->read_int8_array(old_numkeys, NUMKEYS);
 
-    uint32_t time_count = 0;
-    ::deserialize_field(time_count, reader, checksum);
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		cross_barriers[i].unarchive(archiver);
+	}
 
-    msg = nullptr;
-    ::deserialize_field(numkeys, reader, checksum);
-    ::deserialize_field(old_numkeys, reader, checksum);
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i].unarchive(archiver);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        cross_barriers[i].deserialize(reader, checksum);
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		old_barrier_table[i].unarchive(archiver);
+	}
 
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i].deserialize(reader, checksum);
-    }
-
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        old_barrier_table[i].deserialize(reader, checksum);
-    }
-
-    ::deserialize_field(tokens, reader, checksum);
-    ::deserialize_field(old_tokens, reader, checksum);
-    ::deserialize_field(boss_key_dropped, reader, checksum);
-    ::deserialize_field(old_boss_key_dropped, reader, checksum);
-    ::deserialize_field(wintilex, reader, checksum);
-    ::deserialize_field(wintiley, reader, checksum);
-
-    TimeCount = time_count;
+	tokens = archiver->read_uint16();
+	old_tokens = archiver->read_uint16();
+	boss_key_dropped = archiver->read_bool();
+	old_boss_key_dropped = archiver->read_bool();
+	wintilex = archiver->read_int16();
+	wintiley = archiver->read_int16();
 }
 
 void gametype::initialize_cross_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        cross_barriers[i].level = 0xFF;
-        cross_barriers[i].coord.tilex = 0xFF;
-        cross_barriers[i].coord.tiley = 0xFF;
-        cross_barriers[i].on = 0xFF;
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		cross_barriers[i].level = 0xFF;
+		cross_barriers[i].coord.tilex = 0xFF;
+		cross_barriers[i].coord.tiley = 0xFF;
+		cross_barriers[i].on = 0xFF;
+	}
 }
 
 void gametype::initialize_local_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i].level = 0xFF;
-        barrier_table[i].coord.tilex = 0xFF;
-        barrier_table[i].coord.tiley = 0xFF;
-        barrier_table[i].on = 0xFF;
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i].level = 0xFF;
+		barrier_table[i].coord.tilex = 0xFF;
+		barrier_table[i].coord.tiley = 0xFF;
+		barrier_table[i].on = 0xFF;
 
-        old_barrier_table[i].level = 0xFF;
-        old_barrier_table[i].coord.tilex = 0xFF;
-        old_barrier_table[i].coord.tiley = 0xFF;
-        old_barrier_table[i].on = 0xFF;
-    }
+		old_barrier_table[i].level = 0xFF;
+		old_barrier_table[i].coord.tilex = 0xFF;
+		old_barrier_table[i].coord.tiley = 0xFF;
+		old_barrier_table[i].on = 0xFF;
+	}
 }
 
 void gametype::store_local_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        old_barrier_table[i] = barrier_table[i];
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		old_barrier_table[i] = barrier_table[i];
+	}
 }
 
 void gametype::restore_local_barriers()
 {
-    for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i) {
-        barrier_table[i] = old_barrier_table[i];
-    }
+	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	{
+		barrier_table[i] = old_barrier_table[i];
+	}
 }
 
 void sys_sleep_for(
@@ -10351,72 +10447,141 @@ void sys_sleep_for(
 
 void sys_default_sleep_for()
 {
-    ::sys_sleep_for(10);
+	::sys_sleep_for(10);
 }
 
 const std::string& get_version_string()
 {
 #ifdef __vita__
-    static const std::string version = "0.2.1";
+    static const std::string version = "0.3";
 #else
-    static const std::string version = "1.1.9";
+    static const std::string version = "1.1.12";
 #endif
     return version;
 }
 
 const std::string& get_profile_dir()
 {
-    static std::string profile_dir;
-    static auto is_initialized = false;
+	static std::string profile_dir;
+	static auto is_initialized = false;
 
-    if (!is_initialized) {
-        is_initialized = true;
+	if (!is_initialized)
+	{
+		is_initialized = true;
 
-        profile_dir = ::g_args.get_option_value("profile_dir");
+		profile_dir = ::g_args.get_option_value("profile_dir");
 
-        if (!profile_dir.empty()) {
-            profile_dir +=
+		if (!profile_dir.empty())
+		{
+			const auto separator_char =
 #ifdef _WIN32
-                '\\'
+				'\\'
 #else
-                '/'
+				'/'
 #endif
-            ;
-        }
+			;
 
-        if (profile_dir.empty()) {
-            auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
+			const auto end_char = profile_dir.back();
 
-            if (sdl_dir) {
-                profile_dir = sdl_dir;
-                ::SDL_free(sdl_dir);
-            }
-        }
-    }
+			if (end_char != '\\' && end_char != '/')
+			{
+				profile_dir += separator_char;
+			}
+		}
+
+		if (profile_dir.empty())
+		{
+			auto sdl_dir = ::SDL_GetPrefPath("bibendovsky", "bstone");
+
+			if (sdl_dir)
+			{
+				profile_dir = sdl_dir;
+				::SDL_free(sdl_dir);
+			}
+		}
+	}
 #ifdef __vita__
-    profile_dir = "ux0:/data/bstone/";
+	profile_dir = "ux0:/data/bstone/";
 #endif
-    return profile_dir;
+	return profile_dir;
 }
 
 const std::string& get_default_data_dir()
 {
-    static std::string result;
-    static auto is_initialized = false;
+	static std::string result;
+	static auto is_initialized = false;
 
-    if (!is_initialized) {
-        is_initialized = true;
+	if (!is_initialized)
+	{
+		is_initialized = true;
 
-        auto sdl_dir = ::SDL_GetBasePath();
+		auto sdl_dir = ::SDL_GetBasePath();
 
-        if (sdl_dir) {
-            result = sdl_dir;
-            ::SDL_free(sdl_dir);
-        }
-    }
+		if (sdl_dir)
+		{
+			result = sdl_dir;
+			::SDL_free(sdl_dir);
+		}
+	}
 #ifdef __vita__
-    result = "ux0:/data/bstone/";
+	result = "ux0:/data/bstone/";
 #endif
-    return result;
+	return result;
+}
+
+classtype operator++(
+	classtype& value,
+	const int)
+{
+	auto result = value;
+	value = static_cast<classtype>(value + 1);
+	return result;
+}
+
+dirtype operator+=(
+	dirtype& lhs,
+	const int rhs)
+{
+	lhs = static_cast<dirtype>(lhs + rhs);
+	return lhs;
+}
+
+dirtype operator-=(
+	dirtype& lhs,
+	const int rhs)
+{
+	lhs = static_cast<dirtype>(lhs - rhs);
+	return lhs;
+}
+
+dirtype operator|=(
+	dirtype& lhs,
+	const int rhs)
+{
+	lhs = static_cast<dirtype>(lhs | rhs);
+	return lhs;
+}
+
+dirtype operator--(
+	dirtype& value,
+	const int)
+{
+	auto result = value;
+	value -= 1;
+	return result;
+}
+
+dirtype operator++(
+	dirtype& value,
+	const int)
+{
+	auto result = value;
+	value += 1;
+	return result;
+}
+
+double m_pi()
+{
+	return 3.14159265358979323846;
 }
 // BBi

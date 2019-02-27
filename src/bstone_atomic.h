@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,79 +32,86 @@ Free Software Foundation, Inc.,
 
 
 #include <atomic>
+#include <memory>
 #include <type_traits>
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 template<typename T>
-class Atomic {
+class Atomic
+{
 public:
-    Atomic() :
-            value_(T())
-    {
-    }
+	Atomic()
+		:
+		value_{T{}}
+	{
+	}
 
-    Atomic(
-        const T& value) :
-            value_(value)
-    {
-    }
+	Atomic(
+		const T& value)
+		:
+		value_{value}
+	{
+	}
 
-    Atomic(
-        const Atomic& that) :
-            value_(that.value_.load())
-    {
-    }
+	Atomic(
+		const Atomic& that)
+		:
+		value_{that.value_.load()}
+	{
+	}
 
-    Atomic& operator=(
-        const T& value)
-    {
-        value_ = value;
-        return *this;
-    }
+	Atomic& operator=(
+		const T& value)
+	{
+		value_ = value;
+		return *this;
+	}
 
-    Atomic& operator=(
-        const Atomic& that)
-    {
-        if (&that != this) {
-            value_ = that.value_.load();
-        }
+	Atomic& operator=(
+		const Atomic& that)
+	{
+		if (std::addressof(that) != this)
+		{
+			value_ = that.value_.load();
+		}
 
-        return *this;
-    }
+		return *this;
+	}
 
-    ~Atomic()
-    {
-    }
+	~Atomic()
+	{
+	}
 
-    operator T() const
-    {
-        return value_;
-    }
+	operator T() const
+	{
+		return value_.load(std::memory_order_acquire);
+	}
 
-    Atomic& operator-=(
-        typename std::enable_if<std::is_integral<T>::value, const T&>::type value)
-    {
-        value_ -= value;
-        return *this;
-    }
+	Atomic& operator-=(
+		typename std::enable_if<std::is_integral<T>::value, const T&>::type value)
+	{
+		value_ -= value;
+		return *this;
+	}
 
-    Atomic& operator+=(
-        typename std::enable_if<std::is_integral<T>::value, const T&>::type value)
-    {
-        value_ += value;
-        return *this;
-    }
+	Atomic& operator+=(
+		typename std::enable_if<std::is_integral<T>::value, const T&>::type value)
+	{
+		value_ += value;
+		return *this;
+	}
 
 
 private:
-    std::atomic<T> value_;
+	std::atomic<T> value_;
 }; // Atomic
 
 
 } // bstone
 
 
-#endif // BSTONE_ATOMIC_INCLUDED
+#endif // !BSTONE_ATOMIC_INCLUDED

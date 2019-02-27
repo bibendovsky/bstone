@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,22 +22,32 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "3d_def.h"
+#include <cstring>
+#include "gfxv.h"
+#include "id_ca.h"
+#include "id_heads.h"
+#include "id_in.h"
+#include "id_pm.h"
+#include "id_us.h"
+#include "id_vh.h"
+
+
+#define NUM_TILES (::PMSpriteStart)
 
 
 void VH_UpdateScreen();
 
 void TakeDamage(
-    int16_t points,
-    objtype* attacker);
+	std::int16_t points,
+	objtype* attacker);
 
 void SetPlaneViewSize();
 
 void HealSelf(
-    int16_t points);
+	std::int16_t points);
 
 void GiveWeapon(
-    int weapon);
+	int weapon);
 
 void DrawScore();
 void SetPlaneViewSize();
@@ -78,8 +88,8 @@ bool DebugKeys();
 
 bool PP_step = false;
 
-int16_t maporgx;
-int16_t maporgy;
+std::int16_t maporgx;
+std::int16_t maporgy;
 
 void ViewMap();
 
@@ -201,26 +211,26 @@ void CountTotals()
 
 void ShowMap()
 {
-    objtype old_player;
+	objtype old_player;
 
-    memcpy(&old_player, player, sizeof(objtype));
-    player->angle = 90;
-    player->x = player->y = ((int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
+	memcpy(&old_player, player, sizeof(objtype));
+	player->angle = 90;
+	player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
-    ::US_CenterWindow(20, 11);
+	::US_CenterWindow(20, 11);
 
-    US_CPrint("CURRENT MAP\n\n ");
+	US_CPrint("CURRENT MAP\n\n ");
 
-    auto old_flags = ::ExtraRadarFlags;
-    ::ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
+	auto old_flags = ::ExtraRadarFlags;
+	::ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
 
-    ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
-    VW_UpdateScreen();
+	ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
+	VW_UpdateScreen();
 
-    ::ExtraRadarFlags = old_flags;
+	::ExtraRadarFlags = old_flags;
 
-    memcpy(player, &old_player, sizeof(objtype));
-    IN_Ack();
+	memcpy(player, &old_player, sizeof(objtype));
+	IN_Ack();
 }
 
 
@@ -229,17 +239,20 @@ void ShowMap()
 //
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
-uint16_t IncRange(
-    uint16_t Value,
-    uint16_t MaxValue)
+std::uint16_t IncRange(
+	std::uint16_t Value,
+	std::uint16_t MaxValue)
 {
-    if (Value == MaxValue) {
-        Value = 0;
-    } else {
-        Value++;
-    }
+	if (Value == MaxValue)
+	{
+		Value = 0;
+	}
+	else
+	{
+		Value++;
+	}
 
-    return Value;
+	return Value;
 }
 
 // ---------------------------------------------------------------------------
@@ -247,17 +260,20 @@ uint16_t IncRange(
 //
 // NOTE: Assumes that 0 is the lowest value
 // ---------------------------------------------------------------------------
-uint16_t DecRange(
-    uint16_t Value,
-    uint16_t MaxValue)
+std::uint16_t DecRange(
+	std::uint16_t Value,
+	std::uint16_t MaxValue)
 {
-    if (Value == 0) {
-        Value = MaxValue;
-    } else {
-        Value--;
-    }
+	if (Value == 0)
+	{
+		Value = MaxValue;
+	}
+	else
+	{
+		Value--;
+	}
 
-    return Value;
+	return Value;
 }
 
 

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,99 +29,96 @@ Free Software Foundation, Inc.,
 
 #include "bstone_ps_fizzle_fx.h"
 #include "3d_def.h"
+#include "id_heads.h"
+#include "id_us.h"
+#include "id_vh.h"
 #include "id_vl.h"
+#include "gfxv.h"
 
 
 void CA_CacheScreen(
-    int16_t chunk);
+	std::int16_t chunk);
 
 
 namespace bstone
 {
 
 
-PSFizzleFX::PSFizzleFX() :
-        buffer_(::vga_ref_width * ::vga_ref_height)
+PsFizzleFX::PsFizzleFX()
+	:
+	buffer_(::vga_ref_width * ::vga_ref_height)
 {
 }
 
-PSFizzleFX::~PSFizzleFX()
-{
-    uninitialize();
-}
-
-void PSFizzleFX::initialize()
-{
-    const auto version_padding = 1;
-
-    VgaBuffer current_screen;
-
-    ::vid_export_ui(current_screen);
-
-
-    ::CA_CacheScreen(TITLE2PIC);
-    ::fontnumber = 2;
-    ::PrintX = ::WindowX + version_padding;
-    ::PrintY = ::WindowY + version_padding;
-
-    ::VWB_Bar(
-        ::WindowX,
-        ::WindowY,
-        ::WindowW,
-        ::WindowH,
-        VERSION_TEXT_BKCOLOR);
-
-    SETFONTCOLOR(
-        VERSION_TEXT_COLOR,
-        VERSION_TEXT_BKCOLOR);
-
-    ::US_Print(::get_version_string().c_str());
-
-    ::vid_export_ui(buffer_);
-
-    ::vid_import_ui(current_screen);
-}
-
-void PSFizzleFX::uninitialize()
+PsFizzleFX::PsFizzleFX(
+	PsFizzleFX&& rhs)
+	:
+	buffer_{std::move(rhs.buffer_)}
 {
 }
 
-bool PSFizzleFX::is_abortable() const
+PsFizzleFX::~PsFizzleFX()
 {
-    return true;
+	uninitialize();
 }
 
-int PSFizzleFX::get_frame_count() const
+void PsFizzleFX::initialize()
 {
-    return 70;
+	const auto version_padding = 1;
+
+	VgaBuffer current_screen;
+	::vid_export_ui(current_screen);
+
+	::CA_CacheScreen(TITLE2PIC);
+	::fontnumber = 2;
+	::PrintX = ::WindowX + version_padding;
+	::PrintY = ::WindowY + version_padding;
+	::VWB_Bar(::WindowX, ::WindowY, ::WindowW, ::WindowH, VERSION_TEXT_BKCOLOR);
+
+	SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
+	::US_Print(::get_version_string().c_str());
+
+	::vid_export_ui(buffer_);
+	::vid_import_ui(current_screen);
 }
 
-int PSFizzleFX::get_y() const
+void PsFizzleFX::uninitialize()
 {
-    return 0;
 }
 
-int PSFizzleFX::get_height() const
+bool PsFizzleFX::is_abortable() const
 {
-    return ::vga_ref_height;
+	return true;
 }
 
-void PSFizzleFX::plot(
-    int x,
-    int y)
+int PsFizzleFX::get_frame_count() const
 {
-    const auto offset = (y * ::vga_ref_width) + x;
-    const auto color_index = buffer_[offset];
-
-    ::VL_Plot(
-        x,
-        y,
-        color_index);
+	return 70;
 }
 
-void PSFizzleFX::skip_to_the_end()
+int PsFizzleFX::get_y() const
 {
-    ::vid_import_ui(buffer_);
+	return 0;
+}
+
+int PsFizzleFX::get_height() const
+{
+	return ::vga_ref_height;
+}
+
+void PsFizzleFX::plot(
+	const int x,
+	const int y)
+{
+	const auto offset = (y * ::vga_ref_width) + x;
+	const auto color_index = buffer_[offset];
+
+	::VL_Plot(x, y, color_index);
+}
+
+void PsFizzleFX::skip_to_the_end()
+{
+	::vid_import_ui(buffer_);
 }
 
 

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -38,18 +38,14 @@ typedef Bitu IO_ReadHandler(Bitu port, Bitu iolen);
 typedef void IO_WriteHandler(Bitu port, Bitu val, Bitu iolen);
 
 
-class IO_ReadHandleObject {
-public:
-    void Install(Bitu port, IO_ReadHandler* handler, Bitu mask, Bitu range = 1);
-    void Uninstall();
-};
+struct IO_ReadHandleObject
+{
+}; // IO_ReadHandleObject
 
 
-class IO_WriteHandleObject {
-public:
-    void Install(Bitu port, IO_WriteHandler* handler, Bitu mask, Bitu range = 1);
-    void Uninstall();
-};
+struct IO_WriteHandleObject
+{
+}; // IO_WriteHandleObject
 
 
 #endif // BSTONE_DOSBOX_INOUT_INCLUDED

@@ -28,4 +28,4 @@ const int ref_3d_view_top_y = ::ref_top_bar_height + ::ref_3d_margin;
 const int ref_3d_view_bottom_y = ::vga_ref_height - (::ref_bottom_bar_height + ::ref_3d_margin) - 1;
 
 
-#endif // BSTONE_REF_VALUES_INCLUDED
+#endif // !BSTONE_REF_VALUES_INCLUDED

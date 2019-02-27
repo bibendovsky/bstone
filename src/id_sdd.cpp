@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,11 +28,11 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "id_heads.h"
+#include "audio.h"
 
 
-uint16_t sdStartPCSounds = STARTPCSOUNDS;
-uint16_t sdStartALSounds = STARTADLIBSOUNDS;
+std::uint16_t sdStartPCSounds = STARTPCSOUNDS;
+std::uint16_t sdStartALSounds = STARTADLIBSOUNDS;
 
-int16_t sdLastSound = LASTSOUND;
-int16_t DigiMap[LASTSOUND];
+std::int16_t sdLastSound = LASTSOUND;
+std::int16_t DigiMap[LASTSOUND];

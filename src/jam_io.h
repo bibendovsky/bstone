@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -53,10 +53,11 @@ Free Software Foundation, Inc.,
 //
 //      COMPRESSION TYPES
 //
-enum ct_TYPES {
-    ct_NONE = 0, // No compression - Just data..Rarely used!
-    ct_LZW, // LZW data compression
-    ct_LZH,
+enum ct_TYPES
+{
+	ct_NONE = 0, // No compression - Just data..Rarely used!
+	ct_LZW, // LZW data compression
+	ct_LZH,
 
 }; // ct_TYPES
 
@@ -64,15 +65,17 @@ enum ct_TYPES {
 //      FILE CHUNK HEADER FORMATS
 //
 
-struct COMPStruct {
-    uint32_t DecompLen;
+struct COMPStruct
+{
+	std::uint32_t DecompLen;
 };
 
 
-struct JAMPHeader {
-    uint32_t OrginalLen; // Orginal FileLength of compressed Data.
-    ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
-    uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
+struct JAMPHeader
+{
+	std::uint32_t OrginalLen; // Orginal FileLength of compressed Data.
+	ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
+	std::uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };
 
 

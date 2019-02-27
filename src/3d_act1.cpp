@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,7 +22,12 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "3d_def.h"
+#include <cstring>
+#include "audio.h"
+#include "id_ca.h"
+#include "id_heads.h"
+#include "id_sd.h"
+#include "id_us.h"
 
 
 // ===========================================================================
@@ -32,18 +37,29 @@ Free Software Foundation, Inc.,
 // ===========================================================================
 
 void OpenDoor(
-    int16_t door);
+	std::int16_t door);
 
 void CloseDoor(
-    int16_t door);
+	std::int16_t door);
 
 void PlaceItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley);
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley);
 
 void HealSelf(
-    int16_t points);
+	std::int16_t points);
+
+std::int16_t TransformAreas(
+	std::int8_t tilex,
+	std::int8_t tiley,
+	std::int8_t xform);
+
+void FreeMsgCache(
+	mCacheList* mList,
+	std::uint16_t infoSize);
+
+void FindNewGoldieSpawnSite();
 
 
 // ===========================================================================
@@ -225,7 +241,7 @@ void initialize_static_info_constants()
 
 void InitStaticList()
 {
-    laststatobj = &statobjlist[0];
+	laststatobj = &statobjlist[0];
 }
 
 // ---------------------------------------------------------------------------
@@ -238,18 +254,20 @@ void InitStaticList()
 //          NULL == No static found.
 // ---------------------------------------------------------------------------
 statobj_t* FindStatic(
-    uint16_t tilex,
-    uint16_t tiley)
+	std::uint16_t tilex,
+	std::uint16_t tiley)
 {
-    statobj_t* spot;
+	statobj_t* spot;
 
-    for (spot = statobjlist; spot != laststatobj; spot++) {
-        if (spot->shapenum != -1 && spot->tilex == tilex && spot->tiley == tiley) {
-            return spot;
-        }
-    }
+	for (spot = statobjlist; spot != laststatobj; spot++)
+	{
+		if (spot->shapenum != -1 && spot->tilex == tilex && spot->tiley == tiley)
+		{
+			return spot;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -263,29 +281,33 @@ statobj_t* FindStatic(
 // ---------------------------------------------------------------------------
 statobj_t* FindEmptyStatic()
 {
-    statobj_t* spot;
+	statobj_t* spot;
 
-    for (spot = &statobjlist[0];; spot++) {
-        if (spot == laststatobj) {
-            if (spot == &statobjlist[MAXSTATS]) {
-                return nullptr;
-            }
-            laststatobj++; // space at end
-            break;
-        }
+	for (spot = &statobjlist[0];; spot++)
+	{
+		if (spot == laststatobj)
+		{
+			if (spot == &statobjlist[MAXSTATS])
+			{
+				return nullptr;
+			}
+			laststatobj++; // space at end
+			break;
+		}
 
-        if (spot->shapenum == -1) { // -1 is a free spot
-            break;
-        }
-    }
+		if (spot->shapenum == -1)
+		{ // -1 is a free spot
+			break;
+		}
+	}
 
-    return spot;
+	return spot;
 }
 
 void SpawnStatic(
-	int16_t tilex,
-	int16_t tiley,
-	int16_t type)
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::int16_t type)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -299,8 +321,8 @@ void SpawnStatic(
 	}
 
 	spot->shapenum = statinfo[type].picnum;
-	spot->tilex = static_cast<uint8_t>(tilex);
-	spot->tiley = static_cast<uint8_t>(tiley);
+	spot->tilex = static_cast<std::uint8_t>(tilex);
+	spot->tiley = static_cast<std::uint8_t>(tiley);
 	spot->visspot = &spotvis[tilex][tiley];
 	spot->flags = 0;
 
@@ -331,21 +353,21 @@ void SpawnStatic(
 	case bo_gold_key:
 		if (assets_info.is_ps())
 		{
-			::Quit("Green/Gold key (AOG) at ({}, {}).", tilex, tiley);
+			::Quit("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
-		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
 
 	case bo_plasma_detonator:
 		if (!assets_info.is_ps())
 		{
-			::Quit("Plasma detonator (PS) at ({}, {}).", tilex, tiley);
+			::Quit("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
-		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
 
 	case bo_red_key:
@@ -380,7 +402,7 @@ void SpawnStatic(
 	case bo_coin5:
 	case bo_automapper1:
 		spot->flags = FL_BONUS;
-		spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
 
 	default:
@@ -405,20 +427,21 @@ void SpawnStatic(
 // ---------------------------------------------------------------------------
 statobj_t* ReserveStatic()
 {
-    auto spot = FindEmptyStatic();
+	auto spot = FindEmptyStatic();
 
-    if (!spot) {
-        ::Quit("Too many static objects.");
-    }
+	if (!spot)
+	{
+		::Quit("Too many static objects.");
+	}
 
-    // Mark as Used.
+	// Mark as Used.
 
-    spot->shapenum = 1;
-    spot->tilex = 0;
-    spot->tiley = 0;
-    spot->visspot = &spotvis[0][0];
+	spot->shapenum = 1;
+	spot->tilex = 0;
+	spot->tiley = 0;
+	spot->visspot = &spotvis[0][0];
 
-    return spot;
+	return spot;
 }
 
 // ---------------------------------------------------------------------------
@@ -429,15 +452,17 @@ statobj_t* ReserveStatic()
 // ---------------------------------------------------------------------------
 statobj_t* FindReservedStatic()
 {
-    statobj_t* spot;
+	statobj_t* spot;
 
-    for (spot = &statobjlist[0]; spot < &statobjlist[MAXSTATS]; spot++) {
-        if (spot->shapenum == 1 && (!spot->tilex) && (!spot->tiley)) { // -1 is a free spot
-            return spot;
-        }
-    }
+	for (spot = &statobjlist[0]; spot < &statobjlist[MAXSTATS]; spot++)
+	{
+		if (spot->shapenum == 1 && (!spot->tilex) && (!spot->tiley))
+		{ // -1 is a free spot
+			return spot;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -451,83 +476,91 @@ statobj_t* FindReservedStatic()
 // reserved a static to be used using ReserveStatic();
 // ---------------------------------------------------------------------------
 statobj_t* UseReservedStatic(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
-    auto spot = FindReservedStatic();
-    int16_t type;
+	auto spot = FindReservedStatic();
+	std::int16_t type;
 
-    if (!spot) {
-        ::Quit("Count not find a reserved static at location (0, 0) with shape #1.");
-    }
+	if (!spot)
+	{
+		::Quit("Count not find a reserved static at location (0, 0) with shape #1.");
+	}
 
-    //
-    // find the item number
-    //
+	//
+	// find the item number
+	//
 
-    for (type = 0;; type++) {
-        if (statinfo[type].picnum == -1) { // End of Static List...
-            ::Quit("Couldn't find type.");
-        }
+	for (type = 0;; type++)
+	{
+		if (statinfo[type].picnum == -1)
+		{ // End of Static List...
+			::Quit("Couldn't find type.");
+		}
 
-        if (statinfo[type].type == itemtype) { // Bingo, Found it!
-            break;
-        }
-    }
+		if (statinfo[type].type == itemtype)
+		{ // Bingo, Found it!
+			break;
+		}
+	}
 
-    //
-    // place it
-    //
+	//
+	// place it
+	//
 
-    switch (type) {
-    case bo_green_key:
-    case bo_gold_key:
-    case bo_red_key:
-    case bo_yellow_key:
-    case bo_blue_key:
-        TravelTable[tilex][tiley] |= TT_KEYS;
-        break;
-    }
+	switch (type)
+	{
+	case bo_green_key:
+	case bo_gold_key:
+	case bo_red_key:
+	case bo_yellow_key:
+	case bo_blue_key:
+		TravelTable[tilex][tiley] |= TT_KEYS;
+		break;
+	}
 
-    spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<uint8_t>(tilex);
-    spot->tiley = static_cast<uint8_t>(tiley);
-    spot->visspot = &spotvis[tilex][tiley];
-    spot->flags = FL_BONUS;
-    spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+	spot->shapenum = statinfo[type].picnum;
+	spot->tilex = static_cast<std::uint8_t>(tilex);
+	spot->tiley = static_cast<std::uint8_t>(tiley);
+	spot->visspot = &spotvis[tilex][tiley];
+	spot->flags = FL_BONUS;
+	spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 
-    spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
+	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
-    return spot;
+	return spot;
 }
 
-int8_t pint_xy[8][2] = {
-    { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 },
-    { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 },
+std::int8_t pint_xy[8][2] = {
+	{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
+{0, 1}, {1, -1}, {1, 0}, {1, 1},
 };
 
 void PlaceReservedItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
-    int8_t loop;
+	std::int8_t loop;
 
-    for (loop = 0; loop < 8; loop++) {
-        int8_t x = static_cast<int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
+	for (loop = 0; loop < 8; loop++)
+	{
+		std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
-        if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
-            if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
-                continue;
-            }
+		if (!tilemap[static_cast<int>(x)][static_cast<int>(y)])
+		{
+			if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1))
+			{ // Check for a SOLID static
+				continue;
+			}
 
-            UseReservedStatic(itemtype, x, y);
-            return;
-        }
-    }
+			UseReservedStatic(itemtype, x, y);
+			return;
+		}
+	}
 
-    UseReservedStatic(itemtype, tilex, tiley);
+	UseReservedStatic(itemtype, tilex, tiley);
 }
 
 /*
@@ -542,71 +575,78 @@ void PlaceReservedItemNearTile(
 ===============
 */
 void PlaceItemType(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
-    int16_t type;
-    statobj_t* spot;
+	std::int16_t type;
+	statobj_t* spot;
 
-//
-// find the item number
-//
-    for (type = 0;; type++) {
-        if (statinfo[type].picnum == -1) { // end of list
-            ::Quit("Couldn't find type.");
-        }
-        if (statinfo[type].type == itemtype) {
-            break;
-        }
-    }
+	//
+	// find the item number
+	//
+	for (type = 0;; type++)
+	{
+		if (statinfo[type].picnum == -1)
+		{ // end of list
+			::Quit("Couldn't find type.");
+		}
+		if (statinfo[type].type == itemtype)
+		{
+			break;
+		}
+	}
 
-//
-// find a spot in statobjlist to put it in
-//
-    spot = FindEmptyStatic();
+	//
+	// find a spot in statobjlist to put it in
+	//
+	spot = FindEmptyStatic();
 
-    if (!spot) {
-        return;
-    }
+	if (!spot)
+	{
+		return;
+	}
 
-//
-// place it
-//
-    spot->shapenum = statinfo[type].picnum;
-    spot->tilex = static_cast<uint8_t>(tilex);
-    spot->tiley = static_cast<uint8_t>(tiley);
-    spot->visspot = &spotvis[tilex][tiley];
-    spot->flags = FL_BONUS;
-    spot->itemnumber = static_cast<uint8_t>(statinfo[type].type);
+	//
+	// place it
+	//
+	spot->shapenum = statinfo[type].picnum;
+	spot->tilex = static_cast<std::uint8_t>(tilex);
+	spot->tiley = static_cast<std::uint8_t>(tiley);
+	spot->visspot = &spotvis[tilex][tiley];
+	spot->flags = FL_BONUS;
+	spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 
-    spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
+	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 }
 
 void PlaceItemNearTile(
-    int16_t itemtype,
-    int16_t tilex,
-    int16_t tiley)
+	std::int16_t itemtype,
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
-// [0] is the y offset
-// [1] is the x offset
-//
-    int8_t loop;
+	// [0] is the y offset
+	// [1] is the x offset
+	//
+	std::int8_t loop;
 
-    for (loop = 0; loop < 8; loop++) {
-        int8_t x = static_cast<int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
+	for (loop = 0; loop < 8; loop++)
+	{
+		std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
-        if (!tilemap[static_cast<int>(x)][static_cast<int>(y)]) {
-            if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1)) { // Check for a SOLID static
-                continue;
-            }
+		if (!tilemap[static_cast<int>(x)][static_cast<int>(y)])
+		{
+			if (actorat[static_cast<int>(x)][static_cast<int>(y)] == reinterpret_cast<objtype*>(1))
+			{ // Check for a SOLID static
+				continue;
+			}
 
-            PlaceItemType(itemtype, x, y);
-            return;
-        }
-    }
+			PlaceItemType(itemtype, x, y);
+			return;
+		}
+	}
 
-    PlaceItemType(itemtype, tilex, tiley);
+	PlaceItemType(itemtype, tilex, tiley);
 }
 
 // --------------------------------------------------------------------------
@@ -616,8 +656,8 @@ void PlaceItemNearTile(
 //
 // --------------------------------------------------------------------------
 void ExplodeStatics(
-	int16_t tilex,
-	int16_t tiley)
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -627,7 +667,7 @@ void ExplodeStatics(
 	}
 
 	statobj_t* spot;
-	int16_t y_diff, x_diff;
+	std::int16_t y_diff, x_diff;
 	bool remove;
 
 	for (spot = &statobjlist[0]; spot != laststatobj; spot++)
@@ -685,34 +725,37 @@ void ExplodeStatics(
 doorobjlist[] holds most of the information for the doors
 
 doorposition[] holds the amount the door is open, ranging from 0 to 0xffff
-        this is directly accessed by AsmRefresh during rendering
+		this is directly accessed by AsmRefresh during rendering
 
 The number of doors is limited to 64 because a spot in tilemap holds the
-        door number in the low 6 bits, with the high bit meaning a door center
-        and bit 6 meaning a door side tile
+		door number in the low 6 bits, with the high bit meaning a door center
+		and bit 6 meaning a door side tile
 
 Open doors conect two areas, so sounds will travel between them and sight
-        will be checked when the player is in a connected area.
+		will be checked when the player is in a connected area.
 
 Areaconnect is incremented/decremented by each door. If >0 they connect
 
 Every time a door opens or closes the areabyplayer matrix gets recalculated.
-        An area is true if it connects with the player's current spor.
+		An area is true if it connects with the player's current spor.
 
 =============================================================================
 */
 
-static const int16_t OPENTICS = 300;
+static const std::int16_t OPENTICS = 300;
 
 doorobj_t doorobjlist[MAXDOORS];
 doorobj_t* lastdoorobj;
-int16_t doornum;
+std::int16_t doornum;
 
 // leading edge of door 0=closed, 0xffff = fully open
-uint16_t doorposition[MAXDOORS];
+ // !!! Used in saved game.
+std::uint16_t doorposition[MAXDOORS];
 
-uint8_t areaconnect[NUMAREAS][NUMAREAS];
+ // !!! Used in saved game.
+std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
 
+ // !!! Used in saved game.
 bool areabyplayer[NUMAREAS];
 
 
@@ -726,173 +769,192 @@ bool areabyplayer[NUMAREAS];
 ==============
 */
 void RecursiveConnect(
-    int16_t areanumber)
+	std::int16_t areanumber)
 {
-    int16_t i;
+	std::int16_t i;
 
-    for (i = 0; i < NUMAREAS; i++) {
-        if (areaconnect[areanumber][i] && !areabyplayer[i]) {
-            areabyplayer[i] = true;
-            RecursiveConnect(i);
-        }
-    }
+	for (i = 0; i < NUMAREAS; i++)
+	{
+		if (areaconnect[areanumber][i] && !areabyplayer[i])
+		{
+			areabyplayer[i] = true;
+			RecursiveConnect(i);
+		}
+	}
 }
 
 void ConnectAreas()
 {
-    memset(areabyplayer, 0, sizeof(areabyplayer));
-    areabyplayer[player->areanumber] = true;
-    RecursiveConnect(player->areanumber);
+	memset(areabyplayer, 0, sizeof(areabyplayer));
+	areabyplayer[player->areanumber] = true;
+	RecursiveConnect(player->areanumber);
 }
 
 void InitAreas()
 {
-    memset(areabyplayer, 0, sizeof(areabyplayer));
-    areabyplayer[player->areanumber] = true;
+	memset(areabyplayer, 0, sizeof(areabyplayer));
+	areabyplayer[player->areanumber] = true;
 }
 
 void InitDoorList()
 {
-    memset(areabyplayer, 0, sizeof(areabyplayer));
-    memset(areaconnect, 0, sizeof(areaconnect));
+	memset(areabyplayer, 0, sizeof(areabyplayer));
+	memset(areaconnect, 0, sizeof(areaconnect));
 
-    lastdoorobj = &doorobjlist[0];
-    doornum = 0;
+	lastdoorobj = &doorobjlist[0];
+	doornum = 0;
 }
 
 void SpawnDoor(
-    int16_t tilex,
-    int16_t tiley,
-    bool vertical,
-    keytype lock,
-    door_t type)
+	std::int16_t tilex,
+	std::int16_t tiley,
+	bool vertical,
+	keytype lock,
+	door_t type)
 {
-    uint16_t* map[2];
+	std::uint16_t* map[2];
 
-    map[0] = mapsegs[0] + farmapylookup[tiley] + tilex;
-    map[1] = mapsegs[1] + farmapylookup[tiley] + tilex;
+	map[0] = mapsegs[0] + farmapylookup[tiley] + tilex;
+	map[1] = mapsegs[1] + farmapylookup[tiley] + tilex;
 
-    if (doornum == 64) {
-        ::Quit("Too many doors in level.");
-    }
+	if (doornum == 64)
+	{
+		::Quit("Too many doors in level.");
+	}
 
-    doorposition[doornum] = 0; // doors start out fully closed
-    lastdoorobj->tilex = static_cast<uint8_t>(tilex);
-    lastdoorobj->tiley = static_cast<uint8_t>(tiley);
-    lastdoorobj->vertical = vertical;
-    lastdoorobj->lock = lock;
-    lastdoorobj->type = type;
-    lastdoorobj->action = dr_closed;
-    lastdoorobj->flags = DR_BLASTABLE; // JIM - Do something with this! jdebug
+	doorposition[doornum] = 0; // doors start out fully closed
+	lastdoorobj->tilex = static_cast<std::uint8_t>(tilex);
+	lastdoorobj->tiley = static_cast<std::uint8_t>(tiley);
+	lastdoorobj->vertical = vertical;
+	lastdoorobj->lock = lock;
+	lastdoorobj->type = type;
+	lastdoorobj->action = dr_closed;
+	lastdoorobj->flags = DR_BLASTABLE; // JIM - Do something with this! jdebug
 
-    if (vertical) {
-        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<int8_t>(tilex + 1), static_cast<int8_t>(tiley));
-        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<int8_t>(tilex - 1), static_cast<int8_t>(tiley));
-    } else {
-        lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley - 1));
-        lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley + 1));
-    }
+	if (vertical)
+	{
+		lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<std::int8_t>(tilex + 1), static_cast<std::int8_t>(tiley));
+		lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<std::int8_t>(tilex - 1), static_cast<std::int8_t>(tiley));
+	}
+	else
+	{
+		lastdoorobj->areanumber[0] = GetAreaNumber(static_cast<std::int8_t>(tilex), static_cast<std::int8_t>(tiley - 1));
+		lastdoorobj->areanumber[1] = GetAreaNumber(static_cast<std::int8_t>(tilex), static_cast<std::int8_t>(tiley + 1));
+	}
 
-    // consider it a solid wall
-    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<size_t>(doornum | 0x80));
+	// consider it a solid wall
+	actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<std::size_t>(doornum | 0x80));
 
-//
-// make the door tile a special tile, and mark the adjacent tiles
-// for door sides
-//
-    tilemap[tilex][tiley] = static_cast<uint8_t>(doornum | 0x80);
+	//
+	// make the door tile a special tile, and mark the adjacent tiles
+	// for door sides
+	//
+	tilemap[tilex][tiley] = static_cast<std::uint8_t>(doornum | 0x80);
 
-    if (vertical) {
-        if (*(map[0] - mapwidth - 1) == TRANSPORTERTILE) {
-            *map[0] = GetAreaNumber(static_cast<int8_t>(tilex + 1), static_cast<int8_t>(tiley));
-        } else {
-            *map[0] = GetAreaNumber(static_cast<int8_t>(tilex - 1), static_cast<int8_t>(tiley));
-        }
-        tilemap[tilex][tiley - 1] |= 0x40;
-        tilemap[tilex][tiley + 1] |= 0x40;
-    } else {
-        *map[0] = GetAreaNumber(static_cast<int8_t>(tilex), static_cast<int8_t>(tiley - 1));
-        tilemap[tilex - 1][tiley] |= 0x40;
-        tilemap[tilex + 1][tiley] |= 0x40;
-    }
+	if (vertical)
+	{
+		if (*(map[0] - mapwidth - 1) == TRANSPORTERTILE)
+		{
+			*map[0] = GetAreaNumber(static_cast<std::int8_t>(tilex + 1), static_cast<std::int8_t>(tiley));
+		}
+		else
+		{
+			*map[0] = GetAreaNumber(static_cast<std::int8_t>(tilex - 1), static_cast<std::int8_t>(tiley));
+		}
+		tilemap[tilex][tiley - 1] |= 0x40;
+		tilemap[tilex][tiley + 1] |= 0x40;
+	}
+	else
+	{
+		*map[0] = GetAreaNumber(static_cast<std::int8_t>(tilex), static_cast<std::int8_t>(tiley - 1));
+		tilemap[tilex - 1][tiley] |= 0x40;
+		tilemap[tilex + 1][tiley] |= 0x40;
+	}
 
-    doornum++;
-    lastdoorobj++;
+	doornum++;
+	lastdoorobj++;
 }
 
 void CheckLinkedDoors(
-    int16_t door,
-    int16_t door_dir)
+	std::int16_t door,
+	std::int16_t door_dir)
 {
-    static int16_t LinkCheck = 0;
-    static int16_t base_tilex;
-    static int16_t base_tiley;
+	static std::int16_t LinkCheck = 0;
+	static std::int16_t base_tilex;
+	static std::int16_t base_tiley;
 
-    int16_t tilex = doorobjlist[door].tilex;
-    int16_t tiley = doorobjlist[door].tiley;
-    int16_t next_tilex = 0;
-    int16_t next_tiley = 0;
+	std::int16_t tilex = doorobjlist[door].tilex;
+	std::int16_t tiley = doorobjlist[door].tiley;
+	std::int16_t next_tilex = 0;
+	std::int16_t next_tiley = 0;
 
-// Find next door in link.
-//
-    if (*(mapsegs[1] + (farmapylookup[tiley] + tilex))) {
-        uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
+	// Find next door in link.
+	//
+	if (*(mapsegs[1] + (farmapylookup[tiley] + tilex)))
+	{
+		std::uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
 
-        // Define the next door in the link.
-        //
-        next_tilex = (value & 0xff00) >> 8;
-        next_tiley = value & 0xff;
+		// Define the next door in the link.
+		//
+		next_tilex = (value & 0xff00) >> 8;
+		next_tiley = value & 0xff;
 
-        // Is this the head of the link?
-        //
-        if (!LinkCheck) {
-            base_tilex = tilex;
-            base_tiley = tiley;
-        }
-    }
+		// Is this the head of the link?
+		//
+		if (!LinkCheck)
+		{
+			base_tilex = tilex;
+			base_tiley = tiley;
+		}
+	}
 
-    LinkCheck++;
+	LinkCheck++;
 
-// Recursively open/close linked doors.
-//
-    if ((next_tilex) &&
-        (next_tiley) &&
-        ((next_tilex != base_tilex) || (next_tiley != base_tiley))
-        )
-    {
-        int16_t door_index = tilemap[next_tilex][next_tiley] & ~0x80;
+	// Recursively open/close linked doors.
+	//
+	if ((next_tilex) &&
+		(next_tiley) &&
+		((next_tilex != base_tilex) || (next_tiley != base_tiley))
+		)
+	{
+		std::int16_t door_index = tilemap[next_tilex][next_tiley] & ~0x80;
 
-        switch (door_dir) {
-        case dr_opening:
-            doorobjlist[door_index].lock = kt_none;
-            OpenDoor(door_index);
-            break;
+		switch (door_dir)
+		{
+		case dr_opening:
+			doorobjlist[door_index].lock = kt_none;
+			OpenDoor(door_index);
+			break;
 
-        case dr_closing:
-            doorobjlist[door_index].lock = kt_none;
-            CloseDoor(door_index);
-            break;
-        }
-    }
+		case dr_closing:
+			doorobjlist[door_index].lock = kt_none;
+			CloseDoor(door_index);
+			break;
+		}
+	}
 
-    LinkCheck--;
+	LinkCheck--;
 }
 
 void OpenDoor(
-    int16_t door)
+	std::int16_t door)
 {
 
-    if (doorobjlist[door].action == dr_jammed) {
-        return;
-    }
+	if (doorobjlist[door].action == dr_jammed)
+	{
+		return;
+	}
 
-    if (doorobjlist[door].action == dr_open) {
-        doorobjlist[door].ticcount = 0; // reset open time
-    } else {
-        doorobjlist[door].action = dr_opening; // start it opening
+	if (doorobjlist[door].action == dr_open)
+	{
+		doorobjlist[door].ticcount = 0; // reset open time
+	}
+	else
+	{
+		doorobjlist[door].action = dr_opening; // start it opening
 
-    }
-    CheckLinkedDoors(door, dr_opening);
+	}
+	CheckLinkedDoors(door, dr_opening);
 }
 
 objtype* get_actor_near_door(
@@ -919,94 +981,112 @@ objtype* get_actor_near_door(
 }
 
 void CloseDoor(
-    int16_t door)
+	std::int16_t door)
 {
-    int16_t tilex, tiley, area;
-    objtype* check;
+	std::int16_t tilex, tiley, area;
+	objtype* check;
 
-    if (doorobjlist[door].action == dr_jammed) {
-        return;
-    }
+	if (doorobjlist[door].action == dr_jammed)
+	{
+		return;
+	}
 
-//
-// don't close on anything solid
-//
-    tilex = doorobjlist[door].tilex;
-    tiley = doorobjlist[door].tiley;
+	//
+	// don't close on anything solid
+	//
+	tilex = doorobjlist[door].tilex;
+	tiley = doorobjlist[door].tiley;
 
-    if (actorat[tilex][tiley]) {
-        return;
-    }
+	if (actorat[tilex][tiley])
+	{
+		return;
+	}
 
-    if (player->tilex == tilex && player->tiley == tiley) {
-        return;
-    }
+	if (player->tilex == tilex && player->tiley == tiley)
+	{
+		return;
+	}
 
-    if (doorobjlist[door].vertical) {
-        if (player->tiley == tiley) {
-            if (((player->x + MINDIST) >> TILESHIFT) == tilex) {
-                return;
-            }
-            if (((player->x - MINDIST) >> TILESHIFT) == tilex) {
-                return;
-            }
-        }
-        check = ::get_actor_near_door(tilex - 1, tiley);
-        if (check && ((check->x + MINDIST) >> TILESHIFT) == tilex) {
-            return;
-        }
-        check = ::get_actor_near_door(tilex + 1, tiley);
-        if (check && ((check->x - MINDIST) >> TILESHIFT) == tilex) {
-            return;
-        }
-    } else if (!doorobjlist[door].vertical) {
-        if (player->tilex == tilex) {
-            if (((player->y + MINDIST) >> TILESHIFT) == tiley) {
-                return;
-            }
-            if (((player->y - MINDIST) >> TILESHIFT) == tiley) {
-                return;
-            }
-        }
-        check = ::get_actor_near_door(tilex, tiley - 1);
-        if (check && ((check->y + MINDIST) >> TILESHIFT) == tiley) {
-            return;
-        }
-        check = ::get_actor_near_door(tilex, tiley + 1);
-        if (check && ((check->y - MINDIST) >> TILESHIFT) == tiley) {
-            return;
-        }
-    }
+	if (doorobjlist[door].vertical)
+	{
+		if (player->tiley == tiley)
+		{
+			if (((player->x + MINDIST) >> TILESHIFT) == tilex)
+			{
+				return;
+			}
+			if (((player->x - MINDIST) >> TILESHIFT) == tilex)
+			{
+				return;
+			}
+		}
+		check = ::get_actor_near_door(tilex - 1, tiley);
+		if (check && ((check->x + MINDIST) >> TILESHIFT) == tilex)
+		{
+			return;
+		}
+		check = ::get_actor_near_door(tilex + 1, tiley);
+		if (check && ((check->x - MINDIST) >> TILESHIFT) == tilex)
+		{
+			return;
+		}
+	}
+	else if (!doorobjlist[door].vertical)
+	{
+		if (player->tilex == tilex)
+		{
+			if (((player->y + MINDIST) >> TILESHIFT) == tiley)
+			{
+				return;
+			}
+			if (((player->y - MINDIST) >> TILESHIFT) == tiley)
+			{
+				return;
+			}
+		}
+		check = ::get_actor_near_door(tilex, tiley - 1);
+		if (check && ((check->y + MINDIST) >> TILESHIFT) == tiley)
+		{
+			return;
+		}
+		check = ::get_actor_near_door(tilex, tiley + 1);
+		if (check && ((check->y - MINDIST) >> TILESHIFT) == tiley)
+		{
+			return;
+		}
+	}
 
 
-//
-// play door sound if in a connected area
-//
-    area = GetAreaNumber(doorobjlist[door].tilex, doorobjlist[door].tiley);
-    if (areabyplayer[area]) {
-        switch (doorobjlist[door].type) {
-        case dr_bio:
-        case dr_office:
-        case dr_space:
-        case dr_normal:
-            ::sd_play_door_sound(
-                HTECHDOORCLOSESND, &doorobjlist[door]);
-            break;
+	//
+	// play door sound if in a connected area
+	//
+	area = GetAreaNumber(doorobjlist[door].tilex, doorobjlist[door].tiley);
+	if (areabyplayer[area])
+	{
+		switch (doorobjlist[door].type)
+		{
+		case dr_bio:
+		case dr_office:
+		case dr_space:
+		case dr_normal:
+			::sd_play_door_sound(
+				HTECHDOORCLOSESND, &doorobjlist[door]);
+			break;
 
-        default:
-            ::sd_play_door_sound(CLOSEDOORSND, &doorobjlist[door]);
-            break;
-        }
-    }
+		default:
+			::sd_play_door_sound(CLOSEDOORSND, &doorobjlist[door]);
+			break;
+		}
+	}
 
-    doorobjlist[door].action = dr_closing;
-//
-// make the door space solid
-//
+	doorobjlist[door].action = dr_closing;
+	//
+	// make the door space solid
+	//
 
-    actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<size_t>(door | 0x80));
+	actorat[tilex][tiley] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door | 0x80));
 
-    CheckLinkedDoors(door, dr_closing);
+	CheckLinkedDoors(door, dr_closing);
 
 }
 
@@ -1027,210 +1107,230 @@ const char* const od_yellowdenied = "\r\r     YELLOW LEVEL\r    ACCESS DENIED!\r
 const char* const od_bluedenied = "\r\r      BLUE LEVEL\r    ACCESS DENIED!\r^XX";
 
 const char* const od_green_denied =
-    "\r"
-    "\r"
-    "     GREEN LEVEL\r"
-    "    ACCESS DENIED!\r"
-    "^XX"
+"\r"
+"\r"
+"     GREEN LEVEL\r"
+"    ACCESS DENIED!\r"
+"^XX"
 ;
 
 const char* const od_gold_denied =
-    "\r"
-    "\r"
-    "      GOLD LEVEL\r"
-    "    ACCESS DENIED!\r"
-    "^XX"
+"\r"
+"\r"
+"      GOLD LEVEL\r"
+"    ACCESS DENIED!\r"
+"^XX"
 ;
 
 const char* const od_granted = "\r\r    ACCESS GRANTED\r    DOOR UNLOCKED.\r^XX";
 const char* const od_operating = "\r\r    OPERATING DOOR.\r^XX";
 
 void OperateDoor(
-    int16_t door)
+	std::int16_t door)
 {
-    int16_t lock;
-    bool oneway = false;
+	std::int16_t lock;
+	bool oneway = false;
 
 
-    //
-    // Check for wrong way on a ONEWAY door.
-    //
+	//
+	// Check for wrong way on a ONEWAY door.
+	//
 
-    switch (doorobjlist[door].type) {
-    case dr_oneway_left:
-        if (player->tilex < doorobjlist[door].tilex) {
-            oneway = true;
-        }
-        break;
+	switch (doorobjlist[door].type)
+	{
+	case dr_oneway_left:
+		if (player->tilex < doorobjlist[door].tilex)
+		{
+			oneway = true;
+		}
+		break;
 
-    case dr_oneway_right:
-        if (player->tilex > doorobjlist[door].tilex) {
-            oneway = true;
-        }
-        break;
+	case dr_oneway_right:
+		if (player->tilex > doorobjlist[door].tilex)
+		{
+			oneway = true;
+		}
+		break;
 
-    case dr_oneway_up:
-        if (player->tiley < doorobjlist[door].tiley) {
-            oneway = true;
-        }
-        break;
+	case dr_oneway_up:
+		if (player->tiley < doorobjlist[door].tiley)
+		{
+			oneway = true;
+		}
+		break;
 
-    case dr_oneway_down:
-        if (player->tiley > doorobjlist[door].tiley) {
-            oneway = true;
-        }
-        break;
+	case dr_oneway_down:
+		if (player->tiley > doorobjlist[door].tiley)
+		{
+			oneway = true;
+		}
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 
-    if (oneway) {
-        if (doorobjlist[door].action == dr_closed) {
-            DISPLAY_TIMED_MSG(od_oneway, MP_DOOR_OPERATE, MT_GENERAL);
-            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
-        }
+	if (oneway)
+	{
+		if (doorobjlist[door].action == dr_closed)
+		{
+			DISPLAY_TIMED_MSG(od_oneway, MP_DOOR_OPERATE, MT_GENERAL);
+			::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+		}
 
-        return;
-    }
+		return;
+	}
 
-    //
-    // Check for possibly being locked
-    //
+	//
+	// Check for possibly being locked
+	//
 
-    lock = static_cast<int16_t>(doorobjlist[door].lock);
-    if (lock != kt_none) {
-        if (!(gamestate.numkeys[lock - kt_red])) {
-            ::sd_play_player_sound(NOWAYSND, bstone::AC_NO_WAY);
+	lock = static_cast<std::int16_t>(doorobjlist[door].lock);
+	if (lock != kt_none)
+	{
+		if (!(gamestate.numkeys[lock - kt_red]))
+		{
+			::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
-            switch (lock) {
-            case kt_red:
-                DISPLAY_TIMED_MSG(od_reddenied, MP_DOOR_OPERATE, MT_GENERAL);
-                break;
+			switch (lock)
+			{
+			case kt_red:
+				DISPLAY_TIMED_MSG(od_reddenied, MP_DOOR_OPERATE, MT_GENERAL);
+				break;
 
-            case kt_yellow:
-                DISPLAY_TIMED_MSG(od_yellowdenied, MP_DOOR_OPERATE, MT_GENERAL);
-                break;
+			case kt_yellow:
+				DISPLAY_TIMED_MSG(od_yellowdenied, MP_DOOR_OPERATE, MT_GENERAL);
+				break;
 
-            case kt_blue:
-                DISPLAY_TIMED_MSG(od_bluedenied, MP_DOOR_OPERATE, MT_GENERAL);
-                break;
+			case kt_blue:
+				DISPLAY_TIMED_MSG(od_bluedenied, MP_DOOR_OPERATE, MT_GENERAL);
+				break;
 
-            case kt_green:
-                DISPLAY_TIMED_MSG(od_green_denied, MP_DOOR_OPERATE, MT_GENERAL);
-                break;
+			case kt_green:
+				DISPLAY_TIMED_MSG(od_green_denied, MP_DOOR_OPERATE, MT_GENERAL);
+				break;
 
-            case kt_gold:
-                DISPLAY_TIMED_MSG(od_gold_denied, MP_DOOR_OPERATE, MT_GENERAL);
-                break;
+			case kt_gold:
+				DISPLAY_TIMED_MSG(od_gold_denied, MP_DOOR_OPERATE, MT_GENERAL);
+				break;
 
-            default:
-                DISPLAY_TIMED_MSG(od_locked, MP_DOOR_OPERATE, MT_GENERAL);
-                break;
-            }
+			default:
+				DISPLAY_TIMED_MSG(od_locked, MP_DOOR_OPERATE, MT_GENERAL);
+				break;
+			}
 
-            return;
-        } else {
-            TakeKey(lock - kt_red);
-            DISPLAY_TIMED_MSG(od_granted, MP_DOOR_OPERATE, MT_GENERAL);
-            doorobjlist[door].lock = kt_none;                           // UnLock door
-        }
-    } else {
-        DISPLAY_TIMED_MSG(od_operating, MP_DOOR_OPERATE, MT_GENERAL);
-    }
+			return;
+		}
+		else
+		{
+			TakeKey(lock - kt_red);
+			DISPLAY_TIMED_MSG(od_granted, MP_DOOR_OPERATE, MT_GENERAL);
+			doorobjlist[door].lock = kt_none;                           // UnLock door
+		}
+	}
+	else
+	{
+		DISPLAY_TIMED_MSG(od_operating, MP_DOOR_OPERATE, MT_GENERAL);
+	}
 
-    switch (doorobjlist[door].action) {
-    case dr_closed:
-    case dr_closing:
-        OpenDoor(door);
-        break;
+	switch (doorobjlist[door].action)
+	{
+	case dr_closed:
+	case dr_closing:
+		OpenDoor(door);
+		break;
 
-    case dr_open:
-    case dr_opening:
-        CloseDoor(door);
-        break;
-    default:
-        break;
-    }
+	case dr_open:
+	case dr_opening:
+		CloseDoor(door);
+		break;
+	default:
+		break;
+	}
 }
 
 void BlockDoorOpen(
-    int16_t door)
+	std::int16_t door)
 {
-    doorobjlist[door].action = dr_jammed;
-    doorobjlist[door].ticcount = 0;
-    doorposition[door] = 0xFFFF;
-    doorobjlist[door].lock = kt_none;
-    doorobjlist[door].flags &= ~DR_BLASTABLE;
+	doorobjlist[door].action = dr_jammed;
+	doorobjlist[door].ticcount = 0;
+	doorposition[door] = 0xFFFF;
+	doorobjlist[door].lock = kt_none;
+	doorobjlist[door].flags &= ~DR_BLASTABLE;
 
-    actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
+	actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 
-    TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
+	TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
 }
 
 void TryBlastDoor(
-    int8_t door)
+	std::int8_t door)
 {
-    switch (doorobjlist[static_cast<int>(door)].type) {
-    case dr_oneway_left:
-    case dr_oneway_up:
-    case dr_oneway_right:
-    case dr_oneway_down:
-        break;
+	switch (doorobjlist[static_cast<int>(door)].type)
+	{
+	case dr_oneway_left:
+	case dr_oneway_up:
+	case dr_oneway_right:
+	case dr_oneway_down:
+		break;
 
-    default:
-        if (doorposition[static_cast<int>(door)] < 0x7fff &&
-            doorobjlist[static_cast<int>(door)].action != dr_jammed &&
-            doorobjlist[static_cast<int>(door)].lock == kt_none)
-        {
-            BlockDoorOpen(door);
-            SpawnCusExplosion((((fixed)doorobjlist[static_cast<int>(door)].tilex) << TILESHIFT) + 0x7FFF,
-                              (((fixed)doorobjlist[static_cast<int>(door)].tiley) << TILESHIFT) + 0x7FFF,
-                              SPR_EXPLOSION_1, 4, 3, doorexplodeobj);
-        }
-        break;
-    }
+	default:
+		if (doorposition[static_cast<int>(door)] < 0x7fff &&
+			doorobjlist[static_cast<int>(door)].action != dr_jammed &&
+			doorobjlist[static_cast<int>(door)].lock == kt_none)
+		{
+			BlockDoorOpen(door);
+			SpawnCusExplosion((((fixed)doorobjlist[static_cast<int>(door)].tilex) << TILESHIFT) + 0x7FFF,
+				(((fixed)doorobjlist[static_cast<int>(door)].tiley) << TILESHIFT) + 0x7FFF,
+				SPR_EXPLOSION_1, 4, 3, doorexplodeobj);
+		}
+		break;
+	}
 }
 
 void BlastNearDoors(
-    int16_t tilex,
-    int16_t tiley)
+	std::int16_t tilex,
+	std::int16_t tiley)
 {
-    uint8_t door;
-    char* doorptr;
-    int16_t x, y;
+	std::uint8_t door;
+	char* doorptr;
+	std::int16_t x, y;
 
-    doorptr = (char*)&tilemap[tilex][tiley];
+	doorptr = (char*)&tilemap[tilex][tiley];
 
-    for (x = -1; x < 2; x++) {
-        for (y = -64; y < 128; y += 64) {
-            if ((door = *(doorptr + x + y)) & 0x80) {
-                door &= ~0x80;
-                TryBlastDoor(door);
-            }
-        }
-    }
+	for (x = -1; x < 2; x++)
+	{
+		for (y = -64; y < 128; y += 64)
+		{
+			if ((door = *(doorptr + x + y)) & 0x80)
+			{
+				door &= ~0x80;
+				TryBlastDoor(door);
+			}
+		}
+	}
 }
 
 void DropPlasmaDetonator()
 {
-    auto obj = ::MoveHiddenOfs(
-        plasma_detonator_reserveobj,
-        plasma_detonatorobj,
-        player->x,
-        player->y);
+	auto obj = ::MoveHiddenOfs(
+		plasma_detonator_reserveobj,
+		plasma_detonatorobj,
+		player->x,
+		player->y);
 
-    if (obj) {
-        obj->flags |= FL_SHOOTABLE;
+	if (obj)
+	{
+		obj->flags |= FL_SHOOTABLE;
 
-        DISPLAY_TIMED_MSG(pd_dropped, MP_DOOR_OPERATE, MT_GENERAL);
-        ::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::AC_VOICE);
+		DISPLAY_TIMED_MSG(pd_dropped, MP_DOOR_OPERATE, MT_GENERAL);
+		::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::ActorChannel::voice);
 
-        TakePlasmaDetonator(1);
-        return;
-    }
+		TakePlasmaDetonator(1);
+		return;
+	}
 
-    ::Quit("Could not find Fision/Plasma Detonator reserve object.");
+	::Quit("Could not find Fision/Plasma Detonator reserve object.");
 }
 
 // --------------------------------------------------------------------------
@@ -1239,50 +1339,58 @@ void DropPlasmaDetonator()
 // --------------------------------------------------------------------------
 void TryDropPlasmaDetonator()
 {
-    const int16_t MAX_RANGE_DIST = 2;
+	const std::int16_t MAX_RANGE_DIST = 2;
 
-    objtype* obj;
-    int16_t distx, disty, distance;
+	objtype* obj;
+	std::int16_t distx, disty, distance;
 
 
-    if (!gamestuff.level[gamestate.mapon + 1].locked) {
-        DISPLAY_TIMED_MSG(pd_floornotlocked, MP_DETONATOR, MT_GENERAL);
-        return;
-    }
+	if (!gamestuff.level[gamestate.mapon + 1].locked)
+	{
+		DISPLAY_TIMED_MSG(pd_floornotlocked, MP_DETONATOR, MT_GENERAL);
+		return;
+	}
 
-    if (gamestate.mapon > 19) {
-        DISPLAY_TIMED_MSG(pd_no_computer, MP_DETONATOR, MT_GENERAL);
-        return;
-    }
+	if (gamestate.mapon > 19)
+	{
+		DISPLAY_TIMED_MSG(pd_no_computer, MP_DETONATOR, MT_GENERAL);
+		return;
+	}
 
-    if (!gamestate.plasma_detonators) {
-        DISPLAY_TIMED_MSG(pd_donthaveany, MP_DETONATOR, MT_GENERAL);
-        return;
-    }
+	if (!gamestate.plasma_detonators)
+	{
+		DISPLAY_TIMED_MSG(pd_donthaveany, MP_DETONATOR, MT_GENERAL);
+		return;
+	}
 
-    obj = FindObj(rotating_cubeobj, -1, -1);
+	obj = FindObj(rotating_cubeobj, -1, -1);
 
-    if (!obj) {
-        ::Quit("Cound not find security cube - Need to have one pal!");
-    }
+	if (!obj)
+	{
+		::Quit("Cound not find security cube - Need to have one pal!");
+	}
 
-    if (obj->areanumber != player->areanumber) {
-        DISPLAY_TIMED_MSG(pd_notnear, MP_DETONATOR, MT_GENERAL);
-        return;
-    }
+	if (obj->areanumber != player->areanumber)
+	{
+		DISPLAY_TIMED_MSG(pd_notnear, MP_DETONATOR, MT_GENERAL);
+		return;
+	}
 
-    distx = player->tilex - obj->tilex;
-    distx = ABS(distx);
-    disty = player->tiley - obj->tiley;
-    disty = ABS(disty);
-    distance = distx > disty ? distx : disty;
+	distx = player->tilex - obj->tilex;
+	distx = ABS(distx);
+	disty = player->tiley - obj->tiley;
+	disty = ABS(disty);
+	distance = distx > disty ? distx : disty;
 
-    if (distance > MAX_RANGE_DIST) {
-        DISPLAY_TIMED_MSG(pd_getcloser, MP_DETONATOR, MT_GENERAL);
-        return;
-    } else {
-        DropPlasmaDetonator();
-    }
+	if (distance > MAX_RANGE_DIST)
+	{
+		DISPLAY_TIMED_MSG(pd_getcloser, MP_DETONATOR, MT_GENERAL);
+		return;
+	}
+	else
+	{
+		DropPlasmaDetonator();
+	}
 }
 
 /*
@@ -1295,128 +1403,141 @@ void TryDropPlasmaDetonator()
 ===============
 */
 void DoorOpen(
-    int16_t door)
+	std::int16_t door)
 {
-    if ((doorobjlist[door].ticcount += tics) >= OPENTICS) {
-        CloseDoor(door);
-    }
+	if ((doorobjlist[door].ticcount += tics) >= OPENTICS)
+	{
+		CloseDoor(door);
+	}
 }
 
-int16_t TransformAreas(
-    int8_t tilex,
-    int8_t tiley,
-    int8_t xform)
+std::int16_t TransformAreas(
+	std::int8_t tilex,
+	std::int8_t tiley,
+	std::int8_t xform)
 {
-    int16_t xofs = 0, yofs = 0;
-    uint8_t area1, area2;
+	std::int16_t xofs = 0, yofs = 0;
+	std::uint8_t area1, area2;
 
-// Is this walkway:  Horizontal?   Vertical?   Error?
-//
-    if ((tilemap[static_cast<int>(tilex)][static_cast<int>(tiley + 1)]) && (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley - 1)])) {
-        xofs = 1;
-        yofs = 0;
-    } else if ((tilemap[static_cast<int>(tilex + 1)][static_cast<int>(tiley)]) && (tilemap[static_cast<int>(tilex - 1)][static_cast<int>(tiley)])) {
-        xofs = 0;
-        yofs = 1;
-    } else {
-        ::Quit("Invalid linkable area.");
-    }
+	// Is this walkway:  Horizontal?   Vertical?   Error?
+	//
+	if ((tilemap[static_cast<int>(tilex)][static_cast<int>(tiley + 1)]) && (tilemap[static_cast<int>(tilex)][static_cast<int>(tiley - 1)]))
+	{
+		xofs = 1;
+		yofs = 0;
+	}
+	else if ((tilemap[static_cast<int>(tilex + 1)][static_cast<int>(tiley)]) && (tilemap[static_cast<int>(tilex - 1)][static_cast<int>(tiley)]))
+	{
+		xofs = 0;
+		yofs = 1;
+	}
+	else
+	{
+		::Quit("Invalid linkable area.");
+	}
 
-// Define the two areas...
-//
-    area1 = GetAreaNumber(static_cast<int8_t>(tilex + xofs), static_cast<int8_t>(tiley + yofs));
-    if (area1 >= NUMAREAS) {
-        ::Quit("Area1 out of table range.");
-    }
+	// Define the two areas...
+	//
+	area1 = GetAreaNumber(static_cast<std::int8_t>(tilex + xofs), static_cast<std::int8_t>(tiley + yofs));
+	if (area1 >= NUMAREAS)
+	{
+		::Quit("Area1 out of table range.");
+	}
 
-    area2 = GetAreaNumber(static_cast<int8_t>(tilex - xofs), static_cast<int8_t>(tiley - yofs));
-    if (area2 >= NUMAREAS) {
-        ::Quit("Area2 out of table range.");
-    }
+	area2 = GetAreaNumber(static_cast<std::int8_t>(tilex - xofs), static_cast<std::int8_t>(tiley - yofs));
+	if (area2 >= NUMAREAS)
+	{
+		::Quit("Area2 out of table range.");
+	}
 
-// Connect these two areas.
-//
-    areaconnect[area1][area2] += xform;
-    areaconnect[area2][area1] += xform;
-    ConnectAreas();
+	// Connect these two areas.
+	//
+	areaconnect[area1][area2] += xform;
+	areaconnect[area2][area1] += xform;
+	ConnectAreas();
 
-    return area1;
+	return area1;
 }
 
 void DoorOpening(
-    int16_t door)
+	std::int16_t door)
 {
-    int16_t area1;
-    int32_t position;
+	std::int16_t area1;
+	std::int32_t position;
 
-    position = doorposition[door];
-    if (!position) {
-        area1 = TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
+	position = doorposition[door];
+	if (!position)
+	{
+		area1 = TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
 
-        if (areabyplayer[area1]) {
-            switch (doorobjlist[door].type) {
-            case dr_bio:
-            case dr_office:
-            case dr_space:
-            case dr_normal:
-                ::sd_play_door_sound(
-                    HTECHDOOROPENSND, &doorobjlist[door]);
-                break;
+		if (areabyplayer[area1])
+		{
+			switch (doorobjlist[door].type)
+			{
+			case dr_bio:
+			case dr_office:
+			case dr_space:
+			case dr_normal:
+				::sd_play_door_sound(
+					HTECHDOOROPENSND, &doorobjlist[door]);
+				break;
 
-            default:
-                ::sd_play_door_sound(OPENDOORSND, &doorobjlist[door]);
-                break;
-            }
-        }
-    }
+			default:
+				::sd_play_door_sound(OPENDOORSND, &doorobjlist[door]);
+				break;
+			}
+		}
+	}
 
-//
-// slide the door by an adaptive amount
-//
-    position += tics << 10;
-    if (position >= 0xffff) {
-        //
-        // door is all the way open
-        //
-        position = 0xffff;
-        doorobjlist[door].ticcount = 0;
-        doorobjlist[door].action = dr_open;
-        actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
-    }
+	//
+	// slide the door by an adaptive amount
+	//
+	position += tics << 10;
+	if (position >= 0xffff)
+	{
+		//
+		// door is all the way open
+		//
+		position = 0xffff;
+		doorobjlist[door].ticcount = 0;
+		doorobjlist[door].action = dr_open;
+		actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
+	}
 
-    doorposition[door] = static_cast<uint16_t>(position);
+	doorposition[door] = static_cast<std::uint16_t>(position);
 }
 
 void DoorClosing(
-    int16_t door)
+	std::int16_t door)
 {
-    int32_t position;
-    int16_t tilex, tiley;
+	std::int32_t position;
+	std::int16_t tilex, tiley;
 
-    tilex = doorobjlist[door].tilex;
-    tiley = doorobjlist[door].tiley;
+	tilex = doorobjlist[door].tilex;
+	tiley = doorobjlist[door].tiley;
 
-    if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(static_cast<size_t>(door | 0x80))) ||
-        (player->tilex == tilex && player->tiley == tiley))
-    {
-        // something got inside the door
-        OpenDoor(door);
-        return;
-    }
+	if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(static_cast<std::size_t>(door | 0x80))) ||
+		(player->tilex == tilex && player->tiley == tiley))
+	{
+		// something got inside the door
+		OpenDoor(door);
+		return;
+	}
 
-    position = doorposition[door];
+	position = doorposition[door];
 
-//
-// slide the door by an adaptive amount
-//
-    position -= tics << 10;
-    if (position <= 0) {
-        position = 0;
-        doorobjlist[door].action = dr_closed;
-        TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, -1);
-    }
+	//
+	// slide the door by an adaptive amount
+	//
+	position -= tics << 10;
+	if (position <= 0)
+	{
+		position = 0;
+		doorobjlist[door].action = dr_closed;
+		TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, -1);
+	}
 
-    doorposition[door] = static_cast<uint16_t>(position);
+	doorposition[door] = static_cast<std::uint16_t>(position);
 }
 
 /*
@@ -1430,26 +1551,28 @@ void DoorClosing(
 */
 void MoveDoors()
 {
-    int16_t door;
+	std::int16_t door;
 
-    for (door = 0; door < doornum; door++) {
-        switch (doorobjlist[door].action) {
-        case dr_open:
-            DoorOpen(door);
-            break;
+	for (door = 0; door < doornum; door++)
+	{
+		switch (doorobjlist[door].action)
+		{
+		case dr_open:
+			DoorOpen(door);
+			break;
 
-        case dr_opening:
-            DoorOpening(door);
-            break;
+		case dr_opening:
+			DoorOpening(door);
+			break;
 
-        case dr_closing:
-            DoorClosing(door);
-            break;
+		case dr_closing:
+			DoorClosing(door);
+			break;
 
-        default:
-            break;
-        }
-    }
+		default:
+			break;
+		}
+	}
 }
 
 
@@ -1461,177 +1584,211 @@ void MoveDoors()
 =============================================================================
 */
 
-uint16_t pwallstate;
-uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
-uint16_t pwallx = 0, pwally = 0;
-int16_t pwalldir, pwalldist;
+// !!! Used in saved game.
+std::uint16_t pwallstate;
+
+// amount a pushable wall has been moved (0-63)
+// !!! Used in saved game.
+std::uint16_t pwallpos;
+
+// !!! Used in saved game.
+std::uint16_t pwallx = 0;
+
+// !!! Used in saved game.
+std::uint16_t pwally = 0;
+
+// !!! Used in saved game.
+std::int16_t pwalldir;
+
+// !!! Used in saved game.
+std::int16_t pwalldist;
 
 
 void PushWall(
-    int16_t checkx,
-    int16_t checky,
-    int16_t dir)
+	std::int16_t checkx,
+	std::int16_t checky,
+	std::int16_t dir)
 {
-    int16_t oldtile;
+	std::int16_t oldtile;
 
-    if (pwallstate) {
-        return;
-    }
+	if (pwallstate)
+	{
+		return;
+	}
 
-    TransformAreas(static_cast<int8_t>(checkx), static_cast<int8_t>(checky), 1);
+	TransformAreas(static_cast<std::int8_t>(checkx), static_cast<std::int8_t>(checky), 1);
 
-    oldtile = tilemap[checkx][checky];
-    if (!oldtile) {
-        return;
-    }
+	oldtile = tilemap[checkx][checky];
+	if (!oldtile)
+	{
+		return;
+	}
 
-    switch (dir) {
-    case di_north:
-        if (actorat[checkx][checky - 1]) {
-            return;
-        }
+	switch (dir)
+	{
+	case di_north:
+		if (actorat[checkx][checky - 1])
+		{
+			return;
+		}
 
-        tilemap[checkx][checky - 1] = static_cast<uint8_t>(oldtile);
-        actorat[checkx][checky - 1] = reinterpret_cast<objtype*>(oldtile);
-        break;
+		tilemap[checkx][checky - 1] = static_cast<std::uint8_t>(oldtile);
+		actorat[checkx][checky - 1] = reinterpret_cast<objtype*>(oldtile);
+		break;
 
-    case di_east:
-        if (actorat[checkx + 1][checky]) {
-            return;
-        }
+	case di_east:
+		if (actorat[checkx + 1][checky])
+		{
+			return;
+		}
 
-        tilemap[checkx + 1][checky] = static_cast<uint8_t>(oldtile);
-        actorat[checkx + 1][checky] = reinterpret_cast<objtype*>(oldtile);
-        break;
+		tilemap[checkx + 1][checky] = static_cast<std::uint8_t>(oldtile);
+		actorat[checkx + 1][checky] = reinterpret_cast<objtype*>(oldtile);
+		break;
 
-    case di_south:
-        if (actorat[checkx][checky + 1]) {
-            return;
-        }
+	case di_south:
+		if (actorat[checkx][checky + 1])
+		{
+			return;
+		}
 
-        tilemap[checkx][checky + 1] = static_cast<uint8_t>(oldtile);
-        actorat[checkx][checky + 1] = reinterpret_cast<objtype*>(oldtile);
-        break;
+		tilemap[checkx][checky + 1] = static_cast<std::uint8_t>(oldtile);
+		actorat[checkx][checky + 1] = reinterpret_cast<objtype*>(oldtile);
+		break;
 
-    case di_west:
-        if (actorat[checkx - 1][checky]) {
-            return;
-        }
+	case di_west:
+		if (actorat[checkx - 1][checky])
+		{
+			return;
+		}
 
-        tilemap[checkx - 1][checky] = static_cast<uint8_t>(oldtile);
-        actorat[checkx - 1][checky] = reinterpret_cast<objtype*>(oldtile);
-        break;
-    }
+		tilemap[checkx - 1][checky] = static_cast<std::uint8_t>(oldtile);
+		actorat[checkx - 1][checky] = reinterpret_cast<objtype*>(oldtile);
+		break;
+	}
 
-    pwalldist = 2;
-    pwallx = checkx;
-    pwally = checky;
-    pwalldir = dir;
-    pwallstate = 1;
-    pwallpos = 0;
-    tilemap[pwallx][pwally] |= 0xc0;
-    *(mapsegs[1] + farmapylookup[pwally] + pwallx) = 0; // remove P tile info
+	pwalldist = 2;
+	pwallx = checkx;
+	pwally = checky;
+	pwalldir = dir;
+	pwallstate = 1;
+	pwallpos = 0;
+	tilemap[pwallx][pwally] |= 0xc0;
+	*(mapsegs[1] + farmapylookup[pwally] + pwallx) = 0; // remove P tile info
 
-    ::sd_play_wall_sound(PUSHWALLSND);
+	::sd_play_wall_sound(PUSHWALLSND);
 }
 
 void MovePWalls()
 {
-    int16_t oldblock, oldtile;
+	std::int16_t oldblock, oldtile;
 
-    if (!pwallstate) {
-        return;
-    }
+	if (!pwallstate)
+	{
+		return;
+	}
 
-    oldblock = pwallstate / 128;
+	oldblock = pwallstate / 128;
 
-    pwallstate += tics * 4;
+	pwallstate += tics * 4;
 
-    if (pwallstate / 128 != oldblock) {
-        uint16_t areanumber;
+	if (pwallstate / 128 != oldblock)
+	{
+		std::uint16_t areanumber;
 
-        pwalldist--;
+		pwalldist--;
 
-        // block crossed into a new block
-        oldtile = tilemap[pwallx][pwally] & 63;
+		// block crossed into a new block
+		oldtile = tilemap[pwallx][pwally] & 63;
 
-        //
-        // the tile can now be walked into
-        //
-        tilemap[pwallx][pwally] = 0;
+		//
+		// the tile can now be walked into
+		//
+		tilemap[pwallx][pwally] = 0;
 
-        actorat[pwallx][pwally] = nullptr;
+		actorat[pwallx][pwally] = nullptr;
 
-        areanumber = GetAreaNumber(player->tilex, player->tiley);
-        if (GAN_HiddenArea) {
-            areanumber += HIDDENAREATILE;
-        } else {
-            areanumber += AREATILE;
-        }
-        *(mapsegs[0] + farmapylookup[pwally] + pwallx) = areanumber;
+		areanumber = GetAreaNumber(player->tilex, player->tiley);
+		if (GAN_HiddenArea)
+		{
+			areanumber += HIDDENAREATILE;
+		}
+		else
+		{
+			areanumber += AREATILE;
+		}
+		*(mapsegs[0] + farmapylookup[pwally] + pwallx) = areanumber;
 
-        //
-        // see if it should be pushed farther
-        //
-        if (!pwalldist) {
-            //
-            // the block has been pushed two tiles
-            //
-            pwallstate = 0;
-            return;
-        } else {
-            switch (pwalldir) {
-            case di_north:
-                pwally--;
-                if (actorat[pwallx][pwally - 1]) {
-                    pwallstate = 0;
-                    return;
-                }
+		//
+		// see if it should be pushed farther
+		//
+		if (!pwalldist)
+		{
+			//
+			// the block has been pushed two tiles
+			//
+			pwallstate = 0;
+			return;
+		}
+		else
+		{
+			switch (pwalldir)
+			{
+			case di_north:
+				pwally--;
+				if (actorat[pwallx][pwally - 1])
+				{
+					pwallstate = 0;
+					return;
+				}
 
-                tilemap[pwallx][pwally - 1] = static_cast<uint8_t>(oldtile);
-                actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
-                break;
+				tilemap[pwallx][pwally - 1] = static_cast<std::uint8_t>(oldtile);
+				actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
+				break;
 
-            case di_east:
-                pwallx++;
-                if (actorat[pwallx + 1][pwally]) {
-                    pwallstate = 0;
-                    return;
-                }
+			case di_east:
+				pwallx++;
+				if (actorat[pwallx + 1][pwally])
+				{
+					pwallstate = 0;
+					return;
+				}
 
-                tilemap[pwallx + 1][pwally] = static_cast<uint8_t>(oldtile);
-                actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
-                break;
+				tilemap[pwallx + 1][pwally] = static_cast<std::uint8_t>(oldtile);
+				actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
+				break;
 
-            case di_south:
-                pwally++;
-                if (actorat[pwallx][pwally + 1]) {
-                    pwallstate = 0;
-                    return;
-                }
+			case di_south:
+				pwally++;
+				if (actorat[pwallx][pwally + 1])
+				{
+					pwallstate = 0;
+					return;
+				}
 
-                tilemap[pwallx][pwally + 1] = static_cast<uint8_t>(oldtile);
-                actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
-                break;
+				tilemap[pwallx][pwally + 1] = static_cast<std::uint8_t>(oldtile);
+				actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
+				break;
 
-            case di_west:
-                pwallx--;
-                if (actorat[pwallx - 1][pwally]) {
-                    pwallstate = 0;
-                    return;
-                }
+			case di_west:
+				pwallx--;
+				if (actorat[pwallx - 1][pwally])
+				{
+					pwallstate = 0;
+					return;
+				}
 
-                tilemap[pwallx - 1][pwally] = static_cast<uint8_t>(oldtile);
-                actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
-                break;
-            }
+				tilemap[pwallx - 1][pwally] = static_cast<std::uint8_t>(oldtile);
+				actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
+				break;
+			}
 
-            tilemap[pwallx][pwally] = static_cast<uint8_t>(oldtile | 0xc0);
-        }
-    }
+			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xc0);
+		}
+	}
 
 
-    pwallpos = (pwallstate / 2) & 63;
+	pwallpos = (pwallstate / 2) & 63;
 }
 
 // ==========================================================================
@@ -1654,32 +1811,31 @@ void MovePWalls()
 // ==========================================================================
 
 void InitMsgCache(
-    mCacheList* mList,
-    uint16_t listSize,
-    uint16_t infoSize)
+	mCacheList* mList,
+	std::uint16_t listSize,
+	std::uint16_t infoSize)
 {
-    FreeMsgCache(mList, infoSize);
-    memset(mList, 0, listSize);
+	FreeMsgCache(mList, infoSize);
+	memset(mList, 0, listSize);
 }
 
 void FreeMsgCache(
-    mCacheList* mList,
-    uint16_t infoSize)
+	mCacheList* mList,
+	std::uint16_t infoSize)
 {
-    mCacheInfo* ci = mList->mInfo;
-    char* ch_ptr;
+	mCacheInfo* ci = mList->mInfo;
+	char* ch_ptr;
 
-    while (mList->NumMsgs--) {
-        delete [] ci->mSeg;
-        ci->mSeg = nullptr;
+	while (mList->NumMsgs--)
+	{
+		delete[] ci->mSeg;
+		ci->mSeg = nullptr;
 
-        ch_ptr = (char*)ci;
-        ch_ptr += infoSize;
-        ci = (mCacheInfo*)ch_ptr;
-    }
+		ch_ptr = (char*)ci;
+		ch_ptr += infoSize;
+		ci = (mCacheInfo*)ch_ptr;
+	}
 }
-
-extern char int_xx[];
 
 // ---------------------------------------------------------------------------
 // CacheMsg()
@@ -1688,12 +1844,12 @@ extern char int_xx[];
 // next available message segment pointer.
 // ---------------------------------------------------------------------------
 void CacheMsg(
-    mCacheInfo* ci,
-    uint16_t SegNum,
-    uint16_t MsgNum)
+	mCacheInfo* ci,
+	std::uint16_t SegNum,
+	std::uint16_t MsgNum)
 {
-    ci->mSeg = new char[MAX_CACHE_MSG_LEN];
-    LoadMsg(ci->mSeg, SegNum, MsgNum, MAX_CACHE_MSG_LEN);
+	ci->mSeg = new char[MAX_CACHE_MSG_LEN];
+	LoadMsg(ci->mSeg, SegNum, MsgNum, MAX_CACHE_MSG_LEN);
 }
 
 // ---------------------------------------------------------------------------
@@ -1710,61 +1866,70 @@ void CacheMsg(
 //
 // RETURNS : Returns the length of the loaded message
 // ---------------------------------------------------------------------------
-int16_t LoadMsg(
-    char* hint_buffer,
-    uint16_t SegNum,
-    uint16_t MsgNum,
-    uint16_t MaxMsgLen)
+std::int16_t LoadMsg(
+	char* hint_buffer,
+	std::uint16_t SegNum,
+	std::uint16_t MsgNum,
+	std::uint16_t MaxMsgLen)
 {
-    char* Message, * EndOfMsg;
-    int16_t pos = 0;
+	const auto msg_xx = "^XX";
 
-    CA_CacheGrChunk(SegNum);
-    Message = static_cast<char*>(grsegs[SegNum]);
+	char* Message, *EndOfMsg;
+	std::int16_t pos = 0;
 
-// Search for end of MsgNum-1 (Start of our message)
-//
-    while (--MsgNum) {
-        Message = strstr(Message, int_xx);
+	CA_CacheGrChunk(SegNum);
+	Message = static_cast<char*>(grsegs[SegNum]);
 
-        if (!Message) {
-            ::Quit("Invalid 'Cached Message' number");
-        }
+	// Search for end of MsgNum-1 (Start of our message)
+	//
+	while (--MsgNum)
+	{
+		Message = strstr(Message, msg_xx);
 
-        Message += 3;           // Bump to start of next Message
-    }
+		if (!Message)
+		{
+			::Quit("Invalid 'Cached Message' number");
+		}
 
-// Move past LFs and CRs that follow "^XX"
-//
-    while ((*Message == '\n') || (*Message == '\r')) {
-        Message++;
-    }
+		Message += 3;           // Bump to start of next Message
+	}
 
-// Find the end of the message
-//
-    if ((EndOfMsg = strstr(Message, int_xx)) == nullptr) {
-        ::Quit("Invalid 'Cached Message' number");
-    }
-    EndOfMsg += 3;
+	// Move past LFs and CRs that follow "^XX"
+	//
+	while ((*Message == '\n') || (*Message == '\r'))
+	{
+		Message++;
+	}
 
-// Copy to a temp buffer
-//
-    while (Message != EndOfMsg) {
-        if (*Message != '\n') {
-            hint_buffer[pos++] = *Message;
-        }
+	// Find the end of the message
+	//
+	if ((EndOfMsg = strstr(Message, msg_xx)) == nullptr)
+	{
+		::Quit("Invalid 'Cached Message' number");
+	}
+	EndOfMsg += 3;
 
-        if (pos >= MaxMsgLen) {
-            ::Quit("Cached Hint Message is to Long for allocated space.");
-        }
+	// Copy to a temp buffer
+	//
+	while (Message != EndOfMsg)
+	{
+		if (*Message != '\n')
+		{
+			hint_buffer[pos++] = *Message;
+		}
 
-        Message++;
-    }
+		if (pos >= MaxMsgLen)
+		{
+			::Quit("Cached Hint Message is to Long for allocated space.");
+		}
 
-    hint_buffer[pos] = 0; // Null Terminate
-    UNCACHEGRCHUNK(SegNum);
+		Message++;
+	}
 
-    return pos;
+	hint_buffer[pos] = 0; // Null Terminate
+	UNCACHEGRCHUNK(SegNum);
+
+	return pos;
 }
 
 
@@ -1782,64 +1947,70 @@ int16_t LoadMsg(
 // actorat[][] - Holds concession machine number (1 - MAXCONCESSIONS+1)
 // --------------------------------------------------------------------------
 void SpawnConcession(
-    int16_t tilex,
-    int16_t tiley,
-    uint16_t credits,
-    uint16_t machinetype)
+	std::int16_t tilex,
+	std::int16_t tiley,
+	std::uint16_t credits,
+	std::uint16_t machinetype)
 {
-    con_mCacheInfo* ci = &ConHintList.cmInfo[ConHintList.NumMsgs];
+	con_mCacheInfo* ci = &ConHintList.cmInfo[ConHintList.NumMsgs];
 
-    if (ConHintList.NumMsgs >= MAXCONCESSIONS) {
-        ::Quit("Too many concession machines in level.");
-    }
+	if (ConHintList.NumMsgs >= MAXCONCESSIONS)
+	{
+		::Quit("Too many concession machines in level.");
+	}
 
-    if (credits != PUSHABLETILE) {
-        switch (credits & 0xff00) {
-        case 0:
-        case 0xFC00: // Food Id
-            ci->mInfo.local_val = credits & 0xff;
-            ci->operate_cnt = 0;
-            ci->type = static_cast<uint8_t>(machinetype);
-            break;
-        }
-    }
+	if (credits != PUSHABLETILE)
+	{
+		switch (credits & 0xff00)
+		{
+		case 0:
+		case 0xFC00: // Food Id
+			ci->mInfo.local_val = credits & 0xff;
+			ci->operate_cnt = 0;
+			ci->type = static_cast<std::uint8_t>(machinetype);
+			break;
+		}
+	}
 
-// Consider it a solid wall (val != 0)
-//
-    if (++ConHintList.NumMsgs > MAX_CACHE_MSGS) {
-        ::Quit("(CONCESSIONS) Too many 'cached msgs' loaded.");
-    }
+	// Consider it a solid wall (val != 0)
+	//
+	if (++ConHintList.NumMsgs > MAX_CACHE_MSGS)
+	{
+		::Quit("(CONCESSIONS) Too many 'cached msgs' loaded.");
+	}
 
-    actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
+	actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
 }
 
 bool ReuseMsg(
-    mCacheInfo* ci,
-    int16_t count,
-    int16_t struct_size)
+	mCacheInfo* ci,
+	std::int16_t count,
+	std::int16_t struct_size)
 {
-    char* scan_ch = (char*)ci;
-    mCacheInfo* scan = (mCacheInfo*)(scan_ch - struct_size);
+	char* scan_ch = (char*)ci;
+	mCacheInfo* scan = (mCacheInfo*)(scan_ch - struct_size);
 
-// Scan through all loaded messages -- see if we're loading one already
-// cached-in.
-//
-    while (count--) {
-        // Is this message already cached in?
-        //
-        if (scan->global_val == ci->global_val) {
-            ci->local_val = scan->local_val;
-            return true;
-        }
+	// Scan through all loaded messages -- see if we're loading one already
+	// cached-in.
+	//
+	while (count--)
+	{
+		// Is this message already cached in?
+		//
+		if (scan->global_val == ci->global_val)
+		{
+			ci->local_val = scan->local_val;
+			return true;
+		}
 
-        // Funky structure decrement... (structures can be any size...)
-        //
-        scan_ch = (char*)scan;
-        scan_ch -= struct_size;
-        scan = (mCacheInfo*)scan_ch;
-    }
+		// Funky structure decrement... (structures can be any size...)
+		//
+		scan_ch = (char*)scan;
+		scan_ch -= struct_size;
+		scan = (mCacheInfo*)scan_ch;
+	}
 
-    return false;
+	return false;
 }
 
 
@@ -1847,12 +2018,12 @@ extern std::string food_msg1;
 extern std::string bevs_msg1;
 
 extern void writeTokenStr(
-    std::string& string);
+	std::string& string);
 
 const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX";
 
 void OperateConcession(
-	uint16_t concession)
+	std::uint16_t concession)
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -1870,7 +2041,7 @@ void OperateConcession(
 			if (gamestate.health == 100)
 			{
 				DISPLAY_TIMED_MSG(noeat_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
-				::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 
 				return;
 			}
@@ -1895,7 +2066,7 @@ void OperateConcession(
 			if (!gamestate.tokens)
 			{
 				DISPLAY_TIMED_MSG(NoFoodTokens, MP_NO_MORE_TOKENS, MT_NO_MO_FOOD_TOKENS);
-				::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 
 				return;
 			}
@@ -1905,7 +2076,7 @@ void OperateConcession(
 			}
 
 			ci->mInfo.local_val--;
-			::sd_play_player_sound(CONCESSIONSSND, bstone::AC_ITEM);
+			::sd_play_player_sound(CONCESSIONSSND, bstone::ActorChannel::item);
 
 			switch (ci->type)
 			{
@@ -1935,203 +2106,234 @@ void OperateConcession(
 	else
 	{
 		DISPLAY_TIMED_MSG(OutOrder, MP_CONCESSION_OUT_ORDER, MT_GENERAL);
-		::sd_play_player_sound(NOWAYSND, bstone::AC_ITEM);
+		::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 	}
 }
 
-int8_t xy_offset[8][2] = {
-    { 0, -1 }, { 0, +1 }, { -1, 0 }, { +1, 0 }, // vert / horz
-    { -1, -1 }, { +1, +1 }, { -1, +1 }, { +1, -1 }, // diagnals
+std::int8_t xy_offset[8][2] = {
+	{0, -1}, {0, +1}, {-1, 0}, {+1, 0}, // vert / horz
+{-1, -1}, {+1, +1}, {-1, +1}, {+1, -1}, // diagnals
 };
 
 void CheckSpawnEA()
 {
-    objtype temp, * ob;
-    int8_t loop, ofs, x_diff, y_diff;
+	objtype temp, *ob;
+	std::int8_t loop, ofs, x_diff, y_diff;
 
-    if (objcount > MAXACTORS - 8) {
-        return;
-    }
+	if (objcount > MAXACTORS - 8)
+	{
+		return;
+	}
 
-    for (loop = 0; loop < NumEAWalls; loop++) {
-        uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
+	for (loop = 0; loop < NumEAWalls; loop++)
+	{
+		std::uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
 
-        // Limit the number of aliens spawned by each outlet.
-        //
-        if (eaList[static_cast<int>(loop)].aliens_out > gamestate.difficulty) {
-            continue;
-        }
+		// Limit the number of aliens spawned by each outlet.
+		//
+		if (eaList[static_cast<int>(loop)].aliens_out > gamestate.difficulty)
+		{
+			continue;
+		}
 
-        // Decrement 'spawn delay' for current outlet.
-        //
-        if (eaList[static_cast<int>(loop)].delay > tics) {
-            eaList[static_cast<int>(loop)].delay -= tics;
-            continue;
-        }
+		// Decrement 'spawn delay' for current outlet.
+		//
+		if (eaList[static_cast<int>(loop)].delay > tics)
+		{
+			eaList[static_cast<int>(loop)].delay -= tics;
+			continue;
+		}
 
-        // Reset to 1 because it's possible that an alien won't be spawned...
-        // If NOT, we'll try again on the next refresh.
-        // If SO, the delay is set to a true value below.
-        //
-        eaList[static_cast<int>(loop)].delay = 1;
+		// Reset to 1 because it's possible that an alien won't be spawned...
+		// If NOT, we'll try again on the next refresh.
+		// If SO, the delay is set to a true value below.
+		//
+		eaList[static_cast<int>(loop)].delay = 1;
 
-        // Does this wall touch the 'area' that the player is in?
-        //
-        for (ofs = 0; ofs < 4; ofs++) {
-            int8_t nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
-            int8_t ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
-            int8_t areanumber = GetAreaNumber(nx, ny);
+		// Does this wall touch the 'area' that the player is in?
+		//
+		for (ofs = 0; ofs < 4; ofs++)
+		{
+			std::int8_t nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
+			std::int8_t ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
+			std::int8_t areanumber = GetAreaNumber(nx, ny);
 
-            if ((nx < 0) || (nx > 63) || (ny < 0) || (ny > 63)) {
-                continue;
-            }
+			if ((nx < 0) || (nx > 63) || (ny < 0) || (ny > 63))
+			{
+				continue;
+			}
 
-            if (areanumber != 127 && areabyplayer[static_cast<int>(areanumber)]) {
-                break;
-            }
-        }
+			if (areanumber != 127 && areabyplayer[static_cast<int>(areanumber)])
+			{
+				break;
+			}
+		}
 
-        // Wall doesn't touch player 'area'.
-        //
-        if (ofs == 4) {
-            continue;
-        }
+		// Wall doesn't touch player 'area'.
+		//
+		if (ofs == 4)
+		{
+			continue;
+		}
 
-        // Setup tile x,y in temp obj.
-        //
-        temp.tilex = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
-        temp.tiley = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
+		// Setup tile x,y in temp obj.
+		//
+		temp.tilex = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
+		temp.tiley = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
 
-        // Is another actor already on this tile?
-        // If so, "continue" if it's alive...
-        //
-        ob = actorat[temp.tilex][temp.tiley];
-        if (ob >= objlist) {
-            if (!(ob->flags & FL_DEADGUY)) {
-                continue;
-            }
-        }
+		// Is another actor already on this tile?
+		// If so, "continue" if it's alive...
+		//
+		ob = actorat[temp.tilex][temp.tiley];
+		if (ob >= objlist)
+		{
+			if (!(ob->flags & FL_DEADGUY))
+			{
+				continue;
+			}
+		}
 
-        // Is player already on this tile?
-        //
-        x_diff = player->tilex - temp.tilex;
-        y_diff = player->tiley - temp.tiley;
-        if (ABS(x_diff) < 2 && ABS(y_diff) < 2) {
-            continue;
-        }
+		// Is player already on this tile?
+		//
+		x_diff = player->tilex - temp.tilex;
+		y_diff = player->tiley - temp.tiley;
+		if (ABS(x_diff) < 2 && ABS(y_diff) < 2)
+		{
+			continue;
+		}
 
-        // Setup x,y in temp obj and see if obj is in player's view.
-        // Actor is released if it's in player's view   OR
-        // a random chance to release whether it can be seen or not.
-        //
-        temp.x = ((fixed)temp.tilex << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
-        temp.y = ((fixed)temp.tiley << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
-        if ((!CheckSight(player, &temp)) && (US_RndT() < 200)) {
-            continue;
-        }
+		// Setup x,y in temp obj and see if obj is in player's view.
+		// Actor is released if it's in player's view   OR
+		// a random chance to release whether it can be seen or not.
+		//
+		temp.x = ((fixed)temp.tilex << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
+		temp.y = ((fixed)temp.tiley << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
+		if ((!CheckSight(player, &temp)) && (US_RndT() < 200))
+		{
+			continue;
+		}
 
-        // Spawn Electro-Alien!
-        //
-        usedummy = true;
-        SpawnStand(en_electro_alien, temp.tilex, temp.tiley, 0);
+		// Spawn Electro-Alien!
+		//
+		usedummy = true;
+		SpawnStand(en_electro_alien, temp.tilex, temp.tiley, 0);
 
-        ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
+		::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
 
-        usedummy = false;
-        if (new_actor != &dummyobj) {
-            eaList[static_cast<int>(loop)].aliens_out++;
-            new_actor->temp2 = loop;
-            ::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::AC_ITEM);
-        }
+		usedummy = false;
+		if (new_actor != &dummyobj)
+		{
+			eaList[static_cast<int>(loop)].aliens_out++;
+			new_actor->temp2 = loop;
+			::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
+		}
 
-        // Reset spawn delay.
-        //
-        if ((*map1 & 0xff00) == 0xfa00) {
-            eaList[static_cast<int>(loop)].delay = 60 * ((*map1) & 0xff);
-        } else {
-            eaList[static_cast<int>(loop)].delay = 60 * 8 + Random(60 * 22);
-        }
+		// Reset spawn delay.
+		//
+		if ((*map1 & 0xff00) == 0xfa00)
+		{
+			eaList[static_cast<int>(loop)].delay = 60 * ((*map1) & 0xff);
+		}
+		else
+		{
+			eaList[static_cast<int>(loop)].delay = 60 * 8 + Random(60 * 22);
+		}
 
-        break;
-    }
+		break;
+	}
 }
 
 void CheckSpawnGoldstern()
 {
-    if (GoldsternInfo.WaitTime > tics) {
-        //
-        // Count down general timer before doing any Goldie Stuff..
-        //
+	if (GoldsternInfo.WaitTime > tics)
+	{
+		//
+		// Count down general timer before doing any Goldie Stuff..
+		//
 
-        GoldsternInfo.WaitTime -= tics;
-    } else {
-        //
-        // What Kind of Goldie Stuff needs to be done?
-        //
+		GoldsternInfo.WaitTime -= tics;
+	}
+	else
+	{
+		//
+		// What Kind of Goldie Stuff needs to be done?
+		//
 
-        if (GoldsternInfo.flags == GS_COORDFOUND) {
-            uint16_t tilex, tiley;
+		if (GoldsternInfo.flags == GS_COORDFOUND)
+		{
+			std::uint16_t tilex, tiley;
 
-            // See if we can spawn Dr. Goldstern...
+			// See if we can spawn Dr. Goldstern...
 
-            tilex = GoldieList[GoldsternInfo.LastIndex].tilex;
-            tiley = GoldieList[GoldsternInfo.LastIndex].tiley;
+			tilex = GoldieList[GoldsternInfo.LastIndex].tilex;
+			tiley = GoldieList[GoldsternInfo.LastIndex].tiley;
 
-            if ((!actorat[tilex][tiley]) && ABS(player->tilex - tilex) > 1 && ABS(player->tiley - tiley) > 1) {
-                SpawnStand(en_goldstern, tilex, tiley, 0);
-                GoldsternInfo.GoldSpawned = true;
-            }
-        } else {
-            // Find a new coord to spawn Goldie (GS_NEEDCOORD or GS_FIRSTTIME)
+			if ((!actorat[tilex][tiley]) && ABS(player->tilex - tilex) > 1 && ABS(player->tiley - tiley) > 1)
+			{
+				SpawnStand(en_goldstern, tilex, tiley, 0);
+				GoldsternInfo.GoldSpawned = true;
+			}
+		}
+		else
+		{
+			// Find a new coord to spawn Goldie (GS_NEEDCOORD or GS_FIRSTTIME)
 
-            FindNewGoldieSpawnSite();
-        }
-    }
+			FindNewGoldieSpawnSite();
+		}
+	}
 }
 
 void FindNewGoldieSpawnSite()
 {
-    objtype temp;
-    int8_t loop;
+	objtype temp;
+	std::int8_t loop;
 
-    GoldsternInfo.WaitTime = 0;
+	GoldsternInfo.WaitTime = 0;
 
-    for (loop = 0; loop < GoldsternInfo.SpawnCnt; loop++) {
-        // Test for repeats - And avoid them!
-        //
+	for (loop = 0; loop < GoldsternInfo.SpawnCnt; loop++)
+	{
+		// Test for repeats - And avoid them!
+		//
 
-        if ((GoldsternInfo.SpawnCnt > 1) && (loop == GoldsternInfo.LastIndex)) {
-            continue;
-        }
+		if ((GoldsternInfo.SpawnCnt > 1) && (loop == GoldsternInfo.LastIndex))
+		{
+			continue;
+		}
 
-        // Setup tile x,y in temp obj.
-        //
+		// Setup tile x,y in temp obj.
+		//
 
-        temp.tilex = GoldieList[static_cast<int>(loop)].tilex;
-        temp.tiley = GoldieList[static_cast<int>(loop)].tiley;
+		temp.tilex = GoldieList[static_cast<int>(loop)].tilex;
+		temp.tiley = GoldieList[static_cast<int>(loop)].tiley;
 
-        // Setup x,y in temp obj and see if obj is in player's view.
-        //
+		// Setup x,y in temp obj and see if obj is in player's view.
+		//
 
-        temp.x = ((fixed)temp.tilex << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
-        temp.y = ((fixed)temp.tiley << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
-        if (!CheckSight(player, &temp)) {
-            continue;
-        }
+		temp.x = ((fixed)temp.tilex << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
+		temp.y = ((fixed)temp.tiley << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
+		if (!CheckSight(player, &temp))
+		{
+			continue;
+		}
 
-        // Mark to spawn Dr Goldstern
-        //
+		// Mark to spawn Dr Goldstern
+		//
 
-        GoldsternInfo.LastIndex = loop;
-        if (gamestate.mapon == 9) {
-            GoldsternInfo.WaitTime = 60;
-        } else if (GoldsternInfo.flags == GS_FIRSTTIME) {
-            GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT - MIN_GOLDIE_FIRST_WAIT); // Reinit Delay Timer before spawning on new position
-        } else {
-            GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
+		GoldsternInfo.LastIndex = loop;
+		if (gamestate.mapon == 9)
+		{
+			GoldsternInfo.WaitTime = 60;
+		}
+		else if (GoldsternInfo.flags == GS_FIRSTTIME)
+		{
+			GoldsternInfo.WaitTime = MIN_GOLDIE_FIRST_WAIT + Random(MAX_GOLDIE_FIRST_WAIT - MIN_GOLDIE_FIRST_WAIT); // Reinit Delay Timer before spawning on new position
+		}
+		else
+		{
+			GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
 
-        }
-        GoldsternInfo.flags = GS_COORDFOUND;
-        break;
-    }
+		}
+		GoldsternInfo.flags = GS_COORDFOUND;
+		break;
+	}
 }

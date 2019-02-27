@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,51 +34,58 @@ Free Software Foundation, Inc.,
 #include "bstone_audio_decoder.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A PCM decoder for digitized sounds.
-class PcmDecoder : public AudioDecoder {
+class PcmDecoder final :
+	public AudioDecoder
+{
 public:
-    PcmDecoder();
+	PcmDecoder();
 
-    virtual ~PcmDecoder();
+	~PcmDecoder() override;
 
-    virtual bool initialize(
-        const void* src_raw_data,
-        int src_raw_size,
-        int dst_rate);
+	bool initialize(
+		const void* const src_raw_data,
+		const int src_raw_size,
+		const int dst_rate) override;
 
-    virtual void uninitialize();
+	void uninitialize() override;
 
-    virtual int decode(
-        int dst_count,
-        int16_t* dst_data);
+	int decode(
+		const int dst_count,
+		std::int16_t* const dst_data) override;
 
-    virtual bool reset();
+	bool reset() override;
 
-    virtual AudioDecoder* clone();
+	AudioDecoder* clone() override;
 
-    // Return an input sample rate.
-    static int get_src_rate();
+	// Return an input sample rate.
+	static int get_src_rate();
 
-    // Returns a minimum output sample rate.
-    static int get_min_dst_rate();
+	// Returns a minimum output sample rate.
+	static int get_min_dst_rate();
+
 
 private:
-    int64_t offset_;
-    int16_t last_sample_;
-    int64_t dst_count_;
-    int64_t dst_ratio_;
-    double alpha_;
-    double one_minus_alpha_;
+	std::int64_t offset_;
+	std::int16_t last_sample_;
+	std::int64_t dst_count_;
+	std::int64_t dst_ratio_;
+	double alpha_;
+	double one_minus_alpha_;
 
-    static int16_t pcm8_to_pcm16(
-        uint8_t sample);
+
+	void uninitialize_internal();
+
+	static std::int16_t pcm8_to_pcm16(
+		const std::uint8_t sample);
 }; // PcmDecoder
 
 
 } // bstone
 
 
-#endif // BSTONE_PCM_DECODER_INCLUDED
+#endif // !BSTONE_PCM_DECODER_INCLUDED

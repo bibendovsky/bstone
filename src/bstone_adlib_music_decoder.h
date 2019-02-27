@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,51 +31,57 @@ Free Software Foundation, Inc.,
 #define BSTONE_ADLIB_MUSIC_DECODER_INCLUDED
 
 
-#include <cstdint>
 #include <vector>
 #include "bstone_adlib_decoder.h"
 #include "bstone_memory_binary_reader.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A decoder for AdLib music.
-class AdlibMusicDecoder : public AdlibDecoder {
+class AdlibMusicDecoder final :
+	public AdlibDecoder
+{
 public:
-    AdlibMusicDecoder();
+	AdlibMusicDecoder();
 
-    virtual ~AdlibMusicDecoder();
+	~AdlibMusicDecoder() override;
 
-    virtual bool initialize(
-        const void* raw_data,
-        int raw_size,
-        int dst_rate);
+	bool initialize(
+		const void* const raw_data,
+		const int raw_size,
+		const int dst_rate) override;
 
-    virtual void uninitialize();
+	void uninitialize() override;
 
-    virtual bool reset();
+	bool reset() override;
 
-    virtual AudioDecoder* clone();
+	AudioDecoder* clone() override;
 
-    virtual int decode(
-        int dst_count,
-        int16_t* dst_data);
+	int decode(
+		const int dst_count,
+		std::int16_t* const dst_data) override;
 
-    // Returns a number of calls per second of
-    // original interrupt routine.
-    static int get_tick_rate();
+	// Returns a number of calls per second of
+	// original interrupt routine.
+	static int get_tick_rate();
+
 
 private:
-    MemoryBinaryReader reader_;
-    int commands_count_;
-    int command_index_;
-    int samples_per_tick_;
-    int remains_count_;
+	MemoryBinaryReader reader_;
+	int commands_count_;
+	int command_index_;
+	int samples_per_tick_;
+	int remains_count_;
+
+
+	void uninitialize_internal();
 }; // AdlibDecoder
 
 
 } // bstone
 
 
-#endif // BSTONE_ADLIB_MUSIC_DECODER_INCLUDED
+#endif // !BSTONE_ADLIB_MUSIC_DECODER_INCLUDED

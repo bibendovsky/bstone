@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -43,53 +43,57 @@ namespace bstone
 class TextReader final
 {
 public:
-    TextReader();
+	TextReader();
 
-    TextReader(
-        Stream* stream);
+	TextReader(
+		Stream* stream);
 
-    TextReader(
-        const TextReader& that) = delete;
+	TextReader(
+		const TextReader& rhs) = delete;
 
-    TextReader& operator=(
-        const TextReader& that) = delete;
+	TextReader(
+		TextReader&& rhs);
 
-    ~TextReader();
+	TextReader& operator=(
+		const TextReader& rhs) = delete;
 
-
-    bool open(
-        Stream* stream);
-
-    void close();
-
-    bool is_open() const;
+	~TextReader();
 
 
-    bool is_eos() const;
+	bool open(
+		Stream* stream);
+
+	void close();
+
+	bool is_open() const;
 
 
-    std::string read_line();
+	bool is_eos() const;
+
+
+	std::string read_line();
 
 
 private:
-    static constexpr int max_buffer_size = 4096;
+	static constexpr auto max_buffer_size = 4096;
 
 
-    using Buffer = std::array<char, max_buffer_size>;
+	using Buffer = std::array<char, max_buffer_size>;
 
 
-    Stream* stream_;
-    bool is_eos_;
-    int buffer_offset_;
-    int buffer_size_;
-    Buffer buffer_;
-    int char_buffer_;
+	Stream* stream_;
+	bool is_eos_;
+	int buffer_offset_;
+	int buffer_size_;
+	Buffer buffer_;
+	int char_buffer_;
 
-    int peek_char();
+
+	int peek_char();
 }; // TextReader
 
 
 } // bstone
 
 
-#endif // BSTONE_TEXT_READER_INCLUDED
+#endif // !BSTONE_TEXT_READER_INCLUDED

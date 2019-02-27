@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,265 +31,242 @@ Free Software Foundation, Inc.,
 #define BSTONE_ENDIAN_INCLUDED
 
 
-#include <algorithm>
-#include "SDL.h"
+#include <cstdint>
+#include "SDL_endian.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
-// Byte order (endianness) manipulation.
-class Endian {
+enum class EndianId
+{
+	none,
+	big,
+	little,
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	native = big,
+#else // SDL_BYTEORDER == SDL_BIG_ENDIAN
+	native = little,
+#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN
+}; // EndianId
+
+
+namespace detail
+{
+
+
+//
+// Notes:
+//    - We are assuming CPU architecture without exotic types (i.e. 9-bit char, etc).
+//
+template<typename T>
+struct ShouldBeSwapped
+{
+	static constexpr auto value_ = (sizeof(T) > 1);
+}; // ShouldBeSwapped
+
+
+class EndianSwap final
+{
 public:
-    Endian() = delete;
+	static std::uint8_t swap(
+		const std::uint8_t value)
+	{
+		return value;
+	}
 
-    Endian(
-        const Endian& that) = delete;
+	static std::int8_t swap(
+		const std::int8_t value)
+	{
+		return value;
+	}
 
-    Endian& operator=(
-        const Endian& that) = delete;
+	static std::uint16_t swap(
+		const std::uint16_t value)
+	{
+		return (value >> 8) | (value << 8);
+	}
 
-    ~Endian() = delete;
+	static std::int16_t swap(
+		const std::int16_t value)
+	{
+		return static_cast<std::int16_t>(swap(static_cast<std::uint16_t>(value)));
+	}
 
+	static std::uint32_t swap(
+		const std::uint32_t value)
+	{
+		constexpr auto ooxxooxx = std::uint32_t{0x00FF00FF};
+		constexpr auto xxooxxoo = std::uint32_t{0xFF00FF00};
 
-    // Swaps bytes on non little-endian system.
-    template<typename T>
-    static T le(
-        const T& value)
-    {
-        return le(value, DefaultOrderTag());
-    }
+		const auto swap16 = (value << 16) | (value >> 16);
+		return ((swap16 << 8) & xxooxxoo) | ((swap16 >> 8) & ooxxooxx);
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non little-endian system.
-    template<typename T, size_t N>
-    static void le(
-        const T (&src_data)[N],
-        T (&dst_data)[N])
-    {
-        for (size_t i = 0; i < N; ++i) {
-            dst_data[i] = le(src_data[i]);
-        }
-    }
+	static std::int32_t swap(
+		const std::int32_t value)
+	{
+		return static_cast<std::int32_t>(swap(static_cast<std::uint32_t>(value)));
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non little-endian system.
-    template<class T>
-    static void le(
-        const T* src_data,
-        size_t count,
-        T* dst_data)
-    {
-        for (size_t i = 0; i < count; ++i) {
-            dst_data[i] = le(src_data[i]);
-        }
-    }
+	static std::uint64_t swap(
+		const std::uint64_t value)
+	{
+		constexpr auto ooxxooxx = std::uint64_t{0x0000FFFF0000FFFF};
+		constexpr auto xxooxxoo = std::uint64_t{0xFFFF0000FFFF0000};
 
-    // Swaps bytes on non big-endian system.
-    template<typename T>
-    static T be(
-        const T& value)
-    {
-        return be(value, DefaultOrderTag());
-    }
+		constexpr auto oxoxoxox = std::uint64_t{0x00FF00FF00FF00FF};
+		constexpr auto xoxoxoxo = std::uint64_t{0xFF00FF00FF00FF00};
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non big-endian system.
-    template<typename T, size_t N>
-    static void be(
-        const T (&src_data)[N],
-        T (&dst_data)[N])
-    {
-        for (size_t i = 0; i < N; ++i) {
-            dst_data[i] = be(src_data[i]);
-        }
-    }
+		const auto swap32 = (value << 32) | (value >> 32);
+		const auto swap16 = ((swap32 & ooxxooxx) << 16) | ((swap32 & xxooxxoo) >> 16);
+		return ((swap16 & oxoxoxox) << 8) | ((swap16 & xoxoxoxo) >> 8);
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non big-endian system.
-    template<typename T>
-    static void be(
-        const T* src_data,
-        size_t count,
-        T* dst_data)
-    {
-        for (size_t i = 0; i < count; ++i) {
-            dst_data[i] = be(src_data[i]);
-        }
-    }
-
-    // Swaps bytes in place on non little-endian system.
-    template<typename T>
-    static void lei(
-        T& value)
-    {
-        lei(value, DefaultOrderTag());
-    }
-
-    // Swaps bytes in place of an array of elements
-    // on non little-endian system.
-    template<typename T, size_t N>
-    static void lei(
-        T (&data)[N])
-    {
-        for (size_t i = 0; i < N; ++i) {
-            lei(data[i]);
-        }
-    }
-
-    // Swaps bytes in place of an array of elements
-    // on non little-endian system.
-    template<typename T>
-    static void lei(
-        T* data,
-        size_t count)
-    {
-        for (size_t i = 0; i < count; ++i) {
-            lei(data[i]);
-        }
-    }
-
-    // Swaps bytes in place on non big-endian system.
-    template<typename T>
-    static void bei(
-        T& value)
-    {
-        bei(value, DefaultOrderTag());
-    }
-
-    // Swaps bytes in place of an array of elements
-    // on non big-endian system.
-    template<typename T, size_t N>
-    static void bei(
-        T (&data)[N])
-    {
-        for (size_t i = 0; i < N; ++i) {
-            bei(data[i]);
-        }
-    }
-
-    // Swaps bytes in place of an array of elements
-    // on non big-endian system.
-    template<typename T>
-    static void bei(
-        T* data,
-        size_t count)
-    {
-        for (size_t i = 0; i < count; ++i) {
-            bei(data[i]);
-        }
-    }
+	static std::int64_t swap(
+		const std::int64_t value)
+	{
+		return static_cast<std::int64_t>(swap(static_cast<std::uint64_t>(value)));
+	}
+}; // EndianSwap
 
 
-private:
-    template<int TOrder>
-    class OrderTag {
-    public:
-    }; // OrderTag
+template<EndianId TId>
+struct Endian final
+{
+	// Returns swaped bytes on little-endian platform or as-is otherwise.
+	template<typename T>
+	static T big(
+		const T value) = delete;
 
+	// Swaps the bytes inplace on little-endian platform.
+	template<typename T>
+	static void big_i(
+		T& value) = delete;
 
-    using LeOrderTag = OrderTag<SDL_LIL_ENDIAN>;
-    using BeOrderTag = OrderTag<SDL_BIG_ENDIAN>;
-    using DefaultOrderTag = OrderTag<SDL_BYTEORDER>;
+	// Returns swaped bytes on big-endian platform or as-is otherwise.
+	template<typename T>
+	static T little(
+		const T value) = delete;
 
+	// Swaps the bytes inplace on big-endian platform.
+	template<typename T>
+	static void little_i(
+		T& value) = delete;
 
-    template<typename T>
-    static T le(
-        const T& value,
-        LeOrderTag)
-    {
-        return value;
-    }
+	static bool is_big() = delete;
 
-    template<typename T>
-    static T le(
-        const T& value,
-        BeOrderTag)
-    {
-        return le_be(value);
-    }
+	static bool is_little() = delete;
 
-
-    template<typename T>
-    static T be(
-        const T& value,
-        LeOrderTag)
-    {
-        return le_be(value);
-    }
-
-    template<typename T>
-    static T be(
-        const T& value,
-        BeOrderTag)
-    {
-        return value;
-    }
-
-
-    template<typename T>
-    static void lei(
-        T& value,
-        LeOrderTag)
-    {
-        static_cast<void>(value);
-    }
-
-    template<typename T>
-    static void lei(
-        T& value,
-        BeOrderTag)
-    {
-        lei_bei(value);
-    }
-
-
-    template<typename T>
-    static void bei(
-        T& value,
-        LeOrderTag)
-    {
-        lei_bei(value);
-    }
-
-    template<typename T>
-    static void bei(
-        T& value,
-        BeOrderTag)
-    {
-        static_cast<void>(value);
-    }
-
-
-    // Swaps bytes.
-    template<class T>
-    static T le_be(
-        const T& value)
-    {
-        auto result = value;
-        lei_bei(result);
-        return result;
-    }
-
-    // Swaps bytes in place.
-    template<class T>
-    static void lei_bei(
-        T& value)
-    {
-        for (
-            size_t i = 0, j = sizeof(T) - 1, n = sizeof(T) / 2;
-            i < n;
-            ++i, --j)
-        {
-            std::swap(
-                reinterpret_cast<char*>(&value)[i],
-                reinterpret_cast<char*>(&value)[j]);
-        }
-    }
+	static bool should_be_swapped() = delete;
 }; // Endian
+
+
+template<>
+struct Endian<EndianId::big> final
+{
+	template<typename T>
+	static T big(
+		const T value)
+	{
+		return value;
+	}
+
+	template<typename T>
+	static void big_i(
+		T&)
+	{
+	}
+
+	template<typename T>
+	static T little(
+		const T value)
+	{
+		return detail::EndianSwap::swap(value);
+	}
+
+	template<typename T>
+	static void little_i(
+		T& value)
+	{
+		value = detail::EndianSwap::swap(value);
+	}
+
+	static constexpr bool is_big()
+	{
+		return true;
+	}
+
+	static constexpr bool is_little()
+	{
+		return false;
+	}
+
+	template<typename T>
+	static constexpr bool should_be_swapped()
+	{
+		return ShouldBeSwapped<T>::value_;
+	}
+}; // Endian
+
+
+template<>
+struct Endian<EndianId::little> final
+{
+	template<typename T>
+	static T big(
+		const T value)
+	{
+		return detail::EndianSwap::swap(value);
+	}
+
+	template<typename T>
+	static void big_i(
+		T& value)
+	{
+		value = detail::EndianSwap::swap(value);
+	}
+
+	template<typename T>
+	static T little(
+		const T value)
+	{
+		return value;
+	}
+
+	template<typename T>
+	static void little_i(
+		T&)
+	{
+	}
+
+	static constexpr bool is_big()
+	{
+		return false;
+	}
+
+	static constexpr bool is_little()
+	{
+		return true;
+	}
+
+	template<typename T>
+	static constexpr bool should_be_swapped()
+	{
+		return ShouldBeSwapped<T>::value_;
+	}
+}; // Endian
+
+
+} // detail
+
+
+using Endian = detail::Endian<EndianId::native>;
 
 
 } // bstone
 
 
-#endif // BSTONE_ENDIAN_INCLUDED
+#endif // !BSTONE_ENDIAN_INCLUDED

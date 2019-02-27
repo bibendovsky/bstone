@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,33 +35,42 @@ Free Software Foundation, Inc.,
 #include "bstone_opl2.h"
 
 
-namespace bstone {
+namespace bstone
+{
 
 
 // A base class for AdLib audio decoding.
-class AdlibDecoder : public AudioDecoder {
+class AdlibDecoder :
+	public AudioDecoder
+{
 public:
-    AdlibDecoder();
+	AdlibDecoder();
 
-    virtual ~AdlibDecoder();
+	~AdlibDecoder() override;
 
-    virtual bool initialize(
-        const void* raw_data,
-        int raw_size,
-        int dst_rate);
+	bool initialize(
+		const void* raw_data,
+		int raw_size,
+		int dst_rate) override;
 
-    virtual void uninitialize();
+	void uninitialize() override;
 
-    virtual bool reset();
+	bool reset() override;
+
 
 protected:
-    Opl2 emulator_;
+	Opl2 emulator_;
 
-    void set_emulator_default_state();
+
+	void set_emulator_default_state();
+
+
+private:
+	void uninitialize_internal();
 }; // AdlibDecoder
 
 
 } // bstone
 
 
-#endif // BSTONE_ADLIB_DECODER_INCLUDED
+#endif // !BSTONE_ADLIB_DECODER_INCLUDED

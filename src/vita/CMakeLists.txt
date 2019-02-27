@@ -14,7 +14,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "bstone")
 set(VITA_TITLEID  "BSTONE012")
-set(VITA_VERSION  "00.21")
+set(VITA_VERSION  "00.30")
 
 set(BSTONE_FLAGS "-Wall -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
 
@@ -47,6 +47,7 @@ set(
     "../bstone_adlib_decoder.h"
     "../bstone_adlib_music_decoder.h"
     "../bstone_adlib_sfx_decoder.h"
+    "../bstone_archiver.h"
     "../bstone_audio_decoder.h"
     "../bstone_audio_mixer.h"
     "../bstone_archiver.h"

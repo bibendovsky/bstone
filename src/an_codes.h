@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -54,7 +54,7 @@ Free Software Foundation, Inc.,
 // --------------------------------------------------------------------------
 
 
-#define MV_CNVT_CODE(c1, c2) ((uint16_t)((c1) | (c2 << 8)))
+#define MV_CNVT_CODE(c1, c2) ((std::uint16_t)((c1) | (c2 << 8)))
 
 #define AN_PAUSE MV_CNVT_CODE('P', 'A')
 #define AN_SOUND MV_CNVT_CODE('S', 'D')

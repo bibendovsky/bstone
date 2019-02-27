@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2015 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,75 +26,22 @@ Free Software Foundation, Inc.,
 #define BSTONE_MOVIE_INCLUDED
 
 
-#include <string>
-#include <vector>
-#include "jm_vl.h"
+#include <cstdint>
 
 
-struct anim_frame {
-    uint16_t code;
-    int32_t block_num;
-    int32_t recsize;
-}; // anim_frame
-
-
-struct anim_chunk {
-    uint16_t opt;
-    uint16_t offset;
-    uint16_t length;
-}; // anim_chunk
-
-
-// -------------------------------------------------------------------------
-//   MovieStuff Anim Stucture...
-//
-//
-//  fname -- File Name of the Anim to be played..
-//  rep -- Number of repetitions to play the anim
-//  ticdelay -- Tic wait between frames
-//  maxmembuffer -- Maximum ammount to use as a ram buffer
-//  start_line -- Starting line of screen to copy to other pages
-//  end_line -- Ending line  "   "   "   "   "   "   "   "
-//
-struct MovieStuff_t
+// NOTE - This enum list is ORDERED!
+enum MovieId
 {
-	AssetsCRefString file_name;
-	std::int8_t rep;
-	std::int8_t ticdelay;
-
-	std::uint32_t max_mem_buffer;
-
-	std::int16_t start_line;
-	std::int16_t end_line;
-	const void* palette;
-}; // MovieStuff_t
+	intro,
+	final,
+	final_2, // AOG Episode 3 / 5
+	final_3, // AOG Episode 6
+}; // MovieId
 
 
-
-// =========================================================================
-//
-// EXTERNS
-//
-// =========================================================================
-
-using Movies = std::vector<MovieStuff_t>;
-
-extern void* displaybuffer;
-extern Movies movies;
-
-// ===========================================================================
-//
-// Prototypes
-//
-// ===========================================================================
-
-void MOVIE_ShowFrame(
-    char* inpic);
-bool MOVIE_Play(
-    MovieStuff_t* MovieStuff);
-void SetupMovie(
-    MovieStuff_t* MovieStuff);
-void ShutdownMovie();
+bool movie_play(
+	const MovieId movie_id,
+	const std::uint8_t* const palette);
 
 
 #endif // BSTONE_MOVIE_INCLUDED
