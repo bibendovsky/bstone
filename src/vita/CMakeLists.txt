@@ -16,10 +16,10 @@ set(VITA_APP_NAME "bstone")
 set(VITA_TITLEID  "BSTONE012")
 set(VITA_VERSION  "00.21")
 
-set(BSTONE_FLAGS "-Wall -g -Og -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
+set(BSTONE_FLAGS "-Wall -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${BSTONE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${BSTONE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 ${BSTONE_FLAGS}")
 
 include_directories(
   "../dosbox"
@@ -49,6 +49,7 @@ set(
     "../bstone_adlib_sfx_decoder.h"
     "../bstone_audio_decoder.h"
     "../bstone_audio_mixer.h"
+    "../bstone_archiver.h"
     "../bstone_atomic.h"
     "../bstone_binary_reader.h"
     "../bstone_binary_writer.h"
@@ -68,6 +69,7 @@ set(
     "../bstone_opl2.h"
     "../bstone_ref_values.h"
     "../bstone_pcm_decoder.h"
+    "../bstone_precompiled.h"
     "../bstone_ps_fizzle_fx.h"
     "../bstone_scope_guard.h"
     "../bstone_sha1.h"
@@ -115,6 +117,7 @@ set(
     "../bstone_adlib_decoder.cpp"
     "../bstone_adlib_music_decoder.cpp"
     "../bstone_adlib_sfx_decoder.cpp"
+    "../bstone_archiver_impl.cpp"
     "../bstone_audio_decoder.cpp"
     "../bstone_audio_mixer.cpp"
     "../bstone_binary_reader.cpp"
@@ -123,6 +126,7 @@ set(
     "../bstone_crc32.cpp"
     "../bstone_file_stream.cpp"
     "../bstone_fizzle_fx.cpp"
+    "../bstone_fixed_point.cpp"
     "../bstone_format_string.cpp"
     "../bstone_generic_fizzle_fx.cpp"
     "../bstone_stream.cpp"
@@ -131,6 +135,7 @@ set(
     "../bstone_memory_stream.cpp"
     "../bstone_opl2.cpp"
     "../bstone_pcm_decoder.cpp"
+    "../bstone_precompiled.cpp"
     "../bstone_ps_fizzle_fx.cpp"
     "../bstone_sha1.cpp"
     "../bstone_sprite.cpp"
