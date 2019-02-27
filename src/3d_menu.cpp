@@ -5863,11 +5863,4 @@ void MenuFadeIn()
 {
 	::VL_FadeIn(0, 255, ::vgapal, 10);
 }
-
-void MenuFadeIn()
-{
-    ::VL_FadeIn(0, 255, ::vgapal, 10);
-}
-
-
 // BBi
