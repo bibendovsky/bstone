@@ -236,6 +236,7 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 struct RendererTexture2dCreateParam
 {
 	bool has_rgba_alpha_;
+	bool is_generate_mipmaps_;
 
 	int width_;
 	int height_;

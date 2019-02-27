@@ -60,8 +60,15 @@ public:
 	const std::string& get_error_message() const;
 
 
+	static bool is_pot_value(
+		const int value);
+
 	static int find_nearest_pot_value(
 		const int value);
+
+	static int calculate_mipmap_count(
+		const int width,
+		const int height);
 
 	bool create_window(
 		const RendererUtilsCreateWindowParam& param,

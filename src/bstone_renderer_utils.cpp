@@ -47,6 +47,14 @@ const std::string& RendererUtils::get_error_message() const
 	return error_message_;
 }
 
+bool RendererUtils::is_pot_value(
+		const int value)
+{
+	const auto nearest_value = find_nearest_pot_value(value);
+
+	return nearest_value == value;
+}
+
 int RendererUtils::find_nearest_pot_value(
 	const int value)
 {
@@ -61,6 +69,29 @@ int RendererUtils::find_nearest_pot_value(
 	}
 
 	return 0;
+}
+
+int RendererUtils::calculate_mipmap_count(
+	const int width,
+	const int height)
+{
+	// mipmap_count = [log2(max(width, height))] + 1
+
+	const auto max_size = std::max(width, height);
+
+	int log_2;
+
+	for (log_2 = 0; log_2 < 32; ++log_2)
+	{
+		if ((1 << log_2) >= max_size)
+		{
+			break;
+		}
+	}
+
+	const auto result = log_2 + 1;
+
+	return result;
 }
 
 bool RendererUtils::create_window(
@@ -282,6 +313,24 @@ bool RendererUtils::validate_texture_2d_create_param(
 		error_message_ = "Multiple pixel sources.";
 
 		return false;
+	}
+
+	if (param.is_generate_mipmaps_)
+	{
+		if (param.indexed_pixels_ && param.indexed_alphas_)
+		{
+			error_message_ = "Mipmaps are not supported for indexed transparent texture.";
+
+			return false;
+		}
+
+		if (!RendererUtils::is_pot_value(param.width_) ||
+			!RendererUtils::is_pot_value(param.height_))
+		{
+			error_message_ = "Mipmaps are not supported for indexed non-power-of-two texture.";
+
+			return false;
+		}
 	}
 
 	return true;
