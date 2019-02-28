@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_1_X_RENDERER_INCLUDED
 
 
+#include <array>
 #include <list>
 #include <vector>
 #include "bstone_ogl.h"
@@ -229,6 +230,10 @@ private:
 	using TextureBuffer = std::vector<RendererColor32>;
 	using TextureBufferPtr = TextureBuffer*;
 
+	static constexpr auto max_texture_subbuffers = 2;
+
+	using TextureSubbuffers = std::array<RendererColor32Ptr, max_texture_subbuffers>;
+
 	class Texture2d :
 		public RendererTexture2d
 	{
@@ -240,12 +245,15 @@ private:
 
 		bool is_rgba_;
 		bool has_rgba_alpha_;
+		bool is_generate_mipmaps_;
 
 		int width_;
 		int height_;
 
 		int actual_width_;
 		int actual_height_;
+
+		int mipmap_count_;
 
 		const std::uint8_t* indexed_pixels_;
 		const RendererPalette* indexed_palette_;
@@ -274,14 +282,28 @@ private:
 
 		void uninitialize_internal();
 
-		void update_indexed_internal(
-			const int mipmap_level);
+		void indexed_opaque_pot_to_rgba_pot();
 
-		void update_rgba_internal(
-			const int mipmap_level);
+		void indexed_opaque_npot_to_rgba_pot();
+
+		void indexed_transparent_pot_to_rgba_pot();
+
+		void indexed_transparent_npot_to_rgba_pot();
+
+		void indexed_to_rgba_pot();
+
+		void rgba_npot_to_rgba_pot();
+
+		void build_mipmap(
+			const int previous_width,
+			const int previous_height);
 
 		void update_internal(
-			const int mipmap_level);
+			const int mipmap_level,
+			const int width,
+			const int height);
+
+		void update_internal();
 	}; // Texture2d
 
 	using Texture2dPtr = Texture2d*;
@@ -310,6 +332,8 @@ private:
 	VertexBuffers vertex_buffers_;
 
 	TextureBuffer texture_buffer_;
+	TextureSubbuffers texture_subbuffers_;
+
 	Textures2d textures_2d_;
 
 

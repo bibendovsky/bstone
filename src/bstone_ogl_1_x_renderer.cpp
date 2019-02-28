@@ -264,7 +264,7 @@ void Ogl1XRenderer::Texture2d::update(
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 
-	update_internal(0);
+	update_internal();
 }
 
 bool Ogl1XRenderer::Texture2d::initialize(
@@ -281,12 +281,22 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	is_rgba_ = (param.rgba_pixels_ != nullptr);
 	has_rgba_alpha_ = param.has_rgba_alpha_;
+	is_generate_mipmaps_ = param.is_generate_mipmaps_;
 
 	width_ = param.width_;
 	height_ = param.height_;
 
 	actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
 	actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
+
+	if (is_generate_mipmaps_)
+	{
+		mipmap_count_ = RendererUtils::calculate_mipmap_count(actual_width_, actual_height_);
+	}
+	else
+	{
+		mipmap_count_ = 1;
+	}
 
 	indexed_pixels_ = param.indexed_pixels_;
 	indexed_palette_ = param.indexed_palette_;
@@ -314,17 +324,33 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 
-	::glTexImage2D(
-		GL_TEXTURE_2D, // target
-		0, // level
-		internal_format, // internal format
-		actual_width_, // width
-		actual_height_, // height
-		0, // border
-		GL_RGBA, // format
-		GL_UNSIGNED_BYTE, // type
-		nullptr // pixels
-	);
+	auto mipmap_width = actual_width_;
+	auto mipmap_height = actual_height_;
+
+	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
+	{
+		::glTexImage2D(
+			GL_TEXTURE_2D, // target
+			i_mipmap, // level
+			internal_format, // internal format
+			mipmap_width, // width
+			mipmap_height, // height
+			0, // border
+			GL_RGBA, // format
+			GL_UNSIGNED_BYTE, // type
+			nullptr // pixels
+		);
+
+		if (mipmap_width > 1)
+		{
+			mipmap_width /= 2;
+		}
+
+		if (mipmap_height > 1)
+		{
+			mipmap_height /= 2;
+		}
+	}
 
 	assert(!OglRendererUtils::was_errors());
 
@@ -340,7 +366,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	assert(!OglRendererUtils::was_errors());
 
-	update_internal(0);
+	update_internal();
 
 	return true;
 }
@@ -356,171 +382,312 @@ void Ogl1XRenderer::Texture2d::uninitialize_internal()
 	}
 }
 
-void Ogl1XRenderer::Texture2d::update_indexed_internal(
-	const int mipmap_level)
+void Ogl1XRenderer::Texture2d::indexed_opaque_pot_to_rgba_pot()
 {
-	assert(mipmap_level == 0);
+	assert(indexed_pixels_);
+	assert(!indexed_alphas_);
+	assert(!is_npot_);
 
-	const auto has_alpha = (indexed_alphas_ != nullptr);
-
-	auto& buffer = renderer_->texture_buffer_;
+	auto dst_pixels = renderer_->texture_subbuffers_[0];
 	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
-	if (!is_npot_)
+	auto index = 0;
+
+	for (int h = 0; h < actual_height_; ++h)
 	{
-		auto index = 0;
-
-		for (int h = 0; h < actual_height_; ++h)
+		for (int w = 0; w < actual_width_; ++w)
 		{
-			for (int w = 0; w < actual_width_; ++w)
-			{
-				buffer[index] = palette[indexed_pixels_[index]];
+			dst_pixels[index] = palette[indexed_pixels_[index]];
 
-				const auto is_transparent = (!has_alpha || (has_alpha && !indexed_alphas_[index]));
-
-				if (is_transparent)
-				{
-					buffer[index].a_ = 0x00;
-				}
-
-				++index;
-			}
-		}
-	}
-	else
-	{
-		// Resample.
-		//
-
-		const auto src_du_d =
-			static_cast<double>(width_) /
-			static_cast<double>(actual_width_);
-
-		const auto src_dv_d =
-			static_cast<double>(height_) /
-			static_cast<double>(actual_height_);
-
-		auto src_v_d = 0.5 * src_dv_d;
-
-		for (int h = 0; h < actual_height_; ++h)
-		{
-			const auto src_v = static_cast<int>(src_v_d);
-
-			auto src_u_d = 0.5 * src_du_d;
-
-			for (int w = 0; w < actual_width_; ++w)
-			{
-				const auto src_u = static_cast<int>(src_u_d);
-
-				const auto src_index = (src_v * width_) + src_u;
-
-				const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
-
-				buffer[dst_index] = palette[indexed_pixels_[src_index]];
-
-				const auto is_transparent = (!has_alpha || (has_alpha && !indexed_alphas_[src_index]));
-
-				if (is_transparent)
-				{
-					buffer[dst_index].a_ = 0x00;
-				}
-
-				src_u_d += src_du_d;
-			}
-
-			src_v_d += src_dv_d;
+			++index;
 		}
 	}
 }
 
-void Ogl1XRenderer::Texture2d::update_rgba_internal(
-	const int mipmap_level)
+void Ogl1XRenderer::Texture2d::indexed_opaque_npot_to_rgba_pot()
 {
-	assert(mipmap_level == 0);
+	assert(indexed_pixels_);
+	assert(!indexed_alphas_);
+	assert(is_npot_);
 
-	auto& buffer = renderer_->texture_buffer_;
+	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
-	if (!is_npot_)
+	const auto src_du_d =
+		static_cast<double>(width_) /
+		static_cast<double>(actual_width_);
+
+	const auto src_dv_d =
+		static_cast<double>(height_) /
+		static_cast<double>(actual_height_);
+
+	auto src_v_d = 0.5 * src_dv_d;
+
+	for (int h = 0; h < actual_height_; ++h)
 	{
-		const auto area = actual_width_ * actual_height_;
+		const auto src_v = static_cast<int>(src_v_d);
 
-		std::uninitialized_copy_n(rgba_pixels_, area, buffer.begin());
-	}
-	else
-	{
-		// Resample.
-		//
+		auto src_u_d = 0.5 * src_du_d;
 
-		const auto src_du_d =
-			static_cast<double>(width_) /
-			static_cast<double>(actual_width_);
-
-		const auto src_dv_d =
-			static_cast<double>(height_) /
-			static_cast<double>(actual_height_);
-
-		auto src_v_d = 0.5 * src_dv_d;
-
-		for (int h = 0; h < actual_height_; ++h)
+		for (int w = 0; w < actual_width_; ++w)
 		{
-			const auto src_v = static_cast<int>(src_v_d);
+			const auto src_u = static_cast<int>(src_u_d);
 
-			auto src_u_d = 0.5 * src_du_d;
+			const auto src_index = (src_v * width_) + src_u;
 
-			for (int w = 0; w < actual_width_; ++w)
+			const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
+
+			dst_pixels[dst_index] = palette[indexed_pixels_[src_index]];
+
+			src_u_d += src_du_d;
+		}
+
+		src_v_d += src_dv_d;
+	}
+}
+
+void Ogl1XRenderer::Texture2d::indexed_transparent_pot_to_rgba_pot()
+{
+	assert(indexed_pixels_);
+	assert(indexed_alphas_);
+	assert(!is_npot_);
+
+	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
+
+	auto index = 0;
+
+	for (int h = 0; h < actual_height_; ++h)
+	{
+		for (int w = 0; w < actual_width_; ++w)
+		{
+			dst_pixels[index] = palette[indexed_pixels_[index]];
+
+			const auto is_transparent = !indexed_alphas_[index];
+
+			if (is_transparent)
 			{
-				const auto src_u = static_cast<int>(src_u_d);
-
-				const auto src_index = (src_v * width_) + src_u;
-
-				const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
-
-				buffer[dst_index] = rgba_pixels_[src_index];
-
-				src_u_d += src_du_d;
+				dst_pixels[index].a_ = 0x00;
 			}
 
-			src_v_d += src_dv_d;
+			++index;
 		}
 	}
+}
+
+void Ogl1XRenderer::Texture2d::indexed_transparent_npot_to_rgba_pot()
+{
+	assert(indexed_pixels_);
+	assert(indexed_alphas_);
+	assert(is_npot_);
+
+	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
+
+	const auto src_du_d =
+		static_cast<double>(width_) /
+		static_cast<double>(actual_width_);
+
+	const auto src_dv_d =
+		static_cast<double>(height_) /
+		static_cast<double>(actual_height_);
+
+	auto src_v_d = 0.5 * src_dv_d;
+
+	for (int h = 0; h < actual_height_; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_d);
+
+		auto src_u_d = 0.5 * src_du_d;
+
+		for (int w = 0; w < actual_width_; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_d);
+
+			const auto src_index = (src_v * width_) + src_u;
+
+			const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
+
+			dst_pixels[dst_index] = palette[indexed_pixels_[src_index]];
+
+			const auto is_transparent = !indexed_alphas_[src_index];
+
+			if (is_transparent)
+			{
+				dst_pixels[dst_index].a_ = 0x00;
+			}
+
+			src_u_d += src_du_d;
+		}
+
+		src_v_d += src_dv_d;
+	}
+}
+
+void Ogl1XRenderer::Texture2d::indexed_to_rgba_pot()
+{
+	assert(indexed_pixels_);
+
+	if (!indexed_alphas_ && !is_npot_)
+	{
+		indexed_opaque_pot_to_rgba_pot();
+	}
+	else if (!indexed_alphas_ && is_npot_)
+	{
+		indexed_opaque_npot_to_rgba_pot();
+	}
+	else if (indexed_alphas_ && !is_npot_)
+	{
+		indexed_transparent_pot_to_rgba_pot();
+	}
+	else if (indexed_alphas_ && is_npot_)
+	{
+		indexed_transparent_npot_to_rgba_pot();
+	}
+}
+
+void Ogl1XRenderer::Texture2d::rgba_npot_to_rgba_pot()
+{
+	assert(is_rgba_);
+	assert(is_npot_);
+
+	auto dst_pixels = renderer_->texture_subbuffers_[0];
+
+	const auto src_du_d =
+		static_cast<double>(width_) /
+		static_cast<double>(actual_width_);
+
+	const auto src_dv_d =
+		static_cast<double>(height_) /
+		static_cast<double>(actual_height_);
+
+	auto src_v_d = 0.5 * src_dv_d;
+
+	for (int h = 0; h < actual_height_; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_d);
+
+		auto src_u_d = 0.5 * src_du_d;
+
+		for (int w = 0; w < actual_width_; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_d);
+
+			const auto src_index = (src_v * width_) + src_u;
+
+			const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
+
+			dst_pixels[dst_index] = rgba_pixels_[src_index];
+
+			src_u_d += src_du_d;
+		}
+
+		src_v_d += src_dv_d;
+	}
+}
+
+void Ogl1XRenderer::Texture2d::build_mipmap(
+	const int previous_width,
+	const int previous_height)
+{
+	throw "Not implemented.";
 }
 
 void Ogl1XRenderer::Texture2d::update_internal(
-	const int mipmap_level)
+	const int mipmap_level,
+	const int width,
+	const int height)
 {
-	assert(mipmap_level == 0);
-
-	const auto area = actual_width_ * actual_height_;
-
-	auto& buffer = renderer_->texture_buffer_;
-
-	if (static_cast<int>(buffer.size()) < area)
-	{
-		buffer.resize(area);
-	}
-
-	if (is_rgba_)
-	{
-		update_rgba_internal(mipmap_level);
-	}
-	else
-	{
-		update_indexed_internal(mipmap_level);
-	}
-
 	::glTexSubImage2D(
 		GL_TEXTURE_2D, // target
 		mipmap_level, // level
 		0, // xoffset
 		0, // yoffset
-		actual_width_, // width
-		actual_height_, // height
+		width, // width
+		height, // height
 		GL_RGBA, // format
 		GL_UNSIGNED_BYTE, // type
-		renderer_->texture_buffer_.data() // pixels
+		renderer_->texture_subbuffers_[0] // pixels
 	);
 
 	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::Texture2d::update_internal()
+{
+	const auto max_subbuffer_size = 4 * actual_width_ * actual_height_;
+
+	auto max_buffer_size = max_subbuffer_size;
+
+	if (is_generate_mipmaps_)
+	{
+		max_buffer_size *= 2;
+	}
+
+	if (static_cast<int>(renderer_->texture_buffer_.size()) < max_buffer_size)
+	{
+		renderer_->texture_buffer_.resize(max_buffer_size);
+	}
+
+	if (is_generate_mipmaps_)
+	{
+		renderer_->texture_subbuffers_[1] = &renderer_->texture_buffer_[max_subbuffer_size];
+	}
+
+	if (is_rgba_ && !is_npot_)
+	{
+		renderer_->texture_subbuffers_[0] = const_cast<RendererColor32Ptr>(rgba_pixels_);
+	}
+	else
+	{
+		renderer_->texture_subbuffers_[0] = &renderer_->texture_buffer_[0];
+	}
+
+	if (is_rgba_ && is_npot_)
+	{
+		rgba_npot_to_rgba_pot();
+	}
+
+	if (!is_rgba_)
+	{
+		indexed_to_rgba_pot();
+	}
+
+	auto mipmap_width = actual_width_;
+	auto mipmap_height = actual_height_;
+
+	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
+	{
+		if (i_mipmap > 0)
+		{
+			build_mipmap(mipmap_width, mipmap_height);
+
+			std::swap(renderer_->texture_subbuffers_[0], renderer_->texture_subbuffers_[1]);
+		}
+
+		update_internal(i_mipmap, mipmap_width, mipmap_height);
+
+		if (mipmap_count_ > 1)
+		{
+			if (i_mipmap == 0)
+			{
+				renderer_->texture_subbuffers_[0] = &renderer_->texture_buffer_[0];
+			}
+
+			if (i_mipmap > 0)
+			{
+				if (mipmap_width > 1)
+				{
+					mipmap_width /= 2;
+				}
+
+				if (mipmap_height > 1)
+				{
+					mipmap_height /= 2;
+				}
+			}
+		}
+	}
 }
 
 //
@@ -544,6 +711,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
+	texture_subbuffers_{},
 	textures_2d_{}
 {
 }
@@ -561,6 +729,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
+	texture_subbuffers_{std::move(rhs.texture_subbuffers_)},
 	textures_2d_{std::move(rhs.textures_2d_)}
 {
 	rhs.is_initialized_ = false;
