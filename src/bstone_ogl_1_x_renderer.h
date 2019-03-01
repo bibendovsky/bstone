@@ -255,7 +255,7 @@ private:
 		const RendererPalette* indexed_palette_;
 		const bool* indexed_alphas_;
 
-		const RendererColor32* rgba_pixels_;
+		RendererColor32CPtr rgba_pixels_;
 
 		GLuint ogl_id_;
 
@@ -293,14 +293,8 @@ private:
 		// Converts indexed pixels to RGBA ones.
 		void indexed_to_rgba_pot();
 
-		// Converts RGBA power-of-two pixels to RGBA power-of-two ones.
-		void rgba_pot_to_rgba_pot();
-
 		// Converts RGBA non-power-of-two pixels to RGBA power-of-two ones.
 		void rgba_npot_to_rgba_pot();
-
-		// Converts RGBA pixels to RGBA power-of-two ones.
-		void rgba_to_rgba_pot();
 
 		void upload_mipmap(
 			const int mipmap_level,
