@@ -37,8 +37,11 @@ void TranslateControllerEvent(SDL_Event *ev)
     } v_keymap[] = 
     {
         { SDLK_y, SDL_SCANCODE_Y },                 // Triangle
-//        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
+#ifdef VITATEST
+        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
+#else
         { SDLK_TAB, SDL_SCANCODE_TAB },             // Circle
+#endif
         { SDLK_RETURN, SDL_SCANCODE_RETURN },       // Cross
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // Square
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // L Trigger
@@ -169,9 +172,10 @@ void TranslateTouchEvent(SDL_Event *ev)
         else
         //outside of the column
         {
-            /*ev_new.key.keysym.sym = SDLK_w;
+#ifdef VITATEST
+            ev_new.key.keysym.sym = SDLK_w;
             ev_new.key.keysym.scancode = SDL_SCANCODE_W;
-            */
+#endif
         }
         if (fingery > 410.0F / h)
         {

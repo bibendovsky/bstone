@@ -9811,8 +9811,11 @@ int main(
         {
             pargv[i] = argv[i];
         }
+#ifdef VITATEST
+        const char* newarg = "--cheats";
+#else
         const char* newarg = "--ps";
-        //const char* newarg = "--cheats";
+#endif
         pargv[argc-1] = newarg;
         ::g_args.initialize(argc, pargv);
     }

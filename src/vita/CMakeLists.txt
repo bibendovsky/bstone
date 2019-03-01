@@ -18,6 +18,14 @@ set(VITA_VERSION  "00.30")
 
 set(BSTONE_FLAGS "-Wall -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
 
+option(VITA_TEST "Vita debug mode" OFF)
+
+if(VITA_TEST)
+  add_definitions(-DVITATEST)
+#  set(BSTONE_FLAGS "-Wall -fpermissive -g -Og")
+  set(VITA_APP_NAME "bstone-t")
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${BSTONE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 ${BSTONE_FLAGS}")
 
@@ -50,7 +58,6 @@ set(
     "../bstone_archiver.h"
     "../bstone_audio_decoder.h"
     "../bstone_audio_mixer.h"
-    "../bstone_archiver.h"
     "../bstone_atomic.h"
     "../bstone_binary_reader.h"
     "../bstone_binary_writer.h"
