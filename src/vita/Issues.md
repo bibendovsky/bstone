@@ -1,34 +1,29 @@
 ## Issues:
 
 ### High Priority
-* In elevator, fade out from viewport instead of messagebox
-* Distance fade in AOG differs from DOS version (off by 1?)
-* Tearing during fadein
+
+* Make analog movement speed independent of framerate
 
 ### Medium Priority
+
 * Crashes sporadically when music is enabled
-* Premature partial fades to red on SW exit screens
-* Make 4:3 mode work properly
+* In-prompt buttons- use x,o
 
 ### Low Priority
-* Memory corruption and crashing after exiting using the PS button (or sleep?)
-* Delay in sound playing when triggered for the first time
-* Analog movement speed depends on framerate?
-* Small seam in exact? middle of screen-- from "mirroring"?
 
-## Future Features:
-
-* Change cache logic, minimizing file access
-* Fill numeric tables with higher accuracy values
-* Rewrite routines to use cartesian instead of polar as much as possible
-* Multithreading various drawing routines
-* In-prompt buttons- use x,o
+* Make 4:3 mode work properly
 * In-game control customization for Vita
-* Add option to disable loading screens
+
+## Future Ideas:
+
+* Create prev/next weapon keys
 
 ## Changes:
 
 ### 0.3
+* Update source to upstream version 1.1.12
+* No fadein tearing
+* In elevator, fade out from viewport instead of messagebox
 
 ### 0.2
 * L is now "use"; -/= in the front
