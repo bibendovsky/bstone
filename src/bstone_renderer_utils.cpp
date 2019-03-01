@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_renderer_utils.h"
+#include <cassert>
 #include "SDL_video.h"
 
 
@@ -337,6 +338,75 @@ bool RendererUtils::is_ogl_renderer_path(
 
 	default:
 		return false;
+	}
+}
+
+void RendererUtils::build_mipmap(
+	const int previous_width,
+	const int previous_height,
+	const RendererColor32CPtr src_colors,
+	const RendererColor32Ptr dst_colors)
+{
+	assert(previous_width >= 1);
+	assert(previous_height >= 1);
+	assert(!(previous_width == 1 && previous_height == 1));
+	assert(src_colors);
+	assert(dst_colors);
+	assert(src_colors != dst_colors);
+
+	const auto is_width_one = (previous_width == 1);
+	const auto is_height_one = (previous_height == 1);
+
+	const auto width = (is_width_one ? 1 : previous_width / 2);
+	const auto height = (is_height_one ? 1 : previous_height / 2);
+
+	const auto src_du_d = static_cast<double>(previous_width) / static_cast<double>(width);
+	const auto src_half_du_d = 0.5 * src_du_d;
+
+	const auto src_dv_d = static_cast<double>(previous_height) / static_cast<double>(height);
+	const auto src_half_dv_d = 0.5 * src_dv_d;
+
+	auto dst_v_d = 0.5 * src_half_dv_d;
+
+	auto dst_index = 0;
+
+	for (int h = 0; h < height; ++h)
+	{
+		const auto src_v1 = static_cast<int>(dst_v_d);
+		dst_v_d += src_half_dv_d;
+
+		const auto src_v2 = static_cast<int>(dst_v_d);
+		dst_v_d += src_half_dv_d;
+
+		auto dst_u_d = 0.5 * src_half_du_d;
+
+		for (int w = 0; w < width; ++w)
+		{
+			const auto src_u1 = static_cast<int>(dst_u_d);
+			dst_u_d += src_half_du_d;
+
+			const auto src_u2 = static_cast<int>(dst_u_d);
+			dst_u_d += src_half_du_d;
+
+			const auto& src_color_1 = src_colors[(src_v1 * previous_width) + src_u1];
+			const auto& src_color_2 = src_colors[(src_v1 * previous_width) + src_u2];
+			const auto& src_color_3 = src_colors[(src_v2 * previous_width) + src_u1];
+			const auto& src_color_4 = src_colors[(src_v2 * previous_width) + src_u2];
+
+			const auto red = (src_color_1.r_ + src_color_2.r_ + src_color_3.r_ + src_color_4.r_) / 4;
+			const auto green = (src_color_1.g_ + src_color_2.g_ + src_color_3.g_ + src_color_4.g_) / 4;
+			const auto blue = (src_color_1.b_ + src_color_2.b_ + src_color_3.b_ + src_color_4.b_) / 4;
+			const auto alpha = (src_color_1.a_ + src_color_2.a_ + src_color_3.a_ + src_color_4.a_) / 4;;
+
+			auto& dst_color = dst_colors[dst_index];
+
+			dst_color.r_ = red;
+			dst_color.g_ = green;
+			dst_color.b_ = blue;
+			dst_color.a_ = alpha;
+
+			++dst_index;
+		}
 	}
 }
 

@@ -147,6 +147,7 @@ public:
 }; // RendererColor32
 
 using RendererColor32Ptr = RendererColor32*;
+using RendererColor32CPtr = const RendererColor32*;
 
 using RendererPalette = std::array<RendererColor32, 256>;
 

@@ -264,7 +264,7 @@ void Ogl1XRenderer::Texture2d::update(
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 
-	update_internal();
+	update_mipmaps();
 }
 
 bool Ogl1XRenderer::Texture2d::initialize(
@@ -377,7 +377,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		}
 	}
 
-	update_internal();
+	update_mipmaps();
 
 	return true;
 }
@@ -399,7 +399,7 @@ void Ogl1XRenderer::Texture2d::indexed_opaque_pot_to_rgba_pot()
 	assert(!indexed_alphas_);
 	assert(!is_npot_);
 
-	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	auto& dst_pixels = renderer_->texture_buffer_;
 	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
 	auto index = 0;
@@ -421,7 +421,7 @@ void Ogl1XRenderer::Texture2d::indexed_opaque_npot_to_rgba_pot()
 	assert(!indexed_alphas_);
 	assert(is_npot_);
 
-	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	auto& dst_pixels = renderer_->texture_buffer_;
 	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
 	const auto src_du_d =
@@ -463,7 +463,7 @@ void Ogl1XRenderer::Texture2d::indexed_transparent_pot_to_rgba_pot()
 	assert(indexed_alphas_);
 	assert(!is_npot_);
 
-	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	auto& dst_pixels = renderer_->texture_buffer_;
 	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
 	auto index = 0;
@@ -492,7 +492,7 @@ void Ogl1XRenderer::Texture2d::indexed_transparent_npot_to_rgba_pot()
 	assert(indexed_alphas_);
 	assert(is_npot_);
 
-	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	auto& dst_pixels = renderer_->texture_buffer_;
 	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
 	const auto src_du_d =
@@ -557,12 +557,33 @@ void Ogl1XRenderer::Texture2d::indexed_to_rgba_pot()
 	}
 }
 
+void Ogl1XRenderer::Texture2d::rgba_pot_to_rgba_pot()
+{
+	assert(is_rgba_);
+	assert(!is_npot_);
+
+	auto src_index = 0;
+	auto& dst_pixels = renderer_->texture_buffer_;
+
+	for (int h = 0; h < actual_height_; ++h)
+	{
+		for (int w = 0; w < actual_width_; ++w)
+		{
+			const auto dst_index = ((actual_height_ - 1 - h) * actual_width_) + w;
+
+			dst_pixels[dst_index] = rgba_pixels_[src_index];
+
+			++src_index;
+		}
+	}
+}
+
 void Ogl1XRenderer::Texture2d::rgba_npot_to_rgba_pot()
 {
 	assert(is_rgba_);
 	assert(is_npot_);
 
-	auto dst_pixels = renderer_->texture_subbuffers_[0];
+	auto& dst_pixels = renderer_->texture_buffer_;
 
 	const auto src_du_d =
 		static_cast<double>(width_) /
@@ -597,69 +618,25 @@ void Ogl1XRenderer::Texture2d::rgba_npot_to_rgba_pot()
 	}
 }
 
-void Ogl1XRenderer::Texture2d::build_mipmap(
-	const int previous_width,
-	const int previous_height)
+void Ogl1XRenderer::Texture2d::rgba_to_rgba_pot()
 {
-	const auto is_width_one = (previous_width == 1);
-	const auto is_height_one = (previous_height == 1);
+	assert(is_rgba_);
 
-	const auto width = (is_width_one ? 1 : previous_width / 2);
-	const auto height = (is_height_one ? 1 : previous_height / 2);
-
-	const auto src_colors = renderer_->texture_subbuffers_[0];
-	auto dst_colors = renderer_->texture_subbuffers_[1];
-
-	const auto src_du_d = static_cast<double>(previous_width) / static_cast<double>(width);
-	const auto src_half_du_d = 0.5 * src_du_d;
-
-	const auto src_dv_d = static_cast<double>(previous_height) / static_cast<double>(height);
-	const auto src_half_dv_d = 0.5 * src_dv_d;
-
-	auto dst_v_d = 0.5 * src_half_dv_d;
-
-	for (int h = 0; h < height; ++h)
+	if (!is_npot_)
 	{
-		const auto src_v1 = static_cast<int>(dst_v_d);
-		dst_v_d += src_half_dv_d;
-
-		const auto src_v2 = static_cast<int>(dst_v_d);
-		dst_v_d += src_half_dv_d;
-
-		auto dst_u_d = 0.5 * src_half_du_d;
-
-		for (int w = 0; w < width; ++w)
-		{
-			const auto src_u1 = static_cast<int>(dst_u_d);
-			dst_u_d += src_half_du_d;
-
-			const auto src_u2 = static_cast<int>(dst_u_d);
-			dst_u_d += src_half_du_d;
-
-			const auto& src_color_1 = src_colors[(src_v1 * previous_width) + src_u1];
-			const auto& src_color_2 = src_colors[(src_v1 * previous_width) + src_u2];
-			const auto& src_color_3 = src_colors[(src_v2 * previous_width) + src_u1];
-			const auto& src_color_4 = src_colors[(src_v2 * previous_width) + src_u2];
-
-			const auto red = (src_color_1.r_ + src_color_2.r_ + src_color_3.r_ + src_color_4.r_) / 4;
-			const auto green = (src_color_1.g_ + src_color_2.g_ + src_color_3.g_ + src_color_4.g_) / 4;;
-			const auto blue = (src_color_1.b_ + src_color_2.b_ + src_color_3.b_ + src_color_4.b_) / 4;;
-			const auto alpha = (src_color_1.a_ + src_color_2.a_ + src_color_3.a_ + src_color_4.a_) / 4;;
-
-			dst_colors->r_ = red;
-			dst_colors->g_ = green;
-			dst_colors->b_ = blue;
-			dst_colors->a_ = alpha;
-
-			++dst_colors;
-		}
+		rgba_pot_to_rgba_pot();
+	}
+	else
+	{
+		rgba_npot_to_rgba_pot();
 	}
 }
 
-void Ogl1XRenderer::Texture2d::update_internal(
+void Ogl1XRenderer::Texture2d::upload_mipmap(
 	const int mipmap_level,
 	const int width,
-	const int height)
+	const int height,
+	const RendererColor32CPtr src_pixels)
 {
 	::glTexSubImage2D(
 		GL_TEXTURE_2D, // target
@@ -670,13 +647,13 @@ void Ogl1XRenderer::Texture2d::update_internal(
 		height, // height
 		GL_RGBA, // format
 		GL_UNSIGNED_BYTE, // type
-		renderer_->texture_subbuffers_[0] // pixels
+		src_pixels // pixels
 	);
 
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl1XRenderer::Texture2d::update_internal()
+void Ogl1XRenderer::Texture2d::update_mipmaps()
 {
 	const auto max_subbuffer_size = actual_width_ * actual_height_;
 
@@ -692,26 +669,19 @@ void Ogl1XRenderer::Texture2d::update_internal()
 		renderer_->texture_buffer_.resize(max_buffer_size);
 	}
 
+	auto texture_subbuffer_0 = &renderer_->texture_buffer_[0];
+	auto texture_subbuffer_1 = RendererColor32Ptr{};
+
 	if (is_generate_mipmaps_)
 	{
-		renderer_->texture_subbuffers_[1] = &renderer_->texture_buffer_[max_subbuffer_size];
+		texture_subbuffer_1 = &renderer_->texture_buffer_[max_subbuffer_size];
 	}
 
-	if (is_rgba_ && !is_npot_)
+	if (is_rgba_)
 	{
-		renderer_->texture_subbuffers_[0] = const_cast<RendererColor32Ptr>(rgba_pixels_);
+		rgba_to_rgba_pot();
 	}
 	else
-	{
-		renderer_->texture_subbuffers_[0] = &renderer_->texture_buffer_[0];
-	}
-
-	if (is_rgba_ && is_npot_)
-	{
-		rgba_npot_to_rgba_pot();
-	}
-
-	if (!is_rgba_)
 	{
 		indexed_to_rgba_pot();
 	}
@@ -723,7 +693,11 @@ void Ogl1XRenderer::Texture2d::update_internal()
 	{
 		if (i_mipmap > 0)
 		{
-			build_mipmap(mipmap_width, mipmap_height);
+			RendererUtils::build_mipmap(
+				mipmap_width,
+				mipmap_height,
+				texture_subbuffer_0,
+				texture_subbuffer_1);
 
 			if (mipmap_width > 1)
 			{
@@ -735,18 +709,10 @@ void Ogl1XRenderer::Texture2d::update_internal()
 				mipmap_height /= 2;
 			}
 
-			std::swap(renderer_->texture_subbuffers_[0], renderer_->texture_subbuffers_[1]);
+			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
-		update_internal(i_mipmap, mipmap_width, mipmap_height);
-
-		if (mipmap_count_ > 1)
-		{
-			if (i_mipmap == 0)
-			{
-				renderer_->texture_subbuffers_[0] = &renderer_->texture_buffer_[0];
-			}
-		}
+		upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
 	}
 }
 
@@ -771,7 +737,6 @@ Ogl1XRenderer::Ogl1XRenderer()
 	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
-	texture_subbuffers_{},
 	textures_2d_{}
 {
 }
@@ -789,7 +754,6 @@ Ogl1XRenderer::Ogl1XRenderer(
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
-	texture_subbuffers_{std::move(rhs.texture_subbuffers_)},
 	textures_2d_{std::move(rhs.textures_2d_)}
 {
 	rhs.is_initialized_ = false;

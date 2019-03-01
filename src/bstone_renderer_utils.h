@@ -105,6 +105,12 @@ public:
 	static bool is_ogl_renderer_path(
 		const RendererPath renderer_path);
 
+	static void build_mipmap(
+		const int previous_width,
+		const int previous_height,
+		const RendererColor32CPtr src_colors,
+		const RendererColor32Ptr dst_colors);
+
 
 private:
 	std::string error_message_;
