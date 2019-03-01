@@ -315,24 +315,6 @@ bool RendererUtils::validate_texture_2d_create_param(
 		return false;
 	}
 
-	if (param.is_generate_mipmaps_)
-	{
-		if (param.indexed_pixels_ && param.indexed_alphas_)
-		{
-			error_message_ = "Mipmaps are not supported for indexed transparent texture.";
-
-			return false;
-		}
-
-		if (!RendererUtils::is_pot_value(param.width_) ||
-			!RendererUtils::is_pot_value(param.height_))
-		{
-			error_message_ = "Mipmaps are not supported for indexed non-power-of-two texture.";
-
-			return false;
-		}
-	}
-
 	return true;
 }
 
