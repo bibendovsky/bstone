@@ -227,9 +227,6 @@ private:
 	// Texture2d
 	//
 
-	using TextureBuffer = std::vector<RendererColor32>;
-	using TextureBufferPtr = TextureBuffer*;
-
 	class Texture2d :
 		public RendererTexture2d
 	{
@@ -278,24 +275,6 @@ private:
 
 		void uninitialize_internal();
 
-		// Converts indexed, opaque, power-of-two pixels to RGBA ones.
-		void indexed_opaque_pot_to_rgba_pot();
-
-		// Converts indexed, opaque, non-power-of-two pixels to RGBA ones.
-		void indexed_opaque_npot_to_rgba_pot();
-
-		// Converts indexed, transparent, power-of-two pixels to RGBA ones.
-		void indexed_transparent_pot_to_rgba_pot();
-
-		// Converts indexed, transparent, non-power-of-two pixels to RGBA ones.
-		void indexed_transparent_npot_to_rgba_pot();
-
-		// Converts indexed pixels to RGBA ones.
-		void indexed_to_rgba_pot();
-
-		// Converts RGBA non-power-of-two pixels to RGBA power-of-two ones.
-		void rgba_npot_to_rgba_pot();
-
 		void upload_mipmap(
 			const int mipmap_level,
 			const int width,
@@ -330,7 +309,7 @@ private:
 	IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;
 
-	TextureBuffer texture_buffer_;
+	RendererUtils::TextureBuffer texture_buffer_;
 
 	Textures2d textures_2d_;
 

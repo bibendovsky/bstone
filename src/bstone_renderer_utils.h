@@ -57,6 +57,9 @@ public:
 class RendererUtils
 {
 public:
+	using TextureBuffer = std::vector<RendererColor32>;
+
+
 	const std::string& get_error_message() const;
 
 
@@ -104,6 +107,73 @@ public:
 
 	static bool is_ogl_renderer_path(
 		const RendererPath renderer_path);
+
+
+	// Converts indexed, opaque, power-of-two pixels to RGBA ones.
+	static void indexed_opaque_pot_to_rgba_pot(
+		const int width,
+		const int height,
+		const int actual_width,
+		const int actual_height,
+		const std::uint8_t* const indexed_pixels,
+		const RendererPalette& indexed_palette,
+		const bool* const indexed_alphas,
+		TextureBuffer& texture_buffer);
+
+	// Converts indexed, opaque, non-power-of-two pixels to RGBA ones.
+	static void indexed_opaque_npot_to_rgba_pot(
+		const int width,
+		const int height,
+		const int actual_width,
+		const int actual_height,
+		const std::uint8_t* const indexed_pixels,
+		const RendererPalette& indexed_palette,
+		const bool* const indexed_alphas,
+		TextureBuffer& texture_buffer);
+
+	// Converts indexed, transparent, power-of-two pixels to RGBA ones.
+	static void indexed_transparent_pot_to_rgba_pot(
+		const int width,
+		const int height,
+		const int actual_width,
+		const int actual_height,
+		const std::uint8_t* const indexed_pixels,
+		const RendererPalette& indexed_palette,
+		const bool* const indexed_alphas,
+		TextureBuffer& texture_buffer);
+
+	// Converts indexed, transparent, non-power-of-two pixels to RGBA ones.
+	static void indexed_transparent_npot_to_rgba_pot(
+		const int width,
+		const int height,
+		const int actual_width,
+		const int actual_height,
+		const std::uint8_t* const indexed_pixels,
+		const RendererPalette& indexed_palette,
+		const bool* const indexed_alphas,
+		TextureBuffer& texture_buffer);
+
+	// Converts indexed pixels to RGBA ones.
+	static void indexed_to_rgba_pot(
+		const int width,
+		const int height,
+		const int actual_width,
+		const int actual_height,
+		const std::uint8_t* const indexed_pixels,
+		const RendererPalette& indexed_palette,
+		const bool* const indexed_alphas,
+		TextureBuffer& texture_buffer);
+
+
+	// Converts RGBA non-power-of-two pixels to RGBA power-of-two ones.
+	static void rgba_npot_to_rgba_pot(
+		const int width,
+		const int height,
+		const int actual_width,
+		const int actual_height,
+		const RendererColor32* const rgba_pixels,
+		TextureBuffer& texture_buffer);
+
 
 	static void build_mipmap(
 		const int previous_width,

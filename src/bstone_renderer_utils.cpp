@@ -341,6 +341,293 @@ bool RendererUtils::is_ogl_renderer_path(
 	}
 }
 
+void RendererUtils::indexed_opaque_pot_to_rgba_pot(
+	const int width,
+	const int height,
+	const int actual_width,
+	const int actual_height,
+	const std::uint8_t* const indexed_pixels,
+	const RendererPalette& indexed_palette,
+	const bool* const indexed_alphas,
+	TextureBuffer& texture_buffer)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(actual_width > 0);
+	assert(actual_height > 0);
+	assert(indexed_pixels);
+	assert(!indexed_alphas);
+
+	const auto area = actual_width * actual_height;
+
+	for (int i = 0; i < area; ++i)
+	{
+		texture_buffer[i] = indexed_palette[indexed_pixels[i]];
+	}
+}
+
+void RendererUtils::indexed_opaque_npot_to_rgba_pot(
+	const int width,
+	const int height,
+	const int actual_width,
+	const int actual_height,
+	const std::uint8_t* const indexed_pixels,
+	const RendererPalette& indexed_palette,
+	const bool* const indexed_alphas,
+	TextureBuffer& texture_buffer)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(actual_width > 0);
+	assert(actual_height > 0);
+	assert(indexed_pixels);
+	assert(!indexed_alphas);
+
+	const auto src_du_d =
+		static_cast<double>(width) /
+		static_cast<double>(actual_width);
+
+	const auto src_dv_d =
+		static_cast<double>(height) /
+		static_cast<double>(actual_height);
+
+	auto src_v_d = 0.5 * src_dv_d;
+
+	auto dst_index = 0;
+
+	for (int h = 0; h < actual_height; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_d);
+
+		auto src_u_d = 0.5 * src_du_d;
+
+		for (int w = 0; w < actual_width; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_d);
+
+			const auto src_index = (src_v * width) + src_u;
+
+			texture_buffer[dst_index] = indexed_palette[indexed_pixels[src_index]];
+
+			++dst_index;
+
+			src_u_d += src_du_d;
+		}
+
+		src_v_d += src_dv_d;
+	}
+}
+
+void RendererUtils::indexed_transparent_pot_to_rgba_pot(
+	const int width,
+	const int height,
+	const int actual_width,
+	const int actual_height,
+	const std::uint8_t* const indexed_pixels,
+	const RendererPalette& indexed_palette,
+	const bool* const indexed_alphas,
+	TextureBuffer& texture_buffer)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(actual_width > 0);
+	assert(actual_height > 0);
+	assert(indexed_pixels);
+	assert(indexed_alphas);
+
+	const auto area = actual_width * actual_height;
+
+	for (int i = 0; i < area; ++i)
+	{
+		auto& dst_pixel = texture_buffer[i];
+
+		dst_pixel = indexed_palette[indexed_pixels[i]];
+
+		const auto is_transparent = !indexed_alphas[i];
+
+		if (is_transparent)
+		{
+			dst_pixel.a_ = 0x00;
+		}
+	}
+}
+
+void RendererUtils::indexed_transparent_npot_to_rgba_pot(
+	const int width,
+	const int height,
+	const int actual_width,
+	const int actual_height,
+	const std::uint8_t* const indexed_pixels,
+	const RendererPalette& indexed_palette,
+	const bool* const indexed_alphas,
+	TextureBuffer& texture_buffer)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(actual_width > 0);
+	assert(actual_height > 0);
+	assert(indexed_pixels);
+	assert(indexed_alphas);
+
+	const auto src_du_d =
+		static_cast<double>(width) /
+		static_cast<double>(actual_width);
+
+	const auto src_dv_d =
+		static_cast<double>(height) /
+		static_cast<double>(actual_height);
+
+	auto src_v_d = 0.5 * src_dv_d;
+
+	auto dst_index = 0;
+
+	for (int h = 0; h < actual_height; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_d);
+
+		auto src_u_d = 0.5 * src_du_d;
+
+		for (int w = 0; w < actual_width; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_d);
+
+			const auto src_index = (src_v * width) + src_u;
+
+			auto& dst_pixel = texture_buffer[dst_index];
+
+			++dst_index;
+
+			dst_pixel = indexed_palette[indexed_pixels[src_index]];
+
+			const auto is_transparent = !indexed_alphas[src_index];
+
+			if (is_transparent)
+			{
+				dst_pixel.a_ = 0x00;
+			}
+
+			src_u_d += src_du_d;
+		}
+
+		src_v_d += src_dv_d;
+	}
+}
+
+void RendererUtils::indexed_to_rgba_pot(
+	const int width,
+	const int height,
+	const int actual_width,
+	const int actual_height,
+	const std::uint8_t* const indexed_pixels,
+	const RendererPalette& indexed_palette,
+	const bool* const indexed_alphas,
+	TextureBuffer& texture_buffer)
+{
+	const auto is_npot = (width != actual_width || height != actual_height);
+
+	if (!indexed_alphas && !is_npot)
+	{
+		indexed_opaque_pot_to_rgba_pot(
+			width,
+			height,
+			actual_width,
+			actual_height,
+			indexed_pixels,
+			indexed_palette,
+			indexed_alphas,
+			texture_buffer
+		);
+	}
+	else if (!indexed_alphas && is_npot)
+	{
+		indexed_opaque_npot_to_rgba_pot(
+			width,
+			height,
+			actual_width,
+			actual_height,
+			indexed_pixels,
+			indexed_palette,
+			indexed_alphas,
+			texture_buffer
+		);
+	}
+	else if (indexed_alphas && !is_npot)
+	{
+		indexed_transparent_pot_to_rgba_pot(
+			width,
+			height,
+			actual_width,
+			actual_height,
+			indexed_pixels,
+			indexed_palette,
+			indexed_alphas,
+			texture_buffer
+		);
+	}
+	else if (indexed_alphas && is_npot)
+	{
+		indexed_transparent_npot_to_rgba_pot(
+			width,
+			height,
+			actual_width,
+			actual_height,
+			indexed_pixels,
+			indexed_palette,
+			indexed_alphas,
+			texture_buffer
+		);
+	}
+}
+
+void RendererUtils::rgba_npot_to_rgba_pot(
+	const int width,
+	const int height,
+	const int actual_width,
+	const int actual_height,
+	const RendererColor32* const rgba_pixels,
+	TextureBuffer& texture_buffer)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(actual_width > 0);
+	assert(actual_height > 0);
+	assert(rgba_pixels);
+
+	const auto src_du_d =
+		static_cast<double>(width) /
+		static_cast<double>(actual_width);
+
+	const auto src_dv_d =
+		static_cast<double>(height) /
+		static_cast<double>(actual_height);
+
+	auto src_v_d = 0.5 * src_dv_d;
+
+	auto dst_index = 0;
+
+	for (int h = 0; h < actual_height; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_d);
+
+		auto src_u_d = 0.5 * src_du_d;
+
+		for (int w = 0; w < actual_width; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_d);
+
+			const auto src_index = (src_v * width) + src_u;
+
+			texture_buffer[dst_index] = rgba_pixels[src_index];
+
+			++dst_index;
+
+			src_u_d += src_du_d;
+		}
+
+		src_v_d += src_dv_d;
+	}
+}
+
 void RendererUtils::build_mipmap(
 	const int previous_width,
 	const int previous_height,

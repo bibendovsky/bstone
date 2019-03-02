@@ -393,210 +393,6 @@ void Ogl1XRenderer::Texture2d::uninitialize_internal()
 	}
 }
 
-void Ogl1XRenderer::Texture2d::indexed_opaque_pot_to_rgba_pot()
-{
-	assert(indexed_pixels_);
-	assert(!indexed_alphas_);
-	assert(!is_npot_);
-
-	auto& dst_pixels = renderer_->texture_buffer_;
-	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
-
-	const auto area = actual_width_ * actual_height_;
-
-	for (int i = 0; i < area; ++i)
-	{
-		dst_pixels[i] = palette[indexed_pixels_[i]];
-	}
-}
-
-void Ogl1XRenderer::Texture2d::indexed_opaque_npot_to_rgba_pot()
-{
-	assert(indexed_pixels_);
-	assert(!indexed_alphas_);
-	assert(is_npot_);
-
-	auto& dst_pixels = renderer_->texture_buffer_;
-	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
-
-	const auto src_du_d =
-		static_cast<double>(width_) /
-		static_cast<double>(actual_width_);
-
-	const auto src_dv_d =
-		static_cast<double>(height_) /
-		static_cast<double>(actual_height_);
-
-	auto src_v_d = 0.5 * src_dv_d;
-
-	auto dst_index = 0;
-
-	for (int h = 0; h < actual_height_; ++h)
-	{
-		const auto src_v = static_cast<int>(src_v_d);
-
-		auto src_u_d = 0.5 * src_du_d;
-
-		for (int w = 0; w < actual_width_; ++w)
-		{
-			const auto src_u = static_cast<int>(src_u_d);
-
-			const auto src_index = (src_v * width_) + src_u;
-
-			dst_pixels[dst_index] = palette[indexed_pixels_[src_index]];
-
-			++dst_index;
-
-			src_u_d += src_du_d;
-		}
-
-		src_v_d += src_dv_d;
-	}
-}
-
-void Ogl1XRenderer::Texture2d::indexed_transparent_pot_to_rgba_pot()
-{
-	assert(indexed_pixels_);
-	assert(indexed_alphas_);
-	assert(!is_npot_);
-
-	auto& dst_pixels = renderer_->texture_buffer_;
-	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
-
-	const auto area = actual_width_ * actual_height_;
-
-	for (int i = 0; i < area; ++i)
-	{
-		auto& dst_pixel = dst_pixels[i];
-
-		dst_pixel = palette[indexed_pixels_[i]];
-
-		const auto is_transparent = !indexed_alphas_[i];
-
-		if (is_transparent)
-		{
-			dst_pixel.a_ = 0x00;
-		}
-	}
-}
-
-void Ogl1XRenderer::Texture2d::indexed_transparent_npot_to_rgba_pot()
-{
-	assert(indexed_pixels_);
-	assert(indexed_alphas_);
-	assert(is_npot_);
-
-	auto& dst_pixels = renderer_->texture_buffer_;
-	const auto& palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
-
-	const auto src_du_d =
-		static_cast<double>(width_) /
-		static_cast<double>(actual_width_);
-
-	const auto src_dv_d =
-		static_cast<double>(height_) /
-		static_cast<double>(actual_height_);
-
-	auto src_v_d = 0.5 * src_dv_d;
-
-	auto dst_index = 0;
-
-	for (int h = 0; h < actual_height_; ++h)
-	{
-		const auto src_v = static_cast<int>(src_v_d);
-
-		auto src_u_d = 0.5 * src_du_d;
-
-		for (int w = 0; w < actual_width_; ++w)
-		{
-			const auto src_u = static_cast<int>(src_u_d);
-
-			const auto src_index = (src_v * width_) + src_u;
-
-			auto& dst_pixel = dst_pixels[dst_index];
-
-			++dst_index;
-
-			dst_pixel = palette[indexed_pixels_[src_index]];
-
-			const auto is_transparent = !indexed_alphas_[src_index];
-
-			if (is_transparent)
-			{
-				dst_pixel.a_ = 0x00;
-			}
-
-			src_u_d += src_du_d;
-		}
-
-		src_v_d += src_dv_d;
-	}
-}
-
-void Ogl1XRenderer::Texture2d::indexed_to_rgba_pot()
-{
-	assert(indexed_pixels_);
-
-	if (!indexed_alphas_ && !is_npot_)
-	{
-		indexed_opaque_pot_to_rgba_pot();
-	}
-	else if (!indexed_alphas_ && is_npot_)
-	{
-		indexed_opaque_npot_to_rgba_pot();
-	}
-	else if (indexed_alphas_ && !is_npot_)
-	{
-		indexed_transparent_pot_to_rgba_pot();
-	}
-	else if (indexed_alphas_ && is_npot_)
-	{
-		indexed_transparent_npot_to_rgba_pot();
-	}
-}
-
-void Ogl1XRenderer::Texture2d::rgba_npot_to_rgba_pot()
-{
-	assert(is_rgba_);
-	assert(is_npot_);
-
-	auto& dst_pixels = renderer_->texture_buffer_;
-
-	const auto src_du_d =
-		static_cast<double>(width_) /
-		static_cast<double>(actual_width_);
-
-	const auto src_dv_d =
-		static_cast<double>(height_) /
-		static_cast<double>(actual_height_);
-
-	auto src_v_d = 0.5 * src_dv_d;
-
-	auto dst_index = 0;
-
-	for (int h = 0; h < actual_height_; ++h)
-	{
-		const auto src_v = static_cast<int>(src_v_d);
-
-		auto src_u_d = 0.5 * src_du_d;
-
-		for (int w = 0; w < actual_width_; ++w)
-		{
-			const auto src_u = static_cast<int>(src_u_d);
-
-			const auto src_index = (src_v * width_) + src_u;
-
-			dst_pixels[dst_index] = rgba_pixels_[src_index];
-
-			++dst_index;
-
-			src_u_d += src_du_d;
-		}
-
-		src_v_d += src_dv_d;
-	}
-}
-
 void Ogl1XRenderer::Texture2d::upload_mipmap(
 	const int mipmap_level,
 	const int width,
@@ -646,7 +442,14 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 	{
 		if (is_npot_)
 		{
-			rgba_npot_to_rgba_pot();
+			RendererUtils::rgba_npot_to_rgba_pot(
+				width_,
+				height_,
+				actual_width_,
+				actual_height_,
+				rgba_pixels_,
+				renderer_->texture_buffer_
+			);
 		}
 		else
 		{
@@ -655,7 +458,18 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 	}
 	else
 	{
-		indexed_to_rgba_pot();
+		const auto& indexed_palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
+
+		RendererUtils::indexed_to_rgba_pot(
+			width_,
+			height_,
+			actual_width_,
+			actual_height_,
+			indexed_pixels_,
+			indexed_palette,
+			indexed_alphas_,
+			renderer_->texture_buffer_
+		);
 	}
 
 	auto mipmap_width = actual_width_;
