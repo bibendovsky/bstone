@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_UTILS_INCLUDED
-#define BSTONE_RENDERER_UTILS_INCLUDED
+#ifndef BSTONE_DETAIL_RENDERER_UTILS_INCLUDED
+#define BSTONE_DETAIL_RENDERER_UTILS_INCLUDED
 
 
 #include <string>
@@ -42,6 +42,8 @@ using SdlWindowPtr = SDL_Window*;
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -196,7 +198,8 @@ private:
 }; // RendererUtils
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_UTILS_INCLUDED
+#endif // !BSTONE_DETAIL_RENDERER_UTILS_INCLUDED

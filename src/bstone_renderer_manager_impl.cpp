@@ -30,8 +30,8 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_renderer_manager.h"
 #include <vector>
-#include "bstone_ogl_renderer.h"
-#include "bstone_ogl_renderer_utils.h"
+#include "bstone_detail_ogl_renderer.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 
 
 namespace bstone
@@ -135,7 +135,7 @@ private:
 	RendererPath renderer_probe_path_;
 	Renderers renderers_;
 
-	OglRenderer ogl_renderer_;
+	detail::OglRenderer ogl_renderer_;
 }; // RendererManagerImpl::Impl
 
 //
@@ -190,7 +190,7 @@ bool RendererManagerImpl::Impl::initialize()
 		return true;
 	}
 
-	auto ogl_renderer_utils = OglRendererUtils{};
+	auto ogl_renderer_utils = detail::OglRendererUtils{};
 
 	if (!ogl_renderer_utils.load_library())
 	{
@@ -216,7 +216,7 @@ void RendererManagerImpl::Impl::uninitialize()
 
 	renderers_.clear();
 
-	OglRendererUtils::unload_library();
+	detail::OglRendererUtils::unload_library();
 }
 
 int RendererManagerImpl::Impl::get_renderer_count() const
@@ -295,7 +295,7 @@ RendererPath RendererManagerImpl::Impl::renderer_get_probe_path() const
 RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 	const RendererInitializeParam& param)
 {
-	auto renderer_utils = RendererUtils{};
+	auto renderer_utils = detail::RendererUtils{};
 
 	if (!renderer_utils.validate_initialize_param(param))
 	{

@@ -29,19 +29,21 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_OGL_RENDERER_UTILS_INCLUDED
-#define BSTONE_OGL_RENDERER_UTILS_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_RENDERER_UTILS_INCLUDED
+#define BSTONE_DETAIL_OGL_RENDERER_UTILS_INCLUDED
 
 
 #include <vector>
 #include "bstone_matn.h"
-#include "bstone_renderer_utils.h"
+#include "bstone_detail_renderer_utils.h"
 
 
 using SdlGlContext = void*;
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -130,7 +132,8 @@ private:
 }; // OglRendererUtils
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_OGL_RENDERER_UTILS_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_RENDERER_UTILS_INCLUDED

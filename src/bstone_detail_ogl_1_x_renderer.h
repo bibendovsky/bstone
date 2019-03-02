@@ -29,19 +29,21 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_OGL_1_X_RENDERER_INCLUDED
-#define BSTONE_OGL_1_X_RENDERER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_1_X_RENDERER_INCLUDED
+#define BSTONE_DETAIL_OGL_1_X_RENDERER_INCLUDED
 
 
 #include <array>
 #include <list>
 #include <vector>
+#include "bstone_detail_ogl_renderer.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_ogl.h"
-#include "bstone_ogl_renderer.h"
-#include "bstone_ogl_renderer_utils.h"
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -334,7 +336,8 @@ private:
 }; // OglRenderer
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_OGL_1_X_RENDERER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_1_X_RENDERER_INCLUDED

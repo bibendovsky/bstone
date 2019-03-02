@@ -30,13 +30,15 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_ogl_renderer_utils.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 #include <cassert>
 #include "SDL_video.h"
 #include "bstone_ogl.h"
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -1024,4 +1026,5 @@ bool OglRendererUtils::resolve_unique_symbols_1_1()
 // ==========================================================================
 
 
+} // detail
 } // bstone

@@ -30,12 +30,14 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_renderer_utils.h"
+#include "bstone_detail_renderer_utils.h"
 #include <cassert>
 #include "SDL_video.h"
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -759,4 +761,5 @@ std::uint32_t RendererUtils::create_window_sdl_flags(
 // ==========================================================================
 
 
+} // detail
 } // bstone

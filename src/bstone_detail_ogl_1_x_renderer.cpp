@@ -31,12 +31,14 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_ogl_1_x_renderer.h"
+#include "bstone_detail_ogl_1_x_renderer.h"
 #include <cassert>
-#include "bstone_ogl_renderer_utils.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -1130,4 +1132,5 @@ void Ogl1XRenderer::execute_command_draw_quads(
 // ==========================================================================
 
 
+} // detail
 } // bstone

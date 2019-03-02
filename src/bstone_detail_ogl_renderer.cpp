@@ -31,12 +31,14 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_ogl_renderer.h"
+#include "bstone_detail_ogl_renderer.h"
 #include <cassert>
-#include "bstone_ogl_1_x_renderer.h"
+#include "bstone_detail_ogl_1_x_renderer.h"
 
 
 namespace bstone
+{
+namespace detail
 {
 
 
@@ -324,4 +326,5 @@ void OglRenderer::uninitialize_internal(
 }
 
 
+} // detail
 } // bstone
