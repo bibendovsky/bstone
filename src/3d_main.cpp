@@ -49,8 +49,6 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
-#include "bstone_renderer_utils.h"
-#include "bstone_ogl_renderer_utils.h"
 #include "bstone_renderer_manager.h"
 
 #ifdef __vita__
