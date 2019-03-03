@@ -1022,9 +1022,9 @@ void InitGame()
 	std::uint16_t* blockstart;
 
 	CA_Startup();
+	PM_Startup();
 	VW_Startup();
 	IN_Startup();
-	PM_Startup();
 	SD_Startup();
 	US_Startup();
 
