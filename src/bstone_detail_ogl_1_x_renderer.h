@@ -257,7 +257,7 @@ private:
 		const RendererPalette* indexed_palette_;
 		const bool* indexed_alphas_;
 
-		const std::int16_t* indexed_sprite_;
+		SpriteCPtr indexed_sprite_;
 
 		RendererColor32CPtr rgba_pixels_;
 

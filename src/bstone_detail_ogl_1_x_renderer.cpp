@@ -498,7 +498,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 	else if (is_indexed_sprite_)
 	{
 		RendererUtils::indexed_sprite_to_rgba_pot(
-			indexed_sprite_,
+			*indexed_sprite_,
 			renderer_->palette_,
 			renderer_->texture_buffer_
 		);

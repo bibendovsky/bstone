@@ -337,8 +337,15 @@ bool RendererUtils::validate_texture_2d_create_param(
 		return false;
 	}
 
-	if (param.indexed_sprite_ != nullptr)
+	if (param.indexed_sprite_)
 	{
+		if (!param.indexed_sprite_->is_initialized())
+		{
+			error_message_ = "Sprite not initialized.";
+
+			return false;
+		}
+
 		if (param.width_ != Sprite::dimension)
 		{
 			error_message_ = "Invalid sprite width.";
@@ -389,6 +396,13 @@ bool RendererUtils::validate_texture_2d_update_param(
 	if (source_count != 1)
 	{
 		error_message_ = "Multiple pixel sources.";
+
+		return false;
+	}
+
+	if (param.indexed_sprite_ && !param.indexed_sprite_->is_initialized())
+	{
+		error_message_ = "Sprite not initialized.";
 
 		return false;
 	}
@@ -648,31 +662,50 @@ void RendererUtils::indexed_to_rgba_pot(
 }
 
 void RendererUtils::indexed_sprite_to_rgba_pot(
-	const std::int16_t* const indexed_sprite,
+	const Sprite& indexed_sprite,
 	const RendererPalette& indexed_palette,
 	TextureBuffer& texture_buffer)
 {
-	assert(indexed_sprite);
+	assert(indexed_sprite.is_initialized());
+
+	const auto left = indexed_sprite.get_left();
+	const auto right = indexed_sprite.get_right();
+	const auto top = indexed_sprite.get_top();
+	const auto bottom = indexed_sprite.get_bottom();
 
 	auto dst_index = 0;
 
 	for (int w = 0; w < Sprite::dimension; ++w)
 	{
+		const std::int16_t* column = nullptr;
+
+		if (w >= left && w <= right)
+		{
+			column = indexed_sprite.get_column(w - left);
+		}
+
 		for (int h = 0; h < Sprite::dimension; ++h)
 		{
-			const auto src_index = (h * Sprite::dimension) + w;
-
 			auto& dst_pixel = texture_buffer[dst_index];
 
-			const auto src_pixel = indexed_sprite[src_index];
-
-			if (src_pixel < 0)
+			if (column && h >= top && h <= bottom)
 			{
-				dst_pixel = RendererColor32{};
+				const auto src_index = h - top;
+
+				const auto src_pixel = column[src_index];
+
+				if (src_pixel < 0)
+				{
+					dst_pixel = RendererColor32{};
+				}
+				else
+				{
+					dst_pixel = indexed_palette[src_pixel];
+				}
 			}
 			else
 			{
-				dst_pixel = indexed_palette[src_pixel];
+				dst_pixel = RendererColor32{};
 			}
 
 			++dst_index;

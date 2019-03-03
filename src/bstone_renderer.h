@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <string>
 #include <vector>
+#include "bstone_sprite.h"
 #include "bstone_vecn.h"
 
 
@@ -248,7 +249,7 @@ struct RendererTexture2dCreateParam
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
 
-	const std::int16_t* indexed_sprite_;
+	SpriteCPtr indexed_sprite_;
 
 	const RendererColor32* rgba_pixels_;
 }; // RendererTexture2dCreateParam
@@ -259,7 +260,7 @@ struct RendererTexture2dUpdateParam
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
 
-	const std::int16_t* indexed_sprite_;
+	SpriteCPtr indexed_sprite_;
 
 	const RendererColor32* rgba_pixels_;
 }; // RendererTexture2dUpdateParam

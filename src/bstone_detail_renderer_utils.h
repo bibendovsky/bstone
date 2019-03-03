@@ -35,6 +35,7 @@ Free Software Foundation, Inc.,
 
 #include <string>
 #include "bstone_renderer.h"
+#include "bstone_sprite.h"
 
 
 struct SDL_Window;
@@ -169,7 +170,7 @@ public:
 
 	// Converts indexed sprite pixels to RGBA ones.
 	static void indexed_sprite_to_rgba_pot(
-		const std::int16_t* const indexed_sprite,
+		const Sprite& indexed_sprite,
 		const RendererPalette& indexed_palette,
 		TextureBuffer& texture_buffer);
 
