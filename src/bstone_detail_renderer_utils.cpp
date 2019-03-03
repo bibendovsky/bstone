@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_renderer_utils.h"
 #include <cassert>
 #include "SDL_video.h"
+#include "bstone_sprite.h"
 
 
 namespace bstone
@@ -304,18 +305,53 @@ bool RendererUtils::validate_texture_2d_create_param(
 		return false;
 	}
 
-	if (!param.indexed_pixels_ && !param.rgba_pixels_)
+
+	auto source_count = 0;
+
+	if (param.indexed_pixels_)
+	{
+		++source_count;
+	}
+
+	if (param.indexed_sprite_)
+	{
+		++source_count;
+	}
+
+	if (param.rgba_pixels_)
+	{
+		++source_count;
+	}
+
+	if (source_count == 0)
 	{
 		error_message_ = "Null pixel source.";
 
 		return false;
 	}
 
-	if (param.indexed_pixels_ && param.rgba_pixels_)
+	if (source_count != 1)
 	{
 		error_message_ = "Multiple pixel sources.";
 
 		return false;
+	}
+
+	if (param.indexed_sprite_ != nullptr)
+	{
+		if (param.width_ != Sprite::dimension)
+		{
+			error_message_ = "Invalid sprite width.";
+
+			return false;
+		}
+
+		if (param.height_ != Sprite::dimension)
+		{
+			error_message_ = "Invalid sprite height.";
+
+			return false;
+		}
 	}
 
 	return true;
@@ -324,8 +360,38 @@ bool RendererUtils::validate_texture_2d_create_param(
 bool RendererUtils::validate_texture_2d_update_param(
 	const RendererTexture2dUpdateParam& param)
 {
-	static_cast<void>(param);
 	static_cast<void>(error_message_);
+
+	auto source_count = 0;
+
+	if (param.indexed_pixels_)
+	{
+		++source_count;
+	}
+
+	if (param.indexed_sprite_)
+	{
+		++source_count;
+	}
+
+	if (param.rgba_pixels_)
+	{
+		++source_count;
+	}
+
+	if (source_count == 0)
+	{
+		error_message_ = "Null pixel source.";
+
+		return false;
+	}
+
+	if (source_count != 1)
+	{
+		error_message_ = "Multiple pixel sources.";
+
+		return false;
+	}
 
 	return true;
 }
@@ -578,6 +644,39 @@ void RendererUtils::indexed_to_rgba_pot(
 			indexed_alphas,
 			texture_buffer
 		);
+	}
+}
+
+void RendererUtils::indexed_sprite_to_rgba_pot(
+	const std::int16_t* const indexed_sprite,
+	const RendererPalette& indexed_palette,
+	TextureBuffer& texture_buffer)
+{
+	assert(indexed_sprite);
+
+	auto dst_index = 0;
+
+	for (int w = 0; w < Sprite::dimension; ++w)
+	{
+		for (int h = 0; h < Sprite::dimension; ++h)
+		{
+			const auto src_index = (h * Sprite::dimension) + w;
+
+			auto& dst_pixel = texture_buffer[dst_index];
+
+			const auto src_pixel = indexed_sprite[src_index];
+
+			if (src_pixel < 0)
+			{
+				dst_pixel = RendererColor32{};
+			}
+			else
+			{
+				dst_pixel = indexed_palette[src_pixel];
+			}
+
+			++dst_index;
+		}
 	}
 }
 

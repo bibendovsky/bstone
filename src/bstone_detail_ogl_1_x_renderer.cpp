@@ -210,13 +210,22 @@ Ogl1XRenderer::Texture2d::Texture2d(
 	renderer_{renderer},
 	error_message_{},
 	is_npot_{},
+	is_rgba_{},
+	is_indexed_{},
+	is_indexed_sprite_{},
+	has_rgba_alpha_{},
+	is_generate_mipmaps_{},
 	width_{},
 	height_{},
 	actual_width_{},
 	actual_height_{},
+	mipmap_count_{},
 	indexed_pixels_{},
 	indexed_palette_{},
-	indexed_alphas_{}
+	indexed_alphas_{},
+	indexed_sprite_{},
+	rgba_pixels_{},
+	ogl_id_{}
 {
 	assert(renderer_);
 }
@@ -245,7 +254,7 @@ void Ogl1XRenderer::Texture2d::update(
 			rgba_pixels_ = param.rgba_pixels_;
 		}
 	}
-	else
+	else if (is_indexed_)
 	{
 		if (param.indexed_pixels_)
 		{
@@ -261,6 +270,10 @@ void Ogl1XRenderer::Texture2d::update(
 		{
 			indexed_alphas_ = param.indexed_alphas_;
 		}
+	}
+	else if (is_indexed_sprite_)
+	{
+		indexed_sprite_ = param.indexed_sprite_;
 	}
 
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
@@ -282,6 +295,9 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	}
 
 	is_rgba_ = (param.rgba_pixels_ != nullptr);
+	is_indexed_ = (param.indexed_pixels_ != nullptr);
+	is_indexed_sprite_ = (param.indexed_sprite_ != nullptr);
+
 	has_rgba_alpha_ = param.has_rgba_alpha_;
 	is_generate_mipmaps_ = param.is_generate_mipmaps_;
 
@@ -304,6 +320,8 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	indexed_palette_ = param.indexed_palette_;
 	indexed_alphas_ = param.indexed_alphas_;
 
+	indexed_sprite_ = param.indexed_sprite_;
+
 	rgba_pixels_ = param.rgba_pixels_;
 
 	is_npot_ = (width_ != actual_width_ || height_ != actual_height_);
@@ -314,9 +332,13 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	{
 		internal_format = (has_rgba_alpha_ ? GL_RGBA8 : GL_RGB8);
 	}
-	else
+	else if (is_indexed_)
 	{
 		internal_format = (indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
+	}
+	else if (is_indexed_sprite_)
+	{
+		internal_format = GL_RGBA8;
 	}
 
 	auto min_filter = GLenum{};
@@ -458,7 +480,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 			texture_subbuffer_0 = const_cast<RendererColor32Ptr>(rgba_pixels_);
 		}
 	}
-	else
+	else if (is_indexed_)
 	{
 		const auto& indexed_palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
 
@@ -470,6 +492,14 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 			indexed_pixels_,
 			indexed_palette,
 			indexed_alphas_,
+			renderer_->texture_buffer_
+		);
+	}
+	else if (is_indexed_sprite_)
+	{
+		RendererUtils::indexed_sprite_to_rgba_pot(
+			indexed_sprite_,
+			renderer_->palette_,
 			renderer_->texture_buffer_
 		);
 	}

@@ -239,6 +239,9 @@ private:
 		bool is_npot_;
 
 		bool is_rgba_;
+		bool is_indexed_;
+		bool is_indexed_sprite_;
+
 		bool has_rgba_alpha_;
 		bool is_generate_mipmaps_;
 
@@ -253,6 +256,8 @@ private:
 		const std::uint8_t* indexed_pixels_;
 		const RendererPalette* indexed_palette_;
 		const bool* indexed_alphas_;
+
+		const std::int16_t* indexed_sprite_;
 
 		RendererColor32CPtr rgba_pixels_;
 

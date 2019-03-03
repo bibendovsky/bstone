@@ -167,6 +167,13 @@ public:
 		TextureBuffer& texture_buffer);
 
 
+	// Converts indexed sprite pixels to RGBA ones.
+	static void indexed_sprite_to_rgba_pot(
+		const std::int16_t* const indexed_sprite,
+		const RendererPalette& indexed_palette,
+		TextureBuffer& texture_buffer);
+
+
 	// Converts RGBA non-power-of-two pixels to RGBA power-of-two ones.
 	static void rgba_npot_to_rgba_pot(
 		const int width,

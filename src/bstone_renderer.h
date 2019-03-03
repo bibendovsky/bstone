@@ -248,6 +248,8 @@ struct RendererTexture2dCreateParam
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
 
+	const std::int16_t* indexed_sprite_;
+
 	const RendererColor32* rgba_pixels_;
 }; // RendererTexture2dCreateParam
 
@@ -256,6 +258,8 @@ struct RendererTexture2dUpdateParam
 	const std::uint8_t* indexed_pixels_;
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
+
+	const std::int16_t* indexed_sprite_;
 
 	const RendererColor32* rgba_pixels_;
 }; // RendererTexture2dUpdateParam
