@@ -87,6 +87,9 @@ private:
 	Image image_;
 }; // Sprite
 
+using SpritePtr = Sprite*;
+using SpriteCPtr = const Sprite*;
+
 
 } // bstone
 
