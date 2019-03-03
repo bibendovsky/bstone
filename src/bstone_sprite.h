@@ -19,7 +19,7 @@ class Sprite
 {
 public:
 	// Sprite dimension.
-	static constexpr auto side = 64;
+	static constexpr auto dimension = 64;
 
 
 	Sprite();
@@ -66,8 +66,13 @@ public:
 	// Returns a pointer to the column data.
 	//
 	// Note: Negative value means transparency.
-	const short* get_column(
+	const std::int16_t* get_column(
 		const int index) const;
+
+	// Returns a pointer to the columns.
+	//
+	// Note: Negative value means transparency.
+	const std::int16_t* get_data() const;
 
 
 private:

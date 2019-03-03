@@ -119,7 +119,7 @@ void generic_scale_shape(
 	}
 
 
-	constexpr auto side = bstone::Sprite::side;
+	constexpr auto dimension = bstone::Sprite::dimension;
 
 	constexpr auto mid_bob = 6;
 	constexpr auto bob_start = 6;
@@ -154,27 +154,27 @@ void generic_scale_shape(
 		::vga_3d_view_top_y + ::centery - half_height;
 
 	const auto left = sprite_ptr->get_left();
-	auto x1 = offset_x + ((left * height) / side);
+	auto x1 = offset_x + ((left * height) / dimension);
 
 	if (x1 >= ::viewwidth)
 	{
 		return;
 	}
 
-	auto x2 = x1 + ((sprite_width * height) / side);
+	auto x2 = x1 + ((sprite_width * height) / dimension);
 
 	const auto top = sprite_ptr->get_top();
-	auto y1 = offset_y + ((top * height) / side);
+	auto y1 = offset_y + ((top * height) / dimension);
 
 	if (y1 > ::vga_3d_view_bottom_y)
 	{
 		return;
 	}
 
-	auto y2 = y1 + ((sprite_height * height) / side);
+	auto y2 = y1 + ((sprite_height * height) / dimension);
 
 
-	const auto tx_delta = bstone::FixedPoint{side, 0} / height;
+	const auto tx_delta = bstone::FixedPoint{dimension, 0} / height;
 
 	auto tx_column = bstone::FixedPoint{};
 

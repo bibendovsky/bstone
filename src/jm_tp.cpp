@@ -3093,7 +3093,7 @@ std::int16_t TP_DrawShape(
 			VWB_Bar(x, y, 64, 64, static_cast<std::uint8_t>(bgcolor));
 		}
 
-		::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::side);
+		::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::dimension);
 		break;
 
 	case pis_latchpic:

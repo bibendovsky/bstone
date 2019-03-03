@@ -80,7 +80,7 @@ void Sprite::initialize(
 	const int left = bstone::Endian::little(values_16[0]);
 	const int right = bstone::Endian::little(values_16[1]);
 
-	if (left > right || left >= side || right >= side)
+	if (left > right || left >= dimension || right >= dimension)
 	{
 		throw std::runtime_error{"Invalid edge values."};
 	}
@@ -205,10 +205,15 @@ int Sprite::get_height() const
 	return (bottom_ - top_) + 1;
 }
 
-const short* Sprite::get_column(
+const std::int16_t* Sprite::get_column(
 	const int index) const
 {
 	return &image_[index * get_height()];
+}
+
+const std::int16_t* Sprite::get_data() const
+{
+	return image_.data();
 }
 
 

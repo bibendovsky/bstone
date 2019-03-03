@@ -3736,7 +3736,7 @@ void vid_draw_ui_sprite(
 	const int center_y,
 	const int new_side)
 {
-	constexpr auto side = bstone::Sprite::side;
+	constexpr auto dimension = bstone::Sprite::dimension;
 
 	const auto sprite_ptr = ::vid_sprite_cache.cache(
 		sprite_id);
@@ -3745,12 +3745,12 @@ void vid_draw_ui_sprite(
 	const auto sprite_height = sprite_ptr->get_height();
 
 	const auto left = sprite_ptr->get_left();
-	const auto x1 = center_x + ((new_side * (left - (side / 2))) / side);
-	const auto x2 = x1 + ((sprite_width * new_side) / side);
+	const auto x1 = center_x + ((new_side * (left - (dimension / 2))) / dimension);
+	const auto x2 = x1 + ((sprite_width * new_side) / dimension);
 
 	const auto top = sprite_ptr->get_top();
-	const auto y1 = center_y + ((new_side * (top - (side / 2))) / side) - 2;
-	const auto y2 = y1 + ((sprite_height * new_side) / side);
+	const auto y1 = center_y + ((new_side * (top - (dimension / 2))) / dimension) - 2;
+	const auto y2 = y1 + ((sprite_height * new_side) / dimension);
 
 	for (int x = x1; x < x2; ++x)
 	{
