@@ -27,6 +27,10 @@ Free Software Foundation, Inc.,
 //
 
 
+#ifndef BSTONE_RENDERER_TEXTURE_MANAGER_INCLUDED
+#define BSTONE_RENDERER_TEXTURE_MANAGER_INCLUDED
+
+
 #include "bstone_renderer.h"
 #include "bstone_sprite_cache.h"
 
@@ -73,6 +77,7 @@ public:
 		const int id) const = 0;
 }; // RendererTextureManager
 
+using RendererTextureManagerPtr = RendererTextureManager*;
 using RendererTextureManagerUPtr = std::unique_ptr<RendererTextureManager>;
 
 
@@ -86,3 +91,6 @@ public:
 
 
 } // bstone
+
+
+#endif // BSTONE_RENDERER_TEXTURE_MANAGER_INCLUDED
