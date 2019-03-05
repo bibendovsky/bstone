@@ -61,6 +61,7 @@ enum class RendererCommandId
 	none,
 
 	set_2d,
+	set_3d,
 	enable_blending,
 
 	draw_quads,
@@ -291,6 +292,10 @@ struct RendererCommand
 	{
 	}; // Set2d
 
+	struct Set3d
+	{
+	}; // Set3d
+
 	struct EnableBlending
 	{
 		bool is_enabled_;
@@ -311,6 +316,7 @@ struct RendererCommand
 	union
 	{
 		Set2d set_2d_;
+		Set3d set_3d_;
 		EnableBlending enable_blending_;
 		DrawQuads draw_quads_;
 	}; // union
@@ -337,6 +343,10 @@ protected:
 
 
 public:
+	static constexpr int min_vfov_deg = 10;
+	static constexpr int max_vfov_deg = 170;
+
+
 	virtual const std::string& get_error_message() const = 0;
 
 
@@ -383,6 +393,13 @@ public:
 	virtual void set_2d_projection_matrix(
 		const int width,
 		const int height) = 0;
+
+	virtual void set_3d_projection_matrix(
+		const int width,
+		const int height,
+		const int vfov_deg,
+		const float near_distance,
+		const float far_distance) = 0;
 
 
 	virtual RendererIndexBufferPtr index_buffer_create(

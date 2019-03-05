@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include <cassert>
+#include <limits>
 #include "SDL_video.h"
 #include "bstone_ogl.h"
 
@@ -302,6 +303,56 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 		0.0F, 2.0F * r_top_minus_bottom, 0.0F, 0.0F,
 		0.0F, 0.0F, -2.0F * r_far_minus_near, 0.0F,
 		tx, ty, tz, 1.0F,
+	};
+}
+
+Mat4F OglRendererUtils::build_3d_projection_matrix(
+	const int width,
+	const int height,
+	const int vfov_deg,
+	const float near_distance,
+	const float far_distance)
+{
+	if (width <= 0 || height <= 0)
+	{
+		assert(!"Invalid dimensions.");
+
+		return Mat4F{};
+	}
+
+	if (vfov_deg < Renderer::min_vfov_deg || vfov_deg > Renderer::max_vfov_deg)
+	{
+		assert(!"Invalid vertical field of view value.");
+
+		return Mat4F{};
+	}
+
+	if (near_distance <= 0.0F ||
+		far_distance <= 0.0F ||
+		near_distance >= far_distance)
+	{
+		assert(!"Invalid distance.");
+
+		return Mat4F{};
+	}
+
+	const auto aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
+
+	const auto half_vfov_rad = (static_cast<float>(vfov_deg) * RendererUtils::pi) / 360.0F;
+	const auto tan_half_vfov = std::tan(half_vfov_rad);
+
+	const auto m11 = 1.0F / (aspect_ratio * tan_half_vfov);
+	const auto m22 = 1.0F / tan_half_vfov;
+	const auto m33 = far_distance / (far_distance - near_distance);
+	const auto m34 = -(far_distance * near_distance) / (far_distance - near_distance);
+	const auto m43 = 1.0F;
+
+	return Mat4F
+	{
+		m11, 0.0F, 0.0F, 0.0F,
+		0.0F, m22, 0.0F, 0.0F,
+		0.0F, 0.0F, m33, m34,
+		0.0F, 0.0F, m43, 0.0F,
 	};
 }
 

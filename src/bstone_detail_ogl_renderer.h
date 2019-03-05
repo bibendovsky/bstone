@@ -104,6 +104,13 @@ public:
 		const int width,
 		const int height) override;
 
+	void set_3d_projection_matrix(
+		const int width,
+		const int height,
+		const int vfov_deg,
+		const float near_distance,
+		const float far_distance) override;
+
 	void clear_buffers() override;
 
 	void present() override;

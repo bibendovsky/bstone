@@ -234,6 +234,19 @@ void OglRenderer::set_2d_projection_matrix(
 	renderer_->set_2d_projection_matrix(width, height);
 }
 
+void OglRenderer::set_3d_projection_matrix(
+	const int width,
+	const int height,
+	const int vfov_deg,
+	const float near_distance,
+	const float far_distance)
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	renderer_->set_3d_projection_matrix(width, height, vfov_deg, near_distance, far_distance);
+}
+
 RendererIndexBufferPtr OglRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {

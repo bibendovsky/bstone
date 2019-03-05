@@ -104,6 +104,13 @@ public:
 		const int width,
 		const int height) override;
 
+	void set_3d_projection_matrix(
+		const int width,
+		const int height,
+		const int vfov_deg,
+		const float near_distance,
+		const float far_distance) override;
+
 	void clear_buffers() override;
 
 	void present() override;
@@ -313,6 +320,8 @@ private:
 
 	Mat4F two_d_projection_matrix_;
 
+	Mat4F three_d_projection_matrix_;
+
 	IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;
 
@@ -332,6 +341,9 @@ private:
 
 	void execute_command_set_2d(
 		const RendererCommand::Set2d& command);
+
+	void execute_command_set_3d(
+		const RendererCommand::Set3d& command);
 
 	void execute_command_enable_blending(
 		const RendererCommand::EnableBlending& command);

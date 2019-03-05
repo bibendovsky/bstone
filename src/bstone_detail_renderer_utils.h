@@ -60,6 +60,9 @@ public:
 class RendererUtils
 {
 public:
+	static constexpr float pi = static_cast<float>(3.14159265358979323846);
+
+
 	using TextureBuffer = std::vector<RendererColor32>;
 
 

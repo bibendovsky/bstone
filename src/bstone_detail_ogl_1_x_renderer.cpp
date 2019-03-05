@@ -557,6 +557,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_gl_context_{},
 	palette_{},
 	two_d_projection_matrix_{},
+	three_d_projection_matrix_{},
 	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
@@ -574,6 +575,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	palette_{std::move(rhs.palette_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
+	three_d_projection_matrix_{std::move(rhs.three_d_projection_matrix_)},
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
@@ -722,6 +724,31 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	two_d_projection_matrix_ = new_matrix;
 }
 
+void Ogl1XRenderer::set_3d_projection_matrix(
+	const int width,
+	const int height,
+	const int vfov_deg,
+	const float near_distance,
+	const float far_distance)
+{
+	assert(is_initialized_);
+
+	const auto& new_matrix = OglRendererUtils::build_3d_projection_matrix(
+		width,
+		height,
+		vfov_deg,
+		near_distance,
+		far_distance
+	);
+
+	if (three_d_projection_matrix_ == new_matrix)
+	{
+		return;
+	}
+
+	three_d_projection_matrix_ = new_matrix;
+}
+
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
@@ -799,6 +826,10 @@ void Ogl1XRenderer::execute_command_sets(
 			{
 			case RendererCommandId::set_2d:
 				execute_command_set_2d(command.set_2d_);
+				break;
+
+			case RendererCommandId::set_3d:
+				execute_command_set_3d(command.set_3d_);
 				break;
 
 			case RendererCommandId::enable_blending:
@@ -986,6 +1017,7 @@ void Ogl1XRenderer::uninitialize_internal(
 	{
 		palette_ = {};
 		two_d_projection_matrix_ = {};
+		three_d_projection_matrix_ = {};
 		index_buffers_.clear();
 		vertex_buffers_.clear();
 		texture_buffer_.clear();
@@ -1036,6 +1068,49 @@ void Ogl1XRenderer::execute_command_set_2d(
 	assert(!OglRendererUtils::was_errors());
 
 	::glLoadMatrixf(two_d_projection_matrix_.get_data());
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::execute_command_set_3d(
+	const RendererCommand::Set3d& command)
+{
+	static_cast<void>(command);
+
+
+	// Enable 2D texturing.
+	//
+	::glEnable(GL_TEXTURE_2D);
+	assert(!OglRendererUtils::was_errors());
+
+	// Enable depth test.
+	//
+	::glEnable(GL_DEPTH_TEST);
+	assert(!OglRendererUtils::was_errors());
+
+	// Enable polygon culling.
+	//
+	::glEnable(GL_CULL_FACE);
+	assert(!OglRendererUtils::was_errors());
+
+	// Disable blending.
+	//
+	::glDisable(GL_BLEND);
+	assert(!OglRendererUtils::was_errors());
+
+	// Model-view.
+	//
+	::glMatrixMode(GL_MODELVIEW);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadIdentity();
+	assert(!OglRendererUtils::was_errors());
+
+	// Projection.
+	//
+	::glMatrixMode(GL_PROJECTION);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadMatrixf(three_d_projection_matrix_.get_data());
 	assert(!OglRendererUtils::was_errors());
 }
 
