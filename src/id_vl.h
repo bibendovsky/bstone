@@ -252,5 +252,7 @@ void vid_draw_ui_sprite(
 	const int center_y,
 	const int new_side);
 
+void vid_hw_handle_level_startup();
+
 
 #endif // BSTONE_ID_VL_INCLUDED

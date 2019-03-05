@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_renderer_manager.h"
+#include "bstone_renderer_texture_manager.h"
 
 
 using namespace std::string_literals;
@@ -1365,6 +1366,8 @@ Hw2dVertices hw_2d_vertices_;
 bstone::RendererManagerUPtr hw_renderer_manager_ = nullptr;
 bstone::RendererPtr hw_renderer_ = nullptr;
 
+bstone::RendererTextureManagerUPtr hw_texture_manager_ = nullptr;
+
 bstone::RendererPalette hw_palette_;
 
 bstone::RendererCommandSets hw_command_sets_;
@@ -2558,6 +2561,19 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
+		::hw_texture_manager_ = bstone::RendererTextureManagerFactory::create(
+			::hw_renderer_,
+			&::vid_sprite_cache
+		);
+
+		if (!::hw_texture_manager_->is_initialized())
+		{
+			is_succeed = false;
+		}
+	}
+
+	if (is_succeed)
+	{
 		::hw_renderer_->set_2d_projection_matrix(::window_width, ::window_height);
 
 		::hw_command_sets_.resize(1);
@@ -2648,6 +2664,12 @@ void hw_uninitialize_video()
 
 	::hw_uninitialize_ui_texture();
 	::hw_uninitialize_vga_buffer();
+
+	if (::hw_texture_manager_)
+	{
+		::hw_texture_manager_->uninitialize();
+		::hw_texture_manager_ = nullptr;
+	}
 
 	if (::hw_renderer_manager_)
 	{
@@ -3792,5 +3814,73 @@ void vid_draw_ui_sprite(
 			::VL_Plot(x, y, color_index);
 		}
 	}
+}
+
+static void vid_hw_precache_floor()
+{
+	if (!::hw_texture_manager_->wall_cache(::FloorTile))
+	{
+		::Quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
+	}
+}
+
+static void vid_hw_precache_ceiling()
+{
+	if (!::hw_texture_manager_->wall_cache(::CeilingTile))
+	{
+		::Quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
+	}
+}
+
+static void vid_hw_precache_solid_walls()
+{
+	for (int x = 0; x < MAPSIZE; ++x)
+	{
+		for (int y = 0; y < MAPSIZE; ++y)
+		{
+			const auto tile = ::tilemap[x][y];
+
+			if (tile == 0 || (tile & 0xC0) != 0)
+			{
+				continue;
+			}
+
+			// Horizontal wall.
+			//
+
+			const auto horizontal_wall_id = ::horizwall[tile];
+
+			if (!::hw_texture_manager_->wall_cache(horizontal_wall_id))
+			{
+				::Quit("Failed to cache horizontal wall #" + std::to_string(horizontal_wall_id) + ".");
+			}
+
+			// Vertical wall.
+			//
+
+			const auto vertical_wall_id = ::vertwall[tile];
+
+			if (!::hw_texture_manager_->wall_cache(vertical_wall_id))
+			{
+				::Quit("Failed to cache vertical wall #" + std::to_string(vertical_wall_id) + ".");
+			}
+		}
+	}
+}
+
+static void vid_hw_precache_resources()
+{
+	::hw_texture_manager_->cache_begin();
+
+	::vid_hw_precache_floor();
+	::vid_hw_precache_ceiling();
+	::vid_hw_precache_solid_walls();
+
+	::hw_texture_manager_->cache_end();
+}
+
+void vid_hw_handle_level_startup()
+{
+	::vid_hw_precache_resources();
 }
 // BBi
