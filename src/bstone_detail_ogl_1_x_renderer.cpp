@@ -557,6 +557,9 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_gl_context_{},
 	palette_{},
 	two_d_projection_matrix_{},
+	three_d_model_matrix_{},
+	three_d_view_matrix_{},
+	three_d_model_view_matrix_{},
 	three_d_projection_matrix_{},
 	index_buffers_{},
 	vertex_buffers_{},
@@ -575,6 +578,9 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	palette_{std::move(rhs.palette_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
+	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
+	three_d_view_matrix_{std::move(rhs.three_d_view_matrix_)},
+	three_d_model_view_matrix_{std::move(rhs.three_d_model_view_matrix_)},
 	three_d_projection_matrix_{std::move(rhs.three_d_projection_matrix_)},
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
@@ -722,6 +728,28 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 	}
 
 	two_d_projection_matrix_ = new_matrix;
+}
+
+void Ogl1XRenderer::set_3d_view_matrix(
+	const int angle_deg,
+	const float position_x,
+	const float position_y)
+{
+	assert(is_initialized_);
+
+	const auto& new_matrix = OglRendererUtils::build_3d_view_matrix(
+		angle_deg,
+		position_x,
+		position_y
+	);
+
+	if (three_d_view_matrix_ == new_matrix)
+	{
+		return;
+	}
+
+	three_d_view_matrix_ = new_matrix;
+	three_d_model_view_matrix_ = three_d_view_matrix_ * three_d_model_matrix_;
 }
 
 void Ogl1XRenderer::set_3d_projection_matrix(
@@ -944,6 +972,10 @@ bool Ogl1XRenderer::probe_or_initialize(
 		::glFrontFace(GL_CCW);
 		assert(!OglRendererUtils::was_errors());
 
+		// Model matrix.
+		//
+		three_d_model_matrix_ = OglRendererUtils::build_3d_model_matrix();
+
 		// Texture transformation.
 		//
 
@@ -1017,6 +1049,9 @@ void Ogl1XRenderer::uninitialize_internal(
 	{
 		palette_ = {};
 		two_d_projection_matrix_ = {};
+		three_d_model_matrix_ = {};
+		three_d_view_matrix_ = {};
+		three_d_model_view_matrix_ = {};
 		three_d_projection_matrix_ = {};
 		index_buffers_.clear();
 		vertex_buffers_.clear();
@@ -1102,7 +1137,7 @@ void Ogl1XRenderer::execute_command_set_3d(
 	::glMatrixMode(GL_MODELVIEW);
 	assert(!OglRendererUtils::was_errors());
 
-	::glLoadIdentity();
+	::glLoadMatrixf(three_d_model_view_matrix_.get_data());
 	assert(!OglRendererUtils::was_errors());
 
 	// Projection.

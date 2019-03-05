@@ -306,6 +306,35 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 	};
 }
 
+Mat4F OglRendererUtils::build_3d_model_matrix()
+{
+	throw "Not implemented.";
+
+	return Mat4F
+	{
+		1.0F, 0.0F, 0.0F, 0.0F,
+		0.0F, 1.0F, 0.0F, 0.0F,
+		0.0F, 0.0F, 1.0F, 0.0F,
+		0.0F, 0.0F, 0.0F, 1.0F,
+	};
+}
+
+Mat4F OglRendererUtils::build_3d_view_matrix(
+	const int angle_deg,
+	const float position_x,
+	const float position_y)
+{
+	throw "Not implemented.";
+
+	return Mat4F
+	{
+		1.0F, 0.0F, 0.0F, 0.0F,
+		0.0F, 1.0F, 0.0F, 0.0F,
+		0.0F, 0.0F, 1.0F, 0.0F,
+		0.0F, 0.0F, 0.0F, 1.0F,
+	};
+}
+
 Mat4F OglRendererUtils::build_3d_projection_matrix(
 	const int width,
 	const int height,

@@ -104,6 +104,11 @@ public:
 		const int width,
 		const int height) override;
 
+	void set_3d_view_matrix(
+		const int angle_deg,
+		const float position_x,
+		const float position_y) override;
+
 	void set_3d_projection_matrix(
 		const int width,
 		const int height,
@@ -320,6 +325,9 @@ private:
 
 	Mat4F two_d_projection_matrix_;
 
+	Mat4F three_d_model_matrix_;
+	Mat4F three_d_view_matrix_;
+	Mat4F three_d_model_view_matrix_;
 	Mat4F three_d_projection_matrix_;
 
 	IndexBuffers index_buffers_;

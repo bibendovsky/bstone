@@ -99,6 +99,13 @@ public:
 		const int width,
 		const int height);
 
+	static Mat4F build_3d_model_matrix();
+
+	static Mat4F build_3d_view_matrix(
+		const int angle_deg,
+		const float position_x,
+		const float position_y);
+
 	static Mat4F build_3d_projection_matrix(
 		const int width,
 		const int height,
