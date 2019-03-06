@@ -60,6 +60,7 @@ enum class RendererCommandId
 {
 	none,
 
+	set_viewport,
 	set_2d,
 	set_3d,
 	enable_blending,
@@ -288,6 +289,14 @@ using RendererTexture2dPtr = RendererTexture2d*;
 
 struct RendererCommand
 {
+	struct SetViewport
+	{
+		int x_;
+		int y_;
+		int width_;
+		int height_;
+	}; // SetViewport
+
 	struct Set2d
 	{
 	}; // Set2d
@@ -315,6 +324,7 @@ struct RendererCommand
 
 	union
 	{
+		SetViewport set_viewport_;
 		Set2d set_2d_;
 		Set3d set_3d_;
 		EnableBlending enable_blending_;

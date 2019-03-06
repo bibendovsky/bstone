@@ -347,6 +347,9 @@ private:
 		const bool is_dtor = false);
 
 
+	void execute_command_set_viewport(
+		const RendererCommand::SetViewport& command);
+
 	void execute_command_set_2d(
 		const RendererCommand::Set2d& command);
 

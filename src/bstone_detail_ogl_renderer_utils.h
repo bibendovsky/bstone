@@ -95,6 +95,12 @@ public:
 	static void set_color_buffer_clear_color(
 		const RendererColor32& color);
 
+	static void set_viewport(
+		const int x,
+		const int y,
+		const int width,
+		const int height);
+
 	static Mat4F build_2d_projection_matrix(
 		const int width,
 		const int height);

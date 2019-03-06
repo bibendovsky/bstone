@@ -1063,6 +1063,17 @@ void Ogl1XRenderer::uninitialize_internal(
 	textures_2d_.clear();
 }
 
+void Ogl1XRenderer::execute_command_set_viewport(
+	const RendererCommand::SetViewport& command)
+{
+	OglRendererUtils::set_viewport(
+		command.x_,
+		command.y_,
+		command.width_,
+		command.height_
+	);
+}
+
 void Ogl1XRenderer::execute_command_set_2d(
 	const RendererCommand::Set2d& command)
 {

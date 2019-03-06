@@ -270,6 +270,21 @@ void OglRendererUtils::set_color_buffer_clear_color(
 	assert(!OglRendererUtils::was_errors());
 }
 
+void OglRendererUtils::set_viewport(
+	const int x,
+	const int y,
+	const int width,
+	const int height)
+{
+	assert(x < 0);
+	assert(y < 0);
+	assert(width <= 0);
+	assert(height <= 0);
+
+	::glViewport(x, y, width, height);
+	assert(!OglRendererUtils::was_errors());
+}
+
 Mat4F OglRendererUtils::build_2d_projection_matrix(
 	const int width,
 	const int height)
