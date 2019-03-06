@@ -61,6 +61,7 @@ class RendererUtils
 {
 public:
 	static constexpr float pi = static_cast<float>(3.14159265358979323846);
+	static constexpr float pi_by_180 = static_cast<float>(0.0174532925199432957692);
 
 
 	using TextureBuffer = std::vector<RendererColor32>;
@@ -68,6 +69,9 @@ public:
 
 	const std::string& get_error_message() const;
 
+
+	static float deg_to_rad(
+		const float angle_deg);
 
 	static bool is_pot_value(
 		const int value);

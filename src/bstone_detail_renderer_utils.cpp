@@ -51,6 +51,12 @@ const std::string& RendererUtils::get_error_message() const
 	return error_message_;
 }
 
+float RendererUtils::deg_to_rad(
+	const float angle_deg)
+{
+	return angle_deg * pi_by_180;
+}
+
 bool RendererUtils::is_pot_value(
 		const int value)
 {
