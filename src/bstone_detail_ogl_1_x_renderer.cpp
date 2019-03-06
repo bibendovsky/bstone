@@ -732,16 +732,11 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 
 void Ogl1XRenderer::set_3d_view_matrix(
 	const int angle_deg,
-	const float position_x,
-	const float position_y)
+	const Vec3F& position)
 {
 	assert(is_initialized_);
 
-	const auto& new_matrix = OglRendererUtils::build_3d_view_matrix(
-		angle_deg,
-		position_x,
-		position_y
-	);
+	const auto& new_matrix = OglRendererUtils::build_3d_view_matrix(angle_deg, position);
 
 	if (three_d_view_matrix_ == new_matrix)
 	{

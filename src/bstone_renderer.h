@@ -406,8 +406,7 @@ public:
 
 	virtual void set_3d_view_matrix(
 		const int angle_deg,
-		const float position_x,
-		const float position_y) = 0;
+		const Vec3F& position) = 0;
 
 	virtual void set_3d_projection_matrix(
 		const int width,

@@ -334,7 +334,7 @@ Mat4F OglRendererUtils::build_3d_model_matrix()
 
 Mat4F OglRendererUtils::build_3d_view_matrix(
 	const int angle_deg,
-	const Vec4F& position)
+	const Vec3F& position)
 {
 	// Translation.
 	//
@@ -350,7 +350,7 @@ Mat4F OglRendererUtils::build_3d_view_matrix(
 	// |   0     0    1 |
 	//
 
-	const auto angle_rad = RendererUtils::deg_to_rad(-angle_deg);
+	const auto angle_rad = RendererUtils::deg_to_rad(static_cast<float>(-angle_deg));
 
 	const auto ct = std::cos(angle_rad);
 	const auto st = std::sin(angle_rad);
