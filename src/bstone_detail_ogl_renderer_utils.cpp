@@ -308,13 +308,11 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 
 Mat4F OglRendererUtils::build_3d_model_matrix()
 {
-	throw "Not implemented.";
-
 	return Mat4F
 	{
+		0.0F, 0.0F, -1.0F, 0.0F,
 		1.0F, 0.0F, 0.0F, 0.0F,
 		0.0F, 1.0F, 0.0F, 0.0F,
-		0.0F, 0.0F, 1.0F, 0.0F,
 		0.0F, 0.0F, 0.0F, 1.0F,
 	};
 }
