@@ -319,17 +319,33 @@ Mat4F OglRendererUtils::build_3d_model_matrix()
 
 Mat4F OglRendererUtils::build_3d_view_matrix(
 	const int angle_deg,
-	const float position_x,
-	const float position_y)
+	const Vec4F& position)
 {
-	throw "Not implemented.";
+	// Translation.
+	//
+
+	const auto tx = -position[0];
+	const auto ty = -position[1];
+	const auto tz = -position[2];
+
+	// Rotation about Z.
+	//
+	// | cos_t -sin_t 0 |
+	// | sin_t cost_t 0 |
+	// |   0     0    1 |
+	//
+
+	const auto angle_rad = RendererUtils::deg_to_rad(-angle_deg);
+
+	const auto ct = std::cos(angle_rad);
+	const auto st = std::sin(angle_rad);
 
 	return Mat4F
 	{
-		1.0F, 0.0F, 0.0F, 0.0F,
-		0.0F, 1.0F, 0.0F, 0.0F,
+		ct, st, 0.0F, 0.0F,
+		-st, ct, 0.0F, 0.0F,
 		0.0F, 0.0F, 1.0F, 0.0F,
-		0.0F, 0.0F, 0.0F, 1.0F,
+		tx, ty, tz, 1.0F,
 	};
 }
 

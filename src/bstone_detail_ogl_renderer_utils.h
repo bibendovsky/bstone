@@ -103,8 +103,7 @@ public:
 
 	static Mat4F build_3d_view_matrix(
 		const int angle_deg,
-		const float position_x,
-		const float position_y);
+		const Vec4F& position);
 
 	static Mat4F build_3d_projection_matrix(
 		const int width,
