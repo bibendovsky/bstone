@@ -312,12 +312,19 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 	const auto ty = -(top + bottom) * r_top_minus_bottom;
 	const auto tz = -(far_val + near_val) * r_far_minus_near;
 
+	const auto m_11 = 2.0F * r_right_minus_left;
+	const auto m_22 = 2.0F * r_top_minus_bottom;
+	const auto m_33 = -2.0F * r_far_minus_near;
+	const auto m_41 = tx;
+	const auto m_42 = ty;
+	const auto m_43 = tz;
+
 	return Mat4F
 	{
-		2.0F * r_right_minus_left, 0.0F, 0.0F, 0.0F,
-		0.0F, 2.0F * r_top_minus_bottom, 0.0F, 0.0F,
-		0.0F, 0.0F, -2.0F * r_far_minus_near, 0.0F,
-		tx, ty, tz, 1.0F,
+		m_11, 0.0F, 0.0F, 0.0F,
+		0.0F, m_22, 0.0F, 0.0F,
+		0.0F, 0.0F, m_33, 0.0F,
+		m_41, m_42, m_43, 1.0F,
 	};
 }
 
@@ -355,12 +362,20 @@ Mat4F OglRendererUtils::build_3d_view_matrix(
 	const auto ct = std::cos(angle_rad);
 	const auto st = std::sin(angle_rad);
 
+	const auto m_11 = ct;
+	const auto m_12 = st;
+	const auto m_21 = -st;
+	const auto m_22 = ct;
+	const auto m_41 = tx;
+	const auto m_42 = ty;
+	const auto m_43 = tz;
+
 	return Mat4F
 	{
-		ct, st, 0.0F, 0.0F,
-		-st, ct, 0.0F, 0.0F,
+		m_11, m_12, 0.0F, 0.0F,
+		m_21, m_22, 0.0F, 0.0F,
 		0.0F, 0.0F, 1.0F, 0.0F,
-		tx, ty, tz, 1.0F,
+		m_41, m_42, m_43, 1.0F,
 	};
 }
 
@@ -399,18 +414,18 @@ Mat4F OglRendererUtils::build_3d_projection_matrix(
 	const auto half_vfov_rad = (static_cast<float>(vfov_deg) * RendererUtils::pi) / 360.0F;
 	const auto tan_half_vfov = std::tan(half_vfov_rad);
 
-	const auto m11 = 1.0F / (aspect_ratio * tan_half_vfov);
-	const auto m22 = 1.0F / tan_half_vfov;
-	const auto m33 = far_distance / (far_distance - near_distance);
-	const auto m34 = -(far_distance * near_distance) / (far_distance - near_distance);
-	const auto m43 = 1.0F;
+	const auto m_11 = 1.0F / (aspect_ratio * tan_half_vfov);
+	const auto m_22 = 1.0F / tan_half_vfov;
+	const auto m_33 = far_distance / (far_distance - near_distance);
+	const auto m_34 = -(far_distance * near_distance) / (far_distance - near_distance);
+	const auto m_43 = 1.0F;
 
 	return Mat4F
 	{
-		m11, 0.0F, 0.0F, 0.0F,
-		0.0F, m22, 0.0F, 0.0F,
-		0.0F, 0.0F, m33, m34,
-		0.0F, 0.0F, m43, 0.0F,
+		m_11, 0.0F, 0.0F, 0.0F,
+		0.0F, m_22, 0.0F, 0.0F,
+		0.0F, 0.0F, m_33, m_34,
+		0.0F, 0.0F, m_43, 0.0F,
 	};
 }
 
