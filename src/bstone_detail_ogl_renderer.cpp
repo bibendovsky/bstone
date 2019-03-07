@@ -190,6 +190,16 @@ void OglRenderer::window_show(
 	renderer_->window_show(is_visible);
 }
 
+void OglRenderer::set_default_viewport(
+	const int width,
+	const int height)
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	renderer_->set_default_viewport(width, height);
+}
+
 void OglRenderer::color_buffer_set_clear_color(
 	const RendererColor32& color)
 {

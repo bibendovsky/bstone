@@ -276,10 +276,10 @@ void OglRendererUtils::set_viewport(
 	const int width,
 	const int height)
 {
-	assert(x < 0);
-	assert(y < 0);
-	assert(width <= 0);
-	assert(height <= 0);
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(width > 0);
+	assert(height > 0);
 
 	::glViewport(x, y, width, height);
 	assert(!OglRendererUtils::was_errors());

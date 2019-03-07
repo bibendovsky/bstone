@@ -1534,6 +1534,8 @@ bool hw_initialize_renderer()
 		return false;
 	}
 
+	::hw_renderer_->set_default_viewport(::screen_width, ::screen_height);
+
 	return true;
 }
 

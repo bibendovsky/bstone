@@ -555,6 +555,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	probe_renderer_path_{},
 	sdl_window_{},
 	sdl_gl_context_{},
+	default_viewport_width_{},
+	default_viewport_height_{},
 	palette_{},
 	two_d_projection_matrix_{},
 	three_d_model_matrix_{},
@@ -576,6 +578,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	default_viewport_width_{std::move(rhs.default_viewport_width_)},
+	default_viewport_height_{std::move(rhs.default_viewport_height_)},
 	palette_{std::move(rhs.palette_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
 	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
@@ -668,6 +672,20 @@ void Ogl1XRenderer::window_show(
 	auto renderer_utils = RendererUtils{};
 
 	static_cast<void>(renderer_utils.show_window(sdl_window_, is_visible));
+}
+
+void Ogl1XRenderer::set_default_viewport(
+	const int width,
+	const int height)
+{
+	assert(is_initialized_);
+	assert(width >= 0);
+	assert(height >= 0);
+
+	default_viewport_width_ = width;
+	default_viewport_height_ = height;
+
+	OglRendererUtils::set_viewport(0, 0, default_viewport_width_, default_viewport_height_);
 }
 
 void Ogl1XRenderer::color_buffer_set_clear_color(
@@ -1042,6 +1060,8 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
+		default_viewport_width_ = 0;
+		default_viewport_height_ = 0;
 		palette_ = {};
 		two_d_projection_matrix_ = {};
 		three_d_model_matrix_ = {};
@@ -1061,6 +1081,13 @@ void Ogl1XRenderer::uninitialize_internal(
 void Ogl1XRenderer::execute_command_set_viewport(
 	const RendererCommand::SetViewport& command)
 {
+	assert(command.x_ < default_viewport_width_);
+	assert(command.y_ < default_viewport_height_);
+	assert(command.width_ <= default_viewport_width_);
+	assert(command.height_ <= default_viewport_height_);
+	assert((command.x_ + command.width_) <= default_viewport_width_);
+	assert((command.y_ + command.height_) <= default_viewport_height_);
+
 	OglRendererUtils::set_viewport(
 		command.x_,
 		command.y_,

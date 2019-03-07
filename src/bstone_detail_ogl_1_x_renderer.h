@@ -94,6 +94,10 @@ public:
 		const bool is_visible) override;
 
 
+	void set_default_viewport(
+		const int width,
+		const int height) override;
+
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
@@ -319,6 +323,9 @@ private:
 
 	SdlWindowPtr sdl_window_;
 	SdlGlContext sdl_gl_context_;
+
+	int default_viewport_width_;
+	int default_viewport_height_;
 
 	RendererPalette palette_;
 
