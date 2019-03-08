@@ -22,6 +22,9 @@ Free Software Foundation, Inc.,
 */
 
 
+#define BSTONE_DBG_FORCE_SW (0)
+
+
 #include <cassert>
 #include <chrono>
 #include "SDL_hints.h"
@@ -31,6 +34,7 @@ Free Software Foundation, Inc.,
 #include "id_in.h"
 #include "id_vh.h"
 #include "id_vl.h"
+#include "bstone_fixed_point.h"
 #include "bstone_log.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
@@ -82,6 +86,8 @@ bool vid_is_3d = false;
 bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
 bool vid_is_ui_stretched = false;
+
+bool vid_hw_is_draw_3d_ = false;
 
 bstone::SpriteCache vid_sprite_cache;
 
@@ -1325,6 +1331,10 @@ void sw_update_widescreen()
 // Accelerated renderer.
 //
 
+constexpr auto hw_min_2d_commands = 16;
+constexpr auto hw_min_3d_commands = 4096;
+
+
 constexpr auto hw_2d_quad_count = 2;
 
 constexpr auto hw_2d_index_count_ = hw_2d_quad_count * 6;
@@ -1349,9 +1359,6 @@ constexpr auto hw_2d_fillers_hud_index_offset_ = 6 * ::hw_2d_fillers_ui_quad_cou
 constexpr auto hw_2d_fillers_vertex_count_ = hw_2d_fillers_quad_count * 4;
 
 
-constexpr auto hw_min_2d_commands = 16;
-
-
 int hw_2d_width_4x3_ = 0;
 
 int hw_2d_left_filler_width_4x3_ = 0;
@@ -1359,6 +1366,11 @@ int hw_2d_right_filler_width_4x3_ = 0;
 
 int hw_2d_top_filler_height_4x3_ = 0;
 int hw_2d_bottom_filler_height_4x3_ = 0;
+
+int hw_3d_viewport_x_ = 0;
+int hw_3d_viewport_y_ = 0;
+int hw_3d_viewport_width_ = 0;
+int hw_3d_viewport_height_ = 0;
 
 
 Hw2dVertices hw_2d_vertices_;
@@ -1372,6 +1384,7 @@ bstone::RendererPalette hw_palette_;
 
 bstone::RendererCommandSets hw_command_sets_;
 bstone::RendererCommandSet* hw_2d_command_set_;
+bstone::RendererCommandSet* hw_3d_command_set_;
 
 bstone::RendererTexture2dPtr hw_2d_texture_ = nullptr;
 bstone::RendererIndexBufferPtr hw_2d_ib_ = nullptr;
@@ -1386,6 +1399,17 @@ bstone::RendererVertexBufferPtr hw_2d_fillers_vb_ = nullptr;
 bool hw_2d_fade_is_enabled_ = false;
 bstone::RendererColor32 hw_2d_fade_color_ = bstone::RendererColor32{};
 bstone::RendererTexture2dPtr hw_2d_fade_t2d_ = nullptr;
+
+
+bstone::RendererIndexBufferPtr hw_3d_flooring_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_3d_flooring_vb_ = nullptr;
+bstone::RendererTexture2dPtr hw_3d_flooring_solid_t2d_ = nullptr;
+bstone::RendererTexture2dPtr hw_3d_flooring_textured_t2d_ = nullptr;
+
+bstone::RendererIndexBufferPtr hw_3d_ceiling_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_3d_ceiling_vb_ = nullptr;
+bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
+bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
 bstone::RendererColor32 hw_vga_color_to_color_32(
@@ -2095,6 +2119,23 @@ bool hw_create_solid_texture_1x1(
 	return true;
 }
 
+bool hw_update_solid_texture_1x1(
+	const bstone::RendererColor32& color,
+	bstone::RendererTexture2dPtr texture_2d)
+{
+	if (!texture_2d)
+	{
+		return false;
+	}
+
+	auto param = bstone::RendererTexture2dUpdateParam{};
+	param.rgba_pixels_ = &color;
+
+	texture_2d->update(param);
+
+	return true;
+}
+
 bool hw_2d_create_black_texture_1x1()
 {
 	const auto& black_color = bstone::RendererColor32{0x00, 0x00, 0x00, 0xFF};
@@ -2187,6 +2228,327 @@ bool hw_initialize_textures()
 	return true;
 }
 
+bool hw_3d_initialize_flooring_ib()
+{
+	const auto index_count = 6;
+
+	{
+		auto param = bstone::RendererIndexBufferCreateParam{};
+		param.index_count_ = index_count;
+
+		::hw_3d_flooring_ib_ = ::hw_renderer_->index_buffer_create(param);
+
+		if (!::hw_3d_flooring_ib_)
+		{
+			return false;
+		}
+	}
+
+	{
+		using Indices = std::array<std::uint8_t, index_count>;
+
+		const auto& indices = Indices
+		{
+			0, 1, 2,
+			0, 2, 3,
+		};
+
+		auto param = bstone::RendererIndexBufferUpdateParam{};
+		param.count_ = index_count;
+		param.offset_ = 0;
+		param.indices_ = indices.data();
+
+		::hw_3d_flooring_ib_->update(param);
+	}
+
+	return true;
+}
+
+bool hw_3d_initialize_flooring_vb()
+{
+	const auto vertex_count = 4;
+
+	{
+		auto param = bstone::RendererVertexBufferCreateParam{};
+		param.vertex_count_ = vertex_count;
+
+		::hw_3d_flooring_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+
+		if (!::hw_3d_flooring_vb_)
+		{
+			return false;
+		}
+	}
+
+	{
+		const auto map_dimension_f = static_cast<float>(MAPSIZE);
+
+		using Vertices = std::array<bstone::RendererVertex, vertex_count>;
+
+		auto vertices = Vertices{};
+
+		auto vertex_index = 0;
+
+		// Bottom-left.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{0.0F, 0.0F, 0.0F};
+			//vertex.xyz_ = bstone::Vec3F{-1.0F, -1.0F, 1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		}
+
+		// Bottom-right.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{0.0F, map_dimension_f, 0.0F};
+			//vertex.xyz_ = bstone::Vec3F{1.0F, -1.0F, 1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{map_dimension_f, 0.0F};
+		}
+
+		// Top-right.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{map_dimension_f, map_dimension_f, 0.0F};
+			//vertex.xyz_ = bstone::Vec3F{1.0F, -1.0F, -1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{map_dimension_f, map_dimension_f};
+		}
+
+		// Top-left.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{map_dimension_f, 0.0F, 0.0F};
+			//vertex.xyz_ = bstone::Vec3F{-1.0F, -1.0F, -1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{0.0F, map_dimension_f};
+		}
+
+		auto param = bstone::RendererVertexBufferUpdateParam{};
+		param.count_ = vertex_count;
+		param.offset_ = 0;
+		param.vertices_ = vertices.data();
+
+		::hw_3d_flooring_vb_->update(param);
+	}
+
+	return true;
+}
+
+bool hw_3d_initialize_flooring_solid_texture_2d()
+{
+	return ::hw_create_solid_texture_1x1(
+		bstone::RendererColor32{},
+		false,
+		::hw_3d_flooring_solid_t2d_
+	);
+}
+
+bool hw_3d_initialize_flooring()
+{
+	if (!::hw_3d_initialize_flooring_ib())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_initialize_flooring_vb())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_initialize_flooring_solid_texture_2d())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_uninitialize_flooring()
+{
+	if (::hw_3d_flooring_ib_)
+	{
+		::hw_renderer_->index_buffer_destroy(::hw_3d_flooring_ib_);
+		::hw_3d_flooring_ib_ = nullptr;
+	}
+
+	if (::hw_3d_flooring_vb_)
+	{
+		::hw_renderer_->vertex_buffer_destroy(::hw_3d_flooring_vb_);
+		::hw_3d_flooring_vb_ = nullptr;
+	}
+
+	if (::hw_3d_flooring_solid_t2d_)
+	{
+		::hw_renderer_->texture_2d_destroy(::hw_3d_flooring_solid_t2d_);
+		::hw_3d_flooring_solid_t2d_ = nullptr;
+	}
+
+	::hw_3d_flooring_textured_t2d_ = nullptr;
+}
+
+bool hw_3d_initialize_ceiling_ib()
+{
+	const auto index_count = 6;
+
+	{
+		auto param = bstone::RendererIndexBufferCreateParam{};
+		param.index_count_ = index_count;
+
+		::hw_3d_ceiling_ib_ = ::hw_renderer_->index_buffer_create(param);
+
+		if (!::hw_3d_ceiling_ib_)
+		{
+			return false;
+		}
+	}
+
+	{
+		using Indices = std::array<std::uint8_t, index_count>;
+
+		const auto& indices = Indices
+		{
+			0, 2, 1,
+			0, 3, 2,
+		};
+
+		auto param = bstone::RendererIndexBufferUpdateParam{};
+		param.count_ = index_count;
+		param.offset_ = 0;
+		param.indices_ = indices.data();
+
+		::hw_3d_ceiling_ib_->update(param);
+	}
+
+	return true;
+}
+
+bool hw_3d_initialize_ceiling_vb()
+{
+	const auto vertex_count = 4;
+
+	{
+		auto param = bstone::RendererVertexBufferCreateParam{};
+		param.vertex_count_ = vertex_count;
+
+		::hw_3d_ceiling_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+
+		if (!::hw_3d_ceiling_vb_)
+		{
+			return false;
+		}
+	}
+
+	{
+		const auto map_dimension_f = static_cast<float>(MAPSIZE);
+		const auto map_height_f = 1.0F;
+
+		using Vertices = std::array<bstone::RendererVertex, vertex_count>;
+
+		auto vertices = Vertices{};
+
+		auto vertex_index = 0;
+
+		// Bottom-left.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{0.0F, 0.0F, map_height_f};
+			//vertex.xyz_ = bstone::Vec3F{-1.0F, 1.0F, 1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		}
+
+		// Bottom-right.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{0.0F, map_dimension_f, map_height_f};
+			//vertex.xyz_ = bstone::Vec3F{1.0F, 1.0F, 1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{map_dimension_f, 0.0F};
+		}
+
+		// Top-right.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{map_dimension_f, map_dimension_f, map_height_f};
+			//vertex.xyz_ = bstone::Vec3F{1.0F, 1.0F, -1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{map_dimension_f, map_dimension_f};
+		}
+
+		// Top-left.
+		{
+			auto& vertex = vertices[vertex_index++];
+			vertex.xyz_ = bstone::Vec3F{map_dimension_f, 0.0F, map_height_f};
+			//vertex.xyz_ = bstone::Vec3F{-1.0F, 1.0F, -1.0F};
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{0.0F, map_dimension_f};
+		}
+
+		auto param = bstone::RendererVertexBufferUpdateParam{};
+		param.count_ = vertex_count;
+		param.offset_ = 0;
+		param.vertices_ = vertices.data();
+
+		::hw_3d_ceiling_vb_->update(param);
+	}
+
+	return true;
+}
+
+bool hw_3d_initialize_ceiling_solid_texture_2d()
+{
+	return ::hw_create_solid_texture_1x1(
+		bstone::RendererColor32{},
+		false,
+		::hw_3d_ceiling_solid_t2d_
+	);
+}
+
+bool hw_3d_initialize_ceiling()
+{
+	if (!::hw_3d_initialize_ceiling_ib())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_initialize_ceiling_vb())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_initialize_ceiling_solid_texture_2d())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_uninitialize_ceiling()
+{
+	if (::hw_3d_ceiling_ib_)
+	{
+		::hw_renderer_->index_buffer_destroy(::hw_3d_ceiling_ib_);
+		::hw_3d_ceiling_ib_ = nullptr;
+	}
+
+	if (::hw_3d_ceiling_vb_)
+	{
+		::hw_renderer_->vertex_buffer_destroy(::hw_3d_ceiling_vb_);
+		::hw_3d_ceiling_vb_ = nullptr;
+	}
+
+	if (::hw_3d_ceiling_solid_t2d_)
+	{
+		::hw_renderer_->texture_2d_destroy(::hw_3d_ceiling_solid_t2d_);
+		::hw_3d_ceiling_solid_t2d_ = nullptr;
+	}
+
+	::hw_3d_ceiling_textured_t2d_ = nullptr;
+}
+
 void hw_update_palette(
 	const int first_index,
 	const int color_count)
@@ -2204,7 +2566,6 @@ void hw_update_palette(
 		);
 	}
 }
-
 void hw_initialize_palette()
 {
 	::hw_palette_ = {};
@@ -2403,6 +2764,13 @@ void hw_calculate_dimensions()
 
 	::hw_2d_top_filler_height_4x3_ = (::ref_top_bar_height * ::window_height) / ::vga_ref_height_4x3;
 	::hw_2d_bottom_filler_height_4x3_ = (::ref_bottom_bar_height * ::window_height) / ::vga_ref_height_4x3;
+
+
+	::hw_3d_viewport_x_ = 0;
+	::hw_3d_viewport_y_ = ((::ref_bottom_bar_height + ::ref_3d_margin) * ::window_height) / ::vga_ref_height;
+
+	::hw_3d_viewport_width_ = ::window_width;
+	::hw_3d_viewport_height_ = (::ref_3d_view_height * ::window_height) / ::vga_ref_height;
 }
 
 bool hw_initialize_video()
@@ -2563,6 +2931,16 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
+		is_succeed = ::hw_3d_initialize_flooring();
+	}
+
+	if (is_succeed)
+	{
+		is_succeed = ::hw_3d_initialize_ceiling();
+	}
+
+	if (is_succeed)
+	{
 		::hw_texture_manager_ = bstone::RendererTextureManagerFactory::create(
 			::hw_renderer_,
 			&::vid_sprite_cache
@@ -2578,12 +2956,29 @@ bool hw_initialize_video()
 	{
 		::hw_renderer_->set_2d_projection_matrix(::window_width, ::window_height);
 
-		::hw_command_sets_.resize(1);
+		::hw_renderer_->set_3d_projection_matrix(
+			::hw_3d_viewport_width_,
+			::hw_3d_viewport_height_,
+			45,
+			0.05F,
+			100.0F
+		);
 
-		::hw_2d_command_set_ = &::hw_command_sets_[0];
+		::hw_command_sets_.resize(2);
+
+		// 2D
+		//
+		::hw_2d_command_set_ = &::hw_command_sets_[1];
 
 		::hw_2d_command_set_->count_ = 0;
 		::hw_2d_command_set_->commands_.resize(::hw_min_2d_commands);
+
+		// 3D
+		//
+		::hw_3d_command_set_ = &::hw_command_sets_[0];
+
+		::hw_3d_command_set_->count_ = 0;
+		::hw_3d_command_set_->commands_.resize(::hw_min_3d_commands);
 	}
 
 	if (is_succeed)
@@ -2664,6 +3059,9 @@ void hw_uninitialize_video()
 	::hw_command_sets_ .clear();
 	::hw_2d_command_set_ = nullptr;
 
+	::hw_uninitialize_flooring();
+	::hw_uninitialize_ceiling();
+
 	::hw_uninitialize_ui_texture();
 	::hw_uninitialize_vga_buffer();
 
@@ -2680,15 +3078,8 @@ void hw_uninitialize_video()
 	}
 }
 
-void hw_refresh_screen()
+void hw_refresh_screen_2d()
 {
-	if (!::hw_renderer_)
-	{
-		return;
-	}
-
-	::hw_renderer_->clear_buffers();
-
 	// Update 2D texture.
 	//
 	{
@@ -2721,6 +3112,19 @@ void hw_refresh_screen()
 	{
 		auto& command = ::hw_2d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::set_2d;
+	}
+
+	// Set viewport.
+	//
+	{
+		auto& command = ::hw_2d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::set_viewport;
+
+		auto& viewport = command.set_viewport_;
+		viewport.x_ = 0;
+		viewport.y_ = 0;
+		viewport.width_ = ::window_width;
+		viewport.height_ = ::window_height;
 	}
 
 	// Fillers.
@@ -2765,22 +3169,42 @@ void hw_refresh_screen()
 	// Draw 2D (UI, menu, etc.).
 	//
 	{
-		auto& command = ::hw_2d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::draw_quads;
+		if (::vid_is_hud)
+		{
+			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::enable_blending;
 
-		const auto index_offset = (::vid_is_ui_stretched
-			?
-			::hw_2d_stretched_index_offset_
-			:
-			::hw_2d_non_stretched_index_offset_
-		);
+			auto& enable_blending = command.enable_blending_;
+			enable_blending.is_enabled_ = true;
+		}
 
-		auto& draw_quads = command.draw_quads_;
-		draw_quads.count_ = 1;
-		draw_quads.index_buffer_ = ::hw_2d_ib_;
-		draw_quads.index_offset_ = index_offset;
-		draw_quads.texture_2d_ = ::hw_2d_texture_;
-		draw_quads.vertex_buffer_ = ::hw_2d_vb_;
+		{
+			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
+
+			const auto index_offset = (::vid_is_ui_stretched
+				?
+				::hw_2d_stretched_index_offset_
+				:
+				::hw_2d_non_stretched_index_offset_
+			);
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = 1;
+			draw_quads.index_buffer_ = ::hw_2d_ib_;
+			draw_quads.index_offset_ = index_offset;
+			draw_quads.texture_2d_ = ::hw_2d_texture_;
+			draw_quads.vertex_buffer_ = ::hw_2d_vb_;
+		}
+
+		if (::vid_is_hud)
+		{
+			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::enable_blending;
+
+			auto& enable_blending = command.enable_blending_;
+			enable_blending.is_enabled_ = false;
+		}
 	}
 
 	// 2D fade in or out.
@@ -2832,65 +3256,116 @@ void hw_refresh_screen()
 	// Commit commands.
 	//
 	::hw_2d_command_set_->count_ = command_index;
+}
+
+void hw_refresh_screen_3d()
+{
+	::hw_3d_command_set_->count_ = 0;
+
+	if (!::vid_hw_is_draw_3d_)
+	{
+		return;
+	}
+
+	::vid_hw_is_draw_3d_ = false;
+
+
+	// Build commands.
+	//
+	auto command_index = 0;
+
+
+	// Enable 3D.
+	//
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::set_3d;
+	}
+
+	// Set viewport.
+	//
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::set_viewport;
+
+		auto& viewport = command.set_viewport_;
+		viewport.x_ = ::hw_3d_viewport_x_;
+		viewport.y_ = ::hw_3d_viewport_y_;
+		viewport.width_ = ::hw_3d_viewport_width_;
+		viewport.height_ = ::hw_3d_viewport_height_;
+	}
+
+	// Draw flooring.
+	//
+	{
+		auto texture_2d = ((::gamestate.flags & GS_DRAW_FLOOR) != 0
+			?
+			::hw_3d_flooring_textured_t2d_
+			:
+			::hw_3d_flooring_solid_t2d_
+		);
+
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::draw_quads;
+
+		auto& draw_quads = command.draw_quads_;
+		draw_quads.count_ = 1;
+		draw_quads.index_offset_ = 0;
+		draw_quads.index_buffer_ = ::hw_3d_flooring_ib_;
+		draw_quads.vertex_buffer_ = ::hw_3d_flooring_vb_;
+		draw_quads.texture_2d_ = texture_2d;
+	}
+
+	// Draw ceiling.
+	//
+	{
+		auto texture_2d = ((::gamestate.flags & GS_DRAW_CEILING) != 0
+			?
+			::hw_3d_ceiling_textured_t2d_
+			:
+			::hw_3d_ceiling_solid_t2d_
+		);
+
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::draw_quads;
+
+		auto& draw_quads = command.draw_quads_;
+		draw_quads.count_ = 1;
+		draw_quads.index_offset_ = 0;
+		draw_quads.index_buffer_ = ::hw_3d_ceiling_ib_;
+		draw_quads.vertex_buffer_ = ::hw_3d_ceiling_vb_;
+		draw_quads.texture_2d_ = texture_2d;
+	}
+
+	// Commit commands.
+	//
+	::hw_3d_command_set_->count_ = command_index;
+}
+
+void hw_refresh_screen()
+{
+	if (!::hw_renderer_)
+	{
+		return;
+	}
+
+
+	if (::vid_hw_is_draw_3d_ && ::player)
+	{
+		const auto player_x = bstone::FixedPoint{::player->x}.to_float();
+		const auto player_y = bstone::FixedPoint{::player->y}.to_float();
+		const auto view_position = bstone::Vec3F{player_x, player_y, 0.5F};
+
+		::hw_renderer_->set_3d_view_matrix(::player->angle, view_position);
+	}
+
+	::hw_renderer_->clear_buffers();
+
+	::hw_refresh_screen_3d();
+	::hw_refresh_screen_2d();
 
 	::hw_renderer_->execute_command_sets(::hw_command_sets_);
-
 	::hw_renderer_->present();
-
-
-	// HUD+3D stuff
-	//
-	if (::vid_is_hud)
-	{
-	}
-
-
-	// 2D stuff
-	//
-	{
-	}
-
-
-	// Clear all
-	//
-
-
-	// Copy HUD+3D stuff
-	//
-	if (::vid_is_hud)
-	{
-	}
-
-
-	// Use filler if necessary
-	//
-	if (!::vid_is_ui_stretched)
-	{
-	}
-
-
-	// Copy 2D stuff
-	//
-	if (::vid_is_hud)
-	{
-	}
-
-	if (!::vid_is_ui_stretched)
-	{
-		if (::vid_is_fizzle_fade)
-		{
-		}
-		else
-		{
-		}
-	}
-	else
-	{
-	}
-
-
-	// Present
-	//
 }
 
 void hw_check_vsync()
@@ -2960,6 +3435,7 @@ void VL_WaitVBL(
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
+#if !BSTONE_DBG_FORCE_SW
 	if (::hw_initialize_video())
 	{
 		::hw_refresh_screen();
@@ -2967,10 +3443,14 @@ void VL_Startup()
 	else
 	{
 		::hw_uninitialize_video();
+#endif // BSTONE_DBG_FORCE_SW
 
 		::sw_initialize_video();
 		::sw_refresh_screen();
+
+#if !BSTONE_DBG_FORCE_SW
 	}
+#endif // BSTONE_DBG_FORCE_SW
 
 	::in_handle_events();
 
@@ -3818,11 +4298,27 @@ void vid_draw_ui_sprite(
 	}
 }
 
-static void vid_hw_precache_floor()
+static void vid_hw_precache_flooring()
 {
 	if (!::hw_texture_manager_->wall_cache(::FloorTile))
 	{
 		::Quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
+	}
+
+	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
+
+	const auto vga_index = ::BottomColor & 0xFF;
+	const auto vga_color = ::vgapal + (3 * vga_index);
+
+	const auto renderer_color = ::hw_vga_color_to_color_32(
+		vga_color[0],
+		vga_color[1],
+		vga_color[2]
+	);
+
+	if (!::hw_update_solid_texture_1x1(renderer_color, ::hw_3d_flooring_solid_t2d_))
+	{
+		::Quit("Failed to update flooring solid texture.");
 	}
 }
 
@@ -3831,6 +4327,22 @@ static void vid_hw_precache_ceiling()
 	if (!::hw_texture_manager_->wall_cache(::CeilingTile))
 	{
 		::Quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
+	}
+
+	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
+
+	const auto vga_index = ::TopColor & 0xFF;
+	const auto vga_color = ::vgapal + (3 * vga_index);
+
+	const auto renderer_color = ::hw_vga_color_to_color_32(
+		vga_color[0],
+		vga_color[1],
+		vga_color[2]
+	);
+
+	if (!::hw_update_solid_texture_1x1(renderer_color, ::hw_3d_ceiling_solid_t2d_))
+	{
+		::Quit("Failed to update ceiling solid texture.");
 	}
 }
 
@@ -3874,7 +4386,7 @@ static void vid_hw_precache_resources()
 {
 	::hw_texture_manager_->cache_begin();
 
-	::vid_hw_precache_floor();
+	::vid_hw_precache_flooring();
 	::vid_hw_precache_ceiling();
 	::vid_hw_precache_solid_walls();
 

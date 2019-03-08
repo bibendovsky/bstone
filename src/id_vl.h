@@ -97,6 +97,8 @@ extern bool vid_is_fizzle_fade;
 
 // Is it intro/outro/you-win/etc?
 extern bool vid_is_movie;
+
+extern bool vid_hw_is_draw_3d_;
 // BBi
 
 // ===========================================================================
