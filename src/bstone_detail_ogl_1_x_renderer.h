@@ -113,8 +113,8 @@ public:
 		const Vec3F& position) override;
 
 	void set_3d_projection_matrix(
-		const int width,
-		const int height,
+		const int viewport_width,
+		const int viewport_height,
 		const int vfov_deg,
 		const float near_distance,
 		const float far_distance) override;

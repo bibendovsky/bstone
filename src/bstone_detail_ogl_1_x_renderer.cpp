@@ -762,12 +762,13 @@ void Ogl1XRenderer::set_3d_view_matrix(
 	}
 
 	three_d_view_matrix_ = new_matrix;
+
 	three_d_model_view_matrix_ = three_d_view_matrix_ * three_d_model_matrix_;
 }
 
 void Ogl1XRenderer::set_3d_projection_matrix(
-	const int width,
-	const int height,
+	const int viewport_width,
+	const int viewport_height,
 	const int vfov_deg,
 	const float near_distance,
 	const float far_distance)
@@ -775,8 +776,8 @@ void Ogl1XRenderer::set_3d_projection_matrix(
 	assert(is_initialized_);
 
 	const auto& new_matrix = OglRendererUtils::build_3d_projection_matrix(
-		width,
-		height,
+		viewport_width,
+		viewport_height,
 		vfov_deg,
 		near_distance,
 		far_distance
@@ -865,6 +866,10 @@ void Ogl1XRenderer::execute_command_sets(
 
 			switch (command.id_)
 			{
+			case RendererCommandId::set_viewport:
+				execute_command_set_viewport(command.set_viewport_);
+				break;
+
 			case RendererCommandId::set_2d:
 				execute_command_set_2d(command.set_2d_);
 				break;
