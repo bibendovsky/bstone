@@ -64,6 +64,8 @@ public:
 	Value get_value() const;
 
 
+	float to_float() const;
+
 	double to_double() const;
 
 

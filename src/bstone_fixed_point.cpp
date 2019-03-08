@@ -69,6 +69,11 @@ FixedPoint::Value FixedPoint::get_value() const
 	return value_;
 }
 
+float FixedPoint::to_float() const
+{
+	return static_cast<float>(get_int()) + (static_cast<float>(get_frac()) / static_cast<float>(max_frac));
+}
+
 double FixedPoint::to_double() const
 {
 	return static_cast<double>(get_int()) + (static_cast<double>(get_frac()) / static_cast<double>(max_frac));
