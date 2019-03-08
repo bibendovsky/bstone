@@ -296,28 +296,24 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 		return Mat4F{};
 	}
 
-	const auto left = 0.0F;
-	const auto right = static_cast<float>(width);
-	const auto r_right_minus_left = 1.0F / (right - left);
+	const auto l = 0.0F;
+	const auto r = static_cast<float>(width);
+	const auto r_r_minus_l = 1.0F / (r - l);
 
-	const auto bottom = 0.0F;
-	const auto top = static_cast<float>(height);
-	const auto r_top_minus_bottom = 1.0F / (top - bottom);
+	const auto b = 0.0F;
+	const auto t = static_cast<float>(height);
+	const auto r_t_minus_b = 1.0F / (t - b);
 
-	const auto near_val = 0.0F;
-	const auto far_val = 1.0F;
-	const auto r_far_minus_near = 1.0F / (far_val - near_val);
+	const auto n = 0.0F;
+	const auto f = 1.0F;
+	const auto r_f_minus_n = 1.0F / (f - n);
 
-	const auto tx = -(right + left) * r_right_minus_left;
-	const auto ty = -(top + bottom) * r_top_minus_bottom;
-	const auto tz = -(far_val + near_val) * r_far_minus_near;
-
-	const auto m_11 = 2.0F * r_right_minus_left;
-	const auto m_22 = 2.0F * r_top_minus_bottom;
-	const auto m_33 = -2.0F * r_far_minus_near;
-	const auto m_41 = tx;
-	const auto m_42 = ty;
-	const auto m_43 = tz;
+	const auto m_11 = 2.0F * r_r_minus_l;
+	const auto m_22 = 2.0F * r_t_minus_b;
+	const auto m_33 = -2.0F * r_f_minus_n;
+	const auto m_41 = -(r + l) * r_r_minus_l;
+	const auto m_42 = -(t + b) * r_t_minus_b;
+	const auto m_43 = -(f + n) * r_f_minus_n;
 
 	return Mat4F
 	{
@@ -328,13 +324,71 @@ Mat4F OglRendererUtils::build_2d_projection_matrix(
 	};
 }
 
+Mat4F OglRendererUtils::build_3d_translation_matrix(
+	const float x,
+	const float y,
+	const float z)
+{
+	//
+	// | 1 0 0 x |
+	// | 0 1 0 y |
+	// | 0 0 1 z |
+	// | 0 0 0 1 |
+	//
+
+	const auto m_11 = 1.0F;
+	const auto m_22 = 1.0F;
+	const auto m_33 = 1.0F;
+	const auto m_41 = x;
+	const auto m_42 = y;
+	const auto m_43 = z;
+
+	return Mat4F
+	{
+		m_11, 0.0F, 0.0F, 0.0F,
+		0.0F, m_22, 0.0F, 0.0F,
+		0.0F, 0.0F, m_33, 0.0F,
+		m_41, m_42, m_43, 1.0F,
+	};
+}
+
+Mat4F OglRendererUtils::build_3d_rotataion_about_z_matrix(
+	const int angle_deg)
+{
+	//
+	// | cos_t -sin_t 0 0 |
+	// | sin_t cost_t 0 0 |
+	// |   0     0    1 0 |
+	// |   0     0    0 1 |
+	//
+
+	const auto angle_rad = RendererUtils::deg_to_rad(static_cast<float>(angle_deg));
+
+	const auto ct = std::cos(angle_rad);
+	const auto st = std::sin(angle_rad);
+
+	const auto m_11 = ct;
+	const auto m_12 = -st;
+	const auto m_21 = st;
+	const auto m_22 = ct;
+	const auto m_33 = 1.0F;
+
+	return Mat4F
+	{
+		m_11, m_12, 0.0F, 0.0F,
+		m_21, m_22, 0.0F, 0.0F,
+		0.0F, 0.0F, m_33, 0.0F,
+		0.0F, 0.0F, 0.0F, 1.0F
+	};
+}
+
 Mat4F OglRendererUtils::build_3d_model_matrix()
 {
 	return Mat4F
 	{
 		0.0F, 0.0F, -1.0F, 0.0F,
 		1.0F, 0.0F, 0.0F, 0.0F,
-		0.0F, 1.0F, 0.0F, 0.0F,
+		0.0F, 1.2F, 0.0F, 0.0F,
 		0.0F, 0.0F, 0.0F, 1.0F,
 	};
 }
@@ -343,50 +397,55 @@ Mat4F OglRendererUtils::build_3d_view_matrix(
 	const int angle_deg,
 	const Vec3F& position)
 {
-	// Translation.
-	//
+	const auto translate = build_3d_translation_matrix(-position[0], -position[1], -position[2]);
+	const auto rotate = build_3d_rotataion_about_z_matrix(-angle_deg);
 
-	const auto tx = -position[0];
-	const auto ty = -position[1];
-	const auto tz = -position[2];
+	return translate * rotate;
+}
 
-	// Rotation about Z.
-	//
-	// | cos_t -sin_t 0 |
-	// | sin_t cost_t 0 |
-	// |   0     0    1 |
-	//
+Mat4F OglRendererUtils::build_3d_frustum(
+	const float l,
+	const float r,
+	const float b,
+	const float t,
+	const float n,
+	const float f)
+{
+	assert(l != r);
+	assert(b != t);
+	assert(n > 0.0F);
+	assert(f > 0.0F);
+	assert(n != f);
 
-	const auto angle_rad = RendererUtils::deg_to_rad(static_cast<float>(-angle_deg));
+	const auto r_r_minus_l = 1.0F / (r - l);
+	const auto r_t_minus_b = 1.0F / (t - b);
+	const auto r_f_minus_n = 1.0F / (f - n);
 
-	const auto ct = std::cos(angle_rad);
-	const auto st = std::sin(angle_rad);
-
-	const auto m_11 = ct;
-	const auto m_12 = st;
-	const auto m_21 = -st;
-	const auto m_22 = ct;
-	const auto m_41 = tx;
-	const auto m_42 = ty;
-	const auto m_43 = tz;
+	const auto m_11 = (2.0F * n) * r_r_minus_l;
+	const auto m_22 = (2.0F * n) * r_t_minus_b;
+	const auto m_31 = (r + l) * r_r_minus_l;
+	const auto m_32 = (t + b) * r_t_minus_b;
+	const auto m_33 = -(f + n) * r_f_minus_n;
+	const auto m_34 = -1.0F;
+	const auto m_43 = -(2.0F * f * n) * r_f_minus_n;
 
 	return Mat4F
 	{
-		m_11, m_12, 0.0F, 0.0F,
-		m_21, m_22, 0.0F, 0.0F,
-		0.0F, 0.0F, 1.0F, 0.0F,
-		m_41, m_42, m_43, 1.0F,
+		m_11, 0.0F, 0.0F, 0.0F,
+		0.0F, m_22, 0.0F, 0.0F,
+		m_31, m_32, m_33, m_34,
+		0.0F, 0.0F, m_43, 0.0F
 	};
 }
 
 Mat4F OglRendererUtils::build_3d_projection_matrix(
-	const int width,
-	const int height,
+	const int viewport_width,
+	const int viewport_height,
 	const int vfov_deg,
 	const float near_distance,
 	const float far_distance)
 {
-	if (width <= 0 || height <= 0)
+	if (viewport_width <= 0 || viewport_height <= 0)
 	{
 		assert(!"Invalid dimensions.");
 
@@ -409,24 +468,13 @@ Mat4F OglRendererUtils::build_3d_projection_matrix(
 		return Mat4F{};
 	}
 
-	const auto aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
+	const auto vfov_rad = RendererUtils::deg_to_rad(static_cast<float>(vfov_deg));
+	const auto tangent = std::tan(vfov_rad * 0.5F);
+	const auto height = near_distance * tangent;
+	const auto aspect_ratio = static_cast<float>(viewport_width) / static_cast<float>(viewport_height);
+	const auto width = height * aspect_ratio;
 
-	const auto half_vfov_rad = (static_cast<float>(vfov_deg) * RendererUtils::pi) / 360.0F;
-	const auto tan_half_vfov = std::tan(half_vfov_rad);
-
-	const auto m_11 = 1.0F / (aspect_ratio * tan_half_vfov);
-	const auto m_22 = 1.0F / tan_half_vfov;
-	const auto m_33 = far_distance / (far_distance - near_distance);
-	const auto m_34 = -(far_distance * near_distance) / (far_distance - near_distance);
-	const auto m_43 = 1.0F;
-
-	return Mat4F
-	{
-		m_11, 0.0F, 0.0F, 0.0F,
-		0.0F, m_22, 0.0F, 0.0F,
-		0.0F, 0.0F, m_33, m_34,
-		0.0F, 0.0F, m_43, 0.0F,
-	};
+	return build_3d_frustum(-width, width, -height, height, near_distance, far_distance);
 }
 
 void* OglRendererUtils::resolve_symbol(

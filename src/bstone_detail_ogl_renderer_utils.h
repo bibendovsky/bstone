@@ -105,15 +105,31 @@ public:
 		const int width,
 		const int height);
 
+	static Mat4F build_3d_translation_matrix(
+		const float x,
+		const float y,
+		const float z);
+
+	static Mat4F build_3d_rotataion_about_z_matrix(
+		const int angle_deg);
+
 	static Mat4F build_3d_model_matrix();
 
 	static Mat4F build_3d_view_matrix(
 		const int angle_deg,
 		const Vec3F& position);
 
+	static Mat4F build_3d_frustum(
+		const float l,
+		const float r,
+		const float b,
+		const float t,
+		const float n,
+		const float f);
+
 	static Mat4F build_3d_projection_matrix(
-		const int width,
-		const int height,
+		const int viewport_width,
+		const int viewport_height,
 		const int vfov_deg,
 		const float near_distance,
 		const float far_distance);
