@@ -350,6 +350,7 @@ bool RendererTextureManagerImpl::Detail::wall_cache(
 
 	auto param = RendererTexture2dCreateParam{};
 	param.is_generate_mipmaps_ = true;
+	param.indexed_is_column_major_ = true;
 	param.width_ = 64;
 	param.height_ = 64;
 	param.indexed_pixels_ = indexed_pixels;

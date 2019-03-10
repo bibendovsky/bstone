@@ -119,45 +119,25 @@ public:
 		const RendererPath renderer_path);
 
 
-	// Converts indexed, opaque, power-of-two pixels to RGBA ones.
-	static void indexed_opaque_pot_to_rgba_pot(
+	// Converts indexed, opaque or transparent, power-of-two pixels to RGBA ones.
+	static void indexed_pot_to_rgba_pot(
 		const int width,
 		const int height,
 		const int actual_width,
 		const int actual_height,
+		const bool indexed_is_column_major,
 		const std::uint8_t* const indexed_pixels,
 		const RendererPalette& indexed_palette,
 		const bool* const indexed_alphas,
 		TextureBuffer& texture_buffer);
 
-	// Converts indexed, opaque, non-power-of-two pixels to RGBA ones.
-	static void indexed_opaque_npot_to_rgba_pot(
+	// Converts indexed, opaque or transparent, non-power-of-two pixels to RGBA ones.
+	static void indexed_npot_to_rgba_pot(
 		const int width,
 		const int height,
 		const int actual_width,
 		const int actual_height,
-		const std::uint8_t* const indexed_pixels,
-		const RendererPalette& indexed_palette,
-		const bool* const indexed_alphas,
-		TextureBuffer& texture_buffer);
-
-	// Converts indexed, transparent, power-of-two pixels to RGBA ones.
-	static void indexed_transparent_pot_to_rgba_pot(
-		const int width,
-		const int height,
-		const int actual_width,
-		const int actual_height,
-		const std::uint8_t* const indexed_pixels,
-		const RendererPalette& indexed_palette,
-		const bool* const indexed_alphas,
-		TextureBuffer& texture_buffer);
-
-	// Converts indexed, transparent, non-power-of-two pixels to RGBA ones.
-	static void indexed_transparent_npot_to_rgba_pot(
-		const int width,
-		const int height,
-		const int actual_width,
-		const int actual_height,
+		const bool indexed_is_column_major,
 		const std::uint8_t* const indexed_pixels,
 		const RendererPalette& indexed_palette,
 		const bool* const indexed_alphas,
@@ -169,6 +149,7 @@ public:
 		const int height,
 		const int actual_width,
 		const int actual_height,
+		const bool indexed_is_column_major,
 		const std::uint8_t* const indexed_pixels,
 		const RendererPalette& indexed_palette,
 		const bool* const indexed_alphas,

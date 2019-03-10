@@ -316,6 +316,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		mipmap_count_ = 1;
 	}
 
+	indexed_is_column_major_ = param.indexed_is_column_major_;
 	indexed_pixels_ = param.indexed_pixels_;
 	indexed_palette_ = param.indexed_palette_;
 	indexed_alphas_ = param.indexed_alphas_;
@@ -489,6 +490,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 			height_,
 			actual_width_,
 			actual_height_,
+			indexed_is_column_major_,
 			indexed_pixels_,
 			indexed_palette,
 			indexed_alphas_,

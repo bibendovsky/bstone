@@ -247,6 +247,7 @@ struct RendererTexture2dCreateParam
 	int width_;
 	int height_;
 
+	bool indexed_is_column_major_;
 	const std::uint8_t* indexed_pixels_;
 	const RendererPalette* indexed_palette_;
 	const bool* indexed_alphas_;
