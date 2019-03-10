@@ -3905,6 +3905,12 @@ void CacheMessage(
 
 
 // BBi
+constexpr int tilemap_wall_mask = 0B0011'1111;
+constexpr int tilemap_door_track_flag = 0B0100'0000;
+constexpr int tilemap_door_flag = 0B1000'0000;
+constexpr int tilemap_door_flags = tilemap_door_track_flag | tilemap_door_flag;
+
+
 using Buffer = std::vector<unsigned char>;
 
 
@@ -3970,6 +3976,9 @@ const std::string& get_version_string();
 const std::string& get_profile_dir();
 
 void update_normalshade();
+
+int door_get_wall_texture_id(
+	const doorobj_t& door);
 // BBi
 
 

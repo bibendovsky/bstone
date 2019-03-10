@@ -2088,3 +2088,20 @@ void ShowOverhead(
 		baselmy -= xinc;
 	}
 }
+
+int door_get_wall_texture_id(
+	const doorobj_t& door)
+{
+	auto result = DOORWALL;
+
+	if (door.vertical)
+	{
+		result += ::DoorJamsShade[door.type];
+	}
+	else
+	{
+		result += ::DoorJams[door.type];
+	}
+
+	return result;
+}
