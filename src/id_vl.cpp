@@ -1387,7 +1387,7 @@ constexpr auto hw_3d_max_walls =
 	//
 	// (count x height)
 	//
-	(((MAPSIZE - 1) / 2) * (MAPSIZE - 2)) +
+	((MAPSIZE / 2) * (MAPSIZE - 2)) +
 
 	//
 	0;
@@ -1400,7 +1400,7 @@ constexpr auto hw_3d_max_wall_sides =
 	//
 	// (column count x (column height x side count))
 	//
-	(((MAPSIZE - 1) / 2) * ((MAPSIZE - 2) * 2)) +
+	((MAPSIZE / 2) * (MAPSIZE * 2)) +
 
 	//
 	0;
