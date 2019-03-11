@@ -1417,6 +1417,11 @@ struct Hw3dWall
 
 using Hw3dXyWallMap = std::unordered_map<int, Hw3dWall>;
 
+enum Hw3dXyWallKind
+{
+	solid,
+	push,
+}; // Hw3dXyWallKind
 
 struct Hw3dWallSideDrawItem
 {
@@ -5162,8 +5167,6 @@ static int hw_tile_get_door_track_wall_id(
 }
 
 static void hw_3d_map_wall_side(
-	const int x,
-	const int y,
 	const controldir_t side_direction,
 	Hw3dWall& wall,
 	int& vertex_index,
@@ -5177,6 +5180,9 @@ static void hw_3d_map_wall_side(
 		{0.0F, 0.0F, 0.0F, ::hw_3d_tile_dimension_f,},
 	};
 
+
+	const auto x = wall.x_;
+	const auto y = wall.y_;
 
 	const auto tile = ::tilemap[x][y];
 	const auto wall_id = tile & ::tilemap_wall_mask;
@@ -5292,39 +5298,63 @@ static void hw_3d_map_wall_side(
 	}
 }
 
-static void hw_3d_map_xy_to_solid_wall(
+static void hw_3d_map_xy_to_xwall(
+	const Hw3dXyWallKind wall_kind,
 	const int x,
 	const int y,
+	Hw3dXyWallMap& map,
 	int& vertex_index,
 	Hw3dWallVbBuffer& vb_buffer)
 {
-	if (!::hw_tile_is_solid_wall(x, y))
+	if (wall_kind == Hw3dXyWallKind::solid)
 	{
-		return;
+		if (!::hw_tile_is_solid_wall(x, y))
+		{
+			return;
+		}
+	}
+	else if (wall_kind == Hw3dXyWallKind::push)
+	{
+		if (!::hw_tile_is_pushwall(x, y))
+		{
+			return;
+		}
+	}
+	else
+	{
+		::Quit("Invalid kind.");
 	}
 
-	const auto is_north_solid = ::hw_tile_is_solid_wall(x + 0, y - 1);
-	const auto is_east_solid = ::hw_tile_is_solid_wall(x + 1, y + 0);
-	const auto is_south_solid = ::hw_tile_is_solid_wall(x + 0, y + 1);
-	const auto is_west_solid = ::hw_tile_is_solid_wall(x - 1, y + 0);
+	auto is_north_solid = false;
+	auto is_east_solid = false;
+	auto is_south_solid = false;
+	auto is_west_solid = false;
+
+	if (wall_kind == Hw3dXyWallKind::solid)
+	{
+		is_north_solid = ::hw_tile_is_solid_wall(x + 0, y - 1);
+		is_east_solid = ::hw_tile_is_solid_wall(x + 1, y + 0);
+		is_south_solid = ::hw_tile_is_solid_wall(x + 0, y + 1);
+		is_west_solid = ::hw_tile_is_solid_wall(x - 1, y + 0);
+	}
 
 	if (is_north_solid && is_east_solid && is_south_solid && is_west_solid)
 	{
 		// Nothing to draw.
-		// This wall is surrounded by other solid ones.
+		// This solid wall is surrounded by other solid ones.
 
 		return;
 	}
 
 	const auto xy = ::hw_encode_xy(x, y);
 
-	if (::hw_3d_xy_wall_map_.find(xy) != ::hw_3d_xy_wall_map_.cend())
+	if (map.find(xy) != map.cend())
 	{
 		::Quit("Wall mapping already exist.");
 	}
 
-	::hw_3d_xy_wall_map_[xy] = Hw3dWall{};
-	auto& wall = ::hw_3d_xy_wall_map_[xy];
+	map[xy] = Hw3dWall{};
+	auto& wall = map[xy];
 
 	wall.x_ = x;
 	wall.y_ = y;
@@ -5333,8 +5363,6 @@ static void hw_3d_map_xy_to_solid_wall(
 	if (!is_north_solid)
 	{
 		::hw_3d_map_wall_side(
-			x,
-			y,
 			di_north,
 			wall,
 			vertex_index,
@@ -5346,8 +5374,6 @@ static void hw_3d_map_xy_to_solid_wall(
 	if (!is_east_solid)
 	{
 		::hw_3d_map_wall_side(
-			x,
-			y,
 			di_east,
 			wall,
 			vertex_index,
@@ -5359,8 +5385,6 @@ static void hw_3d_map_xy_to_solid_wall(
 	if (!is_south_solid)
 	{
 		::hw_3d_map_wall_side(
-			x,
-			y,
 			di_south,
 			wall,
 			vertex_index,
@@ -5372,8 +5396,6 @@ static void hw_3d_map_xy_to_solid_wall(
 	if (!is_west_solid)
 	{
 		::hw_3d_map_wall_side(
-			x,
-			y,
 			di_west,
 			wall,
 			vertex_index,
@@ -5434,7 +5456,14 @@ static void hw_3d_build_solid_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			::hw_3d_map_xy_to_solid_wall(x, y, vertex_index, vb_buffer);
+			::hw_3d_map_xy_to_xwall(
+				Hw3dXyWallKind::solid,
+				x,
+				y,
+				::hw_3d_xy_wall_map_,
+				vertex_index,
+				vb_buffer
+			);
 		}
 	}
 
@@ -5662,71 +5691,6 @@ static void hw_3d_step_pushwall(
 	::hw_3d_translate_pushwall();
 }
 
-static void hw_3d_map_xy_to_pushwall(
-	const int x,
-	const int y,
-	int& vertex_index,
-	Hw3dWallVbBuffer& vb_buffer)
-{
-	if (!::hw_tile_is_pushwall(x, y))
-	{
-		return;
-	}
-
-	const auto xy = ::hw_encode_xy(x, y);
-
-	if (::hw_3d_xy_pushwall_map_.find(xy) != ::hw_3d_xy_pushwall_map_.cend())
-	{
-		::Quit("Pushwall mapping already exist.");
-	}
-
-	::hw_3d_xy_pushwall_map_[xy] = Hw3dWall{};
-	auto& wall = ::hw_3d_xy_pushwall_map_[xy];
-
-	wall.x_ = x;
-	wall.y_ = y;
-
-	// A north side.
-	::hw_3d_map_wall_side(
-		x,
-		y,
-		di_north,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-
-	// An east side.
-	::hw_3d_map_wall_side(
-		x,
-		y,
-		di_east,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-
-	// An south side.
-	::hw_3d_map_wall_side(
-		x,
-		y,
-		di_south,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-
-	// A west side.
-	::hw_3d_map_wall_side(
-		x,
-		y,
-		di_west,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-}
-
 static void hw_3d_build_pushwalls()
 {
 	::hw_3d_uninitialize_pushwalls();
@@ -5779,7 +5743,14 @@ static void hw_3d_build_pushwalls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			::hw_3d_map_xy_to_pushwall(x, y, vertex_index, ::hw_3d_pushwalls_vb_buffer_);
+			::hw_3d_map_xy_to_xwall(
+				Hw3dXyWallKind::push,
+				x,
+				y,
+				::hw_3d_xy_pushwall_map_,
+				vertex_index,
+				::hw_3d_pushwalls_vb_buffer_
+			);
 		}
 	}
 
