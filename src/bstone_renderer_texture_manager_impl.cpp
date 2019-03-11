@@ -300,7 +300,7 @@ bool RendererTextureManagerImpl::Detail::cache_purge()
 		return false;
 	}
 
-	if (!is_caching_)
+	if (is_caching_)
 	{
 		error_message_ = "Caching is active.";
 
