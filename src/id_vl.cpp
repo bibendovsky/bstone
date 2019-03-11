@@ -1365,51 +1365,11 @@ struct HwMapDimensionMask
 constexpr auto hw_map_dimension_bit_depth = HwMapDimensionBitDepth<MAPSIZE>::Value;
 constexpr auto hw_map_dimension_mask = HwMapDimensionMask<hw_map_dimension_bit_depth>::Value;
 
-
-//
-// A diagram of max solid walls and their sides.
-//
-// #############
-// # $ $ $ $ $ #
-// # $ $ $ $ $ #
-// # $ $ $ $ $ #
-// # $ $ $ $ $ #
-// #############
-//
-
 constexpr auto hw_3d_max_sides_per_wall = 4;
-
-constexpr auto hw_3d_max_walls =
-	// The perimeter ('#').
-	(4 * (MAPSIZE - 1)) +
-
-	// Inner columns of wall ('$').
-	//
-	// (count x height)
-	//
-	((MAPSIZE / 2) * (MAPSIZE - 2)) +
-
-	//
-	0;
-
-constexpr auto hw_3d_max_wall_sides =
-	// Inner sides of the perimeter ('#').
-	(4 * (MAPSIZE - 1)) +
-
-	// Outer sides of the columns.
-	//
-	// (column count x (column height x side count))
-	//
-	((MAPSIZE / 2) * (MAPSIZE * 2)) +
-
-	//
-	0;
-
 constexpr auto hw_3d_max_indices_per_wall_side = 6;
-constexpr auto hw_3d_max_wall_sides_indices = hw_3d_max_wall_sides * hw_3d_max_indices_per_wall_side;
-
 constexpr auto hw_3d_max_vertices_per_wall_side = 4;
-constexpr auto hw_3d_max_wall_sides_vertices = hw_3d_max_wall_sides * hw_3d_max_vertices_per_wall_side;
+
+constexpr auto hw_3d_max_wall_sides_indices = 0x10000;
 
 constexpr auto hw_min_2d_commands = 16;
 constexpr auto hw_min_3d_commands = 4096;
@@ -1464,13 +1424,10 @@ struct Hw3dWallSideDrawItem
 	Hw3dWallSideCPtr wall_side_;
 }; // Hw3dWallSideDrawItem
 
-using Hw3dWallSideDrawItems = std::array<Hw3dWallSideDrawItem, hw_3d_max_wall_sides>;
-using Hw3dWallSideDrawItemsUPtr = std::unique_ptr<Hw3dWallSideDrawItems>;
-
+using Hw3dWallSideDrawItems = std::vector<Hw3dWallSideDrawItem>;
 
 using Hw3dWallSideIndexBufferItem = HwIbItem<hw_3d_max_wall_sides_indices>::Type;
-using Hw3dWallSideIndexBuffer = std::array<Hw3dWallSideIndexBufferItem, hw_3d_max_wall_sides_indices>;
-using Hw3dWallSideIndexBufferUPtr = std::unique_ptr<Hw3dWallSideIndexBuffer>;
+using Hw3dWallSideIndexBuffer = std::vector<Hw3dWallSideIndexBufferItem>;
 
 using Hw3dWallVbBuffer = std::vector<bstone::RendererVertex>;
 
@@ -1551,17 +1508,19 @@ bstone::RendererVertexBufferPtr hw_3d_ceiling_vb_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
+
 int hw_3d_wall_count_ = 0;
+int hw_3d_wall_side_count_ = 0;
 Hw3dXyWallMap hw_3d_xy_wall_map_;
 
-int hw_3d_wall_side_count_ = 0;
 int hw_3d_wall_side_draw_item_count_ = 0;
-Hw3dWallSideDrawItemsUPtr hw_3d_wall_side_draw_items_ = nullptr;
+Hw3dWallSideDrawItems hw_3d_wall_side_draw_items_;
 
 bstone::RendererIndexBufferPtr hw_3d_wall_sides_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_wall_sides_vb_ = nullptr;
 
-Hw3dWallSideIndexBufferUPtr hw_3d_wall_sides_ib_buffer_ = nullptr;
+Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
+Hw3dWallVbBuffer hw_3d_walls_vb_buffer_;
 
 
 constexpr int hw_encode_xy(
@@ -2715,10 +2674,12 @@ void hw_uninitialize_ceiling()
 	::hw_3d_ceiling_textured_t2d_ = nullptr;
 }
 
-bool hw_initialize_walls_ib()
+bool hw_initialize_solid_walls_ib()
 {
+	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+
 	auto param = bstone::RendererIndexBufferCreateParam{};
-	param.index_count_ = hw_3d_max_wall_sides_indices;
+	param.index_count_ = index_count;
 
 	::hw_3d_wall_sides_ib_ = ::hw_renderer_->index_buffer_create(param);
 
@@ -2727,7 +2688,8 @@ bool hw_initialize_walls_ib()
 		return false;
 	}
 
-	::hw_3d_wall_sides_ib_buffer_ = Hw3dWallSideIndexBufferUPtr{new Hw3dWallSideIndexBuffer{}};
+	::hw_3d_wall_sides_ib_buffer_.clear();
+	::hw_3d_wall_sides_ib_buffer_.resize(index_count);
 
 	return true;
 }
@@ -2740,13 +2702,13 @@ void hw_3d_uninitialize_walls_ib()
 		::hw_3d_wall_sides_ib_ = nullptr;
 	}
 
-	::hw_3d_wall_sides_ib_buffer_ = nullptr;
+	::hw_3d_wall_sides_ib_buffer_.clear();
 }
 
-bool hw_initialize_walls_vb()
+bool hw_initialize_solid_walls_vb()
 {
 	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = hw_3d_max_wall_sides_vertices;
+	param.vertex_count_ = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
 
 	::hw_3d_wall_sides_vb_ = ::hw_renderer_->vertex_buffer_create(param);
 
@@ -2767,19 +2729,20 @@ void hw_3d_uninitialize_walls_vb()
 	}
 }
 
-bool hw_3d_initialize_walls()
+bool hw_3d_initialize_solid_walls()
 {
-	::hw_3d_xy_wall_map_.reserve(::hw_3d_max_walls);
+	::hw_3d_xy_wall_map_.reserve(::hw_3d_wall_count_);
 
 	::hw_3d_wall_side_draw_item_count_ = 0;
-	::hw_3d_wall_side_draw_items_ = Hw3dWallSideDrawItemsUPtr{new Hw3dWallSideDrawItems{}};
+	::hw_3d_wall_side_draw_items_.clear();
+	::hw_3d_wall_side_draw_items_.resize(::hw_3d_wall_side_count_);
 
-	if (!::hw_initialize_walls_ib())
+	if (!::hw_initialize_solid_walls_ib())
 	{
 		return false;
 	}
 
-	if (!::hw_initialize_walls_vb())
+	if (!::hw_initialize_solid_walls_vb())
 	{
 		return false;
 	}
@@ -2787,13 +2750,14 @@ bool hw_3d_initialize_walls()
 	return true;
 }
 
-void hw_3d_uninitialize_walls()
+void hw_3d_uninitialize_solid_walls()
 {
 	::hw_3d_wall_count_ = 0;
+	::hw_3d_wall_side_count_ = 0;
 	::hw_3d_xy_wall_map_.clear();
 
 	::hw_3d_wall_side_draw_item_count_ = 0;
-	::hw_3d_wall_side_draw_items_ = nullptr;
+	::hw_3d_wall_side_draw_items_.clear();
 
 	::hw_3d_uninitialize_walls_ib();
 	::hw_3d_uninitialize_walls_vb();
@@ -3191,11 +3155,6 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
-		is_succeed = ::hw_3d_initialize_walls();
-	}
-
-	if (is_succeed)
-	{
 		::hw_texture_manager_ = bstone::RendererTextureManagerFactory::create(
 			::hw_renderer_,
 			&::vid_sprite_cache
@@ -3314,7 +3273,7 @@ void hw_uninitialize_video()
 	::hw_command_sets_ .clear();
 	::hw_2d_command_set_ = nullptr;
 
-	::hw_3d_uninitialize_walls();
+	::hw_3d_uninitialize_solid_walls();
 
 	::hw_uninitialize_flooring();
 	::hw_uninitialize_ceiling();
@@ -3521,7 +3480,7 @@ void hw_3d_dbg_draw_all_solid_walls(
 	// Build draw list.
 	//
 	auto draw_side_index = 0;
-	auto& draw_items = *::hw_3d_wall_side_draw_items_;
+	auto& draw_items = ::hw_3d_wall_side_draw_items_;
 
 	for (const auto& xy_wall_item : ::hw_3d_xy_wall_map_)
 	{
@@ -3554,7 +3513,7 @@ void hw_3d_dbg_draw_all_solid_walls(
 	//
 	{
 		auto ib_index = 0;
-		auto& ib_buffer = *::hw_3d_wall_sides_ib_buffer_;
+		auto& ib_buffer = ::hw_3d_wall_sides_ib_buffer_;
 
 		for (int i = 0; i < draw_side_index; ++i)
 		{
@@ -5228,10 +5187,12 @@ static void hw_3d_map_xy_to_solid_wall(
 
 static void hw_3d_build_solid_walls()
 {
+	::hw_3d_uninitialize_solid_walls();
+
 	// Count walls and their sides.
 	//
-	auto wall_count = 0;
-	auto side_count = 0;
+	::hw_3d_wall_count_ = 0;
+	::hw_3d_wall_side_count_ = 0;
 
 	for (int y = 0; y < MAPSIZE; ++y)
 	{
@@ -5239,30 +5200,34 @@ static void hw_3d_build_solid_walls()
 		{
 			if (::hw_tile_is_solid_wall(x, y))
 			{
-				wall_count += 1;
-				side_count += ::hw_get_solid_wall_side_count(x, y);
+				::hw_3d_wall_count_ += 1;
+				::hw_3d_wall_side_count_ += ::hw_get_solid_wall_side_count(x, y);
 			}
 		}
 	}
 
 	// Check for maximums.
 	//
-	if (wall_count > ::hw_3d_max_walls)
+	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+
+	if (index_count > ::hw_3d_max_wall_sides_indices)
 	{
-		::Quit("Unexpected solid wall count.");
+		::Quit("Too many indices.");
 	}
 
-	if (side_count > ::hw_3d_max_wall_sides)
+	// Create index an vertex buffers.
+	//
+	if (!::hw_3d_initialize_solid_walls())
 	{
-		::Quit("Unexpected solid wall's side count.");
+		::Quit("Failed to initialize walls.");
 	}
 
 	// Build the map (XY to wall).
 	//
-	const auto vertex_count = side_count * hw_3d_max_vertices_per_wall_side;
+	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
 
-	auto vb_buffer = Hw3dWallVbBuffer{};
-	vb_buffer.resize(vertex_count);
+	::hw_3d_walls_vb_buffer_.clear();
+	::hw_3d_walls_vb_buffer_.resize(vertex_count);
 
 	::hw_3d_xy_wall_map_.clear();
 
@@ -5272,7 +5237,7 @@ static void hw_3d_build_solid_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			::hw_3d_map_xy_to_solid_wall(x, y, vertex_index, vb_buffer);
+			::hw_3d_map_xy_to_solid_wall(x, y, vertex_index, ::hw_3d_walls_vb_buffer_);
 		}
 	}
 
@@ -5281,12 +5246,9 @@ static void hw_3d_build_solid_walls()
 	auto param = bstone::RendererVertexBufferUpdateParam{};
 	param.offset_ = 0;
 	param.count_ = vertex_count;
-	param.vertices_ = vb_buffer.data();
+	param.vertices_ = ::hw_3d_walls_vb_buffer_.data();
 
 	::hw_3d_wall_sides_vb_->update(param);
-
-	::hw_3d_wall_count_ = wall_count;
-	::hw_3d_wall_side_count_ = side_count;
 }
 
 void vid_hw_handle_level_startup()
