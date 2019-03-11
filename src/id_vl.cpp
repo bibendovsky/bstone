@@ -3803,8 +3803,6 @@ void hw_refresh_screen_3d()
 		return;
 	}
 
-	::vid_hw_is_draw_3d_ = false;
-
 
 	// Build commands.
 	//
@@ -3893,9 +3891,10 @@ void hw_refresh_screen()
 		return;
 	}
 
-
-	if (::vid_hw_is_draw_3d_ && ::player)
+	if (::vid_is_hud && ::player)
 	{
+		::vid_hw_is_draw_3d_ = true;
+
 		const auto player_x = bstone::FixedPoint{::player->x}.to_float();
 		const auto player_y = bstone::FixedPoint{::player->y}.to_float();
 		const auto view_position = bstone::Vec3F{player_x, player_y, 0.5F};
@@ -3910,6 +3909,8 @@ void hw_refresh_screen()
 
 	::hw_renderer_->execute_command_sets(::hw_command_sets_);
 	::hw_renderer_->present();
+
+	::vid_hw_is_draw_3d_ = false;
 }
 
 void hw_check_vsync()

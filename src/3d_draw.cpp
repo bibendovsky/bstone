@@ -1635,8 +1635,6 @@ void MapLSRow();
 
 void ThreeDRefresh()
 {
-	::vid_hw_is_draw_3d_ = true;
-
 	::memset(::spotvis, 0, sizeof(::spotvis));
 
 	::bufferofs = 0;
