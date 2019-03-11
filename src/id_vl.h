@@ -260,5 +260,11 @@ void vid_hw_handle_switch_wall(
 	const int x,
 	const int y);
 
+void vid_hw_handle_pushwall_motion();
+
+void vid_hw_handle_pushwall_step(
+	const int old_x,
+	const int old_y);
+
 
 #endif // BSTONE_ID_VL_INCLUDED

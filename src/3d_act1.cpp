@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
+#include "id_vl.h"
 
 
 // ===========================================================================
@@ -1732,10 +1733,19 @@ void MovePWalls()
 		}
 		else
 		{
+			const auto old_x = ::pwallx;
+			const auto old_y = ::pwally;
+
 			switch (pwalldir)
 			{
 			case di_north:
 				pwally--;
+
+				if (::vid_is_hw_)
+				{
+					::vid_hw_handle_pushwall_step(old_x, old_y);
+				}
+
 				if (actorat[pwallx][pwally - 1])
 				{
 					pwallstate = 0;
@@ -1748,6 +1758,12 @@ void MovePWalls()
 
 			case di_east:
 				pwallx++;
+
+				if (::vid_is_hw_)
+				{
+					::vid_hw_handle_pushwall_step(old_x, old_y);
+				}
+
 				if (actorat[pwallx + 1][pwally])
 				{
 					pwallstate = 0;
@@ -1760,6 +1776,12 @@ void MovePWalls()
 
 			case di_south:
 				pwally++;
+
+				if (::vid_is_hw_)
+				{
+					::vid_hw_handle_pushwall_step(old_x, old_y);
+				}
+
 				if (actorat[pwallx][pwally + 1])
 				{
 					pwallstate = 0;
@@ -1772,6 +1794,12 @@ void MovePWalls()
 
 			case di_west:
 				pwallx--;
+
+				if (::vid_is_hw_)
+				{
+					::vid_hw_handle_pushwall_step(old_x, old_y);
+				}
+
 				if (actorat[pwallx - 1][pwally])
 				{
 					pwallstate = 0;
@@ -1787,8 +1815,12 @@ void MovePWalls()
 		}
 	}
 
-
 	pwallpos = (pwallstate / 2) & 63;
+
+	if (::vid_is_hw_)
+	{
+		::vid_hw_handle_pushwall_motion();
+	}
 }
 
 // ==========================================================================

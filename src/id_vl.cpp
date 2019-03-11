@@ -1523,6 +1523,20 @@ Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
 Hw3dWallVbBuffer hw_3d_walls_vb_buffer_;
 
 
+int hw_3d_pushwall_count_ = 0;
+int hw_3d_pushwall_side_count_ = 0;
+Hw3dXyWallMap hw_3d_xy_pushwall_map_;
+
+int hw_3d_pushwall_side_draw_item_count_ = 0;
+Hw3dWallSideDrawItems hw_3d_pushwall_side_draw_items_;
+
+bstone::RendererIndexBufferPtr hw_3d_pushwall_sides_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_3d_pushwall_sides_vb_ = nullptr;
+
+Hw3dWallSideIndexBuffer hw_3d_pushwall_sides_ib_buffer_;
+Hw3dWallVbBuffer hw_3d_pushwalls_vb_buffer_;
+
+
 constexpr int hw_encode_xy(
 	const int x,
 	const int y)
@@ -2579,7 +2593,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = bstone::Vec3F{0.0F, 0.0F, ::hw_3d_map_height_f};
-			//vertex.xyz_ = bstone::Vec3F{-1.0F, 1.0F, 1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
 		}
@@ -2588,7 +2601,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = bstone::Vec3F{0.0F, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
-			//vertex.xyz_ = bstone::Vec3F{1.0F, 1.0F, 1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = bstone::Vec2F{::hw_3d_map_dimension_f, 0.0F};
 		}
@@ -2597,7 +2609,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = bstone::Vec3F{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
-			//vertex.xyz_ = bstone::Vec3F{1.0F, 1.0F, -1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = bstone::Vec2F{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f};
 		}
@@ -2606,7 +2617,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = bstone::Vec3F{::hw_3d_map_dimension_f, 0.0F, ::hw_3d_map_height_f};
-			//vertex.xyz_ = bstone::Vec3F{-1.0F, 1.0F, -1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = bstone::Vec2F{0.0F, ::hw_3d_map_dimension_f};
 		}
@@ -2761,6 +2771,95 @@ void hw_3d_uninitialize_solid_walls()
 
 	::hw_3d_uninitialize_walls_ib();
 	::hw_3d_uninitialize_walls_vb();
+}
+
+bool hw_initialize_pushwalls_ib()
+{
+	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+
+	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.index_count_ = index_count;
+
+	::hw_3d_pushwall_sides_ib_ = ::hw_renderer_->index_buffer_create(param);
+
+	if (!::hw_3d_pushwall_sides_ib_)
+	{
+		return false;
+	}
+
+	::hw_3d_pushwall_sides_ib_buffer_.clear();
+	::hw_3d_pushwall_sides_ib_buffer_.resize(index_count);
+
+	return true;
+}
+
+void hw_3d_uninitialize_pushwalls_ib()
+{
+	if (::hw_3d_pushwall_sides_ib_)
+	{
+		::hw_renderer_->index_buffer_destroy(::hw_3d_pushwall_sides_ib_);
+		::hw_3d_pushwall_sides_ib_ = nullptr;
+	}
+
+	::hw_3d_pushwall_sides_ib_buffer_.clear();
+}
+
+bool hw_initialize_pushwalls_vb()
+{
+	auto param = bstone::RendererVertexBufferCreateParam{};
+	param.vertex_count_ = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+
+	::hw_3d_pushwall_sides_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+
+	if (!::hw_3d_pushwall_sides_vb_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_uninitialize_pushwalls_vb()
+{
+	if (::hw_3d_pushwall_sides_vb_)
+	{
+		::hw_renderer_->vertex_buffer_destroy(::hw_3d_pushwall_sides_vb_);
+		::hw_3d_pushwall_sides_vb_ = nullptr;
+	}
+}
+
+bool hw_3d_initialize_pushwalls()
+{
+	::hw_3d_xy_pushwall_map_.reserve(::hw_3d_pushwall_count_);
+
+	::hw_3d_pushwall_side_draw_item_count_ = 0;
+	::hw_3d_pushwall_side_draw_items_.clear();
+	::hw_3d_pushwall_side_draw_items_.resize(::hw_3d_pushwall_side_count_);
+
+	if (!::hw_initialize_pushwalls_ib())
+	{
+		return false;
+	}
+
+	if (!::hw_initialize_pushwalls_vb())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_uninitialize_pushwalls()
+{
+	::hw_3d_pushwall_count_ = 0;
+	::hw_3d_pushwall_side_count_ = 0;
+	::hw_3d_xy_pushwall_map_.clear();
+
+	::hw_3d_pushwall_side_draw_item_count_ = 0;
+	::hw_3d_pushwall_side_draw_items_.clear();
+
+	::hw_3d_uninitialize_pushwalls_ib();
+	::hw_3d_uninitialize_pushwalls_vb();
 }
 
 void hw_update_palette(
@@ -3587,6 +3686,114 @@ void hw_3d_dbg_draw_all_solid_walls(
 	::hw_3d_wall_side_draw_item_count_ = draw_side_index;
 }
 
+void hw_3d_dbg_draw_all_pushwalls(
+	int& command_index)
+{
+	// Build draw list.
+	//
+	auto draw_side_index = 0;
+	auto& draw_items = ::hw_3d_pushwall_side_draw_items_;
+
+	for (const auto& xy_pushwall_item : ::hw_3d_xy_pushwall_map_)
+	{
+		for (const auto& side : xy_pushwall_item.second.sides_)
+		{
+			auto& draw_item = draw_items[draw_side_index++];
+
+			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.wall_side_ = &side;
+		}
+	}
+
+	// Sort by texture.
+	//
+	std::sort(
+		draw_items.begin(),
+		draw_items.begin() + draw_side_index,
+		[](const auto& lhs, const auto& rhs)
+		{
+			return lhs.texture_2d_ < rhs.texture_2d_;
+		}
+	);
+
+	// Update index buffer.
+	//
+	{
+		auto ib_index = 0;
+		auto& ib_buffer = ::hw_3d_pushwall_sides_ib_buffer_;
+
+		for (int i = 0; i < draw_side_index; ++i)
+		{
+			const auto& wall_side = *draw_items[i].wall_side_;
+
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 1);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 2);
+
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 3);
+		}
+
+		auto param = bstone::RendererIndexBufferUpdateParam{};
+		param.offset_ = 0;
+		param.count_ = ib_index;
+		param.indices_ = ib_buffer.data();
+
+		::hw_3d_pushwall_sides_ib_->update(param);
+	}
+
+	// Add render commands.
+	//
+	auto draw_index = 0;
+	auto draw_quad_count = 0;
+	auto draw_index_offset_ = 0;
+
+	while (draw_index < draw_side_index)
+	{
+		auto is_first = true;
+		auto last_texture = bstone::RendererTexture2dPtr{};
+
+		draw_quad_count = 0;
+
+		while (draw_index < draw_side_index)
+		{
+			if (is_first)
+			{
+				is_first = false;
+
+				last_texture = draw_items[draw_index].texture_2d_;
+			}
+			else if (last_texture == draw_items[draw_index].texture_2d_)
+			{
+				++draw_quad_count;
+				++draw_index;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		if (draw_quad_count > 0)
+		{
+			auto& command = ::hw_3d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = draw_quad_count;
+			draw_quads.index_offset_ = draw_index_offset_;
+			draw_quads.index_buffer_ = ::hw_3d_pushwall_sides_ib_;
+			draw_quads.vertex_buffer_ = ::hw_3d_pushwall_sides_vb_;
+			draw_quads.texture_2d_ = last_texture;
+
+			draw_index_offset_ += ::hw_3d_max_indices_per_wall_side * draw_quad_count;
+		}
+	}
+
+	::hw_3d_pushwall_side_draw_item_count_ = draw_side_index;
+}
+
 void hw_refresh_screen_3d()
 {
 	::hw_3d_command_set_->count_ = 0;
@@ -3627,6 +3834,10 @@ void hw_refresh_screen_3d()
 	// Draw solid walls.
 	//
 	::hw_3d_dbg_draw_all_solid_walls(command_index);
+
+	// Draw pushwalls.
+	//
+	::hw_3d_dbg_draw_all_pushwalls(command_index);
 
 	// Draw flooring.
 	//
@@ -4718,7 +4929,7 @@ static constexpr bool hw_tile_is_solid_wall(
 	return true;
 }
 
-static constexpr bool hw_tile_is_push_wall(
+static constexpr bool hw_tile_is_pushwall(
 	const int x,
 	const int y)
 {
@@ -4765,7 +4976,7 @@ static constexpr bool hw_tile_is_solid_wall(
 		return false;
 	}
 
-	if (::hw_tile_is_push_wall(x, y))
+	if (::hw_tile_is_pushwall(x, y))
 	{
 		return false;
 	}
@@ -4864,13 +5075,13 @@ static void hw_precache_solid_walls()
 	}
 }
 
-static void hw_precache_push_walls()
+static void hw_precache_pushwalls()
 {
 	for (int y = 0; y < MAPSIZE; ++y)
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (!::hw_tile_is_push_wall(x, y))
+			if (!::hw_tile_is_pushwall(x, y))
 			{
 				continue;
 			}
@@ -4882,20 +5093,6 @@ static void hw_precache_push_walls()
 			::hw_precache_vertical_wall(tile_wall);
 		}
 	}
-}
-
-static void vid_hw_precache_resources()
-{
-	::hw_texture_manager_->cache_begin();
-
-	::hw_precache_flooring();
-	::hw_precache_ceiling();
-	::hw_precache_solid_walls();
-	::hw_precache_push_walls();
-
-	::hw_texture_manager_->cache_end();
-
-	::hw_texture_manager_->cache_purge();
 }
 
 static int hw_get_solid_wall_side_count(
@@ -5123,7 +5320,7 @@ static void hw_3d_map_xy_to_solid_wall(
 
 	if (::hw_3d_xy_wall_map_.find(xy) != ::hw_3d_xy_wall_map_.cend())
 	{
-		::Quit("Wall map already exist.");
+		::Quit("Wall mapping already exist.");
 	}
 
 	::hw_3d_xy_wall_map_[xy] = Hw3dWall{};
@@ -5251,11 +5448,387 @@ static void hw_3d_build_solid_walls()
 	::hw_3d_wall_sides_vb_->update(param);
 }
 
+static void hw_3d_translate_pushwall_side(
+	const float translate_x,
+	const float translate_y,
+	const controldir_t side_direction,
+	const Hw3dWall& wall,
+	int& vertex_index,
+	Hw3dWallVbBuffer& vb_buffer)
+{
+	static const float all_vertex_offsets[4][4] =
+	{
+		{::hw_3d_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
+		{::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, 0.0F,},
+		{0.0F, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f,},
+		{0.0F, 0.0F, 0.0F, ::hw_3d_tile_dimension_f,},
+	};
+
+
+	auto is_vertical = false;
+
+	switch (side_direction)
+	{
+	case di_north:
+	case di_south:
+		break;
+
+	case di_east:
+	case di_west:
+		is_vertical = true;
+		break;
+
+	default:
+		::Quit("Invalid direction.");
+	}
+
+	const auto& vertex_offsets = all_vertex_offsets[side_direction];
+
+	auto& side = wall.sides_[side_direction];
+
+	const auto x_f = static_cast<float>(wall.x_) + translate_x;
+	const auto y_f = static_cast<float>(wall.y_) + translate_y;
+
+	// Bottom-left (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[0],
+			y_f + vertex_offsets[1],
+			0.0F,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+	}
+
+	// Bottom-right (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[2],
+			y_f + vertex_offsets[3],
+			0.0F,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+	}
+
+	// Top-right (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[2],
+			y_f + vertex_offsets[3],
+			::hw_3d_map_height_f,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+	}
+
+	// Top-left (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[0],
+			y_f + vertex_offsets[1],
+			::hw_3d_map_height_f,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+	}
+}
+
+static void hw_3d_translate_pushwall(
+	const Hw3dWall& wall,
+	int& vertex_index,
+	Hw3dWallVbBuffer& vb_buffer)
+{
+	const auto translate_distance = ::pwallpos / 64.0F;
+
+	auto translate_x = 0.0F;
+	auto translate_y = 0.0F;
+
+	switch (::pwalldir)
+	{
+	case di_north:
+		translate_y = -translate_distance;
+		break;
+
+	case di_east:
+		translate_x = +translate_distance;
+		break;
+
+	case di_south:
+		translate_y = +translate_distance;
+		break;
+
+	case di_west:
+		translate_x = -translate_distance;
+		break;
+
+	default:
+		::Quit("Invalid direction.");
+		break;
+	}
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_north,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_east,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_south,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_west,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+}
+
+static void hw_3d_translate_pushwall()
+{
+	const auto xy = ::hw_encode_xy(::pwallx, ::pwally);
+
+	const auto wall_item_it = ::hw_3d_xy_pushwall_map_.find(xy);
+
+	if (wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
+	{
+		::Quit("Pushwall mapping not found.");
+	}
+
+	const auto& wall = wall_item_it->second;
+
+	const auto first_vertex_index = wall.sides_.front().vertex_index_;
+
+	auto vertex_index = first_vertex_index;
+
+	::hw_3d_translate_pushwall(wall, vertex_index, ::hw_3d_pushwalls_vb_buffer_);
+
+	const auto vertex_count = vertex_index - first_vertex_index;
+
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = first_vertex_index;
+	param.count_ = vertex_count;
+	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data() + first_vertex_index;
+
+	::hw_3d_pushwall_sides_vb_->update(param);
+}
+
+static void hw_3d_step_pushwall(
+	const int old_x,
+	const int old_y)
+{
+	const auto old_xy = ::hw_encode_xy(old_x, old_y);
+
+	const auto old_wall_item_it = ::hw_3d_xy_pushwall_map_.find(old_xy);
+
+	if (old_wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
+	{
+		::Quit("Pushwall mapping not found.");
+	}
+
+	const auto new_xy = ::hw_encode_xy(::pwallx, ::pwally);
+
+	auto wall = old_wall_item_it->second;
+	wall.x_ = ::pwallx;
+	wall.y_ = ::pwally;
+
+	static_cast<void>(::hw_3d_xy_pushwall_map_.erase(old_xy));
+	::hw_3d_xy_pushwall_map_[new_xy] = wall;
+
+	::hw_3d_translate_pushwall();
+}
+
+static void hw_3d_map_xy_to_pushwall(
+	const int x,
+	const int y,
+	int& vertex_index,
+	Hw3dWallVbBuffer& vb_buffer)
+{
+	if (!::hw_tile_is_pushwall(x, y))
+	{
+		return;
+	}
+
+	const auto xy = ::hw_encode_xy(x, y);
+
+	if (::hw_3d_xy_pushwall_map_.find(xy) != ::hw_3d_xy_pushwall_map_.cend())
+	{
+		::Quit("Pushwall mapping already exist.");
+	}
+
+	::hw_3d_xy_pushwall_map_[xy] = Hw3dWall{};
+	auto& wall = ::hw_3d_xy_pushwall_map_[xy];
+
+	wall.x_ = x;
+	wall.y_ = y;
+
+	// A north side.
+	::hw_3d_map_wall_side(
+		x,
+		y,
+		di_north,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	// An east side.
+	::hw_3d_map_wall_side(
+		x,
+		y,
+		di_east,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	// An south side.
+	::hw_3d_map_wall_side(
+		x,
+		y,
+		di_south,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	// A west side.
+	::hw_3d_map_wall_side(
+		x,
+		y,
+		di_west,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+}
+
+static void hw_3d_build_pushwalls()
+{
+	::hw_3d_uninitialize_pushwalls();
+
+	// Count pushwalls and their sides.
+	//
+	::hw_3d_pushwall_count_ = 0;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (::hw_tile_is_pushwall(x, y))
+			{
+				::hw_3d_pushwall_count_ += 1;
+			}
+		}
+	}
+
+	::hw_3d_pushwall_side_count_ = ::hw_3d_pushwall_count_ * ::hw_3d_max_sides_per_wall;
+
+	// Check for maximums.
+	//
+	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+
+	if (index_count > ::hw_3d_max_wall_sides_indices)
+	{
+		::Quit("Too many indices.");
+	}
+
+	// Create index an vertex buffers.
+	//
+	if (!::hw_3d_initialize_pushwalls())
+	{
+		::Quit("Failed to initialize pushwalls.");
+	}
+
+	// Build the map (XY to pushwall).
+	//
+	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+
+	::hw_3d_pushwalls_vb_buffer_.clear();
+	::hw_3d_pushwalls_vb_buffer_.resize(vertex_count);
+
+	::hw_3d_xy_pushwall_map_.clear();
+
+	auto vertex_index = 0;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			::hw_3d_map_xy_to_pushwall(x, y, vertex_index, ::hw_3d_pushwalls_vb_buffer_);
+		}
+	}
+
+	// Update vertex buffer.
+	//
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = 0;
+	param.count_ = vertex_count;
+	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data();
+
+	::hw_3d_pushwall_sides_vb_->update(param);
+}
+
+static void hw_precache_resources()
+{
+	::hw_texture_manager_->cache_begin();
+
+	::hw_precache_flooring();
+	::hw_precache_ceiling();
+	::hw_precache_solid_walls();
+	::hw_precache_pushwalls();
+
+	::hw_texture_manager_->cache_end();
+
+	::hw_texture_manager_->cache_purge();
+}
+
 void vid_hw_handle_level_startup()
 {
-	::vid_hw_precache_resources();
+	::hw_precache_resources();
 
 	::hw_3d_build_solid_walls();
+	::hw_3d_build_pushwalls();
 }
 
 void vid_hw_handle_switch_wall(
@@ -5306,5 +5879,21 @@ void vid_hw_handle_switch_wall(
 			side.texture_2d_ = horizontal_texture_2d;
 		}
 	}
+}
+
+void vid_hw_handle_pushwall_motion()
+{
+	assert(::vid_is_hw_);
+
+	::hw_3d_translate_pushwall();
+}
+
+void vid_hw_handle_pushwall_step(
+	const int old_x,
+	const int old_y)
+{
+	assert(::vid_is_hw_);
+
+	::hw_3d_step_pushwall(old_x, old_y);
 }
 // BBi
