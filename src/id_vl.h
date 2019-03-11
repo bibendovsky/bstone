@@ -256,5 +256,9 @@ void vid_draw_ui_sprite(
 
 void vid_hw_handle_level_startup();
 
+void vid_hw_handle_switch_wall(
+	const int x,
+	const int y);
+
 
 #endif // BSTONE_ID_VL_INCLUDED

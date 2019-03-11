@@ -1419,11 +1419,21 @@ struct Hw3dWall;
 using Hw3dWallPtr = Hw3dWall*;
 using Hw3dWallCPtr = const Hw3dWall*;
 
+struct Hw3dWallSideFlags
+{
+	using Type = unsigned int;
+
+
+	Type is_active_ : 1;
+	Type is_vertical_ : 1;
+	Type is_door_track_ : 1;
+}; // Hw3dWallSideFlags
+
 struct Hw3dWallSide
 {
 	Hw3dWallCPtr wall_;
 
-	bool is_active_;
+	Hw3dWallSideFlags flags_;
 	int vertex_index_;
 	bstone::RendererTexture2dPtr texture_2d_;
 }; // Hw3dWallSide
@@ -3517,7 +3527,7 @@ void hw_3d_dbg_draw_all_solid_walls(
 	{
 		for (const auto& side : xy_wall_item.second.sides_)
 		{
-			if (!side.is_active_)
+			if (!side.flags_.is_active_)
 			{
 				continue;
 			}
@@ -4775,8 +4785,58 @@ static constexpr bool hw_tile_is_solid_wall(
 	return true;
 }
 
+static void hw_precache_off_switch_horizontal_side()
+{
+	const auto wall_id = ::horizwall[OFF_SWITCH];
+
+	if (!::hw_texture_manager_->wall_cache(wall_id))
+	{
+		::Quit("Failed to cache horizontal wall #" + std::to_string(wall_id) + ".");
+	}
+}
+
+static void hw_precache_off_switch_vertical_side()
+{
+	const auto wall_id = ::vertwall[OFF_SWITCH];
+
+	if (!::hw_texture_manager_->wall_cache(wall_id))
+	{
+		::Quit("Failed to cache vertical wall #" + std::to_string(wall_id) + ".");
+	}
+}
+
+static void hw_precache_on_switch_horizontal_side()
+{
+	const auto wall_id = ::horizwall[ON_SWITCH];
+
+	if (!::hw_texture_manager_->wall_cache(wall_id))
+	{
+		::Quit("Failed to cache horizontal wall #" + std::to_string(wall_id) + ".");
+	}
+}
+
+static void hw_precache_on_switch_vertical_side()
+{
+	const auto wall_id = ::vertwall[ON_SWITCH];
+
+	if (!::hw_texture_manager_->wall_cache(wall_id))
+	{
+		::Quit("Failed to cache vertical wall #" + std::to_string(wall_id) + ".");
+	}
+}
+
+static void hw_precache_switches()
+{
+	::hw_precache_off_switch_horizontal_side();
+	::hw_precache_off_switch_vertical_side();
+	::hw_precache_on_switch_horizontal_side();
+	::hw_precache_on_switch_vertical_side();
+}
+
 static void hw_precache_solid_walls()
 {
+	auto has_switch = false;
+
 	for (int y = 0; y < MAPSIZE; ++y)
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
@@ -4808,9 +4868,13 @@ static void hw_precache_solid_walls()
 				continue;
 			}
 
+			if (tile_wall == ON_SWITCH || tile_wall == OFF_SWITCH)
+			{
+				has_switch = true;
+			}
+
 			// Horizontal wall.
 			//
-
 			const auto horizontal_wall_id = ::horizwall[tile_wall];
 
 			if (!::hw_texture_manager_->wall_cache(horizontal_wall_id))
@@ -4820,7 +4884,6 @@ static void hw_precache_solid_walls()
 
 			// Vertical wall.
 			//
-
 			const auto vertical_wall_id = ::vertwall[tile_wall];
 
 			if (!::hw_texture_manager_->wall_cache(vertical_wall_id))
@@ -4828,6 +4891,11 @@ static void hw_precache_solid_walls()
 				::Quit("Failed to cache vertical wall #" + std::to_string(vertical_wall_id) + ".");
 			}
 		}
+	}
+
+	if (has_switch)
+	{
+		::hw_precache_switches();
 	}
 }
 
@@ -4929,30 +4997,27 @@ static void hw_3d_map_wall_side(
 	const auto wall_id = tile & ::tilemap_wall_mask;
 	const auto has_door_tracks = ::hw_tile_is_door_track(tile);
 
+	auto is_vertical = false;
 	auto wall_texture_id = 0;
 
 	switch (side_direction)
 	{
 	case di_north:
-		wall_texture_id = ::horizwall[wall_id];
-		break;
-
-	case di_east:
-		wall_texture_id = ::vertwall[wall_id];
-		break;
-
 	case di_south:
 		wall_texture_id = ::horizwall[wall_id];
 		break;
 
+	case di_east:
 	case di_west:
+		is_vertical = true;
 		wall_texture_id = ::vertwall[wall_id];
 		break;
-
 
 	default:
 		::Quit("Invalid direction.");
 	}
+
+	auto is_door_track = false;
 
 	if (has_door_tracks)
 	{
@@ -4960,6 +5025,8 @@ static void hw_3d_map_wall_side(
 
 		if (door_track_wall_id >= 0)
 		{
+			is_door_track = true;
+
 			wall_texture_id = door_track_wall_id;
 		}
 	}
@@ -4968,7 +5035,9 @@ static void hw_3d_map_wall_side(
 
 	auto& side = wall.sides_[side_direction];
 
-	side.is_active_ = true;
+	side.flags_.is_active_ = true;
+	side.flags_.is_vertical_ = is_vertical;
+	side.flags_.is_door_track_ = is_door_track;
 	side.vertex_index_ = vertex_index;
 	side.texture_2d_ = ::hw_texture_manager_->wall_get(wall_texture_id);
 	side.wall_ = &wall;
@@ -5074,8 +5143,6 @@ static void hw_3d_map_xy_to_solid_wall(
 
 	wall.x_ = x;
 	wall.y_ = y;
-
-	auto& sides = wall.sides_;
 
 	// A north side.
 	if (!is_north_solid)
@@ -5198,5 +5265,55 @@ void vid_hw_handle_level_startup()
 	::vid_hw_precache_resources();
 
 	::hw_3d_build_solid_walls();
+}
+
+void vid_hw_handle_switch_wall(
+	const int x,
+	const int y)
+{
+	assert(::vid_is_hw_);
+	assert(x >= 0 && x < MAPSIZE && y >= 0 && y < MAPSIZE);
+
+	const auto xy = ::hw_encode_xy(x, y);
+
+	auto wall_it = ::hw_3d_xy_wall_map_.find(xy);
+
+	if (wall_it == ::hw_3d_xy_wall_map_.cend())
+	{
+		::Quit("Expected wall at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+	}
+
+	const auto tile_wall = ::tilemap[x][y] & ::tilemap_wall_mask;
+
+	assert(tile_wall == OFF_SWITCH || tile_wall == ON_SWITCH);
+
+	const auto horizontal_wall_id = ::horizwall[tile_wall];
+	const auto horizontal_texture_2d = ::hw_texture_manager_->wall_get(horizontal_wall_id);
+	assert(horizontal_texture_2d);
+
+	const auto vertical_wall_id = ::vertwall[tile_wall];
+	const auto vertical_texture_2d = ::hw_texture_manager_->wall_get(vertical_wall_id);
+	assert(vertical_texture_2d);
+
+	auto& wall = wall_it->second;
+
+	for (auto& side : wall.sides_)
+	{
+		const auto& flags = side.flags_;
+
+		if (!flags.is_active_ || flags.is_door_track_)
+		{
+			continue;
+		}
+
+		if (flags.is_vertical_)
+		{
+			side.texture_2d_ = vertical_texture_2d;
+		}
+		else
+		{
+			side.texture_2d_ = horizontal_texture_2d;
+		}
+	}
 }
 // BBi

@@ -29,6 +29,7 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
+#include "id_vl.h"
 
 
 // 3d_def.h stuff
@@ -2585,6 +2586,11 @@ void ActivateWallSwitch(
 
 		// BBi
 		::set_cross_barrier_state(num);
+
+		if (::vid_is_hw_)
+		{
+			::vid_hw_handle_switch_wall(x, y);
+		}
 		// BBi
 
 		::DisplaySwitchOperateMsg(num);
