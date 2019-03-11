@@ -4759,6 +4759,37 @@ static constexpr bool hw_tile_is_solid_wall(
 	return true;
 }
 
+static constexpr bool hw_tile_is_push_wall(
+	const int x,
+	const int y)
+{
+	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
+	{
+		return false;
+	}
+
+	const auto tile_wall = ::tilemap[x][y];
+
+	if (tile_wall == 0)
+	{
+		return false;
+	}
+
+	if (::hw_tile_is_activated_pushwall(tile_wall))
+	{
+		return true;
+	}
+
+	const auto tile_object = ::mapsegs[1][(MAPSIZE * y) + x];
+
+	if (tile_object == PUSHABLETILE)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 static constexpr bool hw_tile_is_solid_wall(
 	const int x,
 	const int y)
@@ -4775,9 +4806,7 @@ static constexpr bool hw_tile_is_solid_wall(
 		return false;
 	}
 
-	const auto tile_object = ::mapsegs[1][(MAPSIZE * y) + x];
-
-	if (tile_object == PUSHABLETILE)
+	if (::hw_tile_is_push_wall(x, y))
 	{
 		return false;
 	}
@@ -4785,52 +4814,56 @@ static constexpr bool hw_tile_is_solid_wall(
 	return true;
 }
 
-static void hw_precache_off_switch_horizontal_side()
+static void hw_precache_wall(
+	const int wall_id)
 {
-	const auto wall_id = ::horizwall[OFF_SWITCH];
-
 	if (!::hw_texture_manager_->wall_cache(wall_id))
 	{
-		::Quit("Failed to cache horizontal wall #" + std::to_string(wall_id) + ".");
+		::Quit("Failed to cache a wall #" + std::to_string(wall_id) + ".");
 	}
 }
 
-static void hw_precache_off_switch_vertical_side()
+static void hw_precache_horizontal_wall(
+	const int tile_wall)
 {
-	const auto wall_id = ::vertwall[OFF_SWITCH];
+	const auto wall_id = ::horizwall[tile_wall];
 
-	if (!::hw_texture_manager_->wall_cache(wall_id))
-	{
-		::Quit("Failed to cache vertical wall #" + std::to_string(wall_id) + ".");
-	}
+	::hw_precache_wall(wall_id);
 }
 
-static void hw_precache_on_switch_horizontal_side()
+static void hw_precache_vertical_wall(
+	const int tile_wall)
 {
-	const auto wall_id = ::horizwall[ON_SWITCH];
+	const auto wall_id = ::vertwall[tile_wall];
 
-	if (!::hw_texture_manager_->wall_cache(wall_id))
-	{
-		::Quit("Failed to cache horizontal wall #" + std::to_string(wall_id) + ".");
-	}
-}
-
-static void hw_precache_on_switch_vertical_side()
-{
-	const auto wall_id = ::vertwall[ON_SWITCH];
-
-	if (!::hw_texture_manager_->wall_cache(wall_id))
-	{
-		::Quit("Failed to cache vertical wall #" + std::to_string(wall_id) + ".");
-	}
+	::hw_precache_wall(wall_id);
 }
 
 static void hw_precache_switches()
 {
-	::hw_precache_off_switch_horizontal_side();
-	::hw_precache_off_switch_vertical_side();
-	::hw_precache_on_switch_horizontal_side();
-	::hw_precache_on_switch_vertical_side();
+	::hw_precache_horizontal_wall(OFF_SWITCH);
+	::hw_precache_vertical_wall(OFF_SWITCH);
+	::hw_precache_horizontal_wall(ON_SWITCH);
+	::hw_precache_vertical_wall(ON_SWITCH);
+}
+
+static void hw_precache_door_track(
+	const int x,
+	const int y)
+{
+	const auto tile = ::tilemap[x][y];
+	const auto tile_wall = tile & ::tilemap_wall_mask;
+
+	const auto& door = ::doorobjlist[tile_wall];
+
+	if (door.tilex != x || door.tiley != y)
+	{
+		::Quit("Expected a door at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+	}
+
+	auto wall_id = ::door_get_track_texture_id(door);
+
+	::hw_precache_wall(wall_id);
 }
 
 static void hw_precache_solid_walls()
@@ -4846,19 +4879,7 @@ static void hw_precache_solid_walls()
 
 			if (::hw_tile_is_door(tile))
 			{
-				const auto& door = ::doorobjlist[tile_wall];
-
-				if (door.tilex != x || door.tiley != y)
-				{
-					::Quit("Expected a door at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
-				}
-
-				auto wall_id = ::door_get_wall_texture_id(door);
-
-				if (!::hw_texture_manager_->wall_cache(wall_id))
-				{
-					::Quit("Failed to cache door wall #" + std::to_string(wall_id) + ".");
-				}
+				::hw_precache_door_track(x, y);
 
 				continue;
 			}
@@ -4873,29 +4894,34 @@ static void hw_precache_solid_walls()
 				has_switch = true;
 			}
 
-			// Horizontal wall.
-			//
-			const auto horizontal_wall_id = ::horizwall[tile_wall];
-
-			if (!::hw_texture_manager_->wall_cache(horizontal_wall_id))
-			{
-				::Quit("Failed to cache horizontal wall #" + std::to_string(horizontal_wall_id) + ".");
-			}
-
-			// Vertical wall.
-			//
-			const auto vertical_wall_id = ::vertwall[tile_wall];
-
-			if (!::hw_texture_manager_->wall_cache(vertical_wall_id))
-			{
-				::Quit("Failed to cache vertical wall #" + std::to_string(vertical_wall_id) + ".");
-			}
+			::hw_precache_horizontal_wall(tile_wall);
+			::hw_precache_vertical_wall(tile_wall);
 		}
 	}
 
 	if (has_switch)
 	{
 		::hw_precache_switches();
+	}
+}
+
+static void hw_precache_push_walls()
+{
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (!::hw_tile_is_push_wall(x, y))
+			{
+				continue;
+			}
+
+			const auto tile = ::tilemap[x][y];
+			const auto tile_wall = tile & ::tilemap_wall_mask;
+
+			::hw_precache_horizontal_wall(tile_wall);
+			::hw_precache_vertical_wall(tile_wall);
+		}
 	}
 }
 
@@ -4906,8 +4932,11 @@ static void vid_hw_precache_resources()
 	::hw_precache_flooring();
 	::hw_precache_ceiling();
 	::hw_precache_solid_walls();
+	::hw_precache_push_walls();
 
 	::hw_texture_manager_->cache_end();
+
+	::hw_texture_manager_->cache_purge();
 }
 
 static int hw_get_solid_wall_side_count(
@@ -4973,7 +5002,7 @@ static int hw_tile_get_door_track_wall_id(
 	const auto door_index = door_tile & ::tilemap_wall_mask;
 	const auto& door = ::doorobjlist[door_index];
 
-	return ::door_get_wall_texture_id(door);
+	return ::door_get_track_texture_id(door);
 }
 
 static void hw_3d_map_wall_side(

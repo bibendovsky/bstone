@@ -3977,7 +3977,7 @@ const std::string& get_profile_dir();
 
 void update_normalshade();
 
-int door_get_wall_texture_id(
+int door_get_track_texture_id(
 	const doorobj_t& door);
 // BBi
 
