@@ -5499,10 +5499,6 @@ static void hw_3d_translate_pushwall_side(
 			y_f + vertex_offsets[1],
 			0.0F,
 		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
 	}
 
 	// Bottom-right (when looking at face side).
@@ -5515,10 +5511,6 @@ static void hw_3d_translate_pushwall_side(
 			y_f + vertex_offsets[3],
 			0.0F,
 		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
 	}
 
 	// Top-right (when looking at face side).
@@ -5531,10 +5523,6 @@ static void hw_3d_translate_pushwall_side(
 			y_f + vertex_offsets[3],
 			::hw_3d_map_height_f,
 		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
 	}
 
 	// Top-left (when looking at face side).
@@ -5547,10 +5535,6 @@ static void hw_3d_translate_pushwall_side(
 			y_f + vertex_offsets[1],
 			::hw_3d_map_height_f,
 		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
 	}
 }
 
