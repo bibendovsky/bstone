@@ -2611,6 +2611,11 @@ void ActivateWallSwitch(
 					{
 						*tile = static_cast<std::uint8_t>(newwall);
 						*actor = newwall;
+
+						if (::vid_is_hw_)
+						{
+							::vid_hw_handle_switch_wall(mapx, mapy);
+						}
 					}
 				}
 
