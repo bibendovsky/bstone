@@ -1520,7 +1520,6 @@ bstone::RendererIndexBufferPtr hw_3d_wall_sides_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_wall_sides_vb_ = nullptr;
 
 Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
-Hw3dWallVbBuffer hw_3d_walls_vb_buffer_;
 
 
 int hw_3d_pushwall_count_ = 0;
@@ -5424,8 +5423,8 @@ static void hw_3d_build_solid_walls()
 	//
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
 
-	::hw_3d_walls_vb_buffer_.clear();
-	::hw_3d_walls_vb_buffer_.resize(vertex_count);
+	auto vb_buffer = Hw3dWallVbBuffer{};
+	vb_buffer.resize(vertex_count);
 
 	::hw_3d_xy_wall_map_.clear();
 
@@ -5435,7 +5434,7 @@ static void hw_3d_build_solid_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			::hw_3d_map_xy_to_solid_wall(x, y, vertex_index, ::hw_3d_walls_vb_buffer_);
+			::hw_3d_map_xy_to_solid_wall(x, y, vertex_index, vb_buffer);
 		}
 	}
 
@@ -5444,7 +5443,7 @@ static void hw_3d_build_solid_walls()
 	auto param = bstone::RendererVertexBufferUpdateParam{};
 	param.offset_ = 0;
 	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_walls_vb_buffer_.data();
+	param.vertices_ = vb_buffer.data();
 
 	::hw_3d_wall_sides_vb_->update(param);
 }
