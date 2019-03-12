@@ -2032,7 +2032,7 @@ void PlayLoop()
 	playstate = ex_stillplaying;
 
 	framecount = frameon = 0;
-	pwallstate = anglefrac = 0;
+	anglefrac = 0;
 	memset(buttonstate, 0, sizeof(buttonstate));
 	ClearPaletteShifts();
 	ForceUpdateStatusBar();

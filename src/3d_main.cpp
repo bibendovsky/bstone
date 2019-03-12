@@ -8317,6 +8317,8 @@ bool LoadLevel(
 
 	::update_normalshade();
 
+	::pwallstate = 0;
+
 	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
 	g_playtemp.set_position(0);
@@ -8496,6 +8498,20 @@ bool LoadLevel(
 
 	if (is_succeed)
 	{
+		// Fix moving pushwall.
+		//
+		// TODO Archive mapsegs[1] into saved game?
+		//
+		if (::pwallstate != 0)
+		{
+			auto& tile_object = ::mapsegs[1][(MAPSIZE * ::pwally) + ::pwallx];
+
+			if (tile_object == PUSHABLETILE)
+			{
+				tile_object = 0;
+			}
+		}
+
 		::apply_cross_barriers();
 		::vid_hw_on_level_load();
 	}
