@@ -2847,11 +2847,6 @@ void SetupGameLevel()
 			::Quit("No Fision/Plasma Detonator on level.");
 		}
 	}
-
-	if (::vid_is_hw_)
-	{
-		::vid_hw_handle_level_startup();
-	}
 }
 
 

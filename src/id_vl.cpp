@@ -5306,23 +5306,15 @@ static void hw_3d_map_xy_to_xwall(
 	int& vertex_index,
 	Hw3dWallVbBuffer& vb_buffer)
 {
-	if (wall_kind == Hw3dXyWallKind::solid)
+	switch (wall_kind)
 	{
-		if (!::hw_tile_is_solid_wall(x, y))
-		{
-			return;
-		}
-	}
-	else if (wall_kind == Hw3dXyWallKind::push)
-	{
-		if (!::hw_tile_is_pushwall(x, y))
-		{
-			return;
-		}
-	}
-	else
-	{
+	case Hw3dXyWallKind::solid:
+	case Hw3dXyWallKind::push:
+		break;
+
+	default:
 		::Quit("Invalid kind.");
+		break;
 	}
 
 	auto is_north_solid = false;
@@ -5408,6 +5400,42 @@ static void hw_3d_build_solid_walls()
 {
 	::hw_3d_uninitialize_solid_walls();
 
+	// Check for moving pushwall.
+	//
+	const auto has_active_pushwall = (::pwallstate != 0);
+
+	auto active_pushwall_next_x = 0;
+	auto active_pushwall_next_y = 0;
+
+	if (has_active_pushwall)
+	{
+		active_pushwall_next_x = ::pwallx;
+		active_pushwall_next_y = ::pwally;
+
+		switch (::pwalldir)
+		{
+		case di_north:
+			--active_pushwall_next_y;
+			break;
+
+		case di_east:
+			++active_pushwall_next_x;
+			break;
+
+		case di_south:
+			++active_pushwall_next_y;
+			break;
+
+		case di_west:
+			--active_pushwall_next_x;
+			break;
+
+		default:
+			::Quit("Invalid direction.");
+			break;
+		}
+	}
+
 	// Count walls and their sides.
 	//
 	::hw_3d_wall_count_ = 0;
@@ -5417,11 +5445,20 @@ static void hw_3d_build_solid_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (::hw_tile_is_solid_wall(x, y))
+			if (!::hw_tile_is_solid_wall(x, y))
 			{
-				::hw_3d_wall_count_ += 1;
-				::hw_3d_wall_side_count_ += ::hw_get_solid_wall_side_count(x, y);
+				continue;
 			}
+
+			if (has_active_pushwall &&
+				x == active_pushwall_next_x &&
+				y == active_pushwall_next_y)
+			{
+				continue;
+			}
+
+			::hw_3d_wall_count_ += 1;
+			::hw_3d_wall_side_count_ += ::hw_get_solid_wall_side_count(x, y);
 		}
 	}
 
@@ -5456,6 +5493,18 @@ static void hw_3d_build_solid_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
+			if (!::hw_tile_is_solid_wall(x, y))
+			{
+				continue;
+			}
+
+			if (has_active_pushwall &&
+				x == active_pushwall_next_x &&
+				y == active_pushwall_next_y)
+			{
+				continue;
+			}
+
 			::hw_3d_map_xy_to_xwall(
 				Hw3dXyWallKind::solid,
 				x,
@@ -5703,10 +5752,12 @@ static void hw_3d_build_pushwalls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (::hw_tile_is_pushwall(x, y))
+			if (!::hw_tile_is_pushwall(x, y))
 			{
-				::hw_3d_pushwall_count_ += 1;
+				continue;
 			}
+
+			::hw_3d_pushwall_count_ += 1;
 		}
 	}
 
@@ -5743,6 +5794,11 @@ static void hw_3d_build_pushwalls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
+			if (!::hw_tile_is_pushwall(x, y))
+			{
+				continue;
+			}
+
 			::hw_3d_map_xy_to_xwall(
 				Hw3dXyWallKind::push,
 				x,
@@ -5778,19 +5834,28 @@ static void hw_precache_resources()
 	::hw_texture_manager_->cache_purge();
 }
 
-void vid_hw_handle_level_startup()
+void vid_hw_on_level_load()
 {
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
 	::hw_precache_resources();
 
 	::hw_3d_build_solid_walls();
 	::hw_3d_build_pushwalls();
 }
 
-void vid_hw_handle_switch_wall(
+void vid_hw_on_wall_switch_update(
 	const int x,
 	const int y)
 {
-	assert(::vid_is_hw_);
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
 	assert(x >= 0 && x < MAPSIZE && y >= 0 && y < MAPSIZE);
 
 	const auto xy = ::hw_encode_xy(x, y);
@@ -5836,18 +5901,24 @@ void vid_hw_handle_switch_wall(
 	}
 }
 
-void vid_hw_handle_pushwall_motion()
+void vid_hw_on_pushwall_move()
 {
-	assert(::vid_is_hw_);
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
 
 	::hw_3d_translate_pushwall();
 }
 
-void vid_hw_handle_pushwall_step(
+void vid_hw_on_pushwall_step(
 	const int old_x,
 	const int old_y)
 {
-	assert(::vid_is_hw_);
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
 
 	::hw_3d_step_pushwall(old_x, old_y);
 }

@@ -2586,11 +2586,7 @@ void ActivateWallSwitch(
 
 		// BBi
 		::set_cross_barrier_state(num);
-
-		if (::vid_is_hw_)
-		{
-			::vid_hw_handle_switch_wall(x, y);
-		}
+		::vid_hw_on_wall_switch_update(x, y);
 		// BBi
 
 		::DisplaySwitchOperateMsg(num);
@@ -2612,10 +2608,7 @@ void ActivateWallSwitch(
 						*tile = static_cast<std::uint8_t>(newwall);
 						*actor = newwall;
 
-						if (::vid_is_hw_)
-						{
-							::vid_hw_handle_switch_wall(mapx, mapy);
-						}
+						::vid_hw_on_wall_switch_update(mapx, mapy);
 					}
 				}
 

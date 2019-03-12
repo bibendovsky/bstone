@@ -252,15 +252,15 @@ void vid_draw_ui_sprite(
 	const int center_y,
 	const int new_side);
 
-void vid_hw_handle_level_startup();
+void vid_hw_on_level_load();
 
-void vid_hw_handle_switch_wall(
+void vid_hw_on_wall_switch_update(
 	const int x,
 	const int y);
 
-void vid_hw_handle_pushwall_motion();
+void vid_hw_on_pushwall_move();
 
-void vid_hw_handle_pushwall_step(
+void vid_hw_on_pushwall_step(
 	const int old_x,
 	const int old_y);
 

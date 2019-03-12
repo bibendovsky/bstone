@@ -8324,6 +8324,7 @@ bool LoadLevel(
 	if ((::FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault)
 	{
 		::SetupGameLevel();
+		::vid_hw_on_level_load();
 
 		gamestate.flags |= GS_VIRGIN_LEVEL;
 		gamestate.turn_around = 0;
@@ -8478,10 +8479,6 @@ bool LoadLevel(
 			::gamestate.barrier_table[i].unarchive(archiver);
 		}
 
-		// BBi
-		::apply_cross_barriers();
-		// BBi
-
 		gamestate.plasma_detonators = archiver->read_int16();
 
 		// Read and evaluate checksum
@@ -8497,7 +8494,12 @@ bool LoadLevel(
 		is_succeed = false;
 	}
 
-	if (!is_succeed)
+	if (is_succeed)
+	{
+		::apply_cross_barriers();
+		::vid_hw_on_level_load();
+	}
+	else
 	{
 		std::int16_t old_wx = WindowX;
 		std::int16_t old_wy = WindowY;
