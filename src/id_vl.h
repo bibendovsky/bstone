@@ -264,5 +264,8 @@ void vid_hw_on_pushwall_step(
 	const int old_x,
 	const int old_y);
 
+void vid_hw_on_door_move(
+	const int door_index);
+
 
 #endif // BSTONE_ID_VL_INCLUDED

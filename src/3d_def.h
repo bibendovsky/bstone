@@ -3979,6 +3979,18 @@ void update_normalshade();
 
 int door_get_track_texture_id(
 	const doorobj_t& door);
+
+void door_get_page_numbers_for_caching(
+	const doorobj_t& door,
+	int& horizontal_locked_page_number,
+	int& horizontal_unlocked_page_number,
+	int& vertical_locked_page_number,
+	int& vertical_unlocked_page_number);
+
+void door_get_page_numbers(
+	const doorobj_t& door,
+	int& front_face_page_number,
+	int& back_face_page_number);
 // BBi
 
 

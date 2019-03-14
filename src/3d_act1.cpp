@@ -1262,6 +1262,8 @@ void BlockDoorOpen(
 	actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 
 	TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
+
+	::vid_hw_on_door_move(door);
 }
 
 void TryBlastDoor(
@@ -1506,6 +1508,8 @@ void DoorOpening(
 	}
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
+
+	::vid_hw_on_door_move(door);
 }
 
 void DoorClosing(
@@ -1539,6 +1543,8 @@ void DoorClosing(
 	}
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
+
+	::vid_hw_on_door_move(door);
 }
 
 /*

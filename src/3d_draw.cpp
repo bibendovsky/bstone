@@ -2103,3 +2103,201 @@ int door_get_track_texture_id(
 
 	return result;
 }
+
+void door_get_page_numbers_for_caching(
+	const doorobj_t& door,
+	int& horizontal_locked_page_number,
+	int& horizontal_unlocked_page_number,
+	int& vertical_locked_page_number,
+	int& vertical_unlocked_page_number)
+{
+	switch (door.type)
+	{
+	case dr_normal:
+		horizontal_locked_page_number = DOORWALL + L_METAL;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_METAL_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_elevator:
+		horizontal_locked_page_number = DOORWALL + L_ELEVATOR;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_ELEVATOR_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_prison:
+		horizontal_locked_page_number = DOORWALL + L_PRISON;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_PRISON_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_space:
+		horizontal_locked_page_number = DOORWALL +  L_SPACE;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_SPACE_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_bio:
+		horizontal_locked_page_number = DOORWALL + L_BIO;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_BIO_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_high_security:
+		horizontal_locked_page_number = DOORWALL + L_HIGH_SECURITY;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_HIGH_SECURITY_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_office:
+		horizontal_locked_page_number = DOORWALL + L_HIGH_TECH;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_HIGH_TECH_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_oneway_up:
+	case dr_oneway_left:
+	case dr_oneway_right:
+	case dr_oneway_down:
+		horizontal_locked_page_number = DOORWALL + NOEXIT;
+		horizontal_unlocked_page_number = DOORWALL + L_ENTER_ONLY;
+
+		vertical_locked_page_number = DOORWALL + NOEXIT_SHADE;
+		vertical_unlocked_page_number = DOORWALL + L_ENTER_ONLY_SHADE;
+
+		break;
+
+	default:
+		horizontal_locked_page_number = 0;
+		horizontal_unlocked_page_number = 0;
+
+		vertical_locked_page_number = 0;
+		vertical_unlocked_page_number = 0;
+
+		::Quit("Invalid door type.");
+
+		break;
+	}
+}
+
+void door_get_page_numbers(
+	const doorobj_t& door,
+	int& front_face_page_number,
+	int& back_face_page_number)
+{
+	const auto is_unlocked = (door.lock == kt_none);
+
+	auto is_lockable = true;
+
+	front_face_page_number = DOORWALL;
+	back_face_page_number = DOORWALL;
+
+	switch (door.type)
+	{
+	case dr_normal:
+		front_face_page_number += (door.vertical ? L_METAL_SHADE : L_METAL);
+
+		break;
+
+	case dr_elevator:
+		front_face_page_number += (door.vertical ? L_ELEVATOR_SHADE : L_ELEVATOR);
+
+		break;
+
+	case dr_prison:
+		front_face_page_number += (door.vertical ? L_PRISON_SHADE : L_PRISON);
+
+		break;
+
+	case dr_space:
+		front_face_page_number += (door.vertical ? L_SPACE_SHADE : L_SPACE);
+
+		break;
+
+	case dr_bio:
+		front_face_page_number += (door.vertical ? L_BIO_SHADE : L_BIO);
+
+		break;
+
+	case dr_high_security:
+		front_face_page_number += (door.vertical ? L_HIGH_SECURITY_SHADE : L_HIGH_SECURITY);
+
+		break;
+
+	case dr_office:
+		front_face_page_number += (door.vertical ? L_HIGH_TECH_SHADE : L_HIGH_TECH);
+
+		break;
+
+	case dr_oneway_up:
+		is_lockable = false;
+
+		front_face_page_number += L_ENTER_ONLY;
+		back_face_page_number += NOEXIT;
+
+		break;
+
+	case dr_oneway_left:
+		is_lockable = false;
+
+		front_face_page_number += NOEXIT_SHADE;
+		back_face_page_number += L_ENTER_ONLY_SHADE;
+
+		break;
+
+	case dr_oneway_right:
+		is_lockable = false;
+
+		front_face_page_number += L_ENTER_ONLY_SHADE;
+		back_face_page_number += NOEXIT_SHADE;
+
+		break;
+
+	case dr_oneway_down:
+		is_lockable = false;
+
+		front_face_page_number += NOEXIT;
+		back_face_page_number += L_ENTER_ONLY;
+
+		break;
+
+	default:
+		front_face_page_number = 0;
+		back_face_page_number = 0;
+
+		::Quit("Invalid door type.");
+
+		break;
+	}
+
+	if (is_lockable)
+	{
+		if (is_unlocked)
+		{
+			front_face_page_number += UL_METAL;
+		}
+
+		back_face_page_number = front_face_page_number;
+	}
+}
