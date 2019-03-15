@@ -5959,7 +5959,7 @@ static void hw_3d_translate_pushwall(
 	int& vertex_index,
 	HwVbBuffer& vb_buffer)
 {
-	const auto translate_distance = ::pwallpos / 64.0F;
+	auto translate_distance = static_cast<float>(::pwallpos) / 63.0F;
 
 	auto translate_x = 0.0F;
 	auto translate_y = 0.0F;

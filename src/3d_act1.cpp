@@ -1697,35 +1697,31 @@ void PushWall(
 
 void MovePWalls()
 {
-	std::int16_t oldblock, oldtile;
-
-	if (!pwallstate)
+	if (::pwallstate == 0)
 	{
 		return;
 	}
 
-	oldblock = pwallstate / 128;
+	const auto oldblock = ::pwallstate / 128;
 
-	pwallstate += tics * 4;
+	::pwallstate += ::tics * 4;
 
-	if (pwallstate / 128 != oldblock)
+	if ((::pwallstate / 128) != oldblock)
 	{
-		std::uint16_t areanumber;
-
-		pwalldist--;
+		--::pwalldist;
 
 		// block crossed into a new block
-		oldtile = tilemap[pwallx][pwally] & 63;
+		const auto oldtile = ::tilemap[::pwallx][::pwally] & 63;
 
 		//
 		// the tile can now be walked into
 		//
-		tilemap[pwallx][pwally] = 0;
+		::tilemap[::pwallx][::pwally] = 0;
+		::actorat[::pwallx][::pwally] = nullptr;
 
-		actorat[pwallx][pwally] = nullptr;
+		std::uint16_t areanumber = ::GetAreaNumber(::player->tilex, ::player->tiley);
 
-		areanumber = GetAreaNumber(player->tilex, player->tiley);
-		if (GAN_HiddenArea)
+		if (::GAN_HiddenArea)
 		{
 			areanumber += HIDDENAREATILE;
 		}
@@ -1733,92 +1729,83 @@ void MovePWalls()
 		{
 			areanumber += AREATILE;
 		}
-		*(mapsegs[0] + farmapylookup[pwally] + pwallx) = areanumber;
+
+		::mapsegs[0][::farmapylookup[::pwally] + ::pwallx] = areanumber;
 
 		//
 		// see if it should be pushed farther
 		//
-		if (!pwalldist)
+		const auto old_x = ::pwallx;
+		const auto old_y = ::pwally;
+
+		if (::pwalldist == 0)
 		{
 			//
 			// the block has been pushed two tiles
 			//
-			pwallstate = 0;
+			::pwallstate = 0;
+			::pwallpos = 63;
+
+			::vid_hw_on_pushwall_step(old_x, old_y);
+
 			return;
 		}
 		else
 		{
-			const auto old_x = ::pwallx;
-			const auto old_y = ::pwally;
+			auto next_dx = 0;
+			auto next_dy = 0;
 
-			switch (pwalldir)
+			switch (::pwalldir)
 			{
 			case di_north:
-				pwally--;
-
-				::vid_hw_on_pushwall_step(old_x, old_y);
-
-				if (actorat[pwallx][pwally - 1])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx][pwally - 1] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
+				next_dy = -1;
 				break;
 
 			case di_east:
-				pwallx++;
-
-				::vid_hw_on_pushwall_step(old_x, old_y);
-
-				if (actorat[pwallx + 1][pwally])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx + 1][pwally] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
+				next_dx = 1;
 				break;
 
 			case di_south:
-				pwally++;
-
-				::vid_hw_on_pushwall_step(old_x, old_y);
-
-				if (actorat[pwallx][pwally + 1])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx][pwally + 1] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
+				next_dy = 1;
 				break;
 
 			case di_west:
-				pwallx--;
+				next_dx = -1;
+				break;
 
-				::vid_hw_on_pushwall_step(old_x, old_y);
-
-				if (actorat[pwallx - 1][pwally])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx - 1][pwally] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
+			default:
+				::Quit("Invalid pushwall direction.");
 				break;
 			}
 
-			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xc0);
+			::pwallx += next_dx;
+			::pwally += next_dy;
+
+			::vid_hw_on_pushwall_step(old_x, old_y);
+
+			const auto next_x = ::pwallx + next_dx;
+			const auto next_y = ::pwally + next_dy;
+
+			auto& next_actorat = ::actorat[next_x][next_y];
+
+			if (next_actorat)
+			{
+				::pwallstate = 0;
+				::pwallpos = 63;
+
+				::vid_hw_on_pushwall_step(old_x, old_y);
+
+				return;
+			}
+
+			::tilemap[next_x][next_y] = static_cast<std::uint8_t>(oldtile);
+			next_actorat = reinterpret_cast<objtype*>(static_cast<std::uintptr_t>(oldtile));
+
+			::tilemap[::pwallx][::pwally] = static_cast<std::uint8_t>(oldtile | 0xC0);
 		}
 	}
 
-	pwallpos = (pwallstate / 2) & 63;
+	::pwallpos = (::pwallstate / 2) & 63;
 
 	::vid_hw_on_pushwall_move();
 }
