@@ -1579,6 +1579,10 @@ bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
+bool hw_3d_has_active_pushwall_ = false;
+int hw_3d_active_pushwall_next_x_ = 0;
+int hw_3d_active_pushwall_next_y_ = 0;
+
 int hw_3d_wall_count_ = 0;
 int hw_3d_wall_side_count_ = 0;
 Hw3dXyWallMap hw_3d_xy_wall_map_;
@@ -5281,6 +5285,13 @@ static constexpr bool hw_tile_is_solid_wall(
 		return false;
 	}
 
+	if (::hw_3d_has_active_pushwall_ &&
+		::hw_3d_active_pushwall_next_x_ == x &&
+		::hw_3d_active_pushwall_next_y_ == y)
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -5740,32 +5751,32 @@ static void hw_3d_build_solid_walls()
 
 	// Check for moving pushwall.
 	//
-	const auto has_active_pushwall = (::pwallstate != 0);
+	::hw_3d_has_active_pushwall_ = (::pwallstate != 0);
 
-	auto active_pushwall_next_x = 0;
-	auto active_pushwall_next_y = 0;
+	::hw_3d_active_pushwall_next_x_ = 0;
+	::hw_3d_active_pushwall_next_y_ = 0;
 
-	if (has_active_pushwall)
+	if (::hw_3d_has_active_pushwall_)
 	{
-		active_pushwall_next_x = ::pwallx;
-		active_pushwall_next_y = ::pwally;
+		::hw_3d_active_pushwall_next_x_ = ::pwallx;
+		::hw_3d_active_pushwall_next_y_ = ::pwally;
 
 		switch (::pwalldir)
 		{
 		case di_north:
-			--active_pushwall_next_y;
+			--::hw_3d_active_pushwall_next_y_;
 			break;
 
 		case di_east:
-			++active_pushwall_next_x;
+			++::hw_3d_active_pushwall_next_x_;
 			break;
 
 		case di_south:
-			++active_pushwall_next_y;
+			++::hw_3d_active_pushwall_next_y_;
 			break;
 
 		case di_west:
-			--active_pushwall_next_x;
+			--::hw_3d_active_pushwall_next_x_;
 			break;
 
 		default:
@@ -5788,9 +5799,9 @@ static void hw_3d_build_solid_walls()
 				continue;
 			}
 
-			if (has_active_pushwall &&
-				x == active_pushwall_next_x &&
-				y == active_pushwall_next_y)
+			if (::hw_3d_has_active_pushwall_ &&
+				x == ::hw_3d_active_pushwall_next_x_ &&
+				y == ::hw_3d_active_pushwall_next_y_)
 			{
 				continue;
 			}
@@ -5836,9 +5847,9 @@ static void hw_3d_build_solid_walls()
 				continue;
 			}
 
-			if (has_active_pushwall &&
-				x == active_pushwall_next_x &&
-				y == active_pushwall_next_y)
+			if (::hw_3d_has_active_pushwall_ &&
+				x == ::hw_3d_active_pushwall_next_x_ &&
+				y == ::hw_3d_active_pushwall_next_y_)
 			{
 				continue;
 			}
