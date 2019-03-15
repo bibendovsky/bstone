@@ -6567,4 +6567,40 @@ void vid_hw_on_door_move(
 
 	::hw_3d_door_sides_vb_->update(param);
 }
+
+void vid_hw_on_door_lock_update(
+	const int door_index)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	const auto& bs_door = ::doorobjlist[door_index];
+
+	const auto xy = ::hw_encode_xy(bs_door.tilex, bs_door.tiley);
+
+	const auto map_it = ::hw_3d_xy_door_map_.find(xy);
+
+	if (map_it == ::hw_3d_xy_door_map_.cend())
+	{
+		::Quit("Door mapping not found.");
+	}
+
+	auto& door = ::hw_3d_xy_door_map_[xy];
+
+	auto front_face_page_number = 0;
+	auto back_face_page_number = 0;
+
+	::door_get_page_numbers(*door.door_, front_face_page_number, back_face_page_number);
+
+	const auto front_face_texture_2d = ::hw_texture_manager_->wall_get(front_face_page_number);
+	const auto back_face_texture_2d = ::hw_texture_manager_->wall_get(back_face_page_number);
+
+	assert(front_face_texture_2d);
+	assert(back_face_texture_2d);
+
+	door.sides_[0].texture_2d_ = front_face_texture_2d;
+	door.sides_[1].texture_2d_ = back_face_texture_2d;
+}
 // BBi

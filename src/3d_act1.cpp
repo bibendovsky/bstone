@@ -925,11 +925,17 @@ void CheckLinkedDoors(
 		case dr_opening:
 			doorobjlist[door_index].lock = kt_none;
 			OpenDoor(door_index);
+
+			::vid_hw_on_door_lock_update(door_index);
+
 			break;
 
 		case dr_closing:
 			doorobjlist[door_index].lock = kt_none;
 			CloseDoor(door_index);
+
+			::vid_hw_on_door_lock_update(door_index);
+
 			break;
 		}
 	}
@@ -1227,6 +1233,8 @@ void OperateDoor(
 			TakeKey(lock - kt_red);
 			DISPLAY_TIMED_MSG(od_granted, MP_DOOR_OPERATE, MT_GENERAL);
 			doorobjlist[door].lock = kt_none;                           // UnLock door
+
+			::vid_hw_on_door_lock_update(door);
 		}
 	}
 	else
@@ -1264,6 +1272,7 @@ void BlockDoorOpen(
 	TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
 
 	::vid_hw_on_door_move(door);
+	::vid_hw_on_door_lock_update(door);
 }
 
 void TryBlastDoor(

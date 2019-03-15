@@ -5516,6 +5516,9 @@ bool OperateSmartSwitch(
 
 		doorobjlist[DoorNum].lock = kt_none;
 		OpenDoor(DoorNum);
+
+		::vid_hw_on_door_lock_update(DoorNum);
+
 		return false;
 
 
