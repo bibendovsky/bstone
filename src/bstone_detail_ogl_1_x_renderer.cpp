@@ -463,6 +463,8 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 		texture_subbuffer_1 = &renderer_->texture_buffer_[max_subbuffer_size];
 	}
 
+	auto is_set_subbuffer_0 = false;
+
 	if (is_rgba_)
 	{
 		if (is_npot_)
@@ -478,6 +480,10 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 		}
 		else
 		{
+			// Don't copy the base mipmap into a buffer.
+
+			is_set_subbuffer_0 = true;
+
 			texture_subbuffer_0 = const_cast<RendererColor32Ptr>(rgba_pixels_);
 		}
 	}
@@ -529,15 +535,17 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 				mipmap_height /= 2;
 			}
 
+			if (is_set_subbuffer_0)
+			{
+				is_set_subbuffer_0 = false;
+
+				texture_subbuffer_0 = &renderer_->texture_buffer_[0];
+			}
+
 			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
 		upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
-
-		if (i_mipmap == 0)
-		{
-			texture_subbuffer_0 = &renderer_->texture_buffer_[0];
-		}
 	}
 }
 
