@@ -225,6 +225,8 @@ target_sources(
 		bstone_matn.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
+		bstone_missing_sprite_64x64_image.h
+		bstone_missing_wall_64x64_image.h
 		bstone_mt_queue_1r1w.h
 		bstone_ogl.h
 		bstone_opl2.h
@@ -303,6 +305,8 @@ target_sources(
 		bstone_log.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
+		bstone_missing_sprite_64x64_image.cpp
+		bstone_missing_wall_64x64_image.cpp
 		bstone_ogl.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp
