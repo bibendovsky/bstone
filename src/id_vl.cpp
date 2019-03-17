@@ -1337,6 +1337,7 @@ const auto hw_3d_map_height_f = 1.0F;
 template<typename T>
 constexpr auto hw_3d_tile_dimension = static_cast<T>(1);
 
+constexpr auto hw_3d_tile_dimension_i = ::hw_3d_tile_dimension<int>;
 constexpr auto hw_3d_tile_dimension_f = ::hw_3d_tile_dimension<float>;
 constexpr auto hw_3d_tile_dimension_d = ::hw_3d_tile_dimension<double>;
 
@@ -3841,6 +3842,56 @@ void hw_refresh_screen_2d()
 	::hw_2d_command_set_->count_ = command_index;
 }
 
+bool hw_3d_dbg_is_tile_vertex_visible(
+	const int x,
+	const int y)
+{
+	const auto& wall_direction = bstone::Vec2D
+	{
+		::hw_3d_player_position[0] - static_cast<double>(x),
+		::hw_3d_player_position[1] - static_cast<double>(y)
+	};
+
+	const auto cosine_between_directions = bstone::Vec2D::dot_product(
+		wall_direction, ::hw_3d_player_direction);
+
+	if (cosine_between_directions >= 0.0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool hw_3d_dbg_is_tile_visible(
+	const int x,
+	const int y)
+{
+	const auto delta = ::hw_3d_tile_dimension_i;
+
+	if (::hw_3d_dbg_is_tile_vertex_visible(x + 0, y + 0))
+	{
+		return true;
+	}
+
+	if (::hw_3d_dbg_is_tile_vertex_visible(x + delta, y + 0))
+	{
+		return true;
+	}
+
+	if (::hw_3d_dbg_is_tile_vertex_visible(x + delta, y + delta))
+	{
+		return true;
+	}
+
+	if (::hw_3d_dbg_is_tile_vertex_visible(x + 0, y + delta))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void hw_3d_dbg_draw_all_solid_walls(
 	int& command_index)
 {
@@ -3851,7 +3902,14 @@ void hw_3d_dbg_draw_all_solid_walls(
 
 	for (const auto& xy_wall_item : ::hw_3d_xy_wall_map_)
 	{
-		for (const auto& side : xy_wall_item.second.sides_)
+		const auto& wall = xy_wall_item.second;
+
+		if (!::hw_3d_dbg_is_tile_visible(wall.x_, wall.y_))
+		{
+			continue;
+		}
+
+		for (const auto& side : wall.sides_)
 		{
 			if (!side.flags_.is_active_)
 			{
@@ -3964,7 +4022,14 @@ void hw_3d_dbg_draw_all_pushwalls(
 
 	for (const auto& xy_pushwall_item : ::hw_3d_xy_pushwall_map_)
 	{
-		for (const auto& side : xy_pushwall_item.second.sides_)
+		const auto& pushwall = xy_pushwall_item.second;
+
+		if (!::hw_3d_dbg_is_tile_visible(pushwall.x_, pushwall.y_))
+		{
+			continue;
+		}
+
+		for (const auto& side : pushwall.sides_)
 		{
 			auto& draw_item = draw_items[draw_side_index++];
 
@@ -4062,6 +4127,70 @@ void hw_3d_dbg_draw_all_pushwalls(
 	::hw_3d_pushwall_side_draw_item_count_ = draw_side_index;
 }
 
+bool hw_3d_dbg_is_door_vertex_visible(
+	const double x,
+	const double y)
+{
+	const auto& wall_direction = bstone::Vec2D
+	{
+		::hw_3d_player_position[0] - x,
+		::hw_3d_player_position[1] - y
+	};
+
+	const auto cosine_between_directions = bstone::Vec2D::dot_product(
+		wall_direction, ::hw_3d_player_direction);
+
+	if (cosine_between_directions >= 0.0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool hw_3d_dbg_is_door_visible(
+	const doorobj_t& door)
+{
+	if (door.vertical)
+	{
+		const auto x = static_cast<double>(door.tilex) + ::hw_3d_tile_half_dimension_d;
+
+		const auto y_0 = static_cast<double>(door.tiley);
+
+		if (::hw_3d_dbg_is_door_vertex_visible(x, y_0))
+		{
+			return true;
+		}
+
+		const auto y_1 = y_0 + ::hw_3d_tile_dimension_d;
+
+		if (::hw_3d_dbg_is_door_vertex_visible(x, y_1))
+		{
+			return true;
+		}
+	}
+	else
+	{
+		const auto y = static_cast<double>(door.tiley) + ::hw_3d_tile_half_dimension_d;
+
+		const auto x_0 = static_cast<double>(door.tilex);
+
+		if (::hw_3d_dbg_is_door_vertex_visible(x_0, y))
+		{
+			return true;
+		}
+
+		const auto x_1 = x_0 + ::hw_3d_tile_dimension_d;
+
+		if (::hw_3d_dbg_is_door_vertex_visible(x_1, y))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void hw_3d_dbg_draw_all_doors(
 	int& command_index)
 {
@@ -4079,6 +4208,11 @@ void hw_3d_dbg_draw_all_doors(
 		if (door_position == 0xFFFF)
 		{
 			// Skip fully open door.
+			continue;
+		}
+
+		if (!::hw_3d_dbg_is_door_visible(*door.door_))
+		{
 			continue;
 		}
 
