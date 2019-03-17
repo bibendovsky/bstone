@@ -353,6 +353,8 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		min_filter = GL_NEAREST;
 	}
 
+	auto mag_filter = GL_NEAREST;
+
 	::glGenTextures(1, &ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 	assert(ogl_id_ != 0);
@@ -363,7 +365,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 	assert(!OglRendererUtils::was_errors());
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 	assert(!OglRendererUtils::was_errors());
 
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
