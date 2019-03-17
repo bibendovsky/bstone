@@ -1551,6 +1551,7 @@ struct Hw3dSprite
 
 	int x_;
 	int y_;
+	double square_distance_;
 
 	Hw3dSpriteKind kind_;
 	Hw3dSpriteFlags flags_;
@@ -4207,14 +4208,14 @@ void hw_3d_dbg_draw_all_sprites(
 		draw_item.sprite_ = &hw_static;
 	}
 
-	// Sort by texture.
+	// Sort by distance (farthest -> nearest).
 	//
 	std::sort(
 		draw_items.begin(),
 		draw_items.begin() + draw_sprite_index,
 		[](const auto& lhs, const auto& rhs)
 		{
-			return lhs.texture_2d_ < rhs.texture_2d_;
+			return lhs.sprite_->square_distance_ > rhs.sprite_->square_distance_;
 		}
 	);
 
@@ -4251,6 +4252,12 @@ void hw_3d_dbg_draw_all_sprites(
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::enable_blending;
 		command.enable_blending_.is_enabled_ = true;
+	}
+
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::enable_depth_write;
+		command.enable_blending_.is_enabled_ = false;
 	}
 
 	auto draw_index = 0;
@@ -4297,6 +4304,12 @@ void hw_3d_dbg_draw_all_sprites(
 
 			draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 		}
+	}
+
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::enable_depth_write;
+		command.enable_blending_.is_enabled_ = true;
 	}
 
 	{
@@ -5911,6 +5924,8 @@ void hw_3d_orient_sprite(
 	auto r_distance = 1.0;
 
 	const auto square_distance = direction.get_square_magnitude();
+
+	sprite.square_distance_ = square_distance;
 
 	constexpr auto min_square_distance = 1.0E-3;
 
