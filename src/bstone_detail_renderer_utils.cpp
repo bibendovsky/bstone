@@ -611,8 +611,6 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 	const auto top = indexed_sprite.get_top();
 	const auto bottom = indexed_sprite.get_bottom();
 
-	auto dst_index = 0;
-
 	for (int w = 0; w < Sprite::dimension; ++w)
 	{
 		const std::int16_t* column = nullptr;
@@ -624,6 +622,8 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 
 		for (int h = 0; h < Sprite::dimension; ++h)
 		{
+			const auto dst_index = (h * Sprite::dimension) + w;
+
 			auto& dst_pixel = texture_buffer[dst_index];
 
 			if (column && h >= top && h <= bottom)
@@ -645,8 +645,6 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 			{
 				dst_pixel = RendererColor32{};
 			}
-
-			++dst_index;
 		}
 	}
 }
