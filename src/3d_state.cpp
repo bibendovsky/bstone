@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
+#include "id_vl.h"
 
 
 void OpenDoor(
@@ -1018,9 +1019,16 @@ void KillActor(
 	case crate1obj:
 	case crate2obj:
 	case crate3obj:
-		ui16_to_static_object(ob->temp3)->shapenum = -1;
+		{
+			auto bs_static = ::ui16_to_static_object(ob->temp3);
 
-		SpawnStatic(tilex, tiley, ob->temp2);
+			bs_static->shapenum = -1;
+			::vid_hw_on_static_remove(*bs_static);
+
+			bs_static = SpawnStatic(tilex, tiley, ob->temp2);
+			::vid_hw_on_static_add(*bs_static);
+		}
+
 		ob->obclass = deadobj;
 		ob->lighting = NO_SHADING; // No Shading
 		::InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
@@ -2467,6 +2475,16 @@ bool LookForGoodies(
 						statptr->shapenum = shapenum; // remove from list if necessary
 						statptr->itemnumber = bo_nothing;
 						statptr->flags &= ~FL_BONUS;
+
+						if (statptr->shapenum == -1)
+						{
+							::vid_hw_on_static_remove(*statptr);
+						}
+						else
+						{
+							::vid_hw_on_static_change_texture(*statptr);
+						}
+
 						return true;
 					}
 

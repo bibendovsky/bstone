@@ -284,20 +284,23 @@ statobj_t* FindEmptyStatic()
 {
 	statobj_t* spot;
 
-	for (spot = &statobjlist[0];; spot++)
+	for (spot = &::statobjlist[0]; ; ++spot)
 	{
-		if (spot == laststatobj)
+		if (spot == ::laststatobj)
 		{
-			if (spot == &statobjlist[MAXSTATS])
+			if (spot == &::statobjlist[MAXSTATS])
 			{
 				return nullptr;
 			}
-			laststatobj++; // space at end
+
+			++::laststatobj; // space at end
+
 			break;
 		}
 
 		if (spot->shapenum == -1)
-		{ // -1 is a free spot
+		{
+			// -1 is a free spot
 			break;
 		}
 	}
@@ -305,7 +308,7 @@ statobj_t* FindEmptyStatic()
 	return spot;
 }
 
-void SpawnStatic(
+statobj_t* SpawnStatic(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	std::int16_t type)
@@ -318,7 +321,7 @@ void SpawnStatic(
 
 	if (!spot)
 	{
-		return;
+		return nullptr;
 	}
 
 	spot->shapenum = statinfo[type].picnum;
@@ -412,12 +415,16 @@ void SpawnStatic(
 
 	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
-	spot++;
+	auto result = spot;
+
+	++spot;
 
 	if (spot == &statobjlist[MAXSTATS])
 	{
 		::Quit("Too many static objects.");
 	}
+
+	return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -530,6 +537,8 @@ statobj_t* UseReservedStatic(
 
 	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
+	::vid_hw_on_static_add(*spot);
+
 	return spot;
 }
 
@@ -619,6 +628,8 @@ void PlaceItemType(
 	spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 
 	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
+
+	::vid_hw_on_static_add(*spot);
 }
 
 void PlaceItemNearTile(
@@ -712,6 +723,8 @@ void ExplodeStatics(
 					// Remove static
 					spot->shapenum = -1;
 					spot->itemnumber = bo_nothing;
+
+					::vid_hw_on_static_remove(*spot);
 				}
 			}
 		}

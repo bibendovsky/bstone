@@ -3517,7 +3517,7 @@ extern std::int16_t pwalldist;
 
 statobj_t* ReserveStatic();
 
-void SpawnStatic(
+statobj_t* SpawnStatic(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	std::int16_t type);

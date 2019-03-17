@@ -2697,6 +2697,15 @@ void GetBonus(
 	StartBonusFlash();
 	check->shapenum = shapenum; // remove from list if shapenum == -1
 	check->itemnumber = bo_nothing;
+
+	if (check->shapenum == -1)
+	{
+		::vid_hw_on_static_remove(*check);
+	}
+	else
+	{
+		::vid_hw_on_static_change_texture(*check);
+	}
 }
 
 void writeTokenStr(
@@ -5390,6 +5399,8 @@ void SW_HandleStatic(
 		}
 		stat->shapenum = -1;
 		stat->itemnumber = bo_nothing;
+
+		::vid_hw_on_static_remove(*stat);
 		break;
 	}
 }

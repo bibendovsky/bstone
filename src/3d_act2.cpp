@@ -2171,7 +2171,9 @@ void T_SmartThought(
 
 					if ((avail > DR_MIN_STATICS) && (US_RndT() & 1))
 					{
-						SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM);
+						const auto bs_static = SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM);
+
+						::vid_hw_on_static_add(*bs_static);
 					}
 				}
 				break;

@@ -32,6 +32,9 @@ Free Software Foundation, Inc.,
 #include "bstone_ref_values.h"
 
 
+struct statobj_t;
+
+
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
@@ -269,6 +272,15 @@ void vid_hw_on_door_move(
 
 void vid_hw_on_door_lock_update(
 	const int door_index);
+
+void vid_hw_on_static_add(
+	const statobj_t& bs_static);
+
+void vid_hw_on_static_remove(
+	const statobj_t& bs_static);
+
+void vid_hw_on_static_change_texture(
+	const statobj_t& bs_static);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

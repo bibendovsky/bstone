@@ -1333,8 +1333,18 @@ void sw_update_widescreen()
 
 const auto hw_3d_map_dimension_f = static_cast<float>(MAPSIZE);
 const auto hw_3d_map_height_f = 1.0F;
-const auto hw_3d_tile_dimension_f = 1.0F;
-const auto hw_3d_tile_half_dimension_f = 0.5F * ::hw_3d_tile_dimension_f;
+
+template<typename T>
+constexpr auto hw_3d_tile_dimension = static_cast<T>(1);
+
+constexpr auto hw_3d_tile_dimension_f = ::hw_3d_tile_dimension<float>;
+constexpr auto hw_3d_tile_dimension_d = ::hw_3d_tile_dimension<double>;
+
+template<typename T>
+constexpr auto hw_3d_tile_half_dimension = hw_3d_tile_dimension<T> / static_cast<T>(2);
+
+constexpr auto hw_3d_tile_half_dimension_f = ::hw_3d_tile_half_dimension<float>;
+constexpr auto hw_3d_tile_half_dimension_d = ::hw_3d_tile_half_dimension<double>;
 
 
 template<int TCount>
@@ -1384,6 +1394,22 @@ constexpr auto hw_3d_max_indices_per_door_side = 2 * hw_3d_max_indices_per_door;
 
 constexpr auto hw_3d_max_door_sides_vertices = MAXDOORS * hw_3d_vertices_per_door_sides;
 constexpr auto hw_3d_max_door_sides_indices = MAXDOORS * ::hw_3d_max_indices_per_door_side;
+
+
+constexpr auto hw_3d_max_sprites = MAXSTATS + MAXACTORS;
+
+constexpr auto hw_3d_vertices_per_sprite = 4;
+constexpr auto hw_3d_indices_per_sprite = 6;
+
+constexpr auto hw_3d_max_statics_vertices = MAXSTATS * ::hw_3d_vertices_per_sprite;
+constexpr auto hw_3d_max_actors_vertices = MAXACTORS * ::hw_3d_vertices_per_sprite;
+constexpr auto hw_3d_max_sprites_vertices = ::hw_3d_max_statics_vertices + ::hw_3d_max_actors_vertices;
+constexpr auto hw_3d_statics_base_vertex_index = 0;
+constexpr auto hw_3d_actors_base_vertex_index = ::hw_3d_max_statics_vertices;
+
+constexpr auto hw_3d_max_statics_indices = MAXSTATS * ::hw_3d_indices_per_sprite;
+constexpr auto hw_3d_max_actor_indices = MAXACTORS * ::hw_3d_indices_per_sprite;
+constexpr auto hw_3d_max_sprites_indices = ::hw_3d_max_statics_indices + ::hw_3d_max_actor_indices;
 
 constexpr auto hw_min_2d_commands = 16;
 constexpr auto hw_min_3d_commands = 4096;
@@ -1499,6 +1525,59 @@ using Hw3dWallSideIndexBuffer = std::vector<Hw3dWallSideIndexBufferItem>;
 using Hw3dDoorIndexBufferItem = HwIbItem<::hw_3d_max_door_sides_indices>::Type;
 using Hw3dDoorIndexBuffer = std::vector<Hw3dDoorIndexBufferItem>;
 
+
+enum class Hw3dSpriteKind
+{
+	stat,
+	actor,
+}; // Hw3dSpriteKind
+
+struct Hw3dSpriteFlags
+{
+	using Value = unsigned int;
+
+
+	Value is_visible_ : 1;
+}; // Hw3dSpriteFlags
+
+struct Hw3dSprite
+{
+	union BsObject
+	{
+		const statobj_t* stat_;
+		const objtype* actor_;
+	}; // BsObject
+
+
+	int x_;
+	int y_;
+
+	Hw3dSpriteKind kind_;
+	Hw3dSpriteFlags flags_;
+	int vertex_index_;
+	BsObject bs_object_;
+	bstone::RendererTexture2dPtr texture_2d_;
+}; // Hw3dSprite
+
+
+using Hw3dSpritePtr = Hw3dSprite*;
+using Hw3dSpriteCPtr = const Hw3dSprite*;
+
+struct Hw3dSpriteDrawItem
+{
+	bstone::RendererTexture2dPtr texture_2d_;
+	Hw3dSpriteCPtr sprite_;
+}; // Hw3dSpriteDrawItem
+
+using Hw3dXySpriteMap = std::unordered_map<int, Hw3dSprite>;
+using Hw3dXySpriteMapPtr = Hw3dXySpriteMap*;
+
+using Hw3dSpritesDrawList = std::vector<Hw3dSpriteDrawItem>;
+
+using Hw3dSpritesIndexBufferItem = HwIbItem<::hw_3d_max_sprites_indices>::Type;
+using Hw3dSpritesIndexBuffer = std::vector<Hw3dSpritesIndexBufferItem>;
+
+
 using HwVbBuffer = std::vector<bstone::RendererVertex>;
 
 
@@ -1579,6 +1658,10 @@ bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
+auto hw_3d_player_direction = bstone::Vec2D{};
+auto hw_3d_player_position = bstone::Vec2D{};
+
+
 bool hw_3d_has_active_pushwall_ = false;
 int hw_3d_active_pushwall_next_x_ = 0;
 int hw_3d_active_pushwall_next_y_ = 0;
@@ -1624,6 +1707,21 @@ Hw3dDoorIndexBuffer hw_3d_door_sides_ib_buffer_;
 HwVbBuffer hw_3d_doors_vb_buffer_;
 
 
+Hw3dXySpriteMap hw_3d_xy_static_map_;
+
+int hw_3d_sprites_draw_count_ = 0;
+Hw3dSpritesDrawList hw_3d_sprites_draw_list_;
+
+bstone::RendererIndexBufferPtr hw_3d_sprites_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_3d_sprites_vb_ = nullptr;
+
+Hw3dSpritesIndexBuffer hw_3d_sprites_ib_buffer_;
+HwVbBuffer hw_3d_sprites_vb_buffer_;
+
+
+void hw_dbg_3d_orient_all_sprites();
+
+
 constexpr int hw_encode_xy(
 	const int x,
 	const int y)
@@ -1640,7 +1738,6 @@ constexpr void hw_decode_xy(
 	y = xy & ::hw_map_dimension_mask;
 }
 
-
 bstone::RendererColor32 hw_vga_color_to_color_32(
 	const int vga_red,
 	const int vga_green,
@@ -1653,6 +1750,26 @@ bstone::RendererColor32 hw_vga_color_to_color_32(
 		static_cast<std::uint8_t>((0xFF * vga_blue) / 0x3F),
 		0xFF
 	};
+}
+
+void hw_3d_update_player_direction()
+{
+	const auto direction_angle = (::player->angle * m_pi()) / 180.0;
+
+	::hw_3d_player_direction[0] = std::cos(direction_angle);
+	::hw_3d_player_direction[1] = -std::sin(direction_angle);
+}
+
+void hw_3d_update_player_position()
+{
+	::hw_3d_player_position[0] = bstone::FixedPoint{::player->x}.to_double();
+	::hw_3d_player_position[1] = bstone::FixedPoint{::player->y}.to_double();
+}
+
+void hw_3d_update_player()
+{
+	::hw_3d_update_player_direction();
+	::hw_3d_update_player_position();
 }
 
 void hw_initialize_vga_buffer()
@@ -3543,32 +3660,6 @@ void hw_uninitialize_vga_buffer()
 	::vga_memory = nullptr;
 }
 
-void hw_uninitialize_video()
-{
-	::hw_command_sets_ .clear();
-	::hw_2d_command_set_ = nullptr;
-
-	::hw_3d_uninitialize_solid_walls();
-
-	::hw_uninitialize_flooring();
-	::hw_uninitialize_ceiling();
-
-	::hw_uninitialize_ui_texture();
-	::hw_uninitialize_vga_buffer();
-
-	if (::hw_texture_manager_)
-	{
-		::hw_texture_manager_->uninitialize();
-		::hw_texture_manager_ = nullptr;
-	}
-
-	if (::hw_renderer_manager_)
-	{
-		::hw_renderer_manager_->uninitialize();
-		::hw_renderer_manager_ = nullptr;
-	}
-}
-
 void hw_refresh_screen_2d()
 {
 	// Update 2D texture.
@@ -4093,6 +4184,130 @@ void hw_3d_dbg_draw_all_doors(
 	::hw_3d_door_draw_item_count_ = draw_side_index;
 }
 
+void hw_3d_dbg_draw_all_sprites(
+	int& command_index)
+{
+	// Build draw list.
+	//
+	auto draw_sprite_index = 0;
+	auto& draw_items = ::hw_3d_sprites_draw_list_;
+
+	for (const auto& xy_static_item : ::hw_3d_xy_static_map_)
+	{
+		const auto& hw_static = xy_static_item.second;
+
+		if (!hw_static.flags_.is_visible_)
+		{
+			continue;
+		}
+
+		auto& draw_item = draw_items[draw_sprite_index++];
+
+		draw_item.texture_2d_ = hw_static.texture_2d_;
+		draw_item.sprite_ = &hw_static;
+	}
+
+	// Sort by texture.
+	//
+	std::sort(
+		draw_items.begin(),
+		draw_items.begin() + draw_sprite_index,
+		[](const auto& lhs, const auto& rhs)
+		{
+			return lhs.texture_2d_ < rhs.texture_2d_;
+		}
+	);
+
+	// Update index buffer.
+	//
+	{
+		auto ib_index = 0;
+		auto& ib_buffer = ::hw_3d_sprites_ib_buffer_;
+
+		for (int i = 0; i < draw_sprite_index; ++i)
+		{
+			const auto& sprite = *draw_items[i].sprite_;
+
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 1);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 2);
+
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 3);
+		}
+
+		auto param = bstone::RendererIndexBufferUpdateParam{};
+		param.offset_ = 0;
+		param.count_ = ib_index;
+		param.indices_ = ib_buffer.data();
+
+		::hw_3d_sprites_ib_->update(param);
+	}
+
+	// Add render commands.
+	//
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::enable_blending;
+		command.enable_blending_.is_enabled_ = true;
+	}
+
+	auto draw_index = 0;
+	auto draw_quad_count = 0;
+	auto draw_index_offset_ = 0;
+
+	while (draw_index < draw_sprite_index)
+	{
+		auto is_first = true;
+		auto last_texture = bstone::RendererTexture2dPtr{};
+
+		draw_quad_count = 0;
+
+		while (draw_index < draw_sprite_index)
+		{
+			if (is_first)
+			{
+				is_first = false;
+
+				last_texture = draw_items[draw_index].texture_2d_;
+			}
+			else if (last_texture == draw_items[draw_index].texture_2d_)
+			{
+				++draw_quad_count;
+				++draw_index;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		if (draw_quad_count > 0)
+		{
+			auto& command = ::hw_3d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = draw_quad_count;
+			draw_quads.index_offset_ = draw_index_offset_;
+			draw_quads.index_buffer_ = ::hw_3d_sprites_ib_;
+			draw_quads.vertex_buffer_ = ::hw_3d_sprites_vb_;
+			draw_quads.texture_2d_ = last_texture;
+
+			draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
+		}
+	}
+
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::enable_blending;
+		command.enable_blending_.is_enabled_ = false;
+	}
+
+	::hw_3d_sprites_draw_count_ = draw_sprite_index;
+}
+
 void hw_refresh_screen_3d()
 {
 	::hw_3d_command_set_->count_ = 0;
@@ -4182,6 +4397,10 @@ void hw_refresh_screen_3d()
 		draw_quads.texture_2d_ = texture_2d;
 	}
 
+	// Draw statics.
+	//
+	::hw_3d_dbg_draw_all_sprites(command_index);
+
 	// Commit commands.
 	//
 	::hw_3d_command_set_->count_ = command_index;
@@ -4197,6 +4416,10 @@ void hw_refresh_screen()
 	if (::vid_is_hud && ::player)
 	{
 		::vid_hw_is_draw_3d_ = true;
+
+		::hw_3d_update_player();
+
+		::hw_dbg_3d_orient_all_sprites();
 
 		const auto player_x = bstone::FixedPoint{::player->x}.to_float();
 		const auto player_y = bstone::FixedPoint{::player->y}.to_float();
@@ -4252,6 +4475,1849 @@ void hw_update_widescreen()
 	::hw_uninitialize_vga_buffer();
 	::hw_calculate_dimensions();
 	::hw_initialize_vga_buffer();
+}
+
+void hw_precache_flooring()
+{
+	if (!::hw_texture_manager_->wall_cache(::FloorTile))
+	{
+		::Quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
+	}
+
+	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
+
+	const auto vga_index = ::BottomColor & 0xFF;
+	const auto vga_color = ::vgapal + (3 * vga_index);
+
+	const auto renderer_color = ::hw_vga_color_to_color_32(
+		vga_color[0],
+		vga_color[1],
+		vga_color[2]
+	);
+
+	if (!::hw_update_solid_texture_1x1(renderer_color, ::hw_3d_flooring_solid_t2d_))
+	{
+		::Quit("Failed to update flooring solid texture.");
+	}
+}
+
+void hw_precache_ceiling()
+{
+	if (!::hw_texture_manager_->wall_cache(::CeilingTile))
+	{
+		::Quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
+	}
+
+	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
+
+	const auto vga_index = ::TopColor & 0xFF;
+	const auto vga_color = ::vgapal + (3 * vga_index);
+
+	const auto renderer_color = ::hw_vga_color_to_color_32(
+		vga_color[0],
+		vga_color[1],
+		vga_color[2]
+	);
+
+	if (!::hw_update_solid_texture_1x1(renderer_color, ::hw_3d_ceiling_solid_t2d_))
+	{
+		::Quit("Failed to update ceiling solid texture.");
+	}
+}
+
+constexpr bool hw_tile_is_activated_pushwall(
+	const int tile)
+{
+	return (tile & ::tilemap_door_flags) == ::tilemap_door_flags;
+}
+
+constexpr bool hw_tile_is_door(
+	const int tile)
+{
+	return (tile & ::tilemap_door_flags) == ::tilemap_door_flag;
+}
+
+constexpr bool hw_tile_is_door_track(
+	const int tile)
+{
+	return (tile & ::tilemap_door_flags) == ::tilemap_door_track_flag;
+}
+
+constexpr bool hw_tile_is_solid_wall(
+	const int tile)
+{
+	if (tile == 0)
+	{
+		return false;
+	}
+
+	if (::hw_tile_is_activated_pushwall(tile))
+	{
+		return false;
+	}
+
+	if (::hw_tile_is_door(tile))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+constexpr bool hw_tile_is_pushwall(
+	const int x,
+	const int y)
+{
+	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
+	{
+		return false;
+	}
+
+	const auto tile_wall = ::tilemap[x][y];
+
+	if (tile_wall == 0)
+	{
+		return false;
+	}
+
+	if (::hw_tile_is_activated_pushwall(tile_wall))
+	{
+		return true;
+	}
+
+	const auto tile_object = ::mapsegs[1][(MAPSIZE * y) + x];
+
+	if (tile_object == PUSHABLETILE)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+constexpr bool hw_tile_is_solid_wall(
+	const int x,
+	const int y)
+{
+	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
+	{
+		return true;
+	}
+
+	const auto tile_wall = ::tilemap[x][y];
+
+	if (!::hw_tile_is_solid_wall(tile_wall))
+	{
+		return false;
+	}
+
+	if (::hw_tile_is_pushwall(x, y))
+	{
+		return false;
+	}
+
+	if (::hw_3d_has_active_pushwall_ &&
+		::hw_3d_active_pushwall_next_x_ == x &&
+		::hw_3d_active_pushwall_next_y_ == y)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_precache_wall(
+	const int wall_id)
+{
+	if (!::hw_texture_manager_->wall_cache(wall_id))
+	{
+		::Quit("Failed to cache a wall #" + std::to_string(wall_id) + ".");
+	}
+}
+
+void hw_precache_horizontal_wall(
+	const int tile_wall)
+{
+	const auto wall_id = ::horizwall[tile_wall];
+
+	::hw_precache_wall(wall_id);
+}
+
+void hw_precache_vertical_wall(
+	const int tile_wall)
+{
+	const auto wall_id = ::vertwall[tile_wall];
+
+	::hw_precache_wall(wall_id);
+}
+
+void hw_precache_switches()
+{
+	::hw_precache_horizontal_wall(OFF_SWITCH);
+	::hw_precache_vertical_wall(OFF_SWITCH);
+	::hw_precache_horizontal_wall(ON_SWITCH);
+	::hw_precache_vertical_wall(ON_SWITCH);
+}
+
+void hw_precache_door_track(
+	const int x,
+	const int y)
+{
+	const auto tile = ::tilemap[x][y];
+	const auto tile_wall = tile & ::tilemap_wall_mask;
+
+	const auto& door = ::doorobjlist[tile_wall];
+
+	if (door.tilex != x || door.tiley != y)
+	{
+		::Quit("Expected a door at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+	}
+
+	auto wall_id = ::door_get_track_texture_id(door);
+
+	::hw_precache_wall(wall_id);
+}
+
+void hw_precache_solid_walls()
+{
+	auto has_switch = false;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			const auto tile = ::tilemap[x][y];
+			const auto tile_wall = tile & ::tilemap_wall_mask;
+
+			if (::hw_tile_is_door(tile))
+			{
+				::hw_precache_door_track(x, y);
+
+				continue;
+			}
+
+			if (!::hw_tile_is_solid_wall(x, y))
+			{
+				continue;
+			}
+
+			if (tile_wall == ON_SWITCH || tile_wall == OFF_SWITCH)
+			{
+				has_switch = true;
+			}
+
+			::hw_precache_horizontal_wall(tile_wall);
+			::hw_precache_vertical_wall(tile_wall);
+		}
+	}
+
+	if (has_switch)
+	{
+		::hw_precache_switches();
+	}
+}
+
+void hw_precache_pushwalls()
+{
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (!::hw_tile_is_pushwall(x, y))
+			{
+				continue;
+			}
+
+			const auto tile = ::tilemap[x][y];
+			const auto tile_wall = tile & ::tilemap_wall_mask;
+
+			::hw_precache_horizontal_wall(tile_wall);
+			::hw_precache_vertical_wall(tile_wall);
+		}
+	}
+}
+
+void hw_precache_door_side(
+	const int page_number)
+{
+	if (!::hw_texture_manager_->wall_cache(page_number))
+	{
+		::Quit("Failed to cache a door side #" + std::to_string(page_number) + ".");
+	}
+}
+
+void hw_precache_door(
+	const doorobj_t& door)
+{
+	auto horizontal_locked_page_number = 0;
+	auto horizontal_unlocked_page_number = 0;
+	auto vertical_locked_page_number = 0;
+	auto vertical_unlocked_page_number = 0;
+
+	::door_get_page_numbers_for_caching(
+		door,
+		horizontal_locked_page_number,
+		horizontal_unlocked_page_number,
+		vertical_locked_page_number,
+		vertical_unlocked_page_number
+	);
+
+	::hw_precache_door_side(horizontal_locked_page_number);
+	::hw_precache_door_side(horizontal_unlocked_page_number);
+	::hw_precache_door_side(vertical_locked_page_number);
+	::hw_precache_door_side(vertical_unlocked_page_number);
+}
+
+void hw_precache_doors()
+{
+	::hw_3d_door_count_ = 0;
+
+	for (auto door = ::doorobjlist; door != ::lastdoorobj; ++door)
+	{
+		++::hw_3d_door_count_;
+
+		::hw_precache_door(*door);
+	}
+}
+
+int hw_get_solid_wall_side_count(
+	const int x,
+	const int y)
+{
+	assert(x >= 0 && x < MAPSIZE);
+	assert(y >= 0 && y < MAPSIZE);
+	assert(::hw_tile_is_solid_wall(x, y));
+
+	auto side_count = 4;
+
+	side_count -= ::hw_tile_is_solid_wall(x + 0, y - 1); // north
+	side_count -= ::hw_tile_is_solid_wall(x + 1, y + 0); // east
+	side_count -= ::hw_tile_is_solid_wall(x + 0, y + 1); // south
+	side_count -= ::hw_tile_is_solid_wall(x - 1, y + 0); // west
+
+	return side_count;
+}
+
+int hw_tile_get_door_track_wall_id(
+	const int x,
+	const int y,
+	const controldir_t direction)
+{
+	auto door_x = x;
+	auto door_y = y;
+
+	switch (direction)
+	{
+	case di_north:
+		door_y -= 1;
+		break;
+
+	case di_east:
+		door_x += 1;
+		break;
+
+	case di_south:
+		door_y += 1;
+		break;
+
+	case di_west:
+		door_x -= 1;
+		break;
+
+	default:
+		::Quit("Invalid direction.");
+	}
+
+	if (door_x < 0 || door_x >= MAPSIZE || door_y < 0 || door_y >= MAPSIZE)
+	{
+		return -1;
+	}
+
+	const auto door_tile = ::tilemap[door_x][door_y];
+
+	if (!::hw_tile_is_door(door_tile))
+	{
+		return -1;
+	}
+
+	const auto door_index = door_tile & ::tilemap_wall_mask;
+	const auto& door = ::doorobjlist[door_index];
+
+	return ::door_get_track_texture_id(door);
+}
+
+void hw_3d_map_wall_side(
+	const controldir_t side_direction,
+	Hw3dWall& wall,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	static const float all_vertex_offsets[4][4] =
+	{
+		{::hw_3d_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
+		{::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, 0.0F,},
+		{0.0F, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f,},
+		{0.0F, 0.0F, 0.0F, ::hw_3d_tile_dimension_f,},
+	};
+
+
+	const auto x = wall.x_;
+	const auto y = wall.y_;
+
+	const auto tile = ::tilemap[x][y];
+	const auto wall_id = tile & ::tilemap_wall_mask;
+	const auto has_door_tracks = ::hw_tile_is_door_track(tile);
+
+	auto is_vertical = false;
+	auto wall_texture_id = 0;
+
+	switch (side_direction)
+	{
+	case di_north:
+	case di_south:
+		wall_texture_id = ::horizwall[wall_id];
+		break;
+
+	case di_east:
+	case di_west:
+		is_vertical = true;
+		wall_texture_id = ::vertwall[wall_id];
+		break;
+
+	default:
+		::Quit("Invalid direction.");
+	}
+
+	auto is_door_track = false;
+
+	if (has_door_tracks)
+	{
+		const auto door_track_wall_id = ::hw_tile_get_door_track_wall_id(x, y, side_direction);
+
+		if (door_track_wall_id >= 0)
+		{
+			is_door_track = true;
+
+			wall_texture_id = door_track_wall_id;
+		}
+	}
+
+	const auto& vertex_offsets = all_vertex_offsets[side_direction];
+
+	auto& side = wall.sides_[side_direction];
+
+	side.flags_.is_active_ = true;
+	side.flags_.is_vertical_ = is_vertical;
+	side.flags_.is_door_track_ = is_door_track;
+	side.vertex_index_ = vertex_index;
+	side.texture_2d_ = ::hw_texture_manager_->wall_get(wall_texture_id);
+	side.wall_ = &wall;
+
+	// Bottom-left (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(x) + vertex_offsets[0],
+			static_cast<float>(y) + vertex_offsets[1],
+			0.0F,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+	}
+
+	// Bottom-right (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(x) + vertex_offsets[2],
+			static_cast<float>(y) + vertex_offsets[3],
+			0.0F,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+	}
+
+	// Top-right (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(x) + vertex_offsets[2],
+			static_cast<float>(y) + vertex_offsets[3],
+			::hw_3d_map_height_f,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+	}
+
+	// Top-left (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(x) + vertex_offsets[0],
+			static_cast<float>(y) + vertex_offsets[1],
+			::hw_3d_map_height_f,
+		};
+
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+	}
+}
+
+void hw_3d_map_xy_to_xwall(
+	const Hw3dXyWallKind wall_kind,
+	const int x,
+	const int y,
+	Hw3dXyWallMap& map,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	switch (wall_kind)
+	{
+	case Hw3dXyWallKind::solid:
+	case Hw3dXyWallKind::push:
+		break;
+
+	default:
+		::Quit("Invalid kind.");
+		break;
+	}
+
+	auto is_north_solid = false;
+	auto is_east_solid = false;
+	auto is_south_solid = false;
+	auto is_west_solid = false;
+
+	if (wall_kind == Hw3dXyWallKind::solid)
+	{
+		is_north_solid = ::hw_tile_is_solid_wall(x + 0, y - 1);
+		is_east_solid = ::hw_tile_is_solid_wall(x + 1, y + 0);
+		is_south_solid = ::hw_tile_is_solid_wall(x + 0, y + 1);
+		is_west_solid = ::hw_tile_is_solid_wall(x - 1, y + 0);
+	}
+
+	if (is_north_solid && is_east_solid && is_south_solid && is_west_solid)
+	{
+		// Nothing to draw.
+		// This solid wall is surrounded by other solid ones.
+
+		return;
+	}
+
+	const auto xy = ::hw_encode_xy(x, y);
+
+	if (map.find(xy) != map.cend())
+	{
+		::Quit("Wall mapping already exist.");
+	}
+
+	map[xy] = Hw3dWall{};
+	auto& wall = map[xy];
+
+	wall.x_ = x;
+	wall.y_ = y;
+
+	// A north side.
+	if (!is_north_solid)
+	{
+		::hw_3d_map_wall_side(
+			di_north,
+			wall,
+			vertex_index,
+			vb_buffer
+		);
+	}
+
+	// An east side.
+	if (!is_east_solid)
+	{
+		::hw_3d_map_wall_side(
+			di_east,
+			wall,
+			vertex_index,
+			vb_buffer
+		);
+	}
+
+	// An south side.
+	if (!is_south_solid)
+	{
+		::hw_3d_map_wall_side(
+			di_south,
+			wall,
+			vertex_index,
+			vb_buffer
+		);
+	}
+
+	// A west side.
+	if (!is_west_solid)
+	{
+		::hw_3d_map_wall_side(
+			di_west,
+			wall,
+			vertex_index,
+			vb_buffer
+		);
+	}
+}
+
+void hw_3d_build_solid_walls()
+{
+	::hw_3d_uninitialize_solid_walls();
+
+	// Check for moving pushwall.
+	//
+	::hw_3d_has_active_pushwall_ = (::pwallstate != 0);
+
+	::hw_3d_active_pushwall_next_x_ = 0;
+	::hw_3d_active_pushwall_next_y_ = 0;
+
+	if (::hw_3d_has_active_pushwall_)
+	{
+		::hw_3d_active_pushwall_next_x_ = ::pwallx;
+		::hw_3d_active_pushwall_next_y_ = ::pwally;
+
+		switch (::pwalldir)
+		{
+		case di_north:
+			--::hw_3d_active_pushwall_next_y_;
+			break;
+
+		case di_east:
+			++::hw_3d_active_pushwall_next_x_;
+			break;
+
+		case di_south:
+			++::hw_3d_active_pushwall_next_y_;
+			break;
+
+		case di_west:
+			--::hw_3d_active_pushwall_next_x_;
+			break;
+
+		default:
+			::Quit("Invalid direction.");
+			break;
+		}
+	}
+
+	// Count walls and their sides.
+	//
+	::hw_3d_wall_count_ = 0;
+	::hw_3d_wall_side_count_ = 0;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (!::hw_tile_is_solid_wall(x, y))
+			{
+				continue;
+			}
+
+			if (::hw_3d_has_active_pushwall_ &&
+				x == ::hw_3d_active_pushwall_next_x_ &&
+				y == ::hw_3d_active_pushwall_next_y_)
+			{
+				continue;
+			}
+
+			::hw_3d_wall_count_ += 1;
+			::hw_3d_wall_side_count_ += ::hw_get_solid_wall_side_count(x, y);
+		}
+	}
+
+	// Check for maximums.
+	//
+	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+
+	if (index_count > ::hw_3d_max_wall_sides_indices)
+	{
+		::Quit("Too many indices.");
+	}
+
+	// Create index an vertex buffers.
+	//
+	if (!::hw_3d_initialize_solid_walls())
+	{
+		::Quit("Failed to initialize walls.");
+	}
+
+	// Build the map (XY to wall).
+	//
+	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+
+	auto vb_buffer = HwVbBuffer{};
+	vb_buffer.resize(vertex_count);
+
+	::hw_3d_xy_wall_map_.clear();
+
+	auto vertex_index = 0;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (!::hw_tile_is_solid_wall(x, y))
+			{
+				continue;
+			}
+
+			if (::hw_3d_has_active_pushwall_ &&
+				x == ::hw_3d_active_pushwall_next_x_ &&
+				y == ::hw_3d_active_pushwall_next_y_)
+			{
+				continue;
+			}
+
+			::hw_3d_map_xy_to_xwall(
+				Hw3dXyWallKind::solid,
+				x,
+				y,
+				::hw_3d_xy_wall_map_,
+				vertex_index,
+				vb_buffer
+			);
+		}
+	}
+
+	// Update vertex buffer.
+	//
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = 0;
+	param.count_ = vertex_count;
+	param.vertices_ = vb_buffer.data();
+
+	::hw_3d_wall_sides_vb_->update(param);
+}
+
+void hw_3d_translate_pushwall_side(
+	const float translate_x,
+	const float translate_y,
+	const controldir_t side_direction,
+	const Hw3dWall& wall,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	static const float all_vertex_offsets[4][4] =
+	{
+		{::hw_3d_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
+		{::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, 0.0F,},
+		{0.0F, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f,},
+		{0.0F, 0.0F, 0.0F, ::hw_3d_tile_dimension_f,},
+	};
+
+
+	auto is_vertical = false;
+
+	switch (side_direction)
+	{
+	case di_north:
+	case di_south:
+		break;
+
+	case di_east:
+	case di_west:
+		is_vertical = true;
+		break;
+
+	default:
+		::Quit("Invalid direction.");
+	}
+
+	const auto& vertex_offsets = all_vertex_offsets[side_direction];
+
+	auto& side = wall.sides_[side_direction];
+
+	const auto x_f = static_cast<float>(wall.x_) + translate_x;
+	const auto y_f = static_cast<float>(wall.y_) + translate_y;
+
+	// Bottom-left (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[0],
+			y_f + vertex_offsets[1],
+			0.0F,
+		};
+	}
+
+	// Bottom-right (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[2],
+			y_f + vertex_offsets[3],
+			0.0F,
+		};
+	}
+
+	// Top-right (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[2],
+			y_f + vertex_offsets[3],
+			::hw_3d_map_height_f,
+		};
+	}
+
+	// Top-left (when looking at face side).
+	{
+		auto& vertex = vb_buffer[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			x_f + vertex_offsets[0],
+			y_f + vertex_offsets[1],
+			::hw_3d_map_height_f,
+		};
+	}
+}
+
+void hw_3d_translate_pushwall(
+	const Hw3dWall& wall,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	auto translate_distance = static_cast<float>(::pwallpos) / 63.0F;
+
+	auto translate_x = 0.0F;
+	auto translate_y = 0.0F;
+
+	switch (::pwalldir)
+	{
+	case di_north:
+		translate_y = -translate_distance;
+		break;
+
+	case di_east:
+		translate_x = +translate_distance;
+		break;
+
+	case di_south:
+		translate_y = +translate_distance;
+		break;
+
+	case di_west:
+		translate_x = -translate_distance;
+		break;
+
+	default:
+		::Quit("Invalid direction.");
+		break;
+	}
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_north,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_east,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_south,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+
+	::hw_3d_translate_pushwall_side(
+		translate_x,
+		translate_y,
+		di_west,
+		wall,
+		vertex_index,
+		vb_buffer
+	);
+}
+
+void hw_3d_translate_pushwall()
+{
+	const auto xy = ::hw_encode_xy(::pwallx, ::pwally);
+
+	const auto wall_item_it = ::hw_3d_xy_pushwall_map_.find(xy);
+
+	if (wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
+	{
+		::Quit("Pushwall mapping not found.");
+	}
+
+	const auto& wall = wall_item_it->second;
+
+	const auto first_vertex_index = wall.sides_.front().vertex_index_;
+
+	auto vertex_index = first_vertex_index;
+
+	::hw_3d_translate_pushwall(wall, vertex_index, ::hw_3d_pushwalls_vb_buffer_);
+
+	const auto vertex_count = vertex_index - first_vertex_index;
+
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = first_vertex_index;
+	param.count_ = vertex_count;
+	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data() + first_vertex_index;
+
+	::hw_3d_pushwall_sides_vb_->update(param);
+}
+
+void hw_3d_step_pushwall(
+	const int old_x,
+	const int old_y)
+{
+	const auto old_xy = ::hw_encode_xy(old_x, old_y);
+
+	const auto old_wall_item_it = ::hw_3d_xy_pushwall_map_.find(old_xy);
+
+	if (old_wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
+	{
+		::Quit("Pushwall mapping not found.");
+	}
+
+	const auto new_xy = ::hw_encode_xy(::pwallx, ::pwally);
+
+	auto wall = old_wall_item_it->second;
+	wall.x_ = ::pwallx;
+	wall.y_ = ::pwally;
+
+	static_cast<void>(::hw_3d_xy_pushwall_map_.erase(old_xy));
+	::hw_3d_xy_pushwall_map_[new_xy] = wall;
+
+	::hw_3d_translate_pushwall();
+}
+
+void hw_3d_build_pushwalls()
+{
+	::hw_3d_uninitialize_pushwalls();
+
+	// Count pushwalls and their sides.
+	//
+	::hw_3d_pushwall_count_ = 0;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (!::hw_tile_is_pushwall(x, y))
+			{
+				continue;
+			}
+
+			::hw_3d_pushwall_count_ += 1;
+		}
+	}
+
+	::hw_3d_pushwall_side_count_ = ::hw_3d_pushwall_count_ * ::hw_3d_max_sides_per_wall;
+
+	// Check for maximums.
+	//
+	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+
+	if (index_count > ::hw_3d_max_wall_sides_indices)
+	{
+		::Quit("Too many indices.");
+	}
+
+	// Create index an vertex buffers.
+	//
+	if (!::hw_3d_initialize_pushwalls())
+	{
+		::Quit("Failed to initialize pushwalls.");
+	}
+
+	// Build the map (XY to pushwall).
+	//
+	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+
+	::hw_3d_pushwalls_vb_buffer_.clear();
+	::hw_3d_pushwalls_vb_buffer_.resize(vertex_count);
+
+	::hw_3d_xy_pushwall_map_.clear();
+
+	auto vertex_index = 0;
+
+	for (int y = 0; y < MAPSIZE; ++y)
+	{
+		for (int x = 0; x < MAPSIZE; ++x)
+		{
+			if (!::hw_tile_is_pushwall(x, y))
+			{
+				continue;
+			}
+
+			::hw_3d_map_xy_to_xwall(
+				Hw3dXyWallKind::push,
+				x,
+				y,
+				::hw_3d_xy_pushwall_map_,
+				vertex_index,
+				::hw_3d_pushwalls_vb_buffer_
+			);
+		}
+	}
+
+	// Update vertex buffer.
+	//
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = 0;
+	param.count_ = vertex_count;
+	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data();
+
+	::hw_3d_pushwall_sides_vb_->update(param);
+}
+
+void hw_3d_update_quad_vertices(
+	const Hw3dQuadFlags flags,
+	const bstone::Vec3F& origin,
+	const bstone::Vec2F& size,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	//
+	// Front face order:
+	//    bottom-left -> bottom-right -> top-right -> top-left
+	//
+	// Back face order:
+	//    bottom-right -> bottom-left -> top-left -> top-right
+	//
+
+	using VertexOrder = std::array<int, 4>;
+
+	const auto axis_index = (flags.is_vertical_ ? 1 : 0);
+
+	for (int i = 0; i < 4; ++i)
+	{
+		auto& xyz = vb_buffer[vertex_index + i].xyz_;
+
+		xyz = origin;
+
+		switch (i)
+		{
+		case 0:
+			if (flags.is_back_face_)
+			{
+				xyz[axis_index] += size[0];
+			}
+
+			break;
+
+		case 1:
+			if (!flags.is_back_face_)
+			{
+				xyz[axis_index] += size[0];
+			}
+
+			break;
+
+		case 2:
+			if (!flags.is_back_face_)
+			{
+				xyz[axis_index] += size[0];
+			}
+
+			xyz[2] = 1.0F;
+
+			break;
+
+		case 3:
+			if (flags.is_back_face_)
+			{
+				xyz[axis_index] += size[0];
+			}
+
+			xyz[2] = 1.0F;
+
+			break;
+		}
+	}
+
+	vertex_index += 4;
+}
+
+void hw_3d_map_door_side(
+	Hw3dDoorSide& door_side,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	const auto& door = *door_side.door_;
+	const auto& bs_door = *door.door_;
+	const auto door_index = door.door_ - ::doorobjlist;
+	const auto door_offset = (0.5F * static_cast<float>(::doorposition[door_index])) / 65'535.0F;
+
+	door_side.vertex_index_ = vertex_index;
+
+	auto flags = Hw3dQuadFlags{};
+	flags.is_back_face_ = door_side.is_back_face_;
+	flags.is_vertical_ = bs_door.vertical;
+
+	const auto origin_axis_index = (flags.is_vertical_ ? 1 : 0);
+
+	const auto size = bstone::Vec2F{0.5F, 1.0F};
+
+	const auto tile_center = bstone::Vec3F{bs_door.tilex + 0.5F, bs_door.tiley + 0.5F, 0.0F};
+
+	const auto left_offset = -(0.5F + door_offset);
+	const auto right_offset = door_offset;
+
+	for (int i = 0; i < 2; ++i)
+	{
+		auto origin = tile_center;
+		auto offset = 0.0F;
+
+		if (i == 0)
+		{
+			if (flags.is_back_face_)
+			{
+				offset = right_offset;
+			}
+			else
+			{
+				offset = left_offset;
+			}
+		}
+		else
+		{
+			if (flags.is_back_face_)
+			{
+				offset = left_offset;
+			}
+			else
+			{
+				offset = right_offset;
+			}
+		}
+
+		origin[origin_axis_index] += offset;
+
+		::hw_3d_update_quad_vertices(
+			flags,
+			origin,
+			size,
+			vertex_index,
+			vb_buffer
+		);
+	}
+}
+
+void hw_3d_map_xy_to_door(
+	const doorobj_t& door,
+	int& vertex_index,
+	HwVbBuffer& vb_buffer)
+{
+	const auto xy = ::hw_encode_xy(door.tilex, door.tiley);
+
+	const auto map_it = ::hw_3d_xy_door_map_.find(xy);
+
+	if (map_it != ::hw_3d_xy_door_map_.cend())
+	{
+		::Quit("XY map to door already exists.");
+	}
+
+	::hw_3d_xy_door_map_[xy] = Hw3dDoor{};
+	auto& hw_door = ::hw_3d_xy_door_map_[xy];
+
+	hw_door.door_ = &door;
+
+	auto old_vertex_index = vertex_index;
+
+	for (int i = 0; i < ::hw_3d_max_halves_per_door; ++i)
+	{
+		auto u_0 = 0.0F;
+		auto u_1 = 0.0F;
+
+		switch (i)
+		{
+		case 0:
+		case 2:
+			u_0 = 0.0F;
+			u_1 = 0.5F;
+			break;
+
+		case 1:
+		case 3:
+			u_0 = 0.5F;
+			u_1 = 1.0F;
+			break;
+		}
+
+		{
+			auto& vertex = vb_buffer[vertex_index++];
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{u_0, 0.0F};
+		}
+
+		{
+			auto& vertex = vb_buffer[vertex_index++];
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{u_1, 0.0F};
+		}
+
+		{
+			auto& vertex = vb_buffer[vertex_index++];
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{u_1, 1.0F};
+		}
+
+		{
+			auto& vertex = vb_buffer[vertex_index++];
+			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			vertex.uv_ = bstone::Vec2F{u_0, 1.0F};
+		}
+	}
+
+	vertex_index = old_vertex_index;
+
+
+	auto is_back_face = false;
+
+	for (auto& hw_door_side : hw_door.sides_)
+	{
+		hw_door_side.door_ = &hw_door;
+		hw_door_side.is_back_face_ = is_back_face;
+
+		::hw_3d_map_door_side(hw_door_side, vertex_index, vb_buffer);
+
+		is_back_face = !is_back_face;
+	}
+
+	auto front_face_page_number = 0;
+	auto back_face_page_number = 0;
+
+	::door_get_page_numbers(door, front_face_page_number, back_face_page_number);
+
+	const auto front_face_texture_2d = ::hw_texture_manager_->wall_get(front_face_page_number);
+	const auto back_face_texture_2d = ::hw_texture_manager_->wall_get(back_face_page_number);
+
+	assert(front_face_texture_2d);
+	assert(back_face_texture_2d);
+
+	hw_door.sides_[0].texture_2d_ = front_face_texture_2d;
+	hw_door.sides_[1].texture_2d_ = back_face_texture_2d;
+}
+
+void hw_3d_build_doors()
+{
+	::hw_3d_uninitialize_door_sides();
+
+	// Create index an vertex buffers.
+	//
+	if (!::hw_3d_initialize_door_sides())
+	{
+		::Quit("Failed to initialize door sides.");
+	}
+
+	// Build the map (XY to door).
+	//
+	const auto vertex_count = ::hw_3d_vertices_per_door_sides * ::hw_3d_door_count_;
+
+	::hw_3d_doors_vb_buffer_.clear();
+	::hw_3d_doors_vb_buffer_.resize(vertex_count);
+
+	::hw_3d_xy_door_map_.clear();
+
+	auto vertex_index = 0;
+
+	for (auto door = ::doorobjlist; door != ::lastdoorobj; ++door)
+	{
+		::hw_3d_map_xy_to_door(
+			*door,
+			vertex_index,
+			::hw_3d_doors_vb_buffer_
+		);
+	}
+
+	// Update vertex buffer.
+	//
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = 0;
+	param.count_ = vertex_count;
+	param.vertices_ = ::hw_3d_doors_vb_buffer_.data();
+
+	::hw_3d_door_sides_vb_->update(param);
+}
+
+bool hw_initialize_sprites_ib()
+{
+	const auto index_count = ::hw_3d_max_sprites_indices;
+
+	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.index_count_ = index_count;
+
+	::hw_3d_sprites_ib_ = ::hw_renderer_->index_buffer_create(param);
+
+	if (!::hw_3d_sprites_ib_)
+	{
+		return false;
+	}
+
+	::hw_3d_sprites_ib_buffer_.clear();
+	::hw_3d_sprites_ib_buffer_.resize(index_count);
+
+	return true;
+}
+
+void hw_3d_uninitialize_sprites_ib()
+{
+	if (::hw_3d_sprites_ib_)
+	{
+		::hw_renderer_->index_buffer_destroy(::hw_3d_sprites_ib_);
+		::hw_3d_sprites_ib_ = nullptr;
+	}
+
+	::hw_3d_sprites_ib_buffer_.clear();
+}
+
+bool hw_initialize_sprites_vb()
+{
+	const auto vertex_count = ::hw_3d_max_sprites_vertices;
+
+	auto param = bstone::RendererVertexBufferCreateParam{};
+	param.vertex_count_ = vertex_count;
+
+	::hw_3d_sprites_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+
+	if (!::hw_3d_sprites_vb_)
+	{
+		return false;
+	}
+
+	::hw_3d_sprites_vb_buffer_.resize(vertex_count);
+
+	return true;
+}
+
+void hw_3d_uninitialize_sprites_vb()
+{
+	if (::hw_3d_sprites_vb_)
+	{
+		::hw_renderer_->vertex_buffer_destroy(::hw_3d_sprites_vb_);
+		::hw_3d_sprites_vb_ = nullptr;
+	}
+
+	::hw_3d_sprites_vb_buffer_.clear();
+}
+
+bool hw_3d_initialize_statics()
+{
+	::hw_3d_xy_static_map_.reserve(MAXSTATS);
+
+	return true;
+}
+
+bool hw_3d_initialize_sprites()
+{
+	::hw_3d_sprites_draw_count_ = 0;
+	::hw_3d_sprites_draw_list_.clear();
+	::hw_3d_sprites_draw_list_.resize(::hw_3d_max_sprites);
+
+	if (!::hw_initialize_sprites_ib())
+	{
+		return false;
+	}
+
+	if (!::hw_initialize_sprites_vb())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_initialize_statics())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_uninitialize_statics()
+{
+	::hw_3d_xy_static_map_.clear();
+}
+
+void hw_3d_uninitialize_sprites()
+{
+	::hw_3d_uninitialize_statics();
+
+	::hw_3d_sprites_draw_count_ = 0;
+	::hw_3d_sprites_draw_list_.clear();
+
+	::hw_3d_uninitialize_sprites_ib();
+	::hw_3d_uninitialize_sprites_vb();
+}
+
+void hw_3d_orient_sprite(
+	Hw3dSprite& sprite)
+{
+	const auto sprite_origin = bstone::Vec2D
+	{
+		static_cast<double>(sprite.x_) + 0.5,
+		static_cast<double>(sprite.y_) + 0.5
+	};
+
+	auto direction = ::hw_3d_player_position - sprite_origin;
+
+	const auto cosinus_between_directions = bstone::Vec2D::dot_product(
+		::hw_3d_player_direction,
+		direction
+	);
+
+	if (cosinus_between_directions >= 0.0)
+	{
+		sprite.flags_.is_visible_ = false;
+
+		return;
+	}
+	else
+	{
+		sprite.flags_.is_visible_ = true;
+	}
+
+
+	auto bottom_left_vertex = sprite_origin;
+	auto bottom_right_vertex = sprite_origin;
+	auto r_distance = 1.0;
+
+	const auto square_distance = direction.get_square_magnitude();
+
+	constexpr auto min_square_distance = 1.0E-3;
+
+	if (square_distance >= min_square_distance)
+	{
+		// Orient the sprite along a direction between the sprite and the player.
+		//
+		r_distance /= std::sqrt(square_distance);
+	}
+	else
+	{
+		// Orient the sprite along the player's line of sight (inverted).
+		//
+		direction[0] = -::hw_3d_player_direction[0];
+		direction[1] = -::hw_3d_player_direction[1];
+	}
+
+	const auto perpendicular_dx = (::hw_3d_tile_half_dimension_d * direction[1]) * r_distance;
+	const auto perpendicular_dy = (::hw_3d_tile_half_dimension_d * direction[0]) * r_distance;
+
+	bottom_left_vertex[0] += -perpendicular_dx;
+	bottom_left_vertex[1] += +perpendicular_dy;
+
+	bottom_right_vertex[0] += +perpendicular_dx;
+	bottom_right_vertex[1] += -perpendicular_dy;
+
+
+	auto vertex_index = sprite.vertex_index_;
+
+	// Bottom-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(bottom_left_vertex[0]),
+			static_cast<float>(bottom_left_vertex[1]),
+			0.0F
+		};
+	}
+
+	// Bottom-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(bottom_right_vertex[0]),
+			static_cast<float>(bottom_right_vertex[1]),
+			0.0F
+		};
+	}
+
+	// Top-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(bottom_right_vertex[0]),
+			static_cast<float>(bottom_right_vertex[1]),
+			::hw_3d_tile_dimension_f
+		};
+	}
+
+	// Top-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = bstone::Vec3F
+		{
+			static_cast<float>(bottom_left_vertex[0]),
+			static_cast<float>(bottom_left_vertex[1]),
+			::hw_3d_tile_dimension_f
+		};
+	}
+}
+
+void hw_dbg_3d_orient_all_sprites()
+{
+	for (auto& map_item : ::hw_3d_xy_static_map_)
+	{
+		auto& sprite = map_item.second;
+
+		::hw_3d_orient_sprite(sprite);
+	}
+
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = 0;
+	param.count_ = ::hw_3d_max_sprites_vertices;
+	param.vertices_ = ::hw_3d_sprites_vb_buffer_.data();
+
+	::hw_3d_sprites_vb_->update(param);
+}
+
+Hw3dSprite& hw_3d_map_sprite(
+	const Hw3dSpriteKind sprite_kind,
+	const int x,
+	const int y,
+	int vertex_index,
+	Hw3dXySpriteMap& map)
+{
+	const auto xy = ::hw_encode_xy(x, y);
+
+	const auto map_it = map.find(xy);
+
+	if (map_it != map.cend())
+	{
+		::Quit("Sprite already mapped.");
+	}
+
+	map[xy] = Hw3dSprite{};
+	auto& sprite = map[xy];
+	sprite.kind_ = sprite_kind;
+	sprite.x_ = x;
+	sprite.y_ = y;
+	sprite.vertex_index_ = vertex_index;
+
+	// Bottom-left.
+	//
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+	}
+
+	// Bottom-right.
+	//
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+	}
+
+	// Top-right.
+	//
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+	}
+
+	// Top-left.
+	//
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index];
+		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+	}
+
+	return sprite;
+}
+
+void hw_3d_map_static(
+	const statobj_t& bs_static)
+{
+	const auto bs_static_index = static_cast<int>(&bs_static - ::statobjlist);
+
+	auto vertex_index = ::hw_3d_statics_base_vertex_index;
+	vertex_index += (bs_static_index * ::hw_3d_vertices_per_sprite);
+
+	auto& sprite = ::hw_3d_map_sprite(
+		Hw3dSpriteKind::stat,
+		bs_static.tilex,
+		bs_static.tiley,
+		vertex_index,
+		::hw_3d_xy_static_map_
+	);
+
+	sprite.bs_object_.stat_ = &bs_static;
+	sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(bs_static.shapenum);
+}
+
+void hw_3d_add_static(
+	const statobj_t& bs_static)
+{
+	::hw_3d_map_static(bs_static);
+}
+
+void hw_3d_remove_static(
+	const statobj_t& bs_static)
+{
+	const auto xy = ::hw_encode_xy(bs_static.tilex, bs_static.tiley);
+
+	if (xy == 0)
+	{
+		// Reserved static.
+
+		return;
+	}
+
+	const auto map_it = ::hw_3d_xy_static_map_.find(xy);
+
+	if (map_it == ::hw_3d_xy_static_map_.cend())
+	{
+		::Quit("Static not mapped.");
+	}
+
+	static_cast<void>(::hw_3d_xy_static_map_.erase(map_it));
+}
+
+void hw_3d_change_sprite_texture(
+	const Hw3dSpriteKind sprite_kind,
+	const int x,
+	const int y)
+{
+	auto map = Hw3dXySpriteMapPtr{};
+
+	switch (sprite_kind)
+	{
+	case Hw3dSpriteKind::stat:
+		map = &::hw_3d_xy_static_map_;
+		break;
+
+	case Hw3dSpriteKind::actor:
+	default:
+		::Quit("Invalid sprite kind.");
+
+		return;
+	}
+
+	const auto xy = ::hw_encode_xy(x, y);
+
+	const auto map_it = map->find(xy);
+
+	if (map_it == map->cend())
+	{
+		::Quit("Sprite not mapped.");
+	}
+
+	auto& sprite = map_it->second;
+
+	auto sprite_id = 0;
+
+	switch (sprite_kind)
+	{
+	case Hw3dSpriteKind::stat:
+		sprite_id = sprite.bs_object_.stat_->shapenum;;
+		break;
+
+	case Hw3dSpriteKind::actor:
+	default:
+		::Quit("Invalid sprite kind.");
+
+		return;
+	}
+
+	sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(sprite_id);
+}
+
+void hw_3d_change_static_texture(
+	const statobj_t& bs_static)
+{
+	::hw_3d_change_sprite_texture(Hw3dSpriteKind::stat, bs_static.tilex, bs_static.tiley);
+}
+
+void hw_3d_precache_static(
+	const statobj_t& bs_static)
+{
+	int sprite_0 = bs_static.shapenum;
+	int sprite_1 = bs_static.shapenum;
+
+	if (false)
+	{
+	}
+	// Full water bowl.
+	else if (sprite_0 == ::SPR_STAT_40)
+	{
+		// Empty water bowl.
+		sprite_1 = ::SPR_STAT_41;
+	}
+	// Chicken leg.
+	else if (sprite_0 == ::SPR_STAT_42)
+	{
+		// Chicken bone.
+		sprite_1 = ::SPR_STAT_43;
+	}
+	// Ham.
+	else if (sprite_0 == ::SPR_STAT_44)
+	{
+		// Ham bone.
+		sprite_1 = ::SPR_STAT_45;
+	}
+	// Candy bar.
+	else if (sprite_0 == ::SPR_CANDY_BAR)
+	{
+		// Candy bar wrapper.
+		sprite_1 = ::SPR_CANDY_WRAPER;
+	}
+	// Sandwich.
+	else if (sprite_0 == ::SPR_SANDWICH)
+	{
+		// Sandwich wrapper.
+		sprite_1 = ::SPR_SANDWICH_WRAPER;
+	}
+	// Plasma detonator.
+	else if (sprite_0 == ::SPR_DOORBOMB)
+	{
+		// Plasma detonator (blink).
+		sprite_1 = ::SPR_ALT_DOORBOMB;
+	}
+	// Plasma detonator (blink).
+	else if (sprite_0 == ::SPR_ALT_DOORBOMB)
+	{
+		// Plasma detonator.
+		sprite_1 = ::SPR_DOORBOMB;
+	}
+
+	::hw_texture_manager_->sprite_cache(sprite_0);
+
+	if (sprite_0 != sprite_1)
+	{
+		::hw_texture_manager_->sprite_cache(sprite_1);
+	}
+}
+
+void hw_3d_precache_statics()
+{
+	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
+	{
+		if (bs_static->shapenum == -1 ||
+			(bs_static->tilex == 0 && bs_static->tiley == 0))
+		{
+			continue;
+		}
+
+		::hw_3d_precache_static(*bs_static);
+	}
+}
+
+void hw_precache_sprites()
+{
+	::hw_3d_precache_statics();
+}
+
+void hw_3d_build_statics()
+{
+	::hw_3d_uninitialize_statics();
+
+	if (!::hw_3d_initialize_statics())
+	{
+		::Quit("Failed to initialize statics.");
+	}
+
+	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
+	{
+		if (bs_static->shapenum == -1 ||
+			(bs_static->tilex == 0 && bs_static->tiley == 0))
+		{
+			continue;
+		}
+
+		::hw_3d_map_static(*bs_static);
+	}
+}
+
+void hw_3d_build_sprites()
+{
+	::hw_3d_uninitialize_sprites();
+	::hw_3d_initialize_sprites();
+
+	::hw_3d_build_statics();
+}
+
+void hw_precache_resources()
+{
+	::hw_texture_manager_->cache_begin();
+
+	::hw_precache_flooring();
+	::hw_precache_ceiling();
+	::hw_precache_solid_walls();
+	::hw_precache_pushwalls();
+	::hw_precache_doors();
+	::hw_precache_sprites();
+
+	::hw_texture_manager_->cache_end();
+
+	::hw_texture_manager_->cache_purge();
+}
+
+void hw_uninitialize_video()
+{
+	::hw_command_sets_ .clear();
+	::hw_2d_command_set_ = nullptr;
+
+	::hw_3d_uninitialize_solid_walls();
+	::hw_3d_uninitialize_pushwalls();
+	::hw_3d_uninitialize_door_sides();
+	::hw_3d_uninitialize_sprites();
+
+	::hw_uninitialize_flooring();
+	::hw_uninitialize_ceiling();
+
+	::hw_uninitialize_ui_texture();
+	::hw_uninitialize_vga_buffer();
+
+	if (::hw_texture_manager_)
+	{
+		::hw_texture_manager_->uninitialize();
+		::hw_texture_manager_ = nullptr;
+	}
+
+	if (::hw_renderer_manager_)
+	{
+		::hw_renderer_manager_->uninitialize();
+		::hw_renderer_manager_ = nullptr;
+	}
 }
 
 //
@@ -5146,1314 +7212,6 @@ void vid_draw_ui_sprite(
 	}
 }
 
-static void hw_precache_flooring()
-{
-	if (!::hw_texture_manager_->wall_cache(::FloorTile))
-	{
-		::Quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
-	}
-
-	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
-
-	const auto vga_index = ::BottomColor & 0xFF;
-	const auto vga_color = ::vgapal + (3 * vga_index);
-
-	const auto renderer_color = ::hw_vga_color_to_color_32(
-		vga_color[0],
-		vga_color[1],
-		vga_color[2]
-	);
-
-	if (!::hw_update_solid_texture_1x1(renderer_color, ::hw_3d_flooring_solid_t2d_))
-	{
-		::Quit("Failed to update flooring solid texture.");
-	}
-}
-
-static void hw_precache_ceiling()
-{
-	if (!::hw_texture_manager_->wall_cache(::CeilingTile))
-	{
-		::Quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
-	}
-
-	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
-
-	const auto vga_index = ::TopColor & 0xFF;
-	const auto vga_color = ::vgapal + (3 * vga_index);
-
-	const auto renderer_color = ::hw_vga_color_to_color_32(
-		vga_color[0],
-		vga_color[1],
-		vga_color[2]
-	);
-
-	if (!::hw_update_solid_texture_1x1(renderer_color, ::hw_3d_ceiling_solid_t2d_))
-	{
-		::Quit("Failed to update ceiling solid texture.");
-	}
-}
-
-static constexpr bool hw_tile_is_activated_pushwall(
-	const int tile)
-{
-	return (tile & ::tilemap_door_flags) == ::tilemap_door_flags;
-}
-
-static constexpr bool hw_tile_is_door(
-	const int tile)
-{
-	return (tile & ::tilemap_door_flags) == ::tilemap_door_flag;
-}
-
-static constexpr bool hw_tile_is_door_track(
-	const int tile)
-{
-	return (tile & ::tilemap_door_flags) == ::tilemap_door_track_flag;
-}
-
-static constexpr bool hw_tile_is_solid_wall(
-	const int tile)
-{
-	if (tile == 0)
-	{
-		return false;
-	}
-
-	if (::hw_tile_is_activated_pushwall(tile))
-	{
-		return false;
-	}
-
-	if (::hw_tile_is_door(tile))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-static constexpr bool hw_tile_is_pushwall(
-	const int x,
-	const int y)
-{
-	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
-	{
-		return false;
-	}
-
-	const auto tile_wall = ::tilemap[x][y];
-
-	if (tile_wall == 0)
-	{
-		return false;
-	}
-
-	if (::hw_tile_is_activated_pushwall(tile_wall))
-	{
-		return true;
-	}
-
-	const auto tile_object = ::mapsegs[1][(MAPSIZE * y) + x];
-
-	if (tile_object == PUSHABLETILE)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-static constexpr bool hw_tile_is_solid_wall(
-	const int x,
-	const int y)
-{
-	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
-	{
-		return true;
-	}
-
-	const auto tile_wall = ::tilemap[x][y];
-
-	if (!::hw_tile_is_solid_wall(tile_wall))
-	{
-		return false;
-	}
-
-	if (::hw_tile_is_pushwall(x, y))
-	{
-		return false;
-	}
-
-	if (::hw_3d_has_active_pushwall_ &&
-		::hw_3d_active_pushwall_next_x_ == x &&
-		::hw_3d_active_pushwall_next_y_ == y)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-static void hw_precache_wall(
-	const int wall_id)
-{
-	if (!::hw_texture_manager_->wall_cache(wall_id))
-	{
-		::Quit("Failed to cache a wall #" + std::to_string(wall_id) + ".");
-	}
-}
-
-static void hw_precache_horizontal_wall(
-	const int tile_wall)
-{
-	const auto wall_id = ::horizwall[tile_wall];
-
-	::hw_precache_wall(wall_id);
-}
-
-static void hw_precache_vertical_wall(
-	const int tile_wall)
-{
-	const auto wall_id = ::vertwall[tile_wall];
-
-	::hw_precache_wall(wall_id);
-}
-
-static void hw_precache_switches()
-{
-	::hw_precache_horizontal_wall(OFF_SWITCH);
-	::hw_precache_vertical_wall(OFF_SWITCH);
-	::hw_precache_horizontal_wall(ON_SWITCH);
-	::hw_precache_vertical_wall(ON_SWITCH);
-}
-
-static void hw_precache_door_track(
-	const int x,
-	const int y)
-{
-	const auto tile = ::tilemap[x][y];
-	const auto tile_wall = tile & ::tilemap_wall_mask;
-
-	const auto& door = ::doorobjlist[tile_wall];
-
-	if (door.tilex != x || door.tiley != y)
-	{
-		::Quit("Expected a door at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
-	}
-
-	auto wall_id = ::door_get_track_texture_id(door);
-
-	::hw_precache_wall(wall_id);
-}
-
-static void hw_precache_solid_walls()
-{
-	auto has_switch = false;
-
-	for (int y = 0; y < MAPSIZE; ++y)
-	{
-		for (int x = 0; x < MAPSIZE; ++x)
-		{
-			const auto tile = ::tilemap[x][y];
-			const auto tile_wall = tile & ::tilemap_wall_mask;
-
-			if (::hw_tile_is_door(tile))
-			{
-				::hw_precache_door_track(x, y);
-
-				continue;
-			}
-
-			if (!::hw_tile_is_solid_wall(x, y))
-			{
-				continue;
-			}
-
-			if (tile_wall == ON_SWITCH || tile_wall == OFF_SWITCH)
-			{
-				has_switch = true;
-			}
-
-			::hw_precache_horizontal_wall(tile_wall);
-			::hw_precache_vertical_wall(tile_wall);
-		}
-	}
-
-	if (has_switch)
-	{
-		::hw_precache_switches();
-	}
-}
-
-static void hw_precache_pushwalls()
-{
-	for (int y = 0; y < MAPSIZE; ++y)
-	{
-		for (int x = 0; x < MAPSIZE; ++x)
-		{
-			if (!::hw_tile_is_pushwall(x, y))
-			{
-				continue;
-			}
-
-			const auto tile = ::tilemap[x][y];
-			const auto tile_wall = tile & ::tilemap_wall_mask;
-
-			::hw_precache_horizontal_wall(tile_wall);
-			::hw_precache_vertical_wall(tile_wall);
-		}
-	}
-}
-
-static void hw_precache_door_side(
-	const int page_number)
-{
-	if (!::hw_texture_manager_->wall_cache(page_number))
-	{
-		::Quit("Failed to cache a door side #" + std::to_string(page_number) + ".");
-	}
-}
-
-static void hw_precache_door(
-	const doorobj_t& door)
-{
-	auto horizontal_locked_page_number = 0;
-	auto horizontal_unlocked_page_number = 0;
-	auto vertical_locked_page_number = 0;
-	auto vertical_unlocked_page_number = 0;
-
-	::door_get_page_numbers_for_caching(
-		door,
-		horizontal_locked_page_number,
-		horizontal_unlocked_page_number,
-		vertical_locked_page_number,
-		vertical_unlocked_page_number
-	);
-
-	::hw_precache_door_side(horizontal_locked_page_number);
-	::hw_precache_door_side(horizontal_unlocked_page_number);
-	::hw_precache_door_side(vertical_locked_page_number);
-	::hw_precache_door_side(vertical_unlocked_page_number);
-}
-
-static void hw_precache_doors()
-{
-	::hw_3d_door_count_ = 0;
-
-	for (auto door = ::doorobjlist; door != ::lastdoorobj; ++door)
-	{
-		++::hw_3d_door_count_;
-
-		::hw_precache_door(*door);
-	}
-}
-
-static int hw_get_solid_wall_side_count(
-	const int x,
-	const int y)
-{
-	assert(x >= 0 && x < MAPSIZE);
-	assert(y >= 0 && y < MAPSIZE);
-	assert(::hw_tile_is_solid_wall(x, y));
-
-	auto side_count = 4;
-
-	side_count -= ::hw_tile_is_solid_wall(x + 0, y - 1); // north
-	side_count -= ::hw_tile_is_solid_wall(x + 1, y + 0); // east
-	side_count -= ::hw_tile_is_solid_wall(x + 0, y + 1); // south
-	side_count -= ::hw_tile_is_solid_wall(x - 1, y + 0); // west
-
-	return side_count;
-}
-
-static int hw_tile_get_door_track_wall_id(
-	const int x,
-	const int y,
-	const controldir_t direction)
-{
-	auto door_x = x;
-	auto door_y = y;
-
-	switch (direction)
-	{
-	case di_north:
-		door_y -= 1;
-		break;
-
-	case di_east:
-		door_x += 1;
-		break;
-
-	case di_south:
-		door_y += 1;
-		break;
-
-	case di_west:
-		door_x -= 1;
-		break;
-
-	default:
-		::Quit("Invalid direction.");
-	}
-
-	if (door_x < 0 || door_x >= MAPSIZE || door_y < 0 || door_y >= MAPSIZE)
-	{
-		return -1;
-	}
-
-	const auto door_tile = ::tilemap[door_x][door_y];
-
-	if (!::hw_tile_is_door(door_tile))
-	{
-		return -1;
-	}
-
-	const auto door_index = door_tile & ::tilemap_wall_mask;
-	const auto& door = ::doorobjlist[door_index];
-
-	return ::door_get_track_texture_id(door);
-}
-
-static void hw_3d_map_wall_side(
-	const controldir_t side_direction,
-	Hw3dWall& wall,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	static const float all_vertex_offsets[4][4] =
-	{
-		{::hw_3d_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
-		{::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, 0.0F,},
-		{0.0F, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f,},
-		{0.0F, 0.0F, 0.0F, ::hw_3d_tile_dimension_f,},
-	};
-
-
-	const auto x = wall.x_;
-	const auto y = wall.y_;
-
-	const auto tile = ::tilemap[x][y];
-	const auto wall_id = tile & ::tilemap_wall_mask;
-	const auto has_door_tracks = ::hw_tile_is_door_track(tile);
-
-	auto is_vertical = false;
-	auto wall_texture_id = 0;
-
-	switch (side_direction)
-	{
-	case di_north:
-	case di_south:
-		wall_texture_id = ::horizwall[wall_id];
-		break;
-
-	case di_east:
-	case di_west:
-		is_vertical = true;
-		wall_texture_id = ::vertwall[wall_id];
-		break;
-
-	default:
-		::Quit("Invalid direction.");
-	}
-
-	auto is_door_track = false;
-
-	if (has_door_tracks)
-	{
-		const auto door_track_wall_id = ::hw_tile_get_door_track_wall_id(x, y, side_direction);
-
-		if (door_track_wall_id >= 0)
-		{
-			is_door_track = true;
-
-			wall_texture_id = door_track_wall_id;
-		}
-	}
-
-	const auto& vertex_offsets = all_vertex_offsets[side_direction];
-
-	auto& side = wall.sides_[side_direction];
-
-	side.flags_.is_active_ = true;
-	side.flags_.is_vertical_ = is_vertical;
-	side.flags_.is_door_track_ = is_door_track;
-	side.vertex_index_ = vertex_index;
-	side.texture_2d_ = ::hw_texture_manager_->wall_get(wall_texture_id);
-	side.wall_ = &wall;
-
-	// Bottom-left (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			static_cast<float>(x) + vertex_offsets[0],
-			static_cast<float>(y) + vertex_offsets[1],
-			0.0F,
-		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
-	}
-
-	// Bottom-right (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			static_cast<float>(x) + vertex_offsets[2],
-			static_cast<float>(y) + vertex_offsets[3],
-			0.0F,
-		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
-	}
-
-	// Top-right (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			static_cast<float>(x) + vertex_offsets[2],
-			static_cast<float>(y) + vertex_offsets[3],
-			::hw_3d_map_height_f,
-		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
-	}
-
-	// Top-left (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			static_cast<float>(x) + vertex_offsets[0],
-			static_cast<float>(y) + vertex_offsets[1],
-			::hw_3d_map_height_f,
-		};
-
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
-	}
-}
-
-static void hw_3d_map_xy_to_xwall(
-	const Hw3dXyWallKind wall_kind,
-	const int x,
-	const int y,
-	Hw3dXyWallMap& map,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	switch (wall_kind)
-	{
-	case Hw3dXyWallKind::solid:
-	case Hw3dXyWallKind::push:
-		break;
-
-	default:
-		::Quit("Invalid kind.");
-		break;
-	}
-
-	auto is_north_solid = false;
-	auto is_east_solid = false;
-	auto is_south_solid = false;
-	auto is_west_solid = false;
-
-	if (wall_kind == Hw3dXyWallKind::solid)
-	{
-		is_north_solid = ::hw_tile_is_solid_wall(x + 0, y - 1);
-		is_east_solid = ::hw_tile_is_solid_wall(x + 1, y + 0);
-		is_south_solid = ::hw_tile_is_solid_wall(x + 0, y + 1);
-		is_west_solid = ::hw_tile_is_solid_wall(x - 1, y + 0);
-	}
-
-	if (is_north_solid && is_east_solid && is_south_solid && is_west_solid)
-	{
-		// Nothing to draw.
-		// This solid wall is surrounded by other solid ones.
-
-		return;
-	}
-
-	const auto xy = ::hw_encode_xy(x, y);
-
-	if (map.find(xy) != map.cend())
-	{
-		::Quit("Wall mapping already exist.");
-	}
-
-	map[xy] = Hw3dWall{};
-	auto& wall = map[xy];
-
-	wall.x_ = x;
-	wall.y_ = y;
-
-	// A north side.
-	if (!is_north_solid)
-	{
-		::hw_3d_map_wall_side(
-			di_north,
-			wall,
-			vertex_index,
-			vb_buffer
-		);
-	}
-
-	// An east side.
-	if (!is_east_solid)
-	{
-		::hw_3d_map_wall_side(
-			di_east,
-			wall,
-			vertex_index,
-			vb_buffer
-		);
-	}
-
-	// An south side.
-	if (!is_south_solid)
-	{
-		::hw_3d_map_wall_side(
-			di_south,
-			wall,
-			vertex_index,
-			vb_buffer
-		);
-	}
-
-	// A west side.
-	if (!is_west_solid)
-	{
-		::hw_3d_map_wall_side(
-			di_west,
-			wall,
-			vertex_index,
-			vb_buffer
-		);
-	}
-}
-
-static void hw_3d_build_solid_walls()
-{
-	::hw_3d_uninitialize_solid_walls();
-
-	// Check for moving pushwall.
-	//
-	::hw_3d_has_active_pushwall_ = (::pwallstate != 0);
-
-	::hw_3d_active_pushwall_next_x_ = 0;
-	::hw_3d_active_pushwall_next_y_ = 0;
-
-	if (::hw_3d_has_active_pushwall_)
-	{
-		::hw_3d_active_pushwall_next_x_ = ::pwallx;
-		::hw_3d_active_pushwall_next_y_ = ::pwally;
-
-		switch (::pwalldir)
-		{
-		case di_north:
-			--::hw_3d_active_pushwall_next_y_;
-			break;
-
-		case di_east:
-			++::hw_3d_active_pushwall_next_x_;
-			break;
-
-		case di_south:
-			++::hw_3d_active_pushwall_next_y_;
-			break;
-
-		case di_west:
-			--::hw_3d_active_pushwall_next_x_;
-			break;
-
-		default:
-			::Quit("Invalid direction.");
-			break;
-		}
-	}
-
-	// Count walls and their sides.
-	//
-	::hw_3d_wall_count_ = 0;
-	::hw_3d_wall_side_count_ = 0;
-
-	for (int y = 0; y < MAPSIZE; ++y)
-	{
-		for (int x = 0; x < MAPSIZE; ++x)
-		{
-			if (!::hw_tile_is_solid_wall(x, y))
-			{
-				continue;
-			}
-
-			if (::hw_3d_has_active_pushwall_ &&
-				x == ::hw_3d_active_pushwall_next_x_ &&
-				y == ::hw_3d_active_pushwall_next_y_)
-			{
-				continue;
-			}
-
-			::hw_3d_wall_count_ += 1;
-			::hw_3d_wall_side_count_ += ::hw_get_solid_wall_side_count(x, y);
-		}
-	}
-
-	// Check for maximums.
-	//
-	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_indices_per_wall_side;
-
-	if (index_count > ::hw_3d_max_wall_sides_indices)
-	{
-		::Quit("Too many indices.");
-	}
-
-	// Create index an vertex buffers.
-	//
-	if (!::hw_3d_initialize_solid_walls())
-	{
-		::Quit("Failed to initialize walls.");
-	}
-
-	// Build the map (XY to wall).
-	//
-	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
-
-	auto vb_buffer = HwVbBuffer{};
-	vb_buffer.resize(vertex_count);
-
-	::hw_3d_xy_wall_map_.clear();
-
-	auto vertex_index = 0;
-
-	for (int y = 0; y < MAPSIZE; ++y)
-	{
-		for (int x = 0; x < MAPSIZE; ++x)
-		{
-			if (!::hw_tile_is_solid_wall(x, y))
-			{
-				continue;
-			}
-
-			if (::hw_3d_has_active_pushwall_ &&
-				x == ::hw_3d_active_pushwall_next_x_ &&
-				y == ::hw_3d_active_pushwall_next_y_)
-			{
-				continue;
-			}
-
-			::hw_3d_map_xy_to_xwall(
-				Hw3dXyWallKind::solid,
-				x,
-				y,
-				::hw_3d_xy_wall_map_,
-				vertex_index,
-				vb_buffer
-			);
-		}
-	}
-
-	// Update vertex buffer.
-	//
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = vertex_count;
-	param.vertices_ = vb_buffer.data();
-
-	::hw_3d_wall_sides_vb_->update(param);
-}
-
-static void hw_3d_translate_pushwall_side(
-	const float translate_x,
-	const float translate_y,
-	const controldir_t side_direction,
-	const Hw3dWall& wall,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	static const float all_vertex_offsets[4][4] =
-	{
-		{::hw_3d_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
-		{::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, 0.0F,},
-		{0.0F, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f, ::hw_3d_tile_dimension_f,},
-		{0.0F, 0.0F, 0.0F, ::hw_3d_tile_dimension_f,},
-	};
-
-
-	auto is_vertical = false;
-
-	switch (side_direction)
-	{
-	case di_north:
-	case di_south:
-		break;
-
-	case di_east:
-	case di_west:
-		is_vertical = true;
-		break;
-
-	default:
-		::Quit("Invalid direction.");
-	}
-
-	const auto& vertex_offsets = all_vertex_offsets[side_direction];
-
-	auto& side = wall.sides_[side_direction];
-
-	const auto x_f = static_cast<float>(wall.x_) + translate_x;
-	const auto y_f = static_cast<float>(wall.y_) + translate_y;
-
-	// Bottom-left (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			x_f + vertex_offsets[0],
-			y_f + vertex_offsets[1],
-			0.0F,
-		};
-	}
-
-	// Bottom-right (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			x_f + vertex_offsets[2],
-			y_f + vertex_offsets[3],
-			0.0F,
-		};
-	}
-
-	// Top-right (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			x_f + vertex_offsets[2],
-			y_f + vertex_offsets[3],
-			::hw_3d_map_height_f,
-		};
-	}
-
-	// Top-left (when looking at face side).
-	{
-		auto& vertex = vb_buffer[vertex_index++];
-
-		vertex.xyz_ = bstone::Vec3F
-		{
-			x_f + vertex_offsets[0],
-			y_f + vertex_offsets[1],
-			::hw_3d_map_height_f,
-		};
-	}
-}
-
-static void hw_3d_translate_pushwall(
-	const Hw3dWall& wall,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	auto translate_distance = static_cast<float>(::pwallpos) / 63.0F;
-
-	auto translate_x = 0.0F;
-	auto translate_y = 0.0F;
-
-	switch (::pwalldir)
-	{
-	case di_north:
-		translate_y = -translate_distance;
-		break;
-
-	case di_east:
-		translate_x = +translate_distance;
-		break;
-
-	case di_south:
-		translate_y = +translate_distance;
-		break;
-
-	case di_west:
-		translate_x = -translate_distance;
-		break;
-
-	default:
-		::Quit("Invalid direction.");
-		break;
-	}
-
-	::hw_3d_translate_pushwall_side(
-		translate_x,
-		translate_y,
-		di_north,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-
-	::hw_3d_translate_pushwall_side(
-		translate_x,
-		translate_y,
-		di_east,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-
-	::hw_3d_translate_pushwall_side(
-		translate_x,
-		translate_y,
-		di_south,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-
-	::hw_3d_translate_pushwall_side(
-		translate_x,
-		translate_y,
-		di_west,
-		wall,
-		vertex_index,
-		vb_buffer
-	);
-}
-
-static void hw_3d_translate_pushwall()
-{
-	const auto xy = ::hw_encode_xy(::pwallx, ::pwally);
-
-	const auto wall_item_it = ::hw_3d_xy_pushwall_map_.find(xy);
-
-	if (wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
-	{
-		::Quit("Pushwall mapping not found.");
-	}
-
-	const auto& wall = wall_item_it->second;
-
-	const auto first_vertex_index = wall.sides_.front().vertex_index_;
-
-	auto vertex_index = first_vertex_index;
-
-	::hw_3d_translate_pushwall(wall, vertex_index, ::hw_3d_pushwalls_vb_buffer_);
-
-	const auto vertex_count = vertex_index - first_vertex_index;
-
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = first_vertex_index;
-	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data() + first_vertex_index;
-
-	::hw_3d_pushwall_sides_vb_->update(param);
-}
-
-static void hw_3d_step_pushwall(
-	const int old_x,
-	const int old_y)
-{
-	const auto old_xy = ::hw_encode_xy(old_x, old_y);
-
-	const auto old_wall_item_it = ::hw_3d_xy_pushwall_map_.find(old_xy);
-
-	if (old_wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
-	{
-		::Quit("Pushwall mapping not found.");
-	}
-
-	const auto new_xy = ::hw_encode_xy(::pwallx, ::pwally);
-
-	auto wall = old_wall_item_it->second;
-	wall.x_ = ::pwallx;
-	wall.y_ = ::pwally;
-
-	static_cast<void>(::hw_3d_xy_pushwall_map_.erase(old_xy));
-	::hw_3d_xy_pushwall_map_[new_xy] = wall;
-
-	::hw_3d_translate_pushwall();
-}
-
-static void hw_3d_build_pushwalls()
-{
-	::hw_3d_uninitialize_pushwalls();
-
-	// Count pushwalls and their sides.
-	//
-	::hw_3d_pushwall_count_ = 0;
-
-	for (int y = 0; y < MAPSIZE; ++y)
-	{
-		for (int x = 0; x < MAPSIZE; ++x)
-		{
-			if (!::hw_tile_is_pushwall(x, y))
-			{
-				continue;
-			}
-
-			::hw_3d_pushwall_count_ += 1;
-		}
-	}
-
-	::hw_3d_pushwall_side_count_ = ::hw_3d_pushwall_count_ * ::hw_3d_max_sides_per_wall;
-
-	// Check for maximums.
-	//
-	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_indices_per_wall_side;
-
-	if (index_count > ::hw_3d_max_wall_sides_indices)
-	{
-		::Quit("Too many indices.");
-	}
-
-	// Create index an vertex buffers.
-	//
-	if (!::hw_3d_initialize_pushwalls())
-	{
-		::Quit("Failed to initialize pushwalls.");
-	}
-
-	// Build the map (XY to pushwall).
-	//
-	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
-
-	::hw_3d_pushwalls_vb_buffer_.clear();
-	::hw_3d_pushwalls_vb_buffer_.resize(vertex_count);
-
-	::hw_3d_xy_pushwall_map_.clear();
-
-	auto vertex_index = 0;
-
-	for (int y = 0; y < MAPSIZE; ++y)
-	{
-		for (int x = 0; x < MAPSIZE; ++x)
-		{
-			if (!::hw_tile_is_pushwall(x, y))
-			{
-				continue;
-			}
-
-			::hw_3d_map_xy_to_xwall(
-				Hw3dXyWallKind::push,
-				x,
-				y,
-				::hw_3d_xy_pushwall_map_,
-				vertex_index,
-				::hw_3d_pushwalls_vb_buffer_
-			);
-		}
-	}
-
-	// Update vertex buffer.
-	//
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data();
-
-	::hw_3d_pushwall_sides_vb_->update(param);
-}
-
-static void hw_3d_update_quad_vertices(
-	const Hw3dQuadFlags flags,
-	const bstone::Vec3F& origin,
-	const bstone::Vec2F& size,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	//
-	// Front face order:
-	//    bottom-left -> bottom-right -> top-right -> top-left
-	//
-	// Back face order:
-	//    bottom-right -> bottom-left -> top-left -> top-right
-	//
-
-	using VertexOrder = std::array<int, 4>;
-
-	const auto axis_index = (flags.is_vertical_ ? 1 : 0);
-
-	for (int i = 0; i < 4; ++i)
-	{
-		auto& xyz = vb_buffer[vertex_index + i].xyz_;
-
-		xyz = origin;
-
-		switch (i)
-		{
-		case 0:
-			if (flags.is_back_face_)
-			{
-				xyz[axis_index] += size[0];
-			}
-
-			break;
-
-		case 1:
-			if (!flags.is_back_face_)
-			{
-				xyz[axis_index] += size[0];
-			}
-
-			break;
-
-		case 2:
-			if (!flags.is_back_face_)
-			{
-				xyz[axis_index] += size[0];
-			}
-
-			xyz[2] = 1.0F;
-
-			break;
-
-		case 3:
-			if (flags.is_back_face_)
-			{
-				xyz[axis_index] += size[0];
-			}
-
-			xyz[2] = 1.0F;
-
-			break;
-		}
-	}
-
-	vertex_index += 4;
-}
-
-static void hw_3d_map_door_side(
-	Hw3dDoorSide& door_side,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	const auto& door = *door_side.door_;
-	const auto& bs_door = *door.door_;
-	const auto door_index = door.door_ - ::doorobjlist;
-	const auto door_offset = (0.5F * static_cast<float>(::doorposition[door_index])) / 65'535.0F;
-
-	door_side.vertex_index_ = vertex_index;
-
-	auto flags = Hw3dQuadFlags{};
-	flags.is_back_face_ = door_side.is_back_face_;
-	flags.is_vertical_ = bs_door.vertical;
-
-	const auto origin_axis_index = (flags.is_vertical_ ? 1 : 0);
-
-	const auto size = bstone::Vec2F{0.5F, 1.0F};
-
-	const auto tile_center = bstone::Vec3F{bs_door.tilex + 0.5F, bs_door.tiley + 0.5F, 0.0F};
-
-	const auto left_offset = -(0.5F + door_offset);
-	const auto right_offset = door_offset;
-
-	for (int i = 0; i < 2; ++i)
-	{
-		auto origin = tile_center;
-		auto offset = 0.0F;
-
-		if (i == 0)
-		{
-			if (flags.is_back_face_)
-			{
-				offset = right_offset;
-			}
-			else
-			{
-				offset = left_offset;
-			}
-		}
-		else
-		{
-			if (flags.is_back_face_)
-			{
-				offset = left_offset;
-			}
-			else
-			{
-				offset = right_offset;
-			}
-		}
-
-		origin[origin_axis_index] += offset;
-
-		::hw_3d_update_quad_vertices(
-			flags,
-			origin,
-			size,
-			vertex_index,
-			vb_buffer
-		);
-	}
-}
-
-static void hw_3d_map_xy_to_door(
-	const doorobj_t& door,
-	int& vertex_index,
-	HwVbBuffer& vb_buffer)
-{
-	const auto xy = ::hw_encode_xy(door.tilex, door.tiley);
-
-	const auto map_it = ::hw_3d_xy_door_map_.find(xy);
-
-	if (map_it != ::hw_3d_xy_door_map_.cend())
-	{
-		::Quit("XY map to door already exists.");
-	}
-
-	::hw_3d_xy_door_map_[xy] = Hw3dDoor{};
-	auto& hw_door = ::hw_3d_xy_door_map_[xy];
-
-	hw_door.door_ = &door;
-
-	auto old_vertex_index = vertex_index;
-
-	for (int i = 0; i < ::hw_3d_max_halves_per_door; ++i)
-	{
-		auto u_0 = 0.0F;
-		auto u_1 = 0.0F;
-
-		switch (i)
-		{
-		case 0:
-		case 2:
-			u_0 = 0.0F;
-			u_1 = 0.5F;
-			break;
-
-		case 1:
-		case 3:
-			u_0 = 0.5F;
-			u_1 = 1.0F;
-			break;
-		}
-
-		{
-			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_0, 0.0F};
-		}
-
-		{
-			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_1, 0.0F};
-		}
-
-		{
-			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_1, 1.0F};
-		}
-
-		{
-			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_0, 1.0F};
-		}
-	}
-
-	vertex_index = old_vertex_index;
-
-
-	auto is_back_face = false;
-
-	for (auto& hw_door_side : hw_door.sides_)
-	{
-		hw_door_side.door_ = &hw_door;
-		hw_door_side.is_back_face_ = is_back_face;
-
-		::hw_3d_map_door_side(hw_door_side, vertex_index, vb_buffer);
-
-		is_back_face = !is_back_face;
-	}
-
-	auto front_face_page_number = 0;
-	auto back_face_page_number = 0;
-
-	::door_get_page_numbers(door, front_face_page_number, back_face_page_number);
-
-	const auto front_face_texture_2d = ::hw_texture_manager_->wall_get(front_face_page_number);
-	const auto back_face_texture_2d = ::hw_texture_manager_->wall_get(back_face_page_number);
-
-	assert(front_face_texture_2d);
-	assert(back_face_texture_2d);
-
-	hw_door.sides_[0].texture_2d_ = front_face_texture_2d;
-	hw_door.sides_[1].texture_2d_ = back_face_texture_2d;
-}
-
-static void hw_3d_build_doors()
-{
-	::hw_3d_uninitialize_door_sides();
-
-	// Create index an vertex buffers.
-	//
-	if (!::hw_3d_initialize_door_sides())
-	{
-		::Quit("Failed to initialize door sides.");
-	}
-
-	// Build the map (XY to door).
-	//
-	const auto vertex_count = ::hw_3d_vertices_per_door_sides * ::hw_3d_door_count_;
-
-	::hw_3d_doors_vb_buffer_.clear();
-	::hw_3d_doors_vb_buffer_.resize(vertex_count);
-
-	::hw_3d_xy_door_map_.clear();
-
-	auto vertex_index = 0;
-
-	for (auto door = ::doorobjlist; door != ::lastdoorobj; ++door)
-	{
-		::hw_3d_map_xy_to_door(
-			*door,
-			vertex_index,
-			::hw_3d_doors_vb_buffer_
-		);
-	}
-
-	// Update vertex buffer.
-	//
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_doors_vb_buffer_.data();
-
-	::hw_3d_door_sides_vb_->update(param);
-}
-
-static void hw_precache_resources()
-{
-	::hw_texture_manager_->cache_begin();
-
-	::hw_precache_flooring();
-	::hw_precache_ceiling();
-	::hw_precache_solid_walls();
-	::hw_precache_pushwalls();
-	::hw_precache_doors();
-
-	::hw_texture_manager_->cache_end();
-
-	::hw_texture_manager_->cache_purge();
-}
-
 void vid_hw_on_level_load()
 {
 	if (!::vid_is_hw_)
@@ -6466,6 +7224,7 @@ void vid_hw_on_level_load()
 	::hw_3d_build_solid_walls();
 	::hw_3d_build_pushwalls();
 	::hw_3d_build_doors();
+	::hw_3d_build_sprites();
 }
 
 void vid_hw_on_wall_switch_update(
@@ -6613,5 +7372,38 @@ void vid_hw_on_door_lock_update(
 
 	door.sides_[0].texture_2d_ = front_face_texture_2d;
 	door.sides_[1].texture_2d_ = back_face_texture_2d;
+}
+
+void vid_hw_on_static_add(
+	const statobj_t& bs_static)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_add_static(bs_static);
+}
+
+void vid_hw_on_static_remove(
+	const statobj_t& bs_static)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_remove_static(bs_static);
+}
+
+void vid_hw_on_static_change_texture(
+	const statobj_t& bs_static)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_change_static_texture(bs_static);
 }
 // BBi
