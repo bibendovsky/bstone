@@ -894,6 +894,10 @@ void Ogl1XRenderer::execute_command_sets(
 				execute_command_enable_blending(command.enable_blending_);
 				break;
 
+			case RendererCommandId::enable_depth_write:
+				execute_command_enable_depth_writing(command.enable_depth_writing_);
+				break;
+
 			case RendererCommandId::draw_quads:
 				execute_command_draw_quads(command.draw_quads_);
 				break;
@@ -1211,6 +1215,13 @@ void Ogl1XRenderer::execute_command_enable_blending(
 		::glDisable(GL_BLEND);
 	}
 
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::execute_command_enable_depth_writing(
+	const RendererCommand::EnableDepthWriting& command)
+{
+	::glDepthMask(command.is_enabled_);
 	assert(!OglRendererUtils::was_errors());
 }
 

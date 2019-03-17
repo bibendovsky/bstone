@@ -64,6 +64,7 @@ enum class RendererCommandId
 	set_2d,
 	set_3d,
 	enable_blending,
+	enable_depth_write,
 
 	draw_quads,
 }; // RendererCommandId
@@ -311,6 +312,11 @@ struct RendererCommand
 		bool is_enabled_;
 	}; // EnableBlending
 
+	struct EnableDepthWriting
+	{
+		bool is_enabled_;
+	}; // EnableDepthWriting
+
 	struct DrawQuads
 	{
 		int count_;
@@ -329,6 +335,7 @@ struct RendererCommand
 		Set2d set_2d_;
 		Set3d set_3d_;
 		EnableBlending enable_blending_;
+		EnableDepthWriting enable_depth_writing_;
 		DrawQuads draw_quads_;
 	}; // union
 }; // RendererCommand

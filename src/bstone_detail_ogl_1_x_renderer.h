@@ -366,6 +366,9 @@ private:
 	void execute_command_enable_blending(
 		const RendererCommand::EnableBlending& command);
 
+	void execute_command_enable_depth_writing(
+		const RendererCommand::EnableDepthWriting& command);
+
 	void execute_command_draw_quads(
 		const RendererCommand::DrawQuads& command);
 }; // OglRenderer
