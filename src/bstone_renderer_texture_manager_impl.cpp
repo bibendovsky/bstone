@@ -537,7 +537,10 @@ void RendererTextureManagerImpl::Detail::uninitialize_internal()
 	//
 	for (auto& wall_item : wall_map_)
 	{
-		renderer_->texture_2d_destroy(wall_item.second.texture_2d_);
+		const auto texture_2d = wall_item.second.texture_2d_;
+		wall_item.second.texture_2d_ = nullptr;
+
+		renderer_->texture_2d_destroy(texture_2d);
 	}
 
 	wall_map_.clear();
@@ -546,7 +549,10 @@ void RendererTextureManagerImpl::Detail::uninitialize_internal()
 	//
 	for (auto& sprite_item : sprite_map_)
 	{
-		renderer_->texture_2d_destroy(sprite_item.second.texture_2d_);
+		const auto texture_2d = sprite_item.second.texture_2d_;
+		sprite_item.second.texture_2d_ = nullptr;
+
+		renderer_->texture_2d_destroy(texture_2d);
 	}
 
 	sprite_map_.clear();
@@ -672,9 +678,12 @@ void RendererTextureManagerImpl::Detail::cache_purge(
 
 		if (texture_2d_item.generation_id_ != generation_id_)
 		{
-			renderer_->texture_2d_destroy(texture_2d_item.texture_2d_);
+			const auto texture_2d = texture_2d_item.texture_2d_;
+			texture_2d_item.texture_2d_ = nullptr;
 
-			map_it = wall_map_.erase(map_it);
+			renderer_->texture_2d_destroy(texture_2d);
+
+			map_it = map.erase(map_it);
 		}
 		else
 		{
