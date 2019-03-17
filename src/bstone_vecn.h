@@ -32,7 +32,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_VECN_INCLUDED
 
 
+#include <algorithm>
 #include <array>
+#include <numeric>
 
 
 namespace bstone
@@ -85,6 +87,99 @@ public:
 		return items_[index];
 	}
 
+	T get_square_magnitude() const
+	{
+		return std::accumulate(
+			items_.cbegin(),
+			items_.cend(),
+			T{},
+			[](const auto& sum, const auto& value)
+			{
+				return sum + (value * value);
+			}
+		);
+	}
+
+	T get_magnitude() const
+	{
+		const auto square_magnitude = get_square_magnitude();
+
+		return std::sqrt(square_magnitude);
+	}
+
+	static constexpr VecNT scale(
+		const T& scalar)
+	{
+		VecNT result;
+
+		std::transform(
+			items_.cbegin(),
+			items_.cend()
+			items_.begin(),
+			[=](const T& item)
+			{
+				return scalar * item;
+			}
+		);
+
+		return result;
+	}
+
+	static constexpr bool are_equal(
+		const VecNT& lhs,
+		const VecNT& rhs)
+	{
+		return lhs.items_ == rhs.items_;
+	}
+
+	static constexpr VecNT add(
+		const VecNT& lhs,
+		const VecNT& rhs)
+	{
+		VecNT result;
+
+		std::transform(
+			lhs.items_.cbegin(),
+			lhs.items_.cend(),
+			rhs.items_.cbegin(),
+			result.items_.begin(),
+			std::plus<T>{}
+		);
+
+		return result;
+	}
+
+	static constexpr VecNT sub(
+		const VecNT& lhs,
+		const VecNT& rhs)
+	{
+		VecNT result;
+
+		std::transform(
+			lhs.items_.cbegin(),
+			lhs.items_.cend(),
+			rhs.items_.cbegin(),
+			result.items_.begin(),
+			std::minus<T>{}
+		);
+
+		return result;
+	}
+
+	static constexpr T dot_product(
+		const VecNT& lhs,
+		const VecNT& rhs)
+	{
+		auto result = T{};
+
+		for (int i = 0; i < N; ++i)
+		{
+			result += lhs.items_[i] * rhs.items_[i];
+		}
+
+		return result;
+	}
+
 
 private:
 	using Items = std::array<T, N>;
@@ -108,6 +203,65 @@ using Vec4D = VecNT<4, double>;
 
 
 } // bstone
+
+
+template<int N, typename T>
+constexpr bool operator==(
+	const bstone::VecNT<N, T>& lhs,
+	const bstone::VecNT<N, T>& rhs)
+{
+	return lhs.are_equal(lhs, rhs);
+}
+
+template<int N, typename T>
+constexpr bool operator!=(
+	const bstone::VecNT<N, T>& lhs,
+	const bstone::VecNT<N, T>& rhs)
+{
+	return !(lhs == rhs);
+}
+
+
+template<int N, typename T>
+constexpr bstone::VecNT<N, T> operator+(
+	const bstone::VecNT<N, T>& lhs,
+	const bstone::VecNT<N, T>& rhs)
+{
+	return lhs.add(lhs, rhs);
+}
+
+template<int N, typename T>
+constexpr bstone::VecNT<N, T> operator-(
+	const bstone::VecNT<N, T>& lhs,
+	const bstone::VecNT<N, T>& rhs)
+{
+	return lhs.sub(lhs, rhs);
+}
+
+
+template<int N, typename T>
+constexpr bstone::VecNT<N, T> operator*(
+	const T& scalar,
+	const bstone::VecNT<N, T>& rhs)
+{
+	return rhs.scale(scalar);
+}
+
+template<int N, typename T>
+constexpr bstone::VecNT<N, T> operator*(
+	const bstone::VecNT<N, T>& lhs,
+	const T& scalar)
+{
+	return lhs.scale(scalar);
+}
+
+template<int N, typename T>
+constexpr bstone::VecNT<N, T> operator/(
+	const bstone::VecNT<N, T>& lhs,
+	const T& scalar)
+{
+	return lhs.scale(T{1} / scalar);
+}
 
 
 #endif // !BSTONE_VECN_INCLUDED

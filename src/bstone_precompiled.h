@@ -58,6 +58,7 @@ Free Software Foundation, Inc.,
 #include <locale>
 #include <memory>
 #include <mutex>
+#include <numeric>
 #include <stdexcept>
 #include <sstream>
 #include <string>
