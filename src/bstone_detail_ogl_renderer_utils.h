@@ -80,6 +80,11 @@ public:
 		SdlWindowPtr& sdl_window,
 		SdlGlContext& sdl_gl_context);
 
+	bool window_get_drawable_size(
+		SdlWindowPtr& sdl_window,
+		int& width,
+		int& height);
+
 
 	static bool resolve_symbols_1_1();
 

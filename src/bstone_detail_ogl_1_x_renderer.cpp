@@ -567,6 +567,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	probe_renderer_path_{},
 	sdl_window_{},
 	sdl_gl_context_{},
+	screen_width_{},
+	screen_height_{},
 	default_viewport_width_{},
 	default_viewport_height_{},
 	palette_{},
@@ -592,6 +594,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	screen_width_{std::move(rhs.screen_width_)},
+	screen_height_{std::move(rhs.screen_height_)},
 	default_viewport_width_{std::move(rhs.default_viewport_width_)},
 	default_viewport_height_{std::move(rhs.default_viewport_height_)},
 	palette_{std::move(rhs.palette_)},
@@ -935,6 +939,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 	auto is_succeed = true;
 	auto sdl_window = SdlWindowPtr{};
 	auto sdl_gl_context = SdlGlContext{};
+	int screen_width = 0;
+	int screen_height = 0;
 
 	auto ogl_renderer_utils = OglRendererUtils{};
 
@@ -966,6 +972,20 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (is_succeed)
 	{
+		if (!ogl_renderer_utils.window_get_drawable_size(
+			sdl_window,
+			screen_width,
+			screen_height))
+		{
+			is_succeed = false;
+
+			error_message_ = "Failed to get screen size. ";
+			error_message_ += ogl_renderer_utils.get_error_message();
+		}
+	}
+
+	if (is_succeed)
+	{
 		if (!OglRendererUtils::resolve_symbols_1_1())
 		{
 			error_message_ = "Failed to load OpenGL 1.1 symbols.";
@@ -984,6 +1004,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 	is_initialized_ = true;
 	sdl_window_ = sdl_window;
 	sdl_gl_context_ = sdl_gl_context;
+	screen_width_ = screen_width;
+	screen_height_ = screen_height;
 
 	if (!is_probe)
 	{
@@ -1088,6 +1110,8 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
+		screen_width_ = 0;
+		screen_height_ = 0;
 		default_viewport_width_ = 0;
 		default_viewport_height_ = 0;
 		palette_ = {};

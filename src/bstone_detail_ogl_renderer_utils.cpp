@@ -199,6 +199,33 @@ void OglRendererUtils::destroy_window_and_context(
 	}
 }
 
+bool OglRendererUtils::window_get_drawable_size(
+	SdlWindowPtr& sdl_window,
+	int& width,
+	int& height)
+{
+	width = 0;
+	height = 0;
+
+	if (!sdl_window)
+	{
+		error_message_ = "Null window.";
+
+		return false;
+	}
+
+	::SDL_GL_GetDrawableSize(sdl_window, &width, &height);
+
+	if (width <= 0 || height <= 0)
+	{
+		error_message_ = ::SDL_GetError();
+
+		return false;
+	}
+
+	return true;
+}
+
 bool OglRendererUtils::resolve_symbols_1_1()
 {
 	if (!resolve_unique_symbols_1_0())

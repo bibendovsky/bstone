@@ -325,6 +325,9 @@ private:
 	SdlWindowPtr sdl_window_;
 	SdlGlContext sdl_gl_context_;
 
+	int screen_width_;
+	int screen_height_;
+
 	int default_viewport_width_;
 	int default_viewport_height_;
 
