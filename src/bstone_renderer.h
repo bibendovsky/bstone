@@ -60,10 +60,11 @@ enum class RendererCommandId
 {
 	none,
 
+	viewport_set,
+
 	depth_set_test,
 	depth_set_write,
 
-	set_viewport,
 	set_2d,
 	set_3d,
 	enable_blending,
@@ -302,13 +303,13 @@ struct RendererDepthStateFlags
 
 struct RendererCommand
 {
-	struct SetViewport
+	struct ViewportSet
 	{
 		int x_;
 		int y_;
 		int width_;
 		int height_;
-	}; // SetViewport
+	}; // ViewportSet
 
 	struct Set2d
 	{
@@ -347,10 +348,11 @@ struct RendererCommand
 
 	union
 	{
+		ViewportSet viewport_set_;
+
 		DepthSetTest depth_set_test_;
 		DepthSetWrite depth_set_write_;
 
-		SetViewport set_viewport_;
 		Set2d set_2d_;
 		Set3d set_3d_;
 		EnableBlending enable_blending_;
@@ -414,7 +416,7 @@ public:
 		const bool is_visible) = 0;
 
 
-	virtual void set_default_viewport(
+	virtual void viewport_set_default(
 		const int width,
 		const int height) = 0;
 

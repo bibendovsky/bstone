@@ -690,7 +690,7 @@ void Ogl1XRenderer::window_show(
 	static_cast<void>(renderer_utils.show_window(sdl_window_, is_visible));
 }
 
-void Ogl1XRenderer::set_default_viewport(
+void Ogl1XRenderer::viewport_set_default(
 	const int width,
 	const int height)
 {
@@ -701,7 +701,7 @@ void Ogl1XRenderer::set_default_viewport(
 	default_viewport_width_ = width;
 	default_viewport_height_ = height;
 
-	OglRendererUtils::set_viewport(0, 0, default_viewport_width_, default_viewport_height_);
+	OglRendererUtils::viewport_set(0, 0, default_viewport_width_, default_viewport_height_);
 }
 
 void Ogl1XRenderer::color_buffer_set_clear_color(
@@ -890,8 +890,8 @@ void Ogl1XRenderer::execute_command_sets(
 				execute_command_depth_set_write(command.depth_set_write_);
 				break;
 
-			case RendererCommandId::set_viewport:
-				execute_command_set_viewport(command.set_viewport_);
+			case RendererCommandId::viewport_set:
+				execute_command_viewport_set(command.viewport_set_);
 				break;
 
 			case RendererCommandId::set_2d:
@@ -1161,8 +1161,8 @@ void Ogl1XRenderer::execute_command_depth_set_write(
 	depth_set_write();
 }
 
-void Ogl1XRenderer::execute_command_set_viewport(
-	const RendererCommand::SetViewport& command)
+void Ogl1XRenderer::execute_command_viewport_set(
+	const RendererCommand::ViewportSet& command)
 {
 	assert(command.x_ < default_viewport_width_);
 	assert(command.y_ < default_viewport_height_);
@@ -1171,7 +1171,7 @@ void Ogl1XRenderer::execute_command_set_viewport(
 	assert((command.x_ + command.width_) <= default_viewport_width_);
 	assert((command.y_ + command.height_) <= default_viewport_height_);
 
-	OglRendererUtils::set_viewport(
+	OglRendererUtils::viewport_set(
 		command.x_,
 		command.y_,
 		command.width_,

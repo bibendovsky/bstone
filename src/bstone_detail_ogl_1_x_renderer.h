@@ -94,7 +94,7 @@ public:
 		const bool is_visible) override;
 
 
-	void set_default_viewport(
+	void viewport_set_default(
 		const int width,
 		const int height) override;
 
@@ -361,8 +361,6 @@ private:
 
 	void depth_set_write();
 
-	void depth_set();
-
 	void depth_set_defaults();
 
 
@@ -372,8 +370,8 @@ private:
 	void execute_command_depth_set_write(
 		const RendererCommand::DepthSetWrite& command);
 
-	void execute_command_set_viewport(
-		const RendererCommand::SetViewport& command);
+	void execute_command_viewport_set(
+		const RendererCommand::ViewportSet& command);
 
 	void execute_command_set_2d(
 		const RendererCommand::Set2d& command);

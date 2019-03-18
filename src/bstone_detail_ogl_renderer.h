@@ -94,7 +94,7 @@ public:
 		const bool is_visible) override;
 
 
-	void set_default_viewport(
+	void viewport_set_default(
 		const int width,
 		const int height) override;
 

@@ -95,7 +95,7 @@ public:
 	static void set_color_buffer_clear_color(
 		const RendererColor32& color);
 
-	static void set_viewport(
+	static void viewport_set(
 		const int x,
 		const int y,
 		const int width,

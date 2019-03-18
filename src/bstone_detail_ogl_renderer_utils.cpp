@@ -270,7 +270,7 @@ void OglRendererUtils::set_color_buffer_clear_color(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void OglRendererUtils::set_viewport(
+void OglRendererUtils::viewport_set(
 	const int x,
 	const int y,
 	const int width,

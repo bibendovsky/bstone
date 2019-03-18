@@ -1906,7 +1906,7 @@ bool hw_initialize_renderer()
 		return false;
 	}
 
-	::hw_renderer_->set_default_viewport(::screen_width, ::screen_height);
+	::hw_renderer_->viewport_set_default(::screen_width, ::screen_height);
 
 	return true;
 }
@@ -3711,9 +3711,9 @@ void hw_refresh_screen_2d()
 	//
 	{
 		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::set_viewport;
+		command.id_ = bstone::RendererCommandId::viewport_set;
 
-		auto& viewport = command.set_viewport_;
+		auto& viewport = command.viewport_set_;
 		viewport.x_ = 0;
 		viewport.y_ = 0;
 		viewport.width_ = ::window_width;
@@ -4511,9 +4511,9 @@ void hw_refresh_screen_3d()
 	//
 	{
 		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::set_viewport;
+		command.id_ = bstone::RendererCommandId::viewport_set;
 
-		auto& viewport = command.set_viewport_;
+		auto& viewport = command.viewport_set_;
 		viewport.x_ = ::hw_3d_viewport_x_;
 		viewport.y_ = ::hw_3d_viewport_y_;
 		viewport.width_ = ::hw_3d_viewport_width_;
