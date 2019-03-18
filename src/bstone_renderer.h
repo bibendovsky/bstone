@@ -60,12 +60,13 @@ enum class RendererCommandId
 {
 	none,
 
-	set_depth_state,
+	depth_set_test,
+	depth_set_write,
+
 	set_viewport,
 	set_2d,
 	set_3d,
 	enable_blending,
-	enable_depth_write,
 
 	draw_quads,
 }; // RendererCommandId
@@ -292,12 +293,12 @@ using RendererTexture2dPtr = RendererTexture2d*;
 
 struct RendererDepthStateFlags
 {
-	using Value = unsigned int;
+	using Value = unsigned char;
 
 
 	Value is_enabled_ : 1;
 	Value is_writable_ : 1;
-}; // RendererDepthState
+}; // RendererDepthStateFlags
 
 struct RendererCommand
 {
@@ -322,15 +323,15 @@ struct RendererCommand
 		bool is_enabled_;
 	}; // EnableBlending
 
-	struct SetDepthState
-	{
-		RendererDepthStateFlags flags_;
-	}; // SetDepthState
-
-	struct EnableDepthWriting
+	struct DepthSetTest
 	{
 		bool is_enabled_;
-	}; // EnableDepthWriting
+	}; // DepthSetTest
+
+	struct DepthSetWrite
+	{
+		bool is_enabled_;
+	}; // DepthSetWrite
 
 	struct DrawQuads
 	{
@@ -346,12 +347,13 @@ struct RendererCommand
 
 	union
 	{
-		SetDepthState set_depth_state_;
+		DepthSetTest depth_set_test_;
+		DepthSetWrite depth_set_write_;
+
 		SetViewport set_viewport_;
 		Set2d set_2d_;
 		Set3d set_3d_;
 		EnableBlending enable_blending_;
-		EnableDepthWriting enable_depth_writing_;
 		DrawQuads draw_quads_;
 	}; // union
 }; // RendererCommand

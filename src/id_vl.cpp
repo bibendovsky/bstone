@@ -3689,19 +3689,28 @@ void hw_refresh_screen_2d()
 	// Build commands.
 	//
 	auto command_index = 0;
+	auto& commands = ::hw_2d_command_set_->commands_;
 
 
 	// Enable 2D.
 	//
 	{
-		auto& command = ::hw_2d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::set_2d;
+	}
+
+	// Disable depth test.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::depth_set_test;
+		command.depth_set_test_.is_enabled_ = false;
 	}
 
 	// Set viewport.
 	//
 	{
-		auto& command = ::hw_2d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::set_viewport;
 
 		auto& viewport = command.set_viewport_;
@@ -3715,7 +3724,7 @@ void hw_refresh_screen_2d()
 	//
 	if (!::vid_is_ui_stretched)
 	{
-		auto& command = ::hw_2d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::draw_quads;
 
 		auto count = 0;
@@ -3755,7 +3764,7 @@ void hw_refresh_screen_2d()
 	{
 		if (::vid_is_hud)
 		{
-			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::enable_blending;
 
 			auto& enable_blending = command.enable_blending_;
@@ -3763,7 +3772,7 @@ void hw_refresh_screen_2d()
 		}
 
 		{
-			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			const auto index_offset = (::vid_is_ui_stretched
@@ -3783,7 +3792,7 @@ void hw_refresh_screen_2d()
 
 		if (::vid_is_hud)
 		{
-			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::enable_blending;
 
 			auto& enable_blending = command.enable_blending_;
@@ -3798,7 +3807,7 @@ void hw_refresh_screen_2d()
 		// Enable blending.
 		//
 		{
-			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::enable_blending;
 
 			auto& enable_blending = command.enable_blending_;
@@ -3808,7 +3817,7 @@ void hw_refresh_screen_2d()
 		// Draw the quad.
 		//
 		{
-			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			const auto index_offset = (::vid_is_ui_stretched
@@ -3829,7 +3838,7 @@ void hw_refresh_screen_2d()
 		// Disable blending.
 		//
 		{
-			auto& command = ::hw_2d_command_set_->commands_[command_index++];
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::enable_blending;
 
 			auto& enable_blending = command.enable_blending_;
@@ -4388,10 +4397,12 @@ void hw_3d_dbg_draw_all_sprites(
 		command.enable_blending_.is_enabled_ = true;
 	}
 
+	// Disable depth write.
+	//
 	{
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::enable_depth_write;
-		command.enable_blending_.is_enabled_ = false;
+		command.id_ = bstone::RendererCommandId::depth_set_write;
+		command.depth_set_write_.is_enabled_ = false;
 	}
 
 	auto draw_index = 0;
@@ -4440,10 +4451,12 @@ void hw_3d_dbg_draw_all_sprites(
 		}
 	}
 
+	// Enable depth write.
+	//
 	{
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::enable_depth_write;
-		command.enable_blending_.is_enabled_ = true;
+		command.id_ = bstone::RendererCommandId::depth_set_write;
+		command.depth_set_write_.is_enabled_ = true;
 	}
 
 	{
@@ -4468,19 +4481,36 @@ void hw_refresh_screen_3d()
 	// Build commands.
 	//
 	auto command_index = 0;
+	auto& commands = ::hw_3d_command_set_->commands_;
 
 
 	// Enable 3D.
 	//
 	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::set_3d;
+	}
+
+	// Enable depth test.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::depth_set_test;
+		command.depth_set_test_.is_enabled_ = true;
+	}
+
+	// Enable depth write.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::depth_set_write;
+		command.depth_set_write_.is_enabled_ = true;
 	}
 
 	// Set viewport.
 	//
 	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::set_viewport;
 
 		auto& viewport = command.set_viewport_;
@@ -4512,7 +4542,7 @@ void hw_refresh_screen_3d()
 			::hw_3d_flooring_solid_t2d_
 		);
 
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::draw_quads;
 
 		auto& draw_quads = command.draw_quads_;
@@ -4533,7 +4563,7 @@ void hw_refresh_screen_3d()
 			::hw_3d_ceiling_solid_t2d_
 		);
 
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::draw_quads;
 
 		auto& draw_quads = command.draw_quads_;

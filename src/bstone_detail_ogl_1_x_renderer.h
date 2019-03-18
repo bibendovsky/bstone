@@ -330,7 +330,8 @@ private:
 
 	RendererPalette palette_;
 
-	RendererDepthStateFlags depth_state_flags_;
+	bool depth_is_test_enabled_;
+	bool depth_is_write_enabled_;
 
 	Mat4F two_d_projection_matrix_;
 
@@ -356,17 +357,20 @@ private:
 		const bool is_dtor = false);
 
 
-	void set_depth_state_is_enabled();
+	void depth_set_test();
 
-	void set_depth_state_is_writable();
+	void depth_set_write();
 
-	void set_depth_state();
+	void depth_set();
 
-	void set_depth_state_defaults();
+	void depth_set_defaults();
 
 
-	void execute_command_set_depth_state(
-		const RendererCommand::SetDepthState& command);
+	void execute_command_depth_set_test(
+		const RendererCommand::DepthSetTest& command);
+
+	void execute_command_depth_set_write(
+		const RendererCommand::DepthSetWrite& command);
 
 	void execute_command_set_viewport(
 		const RendererCommand::SetViewport& command);
@@ -379,9 +383,6 @@ private:
 
 	void execute_command_enable_blending(
 		const RendererCommand::EnableBlending& command);
-
-	void execute_command_enable_depth_writing(
-		const RendererCommand::EnableDepthWriting& command);
 
 	void execute_command_draw_quads(
 		const RendererCommand::DrawQuads& command);

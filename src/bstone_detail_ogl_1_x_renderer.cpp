@@ -570,7 +570,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	default_viewport_width_{},
 	default_viewport_height_{},
 	palette_{},
-	depth_state_flags_{},
+	depth_is_test_enabled_{},
+	depth_is_write_enabled_{},
 	two_d_projection_matrix_{},
 	three_d_model_matrix_{},
 	three_d_view_matrix_{},
@@ -594,7 +595,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	default_viewport_width_{std::move(rhs.default_viewport_width_)},
 	default_viewport_height_{std::move(rhs.default_viewport_height_)},
 	palette_{std::move(rhs.palette_)},
-	depth_state_flags_{std::move(rhs.depth_state_flags_)},
+	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
+	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
 	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
 	three_d_view_matrix_{std::move(rhs.three_d_view_matrix_)},
@@ -880,8 +882,12 @@ void Ogl1XRenderer::execute_command_sets(
 
 			switch (command.id_)
 			{
-			case RendererCommandId::set_depth_state:
-				execute_command_set_depth_state(command.set_depth_state_);
+			case RendererCommandId::depth_set_test:
+				execute_command_depth_set_test(command.depth_set_test_);
+				break;
+
+			case RendererCommandId::depth_set_write:
+				execute_command_depth_set_write(command.depth_set_write_);
 				break;
 
 			case RendererCommandId::set_viewport:
@@ -898,10 +904,6 @@ void Ogl1XRenderer::execute_command_sets(
 
 			case RendererCommandId::enable_blending:
 				execute_command_enable_blending(command.enable_blending_);
-				break;
-
-			case RendererCommandId::enable_depth_write:
-				execute_command_enable_depth_writing(command.enable_depth_writing_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -985,7 +987,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
-		set_depth_state_defaults();
+		depth_set_defaults();
 
 		// Default state.
 		//
@@ -1104,9 +1106,9 @@ void Ogl1XRenderer::uninitialize_internal(
 	textures_2d_.clear();
 }
 
-void Ogl1XRenderer::set_depth_state_is_enabled()
+void Ogl1XRenderer::depth_set_test()
 {
-	if (depth_state_flags_.is_enabled_)
+	if (depth_is_test_enabled_)
 	{
 		::glEnable(GL_DEPTH_TEST);
 		assert(!OglRendererUtils::was_errors());
@@ -1118,34 +1120,45 @@ void Ogl1XRenderer::set_depth_state_is_enabled()
 	}
 }
 
-void Ogl1XRenderer::set_depth_state_is_writable()
+void Ogl1XRenderer::depth_set_write()
 {
-	::glDepthMask(depth_state_flags_.is_writable_);
+	::glDepthMask(depth_is_write_enabled_);
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl1XRenderer::set_depth_state()
+void Ogl1XRenderer::depth_set_defaults()
 {
-	set_depth_state_is_enabled();
-	set_depth_state_is_writable();
+	depth_is_test_enabled_ = false;
+	depth_set_test();
+
+	depth_is_write_enabled_ = false;
+	depth_set_write();
 }
 
-void Ogl1XRenderer::set_depth_state_defaults()
+void Ogl1XRenderer::execute_command_depth_set_test(
+	const RendererCommand::DepthSetTest& command)
 {
-	depth_state_flags_ = RendererDepthStateFlags{};
-	set_depth_state();
-}
-
-void Ogl1XRenderer::execute_command_set_depth_state(
-	const RendererCommand::SetDepthState& command)
-{
-	if (depth_state_flags_.is_enabled_ != command.flags_.is_enabled_ ||
-		depth_state_flags_.is_writable_ != command.flags_.is_writable_)
+	if (depth_is_test_enabled_ == command.is_enabled_)
 	{
-		depth_state_flags_ = command.flags_;
-
-		set_depth_state();
+		return;
 	}
+
+	depth_is_test_enabled_ = command.is_enabled_;
+
+	depth_set_test();
+}
+
+void Ogl1XRenderer::execute_command_depth_set_write(
+	const RendererCommand::DepthSetWrite& command)
+{
+	if (depth_is_write_enabled_ == command.is_enabled_)
+	{
+		return;
+	}
+
+	depth_is_write_enabled_ = command.is_enabled_;
+
+	depth_set_write();
 }
 
 void Ogl1XRenderer::execute_command_set_viewport(
@@ -1175,11 +1188,6 @@ void Ogl1XRenderer::execute_command_set_2d(
 	// Enable 2D texturing.
 	//
 	::glEnable(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-
-	// Disable depth test.
-	//
-	::glDisable(GL_DEPTH_TEST);
 	assert(!OglRendererUtils::was_errors());
 
 	// Disable polygon culling.
@@ -1218,11 +1226,6 @@ void Ogl1XRenderer::execute_command_set_3d(
 	// Enable 2D texturing.
 	//
 	::glEnable(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-
-	// Enable depth test.
-	//
-	::glEnable(GL_DEPTH_TEST);
 	assert(!OglRendererUtils::was_errors());
 
 	// Enable polygon culling.
@@ -1264,13 +1267,6 @@ void Ogl1XRenderer::execute_command_enable_blending(
 		::glDisable(GL_BLEND);
 	}
 
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl1XRenderer::execute_command_enable_depth_writing(
-	const RendererCommand::EnableDepthWriting& command)
-{
-	::glDepthMask(command.is_enabled_);
 	assert(!OglRendererUtils::was_errors());
 }
 
