@@ -60,6 +60,7 @@ enum class RendererCommandId
 {
 	none,
 
+	set_depth_state,
 	set_viewport,
 	set_2d,
 	set_3d,
@@ -289,6 +290,15 @@ using RendererTexture2dPtr = RendererTexture2d*;
 // ==========================================================================
 
 
+struct RendererDepthStateFlags
+{
+	using Value = unsigned int;
+
+
+	Value is_enabled_ : 1;
+	Value is_writable_ : 1;
+}; // RendererDepthState
+
 struct RendererCommand
 {
 	struct SetViewport
@@ -312,6 +322,11 @@ struct RendererCommand
 		bool is_enabled_;
 	}; // EnableBlending
 
+	struct SetDepthState
+	{
+		RendererDepthStateFlags flags_;
+	}; // SetDepthState
+
 	struct EnableDepthWriting
 	{
 		bool is_enabled_;
@@ -331,6 +346,7 @@ struct RendererCommand
 
 	union
 	{
+		SetDepthState set_depth_state_;
 		SetViewport set_viewport_;
 		Set2d set_2d_;
 		Set3d set_3d_;

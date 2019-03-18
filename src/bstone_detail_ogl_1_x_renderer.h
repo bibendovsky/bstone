@@ -330,6 +330,8 @@ private:
 
 	RendererPalette palette_;
 
+	RendererDepthStateFlags depth_state_flags_;
+
 	Mat4F two_d_projection_matrix_;
 
 	Mat4F three_d_model_matrix_;
@@ -353,6 +355,18 @@ private:
 	void uninitialize_internal(
 		const bool is_dtor = false);
 
+
+	void set_depth_state_is_enabled();
+
+	void set_depth_state_is_writable();
+
+	void set_depth_state();
+
+	void set_depth_state_defaults();
+
+
+	void execute_command_set_depth_state(
+		const RendererCommand::SetDepthState& command);
 
 	void execute_command_set_viewport(
 		const RendererCommand::SetViewport& command);

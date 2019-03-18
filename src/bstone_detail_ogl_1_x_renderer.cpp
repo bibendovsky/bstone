@@ -570,6 +570,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	default_viewport_width_{},
 	default_viewport_height_{},
 	palette_{},
+	depth_state_flags_{},
 	two_d_projection_matrix_{},
 	three_d_model_matrix_{},
 	three_d_view_matrix_{},
@@ -593,6 +594,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	default_viewport_width_{std::move(rhs.default_viewport_width_)},
 	default_viewport_height_{std::move(rhs.default_viewport_height_)},
 	palette_{std::move(rhs.palette_)},
+	depth_state_flags_{std::move(rhs.depth_state_flags_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
 	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
 	three_d_view_matrix_{std::move(rhs.three_d_view_matrix_)},
@@ -878,6 +880,10 @@ void Ogl1XRenderer::execute_command_sets(
 
 			switch (command.id_)
 			{
+			case RendererCommandId::set_depth_state:
+				execute_command_set_depth_state(command.set_depth_state_);
+				break;
+
 			case RendererCommandId::set_viewport:
 				execute_command_set_viewport(command.set_viewport_);
 				break;
@@ -979,6 +985,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
+		set_depth_state_defaults();
+
 		// Default state.
 		//
 		::glDisable(GL_TEXTURE_2D);
@@ -988,9 +996,6 @@ bool Ogl1XRenderer::probe_or_initialize(
 		assert(!OglRendererUtils::was_errors());
 
 		::glDisable(GL_CULL_FACE);
-		assert(!OglRendererUtils::was_errors());
-
-		::glDisable(GL_DEPTH_TEST);
 		assert(!OglRendererUtils::was_errors());
 
 		// Blending function.
@@ -1097,6 +1102,50 @@ void Ogl1XRenderer::uninitialize_internal(
 	index_buffers_.clear();
 	vertex_buffers_.clear();
 	textures_2d_.clear();
+}
+
+void Ogl1XRenderer::set_depth_state_is_enabled()
+{
+	if (depth_state_flags_.is_enabled_)
+	{
+		::glEnable(GL_DEPTH_TEST);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glDisable(GL_DEPTH_TEST);
+		assert(!OglRendererUtils::was_errors());
+	}
+}
+
+void Ogl1XRenderer::set_depth_state_is_writable()
+{
+	::glDepthMask(depth_state_flags_.is_writable_);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::set_depth_state()
+{
+	set_depth_state_is_enabled();
+	set_depth_state_is_writable();
+}
+
+void Ogl1XRenderer::set_depth_state_defaults()
+{
+	depth_state_flags_ = RendererDepthStateFlags{};
+	set_depth_state();
+}
+
+void Ogl1XRenderer::execute_command_set_depth_state(
+	const RendererCommand::SetDepthState& command)
+{
+	if (depth_state_flags_.is_enabled_ != command.flags_.is_enabled_ ||
+		depth_state_flags_.is_writable_ != command.flags_.is_writable_)
+	{
+		depth_state_flags_ = command.flags_;
+
+		set_depth_state();
+	}
 }
 
 void Ogl1XRenderer::execute_command_set_viewport(
