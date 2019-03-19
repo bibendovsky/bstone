@@ -100,11 +100,15 @@ public:
 	static void set_color_buffer_clear_color(
 		const RendererColor32& color);
 
-	static void viewport_set(
+	static void viewport_set_rectangle(
 		const int x,
 		const int y,
 		const int width,
 		const int height);
+
+	static void viewport_set_depth_range(
+		const float min_depth,
+		const float max_depth);
 
 	static Mat4F build_2d_projection_matrix(
 		const int width,

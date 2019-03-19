@@ -3716,6 +3716,8 @@ void hw_refresh_screen_2d()
 		viewport.y_ = 0;
 		viewport.width_ = ::window_width;
 		viewport.height_ = ::window_height;
+		viewport.min_depth_ = 0.0F;
+		viewport.max_depth_ = 0.0F;
 	}
 
 	// Fillers.
@@ -4516,6 +4518,8 @@ void hw_refresh_screen_3d()
 		viewport.y_ = ::hw_3d_viewport_y_;
 		viewport.width_ = ::hw_3d_viewport_width_;
 		viewport.height_ = ::hw_3d_viewport_height_;
+		viewport.min_depth_ = 0.0F;
+		viewport.max_depth_ = 1.0F;
 	}
 
 	// Draw solid walls.

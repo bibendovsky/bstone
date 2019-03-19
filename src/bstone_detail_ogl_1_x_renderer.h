@@ -330,6 +330,8 @@ private:
 	int viewport_y_;
 	int viewport_width_;
 	int viewport_height_;
+	float viewport_min_depth_;
+	float viewport_max_depth_;
 
 	bool depth_is_test_enabled_;
 	bool depth_is_write_enabled_;
@@ -358,7 +360,9 @@ private:
 		const bool is_dtor = false);
 
 
-	void viewport_set();
+	void viewport_set_rectangle();
+
+	void viewport_set_depth_range();
 
 	void viewport_set_defaults();
 

@@ -309,6 +309,9 @@ struct RendererCommand
 		int y_;
 		int width_;
 		int height_;
+
+		float min_depth_;
+		float max_depth_;
 	}; // ViewportSet
 
 	struct Set2d

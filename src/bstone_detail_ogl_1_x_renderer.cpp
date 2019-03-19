@@ -574,6 +574,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	viewport_y_{},
 	viewport_width_{},
 	viewport_height_{},
+	viewport_min_depth_{},
+	viewport_max_depth_{},
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	two_d_projection_matrix_{},
@@ -603,6 +605,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	viewport_y_{std::move(rhs.viewport_y_)},
 	viewport_width_{std::move(rhs.viewport_width_)},
 	viewport_height_{std::move(rhs.viewport_height_)},
+	viewport_min_depth_{std::move(rhs.viewport_min_depth_)},
+	viewport_max_depth_{std::move(rhs.viewport_max_depth_)},
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
@@ -1101,15 +1105,17 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
-		screen_width_ = 0;
-		screen_height_ = 0;
+		screen_width_ = {};
+		screen_height_ = {};
 		palette_ = {};
-		viewport_x_ = 0;
-		viewport_y_ = 0;
-		viewport_width_ = 0;
-		viewport_height_ = 0;
-		depth_is_test_enabled_ = false;
-		depth_is_write_enabled_ = false;
+		viewport_x_ = {};
+		viewport_y_ = {};
+		viewport_width_ = {};
+		viewport_height_ = {};
+		viewport_min_depth_ = {};
+		viewport_max_depth_ = {};
+		depth_is_test_enabled_ = {};
+		depth_is_write_enabled_ = {};
 		two_d_projection_matrix_ = {};
 		three_d_model_matrix_ = {};
 		three_d_view_matrix_ = {};
@@ -1125,13 +1131,21 @@ void Ogl1XRenderer::uninitialize_internal(
 	textures_2d_.clear();
 }
 
-void Ogl1XRenderer::viewport_set()
+void Ogl1XRenderer::viewport_set_rectangle()
 {
-	detail::OglRendererUtils::viewport_set(
+	detail::OglRendererUtils::viewport_set_rectangle(
 		viewport_x_,
 		viewport_y_,
 		viewport_width_,
 		viewport_height_
+	);
+}
+
+void Ogl1XRenderer::viewport_set_depth_range()
+{
+	detail::OglRendererUtils::viewport_set_depth_range(
+		viewport_min_depth_,
+		viewport_max_depth_
 	);
 }
 
@@ -1142,7 +1156,12 @@ void Ogl1XRenderer::viewport_set_defaults()
 	viewport_width_ = 0;
 	viewport_height_ = 0;
 
-	viewport_set();
+	viewport_set_rectangle();
+
+	viewport_min_depth_ = 0.0F;
+	viewport_max_depth_ = 1.0F;
+
+	viewport_set_depth_range();
 }
 
 void Ogl1XRenderer::depth_set_test()
@@ -1210,20 +1229,27 @@ void Ogl1XRenderer::execute_command_viewport_set(
 	assert((command.x_ + command.width_) <= screen_width_);
 	assert((command.y_ + command.height_) <= screen_height_);
 
-	if (viewport_x_ == command.x_ &&
-		viewport_y_ == command.y_ &&
-		viewport_width_ == command.width_ &&
-		viewport_height_ == command.height_)
+	if (viewport_x_ != command.x_ ||
+		viewport_y_ != command.y_ ||
+		viewport_width_ != command.width_ ||
+		viewport_height_ != command.height_)
 	{
-		return;
+		viewport_x_ = command.x_;
+		viewport_y_ = command.y_;
+		viewport_width_ = command.width_;
+		viewport_height_ = command.height_;
+
+		viewport_set_rectangle();
 	}
 
-	viewport_x_ = command.x_;
-	viewport_y_ = command.y_;
-	viewport_width_ = command.width_;
-	viewport_height_ = command.height_;
+	if (viewport_min_depth_ != command.min_depth_ ||
+		viewport_max_depth_ != command.max_depth_)
+	{
+		viewport_min_depth_ = command.min_depth_;
+		viewport_max_depth_ = command.max_depth_;
 
-	viewport_set();
+		viewport_set_depth_range();
+	}
 }
 
 void Ogl1XRenderer::execute_command_set_2d(

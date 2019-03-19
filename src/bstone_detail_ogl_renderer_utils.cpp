@@ -297,7 +297,7 @@ void OglRendererUtils::set_color_buffer_clear_color(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void OglRendererUtils::viewport_set(
+void OglRendererUtils::viewport_set_rectangle(
 	const int x,
 	const int y,
 	const int width,
@@ -309,6 +309,17 @@ void OglRendererUtils::viewport_set(
 	assert(height > 0);
 
 	::glViewport(x, y, width, height);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::viewport_set_depth_range(
+	const float min_depth,
+	const float max_depth)
+{
+	assert(min_depth >= 0.0F && min_depth <= 1.0F);
+	assert(max_depth >= 0.0F && max_depth <= 1.0F);
+
+	::glDepthRange(min_depth, max_depth);
 	assert(!OglRendererUtils::was_errors());
 }
 
