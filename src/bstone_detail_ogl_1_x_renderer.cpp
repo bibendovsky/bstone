@@ -576,6 +576,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	viewport_height_{},
 	viewport_min_depth_{},
 	viewport_max_depth_{},
+	culling_is_enabled_{},
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
@@ -606,6 +607,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	viewport_y_{std::move(rhs.viewport_y_)},
 	viewport_width_{std::move(rhs.viewport_width_)},
 	viewport_height_{std::move(rhs.viewport_height_)},
+	culling_is_enabled_{std::move(rhs.culling_is_enabled_)},
 	viewport_min_depth_{std::move(rhs.viewport_min_depth_)},
 	viewport_max_depth_{std::move(rhs.viewport_max_depth_)},
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
@@ -882,6 +884,10 @@ void Ogl1XRenderer::execute_command_sets(
 
 			switch (command.id_)
 			{
+			case RendererCommandId::culling_set:
+				execute_command_culling_set(command.culling_set_);
+				break;
+
 			case RendererCommandId::depth_set_test:
 				execute_command_depth_set_test(command.depth_set_test_);
 				break;
@@ -1006,6 +1012,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	if (!is_probe)
 	{
 		viewport_set_defaults();
+		culling_set_defaults();
 		depth_set_defaults();
 		blending_set_defaults();
 
@@ -1114,6 +1121,7 @@ void Ogl1XRenderer::uninitialize_internal(
 		viewport_height_ = {};
 		viewport_min_depth_ = {};
 		viewport_max_depth_ = {};
+		culling_is_enabled_ = {};
 		depth_is_test_enabled_ = {};
 		depth_is_write_enabled_ = {};
 		blending_is_enabled_ = {};
@@ -1163,6 +1171,27 @@ void Ogl1XRenderer::viewport_set_defaults()
 	viewport_max_depth_ = 1.0F;
 
 	viewport_set_depth_range();
+}
+
+void Ogl1XRenderer::culling_set()
+{
+	if (culling_is_enabled_)
+	{
+		::glEnable(GL_CULL_FACE);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glDisable(GL_CULL_FACE);
+		assert(!OglRendererUtils::was_errors());
+	}
+}
+
+void Ogl1XRenderer::culling_set_defaults()
+{
+	culling_is_enabled_ = false;
+
+	culling_set();
 }
 
 void Ogl1XRenderer::depth_set_test()
@@ -1215,30 +1244,37 @@ void Ogl1XRenderer::blending_set_defaults()
 	blending_set();
 }
 
+void Ogl1XRenderer::execute_command_culling_set(
+	const RendererCommand::CullingSet& command)
+{
+	if (culling_is_enabled_ != command.is_enabled_)
+	{
+		culling_is_enabled_ = command.is_enabled_;
+
+		culling_set();
+	}
+}
+
 void Ogl1XRenderer::execute_command_depth_set_test(
 	const RendererCommand::DepthSetTest& command)
 {
-	if (depth_is_test_enabled_ == command.is_enabled_)
+	if (depth_is_test_enabled_ != command.is_enabled_)
 	{
-		return;
+		depth_is_test_enabled_ = command.is_enabled_;
+
+		depth_set_test();
 	}
-
-	depth_is_test_enabled_ = command.is_enabled_;
-
-	depth_set_test();
 }
 
 void Ogl1XRenderer::execute_command_depth_set_write(
 	const RendererCommand::DepthSetWrite& command)
 {
-	if (depth_is_write_enabled_ == command.is_enabled_)
+	if (depth_is_write_enabled_ != command.is_enabled_)
 	{
-		return;
+		depth_is_write_enabled_ = command.is_enabled_;
+
+		depth_set_write();
 	}
-
-	depth_is_write_enabled_ = command.is_enabled_;
-
-	depth_set_write();
 }
 
 void Ogl1XRenderer::execute_command_viewport_set(
@@ -1285,11 +1321,6 @@ void Ogl1XRenderer::execute_command_set_2d(
 	::glEnable(GL_TEXTURE_2D);
 	assert(!OglRendererUtils::was_errors());
 
-	// Disable polygon culling.
-	//
-	::glDisable(GL_CULL_FACE);
-	assert(!OglRendererUtils::was_errors());
-
 	// Model-view.
 	//
 	::glMatrixMode(GL_MODELVIEW);
@@ -1316,11 +1347,6 @@ void Ogl1XRenderer::execute_command_set_3d(
 	// Enable 2D texturing.
 	//
 	::glEnable(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-
-	// Enable polygon culling.
-	//
-	::glEnable(GL_CULL_FACE);
 	assert(!OglRendererUtils::was_errors());
 
 	// Model-view.

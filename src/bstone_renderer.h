@@ -62,6 +62,8 @@ enum class RendererCommandId
 
 	viewport_set,
 
+	culling_set,
+
 	depth_set_test,
 	depth_set_write,
 
@@ -315,6 +317,11 @@ struct RendererCommand
 		float max_depth_;
 	}; // ViewportSet
 
+	struct CullingSet
+	{
+		bool is_enabled_;
+	}; // CullingSet
+
 	struct Set2d
 	{
 	}; // Set2d
@@ -353,6 +360,8 @@ struct RendererCommand
 	union
 	{
 		ViewportSet viewport_set_;
+
+		CullingSet culling_set_;
 
 		DepthSetTest depth_set_test_;
 		DepthSetWrite depth_set_write_;

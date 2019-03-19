@@ -3697,14 +3697,6 @@ void hw_refresh_screen_2d()
 		command.id_ = bstone::RendererCommandId::set_2d;
 	}
 
-	// Disable depth test.
-	//
-	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::depth_set_test;
-		command.depth_set_test_.is_enabled_ = false;
-	}
-
 	// Set viewport.
 	//
 	{
@@ -3718,6 +3710,22 @@ void hw_refresh_screen_2d()
 		viewport.height_ = ::window_height;
 		viewport.min_depth_ = 0.0F;
 		viewport.max_depth_ = 0.0F;
+	}
+
+	// Disable back-face culling.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::culling_set;
+		command.culling_set_.is_enabled_ = false;
+	}
+
+	// Disable depth test.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::depth_set_test;
+		command.depth_set_test_.is_enabled_ = false;
 	}
 
 	// Fillers.
@@ -4496,6 +4504,29 @@ void hw_refresh_screen_3d()
 		command.id_ = bstone::RendererCommandId::set_3d;
 	}
 
+	// Set viewport.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::viewport_set;
+
+		auto& viewport = command.viewport_set_;
+		viewport.x_ = ::hw_3d_viewport_x_;
+		viewport.y_ = ::hw_3d_viewport_y_;
+		viewport.width_ = ::hw_3d_viewport_width_;
+		viewport.height_ = ::hw_3d_viewport_height_;
+		viewport.min_depth_ = 0.0F;
+		viewport.max_depth_ = 1.0F;
+	}
+
+	// Enable back-face culling.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::culling_set;
+		command.culling_set_.is_enabled_ = true;
+	}
+
 	// Enable depth test.
 	//
 	{
@@ -4510,21 +4541,6 @@ void hw_refresh_screen_3d()
 		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::depth_set_write;
 		command.depth_set_write_.is_enabled_ = true;
-	}
-
-	// Set viewport.
-	//
-	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::viewport_set;
-
-		auto& viewport = command.viewport_set_;
-		viewport.x_ = ::hw_3d_viewport_x_;
-		viewport.y_ = ::hw_3d_viewport_y_;
-		viewport.width_ = ::hw_3d_viewport_width_;
-		viewport.height_ = ::hw_3d_viewport_height_;
-		viewport.min_depth_ = 0.0F;
-		viewport.max_depth_ = 1.0F;
 	}
 
 	// Draw solid walls.

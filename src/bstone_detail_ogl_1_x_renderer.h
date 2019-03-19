@@ -333,6 +333,8 @@ private:
 	float viewport_min_depth_;
 	float viewport_max_depth_;
 
+	bool culling_is_enabled_;
+
 	bool depth_is_test_enabled_;
 	bool depth_is_write_enabled_;
 
@@ -369,6 +371,11 @@ private:
 	void viewport_set_defaults();
 
 
+	void culling_set();
+
+	void culling_set_defaults();
+
+
 	void depth_set_test();
 
 	void depth_set_write();
@@ -380,6 +387,9 @@ private:
 
 	void blending_set_defaults();
 
+
+	void execute_command_culling_set(
+		const RendererCommand::CullingSet& command);
 
 	void execute_command_depth_set_test(
 		const RendererCommand::DepthSetTest& command);
