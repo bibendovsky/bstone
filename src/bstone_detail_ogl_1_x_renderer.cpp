@@ -578,6 +578,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	viewport_max_depth_{},
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
+	blending_is_enabled_{},
 	two_d_projection_matrix_{},
 	three_d_model_matrix_{},
 	three_d_view_matrix_{},
@@ -609,6 +610,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	viewport_max_depth_{std::move(rhs.viewport_max_depth_)},
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
+	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
 	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
 	three_d_view_matrix_{std::move(rhs.three_d_view_matrix_)},
@@ -900,8 +902,8 @@ void Ogl1XRenderer::execute_command_sets(
 				execute_command_set_3d(command.set_3d_);
 				break;
 
-			case RendererCommandId::enable_blending:
-				execute_command_enable_blending(command.enable_blending_);
+			case RendererCommandId::blending_set:
+				execute_command_enable_blending(command.blending_set_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1005,13 +1007,11 @@ bool Ogl1XRenderer::probe_or_initialize(
 	{
 		viewport_set_defaults();
 		depth_set_defaults();
+		blending_set_defaults();
 
 		// Default state.
 		//
 		::glDisable(GL_TEXTURE_2D);
-		assert(!OglRendererUtils::was_errors());
-
-		::glDisable(GL_BLEND);
 		assert(!OglRendererUtils::was_errors());
 
 		::glDisable(GL_CULL_FACE);
@@ -1116,6 +1116,7 @@ void Ogl1XRenderer::uninitialize_internal(
 		viewport_max_depth_ = {};
 		depth_is_test_enabled_ = {};
 		depth_is_write_enabled_ = {};
+		blending_is_enabled_ = {};
 		two_d_projection_matrix_ = {};
 		three_d_model_matrix_ = {};
 		three_d_view_matrix_ = {};
@@ -1193,6 +1194,27 @@ void Ogl1XRenderer::depth_set_defaults()
 	depth_set_write();
 }
 
+void Ogl1XRenderer::blending_set()
+{
+	if (blending_is_enabled_)
+	{
+		::glEnable(GL_BLEND);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glDisable(GL_BLEND);
+		assert(!OglRendererUtils::was_errors());
+	}
+}
+
+void Ogl1XRenderer::blending_set_defaults()
+{
+	blending_is_enabled_ = false;
+
+	blending_set();
+}
+
 void Ogl1XRenderer::execute_command_depth_set_test(
 	const RendererCommand::DepthSetTest& command)
 {
@@ -1268,11 +1290,6 @@ void Ogl1XRenderer::execute_command_set_2d(
 	::glDisable(GL_CULL_FACE);
 	assert(!OglRendererUtils::was_errors());
 
-	// Disable blending.
-	//
-	::glDisable(GL_BLEND);
-	assert(!OglRendererUtils::was_errors());
-
 	// Model-view.
 	//
 	::glMatrixMode(GL_MODELVIEW);
@@ -1306,11 +1323,6 @@ void Ogl1XRenderer::execute_command_set_3d(
 	::glEnable(GL_CULL_FACE);
 	assert(!OglRendererUtils::was_errors());
 
-	// Disable blending.
-	//
-	::glDisable(GL_BLEND);
-	assert(!OglRendererUtils::was_errors());
-
 	// Model-view.
 	//
 	::glMatrixMode(GL_MODELVIEW);
@@ -1329,18 +1341,14 @@ void Ogl1XRenderer::execute_command_set_3d(
 }
 
 void Ogl1XRenderer::execute_command_enable_blending(
-	const RendererCommand::EnableBlending& command)
+	const RendererCommand::BlendingSet& command)
 {
-	if (command.is_enabled_)
+	if (blending_is_enabled_ != command.is_enabled_)
 	{
-		::glEnable(GL_BLEND);
-	}
-	else
-	{
-		::glDisable(GL_BLEND);
-	}
+		blending_is_enabled_ = command.is_enabled_;
 
-	assert(!OglRendererUtils::was_errors());
+		blending_set();
+	}
 }
 
 void Ogl1XRenderer::execute_command_draw_quads(

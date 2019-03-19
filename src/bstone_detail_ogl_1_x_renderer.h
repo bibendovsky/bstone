@@ -336,6 +336,8 @@ private:
 	bool depth_is_test_enabled_;
 	bool depth_is_write_enabled_;
 
+	bool blending_is_enabled_;
+
 	Mat4F two_d_projection_matrix_;
 
 	Mat4F three_d_model_matrix_;
@@ -374,6 +376,11 @@ private:
 	void depth_set_defaults();
 
 
+	void blending_set();
+
+	void blending_set_defaults();
+
+
 	void execute_command_depth_set_test(
 		const RendererCommand::DepthSetTest& command);
 
@@ -390,7 +397,7 @@ private:
 		const RendererCommand::Set3d& command);
 
 	void execute_command_enable_blending(
-		const RendererCommand::EnableBlending& command);
+		const RendererCommand::BlendingSet& command);
 
 	void execute_command_draw_quads(
 		const RendererCommand::DrawQuads& command);

@@ -65,9 +65,10 @@ enum class RendererCommandId
 	depth_set_test,
 	depth_set_write,
 
+	blending_set,
+
 	set_2d,
 	set_3d,
-	enable_blending,
 
 	draw_quads,
 }; // RendererCommandId
@@ -322,7 +323,7 @@ struct RendererCommand
 	{
 	}; // Set3d
 
-	struct EnableBlending
+	struct BlendingSet
 	{
 		bool is_enabled_;
 	}; // EnableBlending
@@ -356,9 +357,11 @@ struct RendererCommand
 		DepthSetTest depth_set_test_;
 		DepthSetWrite depth_set_write_;
 
+		BlendingSet blending_set_;
+
 		Set2d set_2d_;
 		Set3d set_3d_;
-		EnableBlending enable_blending_;
+
 		DrawQuads draw_quads_;
 	}; // union
 }; // RendererCommand

@@ -3765,10 +3765,10 @@ void hw_refresh_screen_2d()
 		if (::vid_is_hud)
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::enable_blending;
+			command.id_ = bstone::RendererCommandId::blending_set;
 
-			auto& enable_blending = command.enable_blending_;
-			enable_blending.is_enabled_ = true;
+			auto& blending_set = command.blending_set_;
+			blending_set.is_enabled_ = true;
 		}
 
 		{
@@ -3793,10 +3793,10 @@ void hw_refresh_screen_2d()
 		if (::vid_is_hud)
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::enable_blending;
+			command.id_ = bstone::RendererCommandId::blending_set;
 
-			auto& enable_blending = command.enable_blending_;
-			enable_blending.is_enabled_ = false;
+			auto& blending_set = command.blending_set_;
+			blending_set.is_enabled_ = false;
 		}
 	}
 
@@ -3808,10 +3808,10 @@ void hw_refresh_screen_2d()
 		//
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::enable_blending;
+			command.id_ = bstone::RendererCommandId::blending_set;
 
-			auto& enable_blending = command.enable_blending_;
-			enable_blending.is_enabled_ = true;
+			auto& blending_set = command.blending_set_;
+			blending_set.is_enabled_ = true;
 		}
 
 		// Draw the quad.
@@ -3839,10 +3839,10 @@ void hw_refresh_screen_2d()
 		//
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::enable_blending;
+			command.id_ = bstone::RendererCommandId::blending_set;
 
-			auto& enable_blending = command.enable_blending_;
-			enable_blending.is_enabled_ = false;
+			auto& blending_set = command.blending_set_;
+			blending_set.is_enabled_ = false;
 		}
 	}
 
@@ -4391,11 +4391,6 @@ void hw_3d_dbg_draw_all_sprites(
 
 	// Add render commands.
 	//
-	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::enable_blending;
-		command.enable_blending_.is_enabled_ = true;
-	}
 
 	// Disable depth write.
 	//
@@ -4403,6 +4398,14 @@ void hw_3d_dbg_draw_all_sprites(
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
 		command.id_ = bstone::RendererCommandId::depth_set_write;
 		command.depth_set_write_.is_enabled_ = false;
+	}
+
+	// Enable blending.
+	//
+	{
+		auto& command = ::hw_3d_command_set_->commands_[command_index++];
+		command.id_ = bstone::RendererCommandId::blending_set;
+		command.blending_set_.is_enabled_ = true;
 	}
 
 	auto draw_index = 0;
@@ -4459,10 +4462,12 @@ void hw_3d_dbg_draw_all_sprites(
 		command.depth_set_write_.is_enabled_ = true;
 	}
 
+	// Disable blending.
+	//
 	{
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::enable_blending;
-		command.enable_blending_.is_enabled_ = false;
+		command.id_ = bstone::RendererCommandId::blending_set;
+		command.blending_set_.is_enabled_ = false;
 	}
 
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
