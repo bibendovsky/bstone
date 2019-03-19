@@ -94,10 +94,6 @@ public:
 		const bool is_visible) override;
 
 
-	void viewport_set_default(
-		const int width,
-		const int height) override;
-
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
@@ -328,10 +324,12 @@ private:
 	int screen_width_;
 	int screen_height_;
 
-	int default_viewport_width_;
-	int default_viewport_height_;
-
 	RendererPalette palette_;
+
+	int viewport_x_;
+	int viewport_y_;
+	int viewport_width_;
+	int viewport_height_;
 
 	bool depth_is_test_enabled_;
 	bool depth_is_write_enabled_;
@@ -358,6 +356,11 @@ private:
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
+
+
+	void viewport_set();
+
+	void viewport_set_defaults();
 
 
 	void depth_set_test();

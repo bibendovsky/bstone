@@ -569,9 +569,11 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_gl_context_{},
 	screen_width_{},
 	screen_height_{},
-	default_viewport_width_{},
-	default_viewport_height_{},
 	palette_{},
+	viewport_x_{},
+	viewport_y_{},
+	viewport_width_{},
+	viewport_height_{},
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	two_d_projection_matrix_{},
@@ -596,9 +598,11 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	screen_width_{std::move(rhs.screen_width_)},
 	screen_height_{std::move(rhs.screen_height_)},
-	default_viewport_width_{std::move(rhs.default_viewport_width_)},
-	default_viewport_height_{std::move(rhs.default_viewport_height_)},
 	palette_{std::move(rhs.palette_)},
+	viewport_x_{std::move(rhs.viewport_x_)},
+	viewport_y_{std::move(rhs.viewport_y_)},
+	viewport_width_{std::move(rhs.viewport_width_)},
+	viewport_height_{std::move(rhs.viewport_height_)},
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
@@ -692,20 +696,6 @@ void Ogl1XRenderer::window_show(
 	auto renderer_utils = RendererUtils{};
 
 	static_cast<void>(renderer_utils.show_window(sdl_window_, is_visible));
-}
-
-void Ogl1XRenderer::viewport_set_default(
-	const int width,
-	const int height)
-{
-	assert(is_initialized_);
-	assert(width >= 0);
-	assert(height >= 0);
-
-	default_viewport_width_ = width;
-	default_viewport_height_ = height;
-
-	OglRendererUtils::viewport_set(0, 0, default_viewport_width_, default_viewport_height_);
 }
 
 void Ogl1XRenderer::color_buffer_set_clear_color(
@@ -1009,6 +999,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
+		viewport_set_defaults();
 		depth_set_defaults();
 
 		// Default state.
@@ -1112,9 +1103,13 @@ void Ogl1XRenderer::uninitialize_internal(
 	{
 		screen_width_ = 0;
 		screen_height_ = 0;
-		default_viewport_width_ = 0;
-		default_viewport_height_ = 0;
 		palette_ = {};
+		viewport_x_ = 0;
+		viewport_y_ = 0;
+		viewport_width_ = 0;
+		viewport_height_ = 0;
+		depth_is_test_enabled_ = false;
+		depth_is_write_enabled_ = false;
 		two_d_projection_matrix_ = {};
 		three_d_model_matrix_ = {};
 		three_d_view_matrix_ = {};
@@ -1128,6 +1123,26 @@ void Ogl1XRenderer::uninitialize_internal(
 	index_buffers_.clear();
 	vertex_buffers_.clear();
 	textures_2d_.clear();
+}
+
+void Ogl1XRenderer::viewport_set()
+{
+	detail::OglRendererUtils::viewport_set(
+		viewport_x_,
+		viewport_y_,
+		viewport_width_,
+		viewport_height_
+	);
+}
+
+void Ogl1XRenderer::viewport_set_defaults()
+{
+	viewport_x_ = 0;
+	viewport_y_ = 0;
+	viewport_width_ = 0;
+	viewport_height_ = 0;
+
+	viewport_set();
 }
 
 void Ogl1XRenderer::depth_set_test()
@@ -1188,19 +1203,27 @@ void Ogl1XRenderer::execute_command_depth_set_write(
 void Ogl1XRenderer::execute_command_viewport_set(
 	const RendererCommand::ViewportSet& command)
 {
-	assert(command.x_ < default_viewport_width_);
-	assert(command.y_ < default_viewport_height_);
-	assert(command.width_ <= default_viewport_width_);
-	assert(command.height_ <= default_viewport_height_);
-	assert((command.x_ + command.width_) <= default_viewport_width_);
-	assert((command.y_ + command.height_) <= default_viewport_height_);
+	assert(command.x_ < screen_width_);
+	assert(command.y_ < screen_height_);
+	assert(command.width_ <= screen_width_);
+	assert(command.height_ <= screen_height_);
+	assert((command.x_ + command.width_) <= screen_width_);
+	assert((command.y_ + command.height_) <= screen_height_);
 
-	OglRendererUtils::viewport_set(
-		command.x_,
-		command.y_,
-		command.width_,
-		command.height_
-	);
+	if (viewport_x_ == command.x_ &&
+		viewport_y_ == command.y_ &&
+		viewport_width_ == command.width_ &&
+		viewport_height_ == command.height_)
+	{
+		return;
+	}
+
+	viewport_x_ = command.x_;
+	viewport_y_ = command.y_;
+	viewport_width_ = command.width_;
+	viewport_height_ = command.height_;
+
+	viewport_set();
 }
 
 void Ogl1XRenderer::execute_command_set_2d(

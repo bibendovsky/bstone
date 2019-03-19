@@ -94,10 +94,6 @@ public:
 		const bool is_visible) override;
 
 
-	void viewport_set_default(
-		const int width,
-		const int height) override;
-
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
