@@ -1347,36 +1347,6 @@ constexpr auto hw_3d_tile_half_dimension = hw_3d_tile_dimension<T> / static_cast
 constexpr auto hw_3d_tile_half_dimension_f = ::hw_3d_tile_half_dimension<float>;
 constexpr auto hw_3d_tile_half_dimension_d = ::hw_3d_tile_half_dimension<double>;
 
-
-template<int TCount>
-struct HwIbItem
-{
-	using Type = std::conditional_t<
-		TCount <= 0x100,
-		std::uint8_t,
-		std::conditional_t<
-			TCount <= 0x10000,
-			std::uint16_t,
-			std::uint32_t
-		>
-	>;
-}; // HwIbItem
-
-template<int TCount>
-struct HwMapDimensionBitDepth
-{
-	static constexpr int Value = std::numeric_limits<typename HwIbItem<TCount>::Type>::digits;
-}; // HwMapDimensionBitDepth
-
-template<int TCount>
-struct HwMapDimensionMask
-{
-	static constexpr int Value = (TCount == 8 ? 0xFF : (TCount == 16 ? 0xFFFF : 0xFFFFFFFF));
-}; // HwMapDimensionMask
-
-constexpr auto hw_map_dimension_bit_depth = HwMapDimensionBitDepth<MAPSIZE>::Value;
-constexpr auto hw_map_dimension_mask = HwMapDimensionMask<hw_map_dimension_bit_depth>::Value;
-
 constexpr auto hw_3d_max_sides_per_wall = 4;
 constexpr auto hw_3d_max_indices_per_wall_side = 6;
 constexpr auto hw_3d_max_vertices_per_wall_side = 4;
@@ -1520,11 +1490,8 @@ using Hw3dDoorDrawItems = std::vector<Hw3dDoorDrawItem>;
 
 using Hw3dWallSideDrawItems = std::vector<Hw3dWallSideDrawItem>;
 
-using Hw3dWallSideIndexBufferItem = HwIbItem<hw_3d_max_wall_sides_indices>::Type;
-using Hw3dWallSideIndexBuffer = std::vector<Hw3dWallSideIndexBufferItem>;
-
-using Hw3dDoorIndexBufferItem = HwIbItem<::hw_3d_max_door_sides_indices>::Type;
-using Hw3dDoorIndexBuffer = std::vector<Hw3dDoorIndexBufferItem>;
+using Hw3dWallSideIndexBuffer = std::vector<std::uint16_t>;
+using Hw3dDoorIndexBuffer = std::vector<std::uint16_t>;
 
 
 enum class Hw3dSpriteKind
@@ -1576,8 +1543,7 @@ using Hw3dXySpriteMapPtr = Hw3dXySpriteMap*;
 
 using Hw3dSpritesDrawList = std::vector<Hw3dSpriteDrawItem>;
 
-using Hw3dSpritesIndexBufferItem = HwIbItem<::hw_3d_max_sprites_indices>::Type;
-using Hw3dSpritesIndexBuffer = std::vector<Hw3dSpritesIndexBufferItem>;
+using Hw3dSpritesIndexBuffer = std::vector<std::uint16_t>;
 
 
 using HwVbBuffer = std::vector<bstone::RendererVertex>;
@@ -1728,7 +1694,7 @@ constexpr int hw_encode_xy(
 	const int x,
 	const int y)
 {
-	return (x << ::hw_map_dimension_bit_depth) | y;
+	return (x << 8) | y;
 }
 
 constexpr void hw_decode_xy(
@@ -1736,8 +1702,8 @@ constexpr void hw_decode_xy(
 	int& x,
 	int& y)
 {
-	x = (xy >> ::hw_map_dimension_bit_depth) & ::hw_map_dimension_mask;
-	y = xy & ::hw_map_dimension_mask;
+	x = (xy >> 8) & 0xFF;
+	y = xy & 0xFF;
 }
 
 bstone::RendererColor32 hw_vga_color_to_color_32(
@@ -1922,7 +1888,7 @@ bool hw_2d_create_ib()
 	}
 
 
-	using Indices = std::array<std::uint8_t, ::hw_2d_index_count_>;
+	using Indices = std::array<std::uint16_t, ::hw_2d_index_count_>;
 
 	const auto indices = Indices
 	{
@@ -2046,7 +2012,7 @@ bool hw_2d_fillers_create_ib()
 		return false;
 	}
 
-	using Indices = std::array<std::uint8_t, ::hw_2d_fillers_index_count_>;
+	using Indices = std::array<std::uint16_t, ::hw_2d_fillers_index_count_>;
 
 	const auto& indices = Indices
 	{
@@ -2591,7 +2557,7 @@ bool hw_3d_initialize_flooring_ib()
 	}
 
 	{
-		using Indices = std::array<std::uint8_t, index_count>;
+		using Indices = std::array<std::uint16_t, index_count>;
 
 		const auto& indices = Indices
 		{
@@ -2751,7 +2717,7 @@ bool hw_3d_initialize_ceiling_ib()
 	}
 
 	{
-		using Indices = std::array<std::uint8_t, index_count>;
+		using Indices = std::array<std::uint16_t, index_count>;
 
 		const auto& indices = Indices
 		{
@@ -3961,13 +3927,13 @@ void hw_3d_dbg_draw_all_solid_walls(
 		{
 			const auto& wall_side = *draw_items[i].wall_side_;
 
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 0);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 1);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 1);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 2);
 
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 0);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 2);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 3);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 3);
 		}
 
 		auto param = bstone::RendererIndexBufferUpdateParam{};
@@ -4076,13 +4042,13 @@ void hw_3d_dbg_draw_all_pushwalls(
 		{
 			const auto& wall_side = *draw_items[i].wall_side_;
 
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 0);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 1);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 1);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 2);
 
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 0);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 2);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(wall_side.vertex_index_ + 3);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 3);
 		}
 
 		auto param = bstone::RendererIndexBufferUpdateParam{};
@@ -4267,13 +4233,13 @@ void hw_3d_dbg_draw_all_doors(
 			{
 				auto base_vertex_index = door_side.vertex_index_ + (4 * i_quad);
 
-				ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(base_vertex_index + 0);
-				ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(base_vertex_index + 1);
-				ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(base_vertex_index + 2);
+				ib_buffer[ib_index++] = static_cast<std::uint16_t>(base_vertex_index + 0);
+				ib_buffer[ib_index++] = static_cast<std::uint16_t>(base_vertex_index + 1);
+				ib_buffer[ib_index++] = static_cast<std::uint16_t>(base_vertex_index + 2);
 
-				ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(base_vertex_index + 0);
-				ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(base_vertex_index + 2);
-				ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(base_vertex_index + 3);
+				ib_buffer[ib_index++] = static_cast<std::uint16_t>(base_vertex_index + 0);
+				ib_buffer[ib_index++] = static_cast<std::uint16_t>(base_vertex_index + 2);
+				ib_buffer[ib_index++] = static_cast<std::uint16_t>(base_vertex_index + 3);
 			}
 		}
 
@@ -4380,13 +4346,13 @@ void hw_3d_dbg_draw_all_sprites(
 		{
 			const auto& sprite = *draw_items[i].sprite_;
 
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 0);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 1);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 1);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 2);
 
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 0);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 2);
-			ib_buffer[ib_index++] = static_cast<Hw3dWallSideIndexBufferItem>(sprite.vertex_index_ + 3);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 0);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 2);
+			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 3);
 		}
 
 		auto param = bstone::RendererIndexBufferUpdateParam{};

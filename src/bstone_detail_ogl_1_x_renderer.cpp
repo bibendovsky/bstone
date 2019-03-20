@@ -79,14 +79,10 @@ void Ogl1XRenderer::IndexBuffer::update(
 		return;
 	}
 
-
-	const auto offset_in_bytes = param.offset_ * byte_depth_;
-	const auto size_in_bytes = param.count_ * byte_depth_;
-
 	std::uninitialized_copy_n(
-		static_cast<const std::uint8_t*>(param.indices_),
-		size_in_bytes,
-		data_.begin() + offset_in_bytes
+		param.indices_,
+		param.count_,
+		data_.begin() + param.offset_
 	);
 }
 
@@ -102,32 +98,8 @@ bool Ogl1XRenderer::IndexBuffer::initialize(
 		return false;
 	}
 
-	auto byte_depth = 0;
-	auto data_type = GLenum{};
-
-	if (param.index_count_ <= 0x100)
-	{
-		byte_depth = 1;
-		data_type = GL_UNSIGNED_BYTE;
-	}
-	else if (param.index_count_ <= 0x10'000)
-	{
-		byte_depth = 2;
-		data_type = GL_UNSIGNED_SHORT;
-	}
-	else
-	{
-		byte_depth = 4;
-		data_type = GL_UNSIGNED_INT;
-	}
-
-	const auto size_in_bytes = param.index_count_ * byte_depth;
-
 	count_ = param.index_count_;
-	byte_depth_ = byte_depth;
-	size_in_bytes_ = size_in_bytes;
-	data_type_ = data_type;
-	data_.resize(size_in_bytes);
+	data_.resize(count_);
 
 	return true;
 }
@@ -1162,8 +1134,8 @@ void Ogl1XRenderer::viewport_set_defaults()
 {
 	viewport_x_ = 0;
 	viewport_y_ = 0;
-	viewport_width_ = 0;
-	viewport_height_ = 0;
+	viewport_width_ = screen_width_;
+	viewport_height_ = screen_height_;
 
 	viewport_set_rectangle();
 
@@ -1452,14 +1424,12 @@ void Ogl1XRenderer::execute_command_draw_quads(
 	// Draw the quads.
 	//
 
-	const auto index_buffer_data =
-		index_buffer.data_.data() +
-		(index_buffer.byte_depth_ * command.index_offset_);
+	const auto index_buffer_data = &index_buffer.data_[command.index_offset_];
 
 	::glDrawElements(
 		GL_TRIANGLES, // mode
 		index_count, // count
-		index_buffer.data_type_, // type
+		GL_UNSIGNED_SHORT, // type
 		index_buffer_data // indices
 	);
 

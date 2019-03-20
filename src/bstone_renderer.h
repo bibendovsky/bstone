@@ -183,7 +183,7 @@ struct RendererIndexBufferUpdateParam
 {
 	int offset_;
 	int count_;
-	const void* indices_;
+	const std::uint16_t* indices_;
 }; // RendererIndexBufferUpdateParam
 
 class RendererIndexBuffer

@@ -154,16 +154,12 @@ private:
 		public RendererIndexBuffer
 	{
 	public:
-		using Data = std::vector<std::uint8_t>;
+		using Data = std::vector<std::uint16_t>;
 
 
 		std::string error_message_;
 
 		int count_;
-		int byte_depth_;
-		int size_in_bytes_;
-		GLenum data_type_;
-
 		Data data_;
 
 
