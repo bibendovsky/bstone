@@ -1354,9 +1354,10 @@ constexpr auto hw_3d_max_vertices_per_wall_side = 4;
 constexpr auto hw_3d_max_wall_sides_indices = 0x10000;
 
 constexpr auto hw_3d_sides_per_door = 2;
-constexpr auto hw_3d_halves_per_door = hw_3d_sides_per_door * 2;
+constexpr auto hw_3d_halves_per_side = 2;
+constexpr auto hw_3d_halves_per_door = ::hw_3d_sides_per_door * ::hw_3d_halves_per_side;
 constexpr auto hw_3d_vertices_per_door_half = 4;
-constexpr auto hw_3d_vertices_per_door = ::hw_3d_sides_per_door * hw_3d_vertices_per_door_half;
+constexpr auto hw_3d_vertices_per_door = ::hw_3d_sides_per_door * ::hw_3d_vertices_per_door_half;
 
 constexpr auto hw_3d_indices_per_door_half = 6;
 constexpr auto hw_3d_indices_per_door = 2 * hw_3d_indices_per_door_half;
@@ -5809,7 +5810,7 @@ void hw_3d_map_door_side(
 		}
 		else
 		{
-			offset = left_offset;
+			offset = right_offset;
 		}
 
 		origin[origin_axis_index] += offset;
@@ -5845,7 +5846,7 @@ void hw_3d_map_xy_to_door(
 	hw_door.bs_door_index_ = bs_door_index;
 	hw_door.vertex_index_ = vertex_index;
 
-	for (int i = 0; i < ::hw_3d_halves_per_door; ++i)
+	for (int i = 0; i < ::hw_3d_halves_per_side; ++i)
 	{
 		auto u_0 = 0.0F;
 		auto u_1 = 0.0F;
@@ -5853,13 +5854,11 @@ void hw_3d_map_xy_to_door(
 		switch (i)
 		{
 		case 0:
-		case 2:
 			u_0 = 0.0F;
 			u_1 = 0.5F;
 			break;
 
 		case 1:
-		case 3:
 			u_0 = 0.5F;
 			u_1 = 1.0F;
 			break;
@@ -5899,6 +5898,8 @@ void hw_3d_map_xy_to_door(
 
 		is_back_face = !is_back_face;
 	}
+
+	vertex_index = hw_door.vertex_index_;
 
 	::hw_3d_map_door_side(hw_door.sides_.front(), vertex_index, vb_buffer);
 
