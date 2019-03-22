@@ -1347,9 +1347,9 @@ constexpr auto hw_3d_tile_half_dimension = hw_3d_tile_dimension<T> / static_cast
 constexpr auto hw_3d_tile_half_dimension_f = ::hw_3d_tile_half_dimension<float>;
 constexpr auto hw_3d_tile_half_dimension_d = ::hw_3d_tile_half_dimension<double>;
 
-constexpr auto hw_3d_max_sides_per_wall = 4;
-constexpr auto hw_3d_max_indices_per_wall_side = 6;
-constexpr auto hw_3d_max_vertices_per_wall_side = 4;
+constexpr auto hw_3d_sides_per_wall = 4;
+constexpr auto hw_3d_indices_per_wall_side = 6;
+constexpr auto hw_3d_vertices_per_wall_side = 4;
 
 constexpr auto hw_3d_max_wall_sides_indices = 0x10000;
 
@@ -1388,7 +1388,7 @@ constexpr auto hw_min_3d_commands = 4096;
 
 struct Hw3dQuadFlags
 {
-	using Value = unsigned int;
+	using Value = unsigned char;
 
 
 	Value is_vertical_ : 1;
@@ -1402,7 +1402,7 @@ using Hw3dWallCPtr = const Hw3dWall*;
 
 struct Hw3dWallSideFlags
 {
-	using Type = unsigned int;
+	using Type = unsigned char;
 
 
 	Type is_active_ : 1;
@@ -1500,7 +1500,7 @@ enum class Hw3dSpriteKind
 
 struct Hw3dSpriteFlags
 {
-	using Value = unsigned int;
+	using Value = unsigned char;
 
 
 	Value is_visible_ : 1;
@@ -2854,7 +2854,7 @@ void hw_uninitialize_ceiling()
 
 bool hw_initialize_solid_walls_ib()
 {
-	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
 	param.index_count_ = index_count;
@@ -2886,7 +2886,7 @@ void hw_3d_uninitialize_walls_ib()
 bool hw_initialize_solid_walls_vb()
 {
 	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+	param.vertex_count_ = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_wall_sides_vb_ = ::hw_renderer_->vertex_buffer_create(param);
 
@@ -2943,7 +2943,7 @@ void hw_3d_uninitialize_solid_walls()
 
 bool hw_initialize_pushwalls_ib()
 {
-	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
 	param.index_count_ = index_count;
@@ -2975,7 +2975,7 @@ void hw_3d_uninitialize_pushwalls_ib()
 bool hw_initialize_pushwalls_vb()
 {
 	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+	param.vertex_count_ = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_pushwall_sides_vb_ = ::hw_renderer_->vertex_buffer_create(param);
 
@@ -4005,7 +4005,7 @@ void hw_3d_dbg_draw_all_solid_walls(
 			draw_quads.vertex_buffer_ = ::hw_3d_wall_sides_vb_;
 			draw_quads.texture_2d_ = last_texture;
 
-			draw_index_offset_ += ::hw_3d_max_indices_per_wall_side * draw_quad_count;
+			draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 		}
 	}
 
@@ -4120,7 +4120,7 @@ void hw_3d_dbg_draw_all_pushwalls(
 			draw_quads.vertex_buffer_ = ::hw_3d_pushwall_sides_vb_;
 			draw_quads.texture_2d_ = last_texture;
 
-			draw_index_offset_ += ::hw_3d_max_indices_per_wall_side * draw_quad_count;
+			draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 		}
 	}
 
@@ -5352,7 +5352,7 @@ void hw_3d_build_solid_walls()
 
 	// Check for maximums.
 	//
-	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	if (index_count > ::hw_3d_max_wall_sides_indices)
 	{
@@ -5368,7 +5368,7 @@ void hw_3d_build_solid_walls()
 
 	// Build the map (XY to wall).
 	//
-	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	auto vb_buffer = HwVbBuffer{};
 	vb_buffer.resize(vertex_count);
@@ -5649,11 +5649,11 @@ void hw_3d_build_pushwalls()
 		}
 	}
 
-	::hw_3d_pushwall_side_count_ = ::hw_3d_pushwall_count_ * ::hw_3d_max_sides_per_wall;
+	::hw_3d_pushwall_side_count_ = ::hw_3d_pushwall_count_ * ::hw_3d_sides_per_wall;
 
 	// Check for maximums.
 	//
-	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_indices_per_wall_side;
+	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	if (index_count > ::hw_3d_max_wall_sides_indices)
 	{
@@ -5669,7 +5669,7 @@ void hw_3d_build_pushwalls()
 
 	// Build the map (XY to pushwall).
 	//
-	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_max_vertices_per_wall_side;
+	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_pushwalls_vb_buffer_.clear();
 	::hw_3d_pushwalls_vb_buffer_.resize(vertex_count);
