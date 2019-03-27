@@ -38,6 +38,7 @@ loaded into the data segment
 #include <cassert>
 #include <algorithm>
 #include <memory>
+#include "SDL_endian.h"
 #include "SDL_video.h"
 #include "id_ca.h"
 #include "audio.h"
@@ -1991,7 +1992,12 @@ public:
 
 
 private:
+	static constexpr auto palette_color_count = 256;
+
+
 	using SdlSurfacePtr = SDL_Surface*;
+	using Palette = std::vector<SDL_Color>;
+
 
 	struct SdlSurfaceDeleter
 	{
@@ -2011,18 +2017,28 @@ private:
 
 
 	bool is_initialized_;
+	int sprite_count_;
 	SdlSurfaceUPtr sdl_surface_64x64x8_;
 	SdlSurfaceUPtr sdl_surface_64x64x32_;
 	std::string destination_dir_;
 	std::string destination_path_;
 	bstone::SpriteCache sprite_cache_;
+	Palette vga_palette_;
 
 
 	void set_palette(
 		SdlSurfacePtr sdl_surface,
 		const std::uint8_t* const vga_palette);
 
+	void set_palette(
+		SdlSurfacePtr sdl_surface,
+		const Palette& palette);
+
 	void normalize_destination_dir();
+
+	void uninitialize_vga_palette();
+
+	void initialize_vga_palette();
 
 	void uninitialize_surface_64x64x8();
 
@@ -2039,7 +2055,8 @@ private:
 		const bstone::Sprite& sprite);
 
 	bool save_image(
-		const int image_index);
+		const int image_index,
+		SdlSurfacePtr sdl_surface);
 
 	bool dump_wall(
 		const int wall_index);
@@ -2066,6 +2083,8 @@ bool ImagesDumper::initialize()
 		return false;
 	}
 
+	initialize_vga_palette();
+
 	is_initialized_ = true;
 
 	return true;
@@ -2077,6 +2096,7 @@ void ImagesDumper::uninitialize()
 
 	uninitialize_surface_64x64x8();
 	uninitialize_surface_64x64x32();
+	uninitialize_vga_palette();
 }
 
 void ImagesDumper::dump_walls(
@@ -2098,7 +2118,7 @@ void ImagesDumper::dump_walls(
 	destination_dir_ = destination_dir;
 	normalize_destination_dir();
 
-	set_palette(sdl_surface_64x64x8_.get(), ::vgapal);
+	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
 	for (int i = 0; i < ::PMSpriteStart; ++i)
 	{
@@ -2111,13 +2131,18 @@ void ImagesDumper::dump_walls(
 void ImagesDumper::dump_sprites(
 	const std::string& destination_dir)
 {
-	const auto sprite_count = ::ChunksInFile - ::PMSpriteStart + 1;
+	sprite_count_ = ::ChunksInFile - ::PMSpriteStart - 1;
+
+	if (sprite_count_ < 0)
+	{
+		sprite_count_ = 0;
+	}
 
 	bstone::Log::write();
 	bstone::Log::write("<<< ================");
 	bstone::Log::write("Dumping sprites.");
 	bstone::Log::write("Destination dir: \"" + destination_dir + "\"");
-	bstone::Log::write("File count: " + std::to_string(sprite_count));
+	bstone::Log::write("File count: " + std::to_string(sprite_count_));
 
 	if (!is_initialized_)
 	{
@@ -2129,9 +2154,9 @@ void ImagesDumper::dump_sprites(
 	destination_dir_ = destination_dir;
 	normalize_destination_dir();
 
-	for (int i = 0; i < sprite_count; ++i)
+	for (int i = 0; i < sprite_count_; ++i)
 	{
-		dump_sprite(i + 1);
+		dump_sprite(i);
 	}
 
 	bstone::Log::write(">>> ================");
@@ -2145,11 +2170,11 @@ void ImagesDumper::set_palette(
 	assert(vga_palette);
 	assert(sdl_surface->format);
 	assert(sdl_surface->format->palette);
-	assert(sdl_surface->format->palette->ncolors == 256);
+	assert(sdl_surface->format->palette->ncolors == palette_color_count);
 
 	auto& sdl_palette = *sdl_surface->format->palette;
 
-	for (int i = 0; i < 256; ++i)
+	for (int i = 0; i < palette_color_count; ++i)
 	{
 		const auto src_color = vga_palette + (i * 3);
 		auto& dst_color = sdl_palette.colors[i];
@@ -2159,6 +2184,23 @@ void ImagesDumper::set_palette(
 		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
 		dst_color.a = 255;
 	}
+}
+
+void ImagesDumper::set_palette(
+	SdlSurfacePtr sdl_surface,
+	const Palette& palette)
+{
+	assert(sdl_surface);
+	assert(palette.size() == palette_color_count);
+	assert(sdl_surface->format);
+	assert(sdl_surface->format->palette);
+	assert(sdl_surface->format->palette->ncolors == palette_color_count);
+
+	std::uninitialized_copy_n(
+		palette.cbegin(),
+		palette_color_count,
+		sdl_surface->format->palette->colors
+	);
 }
 
 void ImagesDumper::normalize_destination_dir()
@@ -2182,6 +2224,29 @@ void ImagesDumper::normalize_destination_dir()
 	}
 }
 
+void ImagesDumper::uninitialize_vga_palette()
+{
+	vga_palette_.clear();
+}
+
+void ImagesDumper::initialize_vga_palette()
+{
+	vga_palette_.resize(palette_color_count);
+
+	const auto src_colors = ::vgapal;
+
+	for (int i = 0; i < palette_color_count; ++i)
+	{
+		const auto src_color = src_colors + (i * 3);
+		auto& dst_color = vga_palette_[i];
+
+		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
+		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
+		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
+		dst_color.a = 255;
+	}
+}
+
 void ImagesDumper::uninitialize_surface_64x64x8()
 {
 	sdl_surface_64x64x8_ = nullptr;
@@ -2192,9 +2257,9 @@ bool ImagesDumper::initialize_surface_64x64x8()
 	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
 		0, // flags
 		64, // width
-		64, // depth
-		32, // depth
-		SDL_PIXELFORMAT_RGBA8888 // format
+		64, // height
+		8, // depth
+		SDL_PIXELFORMAT_INDEX8 // format
 	);
 
 	if (!sdl_surface)
@@ -2207,7 +2272,7 @@ bool ImagesDumper::initialize_surface_64x64x8()
 		return false;
 	}
 
-	sdl_surface_64x64x32_ = SdlSurfaceUPtr{sdl_surface};
+	sdl_surface_64x64x8_ = SdlSurfaceUPtr{sdl_surface};
 
 	return true;
 }
@@ -2222,9 +2287,13 @@ bool ImagesDumper::initialize_surface_64x64x32()
 	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
 		0, // flags
 		64, // width
-		64, // depth
-		8, // depth
-		SDL_PIXELFORMAT_INDEX8 // format
+		64, // height
+		32, // depth
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		SDL_PIXELFORMAT_ABGR8888 // format
+#else // SDL_BYTEORDER == SDL_LIL_ENDIAN
+		SDL_PIXELFORMAT_RGBA8888 // format
+#endif // SDL_BYTEORDER == SDL_LIL_ENDIAN
 	);
 
 	if (!sdl_surface)
@@ -2237,7 +2306,7 @@ bool ImagesDumper::initialize_surface_64x64x32()
 		return false;
 	}
 
-	sdl_surface_64x64x8_ = SdlSurfaceUPtr{sdl_surface};
+	sdl_surface_64x64x32_ = SdlSurfaceUPtr{sdl_surface};
 
 	return true;
 }
@@ -2269,7 +2338,7 @@ void ImagesDumper::convert_wall_page_into_surface(
 void ImagesDumper::convert_sprite_page_into_surface(
 	const bstone::Sprite& sprite)
 {
-	const auto pitch = sdl_surface_64x64x32_->pitch;
+	const auto pitch = sdl_surface_64x64x32_->pitch / 4;
 
 	auto dst_colors = static_cast<SDL_Color*>(sdl_surface_64x64x32_->pixels);
 
@@ -2280,24 +2349,37 @@ void ImagesDumper::convert_sprite_page_into_surface(
 
 	for (int w = 0; w < 64; ++w)
 	{
-		const auto column = sprite.get_column(w);
+		const std::int16_t* column = nullptr;
+
+		if (w >= left && w <= right)
+		{
+			column = sprite.get_column(w - left);
+		}
 
 		for (int h = 0; h < 64; ++h)
 		{
 			auto dst_color = SDL_Color{};
 
-			if (w >= left && w <= right &&
-				h >= top && h <= bottom)
+			if (column && h >= top && h <= bottom)
 			{
+				const auto color_index = column[h - top];
+
+				if (color_index >= 0)
+				{
+					dst_color = vga_palette_[color_index];
+				}
 			}
 
 			const auto dst_index = (h * pitch) + w;
+
+			dst_colors[dst_index] = dst_color;
 		}
 	}
 }
 
 bool ImagesDumper::save_image(
-	const int image_index)
+	const int image_index,
+	SdlSurfacePtr sdl_surface)
 {
 	const auto image_index_digits = 8;
 
@@ -2313,7 +2395,7 @@ bool ImagesDumper::save_image(
 
 	const auto& file_name = destination_dir_ + wall_index_string + ".bmp";
 
-	const auto sdl_result = ::SDL_SaveBMP(sdl_surface_64x64x8_.get(), file_name.c_str());
+	const auto sdl_result = ::SDL_SaveBMP(sdl_surface, file_name.c_str());
 
 	if (sdl_result != 0)
 	{
@@ -2342,14 +2424,14 @@ bool ImagesDumper::dump_wall(
 
 	if (!wall_page)
 	{
-		bstone::Log::write_error("No wall page.");
+		bstone::Log::write_error("No wall page #" + std::to_string(wall_index) + ".");
 
 		return false;
 	}
 
 	convert_wall_page_into_surface(wall_page);
 
-	if (!save_image(wall_index))
+	if (!save_image(wall_index, sdl_surface_64x64x8_.get()))
 	{
 		return false;
 	}
@@ -2360,31 +2442,25 @@ bool ImagesDumper::dump_wall(
 bool ImagesDumper::dump_sprite(
 	const int sprite_index)
 {
-	const auto sprite_count = ::ChunksInFile - ::PMSpriteStart + 1;
-
-	if (sprite_index < 1 && sprite_index > sprite_count)
-	{
-		bstone::Log::write_error("Sprite index out of range.");
-
-		return false;
-	}
-
 	auto sprite = bstone::SpriteCPtr{};
 
 	try
 	{
-		sprite = sprite_cache_.cache(sprite_index);
+		sprite = sprite_cache_.cache(sprite_index + 1);
 	}
-	catch (std::runtime_error&)
+	catch (const std::runtime_error& ex)
 	{
-		bstone::Log::write_error("Failed to cache a sprite.");
+		auto& error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
+		error_message += ex.what();
+
+		bstone::Log::write_error(error_message);
 
 		return false;
 	}
 
 	convert_sprite_page_into_surface(*sprite);
 
-	if (!save_image(sprite_index))
+	if (!save_image(sprite_index, sdl_surface_64x64x32_.get()))
 	{
 		return false;
 	}
