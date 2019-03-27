@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 
 
 struct statobj_t;
+struct objtype;
 
 
 using VgaBuffer = std::vector<std::uint8_t>;
@@ -276,11 +277,11 @@ void vid_hw_on_door_lock_update(
 void vid_hw_on_static_add(
 	const statobj_t& bs_static);
 
-void vid_hw_on_static_remove(
-	const statobj_t& bs_static);
-
 void vid_hw_on_static_change_texture(
 	const statobj_t& bs_static);
+
+void vid_hw_on_actor_add(
+	const objtype& bs_actor);
 
 
 #endif // BSTONE_ID_VL_INCLUDED

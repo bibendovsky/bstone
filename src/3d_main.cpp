@@ -681,6 +681,7 @@ std::int16_t SPR_GOLD_DEATH2 = 0;
 std::int16_t SPR_GOLD_DEATH3 = 0;
 std::int16_t SPR_GOLD_DEATH4 = 0;
 std::int16_t SPR_GOLD_DEATH5 = 0;
+
 std::int16_t SPR_MGOLD_OUCH = 0;
 
 std::int16_t SPR_GOLD_MORPH1 = 0;
@@ -798,6 +799,7 @@ std::int16_t SPR_FSCOUT_DIE4 = 0;
 std::int16_t SPR_FSCOUT_DIE5 = 0;
 std::int16_t SPR_FSCOUT_DIE6 = 0;
 std::int16_t SPR_FSCOUT_DIE7 = 0;
+
 std::int16_t SPR_FSCOUT_DEAD = 0;
 
 std::int16_t SPR_EXPLOSION_1 = 0;
@@ -1149,6 +1151,7 @@ std::int16_t SPR_VSPIKE8 = 0;
 std::int16_t SPR_GREEN_OOZE1 = 0;
 std::int16_t SPR_GREEN_OOZE2 = 0;
 std::int16_t SPR_GREEN_OOZE3 = 0;
+
 std::int16_t SPR_BLACK_OOZE1 = 0;
 std::int16_t SPR_BLACK_OOZE2 = 0;
 std::int16_t SPR_BLACK_OOZE3 = 0;
@@ -1156,6 +1159,7 @@ std::int16_t SPR_BLACK_OOZE3 = 0;
 std::int16_t SPR_GREEN2_OOZE1 = 0;
 std::int16_t SPR_GREEN2_OOZE2 = 0;
 std::int16_t SPR_GREEN2_OOZE3 = 0;
+
 std::int16_t SPR_BLACK2_OOZE1 = 0;
 std::int16_t SPR_BLACK2_OOZE2 = 0;
 std::int16_t SPR_BLACK2_OOZE3 = 0;

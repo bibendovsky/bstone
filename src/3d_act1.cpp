@@ -723,8 +723,6 @@ void ExplodeStatics(
 					// Remove static
 					spot->shapenum = -1;
 					spot->itemnumber = bo_nothing;
-
-					::vid_hw_on_static_remove(*spot);
 				}
 			}
 		}
@@ -2258,6 +2256,8 @@ void CheckSpawnEA()
 			eaList[static_cast<int>(loop)].aliens_out++;
 			new_actor->temp2 = loop;
 			::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
+
+			::vid_hw_on_actor_add(*new_actor);
 		}
 
 		// Reset spawn delay.
@@ -2304,6 +2304,8 @@ void CheckSpawnGoldstern()
 			{
 				SpawnStand(en_goldstern, tilex, tiley, 0);
 				GoldsternInfo.GoldSpawned = true;
+
+				::vid_hw_on_actor_add(*new_actor);
 			}
 		}
 		else

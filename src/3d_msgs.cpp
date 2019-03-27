@@ -480,7 +480,7 @@ std::string actor_info22 =
 "    GUARD"
 ;
 
-// STAR Trooper (AOG) / Alien Protector (PS)
+// Star Trooper (AOG) / Alien Protector (PS)
 std::string actor_info24;
 
 // goldsternobj

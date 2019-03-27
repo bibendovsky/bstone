@@ -245,7 +245,7 @@ void TransformActor(
 void BuildTables();
 
 std::int16_t CalcRotate(
-	objtype* ob);
+	const objtype* ob);
 
 void DrawScaleds();
 void CalcTics();
@@ -1216,7 +1216,7 @@ void VGAClearScreen()
 }
 
 std::int16_t CalcRotate(
-	objtype* ob)
+	const objtype* ob)
 {
 	dirtype dir = ob->dir;
 
@@ -2300,4 +2300,10 @@ void door_get_page_numbers(
 
 		back_face_page_number = front_face_page_number;
 	}
+}
+
+int actor_calculate_rotation(
+	const objtype& actor)
+{
+	return ::CalcRotate(&actor);
 }

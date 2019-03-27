@@ -3991,6 +3991,9 @@ void door_get_page_numbers(
 	const doorobj_t& door,
 	int& front_face_page_number,
 	int& back_face_page_number);
+
+int actor_calculate_rotation(
+	const objtype& actor);
 // BBi
 
 

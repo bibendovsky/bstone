@@ -6093,6 +6093,8 @@ void SpawnProjectile(
 		new_actor->x += deltax;
 		new_actor->y += deltay;
 	}
+
+	::vid_hw_on_actor_add(*new_actor);
 }
 
 objtype* proj_check;
