@@ -1038,6 +1038,20 @@ void InitGame()
 		}
 	}
 
+	{
+		const auto& debug_dump_sprites_images_option_name = "debug_dump_sprites_images"s;
+
+		if (::g_args.has_option(debug_dump_sprites_images_option_name))
+		{
+			const auto& dump_dir = ::g_args.get_option_value(debug_dump_sprites_images_option_name);
+
+			::ca_dump_sprites_images(dump_dir);
+
+			::Quit();
+			return;
+		}
+	}
+
 	VW_Startup();
 	IN_Startup();
 	SD_Startup();

@@ -377,5 +377,8 @@ void ca_dump_hashes();
 void ca_dump_walls_images(
 	const std::string& destination_dir);
 
+void ca_dump_sprites_images(
+	const std::string& destination_dir);
+
 
 #endif // BSTONE_ID_CA_INCLUDED

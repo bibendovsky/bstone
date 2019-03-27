@@ -50,6 +50,7 @@ loaded into the data segment
 #include "bstone_endian.h"
 #include "bstone_log.h"
 #include "bstone_sha1.h"
+#include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 
 
@@ -1985,6 +1986,9 @@ public:
 	void dump_walls(
 		const std::string& destination_dir);
 
+	void dump_sprites(
+		const std::string& destination_dir);
+
 
 private:
 	using SdlSurfacePtr = SDL_Surface*;
@@ -2008,8 +2012,10 @@ private:
 
 	bool is_initialized_;
 	SdlSurfaceUPtr sdl_surface_64x64x8_;
+	SdlSurfaceUPtr sdl_surface_64x64x32_;
 	std::string destination_dir_;
 	std::string destination_path_;
+	bstone::SpriteCache sprite_cache_;
 
 
 	void set_palette(
@@ -2022,14 +2028,24 @@ private:
 
 	bool initialize_surface_64x64x8();
 
+	void uninitialize_surface_64x64x32();
+
+	bool initialize_surface_64x64x32();
+
 	void convert_wall_page_into_surface(
 		const std::uint8_t* const src_indices);
 
-	bool save_wall(
-		const int wall_index);
+	void convert_sprite_page_into_surface(
+		const bstone::Sprite& sprite);
+
+	bool save_image(
+		const int image_index);
 
 	bool dump_wall(
 		const int wall_index);
+
+	bool dump_sprite(
+		const int sprite_index);
 }; // ImagesDumper
 
 
@@ -2045,6 +2061,11 @@ bool ImagesDumper::initialize()
 		return false;
 	}
 
+	if (!initialize_surface_64x64x32())
+	{
+		return false;
+	}
+
 	is_initialized_ = true;
 
 	return true;
@@ -2055,6 +2076,7 @@ void ImagesDumper::uninitialize()
 	is_initialized_ = false;
 
 	uninitialize_surface_64x64x8();
+	uninitialize_surface_64x64x32();
 }
 
 void ImagesDumper::dump_walls(
@@ -2081,6 +2103,35 @@ void ImagesDumper::dump_walls(
 	for (int i = 0; i < ::PMSpriteStart; ++i)
 	{
 		dump_wall(i);
+	}
+
+	bstone::Log::write(">>> ================");
+}
+
+void ImagesDumper::dump_sprites(
+	const std::string& destination_dir)
+{
+	const auto sprite_count = ::ChunksInFile - ::PMSpriteStart + 1;
+
+	bstone::Log::write();
+	bstone::Log::write("<<< ================");
+	bstone::Log::write("Dumping sprites.");
+	bstone::Log::write("Destination dir: \"" + destination_dir + "\"");
+	bstone::Log::write("File count: " + std::to_string(sprite_count));
+
+	if (!is_initialized_)
+	{
+		bstone::Log::write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = destination_dir;
+	normalize_destination_dir();
+
+	for (int i = 0; i < sprite_count; ++i)
+	{
+		dump_sprite(i + 1);
 	}
 
 	bstone::Log::write(">>> ================");
@@ -2142,6 +2193,36 @@ bool ImagesDumper::initialize_surface_64x64x8()
 		0, // flags
 		64, // width
 		64, // depth
+		32, // depth
+		SDL_PIXELFORMAT_RGBA8888 // format
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = "Failed to create SDL surface 64x64x32bit. "s;
+		error_message += ::SDL_GetError();
+
+		bstone::Log::write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_64x64x32_ = SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImagesDumper::uninitialize_surface_64x64x32()
+{
+	sdl_surface_64x64x32_ = nullptr;
+}
+
+bool ImagesDumper::initialize_surface_64x64x32()
+{
+	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		64, // width
+		64, // depth
 		8, // depth
 		SDL_PIXELFORMAT_INDEX8 // format
 	);
@@ -2185,15 +2266,45 @@ void ImagesDumper::convert_wall_page_into_surface(
 	}
 }
 
-bool ImagesDumper::save_wall(
-	const int wall_index)
+void ImagesDumper::convert_sprite_page_into_surface(
+	const bstone::Sprite& sprite)
 {
-	const auto wall_index_digits = 8;
+	const auto pitch = sdl_surface_64x64x32_->pitch;
 
-	auto& wall_index_string = std::to_string(wall_index);
-	wall_index_string.reserve(wall_index_digits);
+	auto dst_colors = static_cast<SDL_Color*>(sdl_surface_64x64x32_->pixels);
 
-	const auto pad_count = wall_index_digits - static_cast<int>(wall_index_string.size());
+	const auto left = sprite.get_left();
+	const auto right = sprite.get_right();
+	const auto top = sprite.get_top();
+	const auto bottom = sprite.get_bottom();
+
+	for (int w = 0; w < 64; ++w)
+	{
+		const auto column = sprite.get_column(w);
+
+		for (int h = 0; h < 64; ++h)
+		{
+			auto dst_color = SDL_Color{};
+
+			if (w >= left && w <= right &&
+				h >= top && h <= bottom)
+			{
+			}
+
+			const auto dst_index = (h * pitch) + w;
+		}
+	}
+}
+
+bool ImagesDumper::save_image(
+	const int image_index)
+{
+	const auto image_index_digits = 8;
+
+	auto& wall_index_string = std::to_string(image_index);
+	wall_index_string.reserve(image_index_digits);
+
+	const auto pad_count = image_index_digits - static_cast<int>(wall_index_string.size());
 
 	for (int i = 0; i < pad_count; ++i)
 	{
@@ -2206,7 +2317,7 @@ bool ImagesDumper::save_wall(
 
 	if (sdl_result != 0)
 	{
-		auto& error_message = "Failed to save a file \"" + file_name + "\". ";
+		auto& error_message = "Failed to save an image into \"" + file_name + "\". ";
 		error_message += ::SDL_GetError();
 
 		bstone::Log::write_error(error_message);
@@ -2238,7 +2349,42 @@ bool ImagesDumper::dump_wall(
 
 	convert_wall_page_into_surface(wall_page);
 
-	if (!save_wall(wall_index))
+	if (!save_image(wall_index))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ImagesDumper::dump_sprite(
+	const int sprite_index)
+{
+	const auto sprite_count = ::ChunksInFile - ::PMSpriteStart + 1;
+
+	if (sprite_index < 1 && sprite_index > sprite_count)
+	{
+		bstone::Log::write_error("Sprite index out of range.");
+
+		return false;
+	}
+
+	auto sprite = bstone::SpriteCPtr{};
+
+	try
+	{
+		sprite = sprite_cache_.cache(sprite_index);
+	}
+	catch (std::runtime_error&)
+	{
+		bstone::Log::write_error("Failed to cache a sprite.");
+
+		return false;
+	}
+
+	convert_sprite_page_into_surface(*sprite);
+
+	if (!save_image(sprite_index))
 	{
 		return false;
 	}
@@ -2262,4 +2408,17 @@ void ca_dump_walls_images(
 	}
 
 	images_dumper.dump_walls(destination_dir);
+}
+
+void ca_dump_sprites_images(
+	const std::string& destination_dir)
+{
+	auto images_dumper = ImagesDumper{};
+
+	if (!images_dumper.initialize())
+	{
+		return;
+	}
+
+	images_dumper.dump_sprites(destination_dir);
 }
