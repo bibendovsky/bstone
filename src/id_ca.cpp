@@ -35,11 +35,16 @@ loaded into the data segment
 */
 
 
+#include <cassert>
 #include <algorithm>
+#include <memory>
+#include "SDL_video.h"
 #include "id_ca.h"
 #include "audio.h"
 #include "id_heads.h"
+#include "id_pm.h"
 #include "id_sd.h"
+#include "id_vh.h"
 #include "id_vl.h"
 #include "gfxv.h"
 #include "bstone_endian.h"
@@ -1961,4 +1966,300 @@ bool Assets::are_official_levels(
 	);
 
 	return result;
+}
+
+
+// ==========================================================================
+// ImagesDumper
+//
+
+class ImagesDumper
+{
+public:
+	bool is_initialized() const;
+
+	bool initialize();
+
+	void uninitialize();
+
+	void dump_walls(
+		const std::string& destination_dir);
+
+
+private:
+	using SdlSurfacePtr = SDL_Surface*;
+
+	struct SdlSurfaceDeleter
+	{
+		void operator()(
+			SdlSurfacePtr ptr)
+		{
+			if (!ptr)
+			{
+				return;
+			}
+
+			::SDL_FreeSurface(ptr);
+		}
+	}; // SdlSurfaceDeleter
+
+	using SdlSurfaceUPtr = std::unique_ptr<SDL_Surface, SdlSurfaceDeleter>;
+
+
+	bool is_initialized_;
+	SdlSurfaceUPtr sdl_surface_64x64x8_;
+	std::string destination_dir_;
+	std::string destination_path_;
+
+
+	void set_palette(
+		SdlSurfacePtr sdl_surface,
+		const std::uint8_t* const vga_palette);
+
+	void normalize_destination_dir();
+
+	void uninitialize_surface_64x64x8();
+
+	bool initialize_surface_64x64x8();
+
+	void convert_wall_page_into_surface(
+		const std::uint8_t* const src_indices);
+
+	bool save_wall(
+		const int wall_index);
+
+	bool dump_wall(
+		const int wall_index);
+}; // ImagesDumper
+
+
+bool ImagesDumper::is_initialized() const
+{
+	return is_initialized_;
+}
+
+bool ImagesDumper::initialize()
+{
+	if (!initialize_surface_64x64x8())
+	{
+		return false;
+	}
+
+	is_initialized_ = true;
+
+	return true;
+}
+
+void ImagesDumper::uninitialize()
+{
+	is_initialized_ = false;
+
+	uninitialize_surface_64x64x8();
+}
+
+void ImagesDumper::dump_walls(
+	const std::string& destination_dir)
+{
+	bstone::Log::write();
+	bstone::Log::write("<<< ================");
+	bstone::Log::write("Dumping walls.");
+	bstone::Log::write("Destination dir: \"" + destination_dir + "\"");
+	bstone::Log::write("File count: " + std::to_string(::PMSpriteStart));
+
+	if (!is_initialized_)
+	{
+		bstone::Log::write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = destination_dir;
+	normalize_destination_dir();
+
+	set_palette(sdl_surface_64x64x8_.get(), ::vgapal);
+
+	for (int i = 0; i < ::PMSpriteStart; ++i)
+	{
+		dump_wall(i);
+	}
+
+	bstone::Log::write(">>> ================");
+}
+
+void ImagesDumper::set_palette(
+	SdlSurfacePtr sdl_surface,
+	const std::uint8_t* const vga_palette)
+{
+	assert(sdl_surface);
+	assert(vga_palette);
+	assert(sdl_surface->format);
+	assert(sdl_surface->format->palette);
+	assert(sdl_surface->format->palette->ncolors == 256);
+
+	auto& sdl_palette = *sdl_surface->format->palette;
+
+	for (int i = 0; i < 256; ++i)
+	{
+		const auto src_color = vga_palette + (i * 3);
+		auto& dst_color = sdl_palette.colors[i];
+
+		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
+		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
+		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
+		dst_color.a = 255;
+	}
+}
+
+void ImagesDumper::normalize_destination_dir()
+{
+	if (!destination_dir_.empty())
+	{
+		constexpr auto native_separator =
+#ifdef _WIN32
+			'\\'
+#else // _WIN32
+			'//'
+#endif // _WIN32
+			;
+
+		const auto last_char = destination_dir_.back();
+
+		if (last_char != '\\' && last_char != '/')
+		{
+			destination_dir_ += native_separator;
+		}
+	}
+}
+
+void ImagesDumper::uninitialize_surface_64x64x8()
+{
+	sdl_surface_64x64x8_ = nullptr;
+}
+
+bool ImagesDumper::initialize_surface_64x64x8()
+{
+	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		64, // width
+		64, // depth
+		8, // depth
+		SDL_PIXELFORMAT_INDEX8 // format
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = "Failed to create SDL surface 64x64x8bit. "s;
+		error_message += ::SDL_GetError();
+
+		bstone::Log::write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_64x64x8_ = SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImagesDumper::convert_wall_page_into_surface(
+	const std::uint8_t* const src_indices)
+{
+	assert(src_indices);
+
+	const auto pitch = sdl_surface_64x64x8_->pitch;
+
+	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_64x64x8_->pixels);
+
+	auto src_index = 0;
+
+	for (int w = 0; w < 64; ++w)
+	{
+		for (int h = 0; h < 64; ++h)
+		{
+			const auto dst_index = (h * pitch) + w;
+
+			dst_indices[dst_index] = src_indices[src_index];
+
+			++src_index;
+		}
+	}
+}
+
+bool ImagesDumper::save_wall(
+	const int wall_index)
+{
+	const auto wall_index_digits = 8;
+
+	auto& wall_index_string = std::to_string(wall_index);
+	wall_index_string.reserve(wall_index_digits);
+
+	const auto pad_count = wall_index_digits - static_cast<int>(wall_index_string.size());
+
+	for (int i = 0; i < pad_count; ++i)
+	{
+		wall_index_string.insert(0, 1, '0');
+	}
+
+	const auto& file_name = destination_dir_ + wall_index_string + ".bmp";
+
+	const auto sdl_result = ::SDL_SaveBMP(sdl_surface_64x64x8_.get(), file_name.c_str());
+
+	if (sdl_result != 0)
+	{
+		auto& error_message = "Failed to save a file \"" + file_name + "\". ";
+		error_message += ::SDL_GetError();
+
+		bstone::Log::write_error(error_message);
+
+		return false;
+	}
+
+	return true;
+}
+
+bool ImagesDumper::dump_wall(
+	const int wall_index)
+{
+	if (wall_index < 0 && wall_index >= ::PMSpriteStart)
+	{
+		bstone::Log::write_error("Wall index out of range.");
+
+		return false;
+	}
+
+	const auto wall_page = static_cast<const std::uint8_t*>(::PM_GetPage(wall_index));
+
+	if (!wall_page)
+	{
+		bstone::Log::write_error("No wall page.");
+
+		return false;
+	}
+
+	convert_wall_page_into_surface(wall_page);
+
+	if (!save_wall(wall_index))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//
+// ImagesDumper
+// ==========================================================================
+
+
+void ca_dump_walls_images(
+	const std::string& destination_dir)
+{
+	auto images_dumper = ImagesDumper{};
+
+	if (!images_dumper.initialize())
+	{
+		return;
+	}
+
+	images_dumper.dump_walls(destination_dir);
 }
