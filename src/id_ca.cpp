@@ -2055,6 +2055,7 @@ private:
 		const bstone::Sprite& sprite);
 
 	bool save_image(
+		const std::string& name_prefix,
 		const int image_index,
 		SdlSurfacePtr sdl_surface);
 
@@ -2378,6 +2379,7 @@ void ImagesDumper::convert_sprite_page_into_surface(
 }
 
 bool ImagesDumper::save_image(
+	const std::string& name_prefix,
 	const int image_index,
 	SdlSurfacePtr sdl_surface)
 {
@@ -2393,7 +2395,7 @@ bool ImagesDumper::save_image(
 		wall_index_string.insert(0, 1, '0');
 	}
 
-	const auto& file_name = destination_dir_ + wall_index_string + ".bmp";
+	const auto& file_name = destination_dir_ + name_prefix + wall_index_string + ".bmp";
 
 	const auto sdl_result = ::SDL_SaveBMP(sdl_surface, file_name.c_str());
 
@@ -2431,7 +2433,7 @@ bool ImagesDumper::dump_wall(
 
 	convert_wall_page_into_surface(wall_page);
 
-	if (!save_image(wall_index, sdl_surface_64x64x8_.get()))
+	if (!save_image("wall_", wall_index, sdl_surface_64x64x8_.get()))
 	{
 		return false;
 	}
@@ -2442,11 +2444,13 @@ bool ImagesDumper::dump_wall(
 bool ImagesDumper::dump_sprite(
 	const int sprite_index)
 {
+	const auto cache_sprite_index = sprite_index + 1;
+
 	auto sprite = bstone::SpriteCPtr{};
 
 	try
 	{
-		sprite = sprite_cache_.cache(sprite_index + 1);
+		sprite = sprite_cache_.cache(cache_sprite_index);
 	}
 	catch (const std::runtime_error& ex)
 	{
@@ -2460,7 +2464,7 @@ bool ImagesDumper::dump_sprite(
 
 	convert_sprite_page_into_surface(*sprite);
 
-	if (!save_image(sprite_index, sdl_surface_64x64x32_.get()))
+	if (!save_image("sprite_", cache_sprite_index, sdl_surface_64x64x32_.get()))
 	{
 		return false;
 	}
