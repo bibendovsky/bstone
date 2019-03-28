@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Square matrix.
+// Row-major square matrix.
 //
 
 
@@ -32,15 +32,14 @@ Free Software Foundation, Inc.,
 
 
 #include <array>
+#include <initializer_list>
 
 
 namespace bstone
 {
 
 
-struct MatNDiagonalTag
-{
-}; // MatNDiagonalTag
+struct MatNDiagonalTag{};
 
 template<int N, typename T>
 class MatNT
@@ -49,23 +48,17 @@ public:
 	static_assert(N >= 2 && N <= 4, "Unsupported rank.");
 
 
-	constexpr MatNT()
+	MatNT()
 		:
 		items_{}
 	{
 	}
 
-	explicit constexpr MatNT(
-		const T& filler)
-	{
-		items_.fill(filler);
-	}
-
-	constexpr MatNT(
+	MatNT(
 		const T& filler,
 		const MatNDiagonalTag)
 		:
-		items_{}
+		MatNT{}
 	{
 		for (int i = 1; i <= N; ++i)
 		{
@@ -73,31 +66,41 @@ public:
 		}
 	}
 
-	template<typename... TArgs>
-	constexpr MatNT(
-		const TArgs&... args)
-		:
-		items_{args...}
+	explicit MatNT(
+		const std::initializer_list<T>& list)
 	{
-		static_assert(sizeof...(TArgs) == (N * N), "Argument count mismatch.");
+		const auto list_size = list.size();
+
+		if (list_size == 1)
+		{
+			items_.fill(*list.begin());
+		}
+		else if (list_size == (N * N))
+		{
+			std::uninitialized_copy(list.begin(), list.end(), items_.begin());
+		}
+		else
+		{
+			throw "Invalid argument count.";
+		}
 	}
 
 	// Notes:
 	//    - Indices are one-based.
-	static constexpr int get_item_index(
+	static int get_item_index(
 		const int row_index,
 		const int column_index)
 	{
 		return (N * (row_index - 1)) + column_index - 1;
 	}
 
-	constexpr T& get_item(
+	T& get_item(
 		const int index)
 	{
 		return items_[index];
 	}
 
-	constexpr const T& get_item(
+	const T& get_item(
 		const int index) const
 	{
 		return items_[index];
@@ -105,7 +108,7 @@ public:
 
 	// Notes:
 	//    - Indices are one-based.
-	constexpr T& get_item(
+	T& get_item(
 		const int row_index,
 		const int column_index)
 	{
@@ -114,24 +117,24 @@ public:
 
 	// Notes:
 	//    - Indices are one-based.
-	constexpr const T& get_item(
+	const T& get_item(
 		const int row_index,
 		const int column_index) const
 	{
 		return items_[get_item_index(row_index, column_index)];
 	}
 
-	constexpr T* get_data()
+	T* get_data()
 	{
 		return items_.data();
 	}
 
-	constexpr const T* get_data() const
+	const T* get_data() const
 	{
 		return items_.data();
 	}
 
-	constexpr MatNT transpose() const
+	MatNT transpose() const
 	{
 		MatNT result;
 
@@ -146,7 +149,7 @@ public:
 		return result;
 	}
 
-	static constexpr bool are_equal(
+	static bool are_equal(
 		const MatNT& lhs,
 		const MatNT& rhs)
 	{
@@ -159,7 +162,7 @@ public:
 		return get_item(index);
 	}
 
-	constexpr const T& operator[](
+	const T& operator[](
 		const int index) const
 	{
 		return get_item(index);
@@ -176,16 +179,18 @@ public:
 
 	// Notes:
 	//    - Indices are one-based.
-	constexpr const T& operator()(
+	const T& operator()(
 		const int row_index,
 		const int column_index) const
 	{
 		return get_item(row_index, column_index);
 	}
 
-	static constexpr MatNT get_identity()
+	static const MatNT& get_identity()
 	{
-		return MatNT{T{1}, MatNDiagonalTag{}};
+		static auto result = MatNT{T{1}, MatNDiagonalTag{}};
+
+		return result;
 	}
 
 
@@ -202,7 +207,7 @@ using Mat4D = MatNT<4, double>;
 
 
 template<int N, typename T>
-constexpr bool operator==(
+inline bool operator==(
 	const MatNT<N, T>& lhs,
 	const MatNT<N, T>& rhs)
 {
@@ -210,7 +215,7 @@ constexpr bool operator==(
 }
 
 template<int N, typename T>
-constexpr bool operator!=(
+inline bool operator!=(
 	const MatNT<N, T>& lhs,
 	const MatNT<N, T>& rhs)
 {
@@ -218,7 +223,7 @@ constexpr bool operator!=(
 }
 
 template<int N, typename T>
-constexpr MatNT<N, T> operator*(
+inline MatNT<N, T> operator*(
 	const T lhs,
 	const MatNT<N, T>& rhs)
 {
@@ -233,7 +238,7 @@ constexpr MatNT<N, T> operator*(
 }
 
 template<int N, typename T>
-constexpr MatNT<N, T> operator*(
+inline MatNT<N, T> operator*(
 	const MatNT<N, T>& lhs,
 	const T rhs)
 {
@@ -241,7 +246,7 @@ constexpr MatNT<N, T> operator*(
 }
 
 template<int N, typename T>
-constexpr MatNT<N, T> operator*(
+inline MatNT<N, T> operator*(
 	const MatNT<N, T>& lhs,
 	const MatNT<N, T>& rhs)
 {
