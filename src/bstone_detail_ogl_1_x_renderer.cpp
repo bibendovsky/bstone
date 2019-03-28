@@ -548,6 +548,11 @@ Ogl1XRenderer::Ogl1XRenderer()
 	viewport_height_{},
 	viewport_min_depth_{},
 	viewport_max_depth_{},
+	scissor_is_enabled_{},
+	scissor_x_{},
+	scissor_y_{},
+	scissor_width_{},
+	scissor_height_{},
 	culling_is_enabled_{},
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
@@ -579,9 +584,14 @@ Ogl1XRenderer::Ogl1XRenderer(
 	viewport_y_{std::move(rhs.viewport_y_)},
 	viewport_width_{std::move(rhs.viewport_width_)},
 	viewport_height_{std::move(rhs.viewport_height_)},
-	culling_is_enabled_{std::move(rhs.culling_is_enabled_)},
 	viewport_min_depth_{std::move(rhs.viewport_min_depth_)},
 	viewport_max_depth_{std::move(rhs.viewport_max_depth_)},
+	scissor_is_enabled_{std::move(rhs.scissor_is_enabled_)},
+	scissor_x_{std::move(rhs.scissor_x_)},
+	scissor_y_{std::move(rhs.scissor_y_)},
+	scissor_width_{std::move(rhs.scissor_width_)},
+	scissor_height_{std::move(rhs.scissor_height_)},
+	culling_is_enabled_{std::move(rhs.culling_is_enabled_)},
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
@@ -872,6 +882,14 @@ void Ogl1XRenderer::execute_command_sets(
 				execute_command_viewport_set(command.viewport_set_);
 				break;
 
+			case RendererCommandId::scissor_enable:
+				execute_command_scissor_enable(command.scissor_enable_);
+				break;
+
+			case RendererCommandId::scissor_set_box:
+				execute_command_scissor_set_box(command.scissor_set_box_);
+				break;
+
 			case RendererCommandId::set_2d:
 				execute_command_set_2d(command.set_2d_);
 				break;
@@ -984,6 +1002,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	if (!is_probe)
 	{
 		viewport_set_defaults();
+		scissor_set_defaults();
 		culling_set_defaults();
 		depth_set_defaults();
 		blending_set_defaults();
@@ -1093,6 +1112,11 @@ void Ogl1XRenderer::uninitialize_internal(
 		viewport_height_ = {};
 		viewport_min_depth_ = {};
 		viewport_max_depth_ = {};
+		scissor_is_enabled_ = {};
+		scissor_x_ = {};
+		scissor_y_ = {};
+		scissor_width_ = {};
+		scissor_height_ = {};
 		culling_is_enabled_ = {};
 		depth_is_test_enabled_ = {};
 		depth_is_write_enabled_ = {};
@@ -1110,6 +1134,39 @@ void Ogl1XRenderer::uninitialize_internal(
 	index_buffers_.clear();
 	vertex_buffers_.clear();
 	textures_2d_.clear();
+}
+
+void Ogl1XRenderer::scissor_enable()
+{
+	detail::OglRendererUtils::scissor_enable(scissor_is_enabled_);
+}
+
+void Ogl1XRenderer::scissor_set_box()
+{
+	assert(scissor_x_ >= 0 && scissor_x_ < screen_width_);
+	assert(scissor_y_ >= 0 && scissor_y_ < screen_height_);
+	assert((scissor_x_ + screen_width_) <= screen_width_);
+	assert((scissor_y_ + screen_height_) <= screen_height_);
+
+	detail::OglRendererUtils::scissor_set_box(
+		scissor_x_,
+		scissor_y_,
+		scissor_width_,
+		scissor_height_
+	);
+}
+
+void Ogl1XRenderer::scissor_set_defaults()
+{
+	scissor_is_enabled_ = false;
+
+	scissor_x_ = 0;
+	scissor_y_ = 0;
+	scissor_width_ = screen_width_;
+	scissor_height_ = screen_height_;
+
+	scissor_enable();
+	scissor_set_box();
 }
 
 void Ogl1XRenderer::viewport_set_rectangle()
@@ -1279,6 +1336,41 @@ void Ogl1XRenderer::execute_command_viewport_set(
 		viewport_max_depth_ = command.max_depth_;
 
 		viewport_set_depth_range();
+	}
+}
+
+void Ogl1XRenderer::execute_command_scissor_enable(
+	const RendererCommand::ScissorEnable& command)
+{
+	if (scissor_is_enabled_ != command.is_enabled_)
+	{
+		scissor_is_enabled_ = command.is_enabled_;
+
+		scissor_enable();
+	}
+}
+
+void Ogl1XRenderer::execute_command_scissor_set_box(
+	const RendererCommand::ScissorSetBox& command)
+{
+	assert(command.x_ < screen_width_);
+	assert(command.y_ < screen_height_);
+	assert(command.width_ <= screen_width_);
+	assert(command.height_ <= screen_height_);
+	assert((command.x_ + command.width_) <= screen_width_);
+	assert((command.y_ + command.height_) <= screen_height_);
+
+	if (scissor_x_ != command.x_ ||
+		scissor_y_ != command.y_ ||
+		scissor_width_ != command.width_ ||
+		scissor_height_ != command.height_)
+	{
+		scissor_x_ = command.x_;
+		scissor_y_ = command.y_;
+		scissor_width_ = command.width_;
+		scissor_height_ = command.height_;
+
+		scissor_set_box();
 	}
 }
 

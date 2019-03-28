@@ -297,6 +297,36 @@ void OglRendererUtils::set_color_buffer_clear_color(
 	assert(!OglRendererUtils::was_errors());
 }
 
+void OglRendererUtils::scissor_enable(
+	const bool is_enabled)
+{
+	if (is_enabled)
+	{
+		::glEnable(GL_SCISSOR_TEST);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glDisable(GL_SCISSOR_TEST);
+		assert(!OglRendererUtils::was_errors());
+	}
+}
+
+void OglRendererUtils::scissor_set_box(
+	const int x,
+	const int y,
+	const int width,
+	const int height)
+{
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(width > 0);
+	assert(height > 0);
+
+	::glScissor(x, y, width, height);
+	assert(!OglRendererUtils::was_errors());
+}
+
 void OglRendererUtils::viewport_set_rectangle(
 	const int x,
 	const int y,

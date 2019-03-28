@@ -329,6 +329,12 @@ private:
 	float viewport_min_depth_;
 	float viewport_max_depth_;
 
+	bool scissor_is_enabled_;
+	int scissor_x_;
+	int scissor_y_;
+	int scissor_width_;
+	int scissor_height_;
+
 	bool culling_is_enabled_;
 
 	bool depth_is_test_enabled_;
@@ -367,6 +373,13 @@ private:
 	void viewport_set_defaults();
 
 
+	void scissor_enable();
+
+	void scissor_set_box();
+
+	void scissor_set_defaults();
+
+
 	void culling_set();
 
 	void culling_set_defaults();
@@ -395,6 +408,12 @@ private:
 
 	void execute_command_viewport_set(
 		const RendererCommand::ViewportSet& command);
+
+	void execute_command_scissor_enable(
+		const RendererCommand::ScissorEnable& command);
+
+	void execute_command_scissor_set_box(
+		const RendererCommand::ScissorSetBox& command);
 
 	void execute_command_set_2d(
 		const RendererCommand::Set2d& command);

@@ -62,6 +62,9 @@ enum class RendererCommandId
 
 	viewport_set,
 
+	scissor_enable,
+	scissor_set_box,
+
 	culling_set,
 
 	depth_set_test,
@@ -317,6 +320,19 @@ struct RendererCommand
 		float max_depth_;
 	}; // ViewportSet
 
+	struct ScissorEnable
+	{
+		bool is_enabled_;
+	}; // ScissorEnable
+
+	struct ScissorSetBox
+	{
+		int x_;
+		int y_;
+		int width_;
+		int height_;
+	}; // ScissorSetBox
+
 	struct CullingSet
 	{
 		bool is_enabled_;
@@ -360,6 +376,9 @@ struct RendererCommand
 	union
 	{
 		ViewportSet viewport_set_;
+
+		ScissorEnable scissor_enable_;
+		ScissorSetBox scissor_set_box_;
 
 		CullingSet culling_set_;
 

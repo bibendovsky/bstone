@@ -100,6 +100,15 @@ public:
 	static void set_color_buffer_clear_color(
 		const RendererColor32& color);
 
+	static void scissor_enable(
+		const bool is_enabled);
+
+	static void scissor_set_box(
+		const int x,
+		const int y,
+		const int width,
+		const int height);
+
 	static void viewport_set_rectangle(
 		const int x,
 		const int y,
