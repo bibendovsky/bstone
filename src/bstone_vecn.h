@@ -40,13 +40,16 @@ Free Software Foundation, Inc.,
 
 namespace bstone
 {
-
-
 template<int N, typename T>
 class VecNT
 {
 public:
 	static_assert(N >= 2 && N <= 4, "Unsupported dimension.");
+
+
+	using Items = std::array<T, N>;
+	using Iterator = typename Items::iterator;
+	using CIterator = typename Items::const_iterator;
 
 
 	VecNT()
@@ -63,7 +66,38 @@ public:
 			throw "Mismatch argument count.";
 		}
 
-		std::uninitialized_copy(list.begin(), list.end(), items_.begin());
+		std::uninitialized_copy(list.begin(), list.end(), begin());
+	}
+
+
+	Iterator begin()
+	{
+		return items_.begin();
+	}
+
+	CIterator begin() const
+	{
+		return items_.cbegin();
+	}
+
+	CIterator cbegin() const
+	{
+		return begin();
+	}
+
+	Iterator end()
+	{
+		return items_.end();
+	}
+
+	CIterator end() const
+	{
+		return items_.cend();
+	}
+
+	CIterator cend() const
+	{
+		return end();
 	}
 
 
@@ -78,28 +112,37 @@ public:
 	}
 
 
-	T& operator[](
+	T& get_item(
 		const int index)
 	{
 		return items_[index];
 	}
 
-	const T& operator[](
+	const T& get_item(
 		const int index) const
 	{
 		return items_[index];
 	}
 
+	T& operator[](
+		const int index)
+	{
+		return get_item(index);
+	}
+
+	const T& operator[](
+		const int index) const
+	{
+		return get_item(index);
+	}
+
 	T get_square_magnitude() const
 	{
-		return std::accumulate(
-			items_.cbegin(),
-			items_.cend(),
-			T{},
-			[](const auto& sum, const auto& value)
-			{
-				return sum + (value * value);
-			}
+		return std::inner_product(
+			cbegin(),
+			cend(),
+			cbegin(),
+			T{}
 		);
 	}
 
@@ -116,12 +159,30 @@ public:
 		VecNT result;
 
 		std::transform(
-			items_.cbegin(),
-			items_.cend()
-			items_.begin(),
+			cbegin(),
+			cend()
+			begin(),
 			[&](const T& item)
 			{
 				return scalar * item;
+			}
+		);
+
+		return result;
+	}
+
+	template<typename U>
+	VecNT<N, U> cast() const
+	{
+		VecNT<N, U> result;
+
+		std::transform(
+			cbegin(),
+			cend(),
+			result.begin(),
+			[](const auto& item)
+			{
+				return static_cast<U>(item);
 			}
 		);
 
@@ -142,10 +203,10 @@ public:
 		VecNT result;
 
 		std::transform(
-			lhs.items_.cbegin(),
-			lhs.items_.cend(),
-			rhs.items_.cbegin(),
-			result.items_.begin(),
+			lhs.cbegin(),
+			lhs.cend(),
+			rhs.cbegin(),
+			result.begin(),
 			std::plus<T>{}
 		);
 
@@ -159,10 +220,10 @@ public:
 		VecNT result;
 
 		std::transform(
-			lhs.items_.cbegin(),
-			lhs.items_.cend(),
-			rhs.items_.cbegin(),
-			result.items_.begin(),
+			lhs.cbegin(),
+			lhs.cend(),
+			rhs.cbegin(),
+			result.begin(),
 			std::minus<T>{}
 		);
 
@@ -174,9 +235,9 @@ public:
 		const VecNT& rhs)
 	{
 		return std::inner_product(
-			lhs.items_.cbegin(),
-			lhs.items_.cend(),
-			rhs.items_.cbegin(),
+			lhs.cbegin(),
+			lhs.cend(),
+			rhs.cbegin(),
 			T{}
 		);
 	}

@@ -48,6 +48,11 @@ public:
 	static_assert(N >= 2 && N <= 4, "Unsupported rank.");
 
 
+	using Items = std::array<T, N * N>;
+	using Iterator = typename Items::iterator;
+	using CIterator = typename Items::const_iterator;
+
+
 	MatNT()
 		:
 		items_{}
@@ -77,12 +82,42 @@ public:
 		}
 		else if (list_size == (N * N))
 		{
-			std::uninitialized_copy(list.begin(), list.end(), items_.begin());
+			std::uninitialized_copy(list.begin(), list.end(), begin());
 		}
 		else
 		{
 			throw "Invalid argument count.";
 		}
+	}
+
+	Iterator begin()
+	{
+		return items_.begin();
+	}
+
+	CIterator begin() const
+	{
+		return items_.cbegin();
+	}
+
+	CIterator cbegin() const
+	{
+		return begin();
+	}
+
+	Iterator end()
+	{
+		return items_.end();
+	}
+
+	CIterator end() const
+	{
+		return items_.cend();
+	}
+
+	CIterator cend() const
+	{
+		return end();
 	}
 
 	// Notes:
@@ -186,6 +221,42 @@ public:
 		return get_item(row_index, column_index);
 	}
 
+	MatNT scale(
+		const T& scalar) const
+	{
+		MatNT result;
+
+		std::transform(
+			cbegin(),
+			cend()
+			begin(),
+			[&](const T& item)
+			{
+				return scalar * item;
+			}
+		);
+
+		return result;
+	}
+
+	template<typename U>
+	MatNT<N, U> cast() const
+	{
+		MatNT<N, U> result;
+
+		std::transform(
+			cbegin(),
+			cend(),
+			result.begin(),
+			[](const auto& item)
+			{
+				return static_cast<U>(item);
+			}
+		);
+
+		return result;
+	}
+
 	static const MatNT& get_identity()
 	{
 		static auto result = MatNT{T{1}, MatNDiagonalTag{}};
@@ -195,9 +266,6 @@ public:
 
 
 private:
-	using Items = std::array<T, N * N>;
-
-
 	Items items_;
 }; // MatNT
 
@@ -224,23 +292,16 @@ inline bool operator!=(
 
 template<int N, typename T>
 inline MatNT<N, T> operator*(
-	const T lhs,
+	const T& lhs,
 	const MatNT<N, T>& rhs)
 {
-	MatNT<N, T> result;
-
-	for (int i = 0; i < (N * N); ++i)
-	{
-		result[i] = lhs * rhs[i];
-	}
-
-	return result;
+	return rhs.scale(lhs);
 }
 
 template<int N, typename T>
 inline MatNT<N, T> operator*(
 	const MatNT<N, T>& lhs,
-	const T rhs)
+	const T& rhs)
 {
 	return rhs * lhs;
 }
