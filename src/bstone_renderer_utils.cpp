@@ -39,10 +39,7 @@ namespace bstone
 // RendererUtils
 //
 
-void f()
-{
-	constexpr auto o = RendererUtils::build_ortho_projection_t<float>(0.0F, 1.0F, 0.0F, 1.0F, 0.0F, 1.0F);
-}
+
 
 //
 // RendererUtils
