@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <array>
+#include <initializer_list>
 #include <numeric>
 
 
@@ -48,19 +49,21 @@ public:
 	static_assert(N >= 2 && N <= 4, "Unsupported dimension.");
 
 
-	constexpr VecNT()
+	VecNT()
 		:
 		items_{}
 	{
 	}
 
-	template<typename... TArgs>
-	constexpr VecNT(
-		const TArgs&... args)
-		:
-		items_{args...}
+	explicit VecNT(
+		const std::initializer_list<T>& list)
 	{
-		static_assert(sizeof...(TArgs) == N, "Argument count mismatch.");
+		if (list.size() != N)
+		{
+			throw "Mismatch argument count.";
+		}
+
+		std::uninitialized_copy(list.begin(), list.end(), items_.begin());
 	}
 
 
@@ -81,7 +84,7 @@ public:
 		return items_[index];
 	}
 
-	constexpr const T& operator[](
+	const T& operator[](
 		const int index) const
 	{
 		return items_[index];
@@ -107,8 +110,8 @@ public:
 		return std::sqrt(square_magnitude);
 	}
 
-	static constexpr VecNT scale(
-		const T& scalar)
+	VecNT scale(
+		const T& scalar) const
 	{
 		VecNT result;
 
@@ -116,7 +119,7 @@ public:
 			items_.cbegin(),
 			items_.cend()
 			items_.begin(),
-			[=](const T& item)
+			[&](const T& item)
 			{
 				return scalar * item;
 			}
@@ -125,14 +128,14 @@ public:
 		return result;
 	}
 
-	static constexpr bool are_equal(
+	static bool are_equal(
 		const VecNT& lhs,
 		const VecNT& rhs)
 	{
 		return lhs.items_ == rhs.items_;
 	}
 
-	static constexpr VecNT add(
+	static VecNT add(
 		const VecNT& lhs,
 		const VecNT& rhs)
 	{
@@ -149,7 +152,7 @@ public:
 		return result;
 	}
 
-	static constexpr VecNT sub(
+	static VecNT sub(
 		const VecNT& lhs,
 		const VecNT& rhs)
 	{
@@ -166,18 +169,16 @@ public:
 		return result;
 	}
 
-	static constexpr T dot_product(
+	static T dot_product(
 		const VecNT& lhs,
 		const VecNT& rhs)
 	{
-		auto result = T{};
-
-		for (int i = 0; i < N; ++i)
-		{
-			result += lhs.items_[i] * rhs.items_[i];
-		}
-
-		return result;
+		return std::inner_product(
+			lhs.items_.cbegin(),
+			lhs.items_.cend(),
+			rhs.items_.cbegin(),
+			T{}
+		);
 	}
 
 
@@ -206,7 +207,7 @@ using Vec4D = VecNT<4, double>;
 
 
 template<int N, typename T>
-constexpr bool operator==(
+inline bool operator==(
 	const bstone::VecNT<N, T>& lhs,
 	const bstone::VecNT<N, T>& rhs)
 {
@@ -214,7 +215,7 @@ constexpr bool operator==(
 }
 
 template<int N, typename T>
-constexpr bool operator!=(
+inline bool operator!=(
 	const bstone::VecNT<N, T>& lhs,
 	const bstone::VecNT<N, T>& rhs)
 {
@@ -223,7 +224,7 @@ constexpr bool operator!=(
 
 
 template<int N, typename T>
-constexpr bstone::VecNT<N, T> operator+(
+inline bstone::VecNT<N, T> operator+(
 	const bstone::VecNT<N, T>& lhs,
 	const bstone::VecNT<N, T>& rhs)
 {
@@ -231,7 +232,7 @@ constexpr bstone::VecNT<N, T> operator+(
 }
 
 template<int N, typename T>
-constexpr bstone::VecNT<N, T> operator-(
+inline bstone::VecNT<N, T> operator-(
 	const bstone::VecNT<N, T>& lhs,
 	const bstone::VecNT<N, T>& rhs)
 {
@@ -240,7 +241,7 @@ constexpr bstone::VecNT<N, T> operator-(
 
 
 template<int N, typename T>
-constexpr bstone::VecNT<N, T> operator*(
+inline bstone::VecNT<N, T> operator*(
 	const T& scalar,
 	const bstone::VecNT<N, T>& rhs)
 {
@@ -248,7 +249,7 @@ constexpr bstone::VecNT<N, T> operator*(
 }
 
 template<int N, typename T>
-constexpr bstone::VecNT<N, T> operator*(
+inline bstone::VecNT<N, T> operator*(
 	const bstone::VecNT<N, T>& lhs,
 	const T& scalar)
 {
@@ -256,11 +257,11 @@ constexpr bstone::VecNT<N, T> operator*(
 }
 
 template<int N, typename T>
-constexpr bstone::VecNT<N, T> operator/(
+inline bstone::VecNT<N, T> operator/(
 	const bstone::VecNT<N, T>& lhs,
 	const T& scalar)
 {
-	return lhs.scale(T{1} / scalar);
+	return lhs.scale(static_cast<T>(1) / scalar);
 }
 
 
