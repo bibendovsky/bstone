@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include <vector>
-#include "bstone_matn.h"
+#include "glm/glm.hpp"
 #include "bstone_detail_renderer_utils.h"
 
 
@@ -119,25 +119,13 @@ public:
 		const float min_depth,
 		const float max_depth);
 
-	static Mat4F build_2d_projection_matrix(
-		const int width,
-		const int height);
+	static glm::mat4 build_3d_model_matrix();
 
-	static Mat4F build_3d_translation_matrix(
-		const float x,
-		const float y,
-		const float z);
-
-	static Mat4F build_3d_rotataion_about_z_matrix(
-		const int angle_deg);
-
-	static Mat4F build_3d_model_matrix();
-
-	static Mat4F build_3d_view_matrix(
+	static glm::mat4 build_3d_view_matrix(
 		const int angle_deg,
 		const glm::vec3& position);
 
-	static Mat4F build_3d_frustum(
+	static glm::mat4 build_3d_frustum(
 		const float l,
 		const float r,
 		const float b,
@@ -145,7 +133,7 @@ public:
 		const float n,
 		const float f);
 
-	static Mat4F build_3d_projection_matrix(
+	static glm::mat4 build_3d_projection_matrix(
 		const int viewport_width,
 		const int viewport_height,
 		const int vfov_deg,

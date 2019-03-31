@@ -342,12 +342,12 @@ private:
 
 	bool blending_is_enabled_;
 
-	Mat4F two_d_projection_matrix_;
+	glm::mat4 two_d_projection_matrix_;
 
-	Mat4F three_d_model_matrix_;
-	Mat4F three_d_view_matrix_;
-	Mat4F three_d_model_view_matrix_;
-	Mat4F three_d_projection_matrix_;
+	glm::mat4 three_d_model_matrix_;
+	glm::mat4 three_d_view_matrix_;
+	glm::mat4 three_d_model_view_matrix_;
+	glm::mat4 three_d_projection_matrix_;
 
 	IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;

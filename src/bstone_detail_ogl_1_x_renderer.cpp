@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_1_x_renderer.h"
 #include <cassert>
+#include "glm/gtc/type_ptr.hpp"
 #include "bstone_detail_ogl_renderer_utils.h"
 
 
@@ -738,7 +739,12 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 {
 	assert(is_initialized_);
 
-	const auto& new_matrix = OglRendererUtils::build_2d_projection_matrix(width, height);
+	const auto& new_matrix = glm::ortho(
+		0.0F, // left
+		static_cast<float>(width), // right
+		0.0F, // bottom
+		static_cast<float>(height) // top
+	);
 
 	if (two_d_projection_matrix_ == new_matrix)
 	{
@@ -754,7 +760,7 @@ void Ogl1XRenderer::set_3d_view_matrix(
 {
 	assert(is_initialized_);
 
-	const auto& new_matrix = OglRendererUtils::build_3d_view_matrix(angle_deg, position);
+	const auto& new_matrix = OglRendererUtils::build_3d_view_matrix(-angle_deg, position);
 
 	if (three_d_view_matrix_ == new_matrix)
 	{
@@ -763,7 +769,7 @@ void Ogl1XRenderer::set_3d_view_matrix(
 
 	three_d_view_matrix_ = new_matrix;
 
-	three_d_model_view_matrix_ = three_d_view_matrix_ * three_d_model_matrix_;
+	three_d_model_view_matrix_ = three_d_view_matrix_;
 }
 
 void Ogl1XRenderer::set_3d_projection_matrix(
@@ -788,7 +794,7 @@ void Ogl1XRenderer::set_3d_projection_matrix(
 		return;
 	}
 
-	three_d_projection_matrix_ = new_matrix;
+	three_d_projection_matrix_ = new_matrix * three_d_model_matrix_;
 }
 
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
@@ -1036,7 +1042,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		//
 
 		// Convert from bottom-top to top-bottom.
-		auto t2d_transform = Mat4F
+		auto t2d_transform = glm::mat4
 		{
 			1.0F, 0.0F, 0.0F, 0.0F,
 			0.0F, -1.0F, 0.0F, 0.0F,
@@ -1047,7 +1053,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		::glMatrixMode(GL_TEXTURE);
 		assert(!OglRendererUtils::was_errors());
 
-		::glLoadMatrixf(t2d_transform.get_data());
+		::glLoadMatrixf(glm::value_ptr(t2d_transform));
 		assert(!OglRendererUtils::was_errors());
 
 		// Present.
@@ -1398,7 +1404,7 @@ void Ogl1XRenderer::execute_command_set_2d(
 	::glMatrixMode(GL_PROJECTION);
 	assert(!OglRendererUtils::was_errors());
 
-	::glLoadMatrixf(two_d_projection_matrix_.get_data());
+	::glLoadMatrixf(glm::value_ptr(two_d_projection_matrix_));
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -1418,7 +1424,7 @@ void Ogl1XRenderer::execute_command_set_3d(
 	::glMatrixMode(GL_MODELVIEW);
 	assert(!OglRendererUtils::was_errors());
 
-	::glLoadMatrixf(three_d_model_view_matrix_.get_data());
+	::glLoadMatrixf(glm::value_ptr(three_d_model_view_matrix_));
 	assert(!OglRendererUtils::was_errors());
 
 	// Projection.
@@ -1426,7 +1432,7 @@ void Ogl1XRenderer::execute_command_set_3d(
 	::glMatrixMode(GL_PROJECTION);
 	assert(!OglRendererUtils::was_errors());
 
-	::glLoadMatrixf(three_d_projection_matrix_.get_data());
+	::glLoadMatrixf(glm::value_ptr(three_d_projection_matrix_));
 	assert(!OglRendererUtils::was_errors());
 }
 

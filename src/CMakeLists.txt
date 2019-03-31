@@ -223,7 +223,6 @@ target_sources(
 		bstone_generic_fizzle_fx.h
 		bstone_stream.h
 		bstone_log.h
-		bstone_matn.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_missing_sprite_64x64_image.h
