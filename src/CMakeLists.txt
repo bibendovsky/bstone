@@ -162,6 +162,7 @@ target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE
 		dosbox
+		libs/glm
 )
 
 if (NOT WIN32 OR MINGW)
@@ -232,7 +233,6 @@ target_sources(
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
-		bstone_renderer_utils.h
 		bstone_pcm_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
@@ -246,7 +246,6 @@ target_sources(
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_un_value.h
-		bstone_vecn.h
 		gfxv.h
 		id_ca.h
 		id_heads.h
@@ -315,7 +314,6 @@ target_sources(
 		bstone_ps_fizzle_fx.cpp
 		bstone_renderer_manager_impl.cpp
 		bstone_renderer_texture_manager_impl.cpp
-		bstone_renderer_utils.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp

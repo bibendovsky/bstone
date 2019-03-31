@@ -106,7 +106,7 @@ public:
 
 	void set_3d_view_matrix(
 		const int angle_deg,
-		const Vec3F& position) override;
+		const glm::vec3& position) override;
 
 	void set_3d_projection_matrix(
 		const int viewport_width,

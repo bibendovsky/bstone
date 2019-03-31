@@ -1627,8 +1627,8 @@ bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
-auto hw_3d_player_direction = bstone::Vec2D{};
-auto hw_3d_player_position = bstone::Vec2D{};
+auto hw_3d_player_direction = glm::dvec2{};
+auto hw_3d_player_position = glm::dvec2{};
 
 
 bool hw_3d_has_active_pushwall_ = false;
@@ -1969,33 +1969,33 @@ void hw_2d_fill_x_stretched_vb(
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_f, 0.0F, 0.0F};
+		vertex.xyz_ = glm::vec3{left_f, 0.0F, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_f, 0.0F, 0.0F};
+		vertex.xyz_ = glm::vec3{right_f, 0.0F, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Upper right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_f, height_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_f, height_f, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Upper left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_f, height_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_f, height_f, 0.0F};
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 }
 
@@ -2154,33 +2154,33 @@ bool hw_2d_fillers_create_vb()
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_left_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_left_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_right_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_right_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_right_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_right_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_left_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_left_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 
 	//
@@ -2203,33 +2203,33 @@ bool hw_2d_fillers_create_vb()
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_left_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_left_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_right_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_right_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_right_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_right_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_left_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_left_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 
 	//
@@ -2260,33 +2260,33 @@ bool hw_2d_fillers_create_vb()
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_left_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_left_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_right_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_right_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_right_f, bottom_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_right_f, bottom_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_left_f, bottom_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_left_f, bottom_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 
 	//
@@ -2308,33 +2308,33 @@ bool hw_2d_fillers_create_vb()
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_left_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_left_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_right_f, bottom_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_right_f, bottom_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_right_f, bottom_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_right_f, bottom_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_left_f, bottom_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_left_f, bottom_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 
 	//
@@ -2356,33 +2356,33 @@ bool hw_2d_fillers_create_vb()
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_left_f, top_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_left_f, top_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_right_f, top_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_right_f, top_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_right_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_right_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{right_left_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{right_left_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 
 	//
@@ -2404,33 +2404,33 @@ bool hw_2d_fillers_create_vb()
 	// Bottom left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_left_f, top_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_left_f, top_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_right_f, top_bottom_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_right_f, top_bottom_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top right.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_right_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_right_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top left.
 	{
 		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = bstone::Vec3F{left_left_f, top_top_f, 0.0F};
+		vertex.xyz_ = glm::vec3{left_left_f, top_top_f, 0.0F};
 		vertex.rgba_ = filler_color;
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 
 	//
@@ -2646,37 +2646,37 @@ bool hw_3d_initialize_flooring_vb()
 		// Bottom-left.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{0.0F, 0.0F, 0.0F};
-			//vertex.xyz_ = bstone::Vec3F{-1.0F, -1.0F, 1.0F};
+			vertex.xyz_ = glm::vec3{0.0F, 0.0F, 0.0F};
+			//vertex.xyz_ = glm::vec3{-1.0F, -1.0F, 1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+			vertex.uv_ = glm::vec2{0.0F, 0.0F};
 		}
 
 		// Bottom-right.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{0.0F, map_dimension_f, 0.0F};
-			//vertex.xyz_ = bstone::Vec3F{1.0F, -1.0F, 1.0F};
+			vertex.xyz_ = glm::vec3{0.0F, map_dimension_f, 0.0F};
+			//vertex.xyz_ = glm::vec3{1.0F, -1.0F, 1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{map_dimension_f, 0.0F};
+			vertex.uv_ = glm::vec2{map_dimension_f, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{map_dimension_f, map_dimension_f, 0.0F};
-			//vertex.xyz_ = bstone::Vec3F{1.0F, -1.0F, -1.0F};
+			vertex.xyz_ = glm::vec3{map_dimension_f, map_dimension_f, 0.0F};
+			//vertex.xyz_ = glm::vec3{1.0F, -1.0F, -1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{map_dimension_f, map_dimension_f};
+			vertex.uv_ = glm::vec2{map_dimension_f, map_dimension_f};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{map_dimension_f, 0.0F, 0.0F};
-			//vertex.xyz_ = bstone::Vec3F{-1.0F, -1.0F, -1.0F};
+			vertex.xyz_ = glm::vec3{map_dimension_f, 0.0F, 0.0F};
+			//vertex.xyz_ = glm::vec3{-1.0F, -1.0F, -1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{0.0F, map_dimension_f};
+			vertex.uv_ = glm::vec2{0.0F, map_dimension_f};
 		}
 
 		auto param = bstone::RendererVertexBufferUpdateParam{};
@@ -2804,33 +2804,33 @@ bool hw_3d_initialize_ceiling_vb()
 		// Bottom-left.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{0.0F, 0.0F, ::hw_3d_map_height_f};
+			vertex.xyz_ = glm::vec3{0.0F, 0.0F, ::hw_3d_map_height_f};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+			vertex.uv_ = glm::vec2{0.0F, 0.0F};
 		}
 
 		// Bottom-right.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{0.0F, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
+			vertex.xyz_ = glm::vec3{0.0F, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{::hw_3d_map_dimension_f, 0.0F};
+			vertex.uv_ = glm::vec2{::hw_3d_map_dimension_f, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
+			vertex.xyz_ = glm::vec3{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f};
+			vertex.uv_ = glm::vec2{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = bstone::Vec3F{::hw_3d_map_dimension_f, 0.0F, ::hw_3d_map_height_f};
+			vertex.xyz_ = glm::vec3{::hw_3d_map_dimension_f, 0.0F, ::hw_3d_map_height_f};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{0.0F, ::hw_3d_map_dimension_f};
+			vertex.uv_ = glm::vec2{0.0F, ::hw_3d_map_dimension_f};
 		}
 
 		auto param = bstone::RendererVertexBufferUpdateParam{};
@@ -3890,13 +3890,13 @@ bool hw_3d_dbg_is_tile_vertex_visible(
 	const int x,
 	const int y)
 {
-	const auto& wall_direction = bstone::Vec2D
+	const auto& wall_direction = glm::dvec2
 	{
 		::hw_3d_player_position[0] - static_cast<double>(x),
 		::hw_3d_player_position[1] - static_cast<double>(y)
 	};
 
-	const auto cosine_between_directions = bstone::Vec2D::dot_product(
+	const auto cosine_between_directions = glm::dot(
 		wall_direction, ::hw_3d_player_direction);
 
 	if (cosine_between_directions >= 0.0)
@@ -4175,13 +4175,13 @@ bool hw_3d_dbg_is_door_vertex_visible(
 	const double x,
 	const double y)
 {
-	const auto& wall_direction = bstone::Vec2D
+	const auto& wall_direction = glm::dvec2
 	{
 		::hw_3d_player_position[0] - x,
 		::hw_3d_player_position[1] - y
 	};
 
-	const auto cosine_between_directions = bstone::Vec2D::dot_product(
+	const auto cosine_between_directions = glm::dot(
 		wall_direction, ::hw_3d_player_direction);
 
 	if (cosine_between_directions >= 0.0)
@@ -4699,7 +4699,7 @@ void hw_refresh_screen()
 
 		const auto player_x = bstone::FixedPoint{::player->x}.to_float();
 		const auto player_y = bstone::FixedPoint{::player->y}.to_float();
-		const auto view_position = bstone::Vec3F{player_x, player_y, 0.5F};
+		const auto view_position = glm::vec3{player_x, player_y, 0.5F};
 
 		::hw_renderer_->set_3d_view_matrix(::player->angle, view_position);
 	}
@@ -5193,7 +5193,7 @@ void hw_3d_map_wall_side(
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[0],
 			static_cast<float>(y) + vertex_offsets[1],
@@ -5202,14 +5202,14 @@ void hw_3d_map_wall_side(
 
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom-right (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[2],
 			static_cast<float>(y) + vertex_offsets[3],
@@ -5218,14 +5218,14 @@ void hw_3d_map_wall_side(
 
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top-right (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[2],
 			static_cast<float>(y) + vertex_offsets[3],
@@ -5234,14 +5234,14 @@ void hw_3d_map_wall_side(
 
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top-left (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[0],
 			static_cast<float>(y) + vertex_offsets[1],
@@ -5250,7 +5250,7 @@ void hw_3d_map_wall_side(
 
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 }
 
@@ -5527,7 +5527,7 @@ void hw_3d_translate_pushwall_side(
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			x_f + vertex_offsets[0],
 			y_f + vertex_offsets[1],
@@ -5539,7 +5539,7 @@ void hw_3d_translate_pushwall_side(
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			x_f + vertex_offsets[2],
 			y_f + vertex_offsets[3],
@@ -5551,7 +5551,7 @@ void hw_3d_translate_pushwall_side(
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			x_f + vertex_offsets[2],
 			y_f + vertex_offsets[3],
@@ -5563,7 +5563,7 @@ void hw_3d_translate_pushwall_side(
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			x_f + vertex_offsets[0],
 			y_f + vertex_offsets[1],
@@ -5778,8 +5778,8 @@ void hw_3d_build_pushwalls()
 
 void hw_3d_update_quad_vertices(
 	const Hw3dQuadFlags flags,
-	const bstone::Vec3F& origin,
-	const bstone::Vec2F& size,
+	const glm::vec3& origin,
+	const glm::vec2& size,
 	int& vertex_index,
 	HwVbBuffer& vb_buffer)
 {
@@ -5860,9 +5860,9 @@ void hw_3d_map_door_side(
 
 	const auto origin_axis_index = (flags.is_vertical_ ? 1 : 0);
 
-	const auto size = bstone::Vec2F{0.5F, 1.0F};
+	const auto size = glm::vec2{0.5F, 1.0F};
 
-	const auto tile_center = bstone::Vec3F{bs_door.tilex + 0.5F, bs_door.tiley + 0.5F, 0.0F};
+	const auto tile_center = glm::vec3{bs_door.tilex + 0.5F, bs_door.tiley + 0.5F, 0.0F};
 
 	const auto left_offset = -(0.5F + door_offset);
 	const auto right_offset = door_offset;
@@ -5935,25 +5935,25 @@ void hw_3d_map_xy_to_door(
 		{
 			auto& vertex = vb_buffer[vertex_index++];
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_0, 0.0F};
+			vertex.uv_ = glm::vec2{u_0, 0.0F};
 		}
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_1, 0.0F};
+			vertex.uv_ = glm::vec2{u_1, 0.0F};
 		}
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_1, 1.0F};
+			vertex.uv_ = glm::vec2{u_1, 1.0F};
 		}
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-			vertex.uv_ = bstone::Vec2F{u_0, 1.0F};
+			vertex.uv_ = glm::vec2{u_0, 1.0F};
 		}
 	}
 
@@ -6176,7 +6176,7 @@ void hw_3d_orient_sprite(
 		}
 	}
 
-	auto sprite_origin = bstone::Vec2D{};
+	auto sprite_origin = glm::dvec2{};
 
 	if (sprite.kind_ == Hw3dSpriteKind::actor)
 	{
@@ -6191,7 +6191,7 @@ void hw_3d_orient_sprite(
 
 	auto direction = ::hw_3d_player_position - sprite_origin;
 
-	const auto cosinus_between_directions = bstone::Vec2D::dot_product(
+	const auto cosinus_between_directions = glm::dot(
 		::hw_3d_player_direction,
 		direction
 	);
@@ -6207,7 +6207,7 @@ void hw_3d_orient_sprite(
 	auto bottom_left_vertex = sprite_origin;
 	auto bottom_right_vertex = sprite_origin;
 
-	const auto square_distance = direction.get_square_magnitude();
+	const auto square_distance = glm::dot(direction, direction);
 
 	sprite.square_distance_ = square_distance;
 
@@ -6232,7 +6232,7 @@ void hw_3d_orient_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(bottom_left_vertex[0]),
 			static_cast<float>(bottom_left_vertex[1]),
@@ -6244,7 +6244,7 @@ void hw_3d_orient_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(bottom_right_vertex[0]),
 			static_cast<float>(bottom_right_vertex[1]),
@@ -6256,7 +6256,7 @@ void hw_3d_orient_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(bottom_right_vertex[0]),
 			static_cast<float>(bottom_right_vertex[1]),
@@ -6268,7 +6268,7 @@ void hw_3d_orient_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 
-		vertex.xyz_ = bstone::Vec3F
+		vertex.xyz_ = glm::vec3
 		{
 			static_cast<float>(bottom_left_vertex[0]),
 			static_cast<float>(bottom_left_vertex[1]),
@@ -6418,7 +6418,7 @@ void hw_3d_map_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{0.0F, 0.0F};
+		vertex.uv_ = glm::vec2{0.0F, 0.0F};
 	}
 
 	// Bottom-right.
@@ -6426,7 +6426,7 @@ void hw_3d_map_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{1.0F, 0.0F};
+		vertex.uv_ = glm::vec2{1.0F, 0.0F};
 	}
 
 	// Top-right.
@@ -6434,7 +6434,7 @@ void hw_3d_map_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{1.0F, 1.0F};
+		vertex.uv_ = glm::vec2{1.0F, 1.0F};
 	}
 
 	// Top-left.
@@ -6442,7 +6442,7 @@ void hw_3d_map_sprite(
 	{
 		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index];
 		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
-		vertex.uv_ = bstone::Vec2F{0.0F, 1.0F};
+		vertex.uv_ = glm::vec2{0.0F, 1.0F};
 	}
 }
 

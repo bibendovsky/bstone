@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_renderer_utils.h"
 #include <cassert>
+#include <algorithm>
 #include "SDL_video.h"
 #include "bstone_sprite.h"
 

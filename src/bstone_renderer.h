@@ -31,10 +31,11 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_INCLUDED
 
 
+#include <array>
 #include <string>
 #include <vector>
+#include "glm/glm.hpp"
 #include "bstone_sprite.h"
-#include "bstone_vecn.h"
 
 
 namespace bstone
@@ -167,9 +168,9 @@ using RendererPalette = std::array<RendererColor32, 256>;
 class RendererVertex
 {
 public:
-	Vec3F xyz_;
+	glm::vec3 xyz_;
 	RendererColor32 rgba_;
-	Vec2F uv_;
+	glm::vec2 uv_;
 }; // RendererVertex
 
 
@@ -468,7 +469,7 @@ public:
 
 	virtual void set_3d_view_matrix(
 		const int angle_deg,
-		const Vec3F& position) = 0;
+		const glm::vec3& position) = 0;
 
 	virtual void set_3d_projection_matrix(
 		const int width,

@@ -463,7 +463,7 @@ Mat4F OglRendererUtils::build_3d_model_matrix()
 
 Mat4F OglRendererUtils::build_3d_view_matrix(
 	const int angle_deg,
-	const Vec3F& position)
+	const glm::vec3& position)
 {
 	const auto translate = build_3d_translation_matrix(-position[0], -position[1], -position[2]);
 	const auto rotate = build_3d_rotataion_about_z_matrix(-angle_deg);

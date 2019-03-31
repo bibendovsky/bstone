@@ -70,6 +70,8 @@ Free Software Foundation, Inc.,
 
 #include "SDL.h"
 
+#include "glm/glm.hpp"
+
 #include "bstone_cl_args.h"
 #include "bstone_endian.h"
 #include "bstone_log.h"

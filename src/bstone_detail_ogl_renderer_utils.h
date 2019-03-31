@@ -135,7 +135,7 @@ public:
 
 	static Mat4F build_3d_view_matrix(
 		const int angle_deg,
-		const Vec3F& position);
+		const glm::vec3& position);
 
 	static Mat4F build_3d_frustum(
 		const float l,

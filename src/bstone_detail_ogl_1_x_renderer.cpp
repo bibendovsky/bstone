@@ -750,7 +750,7 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 
 void Ogl1XRenderer::set_3d_view_matrix(
 	const int angle_deg,
-	const Vec3F& position)
+	const glm::vec3& position)
 {
 	assert(is_initialized_);
 
