@@ -29,6 +29,7 @@ Free Software Foundation, Inc.,
 #include <chrono>
 #include "SDL_hints.h"
 #include "SDL_render.h"
+#include "glm/gtc/matrix_transform.hpp"
 #include "id_heads.h"
 #include "id_ca.h"
 #include "id_in.h"
@@ -1550,6 +1551,11 @@ using Hw3dSpritesIndexBuffer = std::vector<std::uint16_t>;
 using HwVbBuffer = std::vector<bstone::RendererVertex>;
 
 
+glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
+glm::mat4 hw_2d_matrix_view_ = glm::mat4{};
+glm::mat4 hw_2d_matrix_projection_ = glm::mat4{};
+
+
 constexpr auto hw_2d_quad_count = 2;
 
 constexpr auto hw_2d_index_count_ = hw_2d_quad_count * 6;
@@ -1587,6 +1593,10 @@ int hw_3d_viewport_y_ = 0;
 int hw_3d_viewport_width_ = 0;
 int hw_3d_viewport_height_ = 0;
 
+float hw_3d_camera_fovy_deg = 45.0F;
+float hw_3d_camera_near_distance = 0.05F;
+float hw_3d_camera_far_distance = (std::sqrt(2.0F) * ::hw_3d_map_dimension_f) + 0.5F;
+
 
 Hw2dVertices hw_2d_vertices_;
 
@@ -1614,6 +1624,12 @@ bstone::RendererVertexBufferPtr hw_2d_fillers_vb_ = nullptr;
 bool hw_2d_fade_is_enabled_ = false;
 bstone::RendererColor32 hw_2d_fade_color_ = bstone::RendererColor32{};
 bstone::RendererTexture2dPtr hw_2d_fade_t2d_ = nullptr;
+
+
+auto hw_3d_matrix_bs_to_r_ = glm::mat4{};
+auto hw_3d_matrix_model_ = glm::mat4{};
+auto hw_3d_matrix_view_ = glm::mat4{};
+auto hw_3d_matrix_projection_ = glm::mat4{};
 
 
 bstone::RendererIndexBufferPtr hw_3d_flooring_ib_ = nullptr;
@@ -3402,6 +3418,125 @@ void hw_calculate_dimensions()
 	::hw_3d_viewport_height_ = (::ref_3d_view_height * ::window_height) / ::vga_ref_height;
 }
 
+void hw_2d_matrix_build_model()
+{
+	::hw_2d_matrix_model_ = glm::identity<glm::mat4>();
+}
+
+void hw_2d_matrix_build_view()
+{
+	::hw_2d_matrix_view_ = glm::identity<glm::mat4>();
+}
+
+void hw_2d_matrix_build_projection()
+{
+	::hw_2d_matrix_projection_ = glm::orthoRH_NO(
+		0.0F, // left
+		static_cast<float>(::window_width), // right
+		0.0F, // bottom
+		static_cast<float>(::window_height), // top
+		0.0F, // zNear
+		1.0F // zFar
+	);
+}
+
+void hw_2d_matrices_build()
+{
+	::hw_2d_matrix_build_model();
+	::hw_2d_matrix_build_view();
+	::hw_2d_matrix_build_projection();
+}
+
+void hw_3d_matrix_build_bs_to_r()
+{
+	//
+	// |  0 y   0   0 |
+	// |  0 0 z*1.2 0 |
+	// | -x 0   0   0 |
+	// |  0 0   0   1 |
+	//
+
+	const auto m_11 = 0.0F;
+	const auto m_12 = 1.0F;
+	const auto m_13 = 0.0F;
+	const auto m_14 = 0.0F;
+
+	const auto m_21 = 0.0F;
+	const auto m_22 = 0.0F;
+	const auto m_23 = 1.2F;
+	const auto m_24 = 0.0F;
+
+	const auto m_31 = -1.0F;
+	const auto m_32 = 0.0F;
+	const auto m_33 = 0.0F;
+	const auto m_34 = 0.0F;
+
+	const auto m_41 = 0.0F;
+	const auto m_42 = 0.0F;
+	const auto m_43 = 0.0F;
+	const auto m_44 = 1.0F;
+
+	::hw_3d_matrix_bs_to_r_ = glm::mat4
+	{
+		m_11, m_21, m_31, m_41,
+		m_12, m_22, m_32, m_42,
+		m_13, m_23, m_33, m_43,
+		m_14, m_24, m_34, m_44,
+	};
+}
+
+void hw_3d_matrix_build_model()
+{
+	::hw_3d_matrix_model_ = glm::identity<glm::mat4>();
+}
+
+void hw_3d_matrix_build_view()
+{
+	::hw_3d_matrix_view_ = glm::identity<glm::mat4>();
+
+	if (!::player)
+	{
+		return;
+	}
+
+	const auto player_x = bstone::FixedPoint{::player->x}.to_float();
+	const auto player_y = bstone::FixedPoint{::player->y}.to_float();
+	const auto view_position = glm::vec3{player_x, player_y, 0.5F};
+
+	const auto angle_rad = static_cast<float>((::m_pi() * ::player->angle) / 180.0);
+
+	::hw_3d_matrix_view_ = glm::rotate(::hw_3d_matrix_view_, angle_rad, glm::vec3{0.0F, 0.0F, 1.0F});
+	::hw_3d_matrix_view_ = glm::translate(::hw_3d_matrix_view_, -view_position);
+	::hw_3d_matrix_view_ = ::hw_3d_matrix_bs_to_r_ * ::hw_3d_matrix_view_;
+}
+
+void hw_3d_matrix_build_projection()
+{
+	const auto vfov_rad = static_cast<float>((::m_pi() * ::hw_3d_camera_fovy_deg) / 180.0);
+
+	::hw_3d_matrix_projection_ = glm::perspectiveFovRH_NO(
+		vfov_rad,
+		static_cast<float>(::hw_3d_viewport_width_),
+		static_cast<float>(::hw_3d_viewport_height_),
+		::hw_3d_camera_near_distance,
+		::hw_3d_camera_far_distance
+	);
+}
+
+void hw_3d_matrices_build()
+{
+	::hw_3d_matrix_build_bs_to_r();
+	::hw_3d_matrix_build_model();
+	::hw_3d_matrix_build_view();
+	::hw_3d_matrix_build_projection();
+}
+
+void hw_matrices_build()
+{
+	::hw_2d_matrices_build();
+	::hw_3d_matrices_build();
+}
+
 bool hw_initialize_video()
 {
 	::vid_is_hw_ = false;
@@ -3583,15 +3718,7 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
-		::hw_renderer_->set_2d_projection_matrix(::window_width, ::window_height);
-
-		::hw_renderer_->set_3d_projection_matrix(
-			::hw_3d_viewport_width_,
-			::hw_3d_viewport_height_,
-			45,
-			0.05F,
-			100.0F
-		);
+		::hw_matrices_build();
 
 		::hw_command_sets_.resize(2);
 
@@ -3713,13 +3840,6 @@ void hw_refresh_screen_2d()
 	auto& commands = ::hw_2d_command_set_->commands_;
 
 
-	// Enable 2D.
-	//
-	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::set_2d;
-	}
-
 	// Set viewport.
 	//
 	{
@@ -3749,6 +3869,23 @@ void hw_refresh_screen_2d()
 		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::depth_set_test;
 		command.depth_set_test_.is_enabled_ = false;
+	}
+
+	// Set model-view matrix.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::matrix_set_model_view;
+		command.matrix_set_model_view_.model_ = ::hw_2d_matrix_model_;
+		command.matrix_set_model_view_.view_ = ::hw_2d_matrix_view_;
+	}
+
+	// Set projection matrix.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::matrix_set_projection;
+		command.matrix_set_projection_.projection_ = ::hw_2d_matrix_projection_;
 	}
 
 	// Fillers.
@@ -4569,13 +4706,6 @@ void hw_refresh_screen_3d()
 	auto& commands = ::hw_3d_command_set_->commands_;
 
 
-	// Enable 3D.
-	//
-	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::set_3d;
-	}
-
 	// Set viewport.
 	//
 	{
@@ -4613,6 +4743,23 @@ void hw_refresh_screen_3d()
 		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::depth_set_write;
 		command.depth_set_write_.is_enabled_ = true;
+	}
+
+	// Set model-view matrix.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::matrix_set_model_view;
+		command.matrix_set_model_view_.model_ = ::hw_3d_matrix_model_;
+		command.matrix_set_model_view_.view_ = ::hw_3d_matrix_view_;
+	}
+
+	// Set projection matrix.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::matrix_set_projection;
+		command.matrix_set_projection_.projection_ = ::hw_3d_matrix_projection_;
 	}
 
 	// Draw solid walls.
@@ -4690,14 +4837,8 @@ void hw_refresh_screen()
 		::vid_hw_is_draw_3d_ = true;
 
 		::hw_3d_update_player();
-
+		::hw_3d_matrix_build_view();
 		::hw_dbg_3d_orient_all_sprites();
-
-		const auto player_x = bstone::FixedPoint{::player->x}.to_float();
-		const auto player_y = bstone::FixedPoint{::player->y}.to_float();
-		const auto view_position = glm::vec3{player_x, player_y, 0.5F};
-
-		::hw_renderer_->set_3d_view_matrix(::player->angle, view_position);
 	}
 
 	::hw_renderer_->clear_buffers();

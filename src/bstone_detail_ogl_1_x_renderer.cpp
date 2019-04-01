@@ -559,16 +559,12 @@ Ogl1XRenderer::Ogl1XRenderer()
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
+	texture_2d_is_enabled_{},
 	matrix_model_{},
 	matrix_view_{},
 	matrix_model_view_{},
 	matrix_projection_{},
 	matrix_texture_{},
-	two_d_projection_matrix_{},
-	three_d_model_matrix_{},
-	three_d_view_matrix_{},
-	three_d_model_view_matrix_{},
-	three_d_projection_matrix_{},
 	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
@@ -602,16 +598,12 @@ Ogl1XRenderer::Ogl1XRenderer(
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
+	texture_2d_is_enabled_{std::move(rhs.texture_2d_is_enabled_)},
 	matrix_model_{std::move(rhs.matrix_model_)},
 	matrix_view_{std::move(rhs.matrix_view_)},
 	matrix_model_view_{std::move(rhs.matrix_model_view_)},
 	matrix_projection_{std::move(rhs.matrix_projection_)},
 	matrix_texture_{std::move(rhs.matrix_texture_)},
-	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
-	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
-	three_d_view_matrix_{std::move(rhs.three_d_view_matrix_)},
-	three_d_model_view_matrix_{std::move(rhs.three_d_model_view_matrix_)},
-	three_d_projection_matrix_{std::move(rhs.three_d_projection_matrix_)},
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
@@ -744,72 +736,6 @@ void Ogl1XRenderer::palette_update(
 	}
 }
 
-void Ogl1XRenderer::set_2d_projection_matrix(
-	const int width,
-	const int height)
-{
-	assert(is_initialized_);
-
-	const auto& new_matrix = glm::orthoRH_NO(
-		0.0F, // left
-		static_cast<float>(width), // right
-		0.0F, // bottom
-		static_cast<float>(height), // top
-		0.0F, // zNear
-		1.0F // zFar
-	);
-
-	if (two_d_projection_matrix_ == new_matrix)
-	{
-		return;
-	}
-
-	two_d_projection_matrix_ = new_matrix;
-}
-
-void Ogl1XRenderer::set_3d_view_matrix(
-	const int angle_deg,
-	const glm::vec3& position)
-{
-	assert(is_initialized_);
-
-	const auto& new_matrix = OglRendererUtils::build_3d_view_matrix(-angle_deg, position);
-
-	if (three_d_view_matrix_ == new_matrix)
-	{
-		return;
-	}
-
-	three_d_view_matrix_ = new_matrix;
-
-	three_d_model_view_matrix_ = three_d_model_matrix_ * three_d_view_matrix_;
-}
-
-void Ogl1XRenderer::set_3d_projection_matrix(
-	const int viewport_width,
-	const int viewport_height,
-	const int vfov_deg,
-	const float near_distance,
-	const float far_distance)
-{
-	assert(is_initialized_);
-
-	const auto& new_matrix = OglRendererUtils::build_3d_projection_matrix(
-		viewport_width,
-		viewport_height,
-		vfov_deg,
-		near_distance,
-		far_distance
-	);
-
-	if (three_d_projection_matrix_ == new_matrix)
-	{
-		return;
-	}
-
-	three_d_projection_matrix_ = new_matrix;
-}
-
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
@@ -909,10 +835,6 @@ void Ogl1XRenderer::execute_command_sets(
 				command_execute_scissor_set_box(command.scissor_set_box_);
 				break;
 
-			case RendererCommandId::set_2d:
-				command_execute_set_2d(command.set_2d_);
-				break;
-
 			case RendererCommandId::matrix_set_model:
 				command_execute_matrix_set_model(command.matrix_set_model_);
 				break;
@@ -927,10 +849,6 @@ void Ogl1XRenderer::execute_command_sets(
 
 			case RendererCommandId::matrix_set_projection:
 				command_execute_matrix_set_projection(command.matrix_set_projection_);
-				break;
-
-			case RendererCommandId::set_3d:
-				command_execute_set_3d(command.set_3d_);
 				break;
 
 			case RendererCommandId::blending_set:
@@ -1041,13 +959,11 @@ bool Ogl1XRenderer::probe_or_initialize(
 		culling_set_defaults();
 		depth_set_defaults();
 		blending_set_defaults();
+		texture_2d_set_defaults();
 		matrix_set_defaults();
 
 		// Default state.
 		//
-		::glDisable(GL_TEXTURE_2D);
-		assert(!OglRendererUtils::was_errors());
-
 		::glDisable(GL_CULL_FACE);
 		assert(!OglRendererUtils::was_errors());
 
@@ -1063,10 +979,6 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 		::glFrontFace(GL_CCW);
 		assert(!OglRendererUtils::was_errors());
-
-		// Model matrix.
-		//
-		three_d_model_matrix_ = OglRendererUtils::build_3d_model_matrix();
 
 		// Present.
 		//
@@ -1139,16 +1051,12 @@ void Ogl1XRenderer::uninitialize_internal(
 		depth_is_test_enabled_ = {};
 		depth_is_write_enabled_ = {};
 		blending_is_enabled_ = {};
+		texture_2d_is_enabled_ = {};
 		matrix_model_ = {};
 		matrix_view_ = {};
 		matrix_model_view_ = {};
 		matrix_projection_ = {};
 		matrix_texture_ = {};
-		two_d_projection_matrix_ = {};
-		three_d_model_matrix_ = {};
-		three_d_view_matrix_ = {};
-		three_d_model_view_matrix_ = {};
-		three_d_projection_matrix_ = {};
 		index_buffers_.clear();
 		vertex_buffers_.clear();
 		texture_buffer_.clear();
@@ -1296,6 +1204,19 @@ void Ogl1XRenderer::blending_set_defaults()
 	blending_set();
 }
 
+void Ogl1XRenderer::texture_2d_set()
+{
+	::glEnable(GL_TEXTURE_2D);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::texture_2d_set_defaults()
+{
+	texture_2d_is_enabled_ = true;
+
+	texture_2d_set();
+}
+
 void Ogl1XRenderer::matrix_set_model()
 {
 	matrix_set_model_view();
@@ -1348,6 +1269,7 @@ void Ogl1XRenderer::matrix_set_defaults()
 
 	matrix_model_ = identity;
 	matrix_view_ = identity;
+	matrix_model_view_ = matrix_view_ * matrix_model_;
 	matrix_projection_ = identity;
 	matrix_texture_ = matrix_texture;
 
@@ -1457,40 +1379,12 @@ void Ogl1XRenderer::command_execute_scissor_set_box(
 	}
 }
 
-void Ogl1XRenderer::command_execute_set_2d(
-	const RendererCommand::Set2d& command)
-{
-	static_cast<void>(command);
-
-
-	// Enable 2D texturing.
-	//
-	::glEnable(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-
-	// Model-view.
-	//
-	::glMatrixMode(GL_MODELVIEW);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadIdentity();
-	assert(!OglRendererUtils::was_errors());
-
-	// Projection.
-	//
-	::glMatrixMode(GL_PROJECTION);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadMatrixf(glm::value_ptr(two_d_projection_matrix_));
-	assert(!OglRendererUtils::was_errors());
-}
-
 void Ogl1XRenderer::command_execute_matrix_set_model(
 	const RendererCommand::MatrixSetModel& command)
 {
 	if (matrix_model_ != command.model_)
 	{
-		matrix_model_ != command.model_;
+		matrix_model_ = command.model_;
 
 		matrix_set_model();
 	}
@@ -1501,7 +1395,7 @@ void Ogl1XRenderer::command_execute_matrix_set_view(
 {
 	if (matrix_view_ != command.view_)
 	{
-		matrix_view_ != command.view_;
+		matrix_view_ = command.view_;
 
 		matrix_set_model();
 	}
@@ -1516,14 +1410,14 @@ void Ogl1XRenderer::command_execute_matrix_set_model_view(
 	{
 		is_modified = true;
 
-		matrix_model_ != command.model_;
+		matrix_model_ = command.model_;
 	}
 
 	if (matrix_view_ != command.view_)
 	{
 		is_modified = true;
 
-		matrix_view_ != command.view_;
+		matrix_view_ = command.view_;
 	}
 
 	if (is_modified)
@@ -1539,38 +1433,10 @@ void Ogl1XRenderer::command_execute_matrix_set_projection(
 {
 	if (matrix_projection_ != command.projection_)
 	{
-		matrix_projection_ != command.projection_;
+		matrix_projection_ = command.projection_;
 
 		matrix_set_projection();
 	}
-}
-
-void Ogl1XRenderer::command_execute_set_3d(
-	const RendererCommand::Set3d& command)
-{
-	static_cast<void>(command);
-
-
-	// Enable 2D texturing.
-	//
-	::glEnable(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-
-	// Model-view.
-	//
-	::glMatrixMode(GL_MODELVIEW);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadMatrixf(glm::value_ptr(three_d_model_view_matrix_));
-	assert(!OglRendererUtils::was_errors());
-
-	// Projection.
-	//
-	::glMatrixMode(GL_PROJECTION);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadMatrixf(glm::value_ptr(three_d_projection_matrix_));
-	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::command_execute_enable_blending(

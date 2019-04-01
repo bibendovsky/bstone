@@ -100,21 +100,6 @@ public:
 	void palette_update(
 		const RendererPalette& palette) override;
 
-	void set_2d_projection_matrix(
-		const int width,
-		const int height) override;
-
-	void set_3d_view_matrix(
-		const int angle_deg,
-		const glm::vec3& position) override;
-
-	void set_3d_projection_matrix(
-		const int viewport_width,
-		const int viewport_height,
-		const int vfov_deg,
-		const float near_distance,
-		const float far_distance) override;
-
 	void clear_buffers() override;
 
 	void present() override;
@@ -342,19 +327,14 @@ private:
 
 	bool blending_is_enabled_;
 
+	bool texture_2d_is_enabled_;
+
 	glm::mat4 matrix_model_;
 	glm::mat4 matrix_view_;
 	glm::mat4 matrix_model_view_;
 	glm::mat4 matrix_projection_;
 
 	glm::mat4 matrix_texture_;
-
-	glm::mat4 two_d_projection_matrix_;
-
-	glm::mat4 three_d_model_matrix_;
-	glm::mat4 three_d_view_matrix_;
-	glm::mat4 three_d_model_view_matrix_;
-	glm::mat4 three_d_projection_matrix_;
 
 	IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;
@@ -404,6 +384,11 @@ private:
 	void blending_set_defaults();
 
 
+	void texture_2d_set();
+
+	void texture_2d_set_defaults();
+
+
 	void matrix_set_model();
 
 	void matrix_set_view();
@@ -435,9 +420,6 @@ private:
 	void command_execute_scissor_set_box(
 		const RendererCommand::ScissorSetBox& command);
 
-	void command_execute_set_2d(
-		const RendererCommand::Set2d& command);
-
 	void command_execute_matrix_set_model(
 		const RendererCommand::MatrixSetModel& command);
 
@@ -449,9 +431,6 @@ private:
 
 	void command_execute_matrix_set_projection(
 		const RendererCommand::MatrixSetProjection& command);
-
-	void command_execute_set_3d(
-		const RendererCommand::Set3d& command);
 
 	void command_execute_enable_blending(
 		const RendererCommand::BlendingSet& command);

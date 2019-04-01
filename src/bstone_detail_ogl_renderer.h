@@ -100,21 +100,6 @@ public:
 	void palette_update(
 		const RendererPalette& palette) override;
 
-	void set_2d_projection_matrix(
-		const int width,
-		const int height) override;
-
-	void set_3d_view_matrix(
-		const int angle_deg,
-		const glm::vec3& position) override;
-
-	void set_3d_projection_matrix(
-		const int width,
-		const int height,
-		const int vfov_deg,
-		const float near_distance,
-		const float far_distance) override;
-
 	void clear_buffers() override;
 
 	void present() override;

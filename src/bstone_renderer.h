@@ -78,9 +78,6 @@ enum class RendererCommandId
 	matrix_set_model_view,
 	matrix_set_projection,
 
-	set_2d,
-	set_3d,
-
 	draw_quads,
 }; // RendererCommandId
 
@@ -365,14 +362,6 @@ struct RendererCommand
 		glm::mat4 projection_;
 	}; // MatrixSetProjection
 
-	struct Set2d
-	{
-	}; // Set2d
-
-	struct Set3d
-	{
-	}; // Set3d
-
 	struct BlendingSet
 	{
 		bool is_enabled_;
@@ -418,9 +407,6 @@ struct RendererCommand
 		MatrixSetView matrix_set_view_;
 		MatrixSetModelView matrix_set_model_view_;
 		MatrixSetProjection matrix_set_projection_;
-
-		Set2d set_2d_;
-		Set3d set_3d_;
 
 		DrawQuads draw_quads_;
 	}; // union
@@ -492,22 +478,6 @@ public:
 
 	virtual void palette_update(
 		const RendererPalette& palette) = 0;
-
-
-	virtual void set_2d_projection_matrix(
-		const int width,
-		const int height) = 0;
-
-	virtual void set_3d_view_matrix(
-		const int angle_deg,
-		const glm::vec3& position) = 0;
-
-	virtual void set_3d_projection_matrix(
-		const int width,
-		const int height,
-		const int vfov_deg,
-		const float near_distance,
-		const float far_distance) = 0;
 
 
 	virtual RendererIndexBufferPtr index_buffer_create(

@@ -224,39 +224,6 @@ void OglRenderer::palette_update(
 	renderer_->palette_update(palette);
 }
 
-void OglRenderer::set_2d_projection_matrix(
-	const int width,
-	const int height)
-{
-	assert(is_initialized_);
-	assert(renderer_);
-
-	renderer_->set_2d_projection_matrix(width, height);
-}
-
-void OglRenderer::set_3d_view_matrix(
-	const int angle_deg,
-	const glm::vec3& position)
-{
-	assert(is_initialized_);
-	assert(renderer_);
-
-	renderer_->set_3d_view_matrix(angle_deg, position);
-}
-
-void OglRenderer::set_3d_projection_matrix(
-	const int width,
-	const int height,
-	const int vfov_deg,
-	const float near_distance,
-	const float far_distance)
-{
-	assert(is_initialized_);
-	assert(renderer_);
-
-	renderer_->set_3d_projection_matrix(width, height, vfov_deg, near_distance, far_distance);
-}
-
 RendererIndexBufferPtr OglRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
