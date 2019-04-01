@@ -73,6 +73,11 @@ enum class RendererCommandId
 
 	blending_set,
 
+	matrix_set_model,
+	matrix_set_view,
+	matrix_set_model_view,
+	matrix_set_projection,
+
 	set_2d,
 	set_3d,
 
@@ -339,6 +344,27 @@ struct RendererCommand
 		bool is_enabled_;
 	}; // CullingSet
 
+	struct MatrixSetModel
+	{
+		glm::mat4 model_;
+	}; // MatrixSetModel
+
+	struct MatrixSetView
+	{
+		glm::mat4 view_;
+	}; // MatrixSetView
+
+	struct MatrixSetModelView
+	{
+		glm::mat4 model_;
+		glm::mat4 view_;
+	}; // MatrixSetModelView
+
+	struct MatrixSetProjection
+	{
+		glm::mat4 projection_;
+	}; // MatrixSetProjection
+
 	struct Set2d
 	{
 	}; // Set2d
@@ -387,6 +413,11 @@ struct RendererCommand
 		DepthSetWrite depth_set_write_;
 
 		BlendingSet blending_set_;
+
+		MatrixSetModel matrix_set_model_;
+		MatrixSetView matrix_set_view_;
+		MatrixSetModelView matrix_set_model_view_;
+		MatrixSetProjection matrix_set_projection_;
 
 		Set2d set_2d_;
 		Set3d set_3d_;

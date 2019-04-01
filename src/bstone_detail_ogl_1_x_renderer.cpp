@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_1_x_renderer.h"
 #include <cassert>
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "bstone_detail_ogl_renderer_utils.h"
 
 
@@ -558,6 +559,11 @@ Ogl1XRenderer::Ogl1XRenderer()
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
+	matrix_model_{},
+	matrix_view_{},
+	matrix_model_view_{},
+	matrix_projection_{},
+	matrix_texture_{},
 	two_d_projection_matrix_{},
 	three_d_model_matrix_{},
 	three_d_view_matrix_{},
@@ -596,6 +602,11 @@ Ogl1XRenderer::Ogl1XRenderer(
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
+	matrix_model_{std::move(rhs.matrix_model_)},
+	matrix_view_{std::move(rhs.matrix_view_)},
+	matrix_model_view_{std::move(rhs.matrix_model_view_)},
+	matrix_projection_{std::move(rhs.matrix_projection_)},
+	matrix_texture_{std::move(rhs.matrix_texture_)},
 	two_d_projection_matrix_{std::move(rhs.two_d_projection_matrix_)},
 	three_d_model_matrix_{std::move(rhs.three_d_model_matrix_)},
 	three_d_view_matrix_{std::move(rhs.three_d_view_matrix_)},
@@ -873,43 +884,59 @@ void Ogl1XRenderer::execute_command_sets(
 			switch (command.id_)
 			{
 			case RendererCommandId::culling_set:
-				execute_command_culling_set(command.culling_set_);
+				command_execute_culling_set(command.culling_set_);
 				break;
 
 			case RendererCommandId::depth_set_test:
-				execute_command_depth_set_test(command.depth_set_test_);
+				command_execute_depth_set_test(command.depth_set_test_);
 				break;
 
 			case RendererCommandId::depth_set_write:
-				execute_command_depth_set_write(command.depth_set_write_);
+				command_execute_depth_set_write(command.depth_set_write_);
 				break;
 
 			case RendererCommandId::viewport_set:
-				execute_command_viewport_set(command.viewport_set_);
+				command_execute_viewport_set(command.viewport_set_);
 				break;
 
 			case RendererCommandId::scissor_enable:
-				execute_command_scissor_enable(command.scissor_enable_);
+				command_execute_scissor_enable(command.scissor_enable_);
 				break;
 
 			case RendererCommandId::scissor_set_box:
-				execute_command_scissor_set_box(command.scissor_set_box_);
+				command_execute_scissor_set_box(command.scissor_set_box_);
 				break;
 
 			case RendererCommandId::set_2d:
-				execute_command_set_2d(command.set_2d_);
+				command_execute_set_2d(command.set_2d_);
+				break;
+
+			case RendererCommandId::matrix_set_model:
+				command_execute_matrix_set_model(command.matrix_set_model_);
+				break;
+
+			case RendererCommandId::matrix_set_view:
+				command_execute_matrix_set_view(command.matrix_set_view_);
+				break;
+
+			case RendererCommandId::matrix_set_model_view:
+				command_execute_matrix_set_model_view(command.matrix_set_model_view_);
+				break;
+
+			case RendererCommandId::matrix_set_projection:
+				command_execute_matrix_set_projection(command.matrix_set_projection_);
 				break;
 
 			case RendererCommandId::set_3d:
-				execute_command_set_3d(command.set_3d_);
+				command_execute_set_3d(command.set_3d_);
 				break;
 
 			case RendererCommandId::blending_set:
-				execute_command_enable_blending(command.blending_set_);
+				command_execute_enable_blending(command.blending_set_);
 				break;
 
 			case RendererCommandId::draw_quads:
-				execute_command_draw_quads(command.draw_quads_);
+				command_execute_draw_quads(command.draw_quads_);
 				break;
 
 			default:
@@ -1012,6 +1039,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		culling_set_defaults();
 		depth_set_defaults();
 		blending_set_defaults();
+		matrix_set_defaults();
 
 		// Default state.
 		//
@@ -1037,24 +1065,6 @@ bool Ogl1XRenderer::probe_or_initialize(
 		// Model matrix.
 		//
 		three_d_model_matrix_ = OglRendererUtils::build_3d_model_matrix();
-
-		// Texture transformation.
-		//
-
-		// Convert from bottom-top to top-bottom.
-		auto t2d_transform = glm::mat4
-		{
-			1.0F, 0.0F, 0.0F, 0.0F,
-			0.0F, -1.0F, 0.0F, 0.0F,
-			0.0F, 0.0F, 1.0F, 0.0F,
-			0.0F, 0.0F, 0.0F, 1.0F,
-		};
-
-		::glMatrixMode(GL_TEXTURE);
-		assert(!OglRendererUtils::was_errors());
-
-		::glLoadMatrixf(glm::value_ptr(t2d_transform));
-		assert(!OglRendererUtils::was_errors());
 
 		// Present.
 		//
@@ -1127,6 +1137,11 @@ void Ogl1XRenderer::uninitialize_internal(
 		depth_is_test_enabled_ = {};
 		depth_is_write_enabled_ = {};
 		blending_is_enabled_ = {};
+		matrix_model_ = {};
+		matrix_view_ = {};
+		matrix_model_view_ = {};
+		matrix_projection_ = {};
+		matrix_texture_ = {};
 		two_d_projection_matrix_ = {};
 		three_d_model_matrix_ = {};
 		three_d_view_matrix_ = {};
@@ -1279,7 +1294,67 @@ void Ogl1XRenderer::blending_set_defaults()
 	blending_set();
 }
 
-void Ogl1XRenderer::execute_command_culling_set(
+void Ogl1XRenderer::matrix_set_model()
+{
+	matrix_set_model_view();
+}
+
+void Ogl1XRenderer::matrix_set_view()
+{
+	matrix_set_model_view();
+}
+
+void Ogl1XRenderer::matrix_set_model_view()
+{
+	::glMatrixMode(GL_MODELVIEW);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadMatrixf(glm::value_ptr(matrix_model_view_));
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::matrix_set_projection()
+{
+	::glMatrixMode(GL_PROJECTION);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadMatrixf(glm::value_ptr(matrix_projection_));
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::matrix_set_texture()
+{
+	::glMatrixMode(GL_TEXTURE);
+	assert(!OglRendererUtils::was_errors());
+
+	::glLoadMatrixf(glm::value_ptr(matrix_texture_));
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::matrix_set_defaults()
+{
+	const auto& identity = glm::identity<glm::mat4>();
+
+	// Convert from bottom-top to top-bottom.
+	const auto& matrix_texture = glm::mat4
+	{
+		1.0F, 0.0F, 0.0F, 0.0F,
+		0.0F, -1.0F, 0.0F, 0.0F,
+		0.0F, 0.0F, 1.0F, 0.0F,
+		0.0F, 0.0F, 0.0F, 1.0F,
+	};
+
+	matrix_model_ = identity;
+	matrix_view_ = identity;
+	matrix_projection_ = identity;
+	matrix_texture_ = matrix_texture;
+
+	matrix_set_model_view();
+	matrix_set_projection();
+	matrix_set_texture();
+}
+
+void Ogl1XRenderer::command_execute_culling_set(
 	const RendererCommand::CullingSet& command)
 {
 	if (culling_is_enabled_ != command.is_enabled_)
@@ -1290,7 +1365,7 @@ void Ogl1XRenderer::execute_command_culling_set(
 	}
 }
 
-void Ogl1XRenderer::execute_command_depth_set_test(
+void Ogl1XRenderer::command_execute_depth_set_test(
 	const RendererCommand::DepthSetTest& command)
 {
 	if (depth_is_test_enabled_ != command.is_enabled_)
@@ -1301,7 +1376,7 @@ void Ogl1XRenderer::execute_command_depth_set_test(
 	}
 }
 
-void Ogl1XRenderer::execute_command_depth_set_write(
+void Ogl1XRenderer::command_execute_depth_set_write(
 	const RendererCommand::DepthSetWrite& command)
 {
 	if (depth_is_write_enabled_ != command.is_enabled_)
@@ -1312,7 +1387,7 @@ void Ogl1XRenderer::execute_command_depth_set_write(
 	}
 }
 
-void Ogl1XRenderer::execute_command_viewport_set(
+void Ogl1XRenderer::command_execute_viewport_set(
 	const RendererCommand::ViewportSet& command)
 {
 	assert(command.x_ < screen_width_);
@@ -1345,7 +1420,7 @@ void Ogl1XRenderer::execute_command_viewport_set(
 	}
 }
 
-void Ogl1XRenderer::execute_command_scissor_enable(
+void Ogl1XRenderer::command_execute_scissor_enable(
 	const RendererCommand::ScissorEnable& command)
 {
 	if (scissor_is_enabled_ != command.is_enabled_)
@@ -1356,7 +1431,7 @@ void Ogl1XRenderer::execute_command_scissor_enable(
 	}
 }
 
-void Ogl1XRenderer::execute_command_scissor_set_box(
+void Ogl1XRenderer::command_execute_scissor_set_box(
 	const RendererCommand::ScissorSetBox& command)
 {
 	assert(command.x_ < screen_width_);
@@ -1380,7 +1455,7 @@ void Ogl1XRenderer::execute_command_scissor_set_box(
 	}
 }
 
-void Ogl1XRenderer::execute_command_set_2d(
+void Ogl1XRenderer::command_execute_set_2d(
 	const RendererCommand::Set2d& command)
 {
 	static_cast<void>(command);
@@ -1408,7 +1483,67 @@ void Ogl1XRenderer::execute_command_set_2d(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl1XRenderer::execute_command_set_3d(
+void Ogl1XRenderer::command_execute_matrix_set_model(
+	const RendererCommand::MatrixSetModel& command)
+{
+	if (matrix_model_ != command.model_)
+	{
+		matrix_model_ != command.model_;
+
+		matrix_set_model();
+	}
+}
+
+void Ogl1XRenderer::command_execute_matrix_set_view(
+	const RendererCommand::MatrixSetView& command)
+{
+	if (matrix_view_ != command.view_)
+	{
+		matrix_view_ != command.view_;
+
+		matrix_set_model();
+	}
+}
+
+void Ogl1XRenderer::command_execute_matrix_set_model_view(
+	const RendererCommand::MatrixSetModelView& command)
+{
+	auto is_modified = false;
+
+	if (matrix_model_ != command.model_)
+	{
+		is_modified = true;
+
+		matrix_model_ != command.model_;
+	}
+
+	if (matrix_view_ != command.view_)
+	{
+		is_modified = true;
+
+		matrix_view_ != command.view_;
+	}
+
+	if (is_modified)
+	{
+		matrix_model_view_ = matrix_view_ * matrix_model_;
+
+		matrix_set_model_view();
+	}
+}
+
+void Ogl1XRenderer::command_execute_matrix_set_projection(
+	const RendererCommand::MatrixSetProjection& command)
+{
+	if (matrix_projection_ != command.projection_)
+	{
+		matrix_projection_ != command.projection_;
+
+		matrix_set_projection();
+	}
+}
+
+void Ogl1XRenderer::command_execute_set_3d(
 	const RendererCommand::Set3d& command)
 {
 	static_cast<void>(command);
@@ -1436,7 +1571,7 @@ void Ogl1XRenderer::execute_command_set_3d(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl1XRenderer::execute_command_enable_blending(
+void Ogl1XRenderer::command_execute_enable_blending(
 	const RendererCommand::BlendingSet& command)
 {
 	if (blending_is_enabled_ != command.is_enabled_)
@@ -1447,7 +1582,7 @@ void Ogl1XRenderer::execute_command_enable_blending(
 	}
 }
 
-void Ogl1XRenderer::execute_command_draw_quads(
+void Ogl1XRenderer::command_execute_draw_quads(
 	const RendererCommand::DrawQuads& command)
 {
 	assert(command.count_ > 0);

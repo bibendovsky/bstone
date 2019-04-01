@@ -342,6 +342,13 @@ private:
 
 	bool blending_is_enabled_;
 
+	glm::mat4 matrix_model_;
+	glm::mat4 matrix_view_;
+	glm::mat4 matrix_model_view_;
+	glm::mat4 matrix_projection_;
+
+	glm::mat4 matrix_texture_;
+
 	glm::mat4 two_d_projection_matrix_;
 
 	glm::mat4 three_d_model_matrix_;
@@ -397,34 +404,59 @@ private:
 	void blending_set_defaults();
 
 
-	void execute_command_culling_set(
+	void matrix_set_model();
+
+	void matrix_set_view();
+
+	void matrix_set_model_view();
+
+	void matrix_set_projection();
+
+	void matrix_set_texture();
+
+	void matrix_set_defaults();
+
+
+	void command_execute_culling_set(
 		const RendererCommand::CullingSet& command);
 
-	void execute_command_depth_set_test(
+	void command_execute_depth_set_test(
 		const RendererCommand::DepthSetTest& command);
 
-	void execute_command_depth_set_write(
+	void command_execute_depth_set_write(
 		const RendererCommand::DepthSetWrite& command);
 
-	void execute_command_viewport_set(
+	void command_execute_viewport_set(
 		const RendererCommand::ViewportSet& command);
 
-	void execute_command_scissor_enable(
+	void command_execute_scissor_enable(
 		const RendererCommand::ScissorEnable& command);
 
-	void execute_command_scissor_set_box(
+	void command_execute_scissor_set_box(
 		const RendererCommand::ScissorSetBox& command);
 
-	void execute_command_set_2d(
+	void command_execute_set_2d(
 		const RendererCommand::Set2d& command);
 
-	void execute_command_set_3d(
+	void command_execute_matrix_set_model(
+		const RendererCommand::MatrixSetModel& command);
+
+	void command_execute_matrix_set_view(
+		const RendererCommand::MatrixSetView& command);
+
+	void command_execute_matrix_set_model_view(
+		const RendererCommand::MatrixSetModelView& command);
+
+	void command_execute_matrix_set_projection(
+		const RendererCommand::MatrixSetProjection& command);
+
+	void command_execute_set_3d(
 		const RendererCommand::Set3d& command);
 
-	void execute_command_enable_blending(
+	void command_execute_enable_blending(
 		const RendererCommand::BlendingSet& command);
 
-	void execute_command_draw_quads(
+	void command_execute_draw_quads(
 		const RendererCommand::DrawQuads& command);
 }; // OglRenderer
 
