@@ -437,9 +437,13 @@ glm::mat4 OglRendererUtils::build_3d_projection_matrix(
 
 	const auto vfov_rad = RendererUtils::deg_to_rad(static_cast<float>(vfov_deg));
 
-	const auto aspect_ratio = static_cast<float>(viewport_width) / static_cast<float>(viewport_height);
-
-	return glm::perspective(vfov_rad, aspect_ratio, near_distance, far_distance);
+	return glm::perspectiveFovRH_NO(
+		vfov_rad,
+		static_cast<float>(viewport_width),
+		static_cast<float>(viewport_height),
+		near_distance,
+		far_distance
+	);
 }
 
 void* OglRendererUtils::resolve_symbol(

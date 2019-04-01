@@ -750,11 +750,13 @@ void Ogl1XRenderer::set_2d_projection_matrix(
 {
 	assert(is_initialized_);
 
-	const auto& new_matrix = glm::ortho(
+	const auto& new_matrix = glm::orthoRH_NO(
 		0.0F, // left
 		static_cast<float>(width), // right
 		0.0F, // bottom
-		static_cast<float>(height) // top
+		static_cast<float>(height), // top
+		0.0F, // zNear
+		1.0F // zFar
 	);
 
 	if (two_d_projection_matrix_ == new_matrix)
@@ -780,7 +782,7 @@ void Ogl1XRenderer::set_3d_view_matrix(
 
 	three_d_view_matrix_ = new_matrix;
 
-	three_d_model_view_matrix_ = three_d_view_matrix_;
+	three_d_model_view_matrix_ = three_d_model_matrix_ * three_d_view_matrix_;
 }
 
 void Ogl1XRenderer::set_3d_projection_matrix(
@@ -805,7 +807,7 @@ void Ogl1XRenderer::set_3d_projection_matrix(
 		return;
 	}
 
-	three_d_projection_matrix_ = new_matrix * three_d_model_matrix_;
+	three_d_projection_matrix_ = new_matrix;
 }
 
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(

@@ -2647,7 +2647,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{0.0F, 0.0F, 0.0F};
-			//vertex.xyz_ = glm::vec3{-1.0F, -1.0F, 1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{0.0F, 0.0F};
 		}
@@ -2656,7 +2655,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{0.0F, map_dimension_f, 0.0F};
-			//vertex.xyz_ = glm::vec3{1.0F, -1.0F, 1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{map_dimension_f, 0.0F};
 		}
@@ -2665,7 +2663,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{map_dimension_f, map_dimension_f, 0.0F};
-			//vertex.xyz_ = glm::vec3{1.0F, -1.0F, -1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{map_dimension_f, map_dimension_f};
 		}
@@ -2674,7 +2671,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{map_dimension_f, 0.0F, 0.0F};
-			//vertex.xyz_ = glm::vec3{-1.0F, -1.0F, -1.0F};
 			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{0.0F, map_dimension_f};
 		}
