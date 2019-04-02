@@ -66,7 +66,7 @@ enum class RendererCommandId
 	scissor_enable,
 	scissor_set_box,
 
-	culling_set,
+	culling_enable,
 
 	depth_set_test,
 	depth_set_write,
@@ -80,6 +80,19 @@ enum class RendererCommandId
 
 	draw_quads,
 }; // RendererCommandId
+
+enum class RendererCullingFace
+{
+	counter_clockwise,
+	clockwise,
+}; // RendererCullingFace
+
+enum class RendererCullingMode
+{
+	back,
+	front,
+	both,
+}; // RendererCullingMode
 
 
 class RendererInitializeWindowParam
@@ -336,10 +349,10 @@ struct RendererCommand
 		int height_;
 	}; // ScissorSetBox
 
-	struct CullingSet
+	struct CullingEnabled
 	{
 		bool is_enabled_;
-	}; // CullingSet
+	}; // CullingEnabled
 
 	struct MatrixSetModel
 	{
@@ -396,7 +409,7 @@ struct RendererCommand
 		ScissorEnable scissor_enable_;
 		ScissorSetBox scissor_set_box_;
 
-		CullingSet culling_set_;
+		CullingEnabled culling_enabled;
 
 		DepthSetTest depth_set_test_;
 		DepthSetWrite depth_set_write_;

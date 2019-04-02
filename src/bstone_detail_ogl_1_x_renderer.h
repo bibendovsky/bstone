@@ -321,6 +321,8 @@ private:
 	int scissor_height_;
 
 	bool culling_is_enabled_;
+	RendererCullingFace culling_face_;
+	RendererCullingMode culling_mode_;
 
 	bool depth_is_test_enabled_;
 	bool depth_is_write_enabled_;
@@ -367,7 +369,11 @@ private:
 	void scissor_set_defaults();
 
 
-	void culling_set();
+	void culling_set_is_enabled();
+
+	void culling_set_face();
+
+	void culling_set_mode();
 
 	void culling_set_defaults();
 
@@ -402,8 +408,8 @@ private:
 	void matrix_set_defaults();
 
 
-	void command_execute_culling_set(
-		const RendererCommand::CullingSet& command);
+	void command_execute_culling_enable(
+		const RendererCommand::CullingEnabled& command);
 
 	void command_execute_depth_set_test(
 		const RendererCommand::DepthSetTest& command);

@@ -3859,8 +3859,8 @@ void hw_refresh_screen_2d()
 	//
 	{
 		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::culling_set;
-		command.culling_set_.is_enabled_ = false;
+		command.id_ = bstone::RendererCommandId::culling_enable;
+		command.culling_enabled.is_enabled_ = false;
 	}
 
 	// Disable depth test.
@@ -4725,8 +4725,8 @@ void hw_refresh_screen_3d()
 	//
 	{
 		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::culling_set;
-		command.culling_set_.is_enabled_ = true;
+		command.id_ = bstone::RendererCommandId::culling_enable;
+		command.culling_enabled.is_enabled_ = true;
 	}
 
 	// Enable depth test.

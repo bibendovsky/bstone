@@ -556,6 +556,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	scissor_width_{},
 	scissor_height_{},
 	culling_is_enabled_{},
+	culling_face_{},
+	culling_mode_{},
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
@@ -595,6 +597,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	scissor_width_{std::move(rhs.scissor_width_)},
 	scissor_height_{std::move(rhs.scissor_height_)},
 	culling_is_enabled_{std::move(rhs.culling_is_enabled_)},
+	culling_face_{std::move(rhs.culling_face_)},
+	culling_mode_{std::move(rhs.culling_mode_)},
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
@@ -811,8 +815,8 @@ void Ogl1XRenderer::execute_command_sets(
 
 			switch (command.id_)
 			{
-			case RendererCommandId::culling_set:
-				command_execute_culling_set(command.culling_set_);
+			case RendererCommandId::culling_enable:
+				command_execute_culling_enable(command.culling_enabled);
 				break;
 
 			case RendererCommandId::depth_set_test:
@@ -954,6 +958,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
+		// Default state.
+		//
 		viewport_set_defaults();
 		scissor_set_defaults();
 		culling_set_defaults();
@@ -962,22 +968,9 @@ bool Ogl1XRenderer::probe_or_initialize(
 		texture_2d_set_defaults();
 		matrix_set_defaults();
 
-		// Default state.
-		//
-		::glDisable(GL_CULL_FACE);
-		assert(!OglRendererUtils::was_errors());
-
 		// Blending function.
 		//
 		::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		assert(!OglRendererUtils::was_errors());
-
-		// Polygon culling.
-		//
-		::glCullFace(GL_BACK);
-		assert(!OglRendererUtils::was_errors());
-
-		::glFrontFace(GL_CCW);
 		assert(!OglRendererUtils::was_errors());
 
 		// Present.
@@ -1048,6 +1041,8 @@ void Ogl1XRenderer::uninitialize_internal(
 		scissor_width_ = {};
 		scissor_height_ = {};
 		culling_is_enabled_ = {};
+		culling_face_ = {};
+		culling_mode_ = {};
 		depth_is_test_enabled_ = {};
 		depth_is_write_enabled_ = {};
 		blending_is_enabled_ = {};
@@ -1133,7 +1128,7 @@ void Ogl1XRenderer::viewport_set_defaults()
 	viewport_set_depth_range();
 }
 
-void Ogl1XRenderer::culling_set()
+void Ogl1XRenderer::culling_set_is_enabled()
 {
 	if (culling_is_enabled_)
 	{
@@ -1147,11 +1142,65 @@ void Ogl1XRenderer::culling_set()
 	}
 }
 
+void Ogl1XRenderer::culling_set_face()
+{
+	auto ogl_face = GLenum{};
+
+	switch (culling_face_)
+	{
+	case RendererCullingFace::clockwise:
+		ogl_face = GL_CW;
+		break;
+
+	case RendererCullingFace::counter_clockwise:
+		ogl_face = GL_CCW;
+		break;
+
+	default:
+		assert(!"Invalid front face.");
+		break;
+	}
+
+	::glFrontFace(ogl_face);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::culling_set_mode()
+{
+	auto ogl_mode = GLenum{};
+
+	switch (culling_mode_)
+	{
+	case RendererCullingMode::back:
+		ogl_mode = GL_BACK;
+		break;
+
+	case RendererCullingMode::front:
+		ogl_mode = GL_FRONT;
+		break;
+
+	case RendererCullingMode::both:
+		ogl_mode = GL_FRONT_AND_BACK;
+		break;
+
+	default:
+		assert(!"Invalid culling mode.");
+		break;
+	}
+
+	::glCullFace(ogl_mode);
+}
+
 void Ogl1XRenderer::culling_set_defaults()
 {
 	culling_is_enabled_ = false;
+	culling_set_is_enabled();
 
-	culling_set();
+	culling_face_ = RendererCullingFace::counter_clockwise;
+	culling_set_face();
+
+	culling_mode_ = RendererCullingMode::back;
+	culling_set_mode();
 }
 
 void Ogl1XRenderer::depth_set_test()
@@ -1278,14 +1327,14 @@ void Ogl1XRenderer::matrix_set_defaults()
 	matrix_set_texture();
 }
 
-void Ogl1XRenderer::command_execute_culling_set(
-	const RendererCommand::CullingSet& command)
+void Ogl1XRenderer::command_execute_culling_enable(
+	const RendererCommand::CullingEnabled& command)
 {
 	if (culling_is_enabled_ != command.is_enabled_)
 	{
 		culling_is_enabled_ = command.is_enabled_;
 
-		culling_set();
+		culling_set_is_enabled();
 	}
 }
 
