@@ -3933,9 +3933,9 @@ void hw_refresh_screen_2d()
 		if (::vid_is_hud)
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_set;
+			command.id_ = bstone::RendererCommandId::blending_enable;
 
-			auto& blending_set = command.blending_set_;
+			auto& blending_set = command.blending_enable_;
 			blending_set.is_enabled_ = true;
 		}
 
@@ -3961,9 +3961,9 @@ void hw_refresh_screen_2d()
 		if (::vid_is_hud)
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_set;
+			command.id_ = bstone::RendererCommandId::blending_enable;
 
-			auto& blending_set = command.blending_set_;
+			auto& blending_set = command.blending_enable_;
 			blending_set.is_enabled_ = false;
 		}
 	}
@@ -3976,9 +3976,9 @@ void hw_refresh_screen_2d()
 		//
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_set;
+			command.id_ = bstone::RendererCommandId::blending_enable;
 
-			auto& blending_set = command.blending_set_;
+			auto& blending_set = command.blending_enable_;
 			blending_set.is_enabled_ = true;
 		}
 
@@ -4007,9 +4007,9 @@ void hw_refresh_screen_2d()
 		//
 		{
 			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_set;
+			command.id_ = bstone::RendererCommandId::blending_enable;
 
-			auto& blending_set = command.blending_set_;
+			auto& blending_set = command.blending_enable_;
 			blending_set.is_enabled_ = false;
 		}
 	}
@@ -4621,8 +4621,8 @@ void hw_3d_dbg_draw_all_sprites(
 	//
 	{
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::blending_set;
-		command.blending_set_.is_enabled_ = true;
+		command.id_ = bstone::RendererCommandId::blending_enable;
+		command.blending_enable_.is_enabled_ = true;
 	}
 
 	auto draw_index = 0;
@@ -4683,8 +4683,8 @@ void hw_3d_dbg_draw_all_sprites(
 	//
 	{
 		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::blending_set;
-		command.blending_set_.is_enabled_ = false;
+		command.id_ = bstone::RendererCommandId::blending_enable;
+		command.blending_enable_.is_enabled_ = false;
 	}
 
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;

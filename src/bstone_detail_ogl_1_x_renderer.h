@@ -385,7 +385,9 @@ private:
 	void depth_set_defaults();
 
 
-	void blending_set();
+	void blending_set_is_enable();
+
+	void blending_set_function();
 
 	void blending_set_defaults();
 
@@ -439,7 +441,7 @@ private:
 		const RendererCommand::MatrixSetProjection& command);
 
 	void command_execute_enable_blending(
-		const RendererCommand::BlendingSet& command);
+		const RendererCommand::BlendingEnable& command);
 
 	void command_execute_draw_quads(
 		const RendererCommand::DrawQuads& command);

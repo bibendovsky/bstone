@@ -855,8 +855,8 @@ void Ogl1XRenderer::execute_command_sets(
 				command_execute_matrix_set_projection(command.matrix_set_projection_);
 				break;
 
-			case RendererCommandId::blending_set:
-				command_execute_enable_blending(command.blending_set_);
+			case RendererCommandId::blending_enable:
+				command_execute_enable_blending(command.blending_enable_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -968,10 +968,6 @@ bool Ogl1XRenderer::probe_or_initialize(
 		texture_2d_set_defaults();
 		matrix_set_defaults();
 
-		// Blending function.
-		//
-		::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		assert(!OglRendererUtils::was_errors());
 
 		// Present.
 		//
@@ -1232,7 +1228,7 @@ void Ogl1XRenderer::depth_set_defaults()
 	depth_set_write();
 }
 
-void Ogl1XRenderer::blending_set()
+void Ogl1XRenderer::blending_set_is_enable()
 {
 	if (blending_is_enabled_)
 	{
@@ -1246,11 +1242,18 @@ void Ogl1XRenderer::blending_set()
 	}
 }
 
+void Ogl1XRenderer::blending_set_function()
+{
+	::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	assert(!OglRendererUtils::was_errors());
+}
+
 void Ogl1XRenderer::blending_set_defaults()
 {
 	blending_is_enabled_ = false;
+	blending_set_is_enable();
 
-	blending_set();
+	blending_set_function();
 }
 
 void Ogl1XRenderer::texture_2d_set()
@@ -1489,13 +1492,13 @@ void Ogl1XRenderer::command_execute_matrix_set_projection(
 }
 
 void Ogl1XRenderer::command_execute_enable_blending(
-	const RendererCommand::BlendingSet& command)
+	const RendererCommand::BlendingEnable& command)
 {
 	if (blending_is_enabled_ != command.is_enabled_)
 	{
 		blending_is_enabled_ = command.is_enabled_;
 
-		blending_set();
+		blending_set_is_enable();
 	}
 }
 

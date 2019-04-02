@@ -71,7 +71,7 @@ enum class RendererCommandId
 	depth_set_test,
 	depth_set_write,
 
-	blending_set,
+	blending_enable,
 
 	matrix_set_model,
 	matrix_set_view,
@@ -375,7 +375,7 @@ struct RendererCommand
 		glm::mat4 projection_;
 	}; // MatrixSetProjection
 
-	struct BlendingSet
+	struct BlendingEnable
 	{
 		bool is_enabled_;
 	}; // EnableBlending
@@ -414,7 +414,7 @@ struct RendererCommand
 		DepthSetTest depth_set_test_;
 		DepthSetWrite depth_set_write_;
 
-		BlendingSet blending_set_;
+		BlendingEnable blending_enable_;
 
 		MatrixSetModel matrix_set_model_;
 		MatrixSetView matrix_set_view_;
