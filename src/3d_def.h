@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include <functional>
+#include <string>
 #include <vector>
 #include "movie.h"
 
