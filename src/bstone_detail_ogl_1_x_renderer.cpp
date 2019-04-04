@@ -562,6 +562,10 @@ Ogl1XRenderer::Ogl1XRenderer()
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
 	texture_2d_is_enabled_{},
+	fog_is_enabled_{},
+	fog_color_{},
+	fog_start_distance_{},
+	fog_end_distance_{},
 	matrix_model_{},
 	matrix_view_{},
 	matrix_model_view_{},
@@ -603,6 +607,10 @@ Ogl1XRenderer::Ogl1XRenderer(
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
 	texture_2d_is_enabled_{std::move(rhs.texture_2d_is_enabled_)},
+	fog_is_enabled_{std::move(rhs.fog_is_enabled_)},
+	fog_color_{std::move(rhs.fog_color_)},
+	fog_start_distance_{std::move(rhs.fog_start_distance_)},
+	fog_end_distance_{std::move(rhs.fog_end_distance_)},
 	matrix_model_{std::move(rhs.matrix_model_)},
 	matrix_view_{std::move(rhs.matrix_view_)},
 	matrix_model_view_{std::move(rhs.matrix_model_view_)},
@@ -839,6 +847,18 @@ void Ogl1XRenderer::execute_command_sets(
 				command_execute_scissor_set_box(command.scissor_set_box_);
 				break;
 
+			case RendererCommandId::fog_enable:
+				command_execute_fog_enable(command.fog_enable_);
+				break;
+
+			case RendererCommandId::fog_set_color:
+				command_execute_fog_set_color(command.fog_set_color_);
+				break;
+
+			case RendererCommandId::fog_set_distances:
+				command_execute_fog_set_distances(command.fog_set_distances_);
+				break;
+
 			case RendererCommandId::matrix_set_model:
 				command_execute_matrix_set_model(command.matrix_set_model_);
 				break;
@@ -966,6 +986,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		depth_set_defaults();
 		blending_set_defaults();
 		texture_2d_set_defaults();
+		fog_set_defaults();
 		matrix_set_defaults();
 
 
@@ -1043,6 +1064,10 @@ void Ogl1XRenderer::uninitialize_internal(
 		depth_is_write_enabled_ = {};
 		blending_is_enabled_ = {};
 		texture_2d_is_enabled_ = {};
+		fog_is_enabled_ = {};
+		fog_color_ = {};
+		fog_start_distance_ = {};
+		fog_end_distance_ = {};
 		matrix_model_ = {};
 		matrix_view_ = {};
 		matrix_model_view_ = {};
@@ -1269,6 +1294,56 @@ void Ogl1XRenderer::texture_2d_set_defaults()
 	texture_2d_set();
 }
 
+void Ogl1XRenderer::fog_set_is_enabled()
+{
+	if (fog_is_enabled_)
+	{
+		::glEnable(GL_FOG);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glDisable(GL_FOG);
+		assert(!OglRendererUtils::was_errors());
+	}
+}
+
+void Ogl1XRenderer::fog_set_mode()
+{
+	::glFogi(GL_FOG_MODE, GL_LINEAR);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::fog_set_color()
+{
+	::glFogfv(GL_FOG_COLOR, glm::value_ptr(fog_color_));
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::fog_set_distances()
+{
+	::glFogf(GL_FOG_START, fog_start_distance_);
+	assert(!OglRendererUtils::was_errors());
+
+	::glFogf(GL_FOG_END, fog_end_distance_);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::fog_set_defaults()
+{
+	fog_is_enabled_ = false;
+	fog_set_is_enabled();
+
+	fog_set_mode();
+
+	fog_color_ = glm::vec4{};
+	fog_set_color();
+
+	fog_start_distance_ = 0.0F;
+	fog_end_distance_ = 1.0F;
+	fog_set_distances();
+}
+
 void Ogl1XRenderer::matrix_set_model()
 {
 	matrix_set_model_view();
@@ -1428,6 +1503,53 @@ void Ogl1XRenderer::command_execute_scissor_set_box(
 		scissor_height_ = command.height_;
 
 		scissor_set_box();
+	}
+}
+
+void Ogl1XRenderer::command_execute_fog_enable(
+	const RendererCommand::FogEnable& command)
+{
+	if (fog_is_enabled_ != command.is_enabled_)
+	{
+		fog_is_enabled_ = command.is_enabled_;
+
+		fog_set_is_enabled();
+	}
+}
+
+void Ogl1XRenderer::command_execute_fog_set_color(
+	const RendererCommand::FogSetColor& command)
+{
+	if (fog_color_ != command.color_)
+	{
+		fog_color_ = command.color_;
+
+		fog_set_color();
+	}
+}
+
+void Ogl1XRenderer::command_execute_fog_set_distances(
+	const RendererCommand::FogSetDistances& command)
+{
+	auto is_modified = false;
+
+	if (fog_start_distance_ != command.start_)
+	{
+		is_modified = true;
+
+		fog_start_distance_ = command.start_;
+	}
+
+	if (fog_end_distance_ != command.end_)
+	{
+		is_modified = true;
+
+		fog_end_distance_ = command.end_;
+	}
+
+	if (is_modified)
+	{
+		fog_set_distances();
 	}
 }
 

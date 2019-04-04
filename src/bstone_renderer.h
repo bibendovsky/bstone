@@ -73,6 +73,10 @@ enum class RendererCommandId
 
 	blending_enable,
 
+	fog_enable,
+	fog_set_color,
+	fog_set_distances,
+
 	matrix_set_model,
 	matrix_set_view,
 	matrix_set_model_view,
@@ -354,6 +358,37 @@ struct RendererCommand
 		bool is_enabled_;
 	}; // CullingEnabled
 
+	struct BlendingEnable
+	{
+		bool is_enabled_;
+	}; // EnableBlending
+
+	struct DepthSetTest
+	{
+		bool is_enabled_;
+	}; // DepthSetTest
+
+	struct DepthSetWrite
+	{
+		bool is_enabled_;
+	}; // DepthSetWrite
+
+	struct FogEnable
+	{
+		bool is_enabled_;
+	}; // FogEnable
+
+	struct FogSetColor
+	{
+		glm::vec4 color_;
+	}; // FogSetColor
+
+	struct FogSetDistances
+	{
+		float start_;
+		float end_;
+	}; // FogSetDistances
+
 	struct MatrixSetModel
 	{
 		glm::mat4 model_;
@@ -374,21 +409,6 @@ struct RendererCommand
 	{
 		glm::mat4 projection_;
 	}; // MatrixSetProjection
-
-	struct BlendingEnable
-	{
-		bool is_enabled_;
-	}; // EnableBlending
-
-	struct DepthSetTest
-	{
-		bool is_enabled_;
-	}; // DepthSetTest
-
-	struct DepthSetWrite
-	{
-		bool is_enabled_;
-	}; // DepthSetWrite
 
 	struct DrawQuads
 	{
@@ -415,6 +435,10 @@ struct RendererCommand
 		DepthSetWrite depth_set_write_;
 
 		BlendingEnable blending_enable_;
+
+		FogEnable fog_enable_;
+		FogSetColor fog_set_color_;
+		FogSetDistances fog_set_distances_;
 
 		MatrixSetModel matrix_set_model_;
 		MatrixSetView matrix_set_view_;

@@ -331,6 +331,11 @@ private:
 
 	bool texture_2d_is_enabled_;
 
+	bool fog_is_enabled_;
+	glm::vec4 fog_color_;
+	float fog_start_distance_;
+	float fog_end_distance_;
+
 	glm::mat4 matrix_model_;
 	glm::mat4 matrix_view_;
 	glm::mat4 matrix_model_view_;
@@ -397,6 +402,17 @@ private:
 	void texture_2d_set_defaults();
 
 
+	void fog_set_is_enabled();
+
+	void fog_set_mode();
+
+	void fog_set_color();
+
+	void fog_set_distances();
+
+	void fog_set_defaults();
+
+
 	void matrix_set_model();
 
 	void matrix_set_view();
@@ -427,6 +443,15 @@ private:
 
 	void command_execute_scissor_set_box(
 		const RendererCommand::ScissorSetBox& command);
+
+	void command_execute_fog_enable(
+		const RendererCommand::FogEnable& command);
+
+	void command_execute_fog_set_color(
+		const RendererCommand::FogSetColor& command);
+
+	void command_execute_fog_set_distances(
+		const RendererCommand::FogSetDistances& command);
 
 	void command_execute_matrix_set_model(
 		const RendererCommand::MatrixSetModel& command);
