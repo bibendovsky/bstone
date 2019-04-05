@@ -1383,6 +1383,8 @@ constexpr auto hw_3d_max_statics_indices = MAXSTATS * ::hw_3d_indices_per_sprite
 constexpr auto hw_3d_max_actor_indices = MAXACTORS * ::hw_3d_indices_per_sprite;
 constexpr auto hw_3d_max_sprites_indices = ::hw_3d_max_statics_indices + ::hw_3d_max_actor_indices;
 
+constexpr auto hw_3d_cloaked_actor_alpha_u8 = std::uint8_t{0x50};
+
 constexpr auto hw_min_2d_commands = 16;
 constexpr auto hw_min_3d_commands = 4096;
 
@@ -6290,6 +6292,59 @@ void hw_3d_uninitialize_sprites()
 	::hw_3d_uninitialize_sprites_vb();
 }
 
+void hw_3d_actor_update_cloak(
+	const Hw3dSprite& sprite)
+{
+	if (!sprite.flags_.is_visible_)
+	{
+		return;
+	}
+
+	if (sprite.kind_ != Hw3dSpriteKind::actor)
+	{
+		return;
+	}
+
+	const auto& actor = *sprite.bs_object_.actor_;
+
+	const auto is_cloaked = ((actor.flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED);
+
+	const auto vertex_color = (
+		is_cloaked
+		?
+		bstone::RendererColor32{0x00, 0x00, 0x00, ::hw_3d_cloaked_actor_alpha_u8}
+		:
+		bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF}
+	);
+
+
+	auto vertex_index = sprite.vertex_index_;
+
+	// Bottom-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+
+	// Bottom-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+
+	// Top-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+
+	// Top-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+}
+
 void hw_3d_orient_sprite(
 	Hw3dSprite& sprite)
 {
@@ -6412,6 +6467,8 @@ void hw_3d_orient_sprite(
 			::hw_3d_tile_dimension_f
 		};
 	}
+
+	::hw_3d_actor_update_cloak(sprite);
 }
 
 int hw_3d_calculate_actor_anim_rotation(
